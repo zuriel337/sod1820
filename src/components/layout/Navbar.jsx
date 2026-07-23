@@ -9,8 +9,6 @@ import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { WaDot } from "../../lib/userCenter/useWaLink.jsx";
 import { searchPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
-import { getContributorsFeed } from "../../lib/contributions.js";
-import { genAvatar } from "../../lib/avatar.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
 import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
@@ -20,6 +18,7 @@ import { useStream, STREAMS } from "../../lib/stream.js";
 import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
+import WritersRail from "../WritersRail.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
 
 // 🧩 hook נגיש לתפריטים-נפתחים: נפתח בריחוף (עכבר) *וגם* בקליק (מקלדת/מגע), נסגר
@@ -43,35 +42,8 @@ function useAccessibleMenu() {
   return { open, setOpen, ref, hoverProps };
 }
 
-// 👥 מפת-כתבים חיה במגירה — עדשה על contributors_feed (החוקרים הפעילים). מזין תנועה לדפי-החוקר
-//    (המשטח הציבורי/SEO) ומראה שהקהילה חיה. כל צ'יפ → דף החוקר; «כל החוקרים» → האינדקס.
-function DrawerWritersMap({ cc, onNavigate }) {
-  const [rows, setRows] = useState([]);
-  useEffect(() => {
-    let a = true;
-    getContributorsFeed(14).then(r => { if (a) setRows((r || []).filter(x => x.slug && x.display_name).slice(0, 12)); }).catch(() => {});
-    return () => { a = false; };
-  }, []);
-  if (!rows.length) return null;
-  return (
-    <div style={{ margin: "10px 8px 2px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2px 6px" }}>
-        <span style={{ color: cc.muted, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, letterSpacing: 1.2 }}>👥 הכתבים והחוקרים</span>
-        <Link to="/community/researchers" onClick={onNavigate} style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 11, fontWeight: 800, textDecoration: "none" }}>כל החוקרים →</Link>
-      </div>
-      {/* צ'יפים קומפקטיים — אווטאר קטן + שם בלבד; נגללים אופקית, לא תופסים גובה. */}
-      <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-        {rows.map(r => (
-          <Link key={r.slug} to={`/community/researcher/${r.slug}`} onClick={onNavigate}
-            style={{ flex: "none", display: "flex", alignItems: "center", gap: 6, textDecoration: "none", background: "rgba(212,175,55,0.06)", border: `1px solid ${cc.border}`, borderRadius: 999, padding: "4px 10px 4px 5px" }}>
-            <img src={genAvatar(r.display_name)} alt="" loading="lazy" style={{ width: 24, height: 24, borderRadius: "50%", border: `1px solid ${cc.borderGold}`, flex: "none" }} />
-            <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>{r.display_name}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
+// 👥 רשימת-הכתבים = רכיב קנוני WritersRail (variant="chrome") — מוצג במגירת-המובייל,
+//    בפאנל-התפריט בדסקטופ, וגם בעמוד «קהילה». מקור-אמת אחד, בלי שכפול.
 
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
@@ -398,6 +370,9 @@ function MenuPanel({ items, pathname, cc }) {
               </button>
             )}
           </div>
+          {/* 👥 רשימת-הכתבים — זהה למובייל ולעמוד «קהילה» (variant=page → עוקב אחר תמת-הפאנל) */}
+          <div style={{ height: 1, background: pc.tileBorder, margin: "16px 4px 2px" }} />
+          <WritersRail variant="page" wrap onNavigate={() => setOpen(false)} style={{ margin: "10px 2px 2px" }} />
         </div>
       )}
     </div>
@@ -792,8 +767,8 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          {/* 👥 מפת-כתבים חיה — קומפקטית, בתחתית התפריט (עדשה על contributors_feed) */}
-          <DrawerWritersMap cc={cc} onNavigate={() => setDrawer(false)} />
+          {/* 👥 רשימת-הכתבים — רכיב קנוני (זהה לדסקטופ ולעמוד קהילה) */}
+          <WritersRail variant="chrome" onNavigate={() => setDrawer(false)} />
           {/* סגירת התפריט — שורה תחתונה קומפקטית (טקסט, לא אריחים): צור קשר · הורדת האפליקציה */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap", padding: "14px 8px 4px", marginTop: 10, borderTop: `1px solid ${cc.border}` }}>
             <Link to="/contact" onClick={() => setDrawer(false)} style={{

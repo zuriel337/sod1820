@@ -21,6 +21,7 @@ export const LIGHT_ROUTES = [
   /^\/cross$/, /^\/topic(\/|$)/,
   /^\/post$/, /^\/community\/chat$/,
   /^\/verified$/, /^\/code$/, /^\/map$/, /^\/start$/,
+  /^\/community$/,   // 🫂 עמוד הקהילה — תומך יום/לילה (שאר /community/* נשארים כהים)
   /^\/category(\/|$)/, /^\/tag(\/|$)/, /^\/journey$/, /^\/מסע$/,
   /^\/languages$/, /^\/קשרי-שפות$/,   // 🌍 קשרי-שפות — מרחב מחקר בהיר-נקי
   POST_SLUG_RE,   // 🔒 פוסטים (/:slug) — תומכים בבהיר מערכתית
