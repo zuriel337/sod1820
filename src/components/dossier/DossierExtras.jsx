@@ -122,11 +122,13 @@ function ResearcherStatsCard({ P, c, name, level }) {
         )}
 
         {/* פירוק-ניקוד */}
-        {(s.accepted || s.validated || s.promoted) > 0 && (
+        {(s.accepted || s.validated || s.promoted || s.credited || s.post_gematria) > 0 && (
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>
             {s.accepted > 0 && <span>✅ {s.accepted} אושרו</span>}
             {s.validated > 0 && <span>🔬 {s.validated} אומתו</span>}
             {s.promoted > 0 && <span>💎 {s.promoted} הוקרנו לעץ</span>}
+            {s.credited > 0 && <span>📝 {s.credited} מוזכר בפוסטים</span>}
+            {s.post_gematria > 0 && <span>🔢 {s.post_gematria.toLocaleString("he-IL")} גימטריות בפוסטיו</span>}
           </div>
         )}
 
