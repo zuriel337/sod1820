@@ -472,7 +472,9 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
     if (!c?.user_id) return;
     let alive = true;
     // 🔑 הבעלים רואה את *כל* הצפנים שלו בתיק (כולל ממתינים) — כדי שצופן טרי יופיע מיד. צופה-אחר: רק ציבורי/בתיק.
-    const load = isOwner ? getMyMatrices(c.user_id).then(a => (a || []).filter(m => m.status !== "hidden")) : getMatricesByOwner(c.user_id);
+    // 🔑 בעלים רואה את *כל* «בתיק שלי» (self_published) — גם אם הצופן «מוסתר» (למשל כפילות של צופן שכבר פורסם).
+    //    «בתיק שלי» = חוזה-התצוגה בדף (כמו במגירה: «יופיעו בתיק המחקר — גם לפני אישור»). תואם לעדשה הציבורית getMatricesByOwner.
+    const load = isOwner ? getMyMatrices(c.user_id).then(a => (a || []).filter(m => m.self_published || m.status !== "hidden")) : getMatricesByOwner(c.user_id);
     load.then(r => { if (alive) { const arr = Array.isArray(r) ? r : []; setMatrices(arr); onCount?.(arr.length); } }).catch(() => { if (alive) onCount?.(0); });
     supabase.from("profiles").select("joined_at").eq("user_id", c.user_id).maybeSingle()
       .then(({ data }) => { if (alive) setJoinedAt(data?.joined_at || c.created_at || null); }).catch(() => { if (alive) setJoinedAt(c.created_at || null); });
