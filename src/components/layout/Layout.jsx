@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { C, F, GLOBAL_CSS } from "../../theme.js";
 import { PALETTES } from "../../lib/palette.js";
+import { supportsLight as routeSupportsLight, POST_SLUG_RE } from "../../lib/lightRoutes.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
@@ -15,37 +16,14 @@ import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import JoinCelebration from "../JoinCelebration.jsx";
 
-// דפים שכבר הוסבו לפלטה (תומכים במצב בהיר). שאר הדפים נשארים כהים *בכוח* —
-// כך מתג התמה גלובלי, בלי לשבור דפים שעוד לא מוגרו (בית-מדרש/טופיק/ארכיון/...).
-// להוספת דף מוגר חדש (למשל /post, /archive) — להוסיף כאן שורת regex.
-// 🔒 חקוק: נתיבי-מערכת בעלי-מקטע-אחד שנשארים כהים (לא מוגרו). כל השאר (/:slug) = פוסט → תומך בבהיר.
-const RESERVED_ROUTES = [
-  "about", "admin", "archive", "beit-midrash", "broadcasts", "chat", "code", "community", "contact",
-  "cross", "enter", "experience", "galaxy", "gallery", "gallery-updates", "gematria", "heichal",
-  "home-classic", "home-new", "journey", "lab", "languages", "login", "map", "members", "name", "number", "numbers",
-  "numbers-report", "post", "profile", "reality", "research", "reveal", "start", "stream", "sulamot",
-  "theme-preview", "timeline", "traffic", "verified",
-  "בית-חדש", "גימטריה", "דף-צאט-ראשי", "היכל", "הצלבה", "חישוב", "מסע", "ניסיון", "פוסטים-אחרונים", "פוסטים-אחרונים-2", "קשרי-שפות",
-].join("|");
-// פוסט = מקטע-אחד שאינו נתיב-מערכת שמור. (sulamot\d* מכסה sulamot2..11)
-const POST_SLUG_RE = new RegExp(`^\\/(?!(?:${RESERVED_ROUTES}|sulamot\\d+)(?:\\/|$))[^\\/]+$`);
-
-const LIGHT_ROUTES = [
-  /^\/$/, /^\/home-new$/, /^\/בית-חדש$/,
-  /^\/number(\/|$)/, /^\/name$/, /^\/שם$/,
-  /^\/cross$/, /^\/topic(\/|$)/,
-  /^\/post$/, /^\/community\/chat$/,
-  /^\/verified$/, /^\/code$/, /^\/map$/, /^\/start$/,
-  /^\/category(\/|$)/, /^\/tag(\/|$)/, /^\/journey$/, /^\/מסע$/,
-  /^\/languages$/, /^\/קשרי-שפות$/,   // 🌍 קשרי-שפות — מרחב מחקר בהיר-נקי
-  POST_SLUG_RE,   // 🔒 פוסטים (/:slug) — תומכים בבהיר מערכתית (תוקן: רקע-לילה שחור בפוסט בהיר)
-];
+// 🌗 רשימת הראוטים התומכים בבהיר עברה ל-src/lib/lightRoutes.js (מקור-אמת יחיד),
+// כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
 
 export default function Layout() {
   const { pathname, search } = useLocation();
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
   const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
-  const supportsLight = LIGHT_ROUTES.some(re => re.test(pathname));
+  const supportsLight = routeSupportsLight(pathname);
   // 📡 בדף הבית ובצ'אט: מוסתרת בועת מגירת-המספר, ובמקומה «פותח העדכונים» החי (LiveChannelFeed).
   //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));

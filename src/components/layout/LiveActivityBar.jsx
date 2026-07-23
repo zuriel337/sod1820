@@ -60,14 +60,17 @@ export default function LiveActivityBar() {
 
   const msgs = useLiveTicker();
   const [i, setI] = useState(0);
-  const idx = msgs.length ? i % msgs.length : 0;
+  const [paused, setPaused] = useState(false);   // ⏸ עצירה בריחוף-עכבר (דסקטופ) — כדי לקרוא פריט בלי שיתחלף
+  // אינדקס בטוח גם לערכים שליליים (דפדוף אחורה) — modulo מתמטי חיובי.
+  const idx = msgs.length ? ((i % msgs.length) + msgs.length) % msgs.length : 0;
   const cur = (msgs[idx] && typeof msgs[idx] === "object") ? msgs[idx] : null;
-  // קצב רגוע — כל פריט מוצג ~7 שניות ואז מתחלף.
+  const go = d => setI(x => x + d);   // ‹ › דפדוף ידני
+  // קצב רגוע — כל פריט מוצג ~7 שניות ואז מתחלף. עוצר בריחוף (paused) ובטאב מוסתר.
   useEffect(() => {
-    if (msgs.length < 2) return;
+    if (msgs.length < 2 || paused) return;
     const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, 7000);
     return () => clearTimeout(id);
-  }, [i, msgs.length]);
+  }, [i, msgs.length, paused]);
 
   // 🚫 CLS: לא מחזירים null לפני שהנתונים נטענים — זה גורם לרצועה «לקפוץ» פנימה בראש הדף
   //    ולדחוף את כל התוכן מטה (Cumulative Layout Shift). במקום — הרצועה נוכחת תמיד בגובה
@@ -96,10 +99,18 @@ export default function LiveActivityBar() {
           padding:3px 10px; border-radius:999px; white-space:nowrap; }
         .lt-badge i { width:6px; height:6px; border-radius:50%; background:#9c1322;
           box-shadow:0 0 6px #e0533a; animation: lt-dot 1.3s ease-in-out infinite; }
-        .lt-msg { max-width:100%; margin:0 auto; text-align:center; color:${barInk};
+        /* מרכז הטיקר — ‹ הודעה › בשורה, ניתן-ללחיצה (pointer-events:auto בתוך פס שהוא none) */
+        .lt-center { display:flex; align-items:center; justify-content:center; gap:6px;
+          max-width:100%; min-width:0; pointer-events:auto; }
+        .lt-msg { min-width:0; text-align:center; color:${barInk};
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
+        /* חצי-דפדוף ‹ › — עדינים, לא גונבים תשומת-לב; מתבהרים בריחוף */
+        .lt-nav { flex:none; background:none; border:none; cursor:pointer; line-height:1;
+          font-size:17px; font-weight:900; padding:2px 4px; border-radius:6px; opacity:0.55;
+          transition:opacity .15s, background .15s; }
+        .lt-nav:hover { opacity:1; background:rgba(212,175,55,0.15); }
         /* 📱 טלפון: «עכשיו באתר» (הריבוע הימני) מוסתר לגמרי — ההודעה ממורכזת בכל הרוחב, בלי גניבת-שורה. */
         /* 🌳 «מה חדש» — מיושר לקצה-השמאלי של המיכל (= סוף התפריט), מרוחק מציר-ההתגלות שיושב במרווח שמשמאל */
         .lt-wn { position:absolute; inset-inline-end:6px; top:50%; transform:translateY(-50%); pointer-events:auto; z-index:6; }
@@ -116,17 +127,25 @@ export default function LiveActivityBar() {
         <div className="lt-inner">
           <span className="lt-badge"><i aria-hidden />עכשיו באתר</span>
           <span className="lt-wn"><WhatsNewBadge /></span>
-          {/* פריט טרי אחד, לחיץ → מוביל למקומו (פוסט/זרם המציאות/מרכז המחקר/דף המספר).
+          {/* המרכז: ‹ פריט › — דפדוף ידני + עצירה בריחוף. פריט טרי אחד, לחיץ → מוביל למקומו.
               עד שנטען — משאירים את הגובה שמור (בלי טקסט) כדי שלא תהיה קפיצת-פריסה (CLS). */}
-          {cur && (
-            <div className="lt-msg" key={idx} style={{ pointerEvents: "auto" }}>
-              <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
-                <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
-                {cur.text}
-                <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
-              </Link>
-            </div>
-          )}
+          <div className="lt-center" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+            {msgs.length > 1 && (
+              <button className="lt-nav" onClick={() => go(-1)} aria-label="העדכון הקודם" style={{ color: barAccent }}>‹</button>
+            )}
+            {cur && (
+              <div className="lt-msg" key={idx}>
+                <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
+                  <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
+                  {cur.text}
+                  <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
+                </Link>
+              </div>
+            )}
+            {msgs.length > 1 && (
+              <button className="lt-nav" onClick={() => go(1)} aria-label="העדכון הבא" style={{ color: barAccent }}>›</button>
+            )}
+          </div>
         </div>
       </div>
     </div>
