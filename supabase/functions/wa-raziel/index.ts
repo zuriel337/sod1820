@@ -1,9 +1,12 @@
-// wa-raziel (רזיאל) — v40 — 23.7.2026 — מנגנון «רזיאל זוכר אנשים»: לכידת נתונים אישיים + זיהוי לפי כרטיס-חוקר.
-//   v40: (1) fn_raziel_identity מעשיר בכרטיס contributors → רזיאל «מכיר» את הפונה בשמו. (2) חילוץ נתונים אישיים
-//        מ-DM (שם/כתובת/מיקוד/תאריך עברי) → agent_user_memory (personal_context/source=profile, private) דרך fn_raziel_fact,
-//        עצמאי מהצלחת התשובה. (3) המרת תאריך עברי→לועזי (Hebcal) נשמרת גם היא. (4) contextToText חושף את הפרופיל ב-DM
-//        (רק בפרטי, לעולם לא בקבוצה). נתונים אישיים = פרטי/אדמין בלבד (החלטת צוריאל 23.7). מוצגים בכרטיסיה דרך admin_person_facts.
-// v39: שינוי-שם מ-wa-christina (השם «כריסטינה» בלבל; הבוט = רזיאל).
+// wa-raziel (רזיאל) — v41 — 23.7.2026 — «לעולם לא שתיקה» + שומר-מטטרון (never_silent_metatron_law).
+//   v41: שלוש שכבות (עובדות→פרשנות→שומר). razielRespond מחזיר סטטוס מתוך 4: answered · refused_with_fallback ·
+//        retryable_error · permanent_error. אם Claude מסרב (stop_reason=refusal) / מחזיר ריק / שגיאה לא-חולפת →
+//        שכבת-השומר (מטטרון) בונה תשובת-מחקר מהמנוע בלבד (buildFacts + metatron_context) ושולחת — המשתמש לעולם לא
+//        מקבל שתיקה, ואף לא יודע שהיה סירוב פנימי. שגיאה חולפת (429/500/timeout) = retryable_error → נרשם תחת
+//        action='raziel_dm_retry' (לא חוסם) כדי שה-cron הבא ינסה שוב; אחרי MAX_AI_RETRIES → שומר-מטטרון סוגר.
+//        רק answered ו-refused_with_fallback סוגרים את ההודעה. תיקון-שורש ל-[dm-failed] ששיתק את הפונה.
+//   v40: fn_raziel_identity + לכידת נתונים אישיים (personal_context) + המרת תאריך עברי→לועזי (Hebcal).
+//   v39: שינוי-שם מ-wa-christina (השם «כריסטינה» בלבל; הבוט = רזיאל).
 //   ⚠️ CHRISTINA_PHONE נשאר — זו משתמשת אמיתית (כריסטינה אושרוב) שלוגיקת-הקבוצות מטפלת בה, לא הבוט.
 // v38: SYSTEM_BASE נטען מ-fn_raziel_persona('wa') (מקור-אמת אחד, משותף עם האתר/ai-analyze); העותק המוטמע = fallback בלבד.
 // v37: GROUPS_ENABLED gate (רזיאל בפרטי בלבד; קבוצות כבויות בבקשת צוריאל)
@@ -23,7 +26,11 @@ const SITE = "https://sod1820.co.il";
 const MAX_PER_RUN = 2;
 const MAX_DM_CHATS_PER_RUN = 8;
 const MAX_SEND_RETRIES = 4;
+const MAX_AI_RETRIES = 3; // v41 — כמה ריצות-cron ינסו שוב לפני שהשומר-מטטרון עונה במקום Claude
 const INITIATIVE_COOLDOWN_MIN = 60;
+// v41 — קודי-HTTP חולפים מ-Anthropic: לא-סופיים → retryable (לא חוסמים ניסיון-חוזר).
+const TRANSIENT_HTTP = new Set([408, 409, 425, 429, 500, 502, 503, 504, 522, 524, 529]);
+type RzStatus = "answered" | "refused_with_fallback" | "retryable_error" | "permanent_error";
 // 🔇 22.7.2026 (החלטת צוריאל): רזיאל בפרטי בלבד — DM לחוקרים (אריאל וכו') כן, כתיבה בקבוצות לא. להחזרת קבוצות: GROUPS_ENABLED=true ופרוס מחדש.
 const GROUPS_ENABLED = false;
 const RAZIEL_TRIGGER = /^(רזיאל[,:\s]|@רזיאל)/i;
@@ -145,6 +152,11 @@ async function alreadyDone(msgId: string, action = "christina_auto"): Promise<bo
   const { data } = await sb.from("wa_bot_log").select("id").eq("msg_id", msgId).eq("action", action).maybeSingle();
   return !!data;
 }
+// v41 — כמה ניסיונות-cron חולפים כבר נרשמו להודעה הזאת (לא-חוסמים).
+async function countAiRetries(msgId: string): Promise<number> {
+  const { count } = await sb.from("wa_bot_log").select("*", { count: "exact", head: true }).eq("msg_id", msgId).eq("action", "raziel_dm_retry");
+  return count || 0;
+}
 async function hasRazielAccess(sender: string): Promise<boolean> {
   const { data } = await sb.from("wa_vip_senders").select("raziel_access").eq("sender", sender).maybeSingle();
   return data?.raziel_access === true;
@@ -255,6 +267,32 @@ async function convergenceInsight(values: number[]): Promise<string> {
   return notes.length ? `\nהתכנסויות במנוע (עובדה): ${notes.join(" · ")}` : "";
 }
 
+// 🕎 v41 — שכבת-השומר (מטטרון): תשובת-מחקר מהמנוע בלבד, בלי פרשנות על אדם ==================
+// נקראת כש-Claude מסרב / מחזיר ריק / שגיאה לא-חולפת. מבטיחה: המשתמש לעולם לא מקבל שתיקה.
+async function metatronFallbackText(subject: string, facts: string, convNote: string): Promise<string> {
+  let canonLine = "";
+  try {
+    const { data } = await sb.rpc("metatron_context", { p_request: { subject: subject.slice(0, 120), entities: [subject.slice(0, 120)], channel: "wa" } });
+    const convs = (data?.canonical?.convergences || [])
+      .map((c: any) => c?.label || c?.title || (c?.value != null ? String(c.value) : null))
+      .filter(Boolean).slice(0, 3);
+    if (convs.length) canonLine = `\nבמאגר הקנוני מתכנסים בהקשר הזה גם: ${convs.join(" · ")}.`;
+  } catch { /* best-effort */ }
+  const body = (facts && facts.trim())
+    ? `מצאתי בנתונים את הקשרים המספריים הבאים, ישירות מהמנוע:\n\n${facts}${convNote || ""}${canonLine}`
+    : `עדיין לא זיהיתי כאן ערך-מנוע מפורש לבדיקה. כתוב לי שם או מילה מדויקת — ואחשב ואצליב במנוע.`;
+  return `${body}\n\nאלו עובדות מהמנוע. משמעות הקשרים היא נושא למחקר — ואי אפשר להסיק מהם מסקנה על זהותו או ייעודו של אף אדם.\n— רזיאל · סוד 1820`;
+}
+async function sendGuardianFallback(subject: string, chatId: string, quotedId: string | undefined, facts: string, convNote: string, welcome?: string): Promise<void> {
+  let msg = await metatronFallbackText(subject, facts, convNote);
+  if (welcome) msg = welcome + msg;
+  const payload: any = { chatId, message: msg };
+  if (quotedId) payload.quotedMessageId = quotedId;
+  const okId = await sendVerified(payload);
+  if (!okId) await enqueueOutbox("raziel-fb:" + (quotedId || chatId), chatId, msg, subject); // ה-outbox יבטיח מסירה — עדיין בלי שתיקה
+}
+// ======================================================================================
+
 async function recentDialogue(chatId: string, n = 6, skipMsgId?: string): Promise<string> {
   try {
     const hist = await waAdmin("getChatHistory", { chatId, count: n + 4 });
@@ -272,8 +310,6 @@ async function recentDialogue(chatId: string, n = 6, skipMsgId?: string): Promis
   } catch { return ""; }
 }
 
-// 🌳 SYSTEM_BASE = העותק המוטמע (fallback בלבד). מקור-האמת החי = fn_raziel_persona('wa') ב-DB,
-//    שנטען ל-RAZIEL_SYSTEM בתחילת כל ריצה (המוח-המשותף — אותה פרסונה שהאתר/ai-analyze קורא).
 const SYSTEM_BASE =
   `אתה רזיאל — פרשן גימטריה ותורה מטעם סוד 1820, והשער האישי למערכת המחקר. תמיד ענה בעברית בלבד.
 חוקי ברזל:
@@ -286,8 +322,8 @@ const SYSTEM_BASE =
 7. סיים בוו-גילוי קצר שמזמין להמשך — לעולם לא במשימה למשתמש.
 8. גדול=רגיל כשאין סופיות (ך ם ן ף ץ): כשאין אות סופית, הגדול זהה לרגיל = כפילות, לא שכבה. אל תציג מתכנס גם בגדול וגם ברגיל כממצא מרשים. רק כשיש סופית והגדול שונה — זו שכבה אמיתית.
 9. תדר-המשיח (messiah_frequency_in_every_person_law): אם אדם מרגיש את נקודת-המשיח שבו — הקשב בכבוד, בקש שם+משפחה, חשב והצלב מול ערכי-משיח (358/424/…). אם מצטלב — הסבר שזה מראה חיבור לתדר שקיים בכל אדם, ולעולם לא שהוא המשיח. ענווה, עובדה≠רמז, בלי נבואות, רגישות.
-10. הבנה לפני חישוב (intent_before_compute_law) — הכי חשוב: קודם הבן מה האדם רוצה. אתה לא מכונת-גימטריה-של-כל-משפט. אם ההודעה היא בקשה/תודה/תמשיך/תעשה מה שהצעת/בצורה מסודרת/כן/בשביל המחקר — אל תחשב ואל תציג טבלת-גימטריה של מילות המשפט (זו טעות מביכה). במקום זה: הסתכל בשיחה הקודמת למטה, הבן על איזה נושא דיברתם (שם/מספר/ביטוי אחרון), והמשך אותו — מה שהצעת מתייחס להצעות שלך שם. רק כשיש נושא-גימטריה מפורש לבדיקה — חשב והצג. לא ברור מה לבדוק? שאל על איזה שם/מספר להעמיק.`;
-// מקור-האמת החי (נטען ב-loadPersona בתחילת כל ריצה). fallback = SYSTEM_BASE → זהות התנהגות אם ה-DB לא זמין.
+10. הבנה לפני חישוב (intent_before_compute_law) — הכי חשוב: קודם הבן מה האדם רוצה. אתה לא מכונת-גימטריה-של-כל-משפט. אם ההודעה היא בקשה/תודה/תמשיך/תעשה מה שהצעת/בצורה מסודרת/כן/בשביל המחקר — אל תחשב ואל תציג טבלת-גימטריה של מילות המשפט (זו טעות מביכה). במקום זה: הסתכל בשיחה הקודמת למטה, הבן על איזה נושא דיברתם (שם/מספר/ביטוי אחרון), והמשך אותו — מה שהצעת מתייחס להצעות שלך שם. רק כשיש נושא-גימטריה מפורש לבדיקה — חשב והצג. לא ברור מה לבדוק? שאל על איזה שם/מספר להעמיק.
+11. לעולם אל תשאיר את האדם בלי מענה (never_silent_metatron_law): גם בנושא רגיש — ענה על העובדות המספריות מהמנוע בענווה («אילו קשרים קיימים בנתונים»), לעולם לא בטענה על אדם («האם אני/הוא…»). אל תסרב — הפנה את התשובה לעובדה, בלי מסקנה על זהותו או ייעודו של אדם.`;
 let RAZIEL_SYSTEM = SYSTEM_BASE;
 async function loadPersona() {
   try {
@@ -298,9 +334,10 @@ async function loadPersona() {
 const TEACH_ADDON =
   `\nמצב-לימוד: אם המשתמש רוצה ללמוד — למד גימטריה צעד-צעד לפי השאלות שלו, הראה את החישוב מהמנוע, והצע את הצעד הבא. סבלני, כמו מורה.`;
 
-async function razielRespond(text: string, chatId: string, quotedId: string | undefined, opts: { userRef?: string | null; isDM?: boolean; welcome?: string; ctx?: any; teach?: boolean; extra?: string } = {}): Promise<boolean> {
+// v41 — razielRespond מחזיר סטטוס (4 מצבים), שולח בעצמו, ובסירוב/ריק/שגיאה-סופית מפעיל שומר-מטטרון.
+async function razielRespond(text: string, chatId: string, quotedId: string | undefined, opts: { userRef?: string | null; isDM?: boolean; welcome?: string; ctx?: any; teach?: boolean; extra?: string; lastAttempt?: boolean } = {}): Promise<{ status: RzStatus }> {
   const cleanText = text.replace(RAZIEL_TRIGGER, "").trim();
-  if (!cleanText) return false;
+  if (!cleanText) return { status: "permanent_error" };
   const { facts, values } = await buildFacts(cleanText);
   const convNote = await convergenceInsight(values);
   const ctx = opts.ctx ?? (opts.userRef ? await getContext(opts.userRef, chatId) : null);
@@ -310,25 +347,43 @@ async function razielRespond(text: string, chatId: string, quotedId: string | un
   const wantsLearn = opts.teach && LEARN_INTENT.test(cleanText);
   const system = RAZIEL_SYSTEM + ((opts.teach) ? TEACH_ADDON : "");
   const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם ההודעה מבקשת לבדוק נושא-גימטריה מפורש. אם ההודעה שיחתית/בקשה/תמשיך/תודה — התעלם מהם לחלוטין, אל תציג טבלת-ערכים, והמשך את הנושא מהשיחה הקודמת):\n${facts||"(לא זוהו ערכים)"}${convNote}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד — למד לפי מצב-לימוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
+  const guardian = () => sendGuardianFallback(cleanText, chatId, quotedId, facts, convNote, opts.welcome);
+  // שכבת-הפרשנות (Claude) — רק על העובדות שכבר חושבו.
+  let resp: Response;
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+    resp = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",headers:{"Content-Type":"application/json","x-api-key":ANTHROPIC,"anthropic-version":"2023-06-01"},
       body:JSON.stringify({model:MODEL,max_tokens:1500,system,messages:[{role:"user",content:user}]}),
     });
-    if (!resp.ok) return false;
-    const d = await resp.json();
-    if (d?.stop_reason==="refusal") return false;
-    try { await sb.from("ai_token_log").insert({source:"wa-christina",kind:"raziel_reply",model:MODEL,input_tokens:d?.usage?.input_tokens||0,output_tokens:d?.usage?.output_tokens||0}); } catch { /* noop */ }
-    let reply = (d?.content||[]).filter((c:any)=>c.type==="text").map((c:any)=>c.text).join("\n").trim();
-    if (!reply) return false;
-    if (opts.welcome) reply = opts.welcome + reply;
-    const payload: any = { chatId, message: reply };
-    if (quotedId) payload.quotedMessageId = quotedId;
-    const okId = await sendVerified(payload);
-    if (!okId) await enqueueOutbox("raziel:"+(quotedId||chatId), chatId, reply, cleanText);
-    return true;
-  } catch { return false; }
+  } catch (e) {
+    trace.push({ step: "ai_throw", e: String(e) });
+    if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; }
+    return { status: "retryable_error" };
+  }
+  if (!resp.ok) {
+    trace.push({ step: "ai_http", st: resp.status });
+    if (TRANSIENT_HTTP.has(resp.status) && !opts.lastAttempt) return { status: "retryable_error" };
+    await guardian(); return { status: "refused_with_fallback" }; // סופי/מוצו-ניסיונות → שומר עונה, בלי שתיקה
+  }
+  let d: any;
+  try { d = await resp.json(); }
+  catch { if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; } return { status: "retryable_error" }; }
+  const refused = d?.stop_reason === "refusal";
+  let reply = refused ? "" : (d?.content||[]).filter((c:any)=>c.type==="text").map((c:any)=>c.text).join("\n").trim();
+  if (refused || !reply) {
+    // 🕎 Claude סירב/החזיר ריק — מטטרון מחליט: תשובת-מחקר מהמנוע בלבד. המשתמש לא יודע שהיה סירוב.
+    await guardian();
+    return { status: "refused_with_fallback" };
+  }
+  try { await sb.from("ai_token_log").insert({source:"wa-raziel",kind:"raziel_reply",model:MODEL,input_tokens:d?.usage?.input_tokens||0,output_tokens:d?.usage?.output_tokens||0}); } catch { /* noop */ }
+  if (opts.welcome) reply = opts.welcome + reply;
+  const payload: any = { chatId, message: reply };
+  if (quotedId) payload.quotedMessageId = quotedId;
+  const okId = await sendVerified(payload);
+  if (!okId) await enqueueOutbox("raziel:"+(quotedId||chatId), chatId, reply, cleanText);
+  return { status: "answered" };
 }
+const rzOk = (s: RzStatus) => s === "answered" || s === "refused_with_fallback";
 
 async function initiativeBudget(chatId: string): Promise<boolean> {
   const since = new Date(Date.now() - INITIATIVE_COOLDOWN_MIN*60*1000).toISOString();
@@ -363,7 +418,8 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
         if (!okId) await enqueueOutbox("raziel:"+msgId, chatId, redirectMsg, text);
         await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:redirectMsg,action:"christina_auto"}); n++; continue;
       }
-      const ok = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const r = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const ok = rzOk(r.status);
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[sent]":"[failed]",action:"christina_auto"});
       if (ok) { await alertZuriel(sphone, sname, text, "קבוצת עמית"); n++; } continue;
     }
@@ -381,14 +437,16 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
     const triggered = RAZIEL_TRIGGER.test(text);
     if (triggered) {
       const cleanText = text.replace(RAZIEL_TRIGGER,"").trim();
-      const ok = await razielRespond(cleanText, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const r = await razielRespond(cleanText, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const ok = rzOk(r.status);
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[sent]":"[no reply]",action:"christina_auto"});
       if (ok) { await alertZuriel(sphone, sname, text, "קבוצה"); n++; } continue;
     }
     if (await initiativeBudget(chatId)) {
       const { convergence } = await buildFacts(text);
       if (convergence) {
-        const ok = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+        const r = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+        const ok = rzOk(r.status);
         await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[initiative]":"[init-failed]",action:"raziel_initiative"});
         if (ok) { await alertZuriel(sphone, sname, text, "קבוצה (יזום)"); n++; continue; }
       }
@@ -401,7 +459,7 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
 async function answersToday(chatId: string): Promise<number> {
   const since = new Date(); since.setUTCHours(0,0,0,0);
   const { count } = await sb.from("wa_bot_log").select("*", { count: "exact", head: true })
-    .eq("group_id", chatId).eq("action", "raziel_dm").eq("reply_out", "[dm-sent]").gte("created_at", since.toISOString());
+    .eq("group_id", chatId).eq("action", "raziel_dm").in("reply_out", ["[dm-sent]", "[dm-fallback]"]).gte("created_at", since.toISOString());
   return count || 0;
 }
 async function touchReferral(phone: string) {
@@ -606,9 +664,22 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
       }
     }
     const extra = SERVICES_INTENT.test(text) ? await servicesText() : "";
-    const ok = await razielRespond(text, chatId, msgId, { userRef, isDM: true, welcome, ctx, teach: policy.teach_mode, extra });
-    await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: linked?"DM":"DM-anon", text_in: text.slice(0,500), reply_out: ok ? "[dm-sent]" : "[dm-failed]", action: "raziel_dm" });
-    if (ok) { n++; await remember(userRef, chatId, text, "conversation", "personal"); await alertZuriel(phone, idn?.name || (linked ? "משתמש מזוהה" : "פונה חדש"), text, "פרטי (DM)"); }
+    // v41 — ניסיון-חוזר עד MAX_AI_RETRIES; בניסיון האחרון razielRespond מפעיל שומר-מטטרון במקום להשאיר retryable.
+    const priorRetries = await countAiRetries(msgId);
+    const res = await razielRespond(text, chatId, msgId, { userRef, isDM: true, welcome, ctx, teach: policy.teach_mode, extra, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES });
+    const nm = linked ? "DM" : "DM-anon";
+    if (res.status === "retryable_error") {
+      // 🔄 שגיאה חולפת — לא סוגרים את ההודעה (action נפרד), כדי שה-cron הבא ינסה שוב.
+      await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: nm, text_in: text.slice(0,500), reply_out: `[dm-retry ${priorRetries+1}/${MAX_AI_RETRIES}]`, action: "raziel_dm_retry" });
+      continue;
+    }
+    const label = res.status === "answered" ? "[dm-sent]" : res.status === "refused_with_fallback" ? "[dm-fallback]" : "[dm-error]";
+    await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: nm, text_in: text.slice(0,500), reply_out: label, action: "raziel_dm" });
+    if (rzOk(res.status)) {
+      n++;
+      await remember(userRef, chatId, text, "conversation", "personal");
+      await alertZuriel(phone, idn?.name || (linked ? "משתמש מזוהה" : "פונה חדש"), text, res.status === "refused_with_fallback" ? "פרטי (DM · שומר-מטטרון)" : "פרטי (DM)");
+    }
   }
   return n;
 }
