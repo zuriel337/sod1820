@@ -136,6 +136,15 @@ export async function getGrowthCenter(days = 30) {
   return data;
 }
 
+// 🚀 טבלת-השגרירים — מי מפיץ קישורים (rid) ומביא אנשים/הרשמות. עצמאי מ-getGrowthCenter
+// כדי לא להכביד על הטעינה הראשית (כמו getGaInsights). אדמין-בלבד (RPC SECURITY DEFINER).
+export async function getAmbassadors(days = 30) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_ambassadors", { p_days: days });
+  if (error) throw error;
+  return data;
+}
+
 // ── 🧭 דשבורד המסעות (מנהל) — זמן+צפיות לכל דף/כלי-מעבדה + מסע-לכל-מבקר ──
 export async function getPageDwell(hours = 168) {
   if (!supabase) return null;

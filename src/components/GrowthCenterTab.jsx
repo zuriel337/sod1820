@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
-import { getGrowthCenter, getGaInsights } from "../lib/visits.js";
+import { getGrowthCenter, getGaInsights, getAmbassadors } from "../lib/visits.js";
 import { CLARITY_CONFIGURED, clarityUrl } from "../lib/clarity.js";
 
 // 📈 מרכז הצמיחה — דשבורד-על אחד (Meta Growth OS) על events + subscribers + email_events.
@@ -113,6 +113,7 @@ function CmpRow({ icon, label, n, note, color, big }) {
 export default function GrowthCenterTab() {
   const [d, setD] = useState(null);
   const [ga, setGa] = useState(undefined); // undefined=טוען · null=לא זמין · object=נתונים
+  const [amb, setAmb] = useState(undefined); // טבלת-שגרירים — עצמאי
   const [days, setDays] = useState(7);
   const [err, setErr] = useState(null); // null=אין · 'forbidden' · 'error'
   const [refreshing, setRefreshing] = useState(false);
@@ -129,6 +130,11 @@ export default function GrowthCenterTab() {
     getGaInsights(days)
       .then(res => { if (live) setGa(res && res.configured !== false && !res.error ? res : null); })
       .catch(() => { if (live) setGa(null); });
+    // 🚀 שגרירים — עצמאי; כישלון לא שובר את הטאב
+    setAmb(undefined);
+    getAmbassadors(days)
+      .then(res => { if (live) setAmb(res && !res.error ? res : null); })
+      .catch(() => { if (live) setAmb(null); });
     return () => { live = false; };
   }, [days]);
 
@@ -413,6 +419,52 @@ export default function GrowthCenterTab() {
           )}
         </Panel>
       </div>
+
+      {/* 🚀 השגרירים — מי מפיץ ומביא (rid propagation) */}
+      {amb !== null && (() => {
+        const rows = amb?.ambassadors || [];
+        const tot = amb?.totals || {};
+        const pageLabel = (l) => { try { const s = decodeURIComponent(l || ""); return s === "home" ? "🏠 דף הבית" : s === "research" ? "🔬 מרכז המחקר" : s; } catch { return l || "—"; } };
+        const medal = (i) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}`;
+        return (
+          <Panel title="🚀 השגרירים — מי מפיץ ומביא אנשים"
+            right={amb === undefined ? <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11 }}>טוען…</span>
+              : <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11 }}>{(tot.ambassadors || 0).toLocaleString("he")} משתפים · {(tot.reached || 0).toLocaleString("he")} אנשים הגיעו</span>}>
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginBottom: 12 }}>
+              כל שיתוף נושא <code>rid</code> של המשתף. כאן רואים <b>מי הקישורים שלו באמת הביאו אנשים</b> (לא רק קליקים) — השגרירים שלך. מחובר = שם; לא-מחובר = אנונימי (מזוהה כשיירשם/יתחבר).
+            </div>
+            {amb === undefined ? (
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען שגרירים…</div>
+            ) : rows.length === 0 ? (
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>עדיין אין הגעות דרך שיתוף מתויג בטווח הזה.</div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: F.body, fontSize: 13 }}>
+                  <thead><tr style={{ color: L.sub }}>
+                    {["#", "שגריר", "אנשים שהגיעו", "כניסות", "נרשמו", "מפיץ בעיקר"].map((h, i) => (
+                      <th key={i} style={{ textAlign: "start", padding: "6px 8px", borderBottom: `1px solid ${L.line}`, whiteSpace: "nowrap" }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {rows.map((a, i) => (
+                      <tr key={i}>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontSize: 15 }}>{medal(i)}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, color: a.identified ? L.blue : L.sub, fontWeight: a.identified ? 700 : 400 }} dir={a.identified ? "ltr" : "rtl"}>
+                          {a.identified ? a.name : `👤 אנונימי · ${String(a.rid || "").slice(0, 6)}`}
+                        </td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontFamily: "'Courier New',monospace", fontWeight: 800, color: L.purple }}>{(a.reached || 0).toLocaleString("he")}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontFamily: "'Courier New',monospace", color: L.sub }}>{(a.arrivals || 0).toLocaleString("he")}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontFamily: "'Courier New',monospace", fontWeight: 800, color: a.signups > 0 ? L.green : L.sub }}>{a.signups || ""}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, color: L.ink, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={pageLabel(a.top_landing)}>{pageLabel(a.top_landing)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
+        );
+      })()}
 
       {/* 🎯 מקור-הגעה אמיתי — לינק-משותף מול ישיר (attribution) */}
       <Panel title="🎯 מקור-הגעה אמיתי של נרשמים — לינק-משותף מול ישיר">
