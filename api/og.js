@@ -228,6 +228,28 @@ export default async function handler(req, res) {
           : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}`;
       }
     } catch { /* fallback to defaults */ }
+  } else if (key.startsWith('/community/researcher/')) {
+    // 👤 דף חוקר קנוני (contributors) — כרטיס-שיתוף ממותג עם שם החוקר ותפקידו.
+    // המשטח הציבורי/SEO של האדם (canonical_ui_components_law — כל URL קנוני = ענף OG).
+    let slug = key.slice('/community/researcher/'.length);
+    try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    if (slug && slug !== 'me') {
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/contributors?or=(code.eq.${encodeURIComponent(slug)},slug.eq.${encodeURIComponent(slug)})&select=display_name,role,avatar_url,media,code,slug&limit=1`, { headers: ogHeaders });
+        const rows = await r.json();
+        const c = Array.isArray(rows) && rows[0];
+        if (c && c.display_name) {
+          const nm = stripHtml(c.display_name);
+          const roleTxt = stripHtml(c.role || 'חוקר');
+          title = `${nm} — דף חוקר · ${SITE_NAME}`;
+          desc = cleanDesc(`הגילויים, האוצרות והרמזים של ${nm} · ${roleTxt} · סוד 1820`, 180) || DEFAULT_DESC;
+          type = 'profile';
+          const firstImg = c.avatar_url || (Array.isArray(c.media) ? (c.media.find(e => e && e.url) || {}).url : null);
+          image = firstImg ? waSafeImage(firstImg)
+            : `${SITE}/api/card?w=${encodeURIComponent(nm)}&sub=${encodeURIComponent('דף חוקר · סוד 1820')}`;
+        }
+      } catch { /* fallback to defaults */ }
+    }
   } else {
     // לטפל כ-slug של פוסט.
     // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים

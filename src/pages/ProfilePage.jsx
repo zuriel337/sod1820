@@ -362,6 +362,14 @@ export default function ProfilePage() {
     return () => clearTimeout(t);
   }, [user, profile]);
 
+  // 🔒 האזור האישי פרטי — לא לאינדקס (SEO = דף החוקר הציבורי בלבד). מונע דליפת דף-משתמש לגוגל.
+  useEffect(() => {
+    const m = document.createElement("meta");
+    m.name = "robots"; m.content = "noindex, nofollow";
+    document.head.appendChild(m);
+    return () => { try { document.head.removeChild(m); } catch { /* noop */ } };
+  }, []);
+
   if (!loading && !user) {
     return (
       <div style={{ background: P.pageBg, minHeight: "100vh" }}>
