@@ -758,6 +758,30 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
 
+// 🤖 askRaziel — קורא למוח (ai-analyze persona=raziel) ומחזיר את חוזה raziel_response_contract (v1).
+//    תאימות-לאחור: כל עוד המוח מחזיר מחרוזת בלבד (data.analysis) — עוטף כ-{v:1, answer}. quota → null.
+//    path = מסלול-מחקר שהמשתמש בחר (המוח מחליט אילו מסלולים קיימים; ה-UI רק מציג). context = הקשר-המשתמש.
+export async function askRaziel({ subject, facts, context = null, path = null, again = false }) {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.functions.invoke('ai-analyze', {
+      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, visitor_id: aiVisitorId() },
+    });
+    if (error) return null;
+    if (data?.error === 'quota') {
+      try { window.dispatchEvent(new CustomEvent('sod:ai-quota', { detail: { tier: data.tier, used: data.used, limit: data.limit, message: data.message } })); } catch { /* noop */ }
+      return null;
+    }
+    const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
+    if (c && typeof c === 'object') return { v: 1, ...c };
+    if (data?.analysis) {   // fallback — עוטף את המחרוזת הנוכחית כחוזה מינימלי
+      try { logAiAnalysis({ kind: 'research', subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis }); } catch { /* noop */ }
+      return { v: 1, answer: data.analysis };
+    }
+    return null;
+  } catch { return null; }
+}
+
 // ===== 🧪 מעבדת-הסגנון (ai_style_learning_law) =====
 // העיקרון (החלטת צוריאל 12.7.2026): המנוע מייצר נתונים → המערכת מסכמת מגמות → האדם מחליט.
 // המשוב משנה סגנון והגשה בלבד — לעולם לא עובדות. אין שום למידה אוטומטית שמשנה סגנון.
