@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
 import { getGrowthCenter, getGaInsights } from "../lib/visits.js";
+import { CLARITY_CONFIGURED, clarityUrl } from "../lib/clarity.js";
 
 // 📈 מרכז הצמיחה — דשבורד-על אחד (Meta Growth OS) על events + subscribers + email_events.
 // מקטעים: ⚡ זמן-אמת · ✉️ מייל ומנויים · 🚪 משפך-וולקום · 🌐 מקורות-הגעה מתויגים · 🔗 לולאת-שיתוף.
@@ -233,6 +234,32 @@ export default function GrowthCenterTab() {
             <GaMini title="🌐 מקורות" items={ga.sources} />
             <GaMini title="📱 מכשירים" items={ga.devices} />
             <GaMini title="🌍 מדינות" items={ga.countries} />
+          </div>
+        </Panel>
+      )}
+
+      {/* 🎥 הקלטות-סשן — Microsoft Clarity */}
+      {CLARITY_CONFIGURED && (
+        <Panel title="🎥 הקלטות-סשן ומפות-חום — Microsoft Clarity"
+          right={<span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: L.green, fontFamily: F.body, fontSize: 11.5, fontWeight: 700 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: L.green, boxShadow: `0 0 6px ${L.green}` }} />מקליט חי</span>}>
+          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginBottom: 12 }}>
+            רואים <b style={{ color: L.ink }}>בעיניים</b> מה גולשים אמיתיים עושים — היכן הם עוצרים, לוחצים, מתייאשים (rage-clicks) ואיפה עוזבים. Clarity מסנן בוטים בעצמו, אז זו עוד זווית על <b>התנועה האנושית</b>. הדשבורד נפתח בלשונית חדשה (לא ניתן להטמעה).
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {[
+              ["🎥 צפייה בהקלטות", "impressions", L.purple, "כל סשן כסרטון — לצפות במסע האמיתי"],
+              ["🔥 מפות-חום", "heatmaps", L.red, "היכן לוחצים / גוללים בכל עמוד"],
+              ["📊 דשבורד Clarity", "dashboard", L.blue, "rage-clicks · dead-clicks · scroll · שגיאות"],
+            ].map(([label, view, col, sub]) => (
+              <a key={view} href={clarityUrl(view)} target="_blank" rel="noopener noreferrer"
+                style={{ flex: "1 1 190px", textDecoration: "none", background: L.card, border: `1px solid ${col}44`, borderRadius: 14, padding: "14px 16px", display: "block" }}>
+                <div style={{ color: col, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>{label} ←</div>
+                <div style={{ color: L.sub, fontFamily: F.body, fontSize: 11.5, marginTop: 4, lineHeight: 1.5 }}>{sub}</div>
+              </a>
+            ))}
+          </div>
+          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 11, marginTop: 11, lineHeight: 1.6 }}>
+            💡 טיפ: בתוך Clarity אפשר לסנן הקלטות לפי דף (למשל <code>/welcome</code>), לפי מכשיר, ולפי אירועים כמו rage-click — כדי לראות בדיוק איפה נתקעים.
           </div>
         </Panel>
       )}
