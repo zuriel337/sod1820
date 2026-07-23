@@ -1,5 +1,6 @@
-// wa-christina (רזיאל) — v38 — 23.7.2026 — פרסונה ממקור-אמת יחיד (fn_raziel_persona) — המוח-המשותף עם ai-analyze
-// v38: SYSTEM_BASE נטען מ-fn_raziel_persona('wa') (מקור-אמת אחד, משותף עם האתר); העותק המוטמע = fallback בלבד.
+// wa-raziel (רזיאל) — v39 — 23.7.2026 — שינוי-שם מ-wa-christina (השם «כריסטינה» בלבל; הבוט = רזיאל).
+//   ⚠️ CHRISTINA_PHONE נשאר — זו משתמשת אמיתית (כריסטינה אושרוב) שלוגיקת-הקבוצות מטפלת בה, לא הבוט.
+// v38: SYSTEM_BASE נטען מ-fn_raziel_persona('wa') (מקור-אמת אחד, משותף עם האתר/ai-analyze); העותק המוטמע = fallback בלבד.
 // v37: GROUPS_ENABLED gate (רזיאל בפרטי בלבד; קבוצות כבויות בבקשת צוריאל)
 // v36: christina in gilui not fully muted — occasional reply on convergence (+cooldown), not her private space.
 // v35: intent_before_compute_law — הבנה לפני חישוב. רצף-שיחה + חוק-ברזל 10 (לא מגמטרים משפט-שיחה).
