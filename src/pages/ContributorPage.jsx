@@ -135,6 +135,7 @@ export default function ContributorPage() {
   }, [slug]);
 
   const [posts, setPosts] = useState([]);
+  const [dossierCount, setDossierCount] = useState(null);   // כמות הצפנים בתיק (לשומר-האיכות-הרך של SEO)
   const [tagged, setTagged] = useState([]);       // 📌 פוסטים המתויגים בשמו (מופיע בהם, לא בהכרח כתב)
   const [convergences, setConvergences] = useState([]); // 🎯 ההתכנסויות שלו (topic_cards)
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
@@ -194,15 +195,19 @@ export default function ContributorPage() {
     return () => { alive = false; };
   }, [c?.user_id]);
 
-  // דף נעול / בבנייה / תיק לא-רשום או פרטי → לא נכנס לאינדקס של גוגל
+  // נעול / בבנייה / לא-רשום/פרטי / תיק-ריק → לא נכנס לאינדקס.
+  // שומר-איכות רך (researcher_dossier_law): תיק בלי צפנים/מדיה/מחקרים = noindex עד שיש תוכן —
+  // פתיחות לכולם בלי להציף את גוגל באלפי דפים-דלים. (אין סף-דרגה — «חוקר»=תג-כבוד בלבד.)
   useEffect(() => {
     const vis = c?.dossier_settings?.visibility || "public";
-    if (!c?.locked && !c?.building && vis === "public") return;
+    const mediaCount = Array.isArray(c?.media) ? c.media.length : 0;
+    const hasContent = (dossierCount || 0) > 0 || mediaCount > 0 || posts.length > 0;
+    if (!c?.locked && !c?.building && vis === "public" && hasContent) return;
     const m = document.createElement("meta");
     m.name = "robots"; m.content = "noindex";
     document.head.appendChild(m);
     return () => { try { document.head.removeChild(m); } catch { /* noop */ } };
-  }, [c?.locked, c?.building, c?.dossier_settings?.visibility]);
+  }, [c?.locked, c?.building, c?.dossier_settings?.visibility, c?.media, dossierCount, posts.length]);
 
   // 📝 הפוסטים על שמו — עדשה על posts. כולל פוסטים שכתב (author) וגם שהשתתף בהם (authors[]).
   // «participated» = הכתב הראשי הוא מישהו אחר → מסומן «בהשתתפות».
@@ -396,7 +401,7 @@ export default function ContributorPage() {
       </div>
 
       {/* 📁 אזורי תיק-המחקר (researcher_dossier_law) — כרגע-אני-חוקר · השפעה · תחומים · צפנים · יומן. המחקר במרכז. */}
-      <DossierExtras P={P} c={c} level={level} isOwner={!!(user?.id && c.user_id && user.id === c.user_id)} />
+      <DossierExtras P={P} c={c} level={level} isOwner={!!(user?.id && c.user_id && user.id === c.user_id)} onCount={setDossierCount} />
 
       {/* 🎨 גלריה מודגשת בראש — כתב עם feature_media (contributor_featured_media_law · כרגע ציון). תמונות+טקסט ראשונים למעלה. */}
       {c.feature_media && waUpdates.filter(u => u.image_url).length > 0 && (

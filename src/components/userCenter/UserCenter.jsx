@@ -836,8 +836,6 @@ function MyCodesPanel({ T, user, goto }) {
       if (r?.ok) {
         setItems(list => list.map(x => x.id === m.id ? { ...x, self_published: r.self_published } : x));
         setNote(r.self_published ? "✓ נוסף לתיק המחקר שלך" : "הוסר מהתיק");
-      } else if (r?.error === "level_too_low") {
-        setNote(`כדי להציג צפנים בתיק צריך דרגת «חוקר» (דרגה ${r.required}). אתה בדרגה ${r.level} — עוד קצת מחקר ותגיע!`);
       } else {
         setNote("לא הצלחנו לעדכן — נסה שוב.");
       }

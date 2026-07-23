@@ -274,7 +274,7 @@ function OwnerControls({ P, visibility, onSave }) {
   );
 }
 
-export default function DossierExtras({ P, c, level, isOwner }) {
+export default function DossierExtras({ P, c, level, isOwner, onCount }) {
   const [matrices, setMatrices] = useState([]);
   const [joinedAt, setJoinedAt] = useState(null);
   const [settings, setSettings] = useState(c?.dossier_settings || {});
@@ -285,7 +285,7 @@ export default function DossierExtras({ P, c, level, isOwner }) {
   useEffect(() => {
     if (!c?.user_id) return;
     let alive = true;
-    getMatricesByOwner(c.user_id).then(r => { if (alive) setMatrices(Array.isArray(r) ? r : []); }).catch(() => {});
+    getMatricesByOwner(c.user_id).then(r => { if (alive) { const arr = Array.isArray(r) ? r : []; setMatrices(arr); onCount?.(arr.length); } }).catch(() => { if (alive) onCount?.(0); });
     supabase.from("profiles").select("joined_at").eq("user_id", c.user_id).maybeSingle()
       .then(({ data }) => { if (alive) setJoinedAt(data?.joined_at || c.created_at || null); }).catch(() => { if (alive) setJoinedAt(c.created_at || null); });
     return () => { alive = false; };
