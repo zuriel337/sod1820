@@ -105,6 +105,7 @@ export default function LiveChannelFeed() {
   const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
   const [vid, setVid] = useState(null);     // וידאו לניגון (מתנגן רק בהקשה — Egress)
   const [tick, setTick] = useState(0);       // רוטציה של שורת-העדכון האחרון בגלולה הצפה
+  const [exp, setExp] = useState({});        // הודעות שנפתחו במלואן («קרא עוד») — לא חותכים הודעה ארוכה
   const bodyRef = useRef(null);
   const seenTop = useRef(0);
 
@@ -225,7 +226,9 @@ export default function LiveChannelFeed() {
         .lcf-snd{display:flex;align-items:center;gap:5px;font-family:${F.heading};font-size:12px;font-weight:700;margin-bottom:2px;line-height:1.2}
         .lcf-ai{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;color:${dark ? "#7fe0c4" : "#027a5f"};margin-bottom:2px}
         .lcf-ai .rb2{width:15px;height:15px;border-radius:5px;background:linear-gradient(135deg,#25d366,#009e78);display:grid;place-items:center;font-size:9px}
-        .lcf-tx{font-family:${F.body};font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
+        .lcf-tx{font-family:${F.body};font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+        .lcf-tx.clamp{display:-webkit-box;-webkit-line-clamp:10;-webkit-box-orient:vertical;overflow:hidden}
+        .lcf-more{background:none;border:none;cursor:pointer;color:${dark ? "#53bdeb" : "#027eb5"};font-family:${F.heading};font-size:12px;font-weight:800;padding:2px 0 0;margin-top:1px}
         .lcf-tx a.lcf-link{color:${dark ? "#53bdeb" : "#027eb5"};text-decoration:underline;text-underline-offset:2px;word-break:break-all;font-weight:600}
         .lcf-md{margin-top:5px;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.16);border-radius:6px;padding:3px 9px;font-size:11px;opacity:.9}
         /* תמונה בבועה — תצוגה מקדימה, הקשה מגדילה */
@@ -299,8 +302,17 @@ export default function LiveChannelFeed() {
                             <span className="lcf-tap">🔍 הקש להגדלה</span>
                           </button>
                         )}
-                        {u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו" &&
-                          <div className="lcf-tx">{linkify(u.text)}</div>}
+                        {u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו" && (() => {
+                          const long = (u.text || "").length > 240 || ((u.text || "").match(/\n/g) || []).length > 9;
+                          const rid = (u.id || i) + "" + u.ch;
+                          const isOpen = !!exp[rid];
+                          return (
+                            <>
+                              <div className={"lcf-tx" + (long && !isOpen ? " clamp" : "")}>{linkify(u.text)}</div>
+                              {long && <button className="lcf-more" onClick={() => setExp(e => ({ ...e, [rid]: !e[rid] }))}>{isOpen ? "פחות ▴" : "קרא עוד ▾"}</button>}
+                            </>
+                          );
+                        })()}
                         {u.image_url && isVideo(u.image_url) && (
                           <button className="lcf-md" onClick={() => setVid(u.image_url)} style={{ cursor: "pointer", border: "none", font: "inherit", color: WA.recvInk, width: "100%", textAlign: "start" }}>🎬 וידאו · הקש לצפייה</button>
                         )}
