@@ -9,6 +9,7 @@ import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import DossierExtras from "../components/dossier/DossierExtras.jsx";
+import DossierOnboarding from "../components/dossier/DossierOnboarding.jsx";
 import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
@@ -136,6 +137,7 @@ export default function ContributorPage() {
 
   const [posts, setPosts] = useState([]);
   const [dossierCount, setDossierCount] = useState(null);   // כמות הצפנים בתיק (לשומר-האיכות-הרך של SEO)
+  const [showOnboard, setShowOnboard] = useState(false);    // 🧙 אשף הכנת-תיק (כניסה ראשונה של הבעלים)
   const [tagged, setTagged] = useState([]);       // 📌 פוסטים המתויגים בשמו (מופיע בהם, לא בהכרח כתב)
   const [convergences, setConvergences] = useState([]); // 🎯 ההתכנסויות שלו (topic_cards)
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
@@ -270,6 +272,12 @@ export default function ContributorPage() {
     });
   }, [c]);
 
+  // 🧙 כניסה ראשונה של הבעלים לתיק (בלי onboarded) → אשף הכנת-תיק במקום דף ריק
+  useEffect(() => {
+    if (c && user?.id && c.user_id === user.id && !(c.dossier_settings?.onboarded)) setShowOnboard(true);
+    else setShowOnboard(false);
+  }, [c, user]);
+
   const media = useMemo(() => (Array.isArray(c?.media) ? c.media : []), [c]);
   const digest = media.find(e => e.kind === "digest");
   const header = media.find(e => e.kind === "scan-header");
@@ -362,6 +370,11 @@ export default function ContributorPage() {
   return (
     <PaletteProvider value={PALETTES.lab}>
     <div style={pageWrap}>
+    {showOnboard && (
+      <DossierOnboarding P={P} name={c.display_name}
+        onSkip={() => setShowOnboard(false)}
+        onDone={(s) => { setShowOnboard(false); setC(prev => prev ? { ...prev, dossier_settings: { ...(prev.dossier_settings || {}), ...s } } : prev); }} />
+    )}
     <div style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "24px 16px 60px" }}>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
         {c.avatar_url && (

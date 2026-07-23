@@ -106,6 +106,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   // 💾 שמירת-מטריצה לענן (els_records) — קלאוד בלבד, בלי שמירה-למכשיר.
   //    אדמין → מתפרסם מיד · משתמש רשום → ממתין לאישור · אנונימי → נשמר עם visitor_id, ממתין לאישור.
   //    (החלטת צוריאל: גם לא-רשום יכול לשמור — הצופן נכנס לתור-האישור באדמין, לא מתפרסם מיד.)
+  const [dossierPrompt, setDossierPrompt] = useState(false);   // 🎉 הצעת הכנת-תיק אחרי שמירה ראשונה (כניסה 1)
   const saveToCloud = useCallback(async (d) => {
     try {
       const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
@@ -123,15 +124,20 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         && Math.abs(d.skip || 0) === (matrix.skip_distance || 0)
         && (d.scope || "torah") === (matrix.scope || "torah"));
 
-      if (isReSave && isAdmin) {
+      // ✏️ עדכון-ממצא במקום (אפס כפילויות): הכלי שולח editId כשעורכים ממצא-קיים, או re-save
+      //    בהקשר עמוד-הצופן. update_els_matrix מתיר אדמין *או* בעלים; אם לא-מורשה → נופל לשמירה חדשה.
+      const editId = d.editId || (isReSave ? matrix.id : null);
+      if (editId) {
         const { error } = await supabase.rpc("update_els_matrix", {
-          p_id: matrix.id, p_positions: positions,
+          p_id: editId, p_positions: positions,
           p_image_url: imageUrl || null, p_description: d.desc || null,
         });
-        if (error) throw error;
-        postToTool({ type: "saved", ok: true, status: "updated" });
-        pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
-        return;
+        if (!error) {
+          postToTool({ type: "saved", ok: true, status: "updated" });
+          pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
+          return;
+        }
+        // שגיאה = כנראה לא-מורשה (לא בעלים/אדמין) → ממשיכים לשמירה-חדשה/גרסה למטה
       }
 
       const common = {
@@ -145,6 +151,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
         postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : (isReSave ? "variant" : "pending") });
+        // 🎉 כניסה 1: אחרי השמירה הראשונה של המשתמש — הצעה חד-פעמית להכין תיק מחקר
+        try { if (!localStorage.getItem("sod_dossier_prompted_v1")) { localStorage.setItem("sod_dossier_prompted_v1", "1"); setDossierPrompt(true); } } catch { /* noop */ }
         if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
@@ -225,7 +233,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const gateTitle =
     gate?.reason === "cross" ? "🔀 החיפוש המוצלב פתוח לרשומים"
       : gate?.reason === "tanakh" ? "חיפוש בכל התנ״ך פתוח לרשומים"
-      : gate?.reason === "save" ? "שמירה לגלריה פתוחה לרשומים"
+      : gate?.reason === "save" ? "שמירה לתיק המחקר פתוחה לרשומים"
       : "סיימת את חיפושי-הטעימה החינמיים";
   const gateSub =
     gate?.reason === "cross"
@@ -233,7 +241,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       : gate?.reason === "tanakh"
       ? "חיפוש דילוגים בכל 24 ספרי התנ״ך (מעבר לתורה) שמור לחוקרים רשומים. הרשמה חינם פותחת אותו — וגם את החיפוש המוצלב והשמירה."
       : gate?.reason === "save"
-      ? "שמירת מטריצות לגלריית-הענן — כדי לחזור אליהן ולשתף — שמורה לחוקרים רשומים. הרשמה חינם פותחת שמירה, חיפוש-מוצלב וכל התנ״ך."
+      ? "שמירת מטריצות לתיק המחקר שלך — כדי לחזור אליהן ולשתף — שמורה לחוקרים רשומים. הרשמה חינם פותחת שמירה, חיפוש-מוצלב וכל התנ״ך."
       : "טעמת שהכלי עובד — עכשיו רישום חד-פעמי עם אימות במייל פותח את החיפוש המוצלב, כל התנ״ך, שמירות ושיתוף.";
 
   return (
@@ -291,6 +299,27 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
                 {gate.reason === "cross" ? "חזרה לחיפוש רגיל" : "סגירה"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🎉 כניסה 1 — הצעת הכנת-תיק אחרי השמירה הראשונה */}
+      {dossierPrompt && (
+        <div style={{ position: "absolute", inset: 0, zIndex: 25, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(6,5,13,0.82)", backdropFilter: "blur(3px)" }}>
+          <div style={{ maxWidth: 400, width: "100%", background: "#fff", borderRadius: 18, padding: "26px 24px", textAlign: "center", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}>
+            <div style={{ fontSize: 40, marginBottom: 8 }}>🎉</div>
+            <div style={{ color: "#1c4bbf", fontFamily: "'Frank Ruhl Libre',serif", fontSize: 21, fontWeight: 800, marginBottom: 8 }}>שמרת את הגילוי הראשון שלך!</div>
+            <div style={{ color: "#5b6472", fontSize: 14.5, lineHeight: 1.7, marginBottom: 20 }}>
+              בוא נכין את <b>תיק המחקר שלך</b> — הבית שיציג את הגילויים, הקשרים והיומן שלך לעולם.
+            </div>
+            <button onClick={() => { setDossierPrompt(false); navigate("/community/researcher/me"); }}
+              style={{ width: "100%", background: "linear-gradient(135deg,#2f6df6,#4f86ff)", color: "#fff", border: "none", borderRadius: 12, padding: "13px", fontFamily: "inherit", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>
+              📁 בוא נכין את התיק שלי →
+            </button>
+            <button onClick={() => setDossierPrompt(false)}
+              style={{ background: "none", border: "none", color: "#8a93a3", fontFamily: "inherit", fontSize: 13, cursor: "pointer", marginTop: 12, textDecoration: "underline" }}>
+              אחר כך
+            </button>
           </div>
         </div>
       )}

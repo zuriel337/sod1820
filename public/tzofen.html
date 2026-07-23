@@ -985,7 +985,7 @@
         למעלה בוחרים: <b>📖 תורה</b> (מהיר) או <b>📜 כל התנ״ך</b> (24 הספרים — לרשומים).
       </div></div>
       <div class="gin-sec"><div class="gin-h">💾 שמירה ושיתוף</div><div class="gin-t">
-        <b>💾 שמור בגלריה</b> → נשמר בגלריה (מופיע למעלה, הקש לפתיחה) · <b>🖼️ תמונה</b> להורדה · <b>🔗 שתף קישור</b> · <b>🎬 סרט-הצופן</b> (הצופן נבנה כאנימציה).
+        <b>💾 שמור לתיק המחקר</b> → נשמר בתיק שלך (ובאישור — בספריית הצפנים) · <b>🖼️ תמונה</b> להורדה · <b>🔗 שתף קישור</b> · <b>🎬 סרט-הצופן</b> (הצופן נבנה כאנימציה).
       </div></div>
       <div class="gin-sec"><div class="gin-t"><b>עדות — לא ניבוי.</b> הכלי מיועד ללימוד והתבוננות בטקסט.</div></div>
     </div>
@@ -1170,13 +1170,14 @@
   }
   // 📝 חלון חובת-הסבר — נפתח לפני כל שמירה, חוסם עד שנכתב הסבר קצר. גם שדה-שם (רשות) לזיהוי המחבר.
   function askCipherDescription(onConfirm){
+    const isEdit=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עדכון-ממצא קיים?
     const ov=document.createElement("div");ov.className="shareov";
     ov.innerHTML='<div class="sharebox"><h3>📝 מה רואים בצופן?</h3>'+
       '<p>כדי לשמור, ספרו במילים שלכם מה מצאתם — אילו מילים מצטלבות ומה המשמעות. חובה — כך הצופן מובן לכל מי שיראה אותו.</p>'+
       '<textarea class="sh-desc" placeholder="למשל: «משיח» חוצה את «מלך» באותו אזור ובדילוג זהה…"></textarea>'+
       '<input class="sh-url sh-name" placeholder="השם שלך (רשות — יוצג כמחבר הצופן)" style="margin-top:8px;direction:rtl;text-align:right">'+
       '<div class="sh-deschint"></div>'+
-      '<div class="sh-row"><button class="sh-copy sh-save" disabled>💾 שמור בגלריה</button><button class="sh-close">בטל</button></div></div>';
+      '<div class="sh-row"><button class="sh-copy sh-save" disabled>'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="sh-close">בטל</button></div></div>';
     document.body.appendChild(ov);
     const ta=ov.querySelector(".sh-desc"),nm=ov.querySelector(".sh-name"),btn=ov.querySelector(".sh-save"),hint=ov.querySelector(".sh-deschint");
     ta.value=st.desc||"";nm.value=st.author||"";
@@ -1192,8 +1193,9 @@
     // 👁️ חיווי מיידי — מונטה-קרלו (למטה) חוסם את ה-UI לשנייה-שתיים; בלי חיווי מוקדם המשתמש
     //    חושב שכלום לא קרה. משנים את הכפתור מיד, ומריצים את החישוב-הכבד ב-setTimeout כדי שה-UI ייצבע קודם.
     const sb=document.querySelector(".save-act");
-    if(sb){sb.textContent="⏳ שומר…";sb.disabled=true;}
-    toast("💾 שומר בגלריה…");
+    const editing=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים (אותו מונח)?
+    if(sb){sb.textContent=editing?"⏳ מעדכן…":"⏳ שומר…";sb.disabled=true;}
+    toast(editing?"✏️ מעדכן ממצא…":"💾 שומר לתיק המחקר…");
     setTimeout(()=>{
       // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
       //    מרעננים את המד, ושומרים תמונת-מצב + צורת-הצופן הגולמית בתוך positions.
@@ -1204,9 +1206,11 @@
         if(st._refreshQuality)st._refreshQuality();
       }catch(e){}
       const it=galleryCurrentItem();
+      // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
+      const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
       postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
         findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,desc:st.desc||"",author:st.author||"",
-        image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null});
+        image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null,editId:editId});
     },30);
   }
   function removeFromGallery(it){
@@ -1232,7 +1236,7 @@
       '<span class="gal-lbl-r"><button class="gal-namesearch">🔎 חפש שם</button><button class="gal-close" title="הסתר את הגלריה">✕</button></span></div>';
     const closeWire=()=>{const cl=el.querySelector(".gal-close");if(cl)cl.onclick=()=>{try{localStorage.setItem(GALCLOSEKEY,"1");}catch(e){}renderGallery();toast("📁 הגלריה הוסתרה — «הצג» למעלה מחזיר");};
       const ns=el.querySelector(".gal-namesearch");if(ns)ns.onclick=startNameSearch;};
-    if(!items.length){html+='<div class="gal-empty">אין עדיין מטריצות שמורות. חפשו מילה, סמנו ממצאים, ולחצו «💾 שמור בגלריה».</div>';el.innerHTML=html;closeWire();return;}
+    if(!items.length){html+='<div class="gal-empty">אין עדיין מטריצות שמורות. חפשו מילה, סמנו ממצאים, ולחצו «💾 שמור לתיק המחקר».</div>';el.innerHTML=html;closeWire();return;}
     // שורה אופקית: תמונות-צפנים קטנות (הקש → פתיחה) + כרטיס «📚 כל הצפנים →» שמנווט לספרייה הקנונית /codes
     //    אדמין → כפתור 🗑 על כל צופן-ענן (מסיר אותו מהגלריה, דרך האתר). מטריצת-מערכת מובנית אינה נמחקת.
     const canDel=!!st.admin;
@@ -1395,12 +1399,14 @@
     }
     if(d.type==="saved"){   // תוצאת שמירה מהאתר
       const sb=document.querySelector(".save-act");
+      const editing=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);
+      const rest=editing?"✏️ עדכן ממצא":"💾 שמור לתיק המחקר";
       if(d.ok){
-        toast(d.status==="published"?"✅ נשמר ופורסם בספריית הצפנים":"✅ נשמר — ממתין לאישור מנהל");
+        toast(d.status==="updated"?"✅ הממצא עודכן במקום":(d.status==="published"?"✅ נשמר ופורסם בספריית הצפנים":"✅ נשמר בתיק המחקר — ממתין לאישור מנהל"));
         // 🟢 חיווי-הצלחה בולט על הכפתור עצמו (2.6 שניות) — כדי שלא יפספסו את ההצלחה
-        if(sb){sb.textContent="✅ נשמר בגלריה";sb.disabled=false;setTimeout(()=>{try{if(sb)sb.textContent="💾 שמור בגלריה";}catch(e){}},2600);}
+        if(sb){sb.textContent=d.status==="updated"?"✅ עודכן":"✅ נשמר";sb.disabled=false;setTimeout(()=>{try{if(sb)sb.textContent=rest;}catch(e){}},2600);}
       }else{
-        if(sb){sb.textContent="💾 שמור בגלריה";sb.disabled=false;}
+        if(sb){sb.textContent=rest;sb.disabled=false;}
         if(d.reason==="login")toast("🔒 שמירה פתוחה לרשומים — הירשמו בחינם");
         else toast("לא ניתן לשמור כרגע — נסו שוב");
       }
@@ -1413,6 +1419,8 @@
     }
     if(d.type==="contributed"&&!d.ok){toast("שיתוף-הממצא נכשל — נסו שוב");}   // ➕ 1ב — כשל בלבד (הצלחה כבר הודגמה)
     if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
+      // ✏️ קשר-עריכה: צופן קיים נטען → שמירה תעדכן אותו במקום (לא עותק). נמחק בחיפוש-מונח חדש.
+      st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");
       try{loadMatrix(d.item,0);}catch(e){}
     }});
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
@@ -2602,11 +2610,12 @@
       '<span class="zoomctl"><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="heatbtn'+(st.heat?" on":"")+'" title="מפת-חום צפיפות">🌡️ חום</button><button class="selbtn'+(st.selMode?" on":"")+'" title="סימון ידני">✏️ סימון</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button></span>';
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
+    const isEdit=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים → «עדכן ממצא» במקום «שמור»
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
       // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
       (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
       ((st.cipherSlug&&norm(st.raw)===norm(st.cipherTerm))?'<button class="mact contrib-act" title="שתף את המילים שסימנת כתגובת-מחקר על הצופן הזה">➕ שתף כממצא</button>':'')+
-      '<button class="mact save-act">💾 שמור בגלריה</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
+      '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
     filmbar.innerHTML='<button class="fb-play">▶ נגן שוב</button><span class="fb-lbl">מהירות:</span>'+

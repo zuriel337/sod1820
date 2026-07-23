@@ -856,7 +856,17 @@ function MyCodesPanel({ T, user, goto }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-      <div style={{ fontSize: 12.5, color: T.sub, marginBottom: 2 }}>{items.length} צפנים שמרת. סמן «בתיק שלי» כדי שיופיעו ב<button onClick={() => goto("/community/researcher/me")} style={{ border: "none", background: "none", padding: 0, color: T.acc, fontWeight: 700, cursor: "pointer", fontSize: 12.5, textDecoration: "underline" }}>תיק המחקר שלך</button> — גם לפני אישור לאתר.</div>
+      {/* ✨ כניסה לתיק-המחקר — באנר בולט (כניסה 4 לאשף/לתיק) */}
+      <button onClick={() => goto("/community/researcher/me")} style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", textAlign: "right",
+        background: `linear-gradient(135deg,${T.acc}22,${T.gold}18)`, border: `1px solid ${T.acc}55`, borderRadius: 12, padding: "11px 13px", cursor: "pointer", color: T.ink, fontFamily: "inherit" }}>
+        <span style={{ fontSize: 22, flex: "none" }}>📁</span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontWeight: 800, fontSize: 13.5 }}>{items.length ? "פתח את תיק המחקר שלך" : "הכן את תיק המחקר שלך"}</span>
+          <span style={{ display: "block", fontSize: 11.5, color: T.sub }}>הגילויים, הקשרים והיומן שלך — במקום אחד</span>
+        </span>
+        <span style={{ color: T.acc, fontSize: 15, flex: "none" }}>←</span>
+      </button>
+      <div style={{ fontSize: 12.5, color: T.sub, marginBottom: 2 }}>{items.length} צפנים שמרת. סמן «בתיק שלי» כדי שיופיעו בתיק המחקר — גם לפני אישור לאתר.</div>
       {note && <div style={{ fontSize: 12, color: T.acc, background: T.card, border: `1px solid ${T.line}`, borderRadius: 9, padding: "8px 10px" }}>{note}</div>}
       {items.map(m => {
         const bd = codeBadge(m.status);
