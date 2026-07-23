@@ -1,3 +1,7 @@
+// wa-raziel (רזיאל) — v43 — 23.7.2026 — בליעה מלאה: קליטת עובדות+זיכרון מכל הודעה בחלון (לא רק האחרונה).
+//   v43: הפרדת קליטה מתשובה — לולאת-בליעה רצה על *כל* הודעה נכנסת (savePersonalData+remember), פעם אחת לכל
+//        msgId (ingest-claim), ואז הבוט עדיין עונה תשובה אחת (byChat=האחרון). תיקון-שורש: המיקוד של ציון הגיע
+//        בהודעה נפרדת ולא נקלט. מזהה גם שיטת-האחד (shitat_haechad_alef_law: 1000+X → האלף=ה׳).
 // wa-raziel (רזיאל) — v42 — 23.7.2026 — אפס-כפילות: תפיסה אטומית (fn_raziel_claim) + dedup ב-outbox.
 //   v42: (1) claim אטומי לכל msgId לפני שליחה (raziel_send_claims) — ריצות חופפות/קריסה-בין-שליחה-לרישום לא ישלחו
 //        פעמיים; שחרור-תפיסה במצב retryable כדי לאפשר ניסיון-חוזר. (2) retryOutbox בודק היסטוריה (alreadySentToChat)
@@ -188,7 +192,7 @@ function contextToText(ctx: any): string {
     if (Array.isArray(u.approved_preferences) && u.approved_preferences.length) parts.push(`העדפות מאושרות: ${u.approved_preferences.join(" · ")}`);
     // 🧠 v40 — פרטים אישיים שהאדם שיתף (רק ב-DM). התייחס בכבוד, זכור, אל תחשוף בפני אחרים.
     if (Array.isArray(u.profile) && u.profile.length) {
-      const KIND_HE: Record<string, string> = { name: "שם מלא", address: "רחוב/כתובת", city: "עיר", postal: "מיקוד", phone: "טלפון", family: "משפחה", birthday_hebrew: "תאריך-לידה עברי", birthday_gregorian: "תאריך-לידה לועזי", date_hebrew: "תאריך עברי", date_gregorian: "תאריך לועזי", gematria_signature: "חתימת-הגימטריה שלו" };
+      const KIND_HE: Record<string, string> = { name: "שם מלא", address: "רחוב/כתובת", city: "עיר", postal: "מיקוד", phone: "טלפון", family: "משפחה", birthday_hebrew: "תאריך-לידה עברי", birthday_gregorian: "תאריך-לידה לועזי", date_hebrew: "תאריך עברי", date_gregorian: "תאריך לועזי", birthplace: "מקום-לידה", research_signature: "חתימת-מחקר", gematria_signature: "חתימת-הגימטריה שלו" };
       const line = u.profile.map((p: any) => `${KIND_HE[p.kind] || p.kind}: ${p.value}`).join(" · ");
       parts.push(`פרטים אישיים שהאדם שיתף איתך (זכור אותם והתייחס בכובד ראש; לעולם אל תחשוף אותם בפני אחרים): ${line}`);
     }
@@ -340,12 +344,13 @@ const SYSTEM_BASE =
 8. גדול=רגיל כשאין סופיות (ך ם ן ף ץ): כשאין אות סופית, הגדול זהה לרגיל = כפילות, לא שכבה. אל תציג מתכנס גם בגדול וגם ברגיל כממצא מרשים. רק כשיש סופית והגדול שונה — זו שכבה אמיתית.
 9. תדר-המשיח (messiah_frequency_in_every_person_law): אם אדם מרגיש את נקודת-המשיח שבו — הקשב בכבוד, בקש שם+משפחה, חשב והצלב מול ערכי-משיח (358/424/…). אם מצטלב — הסבר שזה מראה חיבור לתדר שקיים בכל אדם, ולעולם לא שהוא המשיח. ענווה, עובדה≠רמז, בלי נבואות, רגישות.
 10. הבנה לפני חישוב (intent_before_compute_law) — הכי חשוב: קודם הבן מה האדם רוצה. אתה לא מכונת-גימטריה-של-כל-משפט. אם ההודעה היא בקשה/תודה/תמשיך/תעשה מה שהצעת/בצורה מסודרת/כן/בשביל המחקר — אל תחשב ואל תציג טבלת-גימטריה של מילות המשפט (זו טעות מביכה). במקום זה: הסתכל בשיחה הקודמת למטה, הבן על איזה נושא דיברתם (שם/מספר/ביטוי אחרון), והמשך אותו — מה שהצעת מתייחס להצעות שלך שם. רק כשיש נושא-גימטריה מפורש לבדיקה — חשב והצג. לא ברור מה לבדוק? שאל על איזה שם/מספר להעמיק.
-11. לעולם אל תשאיר את האדם בלי מענה (never_silent_metatron_law): גם בנושא רגיש — ענה על העובדות המספריות מהמנוע בענווה («אילו קשרים קיימים בנתונים»), לעולם לא בטענה על אדם («האם אני/הוא…»). אל תסרב — הפנה את התשובה לעובדה, בלי מסקנה על זהותו או ייעודו של אדם.`;
+11. לעולם אל תשאיר את האדם בלי מענה (never_silent_metatron_law): גם בנושא רגיש — ענה על העובדות המספריות מהמנוע בענווה («אילו קשרים קיימים בנתונים»), לעולם לא בטענה על אדם («האם אני/הוא…»). אל תסרב — הפנה את התשובה לעובדה, בלי מסקנה על זהותו או ייעודו של אדם.
+12. שיטת-האחד (shitat_haechad_alef_law): כשערך-מנוע בן 4 ספרות ומתחיל ב-1 (1000+X), האלף המוביל נקרא כרמז ל-ה׳, האחד, אלופו של עולם, ו-X כשארית (למשל 1358 = ה׳ + 358 משיח). עובדה≠רמז: הערך = עובדה, פירוק האלף = רמז משלים.`;
 let RAZIEL_SYSTEM = SYSTEM_BASE;
 async function loadPersona() {
   try {
     const { data } = await sb.rpc("fn_raziel_persona", { p_channel: "wa" });
-    if (typeof data === "string" && data.length > 60) RAZIEL_SYSTEM = data;
+    if (typeof data === "string" && data.length > 60) RAZIEL_SYSTEM = data + "\n12. שיטת-האחד (shitat_haechad_alef_law): ערך 1000+X — האלף המוביל כרמז ל-ה׳ (האחד, אלופו של עולם) + X. עובדה≠רמז.";
   } catch { /* נשאר על SYSTEM_BASE */ }
 }
 const TEACH_ADDON =
@@ -555,6 +560,21 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
   const unlimited = await unlimitedNumbers();
   const overrides = await quotaOverrides();
   const dms = pick(hist).filter((m:any)=> String(m.chatId||"").endsWith("@c.us") && (nowSec - Number(m.timestamp||0) < 3*3600));
+  // v43 — בליעה מלאה: לוכדים עובדות+זיכרון מ*כל* הודעה בחלון (לא רק האחרונה), פעם אחת לכל msgId (ingest-claim).
+  // תיקון-שורש לאובדן-נתונים: המיקוד של ציון הגיע בהודעה נפרדת ולא נקלט כי byChat שומר רק את האחרון.
+  for (const im of dms) {
+    const imid = im.idMessage; if (!imid) continue;
+    const iphone = String(im.chatId || "").replace("@c.us", "");
+    if (!iphone || owned.has(iphone)) continue;
+    const itext = im.textMessage || im.extendedTextMessageData?.text || "";
+    if (clean(itext).length < 2) continue;
+    const { data: gotIngest } = await sb.rpc("fn_raziel_claim", { p_key: "raziel:ingest:" + imid });
+    if (gotIngest === false) continue; // כבר נבלע
+    const iidn = await resolveIdentity(im.chatId);
+    const iref = iidn?.user_ref || ("wa:" + iphone);
+    try { await savePersonalData(iref, im.chatId, itext); } catch { /* noop */ }
+    await remember(iref, im.chatId, itext, "conversation", "personal");
+  }
   const byChat: Record<string, any> = {};
   for (const m of dms) { const c=m.chatId; if (!byChat[c] || Number(m.timestamp) > Number(byChat[c].timestamp)) byChat[c]=m; }
   let n = 0;
@@ -579,8 +599,7 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
       if ((lr as any)?.user_id) { linked = true; userRef = String((lr as any).user_id); }
     }
 
-    // 🧠 v40 — לכידת נתונים אישיים מכל הודעת-DM (עצמאי מהצלחת התשובה, פרטי בלבד). לפני השער/הניתוב.
-    try { await savePersonalData(userRef, chatId, text); } catch { /* noop */ }
+    // v43 — לכידת הנתונים כבר בוצעה בשלב הבליעה (למעלה, לכל הודעה). כאן רק הניתוב/התשובה.
 
     if (!linked) {
       if (!policy?.answer_everyone) { await releaseClaim(); continue; }
