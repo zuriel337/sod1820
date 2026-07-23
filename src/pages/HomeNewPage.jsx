@@ -547,6 +547,7 @@ export default function HomeNewPage() {
         {hotNums.length > 0 && (
           <div style={{ marginTop: 14, border: `1px solid ${P.borderStrong}`, borderRadius: 16, background: P.cardSoft, padding: "15px 16px" }}>
             <NumberBubbles
+              compact
               data={hotNums.map(x => ({ label: String(x.n), count: x.count, nums: [x.n] }))}
               title="🔥 המספרים החמים באתר עכשיו — לפי מפת-החום (7 ימים) · לחצו לדף המספר"
               hrefFor={b => `/number/${b.nums[0]}`}

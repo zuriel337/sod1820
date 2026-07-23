@@ -9,18 +9,21 @@ import { F } from "../theme.js";
 //   hrefFor(b) — אם מסופק, כל בועה היא Link אל הכתובת (למשל /archive?...)
 //   onPick(b)  — אחרת, כל בועה היא כפתור שקורא ל-onPick
 //   activeKeys — Set של מפתחות-בועה פעילים (מובלטים)
-export default function NumberBubbles({ data, title, hrefFor, onPick, activeKeys }) {
+export default function NumberBubbles({ data, title, hrefFor, onPick, activeKeys, compact }) {
   if (!data || !data.length) return null;
   const max = Math.max(...data.map(d => d.count), 1);
+  // 📱 compact — טווח-גודל קטן יותר למובייל/דף-הבית (אותה מפת-חום, ~40% פחות גובה). ברירת-מחדל: המלא.
+  const sMin = compact ? 38 : 50, sSpan = compact ? 30 : 46;         // גודל: 38..68 (compact) · 50..96 (מלא)
+  const fMin = compact ? 13 : 15, fSpan = compact ? 8 : 11;
   return (
     <div className="nb-wrap">
       <style>{NB_CSS}</style>
       {title && <div className="nb-title">{title}</div>}
-      <div className="nb-row">
+      <div className="nb-row" style={compact ? { gap: 9 } : undefined}>
         {data.map(b => {
           const t = b.count / max;                                   // 0..1 עוצמה
-          const size = Math.round(50 + t * 46);                      // 50..96px
-          const fs = Math.round(15 + t * 11 - (b.label.length > 3 ? 4 : 0));
+          const size = Math.round(sMin + t * sSpan);
+          const fs = Math.round(fMin + t * fSpan - (b.label.length > 3 ? 4 : 0));
           const on = activeKeys && activeKeys.has(b.key);
           const cls = `nb-bub${b.hot ? " hot" : ""}${on ? " on" : ""}`;
           const style = { width: size, height: size, fontSize: fs };
