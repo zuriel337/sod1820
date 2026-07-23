@@ -38,6 +38,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
+  const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
 
   const src =
@@ -137,7 +138,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
           return;
         }
-        // שגיאה = כנראה לא-מורשה (לא בעלים/אדמין) → ממשיכים לשמירה-חדשה/גרסה למטה
+        // עדכון נכשל: אם המשתמש התכוון *במפורש* לעדכן (editId מהכלי) — לא יוצרים כפילות שקטה, מדווחים כשל.
+        if (d.editId) { postToTool({ type: "saved", ok: false }); return; }
+        // אחרת (re-save היוריסטי לפי מונח/דילוג) → ממשיך לשמירה-חדשה/גרסה למטה
       }
 
       const common = {
@@ -228,6 +231,17 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (lastKeyRef.current === key) return;
     lastKeyRef.current = key;
     postToTool({ type: "load-matrix", item: rowToItem(matrix) });
+  }, [matrix, postToTool]);
+
+  // 🎯 ממצאים עודכנו בפאנל-הניהול (הוסר/נוסף ממצא) — מרעננים את הצביעה בכלי בלי לטעון-מחדש 2.2MB.
+  //    דילוג על הטעינה-הראשונה של כל צופן (load-matrix כבר צובע); שולחים רק כשהחתימה משתנה על אותו id.
+  useEffect(() => {
+    if (!matrix) { findingsRef.current = { id: null, sig: null }; return; }
+    const sig = JSON.stringify((matrix.positions?.findings || []).map(f => [f.t, f.color]));
+    if (findingsRef.current.id !== matrix.id) { findingsRef.current = { id: matrix.id, sig }; return; }
+    if (findingsRef.current.sig === sig) return;
+    findingsRef.current.sig = sig;
+    postToTool({ type: "update-findings", findings: matrix.positions?.findings || [] });
   }, [matrix, postToTool]);
 
   const gateTitle =

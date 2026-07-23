@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
+import { thumb } from "../lib/img.js";
 import ShareActions from "./ShareActions.jsx";
 
 // 🖼️ גלריית-המטריצות השמורות של הצופן — נפתחת מהכפתור התחתון בדף הצופן.
@@ -51,7 +52,7 @@ export default function SavedMatricesGallery({ open, onClose }) {
                 <div key={m.id} style={{ background: "rgba(20,14,4,0.7)", border: "1px solid rgba(212,175,55,0.25)", borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
                   <Link to={`/codes/${encodeURIComponent(m.slug || m.id)}`} onClick={onClose} style={{ textDecoration: "none" }}>
                     {m.image_url ? (
-                      <img src={m.image_url} alt={m.title || m.search_term} style={{ width: "100%", aspectRatio: "1.3", objectFit: "cover", background: "#0a0700", display: "block" }} loading="lazy" />
+                      <img src={thumb(m.image_url, 420)} alt={m.title || m.search_term} style={{ width: "100%", aspectRatio: "1.3", objectFit: "cover", background: "#0a0700", display: "block" }} loading="lazy" />
                     ) : (
                       <div style={{ width: "100%", aspectRatio: "1.3", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: "linear-gradient(135deg,#160f03,#0a0700)", color: "#e6cf86", fontSize: 22, fontWeight: 800, textAlign: "center", padding: 12 }}>
                         <img src="/els-icon.png" alt="" width="42" height="42" style={{ borderRadius: 10, objectFit: "cover" }} />{m.search_term}
