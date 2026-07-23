@@ -24,7 +24,7 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
 
   if (category) query = query.contains('categories', [category]);
   if (tag) query = query.contains('tags', [tag]);
-  else query = query.not('tags', 'cs', '{טיוטה}');   // טיוטות מוסתרות מהפידים הציבוריים (מוצגות רק ברשימת הטיוטות/למנהל)
+  else query = query.not('tags', 'cs', '{טיוטה}').not('tags', 'cs', '{פורום}');   // טיוטות + פוסטים שנותבו לפורום (tag 'פורום') מוסתרים מפידי-הפוסטים הציבוריים — חיים רק בפורום (getForumFeed)
   if (author) query = query.eq('author', author);
   if (year) {
     query = query

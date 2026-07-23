@@ -142,7 +142,10 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
   const wantContrib = !type || FORUM_CONTRIB_INTENTS.includes(type);
   // 🌳 עץ אחד — מניעת-כפילות: פוסטים שייכים ל«פעילות האתר» (כל הפוסטים, כולל מערכת), לא לפורום.
   //    includePosts=false → הפורום קהילה-בלבד (חידושים·דיונים·צפני-גולשים·insights), בלי זליגת-פוסטים.
-  const wantPosts = includePosts && (!type || type === "post");
+  // 🌳 עץ אחד: פוסט-כתב רגיל שייך ל«פעילות האתר» (includePosts). אבל פוסט שנותב במפורש
+  //    לפורום (tag 'פורום') הוא תוכן-פורום לכל דבר — מופיע בפיד גם כש-includePosts=false, וכבר
+  //    הוסתר מפידי-הפוסטים הרגילים (getPostsFromSupabase). "all"=כל הכתבים · "forum"=מנותבים בלבד.
+  const postsMode = (!type || type === "post") ? (includePosts ? "all" : "forum") : null;
   const wantInsights = !type || type === "insight";   // 💡 חידושי בית המדרש (insights)
   const wantCiphers = !type || type === "cipher";     // 🔠 צפני-גולשים (els_records source='community')
   const tasks = [];
@@ -220,13 +223,15 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
     })().catch(() => []));
   }
 
-  if (wantPosts) {
+  if (postsMode) {
     const notInList = '("' + FORUM_EXCLUDE_AUTHORS.join('","') + '")';
     let q = supabase.from("posts")
       .select("id,title,slug,excerpt,author,date,image_url,categories")
       .not("author", "is", null).neq("author", "").not("author", "in", notInList)
       .order("date", { ascending: false }).limit(limit);
     if (writer) q = q.eq("author", writer);
+    // מצב-פורום: רק פוסטים שנותבו במפורש לפורום (tag 'פורום'). מצב-all: כל פוסטי-הכתבים.
+    if (postsMode === "forum") q = q.contains("tags", ["פורום"]);
     tasks.push(q.then(({ data }) => (data || [])
       .filter(p => { const a = (p.author || "").trim(); return a && !FORUM_EXCLUDE_AUTHORS.includes(a); })
       .map(p => ({
