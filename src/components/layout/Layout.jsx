@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { C, F, GLOBAL_CSS } from "../../theme.js";
 import { PALETTES } from "../../lib/palette.js";
-import { supportsLight as routeSupportsLight, POST_SLUG_RE } from "../../lib/lightRoutes.js";
+import { effectiveMode, POST_SLUG_RE } from "../../lib/lightRoutes.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
@@ -23,13 +23,13 @@ export default function Layout() {
   const { pathname, search } = useLocation();
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
   const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
-  const supportsLight = routeSupportsLight(pathname);
   // 📡 בדף הבית ובצ'אט: מוסתרת בועת מגירת-המספר, ובמקומה «פותח העדכונים» החי (LiveChannelFeed).
   //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
   // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
   const showBanner = /^\/post$/.test(pathname) || /^\/community\/chat$/.test(pathname) || POST_SLUG_RE.test(pathname);
-  const mode = (supportsLight && globalMode === "light") ? "light" : "dark"; // אחרת — כהה בכוח
+  // 🌗 המצב האפקטיבי — מקור-אמת אחד עם usePalette (lightRoutes.effectiveMode) → אין חצי-בהיר-חצי-כהה.
+  const mode = effectiveMode(pathname, globalMode);
   const P = PALETTES[mode];
   const dark = mode === "dark";
 

@@ -15,17 +15,40 @@ const RESERVED_ROUTES = [
 // פוסט = מקטע-אחד שאינו נתיב-מערכת שמור. (sulamot\d* מכסה sulamot2..11)
 export const POST_SLUG_RE = new RegExp(`^\\/(?!(?:${RESERVED_ROUTES}|sulamot\\d+)(?:\\/|$))[^\\/]+$`);
 
+// כלל-אצבע: כל דף שבנוי תמה-מודע (משתמש ב-usePalette) שייך לכאן — כך שרקע-ה-Layout
+// עוקב אחרי צבעי-התוכן, ואין «חצי בהיר חצי כהה». הוספת דף תמה-מודע חדש = שורה כאן.
 export const LIGHT_ROUTES = [
   /^\/$/, /^\/home-new$/, /^\/בית-חדש$/,
   /^\/number(\/|$)/, /^\/name$/, /^\/שם$/,
   /^\/cross$/, /^\/topic(\/|$)/,
   /^\/post$/, /^\/community\/chat$/,
-  /^\/verified$/, /^\/code$/, /^\/map$/, /^\/start$/,
-  /^\/community$/,   // 🫂 עמוד הקהילה — תומך יום/לילה (שאר /community/* נשארים כהים)
+  /^\/verified$/, /^\/code(\/|$)/, /^\/code-archive$/, /^\/map$/, /^\/start$/,
+  /^\/community$/,   // 🫂 עמוד הקהילה
+  /^\/codes(\/|$)/,   // 🔠 ספריית הצפנים + דף-צופן (/codes/:slug) + מחקר — «צופן»
+  /^\/forum(\/|$)/,   // 🌐 פורום המחקר + שרשור
+  /^\/community\/calculator$/, /^\/community\/researchers$/, /^\/community\/whatsapp$/,
+  /^\/broadcasts$/, /^\/login$/, /^\/profile$/, /^\/join$/, /^\/welcome$/,
+  /^\/privacy$/, /^\/unsubscribe$/, /^\/verse-gematria$/, /^\/whats-new$/, /^\/editor(\/|$)/,
   /^\/category(\/|$)/, /^\/tag(\/|$)/, /^\/journey$/, /^\/מסע$/,
   /^\/languages$/, /^\/קשרי-שפות$/,   // 🌍 קשרי-שפות — מרחב מחקר בהיר-נקי
   POST_SLUG_RE,   // 🔒 פוסטים (/:slug) — תומכים בבהיר מערכתית
 ];
 
+// 🔒 דפים שהם *תמיד בהירים* (לא תלויי-מתג) — עיצוב «מעבדה» בהיר קבוע (research_workspace_law).
+// דף-החוקר («תיקייה») כופה PALETTES.lab בקוד → ה-Layout חייב להיות בהיר שם בשני מצבי-המתג,
+// אחרת חצי-בהיר-חצי-כהה. כאן ה-Layout מוקרן בהיר תמיד, כך שהתוכן והרקע תמיד תואמים.
+export const ALWAYS_LIGHT = [
+  /^\/community\/researcher\//,   // 📁 דף-החוקר (ContributorPage) — לוח-מעבדה בהיר
+];
+
 // האם הראוט הנוכחי תומך במצב בהיר בכלל (אחרת התמה כפויה-כהה).
 export const supportsLight = pathname => LIGHT_ROUTES.some(re => re.test(pathname));
+export const alwaysLight = pathname => ALWAYS_LIGHT.some(re => re.test(pathname));
+
+// 🌗 המצב האפקטיבי היחיד — מקור-אמת אחד גם ל-Layout וגם ל-usePalette, כך שרקע וקדמה
+// תמיד באותו מצב (הסוף ל«חצי בהיר חצי כהה»). always-light גובר; אחרת עוקב אחרי המתג
+// רק בדפים תמה-מודעים; דף לא-מוגר נשאר כהה תמיד.
+export function effectiveMode(pathname, globalMode) {
+  if (alwaysLight(pathname)) return "light";
+  return supportsLight(pathname) && globalMode === "light" ? "light" : "dark";
+}
