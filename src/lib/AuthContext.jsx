@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { supabase, logActivity, claimVisitorPrefs } from './supabase.js';
 import { fetchProfile, signOut as doSignOut, claimResearchLead } from './auth.js';
 import { getVisitorId } from './tracking.js';
+import { stitchLogin } from './identity.js';
 
 const AuthContext = createContext({
   user: null, profile: null, loading: true,
@@ -65,6 +66,10 @@ export function AuthProvider({ children }) {
   // ולתבוע את ליד-המחקר (research funnel שלב 6 → converted).
   useEffect(() => {
     if (!user) return;
+    // 🔗 גרף-הזהות הקנוני: לקשר את המכשיר (sod_id + כל sod_vid הישנים דרך legacy_seed)
+    // לחשבון — יוצר קשר kind='login' → persons.account_user_id. בלי זה אף מבקר/שגריר
+    // לא נפתר לשם/מייל (identity_edges היו רק device/legacy_seed, אפס login). idempotent.
+    try { stitchLogin(user.id); } catch { /* ignore */ }
     try { claimVisitorPrefs(user.id, getVisitorId()); } catch { /* ignore */ }
     try { claimResearchLead(getVisitorId()); } catch { /* ignore */ }
     // 🔗 גשר לשידור-החי: לקשר את מזהה site_visits (sod_visitor UUID) לחשבון, כדי שמחוברים

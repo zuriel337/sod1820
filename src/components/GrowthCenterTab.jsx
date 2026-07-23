@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
-import { getGrowthCenter, getGaInsights } from "../lib/visits.js";
+import { getGrowthCenter, getGaInsights, getAmbassadors } from "../lib/visits.js";
 import { CLARITY_CONFIGURED, clarityUrl } from "../lib/clarity.js";
 
 // 📈 מרכז הצמיחה — דשבורד-על אחד (Meta Growth OS) על events + subscribers + email_events.
@@ -15,6 +15,8 @@ const TAGS = {
   "ig": ["📸 אינסטגרם", L.purple], "ig-squid": ["📸 אינסטגרם", L.purple],
   "fb-code": ["👍 פייסבוק · קוד", L.blue], "fb-meluha": ["👍 פייסבוק · מלוכה", L.blue], "facebook": ["👍 פייסבוק", L.blue],
   "whatsapp": ["🟢 וואטסאפ", L.green], "wa": ["🟢 וואטסאפ", L.green], "wa-vip": ["🟢 וואטסאפ VIP", L.green],
+  "telegram": ["✈️ טלגרם", L.blue], "tg": ["✈️ טלגרם", L.blue], "instagram": ["📸 אינסטגרם", L.purple],
+  "copy": ["📋 העתקת-לינק", L.amber], "native": ["📲 שיתוף-מכשיר", L.amber], "email": ["✉️ אימייל", L.sub], "x": ["✖️ X", L.ink],
   "share": ["🔗 שיתוף", L.amber], "raziel": ["🤖 רזיאל (בוט)", L.amber],
   "google": ["🔍 גוגל", L.sub], "ישיר": ["➡️ ישיר", L.sub], "spotim": ["💬 תגובות", L.sub],
   "code": ["🔠 צופן", L.purple], "els-artifact": ["🔠 צופן (Artifact)", L.purple], "chatgpt.com": ["🤖 ChatGPT", L.green],
@@ -111,6 +113,7 @@ function CmpRow({ icon, label, n, note, color, big }) {
 export default function GrowthCenterTab() {
   const [d, setD] = useState(null);
   const [ga, setGa] = useState(undefined); // undefined=טוען · null=לא זמין · object=נתונים
+  const [amb, setAmb] = useState(undefined); // טבלת-שגרירים — עצמאי
   const [days, setDays] = useState(7);
   const [err, setErr] = useState(null); // null=אין · 'forbidden' · 'error'
   const [refreshing, setRefreshing] = useState(false);
@@ -127,6 +130,11 @@ export default function GrowthCenterTab() {
     getGaInsights(days)
       .then(res => { if (live) setGa(res && res.configured !== false && !res.error ? res : null); })
       .catch(() => { if (live) setGa(null); });
+    // 🚀 שגרירים — עצמאי; כישלון לא שובר את הטאב
+    setAmb(undefined);
+    getAmbassadors(days)
+      .then(res => { if (live) setAmb(res && !res.error ? res : null); })
+      .catch(() => { if (live) setAmb(null); });
     return () => { live = false; };
   }, [days]);
 
@@ -161,6 +169,7 @@ export default function GrowthCenterTab() {
   const acq = d.acquisition || [], sharing = d.sharing || {}, rt = d.realtime || {};
   const signup = email.signup_series || [], opens = email.opens_series || [];
   const bySource = email.by_source || [], recent = email.recent_subs || [], campaigns = email.campaigns || [];
+  const byArrival = email.by_arrival || [];   // מקור-הגעה אמיתי (attribution) — מגע-אחרון לכל נרשם
   const cta = funnel.welcome_cta || [], byPlat = sharing.by_platform || [];
 
   const growthColor = k.growth_pct == null ? L.sub : k.growth_pct >= 0 ? L.green : L.red;
@@ -411,6 +420,77 @@ export default function GrowthCenterTab() {
         </Panel>
       </div>
 
+      {/* 🚀 השגרירים — מי מפיץ ומביא (rid propagation) */}
+      {amb !== null && (() => {
+        const rows = amb?.ambassadors || [];
+        const tot = amb?.totals || {};
+        const pageLabel = (l) => { try { const s = decodeURIComponent(l || ""); return s === "home" ? "🏠 דף הבית" : s === "research" ? "🔬 מרכז המחקר" : s; } catch { return l || "—"; } };
+        const medal = (i) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}`;
+        return (
+          <Panel title="🚀 השגרירים — מי מפיץ ומביא אנשים"
+            right={amb === undefined ? <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11 }}>טוען…</span>
+              : <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11 }}>{(tot.ambassadors || 0).toLocaleString("he")} משתפים · {(tot.reached || 0).toLocaleString("he")} אנשים הגיעו</span>}>
+            <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginBottom: 12 }}>
+              כל שיתוף נושא <code>rid</code> של המשתף. כאן רואים <b>מי הקישורים שלו באמת הביאו אנשים</b> (לא רק קליקים) — השגרירים שלך. מחובר = שם; לא-מחובר = אנונימי (מזוהה כשיירשם/יתחבר).
+            </div>
+            {amb === undefined ? (
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>טוען שגרירים…</div>
+            ) : rows.length === 0 ? (
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13 }}>עדיין אין הגעות דרך שיתוף מתויג בטווח הזה.</div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: F.body, fontSize: 13 }}>
+                  <thead><tr style={{ color: L.sub }}>
+                    {["#", "שגריר", "אנשים שהגיעו", "כניסות", "נרשמו", "מפיץ בעיקר"].map((h, i) => (
+                      <th key={i} style={{ textAlign: "start", padding: "6px 8px", borderBottom: `1px solid ${L.line}`, whiteSpace: "nowrap" }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {rows.map((a, i) => (
+                      <tr key={i}>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontSize: 15 }}>{medal(i)}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, color: a.identified ? L.blue : L.sub, fontWeight: a.identified ? 700 : 400 }} dir={a.identified ? "ltr" : "rtl"}>
+                          {a.identified ? a.name : `👤 אנונימי · ${String(a.rid || "").slice(0, 6)}`}
+                        </td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontFamily: "'Courier New',monospace", fontWeight: 800, color: L.purple }}>{(a.reached || 0).toLocaleString("he")}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontFamily: "'Courier New',monospace", color: L.sub }}>{(a.arrivals || 0).toLocaleString("he")}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, fontFamily: "'Courier New',monospace", fontWeight: 800, color: a.signups > 0 ? L.green : L.sub }}>{a.signups || ""}</td>
+                        <td style={{ padding: "6px 8px", borderBottom: `1px solid ${L.line}`, color: L.ink, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={pageLabel(a.top_landing)}>{pageLabel(a.top_landing)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
+        );
+      })()}
+
+      {/* 🎯 מקור-הגעה אמיתי — לינק-משותף מול ישיר (attribution) */}
+      <Panel title="🎯 מקור-הגעה אמיתי של נרשמים — לינק-משותף מול ישיר">
+        <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginBottom: 12, background: "#fbf7ec", border: `1px solid ${L.line}`, borderRadius: 10, padding: "8px 12px" }}>
+          ℹ️ שונה מ«מאיפה נרשמו» (=<b>חלון</b>-ההרשמה באתר). כאן זה <b>איך הגיעו לאתר</b> — הערוץ שהביא אותם. וואטסאפ/הודעות מוחקים referrer, לכן תיוג <code>src</code> על הלינקים המשותפים הוא שמפריד «לינק ששלחו לו» מ«ישיר». מתמלא מנרשמים חדשים <b>אחרי הפריסה</b>.
+        </div>
+        {byArrival.length === 0 ? (
+          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+            עדיין אין נתוני-מקור. הלכידה מתחילה מרגע שהאתר-החי טוען את הקוד החדש (attribution L3+L5) ונרשם מבקר חדש.
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {byArrival.map((a, i) => {
+              const [lbl, col] = tagInfo(a.channel);
+              return (
+                <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: L.card, border: `1px solid ${col}44`, borderRadius: 12, padding: "7px 12px" }}>
+                  <span style={{ color: col, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{lbl}</span>
+                  <span style={{ color: L.ink, fontFamily: "'Courier New',monospace", fontSize: 13, fontWeight: 800 }}>{(a.n || 0).toLocaleString("he")}</span>
+                  {a.tagged_n > 0 && <span style={{ background: "#eafaf0", color: L.green, fontFamily: F.body, fontSize: 10.5, fontWeight: 700, borderRadius: 999, padding: "1px 8px" }} title="נמדד מתיוג מפורש (אמין)">✦ {a.tagged_n} מתויג</span>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Panel>
+
       {/* קמפיינים אחרונים */}
       {campaigns.length > 0 && (
         <Panel title="📮 דיוורים אחרונים">
@@ -446,6 +526,7 @@ export default function GrowthCenterTab() {
             <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", fontFamily: F.body, fontSize: 13 }}>
               <span style={{ color: L.ink, fontFamily: "'Courier New',monospace" }} dir="ltr">✉ {r.email}</span>
               {r.source && <span style={{ color: L.blue, fontSize: 11.5 }} dir="ltr">{r.source}</span>}
+              {r.arrival && (() => { const [lbl, col] = tagInfo(r.arrival); return <span style={{ color: col, fontSize: 11, fontWeight: 700 }} title={r.rid ? `שותף rid: ${r.rid}` : "מקור-הגעה"}>← {lbl}</span>; })()}
               <span style={{ color: L.sub, fontSize: 11, marginInlineStart: "auto" }}>{r.created_at ? timeAgoHe(r.created_at) : ""}</span>
             </div>
           ))}

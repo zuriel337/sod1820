@@ -78,6 +78,12 @@ export const trackResearch = (action, meta = null) =>
 
 export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 
+// 🔎 חיפוש-נדיר (שכבה 2) — נרשם כשחיפוש חשף התכנסות נדירה אמיתית (זהב / מד-נדירות גבוה),
+// לא סתם "כמה חיפשו". לב-המחקר: אילו חיפושים באמת מגלים משהו. surface='search', event_type='rare'.
+// meta: {source, value, score/rarity, indep, resonance…} → דשבורד «חיפושים שחשפו נדירות».
+export const trackRareSearch = (query, meta = null) =>
+  track("search", query != null ? String(query).slice(0, 120) : null, "rare", meta || undefined);
+
 // ===== מעקב התקנות אפליקציה (PWA install) =====
 // האתר ניתן להתקנה בכרום (יש manifest). כאן בונים משפך התקנה על visitor_events
 // הקיים (אין סכימה חדשה), עם פילוח דפדפן/מכשיר/מקור:

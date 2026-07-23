@@ -6,6 +6,7 @@ import { findNameCross } from "../lib/nameCross.js";
 import { shareCross, crossCardDataUrl } from "../lib/crossCard.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, rankByRarity, scoreCross, independentMethods } from "../lib/crossRarity.js";
 import { logView } from "../lib/supabase.js";
+import { trackRareSearch } from "../lib/tracking.js";
 
 // 🔮 "מצא לי הצלבה" — לשם/ביטוי נתון, מוצא מילים קדושות שמתכנסות איתו בכמה שיטות.
 // מנוע: findNameCross (gematria_engine_law — חישוב דרך METHODS בלבד). שיתוף ויזואלי: shareCross.
@@ -145,6 +146,18 @@ export default function CrossFinder({ term }) {
   // 🚫 ברירת-מחדל: לא מציגים הצלבות טריוויאליות (רגיל=גדול בלי אות סופית — לא הצלבה אמיתית).
   // סדר מקורי (הכי-חזק ראשון), אבל מסונן. אם כלום לא נשאר — אין הצלבה אמיתית.
   const dispList = [primaryScored, ...othersScored].filter(Boolean).filter(c => !(c.rarity && c.rarity.trivial));
+
+  // שכבה 2 — חיפוש-נדיר: כשההצלבה המובילה חוצה סף-נדירות אמיתי, נרשם פעם-אחת לחיפוש (לב-המחקר).
+  const topR = dispList[0] && dispList[0].rarity && !dispList[0].rarity.trivial ? dispList[0].rarity : null;
+  const topVal = dispList[0]?.value;
+  const rareFired = useRef(null);
+  useEffect(() => {
+    if (!topR || topR.score < 60 || topVal == null) return;
+    const key = `${term}:${topVal}`;
+    if (rareFired.current === key) return;
+    rareFired.current = key;
+    trackRareSearch(term, { source: "cross", value: topVal, score: topR.score, indep: topR.indepCount, resonance: topR.resonance || 0, rarest: topR.rarestSize ?? null });
+  }, [term, topVal, topR?.score]);
 
   return (
     <div style={{ background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "16px 16px 18px", boxShadow: `0 4px 22px ${P.glow}` }}>
