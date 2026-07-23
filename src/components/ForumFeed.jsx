@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { thumb } from "../lib/img.js";
 import { stripHtml, formatDateHe, youtubeId, youtubeUrl } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
+import { genAvatar } from "../lib/avatar.js";
 import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution } from "../lib/contributions.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
@@ -125,7 +126,7 @@ function PostCard({ c, P }) {
         </div>
       </Link>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 11 }}>
-        <img src={a.avatar} alt="" style={{ width: 26, height: 26, borderRadius: "50%", objectFit: "cover", border: `1px solid ${P.border}` }} />
+        <img src={a.avatar && a.avatar !== "/logo.png" ? a.avatar : genAvatar(a.name)} alt="" style={{ width: 26, height: 26, borderRadius: "50%", objectFit: "cover", border: `1px solid ${P.border}` }} />
         <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, lineHeight: 1.3 }}>
           <b style={{ color: P.accentText }}>{a.name}</b>{a.role ? <span style={{ display: "block", fontSize: 10.5, color: P.accentDim, fontWeight: 400 }}>{a.role}</span> : null}
         </span>
