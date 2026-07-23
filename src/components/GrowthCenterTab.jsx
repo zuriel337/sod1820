@@ -111,16 +111,16 @@ function CmpRow({ icon, label, n, note, color, big }) {
 export default function GrowthCenterTab() {
   const [d, setD] = useState(null);
   const [ga, setGa] = useState(undefined); // undefined=טוען · null=לא זמין · object=נתונים
-  const [days, setDays] = useState(30);
-  const [err, setErr] = useState(false);
+  const [days, setDays] = useState(7);
+  const [err, setErr] = useState(null); // null=אין · 'forbidden' · 'error'
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(() => {
     let live = true;
-    setErr(false); setRefreshing(true);
+    setErr(null); setRefreshing(true);
     getGrowthCenter(days)
-      .then(res => { if (live) { if (!res || res.error) setErr(true); else setD(res); } })
-      .catch(() => { if (live) setErr(true); })
+      .then(res => { if (live) { if (res && res.error === "forbidden") setErr("forbidden"); else if (!res) setErr("error"); else setD(res); } })
+      .catch(() => { if (live) setErr("error"); })
       .finally(() => { if (live) setRefreshing(false); });
     // GA4 — עצמאי; כישלון/אי-חיבור לא שובר את הטאב
     setGa(undefined);
@@ -143,8 +143,17 @@ export default function GrowthCenterTab() {
     </div>
   );
 
-  if (err) return <div style={{ color: L.red, fontFamily: F.body, padding: 20 }}>שגיאה בטעינת מרכז הצמיחה. (נדרשת הרשאת אדמין)</div>;
-  if (d === null) return <div style={{ color: L.sub, fontFamily: F.body, padding: 20 }}>טוען את מרכז הצמיחה…</div>;
+  if (err === "forbidden") return (
+    <div style={{ color: L.red, fontFamily: F.body, padding: 20, lineHeight: 1.8 }}>
+      🔒 נדרשת הרשאת אדמין. ודא שאתה מחובר מ<b>חשבון האדמין</b> (yosiviner7@gmail.com) — בחשבונות הבדיקה האחרים זה חסום בכוונה.
+    </div>
+  );
+  if (err === "error") return (
+    <div style={{ color: L.red, fontFamily: F.body, padding: 20, lineHeight: 1.8 }}>
+      ⚠️ שגיאה בטעינת מרכז הצמיחה (רשת / זמן-תגובה). <button onClick={load} style={{ color: L.blue, background: "none", border: "none", cursor: "pointer", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>↻ נסה שוב</button> · או בחר טווח קצר יותר (7 ימים).
+    </div>
+  );
+  if (d === null) return <div style={{ color: L.sub, fontFamily: F.body, padding: 20 }}>טוען את מרכז הצמיחה… <span style={{ fontSize: 11 }}>(עד כמה שניות בטווחים ארוכים)</span></div>;
 
   const meas = d.measurement || null;
   const email = d.email || {}, k = email.kpis || {};
