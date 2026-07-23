@@ -212,11 +212,11 @@ function DossierFindings({ P, name, isAdmin }) {
   const [items, setItems] = useState(null);
   useEffect(() => { let a = true; getResearcherProfile(name, 80).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name]);
   if (!items || !items.length) return null;
+  // 📱 קופסת-הוואטסאפ — סגורה כברירת-מחדל, נפתחת בלחיצה על הכותרת. כל ההודעות בקופסה אחת,
+  //    לא מתפזרות על הדף (החלטת צוריאל). אדמין מוציא משם לפורום («קדם לפורום» על כל בועה).
   return (
     <div style={{ marginBottom: 26 }}>
-      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>📱 ממצאים ומחקרים של {name} ({items.length})</div>
-      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>חידושים וממצאים מהוואטסאפ ומהאתר — גללו בתוך החלון. אדמין: «⬆️ קדם לפורום» על כל בועה.</div>
-      <WaChatWindow name={name} items={items} isAdmin={isAdmin} height={440} />
+      <WaChatWindow name={name} items={items} isAdmin={isAdmin} height={440} collapsible defaultOpen={false} />
     </div>
   );
 }
