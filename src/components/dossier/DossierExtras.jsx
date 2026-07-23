@@ -4,7 +4,8 @@ import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase, getMyResearch } from "../../lib/supabase.js";
 import { getMatricesByOwner, getMyMatrices, moderateMatrix } from "../../lib/elsMatrices.js";
-import { getResearcherProfile, moderateContribution, getResearcherStats } from "../../lib/contributions.js";
+import { getResearcherProfile, getResearcherStats } from "../../lib/contributions.js";
+import WaChatWindow from "../WaChatWindow.jsx";
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
@@ -209,46 +210,13 @@ function DossierMatrices({ P, name, matrices, isAdmin, onPromote }) {
 //    מעביר אותו לפיד-הפורום הציבורי (החלטת צוריאל: גולמי-וואטסאפ נשאר בדף, אתה אוצר מה עולה לפורום).
 function DossierFindings({ P, name, isAdmin }) {
   const [items, setItems] = useState(null);
-  const [busyId, setBusyId] = useState(null);
-  useEffect(() => { let a = true; getResearcherProfile(name, 30).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name]);
+  useEffect(() => { let a = true; getResearcherProfile(name, 80).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name]);
   if (!items || !items.length) return null;
-  const href = (it) => it.target_type === "number" ? `/number/${it.target_id}` : it.target_type === "topic" ? `/topic/${it.target_id}` : null;
-  const kind = (o) => o === "els" ? "🔠 צופן" : o === "broadcast" ? "📣 שידור" : "📱 ממצא";
-  const promote = async (id) => {
-    setBusyId(id);
-    try { await moderateContribution(id, "approved"); setItems(list => list.map(x => x.id === id ? { ...x, status: "approved" } : x)); }
-    catch { /* נשאר גולמי */ }
-    setBusyId(null);
-  };
   return (
     <div style={{ marginBottom: 26 }}>
       <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>📱 ממצאים ומחקרים של {name} ({items.length})</div>
-      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>חידושים וממצאים — מהאתר ומהוואטסאפ. לחיצה פותחת את היעד.</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {items.map(it => {
-          const to = href(it);
-          const inForum = it.status === "approved";
-          const body = (
-            <>
-              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title || it.gematria_claim || "ממצא"}</div>
-              {it.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.body}</div>}
-              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 4 }}>{kind(it.origin)} · {String(it.created_at).slice(0, 10)}{inForum ? " · ✦ בפורום" : ""}</div>
-            </>
-          );
-          const st = { background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none", display: "block" };
-          const content = to ? <Link to={to} style={st}>{body}</Link> : <div style={st}>{body}</div>;
-          return (
-            <div key={it.id} style={{ display: "flex", flexDirection: "column" }}>
-              {content}
-              {isAdmin && !inForum && (
-                <button onClick={() => promote(it.id)} disabled={busyId === it.id} style={{ cursor: "pointer", alignSelf: "flex-start", marginTop: 5, border: `1px solid ${P.border}`, background: "rgba(28,122,56,.12)", color: "#1c7a38", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "5px 12px", minHeight: 32 }}>
-                  {busyId === it.id ? "…" : "⬆️ קדם לפורום"}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>חידושים וממצאים מהוואטסאפ ומהאתר — גללו בתוך החלון. אדמין: «⬆️ קדם לפורום» על כל בועה.</div>
+      <WaChatWindow name={name} items={items} isAdmin={isAdmin} height={440} />
     </div>
   );
 }

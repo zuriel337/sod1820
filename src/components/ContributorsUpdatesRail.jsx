@@ -26,6 +26,7 @@ export default function ContributorsUpdatesRail({ limit = 12 }) {
       <div style={{ display: "flex", alignItems: "baseline", gap: 9, flexWrap: "wrap", marginBottom: 10 }}>
         <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>📁 כתבים שהתעדכנו</span>
         <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>הדפים המתעדכנים — החדש למעלה ({rows.length})</span>
+        <Link to="/community/whatsapp" style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>📱 תיבת הוואטסאפ ←</Link>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
         {rows.map(r => (

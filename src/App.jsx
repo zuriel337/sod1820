@@ -101,6 +101,7 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
 const ContributorPage = React.lazy(() => import("./pages/ContributorPage.jsx"));
 const ResearchersIndexPage = React.lazy(() => import("./pages/ResearchersIndexPage.jsx"));
+const WaInboxPage = React.lazy(() => import("./pages/WaInboxPage.jsx"));
 // 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
 const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
 
@@ -307,6 +308,7 @@ export default function App() {
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/community/researcher/:slug" element={<ContributorPage />} />
           <Route path="/community/researchers" element={<ResearchersIndexPage />} />
+          <Route path="/community/whatsapp" element={<WaInboxPage />} />
           {/* 888 — מספר-החתימה של עמית מייק רוב → קיצור לדף-החוקר שלו (החלטת צוריאל) */}
           <Route path="/888" element={<Navigate to="/community/researcher/888" replace />} />
           <Route path="/members" element={<MembersPage />} />

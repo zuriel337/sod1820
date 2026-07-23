@@ -10,6 +10,23 @@ function hash(s) {
 
 const escapeXml = (c) => c.replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[m]));
 
+// 🎨 צבע-כתב דטרמיניסטי — אותו גוון של האווטאר. מחזיר פלטת-בועה (בהיר/כהה) לחלון-הצ'אט,
+//    כדי שכל כתב יקבל צבע-זהות משלו (avatar ↔ בועות ↔ כותרת מסונכרנים).
+export function writerHue(seed) {
+  return hash(String(seed || "?").trim() || "?") % 360;
+}
+export function writerColor(seed) {
+  const h = writerHue(seed);
+  return {
+    hue: h,
+    accent: `hsl(${h}, 60%, 45%)`,        // כותרת/אקסנט
+    bubbleLight: `hsl(${h}, 72%, 92%)`,   // רקע-בועה במצב יום
+    inkLight: `hsl(${h}, 55%, 24%)`,      // טקסט-בועה יום
+    bubbleDark: `hsl(${h}, 38%, 20%)`,    // רקע-בועה במצב לילה
+    inkDark: `hsl(${h}, 55%, 88%)`,       // טקסט-בועה לילה
+  };
+}
+
 // מחזיר data-URI של אווטאר עגול עם גרדיאנט + אות ראשונה. seed = שם/סלאג.
 export function genAvatar(seed, size = 96) {
   const s = String(seed || "?").trim() || "?";
