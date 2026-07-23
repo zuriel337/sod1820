@@ -141,6 +141,7 @@ export default function JourneyPage() {
     setPath([start]);
     setLoading(false);
     logView("journey_start", String(value));   // 📊 פאנל: התחלת מסע
+    try { track("journey", String(value), "start"); } catch { /* noop */ }  // 📊 מדידה אנושית — events (is_bot+person)
     logJourneyAb(lens, "start", 0, thisKind);  // 🧪 מדידה: עדשה + ווריאנט-תוכן
   }
 
@@ -192,6 +193,7 @@ export default function JourneyPage() {
     if (_depth >= goal) {
       setFinished("complete");
       logView("journey_complete", String(bases[0]));         // 📊 פאנל: השלמת מסע (100%)
+      try { track("journey", String(bases[0]), "complete"); } catch { /* noop */ }  // 📊 מדידה אנושית — events (is_bot+person)
       logView("journey_target_revealed", String(bases[0]));  // 📊 פאנל: הערך נחשף
       logJourneyAb(lens, "complete", _depth, runKind);   // 🧪 מדידה: סיום + ווריאנט-תוכן
     }
@@ -214,6 +216,7 @@ export default function JourneyPage() {
     markAiMessage(root);
     setAiState("busy");
     logView("journey_ai_message", String(root));   // 📊 פאנל: מסר אישי נוצר
+    try { track("journey", String(root), "ai_message"); } catch { /* noop */ }  // 📊 מדידה אנושית — events (is_bot+person)
     trackAi("journey_msg", "journey");              // 📊 שימוש ב-AI — מסר-מסע (ראשון)
     const msg = await getJourneyMessage({
       value: root,
