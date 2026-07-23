@@ -178,6 +178,63 @@ export function captureArrivalSource() {
   track("arrival", null, "source", { source, tag: tag || null, tagged: !!tag, landing });
 }
 
+// ===== פרופיל מקור-הגעה מתמשך (acquisition — מגע-ראשון + מגע-אחרון) =====
+// captureArrivalSource רושם *אירוע* לכל session; כאן שומרים *פרופיל מתמשך* ב-localStorage
+// שאפשר לצרף לכל המרה (הרשמה לניוזלטר) → כדי לדעת מאיפה כל נרשם *באמת* הגיע.
+//   first — הפעם הראשונה אי-פעם שהמבקר הגיע (נשמר פעם אחת, לא נדרס לעולם).
+//   last  — ההגעה-החיצונית האחרונה בעלת-אות (תיוג src/utm · או rid · או referrer חיצוני).
+// last מתעדכן רק ב"הגעה אמיתית" → ניווט-פנימי/רענון-ישיר לא דורסים מקור-אחרון טוב.
+// המפתחות (sod_acq_first/last) הם החוזה שקורא subscribeEmail (lib/supabase.js).
+const ACQ_FIRST = "sod_acq_first", ACQ_LAST = "sod_acq_last";
+
+// דומיין-מפנה חיצוני בלבד (פנימי sod1820 → null, כדי לא לספור ניווט-פנימי כהגעה).
+function externalReferrer() {
+  try {
+    const ref = (typeof document !== "undefined" && document.referrer) || "";
+    if (!ref) return null;
+    const host = new URL(ref).hostname;
+    return /(^|\.)sod1820\.co\.il$/i.test(host) ? null : host;
+  } catch { return null; }
+}
+
+// "מגע" נוכחי — הערוץ (מתיוג אמין או ניחוש-referrer), התג הגולמי, ה-rid של המשתף, והנחיתה.
+function currentTouch() {
+  const tag = campaignTag();               // src / utm_source הגולמי (אמין)
+  let rid = null;
+  try { rid = new URLSearchParams(window.location.search).get("rid"); } catch { /* noop */ }
+  let landing = "home";
+  try { landing = window.location.pathname.replace(/^\//, "") || "home"; } catch { /* noop */ }
+  return {
+    channel: tag ? normalizeSource(tag) : sourceInfo(), // whatsapp/facebook/google/ישיר…
+    tag: tag || null,                        // התג הדק (wa/fb-code/ig…) — פילוח ברמת-ערוץ
+    tagged: !!tag,                           // אמין (תיוג מפורש) מול מנוחש מ-referrer
+    rid: rid || null,                        // מזהה-המשתף — מי שלח את הקישור
+    ref: externalReferrer(),                 // דומיין-מפנה חיצוני (google/…)
+    landing,
+    at: new Date().toISOString(),
+  };
+}
+
+// נקרא בעליית האפליקציה (App). שומר first פעם-אחת, ומעדכן last בכל הגעה-אמיתית.
+export function captureAcquisition() {
+  if (typeof window === "undefined") return;
+  try {
+    const t = currentTouch();
+    const real = t.tagged || !!t.rid || !!t.ref; // אות אמיתי (לא רענון-ישיר/ניווט-פנימי)
+    if (!localStorage.getItem(ACQ_FIRST)) localStorage.setItem(ACQ_FIRST, JSON.stringify(t));
+    if (real) localStorage.setItem(ACQ_LAST, JSON.stringify(t));
+  } catch { /* noop */ }
+}
+
+// { first, last } לצירוף להמרה. last נופל ל-first אם אין הגעה-אמיתית מאוחרת יותר.
+export function getAcquisition() {
+  try {
+    const first = JSON.parse(localStorage.getItem(ACQ_FIRST) || "null");
+    const last = JSON.parse(localStorage.getItem(ACQ_LAST) || "null") || first;
+    return (first || last) ? { first, last } : null;
+  } catch { return null; }
+}
+
 // בונה קישור מתויג לשיתוף ברשת (להעתקה ל-bio/פוסט). דוגמה:
 //   sourceUrl("/reality", "ig") → https://sod1820.co.il/reality?src=ig
 export function sourceUrl(path = "/", src = "ig") {
