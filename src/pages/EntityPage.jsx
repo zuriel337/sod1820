@@ -25,6 +25,7 @@ import Discourse from "../components/Discourse.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import ReportHint from "../components/ReportHint.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import AiFeedback from "../components/AiFeedback.jsx";
 import MethodAnalyze from "../components/MethodAnalyze.jsx";
@@ -1543,6 +1544,15 @@ export default function EntityPage({ embedPhrase } = {}) {
                     <div style={{ marginTop: 20 }}>
                       <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8, textAlign: "center" }}>🖼 תמונות מהמאגר</div>
                       <PostImageCarousel value={value} images={galleryMain} />
+                    </div>
+                  </Reveal>
+                )}
+
+                {/* ➕ דווח רמז — שכבת-הזהות: כל אחד תורם רמז למספר הזה (identity_architecture_law) */}
+                {Number.isFinite(+value) && +value > 0 && (
+                  <Reveal delay={70}>
+                    <div style={{ marginTop: 16, textAlign: "center" }}>
+                      <ReportHint value={value} label={`דווח רמז ל-${value}`} />
                     </div>
                   </Reveal>
                 )}

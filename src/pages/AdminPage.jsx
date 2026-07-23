@@ -26,6 +26,7 @@ import {
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
 import { getAllContributions, approveContribution, moderateContribution, intentMeta } from "../lib/contributions.js";
+import { getPendingHints, approveHint, rejectHint } from "../lib/community.js";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { collectPairs, fetchFamilySizes, fetchResonanceMap, scoreCross } from "../lib/crossRarity.js";
@@ -64,6 +65,7 @@ const TABS = [
   { key: "findings", label: "🔬 ממצאים" },
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
+  { key: "hintreports", label: "➕ דיווחי רמזים" },
   { key: "contribmod", label: "💬 מרכז התגובות" },
   { key: "growth",   label: "📈 מרכז צמיחה" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
@@ -92,7 +94,7 @@ const GROUPS = [
   { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "els", "meta"] },
   { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "walink", "jexp", "journeys"] },
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
-  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "contribmod", "stream", "broadcast"] },
+  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "hintreports", "contribmod", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
   { key: "comms",     label: "📧 תפוצה",    subs: ["growth", "subs", "emails", "newsletter", "messages"] },
   { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "suggest", "scanner", "utm", "push", "worklog"] },
@@ -239,6 +241,7 @@ export default function AdminPage() {
       {tab === "findings" && <FindingsTab />}
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
+      {tab === "hintreports" && <HintReportsTab />}
       {tab === "contribmod" && <ContribModTab />}
       {tab === "growth" && <GrowthCenterTab />}
       {tab === "subs" && <SubscribersTab />}
@@ -2531,6 +2534,74 @@ function UsersTab() {
               <span style={{ color: Number(u.ai_cost) > 0 ? "#7fd18a" : C.muted, fontFamily: F.mono, fontSize: 11.5 }}>💰${Number(u.ai_cost || 0).toFixed(2)}</span>
               <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, minWidth: 74, textAlign: "left" }}>{timeAgoTs(u.last_seen)}</span>
             </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ➕ דיווחי-רמזים מהקהילה — תור אישור (identity_architecture_law). אישור → gallery_images (source='community').
+const HINT_FILTERS = [["pending", "⏳ ממתינים"], ["approved", "✅ אושרו"], ["rejected", "✖ נדחו"], ["all", "הכל"]];
+function HintReportsTab() {
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(null);
+  const [status, setStatus] = useState("pending");
+  const [nums, setNums] = useState({});   // עריכת המספר לפני אישור
+  const load = (st = status) => { setRows(null); getPendingHints(st, 200).then(r => setRows(Array.isArray(r) ? r : [])).catch(() => setRows([])); };
+  useEffect(() => { load(status); /* eslint-disable-next-line */ }, [status]);
+  const ok = async (r) => {
+    setBusy(r.id);
+    try {
+      const res = await approveHint(r.id, { number: nums[r.id] ?? r.number });
+      if (res?.ok) load(); else alert("שגיאה: " + (res?.error || "אישור נכשל"));
+    } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); }
+  };
+  const no = async (id) => {
+    setBusy(id);
+    try { const res = await rejectHint(id); if (res?.ok) load(); else alert("שגיאה: " + (res?.error || "דחייה נכשלה")); }
+    catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(null); }
+  };
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>➕ דיווחי רמזים {rows ? `· ${rows.length}` : ""}</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
+          רמזים שהקהילה דיווחה (גם אנונימית). <b style={{ color: C.goldLight }}>אישור</b> → נכנס לזרם המציאות כ-<span style={{ fontFamily: F.mono }}>source=community</span>. אפשר לתקן את המספר הדומיננטי לפני אישור.
+        </div>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 11 }}>
+          {HINT_FILTERS.map(([k, lbl]) => (<button key={k} onClick={() => setStatus(k)} style={segBtn(status === k)}>{lbl}</button>))}
+        </div>
+      </div>
+      {!rows ? <Loading /> : rows.length === 0 ? <Empty>אין דיווחים בקטגוריה זו.</Empty> : (
+        <div style={{ display: "grid", gap: 8 }}>
+          {rows.map(r => (
+            <div key={r.id} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", background: "rgba(8,5,2,0.4)", display: "grid", gap: 8 }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+                {r.image_url && <a href={r.image_url} target="_blank" rel="noopener noreferrer"><img src={r.image_url} alt="" style={{ width: 92, height: 92, objectFit: "cover", borderRadius: 10, border: `1px solid ${C.border}` }} /></a>}
+                <div style={{ flex: 1, minWidth: 180, display: "grid", gap: 5 }} dir="rtl">
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, fontWeight: 700 }}>✍️ {r.reporter_name || "אנונימי"}{!r.reporter_user_id && <span style={{ color: C.goldDim, fontWeight: 400 }}> · אורח</span>}</span>
+                    <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11, marginInlineStart: "auto" }}>{timeAgoTs(r.created_at)}</span>
+                  </div>
+                  {r.description && <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{r.description}</div>}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>🔢 מספר דומיננטי:</span>
+                    <input type="number" defaultValue={r.number ?? ""} onChange={e => setNums(m => ({ ...m, [r.id]: e.target.value }))}
+                      placeholder="—" style={{ width: 90, background: "rgba(0,0,0,.35)", border: `1px solid ${C.border}`, borderRadius: 8, color: C.goldLight, fontFamily: F.mono, fontSize: 13, padding: "5px 8px" }} />
+                    {r.occurred_at && <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 11 }}>📅 {String(r.occurred_at).slice(0, 10)}</span>}
+                    {r.source_url && <a href={r.source_url} target="_blank" rel="noopener noreferrer" style={{ color: C.gold, fontFamily: F.body, fontSize: 11.5 }}>🔗 מקור</a>}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                {r.status === "pending" && <button disabled={busy === r.id} onClick={() => ok(r)} style={{ ...segBtn(true) }}>{busy === r.id ? "…" : "✅ אשר → זרם"}</button>}
+                {r.status === "pending" && <button disabled={busy === r.id} onClick={() => no(r.id)} style={{ ...segBtn(false), color: "#e0796f" }}>✖ דחה</button>}
+                <span style={{ marginInlineStart: "auto", fontFamily: F.mono, fontSize: 10.5, color: r.status === "approved" ? "#7fd18a" : r.status === "rejected" ? "#e0796f" : C.gold }}>
+                  {r.status === "approved" ? "✓ בזרם" : r.status === "rejected" ? "✖ נדחה" : "⏳ ממתין"}
+                </span>
+              </div>
+            </div>
           ))}
         </div>
       )}

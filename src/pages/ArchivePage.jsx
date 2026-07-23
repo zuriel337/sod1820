@@ -24,6 +24,7 @@ import { track } from "../lib/tracking.js";
 import SideRailAd from "../components/SideRailAd.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import RealityStream from "../components/RealityStream.jsx";
+import ReportHint from "../components/ReportHint.jsx";
 import ShareToFacebookBtn from "../components/ShareToFacebookBtn.jsx";
 import { PALETTES } from "../lib/palette.js";
 import { hintNums } from "../lib/reality.js";
@@ -1493,7 +1494,12 @@ export default function ArchivePage() {
               )}
             </>
           ) : (
-            <RealityStream hints={pool} palette={PALETTES.dark} onAddToStream={isAdmin ? addToStream : null} onEdit={isAdmin ? h => setEditImg(h) : null} />
+            <>
+              <div style={{ maxWidth: 640, margin: "0 auto 16px" }}>
+                <ReportHint variant="banner" />
+              </div>
+              <RealityStream hints={pool} palette={PALETTES.dark} onAddToStream={isAdmin ? addToStream : null} onEdit={isAdmin ? h => setEditImg(h) : null} />
+            </>
           )}
           </div>
         </div>
