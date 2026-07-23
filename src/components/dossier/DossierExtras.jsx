@@ -481,7 +481,9 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
     return data;
   }, []);
 
-  if (!c?.user_id) return null;
+  // 🔑 כתב בלי חשבון (user_id=null, כמו ישראל פנצ׳ר) — עדיין מציגים את המקטעים מבוססי-השם
+  //    (כרטיס-סטטיסטיקה + ממצאים לפי author_name). רק אם אין גם שם — אין מה להציג.
+  if (!c?.user_id && !c?.display_name) return null;
   const about = settings.about || c?.bio || "";
   const rzNumbers = [...new Set(matrices.flatMap(m => [m.primary_number, ...(Array.isArray(m.anchor_numbers) ? m.anchor_numbers : [])]).filter(n => Number.isFinite(n) && n > 0))].slice(0, 8);
   const rzFacts = `חוקר: ${name}. ${matrices.length} צפנים בתיק${level?.contrib ? `, ${level.contrib} חידושים מאושרים` : ""}${level?.label ? `, דרגה: ${level.label}` : ""}.${rzNumbers.length ? ` מספרים שהמחקר נוגע בהם: ${rzNumbers.join(", ")}.` : ""}`;
