@@ -332,9 +332,11 @@ export const rwCss = (t = RW) => `
       box-shadow:4px 6px 22px rgba(60,46,16,.20);z-index:40;cursor:pointer;transition:padding .15s}
     .rw-fab:hover{padding-inline-end:12px}
     .rw-fab:active{background:var(--accS)}
-    .rw-backdrop.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:45}
-    .rw-sheet{display:block;position:fixed;left:-100%;top:0;bottom:0;width:min(86vw,360px);background:var(--card);border-radius:0 20px 20px 0;
-      box-shadow:8px 0 30px rgba(0,0,0,.25);z-index:46;overflow:auto;padding:14px 12px calc(16px + env(safe-area-inset-bottom));
+    .rw-backdrop.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:45}
+    /* מגירת-צד — רחבה מספיק שלא יזלוג רקע בפאבלטים (תקרה 360→500), עדיין משאירה סף-סגירה */
+    .rw-sheet{display:block;position:fixed;left:-100%;top:0;bottom:0;width:min(92vw,500px);max-width:100vw;box-sizing:border-box;
+      background:var(--card);border-radius:0 20px 20px 0;
+      box-shadow:8px 0 30px rgba(0,0,0,.25);z-index:46;overflow-x:hidden;overflow-y:auto;padding:14px 12px calc(16px + env(safe-area-inset-bottom));
       transition:left .28s ease}
     .rw-sheet.open{left:0}
     .rw-grab{width:42px;height:5px;border-radius:999px;background:var(--line);margin:2px auto 12px}

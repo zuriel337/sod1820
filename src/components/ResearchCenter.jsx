@@ -242,11 +242,11 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
                 const to = `/number/${encodeURIComponent(c.entity_ref)}`;
                 const hint = c.title && c.title !== c.entity_ref ? c.title : null;
                 return (
-                  <Link key={i} to={to} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none",
+                  <Link key={i} to={to} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", minWidth: 0, overflow: "hidden",
                     background: "rgba(196,154,46,.08)", border: "1px solid rgba(196,154,46,.28)", borderRadius: 10, padding: "7px 11px", color: "inherit" }}>
-                    <span style={{ fontWeight: 800, whiteSpace: "nowrap" }}>🔢 {c.entity_ref}</span>
-                    {hint && <span className="rw-muted" style={{ fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>{hint}</span>}
-                    <span className="rw-muted" style={{ marginInlineStart: "auto", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>🔎 {c.researchers} חוקרים</span>
+                    <span style={{ fontWeight: 800, whiteSpace: "nowrap", flex: "none" }}>🔢 {c.entity_ref}</span>
+                    {hint && <span className="rw-muted" style={{ fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: "1 1 auto", minWidth: 0 }}>{hint}</span>}
+                    <span className="rw-muted" style={{ marginInlineStart: "auto", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", flex: "none" }}>🔎 {c.researchers} חוקרים</span>
                   </Link>
                 );
               })}
