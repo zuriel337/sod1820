@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useThemeMode } from "../lib/themeMode.js";
 import { genAvatar, writerColor } from "../lib/avatar.js";
-import { moderateContribution } from "../lib/contributions.js";
+import { moderateContribution, promoteFindingToDict } from "../lib/contributions.js";
 
 // 💬 חלון-צ'אט בסגנון וואטסאפ לממצאי-הכתב. נגלל (החומר הגולמי לא מציף את הדף), ממותג-וואטסאפ,
 // וצבע-זהות לכל כתב (writerColor — תואם לאווטאר). isAdmin → כפתור «קדם לפורום» בבועה (published→approved).
@@ -15,6 +15,7 @@ export default function WaChatWindow({ name, items = [], isAdmin = false, height
   const col = writerColor(name);
   const [rows, setRows] = useState(items);
   const [busy, setBusy] = useState(null);
+  const [dictMsg, setDictMsg] = useState({});
   const [open, setOpen] = useState(defaultOpen);
   useEffect(() => { setRows(items); }, [items]);
   if (!rows.length) return null;
@@ -27,6 +28,15 @@ export default function WaChatWindow({ name, items = [], isAdmin = false, height
     setBusy(id);
     try { await moderateContribution(id, "approved"); setRows(l => l.map(x => x.id === id ? { ...x, status: "approved" } : x)); onChange?.(); }
     catch { /* נשאר גולמי */ }
+    setBusy(null);
+  };
+  const toDict = async (id) => {
+    setBusy(id + ":d");
+    try {
+      const r = await promoteFindingToDict(id);
+      const added = (r?.added || []).length, dup = (r?.in_dict || []).length, bad = (r?.unverified || []).length;
+      setDictMsg(m => ({ ...m, [id]: added ? `✓ נוספו ${added} למילון` : dup ? `כבר במילון (${dup})` : bad ? "לא אומת במנוע" : "אין גימטריה" }));
+    } catch { setDictMsg(m => ({ ...m, [id]: "שגיאה" })); }
     setBusy(null);
   };
 
@@ -65,11 +75,22 @@ export default function WaChatWindow({ name, items = [], isAdmin = false, height
                   {inForum && <span title="בפורום">✓✓</span>}
                 </div>
               </div>
-              {isAdmin && !inForum && (
-                <button onClick={() => promote(it.id)} disabled={busy === it.id}
-                  style={{ cursor: "pointer", marginTop: 3, border: `1px solid ${P.border}`, background: P.card, color: "#1c7a38", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "3px 10px", minHeight: 28 }}>
-                  {busy === it.id ? "…" : "⬆️ קדם לפורום"}
-                </button>
+              {isAdmin && (
+                <div style={{ display: "flex", gap: 6, marginTop: 3, flexWrap: "wrap", alignItems: "center" }}>
+                  {!inForum && (
+                    <button onClick={() => promote(it.id)} disabled={busy === it.id}
+                      style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: "#1c7a38", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "3px 10px", minHeight: 28 }}>
+                      {busy === it.id ? "…" : "⬆️ קדם לפורום"}
+                    </button>
+                  )}
+                  {it.gematria_claim && !dictMsg[it.id] && (
+                    <button onClick={() => toDict(it.id)} disabled={busy === it.id + ":d"}
+                      style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "3px 10px", minHeight: 28 }}>
+                      {busy === it.id + ":d" ? "…" : "➕ למילון"}
+                    </button>
+                  )}
+                  {dictMsg[it.id] && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>{dictMsg[it.id]}</span>}
+                </div>
               )}
             </div>
           );

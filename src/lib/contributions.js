@@ -251,7 +251,7 @@ export async function getResearcherProfile(name, limit = 40) {
   if (!supabase || !name) return null;
   try {
     const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,title,body,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,created_at")
       .eq("author_name", name).in("status", ["approved", "published"]).is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
     const items = data || [];
@@ -313,6 +313,13 @@ export async function approveContribution(id, { canonical = false, project = tru
 export async function moderateContribution(id, status) {
   const { error } = await supabase.rpc("moderate_contribution", { p_id: id, p_status: status });
   if (error) throw error;
+}
+// ➕ קידום גימטריות של ממצא למילון (אדמין) — RPC מזהה ביטויים בטענה, מאמת כל אחד במנוע (ragil_calc),
+// ומוסיף למילון על שם הכתב. מחזיר {ok, added[], in_dict[], unverified[]}. מאמת-מנוע = בטוח (gematria_engine_law).
+export async function promoteFindingToDict(id) {
+  const { data, error } = await supabase.rpc("promote_finding_to_dict", { p_id: id });
+  if (error) throw error;
+  return data;
 }
 // 📌 הצמדת/ביטול-הצמדת תרומה בפורום (אדמין בלבד — נאכף בשרת). pin=false מבטל.
 export async function pinContribution(id, pin = true) {
