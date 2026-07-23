@@ -9,6 +9,8 @@ import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { WaDot } from "../../lib/userCenter/useWaLink.jsx";
 import { searchPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
+import { getContributorsFeed } from "../../lib/contributions.js";
+import { genAvatar } from "../../lib/avatar.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
 import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
@@ -18,6 +20,39 @@ import { useStream, STREAMS } from "../../lib/stream.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
+
+// 👥 מפת-כתבים חיה במגירה — עדשה על contributors_feed (החוקרים הפעילים). מזין תנועה לדפי-החוקר
+//    (המשטח הציבורי/SEO) ומראה שהקהילה חיה. כל צ'יפ → דף החוקר; «כל החוקרים» → האינדקס.
+function DrawerWritersMap({ cc, onNavigate }) {
+  const [rows, setRows] = useState([]);
+  useEffect(() => {
+    let a = true;
+    getContributorsFeed(8).then(r => { if (a) setRows((r || []).filter(x => x.slug && x.display_name).slice(0, 7)); }).catch(() => {});
+    return () => { a = false; };
+  }, []);
+  if (!rows.length) return null;
+  return (
+    <div style={{ margin: "16px 8px 2px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2px 8px" }}>
+        <span style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2 }}>👥 הכתבים והחוקרים</span>
+        <Link to="/community/researchers" onClick={onNavigate} style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textDecoration: "none" }}>כל החוקרים →</Link>
+      </div>
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+        {rows.map(r => {
+          const cnt = (r.findings || 0) + (r.posts || 0) + (r.ciphers || 0);
+          return (
+            <Link key={r.slug} to={`/community/researcher/${r.slug}`} onClick={onNavigate}
+              style={{ flex: "none", width: 94, textDecoration: "none", background: "rgba(212,175,55,0.06)", border: `1px solid ${cc.border}`, borderRadius: 12, padding: "10px 6px", textAlign: "center" }}>
+              <img src={genAvatar(r.display_name)} alt="" loading="lazy" style={{ width: 40, height: 40, borderRadius: "50%", border: `1px solid ${cc.borderGold}` }} />
+              <div style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 11.5, fontWeight: 700, marginTop: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.display_name}</div>
+              {cnt > 0 && <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 10, marginTop: 2 }}>{cnt} פריטים</div>}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
@@ -713,6 +748,8 @@ export default function Navbar() {
               ))}
             </div>
           </div>
+          {/* 👥 מפת-כתבים חיה — החוקרים הפעילים (עדשה על contributors_feed) */}
+          <DrawerWritersMap cc={cc} onNavigate={() => setDrawer(false)} />
           {/* כל המדורים */}
           <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "14px 8px 4px" }}>כל המדורים</div>
           <div className="sod-tiles">
