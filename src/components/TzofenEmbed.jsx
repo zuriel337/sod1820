@@ -108,6 +108,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   //    אדמין → מתפרסם מיד · משתמש רשום → ממתין לאישור · אנונימי → נשמר עם visitor_id, ממתין לאישור.
   //    (החלטת צוריאל: גם לא-רשום יכול לשמור — הצופן נכנס לתור-האישור באדמין, לא מתפרסם מיד.)
   const [dossierPrompt, setDossierPrompt] = useState(false);   // 🎉 הצעת הכנת-תיק אחרי שמירה ראשונה (כניסה 1)
+  const [savedToast, setSavedToast] = useState(null);          // 💾 אישור-שמירה חוזר עם קישור לדף-המחקר (כל שמירה)
+  // 🔔 טוסט-השמירה נעלם לבד אחרי 7ש' (המשתמש עדיין יכול ללחוץ «לדף המחקר»)
+  useEffect(() => { if (!savedToast) return; const t = setTimeout(() => setSavedToast(null), 7000); return () => clearTimeout(t); }, [savedToast]);
   const saveToCloud = useCallback(async (d) => {
     try {
       const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
@@ -135,6 +138,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         });
         if (!error) {
           postToTool({ type: "saved", ok: true, status: "updated" });
+          if (user) setSavedToast({ status: "updated" });   // 💾 קישור חוזר לדף-המחקר
           pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
           return;
         }
@@ -153,9 +157,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       };
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
-        postToTool({ type: "saved", ok: true, status: isAdmin ? "published" : (isReSave ? "variant" : "pending") });
-        // 🎉 כניסה 1: אחרי השמירה הראשונה של המשתמש — הצעה חד-פעמית להכין תיק מחקר
-        try { if (!localStorage.getItem("sod_dossier_prompted_v1")) { localStorage.setItem("sod_dossier_prompted_v1", "1"); setDossierPrompt(true); } } catch { /* noop */ }
+        const st = isAdmin ? "published" : (isReSave ? "variant" : "pending");
+        postToTool({ type: "saved", ok: true, status: st });
+        // 🎉 כניסה 1: אחרי השמירה הראשונה — מודל-חגיגה להכנת-תיק. אחרת: טוסט-שמירה חוזר עם קישור לדף-המחקר.
+        let firstTime = false;
+        try { firstTime = !localStorage.getItem("sod_dossier_prompted_v1"); if (firstTime) localStorage.setItem("sod_dossier_prompted_v1", "1"); } catch { /* noop */ }
+        if (firstTime) setDossierPrompt(true); else setSavedToast({ status: st });
         if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
@@ -334,6 +341,30 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
               style={{ background: "none", border: "none", color: "#8a93a3", fontFamily: "inherit", fontSize: 13, cursor: "pointer", marginTop: 12, textDecoration: "underline" }}>
               אחר כך
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 💾 אישור-שמירה חוזר (כל שמירה, לא רק הראשונה) — קישור ישיר לדף-המחקר. «רואים לאן זה נשמר». */}
+      {savedToast && (
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 16, zIndex: 26, display: "flex", justifyContent: "center", padding: "0 14px", pointerEvents: "none" }}>
+          <div style={{ pointerEvents: "auto", maxWidth: 460, width: "100%", background: "#0f1830", color: "#fff", border: "1px solid #2f6df6", borderRadius: 14, padding: "11px 12px 11px 14px", display: "flex", alignItems: "center", gap: 11, boxShadow: "0 14px 36px rgba(0,0,0,0.5)" }}>
+            <span style={{ fontSize: 20, flex: "none" }}>{savedToast.status === "published" ? "✓" : "💾"}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 800, fontSize: 14.5, lineHeight: 1.3 }}>
+                {savedToast.status === "updated" ? "עודכן בתיק המחקר שלך"
+                  : savedToast.status === "published" ? "פורסם לתיק המחקר — גלוי לחוקרים"
+                  : savedToast.status === "variant" ? "נשמר כגרסה — ממתין לאישור"
+                  : "נשמר לתיק המחקר שלך — ממתין לאישור לפומבי"}
+              </div>
+              <div style={{ color: "#9fb2e6", fontSize: 11.5, marginTop: 1 }}>הצופן שמור בדף החוקר שלך.</div>
+            </div>
+            <button onClick={() => { setSavedToast(null); navigate("/community/researcher/me"); }}
+              style={{ flex: "none", background: "linear-gradient(135deg,#2f6df6,#4f86ff)", color: "#fff", border: "none", borderRadius: 999, padding: "8px 14px", fontFamily: "inherit", fontSize: 12.5, fontWeight: 800, cursor: "pointer", minHeight: 36 }}>
+              לדף המחקר →
+            </button>
+            <button onClick={() => setSavedToast(null)} aria-label="סגור"
+              style={{ flex: "none", background: "none", border: "none", color: "#8a93a3", fontSize: 16, cursor: "pointer", padding: "0 2px" }}>✕</button>
           </div>
         </div>
       )}
