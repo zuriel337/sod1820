@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase, getMyResearch } from "../../lib/supabase.js";
-import { getMatricesByOwner, getMyMatrices } from "../../lib/elsMatrices.js";
+import { getMatricesByOwner, getMyMatrices, moderateMatrix } from "../../lib/elsMatrices.js";
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
+import { useAuth } from "../../lib/AuthContext.jsx";
 
 const RAZIEL_WA = "972557049261";   // רזיאל — הסוכן בוואטסאפ (Green API)
 
@@ -71,31 +72,53 @@ function ResearchDomains({ P, level, matrices, tags }) {
 }
 
 // 🔠 המחקר שלי — הצפנים בתיק. עדשה על els_records (self_published/published). מקשר לעמוד הקנוני.
-function DossierMatrices({ P, name, matrices }) {
+// 👑 אדמין: על צופן שעדיין «בתיק» (status!=published) מוצג «⬆️ קדם לספרייה» — מקדם לספרייה הראשית
+//    (moderate→published) מבלי לצאת מדף-האדם. כך צוריאל מחליט מה עולה לראשי (els_dossier_default_law).
+function DossierMatrices({ P, name, matrices, isAdmin, onPromote }) {
+  const [busyId, setBusyId] = useState(null);
   if (!matrices.length) return null;
+  const promote = async (id) => {
+    setBusyId(id);
+    try { await onPromote(id); } catch { /* נשאר בתיק */ }
+    setBusyId(null);
+  };
   return (
     <div style={{ marginBottom: 26 }}>
       <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>🔠 הצפנים של {name}</div>
       <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>מטריצות-דילוג שגילה. לחיצה פותחת את עמוד-הצופן המלא.</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12 }}>
-        {matrices.map(m => (
-          <Link key={m.id} to={`/codes/${encodeURIComponent(m.slug || m.id)}`} style={{ textDecoration: "none", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-            {m.image_url ? (
-              <img src={thumb(m.image_url, 420)} alt={m.title || m.search_term} loading="lazy" style={{ width: "100%", aspectRatio: "1.3", objectFit: "cover", background: "#0a0700", display: "block" }} />
-            ) : (
-              <div style={{ width: "100%", aspectRatio: "1.3", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: P.cardGrad || P.card, color: P.accentText, fontSize: 18, fontWeight: 800, textAlign: "center", padding: 12 }}>
-                <img src="/els-icon.png" alt="" width="38" height="38" style={{ borderRadius: 9, objectFit: "cover" }} />{m.search_term}
-              </div>
-            )}
-            <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
-              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{m.title || m.search_term}</div>
-              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
-                {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
-                {m.status !== "published" && <span style={{ color: "#9a6b00" }}> · ⏳ בתיק</span>}
-              </div>
+        {matrices.map(m => {
+          const promoted = m.status === "published";
+          return (
+            <div key={m.id} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+              <Link to={`/codes/${encodeURIComponent(m.slug || m.id)}`} style={{ textDecoration: "none", display: "flex", flexDirection: "column", flex: 1 }}>
+                {m.image_url ? (
+                  <img src={thumb(m.image_url, 420)} alt={m.title || m.search_term} loading="lazy" style={{ width: "100%", aspectRatio: "1.3", objectFit: "cover", background: "#0a0700", display: "block" }} />
+                ) : (
+                  <div style={{ width: "100%", aspectRatio: "1.3", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: P.cardGrad || P.card, color: P.accentText, fontSize: 18, fontWeight: 800, textAlign: "center", padding: 12 }}>
+                    <img src="/els-icon.png" alt="" width="38" height="38" style={{ borderRadius: 9, objectFit: "cover" }} />{m.search_term}
+                  </div>
+                )}
+                <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{m.title || m.search_term}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
+                    {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
+                    {!promoted && <span style={{ color: "#9a6b00" }}> · ⏳ בתיק</span>}
+                  </div>
+                </div>
+              </Link>
+              {isAdmin && (
+                promoted ? (
+                  <div style={{ borderTop: `1px solid ${P.border}`, color: "#1c7a38", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textAlign: "center", padding: "7px 8px" }}>✦ בספרייה הראשית</div>
+                ) : (
+                  <button onClick={() => promote(m.id)} disabled={busyId === m.id} style={{ cursor: "pointer", borderTop: `1px solid ${P.border}`, border: "none", borderRadius: 0, background: "rgba(28,122,56,.12)", color: "#1c7a38", fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "8px", minHeight: 36 }}>
+                    {busyId === m.id ? "…" : "⬆️ קדם לספרייה"}
+                  </button>
+                )
+              )}
             </div>
-          </Link>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -332,7 +355,14 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
   const [matrices, setMatrices] = useState([]);
   const [joinedAt, setJoinedAt] = useState(null);
   const [settings, setSettings] = useState(c?.dossier_settings || {});
+  const { isAdmin } = useAuth();
   const name = c?.display_name || "החוקר";
+
+  // 👑 אדמין — קידום צופן מדף-האדם לספרייה הראשית (moderate→published), עדכון אופטימי מקומי.
+  const promoteMatrix = useCallback(async (id) => {
+    await moderateMatrix(id, "published");
+    setMatrices(list => list.map(m => (m.id === id ? { ...m, status: "published" } : m)));
+  }, []);
 
   useEffect(() => { setSettings(c?.dossier_settings || {}); }, [c]);
 
@@ -364,7 +394,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
       <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={isOwner} onSave={t => saveSettings({ current_focus: t })} />
       <ImpactBar P={P} level={level} matrices={matrices} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
-      <DossierMatrices P={P} name={name} matrices={matrices} />
+      <DossierMatrices P={P} name={name} matrices={matrices} isAdmin={isAdmin} onPromote={promoteMatrix} />
       <MyResearchExplored P={P} isOwner={isOwner} />
       <ResearchJournal P={P} name={name} level={level} matrices={matrices} joinedAt={joinedAt} />
       <Connections P={P} matrices={matrices} />
