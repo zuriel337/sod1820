@@ -1,5 +1,7 @@
 import React, { createContext, useContext } from "react";
+import { useLocation } from "react-router-dom";
 import { useThemeMode } from "./themeMode.js";
+import { effectiveMode } from "./lightRoutes.js";
 
 // ===== פלטות סמנטיות לדפי התוכן (בהיר/כהה) =====
 // טוקנים לפי *תפקיד* ולא לפי צבע — כך הניגודיות נכונה בשתי התמות.
@@ -73,8 +75,13 @@ const PaletteCtx = createContext(null);
 export function PaletteProvider({ value, children }) {
   return React.createElement(PaletteCtx.Provider, { value }, children);
 }
+// 🌗 usePalette עוקב אחרי אותו «מצב אפקטיבי» של ה-Layout (route-aware) — כך שצבעי-התוכן
+// תמיד תואמים לרקע-הדף, בלי «חצי בהיר חצי כהה». override (PaletteProvider) עדיין גובר
+// (למשל דף-המספר המוטמע בהיכל = «lab»). בדף לא-מוגר → כהה, גם אם המתג על בהיר.
 export function usePalette() {
   const override = useContext(PaletteCtx);
-  const mode = useThemeMode();
-  return override || PALETTES[mode] || PALETTES.light;
+  const globalMode = useThemeMode();
+  const { pathname } = useLocation();
+  if (override) return override;
+  return PALETTES[effectiveMode(pathname, globalMode)] || PALETTES.light;
 }

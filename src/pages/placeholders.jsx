@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { C, F, LOGO_URL } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 import { SectionHeader } from "../components/ui.jsx";
+import WritersRail from "../components/WritersRail.jsx";
+import CommunityActivityFeed from "../components/CommunityActivityFeed.jsx";
+import ReportHint from "../components/ReportHint.jsx";
+import LightCityBackdrop from "../components/layout/LightCityBackdrop.jsx";
 import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
@@ -78,28 +83,65 @@ const COMMUNITY = [
 ];
 
 export function CommunityPage() {
+  const P = usePalette();
+  const light = P.mode === "light";
+  useEffect(() => {
+    applySeo({
+      title: "קהילת סוד 1820",
+      description: "מרכז הקהילה של SOD1820 — הכתבים והחוקרים, פורום המחקר, הצ'אט הוותיק, תיבת הוואטסאפ ומחשבון הגימטריה הקהילתי. הצטרפו, גלו ושתפו ממצאים.",
+      path: "/community",
+    });
+  }, []);
+
   return (
-    <div style={{ direction: "rtl", maxWidth: 980, margin: "0 auto", padding: "64px 24px 96px", position: "relative", zIndex: 1 }}>
-      <SectionHeader eyebrow="מרכז הפעילות" title="💬 קהילה" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
-        {COMMUNITY.map(c => (
-          <Link key={c.to} to={c.to} style={{
-            textDecoration: "none", background: C.surface2, border: `1px solid ${C.border}`,
-            borderRadius: 12, padding: "24px 22px", position: "relative",
-          }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>{c.emoji}</div>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{c.title}</div>
-            {c.stat && (
-              <div style={{ marginTop: 6, color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-                <span style={{ fontFamily: F.mono }}>💬 {c.stat}</span>
-              </div>
-            )}
-            <div style={{
-              marginTop: 8, fontSize: 10, letterSpacing: 1, fontFamily: F.heading,
-              color: c.live ? "#4fc78c" : C.muted,
-            }}>{c.live ? "● פעיל" : "🚧 בבנייה"}</div>
-          </Link>
-        ))}
+    <div style={{ background: P.pageBg, minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+      <LightCityBackdrop show={light} />
+      <div style={{ direction: "rtl", maxWidth: 980, margin: "0 auto", padding: "48px 20px 96px", position: "relative", zIndex: 1 }}>
+        {/* כותרת תמה-מודעת */}
+        <div style={{ textAlign: "center", marginBottom: 26 }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>מרכז הפעילות</div>
+          <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(28px,6vw,44px)", fontWeight: 800, margin: 0 }}>🫂 קהילת סוד 1820</h1>
+          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 560, margin: "12px auto 0" }}>
+            כאן חיים החוקרים, הממצאים והדיונים — הכתבים בעלי-השם, פורום המחקר, הצ'אט הוותיק ותיבת הוואטסאפ. הצטרפו, גלו ושתפו.
+          </p>
+        </div>
+
+        {/* ➕ «דווח רמז» — מנוע-הגדילה (identity_architecture_law). רכיב קנוני יחיד (ReportHint),
+            אנונימי או רשום → community_hints (pending) → אישור אדמין → זרם המציאות. */}
+        <div style={{ maxWidth: 620, margin: "0 auto 22px" }}>
+          <ReportHint variant="banner" />
+        </div>
+
+        {/* 👥 רשימת הכתבים והחוקרים — אותו רכיב קנוני שמופיע בתפריט (דסקטופ+מובייל).
+            frame → הכרטיס מופיע רק כשיש חוקרים (בלי קופסה-ריקה כשהנתונים חסרים). */}
+        <WritersRail variant="page" wrap frame limit={24} max={24} style={{ margin: "0 0 22px" }} />
+
+        {/* מדורי הקהילה */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
+          {COMMUNITY.map(c => (
+            <Link key={c.to} to={c.to} style={{
+              textDecoration: "none", background: P.card, border: `1px solid ${P.border}`,
+              borderRadius: 14, padding: "22px 20px", position: "relative",
+              transition: "transform .15s, border-color .15s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = P.borderStrong; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = P.border; }}>
+              <div style={{ fontSize: 30, marginBottom: 10 }}>{c.emoji}</div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{c.title}</div>
+              {c.stat && (
+                <div style={{ marginTop: 6, color: P.inkSoft, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{c.stat}</div>
+              )}
+              <div style={{
+                marginTop: 10, fontSize: 10, letterSpacing: 1, fontFamily: F.heading,
+                color: c.live ? "#3fae74" : P.accentDim,
+              }}>{c.live ? "● פעיל" : "🚧 בבנייה"}</div>
+            </Link>
+          ))}
+        </div>
+
+        {/* 🔴 פעילות אחרונה בקהילה — פיד חי ממוזג (פוסטים · חידושי-פורום · צפני-גולשים · ערוצים).
+            עדשה על getForumFeed הקנוני; מרנדר רק כשיש פעילות. */}
+        <CommunityActivityFeed limit={8} style={{ marginTop: 26 }} />
       </div>
     </div>
   );

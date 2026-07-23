@@ -9,47 +9,41 @@ import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { WaDot } from "../../lib/userCenter/useWaLink.jsx";
 import { searchPosts } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
-import { getContributorsFeed } from "../../lib/contributions.js";
-import { genAvatar } from "../../lib/avatar.js";
 import { openNumberDrawer } from "../../lib/numberDrawer.js";
 import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
 import { isToolReady, ELS_LOGO } from "../../lib/hub/ready.js";
 import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/install.js";
 import { useStream, STREAMS } from "../../lib/stream.js";
+import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
+import WritersRail from "../WritersRail.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
 
-// 👥 מפת-כתבים חיה במגירה — עדשה על contributors_feed (החוקרים הפעילים). מזין תנועה לדפי-החוקר
-//    (המשטח הציבורי/SEO) ומראה שהקהילה חיה. כל צ'יפ → דף החוקר; «כל החוקרים» → האינדקס.
-function DrawerWritersMap({ cc, onNavigate }) {
-  const [rows, setRows] = useState([]);
+// 🧩 hook נגיש לתפריטים-נפתחים: נפתח בריחוף (עכבר) *וגם* בקליק (מקלדת/מגע), נסגר
+// בקליק-בחוץ ובמקש Escape. פותר את הבעיה שכל ה-dropdowns היו hover-only (לא נגישים
+// למקלדת/מגע). מחזיר { open, setOpen, ref, hoverProps } לשימוש אחיד בכל תפריט.
+function useAccessibleMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
   useEffect(() => {
-    let a = true;
-    getContributorsFeed(14).then(r => { if (a) setRows((r || []).filter(x => x.slug && x.display_name).slice(0, 12)); }).catch(() => {});
-    return () => { a = false; };
-  }, []);
-  if (!rows.length) return null;
-  return (
-    <div style={{ margin: "10px 8px 2px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2px 6px" }}>
-        <span style={{ color: cc.muted, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, letterSpacing: 1.2 }}>👥 הכתבים והחוקרים</span>
-        <Link to="/community/researchers" onClick={onNavigate} style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 11, fontWeight: 800, textDecoration: "none" }}>כל החוקרים →</Link>
-      </div>
-      {/* צ'יפים קומפקטיים — אווטאר קטן + שם בלבד; נגללים אופקית, לא תופסים גובה. */}
-      <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-        {rows.map(r => (
-          <Link key={r.slug} to={`/community/researcher/${r.slug}`} onClick={onNavigate}
-            style={{ flex: "none", display: "flex", alignItems: "center", gap: 6, textDecoration: "none", background: "rgba(212,175,55,0.06)", border: `1px solid ${cc.border}`, borderRadius: 999, padding: "4px 10px 4px 5px" }}>
-            <img src={genAvatar(r.display_name)} alt="" loading="lazy" style={{ width: 24, height: 24, borderRadius: "50%", border: `1px solid ${cc.borderGold}`, flex: "none" }} />
-            <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>{r.display_name}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+    if (!open) return;
+    const onDown = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = e => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
+  }, [open]);
+  const hoverProps = {
+    onMouseEnter: () => setOpen(true),
+    onMouseLeave: () => setOpen(false),
+  };
+  return { open, setOpen, ref, hoverProps };
 }
+
+// 👥 רשימת-הכתבים = רכיב קנוני WritersRail (variant="chrome") — מוצג במגירת-המובייל,
+//    בפאנל-התפריט בדסקטופ, וגם בעמוד «קהילה». מקור-אמת אחד, בלי שכפול.
 
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
@@ -75,8 +69,13 @@ const productItems = [
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
 const MORE_HIDE = ["/start", "/members", "/lab"];
+// «קהילה» ב-NAV נושאת ילדים (צ'אט · פורום · חוקרים…) שנאבדים כשמרנדרים אותה כאריח-בודד
+// בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
+// ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
 const moreItems = [
   ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
+  { label: "צ'אט", emoji: "💬", to: "/community/chat" },
+  { label: "הכתבים והחוקרים", emoji: "👥", to: "/community/researchers" },
   { label: "צור קשר", emoji: "✉️", to: "/contact" },
 ];
 
@@ -117,13 +116,21 @@ function isActive(pathname, to) {
 const postTitle = p => stripHtml(typeof p.title === "string" ? p.title : (p.title?.rendered || ""));
 
 // ── חיפוש אוניברסלי (פוסטים + גימטריה + קיצורי דרך) ──
-function UniversalSearch({ onDone, full }) {
+function UniversalSearch({ onDone, full, autoFocus }) {
   const cc = chromeColors(useThemeMode());
   const nav = useNavigate();
   const ref = useRef(null);
+  const inputRef = useRef(null);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [posts, setPosts] = useState([]);
+
+  // 🔎 מיקוד אוטומטי כשנפתח מכפתור-החיפוש במובייל (setTimeout — אחרי אנימציית פתיחת המגירה)
+  useEffect(() => {
+    if (!autoFocus) return;
+    const t = setTimeout(() => inputRef.current?.focus(), 120);
+    return () => clearTimeout(t);
+  }, [autoFocus]);
 
   useEffect(() => {
     const v = q.trim();
@@ -171,7 +178,7 @@ function UniversalSearch({ onDone, full }) {
     <div ref={ref} style={{ position: "relative", flex: full ? 1 : undefined, minWidth: 0, width: full ? "100%" : undefined }}>
       <form onSubmit={submit} className={`nav-gem${full ? " nav-gem-full" : ""}`} style={{ width: full ? "100%" : undefined }}>
         <span className="nav-gem-ico" aria-hidden>🔎</span>
-        <input value={q} onFocus={() => setOpen(true)} onChange={e => { setQ(e.target.value); setOpen(true); }}
+        <input ref={inputRef} value={q} onFocus={() => setOpen(true)} onChange={e => { setQ(e.target.value); setOpen(true); }}
           placeholder="מה תרצו לגלות היום?" aria-label="חיפוש באתר" />
         <button type="submit" aria-label="חפש">←</button>
       </form>
@@ -235,7 +242,7 @@ function SurpriseButton({ onDone }) {
 
 function NavLinkItem({ item, pathname, onNavigate }) {
   const cc = chromeColors(useThemeMode());
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, ref, hoverProps } = useAccessibleMenu();
   const active = isActive(pathname, item.to);
   const hasChildren = item.children?.length;
   const linkStyle = {
@@ -248,17 +255,21 @@ function NavLinkItem({ item, pathname, onNavigate }) {
     boxShadow: active ? "0 0 14px rgba(212,175,55,0.15)" : "none",
     transition: "color 0.2s, background 0.2s, border-color 0.2s",
   };
+  // title = התווית עצמה — כדי שגם כשהתווית מוסתרת בצפיפות (icon-only מתחת 1200px) יש tooltip.
   return (
-    <div style={{ position: "relative" }}
-      onMouseEnter={() => hasChildren && setOpen(true)} onMouseLeave={() => hasChildren && setOpen(false)}>
-      <Link to={item.to} className="nav-link" style={linkStyle} onClick={onNavigate}>
+    <div ref={ref} style={{ position: "relative" }}
+      {...(hasChildren ? hoverProps : {})}>
+      <Link to={item.to} className="nav-link" title={item.label}
+        aria-haspopup={hasChildren ? "menu" : undefined} aria-expanded={hasChildren ? open : undefined}
+        style={linkStyle}
+        onClick={e => { if (hasChildren) { e.preventDefault(); setOpen(o => !o); } else { onNavigate?.(); } }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           {item.icon === "dilugim" ? <DilugimIcon size={17} /> : (item.emoji ? <span>{item.emoji}</span> : null)}
-          <span>{item.label}</span>
+          <span className="sod-prod-label">{item.label}</span>
         </span>
         {hasChildren && <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span>}
       </Link>
-      {hasChildren && open && <Dropdown items={item.children} onNavigate={onNavigate} />}
+      {hasChildren && open && <Dropdown items={item.children} onNavigate={() => { setOpen(false); onNavigate?.(); }} />}
     </div>
   );
 }
@@ -279,27 +290,6 @@ function LockedNavItem({ item }) {
       <span aria-hidden style={{ fontSize: 11 }}>🔒</span>
       <span style={{ fontSize: 8.5, fontWeight: 900, background: "#3a2400", color: "#ffd86b", borderRadius: 4, padding: "2px 5px" }}>בבנייה</span>
     </span>
-  );
-}
-
-function MoreMenu({ items, pathname, onNavigate, grid }) {
-  const cc = chromeColors(useThemeMode());
-  const [open, setOpen] = useState(false);
-  const anyActive = items.some(i => isActive(pathname, i.to));
-  return (
-    <div style={{ position: "relative" }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button className="nav-link" title="עוד — כל השאר" aria-label="עוד — כל השאר" style={{
-        background: anyActive ? cc.activeBg : "transparent",
-        border: anyActive ? `1px solid ${cc.borderGold}` : "1px solid transparent",
-        cursor: "pointer", color: anyActive ? cc.goldBright : cc.muted,
-        fontFamily: F.royal, fontSize: 15, fontWeight: 700, letterSpacing: 0.3,
-        padding: grid ? "8px 10px" : "7px 12px", borderRadius: 8, display: "inline-flex", alignItems: "center", gap: grid ? 6 : 5,
-        transition: "color 0.2s, background 0.2s",
-      }}>
-        {grid ? <GridIcon /> : "⋯ עוד"} <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span>
-      </button>
-      {open && <Dropdown items={items} onNavigate={onNavigate} />}
-    </div>
   );
 }
 
@@ -349,21 +339,7 @@ function MenuPanel({ items, pathname, cc }) {
           border: `1px solid ${pc.panelBorder}`, borderRadius: 18, padding: 14, zIndex: 250,
           boxShadow: pc.shadow,
         }}>
-          {/* «כאן מתחילים» — באנר גדול נפרד בראש התפריט, לפני שאר המדורים */}
-          <Link to="/start" onClick={() => setOpen(false)} style={{
-            display: "flex", alignItems: "center", gap: 13, textDecoration: "none",
-            background: pc.bannerBg, border: `1px solid ${pc.bannerBorder}`, borderRadius: 14,
-            padding: "14px 16px", marginBottom: 14, transition: "border-color 0.2s, transform 0.2s",
-          }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = pc.bannerHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = pc.bannerBorder; e.currentTarget.style.transform = "none"; }}>
-            <span style={{ fontSize: 30, lineHeight: 1 }}>🚀</span>
-            <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <span style={{ color: pc.bannerTitle, fontFamily: F.royal, fontSize: 18, fontWeight: 800 }}>כאן מתחילים</span>
-              <span style={{ color: pc.bannerSub, fontFamily: F.body, fontSize: 12.5 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
-            </span>
-            <span style={{ marginInlineStart: "auto", color: pc.arrow, fontSize: 18 }}>←</span>
-          </Link>
+          {/* «כאן מתחילים» כבר קיים כפיל-זהב בשורת-הנאב עצמה — לא כופלים אותו כאן (dedupe). */}
           <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
             {items.map(it => {
@@ -394,6 +370,9 @@ function MenuPanel({ items, pathname, cc }) {
               </button>
             )}
           </div>
+          {/* 👥 רשימת-הכתבים — זהה למובייל ולעמוד «קהילה» (variant=page → עוקב אחר תמת-הפאנל) */}
+          <div style={{ height: 1, background: pc.tileBorder, margin: "16px 4px 2px" }} />
+          <WritersRail variant="page" wrap onNavigate={() => setOpen(false)} style={{ margin: "10px 2px 2px" }} />
         </div>
       )}
     </div>
@@ -425,7 +404,7 @@ function Dropdown({ items, onNavigate }) {
 
 // תפריט המשתמש — chip עם אווטר, ובריחוף נפתח תפריט: פרופיל + ניהול עדכונים.
 function UserMenu({ user, profile, cc }) {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, ref, hoverProps } = useAccessibleMenu();
   const { isAdmin } = useAuth();
   const { open: openCenter } = useUserCenter();
   const item = {
@@ -436,8 +415,8 @@ function UserMenu({ user, profile, cc }) {
   const hov = e => { e.currentTarget.style.background = cc.surface; e.currentTarget.style.color = cc.goldBright; };
   const out = e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = cc.goldDim; };
   return (
-    <div style={{ position: "relative" }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button onClick={() => openCenter()} title="מרכז השליטה שלי" style={{
+    <div ref={ref} style={{ position: "relative" }} {...hoverProps}>
+      <button onClick={() => openCenter()} title="מרכז השליטה שלי" aria-haspopup="menu" aria-expanded={open} style={{
         display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", background: "transparent",
         padding: "3px 6px 3px 12px", border: `1px solid ${open ? cc.borderGold : cc.border}`, borderRadius: 22,
         transition: "border-color .2s",
@@ -470,30 +449,30 @@ function UserMenu({ user, profile, cc }) {
   );
 }
 
-// 🏛️ תפריט-מגה אופקי של «היכל הגילוי» — נפתח בריחוף, מציג את כלי המעבדה בשורה (מאוזן, לא מאונך)
+// 🏛️ תפריט-מגה אופקי של «היכל הגילוי» — נפתח בריחוף, מציג את כלי המעבדה בשורה (מאוזן, לא מאונך).
+// ⚠️ אין לכפול כאן את שלושת המוצרים הקנוניים (דף-המספר · בית-המדרש · דילוגי-אותיות) — הם כבר
+// יושבים כצ'יפים לצד «ההיכל» בשורה הראשית (עם יעד קנוני /number · /beit-midrash · /code).
+// כאן רק כלי-המחקר *הנוספים* שחיים בתוך סביבת-המחקר → אין «אותה תווית, שני יעדים».
 const LAB_MENU = [
   { e: "🧮", l: "מחשבון גימטריה", to: "/research?tool=gematria" },
-  { e: "🔢", l: "דף המספר", to: "/research?tool=number" },
-  { e: "📖", l: "בית המדרש", to: "/research?tool=midrash" },
   { e: "📜", l: "חיפוש בפסוקים", to: "/research?tool=verse" },
   { e: "🔀", l: "השוואת מילים", to: "/research?tool=compare" },
   { e: "🔠", l: "נוטריקון", to: "/research?tool=notarikon" },
   { e: "📊", l: "ניתוח קובץ", to: "/research?tool=import" },
-  { e: "🔡", l: "דילוגי אותיות", to: "/research?tool=els", icon: "dilugim" },
   { e: "🧭", l: "מסע חיפוש", to: "/research?tool=journey" },
 ];
 // מזהה-כלי מתוך ה-to (…?tool=xxx) — לאיחוד הנעילה מול isToolReady (מקור-אמת אחד).
 const labToolId = to => (to.match(/tool=([a-z]+)/) || [])[1] || null;
 function LabMenu() {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, ref, hoverProps } = useAccessibleMenu();
   const { isAdmin } = useAuth();
   const cc = chromeColors(useThemeMode());
   // 🔓 נעילה מאוחדת: כלי פתוח אם isToolReady (READY_TOOLS) — מקור-אמת אחד עם המעבדה. אדמין רואה הכל.
   const isLabOpen = it => { const id = labToolId(it.to); return id ? isToolReady(id, isAdmin) : true; };
   return (
-    <div className="sod-nav-desktop" style={{ position: "relative" }}
-      onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <Link to="/research" onClick={() => setOpen(false)} aria-label="ההיכל" style={{
+    <div ref={ref} className="sod-nav-desktop" style={{ position: "relative" }} {...hoverProps}>
+      {/* הצ'יפ עצמו מנווט ל-/research; ה-▾ (כפתור נפרד) פותח/סוגר את הרשימה — נגיש למקלדת/מגע. */}
+      <Link to="/research" aria-label="ההיכל" style={{
         display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", textDecoration: "none",
         background: cc.activeBg, color: cc.goldBright,
         border: "1.5px solid #c9a84a",
@@ -501,7 +480,10 @@ function LabMenu() {
         padding: "8px 18px", borderRadius: 12, whiteSpace: "nowrap",
         boxShadow: "0 2px 12px rgba(201,168,74,0.20)", marginInlineEnd: 4,
       }}>🏛️ ההיכל
-        <span style={{ fontSize: 9, opacity: 0.8 }}>▾</span></Link>
+        <span role="button" tabIndex={0} aria-label="כלי ההיכל" aria-haspopup="menu" aria-expanded={open}
+          onClick={e => { e.preventDefault(); e.stopPropagation(); setOpen(o => !o); }}
+          onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setOpen(o => !o); } }}
+          style={{ fontSize: 9, opacity: 0.8, padding: "0 2px", cursor: "pointer" }}>▾</span></Link>
       {open && (
         <div style={{
           position: "absolute", top: "100%", right: 0, minWidth: 240, background: cc.dropBg, backdropFilter: "blur(14px)",
@@ -563,11 +545,17 @@ function Brand() {
   );
 }
 
-// 🌗 מתג תמה גלובלי (יום/לילה) — בנאבבר, גלוי בכל מסך
+// 🌗 מתג תמה גלובלי (יום/לילה) — בנאבבר, גלוי בכל מסך.
+// בראוט שאינו תומך-בהיר (כפוי-כהה) הלחיצה לא משנה כלום ויזואלית → מעמעמים את המתג
+// ומחליפים tooltip, כדי שלא ייראה שבור («לחצתי וכלום לא קרה»).
 function NavThemeToggle() {
   const mode = useThemeMode();
+  const { pathname } = useLocation();
+  const canLight = routeSupportsLight(pathname);
   return (
-    <button onClick={toggleTheme} className="nav-theme" title="מצב יום / לילה" aria-label="החלפת מצב יום/לילה">
+    <button onClick={toggleTheme} className={`nav-theme${canLight ? "" : " nav-theme-dim"}`}
+      title={canLight ? "מצב יום / לילה" : "הדף הזה מוצג במצב לילה בלבד"}
+      aria-label="החלפת מצב יום/לילה">
       {mode === "light" ? "🌙" : "☀️"}
     </button>
   );
@@ -589,6 +577,7 @@ export default function Navbar() {
   const { open: openCenter, isOpen: centerOpen } = useUserCenter();
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [searchFocus, setSearchFocus] = useState(false);   // 🔎 נפתח מכפתור-החיפוש במובייל → מיקוד אוטומטי על תיבת-החיפוש
   const [unread, setUnread] = useState(0);   // 🔔 להתראות במובייל — נקודה על כפתור האזור-האישי
 
   useEffect(() => {
@@ -597,6 +586,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", h);
   }, []);
   useEffect(() => { setDrawer(false); }, [pathname]);
+  useEffect(() => { if (!drawer) setSearchFocus(false); }, [drawer]);   // איפוס כוונת-החיפוש בסגירת המגירה
   // ספירת התראות שלא-נקראו (למחוברים) — לבאדג׳ במובייל; מתרענן בפוקוס ובסגירת מרכז-השליטה
   useEffect(() => {
     if (!user) { setUnread(0); return; }
@@ -652,8 +642,13 @@ export default function Navbar() {
           <MenuPanel items={moreItems} pathname={pathname} cc={cc} />
         </div>
 
+        {/* 🔎 חיפוש במובייל — הפעולה #1 של אתר-מחקר לא צריכה להיות חבויה במגירה.
+            כפתור בסרגל פותח את המגירה עם מיקוד אוטומטי על תיבת-החיפוש. */}
+        <button className="sod-nav-mobile-only nav-msearch" aria-label="חיפוש באתר"
+          onClick={() => { setDrawer(true); setSearchFocus(true); }}
+          style={{ marginInlineStart: "auto" }}>🔎</button>
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
-        <span className="sod-nav-mobile-only" style={{ marginInlineStart: "auto" }}><SurpriseButton /></span>
+        <span className="sod-nav-mobile-only"><SurpriseButton /></span>
         {/* 🔔 במובייל ההתראות יורדות לאזור-האישי (בקשת צוריאל) — לא תופסות מקום בסרגל */}
 
         {/* מתג עדשת הזרם — מגודר לאדמין בלבד (מוסתר לציבור) */}
@@ -673,8 +668,23 @@ export default function Navbar() {
         <div className="sod-nav-drawer" style={{ borderTop: `1px solid ${cc.border}`, padding: "12px 8px 20px", maxHeight: "80vh", overflowY: "auto" }}>
           {/* הקוביה הוסרה מהמגירה — היא כבר קיימת בסרגל המובייל העליון (בקשת צוריאל) */}
           <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "4px 6px 12px" }}>
-            <UniversalSearch full onDone={() => setDrawer(false)} />
+            <UniversalSearch full autoFocus={searchFocus} onDone={() => setDrawer(false)} />
           </div>
+
+          {/* 🚀 «כאן מתחילים» — באנר בולט בראש המגירה (parity עם פאנל-הדסקטופ). למבקר-חדש בנייד
+              זו הפעולה הכי חשובה; קודם היא הייתה סתם אריח רגיל בתוך «כל המדורים». */}
+          <Link to="/start" onClick={() => setDrawer(false)} style={{
+            display: "flex", alignItems: "center", gap: 12, textDecoration: "none",
+            background: "linear-gradient(135deg, rgba(233,200,74,0.16), rgba(184,144,31,0.10))",
+            border: `1px solid ${cc.borderGold}`, borderRadius: 14, padding: "13px 15px", margin: "2px 6px 10px",
+          }}>
+            <span style={{ fontSize: 26, lineHeight: 1 }}>🚀</span>
+            <span style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
+              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 16, fontWeight: 800 }}>כאן מתחילים</span>
+              <span style={{ color: cc.muted, fontFamily: F.body, fontSize: 12 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
+            </span>
+            <span style={{ color: cc.goldLight, fontSize: 18 }}>←</span>
+          </Link>
           {user ? (
             <button onClick={() => { setDrawer(false); openCenter(); }} style={{
               display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
@@ -748,7 +758,8 @@ export default function Navbar() {
           {/* כל המדורים */}
           <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "14px 8px 4px" }}>כל המדורים</div>
           <div className="sod-tiles">
-            {MOBILE_TILES.filter(t => !t.fav && t.to !== "/research").map(t => (
+            {/* /start מוצג כבר כבאנר בראש המגירה, /research הוא מסגרת-האב למעלה — שניהם לא בגריד */}
+            {MOBILE_TILES.filter(t => !t.fav && t.to !== "/research" && t.to !== "/start").map(t => (
               <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
                 style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
                 <span className="sod-tile-e">{t.e}</span>
@@ -756,8 +767,8 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          {/* 👥 מפת-כתבים חיה — קומפקטית, בתחתית התפריט (עדשה על contributors_feed) */}
-          <DrawerWritersMap cc={cc} onNavigate={() => setDrawer(false)} />
+          {/* 👥 רשימת-הכתבים — רכיב קנוני (זהה לדסקטופ ולעמוד קהילה) */}
+          <WritersRail variant="chrome" onNavigate={() => setDrawer(false)} />
           {/* סגירת התפריט — שורה תחתונה קומפקטית (טקסט, לא אריחים): צור קשר · הורדת האפליקציה */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap", padding: "14px 8px 4px", marginTop: 10, borderTop: `1px solid ${cc.border}` }}>
             <Link to="/contact" onClick={() => setDrawer(false)} style={{
@@ -850,6 +861,22 @@ export default function Navbar() {
           display: inline-flex; align-items: center; justify-content: center; margin-inline-start: 8px;
           transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
         .nav-theme:hover { transform: scale(1.08) rotate(-8deg); box-shadow: 0 0 16px rgba(212,175,55,0.3); background: ${cc.surface}; }
+        /* 🌗 בראוט כפוי-כהה — המתג מעומעם (עדיין לחיץ, אך מסמן שאין אפקט בדף הזה) */
+        .nav-theme.nav-theme-dim { opacity: 0.4; }
+        .nav-theme.nav-theme-dim:hover { transform: none; box-shadow: none; background: ${cc.chipBg}; }
+
+        /* 🔎 כפתור-חיפוש במובייל — אותה שפה ויזואלית של הקובייה/המתג */
+        .nav-msearch { width: 38px; height: 38px; flex-shrink: 0; cursor: pointer; font-size: 17px; line-height: 1;
+          background: ${cc.chipBg}; border: 1px solid ${cc.borderGold}; border-radius: 10px; color: ${cc.goldBright};
+          display: inline-flex; align-items: center; justify-content: center;
+          transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
+        .nav-msearch:hover { transform: scale(1.06); box-shadow: 0 0 14px rgba(212,175,55,0.28); background: ${cc.surface}; }
+
+        /* 🖥️ צפיפות דסקטופ צר (1041–1200px): שלושת תוויות-המוצרים שלצד «ההיכל» מוסתרות,
+           נשארים רק האייקונים (עם tooltip=title) → החיפוש לא נדחק ואין גלישה. */
+        @media (min-width: 1041px) and (max-width: 1200px) {
+          .sod-heichal-group .sod-prod-label { display: none; }
+        }
 
         .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: 18px; height: 18px; }
         .nav-grid i { width: 4px; height: 4px; border-radius: 50%; background: ${cc.goldBright}; display: block;
