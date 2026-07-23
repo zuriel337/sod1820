@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { track } from "../lib/tracking.js";
 import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown } from "../lib/share.js";
+import { taggedShareUrl } from "../lib/propagation.js";
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
 // כל מסך (מספר/צופן/פוסט/גלריה/כל ישות) מעביר פרמטרים בלבד — לא משכפל קוד שיתוף.
@@ -29,11 +30,11 @@ export default function ShareActions({ type = "page", url, title = "", image = n
 
   const logShare = useCallback((channel) => { try { track("share", String(type), channel, { url: fullUrl, image: image || undefined }); } catch { /* noop */ } }, [type, fullUrl, image]);
 
-  const native = useCallback(async () => { logShare("native"); await nativeShare({ title: text, url: fullUrl }); }, [text, fullUrl, logShare]);
+  const native = useCallback(async () => { logShare("native"); await nativeShare({ title: text, url: taggedShareUrl(fullUrl, "native") }); }, [text, fullUrl, logShare]);
 
   const copy = useCallback(async () => {
     logShare("copy");
-    if (await copyLink(fullUrl)) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    if (await copyLink(taggedShareUrl(fullUrl, "copy"))) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
   }, [fullUrl, logShare]);
 
   // 👑 share_placement_law — הבלוק מופיע רק היכן שהווידג׳ט-הצף נעדר (אלא אם force). אפס כפילות.
@@ -54,7 +55,7 @@ export default function ShareActions({ type = "page", url, title = "", image = n
         const m = CH[c];
         // אייקון-מותג SVG בתוך תג-צבע (זהה ללשונית הצפה) — נשען על CHANNELS (svg+brand) כמקור-אמת יחיד.
         return (
-          <a key={c} href={m.href(fullUrl, text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)}
+          <a key={c} href={m.href(taggedShareUrl(fullUrl, c), text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)}
             title={m.label} style={btn}>
             <span style={{ width: 22, height: 22, borderRadius: "50%", background: m.brand, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden focusable="false"><path d={m.svg} /></svg>

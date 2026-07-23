@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { trackShare } from "../lib/tracking.js";
-import { withRid } from "../lib/propagation.js";
+import { taggedShareUrl } from "../lib/propagation.js";
 import { supabase } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import { canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink, floatingShareShown, CHANNELS } from "../lib/share.js";
@@ -49,8 +49,8 @@ export default function RoyalShareWidget() {
     return () => { alive = false; };
   }, []);
 
-  // קישור השיתוף נושא rid=<המשתף> למדידת ויראליות אמיתית
-  const url = withRid(typeof window !== "undefined" ? window.location.href : "https://sod1820.co.il");
+  // בסיס-הקישור; כל ערוץ מקבל תיוג rid+src משלו דרך taggedShareUrl (מקור-אמת משותף עם ShareActions)
+  const base = typeof window !== "undefined" ? window.location.href : "https://sod1820.co.il";
   const rawTitle = typeof document !== "undefined" ? document.title : "סוד 1820";
   const title = (rawTitle.split(/[|·–—-]/)[0] || "סוד 1820").trim();
   const text = `${title} 👑`;
@@ -62,7 +62,7 @@ export default function RoyalShareWidget() {
   const canNative = canNativeShare();
 
   // כל הערוצים מ-CHANNELS (מקור-אמת יחיד, משותף עם ShareActions) — הוספה/עריכה שם מתעדכנת כאן וגם בשורה
-  const SOCIALS = Object.entries(CHANNELS).map(([key, m]) => ({ key, label: m.label, svg: m.svg, brand: m.brand, href: m.href(url, text) }));
+  const SOCIALS = Object.entries(CHANNELS).map(([key, m]) => ({ key, label: m.label, svg: m.svg, brand: m.brand, href: m.href(taggedShareUrl(base, key), text) }));
 
   // מגדיל את מונה השיתופים הויזואלי של הפוסט (אם הדף הנוכחי הוא פוסט) — no-op אחרת.
   const bumpPostShare = useCallback(() => {
@@ -76,9 +76,10 @@ export default function RoyalShareWidget() {
 
   const copyLink = useCallback(async () => {
     trackShare("copy", slug); bumpPostShare();
-    if (await sCopyLink(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
-    else window.prompt("העתיקו את הקישור:", url);
-  }, [slug, url, bumpPostShare]);
+    const copyUrl = taggedShareUrl(base, "copy");
+    if (await sCopyLink(copyUrl)) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    else window.prompt("העתיקו את הקישור:", copyUrl);
+  }, [slug, base, bumpPostShare]);
 
   const shareImage = useCallback(() => {
     if (numberId) shareNumberSmart(Number(numberId), []); // numberCard מתעד trackShare בעצמו
@@ -86,8 +87,8 @@ export default function RoyalShareWidget() {
 
   const nativeShare = useCallback(() => {
     trackShare("native", slug); bumpPostShare();
-    sNativeShare({ title, text, url });   // לוגיקת-שיתוף קנונית (lib/share.js)
-  }, [slug, title, text, url, bumpPostShare]);
+    sNativeShare({ title, text, url: taggedShareUrl(base, "native") });   // לוגיקת-שיתוף קנונית (lib/share.js)
+  }, [slug, title, text, base, bumpPostShare]);
 
   if (!floatingShareShown(pathname)) return null;
 

@@ -14,6 +14,22 @@ export function withRid(url) {
   } catch { return url; }
 }
 
+// מיפוי ערוץ-שיתוף → קוד-מקור קצר שהמנוע מזהה (tracking.normalizeSource): wa/tg/fb/ig…
+const SRC_BY_CHANNEL = { whatsapp: "wa", telegram: "tg", facebook: "fb", instagram: "ig", x: "x", email: "email", copy: "copy", native: "native" };
+
+// 🔗 קישור-השיתוף הקנוני: rid=<המשתף> (ויראליות) + src=<ערוץ> (מקור-הגעה מדיד).
+// כך כשהנמען נכנס ונרשם — יודעים גם *מי שלח* (rid) וגם *באיזה ערוץ* (src). מקור-אמת יחיד
+// ל-ShareActions וללשונית-הצפה (RoyalShareWidget) — אין תיוג מקומי בכל רכיב.
+export function taggedShareUrl(url, channel) {
+  try {
+    const u = new URL(url, typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il");
+    u.searchParams.set("rid", getVisitorId());
+    const src = SRC_BY_CHANNEL[channel] || channel;
+    if (src) u.searchParams.set("src", src);
+    return u.toString();
+  } catch { return url; }
+}
+
 // 👥 הזמנת-חברים: אם הגענו דרך קישור-הזמנה עם ?ref=<user_id של המזמין> → שומרים אותו.
 // אחרי שהמבקר יירשם/יתחבר, AuthContext קורא ל-record_referral → מזמין +100, החבר +50.
 export function captureRef() {

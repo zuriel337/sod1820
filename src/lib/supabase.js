@@ -1633,9 +1633,17 @@ export async function getTrafficStats() {
 // ── Subscribers (רשימת תפוצה) ──────────────────────────────
 export async function subscribeEmail({ email, name = null, source = 'site' }) {
   if (!supabase || !email?.trim()) return { ok: false };
-  const { error } = await supabase
-    .from('subscribers')
-    .insert([{ email: email.trim(), name: name?.trim() || null, source }]);
+  // מצרפים את פרופיל מקור-ההגעה (מגע-ראשון+אחרון) שנלכד ב-tracking.captureAcquisition.
+  // קוראים ישירות מ-localStorage (מפתחות sod_acq_*) כדי להימנע מ-import מעגלי tracking↔supabase.
+  let acquisition = null;
+  try {
+    const first = JSON.parse(localStorage.getItem('sod_acq_first') || 'null');
+    const last = JSON.parse(localStorage.getItem('sod_acq_last') || 'null') || first;
+    if (first || last) acquisition = { first, last };
+  } catch { /* noop */ }
+  const row = { email: email.trim(), name: name?.trim() || null, source };
+  if (acquisition) row.acquisition = acquisition;
+  const { error } = await supabase.from('subscribers').insert([row]);
   if (error && !/duplicate|unique/i.test(error.message)) throw error;
   return { ok: true, duplicate: !!error };
 }
@@ -1776,7 +1784,7 @@ export async function adminSetMessageRead(id, read = true) {
 export async function adminGetSubscribers() {
   if (!supabase) return [];
   const { data, error } = await supabase.from('subscribers')
-    .select('id,email,name,source,active,created_at').order('created_at', { ascending: false });
+    .select('id,email,name,source,active,created_at,acquisition').order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];
 }
