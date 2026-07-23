@@ -273,6 +273,16 @@ export async function getContributorsFeed(limit = 40) {
   } catch { return []; }
 }
 
+// 🏅 סטטיסטיקת-חוקר לכרטיס המפואר — הכל בקריאה אחת: ניקוד+דרגה, ספירות (צפנים/ממצאים/גימטריות/פוסטים),
+// ורשימת הגימטריות שהכניס למערכת (research_contributions.gematria_claim.claim). RPC researcher_stats.
+export async function getResearcherStats(userId, name) {
+  if (!supabase || (!userId && !name)) return null;
+  try {
+    const { data } = await supabase.rpc("researcher_stats", { p_user_id: userId || null, p_name: name || "" });
+    return data || null;
+  } catch { return null; }
+}
+
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
 export async function getReputation(userId = null) {
   if (!supabase) return null;

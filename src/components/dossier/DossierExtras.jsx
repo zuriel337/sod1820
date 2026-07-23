@@ -4,7 +4,7 @@ import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase, getMyResearch } from "../../lib/supabase.js";
 import { getMatricesByOwner, getMyMatrices, moderateMatrix } from "../../lib/elsMatrices.js";
-import { getResearcherProfile, moderateContribution } from "../../lib/contributions.js";
+import { getResearcherProfile, moderateContribution, getResearcherStats } from "../../lib/contributions.js";
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
@@ -67,6 +67,83 @@ function ResearchDomains({ P, level, matrices, tags }) {
         {domains.map((t, i) => (
           <span key={i} style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700 }}>{t}</span>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// 🏅 כרטיס-החוקר המפואר — הריבוע בראש הדף: דרגה + ניקוד, ספירות (צפנים/ממצאים/גימטריות/פוסטים),
+//    ורשימת הגימטריות שהכניס למערכת. עדשה על researcher_stats RPC. theme-safe (usePalette).
+function ResearcherStatsCard({ P, c, name, level }) {
+  const [s, setS] = useState(null);
+  const [allGem, setAllGem] = useState(false);
+  useEffect(() => { let a = true; getResearcherStats(c?.user_id, name).then(r => { if (a) setS(r); }).catch(() => {}); return () => { a = false; }; }, [c?.user_id, name]);
+  if (!s) return null;
+  const gems = Array.isArray(s.gematrias) ? s.gematrias : [];
+  const icon = ["🌱", "🌿", "🔬", "🎓", "👑"][(level?.level || 1) - 1] || "🌱";
+  const tiles = [
+    { n: s.ciphers, label: "צפנים", ic: "🔠" },
+    { n: s.findings, label: "ממצאים", ic: "📱" },
+    { n: gems.length, label: "גימטריות", ic: "🔢" },
+    { n: s.posts, label: "פוסטים", ic: "📝" },
+  ].filter(t => t.n > 0);
+  if (!tiles.length && !s.points && !gems.length) return null;
+  const shown = allGem ? gems : gems.slice(0, 8);
+  return (
+    <div style={{ marginBottom: 22, borderRadius: 18, padding: 2, background: `linear-gradient(135deg, ${P.accent}, ${P.border} 55%, ${P.accent})`, boxShadow: `0 10px 34px ${P.glow}` }}>
+      <div style={{ borderRadius: 16, background: P.cardGrad || P.card, padding: "18px 18px 16px" }}>
+        {/* דרגה + ניקוד */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 30 }}>{icon}</span>
+            <div>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>{s.rank || level?.label || "חוקר"}</div>
+              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>תיק המחקר של {name}</div>
+            </div>
+          </div>
+          <div style={{ textAlign: "center", lineHeight: 1 }}>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 30, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>{(s.points || 0).toLocaleString("he-IL")}</div>
+            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>נקודות</div>
+          </div>
+        </div>
+
+        {/* אריחי-ספירה */}
+        {tiles.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${tiles.length}, 1fr)`, gap: 8, marginTop: 14 }}>
+            {tiles.map(t => (
+              <div key={t.label} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "9px 6px", textAlign: "center" }}>
+                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>{t.n.toLocaleString("he-IL")}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700 }}>{t.ic} {t.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* פירוק-ניקוד */}
+        {(s.accepted || s.validated || s.promoted) > 0 && (
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>
+            {s.accepted > 0 && <span>✅ {s.accepted} אושרו</span>}
+            {s.validated > 0 && <span>🔬 {s.validated} אומתו</span>}
+            {s.promoted > 0 && <span>💎 {s.promoted} הוקרנו לעץ</span>}
+          </div>
+        )}
+
+        {/* הגימטריות שהכניס למערכת */}
+        {gems.length > 0 && (
+          <div style={{ marginTop: 14 }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 8 }}>🔢 הגימטריות שלו במערכת ({gems.length})</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+              {shown.map((g, i) => (
+                <span key={i} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 11px", color: P.accentText, fontFamily: F.body, fontSize: 12.5, fontWeight: 600, direction: "rtl" }}>{g}</span>
+              ))}
+              {gems.length > 8 && (
+                <button onClick={() => setAllGem(v => !v)} style={{ cursor: "pointer", background: "transparent", border: `1px dashed ${P.accent}`, borderRadius: 999, padding: "5px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>
+                  {allGem ? "פחות ▲" : `עוד ${gems.length - 8} ▼`}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -443,7 +520,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
       <AgentConnect P={P} isOwner={isOwner} />
       <AboutResearcher P={P} name={name} about={about} isOwner={isOwner} onSave={t => saveSettings({ about: t })} />
       <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={isOwner} onSave={t => saveSettings({ current_focus: t })} />
-      <ImpactBar P={P} level={level} matrices={matrices} />
+      <ResearcherStatsCard P={P} c={c} name={name} level={level} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
       <DossierMatrices P={P} name={name} matrices={matrices} isAdmin={isAdmin} onPromote={promoteMatrix} />
       <DossierFindings P={P} name={name} isAdmin={isAdmin} />
