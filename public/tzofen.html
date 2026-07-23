@@ -1192,9 +1192,9 @@
   function performSaveToGallery(h){
     // 👁️ חיווי מיידי — מונטה-קרלו (למטה) חוסם את ה-UI לשנייה-שתיים; בלי חיווי מוקדם המשתמש
     //    חושב שכלום לא קרה. משנים את הכפתור מיד, ומריצים את החישוב-הכבד ב-setTimeout כדי שה-UI ייצבע קודם.
-    const sb=document.querySelector(".save-act");
+    const sbs=[document.querySelector(".save-act"),document.querySelector(".save")].filter(Boolean);
     const editing=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים (אותו מונח)?
-    if(sb){sb.textContent=editing?"⏳ מעדכן…":"⏳ שומר…";sb.disabled=true;}
+    sbs.forEach(sb=>{sb.textContent=editing?"⏳ מעדכן…":"⏳ שומר…";sb.disabled=true;});
     toast(editing?"✏️ מעדכן ממצא…":"💾 שומר לתיק המחקר…");
     setTimeout(()=>{
       // 🏆 צריבת מד-האיכות בזמן השמירה — מריצים מונטה-קרלו פעם אחת (אם יש אשכול ולא רץ עדיין),
@@ -1398,15 +1398,16 @@
       try{if(st.res)render();}catch(_){}  // דרגה עודכנה אחרי חיפוש → רענון הרשאות
     }
     if(d.type==="saved"){   // תוצאת שמירה מהאתר
-      const sb=document.querySelector(".save-act");
+      const sbs=[document.querySelector(".save-act"),document.querySelector(".save")].filter(Boolean);
       const editing=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);
       const rest=editing?"✏️ עדכן ממצא":"💾 שמור לתיק המחקר";
       if(d.ok){
         toast(d.status==="updated"?"✅ הממצא עודכן במקום":(d.status==="published"?"✅ נשמר ופורסם בספריית הצפנים":"✅ נשמר בתיק המחקר — ממתין לאישור מנהל"));
         // 🟢 חיווי-הצלחה בולט על הכפתור עצמו (2.6 שניות) — כדי שלא יפספסו את ההצלחה
-        if(sb){sb.textContent=d.status==="updated"?"✅ עודכן":"✅ נשמר";sb.disabled=false;setTimeout(()=>{try{if(sb)sb.textContent=rest;}catch(e){}},2600);}
+        sbs.forEach(sb=>{sb.textContent=d.status==="updated"?"✅ עודכן":"✅ נשמר";sb.disabled=false;});
+        setTimeout(()=>{try{sbs.forEach(sb=>{sb.textContent=rest;});}catch(e){}},2600);
       }else{
-        if(sb){sb.textContent=rest;sb.disabled=false;}
+        sbs.forEach(sb=>{sb.textContent=rest;sb.disabled=false;});
         if(d.reason==="login")toast("🔒 שמירה פתוחה לרשומים — הירשמו בחינם");
         else toast("לא ניתן לשמור כרגע — נסו שוב");
       }
@@ -1422,6 +1423,12 @@
       // ✏️ קשר-עריכה: צופן קיים נטען → שמירה תעדכן אותו במקום (לא עותק). נמחק בחיפוש-מונח חדש.
       st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");
       try{loadMatrix(d.item,0);}catch(e){}
+    }
+    if(d.type==="update-findings"&&Array.isArray(d.findings)){   // 🎯 ממצאים עודכנו בפאנל (הוסר/נוסף) → צביעה-מחדש בלי טעינת-2.2MB
+      st.words=d.findings.map((w,i)=>{const t=norm(typeof w==="string"?w:(w&&w.t)||"");return{t,color:(w&&typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0};}).filter(w=>w.t);
+      try{recomputeWords();}catch(e){}
+      try{recolorOnly();}catch(e){}
+      try{renderList();}catch(e){}
     }});
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
   //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
@@ -1467,6 +1474,8 @@
     if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
     if(t.length<2){toast("רשום לפחות 2 אותיות");return;}
+    // ✏️ חיפוש-מונח חדש שיזם המשתמש מנקה את קשר-העריכה — שלא נעדכן בטעות צופן שנטען קודם (loadMatrix לא עובר כאן)
+    st.editId=null;st.editTerm=null;
     // 🔀 חיפוש מוצלב פשוט — תיבה שנייה בשורה (לרשומים בלבד)
     if(simpleOpen()){const B=qb.value.trim();if(norm(B).length>=2){
       if(!canCross()){gate("cross");return;}

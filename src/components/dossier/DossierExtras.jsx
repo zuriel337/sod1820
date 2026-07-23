@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase } from "../../lib/supabase.js";
-import { getMatricesByOwner } from "../../lib/elsMatrices.js";
+import { getMatricesByOwner, getMyMatrices } from "../../lib/elsMatrices.js";
 import { METHODS } from "../../lib/gematria.js";
 
 const RAGIL = METHODS.find(m => m.key === "רגיל");
@@ -285,11 +285,13 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
   useEffect(() => {
     if (!c?.user_id) return;
     let alive = true;
-    getMatricesByOwner(c.user_id).then(r => { if (alive) { const arr = Array.isArray(r) ? r : []; setMatrices(arr); onCount?.(arr.length); } }).catch(() => { if (alive) onCount?.(0); });
+    // 🔑 הבעלים רואה את *כל* הצפנים שלו בתיק (כולל ממתינים) — כדי שצופן טרי יופיע מיד. צופה-אחר: רק ציבורי/בתיק.
+    const load = isOwner ? getMyMatrices(c.user_id).then(a => (a || []).filter(m => m.status !== "hidden")) : getMatricesByOwner(c.user_id);
+    load.then(r => { if (alive) { const arr = Array.isArray(r) ? r : []; setMatrices(arr); onCount?.(arr.length); } }).catch(() => { if (alive) onCount?.(0); });
     supabase.from("profiles").select("joined_at").eq("user_id", c.user_id).maybeSingle()
       .then(({ data }) => { if (alive) setJoinedAt(data?.joined_at || c.created_at || null); }).catch(() => { if (alive) setJoinedAt(c.created_at || null); });
     return () => { alive = false; };
-  }, [c?.user_id, c?.created_at]);
+  }, [c?.user_id, c?.created_at, isOwner]);
 
   // שמירה מרוכזת ל-dossier_settings (על החוקר / כרגע-אני-חוקר / נראות) — RPC update_my_dossier.
   const saveSettings = useCallback(async (patch) => {

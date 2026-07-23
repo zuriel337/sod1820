@@ -142,8 +142,8 @@ export async function getMatricesByOwner(uid, limit = 200) {
   } catch { return []; }
 }
 
-// ✅ סימון/ביטול «בתיק שלי» — RPC self_publish_matrix (בעלים בלבד + סף level>=3 נאכף בשרת).
-// מחזיר {ok:true,self_published,level} או {ok:false,error:'level_too_low'|'not_owner'|…}.
+// ✅ סימון/ביטול «בתיק שלי» — RPC self_publish_matrix (בעלים בלבד; ללא סף-דרגה — כל רשום).
+// מחזיר {ok:true,self_published} או {ok:false,error:'not_owner'|'not_found'|'not_authenticated'}.
 export async function selfPublishMatrix(id, on = true) {
   const { data, error } = await supabase.rpc("self_publish_matrix", { p_id: id, p_on: on });
   if (error) throw error;

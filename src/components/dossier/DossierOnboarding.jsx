@@ -18,19 +18,19 @@ export default function DossierOnboarding({ P, name, onDone, onSkip }) {
   const [focus, setFocus] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
 
   const toggleInterest = (t) => setInterests(a => a.includes(t) ? a.filter(x => x !== t) : [...a, t]);
 
   async function finish() {
-    setBusy(true);
+    setBusy(true); setErr("");
+    const settings = { about: about.trim() || null, interests, current_focus: focus.trim() || null, visibility, onboarded: true };
     try {
-      await supabase.rpc("update_my_dossier", { p_settings: {
-        about: about.trim() || null, interests, current_focus: focus.trim() || null,
-        visibility, onboarded: true,
-      } });
-    } catch { /* noop — לא חוסמים את המשתמש */ }
+      const { data } = await supabase.rpc("update_my_dossier", { p_settings: settings });
+      if (!data?.ok) { setErr("לא הצלחנו לשמור את התיק — נסו שוב."); setBusy(false); return; }
+    } catch { setErr("שגיאת-רשת — נסו שוב."); setBusy(false); return; }
     setBusy(false);
-    onDone?.({ about: about.trim(), interests, current_focus: focus.trim(), visibility, onboarded: true });
+    onDone?.(settings);
   }
 
   const steps = [
@@ -136,6 +136,8 @@ export default function DossierOnboarding({ P, name, onDone, onSkip }) {
             {busy ? "מכין…" : (cur.next || "המשך →")}
           </button>
         </div>
+
+        {err && <div style={{ color: "#c0563f", fontFamily: F.body, fontSize: 12.5, marginTop: 10, textAlign: "center" }}>{err}</div>}
 
         <div style={{ textAlign: "center", marginTop: 14 }}>
           <button onClick={onSkip} style={{ background: "none", border: "none", color: P.accentDim, fontFamily: F.body, fontSize: 12.5, cursor: "pointer", textDecoration: "underline" }}>
