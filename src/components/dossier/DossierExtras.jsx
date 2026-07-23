@@ -208,9 +208,9 @@ function DossierMatrices({ P, name, matrices, isAdmin, onPromote }) {
 //    עץ אחד: כל ממצא מקשר ליעד הקנוני (/number · /topic), לא משכפל.
 // 👑 אדמין: על ממצא גולמי (status=published, בדף בלבד) מוצג «⬆️ קדם לפורום» → moderate→approved,
 //    מעביר אותו לפיד-הפורום הציבורי (החלטת צוריאל: גולמי-וואטסאפ נשאר בדף, אתה אוצר מה עולה לפורום).
-function DossierFindings({ P, name, isAdmin }) {
+function DossierFindings({ P, name, uid, isAdmin }) {
   const [items, setItems] = useState(null);
-  useEffect(() => { let a = true; getResearcherProfile(name, 80).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name]);
+  useEffect(() => { let a = true; getResearcherProfile(name, 120, uid).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name, uid]);
   if (!items || !items.length) return null;
   // 📱 קופסת-הוואטסאפ — סגורה כברירת-מחדל, נפתחת בלחיצה על הכותרת. כל ההודעות בקופסה אחת,
   //    לא מתפזרות על הדף (החלטת צוריאל). אדמין מוציא משם לפורום («קדם לפורום» על כל בועה).
@@ -499,7 +499,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
       <ResearcherStatsCard P={P} c={c} name={name} level={level} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
       <DossierMatrices P={P} name={name} matrices={matrices} isAdmin={isAdmin} onPromote={promoteMatrix} />
-      <DossierFindings P={P} name={name} isAdmin={isAdmin} />
+      <DossierFindings P={P} name={name} uid={c?.user_id} isAdmin={isAdmin} />
       <MyResearchExplored P={P} isOwner={isOwner} />
       <ResearchJournal P={P} name={name} level={level} matrices={matrices} joinedAt={joinedAt} />
       <Connections P={P} matrices={matrices} />

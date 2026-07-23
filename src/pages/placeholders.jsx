@@ -68,6 +68,9 @@ export function MembersPage() {
 }
 
 const COMMUNITY = [
+  { emoji: "📁", title: "הכתבים והחוקרים", to: "/community/researchers", live: true, stat: "תיקי-מחקר · דרגות" },
+  { emoji: "🌐", title: "פורום המחקר", to: "/forum", live: true, stat: "חידושי הקהילה" },
+  { emoji: "📱", title: "תיבת הוואטסאפ", to: "/community/whatsapp", live: true, stat: "ממצאי הכתבים" },
   { emoji: "💬", title: "הצ'אט הוותיק", to: "/community/chat", live: true, stat: "133.7k הודעות" },
   { emoji: "🧮", title: "מחשבון גימטריה", to: "/community/calculator", live: true, stat: "8 שיטות · שיתוף" },
   { emoji: "📝", title: "כל התגובות באתר", to: "/community/comments", live: false },

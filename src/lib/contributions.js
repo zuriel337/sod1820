@@ -247,13 +247,19 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
 // 👤 פרופיל-חוקר רשום (לא-אצור) — עדשה על research_contributions לפי שם-מחבר.
 // מזין את דף-החוקר הקל (ResearcherProfile) כשאין שורת-contributor אצורה. עץ אחד: אותו דף,
 // אצור או אוטומטי. מחזיר null אם אין ולו חידוש-מאושר אחד (אז אין פרופיל).
-export async function getResearcherProfile(name, limit = 40) {
-  if (!supabase || !name) return null;
+// 🔗 uid (אופציונלי) — מאחד חידושים שנרשמו תחת display_name וגם תחת username (כמו אריאל=«ariel123008»).
+//    בלי זה חלק מחידושי-הפורום של החוקר לא הופיעו בדף שלו.
+export async function getResearcherProfile(name, limit = 40, uid = null) {
+  if (!supabase || (!name && !uid)) return null;
   try {
-    const { data } = await supabase.from("research_contributions")
+    let q = supabase.from("research_contributions")
       .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,created_at")
-      .eq("author_name", name).in("status", ["approved", "published"]).is("parent_id", null)
+      .in("status", ["approved", "published"]).is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
+    if (uid && name) q = q.or(`author_user_id.eq.${uid},author_name.eq.${name}`);
+    else if (uid) q = q.eq("author_user_id", uid);
+    else q = q.eq("author_name", name);
+    const { data } = await q;
     const items = data || [];
     if (!items.length) return null;
     const uid = items.find((x) => x.author_user_id)?.author_user_id || null;

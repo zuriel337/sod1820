@@ -69,8 +69,9 @@ export default function WaChatWindow({ name, items = [], isAdmin = false, height
               <div style={{ background: bubbleBg, color: bubbleInk, borderRadius: "14px 14px 3px 14px", padding: "8px 11px", boxShadow: "0 1px 1px rgba(0,0,0,.18)", width: "fit-content" }}>
                 {it.title && <div style={{ fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: it.body ? 3 : 0 }}>{it.title}</div>}
                 {it.body && <div style={{ fontFamily: F.body, fontSize: 12.5, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{it.body.length > 320 ? it.body.slice(0, 320) + "…" : it.body}</div>}
-                <div style={{ display: "flex", alignItems: "center", gap: 7, justifyContent: "flex-end", marginTop: 4, fontSize: 10, opacity: 0.75 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, justifyContent: "flex-end", marginTop: 4, fontSize: 10, opacity: 0.8 }}>
                   {to && <Link to={to} style={{ color: "inherit", textDecoration: "underline" }}>לצפייה</Link>}
+                  <Link to={`/forum/${it.id}`} style={{ color: "inherit", textDecoration: "underline" }}>💬 דיון</Link>
                   <span>{String(it.created_at).slice(0, 10)}</span>
                   {inForum && <span title="בפורום">✓✓</span>}
                 </div>
