@@ -3,6 +3,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
+import { genAvatar } from "../lib/avatar.js";
 
 // 📜 רשימת הכתבים/החוקרים — /community/researchers (researcher_page_law).
 // עדשה על contributors: כרטיס לכל כותב פעיל → דף-החוקר הקנוני שלו.
@@ -40,9 +41,7 @@ export default function ResearchersIndexPage() {
               return (
                 <a key={r.slug} href={`/community/researcher/${r.code || r.slug}`}
                   style={{ display: "flex", alignItems: "center", gap: 13, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 15px", textDecoration: "none" }}>
-                  {r.avatar_url
-                    ? <img src={r.avatar_url} alt={r.display_name} loading="lazy" style={{ width: 54, height: 54, borderRadius: "50%", objectFit: "cover", border: `2px solid ${P.accent}`, flexShrink: 0 }} />
-                    : <div style={{ width: 54, height: 54, borderRadius: "50%", background: P.glow, border: `2px solid ${P.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{r.vip ? "👑" : "🔎"}</div>}
+                  <img src={r.avatar_url || genAvatar(r.display_name)} alt={r.display_name} loading="lazy" style={{ width: 54, height: 54, borderRadius: "50%", objectFit: "cover", border: `2px solid ${P.accent}`, flexShrink: 0 }} />
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800 }}>
                       {r.vip ? "👑 " : ""}{r.display_name}{r.building ? " 🚧" : r.locked ? " 🔑" : ""}

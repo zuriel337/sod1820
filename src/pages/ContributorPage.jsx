@@ -9,6 +9,7 @@ import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import DossierExtras from "../components/dossier/DossierExtras.jsx";
+import { genAvatar } from "../lib/avatar.js";
 import DossierOnboarding from "../components/dossier/DossierOnboarding.jsx";
 import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
@@ -386,10 +387,8 @@ export default function ContributorPage() {
     )}
     <div style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "24px 16px 60px" }}>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
-        {c.avatar_url && (
-          <img src={c.avatar_url} alt={c.display_name} loading="lazy"
-            style={{ width: 92, height: 92, borderRadius: "50%", objectFit: "cover", border: `2.5px solid ${P.accent}`, boxShadow: `0 6px 22px ${P.glow}`, marginBottom: 10 }} />
-        )}
+        <img src={c.avatar_url || genAvatar(c.display_name)} alt={c.display_name} loading="lazy"
+          style={{ width: 92, height: 92, borderRadius: "50%", objectFit: "cover", border: `2.5px solid ${P.accent}`, boxShadow: `0 6px 22px ${P.glow}`, marginBottom: 10 }} />
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,34px)", fontWeight: 800 }}>
           {c.vip ? "👑 " : ""}{c.display_name}
         </div>
