@@ -4,6 +4,8 @@ import { C, F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { SectionHeader } from "../components/ui.jsx";
 import WritersRail from "../components/WritersRail.jsx";
+import CommunityActivityFeed from "../components/CommunityActivityFeed.jsx";
+import ReportHint from "../components/ReportHint.jsx";
 import LightCityBackdrop from "../components/layout/LightCityBackdrop.jsx";
 import UnderConstruction from "../components/layout/UnderConstruction.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
@@ -104,6 +106,12 @@ export function CommunityPage() {
           </p>
         </div>
 
+        {/* ➕ «דווח רמז» — מנוע-הגדילה (identity_architecture_law). רכיב קנוני יחיד (ReportHint),
+            אנונימי או רשום → community_hints (pending) → אישור אדמין → זרם המציאות. */}
+        <div style={{ maxWidth: 620, margin: "0 auto 22px" }}>
+          <ReportHint variant="banner" />
+        </div>
+
         {/* 👥 רשימת הכתבים והחוקרים — אותו רכיב קנוני שמופיע בתפריט (דסקטופ+מובייל).
             frame → הכרטיס מופיע רק כשיש חוקרים (בלי קופסה-ריקה כשהנתונים חסרים). */}
         <WritersRail variant="page" wrap frame limit={24} max={24} style={{ margin: "0 0 22px" }} />
@@ -130,6 +138,10 @@ export function CommunityPage() {
             </Link>
           ))}
         </div>
+
+        {/* 🔴 פעילות אחרונה בקהילה — פיד חי ממוזג (פוסטים · חידושי-פורום · צפני-גולשים · ערוצים).
+            עדשה על getForumFeed הקנוני; מרנדר רק כשיש פעילות. */}
+        <CommunityActivityFeed limit={8} style={{ marginTop: 26 }} />
       </div>
     </div>
   );
