@@ -138,6 +138,16 @@
   .coach .coach-go{flex:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12.5px;border:none;border-radius:999px;
      padding:8px 16px;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00}
   .coach .coach-go:active{transform:translateY(1px)}
+  /* 💡 טיפ-קבוע — תמיד גלוי מתחת לשורת-החיפוש: מסביר שמילה-ארוכה לא עובדת ומזמין למוצלב.
+     (החלטת צוריאל 23.7: «אף אחד לא יודע שצריך לפתוח מוצלב» → תמיד להציע + להסביר.) */
+  .alwaystip{margin:2px 0 12px;padding:9px 13px;border-radius:12px;border:1px dashed rgba(232,200,74,.4);
+     background:rgba(232,200,74,.05);display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+     font-size:12.5px;line-height:1.6;color:var(--ink2)}
+  .alwaystip b{color:var(--goldBright)}
+  .alwaystip .tip-cross{flex:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12px;border:none;border-radius:999px;
+     padding:7px 15px;background:linear-gradient(180deg,#2f6df6,#255ad6);color:#fff}
+  body.klaf .alwaystip .tip-cross{background:linear-gradient(180deg,#b0791a,#8a5a12)}
+  .alwaystip .tip-cross:active{transform:translateY(1px)}
   /* 📖 מדריך «חיפוש בתוך הצופן» — אקורדיון נפתח, מתחת למטריצה */
   .ginside{margin:16px 0 4px;background:linear-gradient(160deg,rgba(232,200,74,.05),var(--panel2));border:1px solid var(--line2);border-radius:14px;overflow:hidden}
   .ginside>summary{cursor:pointer;list-style:none;padding:14px 16px;font-family:var(--serif);font-size:16px;font-weight:800;color:var(--goldBright);display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -920,6 +930,7 @@
     <input id="qb" class="qb" maxlength="40" placeholder="🔀 מונח שני — למצוא מפגש" style="display:none">
     <button class="go" id="go">חפש בתורה ◆</button>
   </div>
+  <div class="alwaystip" id="alwaystip">💡 <b>חשוב לדעת:</b> מילה ארוכה כמעט תמיד «לא נמצאת» כדילוג. חפשו <b>מילה קצרה</b> (2־5 אותיות) — והכוח האמיתי: <b>שתי מילים קצרות שנפגשות</b>. <button class="tip-cross" id="tipCross">🔀 פתחו חיפוש מוצלב</button></div>
   <div class="coach" id="coach" style="display:none"></div>
   <div class="gallery" id="gallery"></div>
   <div class="crossrow">
@@ -1288,10 +1299,13 @@
     if(st.crossTerms.length>=8){toast("עד 8 מונחים בהצלבה");return;}st.crossTerms.push(t);renderXTerms();}
   // 🔀 פשוט — תיבה שנייה בשורה עצמה (למי שרוצה רק A נפגש עם B)
   function closeLab(){const lp=document.getElementById("labpanel"),lt=document.getElementById("labtoggle");if(lp){lp.style.display="none";lt.classList.remove("on");}}
+  // 💡 טיפ-קבוע: מוסתר כשהמוצלב כבר פתוח (אחרת כפילות «פתחו מוצלב»).
+  function syncTip(){const t=document.getElementById("alwaystip");if(t)t.style.display=simpleOpen()?"none":"flex";}
   crosstoggle.onclick=()=>{if(!simpleOpen()&&!canCross()){gate("cross");return;}   // 🔀 חיפוש מוצלב לרשומים בלבד
     const on=!simpleOpen();qb.style.display=on?"":"none";crosstoggle.classList.toggle("on",on);
     if(on){qb.focus();closeLab();if(advOpen()){crosspanel.style.display="none";advtoggle.classList.remove("on");}}else qb.value="";
-    try{updateCoach();}catch(e){}};
+    syncTip();try{updateCoach();}catch(e){}};
+  {const _tc=document.getElementById("tipCross");if(_tc)_tc.onclick=()=>crosstoggle.click();}
   qb.addEventListener("keydown",e=>{if(e.key==="Enter")run();});
   // 🔀 «הצלב את התוצאה» — פותח מצב-מוצלב פשוט אחרי חיפוש רגיל, עם המונח הנוכחי כציר. מנוע-התגלית:
   //    הופך כל חיפוש רגיל לשער-כניסה למוצלב (הבעיה הגדולה הייתה תגלית — מעטים ידעו שהמוצלב קיים).
@@ -1299,7 +1313,7 @@
     if(!canCross()){gate("cross");return;}
     if(!simpleOpen()){qb.style.display="";crosstoggle.classList.add("on");closeLab();
       if(advOpen()){crosspanel.style.display="none";advtoggle.classList.remove("on");}}
-    qb.value="";
+    qb.value="";syncTip();
     try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){try{window.scrollTo(0,0);}catch(_){}}
     setTimeout(()=>{try{qb.focus();}catch(e){}},280);
     toast("🔀 הקלד מונח שני — נמצא איפה «"+(q.value.trim()||"המונח")+"» נפגש איתו בתורה");
