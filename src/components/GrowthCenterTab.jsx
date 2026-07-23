@@ -15,6 +15,8 @@ const TAGS = {
   "ig": ["📸 אינסטגרם", L.purple], "ig-squid": ["📸 אינסטגרם", L.purple],
   "fb-code": ["👍 פייסבוק · קוד", L.blue], "fb-meluha": ["👍 פייסבוק · מלוכה", L.blue], "facebook": ["👍 פייסבוק", L.blue],
   "whatsapp": ["🟢 וואטסאפ", L.green], "wa": ["🟢 וואטסאפ", L.green], "wa-vip": ["🟢 וואטסאפ VIP", L.green],
+  "telegram": ["✈️ טלגרם", L.blue], "tg": ["✈️ טלגרם", L.blue], "instagram": ["📸 אינסטגרם", L.purple],
+  "copy": ["📋 העתקת-לינק", L.amber], "native": ["📲 שיתוף-מכשיר", L.amber], "email": ["✉️ אימייל", L.sub], "x": ["✖️ X", L.ink],
   "share": ["🔗 שיתוף", L.amber], "raziel": ["🤖 רזיאל (בוט)", L.amber],
   "google": ["🔍 גוגל", L.sub], "ישיר": ["➡️ ישיר", L.sub], "spotim": ["💬 תגובות", L.sub],
   "code": ["🔠 צופן", L.purple], "els-artifact": ["🔠 צופן (Artifact)", L.purple], "chatgpt.com": ["🤖 ChatGPT", L.green],
@@ -161,6 +163,7 @@ export default function GrowthCenterTab() {
   const acq = d.acquisition || [], sharing = d.sharing || {}, rt = d.realtime || {};
   const signup = email.signup_series || [], opens = email.opens_series || [];
   const bySource = email.by_source || [], recent = email.recent_subs || [], campaigns = email.campaigns || [];
+  const byArrival = email.by_arrival || [];   // מקור-הגעה אמיתי (attribution) — מגע-אחרון לכל נרשם
   const cta = funnel.welcome_cta || [], byPlat = sharing.by_platform || [];
 
   const growthColor = k.growth_pct == null ? L.sub : k.growth_pct >= 0 ? L.green : L.red;
@@ -411,6 +414,31 @@ export default function GrowthCenterTab() {
         </Panel>
       </div>
 
+      {/* 🎯 מקור-הגעה אמיתי — לינק-משותף מול ישיר (attribution) */}
+      <Panel title="🎯 מקור-הגעה אמיתי של נרשמים — לינק-משותף מול ישיר">
+        <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginBottom: 12, background: "#fbf7ec", border: `1px solid ${L.line}`, borderRadius: 10, padding: "8px 12px" }}>
+          ℹ️ שונה מ«מאיפה נרשמו» (=<b>חלון</b>-ההרשמה באתר). כאן זה <b>איך הגיעו לאתר</b> — הערוץ שהביא אותם. וואטסאפ/הודעות מוחקים referrer, לכן תיוג <code>src</code> על הלינקים המשותפים הוא שמפריד «לינק ששלחו לו» מ«ישיר». מתמלא מנרשמים חדשים <b>אחרי הפריסה</b>.
+        </div>
+        {byArrival.length === 0 ? (
+          <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>
+            עדיין אין נתוני-מקור. הלכידה מתחילה מרגע שהאתר-החי טוען את הקוד החדש (attribution L3+L5) ונרשם מבקר חדש.
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {byArrival.map((a, i) => {
+              const [lbl, col] = tagInfo(a.channel);
+              return (
+                <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: L.card, border: `1px solid ${col}44`, borderRadius: 12, padding: "7px 12px" }}>
+                  <span style={{ color: col, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{lbl}</span>
+                  <span style={{ color: L.ink, fontFamily: "'Courier New',monospace", fontSize: 13, fontWeight: 800 }}>{(a.n || 0).toLocaleString("he")}</span>
+                  {a.tagged_n > 0 && <span style={{ background: "#eafaf0", color: L.green, fontFamily: F.body, fontSize: 10.5, fontWeight: 700, borderRadius: 999, padding: "1px 8px" }} title="נמדד מתיוג מפורש (אמין)">✦ {a.tagged_n} מתויג</span>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Panel>
+
       {/* קמפיינים אחרונים */}
       {campaigns.length > 0 && (
         <Panel title="📮 דיוורים אחרונים">
@@ -446,6 +474,7 @@ export default function GrowthCenterTab() {
             <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", fontFamily: F.body, fontSize: 13 }}>
               <span style={{ color: L.ink, fontFamily: "'Courier New',monospace" }} dir="ltr">✉ {r.email}</span>
               {r.source && <span style={{ color: L.blue, fontSize: 11.5 }} dir="ltr">{r.source}</span>}
+              {r.arrival && (() => { const [lbl, col] = tagInfo(r.arrival); return <span style={{ color: col, fontSize: 11, fontWeight: 700 }} title={r.rid ? `שותף rid: ${r.rid}` : "מקור-הגעה"}>← {lbl}</span>; })()}
               <span style={{ color: L.sub, fontSize: 11, marginInlineStart: "auto" }}>{r.created_at ? timeAgoHe(r.created_at) : ""}</span>
             </div>
           ))}
