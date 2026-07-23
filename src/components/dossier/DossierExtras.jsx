@@ -4,7 +4,7 @@ import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase, getMyResearch } from "../../lib/supabase.js";
 import { getMatricesByOwner, getMyMatrices, moderateMatrix } from "../../lib/elsMatrices.js";
-import { getResearcherProfile, getResearcherStats, pinContribution, promoteFindingToDict } from "../../lib/contributions.js";
+import { getResearcherProfile, getResearcherStats, pinContribution, promoteFindingToDict, getWriterGematrias } from "../../lib/contributions.js";
 import WaChatWindow from "../WaChatWindow.jsx";
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
@@ -246,6 +246,54 @@ function ForumFinding({ P, it, isAdmin, onPinned }) {
   );
 }
 
+// 🔢 הגימטריות של הכתב — מקטע גלוי, מסודר: חדשים למעלה, תאריך-הוספה, ודגל «במערכת הראשית».
+//    page-only (לא בליבה) — אדמין רואה מה עדיין לא בליבה ומעביר בשנייה (➕ למילון). לא-בליבה עולה קודם.
+function WriterGematrias({ P, name, uid, isAdmin }) {
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(null);
+  const [msg, setMsg] = useState({});
+  const [all, setAll] = useState(false);
+  const load = useCallback(() => { getWriterGematrias(name, uid).then(r => setRows(r || [])).catch(() => setRows([])); }, [name, uid]);
+  useEffect(() => { load(); }, [load]);
+  if (!rows || !rows.length) return null;
+  const heDate = (d) => { try { return new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "2-digit" }); } catch { return ""; } };
+  const shown = all ? rows : rows.slice(0, 12);
+  const notInCore = rows.filter(r => !r.in_core).length;
+  const toDict = async (r) => {
+    setBusy(r.id);
+    try { const x = await promoteFindingToDict(r.id); const a = (x?.added || []).length; setMsg(m => ({ ...m, [r.id]: a ? "✓ נוסף למילון" : "כבר במילון" })); if (a) load(); }
+    catch { setMsg(m => ({ ...m, [r.id]: "שגיאה" })); }
+    setBusy(null);
+  };
+  const pin = async (r) => { setBusy(r.id); try { await pinContribution(r.id, !r.pinned); load(); } catch { /* noop */ } setBusy(null); };
+  return (
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>🔢 הגימטריות של {name} ({rows.length})</span>
+        {isAdmin && notInCore > 0 && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>· {notInCore} עדיין לא במערכת הראשית</span>}
+      </div>
+      <div style={{ display: "grid", gap: 7 }}>
+        {shown.map(r => (
+          <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 9, background: P.card, border: `1px solid ${r.pinned ? P.accent : P.border}`, borderRadius: 11, padding: "8px 11px" }}>
+            {r.pinned && <span title="מוצמד" style={{ fontSize: 12, flex: "none" }}>📌</span>}
+            <Link to={`/number/${r.value}`} style={{ flex: 1, minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 13, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.claim}</Link>
+            <span style={{ flex: "none", fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px", color: r.in_core ? "#1a7a3a" : P.accentDim, background: r.in_core ? "rgba(26,122,58,.12)" : "transparent", border: `1px solid ${r.in_core ? "rgba(26,122,58,.4)" : P.border}` }} title={r.in_core ? "במערכת הראשית" : "עדיין לא במערכת הראשית"}>{r.in_core ? "🔵 במילון" : "⚪ לא במילון"}</span>
+            <span style={{ flex: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{heDate(r.created_at)}</span>
+            {isAdmin && (
+              <span style={{ flex: "none", display: "flex", gap: 4 }}>
+                <button onClick={() => pin(r)} disabled={busy === r.id} title="הצמד למעלה" style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: r.pinned ? P.glow : P.card, borderRadius: 999, padding: "2px 7px", fontSize: 11 }}>📌</button>
+                {!r.in_core && !msg[r.id] && <button onClick={() => toDict(r)} disabled={busy === r.id} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "2px 8px", fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>➕ למילון</button>}
+                {msg[r.id] && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{msg[r.id]}</span>}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+      {rows.length > 12 && <button onClick={() => setAll(a => !a)} style={{ marginTop: 8, cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>{all ? "פחות ▲" : `עוד ${rows.length - 12} ▼`}</button>}
+    </div>
+  );
+}
+
 // 🔬 החידושים של הכתב — נראים ומסודרים. פורום (approved) = רשימה גלויה, מוצמדים קודם.
 //    גולמי-וואטסאפ (published) = קופסה מתקפלת נפרדת (לא מציף את הדף).
 function DossierFindings({ P, name, uid, isAdmin }) {
@@ -255,7 +303,8 @@ function DossierFindings({ P, name, uid, isAdmin }) {
     .sort((p, q) => (q.pinned_at ? 1 : 0) - (p.pinned_at ? 1 : 0) || String(q.created_at).localeCompare(String(p.created_at)))), []);
   if (!items || !items.length) return null;
   const forum = items.filter(x => x.status === "approved");
-  const raw = items.filter(x => x.status !== "approved");
+  // גימטריות-published מוצגות במקטע «🔢 הגימטריות» (WriterGematrias) — לא כאן, כדי לא לכפול.
+  const raw = items.filter(x => x.status !== "approved" && !x.gematria_claim);
   return (
     <div style={{ marginBottom: 26 }}>
       {forum.length > 0 && (
@@ -558,6 +607,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
       <ResearcherStatsCard P={P} c={c} name={name} level={level} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
       <DossierMatrices P={P} name={name} matrices={matrices} isAdmin={isAdmin} onPromote={promoteMatrix} />
+      <WriterGematrias P={P} name={name} uid={c?.user_id} isAdmin={isAdmin} />
       <DossierFindings P={P} name={name} uid={c?.user_id} isAdmin={isAdmin} />
       <MyResearchExplored P={P} isOwner={isOwner} />
       <ResearchJournal P={P} name={name} level={level} matrices={matrices} joinedAt={joinedAt} />

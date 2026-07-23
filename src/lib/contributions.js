@@ -291,6 +291,13 @@ export async function getResearcherStats(userId, name) {
   } catch { return null; }
 }
 
+// 🔢 גימטריות-הכתב לדף (page-only) + דגל «במערכת הראשית». מוצמדים+חדשים למעלה.
+export async function getWriterGematrias(name, uid = null) {
+  if (!supabase || (!name && !uid)) return [];
+  try { const { data } = await supabase.rpc("writer_gematria_findings", { p_name: name || "", p_uid: uid || null }); return data || []; }
+  catch { return []; }
+}
+
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
 export async function getReputation(userId = null) {
   if (!supabase) return null;
