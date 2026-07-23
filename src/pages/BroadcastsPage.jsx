@@ -7,7 +7,7 @@ import { getForumFeed } from "../lib/contributions.js";
 import { hintNums, effDate } from "../lib/reality.js";
 import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { BRANDS, isVideoUrl, shareUpdate, UpdateModal } from "../components/BrandTicker.jsx";
@@ -274,7 +274,7 @@ function ChannelsView({ P, items, all, chanCounts, filter, setFilter, focusId, o
                 {u.image_url && (
                   <div className="bc-media">
                     {vid ? <div className="bc-vidph"><span className="play">▶</span><span className="vlbl">וידאו · הקש לצפייה</span></div>
-                      : <img src={thumb(u.image_url, 420)} alt="" loading="lazy" />}
+                      : <img src={galThumb(u, 420)} alt="" loading="lazy" />}
                   </div>
                 )}
                 <div className="bc-in">

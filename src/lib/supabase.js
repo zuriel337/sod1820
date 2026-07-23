@@ -217,7 +217,7 @@ export async function getRecentCommunityWords(limit = 4) {
 export async function getChannelUpdates(limit = 6, channel = null, byDate = false) {
   if (!supabase) return [];
   let q = supabase.from('channel_updates')
-    .select('id,text,image_url,credit,channel,is_urgent,created_at,link_url,source')
+    .select('id,text,image_url,thumb_url,credit,channel,is_urgent,created_at,link_url,source')
     .eq('status', 'live')
     .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
   q = byDate ? q.order('created_at', { ascending: false })
@@ -238,7 +238,7 @@ export async function getUpdatesByReporterNames(names, limit = 60) {
   const list = (Array.isArray(names) ? names : [names]).map(n => (n || "").trim()).filter(Boolean);
   if (!supabase || !list.length) return [];
   const { data } = await supabase.from('channel_updates')
-    .select('id,text,image_url,credit,channel,created_at,link_url,source')
+    .select('id,text,image_url,thumb_url,credit,channel,created_at,link_url,source')
     .eq('status', 'live')
     .in('credit', list)
     .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
@@ -261,14 +261,14 @@ export async function getFeaturedResearchers(limit = 6) {
       const name = (c.display_name || '').trim();
       if (!name) continue;
       const { data: ups } = await supabase.from('channel_updates')
-        .select('id,image_url,created_at')
+        .select('id,image_url,thumb_url,created_at')
         .eq('status', 'live').eq('credit', name)
         .not('image_url', 'is', null)
         .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
         .order('created_at', { ascending: false }).limit(1);
       const u = ups?.[0];
       if (!u) continue;
-      out.push({ ...c, latest_image: u.image_url, latest_at: u.created_at });
+      out.push({ ...c, latest_image: u.image_url, latest_thumb: u.thumb_url || null, latest_at: u.created_at });
     }
     return out.sort((a, b) => +new Date(b.latest_at) - +new Date(a.latest_at)).slice(0, limit);
   } catch { return []; }
@@ -1740,7 +1740,7 @@ export async function logActivity(kind, ref = null, title = null) {
 // מטא-דאטה קל לכמה פוסטים לפי wp_id (בלי עמודת content הכבדה) — לכרטיסים/תצוגות
 export async function getPostsMetaByWpIds(wpIds = []) {
   if (!supabase || !wpIds.length) return [];
-  const { data } = await supabase.from('posts').select('wp_id, slug, title, image_url').in('wp_id', wpIds);
+  const { data } = await supabase.from('posts').select('wp_id, slug, title, image_url, thumb_url').in('wp_id', wpIds);
   return data || [];
 }
 
@@ -1899,7 +1899,7 @@ export async function getPostCategoriesTags() {
 export async function getDraftPosts(limit = 40) {
   if (!supabase) return [];
   const { data, error } = await supabase.from('posts')
-    .select('id,slug,title,modified,image_url,categories,author')
+    .select('id,slug,title,modified,image_url,thumb_url,categories,author')
     .contains('tags', ['טיוטה'])
     .order('modified', { ascending: false, nullsFirst: false }).limit(limit);
   if (error) return [];

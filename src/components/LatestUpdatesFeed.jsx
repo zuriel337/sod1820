@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getChannelUpdates, getCipherFindings } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
-import { thumb } from "../lib/img.js";
+import { galThumb } from "../lib/img.js";
 import { effDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 
@@ -70,7 +70,7 @@ export default function LatestUpdatesFeed({ posts = [], convergences = [], hints
   })), [convergences]);
 
   const reality = useMemo(() => (hints || []).filter(h => h.image_url)
-    .map(h => ({ v: domNum(h), t: cleanName(h.name), img: h.image_url, d: effDate(h), when: h.created_at || h.occurred_at }))
+    .map(h => ({ v: domNum(h), t: cleanName(h.name), img: h.image_url, thumb: h.thumb_url || null, d: effDate(h), when: h.created_at || h.occurred_at }))
     .sort((a, b) => b.d - a.d).slice(0, 12), [hints]);
 
   const writers = useMemo(() => (posts || []).filter(p => isWriter(p.author)).slice(0, 12), [posts]);
@@ -147,7 +147,7 @@ export default function LatestUpdatesFeed({ posts = [], convergences = [], hints
   );
   const realityCard = (o, i) => (
     <button key={"rl" + i} type="button" onClick={scrollReality} className="luf-card" style={{ "--acc": cReality }}>
-      <div className="luf-media">{o.img ? <span className="luf-img" style={{ backgroundImage: `url(${thumb(o.img, 220)})` }} /> : null}
+      <div className="luf-media">{o.img ? <span className="luf-img" style={{ backgroundImage: `url(${galThumb({ thumb_url: o.thumb, image_url: o.img }, 220)})` }} /> : null}
         {o.v != null && <span className="luf-onimg">{o.v}</span>}<span className="luf-wave">🌊</span></div>
       <div className="luf-body">{chip(cReality, <>🌊 זרם המציאות</>)}<h3 className="luf-title">{o.t || (o.v != null ? `מספר ${o.v}` : "רמז חדש")}</h3>
         <Meta acc={cReality} by={SIGN} when={o.when} extra={<><span className="sep">·</span><span style={{ color: cReality, fontWeight: 800 }}>↓ המשך בזרם למטה</span></>} /></div>
@@ -157,14 +157,14 @@ export default function LatestUpdatesFeed({ posts = [], convergences = [], hints
     const a = (p.author || "").trim(); const init = a.charAt(0);
     return (
       <Link key={"wr" + (p.id || i)} to={`/${p.slug}`} className="luf-card" style={{ "--acc": cWriter }}>
-        <div className="luf-media">{p.image_url ? <span className="luf-img" style={{ backgroundImage: `url(${thumb(p.image_url, 220)})` }} /> : <span className="luf-avatar" style={{ "--acc": cWriter }}>{init}</span>}</div>
+        <div className="luf-media">{p.image_url ? <span className="luf-img" style={{ backgroundImage: `url(${galThumb(p, 220)})` }} /> : <span className="luf-avatar" style={{ "--acc": cWriter }}>{init}</span>}</div>
         <div className="luf-body">{chip(cWriter, <>✍️ כתב</>)}<h3 className="luf-title">{stripHtml(p.title || "")}</h3><Meta acc={cWriter} role={WRITER_ROLES[a] || "כתב"} by={a} when={p.modified || p.date} /></div>
       </Link>
     );
   };
   const plainCard = (p, i) => (
     <Link key={"pl" + (p.id || i)} to={`/${p.slug}`} className="luf-card" style={{ "--acc": P.muted }}>
-      <div className="luf-media">{p.image_url ? <span className="luf-img" style={{ backgroundImage: `url(${thumb(p.image_url, 220)})` }} /> : <span className="luf-em">🕊️</span>}</div>
+      <div className="luf-media">{p.image_url ? <span className="luf-img" style={{ backgroundImage: `url(${galThumb(p, 220)})` }} /> : <span className="luf-em">🕊️</span>}</div>
       <div className="luf-body">{chip(P.muted, <>🕊️ {SIGN} · תוכן</>)}<h3 className="luf-title">{stripHtml(p.title || "")}</h3><Meta acc={P.muted} by={SIGN} when={p.modified || p.date} /></div>
     </Link>
   );

@@ -6,7 +6,7 @@ import { getChannelUpdates, getRealityHints } from "../lib/supabase.js";
 import { getForumFeed } from "../lib/contributions.js";
 import { hintNums } from "../lib/reality.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 import ReporterLink, { ReporterAvatar } from "./ReporterLink.jsx";
 import { BRANDS } from "./BrandTicker.jsx";
 
@@ -298,7 +298,7 @@ export default function LiveChannelFeed() {
                           : <div className="lcf-snd" style={{ color: c.c }}><ReporterAvatar credit={u.credit} size={20} ring={c.c} fallback={BRANDS[u.ch]?.logo} /><span>{c.em} <ReporterLink credit={u.credit} canonical style={{ color: c.c, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 700 }}>{u.credit || c.name}</ReporterLink></span></div>}
                         {u.image_url && !isVideo(u.image_url) && (
                           <button className="lcf-imgw" onClick={() => setZoom(u.image_url)} aria-label="הגדל תמונה">
-                            <img src={thumb(u.image_url, 360)} alt="" loading="lazy" />
+                            <img src={galThumb(u, 360)} alt="" loading="lazy" />
                             <span className="lcf-tap">🔍 הקש להגדלה</span>
                           </button>
                         )}

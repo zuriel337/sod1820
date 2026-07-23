@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { PALETTES, PaletteProvider } from "../lib/palette.js";
 import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
-import { thumb } from "../lib/img.js";
+import { thumb, galThumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
@@ -228,8 +228,8 @@ export default function ContributorPage() {
     const name = c.display_name;
     let alive = true;
     Promise.all([
-      supabase.from("posts").select("slug,title,date,image_url,author").eq("author", name).order("date", { ascending: false }).limit(40),
-      supabase.from("posts").select("slug,title,date,image_url,author").contains("authors", [name]).order("date", { ascending: false }).limit(40),
+      supabase.from("posts").select("slug,title,date,image_url,thumb_url,author").eq("author", name).order("date", { ascending: false }).limit(40),
+      supabase.from("posts").select("slug,title,date,image_url,thumb_url,author").contains("authors", [name]).order("date", { ascending: false }).limit(40),
     ]).then(([a, b]) => {
       if (!alive) return;
       const bySlug = new Map();
@@ -257,7 +257,7 @@ export default function ContributorPage() {
     const tags = Array.isArray(c?.tags) ? c.tags.filter(Boolean) : [];
     if (!tags.length) { setTagged([]); setConvergences([]); return; }
     let alive = true;
-    supabase.from("posts").select("slug,title,date,image_url,author")
+    supabase.from("posts").select("slug,title,date,image_url,thumb_url,author")
       .overlaps("tags", tags).order("date", { ascending: false }).limit(60)
       .then(({ data }) => { if (alive && Array.isArray(data)) setTagged(data); })
       .catch(() => {});
@@ -435,7 +435,7 @@ export default function ContributorPage() {
               const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
               return (
                 <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה" style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                  <img src={thumb(u.image_url, 460)} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block", background: "#0a0710" }} />
+                  <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block", background: "#0a0710" }} />
                   {showTxt && <div style={{ padding: "10px 12px", color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, whiteSpace: "pre-wrap", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</div>}
                 </div>
               );
@@ -479,7 +479,7 @@ export default function ContributorPage() {
                     <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", background: "#0a0710", overflow: "hidden" }}>
                       {vid
                         ? <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, color: "#cbb6ff" }}><span style={{ fontSize: 30 }}>▶</span><span style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 800, opacity: .8 }}>וידאו · הקש לצפייה</span></div>
-                        : <img src={thumb(u.image_url, 420)} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
+                        : <img src={galThumb(u, 420)} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
                     </div>
                   )}
                   <div style={{ padding: "10px 12px 11px", display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
@@ -571,7 +571,7 @@ export default function ContributorPage() {
           <div style={{ display: "grid", gap: 8 }}>
             {posts.map(p => (
               <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
-                {p.image_url && <img src={thumb(p.image_url, 96)} alt="" loading="lazy" style={{ width: 48, height: 48, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
+                {p.image_url && <img src={galThumb(p, 96)} alt="" loading="lazy" style={{ width: 48, height: 48, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
                 <div style={{ minWidth: 0 }}>
                   <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>
                     {p.participated && <span style={{ color: P.accentDim, fontWeight: 600 }}>🤝 בהשתתפות · </span>}{stripHtml(p.title)}
@@ -627,7 +627,7 @@ export default function ContributorPage() {
             <div style={{ display: "grid", gap: 8 }}>
               {featured.map(p => (
                 <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
-                  {p.image_url && <img src={thumb(p.image_url, 96)} alt="" loading="lazy" style={{ width: 44, height: 44, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
+                  {p.image_url && <img src={galThumb(p, 96)} alt="" loading="lazy" style={{ width: 44, height: 44, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>{stripHtml(p.title)}</div>
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>

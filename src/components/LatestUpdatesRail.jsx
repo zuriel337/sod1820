@@ -83,7 +83,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       const href = `/community/researcher/${d.code || d.slug}`;
       return (
         <Link key={"c" + (d.slug || d.code)} to={href} className="lur-card" style={{ "--acc": cResearcher }}>
-          <div className="lur-media">{d.latest_image ? <span className="lur-img" style={{ backgroundImage: `url(${thumb(d.latest_image, 200)})` }} /> : <span className="lur-em">✍️</span>}</div>
+          <div className="lur-media">{d.latest_image ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb({ thumb_url: d.latest_thumb, image_url: d.latest_image }, 200)})` }} /> : <span className="lur-em">✍️</span>}</div>
           <div className="lur-body"><Tag acc={cResearcher} logo={<span className="lur-lem">✍️</span>}>כתב מיוחד · דף הכתב</Tag>
             <h3 className="lur-title">{d.display_name}{d.role ? ` · ${d.role}` : ""}</h3>
             <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cResearcher }}>לדף הכתב ←</span></div></div>
