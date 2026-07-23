@@ -253,8 +253,10 @@ export async function getResearcherProfile(name, limit = 40, uid = null) {
   if (!supabase || (!name && !uid)) return null;
   try {
     let q = supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,pinned_at,created_at")
       .in("status", ["approved", "published"]).is("parent_id", null)
+      // 📌 מוצמדים (אדמין) קודם — «הגימטריות/החידושים הראשונים למעלה» — ואז החדשים
+      .order("pinned_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false }).limit(limit);
     if (uid && name) q = q.or(`author_user_id.eq.${uid},author_name.eq.${name}`);
     else if (uid) q = q.eq("author_user_id", uid);

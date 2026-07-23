@@ -4,7 +4,7 @@ import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase, getMyResearch } from "../../lib/supabase.js";
 import { getMatricesByOwner, getMyMatrices, moderateMatrix } from "../../lib/elsMatrices.js";
-import { getResearcherProfile, getResearcherStats } from "../../lib/contributions.js";
+import { getResearcherProfile, getResearcherStats, pinContribution, promoteFindingToDict } from "../../lib/contributions.js";
 import WaChatWindow from "../WaChatWindow.jsx";
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
@@ -211,15 +211,63 @@ function DossierMatrices({ P, name, matrices, isAdmin, onPromote }) {
 //    עץ אחד: כל ממצא מקשר ליעד הקנוני (/number · /topic), לא משכפל.
 // 👑 אדמין: על ממצא גולמי (status=published, בדף בלבד) מוצג «⬆️ קדם לפורום» → moderate→approved,
 //    מעביר אותו לפיד-הפורום הציבורי (החלטת צוריאל: גולמי-וואטסאפ נשאר בדף, אתה אוצר מה עולה לפורום).
+// 🔬 כרטיס-חידוש בפורום — נראה, מסודר. גימטריה מודגשת; מוצמד (📌) עולה למעלה.
+function ForumFinding({ P, it, isAdmin, onPinned }) {
+  const [busy, setBusy] = useState(false);
+  const [dictMsg, setDictMsg] = useState("");
+  const claim = it.gematria_claim?.claim || it.gematria_claim || "";
+  const isGem = !!claim;
+  const to = it.target_type === "number" ? `/number/${it.target_id}` : it.target_type === "topic" ? `/topic/${it.target_id}` : null;
+  const togglePin = async () => { setBusy(true); try { await pinContribution(it.id, !it.pinned_at); onPinned?.(it.id, !it.pinned_at); } catch { /* noop */ } setBusy(false); };
+  const toDict = async () => {
+    setBusy(true);
+    try { const r = await promoteFindingToDict(it.id); const a = (r?.added || []).length, d = (r?.in_dict || []).length; setDictMsg(a ? `✓ נוספו ${a}` : d ? "כבר במילון" : "אין גימטריה"); } catch { setDictMsg("שגיאה"); }
+    setBusy(false);
+  };
+  return (
+    <div style={{ background: P.card, border: `1px solid ${it.pinned_at ? P.accent : P.border}`, borderRadius: 12, padding: "11px 13px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+        {it.pinned_at && <span title="מוצמד" style={{ fontSize: 13 }}>📌</span>}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {it.title && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800, lineHeight: 1.4 }}>{it.title}</div>}
+          {isGem
+            ? <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", marginTop: it.title ? 3 : 0 }}>🔢 {String(claim).slice(0, 280)}</div>
+            : it.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: it.title ? 3 : 0 }}>{String(it.body).slice(0, 200)}{String(it.body).length > 200 ? "…" : ""}</div>}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 6, fontFamily: F.heading, fontSize: 11 }}>
+            {to && <Link to={to} style={{ color: P.accentText, textDecoration: "none", fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : "🎯"} {it.target_id}</Link>}
+            <Link to={`/forum/${it.id}`} style={{ color: P.accentDim, textDecoration: "none" }}>💬 לדיון</Link>
+            {isAdmin && <button onClick={togglePin} disabled={busy} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: it.pinned_at ? P.glow : P.card, color: P.accentText, borderRadius: 999, padding: "3px 10px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, minHeight: 26 }}>{it.pinned_at ? "📌 בטל הצמדה" : "📌 הצמד למעלה"}</button>}
+            {isAdmin && isGem && !dictMsg && <button onClick={toDict} disabled={busy} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "3px 10px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, minHeight: 26 }}>➕ למילון</button>}
+            {dictMsg && <span style={{ color: P.accentDim, fontSize: 10.5 }}>{dictMsg}</span>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 🔬 החידושים של הכתב — נראים ומסודרים. פורום (approved) = רשימה גלויה, מוצמדים קודם.
+//    גולמי-וואטסאפ (published) = קופסה מתקפלת נפרדת (לא מציף את הדף).
 function DossierFindings({ P, name, uid, isAdmin }) {
   const [items, setItems] = useState(null);
   useEffect(() => { let a = true; getResearcherProfile(name, 120, uid).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name, uid]);
+  const setPin = useCallback((id, on) => setItems(l => (l || []).map(x => x.id === id ? { ...x, pinned_at: on ? new Date().toISOString() : null } : x)
+    .sort((p, q) => (q.pinned_at ? 1 : 0) - (p.pinned_at ? 1 : 0) || String(q.created_at).localeCompare(String(p.created_at)))), []);
   if (!items || !items.length) return null;
-  // 📱 קופסת-הוואטסאפ — סגורה כברירת-מחדל, נפתחת בלחיצה על הכותרת. כל ההודעות בקופסה אחת,
-  //    לא מתפזרות על הדף (החלטת צוריאל). אדמין מוציא משם לפורום («קדם לפורום» על כל בועה).
+  const forum = items.filter(x => x.status === "approved");
+  const raw = items.filter(x => x.status !== "approved");
   return (
     <div style={{ marginBottom: 26 }}>
-      <WaChatWindow name={name} items={items} isAdmin={isAdmin} height={440} collapsible defaultOpen={false} />
+      {forum.length > 0 && (
+        <div style={{ marginBottom: raw.length ? 16 : 0 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 10 }}>🔬 החידושים של {name} ({forum.length})</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {forum.map(it => <ForumFinding key={it.id} P={P} it={it} isAdmin={isAdmin} onPinned={setPin} />)}
+          </div>
+        </div>
+      )}
+      {/* 📱 גולמי-וואטסאפ (published) — קופסה מתקפלת נפרדת, לא מציף את הדף */}
+      {raw.length > 0 && <WaChatWindow name={name} items={raw} isAdmin={isAdmin} height={440} collapsible defaultOpen={false} />}
     </div>
   );
 }

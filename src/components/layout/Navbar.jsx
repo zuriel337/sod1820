@@ -32,23 +32,20 @@ function DrawerWritersMap({ cc, onNavigate }) {
   }, []);
   if (!rows.length) return null;
   return (
-    <div style={{ margin: "16px 8px 2px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2px 8px" }}>
-        <span style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2 }}>👥 הכתבים והחוקרים</span>
-        <Link to="/community/researchers" onClick={onNavigate} style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textDecoration: "none" }}>כל החוקרים →</Link>
+    <div style={{ margin: "10px 8px 2px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2px 6px" }}>
+        <span style={{ color: cc.muted, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, letterSpacing: 1.2 }}>👥 הכתבים והחוקרים</span>
+        <Link to="/community/researchers" onClick={onNavigate} style={{ color: cc.goldLight, fontFamily: F.heading, fontSize: 11, fontWeight: 800, textDecoration: "none" }}>כל החוקרים →</Link>
       </div>
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-        {rows.map(r => {
-          const cnt = (r.findings || 0) + (r.posts || 0) + (r.ciphers || 0);
-          return (
-            <Link key={r.slug} to={`/community/researcher/${r.slug}`} onClick={onNavigate}
-              style={{ flex: "none", width: 94, textDecoration: "none", background: "rgba(212,175,55,0.06)", border: `1px solid ${cc.border}`, borderRadius: 12, padding: "10px 6px", textAlign: "center" }}>
-              <img src={genAvatar(r.display_name)} alt="" loading="lazy" style={{ width: 40, height: 40, borderRadius: "50%", border: `1px solid ${cc.borderGold}` }} />
-              <div style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 11.5, fontWeight: 700, marginTop: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.display_name}</div>
-              {cnt > 0 && <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 10, marginTop: 2 }}>{cnt} פריטים</div>}
-            </Link>
-          );
-        })}
+      {/* צ'יפים קומפקטיים — אווטאר קטן + שם בלבד; נגללים אופקית, לא תופסים גובה. */}
+      <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+        {rows.map(r => (
+          <Link key={r.slug} to={`/community/researcher/${r.slug}`} onClick={onNavigate}
+            style={{ flex: "none", display: "flex", alignItems: "center", gap: 6, textDecoration: "none", background: "rgba(212,175,55,0.06)", border: `1px solid ${cc.border}`, borderRadius: 999, padding: "4px 10px 4px 5px" }}>
+            <img src={genAvatar(r.display_name)} alt="" loading="lazy" style={{ width: 24, height: 24, borderRadius: "50%", border: `1px solid ${cc.borderGold}`, flex: "none" }} />
+            <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>{r.display_name}</span>
+          </Link>
+        ))}
       </div>
     </div>
   );
@@ -748,8 +745,6 @@ export default function Navbar() {
               ))}
             </div>
           </div>
-          {/* 👥 מפת-כתבים חיה — החוקרים הפעילים (עדשה על contributors_feed) */}
-          <DrawerWritersMap cc={cc} onNavigate={() => setDrawer(false)} />
           {/* כל המדורים */}
           <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "14px 8px 4px" }}>כל המדורים</div>
           <div className="sod-tiles">
@@ -761,6 +756,8 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
+          {/* 👥 מפת-כתבים חיה — קומפקטית, בתחתית התפריט (עדשה על contributors_feed) */}
+          <DrawerWritersMap cc={cc} onNavigate={() => setDrawer(false)} />
           {/* סגירת התפריט — שורה תחתונה קומפקטית (טקסט, לא אריחים): צור קשר · הורדת האפליקציה */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap", padding: "14px 8px 4px", marginTop: 10, borderTop: `1px solid ${cc.border}` }}>
             <Link to="/contact" onClick={() => setDrawer(false)} style={{
