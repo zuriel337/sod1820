@@ -118,7 +118,7 @@ export default function ContributorPage() {
   const nav = useNavigate();
   // 📁 תיק המחקר = סביבת-מחקר → בהיר-נקי תמיד (research_workspace_law), כמו בית המדרש.
   const P = PALETTES.lab;
-  const { user, isAdmin } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
+  const { user, isAdmin, loading: authLoading } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
   const [c, setC] = useState(null);
   const [err, setErr] = useState(false);
   const [lightName, setLightName] = useState(null);   // 👤 שם לפרופיל-חוקר קל (כשאין שורת-contributor אצורה)
@@ -166,15 +166,24 @@ export default function ContributorPage() {
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
     const cols = "slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
     const resolveMe = slug === "me";
+    // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
+    if (resolveMe && authLoading) return;
+    if (resolveMe && !user?.id) { nav("/login", { replace: true }); return; }
     const q = resolveMe
-      ? supabase.from("contributors").select(cols).eq("user_id", user?.id || "00000000-0000-0000-0000-000000000000").maybeSingle()
+      ? supabase.from("contributors").select(cols).eq("user_id", user.id).maybeSingle()
       : supabase.from("contributors").select(cols).or(`code.eq.${slug},slug.eq.${slug}`).maybeSingle();
     q.then(({ data, error }) => {
         if (!alive) return;
         if (error) { setErr(true); return; }
         if (!data) {
+          // 📁 «me» בלי תיק → יוצרים תיק (update_my_dossier יוצר-אוטומטית) ומנווטים לכתובת הקנונית.
+          if (resolveMe) {
+            supabase.rpc("update_my_dossier", { p_settings: {} })
+              .then(({ data: r }) => { if (!alive) return; if (r?.slug) nav(`/community/researcher/${r.slug}`, { replace: true }); else setErr(true); })
+              .catch(() => alive && setErr(true));
+            return;
+          }
           // אין שורת-תיק אצורה → פרופיל-חוקר קל לפי שם (identity_architecture_law)
-          if (resolveMe) { setLightName(user?.user_metadata?.full_name || user?.email || "החוקר"); return; }
           let nm = slug; try { nm = decodeURIComponent(slug); } catch { /* raw */ } setLightName(nm); return;
         }
         // me → נווט לכתובת הקנונית (URL נקי, deep-link יציב)
@@ -185,7 +194,7 @@ export default function ContributorPage() {
       })
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
-  }, [slug, nav, user]);
+  }, [slug, nav, user, authLoading]);
 
   // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) — מוצג כתג בדף. ציבורי (research_level_of).
   const [level, setLevel] = useState(null);

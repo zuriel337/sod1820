@@ -2272,11 +2272,11 @@
   // 🔗 מנהל — קשירת המטריצה לפוסט באתר (סוד 1820). נשמר עם המטריצה בגלריה.
   function linkToPost(){
     const ov=document.createElement("div");ov.className="shareov";
-    ov.innerHTML='<div class="sharebox"><h3>🔗 קשר לפוסט באתר</h3><p>הדבק קישור לפוסט ב-sod1820.co.il שמדבר על הצופן. יופיע כפתור «📖 לקריאת הפוסט» על המטריצה. אחר-כך לחץ «שמור בגלריה» כדי לקבע.</p>'+
+    ov.innerHTML='<div class="sharebox"><h3>🔗 קשר לפוסט באתר</h3><p>הדבק קישור לפוסט ב-sod1820.co.il שמדבר על הצופן. יופיע כפתור «📖 לקריאת הפוסט» על המטריצה. אחר-כך לחץ «שמור לתיק המחקר» כדי לקבע.</p>'+
       '<input class="sh-url" placeholder="https://sod1820.co.il/…"><input class="sh-url sh-title" placeholder="כותרת הפוסט (רשות)" style="margin-top:8px;direction:rtl;text-align:right"><div class="sh-row"><button class="sh-copy">🔗 קשר</button><button class="sh-close">בטל</button></div></div>';
     document.body.appendChild(ov);
     const inp=ov.querySelector(".sh-url"),ti=ov.querySelector(".sh-title");inp.value=st.postUrl||"";ti.value=st.postTitle||"";inp.focus();
-    ov.querySelector(".sh-copy").onclick=()=>{const u=inp.value.trim();if(u&&!/^https?:\/\//.test(u)){toast("קישור חייב להתחיל ב-http/https");return;}st.postUrl=u;st.postTitle=ti.value.trim();ov.remove();render();toast(u?"🔗 קושר — לחץ «שמור בגלריה» כדי לקבע":"הקישור הוסר");};
+    ov.querySelector(".sh-copy").onclick=()=>{const u=inp.value.trim();if(u&&!/^https?:\/\//.test(u)){toast("קישור חייב להתחיל ב-http/https");return;}st.postUrl=u;st.postTitle=ti.value.trim();ov.remove();render();toast(u?"🔗 קושר — לחץ «שמור לתיק המחקר» כדי לקבע":"הקישור הוסר");};
     const close=()=>ov.remove();ov.querySelector(".sh-close").onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
   }
   // 🖼️ ציור הצופן הנוכחי ל-canvas והורדה כ-PNG (עובד לגמרי בכלי, בלי רשת).
@@ -3136,7 +3136,7 @@
       '<div class="meter"><div class="lbl"><span>מד קרבה — כמה מופעים לכל ממצא</span><b class="mv">'+st.showN+'</b></div>'+
         '<input type="range" min="1" max="15" value="'+st.showN+'"><div class="ends"><span>רק הקרוב ביותר</span><span>הרחק יותר ◄</span></div></div>'+
       '<div class="wlist"></div>'+
-      '<div class="rowbtns"><button class="clear">🧹 נקה הכל</button><button class="save">💾 שמור בגלריה</button></div>';
+      '<div class="rowbtns"><button class="clear">🧹 נקה הכל</button><button class="save">'+(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button></div>';
     const inp=card.querySelector("input"),addb=card.querySelector(".add"),list=card.querySelector(".wlist");
     const add=()=>{const t=norm(inp.value);if(t.length<1)return;
       if(st.words.some(w=>w.t===t)){toast("«"+t+"» כבר מסומן במטריצה");inp.value="";return;}
@@ -3479,7 +3479,7 @@
       "<li><b>◌ ניקוד</b> — הצגת ניקוד התורה על אותיות המטריצה.</li></ul>"},
     {id:"save",e:"💾",t:"שמירה לחשבון ושיתוף",h:
       "<b>השמירה היא לחשבון שלך — לא למכשיר.</b> כך תחזור לכל צופן ששמרת <b>מכל מכשיר</b>, ותוכל לשתף אותו."+
-      "<ul><li><b>💾 שמור בגלריה</b> — הצופן נשמר בחשבון, ומופיע בשורת <b>«📁 מטריצות שמורות»</b> למעלה (הקש לפתיחה מחדש עם כל הממצאים).</li>"+
+      "<ul><li><b>💾 שמור לתיק המחקר</b> — הצופן נשמר בתיק שלך, ומופיע בשורת <b>«📁 מטריצות שמורות»</b> למעלה (הקש לפתיחה מחדש עם כל הממצאים).</li>"+
       "<li><b>📚 כל הצפנים →</b> — מעבר ל<b>ספריית-הצפנים הציבורית</b> של האתר, שם מתפרסמים הצפנים המאושרים לעיון הקהילה.</li>"+
       "<li><b>🖼️ שמור תמונה</b> — כרטיס-צופן מעוצב להורדה ולשליחה בוואטסאפ/רשתות.</li>"+
       "<li><b>🔗 שתף קישור</b> — מי שיפתח יראה בדיוק את הצופן עם כל הממצאים שסימנת.</li>"+
@@ -3489,7 +3489,7 @@
     {id:"access",e:"🔑",t:"מי יכול מה (גישה)",h:
       "<b>אפשר להתחיל לטעום מיד, וההרשמה (חינם) פותחת את החיפוש המוצלח:</b>"+
       "<ul><li><b>אורח</b> — כמה חיפושי-מילה חינם לטעימה (אחרי קריאת «איך מחפשים נכון»), עם כל המטריצה, ממצאים בצבעים, מד-איכות, סרט ותמונה.</li>"+
-      "<li><b>רשום</b> (הרשמה חינם + אימות-מייל) — פותח את <b>🔀 החיפוש המוצלב</b> (שתי מילים שנפגשות — «החיפוש המוצלח»), <b>📜 כל התנ״ך</b> (24 הספרים) ו<b>💾 שמירה לגלריה</b> בחשבון.</li>"+
+      "<li><b>רשום</b> (הרשמה חינם + אימות-מייל) — פותח את <b>🔀 החיפוש המוצלב</b> (שתי מילים שנפגשות — «החיפוש המוצלח»), <b>📜 כל התנ״ך</b> (24 הספרים) ו<b>💾 שמירה לתיק המחקר</b>.</li>"+
       "<li><b>אדמין</b> — הכל, כולל פרסום-מיידי לספרייה ועריכת-צפנים.</li></ul>"+
       "<div class='gc-tip'>🔓 ההרשמה חינם לחלוטין — מטרתה לוודא שאתם יודעים לחפש נכון, לשמור את המחקר שלכם, ולפתוח את החיפוש המוצלב וכל התנ״ך.</div>"},
     {id:"honesty",e:"🕎",t:"עדות — לא ניבוי",h:
