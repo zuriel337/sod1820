@@ -102,13 +102,16 @@ const RI_BUCKET = { cart: 'cart', saved: 'library', pinned: 'pinned' };
 export async function getCloudResearch(userId) {
   if (!userId) return null;
   const [itemsRes, blobRes] = await Promise.all([
-    supabase.from('research_items').select('bucket, metadata').eq('user_id', userId),
+    supabase.from('research_items').select('bucket, entity_type, entity_ref, title, link, metadata').eq('user_id', userId),
     supabase.from('user_research').select('data').eq('user_id', userId).maybeSingle(),
   ]);
   const out = { cart: [], saved: [], pinned: [] };
   for (const r of itemsRes.data || []) {
     const key = r.bucket === 'library' ? 'saved' : r.bucket; // library→saved
-    if (out[key] && r.metadata) out[key].push(r.metadata);
+    if (!out[key]) continue;
+    // ⛑️ לא מפילים שורה בגלל metadata חסר — משחזרים ישות מינימלית מהעמודות (אחרת המחיקה-הסלקטיבית
+    //    בשמירה הבאה היתה מוחקת אותה כ"לא-קיימת-מקומית").
+    out[key].push(r.metadata || { type: r.entity_type, ref: r.entity_ref, id: r.entity_ref, title: r.title, link: r.link });
   }
   const b = blobRes.data?.data || {};
   return { ...out, history: b.history || [], collections: b.collections || [], journeys: b.journeys || [] };
@@ -122,7 +125,9 @@ export async function saveCloudResearch(userId, data) {
     { user_id: userId, data: { history: d.history || [], collections: d.collections || [], journeys: d.journeys || [] }, updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );
-  // 2) פריטים → research_items (החלפה מלאה לדליים cart/library/pinned)
+  // 2) פריטים → research_items — **לא-הרסני** (תיקון באג-ניגוב-שמורים):
+  //    היה delete-all-then-insert מונע מהמצב המקומי; מצב-ריק (מרוץ-הידרציה/דסינק) ניגב את הענן,
+  //    וה-insert העטוף ב-catch בלע כשלים. עכשיו: upsert (לא הורס) + מחיקה סלקטיבית של פריטים שהוסרו בפועל.
   const rows = [];
   const seen = new Set();
   for (const [srcKey, bucket] of Object.entries(RI_BUCKET)) {
@@ -135,6 +140,13 @@ export async function saveCloudResearch(userId, data) {
       rows.push({ user_id: userId, bucket, entity_type: e.type, entity_ref: ref, title: e.title ?? null, link: e.link ?? null, metadata: e });
     }
   }
-  await supabase.from('research_items').delete().eq('user_id', userId).in('bucket', Object.values(RI_BUCKET));
-  if (rows.length) await supabase.from('research_items').insert(rows);
+  // 🛡️ הגנת-נתונים: מצב מקומי ריק לעולם לא מנגב את הענן. מחיקה מתרחשת רק כשיש פריטים,
+  //    וגם אז רק על מה שהוסר בפועל (reconcile), לא מחיקה-גורפת.
+  if (!rows.length) return;
+  await supabase.from('research_items').upsert(rows, { onConflict: 'user_id,bucket,entity_type,entity_ref' });
+  const keep = new Set(rows.map(r => `${r.bucket}|${r.entity_type}|${r.entity_ref}`));
+  const { data: existing } = await supabase.from('research_items')
+    .select('id, bucket, entity_type, entity_ref').eq('user_id', userId).in('bucket', Object.values(RI_BUCKET));
+  const stale = (existing || []).filter(r => !keep.has(`${r.bucket}|${r.entity_type}|${r.entity_ref}`)).map(r => r.id);
+  if (stale.length) await supabase.from('research_items').delete().in('id', stale);
 }
