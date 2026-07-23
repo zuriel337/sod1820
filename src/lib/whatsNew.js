@@ -9,6 +9,17 @@ import { seenCutoff } from "./crossesNew.js";
 const REAL_CHANNELS = ["gilui-yomi", "torat-haremez", "sod-hachashmal", "reality-code", "or-geula"];
 const ms = v => { const t = v ? new Date(v).getTime() : NaN; return Number.isFinite(t) ? t : 0; };
 
+// 🔔 מי «מקפיץ» את כרטיס «מה חדש» (החלטת צוריאל): צופן-גולש (kind=cipher) · חידוש-מערכת
+//    (kind=insight — קהילה כבר מסוננת בפיד, נשארים ai/צוריאל) · חידוש/עדכון של ישראל פנצ׳ר.
+//    כל שאר תרומות-הגולשים לא מקפיצות. שם-הכותב נבדק כתת-מחרוזת (עמיד לגרש ׳/').
+const POP_WRITERS = ["ישראל פנצ"];
+function popsWhatsNew(it) {
+  if (!it) return false;
+  if (it.kind === "cipher" || it.kind === "insight") return true;
+  const who = (it.author_display || it.author_name || "").trim();
+  return POP_WRITERS.some(w => who.includes(w));
+}
+
 export async function getWhatsNewCounts() {
   const cut = k => ms(seenCutoff("bc-" + k));
   try {
@@ -21,7 +32,10 @@ export async function getWhatsNewCounts() {
       getChannelUpdates(30, "site-news", true).catch(() => []),
     ]);
     const cF = cut("forum"), cC = cut("channels"), cA = cut("activity"), cD = cut("dev");
-    const forumN = (forum || []).filter(x => ms(x.ts) > cF).length;   // כבר בלי פוסטים
+    // 🔔 החלטת צוריאל: הכרטיס «מה חדש» קופץ רק על — צופן-גולש · חידוש-מערכת (insights=ai/צוריאל)
+    //    · חידוש/עדכון של ישראל פנצ׳ר. לא על חידושי-גולשים/תרומות אחרים (כדי לא «לקפוץ» על כל דבר).
+    const eligibleForum = (forum || []).filter(popsWhatsNew);
+    const forumN = eligibleForum.filter(x => ms(x.ts) > cF).length;   // כבר בלי פוסטים
     // פעילות = עדכונים אחרונים (כל הפוסטים, כולל מערכת) + זרם המציאות + צפני-מערכת
     const postsN = (posts || []).filter(p => ms(p.modified || p.date) > cA).length;
     const hintsN = (hints || []).filter(h => ms(h.occurred_at || h.created_at) > cA).length;
@@ -32,7 +46,7 @@ export async function getWhatsNewCounts() {
     // 🌐 הכרטיס בבית = פורום-בלבד (החלטת צוריאל): הזרמים האחרים כבר מוצגים בבית (רצועת «עדכונים אחרונים»
     // = פעילות · טיקר תחתון = ערוצים · טיקר עליון = פיתוח) → כאן רק «מה חדש בקהילה מאז ביקורך».
     // forumLatest = הפריט האחרון בפורום (getForumFeed ממוין חדש-first) → הכרטיס מציג את כותרתו.
-    const forumLatest = (forum && forum[0]) ? forumItemMeta(forum[0]) : null;
+    const forumLatest = eligibleForum[0] ? forumItemMeta(eligibleForum[0]) : null;
     return { forum: forumN, channels: channelsN, activity: activityN, dev: devN, forumLatest, total: forumN + activityN + devN };
   } catch {
     return { forum: 0, channels: 0, activity: 0, dev: 0, total: 0 };
