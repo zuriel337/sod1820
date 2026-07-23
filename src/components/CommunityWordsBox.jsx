@@ -28,18 +28,20 @@ function attribution(r) {
   })[s] || s;
   return { label: src, kind: "source" };
 }
-export default function CommunityWordsBox({ light, max = 4, title = "✦ מילים חדשות שנוספו למאגר" }) {
+export default function CommunityWordsBox({ light, max = 4, moreMax = 24, expandable = true, title = "✦ מילים חדשות שנוספו למאגר" }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const [rows, setRows] = useState([]);
   const [total, setTotal] = useState(0);   // סך המילים במאגר — count אמיתי מה-DB
+  const [showAll, setShowAll] = useState(false);   // 🔽 «ראה מילים קודמות» — פותח את הרשימה
+  const limit = showAll ? moreMax : max;
 
   useEffect(() => {
     let live = true;
-    getRecentCommunityWords(max).then(r => { if (live) setRows(r || []); }).catch(() => {});
+    getRecentCommunityWords(limit).then(r => { if (live) setRows(r || []); }).catch(() => {});
     getGematriaWordsCount().then(c => { if (live) setTotal(c || 0); }).catch(() => {});
     return () => { live = false; };
-  }, [max]);
+  }, [limit]);
 
   if (!rows.length) return null;
 
@@ -72,6 +74,15 @@ export default function CommunityWordsBox({ light, max = 4, title = "✦ מיל�
           </Link>
         ))}
       </div>
+      {/* 🔽 «ראה מילים קודמות» — פותח את הרשימה (max→moreMax) · «הצג פחות» מקפל בחזרה */}
+      {expandable && total > max && (
+        <button type="button" onClick={() => setShowAll(v => !v)}
+          style={{ width: "100%", marginTop: 9, background: "transparent", border: `1px solid ${L.line}`, borderRadius: 11,
+            padding: "9px 12px", color: L.gold, fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          {showAll ? "הצג פחות ↑" : "ראה מילים קודמות ↓"}
+        </button>
+      )}
     </div>
   );
 }
