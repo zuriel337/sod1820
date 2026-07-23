@@ -44,7 +44,7 @@ async function sendWelcome(url: string, key: string, email: string) {
   const edgeUnsub = `${url}/functions/v1/newsletter-unsubscribe?e=${eb}&t=${t}`; // מכונה (List-Unsubscribe)
   const openPixel = `${url}/functions/v1/email-open?c=welcome&e=${eb}`;          // מעקב-פתיחה
   const html = String(w.html).replaceAll("{{UNSUB}}", siteUnsub).replaceAll("{{OPEN}}", openPixel);
-  await fetch("https://api.resend.com/emails", {
+  const send = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -52,6 +52,17 @@ async function sendWelcome(url: string, key: string, email: string) {
       headers: { "List-Unsubscribe": `<${edgeUnsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     }),
   });
+  // 📊 מעקב-אמת: כל מייל-פתיחה שנשלח בפועל נרשם ל-email_events (event='sent') → הדשבורד מראה מספר אמיתי,
+  //    לא אומדן. שיעור-הפתיחה = opens/sent אמיתי. כישלון-רישום לא קריטי.
+  if (send.ok) {
+    try {
+      await fetch(`${url}/rest/v1/email_events`, {
+        method: "POST",
+        headers: { apikey: key, authorization: `Bearer ${key}`, "content-type": "application/json", prefer: "return=minimal" },
+        body: JSON.stringify({ email, campaign: "welcome", event: "sent" }),
+      });
+    } catch { /* מעקב לא קריטי */ }
+  }
 }
 
 const page = (title: string, body: string, back: string, emoji = "✅") =>

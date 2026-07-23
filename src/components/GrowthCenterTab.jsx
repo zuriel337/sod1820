@@ -283,10 +283,13 @@ export default function GrowthCenterTab() {
           <Stat n={growthTxt} label="מול תקופה קודמת" color={growthColor} hint={`תקופה קודמת: ${k.new_prev ?? 0}`} />
         </div>
         <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
-          <Stat n={k.welcome_sent_est} label="מיילי-פתיחה (מוערך)" color={L.amber} hint="אומדן = נרשמים חדשים בתקופה (מייל אחד לכל נרשם)" />
+          <Stat n={k.welcome_sent} label="מיילי-פתיחה שנשלחו" color={L.amber} hint="ספירה אמיתית — כל מייל-פתיחה שיצא בפועל לנרשם חדש (מאז שהאוטומציה עלתה)" />
           <Stat n={k.welcome_unique_opens} label="פתחו מייל-פתיחה" color={L.green} hint="ייחודיים · נמדד מפיקסל email-open" />
-          <Stat n={k.welcome_open_rate} suffix="%" label="שיעור פתיחה" color={L.purple} hint="פתיחות ייחודיות ÷ מיילים שנשלחו" />
-          <Stat n={k.campaigns_sent} label="דיוורים שנשלחו" color={L.sub} hint="סה״כ נמענים מכל הקמפיינים" />
+          <Stat n={k.welcome_open_rate} suffix={k.welcome_open_rate == null ? "" : "%"} label="שיעור פתיחה" color={L.purple} hint="פתיחות ייחודיות ÷ מיילים שנשלחו בפועל" />
+          <Stat n={k.campaigns_sent} label="דיוור המוני" color={L.sub} hint="סה״כ נמענים מקמפיינים ידניים (טרם נשלח)" />
+        </div>
+        <div style={{ color: L.sub, fontFamily: F.body, fontSize: 11, marginTop: 10, lineHeight: 1.6, background: "#fbf7ec", border: `1px solid ${L.line}`, borderRadius: 10, padding: "8px 12px" }}>
+          ℹ️ <b>הבהרה:</b> אלה מיילי-<b>פתיחה אוטומטיים</b> שיוצאים לכל נרשם חדש — לא דיוור המוני. «דיוור המוני» = 0 כי מעולם לא נשלח כזה. הספירה אמיתית (מרגע שהאוטומציה עלתה), אז תגדל כשיירשמו אנשים חדשים.
         </div>
       </Panel>
 
