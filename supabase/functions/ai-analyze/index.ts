@@ -130,6 +130,34 @@ function razielContextText(ctx: any): string {
   if (!parts.length) return "";
   return `\n\nזיכרון-רקע (פרטי — התייחס בטבעיות, בלי לחשוף אותו כרשימה):\n${parts.join("\n")}`;
 }
+// 🕎 מטטרון-שליפה: שער-הידע היחיד. בקשת-מחקר → 4 חבילות (Canonical/Personal/Collective/Suggestions).
+async function fetchMetatron(request: any): Promise<any | null> {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/metatron_context`, {
+      method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_request: request }),
+    });
+    if (r.ok) return await r.json();
+  } catch { /* noop */ }
+  return null;
+}
+function metatronToText(m: any): string {
+  if (!m) return "";
+  const parts: string[] = [];
+  const c = m.canonical || {};
+  const arr = (x: any) => Array.isArray(x) ? x : [];
+  if (arr(c.matches).length) parts.push(`ביטויים מאומתים באותו ערך (הצלבות מהמאגר): ${c.matches.slice(0, 14).map((x: any) => `${x.phrase} (${x.value})`).join(" · ")}`);
+  if (arr(c.convergences).length) parts.push(`התכנסויות במנוע: ${c.convergences.slice(0, 5).map((x: any) => `${x.value}×${x.group_size}`).join(" · ")}`);
+  if (arr(c.definitions).length) parts.push(`הגדרות-מערכת נעולות (שכבת-סמכות עליונה — כבד אותן): ${c.definitions.map((x: any) => x.content).join(" | ").slice(0, 700)}`);
+  if (arr(c.engraved_facts).length) parts.push(`עובדות-מחקר קנוניות: ${c.engraved_facts.map((x: any) => x.statement).join(" · ")}`);
+  if (arr(c.posts).length) parts.push(`פוסטים קשורים באתר: ${c.posts.map((x: any) => x.title).join(" · ")}`);
+  if (arr(m.collective).length) parts.push(`קולקטיב (זהב): ${m.collective.map((x: any) => `ערך ${x.value} — ${x.researchers} חוקרים נגעו בו`).join(" · ")}`);
+  const p = m.personal || {};
+  if (p.bio || arr(p.numbers_worked).length) parts.push(`על החוקר: ${(p.bio || "").slice(0, 200)}${arr(p.numbers_worked).length ? ` (עובד על מספרים: ${p.numbers_worked.join(", ")})` : ""}`);
+  if (arr(m.suggestions).length) parts.push(`כיווני-המשך לשיקולך (לא עובדות): ${m.suggestions.join(" · ")}`);
+  if (!parts.length) return "";
+  return `\n\n📚 חבילת-ידע ממטטרון (רקע מהעץ — עובדה≠פרשנות; אל תמציא מעבר לזה):\n${parts.join("\n")}`;
+}
+
 // חילוץ אובייקט JSON מפלט-המודל (עמיד לגדרות-קוד/רעש).
 function parseContract(text: string): any | null {
   if (!text) return null;
@@ -293,11 +321,15 @@ Deno.serve(async (req: Request) => {
       }
 
       const userRef = identity.startsWith("u:") ? identity.slice(2) : null;  // זיכרון = למשתמש מזוהה בלבד
-      const [persona, ctx] = await Promise.all([
+      // 🕎 מטטרון-שליפה: בקשת-מחקר → 4 חבילות. ה-AI מקבל את חבילת-הידע *לפני* שהוא עונה (AI אחרון).
+      const mreq = { channel: "site", user: { ref: userRef }, ask: (rSubject || rFacts).slice(0, 200),
+        entities: rSubject ? [{ type: "phrase", value: rSubject }] : [] };
+      const [persona, ctx, metatron] = await Promise.all([
         fetchRazielPersona("site"),
         userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),
+        fetchMetatron(mreq),
       ]);
-      const ctxText = razielContextText(ctx);
+      const ctxText = razielContextText(ctx) + metatronToText(metatron);
 
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
