@@ -1,3 +1,8 @@
+// wa-raziel (רזיאל) — v42 — 23.7.2026 — אפס-כפילות: תפיסה אטומית (fn_raziel_claim) + dedup ב-outbox.
+//   v42: (1) claim אטומי לכל msgId לפני שליחה (raziel_send_claims) — ריצות חופפות/קריסה-בין-שליחה-לרישום לא ישלחו
+//        פעמיים; שחרור-תפיסה במצב retryable כדי לאפשר ניסיון-חוזר. (2) retryOutbox בודק היסטוריה (alreadySentToChat)
+//        לפני שליחה חוזרת — אם המסירה כבר יצאה (Green API מסר אך ה-HTTP נכשל) לא שולח שוב. רצף+זיכרון: recentDialogue
+//        כבר מספק «מה שלחתי לפני» (כולל הודעות-הבוט), והבוט עונה תשובה אחת לכל התור (byChat=האחרון) → לא שולח פעמיים על burst.
 // wa-raziel (רזיאל) — v41 — 23.7.2026 — «לעולם לא שתיקה» + שומר-מטטרון (never_silent_metatron_law).
 //   v41: שלוש שכבות (עובדות→פרשנות→שומר). razielRespond מחזיר סטטוס מתוך 4: answered · refused_with_fallback ·
 //        retryable_error · permanent_error. אם Claude מסרב (stop_reason=refusal) / מחזיר ריק / שגיאה לא-חולפת →
@@ -202,9 +207,21 @@ async function enqueueOutbox(doneKey: string, chatId: string, reply: string, msg
   try { await sb.from("bot_outbox").upsert({ done_key: doneKey, bot: "raziel", chat_id: chatId, reply: reply.slice(0, 6000), msg_in: (msgIn || "").slice(0, 500), status: "pending" }, { onConflict: "done_key" }); }
   catch (e) { trace.push({ step: "enqueue_err", e: String(e) }); }
 }
+// v42 — dedup: did this exact reply already go out to the chat? (Green API delivered but HTTP timed out)
+async function alreadySentToChat(chatId: string, reply: string): Promise<boolean> {
+  try {
+    const norm = (s: string) => (s || "").replace(/\s+/g, " ").trim();
+    const head = norm(reply).slice(0, 60);
+    if (head.length < 12) return false;
+    const hist = await waAdmin("getChatHistory", { chatId, count: 8 });
+    return pick(hist).some((m: any) => m.type === "outgoing" && norm(m.textMessage || m.extendedTextMessage?.text || m.caption || "").startsWith(head));
+  } catch { return false; }
+}
 async function retryOutbox() {
   const { data } = await sb.from("bot_outbox").select("done_key,chat_id,reply,msg_in,attempts").eq("bot", "raziel").eq("status", "pending").order("first_at").limit(5);
   for (const r of (data || [])) {
+    // אם התשובה כבר יצאה לצ'אט (מסירה שלא אושרה) — לא לשלוח שוב, רק לסמן נשלח
+    if (await alreadySentToChat(r.chat_id, r.reply)) { await sb.from("bot_outbox").update({ status: "sent", last_at: new Date().toISOString() }).eq("done_key", r.done_key); continue; }
     const okId = await sendVerified({ chatId: r.chat_id, message: r.reply });
     if (okId) { await sb.from("bot_outbox").update({ status: "sent", sent_msg_id: okId, last_at: new Date().toISOString() }).eq("done_key", r.done_key); }
     else {
@@ -548,8 +565,13 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     if (clean(text).length < 1) continue;
     const phone = chatId.replace("@c.us","");
     if (owned.has(phone)) continue;
+    // v42 — תפיסה אטומית: הריצה הזו בעלת-העיבוד של ההודעה. מונע כפילות בין ריצות חופפות / קריסה-בין-שליחה-לרישום.
+    const claimKey = "raziel:dm:" + msgId;
+    const { data: gotClaim } = await sb.rpc("fn_raziel_claim", { p_key: claimKey });
+    if (gotClaim === false) continue; // כבר תפוס → לא נשלח שוב
+    const releaseClaim = () => sb.from("raziel_send_claims").delete().eq("done_key", claimKey);
     const idn = await resolveIdentity(chatId);
-    if (!idn) continue;
+    if (!idn) { await releaseClaim(); continue; } // זיהוי נכשל (אולי חולף) → שחרר לניסיון-חוזר
     let linked = idn?.linked === true;
     let userRef = idn?.user_ref || ("wa:"+phone);
     if (!linked) {
@@ -561,8 +583,8 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     try { await savePersonalData(userRef, chatId, text); } catch { /* noop */ }
 
     if (!linked) {
-      if (!policy?.answer_everyone) continue;
-      if (goLive === null || Number(m.timestamp||0) <= goLive) continue;
+      if (!policy?.answer_everyone) { await releaseClaim(); continue; }
+      if (goLive === null || Number(m.timestamp||0) <= goLive) { await releaseClaim(); continue; }
     }
 
     const regUrlLink = policy.register_url || (SITE + "/login?src=raziel");
@@ -669,7 +691,8 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     const res = await razielRespond(text, chatId, msgId, { userRef, isDM: true, welcome, ctx, teach: policy.teach_mode, extra, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES });
     const nm = linked ? "DM" : "DM-anon";
     if (res.status === "retryable_error") {
-      // 🔄 שגיאה חולפת — לא סוגרים את ההודעה (action נפרד), כדי שה-cron הבא ינסה שוב.
+      // 🔄 שגיאה חולפת — לא נשלחה תשובה. שחרר את התפיסה ורשום action נפרד, כדי שה-cron הבא ינסה שוב.
+      await releaseClaim();
       await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: nm, text_in: text.slice(0,500), reply_out: `[dm-retry ${priorRetries+1}/${MAX_AI_RETRIES}]`, action: "raziel_dm_retry" });
       continue;
     }
