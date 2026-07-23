@@ -8,6 +8,7 @@ import { getResearcherProfile, moderateContribution, getResearcherStats } from "
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import AskRaziel from "../AskRaziel.jsx";
 
 const RAZIEL_WA = "972557049261";   // רזיאל — הסוכן בוואטסאפ (Green API)
 
@@ -514,11 +515,18 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
 
   if (!c?.user_id) return null;
   const about = settings.about || c?.bio || "";
+  const rzNumbers = [...new Set(matrices.flatMap(m => [m.primary_number, ...(Array.isArray(m.anchor_numbers) ? m.anchor_numbers : [])]).filter(n => Number.isFinite(n) && n > 0))].slice(0, 8);
+  const rzFacts = `חוקר: ${name}. ${matrices.length} צפנים בתיק${level?.contrib ? `, ${level.contrib} חידושים מאושרים` : ""}${level?.label ? `, דרגה: ${level.label}` : ""}.${rzNumbers.length ? ` מספרים שהמחקר נוגע בהם: ${rzNumbers.join(", ")}.` : ""}`;
   return (
     <div>
       {isOwner && <OwnerControls P={P} visibility={settings.visibility} onSave={v => saveSettings({ visibility: v })} />}
       <AgentConnect P={P} isOwner={isOwner} />
       <AboutResearcher P={P} name={name} about={about} isOwner={isOwner} onSave={t => saveSettings({ about: t })} />
+      {matrices.length > 0 && (
+        <AskRaziel kind="research" subject={name} facts={rzFacts} palette={P}
+          greeting={isOwner ? "עברתי על המחקר שלך, ומצאתי כמה נקודות שעשויות לעניין אותך." : "עברתי על המחקר הזה, ומצאתי כמה נקודות שעשויות לעניין אותך."}
+          waText={`שלום רזיאל 🌳 בקשר לתיק המחקר של ${name} — `} />
+      )}
       <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={isOwner} onSave={t => saveSettings({ current_focus: t })} />
       <ResearcherStatsCard P={P} c={c} name={name} level={level} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
