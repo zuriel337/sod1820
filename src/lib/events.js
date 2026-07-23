@@ -11,7 +11,7 @@ function refHost() {
 function device() { try { return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop"; } catch { return null; } }
 // 🤖 סימון בוט (עקבי עם visits.js): מסמנים ולא מדלגים → dashboard יכול להפריד אנשים/בוטים.
 const BOT_UA = /bot|crawl|spider|slurp|googlebot|bingpreview|jetmon|uptime|monitor|headless|phantom|puppeteer|playwright|python|curl|wget|libwww|okhttp|java\/|go-http|facebookexternal|externalhit|preview|lighthouse|pagespeed|gtmetrix|semrush|ahrefs|mj12|dotbot|petalbot|dataprovider|scan|um-ic|feedfetch/i;
-function isBot() { try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; } catch { return false; } }
+export function isBot() { try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; } catch { return false; } }
 
 // via — מאיפה הגיע: תיוג מפורש (via=) → rid → utm_source → referrer → direct
 function via() {

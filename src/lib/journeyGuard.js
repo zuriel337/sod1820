@@ -8,6 +8,7 @@
 // מספרים *שונים*). כל חסימה נרשמת ל-page_views (`journey_ai_blocked`/`journey_ai_capped`)
 // כדי שנראה אותה בדף-הניהול.
 import { logView } from "./supabase.js";
+import { isBot } from "./events.js";
 
 const KEY = "sod_j_aikeys";       // אוסף מספרי-שורש שכבר קיבלו מסר-AI בסשן הזה
 const CAP_KEY = "sod_j_aicount";  // סה״כ מסרי-AI שנורו בסשן הזה
@@ -27,6 +28,14 @@ function sessionCount() {
 // חסימה נרשמת ללוג אוטומטית.
 export function allowAiMessage(root) {
   const r = String(root);
+  // 🤖 שער-בוט (שכבה ראשונה, דיוק-גבוה): מנוע-אוטומציה מוצהר (navigator.webdriver)
+  // או UA של סורק → **לא מייצרים הודעת-AI בכלל.** ב-7.2026 בוטים ירו ~1,222 הודעות/שבוע
+  // (2.7% סיום) ושרפו קרדיט. אפס false-positive על אדם אמיתי. כל חסימה נרשמת ללוג למדידה.
+  // ⚠️ בוט שמסווה webdriver+UA יעבור — ההגנה החזקה = rate-limit צד-שרת ב-journey-message (thread).
+  if (isBot()) {
+    try { logView("journey_ai_bot_blocked", r); } catch { /* noop */ }
+    return false;
+  }
   if (readSet().has(r)) {
     try { logView("journey_ai_blocked", r); } catch { /* noop */ }   // כפילות לאותו מסע
     return false;
