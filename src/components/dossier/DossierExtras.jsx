@@ -5,6 +5,9 @@ import { thumb } from "../../lib/img.js";
 import { supabase } from "../../lib/supabase.js";
 import { getMatricesByOwner, getMyMatrices } from "../../lib/elsMatrices.js";
 import { METHODS } from "../../lib/gematria.js";
+import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
+
+const RAZIEL_WA = "972557049261";   // רזיאל — הסוכן בוואטסאפ (Green API)
 
 const RAGIL = METHODS.find(m => m.key === "רגיל");
 const nameValue = (name) => { try { return RAGIL ? RAGIL.fn(name) : 0; } catch { return 0; } };
@@ -274,6 +277,30 @@ function OwnerControls({ P, visibility, onSave }) {
   );
 }
 
+// 🤖 הסוכן האישי (רזיאל) + חיבור-וואטסאפ — לבעלים בלבד. חיבור-הוואטסאפ = «הסוכן מזהה אותך».
+function AgentConnect({ P, isOwner }) {
+  const { linked } = useWaLink();
+  if (!isOwner) return null;
+  const waUrl = `https://wa.me/${RAZIEL_WA}?text=${encodeURIComponent("שלום רזיאל 🌳 אני מתיק המחקר שלי באתר — ")}`;
+  return (
+    <div style={{ marginBottom: 22, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: "3px solid #25d366", borderRadius: 14, padding: "14px 16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontSize: 22 }}>🤖</span>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800 }}>הסוכן האישי · רזיאל</div>
+        <span style={{ marginInlineStart: "auto", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, color: linked ? "#1a9e4b" : P.accentDim }}>{linked ? "🟢 וואטסאפ מחובר" : "○ לא מחובר"}</span>
+      </div>
+      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>
+        רזיאל הוא הסוכן שלך בוואטסאפ — שאל שאלות, קבל רמזים אישיים, ושמור גילויים ישר לתיק.
+        {!linked && " חבר את הוואטסאפ שלך כדי שרזיאל יזהה אותך."}
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", background: "#25d366", color: "#fff", borderRadius: 10, padding: "10px 16px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>💬 דבר עם רזיאל</a>
+        {!linked && <Link to="/profile#whatsapp" style={{ textDecoration: "none", background: "none", border: `1px solid ${P.border}`, color: P.accentText, borderRadius: 10, padding: "10px 16px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔗 חבר את הוואטסאפ שלי</Link>}
+      </div>
+    </div>
+  );
+}
+
 export default function DossierExtras({ P, c, level, isOwner, onCount }) {
   const [matrices, setMatrices] = useState([]);
   const [joinedAt, setJoinedAt] = useState(null);
@@ -305,6 +332,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
   return (
     <div>
       {isOwner && <OwnerControls P={P} visibility={settings.visibility} onSave={v => saveSettings({ visibility: v })} />}
+      <AgentConnect P={P} isOwner={isOwner} />
       <AboutResearcher P={P} name={name} about={about} isOwner={isOwner} onSave={t => saveSettings({ about: t })} />
       <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={isOwner} onSave={t => saveSettings({ current_focus: t })} />
       <ImpactBar P={P} level={level} matrices={matrices} />

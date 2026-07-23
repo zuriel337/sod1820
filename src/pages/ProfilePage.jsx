@@ -342,6 +342,16 @@ export default function ProfilePage() {
 
       {isAdmin && <OnlineNowCard P={P} card={card} />}
 
+      {/* 📁 תיק המחקר שלי — כניסה מרכזית לכל חוקר (researcher_dossier_law) */}
+      <button onClick={() => navigate("/community/researcher/me")} style={{ ...card, marginTop: 22, width: "100%", textAlign: "start", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, borderTop: `3px solid ${P.accent}` }}>
+        <span style={{ fontSize: 34, flex: "none" }}>📁</span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>תיק המחקר שלי</span>
+          <span style={{ display: "block", color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 2 }}>הגילויים, הצפנים, הקשרים והיומן שלך — במקום אחד</span>
+        </span>
+        <span style={{ color: P.accent, fontSize: 20, flex: "none" }}>←</span>
+      </button>
+
       <MyResearchCard P={P} card={card} />
 
       <PushStatusCard P={P} card={card} user={user} isAdmin={isAdmin} />
