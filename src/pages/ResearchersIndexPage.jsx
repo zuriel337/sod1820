@@ -15,7 +15,9 @@ export default function ResearchersIndexPage() {
   useEffect(() => {
     applySeo({ title: "הכתבים והחוקרים", description: "רשימת הכתבים והחוקרים של סוד 1820 — דפי הגילויים האישיים", path: "/community/researchers" });
     let alive = true;
-    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked,building").eq("active", true).order("vip", { ascending: false })
+    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked,building")
+      .eq("active", true).neq("kind", "private").not("slug", "like", "r-%").neq("display_name", "sod1820")  // ⛔ פרטי + חשבון-מערכת
+      .order("vip", { ascending: false })
       .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); })
       .catch(() => alive && setRows([]));
     return () => { alive = false; };

@@ -27,7 +27,7 @@ function DrawerWritersMap({ cc, onNavigate }) {
   const [rows, setRows] = useState([]);
   useEffect(() => {
     let a = true;
-    getContributorsFeed(8).then(r => { if (a) setRows((r || []).filter(x => x.slug && x.display_name).slice(0, 7)); }).catch(() => {});
+    getContributorsFeed(14).then(r => { if (a) setRows((r || []).filter(x => x.slug && x.display_name).slice(0, 12)); }).catch(() => {});
     return () => { a = false; };
   }, []);
   if (!rows.length) return null;

@@ -274,18 +274,20 @@ function WriterGematrias({ P, name, uid, isAdmin }) {
       </div>
       <div style={{ display: "grid", gap: 7 }}>
         {shown.map(r => (
-          <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 9, background: P.card, border: `1px solid ${r.pinned ? P.accent : P.border}`, borderRadius: 11, padding: "8px 11px" }}>
-            {r.pinned && <span title="מוצמד" style={{ fontSize: 12, flex: "none" }}>📌</span>}
-            <Link to={`/number/${r.value}`} style={{ flex: 1, minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 13, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.claim}</Link>
-            <span style={{ flex: "none", fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px", color: r.in_core ? "#1a7a3a" : P.accentDim, background: r.in_core ? "rgba(26,122,58,.12)" : "transparent", border: `1px solid ${r.in_core ? "rgba(26,122,58,.4)" : P.border}` }} title={r.in_core ? "במערכת הראשית" : "עדיין לא במערכת הראשית"}>{r.in_core ? "🔵 במילון" : "⚪ לא במילון"}</span>
-            <span style={{ flex: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{heDate(r.created_at)}</span>
-            {isAdmin && (
-              <span style={{ flex: "none", display: "flex", gap: 4 }}>
-                <button onClick={() => pin(r)} disabled={busy === r.id} title="הצמד למעלה" style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: r.pinned ? P.glow : P.card, borderRadius: 999, padding: "2px 7px", fontSize: 11 }}>📌</button>
-                {!r.in_core && !msg[r.id] && <button onClick={() => toDict(r)} disabled={busy === r.id} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "2px 8px", fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>➕ למילון</button>}
-                {msg[r.id] && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{msg[r.id]}</span>}
-              </span>
-            )}
+          <div key={r.id} style={{ background: P.card, border: `1px solid ${r.pinned ? P.accent : P.border}`, borderRadius: 11, padding: "9px 12px" }}>
+            {/* שורה 1 — הביטוי (עוטף, לא נחתך) */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+              {r.pinned && <span title="מוצמד" style={{ fontSize: 12, flex: "none" }}>📌</span>}
+              <Link to={`/number/${r.value}`} style={{ flex: 1, minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 600, textDecoration: "none", lineHeight: 1.5, wordBreak: "break-word" }}>{String(r.claim).split("\n")[0]}</Link>
+            </div>
+            {/* שורה 2 — מטא (דגל · תאריך · פעולות) — עוטף במובייל, לא גולש */}
+            <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 6 }}>
+              <span style={{ fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px", color: r.in_core ? "#1a7a3a" : P.accentDim, background: r.in_core ? "rgba(26,122,58,.12)" : "transparent", border: `1px solid ${r.in_core ? "rgba(26,122,58,.4)" : P.border}` }} title={r.in_core ? "במערכת הראשית" : "עדיין לא במערכת הראשית"}>{r.in_core ? "🔵 במילון" : "⚪ לא במילון"}</span>
+              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{heDate(r.created_at)}</span>
+              {isAdmin && <button onClick={() => pin(r)} disabled={busy === r.id} title="הצמד למעלה" style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: r.pinned ? P.glow : P.card, borderRadius: 999, padding: "2px 9px", fontSize: 11 }}>📌</button>}
+              {isAdmin && !r.in_core && !msg[r.id] && <button onClick={() => toDict(r)} disabled={busy === r.id} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>➕ למילון</button>}
+              {msg[r.id] && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{msg[r.id]}</span>}
+            </div>
           </div>
         ))}
       </div>
