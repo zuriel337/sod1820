@@ -128,6 +128,14 @@ export async function getTrafficHistory(granularity = "month") {
   return data || [];
 }
 
+// ── 📈 מרכז הצמיחה (מנהל) — מייל · מנויים · משפך-וולקום · מקורות-הגעה · שיתוף · זמן-אמת (blob יחיד) ──
+export async function getGrowthCenter(days = 30) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_growth_center", { p_days: days });
+  if (error) throw error;
+  return data;
+}
+
 // ── 🧭 דשבורד המסעות (מנהל) — זמן+צפיות לכל דף/כלי-מעבדה + מסע-לכל-מבקר ──
 export async function getPageDwell(hours = 168) {
   if (!supabase) return null;

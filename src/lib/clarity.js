@@ -2,8 +2,10 @@
 // פרויקט SOD1820. ה-Project ID הוא מזהה ציבורי (ממילא חשוף ב-JS בצד הלקוח),
 // ולכן בטוח להטמיעו כברירת מחדל בקוד — בלי תלות במשתנה סביבה ב-Vercel.
 // אפשר עדיין לעקוף אותו דרך VITE_CLARITY_ID אם רוצים פרויקט אחר.
-const CLARITY_ID = import.meta.env.VITE_CLARITY_ID || "xdwf0gps8h";
+export const CLARITY_ID = import.meta.env.VITE_CLARITY_ID || "xdwf0gps8h";
 export const CLARITY_CONFIGURED = !!CLARITY_ID;
+// קישורים-עומק לדשבורד Clarity (לא ניתן להטמעה ב-iframe — פותחים בלשונית חדשה)
+export const clarityUrl = (view = "dashboard") => `https://clarity.microsoft.com/projects/view/${CLARITY_ID}/${view}`;
 
 let started = false;
 export function initClarity() {

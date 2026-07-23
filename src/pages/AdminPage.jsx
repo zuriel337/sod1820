@@ -6,6 +6,7 @@ import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
+import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
 import ElsModerationTab from "../components/ElsModerationTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
@@ -64,6 +65,7 @@ const TABS = [
   { key: "scanner",  label: "🔍 סורק נדירות" },
   { key: "chiddushim", label: "✍️ אישור חידושים" },
   { key: "contribmod", label: "💬 מרכז התגובות" },
+  { key: "growth",   label: "📈 מרכז צמיחה" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
@@ -92,7 +94,7 @@ const GROUPS = [
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "contribmod", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
-  { key: "comms",     label: "📧 תפוצה",    subs: ["subs", "emails", "newsletter", "messages"] },
+  { key: "comms",     label: "📧 תפוצה",    subs: ["growth", "subs", "emails", "newsletter", "messages"] },
   { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "suggest", "scanner", "utm", "push", "worklog"] },
 ];
 const TAB_LABEL = Object.fromEntries(TABS.map(t => [t.key, t.label]));
@@ -238,6 +240,7 @@ export default function AdminPage() {
       {tab === "scanner" && <ScannerTab />}
       {tab === "chiddushim" && <ChiddushReviewTab />}
       {tab === "contribmod" && <ContribModTab />}
+      {tab === "growth" && <GrowthCenterTab />}
       {tab === "subs" && <SubscribersTab />}
       {tab === "messages" && <MessagesTab />}
       {tab === "emails" && <EmailsTab />}
