@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
-import { getGrowthCenter } from "../lib/visits.js";
+import { getGrowthCenter, getGaInsights } from "../lib/visits.js";
 
 // 📈 מרכז הצמיחה — דשבורד-על אחד (Meta Growth OS) על events + subscribers + email_events.
 // מקטעים: ⚡ זמן-אמת · ✉️ מייל ומנויים · 🚪 משפך-וולקום · 🌐 מקורות-הגעה מתויגים · 🔗 לולאת-שיתוף.
@@ -46,6 +46,29 @@ function Bars({ data, color = L.blue, fmt = x => x, height = 78 }) {
   );
 }
 
+// רשימת-פילוח קומפקטית ל-GA4 ({key, users|value})
+function GaMini({ title, items }) {
+  const rows = (items || []).slice(0, 6).map(it => ({ k: it.key ?? it.name ?? "?", v: it.users ?? it.value ?? it.sessions ?? 0 }));
+  const max = Math.max(1, ...rows.map(r => r.v));
+  if (rows.length === 0) return null;
+  return (
+    <div>
+      <div style={{ color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+      <div style={{ display: "grid", gap: 5 }}>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 84, color: L.ink, fontFamily: F.body, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} dir="ltr" title={r.k}>{r.k}</div>
+            <div style={{ flex: 1, background: "#edf1fb", borderRadius: 6, height: 15, overflow: "hidden" }}>
+              <div style={{ width: `${Math.max(4, Math.round((r.v / max) * 100))}%`, height: "100%", background: L.blue, borderRadius: 6 }} />
+            </div>
+            <div style={{ width: 44, color: L.blue, fontFamily: "'Courier New',monospace", fontSize: 12, fontWeight: 700, textAlign: "start" }}>{r.v.toLocaleString("he")}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const Panel = ({ title, children, right }) => (
   <div style={{ background: L.soft, border: `1px solid ${L.line}`, borderRadius: 16, padding: "15px 18px", marginBottom: 16 }}>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 11 }}>
@@ -69,8 +92,24 @@ function FunnelRow({ label, n, max, color }) {
   );
 }
 
+// שורת-השוואה במקטע «מדידה כנה»
+function CmpRow({ icon, label, n, note, color, big }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 4px", borderBottom: `1px solid ${L.line}` }}>
+      <div style={{ width: big ? 200 : 210, display: "flex", alignItems: "center", gap: 7, color: L.ink, fontFamily: F.body, fontSize: big ? 14 : 13, fontWeight: big ? 800 : 500 }}>
+        <span style={{ fontSize: big ? 18 : 15 }}>{icon}</span>{label}
+      </div>
+      <div style={{ color: color || L.ink, fontFamily: "'Courier New',monospace", fontSize: big ? 24 : 17, fontWeight: 800, minWidth: 78, textAlign: "start" }}>
+        {n == null ? "—" : n.toLocaleString("he")}
+      </div>
+      <div style={{ flex: 1, color: L.sub, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.5 }}>{note}</div>
+    </div>
+  );
+}
+
 export default function GrowthCenterTab() {
   const [d, setD] = useState(null);
+  const [ga, setGa] = useState(undefined); // undefined=טוען · null=לא זמין · object=נתונים
   const [days, setDays] = useState(30);
   const [err, setErr] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -82,6 +121,11 @@ export default function GrowthCenterTab() {
       .then(res => { if (live) { if (!res || res.error) setErr(true); else setD(res); } })
       .catch(() => { if (live) setErr(true); })
       .finally(() => { if (live) setRefreshing(false); });
+    // GA4 — עצמאי; כישלון/אי-חיבור לא שובר את הטאב
+    setGa(undefined);
+    getGaInsights(days)
+      .then(res => { if (live) setGa(res && res.configured !== false && !res.error ? res : null); })
+      .catch(() => { if (live) setGa(null); });
     return () => { live = false; };
   }, [days]);
 
@@ -101,6 +145,7 @@ export default function GrowthCenterTab() {
   if (err) return <div style={{ color: L.red, fontFamily: F.body, padding: 20 }}>שגיאה בטעינת מרכז הצמיחה. (נדרשת הרשאת אדמין)</div>;
   if (d === null) return <div style={{ color: L.sub, fontFamily: F.body, padding: 20 }}>טוען את מרכז הצמיחה…</div>;
 
+  const meas = d.measurement || null;
   const email = d.email || {}, k = email.kpis || {};
   const funnel = d.funnel || {}, con = funnel.concierge || {};
   const acq = d.acquisition || [], sharing = d.sharing || {}, rt = d.realtime || {};
@@ -124,10 +169,73 @@ export default function GrowthCenterTab() {
 
       {/* ⚡ זמן-אמת */}
       <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginBottom: 16 }}>
-        <Stat n={rt.visitors_15m} label="🟢 גולשים עכשיו (15 ד׳)" color={L.green} hint="מבקרים ייחודיים ב-15 הדקות האחרונות" />
+        <Stat n={rt.visitors_15m} label="🟢 גולשים עכשיו (15 ד׳)" color={L.green} hint="מבקרים ייחודיים ב-15 הדקות האחרונות · בלי בוטים" />
         <Stat n={rt.views_15m} label="צפיות (15 ד׳)" color={L.blue} />
         <Stat n={rt.today_visitors} label="גולשים היום" color={L.gold} />
+        {ga && <Stat n={ga.realtime} label="🔵 GA4 · כעת באתר" color={L.blue} hint="ספירת זמן-אמת של גוגל" />}
       </div>
+
+      {/* 🎯 מדידה כנה — יישור המקורות */}
+      {meas && (() => {
+        const ev = meas.events || {}, sv = meas.site_visits || {};
+        const humanPeople = sv.visitors_human, gaUsers = ga?.totals?.users;
+        const people = [gaUsers, humanPeople].filter(x => x != null); // טווח «אנשים» — אותה יחידה בלבד
+        const lo = people.length ? Math.min(...people) : null;
+        const hi = people.length ? Math.max(...people) : null;
+        return (
+          <Panel title={`🎯 מדידה כנה — כמה באמת נכנסו (${d.meta?.days} י׳)`}>
+            <div style={{ background: "#eef6ef", border: `1px solid ${L.green}44`, borderRadius: 12, padding: "12px 15px", marginBottom: 14 }}>
+              <div style={{ color: L.ink, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 3 }}>
+                האמת שלך: בערך <span style={{ color: L.green }}>{lo != null && hi != null && lo !== hi ? `${lo.toLocaleString("he")}–${hi.toLocaleString("he")}` : (humanPeople ?? "—").toLocaleString?.("he")}</span> אנשים אמיתיים
+              </div>
+              <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>
+                המספר האמיתי נמצא בין <b>GA4</b> (שמרני — חוסמי-פרסומות מסתירים ממנו גולשים) לבין <b>הספירה הפנימית</b> (נדיבה — סינון-הבוטים לא מושלם). כל המספרים בטאב הזה כבר <b>מסוננים מבוטים</b>.
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 6 }}>
+              <CmpRow icon="👥" label="אנשים אמיתיים (פנימי)" n={sv.visitors_human} color={L.green} big
+                note="עוגייה, בלי בוטים · הכי קרוב ל«בן-אדם» — זה המספר לתלות בו" />
+              {ga
+                ? <CmpRow icon="🔵" label="GA4 · משתמשים" n={ga.totals?.users} color={L.blue} big
+                    note="ספירת גוגל (מסננת בוטים) · שמרנית — חוסמי-פרסומות לא נספרים" />
+                : <CmpRow icon="🔵" label="GA4 · משתמשים" n={null} color={L.sub} note={ga === undefined ? "טוען מ-Google Analytics…" : "GA4 לא מחובר / לא זמין כרגע"} />}
+              <CmpRow icon="🔄" label="סשנים אנושיים (פנימי)" n={ev.sessions_human} color={L.purple}
+                note="ביקור בודד · אדם אחד = כמה סשנים לאורך התקופה" />
+              <CmpRow icon="🔵" label="GA4 · הפעלות" n={ga?.totals?.sessions} color={L.blue} note="הפעלות לפי גוגל" />
+              <CmpRow icon="📄" label="צפיות-עמוד אנושיות" n={ev.views_human} color={L.ink}
+                note="כמה עמודים נצפו בפועל (אדם אחד גולש כמה עמודים)" />
+              <CmpRow icon="🔵" label="GA4 · צפיות בדפים" n={ga?.totals?.views} color={L.blue} note="צפיות לפי גוגל" />
+              <CmpRow icon="🤖" label="בוטים שסוננו" n={ev.bots} color={L.red}
+                note={`${ev.bot_pct}% מהתנועה הגולמית = בוטים/סורקים · לא נספרים כאנשים`} />
+              <CmpRow icon="📊" label="הכל כולל בוטים" n={ev.total} color={L.sub}
+                note="← זה מה שנראה «כפול». כל מדד שלא מסנן בוטים מנפח את המספר" />
+            </div>
+
+            <div style={{ background: L.card, border: `1px solid ${L.line}`, borderRadius: 12, padding: "12px 15px", marginTop: 10 }}>
+              <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 7 }}>למה היו לך מספרים שונים ⬇</div>
+              <div style={{ color: L.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85 }}>
+                <div>🤖 <b>בוטים:</b> {ev.bot_pct}% מהתנועה הגולמית = סורקים. מדד שלא מסנן אותם מציג ~פי {(ev.total && ev.humans ? (ev.total / Math.max(1, ev.humans)).toFixed(1) : "1.7")} יותר.</div>
+                <div>📏 <b>יחידות:</b> «צפיות/כניסות» ≠ «מבקרים». אדם אחד שגולש 4 עמודים = <b>1 מבקר</b> אבל <b>4 צפיות</b>.</div>
+                <div>🍪 <b>עוגייה מול סשן:</b> הספירה הפנימית של «אנשים» מאחדת ימים לפי עוגייה; «סשנים» סופר כל ביקור בנפרד — לכן גבוה יותר.</div>
+                <div>✅ <b>בטאב הזה:</b> הכול כבר אנושי-בלבד (בוטים מסוננים) — אז אין יותר «חגיגה», יש מספר אחד לעקוב אחריו.</div>
+              </div>
+            </div>
+          </Panel>
+        );
+      })()}
+
+      {/* 🔵 GA4 — פילוח משלים */}
+      {ga && (
+        <Panel title="🔵 Google Analytics — פילוח (מסונן-בוטים ע״י גוגל)" right={<span style={{ color: L.sub, fontFamily: F.body, fontSize: 11 }}>מעורבות {ga.totals?.engagementRate != null ? Math.round(ga.totals.engagementRate * (ga.totals.engagementRate <= 1 ? 100 : 1)) + "%" : "—"}</span>}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 16 }}>
+            <GaMini title="🔗 ערוצי תנועה" items={ga.channels} />
+            <GaMini title="🌐 מקורות" items={ga.sources} />
+            <GaMini title="📱 מכשירים" items={ga.devices} />
+            <GaMini title="🌍 מדינות" items={ga.countries} />
+          </div>
+        </Panel>
+      )}
 
       {/* ✉️ מייל ומנויים */}
       <Panel title="✉️ מייל ומנויים">
