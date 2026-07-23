@@ -33,9 +33,14 @@ export async function getWhatsNewCounts() {
     ]);
     const cF = cut("forum"), cC = cut("channels"), cA = cut("activity"), cD = cut("dev");
     // 🔔 החלטת צוריאל: הכרטיס «מה חדש» קופץ רק על — צופן-גולש · חידוש-מערכת (insights=ai/צוריאל)
-    //    · חידוש/עדכון של ישראל פנצ׳ר. לא על חידושי-גולשים/תרומות אחרים (כדי לא «לקפוץ» על כל דבר).
+    //    · חידוש/תרומה/פוסט של ישראל פנצ׳ר. לא על חידושי-גולשים/תרומות אחרים.
     const eligibleForum = (forum || []).filter(popsWhatsNew);
-    const forumN = eligibleForum.filter(x => ms(x.ts) > cF).length;   // כבר בלי פוסטים
+    // גם פוסט של ישראל פנצ׳ר מקפיץ — בפורמט פריט-פורום (forumItemMeta מטפל ב-kind=post).
+    const pancherPosts = (posts || [])
+      .filter(p => POP_WRITERS.some(w => (p.author || "").includes(w)))
+      .map(p => ({ kind: "post", id: "p_" + p.id, ts: p.modified || p.date, author_name: p.author, title: p.title, slug: p.slug, image_url: p.image_url }));
+    const eligible = [...eligibleForum, ...pancherPosts].sort((a, b) => ms(b.ts) - ms(a.ts));
+    const forumN = eligible.filter(x => ms(x.ts) > cF).length;
     // פעילות = עדכונים אחרונים (כל הפוסטים, כולל מערכת) + זרם המציאות + צפני-מערכת
     const postsN = (posts || []).filter(p => ms(p.modified || p.date) > cA).length;
     const hintsN = (hints || []).filter(h => ms(h.occurred_at || h.created_at) > cA).length;
@@ -46,7 +51,7 @@ export async function getWhatsNewCounts() {
     // 🌐 הכרטיס בבית = פורום-בלבד (החלטת צוריאל): הזרמים האחרים כבר מוצגים בבית (רצועת «עדכונים אחרונים»
     // = פעילות · טיקר תחתון = ערוצים · טיקר עליון = פיתוח) → כאן רק «מה חדש בקהילה מאז ביקורך».
     // forumLatest = הפריט האחרון בפורום (getForumFeed ממוין חדש-first) → הכרטיס מציג את כותרתו.
-    const forumLatest = eligibleForum[0] ? forumItemMeta(eligibleForum[0]) : null;
+    const forumLatest = eligible[0] ? forumItemMeta(eligible[0]) : null;
     return { forum: forumN, channels: channelsN, activity: activityN, dev: devN, forumLatest, total: forumN + activityN + devN };
   } catch {
     return { forum: 0, channels: 0, activity: 0, dev: 0, total: 0 };
