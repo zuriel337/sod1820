@@ -2418,6 +2418,27 @@ export async function getUserActivity(kinds = [], limit = 8) {
   } catch { return []; }
 }
 
+// 🔬 המחקר של המשתמש המחובר — research_items (owner-only דרך RLS ri_select_own).
+//    המקור הקנוני לזיכרון-המחקר (ביטויים/מספרים/פסוקים שחקר/שמר/נעץ). לתיק-המחקר ולפרופיל.
+//    dedup לפי entity_ref, אחרונים קודם. מחזיר [] לאורח/לא-בעלים (RLS חוסם).
+export async function getMyResearch({ limit = 40, types = null } = {}) {
+  if (!supabase) return [];
+  try {
+    let q = supabase.from('research_items')
+      .select('entity_type, entity_ref, title, bucket, link, created_at')
+      .order('created_at', { ascending: false }).limit(300);
+    if (Array.isArray(types) && types.length) q = q.in('entity_type', types);
+    const { data } = await q;
+    const seen = new Set(); const out = [];
+    for (const r of (data || [])) {
+      if (!r.entity_ref || seen.has(r.entity_ref)) continue;
+      seen.add(r.entity_ref); out.push(r);
+      if (out.length >= limit) break;
+    }
+    return out;
+  } catch { return []; }
+}
+
 // 🚪 שער היום — נבחר דטרמיניסטית לפי היום בשנה מתוך חידושי ההצלבות המככבים (כולם רואים אותו שער).
 export function dayOfYear() {
   const now = new Date();

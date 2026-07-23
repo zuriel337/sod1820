@@ -7,7 +7,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import MyTreeCard from "../components/MyTreeCard.jsx";
 import ProfileSettings from "../components/ProfileSettings.jsx";
 import { Avatar } from "./AuthPage.jsx";
-import { supabase, getUserActivity } from "../lib/supabase.js";
+import { supabase, getUserActivity, getMyResearch } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
 import ResearchCenter from "../components/ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../lib/research/theme.js";
@@ -273,6 +273,27 @@ function MyResearchCard({ P, card }) {
   );
 }
 
+// 👋 המשכיות — «בפעם הקודמת חקרת X» (research_items). ההוכחה שהמחקר ממשיך (לא ChatGPT).
+function ContinuityStrip({ P, card, navigate }) {
+  const [last, setLast] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    getMyResearch({ limit: 1 }).then(r => { if (alive) setLast((r && r[0]) || null); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  if (!last) return null;
+  const to = last.link || `/number/${encodeURIComponent(last.entity_ref)}`;
+  return (
+    <button onClick={() => navigate(to)} style={{ ...card, marginTop: 22, padding: "16px 20px", width: "100%", textAlign: "start", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderTop: "3px solid #25d366" }}>
+      <span style={{ fontSize: 26, flex: "none" }}>👋</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: "block", color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>בפעם הקודמת חקרת «{last.title || last.entity_ref}»</span>
+        <span style={{ display: "block", color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 1 }}>המשך מהמקום שעצרת →</span>
+      </span>
+    </button>
+  );
+}
+
 export default function ProfilePage() {
   const P = usePalette();
   const { user, profile, loading, isAdmin } = useAuth();
@@ -339,6 +360,8 @@ export default function ProfilePage() {
           />
         </div>
       </div>
+
+      <ContinuityStrip P={P} card={card} navigate={navigate} />
 
       {isAdmin && <OnlineNowCard P={P} card={card} />}
 
