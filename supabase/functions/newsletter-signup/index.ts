@@ -1,9 +1,13 @@
 // 🎓 newsletter-signup — קליטת הרשמה לניוזלטר. v6: + מצב-JSON (?format=json) + CORS + קליטת ref + זיכוי-הפניה.
+// v7 (23.7.2026): אוטומציית מייל-פתיחה — נרשם חדש (201) מקבל מיד את מייל-הפתיחה (newsletter_welcome)
+//   כ-RAW (התוכן כבר מייל שלם — בלי wrap כפול), עם החלפת {{UNSUB}} (הסרה) ו-{{OPEN}} (פיקסל-פתיחה) לכל נמען.
 // verify_jwt=false בכוונה: טופס HTML טהור לא שולח כותרות; הפונקציה מאמתת קלט וכותבת רק ל-subscribers.
-// כשמוזמן חדש נרשם (201) עם ref=uid → award_referral מזכה את המזמין +100 (דדופ שרת לפי מייל-מוזמן).
 
 const SITE = "https://sod1820.co.il";
 const DEFAULT_BACK = "/%D7%94%D7%A7%D7%95%D7%93-%D7%91%D7%A9%D7%9D-%D7%A2%D7%9E%D7%95%D7%A1-%D7%92%D7%95%D7%90%D7%98%D7%94";
+const RESEND_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
+const FROM = Deno.env.get("NEWSLETTER_FROM") ?? "סוד 1820 <news@sod1820.co.il>";
+const HMAC_SECRET = Deno.env.get("NEWSLETTER_SECRET") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
@@ -15,6 +19,40 @@ const safeBack = (raw: string) => {
   if (!p.startsWith("/") || p.startsWith("//") || p.length > 300 || /[\s<>"']/.test(p)) return SITE + DEFAULT_BACK;
   return SITE + encodeURI(p);
 };
+
+// b64url של המייל (זהה ל-send-newsletter — נדרש שהלינק תואם לפונקציית ההסרה) + HMAC לאימות-בעלות.
+const b64url = (s: string) => btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+async function hmac(email: string) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(HMAC_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(email));
+  return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// ✉️ שליחת מייל-הפתיחה לנרשם חדש — RAW (התוכן כבר מייל שלם), החלפת placeholders לכל נמען.
+//    לא-קריטי: כישלון-שליחה לא מפיל את ההרשמה. בלי RESEND_KEY → no-op.
+async function sendWelcome(url: string, key: string, email: string) {
+  if (!RESEND_KEY || !url) return;
+  const r = await fetch(`${url}/rest/v1/newsletter_welcome?active=eq.true&select=subject,html&limit=1`, {
+    headers: { apikey: key, authorization: `Bearer ${key}` },
+  });
+  const rows = r.ok ? await r.json() : [];
+  const w = rows?.[0];
+  if (!w?.html) return;
+  const eb = b64url(email);
+  const t = await hmac(email);
+  const siteUnsub = `${SITE}/unsubscribe?e=${eb}&t=${t}`;              // אדם (פוטר)
+  const edgeUnsub = `${url}/functions/v1/newsletter-unsubscribe?e=${eb}&t=${t}`; // מכונה (List-Unsubscribe)
+  const openPixel = `${url}/functions/v1/email-open?c=welcome&e=${eb}`;          // מעקב-פתיחה
+  const html = String(w.html).replaceAll("{{UNSUB}}", siteUnsub).replaceAll("{{OPEN}}", openPixel);
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: FROM, to: email, subject: w.subject || "ברוכים הבאים לסוד 1820", html,
+      headers: { "List-Unsubscribe": `<${edgeUnsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
+    }),
+  });
+}
 
 const page = (title: string, body: string, back: string, emoji = "✅") =>
   new Response(`<!doctype html>
@@ -59,6 +97,8 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ email, source: source.slice(0, 120) }),
     });
     if (res.status === 201) {
+      // ✉️ אוטומציית מייל-פתיחה — נרשם חדש מקבל מיד את מייל-הפתיחה (לא-קריטי, לא מפיל את ההרשמה)
+      try { await sendWelcome(url, key, email); } catch { /* email לא קריטי */ }
       // 🎁 זיכוי-הפניה: מזמין תקין (uuid) → +100 קרדיטים (דדופ לפי מייל-מוזמן ב-RPC)
       if (/^[0-9a-fA-F-]{36}$/.test(ref)) {
         try {
