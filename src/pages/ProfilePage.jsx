@@ -7,7 +7,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import MyTreeCard from "../components/MyTreeCard.jsx";
 import ProfileSettings from "../components/ProfileSettings.jsx";
 import { Avatar } from "./AuthPage.jsx";
-import { supabase, getUserActivity } from "../lib/supabase.js";
+import { supabase, getUserActivity, getMyResearch } from "../lib/supabase.js";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../lib/push.js";
 import ResearchCenter from "../components/ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../lib/research/theme.js";
@@ -273,6 +273,76 @@ function MyResearchCard({ P, card }) {
   );
 }
 
+// 👋 המשכיות — «בפעם הקודמת חקרת X» (research_items). ההוכחה שהמחקר ממשיך (לא ChatGPT).
+function ContinuityStrip({ P, card, navigate }) {
+  const [last, setLast] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    getMyResearch({ limit: 1 }).then(r => { if (alive) setLast((r && r[0]) || null); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  if (!last) return null;
+  const to = last.link || `/number/${encodeURIComponent(last.entity_ref)}`;
+  return (
+    <button onClick={() => navigate(to)} style={{ ...card, marginTop: 22, padding: "16px 20px", width: "100%", textAlign: "start", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderTop: "3px solid #25d366" }}>
+      <span style={{ fontSize: 26, flex: "none" }}>👋</span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: "block", color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>בפעם הקודמת חקרת «{last.title || last.entity_ref}»</span>
+        <span style={{ display: "block", color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 1 }}>המשך מהמקום שעצרת →</span>
+      </span>
+    </button>
+  );
+}
+
+// 🪪 הפרטים שלי — שם מלא + תאריך-לידה (פרטי). פותח ניתוח-שם במנוע + רזיאל «מכיר אותך».
+function MyInfoCard({ P, card, navigate }) {
+  const [name, setName] = useState("");
+  const [bdate, setBdate] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    supabase.from("profiles").select("full_name, birth_date").maybeSingle()
+      .then(({ data }) => { if (!alive) return; setName(data?.full_name || ""); setBdate(data?.birth_date || ""); setLoaded(true); })
+      .catch(() => { if (alive) setLoaded(true); });
+    return () => { alive = false; };
+  }, []);
+  async function save() {
+    setBusy(true); setNote("");
+    try {
+      const { data } = await supabase.rpc("save_my_info", { p_full_name: name.trim() || null, p_birth_date: bdate || null });
+      setNote(data?.ok ? "✓ נשמר — רזיאל מכיר אותך עכשיו" : "לא נשמר — נסו שוב");
+    } catch { setNote("שגיאה — נסו שוב"); }
+    setBusy(false);
+  }
+  const input = { width: "100%", boxSizing: "border-box", padding: "11px 13px", borderRadius: 10, background: P.cardSoft, border: `1px solid ${P.borderStrong}`, color: P.ink, fontFamily: F.body, fontSize: 16, outline: "none" };
+  return (
+    <div style={{ ...card, marginTop: 22 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        <span style={{ fontSize: 24 }}>🪪</span>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>הפרטים שלי</div>
+        <span style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 11, fontFamily: F.heading }}>פרטי · רק אתה</span>
+      </div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 14, lineHeight: 1.6 }}>
+        השם ותאריך-הלידה פותחים ניתוח-שם אישי במנוע, ומאפשרים לרזיאל להכיר אותך.
+      </div>
+      <div style={{ display: "grid", gap: 10 }}>
+        <input value={name} onChange={e => setName(e.target.value)} dir="rtl" placeholder="השם המלא שלי (שם + שם משפחה)" style={input} />
+        <div>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, marginBottom: 4 }}>תאריך לידה</div>
+          <input type="date" value={bdate || ""} onChange={e => setBdate(e.target.value)} style={{ ...input, direction: "ltr" }} />
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <GoldButton onClick={save} disabled={busy || !loaded}>{busy ? "שומר…" : "שמור"}</GoldButton>
+          {name.trim() && <button onClick={() => navigate(`/name-lab?w=${encodeURIComponent(name.trim())}`)} style={{ background: "none", border: `1px solid ${P.border}`, color: P.accentText, borderRadius: 10, padding: "10px 16px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>🔮 נתח את השם שלי →</button>}
+        </div>
+        {note && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13 }}>{note}</div>}
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const P = usePalette();
   const { user, profile, loading, isAdmin } = useAuth();
@@ -340,6 +410,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      <ContinuityStrip P={P} card={card} navigate={navigate} />
+
       {isAdmin && <OnlineNowCard P={P} card={card} />}
 
       {/* 📁 תיק המחקר שלי — כניסה מרכזית לכל חוקר (researcher_dossier_law) */}
@@ -351,6 +423,8 @@ export default function ProfilePage() {
         </span>
         <span style={{ color: P.accent, fontSize: 20, flex: "none" }}>←</span>
       </button>
+
+      <MyInfoCard P={P} card={card} navigate={navigate} />
 
       <MyResearchCard P={P} card={card} />
 

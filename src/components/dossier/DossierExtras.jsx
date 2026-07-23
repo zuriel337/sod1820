@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
-import { supabase } from "../../lib/supabase.js";
+import { supabase, getMyResearch } from "../../lib/supabase.js";
 import { getMatricesByOwner, getMyMatrices } from "../../lib/elsMatrices.js";
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
@@ -219,6 +219,33 @@ function AboutResearcher({ P, name, about, isOwner, onSave }) {
   );
 }
 
+// 🔬 מה חקרתי — ביטויים/מספרים שהחוקר חקר (research_items, owner-only דרך RLS). זיכרון-המחקר החי:
+// «המחקר שלך מחכה לך» — לחיצה חוזרת אל דף-המספר/הביטוי. מוצג רק לבעלים (אחרים חסומים ב-RLS ממילא).
+function MyResearchExplored({ P, isOwner }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    if (!isOwner) { setItems([]); return; }
+    let alive = true;
+    getMyResearch({ limit: 30, types: ["number", "phrase"] }).then(r => { if (alive) setItems(Array.isArray(r) ? r : []); }).catch(() => { if (alive) setItems([]); });
+    return () => { alive = false; };
+  }, [isOwner]);
+  if (!isOwner || !items || !items.length) return null;
+  return (
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>🔬 מה חקרתי</div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>ביטויים ומספרים שחקרת — לחיצה מחזירה אותך אל המחקר. <span style={{ opacity: 0.75 }}>(רואה רק אתה)</span></div>
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+        {items.map((r, i) => (
+          <Link key={i} to={r.link || `/number/${encodeURIComponent(r.entity_ref)}`}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none", color: P.accentText, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "6px 12px", fontFamily: r.entity_type === "number" ? F.mono : F.heading, fontSize: 13.5, fontWeight: 700 }}>
+            <span style={{ fontSize: 11, opacity: 0.7 }}>{r.entity_type === "number" ? "🔢" : "✦"}</span>{r.title || r.entity_ref}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // 🕸 הקשרים שלי — המספרים/הישויות שהמחקר נוגע בהם (מ-primary_number + anchor_numbers).
 // הופך את התיק לחלק מהעץ: כל מספר מצביע לדף-המספר הקנוני (/number/:n). לא משכפל.
 function Connections({ P, matrices }) {
@@ -338,6 +365,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
       <ImpactBar P={P} level={level} matrices={matrices} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
       <DossierMatrices P={P} name={name} matrices={matrices} />
+      <MyResearchExplored P={P} isOwner={isOwner} />
       <ResearchJournal P={P} name={name} level={level} matrices={matrices} joinedAt={joinedAt} />
       <Connections P={P} matrices={matrices} />
     </div>
