@@ -4,6 +4,7 @@ import { F } from "../../theme.js";
 import { thumb } from "../../lib/img.js";
 import { supabase, getMyResearch } from "../../lib/supabase.js";
 import { getMatricesByOwner, getMyMatrices, moderateMatrix } from "../../lib/elsMatrices.js";
+import { getResearcherProfile } from "../../lib/contributions.js";
 import { METHODS } from "../../lib/gematria.js";
 import { useWaLink } from "../../lib/userCenter/useWaLink.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
@@ -118,6 +119,36 @@ function DossierMatrices({ P, name, matrices, isAdmin, onPromote }) {
               )}
             </div>
           );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// 📱 ממצאים — עדשה על research_contributions (חידושי/ממצאי הכתב, כולל ווטסאפ מנותב). approved בלבד.
+//    עץ אחד: כל ממצא מקשר ליעד הקנוני (/number · /topic), לא משכפל.
+function DossierFindings({ P, name }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => { let a = true; getResearcherProfile(name, 30).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name]);
+  if (!items || !items.length) return null;
+  const href = (it) => it.target_type === "number" ? `/number/${it.target_id}` : it.target_type === "topic" ? `/topic/${it.target_id}` : null;
+  const kind = (o) => o === "els" ? "🔠 צופן" : o === "broadcast" ? "📣 שידור" : "📱 ממצא";
+  return (
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 4 }}>📱 ממצאים ומחקרים של {name} ({items.length})</div>
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginBottom: 12 }}>חידושים וממצאים שאושרו — מהאתר ומהוואטסאפ. לחיצה פותחת את היעד.</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {items.map(it => {
+          const to = href(it);
+          const body = (
+            <>
+              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>{it.title || it.gematria_claim || "ממצא"}</div>
+              {it.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.body}</div>}
+              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 4 }}>{kind(it.origin)} · {String(it.created_at).slice(0, 10)}</div>
+            </>
+          );
+          const st = { background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none", display: "block" };
+          return to ? <Link key={it.id} to={to} style={st}>{body}</Link> : <div key={it.id} style={st}>{body}</div>;
         })}
       </div>
     </div>
@@ -395,6 +426,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
       <ImpactBar P={P} level={level} matrices={matrices} />
       <ResearchDomains P={P} level={level} matrices={matrices} tags={c?.tags} />
       <DossierMatrices P={P} name={name} matrices={matrices} isAdmin={isAdmin} onPromote={promoteMatrix} />
+      <DossierFindings P={P} name={name} />
       <MyResearchExplored P={P} isOwner={isOwner} />
       <ResearchJournal P={P} name={name} level={level} matrices={matrices} joinedAt={joinedAt} />
       <Connections P={P} matrices={matrices} />

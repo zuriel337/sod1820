@@ -252,7 +252,7 @@ export async function getResearcherProfile(name, limit = 40) {
   try {
     const { data } = await supabase.from("research_contributions")
       .select("id,author_name,author_user_id,intent,origin,research_state,target_type,target_id,title,body,created_at")
-      .eq("author_name", name).eq("status", "approved").is("parent_id", null)
+      .eq("author_name", name).in("status", ["approved", "published"]).is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
     const items = data || [];
     if (!items.length) return null;
@@ -260,6 +260,17 @@ export async function getResearcherProfile(name, limit = 40) {
     const joined = items.reduce((min, x) => (!min || x.created_at < min ? x.created_at : min), null);
     return { name, uid, count: items.length, joined, items };
   } catch { return null; }
+}
+
+// 📁 זרם-עדכוני-הכתבים — כל כתב עם last_activity + ספירות (צפנים/פוסטים/ממצאים), ממוין מהחדש.
+// עדשה על contributors_feed() RPC (SECURITY DEFINER, grant anon+authenticated). כמו פורום/ערוצים:
+// דף שמתעדכן עולה למעלה. מקשר ל-/community/researcher/:slug (עץ אחד, לא משכפל).
+export async function getContributorsFeed(limit = 40) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.rpc("contributors_feed", { p_limit: limit });
+    return data || [];
+  } catch { return []; }
 }
 
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)

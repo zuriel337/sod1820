@@ -5,6 +5,7 @@ import { useThemeMode, setForcedMode } from "../lib/themeMode.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import ForumFeed from "../components/ForumFeed.jsx";
+import ContributorsUpdatesRail from "../components/ContributorsUpdatesRail.jsx";
 
 // 🌐 הפורום — פיד-מחקר מאוחד (research_contribution_law + עץ אחד). הגוף (סינונים + כרטיסים)
 // חי ברכיב המשותף <ForumFeed>, שמרונדר גם כאן (דף עצמאי /forum) וגם בטאב «פורום» במרכז
@@ -36,6 +37,7 @@ export default function ForumPage() {
         </p>
       </div>
 
+      <ContributorsUpdatesRail limit={12} />
       <ForumFeed maxWidth={780} />
     </div>
   );
