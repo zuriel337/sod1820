@@ -526,6 +526,60 @@ function OwnerControls({ P, visibility, onSave }) {
   );
 }
 
+// 🔒 נתונים אישיים (אדמין בלבד) — «הכרטיסיה» של האדם. עדשה על agent_user_memory (profile_facts) דרך admin_person_facts.
+//    רזיאל לוכד שם/כתובת/מיקוד/תאריך-לידה (עברי+לועזי) מה-DM ושומר פרטי; כאן צוריאל רואה אותם מרוכזים.
+//    ⛔ פרטי/אדמין בלבד (החלטת צוריאל 23.7) — לא בדף-החוקר הציבורי. מוצג רק אם isAdmin.
+const PD_META = {
+  name: { ic: "🧑", label: "שם מלא" },
+  address: { ic: "🏠", label: "כתובת / רחוב" },
+  city: { ic: "🏙️", label: "עיר" },
+  postal: { ic: "📮", label: "מיקוד" },
+  phone: { ic: "📞", label: "טלפון" },
+  family: { ic: "👨‍👩‍👦", label: "משפחה" },
+  birthday_hebrew: { ic: "📅", label: "תאריך-לידה עברי" },
+  birthday_gregorian: { ic: "📆", label: "תאריך-לידה לועזי" },
+  date_hebrew: { ic: "🗓️", label: "תאריך עברי" },
+  date_gregorian: { ic: "🗓️", label: "תאריך לועזי" },
+  gematria_signature: { ic: "🔢", label: "חתימת-הגימטריה" },
+};
+const PD_ORDER = ["name", "address", "city", "postal", "phone", "birthday_hebrew", "birthday_gregorian", "date_hebrew", "date_gregorian", "family", "gematria_signature"];
+function PersonalDataCard({ P, slug, isAdmin }) {
+  const [facts, setFacts] = useState(null);
+  useEffect(() => {
+    if (!isAdmin || !slug) { setFacts([]); return; }
+    let alive = true;
+    supabase.rpc("admin_person_facts", { p_slug: slug })
+      .then(({ data }) => { if (alive) setFacts(Array.isArray(data?.facts) ? data.facts : []); })
+      .catch(() => { if (alive) setFacts([]); });
+    return () => { alive = false; };
+  }, [isAdmin, slug]);
+  if (!isAdmin || !facts || !facts.length) return null;
+  const sorted = [...facts].sort((a, b) => (PD_ORDER.indexOf(a.kind) + 1 || 99) - (PD_ORDER.indexOf(b.kind) + 1 || 99));
+  return (
+    <div style={{ marginBottom: 20, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #b8860b`, borderRadius: 14, padding: "13px 15px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+        <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800 }}>🔒 נתונים אישיים</span>
+        <span style={{ color: "#8a6d1a", background: "rgba(184,134,11,.14)", border: "1px solid rgba(184,134,11,.4)", borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>אדמין בלבד · נלכד ע״י רזיאל</span>
+      </div>
+      <div style={{ display: "grid", gap: 7 }}>
+        {sorted.map((f, i) => {
+          const meta = PD_META[f.kind] || { ic: "•", label: f.kind };
+          const iso = f.data?.iso;
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 9, background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "8px 11px" }}>
+              <span style={{ fontSize: 14, flex: "none" }}>{meta.ic}</span>
+              <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, flex: "none", minWidth: 96 }}>{meta.label}</span>
+              <span style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, fontWeight: 600, flex: 1, minWidth: 0, wordBreak: "break-word", direction: "rtl" }}>
+                {f.value}{iso && <span style={{ color: P.accentDim, fontWeight: 400, fontSize: 11 }}> ({iso})</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // 🗺️ מפת-המשתמש — «שיקוף» של שני המשטחים (public/private). מחליף את כרטיס-הוואטסאפ הכפול:
 // דף החוקר = ציבורי (SEO, מה שאחרים רואים) · האזור האישי = פרטי (חיבור-וואטסאפ, הסוכן, הגדרות) — במקום אחד.
 function DossierMap({ P, isOwner }) {
@@ -597,6 +651,7 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
     <div>
       {isOwner && <OwnerControls P={P} visibility={settings.visibility} onSave={v => saveSettings({ visibility: v })} />}
       <DossierMap P={P} isOwner={isOwner} />
+      <PersonalDataCard P={P} slug={c?.slug} isAdmin={isAdmin} />
       <AboutResearcher P={P} name={name} about={about} isOwner={isOwner} onSave={t => saveSettings({ about: t })} />
       {matrices.length > 0 && (
         <AskRaziel kind="research" subject={name} facts={rzFacts} palette={P}
