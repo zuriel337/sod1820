@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
-import { formatDateHe } from "../lib/format.js";
+import { formatDateHe, stripHtml } from "../lib/format.js";
 import { supabase } from "../lib/supabase.js";
 import { getResearcherProfile } from "../lib/contributions.js";
 
@@ -92,7 +92,7 @@ export default function ResearcherProfile({ name, onNotFound }) {
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginBottom: 10 }}>💡 החידושים של {prof.name}</div>
         <div style={{ display: "grid", gap: 11 }}>
           {prof.items.map((it) => {
-            const txt = (it.title || it.body || "").toString().replace(/<[^>]+>/g, " ").trim();
+            const txt = stripHtml(it.title || it.body || "");
             return (
               <Link key={it.id} to={`/forum/${it.id}`} style={{ textDecoration: "none", display: "block", background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 13, padding: "13px 15px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>

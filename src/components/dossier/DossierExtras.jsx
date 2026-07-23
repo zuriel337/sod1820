@@ -496,8 +496,10 @@ export default function DossierExtras({ P, c, level, isOwner, onCount }) {
       <AboutResearcher P={P} name={name} about={about} isOwner={isOwner} onSave={t => saveSettings({ about: t })} />
       {matrices.length > 0 && (
         <AskRaziel kind="research" subject={name} facts={rzFacts} palette={P}
-          greeting={isOwner ? "עברתי על המחקר שלך, ומצאתי כמה נקודות שעשויות לעניין אותך." : "עברתי על המחקר הזה, ומצאתי כמה נקודות שעשויות לעניין אותך."}
-          waText={`שלום רזיאל 🌳 בקשר לתיק המחקר של ${name} — `} />
+          title={isOwner ? "רזיאל · הסוכן שלך" : `רזיאל · שאל על המחקר של ${name}`}
+          subtitle={isOwner ? "נחקור יחד — עובדה מהמנוע, לא נבואה" : "שאל את רזיאל על התיק הזה — עובדה מהמנוע, לא נבואה"}
+          greeting={isOwner ? "עברתי על המחקר שלך, ומצאתי כמה נקודות שעשויות לעניין אותך." : `עברתי על המחקר של ${name}, ומצאתי כמה נקודות שעשויות לעניין אותך.`}
+          waText={isOwner ? `שלום רזיאל 🌳 בקשר לתיק המחקר שלי — ` : `שלום רזיאל 🌳 בקשר לתיק המחקר של ${name} — `} />
       )}
       <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={isOwner} onSave={t => saveSettings({ current_focus: t })} />
       <ResearcherStatsCard P={P} c={c} name={name} level={level} />

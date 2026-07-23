@@ -13,7 +13,7 @@ import { genAvatar } from "../lib/avatar.js";
 import DossierOnboarding from "../components/dossier/DossierOnboarding.jsx";
 import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
-import { timeAgoHe } from "../lib/format.js";
+import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
@@ -574,7 +574,7 @@ export default function ContributorPage() {
                 {p.image_url && <img src={thumb(p.image_url, 96)} alt="" loading="lazy" style={{ width: 48, height: 48, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
                 <div style={{ minWidth: 0 }}>
                   <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>
-                    {p.participated && <span style={{ color: P.accentDim, fontWeight: 600 }}>🤝 בהשתתפות · </span>}{p.title}
+                    {p.participated && <span style={{ color: P.accentDim, fontWeight: 600 }}>🤝 בהשתתפות · </span>}{stripHtml(p.title)}
                   </div>
                   {p.date && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{String(p.date).slice(0, 10)}</div>}
                 </div>
@@ -599,8 +599,8 @@ export default function ContributorPage() {
               const nums = [...new Set([...(t.highlight_numbers || []), ...(t.numbers || [])])].slice(0, 5);
               return (
                 <a key={t.slug} href={`/topic/${t.slug}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
-                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, lineHeight: 1.45 }}>{t.title}</div>
-                  {t.subtitle && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>{t.subtitle}</div>}
+                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, lineHeight: 1.45 }}>{stripHtml(t.title)}</div>
+                  {t.subtitle && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>{stripHtml(t.subtitle)}</div>}
                   {nums.length > 0 && (
                     <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6 }}>
                       {nums.map(n => <span key={n} style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 9px", fontFamily: F.mono, fontSize: 11.5 }}>{n}</span>)}
@@ -629,7 +629,7 @@ export default function ContributorPage() {
                 <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
                   {p.image_url && <img src={thumb(p.image_url, 96)} alt="" loading="lazy" style={{ width: 44, height: 44, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>{p.title}</div>
+                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>{stripHtml(p.title)}</div>
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>
                       {p.author ? `${p.author} · ` : ""}{p.date ? String(p.date).slice(0, 10) : ""}
                     </div>
