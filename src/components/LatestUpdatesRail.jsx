@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
-import { effDate, domNum } from "../lib/reality.js";
+import { streamDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
 
@@ -28,7 +28,8 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     const out = [];
     (posts || []).forEach(p => out.push({ type: "post", when: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
     (convergences || []).forEach(c => out.push({ type: "conv", when: +new Date(c.created_at || 0), data: c }));
-    (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: effDate(h) || +new Date(h.created_at || h.occurred_at || 0), data: h }));
+    // 🌊 «עודכן לפני X» לרמז = מתי נוסף לזרם (stream_at→created_at), לא תאריך-האירוע (occurred_at, חצות → «לפני 12 שעות» מוטעה)
+    (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: streamDate(h), data: h }));
     (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
     (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
     return out.sort((a, b) => b.when - a.when).slice(0, 20);
