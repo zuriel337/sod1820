@@ -1,10 +1,12 @@
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
-// 🌳 שלב 1b (עץ אחד) — הנתיב הגנרי (number/compare/verse...) קורא metatron_context ומזריק את
-//    חוקי-המערכת החיים (ctx.rules) ל-system ואת הקשר-הגרף (ctx.canonical) לעובדות. מקור-אמת יחיד:
-//    חוק ב-nodes(propagate=true) → fn_active_method_rules → metatron_context → כאן. fail-open מלא
-//    (כשל/ריק = התנהגות v26). לא נוגע ב-persona=raziel (מוח משלו) / guide / research.
+// 🌳 שלב 1b (עץ אחד) — OPT-IN, default OFF: כשהבקשה שולחת metatron:true, הנתיב הגנרי
+//    (number/compare/verse...) קורא metatron_context ומזריק את חוקי-המערכת החיים (ctx.rules) ל-system
+//    ואת הקשר-הגרף (ctx.canonical) לעובדות. מקור-אמת יחיד: חוק ב-nodes(propagate=true) →
+//    fn_active_method_rules → metatron_context → כאן. בלי הדגל = התנהגות v26 מדויקת (בדיקה לפני מעבר-
+//    דיפולט: harness metatron_eval_*, שלב 3; ובהמשך «רזיאל בטא 1/יום», שלב 4). fail-open מלא (כשל/ריק
+//    = v26). לא נוגע ב-persona=raziel (מוח משלו) / guide / research.
 //
 // 🆕 מנוע נוסף (A/B): body.engine = "claude" (ברירת-מחדל) | "gemini".
 //    אותו SYSTEM + אותו user-prompt לשני המנועים → השוואת פרשנות הוגנת על אותן עובדות מהמנוע.
@@ -407,13 +409,17 @@ Deno.serve(async (req: Request) => {
     const lengthRule = wantLong
       ? "כתוב ניתוח מלא ומעמיק — אין הגבלת אורך. פְּתח במשמעות חמה וישירה, ואז העמק ושזור את ההתכנסויות/ההצלבות כהעשרה; תן לרעיון לנשום. אל תמתח באופן מלאכותי ואל תחזור על עצמך — עומק אמיתי, לא אריכות."
       : (isCollection ? "כתוב סינתזה שמחברת בין פריטי האוסף — עד 6 משפטים." : "2-4 משפטים.");
-    // 🌳 שלב 1b — מטטרון: חוקי-המערכת החיים (→system) + הקשר-הגרף (→עובדות). fail-open לחלוטין:
-    // כל כשל/ריק → sys=SYSTEM ו-mtxFacts="" → התנהגות זהה ל-v26. לא לאוסף-מחקר (kind=research;
-    // אין subject יחיד לשלוף עליו). שני המנועים (claude/gemini) מקבלים את אותו sys — הוגנות A/B.
+    // 🌳 שלב 1b — מטטרון: חוקי-המערכת החיים (→system) + הקשר-הגרף (→עובדות).
+    // ⚠️ OPT-IN בלבד (default OFF): מוזרק אך ורק כשהבקשה שולחת body.metatron===true. בלי הדגל →
+    //    sys=SYSTEM, mtxFacts="" → התנהגות זהה בדיוק ל-v26 (אף משתמש חי לא מושפע). כך אפשר לפרוס
+    //    בבטחה, ולהוכיח «עם מטטרון מול בלי» דרך ה-harness (metatron_eval_*) לפני מעבר-דיפולט (שלב 3),
+    //    ובהמשך לחשוף כ«רזיאל בטא · פתיחה 1/יום» (שלב 4) — אותו דגל, בלי שינוי-קוד. גם fail-open:
+    //    כשל/ריק ב-metatron → v26. לא לאוסף-מחקר (kind=research). שני המנועים מקבלים אותו sys (A/B).
+    const useMetatron = !!body?.metatron && kind !== "research";
     let sys = SYSTEM;
     let mtxVersion: unknown = null;
     let mtxFacts = "";
-    if (kind !== "research") {
+    if (useMetatron) {
       const mtx = await fetchMetatronContext(subject, subject || facts.slice(0, 120), body?.fast ? "site-analyze-fast" : "site-analyze");
       if (mtx) {
         sys = SYSTEM + metatronRulesBlock(mtx);
@@ -436,7 +442,7 @@ Deno.serve(async (req: Request) => {
 
     if (out.error) return json({ analysis: null, engine, model, error: out.error, detail: out.detail });
     await logTokens(kind || "analyze", model, out.usage, identity);
-    return json({ analysis: out.text, engine, model, context_version: mtxVersion });
+    return json({ analysis: out.text, engine, model, metatron: useMetatron, context_version: mtxVersion });
   } catch (e) {
     return json({ analysis: null, error: String(e).slice(0, 200) }, 200);
   }
