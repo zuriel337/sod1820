@@ -10,6 +10,7 @@ import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { trackAi, trackJourneyStep } from "../lib/tracking.js";
 import { calcGem } from "../theme.js";
 import RazielChat from "./RazielChat.jsx";
+import ApiPanel from "./research/ApiPanel.jsx";
 
 const heb = n => Number(n).toLocaleString("he");
 const esc = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
@@ -399,6 +400,11 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
         <RazielChat />
       </Panel>
     ) },
+    { id: "api", icon: "🔌", label: "API", render: bare => (
+      <Panel icon="🔌" title="API גימטריה" extra="למפתחים" bare={bare}>
+        <ApiPanel />
+      </Panel>
+    ) },
     { id: "roadmap", icon: "🗺️", label: "מפה", render: bare => (
       <Panel icon="🗺️" title="לאן אפשר להגיע" bare={bare}>
         <div className="rw-future" style={{ marginTop: 0, borderTop: "none", paddingTop: 0 }}>
@@ -411,10 +417,10 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     ) },
   ];
 
-  const ids = variant === "tools" ? ["raziel", "whatsnew"]   // רזיאל = בית-הקבע (צ'אט חופשי) של הסוכן
+  const ids = variant === "tools" ? ["raziel", "api", "whatsnew"]   // רזיאל = בית-הקבע (צ'אט חופשי) של הסוכן; API = אזור המפתחים לידו
     // «me» הוסר מעולם-המחקר (איחוד האזורים 9.7.2026): הזהות חיה ב«אזור האישי» (מגירת UserCenter);
     // כפתור 👤 בראש הלשונית פותח אותה (אורח → /login).
-    : variant === "context" ? ["raziel", "notes", "active", "community", "history", "journeys", "saved", "roadmap"]
+    : variant === "context" ? ["raziel", "api", "notes", "active", "community", "history", "journeys", "saved", "roadmap"]
     // מובייל/כל: פאנל «רזיאל» (צ'אט חופשי) חשוף — בית-הקבע של הסוכן בסביבת-המחקר.
     : PANELS.map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
@@ -446,7 +452,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
 // טאבי-השמאל (לשימוש המסילה — לפתיחה ישירה לטאב). חייב להתאים ל-context ids.
 // «me» הוסר — הזהות עברה ל«אזור האישי» (איחוד האזורים 9.7.2026).
 export const LEFT_TABS = [
-  { id: "raziel", icon: "🤖" },
+  { id: "raziel", icon: "🤖" }, { id: "api", icon: "🔌" },
   { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" },
   { id: "history", icon: "🕘" }, { id: "journeys", icon: "🧭" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
 ];
