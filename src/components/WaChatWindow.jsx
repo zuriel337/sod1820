@@ -35,7 +35,7 @@ export default function WaChatWindow({ name, items = [], isAdmin = false, height
     try {
       const r = await promoteFindingToDict(id);
       const added = (r?.added || []).length, dup = (r?.in_dict || []).length, bad = (r?.unverified || []).length;
-      setDictMsg(m => ({ ...m, [id]: added ? `✓ נוספו ${added} למילון` : dup ? `כבר במילון (${dup})` : bad ? "לא אומת במנוע" : "אין גימטריה" }));
+      setDictMsg(m => ({ ...m, [id]: added ? `✓ נוספו ${added} לרשימה` : dup ? `כבר ברשימה (${dup})` : bad ? "לא אומת במנוע" : "אין גימטריה" }));
     } catch { setDictMsg(m => ({ ...m, [id]: "שגיאה" })); }
     setBusy(null);
   };
@@ -87,7 +87,7 @@ export default function WaChatWindow({ name, items = [], isAdmin = false, height
                   {it.gematria_claim && !dictMsg[it.id] && (
                     <button onClick={() => toDict(it.id)} disabled={busy === it.id + ":d"}
                       style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "3px 10px", minHeight: 28 }}>
-                      {busy === it.id + ":d" ? "…" : "➕ למילון"}
+                      {busy === it.id + ":d" ? "…" : "➕ לרשימת הגימטריות"}
                     </button>
                   )}
                   {dictMsg[it.id] && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>{dictMsg[it.id]}</span>}

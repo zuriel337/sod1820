@@ -221,7 +221,7 @@ function ForumFinding({ P, it, isAdmin, onPinned }) {
   const togglePin = async () => { setBusy(true); try { await pinContribution(it.id, !it.pinned_at); onPinned?.(it.id, !it.pinned_at); } catch { /* noop */ } setBusy(false); };
   const toDict = async () => {
     setBusy(true);
-    try { const r = await promoteFindingToDict(it.id); const a = (r?.added || []).length, d = (r?.in_dict || []).length; setDictMsg(a ? `✓ נוספו ${a}` : d ? "כבר במילון" : "אין גימטריה"); } catch { setDictMsg("שגיאה"); }
+    try { const r = await promoteFindingToDict(it.id); const a = (r?.added || []).length, d = (r?.in_dict || []).length; setDictMsg(a ? `✓ נוספו ${a}` : d ? "כבר ברשימה" : "אין גימטריה"); } catch { setDictMsg("שגיאה"); }
     setBusy(false);
   };
   return (
@@ -237,7 +237,7 @@ function ForumFinding({ P, it, isAdmin, onPinned }) {
             {to && <Link to={to} style={{ color: P.accentText, textDecoration: "none", fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : "🎯"} {it.target_id}</Link>}
             <Link to={`/forum/${it.id}`} style={{ color: P.accentDim, textDecoration: "none" }}>💬 לדיון</Link>
             {isAdmin && <button onClick={togglePin} disabled={busy} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: it.pinned_at ? P.glow : P.card, color: P.accentText, borderRadius: 999, padding: "3px 10px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, minHeight: 26 }}>{it.pinned_at ? "📌 בטל הצמדה" : "📌 הצמד למעלה"}</button>}
-            {isAdmin && isGem && !dictMsg && <button onClick={toDict} disabled={busy} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "3px 10px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, minHeight: 26 }}>➕ למילון</button>}
+            {isAdmin && isGem && !dictMsg && <button onClick={toDict} disabled={busy} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "3px 10px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, minHeight: 26 }}>➕ לרשימת הגימטריות</button>}
             {dictMsg && <span style={{ color: P.accentDim, fontSize: 10.5 }}>{dictMsg}</span>}
           </div>
         </div>
@@ -247,7 +247,7 @@ function ForumFinding({ P, it, isAdmin, onPinned }) {
 }
 
 // 🔢 הגימטריות של הכתב — מקטע גלוי, מסודר: חדשים למעלה, תאריך-הוספה, ודגל «במערכת הראשית».
-//    page-only (לא בליבה) — אדמין רואה מה עדיין לא בליבה ומעביר בשנייה (➕ למילון). לא-בליבה עולה קודם.
+//    page-only (לא בליבה) — אדמין רואה מה עדיין לא בליבה ומעביר בשנייה (➕ לרשימת הגימטריות). לא-בליבה עולה קודם.
 function WriterGematrias({ P, name, uid, isAdmin }) {
   const [rows, setRows] = useState(null);
   const [busy, setBusy] = useState(null);
@@ -261,7 +261,7 @@ function WriterGematrias({ P, name, uid, isAdmin }) {
   const notInCore = rows.filter(r => !r.in_core).length;
   const toDict = async (r) => {
     setBusy(r.id);
-    try { const x = await promoteFindingToDict(r.id); const a = (x?.added || []).length; setMsg(m => ({ ...m, [r.id]: a ? "✓ נוסף למילון" : "כבר במילון" })); if (a) load(); }
+    try { const x = await promoteFindingToDict(r.id); const a = (x?.added || []).length; setMsg(m => ({ ...m, [r.id]: a ? "✓ נוסף לרשימה" : "כבר ברשימה" })); if (a) load(); }
     catch { setMsg(m => ({ ...m, [r.id]: "שגיאה" })); }
     setBusy(null);
   };
@@ -282,10 +282,10 @@ function WriterGematrias({ P, name, uid, isAdmin }) {
             </div>
             {/* שורה 2 — מטא (דגל · תאריך · פעולות) — עוטף במובייל, לא גולש */}
             <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 6 }}>
-              <span style={{ fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px", color: r.in_core ? "#1a7a3a" : P.accentDim, background: r.in_core ? "rgba(26,122,58,.12)" : "transparent", border: `1px solid ${r.in_core ? "rgba(26,122,58,.4)" : P.border}` }} title={r.in_core ? "במערכת הראשית" : "עדיין לא במערכת הראשית"}>{r.in_core ? "🔵 במילון" : "⚪ לא במילון"}</span>
+              <span style={{ fontFamily: F.heading, fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "2px 8px", color: r.in_core ? "#1a7a3a" : P.accentDim, background: r.in_core ? "rgba(26,122,58,.12)" : "transparent", border: `1px solid ${r.in_core ? "rgba(26,122,58,.4)" : P.border}` }} title={r.in_core ? "במערכת הראשית" : "עדיין לא במערכת הראשית"}>{r.in_core ? "🔵 ברשימה" : "⚪ לא ברשימה"}</span>
               <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{heDate(r.created_at)}</span>
               {isAdmin && <button onClick={() => pin(r)} disabled={busy === r.id} title="הצמד למעלה" style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: r.pinned ? P.glow : P.card, borderRadius: 999, padding: "2px 9px", fontSize: 11 }}>📌</button>}
-              {isAdmin && !r.in_core && !msg[r.id] && <button onClick={() => toDict(r)} disabled={busy === r.id} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>➕ למילון</button>}
+              {isAdmin && !r.in_core && !msg[r.id] && <button onClick={() => toDict(r)} disabled={busy === r.id} style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "2px 9px", fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>➕ לרשימת הגימטריות</button>}
               {msg[r.id] && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10 }}>{msg[r.id]}</span>}
             </div>
           </div>
