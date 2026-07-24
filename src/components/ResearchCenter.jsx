@@ -9,6 +9,7 @@ import { collectionConvergences, convergencesFactLine } from "../lib/deepAnalysi
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { trackAi, trackJourneyStep } from "../lib/tracking.js";
 import { calcGem } from "../theme.js";
+import RazielChat from "./RazielChat.jsx";
 
 const heb = n => Number(n).toLocaleString("he");
 const esc = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
@@ -393,9 +394,9 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
         <HotNumbers />
       </Panel>
     ) },
-    { id: "ai", icon: "🤖", label: "AI", render: bare => (
-      <Panel icon="🤖" title="AI" extra="בבנייה" bare={bare}>
-        <div className="rw-soon">🔬 ניתוח AI — בבנייה, ייפתח בקרוב לכל החוקרים.</div>
+    { id: "raziel", icon: "🤖", label: "רזיאל", render: bare => (
+      <Panel icon="🤖" title="רזיאל · צ'אט חופשי" extra="בטא" bare={bare}>
+        <RazielChat />
       </Panel>
     ) },
     { id: "roadmap", icon: "🗺️", label: "מפה", render: bare => (
@@ -410,13 +411,12 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     ) },
   ];
 
-  const ids = variant === "tools" ? ["whatsnew"]   // «ai» הוסתר עד שיהיה מוכן (לא «בבנייה» מול הפרצוף)
+  const ids = variant === "tools" ? ["raziel", "whatsnew"]   // רזיאל = בית-הקבע (צ'אט חופשי) של הסוכן
     // «me» הוסר מעולם-המחקר (איחוד האזורים 9.7.2026): הזהות חיה ב«אזור האישי» (מגירת UserCenter);
     // כפתור 👤 בראש הלשונית פותח אותה (אורח → /login).
-    : variant === "context" ? ["notes", "active", "community", "history", "journeys", "saved", "roadmap"]
-    // מובייל/כל: מסתירים את פאנל «ai (בבנייה)» גם כאן — לא מציגים placeholder «בבנייה» מול הפרצוף
-    // (עקבי עם הדסקטופ; בקשת צוריאל — «הגרוע בהיכל»). ייחשף אוטומטית כשה-AI יהיה מוכן.
-    : PANELS.filter(p => p.id !== "ai").map(p => p.id);
+    : variant === "context" ? ["raziel", "notes", "active", "community", "history", "journeys", "saved", "roadmap"]
+    // מובייל/כל: פאנל «רזיאל» (צ'אט חופשי) חשוף — בית-הקבע של הסוכן בסביבת-המחקר.
+    : PANELS.map(p => p.id);
   const list = PANELS.filter(p => ids.includes(p.id));
 
   if (tabbed) {
@@ -446,6 +446,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
 // טאבי-השמאל (לשימוש המסילה — לפתיחה ישירה לטאב). חייב להתאים ל-context ids.
 // «me» הוסר — הזהות עברה ל«אזור האישי» (איחוד האזורים 9.7.2026).
 export const LEFT_TABS = [
+  { id: "raziel", icon: "🤖" },
   { id: "notes", icon: "📝" }, { id: "active", icon: "🧠" },
   { id: "history", icon: "🕘" }, { id: "journeys", icon: "🧭" }, { id: "saved", icon: "📂" }, { id: "roadmap", icon: "🗺️" },
 ];
