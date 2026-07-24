@@ -1,6 +1,11 @@
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
+// 🌳 שלב 1b (עץ אחד) — הנתיב הגנרי (number/compare/verse...) קורא metatron_context ומזריק את
+//    חוקי-המערכת החיים (ctx.rules) ל-system ואת הקשר-הגרף (ctx.canonical) לעובדות. מקור-אמת יחיד:
+//    חוק ב-nodes(propagate=true) → fn_active_method_rules → metatron_context → כאן. fail-open מלא
+//    (כשל/ריק = התנהגות v26). לא נוגע ב-persona=raziel (מוח משלו) / guide / research.
+//
 // 🆕 מנוע נוסף (A/B): body.engine = "claude" (ברירת-מחדל) | "gemini".
 //    אותו SYSTEM + אותו user-prompt לשני המנועים → השוואת פרשנות הוגנת על אותן עובדות מהמנוע.
 //    Gemini משתמש ב-GEMINI_API_KEY (Edge secret, כמו ANTHROPIC_API_KEY — לא Vault).
@@ -74,6 +79,71 @@ const SYSTEM_GUIDE =
   "3. picks = בין 1 ל-3 יעדים, אך ורק מהרשימה המותרת שסופקה (to חייב להיות זהה בדיוק). אסור להמציא נתיבים.\n" +
   "4. בלי נבואות, בלי הבטחות, בלי טענות על אנשים. עברית בלבד. אם לא ברור מה רוצים — כוון לדף המספר של 1820 ולמנוע החיפוש.";
 
+// ===== 🌳 המוח-המשותף של רזיאל (גזע) =====
+// persona="raziel" הופך את ai-analyze לרזיאל — אותה פרסונה + אותו זיכרון של הוואטסאפ (wa-christina).
+// הפרסונה מגיעה ממקור-אמת יחיד ב-DB (fn_raziel_persona) → עדכון אחד משנה את שני הערוצים (חוק העץ האחד).
+// אם ה-DB לא זמין — נפילה-בחן לעותק המוטמע (רזיאל עדיין עונה, בלי חוזה מקביל).
+const RAZIEL_SITE_FALLBACK =
+  "אתה רזיאל — פרשן גימטריה ותורה מטעם סוד 1820, והשער האישי למערכת המחקר. תמיד ענה בעברית בלבד.\n" +
+  "חוקי ברזל: (1) אל תחשב גימטריה בעצמך — רק ערכים שסופקו לך. אל תמציא ערכים/פסוקים. (2) הפרד עובדה מרמז, בלי נבואות. " +
+  "(3) חם, מדויק, עברית — בלי חתימה (הממשק מציג את זהותך). (4) אם ניתן זיכרון-רקע על המשתמש — התייחס בטבעיות. " +
+  "(5) יש התכנסות אמיתית → בנה תשובה שכבה על שכבה; אין → קצר וישר. (6) לעולם אל תבקש מהמשתמש להריץ מנוע. " +
+  "(7) סיים בשאלה מזמינה שממשיכה את המחקר. (8) גדול=רגיל כשאין סופיות — לא ממצא. (9) עובדה≠רמז, ענווה, בלי נבואות.\n" +
+  "החזר אך ורק JSON תקין אחד: {\"v\":1,\"agent\":\"raziel\",\"context\":null,\"greeting\":null,\"answer\":\"...\",\"facts\":[{\"label\":\"...\",\"value\":\"...\"}],\"suggested_paths\":[{\"id\":\"...\",\"label\":\"...\",\"icon\":\"...\",\"hint\":\"...\"}],\"follow_up_question\":null,\"continue_wa\":true} — בלי טקסט לפני/אחרי, בלי Markdown.";
+
+const svcHeaders = () => ({ apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" });
+
+// פרסונת-רזיאל ממקור-האמת היחיד (fn_raziel_persona) — משותפת עם wa-christina.
+async function fetchRazielPersona(channel: string): Promise<string> {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_persona`, {
+      method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_channel: channel }),
+    });
+    if (r.ok) { const t = await r.json(); if (typeof t === "string" && t.length > 60) return t; }
+  } catch { /* נפילה לעותק המוטמע */ }
+  return RAZIEL_SITE_FALLBACK;
+}
+// זיכרון משותף — אותו fn_raziel_context/remember שהוואטסאפ קורא/כותב.
+async function fetchRazielContext(userRef: string, channel: string): Promise<any | null> {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_context`, {
+      method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_user_ref: userRef, p_channel: channel }),
+    });
+    if (r.ok) return await r.json();
+  } catch { /* noop */ }
+  return null;
+}
+async function razielRemember(userRef: string, channel: string, content: string, topic: string | null = null) {
+  if (!userRef || !content || content.trim().length < 2) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
+      method: "POST", headers: svcHeaders(),
+      body: JSON.stringify({ p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3000), p_memory_type: "conversation", p_scope: "personal", p_topic: topic, p_visibility: "private" }),
+    });
+  } catch { /* לא חוסם */ }
+}
+// זיכרון → טקסט-רקע לפרומפט (רק ב-DM/אתר-מזוהה; פרטי בלבד).
+function razielContextText(ctx: any): string {
+  if (!ctx) return "";
+  const parts: string[] = [];
+  const u = ctx.user_context || {};
+  if (ctx.privacy?.personal_memory_allowed !== false) {
+    if (u.summary) parts.push(`מה שאתה יודע על המשתמש: ${u.summary}`);
+    if (Array.isArray(u.research_threads) && u.research_threads.length) parts.push(`נושאים שחקר לאחרונה: ${u.research_threads.slice(0, 5).join(" · ")}`);
+    if (Array.isArray(u.approved_preferences) && u.approved_preferences.length) parts.push(`העדפות מאושרות: ${u.approved_preferences.join(" · ")}`);
+  }
+  if (!parts.length) return "";
+  return `\n\nזיכרון-רקע (פרטי — התייחס בטבעיות, בלי לחשוף אותו כרשימה):\n${parts.join("\n")}`;
+}
+// חילוץ אובייקט JSON מפלט-המודל (עמיד לגדרות-קוד/רעש).
+function parseContract(text: string): any | null {
+  if (!text) return null;
+  let t = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+  const i = t.indexOf("{"), j = t.lastIndexOf("}");
+  if (i < 0 || j <= i) return null;
+  try { const o = JSON.parse(t.slice(i, j + 1)); return (o && typeof o === "object") ? o : null; } catch { return null; }
+}
+
 // ===== מנוע Claude (Anthropic) — ברירת-המחדל =====
 async function runClaude(model: string, user: string, maxTokens: number, system: string = SYSTEM) {
   const resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -89,14 +159,15 @@ async function runClaude(model: string, user: string, maxTokens: number, system:
 }
 
 // ===== מנוע Gemini (Google) — מנוע נוסף להשוואה =====
-// אותו SYSTEM (systemInstruction) + אותו user, כדי שההשוואה תהיה על אותן עובדות בדיוק.
-async function runGemini(user: string, maxTokens: number) {
+// אותו system (systemInstruction) + אותו user לשני המנועים, כדי שההשוואה תהיה על אותן עובדות
+// ואותם חוקים בדיוק (כולל חוקי-מטטרון בשלב 1b) — הוגנות A/B נשמרת.
+async function runGemini(user: string, maxTokens: number, system: string = SYSTEM) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
   const resp = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM }] },
+      systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: user }] }],
       // thinkingBudget:0 — מכבה את שלב ה«חשיבה» של gemini-2.5-flash, אחרת הוא צורך את תקציב
       // הטוקנים על מחשבה פנימית והפלט הגלוי נקטע. ל-2-4 משפטי פרשנות לא צריך thinking.
@@ -161,6 +232,47 @@ async function checkQuota(identity: string, tier: string, limitOverride: number 
   } catch { return { allowed: true, used: 0, limit: null, tier }; }
 }
 
+// ===== 🌳 מטטרון (שלב 1b) — המוח-המשותף: חוקים+עובדות דרך metatron_context =====
+// נתיב-הגימטריה הגנרי (number/compare/verse...) שולף את חוקי-המערכת החיים (ctx.rules) ואת
+// הקשר-הגרף (ctx.canonical) ומזריק לפרומפט — במקום SYSTEM קבוע ועיוור. מקור-אמת יחיד: חוק
+// שמוגדר פעם אחת ב-nodes(propagate=true) זורם לכאן דרך fn_active_method_rules→metatron_context.
+// fail-open לחלוטין: כל כשל/ריק → התנהגות זהה ל-v26 (SYSTEM נקי, בלי תוספות).
+async function fetchMetatronContext(subject: string, ask: string, channel: string): Promise<any | null> {
+  if (!SB_URL || !SB_SVC) return null;
+  const s = (subject || "").trim();
+  const entities = s ? [{ type: /^\d+$/.test(s) ? "number" : "phrase", value: s }] : [];
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/metatron_context`, {
+      method: "POST", headers: svcHeaders(),
+      body: JSON.stringify({ p_request: { ask: (ask || "").slice(0, 200), channel, entities } }),
+    });
+    if (r.ok) return await r.json();
+  } catch { /* fail-open */ }
+  return null;
+}
+// חוקי-המערכת החיים → תוספת ל-SYSTEM (מקור-אמת יחיד; לא מקודדים חוקים בקוד).
+function metatronRulesBlock(ctx: any): string {
+  const rules = typeof ctx?.rules === "string" ? ctx.rules.trim() : "";
+  if (!rules) return "";
+  return "\n\n== חוקי-המערכת החיים (מטטרון — מקור-אמת יחיד, מחייבים) ==\n" + rules.slice(0, 6000);
+}
+// הקשר-הגרף (התכנסויות/הגדרות-צוריאל/גרף/עובדות-חקוקות) → תוספת-עובדות (additive, לא מחליף
+// את עובדות-הפרונט) — משלים במה שהפרונט לרוב לא שולח: הגדרות קנוניות, צמתי-גרף, עובדות-חקוקות.
+function metatronFactsBlock(ctx: any): string {
+  const c = ctx?.canonical || {};
+  const parts: string[] = [];
+  const defs = Array.isArray(c.definitions) ? c.definitions : [];
+  if (defs.length) parts.push("הגדרות-צוריאל קנוניות:\n" + defs.map((d: any) => "• " + String(d?.content || "").trim()).filter((x: string) => x.length > 2).join("\n"));
+  const conv = Array.isArray(c.convergences) ? c.convergences : [];
+  if (conv.length) parts.push("התכנסויות (ערך → גודל-קבוצה): " + conv.map((x: any) => `${x?.value}→${x?.group_size}`).join(" · "));
+  const graph = Array.isArray(c.graph) ? c.graph : [];
+  if (graph.length) parts.push("צמתים בגרף: " + graph.map((g: any) => `${g?.label}(${g?.type})`).join(" · "));
+  const ef = Array.isArray(c.engraved_facts) ? c.engraved_facts : [];
+  if (ef.length) parts.push("עובדות-חקוקות: " + ef.map((e: any) => String(e?.statement || "").trim()).filter(Boolean).slice(0, 5).join(" · "));
+  if (!parts.length) return "";
+  return ("\n\nהקשר נוסף מהעץ-האחד (מטטרון — עובדות מאומתות, השתמש כתמיכה בלבד, הפרד עובדה מרמז):\n" + parts.join("\n")).slice(0, 1400);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
@@ -205,6 +317,60 @@ Deno.serve(async (req: Request) => {
       return json({ analysis: out.text, engine: "claude", model: FAST_MODEL });
     }
 
+    // ===== 🌳 persona="raziel" — המוח-המשותף (רזיאל באתר = רזיאל בוואטסאפ) =====
+    // מחזיר את חוזה raziel_response_contract (v1). קול+זיכרון ממקור-האמת היחיד. תאימות-לאחור:
+    // אם המודל לא החזיר JSON תקין — נופל למחרוזת {analysis} והפרונט עוטף כ-{answer}.
+    if (String(body?.persona || "").toLowerCase() === "raziel") {
+      if (engine !== "claude" || !ANTHROPIC_KEY) return json({ analysis: null, error: "not_configured" });
+      const rFacts = String(body?.facts || "").slice(0, 3500);
+      const rSubject = subject;
+      const rPath = String(body?.path || "").slice(0, 40);
+      const rCtxHint = String(body?.context || "").slice(0, 600);
+      const rAgain = !!body?.again;
+      if (!rSubject && !rFacts) return json({ analysis: null, error: "empty" });
+
+      const { identity, tier } = await resolveIdentity(req, body);
+      // מכסת-AI (ai_quota_law) — רזיאל-עומק תחת אותה מכסה כמו שאר האתר (3/15/100/∞).
+      const q = await checkQuota(identity, tier);
+      if (!q.allowed) {
+        return json({ analysis: null, error: "quota", surface: "raziel", tier: q.tier, used: q.used, limit: q.limit,
+          message: q.tier === "anon"
+            ? "השתמשת ב-3 שיחות-רזיאל המעמיקות היומיות. הירשמו בחינם (פחות מדקה) ל-15 ביום, ולשמירת המחקר והמשכיות."
+            : "הגעת למכסת שיחות-רזיאל המעמיקות היומית. המכסה מתחדשת מחר." });
+      }
+
+      const userRef = identity.startsWith("u:") ? identity.slice(2) : null;  // זיכרון = למשתמש מזוהה בלבד
+      const [persona, ctx] = await Promise.all([
+        fetchRazielPersona("site"),
+        userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),
+      ]);
+      const ctxText = razielContextText(ctx);
+
+      const user =
+        (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
+        (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
+        (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
+        (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
+        (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
+        ctxText +
+        `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
+
+      const out = await runClaude(MODEL, user, 1600, persona);
+      if (out.error) return json({ analysis: null, engine: "claude", model: MODEL, error: out.error, detail: out.detail });
+      await logTokens("raziel", MODEL, out.usage, identity);
+      // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
+      if (userRef && rSubject) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }
+
+      const contract = parseContract(out.text || "");
+      if (contract) {
+        contract.v = 1; contract.agent = "raziel";
+        if (contract.continue_wa == null) contract.continue_wa = true;
+        return json({ raziel: contract, engine: "claude", model: MODEL });
+      }
+      // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
+      return json({ analysis: out.text, engine: "claude", model: MODEL });
+    }
+
     const isCollection = kind === "research";
     const facts = String(body?.facts || "").slice(0, isCollection ? 3500 : 2000);
     const again = !!body?.again;
@@ -241,20 +407,36 @@ Deno.serve(async (req: Request) => {
     const lengthRule = wantLong
       ? "כתוב ניתוח מלא ומעמיק — אין הגבלת אורך. פְּתח במשמעות חמה וישירה, ואז העמק ושזור את ההתכנסויות/ההצלבות כהעשרה; תן לרעיון לנשום. אל תמתח באופן מלאכותי ואל תחזור על עצמך — עומק אמיתי, לא אריכות."
       : (isCollection ? "כתוב סינתזה שמחברת בין פריטי האוסף — עד 6 משפטים." : "2-4 משפטים.");
+    // 🌳 שלב 1b — מטטרון: חוקי-המערכת החיים (→system) + הקשר-הגרף (→עובדות). fail-open לחלוטין:
+    // כל כשל/ריק → sys=SYSTEM ו-mtxFacts="" → התנהגות זהה ל-v26. לא לאוסף-מחקר (kind=research;
+    // אין subject יחיד לשלוף עליו). שני המנועים (claude/gemini) מקבלים את אותו sys — הוגנות A/B.
+    let sys = SYSTEM;
+    let mtxVersion: unknown = null;
+    let mtxFacts = "";
+    if (kind !== "research") {
+      const mtx = await fetchMetatronContext(subject, subject || facts.slice(0, 120), body?.fast ? "site-analyze-fast" : "site-analyze");
+      if (mtx) {
+        sys = SYSTEM + metatronRulesBlock(mtx);
+        mtxFacts = metatronFactsBlock(mtx);
+        mtxVersion = mtx.context_version ?? null;
+      }
+    }
+
     const user =
       `סוג הניתוח: ${hint}\n\n` +
       (subject ? `הנושא: ${subject}\n` : "") +
       (facts ? `עובדות מאומתות מהמנוע (השתמש רק באלה):\n${facts}\n` : "") +
+      mtxFacts +
       (again ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר." : "") +
       `\nכתוב ניתוח בעברית לפי חוקי הברזל. ${lengthRule}`;
 
     const maxTokens = wantLong ? 3200 : (isCollection ? 650 : 400);
     const model = engine === "gemini" ? GEMINI_MODEL : (body?.fast ? FAST_MODEL : MODEL);
-    const out = engine === "gemini" ? await runGemini(user, maxTokens) : await runClaude(model, user, maxTokens);
+    const out = engine === "gemini" ? await runGemini(user, maxTokens, sys) : await runClaude(model, user, maxTokens, sys);
 
     if (out.error) return json({ analysis: null, engine, model, error: out.error, detail: out.detail });
     await logTokens(kind || "analyze", model, out.usage, identity);
-    return json({ analysis: out.text, engine, model });
+    return json({ analysis: out.text, engine, model, context_version: mtxVersion });
   } catch (e) {
     return json({ analysis: null, error: String(e).slice(0, 200) }, 200);
   }
