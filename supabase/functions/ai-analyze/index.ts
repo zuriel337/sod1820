@@ -348,16 +348,26 @@ Deno.serve(async (req: Request) => {
       ]);
       const ctxText = razielContextText(ctx);
 
+      // 🌳 מטטרון בתוך רזיאל (בטא, opt-in body.metatron): «העץ האחד» — חוקי-המערכת החיים נכנסים
+      //    לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות. fail-open: בלי דגל/כשל → רזיאל כרגיל.
+      let rzSys = persona;
+      let rzMtxFacts = "";
+      if (body?.metatron && rSubject) {
+        const mtx = await fetchMetatronContext(rSubject, rSubject, "site-raziel");
+        if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); }
+      }
+
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
         (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
+        rzMtxFacts +
         (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
         (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
         ctxText +
         `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
 
-      const out = await runClaude(MODEL, user, 1600, persona);
+      const out = await runClaude(MODEL, user, 1600, rzSys);
       if (out.error) return json({ analysis: null, engine: "claude", model: MODEL, error: out.error, detail: out.detail });
       await logTokens("raziel", MODEL, out.usage, identity);
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.

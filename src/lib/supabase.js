@@ -761,11 +761,12 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
 // 🤖 askRaziel — קורא למוח (ai-analyze persona=raziel) ומחזיר את חוזה raziel_response_contract (v1).
 //    תאימות-לאחור: כל עוד המוח מחזיר מחרוזת בלבד (data.analysis) — עוטף כ-{v:1, answer}. quota → null.
 //    path = מסלול-מחקר שהמשתמש בחר (המוח מחליט אילו מסלולים קיימים; ה-UI רק מציג). context = הקשר-המשתמש.
-export async function askRaziel({ subject, facts, context = null, path = null, again = false }) {
+export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false }) {
   if (!supabase) return null;
   try {
     const { data, error } = await supabase.functions.invoke('ai-analyze', {
-      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, visitor_id: aiVisitorId() },
+      // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
+      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId() },
     });
     if (error) return null;
     if (data?.error === 'quota') {

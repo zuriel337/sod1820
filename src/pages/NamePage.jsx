@@ -7,6 +7,7 @@ import { shareNumberSmart } from "../lib/numberCard.js";
 import { findNameCross } from "../lib/nameCross.js";
 import { shareCross } from "../lib/crossCard.js";
 import SearchTabs from "../components/SearchTabs.jsx";
+import AskRaziel from "../components/AskRaziel.jsx";
 
 // ===== 🔥 השער הויראלי — /name "מה השם שלך מסתיר?" =====
 // שיתוף-קודם, רגשי, פשוט. מוביל לאותו עץ (/number/:value) — מנוע אחד, שני שערים.
@@ -78,6 +79,19 @@ export default function NamePage() {
           </div>
           {msgs[0] && <p style={{ animation: "name-rise .8s ease both", color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.6vw,20px)", fontWeight: 600, lineHeight: 1.65, margin: "14px auto 0" }}>{msgs[0].text}</p>}
           {msgs[1] && msgs[1].layer !== "F" && <p style={{ color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, margin: "6px auto 0" }}>✦ {msgs[1].text}</p>}
+
+          {/* 🤖 רזיאל — הסוכן האישי (דומיננטי, בטא · מטטרון · זיכרון חוצה-ערוצים) */}
+          <div style={{ marginTop: 22, textAlign: "start" }}>
+            <AskRaziel
+              subject={revealed}
+              facts={`${revealed} = ${value}${cross ? ` · מתכנס עם «${cross.partner}» (${cross.value})` : ""}`}
+              metatron
+              title="רזיאל · הסוכן שלך"
+              subtitle="נחקור יחד את השם — עובדה מהמנוע, לא נבואה"
+              greeting={`רוצה שנעמיק בשם «${revealed}»? אחקור את המשמעות, ההתכנסויות והקשרים — ונמשיך גם בוואטסאפ.`}
+              waText={`שלום רזיאל 🌳 בדקתי את השם «${revealed}» (${value}) באתר — `}
+            />
+          </div>
 
           {/* ✦ ההצלבה הנסתרת של השם */}
           {crossItem && (

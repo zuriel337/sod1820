@@ -6,6 +6,7 @@ import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { METHODS, onlyHeb } from "../lib/gematria.js";
 import StartConcierge from "../components/StartConcierge.jsx";
+import AskRaziel from "../components/AskRaziel.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 
 // 🚪 /welcome — שער הכניסה לסוד 1820. יעד הכפתור «היכנסו» במייל-הפתיחה.
@@ -56,6 +57,20 @@ export default function WelcomePage() {
       </div>
       <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, letterSpacing: 1, marginBottom: 22 }}>
         👀 מבקר &nbsp;→&nbsp; 🔎 מגלה &nbsp;→&nbsp; 🔬 חוקר
+      </div>
+
+      {/* 🤖 רזיאל — הסוכן האישי מקבל את פני הנכנס (דומיננטי, בטא · מטטרון · זיכרון חוצה-ערוצים) */}
+      <div style={{ marginBottom: 18 }}>
+        <AskRaziel
+          subject="1820"
+          facts="1820 = מספר-היסוד של האתר (שם הוי״ה מופיע בתורה 1820 פעם)"
+          context="המשתמש הגיע כרגע לדף הפתיחה «ברוכים הבאים» של סוד 1820."
+          metatron
+          title="רזיאל · הסוכן שלך מקבל את פניך"
+          subtitle="נחקור יחד — עובדה מהמנוע, לא נבואה"
+          greeting="ברוכים הבאים 🌳 אני רזיאל, סוכן-המחקר האישי שלך. רוצה שנתחיל מהסוד של 1820 — או שנבדוק את השם שלך?"
+          waText="שלום רזיאל 🌳 הגעתי לסוד 1820 — "
+        />
       </div>
 
       {/* 🧭 מלווה-כניסה — נתב אישי (נתיבים מהירים + סוכן AI). אותו רכיב כמו ב-«כאן מתחילים». */}

@@ -4,6 +4,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { englishAll, EN_TAGS, hasLatin } from "../lib/englishGematria.js";
 import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameDossier } from "../lib/supabase.js";
+import AskRaziel from "../components/AskRaziel.jsx";
 import MethodAnalyze from "../components/MethodAnalyze.jsx";
 import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -319,6 +320,20 @@ export default function NameLabPage({ embedded = false }) {
               הבדיקה מריצה את «{word}» דרך כל מנועי-המערכת ומאחדת את הממצאים. כל מספר = עובדה מהמנוע; הפרשנות בסיכום שמתחת. לחיצה על מדד פותחת את מקורו.
             </div>
           </section>
+
+          {/* 🤖 רזיאל — הסוכן האישי הדומיננטי (בטא · מטטרון · זיכרון חוצה-ערוצים) */}
+          <div style={{ margin: "0 0 18px" }}>
+            <AskRaziel
+              subject={word}
+              facts={`${word} = ${regVal}`}
+              metatron
+              palette={{ cardGrad: "#fff", card: "#fff", cardSoft: "#f3f7ff", border: "#d9e5ff", accent: "#2f6df6", accentText: "#1b1d22", accentDim: "#5b6472", ink: "#1b1d22", glow: "rgba(47,109,246,0.10)", onAccent: "#fff" }}
+              title="רזיאל · הסוכן שלך"
+              subtitle="נחקור יחד את השם — עובדה מהמנוע, לא נבואה"
+              greeting={`רוצה שנעמיק ב«${word}»? אחקור את המשמעות, ההתכנסויות והקשרים — ונמשיך גם בוואטסאפ.`}
+              waText={`שלום רזיאל 🌳 חקרתי את «${word}» במעבדת-השם — `}
+            />
+          </div>
 
           {/* 3 · סיכום AI — פרשנות מלווה */}
           <Section n="03" icon="🤖" title="סיכום המחקר" sub="חוקר מלווה — מה מיוחד, אילו התכנסויות מעניינות ולמה, ומה כדאי לחקור בהמשך.">
