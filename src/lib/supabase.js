@@ -162,6 +162,16 @@ export async function getConvergenceForValue(value) {
   catch { return null; }
 }
 
+// 🔢 ההתכנסויות במאגר המיוחסות לכתב (details.contributors[].author). אוטומציה: כל גימטריה
+// שנכנסת למאגר עם ייחוס לכתב מופיעה בדף שלו — הקריאה החיה היא האוטומציה. convergences אינה
+// קריאה-לקוח → RPC SECURITY DEFINER (convergences_for_author). מחזיר גם author_phrases (הביטויים שלו).
+export async function getConvergencesByAuthor(names) {
+  const list = (Array.isArray(names) ? names : [names]).map(n => (n || "").trim()).filter(Boolean);
+  if (!supabase || !list.length) return [];
+  try { const { data } = await supabase.rpc('convergences_for_author', { p_names: list }); return Array.isArray(data) ? data : []; }
+  catch { return []; }
+}
+
 // הצעת ביטוי-קהילתי חדש לערך (pending — ממתין לאישור אדמין). מחזיר: ok|exists|pending|invalid|error.
 export async function proposeCommunityWord(phrase, value, method = 'רגיל') {
   if (!supabase) return 'error';
