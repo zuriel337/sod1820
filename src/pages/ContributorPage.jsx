@@ -114,6 +114,11 @@ function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
   );
 }
 
+// 🔢 האם עדכון נושא גימטריה? ביטוי = מספר (2-4 ספרות), «בגימטריא/גימטריה», או «מאומת במנוע».
+//    משמש למיון: גימטריה תמיד ראשונה בדף-הכתב (בקשת צוריאל — הגימטריה למעלה בכל דף).
+const GEM_UPDATE_RE = /=\s*\d{2,4}|\d{2,4}\s*=|בגימטרי|גימטריה|מאומת במנוע/;
+const isGemUpdate = u => GEM_UPDATE_RE.test(u?.text || "");
+
 export default function ContributorPage() {
   const { slug } = useParams();
   const nav = useNavigate();
@@ -144,7 +149,12 @@ export default function ContributorPage() {
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
-  const feedUpdates = (c?.feature_media ? waUpdates.filter(u => !u.image_url) : waUpdates);
+  // 🔢 גימטריה תמיד ראשונה: עדכון שנושא גימטריה (ביטוי = מספר / «בגימטריא» / «מאומת במנוע») עולה לראש
+  //    הדף לפני שאר העדכונים, ואז לפי חדש→ישן. בקשת צוריאל: בכל דף-כתב הגימטריה למעלה, ראשונה.
+  const feedUpdates = (c?.feature_media ? waUpdates.filter(u => !u.image_url) : waUpdates)
+    .slice()
+    .sort((a, b) => (isGemUpdate(b) ? 1 : 0) - (isGemUpdate(a) ? 1 : 0)
+      || (new Date(b.created_at || 0) - new Date(a.created_at || 0)));
   // 🔑 שער-סיסמה (locked): לכולם, אימות בשרת (contrib_unlock) — הסיסמה לא נחשפת ב-API.
   const [unlocked, setUnlocked] = useState(() => { try { return sessionStorage.getItem(`sod_unlock_${slug}`) === "1"; } catch { return false; } });
   const [pw, setPw] = useState("");
