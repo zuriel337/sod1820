@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { askRaziel } from "../lib/supabase.js";
+import { askRaziel, getAiAnalysis } from "../lib/supabase.js";
+import { AI_ENGINES } from "../lib/aiEngines.js";
 
 const RAZIEL_WA = "972557049261";   // רזיאל בוואטסאפ (wa-christina)
 
@@ -9,14 +10,21 @@ const RAZIEL_WA = "972557049261";   // רזיאל בוואטסאפ (wa-christina
 // (fn_raziel_remember/context, כולל חוצה-ערוצים אתר↔וואטסאפ דרך הגשר), + context קצר מהתמליל
 // לקוהרנטיות בתוך-סשן גם למשתמש אנונימי. metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף).
 // עובדה-מנוע ≠ פרשנות · קול אחד · מסיים בשאלה מזמינה.
+//
+// 🔀 בורר-מנוע (A/B): 🔵 הפרשן (Claude, ברירת-מחדל — חוזה מלא עם facts/מסלולים) ·
+//    🟣 האנליטי (Gemini). שני המנועים נשענים על אותו חומר (metatron: חוקים+גרף) → צ'אט חי
+//    מבוסס-החומר שלנו, בשני מוחות. Gemini עובר בנתיב-ה-AI הגנרי המבוסס (kind=chat, engine=gemini,
+//    metatron:true) ומחזיר טקסט חופשי; Claude מחזיר את חוזה רזיאל המלא.
 export default function RazielChat() {
-  const [msgs, setMsgs] = useState([]);   // {role:'user'|'raziel'|'off', text, facts?, paths?, follow?}
+  const [msgs, setMsgs] = useState([]);   // {role:'user'|'raziel'|'off', text, facts?, paths?, follow?, engine?}
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [engine, setEngine] = useState(() => { try { return localStorage.getItem("raziel_engine") === "gemini" ? "gemini" : "claude"; } catch { return "claude"; } });
   const boxRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => { const b = boxRef.current; if (b) b.scrollTop = b.scrollHeight; }, [msgs, busy]);
+  useEffect(() => { try { localStorage.setItem("raziel_engine", engine); } catch { /* noop */ } }, [engine]);
 
   async function send(text) {
     const q = (text || "").trim();
@@ -27,10 +35,19 @@ export default function RazielChat() {
     setMsgs(m => [...m, { role: "user", text: q }]);
     setBusy(true);
     let r = null;
-    try { r = await askRaziel({ subject: q, context: hist || null, metatron: true }); } catch { /* noop */ }
+    try {
+      if (engine === "gemini") {
+        // 🟣 האנליטי — נתיב-ה-AI הגנרי המבוסס-חומר (metatron). היסטוריה קצרה נמסרת כהקשר-שיחה.
+        const facts = hist ? `שיחה עד כה:\n${hist}` : "";
+        const a = await getAiAnalysis({ kind: "chat", subject: q, facts, engine: "gemini", metatron: true, fast: true });
+        if (a) r = { answer: a };
+      } else {
+        r = await askRaziel({ subject: q, context: hist || null, metatron: true });
+      }
+    } catch { /* noop */ }
     setBusy(false);
-    if (!r) { setMsgs(m => [...m, { role: "off", text: "רזיאל לא זמין כרגע — נסו שוב מעט מאוחר יותר." }]); return; }
-    setMsgs(m => [...m, { role: "raziel", text: r.answer || "", facts: r.facts, paths: r.suggested_paths, follow: r.follow_up_question }]);
+    if (!r) { setMsgs(m => [...m, { role: "off", text: "הסוכן לא זמין כרגע — נסו שוב מעט מאוחר יותר." }]); return; }
+    setMsgs(m => [...m, { role: "raziel", text: r.answer || "", facts: r.facts, paths: r.suggested_paths, follow: r.follow_up_question, engine }]);
     setTimeout(() => inputRef.current?.focus(), 40);
   }
 
@@ -43,13 +60,30 @@ export default function RazielChat() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 320 }}>
       {/* כותרת */}
-      <div style={{ display: "flex", alignItems: "center", gap: 9, paddingBottom: 10, borderBottom: `1px solid ${C.line}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, paddingBottom: 8, borderBottom: `1px solid ${C.line}` }}>
         <span style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#25d366,#1a9e4b)", display: "grid", placeItems: "center", fontSize: 16, flex: "none" }}>🤖</span>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ color: C.ink, fontWeight: 800, fontSize: 14.5 }}>רזיאל · סוכן-המחקר שלך</div>
-          <div style={{ color: C.dim, fontSize: 11 }}>שאל כל דבר — עובדה מהמנוע, לא נבואה · זוכר גם מהוואטסאפ</div>
+          <div style={{ color: C.dim, fontSize: 11 }}>שאל כל דבר — מבוסס על החומר שלנו · לא נבואה</div>
         </div>
         <span style={{ color: C.acc, background: C.soft, border: `1px solid ${C.line}`, borderRadius: 999, fontSize: 10.5, fontWeight: 800, padding: "2px 8px", flex: "none" }}>בטא</span>
+      </div>
+
+      {/* 🔀 בורר-מנוע — צ'אט חי בשני מוחות, שניהם על אותו חומר (metatron) */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 0 2px" }}>
+        <span style={{ color: C.dim, fontSize: 10.5, fontWeight: 700, flex: "none" }}>מוח:</span>
+        <div style={{ display: "inline-flex", background: "#eef2f9", border: `1px solid ${C.line}`, borderRadius: 999, padding: 2, gap: 2 }}>
+          {["claude", "gemini"].map(k => {
+            const e = AI_ENGINES[k], on = engine === k;
+            return (
+              <button key={k} onClick={() => setEngine(k)} disabled={busy} title={e.tagline}
+                style={{ cursor: busy ? "default" : "pointer", border: "none", borderRadius: 999, fontSize: 11.5, fontWeight: 800,
+                  padding: "3px 11px", color: on ? "#fff" : C.dim, background: on ? e.color : "transparent" }}>
+                {e.emoji} {e.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* תמליל */}
@@ -69,7 +103,7 @@ export default function RazielChat() {
           <div key={i} style={{ alignSelf: "flex-start", maxWidth: "88%", background: C.acc, color: "#fff", borderRadius: "14px 14px 14px 4px", padding: "9px 13px", fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{m.text}</div>
         ) : (
           <div key={i} style={{ alignSelf: "flex-end", maxWidth: "92%" }}>
-            <div style={{ background: m.role === "off" ? "#fff4f4" : C.card, border: `1px solid ${m.role === "off" ? "#f2c7c7" : C.line}`, borderInlineEnd: "3px solid #25d366", color: C.ink, borderRadius: "14px 14px 4px 14px", padding: "11px 14px", fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
+            <div style={{ background: m.role === "off" ? "#fff4f4" : C.card, border: `1px solid ${m.role === "off" ? "#f2c7c7" : C.line}`, borderInlineEnd: `3px solid ${m.role === "off" ? "#e0b4b4" : (AI_ENGINES[m.engine]?.color || "#25d366")}`, color: C.ink, borderRadius: "14px 14px 4px 14px", padding: "11px 14px", fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
               {m.text}
               {Array.isArray(m.facts) && m.facts.length > 0 && (
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 9 }}>
@@ -90,7 +124,7 @@ export default function RazielChat() {
           </div>
         ))}
 
-        {busy && <div style={{ alignSelf: "flex-end", color: C.dim, fontSize: 13, fontStyle: "italic", padding: "4px 6px" }}>✍️ רזיאל חוקר…</div>}
+        {busy && <div style={{ alignSelf: "flex-end", color: C.dim, fontSize: 13, fontStyle: "italic", padding: "4px 6px" }}>{AI_ENGINES[engine].emoji} {AI_ENGINES[engine].name} חוקר…</div>}
       </div>
 
       {/* קלט */}
