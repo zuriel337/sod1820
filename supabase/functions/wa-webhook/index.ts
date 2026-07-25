@@ -12,6 +12,8 @@ const OCR_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-ocr?s=
 const SIGN = "🔯 רזיאל · מאומת במנוע · sod1820";
 const SENSITIVE = /(נדקר|נרצח|נהרג|הרוג|רצח|פיגוע|טרור|מוות|נפטר|אסון|שריפ|דקיר|מת\b)/;
 const STOP = new Set(["שלום","תודה","כן","לא","בסדר","אמן","הי","היי","אוקיי","מעולה","יפה","וואו","מאומת","בוקר","ערב","לילה"]);
+// מילות-שאלה סביב מספר: «רזיאל מה זה 878» → מנקים אותן כדי לזהות שזו שאלת-מספר טהורה
+const NUMQ = new Set(["מה","זה","זהו","מהו","מיהו","הזה","כמה","מספר","המספר","על","את","האם","של","לי","המשמעות","משמעות","פירוש","הפירוש","אומר","אומרת","מייצג","תסביר","הסבר","סבר","רזיאל","נו","אז","טוב"]);
 
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 const ok = () => new Response("ok", { status: 200 });
@@ -27,6 +29,31 @@ async function convergences(value: number, exclude: string) {
   for (const r of (data || [])) { const p = (r as { phrase: string }).phrase || "";
     if (!p || SENSITIVE.test(p) || seen.has(clean(p))) continue; seen.add(clean(p)); out.push(p); if (out.length >= 3) break; }
   return out;
+}
+// 🔢 שאלת-מספר: מחזיר את ההתכנסויות בערך n — ברגיל (הליבה) + שיטות נסתרות (מסתתר/אתבש/קדמי).
+async function numberLookup(n: number) {
+  const { data } = await sb.from("gematria_words")
+    .select("phrase,ragil,misratar,atbash,kadmi,is_verified,category")
+    .or(`ragil.eq.${n},misratar.eq.${n},atbash.eq.${n},kadmi.eq.${n}`)
+    .limit(250);
+  const GENERIC = new Set(["כללי", "מנוקה אוטומטית", "מאגר_ערכים", "מהחיפושים"]);
+  const score = (r: { is_verified?: boolean; category?: string | null }) =>
+    (r.is_verified ? 2 : 0) + (r.category && !GENERIC.has(r.category) ? 1 : 0);
+  type Row = { phrase?: string; is_verified?: boolean; category?: string | null; ragil?: number; misratar?: number; atbash?: number; kadmi?: number };
+  const rows = ((data || []) as Row[]).filter((r) => r.phrase && !SENSITIVE.test(r.phrase));
+  rows.sort((a, b) => score(b) - score(a));
+  const seen = new Set<string>();
+  const pick = (key: "ragil" | "misratar" | "atbash" | "kadmi", cap: number) => {
+    const out: string[] = [];
+    for (const r of rows as Record<string, unknown>[]) {
+      if ((r[key] as number) !== n) continue;
+      const p = String(r.phrase || ""); const c = clean(p);
+      if (!c || seen.has(c)) continue;
+      seen.add(c); out.push(p); if (out.length >= cap) break;
+    }
+    return out;
+  };
+  return { ragil: pick("ragil", 6), misratar: pick("misratar", 3), atbash: pick("atbash", 3), kadmi: pick("kadmi", 3) };
 }
 async function addWord(phrase: string, group: string, who: string) {
   const { data } = await sb.rpc("wa_add_word", { p_phrase: phrase, p_source: "wa-" + group.slice(0, 12), p_note: who ? "מאת " + who : null });
@@ -125,6 +152,31 @@ Deno.serve(async (req) => {
       await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "raziel_hi" });
       return ok();
     }
+    // 🔢 שאלת-מספר: פונים לבוט + מספר בלבד («רזיאל מה זה 878» / reply עם «878») → חיפוש הערך במנוע.
+    //    (רק כשאין «=» ואין ביטוי-עברי אמיתי מעבר למילות-שאלה — אחרת ממשיכים למסלול הביטוי הרגיל.)
+    if (addressed && base.indexOf("=") < 0) {
+      const nm = base.match(/(?<!\d)(\d{1,6})(?!\d)/);
+      const heRest = clean(base).split(" ").filter((w) => w && !NUMQ.has(w));
+      if (nm && heRest.length === 0) {
+        const n = parseInt(nm[1], 10);
+        if (n > 0) {
+          const r = await numberLookup(n);
+          const lines: string[] = [];
+          lines.push(r.ragil.length ? `📊 *רגיל ${n}* = ${r.ragil.map((p) => `*${p}*`).join(" = ")}` : `📊 רגיל = ${n}`);
+          if (r.misratar.length) lines.push(`🔀 ב*מסתתר* = ${n} → ${r.misratar.map((p) => `*${p}*`).join(" · ")}`);
+          if (r.atbash.length) lines.push(`🔀 ב*אתבש* = ${n} → ${r.atbash.map((p) => `*${p}*`).join(" · ")}`);
+          if (r.kadmi.length) lines.push(`🔀 ב*קדמי* = ${n} → ${r.kadmi.map((p) => `*${p}*`).join(" · ")}`);
+          const found = r.ragil.length + r.misratar.length + r.atbash.length + r.kadmi.length;
+          const body = found
+            ? `🔢 *${n}* — מה מצאתי במנוע:\n\n${lines.join("\n")}\n\n🔗 עוד על המספר: https://sod1820.co.il/number/${n}\n\n*עובדה:* הכל חושב במנוע. *רמז:* פרשנות משלימה, לא עובדה.\n${SIGN}`
+            : `🔢 *${n}* — עדיין לא מצאתי ביטוי מאומת בערך הזה במנוע.\n🔗 https://sod1820.co.il/number/${n}\n\n${SIGN}`;
+          await reply(chatId, body, msgId);
+          await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, value: n, action: "number_lookup" });
+          return ok();
+        }
+      }
+    }
+
     let phrase = "", claimed: number | null = null;
     const eq = base.indexOf("=");
     if (eq > 0) {
