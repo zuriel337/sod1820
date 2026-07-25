@@ -45,6 +45,13 @@ const gadol = w => onlyHeb(w).reduce((s, c) => s + (FINAL[c] || GEM[c] || 0), 0)
 const ribuaWord = (word, val) => { let s = 0, run = 0; for (const c of onlyHeb(word)) { run += val(c); s += run; } return s; };
 export const ribua = w => String(w || "").split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => GEM[c] || 0), 0);
 export const ribuaGadol = w => String(w || "").split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => FINAL[c] || GEM[c] || 0), 0);
+// משולש מילה / משולש הפוך (נוסף 25.7.2026): בונים את *כל הביטוי* אות-אחר-אות ברצף (מעבר לרווחים)
+// וסוכמים את הרגיל של כל שלב. קדימה = מההתחלה גדל (ש → של → שלו → שלום). הפוך = מוריד אות ראשונה בכל שלב
+// (מלך ישראל → לך ישראל → ך ישראל → …). ⚠️ למילה בודדת «משולש מילה» = ריבוע (ribua_definition);
+// הייחוד הוא הרצף הרציף מעבר לרווח (ריבוע מפצל מילה-מילה) + הכיוון ההפוך. שם השיטה «משולש מילה»/«משולש הפוך»
+// נבדל מ«קדמי · משולש» (meshulash_kadmi_law) — שם אחר, חישוב אחר (קידומות ביטוי, לא ערך-אות מצטבר בא״ב).
+export const triangleWord = w => { const L = onlyHeb(w); let s = 0, run = 0; for (let i = 0; i < L.length; i++) { run += GEM[L[i]] || 0; s += run; } return s; };
+export const triangleReverse = w => { const L = onlyHeb(w); let s = 0, run = 0; for (let i = L.length - 1; i >= 0; i--) { run += GEM[L[i]] || 0; s += run; } return s; };
 // מסתתר (חוק misratar_multi — נעול): כל מילה מחושבת בנפרד; הרווח שובר את הרצף.
 // לעולם לא מחברים אות אחרונה של מילה לאות ראשונה של הבאה. (משיח בן דוד = 552+48+4 = 604)
 export const mistater = w => String(w || "").split(/\s+/).reduce((tot, word) => {
@@ -102,6 +109,8 @@ export const DEPTH_METHODS = [
   { key: "מילוי דמילוי גדול", tag: "hebrew", soul: "מילוי דמילוי בסופיות גדול", fn: w => sumBy(w, MDM_GADOL) },
   { key: "הכפלה גדולה", tag: "hebrew", soul: "הכפלה בסופיות גדול (ך=500²)", fn: w => sumBy(w, SQR_GADOL) },
   { key: "ריבוע גדול", tag: "hebrew", soul: "ריבוע הקידומות בסופיות גדול", fn: ribuaGadol },
+  { key: "משולש מילה", tag: "hebrew", sub: "בונים את הביטוי אות-אחר-אות מההתחלה", soul: "ההיבנות — כל שלב מוסיף אות, וסוכמים את כולם", fn: triangleWord },
+  { key: "משולש הפוך", tag: "hebrew", sub: "מורידים אות מההתחלה בכל שלב", soul: "ההיפרדות — כל שלב מסיר אות, וסוכמים את כולם", fn: triangleReverse },
 ];
 
 export { GEM };
@@ -134,6 +143,10 @@ export function methodLetters(key, word) {
     let run = 0;
     return { type: "value", segs: Ls.map(c => { run += vf(c); return { ch: c, val: run }; }) };
   }
+  // משולש מילה: ערך כל אות = הרגיל המצטבר של הקידומת עד אליה (ש=300, ל=330, ו=336…). סכום הערכים = ערך השיטה.
+  if (key === "משולש מילה") { let run = 0; return { type: "value", segs: Ls.map(c => { run += GEM[c] || 0; return { ch: c, val: run }; }) }; }
+  // משולש הפוך: ערך כל אות = הרגיל של הסיומת המתחילה בה (ש=376, ל=76, ו=46…). סכום הערכים = ערך השיטה.
+  if (key === "משולש הפוך") { const suf = []; let run = 0; for (let i = Ls.length - 1; i >= 0; i--) { run += GEM[Ls[i]] || 0; suf[i] = run; } return { type: "value", segs: Ls.map((c, i) => ({ ch: c, val: suf[i] })) }; }
   const map = LMAP[key];
   if (map) return { type: "value", segs: Ls.map(c => ({ ch: c, val: map[c] ?? 0 })) };
   return null;
