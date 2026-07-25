@@ -20,7 +20,7 @@ import Lightbox from "./Lightbox.jsx";
 // מומלצות צפות גם לדף הבית, לעדכונים האחרונים ולדף הגלריות. חוק העץ האחד.
 // forceDark = כפיית פלטה כהה (בתוך הארכיון/הגלריה שתמיד שחורים). בבית — הבורר הרגיל.
 
-export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, showHero = false, windowed = false, hideHeader = false, centered = false }) {
+export default function RealityWorld({ compact = false, forceDark = false, presetSetId = null, presetValue = null, showHero = false, windowed = false, hideHeader = false, centered = false }) {
   const auto = usePalette();
   const P = forceDark ? PALETTES.dark : auto;
   const { user, isAdmin } = useAuth();
@@ -95,6 +95,14 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
     const s = sets.find(x => String(x.id) === String(presetSetId));
     if (s) setActiveSet(s);
   }, [presetSetId, sets]);
+
+  // קישור-עומק: ?q=<מספר> מסנן את הזרם למספר הזה — כך שקליק על רמז בטיקר «מביא לפוסט בזרם»
+  // (לא לדף-המספר). מסנן לפי כל ערכי-הרמז (primary_value + all_values).
+  useEffect(() => {
+    const v = Number(presetValue);
+    if (presetValue == null || presetValue === "" || !Number.isFinite(v) || v <= 0) return;
+    setValue(v);
+  }, [presetValue]);
 
   const filtered = useMemo(() => filterHints(hints || [], {
     value, values: activeSet ? activeSet.numbers : null, period: streamPeriod, rare,

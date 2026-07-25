@@ -10,7 +10,8 @@ import WhatsNewBadge from "../WhatsNewBadge.jsx";
 // 🔓 עדכון צוריאל (25.7.2026): הטיקר העליון מציג *גם רמזים מזרם המציאות* (gallery_images
 //    source='update') לצד עדכוני-הפוסטים — ממוזגים לפי זמן-עלייה (הכי-חדש ראשון). כל פריט
 //    מציג תמיד את הזמן היחסי «לפני X». (מחליף את נעילת 22.7 «פוסטים בלבד».) עדיין: לא פורום,
-//    לא מדדי-חיפוש. רמז-מציאות = מצביע בלבד → מוביל לדף-המספר הציבורי (/number/:primary_value).
+//    לא מדדי-חיפוש. רמז-מציאות = מצביע → מוביל *לזרם המציאות עצמו* (/archive?q=:primary_value),
+//    כלומר לפוסט/רמז בתוך דף-הזרם — לא לדף-המספר. (בקשת צוריאל 25.7.2026.)
 function useLiveTicker() {
   const [msgs, setMsgs] = useState([]);
   useEffect(() => {
@@ -35,7 +36,7 @@ function useLiveTicker() {
         for (const h of (hints || [])) {
           const title = stripHtml(h.name || "").trim() || (h.primary_value ? `רמז חדש מהמציאות · ${h.primary_value}` : "");
           if (!title) continue;
-          const to = h.primary_value ? `/number/${h.primary_value}` : "/archive";
+          const to = h.primary_value ? `/archive?q=${h.primary_value}` : "/archive";
           items.push({ kind: "reality", text: title.slice(0, 80), to, ts: h.stream_at || h.created_at });
         }
       } catch { /* ignore */ }
