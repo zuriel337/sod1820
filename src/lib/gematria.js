@@ -52,6 +52,15 @@ export const ribuaGadol = w => String(w || "").split(/\s+/).reduce((t, word) => 
 // נבדל מ«קדמי · משולש» (meshulash_kadmi_law) — שם אחר, חישוב אחר (קידומות ביטוי, לא ערך-אות מצטבר בא״ב).
 export const triangleWord = w => { const L = onlyHeb(w); let s = 0, run = 0; for (let i = 0; i < L.length; i++) { run += GEM[L[i]] || 0; s += run; } return s; };
 export const triangleReverse = w => { const L = onlyHeb(w); let s = 0, run = 0; for (let i = L.length - 1; i >= 0; i--) { run += GEM[L[i]] || 0; s += run; } return s; };
+// משולש מדרגות (אות × מיקום) — נוסף 25.7.2026: כל אות מוכפלת במספר הסידורי שלה במילה (ראשונה ×1, שנייה ×2…),
+// המיקום מתאפס בכל מילה, וסוכמים ברגיל. שיטה תלוית-סדר (כמו מסתתר) — שינוי סדר האותיות משנה את התוצאה,
+// ולכן anagram_not_novel אינו חל. הכתיבה החזותית = כל אות חוזרת כמספר מקומה → צורת מדרגות/משולש.
+// מאומת: «משיח בן דויד» = 866 (מ×1+ש×2+י×3+ח×4 · ב×1+ן×2 · ד×1+ו×2+י×3+ד×4).
+export const stairTriangle = w => String(w || "").split(/\s+/).reduce((tot, word) => {
+  const L = onlyHeb(word); let s = 0;
+  for (let i = 0; i < L.length; i++) s += (GEM[L[i]] || 0) * (i + 1);
+  return tot + s;
+}, 0);
 // מסתתר (חוק misratar_multi — נעול): כל מילה מחושבת בנפרד; הרווח שובר את הרצף.
 // לעולם לא מחברים אות אחרונה של מילה לאות ראשונה של הבאה. (משיח בן דוד = 552+48+4 = 604)
 export const mistater = w => String(w || "").split(/\s+/).reduce((tot, word) => {
@@ -111,6 +120,7 @@ export const DEPTH_METHODS = [
   { key: "ריבוע גדול", tag: "hebrew", soul: "ריבוע הקידומות בסופיות גדול", fn: ribuaGadol },
   { key: "משולש מילה", tag: "hebrew", sub: "בונים את הביטוי אות-אחר-אות מההתחלה", soul: "ההיבנות — כל שלב מוסיף אות, וסוכמים את כולם", fn: triangleWord },
   { key: "משולש הפוך", tag: "hebrew", sub: "מורידים אות מההתחלה בכל שלב", soul: "ההיפרדות — כל שלב מסיר אות, וסוכמים את כולם", fn: triangleReverse },
+  { key: "משולש מדרגות", tag: "hebrew", sub: "כל אות מוכפלת במיקומה במילה", soul: "המדרגות — כל אות עולה לפי מקומה בסדר", fn: stairTriangle },
 ];
 
 export { GEM };
@@ -147,6 +157,8 @@ export function methodLetters(key, word) {
   if (key === "משולש מילה") { let run = 0; return { type: "value", segs: Ls.map(c => { run += GEM[c] || 0; return { ch: c, val: run }; }) }; }
   // משולש הפוך: ערך כל אות = הרגיל של הסיומת המתחילה בה (ש=376, ל=76, ו=46…). סכום הערכים = ערך השיטה.
   if (key === "משולש הפוך") { const suf = []; let run = 0; for (let i = Ls.length - 1; i >= 0; i--) { run += GEM[Ls[i]] || 0; suf[i] = run; } return { type: "value", segs: Ls.map((c, i) => ({ ch: c, val: suf[i] })) }; }
+  // משולש מדרגות: ערך כל אות = הרגיל שלה × מיקומה במילה (מ×1=40, ש×2=600…). המיקום מתאפס בכל מילה. סכום = ערך השיטה.
+  if (key === "משולש מדרגות") { const segs = []; for (const wd of String(word || "").split(/\s+/)) onlyHeb(wd).forEach((c, i) => segs.push({ ch: c, val: (GEM[c] || 0) * (i + 1) })); return { type: "value", segs }; }
   const map = LMAP[key];
   if (map) return { type: "value", segs: Ls.map(c => ({ ch: c, val: map[c] ?? 0 })) };
   return null;
