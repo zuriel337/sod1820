@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { askRaziel, getAiAnalysis } from "../lib/supabase.js";
+import { askRaziel, getAiAnalysis, searchPostFacts } from "../lib/supabase.js";
 import { AI_ENGINES } from "../lib/aiEngines.js";
 
 const RAZIEL_WA = "972557049261";   // רזיאל בוואטסאפ (wa-christina)
@@ -36,13 +36,16 @@ export default function RazielChat() {
     setBusy(true);
     let r = null;
     try {
+      // 🔎 RAG — קטעים רלוונטיים מהפוסטים של האתר, כדי שהתשובה תישען על החומר שלנו.
+      const posts = await searchPostFacts(q);
+      const postBlock = posts ? `מתוך הפוסטים באתר (הישען על אלה — זה החומר שלנו, וציין מאיפה):\n${posts}` : "";
       if (engine === "gemini") {
-        // 🟣 האנליטי — נתיב-ה-AI הגנרי המבוסס-חומר (metatron). היסטוריה קצרה נמסרת כהקשר-שיחה.
-        const facts = hist ? `שיחה עד כה:\n${hist}` : "";
+        // 🟣 האנליטי — נתיב-ה-AI הגנרי המבוסס-חומר (metatron + פוסטים). היסטוריה קצרה כהקשר-שיחה.
+        const facts = [hist ? `שיחה עד כה:\n${hist}` : "", postBlock].filter(Boolean).join("\n\n");
         const a = await getAiAnalysis({ kind: "chat", subject: q, facts, engine: "gemini", metatron: true, fast: true });
         if (a) r = { answer: a };
       } else {
-        r = await askRaziel({ subject: q, context: hist || null, metatron: true });
+        r = await askRaziel({ subject: q, facts: postBlock || undefined, context: hist || null, metatron: true });
       }
     } catch { /* noop */ }
     setBusy(false);

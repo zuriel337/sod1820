@@ -759,6 +759,17 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
 
+// 🔎 searchPostFacts — RAG קל: קטעים רלוונטיים מהפוסטים של האתר (RPC chat_search_facts).
+//    מוזרק לצ'אט כ«עובדות מהחומר שלנו» → תשובה מבוססת-תוכן, לא ידע כללי. נכשל בחן (מחזיר "").
+export async function searchPostFacts(query) {
+  if (!supabase || !query) return "";
+  try {
+    const { data, error } = await supabase.rpc("chat_search_facts", { p_query: String(query).slice(0, 200), p_limit: 3 });
+    if (error) return "";
+    return typeof data === "string" ? data : "";
+  } catch { return ""; }
+}
+
 // 🤖 askRaziel — קורא למוח (ai-analyze persona=raziel) ומחזיר את חוזה raziel_response_contract (v1).
 //    תאימות-לאחור: כל עוד המוח מחזיר מחרוזת בלבד (data.analysis) — עוטף כ-{v:1, answer}. quota → null.
 //    path = מסלול-מחקר שהמשתמש בחר (המוח מחליט אילו מסלולים קיימים; ה-UI רק מציג). context = הקשר-המשתמש.
