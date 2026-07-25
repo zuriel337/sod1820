@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberDossier, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
 import { getCiphersForNumber } from "../lib/elsMatrices.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
@@ -819,6 +819,16 @@ export default function EntityPage({ embedPhrase } = {}) {
     const cached = loadAiCache(String(term ?? value));
     setAiText(cached?.text || ""); setAiEngine(cached?.engine || "claude"); setAiDeep(!!cached?.deep);
   }, [value, term]);
+
+  // 🧠 אינטליגנציית-המספר — התמונה המלאה מהמנוע האחד (עובדה, לא AI). אותו מקור שרזיאל קורא.
+  const [dossier, setDossier] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    setDossier(null);
+    if (!isNumber || !value) return;
+    getNumberDossier(value).then(d => { if (alive) setDossier(d); }).catch(() => {});
+    return () => { alive = false; };
+  }, [value, isNumber]);
   // 🧹 החלטת צוריאל (12.7): עובדות-העומק נחשפות רק בלחיצה על ה-AI — לא נטענות מראש,
   //    שהמסך לא יתמלא. חריג יחיד: ניתוח שחזר מהקאש משלים את שכבת-העובדות שלו.
   useEffect(() => {
@@ -1086,6 +1096,20 @@ export default function EntityPage({ embedPhrase } = {}) {
       return <MethodAnalyze word={maWord} defaultMethod="מסתתר" title={`🔬 נתח שיטה — על «${maWord}» (=${value})`} />;
     })()}
     </>
+  );
+
+  // 🤖 האקורדיון הקנוני של ה-AI — תמיד סגור, בשני המצבים (קריאה + מחקר). מקור-אמת אחד → לא «עולה» ולא נפתח לבד אחרי מיזוג.
+  // <details> נייטיב בלי open = סגור כברירת-מחדל, בלי state שאפשר לשבור.
+  const aiFold = (
+    <details className="ai-fold" style={{ maxWidth: 500, margin: "18px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden" }}>
+      <style>{`.ai-fold summary::-webkit-details-marker{display:none}.ai-fold[open] .ai-fold-caret{transform:rotate(180deg)}`}</style>
+      <summary style={{ cursor: "pointer", listStyle: "none", padding: "13px 16px", display: "flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
+        <span>🤖 ניתוח AI</span>
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontWeight: 600 }}>· פרשנות + נתח כל שיטה</span>
+        <span className="ai-fold-caret" style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 12, transition: "transform .2s ease" }}>▾</span>
+      </summary>
+      <div style={{ padding: "0 8px 10px" }}>{aiCard}</div>
+    </details>
   );
 
   // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
@@ -1363,12 +1387,51 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
-          {/* 🤖 ה-AI במצב מחקר — אותו כרטיס מלא כמו במצב הפשוט (בחירת מנוע · 🔬 עמוק · תהודה · הצלבות לחיצות) */}
-          {showBody && aiCard}
+          {/* 🤖 ה-AI במצב מחקר — אותו אקורדיון סגור כמו במצב קריאה (בקשת צוריאל: תמיד מקופל, לא פתוח/גבוה) */}
+          {showBody && aiFold}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
           <CollectiveBadge type={isNumber ? "number" : "phrase"} refv={isNumber ? value : term}
             label={isNumber ? "את המספר הזה" : "את הביטוי הזה"} />
         </div>
+
+        {/* 🧠 אינטליגנציית המספר — התמונה המלאה מהמנוע האחד (עובדה): כל השיטות מדורגות-משמעות, אותו מקור שרזיאל קורא.
+            עץ אחד — הדף והבוט מציירים את אותו מספר, ממקור אחד (number_dossier_json). */}
+        {isNumber && dossier?.methods?.length > 0 && (
+          <div style={{ maxWidth: 620, margin: "16px auto 0", padding: "16px 18px", borderRadius: 16, background: P.cardSoft, border: `1px solid ${P.border}` }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+              <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800 }}>🧠 אינטליגנציית המספר</span>
+              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>כל השיטות · מדורג · אותו מקור שרזיאל רואה</span>
+            </div>
+            <div style={{ display: "grid", gap: 11 }}>
+              {dossier.methods.map(m => (
+                <div key={m.method}>
+                  <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, marginBottom: 5 }}>
+                    📊 {m.method} <span style={{ fontFamily: F.mono, color: P.inkSoft }}>{value}</span>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {(m.phrases || []).map((ph, i) => (
+                      <Link key={i} to={numHref(encodeURIComponent(ph))}
+                        style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`,
+                          borderRadius: 9, padding: "4px 10px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{ph}</Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {dossier.topics?.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12, paddingTop: 11, borderTop: `1px solid ${P.border}` }}>
+                {dossier.topics.map((t, i) => (
+                  <span key={i} style={{ color: P.accentDim, background: "transparent", border: `1px dashed ${P.border}`, borderRadius: 999, padding: "3px 10px", fontFamily: F.body, fontSize: 12 }}>
+                    🎴 {stripHtml(t.title)} · {t.meter}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic", marginTop: 10 }}>
+              עובדה מהמנוע · הסדר לפי משמעות (מאומת · קטגוריה · מובילים שאתה מסדר)
+            </div>
+          </div>
+        )}
 
         {/* מתג המצב עבר לשורה העליונה (ליד המחשבון) — «מצב מחקר / מצב רגיל». */}
 
@@ -1443,16 +1506,8 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🤖 כל ניתוחי ה-AI — אקורדיון אחד סגור (בקשת צוריאל: גימטריות בראש; ה-AI + «נתח שיטה» מרוכזים ומקופלים) */}
-            <details className="ai-fold" style={{ maxWidth: 500, margin: "18px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden" }}>
-              <style>{`.ai-fold summary::-webkit-details-marker{display:none}.ai-fold[open] .ai-fold-caret{transform:rotate(180deg)}`}</style>
-              <summary style={{ cursor: "pointer", listStyle: "none", padding: "13px 16px", display: "flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
-                <span>🤖 ניתוח AI</span>
-                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontWeight: 600 }}>· פרשנות + נתח כל שיטה</span>
-                <span className="ai-fold-caret" style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 12, transition: "transform .2s ease" }}>▾</span>
-              </summary>
-              <div style={{ padding: "0 8px 10px" }}>{aiCard}</div>
-            </details>
+            {/* 🤖 כל ניתוחי ה-AI — האקורדיון הקנוני הסגור (aiFold, מקור-אמת אחד לשני המצבים) */}
+            {aiFold}
 
             {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋 🎲). המסע = פעולה משנית עדינה, לא הדגשה. */}
             <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20 }}>

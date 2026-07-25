@@ -638,6 +638,17 @@ export async function getNumberAnchor(value) {
   } catch { return null; }
 }
 
+// 🧠 אינטליגנציית-המספר — התמונה המלאה מהמנוע האחד (number_dossier_json): כל השיטות מדורגות-משמעות
+// + נושאים + פוסטים + מציאות. אותו מקור-אמת שרזיאל (וואטסאפ + צ'אט) קורא. עץ אחד — ציור אחד.
+export async function getNumberDossier(value) {
+  if (!supabase || value == null) return null;
+  try {
+    const { data, error } = await supabase.rpc('number_dossier_json', { n: Number(value) });
+    if (error || !data) return null;
+    return data; // { value, methods:[{method,phrases[]}], topics:[{title,meter}], posts[], reality, definitions[] }
+  } catch { return null; }
+}
+
 // 🤖 מסר-מסע אישי מהמנוע (AI) — Edge Function journey-message.
 // מקבל את המספר, מסלול הביטויים, העולם והמהות; מחזיר טקסט קצר בעברית או null.
 // נכשל בשקט (null) אם אין מפתח / שגיאה → הקורא נופל להודעת-התבנית הקיימת.
