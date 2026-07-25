@@ -1,14 +1,11 @@
-// wa-raziel (רזיאל) — v40 — 23.7.2026 — מנגנון «רזיאל זוכר אנשים»: לכידת נתונים אישיים + זיהוי לפי כרטיס-חוקר.
-//   v40: (1) fn_raziel_identity מעשיר בכרטיס contributors → רזיאל «מכיר» את הפונה בשמו. (2) חילוץ נתונים אישיים
-//        מ-DM (שם/כתובת/מיקוד/תאריך עברי) → agent_user_memory (personal_context/source=profile, private) דרך fn_raziel_fact,
-//        עצמאי מהצלחת התשובה. (3) המרת תאריך עברי→לועזי (Hebcal) נשמרת גם היא. (4) contextToText חושף את הפרופיל ב-DM
-//        (רק בפרטי, לעולם לא בקבוצה). נתונים אישיים = פרטי/אדמין בלבד (החלטת צוריאל 23.7). מוצגים בכרטיסיה דרך admin_person_facts.
-// v39: שינוי-שם מ-wa-christina (השם «כריסטינה» בלבל; הבוט = רזיאל).
-//   ⚠️ CHRISTINA_PHONE נשאר — זו משתמשת אמיתית (כריסטינה אושרוב) שלוגיקת-הקבוצות מטפלת בה, לא הבוט.
-// v38: SYSTEM_BASE נטען מ-fn_raziel_persona('wa') (מקור-אמת אחד, משותף עם האתר/ai-analyze); העותק המוטמע = fallback בלבד.
-// v37: GROUPS_ENABLED gate (רזיאל בפרטי בלבד; קבוצות כבויות בבקשת צוריאל)
-// v36: christina in gilui not fully muted — occasional reply on convergence (+cooldown), not her private space.
-// v35: intent_before_compute_law — הבנה לפני חישוב. רצף-שיחה + חוק-ברזל 10 (לא מגמטרים משפט-שיחה).
+// wa-raziel (רזיאל) — v46 — 25.7.2026 — תפריט-מסלולים חכם: רק כשההודעה הראשונה כללית.
+//   v46: isOpenerMsg — פתיח כללי/ברכה → תפריט 6 מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
+//   v45: welcome אנונימי — «מאיפה תרצה להתחיל?» + 6 מסלולים; הוסר «3 שאלות ביום» (after_gate=unlimited).
+//   v44: postFacts()→chat_search_facts — RAG על הפוסטים (עץ אחד, משותף עם האתר).
+//   v43: לולאת-בליעה על *כל* הודעה (savePersonalData+remember) פעם אחת לכל msgId (ingest-claim); תשובה אחת (byChat=האחרון).
+//   v42: אפס-כפילות — fn_raziel_claim + alreadySentToChat.
+//   v41: «לעולם לא שתיקה» + שומר-מטטרון (never_silent_metatron_law).
+//   v40: fn_raziel_identity + לכידת נתונים אישיים + Hebcal. v39: שם wa-raziel.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SECRET = "s0d1820wahook_7yq2c9";
@@ -23,53 +20,54 @@ const SITE = "https://sod1820.co.il";
 const MAX_PER_RUN = 2;
 const MAX_DM_CHATS_PER_RUN = 8;
 const MAX_SEND_RETRIES = 4;
+const MAX_AI_RETRIES = 3;
 const INITIATIVE_COOLDOWN_MIN = 60;
-// 🔇 22.7.2026 (החלטת צוריאל): רזיאל בפרטי בלבד — DM לחוקרים (אריאל וכו') כן, כתיבה בקבוצות לא. להחזרת קבוצות: GROUPS_ENABLED=true ופרוס מחדש.
+const TRANSIENT_HTTP = new Set([408, 409, 425, 429, 500, 502, 503, 504, 522, 524, 529]);
 const GROUPS_ENABLED = false;
 const RAZIEL_TRIGGER = /^(רזיאל[,:\s]|@רזיאל)/i;
 const LEARN_INTENT = /(ללמוד|תלמד|למד אותי|איך מחשב|שיטות|מה זה גימטרי|רוצה ללמוד)/i;
 const SERVICES_INTENT = /(מה אתה|מה אפשר|מה יש|שירות|יכולות|מה המערכ|מה זה סוד|תפריט|מה יש לכם|מה יש כאן|במה תוכל)/i;
-const EN_DOMINANT = (t: string) => (t.match(/[a-zA-Z]/g)||[]).length > (t.match(/[א-ת]/g)||[]).length * 1.5;
+const EN_DOMINANT = (t) => (t.match(/[a-zA-Z]/g)||[]).length > (t.match(/[א-ת]/g)||[]).length * 1.5;
 const ACCOUNT_INTENT = /(יש לי (כבר )?חשבון|כבר יש לי חשבון|כבר נרשמתי|כבר רשומ|יש לי משתמש|יש לי מנוי|רשומ באתר|נרשמתי לאתר|יש לי כרטיס|קיים לי חשבון|כבר חבר)/i;
 const EMAIL_RE = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
 const CODE_RE = /\b(\d{6})\b/;
 const CANCEL_RE = /^(ביטול|בטל|עצור|לא עכשיו|אחר כך)\b/;
 const LINK_FLOW_TTL_MIN = 20;
+// פתיח כללי (ברכה/סתמי) → מציגים תפריט-מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
+const GREETING_RE = /^(היי|הי|שלום|אהלן|הלו|אולן|בוקר טוב|ערב טוב|צהריים טובים|לילה טוב|מה קורה|מה נשמע|מה המצב|מי אתה|נעים מאוד)/i;
+const isOpenerMsg = (t) => { const c = (t || "").replace(RAZIEL_TRIGGER, "").trim(); return c.length <= 14 || GREETING_RE.test(c) || SERVICES_INTENT.test(c); };
 
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
-let trace: any[] = [];
+let trace = [];
 
-async function waAdmin(method: string, payload: unknown) {
+async function waAdmin(method, payload) {
   const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: "POST" });
   return data;
 }
-async function waAdminGet(method: string, payload: unknown) {
+async function waAdminGet(method, payload) {
   const { data } = await sb.rpc("wa_admin", { p_method: method, p_payload: payload, p_http: "GET" });
   return data;
 }
-function pick(v: any): any[] { return (Array.isArray(v) ? v : (v?.result ?? [])); }
-const clean = (s: string) => (s || "").replace(/[^א-ת ]+/g, " ").replace(/\s+/g, " ").trim();
-async function logBot(row: Record<string, unknown>) {
+function pick(v) { return (Array.isArray(v) ? v : (v?.result ?? [])); }
+const clean = (s) => (s || "").replace(/[^א-ת ]+/g, " ").replace(/\s+/g, " ").trim();
+async function logBot(row) {
   try { await sb.from("wa_bot_log").insert(row); } catch { /* noop */ }
 }
 
-// 🧠 v40 — לכידת נתונים אישיים ============================================================
-// מחלץ שם/כתובת/מיקוד/תאריך-עברי מהודעת-DM ושומר כעובדת-פרופיל (personal_context/source=profile, private).
-// עצמאי מהצלחת התשובה — כדי שפרטים לא יאבדו גם אם ה-AI נכשל. פרטי בלבד; לעולם לא רץ בקבוצה.
-const HE_VAL: Record<string, number> = { "א":1,"ב":2,"ג":3,"ד":4,"ה":5,"ו":6,"ז":7,"ח":8,"ט":9,"י":10,"כ":20,"ך":20,"ל":30,"מ":40,"ם":40,"נ":50,"ן":50,"ס":60,"ע":70,"פ":80,"ף":80,"צ":90,"ץ":90,"ק":100,"ר":200,"ש":300,"ת":400 };
-function heNumeral(s: string): number { let n = 0; for (const ch of (s || "").replace(/[^א-ת]/g, "")) n += HE_VAL[ch] || 0; return n; }
-const HEBCAL_MONTH: Record<string, string> = { "תשרי":"Tishrei","חשון":"Cheshvan","חשוון":"Cheshvan","מרחשון":"Cheshvan","מרחשוון":"Cheshvan","כסלו":"Kislev","כסליו":"Kislev","טבת":"Tevet","שבט":"Sh'vat","אדר":"Adar","אדר א":"Adar I","אדר ב":"Adar II","ניסן":"Nisan","אייר":"Iyyar","סיון":"Sivan","סיוון":"Sivan","תמוז":"Tamuz","אב":"Av","אלול":"Elul" };
+const HE_VAL = { "א":1,"ב":2,"ג":3,"ד":4,"ה":5,"ו":6,"ז":7,"ח":8,"ט":9,"י":10,"כ":20,"ך":20,"ל":30,"מ":40,"ם":40,"נ":50,"ן":50,"ס":60,"ע":70,"פ":80,"ף":80,"צ":90,"ץ":90,"ק":100,"ר":200,"ש":300,"ת":400 };
+function heNumeral(s) { let n = 0; for (const ch of (s || "").replace(/[^א-ת]/g, "")) n += HE_VAL[ch] || 0; return n; }
+const HEBCAL_MONTH = { "תשרי":"Tishrei","חשון":"Cheshvan","חשוון":"Cheshvan","מרחשון":"Cheshvan","מרחשוון":"Cheshvan","כסלו":"Kislev","כסליו":"Kislev","טבת":"Tevet","שבט":"Sh'vat","אדר":"Adar","אדר א":"Adar I","אדר ב":"Adar II","ניסן":"Nisan","אייר":"Iyyar","סיון":"Sivan","סיוון":"Sivan","תמוז":"Tamuz","אב":"Av","אלול":"Elul" };
 const MON_HE = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const HE_DATE_RE = new RegExp("([א-ת]{1,3})['׳\"״]?\\s+(תשרי|מרחשוון|מרחשון|חשוון|חשון|כסליו|כסלו|טבת|שבט|אדר(?:\\s+[אב])?|ניסן|אייר|סיוון|סיון|תמוז|אב|אלול)\\s+(ה?['׳]?ת[א-ת\"״'׳]{2,6})");
 
-async function hebrewToGregorian(heStr: string): Promise<{ iso: string; he: string; gy: number; gm: number; gd: number } | null> {
+async function hebrewToGregorian(heStr) {
   try {
     const m = String(heStr).match(HE_DATE_RE);
     if (!m) return null;
     const day = heNumeral(m[1]);
     const hm = HEBCAL_MONTH[m[2].trim()];
     if (!hm) return null;
-    let yr = heNumeral(m[3]); if (yr < 1000) yr += 5000; // תשי"ז=717 → 5717
+    let yr = heNumeral(m[3]); if (yr < 1000) yr += 5000;
     if (day < 1 || day > 30) return null;
     const url = `https://www.hebcal.com/converter?cfg=json&hy=${yr}&hm=${encodeURIComponent(hm)}&hd=${day}&h2g=1`;
     const r = await fetch(url); if (!r.ok) return null;
@@ -80,8 +78,8 @@ async function hebrewToGregorian(heStr: string): Promise<{ iso: string; he: stri
   } catch { return null; }
 }
 
-function extractProfileFacts(text: string): Array<{ kind: string; value: string; data?: Record<string, unknown> }> {
-  const out: Array<{ kind: string; value: string; data?: Record<string, unknown> }> = [];
+function extractProfileFacts(text) {
+  const out = [];
   const t = (text || "").replace(/\r/g, "");
   let m = t.match(/מיקוד[^\d]{0,12}(\d{5,7})/);
   if (m) out.push({ kind: "postal", value: m[1] });
@@ -98,7 +96,7 @@ function extractProfileFacts(text: string): Array<{ kind: string; value: string;
   return out;
 }
 
-async function savePersonalData(userRef: string | null, chatId: string, text: string) {
+async function savePersonalData(userRef, chatId, text) {
   if (!userRef || clean(text).length < 2) return;
   const facts = extractProfileFacts(text);
   if (!facts.length) return;
@@ -121,15 +119,14 @@ async function savePersonalData(userRef: string | null, chatId: string, text: st
     await logBot({ group_id: chatId, msg_id: "facts:" + chatId.replace("@c.us", "") + ":" + Date.now(), sender: chatId.replace("@c.us", ""), sender_name: "DM", text_in: text.slice(0, 200), reply_out: "[facts-captured] " + facts.map(f => f.kind).join(","), action: "raziel_facts" });
   } catch { /* noop */ }
 }
-// ======================================================================================
 
-async function metatronAlerted(phone: string): Promise<boolean> {
+async function metatronAlerted(phone) {
   if (!phone) return true;
   const since = new Date(); since.setUTCHours(0, 0, 0, 0);
   const { data } = await sb.from("wa_bot_log").select("id").eq("sender", phone).eq("action", "raziel_metatron_alert").gte("created_at", since.toISOString()).limit(1).maybeSingle();
   return !!data;
 }
-async function alertZuriel(phone: string, name: string, question: string, channel: string) {
+async function alertZuriel(phone, name, question, channel) {
   try {
     const p = String(phone || "").replace(/[^0-9]/g, "");
     if (!p || p === ZURIEL.replace(/[^0-9]/g, "")) return;
@@ -141,38 +138,41 @@ async function alertZuriel(phone: string, name: string, question: string, channe
   } catch { /* best-effort */ }
 }
 
-async function alreadyDone(msgId: string, action = "christina_auto"): Promise<boolean> {
+async function alreadyDone(msgId, action = "christina_auto") {
   const { data } = await sb.from("wa_bot_log").select("id").eq("msg_id", msgId).eq("action", action).maybeSingle();
   return !!data;
 }
-async function hasRazielAccess(sender: string): Promise<boolean> {
+async function countAiRetries(msgId) {
+  const { count } = await sb.from("wa_bot_log").select("*", { count: "exact", head: true }).eq("msg_id", msgId).eq("action", "raziel_dm_retry");
+  return count || 0;
+}
+async function hasRazielAccess(sender) {
   const { data } = await sb.from("wa_vip_senders").select("raziel_access").eq("sender", sender).maybeSingle();
   return data?.raziel_access === true;
 }
 
-async function resolveIdentity(sender: string): Promise<any | null> {
+async function resolveIdentity(sender) {
   try { const { data } = await sb.rpc("fn_raziel_identity", { p_sender: sender }); return data; } catch { return null; }
 }
-async function getContext(userRef: string | null, channel: string): Promise<any | null> {
+async function getContext(userRef, channel) {
   if (!userRef) return null;
   try { const { data } = await sb.rpc("fn_raziel_context", { p_user_ref: userRef, p_channel: channel }); return data; } catch { return null; }
 }
-async function remember(userRef: string | null, channel: string, content: string, memory_type = "conversation", scope = "personal", topic: string | null = null) {
+async function remember(userRef, channel, content, memory_type = "conversation", scope = "personal", topic = null) {
   if (!userRef || !content || content.trim().length < 2) return;
   try { await sb.rpc("fn_raziel_remember", { p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3000), p_memory_type: memory_type, p_scope: scope, p_topic: topic, p_visibility: "private" }); } catch { /* noop */ }
 }
-function contextToText(ctx: any): string {
+function contextToText(ctx) {
   if (!ctx) return "";
-  const parts: string[] = [];
+  const parts = [];
   const u = ctx.user_context || {};
   if (ctx.privacy?.personal_memory_allowed) {
     if (u.summary) parts.push(`מה שאתה יודע על המשתמש: ${u.summary}`);
     if (Array.isArray(u.research_threads) && u.research_threads.length) parts.push(`נושאים שחקר לאחרונה: ${u.research_threads.slice(0, 5).join(" · ")}`);
     if (Array.isArray(u.approved_preferences) && u.approved_preferences.length) parts.push(`העדפות מאושרות: ${u.approved_preferences.join(" · ")}`);
-    // 🧠 v40 — פרטים אישיים שהאדם שיתף (רק ב-DM). התייחס בכבוד, זכור, אל תחשוף בפני אחרים.
     if (Array.isArray(u.profile) && u.profile.length) {
-      const KIND_HE: Record<string, string> = { name: "שם מלא", address: "רחוב/כתובת", city: "עיר", postal: "מיקוד", phone: "טלפון", family: "משפחה", birthday_hebrew: "תאריך-לידה עברי", birthday_gregorian: "תאריך-לידה לועזי", date_hebrew: "תאריך עברי", date_gregorian: "תאריך לועזי", gematria_signature: "חתימת-הגימטריה שלו" };
-      const line = u.profile.map((p: any) => `${KIND_HE[p.kind] || p.kind}: ${p.value}`).join(" · ");
+      const KIND_HE = { name: "שם מלא", address: "רחוב/כתובת", city: "עיר", postal: "מיקוד", phone: "טלפון", family: "משפחה", birthday_hebrew: "תאריך-לידה עברי", birthday_gregorian: "תאריך-לידה לועזי", date_hebrew: "תאריך עברי", date_gregorian: "תאריך לועזי", birthplace: "מקום-לידה", research_signature: "חתימת-מחקר", gematria_signature: "חתימת-הגימטריה שלו" };
+      const line = u.profile.map((p) => `${KIND_HE[p.kind] || p.kind}: ${p.value}`).join(" · ");
       parts.push(`פרטים אישיים שהאדם שיתף איתך (זכור אותם והתייחס בכובד ראש; לעולם אל תחשוף אותם בפני אחרים): ${line}`);
     }
   }
@@ -182,17 +182,27 @@ function contextToText(ctx: any): string {
   return `\n\nזיכרון (רקע בלבד — בקבוצה אל תחשוף פרטי אישי של אף אחד):\n${parts.join("\n")}`;
 }
 
-async function sendVerified(payload: any): Promise<string | null> {
-  try { const res: any = await waAdmin("sendMessage", payload); return res?.result?.idMessage || res?.idMessage || null; }
+async function sendVerified(payload) {
+  try { const res = await waAdmin("sendMessage", payload); return res?.result?.idMessage || res?.idMessage || null; }
   catch (e) { trace.push({ step: "send_throw", e: String(e) }); return null; }
 }
-async function enqueueOutbox(doneKey: string, chatId: string, reply: string, msgIn: string) {
+async function enqueueOutbox(doneKey, chatId, reply, msgIn) {
   try { await sb.from("bot_outbox").upsert({ done_key: doneKey, bot: "raziel", chat_id: chatId, reply: reply.slice(0, 6000), msg_in: (msgIn || "").slice(0, 500), status: "pending" }, { onConflict: "done_key" }); }
   catch (e) { trace.push({ step: "enqueue_err", e: String(e) }); }
+}
+async function alreadySentToChat(chatId, reply) {
+  try {
+    const norm = (s) => (s || "").replace(/\s+/g, " ").trim();
+    const head = norm(reply).slice(0, 60);
+    if (head.length < 12) return false;
+    const hist = await waAdmin("getChatHistory", { chatId, count: 8 });
+    return pick(hist).some((m) => m.type === "outgoing" && norm(m.textMessage || m.extendedTextMessage?.text || m.caption || "").startsWith(head));
+  } catch { return false; }
 }
 async function retryOutbox() {
   const { data } = await sb.from("bot_outbox").select("done_key,chat_id,reply,msg_in,attempts").eq("bot", "raziel").eq("status", "pending").order("first_at").limit(5);
   for (const r of (data || [])) {
+    if (await alreadySentToChat(r.chat_id, r.reply)) { await sb.from("bot_outbox").update({ status: "sent", last_at: new Date().toISOString() }).eq("done_key", r.done_key); continue; }
     const okId = await sendVerified({ chatId: r.chat_id, message: r.reply });
     if (okId) { await sb.from("bot_outbox").update({ status: "sent", sent_msg_id: okId, last_at: new Date().toISOString() }).eq("done_key", r.done_key); }
     else {
@@ -204,13 +214,13 @@ async function retryOutbox() {
 }
 
 const METHOD_KEYS = ["רגיל","גדול","סידורי","מילוי","אתבש","קדמי"];
-async function allMethods(w: string): Promise<Record<string,number> | null> {
-  try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && typeof data === "object" && (data as any)["רגיל"]) ? (data as any) : null; } catch { return null; }
+async function allMethods(w) {
+  try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && typeof data === "object" && data["רגיל"]) ? data : null; } catch { return null; }
 }
-async function buildFacts(text: string): Promise<{ facts: string; convergence: boolean; values: number[] }> {
+async function buildFacts(text) {
   const STOP = new Set(["אני","אתה","את","זה","זו","שזה","מה","של","על","עם","או","גם","כי","לא","כן","אבל","יש","אין","הוא","היא","הם","אנחנו","לי","לך","לו","הזה","בבקשה","בדוק","תבדוק","תבדקי","אוקיי","אוקי","היי","שלום","תודה","עכשיו","רק","כל","כמה","איזה","למה","איך","מתי","הכי","וגם","אולי","האם","שלי","שלך","להביא","תביא","רוצה","צריך","קיבלתי","מזהה","טקסט","השם","שם","מילה","אשמח","נעשה","שנעשה","אפשרויות","האפשרויות","מסודרת","מסודר","בצורה","בשביל","המחקר","מחקר","שנתת","שנתתה","תמשיך","תמשיכי","נמשיך","ממשיכים","מעולה","סבבה","הבנתי","נכון","בסדר"]);
-  const ws = [...new Set(clean(text).split(" ").filter((w:string)=>w.length>=2&&w.length<=24&&!STOP.has(w)))].slice(0,10);
-  const perWord: Record<string, Record<string,number>> = {};
+  const ws = [...new Set(clean(text).split(" ").filter((w)=>w.length>=2&&w.length<=24&&!STOP.has(w)))].slice(0,10);
+  const perWord = {};
   for (const w of ws) { const m = await allMethods(w); if (m) perWord[w] = m; }
   const words = Object.keys(perWord);
   const wordLines = words.map((w)=>{
@@ -218,21 +228,21 @@ async function buildFacts(text: string): Promise<{ facts: string; convergence: b
     const parts = METHOD_KEYS.filter((k)=>m[k]!=null).map((k)=>`${k} ${m[k]}`);
     return `${w}: ${parts.join(" · ")}`;
   });
-  const convLines: string[] = [];
+  const convLines = [];
   let anyConv = false;
   for (const method of METHOD_KEYS) {
-    const byVal: Record<number,string[]> = {};
+    const byVal = {};
     for (const w of words) { const v = perWord[w][method]; if (v!=null) (byVal[v]??=[]).push(w); }
     for (const [v, group] of Object.entries(byVal)) {
       if (group.length >= 2) { anyConv = true; convLines.push(`${method} ${v}: ${group.join(" = ")}`); }
     }
   }
-  const ragilVals = [...new Set(words.map((w)=>perWord[w]["רגיל"]).filter(Boolean) as number[])].slice(0,4);
-  const matches: string[] = [];
+  const ragilVals = [...new Set(words.map((w)=>perWord[w]["רגיל"]).filter(Boolean))].slice(0,4);
+  const matches = [];
   for (const v of ragilVals) {
     try {
       const { data } = await sb.from("gematria_words").select("phrase").eq("ragil",v).eq("is_verified",true).eq("space","core").order("lead_rank",{ascending:true,nullsFirst:false}).limit(9);
-      const ph=(data||[]).map((r:any)=>r.phrase).filter((p:string)=>p&&!words.includes(p));
+      const ph=(data||[]).map((r)=>r.phrase).filter((p)=>p&&!words.includes(p));
       if (ph.length) matches.push(`${v} (רגיל) — במאגר גם: ${ph.slice(0,7).join(", ")}`);
     } catch { /* noop */ }
   }
@@ -243,9 +253,9 @@ async function buildFacts(text: string): Promise<{ facts: string; convergence: b
   ].filter(Boolean).join("\n\n");
   return { facts, convergence: anyConv, values: ragilVals };
 }
-async function convergenceInsight(values: number[]): Promise<string> {
+async function convergenceInsight(values) {
   if (!values?.length) return "";
-  const notes: string[] = [];
+  const notes = [];
   for (const v of values.slice(0,3)) {
     try {
       const { data } = await sb.from("convergences").select("group_size").eq("value", v).eq("kind","anchor_hit").order("group_size",{ascending:false}).limit(1).maybeSingle();
@@ -255,15 +265,38 @@ async function convergenceInsight(values: number[]): Promise<string> {
   return notes.length ? `\nהתכנסויות במנוע (עובדה): ${notes.join(" · ")}` : "";
 }
 
-async function recentDialogue(chatId: string, n = 6, skipMsgId?: string): Promise<string> {
+async function metatronFallbackText(subject, facts, convNote) {
+  let canonLine = "";
+  try {
+    const { data } = await sb.rpc("metatron_context", { p_request: { subject: subject.slice(0, 120), entities: [subject.slice(0, 120)], channel: "wa" } });
+    const convs = (data?.canonical?.convergences || [])
+      .map((c) => c?.label || c?.title || (c?.value != null ? String(c.value) : null))
+      .filter(Boolean).slice(0, 3);
+    if (convs.length) canonLine = `\nבמאגר הקנוני מתכנסים בהקשר הזה גם: ${convs.join(" · ")}.`;
+  } catch { /* best-effort */ }
+  const body = (facts && facts.trim())
+    ? `מצאתי בנתונים את הקשרים המספריים הבאים, ישירות מהמנוע:\n\n${facts}${convNote || ""}${canonLine}`
+    : `עדיין לא זיהיתי כאן ערך-מנוע מפורש לבדיקה. כתוב לי שם או מילה מדויקת — ואחשב ואצליב במנוע.`;
+  return `${body}\n\nאלו עובדות מהמנוע. משמעות הקשרים היא נושא למחקר — ואי אפשר להסיק מהם מסקנה על זהותו או ייעודו של אף אדם.\n— רזיאל · סוד 1820`;
+}
+async function sendGuardianFallback(subject, chatId, quotedId, facts, convNote, welcome) {
+  let msg = await metatronFallbackText(subject, facts, convNote);
+  if (welcome) msg = welcome + msg;
+  const payload = { chatId, message: msg };
+  if (quotedId) payload.quotedMessageId = quotedId;
+  const okId = await sendVerified(payload);
+  if (!okId) await enqueueOutbox("raziel-fb:" + (quotedId || chatId), chatId, msg, subject);
+}
+
+async function recentDialogue(chatId, n = 6, skipMsgId) {
   try {
     const hist = await waAdmin("getChatHistory", { chatId, count: n + 4 });
     const arr = pick(hist)
-      .filter((m: any) => (m.textMessage || m.extendedTextMessage?.text || m.caption) && m.idMessage !== skipMsgId)
-      .sort((a: any, b: any) => Number(a.timestamp) - Number(b.timestamp))
+      .filter((m) => (m.textMessage || m.extendedTextMessage?.text || m.caption) && m.idMessage !== skipMsgId)
+      .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))
       .slice(-n);
     if (!arr.length) return "";
-    const lines = arr.map((m: any) => {
+    const lines = arr.map((m) => {
       const who = m.type === "outgoing" ? "רזיאל" : "המשתמש";
       const t = (m.textMessage || m.extendedTextMessage?.text || m.caption || "").replace(/\s+/g, " ").trim().slice(0, 240);
       return `${who}: ${t}`;
@@ -272,8 +305,6 @@ async function recentDialogue(chatId: string, n = 6, skipMsgId?: string): Promis
   } catch { return ""; }
 }
 
-// 🌳 SYSTEM_BASE = העותק המוטמע (fallback בלבד). מקור-האמת החי = fn_raziel_persona('wa') ב-DB,
-//    שנטען ל-RAZIEL_SYSTEM בתחילת כל ריצה (המוח-המשותף — אותה פרסונה שהאתר/ai-analyze קורא).
 const SYSTEM_BASE =
   `אתה רזיאל — פרשן גימטריה ותורה מטעם סוד 1820, והשער האישי למערכת המחקר. תמיד ענה בעברית בלבד.
 חוקי ברזל:
@@ -281,62 +312,89 @@ const SYSTEM_BASE =
 2. הפרד עובדה (עובדה) מרמז (רמז). בלי נבואות.
 3. חם, מדויק, עברית. חתום: — רזיאל · סוד 1820.
 4. אם יש זיכרון-רקע על המשתמש — התייחס בטבעיות (רק ב-DM). בקבוצה לעולם אל תחשוף היסטוריה אישית.
-5. חכם ומעמיק — שכבה על שכבה: כשיש התכנסות אמיתית, בנה תשובה בנויה (פתיח · קופסת עובדה · 2-3 ביטויים מהמאגר · שכבת רמז). רק ערכים שסופקו לך. אין התכנסות — ענה קצר וישר.
+5. חכם ומעמיק — שכבה על שכבה: כשיש התכנסות אמיתית, בנה תשובה בנויה. רק ערכים שסופקו לך. אין התכנסות — ענה קצר וישר.
 6. אתה מחשב בעצמך — לעולם אל תבקש מהמשתמש להריץ את המנוע. אם ביקש לבדוק שם/מילה ולא זוהה ערך — בקש בעדינות איזה שם או מילה לבדוק.
 7. סיים בוו-גילוי קצר שמזמין להמשך — לעולם לא במשימה למשתמש.
-8. גדול=רגיל כשאין סופיות (ך ם ן ף ץ): כשאין אות סופית, הגדול זהה לרגיל = כפילות, לא שכבה. אל תציג מתכנס גם בגדול וגם ברגיל כממצא מרשים. רק כשיש סופית והגדול שונה — זו שכבה אמיתית.
-9. תדר-המשיח (messiah_frequency_in_every_person_law): אם אדם מרגיש את נקודת-המשיח שבו — הקשב בכבוד, בקש שם+משפחה, חשב והצלב מול ערכי-משיח (358/424/…). אם מצטלב — הסבר שזה מראה חיבור לתדר שקיים בכל אדם, ולעולם לא שהוא המשיח. ענווה, עובדה≠רמז, בלי נבואות, רגישות.
-10. הבנה לפני חישוב (intent_before_compute_law) — הכי חשוב: קודם הבן מה האדם רוצה. אתה לא מכונת-גימטריה-של-כל-משפט. אם ההודעה היא בקשה/תודה/תמשיך/תעשה מה שהצעת/בצורה מסודרת/כן/בשביל המחקר — אל תחשב ואל תציג טבלת-גימטריה של מילות המשפט (זו טעות מביכה). במקום זה: הסתכל בשיחה הקודמת למטה, הבן על איזה נושא דיברתם (שם/מספר/ביטוי אחרון), והמשך אותו — מה שהצעת מתייחס להצעות שלך שם. רק כשיש נושא-גימטריה מפורש לבדיקה — חשב והצג. לא ברור מה לבדוק? שאל על איזה שם/מספר להעמיק.`;
-// מקור-האמת החי (נטען ב-loadPersona בתחילת כל ריצה). fallback = SYSTEM_BASE → זהות התנהגות אם ה-DB לא זמין.
+8. גדול=רגיל כשאין סופיות (ך ם ן ף ץ).
+9. תדר-המשיח (messiah_frequency_in_every_person_law): אם אדם מרגיש את נקודת-המשיח שבו — הקשב בכבוד, חשב והצלב, ולעולם לא שהוא המשיח. ענווה, עובדה≠רמז, בלי נבואות.
+10. הבנה לפני חישוב (intent_before_compute_law) — קודם הבן מה האדם רוצה. אם ההודעה בקשה/תודה/תמשיך/כן — אל תחשב, המשך את הנושא מהשיחה. רק כשיש נושא-גימטריה מפורש — חשב והצג.
+11. לעולם אל תשאיר את האדם בלי מענה (never_silent_metatron_law): גם בנושא רגיש — ענה על העובדות המספריות בענווה, לעולם לא בטענה על אדם. אל תסרב — הפנה לעובדה.
+12. שיטת-האחד (shitat_haechad_alef_law): כשערך-מנוע בן 4 ספרות ומתחיל ב-1 (1000+X), האלף המוביל נקרא כרמז ל-ה׳, האחד, אלופו של עולם, ו-X כשארית (למשל 1358 = ה׳ + 358 משיח). עובדה≠רמז: הערך = עובדה, פירוק האלף = רמז משלים.`;
 let RAZIEL_SYSTEM = SYSTEM_BASE;
 async function loadPersona() {
   try {
     const { data } = await sb.rpc("fn_raziel_persona", { p_channel: "wa" });
-    if (typeof data === "string" && data.length > 60) RAZIEL_SYSTEM = data;
+    if (typeof data === "string" && data.length > 60) RAZIEL_SYSTEM = data + "\n12. שיטת-האחד (shitat_haechad_alef_law): ערך 1000+X — האלף המוביל כרמז ל-ה׳ (האחד, אלופו של עולם) + X. עובדה≠רמז.";
   } catch { /* נשאר על SYSTEM_BASE */ }
 }
 const TEACH_ADDON =
-  `\nמצב-לימוד: אם המשתמש רוצה ללמוד — למד גימטריה צעד-צעד לפי השאלות שלו, הראה את החישוב מהמנוע, והצע את הצעד הבא. סבלני, כמו מורה.`;
+  `\nמצב-לימוד: אם המשתמש רוצה ללמוד — למד גימטריה צעד-צעד, הראה את החישוב מהמנוע. סבלני, כמו מורה.`;
 
-async function razielRespond(text: string, chatId: string, quotedId: string | undefined, opts: { userRef?: string | null; isDM?: boolean; welcome?: string; ctx?: any; teach?: boolean; extra?: string } = {}): Promise<boolean> {
+// 🌳 עץ אחד — RAG על הפוסטים של האתר, אותה פונקציה משותפת שהצ'אט באתר קורא לה (chat_search_facts).
+// שיפור אחד בפונקציה = שני הערוצים. נכשל בחן (מחזיר "") — לא חוסם תשובה.
+async function postFacts(query) {
+  try {
+    const { data } = await sb.rpc("chat_search_facts", { p_query: (query || "").slice(0, 200), p_limit: 3 });
+    return (typeof data === "string" && data) ? data : "";
+  } catch { return ""; }
+}
+
+async function razielRespond(text, chatId, quotedId, opts = {}) {
   const cleanText = text.replace(RAZIEL_TRIGGER, "").trim();
-  if (!cleanText) return false;
+  if (!cleanText) return { status: "permanent_error" };
   const { facts, values } = await buildFacts(cleanText);
   const convNote = await convergenceInsight(values);
+  const posts = await postFacts(cleanText);
   const ctx = opts.ctx ?? (opts.userRef ? await getContext(opts.userRef, chatId) : null);
   const ctxText = contextToText(ctx);
   const dialogue = await recentDialogue(chatId, 6, quotedId);
   const dialogueBlock = dialogue ? `שיחה קודמת (הקשר — כך תדע למה הכוונה בתמשיך/מה שהצעת, ומה הנושא הפעיל):\n${dialogue}\n\n` : "";
   const wantsLearn = opts.teach && LEARN_INTENT.test(cleanText);
   const system = RAZIEL_SYSTEM + ((opts.teach) ? TEACH_ADDON : "");
-  const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם ההודעה מבקשת לבדוק נושא-גימטריה מפורש. אם ההודעה שיחתית/בקשה/תמשיך/תודה — התעלם מהם לחלוטין, אל תציג טבלת-ערכים, והמשך את הנושא מהשיחה הקודמת):\n${facts||"(לא זוהו ערכים)"}${convNote}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד — למד לפי מצב-לימוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
+  const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם מבקשים לבדוק נושא-גימטריה מפורש; אם שיחתי/תודה/תמשיך — התעלם):\n${facts||"(לא זוהו ערכים)"}${convNote}${posts?`\n\nמתוך הפוסטים באתר (הישען על אלה — זה החומר שלנו, וציין מאיפה):\n${posts}`:""}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
+  const guardian = () => sendGuardianFallback(cleanText, chatId, quotedId, facts, convNote, opts.welcome);
+  let resp;
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+    resp = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",headers:{"Content-Type":"application/json","x-api-key":ANTHROPIC,"anthropic-version":"2023-06-01"},
       body:JSON.stringify({model:MODEL,max_tokens:1500,system,messages:[{role:"user",content:user}]}),
     });
-    if (!resp.ok) return false;
-    const d = await resp.json();
-    if (d?.stop_reason==="refusal") return false;
-    try { await sb.from("ai_token_log").insert({source:"wa-christina",kind:"raziel_reply",model:MODEL,input_tokens:d?.usage?.input_tokens||0,output_tokens:d?.usage?.output_tokens||0}); } catch { /* noop */ }
-    let reply = (d?.content||[]).filter((c:any)=>c.type==="text").map((c:any)=>c.text).join("\n").trim();
-    if (!reply) return false;
-    if (opts.welcome) reply = opts.welcome + reply;
-    const payload: any = { chatId, message: reply };
-    if (quotedId) payload.quotedMessageId = quotedId;
-    const okId = await sendVerified(payload);
-    if (!okId) await enqueueOutbox("raziel:"+(quotedId||chatId), chatId, reply, cleanText);
-    return true;
-  } catch { return false; }
+  } catch (e) {
+    trace.push({ step: "ai_throw", e: String(e) });
+    if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; }
+    return { status: "retryable_error" };
+  }
+  if (!resp.ok) {
+    trace.push({ step: "ai_http", st: resp.status });
+    if (TRANSIENT_HTTP.has(resp.status) && !opts.lastAttempt) return { status: "retryable_error" };
+    await guardian(); return { status: "refused_with_fallback" };
+  }
+  let d;
+  try { d = await resp.json(); }
+  catch { if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; } return { status: "retryable_error" }; }
+  const refused = d?.stop_reason === "refusal";
+  let reply = refused ? "" : (d?.content||[]).filter((c)=>c.type==="text").map((c)=>c.text).join("\n").trim();
+  if (refused || !reply) {
+    await guardian();
+    return { status: "refused_with_fallback" };
+  }
+  try { await sb.from("ai_token_log").insert({source:"wa-raziel",kind:"raziel_reply",model:MODEL,input_tokens:d?.usage?.input_tokens||0,output_tokens:d?.usage?.output_tokens||0}); } catch { /* noop */ }
+  if (opts.welcome) reply = opts.welcome + reply;
+  const payload = { chatId, message: reply };
+  if (quotedId) payload.quotedMessageId = quotedId;
+  const okId = await sendVerified(payload);
+  if (!okId) await enqueueOutbox("raziel:"+(quotedId||chatId), chatId, reply, cleanText);
+  return { status: "answered" };
 }
+const rzOk = (s) => s === "answered" || s === "refused_with_fallback";
 
-async function initiativeBudget(chatId: string): Promise<boolean> {
+async function initiativeBudget(chatId) {
   const since = new Date(Date.now() - INITIATIVE_COOLDOWN_MIN*60*1000).toISOString();
   const { data } = await sb.from("wa_bot_log").select("id").eq("group_id", chatId).eq("action", "raziel_initiative").gte("created_at", since).limit(1).maybeSingle();
   return !data;
 }
 
-async function handleGroup(chatId: string, nowSec: number): Promise<number> {
+async function handleGroup(chatId, nowSec) {
   const isAmitGroup = chatId === AMIT_GROUP;
   let hist; try { hist=await waAdmin("getChatHistory",{chatId,count:20}); } catch { return 0; }
   const msgs = pick(hist).filter((m)=>{
@@ -358,12 +416,13 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
       if (!allowed) { await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:"[no raziel_access]",action:"christina_auto"}); continue; }
       const cleanQ = text.replace(RAZIEL_TRIGGER,"").trim();
       if (EN_DOMINANT(cleanQ)) {
-        const redirectMsg = `שאלת אנגלית — גבריאל המומחה בגשרי-שפה יענה לך יותר טוב.\n— רזיאל · סוד 1820`;
+        const redirectMsg = `שאלת אנגלית — גבריאל יענה לך יותר טוב.\n— רזיאל · סוד 1820`;
         const okId = await sendVerified({chatId,message:redirectMsg,quotedMessageId:msgId});
         if (!okId) await enqueueOutbox("raziel:"+msgId, chatId, redirectMsg, text);
         await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:redirectMsg,action:"christina_auto"}); n++; continue;
       }
-      const ok = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const r = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const ok = rzOk(r.status);
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[sent]":"[failed]",action:"christina_auto"});
       if (ok) { await alertZuriel(sphone, sname, text, "קבוצת עמית"); n++; } continue;
     }
@@ -381,14 +440,16 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
     const triggered = RAZIEL_TRIGGER.test(text);
     if (triggered) {
       const cleanText = text.replace(RAZIEL_TRIGGER,"").trim();
-      const ok = await razielRespond(cleanText, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const r = await razielRespond(cleanText, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+      const ok = rzOk(r.status);
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[sent]":"[no reply]",action:"christina_auto"});
       if (ok) { await alertZuriel(sphone, sname, text, "קבוצה"); n++; } continue;
     }
     if (await initiativeBudget(chatId)) {
       const { convergence } = await buildFacts(text);
       if (convergence) {
-        const ok = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+        const r = await razielRespond(text, chatId, msgId, { userRef: (await resolveIdentity(snd))?.user_ref, ctx: await getContext("group", chatId) });
+        const ok = rzOk(r.status);
         await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:ok?"[initiative]":"[init-failed]",action:"raziel_initiative"});
         if (ok) { await alertZuriel(sphone, sname, text, "קבוצה (יזום)"); n++; continue; }
       }
@@ -398,39 +459,39 @@ async function handleGroup(chatId: string, nowSec: number): Promise<number> {
   return n;
 }
 
-async function answersToday(chatId: string): Promise<number> {
+async function answersToday(chatId) {
   const since = new Date(); since.setUTCHours(0,0,0,0);
   const { count } = await sb.from("wa_bot_log").select("*", { count: "exact", head: true })
-    .eq("group_id", chatId).eq("action", "raziel_dm").eq("reply_out", "[dm-sent]").gte("created_at", since.toISOString());
+    .eq("group_id", chatId).eq("action", "raziel_dm").in("reply_out", ["[dm-sent]", "[dm-fallback]"]).gte("created_at", since.toISOString());
   return count || 0;
 }
-async function touchReferral(phone: string) {
+async function touchReferral(phone) {
   try { await sb.rpc("fn_bot_referral_touch", { p_phone: phone, p_source: "raziel" }); } catch { /* noop */ }
 }
-async function ownedNumbers(): Promise<Set<string>> {
+async function ownedNumbers() {
   const since = new Date(Date.now() - 30*24*3600*1000).toISOString();
   const { data } = await sb.from("wa_bot_log").select("sender").in("action",["uriel_auto","hatishbi","michael"]).gte("created_at", since).limit(2000);
-  const s = new Set<string>();
-  for (const r of (data||[])) { const p = String((r as any).sender||"").replace(/[^0-9]/g,""); if (p) s.add(p); }
+  const s = new Set();
+  for (const r of (data||[])) { const p = String(r.sender||"").replace(/[^0-9]/g,""); if (p) s.add(p); }
   return s;
 }
-async function unlimitedNumbers(): Promise<Set<string>> {
+async function unlimitedNumbers() {
   const { data } = await sb.from("raziel_unlimited").select("phone");
-  return new Set((data||[]).map((r:any)=>String(r.phone).replace(/[^0-9]/g,"")));
+  return new Set((data||[]).map((r)=>String(r.phone).replace(/[^0-9]/g,"")));
 }
-async function quotaOverrides(): Promise<Map<string,number>> {
-  const m = new Map<string,number>();
+async function quotaOverrides() {
+  const m = new Map();
   try {
     const { data } = await sb.from("raziel_quota").select("phone,daily_quota");
-    for (const r of (data||[])) { const p=String((r as any).phone).replace(/[^0-9]/g,""); const q=Number((r as any).daily_quota); if (p && q>0) m.set(p, q); }
+    for (const r of (data||[])) { const p=String(r.phone).replace(/[^0-9]/g,""); const q=Number(r.daily_quota); if (p && q>0) m.set(p, q); }
   } catch { /* noop */ }
   return m;
 }
-async function servicesText(): Promise<string> {
+async function servicesText() {
   try {
     const { data } = await sb.from("site_services").select("title,description,icon,url,wow").eq("active",true).order("sort");
     if (!data?.length) return "";
-    const lines = data.map((s:any)=> `${s.icon||"•"} ${s.title}${s.wow?" ✨":""} — ${s.description}${s.url?` (${SITE}${s.url})`:""}`);
+    const lines = data.map((s)=> `${s.icon||"•"} ${s.title}${s.wow?" ✨":""} — ${s.description}${s.url?` (${SITE}${s.url})`:""}`);
     return "\n\nשירותי המערכת:\n" + lines.join("\n");
   } catch { return ""; }
 }
@@ -438,20 +499,20 @@ async function servicesText(): Promise<string> {
 function authClient() {
   return createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { auth: { persistSession: false, autoRefreshToken: false } });
 }
-async function clearLinkFlow(phone: string) { try { await sb.from("raziel_link_flow").delete().eq("phone", phone); } catch { /* noop */ } }
-async function getLinkFlow(phone: string): Promise<any | null> {
+async function clearLinkFlow(phone) { try { await sb.from("raziel_link_flow").delete().eq("phone", phone); } catch { /* noop */ } }
+async function getLinkFlow(phone) {
   const { data } = await sb.from("raziel_link_flow").select("*").eq("phone", phone).maybeSingle();
   if (!data) return null;
-  if ((Date.now() - new Date((data as any).updated_at).getTime()) / 60000 > LINK_FLOW_TTL_MIN) { await clearLinkFlow(phone); return null; }
+  if ((Date.now() - new Date(data.updated_at).getTime()) / 60000 > LINK_FLOW_TTL_MIN) { await clearLinkFlow(phone); return null; }
   return data;
 }
-async function setLinkFlow(phone: string, state: string, email?: string | null, attempts = 0) {
+async function setLinkFlow(phone, state, email, attempts = 0) {
   try { await sb.from("raziel_link_flow").upsert({ phone, state, email: email ?? null, attempts, updated_at: new Date().toISOString() }, { onConflict: "phone" }); } catch { /* noop */ }
 }
-async function startEmailOtp(email: string): Promise<boolean> {
+async function startEmailOtp(email) {
   try { const { error } = await authClient().auth.signInWithOtp({ email, options: { shouldCreateUser: false } }); return !error; } catch { return false; }
 }
-async function subscribeToNewsletter(email: string, name: string | null = null): Promise<boolean> {
+async function subscribeToNewsletter(email, name = null) {
   const e = (email || "").trim().toLowerCase();
   if (!e || !EMAIL_RE.test(e)) return false;
   try {
@@ -461,10 +522,10 @@ async function subscribeToNewsletter(email: string, name: string | null = null):
     return true;
   } catch { return false; }
 }
-async function verifyEmailOtpAndLink(phone: string, email: string, code: string): Promise<{ ok: boolean; subscribed: boolean }> {
+async function verifyEmailOtpAndLink(phone, email, code) {
   try {
     const { data, error } = await authClient().auth.verifyOtp({ email, token: code.replace(/[^0-9]/g, ""), type: "email" });
-    const uid = (data as any)?.user?.id;
+    const uid = data?.user?.id;
     if (error || !uid) return { ok: false, subscribed: false };
     const nowIso = new Date().toISOString();
     await sb.from("wa_account_links").upsert({ phone, user_id: uid, verified_at: nowIso, welcomed_at: nowIso }, { onConflict: "phone" });
@@ -473,14 +534,27 @@ async function verifyEmailOtpAndLink(phone: string, email: string, code: string)
   } catch { return { ok: false, subscribed: false }; }
 }
 
-async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
+async function handleAllDMs(nowSec, policy) {
   let hist; try { hist = await waAdminGet("lastIncomingMessages", {}); } catch { return 0; }
   const goLive = policy?.go_live_at ? Math.floor(new Date(policy.go_live_at).getTime() / 1000) : null;
   const owned = await ownedNumbers();
   const unlimited = await unlimitedNumbers();
   const overrides = await quotaOverrides();
-  const dms = pick(hist).filter((m:any)=> String(m.chatId||"").endsWith("@c.us") && (nowSec - Number(m.timestamp||0) < 3*3600));
-  const byChat: Record<string, any> = {};
+  const dms = pick(hist).filter((m)=> String(m.chatId||"").endsWith("@c.us") && (nowSec - Number(m.timestamp||0) < 3*3600));
+  for (const im of dms) {
+    const imid = im.idMessage; if (!imid) continue;
+    const iphone = String(im.chatId || "").replace("@c.us", "");
+    if (!iphone || owned.has(iphone)) continue;
+    const itext = im.textMessage || im.extendedTextMessageData?.text || "";
+    if (clean(itext).length < 2) continue;
+    const { data: gotIngest } = await sb.rpc("fn_raziel_claim", { p_key: "raziel:ingest:" + imid });
+    if (gotIngest === false) continue;
+    const iidn = await resolveIdentity(im.chatId);
+    const iref = iidn?.user_ref || ("wa:" + iphone);
+    try { await savePersonalData(iref, im.chatId, itext); } catch { /* noop */ }
+    await remember(iref, im.chatId, itext, "conversation", "personal");
+  }
+  const byChat = {};
   for (const m of dms) { const c=m.chatId; if (!byChat[c] || Number(m.timestamp) > Number(byChat[c].timestamp)) byChat[c]=m; }
   let n = 0;
   for (const chatId of Object.keys(byChat).slice(0, MAX_DM_CHATS_PER_RUN)) {
@@ -490,21 +564,22 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     if (clean(text).length < 1) continue;
     const phone = chatId.replace("@c.us","");
     if (owned.has(phone)) continue;
+    const claimKey = "raziel:dm:" + msgId;
+    const { data: gotClaim } = await sb.rpc("fn_raziel_claim", { p_key: claimKey });
+    if (gotClaim === false) continue;
+    const releaseClaim = () => sb.from("raziel_send_claims").delete().eq("done_key", claimKey);
     const idn = await resolveIdentity(chatId);
-    if (!idn) continue;
+    if (!idn) { await releaseClaim(); continue; }
     let linked = idn?.linked === true;
     let userRef = idn?.user_ref || ("wa:"+phone);
     if (!linked) {
       const { data: lr } = await sb.from("wa_account_links").select("user_id").eq("phone", phone).maybeSingle();
-      if ((lr as any)?.user_id) { linked = true; userRef = String((lr as any).user_id); }
+      if (lr?.user_id) { linked = true; userRef = String(lr.user_id); }
     }
 
-    // 🧠 v40 — לכידת נתונים אישיים מכל הודעת-DM (עצמאי מהצלחת התשובה, פרטי בלבד). לפני השער/הניתוב.
-    try { await savePersonalData(userRef, chatId, text); } catch { /* noop */ }
-
     if (!linked) {
-      if (!policy?.answer_everyone) continue;
-      if (goLive === null || Number(m.timestamp||0) <= goLive) continue;
+      if (!policy?.answer_everyone) { await releaseClaim(); continue; }
+      if (goLive === null || Number(m.timestamp||0) <= goLive) { await releaseClaim(); continue; }
     }
 
     const regUrlLink = policy.register_url || (SITE + "/login?src=raziel");
@@ -519,7 +594,7 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
       }
       if (flow?.state === "awaiting_email") {
         const em = (text.match(EMAIL_RE) || [])[0];
-        let msg: string;
+        let msg;
         if (em) {
           const sent = await startEmailOtp(em.toLowerCase());
           if (sent) { await setLinkFlow(phone, "awaiting_code", em.toLowerCase()); msg = `מצוין, שלחתי קוד בן 6 ספרות למייל ${em}. מה הקוד?\n— רזיאל · סוד 1820`; }
@@ -534,7 +609,7 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
       if (flow?.state === "awaiting_code") {
         const code = (text.match(CODE_RE) || [])[1];
         const otherEmail = (text.match(EMAIL_RE) || [])[0];
-        let msg: string; let outcome = "[link-code]";
+        let msg; let outcome = "[link-code]";
         if (code && flow.email) {
           const res = await verifyEmailOtpAndLink(phone, flow.email, code);
           if (res.ok) {
@@ -596,34 +671,47 @@ async function handleAllDMs(nowSec: number, policy: any): Promise<number> {
     if (!last) {
       welcome = linked
         ? "ברוך שובך. נמשיך לחקור — איזה רעיון, מספר או שם מסקרן אותך היום?\n\n"
-        : `ברוך הבא. אני רזיאל, השער למערכת המחקר של SOD1820. ספר לי מה מסקרן אותך — מספר, שם, פסוק או רמז — ונחקור יחד.\n(לא-רשומים: ${anonLimit} שאלות ביום; הרשמה: ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
+        : (isOpenerMsg(text)
+            ? "שלום! אני רזיאל, סוכן המחקר של SOD1820. אני כאן כדי לעזור לך לחקור שמות, מספרים, מקורות וקשרים. מאיפה תרצה להתחיל?\n\n🔢 מספר\n👤 שם\n🔄 השוואה בין שני ערכים\n📖 מקור או פסוק\n🔍 קשר או תבנית שמסקרנת אותך\n💡 רעיון או תגלית שתרצה לבדוק\n\n"
+            : "שלום! אני רזיאל, סוכן המחקר של SOD1820 — נעים להכיר. בוא נצלול:\n\n");
       if (!linked) await touchReferral(phone);
     } else {
-      const hrs = (Date.now() - new Date((last as any).created_at).getTime()) / 3.6e6;
+      const hrs = (Date.now() - new Date(last.created_at).getTime()) / 3.6e6;
       if (hrs > 6) {
         const lastThread = ctx?.user_context?.research_threads?.[0];
         welcome = lastThread ? `שלום שוב. בפעם הקודמת עסקנו ב: ${String(lastThread).slice(0,80)}.\n\n` : "שלום שוב.\n\n";
       }
     }
     const extra = SERVICES_INTENT.test(text) ? await servicesText() : "";
-    const ok = await razielRespond(text, chatId, msgId, { userRef, isDM: true, welcome, ctx, teach: policy.teach_mode, extra });
-    await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: linked?"DM":"DM-anon", text_in: text.slice(0,500), reply_out: ok ? "[dm-sent]" : "[dm-failed]", action: "raziel_dm" });
-    if (ok) { n++; await remember(userRef, chatId, text, "conversation", "personal"); await alertZuriel(phone, idn?.name || (linked ? "משתמש מזוהה" : "פונה חדש"), text, "פרטי (DM)"); }
+    const priorRetries = await countAiRetries(msgId);
+    const res = await razielRespond(text, chatId, msgId, { userRef, isDM: true, welcome, ctx, teach: policy.teach_mode, extra, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES });
+    const nm = linked ? "DM" : "DM-anon";
+    if (res.status === "retryable_error") {
+      await releaseClaim();
+      await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: nm, text_in: text.slice(0,500), reply_out: `[dm-retry ${priorRetries+1}/${MAX_AI_RETRIES}]`, action: "raziel_dm_retry" });
+      continue;
+    }
+    const label = res.status === "answered" ? "[dm-sent]" : res.status === "refused_with_fallback" ? "[dm-fallback]" : "[dm-error]";
+    await logBot({ group_id: chatId, msg_id: msgId, sender: phone, sender_name: nm, text_in: text.slice(0,500), reply_out: label, action: "raziel_dm" });
+    if (rzOk(res.status)) {
+      n++;
+      await alertZuriel(phone, idn?.name || (linked ? "משתמש מזוהה" : "פונה חדש"), text, res.status === "refused_with_fallback" ? "פרטי (DM · שומר-מטטרון)" : "פרטי (DM)");
+    }
   }
   return n;
 }
 
-async function sendProactiveWelcomes(): Promise<number> {
+async function sendProactiveWelcomes() {
   const { data: links } = await sb.from("wa_account_links").select("phone").is("welcomed_at", null).limit(10);
   let n = 0; const now = new Date().toISOString();
   for (const l of (links || [])) {
-    const phone = (l as any).phone as string; if (!phone) continue;
+    const phone = l.phone; if (!phone) continue;
     const chatId = phone + "@c.us";
     const { data: prior } = await sb.from("wa_bot_log").select("id").eq("group_id", chatId).eq("action", "raziel_dm").limit(1).maybeSingle();
     if (prior) { await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null); continue; }
     const { data: claimed } = await sb.from("wa_account_links").update({ welcomed_at: now }).eq("phone", phone).is("welcomed_at", null).select("phone");
     if (!claimed || !claimed.length) continue;
-    const msg = `ברוך הבא. אני רזיאל. חיברת את הוואטסאפ לחשבון שלך בסוד 1820 — ומכאן אני השער למערכת המחקר. ספר לי מה מסקרן אותך — מספר, שם, פסוק או רמז — ונחקור יחד.\n— רזיאל · סוד 1820`;
+    const msg = `ברוך הבא. אני רזיאל. חיברת את הוואטסאפ לחשבון שלך בסוד 1820 — ומכאן אני השער למערכת המחקר. ספר לי מה מסקרן אותך.\n— רזיאל · סוד 1820`;
     const okId = await sendVerified({ chatId, message: msg });
     if (okId) { await logBot({ group_id: chatId, msg_id: "welcome:"+phone, sender: phone, sender_name: "DM", text_in: "[link]", reply_out: "[proactive-welcome]", action: "raziel_dm" }); n++; }
     else { await enqueueOutbox("raziel-welcome:"+phone, chatId, msg, "[link]"); }

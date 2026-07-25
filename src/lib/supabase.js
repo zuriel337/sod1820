@@ -748,12 +748,13 @@ function aiVisitorId() {
     return v;
   } catch { return null; }
 }
-export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long }) {
+export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron }) {
   if (!supabase) return null;
   try {
     // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
     // ✨ long=true → ניתוח עמוק ממוזג ארוך (השרת מרים את הגבלת-האורך; אינרטי אם לא נשלח).
-    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine, long, visitor_id: aiVisitorId() } });
+    // 🌳 metatron=true → השרת נשען על «העץ האחד» (חוקים+גרף) → תשובה מבוססת-חומר (בטא, opt-in).
+    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine, long, metatron, visitor_id: aiVisitorId() } });
     if (error) { try { console.warn('[ai-analyze] invoke error:', error?.message || error); } catch { /* noop */ } return null; }
     // 🚦 מכסת-AI נגמרה → שדר אירוע גלובלי (שער-הרשמה/הודעה); מחזיר null → הקורא מציג נפילה בחן.
     if (data?.error === 'quota') {
@@ -766,6 +767,17 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
     if (data?.analysis) logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis });
     return data?.analysis || null;
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
+}
+
+// 🔎 searchPostFacts — RAG קל: קטעים רלוונטיים מהפוסטים של האתר (RPC chat_search_facts).
+//    מוזרק לצ'אט כ«עובדות מהחומר שלנו» → תשובה מבוססת-תוכן, לא ידע כללי. נכשל בחן (מחזיר "").
+export async function searchPostFacts(query) {
+  if (!supabase || !query) return "";
+  try {
+    const { data, error } = await supabase.rpc("chat_search_facts", { p_query: String(query).slice(0, 200), p_limit: 3 });
+    if (error) return "";
+    return typeof data === "string" ? data : "";
+  } catch { return ""; }
 }
 
 // 🤖 askRaziel — קורא למוח (ai-analyze persona=raziel) ומחזיר את חוזה raziel_response_contract (v1).
