@@ -1,4 +1,5 @@
-// wa-raziel (רזיאל) — v45 — 25.7.2026 — ברכת-לקוח-חדש עם מסלולי-מחקר (ללא הגבלה).
+// wa-raziel (רזיאל) — v46 — 25.7.2026 — תפריט-מסלולים חכם: רק כשההודעה הראשונה כללית.
+//   v46: isOpenerMsg — פתיח כללי/ברכה → תפריט 6 מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
 //   v45: welcome אנונימי — «מאיפה תרצה להתחיל?» + 6 מסלולים; הוסר «3 שאלות ביום» (after_gate=unlimited).
 //   v44: postFacts()→chat_search_facts — RAG על הפוסטים (עץ אחד, משותף עם האתר).
 //   v43: לולאת-בליעה על *כל* הודעה (savePersonalData+remember) פעם אחת לכל msgId (ingest-claim); תשובה אחת (byChat=האחרון).
@@ -32,6 +33,9 @@ const EMAIL_RE = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
 const CODE_RE = /\b(\d{6})\b/;
 const CANCEL_RE = /^(ביטול|בטל|עצור|לא עכשיו|אחר כך)\b/;
 const LINK_FLOW_TTL_MIN = 20;
+// פתיח כללי (ברכה/סתמי) → מציגים תפריט-מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
+const GREETING_RE = /^(היי|הי|שלום|אהלן|הלו|אולן|בוקר טוב|ערב טוב|צהריים טובים|לילה טוב|מה קורה|מה נשמע|מה המצב|מי אתה|נעים מאוד)/i;
+const isOpenerMsg = (t) => { const c = (t || "").replace(RAZIEL_TRIGGER, "").trim(); return c.length <= 14 || GREETING_RE.test(c) || SERVICES_INTENT.test(c); };
 
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 let trace = [];
@@ -667,7 +671,9 @@ async function handleAllDMs(nowSec, policy) {
     if (!last) {
       welcome = linked
         ? "ברוך שובך. נמשיך לחקור — איזה רעיון, מספר או שם מסקרן אותך היום?\n\n"
-        : "שלום! אני רזיאל, סוכן המחקר של SOD1820. אני כאן כדי לעזור לך לחקור שמות, מספרים, מקורות וקשרים. מאיפה תרצה להתחיל?\n\n🔢 מספר\n👤 שם\n🔄 השוואה בין שני ערכים\n📖 מקור או פסוק\n🔍 קשר או תבנית שמסקרנת אותך\n💡 רעיון או תגלית שתרצה לבדוק\n\n";
+        : (isOpenerMsg(text)
+            ? "שלום! אני רזיאל, סוכן המחקר של SOD1820. אני כאן כדי לעזור לך לחקור שמות, מספרים, מקורות וקשרים. מאיפה תרצה להתחיל?\n\n🔢 מספר\n👤 שם\n🔄 השוואה בין שני ערכים\n📖 מקור או פסוק\n🔍 קשר או תבנית שמסקרנת אותך\n💡 רעיון או תגלית שתרצה לבדוק\n\n"
+            : "שלום! אני רזיאל, סוכן המחקר של SOD1820 — נעים להכיר. בוא נצלול:\n\n");
       if (!linked) await touchReferral(phone);
     } else {
       const hrs = (Date.now() - new Date(last.created_at).getTime()) / 3.6e6;
