@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getPostsFromSupabase } from "../../lib/supabase.js";
-import { stripHtml } from "../../lib/format.js";
+import { getPostsFromSupabase, getRealityHints } from "../../lib/supabase.js";
+import { stripHtml, timeAgoHe } from "../../lib/format.js";
 import WhatsNewBadge from "../WhatsNewBadge.jsx";
 
-// 📡 טיקר עדכוני-האתר. כל פריט = פוסט (עדכון/חדשות שהאתר פרסם), לחיץ, מוביל לפוסט.
-// 🔒 בקשת צוריאל (22.7.2026): הטיקר העליון מציג *רק את עדכוני-האתר* — פוסטים בלבד.
-//    לא פורום, לא זרם-מציאות, לא מדדי-חיפוש. מקור יחיד: getPostsFromSupabase (העדכונים האחרונים).
+// 📡 טיקר עדכוני-האתר. כל פריט לחיץ + נושא «לפני כמה זמן עלה» (timeAgoHe).
+// 🔓 עדכון צוריאל (25.7.2026): הטיקר העליון מציג *גם רמזים מזרם המציאות* (gallery_images
+//    source='update') לצד עדכוני-הפוסטים — ממוזגים לפי זמן-עלייה (הכי-חדש ראשון). כל פריט
+//    מציג תמיד את הזמן היחסי «לפני X». (מחליף את נעילת 22.7 «פוסטים בלבד».) עדיין: לא פורום,
+//    לא מדדי-חיפוש. רמז-מציאות = מצביע בלבד → מוביל לדף-המספר הציבורי (/number/:primary_value).
 function useLiveTicker() {
   const [msgs, setMsgs] = useState([]);
   useEffect(() => {
@@ -16,21 +18,34 @@ function useLiveTicker() {
     async function load() {
       const items = [];
       // 📝 עדכוני-האתר האחרונים → לפוסט (getPostsFromSupabase מחזיר {posts,total} — לפרק!)
-      //    ממוין modified↓ במקור, כך שהעדכונים החדשים למעלה. בלי סף-זמן קשיח כדי שהטיקר
-      //    לא יתרוקן בימים בלי פרסום — «העדכונים האחרונים של האתר», לא «רק היום».
+      //    ts = זמן-העלייה («modified» = מתי עודכן/פורסם), לתצוגת «לפני X» ולמיזוג לפי טריות.
       try {
         const { posts } = await getPostsFromSupabase({ limit: 14 });
         for (const p of (posts || [])) {
           const title = stripHtml(p.title || "").trim();
           if (!title) continue;
-          items.push({ kind: "post", text: title.slice(0, 80), to: p.slug ? `/${encodeURIComponent(p.slug)}` : "/post" });
+          items.push({ kind: "post", text: title.slice(0, 80), to: p.slug ? `/${encodeURIComponent(p.slug)}` : "/post", ts: p.modified || p.date || p.created_at });
         }
       } catch { /* ignore */ }
 
+      // 🌊 רמזים מזרם המציאות — מצביעים בלבד לדף-המספר. getRealityHints מחזיר ציבורי (min_tier=0)
+      //    בלבד, ממוין stream_at↓, כך שאין דליפת-תוכן נעול. ts = stream_at («מתי עלה לזרם»).
+      try {
+        const hints = await getRealityHints(12);
+        for (const h of (hints || [])) {
+          const title = stripHtml(h.name || "").trim() || (h.primary_value ? `רמז חדש מהמציאות · ${h.primary_value}` : "");
+          if (!title) continue;
+          const to = h.primary_value ? `/number/${h.primary_value}` : "/archive";
+          items.push({ kind: "reality", text: title.slice(0, 80), to, ts: h.stream_at || h.created_at });
+        }
+      } catch { /* ignore */ }
+
+      // מיזוג לפי טריות (הכי-חדש שעלה ראשון) — פוסטים ורמזי-מציאות מעורבבים לפי זמן-עלייה
+      items.sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0));
       // הסרת כפילויות (לא חוזרות על עצמן) + תקרה
       const seen = new Set(); const uniq = [];
       for (const it of items) { if (seen.has(it.text)) continue; seen.add(it.text); uniq.push(it); }
-      if (live) setMsgs(uniq.slice(0, 12));
+      if (live) setMsgs(uniq.slice(0, 14));
     }
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 120000);
@@ -39,8 +54,8 @@ function useLiveTicker() {
   return msgs;
 }
 
-// אייקון לפי סוג הפריט — הטיקר כולו פוסטים (עדכוני-אתר)
-const KIND_ICON = { post: "📝" };
+// אייקון לפי סוג הפריט — 📝 פוסט (עדכון-אתר) · 🌊 רמז מזרם המציאות
+const KIND_ICON = { post: "📝", reality: "🌊" };
 
 // 📡 רצועה עליונה — טיקר עדכונים חי, לא-לחיץ, מתחלף הודעה-הודעה (חסין מובייל: בלי גלילה
 // אופקית / max-content / mask — רק החלפה עם דהייה, כך שום דבר לא "נעלם" בפלאפון).
@@ -102,10 +117,15 @@ export default function LiveActivityBar() {
         /* מרכז הטיקר — ‹ הודעה › בשורה, ניתן-ללחיצה (pointer-events:auto בתוך פס שהוא none) */
         .lt-center { display:flex; align-items:center; justify-content:center; gap:6px;
           max-width:100%; min-width:0; pointer-events:auto; }
-        .lt-msg { min-width:0; text-align:center; color:${barInk};
+        .lt-msg { display:flex; align-items:center; justify-content:center; gap:8px;
+          min-width:0; max-width:100%; text-align:center; color:${barInk};
           font-family:${F.heading}; font-size:12.5px; font-weight:700;
-          white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
           animation: lt-fade .5s ease; }
+        .lt-txt { min-width:0; display:inline-flex; align-items:center;
+          white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        /* «לפני X» — צ׳יפ זמן-יחסי שתמיד נראה (flex:none), לא נחתך עם הכותרת */
+        .lt-time { flex:none; font-size:11px; font-weight:600; opacity:.8; color:${barAccent};
+          white-space:nowrap; }
         /* חצי-דפדוף ‹ › — עדינים, לא גונבים תשומת-לב; מתבהרים בריחוף */
         .lt-nav { flex:none; background:none; border:none; cursor:pointer; line-height:1;
           font-size:17px; font-weight:900; padding:2px 4px; border-radius:6px; opacity:0.55;
@@ -135,11 +155,12 @@ export default function LiveActivityBar() {
             )}
             {cur && (
               <div className="lt-msg" key={idx}>
-                <Link to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link className="lt-txt" to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
                   <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
-                  {cur.text}
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cur.text}</span>
                   <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
                 </Link>
+                {cur.ts && <span className="lt-time" title="מתי עלה לטיקר">· {timeAgoHe(cur.ts)}</span>}
               </div>
             )}
             {msgs.length > 1 && (
