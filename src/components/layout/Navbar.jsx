@@ -674,16 +674,16 @@ export default function Navbar() {
           {/* 🚀 «כאן מתחילים» — באנר בולט בראש המגירה (parity עם פאנל-הדסקטופ). למבקר-חדש בנייד
               זו הפעולה הכי חשובה; קודם היא הייתה סתם אריח רגיל בתוך «כל המדורים». */}
           <Link to="/start" onClick={() => setDrawer(false)} style={{
-            display: "flex", alignItems: "center", gap: 12, textDecoration: "none",
+            display: "flex", alignItems: "center", gap: 9, textDecoration: "none",
             background: "linear-gradient(135deg, rgba(233,200,74,0.16), rgba(184,144,31,0.10))",
-            border: `1px solid ${cc.borderGold}`, borderRadius: 14, padding: "13px 15px", margin: "2px 6px 10px",
+            border: `1px solid ${cc.borderGold}`, borderRadius: 12, padding: "8px 12px", margin: "2px 6px 8px",
           }}>
-            <span style={{ fontSize: 26, lineHeight: 1 }}>🚀</span>
-            <span style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
-              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 16, fontWeight: 800 }}>כאן מתחילים</span>
-              <span style={{ color: cc.muted, fontFamily: F.body, fontSize: 12 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
+            <span style={{ fontSize: 19, lineHeight: 1 }}>🚀</span>
+            <span style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
+              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 13.5, fontWeight: 800 }}>כאן מתחילים</span>
+              <span style={{ color: cc.muted, fontFamily: F.body, fontSize: 10.5 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
             </span>
-            <span style={{ color: cc.goldLight, fontSize: 18 }}>←</span>
+            <span style={{ color: cc.goldLight, fontSize: 15 }}>←</span>
           </Link>
           {user ? (
             <button onClick={() => { setDrawer(false); openCenter(); }} style={{
