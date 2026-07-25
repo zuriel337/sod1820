@@ -1,4 +1,6 @@
-// wa-raziel (רזיאל) — v43 — 23.7.2026 — בליעה מלאה: קליטת עובדות+זיכרון מכל הודעה בחלון (לא רק האחרונה).
+// wa-raziel (רזיאל) — v45 — 25.7.2026 — ברכת-לקוח-חדש עם מסלולי-מחקר (ללא הגבלה).
+//   v45: welcome אנונימי — «מאיפה תרצה להתחיל?» + 6 מסלולים; הוסר «3 שאלות ביום» (after_gate=unlimited).
+//   v44: postFacts()→chat_search_facts — RAG על הפוסטים (עץ אחד, משותף עם האתר).
 //   v43: לולאת-בליעה על *כל* הודעה (savePersonalData+remember) פעם אחת לכל msgId (ingest-claim); תשובה אחת (byChat=האחרון).
 //   v42: אפס-כפילות — fn_raziel_claim + alreadySentToChat.
 //   v41: «לעולם לא שתיקה» + שומר-מטטרון (never_silent_metatron_law).
@@ -665,7 +667,7 @@ async function handleAllDMs(nowSec, policy) {
     if (!last) {
       welcome = linked
         ? "ברוך שובך. נמשיך לחקור — איזה רעיון, מספר או שם מסקרן אותך היום?\n\n"
-        : `ברוך הבא. אני רזיאל, השער למערכת המחקר של SOD1820. ספר לי מה מסקרן אותך — מספר, שם, פסוק או רמז — ונחקור יחד.\n(לא-רשומים: ${anonLimit} שאלות ביום; הרשמה: ${policy.register_url || (SITE+"/login?src=raziel")})\n\n`;
+        : "שלום! אני רזיאל, סוכן המחקר של SOD1820. אני כאן כדי לעזור לך לחקור שמות, מספרים, מקורות וקשרים. מאיפה תרצה להתחיל?\n\n🔢 מספר\n👤 שם\n🔄 השוואה בין שני ערכים\n📖 מקור או פסוק\n🔍 קשר או תבנית שמסקרנת אותך\n💡 רעיון או תגלית שתרצה לבדוק\n\n";
       if (!linked) await touchReferral(phone);
     } else {
       const hrs = (Date.now() - new Date(last.created_at).getTime()) / 3.6e6;
