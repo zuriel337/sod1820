@@ -6,6 +6,7 @@ import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameDossier } from "../lib/supabase.js";
 import AskRaziel from "../components/AskRaziel.jsx";
 import MethodAnalyze from "../components/MethodAnalyze.jsx";
+import NameJourney from "../components/NameJourney.jsx";
 import { getWordCrossFacts } from "../lib/deepAnalysis.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
@@ -293,6 +294,10 @@ export default function NameLabPage({ embedded = false }) {
         </Section>
 
         {word && (<>
+          {/* 🧭 מסע-המחקר (גל 3) — הפרוטוקול המאוחד (fn_name_protocol): התקדמות אמיתית + מסמך בשכבות.
+              מוביל את הדף; המדורים הקלאסיים מתחת נשמרים (אפס אובדן-ממצא, בסיס להשוואת-זהב). */}
+          <NameJourney word={word} />
+
           {/* 02 · סיכום הבדיקה — מבט-על מאוחד על כל המנועים (בלי שמות-סוכנים). עובדות בלבד; הפרשנות בסיכום ה-AI מתחת. */}
           <section style={{ background: "linear-gradient(180deg,#ffffff,#f6f9ff)", border: `1px solid #d9e5ff`, borderRadius: 16, padding: "16px 20px", boxShadow: "0 1px 3px rgba(20,25,40,.04)" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12 }}>
