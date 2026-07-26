@@ -193,17 +193,25 @@ function LayerBody({ layer }) {
         </div>
       );
     case "notarikon": {
-      const rt = d?.rashei_tevot || [];
-      if (!rt.length) return <Empty t={d?.note || "לא נמצאו ראשי-תיבות לשם זה."} />;
+      const rt = d?.rashei_tevot || [], sf = d?.sofei_tevot || [];
+      if (!rt.length && !sf.length) return <Empty t={d?.note || "לא נמצאו ראשי/סופי-תיבות לשם זה (שכיח בשמות ארוכים)."} />;
+      const list = (arr, label) => arr.length > 0 && (
+        <div>
+          <div style={{ color: C.dim, fontFamily: F.h, fontSize: 12, fontWeight: 800, marginBottom: 6 }}>{label} <span style={{ color: "#9aa1ad", fontWeight: 600 }}>({arr.length})</span></div>
+          <div style={{ display: "grid", gap: 5 }}>
+            {arr.slice(0, 8).map((h, i) => (
+              <div key={i} style={{ background: "#fbfcfe", border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 11px" }}>
+                <span style={{ color: C.blue, fontFamily: F.h, fontSize: 12, fontWeight: 800 }}>{h.ref}</span>
+                <span style={{ color: "#3a4553", fontFamily: F.h, fontSize: 13, marginRight: 8 }}>{Array.isArray(h.words) ? h.words.join(" ") : ""}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
       return (
-        <div style={{ display: "grid", gap: 6 }}>
-          <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11.5 }}>{d.count} פסוקים שראשי-תיבותיהם מאייתים את השם:</div>
-          {rt.slice(0, 12).map((h, i) => (
-            <div key={i} style={{ background: "#fbfcfe", border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 11px" }}>
-              <span style={{ color: C.blue, fontFamily: F.h, fontSize: 12, fontWeight: 800 }}>{h.ref}</span>
-              <span style={{ color: "#3a4553", fontFamily: F.h, fontSize: 13, marginRight: 8 }}>{Array.isArray(h.words) ? h.words.join(" ") : ""}</span>
-            </div>
-          ))}
+        <div style={{ display: "grid", gap: 12 }}>
+          {list(rt, "🔤 ראשי-תיבות")}
+          {list(sf, "🔡 סופי-תיבות")}
         </div>
       );
     }
@@ -223,11 +231,35 @@ function LayerBody({ layer }) {
         </div>
       );
     case "els": {
-      const on = d?.on_file || [];
-      if (!on.length && !(d?.finds?.length)) return <Empty t={d?.note || "אין דילוג שמור לשם זה."} />;
+      const on = d?.on_file || [], hits = d?.search?.hits || [];
+      const has = (d?.els_count || 0) > 0 || on.length > 0;
+      if (!has) return <Empty t={d?.note || "לא נמצא דילוג לשם זה בתורה."} />;
+      const stat = (label, n, col) => (
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#f6f9ff", border: `1px solid ${C.blueLine || "#d9e5ff"}`, borderRadius: 999, padding: "5px 12px" }}>
+          <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12, fontWeight: 700 }}>{label}</span>
+          <b style={{ fontFamily: F.m, color: col || C.blue, fontSize: 15 }}>{n}</b>
+        </span>
+      );
       return (
-        <div style={{ display: "grid", gap: 7 }}>
-          {on.map((r, i) => <div key={i} style={{ background: "#fbfcfe", border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 11px", fontFamily: F.h, fontSize: 13, color: C.ink }}>🔍 {r.title || r.term} <span style={{ color: C.dim, fontSize: 12 }}>· דילוג {r.skip} · {r.book || r.scope}</span></div>)}
+        <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {stat("ברצף (גלוי)", d.plain ?? 0)}
+            {stat("בדילוגים (נסתר)", d.els_count ?? 0, C.green)}
+            {d.min_skip != null && stat("הדילוג הקצר", d.min_skip, C.gold)}
+          </div>
+          {hits.length > 0 && (
+            <div>
+              <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11.5, fontWeight: 700, marginBottom: 6 }}>הדילוגים ההדוקים ביותר:</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {hits.slice(0, 12).map((h, i) => (
+                  <span key={i} title={`מיקום ${h.start}`} style={{ background: "#fbfcfe", border: `1px solid ${C.line}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.h, fontSize: 12.5, fontWeight: 700, color: C.ink }}>
+                    דילוג {h.skip}{h.dir < 0 ? " ↩︎" : ""}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {on.map((r, i) => <div key={i} style={{ background: "#fbfcfe", border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 11px", fontFamily: F.h, fontSize: 13, color: C.ink }}>💾 {r.title || r.term} <span style={{ color: C.dim, fontSize: 12 }}>· דילוג {r.skip} · {r.book || r.scope}</span></div>)}
           {d?.note && <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11.5 }}>{d.note}</div>}
         </div>
       );

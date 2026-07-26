@@ -61,10 +61,11 @@ function countFindings(f) {
     len(f.crossings) +
     len(f.graph_bridges) +
     len(f.notarikon?.rashei_tevot) +
+    len(f.notarikon?.sofei_tevot) +
     len(f.neighbors) +
     len(f.linguistics?.anagrams) +
     num(f.sources?.count) +
-    num(f.els?.count) +
+    len(f.els?.search?.hits) +
     len(f.language?.bridges)
   );
 }
