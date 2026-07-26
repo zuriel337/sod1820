@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberDossier, getNumberMap, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
 import { getCiphersForNumber } from "../lib/elsMatrices.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
@@ -153,14 +153,16 @@ function NearbyNumbers({ value, P, numHref, compact = false }) {
     </Link>
   );
 
+  // ריכוז יפה: הצ'יפים בסריג ממורכז (repeat auto-fill) — לא «בורחים ימינה», מסתדרים בעמודות שוות.
+  const gridWrap = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(66px, 1fr))", gap: 7, justifyItems: "center", maxWidth: 360, margin: "0 auto" };
   return (
-    <div style={{ marginTop: compact ? 20 : 0, textAlign: compact ? "center" : "right" }}>
+    <div style={{ marginTop: compact ? 20 : 0, textAlign: "center" }}>
       {hasGraph && (
-        <div style={{ marginBottom: scale.length ? 9 : 0 }}>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>
+        <div style={{ marginBottom: scale.length ? 12 : 0 }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 9 }}>
             🔗 מספרים קשורים <span style={{ color: P.border, fontWeight: 600 }}>· אותם נושאים ומקורות</span>
           </div>
-          <div style={{ display: "flex", gap: 7, justifyContent: compact ? "center" : "flex-start", flexWrap: "wrap" }}>
+          <div style={gridWrap}>
             {graph.map(g => {
               const reason = g.viaTopic > 0 ? "✦" : "🖼";  // התכנסות מול תמונה
               return chip(g.value, <span style={{ color: P.accentDim, fontSize: 10, fontWeight: 600 }}>{reason}</span>);
@@ -170,10 +172,10 @@ function NearbyNumbers({ value, P, numHref, compact = false }) {
       )}
       {scale.length > 0 && (
         <div>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 7 }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 8 }}>
             {hasGraph ? "↕ אותו שורש בסדר גודל אחר" : "✦ מספרים קרובים:"}
           </div>
-          <div style={{ display: "flex", gap: 7, justifyContent: compact ? "center" : "flex-start", flexWrap: "wrap" }}>
+          <div style={gridWrap}>
             {scale.map(n => chip(n))}
           </div>
         </div>
@@ -572,12 +574,12 @@ export default function EntityPage({ embedPhrase } = {}) {
     let stored = null; try { stored = JSON.parse(localStorage.getItem("np-open2") || "null"); } catch { /* ignore */ }
     // ברירת-מחדל מסודרת: רק מד-ההתכנסות פתוח; השאר מקופלים (עם הספירות בכותרת). משתמש חוזר — נשמרת בחירתו.
     const base = (stored && typeof stored === "object") ? stored : { galleries: false, posts: false, dna: true, roots: false };
-    return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots };
+    return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots, intel: false, gmap: false };
   });
   const persistOpen = m => { try { localStorage.setItem("np-open2", JSON.stringify({ galleries: m.galleries, posts: m.posts, dna: m.dna, roots: m.roots })); } catch { /* ignore */ } };
   const toggleAcc = id => setOpen(o => { const n = { ...o, [id]: !o[id] }; persistOpen(n); return n; });
   const allOpen = Object.values(open).every(Boolean);
-  const setAll = v => setOpen(() => { const n = { words: v, galleries: v, posts: v, dna: v, roots: v }; persistOpen(n); return n; });
+  const setAll = v => setOpen(() => { const n = { words: v, galleries: v, posts: v, dna: v, roots: v, intel: v, gmap: v }; persistOpen(n); return n; });
   const goChip = id => {
     if (["events", "insights", "comments"].includes(id)) setOpen(o => ({ ...o, roots: true }));
     else if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
@@ -819,6 +821,19 @@ export default function EntityPage({ embedPhrase } = {}) {
     const cached = loadAiCache(String(term ?? value));
     setAiText(cached?.text || ""); setAiEngine(cached?.engine || "claude"); setAiDeep(!!cached?.deep);
   }, [value, term]);
+
+  // 🧠 אינטליגנציית-המספר — התמונה המלאה מהמנוע האחד (עובדה, לא AI). אותו מקור שרזיאל קורא.
+  const [dossier, setDossier] = useState(null);
+  // 🗺️ מפת המספר — שכונת המספר בגרף-הידע (nodes+edges), אותה עדשה שרזיאל/מטטרון קוראים.
+  const [gmap, setGmap] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    setDossier(null); setGmap(null);
+    if (!isNumber || !value) return;
+    getNumberDossier(value).then(d => { if (alive) setDossier(d); }).catch(() => {});
+    getNumberMap(value).then(m => { if (alive) setGmap(m); }).catch(() => {});
+    return () => { alive = false; };
+  }, [value, isNumber]);
   // 🧹 החלטת צוריאל (12.7): עובדות-העומק נחשפות רק בלחיצה על ה-AI — לא נטענות מראש,
   //    שהמסך לא יתמלא. חריג יחיד: ניתוח שחזר מהקאש משלים את שכבת-העובדות שלו.
   useEffect(() => {
@@ -1086,6 +1101,20 @@ export default function EntityPage({ embedPhrase } = {}) {
       return <MethodAnalyze word={maWord} defaultMethod="מסתתר" title={`🔬 נתח שיטה — על «${maWord}» (=${value})`} />;
     })()}
     </>
+  );
+
+  // 🤖 האקורדיון הקנוני של ה-AI — תמיד סגור, בשני המצבים (קריאה + מחקר). מקור-אמת אחד → לא «עולה» ולא נפתח לבד אחרי מיזוג.
+  // <details> נייטיב בלי open = סגור כברירת-מחדל, בלי state שאפשר לשבור.
+  const aiFold = (
+    <details className="ai-fold" style={{ maxWidth: 500, margin: "18px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden" }}>
+      <style>{`.ai-fold summary::-webkit-details-marker{display:none}.ai-fold[open] .ai-fold-caret{transform:rotate(180deg)}`}</style>
+      <summary style={{ cursor: "pointer", listStyle: "none", padding: "13px 16px", display: "flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
+        <span>🤖 ניתוח AI</span>
+        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontWeight: 600 }}>· פרשנות + נתח כל שיטה</span>
+        <span className="ai-fold-caret" style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 12, transition: "transform .2s ease" }}>▾</span>
+      </summary>
+      <div style={{ padding: "0 8px 10px" }}>{aiCard}</div>
+    </details>
   );
 
   // 🔍 SEO עשיר אחרי טעינת ה-bundle — תיאור/JSON-LD עם הביטויים האמיתיים (הקריאה המוקדמת רצה עם phrases:[]).
@@ -1363,8 +1392,8 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
-          {/* 🤖 ה-AI במצב מחקר — אותו כרטיס מלא כמו במצב הפשוט (בחירת מנוע · 🔬 עמוק · תהודה · הצלבות לחיצות) */}
-          {showBody && aiCard}
+          {/* 🤖 ה-AI במצב מחקר — אותו אקורדיון סגור כמו במצב קריאה (בקשת צוריאל: תמיד מקופל, לא פתוח/גבוה) */}
+          {showBody && aiFold}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
           <CollectiveBadge type={isNumber ? "number" : "phrase"} refv={isNumber ? value : term}
             label={isNumber ? "את המספר הזה" : "את הביטוי הזה"} />
@@ -1443,16 +1472,8 @@ export default function EntityPage({ embedPhrase } = {}) {
               </div>
             )}
 
-            {/* 🤖 כל ניתוחי ה-AI — אקורדיון אחד סגור (בקשת צוריאל: גימטריות בראש; ה-AI + «נתח שיטה» מרוכזים ומקופלים) */}
-            <details className="ai-fold" style={{ maxWidth: 500, margin: "18px auto 0", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden" }}>
-              <style>{`.ai-fold summary::-webkit-details-marker{display:none}.ai-fold[open] .ai-fold-caret{transform:rotate(180deg)}`}</style>
-              <summary style={{ cursor: "pointer", listStyle: "none", padding: "13px 16px", display: "flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>
-                <span>🤖 ניתוח AI</span>
-                <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, fontWeight: 600 }}>· פרשנות + נתח כל שיטה</span>
-                <span className="ai-fold-caret" style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 12, transition: "transform .2s ease" }}>▾</span>
-              </summary>
-              <div style={{ padding: "0 8px 10px" }}>{aiCard}</div>
-            </details>
+            {/* 🤖 כל ניתוחי ה-AI — האקורדיון הקנוני הסגור (aiFold, מקור-אמת אחד לשני המצבים) */}
+            {aiFold}
 
             {/* פעולות-עזר עדינות — אייקונים קטנים בלי מסגרות (📌 🔖 🔗 📋 🎲). המסע = פעולה משנית עדינה, לא הדגשה. */}
             <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20 }}>
@@ -1697,7 +1718,7 @@ export default function EntityPage({ embedPhrase } = {}) {
         {/* ── 📂 מספרים-קרובים = גרף (נעילת צוריאל #3, ימין) + פתח/סגור הכל (שמאל) ── */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
           {value >= 10 && (
-            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+            <div style={{ flex: "1 1 100%", minWidth: 0 }}>
               <NearbyNumbers value={value} P={P} numHref={numHref} />
             </div>
           )}
@@ -1734,6 +1755,79 @@ export default function EntityPage({ embedPhrase } = {}) {
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
             </div>
         </Acc>
+
+        {/* 🧠 אינטליגנציית המספר — אקורדיון (מצב מחקר בלבד · סגור כברירת-מחדל · אחרי מד ההתכנסות). ניסוח ציבורי. */}
+        {isNumber && dossier?.methods?.length > 0 && (
+          <Acc id="intel" icon="🧠" title="אינטליגנציית המספר" count={dossier.methods.length} open={open} onToggle={toggleAcc} P={P}>
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>בכל שיטות החישוב — הביטויים המתכנסים למספר</div>
+            <div style={{ display: "grid", gap: 11 }}>
+              {dossier.methods.map(m => (
+                <div key={m.method}>
+                  <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, marginBottom: 5 }}>
+                    📊 {m.method} <span style={{ fontFamily: F.mono, color: P.inkSoft }}>{value}</span>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {(m.phrases || []).map((ph, i) => (
+                      <Link key={i} to={numHref(encodeURIComponent(ph))}
+                        style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`,
+                          borderRadius: 9, padding: "4px 10px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>{ph}</Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {dossier.topics?.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12, paddingTop: 11, borderTop: `1px solid ${P.border}` }}>
+                {dossier.topics.map((t, i) => (
+                  <span key={i} style={{ color: P.accentDim, background: "transparent", border: `1px dashed ${P.border}`, borderRadius: 999, padding: "3px 10px", fontFamily: F.body, fontSize: 12 }}>
+                    🎴 {stripHtml(t.title)} · {t.meter}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic", marginTop: 10 }}>
+              כל הערכים מחושבים במנוע · מסודרים לפי חוזק ההתכנסות
+            </div>
+          </Acc>
+        )}
+
+        {/* 🗺️ מפת המספר — שכונת המספר בגרף-הידע (nodes+edges). אקורדיון, כל node → הדף הקנוני שלו. */}
+        {isNumber && gmap && (() => {
+          const groups = [
+            { key: "convergence", icon: "✦", label: "התכנסויות", href: x => `/topic/${x.ref}` },
+            { key: "entity", icon: "💠", label: "ישויות מחוברות", href: x => numHref(encodeURIComponent(x.label)) },
+            { key: "number", icon: "🔢", label: "מספרים קשורים", href: x => numHref(x.ref) },
+            { key: "event", icon: "🌅", label: "אירועים", href: () => "/timeline" },
+          ].map(g => ({ ...g, items: gmap.neighbors?.[g.key] || [] })).filter(g => g.items.length);
+          if (!groups.length) return null;
+          const total = groups.reduce((s, g) => s + g.items.length, 0);
+          return (
+            <Acc id="gmap" icon="🗺️" title="מפת המספר" count={total} open={open} onToggle={toggleAcc} P={P}>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginBottom: 14 }}>לאן המספר מתחבר בעץ הידע — לחיצה פותחת את הדף של כל חיבור.</div>
+              <div style={{ display: "grid", gap: 14 }}>
+                {groups.map(g => (
+                  <div key={g.key}>
+                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, marginBottom: 6 }}>
+                      {g.icon} {g.label} <span style={{ fontFamily: F.mono, color: P.inkSoft }}>{g.items.length}</span>
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {g.items.map((x, i) => (
+                        <Link key={i} to={g.href(x)}
+                          style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`,
+                            borderRadius: 9, padding: "5px 11px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
+                          {stripHtml(x.label)}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic", marginTop: 12 }}>
+                מפה חיה מגרף-הידע · מתעדכנת מאליה כשנוספים חיבורים
+              </div>
+            </Acc>
+          );
+        })()}
 
         {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
