@@ -153,14 +153,16 @@ function NearbyNumbers({ value, P, numHref, compact = false }) {
     </Link>
   );
 
+  // ריכוז יפה: הצ'יפים בסריג ממורכז (repeat auto-fill) — לא «בורחים ימינה», מסתדרים בעמודות שוות.
+  const gridWrap = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(66px, 1fr))", gap: 7, justifyItems: "center", maxWidth: 360, margin: "0 auto" };
   return (
-    <div style={{ marginTop: compact ? 20 : 0, textAlign: compact ? "center" : "right" }}>
+    <div style={{ marginTop: compact ? 20 : 0, textAlign: "center" }}>
       {hasGraph && (
-        <div style={{ marginBottom: scale.length ? 9 : 0 }}>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>
+        <div style={{ marginBottom: scale.length ? 12 : 0 }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 9 }}>
             🔗 מספרים קשורים <span style={{ color: P.border, fontWeight: 600 }}>· אותם נושאים ומקורות</span>
           </div>
-          <div style={{ display: "flex", gap: 7, justifyContent: compact ? "center" : "flex-start", flexWrap: "wrap" }}>
+          <div style={gridWrap}>
             {graph.map(g => {
               const reason = g.viaTopic > 0 ? "✦" : "🖼";  // התכנסות מול תמונה
               return chip(g.value, <span style={{ color: P.accentDim, fontSize: 10, fontWeight: 600 }}>{reason}</span>);
@@ -170,10 +172,10 @@ function NearbyNumbers({ value, P, numHref, compact = false }) {
       )}
       {scale.length > 0 && (
         <div>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 7 }}>
+          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 8 }}>
             {hasGraph ? "↕ אותו שורש בסדר גודל אחר" : "✦ מספרים קרובים:"}
           </div>
-          <div style={{ display: "flex", gap: 7, justifyContent: compact ? "center" : "flex-start", flexWrap: "wrap" }}>
+          <div style={gridWrap}>
             {scale.map(n => chip(n))}
           </div>
         </div>
@@ -572,12 +574,12 @@ export default function EntityPage({ embedPhrase } = {}) {
     let stored = null; try { stored = JSON.parse(localStorage.getItem("np-open2") || "null"); } catch { /* ignore */ }
     // ברירת-מחדל מסודרת: רק מד-ההתכנסות פתוח; השאר מקופלים (עם הספירות בכותרת). משתמש חוזר — נשמרת בחירתו.
     const base = (stored && typeof stored === "object") ? stored : { galleries: false, posts: false, dna: true, roots: false };
-    return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots };
+    return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots, intel: false };
   });
   const persistOpen = m => { try { localStorage.setItem("np-open2", JSON.stringify({ galleries: m.galleries, posts: m.posts, dna: m.dna, roots: m.roots })); } catch { /* ignore */ } };
   const toggleAcc = id => setOpen(o => { const n = { ...o, [id]: !o[id] }; persistOpen(n); return n; });
   const allOpen = Object.values(open).every(Boolean);
-  const setAll = v => setOpen(() => { const n = { words: v, galleries: v, posts: v, dna: v, roots: v }; persistOpen(n); return n; });
+  const setAll = v => setOpen(() => { const n = { words: v, galleries: v, posts: v, dna: v, roots: v, intel: v }; persistOpen(n); return n; });
   const goChip = id => {
     if (["events", "insights", "comments"].includes(id)) setOpen(o => ({ ...o, roots: true }));
     else if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
@@ -1713,7 +1715,7 @@ export default function EntityPage({ embedPhrase } = {}) {
         {/* ── 📂 מספרים-קרובים = גרף (נעילת צוריאל #3, ימין) + פתח/סגור הכל (שמאל) ── */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
           {value >= 10 && (
-            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+            <div style={{ flex: "1 1 100%", minWidth: 0 }}>
               <NearbyNumbers value={value} P={P} numHref={numHref} />
             </div>
           )}
@@ -1751,13 +1753,10 @@ export default function EntityPage({ embedPhrase } = {}) {
             </div>
         </Acc>
 
-        {/* 🧠 אינטליגנציית המספר — כל השיטות מדורגות, אחרי מד ההתכנסות (מצב מחקר בלבד). ניסוח ציבורי. */}
+        {/* 🧠 אינטליגנציית המספר — אקורדיון (מצב מחקר בלבד · סגור כברירת-מחדל · אחרי מד ההתכנסות). ניסוח ציבורי. */}
         {isNumber && dossier?.methods?.length > 0 && (
-          <div style={{ maxWidth: 620, margin: "0 auto 18px", padding: "16px 18px", borderRadius: 16, background: P.cardSoft, border: `1px solid ${P.border}` }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-              <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 800 }}>🧠 אינטליגנציית המספר</span>
-              <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>בכל שיטות החישוב — הביטויים המתכנסים למספר</span>
-            </div>
+          <Acc id="intel" icon="🧠" title="אינטליגנציית המספר" count={dossier.methods.length} open={open} onToggle={toggleAcc} P={P}>
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginBottom: 12 }}>בכל שיטות החישוב — הביטויים המתכנסים למספר</div>
             <div style={{ display: "grid", gap: 11 }}>
               {dossier.methods.map(m => (
                 <div key={m.method}>
@@ -1786,7 +1785,7 @@ export default function EntityPage({ embedPhrase } = {}) {
             <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic", marginTop: 10 }}>
               כל הערכים מחושבים במנוע · מסודרים לפי חוזק ההתכנסות
             </div>
-          </div>
+          </Acc>
         )}
 
         {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
