@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { F } from "../theme.js";
-import { getPendingMatrices, moderateMatrix, getAllVariants } from "../lib/elsMatrices.js";
+import { getPendingMatrices, moderateMatrix, elsToDossier, getAllVariants } from "../lib/elsMatrices.js";
 import { getAllContributions, approveContribution, moderateContribution } from "../lib/contributions.js";
 import { formatDateHe } from "../lib/format.js";
 
@@ -25,6 +25,14 @@ export default function ElsModerationTab() {
   const act = useCallback(async (id, status) => {
     setBusy(id);
     try { await moderateMatrix(id, status); setItems(prev => (prev || []).filter(m => m.id !== id)); }
+    catch (e) { alert("שגיאה: " + (e?.message || "נסה שוב")); }
+    finally { setBusy(null); }
+  }, []);
+
+  // 📁 אישור «לדף הכתב בלבד» — יורד מהתור ומהספרייה הראשית, נשאר בדף-החוקר של היוצר.
+  const toDossier = useCallback(async (id) => {
+    setBusy(id);
+    try { await elsToDossier(id); setItems(prev => (prev || []).filter(m => m.id !== id)); }
     catch (e) { alert("שגיאה: " + (e?.message || "נסה שוב")); }
     finally { setBusy(null); }
   }, []);
@@ -78,6 +86,7 @@ export default function ElsModerationTab() {
                   {findings.length > 0 && <div style={{ color: "#cdbf9f", fontSize: 12, marginTop: 4 }}>ממצאים: {findings.slice(0, 8).join(" · ")}</div>}
                   <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
                     <button disabled={busy === m.id} onClick={() => act(m.id, "published")} style={btn("linear-gradient(135deg,#3fae5f,#1c7a38)", "#04210f")}>{busy === m.id ? "…" : "✅ אשר ופרסם"}</button>
+                    <button disabled={busy === m.id} onClick={() => toDossier(m.id)} title="ירד מהספרייה הראשית ומהתור, יישאר בדף-החוקר של היוצר" style={btn("rgba(212,175,55,0.16)", "#f0d879")}>{busy === m.id ? "…" : "📁 אשר לדף הכתב"}</button>
                     <button disabled={busy === m.id} onClick={() => act(m.id, "hidden")} style={btn("transparent", "#c98a7a")}>🙈 דחה</button>
                     {m.slug && <a href={`/codes/${encodeURIComponent(m.slug)}`} target="_blank" rel="noopener noreferrer" style={{ ...btn("transparent", "#9a8f6a"), textDecoration: "none", display: "inline-flex", alignItems: "center" }}>👁 תצוגה</a>}
                   </div>
