@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberDossier, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberDossier, getNumberMap, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
 import { getCiphersForNumber } from "../lib/elsMatrices.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
@@ -574,12 +574,12 @@ export default function EntityPage({ embedPhrase } = {}) {
     let stored = null; try { stored = JSON.parse(localStorage.getItem("np-open2") || "null"); } catch { /* ignore */ }
     // ברירת-מחדל מסודרת: רק מד-ההתכנסות פתוח; השאר מקופלים (עם הספירות בכותרת). משתמש חוזר — נשמרת בחירתו.
     const base = (stored && typeof stored === "object") ? stored : { galleries: false, posts: false, dna: true, roots: false };
-    return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots, intel: false };
+    return { words: true, galleries: !!base.galleries, posts: !!base.posts, dna: !!base.dna, roots: !!base.roots, intel: false, gmap: false };
   });
   const persistOpen = m => { try { localStorage.setItem("np-open2", JSON.stringify({ galleries: m.galleries, posts: m.posts, dna: m.dna, roots: m.roots })); } catch { /* ignore */ } };
   const toggleAcc = id => setOpen(o => { const n = { ...o, [id]: !o[id] }; persistOpen(n); return n; });
   const allOpen = Object.values(open).every(Boolean);
-  const setAll = v => setOpen(() => { const n = { words: v, galleries: v, posts: v, dna: v, roots: v, intel: v }; persistOpen(n); return n; });
+  const setAll = v => setOpen(() => { const n = { words: v, galleries: v, posts: v, dna: v, roots: v, intel: v, gmap: v }; persistOpen(n); return n; });
   const goChip = id => {
     if (["events", "insights", "comments"].includes(id)) setOpen(o => ({ ...o, roots: true }));
     else if (["words", "galleries", "posts"].includes(id)) setOpen(o => ({ ...o, [id]: true }));
@@ -824,11 +824,14 @@ export default function EntityPage({ embedPhrase } = {}) {
 
   // 🧠 אינטליגנציית-המספר — התמונה המלאה מהמנוע האחד (עובדה, לא AI). אותו מקור שרזיאל קורא.
   const [dossier, setDossier] = useState(null);
+  // 🗺️ מפת המספר — שכונת המספר בגרף-הידע (nodes+edges), אותה עדשה שרזיאל/מטטרון קוראים.
+  const [gmap, setGmap] = useState(null);
   useEffect(() => {
     let alive = true;
-    setDossier(null);
+    setDossier(null); setGmap(null);
     if (!isNumber || !value) return;
     getNumberDossier(value).then(d => { if (alive) setDossier(d); }).catch(() => {});
+    getNumberMap(value).then(m => { if (alive) setGmap(m); }).catch(() => {});
     return () => { alive = false; };
   }, [value, isNumber]);
   // 🧹 החלטת צוריאל (12.7): עובדות-העומק נחשפות רק בלחיצה על ה-AI — לא נטענות מראש,
@@ -1787,6 +1790,44 @@ export default function EntityPage({ embedPhrase } = {}) {
             </div>
           </Acc>
         )}
+
+        {/* 🗺️ מפת המספר — שכונת המספר בגרף-הידע (nodes+edges). אקורדיון, כל node → הדף הקנוני שלו. */}
+        {isNumber && gmap && (() => {
+          const groups = [
+            { key: "convergence", icon: "✦", label: "התכנסויות", href: x => `/topic/${x.ref}` },
+            { key: "entity", icon: "💠", label: "ישויות מחוברות", href: x => numHref(encodeURIComponent(x.label)) },
+            { key: "number", icon: "🔢", label: "מספרים קשורים", href: x => numHref(x.ref) },
+            { key: "event", icon: "🌅", label: "אירועים", href: () => "/timeline" },
+          ].map(g => ({ ...g, items: gmap.neighbors?.[g.key] || [] })).filter(g => g.items.length);
+          if (!groups.length) return null;
+          const total = groups.reduce((s, g) => s + g.items.length, 0);
+          return (
+            <Acc id="gmap" icon="🗺️" title="מפת המספר" count={total} open={open} onToggle={toggleAcc} P={P}>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginBottom: 14 }}>לאן המספר מתחבר בעץ הידע — לחיצה פותחת את הדף של כל חיבור.</div>
+              <div style={{ display: "grid", gap: 14 }}>
+                {groups.map(g => (
+                  <div key={g.key}>
+                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4, marginBottom: 6 }}>
+                      {g.icon} {g.label} <span style={{ fontFamily: F.mono, color: P.inkSoft }}>{g.items.length}</span>
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {g.items.map((x, i) => (
+                        <Link key={i} to={g.href(x)}
+                          style={{ textDecoration: "none", color: P.accentText, background: P.card, border: `1px solid ${P.border}`,
+                            borderRadius: 9, padding: "5px 11px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
+                          {stripHtml(x.label)}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontStyle: "italic", marginTop: 12 }}>
+                מפה חיה מגרף-הידע · מתעדכנת מאליה כשנוספים חיבורים
+              </div>
+            </Acc>
+          );
+        })()}
 
         {/* ── 🌳 מילים שוות — אחרי ההתכנסות (לב הגימטריה: מה שווה למספר) ── */}
         <Acc id="words" icon="🌳" title="מילים שוות" count={d.phrasesCount || d.phrases?.length || null} open={open} onToggle={toggleAcc} P={P}>
