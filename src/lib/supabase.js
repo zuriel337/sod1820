@@ -2943,6 +2943,17 @@ export async function getNameDossier(name, { surname, birthdate } = {}) {
   };
 }
 
+// 🧭 פרוטוקול חיפוש-השם (Name Research Protocol) — קריאה אחת שמחזירה את מסמך-המחקר המאוחד:
+//   input · stages · agents[] (ok/ms/seq — מזין את מסע-ההתקדמות) · findings · provenance · scores · metatron.
+//   מעטפת-פרוטוקול מעל 12 מנועי-המחקר (fn_name_protocol). לא מחשב גימטריה בעצמו.
+export async function getNameProtocol(name) {
+  const w = (name || '').trim();
+  if (!supabase || !w) return null;
+  const { data, error } = await supabase.rpc('fn_name_protocol', { p_name: w });
+  if (error) return null;
+  return data || null;
+}
+
 // 🌉 גשרים חוצי-שפות מהגרף (עץ אחד) — לפי מילה עברית/לועזית או לפי ערך. משמש בכל משטח.
 export async function getGraphBridges(word, value) {
   if (!supabase) return [];
