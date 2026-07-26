@@ -2022,11 +2022,14 @@ export default function EntityPage({ embedPhrase } = {}) {
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>עץ ההתכנסויות התלת-מימדי</div>
                 <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>{value} בגרף הקשרים</div>
               </Link>
-              <Link to="/map" style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+              <button type="button"
+                onClick={() => { setOpen(o => ({ ...o, gmap: true })); setTimeout(() => scrollTo("gmap"), 90); }}
+                style={{ ...card, textAlign: "center", cursor: "pointer", width: "100%", font: "inherit" }}
+                onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
                 <div style={{ fontSize: 26, marginBottom: 6 }}>🕸</div>
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>מפת הידע</div>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>כל הישויות והקשרים</div>
-              </Link>
+                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>כל החיבורים של {value} בגרף</div>
+              </button>
             </section>
           </div>
         </Acc>
