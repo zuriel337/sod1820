@@ -177,6 +177,14 @@ export async function moderateMatrix(id, status) {
   if (error) throw error;
 }
 
+// 📁 אדמין — אישור צופן ממתין «לדף הכתב בלבד»: יורד מהספרייה הראשית ומהתור, נשאר בדף-החוקר
+// של היוצר (status=hidden + self_published=true). מקביל ל-moderateMatrix('published') אך היעד
+// הוא דף-הכתב, לא הספרייה. RPC admin_els_to_dossier (SECURITY DEFINER, אדמין בלבד).
+export async function elsToDossier(id) {
+  const { error } = await supabase.rpc("admin_els_to_dossier", { p_id: id });
+  if (error) throw error;
+}
+
 // 🔀 «גרסאות» שממתינות למיזוג לצופן זה — els_records שנשמרו על צופן קיים (positions.variantOf=parentId)
 // ולא הוסתרו. אדמין-בלבד בפועל (RLS admin_all_els); ללא-אדמין מוחזר ריק. לפאנל-הניהול בעמוד-הצופן.
 export async function getVariantsOf(parentId) {
