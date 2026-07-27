@@ -143,6 +143,30 @@ export default function NameMultiSearch({ name }) {
           </div>
         )}
 
+        {/* 🎯 קונצנזוס רב-מנועי — ממצאים שכמה מסלולים בלתי-תלויים הצביעו עליהם */}
+        {Array.isArray(res.consensus) && res.consensus.length > 0 && (
+          <div style={{ background:"linear-gradient(180deg,#fff,#eef7f0)", border:"1px solid #cfe4d3", borderRadius:12, padding:"13px 15px" }}>
+            <div style={{ color:C.green, fontFamily:F.h, fontSize:14.5, fontWeight:800, marginBottom:3 }}>🎯 קונצנזוס רב-מנועי</div>
+            <div style={{ color:C.dim, fontFamily:F.h, fontSize:11.5, marginBottom:9 }}>ממצאים שכמה <b>מסלולים בלתי-תלויים</b> הצביעו עליהם — לא כמה מצא מנוע אחד. «הפסוק שלך» לא נכלל בספירה.</div>
+            <div style={{ display:"grid", gap:7 }}>
+              {res.consensus.map((c,i)=>(
+                <div key={i} style={{ background:"#fff", border:`1px solid ${C.line}`, borderRadius:10, padding:"9px 12px" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                    <span style={{ background:"#1f8a4c", color:"#fff", borderRadius:999, minWidth:22, height:22, lineHeight:"22px", textAlign:"center", fontFamily:F.m, fontSize:13, fontWeight:800, padding:"0 6px" }}>{c.consensus}</span>
+                    <span style={{ color:C.mut, fontFamily:F.h, fontSize:11 }}>{c.type}</span>
+                    {c.type === "מילה"
+                      ? <Link to={`/number/${encodeURIComponent(c.target)}`} style={{ color:C.ink, fontFamily:F.h, fontSize:15.5, fontWeight:800, textDecoration:"none" }}>«{c.target}»</Link>
+                      : <span style={{ color:C.blue, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>{c.target}</span>}
+                  </div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:6 }}>
+                    {(c.families||[]).map((fam,j)=>(<span key={j} style={{ background:"#eef4ee", border:"1px solid #cfe4d3", borderRadius:999, color:C.green, fontFamily:F.h, fontSize:10.5, fontWeight:800, padding:"2px 8px" }}>{fam}</span>))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* פירוק + ערכים */}
         {comp && (
           <div style={{ display:"flex", flexWrap:"wrap", gap:7 }}>
