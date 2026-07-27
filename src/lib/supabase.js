@@ -2954,6 +2954,22 @@ export async function getNameProtocol(name) {
   return data || null;
 }
 
+// 🔎 חיפוש-שם רב-מסלולי (NameLab «חובה») — שם + שם-משפחה + תאריך + שאלה → מסלולי-מחקר.
+//   מחזיר { tracks[], literal_full_found, summary, input.components, question{ai_facts} }.
+//   «לא נמצא» ≠ «אין מחקר»: כל מסלול עם count/status/source_fn.
+export async function getNameMulti(name, { surname, birthdate, question } = {}) {
+  const w = (name || '').trim();
+  if (!supabase || !w) return null;
+  const { data, error } = await supabase.rpc('fn_name_multi', {
+    p_name: w,
+    p_surname: (surname || '').trim() || null,
+    p_birthdate: (birthdate || '').trim() || null,
+    p_question: (question || '').trim() || null,
+  });
+  if (error) return null;
+  return data || null;
+}
+
 // 🌉 גשרים חוצי-שפות מהגרף (עץ אחד) — לפי מילה עברית/לועזית או לפי ערך. משמש בכל משטח.
 export async function getGraphBridges(word, value) {
   if (!supabase) return [];
