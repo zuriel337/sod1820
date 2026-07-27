@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { getNameMulti, getAiAnalysis } from "../lib/supabase.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -62,6 +62,7 @@ function TrackCard({ t }) {
 }
 
 export default function NameMultiSearch({ name }) {
+  const [nm, setNm] = useState(name || "");
   const [surname, setSurname] = useState("");
   const [birth, setBirth] = useState("");
   const [question, setQuestion] = useState("");
@@ -71,8 +72,11 @@ export default function NameMultiSearch({ name }) {
   const [aiState, setAiState] = useState("idle");
   const { addToResearch, saveItem } = useResearch();
 
+  // מזרימים את השם מהחיפוש הראשי של הדף, אך הוא נשאר ניתן-לעריכה בתיבה כאן
+  useEffect(() => { if (name) setNm(name); }, [name]);
+
   const run = useCallback(async () => {
-    const w = (name || "").trim();
+    const w = (nm || "").trim();
     if (!w) return;
     setPhase("busy"); setRes(null); setAi(null); setAiState("idle");
     try {
@@ -82,17 +86,17 @@ export default function NameMultiSearch({ name }) {
       // שמירה אוטומטית של השאלה עם המחקר (גם וגם)
       if (question.trim()) saveItem?.({ id:"nameq:"+w+":"+Date.now(), type:"name_question", title:`${w} — ${question.trim()}`, meta:{ question:question.trim(), name:w } });
     } catch { setPhase("err"); }
-  }, [name, surname, birth, question, saveItem]);
+  }, [nm, surname, birth, question, saveItem]);
 
   const analyze = useCallback(async () => {
     if (!res || aiState === "busy") return;
     setAiState("busy"); setAi(null);
     const facts = `[הנחיה: אתה חוקר מלווה. ענה על שאלת המשתמש בהתבסס על עובדות-המנוע בלבד — הפרד עובדה מפרשנות, בלי נבואות. אם אין די בסיס, אמור זאת בכנות.]\n\nשאלה: ${res.question?.text || question}\nעובדות המחקר: ${res.question?.ai_facts || ""}\nמסלולים עם תוצאות: ${(res.tracks||[]).filter(t=>t.status==="ok").map(t=>`${t.label}=${t.count}`).join(" · ")}`;
     try {
-      const out = await getAiAnalysis({ kind:"name_lab", subject: res.input?.components?.full || name, facts });
+      const out = await getAiAnalysis({ kind:"name_lab", subject: res.input?.components?.full || nm, facts });
       setAi(out || null); setAiState(out ? "done" : "off");
     } catch { setAiState("off"); }
-  }, [res, aiState, question, name]);
+  }, [res, aiState, question, nm]);
 
   const comp = res?.input?.components;
   const vals = comp?.values;
@@ -104,16 +108,18 @@ export default function NameMultiSearch({ name }) {
         <div style={{ color:C.dim, fontFamily:F.h, fontSize:12.5 }}>שם-משפחה · תאריך-לידה · שאלה — והמערכת מנסה כל סוג התאמה. «לא נמצא» ≠ «אין מחקר».</div>
       </div>
 
-      <div style={{ display:"grid", gap:8 }}>
+      <form onSubmit={e=>{ e.preventDefault(); run(); }} style={{ display:"grid", gap:8 }}>
         <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-          <input value={surname} onChange={e=>setSurname(e.target.value)} placeholder="שם-משפחה (לא חובה)…" style={inp} />
-          <input value={birth} onChange={e=>setBirth(e.target.value)} placeholder="תאריך-לידה (לא חובה)…" style={inp} />
+          <input value={nm} onChange={e=>setNm(e.target.value)} placeholder="שם פרטי (חובה)…" required style={{ ...inp, flex:"2 1 180px", fontSize:17, borderColor: nm.trim()?C.blueLine:C.line }} />
+          <input value={surname} onChange={e=>setSurname(e.target.value)} placeholder="שם-משפחה…" style={inp} />
+          <input value={birth} onChange={e=>setBirth(e.target.value)} placeholder="תאריך-לידה…" style={inp} />
         </div>
         <textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="יש לך שאלה על השם? כתוב אותה כאן…" rows={2} style={{ ...inp, minWidth:0, width:"100%", resize:"vertical", fontWeight:600 }} />
-        <button onClick={run} disabled={!name || phase==="busy"} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:10, color:"#fff", fontFamily:F.h, fontSize:15, fontWeight:800, padding:"12px 22px", minHeight:44, opacity: (!name||phase==="busy")?0.6:1 }}>
-          {phase==="busy" ? "חוקר…" : `🔎 חקור את «${name || "השם"}»`}
+        <button type="submit" disabled={!nm.trim() || phase==="busy"} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:10, color:"#fff", fontFamily:F.h, fontSize:15, fontWeight:800, padding:"12px 22px", minHeight:44, opacity: (!nm.trim()||phase==="busy")?0.6:1 }}>
+          {phase==="busy" ? "חוקר…" : `🔎 חקור את «${nm.trim() || "השם"}»`}
         </button>
-      </div>
+        <div style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>חובה: שם פרטי בלבד. שם-משפחה ותאריך-לידה מרחיבים את המחקר.</div>
+      </form>
 
       {phase==="err" && <div style={{ color:C.red, fontFamily:F.h, fontSize:14 }}>החיפוש לא זמין כרגע. נסה שוב.</div>}
 
@@ -123,6 +129,19 @@ export default function NameMultiSearch({ name }) {
           <div style={{ color: res.literal_full_found ? C.green : C.gold, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>{res.summary}</div>
           <div style={{ color:C.dim, fontFamily:F.h, fontSize:12.5, marginTop:4 }}>{res.tracks_with_results} מסלולים עם תוצאות מתוך {(res.tracks||[]).length}.</div>
         </div>
+
+        {/* 🕯️ הפסוק שלך — מתחיל באות הראשונה של השם, מסתיים באחרונה */}
+        {res.name_verse && (res.name_verse.verses||[]).length > 0 && (
+          <div style={{ background:"linear-gradient(180deg,#fffdf5,#fff7e6)", border:"1px solid #f0e2b8", borderRadius:12, padding:"13px 15px" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:6 }}>
+              <span style={{ color:C.gold, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>🕯️ הפסוק שלך</span>
+              <span style={{ color:C.dim, fontFamily:F.h, fontSize:11.5 }}>מתחיל ב־<b>{res.name_verse.first}</b> ומסתיים ב־<b>{res.name_verse.last}</b></span>
+            </div>
+            <div style={{ color:C.blue, fontFamily:F.h, fontSize:12, fontWeight:800 }}>{res.name_verse.verses[0].ref}</div>
+            <div style={{ color:C.ink, fontFamily:F.h, fontSize:15.5, lineHeight:1.85 }}>{res.name_verse.verses[0].text}</div>
+            <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, marginTop:6 }}>נהוג לאומרו בסוף תפילת העמידה · {res.name_verse.count} פסוקים אפשריים</div>
+          </div>
+        )}
 
         {/* פירוק + ערכים */}
         {comp && (
