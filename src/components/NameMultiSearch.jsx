@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { getNameMulti, getAiAnalysis, logNameResearch } from "../lib/supabase.js";
+import { aggregateFindings } from "../lib/nameNormalize.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
 // 🔎 חיפוש-שם רב-מסלולי (NameLab «חובה») — «לא נמצא» ≠ «אין מחקר».
@@ -91,9 +92,10 @@ function TrackCard({ t }) {
           {t.data.map((pt,i)=>(
             <div key={i}>
               <div style={{ fontFamily:F.h, fontSize:12.5, color:C.ink }}><b>{pt.part}</b> · מילוי <b style={{ fontFamily:F.m, color:C.gold }}>{pt.milui}</b> <span style={{ color:C.mut }}>(רגיל {pt.ragil})</span></div>
-              {(pt.matches||[]).length>0 && <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, margin:"3px 0" }}>ביטויים בעלי אותו ערך <span style={{ opacity:.8 }}>(התאמת-ערך — לא משמעות)</span>:</div>}
+              {(pt.matches||[]).length>0 && <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, margin:"3px 0" }}>ביטויים בעלי אותו ערך <span style={{ opacity:.8 }}>(התאמת-ערך — לא משמעות · הסיכום המנורמל למעלה)</span>:</div>}
               <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                {(pt.matches||[]).map((m,j)=>(<Link key={j} to={`/number/${encodeURIComponent(m.phrase)}`} title={`מקור: ${m.source}`} style={{ textDecoration:"none", background:"#fbfcfe", border:`1px solid ${C.line}`, borderRadius:999, padding:"3px 10px", fontFamily:F.h, fontSize:12, fontWeight:700, color:C.ink }}>{m.phrase}</Link>))}
+                {(pt.matches||[]).slice(0,6).map((m,j)=>(<Link key={j} to={`/number/${encodeURIComponent(m.phrase)}`} title={`מקור: ${m.source}`} style={{ textDecoration:"none", background:"#fbfcfe", border:`1px solid ${C.line}`, borderRadius:999, padding:"3px 10px", fontFamily:F.h, fontSize:12, fontWeight:700, color:C.ink }}>{m.phrase}</Link>))}
+                {(pt.matches||[]).length>6 && <span style={{ color:C.mut, fontFamily:F.h, fontSize:11, alignSelf:"center" }}>+{(pt.matches||[]).length-6}</span>}
               </div>
             </div>
           ))}
@@ -177,6 +179,62 @@ function NameVerseBox({ nv }) {
   );
 }
 
+// 📊 ממצאים מנורמלים — Raw→Normalize→Dedupe→Rank→Render. שכבת-תצוגה (לא מנוע-משמעות):
+// מאחד כתיבים זהים-מהותית + כפילויות בין-מנועיות, מדרג משמעותי-ראשון, Top-N + «הצג עוד».
+// provenance נשמר: לחיצה על «מקור» מראה את המנועים והכתיבים המקוריים.
+function NormalizedFindings({ items }) {
+  const [all, setAll] = useState(false);
+  const [openKey, setOpenKey] = useState(null);
+  if (!items || !items.length) return null;
+  const shown = all ? items : items.slice(0, 8);
+  return (
+    <div style={{ background:"linear-gradient(180deg,#ffffff,#f7f9fc)", border:`1px solid ${C.blueLine}`, borderRadius:14, padding:"14px 15px" }}>
+      <div style={{ display:"flex", alignItems:"baseline", gap:8, flexWrap:"wrap", marginBottom:3 }}>
+        <span style={{ fontSize:16 }}>📊</span>
+        <span style={{ color:C.ink, fontFamily:F.h, fontSize:16, fontWeight:800 }}>ממצאים מנורמלים</span>
+        <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>{items.length} ייחודיים · אוחדו כפילויות וכתיבים</span>
+      </div>
+      <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, marginBottom:10 }}>ביטוי שנמצא בכמה מנועים עולה למעלה. כל שורה פותחת את מקורותיה — שום דבר לא נמחק.</div>
+      <div style={{ display:"grid", gap:7 }}>
+        {shown.map((it) => {
+          const multi = it.source_engines.length > 1;
+          const ev = EV[it.evidence_level];
+          const open = openKey === it.normalized_key;
+          return (
+            <div key={it.normalized_key} style={{ background:"#fff", border:`1px solid ${multi ? "#cfe4d3" : C.line}`, borderRadius:10, padding:"9px 12px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                <Link to={`/number/${encodeURIComponent(it.display_value)}`} style={{ color:C.ink, fontFamily:F.h, fontSize:15, fontWeight:800, textDecoration:"none" }}>{it.display_value}</Link>
+                {it.value != null && <span style={{ color:C.dim, fontFamily:F.h, fontSize:11.5 }}>ערך <b style={{ fontFamily:F.m, color:C.gold }}>{it.value}</b></span>}
+                <span style={{ flex:1 }} />
+                {ev && <span style={{ background:ev.bg, border:`1px solid ${ev.bd}`, borderRadius:999, color:ev.c, fontFamily:F.h, fontSize:10, fontWeight:800, padding:"2px 8px" }}>{ev.t}</span>}
+                {multi
+                  ? <span style={{ background:"#eef7f0", border:"1px solid #cfe4d3", borderRadius:999, color:C.green, fontFamily:F.h, fontSize:10.5, fontWeight:800, padding:"2px 8px" }}>×{it.source_engines.length} מסלולים</span>
+                  : (it.occurrences > 1 && <span style={{ color:C.mut, fontFamily:F.m, fontSize:12, fontWeight:700 }}>×{it.occurrences}</span>)}
+                <button onClick={()=>setOpenKey(open?null:it.normalized_key)} title="הצג מקור" style={{ cursor:"pointer", background:"transparent", border:`1px solid ${C.line}`, borderRadius:999, color:C.dim, fontFamily:F.h, fontSize:10.5, fontWeight:700, padding:"2px 9px" }}>{open?"סגור":"מקור"}</button>
+              </div>
+              {/* איחוד בין-מנועי גלוי: אילו מנועים, כמה כל אחד */}
+              <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:6 }}>
+                {it.source_engines.map((s,i)=>(<span key={i} style={{ background:"#f3f7ff", border:`1px solid ${C.blueLine}`, borderRadius:999, color:C.blue, fontFamily:F.h, fontSize:10.5, fontWeight:700, padding:"2px 8px" }}>{s.engine}{s.count>1?` ×${s.count}`:""}</span>))}
+              </div>
+              {open && (
+                <div style={{ marginTop:8, paddingTop:8, borderTop:`1px dashed ${C.line}`, color:C.dim, fontFamily:F.h, fontSize:11.5, lineHeight:1.7 }}>
+                  <b style={{ color:C.ink }}>{it.provenance.length} מקורות מקוריים</b> (נשמרים כפי-שהם):
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:5 }}>
+                    {it.provenance.map((p,i)=>(<span key={i} style={{ background:"#fbfcfe", border:`1px solid ${C.line}`, borderRadius:7, padding:"2px 8px", fontFamily:F.h, fontSize:11.5 }}><b style={{ color:C.ink }}>{p.raw}</b> <span style={{ color:C.mut }}>· {p.engine}</span></span>))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {items.length > 8 && (
+        <button onClick={()=>setAll(!all)} style={{ marginTop:10, cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.blue, fontFamily:F.h, fontSize:12.5, fontWeight:800, padding:"7px 15px" }}>{all ? "הצג פחות ▲" : `הצג עוד ${items.length - 8} ▼`}</button>
+      )}
+    </div>
+  );
+}
+
 // כלל-הזהב: מרנדרים רק מסלולים עם תוצאה (status='ok').
 const ok = (arr) => (arr || []).filter(t => t.status === "ok");
 
@@ -240,6 +298,12 @@ export default function NameMultiSearch({ name, onResolve }) {
   // חוק 1 — הסדר: ① השם הפרטי, ② שם-המשפחה, … ואז ③ הצירוף המלא כסינתזה בסוף.
   const parts = graded ? (res.sources || []) : [];
   const synthesisTracks = graded ? res.combo?.tracks : res?.tracks;
+  // 📊 נרמול-ממצאים על כל המסלולים (צירוף + רכיבים) — Raw→Normalize→Dedupe→Rank.
+  const normalized = useMemo(() => {
+    if (!res) return [];
+    const lists = graded ? [res.combo?.tracks, ...(res.sources || []).map(s => s.doc?.tracks)] : [res.tracks];
+    return aggregateFindings(lists);
+  }, [res, graded]);
 
   return (
     <section dir="rtl" style={{ display:"grid", gap:14 }}>
@@ -320,6 +384,9 @@ export default function NameMultiSearch({ name, onResolve }) {
             {comp.initials && <span style={{ background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, padding:"5px 12px", fontFamily:F.h, fontSize:12.5, fontWeight:700, color:C.dim }}>ר״ת {comp.initials}</span>}
           </div>
         )}
+
+        {/* 📊 סיכום מנורמל — קודם המסקנה המאוחדת, אז הפירוט לפי מסלול מתחת */}
+        <NormalizedFindings items={normalized} />
 
         {/* ===== חוק 1 — סדר המחקר ===== */}
         {/* ① ② … רכיבים בנפרד (רק בחיפוש מדורג) */}
