@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { getNameMulti, getAiAnalysis } from "../lib/supabase.js";
+import { getNameMulti, getAiAnalysis, logNameResearch } from "../lib/supabase.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
 // 🔎 חיפוש-שם רב-מסלולי (NameLab «חובה») — «לא נמצא» ≠ «אין מחקר».
@@ -153,9 +153,11 @@ export default function NameMultiSearch({ name }) {
     if (!w) return;
     setPhase("busy"); setRes(null); setAi(null); setAiState("idle");
     try {
+      const t0 = Date.now();
       const d = await getNameMulti(w, { surname, birthdate: birth, question });
       if (!d) { setPhase("err"); return; }
       setRes(d); setPhase("done");
+      logNameResearch(d, Date.now() - t0); // 📊 לוח-איכות (fire-and-forget)
       // שמירה אוטומטית של השאלה עם המחקר (גם וגם)
       if (question.trim()) saveItem?.({ id:"nameq:"+w+":"+Date.now(), type:"name_question", title:`${w} — ${question.trim()}`, meta:{ question:question.trim(), name:w } });
     } catch { setPhase("err"); }

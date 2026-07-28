@@ -2970,6 +2970,14 @@ export async function getNameMulti(name, { surname, birthdate, question } = {}) 
   return data || null;
 }
 
+// 📊 לוח-איכות פנימי — מתעד כל מחקר-שם (fire-and-forget, לצורכי פיתוח). לא חוסם את ה-UI.
+export function logNameResearch(doc, ms) {
+  try {
+    if (!supabase || !doc || doc.error) return;
+    supabase.rpc('fn_log_name_research', { p_doc: doc, p_ms: Math.round(ms) || null }).then(() => {}, () => {});
+  } catch { /* noop */ }
+}
+
 // 🌉 גשרים חוצי-שפות מהגרף (עץ אחד) — לפי מילה עברית/לועזית או לפי ערך. משמש בכל משטח.
 export async function getGraphBridges(word, value) {
   if (!supabase) return [];
