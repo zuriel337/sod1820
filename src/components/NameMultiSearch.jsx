@@ -50,6 +50,18 @@ function TrackCard({ t }) {
           {t.data.sum != null && <span style={{ background:"#fff7e6", border:"1px solid #f0e2b8", borderRadius:999, padding:"3px 10px", fontFamily:F.h, fontSize:12, fontWeight:800, color:C.gold }}>סכום {t.data.sum}</span>}
         </div>
       )}
+      {t.id === "graded_prox" && t.data && (
+        <div style={{ display:"grid", gap:5, marginTop:7 }}>
+          <div style={{ fontFamily:F.h, fontSize:13, color:C.ink }}>דרגת התאמה: <b style={{ color:C.green }}>{t.data.top_grade}/5</b> — {t.data.top_label}</div>
+          {(t.data.ladder||[]).map((l,i)=>(
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:8, fontFamily:F.h, fontSize:12.5, opacity: l.achieved?1:0.4 }}>
+              <span style={{ color: l.achieved?C.green:C.mut, fontWeight:900, width:14, textAlign:"center" }}>{l.achieved?"✓":"○"}</span>
+              <span style={{ color:C.ink, flex:1 }}>{l.label}</span>
+              {l.count>0 && <b style={{ fontFamily:F.m, color:C.blue }}>{l.count}</b>}
+            </div>
+          ))}
+        </div>
+      )}
       {t.id === "transforms" && Array.isArray(t.data) && t.data.length>0 && (
         <div style={{ display:"grid", gap:6, marginTop:7 }}>
           {t.data.map((tr,i)=>(
