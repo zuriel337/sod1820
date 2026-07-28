@@ -139,18 +139,19 @@ function DepthGauge({ depth }) {
   );
 }
 
-// 🧰 כרטיסייה מתקפלת — כל כלי-המחקר הקלאסיים, סגורה כברירת-מחדל (הדף מספר סיפור אחד).
-function Collapse({ title, sub, children }) {
+// 🧰 כרטיסייה מתקפלת — כל כלי-המחקר הקלאסיים. locked=נעולה כרגע (בבנייה): לא נפתחת, אף מנוע לא נמחק.
+function Collapse({ title, sub, children, locked }) {
   const [open, setOpen] = useState(false);
+  const isOpen = open && !locked;
   return (
-    <section style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 3px rgba(20,25,40,.04)" }}>
-      <button onClick={() => setOpen(o => !o)} aria-expanded={open} style={{ width: "100%", cursor: "pointer", background: open ? "#f8f9fb" : "#fff", border: "none", borderBottom: open ? `1px solid ${C.line}` : "none", display: "flex", alignItems: "center", gap: 11, padding: "15px 18px", textAlign: "right", minHeight: 56 }}>
-        <span style={{ color: C.ink, fontFamily: F.h, fontSize: 16.5, fontWeight: 800 }}>{title}</span>
+    <section style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 3px rgba(20,25,40,.04)", opacity: locked ? 0.9 : 1 }}>
+      <button onClick={() => !locked && setOpen(o => !o)} aria-expanded={isOpen} disabled={locked} title={locked ? "כלי-המחקר המלאים ייפתחו בקרוב" : undefined} style={{ width: "100%", cursor: locked ? "default" : "pointer", background: isOpen ? "#f8f9fb" : "#fff", border: "none", borderBottom: isOpen ? `1px solid ${C.line}` : "none", display: "flex", alignItems: "center", gap: 11, padding: "15px 18px", textAlign: "right", minHeight: 56 }}>
+        <span style={{ color: locked ? C.dim : C.ink, fontFamily: F.h, fontSize: 16.5, fontWeight: 800 }}>{locked ? "🔒 " : ""}{title}</span>
         {sub && <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12 }}>{sub}</span>}
         <span style={{ flex: 1 }} />
-        <span style={{ color: C.blue, fontFamily: F.h, fontSize: 13, fontWeight: 800 }}>{open ? "סגור ▲" : "פתח ▼"}</span>
+        <span style={{ color: locked ? C.dim : C.blue, fontFamily: F.h, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{locked ? "בקרוב" : (isOpen ? "סגור ▲" : "פתח ▼")}</span>
       </button>
-      {open && <div style={{ padding: "16px 16px 18px", display: "grid", gap: 16 }}>{children}</div>}
+      {isOpen && <div style={{ padding: "16px 16px 18px", display: "grid", gap: 16 }}>{children}</div>}
     </section>
   );
 }
@@ -305,7 +306,7 @@ export default function NameLabPage({ embedded = false }) {
         <NameMultiSearch name={word} onResolve={onResolve} />
 
         {word && (
-          <Collapse title="🧰 כל כלי המחקר" sub="מסע · שיטות · תנ״ך · גשרים · הקשר · ולאן ממשיכים">
+          <Collapse locked title="כל כלי המחקר" sub="מסע · שיטות · תנ״ך · גשרים · הקשר — ייפתחו בקרוב">
           {/* 🧭 מסע-המחקר (גל 3) — הפרוטוקול המאוחד (fn_name_protocol): התקדמות אמיתית + מסמך בשכבות. */}
           <NameJourney word={word} />
 
