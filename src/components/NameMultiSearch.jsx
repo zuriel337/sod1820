@@ -1,10 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { getNameMulti, getAiAnalysis, logNameResearch } from "../lib/supabase.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
 // 🔎 חיפוש-שם רב-מסלולי (NameLab «חובה») — «לא נמצא» ≠ «אין מחקר».
 // שם + שם-משפחה + תאריך-לידה + שאלה → מסלולי-מחקר, כל אחד עם מקור. שמות-פנים לא נחשפים.
+//
+// שלושת חוקי-הפרוטוקול (צוריאל, נעולים):
+//  1. סדר המחקר = חוק: «דני ממן» → ① דני → ② ממן → ③ דני ממן (סינתזה). הצירוף אף פעם לא ראשון.
+//  2. רובריקה בלי תוצאה = לא קיימת ב-UI (findings===0 → don't render). לא מוחקים מה-DB — רק לא מציגים.
+//  3. תאריך + שאלה = שכבת-מחקר נוספת *אחרי* מחקר-השם, לא משנים אותו.
 
 const C = { bg:"#f6f7f9", card:"#fff", ink:"#1b1d22", dim:"#5b6472", line:"#e4e7ec", blue:"#2f6df6", blueLine:"#d9e5ff", gold:"#b78900", green:"#1f8a4c", mut:"#9aa1ad", red:"#c0392b" };
 const F = { h:"'Heebo',system-ui,sans-serif", m:"ui-monospace,SFMono-Regular,monospace" };
@@ -22,8 +27,6 @@ const EV = {
   value_match: { t:"התאמת-ערך", bg:"#fff7e6", bd:"#f0e2b8", c:C.gold  },
   interpretive:{ t:"פרשני",      bg:"#eef3ff", bd:"#d3e0fb", c:C.blue  },
 };
-
-const inp = { flex:1, minWidth:130, fontFamily:F.h, fontSize:15, fontWeight:700, padding:"11px 13px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, minHeight:44, boxSizing:"border-box" };
 
 function sampleText(t) {
   const s = t.sample;
@@ -104,7 +107,6 @@ function TrackCard({ t }) {
               {(pt.anagrams||[]).map((a,j)=>(<Link key={j} to={`/number/${encodeURIComponent(a.word)}`} style={{ textDecoration:"none", background:"#faf6ff", border:"1px solid #e6d8f7", borderRadius:999, padding:"3px 10px", color:"#6a4fbf", fontWeight:700 }}>{a.word} <span style={{ fontSize:10, opacity:.75 }}>{a.type}</span></Link>))}
             </div>
           ))}
-          {t.data.every(pt=>(pt.anagrams||[]).length===0) && <Empty t="אין אנגרמה מאומתת במאגר לשם זה." />}
         </div>
       )}
       {t.id === "shared_num" && t.data && (
@@ -128,29 +130,78 @@ function TrackCard({ t }) {
           {t.data.map((v,i)=>(<Link key={i} to={`/name-lab?w=${encodeURIComponent(v.form)}`} title={v.note} style={{ textDecoration:"none", background:"#f3f7ff", border:`1px solid ${C.blueLine}`, borderRadius:999, padding:"3px 11px", fontFamily:F.h, fontSize:12.5, fontWeight:700, color:C.blue }}>{v.form}</Link>))}
         </div>
       )}
-      {t.status === "empty" && !sampleText(t) && <div style={{ color:C.mut, fontFamily:F.h, fontSize:12, marginTop:5 }}>לא נמצאו תוצאות במסלול זה.</div>}
-      {t.status === "skipped" && <div style={{ color:C.mut, fontFamily:F.h, fontSize:12, marginTop:5 }}>{t.note || "דולג."}</div>}
     </div>
   );
 }
 
-export default function NameMultiSearch({ name }) {
+// 🎯 קונצנזוס — סינתזה: ממצאים שכמה מסלולים בלתי-תלויים הצביעו עליהם.
+function ConsensusBox({ consensus }) {
+  if (!Array.isArray(consensus) || consensus.length === 0) return null;
+  return (
+    <div style={{ background:"linear-gradient(180deg,#fff,#eef7f0)", border:"1px solid #cfe4d3", borderRadius:12, padding:"13px 15px" }}>
+      <div style={{ color:C.green, fontFamily:F.h, fontSize:14.5, fontWeight:800, marginBottom:3 }}>🎯 קונצנזוס רב-מנועי</div>
+      <div style={{ color:C.dim, fontFamily:F.h, fontSize:11.5, marginBottom:9 }}>ממצאים שכמה <b>מסלולים בלתי-תלויים</b> הצביעו עליהם — לא כמה מצא מנוע אחד. «הפסוק שלך» לא נכלל בספירה.</div>
+      <div style={{ display:"grid", gap:7 }}>
+        {consensus.map((c,i)=>(
+          <div key={i} style={{ background:"#fff", border:`1px solid ${C.line}`, borderRadius:10, padding:"9px 12px" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+              <span style={{ background:"#1f8a4c", color:"#fff", borderRadius:999, minWidth:22, height:22, lineHeight:"22px", textAlign:"center", fontFamily:F.m, fontSize:13, fontWeight:800, padding:"0 6px" }}>{c.consensus}</span>
+              <span style={{ color:C.mut, fontFamily:F.h, fontSize:11 }}>{c.type}</span>
+              {c.type === "מילה"
+                ? <Link to={`/number/${encodeURIComponent(c.target)}`} style={{ color:C.ink, fontFamily:F.h, fontSize:15.5, fontWeight:800, textDecoration:"none" }}>«{c.target}»</Link>
+                : <span style={{ color:C.blue, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>{c.target}</span>}
+            </div>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:6 }}>
+              {(c.families||[]).map((fam,j)=>(<span key={j} style={{ background:"#eef4ee", border:"1px solid #cfe4d3", borderRadius:999, color:C.green, fontFamily:F.h, fontSize:10.5, fontWeight:800, padding:"2px 8px" }}>{fam}</span>))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// 🕯️ הפסוק שלך — מתחיל באות הראשונה של השם, מסתיים באחרונה.
+function NameVerseBox({ nv }) {
+  if (!nv || !(nv.verses||[]).length) return null;
+  return (
+    <div style={{ background:"linear-gradient(180deg,#fffdf5,#fff7e6)", border:"1px solid #f0e2b8", borderRadius:12, padding:"13px 15px" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:6 }}>
+        <span style={{ color:C.gold, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>🕯️ הפסוק שלך</span>
+        <span style={{ color:C.dim, fontFamily:F.h, fontSize:11.5 }}>מתחיל ב־<b>{nv.first}</b> ומסתיים ב־<b>{nv.last}</b></span>
+      </div>
+      <div style={{ color:C.blue, fontFamily:F.h, fontSize:12, fontWeight:800 }}>{nv.verses[0].ref}</div>
+      <div style={{ color:C.ink, fontFamily:F.h, fontSize:15.5, lineHeight:1.85 }}>{nv.verses[0].text}</div>
+      <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, marginTop:6 }}>נהוג לאומרו בסוף תפילת העמידה · {nv.count} פסוקים אפשריים</div>
+    </div>
+  );
+}
+
+// כלל-הזהב: מרנדרים רק מסלולים עם תוצאה (status='ok').
+const ok = (arr) => (arr || []).filter(t => t.status === "ok");
+
+const EXAMPLES = ["דני ממן", "אברהם", "יוסף בן יעקב", "מרים"];
+
+export default function NameMultiSearch({ name, onResolve }) {
   const [nm, setNm] = useState(name || "");
   const [surname, setSurname] = useState("");
   const [birth, setBirth] = useState("");
   const [question, setQuestion] = useState("");
+  const [more, setMore] = useState(false);        // מסוף: פותח את השדות האופציונליים (משפחה/תאריך/שאלה)
   const [res, setRes] = useState(null);
-  const [phase, setPhase] = useState("idle"); // idle|busy|done|err
+  const [phase, setPhase] = useState("idle");     // idle|busy|done|err
   const [ai, setAi] = useState(null);
   const [aiState, setAiState] = useState("idle");
   const { addToResearch, saveItem } = useResearch();
-
-  // מזרימים את השם מהחיפוש הראשי של הדף, אך הוא נשאר ניתן-לעריכה בתיבה כאן
-  useEffect(() => { if (name) setNm(name); }, [name]);
+  const seededRef = useRef("");
+  const autoRef = useRef(false);
 
   const run = useCallback(async () => {
     const w = (nm || "").trim();
     if (!w) return;
+    seededRef.current = w;                          // כדי ש-onResolve→name-prop לא יפעיל ריצה כפולה
+    autoRef.current = false;
+    onResolve?.(w);                                // מזין את «השם הפעיל» לשאר כלי-הדף (הכרטיסייה הסגורה)
     setPhase("busy"); setRes(null); setAi(null); setAiState("idle");
     try {
       const t0 = Date.now();
@@ -158,15 +209,24 @@ export default function NameMultiSearch({ name }) {
       if (!d) { setPhase("err"); return; }
       setRes(d); setPhase("done");
       logNameResearch(d.graded ? d.combo : d, Date.now() - t0); // 📊 לוח-איכות (fire-and-forget)
-      // שמירה אוטומטית של השאלה עם המחקר (גם וגם)
       if (question.trim()) saveItem?.({ id:"nameq:"+w+":"+Date.now(), type:"name_question", title:`${w} — ${question.trim()}`, meta:{ question:question.trim(), name:w } });
     } catch { setPhase("err"); }
-  }, [nm, surname, birth, question, saveItem]);
+  }, [nm, surname, birth, question, saveItem, onResolve]);
+
+  // מזרימים שם מ-URL/דף → ממלאים ומריצים אוטומטית פעם אחת (deep-link משתף)
+  useEffect(() => {
+    const w = (name || "").trim();
+    if (w && w !== seededRef.current) { seededRef.current = w; setNm(w); autoRef.current = true; }
+  }, [name]);
+  useEffect(() => {
+    if (autoRef.current && nm.trim()) { autoRef.current = false; run(); }
+  }, [nm, run]);
 
   const analyze = useCallback(async () => {
     if (!res || aiState === "busy") return;
     setAiState("busy"); setAi(null);
-    const facts = `[הנחיה: אתה חוקר מלווה. ענה על שאלת המשתמש בהתבסס על עובדות-המנוע בלבד — הפרד עובדה מפרשנות, בלי נבואות. אם אין די בסיס, אמור זאת בכנות.]\n\nשאלה: ${res.question?.text || question}\nעובדות המחקר: ${res.question?.ai_facts || ""}\nמסלולים עם תוצאות: ${(res.tracks||[]).filter(t=>t.status==="ok").map(t=>`${t.label}=${t.count}`).join(" · ")}`;
+    const combo = res.graded ? res.combo : res;
+    const facts = `[הנחיה: אתה חוקר מלווה. ענה על שאלת המשתמש בהתבסס על עובדות-המנוע בלבד — הפרד עובדה מפרשנות, בלי נבואות. אם אין די בסיס, אמור זאת בכנות.]\n\nשאלה: ${res.question?.text || question}\nעובדות המחקר: ${res.question?.ai_facts || ""}\nמסלולים עם תוצאות: ${ok(combo?.tracks).map(t=>`${t.label}=${t.count}`).join(" · ")}`;
     try {
       const out = await getAiAnalysis({ kind:"name_lab", subject: res.input?.components?.full || nm, facts });
       setAi(out || null); setAiState(out ? "done" : "off");
@@ -175,39 +235,73 @@ export default function NameMultiSearch({ name }) {
 
   const comp = res?.input?.components;
   const vals = comp?.values;
-  // כלל-הזהב: מציגים רק מסלולים עם תוצאה (status='ok'); רובריקה ריקה לא מרונדרת.
-  const okTracks = (arr) => (arr || []).filter(t => t.status === "ok");
   const graded = res?.graded === true;
-  // חיפוש מדורג: בלוק לצירוף המלא + בלוק לכל רכיב (מקור), עם ייחוס-מקור.
-  const blocks = !res ? [] : graded
-    ? [{ label: `🔗 הצירוף המלא: ${res.full}`, tracks: res.combo?.tracks },
-       ...(res.sources || []).map(s => ({ label: `🔹 מבוסס על: «${s.source}»`, tracks: s.doc?.tracks }))]
-    : [{ label: null, tracks: res.tracks }];
+
+  // חוק 1 — הסדר: ① השם הפרטי, ② שם-המשפחה, … ואז ③ הצירוף המלא כסינתזה בסוף.
+  const parts = graded ? (res.sources || []) : [];
+  const synthesisTracks = graded ? res.combo?.tracks : res?.tracks;
 
   return (
-    <section dir="rtl" style={{ background:C.card, border:`1px solid ${C.line}`, borderRadius:16, padding:"18px 20px", display:"grid", gap:14 }}>
-      <div>
-        <h2 style={{ color:C.ink, fontFamily:F.h, fontSize:19, fontWeight:800, margin:"0 0 3px" }}>🔎 חיפוש רב-מסלולי</h2>
-        <div style={{ color:C.dim, fontFamily:F.h, fontSize:12.5 }}>שם-משפחה · תאריך-לידה · שאלה — והמערכת מנסה כל סוג התאמה. «לא נמצא» ≠ «אין מחקר».</div>
+    <section dir="rtl" style={{ display:"grid", gap:14 }}>
+      {/* ===== מסוף המחקר ===== */}
+      <div style={{ background:C.card, border:`1px solid ${C.blueLine}`, borderRadius:16, overflow:"hidden", boxShadow:"0 2px 10px rgba(20,25,40,.05)" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:9, padding:"11px 16px", background:"linear-gradient(180deg,#f5f8ff,#eef3ff)", borderBottom:`1px solid ${C.blueLine}` }}>
+          <span style={{ display:"flex", gap:5 }}>
+            <span style={{ width:9, height:9, borderRadius:999, background:"#f0b6b6" }} />
+            <span style={{ width:9, height:9, borderRadius:999, background:"#f0dca6" }} />
+            <span style={{ width:9, height:9, borderRadius:999, background:"#bfe4cd" }} />
+          </span>
+          <span style={{ color:C.ink, fontFamily:F.m, fontSize:12.5, fontWeight:800, letterSpacing:.3 }}>מעבדת-השם · מסוף מחקר</span>
+          <span style={{ flex:1 }} />
+          <span style={{ color:C.mut, fontFamily:F.h, fontSize:11 }}>«לא נמצא» ≠ «אין מחקר»</span>
+        </div>
+
+        <form onSubmit={e=>{ e.preventDefault(); run(); }} style={{ padding:"16px", display:"grid", gap:12 }}>
+          {/* שורת-הפרומפט: השם הפרטי (חובה) */}
+          <label style={{ display:"flex", alignItems:"center", gap:10, background:"#fbfcff", border:`1.5px solid ${nm.trim()?C.blue:C.line}`, borderRadius:12, padding:"4px 12px", transition:"border-color .15s" }}>
+            <span style={{ color:C.blue, fontFamily:F.m, fontSize:22, fontWeight:800, lineHeight:1 }}>‹</span>
+            <input value={nm} onChange={e=>setNm(e.target.value)} placeholder="הקלד שם פרטי…" required
+              style={{ flex:1, minWidth:0, fontFamily:F.h, fontSize:22, fontWeight:800, padding:"12px 0", border:"none", outline:"none", background:"transparent", color:C.ink }} />
+            {nm && <button type="button" onClick={()=>{ setNm(""); setRes(null); setPhase("idle"); }} title="נקה" style={{ cursor:"pointer", background:"transparent", border:"none", color:C.mut, fontSize:20, lineHeight:1, padding:"0 4px" }}>×</button>}
+          </label>
+
+          {/* שדות אופציונליים — נפתחים; חוק 3: שכבה נוספת, לא משנים את מחקר-השם */}
+          {!more ? (
+            <button type="button" onClick={()=>setMore(true)} style={{ justifySelf:"start", cursor:"pointer", background:"transparent", border:"none", color:C.blue, fontFamily:F.h, fontSize:12.5, fontWeight:800, padding:"0 2px" }}>
+              ＋ שם-משפחה · תאריך · שאלה
+            </button>
+          ) : (
+            <div style={{ display:"grid", gap:8, background:"#f8f9fb", border:`1px solid ${C.line}`, borderRadius:12, padding:"11px 12px" }}>
+              <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, fontWeight:700 }}>שכבות נוספות (לא חובה) — שם-המשפחה מרחיב את המחקר; תאריך ושאלה נכנסים אחרי מחקר-השם.</div>
+              <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                <input value={surname} onChange={e=>setSurname(e.target.value)} placeholder="שם-משפחה…" style={{ flex:"1 1 130px", minWidth:0, fontFamily:F.h, fontSize:15, fontWeight:700, padding:"10px 12px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, minHeight:44 }} />
+                <input value={birth} onChange={e=>setBirth(e.target.value)} placeholder="תאריך-לידה…" style={{ flex:"1 1 130px", minWidth:0, fontFamily:F.h, fontSize:15, fontWeight:700, padding:"10px 12px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, minHeight:44 }} />
+              </div>
+              <textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="יש לך שאלה על השם? כתוב אותה כאן…" rows={2} style={{ width:"100%", boxSizing:"border-box", fontFamily:F.h, fontSize:14, fontWeight:600, padding:"10px 12px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, resize:"vertical" }} />
+            </div>
+          )}
+
+          <button type="submit" disabled={!nm.trim() || phase==="busy"} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:10, color:"#fff", fontFamily:F.h, fontSize:15.5, fontWeight:800, padding:"13px 22px", minHeight:48, opacity: (!nm.trim()||phase==="busy")?0.6:1 }}>
+            {phase==="busy" ? "🔬 חוקר…" : `🔎 חקור את «${nm.trim() || "השם"}»`}
+          </button>
+
+          {phase==="idle" && !nm && (
+            <div style={{ display:"flex", alignItems:"center", gap:7, flexWrap:"wrap" }}>
+              <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>נסה:</span>
+              {EXAMPLES.map((ex,i)=>(
+                <button key={i} type="button" onClick={()=>{ setNm(ex); autoRef.current=true; }} style={{ cursor:"pointer", background:"#f3f7ff", border:`1px solid ${C.blueLine}`, borderRadius:999, color:C.blue, fontFamily:F.h, fontSize:12, fontWeight:700, padding:"5px 12px" }}>{ex}</button>
+              ))}
+            </div>
+          )}
+        </form>
       </div>
 
-      <form onSubmit={e=>{ e.preventDefault(); run(); }} style={{ display:"grid", gap:8 }}>
-        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-          <input value={nm} onChange={e=>setNm(e.target.value)} placeholder="שם פרטי (חובה)…" required style={{ ...inp, flex:"2 1 180px", fontSize:17, borderColor: nm.trim()?C.blueLine:C.line }} />
-          <input value={surname} onChange={e=>setSurname(e.target.value)} placeholder="שם-משפחה…" style={inp} />
-          <input value={birth} onChange={e=>setBirth(e.target.value)} placeholder="תאריך-לידה…" style={inp} />
-        </div>
-        <textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="יש לך שאלה על השם? כתוב אותה כאן…" rows={2} style={{ ...inp, minWidth:0, width:"100%", resize:"vertical", fontWeight:600 }} />
-        <button type="submit" disabled={!nm.trim() || phase==="busy"} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:10, color:"#fff", fontFamily:F.h, fontSize:15, fontWeight:800, padding:"12px 22px", minHeight:44, opacity: (!nm.trim()||phase==="busy")?0.6:1 }}>
-          {phase==="busy" ? "חוקר…" : `🔎 חקור את «${nm.trim() || "השם"}»`}
-        </button>
-        <div style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>חובה: שם פרטי בלבד. שם-משפחה ותאריך-לידה מרחיבים את המחקר.</div>
-      </form>
+      {phase==="err" && <div style={{ color:C.red, fontFamily:F.h, fontSize:14, textAlign:"center" }}>החיפוש לא זמין כרגע. נסה שוב.</div>}
 
-      {phase==="err" && <div style={{ color:C.red, fontFamily:F.h, fontSize:14 }}>החיפוש לא זמין כרגע. נסה שוב.</div>}
+      {phase==="busy" && <div style={{ color:C.dim, fontFamily:F.h, fontSize:14, textAlign:"center", padding:"8px 0" }}>🔬 חוקר את «{nm.trim()}» בכל המנועים…</div>}
 
       {phase==="done" && res && (<>
-        {/* סיכום / הסבר-הרחבה (חיפוש מדורג) */}
+        {/* הערת-הרחבה (חיפוש מדורג) / סיכום (יחיד) */}
         {graded ? (res.note && (
           <div style={{ background:"#fff7e6", border:"1px solid #f0e2b8", borderRadius:12, padding:"12px 14px" }}>
             <div style={{ color:C.gold, fontFamily:F.h, fontSize:13.5, fontWeight:800 }}>ℹ️ {res.note}</div>
@@ -215,48 +309,10 @@ export default function NameMultiSearch({ name }) {
         )) : (
           <div style={{ background: res.literal_full_found ? "#eef7f0" : "#fff7e6", border:`1px solid ${res.literal_full_found ? "#cfe4d3":"#f0e2b8"}`, borderRadius:12, padding:"12px 14px" }}>
             <div style={{ color: res.literal_full_found ? C.green : C.gold, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>{res.summary}</div>
-            <div style={{ color:C.dim, fontFamily:F.h, fontSize:12.5, marginTop:4 }}>{okTracks(res.tracks).length} מסלולים עם תוצאות.</div>
           </div>
         )}
 
-        {/* 🕯️ הפסוק שלך — מתחיל באות הראשונה של השם, מסתיים באחרונה */}
-        {res.name_verse && (res.name_verse.verses||[]).length > 0 && (
-          <div style={{ background:"linear-gradient(180deg,#fffdf5,#fff7e6)", border:"1px solid #f0e2b8", borderRadius:12, padding:"13px 15px" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:6 }}>
-              <span style={{ color:C.gold, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>🕯️ הפסוק שלך</span>
-              <span style={{ color:C.dim, fontFamily:F.h, fontSize:11.5 }}>מתחיל ב־<b>{res.name_verse.first}</b> ומסתיים ב־<b>{res.name_verse.last}</b></span>
-            </div>
-            <div style={{ color:C.blue, fontFamily:F.h, fontSize:12, fontWeight:800 }}>{res.name_verse.verses[0].ref}</div>
-            <div style={{ color:C.ink, fontFamily:F.h, fontSize:15.5, lineHeight:1.85 }}>{res.name_verse.verses[0].text}</div>
-            <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, marginTop:6 }}>נהוג לאומרו בסוף תפילת העמידה · {res.name_verse.count} פסוקים אפשריים</div>
-          </div>
-        )}
-
-        {/* 🎯 קונצנזוס רב-מנועי — ממצאים שכמה מסלולים בלתי-תלויים הצביעו עליהם */}
-        {Array.isArray(res.consensus) && res.consensus.length > 0 && (
-          <div style={{ background:"linear-gradient(180deg,#fff,#eef7f0)", border:"1px solid #cfe4d3", borderRadius:12, padding:"13px 15px" }}>
-            <div style={{ color:C.green, fontFamily:F.h, fontSize:14.5, fontWeight:800, marginBottom:3 }}>🎯 קונצנזוס רב-מנועי</div>
-            <div style={{ color:C.dim, fontFamily:F.h, fontSize:11.5, marginBottom:9 }}>ממצאים שכמה <b>מסלולים בלתי-תלויים</b> הצביעו עליהם — לא כמה מצא מנוע אחד. «הפסוק שלך» לא נכלל בספירה.</div>
-            <div style={{ display:"grid", gap:7 }}>
-              {res.consensus.map((c,i)=>(
-                <div key={i} style={{ background:"#fff", border:`1px solid ${C.line}`, borderRadius:10, padding:"9px 12px" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                    <span style={{ background:"#1f8a4c", color:"#fff", borderRadius:999, minWidth:22, height:22, lineHeight:"22px", textAlign:"center", fontFamily:F.m, fontSize:13, fontWeight:800, padding:"0 6px" }}>{c.consensus}</span>
-                    <span style={{ color:C.mut, fontFamily:F.h, fontSize:11 }}>{c.type}</span>
-                    {c.type === "מילה"
-                      ? <Link to={`/number/${encodeURIComponent(c.target)}`} style={{ color:C.ink, fontFamily:F.h, fontSize:15.5, fontWeight:800, textDecoration:"none" }}>«{c.target}»</Link>
-                      : <span style={{ color:C.blue, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>{c.target}</span>}
-                  </div>
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:6 }}>
-                    {(c.families||[]).map((fam,j)=>(<span key={j} style={{ background:"#eef4ee", border:"1px solid #cfe4d3", borderRadius:999, color:C.green, fontFamily:F.h, fontSize:10.5, fontWeight:800, padding:"2px 8px" }}>{fam}</span>))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* פירוק + ערכים */}
+        {/* פירוק + ערכים (עובדה, לא רובריקה) */}
         {comp && (
           <div style={{ display:"flex", flexWrap:"wrap", gap:7 }}>
             <span style={{ background:"#f3f7ff", border:`1px solid ${C.blueLine}`, borderRadius:999, padding:"5px 12px", fontFamily:F.h, fontSize:13, fontWeight:800, color:C.ink }}>{comp.full} <b style={{ fontFamily:F.m, color:C.gold }}>{vals?.full}</b></span>
@@ -265,27 +321,48 @@ export default function NameMultiSearch({ name }) {
           </div>
         )}
 
-        {/* מסלולים — מדורג לפי-מקור; כלל-הזהב: מרנדרים רק מסלולים עם תוצאה */}
-        {blocks.map((b,bi)=>{
-          const ok = okTracks(b.tracks);
+        {/* ===== חוק 1 — סדר המחקר ===== */}
+        {/* ① ② … רכיבים בנפרד (רק בחיפוש מדורג) */}
+        {graded && parts.map((s, i) => {
+          const okt = ok(s.doc?.tracks);
+          if (okt.length === 0) return null;                     // כלל-הזהב: רכיב בלי ממצא לא מרונדר
           return (
-            <div key={bi} style={{ display:"grid", gap:8 }}>
-              {b.label && (
-                <div style={{ display:"flex", alignItems:"baseline", gap:8, marginTop: bi>0?6:0, borderTop: bi>0?`1px solid ${C.line}`:"none", paddingTop: bi>0?12:0 }}>
-                  <span style={{ color:C.ink, fontFamily:F.h, fontSize:15, fontWeight:800 }}>{b.label}</span>
-                  <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>{ok.length} מסלולים עם ממצא</span>
-                </div>
-              )}
-              {ok.length>0
-                ? ok.map((t,i)=><TrackCard key={i} t={t} />)
-                : <div style={{ color:C.mut, fontFamily:F.h, fontSize:12.5 }}>נבדק — ללא ממצאים ייחודיים.</div>}
+            <div key={"p"+i} style={{ display:"grid", gap:8 }}>
+              <div style={{ display:"flex", alignItems:"baseline", gap:9 }}>
+                <span style={{ background:C.blue, color:"#fff", borderRadius:999, minWidth:24, height:24, lineHeight:"24px", textAlign:"center", fontFamily:F.m, fontSize:13, fontWeight:800 }}>{i+1}</span>
+                <span style={{ color:C.ink, fontFamily:F.h, fontSize:16, fontWeight:800 }}>מחקר «{s.source}»</span>
+                <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>{okt.length} מסלולים עם ממצא</span>
+              </div>
+              <div style={{ display:"grid", gap:8 }}>{okt.map((t,j)=><TrackCard key={j} t={t} />)}</div>
             </div>
           );
         })}
 
-        {/* שאלה → AI */}
+        {/* ③ סינתזה — הצירוף המלא (או, בשם-יחיד, המחקר המלא) */}
+        {(() => {
+          const okt = ok(synthesisTracks);
+          const hasSynth = okt.length > 0 || (Array.isArray(res.consensus) && res.consensus.length > 0) || (res.name_verse && (res.name_verse.verses||[]).length > 0);
+          if (!hasSynth) return null;
+          return (
+            <div style={{ display:"grid", gap:10, background: graded ? "linear-gradient(180deg,#fbfdff,#f3f7ff)" : "transparent", border: graded ? `1px solid ${C.blueLine}` : "none", borderRadius:14, padding: graded ? "14px 15px" : 0 }}>
+              {graded && (
+                <div style={{ display:"flex", alignItems:"baseline", gap:9, flexWrap:"wrap" }}>
+                  <span style={{ fontSize:17 }}>🔗</span>
+                  <span style={{ color:C.ink, fontFamily:F.h, fontSize:16, fontWeight:800 }}>סינתזה — הצירוף המלא «{res.full}»</span>
+                  <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>מצליב בין הרכיבים שנחקרו למעלה</span>
+                </div>
+              )}
+              {okt.length > 0 && <div style={{ display:"grid", gap:8 }}>{okt.map((t,j)=><TrackCard key={j} t={t} />)}</div>}
+              <ConsensusBox consensus={res.consensus} />
+              <NameVerseBox nv={res.name_verse} />
+            </div>
+          );
+        })()}
+
+        {/* ===== חוק 3 — שכבת-מחקר נוספת: שאלה (תאריך) ===== */}
         {res.question && (
           <div style={{ background:"linear-gradient(180deg,#fff,#f3f7ff)", border:`1px solid ${C.blueLine}`, borderRadius:12, padding:"13px 15px" }}>
+            <div style={{ color:C.mut, fontFamily:F.h, fontSize:10.5, fontWeight:800, letterSpacing:1, textTransform:"uppercase", marginBottom:6 }}>שכבת-מחקר נוספת</div>
             <div style={{ color:C.ink, fontFamily:F.h, fontSize:13.5, fontWeight:800, marginBottom:6 }}>❓ {res.question.text}</div>
             {aiState==="done" && ai ? (
               <div style={{ color:C.ink, fontFamily:F.h, fontSize:15, lineHeight:1.8 }}>{ai}</div>
@@ -300,7 +377,7 @@ export default function NameMultiSearch({ name }) {
           </div>
         )}
 
-        <button onClick={()=>addToResearch?.({ id:"namemulti:"+(comp?.full||name), type:"name", title:comp?.full||name, value:vals?.full })} style={{ justifySelf:"start", cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.ink, fontFamily:F.h, fontSize:13, fontWeight:800, padding:"9px 16px", minHeight:44 }}>➕ הוסף למחקר</button>
+        <button onClick={()=>addToResearch?.({ id:"namemulti:"+(comp?.full||nm), type:"name", title:comp?.full||nm, value:vals?.full })} style={{ justifySelf:"start", cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.ink, fontFamily:F.h, fontSize:13, fontWeight:800, padding:"9px 16px", minHeight:44 }}>➕ הוסף למחקר</button>
       </>)}
     </section>
   );

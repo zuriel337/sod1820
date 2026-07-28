@@ -139,11 +139,26 @@ function DepthGauge({ depth }) {
   );
 }
 
+// 🧰 כרטיסייה מתקפלת — כל כלי-המחקר הקלאסיים, סגורה כברירת-מחדל (הדף מספר סיפור אחד).
+function Collapse({ title, sub, children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 3px rgba(20,25,40,.04)" }}>
+      <button onClick={() => setOpen(o => !o)} aria-expanded={open} style={{ width: "100%", cursor: "pointer", background: open ? "#f8f9fb" : "#fff", border: "none", borderBottom: open ? `1px solid ${C.line}` : "none", display: "flex", alignItems: "center", gap: 11, padding: "15px 18px", textAlign: "right", minHeight: 56 }}>
+        <span style={{ color: C.ink, fontFamily: F.h, fontSize: 16.5, fontWeight: 800 }}>{title}</span>
+        {sub && <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12 }}>{sub}</span>}
+        <span style={{ flex: 1 }} />
+        <span style={{ color: C.blue, fontFamily: F.h, fontSize: 13, fontWeight: 800 }}>{open ? "סגור ▲" : "פתח ▼"}</span>
+      </button>
+      {open && <div style={{ padding: "16px 16px 18px", display: "grid", gap: 16 }}>{children}</div>}
+    </section>
+  );
+}
+
 // embedded=true → מוטמע בתוך היכל הגילוי: לא נוגע ב-URL (לא דורס tool=name) ובלי עטיפת רקע-מלא.
 export default function NameLabPage({ embedded = false }) {
   const [sp, setSp] = useSearchParams();
   const [word, setWord] = useState((embedded ? "" : (sp.get("w") || "")).trim());
-  const [editing, setEditing] = useState(!word);
   const [openKey, setOpen] = useState(null);
   const [ai, setAi] = useState(null);
   const [aiState, setAiState] = useState("idle"); // idle|busy|done|off
@@ -250,7 +265,13 @@ export default function NameLabPage({ embedded = false }) {
     } catch { setAiState("off"); }
   }, [word, hebVals, enVals, conv, regVal, research, aiState, enWord, heInput, liveBridge, enOrdinal]);
 
-  const commit = (v) => { const w = (v ?? "").trim(); setWord(w); setEditing(false); setAi(null); setAiState("idle"); setSurname(""); setBirthdate(""); setCrossSurname(""); setCrossBirth(""); if (w && !embedded) setSp({ w }, { replace: true }); };
+  // מסוף-החיפוש (NameMultiSearch) הוא הקלט היחיד — הוא מזרים לכאן את «השם הפעיל» שמזין את כלי-המחקר הקלאסיים.
+  const onResolve = useCallback((v) => {
+    const w = (v ?? "").trim();
+    if (w === word) return;
+    setWord(w); setAi(null); setAiState("idle"); setSurname(""); setBirthdate(""); setCrossSurname(""); setCrossBirth("");
+    if (w && !embedded) setSp({ w }, { replace: true });
+  }, [word, embedded, setSp]);
 
   // 🌳 ישות-השם למחקר האישי (Research Bus).
   const entity = useMemo(() => word ? { id: "name:" + word, type: "name", title: word, value: regVal, meta: { en: enVals[0]?.value } } : null, [word, regVal, enVals]);
@@ -279,28 +300,14 @@ export default function NameLabPage({ embedded = false }) {
           <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 13, marginTop: 3 }}>מה אפשר לגלות על השם הזה?</div>
         </div>
 
-        {/* 1 · השם */}
-        <Section n="01" icon="🧪" title="השם">
-          {editing || !word ? (
-            <form onSubmit={e => { e.preventDefault(); commit(new FormData(e.target).get("w")); }} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <input name="w" defaultValue={word} autoFocus placeholder="הקלד שם או מילה — עברית או אנגלית…" style={{ flex: 1, minWidth: 180, fontFamily: F.h, fontSize: 20, fontWeight: 700, padding: "12px 14px", borderRadius: 12, border: `1px solid ${C.line}`, background: "#fff", color: C.ink }} />
-              <button style={{ cursor: "pointer", background: C.blue, border: "none", borderRadius: 12, color: "#fff", fontFamily: F.h, fontSize: 15, fontWeight: 800, padding: "0 24px" }}>חקור ←</button>
-            </form>
-          ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-              <div style={{ fontFamily: F.h, fontSize: 38, fontWeight: 800, color: C.ink }}>{word}</div>
-              <button onClick={() => setEditing(true)} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${C.line}`, borderRadius: 999, color: C.dim, fontFamily: F.h, fontSize: 13, fontWeight: 700, padding: "6px 14px" }}>✎ ערוך / החלף</button>
-            </div>
-          )}
-        </Section>
+        {/* 🔎 מסוף-החיפוש = הקלט היחיד. מריץ ישירות את המחקר המדורג (① שם → ② משפחה → ③ סינתזה)
+            ומזרים את «השם הפעיל» לכלי-המחקר הקלאסיים שבכרטיסייה הסגורה מתחת. */}
+        <NameMultiSearch name={word} onResolve={onResolve} />
 
-        {word && (<>
-          {/* 🧭 מסע-המחקר (גל 3) — הפרוטוקול המאוחד (fn_name_protocol): התקדמות אמיתית + מסמך בשכבות.
-              מוביל את הדף; המדורים הקלאסיים מתחת נשמרים (אפס אובדן-ממצא, בסיס להשוואת-זהב). */}
+        {word && (
+          <Collapse title="🧰 כל כלי המחקר" sub="מסע · שיטות · תנ״ך · גשרים · הקשר · ולאן ממשיכים">
+          {/* 🧭 מסע-המחקר (גל 3) — הפרוטוקול המאוחד (fn_name_protocol): התקדמות אמיתית + מסמך בשכבות. */}
           <NameJourney word={word} />
-
-          {/* 🔎 חיפוש רב-מסלולי (NameLab «חובה») — שם+משפחה+תאריך+שאלה · «לא נמצא ≠ אין מחקר» */}
-          <NameMultiSearch name={word} />
 
           {/* 02 · סיכום הבדיקה — מבט-על מאוחד על כל המנועים (בלי שמות-סוכנים). עובדות בלבד; הפרשנות בסיכום ה-AI מתחת. */}
           <section style={{ background: "linear-gradient(180deg,#ffffff,#f6f9ff)", border: `1px solid #d9e5ff`, borderRadius: 16, padding: "16px 20px", boxShadow: "0 1px 3px rgba(20,25,40,.04)" }}>
@@ -403,9 +410,10 @@ export default function NameLabPage({ embedded = false }) {
           {/* 🔬 נתח שיטה בודדת (רכיב קנוני) — ניתוח-AI ממוקד לשיטה אחת מתוך ה-20 */}
           <MethodAnalyze word={word} />
 
+          {/* כלל-הזהב: מדור-ריק לא מרונדר (רק טעינה או תוצאות) */}
+          {(conv === null || conv.length > 0) && (
           <Section n="04" icon="💎" title="ההתכנסויות" sub={`מילים וביטויים ששווים לערך הרגיל (${regVal}) — «בתוך המספר». מאומת במנוע.`}>
-            {conv === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>טוען…</div> :
-              conv.length === 0 ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>לא נמצאו התכנסויות לערך זה.</div> : (
+            {conv === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>טוען…</div> : (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                   {conv.map((p, i) => (
                     <Link key={i} to={`/number/${encodeURIComponent(p)}`} style={{ textDecoration: "none", background: "#f3f7ff", border: `1px solid #d9e5ff`, borderRadius: 999, padding: "5px 13px", color: C.blue, fontFamily: F.h, fontSize: 13.5, fontWeight: 700 }}>{p}</Link>
@@ -414,8 +422,10 @@ export default function NameLabPage({ embedded = false }) {
                 </div>
               )}
           </Section>
+          )}
 
-          {/* 4.5 · בתנ״ך ובמקורות — עדשת-מקורות (הופעות השם + פסוקים) */}
+          {/* 4.5 · בתנ״ך ובמקורות — כלל-הזהב: מרונדר רק בטעינה או כשיש הופעות */}
+          {(dossier === null || (dossier && dossier.sources && dossier.sources.count > 0)) && (
           <Section n="05" icon="📜" title="בתנ״ך ובמקורות" sub="היכן מופיע השם בתנ״ך, כמה פעמים, ובאילו ספרים — עובדה מהמנוע.">
             {dossier === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>בודק במקורות…</div> :
               (dossier && dossier.sources && dossier.sources.count > 0) ? (
@@ -443,10 +453,9 @@ export default function NameLabPage({ embedded = false }) {
                     </div>
                   )}
                 </div>
-              ) : (
-                <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13.5, lineHeight: 1.7, background: "#f6f7f9", border: `1px dashed ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>«{word}» לא נמצא ככתיב-מלא בתנ״ך. זה לא אומר שאין לו שורש — נסה כתיב אחר או צלול דרך הגימטריה.</div>
-              )}
+              ) : null}
           </Section>
+          )}
 
           {/* 4.7 · דפוסים ורשת-קשרים — עדשת-דפוסים (שכנים · ביטויים · אנגרמות) */}
           {dossier && dossier.patterns && (
@@ -488,19 +497,16 @@ export default function NameLabPage({ embedded = false }) {
             ) : null
           )}
 
-          {/* 7 · הגשרים — חוצי-שפות (העדיפות העליונה) */}
+          {/* 7 · הגשרים — כלל-הזהב: מרונדר רק בטעינה או כשיש גשר מאומת */}
+          {(research === null || (research && research.bridges && research.bridges.length > 0)) && (
           <Section n="07" icon="🌉" title="הגשרים" sub="עברית ↔ אנגלית ↔ שפות — לא רק ערך שווה, אלא התכנסות בין־שפתית אמיתית. אחד הדברים שאין כמעט בשום מקום.">
-            {research === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>מחפש גשרים…</div> :
-              (research && research.bridges && research.bridges.length) ? (
+            {research === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>מחפש גשרים…</div> : (
                 <div style={{ display: "grid", gap: 10 }}>
                   {research.bridges.map((b, i) => <BridgeCard key={i} b={b} myWord={word} />)}
                 </div>
-              ) : (
-                <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13.5, lineHeight: 1.7, background: "#f6f7f9", border: `1px dashed ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>
-                  לא נמצא עדיין גשר חוצה-שפות מאומת ל«{word}» (ערך {regVal}).{enVals.length ? ` הערך באנגלית הוא ${enVals[0].value} — גשר אמיתי נרשם רק לאחר אימות ידני.` : ""} מאגר הגשרים גדל עם המחקר 🌱
-                </div>
               )}
           </Section>
+          )}
 
           {/* 8 · הצלבה מורחבת — שם + שם-משפחה + תאריך (fn_cross_research) */}
           <Section n="08" icon="🔗" title="הצלבה מורחבת" sub="הוסף שם-משפחה ותאריך-לידה — והמנוע מחפש נקודות-מפגש בין כולם בכל השיטות. נקודת-מפגש = עובדה, המשמעות = השערה לבדיקה.">
@@ -523,15 +529,13 @@ export default function NameLabPage({ embedded = false }) {
                   </div>
                 ))}
               </div>
-            ) : (surname || birthdate) ? (
-              <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13.5, background: "#f6f7f9", border: `1px dashed ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>לא נמצאה נקודת-מפגש משותפת בין הפריטים בשיטות שנבדקו.</div>
             ) : null}
           </Section>
 
-          {/* 6 · ההקשר — השם כשער לגרף */}
+          {/* 6 · ההקשר — כלל-הזהב: מרונדר רק בטעינה או כשיש פוסטים/אוצרות/חידושים */}
+          {(research === null || (research && (research.posts?.length || research.treasures?.length || research.hints?.length))) && (
           <Section n="06" icon="📚" title="ההקשר" sub="פוסטים · אוצרות · חידושים הקשורים לשם ולמספר. השם כשער אל עץ-הידע.">
-            {research === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>טוען הקשר…</div> :
-              !research ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>ההקשר לא זמין כרגע.</div> : (
+            {research === null ? <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>טוען הקשר…</div> : (
                 <div style={{ display: "grid", gap: 16 }}>
                   {/* פוסטים */}
                   {research.posts && research.posts.length > 0 && (
@@ -572,12 +576,10 @@ export default function NameLabPage({ embedded = false }) {
                       </div>
                     </div>
                   )}
-                  {!(research.posts?.length || research.treasures?.length || research.hints?.length) && (
-                    <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13.5 }}>עוד לא נמצא הקשר לשם הזה בגרף. כל שם חדש מרחיב את העץ 🌱</div>
-                  )}
                 </div>
               )}
           </Section>
+          )}
 
           {/* 7 · המחקר האישי */}
           <Section n="07" icon="🌳" title="המחקר האישי" sub={`שמור את «${word}» לעץ שלך, הוסף למחקר הפעיל, והמשך מאותה נקודה בכל מכשיר.`}>
@@ -603,7 +605,8 @@ export default function NameLabPage({ embedded = false }) {
               </div>
             </Section>
           )}
-        </>)}
+          </Collapse>
+        )}
       </div>
     </div>
   );
