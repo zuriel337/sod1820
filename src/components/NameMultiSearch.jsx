@@ -50,6 +50,20 @@ function TrackCard({ t }) {
           {t.data.sum != null && <span style={{ background:"#fff7e6", border:"1px solid #f0e2b8", borderRadius:999, padding:"3px 10px", fontFamily:F.h, fontSize:12, fontWeight:800, color:C.gold }}>סכום {t.data.sum}</span>}
         </div>
       )}
+      {t.id === "transforms" && Array.isArray(t.data) && t.data.length>0 && (
+        <div style={{ display:"grid", gap:6, marginTop:7 }}>
+          {t.data.map((tr,i)=>(
+            <div key={i} style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap", background:"#fbfcfe", border:`1px solid ${C.line}`, borderRadius:8, padding:"6px 10px", fontFamily:F.h, fontSize:12.5 }}>
+              <span style={{ color:C.mut, fontWeight:700 }}>{tr.method}</span>
+              <b style={{ color:C.ink, fontSize:14 }}>{tr.word}</b>
+              <b style={{ fontFamily:F.m, color:C.blue }}>{tr.value}</b>
+              {(tr.in_tanach||0) > 0
+                ? <span style={{ color:C.green, fontWeight:700 }}>✓ בתנ״ך ×{tr.in_tanach}{(tr.verses||[])[0] ? ` · ${tr.verses[0]}` : ""}</span>
+                : <span style={{ color:C.mut }}>לא בתנ״ך</span>}
+            </div>
+          ))}
+        </div>
+      )}
       {t.id === "shared_num" && t.data && (
         <div style={{ display:"grid", gap:6, marginTop:7 }}>
           {(t.data.cross_parts||[]).map((c,i)=>(
