@@ -19,3 +19,10 @@ end $$;
 
 grant select on public.name_variants to anon, authenticated;
 grant select on public.torah_stream  to anon, authenticated;
+
+-- fn_els_search reads torah_stream (306k letters). Under RLS the ELS range-join
+-- lost its fast plan (1.5s → 12s for anon, whose statement_timeout is 3s → the
+-- search errored as "לא זמין"). SECURITY DEFINER bypasses RLS on this read-only
+-- analytic function → fast plan restored. (fn_name_multi/fn_name_research_graded
+-- are also SECURITY DEFINER — see 20260728_zz_namelab_graded_golden.sql.)
+alter function public.fn_els_search(text,int,int) security definer;

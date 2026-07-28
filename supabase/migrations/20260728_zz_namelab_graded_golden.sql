@@ -15,9 +15,11 @@
 -- ============================================================
 drop function if exists public.fn_name_multi(text,text,text,text);
 
+-- SECURITY DEFINER: קריאה-בלבד, בלי SQL דינמי, search_path נעול — עוקף את עומס-ה-RLS
+-- על torah_stream (ELS) שהאט את החיפוש מ-1.5s ל-12s ל-anon (statement_timeout=3s).
 create or replace function public.fn_name_multi(
   p_name text, p_surname text default null, p_birthdate text default null, p_question text default null, p_opts jsonb default '{}'::jsonb
-) returns jsonb language plpgsql stable set search_path=public as $$
+) returns jsonb language plpgsql stable security definer set search_path=public as $$
 declare
   comp jsonb; nfull text; parts text[]; fst text; lst text; nparts int; dparts text[];
   t_together jsonb; t_prox jsonb; t_inverse jsonb; t_split jsonb; t_variants jsonb; nverse jsonb;
@@ -113,7 +115,7 @@ grant execute on function public.fn_name_multi(text,text,text,text,jsonb) to ano
 -- combination (full ELS), then merge with source attribution.
 create or replace function public.fn_name_research_graded(
   p_name text, p_surname text default null, p_birthdate text default null, p_question text default null
-) returns jsonb language plpgsql stable set search_path=public as $$
+) returns jsonb language plpgsql stable security definer set search_path=public as $$
 declare
   comp jsonb; toks text[]; vfull text; tok text; sources jsonb := '[]'::jsonb; combo jsonb; sparse boolean; n int;
 begin
@@ -128,7 +130,9 @@ begin
     sources := sources || jsonb_build_array(jsonb_build_object(
       'source', tok, 'role','רכיב', 'doc', fn_name_multi(tok, null, p_birthdate, null, '{"skip_els":"1"}'::jsonb)));
   end loop;
-  combo := fn_name_multi(toks[1], array_to_string(toks[2:array_length(toks,1)],' '), p_birthdate, p_question);
+  -- הצירוף מדלג על ELS: ELS על מחרוזת-שם משורשרת יקר (מעל timeout של anon) וכמעט בלי ערך.
+  -- שם-יחיד (הענף n<=1 למעלה) עדיין מריץ ELS מלא.
+  combo := fn_name_multi(toks[1], array_to_string(toks[2:array_length(toks,1)],' '), p_birthdate, p_question, '{"skip_els":"1"}'::jsonb);
   sparse := coalesce((combo->>'tracks_with_results')::int,0) < 4;
   return jsonb_build_object(
     'graded', true, 'protocol','name_graded_v1', 'full', vfull, 'tokens', to_jsonb(toks),
