@@ -305,7 +305,42 @@ export default function NameLabPage({ embedded = false }) {
             ומזרים את «השם הפעיל» לכלי-המחקר הקלאסיים שבכרטיסייה הסגורה מתחת. */}
         <NameMultiSearch name={word} onResolve={onResolve} />
 
-        {word && (
+        {word && (<>
+          {/* 🔠 דילוגים (ELS) על השם — גלוי; כניסה למנוע-הדילוגים המלא, זרוע עם השם */}
+          <Section n="🔠" icon="🔠" title="דילוגים בתורה (ELS)" sub="חיפוש השם כרצף מדלג בתורה — המטריצה המלאה נפתחת במנוע-הדילוגים.">
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <Link to={`/research?tool=els&term=${encodeURIComponent(word)}`} style={{ textDecoration: "none", background: C.blue, color: "#fff", borderRadius: 12, fontFamily: F.h, fontSize: 14.5, fontWeight: 800, padding: "12px 20px", minHeight: 44, display: "inline-flex", alignItems: "center" }}>🔠 פתח דילוגים על «{word}» ←</Link>
+              <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12.5, lineHeight: 1.6, flex: 1, minWidth: 180 }}>כל התנ״ך · מרחקי-דילוג · כיוונים — הכלי המלא עם המטריצה.</span>
+            </div>
+          </Section>
+
+          {/* 🤖 רזיאל / מטטרון — הפרשנות על השם (עובדה מהמנוע → משמעות). גלוי תמיד. */}
+          <div style={{ margin: "0 0 4px" }}>
+            <AskRaziel
+              subject={word}
+              facts={`${word} = ${regVal}`}
+              metatron
+              palette={{ cardGrad: "#fff", card: "#fff", cardSoft: "#f3f7ff", border: "#d9e5ff", accent: "#2f6df6", accentText: "#1b1d22", accentDim: "#5b6472", ink: "#1b1d22", glow: "rgba(47,109,246,0.10)", onAccent: "#fff" }}
+              title="רזיאל · הסוכן שלך"
+              subtitle="נחקור יחד את השם — עובדה מהמנוע, לא נבואה"
+              greeting={`רוצה שנעמיק ב«${word}»? אחקור את המשמעות, ההתכנסויות והקשרים — ונמשיך גם בוואטסאפ.`}
+              waText={`שלום רזיאל 🌳 חקרתי את «${word}» במעבדת-השם — `}
+            />
+          </div>
+
+          {/* 🤖 סיכום המחקר (AI) — הפרשנות המלווה. גלוי תמיד. */}
+          <Section n="🤖" icon="🤖" title="סיכום המחקר" sub="חוקר מלווה — מה מיוחד, אילו התכנסויות מעניינות ולמה, ומה כדאי לחקור בהמשך.">
+            {aiState === "done" && ai ? (
+              <div style={{ color: C.ink, fontFamily: F.h, fontSize: 15.5, lineHeight: 1.85, background: "#f3f7ff", border: `1px solid #d9e5ff`, borderRadius: 12, padding: "14px 16px" }}>{ai}</div>
+            ) : aiState === "busy" ? (
+              <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>🔬 החוקר מנתח את «{word}»…</div>
+            ) : aiState === "off" ? (
+              <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>הניתוח לא זמין כרגע. <button onClick={analyze} style={{ cursor: "pointer", background: "none", border: "none", color: C.blue, fontWeight: 700, textDecoration: "underline" }}>נסה שוב</button></div>
+            ) : (
+              <button onClick={analyze} style={{ cursor: "pointer", background: `linear-gradient(135deg,${C.blue},#5b8bff)`, border: "none", borderRadius: 12, color: "#fff", fontFamily: F.h, fontSize: 15, fontWeight: 800, padding: "12px 22px" }}>🔬 מה אפשר לגלות על «{word}»?</button>
+            )}
+          </Section>
+
           <Collapse locked title="כל כלי המחקר" sub="מסע · שיטות · תנ״ך · גשרים · הקשר — ייפתחו בקרוב">
           {/* 🧭 מסע-המחקר (גל 3) — הפרוטוקול המאוחד (fn_name_protocol): התקדמות אמיתית + מסמך בשכבות. */}
           <NameJourney word={word} />
@@ -337,33 +372,6 @@ export default function NameLabPage({ embedded = false }) {
               הבדיקה מריצה את «{word}» דרך כל מנועי-המערכת ומאחדת את הממצאים. כל מספר = עובדה מהמנוע; הפרשנות בסיכום שמתחת. לחיצה על מדד פותחת את מקורו.
             </div>
           </section>
-
-          {/* 🤖 רזיאל — הסוכן האישי הדומיננטי (בטא · מטטרון · זיכרון חוצה-ערוצים) */}
-          <div style={{ margin: "0 0 18px" }}>
-            <AskRaziel
-              subject={word}
-              facts={`${word} = ${regVal}`}
-              metatron
-              palette={{ cardGrad: "#fff", card: "#fff", cardSoft: "#f3f7ff", border: "#d9e5ff", accent: "#2f6df6", accentText: "#1b1d22", accentDim: "#5b6472", ink: "#1b1d22", glow: "rgba(47,109,246,0.10)", onAccent: "#fff" }}
-              title="רזיאל · הסוכן שלך"
-              subtitle="נחקור יחד את השם — עובדה מהמנוע, לא נבואה"
-              greeting={`רוצה שנעמיק ב«${word}»? אחקור את המשמעות, ההתכנסויות והקשרים — ונמשיך גם בוואטסאפ.`}
-              waText={`שלום רזיאל 🌳 חקרתי את «${word}» במעבדת-השם — `}
-            />
-          </div>
-
-          {/* 3 · סיכום AI — פרשנות מלווה */}
-          <Section n="03" icon="🤖" title="סיכום המחקר" sub="חוקר מלווה — מה מיוחד, אילו התכנסויות מעניינות ולמה, ומה כדאי לחקור בהמשך.">
-            {aiState === "done" && ai ? (
-              <div style={{ color: C.ink, fontFamily: F.h, fontSize: 15.5, lineHeight: 1.85, background: "#f3f7ff", border: `1px solid #d9e5ff`, borderRadius: 12, padding: "14px 16px" }}>{ai}</div>
-            ) : aiState === "busy" ? (
-              <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>🔬 החוקר מנתח את «{word}»…</div>
-            ) : aiState === "off" ? (
-              <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>הניתוח לא זמין כרגע. <button onClick={analyze} style={{ cursor: "pointer", background: "none", border: "none", color: C.blue, fontWeight: 700, textDecoration: "underline" }}>נסה שוב</button></div>
-            ) : (
-              <button onClick={analyze} style={{ cursor: "pointer", background: `linear-gradient(135deg,${C.blue},#5b8bff)`, border: "none", borderRadius: 12, color: "#fff", fontFamily: F.h, fontSize: 15, fontWeight: 800, padding: "12px 22px" }}>🔬 מה אפשר לגלות על «{word}»?</button>
-            )}
-          </Section>
 
           {/* 🎯 מד עומק ההצלבה — סיכום כמותי של החיבור בגרף */}
           <DepthGauge depth={depth} />
@@ -607,7 +615,7 @@ export default function NameLabPage({ embedded = false }) {
             </Section>
           )}
           </Collapse>
-        )}
+        </>)}
       </div>
     </div>
   );
