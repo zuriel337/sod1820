@@ -8,6 +8,14 @@ import { genAvatar } from "../lib/avatar.js";
 // 📜 רשימת הכתבים/החוקרים — /community/researchers (researcher_page_law).
 // עדשה על contributors: כרטיס לכל כותב פעיל → דף-החוקר הקנוני שלו.
 // הדפים עצמם נפרדים מהאתר (נגישים בקישור) — הרשימה הזו היא השער בקהילה.
+
+// מספר הגילויים בדף (media ללא digest/scan-header) — משמש גם למיון וגם לתצוגת «💎 N גילויים».
+const itemsOf = (r) => Array.isArray(r.media) ? r.media.filter(e => e.kind !== "digest" && e.kind !== "scan-header").length : 0;
+
+// 🪜 דרגת-היררכיה (גבוה=למעלה). כתב חדש נכנס בתחתית ו«מתעורר» כלפי מעלה ככל שצובר מעמד:
+//   3 = VIP (👑) · 2 = כותב עם גילויים (💎) · 1 = פעיל בלי גילויים עדיין (כאן נוחת כתב חדש) · 0 = בבנייה (🚧, בתחתית).
+const tierOf = (r) => r.building ? 0 : r.vip ? 3 : itemsOf(r) > 0 ? 2 : 1;
+
 export default function ResearchersIndexPage() {
   const P = usePalette();
   const [rows, setRows] = useState(null);
@@ -15,10 +23,15 @@ export default function ResearchersIndexPage() {
   useEffect(() => {
     applySeo({ title: "הכתבים והחוקרים", description: "רשימת הכתבים והחוקרים של סוד 1820 — דפי הגילויים האישיים", path: "/community/researchers" });
     let alive = true;
-    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked,building")
+    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked,building,created_at")
       .eq("active", true).neq("kind", "private").not("slug", "like", "r-%").neq("display_name", "sod1820")  // ⛔ פרטי + חשבון-מערכת
-      .order("vip", { ascending: false })
-      .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); })
+      .then(({ data }) => {
+        if (!alive) return;
+        const list = Array.isArray(data) ? data.slice() : [];
+        // מיון היררכי: דרגה↓, ובתוך אותה דרגה הוותיק ראשון (created_at↑) — כך כתב חדש יושב בתחתית ועולה כשהוא מתקדם בהיררכיה.
+        list.sort((a, b) => tierOf(b) - tierOf(a) || String(a.created_at || "").localeCompare(String(b.created_at || "")));
+        setRows(list);
+      })
       .catch(() => alive && setRows([]));
     return () => { alive = false; };
   }, []);
@@ -39,7 +52,7 @@ export default function ResearchersIndexPage() {
         ) : (
           <div style={{ display: "grid", gap: 10 }}>
             {rows.map(r => {
-              const items = Array.isArray(r.media) ? r.media.filter(e => e.kind !== "digest" && e.kind !== "scan-header").length : 0;
+              const items = itemsOf(r);
               return (
                 <a key={r.slug} href={`/community/researcher/${r.code || r.slug}`}
                   style={{ display: "flex", alignItems: "center", gap: 13, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 15px", textDecoration: "none" }}>
