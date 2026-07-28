@@ -2960,7 +2960,7 @@ export async function getNameProtocol(name) {
 export async function getNameMulti(name, { surname, birthdate, question } = {}) {
   const w = (name || '').trim();
   if (!supabase || !w) return null;
-  const { data, error } = await supabase.rpc('fn_name_multi', {
+  const { data, error } = await supabase.rpc('fn_name_research_graded', {
     p_name: w,
     p_surname: (surname || '').trim() || null,
     p_birthdate: (birthdate || '').trim() || null,

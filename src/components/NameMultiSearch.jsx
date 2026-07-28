@@ -157,7 +157,7 @@ export default function NameMultiSearch({ name }) {
       const d = await getNameMulti(w, { surname, birthdate: birth, question });
       if (!d) { setPhase("err"); return; }
       setRes(d); setPhase("done");
-      logNameResearch(d, Date.now() - t0); // 📊 לוח-איכות (fire-and-forget)
+      logNameResearch(d.graded ? d.combo : d, Date.now() - t0); // 📊 לוח-איכות (fire-and-forget)
       // שמירה אוטומטית של השאלה עם המחקר (גם וגם)
       if (question.trim()) saveItem?.({ id:"nameq:"+w+":"+Date.now(), type:"name_question", title:`${w} — ${question.trim()}`, meta:{ question:question.trim(), name:w } });
     } catch { setPhase("err"); }
@@ -175,6 +175,14 @@ export default function NameMultiSearch({ name }) {
 
   const comp = res?.input?.components;
   const vals = comp?.values;
+  // כלל-הזהב: מציגים רק מסלולים עם תוצאה (status='ok'); רובריקה ריקה לא מרונדרת.
+  const okTracks = (arr) => (arr || []).filter(t => t.status === "ok");
+  const graded = res?.graded === true;
+  // חיפוש מדורג: בלוק לצירוף המלא + בלוק לכל רכיב (מקור), עם ייחוס-מקור.
+  const blocks = !res ? [] : graded
+    ? [{ label: `🔗 הצירוף המלא: ${res.full}`, tracks: res.combo?.tracks },
+       ...(res.sources || []).map(s => ({ label: `🔹 מבוסס על: «${s.source}»`, tracks: s.doc?.tracks }))]
+    : [{ label: null, tracks: res.tracks }];
 
   return (
     <section dir="rtl" style={{ background:C.card, border:`1px solid ${C.line}`, borderRadius:16, padding:"18px 20px", display:"grid", gap:14 }}>
@@ -199,11 +207,17 @@ export default function NameMultiSearch({ name }) {
       {phase==="err" && <div style={{ color:C.red, fontFamily:F.h, fontSize:14 }}>החיפוש לא זמין כרגע. נסה שוב.</div>}
 
       {phase==="done" && res && (<>
-        {/* סיכום */}
-        <div style={{ background: res.literal_full_found ? "#eef7f0" : "#fff7e6", border:`1px solid ${res.literal_full_found ? "#cfe4d3":"#f0e2b8"}`, borderRadius:12, padding:"12px 14px" }}>
-          <div style={{ color: res.literal_full_found ? C.green : C.gold, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>{res.summary}</div>
-          <div style={{ color:C.dim, fontFamily:F.h, fontSize:12.5, marginTop:4 }}>{res.tracks_with_results} מסלולים עם תוצאות מתוך {(res.tracks||[]).length}.</div>
-        </div>
+        {/* סיכום / הסבר-הרחבה (חיפוש מדורג) */}
+        {graded ? (res.note && (
+          <div style={{ background:"#fff7e6", border:"1px solid #f0e2b8", borderRadius:12, padding:"12px 14px" }}>
+            <div style={{ color:C.gold, fontFamily:F.h, fontSize:13.5, fontWeight:800 }}>ℹ️ {res.note}</div>
+          </div>
+        )) : (
+          <div style={{ background: res.literal_full_found ? "#eef7f0" : "#fff7e6", border:`1px solid ${res.literal_full_found ? "#cfe4d3":"#f0e2b8"}`, borderRadius:12, padding:"12px 14px" }}>
+            <div style={{ color: res.literal_full_found ? C.green : C.gold, fontFamily:F.h, fontSize:14.5, fontWeight:800 }}>{res.summary}</div>
+            <div style={{ color:C.dim, fontFamily:F.h, fontSize:12.5, marginTop:4 }}>{okTracks(res.tracks).length} מסלולים עם תוצאות.</div>
+          </div>
+        )}
 
         {/* 🕯️ הפסוק שלך — מתחיל באות הראשונה של השם, מסתיים באחרונה */}
         {res.name_verse && (res.name_verse.verses||[]).length > 0 && (
@@ -251,10 +265,23 @@ export default function NameMultiSearch({ name }) {
           </div>
         )}
 
-        {/* מסלולים */}
-        <div style={{ display:"grid", gap:8 }}>
-          {(res.tracks||[]).map((t,i)=><TrackCard key={i} t={t} />)}
-        </div>
+        {/* מסלולים — מדורג לפי-מקור; כלל-הזהב: מרנדרים רק מסלולים עם תוצאה */}
+        {blocks.map((b,bi)=>{
+          const ok = okTracks(b.tracks);
+          return (
+            <div key={bi} style={{ display:"grid", gap:8 }}>
+              {b.label && (
+                <div style={{ display:"flex", alignItems:"baseline", gap:8, marginTop: bi>0?6:0, borderTop: bi>0?`1px solid ${C.line}`:"none", paddingTop: bi>0?12:0 }}>
+                  <span style={{ color:C.ink, fontFamily:F.h, fontSize:15, fontWeight:800 }}>{b.label}</span>
+                  <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>{ok.length} מסלולים עם ממצא</span>
+                </div>
+              )}
+              {ok.length>0
+                ? ok.map((t,i)=><TrackCard key={i} t={t} />)
+                : <div style={{ color:C.mut, fontFamily:F.h, fontSize:12.5 }}>נבדק — ללא ממצאים ייחודיים.</div>}
+            </div>
+          );
+        })}
 
         {/* שאלה → AI */}
         {res.question && (
