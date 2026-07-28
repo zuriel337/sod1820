@@ -301,8 +301,10 @@ export default function NameMultiSearch({ name, onResolve }) {
   // 📊 נרמול-ממצאים על כל המסלולים (צירוף + רכיבים) — Raw→Normalize→Dedupe→Rank.
   const normalized = useMemo(() => {
     if (!res) return [];
-    const lists = graded ? [res.combo?.tracks, ...(res.sources || []).map(s => s.doc?.tracks)] : [res.tracks];
-    return aggregateFindings(lists);
+    try {
+      const lists = graded ? [res.combo?.tracks, ...(res.sources || []).map(s => s.doc?.tracks)] : [res.tracks];
+      return aggregateFindings(lists);
+    } catch { return []; }   // שכבת-תצוגה לעולם לא מפילה את הדף
   }, [res, graded]);
 
   return (

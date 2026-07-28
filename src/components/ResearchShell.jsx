@@ -7,6 +7,7 @@ import { on, emit, EVENTS } from "../lib/research/eventBus.js";
 import ElsResultsPanel from "./ElsResultsPanel.jsx";
 import ActiveEntityPanel from "./ActiveEntityPanel.jsx";
 import Navbar from "./layout/Navbar.jsx";
+import ErrorBoundary from "./ErrorBoundary.jsx";
 import { setForcedMode } from "../lib/themeMode.js";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -171,7 +172,9 @@ export default function ResearchShell({ children, subnav }) {
       <div className={"rw-stage" + (!rightOpen && !leftOpen ? " wide" : "")}>
         {rightOpen ? <><RightPanel /><Grip side="right" /></> : <Rail side="right" icons={ICONS.tools} onOpen={() => setRightOpen(true)} />}
 
-        <main className="rw-work">{children}</main>
+        {/* 🛡️ מגן-קריסות לאזור-הכלי — ההיכל מחוץ ל-Layout, אז בלי זה קריסת-render של כלי = «דף שחור».
+            מתאפס במעבר-כלי (routeKey=tool); הנאב והסרגלים שורדים. */}
+        <main className="rw-work"><ErrorBoundary routeKey={tool || "home"}>{children}</ErrorBoundary></main>
 
         {leftOpen
           ? <><Grip side="left" />
