@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getNameMulti, getAiAnalysis, logNameResearch } from "../lib/supabase.js";
 import { aggregateFindings } from "../lib/nameNormalize.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { shareOrCopy } from "../lib/share.js";
 
 // 🔎 חיפוש-שם רב-מסלולי (NameLab «חובה») — «לא נמצא» ≠ «אין מחקר».
 // שם + שם-משפחה + תאריך-לידה + שאלה → מסלולי-מחקר, כל אחד עם מקור. שמות-פנים לא נחשפים.
@@ -27,6 +28,19 @@ const EV = {
   direct:      { t:"ממצא ישיר",  bg:"#eef4ee", bd:"#cfe4d3", c:C.green },
   value_match: { t:"התאמת-ערך", bg:"#fff7e6", bd:"#f0e2b8", c:C.gold  },
   interpretive:{ t:"פרשני",      bg:"#eef3ff", bd:"#d3e0fb", c:C.blue  },
+};
+// 📖 מילון בשפה פשוטה — למי שרואה את זה בפעם הראשונה (בלי ז'רגון).
+const ENGINE_HELP = {
+  "גימטריה": "לכל אות יש מספר; מחברים את כל האותיות. שני ביטויים עם אותו סכום = «התאמת-ערך». זו לא הוכחה שהם קשורים — רק שהמספר שווה.",
+  "מילוי": "כותבים כל אות כשם-האות המלא (א→«אלף», ב→«בית») ומחשבים את הערך של הכתיב המלא. כמו «להגדיל» את המילה ולראות מה בתוכה.",
+  "אנגרם": "אותן אותיות בדיוק — בסדר אחר. כמו «אבי» ו«ביא». מציגים רק אנגרמות שבאמת קיימות כמילה, לא צירופי-אותיות סתם.",
+  "וריאציית-כתיב": "אותו שם בכתיב אחר — מלא או חסר. למשל «דוד»/«דויד», «יעקב»/«יעקוב».",
+  "תמורה בתנ״ך": "מחליפים אותיות לפי כלל קבוע (כמו אתב״ש: א↔ת, ב↔ש) — ובודקים אם המילה שיצאה מופיעה בתנ״ך.",
+};
+const EV_HELP = {
+  direct: "ממצא ישיר — הופעה אמיתית בתנ״ך, או מילה/אנגרמה שבאמת קיימת. הכי חזק.",
+  value_match: "התאמת-ערך — רק המספר (הגימטריה) שווה. מעניין, אבל לא הוכחת-קשר.",
+  interpretive: "פרשני — הצעת פרשנות של ה-AI על בסיס כמה ממצאים. רמז, לא עובדה.",
 };
 
 function sampleText(t) {
@@ -185,16 +199,40 @@ function NameVerseBox({ nv }) {
 function NormalizedFindings({ items }) {
   const [all, setAll] = useState(false);
   const [openKey, setOpenKey] = useState(null);
+  const [help, setHelp] = useState(false);
+  // אילו מנועים באמת מופיעים בתוצאות — נסביר רק אותם (לא להציף)
+  const shownEngines = [...new Set(items.flatMap(it => it.source_engines.map(s => s.engine)))].filter(e => ENGINE_HELP[e]);
   if (!items || !items.length) return null;
   const shown = all ? items : items.slice(0, 8);
   return (
     <div style={{ background:"linear-gradient(180deg,#ffffff,#f7f9fc)", border:`1px solid ${C.blueLine}`, borderRadius:14, padding:"14px 15px" }}>
-      <div style={{ display:"flex", alignItems:"baseline", gap:8, flexWrap:"wrap", marginBottom:3 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:3 }}>
         <span style={{ fontSize:16 }}>📊</span>
         <span style={{ color:C.ink, fontFamily:F.h, fontSize:16, fontWeight:800 }}>ממצאים מנורמלים</span>
-        <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>{items.length} ייחודיים · אוחדו כפילויות וכתיבים</span>
+        <span style={{ color:C.mut, fontFamily:F.h, fontSize:11.5 }}>{items.length} ייחודיים</span>
+        <span style={{ flex:1 }} />
+        <button onClick={()=>setHelp(h=>!h)} style={{ cursor:"pointer", background: help?C.blue:"#fff", border:`1px solid ${help?C.blue:C.blueLine}`, borderRadius:999, color: help?"#fff":C.blue, fontFamily:F.h, fontSize:12, fontWeight:800, padding:"4px 12px" }}>❓ מה זה?</button>
       </div>
       <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, marginBottom:10 }}>ביטוי שנמצא בכמה מנועים עולה למעלה. כל שורה פותחת את מקורותיה — שום דבר לא נמחק.</div>
+      {/* 📖 מדריך למתחיל — נפתח בלחיצה על «מה זה?» */}
+      {help && (
+        <div style={{ background:"#f8fbff", border:`1px solid ${C.blueLine}`, borderRadius:12, padding:"12px 14px", marginBottom:12, display:"grid", gap:9 }}>
+          <div style={{ color:C.ink, fontFamily:F.h, fontSize:13, fontWeight:800 }}>מה רואים כאן?</div>
+          <div style={{ color:C.dim, fontFamily:F.h, fontSize:12.5, lineHeight:1.7 }}>אספנו כל מה שהמנועים מצאו על השם, <b>ניקינו כפילויות</b> (אותו ביטוי שנכתב בכמה צורות = פעם אחת), והצגנו את <b>החשוב קודם</b>. «<b style={{color:C.green}}>×N מסלולים</b>» = כמה מנועים <b>שונים ועצמאיים</b> הגיעו לאותו ביטוי — יותר מנועים = ממצא חזק יותר. לחיצה על ביטוי פותחת את דף-המספר שלו; «מקור» מראה מאיפה בא.</div>
+          <div style={{ color:C.ink, fontFamily:F.h, fontSize:12.5, fontWeight:800, marginTop:2 }}>המנועים שהופיעו:</div>
+          <div style={{ display:"grid", gap:7 }}>
+            {shownEngines.map(e=>(
+              <div key={e} style={{ display:"flex", gap:8, alignItems:"baseline" }}>
+                <span style={{ background:"#f3f7ff", border:`1px solid ${C.blueLine}`, borderRadius:999, color:C.blue, fontFamily:F.h, fontSize:11, fontWeight:800, padding:"2px 9px", whiteSpace:"nowrap", flexShrink:0 }}>{e}</span>
+                <span style={{ color:C.dim, fontFamily:F.h, fontSize:12, lineHeight:1.6 }}>{ENGINE_HELP[e]}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ color:C.mut, fontFamily:F.h, fontSize:11.5, lineHeight:1.6, borderTop:`1px dashed ${C.blueLine}`, paddingTop:8 }}>
+            🟢 <b>ממצא ישיר</b> = הכי חזק (הופעה אמיתית) · 🟡 <b>התאמת-ערך</b> = רק המספר שווה · 🔵 <b>פרשני</b> = הצעה. <b>המשמעות</b> («מה זה אומר עליי») — אצל רזיאל/מטטרון למטה. כאן רק העובדות.
+          </div>
+        </div>
+      )}
       <div style={{ display:"grid", gap:7 }}>
         {shown.map((it) => {
           const multi = it.source_engines.length > 1;
@@ -260,7 +298,7 @@ export default function NameMultiSearch({ name, onResolve }) {
     seededRef.current = w;                          // כדי ש-onResolve→name-prop לא יפעיל ריצה כפולה
     autoRef.current = false;
     onResolve?.(w);                                // מזין את «השם הפעיל» לשאר כלי-הדף (הכרטיסייה הסגורה)
-    setPhase("busy"); setRes(null); setAi(null); setAiState("idle");
+    setPhase("busy"); setRes(null); setAi(null); setAiState("idle"); setSumOpen(false); setSumText(null); setSumState("idle");
     try {
       const t0 = Date.now();
       const d = await getNameMulti(w, { surname, birthdate: birth, question });
@@ -302,10 +340,32 @@ export default function NameMultiSearch({ name, onResolve }) {
   const normalized = useMemo(() => {
     if (!res) return [];
     try {
-      const lists = graded ? [res.combo?.tracks, ...(res.sources || []).map(s => s.doc?.tracks)] : [res.tracks];
+      // מדורג: מסמכי-הטוקנים נותנים את המנועים לפי-רכיב (מילוי/אנגרם/תמורה/גימטריית-הרכיב);
+      // מהצירוף לוקחים רק את מה שהוא *ייחודי* לשם המלא (גימטריית-הצירוף + וריאציות-הכתיב המלאות),
+      // כדי לא לספור פעמיים את אותו ממצא ("כפול שתיים"). שם-יחיד = כל המסלולים כרגיל.
+      const lists = graded
+        ? [...(res.sources || []).map(s => s.doc?.tracks),
+           (res.combo?.tracks || []).filter(t => t.id === "combo_gem" || t.id === "variants")]
+        : [res.tracks];
       return aggregateFindings(lists);
     } catch { return []; }   // שכבת-תצוגה לעולם לא מפילה את הדף
   }, [res, graded]);
+
+  // 🔮 פופ-אפ «סיכום המחקר» — מטטרון מסכם את כל הממצאים בכמה שורות יפות לשיתוף.
+  const [sumOpen, setSumOpen] = useState(false);
+  const [sumText, setSumText] = useState(null);
+  const [sumState, setSumState] = useState("idle"); // idle|busy|done|off
+  const makeSummary = useCallback(async () => {
+    setSumOpen(true);
+    if (sumText || sumState === "busy") return;
+    setSumState("busy");
+    const top = normalized.slice(0, 6).map(it => `${it.display_value}${it.value != null ? ` (${it.value})` : ""}${it.source_engines.length > 1 ? ` — ${it.source_engines.length} מסלולים` : ""}`).join(" · ");
+    const verse = res?.name_verse?.verses?.[0];
+    const cons = (res?.consensus || [])[0];
+    const facts = `[הנחיה: אתה מטטרון — החוקר המלווה. כתוב סיכום-מחקר קצר, יפה ומרגש (3-5 שורות) על השם, בשפה נגישה שאנשים ירצו לשתף. הממצאים הם עובדה מהמנוע — הפרד עובדה מפרשנות, בלי נבואות. אל תמציא — רק מהעובדות למטה.]\n\nשם: ${comp?.full || nm} (ערך ${vals?.full})\nממצאים בולטים (מנורמל): ${top || "—"}${cons ? `\nהכי מוסכם: ${cons.target} (${cons.consensus} משפחות)` : ""}${verse ? `\nהפסוק שלך: ${verse.ref} — ${verse.text}` : ""}`;
+    try { const out = await getAiAnalysis({ kind: "name_lab", subject: comp?.full || nm, facts }); setSumText(out || null); setSumState(out ? "done" : "off"); }
+    catch { setSumState("off"); }
+  }, [normalized, res, comp, vals, nm, sumText, sumState]);
 
   return (
     <section dir="rtl" style={{ display:"grid", gap:14 }}>
@@ -387,6 +447,12 @@ export default function NameMultiSearch({ name, onResolve }) {
           </div>
         )}
 
+        {/* 🕯️ הפסוק שלך — מורם למעלה (הרגע האישי הראשון) */}
+        <NameVerseBox nv={res.name_verse} />
+
+        {/* 🔮 סיכום המחקר — פופ-אפ אחד יפה לשיתוף (מטטרון מסכם את הכל) */}
+        <button onClick={makeSummary} style={{ cursor:"pointer", background:"linear-gradient(135deg,#b78900,#e7c869)", border:"none", borderRadius:12, color:"#1b1d22", fontFamily:F.h, fontSize:15, fontWeight:800, padding:"13px 20px", minHeight:48, boxShadow:"0 4px 16px rgba(183,137,0,.25)" }}>🔮 קבל סיכום מחקר — בכמה שורות ←</button>
+
         {/* 📊 סיכום מנורמל — קודם המסקנה המאוחדת, אז הפירוט לפי מסלול מתחת */}
         <NormalizedFindings items={normalized} />
 
@@ -410,7 +476,7 @@ export default function NameMultiSearch({ name, onResolve }) {
         {/* ③ סינתזה — הצירוף המלא (או, בשם-יחיד, המחקר המלא) */}
         {(() => {
           const okt = ok(synthesisTracks);
-          const hasSynth = okt.length > 0 || (Array.isArray(res.consensus) && res.consensus.length > 0) || (res.name_verse && (res.name_verse.verses||[]).length > 0);
+          const hasSynth = okt.length > 0 || (Array.isArray(res.consensus) && res.consensus.length > 0);
           if (!hasSynth) return null;
           return (
             <div style={{ display:"grid", gap:10, background: graded ? "linear-gradient(180deg,#fbfdff,#f3f7ff)" : "transparent", border: graded ? `1px solid ${C.blueLine}` : "none", borderRadius:14, padding: graded ? "14px 15px" : 0 }}>
@@ -423,7 +489,6 @@ export default function NameMultiSearch({ name, onResolve }) {
               )}
               {okt.length > 0 && <div style={{ display:"grid", gap:8 }}>{okt.map((t,j)=><TrackCard key={j} t={t} />)}</div>}
               <ConsensusBox consensus={res.consensus} />
-              <NameVerseBox nv={res.name_verse} />
             </div>
           );
         })()}
@@ -448,6 +513,36 @@ export default function NameMultiSearch({ name, onResolve }) {
 
         <button onClick={()=>addToResearch?.({ id:"namemulti:"+(comp?.full||nm), type:"name", title:comp?.full||nm, value:vals?.full })} style={{ justifySelf:"start", cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.ink, fontFamily:F.h, fontSize:13, fontWeight:800, padding:"9px 16px", minHeight:44 }}>➕ הוסף למחקר</button>
       </>)}
+
+      {/* 🔮 פופ-אפ סיכום-המחקר — «כל הדברים היפים» בכמה שורות, לשיתוף */}
+      {sumOpen && (
+        <div onClick={()=>setSumOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(12,16,30,.55)", zIndex:5000, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
+          <div onClick={e=>e.stopPropagation()} dir="rtl" style={{ background:"#fff", borderRadius:20, maxWidth:440, width:"100%", padding:"20px 20px 18px", boxShadow:"0 24px 70px rgba(0,0,0,.4)", maxHeight:"85vh", overflowY:"auto" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:12 }}>
+              <span style={{ fontSize:22 }}>🔮</span>
+              <div style={{ flex:1 }}>
+                <div style={{ color:C.ink, fontFamily:F.h, fontSize:17, fontWeight:800, lineHeight:1.2 }}>סיכום המחקר</div>
+                <div style={{ color:C.mut, fontFamily:F.h, fontSize:12 }}>{comp?.full || nm} · ערך {vals?.full}</div>
+              </div>
+              <button onClick={()=>setSumOpen(false)} style={{ cursor:"pointer", background:"#f3f4f6", border:"none", borderRadius:999, width:32, height:32, fontSize:18, color:C.dim, lineHeight:1 }}>×</button>
+            </div>
+            {sumState==="busy" ? (
+              <div style={{ color:C.dim, fontFamily:F.h, fontSize:15, textAlign:"center", padding:"26px 0", lineHeight:1.7 }}>🔬 מטטרון מסכם את הממצאים היפים…</div>
+            ) : sumState==="done" && sumText ? (
+              <div style={{ color:C.ink, fontFamily:F.h, fontSize:16, lineHeight:1.95, background:"linear-gradient(180deg,#fffdf5,#fff7e6)", border:"1px solid #f0e2b8", borderRadius:14, padding:"16px 17px", whiteSpace:"pre-wrap" }}>{sumText}</div>
+            ) : (
+              <div style={{ color:C.dim, fontFamily:F.h, fontSize:14, textAlign:"center", padding:"18px 0" }}>הסיכום לא זמין כרגע. <button onClick={()=>{ setSumText(null); setSumState("idle"); makeSummary(); }} style={{ cursor:"pointer", background:"none", border:"none", color:C.blue, fontWeight:800, textDecoration:"underline" }}>נסה שוב</button></div>
+            )}
+            <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, textAlign:"center", margin:"11px 0" }}>עובדה מהמנוע · הופרדה מפרשנות · בלי נבואות</div>
+            {sumState==="done" && sumText && (
+              <div style={{ display:"flex", gap:9, justifyContent:"center", flexWrap:"wrap" }}>
+                <button onClick={()=>shareOrCopy({ title:`מעבדת השם — ${comp?.full||nm}`, text:`🔮 ${comp?.full||nm} (${vals?.full})\n\n${sumText}\n\n`, url:`${location.origin}/name-lab?w=${encodeURIComponent(comp?.full||nm)}` })} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:999, color:"#fff", fontFamily:F.h, fontSize:14, fontWeight:800, padding:"11px 22px", minHeight:44 }}>🔗 שתף</button>
+                <button onClick={()=>{ try{ navigator.clipboard.writeText(`${comp?.full||nm} (${vals?.full})\n${sumText}`);}catch{} }} style={{ cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.ink, fontFamily:F.h, fontSize:14, fontWeight:800, padding:"11px 22px", minHeight:44 }}>📋 העתק</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
