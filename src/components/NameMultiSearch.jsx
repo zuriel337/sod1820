@@ -16,6 +16,12 @@ const SRC = {
   fn_notarikon:"ראשי/סופי תיבות", fn_hebrew_root:"מנוע השורש", fn_name_variants:"וריאציות-כתיב", fn_els_search:"מנוע הדילוגים",
 };
 const ST = { ok:{mk:"✓",c:C.green}, empty:{mk:"○",c:C.mut}, skipped:{mk:"–",c:"#c3c8d0"} };
+// חוק רמת-הראיה: כל ממצא מסווג — ישיר / התאמת-ערך / פרשני
+const EV = {
+  direct:      { t:"ממצא ישיר",  bg:"#eef4ee", bd:"#cfe4d3", c:C.green },
+  value_match: { t:"התאמת-ערך", bg:"#fff7e6", bd:"#f0e2b8", c:C.gold  },
+  interpretive:{ t:"פרשני",      bg:"#eef3ff", bd:"#d3e0fb", c:C.blue  },
+};
 
 const inp = { flex:1, minWidth:130, fontFamily:F.h, fontSize:15, fontWeight:700, padding:"11px 13px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, minHeight:44, boxSizing:"border-box" };
 
@@ -41,6 +47,7 @@ function TrackCard({ t }) {
         {t.count > 0 && <b style={{ fontFamily:F.m, color: on?C.blue:C.mut, fontSize:15 }}>{t.count}</b>}
         {t.value != null && <span style={{ color:C.dim, fontFamily:F.h, fontSize:12 }}>ערך <b style={{ fontFamily:F.m, color:C.gold }}>{t.value}</b></span>}
         <span style={{ flex:1 }} />
+        {on && t.evidence && EV[t.evidence] && <span title="רמת הראיה של הממצא" style={{ background:EV[t.evidence].bg, border:`1px solid ${EV[t.evidence].bd}`, borderRadius:999, color:EV[t.evidence].c, fontFamily:F.h, fontSize:10, fontWeight:800, padding:"2px 8px" }}>{EV[t.evidence].t}</span>}
         {src && <span style={{ background:"#eef4ee", border:"1px solid #cfe4d3", borderRadius:999, color:C.green, fontFamily:F.h, fontSize:10.5, fontWeight:800, padding:"2px 8px" }}>✓ {src}</span>}
       </div>
       {on && sampleText(t) && <div style={{ color:"#3a4553", fontFamily:F.h, fontSize:12.5, lineHeight:1.6, marginTop:6 }}>{sampleText(t)}</div>}
@@ -74,6 +81,30 @@ function TrackCard({ t }) {
                 : <span style={{ color:C.mut }}>לא בתנ״ך</span>}
             </div>
           ))}
+        </div>
+      )}
+      {t.id === "milui" && Array.isArray(t.data) && (
+        <div style={{ display:"grid", gap:8, marginTop:7 }}>
+          {t.data.map((pt,i)=>(
+            <div key={i}>
+              <div style={{ fontFamily:F.h, fontSize:12.5, color:C.ink }}><b>{pt.part}</b> · מילוי <b style={{ fontFamily:F.m, color:C.gold }}>{pt.milui}</b> <span style={{ color:C.mut }}>(רגיל {pt.ragil})</span></div>
+              {(pt.matches||[]).length>0 && <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, margin:"3px 0" }}>ביטויים בעלי אותו ערך <span style={{ opacity:.8 }}>(התאמת-ערך — לא משמעות)</span>:</div>}
+              <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+                {(pt.matches||[]).map((m,j)=>(<Link key={j} to={`/number/${encodeURIComponent(m.phrase)}`} title={`מקור: ${m.source}`} style={{ textDecoration:"none", background:"#fbfcfe", border:`1px solid ${C.line}`, borderRadius:999, padding:"3px 10px", fontFamily:F.h, fontSize:12, fontWeight:700, color:C.ink }}>{m.phrase}</Link>))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {t.id === "anagrams" && Array.isArray(t.data) && (
+        <div style={{ display:"grid", gap:7, marginTop:7 }}>
+          {t.data.filter(pt=>(pt.anagrams||[]).length>0).map((pt,i)=>(
+            <div key={i} style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap", fontFamily:F.h, fontSize:12.5 }}>
+              <b style={{ color:C.ink }}>{pt.part}</b><span style={{ color:C.mut }}>→</span>
+              {(pt.anagrams||[]).map((a,j)=>(<Link key={j} to={`/number/${encodeURIComponent(a.word)}`} style={{ textDecoration:"none", background:"#faf6ff", border:"1px solid #e6d8f7", borderRadius:999, padding:"3px 10px", color:"#6a4fbf", fontWeight:700 }}>{a.word} <span style={{ fontSize:10, opacity:.75 }}>{a.type}</span></Link>))}
+            </div>
+          ))}
+          {t.data.every(pt=>(pt.anagrams||[]).length===0) && <Empty t="אין אנגרמה מאומתת במאגר לשם זה." />}
         </div>
       )}
       {t.id === "shared_num" && t.data && (
