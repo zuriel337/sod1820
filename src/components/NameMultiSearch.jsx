@@ -50,6 +50,22 @@ function TrackCard({ t }) {
           {t.data.sum != null && <span style={{ background:"#fff7e6", border:"1px solid #f0e2b8", borderRadius:999, padding:"3px 10px", fontFamily:F.h, fontSize:12, fontWeight:800, color:C.gold }}>סכום {t.data.sum}</span>}
         </div>
       )}
+      {t.id === "shared_num" && t.data && (
+        <div style={{ display:"grid", gap:6, marginTop:7 }}>
+          {(t.data.cross_parts||[]).map((c,i)=>(
+            <div key={"c"+i} style={{ background:"#fff7e6", border:"1px solid #f0e2b8", borderRadius:8, padding:"6px 10px", fontFamily:F.h, fontSize:12.5, color:C.ink }}>
+              <b style={{ fontFamily:F.m, color:C.gold }}>{c.value}</b> משותף ל-{c.parts} רכיבים · {(c.sources||[]).map(s=>`${s.part}(${s.method})`).join(" · ")}
+            </div>
+          ))}
+          {(t.data.internal||[]).slice(0,8).map((r,i)=>(
+            <div key={"i"+i} style={{ display:"flex", gap:6, alignItems:"center", flexWrap:"wrap", fontFamily:F.h, fontSize:12.5, color:C.dim }}>
+              <b style={{ color:C.ink }}>{r.part}</b>=<b style={{ fontFamily:F.m, color:C.blue }}>{r.value}</b>
+              <span style={{ color:C.mut }}>ב-{r.methods} שיטות:</span>
+              {(r.ms||[]).map((m,j)=>(<span key={j} style={{ background:"#f3f7ff", border:`1px solid ${C.blueLine}`, borderRadius:999, padding:"1px 8px", fontSize:11, fontWeight:700 }}>{m}</span>))}
+            </div>
+          ))}
+        </div>
+      )}
       {t.id === "variants" && Array.isArray(t.data) && t.data.length>0 && (
         <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginTop:7 }}>
           {t.data.map((v,i)=>(<Link key={i} to={`/name-lab?w=${encodeURIComponent(v.form)}`} title={v.note} style={{ textDecoration:"none", background:"#f3f7ff", border:`1px solid ${C.blueLine}`, borderRadius:999, padding:"3px 11px", fontFamily:F.h, fontSize:12.5, fontWeight:700, color:C.blue }}>{v.form}</Link>))}
