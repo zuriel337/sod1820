@@ -16,6 +16,7 @@ const POP_WRITERS = ["ישראל פנצ"];
 function popsWhatsNew(it) {
   if (!it) return false;
   if (it.kind === "cipher" || it.kind === "insight") return true;
+  if (it.trustedAuthor) return true;   // 🌟 כתב מהימן (יניב לוי / צבי / כל trusted עתידי) — חידושיו מקפיצים
   const who = (it.author_display || it.author_name || "").trim();
   return POP_WRITERS.some(w => who.includes(w));
 }

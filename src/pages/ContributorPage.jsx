@@ -15,6 +15,7 @@ import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
+import { getResearcherProfile, intentMeta } from "../lib/contributions.js";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -148,6 +149,7 @@ export default function ContributorPage() {
   const [convergences, setConvergences] = useState([]); // 🎯 ההתכנסויות שלו (topic_cards)
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
   const [gemBank, setGemBank] = useState([]);     // 🔢 הגימטריות שלו במאגר (convergences לפי details.contributors)
+  const [forumMsgs, setForumMsgs] = useState([]); // 💬 ההודעות האחרונות שלו בפורום (research_contributions)
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
   // 🔢 גימטריה תמיד ראשונה: עדכון שנושא גימטריה (ביטוי = מספר / «בגימטריא» / «מאומת במנוע») עולה לראש
@@ -273,6 +275,17 @@ export default function ContributorPage() {
       .catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name, c?.tags, c?.wa_names]);
+
+  // 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions (מאושרות) לפי שם/uid.
+  //    «לחיצה על השם → רואים את ההודעות האחרונות שלו». עץ אחד: מצביע לשרשור /forum/:id, לא עותק.
+  useEffect(() => {
+    if (!c?.display_name) { setForumMsgs([]); return; }
+    let alive = true;
+    getResearcherProfile(c.display_name, 12, c.user_id || null)
+      .then(p => { if (alive) setForumMsgs(Array.isArray(p?.items) ? p.items : []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [c?.display_name, c?.user_id]);
 
   // 📌 תיוגים + 🎯 התכנסויות — עדשה על posts.tags / topic_cards.search_terms לפי contributor.tags.
   // עץ אחד: לא עותק — מצביע לפוסט הקנוני ולעמוד ההתכנסות (/topic/:slug).
@@ -466,6 +479,36 @@ export default function ContributorPage() {
                   </div>
                   {g.note && <div style={{ marginTop: 6, color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.5 }}>{g.note}</div>}
                 </div>
+              );
+            })}
+          </div>
+          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "16px 0 2px" }} />
+        </div>
+      )}
+
+      {/* 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions, מצביע לשרשור (עץ אחד) */}
+      {forumMsgs.length > 0 && (
+        <div style={{ marginBottom: 22 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>
+            💬 ההודעות האחרונות של {c.display_name} בפורום
+          </div>
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
+            לחיצה פותחת את ההודעה והתגובות
+          </div>
+          <div style={{ display: "grid", gap: 9 }}>
+            {forumMsgs.map(it => {
+              const im = intentMeta(it.intent);
+              const txt = stripHtml(it.title || it.body || "");
+              return (
+                <a key={it.id} href={`/forum/${it.id}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                    <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>{im.emoji} {im.label}</span>
+                    {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
+                    <span style={{ flex: 1 }} />
+                    <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>{timeAgoHe(it.created_at)}</span>
+                  </div>
+                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{txt}</div>
+                </a>
               );
             })}
           </div>
