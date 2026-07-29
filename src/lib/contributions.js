@@ -216,6 +216,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
       }
       return rows.map(c => ({
         kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
+        bump: c.last_activity_at || c.created_at,   // 🔼 זמן-הפעילות האחרונה (ריאקציה/תגובה) — לקביעת הסדר, לא לתצוגה
         author_name: c.author_name, author_display: nameMap[c.author_user_id] || null,
         author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
         trustedAuthor: !!c.trusted,
@@ -263,9 +264,11 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
   } catch { /* noop — אין תג-נבחרת, לא שובר את הפיד */ }
 
   return flat
-    // 📌 מוצמדים (אדמין) → 🌟 כתבים-מהימנים → החדשים למעלה
+    // 📌 מוצמדים (אדמין) → 🔼 פעילות אחרונה (ריאקציה/תגובה מקפיצה למעלה) → 🌟 כתב-מהימן → החדשים
+    //    ה-bump שומר על תאריך-הכתיבה המוצג (ts); רק הסדר מושפע. פריט שמגיבים/מסמנים בו עולה לראש.
     .sort((a, b) =>
       (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) ||
+      (new Date(b.bump || b.ts) - new Date(a.bump || a.ts)) ||
       (b.trustedAuthor ? 1 : 0) - (a.trustedAuthor ? 1 : 0) ||
       new Date(b.ts) - new Date(a.ts))
     .slice(0, limit);
