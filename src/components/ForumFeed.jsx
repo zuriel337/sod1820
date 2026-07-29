@@ -247,13 +247,13 @@ function ChatRow({ c, P, onOpen }) {
   const who = c.author_display || c.author_name || "חבר הקהילה";
   const text = oneLine(c.title || c.body || c.excerpt || c.description || "תרומת מחקר");
   return (
-    <button onClick={onOpen} aria-label="פתח"
-      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", textAlign: "start", cursor: "pointer",
+    <button onClick={onOpen} aria-label="פתח" className="ff-chatrow"
+      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, minHeight: 44, textAlign: "start", cursor: "pointer",
         background: c.chosen ? "rgba(212,175,55,0.06)" : "transparent",
-        border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 11, padding: "8px 11px" }}>
+        border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 11, padding: "9px 12px" }}>
       <img src={genAvatar(who)} alt="" loading="lazy"
         style={{ width: 26, height: 26, borderRadius: "50%", flex: "0 0 auto", border: `1px solid ${P.border}` }} />
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", maxWidth: "40%", minWidth: 0 }}>
+      <span className="ff-who" style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", maxWidth: "38%", minWidth: 0 }}>
         <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{who}</span>
         {c.trustedAuthor && <TrustedTick P={P} />}
       </span>
@@ -351,7 +351,20 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   const pickType = (t) => { setType(t); if (t !== "post") setWriter(null); };
 
   return (
-    <div style={{ maxWidth, margin: "0 auto" }}>
+    <div className="ff-root" style={{ maxWidth, margin: "0 auto", minWidth: 0 }}>
+      {/* 📱 רספונסיביות מובייל — בלי גלילה אופקית, יעדי-מגע ≥44px, קטיעה נכונה בשורות-הצ'אט */}
+      <style>{`
+        .ff-root, .ff-root * { min-width: 0; }
+        .ff-root { overflow-x: clip; }
+        .ff-root .ff-chatrow { -webkit-tap-highlight-color: transparent; }
+        .ff-root img, .ff-root video, .ff-root iframe { max-width: 100%; }
+        @media (max-width: 520px) {
+          .ff-root .ff-chatrow { gap: 8px; padding: 10px 11px; }
+          .ff-root .ff-who { max-width: 44%; }
+          .ff-root .ff-filters { gap: 6px; }
+          .ff-root .ff-filters button { padding: 6px 11px; font-size: 12.5px; }
+        }
+      `}</style>
       {/* ✍️ דף ריק לכתוב חידוש — המתכונת הקנונית (SubmitChidush), זהה לבית-המדרש ולהיכל */}
       <div ref={composerRef} style={{ marginBottom: 16, scrollMarginTop: 76 }}>
         {writing ? (
@@ -375,7 +388,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
       </div>
 
       {/* שורה 1 — סוג. טאב ריק (0 פריטים) = לא-לחיץ. */}
-      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
+      <div className="ff-filters" style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
         <button onClick={() => pickType(null)} style={chip(!type, false)}>הכל</button>
         <button disabled={insightCount === 0} onClick={insightCount === 0 ? undefined : () => pickType("insight")}
           title={insightCount === 0 ? "אין עדיין חידושים" : undefined} style={chip(type === "insight", insightCount === 0)}>💡 חידושי בית המדרש</button>
@@ -393,7 +406,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
       </div>
 
       {/* שורה 1.5 — מצב-מחקר + מיון */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginBottom: 18 }}>
+      <div className="ff-filters" style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", alignItems: "center", marginBottom: 18 }}>
         {Object.keys(STATE_META).filter(k => (stateCounts[k] || 0) > 0).length >= 2 && (
           <>
             <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>מצב:</span>
