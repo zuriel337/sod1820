@@ -294,8 +294,8 @@ export default function NameLabPage({ embedded = false }) {
   }, [word, research, conv, enVals, regVal]);
 
   return (
-    <div dir="rtl" style={embedded ? { color: C.ink } : { background: C.bg, minHeight: "100vh", color: C.ink }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: embedded ? "4px 0 24px" : "26px 16px 90px", display: "grid", gap: 16 }}>
+    <div dir="rtl" style={embedded ? { color: C.ink, overflowX: "hidden" } : { background: C.bg, minHeight: "100vh", color: C.ink, overflowX: "hidden" }}>
+      <div style={{ maxWidth: 760, width: "100%", boxSizing: "border-box", margin: "0 auto", padding: embedded ? "4px 0 24px" : "26px 16px 90px", display: "grid", gap: 16, minWidth: 0 }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ color: C.dim, fontFamily: F.h, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>🧪 מעבדת השם</div>
           <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 13, marginTop: 3 }}>מה אפשר לגלות על השם הזה?</div>

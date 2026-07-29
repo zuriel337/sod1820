@@ -229,7 +229,7 @@ function NormalizedFindings({ items }) {
             ))}
           </div>
           <div style={{ color:C.mut, fontFamily:F.h, fontSize:11.5, lineHeight:1.6, borderTop:`1px dashed ${C.blueLine}`, paddingTop:8 }}>
-            🟢 <b>ממצא ישיר</b> = הכי חזק (הופעה אמיתית) · 🟡 <b>התאמת-ערך</b> = רק המספר שווה · 🔵 <b>פרשני</b> = הצעה. <b>המשמעות</b> («מה זה אומר עליי») — אצל רזיאל/מטטרון למטה. כאן רק העובדות.
+            🟢 <b>ממצא ישיר</b> = הכי חזק (הופעה אמיתית) · 🟡 <b>התאמת-ערך</b> = רק המספר שווה · 🔵 <b>פרשני</b> = הצעה. <b>המשמעות</b> («מה זה אומר עליי») — אצל רזיאל למטה. כאן רק העובדות.
           </div>
         </div>
       )}
@@ -362,16 +362,16 @@ export default function NameMultiSearch({ name, onResolve }) {
     const top = normalized.slice(0, 6).map(it => `${it.display_value}${it.value != null ? ` (${it.value})` : ""}${it.source_engines.length > 1 ? ` — ${it.source_engines.length} מסלולים` : ""}`).join(" · ");
     const verse = res?.name_verse?.verses?.[0];
     const cons = (res?.consensus || [])[0];
-    const facts = `[הנחיה: אתה מטטרון — החוקר המלווה. כתוב סיכום-מחקר קצר, יפה ומרגש (3-5 שורות) על השם, בשפה נגישה שאנשים ירצו לשתף. הממצאים הם עובדה מהמנוע — הפרד עובדה מפרשנות, בלי נבואות. אל תמציא — רק מהעובדות למטה.]\n\nשם: ${comp?.full || nm} (ערך ${vals?.full})\nממצאים בולטים (מנורמל): ${top || "—"}${cons ? `\nהכי מוסכם: ${cons.target} (${cons.consensus} משפחות)` : ""}${verse ? `\nהפסוק שלך: ${verse.ref} — ${verse.text}` : ""}`;
+    const facts = `[הנחיה: אתה החוקר המלווה. כתוב סיכום-מחקר קצר, יפה ומרגש (3-5 שורות) על השם, בשפה נגישה שאנשים ירצו לשתף. הממצאים הם עובדה מהמנוע — הפרד עובדה מפרשנות, בלי נבואות. אל תמציא — רק מהעובדות למטה.]\n\nשם: ${comp?.full || nm} (ערך ${vals?.full})\nממצאים בולטים (מנורמל): ${top || "—"}${cons ? `\nהכי מוסכם: ${cons.target} (${cons.consensus} משפחות)` : ""}${verse ? `\nהפסוק שלך: ${verse.ref} — ${verse.text}` : ""}`;
     try { const out = await getAiAnalysis({ kind: "name_lab", subject: comp?.full || nm, facts }); setSumText(out || null); setSumState(out ? "done" : "off"); }
     catch { setSumState("off"); }
   }, [normalized, res, comp, vals, nm, sumText, sumState]);
 
   return (
-    <section dir="rtl" style={{ display:"grid", gap:14 }}>
+    <section dir="rtl" style={{ display:"grid", gap:14, minWidth:0, maxWidth:"100%" }}>
       {/* ===== מסוף המחקר ===== */}
       <div style={{ background:C.card, border:`1px solid ${C.blueLine}`, borderRadius:16, overflow:"hidden", boxShadow:"0 2px 10px rgba(20,25,40,.05)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:9, padding:"11px 16px", background:"linear-gradient(180deg,#f5f8ff,#eef3ff)", borderBottom:`1px solid ${C.blueLine}` }}>
+        <div style={{ display:"flex", alignItems:"center", gap:9, padding:"11px 14px", background:"linear-gradient(180deg,#f5f8ff,#eef3ff)", borderBottom:`1px solid ${C.blueLine}`, flexWrap:"wrap" }}>
           <span style={{ display:"flex", gap:5 }}>
             <span style={{ width:9, height:9, borderRadius:999, background:"#f0b6b6" }} />
             <span style={{ width:9, height:9, borderRadius:999, background:"#f0dca6" }} />
@@ -385,9 +385,9 @@ export default function NameMultiSearch({ name, onResolve }) {
         <form onSubmit={e=>{ e.preventDefault(); run(); }} style={{ padding:"16px", display:"grid", gap:12 }}>
           {/* שורת-הפרומפט: השם הפרטי (חובה) */}
           <label style={{ display:"flex", alignItems:"center", gap:10, background:"#fbfcff", border:`1.5px solid ${nm.trim()?C.blue:C.line}`, borderRadius:12, padding:"4px 12px", transition:"border-color .15s" }}>
-            <span style={{ color:C.blue, fontFamily:F.m, fontSize:22, fontWeight:800, lineHeight:1 }}>‹</span>
+            <span style={{ color:C.blue, fontFamily:F.m, fontSize:"clamp(18px,5vw,22px)", fontWeight:800, lineHeight:1 }}>‹</span>
             <input value={nm} onChange={e=>setNm(e.target.value)} placeholder="הקלד שם פרטי…" required
-              style={{ flex:1, minWidth:0, fontFamily:F.h, fontSize:22, fontWeight:800, padding:"12px 0", border:"none", outline:"none", background:"transparent", color:C.ink }} />
+              style={{ flex:1, minWidth:0, width:"100%", fontFamily:F.h, fontSize:"clamp(17px,5vw,22px)", fontWeight:800, padding:"12px 0", border:"none", outline:"none", background:"transparent", color:C.ink }} />
             {nm && <button type="button" onClick={()=>{ setNm(""); setRes(null); setPhase("idle"); }} title="נקה" style={{ cursor:"pointer", background:"transparent", border:"none", color:C.mut, fontSize:20, lineHeight:1, padding:"0 4px" }}>×</button>}
           </label>
 
@@ -451,7 +451,7 @@ export default function NameMultiSearch({ name, onResolve }) {
         <NameVerseBox nv={res.name_verse} />
 
         {/* 🔮 סיכום המחקר — פופ-אפ אחד יפה לשיתוף (מטטרון מסכם את הכל) */}
-        <button onClick={makeSummary} style={{ cursor:"pointer", background:"linear-gradient(135deg,#b78900,#e7c869)", border:"none", borderRadius:12, color:"#1b1d22", fontFamily:F.h, fontSize:15, fontWeight:800, padding:"13px 20px", minHeight:48, boxShadow:"0 4px 16px rgba(183,137,0,.25)" }}>🔮 קבל סיכום מחקר — בכמה שורות ←</button>
+        <button onClick={makeSummary} style={{ cursor:"pointer", width:"100%", boxSizing:"border-box", background:"linear-gradient(135deg,#b78900,#e7c869)", border:"none", borderRadius:12, color:"#1b1d22", fontFamily:F.h, fontSize:"clamp(14px,4vw,15.5px)", fontWeight:800, padding:"13px 16px", minHeight:48, boxShadow:"0 4px 16px rgba(183,137,0,.25)" }}>🔮 קבל סיכום מחקר — בכמה שורות ←</button>
 
         {/* 📊 סיכום מנורמל — קודם המסקנה המאוחדת, אז הפירוט לפי מסלול מתחת */}
         <NormalizedFindings items={normalized} />
@@ -516,8 +516,8 @@ export default function NameMultiSearch({ name, onResolve }) {
 
       {/* 🔮 פופ-אפ סיכום-המחקר — «כל הדברים היפים» בכמה שורות, לשיתוף */}
       {sumOpen && (
-        <div onClick={()=>setSumOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(12,16,30,.55)", zIndex:5000, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
-          <div onClick={e=>e.stopPropagation()} dir="rtl" style={{ background:"#fff", borderRadius:20, maxWidth:440, width:"100%", padding:"20px 20px 18px", boxShadow:"0 24px 70px rgba(0,0,0,.4)", maxHeight:"85vh", overflowY:"auto" }}>
+        <div onClick={()=>setSumOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(12,16,30,.55)", zIndex:5000, display:"flex", alignItems:"center", justifyContent:"center", padding:"12px", boxSizing:"border-box" }}>
+          <div onClick={e=>e.stopPropagation()} dir="rtl" style={{ background:"#fff", borderRadius:18, maxWidth:"min(440px,94vw)", width:"100%", boxSizing:"border-box", padding:"clamp(14px,4vw,20px)", paddingBottom:"calc(clamp(14px,4vw,18px) + env(safe-area-inset-bottom))", boxShadow:"0 24px 70px rgba(0,0,0,.4)", maxHeight:"88dvh", overflowY:"auto" }}>
             <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:12 }}>
               <span style={{ fontSize:22 }}>🔮</span>
               <div style={{ flex:1 }}>
@@ -527,9 +527,9 @@ export default function NameMultiSearch({ name, onResolve }) {
               <button onClick={()=>setSumOpen(false)} style={{ cursor:"pointer", background:"#f3f4f6", border:"none", borderRadius:999, width:32, height:32, fontSize:18, color:C.dim, lineHeight:1 }}>×</button>
             </div>
             {sumState==="busy" ? (
-              <div style={{ color:C.dim, fontFamily:F.h, fontSize:15, textAlign:"center", padding:"26px 0", lineHeight:1.7 }}>🔬 מטטרון מסכם את הממצאים היפים…</div>
+              <div style={{ color:C.dim, fontFamily:F.h, fontSize:15, textAlign:"center", padding:"26px 0", lineHeight:1.7 }}>🔬 רזיאל מסכם את הממצאים היפים…</div>
             ) : sumState==="done" && sumText ? (
-              <div style={{ color:C.ink, fontFamily:F.h, fontSize:16, lineHeight:1.95, background:"linear-gradient(180deg,#fffdf5,#fff7e6)", border:"1px solid #f0e2b8", borderRadius:14, padding:"16px 17px", whiteSpace:"pre-wrap" }}>{sumText}</div>
+              <div style={{ color:C.ink, fontFamily:F.h, fontSize:"clamp(14.5px,4vw,16px)", lineHeight:1.9, background:"linear-gradient(180deg,#fffdf5,#fff7e6)", border:"1px solid #f0e2b8", borderRadius:14, padding:"clamp(13px,3.5vw,17px)", whiteSpace:"pre-wrap", wordBreak:"break-word" }}>{sumText}</div>
             ) : (
               <div style={{ color:C.dim, fontFamily:F.h, fontSize:14, textAlign:"center", padding:"18px 0" }}>הסיכום לא זמין כרגע. <button onClick={()=>{ setSumText(null); setSumState("idle"); makeSummary(); }} style={{ cursor:"pointer", background:"none", border:"none", color:C.blue, fontWeight:800, textDecoration:"underline" }}>נסה שוב</button></div>
             )}
