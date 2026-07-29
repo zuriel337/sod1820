@@ -1,131 +1,32 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { resolve, buildMessages } from "../lib/engine.js";
-import { shareNumberSmart } from "../lib/numberCard.js";
-import { findNameCross } from "../lib/nameCross.js";
-import { shareCross } from "../lib/crossCard.js";
 import SearchTabs from "../components/SearchTabs.jsx";
-import AskRaziel from "../components/AskRaziel.jsx";
+import NameLabPage from "./NameLabPage.jsx";
 
 // ===== 🔥 השער הויראלי — /name "מה השם שלך מסתיר?" =====
 // שיתוף-קודם, רגשי, פשוט. מוביל לאותו עץ (/number/:value) — מנוע אחד, שני שערים.
+// הכותרת נשארת למעלה, ומיד מתחתיה מוטמעת מעבדת-השם המלאה (full): חיפוש שם →
+// מיד קופצות התוצאות (ערך · הפסוק בתורה · השם בתורה · כל כלי-המחקר) באותו מקום, לא למטה.
 
 export default function NamePage() {
   const P = usePalette();
-  const [name, setName] = useState("");
-  const [revealed, setRevealed] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const inputRef = useRef(null);
-
-  const [cross, setCross] = useState(null);   // ההצלבה האישית (מילה שהשם מתכנס איתה)
-  const [crossBusy, setCrossBusy] = useState(false);
-  const reveal = e => { e.preventDefault(); const n = name.trim(); if (n) setRevealed(n); };
-  const { value } = revealed ? resolve(revealed) : { value: 0 };
-  const msgs = revealed ? buildMessages({ term: revealed, value, isNumber: false, phrases: [] }) : [];
-  const share = async () => { if (busy) return; setBusy(true); try { await shareNumberSmart(value, []); } finally { setBusy(false); } };
-
-  // מציאת ההצלבה האישית כשמתגלה שם חדש
-  useEffect(() => {
-    if (!revealed) { setCross(null); return; }
-    let live = true; setCross(null);
-    findNameCross(revealed).then(c => { if (live) setCross(c); }).catch(() => {});
-    return () => { live = false; };
-  }, [revealed]);
-
-  // כרטיס הצלבה אישי לשיתוף (תמונה ויראלית)
-  const crossItem = cross && revealed ? {
-    id: "name-" + revealed,
-    title: `${revealed} = ${cross.partner}`,
-    method_tags: cross.methods.map(m => m.label),
-    related_numbers: [cross.value],
-    gematria_pairs: { members: [
-      { phrase: revealed, ragil: cross.value, mistater: cross.mistater },
-      { phrase: cross.partner, ragil: cross.value, mistater: cross.mistater },
-    ] },
-  } : null;
-  const shareTheCross = async () => { if (crossBusy || !crossItem) return; setCrossBusy(true); try { await shareCross(crossItem); } finally { setCrossBusy(false); } };
-
   return (
-    <div style={{ background: P.pageBg, minHeight: "92vh", direction: "rtl", position: "relative", zIndex: 1,
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 18px 70px" }}>
+    <div style={{ background: P.pageBg, minHeight: "92vh", direction: "rtl", position: "relative", zIndex: 1, padding: "40px 18px 70px" }}>
+      <div style={{ maxWidth: 760, width: "100%", boxSizing: "border-box", margin: "0 auto" }}>
+        <SearchTabs />
 
-      <SearchTabs />
-
-      {!revealed ? (
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "clamp(30px,7vw,54px)", fontWeight: 900, fontFamily: F.regal, color: P.heroNum,
-            textShadow: `0 0 36px ${P.glow}`, lineHeight: 1.1 }}>✨ מה השם שלך מסתיר?</div>
-          <div style={{ marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(15px,2.6vw,18px)", fontWeight: 500, maxWidth: 470, marginInline: "auto" }}>
-            הקלידו את שמכם — וגלו את הסוד הגימטרי שמאחוריו.
+        <div style={{ textAlign: "center", marginBottom: 10 }}>
+          <div style={{ fontSize: "clamp(28px,6.5vw,50px)", fontWeight: 900, fontFamily: F.regal, color: P.heroNum,
+            textShadow: `0 0 36px ${P.glow}`, lineHeight: 1.12 }}>✨ מה השם שלך מסתיר?</div>
+          <div style={{ marginTop: 12, color: P.inkSoft, fontFamily: F.body, fontSize: "clamp(15px,2.6vw,18px)", fontWeight: 500, maxWidth: 480, marginInline: "auto" }}>
+            הקלידו את שמכם — וגלו מיד את הסוד הגימטרי, הפסוק בתורה וכל המחקר שמאחוריו.
           </div>
-          <form onSubmit={reveal} style={{ marginTop: 26, display: "flex", gap: 8, width: "min(520px,92vw)", marginInline: "auto" }}>
-            <input ref={inputRef} autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="השם שלך…" dir="rtl"
-              style={{ flex: 1, background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.ink,
-                fontFamily: F.body, fontSize: 18, fontWeight: 600, padding: "16px 24px", outline: "none", textAlign: "center", boxShadow: `0 4px 22px ${P.glow}` }} />
-            <button type="submit" style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent, border: "none",
-              borderRadius: 999, fontFamily: F.heading, fontWeight: 800, fontSize: 16, padding: "0 24px" }}>גלו ✨</button>
-          </form>
-          <div style={{ marginTop: 14, color: P.accentDim, fontFamily: F.body, fontSize: 13.5, fontWeight: 600 }}>נסו: דוד · שרה · משה · רחל</div>
         </div>
-      ) : (
-        <div style={{ textAlign: "center", maxWidth: 560 }}>
-          <style>{`@keyframes name-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}`}</style>
-          <div style={{ animation: "name-rise .6s ease both" }}>
-            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800, letterSpacing: 2 }}>השם שלך מסתיר</div>
-            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,40px)", fontWeight: 800, marginTop: 6 }}>{revealed}</div>
-            <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: "clamp(54px,12vw,98px)", fontWeight: 800, lineHeight: 1, textShadow: `0 0 44px ${P.glow}` }}>{value}</div>
-          </div>
-          {msgs[0] && <p style={{ animation: "name-rise .8s ease both", color: P.ink, fontFamily: F.body, fontSize: "clamp(16px,2.6vw,20px)", fontWeight: 600, lineHeight: 1.65, margin: "14px auto 0" }}>{msgs[0].text}</p>}
-          {msgs[1] && msgs[1].layer !== "F" && <p style={{ color: P.accentText, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, margin: "6px auto 0" }}>✦ {msgs[1].text}</p>}
 
-          {/* 🤖 רזיאל — הסוכן האישי (דומיננטי, בטא · מטטרון · זיכרון חוצה-ערוצים) */}
-          <div style={{ marginTop: 22, textAlign: "start" }}>
-            <AskRaziel
-              subject={revealed}
-              facts={`${revealed} = ${value}${cross ? ` · מתכנס עם «${cross.partner}» (${cross.value})` : ""}`}
-              metatron
-              title="רזיאל · הסוכן שלך"
-              subtitle="נחקור יחד את השם — עובדה מהמנוע, לא נבואה"
-              greeting={`רוצה שנעמיק בשם «${revealed}»? אחקור את המשמעות, ההתכנסויות והקשרים — ונמשיך גם בוואטסאפ.`}
-              waText={`שלום רזיאל 🌳 בדקתי את השם «${revealed}» (${value}) באתר — `}
-            />
-          </div>
-
-          {/* ✦ ההצלבה הנסתרת של השם */}
-          {crossItem && (
-            <div style={{ animation: "name-rise .9s ease both", marginTop: 22, background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "16px 18px", boxShadow: `0 4px 22px ${P.glow}` }}>
-              <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 1, marginBottom: 8 }}>✦ ההצלבה הנסתרת של השם שלך</div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ color: P.heroNum, fontFamily: F.regal, fontSize: "clamp(20px,4vw,28px)", fontWeight: 800 }}>{revealed}</span>
-                <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>=</span>
-                <span style={{ color: P.heroNum, fontFamily: F.regal, fontSize: "clamp(20px,4vw,28px)", fontWeight: 800 }}>{cross.partner}</span>
-              </div>
-              <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 10 }}>
-                {cross.methods.slice(0, 6).map(m => (
-                  <span key={m.col} style={{ fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 10px" }}>{m.label} = {m.value}</span>
-                ))}
-              </div>
-              <button onClick={shareTheCross} disabled={crossBusy} style={{ marginTop: 14, cursor: crossBusy ? "wait" : "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "11px 26px" }}>
-                {crossBusy ? "מכין…" : "✦ שתפו את ההצלבה שלכם"}
-              </button>
-            </div>
-          )}
-
-          <div style={{ marginTop: 24, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-            <button onClick={share} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", background: "#25D366", color: "#06310f",
-              border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 16, fontWeight: 800, padding: "14px 30px" }}>
-              {busy ? "מכין…" : "📲 שתפו את השם שלכם"}
-            </button>
-            <Link to={`/number/${encodeURIComponent(revealed)}`} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center",
-              background: P.card, color: P.accentText, border: `1px solid ${P.borderStrong}`, borderRadius: 999,
-              fontFamily: F.heading, fontSize: 15, fontWeight: 700, padding: "14px 22px" }}>🌳 גלו את כל עולמו →</Link>
-          </div>
-          <button onClick={() => { setRevealed(null); setName(""); setTimeout(() => inputRef.current?.focus(), 60); }}
-            style={{ marginTop: 18, cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>↺ נסו שם אחר</button>
-        </div>
-      )}
+        {/* 🧪 מעבדת-השם המלאה מוטמעת ישר אחרי הכותרת — חיפוש → התוצאות (כולל הפסוק בתורה) קופצות כאן. */}
+        <NameLabPage embedded full />
+      </div>
     </div>
   );
 }
