@@ -160,7 +160,8 @@ function Collapse({ title, sub, children, locked, defaultOpen = false }) {
 // full=true → מצב «מה השם שלך מסתיר» (דף /name): הכל חשוף מיד — האקורדיון «כל כלי המחקר» פתוח ולא נעול.
 export default function NameLabPage({ embedded = false, full = false }) {
   const [sp, setSp] = useSearchParams();
-  const [word, setWord] = useState((embedded ? "" : (sp.get("w") || "")).trim());
+  // מצב-מלא (/name) מכבד deep-link ?w= בדיוק כמו הדף העצמאי; מוטמע-רגיל (/research?tool=name) מתחיל ריק.
+  const [word, setWord] = useState((((embedded && !full)) ? "" : (sp.get("w") || "")).trim());
   const [openKey, setOpen] = useState(null);
   const [ai, setAi] = useState(null);
   const [aiState, setAiState] = useState("idle"); // idle|busy|done|off
@@ -272,8 +273,10 @@ export default function NameLabPage({ embedded = false, full = false }) {
     const w = (v ?? "").trim();
     if (w === word) return;
     setWord(w); setAi(null); setAiState("idle"); setSurname(""); setBirthdate(""); setCrossSurname(""); setCrossBirth("");
-    if (w && !embedded) setSp({ w }, { replace: true });
-  }, [word, embedded, setSp]);
+    // deep-link משתף: מעדכן ?w= במצב עצמאי (/name-lab) או מלא (/name); לא במוטמע-רגיל (/research?tool=name).
+    // שומר פרמטרים קיימים (למשל src=nl) במקום לדרוס אותם.
+    if (w && (!embedded || full)) setSp(prev => { const p = new URLSearchParams(prev); p.set("w", w); return p; }, { replace: true });
+  }, [word, embedded, full, setSp]);
 
   // 🌳 ישות-השם למחקר האישי (Research Bus).
   const entity = useMemo(() => word ? { id: "name:" + word, type: "name", title: word, value: regVal, meta: { en: enVals[0]?.value } } : null, [word, regVal, enVals]);

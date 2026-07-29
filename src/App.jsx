@@ -94,7 +94,6 @@ const HeichalPage = React.lazy(() => import("./pages/HeichalPage.jsx"));
 const GalaxyPage = React.lazy(() => import("./pages/GalaxyPage.jsx"));
 const GalaxyRoom = React.lazy(() => import("./pages/GalaxyRoom.jsx"));
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
-const GematriaRevealPage = React.lazy(() => import("./pages/GematriaRevealPage.jsx"));
 const RoomsExperience = React.lazy(() => import("./pages/RoomsExperience.jsx"));
 const RoomEnter = React.lazy(() => import("./pages/RoomEnter.jsx"));
 const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
@@ -169,6 +168,13 @@ function GematriaToLab() {
   const p = new URLSearchParams(search);
   const w = p.get("w") || p.get("calc");
   return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
+}
+
+// 🔁 /חישוב · /reveal — מחשבון-החשיפה הישן (GematriaRevealPage) מתאחד לשער-השם הקנוני (/name).
+// שומר את ה-query (למשל ?w=) כדי ש-deep-links/שיתופים ישנים ינחתו במנוע NameLab המלא. הקובץ נשמר בארכיון, לא נמחק.
+function RevealToName() {
+  const { search } = useLocation();
+  return <Navigate to={`/name${search || ""}`} replace />;
 }
 
 // בית-המדרש חי *בתוך* המעבדה (workspace_layout_standard) → כל כניסה ל-/beit-midrash
@@ -247,7 +253,7 @@ export default function App() {
           <Route path="/stream" element={<React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#05060A" }} />}><StreamGate /></React.Suspense>} />
           <Route path="/ניסיון" element={<ExperiencePage />} />
           <Route path="/experience" element={<ExperiencePage />} />
-          <Route path="/חישוב" element={<GematriaRevealPage />} />
+          <Route path="/חישוב" element={<RevealToName />} />
           <Route path="/sulamot5" element={<RoomsExperience mode={5} />} />
           <Route path="/sulamot6" element={<RoomsExperience mode={6} />} />
           <Route path="/sulamot7" element={<RoomsExperience mode={7} />} />
@@ -256,7 +262,7 @@ export default function App() {
           <Route path="/sulamot10" element={<RoomsExperience mode={10} />} />
           <Route path="/sulamot11" element={<RoomEnter />} />
           <Route path="/cheder/:n" element={<HintRoomPage />} />
-          <Route path="/reveal" element={<GematriaRevealPage />} />
+          <Route path="/reveal" element={<RevealToName />} />
           {/* היכל השערים — חוויה מלאה (מסך מלא, מעבר חדר-לחדר) */}
           <Route path="/היכל" element={<HeichalPage />} />
           <Route path="/heichal" element={<HeichalPage />} />
