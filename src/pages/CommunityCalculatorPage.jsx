@@ -503,10 +503,15 @@ export default function CommunityCalculatorPage() {
       {/* Hero */}
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>כלי חינמי · שתפו לחברים</div>
-        <h1 style={{ color: P.ink, fontFamily: F.regal, fontSize: 34, fontWeight: 800, margin: "6px 0 4px" }}>🧮 מה השם שלך מסתיר?</h1>
+        <h1 style={{ color: P.ink, fontFamily: F.regal, fontSize: 34, fontWeight: 800, margin: "6px 0 4px" }}>🧮 מחשבון גימטריה · השוואת שמות</h1>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, maxWidth: 520, margin: "0 auto" }}>
           הקלידו שם או מילה בעברית — וגלו את ערכם, לאילו ביטויים מהתורה הם שווים, ומה מסתתר ביניהם. ✨
         </p>
+        {/* 🔗 איחוד «העץ האחד» — לחקר-שם מלא מפנים לשער-השם הקנוני /name, לא משכפלים כאן */}
+        <Link to={`/name${name1.trim() ? `?w=${encodeURIComponent(name1.trim())}` : ""}`}
+          style={{ display: "inline-block", marginTop: 12, textDecoration: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, borderBottom: `2px solid ${P.borderStrong}`, paddingBottom: 2 }}>
+          ✨ רוצים את המחקר המלא על השם? «מה השם שלך מסתיר» ←
+        </Link>
       </div>
 
       {fromShare && (
