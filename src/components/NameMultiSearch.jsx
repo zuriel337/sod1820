@@ -291,6 +291,71 @@ function wrapText(ctx, text, maxW, cx, y, lh, maxLines = 99) {
   return y;
 }
 
+// 🔠 השם בתורה — מרכז את כל אותות-הנוכחות בתנ״ך למדור אחד ברור (0 טוקנים, נתון-מנוע).
+function TorahPresence({ tracks }) {
+  const find = (id) => (tracks || []).find(x => x.id === id && x.status === "ok");
+  const words = find("words"), literal = find("literal"), inVerse = find("in_verse"), prox = find("proximity"), els = find("els");
+  const rows = [];
+  if (words && words.count > 0) rows.push({ ic: "📖", t: `מופיע בתנ״ך ${words.count} פעמים (כמילה)` });
+  if (literal && literal.count > 0) rows.push({ ic: "✍️", t: `${literal.count} פסוקים מכילים את המילים יחד`, ref: literal.sample?.ref });
+  if (inVerse && inVerse.count > 0) rows.push({ ic: "🔤", t: `נמצא כרצף-אותיות בתוך פסוק (${inVerse.count})`, ref: inVerse.sample?.ref });
+  if (prox && prox.count > 0) rows.push({ ic: "📏", t: `קרבה בתנ״ך — ${prox.count} מופעים`, ref: prox.sample?.ref });
+  if (els && els.count > 0) rows.push({ ic: "🔠", t: `דילוגים (ELS): ${els.count}${els.min_skip ? ` · דילוג מינ׳ ${els.min_skip}` : ""}` });
+  if (!rows.length) return null;
+  return (
+    <div style={{ background: "linear-gradient(180deg,#fffdf5,#fff7e6)", border: "1px solid #f0e2b8", borderRadius: 14, padding: "14px 15px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 9 }}>
+        <span style={{ fontSize: 16 }}>🔠</span>
+        <span style={{ color: C.ink, fontFamily: F.h, fontSize: 16, fontWeight: 800 }}>השם בתורה</span>
+        <span style={{ color: C.mut, fontFamily: F.h, fontSize: 11.5 }}>נוכחות ישירה בכתובים</span>
+      </div>
+      <div style={{ display: "grid", gap: 7 }}>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, background: "#fff", border: `1px solid #f0e2b8`, borderRadius: 10, padding: "9px 12px" }}>
+            <span style={{ fontSize: 16 }}>{r.ic}</span>
+            <span style={{ color: C.ink, fontFamily: F.h, fontSize: 13.5, fontWeight: 700, flex: 1 }}>{r.t}</span>
+            {r.ref && <span style={{ color: C.blue, fontFamily: F.h, fontSize: 12, fontWeight: 800 }}>{r.ref}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// 💡 הצעת שם מתאים לסיטואציה — קריאת-AI אחת (Haiku). עובדה מהמנוע, בלי נבואות.
+function NameSuggest({ name, value, findings }) {
+  const [intent, setIntent] = useState("");
+  const [txt, setTxt] = useState(null);
+  const [st, setSt] = useState("idle"); // idle|busy|done|off
+  const go = async () => {
+    if (st === "busy") return;
+    setSt("busy"); setTxt(null);
+    const top = (findings || []).slice(0, 6).map(f => f.display_value).join(" · ");
+    const facts = `[הנחיה: אתה חוקר מלווה. הצע 2-3 שמות/מילים עבריים שמתאימים לסיטואציה ומהדהדים עם השם — הסבר כל אחד בקצרה לפי עובדת-מנוע (גימטריה זהה / ביטוי משותף). בלי נבואות ובלי הבטחות. אם אין בסיס — אמור בכנות.]\n\nשם: ${name} (ערך ${value})\nסיטואציה/כוונה: ${intent.trim() || "כללי"}\nביטויים ששווים לשם: ${top || "—"}`;
+    try { const out = await getAiAnalysis({ kind: "name_lab", subject: name, facts, fast: true }); setTxt(out || null); setSt(out ? "done" : "off"); }
+    catch { setSt("off"); }
+  };
+  return (
+    <div style={{ background: "linear-gradient(180deg,#fff,#f3f7ff)", border: `1px solid ${C.blueLine}`, borderRadius: 14, padding: "14px 15px", display: "grid", gap: 9 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <span style={{ fontSize: 16 }}>💡</span>
+        <span style={{ color: C.ink, fontFamily: F.h, fontSize: 16, fontWeight: 800 }}>שם מתאים לסיטואציה</span>
+      </div>
+      <input value={intent} onChange={e => setIntent(e.target.value)} placeholder="למה מיועד? תינוק · אירוע · תכונה (לא חובה)…"
+        style={{ width: "100%", boxSizing: "border-box", fontFamily: F.h, fontSize: 14, fontWeight: 600, padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.line}`, background: "#fff", color: C.ink, minHeight: 44 }} />
+      {st === "done" && txt ? (
+        <div style={{ color: C.ink, fontFamily: F.h, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{txt}</div>
+      ) : st === "busy" ? (
+        <div style={{ color: C.dim, fontFamily: F.h, fontSize: 14 }}>💡 חושב על שם מתאים…</div>
+      ) : (
+        <button onClick={go} style={{ justifySelf: "start", cursor: "pointer", background: `linear-gradient(135deg,${C.blue},#5b8bff)`, border: "none", borderRadius: 10, color: "#fff", fontFamily: F.h, fontSize: 14, fontWeight: 800, padding: "11px 20px", minHeight: 44 }}>💡 הצע שם מתאים</button>
+      )}
+      {st === "off" && <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13 }}>לא זמין כרגע. <button onClick={go} style={{ cursor: "pointer", background: "none", border: "none", color: C.blue, fontWeight: 700, textDecoration: "underline" }}>נסה שוב</button></div>}
+      <div style={{ color: C.mut, fontFamily: F.h, fontSize: 10.5 }}>הצעה עובדתית (גימטריה) — לא נבואה.</div>
+    </div>
+  );
+}
+
 const EXAMPLES = ["דני ממן", "אברהם", "יוסף בן יעקב", "מרים"];
 
 export default function NameMultiSearch({ name, onResolve, hideInput = false }) {
@@ -478,6 +543,9 @@ export default function NameMultiSearch({ name, onResolve, hideInput = false }) 
         {/* 🔮 סיכום המחקר — פופ-אפ אחד יפה לשיתוף (מטטרון מסכם את הכל) */}
         <button onClick={makeSummary} style={{ cursor:"pointer", width:"100%", boxSizing:"border-box", background:"linear-gradient(135deg,#b78900,#e7c869)", border:"none", borderRadius:12, color:"#1b1d22", fontFamily:F.h, fontSize:"clamp(14px,4vw,15.5px)", fontWeight:800, padding:"13px 16px", minHeight:48, boxShadow:"0 4px 16px rgba(183,137,0,.25)" }}>🔮 קבל סיכום מחקר — בכמה שורות ←</button>
 
+        {/* 🔠 השם בתורה — נוכחות ישירה בכתובים (מרוכז ובולט) */}
+        <TorahPresence tracks={synthesisTracks} />
+
         {/* 📊 סיכום מנורמל — קודם המסקנה המאוחדת, אז הפירוט לפי מסלול מתחת */}
         <NormalizedFindings items={normalized} />
 
@@ -517,6 +585,9 @@ export default function NameMultiSearch({ name, onResolve, hideInput = false }) 
             </div>
           );
         })()}
+
+        {/* 💡 הצעת שם מתאים לסיטואציה (קריאת-AI אחת) */}
+        <NameSuggest name={comp?.full || nm} value={vals?.full} findings={normalized} />
 
         <button onClick={()=>addToResearch?.({ id:"namemulti:"+(comp?.full||nm), type:"name", title:comp?.full||nm, value:vals?.full })} style={{ justifySelf:"start", cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.ink, fontFamily:F.h, fontSize:13, fontWeight:800, padding:"9px 16px", minHeight:44 }}>➕ הוסף למחקר</button>
       </>)}
