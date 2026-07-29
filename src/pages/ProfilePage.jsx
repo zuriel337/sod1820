@@ -406,6 +406,19 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* 💎 קרדיטים + רכישה */}
+        <Link to="/credits" style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, textDecoration: "none",
+          border: "1px solid rgba(212,175,55,0.32)", borderRadius: 14, padding: "12px 16px", margin: "14px 0 6px",
+          background: "rgba(212,175,55,0.07)",
+        }}>
+          <div>
+            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>הקרדיטים שלי</div>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 22, fontWeight: 700 }}>💎 {profile?.credits ?? 0}</div>
+          </div>
+          <span style={{ color: "#1a0e00", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, fontFamily: F.heading, fontWeight: 800, fontSize: 13, borderRadius: 999, padding: "9px 18px", whiteSpace: "nowrap" }}>💳 קנה עוד ←</span>
+        </Link>
+
         <MyTreeCard />
 
         {/* עורך-הפרופיל הקנוני — אותו רכיב בדיוק כמו במגירת «האזור האישי» (חוק העץ האחד) */}
