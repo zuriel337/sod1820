@@ -53,6 +53,7 @@ import {
 const HomePage = React.lazy(() => import("./pages/HomePage.jsx"));
 const AuthPage = React.lazy(() => import("./pages/AuthPage.jsx"));
 const ProfilePage = React.lazy(() => import("./pages/ProfilePage.jsx"));
+const CreditsBuyPage = React.lazy(() => import("./pages/CreditsBuyPage.jsx"));
 const StartHerePage = React.lazy(() => import("./pages/StartHerePage.jsx"));
 const PrivacyPage = React.lazy(() => import("./pages/PrivacyPage.jsx"));
 const UnsubscribePage = React.lazy(() => import("./pages/UnsubscribePage.jsx"));
@@ -316,6 +317,8 @@ export default function App() {
           <Route path="/contact" element={<ContactRoute />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/credits" element={<CreditsBuyPage />} />
+          <Route path="/buy" element={<CreditsBuyPage />} />
           <Route path="/admin" element={<AdminPage />} />
           {/* ⛔ העורך מחוץ ל-/admin/ — vercel.json honeypot תופס /admin/(.*) ומחזיר 403. */}
           <Route path="/editor" element={<PostEditorPage />} />

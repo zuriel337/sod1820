@@ -68,6 +68,7 @@ const TABS = [
   { key: "hintreports", label: "➕ דיווחי רמזים" },
   { key: "contribmod", label: "💬 מרכז התגובות" },
   { key: "growth",   label: "📈 מרכז צמיחה" },
+  { key: "payments", label: "💳 אישורי תשלום" },
   { key: "subs",     label: "📋 רשימת תפוצה" },
   { key: "messages", label: "✉️ פניות" },
   { key: "emails",   label: "📧 מיילים" },
@@ -96,7 +97,7 @@ const GROUPS = [
   { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
   { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "hintreports", "contribmod", "stream", "broadcast"] },
   { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
-  { key: "comms",     label: "📧 תפוצה",    subs: ["growth", "subs", "emails", "newsletter", "messages"] },
+  { key: "comms",     label: "📧 תפוצה",    subs: ["growth", "payments", "subs", "emails", "newsletter", "messages"] },
   { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "suggest", "scanner", "utm", "push", "worklog"] },
 ];
 const TAB_LABEL = Object.fromEntries(TABS.map(t => [t.key, t.label]));
@@ -261,6 +262,7 @@ export default function AdminPage() {
       {tab === "utm" && <UtmBuilderTab />}
       {tab === "push" && <PushSendTab />}
       {tab === "worklog" && <WorkLogTab />}
+      {tab === "payments" && <PaymentsTab />}
       {tab === "stream" && <StreamAdminTab />}
       {tab === "broadcast" && <BroadcastTab />}
     </div>
@@ -5512,6 +5514,70 @@ function MetaTab() {
 }
 
 // ===== WorkLogTab — יומן עבודה =====
+// ===== 💳 אישורי-תשלום ידניים (ביט/העברה) → זיכוי קרדיטים =====
+function PaymentsTab() {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(null);
+  const [msg, setMsg] = useState("");
+
+  function load() {
+    if (!supabase) return;
+    setLoading(true);
+    supabase.rpc("credit_purchase_pending")
+      .then(({ data, error }) => { setRows(error ? [] : (data || [])); setLoading(false); })
+      .catch(() => setLoading(false));
+  }
+  useEffect(load, []);
+
+  async function decide(id, approve) {
+    setBusy(id);
+    const { data, error } = await supabase.rpc("credit_purchase_decide", { p_request_id: id, p_approve: approve });
+    setBusy(null);
+    if (error) { setMsg("שגיאה: " + error.message); setTimeout(() => setMsg(""), 4000); return; }
+    setMsg(approve ? `✅ אושר — ${data?.credits_granted || ""} קרדיטים זוכו` : "הבקשה נדחתה");
+    setTimeout(() => setMsg(""), 3000);
+    setRows(prev => prev.filter(r => r.id !== id));
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={card}>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
+            💳 אישורי תשלום ממתינים {!loading && <span style={{ color: C.muted, fontWeight: 400 }}>({rows.length})</span>}
+          </div>
+          <button onClick={load} style={{ marginRight: "auto", cursor: "pointer", background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12 }}>↻ רענן</button>
+        </div>
+        {msg && <div style={{ color: "#7bbf7b", fontFamily: F.heading, fontSize: 13, marginBottom: 12 }}>{msg}</div>}
+        {loading ? <div style={{ color: C.muted, fontSize: 13, fontFamily: F.heading }}>טוען…</div>
+          : rows.length === 0 ? <div style={{ color: C.muted, fontSize: 13, fontFamily: F.body, lineHeight: 1.7 }}>אין בקשות ממתינות. כשגולש בוחר חבילה, מעביר בביט/בנק ולוחץ «העברתי» — הבקשה תופיע כאן לאישור.</div>
+            : (
+              <div style={{ display: "grid", gap: 14 }}>
+                {rows.map(r => (
+                  <div key={r.id} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "14px 16px" }}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "baseline", flexWrap: "wrap", marginBottom: 8 }}>
+                      <b style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15 }}>₪{r.price_ils} · {r.credits} קרדיטים</b>
+                      <span style={{ color: C.gold, fontFamily: F.heading, fontSize: 12, border: `1px solid ${C.border}`, borderRadius: 999, padding: "2px 10px" }}>{r.method === "bit" ? "🟣 ביט/פייבוקס" : "🏦 העברה בנקאית"}</span>
+                      <span style={{ color: C.muted, fontFamily: "monospace", fontSize: 11, marginRight: "auto" }}>{new Date(r.created_at).toLocaleString("he-IL")}</span>
+                    </div>
+                    <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, marginBottom: r.reference ? 4 : 10 }}>
+                      {r.name || "—"} · <span style={{ direction: "ltr", display: "inline-block" }}>{r.email || (r.user_id ? r.user_id.slice(0, 8) : "")}</span>
+                    </div>
+                    {r.reference && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 10, whiteSpace: "pre-wrap" }}>📝 {r.reference}</div>}
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <button disabled={busy === r.id} onClick={() => decide(r.id, true)} style={{ cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", border: "none", borderRadius: 999, padding: "9px 22px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, opacity: busy === r.id ? 0.6 : 1 }}>{busy === r.id ? "…" : "✅ אשר וזכה"}</button>
+                      <button disabled={busy === r.id} onClick={() => decide(r.id, false)} style={{ cursor: "pointer", background: "transparent", color: "#c88", border: `1px solid ${C.border}`, borderRadius: 999, padding: "9px 18px", fontFamily: F.heading, fontSize: 13 }}>דחה</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+      </div>
+    </div>
+  );
+}
+
 function WorkLogTab() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
