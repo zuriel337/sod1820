@@ -39,7 +39,7 @@ const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "
 const STATE_RANK = { canonical: 5, validated: 4, investigating: 3, discussion: 2, idea: 1 };
 const sigScore = (it) => (STATE_RANK[it.research_state] || 0) * 10 + (it.verified ? 5 : 0) + (it.has_1820 ? 3 : 0);
 
-function ContribCard({ c, P, isAdmin, onChanged }) {
+function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
   const href = targetHref(c);
   const threadHref = c.contribId ? `/forum/${c.contribId}` : href;
@@ -49,7 +49,7 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
   const titleText = c.title || snippet.slice(0, 72) || "תרומת מחקר";
   const [pinBusy, setPinBusy] = useState(false);
   // 💬 שורה-אחת שנפתחת לתגובות inline (עץ אחד: אותו <Discourse> של עמוד-השרשור, לא מנווט).
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const dTarget = (c.target_type && c.target_id) ? { type: c.target_type, id: c.target_id } : { type: "forum", id: c.contribId };
   async function togglePin(e) {
     e.preventDefault(); e.stopPropagation();
@@ -91,7 +91,7 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
       </button>
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 9 }}>
         {c.author_name
-          ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} /></span>
+          ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} />{c.trustedAuthor && <TrustedTick P={P} withText />}</span>
           : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ חבר הקהילה</span>}
         <ReactionBar id={c.contribId} reactions={c.reactions} compact />
         {isAdmin && (
@@ -219,6 +219,73 @@ function CipherCard({ c, P }) {
   );
 }
 
+// 💬 סגנון-צ'אט — שורה אחת לכל פריט. לחיצה פותחת את הכרטיס המלא (defaultOpen).
+function oneLine(s, n = 88) {
+  const t = stripHtml(String(s || "")).replace(/\s+/g, " ").trim();
+  return t.length > n ? t.slice(0, n) + "…" : t;
+}
+
+// 🌟 סימון «כתב מהימן» — צ'ק זהב. withText → תג עם מילים (בכרטיס המלא); בלי → נקודה קטנה (בשורה).
+function TrustedTick({ P, withText = false }) {
+  return (
+    <span title="כתב מהימן — מהכתבים האיכותיים של האתר"
+      style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 3,
+        background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00",
+        borderRadius: 999, padding: withText ? "1px 8px" : 0,
+        width: withText ? "auto" : 15, height: withText ? "auto" : 15, minWidth: 15,
+        fontFamily: F.heading, fontSize: withText ? 11 : 10, fontWeight: 900, flex: "0 0 auto" }}>
+      ✓{withText ? " כתב מהימן" : ""}
+    </span>
+  );
+}
+
+const leadEmoji = (c) =>
+  c.kind === "post" ? "📜" : c.kind === "insight" ? "💡" : c.kind === "cipher" ? "🔠" : (intentMeta(c.intent).emoji || "💬");
+
+// שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + סימון-מהימן · טקסט בשורה אחת · מוצמד/נבחרת · זמן.
+function ChatRow({ c, P, onOpen }) {
+  const who = c.author_display || c.author_name || "חבר הקהילה";
+  const text = oneLine(c.title || c.body || c.excerpt || c.description || "תרומת מחקר");
+  return (
+    <button onClick={onOpen} aria-label="פתח"
+      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", textAlign: "start", cursor: "pointer",
+        background: c.chosen ? "rgba(212,175,55,0.06)" : "transparent",
+        border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 11, padding: "8px 11px" }}>
+      <img src={genAvatar(who)} alt="" loading="lazy"
+        style={{ width: 26, height: 26, borderRadius: "50%", flex: "0 0 auto", border: `1px solid ${P.border}` }} />
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", maxWidth: "40%", minWidth: 0 }}>
+        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{who}</span>
+        {c.trustedAuthor && <TrustedTick P={P} />}
+      </span>
+      <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <span style={{ marginInlineEnd: 4 }}>{leadEmoji(c)}</span>{text}
+      </span>
+      {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
+      {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
+      <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
+    </button>
+  );
+}
+
+// פריט-פיד: שורת-צ'אט כברירת-מחדל; בלחיצה נפתח הכרטיס המלא (עם «כווץ» לחזרה לשורה).
+function FeedItem({ c, P, isAdmin, onChanged }) {
+  const [open, setOpen] = useState(false);
+  if (!open) return <ChatRow c={c} P={P} onOpen={() => setOpen(true)} />;
+  const full = c.kind === "post" ? <PostCard c={c} P={P} />
+    : c.kind === "insight" ? <InsightCard c={c} P={P} isAdmin={isAdmin} onChanged={onChanged} />
+    : c.kind === "cipher" ? <CipherCard c={c} P={P} />
+    : <ContribCard c={c} P={P} isAdmin={isAdmin} onChanged={onChanged} defaultOpen />;
+  return (
+    <div style={{ display: "grid", gap: 7 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button onClick={() => setOpen(false)}
+          style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "3px 11px" }}>▴ כווץ</button>
+      </div>
+      {full}
+    </div>
+  );
+}
+
 // גוף-הפורום המשותף. maxWidth — רוחב הפיד (ברירת-מחדל 780, כמו דף הפורום).
 export default function ForumFeed({ maxWidth = 780 } = {}) {
   const P = usePalette();
@@ -269,7 +336,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
     else if (type) out = allItems.filter(it => it.kind === "contribution" && it.intent === type);
     else out = allItems;
     if (state) out = out.filter(it => it.research_state === state);
-    if (sort === "significance") out = [...out].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || sigScore(b) - sigScore(a) || (new Date(b.ts) - new Date(a.ts)));
+    if (sort === "significance") out = [...out].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.trustedAuthor ? 1 : 0) - (a.trustedAuthor ? 1 : 0) || sigScore(b) - sigScore(a) || (new Date(b.ts) - new Date(a.ts)));
     return out;
   }, [allItems, type, writer, state, sort]);
 
@@ -351,8 +418,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
           עדיין אין פריטים בקטגוריה הזו — היו הראשונים לתרום מדף מספר או מבית המדרש.
         </div>
       ) : (
-        <div style={{ display: "grid", gap: 13 }}>
-          {items.map(c => c.kind === "post" ? <PostCard key={c.id} c={c} P={P} /> : c.kind === "insight" ? <InsightCard key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} /> : c.kind === "cipher" ? <CipherCard key={c.id} c={c} P={P} /> : <ContribCard key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} />)}
+        <div style={{ display: "grid", gap: 8 }}>
+          {items.map(c => <FeedItem key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} />)}
         </div>
       )}
     </div>

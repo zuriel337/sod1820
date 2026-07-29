@@ -186,20 +186,18 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
   }
 
   if (wantContrib) {
-    let q = supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,gematria_claim,reactions,pinned_at,created_at")
-      .eq("status", "approved").is("parent_id", null)
-      .order("created_at", { ascending: false }).limit(limit);
-    if (type && type !== "post") q = q.eq("intent", type);
     tasks.push((async () => {
-      const { data } = await q;
-      const rows = data || [];
+      // 🌟 מקור-הפורום לתרומות = RPC forum_feed_contributions (SECURITY DEFINER):
+      //   approved של כולם + published של כתבים-מהימנים בלבד (יניב/צבי) — כדי שהכתבים
+      //   האיכותיים יופיעו בפורום (ה-RLS חושף רק approved) ולא יישארו חסומים. הדגל trusted
+      //   מגיע מוכן לכל שורה (כולל שורות בלי user_id) → סימון «כתב מהימן» + מיון למעלה.
+      let rows = [];
+      try { const { data } = await supabase.rpc("forum_feed_contributions", { p_limit: limit }); rows = data || []; }
+      catch { rows = []; }
+      if (type && type !== "post") rows = rows.filter(c => c.intent === type);
       // 🌳 עץ אחד: פותרים את שם-התצוגה הנוכחי (users.display_name) לפי author_user_id — «בחר שם» משתקף
       // מיד בפורום, בלי לגעת ב-author_name היציב (שעליו נשען הקישור לדף-החוקר). מקור-זהות אחד.
       const uids = [...new Set(rows.map(c => c.author_user_id).filter(Boolean))];
-      // 🌟 כתבים-מהימנים (contributors.trusted) — לתג/הקפצת «מה חדש». עמודה חסומה ל-anon → דרך RPC.
-      const trustedSet = new Set();
-      try { const { data: tu } = await supabase.rpc("trusted_contributor_uids"); (tu || []).forEach(u => trustedSet.add(u)); } catch { /* noop */ }
       const nameMap = {};
       if (uids.length) {
         try {
@@ -220,7 +218,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
         kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
         author_name: c.author_name, author_display: nameMap[c.author_user_id] || null,
         author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
-        trustedAuthor: c.author_user_id ? trustedSet.has(c.author_user_id) : false,
+        trustedAuthor: !!c.trusted,
         target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
         pinned: !!c.pinned_at, pinned_at: c.pinned_at, linkCount: linkCount[c.id] || 0,
         // 🔢 ערך-הגימטריה של התרומה (לתג «מהנבחרות») — היעד-מספר, ואם אין, מ-gematria_claim.value
@@ -265,8 +263,11 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
   } catch { /* noop — אין תג-נבחרת, לא שובר את הפיד */ }
 
   return flat
-    // 📌 מוצמדים תמיד למעלה (אדמין), אחר-כך החדשים למעלה
-    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.ts) - new Date(a.ts))
+    // 📌 מוצמדים (אדמין) → 🌟 כתבים-מהימנים → החדשים למעלה
+    .sort((a, b) =>
+      (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) ||
+      (b.trustedAuthor ? 1 : 0) - (a.trustedAuthor ? 1 : 0) ||
+      new Date(b.ts) - new Date(a.ts))
     .slice(0, limit);
 }
 
