@@ -276,19 +276,28 @@ function NormalizedFindings({ items }) {
 // כלל-הזהב: מרנדרים רק מסלולים עם תוצאה (status='ok').
 const ok = (arr) => (arr || []).filter(t => t.status === "ok");
 
+// ציור טקסט עברי עטוף-שורות על canvas (הדפדפן מרנדר RTL נכון) — מחזיר y אחרי הציור, עד maxLines.
+function wrapText(ctx, text, maxW, cx, y, lh, maxLines = 99) {
+  const words = String(text || "").replace(/\s+/g, " ").trim().split(" ");
+  let line = "", n = 0;
+  for (const w of words) {
+    const t = line ? line + " " + w : w;
+    if (ctx.measureText(t).width > maxW && line) {
+      ctx.fillText(line, cx, y); y += lh; line = w; n++;
+      if (n >= maxLines) { ctx.fillText("…", cx, y); return y + lh; }
+    } else line = t;
+  }
+  if (line) { ctx.fillText(line, cx, y); y += lh; }
+  return y;
+}
+
 const EXAMPLES = ["דני ממן", "אברהם", "יוסף בן יעקב", "מרים"];
 
 export default function NameMultiSearch({ name, onResolve }) {
   const [nm, setNm] = useState(name || "");
-  const [surname, setSurname] = useState("");
-  const [birth, setBirth] = useState("");
-  const [question, setQuestion] = useState("");
-  const [more, setMore] = useState(false);        // מסוף: פותח את השדות האופציונליים (משפחה/תאריך/שאלה)
   const [res, setRes] = useState(null);
   const [phase, setPhase] = useState("idle");     // idle|busy|done|err
-  const [ai, setAi] = useState(null);
-  const [aiState, setAiState] = useState("idle");
-  const { addToResearch, saveItem } = useResearch();
+  const { addToResearch } = useResearch();
   const seededRef = useRef("");
   const autoRef = useRef(false);
 
@@ -298,16 +307,16 @@ export default function NameMultiSearch({ name, onResolve }) {
     seededRef.current = w;                          // כדי ש-onResolve→name-prop לא יפעיל ריצה כפולה
     autoRef.current = false;
     onResolve?.(w);                                // מזין את «השם הפעיל» לשאר כלי-הדף (הכרטיסייה הסגורה)
-    setPhase("busy"); setRes(null); setAi(null); setAiState("idle"); setSumOpen(false); setSumText(null); setSumState("idle");
+    setPhase("busy"); setRes(null); setSumOpen(false); setSumText(null); setSumState("idle");
     try {
       const t0 = Date.now();
-      const d = await getNameMulti(w, { surname, birthdate: birth, question });
+      // שם מלא בתיבה אחת — הפונקציה מפרקת לטוקנים (שם/משפחה) לבד. בלי שדות נפרדים.
+      const d = await getNameMulti(w);
       if (!d) { setPhase("err"); return; }
       setRes(d); setPhase("done");
       logNameResearch(d.graded ? d.combo : d, Date.now() - t0); // 📊 לוח-איכות (fire-and-forget)
-      if (question.trim()) saveItem?.({ id:"nameq:"+w+":"+Date.now(), type:"name_question", title:`${w} — ${question.trim()}`, meta:{ question:question.trim(), name:w } });
     } catch { setPhase("err"); }
-  }, [nm, surname, birth, question, saveItem, onResolve]);
+  }, [nm, onResolve]);
 
   // מזרימים שם מ-URL/דף → ממלאים ומריצים אוטומטית פעם אחת (deep-link משתף)
   useEffect(() => {
@@ -317,17 +326,6 @@ export default function NameMultiSearch({ name, onResolve }) {
   useEffect(() => {
     if (autoRef.current && nm.trim()) { autoRef.current = false; run(); }
   }, [nm, run]);
-
-  const analyze = useCallback(async () => {
-    if (!res || aiState === "busy") return;
-    setAiState("busy"); setAi(null);
-    const combo = res.graded ? res.combo : res;
-    const facts = `[הנחיה: אתה חוקר מלווה. ענה על שאלת המשתמש בהתבסס על עובדות-המנוע בלבד — הפרד עובדה מפרשנות, בלי נבואות. אם אין די בסיס, אמור זאת בכנות.]\n\nשאלה: ${res.question?.text || question}\nעובדות המחקר: ${res.question?.ai_facts || ""}\nמסלולים עם תוצאות: ${ok(combo?.tracks).map(t=>`${t.label}=${t.count}`).join(" · ")}`;
-    try {
-      const out = await getAiAnalysis({ kind:"name_lab", subject: res.input?.components?.full || nm, facts });
-      setAi(out || null); setAiState(out ? "done" : "off");
-    } catch { setAiState("off"); }
-  }, [res, aiState, question, nm]);
 
   const comp = res?.input?.components;
   const vals = comp?.values;
@@ -367,6 +365,45 @@ export default function NameMultiSearch({ name, onResolve }) {
     catch { setSumState("off"); }
   }, [normalized, res, comp, vals, nm, sumText, sumState]);
 
+  // 📸 כרטיס-תמונה ממותג לשיתוף — canvas (עברית מרונדרת נכון בדפדפן). שיתוף-קובץ או הורדה.
+  const cardBusy = useRef(false);
+  const shareCard = useCallback(async () => {
+    if (cardBusy.current) return; cardBusy.current = true;
+    try {
+      const full = comp?.full || nm;
+      const W = 1080, H = 1350, PAD = 70;
+      const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+      const x = cv.getContext("2d"); x.direction = "rtl"; x.textAlign = "center";
+      const FF = "Heebo, Arial, sans-serif";
+      const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#0b0a07"); g.addColorStop(1, "#1a1305");
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      x.strokeStyle = "rgba(212,175,55,.55)"; x.lineWidth = 5; x.strokeRect(34, 34, W - 68, H - 68);
+      x.fillStyle = "#d4af37"; x.font = `700 34px ${FF}`; x.fillText("סוד 1820 · כי לה׳ המלוכה", W / 2, 128);
+      x.fillStyle = "#ffffff"; x.font = `800 ${full.length > 12 ? 78 : 100}px ${FF}`; x.fillText(full, W / 2, 290);
+      x.fillStyle = "#e7c869"; x.font = `700 50px ${FF}`; x.fillText(`ערך הגימטריה · ${vals?.full ?? ""}`, W / 2, 372);
+      let y = 470;
+      const verse = res?.name_verse?.verses?.[0];
+      if (verse) {
+        x.fillStyle = "#d4af37"; x.font = `700 30px ${FF}`; x.fillText(`🕯️ הפסוק שלך · ${verse.ref}`, W / 2, y); y += 52;
+        x.fillStyle = "#f3ecd8"; x.font = `400 40px ${FF}`; y = wrapText(x, verse.text, W - PAD * 2, W / 2, y, 54, 3) + 34;
+      }
+      if (sumText) {
+        x.fillStyle = "#d4af37"; x.font = `700 30px ${FF}`; x.fillText("🔮 סיכום המחקר", W / 2, y); y += 52;
+        x.fillStyle = "#eeeae0"; x.font = `400 40px ${FF}`; y = wrapText(x, sumText.replace(/\n+/g, " "), W - PAD * 2, W / 2, y, 56, 8);
+      }
+      x.fillStyle = "#c9b283"; x.font = `600 32px ${FF}`; x.fillText("sod1820.co.il", W / 2, H - 66);
+      const blob = await new Promise(r => cv.toBlob(r, "image/png", 0.95));
+      if (!blob) return;
+      const file = new File([blob], `sod1820-${full}.png`, { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: full, text: `${full} · מעבדת השם · סוד1820` });
+      } else {
+        const url = URL.createObjectURL(blob); const a = document.createElement("a");
+        a.href = url; a.download = `sod1820-${full}.png`; a.click(); URL.revokeObjectURL(url);
+      }
+    } catch { /* בוטל/נכשל — לא שוברים */ } finally { cardBusy.current = false; }
+  }, [comp, nm, vals, res, sumText]);
+
   return (
     <section dir="rtl" style={{ display:"grid", gap:14, minWidth:0, maxWidth:"100%" }}>
       {/* ===== מסוף המחקר ===== */}
@@ -386,26 +423,10 @@ export default function NameMultiSearch({ name, onResolve }) {
           {/* שורת-הפרומפט: השם הפרטי (חובה) */}
           <label style={{ display:"flex", alignItems:"center", gap:10, background:"#fbfcff", border:`1.5px solid ${nm.trim()?C.blue:C.line}`, borderRadius:12, padding:"4px 12px", transition:"border-color .15s" }}>
             <span style={{ color:C.blue, fontFamily:F.m, fontSize:"clamp(18px,5vw,22px)", fontWeight:800, lineHeight:1 }}>‹</span>
-            <input value={nm} onChange={e=>setNm(e.target.value)} placeholder="הקלד שם פרטי…" required
+            <input value={nm} onChange={e=>setNm(e.target.value)} placeholder="הקלד שם (אפשר גם שם משפחה)…" required
               style={{ flex:1, minWidth:0, width:"100%", fontFamily:F.h, fontSize:"clamp(17px,5vw,22px)", fontWeight:800, padding:"12px 0", border:"none", outline:"none", background:"transparent", color:C.ink }} />
             {nm && <button type="button" onClick={()=>{ setNm(""); setRes(null); setPhase("idle"); }} title="נקה" style={{ cursor:"pointer", background:"transparent", border:"none", color:C.mut, fontSize:20, lineHeight:1, padding:"0 4px" }}>×</button>}
           </label>
-
-          {/* שדות אופציונליים — נפתחים; חוק 3: שכבה נוספת, לא משנים את מחקר-השם */}
-          {!more ? (
-            <button type="button" onClick={()=>setMore(true)} style={{ justifySelf:"start", cursor:"pointer", background:"transparent", border:"none", color:C.blue, fontFamily:F.h, fontSize:12.5, fontWeight:800, padding:"0 2px" }}>
-              ＋ שם-משפחה · תאריך · שאלה
-            </button>
-          ) : (
-            <div style={{ display:"grid", gap:8, background:"#f8f9fb", border:`1px solid ${C.line}`, borderRadius:12, padding:"11px 12px" }}>
-              <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, fontWeight:700 }}>שכבות נוספות (לא חובה) — שם-המשפחה מרחיב את המחקר; תאריך ושאלה נכנסים אחרי מחקר-השם.</div>
-              <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                <input value={surname} onChange={e=>setSurname(e.target.value)} placeholder="שם-משפחה…" style={{ flex:"1 1 130px", minWidth:0, fontFamily:F.h, fontSize:15, fontWeight:700, padding:"10px 12px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, minHeight:44 }} />
-                <input value={birth} onChange={e=>setBirth(e.target.value)} placeholder="תאריך-לידה…" style={{ flex:"1 1 130px", minWidth:0, fontFamily:F.h, fontSize:15, fontWeight:700, padding:"10px 12px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, minHeight:44 }} />
-              </div>
-              <textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="יש לך שאלה על השם? כתוב אותה כאן…" rows={2} style={{ width:"100%", boxSizing:"border-box", fontFamily:F.h, fontSize:14, fontWeight:600, padding:"10px 12px", borderRadius:10, border:`1px solid ${C.line}`, background:"#fff", color:C.ink, resize:"vertical" }} />
-            </div>
-          )}
 
           <button type="submit" disabled={!nm.trim() || phase==="busy"} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:10, color:"#fff", fontFamily:F.h, fontSize:15.5, fontWeight:800, padding:"13px 22px", minHeight:48, opacity: (!nm.trim()||phase==="busy")?0.6:1 }}>
             {phase==="busy" ? "🔬 חוקר…" : `🔎 חקור את «${nm.trim() || "השם"}»`}
@@ -493,24 +514,6 @@ export default function NameMultiSearch({ name, onResolve }) {
           );
         })()}
 
-        {/* ===== חוק 3 — שכבת-מחקר נוספת: שאלה (תאריך) ===== */}
-        {res.question && (
-          <div style={{ background:"linear-gradient(180deg,#fff,#f3f7ff)", border:`1px solid ${C.blueLine}`, borderRadius:12, padding:"13px 15px" }}>
-            <div style={{ color:C.mut, fontFamily:F.h, fontSize:10.5, fontWeight:800, letterSpacing:1, textTransform:"uppercase", marginBottom:6 }}>שכבת-מחקר נוספת</div>
-            <div style={{ color:C.ink, fontFamily:F.h, fontSize:13.5, fontWeight:800, marginBottom:6 }}>❓ {res.question.text}</div>
-            {aiState==="done" && ai ? (
-              <div style={{ color:C.ink, fontFamily:F.h, fontSize:15, lineHeight:1.8 }}>{ai}</div>
-            ) : aiState==="busy" ? (
-              <div style={{ color:C.dim, fontFamily:F.h, fontSize:14 }}>🔬 החוקר מנתח…</div>
-            ) : aiState==="off" ? (
-              <div style={{ color:C.dim, fontFamily:F.h, fontSize:13.5 }}>הניתוח לא זמין כרגע. <button onClick={analyze} style={{ cursor:"pointer", background:"none", border:"none", color:C.blue, fontWeight:700, textDecoration:"underline" }}>נסה שוב</button></div>
-            ) : (
-              <button onClick={analyze} style={{ cursor:"pointer", background:`linear-gradient(135deg,${C.blue},#5b8bff)`, border:"none", borderRadius:10, color:"#fff", fontFamily:F.h, fontSize:14, fontWeight:800, padding:"10px 18px", minHeight:44 }}>🤖 נתח את השאלה (עובדה מהמנוע, לא נבואה)</button>
-            )}
-            <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, marginTop:7 }}>💾 השאלה נשמרה עם המחקר.</div>
-          </div>
-        )}
-
         <button onClick={()=>addToResearch?.({ id:"namemulti:"+(comp?.full||nm), type:"name", title:comp?.full||nm, value:vals?.full })} style={{ justifySelf:"start", cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.ink, fontFamily:F.h, fontSize:13, fontWeight:800, padding:"9px 16px", minHeight:44 }}>➕ הוסף למחקר</button>
       </>)}
 
@@ -536,7 +539,8 @@ export default function NameMultiSearch({ name, onResolve }) {
             <div style={{ color:C.mut, fontFamily:F.h, fontSize:11, textAlign:"center", margin:"11px 0" }}>עובדה מהמנוע · הופרדה מפרשנות · בלי נבואות</div>
             {sumState==="done" && sumText && (
               <div style={{ display:"flex", gap:9, justifyContent:"center", flexWrap:"wrap" }}>
-                <button onClick={()=>shareOrCopy({ title:`מעבדת השם — ${comp?.full||nm}`, text:`🔮 ${comp?.full||nm} (${vals?.full})\n\n${sumText}\n\n`, url:`${location.origin}/name-lab?w=${encodeURIComponent(comp?.full||nm)}` })} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:999, color:"#fff", fontFamily:F.h, fontSize:14, fontWeight:800, padding:"11px 22px", minHeight:44 }}>🔗 שתף</button>
+                <button onClick={shareCard} style={{ cursor:"pointer", background:"linear-gradient(135deg,#b78900,#e7c869)", border:"none", borderRadius:999, color:"#1b1d22", fontFamily:F.h, fontSize:14, fontWeight:800, padding:"11px 22px", minHeight:44 }}>📸 שתף כתמונה</button>
+                <button onClick={()=>shareOrCopy({ title:`מעבדת השם — ${comp?.full||nm}`, text:`🔮 ${comp?.full||nm} (${vals?.full})\n\n${sumText}\n\n`, url:`${location.origin}/name-lab?w=${encodeURIComponent(comp?.full||nm)}` })} style={{ cursor:"pointer", background:C.blue, border:"none", borderRadius:999, color:"#fff", fontFamily:F.h, fontSize:14, fontWeight:800, padding:"11px 22px", minHeight:44 }}>🔗 טקסט</button>
                 <button onClick={()=>{ try{ navigator.clipboard.writeText(`${comp?.full||nm} (${vals?.full})\n${sumText}`);}catch{} }} style={{ cursor:"pointer", background:"#fff", border:`1px solid ${C.line}`, borderRadius:999, color:C.ink, fontFamily:F.h, fontSize:14, fontWeight:800, padding:"11px 22px", minHeight:44 }}>📋 העתק</button>
               </div>
             )}
