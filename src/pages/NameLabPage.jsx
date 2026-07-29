@@ -140,8 +140,8 @@ function DepthGauge({ depth }) {
 }
 
 // 🧰 כרטיסייה מתקפלת — כל כלי-המחקר הקלאסיים. locked=נעולה כרגע (בבנייה): לא נפתחת, אף מנוע לא נמחק.
-function Collapse({ title, sub, children, locked }) {
-  const [open, setOpen] = useState(false);
+function Collapse({ title, sub, children, locked, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
   const isOpen = open && !locked;
   return (
     <section style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 3px rgba(20,25,40,.04)", opacity: locked ? 0.9 : 1 }}>
@@ -157,7 +157,8 @@ function Collapse({ title, sub, children, locked }) {
 }
 
 // embedded=true → מוטמע בתוך היכל הגילוי: לא נוגע ב-URL (לא דורס tool=name) ובלי עטיפת רקע-מלא.
-export default function NameLabPage({ embedded = false }) {
+// full=true → מצב «מה השם שלך מסתיר» (דף /name): הכל חשוף מיד — האקורדיון «כל כלי המחקר» פתוח ולא נעול.
+export default function NameLabPage({ embedded = false, full = false }) {
   const [sp, setSp] = useSearchParams();
   const [word, setWord] = useState((embedded ? "" : (sp.get("w") || "")).trim());
   const [openKey, setOpen] = useState(null);
@@ -296,10 +297,12 @@ export default function NameLabPage({ embedded = false }) {
   return (
     <div dir="rtl" style={embedded ? { color: C.ink, overflowX: "hidden" } : { background: C.bg, minHeight: "100vh", color: C.ink, overflowX: "hidden" }}>
       <div style={{ maxWidth: 760, width: "100%", boxSizing: "border-box", margin: "0 auto", padding: embedded ? "4px 0 24px" : "26px 16px 90px", display: "grid", gap: 16, minWidth: 0 }}>
+        {!full && (
         <div style={{ textAlign: "center" }}>
           <div style={{ color: C.dim, fontFamily: F.h, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>🧪 מעבדת השם</div>
           <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 13, marginTop: 3 }}>מה אפשר לגלות על השם הזה?</div>
         </div>
+        )}
 
         {/* 🔎 מסוף-החיפוש = הקלט היחיד. מריץ ישירות את המחקר המדורג (① שם → ② משפחה → ③ סינתזה)
             ומזרים את «השם הפעיל» לכלי-המחקר הקלאסיים שבכרטיסייה הסגורה מתחת. */}
@@ -341,7 +344,7 @@ export default function NameLabPage({ embedded = false }) {
             )}
           </Section>
 
-          <Collapse locked title="כל כלי המחקר" sub="מסע · שיטות · תנ״ך · גשרים · הקשר — ייפתחו בקרוב">
+          <Collapse locked={!full} defaultOpen={full} title="כל כלי המחקר" sub={full ? "מסע · שיטות · תנ״ך · גשרים · הקשר" : "מסע · שיטות · תנ״ך · גשרים · הקשר — ייפתחו בקרוב"}>
           {/* 🧭 מסע-המחקר (גל 3) — הפרוטוקול המאוחד (fn_name_protocol): התקדמות אמיתית + מסמך בשכבות. */}
           <NameJourney word={word} />
 
