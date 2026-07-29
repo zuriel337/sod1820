@@ -361,7 +361,7 @@ export default function NameMultiSearch({ name, onResolve, hideInput = false }) 
     const verse = res?.name_verse?.verses?.[0];
     const cons = (res?.consensus || [])[0];
     const facts = `[הנחיה: אתה החוקר המלווה. כתוב סיכום-מחקר קצר, יפה ומרגש (3-5 שורות) על השם, בשפה נגישה שאנשים ירצו לשתף. הממצאים הם עובדה מהמנוע — הפרד עובדה מפרשנות, בלי נבואות. אל תמציא — רק מהעובדות למטה.]\n\nשם: ${comp?.full || nm} (ערך ${vals?.full})\nממצאים בולטים (מנורמל): ${top || "—"}${cons ? `\nהכי מוסכם: ${cons.target} (${cons.consensus} משפחות)` : ""}${verse ? `\nהפסוק שלך: ${verse.ref} — ${verse.text}` : ""}`;
-    try { const out = await getAiAnalysis({ kind: "name_lab", subject: comp?.full || nm, facts }); setSumText(out || null); setSumState(out ? "done" : "off"); }
+    try { const out = await getAiAnalysis({ kind: "name_lab", subject: comp?.full || nm, facts, fast: true }); setSumText(out || null); setSumState(out ? "done" : "off"); }
     catch { setSumState("off"); }
   }, [normalized, res, comp, vals, nm, sumText, sumState]);
 
