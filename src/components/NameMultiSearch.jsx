@@ -293,7 +293,7 @@ function wrapText(ctx, text, maxW, cx, y, lh, maxLines = 99) {
 
 const EXAMPLES = ["דני ממן", "אברהם", "יוסף בן יעקב", "מרים"];
 
-export default function NameMultiSearch({ name, onResolve }) {
+export default function NameMultiSearch({ name, onResolve, hideInput = false }) {
   const [nm, setNm] = useState(name || "");
   const [res, setRes] = useState(null);
   const [phase, setPhase] = useState("idle");     // idle|busy|done|err
@@ -406,7 +406,8 @@ export default function NameMultiSearch({ name, onResolve }) {
 
   return (
     <section dir="rtl" style={{ display:"grid", gap:14, minWidth:0, maxWidth:"100%" }}>
-      {/* ===== מסוף המחקר ===== */}
+      {/* ===== מסוף המחקר (מוסתר כשהדף המארח מזין את השם — hideInput) ===== */}
+      {!hideInput && (
       <div style={{ background:C.card, border:`1px solid ${C.blueLine}`, borderRadius:16, overflow:"hidden", boxShadow:"0 2px 10px rgba(20,25,40,.05)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:9, padding:"11px 14px", background:"linear-gradient(180deg,#f5f8ff,#eef3ff)", borderBottom:`1px solid ${C.blueLine}`, flexWrap:"wrap" }}>
           <span style={{ display:"flex", gap:5 }}>
@@ -442,6 +443,9 @@ export default function NameMultiSearch({ name, onResolve }) {
           )}
         </form>
       </div>
+      )}
+
+      {hideInput && phase==="idle" && <div style={{ color:C.mut, fontFamily:F.h, fontSize:13.5, textAlign:"center", padding:"6px 0" }}>הקלד שם למעלה — והמחקר המעמיק ייפתח כאן ✦</div>}
 
       {phase==="err" && <div style={{ color:C.red, fontFamily:F.h, fontSize:14, textAlign:"center" }}>החיפוש לא זמין כרגע. נסה שוב.</div>}
 

@@ -11,6 +11,7 @@ import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { waHref } from "../lib/share.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
+import NameMultiSearch from "../components/NameMultiSearch.jsx";
 
 // ===== 🧮 מחשבון גימטריה קהילתי — דף ויראלי, יום/לילה, עם ניתוח-חכם מהגרף =====
 // אחיו המקצועי (20 שיטות מלאות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
@@ -285,6 +286,9 @@ export default function CommunityCalculatorPage() {
   const [afterSunset, setAfterSunset] = useState(false); // אחרי השקיעה = היום העברי הבא
   const [heb, setHeb] = useState(null);           // { pretty, clean, value } או null
   const [hebBusy, setHebBusy] = useState(false);
+  // 🔬 שם למחקר-מעמיק (NameMultiSearch) — עם השהיה כדי לא להריץ RPC כבד על כל הקשה
+  const [deepName, setDeepName] = useState("");
+  useEffect(() => { const t = setTimeout(() => setDeepName(name1.trim()), 900); return () => clearTimeout(t); }, [name1]);
 
   // 🤖 ניתוח AI אמיתי — Edge Function ai-analyze (Claude). מקבל עובדות-מנוע בלבד, מפרש.
   // שם יחיד → kind=number; שני שמות (השוואה) → kind=compare. מודל מהיר (fast) לכלי אינטראקטיבי.
@@ -713,6 +717,17 @@ export default function CommunityCalculatorPage() {
                 style={{ width: "100%", maxWidth: 420, borderRadius: 14, border: `1px solid ${P.border}`, boxShadow: P.mode === "light" ? "0 4px 18px rgba(120,90,20,0.12)" : "0 4px 18px rgba(0,0,0,0.5)" }} />
             </div>
           )}
+        </div>
+      )}
+
+      {/* 🔬 מחקר מעמיק על השם — אותו רכיב של מעבדת-השם (עץ אחד: עריכה אחת → שני דפים) */}
+      {!babyMode && deepName && (
+        <div style={{ marginTop: 30, background: P.card, border: `1px solid ${P.border}`, borderRadius: 18, padding: "18px 15px" }}>
+          <div style={{ textAlign: "center", marginBottom: 14 }}>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>🔬 מחקר מעמיק על «{deepName}»</div>
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>מעבר לגימטריה — כל המנועים, ממצאים מנורמלים, וסיכום לשיתוף.</div>
+          </div>
+          <NameMultiSearch name={deepName} hideInput />
         </div>
       )}
 
