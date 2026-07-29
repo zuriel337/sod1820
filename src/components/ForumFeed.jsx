@@ -12,6 +12,7 @@ import ResearcherBadge from "./ResearcherBadge.jsx";
 import ReactionBar from "./ReactionBar.jsx";
 import SubmitChidush from "./SubmitChidush.jsx";
 import AdminModerate from "./AdminModerate.jsx";
+import Discourse from "./Discourse.jsx";
 
 // 🌐 <ForumFeed> — גוף-הפורום המשותף (עץ אחד): הסינונים + כרטיסי-הזרם, בלי כותרת/SEO/כפיית-מראה.
 // מרונדר בשני שערים זהים: דף /forum (ForumPage — עם ההירו סביבו) וטאב «פורום» במרכז השידורים.
@@ -47,6 +48,9 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
   const snippet = snippetSrc.replace(/\s+/g, " ").trim();
   const titleText = c.title || snippet.slice(0, 72) || "תרומת מחקר";
   const [pinBusy, setPinBusy] = useState(false);
+  // 💬 שורה-אחת שנפתחת לתגובות inline (עץ אחד: אותו <Discourse> של עמוד-השרשור, לא מנווט).
+  const [open, setOpen] = useState(false);
+  const dTarget = (c.target_type && c.target_id) ? { type: c.target_type, id: c.target_id } : { type: "forum", id: c.contribId };
   async function togglePin(e) {
     e.preventDefault(); e.stopPropagation();
     if (pinBusy || !c.contribId) return;
@@ -56,9 +60,12 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
     finally { setPinBusy(false); }
   }
   return (
-    <div style={{ background: P.cardGrad, border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 14, padding: "13px 16px", boxShadow: c.pinned ? `0 0 0 1px ${P.accentText} inset` : "none" }}>
+    <div style={{ background: P.cardGrad, border: `1px solid ${c.chosen ? "#d4af37" : c.pinned ? P.accentText : P.border}`, borderRadius: 14, padding: "13px 16px", boxShadow: c.pinned ? `0 0 0 1px ${P.accentText} inset` : "none" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 5 }}>
         {c.pinned && badge(P.accentText, "📌 מוצמד")}
+        {/* 🏆 «מהנבחרות» — גימטריה שהערך שלה קיים במאגר ההתכנסויות האצור (convergence_values_present) */}
+        {c.chosen && <span title="גימטריה מאומתת שהערך שלה שמור במאגר ההתכנסויות של האתר"
+          style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>🏆 מהנבחרות</span>}
         {ytId && badge(P.accentText, "🎬 סרטון")}
         {badge(P.accentText, `${im.emoji} ${im.label}`)}
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
@@ -67,7 +74,9 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
         <span style={{ flex: 1 }} />
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       </div>
-      <Link to={threadHref} style={{ textDecoration: "none", display: "block" }}>
+      {/* כותרת = כפתור-פתיחה (שורה אחת → תגובות inline). deep-link לעמוד-מלא נשאר בשורת-הפעולות. */}
+      <button onClick={() => setOpen(o => !o)} aria-expanded={open}
+        style={{ display: "block", width: "100%", textAlign: "start", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
         <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, lineHeight: 1.4, marginBottom: 3 }}>{titleText}</div>
         {ytId && (
           <div style={{ position: "relative", width: "100%", maxWidth: 340, aspectRatio: "16/9", borderRadius: 11, overflow: "hidden", border: `1px solid ${P.border}`, background: "#000", margin: "8px 0" }}>
@@ -78,8 +87,8 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
             </div>
           </div>
         )}
-        {snippet && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
-      </Link>
+        {snippet && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: open ? 20 : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
+      </button>
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 9 }}>
         {c.author_name
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} /></span>
@@ -91,8 +100,19 @@ function ContribCard({ c, P, isAdmin, onChanged }) {
             {c.pinned ? "📌 בטל הצמדה" : "📌 הצמד"}
           </button>
         )}
-        <Link to={threadHref} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>📖 פתח וקשר ←</Link>
+        {/* 💬 פתיחת/סגירת תגובות inline + deep-link לעמוד המלא */}
+        <button onClick={() => setOpen(o => !o)}
+          style={{ marginInlineStart: "auto", cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>
+          {open ? "▴ סגור תגובות" : "💬 תגובות"}
+        </button>
+        <Link to={threadHref} title="פתח בעמוד מלא" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>↗ עמוד</Link>
       </div>
+      {/* 💬 תגובות inline — אותו רכיב Discourse הקנוני של עמוד-השרשור (origin=forum) */}
+      {open && (
+        <div style={{ marginTop: 11, paddingTop: 11, borderTop: `1px dashed ${P.border}` }}>
+          <Discourse target={dTarget} focusId={c.contribId} origin="forum" />
+        </div>
+      )}
       {isAdmin && (
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${P.border}` }}>
           <AdminModerate kind="contribution" id={c.contribId} onDone={onChanged} />

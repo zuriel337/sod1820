@@ -187,7 +187,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
 
   if (wantContrib) {
     let q = supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,reactions,pinned_at,created_at")
+      .select("id,author_name,author_user_id,intent,research_state,status,target_type,target_id,title,body,gematria_claim,reactions,pinned_at,created_at")
       .eq("status", "approved").is("parent_id", null)
       .order("created_at", { ascending: false }).limit(limit);
     if (type && type !== "post") q = q.eq("intent", type);
@@ -219,6 +219,11 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
         author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
         target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
         pinned: !!c.pinned_at, pinned_at: c.pinned_at, linkCount: linkCount[c.id] || 0,
+        // 🔢 ערך-הגימטריה של התרומה (לתג «מהנבחרות») — היעד-מספר, ואם אין, מ-gematria_claim.value
+        gematriaValue: (c.target_type === "number" && /^\d+$/.test(String(c.target_id || "")))
+          ? Number(c.target_id)
+          : (c.gematria_claim?.value ? Number(c.gematria_claim.value) : null),
+        hasGematria: !!(c.gematria_claim && (c.gematria_claim.claim || c.gematria_claim.value)),
       }));
     })().catch(() => []));
   }
@@ -242,8 +247,20 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
   }
 
   const parts = await Promise.all(tasks);
-  return parts.flat()
-    .filter(x => x.ts)
+  const flat = parts.flat().filter(x => x.ts);
+
+  // 🏆 «מהנבחרות» — תרומת-גימטריה שהערך שלה קיים במאגר ההתכנסויות האצור (convergences).
+  //    בדיקה אחת מרוכזת (RPC SECURITY DEFINER) על כל הערכים — בלי בקשה לכל כרטיס.
+  try {
+    const vals = [...new Set(flat.filter(x => x.kind === "contribution" && x.hasGematria && x.gematriaValue > 0).map(x => x.gematriaValue))];
+    if (vals.length) {
+      const { data: present } = await supabase.rpc("convergence_values_present", { p_values: vals });
+      const bank = new Set((present || []).map(Number));
+      for (const x of flat) if (x.kind === "contribution") x.chosen = x.hasGematria && bank.has(x.gematriaValue);
+    }
+  } catch { /* noop — אין תג-נבחרת, לא שובר את הפיד */ }
+
+  return flat
     // 📌 מוצמדים תמיד למעלה (אדמין), אחר-כך החדשים למעלה
     .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.ts) - new Date(a.ts))
     .slice(0, limit);
