@@ -387,22 +387,20 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         )}
       </div>
 
-      {/* שורה 1 — סוג. טאב ריק (0 פריטים) = לא-לחיץ. */}
+      {/* שורה 1 — סוג. רובריקה ריקה (0 פריטים) לא מוצגת כלל (בקשת צוריאל) — רק «הכל» תמיד. */}
       <div className="ff-filters" style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
         <button onClick={() => pickType(null)} style={chip(!type, false)}>הכל</button>
-        <button disabled={insightCount === 0} onClick={insightCount === 0 ? undefined : () => pickType("insight")}
-          title={insightCount === 0 ? "אין עדיין חידושים" : undefined} style={chip(type === "insight", insightCount === 0)}>💡 חידושי בית המדרש</button>
-        <button disabled={cipherCount === 0} onClick={cipherCount === 0 ? undefined : () => pickType("cipher")}
-          title={cipherCount === 0 ? "אין עדיין צפני גולשים" : undefined} style={chip(type === "cipher", cipherCount === 0)}>🔠 צפני גולשים</button>
-        {INTENTS.filter(i => i.key !== "תגובה").map(i => {
-          const cnt = intentCount[i.key] || 0;
-          return (
-            <button key={i.key} disabled={cnt === 0} onClick={cnt === 0 ? undefined : () => pickType(i.key)}
-              title={cnt === 0 ? "אין עדיין פריטים בקטגוריה זו" : undefined} style={chip(type === i.key, cnt === 0)}>
-              {i.emoji} {i.label}
-            </button>
-          );
-        })}
+        {insightCount > 0 && (
+          <button onClick={() => pickType("insight")} style={chip(type === "insight", false)}>💡 חידושי בית המדרש</button>
+        )}
+        {cipherCount > 0 && (
+          <button onClick={() => pickType("cipher")} style={chip(type === "cipher", false)}>🔠 צפני גולשים</button>
+        )}
+        {INTENTS.filter(i => i.key !== "תגובה" && (intentCount[i.key] || 0) > 0).map(i => (
+          <button key={i.key} onClick={() => pickType(i.key)} style={chip(type === i.key, false)}>
+            {i.emoji} {i.label}
+          </button>
+        ))}
       </div>
 
       {/* שורה 1.5 — מצב-מחקר + מיון */}
