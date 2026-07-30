@@ -6,7 +6,7 @@ import { thumb } from "../lib/img.js";
 import { stripHtml, formatDateHe, youtubeId, youtubeUrl } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { genAvatar } from "../lib/avatar.js";
-import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution } from "../lib/contributions.js";
+import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution, getReplyCounts } from "../lib/contributions.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ReactionBar from "./ReactionBar.jsx";
@@ -71,6 +71,10 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
         {/* 🔗 תגית-קשרים חכמה — נדלקת רק כשיש ולו קשר אחד (edge בגרף מ«מצאתי קשר») */}
         {c.linkCount > 0 && badge(P.accent, `🔗 ${c.linkCount} ${c.linkCount === 1 ? "קשר" : "קשרים"}`)}
+        {/* 💬 עדות-חיים — כל כרטיס עם תגובות מציג «יש תגובה» (מובחרת בזהב) */}
+        {c.replyCount > 0 && (
+          <span title="יש תגובות בשרשור" style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>💬 {c.replyCount === 1 ? "תגובה מובחרת" : `${c.replyCount} תגובות`}</span>
+        )}
         <span style={{ flex: 1 }} />
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       </div>
@@ -309,7 +313,14 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   }, [wantWrite]);
 
   // 🌳 עץ אחד: הפורום = קהילה בלבד (בלי פוסטים) — פוסטים חיים ב«פעילות האתר», אפס כפילות.
-  const load = useCallback(() => { getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(setAllItems).catch(() => setAllItems([])); }, []);
+  const load = useCallback(() => {
+    getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(async (feed) => {
+      // 💬 מונה-תגובות לכל תרומה — שכל כרטיס יראה «יש תגובה» (עדות-חיים לפורום).
+      const ids = (feed || []).filter(it => it.kind === "contribution" && it.contribId).map(it => it.contribId);
+      const counts = await getReplyCounts(ids);
+      setAllItems((feed || []).map(it => ({ ...it, replyCount: counts[it.contribId] || 0 })));
+    }).catch(() => setAllItems([]));
+  }, []);
   useEffect(() => { load(); }, [load]);
 
   const postCount = useMemo(() => (allItems || []).filter(it => it.kind === "post").length, [allItems]);

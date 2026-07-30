@@ -60,7 +60,7 @@ export async function getContributions(targetType, targetId, limit = 120) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,reactions,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,image_url,is_featured,pinned_at,reactions,created_at")
       .eq("target_type", targetType).eq("target_id", String(targetId))
       .order("created_at", { ascending: true }).limit(limit);
     return data || [];
@@ -76,6 +76,18 @@ export async function getContributionById(id) {
       .eq("id", id).maybeSingle();
     return data || null;
   } catch { return null; }
+}
+
+// 💬 ספירת-תגובות לרשימת תרומות — כדי שכל כרטיס בפיד יראה «יש תגובה» (מונה ילדים לפי parent_id).
+export async function getReplyCounts(ids = []) {
+  const out = {};
+  if (!supabase || !ids.length) return out;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("parent_id").in("parent_id", ids).eq("status", "approved");
+    (data || []).forEach(r => { if (r.parent_id) out[r.parent_id] = (out[r.parent_id] || 0) + 1; });
+    return out;
+  } catch { return out; }
 }
 
 export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null, authorName = null }) {
