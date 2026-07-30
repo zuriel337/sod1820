@@ -26,6 +26,8 @@ export default function Layout() {
   // 📡 בדף הבית ובצ'אט: מוסתרת בועת מגירת-המספר, ובמקומה «פותח העדכונים» החי (LiveChannelFeed).
   //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
+  // 📡 טיקר-החדשות הזז (LiveActivityBar) מוסתר בדף הבית (בקשת צוריאל 30.7.2026) — נשאר בשאר האתר.
+  const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
   // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
   const showBanner = /^\/post$/.test(pathname) || /^\/community\/chat$/.test(pathname) || POST_SLUG_RE.test(pathname);
   // 🌗 המצב האפקטיבי — מקור-אמת אחד עם usePalette (lightRoutes.effectiveMode) → אין חצי-בהיר-חצי-כהה.
@@ -48,8 +50,8 @@ export default function Layout() {
         <Navbar />
         {/* 🌌 באנר-העל הקוסמי (פסוק + שמי-כוכבים + אור-נגלה + נגן-רקע) — רק בפוסטים ובצ'אט. */}
         {showBanner && <CosmicVerseBanner mode={mode} />}
-        {/* 📡 טיקר-החדשות — בכל האתר, כולל דף הבית והצ'אט (הוחזר לבקשת צוריאל 11.7). */}
-        <LiveActivityBar />
+        {/* 📡 טיקר-החדשות הזז — בכל האתר חוץ מדף הבית (בקשת צוריאל 30.7.2026). */}
+        {!isHome && <LiveActivityBar />}
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>
