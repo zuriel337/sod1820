@@ -14,8 +14,26 @@ export default function CreditsBuyPage() {
   const [sel, setSel] = useState(null);          // חבילה נבחרת
   const [method, setMethod] = useState("bit");
   const [ref, setRef] = useState("");
+  const [proofUrl, setProofUrl] = useState("");  // צילום התשלום (URL)
+  const [uploading, setUploading] = useState(false);
   const [state, setState] = useState("idle");    // idle | sending | sent
   const [err, setErr] = useState("");
+
+  async function onProof(e) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!/^image\//.test(f.type)) { setErr("קובץ תמונה בלבד"); return; }
+    if (f.size > 8 * 1024 * 1024) { setErr("התמונה גדולה מדי (עד 8MB)"); return; }
+    setErr(""); setUploading(true);
+    try {
+      const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `sod1820/payments/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("gallery").upload(path, f, { contentType: f.type, upsert: false });
+      if (error) throw error;
+      setProofUrl(supabase.storage.from("gallery").getPublicUrl(path).data?.publicUrl || "");
+    } catch { setErr("ההעלאה נכשלה, נסו שוב"); }
+    setUploading(false);
+  }
 
   useEffect(() => {
     if (!supabase) return;
@@ -29,7 +47,7 @@ export default function CreditsBuyPage() {
     if (!sel) return;
     setErr(""); setState("sending");
     const { error } = await supabase.rpc("credit_purchase_request", {
-      p_package_id: sel.id, p_method: method, p_reference: ref || null,
+      p_package_id: sel.id, p_method: method, p_reference: ref || null, p_proof_url: proofUrl || null,
     });
     if (error) { setErr(error.message || "אירעה שגיאה, נסו שוב"); setState("idle"); return; }
     setState("sent");
@@ -133,6 +151,16 @@ export default function CreditsBuyPage() {
               <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 15, fontWeight: 700, margin: "20px 0 10px" }}>
                 שלב 2 · לאחר התשלום
               </div>
+              {/* צירוף צילום התשלום */}
+              <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", border: `1.5px dashed ${proofUrl ? C.gold : C.border}`, borderRadius: 12, padding: "13px", marginBottom: 12, color: proofUrl ? C.gold : C.goldLight, fontFamily: F.heading, fontSize: 14, background: proofUrl ? "rgba(212,175,55,0.08)" : "transparent" }}>
+                {uploading ? "⏳ מעלה…" : proofUrl ? "✅ צילום התשלום צורף — אפשר להחליף" : "📎 צרפו צילום של התשלום (ביט/העברה)"}
+                <input type="file" accept="image/*" onChange={onProof} style={{ display: "none" }} disabled={uploading} />
+              </label>
+              {proofUrl && (
+                <div style={{ textAlign: "center", marginBottom: 12 }}>
+                  <img src={proofUrl} alt="צילום תשלום" style={{ maxWidth: 180, maxHeight: 180, borderRadius: 10, border: `1px solid ${C.border}` }} />
+                </div>
+              )}
               <input
                 value={ref} onChange={e => setRef(e.target.value)} dir="rtl"
                 placeholder="הערה / אסמכתא (אופציונלי) — למשל 4 ספרות אחרונות"

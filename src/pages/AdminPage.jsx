@@ -5565,6 +5565,12 @@ function PaymentsTab() {
                       {r.name || "—"} · <span style={{ direction: "ltr", display: "inline-block" }}>{r.email || (r.user_id ? r.user_id.slice(0, 8) : "")}</span>
                     </div>
                     {r.reference && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 10, whiteSpace: "pre-wrap" }}>📝 {r.reference}</div>}
+                    {r.proof_url && (
+                      <a href={r.proof_url} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginBottom: 10 }}>
+                        <img src={r.proof_url} alt="צילום תשלום" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 8, border: `1px solid ${C.border}` }} />
+                        <div style={{ color: C.gold, fontFamily: F.heading, fontSize: 11, marginTop: 3 }}>📎 צילום התשלום · הקלק להגדלה</div>
+                      </a>
+                    )}
                     <div style={{ display: "flex", gap: 10 }}>
                       <button disabled={busy === r.id} onClick={() => decide(r.id, true)} style={{ cursor: "pointer", background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00", border: "none", borderRadius: 999, padding: "9px 22px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, opacity: busy === r.id ? 0.6 : 1 }}>{busy === r.id ? "…" : "✅ אשר וזכה"}</button>
                       <button disabled={busy === r.id} onClick={() => decide(r.id, false)} style={{ cursor: "pointer", background: "transparent", color: "#c88", border: `1px solid ${C.border}`, borderRadius: 999, padding: "9px 18px", fontFamily: F.heading, fontSize: 13 }}>דחה</button>
