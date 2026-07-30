@@ -15,7 +15,7 @@ import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
-import { getResearcherProfile, intentMeta } from "../lib/contributions.js";
+import { getResearcherProfile, intentMeta, getResearcherConvergences } from "../lib/contributions.js";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -291,17 +291,31 @@ export default function ContributorPage() {
   // עץ אחד: לא עותק — מצביע לפוסט הקנוני ולעמוד ההתכנסות (/topic/:slug).
   useEffect(() => {
     const tags = Array.isArray(c?.tags) ? c.tags.filter(Boolean) : [];
-    if (!tags.length) { setTagged([]); setConvergences([]); return; }
+    const name = c?.display_name;
+    if (!tags.length && !name) { setTagged([]); setConvergences([]); return; }
     let alive = true;
-    supabase.from("posts").select("slug,title,date,image_url,thumb_url,author")
-      .overlaps("tags", tags).order("date", { ascending: false }).limit(60)
-      .then(({ data }) => { if (alive && Array.isArray(data)) setTagged(data); })
-      .catch(() => {});
-    supabase.from("topic_cards").select("slug,title,subtitle,occurred_at,highlight_numbers,numbers")
-      .eq("status", "approved").overlaps("search_terms", tags)
-      .order("occurred_at", { ascending: false, nullsFirst: false }).limit(24)
-      .then(({ data }) => { if (alive && Array.isArray(data)) setConvergences(data); })
-      .catch(() => {});
+    if (tags.length) {
+      supabase.from("posts").select("slug,title,date,image_url,thumb_url,author")
+        .overlaps("tags", tags).order("date", { ascending: false }).limit(60)
+        .then(({ data }) => { if (alive && Array.isArray(data)) setTagged(data); })
+        .catch(() => {});
+    } else setTagged([]);
+    // 🎯 מיזוג: התכנסויות שהכתב *יצר* (created_by, עם כוכב) + התכנסויות *על נושאיו* (tags).
+    Promise.all([
+      getResearcherConvergences(name),
+      tags.length
+        ? supabase.from("topic_cards").select("slug,title,subtitle,highlight_numbers")
+            .eq("status", "approved").overlaps("search_terms", tags).limit(24)
+            .then(({ data }) => data || []).catch(() => [])
+        : Promise.resolve([]),
+    ]).then(([authored, byTag]) => {
+      if (!alive) return;
+      const seen = new Set();
+      const merged = [];
+      (authored || []).forEach(t => { if (t.slug && !seen.has(t.slug)) { seen.add(t.slug); merged.push({ ...t, _authored: true }); } });
+      (byTag || []).forEach(t => { if (t.slug && !seen.has(t.slug)) { seen.add(t.slug); merged.push(t); } });
+      setConvergences(merged);
+    }).catch(() => {});
     return () => { alive = false; };
   }, [c?.tags]);
 
@@ -693,7 +707,8 @@ export default function ContributorPage() {
             {convergences.map(t => {
               const nums = [...new Set([...(t.highlight_numbers || []), ...(t.numbers || [])])].slice(0, 5);
               return (
-                <a key={t.slug} href={`/topic/${t.slug}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
+                <a key={t.slug} href={`/topic/${t.slug}`} style={{ display: "block", background: P.card, border: `1px solid ${t._authored ? "#d4af37" : P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none", boxShadow: t._authored ? "0 0 0 1px #d4af37 inset" : "none" }}>
+                  {t._authored && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, marginBottom: 5 }}>✦ יצר את ההתכנסות</span>}
                   <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, lineHeight: 1.45 }}>{stripHtml(t.title)}</div>
                   {t.subtitle && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>{stripHtml(t.subtitle)}</div>}
                   {nums.length > 0 && (

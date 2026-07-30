@@ -55,8 +55,10 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
   );
 
   return (
-    <div style={{ background: P.cardGrad, border: `1px solid ${pending ? P.borderStrong : P.border}`, borderRadius: 13, padding: "13px 15px" }}>
+    <div style={{ background: P.cardGrad, border: `1px solid ${c.is_featured ? "#d4af37" : pending ? P.borderStrong : P.border}`, borderRadius: 13, padding: "13px 15px", boxShadow: c.is_featured ? "0 0 0 1px #d4af37 inset" : "none" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 6 }}>
+        {c.is_featured && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>⭐ תגובה מובחרת</span>}
+        {c.convergence_slug && <Link to={`/topic/${c.convergence_slug}`} title="נוצרה מכאן התכנסות" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>✦ יצר התכנסות ←</Link>}
         {badge("transparent", P.accentText, `${im.emoji} ${im.label}`)}
         {badge("transparent", P.accentDim, `${sm.emoji} ${sm.label}`)}
         {pending && badge("rgba(212,175,55,0.16)", P.accentText, "⏳ ממתין לאישור")}
@@ -65,6 +67,8 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
       </div>
       {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{c.title}</div>}
       {c.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{c.body}</div>}
+      {/* 🌳 עדשה עשירה — תמונה/ריבוע-גימטריה/גשר/צופן/לינקי-מספר (תגובה מובחרת) */}
+      <FeaturedExtras c={c} P={P} />
       {/* שורת-קרדיט — הכותב מופרד מהתוכן */}
       <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, marginTop: 8 }}>
         {c.author_name
@@ -91,6 +95,11 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
       {!writeOnly && kids?.length > 0 && (
         <div style={{ marginTop: 11, paddingInlineStart: 12, borderInlineStart: `2px solid ${P.border}`, display: "grid", gap: 9 }}>
           {kids.map(k => {
+            // תגובה עשירה (מובחרת/תמונה/גימטריה) → כרטיס מלא; תגובה רגילה → שורה קומפקטית.
+            if (k.is_featured || k.image_url || k.gematria_claim) {
+              return <ContribCard key={k.id} c={k} kids={[]} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target}
+                writeOnly onReply={() => {}} onChanged={onChanged} />;
+            }
             const kim = intentMeta(k.intent);
             return (
               <div key={k.id}>
@@ -110,6 +119,53 @@ function linkBtn(P) {
 }
 function goldBtn(P) {
   return { cursor: "pointer", background: P.accentBtn, border: "none", color: P.onAccent || "#1a0e00", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 15px" };
+}
+
+// 🌳 עדשה עשירה ל«תגובה מובחרת» — תמונה + ריבוע-גימטריה מאומת + גשר + לינק-צופן + לינקי-מספר.
+//   הכל נשען על שדות מובנים (image_url + gematria_claim) — עץ אחד: הלינקים מצביעים לצמתים, לא משכפלים.
+function FeaturedExtras({ c, P }) {
+  const gc = c.gematria_claim || {};
+  const rows = Array.isArray(gc.rows) ? gc.rows : [];
+  const bridge = gc.bridge, els = gc.els;
+  const links = Array.isArray(gc.links) ? gc.links : [];
+  if (!c.image_url && !rows.length && !bridge && !els && !links.length) return null;
+  return (
+    <div style={{ display: "grid", gap: 10, marginTop: 11 }}>
+      {c.image_url && (
+        <img src={c.image_url} alt="" loading="lazy"
+          style={{ width: "100%", maxWidth: 320, borderRadius: 12, border: `1px solid ${P.border}`, display: "block" }} />
+      )}
+      {rows.length > 0 && (
+        <div style={{ background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 12, padding: "11px 13px" }}>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 6 }}>🔢 גימטריה — עובדה מאומתת במנוע</div>
+          <div style={{ display: "grid", gap: 4 }}>
+            {rows.map((r, i) => (
+              <div key={i} style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6 }}>
+                <b style={{ color: P.accentText }}>{r.value}</b> = {r.method}{r.note ? <span style={{ color: P.accentDim }}> · {r.note}</span> : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {bridge && (
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>
+          🌉 גשר: <Link to={bridge.href || `/number/${bridge.value}`} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentText}` }}>{bridge.phrase} = {bridge.value}</Link>
+        </div>
+      )}
+      {els && (
+        <Link to={els.href || "/research?tool=els"} style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none" }}>
+          🔠 בצופן: דילוג {els.skip} — פתחו בצופן ←
+        </Link>
+      )}
+      {links.length > 0 && (
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          {links.map(l => (
+            <Link key={l} to={l} style={{ ...linkBtn(P), textDecoration: "none" }}>{String(l).split("/").pop()}</Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ── מלחין: הוספת תרומה (רשומים + אנונימי) ──
