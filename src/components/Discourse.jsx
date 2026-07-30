@@ -58,6 +58,7 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
     <div style={{ background: P.cardGrad, border: `1px solid ${c.is_featured ? "#d4af37" : pending ? P.borderStrong : P.border}`, borderRadius: 13, padding: "13px 15px", boxShadow: c.is_featured ? "0 0 0 1px #d4af37 inset" : "none" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 6 }}>
         {c.is_featured && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>⭐ תגובה מובחרת</span>}
+        {c.convergence_slug && <Link to={`/topic/${c.convergence_slug}`} title="נוצרה מכאן התכנסות" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>✦ יצר התכנסות ←</Link>}
         {badge("transparent", P.accentText, `${im.emoji} ${im.label}`)}
         {badge("transparent", P.accentDim, `${sm.emoji} ${sm.label}`)}
         {pending && badge("rgba(212,175,55,0.16)", P.accentText, "⏳ ממתין לאישור")}

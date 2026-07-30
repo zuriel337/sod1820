@@ -60,7 +60,7 @@ export async function getContributions(targetType, targetId, limit = 120) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,image_url,is_featured,pinned_at,reactions,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,image_url,is_featured,pinned_at,convergence_slug,reactions,created_at")
       .eq("target_type", targetType).eq("target_id", String(targetId))
       .order("created_at", { ascending: true }).limit(limit);
     return data || [];
@@ -88,6 +88,30 @@ export async function getReplyCounts(ids = []) {
     (data || []).forEach(r => { if (r.parent_id) out[r.parent_id] = (out[r.parent_id] || 0) + 1; });
     return out;
   } catch { return out; }
+}
+
+// ⭐ אילו תרומות בפיד הולידו התכנסות (convergence_slug) — לסמל-הכתב «יצר התכנסות»
+export async function getConvergenceSlugs(ids = []) {
+  const out = {};
+  if (!supabase || !ids.length) return out;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,convergence_slug").in("id", ids).not("convergence_slug", "is", null);
+    (data || []).forEach(r => { if (r.convergence_slug) out[r.id] = r.convergence_slug; });
+    return out;
+  } catch { return out; }
+}
+
+// 🌳 התכנסויות שכתב יצר — לדף-הכתב (topic_cards מאושרים לפי created_by). עדשה, לא מקור חדש.
+export async function getResearcherConvergences(name) {
+  if (!supabase || !name) return [];
+  try {
+    const { data } = await supabase.from("topic_cards")
+      .select("slug,title,subtitle,highlight_numbers,meter_score,status")
+      .eq("created_by", name).eq("status", "approved")
+      .order("meter_score", { ascending: false, nullsFirst: false });
+    return data || [];
+  } catch { return []; }
 }
 
 export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null, authorName = null }) {
