@@ -26,6 +26,7 @@ import {
 } from "../lib/supabase.js";
 import { METHODS } from "../lib/gematria.js";
 import { getAllContributions, approveContribution, moderateContribution, intentMeta } from "../lib/contributions.js";
+import ConvergenceWizard from "../components/ConvergenceWizard.jsx";
 import { getPendingHints, approveHint, rejectHint } from "../lib/community.js";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { KEY_NUMBERS } from "../theme.js";
@@ -331,6 +332,13 @@ function SubRow({ r, onApprove, onReject, busy }) {
             </button>
           </div>
         </>
+      )}
+      {/* 🧙 חידוש שאושר → «⚙️ הכנס לפי התקנון»: בונה התכנסות מלאה (unified_discovery_architecture). */}
+      {r.status === "approved" && r.insight_id && (
+        <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginTop: 12, paddingTop: 11, borderTop: `1px dashed ${C.border}` }}>
+          <span style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>גימטריה/הצלבה? הפוך להתכנסות מלאה:</span>
+          <ConvergenceWizard insight={{ id: r.insight_id, title: r.title, body: r.body, panel_data: { author: r.author_name } }} />
+        </div>
       )}
     </div>
   );
