@@ -41,6 +41,22 @@ function crossParts(item) {
   return { p1, p2, methods, headVal };
 }
 
+// יש לחידוש מספיק כדי לצייר כרטיס-הצלבה (שני ביטויים)? בלי זה הכרטיס יוצא ריק — לא משתפים.
+export function hasCrossContent(item) {
+  const { p1, p2 } = crossParts(item);
+  return !!(p1 && p2);
+}
+
+// יעד-שיתוף קנוני להצלבה — deep-link להצלבה עצמה, לא קישור כללי (התיקון של «לינק שמוביל לשום מקום»).
+// התכנסות מקושרת → /topic/<slug> · אחרת דף-המספר · לבסוף בית המדרש.
+function crossLink(item) {
+  const slug = item.panel_data?.convergence_slug || item.convergence_slug;
+  if (slug) return `https://sod1820.co.il/topic/${encodeURIComponent(slug)}`;
+  const n = crossParts(item).headVal ?? (item.related_numbers || [])[0];
+  if (n != null && String(n).match(/^\d+$/)) return `https://sod1820.co.il/number/${n}`;
+  return "https://sod1820.co.il/research?tool=midrash&tab=community";
+}
+
 export function buildCrossCard(item) {
   const { p1, p2, methods, headVal } = crossParts(item);
   const S = 1080;
@@ -122,7 +138,8 @@ async function ensureFonts() { try { if (document.fonts?.ready) await document.f
 const fileName = item => `sod1820-cross-${(item.id || "x").slice(0, 8)}.png`;
 function shareText(item) {
   const { p1, p2 } = crossParts(item);
-  return `🤯 ${p1} = ${p2}\nהצלבת גימטריה נדירה — תראו איך:\nhttps://sod1820.co.il/beit-midrash?tab=crosses`;
+  const head = (p1 && p2) ? `🤯 ${p1} = ${p2}` : `🤯 ${item.title || "הצלבת גימטריה"}`;
+  return `${head}\nהצלבת גימטריה נדירה — תראו איך:\n${crossLink(item)}`;
 }
 
 // שיתוף חכם — תמונה במובייל, וואטסאפ בדסקטופ. מחזיר 'image' | 'link' | 'cancel'.

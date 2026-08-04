@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { F, KEY_NUMBERS, calcGem } from "../theme.js";
 import { getEntityBundle, getTopicCards, getGalleryImagesByIds, supabase, getRecentCrosses, getAllValuePhrases } from "../lib/supabase.js";
 import { countNewCrosses, markCrossesSeen, crossesCutoff, isNewCross, crossDate, seenCutoff, markSeenKey, withinFresh } from "../lib/crossesNew.js";
-import { shareCross, downloadCrossCard, crossCardDataUrl } from "../lib/crossCard.js";
+import { shareCross, downloadCrossCard, crossCardDataUrl, hasCrossContent } from "../lib/crossCard.js";
 import { topicTag } from "../lib/topicCards.js";
 import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
@@ -350,9 +350,12 @@ function CrossCard({ item }) {
         </button>
         <div style={{ marginInlineStart: "auto", display: "flex", gap: 7, flexWrap: "wrap" }}>
           <SaveActions entity={entityFromInsight(item)} />
-          <button onClick={showPreview} disabled={pvBusy} title="תצוגה מקדימה — איך התמונה תיראה" style={{ cursor: pvBusy ? "wait" : "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 13px" }}>👁 תצוגה מקדימה</button>
-          <button onClick={() => shareCross(item)} title="שתפו כתמונה" style={{ cursor: "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 16px" }}>✦ שתפו</button>
-          <button onClick={() => downloadCrossCard(item)} title="הורידו תמונה" aria-label="הורידו תמונה" style={{ cursor: "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, width: 34, height: 34, fontSize: 14 }}>🖼</button>
+          {/* ✦ שיתוף-הצלבה רק כשיש שני ביטויים לצייר — חידוש-קהילה בלי phrase-pairs היה מייצר כרטיס ריק (תוקן). */}
+          {hasCrossContent(item) && (<>
+            <button onClick={showPreview} disabled={pvBusy} title="תצוגה מקדימה — איך התמונה תיראה" style={{ cursor: pvBusy ? "wait" : "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "6px 13px" }}>👁 תצוגה מקדימה</button>
+            <button onClick={() => shareCross(item)} title="שתפו כתמונה" style={{ cursor: "pointer", background: "linear-gradient(135deg,#e9c84a,#9a7818)", color: "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 16px" }}>✦ שתפו</button>
+            <button onClick={() => downloadCrossCard(item)} title="הורידו תמונה" aria-label="הורידו תמונה" style={{ cursor: "pointer", background: L.soft, color: L.goldDeep, border: `1px solid ${L.line}`, borderRadius: 999, width: 34, height: 34, fontSize: 14 }}>🖼</button>
+          </>)}
         </div>
       </div>
       {preview && (
