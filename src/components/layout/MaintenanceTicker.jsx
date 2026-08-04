@@ -1,12 +1,13 @@
 import React from "react";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
+import Marquee from "../Marquee.jsx";
 
-// 🚧 רצועת-סטטוס «האתר בבנייה» — שורה זזה (marquee) גלובלית, מעל טיקר-החדשות.
+// 🚧 רצועת-סטטוס «האתר בבנייה» — שורה זזה (marquee) גלובלית, מעל התוכן.
 // הודעת-מערכת (לא עדכון-שידור) → לא נכנסת ל-channel_updates; חיה כאן כרצועה קבועה.
-// תמה-מודע (city_background_dual_theme_law §3): בבהיר טקסט כהה-קריא, בכהה גרסה חמה-כהה.
-// המסילה = שני עותקים של הטקסט זה-אחר-זה, נגללים ברצף (translateX -50%) → לולאה חלקה
-// בלי «קפיצה». overflow:hidden במיכל → אין גלילה-אופקית של הדף עצמו.
+// משתמשת ברכיב הקנוני <Marquee> (ticker_marquee_law) → לולאה חלקה שתמיד חוזרת על עצמה,
+// גם כשההודעה קצרה מרוחב-המסך. תמה-מודע (city_background_dual_theme_law §3): בבהיר טקסט
+// כהה-קריא, בכהה גרסה חמה-כהה.
 const MAINTENANCE_MSG =
   "🚧 האתר בבנייה · ייתכנו עומסים · עקב ריבוי הגולשים ייתכנו נפילות ותקלות — אנו מטפלים בהן, תודה על הסבלנות";
 
@@ -19,24 +20,13 @@ export default function MaintenanceTicker() {
   const border = isLight ? "rgba(120,86,12,0.5)" : "rgba(212,175,55,0.32)";
 
   return (
-    <div className="mt-bar" style={{ direction: "rtl", background: barBg, borderBottom: `1px solid ${border}` }} role="status" aria-label="הודעת מערכת">
-      <style>{`
-        .mt-bar { position: relative; overflow: hidden; max-width: 100%; box-sizing: border-box; padding: 5px 0; }
-        .mt-track { display: inline-flex; flex-wrap: nowrap; white-space: nowrap; will-change: transform;
-          animation: mt-scroll 32s linear infinite; }
-        .mt-track:hover { animation-play-state: paused; }
-        .mt-item { flex: none; padding: 0 28px; font-family: ${F.heading}; font-size: 12.5px; font-weight: 800;
-          letter-spacing: 0.2px; color: ${ink}; }
-        /* המסילה מכילה שני עותקים (סה״כ 200% מרוחב-התוכן); הזזה ל-50% = בדיוק עותק אחד → לולאה חלקה */
-        @keyframes mt-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @media (max-width: 640px) { .mt-item { font-size: 11px; padding: 0 20px; } .mt-track { animation-duration: 24s; } }
-        @media (prefers-reduced-motion: reduce) { .mt-track { animation: none; } }
-      `}</style>
-      <div className="mt-track" aria-hidden="false">
-        {/* שני עותקים זהים ליצירת רצף אינסופי חלק */}
-        <span className="mt-item">{MAINTENANCE_MSG}</span>
-        <span className="mt-item" aria-hidden="true">{MAINTENANCE_MSG}</span>
-      </div>
+    <div style={{ direction: "rtl", background: barBg, borderBottom: `1px solid ${border}`, padding: "5px 0" }}
+      role="status" aria-label="הודעת מערכת">
+      <Marquee speedPxPerSec={55} gap={64} ariaLabel="האתר בבנייה">
+        <span style={{ fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.2, color: ink }}>
+          {MAINTENANCE_MSG}
+        </span>
+      </Marquee>
     </div>
   );
 }

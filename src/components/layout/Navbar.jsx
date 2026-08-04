@@ -673,20 +673,8 @@ export default function Navbar() {
             <UniversalSearch full autoFocus={searchFocus} onDone={() => setDrawer(false)} />
           </div>
 
-          {/* 🚀 «כאן מתחילים» — באנר בולט בראש המגירה (parity עם פאנל-הדסקטופ). למבקר-חדש בנייד
-              זו הפעולה הכי חשובה; קודם היא הייתה סתם אריח רגיל בתוך «כל המדורים». */}
-          <Link to="/start" onClick={() => setDrawer(false)} style={{
-            display: "flex", alignItems: "center", gap: 9, textDecoration: "none",
-            background: "linear-gradient(135deg, rgba(233,200,74,0.16), rgba(184,144,31,0.10))",
-            border: `1px solid ${cc.borderGold}`, borderRadius: 12, padding: "8px 12px", margin: "2px 6px 8px",
-          }}>
-            <span style={{ fontSize: 19, lineHeight: 1 }}>🚀</span>
-            <span style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
-              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 13.5, fontWeight: 800 }}>כאן מתחילים</span>
-              <span style={{ color: cc.muted, fontFamily: F.body, fontSize: 10.5 }}>המדריך בשתי דקות — מה זה ואיך מנווטים</span>
-            </span>
-            <span style={{ color: cc.goldLight, fontSize: 15 }}>←</span>
-          </Link>
+          {/* 🚀 «כאן מתחילים» ירד מבאנר-ענק לאריח-ריבוע רגיל בתוך «כל המדורים» (בקשת צוריאל 4.8.2026)
+              — קטן כמו «דף הבית», לא תופס שורה שלמה בראש המגירה. */}
           {user ? (
             <button onClick={() => { setDrawer(false); openCenter(); }} style={{
               display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
@@ -760,8 +748,8 @@ export default function Navbar() {
           {/* כל המדורים */}
           <div style={{ color: cc.muted, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.2, padding: "14px 8px 4px" }}>כל המדורים</div>
           <div className="sod-tiles">
-            {/* /start מוצג כבר כבאנר בראש המגירה, /research הוא מסגרת-האב למעלה — שניהם לא בגריד */}
-            {MOBILE_TILES.filter(t => !t.fav && t.to !== "/research" && t.to !== "/start").map(t => (
+            {/* /research הוא מסגרת-האב למעלה — לא בגריד. «כאן מתחילים» מוצג כאריח-ריבוע רגיל (כמו «דף הבית»). */}
+            {MOBILE_TILES.filter(t => !t.fav && t.to !== "/research").map(t => (
               <Link key={t.to} to={t.to} onClick={() => setDrawer(false)} className="sod-tile"
                 style={{ borderColor: isActive(pathname, t.to) ? cc.borderGold : cc.border }}>
                 <span className="sod-tile-e">{t.e}</span>
