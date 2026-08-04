@@ -411,7 +411,9 @@ function CommunityTab({ highlightId }) {
     supabase.from("insights")
       .select("id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified,created_at")
       .contains("tags", ["חידושי גולשים"]).eq("is_active", true)
-      .order("convergence_score", { ascending: false }).order("created_at", { ascending: false }).limit(60)
+      // 🆕 הכי-חדש למעלה (בקשת צוריאל) — לפי created_at בלבד. חידוש שאושר עכשיו קופץ לראש,
+      //    בלי שציון-התכנסות ישן ידחוף חידושים ותיקים מעל החדשים.
+      .order("created_at", { ascending: false }).limit(60)
       .then(({ data }) => { if (live) setItems(data || []); }).catch(() => { if (live) setItems([]); });
     return () => { live = false; };
   }, []);

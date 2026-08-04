@@ -166,6 +166,15 @@ export const FORUM_CONTRIB_INTENTS = ["חידוש", "השערה", "תצפית", 
 //   2. פוסטים של הכתבים בעלי-השם — ככרטיס-מצביע לפוסט הקנוני (/<slug>), לא העתק.
 // type: null=הכל · "post"=מאמרי-כתבים בלבד · אחד מ-FORUM_CONTRIB_INTENTS=תרומות מסוג זה בלבד.
 // writer: סינון פוסטים לפי שם-כתב (רלוונטי כש-type="post").
+// 🌳 חתימת-פריט לזיהוי «תאום» בפורום (עץ אחד — אפס כפילות): כותב + 24 תווי-טקסט ראשונים,
+//    בלי HTML ובלי רווחים-כפולים. חידוש-קהילה (insight) שחתימתו זהה לתרומה = אותו פריט → מוסתר.
+function feedSig(author, text) {
+  const a = String(author || "").trim();
+  const t = String(text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 24);
+  if (!a && !t) return null;
+  return a + "|" + t;
+}
+
 // שם-מחבר לחידוש (insights) לפי origin
 function insightAuthor(origin) {
   if (origin === "ai") return "בית המדרש · AI";
@@ -206,19 +215,25 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
       .select("id,title,body,origin,source_ref,related_numbers,created_at,verified,has_1820,convergence_score,panel_data")
       .eq("is_active", true)
       .order("created_at", { ascending: false }).limit(limit);
+    // 🌳 עץ אחד: חידושי-קהילה (panel_data.community) מוצגים בפורום ככרטיס-חידוש — כולל חידוש
+    //    שנוצר ישירות ב-insights בלי «תאום» תרומה (כמו צבי). הדדופ מול התרומות נעשה אחרי הטעינה
+    //    (contribSigs) כדי שלא נראה פעמיים את מי שיש לו גם תרומה. insights שאינם-קהילה = מערכת/AI/צוריאל.
     tasks.push(q.then(({ data }) => (data || [])
-      // ⛔ חידוש-קהילה מקודם ל-insights (panel_data.community) כבר מופיע בפיד כתרומה — עם דרגת-כותב
-      //    ושרשור. מציגים רק את גרסת-התרומה → אפס כפילות, דרגה עקבית. insights שנשארים = מערכת/AI/צוריאל.
-      .filter(x => !x.panel_data?.community)
-      .map(x => ({
+      .map(x => {
+      const community = !!x.panel_data?.community;
+      return {
       kind: "insight", id: "i_" + x.id, insightId: x.id, ts: x.created_at,   // insightId = uuid גולמי למודרציה
-      author_name: insightAuthor(x.origin),
+      // 👤 חידוש-קהילה: השם האמיתי חי ב-panel_data.author (origin='צוריאל' הוא רק המזין/מאשר).
+      author_name: community ? (x.panel_data?.author || insightAuthor(x.origin)) : insightAuthor(x.origin),
       origin: x.origin,
+      _community: community,
+      _convSlug: x.panel_data?.convergence_slug || null,   // בעל-התכנסות מיוצג ע"י התרומה/עמוד-ההתכנסות
+      _sig: community ? feedSig(x.panel_data?.author, x.title || x.body) : null,
       title: x.title, body: x.body, source_ref: x.source_ref, related_numbers: x.related_numbers,
       verified: x.verified, has_1820: x.has_1820, convergence_score: x.convergence_score,
       // מצביע לעמוד הקנוני של החידוש בבית המדרש (לא עותק)
       link: `/research?tool=midrash&tab=community&insight=${x.id}`,
-    }))).catch(() => []));
+    }; })).catch(() => []));
   }
 
   if (wantContrib) {
@@ -252,6 +267,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
       }
       return rows.map(c => ({
         kind: "contribution", id: "c_" + c.id, contribId: c.id, ts: c.created_at,
+        _sig: feedSig(c.author_name, c.title || c.body),   // 🌳 לזיהוי «תאום» חידוש-קהילה (דדופ)
         bump: c.last_activity_at || c.created_at,   // 🔼 זמן-הפעילות האחרונה (ריאקציה/תגובה) — לקביעת הסדר, לא לתצוגה
         author_name: c.author_name, author_display: nameMap[c.author_user_id] || null,
         author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
@@ -286,7 +302,21 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
   }
 
   const parts = await Promise.all(tasks);
-  const flat = parts.flat().filter(x => x.ts);
+  let flat = parts.flat().filter(x => x.ts);
+
+  // 🌳 עץ אחד — דדופ חידושי-קהילה מול תרומות-הפורום (אפס כפילות):
+  //   • חידוש-קהילה שיש לו «תאום» תרומה (אותו כותב + פתיח-טקסט) → מוסתר, מוצג רק כתרומה (עשיר יותר).
+  //   • חידוש-קהילה בעל convergence_slug → מוסתר (מיוצג ע"י התרומה עם ✦«יצר התכנסות» / עמוד ההתכנסות).
+  //   • חידוש-קהילה בלי תאום (כמו צבי — נוצר ישירות ב-insights) → מוצג ככרטיס-חידוש בפורום.
+  {
+    const contribSigs = new Set(flat.filter(x => x.kind === "contribution" && x._sig).map(x => x._sig));
+    flat = flat.filter(x => {
+      if (x.kind !== "insight" || !x._community) return true;
+      if (x._convSlug) return false;
+      if (x._sig && contribSigs.has(x._sig)) return false;
+      return true;
+    });
+  }
 
   // 🏆 «מהנבחרות» — תרומת-גימטריה שהערך שלה קיים במאגר ההתכנסויות האצור (convergences).
   //    בדיקה אחת מרוכזת (RPC SECURITY DEFINER) על כל הערכים — בלי בקשה לכל כרטיס.
