@@ -76,10 +76,14 @@ export default function Gematria3DPage() {
         </p>
       </div>
 
-      {/* הקובייה האינטראקטיבית */}
-      <div style={{ margin: "18px 0" }}>
-        <ProvidenceCube />
-      </div>
+      {/* 📦 הקובייה הרוחנית — התמונה */}
+      <figure style={{ margin: "18px 0 6px", textAlign: "center" }}>
+        <img src="/hashgacha-pratit-1020-cube.jpg" alt="הקובייה הרוחנית — «השגחה פרטית 1020», בכל דופן «טוב» עשר פעמים"
+          style={{ maxWidth: 460, width: "100%", borderRadius: 16, boxShadow: `0 8px 26px ${P.glow}`, border: `1px solid ${P.border}` }} />
+        <figcaption style={{ fontFamily: F.body, fontSize: 13, color: P.accentDim, marginTop: 8 }}>
+          📦 הקובייה הרוחנית — «השגחה פרטית» חקוקה על אור
+        </figcaption>
+      </figure>
 
       {/* כרטיס-הגילוי המדורג */}
       <div style={{
@@ -125,6 +129,14 @@ export default function Gematria3DPage() {
         <Step P={P} k="60 × 17" v="«טוב» = 17" />
         <Arrow P={P} />
         <Step P={P} k="1020" v="הַשְׁגָּחָה פְּרָטִית" big />
+      </div>
+
+      {/* 🧊 השיא — הקובייה האינטראקטיבית (סובבו והאירו בעצמכם) */}
+      <div style={{ marginTop: 30 }}>
+        <div style={{ textAlign: "center", fontFamily: F.heading, fontWeight: 700, fontSize: 13, color: P.accentDim, marginBottom: 10 }}>
+          וגם — סובבו והאירו בעצמכם 👇
+        </div>
+        <ProvidenceCube />
       </div>
 
       {/* ריבוע-עובדה קנוני — התכנסות מאומתת */}
