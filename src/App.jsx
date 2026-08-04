@@ -62,6 +62,7 @@ const WelcomePage = React.lazy(() => import("./pages/WelcomePage.jsx"));
 const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPage.jsx"));
 const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
+const Gematria3DPage = React.lazy(() => import("./pages/Gematria3DPage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
 const ForumThreadPage = React.lazy(() => import("./pages/ForumThreadPage.jsx"));
@@ -283,6 +284,9 @@ export default function App() {
           <Route path="/numbers" element={<NumbersPage />} />
           <Route path="/name-lab" element={<NameLabPage />} />
           <Route path="/מעבדת-השם" element={<NameLabPage />} />
+          {/* 🧊 גימטריה תלת-ממדית — מדור: מודל חזותי לכל התכנסות. דגל: השגחה פרטית = 1020 (קובייה) */}
+          <Route path="/gematria-3d" element={<Gematria3DPage />} />
+          <Route path="/גימטריה-תלת-ממדית" element={<Gematria3DPage />} />
           <Route path="/code" element={<CodePage />} />
           <Route path="/code/ארכיון" element={<CodeArchivePage />} />
           <Route path="/code-archive" element={<CodeArchivePage />} />
