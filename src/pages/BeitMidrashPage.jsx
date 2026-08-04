@@ -23,6 +23,7 @@ import { useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import SearchesTab from "../components/SearchesTab.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
+import ConvergenceWizard from "../components/ConvergenceWizard.jsx";
 import Discourse from "../components/Discourse.jsx";
 import SubmitChidush from "../components/SubmitChidush.jsx";
 import AdminModerate from "../components/AdminModerate.jsx";
@@ -464,7 +465,10 @@ function CommunityCard({ it, flash, onModerated }) {
           cursor: "pointer", background: "transparent", border: `1px solid ${L.gold}`, color: L.goldDeep,
           borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "5px 14px",
         }}>💬 {showDisc ? "הסתר תגובות" : "תגובות והגב"}</button>
-        <span style={{ marginInlineStart: "auto", color: L.sub }}><AdminModerate kind="insight" id={it.id} onDone={onModerated} /></span>
+        <span style={{ marginInlineStart: "auto", display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <ConvergenceWizard insight={it} onDone={onModerated} />
+          <span style={{ color: L.sub }}><AdminModerate kind="insight" id={it.id} onDone={onModerated} /></span>
+        </span>
         {showDisc && (
           <div style={{ marginTop: 12 }}>
             <Discourse target={{ type: "insight", id: it.id }} origin="community" />
