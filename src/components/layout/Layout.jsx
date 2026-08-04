@@ -9,6 +9,7 @@ import SpaceBackground from "./SpaceBackground.jsx";
 import Navbar from "./Navbar.jsx";
 import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על קוסמי עם פסוק (מתחת לתפריט)
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
+import MaintenanceTicker from "./MaintenanceTicker.jsx"; // 🚧 רצועת «האתר בבנייה» — שורה זזה גלובלית
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -48,10 +49,12 @@ export default function Layout() {
       <RevelationAxis />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
+        {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר (כולל דף הבית). הודעת-מערכת קבועה. */}
+        <MaintenanceTicker />
         {/* 🌌 באנר-העל הקוסמי (פסוק + שמי-כוכבים + אור-נגלה + נגן-רקע) — רק בפוסטים ובצ'אט. */}
         {showBanner && <CosmicVerseBanner mode={mode} />}
-        {/* 📡 טיקר-החדשות הזז — בכל האתר חוץ מדף הבית (בקשת צוריאל 30.7.2026). */}
-        {!isHome && <LiveActivityBar />}
+        {/* 📡 טיקר-החדשות «עכשיו באתר» — מוסתר כרגע (בקשת צוריאל 4.8.2026). להחזרה: הסר את false. */}
+        {false && !isHome && <LiveActivityBar />}
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         <main>
           <ErrorBoundary routeKey={pathname}>

@@ -73,6 +73,7 @@ const MORE_HIDE = ["/start", "/members", "/lab"];
 // בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
 // ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
 const moreItems = [
+  { label: "דף הבית", emoji: "🏠", to: "/" },
   ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
   { label: "צ'אט", emoji: "💬", to: "/community/chat" },
   { label: "הכתבים והחוקרים", emoji: "👥", to: "/community/researchers" },
@@ -85,6 +86,7 @@ const moreItems = [
 // מקור-אמת יחיד לאריחי התפריט (מובייל + פאנל-דסקטופ) — סמלים ונוסחים מתואמים בכל המקומות.
 // fav = שלושת הפייבוריטים (מודגשים). locked = בבנייה + מנעול, לא-לחיץ בכל המקומות.
 const MOBILE_TILES = [
+  { e: "🏠", l: "דף הבית", to: "/" },
   { e: "🚀", l: "כאן מתחילים", to: "/start" },
   { e: "🔢", l: "דף המספר", to: "/number", fav: true },
   { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, icon: "dilugim" },
