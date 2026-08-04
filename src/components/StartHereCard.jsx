@@ -20,14 +20,25 @@ export default function StartHereCard() {
   const stepNum = { width: 24, height: 24, borderRadius: "50%", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 13, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };
 
   return (
-    <section className="hn-wrap" style={{ padding: "0 18px 34px" }}>
-      <div style={{ position: "relative", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "18px 20px 20px", boxShadow: `0 6px 26px ${P.glow}` }}>
+    <section className="hn-wrap sh-card" style={{ padding: "0 18px 34px" }}>
+      {/* 📱 בטלפון «כאן מתחילים» מוקטן (בקשת צוריאל): פחות ריפוד, כותרת קטנה יותר,
+          תת-הכותרת מוסתרת ורווחים צפופים — כדי שלא יתפוס חצי-מסך במובייל. */}
+      <style>{`
+        @media (max-width: 640px) {
+          .sh-card { padding: 0 12px 20px !important; }
+          .sh-box { padding: 12px 13px 13px !important; border-radius: 14px !important; }
+          .sh-title { font-size: 16px !important; margin-bottom: 2px !important; }
+          .sh-sub { display: none !important; }
+          .sh-steps { gap: 9px !important; }
+        }
+      `}</style>
+      <div className="sh-box" style={{ position: "relative", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "18px 20px 20px", boxShadow: `0 6px 26px ${P.glow}` }}>
         <button onClick={close} aria-label="סגור" style={{ position: "absolute", insetInlineStart: 12, top: 12, cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontSize: 16, fontWeight: 700 }}>✕</button>
 
-        <div style={{ color: P.heroNum, fontFamily: F.regal, fontSize: "clamp(19px,3.4vw,25px)", fontWeight: 900, marginBottom: 3 }}>🚀 חדשים כאן? ככה מתחילים</div>
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 500, marginBottom: 16 }}>כל מספר מסתיר עולם — ו-1820 הוא הסוד. שלושה צעדים:</div>
+        <div className="sh-title" style={{ color: P.heroNum, fontFamily: F.regal, fontSize: "clamp(19px,3.4vw,25px)", fontWeight: 900, marginBottom: 3 }}>🚀 חדשים כאן? ככה מתחילים</div>
+        <div className="sh-sub" style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, fontWeight: 500, marginBottom: 16 }}>כל מספר מסתיר עולם — ו-1820 הוא הסוד. שלושה צעדים:</div>
 
-        <div style={{ display: "grid", gap: 13 }}>
+        <div className="sh-steps" style={{ display: "grid", gap: 13 }}>
           {/* צעד 1 — קלט */}
           <div style={{ display: "flex", alignItems: "center", gap: 11, flexWrap: "wrap" }}>
             <span style={stepNum}>1</span>
