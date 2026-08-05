@@ -1845,6 +1845,29 @@ export async function adminGetSubscribers() {
   return data || [];
 }
 
+// 📥 מיילים נכנסים (inbound_emails) — תשובות «השב» לניוזלטר וכל מייל שנכנס. אדמין-בלבד (RLS).
+export async function adminGetInbound({ limit = 100 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('inbound_emails')
+    .select('id,from_email,from_name,to_email,subject,body_text,received_at,read,replied_at,reply_count')
+    .order('received_at', { ascending: false }).limit(limit);
+  if (error) throw error;
+  return data || [];
+}
+export async function adminSetInboundRead(id, read = true) {
+  if (!supabase) throw new Error('no supabase');
+  const { error } = await supabase.from('inbound_emails').update({ read }).eq('id', id);
+  if (error) throw error;
+}
+// שליחת «השב» דרך Edge (email-reply) — שולח מייל אמיתי לנמען ומסמן replied_at.
+export async function adminReplyEmail(id, bodyText) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.functions.invoke('email-reply', { body: { id, body_text: bodyText } });
+  if (error) throw error;
+  if (data?.error) throw new Error(data.hint || data.error);
+  return data;
+}
+
 // עדכון ידני של פוסט בידי מנהל (כותרת / תוכן / תקציר). מסמן modified=עכשיו.
 export async function adminUpdatePost(id, fields = {}) {
   if (!supabase) throw new Error('no supabase');

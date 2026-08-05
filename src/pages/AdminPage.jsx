@@ -15,6 +15,7 @@ import { CLARITY_CONFIGURED } from "../lib/clarity.js";
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
+  adminGetInbound, adminSetInboundRead, adminReplyEmail,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
@@ -4679,6 +4680,71 @@ function SubscribersTab() {
   );
 }
 
+// ===== 📥 מיילים נכנסים (inbound_emails) — תשובות «השב» לניוזלטר + כל מייל שנכנס =====
+// נטען מטבלת inbound_emails (אדמין-בלבד). כל שורה ניתנת לסימון-נקרא ולתשובה אמיתית (email-reply → Resend).
+function InboundRow({ m, onChange }) {
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  async function toggleRead() { try { await adminSetInboundRead(m.id, !m.read); onChange(); } catch (e) { alert(e.message); } }
+  async function send() {
+    if (!text.trim()) return;
+    setSending(true);
+    try { await adminReplyEmail(m.id, text.trim()); setText(""); setReplyOpen(false); onChange(); }
+    catch (e) { alert("שליחה נכשלה: " + (e.message || e)); }
+    finally { setSending(false); }
+  }
+  return (
+    <div style={{ ...card, borderColor: m.replied_at ? C.border : (m.read ? C.border : C.borderGold), opacity: m.read && m.replied_at ? 0.8 : 1 }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>{m.from_name || m.from_email || "—"}</span>
+        <a href={`mailto:${m.from_email}`} style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 13, direction: "ltr", textDecoration: "none" }}>{m.from_email}</a>
+        {m.replied_at && <span style={{ color: "#7fd18b", fontFamily: F.heading, fontSize: 11, border: "1px solid #2e5a34", borderRadius: 999, padding: "2px 9px" }}>✓ נענה{m.reply_count > 1 ? ` ×${m.reply_count}` : ""}</span>}
+        <span style={{ flex: 1 }} />
+        <span style={{ color: C.muted, fontFamily: F.heading, fontSize: 12 }}>{fmtDate(m.received_at)}</span>
+        <button onClick={toggleRead} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.borderGold}`, color: C.goldBright, borderRadius: 999, padding: "3px 12px", fontFamily: F.heading, fontSize: 11 }}>
+          {m.read ? "סמן כלא נקרא" : "סמן כנקרא ✓"}
+        </button>
+      </div>
+      {m.subject && <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 4 }}>{m.subject}</div>}
+      <div style={{ color: "#d4ccbf", fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{m.body_text || "(ללא תוכן טקסט)"}</div>
+      <div style={{ marginTop: 10 }}>
+        {!replyOpen ? (
+          <button onClick={() => setReplyOpen(true)} style={{ cursor: "pointer", background: C.gold, border: "none", color: "#1a1206", borderRadius: 8, padding: "6px 16px", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>↩︎ השב</button>
+        ) : (
+          <div style={{ display: "grid", gap: 8 }}>
+            <textarea value={text} onChange={e => setText(e.target.value)} dir="rtl" placeholder={`תשובה ל-${m.from_email}…`} style={{ width: "100%", minHeight: 90, boxSizing: "border-box", background: C.bg, color: C.goldLight, border: `1px solid ${C.borderGold}`, borderRadius: 10, padding: 12, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }} />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={send} disabled={sending || !text.trim()} style={{ cursor: sending ? "wait" : "pointer", background: C.gold, border: "none", color: "#1a1206", borderRadius: 8, padding: "7px 18px", fontFamily: F.heading, fontSize: 13, fontWeight: 700, opacity: sending || !text.trim() ? 0.5 : 1 }}>{sending ? "שולח…" : "שלח תשובה ✉️"}</button>
+              <button onClick={() => { setReplyOpen(false); setText(""); }} style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, padding: "7px 14px", fontFamily: F.heading, fontSize: 13 }}>ביטול</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+function InboundInbox() {
+  const [rows, setRows] = useState(null);
+  const [err, setErr] = useState("");
+  const load = useCallback(() => { adminGetInbound().then(setRows).catch(e => setErr(e.message || "שגיאה")); }, []);
+  useEffect(() => { load(); }, [load]);
+  if (err) return null; // אם הטבלה עוד לא נגישה — לא לשבור את הטאב
+  if (!rows) return null;
+  const unread = rows.filter(r => !r.read).length;
+  return (
+    <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+      <H>📥 מיילים נכנסים · {rows.length}{unread ? ` · ${unread} חדשים` : ""}</H>
+      {rows.length === 0 ? (
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, ...card }}>
+          עדיין לא נכנסו מיילים. כשמישהו ישיב לניוזלטר (או ישלח ל-reply@) — זה יופיע כאן, ותוכל להשיב ישירות.
+          <div style={{ color: C.goldDim, fontSize: 12, marginTop: 6 }}>נדרש חיבור קליטת-דואר (רשומות MX + webhook) — ראה ההנחיות שנמסרו.</div>
+        </div>
+      ) : rows.map(m => <InboundRow key={m.id} m={m} onChange={load} />)}
+    </div>
+  );
+}
+
 // ===== ✉️ פניות =====
 function MessagesTab() {
   const [rows, setRows] = useState(null);
@@ -4691,7 +4757,8 @@ function MessagesTab() {
   const unread = rows.filter(r => !r.read).length;
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      <H>{rows.length} פניות · {unread} שלא נקראו</H>
+      <InboundInbox />
+      <H>✉️ פניות מטופס «צור קשר» · {rows.length} · {unread} שלא נקראו</H>
       {rows.map(m => (
         <div key={m.id} style={{ ...card, borderColor: m.read ? C.border : C.borderGold, opacity: m.read ? 0.75 : 1 }}>
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
