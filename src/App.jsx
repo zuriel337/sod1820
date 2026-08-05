@@ -284,7 +284,10 @@ export default function App() {
           <Route path="/numbers" element={<NumbersPage />} />
           <Route path="/name-lab" element={<NameLabPage />} />
           <Route path="/מעבדת-השם" element={<NameLabPage />} />
-          {/* 🧊 גימטריה תלת-ממדית — מדור: מודל חזותי לכל התכנסות. דגל: השגחה פרטית = 1020 (קובייה) */}
+          {/* 🧊 גימטריה מרחבית — «הגיאומטריה של העץ»: ענף מחקר (4 שכבות/מודל, מתכנס ל-1820).
+              /gematria-3d + /גימטריה-תלת-ממדית נשמרים כ-alias (קישורים קיימים/פוסט 1020). */}
+          <Route path="/spatial-gematria" element={<Gematria3DPage />} />
+          <Route path="/גימטריה-מרחבית" element={<Gematria3DPage />} />
           <Route path="/gematria-3d" element={<Gematria3DPage />} />
           <Route path="/גימטריה-תלת-ממדית" element={<Gematria3DPage />} />
           <Route path="/code" element={<CodePage />} />
