@@ -35,6 +35,7 @@ import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
 import WhatsNewCard from "../components/WhatsNewCard.jsx";
 import ActivityPulse from "../components/ActivityPulse.jsx";
+import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import HomeTeasers from "../components/HomeTeasers.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
@@ -569,6 +570,7 @@ export default function HomeNewPage() {
           ממוקם כאן (לא צמוד להתכנסויות) כדי שכרטיס-התכנסות ינחת על סקשן ההתכנסויות, לא על הצפנים. ===== */}
       <section id="ciphers-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
         <HomeHeader title="🔓 הצופן — צפנים חדשים" sub="דילוגי אותיות (ELS) שנחקרו ואומתו — כל צופן בעמוד משלו · עדות, לא ניבוי" />
+        <div style={{ marginBottom: 12 }}><ElsPulseChip light={P.mode === "light"} /></div>
         {ciphers.length > 0 ? (
           <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 10, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
             {ciphers.map(c => (

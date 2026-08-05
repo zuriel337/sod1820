@@ -7,6 +7,7 @@ import { track } from "../lib/tracking.js";
 import { getSavedMatrices, getDraftMatrices, moderateMatrix, deleteMatrix } from "../lib/elsMatrices.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import { formatDateHe } from "../lib/format.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 
@@ -167,6 +168,7 @@ export default function CiphersLibraryPage() {
           <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.8, maxWidth: 580, margin: "0 auto 14px" }}>
             כל הצפנים שנחקרו ואומתו — כל אחד בעמוד משלו, עם מחקר קהילתי ותלת-מימד. <b style={{ color: P.accentText }}>עדות — לא ניבוי.</b>
           </p>
+          <div style={{ marginBottom: 12 }}><ElsPulseChip /></div>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             <ShareActions type="codes" url="https://sod1820.co.il/codes" title="📚 ספריית הצפנים — דילוגי אותיות בתורה · סוד 1820" />
             <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "9px 18px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
