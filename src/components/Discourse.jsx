@@ -245,7 +245,7 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
 
 // focusId — מיקוד לתרומה אחת (עמוד-הפורום /forum/:id): מציג רק את התרומה הזו.
 // writeOnly — נגזר מ-origin==="forum": בפורום כותבים בלבד (בלי רדוד), בשאר המקומות רדוד רגיל.
-export default function Discourse({ target, origin = "number", archive = [], focusId = null, repliesOnly = false }) {
+export default function Discourse({ target, origin = "number", archive = [], focusId = null, repliesOnly = false, onActivity = null }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState(null);
@@ -289,7 +289,7 @@ export default function Discourse({ target, origin = "number", archive = [], foc
                 ))}
               </div>
             )}
-            <Composer P={P} origin={origin} target={target} replyTo={focusId} anon={!user} onDone={load} />
+            <Composer P={P} origin={origin} target={target} replyTo={focusId} anon={!user} onDone={() => { load(); onActivity?.(); }} />
           </>
         )}
       </div>

@@ -119,7 +119,7 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
           למעלה, ולכן Discourse מציג רק את התגובות + מלחין-תגובה (בלי לשכפל את הכרטיס). */}
       {open && (
         <div style={{ marginTop: 11, paddingTop: 11, borderTop: `1px dashed ${P.border}` }}>
-          <Discourse target={dTarget} focusId={c.contribId} origin="forum" repliesOnly />
+          <Discourse target={dTarget} focusId={c.contribId} origin="forum" repliesOnly onActivity={onChanged} />
         </div>
       )}
       {isAdmin && (
@@ -251,10 +251,21 @@ function TrustedTick({ P, withText = false }) {
 const leadEmoji = (c) =>
   c.kind === "post" ? "📜" : c.kind === "insight" ? "💡" : c.kind === "cipher" ? "🔠" : (intentMeta(c.intent).emoji || "💬");
 
-// שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + סימון-מהימן · טקסט בשורה אחת · מוצמד/נבחרת · זמן.
+// 👍 סך-הריאקציות על פריט — reactions הוא { "👍": ["uid",…] }, אז סוכמים אורכי-מערכים.
+function reactionTotal(r) {
+  if (!r || typeof r !== "object") return 0;
+  let n = 0;
+  for (const v of Object.values(r)) n += Array.isArray(v) ? v.length : (Number(v) || 0);
+  return n;
+}
+
+// שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + מהימן · טקסט · מוצמד/נבחרת · 💬 תגובות · 👍 · זמן.
+// 💬 מונה-התגובות גלוי בכל שורה (גם 0) → הפורום נקרא כרשימת-שרשורים אמיתית, רואים מיד היכן יש דיון.
 function ChatRow({ c, P, onOpen }) {
   const who = c.author_display || c.author_name || "חבר הקהילה";
   const text = oneLine(c.title || c.body || c.excerpt || c.description || "תרומת מחקר");
+  const isContrib = c.kind === "contribution";
+  const rTotal = reactionTotal(c.reactions);
   return (
     <button onClick={onOpen} aria-label="פתח" className="ff-chatrow"
       style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, minHeight: 44, textAlign: "start", cursor: "pointer",
@@ -271,6 +282,21 @@ function ChatRow({ c, P, onOpen }) {
       </span>
       {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
       {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
+      {/* 💬 מונה-תגובות — בשרשור פעיל (>0) בזהב, אחרת עמום ומזמין */}
+      {isContrib && (
+        <span className="ff-count" title={c.replyCount > 0 ? `${c.replyCount} תגובות בשרשור` : "אין תגובות עדיין — היו הראשונים"}
+          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 3, minWidth: 30, justifyContent: "flex-end",
+            color: c.replyCount > 0 ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
+          💬 {c.replyCount || 0}
+        </span>
+      )}
+      {/* 👍 סך-ריאקציות — רק כשיש, סימן-חיים קליל */}
+      {rTotal > 0 && (
+        <span className="ff-count" title={`${rTotal} ריאקציות`}
+          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 2, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+          👍 {rTotal}
+        </span>
+      )}
       <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
     </button>
   );
