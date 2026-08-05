@@ -1541,6 +1541,17 @@ export async function getActivityPulse() {
   } catch { return null; }
 }
 
+// 🌳 דופק-היום — מקור-אמת אחד (RPC site_pulse_today): חקירות היום (site_visits, זהה לדף-הבית),
+// פעילים עכשיו, צפנים חדשים היום, וכתבים חדשים. today-only (שואל now()::date). מזין את הטיקר.
+export async function getSitePulseToday() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.rpc("site_pulse_today");
+    if (error) return null;
+    return data;
+  } catch { return null; }
+}
+
 // 🔢 מספרים שנפתחו לאחרונה (דפי-מספר בפועל, לא חיפושים אישיים). מספר = לא-פרטי → קריא-לציבור.
 // מקור: RPC recent_number_opens (SECURITY DEFINER) — מסונן למספרים משמעותיים (יש להם ביטויים במאגר).
 export async function getRecentNumbers(limit = 8) {
