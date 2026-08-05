@@ -78,8 +78,8 @@ export const SPATIAL_MODELS = [
       reveal: [{ k: "רזא + שבת = סוד × אחד", big: false }, { k: "910", big: true }, { k: "שרית", label: true }],
     },
     midrash: "מעטפת אחדות המקיפה את עם ישראל מ-6 הכיוונים; מהות השבת — «גוי אחד» כנגד «אתה אחד». «שרית» היא השם ישראל בברכה.",
-    image: null,
-    postSlug: null,
+    image: "/raza-deshabbat-910-cube.jpg",
+    postSlug: "raza-deshabbat-910",
     to1820: "שרית + שרית = 1820 = סוד × יהוה",
   },
 ];

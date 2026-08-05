@@ -93,6 +93,7 @@ const MOBILE_TILES = [
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
+  { e: "🧊", l: "גימטריה מרחבית", to: "/spatial-gematria" },
   { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
   { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
   { e: "🌐", l: "פורום המחקר", to: "/forum" },
