@@ -9,6 +9,13 @@ function refHost() {
   catch { return null; }
 }
 function device() { try { return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop"; } catch { return null; } }
+// 🌍 מדינת-המבקר — ה-middleware (Vercel Edge) מזריק cookie vc=<ISO country> מ-x-vercel-ip-country.
+//    שותלים אותו ב-props כדי שכל אירוע-אדם יישא מדינה → «מבקרים אנושיים ייחודיים לפי מדינה» מדויק
+//    (events כבר נקי מ-jetmon/סורקים כי הם לא מריצים JS). 'XX'/ריק = לא ידוע.
+function vcCountry() {
+  try { const m = document.cookie.match(/(?:^|;\s*)vc=([A-Za-z]{2})/); return m ? m[1].toUpperCase() : null; }
+  catch { return null; }
+}
 // 🤖 סימון בוט (עקבי עם visits.js): מסמנים ולא מדלגים → dashboard יכול להפריד אנשים/בוטים.
 const BOT_UA = /bot|crawl|spider|slurp|googlebot|bingpreview|jetmon|uptime|monitor|headless|phantom|puppeteer|playwright|python|curl|wget|libwww|okhttp|java\/|go-http|facebookexternal|externalhit|preview|lighthouse|pagespeed|gtmetrix|semrush|ahrefs|mj12|dotbot|petalbot|dataprovider|scan|um-ic|feedfetch/i;
 export function isBot() { try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; } catch { return false; } }
@@ -38,6 +45,8 @@ function utm() {
 export function emit(surface, eventType, opts = {}) {
   if (!supabase) return;
   try {
+    const country = vcCountry();
+    const props = country ? { ...(opts.props || {}), country } : (opts.props ?? null);
     supabase.rpc("ingest_event", {
       p_sod_id: getSodId(),
       p_surface: surface,
@@ -51,7 +60,7 @@ export function emit(surface, eventType, opts = {}) {
       p_journey_id: opts.journeyId ?? null,
       p_depth: opts.depth ?? null,
       p_utm: utm(),
-      p_props: opts.props ?? null,
+      p_props: props,
       p_is_bot: isBot(),
     }).then(() => {}).catch(() => {});
   } catch { /* לעולם לא שובר גלישה */ }

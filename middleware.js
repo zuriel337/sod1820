@@ -26,7 +26,10 @@ const BLOCKED_COUNTRIES = new Set(['CN', 'SG']);
 // בוטים מותרים — מנועי חיפוש (SEO), בוטי תצוגת-שיתוף (OG), וכל הסורקים של מטא
 // (facebookexternalhit/facebot=תצוגות · meta-externalagent/facebookbot=סורק התוכן/AI).
 // לבקשת צוריאל: לא חוסמים שום דבר של מטא. חייבים לעבור חופשי.
-const GOOD_BOT = /(googlebot|google-inspectiontool|bingbot|duckduckbot|yandex|baidu|applebot|facebookexternalhit|facebot|meta-externalagent|facebookbot|meta-externalfetcher|twitterbot|whatsapp|telegrambot|linkedinbot|slackbot|discordbot|pinterest|redditbot|skypeuripreview|embedly|iframely|w3c_validator|vkshare)/;
+// כולל גם: סורקי-Google לא-חיפוש (mediapartners/googleother/read-aloud/feedfetcher) ומוניטורי-זמינות
+// (jetmon=Jetpack, uptimerobot, pingdom, statuscake) — בוטים לגיטימיים שעוברים חופשי אך *אינם* בני-אדם,
+// כדי שלא ידלפו ל-kind='browser' וינפחו את ספירת המבקרים האנושיים (jetmon לבדו = ~11K "US browser").
+const GOOD_BOT = /(googlebot|google-inspectiontool|mediapartners-google|googleother|google-read-aloud|feedfetcher-google|bingbot|duckduckbot|yandex|baidu|applebot|facebookexternalhit|facebot|meta-externalagent|facebookbot|meta-externalfetcher|twitterbot|whatsapp|telegrambot|linkedinbot|slackbot|discordbot|pinterest|redditbot|skypeuripreview|embedly|iframely|w3c_validator|vkshare|jetmon|jetpack|uptimerobot|pingdom|statuscake|site24x7|betteruptime)/;
 // חתימות בוט לחסימה — ספריות/כלים אוטומטיים שמזדהים בעצמם.
 const BAD_BOT = /(python-requests|python-urllib|aiohttp|httpx|scrapy|curl\/|wget\/|libwww|go-http-client|okhttp|node-fetch|axios\/|java\/|apache-httpclient|headless|phantomjs|puppeteer|playwright|selenium|guzzle|winhttp|zgrab|masscan|ahrefsbot|semrushbot|mj12bot|dotbot|petalbot|um-ic|ubermetrics|dataforseo|blexbot|barkrowler|mauibot|serpstatbot|zoominfobot)/;
 // 🤖 בוטי-AI — מותרים לתוכן ציבורי בלבד (חשיפה במנועי-תשובות), חסומים ממסלולים יקרים.
