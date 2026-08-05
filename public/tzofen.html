@@ -2598,7 +2598,17 @@
     cancelRevealArm();   // רינדור-מחדש (חיפוש חדש) מבטל סרט-ממתין שטרם התחיל — שלא יירה על מטריצה אחרת
     const r=st.res;
     document.body.classList.toggle("searched",!!(r&&r.hits.length));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
-    if(!r||!r.hits.length){out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>נסה איות אחר או מילה קצרה יותר.</div>';try{hideSearchStat();}catch(e){}return;}
+    if(!r||!r.hits.length){
+      let _extra='נסה איות אחר או מילה קצרה יותר.';
+      if(st.scope==="torah"&&r&&r.t){   // 📜 «לא נמצא בתורה» מטעה — אולי המונח קיים בכל התנ״ך (נ״ך). בודקים ומזמינים פנימה במקום מבוי-סתום.
+        let _inTk=false;const _sv=st.scope;st.scope="tanakh";
+        try{_inTk=findAll(r.t,1).hits.length>0;}catch(_e){}st.scope=_sv;
+        if(_inTk)_extra='המונח <b>כן קיים בכל התנ״ך</b> (מחוץ לחמשת החומשים) — פשוט לא בתורה.<br><button id="emptyTk" style="margin-top:12px;cursor:pointer;background:linear-gradient(180deg,#e8c84a,#caa62f);color:#1a0e00;border:none;border-radius:9px;padding:8px 14px;font-family:inherit;font-weight:800;font-size:13px">🔎 חפש בכל התנ״ך</button>';
+      }
+      out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>'+_extra+'</div>';
+      const _b=document.getElementById("emptyTk");if(_b)_b.onclick=()=>{const _tb=document.querySelector('.scopebtn[data-scope="tanakh"]');if(_tb)_tb.click();};   // רשום → מחליף היקף ומחפש · אנונימי → שער-הרשמה (המודל נשמר)
+      try{hideSearchStat();}catch(e){}return;
+    }
     recomputeWords();
     const h=occ(),S=Math.abs(h.skip),n=r.hits.length,st0=h.positions[0];
     const wrap=document.createElement("div");
