@@ -15,6 +15,8 @@ const itemsOf = (r) => Array.isArray(r.media) ? r.media.filter(e => e.kind !== "
 // 🪜 דרגת-היררכיה (גבוה=למעלה). כתב חדש נכנס בתחתית ו«מתעורר» כלפי מעלה ככל שצובר מעמד:
 //   3 = VIP (👑) · 2 = כותב עם גילויים (💎) · 1 = פעיל בלי גילויים עדיין (כאן נוחת כתב חדש) · 0 = בבנייה (🚧, בתחתית).
 const tierOf = (r) => r.building ? 0 : r.vip ? 3 : itemsOf(r) > 0 ? 2 : 1;
+// ⭐ כתב חדש — תיוג 'כתב חדש' ב-contributors.tags. מקבל כוכב ומוקפץ לראש הרשימה כ«פנים חדשות».
+const isNewWriter = (r) => Array.isArray(r.tags) && r.tags.includes("כתב חדש");
 
 export default function ResearchersIndexPage() {
   const P = usePalette();
@@ -23,13 +25,13 @@ export default function ResearchersIndexPage() {
   useEffect(() => {
     applySeo({ title: "הכתבים והחוקרים", description: "רשימת הכתבים והחוקרים של סוד 1820 — דפי הגילויים האישיים", path: "/community/researchers" });
     let alive = true;
-    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked,building,created_at")
+    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked,building,created_at,tags")
       .eq("active", true).neq("kind", "private").not("slug", "like", "r-%").neq("display_name", "sod1820")  // ⛔ פרטי + חשבון-מערכת
       .then(({ data }) => {
         if (!alive) return;
         const list = Array.isArray(data) ? data.slice() : [];
-        // מיון היררכי: דרגה↓, ובתוך אותה דרגה הוותיק ראשון (created_at↑) — כך כתב חדש יושב בתחתית ועולה כשהוא מתקדם בהיררכיה.
-        list.sort((a, b) => tierOf(b) - tierOf(a) || String(a.created_at || "").localeCompare(String(b.created_at || "")));
+        // מיון: כתבים חדשים (⭐) בראש כ«פנים חדשות»; אחר-כך דרגה↓, ובתוכה הוותיק ראשון.
+        list.sort((a, b) => (isNewWriter(b) ? 1 : 0) - (isNewWriter(a) ? 1 : 0) || tierOf(b) - tierOf(a) || String(a.created_at || "").localeCompare(String(b.created_at || "")));
         setRows(list);
       })
       .catch(() => alive && setRows([]));
@@ -53,18 +55,21 @@ export default function ResearchersIndexPage() {
           <div style={{ display: "grid", gap: 10 }}>
             {rows.map(r => {
               const items = itemsOf(r);
+              const isNew = isNewWriter(r);
               return (
                 <a key={r.slug} href={`/community/researcher/${r.code || r.slug}`}
-                  style={{ display: "flex", alignItems: "center", gap: 13, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "13px 15px", textDecoration: "none" }}>
+                  style={{ position: "relative", display: "flex", alignItems: "center", gap: 13, background: P.card, border: `${isNew ? 1.5 : 1}px solid ${isNew ? P.accent : P.border}`, borderRadius: 14, padding: "13px 15px", textDecoration: "none", boxShadow: isNew ? `0 0 0 3px ${P.glow}` : "none" }}>
                   <img src={r.avatar_url || genAvatar(r.display_name)} alt={r.display_name} loading="lazy" style={{ width: 54, height: 54, borderRadius: "50%", objectFit: "cover", border: `2px solid ${P.accent}`, flexShrink: 0 }} />
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800 }}>
+                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                       {r.vip ? "👑 " : ""}{r.display_name}{r.building ? " 🚧" : r.locked ? " 🔑" : ""}
+                      {isNew && <span style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 800, color: P.onAccent, background: P.accentBtn, borderRadius: 999, padding: "2px 9px", whiteSpace: "nowrap" }}>⭐ כתב חדש</span>}
                     </div>
                     {r.building
                       ? <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12 }}>בבנייה — בקרוב</div>
                       : r.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>{r.role}</div>}
                     {!r.building && items > 0 && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>💎 {items} גילויים בדף</div>}
+                    {!r.building && items === 0 && isNew && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>הצטרף/ה זה עתה — בקרוב גילויים</div>}
                   </div>
                   <span style={{ color: P.accentDim, fontSize: 16 }}>←</span>
                 </a>
