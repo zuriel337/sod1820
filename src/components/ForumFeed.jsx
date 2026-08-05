@@ -282,12 +282,12 @@ function ChatRow({ c, P, onOpen }) {
       </span>
       {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
       {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
-      {/* 💬 מונה-תגובות — בשרשור פעיל (>0) בזהב, אחרת עמום ומזמין */}
-      {isContrib && (
-        <span className="ff-count" title={c.replyCount > 0 ? `${c.replyCount} תגובות בשרשור` : "אין תגובות עדיין — היו הראשונים"}
-          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 3, minWidth: 30, justifyContent: "flex-end",
-            color: c.replyCount > 0 ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
-          💬 {c.replyCount || 0}
+      {/* 💬 מונה-תגובות — מוצג רק בשרשור פעיל (יש ולו תגובה אחת); בלי תגובות אין מספר כלל */}
+      {isContrib && c.replyCount > 0 && (
+        <span className="ff-count" title={`${c.replyCount} תגובות בשרשור`}
+          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 3, justifyContent: "flex-end",
+            color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
+          💬 {c.replyCount}
         </span>
       )}
       {/* 👍 סך-ריאקציות — רק כשיש, סימן-חיים קליל */}
