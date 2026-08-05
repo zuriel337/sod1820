@@ -115,10 +115,11 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         </button>
         <Link to={threadHref} title="פתח בעמוד מלא" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>↗ עמוד</Link>
       </div>
-      {/* 💬 תגובות inline — אותו רכיב Discourse הקנוני של עמוד-השרשור (origin=forum) */}
+      {/* 💬 תגובות inline — אותו רכיב Discourse הקנוני, במצב «תגובות בלבד»: הכרטיס כבר מוצג כאן
+          למעלה, ולכן Discourse מציג רק את התגובות + מלחין-תגובה (בלי לשכפל את הכרטיס). */}
       {open && (
         <div style={{ marginTop: 11, paddingTop: 11, borderTop: `1px dashed ${P.border}` }}>
-          <Discourse target={dTarget} focusId={c.contribId} origin="forum" />
+          <Discourse target={dTarget} focusId={c.contribId} origin="forum" repliesOnly />
         </div>
       )}
       {isAdmin && (
