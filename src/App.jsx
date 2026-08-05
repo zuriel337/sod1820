@@ -63,6 +63,7 @@ const NavigationCenterPage = React.lazy(() => import("./pages/NavigationCenterPa
 const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const Gematria3DPage = React.lazy(() => import("./pages/Gematria3DPage.jsx"));
+const ThemePage = React.lazy(() => import("./pages/ThemePage.jsx"));
 const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
 const ForumThreadPage = React.lazy(() => import("./pages/ForumThreadPage.jsx"));
@@ -340,6 +341,8 @@ export default function App() {
           <Route path="/שם" element={<NamePage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
+          {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
+          <Route path="/theme/:slug" element={<ThemePage />} />
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/forum/:id" element={<ForumThreadPage />} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
