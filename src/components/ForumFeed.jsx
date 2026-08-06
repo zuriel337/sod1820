@@ -6,7 +6,7 @@ import { thumb } from "../lib/img.js";
 import { stripHtml, formatDateHe, youtubeId, youtubeUrl } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { genAvatar } from "../lib/avatar.js";
-import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution, getReplyCounts, getConvergenceSlugs, editContribution } from "../lib/contributions.js";
+import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution, getReplyCounts, getConvergenceSlugs, editContribution, removeContribution } from "../lib/contributions.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ReactionBar from "./ReactionBar.jsx";
@@ -57,6 +57,7 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
   const [editBusy, setEditBusy] = useState(false);
   const canEdit = isAdmin || (user && c.author_user_id === user.id);
   async function saveEdit() { const t = editBody.trim(); if (!t) return; setEditBusy(true); try { await editContribution(c.contribId, t); setEditing(false); onChanged && onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setEditBusy(false); } }
+  async function removeItem() { if (!window.confirm("למחוק את הפריט?")) return; setEditBusy(true); try { await removeContribution(c.contribId); onChanged && onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setEditBusy(false); } }
   // 💬 שורה-אחת שנפתחת לתגובות inline (עץ אחד: אותו <Discourse> של עמוד-השרשור, לא מנווט).
   const [open, setOpen] = useState(defaultOpen);
   const dTarget = (c.target_type && c.target_id) ? { type: c.target_type, id: c.target_id } : { type: "forum", id: c.contribId };
@@ -131,6 +132,10 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         {canEdit && !editing && (
           <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} title="ערוך"
             style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>✏️ ערוך</button>
+        )}
+        {canEdit && !editing && (
+          <button onClick={removeItem} disabled={editBusy} title="מחק"
+            style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>🗑 מחק</button>
         )}
         {isAdmin && (
           <button onClick={togglePin} disabled={pinBusy} title={c.pinned ? "בטל הצמדה" : "הצמד לראש הפורום"}

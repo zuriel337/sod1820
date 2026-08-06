@@ -132,6 +132,12 @@ export async function editContribution(id, body) {
   if (error) throw error;
 }
 
+// 🗑 מחיקת תגובה — המחבר את שלו · אדמין את של כולם (מחיקה רכה, נאכף בשרת).
+export async function removeContribution(id) {
+  const { error } = await supabase.rpc("remove_contribution", { p_id: id });
+  if (error) throw error;
+}
+
 // 🔗 «מצאתי קשר» — edge ברשת-התרומות + קרדיט-מוניטין
 export async function linkContribution({ fromId, targetType, targetId, relation = "related", note = null }) {
   const { data, error } = await supabase.rpc("link_contribution", {

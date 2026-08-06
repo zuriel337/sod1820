@@ -11,7 +11,7 @@ import ResearcherLink from "./ResearcherLink.jsx";
 import ReactionBar from "./ReactionBar.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
-  linkContribution, approveContribution, moderateContribution, editContribution, getForumFeed, forumItemMeta,
+  linkContribution, approveContribution, moderateContribution, editContribution, removeContribution, getForumFeed, forumItemMeta,
 } from "../lib/contributions.js";
 
 // 🔬 מחקר קהילתי — עדשה אחת על research_contributions לישות נתונה (מספר/פסוק/צופן/פוסט…).
@@ -47,6 +47,7 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
   const canEdit = isAdmin || mine;   // ✏️ המחבר עורך את שלו · אדמין את של כולם (נאכף גם בשרת)
 
   async function saveEdit() { const t = editBody.trim(); if (!t) return; setBusy(true); try { await editContribution(c.id, t); setEditing(false); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function remove() { if (!window.confirm(mine ? "למחוק את התגובה שלך?" : "למחוק את התגובה?")) return; setBusy(true); try { await removeContribution(c.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function approve() { setBusy(true); try { await approveContribution(c.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function hide() { setBusy(true); try { await moderateContribution(c.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function doLink() {
@@ -99,8 +100,9 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
         {!writeOnly && <button onClick={() => onReply(c.id)} style={linkBtn(P)}>💬 הגב</button>}
         {user && <button onClick={() => setLinking(v => !v)} style={linkBtn(P)}>🔗 מצאתי קשר</button>}
         {canEdit && !editing && <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} style={linkBtn(P)}>✏️ ערוך</button>}
+        {canEdit && <button disabled={busy} onClick={remove} style={linkBtn(P)}>🗑 מחק</button>}
         {isAdmin && pending && <button disabled={busy} onClick={approve} style={goldBtn(P)}>✅ אשר</button>}
-        {isAdmin && <button disabled={busy} onClick={hide} style={linkBtn(P)}>✖ הסתר</button>}
+        {isAdmin && !mine && <button disabled={busy} onClick={hide} style={linkBtn(P)}>✖ הסתר</button>}
       </div>
       {linking && (
         <div style={{ display: "flex", gap: 7, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
@@ -129,8 +131,10 @@ function ReplyItem({ k, P, user, isAdmin, origin, target, onChanged }) {
   const [editBody, setEditBody] = useState("");
   const pending = k.status === "pending";
   const kim = intentMeta(k.intent);
-  const canEdit = isAdmin || (user && k.author_user_id === user.id);   // ✏️ המחבר/אדמין
+  const mineK = user && k.author_user_id === user.id;
+  const canEdit = isAdmin || mineK;   // ✏️ המחבר/אדמין
   async function saveEdit() { const t = editBody.trim(); if (!t) return; setBusy(true); try { await editContribution(k.id, t); setEditing(false); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function remove() { if (!window.confirm(mineK ? "למחוק את התגובה שלך?" : "למחוק את התגובה?")) return; setBusy(true); try { await removeContribution(k.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function approve() { setBusy(true); try { await approveContribution(k.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function hide() { setBusy(true); try { await moderateContribution(k.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   // תגובה עשירה → כרטיס מלא (writeOnly, בלי ילדים — רמה אחת). כולל עריכה (ContribCard).
@@ -156,8 +160,9 @@ function ReplyItem({ k, P, user, isAdmin, origin, target, onChanged }) {
           <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11 }}>— {k.author_name ? <ResearcherLink name={k.author_name} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }} /> : "חבר הקהילה"} · {timeAgo(k.created_at)}{pending ? " · ⏳ ממתין" : ""}</span>
           <ReactionBar id={k.id} reactions={k.reactions} compact />
           {canEdit && <button onClick={() => { setEditBody(k.body || ""); setEditing(true); }} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✏️ ערוך</button>}
+          {canEdit && <button disabled={busy} onClick={remove} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>🗑 מחק</button>}
           {isAdmin && pending && <button disabled={busy} onClick={approve} style={{ ...goldBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✅ אשר</button>}
-          {isAdmin && <button disabled={busy} onClick={hide} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✖ הסתר</button>}
+          {isAdmin && !mineK && <button disabled={busy} onClick={hide} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✖ הסתר</button>}
         </div>
       )}
     </div>
