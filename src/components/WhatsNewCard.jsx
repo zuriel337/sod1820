@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { stripHtml } from "../lib/format.js";
+import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { getWhatsNewCounts } from "../lib/whatsNew.js";
 
 // 🔔 כרטיס «מה חדש בקהילה מאז ביקורך» — פורום-בלבד (החלטת צוריאל).
@@ -68,7 +68,7 @@ export default function WhatsNewCard() {
         <Link to={m ? m.href : "/forum"} className="wn-preview">
           {m
             ? <>
-                <span className="txt">{m.em} {text} <span className="who">· ✍️ {m.who}</span></span>
+                <span className="txt">{m.em} {text} <span className="who">· ✍️ {m.who}{m.when ? ` · 🕐 ${timeAgoHe(m.when)}` : ""}</span></span>
                 {more > 0 && <span className="n">+{more}</span>}
               </>
             : <span className="txt">עדכונים חדשים בפורום המחקר</span>}
