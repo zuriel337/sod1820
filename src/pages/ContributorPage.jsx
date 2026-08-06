@@ -7,6 +7,7 @@ import { thumb, galThumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import FollowWriter from "../components/FollowWriter.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import DossierExtras from "../components/dossier/DossierExtras.jsx";
 import { genAvatar } from "../lib/avatar.js";
@@ -178,7 +179,7 @@ export default function ContributorPage() {
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
-    const cols = "slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
+    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
     const resolveMe = slug === "me";
     // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
     if (resolveMe && authLoading) return;
@@ -443,6 +444,12 @@ export default function ContributorPage() {
           {c.vip ? "👑 " : ""}{c.display_name}
         </div>
         {c.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginTop: 4 }}>{c.role}</div>}
+        {/* ✓ כתב מהימן — סימון-האמון של האתר (contributors.trusted); מסונכרן עם ה-✓ בפורום */}
+        {c.trusted && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 8, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "3px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 900 }}>
+            ✓ כתב מהימן
+          </div>
+        )}
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, maxWidth: 460, marginInline: "auto", lineHeight: 1.5 }}>כל הגילויים, החידושים והקשרים שנאספו לאורך הדרך.</div>
         {/* 🌳 דרגת-החוקר — מנוע-הגדילה */}
         {level?.level && (
@@ -454,6 +461,25 @@ export default function ContributorPage() {
             </span>
           </div>
         )}
+        {/* 📊 סיכום-על במבט אחד — מהנתונים שכבר נטענו (רק לא-אפס, אמת). */}
+        {(() => {
+          const stats = [
+            gemBank.length ? ["🔢", gemBank.length, "גימטריות במאגר"] : null,
+            convergences.length ? ["🎯", convergences.length, "התכנסויות"] : null,
+            posts.length ? ["📝", posts.length, "מחקרים"] : null,
+          ].filter(Boolean);
+          if (!stats.length) return null;
+          return (
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
+              {stats.map(([e, v, l]) => (
+                <div key={l} style={{ display: "inline-flex", alignItems: "baseline", gap: 5 }}>
+                  <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18, fontWeight: 900 }}>{e} {v}</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{l}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
         {header?.stats && (
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>
             📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
@@ -461,6 +487,8 @@ export default function ContributorPage() {
         )}
         {/* 🔗 שיתוף הדף — רכיב-השיתוף הקנוני (canonical_ui_components_law) */}
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
+          {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
+          <FollowWriter name={c.display_name} P={P} />
           <ShareActions type="researcher"
             url={`https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`}
             title={`${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`}
