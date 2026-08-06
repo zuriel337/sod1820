@@ -7,6 +7,7 @@ import { thumb, galThumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import FollowWriter from "../components/FollowWriter.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import DossierExtras from "../components/dossier/DossierExtras.jsx";
 import { genAvatar } from "../lib/avatar.js";
@@ -150,6 +151,7 @@ export default function ContributorPage() {
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
   const [gemBank, setGemBank] = useState([]);     // 🔢 הגימטריות שלו במאגר (convergences לפי details.contributors)
   const [forumMsgs, setForumMsgs] = useState([]); // 💬 ההודעות האחרונות שלו בפורום (research_contributions)
+  const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
   // 🔢 גימטריה תמיד ראשונה: עדכון שנושא גימטריה (ביטוי = מספר / «בגימטריא» / «מאומת במנוע») עולה לראש
@@ -178,7 +180,7 @@ export default function ContributorPage() {
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
-    const cols = "slug,code,display_name,role,bio,notes,vip,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
+    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
     const resolveMe = slug === "me";
     // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
     if (resolveMe && authLoading) return;
@@ -286,6 +288,20 @@ export default function ContributorPage() {
       .catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name, c?.user_id]);
+
+  // 🗓️ אירועי-הציר של הכתב — nodes type=event שיוחסו אליו (metadata.contributor_slug).
+  //    עדשה על אותם צמתים שמופיעים ב«ציר ההתגלות» הגלובלי (RevelationAxis/TimelinePage) — לא עותק.
+  useEffect(() => {
+    if (!c?.slug) { setAxisEvents([]); return; }
+    let alive = true;
+    supabase.from("nodes")
+      .select("id,label,description,weight,hebrew_date,axis_theme,metadata,created_at")
+      .eq("type", "event").eq("is_active", true)
+      .eq("metadata->>contributor_slug", c.slug)
+      .then(({ data }) => { if (alive) setAxisEvents(Array.isArray(data) ? data : []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [c?.slug]);
 
   // 📌 תיוגים + 🎯 התכנסויות — עדשה על posts.tags / topic_cards.search_terms לפי contributor.tags.
   // עץ אחד: לא עותק — מצביע לפוסט הקנוני ולעמוד ההתכנסות (/topic/:slug).
@@ -443,6 +459,12 @@ export default function ContributorPage() {
           {c.vip ? "👑 " : ""}{c.display_name}
         </div>
         {c.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginTop: 4 }}>{c.role}</div>}
+        {/* ✓ כתב מהימן — סימון-האמון של האתר (contributors.trusted); מסונכרן עם ה-✓ בפורום */}
+        {c.trusted && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 8, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "3px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 900 }}>
+            ✓ כתב מהימן
+          </div>
+        )}
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, maxWidth: 460, marginInline: "auto", lineHeight: 1.5 }}>כל הגילויים, החידושים והקשרים שנאספו לאורך הדרך.</div>
         {/* 🌳 דרגת-החוקר — מנוע-הגדילה */}
         {level?.level && (
@@ -454,6 +476,25 @@ export default function ContributorPage() {
             </span>
           </div>
         )}
+        {/* 📊 סיכום-על במבט אחד — מהנתונים שכבר נטענו (רק לא-אפס, אמת). */}
+        {(() => {
+          const stats = [
+            gemBank.length ? ["🔢", gemBank.length, "גימטריות במאגר"] : null,
+            convergences.length ? ["🎯", convergences.length, "התכנסויות"] : null,
+            posts.length ? ["📝", posts.length, "מחקרים"] : null,
+          ].filter(Boolean);
+          if (!stats.length) return null;
+          return (
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
+              {stats.map(([e, v, l]) => (
+                <div key={l} style={{ display: "inline-flex", alignItems: "baseline", gap: 5 }}>
+                  <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18, fontWeight: 900 }}>{e} {v}</span>
+                  <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{l}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
         {header?.stats && (
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>
             📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
@@ -461,6 +502,8 @@ export default function ContributorPage() {
         )}
         {/* 🔗 שיתוף הדף — רכיב-השיתוף הקנוני (canonical_ui_components_law) */}
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
+          {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
+          <FollowWriter name={c.display_name} P={P} />
           <ShareActions type="researcher"
             url={`https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`}
             title={`${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`}
@@ -470,6 +513,71 @@ export default function ContributorPage() {
           </a>
         </div>
       </div>
+
+      {/* 🗓️ ציר האירועים שלו — nodes type=event שיוחסו אליו. עדשה על «ציר ההתגלות» הגלובלי (לא עותק);
+          כולל את המחקרים הישנים שלו על ציר-זמן + הפניה לציר ההתגלות המלא. */}
+      {axisEvents.length > 0 && (() => {
+        const evs = [...axisEvents].sort((a, b) => (Number(b.metadata?.year) || 0) - (Number(a.metadata?.year) || 0) || (b.weight || 0) - (a.weight || 0));
+        const postsByYear = (() => {
+          const m = new Map();
+          for (const p of posts) { const y = (p.date && String(p.date).slice(0, 4)) || "—"; if (!m.has(y)) m.set(y, []); m.get(y).push(p); }
+          return [...m.entries()].sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+        })();
+        const theme = evs[0]?.axis_theme;
+        return (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>
+              🗓️ ציר האירועים של {c.display_name}{theme ? ` — ${theme}` : ""}
+            </div>
+            <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textAlign: "center", marginBottom: 14 }}>
+              התכנסות תאריכים ורמזים · מחובר ל«ציר ההתגלות» של האתר
+            </div>
+            <div style={{ position: "relative", marginInlineStart: 10, paddingInlineStart: 22, borderInlineStart: `2px solid ${P.accent}55`, display: "grid", gap: 12 }}>
+              {evs.map(ev => (
+                <div key={ev.id} style={{ position: "relative", background: P.card, border: `1px solid ${(ev.weight || 0) >= 4 ? P.accent : P.border}`, borderRadius: 14, padding: "13px 16px" }}>
+                  <div style={{ position: "absolute", top: 18, insetInlineStart: -29, width: 12, height: 12, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%, #fff8e1, ${P.accentText} 60%)`, boxShadow: `0 0 10px ${P.accent}` }} />
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 5 }}>
+                    {ev.hebrew_date && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🕯 {ev.hebrew_date}</span>}
+                    {ev.metadata?.greg_date && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· {ev.metadata.greg_date}</span>}
+                    {(ev.weight || 0) >= 5 && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>★ מרכזי</span>}
+                  </div>
+                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, lineHeight: 1.5 }}>{ev.label}</div>
+                  {ev.description && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginTop: 5 }}>{ev.description}</div>}
+                  {(ev.metadata?.gematria || (ev.metadata?.numbers || []).length) ? (
+                    <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
+                      {ev.metadata?.gematria && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 11px" }}>🔢 {ev.metadata.gematria}</span>}
+                      {(ev.metadata?.numbers || []).map(n => <a key={n} href={`/number/${n}`} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px", textDecoration: "none" }}>{n}</a>)}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+            {postsByYear.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 8 }}>📝 המחקרים שלו לאורך השנים</div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {postsByYear.map(([y, ps]) => (
+                    <div key={y} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <span style={{ flex: "0 0 auto", minWidth: 44, color: P.accentText, fontFamily: F.mono, fontSize: 14, fontWeight: 900 }}>{y}</span>
+                      <div style={{ display: "grid", gap: 5, minWidth: 0 }}>
+                        {ps.map(p => (
+                          <a key={p.slug} href={`/${p.slug}`} style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.5, textDecoration: "none", borderBottom: `1px dotted ${P.border}` }}>{p.participated ? "🤝 " : ""}{stripHtml(p.title)}</a>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div style={{ textAlign: "center", marginTop: 16 }}>
+              <a href="/timeline" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 20px", minHeight: 44 }}>
+                🌅 הכל בציר ההתגלות של האתר ←
+              </a>
+            </div>
+            <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "20px 0 2px" }} />
+          </div>
+        );
+      })()}
 
       {/* 🔢 הגימטריות שלו במאגר — למעלה, ראשון (בקשת צוריאל). אוטומציה: convergences המיוחסות לכתב. */}
       {gemBank.length > 0 && (
