@@ -374,7 +374,8 @@ export default function Discourse({ target, origin = "number", archive = [], foc
   useEffect(() => { getForumFeed({ limit: 1 }).then(f => setLastForum(f && f[0])).catch(() => {}); }, []);
 
   if (!target?.id) return null;
-  const list = items || [];
+  // 🛡️ רשת-ביטחון: מוסתר/נדחה = מחוק — לעולם לא מוצג (גם אם מקור כלשהו החזיר אותו).
+  const list = (items || []).filter(c => c.status !== "hidden" && c.status !== "rejected");
   // מיקוד: רק התרומה הממוקדת (root יחיד). אחרת — כל ה-roots של הישות.
   const roots = focusId ? list.filter(c => c.id === focusId) : list.filter(c => !c.parent_id);
   const kidsOf = id => list.filter(c => c.parent_id === id);

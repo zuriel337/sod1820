@@ -62,6 +62,9 @@ export async function getContributions(targetType, targetId, limit = 120) {
     const { data } = await supabase.from("research_contributions")
       .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,image_url,is_featured,is_answer,pinned_at,convergence_slug,reactions,created_at")
       .eq("target_type", targetType).eq("target_id", String(targetId))
+      // ⛔ שורש-התקלה שחזרה: RLS מחזיר לבעלים את שורותיו בכל סטטוס (כולל hidden), ובלי הסינון הזה
+      //    תגובה שנמחקה (status=hidden) המשיכה להופיע לכותב/אדמין → «לא מצליח למחוק». מוסתר/נדחה = מחוק.
+      .not("status", "in", "(hidden,rejected)")
       .order("created_at", { ascending: true }).limit(limit);
     return data || [];
   } catch { return []; }
@@ -74,6 +77,7 @@ export async function getContributionById(id) {
     const { data } = await supabase.from("research_contributions")
       .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,created_at")
       .eq("id", id).maybeSingle();
+    if (data && (data.status === "hidden" || data.status === "rejected")) return null;   // מחוק = לא-נמצא
     return data || null;
   } catch { return null; }
 }
