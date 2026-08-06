@@ -49,8 +49,8 @@ export default function Layout() {
       <RevelationAxis />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
-        {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר (כולל דף הבית). הודעת-מערכת קבועה. */}
-        <MaintenanceTicker />
+        {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
+        {false && <MaintenanceTicker />}
         {/* 🌌 באנר-העל הקוסמי (פסוק + שמי-כוכבים + אור-נגלה + נגן-רקע) — רק בפוסטים ובצ'אט. */}
         {showBanner && <CosmicVerseBanner mode={mode} />}
         {/* 📡 טיקר-החדשות «עכשיו באתר» — מוסתר כרגע (בקשת צוריאל 4.8.2026). להחזרה: הסר את false. */}
