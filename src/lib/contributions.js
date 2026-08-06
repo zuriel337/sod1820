@@ -60,7 +60,7 @@ export async function getContributions(targetType, targetId, limit = 120) {
   if (!supabase) return [];
   try {
     const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,image_url,is_featured,pinned_at,convergence_slug,reactions,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,gematria_claim,image_url,is_featured,is_answer,pinned_at,convergence_slug,reactions,created_at")
       .eq("target_type", targetType).eq("target_id", String(targetId))
       .order("created_at", { ascending: true }).limit(limit);
     return data || [];
@@ -135,6 +135,18 @@ export async function editContribution(id, body) {
 // 🗑 מחיקת תגובה — המחבר את שלו · אדמין את של כולם (מחיקה רכה, נאכף בשרת).
 export async function removeContribution(id) {
   const { error } = await supabase.rpc("remove_contribution", { p_id: id });
+  if (error) throw error;
+}
+
+// ⭐ סימון תגובה כ«מובחרת» (אדמין)
+export async function featureContribution(id, on) {
+  const { error } = await supabase.rpc("feature_contribution", { p_id: id, p_on: on });
+  if (error) throw error;
+}
+
+// ✅ סימון תגובה כ«תשובה» (אדמין/שואל) — סוגר אתגר מקושר ומזכה את הפותֵר
+export async function markAnswer(id, on) {
+  const { error } = await supabase.rpc("mark_answer", { p_id: id, p_on: on });
   if (error) throw error;
 }
 

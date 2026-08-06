@@ -11,7 +11,8 @@ import ResearcherLink from "./ResearcherLink.jsx";
 import ReactionBar from "./ReactionBar.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
-  linkContribution, approveContribution, moderateContribution, editContribution, removeContribution, getForumFeed, forumItemMeta,
+  linkContribution, approveContribution, moderateContribution, editContribution, removeContribution,
+  featureContribution, markAnswer, getForumFeed, forumItemMeta,
 } from "../lib/contributions.js";
 
 // 🔬 מחקר קהילתי — עדשה אחת על research_contributions לישות נתונה (מספר/פסוק/צופן/פוסט…).
@@ -48,6 +49,8 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
 
   async function saveEdit() { const t = editBody.trim(); if (!t) return; setBusy(true); try { await editContribution(c.id, t); setEditing(false); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function remove() { if (!window.confirm(mine ? "למחוק את התגובה שלך?" : "למחוק את התגובה?")) return; setBusy(true); try { await removeContribution(c.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function toggleFeature() { setBusy(true); try { await featureContribution(c.id, !c.is_featured); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function toggleAnswer() { setBusy(true); try { await markAnswer(c.id, !c.is_answer); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function approve() { setBusy(true); try { await approveContribution(c.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function hide() { setBusy(true); try { await moderateContribution(c.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function doLink() {
@@ -64,6 +67,7 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
   return (
     <div style={{ background: P.cardGrad, border: `1px solid ${c.is_featured ? "#d4af37" : pending ? P.borderStrong : P.border}`, borderRadius: 13, padding: "13px 15px", boxShadow: c.is_featured ? "0 0 0 1px #d4af37 inset" : "none" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 6 }}>
+        {c.is_answer && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "#1f8a4c", color: "#fff", borderRadius: 999, padding: "1px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>✅ תשובה מאושרת</span>}
         {c.is_featured && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>⭐ תגובה מובחרת</span>}
         {c.convergence_slug && <Link to={`/topic/${c.convergence_slug}`} title="נוצרה מכאן התכנסות" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 10px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>✦ יצר התכנסות ←</Link>}
         {badge("transparent", P.accentText, `${im.emoji} ${im.label}`)}
@@ -101,6 +105,8 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
         {user && <button onClick={() => setLinking(v => !v)} style={linkBtn(P)}>🔗 מצאתי קשר</button>}
         {canEdit && !editing && <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} style={linkBtn(P)}>✏️ ערוך</button>}
         {canEdit && <button disabled={busy} onClick={remove} style={linkBtn(P)}>🗑 מחק</button>}
+        {isAdmin && c.parent_id && <button disabled={busy} onClick={toggleAnswer} style={linkBtn(P)}>{c.is_answer ? "✅ בטל תשובה" : "✅ סמן כתשובה"}</button>}
+        {isAdmin && <button disabled={busy} onClick={toggleFeature} style={linkBtn(P)}>{c.is_featured ? "⭐ בטל מובחרת" : "⭐ מובחרת"}</button>}
         {isAdmin && pending && <button disabled={busy} onClick={approve} style={goldBtn(P)}>✅ אשר</button>}
         {isAdmin && !mine && <button disabled={busy} onClick={hide} style={linkBtn(P)}>✖ הסתר</button>}
       </div>
@@ -114,7 +120,7 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
       {/* תגובות (רמה אחת) — לא בפורום (writeOnly) */}
       {!writeOnly && kids?.length > 0 && (
         <div style={{ marginTop: 11, paddingInlineStart: 12, borderInlineStart: `2px solid ${P.border}`, display: "grid", gap: 9 }}>
-          {kids.map(k => (
+          {[...kids].sort((a, b) => (b.is_answer ? 1 : 0) - (a.is_answer ? 1 : 0)).map(k => (
             <ReplyItem key={k.id} k={k} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target} onChanged={onChanged} />
           ))}
         </div>
@@ -135,10 +141,12 @@ function ReplyItem({ k, P, user, isAdmin, origin, target, onChanged }) {
   const canEdit = isAdmin || mineK;   // ✏️ המחבר/אדמין
   async function saveEdit() { const t = editBody.trim(); if (!t) return; setBusy(true); try { await editContribution(k.id, t); setEditing(false); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function remove() { if (!window.confirm(mineK ? "למחוק את התגובה שלך?" : "למחוק את התגובה?")) return; setBusy(true); try { await removeContribution(k.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function toggleAnswer() { setBusy(true); try { await markAnswer(k.id, !k.is_answer); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function toggleFeature() { setBusy(true); try { await featureContribution(k.id, !k.is_featured); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function approve() { setBusy(true); try { await approveContribution(k.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function hide() { setBusy(true); try { await moderateContribution(k.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
-  // תגובה עשירה → כרטיס מלא (writeOnly, בלי ילדים — רמה אחת). כולל עריכה (ContribCard).
-  if (k.is_featured || k.image_url || k.gematria_claim) {
+  // תגובה עשירה/מובחרת/תשובה → כרטיס מלא (writeOnly, בלי ילדים — רמה אחת). כולל עריכה (ContribCard).
+  if (k.is_featured || k.is_answer || k.image_url || k.gematria_claim) {
     return <ContribCard c={k} kids={[]} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target} writeOnly onReply={() => {}} onChanged={onChanged} />;
   }
   return (
@@ -161,6 +169,8 @@ function ReplyItem({ k, P, user, isAdmin, origin, target, onChanged }) {
           <ReactionBar id={k.id} reactions={k.reactions} compact />
           {canEdit && <button onClick={() => { setEditBody(k.body || ""); setEditing(true); }} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✏️ ערוך</button>}
           {canEdit && <button disabled={busy} onClick={remove} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>🗑 מחק</button>}
+          {isAdmin && <button disabled={busy} onClick={toggleAnswer} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✅ סמן כתשובה</button>}
+          {isAdmin && <button disabled={busy} onClick={toggleFeature} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>⭐ מובחרת</button>}
           {isAdmin && pending && <button disabled={busy} onClick={approve} style={{ ...goldBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✅ אשר</button>}
           {isAdmin && !mineK && <button disabled={busy} onClick={hide} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✖ הסתר</button>}
         </div>
@@ -375,7 +385,7 @@ export default function Discourse({ target, origin = "number", archive = [], foc
   // ולכן כאן מציגים רק את התגובות (ילדי focusId לפי parent_id — לא תלוי ביעד) + מלחין-תגובה.
   // כך אין כפילות של הכרטיס, והתגובות נראות גם לפריט-פורום שאין לו יעד-מספר (target=forum:id).
   if (repliesOnly && focusId) {
-    const replies = list.filter(c => c.parent_id === focusId);
+    const replies = list.filter(c => c.parent_id === focusId).sort((a, b) => (b.is_answer ? 1 : 0) - (a.is_answer ? 1 : 0));
     return (
       <div style={{ display: "grid", gap: 10 }}>
         {items === null ? (
