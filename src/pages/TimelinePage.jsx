@@ -32,7 +32,7 @@ function useAxisData() {
       const convergences = (convs || []).map(c => ({ ...c, __conv: true }));
 
       const { data: events } = await supabase.from("nodes")
-        .select("id,label,weight,hebrew_date,axis_theme,metadata,gallery_id,created_at")
+        .select("id,label,description,weight,hebrew_date,axis_theme,metadata,gallery_id,created_at")
         .eq("type", "event").eq("is_active", true);
       if (!alive || !events?.length) { alive && setData(d => ({ ...d, convergences, loading: false })); return; }
 
@@ -117,6 +117,33 @@ function Station({ ev, post, images, isTarget }) {
       <h3 style={{ color: C.goldLight, fontFamily: F.royal, fontSize: 18.5, fontWeight: 700, margin: 0, lineHeight: 1.65 }}>
         {stripHtml(ev.label || "")}
       </h3>
+
+      {ev.description && (
+        <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, margin: "9px 0 0" }}>
+          {stripHtml(ev.description)}
+        </p>
+      )}
+
+      {/* 🔢 רמז-גימטריה מאומת + מספרים מקושרים (מ-metadata) */}
+      {(ev.metadata?.gematria || (ev.metadata?.numbers || []).length > 0) && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
+          {ev.metadata?.gematria && (
+            <span style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, background: "rgba(212,175,55,0.12)", border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "3px 12px" }}>
+              🔢 {ev.metadata.gematria}
+            </span>
+          )}
+          {(ev.metadata?.numbers || []).map(n => (
+            <Link key={n} to={`/number/${n}`} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, color: C.goldBright, border: `1px solid ${C.borderGold}`, borderRadius: 999, padding: "2px 10px", textDecoration: "none" }}>{n}</Link>
+          ))}
+        </div>
+      )}
+
+      {/* ✍️ ייחוס-כתב — קישור לדף-החוקר (עץ אחד, לא עותק) */}
+      {ev.metadata?.contributor && (
+        <div style={{ marginTop: 10, color: C.muted, fontFamily: F.heading, fontSize: 11.5 }}>
+          ✍️ מחקר של <Link to={`/community/researcher/${encodeURIComponent(ev.metadata.contributor_slug || ev.metadata.contributor)}`} style={{ color: C.goldBright, fontWeight: 700, textDecoration: "none" }}>{ev.metadata.contributor}</Link>
+        </div>
+      )}
 
       {post && (
         <Link to={`/${post.slug}`} style={{
