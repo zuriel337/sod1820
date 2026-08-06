@@ -25,13 +25,13 @@ export default function ResearchersIndexPage() {
   useEffect(() => {
     applySeo({ title: "הכתבים והחוקרים", description: "רשימת הכתבים והחוקרים של סוד 1820 — דפי הגילויים האישיים", path: "/community/researchers" });
     let alive = true;
-    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,avatar_url,media,locked,building,created_at,tags")
+    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,trusted,avatar_url,media,locked,building,created_at,tags")
       .eq("active", true).neq("kind", "private").not("slug", "like", "r-%").neq("display_name", "sod1820")  // ⛔ פרטי + חשבון-מערכת
       .then(({ data }) => {
         if (!alive) return;
         const list = Array.isArray(data) ? data.slice() : [];
-        // מיון: כתבים חדשים (⭐) בראש כ«פנים חדשות»; אחר-כך דרגה↓, ובתוכה הוותיק ראשון.
-        list.sort((a, b) => (isNewWriter(b) ? 1 : 0) - (isNewWriter(a) ? 1 : 0) || tierOf(b) - tierOf(a) || String(a.created_at || "").localeCompare(String(b.created_at || "")));
+        // מיון: כתבים חדשים (⭐) בראש כ«פנים חדשות»; ואז ✓ מהימנים; אחר-כך דרגה↓, ובתוכה הוותיק ראשון.
+        list.sort((a, b) => (isNewWriter(b) ? 1 : 0) - (isNewWriter(a) ? 1 : 0) || (b.trusted ? 1 : 0) - (a.trusted ? 1 : 0) || tierOf(b) - tierOf(a) || String(a.created_at || "").localeCompare(String(b.created_at || "")));
         setRows(list);
       })
       .catch(() => alive && setRows([]));
@@ -63,6 +63,7 @@ export default function ResearchersIndexPage() {
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                       {r.vip ? "👑 " : ""}{r.display_name}{r.building ? " 🚧" : r.locked ? " 🔑" : ""}
+                      {r.trusted && <span title="כתב מהימן" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: F.heading, fontSize: 11, fontWeight: 900, color: "#3a2c00", background: "linear-gradient(135deg,#f6e27a,#d4af37)", borderRadius: 999, padding: "2px 9px", whiteSpace: "nowrap" }}>✓ מהימן</span>}
                       {isNew && <span style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 800, color: P.onAccent, background: P.accentBtn, borderRadius: 999, padding: "2px 9px", whiteSpace: "nowrap" }}>⭐ כתב חדש</span>}
                     </div>
                     {r.building
