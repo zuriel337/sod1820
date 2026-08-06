@@ -291,7 +291,7 @@ function ChatRow({ c, P, onOpen }) {
       </span>
       {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
       {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
-      {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12 }}>🧩</span>}
+      {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12.5 }}>{c.challenge.status === "open" ? "🆘" : "🧩"}</span>}
       {/* 💬 מונה-תגובות — מוצג רק בשרשור פעיל (יש ולו תגובה אחת); בלי תגובות אין מספר כלל */}
       {isContrib && c.replyCount > 0 && (
         <span className="ff-count" title={`${c.replyCount} תגובות בשרשור`}

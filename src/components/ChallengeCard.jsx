@@ -46,8 +46,13 @@ export default function ChallengeCard({ challenge, elsPhrase = null, onChanged }
 
   return (
     <div style={{ background: "linear-gradient(135deg, rgba(132,88,255,0.10), rgba(212,175,55,0.06))", border: `1px solid ${solved ? "#d4af37" : P.borderStrong}`, borderRadius: 14, padding: "13px 15px", marginTop: 10 }}>
+      <style>{`@keyframes sosPulse{0%,100%{box-shadow:0 0 0 0 rgba(214,74,58,.55)}50%{box-shadow:0 0 0 5px rgba(214,74,58,0)}}`}</style>
       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 7 }}>
         <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15, fontWeight: 900 }}>🧩 אתגר מחקר</span>
+        {/* 🆘 תג בולט לאתגר פתוח שממתין לחוקר — שיזוהה מיד בזרם */}
+        {ch.status === "open" && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "#d64a3a", color: "#fff", borderRadius: 999, padding: "2px 11px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900, animation: "sosPulse 1.8s ease-in-out infinite" }}>🆘 דרוש חוקר</span>
+        )}
         {pill("transparent", st.color, `${st.emoji} ${st.label}`)}
         {df && pill("transparent", P.accentDim, `${df.emoji} ${df.label}`)}
         <span style={{ flex: 1 }} />
@@ -125,6 +130,10 @@ export function ChallengeCreate({ contributionId, defaultTitle = "", onCreated }
   );
   return (
     <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 13px", marginTop: 8 }}>
+      {/* 🎯 אצירה — «איכות לפני כמות»: הנחיה קצרה שומרת על היוקרה בלי חיכוך מיותר */}
+      <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.6, marginBottom: 9, paddingInlineStart: 8, borderInlineStart: `2px solid ${P.borderStrong}` }}>
+        לפני יצירת אתגר מחקר, ודאו ש: הוא יכול להועיל גם לחוקרים נוספים · יש בו ערך מחקרי אמיתי · הבקשה מוגדרת בבירור.
+      </div>
       <input value={title} onChange={e => setTitle(e.target.value)} placeholder="מחפש: … (מה דרוש לפצח)"
         style={{ width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.border}`, borderRadius: 8, padding: "8px 11px", color: P.ink, fontFamily: F.body, fontSize: 13.5, outline: "none", marginBottom: 9 }} />
       <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 5 }}>תחומים דרושים (איתות לחוקרים המתאימים):</div>
