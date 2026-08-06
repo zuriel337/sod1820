@@ -369,6 +369,20 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
     .slice(0, limit);
 }
 
+// 🌳 «מוזכר בפורום» — תגובות שמתייגות מספר נתון (gematria_claim.numbers), גם אם נכתבו על ישות אחרת.
+//    עדשה לדף-המספר: התגובה = חוליה בגרף, מופיעה כמו רמז-מציאות עם primary_value (unified_graph_law).
+export async function getContributionsByNumber(n) {
+  if (!supabase || !n) return [];
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,author_name,author_user_id,intent,target_type,target_id,body,gematria_claim,created_at")
+      .eq("status", "approved")
+      .contains("gematria_claim", { numbers: [Number(n)] })
+      .order("created_at", { ascending: false }).limit(20);
+    return data || [];
+  } catch { return []; }
+}
+
 // 🔴 הפעילות האחרונה בפורום — שאילתה קלה יחידה (מקור-אמת ל«יש חדש»/«תגובה חדשה»).
 //    התרומה המאושרת האחרונה: created_at = מתי · parent_id!=null = הפעילות היא תגובה.
 export async function getLatestForumActivity() {

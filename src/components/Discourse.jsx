@@ -242,6 +242,7 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
   // 🔢 מיני-מחשבון גימטריה (מנוע רשמי) + 📷 העלאת תמונה — «תגובה = עדות-מחקר»
   const [gemOpen, setGemOpen] = useState(false);
   const [gemInput, setGemInput] = useState("");
+  const [gemRows, setGemRows] = useState([]);   // 🔢 ערכי-גימטריה שנוספו — לתיוג-לעץ + סגנון-מאומת
   const [imageUrl, setImageUrl] = useState(null);
   const [imgBusy, setImgBusy] = useState(false);
   const fileRef = useRef(null);
@@ -255,6 +256,8 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
     const phrase = gemInput.trim();
     if (!phrase || gemVal == null) return;
     setBody(b => (b && !b.endsWith("\n") ? b + "\n" : b) + `«${phrase}» = ${gemVal}`);
+    // 🌳 תיוג-לעץ: כל ערך שנוסף נשמר → התגובה תתחבר לצומת-המספר ותקבל סגנון-מאומת (כמו primary_value בתמונה)
+    setGemRows(r => [...r, { value: gemVal, method: "רגיל", note: `«${phrase}»` }]);
     setGemInput(""); setGemOpen(false);
     setTimeout(() => taRef.current?.focus(), 0);
   }
@@ -280,9 +283,15 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
     if (!t) return;
     setSt("sending");
     try {
+      // 🌳 תגובת-גימטריה → gematria_claim: (א) סגנון «🔢 עובדה מאומתת במנוע» אוטומטי (סגנון-לפי-סוג);
+      //    (ב) links לצמתי-המספר = חיבור-לעץ (כמו all_values בתמונת-מציאות). numbers = תגי-המספר ללשונית.
+      const nums = [...new Set(gemRows.map(r => r.value).filter(v => v > 0))];
+      const gematriaClaim = gemRows.length
+        ? { rows: gemRows, links: nums.map(n => `/number/${n}`), numbers: nums }
+        : null;
       await addContribution({ intent, origin, body: t, targetType: target.type, targetId: target.id, parentId: replyTo || null,
-        authorName: anon ? (name.trim() || null) : null, imageUrl });
-      setBody(""); setImageUrl(null); setSt("done"); onDone?.(live);
+        authorName: anon ? (name.trim() || null) : null, imageUrl, gematriaClaim });
+      setBody(""); setImageUrl(null); setGemRows([]); setSt("done"); onDone?.(live);
       setTimeout(() => setSt("idle"), 2500);
     } catch (e) {
       setSt("idle");

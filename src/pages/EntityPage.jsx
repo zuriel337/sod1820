@@ -22,6 +22,7 @@ import GiluyTreasures from "../components/GiluyTreasures.jsx";
 import CrossFinder from "../components/CrossFinder.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import Discourse from "../components/Discourse.jsx";
+import ForumNumberMentions from "../components/ForumNumberMentions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
@@ -1957,6 +1958,9 @@ export default function EntityPage({ embedPhrase } = {}) {
             </div>
           </section>
         )}
+
+        {/* 🌳 מוזכר בפורום — תגובות שתייגו את המספר הזה (גם אם נכתבו על ישות אחרת) → חוליה בעץ */}
+        {isNumber && <ForumNumberMentions n={value} />}
 
         {/* 🔬 מחקר קהילתי — תרומות-המחקר של הקהילה על הישות (research_contribution_law).
             דיוני-הוורדפרס הישנים (d.comments) מקופלים בתוך הרכיב כארכיון — מדור אחד, לא שניים. */}
