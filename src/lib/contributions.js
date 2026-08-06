@@ -365,6 +365,19 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
     .slice(0, limit);
 }
 
+// 🔴 הפעילות האחרונה בפורום — שאילתה קלה יחידה (מקור-אמת ל«יש חדש»/«תגובה חדשה»).
+//    התרומה המאושרת האחרונה: created_at = מתי · parent_id!=null = הפעילות היא תגובה.
+export async function getLatestForumActivity() {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("created_at,parent_id")
+      .eq("status", "approved")
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
+
 // 👤 פרופיל-חוקר רשום (לא-אצור) — עדשה על research_contributions לפי שם-מחבר.
 // מזין את דף-החוקר הקל (ResearcherProfile) כשאין שורת-contributor אצורה. עץ אחד: אותו דף,
 // אצור או אוטומטי. מחזיר null אם אין ולו חידוש-מאושר אחד (אז אין פרופיל).

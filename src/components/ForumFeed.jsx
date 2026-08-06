@@ -333,7 +333,12 @@ function ChatRow({ c, P, onOpen }) {
           👍 {rTotal}
         </span>
       )}
-      <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
+      {/* 💬 עודכן — כשהשרשור קפץ מתגובה/פעילות (bump חדש מ-ts) מציגים את זמן-הפעילות האחרונה */}
+      {c.bump && new Date(c.bump) > new Date(c.ts) ? (
+        <span title="עודכן — תגובה/פעילות אחרונה" style={{ flex: "0 0 auto", color: P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, whiteSpace: "nowrap" }}>💬 {timeAgo(c.bump)}</span>
+      ) : (
+        <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
+      )}
     </button>
   );
 }

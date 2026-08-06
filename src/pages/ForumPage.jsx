@@ -6,6 +6,7 @@ import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import ForumFeed from "../components/ForumFeed.jsx";
 import ContributorsUpdatesRail from "../components/ContributorsUpdatesRail.jsx";
+import { markForumSeen } from "../lib/forumActivity.js";
 
 // 🌐 הפורום — פיד-מחקר מאוחד (research_contribution_law + עץ אחד). הגוף (סינונים + כרטיסים)
 // חי ברכיב המשותף <ForumFeed>, שמרונדר גם כאן (דף עצמאי /forum) וגם בטאב «פורום» במרכז
@@ -15,6 +16,8 @@ export default function ForumPage() {
   const mode = useThemeMode();
 
   useEffect(() => { track("forum"); applySeo({ title: "פורום המחקר הקהילתי · סוד 1820", description: "כל חידושי, השערות, מקורות ומאמרי הכתבים של הקהילה במקום אחד — פורום המחקר של סוד 1820.", path: "/forum" }); }, []);
+  // 🔴 נכנסת לפורום = ראית את הפעילות → מנקה את נקודת «חדש» בכל המשטחים (Footer/צ'אט/פיד)
+  useEffect(() => { markForumSeen(); }, []);
   // 🌞 הפורום נפתח במצב בהיר כברירת-מחדל (כמו בית המדרש), עם אפשרות לעבור לכהה.
   useEffect(() => { setForcedMode("light"); return () => setForcedMode(null); }, []);
 
