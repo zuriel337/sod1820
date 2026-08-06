@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import ForumActivityDot from "../ForumActivityDot.jsx";
 import { F, LOGO_URL } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
@@ -250,7 +251,7 @@ export default function Footer() {
                 {col.title}
               </div>
               {col.links.map(l => (
-                <Link key={l.to} to={l.to} className="foot-link">{l.label}</Link>
+                <Link key={l.to} to={l.to} className="foot-link">{l.label}{l.to === "/forum" && <ForumActivityDot />}</Link>
               ))}
             </div>
           ))}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import ForumActivityDot from "../components/ForumActivityDot.jsx";
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
@@ -4306,6 +4307,10 @@ function SpotimChatPage() {
               דף צ'אט
             </h1>
             <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
+            {/* 🔴 פעילות-פורום חדשה — הבאדג׳ הקנוני (מופיע רק כשיש חדש; לחיצה → פורום) */}
+            <div style={{ marginTop: 12 }}>
+              <Link to="/forum" style={{ textDecoration: "none" }}><ForumActivityDot withText /></Link>
+            </div>
           </div>
 
           {/* הצ'אט הקהילתי (Spot.IM) — «מחקר קהילתי» הוסר מכאן לבקשת צוריאל (17.7.2026). */}

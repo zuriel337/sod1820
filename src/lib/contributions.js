@@ -365,6 +365,19 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
     .slice(0, limit);
 }
 
+// 🔴 הפעילות האחרונה בפורום — שאילתה קלה יחידה (מקור-אמת ל«יש חדש»/«תגובה חדשה»).
+//    התרומה המאושרת האחרונה: created_at = מתי · parent_id!=null = הפעילות היא תגובה.
+export async function getLatestForumActivity() {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("created_at,parent_id")
+      .eq("status", "approved")
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
+
 // 👤 פרופיל-חוקר רשום (לא-אצור) — עדשה על research_contributions לפי שם-מחבר.
 // מזין את דף-החוקר הקל (ResearcherProfile) כשאין שורת-contributor אצורה. עץ אחד: אותו דף,
 // אצור או אוטומטי. מחזיר null אם אין ולו חידוש-מאושר אחד (אז אין פרופיל).
@@ -450,8 +463,9 @@ export async function moderateContribution(id, status) {
   const { error } = await supabase.rpc("moderate_contribution", { p_id: id, p_status: status });
   if (error) throw error;
 }
-// ➕ קידום גימטריות של ממצא למילון (אדמין) — RPC מזהה ביטויים בטענה, מאמת כל אחד במנוע (ragil_calc),
-// ומוסיף למילון על שם הכתב. מחזיר {ok, added[], in_dict[], unverified[]}. מאמת-מנוע = בטוח (gematria_engine_law).
+// ➕ קידום גימטריות של ממצא ל«רשימת הגימטריות» (=gematria_words, המאגר היחיד — לא «מילון»/ישות מקבילה;
+//    החלטת צוריאל 24.7.2026). אדמין. ה-RPC מזהה ביטויים בטענה, מאמת כל אחד במנוע (ragil_calc) ומוסיף על
+//    שם הכתב. מחזיר {ok, added[], in_dict[], unverified[]}. מאמת-מנוע = בטוח (gematria_engine_law).
 export async function promoteFindingToDict(id) {
   const { data, error } = await supabase.rpc("promote_finding_to_dict", { p_id: id });
   if (error) throw error;
