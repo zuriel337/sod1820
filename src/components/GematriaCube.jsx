@@ -3,31 +3,33 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 import * as THREE from "three";
 
-// ===== קובייה גימטרית מוכללת — «גימטריה מרחבית» =====
-// מציגה מילה (טוב/אחד/…) על 6 פאות; המשתמש מסובב ומאיר פאה-אחר-פאה עד ההתגלות.
+// ===== גוף גימטרי מוכלל — «גימטריה מרחבית» =====
+// מציג מילה (טוב/אחד/אל/…) על פאות גוף גיאומטרי; המשתמש מסובב ומאיר פאה-אחר-פאה עד ההתגלות.
+// שתי צורות (shape): "cube" = קובייה (6 פאות) · "icosa" = עשרימון משוכלל (20 פאות).
 // שני מצבים (mode):
-//   • multiply — כל פאה מוסיפה cols×rows הופעות; מונה litCount*perFace, ואז ×unit → finalValue (קוביית טוב: 6×10×17=1020).
-//   • surround — «אחד מכל 6 הכיוונים»; מונה כיוונים (N/6), ובסוף מתגלה finalValue/finalTitle (קוביית אחד → 910=שרית).
-// props: faceWord, cols, rows, mode, unit, finalTitle, finalValue, reveal:[{k,big?,label?}].
+//   • multiply — כל פאה מוסיפה cols×rows הופעות; מונה litCount*perFace, ואז ×unit → finalValue
+//                (קוביית טוב: 6×10×17=1020 · עשרימון הכתר: 20×1×31=620).
+//   • surround — «אחד מכל הכיוונים»; מונה כיוונים, ובסוף מתגלה finalValue/finalTitle (קוביית אחד → 910=שרית).
+// props: faceWord, cols, rows, mode, unit, finalTitle, finalValue, reveal:[{k,big?,label?}], shape.
 
-const TOTAL_FACES = 6;
-
-// ציור פאה: רשת cols×rows של המילה + מסגרת. lit = מוארת (זהב חם).
-function faceTexture(word, cols, rows, lit) {
+// ציור פאה: רשת cols×rows של המילה + מסגרת. lit = מוארת (זהב חם). transparent → רקע שקוף (לעשרימון).
+function faceTexture(word, cols, rows, lit, transparent) {
   const s = 512, cv = document.createElement("canvas"); cv.width = cv.height = s;
   const g = cv.getContext("2d");
-  g.fillStyle = lit ? "#1c1405" : "#0c0a12"; g.fillRect(0, 0, s, s);
-  if (lit) {
-    const grd = g.createRadialGradient(s / 2, s / 2, 40, s / 2, s / 2, s * 0.72);
-    grd.addColorStop(0, "rgba(255,220,120,0.28)"); grd.addColorStop(1, "rgba(255,220,120,0)");
-    g.fillStyle = grd; g.fillRect(0, 0, s, s);
+  if (!transparent) {
+    g.fillStyle = lit ? "#1c1405" : "#0c0a12"; g.fillRect(0, 0, s, s);
+    if (lit) {
+      const grd = g.createRadialGradient(s / 2, s / 2, 40, s / 2, s / 2, s * 0.72);
+      grd.addColorStop(0, "rgba(255,220,120,0.28)"); grd.addColorStop(1, "rgba(255,220,120,0)");
+      g.fillStyle = grd; g.fillRect(0, 0, s, s);
+    }
+    g.lineWidth = 10; g.strokeStyle = lit ? "#f6e27a" : "#5c4a1c"; g.strokeRect(26, 26, s - 52, s - 52);
+    g.lineWidth = 3;  g.strokeStyle = lit ? "rgba(246,226,122,0.5)" : "rgba(92,74,28,0.5)"; g.strokeRect(44, 44, s - 88, s - 88);
   }
-  g.lineWidth = 10; g.strokeStyle = lit ? "#f6e27a" : "#5c4a1c"; g.strokeRect(26, 26, s - 52, s - 52);
-  g.lineWidth = 3;  g.strokeStyle = lit ? "rgba(246,226,122,0.5)" : "rgba(92,74,28,0.5)"; g.strokeRect(44, 44, s - 88, s - 88);
   g.textAlign = "center"; g.textBaseline = "middle";
-  const fs = Math.floor(340 / Math.max(cols, rows));
+  const fs = Math.floor((transparent ? 300 : 340) / Math.max(cols, rows));
   g.font = `800 ${fs}px 'Arial Hebrew', 'Heebo', serif`;
-  g.fillStyle = lit ? "#ffe9a8" : "#8a7a52";
+  g.fillStyle = lit ? "#ffe9a8" : (transparent ? "#3f7a5f" : "#8a7a52");
   if (lit) { g.shadowColor = "rgba(255,220,120,0.85)"; g.shadowBlur = 16; }
   const pad = s * 0.16, span = s - pad * 2;
   for (let c = 0; c < cols; c++) for (let r = 0; r < rows; r++) {
@@ -78,7 +80,55 @@ function Cube({ word, cols, rows, litArr, onLight, spin }) {
   );
 }
 
-export default function GematriaCube({ faceWord, cols = 2, rows = 5, mode = "multiply", unit = 0, finalTitle = "", finalValue = 0, reveal = [] }) {
+// 🔷 עשרימון (icosahedron) — 20 פאות, גוף סימטרי; על כל פאה המילה («אל»). מרנדר גוף אזמרגד שקוף +
+//    שפת-זהב, ועל כל אחת מ-20 הפאות משטח-כיתוב עם המילה (רקע שקוף) — הקשה מאירה פאה.
+function Icosa({ word, litArr, onLight, spin }) {
+  const ref = useRef();
+  const geo = useMemo(() => new THREE.IcosahedronGeometry(1.7, 0), []);
+  const edges = useMemo(() => new THREE.EdgesGeometry(geo), [geo]);
+  // מרכזי-הפאות + נורמלים — למיקום וכיוון משטחי-הכיתוב (20 משולשים, פוזיציה לא-מאונדקסת: 3 קדקודים לפאה)
+  const faces = useMemo(() => {
+    const pos = geo.attributes.position, out = [];
+    for (let i = 0; i < pos.count; i += 3) {
+      const a = new THREE.Vector3().fromBufferAttribute(pos, i);
+      const b = new THREE.Vector3().fromBufferAttribute(pos, i + 1);
+      const c = new THREE.Vector3().fromBufferAttribute(pos, i + 2);
+      const centroid = new THREE.Vector3().addVectors(a, b).add(c).multiplyScalar(1 / 3);
+      const normal = centroid.clone().normalize();
+      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+      out.push({ centroid, normal, q });
+    }
+    return out;   // 20
+  }, [geo]);
+  const texOff = useMemo(() => faceTexture(word, 1, 1, false, true), [word]);
+  const texOn  = useMemo(() => faceTexture(word, 1, 1, true, true), [word]);
+  useFrame((_, dt) => { if (ref.current && spin) ref.current.rotation.y += dt * 0.28; });
+  return (
+    <group ref={ref}>
+      {/* גוף האזמרגד השקוף */}
+      <mesh geometry={geo}>
+        <meshBasicMaterial color="#1f6f52" transparent opacity={0.22} side={THREE.DoubleSide} toneMapped={false} />
+      </mesh>
+      {/* שפת-זהב */}
+      <lineSegments geometry={edges}>
+        <lineBasicMaterial color="#d4af37" transparent opacity={0.7} />
+      </lineSegments>
+      {/* 20 משטחי-כיתוב «אל» — אחד לכל פאה */}
+      {faces.map((f, i) => (
+        <mesh key={i} position={f.centroid.clone().add(f.normal.clone().multiplyScalar(0.03))} quaternion={f.q}
+          onClick={(e) => { e.stopPropagation(); onLight(i); }}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "")}>
+          <planeGeometry args={[1.05, 1.05]} />
+          <meshBasicMaterial map={litArr[i] ? texOn : texOff} transparent side={THREE.DoubleSide} toneMapped={false} depthWrite={false} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+export default function GematriaCube({ faceWord, cols = 2, rows = 5, mode = "multiply", unit = 0, finalTitle = "", finalValue = 0, reveal = [], shape = "cube" }) {
+  const TOTAL_FACES = shape === "icosa" ? 20 : 6;
   const [lit, setLit] = useState(() => Array(TOTAL_FACES).fill(false));
   const [spin, setSpin] = useState(true);
   const litCount = lit.filter(Boolean).length;
@@ -100,13 +150,15 @@ export default function GematriaCube({ faceWord, cols = 2, rows = 5, mode = "mul
           <color attach="background" args={["#050311"]} />
           <Stars radius={50} depth={30} count={500} factor={2} fade speed={0.25} />
           <ambientLight intensity={0.9} />
-          <Cube word={faceWord} cols={cols} rows={rows} litArr={lit} onLight={lightFace} spin={spin} />
+          {shape === "icosa"
+            ? <Icosa word={faceWord} litArr={lit} onLight={lightFace} spin={spin} />
+            : <Cube word={faceWord} cols={cols} rows={rows} litArr={lit} onLight={lightFace} spin={spin} />}
           <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={0.4} maxPolarAngle={Math.PI - 0.4} onStart={() => setSpin(false)} />
         </Canvas>
 
         <div style={{ position: "absolute", top: 12, insetInline: 0, textAlign: "center", pointerEvents: "none" }}>
           <div style={{ color: "#f6e27a", fontFamily: "'Heebo',sans-serif", fontWeight: 800, fontSize: 15, textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}>
-            📦 הַאִירו את שש הפאות
+            {shape === "icosa" ? "🔷 הַאִירו את עשרים הפאות" : "📦 הַאִירו את שש הפאות"}
           </div>
           <div style={{ color: "#cbb98a", fontFamily: "'Heebo',sans-serif", fontSize: 12, marginTop: 2, textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}>
             גררו לסובב · הקישו על פאה כדי להאירהּ
@@ -115,22 +167,31 @@ export default function GematriaCube({ faceWord, cols = 2, rows = 5, mode = "mul
 
         <div style={{ position: "absolute", bottom: 12, insetInline: 12, background: "rgba(6,4,14,0.72)", backdropFilter: "blur(8px)",
           border: "1px solid rgba(212,175,55,0.3)", borderRadius: 14, padding: "10px 14px", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center", gap: 7, marginBottom: 8 }}>
-            {lit.map((v, i) => (
-              <span key={i} style={{ width: 26, height: 26, borderRadius: 7, display: "grid", placeItems: "center",
-                fontFamily: "'Heebo',sans-serif", fontWeight: 800, fontSize: mode === "multiply" ? 11 : 13,
-                background: v ? "linear-gradient(135deg,#f6e27a,#d4af37)" : "rgba(255,255,255,0.06)",
-                color: v ? "#1a0e00" : "#7c745f", border: "1px solid rgba(212,175,55,0.35)", transition: "all .3s" }}>
-                {mode === "multiply" ? (i + 1) * perFace : (v ? "◆" : i + 1)}
-              </span>
-            ))}
-          </div>
+          {shape === "icosa" ? (
+            // 20 פאות — פס-התקדמות קומפקטי במקום 20 שבבים
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ height: 10, borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(212,175,55,0.35)", overflow: "hidden" }}>
+                <div style={{ width: `${(litCount / TOTAL_FACES) * 100}%`, height: "100%", background: "linear-gradient(90deg,#f6e27a,#d4af37)", transition: "width .3s" }} />
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", justifyContent: "center", gap: 7, marginBottom: 8 }}>
+              {lit.map((v, i) => (
+                <span key={i} style={{ width: 26, height: 26, borderRadius: 7, display: "grid", placeItems: "center",
+                  fontFamily: "'Heebo',sans-serif", fontWeight: 800, fontSize: mode === "multiply" ? 11 : 13,
+                  background: v ? "linear-gradient(135deg,#f6e27a,#d4af37)" : "rgba(255,255,255,0.06)",
+                  color: v ? "#1a0e00" : "#7c745f", border: "1px solid rgba(212,175,55,0.35)", transition: "all .3s" }}>
+                  {mode === "multiply" ? (i + 1) * perFace : (v ? "◆" : i + 1)}
+                </span>
+              ))}
+            </div>
+          )}
           {!done ? (
             <div style={{ color: "#e9dcb0", fontFamily: "'Heebo',sans-serif", fontSize: 14 }}>
               {mode === "multiply" ? (
-                <>הוארו <b style={{ color: "#f6e27a" }}>{litCount}</b>/6 · <b style={{ color: "#f6e27a", fontFamily: "'Courier New',monospace" }}>{litCount * perFace}</b> פעמים «{faceWord}» · ערך <b style={{ color: "#f6e27a", fontFamily: "'Courier New',monospace" }}>{running}</b></>
+                <>הוארו <b style={{ color: "#f6e27a" }}>{litCount}</b>/{TOTAL_FACES} · <b style={{ color: "#f6e27a", fontFamily: "'Courier New',monospace" }}>{litCount * perFace}</b> פעמים «{faceWord}» · ערך <b style={{ color: "#f6e27a", fontFamily: "'Courier New',monospace" }}>{running}</b></>
               ) : (
-                <>«{faceWord}» מ־<b style={{ color: "#f6e27a" }}>{litCount}</b> מתוך 6 הכיוונים</>
+                <>«{faceWord}» מ־<b style={{ color: "#f6e27a" }}>{litCount}</b> מתוך {TOTAL_FACES} הכיוונים</>
               )}
             </div>
           ) : (
