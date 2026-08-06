@@ -450,8 +450,9 @@ export async function moderateContribution(id, status) {
   const { error } = await supabase.rpc("moderate_contribution", { p_id: id, p_status: status });
   if (error) throw error;
 }
-// ➕ קידום גימטריות של ממצא למילון (אדמין) — RPC מזהה ביטויים בטענה, מאמת כל אחד במנוע (ragil_calc),
-// ומוסיף למילון על שם הכתב. מחזיר {ok, added[], in_dict[], unverified[]}. מאמת-מנוע = בטוח (gematria_engine_law).
+// ➕ קידום גימטריות של ממצא ל«רשימת הגימטריות» (=gematria_words, המאגר היחיד — לא «מילון»/ישות מקבילה;
+//    החלטת צוריאל 24.7.2026). אדמין. ה-RPC מזהה ביטויים בטענה, מאמת כל אחד במנוע (ragil_calc) ומוסיף על
+//    שם הכתב. מחזיר {ok, added[], in_dict[], unverified[]}. מאמת-מנוע = בטוח (gematria_engine_law).
 export async function promoteFindingToDict(id) {
   const { data, error } = await supabase.rpc("promote_finding_to_dict", { p_id: id });
   if (error) throw error;
