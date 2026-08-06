@@ -114,12 +114,13 @@ export async function getResearcherConvergences(name) {
   } catch { return []; }
 }
 
-export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null, authorName = null }) {
+export async function addContribution({ intent, origin, body, targetType, targetId, parentId = null, title = null, gematriaClaim = null, authorName = null, imageUrl = null }) {
   const { data, error } = await supabase.rpc("add_contribution", {
     p_intent: intent, p_origin: origin, p_body: body,
     p_target_type: targetType, p_target_id: targetId != null ? String(targetId) : null,
     p_parent_id: parentId, p_title: title, p_gematria_claim: gematriaClaim,
     p_author_name: authorName,   // 💬 שם לאנונימי (רשומים — נגזר מהחשבון בשרת)
+    p_image_url: imageUrl,       // 📷 תמונה מצורפת לתגובה (Storage URL)
   });
   if (error) throw error;
   return data; // מזהה התרומה החדשה

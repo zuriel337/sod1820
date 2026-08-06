@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { supabase } from "../lib/supabase.js";
+import { METHODS } from "../lib/gematria.js";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ResearcherLink from "./ResearcherLink.jsx";
 import ReactionBar from "./ReactionBar.jsx";
@@ -188,15 +190,50 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
   const [st, setSt] = useState("idle");
+  // 🔢 מיני-מחשבון גימטריה (מנוע רשמי) + 📷 העלאת תמונה — «תגובה = עדות-מחקר»
+  const [gemOpen, setGemOpen] = useState(false);
+  const [gemInput, setGemInput] = useState("");
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imgBusy, setImgBusy] = useState(false);
+  const fileRef = useRef(null);
+  const taRef = useRef(null);
   const live = anon ? false : intentMeta(intent).live;   // אנונימי → תמיד עובר אישור (לא מיידי)
 
+  // ⚖️ ערך רגיל מהמנוע הרשמי (gematria_engine_law — לא ידני/זיכרון)
+  const ragilFn = METHODS.find(m => m.key === "רגיל")?.fn;
+  const gemVal = (gemInput.trim() && ragilFn) ? ragilFn(gemInput) : null;
+  function insertGem() {
+    const phrase = gemInput.trim();
+    if (!phrase || gemVal == null) return;
+    setBody(b => (b && !b.endsWith("\n") ? b + "\n" : b) + `«${phrase}» = ${gemVal}`);
+    setGemInput(""); setGemOpen(false);
+    setTimeout(() => taRef.current?.focus(), 0);
+  }
+
+  async function pickImage(e) {
+    const file = e.target.files?.[0]; if (!file) return;
+    if (!file.type.startsWith("image/")) { alert("קובץ-תמונה בלבד"); return; }
+    if (file.size > 8 * 1024 * 1024) { alert("תמונה עד 8MB"); return; }
+    setImgBusy(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `sod1820/replies/r-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+      const { error } = await supabase.storage.from("gallery").upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
+      if (error) throw error;
+      setImageUrl(supabase.storage.from("gallery").getPublicUrl(path).data?.publicUrl || null);
+    } catch (err) { alert("שגיאה בהעלאת התמונה: " + (err.message || err)); }
+    finally { setImgBusy(false); if (fileRef.current) fileRef.current.value = ""; }
+  }
+
   async function submit() {
-    const t = body.trim(); if (!t) return;
+    const t = body.trim();
+    if (!t && imageUrl) { alert("הוסיפו שורת-הסבר קצרה לתמונה 🙂"); return; }
+    if (!t) return;
     setSt("sending");
     try {
       await addContribution({ intent, origin, body: t, targetType: target.type, targetId: target.id, parentId: replyTo || null,
-        authorName: anon ? (name.trim() || null) : null });
-      setBody(""); setSt("done"); onDone?.(live);
+        authorName: anon ? (name.trim() || null) : null, imageUrl });
+      setBody(""); setImageUrl(null); setSt("done"); onDone?.(live);
       setTimeout(() => setSt("idle"), 2500);
     } catch (e) {
       setSt("idle");
@@ -204,6 +241,8 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
       alert(m.includes("rate_limited") ? "שלחת כמה תגובות ברצף — נסה שוב בעוד שעה 🙂" : "שגיאה בשליחה: " + m);
     }
   }
+
+  const iconBtn = { cursor: "pointer", background: "transparent", border: `1px solid ${P.border}`, color: P.accentText, borderRadius: 999, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "5px 12px" };
 
   return (
     <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13, padding: "13px 15px" }}>
@@ -225,11 +264,33 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
           ))}
         </div>
       )}
-      <textarea value={body} onChange={e => setBody(e.target.value)} autoFocus={!!replyTo}
+      <textarea ref={taRef} value={body} onChange={e => setBody(e.target.value)} autoFocus={!!replyTo}
         placeholder={replyTo ? "הוסיפו תגובה…" : anon ? "כתבו תגובה…" : `שתפו ${intentMeta(intent).label} — התרומה תיכנס ל«מחקר הקהילתי»`}
         style={{ width: "100%", boxSizing: "border-box", minHeight: replyTo ? 64 : 92, resize: "vertical",
           background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "11px 13px",
           color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, outline: "none" }} />
+      {/* 🔧 סרגל-כלים: 🔢 גימטריה מאומתת במנוע · 📷 תמונה */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8, alignItems: "center" }}>
+        <button onClick={() => setGemOpen(v => !v)} style={iconBtn}>🔢 גימטריה</button>
+        <button onClick={() => fileRef.current?.click()} disabled={imgBusy} style={iconBtn}>{imgBusy ? "מעלה…" : "📷 תמונה"}</button>
+        <input ref={fileRef} type="file" accept="image/*" onChange={pickImage} style={{ display: "none" }} />
+      </div>
+      {/* מיני-מחשבון — חישוב במנוע והזרקת «ביטוי = ערך» מאומת לתגובה */}
+      {gemOpen && (
+        <div style={{ display: "flex", gap: 7, marginTop: 8, flexWrap: "wrap", alignItems: "center", background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 11px" }}>
+          <input value={gemInput} onChange={e => setGemInput(e.target.value)} placeholder="ביטוי לחישוב במנוע…" dir="rtl"
+            style={{ flex: 1, minWidth: 150, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 8, padding: "7px 10px", color: P.ink, fontFamily: F.body, fontSize: 13.5, outline: "none" }} />
+          {gemVal != null && <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 15, fontWeight: 900 }}>= {gemVal}</span>}
+          <button onClick={insertGem} disabled={gemVal == null} style={{ ...goldBtn(P), opacity: gemVal != null ? 1 : 0.5, padding: "6px 13px" }}>הוסף לתגובה</button>
+        </div>
+      )}
+      {/* תצוגת-תמונה מקדימה */}
+      {imageUrl && (
+        <div style={{ marginTop: 9, position: "relative", display: "inline-block" }}>
+          <img src={imageUrl} alt="" style={{ maxWidth: 200, maxHeight: 160, borderRadius: 10, border: `1px solid ${P.border}`, display: "block" }} />
+          <button onClick={() => setImageUrl(null)} title="הסר תמונה" style={{ position: "absolute", top: 4, insetInlineEnd: 4, background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: "50%", width: 24, height: 24, cursor: "pointer", fontSize: 13, lineHeight: 1 }}>✕</button>
+        </div>
+      )}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9, flexWrap: "wrap" }}>
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, flex: 1 }}>
           {anon ? "🔒 כאורח — התגובה תופיע אחרי אישור מהיר" : live ? "💬 תגובה — עולה מיד" : "🔒 ידע — יעבור אישור לפני פרסום"}
