@@ -28,6 +28,23 @@ export async function getChallengesByContribs(ids = []) {
   return out;
 }
 
+// 🆘 אתגרים פתוחים בתחום נתון (למשל els) — לרצועת עמוד-הכלי. כולל את המשפט הנקי מהתרומה המקושרת.
+export async function getOpenChallengesByDomain(domain = "els", limit = 5) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.from("research_challenges")
+      .select("id,title,domains,difficulty,opened_by_name,contribution_id, research_contributions(target_type,target_id)")
+      .eq("status", "open").contains("domains", [domain])
+      .order("bumped_at", { ascending: false }).limit(limit);
+    return (data || []).map(c => {
+      const rc = c.research_contributions;
+      const fromTarget = rc && rc.target_type === "phrase" ? rc.target_id : null;
+      const fromTitle = (c.title || "").match(/«(.+?)»/)?.[1] || null;   // המשפט העטוף בכותרת
+      return { ...c, phrase: fromTarget || fromTitle || c.title || "" };
+    });
+  } catch { return []; }
+}
+
 // אתגרים שכתב פתח — לדף-החוקר
 export async function getChallengesByOpener(uid, name) {
   if (!supabase || (!uid && !name)) return [];

@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
 import { ELS_PUBLIC, ELS_PREVIEW_OPEN } from "../lib/hub/ready.js";
@@ -36,7 +37,7 @@ export default function CodePage() {
   const { loading } = useAuth();
   const [galleryOpen, setGalleryOpen] = useState(false);
   // 🔠 Deep-link קנוני גם בדף העצמאי: /code?term=<ביטוי>&skip=<דילוג>&scope=torah|tanakh
-  const [sp] = useSearchParams();
+  const [sp, setSp] = useSearchParams();
   const elsTerm = sp.get("term") || sp.get("q") || "";
   const elsSkip = sp.get("skip");
   const elsMatrix = useMemo(
@@ -52,6 +53,7 @@ export default function CodePage() {
   //    לסגירה זמנית: `return <CodeClosed />;` (הרכיב נשמר למטה) או ELS_PUBLIC=false + תנאי isAdmin.
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
+      <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("term", term); n.delete("q"); return n; })} />
       <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
       {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
