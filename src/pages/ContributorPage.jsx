@@ -8,6 +8,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import FollowWriter from "../components/FollowWriter.jsx";
+import RankCard from "../components/RankCard.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import DossierExtras from "../components/dossier/DossierExtras.jsx";
 import { genAvatar } from "../lib/avatar.js";
@@ -16,7 +17,7 @@ import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
-import { getResearcherProfile, intentMeta, getResearcherConvergences } from "../lib/contributions.js";
+import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -212,15 +213,20 @@ export default function ContributorPage() {
     return () => { alive = false; };
   }, [slug, nav, user, authLoading]);
 
-  // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) — מוצג כתג בדף. ציבורי (research_level_of).
+  // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) + סטטיסטיקה — לכרטיס-הדרגה. ציבורי (SECURITY DEFINER).
   const [level, setLevel] = useState(null);
+  const [stats, setStats] = useState(null);
   useEffect(() => {
-    if (!c?.user_id) return;
+    if (!c?.user_id && !c?.display_name) return;
     let alive = true;
-    supabase.rpc("research_level_of", { p_user: c.user_id })
-      .then(({ data }) => { if (alive) setLevel(data || null); }).catch(() => {});
+    if (c?.user_id) {
+      supabase.rpc("research_level_of", { p_user: c.user_id })
+        .then(({ data }) => { if (alive) setLevel(data || null); }).catch(() => {});
+    }
+    getResearcherStats(c?.user_id || null, c?.display_name || "")
+      .then(d => { if (alive) setStats(d || null); }).catch(() => {});
     return () => { alive = false; };
-  }, [c?.user_id]);
+  }, [c?.user_id, c?.display_name]);
 
   // נעול / בבנייה / לא-רשום/פרטי / תיק-ריק → לא נכנס לאינדקס.
   // שומר-איכות רך (researcher_dossier_law): תיק בלי צפנים/מדיה/מחקרים = noindex עד שיש תוכן —
@@ -466,35 +472,8 @@ export default function ContributorPage() {
           </div>
         )}
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, maxWidth: 460, marginInline: "auto", lineHeight: 1.5 }}>כל הגילויים, החידושים והקשרים שנאספו לאורך הדרך.</div>
-        {/* 🌳 דרגת-החוקר — מנוע-הגדילה */}
-        {level?.level && (
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
-            <span style={{ fontSize: 16 }}>{["🌱", "🌿", "🔬", "🎓", "👑"][level.level - 1] || "🌱"}</span>
-            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{level.label}</span>
-            <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
-              {[level.posts > 0 ? `📝 ${level.posts}` : null, level.whatsapp > 0 ? `💬 ${level.whatsapp.toLocaleString("he-IL")}` : null].filter(Boolean).join(" · ")}
-            </span>
-          </div>
-        )}
-        {/* 📊 סיכום-על במבט אחד — מהנתונים שכבר נטענו (רק לא-אפס, אמת). */}
-        {(() => {
-          const stats = [
-            gemBank.length ? ["🔢", gemBank.length, "גימטריות במאגר"] : null,
-            convergences.length ? ["🎯", convergences.length, "התכנסויות"] : null,
-            posts.length ? ["📝", posts.length, "מחקרים"] : null,
-          ].filter(Boolean);
-          if (!stats.length) return null;
-          return (
-            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
-              {stats.map(([e, v, l]) => (
-                <div key={l} style={{ display: "inline-flex", alignItems: "baseline", gap: 5 }}>
-                  <span style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18, fontWeight: 900 }}>{e} {v}</span>
-                  <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{l}</span>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+        {/* 🎖️ כרטיס-הדרגה המלא — מנוע-הגדילה + סטטיסטיקת-החוקר (דרגה, XP, פס-התקדמות, פירוט) */}
+        <RankCard level={level} stats={stats} P={P} />
         {header?.stats && (
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>
             📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
