@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel } from "../lib/visits.js";
@@ -43,6 +43,39 @@ import CalendarHeatmap from "../components/CalendarHeatmap.jsx";
 import NumberHeatGrid from "../components/NumberHeatGrid.jsx";
 import { computePulse } from "../lib/reality.js";
 import { computeNumberHeat, computeSectionHeat, sectionLabel, heatColor } from "../lib/heatmap.js";
+
+// 🎨 פלטת-אדמין תמה-מודעת (בהיר/כהה) — כל C.* ממופה ל-CSS variable, כך שכל המסך
+// מגיב ל-data-theme של האתר בלי לגעת ב-theme.js הגלובלי (city_background_dual_theme_law).
+// ברירת-מחדל = כהה (זהה למקור); light מוגדר תחת [data-theme="light"] — כהה נשאר בדיוק כשהיה.
+const C = {
+  bg: "var(--adm-bg)", bgGlow: "var(--adm-bgGlow)", gold: "var(--adm-gold)", goldLight: "var(--adm-goldLight)",
+  goldBright: "var(--adm-goldBright)", goldDim: "var(--adm-goldDim)", goldDark: "var(--adm-goldDark)",
+  goldDeep: "var(--adm-goldDeep)", crimson: "var(--adm-crimson)", crimsonLight: "var(--adm-crimsonLight)",
+  royal: "var(--adm-royal)", royalLight: "var(--adm-royalLight)", surface: "var(--adm-surface)",
+  surface2: "var(--adm-surface2)", border: "var(--adm-border)", borderGold: "var(--adm-borderGold)",
+  muted: "var(--adm-muted)", faint: "var(--adm-faint)", danger: "var(--adm-danger)",
+};
+const ADMIN_THEME_CSS = `
+:root{
+  --adm-bg:#0C0818; --adm-bgGlow:#1A1230; --adm-gold:#d4af37; --adm-goldLight:#e8c840;
+  --adm-goldBright:#f6e27a; --adm-goldDim:#9a7818; --adm-goldDark:#3a2200; --adm-goldDeep:#1a0e00;
+  --adm-crimson:#7a1320; --adm-crimsonLight:#a01f2e; --adm-royal:#3d1f5c; --adm-royalLight:#6b3fa0;
+  --adm-surface:#0d0a0e; --adm-surface2:#140f0c; --adm-border:rgba(212,175,55,0.18);
+  --adm-borderGold:rgba(212,175,55,0.38); --adm-muted:#cfc9d6; --adm-faint:#1a0f0a; --adm-danger:#8B2020;
+  --adm-tile:linear-gradient(135deg, rgba(212,175,55,0.06), rgba(8,5,2,0.42));
+  --adm-active:linear-gradient(135deg, rgba(212,175,55,0.28), rgba(8,5,2,0.5));
+  --adm-active-soft:rgba(212,175,55,0.14);
+}
+:root[data-theme="light"]{
+  --adm-bg:#f1ede3; --adm-bgGlow:#e8e0cf; --adm-gold:#a67c1a; --adm-goldLight:#7a5610;
+  --adm-goldBright:#6e4e0c; --adm-goldDim:#8a7434; --adm-goldDark:#d8c48a; --adm-goldDeep:#1a0e00;
+  --adm-crimson:#9a2419; --adm-crimsonLight:#b02a1a; --adm-royal:#8f6fc0; --adm-royalLight:#6b3fa0;
+  --adm-surface:#ffffff; --adm-surface2:#faf7ef; --adm-border:rgba(120,90,20,0.20);
+  --adm-borderGold:rgba(120,90,20,0.45); --adm-muted:#6f6550; --adm-faint:#efe7d6; --adm-danger:#b02a1a;
+  --adm-tile:linear-gradient(135deg, rgba(166,124,26,0.10), rgba(255,252,245,0.92));
+  --adm-active:linear-gradient(135deg, rgba(166,124,26,0.22), rgba(255,250,238,0.66));
+  --adm-active-soft:rgba(166,124,26,0.15);
+}`;
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
@@ -92,15 +125,17 @@ const TABS = [
   { key: "broadcast", label: "📡 שדר לטיקר" },
 ];
 
-// 🗂️ איחוד ל-7 טאבי-על (בקשת צוריאל 4.7): כל טאב-על פותח שורת תת-טאבים.
+// 🗂️ איחוד מרכז-הניהול (6.8) — 6 קבוצות לפי פעולה, אפס מדדים כפולים.
+// מדידה: כל טאבי-התנועה שהיו פזורים (analytics+journeys) מתאחדים כאן. צמיחה: המרות/ויראל/צמיחה/Meta.
+// הוסרו: «מסעות (ישן)» ו«מיילים» (שכפל את «רשימת תפוצה»). היתומים («סוכנים»→AI, «המרות»→צמיחה) חוברו לקבוצה.
 const GROUPS = [
-  { key: "analytics", label: "📊 אנליטיקס", subs: ["stats", "aicost", "aistyles", "heatmap", "popularity", "viral", "searches", "els", "meta"] },
-  { key: "journeys",  label: "🧭 מסעות",    subs: ["live", "traffic", "retention", "users", "walink", "jexp", "journeys"] },
-  { key: "language",  label: "🌍 מנוע שפה", subs: ["language"] },
-  { key: "content",   label: "✍️ תוכן",     subs: ["topics", "chiddushim", "hintreports", "contribmod", "stream", "broadcast"] },
-  { key: "images",    label: "🖼 תמונות",   subs: ["sets", "curation", "upload", "ocr", "classify"] },
-  { key: "comms",     label: "📧 תפוצה",    subs: ["growth", "payments", "subs", "emails", "newsletter", "messages"] },
-  { key: "tools",     label: "🔧 כלים",     subs: ["research", "anchors", "findings", "suggest", "scanner", "utm", "push", "worklog"] },
+  { key: "measure", label: "📊 מדידה",       subs: ["traffic", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
+  { key: "growth",  label: "📈 צמיחה",       subs: ["growth", "conversions", "viral", "meta"] },
+  { key: "ai",      label: "🤖 AI",           subs: ["aicost", "aistyles", "agents"] },
+  { key: "content", label: "✍️ תוכן",         subs: ["topics", "chiddushim", "hintreports", "contribmod", "stream", "broadcast"] },
+  { key: "images",  label: "🖼 תמונות",       subs: ["sets", "curation", "upload", "ocr", "classify"] },
+  { key: "comms",   label: "📧 תפוצה",        subs: ["subs", "newsletter", "messages", "payments", "walink"] },
+  { key: "tools",   label: "🔧 כלים ומחקר",  subs: ["research", "anchors", "findings", "suggest", "scanner", "els", "language", "utm", "push", "worklog", "jexp"] },
 ];
 const TAB_LABEL = Object.fromEntries(TABS.map(t => [t.key, t.label]));
 const GROUP_OF = Object.fromEntries(GROUPS.flatMap(g => g.subs.map(s => [s, g.key])));
@@ -144,7 +179,7 @@ function PulseBar({ goto }) {
     { icon: "📈", big: p ? num(p.today_visitors) : "—", sub: p ? num(p.today_views) + " צפיות" : "", lbl: "מבקרים היום", to: "traffic", col: C.goldBright },
     { icon: "🔍", big: p?.top_source ? p.top_source.name : "—", sub: p?.top_source ? num(p.top_source.n) : "", lbl: "מקור מוביל היום", to: "traffic", col: "#8ea2ff" },
     { icon: "🤖", big: p ? "$" + Number(p.ai_cost_today || 0).toFixed(3) : "—", sub: p ? "סה״כ $" + Number(p.ai_cost_total || 0).toFixed(2) : "", lbl: "עלות AI היום", to: "users", col: "#e0c860" },
-    { icon: "🧭", big: p ? num(p.journeys_done) : "—", lbl: "מסעות שהושלמו היום", to: "journeys", col: "#7fd18a" },
+    { icon: "🧭", big: p ? num(p.journeys_done) : "—", lbl: "מסעות שהושלמו היום", to: "traffic", col: "#7fd18a" },
     { icon: "🆕", big: p ? num(p.new_today) : "—", sub: p ? num(p.registered_total) + " סה״כ" : "", lbl: "נרשמו היום", to: "users", col: "#ff9a9a" },
   ];
   return (
@@ -152,7 +187,7 @@ function PulseBar({ goto }) {
       <style>{`@keyframes pb-blink{0%,100%{opacity:1}50%{opacity:.35}}`}</style>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(148px,1fr))", gap: 10 }}>
         {tiles.map((t, i) => (
-          <button key={i} onClick={() => goto(t.to)} title={`פתח: ${t.lbl}`} style={{ cursor: "pointer", textAlign: "right", border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", background: "linear-gradient(135deg, rgba(212,175,55,0.06), rgba(8,5,2,0.42))", transition: "border-color .15s, transform .1s" }}
+          <button key={i} onClick={() => goto(t.to)} title={`פתח: ${t.lbl}`} style={{ cursor: "pointer", textAlign: "right", border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", background: "var(--adm-tile)", transition: "border-color .15s, transform .1s" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = t.col; e.currentTarget.style.transform = "translateY(-2px)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.transform = "none"; }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
@@ -172,8 +207,8 @@ function PulseBar({ goto }) {
 
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
-  const [tab, setTab] = useState("stats");
-  const [group, setGroup] = useState("analytics");
+  const [tab, setTab] = useState("traffic");
+  const [group, setGroup] = useState("measure");
   const mobile = useIsMobile();
   const activeGroup = GROUPS.find(g => g.key === group) || GROUPS[0];
   const selectGroup = g => { setGroup(g.key); setTab(g.subs[0]); };
@@ -186,6 +221,7 @@ export default function AdminPage() {
 
   return (
     <div style={{ direction: "rtl", width: "100%", maxWidth: "100%", margin: 0, padding: mobile ? "22px 12px 80px" : "36px clamp(14px, 3vw, 56px) 90px", boxSizing: "border-box", overflowX: "hidden" }}>
+      <style>{ADMIN_THEME_CSS}</style>
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <div style={{ color: C.goldDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8 }}>לוח בקרה</div>
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(26px,5vw,42px)", fontWeight: 700, margin: 0 }}>⚙️ ניהול סוד 1820</h1>
@@ -201,9 +237,9 @@ export default function AdminPage() {
       <div style={{ display: "flex", flexWrap: mobile ? "nowrap" : "wrap", justifyContent: mobile ? "flex-start" : "center", gap: 8, marginBottom: 12, overflowX: mobile ? "auto" : "visible", paddingBottom: mobile ? 6 : 0, WebkitOverflowScrolling: "touch" }}>
         {GROUPS.map(g => (
           <button key={g.key} onClick={() => selectGroup(g)} style={{
-            cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 13.5 : 15, fontWeight: 800, padding: mobile ? "9px 15px" : "10px 20px", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
+            cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 13.5 : 15, fontWeight: 800, padding: mobile ? "12px 16px" : "10px 20px", minHeight: mobile ? 44 : "auto", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
             border: `1px solid ${group === g.key ? C.gold : C.border}`,
-            background: group === g.key ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(8,5,2,0.5))" : "transparent",
+            background: group === g.key ? "var(--adm-active)" : "transparent",
             color: group === g.key ? C.goldBright : C.muted,
           }}>{g.label}</button>
         ))}
@@ -213,9 +249,9 @@ export default function AdminPage() {
         <div style={{ display: "flex", flexWrap: mobile ? "nowrap" : "wrap", justifyContent: mobile ? "flex-start" : "center", gap: 7, marginBottom: 26, overflowX: mobile ? "auto" : "visible", paddingBottom: mobile ? 6 : 0, WebkitOverflowScrolling: "touch" }}>
           {activeGroup.subs.map(s => (
             <button key={s} onClick={() => setTab(s)} style={{
-              cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 12.5 : 13.5, fontWeight: 700, padding: mobile ? "6px 12px" : "7px 15px", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
+              cursor: "pointer", fontFamily: F.heading, fontSize: mobile ? 12.5 : 13.5, fontWeight: 700, padding: mobile ? "9px 13px" : "7px 15px", minHeight: mobile ? 38 : "auto", borderRadius: 999, whiteSpace: "nowrap", flex: "0 0 auto",
               border: `1px solid ${tab === s ? C.borderGold : C.border}`,
-              background: tab === s ? "rgba(212,175,55,0.14)" : "transparent",
+              background: tab === s ? "var(--adm-active-soft)" : "transparent",
               color: tab === s ? C.goldBright : C.muted,
             }}>{TAB_LABEL[s] || s}</button>
           ))}
