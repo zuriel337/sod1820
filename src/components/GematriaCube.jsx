@@ -27,17 +27,21 @@ function faceTexture(word, cols, rows, lit, transparent) {
     g.lineWidth = 3;  g.strokeStyle = lit ? "rgba(246,226,122,0.5)" : "rgba(92,74,28,0.5)"; g.strokeRect(44, 44, s - 88, s - 88);
   }
   g.textAlign = "center"; g.textBaseline = "middle";
-  const fs = Math.floor((transparent ? 300 : 340) / Math.max(cols, rows));
-  g.font = `800 ${fs}px 'Arial Hebrew', 'Heebo', serif`;
-  g.fillStyle = lit ? "#ffe9a8" : (transparent ? "#3f7a5f" : "#8a7a52");
-  if (lit) { g.shadowColor = "rgba(255,220,120,0.85)"; g.shadowBlur = 16; }
+  // גופן עברי נקי + נפילה ל-sans-serif (לא serif — עברית-serif נראית מרושלת כשהגופן לא נטען)
+  const fs = Math.floor((transparent ? 330 : 340) / Math.max(cols, rows));
+  g.font = `800 ${fs}px 'Heebo','Arial Hebrew','Noto Sans Hebrew','Arial Unicode MS',sans-serif`;
   const pad = s * 0.16, span = s - pad * 2;
   for (let c = 0; c < cols; c++) for (let r = 0; r < rows; r++) {
     const x = pad + span * (cols === 1 ? 0.5 : c / (cols - 1));
     const y = pad + span * (rows === 1 ? 0.5 : r / (rows - 1));
+    // קו-מתאר כהה — קריאוּת האותיות על גוף שקוף (עשרימון) בכל זווית
+    if (transparent) { g.save(); g.lineJoin = "round"; g.lineWidth = Math.max(6, fs * 0.1); g.strokeStyle = "rgba(6,18,12,0.9)"; g.strokeText(word, x, y); g.restore(); }
+    g.save();
+    if (lit) { g.shadowColor = "rgba(255,220,120,0.9)"; g.shadowBlur = 18; }
+    g.fillStyle = lit ? "#ffe9a8" : (transparent ? "#f0d886" : "#8a7a52");
     g.fillText(word, x, y);
+    g.restore();
   }
-  g.shadowBlur = 0;
   const t = new THREE.CanvasTexture(cv); t.anisotropy = 4; return t;
 }
 
@@ -86,7 +90,9 @@ function Icosa({ word, litArr, onLight, spin }) {
   const ref = useRef();
   const geo = useMemo(() => new THREE.IcosahedronGeometry(1.7, 0), []);
   const edges = useMemo(() => new THREE.EdgesGeometry(geo), [geo]);
-  // מרכזי-הפאות + נורמלים — למיקום וכיוון משטחי-הכיתוב (20 משולשים, פוזיציה לא-מאונדקסת: 3 קדקודים לפאה)
+  // מרכזי-הפאות + בסיס-כיוון — למיקום וכיוון משטחי-הכיתוב (20 משולשים, פוזיציה לא-מאונדקסת: 3 קדקודים לפאה).
+  //    האות מיושרת «זקופה» בתוך המשולש: הנורמל = ציר-מבט החוצה, ה«מעלה» = מהמרכז אל קדקוד — כך «אל»
+  //    יושבת ממורכזת ועקבית בכל פאה (במקום גלגול אקראי שנראה מרושל).
   const faces = useMemo(() => {
     const pos = geo.attributes.position, out = [];
     for (let i = 0; i < pos.count; i += 3) {
@@ -94,8 +100,11 @@ function Icosa({ word, litArr, onLight, spin }) {
       const b = new THREE.Vector3().fromBufferAttribute(pos, i + 1);
       const c = new THREE.Vector3().fromBufferAttribute(pos, i + 2);
       const centroid = new THREE.Vector3().addVectors(a, b).add(c).multiplyScalar(1 / 3);
-      const normal = centroid.clone().normalize();
-      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+      const normal = centroid.clone().normalize();                              // החוצה (עשרימון ממורכז)
+      const up = a.clone().sub(centroid).normalize();                           // אל קדקוד a
+      const right = new THREE.Vector3().crossVectors(up, normal).normalize();
+      const up2 = new THREE.Vector3().crossVectors(normal, right).normalize();  // אורתונורמלי
+      const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up2, normal));
       out.push({ centroid, normal, q });
     }
     return out;   // 20
@@ -119,7 +128,7 @@ function Icosa({ word, litArr, onLight, spin }) {
           onClick={(e) => { e.stopPropagation(); onLight(i); }}
           onPointerOver={() => (document.body.style.cursor = "pointer")}
           onPointerOut={() => (document.body.style.cursor = "")}>
-          <planeGeometry args={[1.05, 1.05]} />
+          <planeGeometry args={[0.85, 0.85]} />
           <meshBasicMaterial map={litArr[i] ? texOn : texOff} transparent side={THREE.DoubleSide} toneMapped={false} depthWrite={false} />
         </mesh>
       ))}

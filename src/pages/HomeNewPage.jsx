@@ -224,7 +224,10 @@ export default function HomeNewPage() {
   // הבדלה קלה לפי שערים: פיד אחד, אך פריט שקשור לשער של המשתמש מקבל boost עדין.
   const myTopics = useMemo(() => getStoredTopics(), []);
   const updatesFeed = useMemo(() => {
-    const ps = (posts || []).map(p => ({ kind: "post", date: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
+    // 🚫 פוסטים שמוסתרים מ«עדכונים אחרונים» בדף הבית בלבד (נשארים חיים בקטגוריות, ב-/post ובעמוד עצמו).
+    //    סדרת הגימטריה המרחבית: משאירים רק «השגחה פרטית 1020» בבית; 910/620 מוסתרים (בקשת צוריאל 6.8.2026).
+    const HOME_HIDE = new Set(["raza-deshabbat-910", "keter-esrimon-620"]);
+    const ps = (posts || []).filter(p => !HOME_HIDE.has(p.slug)).map(p => ({ kind: "post", date: Math.max(+new Date(p.modified || 0), +new Date(p.date || 0)), data: p }));
     // גלריות רמזים מומלצות — תאריך/כריכה לפי הרמז העדכני ביותר שמתאים לסט
     const ss = (homeSets || []).map(s => {
       const ns = new Set(s.numbers || []);
