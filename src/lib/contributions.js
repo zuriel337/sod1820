@@ -126,6 +126,12 @@ export async function addContribution({ intent, origin, body, targetType, target
   return data; // מזהה התרומה החדשה
 }
 
+// ✏️ עריכת תגובה/תרומה — המחבר (רשום) עורך את שלו · אדמין עורך של כל אחד (נאכף בשרת).
+export async function editContribution(id, body) {
+  const { error } = await supabase.rpc("edit_contribution", { p_id: id, p_body: body });
+  if (error) throw error;
+}
+
 // 🔗 «מצאתי קשר» — edge ברשת-התרומות + קרדיט-מוניטין
 export async function linkContribution({ fromId, targetType, targetId, relation = "related", note = null }) {
   const { data, error } = await supabase.rpc("link_contribution", {

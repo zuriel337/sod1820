@@ -11,7 +11,7 @@ import ResearcherLink from "./ResearcherLink.jsx";
 import ReactionBar from "./ReactionBar.jsx";
 import {
   INTENTS, intentMeta, stateMeta, getContributions, addContribution,
-  linkContribution, approveContribution, moderateContribution, getForumFeed, forumItemMeta,
+  linkContribution, approveContribution, moderateContribution, editContribution, getForumFeed, forumItemMeta,
 } from "../lib/contributions.js";
 
 // 🔬 מחקר קהילתי — עדשה אחת על research_contributions לישות נתונה (מספר/פסוק/צופן/פוסט…).
@@ -40,9 +40,13 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
   const [busy, setBusy] = useState(false);
   const [linking, setLinking] = useState(false);
   const [linkVal, setLinkVal] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [editBody, setEditBody] = useState("");
   const pending = c.status === "pending";
   const mine = user && c.author_user_id === user.id;
+  const canEdit = isAdmin || mine;   // ✏️ המחבר עורך את שלו · אדמין את של כולם (נאכף גם בשרת)
 
+  async function saveEdit() { const t = editBody.trim(); if (!t) return; setBusy(true); try { await editContribution(c.id, t); setEditing(false); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function approve() { setBusy(true); try { await approveContribution(c.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function hide() { setBusy(true); try { await moderateContribution(c.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function doLink() {
@@ -68,7 +72,18 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.created_at)}</span>
       </div>
       {c.title && <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{c.title}</div>}
-      {c.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{c.body}</div>}
+      {editing ? (
+        <div style={{ display: "grid", gap: 8 }}>
+          <textarea value={editBody} onChange={e => setEditBody(e.target.value)} autoFocus
+            style={{ width: "100%", boxSizing: "border-box", minHeight: 80, resize: "vertical", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 9, padding: "10px 12px", color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, outline: "none" }} />
+          <div style={{ display: "flex", gap: 7 }}>
+            <button disabled={busy || !editBody.trim()} onClick={saveEdit} style={{ ...goldBtn(P), opacity: editBody.trim() ? 1 : 0.5 }}>💾 שמור</button>
+            <button onClick={() => setEditing(false)} style={linkBtn(P)}>ביטול</button>
+          </div>
+        </div>
+      ) : (
+        c.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{c.body}</div>
+      )}
       {/* 🌳 עדשה עשירה — תמונה/ריבוע-גימטריה/גשר/צופן/לינקי-מספר (תגובה מובחרת) */}
       <FeaturedExtras c={c} P={P} />
       {/* שורת-קרדיט — הכותב מופרד מהתוכן */}
@@ -83,6 +98,7 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, alignItems: "center" }}>
         {!writeOnly && <button onClick={() => onReply(c.id)} style={linkBtn(P)}>💬 הגב</button>}
         {user && <button onClick={() => setLinking(v => !v)} style={linkBtn(P)}>🔗 מצאתי קשר</button>}
+        {canEdit && !editing && <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} style={linkBtn(P)}>✏️ ערוך</button>}
         {isAdmin && pending && <button disabled={busy} onClick={approve} style={goldBtn(P)}>✅ אשר</button>}
         {isAdmin && <button disabled={busy} onClick={hide} style={linkBtn(P)}>✖ הסתר</button>}
       </div>
@@ -109,23 +125,41 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
 // עם ריאקציות + מודרציית-אדמין (אישור/הסתרה) — כדי שאפשר יהיה לטפל בתגובות-אנונימי הממתינות לאישור.
 function ReplyItem({ k, P, user, isAdmin, origin, target, onChanged }) {
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editBody, setEditBody] = useState("");
   const pending = k.status === "pending";
   const kim = intentMeta(k.intent);
+  const canEdit = isAdmin || (user && k.author_user_id === user.id);   // ✏️ המחבר/אדמין
+  async function saveEdit() { const t = editBody.trim(); if (!t) return; setBusy(true); try { await editContribution(k.id, t); setEditing(false); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function approve() { setBusy(true); try { await approveContribution(k.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
   async function hide() { setBusy(true); try { await moderateContribution(k.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
-  // תגובה עשירה → כרטיס מלא (writeOnly, בלי ילדים — רמה אחת)
+  // תגובה עשירה → כרטיס מלא (writeOnly, בלי ילדים — רמה אחת). כולל עריכה (ContribCard).
   if (k.is_featured || k.image_url || k.gematria_claim) {
     return <ContribCard c={k} kids={[]} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target} writeOnly onReply={() => {}} onChanged={onChanged} />;
   }
   return (
     <div>
-      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{kim.emoji} {k.body}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginTop: 4 }}>
-        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11 }}>— {k.author_name ? <ResearcherLink name={k.author_name} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }} /> : "חבר הקהילה"} · {timeAgo(k.created_at)}{pending ? " · ⏳ ממתין" : ""}</span>
-        <ReactionBar id={k.id} reactions={k.reactions} compact />
-        {isAdmin && pending && <button disabled={busy} onClick={approve} style={{ ...goldBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✅ אשר</button>}
-        {isAdmin && <button disabled={busy} onClick={hide} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✖ הסתר</button>}
-      </div>
+      {editing ? (
+        <div style={{ display: "grid", gap: 7 }}>
+          <textarea value={editBody} onChange={e => setEditBody(e.target.value)} autoFocus
+            style={{ width: "100%", boxSizing: "border-box", minHeight: 64, resize: "vertical", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 8, padding: "8px 10px", color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, outline: "none" }} />
+          <div style={{ display: "flex", gap: 7 }}>
+            <button disabled={busy || !editBody.trim()} onClick={saveEdit} style={{ ...goldBtn(P), padding: "4px 13px", fontSize: 12, opacity: editBody.trim() ? 1 : 0.5 }}>💾 שמור</button>
+            <button onClick={() => setEditing(false)} style={{ ...linkBtn(P), padding: "4px 12px", fontSize: 12 }}>ביטול</button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{kim.emoji} {k.body}</div>
+      )}
+      {!editing && (
+        <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginTop: 4 }}>
+          <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11 }}>— {k.author_name ? <ResearcherLink name={k.author_name} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }} /> : "חבר הקהילה"} · {timeAgo(k.created_at)}{pending ? " · ⏳ ממתין" : ""}</span>
+          <ReactionBar id={k.id} reactions={k.reactions} compact />
+          {canEdit && <button onClick={() => { setEditBody(k.body || ""); setEditing(true); }} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✏️ ערוך</button>}
+          {isAdmin && pending && <button disabled={busy} onClick={approve} style={{ ...goldBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✅ אשר</button>}
+          {isAdmin && <button disabled={busy} onClick={hide} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✖ הסתר</button>}
+        </div>
+      )}
     </div>
   );
 }

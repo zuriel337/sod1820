@@ -6,7 +6,7 @@ import { thumb } from "../lib/img.js";
 import { stripHtml, formatDateHe, youtubeId, youtubeUrl } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { genAvatar } from "../lib/avatar.js";
-import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution, getReplyCounts, getConvergenceSlugs } from "../lib/contributions.js";
+import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution, getReplyCounts, getConvergenceSlugs, editContribution } from "../lib/contributions.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ReactionBar from "./ReactionBar.jsx";
@@ -51,6 +51,12 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
   const snippet = snippetSrc.replace(/\s+/g, " ").trim();
   const titleText = c.title || snippet.slice(0, 72) || "תרומת מחקר";
   const [pinBusy, setPinBusy] = useState(false);
+  // ✏️ עריכה — המחבר את שלו · אדמין את של כולם (נאכף בשרת)
+  const [editing, setEditing] = useState(false);
+  const [editBody, setEditBody] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
+  const canEdit = isAdmin || (user && c.author_user_id === user.id);
+  async function saveEdit() { const t = editBody.trim(); if (!t) return; setEditBusy(true); try { await editContribution(c.contribId, t); setEditing(false); onChanged && onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setEditBusy(false); } }
   // 💬 שורה-אחת שנפתחת לתגובות inline (עץ אחד: אותו <Discourse> של עמוד-השרשור, לא מנווט).
   const [open, setOpen] = useState(defaultOpen);
   const dTarget = (c.target_type && c.target_id) ? { type: c.target_type, id: c.target_id } : { type: "forum", id: c.contribId };
@@ -98,8 +104,19 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
             </div>
           </div>
         )}
-        {snippet && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: open ? 20 : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
+        {snippet && !editing && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: open ? 20 : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
       </button>
+      {/* ✏️ עריכה inline של גוף-התרומה */}
+      {editing && (
+        <div style={{ display: "grid", gap: 8, marginTop: 6 }}>
+          <textarea value={editBody} onChange={e => setEditBody(e.target.value)} autoFocus
+            style={{ width: "100%", boxSizing: "border-box", minHeight: 90, resize: "vertical", background: P.card, border: `1px solid ${P.accentText}`, borderRadius: 9, padding: "10px 12px", color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, outline: "none" }} />
+          <div style={{ display: "flex", gap: 7 }}>
+            <button disabled={editBusy || !editBody.trim()} onClick={saveEdit} style={{ cursor: "pointer", background: P.accentBtn, border: "none", color: P.onAccent || "#1a0e00", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 15px", opacity: editBody.trim() ? 1 : 0.5 }}>💾 שמור</button>
+            <button onClick={() => setEditing(false)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, color: P.accentDim, borderRadius: 999, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "6px 13px" }}>ביטול</button>
+          </div>
+        </div>
+      )}
       {/* 🧩 אתגר מחקר — כרטיס אם קיים; אחרת «הפוך לאתגר» לאדמין/מחבר (חי בתוך הזרם) */}
       {c.challenge ? (
         <ChallengeCard challenge={c.challenge} elsPhrase={c.target_type === "phrase" ? c.target_id : null} onChanged={onChanged} />
@@ -111,6 +128,10 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} />{c.trustedAuthor && <TrustedTick P={P} withText />}</span>
           : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ חבר הקהילה</span>}
         <ReactionBar id={c.contribId} reactions={c.reactions} compact />
+        {canEdit && !editing && (
+          <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} title="ערוך"
+            style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>✏️ ערוך</button>
+        )}
         {isAdmin && (
           <button onClick={togglePin} disabled={pinBusy} title={c.pinned ? "בטל הצמדה" : "הצמד לראש הפורום"}
             style={{ cursor: pinBusy ? "wait" : "pointer", background: "none", border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 999, color: c.pinned ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>
