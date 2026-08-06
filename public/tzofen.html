@@ -2281,15 +2281,41 @@
     postHost({type:"contribute",slug:st.cipherSlug,axis:st.raw,words});
     toast("➕ נשלח כתגובת-מחקר על הצופן");
   }
-  function shareLink(){
+  // 🖼️ הורדת כרטיס-השיתוף הרחב (1200×630) — לשליחה ידנית כתמונה (גיבוי-דסקטופ / כשאין שיתוף-קובץ).
+  function shareDownloadCard(){
+    const c=buildShareCard();if(!c){toast("חפש מטריצה קודם");return;}
+    try{const a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="צופן-"+(st.raw||"code").replace(/\s+/g,"-")+".png";document.body.appendChild(a);a.click();a.remove();
+      toast("🖼️ כרטיס-הצופן נשמר — שלח אותו בוואטסאפ/רשתות");}catch(e){toast("לא ניתן לשמור תמונה בדפדפן הזה");}
+  }
+  // 🔗 שיתוף הצופן — מהכלי, אוטומטית עם תמונה. מרנדר כרטיס 1200×630 ומשתף אותו כ**קובץ-תמונה** דרך
+  //    Web Share (וואטסאפ/רשתות מקבלים את הבאנר עצמו) — עובד גם לצופן שעדיין לא נשמר. הקישור: העמוד
+  //    הקנוני /codes/:slug אם הצופן שמור (יש לו OG), אחרת קישור-hash עצמאי. גיבוי: תיבה עם קישור+הורדת-תמונה.
+  async function shareLink(){
     if(!st.res||!st.res.hits.length){toast("חפש מטריצה קודם");return;}
-    const url=location.origin+location.pathname+"#"+encodeMatrix();
+    const canonical=st.cipherSlug?("https://sod1820.co.il/codes/"+encodeURIComponent(st.cipherSlug)):null;
+    const url=canonical||(location.origin+location.pathname+"#"+encodeMatrix());
+    const title="🔠 צופן דילוג: «"+st.raw+"» · דילוג "+Math.abs(occ().skip)+" — סוד 1820";
+    try{
+      const cv=buildShareCard();
+      if(cv&&navigator.canShare&&cv.toBlob){
+        const blob=await new Promise(res=>{try{cv.toBlob(res,"image/png");}catch(e){res(null);}});
+        if(blob){
+          const file=new File([blob],"צופן-"+(st.raw||"code").replace(/\s+/g,"-")+".png",{type:"image/png"});
+          if(navigator.canShare({files:[file]})){
+            try{await navigator.share({files:[file],title,text:title+"\n"+url});return;}
+            catch(e){if(e&&e.name==="AbortError")return;}   // ביטול המשתמש — לא לפתוח גיבוי
+          }
+        }
+      }
+    }catch(e){}
+    // גיבוי (דסקטופ / בלי שיתוף-קובץ): קישור להעתקה + הורדת כרטיס-השיתוף כתמונה.
     const ov=document.createElement("div");ov.className="shareov";
-    ov.innerHTML='<div class="sharebox"><h3>🔗 שתף את הצופן</h3><p>מי שיפתח את הקישור יראה בדיוק את «'+st.raw+'» עם כל הממצאים שסימנת.</p>'+
-      '<input class="sh-url" readonly><div class="sh-row"><button class="sh-copy">📋 העתק קישור</button><button class="sh-close">סגור</button></div></div>';
+    ov.innerHTML='<div class="sharebox"><h3>🔗 שתף את הצופן</h3><p>שלח את הקישור, או הורד את כרטיס-הצופן ושלח אותו כתמונה. מי שיפתח את הקישור יראה בדיוק את «'+st.raw+'» עם הממצאים שסימנת.</p>'+
+      '<input class="sh-url" readonly><div class="sh-row"><button class="sh-copy">📋 העתק קישור</button><button class="sh-img">🖼️ הורד תמונה</button><button class="sh-close">סגור</button></div></div>';
     document.body.appendChild(ov);
     const inp=ov.querySelector(".sh-url");inp.value=url;inp.onclick=()=>inp.select();
     ov.querySelector(".sh-copy").onclick=()=>{if(copyText(url))toast("🔗 הקישור הועתק — הדבק ושלח");else{inp.select();toast("בחר והעתק ידנית");}};
+    ov.querySelector(".sh-img").onclick=shareDownloadCard;
     const close=()=>ov.remove();ov.querySelector(".sh-close").onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
   }
   // 🔗 מנהל — קשירת המטריצה לפוסט באתר (סוד 1820). נשמר עם המטריצה בגלריה.
@@ -2347,13 +2373,56 @@
     x.fillStyle=PP.site;x.font="600 13px Arial,sans-serif";x.fillText("sod1820.co.il",W/2,H-12);
     return c;
   }
+  // 🎴 כרטיס-שיתוף רחב 1200×630 (יחס WhatsApp/פייסבוק) — המטריצה כ«באנר» עם מיתוג. מקור-אמת לתמונת-השיתוף:
+  //    נשמר כ-image_url (→ OG פר-צופן) וגם נשלח ישירות כקובץ-תמונה בשיתוף-מהכלי. עדות — לא ניבוי.
+  function buildShareCard(){
+    if(!lastBlock||!st.res||!st.res.hits.length)return null;
+    const b=lastBlock,S=b.S,{colorMap,startSet}=colorSets();
+    const cols=b.cw,rows=(b.r1-b.r0+1),W=1200,H=630;
+    const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+    const PP=st.theme==="royal"
+      ?{bg:"#0b0805",title:"#f4c84a",sub:"#8a7850",cellBg:"#0e0a04",cellFg:"#6f6347",leg:"#c3ac7d",cta:"#f4c84a",site:"#a89058"}
+      :st.theme==="klaf"
+      ?{bg:"#f3e9d1",title:"#7c560d",sub:"#6b5734",cellBg:"#ece0c6",cellFg:"#6b5734",leg:"#6b5734",cta:"#7c560d",site:"#8a6f1a"}
+      :{bg:"#f6f7f9",title:"#8a6d1b",sub:"#5b6472",cellBg:"#e6eaf1",cellFg:"#5b6472",leg:"#5b6472",cta:"#8a6d1b",site:"#a08428"};
+    x.fillStyle=PP.bg;x.fillRect(0,0,W,H);
+    x.textAlign="center";x.textBaseline="middle";
+    x.fillStyle=PP.title;x.font="700 40px Georgia,serif";x.fillText("הצופן התנכי · "+st.raw,W/2,52);
+    x.fillStyle=PP.sub;x.font="20px Arial,sans-serif";x.fillText("דילוג "+heb(S)+" · גימטריה "+heb(gem(st.raw))+" · עדות, לא ניבוי",W/2,90);
+    // המטריצה — משוקללת לתיבה כדי להיכנס תמיד ל-1200×630 (תא ≤40px), ממורכזת. RTL: העמודה הימנית ראשונה.
+    const GAP=2,boxTop=116,boxBottom=H-108,boxW=W-96;
+    let CELL=Math.floor(Math.min((boxW-(cols-1)*GAP)/cols,((boxBottom-boxTop)-(rows-1)*GAP)/rows));
+    CELL=Math.max(6,Math.min(CELL,40));const rad=Math.max(2,CELL*0.14),fs=Math.max(7,Math.round(CELL*0.6));
+    const gridW=cols*CELL+(cols-1)*GAP,gridH=rows*CELL+(rows-1)*GAP;
+    const ox=Math.round((W-gridW)/2),oy=Math.round(boxTop+((boxBottom-boxTop)-gridH)/2);
+    for(let r=b.r0;r<=b.r1;r++)for(let cc=0;cc<cols;cc++){
+      const col=b.c0+cc,idx=r*S+col,gx=ox+gridW-CELL-cc*(CELL+GAP),gy=oy+(r-b.r0)*(CELL+GAP);
+      let bg=PP.cellBg,fg=PP.cellFg;
+      if(idx>=0&&idx<N){const kind=colorMap.get(idx);if(kind==="main"){bg="#7a1220";fg="#ffe0e0";}else if(kind){bg=kind;fg="#0c0c0c";}}
+      x.fillStyle=bg;roundRectP(x,gx,gy,CELL,CELL,rad);x.fill();
+      if(startSet.has(idx)&&CELL>=12){x.strokeStyle=PP.title;x.lineWidth=1.5;roundRectP(x,gx+1,gy+1,CELL-2,CELL-2,rad-1);x.stroke();}
+      if(idx>=0&&idx<N&&CELL>=9){x.fillStyle=fg;x.font="600 "+fs+"px Georgia,serif";x.textAlign="center";x.textBaseline="middle";x.fillText(T[idx],gx+CELL/2,gy+CELL/2+1);}
+    }
+    // מקרא-ממצאים (עד 7, ממורכז) — כדי שיראו מיד מה נמצא בצופן
+    if(st.words.length){
+      x.font="16px Arial,sans-serif";x.textAlign="left";x.textBaseline="middle";
+      const items=st.words.slice(0,7).map(w=>({t:w.t,color:w.color,tw:x.measureText(w.t).width}));
+      const dot=13,padx=18,ly=H-84;let total=items.reduce((a,it)=>a+dot+6+it.tw+padx,0)-padx;let cx=(W-total)/2;
+      items.forEach(it=>{x.fillStyle=it.color;roundRectP(x,cx,ly-dot/2,dot,dot,3);x.fill();x.fillStyle=PP.leg;x.fillText(it.t,cx+dot+6,ly);cx+=dot+6+it.tw+padx;});
+    }
+    x.textAlign="center";x.textBaseline="middle";
+    x.fillStyle=PP.cta;x.font="700 26px Georgia,serif";x.fillText("חפש את השם שלך בתנ״ך",W/2,H-52);
+    x.fillStyle=PP.site;x.font="600 18px Arial,sans-serif";x.fillText("sod1820.co.il",W/2,H-24);
+    return c;
+  }
   function downloadMatrixPNG(){
     const c=buildCipherCanvas();if(!c){toast("חפש מטריצה קודם");return;}
     try{const a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="הצופן-"+(st.raw||"code").replace(/\s+/g,"-")+".png";document.body.appendChild(a);a.click();a.remove();
       toast("🖼️ התמונה נשמרה — אפשר לשלוח בוואטסאפ/רשתות");}catch(e){toast("לא ניתן לשמור תמונה בדפדפן הזה");}
   }
   // מחזיר dataURL של כרטיס-הצופן (לשמירה-לענן → העלאה ל-Storage → image_url). null אם אין מטריצה.
-  function cipherCardDataURL(){try{const c=buildCipherCanvas();return c?c.toDataURL("image/png"):null;}catch(e){return null;}}
+  //    משתמש בכרטיס-השיתוף הרחב 1200×630 → תמונת-ה-OG של הצופן היא באנר WhatsApp-מושלם, בלי חיתוך בעמוד/ספרייה.
+  function cipherCardDataURL(){try{const c=buildShareCard();return c?c.toDataURL("image/png"):null;}catch(e){return null;}}
   // 🔲 צורת-הצופן הגולמית — רק רשת-האותיות הצבועה, בלי כותרת/מקור/מקרא/חתימה. לתצוגת «צורה בלבד» בספרייה.
   function buildCipherGrid(){
     if(!lastBlock||!st.res||!st.res.hits.length)return null;
@@ -2648,7 +2717,7 @@
       // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
       (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
       ((st.cipherSlug&&norm(st.raw)===norm(st.cipherTerm))?'<button class="mact contrib-act" title="שתף את המילים שסימנת כתגובת-מחקר על הצופן הזה">➕ שתף כממצא</button>':'')+
-      '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף קישור</button>'+
+      '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
     filmbar.innerHTML='<button class="fb-play">▶ נגן שוב</button><span class="fb-lbl">מהירות:</span>'+
