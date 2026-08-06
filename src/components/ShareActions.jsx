@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { track } from "../lib/tracking.js";
-import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown } from "../lib/share.js";
+import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
 import { taggedShareUrl } from "../lib/propagation.js";
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
@@ -37,6 +37,27 @@ export default function ShareActions({ type = "page", url, title = "", image = n
     if (await copyLink(taggedShareUrl(fullUrl, "copy"))) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
   }, [fullUrl, logShare]);
 
+  // 🖼️ שיתוף התמונה עצמה כקובץ (הבאנר 1200×630) — כך התצוגה-המקדימה מגיעה מיד, בלי תלות ב-OG של הרובוט.
+  //    נתמך בעיקר במובייל (Web Share files). נכשל/לא-נתמך → נפילה להורדת-התמונה כדי שאפשר לשלוח ידנית.
+  const [imgBusy, setImgBusy] = useState(false);
+  const shareImg = useCallback(async () => {
+    if (!image || imgBusy) return;
+    setImgBusy(true);
+    logShare("image");
+    try {
+      const res = await fetch(image, { mode: "cors" });
+      const blob = await res.blob();
+      const file = new File([blob], "sod1820.png", { type: blob.type || "image/png" });
+      if (canShareFile(file)) { await shareImageFile(file, { title: text, text }); setImgBusy(false); return; }
+      // נפילה — הורדת התמונה (שליחה ידנית)
+      const a = document.createElement("a"); a.href = image; a.download = "sod1820.png";
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch (e) { if (e && e.name === "AbortError") { setImgBusy(false); return; }
+      try { const a = document.createElement("a"); a.href = image; a.download = "sod1820.png"; document.body.appendChild(a); a.click(); a.remove(); } catch { /* noop */ }
+    }
+    setImgBusy(false);
+  }, [image, imgBusy, text, logShare]);
+
   // 👑 share_placement_law — הבלוק מופיע רק היכן שהווידג׳ט-הצף נעדר (אלא אם force). אפס כפילות.
   if (!force && floatingShareShown(pathname)) return null;
 
@@ -50,6 +71,10 @@ export default function ShareActions({ type = "page", url, title = "", image = n
     <div dir="rtl" style={{ display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
       {channels.includes("native") && canNative && (
         <button onClick={native} title="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}>🔗 {label("שתף")}</button>
+      )}
+      {/* 🖼️ שתף-תמונה — רק כשיש תמונה ואפשר לשתף בכלל (מובייל). שולח את הכרטיס/באנר עצמו. */}
+      {image && canNative && (
+        <button onClick={shareImg} disabled={imgBusy} title="שתף כתמונה" style={btn}>🖼️ {label(imgBusy ? "…" : "תמונה")}</button>
       )}
       {channels.filter(c => CH[c]).map(c => {
         const m = CH[c];

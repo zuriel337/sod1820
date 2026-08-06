@@ -141,6 +141,11 @@ export default async function handler(req, res) {
       desc = 'כל כלי המחקר של סוד 1820 במקום אחד — גימטריה, דילוגי אותיות, דף המספר, פסוקים ועוד.';
       image = `${SITE}/api/card?w=${encodeURIComponent('היכל הגילוי')}&sub=${encodeURIComponent('סביבת המחקר של סוד 1820')}&sig=gem`;
     }
+  } else if (key === '/gematria-3d' || key === '/spatial-gematria' || key === '/גימטריה-מרחבית' || key === '/גימטריה-תלת-ממדית') {
+    // 🧊 גימטריה מרחבית — ענף-מחקר: מספר → צורה → משמעות. כרטיס ממותג (מקביל ל-applySeo בעמוד).
+    title = "גימטריה מרחבית — הגיאומטריה של העץ · " + SITE_NAME;
+    desc = "ענף מחקר: מספר הופך לצורה, וצורה למשמעות — טקסט · גימטריה מאומתת · מבנה · צורה. קוביית טוב (1020) וקוביית אחד (910) מתכנסות ל-1820.";
+    image = `${SITE}/api/card?w=${encodeURIComponent('גימטריה מרחבית')}&sub=${encodeURIComponent('הגיאומטריה של העץ')}&cap=${encodeURIComponent('מספר → צורה → משמעות · מתכנס ל-1820')}&sig=gem`;
   } else if (key === '/number') {
     // "הגוגל של המספרים" — דף הנחיתה
     title = "מנוע המספרים — הגוגל של המספרים · " + SITE_NAME;
