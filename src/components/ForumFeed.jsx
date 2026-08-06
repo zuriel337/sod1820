@@ -269,6 +269,20 @@ function oneLine(s, n = 88) {
   return t.length > n ? t.slice(0, n) + "…" : t;
 }
 
+// 🔠 שורת-צופן: לא מילת-החיפוש (הזהה בכל השורות) אלא **המילים שבמטריצה** (ההצלבה = הגילוי).
+//    המקור הקריא = description (עם רווחים); מסירים ממנו את מילת-החיפוש שבהתחלה. בלי «הצלבה», בלי דילוג.
+function cipherWords(desc, term) {
+  if (!desc) return "";
+  let s = String(desc).trim();
+  const t = String(term || "").replace(/[^א-ת]/g, "");
+  if (t) {
+    // (א) מופרד-פסיק «ד. טראמפ, …»  ·  (ב) עטוף-מרכאות «״ד. טראמפ״ …»
+    let m = s.match(/^([^,،·]{1,22})[,،·]\s*/) || s.match(/^\s*[«"״]([^»"״]{1,22})[»"״]\s*/);
+    if (m && m[1].replace(/[^א-ת]/g, "") === t) s = s.slice(m[0].length).trim();
+  }
+  return s || String(desc);
+}
+
 // 🌟 סימון «כתב מהימן» — צ'ק זהב. withText → תג עם מילים (בכרטיס המלא); בלי → נקודה קטנה (בשורה).
 function TrustedTick({ P, withText = false }) {
   return (
@@ -298,7 +312,9 @@ function reactionTotal(r) {
 // 💬 מונה-התגובות גלוי בכל שורה (גם 0) → הפורום נקרא כרשימת-שרשורים אמיתית, רואים מיד היכן יש דיון.
 function ChatRow({ c, P, onOpen }) {
   const who = c.author_display || c.author_name || "חבר הקהילה";
-  const text = oneLine(c.title || c.body || c.excerpt || c.description || "תרומת מחקר");
+  const text = oneLine(c.kind === "cipher"
+    ? (cipherWords(c.description, c.search_term) || c.title || c.search_term || "צופן")
+    : (c.title || c.body || c.excerpt || c.description || "תרומת מחקר"));
   const isContrib = c.kind === "contribution";
   const rTotal = reactionTotal(c.reactions);
   return (
