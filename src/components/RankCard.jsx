@@ -25,6 +25,7 @@ export default function RankCard({ level, stats, P }) {
     s.findings ? ["🔢", s.findings, "ממצאים"] : null,
     s.credited ? ["✍️", s.credited, "מיוחסים"] : null,
     gemN ? ["💎", gemN, "גימטריות"] : null,
+    level.solved_challenges ? ["✔️", level.solved_challenges, "אתגרים נפתרו"] : null,
     level.whatsapp ? ["💬", level.whatsapp, "עדכונים"] : null,
   ].filter(Boolean);
 

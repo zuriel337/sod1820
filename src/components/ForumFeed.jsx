@@ -13,6 +13,8 @@ import ReactionBar from "./ReactionBar.jsx";
 import SubmitChidush from "./SubmitChidush.jsx";
 import AdminModerate from "./AdminModerate.jsx";
 import Discourse from "./Discourse.jsx";
+import ChallengeCard, { ChallengeCreate } from "./ChallengeCard.jsx";
+import { getChallengesByContribs, CHALLENGE_STATUS } from "../lib/challenges.js";
 
 // 🌐 <ForumFeed> — גוף-הפורום המשותף (עץ אחד): הסינונים + כרטיסי-הזרם, בלי כותרת/SEO/כפיית-מראה.
 // מרונדר בשני שערים זהים: דף /forum (ForumPage — עם ההירו סביבו) וטאב «פורום» במרכז השידורים.
@@ -40,6 +42,7 @@ const STATE_RANK = { canonical: 5, validated: 4, investigating: 3, discussion: 2
 const sigScore = (it) => (STATE_RANK[it.research_state] || 0) * 10 + (it.verified ? 5 : 0) + (it.has_1820 ? 3 : 0);
 
 function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
+  const { user } = useAuth();
   const im = intentMeta(c.intent), sm = stateMeta(c.research_state);
   const href = targetHref(c);
   const threadHref = c.contribId ? `/forum/${c.contribId}` : href;
@@ -97,6 +100,12 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         )}
         {snippet && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: open ? 20 : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
       </button>
+      {/* 🧩 אתגר מחקר — כרטיס אם קיים; אחרת «הפוך לאתגר» לאדמין/מחבר (חי בתוך הזרם) */}
+      {c.challenge ? (
+        <ChallengeCard challenge={c.challenge} elsPhrase={c.target_type === "phrase" ? c.target_id : null} onChanged={onChanged} />
+      ) : (isAdmin || (user && c.author_user_id === user.id)) ? (
+        <div style={{ marginTop: 8 }}><ChallengeCreate contributionId={c.contribId} defaultTitle={titleText} onCreated={onChanged} /></div>
+      ) : null}
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 9 }}>
         {c.author_name
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} />{c.trustedAuthor && <TrustedTick P={P} withText />}</span>
@@ -282,6 +291,7 @@ function ChatRow({ c, P, onOpen }) {
       </span>
       {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
       {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
+      {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12 }}>🧩</span>}
       {/* 💬 מונה-תגובות — מוצג רק בשרשור פעיל (יש ולו תגובה אחת); בלי תגובות אין מספר כלל */}
       {isContrib && c.replyCount > 0 && (
         <span className="ff-count" title={`${c.replyCount} תגובות בשרשור`}
@@ -348,8 +358,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
     getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(async (feed) => {
       // 💬 מונה-תגובות לכל תרומה — שכל כרטיס יראה «יש תגובה» (עדות-חיים לפורום).
       const ids = (feed || []).filter(it => it.kind === "contribution" && it.contribId).map(it => it.contribId);
-      const [counts, convSlugs] = await Promise.all([getReplyCounts(ids), getConvergenceSlugs(ids)]);
-      setAllItems((feed || []).map(it => ({ ...it, replyCount: counts[it.contribId] || 0, convergenceSlug: convSlugs[it.contribId] || null })));
+      const [counts, convSlugs, challenges] = await Promise.all([getReplyCounts(ids), getConvergenceSlugs(ids), getChallengesByContribs(ids)]);
+      setAllItems((feed || []).map(it => ({ ...it, replyCount: counts[it.contribId] || 0, convergenceSlug: convSlugs[it.contribId] || null, challenge: challenges[it.contribId] || null })));
     }).catch(() => setAllItems([]));
   }, []);
   useEffect(() => { load(); }, [load]);
