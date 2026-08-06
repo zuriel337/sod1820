@@ -224,8 +224,14 @@ export default async function handler(req, res) {
         title = `הצופן «${stripHtml(c.title || c.search_term)}» — דילוג ${c.skip_distance} · ${SITE_NAME}`;
         desc = cleanDesc(`דילוג-האותיות (ELS) של «${c.search_term}» ב${scopeTxt}, בדילוג ${c.skip_distance}${findings.length ? ' · ' + findings.slice(0, 6).join(' · ') : ''}. עדות — לא ניבוי · סוד 1820.`, 180) || DEFAULT_DESC;
         type = 'article';
+        // 🎴 שרשרת-תמונה אוטומטית לכל צופן (חדש/ישן, בלי צעד ידני): כרטיס-מרונדר → צורת-המטריצה
+        //    הגולמית (positions.shapeUrl) → כרטיס ממותג /api/card. כך גם צופן ללא image_url מקבל
+        //    תצוגת-שיתוף — ועם המטריצה האמיתית אם היא קיימת, בלי תלות ב-/api/card הדינמי (שנוטה
+        //    להיכשל בתצוגה-מקדימה של וואטסאפ). sig=els → חתימת «חפש את שמך בתורה» בכרטיס-הגיבוי.
+        const shapeUrl = (c.positions && typeof c.positions.shapeUrl === 'string' && c.positions.shapeUrl) ? c.positions.shapeUrl : null;
         image = c.image_url ? waSafeImage(c.image_url)
-          : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}`;
+          : shapeUrl ? waSafeImage(shapeUrl)
+          : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}&sig=els`;
       }
     } catch { /* fallback to defaults */ }
   } else if (key.startsWith('/community/researcher/')) {

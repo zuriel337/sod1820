@@ -113,8 +113,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   useEffect(() => { if (!savedToast) return; const t = setTimeout(() => setSavedToast(null), 7000); return () => clearTimeout(t); }, [savedToast]);
   const saveToCloud = useCallback(async (d) => {
     try {
-      const imageUrl = d.image ? await uploadCipherCard(d.image) : null;   // 🎴 כרטיס-הצופן → Storage
       const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
+      // 🎴 כרטיס-הצופן → Storage. אם אין כרטיס מרונדר — נופלים לצורת-המטריצה, כך שצופן לעולם
+      //    לא נשמר בלי תמונת-שיתוף (auto-render: כל צופן אוטומטית מקבל תמונה, בלי צעד ידני).
+      const imageUrl = (d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
       // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
       const positions = { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
         quality: d.quality || null, shapeUrl: shapeUrl || null };
