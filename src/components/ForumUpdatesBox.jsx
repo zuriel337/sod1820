@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { stripHtml } from "../lib/format.js";
+import ForumActivityDot from "./ForumActivityDot.jsx";
 
 // 📋 עדכונים אחרונים מהפורום — רכיב קנוני קטן (עדשה על getForumFeed, החדשים למעלה).
 // מצביע: פוסט → /<slug> · תרומה → /forum. לא משכפל תוכן. ניתן להצבה בכל מקום (צ'אט, סייד-רייל…).
@@ -27,7 +28,11 @@ export default function ForumUpdatesBox({ limit = 6, style }) {
 
   return (
     <div dir="rtl" style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 15px", ...style }}>
-      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 4 }}>📋 עדכונים אחרונים מהפורום</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>📋 עדכונים אחרונים מהפורום</span>
+        {/* 🔴 הנקודה/«תגובה חדשה» חיה כאן — באזור הפורום (מופיע רק כשיש חדש) */}
+        <ForumActivityDot withText />
+      </div>
       <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginBottom: 11 }}>חידושי הקהילה ומאמרי הכתבים — החדשים למעלה</div>
 
       {items === null ? (
