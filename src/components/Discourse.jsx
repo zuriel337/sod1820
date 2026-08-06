@@ -94,22 +94,36 @@ function ContribCard({ c, kids, P, user, isAdmin, origin, target, onReply, onCha
       {/* תגובות (רמה אחת) — לא בפורום (writeOnly) */}
       {!writeOnly && kids?.length > 0 && (
         <div style={{ marginTop: 11, paddingInlineStart: 12, borderInlineStart: `2px solid ${P.border}`, display: "grid", gap: 9 }}>
-          {kids.map(k => {
-            // תגובה עשירה (מובחרת/תמונה/גימטריה) → כרטיס מלא; תגובה רגילה → שורה קומפקטית.
-            if (k.is_featured || k.image_url || k.gematria_claim) {
-              return <ContribCard key={k.id} c={k} kids={[]} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target}
-                writeOnly onReply={() => {}} onChanged={onChanged} />;
-            }
-            const kim = intentMeta(k.intent);
-            return (
-              <div key={k.id}>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{kim.emoji} {k.body}</div>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, marginTop: 3 }}>— {k.author_name ? <ResearcherLink name={k.author_name} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }} /> : "חבר הקהילה"} · {timeAgo(k.created_at)}{k.status === "pending" ? " · ⏳" : ""}</div>
-              </div>
-            );
-          })}
+          {kids.map(k => (
+            <ReplyItem key={k.id} k={k} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target} onChanged={onChanged} />
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// 💬 תגובה בודדת (רמה אחת). עשירה (מובחרת/תמונה/גימטריה) → כרטיס מלא; רגילה → שורה קומפקטית
+// עם ריאקציות + מודרציית-אדמין (אישור/הסתרה) — כדי שאפשר יהיה לטפל בתגובות-אנונימי הממתינות לאישור.
+function ReplyItem({ k, P, user, isAdmin, origin, target, onChanged }) {
+  const [busy, setBusy] = useState(false);
+  const pending = k.status === "pending";
+  const kim = intentMeta(k.intent);
+  async function approve() { setBusy(true); try { await approveContribution(k.id); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  async function hide() { setBusy(true); try { await moderateContribution(k.id, "hidden"); onChanged(); } catch (e) { alert("שגיאה: " + (e.message || e)); } finally { setBusy(false); } }
+  // תגובה עשירה → כרטיס מלא (writeOnly, בלי ילדים — רמה אחת)
+  if (k.is_featured || k.image_url || k.gematria_claim) {
+    return <ContribCard c={k} kids={[]} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target} writeOnly onReply={() => {}} onChanged={onChanged} />;
+  }
+  return (
+    <div>
+      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{kim.emoji} {k.body}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginTop: 4 }}>
+        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11 }}>— {k.author_name ? <ResearcherLink name={k.author_name} style={{ color: P.accentText, fontWeight: 700, textDecoration: "none" }} /> : "חבר הקהילה"} · {timeAgo(k.created_at)}{pending ? " · ⏳ ממתין" : ""}</span>
+        <ReactionBar id={k.id} reactions={k.reactions} compact />
+        {isAdmin && pending && <button disabled={busy} onClick={approve} style={{ ...goldBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✅ אשר</button>}
+        {isAdmin && <button disabled={busy} onClick={hide} style={{ ...linkBtn(P), padding: "3px 11px", fontSize: 11.5 }}>✖ הסתר</button>}
+      </div>
     </div>
   );
 }
@@ -231,7 +245,7 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
 
 // focusId — מיקוד לתרומה אחת (עמוד-הפורום /forum/:id): מציג רק את התרומה הזו.
 // writeOnly — נגזר מ-origin==="forum": בפורום כותבים בלבד (בלי רדוד), בשאר המקומות רדוד רגיל.
-export default function Discourse({ target, origin = "number", archive = [], focusId = null }) {
+export default function Discourse({ target, origin = "number", archive = [], focusId = null, repliesOnly = false, onActivity = null }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState(null);
@@ -256,6 +270,31 @@ export default function Discourse({ target, origin = "number", archive = [], foc
   const kidsOf = id => list.filter(c => c.parent_id === id);
   const n = intent => list.filter(c => c.intent === intent).length;
   const validated = list.filter(c => ["validated", "canonical"].includes(c.research_state)).length;
+
+  // 💬 מצב «תגובות בלבד» — הרחבה inline מכרטיס-הפורום. הכרטיס עצמו כבר מוצג ע"י ההורה (ForumFeed),
+  // ולכן כאן מציגים רק את התגובות (ילדי focusId לפי parent_id — לא תלוי ביעד) + מלחין-תגובה.
+  // כך אין כפילות של הכרטיס, והתגובות נראות גם לפריט-פורום שאין לו יעד-מספר (target=forum:id).
+  if (repliesOnly && focusId) {
+    const replies = list.filter(c => c.parent_id === focusId);
+    return (
+      <div style={{ display: "grid", gap: 10 }}>
+        {items === null ? (
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13, padding: 4 }}>טוען תגובות…</div>
+        ) : (
+          <>
+            {replies.length > 0 && (
+              <div style={{ display: "grid", gap: 9 }}>
+                {replies.map(k => (
+                  <ReplyItem key={k.id} k={k} P={P} user={user} isAdmin={isAdmin} origin={origin} target={target} onChanged={load} />
+                ))}
+              </div>
+            )}
+            <Composer P={P} origin={origin} target={target} replyTo={focusId} anon={!user} onDone={() => { load(); onActivity?.(); }} />
+          </>
+        )}
+      </div>
+    );
+  }
 
   const counts = [
     ["💡", n("חידוש"), "חידושים"], ["🧩", n("השערה"), "השערות"],
