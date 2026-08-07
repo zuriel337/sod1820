@@ -39,6 +39,8 @@ import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import HomeTeasers from "../components/HomeTeasers.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
+import HomeWritersRail from "../components/HomeWritersRail.jsx";
+import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 
@@ -443,6 +445,12 @@ export default function HomeNewPage() {
             נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
         <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
       </section>
+
+      {/* ===== 👥 הכתבים שהתעדכנו לאחרונה — לוגו/אווטאר + סמל-חתימה + התמחות + «לפני X» ===== */}
+      <HomeWritersRail />
+
+      {/* ===== 🎬 אור הגאולה — הסרטונים האחרונים שעלו + מתי (רצועה → /or-geula) ===== */}
+      <HomeOrGeulaRail />
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
       <TreasuresHome />
