@@ -4441,6 +4441,31 @@ function GaBars({ title, items, fmtKey }) {
   );
 }
 
+// גרף חזרתיות: ביקורים-למשתמש (sessions/users) ליום. יחס ≥1; ככל שגבוה יותר — אותם אנשים חוזרים יותר.
+function GaRetentionBars({ title, items, fmtKey }) {
+  const rows = (items || [])
+    .map(it => ({ key: it.key, ratio: it.users > 0 ? (it.sessions ?? 0) / it.users : 0 }))
+    .filter(r => r.ratio > 0);
+  const max = Math.max(1, ...rows.map(r => r.ratio));
+  const avg = rows.length ? rows.reduce((s, r) => s + r.ratio, 0) / rows.length : 0;
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+        <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{title}</div>
+        {rows.length > 0 && <div style={{ color: C.muted, fontFamily: F.mono, fontSize: 11.5 }}>ממוצע {avg.toFixed(2)}</div>}
+      </div>
+      {rows.length ? (
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 64 }}>
+          {rows.map((r, i) => (
+            <div key={i} title={`${fmtKey ? fmtKey(r.key) : r.key}: ${r.ratio.toFixed(2)} ביקורים/משתמש`}
+              style={{ flex: 1, minWidth: 2, height: `${Math.max(2, Math.round((r.ratio / max) * 100))}%`, background: "linear-gradient(to top, #2f6df6, #7fb2ff)", borderRadius: "2px 2px 0 0" }} />
+          ))}
+        </div>
+      ) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים בטווח.</div>}
+    </div>
+  );
+}
+
 function GoogleAnalyticsPanel() {
   const [days, setDays] = useState("28");
   const [d, setD] = useState(null);
@@ -4510,6 +4535,10 @@ function GoogleAnalyticsPanel() {
                 <div style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 17, fontWeight: 700 }}>{fmtPct(d.totals?.bounceRate)}</div>
                 <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>↩️ שיעור נטישה</div>
               </div>
+              <div style={{ background: "rgba(47,109,246,0.10)", border: "1px solid rgba(127,178,255,0.35)", borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: "#7fb2ff", fontFamily: F.mono, fontSize: 17, fontWeight: 700 }}>{d.totals?.users > 0 ? (d.totals.sessions / d.totals.users).toFixed(2) : "—"}</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>🔁 ביקורים למשתמש (חזרתיות)</div>
+              </div>
             </div>
 
             {/* זמן-אמת: מה צופים עכשיו */}
@@ -4551,6 +4580,7 @@ function GoogleAnalyticsPanel() {
             {/* מגמות */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
               <GaBars title="📅 מגמה יומית (משתמשים)" items={d.daily} fmtKey={k => k && k.length === 8 ? `${k.slice(6, 8)}/${k.slice(4, 6)}` : k} />
+              <GaRetentionBars title="🔁 חזרתיות — ביקורים למשתמש ליום" items={d.daily} fmtKey={k => k && k.length === 8 ? `${k.slice(6, 8)}/${k.slice(4, 6)}` : k} />
               <GaBars title="🕐 שעות היום (פעילות)" items={d.hours} fmtKey={k => `${k}:00`} />
             </div>
           </div>

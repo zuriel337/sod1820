@@ -104,7 +104,7 @@ export default async function handler(req, res) {
     const [pages, landing, daily, hours, newRet] = await Promise.all([
       repM('pagePath', ['screenPageViews', 'averageSessionDuration'], 15),
       rep('landingPage', 'sessions', 12),
-      repM('date', ['totalUsers'], 400, false),
+      repM('date', ['totalUsers', 'sessions'], 400, false),
       repM('hour', ['activeUsers'], 24, false),
       rep('newVsReturning', 'activeUsers', 4),
     ]);
@@ -131,7 +131,7 @@ export default async function handler(req, res) {
       langs: list(langs),
       pages: listM(pages, ['views', 'avgSec']),
       landing: list(landing),
-      daily: listM(daily, ['users']).sort((a, b) => (a.key < b.key ? -1 : 1)),
+      daily: listM(daily, ['users', 'sessions']).sort((a, b) => (a.key < b.key ? -1 : 1)),
       hours: listM(hours, ['users']).sort((a, b) => Number(a.key) - Number(b.key)),
       newReturning: list(newRet),
     });
