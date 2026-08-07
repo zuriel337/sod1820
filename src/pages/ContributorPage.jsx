@@ -19,6 +19,7 @@ import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
 import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
+import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -510,6 +511,9 @@ export default function ContributorPage() {
       {/* ✦ מנוע-המרכז — נבחר לפי specialty (letter-decoder→מפענח · crosses→קיר-הצלבות · …).
           זה הלב של הדף; מנוע שטרם מומש נופל בחזרה למדורים הרגילים למטה. */}
       <SpecialtyCenter c={c} />
+
+      {/* 🔢 הגימטריות המאומתות — מקום אחד, רק מה שאומת ואושר (gematria_words source=contribution) */}
+      <VerifiedGematrias name={c.display_name} acc={c.accent} />
 
       {/* 🗓️ ציר האירועים שלו — nodes type=event שיוחסו אליו. עדשה על «ציר ההתגלות» הגלובלי (לא עותק);
           כולל את המחקרים הישנים שלו על ציר-זמן + הפניה לציר ההתגלות המלא. */}
