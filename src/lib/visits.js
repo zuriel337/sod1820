@@ -226,6 +226,19 @@ export async function getTrafficInsights(days = 30) {
   if (error) throw error;
   return data || [];
 }
+// 🧠 מפקדה — מקבץ קנוני אחד (המלצות מטטרון + חיוויים + פעילות). קורא ממקורות קיימים בלבד.
+export async function getCommandCenter() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_command_center");
+  if (error) throw error;
+  return data || null;
+}
+export async function reviewRecommendation(id, status, note = null) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_recommendation_review", { p_id: id, p_status: status, p_note: note });
+  if (error) throw error;
+  return data || null;
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {

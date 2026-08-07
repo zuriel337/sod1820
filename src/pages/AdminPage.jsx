@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -79,6 +79,7 @@ const ADMIN_THEME_CSS = `
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
+  { key: "command",  label: "🧠 מפקדה" },
   { key: "entries",  label: "🛰️ כניסות אמיתיות" },
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
@@ -130,6 +131,7 @@ const TABS = [
 // מדידה: כל טאבי-התנועה שהיו פזורים (analytics+journeys) מתאחדים כאן. צמיחה: המרות/ויראל/צמיחה/Meta.
 // הוסרו: «מסעות (ישן)» ו«מיילים» (שכפל את «רשימת תפוצה»). היתומים («סוכנים»→AI, «המרות»→צמיחה) חוברו לקבוצה.
 const GROUPS = [
+  { key: "command", label: "🧠 מפקדה",       subs: ["command"] },
   { key: "measure", label: "📊 מדידה",       subs: ["entries", "traffic", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
   { key: "growth",  label: "📈 צמיחה",       subs: ["growth", "conversions", "viral", "meta"] },
   { key: "ai",      label: "🤖 AI",           subs: ["aicost", "aistyles", "agents"] },
@@ -208,8 +210,8 @@ function PulseBar({ goto }) {
 
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
-  const [tab, setTab] = useState("traffic");
-  const [group, setGroup] = useState("measure");
+  const [tab, setTab] = useState("command");
+  const [group, setGroup] = useState("command");
   const mobile = useIsMobile();
   const activeGroup = GROUPS.find(g => g.key === group) || GROUPS[0];
   const selectGroup = g => { setGroup(g.key); setTab(g.subs[0]); };
@@ -260,6 +262,7 @@ export default function AdminPage() {
       )}
       {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
+      {tab === "command" && <CommandCenterTab gotoTab={gotoTab} />}
       {tab === "entries" && <TrafficIntelligenceTab />}
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
@@ -4464,6 +4467,143 @@ function GaRetentionBars({ title, items, fmtKey }) {
           ))}
         </div>
       ) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים בטווח.</div>}
+    </div>
+  );
+}
+
+// ===== 🧠 מפקדה — Admin Command Center (מקבץ קנוני: המלצות מטטרון + חיוויים + פעילות) =====
+// קורא admin_command_center (recommendations · ti_demand_signals · convergences · journey_seeds · work_log).
+// לא מערכת חדשה — מקבץ מהמקורות הקיימים. משתלב במבנה-הקבוצות של איחוד-הניהול.
+function CommandCenterTab() {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(null);
+
+  const load = () => { setLoading(true); setErr(""); getCommandCenter().then(r => { setD(r); setLoading(false); }).catch(e => { setErr(e.message || "שגיאה"); setLoading(false); }); };
+  useEffect(() => { load(); }, []);
+
+  const dec = (p) => { try { return decodeURIComponent(p || ""); } catch { return p || ""; } };
+  const nLink = (k) => "/number/" + encodeURIComponent(k || "");
+
+  const review = async (id, status) => {
+    setBusy(id);
+    try { await reviewRecommendation(id, status); } catch { /* noop */ }
+    setD(prev => prev ? { ...prev, recommendations: (prev.recommendations || []).filter(r => r.id !== id),
+      counters: { ...prev.counters, recommendations_pending: Math.max(0, (prev.counters?.recommendations_pending || 1) - 1) } } : prev);
+    setBusy(null);
+  };
+
+  if (loading) return <div style={card}><Loading /></div>;
+  if (err) return <div style={card}><div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div></div>;
+  if (!d) return <div style={card}><Empty>אין נתונים.</Empty></div>;
+
+  const CN = d.counters || {};
+  const chips = [
+    ["recommendations_pending", "🧠", "המלצות ממתינות", "#7fb2ff"],
+    ["demand_gaps", "🕳️", "פערי-גרף (ביקוש בלי node)", "#e0a86a"],
+    ["zuriel_definitions", "📜", "הגדרות צוריאל פתוחות", "#c9a24a"],
+    ["hints_pending", "➕", "דיווחי-רמזים", "#c9a24a"],
+    ["convergences_new_7d", "✨", "התכנסויות חדשות (7ימ)", "#9bd39b"],
+    ["journey_drafts", "🧭", "מועמדי-מסע (backlog)", C.muted],
+    ["worklog_ready_deploy", "🚀", "ממתין לפריסה", "#e08a8a"],
+  ];
+  const typeBadge = (t) => ({ create_entity: ["#e0a86a", "יצירת ישות"], write_article: ["#7fb2ff", "כתיבת פוסט"], check_convergence: ["#9bd39b", "בדיקת התכנסות"], create_journey: ["#c9a24a", "מסע מחקר"] }[t] || ["#888", t]);
+
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      {/* חיוויים */}
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 24 }}>🧠</span>
+          <div style={{ flex: 1, minWidth: 160 }}>
+            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>מפקדה — מרכז המוח של סוד1820</div>
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>מה התגלה · מה דורש החלטה · מה עלה בביקוש · מה מטטרון מציע</div>
+          </div>
+          <button onClick={load} style={segBtn(false)}>↻ רענן</button>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
+          {chips.map(([k, icon, label, accent]) => {
+            const v = CN[k] || 0; const hot = v > 0 && (k === "recommendations_pending" || k === "worklog_ready_deploy" || k === "zuriel_definitions");
+            return (
+              <div key={k} style={{ background: hot ? "rgba(47,109,246,0.10)" : "rgba(8,5,2,0.35)", border: `1px solid ${hot ? "rgba(127,178,255,0.4)" : C.border}`, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: accent, fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{v.toLocaleString()}</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{icon} {label}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* תיבת המלצות מטטרון */}
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>🧠 תיבת המלצות מטטרון</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginBottom: 12 }}>מטטרון מגלה ומציע — אתה מאשר. הפעולה על הגרף מתבצעת רק אחרי אישור.</div>
+        {(!d.recommendations || !d.recommendations.length) ? <Empty>אין המלצות ממתינות. ✅</Empty>
+          : d.recommendations.map(r => {
+            const [bc, bl] = typeBadge(r.type); const conf = Math.round((Number(r.confidence) || 0) * 100);
+            return (
+              <div key={r.id} style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", marginBottom: 10, opacity: busy === r.id ? 0.5 : 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                  <span style={{ background: bc, color: "#0d0900", fontFamily: F.body, fontSize: 11, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>{bl}</span>
+                  <span style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 14, fontWeight: 700 }}>{r.target_entity}</span>
+                  <span style={{ flex: 1 }} />
+                  <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 12 }}>ביטחון {conf}%</span>
+                </div>
+                <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 3, marginBottom: 8 }}>
+                  <div style={{ height: "100%", width: conf + "%", background: "linear-gradient(90deg,#2f6df6,#7fb2ff)", borderRadius: 3 }} />
+                </div>
+                <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 8 }}>{r.reason}</div>
+                {r.evidence && Object.keys(r.evidence).length > 0 && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                    {Object.entries(r.evidence).map(([ek, ev]) => (
+                      <span key={ek} style={{ background: "rgba(255,255,255,0.05)", color: C.muted, fontFamily: F.mono, fontSize: 10.5, borderRadius: 5, padding: "2px 7px" }}>{ek}: {String(ev)}</span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <button onClick={() => review(r.id, "approved")} disabled={busy === r.id} style={{ background: "rgba(76,175,80,0.15)", border: "1px solid rgba(76,175,80,0.5)", color: "#8bd98b", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>✅ אישור</button>
+                  <button onClick={() => review(r.id, "rejected")} disabled={busy === r.id} style={{ background: "rgba(200,80,80,0.12)", border: "1px solid rgba(224,138,138,0.4)", color: "#e08a8a", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5 }}>❌ דחייה</button>
+                  {/^\d+$/.test(r.target_entity || "") && <a href={nLink(r.target_entity)} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", fontFamily: F.body, fontSize: 12, textDecoration: "none" }}>🔗 לישות/לראיה ↗</a>}
+                </div>
+              </div>
+            );
+          })}
+      </div>
+
+      {/* מרכז פעילות */}
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 12 }}>📡 מרכז פעילות</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+          <div>
+            <div style={{ color: "#e0a86a", fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>🕳️ ביקוש חסר-גרף (מועמדים)</div>
+            {(d.demand_gaps || []).length ? d.demand_gaps.map((g, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: F.body, fontSize: 12, color: C.goldDim, marginBottom: 5 }}>
+                <a href={nLink(g.key)} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", textDecoration: "none", direction: "ltr" }}>{dec(g.key)} ↗</a>
+                <span style={{ fontFamily: F.mono }}>{(g.visits || 0).toLocaleString()}</span>
+              </div>
+            )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>—</div>}
+          </div>
+          <div>
+            <div style={{ color: "#7fb2ff", fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>⭐ ישויות בביקוש (בגרף)</div>
+            {(d.top_demand || []).length ? d.top_demand.map((t, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: F.body, fontSize: 12, color: C.goldDim, marginBottom: 5 }}>
+                <a href={nLink(t.key)} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", textDecoration: "none", direction: "ltr" }}>{t.label || dec(t.key)} ↗</a>
+                <span style={{ fontFamily: F.mono }}>{(t.visits || 0).toLocaleString()}</span>
+              </div>
+            )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>—</div>}
+          </div>
+          <div>
+            <div style={{ color: "#9bd39b", fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>✨ מטטרון גילה לאחרונה</div>
+            {(d.recent_discoveries || []).length ? d.recent_discoveries.map((c, i) => (
+              <div key={i} style={{ fontFamily: F.body, fontSize: 12, color: C.goldDim, marginBottom: 5 }}>
+                <a href={nLink(String(c.value))} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", textDecoration: "none" }}>{c.value}</a>
+                <span style={{ color: C.muted }}> · {c.sample} <span style={{ fontFamily: F.mono }}>({c.group_size})</span></span>
+              </div>
+            )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>—</div>}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
