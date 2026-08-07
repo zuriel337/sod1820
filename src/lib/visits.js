@@ -246,6 +246,13 @@ export async function reviewRecommendation(id, status, note = null) {
   if (error) throw error;
   return data || null;
 }
+// מטטרון: הרצה ידנית של גלאי-הפערים/ההמלצות (אדמין) — ממלא את תור-ההמלצות
+export async function runMetatronRecommend() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_run_metatron_recommend");
+  if (error) throw error;
+  return data || null;
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {

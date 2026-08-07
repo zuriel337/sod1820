@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, getEntriesSeries } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4495,6 +4495,8 @@ function CommandCenterTab({ gotoTab }) {
       counters: { ...prev.counters, recommendations_pending: Math.max(0, (prev.counters?.recommendations_pending || 1) - 1) } } : prev);
     setBusy(null);
   };
+  const [scanning, setScanning] = useState(false);
+  const runScan = async () => { setScanning(true); try { await runMetatronRecommend(); } catch { /* noop */ } load(); setScanning(false); };
 
   if (loading) return <div style={card}><Loading /></div>;
   if (err) return <div style={card}><div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div></div>;
@@ -4514,7 +4516,7 @@ function CommandCenterTab({ gotoTab }) {
     ["worklog_ready_deploy", "🚀", "ממתין לפריסה", "#e08a8a", { goto: "worklog" }],
   ];
   const chipClick = (target) => { if (!target) return; if (target.goto && gotoTab) gotoTab(target.goto); else if (target.scroll) scrollTo(target.scroll); };
-  const typeBadge = (t) => ({ create_entity: ["#e0a86a", "יצירת ישות"], write_article: ["#7fb2ff", "כתיבת פוסט"], check_convergence: ["#9bd39b", "בדיקת התכנסות"], create_journey: ["#c9a24a", "מסע מחקר"] }[t] || ["#888", t]);
+  const typeBadge = (t) => ({ create_entity: ["#e0a86a", "יצירת ישות"], create_card: ["#c9a24a", "כרטיס-נושא"], write_article: ["#7fb2ff", "כתיבת פוסט"], check_convergence: ["#9bd39b", "בדיקת התכנסות"], create_journey: ["#c9a24a", "מסע מחקר"] }[t] || ["#888", t]);
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
@@ -4579,6 +4581,47 @@ function CommandCenterTab({ gotoTab }) {
             })()}
           </div>
         )}
+        {/* ⚖️ מטטרון — בקרה והתראות (שכבת-הממשל שהייתה נסתרת ב-SQL, עכשיו במקום אחד) */}
+        {d.metatron_status && (() => {
+          const ms = d.metatron_status; const al = ms.alerts || {}; const gp = ms.gaps || {};
+          const rich = gp.rich_numbers_no_card || {};
+          const alertDefs = [
+            ["red", "🔴", "דחוף", "#e06666"],
+            ["orange", "🟠", "לתשומת-לב", "#e0a86a"],
+            ["yellow", "🟡", "מעקב", "#d8c860"],
+            ["green", "🟢", "טופל", "#8bd98b"],
+          ];
+          return (
+            <div style={{ background: "rgba(30,20,8,0.35)", border: "1px solid rgba(224,168,106,0.35)", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>⚖️ מטטרון — בקרה והתראות</span>
+                <span style={{ flex: 1 }} />
+                <button onClick={runScan} disabled={scanning} style={{ ...segBtn(false), fontSize: 12, opacity: scanning ? 0.5 : 1 }}>{scanning ? "סורק…" : "🔄 סרוק פערים"}</button>
+              </div>
+              {/* רמזור-התראות */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+                {alertDefs.map(([k, icon, lbl, col]) => (
+                  <div key={k} style={{ display: "flex", alignItems: "baseline", gap: 6, background: "rgba(8,5,2,0.4)", border: `1px solid ${(al[k] || 0) > 0 && k !== "green" ? col : C.border}`, borderRadius: 8, padding: "6px 10px" }}>
+                    <span style={{ color: col, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{Number(al[k] || 0).toLocaleString()}</span>
+                    <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>{icon} {lbl}</span>
+                  </div>
+                ))}
+              </div>
+              {/* פערי-שלמות */}
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7 }}>
+                <span>🕳️ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(rich.ge10 || 0).toLocaleString()}</b> מספרים עשירים בלי כרטיס</span>
+                <span>🔧 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(gp.methods_missing_from_engine || 0).toLocaleString()}</b> שיטות חסרות מהמנוע</span>
+                <span>🎴 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(gp.cards_approved_not_projected || 0).toLocaleString()}</b> כרטיסים לא-מוקרנים</span>
+                <span>✨ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.discoveries || {}).waiting || 0).toLocaleString()}</b> תגליות בשולחן</span>
+                <span>⚖️ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.decisions || {}).pending || 0).toLocaleString()}</b> החלטות-ממשל</span>
+                <span>📜 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.laws || {}).active || 0).toLocaleString()}</b> חוקים פעילים</span>
+              </div>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 8, lineHeight: 1.6 }}>
+                «סרוק פערים» הופך מספרים-עשירים-בלי-כרטיס להמלצות-לאישור למטה. אלה ההתראות שרצו עד היום רק ב-SQL — כעת במקום אחד.
+              </div>
+            </div>
+          );
+        })()}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
           {chips.map(([k, icon, label, accent, target]) => {
             const v = CN[k] || 0; const hot = v > 0 && (k === "recommendations_pending" || k === "worklog_ready_deploy" || k === "zuriel_definitions");
