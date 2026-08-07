@@ -18,6 +18,7 @@ import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
+import ChristinaDecoder from "../components/ChristinaDecoder.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -584,6 +585,20 @@ export default function ContributorPage() {
             })}
           </div>
           <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "16px 0 2px" }} />
+        </div>
+      )}
+
+      {/* 🔤 המחשבון של כריסטינה — מפענח-האותיות שהיא בנתה (christina_decomposition_rules).
+          מוטמע בדף-הכתב שלה + חי גם כ-/research?tool=christina (עץ אחד, אותו רכיב). */}
+      {(c.slug === "christina" || (c.display_name || "").includes("כריסטינה")) && (
+        <div style={{ marginBottom: 22 }}>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>
+            🔤 מפענח-האותיות של {c.display_name}
+          </div>
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
+            המחשבון שהיא בנתה — כל אות נושאת משמעות בשיטתה
+          </div>
+          <ChristinaDecoder embedded />
         </div>
       )}
 
