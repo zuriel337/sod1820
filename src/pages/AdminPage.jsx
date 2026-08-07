@@ -4709,6 +4709,15 @@ function CommandCenterTab({ gotoTab }) {
               </div>
             )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>—</div>}
           </div>
+          <div>
+            <div style={{ color: "#c9a24a", fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>🔬 שולחן מטטרון — ממתינות</div>
+            {(d.desk_discoveries || []).length ? d.desk_discoveries.map((c, i) => (
+              <div key={i} style={{ fontFamily: F.body, fontSize: 12, color: C.goldDim, marginBottom: 5 }}>
+                <a href={nLink(String(c.value))} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", textDecoration: "none" }}>{c.value}</a>
+                <span style={{ color: C.muted }}> · {c.sample} <span style={{ fontFamily: F.mono }}>({c.group_size})</span>{c.method ? " · " + c.method : ""}</span>
+              </div>
+            )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>—</div>}
+          </div>
         </div>
       </div>
     </div>
@@ -6288,6 +6297,8 @@ function WorkLogTab() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [query, setQuery] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [bulking, setBulking] = useState(false);
 
   function load() {
     if (!supabase) return;
@@ -6296,6 +6307,18 @@ function WorkLogTab() {
       .then(({ data }) => { setEntries(data || []); setLoading(false); }).catch(() => setLoading(false));
   }
   useEffect(load, []);
+
+  // עדכון מקומי אחרי פעולה (בלי טעינה-מחדש מלאה)
+  const patch = (id, fields) => setEntries(prev => prev.map(e => e.id === id ? { ...e, ...fields } : e));
+  const setArchived = async (id, archived) => { patch(id, { archived }); try { await supabase.rpc("admin_worklog_update", { p_id: id, p_status: null, p_archived: archived }); } catch { load(); } };
+  const setDone = async (id) => { patch(id, { status: "הושלם" }); try { await supabase.rpc("admin_worklog_update", { p_id: id, p_status: "הושלם", p_archived: null }); } catch { load(); } };
+  const hardDelete = async (id) => { if (!window.confirm("למחוק לצמיתות? פעולה בלתי-הפיכה. (עדיף «ארכב» — שומר היסטוריה)")) return; setEntries(prev => prev.filter(e => e.id !== id)); try { await supabase.rpc("admin_worklog_delete", { p_id: id }); } catch { load(); } };
+  const bulkArchiveDone = async () => {
+    if (!window.confirm("לארכב את כל הרשומות בעלות סטטוס-סופי (הושלם/deployed/done…)? הפיך לחלוטין — «🗄️ ארכיון» → «↩️ שחזר».")) return;
+    setBulking(true);
+    try { const { data } = await supabase.rpc("admin_worklog_archive_done"); window.alert(`אורכבו ${data ?? 0} רשומות.`); } catch { /* noop */ }
+    load(); setBulking(false);
+  };
 
   async function addEntry() {
     if (!form.topic || !form.what_we_did) return;
@@ -6329,22 +6352,29 @@ function WorkLogTab() {
       </div>
       {(() => {
         const q = query.trim().toLowerCase();
+        const archivedCount = entries.filter(e => e.archived).length;
+        const base = showArchived ? entries.filter(e => e.archived) : entries.filter(e => !e.archived);
         const view = q
-          ? entries.filter(e => `${e.topic || ""} ${e.what_we_did || ""} ${e.open_threads || ""} ${e.status || ""}`.toLowerCase().includes(q))
-          : entries;
+          ? base.filter(e => `${e.topic || ""} ${e.what_we_did || ""} ${e.open_threads || ""} ${e.status || ""}`.toLowerCase().includes(q))
+          : base;
+        const actBtn = (bg, bd, col, label, onClick, key) => (
+          <button key={key} onClick={onClick} style={{ background: bg, border: `1px solid ${bd}`, color: col, borderRadius: 7, padding: "4px 10px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }}>{label}</button>
+        );
         return (
           <div style={card}>
             <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:14, flexWrap:"wrap" }}>
               <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700 }}>
-                📋 כל היומן {!loading && <span style={{ color:C.muted, fontWeight:400 }}>({view.length}{q ? ` / ${entries.length}` : ""})</span>}
+                📋 {showArchived ? "ארכיון" : "יומן פעיל"} {!loading && <span style={{ color:C.muted, fontWeight:400 }}>({view.length}{q ? ` / ${base.length}` : ""})</span>}
               </div>
               <input value={query} onChange={e => setQuery(e.target.value)} placeholder="🔍 חיפוש ביומן…" dir="rtl"
-                style={{ ...fld, marginRight:"auto", maxWidth:300, padding:"7px 12px" }} />
+                style={{ ...fld, marginRight:"auto", maxWidth:240, padding:"7px 12px" }} />
+              <button onClick={() => setShowArchived(s => !s)} style={{ ...segBtn(showArchived), fontSize:12 }}>🗄️ ארכיון ({archivedCount})</button>
+              {!showArchived && <button onClick={bulkArchiveDone} disabled={bulking} style={{ ...segBtn(false), fontSize:12, opacity: bulking ? 0.5 : 1 }}>{bulking ? "מארכב…" : "🧹 ארכב שהושלמו"}</button>}
             </div>
             {loading ? <div style={{ color:C.muted, fontSize:13, fontFamily:F.heading }}>טוען…</div> : (
               <div style={{ display:"grid", gap:16, maxHeight:620, overflowY:"auto", paddingLeft:6 }}>
                 {view.map(e => (
-                  <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12 }}>
+                  <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12, opacity: e.archived ? 0.7 : 1 }}>
                     <div style={{ display:"flex", gap:10, alignItems:"baseline", marginBottom:5, flexWrap:"wrap" }}>
                       <b style={{ color:C.goldBright, fontFamily:F.heading, fontSize:13 }}>{e.topic}</b>
                       <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{e.session_date}</span>
@@ -6352,9 +6382,16 @@ function WorkLogTab() {
                     </div>
                     <div style={{ color:C.goldLight, fontFamily:F.body, fontSize:13, lineHeight:1.65, whiteSpace:"pre-wrap" }}>{e.what_we_did}</div>
                     {e.open_threads && <div style={{ color:C.muted, fontFamily:F.heading, fontSize:11, marginTop:5 }}>⚡ {e.open_threads}</div>}
+                    <div style={{ display:"flex", gap:7, marginTop:9, flexWrap:"wrap" }}>
+                      {e.status !== "הושלם" && actBtn("rgba(76,175,80,0.13)", "rgba(76,175,80,0.45)", "#7bbf7b", "✔️ הושלם", () => setDone(e.id), "d")}
+                      {e.archived
+                        ? actBtn("rgba(127,178,255,0.12)", "rgba(127,178,255,0.4)", "#7fb2ff", "↩️ שחזר", () => setArchived(e.id, false), "u")
+                        : actBtn("rgba(201,162,74,0.12)", "rgba(201,162,74,0.4)", "#c9a24a", "🗄️ ארכב", () => setArchived(e.id, true), "a")}
+                      {actBtn("rgba(200,80,80,0.1)", "rgba(224,138,138,0.35)", "#e08a8a", "🗑️ מחק", () => hardDelete(e.id), "x")}
+                    </div>
                   </div>
                 ))}
-                {!view.length && <Empty>{q ? "אין תוצאות לחיפוש" : "אין רשומות עדיין"}</Empty>}
+                {!view.length && <Empty>{q ? "אין תוצאות לחיפוש" : showArchived ? "אין רשומות בארכיון" : "אין רשומות פעילות"}</Empty>}
               </div>
             )}
           </div>
