@@ -4474,11 +4474,13 @@ function GaRetentionBars({ title, items, fmtKey }) {
 // ===== 🧠 מפקדה — Admin Command Center (מקבץ קנוני: המלצות מטטרון + חיוויים + פעילות) =====
 // קורא admin_command_center (recommendations · ti_demand_signals · convergences · journey_seeds · work_log).
 // לא מערכת חדשה — מקבץ מהמקורות הקיימים. משתלב במבנה-הקבוצות של איחוד-הניהול.
-function CommandCenterTab() {
+function CommandCenterTab({ gotoTab }) {
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(null);
+  const recRef = useRef(null);   // תיבת ההמלצות (לגלילה מהחיווי)
+  const actRef = useRef(null);   // מרכז הפעילות (לגלילה מהחיווי)
 
   const load = () => { setLoading(true); setErr(""); getCommandCenter().then(r => { setD(r); setLoading(false); }).catch(e => { setErr(e.message || "שגיאה"); setLoading(false); }); };
   useEffect(() => { load(); }, []);
@@ -4500,15 +4502,18 @@ function CommandCenterTab() {
 
   const CN = d.counters || {};
   const TL = d.traffic_layers || null;
+  const scrollTo = (ref) => ref.current && ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  // כל חיווי → יעד: גלילה למקטע-בעמוד או ניווט לטאב הרלוונטי (goto = מפתח-טאב, scroll = ref)
   const chips = [
-    ["recommendations_pending", "🧠", "המלצות ממתינות", "#7fb2ff"],
-    ["demand_gaps", "🕳️", "פערי-גרף (ביקוש בלי node)", "#e0a86a"],
-    ["zuriel_definitions", "📜", "הגדרות צוריאל פתוחות", "#c9a24a"],
-    ["hints_pending", "➕", "דיווחי-רמזים", "#c9a24a"],
-    ["convergences_new_7d", "✨", "התכנסויות חדשות (7ימ)", "#9bd39b"],
-    ["journey_drafts", "🧭", "מועמדי-מסע (backlog)", C.muted],
-    ["worklog_ready_deploy", "🚀", "ממתין לפריסה", "#e08a8a"],
+    ["recommendations_pending", "🧠", "המלצות ממתינות", "#7fb2ff", { scroll: recRef }],
+    ["demand_gaps", "🕳️", "פערי-גרף (ביקוש בלי node)", "#e0a86a", { scroll: actRef }],
+    ["zuriel_definitions", "📜", "הגדרות צוריאל פתוחות", "#c9a24a", { goto: "anchors" }],
+    ["hints_pending", "➕", "דיווחי-רמזים", "#c9a24a", { goto: "hintreports" }],
+    ["convergences_new_7d", "✨", "התכנסויות חדשות (7ימ)", "#9bd39b", { scroll: actRef }],
+    ["journey_drafts", "🧭", "מועמדי-מסע (backlog)", C.muted, { goto: "jexp" }],
+    ["worklog_ready_deploy", "🚀", "ממתין לפריסה", "#e08a8a", { goto: "worklog" }],
   ];
+  const chipClick = (target) => { if (!target) return; if (target.goto && gotoTab) gotoTab(target.goto); else if (target.scroll) scrollTo(target.scroll); };
   const typeBadge = (t) => ({ create_entity: ["#e0a86a", "יצירת ישות"], write_article: ["#7fb2ff", "כתיבת פוסט"], check_convergence: ["#9bd39b", "בדיקת התכנסות"], create_journey: ["#c9a24a", "מסע מחקר"] }[t] || ["#888", t]);
 
   return (
@@ -4575,20 +4580,27 @@ function CommandCenterTab() {
           </div>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
-          {chips.map(([k, icon, label, accent]) => {
+          {chips.map(([k, icon, label, accent, target]) => {
             const v = CN[k] || 0; const hot = v > 0 && (k === "recommendations_pending" || k === "worklog_ready_deploy" || k === "zuriel_definitions");
             return (
-              <div key={k} style={{ background: hot ? "rgba(47,109,246,0.10)" : "rgba(8,5,2,0.35)", border: `1px solid ${hot ? "rgba(127,178,255,0.4)" : C.border}`, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ color: accent, fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{v.toLocaleString()}</div>
+              <button key={k} onClick={() => chipClick(target)} title="פתח →"
+                style={{ textAlign: "right", cursor: "pointer", width: "100%", background: hot ? "rgba(47,109,246,0.10)" : "rgba(8,5,2,0.35)", border: `1px solid ${hot ? "rgba(127,178,255,0.4)" : C.border}`, borderRadius: 10, padding: "10px 12px", transition: "border-color .15s, transform .1s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = accent === C.muted ? C.borderGold : accent; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = hot ? "rgba(127,178,255,0.4)" : C.border; e.currentTarget.style.transform = "none"; }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                  <span style={{ color: accent, fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{v.toLocaleString()}</span>
+                  <span style={{ flex: 1 }} />
+                  <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>←</span>
+                </div>
                 <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{icon} {label}</div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
       {/* תיבת המלצות מטטרון */}
-      <div style={card}>
+      <div ref={recRef} style={card}>
         <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>🧠 תיבת המלצות מטטרון</div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginBottom: 12 }}>מטטרון מגלה ומציע — אתה מאשר. הפעולה על הגרף מתבצעת רק אחרי אישור.</div>
         {(!d.recommendations || !d.recommendations.length) ? <Empty>אין המלצות ממתינות. ✅</Empty>
@@ -4624,7 +4636,7 @@ function CommandCenterTab() {
       </div>
 
       {/* מרכז פעילות */}
-      <div style={card}>
+      <div ref={actRef} style={card}>
         <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 12 }}>📡 מרכז פעילות</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
           <div>
