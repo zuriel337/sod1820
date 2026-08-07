@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4660,6 +4660,68 @@ function CommandCenterTab() {
   );
 }
 
+// ===== ⏱️ מד-זמן אינטראקטיבי (SVG נגלל, ציר-ערכים, גרירה ימין/שמאל) =====
+function TimeMeter({ data, gran, height = 175, colorHex = "#7fb2ff", sourceColors }) {
+  const scRef = useRef(null);
+  const drag = useRef(null);
+  const [tip, setTip] = useState(null);
+  const pts = data || [];
+  if (!pts.length) return <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: 12 }}>אין נתונים בטווח.</div>;
+
+  const step = gran === "year" ? 48 : gran === "month" ? 16 : 8;
+  const padTop = 12, padBottom = 22, axisW = 46;
+  const chartH = height - padTop - padBottom;
+  const w = Math.max(pts.length * step, 120);
+  const max = Math.max(1, ...pts.map(p => Number(p.value) || 0));
+  const yOf = (v) => padTop + chartH * (1 - (Number(v) || 0) / max);
+  const xOf = (i) => i * step + step / 2;
+  const SC = sourceColors || {};
+  const grid = [0, 0.25, 0.5, 0.75, 1];
+  const gid = "tmg_" + colorHex.replace("#", "");
+  const fmtV = (v) => v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + "K" : String(Math.round(v));
+  const fmtX = (p) => { const d = new Date(p); return gran === "year" ? String(d.getFullYear()) : gran === "month" ? String(d.getMonth() + 1).padStart(2, "0") + "/" + String(d.getFullYear()).slice(2) : String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0"); };
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${xOf(i).toFixed(1)},${yOf(p.value).toFixed(1)}`).join(" ");
+  const area = `M${xOf(0).toFixed(1)},${(padTop + chartH).toFixed(1)} ` + pts.map((p, i) => `L${xOf(i).toFixed(1)},${yOf(p.value).toFixed(1)}`).join(" ") + ` L${xOf(pts.length - 1).toFixed(1)},${(padTop + chartH).toFixed(1)} Z`;
+  const showEvery = gran === "year" ? 1 : gran === "month" ? Math.max(1, Math.ceil(pts.length / 12)) : Math.max(1, Math.ceil(pts.length / 10));
+
+  const locate = (e) => {
+    const svg = scRef.current && scRef.current.querySelector("svg"); if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round((clientX - rect.left - step / 2) / step)));
+    setTip({ i, x: xOf(i) });
+    if (drag.current != null && scRef.current) scRef.current.scrollLeft = drag.current.sl - (clientX - drag.current.x);
+  };
+  const down = (e) => { const clientX = e.touches ? e.touches[0].clientX : e.clientX; drag.current = { x: clientX, sl: scRef.current ? scRef.current.scrollLeft : 0 }; };
+  const up = () => { drag.current = null; };
+
+  return (
+    <div style={{ position: "relative", direction: "ltr" }}>
+      <div style={{ position: "absolute", top: 0, right: 0, width: axisW, height, pointerEvents: "none", zIndex: 2 }}>
+        {grid.map((g, i) => (<div key={i} style={{ position: "absolute", top: yOf(max * g) - 6, right: 4, color: C.muted, fontFamily: F.mono, fontSize: 9.5, background: "rgba(8,5,2,0.6)", padding: "0 2px", borderRadius: 3 }}>{fmtV(max * g)}</div>))}
+      </div>
+      <div ref={scRef} onMouseMove={locate} onMouseDown={down} onMouseUp={up} onMouseLeave={() => { up(); setTip(null); }} onTouchMove={locate} onTouchStart={down} onTouchEnd={up}
+        style={{ overflowX: "auto", cursor: "ew-resize", paddingRight: axisW }}>
+        <svg width={w} height={height} style={{ display: "block", touchAction: "pan-x" }}>
+          <defs><linearGradient id={gid} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor={colorHex} stopOpacity="0.32" /><stop offset="100%" stopColor={colorHex} stopOpacity="0.02" /></linearGradient></defs>
+          {grid.map((g, i) => <line key={i} x1={0} x2={w} y1={yOf(max * g)} y2={yOf(max * g)} stroke="rgba(255,255,255,0.06)" />)}
+          <path d={area} fill={`url(#${gid})`} />
+          <path d={line} fill="none" stroke={colorHex} strokeWidth="1.6" />
+          {pts.map((p, i) => <circle key={i} cx={xOf(i)} cy={yOf(p.value)} r={gran === "year" ? 2.6 : 1.4} fill={(SC && SC[p.source]) || colorHex} />)}
+          {tip && <line x1={tip.x} x2={tip.x} y1={padTop} y2={padTop + chartH} stroke="rgba(255,255,255,0.3)" />}
+          {tip && <circle cx={tip.x} cy={yOf(pts[tip.i].value)} r={3.6} fill="#fff" />}
+          {pts.map((p, i) => i % showEvery === 0 ? <text key={i} x={xOf(i)} y={height - 6} fontSize="9" fill="#8a8f98" textAnchor="middle" fontFamily="monospace">{fmtX(p.period)}</text> : null)}
+        </svg>
+      </div>
+      {tip && (
+        <div style={{ position: "absolute", top: 2, left: 4, background: "rgba(8,5,2,0.92)", border: `1px solid ${C.border}`, borderRadius: 6, padding: "3px 8px", fontFamily: F.body, fontSize: 11, color: C.goldDim, pointerEvents: "none", zIndex: 3, whiteSpace: "nowrap" }}>
+          <b style={{ color: C.goldBright, fontFamily: F.mono }}>{Number(pts[tip.i].value).toLocaleString()}</b> · {fmtX(pts[tip.i].period)}{pts[tip.i].source ? " · " + pts[tip.i].source : ""}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===== 🛰️ Traffic Intelligence — כניסות אמיתיות (פאזה 1) =====
 // מקור-אמת יחיד: admin_entries_* (fn_human_entrances / traffic_daily). חוזה: traffic_intelligence_law.
 function TrafficIntelligenceTab() {
@@ -4668,7 +4730,8 @@ function TrafficIntelligenceTab() {
   const [bd, setBd] = useState(null);
   const [gap, setGap] = useState(null);
   const [hist, setHist] = useState(null);
-  const [histGran, setHistGran] = useState("year");
+  const [entSeries, setEntSeries] = useState(null);
+  const [meterGran, setMeterGran] = useState("month");
   const [funnel, setFunnel] = useState(null);
   const [insights, setInsights] = useState(null);
   const [err, setErr] = useState("");
@@ -4686,12 +4749,13 @@ function TrafficIntelligenceTab() {
     return () => { alive = false; };
   }, [days]);
 
-  // ציר היסטורי מאוחד — נטען לפי רזולוציה (יום/חודש/שנה)
+  // מדי-הזמן — מתג יחיד (יום/חודש/שנה) מחיל על שניהם: כניסות (עליון) + היסטוריה (תחתון)
   useEffect(() => {
     let alive = true;
-    getTrafficUnified(histGran).then(r => { if (alive) setHist(r || []); }).catch(() => { if (alive) setHist([]); });
+    getEntriesSeries(meterGran).then(r => { if (alive) setEntSeries(r || []); }).catch(() => { if (alive) setEntSeries([]); });
+    getTrafficUnified(meterGran).then(r => { if (alive) setHist(r || []); }).catch(() => { if (alive) setHist([]); });
     return () => { alive = false; };
-  }, [histGran]);
+  }, [meterGran]);
 
   const openDetail = (day) => {
     setOpenDay(day); setDetail(null); setDetailLoading(true);
@@ -4826,8 +4890,18 @@ function TrafficIntelligenceTab() {
               </div>
             )}
 
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>⏱️ מד-הזמן — כניסות אנושיות נטו</span>
+                <div style={segWrap}>
+                  {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (<button key={k} onClick={() => setMeterGran(k)} style={segBtn(meterGran === k)}>{l}</button>))}
+                </div>
+              </div>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8 }}>גרור ימין/שמאל · ריחוף לפרטים · המתג משנה גם את המד ההיסטורי למטה · {meterGran === "day" ? "120 ימים אחרונים" : meterGran === "month" ? "5 שנים אחרונות" : "כל השנים"}</div>
+              {!entSeries ? <Loading /> : <TimeMeter data={(entSeries || []).map(e => ({ period: e.period, value: Number(e.entrances) || 0, source: "first_party" }))} gran={meterGran} colorHex="#7fb2ff" />}
+            </div>
+
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
-              <GaBars title="📅 כניסות ליום" items={rows.map(r => ({ key: r.day, value: r.entrances }))} fmtKey={k => k ? k.slice(8, 10) + "/" + k.slice(5, 7) : k} />
               <div>
                 <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>🔎 בחרו יום לצלילה</div>
                 <div style={{ maxHeight: 200, overflowY: "auto", display: "grid", gap: 3 }}>
@@ -4879,38 +4953,11 @@ function TrafficIntelligenceTab() {
 
             {hist && (
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
-                  <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>📊 מד היסטורי מאוחד — צפיות (מסונן-בוט בתקופה החדשה)</span>
-                  <div style={segWrap}>
-                    {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
-                      <button key={k} onClick={() => setHistGran(k)} style={segBtn(histGran === k)}>{l}</button>
-                    ))}
-                  </div>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📊 מד היסטורי מאוחד — צפיות (2015→היום)</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8, lineHeight: 1.6 }}>
+                  Jetpack (2015→) → GA → first-party, על ציר אחד. גרור ימין/שמאל · ריחוף לפרטים. הישן לא תוקן אוטומטית (חוזה §5); החדש (first-party) מסונן-בוט. מתג הרזולוציה למעלה.
                 </div>
-                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 10, lineHeight: 1.6 }}>
-                  Jetpack (2015→) → GA → first-party, על ציר אחד. {histGran === "day" ? "120 ימים אחרונים" : histGran === "month" ? "5 שנים אחרונות" : "כל השנים"} · ריחוף על עמודה לפרטים. הישן לא תוקן אוטומטית (חוזה §5); החדש (first-party) מסונן-בוט.
-                </div>
-                {!hist.length ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים.</div> : (() => {
-                  const max = Math.max(1, ...hist.map(h => Number(h.views) || 0));
-                  const SC = { jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" };
-                  const bw = histGran === "year" ? 34 : histGran === "month" ? 12 : 7;
-                  const fmt = (p) => { const dt = new Date(p); return histGran === "year" ? String(dt.getFullYear()) : histGran === "month" ? String(dt.getMonth() + 1).padStart(2, "0") + "/" + String(dt.getFullYear()).slice(2) : String(dt.getDate()).padStart(2, "0") + "/" + String(dt.getMonth() + 1).padStart(2, "0"); };
-                  return (
-                    <div style={{ overflowX: "auto", paddingBottom: 4 }}>
-                      <div style={{ display: "flex", alignItems: "flex-end", gap: histGran === "year" ? 8 : 2, height: 130, minWidth: hist.length * (bw + (histGran === "year" ? 8 : 2)) }}>
-                        {hist.map((h, i) => {
-                          const v = Number(h.views) || 0;
-                          return (
-                            <div key={i} title={`${fmt(h.period)}: ${v.toLocaleString()} צפיות (${h.source})`} style={{ width: bw, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, height: "100%", justifyContent: "flex-end" }}>
-                              <div style={{ width: "100%", height: `${Math.max(2, Math.round((v / max) * 100))}%`, background: SC[h.source] || "#888", borderRadius: "3px 3px 0 0" }} />
-                              {histGran === "year" && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 9.5, whiteSpace: "nowrap" }}>{fmt(h.period)}</span>}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()}
+                <TimeMeter data={(hist || []).map(h => ({ period: h.period, value: Number(h.views) || 0, source: h.source }))} gran={meterGran} colorHex="#c9a24a" sourceColors={{ jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" }} />
                 <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
                   {[["jetpack", "Jetpack (2015→)"], ["ga", "GA"], ["first_party", "first-party (בלי בוטים)"]].map(([k, l]) => (
                     <span key={k} style={{ display: "flex", alignItems: "center", gap: 5, color: C.muted, fontFamily: F.body, fontSize: 11 }}>

@@ -213,6 +213,13 @@ export async function getTrafficUnified(gran = "year") {
   if (error) throw error;
   return data || [];
 }
+// מד-זמן: סדרת כניסות אנושיות נטו לפי רזולוציה (יום/חודש/שנה)
+export async function getEntriesSeries(gran = "day") {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("admin_entries_series", { p_gran: gran });
+  if (error) throw error;
+  return data || [];
+}
 // פאזה 2: Funnel התנהגותי + Insights אוטומטיים (על נטו-אנושי)
 export async function getFunnel(days = 30) {
   if (!supabase) return [];
