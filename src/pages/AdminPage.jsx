@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -79,6 +79,7 @@ const ADMIN_THEME_CSS = `
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
+  { key: "entries",  label: "🛰️ כניסות אמיתיות" },
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
   { key: "agents",   label: "🤖 סוכנים ועלויות" },
@@ -129,7 +130,7 @@ const TABS = [
 // מדידה: כל טאבי-התנועה שהיו פזורים (analytics+journeys) מתאחדים כאן. צמיחה: המרות/ויראל/צמיחה/Meta.
 // הוסרו: «מסעות (ישן)» ו«מיילים» (שכפל את «רשימת תפוצה»). היתומים («סוכנים»→AI, «המרות»→צמיחה) חוברו לקבוצה.
 const GROUPS = [
-  { key: "measure", label: "📊 מדידה",       subs: ["traffic", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
+  { key: "measure", label: "📊 מדידה",       subs: ["entries", "traffic", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
   { key: "growth",  label: "📈 צמיחה",       subs: ["growth", "conversions", "viral", "meta"] },
   { key: "ai",      label: "🤖 AI",           subs: ["aicost", "aistyles", "agents"] },
   { key: "content", label: "✍️ תוכן",         subs: ["topics", "chiddushim", "hintreports", "contribmod", "stream", "broadcast"] },
@@ -259,6 +260,7 @@ export default function AdminPage() {
       )}
       {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
+      {tab === "entries" && <TrafficIntelligenceTab />}
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
       {tab === "agents" && <AgentsCostTab />}
@@ -4462,6 +4464,166 @@ function GaRetentionBars({ title, items, fmtKey }) {
           ))}
         </div>
       ) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים בטווח.</div>}
+    </div>
+  );
+}
+
+// ===== 🛰️ Traffic Intelligence — כניסות אמיתיות (פאזה 1) =====
+// מקור-אמת יחיד: admin_entries_* (fn_human_entrances / traffic_daily). חוזה: traffic_intelligence_law.
+function TrafficIntelligenceTab() {
+  const [days, setDays] = useState("30");
+  const [daily, setDaily] = useState(null);
+  const [bd, setBd] = useState(null);
+  const [gap, setGap] = useState(null);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [openDay, setOpenDay] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true); setErr("");
+    Promise.all([getEntriesDaily(Number(days)), getEntriesBreakdown(Number(days)), getMeasurementGap(Number(days))])
+      .then(([d, b, g]) => { if (!alive) return; setDaily(d || []); setBd(b); setGap(g); setLoading(false); })
+      .catch(e => { if (!alive) return; setErr(e.message || "שגיאה"); setLoading(false); });
+    return () => { alive = false; };
+  }, [days]);
+
+  const openDetail = (day) => {
+    setOpenDay(day); setDetail(null); setDetailLoading(true);
+    getEntryDayDetail(day).then(r => { setDetail(r || []); setDetailLoading(false); }).catch(() => { setDetail([]); setDetailLoading(false); });
+  };
+  const dec = (p) => { try { return decodeURIComponent(p || ""); } catch { return p || ""; } };
+  const pct = (n, d) => d ? Math.round((n / d) * 100) : 0;
+
+  const rows = daily || [];
+  const A = rows.reduce((a, r) => ({
+    entrances: a.entrances + (r.entrances || 0), engaged: a.engaged + (r.engaged || 0),
+    bounces: a.bounces + (r.bounces || 0), views: a.views + (r.views || 0),
+    visitors: a.visitors + (r.visitors || 0), searches: a.searches + (r.searches || 0), bots: a.bots + (r.bots || 0),
+  }), { entrances: 0, engaged: 0, bounces: 0, views: 0, visitors: 0, searches: 0, bots: 0 });
+
+  const kpi = (val, label, accent) => (
+    <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", minWidth: 0 }}>
+      <div style={{ color: accent || C.goldBright, fontFamily: F.mono, fontSize: 19, fontWeight: 700 }}>{(val || 0).toLocaleString()}</div>
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{label}</div>
+    </div>
+  );
+  const bList = (title, items, keyName, fmtKey) => {
+    const arr = items || [];
+    const max = Math.max(1, ...arr.map(i => i.entrances || 0));
+    return (
+      <div style={{ minWidth: 0 }}>
+        <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+        {arr.length ? arr.map((it, i) => (
+          <div key={i} style={{ marginBottom: 6 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: F.body, fontSize: 12 }}>
+              <span style={{ color: C.goldDim, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0 }}>{fmtKey ? fmtKey(it[keyName]) : it[keyName]}</span>
+              <span style={{ color: C.goldBright, fontFamily: F.mono, flexShrink: 0 }}>{(it.entrances || 0).toLocaleString()}</span>
+            </div>
+            <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 3, marginTop: 2 }}>
+              <div style={{ height: "100%", width: `${Math.round((it.entrances / max) * 100)}%`, background: "linear-gradient(90deg,#2f6df6,#7fb2ff)", borderRadius: 3 }} />
+            </div>
+          </div>
+        )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים בטווח.</div>}
+      </div>
+    );
+  };
+
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+        <span style={{ fontSize: 24 }}>🛰️</span>
+        <div style={{ flex: 1, minWidth: 160 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>כניסות אמיתיות — Traffic Intelligence</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>מדידה ראשונית מהשרת שלנו (מסונן-בוט) · מקור-אמת יחיד · לחצו על יום לצלילה</div>
+        </div>
+        <div style={segWrap}>
+          {[["7", "7 ימים"], ["30", "30 יום"], ["90", "90 יום"]].map(([k, l]) => (
+            <button key={k} onClick={() => setDays(k)} style={segBtn(days === k)}>{l}</button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? <Loading />
+        : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
+        : !rows.length ? <Empty>אין נתוני כניסות בטווח.</Empty>
+        : (
+          <div style={{ display: "grid", gap: 18 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))", gap: 10 }}>
+              {kpi(A.entrances, "🛰️ כניסות אמיתיות", "#7fb2ff")}
+              {kpi(A.engaged, `⭐ עם עומק (${pct(A.engaged, A.entrances)}%)`)}
+              {kpi(A.bounces, `↩️ נטישות (${pct(A.bounces, A.entrances)}%)`)}
+              {kpi(A.views, "👁️ צפיות")}
+              {kpi(A.visitors, "👤 מבקרים (חסם-עליון)")}
+              {kpi(A.searches, "🔍 חיפושים")}
+              {kpi(A.bots, "🤖 בוטים שסוננו")}
+            </div>
+
+            {gap && (
+              <div style={{ background: "rgba(47,109,246,0.08)", border: "1px solid rgba(127,178,255,0.3)", borderRadius: 12, padding: "12px 14px" }}>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>📐 פער מדידה מול Google Analytics <span style={{ color: C.muted, fontWeight: 400 }}>(השוואתי בלבד — לא מתקן שום מקור)</span></div>
+                <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "baseline" }}>
+                  <div><span style={{ color: "#7fb2ff", fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{(gap.fp_entrances || 0).toLocaleString()}</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>כניסות (אצלנו)</span></div>
+                  <div><span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{gap.ga_sessions != null ? Number(gap.ga_sessions).toLocaleString() : "—"}</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>סשנים (GA)</span></div>
+                  {gap.ga_sessions ? <div><span style={{ color: "#4caf50", fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>+{pct((gap.fp_entrances || 0) - gap.ga_sessions, gap.ga_sessions)}%</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>פער מדידה</span></div> : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, alignSelf: "center" }}>סשני GA ימולאו אחרי הסנכרון הבא (עמודת sessions).</div>}
+                </div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 8, lineHeight: 1.6 }}>הפער נובע מחוסמי-פרסומות, סירובי-cookies, iOS/Safari והבדלי מודל-מדידה. שני המספרים אמיתיים; אין «נכון» יחיד.</div>
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
+              <GaBars title="📅 כניסות ליום" items={rows.map(r => ({ key: r.day, value: r.entrances }))} fmtKey={k => k ? k.slice(8, 10) + "/" + k.slice(5, 7) : k} />
+              <div>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>🔎 בחרו יום לצלילה</div>
+                <div style={{ maxHeight: 200, overflowY: "auto", display: "grid", gap: 3 }}>
+                  {[...rows].reverse().map(r => (
+                    <button key={r.day} onClick={() => openDetail(r.day)} style={{ display: "flex", justifyContent: "space-between", gap: 8, background: openDay === r.day ? "rgba(47,109,246,0.15)" : "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 10px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5, color: C.goldDim }}>
+                      <span>{r.day.slice(8, 10)}/{r.day.slice(5, 7)}</span>
+                      <span style={{ fontFamily: F.mono, color: "#7fb2ff" }}>{(r.entrances || 0).toLocaleString()} כניסות</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {openDay && (
+              <div style={{ background: "rgba(8,5,2,0.4)", border: "1px solid rgba(127,178,255,0.3)", borderRadius: 12, padding: "12px 14px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>🔎 כניסות של {openDay} — מי נכנס ואיפה</div>
+                  <button onClick={() => setOpenDay(null)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 18 }}>✕</button>
+                </div>
+                {detailLoading ? <Loading />
+                  : !detail || !detail.length ? <Empty>אין כניסות ביום זה.</Empty>
+                  : (
+                    <div style={{ maxHeight: 340, overflowY: "auto" }}>
+                      {detail.map((e, i) => (
+                        <div key={i} style={{ display: "grid", gridTemplateColumns: "50px 1fr auto", gap: 8, alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                          <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{new Date(e.first_ts).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}</span>
+                          <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0 }}>{dec(e.landing_path)}</span>
+                          <span style={{ display: "flex", gap: 6, alignItems: "center", fontFamily: F.body, fontSize: 11, flexShrink: 0 }}>
+                            <span style={{ color: C.muted }}>{e.source || "direct"} · {e.device || "?"}{e.country ? " · " + e.country : ""}</span>
+                            <span style={{ color: e.bounce ? "#e08a8a" : "#7fc47f", fontFamily: F.mono }}>{e.views}👁</span>
+                            {e.is_logged_in && <span title="מחובר" style={{ color: "#7fb2ff" }}>✓</span>}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            )}
+
+            {bd && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+                {bList("🛬 איפה נכנסו (דפי-נחיתה)", bd.landing, "path", dec)}
+                {bList("📍 מאיפה (מקורות)", bd.sources, "source")}
+                {bList("📱 מכשיר", bd.devices, "device")}
+                {bList("🌍 מדינה", bd.countries, "country")}
+              </div>
+            )}
+          </div>
+        )}
     </div>
   );
 }

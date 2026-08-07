@@ -180,6 +180,33 @@ export async function getResearchUsage(hours = 48) {
   return data;
 }
 
+// ── 🛰️ Traffic Intelligence — כניסות אמיתיות (מקור-אמת: fn_human_entrances / traffic_daily) ──
+// חוזה ההגדרות: project_codex slug='traffic_intelligence_law'. כל המדדים מכאן בלבד (Source of Truth).
+export async function getEntriesDaily(days = 30) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("admin_entries_daily", { p_days: days });
+  if (error) throw error;
+  return data || [];
+}
+export async function getEntriesBreakdown(days = 30) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_entries_breakdown", { p_days: days });
+  if (error) throw error;
+  return data || null;
+}
+export async function getEntryDayDetail(day) {
+  if (!supabase || !day) return [];
+  const { data, error } = await supabase.rpc("admin_entries_day_detail", { p_day: day });
+  if (error) throw error;
+  return data || [];
+}
+export async function getMeasurementGap(days = 30) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_measurement_gap", { p_days: days });
+  if (error) throw error;
+  return data || null;
+}
+
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {
   if (!supabase) return null;
