@@ -4569,16 +4569,16 @@ function TrafficIntelligenceTab() {
         : (
           <div style={{ display: "grid", gap: 18 }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))", gap: 10 }}>
-              {kpi(A.entrances, "🛰️ כניסות אמיתיות (נטו)", "#7fb2ff")}
+              {kpi(A.entrances, "🛰️ כניסות אנושיות נטו", "#7fb2ff")}
               {kpi(A.engaged, `⭐ עם עומק (${pct(A.engaged, A.entrances)}%)`)}
               {kpi(A.bounces, `↩️ נטישות (${pct(A.bounces, A.entrances)}%)`)}
               {kpi(A.views, "👁️ צפיות")}
               {kpi(A.visitors, "👤 מבקרים (חסם-עליון)")}
               {kpi(A.searches, "🔍 חיפושים")}
-              {kpi(A.suspected, `🤖 חשודות שסוננו (${pct(A.suspected, raw)}%)`, "#e0a86a")}
+              {kpi(A.suspected, `🤖 חשודות התנהגותית (${pct(A.suspected, raw)}%)`, "#e0a86a")}
             </div>
-            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginTop: -8 }}>
-              גולמי {raw.toLocaleString()} = נטו {A.entrances.toLocaleString()} + {A.suspected.toLocaleString()} חשודות. חשוד = direct + בלי-מדינה + צפייה-בודדת + בלי אינטראקציה (גל בוטים ב-8–13.7 סונן). שקוף — לא נמחק.
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginTop: -8, lineHeight: 1.6 }}>
+              כניסות גולמיות {raw.toLocaleString()} = אנושיות נטו {A.entrances.toLocaleString()} + {A.suspected.toLocaleString()} חשודות (התנהגותית). כלל v2: direct + בלי-מדינה + צפייה-בודדת + בלי אינטראקציה (גל 8–13.7 סומן). שקוף — לא נמחק; ייתכן שחלק מהחשודות הן אנשים שנטשו מיד.
             </div>
 
             {gap && (
@@ -4623,7 +4623,7 @@ function TrafficIntelligenceTab() {
                           <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{new Date(e.first_ts).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}</span>
                           <a href={e.landing_path || "#"} target="_blank" rel="noreferrer" title={dec(e.landing_path) + " ↗"} style={{ color: "#7fb2ff", fontFamily: F.body, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0, textDecoration: "none" }}>{dec(e.landing_path)}</a>
                           <span style={{ display: "flex", gap: 6, alignItems: "center", fontFamily: F.body, fontSize: 11, flexShrink: 0 }}>
-                            {e.suspected_bot && <span title="חשוד כבוט" style={{ color: "#e0a86a" }}>🤖</span>}
+                            {e.suspected_bot && <span title={"חשוד (התנהגותית): " + (e.classification_reason || "")} style={{ color: "#e0a86a" }}>🤖</span>}
                             <span style={{ color: C.muted }}>{e.source || "direct"} · {e.device || "?"}{e.country ? " · " + e.country : ""}</span>
                             <span style={{ color: e.bounce ? "#e08a8a" : "#7fc47f", fontFamily: F.mono }}>{e.views}👁</span>
                             {e.is_logged_in && <span title="מחובר" style={{ color: "#7fb2ff" }}>✓</span>}
@@ -4672,6 +4672,9 @@ function TrafficIntelligenceTab() {
                       <span style={{ width: 10, height: 10, borderRadius: 2, background: { jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" }[k] }} />{l}
                     </span>
                   ))}
+                </div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 8, lineHeight: 1.7 }}>
+                  <b style={{ color: C.goldDim }}>מדדים זמינים לכל מקור:</b> Jetpack = צפיות בלבד · GA = צפיות/משתמשים/סשנים · First-party = כניסות · סשנים · עומק · מקורות · דפים (מסונן-בוט). לכן מדדים כמו «כניסות» לא קיימים לשנים הישנות — הנתון פשוט לא נאסף אז, לא «אפס».
                 </div>
               </div>
             )}
