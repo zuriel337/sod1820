@@ -4509,7 +4509,7 @@ function ConvergenceJudge() {
     const f = inp[c.id] || {};
     let res = null;
     try { res = await decideCandidate(c.id, decision, f.code || null, f.note || null); } catch { /* noop */ }
-    setHist(h => [{ value: c.subject_ref, rec: c.recommendation, decision, code: f.code, note: f.note, learning: res?.learning }, ...h]);
+    setHist(h => [{ value: c.subject_ref, rec: c.recommendation, decision, code: f.code, note: f.note, learning: res?.learning, patternKey: res?.pattern_key }, ...h]);
     setD(prev => prev ? { ...prev, candidates: (prev.candidates || []).filter(x => x.id !== c.id) } : prev);
     setBusy(null);
   };
@@ -4533,6 +4533,10 @@ function ConvergenceJudge() {
           const [col, lbl] = REC_META[c.recommendation] || ["#888", c.recommendation];
           const w = c.why || {}; const tl = w.tree_links || {}; const cards = tl.cards || [];
           const isOpen = open === c.id; const f = inp[c.id] || {};
+          const outcome = w.possible_duplicate
+            ? "מעשיר/מפנה לקיים בעץ — בלי שכפול (חוק העץ האחד)"
+            : (tl.node_id ? "מקשר את הראיות לעוגן/node הקיים; אפשר להוסיף כרטיס-נושא"
+                          : "יצירת node חדש למספר בעץ + קישור הראיות");
           return (
             <div key={c.id} style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", marginBottom: 10, opacity: busy === c.id ? 0.5 : 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -4545,15 +4549,27 @@ function ConvergenceJudge() {
                 <button onClick={() => setOpen(isOpen ? null : c.id)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "2px 9px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>{isOpen ? "▲ למה" : "▼ למה הגיע אליי"}</button>
               </div>
 
+              {/* מה יקרה אם אאשר (#1) */}
+              <div style={{ marginTop: 6, fontFamily: F.body, fontSize: 11.5, color: C.goldDim }}>▶️ <b style={{ color: C.goldLight }}>אם אאשר:</b> {outcome}</div>
+
               {isOpen && (
-                <div style={{ marginTop: 9, padding: "9px 11px", background: "rgba(0,0,0,0.2)", borderRadius: 8, display: "grid", gap: 5, fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
-                  <div>🧭 <b>שיטות ({w.method_count}):</b> {(w.methods || []).join(" · ")} <span style={{ color: C.muted }}>· שיא-קבוצה {w.max_group}</span></div>
-                  {w.anchor && <div>⚓ <b>עוגן:</b> {w.anchor}</div>}
-                  <div>🔗 <b>ראיות:</b> {(w.evidence_ids || []).length} רשומות ב-relation_evidence</div>
-                  <div>🌳 <b>קשרים בעץ:</b> {tl.node_id ? "node ✓" : "אין node"}{cards.length ? " · כרטיסים: " + cards.join(" · ") : " · אין כרטיס"}</div>
-                  <div>📍 <b>מקור:</b> {w.source}</div>
-                  <div style={{ color: w.possible_duplicate ? "#7fb2ff" : C.goldDim }}>♻️ <b>כפילות אפשרית:</b> {w.possible_duplicate ? "כן — כבר בעץ (ראה כרטיסים)" : "לא"}</div>
-                  <div style={{ color: "#e0a86a" }}>❓ <b>אי-ודאות:</b> {w.uncertainty}</div>
+                <div style={{ marginTop: 9, display: "grid", gap: 8 }}>
+                  {/* כבר בעץ ↔ חדש בממצא (#2) */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 8 }}>
+                    <div style={{ background: "rgba(127,178,255,0.07)", border: "1px solid rgba(127,178,255,0.25)", borderRadius: 8, padding: "8px 10px", fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
+                      <div style={{ color: "#7fb2ff", fontWeight: 700, marginBottom: 3 }}>🌳 מה כבר קיים בעץ</div>
+                      <div>⚓ עוגן: {w.anchor || "—"}</div>
+                      <div>🎴 כרטיסים: {cards.length ? cards.join(" · ") : "אין"}</div>
+                      <div>🔵 node: {tl.node_id ? "קיים ✓" : "אין"}</div>
+                    </div>
+                    <div style={{ background: "rgba(139,217,139,0.07)", border: "1px solid rgba(139,217,139,0.25)", borderRadius: 8, padding: "8px 10px", fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
+                      <div style={{ color: "#8bd98b", fontWeight: 700, marginBottom: 3 }}>✨ מה חדש בממצא</div>
+                      <div>🧭 התכנסות ב-{w.method_count} שיטות: {(w.methods || []).join(" · ")}</div>
+                      <div>🔗 {(w.evidence_ids || []).length} ראיות · שיא-קבוצה {w.max_group}</div>
+                      <div>{w.possible_duplicate ? "↪️ מחזק את הקיים (שכבה נוספת)" : "🆕 טרם מתועד ככרטיס — הזדמנות"}</div>
+                    </div>
+                  </div>
+                  <div style={{ fontFamily: F.body, fontSize: 11, color: C.muted, lineHeight: 1.6 }}>📍 מקור: {w.source} · <span style={{ color: "#e0a86a" }}>❓ אי-ודאות: {w.uncertainty}</span></div>
                 </div>
               )}
 
@@ -4565,6 +4581,7 @@ function ConvergenceJudge() {
                 <button onClick={() => decide(c, "approve")} disabled={busy === c.id} style={{ background: "rgba(76,175,80,0.15)", border: "1px solid rgba(76,175,80,0.5)", color: "#8bd98b", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>✅ אשר</button>
                 <button onClick={() => decide(c, "partial")} disabled={busy === c.id} style={{ background: "rgba(201,162,74,0.13)", border: "1px solid rgba(201,162,74,0.5)", color: "#c9a24a", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5 }}>✏️ חלקי</button>
                 <button onClick={() => decide(c, "reject")} disabled={busy === c.id} style={{ background: "rgba(200,80,80,0.12)", border: "1px solid rgba(224,138,138,0.4)", color: "#e08a8a", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5 }}>❌ דחה</button>
+                <div style={{ width: "100%", color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 1 }}>⚖️ דחייה = לא מאשר את החיבור לפי הראיות/הקריטריון — <b>לא</b> קביעה שהנתון שגוי (הראיות נשמרות).</div>
               </div>
             </div>
           );
@@ -4574,9 +4591,15 @@ function ConvergenceJudge() {
         <div style={{ marginTop: 8, borderTop: `1px solid ${C.border}`, paddingTop: 10 }}>
           <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>🕓 היסטוריית ההחלטות (הסשן הזה)</div>
           {hist.map((h, i) => (
-            <div key={i} style={{ fontFamily: F.body, fontSize: 11.5, color: C.goldDim, marginBottom: 4, lineHeight: 1.6 }}>
-              <b style={{ color: C.goldLight, fontFamily: F.mono }}>{h.value}</b> ({REC_META[h.rec]?.[1] || h.rec}) → <b style={{ color: h.decision === "reject" ? "#e08a8a" : h.decision === "partial" ? "#c9a24a" : "#8bd98b" }}>{h.decision === "approve" ? "אושר" : h.decision === "partial" ? "חלקי" : "נדחה"}</b>{h.code ? " · " + h.code : ""}{h.note ? " · «" + h.note + "»" : ""}
-              {h.learning && <span style={{ color: C.muted }}> — {h.learning}</span>}
+            <div key={i} style={{ fontFamily: F.body, fontSize: 11.5, color: C.goldDim, marginBottom: 8, lineHeight: 1.6, borderInlineStart: `2px solid ${C.border}`, paddingInlineStart: 8 }}>
+              <div>
+                <b style={{ color: C.goldLight, fontFamily: F.mono }}>{h.value}</b> ({REC_META[h.rec]?.[1] || h.rec}) → <b style={{ color: h.decision === "reject" ? "#e08a8a" : h.decision === "partial" ? "#c9a24a" : "#8bd98b" }}>{h.decision === "approve" ? "אושר" : h.decision === "partial" ? "חלקי" : "נדחה"}</b>
+              </div>
+              {/* שרשרת הלמידה (#3) */}
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 2 }}>
+                🔗 שרשרת: החלטה → <b style={{ color: C.goldDim }}>{h.code || "(בלי code)"}</b> + {h.note ? "«" + h.note + "»" : "(בלי הערה)"} → <b style={{ color: C.goldDim }}>decision_ledger ✓</b> → Pattern עתידי אפשרי: <span style={{ fontFamily: F.mono, color: "#7fb2ff" }}>{h.patternKey || "—"}</span>
+              </div>
+              {h.learning && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10 }}>{h.learning}</div>}
             </div>
           ))}
         </div>
