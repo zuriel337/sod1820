@@ -4663,7 +4663,7 @@ function CommandCenterTab() {
 // ===== 📊 מד-זמן — גרף עמודות רספונסיבי (רוחב-מלא, בלי גרירה) =====
 // עמודות פשוטות שממלאות את רוחב-המכל, ציר-ערכים משמאל, תוויות-זמן דלילות,
 // והקשה/ריחוף על עמודה מציג קריאה מדויקת. מובייל-ראשון: אין גלילה/גרירה אופקית.
-function TimeMeter({ data, gran, height = 150, colorHex = "#7fb2ff", sourceColors }) {
+function TimeMeter({ data, gran, height = 150, colorHex = "#7fb2ff", sourceColors, onBarClick }) {
   const [sel, setSel] = useState(null);
   const pts = data || [];
   if (!pts.length) return <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: 12 }}>אין נתונים בטווח.</div>;
@@ -4701,8 +4701,8 @@ function TimeMeter({ data, gran, height = 150, colorHex = "#7fb2ff", sourceColor
             return (
               <div key={i}
                 onMouseEnter={() => setSel(i)} onMouseLeave={() => setSel(s => (s === i ? null : s))}
-                onClick={() => setSel(s => (s === i ? null : i))}
-                title={`${fmtX(p.period)}: ${v.toLocaleString()}`}
+                onClick={() => { setSel(i); if (onBarClick) onBarClick(p.period); }}
+                title={`${fmtX(p.period)}: ${v.toLocaleString()}${onBarClick ? " · לחצו לצלילה" : ""}`}
                 style={{ flex: 1, minWidth: 1, height: `${Math.max(1, Math.round((v / max) * 100))}%`, background: sel === i ? "#fff" : col, opacity: sel == null || sel === i ? 1 : 0.65, borderRadius: "2px 2px 0 0", cursor: "pointer", transition: "opacity .12s" }} />
             );
           })}
@@ -4891,8 +4891,8 @@ function TrafficIntelligenceTab() {
                   {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (<button key={k} onClick={() => setMeterGran(k)} style={segBtn(meterGran === k)}>{l}</button>))}
                 </div>
               </div>
-              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8 }}>הקישו על עמודה לפרטים · המתג משנה גם את המד ההיסטורי למטה · {meterGran === "day" ? "120 ימים אחרונים" : meterGran === "month" ? "5 שנים אחרונות" : "כל השנים"}</div>
-              {!entSeries ? <Loading /> : <TimeMeter data={(entSeries || []).map(e => ({ period: e.period, value: Number(e.entrances) || 0, source: "first_party" }))} gran={meterGran} colorHex="#7fb2ff" />}
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8 }}>{meterGran === "day" ? "לחצו על עמודה (יום) → צלילה: מי נכנס, מתי, איפה ומאיזה מכשיר/מדינה" : "הקישו על עמודה לפרטים"} · המתג משנה גם את המד ההיסטורי למטה · {meterGran === "day" ? "120 ימים אחרונים" : meterGran === "month" ? "5 שנים אחרונות" : "כל השנים"}</div>
+              {!entSeries ? <Loading /> : <TimeMeter data={(entSeries || []).map(e => ({ period: e.period, value: Number(e.entrances) || 0, source: "first_party" }))} gran={meterGran} colorHex="#7fb2ff" onBarClick={meterGran === "day" ? (period) => openDetail(String(period).slice(0, 10)) : undefined} />}
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
