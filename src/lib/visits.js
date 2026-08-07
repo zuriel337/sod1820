@@ -253,6 +253,27 @@ export async function runMetatronRecommend() {
   if (error) throw error;
   return data || null;
 }
+// שופט ההתכנסויות — מועמדים ממתינים (מדורגים, עם «למה הגיע אליי»)
+export async function getConvergenceCandidates(limit = 50) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_convergence_candidates", { p_limit: limit });
+  if (error) throw error;
+  return data || null;
+}
+// החלטת-אדם על מועמד → decision_ledger + הזנת Learned-Pattern
+export async function decideCandidate(id, decision, reasonCode = null, humanReason = null) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_candidate_decide", { p_candidate_id: id, p_decision: decision, p_reason_code: reasonCode, p_human_reason: humanReason });
+  if (error) throw error;
+  return data || null;
+}
+// הרצת מחולל המועמדים (אדמין)
+export async function generateCandidates(limit = 20) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_generate_candidates", { p_limit: limit });
+  if (error) throw error;
+  return data || null;
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {

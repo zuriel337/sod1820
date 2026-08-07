@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getEntriesSeries } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4471,6 +4471,120 @@ function GaRetentionBars({ title, items, fmtKey }) {
   );
 }
 
+// ===== 🤖 שופט ההתכנסויות — Candidate/Recommendation Engine (לא מכריע) =====
+// מציג מועמדים עם «למה הגיע אליי», המלצה מחקרית (לא אמת), וכפתורי החלטה →
+// decision_ledger → Learned-Pattern. אינו מאשר/דוחה בעצמו (#1).
+const REC_META = {
+  strong:      ["#8bd98b", "🟢 חזק לבדיקה"],
+  needs_check: ["#c9a24a", "🟡 דורש בדיקה"],
+  weak:        [C.muted,   "◽ חלש"],
+  duplicate:   ["#7fb2ff", "🔵 כפילות/קיים"],
+};
+const REASON_CODES = [
+  ["", "— סיבה (אופציונלי) —"],
+  ["cross_method_strong", "✅ חוצה-שיטות חזק"], ["engine_verified", "✅ מאומת-מנוע"],
+  ["partial", "✏️ חלקי"],
+  ["duplicate", "❌ כפילות"], ["already_in_tree", "❌ כבר קיים בעץ"], ["weak_evidence", "❌ ראיה חלשה"],
+  ["insufficient_meaning", "❌ משמעות לא מספקת"], ["wrong_relation", "❌ קשר שגוי"],
+  ["invalid_method", "❌ שיטה לא תקפה"], ["interpretation_only", "❌ פרשנות בלבד"],
+  ["insufficient_info", "🟡 לא מספיק מידע"], ["other", "📝 אחר"],
+];
+function ConvergenceJudge() {
+  const [d, setD] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(null);
+  const [gen, setGen] = useState(false);
+  const [open, setOpen] = useState(null);          // איזה מועמד פתוח («למה»)
+  const [inp, setInp] = useState({});              // {id:{code,note}}
+  const [hist, setHist] = useState([]);            // היסטוריית החלטות בסשן (#13)
+
+  const load = () => { setLoading(true); setErr(""); getConvergenceCandidates(50).then(r => { setD(r); setLoading(false); }).catch(e => { setErr(e.message || "שגיאה"); setLoading(false); }); };
+  useEffect(() => { load(); }, []);
+  const nLink = (k) => "/number/" + encodeURIComponent(k || "");
+  const setF = (id, k, v) => setInp(p => ({ ...p, [id]: { ...(p[id] || {}), [k]: v } }));
+
+  const decide = async (c, decision) => {
+    setBusy(c.id);
+    const f = inp[c.id] || {};
+    let res = null;
+    try { res = await decideCandidate(c.id, decision, f.code || null, f.note || null); } catch { /* noop */ }
+    setHist(h => [{ value: c.subject_ref, rec: c.recommendation, decision, code: f.code, note: f.note, learning: res?.learning }, ...h]);
+    setD(prev => prev ? { ...prev, candidates: (prev.candidates || []).filter(x => x.id !== c.id) } : prev);
+    setBusy(null);
+  };
+  const runGen = async () => { setGen(true); try { await generateCandidates(20); } catch { /* noop */ } load(); setGen(false); };
+
+  const cands = d?.candidates || [];
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>🤖 שופט ההתכנסויות</span>
+        <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>המלצה מחקרית — לא אמת. אתה מכריע.</span>
+        <span style={{ flex: 1 }} />
+        {d?.open_contradictions > 0 && <span style={{ color: "#e0a86a", fontFamily: F.body, fontSize: 11.5 }}>⚠️ {d.open_contradictions} סתירות</span>}
+        <button onClick={runGen} disabled={gen} style={{ ...segBtn(false), fontSize: 12, opacity: gen ? 0.5 : 1 }}>{gen ? "סורק…" : "🔨 סרוק מועמדים"}</button>
+      </div>
+
+      {loading ? <Loading />
+        : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
+        : !cands.length ? <Empty>אין מועמדים ממתינים. «🔨 סרוק מועמדים» להפקת אצווה.</Empty>
+        : cands.map(c => {
+          const [col, lbl] = REC_META[c.recommendation] || ["#888", c.recommendation];
+          const w = c.why || {}; const tl = w.tree_links || {}; const cards = tl.cards || [];
+          const isOpen = open === c.id; const f = inp[c.id] || {};
+          return (
+            <div key={c.id} style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", marginBottom: 10, opacity: busy === c.id ? 0.5 : 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ background: col, color: "#0d0900", fontFamily: F.body, fontSize: 11, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>{lbl}</span>
+                <a href={nLink(c.subject_ref)} target="_blank" rel="noreferrer" style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 700, textDecoration: "none" }}>{c.subject_ref} ↗</a>
+                <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{w.method_count} שיטות</span>
+                {w.anchor && <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>· {w.anchor}</span>}
+                <span style={{ flex: 1 }} />
+                <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11.5 }}>{Math.round((c.conf || 0) * 100)}%</span>
+                <button onClick={() => setOpen(isOpen ? null : c.id)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "2px 9px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>{isOpen ? "▲ למה" : "▼ למה הגיע אליי"}</button>
+              </div>
+
+              {isOpen && (
+                <div style={{ marginTop: 9, padding: "9px 11px", background: "rgba(0,0,0,0.2)", borderRadius: 8, display: "grid", gap: 5, fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
+                  <div>🧭 <b>שיטות ({w.method_count}):</b> {(w.methods || []).join(" · ")} <span style={{ color: C.muted }}>· שיא-קבוצה {w.max_group}</span></div>
+                  {w.anchor && <div>⚓ <b>עוגן:</b> {w.anchor}</div>}
+                  <div>🔗 <b>ראיות:</b> {(w.evidence_ids || []).length} רשומות ב-relation_evidence</div>
+                  <div>🌳 <b>קשרים בעץ:</b> {tl.node_id ? "node ✓" : "אין node"}{cards.length ? " · כרטיסים: " + cards.join(" · ") : " · אין כרטיס"}</div>
+                  <div>📍 <b>מקור:</b> {w.source}</div>
+                  <div style={{ color: w.possible_duplicate ? "#7fb2ff" : C.goldDim }}>♻️ <b>כפילות אפשרית:</b> {w.possible_duplicate ? "כן — כבר בעץ (ראה כרטיסים)" : "לא"}</div>
+                  <div style={{ color: "#e0a86a" }}>❓ <b>אי-ודאות:</b> {w.uncertainty}</div>
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap", marginTop: 9 }}>
+                <select value={f.code || ""} onChange={e => setF(c.id, "code", e.target.value)} style={{ background: "rgba(8,5,2,0.5)", color: C.goldDim, border: `1px solid ${C.border}`, borderRadius: 7, padding: "5px 8px", fontFamily: F.body, fontSize: 12 }}>
+                  {REASON_CODES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+                <input value={f.note || ""} onChange={e => setF(c.id, "note", e.target.value)} placeholder="הערה (human_reason)" style={{ flex: 1, minWidth: 120, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 7, padding: "5px 9px", fontFamily: F.body, fontSize: 12 }} />
+                <button onClick={() => decide(c, "approve")} disabled={busy === c.id} style={{ background: "rgba(76,175,80,0.15)", border: "1px solid rgba(76,175,80,0.5)", color: "#8bd98b", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>✅ אשר</button>
+                <button onClick={() => decide(c, "partial")} disabled={busy === c.id} style={{ background: "rgba(201,162,74,0.13)", border: "1px solid rgba(201,162,74,0.5)", color: "#c9a24a", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5 }}>✏️ חלקי</button>
+                <button onClick={() => decide(c, "reject")} disabled={busy === c.id} style={{ background: "rgba(200,80,80,0.12)", border: "1px solid rgba(224,138,138,0.4)", color: "#e08a8a", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5 }}>❌ דחה</button>
+              </div>
+            </div>
+          );
+        })}
+
+      {hist.length > 0 && (
+        <div style={{ marginTop: 8, borderTop: `1px solid ${C.border}`, paddingTop: 10 }}>
+          <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>🕓 היסטוריית ההחלטות (הסשן הזה)</div>
+          {hist.map((h, i) => (
+            <div key={i} style={{ fontFamily: F.body, fontSize: 11.5, color: C.goldDim, marginBottom: 4, lineHeight: 1.6 }}>
+              <b style={{ color: C.goldLight, fontFamily: F.mono }}>{h.value}</b> ({REC_META[h.rec]?.[1] || h.rec}) → <b style={{ color: h.decision === "reject" ? "#e08a8a" : h.decision === "partial" ? "#c9a24a" : "#8bd98b" }}>{h.decision === "approve" ? "אושר" : h.decision === "partial" ? "חלקי" : "נדחה"}</b>{h.code ? " · " + h.code : ""}{h.note ? " · «" + h.note + "»" : ""}
+              {h.learning && <span style={{ color: C.muted }}> — {h.learning}</span>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===== 🧠 מפקדה — Admin Command Center (מקבץ קנוני: המלצות מטטרון + חיוויים + פעילות) =====
 // קורא admin_command_center (recommendations · ti_demand_signals · convergences · journey_seeds · work_log).
 // לא מערכת חדשה — מקבץ מהמקורות הקיימים. משתלב במבנה-הקבוצות של איחוד-הניהול.
@@ -4677,6 +4791,9 @@ function CommandCenterTab({ gotoTab }) {
             );
           })}
       </div>
+
+      {/* 🤖 שופט ההתכנסויות — צמוד לבקרה, מזין את decision_ledger→Learned-Pattern */}
+      <ConvergenceJudge />
 
       {/* מרכז פעילות */}
       <div ref={actRef} style={card}>
