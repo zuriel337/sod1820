@@ -4660,12 +4660,18 @@ function CommandCenterTab() {
   );
 }
 
-// ===== ⏱️ מד-זמן אינטראקטיבי (SVG נגלל, ציר-ערכים, גרירה ימין/שמאל) =====
+// ===== ⏱️ מד-זמן אינטראקטיבי (SVG נגלל, ציר-ערכים, גרירה ימין/שמאל, רצועת-ניווט) =====
 function TimeMeter({ data, gran, height = 175, colorHex = "#7fb2ff", sourceColors }) {
   const scRef = useRef(null);
+  const brushRef = useRef(null);
   const drag = useRef(null);
+  const bdrag = useRef(false);
   const [tip, setTip] = useState(null);
+  const [sc, setSc] = useState({ left: 0, width: 1, client: 1 });
   const pts = data || [];
+  useEffect(() => {
+    const el = scRef.current; if (el) setSc({ left: el.scrollLeft, width: el.scrollWidth, client: el.clientWidth });
+  }, [gran, pts.length]);
   if (!pts.length) return <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: 12 }}>אין נתונים בטווח.</div>;
 
   const step = gran === "year" ? 48 : gran === "month" ? 16 : 8;
@@ -4700,7 +4706,7 @@ function TimeMeter({ data, gran, height = 175, colorHex = "#7fb2ff", sourceColor
       <div style={{ position: "absolute", top: 0, right: 0, width: axisW, height, pointerEvents: "none", zIndex: 2 }}>
         {grid.map((g, i) => (<div key={i} style={{ position: "absolute", top: yOf(max * g) - 6, right: 4, color: C.muted, fontFamily: F.mono, fontSize: 9.5, background: "rgba(8,5,2,0.6)", padding: "0 2px", borderRadius: 3 }}>{fmtV(max * g)}</div>))}
       </div>
-      <div ref={scRef} onMouseMove={locate} onMouseDown={down} onMouseUp={up} onMouseLeave={() => { up(); setTip(null); }} onTouchMove={locate} onTouchStart={down} onTouchEnd={up}
+      <div ref={scRef} onScroll={(e) => setSc({ left: e.currentTarget.scrollLeft, width: e.currentTarget.scrollWidth, client: e.currentTarget.clientWidth })} onMouseMove={locate} onMouseDown={down} onMouseUp={up} onMouseLeave={() => { up(); setTip(null); }} onTouchMove={locate} onTouchStart={down} onTouchEnd={up}
         style={{ overflowX: "auto", cursor: "ew-resize", paddingRight: axisW }}>
         <svg width={w} height={height} style={{ display: "block", touchAction: "pan-x" }}>
           <defs><linearGradient id={gid} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor={colorHex} stopOpacity="0.32" /><stop offset="100%" stopColor={colorHex} stopOpacity="0.02" /></linearGradient></defs>
@@ -4713,6 +4719,24 @@ function TimeMeter({ data, gran, height = 175, colorHex = "#7fb2ff", sourceColor
           {pts.map((p, i) => i % showEvery === 0 ? <text key={i} x={xOf(i)} y={height - 6} fontSize="9" fill="#8a8f98" textAnchor="middle" fontFamily="monospace">{fmtX(p.period)}</text> : null)}
         </svg>
       </div>
+      {sc.width > sc.client + 4 && (() => {
+        const brushH = 34, n = pts.length, max2 = Math.max(1, ...pts.map(p => Number(p.value) || 0));
+        const mx = (i) => n <= 1 ? 0 : (i / (n - 1)) * 100;
+        const my = (v) => brushH - ((Number(v) || 0) / max2) * (brushH - 3) - 2;
+        const mArea = `M0,${brushH} ` + pts.map((p, i) => `L${mx(i).toFixed(2)},${my(p.value).toFixed(2)}`).join(" ") + ` L100,${brushH} Z`;
+        const leftPct = (sc.left / sc.width) * 100, winPct = (sc.client / sc.width) * 100;
+        const seek = (e) => { const el = brushRef.current, scEl = scRef.current; if (!el || !scEl) return; const r = el.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const frac = Math.max(0, Math.min(1, (cx - r.left) / r.width)); scEl.scrollLeft = Math.max(0, Math.min(sc.width - sc.client, frac * sc.width - sc.client / 2)); };
+        return (
+          <div ref={brushRef} onMouseDown={(e) => { bdrag.current = true; seek(e); }} onMouseMove={(e) => { if (bdrag.current) seek(e); }} onMouseUp={() => { bdrag.current = false; }} onMouseLeave={() => { bdrag.current = false; }} onTouchStart={(e) => { bdrag.current = true; seek(e); }} onTouchMove={(e) => { if (bdrag.current) seek(e); }} onTouchEnd={() => { bdrag.current = false; }}
+            style={{ position: "relative", marginTop: 6, cursor: "pointer", direction: "ltr" }}>
+            <svg width="100%" height={brushH} viewBox={`0 0 100 ${brushH}`} preserveAspectRatio="none" style={{ display: "block", background: "rgba(255,255,255,0.03)", borderRadius: 4 }}>
+              <path d={mArea} fill={colorHex} fillOpacity="0.18" stroke={colorHex} strokeOpacity="0.5" strokeWidth="0.4" vectorEffect="non-scaling-stroke" />
+              <rect x={leftPct} y="0" width={winPct} height={brushH} fill="rgba(127,178,255,0.18)" stroke="#7fb2ff" strokeWidth="0.9" vectorEffect="non-scaling-stroke" />
+            </svg>
+            <div style={{ position: "absolute", top: 1, left: 5, color: C.muted, fontFamily: F.body, fontSize: 9, pointerEvents: "none" }}>גרור לניווט מהיר על כל ההיסטוריה</div>
+          </div>
+        );
+      })()}
       {tip && (
         <div style={{ position: "absolute", top: 2, left: 4, background: "rgba(8,5,2,0.92)", border: `1px solid ${C.border}`, borderRadius: 6, padding: "3px 8px", fontFamily: F.body, fontSize: 11, color: C.goldDim, pointerEvents: "none", zIndex: 3, whiteSpace: "nowrap" }}>
           <b style={{ color: C.goldBright, fontFamily: F.mono }}>{Number(pts[tip.i].value).toLocaleString()}</b> · {fmtX(pts[tip.i].period)}{pts[tip.i].source ? " · " + pts[tip.i].source : ""}
