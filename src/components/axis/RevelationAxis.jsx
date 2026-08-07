@@ -5,6 +5,7 @@ import { C, F } from "../../theme.js";
 import { usePalette, PALETTES } from "../../lib/palette.js";
 import { stripHtml } from "../../lib/format.js";
 import { withinFresh } from "../../lib/crossesNew.js";
+import { POST_SLUG_RE } from "../../lib/lightRoutes.js";
 
 // ⏳ «חדש בציר» = תחנה שנוספה/עודכנה ב-N השעות האחרונות (≈4 ימים). רק אלה פועמות;
 //    כל השאר סטטיות. כך הפעימה = «עדכון ציר טרי», לא רעש-רקע מתמיד.
@@ -76,8 +77,31 @@ export default function RevelationAxis() {
   const [aiPosts, setAiPosts] = useState([]);
   const [hovered, setHovered] = useState(null);
   const [hoveredAi, setHoveredAi] = useState(null);
+  const [postIsAxis, setPostIsAxis] = useState(false);   // האם הפוסט הנוכחי הוא «פוסט של הציר»
   const nav = useNavigate();
   const { pathname, hash } = useLocation();
+  const onPostPage = POST_SLUG_RE.test(pathname);
+
+  // בעמוד-פוסט: הציר מופיע רק אם זהו פוסט מאומת-AI ששייך לציר (אותם קריטריונים
+  // כמו העדכונים הכחולים בציר: ai_touched + «רמזים חזקים»/«מאומת על ידי AI», או נעוץ ידנית).
+  useEffect(() => {
+    if (!onPostPage) { setPostIsAxis(false); return; }
+    let alive = true;
+    const slug = decodeURIComponent(pathname.slice(1));
+    supabase.from("posts")
+      .select("ai_touched,categories,content,axis_pin")
+      .eq("slug", slug).limit(1)
+      .then(({ data }) => {
+        if (!alive) return;
+        const p = (data || [])[0];
+        const ok = !!p && p.axis_pin !== 0 && (
+          p.axis_pin === 1 ||
+          (p.ai_touched && ((p.categories || []).includes("רמזים חזקים") || /מאומת על ידי AI/.test(p.content || "")))
+        );
+        setPostIsAxis(ok);
+      });
+    return () => { alive = false; };
+  }, [pathname, onPostPage]);
   // ציר ההתגלות עוקב אחרי בורר הצבע (יום/לילה) — אבל בעמודים שתמיד שחורים
   // (הגלריות והציר המלא) הוא נשאר כהה, כדי להתאים לרקע הקבוע שלהם.
   const P = (pathname.startsWith("/archive") || pathname.startsWith("/timeline")) ? PALETTES.dark : auto;
@@ -121,6 +145,8 @@ export default function RevelationAxis() {
   if (pathname.startsWith("/theme-preview") || pathname.startsWith("/admin")) return null;
   // בעמודי-המעבדה (קירות המחקר) — הציר לא מופיע ולא «זז»: הקירות מקבלים שקט נקי.
   if (/^\/(number|numbers|research|beit-midrash|code)/.test(pathname)) return null;
+  // בעמוד-פוסט: מציגים את הציר רק כשזהו «פוסט של הציר» (מאומת-AI/נעוץ).
+  if (onPostPage && !postIsAxis) return null;
   if (!events.length && !aiPosts.length) return null;
 
   return (
