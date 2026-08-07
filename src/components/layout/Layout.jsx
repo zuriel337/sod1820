@@ -31,6 +31,8 @@ export default function Layout() {
   const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
   // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
   const showBanner = /^\/post$/.test(pathname) || /^\/community\/chat$/.test(pathname) || POST_SLUG_RE.test(pathname);
+  // 🌅 ציר ההתגלות (הפס הקבוע בצד) — מוצג רק בעמוד ציר ההתגלות עצמו (/timeline), לא בכל האתר (בקשת צוריאל).
+  const showAxis = /^\/timeline$/.test(pathname);
   // 🌗 המצב האפקטיבי — מקור-אמת אחד עם usePalette (lightRoutes.effectiveMode) → אין חצי-בהיר-חצי-כהה.
   const mode = effectiveMode(pathname, globalMode);
   const P = PALETTES[mode];
@@ -46,7 +48,7 @@ export default function Layout() {
       <style>{GLOBAL_CSS}</style>
       {/* הקוסמוס הגלובלי — רק במצב כהה (במצב בהיר הרקע הוא קלף קרם נקי) */}
       {dark && <SpaceBackground />}
-      <RevelationAxis />
+      {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
         {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
