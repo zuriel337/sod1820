@@ -267,6 +267,13 @@ export async function decideCandidate(id, decision, reasonCode = null, humanReas
   if (error) throw error;
   return data || null;
 }
+// פרטי-התכנסות מלאים לערך (הביטויים בפועל בכל שיטה + ראיות)
+export async function getConvergenceDetail(value) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_convergence_detail", { p_value: Number(value) });
+  if (error) throw error;
+  return data || null;
+}
 // הרצת מחולל המועמדים (אדמין)
 export async function generateCandidates(limit = 20) {
   if (!supabase) return null;

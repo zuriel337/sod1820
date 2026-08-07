@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getEntriesSeries } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4498,6 +4498,14 @@ function ConvergenceJudge() {
   const [open, setOpen] = useState(null);          // איזה מועמד פתוח («למה»)
   const [inp, setInp] = useState({});              // {id:{code,note}}
   const [hist, setHist] = useState([]);            // היסטוריית החלטות בסשן (#13)
+  const [detail, setDetail] = useState({});        // {value: {methods,evidence,...}} — הביטויים בפועל
+  const [detBusy, setDetBusy] = useState(null);
+
+  const loadDetail = (value) => {
+    if (detail[value]) { setDetail(p => ({ ...p, [value]: { ...p[value], _open: !p[value]._open } })); return; }
+    setDetBusy(value);
+    getConvergenceDetail(value).then(r => setDetail(p => ({ ...p, [value]: { ...(r || {}), _open: true } }))).catch(() => { }).finally(() => setDetBusy(null));
+  };
 
   const load = () => { setLoading(true); setErr(""); getConvergenceCandidates(50).then(r => { setD(r); setLoading(false); }).catch(e => { setErr(e.message || "שגיאה"); setLoading(false); }); };
   useEffect(() => { load(); }, []);
@@ -4567,8 +4575,41 @@ function ConvergenceJudge() {
                       <div>🧭 התכנסות ב-{w.method_count} שיטות: {(w.methods || []).join(" · ")}</div>
                       <div>🔗 {(w.evidence_ids || []).length} ראיות · שיא-קבוצה {w.max_group}</div>
                       <div>{w.possible_duplicate ? "↪️ מחזק את הקיים (שכבה נוספת)" : "🆕 טרם מתועד ככרטיס — הזדמנות"}</div>
+                      <button onClick={() => loadDetail(c.subject_ref)} style={{ marginTop: 6, background: "rgba(139,217,139,0.12)", border: "1px solid rgba(139,217,139,0.4)", color: "#8bd98b", borderRadius: 7, padding: "5px 11px", cursor: "pointer", fontFamily: F.body, fontSize: 12, fontWeight: 700 }}>
+                        {detBusy === c.subject_ref ? "טוען…" : (detail[c.subject_ref]?._open ? "▲ הסתר את הביטויים" : "🔍 פתח: אילו ביטויים מתכנסים")}
+                      </button>
                     </div>
                   </div>
+
+                  {/* התוצאות בפועל — הביטויים בכל שיטה (ה«איפה») */}
+                  {detail[c.subject_ref]?._open && (
+                    <div style={{ background: "rgba(0,0,0,0.25)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 11px", display: "grid", gap: 9 }}>
+                      {(detail[c.subject_ref].methods || []).map((m, mi) => (
+                        <div key={mi}>
+                          <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 4 }}>
+                            🧮 {m.method} <span style={{ color: C.muted, fontWeight: 400, fontFamily: F.body }}>· {m.group_size} ביטויים = {c.subject_ref}</span>
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                            {(m.phrases || []).map((p, pi) => (
+                              <span key={pi} style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${C.border}`, borderRadius: 6, padding: "3px 8px", fontFamily: F.body, fontSize: 12, color: C.goldDim, direction: "rtl" }}>{p}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      {(detail[c.subject_ref].evidence || []).length > 0 && (
+                        <div>
+                          <div style={{ color: "#7fb2ff", fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 4 }}>🔗 ראיות מתועדות</div>
+                          {detail[c.subject_ref].evidence.map((e, ei) => (
+                            <div key={ei} style={{ fontFamily: F.body, fontSize: 11.5, color: C.goldDim, marginBottom: 3 }}>
+                              <span style={{ color: C.muted, fontFamily: F.mono }}>[{e.method}·{e.status}]</span> {e.a}{e.b ? " ↔ " + e.b : ""}{e.note ? " — " + e.note : ""}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {!(detail[c.subject_ref].methods || []).length && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין קבוצות-התכנסות לערך זה.</div>}
+                    </div>
+                  )}
+
                   <div style={{ fontFamily: F.body, fontSize: 11, color: C.muted, lineHeight: 1.6 }}>📍 מקור: {w.source} · <span style={{ color: "#e0a86a" }}>❓ אי-ודאות: {w.uncertainty}</span></div>
                 </div>
               )}
