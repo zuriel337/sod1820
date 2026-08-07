@@ -110,6 +110,17 @@ export default async function handler(req, res) {
     }
   } catch (e) { /* ממשיכים גם בלי התכנסויות */ }
 
+  // ── פתילי פורום מאושרים → /forum/:id (research_contributions ברמה-עליונה) ──
+  // כל פתיל = עמוד DiscussionForumPosting עצמאי; בלי זה גוגל בקושי מגלה דיונים בודדים.
+  try {
+    const threads = await fetchAll('research_contributions?select=id,created_at&status=eq.approved&parent_id=is.null&order=created_at.desc');
+    for (const t of threads) {
+      if (!t.id) continue;
+      const lastmod = (t.created_at || '').slice(0, 10) || undefined;
+      urls.push({ loc: '/forum/' + encodeURIComponent(t.id), lastmod, changefreq: 'weekly', priority: '0.6' });
+    }
+  } catch (e) { /* ממשיכים גם בלי פתילי פורום */ }
+
   // ── צפנים מאושרים → /codes/:slug (els_records published) ──
   try {
     const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published');

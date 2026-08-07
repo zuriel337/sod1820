@@ -3,12 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setForcedMode } from "../lib/themeMode.js";
-import { applySeo } from "../lib/seo.js";
+import { applySeo, setForumThreadJsonLd, clearForumJsonLd } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { stripHtml, youtubeId, youtubeUrl } from "../lib/format.js";
 import Discourse from "../components/Discourse.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
-import { getContributionById } from "../lib/contributions.js";
+import { getContributionById, getContributionReplies } from "../lib/contributions.js";
 
 // 📖 עמוד-תרומה בפורום (/forum/:id) — קריאת התרומה וחיבורה לגרף, בלי לצאת לדף-הישות.
 // write-only: לא מגיבים בשרשור — מחברים דרך «🔗 מצאתי קשר» (edge). עץ אחד: שימוש חוזר ב-Discourse
@@ -27,7 +27,18 @@ export default function ForumThreadPage() {
   useEffect(() => {
     if (!c) return;
     const t = stripHtml(c.title || c.body || "דיון").slice(0, 60);
-    applySeo({ title: `${t} — פורום המחקר · סוד 1820`, description: "דיון מחקר קהילתי בסוד 1820 — הצטרפו לדיון.", path: `/forum/${id}` });
+    const path = `/forum/${id}`;
+    applySeo({ title: `${t} — פורום המחקר · סוד 1820`, description: "דיון מחקר קהילתי בסוד 1820 — הצטרפו לדיון.", path, image: c.image_url || undefined });
+    // 💬 DiscussionForumPosting — מזין את דוח «פורום דיונים» של גוגל. עץ-אחד: רק דיון-קהילה
+    // אמיתי (status='approved' — מה שמופיע בפיד /forum). תוכן ממוחזר (auto-post/post/broadcast
+    // /whatsapp = status='published') הוא שיקוף של פוסט קנוני — מפנים אליו, לא משכפלים כדיון נפרד.
+    if (c.status !== "approved") { clearForumJsonLd(); return; }
+    // שולפים את התגובות האמיתיות (parent_id=id) כדי ש-comment[] והמונה יהיו אמת.
+    let alive = true;
+    getContributionReplies(c.id).then(replies => {
+      if (alive) setForumThreadJsonLd({ thread: c, replies, path, image: c.image_url || undefined });
+    });
+    return () => { alive = false; clearForumJsonLd(); };
   }, [c, id]);
 
   const wrap = { direction: "rtl", maxWidth: 780, margin: "0 auto", padding: "22px 16px 90px", position: "relative", zIndex: 1 };
