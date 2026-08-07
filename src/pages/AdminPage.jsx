@@ -4501,8 +4501,10 @@ function TrafficIntelligenceTab() {
   const A = rows.reduce((a, r) => ({
     entrances: a.entrances + (r.entrances || 0), engaged: a.engaged + (r.engaged || 0),
     bounces: a.bounces + (r.bounces || 0), views: a.views + (r.views || 0),
-    visitors: a.visitors + (r.visitors || 0), searches: a.searches + (r.searches || 0), bots: a.bots + (r.bots || 0),
-  }), { entrances: 0, engaged: 0, bounces: 0, views: 0, visitors: 0, searches: 0, bots: 0 });
+    visitors: a.visitors + (r.visitors || 0), searches: a.searches + (r.searches || 0),
+    bots: a.bots + (r.bots || 0), suspected: a.suspected + (r.suspected || 0),
+  }), { entrances: 0, engaged: 0, bounces: 0, views: 0, visitors: 0, searches: 0, bots: 0, suspected: 0 });
+  const raw = A.entrances + A.suspected;
 
   const kpi = (val, label, accent) => (
     <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", minWidth: 0 }}>
@@ -4552,24 +4554,27 @@ function TrafficIntelligenceTab() {
         : (
           <div style={{ display: "grid", gap: 18 }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))", gap: 10 }}>
-              {kpi(A.entrances, "🛰️ כניסות אמיתיות", "#7fb2ff")}
+              {kpi(A.entrances, "🛰️ כניסות אמיתיות (נטו)", "#7fb2ff")}
               {kpi(A.engaged, `⭐ עם עומק (${pct(A.engaged, A.entrances)}%)`)}
               {kpi(A.bounces, `↩️ נטישות (${pct(A.bounces, A.entrances)}%)`)}
               {kpi(A.views, "👁️ צפיות")}
               {kpi(A.visitors, "👤 מבקרים (חסם-עליון)")}
               {kpi(A.searches, "🔍 חיפושים")}
-              {kpi(A.bots, "🤖 בוטים שסוננו")}
+              {kpi(A.suspected, `🤖 חשודות שסוננו (${pct(A.suspected, raw)}%)`, "#e0a86a")}
+            </div>
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginTop: -8 }}>
+              גולמי {raw.toLocaleString()} = נטו {A.entrances.toLocaleString()} + {A.suspected.toLocaleString()} חשודות. חשוד = direct + בלי-מדינה + צפייה-בודדת + בלי אינטראקציה (גל בוטים ב-8–13.7 סונן). שקוף — לא נמחק.
             </div>
 
             {gap && (
               <div style={{ background: "rgba(47,109,246,0.08)", border: "1px solid rgba(127,178,255,0.3)", borderRadius: 12, padding: "12px 14px" }}>
                 <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>📐 פער מדידה מול Google Analytics <span style={{ color: C.muted, fontWeight: 400 }}>(השוואתי בלבד — לא מתקן שום מקור)</span></div>
                 <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "baseline" }}>
-                  <div><span style={{ color: "#7fb2ff", fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{(gap.fp_entrances || 0).toLocaleString()}</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>כניסות (אצלנו)</span></div>
+                  <div><span style={{ color: "#7fb2ff", fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{(gap.fp_entrances || 0).toLocaleString()}</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>כניסות נטו (אצלנו, אחרי סינון-בוט)</span></div>
                   <div><span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{gap.ga_sessions != null ? Number(gap.ga_sessions).toLocaleString() : "—"}</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>סשנים (GA)</span></div>
                   {gap.ga_sessions ? <div><span style={{ color: "#4caf50", fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>+{pct((gap.fp_entrances || 0) - gap.ga_sessions, gap.ga_sessions)}%</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>פער מדידה</span></div> : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, alignSelf: "center" }}>סשני GA ימולאו אחרי הסנכרון הבא (עמודת sessions).</div>}
                 </div>
-                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 8, lineHeight: 1.6 }}>הפער נובע מחוסמי-פרסומות, סירובי-cookies, iOS/Safari והבדלי מודל-מדידה. שני המספרים אמיתיים; אין «נכון» יחיד.</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 8, lineHeight: 1.6 }}>הכניסות שלנו כבר נטו-מבוט ({(gap.fp_suspected || 0).toLocaleString()} חשודות סוננו). הפער הנותר נובע מחוסמי-פרסומות, סירובי-cookies, iOS/Safari והבדלי מודל-מדידה. שני המספרים אמיתיים; אין «נכון» יחיד.</div>
               </div>
             )}
 
@@ -4599,10 +4604,11 @@ function TrafficIntelligenceTab() {
                   : (
                     <div style={{ maxHeight: 340, overflowY: "auto" }}>
                       {detail.map((e, i) => (
-                        <div key={i} style={{ display: "grid", gridTemplateColumns: "50px 1fr auto", gap: 8, alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                        <div key={i} style={{ display: "grid", gridTemplateColumns: "50px 1fr auto", gap: 8, alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", opacity: e.suspected_bot ? 0.5 : 1 }}>
                           <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{new Date(e.first_ts).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}</span>
                           <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0 }}>{dec(e.landing_path)}</span>
                           <span style={{ display: "flex", gap: 6, alignItems: "center", fontFamily: F.body, fontSize: 11, flexShrink: 0 }}>
+                            {e.suspected_bot && <span title="חשוד כבוט" style={{ color: "#e0a86a" }}>🤖</span>}
                             <span style={{ color: C.muted }}>{e.source || "direct"} · {e.device || "?"}{e.country ? " · " + e.country : ""}</span>
                             <span style={{ color: e.bounce ? "#e08a8a" : "#7fc47f", fontFamily: F.mono }}>{e.views}👁</span>
                             {e.is_logged_in && <span title="מחובר" style={{ color: "#7fb2ff" }}>✓</span>}
