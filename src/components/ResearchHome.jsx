@@ -45,24 +45,95 @@ export const LIBRARIES = [
 // 👑 שלושת הכלים הגדולים בראש (החלטת צוריאל): בית המדרש · דילוגי אותיות · דף המספר.
 const BIG = ["midrash", "els", "number"];
 
-// אריח גדול — כלי-דגל בראש ההיכל. נעול → מוצג עמום עם 🔒 (לא לחיץ).
-function BigTile({ t, onOpen, isAdmin }) {
+// 🃏 כרטיס-דגל בראש ההיכל — מדליון-אייקון + כותרת + תיאור, כניסה מדורגת (fade+rise) וריחוף-הרמה.
+// נעול → עמום עם 🔒 (לא לחיץ). i = אינדקס → משהה-אנימציה מדורג ("המערכת חיה").
+function FlagCard({ t, i, onOpen, isAdmin }) {
   const ready = isToolReady(t.id, isAdmin) && !elsLocked(t.id);
-  const base = { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, textAlign: "center",
-    background: "var(--card,#fff)", border: "1.5px solid var(--line,#e4e7ec)", borderRadius: 18, padding: "26px 14px", minHeight: 158,
-    boxShadow: "0 2px 10px rgba(20,25,40,.05)", transition: "transform .15s, border-color .15s, box-shadow .15s", cursor: ready ? "pointer" : "default", fontFamily: "inherit" };
+  const ic = t.img
+    ? <img src={t.img} alt="" className="hh-tool-img" />
+    : <span className="hh-tool-ic">{ready ? t.icon : "🔒"}</span>;
   const inner = (
     <>
-      <div style={{ fontSize: 42, lineHeight: 1 }}>{t.img ? <img src={t.img} alt="" style={{ width: 52, height: 52, borderRadius: 12, objectFit: "cover", display: "block", margin: "0 auto" }} /> : (ready ? t.icon : "🔒")}</div>
-      <div style={{ fontSize: 19, fontWeight: 800, color: "var(--ink,#1b1d22)" }}>{t.title.replace(/\s*\(ELS\)/, "")}</div>
-      <div style={{ fontSize: 12.5, color: "var(--ink2,#5b6472)", lineHeight: 1.55, maxWidth: 240 }}>{t.desc}</div>
-      {!ready && <span style={{ fontSize: 11, fontWeight: 800, color: "#b07d12" }}>🔒 בשדרוג — בקרוב</span>}
+      <span className="hh-tool-medal">{ic}</span>
+      <span className="hh-tool-tt">{t.title.replace(/\s*\(ELS\)/, "")}</span>
+      <span className="hh-tool-ds">{t.desc}</span>
+      {!ready && <span className="hh-tool-lock">🔒 בשדרוג — בקרוב</span>}
     </>
   );
-  const hov = on => e => { if (!ready) return; e.currentTarget.style.transform = on ? "translateY(-3px)" : "none"; e.currentTarget.style.borderColor = on ? "var(--acc,#2f6df6)" : "var(--line,#e4e7ec)"; e.currentTarget.style.boxShadow = on ? "0 14px 30px -12px rgba(47,109,246,.35)" : "0 2px 10px rgba(20,25,40,.05)"; };
-  if (!ready) return <div style={{ ...base, opacity: 0.6 }} title="בשדרוג — ייפתח בקרוב">{inner}</div>;
-  return <button style={base} onClick={() => onOpen(t.id)} onMouseEnter={hov(true)} onMouseLeave={hov(false)}>{inner}</button>;
+  const style = { animationDelay: `${i * 80}ms` };
+  if (!ready) return <div className="hh-tool dis" style={style} title="בשדרוג — ייפתח בקרוב">{inner}</div>;
+  return <button className="hh-tool" style={style} onClick={() => onOpen(t.id)}>{inner}</button>;
 }
+
+// 🎨 עיצוב «ההיכל» — scoped ל-.hh בלבד (לא נוגע בשאר סביבת-המחקר). משתמש במשתני ה-RW
+// (--acc/--card/--line/--ink…) שכבר קיימים בשלד → נשאר נאמן ל-research_workspace_law (בהיר-נקי-מודרני),
+// ומוסיף עומק: רקע-עיר בהיר (city_background_dual_theme_law) + זוהַר-זהב עדין + כניסה מדורגת.
+const HH_CSS = `
+  .hh{--gold:#c9a23a}
+  .hh-hero{position:relative;overflow:hidden;border-radius:24px;border:1px solid var(--line);
+    margin:0 0 18px;padding:clamp(24px,5vw,42px) clamp(18px,3.5vw,36px);background:var(--card);
+    box-shadow:0 24px 56px -30px rgba(47,109,246,.4);animation:hhRise .55s ease both}
+  .hh-hero-bg{position:absolute;inset:0;background:url(/city-bg.jpg) center/cover;
+    filter:grayscale(.45) brightness(1.55) contrast(.85);opacity:.16}
+  .hh-hero-glow{position:absolute;inset:0;
+    background:radial-gradient(115% 90% at 88% -12%,rgba(201,162,58,.30),transparent 55%),
+      radial-gradient(95% 85% at -5% 118%,rgba(47,109,246,.20),transparent 60%),
+      linear-gradient(180deg,rgba(255,255,255,.30),var(--card) 94%)}
+  .hh-hero-in{position:relative}
+  .hh-eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--acc);margin-bottom:8px;opacity:.92}
+  .hh-title{font-weight:800;font-size:clamp(30px,7.4vw,50px);line-height:1.04;color:var(--ink);margin:0 0 9px;
+    text-shadow:0 2px 12px rgba(20,25,40,.07)}
+  .hh-sub{font-size:clamp(13.5px,2.3vw,16px);color:var(--ink2);line-height:1.65;margin:0 0 18px;max-width:560px}
+  .hh-search{display:flex;gap:8px;align-items:center;background:var(--card);border:1.5px solid var(--line);
+    border-radius:999px;padding:6px 6px 6px 16px;max-width:600px;
+    box-shadow:0 12px 30px -18px rgba(60,46,16,.4);transition:border-color .14s,box-shadow .14s}
+  .hh-search:focus-within{border-color:var(--acc);box-shadow:0 0 0 4px var(--accS),0 12px 30px -18px rgba(47,109,246,.45)}
+  .hh-search-ic{font-size:18px;opacity:.7;flex:none}
+  .hh-search input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--ink);
+    font-family:inherit;font-size:16px;padding:11px 2px}
+  .hh-search input::placeholder{color:var(--ink3)}
+  .hh-search button{flex:none;border:none;background:linear-gradient(135deg,var(--acc),#5b8cff);color:#fff;
+    border-radius:999px;padding:12px 22px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;
+    min-height:44px;transition:filter .14s,transform .14s}
+  .hh-search button:not(:disabled):hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .hh-search button:disabled{opacity:.5;cursor:default}
+  .hh-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .hh-stats span{font-size:12px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.68);
+    border:1px solid var(--line);border-radius:999px;padding:6px 12px;backdrop-filter:blur(6px)}
+  .hh-admin{font-size:12.5px;font-weight:800;color:#a97a12;background:#fbf3dd;border:1px solid #ecdca6;
+    border-radius:12px;padding:9px 13px;margin:0 0 16px}
+  .hh-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+  .hh-tab{display:inline-flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;background:var(--card);
+    color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-family:inherit;
+    font-size:13.5px;font-weight:800;min-height:42px;transition:.12s}
+  .hh-tab:hover{border-color:var(--acc);color:var(--acc);background:var(--accS)}
+  .hh-tab.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .hh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0 0 22px}
+  @media(min-width:640px){.hh-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:639px){.hh-grid>:last-child:nth-child(odd){grid-column:1 / -1}}
+  .hh-tool{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;
+    background:linear-gradient(180deg,var(--accS),var(--card) 74%);border:1.5px solid var(--acc);border-radius:18px;
+    padding:20px 13px 18px;min-height:150px;cursor:pointer;font-family:inherit;color:var(--ink);
+    box-shadow:0 14px 32px -18px rgba(47,109,246,.34);animation:hhRise .5s ease both;
+    transition:transform .16s,box-shadow .16s,border-color .16s}
+  .hh-tool:before{content:"";position:absolute;top:0;inset-inline:26px;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
+  .hh-tool:hover{transform:translateY(-4px);box-shadow:0 22px 44px -18px rgba(47,109,246,.5);border-color:var(--acc)}
+  .hh-tool.dis{opacity:.6;cursor:default;background:var(--bg);border:1.5px dashed var(--line);box-shadow:none;animation:none}
+  .hh-tool.dis:before{display:none}
+  .hh-tool.dis:hover{transform:none;box-shadow:none}
+  .hh-tool-medal{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 32% 28%,#fff,var(--accS));border:1px solid var(--line);
+    box-shadow:0 8px 18px -9px rgba(47,109,246,.5)}
+  .hh-tool-ic{font-size:32px;line-height:1}
+  .hh-tool-img{width:46px;height:46px;border-radius:12px;object-fit:cover;display:block}
+  .hh-tool-tt{font-weight:800;font-size:16px;color:var(--ink)}
+  .hh-tool-ds{font-size:12px;color:var(--ink2);line-height:1.5;max-width:230px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .hh-tool-lock{font-size:11px;font-weight:800;color:#a97a12}
+  @keyframes hhRise{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.hh-hero,.hh-tool{animation:none}}
+`;
 
 export default function ResearchHome({ onOpen }) {
   // 🔑 מנהל רואה את כל הכלים הממומשים; 👁 «תצוגת משתמש» מבטלת את הרשאת-המנהל האפקטיבית.
@@ -84,34 +155,46 @@ export default function ResearchHome({ onOpen }) {
   const restReady = restTools.filter(isReady);
   const restSoon = restTools.filter(t => !isReady(t));
 
-  const tabBtn = active => ({ cursor: "pointer", background: active ? "var(--acc,#2f6df6)" : "var(--card,#fff)", color: active ? "#fff" : "var(--ink2,#5b6472)",
-    border: `1px solid ${active ? "var(--acc,#2f6df6)" : "var(--line,#e4e7ec)"}`, borderRadius: 999, padding: "8px 16px", fontFamily: "inherit", fontSize: 13.5, fontWeight: 800 });
-
   return (
-    <div>
-      <div className="rw-h1-row"><div className="rw-h1">🏛️ ההיכל</div></div>
-      {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור נעולים).</div>}
+    <div className="hh">
+      <style>{HH_CSS}</style>
 
-      {/* 🔎 חיפוש-על — מספר · שם · ביטוי */}
-      <form className="rw-gate-search" onSubmit={gateGo} style={{ marginBottom: 14 }}>
-        <input value={gateQ} onChange={e => setGateQ(e.target.value)} placeholder="🔎 מה תרצו לגלות? מספר · שם · ביטוי…" aria-label="חיפוש חופשי" />
-        <button type="submit" disabled={!gateQ.trim()} style={!gateQ.trim() ? { opacity: 0.5 } : undefined}>גלו ←</button>
-      </form>
+      {/* 🏛️ HERO — תחושת-מקום מיד: כותרת גדולה + חיפוש-גיבור + רצועת-הוכחה, על רקע-עיר בהיר (city_background_dual_theme_law) */}
+      <section className="hh-hero">
+        <div className="hh-hero-bg" aria-hidden />
+        <div className="hh-hero-glow" aria-hidden />
+        <div className="hh-hero-in">
+          <div className="hh-eyebrow">סביבת המחקר של סוד 1820</div>
+          <h1 className="hh-title">🏛️ ההיכל</h1>
+          <p className="hh-sub">כל מנועי המחקר במקום אחד — גימטריה, דילוגים, פסוקים ומספרים. הקלידו מילה, שם או מספר וצאו למסע.</p>
+          {/* 🔎 חיפוש-על — מספר · שם · ביטוי */}
+          <form className="hh-search" onSubmit={gateGo}>
+            <span className="hh-search-ic" aria-hidden>🔎</span>
+            <input value={gateQ} onChange={e => setGateQ(e.target.value)} placeholder="מה תרצו לגלות? מספר · שם · ביטוי…" aria-label="חיפוש חופשי" />
+            <button type="submit" disabled={!gateQ.trim()}>גלו ←</button>
+          </form>
+          <div className="hh-stats">
+            <span>🧮 17 שיטות חישוב</span><span>📜 5,846 פסוקים</span><span>🔡 כל התנ״ך</span><span>✨ הצלבות חיות</span>
+          </div>
+        </div>
+      </section>
 
-      {/* טאבים — כלים (ברירת-מחדל) · מאגרים · אזור-אישי (אותה מגירה כמו בכל האתר) */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-        <button style={tabBtn(tab === "tools")} onClick={() => setTab("tools")}>🧰 הכלים</button>
-        <button style={tabBtn(tab === "lib")} onClick={() => setTab("lib")}>📚 מאגרים</button>
+      {isAdmin && <div className="hh-admin">🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור נעולים).</div>}
+
+      {/* טאבים — כלים (ברירת-מחדל) · מאגרים · אזור-אישי · פורום (שורה אחת נקייה מתחת ל-Hero) */}
+      <div className="hh-tabs">
+        <button className={`hh-tab${tab === "tools" ? " on" : ""}`} onClick={() => setTab("tools")}>🧰 הכלים</button>
+        <button className={`hh-tab${tab === "lib" ? " on" : ""}`} onClick={() => setTab("lib")}>📚 מאגרים</button>
         {/* 🧑 גשר-זהות קנוני: מחובר → מגירת «האזור האישי» · אורח → התחברות (המגירה לא מרונדרת לאורח, אחרת «מת»). */}
-        <button style={tabBtn(false)} onClick={() => (user ? openCenter() : navigate("/login"))}>👤 אזור אישי</button>
-        <Link to="/forum" style={{ ...tabBtn(false), textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>🌐 פורום המחקר</Link>
+        <button className="hh-tab" onClick={() => (user ? openCenter() : navigate("/login"))}>👤 אזור אישי</button>
+        <Link className="hh-tab" to="/forum">🌐 פורום המחקר</Link>
       </div>
 
       {tab === "tools" ? (
         <>
-          {/* 👑 שלושת הגדולים */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
-            {bigTools.map(t => <BigTile key={t.id} t={t} onOpen={onOpen} isAdmin={isAdmin} />)}
+          {/* 👑 שלושת הגדולים — כרטיסי-דגל */}
+          <div className="hh-grid">
+            {bigTools.map((t, i) => <FlagCard key={t.id} t={t} i={i} onOpen={onOpen} isAdmin={isAdmin} />)}
           </div>
           {/* שאר הכלים הפתוחים — גלויים תמיד (עוד כלי-מחקר פעילים) */}
           <div className="rw-cat-h" style={{ marginBottom: 8 }}><span className="rw-cat-ic">🧰</span> עוד כלים <span className="rw-cat-n">{restReady.length}</span></div>
