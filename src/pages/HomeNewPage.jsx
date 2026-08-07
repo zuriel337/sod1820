@@ -379,6 +379,20 @@ export default function HomeNewPage() {
         .hn-thumb-zoom { position:absolute; inset:auto 6px 6px auto; background:rgba(9,7,14,.72);
           color:#f0d879; border:1px solid rgba(212,175,55,.4); border-radius:999px; font-size:10.5px;
           font-family:${F.heading}; font-weight:800; padding:2px 9px; }
+        /* 🖥️ שער דסקטופ — שתי עמודות שממלאות את הרוחב (במקום עמודה צרה בתוך ריק שחור).
+           ימין (RTL) = זהות: קלף-הפסוק + חיפוש · שמאל = שני שערי-הכניסה כקלפים גדולים. */
+        @media (min-width:900px){
+          .hn-gate-inner{ max-width:1160px; display:grid; grid-template-columns:1.02fr .98fr;
+            align-items:center; gap:clamp(30px,4vw,60px); padding:64px 40px 58px; text-align:start; }
+          .hn-gate-main{ display:flex; flex-direction:column; align-items:stretch; gap:20px; min-width:0; }
+          .hn-gate-main .hn-vframe{ max-width:none; margin:0; }
+          .hn-gate-main .hn-verse{ max-width:none; font-size:clamp(24px,2.1vw,30px); }
+          .hn-gate-main .hn-search{ max-width:none; }
+          .hn-gates{ margin-top:0; gap:18px; align-items:stretch; }
+          .hn-gate-col{ flex:1 1 0; min-width:0; }
+          .hn-gate-col .hn-thumb-btn{ width:100%; }
+          .hn-gate-col .hn-thumb-img{ width:100%; height:158px; }
+        }
         @media (max-width:520px){ .hn-thumb-img{ width:132px; height:84px; } }
         @media (prefers-reduced-motion:reduce){ .hn-matrix,.hn-livedot{ animation:none } }
       `}</style>
@@ -389,17 +403,20 @@ export default function HomeNewPage() {
         <div className="hn-gate-inner">
           {/* כותרת נסתרת ל-SEO/נגישות — בשער מוצג רק הפסוק (בקשת צוריאל) */}
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
-          {/* 👑 A · קלף מלכותי — הפסוק בלבד במסגרת-זהב */}
-          <div className="hn-vframe">
-            <blockquote className="hn-verse">«כִּי לַה' <b>הַמְּלוּכָה</b> וּמֹשֵׁל בַּגּוֹיִם»</blockquote>
-            <div className="hn-vsrc">— תהלים כב, כט</div>
+          {/* 🖥️ בדסקטופ: שתי עמודות — זהות+חיפוש (ימין) · שערי-כניסה (שמאל). במובייל: עמודה אחת מוערמת. */}
+          <div className="hn-gate-main">
+            {/* 👑 A · קלף מלכותי — הפסוק בלבד במסגרת-זהב */}
+            <div className="hn-vframe">
+              <blockquote className="hn-verse">«כִּי לַה' <b>הַמְּלוּכָה</b> וּמֹשֵׁל בַּגּוֹיִם»</blockquote>
+              <div className="hn-vsrc">— תהלים כב, כט</div>
+            </div>
+            <form onSubmit={go} className="hn-search">
+              <span className="hn-mag" aria-hidden="true">🔍</span>
+              <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
+                placeholder="הקלד מילה, שם או מספר…" dir="rtl" aria-label="חיפוש מילה, שם או מספר" />
+              <button type="submit" className="hn-search-go">✦ גלו</button>
+            </form>
           </div>
-          <form onSubmit={go} className="hn-search">
-            <span className="hn-mag" aria-hidden="true">🔍</span>
-            <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
-              placeholder="הקלד מילה, שם או מספר…" dir="rtl" aria-label="חיפוש מילה, שם או מספר" />
-            <button type="submit" className="hn-search-go">✦ גלו</button>
-          </form>
           {/* ⚡ הדופק החי הוסר מהשער (בקשת צוריאל) — «מה חי» כבר מופיע ברצועה העליונה,
               בטיקר התחתון ובכרטיס «מה חדש מאז ביקורך». אין צורך בשלישית בשער. */}
           {/* שערי-הכניסה: תמונה קטנה (נגיעה = הגדלה) + כפתור-כניסה מתחתיה. שבילי שפה · כאן מתחילים */}
