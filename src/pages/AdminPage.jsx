@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4475,6 +4475,7 @@ function TrafficIntelligenceTab() {
   const [daily, setDaily] = useState(null);
   const [bd, setBd] = useState(null);
   const [gap, setGap] = useState(null);
+  const [hist, setHist] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [openDay, setOpenDay] = useState(null);
@@ -4489,6 +4490,13 @@ function TrafficIntelligenceTab() {
       .catch(e => { if (!alive) return; setErr(e.message || "שגיאה"); setLoading(false); });
     return () => { alive = false; };
   }, [days]);
+
+  // ציר היסטורי מאוחד — נטען פעם אחת (לא תלוי בטווח הימים)
+  useEffect(() => {
+    let alive = true;
+    getTrafficUnified("year").then(r => { if (alive) setHist(r || []); }).catch(() => { if (alive) setHist([]); });
+    return () => { alive = false; };
+  }, []);
 
   const openDetail = (day) => {
     setOpenDay(day); setDetail(null); setDetailLoading(true);
@@ -4512,16 +4520,23 @@ function TrafficIntelligenceTab() {
       <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{label}</div>
     </div>
   );
-  const bList = (title, items, keyName, fmtKey) => {
+  const bList = (title, items, keyName, fmtKey, asLink) => {
     const arr = items || [];
     const max = Math.max(1, ...arr.map(i => i.entrances || 0));
+    const label = (it) => {
+      const txt = fmtKey ? fmtKey(it[keyName]) : it[keyName];
+      const base = { color: "#7fb2ff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0, textDecoration: "none" };
+      return asLink && it[keyName]
+        ? <a href={it[keyName]} target="_blank" rel="noreferrer" title={dec(it[keyName]) + " ↗"} style={base}>{txt} ↗</a>
+        : <span style={{ ...base, color: C.goldDim }}>{txt}</span>;
+    };
     return (
       <div style={{ minWidth: 0 }}>
         <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>{title}</div>
         {arr.length ? arr.map((it, i) => (
           <div key={i} style={{ marginBottom: 6 }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: F.body, fontSize: 12 }}>
-              <span style={{ color: C.goldDim, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0 }}>{fmtKey ? fmtKey(it[keyName]) : it[keyName]}</span>
+              {label(it)}
               <span style={{ color: C.goldBright, fontFamily: F.mono, flexShrink: 0 }}>{(it.entrances || 0).toLocaleString()}</span>
             </div>
             <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 3, marginTop: 2 }}>
@@ -4606,7 +4621,7 @@ function TrafficIntelligenceTab() {
                       {detail.map((e, i) => (
                         <div key={i} style={{ display: "grid", gridTemplateColumns: "50px 1fr auto", gap: 8, alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", opacity: e.suspected_bot ? 0.5 : 1 }}>
                           <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11 }}>{new Date(e.first_ts).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}</span>
-                          <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0 }}>{dec(e.landing_path)}</span>
+                          <a href={e.landing_path || "#"} target="_blank" rel="noreferrer" title={dec(e.landing_path) + " ↗"} style={{ color: "#7fb2ff", fontFamily: F.body, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "ltr", textAlign: "right", minWidth: 0, textDecoration: "none" }}>{dec(e.landing_path)}</a>
                           <span style={{ display: "flex", gap: 6, alignItems: "center", fontFamily: F.body, fontSize: 11, flexShrink: 0 }}>
                             {e.suspected_bot && <span title="חשוד כבוט" style={{ color: "#e0a86a" }}>🤖</span>}
                             <span style={{ color: C.muted }}>{e.source || "direct"} · {e.device || "?"}{e.country ? " · " + e.country : ""}</span>
@@ -4622,10 +4637,42 @@ function TrafficIntelligenceTab() {
 
             {bd && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
-                {bList("🛬 איפה נכנסו (דפי-נחיתה)", bd.landing, "path", dec)}
+                {bList("🛬 איפה נכנסו (דפי-נחיתה)", bd.landing, "path", dec, true)}
                 {bList("📍 מאיפה (מקורות)", bd.sources, "source")}
                 {bList("📱 מכשיר", bd.devices, "device")}
                 {bList("🌍 מדינה", bd.countries, "country")}
+              </div>
+            )}
+
+            {hist && hist.length > 0 && (
+              <div>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📜 ציר היסטורי מאוחד — צפיות לפי שנים</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 10, lineHeight: 1.6 }}>Jetpack (וורדפרס, 2015→) → GA → first-party, על ציר אחד. כולם צפיות; הישן לא תוקן אוטומטית (חוזה §5), החדש מסונן-בוט.</div>
+                {(() => {
+                  const max = Math.max(1, ...hist.map(h => Number(h.views) || 0));
+                  const SC = { jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" };
+                  const nowYr = new Date().getFullYear();
+                  return hist.map((h, i) => {
+                    const yr = new Date(h.period).getFullYear();
+                    const v = Number(h.views) || 0;
+                    return (
+                      <div key={i} style={{ display: "grid", gridTemplateColumns: "62px 1fr auto", gap: 8, alignItems: "center", marginBottom: 4 }}>
+                        <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{yr}{yr === nowYr ? "·חלקי" : ""}</span>
+                        <div style={{ height: 14, background: "rgba(255,255,255,0.05)", borderRadius: 4 }}>
+                          <div style={{ height: "100%", width: `${Math.round((v / max) * 100)}%`, background: SC[h.source] || "#888", borderRadius: 4 }} title={h.source} />
+                        </div>
+                        <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 12, minWidth: 66, textAlign: "left" }}>{v.toLocaleString()}</span>
+                      </div>
+                    );
+                  });
+                })()}
+                <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
+                  {[["jetpack", "Jetpack (2015→)"], ["ga", "GA"], ["first_party", "first-party"]].map(([k, l]) => (
+                    <span key={k} style={{ display: "flex", alignItems: "center", gap: 5, color: C.muted, fontFamily: F.body, fontSize: 11 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 2, background: { jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" }[k] }} />{l}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>

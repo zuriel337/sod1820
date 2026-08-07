@@ -206,6 +206,13 @@ export async function getMeasurementGap(days = 30) {
   if (error) throw error;
   return data || null;
 }
+// ציר היסטורי מאוחד — צפיות לפי שנים/חודשים, Jetpack(ישן)→GA→first-party (קדימות ליום, בלי כפילות)
+export async function getTrafficUnified(gran = "year") {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("admin_traffic_unified", { p_gran: gran });
+  if (error) throw error;
+  return data || [];
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {
