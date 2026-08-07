@@ -4660,88 +4660,58 @@ function CommandCenterTab() {
   );
 }
 
-// ===== ⏱️ מד-זמן אינטראקטיבי (SVG נגלל, ציר-ערכים, גרירה ימין/שמאל, רצועת-ניווט) =====
-function TimeMeter({ data, gran, height = 175, colorHex = "#7fb2ff", sourceColors }) {
-  const scRef = useRef(null);
-  const brushRef = useRef(null);
-  const drag = useRef(null);
-  const bdrag = useRef(false);
-  const [tip, setTip] = useState(null);
-  const [sc, setSc] = useState({ left: 0, width: 1, client: 1 });
+// ===== 📊 מד-זמן — גרף עמודות רספונסיבי (רוחב-מלא, בלי גרירה) =====
+// עמודות פשוטות שממלאות את רוחב-המכל, ציר-ערכים משמאל, תוויות-זמן דלילות,
+// והקשה/ריחוף על עמודה מציג קריאה מדויקת. מובייל-ראשון: אין גלילה/גרירה אופקית.
+function TimeMeter({ data, gran, height = 150, colorHex = "#7fb2ff", sourceColors }) {
+  const [sel, setSel] = useState(null);
   const pts = data || [];
-  useEffect(() => {
-    const el = scRef.current; if (el) setSc({ left: el.scrollLeft, width: el.scrollWidth, client: el.clientWidth });
-  }, [gran, pts.length]);
   if (!pts.length) return <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: 12 }}>אין נתונים בטווח.</div>;
 
-  const step = gran === "year" ? 48 : gran === "month" ? 16 : 8;
-  const padTop = 12, padBottom = 22, axisW = 46;
-  const chartH = height - padTop - padBottom;
-  const w = Math.max(pts.length * step, 120);
+  const n = pts.length;
   const max = Math.max(1, ...pts.map(p => Number(p.value) || 0));
-  const yOf = (v) => padTop + chartH * (1 - (Number(v) || 0) / max);
-  const xOf = (i) => i * step + step / 2;
   const SC = sourceColors || {};
-  const grid = [0, 0.25, 0.5, 0.75, 1];
-  const gid = "tmg_" + colorHex.replace("#", "");
+  const gap = n > 60 ? 1 : 2;
   const fmtV = (v) => v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + "K" : String(Math.round(v));
   const fmtX = (p) => { const d = new Date(p); return gran === "year" ? String(d.getFullYear()) : gran === "month" ? String(d.getMonth() + 1).padStart(2, "0") + "/" + String(d.getFullYear()).slice(2) : String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0"); };
-  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${xOf(i).toFixed(1)},${yOf(p.value).toFixed(1)}`).join(" ");
-  const area = `M${xOf(0).toFixed(1)},${(padTop + chartH).toFixed(1)} ` + pts.map((p, i) => `L${xOf(i).toFixed(1)},${yOf(p.value).toFixed(1)}`).join(" ") + ` L${xOf(pts.length - 1).toFixed(1)},${(padTop + chartH).toFixed(1)} Z`;
-  const showEvery = gran === "year" ? 1 : gran === "month" ? Math.max(1, Math.ceil(pts.length / 12)) : Math.max(1, Math.ceil(pts.length / 10));
 
-  const locate = (e) => {
-    const svg = scRef.current && scRef.current.querySelector("svg"); if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const i = Math.max(0, Math.min(pts.length - 1, Math.round((clientX - rect.left - step / 2) / step)));
-    setTip({ i, x: xOf(i) });
-    if (drag.current != null && scRef.current) scRef.current.scrollLeft = drag.current.sl - (clientX - drag.current.x);
-  };
-  const down = (e) => { const clientX = e.touches ? e.touches[0].clientX : e.clientX; drag.current = { x: clientX, sl: scRef.current ? scRef.current.scrollLeft : 0 }; };
-  const up = () => { drag.current = null; };
+  // תוויות-ציר-זמן דלילות: דוגמים ~7 נקודות שוות-מרווח (12 לשנים) → אין התנגשות.
+  const labelCount = Math.min(n, gran === "year" ? 12 : 7);
+  const labelPts = Array.from(new Set(Array.from({ length: labelCount }, (_, k) => Math.round(k * (n - 1) / Math.max(1, labelCount - 1))))).map(i => pts[i]);
+  const selPt = sel != null ? pts[sel] : null;
 
   return (
-    <div style={{ position: "relative", direction: "ltr" }}>
-      <div style={{ position: "absolute", top: 0, right: 0, width: axisW, height, pointerEvents: "none", zIndex: 2 }}>
-        {grid.map((g, i) => (<div key={i} style={{ position: "absolute", top: yOf(max * g) - 6, right: 4, color: C.muted, fontFamily: F.mono, fontSize: 9.5, background: "rgba(8,5,2,0.6)", padding: "0 2px", borderRadius: 3 }}>{fmtV(max * g)}</div>))}
+    <div style={{ direction: "ltr" }}>
+      {/* קריאה עליונה — משתנה בהקשה/ריחוף */}
+      <div style={{ minHeight: 20, marginBottom: 6, fontFamily: F.body, fontSize: 11.5, color: C.muted }}>
+        {selPt
+          ? <span><b style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 14 }}>{Number(selPt.value).toLocaleString()}</b> · {fmtX(selPt.period)}{selPt.source ? " · " + selPt.source : ""}</span>
+          : <span>שיא בטווח <b style={{ color: C.goldDim, fontFamily: F.mono }}>{max.toLocaleString()}</b> · הקישו/רחפו על עמודה לפרטים</span>}
       </div>
-      <div ref={scRef} onScroll={(e) => setSc({ left: e.currentTarget.scrollLeft, width: e.currentTarget.scrollWidth, client: e.currentTarget.clientWidth })} onMouseMove={locate} onMouseDown={down} onMouseUp={up} onMouseLeave={() => { up(); setTip(null); }} onTouchMove={locate} onTouchStart={down} onTouchEnd={up}
-        style={{ overflowX: "auto", cursor: "ew-resize", paddingRight: axisW }}>
-        <svg width={w} height={height} style={{ display: "block", touchAction: "pan-x" }}>
-          <defs><linearGradient id={gid} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor={colorHex} stopOpacity="0.32" /><stop offset="100%" stopColor={colorHex} stopOpacity="0.02" /></linearGradient></defs>
-          {grid.map((g, i) => <line key={i} x1={0} x2={w} y1={yOf(max * g)} y2={yOf(max * g)} stroke="rgba(255,255,255,0.06)" />)}
-          <path d={area} fill={`url(#${gid})`} />
-          <path d={line} fill="none" stroke={colorHex} strokeWidth="1.6" />
-          {pts.map((p, i) => <circle key={i} cx={xOf(i)} cy={yOf(p.value)} r={gran === "year" ? 2.6 : 1.4} fill={(SC && SC[p.source]) || colorHex} />)}
-          {tip && <line x1={tip.x} x2={tip.x} y1={padTop} y2={padTop + chartH} stroke="rgba(255,255,255,0.3)" />}
-          {tip && <circle cx={tip.x} cy={yOf(pts[tip.i].value)} r={3.6} fill="#fff" />}
-          {pts.map((p, i) => i % showEvery === 0 ? <text key={i} x={xOf(i)} y={height - 6} fontSize="9" fill="#8a8f98" textAnchor="middle" fontFamily="monospace">{fmtX(p.period)}</text> : null)}
-        </svg>
-      </div>
-      {sc.width > sc.client + 4 && (() => {
-        const brushH = 34, n = pts.length, max2 = Math.max(1, ...pts.map(p => Number(p.value) || 0));
-        const mx = (i) => n <= 1 ? 0 : (i / (n - 1)) * 100;
-        const my = (v) => brushH - ((Number(v) || 0) / max2) * (brushH - 3) - 2;
-        const mArea = `M0,${brushH} ` + pts.map((p, i) => `L${mx(i).toFixed(2)},${my(p.value).toFixed(2)}`).join(" ") + ` L100,${brushH} Z`;
-        const leftPct = (sc.left / sc.width) * 100, winPct = (sc.client / sc.width) * 100;
-        const seek = (e) => { const el = brushRef.current, scEl = scRef.current; if (!el || !scEl) return; const r = el.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const frac = Math.max(0, Math.min(1, (cx - r.left) / r.width)); scEl.scrollLeft = Math.max(0, Math.min(sc.width - sc.client, frac * sc.width - sc.client / 2)); };
-        return (
-          <div ref={brushRef} onMouseDown={(e) => { bdrag.current = true; seek(e); }} onMouseMove={(e) => { if (bdrag.current) seek(e); }} onMouseUp={() => { bdrag.current = false; }} onMouseLeave={() => { bdrag.current = false; }} onTouchStart={(e) => { bdrag.current = true; seek(e); }} onTouchMove={(e) => { if (bdrag.current) seek(e); }} onTouchEnd={() => { bdrag.current = false; }}
-            style={{ position: "relative", marginTop: 6, cursor: "pointer", direction: "ltr" }}>
-            <svg width="100%" height={brushH} viewBox={`0 0 100 ${brushH}`} preserveAspectRatio="none" style={{ display: "block", background: "rgba(255,255,255,0.03)", borderRadius: 4 }}>
-              <path d={mArea} fill={colorHex} fillOpacity="0.18" stroke={colorHex} strokeOpacity="0.5" strokeWidth="0.4" vectorEffect="non-scaling-stroke" />
-              <rect x={leftPct} y="0" width={winPct} height={brushH} fill="rgba(127,178,255,0.18)" stroke="#7fb2ff" strokeWidth="0.9" vectorEffect="non-scaling-stroke" />
-            </svg>
-            <div style={{ position: "absolute", top: 1, left: 5, color: C.muted, fontFamily: F.body, fontSize: 9, pointerEvents: "none" }}>גרור לניווט מהיר על כל ההיסטוריה</div>
-          </div>
-        );
-      })()}
-      {tip && (
-        <div style={{ position: "absolute", top: 2, left: 4, background: "rgba(8,5,2,0.92)", border: `1px solid ${C.border}`, borderRadius: 6, padding: "3px 8px", fontFamily: F.body, fontSize: 11, color: C.goldDim, pointerEvents: "none", zIndex: 3, whiteSpace: "nowrap" }}>
-          <b style={{ color: C.goldBright, fontFamily: F.mono }}>{Number(pts[tip.i].value).toLocaleString()}</b> · {fmtX(pts[tip.i].period)}{pts[tip.i].source ? " · " + pts[tip.i].source : ""}
+      <div style={{ display: "flex", gap: 6 }}>
+        {/* ציר-ערכים */}
+        <div style={{ width: 30, flexShrink: 0, height, display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-end", color: C.muted, fontFamily: F.mono, fontSize: 9, lineHeight: 1 }}>
+          <span>{fmtV(max)}</span><span>{fmtV(max / 2)}</span><span>0</span>
         </div>
-      )}
+        {/* עמודות — ממלאות את הרוחב */}
+        <div style={{ flex: 1, minWidth: 0, height, display: "flex", alignItems: "flex-end", gap, borderInlineStart: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, paddingInlineStart: 2 }}>
+          {pts.map((p, i) => {
+            const v = Number(p.value) || 0;
+            const col = (SC && SC[p.source]) || colorHex;
+            return (
+              <div key={i}
+                onMouseEnter={() => setSel(i)} onMouseLeave={() => setSel(s => (s === i ? null : s))}
+                onClick={() => setSel(s => (s === i ? null : i))}
+                title={`${fmtX(p.period)}: ${v.toLocaleString()}`}
+                style={{ flex: 1, minWidth: 1, height: `${Math.max(1, Math.round((v / max) * 100))}%`, background: sel === i ? "#fff" : col, opacity: sel == null || sel === i ? 1 : 0.65, borderRadius: "2px 2px 0 0", cursor: "pointer", transition: "opacity .12s" }} />
+            );
+          })}
+        </div>
+      </div>
+      {/* תוויות-זמן דלילות */}
+      <div style={{ display: "flex", justifyContent: "space-between", marginInlineStart: 36, marginTop: 4, color: "#8a8f98", fontFamily: F.mono, fontSize: 9 }}>
+        {labelPts.map((p, i) => <span key={i} style={{ whiteSpace: "nowrap" }}>{fmtX(p.period)}</span>)}
+      </div>
     </div>
   );
 }
@@ -4921,7 +4891,7 @@ function TrafficIntelligenceTab() {
                   {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (<button key={k} onClick={() => setMeterGran(k)} style={segBtn(meterGran === k)}>{l}</button>))}
                 </div>
               </div>
-              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8 }}>גרור ימין/שמאל · ריחוף לפרטים · המתג משנה גם את המד ההיסטורי למטה · {meterGran === "day" ? "120 ימים אחרונים" : meterGran === "month" ? "5 שנים אחרונות" : "כל השנים"}</div>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8 }}>הקישו על עמודה לפרטים · המתג משנה גם את המד ההיסטורי למטה · {meterGran === "day" ? "120 ימים אחרונים" : meterGran === "month" ? "5 שנים אחרונות" : "כל השנים"}</div>
               {!entSeries ? <Loading /> : <TimeMeter data={(entSeries || []).map(e => ({ period: e.period, value: Number(e.entrances) || 0, source: "first_party" }))} gran={meterGran} colorHex="#7fb2ff" />}
             </div>
 
@@ -4979,7 +4949,7 @@ function TrafficIntelligenceTab() {
               <div>
                 <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📊 מד היסטורי מאוחד — צפיות (2015→היום)</div>
                 <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8, lineHeight: 1.6 }}>
-                  Jetpack (2015→) → GA → first-party, על ציר אחד. גרור ימין/שמאל · ריחוף לפרטים. הישן לא תוקן אוטומטית (חוזה §5); החדש (first-party) מסונן-בוט. מתג הרזולוציה למעלה.
+                  Jetpack (2015→) → GA → first-party, על ציר אחד. הקישו על עמודה לפרטים. הישן לא תוקן אוטומטית (חוזה §5); החדש (first-party) מסונן-בוט. מתג הרזולוציה למעלה.
                 </div>
                 <TimeMeter data={(hist || []).map(h => ({ period: h.period, value: Number(h.views) || 0, source: h.source }))} gran={meterGran} colorHex="#c9a24a" sourceColors={{ jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" }} />
                 <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
