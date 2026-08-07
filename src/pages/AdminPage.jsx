@@ -4522,6 +4522,21 @@ function CommandCenterTab() {
           </div>
           <button onClick={load} style={segBtn(false)}>↻ רענן</button>
         </div>
+        {d.traffic && (
+          <div style={{ background: "rgba(47,109,246,0.08)", border: "1px solid rgba(127,178,255,0.3)", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+              <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>🛰️ המספר הקנוני — תנועה אנושית נטו (30 יום)</span>
+              <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>מקור-אמת יחיד · fn_human_entrances</span>
+            </div>
+            <div style={{ display: "flex", gap: 20, flexWrap: "wrap", alignItems: "baseline" }}>
+              <span><b style={{ color: "#7fb2ff", fontFamily: F.mono, fontSize: 26, fontWeight: 700 }}>{Number(d.traffic.human_net || 0).toLocaleString()}</b> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>כניסות אנושיות</span></span>
+              {d.traffic.trend_pct != null && <span style={{ color: d.traffic.trend_pct >= 0 ? "#8bd98b" : "#e08a8a", fontFamily: F.mono, fontSize: 15 }}>{d.traffic.trend_pct >= 0 ? "▲" : "▼"} {Math.abs(d.traffic.trend_pct)}% <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>7ימ מול הקודם</span></span>}
+              <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 14 }}>{Number(d.traffic.views || 0).toLocaleString()} <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>צפיות</span></span>
+              <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 14 }}>{d.traffic.human_pct}% <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>נטו</span></span>
+              <span style={{ color: "#e0a86a", fontFamily: F.mono, fontSize: 14 }}>{Number(d.traffic.suspected || 0).toLocaleString()} <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>חשודות סוננו</span></span>
+            </div>
+          </div>
+        )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
           {chips.map(([k, icon, label, accent]) => {
             const v = CN[k] || 0; const hot = v > 0 && (k === "recommendations_pending" || k === "worklog_ready_deploy" || k === "zuriel_definitions");
