@@ -33,6 +33,7 @@ const STATIC = [
   { loc: '/map',          priority: '0.6', changefreq: 'monthly' },
   { loc: '/broadcasts',   priority: '0.6', changefreq: 'daily'   },
   { loc: '/forum',        priority: '0.7', changefreq: 'daily'   },
+  { loc: '/or-geula',     priority: '0.7', changefreq: 'weekly'  },
   { loc: '/timeline',     priority: '0.8', changefreq: 'weekly'  },
   { loc: '/numbers',      priority: '0.6', changefreq: 'monthly' },
   { loc: '/gematria',     priority: '0.8', changefreq: 'monthly' },
