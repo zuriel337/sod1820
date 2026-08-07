@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4476,6 +4476,8 @@ function TrafficIntelligenceTab() {
   const [bd, setBd] = useState(null);
   const [gap, setGap] = useState(null);
   const [hist, setHist] = useState(null);
+  const [funnel, setFunnel] = useState(null);
+  const [insights, setInsights] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [openDay, setOpenDay] = useState(null);
@@ -4485,8 +4487,8 @@ function TrafficIntelligenceTab() {
   useEffect(() => {
     let alive = true;
     setLoading(true); setErr("");
-    Promise.all([getEntriesDaily(Number(days)), getEntriesBreakdown(Number(days)), getMeasurementGap(Number(days))])
-      .then(([d, b, g]) => { if (!alive) return; setDaily(d || []); setBd(b); setGap(g); setLoading(false); })
+    Promise.all([getEntriesDaily(Number(days)), getEntriesBreakdown(Number(days)), getMeasurementGap(Number(days)), getFunnel(Number(days)), getTrafficInsights(Number(days))])
+      .then(([d, b, g, f, ins]) => { if (!alive) return; setDaily(d || []); setBd(b); setGap(g); setFunnel(f || []); setInsights(ins || []); setLoading(false); })
       .catch(e => { if (!alive) return; setErr(e.message || "שגיאה"); setLoading(false); });
     return () => { alive = false; };
   }, [days]);
@@ -4590,6 +4592,44 @@ function TrafficIntelligenceTab() {
                   {gap.ga_sessions ? <div><span style={{ color: "#4caf50", fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>+{pct((gap.fp_entrances || 0) - gap.ga_sessions, gap.ga_sessions)}%</span> <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>פער מדידה</span></div> : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, alignSelf: "center" }}>סשני GA ימולאו אחרי הסנכרון הבא (עמודת sessions).</div>}
                 </div>
                 <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 8, lineHeight: 1.6 }}>הכניסות שלנו כבר נטו-מבוט ({(gap.fp_suspected || 0).toLocaleString()} חשודות סוננו). הפער הנותר נובע מחוסמי-פרסומות, סירובי-cookies, iOS/Safari והבדלי מודל-מדידה. שני המספרים אמיתיים; אין «נכון» יחיד.</div>
+              </div>
+            )}
+
+            {insights && insights.length > 0 && (
+              <div style={{ background: "rgba(126,178,255,0.06)", border: "1px solid rgba(127,178,255,0.25)", borderRadius: 12, padding: "12px 14px" }}>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>🧠 תובנות אוטומטיות</div>
+                <div style={{ display: "grid", gap: 8 }}>
+                  {insights.map((it, i) => {
+                    const txt = (it.text || "").replace(/\/\S*%[0-9A-Fa-f]{2}\S*/g, m => { try { return decodeURIComponent(m); } catch { return m; } });
+                    return (
+                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontFamily: F.body, fontSize: 12.5, color: C.goldDim, lineHeight: 1.6 }}>
+                        <span style={{ flexShrink: 0 }}>{it.icon}</span>
+                        <span>{txt}{it.link ? <> <a href={it.link} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", textDecoration: "none" }}>↗</a></> : null}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {funnel && funnel.length > 0 && (
+              <div>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🎯 משפך התנהגותי</div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 10 }}>מה עושים המבקרים בפועל (על נטו-אנושי). כל שלב = % מהכניסות.</div>
+                {funnel.map((s, i) => {
+                  const p = Number(s.pct) || 0;
+                  return (
+                    <div key={i} style={{ marginBottom: 7 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: F.body, fontSize: 12, color: C.goldDim }}>
+                        <span>{s.ord}. {s.stage}</span>
+                        <span style={{ fontFamily: F.mono }}>{Number(s.sessions).toLocaleString()} · {p}%</span>
+                      </div>
+                      <div style={{ height: 12, background: "rgba(255,255,255,0.05)", borderRadius: 4, marginTop: 2 }}>
+                        <div style={{ height: "100%", width: p + "%", background: "linear-gradient(90deg,#2f6df6,#7fb2ff)", borderRadius: 4 }} />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
 

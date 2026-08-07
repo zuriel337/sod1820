@@ -213,6 +213,19 @@ export async function getTrafficUnified(gran = "year") {
   if (error) throw error;
   return data || [];
 }
+// פאזה 2: Funnel התנהגותי + Insights אוטומטיים (על נטו-אנושי)
+export async function getFunnel(days = 30) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("admin_funnel", { p_days: days });
+  if (error) throw error;
+  return data || [];
+}
+export async function getTrafficInsights(days = 30) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("admin_traffic_insights", { p_days: days });
+  if (error) throw error;
+  return data || [];
+}
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
 export async function getGaInsights(days = 28) {
