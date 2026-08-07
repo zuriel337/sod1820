@@ -265,8 +265,8 @@ export default function ResearchPage() {
           ))}
           {tool === "life" && <LifeProfile />}
           {tool === "number" && <NumberTool />}
-          {tool === "maftech" && <MaftechShowcase />}
-          {tool === "notarikon" && <NotarikonTool />}
+          {tool === "maftech" && <MaftechShowcase seed={seed} />}
+          {tool === "notarikon" && <NotarikonTool seed={seed} />}
           {tool === "dates" && <DatesTool />}
           {tool === "verse" && <VerseSearch seed={seed} />}
           {tool === "import" && <FileAnalyzer />}

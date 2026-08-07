@@ -600,16 +600,28 @@ export default function ContributorPage() {
             {forumMsgs.map(it => {
               const im = intentMeta(it.intent);
               const txt = stripHtml(it.title || it.body || "");
+              // 🔠 משחקי-אותיות: פריט-פרשנות בלי יעד-מספר (אנגרמה/נוטריקון/מפתח) → קישור לכלי הקנוני
+              // (לא משטח חדש — עץ אחד). זורע את המילה הראשונה בכלי שיטת-המפתח.
+              const isWordplay = it.intent === "interpretation" && !it.target_id;
+              const firstWord = isWordplay ? ((txt.match(/[֐-׿]{2,}/) || [""])[0]) : "";
               return (
-                <a key={it.id} href={`/forum/${it.id}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                    <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>{im.emoji} {im.label}</span>
-                    {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
-                    <span style={{ flex: 1 }} />
-                    <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>{timeAgoHe(it.created_at)}</span>
-                  </div>
-                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{txt}</div>
-                </a>
+                <div key={it.id}>
+                  <a href={`/forum/${it.id}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                      <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>{im.emoji} {im.label}</span>
+                      {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
+                      <span style={{ flex: 1 }} />
+                      <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>{timeAgoHe(it.created_at)}</span>
+                    </div>
+                    <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{txt}</div>
+                  </a>
+                  {firstWord.length >= 2 && (
+                    <a href={`/research?tool=maftech&q=${encodeURIComponent(firstWord)}`}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, marginInlineStart: 4, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none" }}>
+                      🔠 נתח את «{firstWord}» בכלי משחקי-האותיות ←
+                    </a>
+                  )}
+                </div>
               );
             })}
           </div>
