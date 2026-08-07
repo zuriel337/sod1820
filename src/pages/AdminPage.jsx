@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, getEntriesSeries } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4471,14 +4471,194 @@ function GaRetentionBars({ title, items, fmtKey }) {
   );
 }
 
+// ===== 🤖 שופט ההתכנסויות — Candidate/Recommendation Engine (לא מכריע) =====
+// מציג מועמדים עם «למה הגיע אליי», המלצה מחקרית (לא אמת), וכפתורי החלטה →
+// decision_ledger → Learned-Pattern. אינו מאשר/דוחה בעצמו (#1).
+const REC_META = {
+  strong:      ["#8bd98b", "🟢 חזק לבדיקה"],
+  needs_check: ["#c9a24a", "🟡 דורש בדיקה"],
+  weak:        [C.muted,   "◽ חלש"],
+  duplicate:   ["#7fb2ff", "🔵 כפילות/קיים"],
+};
+const REASON_CODES = [
+  ["", "— סיבה (אופציונלי) —"],
+  ["cross_method_strong", "✅ חוצה-שיטות חזק"], ["engine_verified", "✅ מאומת-מנוע"],
+  ["partial", "✏️ חלקי"],
+  ["duplicate", "❌ כפילות"], ["already_in_tree", "❌ כבר קיים בעץ"], ["weak_evidence", "❌ ראיה חלשה"],
+  ["insufficient_meaning", "❌ משמעות לא מספקת"], ["wrong_relation", "❌ קשר שגוי"],
+  ["invalid_method", "❌ שיטה לא תקפה"], ["interpretation_only", "❌ פרשנות בלבד"],
+  ["insufficient_info", "🟡 לא מספיק מידע"], ["other", "📝 אחר"],
+];
+function ConvergenceJudge() {
+  const [d, setD] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(null);
+  const [gen, setGen] = useState(false);
+  const [open, setOpen] = useState(null);          // איזה מועמד פתוח («למה»)
+  const [inp, setInp] = useState({});              // {id:{code,note}}
+  const [hist, setHist] = useState([]);            // היסטוריית החלטות בסשן (#13)
+  const [detail, setDetail] = useState({});        // {value: {methods,evidence,...}} — הביטויים בפועל
+  const [detBusy, setDetBusy] = useState(null);
+
+  const loadDetail = (value) => {
+    if (detail[value]) { setDetail(p => ({ ...p, [value]: { ...p[value], _open: !p[value]._open } })); return; }
+    setDetBusy(value);
+    getConvergenceDetail(value).then(r => setDetail(p => ({ ...p, [value]: { ...(r || {}), _open: true } }))).catch(() => { }).finally(() => setDetBusy(null));
+  };
+
+  const load = () => { setLoading(true); setErr(""); getConvergenceCandidates(50).then(r => { setD(r); setLoading(false); }).catch(e => { setErr(e.message || "שגיאה"); setLoading(false); }); };
+  useEffect(() => { load(); }, []);
+  const nLink = (k) => "/number/" + encodeURIComponent(k || "");
+  const setF = (id, k, v) => setInp(p => ({ ...p, [id]: { ...(p[id] || {}), [k]: v } }));
+
+  const decide = async (c, decision) => {
+    setBusy(c.id);
+    const f = inp[c.id] || {};
+    let res = null;
+    try { res = await decideCandidate(c.id, decision, f.code || null, f.note || null); } catch { /* noop */ }
+    setHist(h => [{ value: c.subject_ref, rec: c.recommendation, decision, code: f.code, note: f.note, learning: res?.learning, patternKey: res?.pattern_key }, ...h]);
+    setD(prev => prev ? { ...prev, candidates: (prev.candidates || []).filter(x => x.id !== c.id) } : prev);
+    setBusy(null);
+  };
+  const runGen = async () => { setGen(true); try { await generateCandidates(20); } catch { /* noop */ } load(); setGen(false); };
+
+  const cands = d?.candidates || [];
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>🤖 שופט ההתכנסויות</span>
+        <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>המלצה מחקרית — לא אמת. אתה מכריע.</span>
+        <span style={{ flex: 1 }} />
+        {d?.open_contradictions > 0 && <span style={{ color: "#e0a86a", fontFamily: F.body, fontSize: 11.5 }}>⚠️ {d.open_contradictions} סתירות</span>}
+        <button onClick={runGen} disabled={gen} style={{ ...segBtn(false), fontSize: 12, opacity: gen ? 0.5 : 1 }}>{gen ? "סורק…" : "🔨 סרוק מועמדים"}</button>
+      </div>
+
+      {loading ? <Loading />
+        : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
+        : !cands.length ? <Empty>אין מועמדים ממתינים. «🔨 סרוק מועמדים» להפקת אצווה.</Empty>
+        : cands.map(c => {
+          const [col, lbl] = REC_META[c.recommendation] || ["#888", c.recommendation];
+          const w = c.why || {}; const tl = w.tree_links || {}; const cards = tl.cards || [];
+          const isOpen = open === c.id; const f = inp[c.id] || {};
+          const outcome = w.possible_duplicate
+            ? "מעשיר/מפנה לקיים בעץ — בלי שכפול (חוק העץ האחד)"
+            : (tl.node_id ? "מקשר את הראיות לעוגן/node הקיים; אפשר להוסיף כרטיס-נושא"
+                          : "יצירת node חדש למספר בעץ + קישור הראיות");
+          return (
+            <div key={c.id} style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", marginBottom: 10, opacity: busy === c.id ? 0.5 : 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ background: col, color: "#0d0900", fontFamily: F.body, fontSize: 11, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>{lbl}</span>
+                <a href={nLink(c.subject_ref)} target="_blank" rel="noreferrer" style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 700, textDecoration: "none" }}>{c.subject_ref} ↗</a>
+                <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{w.method_count} שיטות</span>
+                {w.anchor && <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>· {w.anchor}</span>}
+                <span style={{ flex: 1 }} />
+                <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11.5 }}>{Math.round((c.conf || 0) * 100)}%</span>
+                <button onClick={() => setOpen(isOpen ? null : c.id)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "2px 9px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>{isOpen ? "▲ למה" : "▼ למה הגיע אליי"}</button>
+              </div>
+
+              {/* מה יקרה אם אאשר (#1) */}
+              <div style={{ marginTop: 6, fontFamily: F.body, fontSize: 11.5, color: C.goldDim }}>▶️ <b style={{ color: C.goldLight }}>אם אאשר:</b> {outcome}</div>
+
+              {isOpen && (
+                <div style={{ marginTop: 9, display: "grid", gap: 8 }}>
+                  {/* כבר בעץ ↔ חדש בממצא (#2) */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 8 }}>
+                    <div style={{ background: "rgba(127,178,255,0.07)", border: "1px solid rgba(127,178,255,0.25)", borderRadius: 8, padding: "8px 10px", fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
+                      <div style={{ color: "#7fb2ff", fontWeight: 700, marginBottom: 3 }}>🌳 מה כבר קיים בעץ</div>
+                      <div>⚓ עוגן: {w.anchor || "—"}</div>
+                      <div>🎴 כרטיסים: {cards.length ? cards.join(" · ") : "אין"}</div>
+                      <div>🔵 node: {tl.node_id ? "קיים ✓" : "אין"}</div>
+                    </div>
+                    <div style={{ background: "rgba(139,217,139,0.07)", border: "1px solid rgba(139,217,139,0.25)", borderRadius: 8, padding: "8px 10px", fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
+                      <div style={{ color: "#8bd98b", fontWeight: 700, marginBottom: 3 }}>✨ מה חדש בממצא</div>
+                      <div>🧭 התכנסות ב-{w.method_count} שיטות: {(w.methods || []).join(" · ")}</div>
+                      <div>🔗 {(w.evidence_ids || []).length} ראיות · שיא-קבוצה {w.max_group}</div>
+                      <div>{w.possible_duplicate ? "↪️ מחזק את הקיים (שכבה נוספת)" : "🆕 טרם מתועד ככרטיס — הזדמנות"}</div>
+                      <button onClick={() => loadDetail(c.subject_ref)} style={{ marginTop: 6, background: "rgba(139,217,139,0.12)", border: "1px solid rgba(139,217,139,0.4)", color: "#8bd98b", borderRadius: 7, padding: "5px 11px", cursor: "pointer", fontFamily: F.body, fontSize: 12, fontWeight: 700 }}>
+                        {detBusy === c.subject_ref ? "טוען…" : (detail[c.subject_ref]?._open ? "▲ הסתר את הביטויים" : "🔍 פתח: אילו ביטויים מתכנסים")}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* התוצאות בפועל — הביטויים בכל שיטה (ה«איפה») */}
+                  {detail[c.subject_ref]?._open && (
+                    <div style={{ background: "rgba(0,0,0,0.25)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 11px", display: "grid", gap: 9 }}>
+                      {(detail[c.subject_ref].methods || []).map((m, mi) => (
+                        <div key={mi}>
+                          <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 4 }}>
+                            🧮 {m.method} <span style={{ color: C.muted, fontWeight: 400, fontFamily: F.body }}>· {m.group_size} ביטויים = {c.subject_ref}</span>
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                            {(m.phrases || []).map((p, pi) => (
+                              <span key={pi} style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${C.border}`, borderRadius: 6, padding: "3px 8px", fontFamily: F.body, fontSize: 12, color: C.goldDim, direction: "rtl" }}>{p}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      {(detail[c.subject_ref].evidence || []).length > 0 && (
+                        <div>
+                          <div style={{ color: "#7fb2ff", fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 4 }}>🔗 ראיות מתועדות</div>
+                          {detail[c.subject_ref].evidence.map((e, ei) => (
+                            <div key={ei} style={{ fontFamily: F.body, fontSize: 11.5, color: C.goldDim, marginBottom: 3 }}>
+                              <span style={{ color: C.muted, fontFamily: F.mono }}>[{e.method}·{e.status}]</span> {e.a}{e.b ? " ↔ " + e.b : ""}{e.note ? " — " + e.note : ""}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {!(detail[c.subject_ref].methods || []).length && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין קבוצות-התכנסות לערך זה.</div>}
+                    </div>
+                  )}
+
+                  <div style={{ fontFamily: F.body, fontSize: 11, color: C.muted, lineHeight: 1.6 }}>📍 מקור: {w.source} · <span style={{ color: "#e0a86a" }}>❓ אי-ודאות: {w.uncertainty}</span></div>
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap", marginTop: 9 }}>
+                <select value={f.code || ""} onChange={e => setF(c.id, "code", e.target.value)} style={{ background: "rgba(8,5,2,0.5)", color: C.goldDim, border: `1px solid ${C.border}`, borderRadius: 7, padding: "5px 8px", fontFamily: F.body, fontSize: 12 }}>
+                  {REASON_CODES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+                <input value={f.note || ""} onChange={e => setF(c.id, "note", e.target.value)} placeholder="הערה (human_reason)" style={{ flex: 1, minWidth: 120, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 7, padding: "5px 9px", fontFamily: F.body, fontSize: 12 }} />
+                <button onClick={() => decide(c, "approve")} disabled={busy === c.id} style={{ background: "rgba(76,175,80,0.15)", border: "1px solid rgba(76,175,80,0.5)", color: "#8bd98b", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>✅ אשר</button>
+                <button onClick={() => decide(c, "partial")} disabled={busy === c.id} style={{ background: "rgba(201,162,74,0.13)", border: "1px solid rgba(201,162,74,0.5)", color: "#c9a24a", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5 }}>✏️ חלקי</button>
+                <button onClick={() => decide(c, "reject")} disabled={busy === c.id} style={{ background: "rgba(200,80,80,0.12)", border: "1px solid rgba(224,138,138,0.4)", color: "#e08a8a", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: F.body, fontSize: 12.5 }}>❌ דחה</button>
+                <div style={{ width: "100%", color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 1 }}>⚖️ דחייה = לא מאשר את החיבור לפי הראיות/הקריטריון — <b>לא</b> קביעה שהנתון שגוי (הראיות נשמרות).</div>
+              </div>
+            </div>
+          );
+        })}
+
+      {hist.length > 0 && (
+        <div style={{ marginTop: 8, borderTop: `1px solid ${C.border}`, paddingTop: 10 }}>
+          <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>🕓 היסטוריית ההחלטות (הסשן הזה)</div>
+          {hist.map((h, i) => (
+            <div key={i} style={{ fontFamily: F.body, fontSize: 11.5, color: C.goldDim, marginBottom: 8, lineHeight: 1.6, borderInlineStart: `2px solid ${C.border}`, paddingInlineStart: 8 }}>
+              <div>
+                <b style={{ color: C.goldLight, fontFamily: F.mono }}>{h.value}</b> ({REC_META[h.rec]?.[1] || h.rec}) → <b style={{ color: h.decision === "reject" ? "#e08a8a" : h.decision === "partial" ? "#c9a24a" : "#8bd98b" }}>{h.decision === "approve" ? "אושר" : h.decision === "partial" ? "חלקי" : "נדחה"}</b>
+              </div>
+              {/* שרשרת הלמידה (#3) */}
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 2 }}>
+                🔗 שרשרת: החלטה → <b style={{ color: C.goldDim }}>{h.code || "(בלי code)"}</b> + {h.note ? "«" + h.note + "»" : "(בלי הערה)"} → <b style={{ color: C.goldDim }}>decision_ledger ✓</b> → Pattern עתידי אפשרי: <span style={{ fontFamily: F.mono, color: "#7fb2ff" }}>{h.patternKey || "—"}</span>
+              </div>
+              {h.learning && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10 }}>{h.learning}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===== 🧠 מפקדה — Admin Command Center (מקבץ קנוני: המלצות מטטרון + חיוויים + פעילות) =====
 // קורא admin_command_center (recommendations · ti_demand_signals · convergences · journey_seeds · work_log).
 // לא מערכת חדשה — מקבץ מהמקורות הקיימים. משתלב במבנה-הקבוצות של איחוד-הניהול.
-function CommandCenterTab() {
+function CommandCenterTab({ gotoTab }) {
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(null);
+  const recRef = useRef(null);   // תיבת ההמלצות (לגלילה מהחיווי)
+  const actRef = useRef(null);   // מרכז הפעילות (לגלילה מהחיווי)
 
   const load = () => { setLoading(true); setErr(""); getCommandCenter().then(r => { setD(r); setLoading(false); }).catch(e => { setErr(e.message || "שגיאה"); setLoading(false); }); };
   useEffect(() => { load(); }, []);
@@ -4493,6 +4673,8 @@ function CommandCenterTab() {
       counters: { ...prev.counters, recommendations_pending: Math.max(0, (prev.counters?.recommendations_pending || 1) - 1) } } : prev);
     setBusy(null);
   };
+  const [scanning, setScanning] = useState(false);
+  const runScan = async () => { setScanning(true); try { await runMetatronRecommend(); } catch { /* noop */ } load(); setScanning(false); };
 
   if (loading) return <div style={card}><Loading /></div>;
   if (err) return <div style={card}><div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div></div>;
@@ -4500,16 +4682,19 @@ function CommandCenterTab() {
 
   const CN = d.counters || {};
   const TL = d.traffic_layers || null;
+  const scrollTo = (ref) => ref.current && ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  // כל חיווי → יעד: גלילה למקטע-בעמוד או ניווט לטאב הרלוונטי (goto = מפתח-טאב, scroll = ref)
   const chips = [
-    ["recommendations_pending", "🧠", "המלצות ממתינות", "#7fb2ff"],
-    ["demand_gaps", "🕳️", "פערי-גרף (ביקוש בלי node)", "#e0a86a"],
-    ["zuriel_definitions", "📜", "הגדרות צוריאל פתוחות", "#c9a24a"],
-    ["hints_pending", "➕", "דיווחי-רמזים", "#c9a24a"],
-    ["convergences_new_7d", "✨", "התכנסויות חדשות (7ימ)", "#9bd39b"],
-    ["journey_drafts", "🧭", "מועמדי-מסע (backlog)", C.muted],
-    ["worklog_ready_deploy", "🚀", "ממתין לפריסה", "#e08a8a"],
+    ["recommendations_pending", "🧠", "המלצות ממתינות", "#7fb2ff", { scroll: recRef }],
+    ["demand_gaps", "🕳️", "פערי-גרף (ביקוש בלי node)", "#e0a86a", { scroll: actRef }],
+    ["zuriel_definitions", "📜", "הגדרות צוריאל פתוחות", "#c9a24a", { goto: "anchors" }],
+    ["hints_pending", "➕", "דיווחי-רמזים", "#c9a24a", { goto: "hintreports" }],
+    ["convergences_new_7d", "✨", "התכנסויות חדשות (7ימ)", "#9bd39b", { scroll: actRef }],
+    ["journey_drafts", "🧭", "מועמדי-מסע (backlog)", C.muted, { goto: "jexp" }],
+    ["worklog_ready_deploy", "🚀", "ממתין לפריסה", "#e08a8a", { goto: "worklog" }],
   ];
-  const typeBadge = (t) => ({ create_entity: ["#e0a86a", "יצירת ישות"], write_article: ["#7fb2ff", "כתיבת פוסט"], check_convergence: ["#9bd39b", "בדיקת התכנסות"], create_journey: ["#c9a24a", "מסע מחקר"] }[t] || ["#888", t]);
+  const chipClick = (target) => { if (!target) return; if (target.goto && gotoTab) gotoTab(target.goto); else if (target.scroll) scrollTo(target.scroll); };
+  const typeBadge = (t) => ({ create_entity: ["#e0a86a", "יצירת ישות"], create_card: ["#c9a24a", "כרטיס-נושא"], write_article: ["#7fb2ff", "כתיבת פוסט"], check_convergence: ["#9bd39b", "בדיקת התכנסות"], create_journey: ["#c9a24a", "מסע מחקר"] }[t] || ["#888", t]);
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
@@ -4574,21 +4759,69 @@ function CommandCenterTab() {
             })()}
           </div>
         )}
+        {/* ⚖️ מטטרון — בקרה והתראות (שכבת-הממשל שהייתה נסתרת ב-SQL, עכשיו במקום אחד) */}
+        {d.metatron_status && (() => {
+          const ms = d.metatron_status; const al = ms.alerts || {}; const gp = ms.gaps || {};
+          const rich = gp.rich_numbers_no_card || {};
+          const alertDefs = [
+            ["red", "🔴", "דחוף", "#e06666"],
+            ["orange", "🟠", "לתשומת-לב", "#e0a86a"],
+            ["yellow", "🟡", "מעקב", "#d8c860"],
+            ["green", "🟢", "טופל", "#8bd98b"],
+          ];
+          return (
+            <div style={{ background: "rgba(30,20,8,0.35)", border: "1px solid rgba(224,168,106,0.35)", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>⚖️ מטטרון — בקרה והתראות</span>
+                <span style={{ flex: 1 }} />
+                <button onClick={runScan} disabled={scanning} style={{ ...segBtn(false), fontSize: 12, opacity: scanning ? 0.5 : 1 }}>{scanning ? "סורק…" : "🔄 סרוק פערים"}</button>
+              </div>
+              {/* רמזור-התראות */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+                {alertDefs.map(([k, icon, lbl, col]) => (
+                  <div key={k} style={{ display: "flex", alignItems: "baseline", gap: 6, background: "rgba(8,5,2,0.4)", border: `1px solid ${(al[k] || 0) > 0 && k !== "green" ? col : C.border}`, borderRadius: 8, padding: "6px 10px" }}>
+                    <span style={{ color: col, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{Number(al[k] || 0).toLocaleString()}</span>
+                    <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>{icon} {lbl}</span>
+                  </div>
+                ))}
+              </div>
+              {/* פערי-שלמות */}
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7 }}>
+                <span>🕳️ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(rich.ge10 || 0).toLocaleString()}</b> מספרים עשירים בלי כרטיס</span>
+                <span>🔧 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(gp.methods_missing_from_engine || 0).toLocaleString()}</b> שיטות חסרות מהמנוע</span>
+                <span>🎴 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(gp.cards_approved_not_projected || 0).toLocaleString()}</b> כרטיסים לא-מוקרנים</span>
+                <span>✨ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.discoveries || {}).waiting || 0).toLocaleString()}</b> תגליות בשולחן</span>
+                <span>⚖️ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.decisions || {}).pending || 0).toLocaleString()}</b> החלטות-ממשל</span>
+                <span>📜 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.laws || {}).active || 0).toLocaleString()}</b> חוקים פעילים</span>
+              </div>
+              <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 8, lineHeight: 1.6 }}>
+                «סרוק פערים» הופך מספרים-עשירים-בלי-כרטיס להמלצות-לאישור למטה. אלה ההתראות שרצו עד היום רק ב-SQL — כעת במקום אחד.
+              </div>
+            </div>
+          );
+        })()}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
-          {chips.map(([k, icon, label, accent]) => {
+          {chips.map(([k, icon, label, accent, target]) => {
             const v = CN[k] || 0; const hot = v > 0 && (k === "recommendations_pending" || k === "worklog_ready_deploy" || k === "zuriel_definitions");
             return (
-              <div key={k} style={{ background: hot ? "rgba(47,109,246,0.10)" : "rgba(8,5,2,0.35)", border: `1px solid ${hot ? "rgba(127,178,255,0.4)" : C.border}`, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ color: accent, fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{v.toLocaleString()}</div>
+              <button key={k} onClick={() => chipClick(target)} title="פתח →"
+                style={{ textAlign: "right", cursor: "pointer", width: "100%", background: hot ? "rgba(47,109,246,0.10)" : "rgba(8,5,2,0.35)", border: `1px solid ${hot ? "rgba(127,178,255,0.4)" : C.border}`, borderRadius: 10, padding: "10px 12px", transition: "border-color .15s, transform .1s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = accent === C.muted ? C.borderGold : accent; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = hot ? "rgba(127,178,255,0.4)" : C.border; e.currentTarget.style.transform = "none"; }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                  <span style={{ color: accent, fontFamily: F.mono, fontSize: 22, fontWeight: 700 }}>{v.toLocaleString()}</span>
+                  <span style={{ flex: 1 }} />
+                  <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>←</span>
+                </div>
                 <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{icon} {label}</div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
       {/* תיבת המלצות מטטרון */}
-      <div style={card}>
+      <div ref={recRef} style={card}>
         <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>🧠 תיבת המלצות מטטרון</div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginBottom: 12 }}>מטטרון מגלה ומציע — אתה מאשר. הפעולה על הגרף מתבצעת רק אחרי אישור.</div>
         {(!d.recommendations || !d.recommendations.length) ? <Empty>אין המלצות ממתינות. ✅</Empty>
@@ -4623,8 +4856,11 @@ function CommandCenterTab() {
           })}
       </div>
 
+      {/* 🤖 שופט ההתכנסויות — צמוד לבקרה, מזין את decision_ledger→Learned-Pattern */}
+      <ConvergenceJudge />
+
       {/* מרכז פעילות */}
-      <div style={card}>
+      <div ref={actRef} style={card}>
         <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 12 }}>📡 מרכז פעילות</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
           <div>
@@ -4651,6 +4887,15 @@ function CommandCenterTab() {
               <div key={i} style={{ fontFamily: F.body, fontSize: 12, color: C.goldDim, marginBottom: 5 }}>
                 <a href={nLink(String(c.value))} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", textDecoration: "none" }}>{c.value}</a>
                 <span style={{ color: C.muted }}> · {c.sample} <span style={{ fontFamily: F.mono }}>({c.group_size})</span></span>
+              </div>
+            )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>—</div>}
+          </div>
+          <div>
+            <div style={{ color: "#c9a24a", fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>🔬 שולחן מטטרון — ממתינות</div>
+            {(d.desk_discoveries || []).length ? d.desk_discoveries.map((c, i) => (
+              <div key={i} style={{ fontFamily: F.body, fontSize: 12, color: C.goldDim, marginBottom: 5 }}>
+                <a href={nLink(String(c.value))} target="_blank" rel="noreferrer" style={{ color: "#7fb2ff", textDecoration: "none" }}>{c.value}</a>
+                <span style={{ color: C.muted }}> · {c.sample} <span style={{ fontFamily: F.mono }}>({c.group_size})</span>{c.method ? " · " + c.method : ""}</span>
               </div>
             )) : <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>—</div>}
           </div>
@@ -6233,6 +6478,8 @@ function WorkLogTab() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [query, setQuery] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [bulking, setBulking] = useState(false);
 
   function load() {
     if (!supabase) return;
@@ -6241,6 +6488,18 @@ function WorkLogTab() {
       .then(({ data }) => { setEntries(data || []); setLoading(false); }).catch(() => setLoading(false));
   }
   useEffect(load, []);
+
+  // עדכון מקומי אחרי פעולה (בלי טעינה-מחדש מלאה)
+  const patch = (id, fields) => setEntries(prev => prev.map(e => e.id === id ? { ...e, ...fields } : e));
+  const setArchived = async (id, archived) => { patch(id, { archived }); try { await supabase.rpc("admin_worklog_update", { p_id: id, p_status: null, p_archived: archived }); } catch { load(); } };
+  const setDone = async (id) => { patch(id, { status: "הושלם" }); try { await supabase.rpc("admin_worklog_update", { p_id: id, p_status: "הושלם", p_archived: null }); } catch { load(); } };
+  const hardDelete = async (id) => { if (!window.confirm("למחוק לצמיתות? פעולה בלתי-הפיכה. (עדיף «ארכב» — שומר היסטוריה)")) return; setEntries(prev => prev.filter(e => e.id !== id)); try { await supabase.rpc("admin_worklog_delete", { p_id: id }); } catch { load(); } };
+  const bulkArchiveDone = async () => {
+    if (!window.confirm("לארכב את כל הרשומות בעלות סטטוס-סופי (הושלם/deployed/done…)? הפיך לחלוטין — «🗄️ ארכיון» → «↩️ שחזר».")) return;
+    setBulking(true);
+    try { const { data } = await supabase.rpc("admin_worklog_archive_done"); window.alert(`אורכבו ${data ?? 0} רשומות.`); } catch { /* noop */ }
+    load(); setBulking(false);
+  };
 
   async function addEntry() {
     if (!form.topic || !form.what_we_did) return;
@@ -6274,22 +6533,29 @@ function WorkLogTab() {
       </div>
       {(() => {
         const q = query.trim().toLowerCase();
+        const archivedCount = entries.filter(e => e.archived).length;
+        const base = showArchived ? entries.filter(e => e.archived) : entries.filter(e => !e.archived);
         const view = q
-          ? entries.filter(e => `${e.topic || ""} ${e.what_we_did || ""} ${e.open_threads || ""} ${e.status || ""}`.toLowerCase().includes(q))
-          : entries;
+          ? base.filter(e => `${e.topic || ""} ${e.what_we_did || ""} ${e.open_threads || ""} ${e.status || ""}`.toLowerCase().includes(q))
+          : base;
+        const actBtn = (bg, bd, col, label, onClick, key) => (
+          <button key={key} onClick={onClick} style={{ background: bg, border: `1px solid ${bd}`, color: col, borderRadius: 7, padding: "4px 10px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5, whiteSpace: "nowrap" }}>{label}</button>
+        );
         return (
           <div style={card}>
             <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:14, flexWrap:"wrap" }}>
               <div style={{ color:C.goldBright, fontFamily:F.heading, fontSize:14, fontWeight:700 }}>
-                📋 כל היומן {!loading && <span style={{ color:C.muted, fontWeight:400 }}>({view.length}{q ? ` / ${entries.length}` : ""})</span>}
+                📋 {showArchived ? "ארכיון" : "יומן פעיל"} {!loading && <span style={{ color:C.muted, fontWeight:400 }}>({view.length}{q ? ` / ${base.length}` : ""})</span>}
               </div>
               <input value={query} onChange={e => setQuery(e.target.value)} placeholder="🔍 חיפוש ביומן…" dir="rtl"
-                style={{ ...fld, marginRight:"auto", maxWidth:300, padding:"7px 12px" }} />
+                style={{ ...fld, marginRight:"auto", maxWidth:240, padding:"7px 12px" }} />
+              <button onClick={() => setShowArchived(s => !s)} style={{ ...segBtn(showArchived), fontSize:12 }}>🗄️ ארכיון ({archivedCount})</button>
+              {!showArchived && <button onClick={bulkArchiveDone} disabled={bulking} style={{ ...segBtn(false), fontSize:12, opacity: bulking ? 0.5 : 1 }}>{bulking ? "מארכב…" : "🧹 ארכב שהושלמו"}</button>}
             </div>
             {loading ? <div style={{ color:C.muted, fontSize:13, fontFamily:F.heading }}>טוען…</div> : (
               <div style={{ display:"grid", gap:16, maxHeight:620, overflowY:"auto", paddingLeft:6 }}>
                 {view.map(e => (
-                  <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12 }}>
+                  <div key={e.id} style={{ borderBottom:`1px solid ${C.border}`, paddingBottom:12, opacity: e.archived ? 0.7 : 1 }}>
                     <div style={{ display:"flex", gap:10, alignItems:"baseline", marginBottom:5, flexWrap:"wrap" }}>
                       <b style={{ color:C.goldBright, fontFamily:F.heading, fontSize:13 }}>{e.topic}</b>
                       <span style={{ color:C.muted, fontFamily:"monospace", fontSize:10 }}>{e.session_date}</span>
@@ -6297,9 +6563,16 @@ function WorkLogTab() {
                     </div>
                     <div style={{ color:C.goldLight, fontFamily:F.body, fontSize:13, lineHeight:1.65, whiteSpace:"pre-wrap" }}>{e.what_we_did}</div>
                     {e.open_threads && <div style={{ color:C.muted, fontFamily:F.heading, fontSize:11, marginTop:5 }}>⚡ {e.open_threads}</div>}
+                    <div style={{ display:"flex", gap:7, marginTop:9, flexWrap:"wrap" }}>
+                      {e.status !== "הושלם" && actBtn("rgba(76,175,80,0.13)", "rgba(76,175,80,0.45)", "#7bbf7b", "✔️ הושלם", () => setDone(e.id), "d")}
+                      {e.archived
+                        ? actBtn("rgba(127,178,255,0.12)", "rgba(127,178,255,0.4)", "#7fb2ff", "↩️ שחזר", () => setArchived(e.id, false), "u")
+                        : actBtn("rgba(201,162,74,0.12)", "rgba(201,162,74,0.4)", "#c9a24a", "🗄️ ארכב", () => setArchived(e.id, true), "a")}
+                      {actBtn("rgba(200,80,80,0.1)", "rgba(224,138,138,0.35)", "#e08a8a", "🗑️ מחק", () => hardDelete(e.id), "x")}
+                    </div>
                   </div>
                 ))}
-                {!view.length && <Empty>{q ? "אין תוצאות לחיפוש" : "אין רשומות עדיין"}</Empty>}
+                {!view.length && <Empty>{q ? "אין תוצאות לחיפוש" : showArchived ? "אין רשומות בארכיון" : "אין רשומות פעילות"}</Empty>}
               </div>
             )}
           </div>
