@@ -89,7 +89,7 @@ export default function ResearchHome({ onOpen }) {
 
   return (
     <div>
-      <div className="rw-h1-row"><div className="rw-h1">🏛️ היכל הגילוי</div></div>
+      <div className="rw-h1-row"><div className="rw-h1">🏛️ ההיכל</div></div>
       {isAdmin && <div className="rw-sub" style={{ color: "#b07d12", fontWeight: 700 }}>🔑 מצב מנהל — כל הכלים הממומשים פתוחים לבדיקה (לציבור נעולים).</div>}
 
       {/* 🔎 חיפוש-על — מספר · שם · ביטוי */}
