@@ -248,6 +248,11 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
     //    שנוצר ישירות ב-insights בלי «תאום» תרומה (כמו צבי). הדדופ מול התרומות נעשה אחרי הטעינה
     //    (contribSigs) כדי שלא נראה פעמיים את מי שיש לו גם תרומה. insights שאינם-קהילה = מערכת/AI/צוריאל.
     tasks.push(q.then(({ data }) => (data || [])
+      // 🚪 שסתום-פורום (forum_intake_valve) — חידושי-קהילה מיובאים בכמות (קוהורט של כתב, למשל צבי)
+      //    מסומנים panel_data.forum_hidden=true. הם עדיין is_active=true ולכן מוצגים בבית המדרש
+      //    (CommunityTab קורא insights ישירות לפי tags='חידושי גולשים'), אבל *לא* מציפים את פיד-הפורום.
+      //    פתיחה עתידית = UPDATE שמסיר את הדגל — בלי פריסה (כמו site_flags). זהו השסתום היחיד; אין כפילות.
+      .filter(x => !x.panel_data?.forum_hidden)
       .map(x => {
       const community = !!x.panel_data?.community;
       return {
