@@ -18,7 +18,7 @@ import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
-import ChristinaDecoder from "../components/ChristinaDecoder.jsx";
+import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -507,11 +507,9 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 🔤 מנוע-המרכז — מפענח-האותיות (specialty=letter-decoder · כריסטינה). מנועי-מרכז נוספים
-          (הצלבות · שער-פסוקים · גילוי-יומי…) ייכנסו כאן לפי specialty בהמשך. */}
-      {c.specialty === "letter-decoder" && (
-        <div style={{ marginBottom: 24 }}><ChristinaDecoder embedded /></div>
-      )}
+      {/* ✦ מנוע-המרכז — נבחר לפי specialty (letter-decoder→מפענח · crosses→קיר-הצלבות · …).
+          זה הלב של הדף; מנוע שטרם מומש נופל בחזרה למדורים הרגילים למטה. */}
+      <SpecialtyCenter c={c} />
 
       {/* 🗓️ ציר האירועים שלו — nodes type=event שיוחסו אליו. עדשה על «ציר ההתגלות» הגלובלי (לא עותק);
           כולל את המחקרים הישנים שלו על ציר-זמן + הפניה לציר ההתגלות המלא. */}
@@ -818,8 +816,9 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 🎯 ההתכנסויות שלו — עדשה על topic_cards, מצביע לעמוד הקנוני /topic/:slug */}
-      {convergences.length > 0 && (
+      {/* 🎯 ההתכנסויות שלו — עדשה על topic_cards, מצביע לעמוד הקנוני /topic/:slug.
+          מוסתר כשקיר-ההצלבות כבר המרכז (specialty=crosses) כדי לא לשכפל (עץ אחד). */}
+      {convergences.length > 0 && c.specialty !== "crosses" && (
         <div style={{ marginTop: 26 }}>
           <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
             🎯 ההתכנסויות של {c.display_name} ({convergences.length})
