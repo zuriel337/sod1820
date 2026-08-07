@@ -9,6 +9,18 @@ import LeadOrderEditor from "./LeadOrderEditor.jsx";
 import { worldColor, WORLD_FAMILIES } from "../lib/worlds.js";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 
+// 🎨 עדשת-כיוון (direction_lens_law) — «תמונה מלאה בלי סינון»: תגית «כיוון:*» ב-tags.
+// היעדר תגית = ניטרלי (בלי סימון). לעולם לא מסנן — רק צובע (הפוך=סגול·צל, חיובי=ירוק).
+const DIR_LENS = {
+  "הפוך":  { dot: "🔻", tint: "#7f8cff", bg: "rgba(127,140,255,.15)", title: "כיוון הפוך / צל — מוצג במלואו (לא מסונן)" },
+  "חיובי": { dot: "🔺", tint: "#3d9f6a", bg: "rgba(61,159,106,.16)", title: "כיוון חיובי" },
+};
+function dirOf(tags) {
+  if (!Array.isArray(tags)) return null;
+  const t = tags.find(x => typeof x === "string" && x.startsWith("כיוון:"));
+  return t ? (DIR_LENS[t.slice("כיוון:".length)] || null) : null;
+}
+
 // מה כל שיטה עושה (לתצוגה ב"כל השיטות")
 const M_DESC = {};
 [...METHODS, ...DEPTH_METHODS].forEach(m => { M_DESC[m.key] = m.sub || m.soul || ""; });
@@ -76,17 +88,19 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
   const regular = allFams.find(g => g.method === "רגיל");
   const others = allFams.filter(g => g.method !== "רגיל");
 
-  const Word = ({ phrase, world, ragil, method }) => {
+  const Word = ({ phrase, world, ragil, method, tags }) => {
     const isG = gold.labels.has(phrase);
+    const dir = !isG ? dirOf(tags) : null;   // זהב גובר; אחרת עדשת-כיוון
     return (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-        <Link to={`/number/${encodeURIComponent(phrase)}`} style={{
+        <Link to={`/number/${encodeURIComponent(phrase)}`} title={dir?.title} style={{
           textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5,
-          color: isG ? P.onAccent : P.accentText, background: isG ? P.accentBtn : P.card,
-          border: `1px solid ${isG ? "transparent" : P.border}`, borderRadius: 999, padding: "4px 12px",
-          fontFamily: F.body, fontSize: 13.5, fontWeight: isG ? 800 : 500,
+          color: isG ? P.onAccent : (dir ? dir.tint : P.accentText),
+          background: isG ? P.accentBtn : (dir ? dir.bg : P.card),
+          border: `1px solid ${isG ? "transparent" : (dir ? dir.tint : P.border)}`, borderRadius: 999, padding: "4px 12px",
+          fontFamily: F.body, fontSize: 13.5, fontWeight: isG ? 800 : (dir ? 700 : 500),
         }}>
-          {isG ? "✦ " : ""}{phrase}
+          {isG ? "✦ " : ""}{dir ? <span aria-hidden style={{ fontSize: 10 }}>{dir.dot} </span> : ""}{phrase}
           {method !== "רגיל" && ragil != null && <span style={{ color: isG ? P.onAccent : P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 11, fontWeight: 700, opacity: isG ? 0.85 : 1 }}>· רגיל {ragil}</span>}
           {world && <span style={{ color: isG ? P.onAccent : worldColor(world), fontWeight: 700, fontSize: 11.5, opacity: isG ? 0.85 : 1 }}>· {world}</span>}
         </Link>

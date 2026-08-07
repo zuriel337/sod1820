@@ -2649,7 +2649,7 @@ export async function getAllValuePhrases(value, limit = 500) {
   if (!supabase || !value) return [];
   try {
     const { data } = await supabase.from("gematria_words")
-      .select("phrase,is_verified,visibility_tier,lead_rank")
+      .select("phrase,is_verified,visibility_tier,lead_rank,tags")
       .eq("ragil", Number(value))
       // סדר קנוני זהה לדף המספר (getEntityBundle) — lead_rank › מאומת › visibility_tier › recency.
       // כך המחשבון המקצועי וכל צרכן אחר מסונכרנים 1:1 עם מה שצוריאל מסדר בדף המספר.
@@ -2680,20 +2680,23 @@ export async function getValueFamilies(value, perMethod = 20) {
     }
     // ⚡ מעשירים (עולם+ערך-רגיל) רק את הביטויים שמוצגים — לא את כל 2,500 — ובמקביל.
     const shown = [...new Set(Object.values(groups).flatMap(g => g.top))];
-    const worldMap = {}, ragilMap = {};
+    const worldMap = {}, ragilMap = {}, tagsMap = {};
     const chunks = [];
     for (let i = 0; i < shown.length; i += 300) chunks.push(shown.slice(i, i + 300));
     await Promise.all(chunks.map(async chunk => {
       const [{ data: ents }, { data: gw }] = await Promise.all([
         supabase.from('nodes').select('label,metadata').eq('type', 'entity').in('label', chunk).limit(1000),
-        supabase.from('gematria_words').select('phrase,ragil').in('phrase', chunk).limit(1000),
+        supabase.from('gematria_words').select('phrase,ragil,tags').in('phrase', chunk).limit(1000),
       ]);
       (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
-      (gw || []).forEach(r => { if (r.ragil != null && ragilMap[r.phrase] == null) ragilMap[r.phrase] = r.ragil; });
+      (gw || []).forEach(r => {
+        if (r.ragil != null && ragilMap[r.phrase] == null) ragilMap[r.phrase] = r.ragil;
+        if (Array.isArray(r.tags) && !tagsMap[r.phrase]) tagsMap[r.phrase] = r.tags;   // 🎨 עדשת-כיוון
+      });
     }));
     return Object.values(groups)
       .map(g => ({ method: g.method, priority: g.priority, count: g.all.size,
-        phrases: g.top.map(p => ({ phrase: p, world: worldMap[p] || null, ragil: ragilMap[p] ?? null })) }))
+        phrases: g.top.map(p => ({ phrase: p, world: worldMap[p] || null, ragil: ragilMap[p] ?? null, tags: tagsMap[p] || null })) }))
       .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0) || (a.priority - b.priority) || (b.count - a.count));
   } catch { return []; }
 }
