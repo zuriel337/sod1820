@@ -544,6 +544,22 @@ function BridgesStrip({ term, value, P }) {
   );
 }
 
+// 🎨 עדשת-כיוון (direction_lens_law) — «תמונה מלאה בלי סינון»: ביטוי נושא כיוון-פרשני
+// כתגית «כיוון:*» ב-gematria_words.tags. היעדר תגית = «עובדתי» (ניטרלי, ברירת-מחדל) → בלי סימון.
+// הכיוון אף פעם לא מסנן/מסתיר — רק צובע, כדי לראות גם ערכים הפוכים/שליליים לצד החיוביים.
+// צבעים סמנטיים קבועים (לא צבע-המותג) — קריאים ביום ובלילה.
+const DIR_LENS = {
+  "הפוך":  { dot: "🔻", tint: "#7f8cff", bg: "rgba(127,140,255,.13)", title: "כיוון הפוך / צל — מוצג במלואו (לא מסונן)" },
+  "חיובי": { dot: "🔺", tint: "#3d9f6a", bg: "rgba(61,159,106,.14)", title: "כיוון חיובי" },
+};
+function phraseDir(p) {
+  const tags = Array.isArray(p?.tags) ? p.tags : null;
+  if (!tags) return null;
+  const t = tags.find(x => typeof x === "string" && x.startsWith("כיוון:"));
+  if (!t) return null;                         // ניטרלי — ברירת-מחדל, בלי סימון
+  return DIR_LENS[t.slice("כיוון:".length)] || null;
+}
+
 export default function EntityPage({ embedPhrase } = {}) {
   const params = useParams();
   // embedPhrase מסופק כשהדף מוטמע בתוך המעבדה (נשארים במעבדה תוך כדי טיול במספרים)
@@ -1421,11 +1437,16 @@ export default function EntityPage({ embedPhrase } = {}) {
               <div style={{ marginTop: 16, textAlign: "center" }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>{tasteStart ? "עוד מילים שוות ל-" : "מילים שוות ל-"}{value}</div>
                 <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
-                  {d.phrases.slice(tasteStart, tasteStart + 24).map((p, i) => (
-                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))}
-                      style={{ textDecoration: "none", color: P.accentText, background: P.cardSoft, border: `1px solid ${P.border}`,
-                        borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>{p.phrase}</Link>
-                  ))}
+                  {d.phrases.slice(tasteStart, tasteStart + 24).map((p, i) => {
+                    const dir = phraseDir(p);   // עדשת-כיוון — ניטרלי=null (בלי סימון)
+                    return (
+                    <Link key={i} to={numHref(encodeURIComponent(p.phrase))} title={dir?.title}
+                      style={{ textDecoration: "none", color: dir ? dir.tint : P.accentText,
+                        background: dir ? dir.bg : P.cardSoft, border: `1px solid ${dir ? dir.tint : P.border}`,
+                        borderRadius: 9, padding: "6px 12px", fontFamily: F.body, fontSize: 13.5, fontWeight: 700 }}>
+                      {dir && <span aria-hidden style={{ fontSize: 10, marginInlineEnd: 4 }}>{dir.dot}</span>}{p.phrase}</Link>
+                    );
+                  })}
                   {(() => {
                     const more = Math.max(0, (d.phrasesCount || d.phrases.length) - (tasteStart + 24));
                     return (
