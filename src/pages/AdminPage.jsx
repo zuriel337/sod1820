@@ -4668,6 +4668,7 @@ function TrafficIntelligenceTab() {
   const [bd, setBd] = useState(null);
   const [gap, setGap] = useState(null);
   const [hist, setHist] = useState(null);
+  const [histGran, setHistGran] = useState("year");
   const [funnel, setFunnel] = useState(null);
   const [insights, setInsights] = useState(null);
   const [err, setErr] = useState("");
@@ -4685,12 +4686,12 @@ function TrafficIntelligenceTab() {
     return () => { alive = false; };
   }, [days]);
 
-  // ציר היסטורי מאוחד — נטען פעם אחת (לא תלוי בטווח הימים)
+  // ציר היסטורי מאוחד — נטען לפי רזולוציה (יום/חודש/שנה)
   useEffect(() => {
     let alive = true;
-    getTrafficUnified("year").then(r => { if (alive) setHist(r || []); }).catch(() => { if (alive) setHist([]); });
+    getTrafficUnified(histGran).then(r => { if (alive) setHist(r || []); }).catch(() => { if (alive) setHist([]); });
     return () => { alive = false; };
-  }, []);
+  }, [histGran]);
 
   const openDetail = (day) => {
     setOpenDay(day); setDetail(null); setDetailLoading(true);
@@ -4876,37 +4877,46 @@ function TrafficIntelligenceTab() {
               </div>
             )}
 
-            {hist && hist.length > 0 && (
+            {hist && (
               <div>
-                <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📜 ציר היסטורי מאוחד — צפיות לפי שנים</div>
-                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 10, lineHeight: 1.6 }}>Jetpack (וורדפרס, 2015→) → GA → first-party, על ציר אחד. כולם צפיות; הישן לא תוקן אוטומטית (חוזה §5), החדש מסונן-בוט.</div>
-                {(() => {
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
+                  <span style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>📊 מד היסטורי מאוחד — צפיות (מסונן-בוט בתקופה החדשה)</span>
+                  <div style={segWrap}>
+                    {[["day", "ימים"], ["month", "חודשים"], ["year", "שנים"]].map(([k, l]) => (
+                      <button key={k} onClick={() => setHistGran(k)} style={segBtn(histGran === k)}>{l}</button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 10, lineHeight: 1.6 }}>
+                  Jetpack (2015→) → GA → first-party, על ציר אחד. {histGran === "day" ? "120 ימים אחרונים" : histGran === "month" ? "5 שנים אחרונות" : "כל השנים"} · ריחוף על עמודה לפרטים. הישן לא תוקן אוטומטית (חוזה §5); החדש (first-party) מסונן-בוט.
+                </div>
+                {!hist.length ? <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>אין נתונים.</div> : (() => {
                   const max = Math.max(1, ...hist.map(h => Number(h.views) || 0));
                   const SC = { jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" };
-                  const nowYr = new Date().getFullYear();
-                  return hist.map((h, i) => {
-                    const yr = new Date(h.period).getFullYear();
-                    const v = Number(h.views) || 0;
-                    return (
-                      <div key={i} style={{ display: "grid", gridTemplateColumns: "62px 1fr auto", gap: 8, alignItems: "center", marginBottom: 4 }}>
-                        <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 12 }}>{yr}{yr === nowYr ? "·חלקי" : ""}</span>
-                        <div style={{ height: 14, background: "rgba(255,255,255,0.05)", borderRadius: 4 }}>
-                          <div style={{ height: "100%", width: `${Math.round((v / max) * 100)}%`, background: SC[h.source] || "#888", borderRadius: 4 }} title={h.source} />
-                        </div>
-                        <span style={{ color: C.goldBright, fontFamily: F.mono, fontSize: 12, minWidth: 66, textAlign: "left" }}>{v.toLocaleString()}</span>
+                  const bw = histGran === "year" ? 34 : histGran === "month" ? 12 : 7;
+                  const fmt = (p) => { const dt = new Date(p); return histGran === "year" ? String(dt.getFullYear()) : histGran === "month" ? String(dt.getMonth() + 1).padStart(2, "0") + "/" + String(dt.getFullYear()).slice(2) : String(dt.getDate()).padStart(2, "0") + "/" + String(dt.getMonth() + 1).padStart(2, "0"); };
+                  return (
+                    <div style={{ overflowX: "auto", paddingBottom: 4 }}>
+                      <div style={{ display: "flex", alignItems: "flex-end", gap: histGran === "year" ? 8 : 2, height: 130, minWidth: hist.length * (bw + (histGran === "year" ? 8 : 2)) }}>
+                        {hist.map((h, i) => {
+                          const v = Number(h.views) || 0;
+                          return (
+                            <div key={i} title={`${fmt(h.period)}: ${v.toLocaleString()} צפיות (${h.source})`} style={{ width: bw, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, height: "100%", justifyContent: "flex-end" }}>
+                              <div style={{ width: "100%", height: `${Math.max(2, Math.round((v / max) * 100))}%`, background: SC[h.source] || "#888", borderRadius: "3px 3px 0 0" }} />
+                              {histGran === "year" && <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 9.5, whiteSpace: "nowrap" }}>{fmt(h.period)}</span>}
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  });
+                    </div>
+                  );
                 })()}
                 <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
-                  {[["jetpack", "Jetpack (2015→)"], ["ga", "GA"], ["first_party", "first-party"]].map(([k, l]) => (
+                  {[["jetpack", "Jetpack (2015→)"], ["ga", "GA"], ["first_party", "first-party (בלי בוטים)"]].map(([k, l]) => (
                     <span key={k} style={{ display: "flex", alignItems: "center", gap: 5, color: C.muted, fontFamily: F.body, fontSize: 11 }}>
                       <span style={{ width: 10, height: 10, borderRadius: 2, background: { jetpack: "#8a7a5a", ga: "#c9a24a", first_party: "#7fb2ff" }[k] }} />{l}
                     </span>
                   ))}
-                </div>
-                <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 8, lineHeight: 1.7 }}>
-                  <b style={{ color: C.goldDim }}>מדדים זמינים לכל מקור:</b> Jetpack = צפיות בלבד · GA = צפיות/משתמשים/סשנים · First-party = כניסות · סשנים · עומק · מקורות · דפים (מסונן-בוט). לכן מדדים כמו «כניסות» לא קיימים לשנים הישנות — הנתון פשוט לא נאסף אז, לא «אפס».
                 </div>
               </div>
             )}
