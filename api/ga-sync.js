@@ -1,6 +1,6 @@
 // Vercel Serverless Function — סנכרון Google Analytics (GA4) אל traffic_history.
-// מושך צפיות (screenPageViews) + משתמשים (activeUsers) יומיים דרך אותו service
-// account (GSC_SERVICE_ACCOUNT), וכותב ל-DB (source='ga', views+visitors) דרך RPC
+// מושך צפיות (screenPageViews) + משתמשים (activeUsers) + סשנים (sessions) יומיים דרך אותו
+// service account (GSC_SERVICE_ACCOUNT), וכותב ל-DB (source='ga', views+visitors+sessions) דרך RPC
 // מאובטח. סנכרון אחד מְמַלֵּא גם רטרואקטיבית (GA מחזיר את כל הטווח) — הכל בגרף אחד.
 // env: GA_PROPERTY_ID (מזהה נכס GA4, מספר) · GSC_SERVICE_ACCOUNT (ה-JSON, משותף עם Search Console).
 
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         dateRanges: [{ startDate, endDate: 'today' }],
         dimensions: [{ name: 'date' }],
-        metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
+        metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'sessions' }],
         limit: 100000,
       }),
     });
@@ -73,7 +73,8 @@ export default async function handler(req, res) {
       return {
         date: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`,
         views: parseInt(r.metricValues[0].value, 10) || 0,
-        users: parseInt(r.metricValues[1].value, 10) || 0,   // activeUsers → traffic_history.visitors (backfill + forward)
+        users: parseInt(r.metricValues[1].value, 10) || 0,      // activeUsers → traffic_history.visitors (backfill + forward)
+        sessions: parseInt(r.metricValues[2].value, 10) || 0,   // sessions → traffic_history.sessions (מדד החזרתיות)
       };
     }).filter(x => x.views > 0);
 
