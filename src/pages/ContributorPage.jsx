@@ -182,7 +182,7 @@ export default function ContributorPage() {
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
-    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
+    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged";
     const resolveMe = slug === "me";
     // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
     if (resolveMe && authLoading) return;
@@ -463,7 +463,7 @@ export default function ContributorPage() {
         <img src={c.avatar_url || genAvatar(c.display_name)} alt={c.display_name} loading="lazy"
           style={{ width: 92, height: 92, borderRadius: "50%", objectFit: "cover", border: `2.5px solid ${P.accent}`, boxShadow: `0 6px 22px ${P.glow}`, marginBottom: 10 }} />
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,34px)", fontWeight: 800 }}>
-          {c.vip ? "👑 " : ""}{c.display_name}
+          {c.emblem ? c.emblem + " " : (c.vip ? "👑 " : "")}{c.display_name}
         </div>
         {c.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginTop: 4 }}>{c.role}</div>}
         {/* ✓ כתב מהימן — סימון-האמון של האתר (contributors.trusted); מסונכרן עם ה-✓ בפורום */}
@@ -493,6 +493,25 @@ export default function ContributorPage() {
           </a>
         </div>
       </div>
+
+      {/* ✦ חתימת-הכתב — המרכז האישי (contributors.specialty). כל כתב והמנוע שלו; לא פיד גנרי.
+          זה מה שמגדיר את הדף — לא הוואטסאפ (שיורד לצד). מוזן משלב-1 (specialty/accent/emblem). */}
+      {c.specialty_label && (
+        <div style={{ textAlign: "center", margin: "0 auto 22px", maxWidth: 640,
+          background: `linear-gradient(180deg, ${(c.accent || P.accent)}1f, transparent)`,
+          border: `1px solid ${P.border}`, borderTop: `3px solid ${c.accent || P.accent}`,
+          borderRadius: 15, padding: "16px 20px" }}>
+          <div style={{ fontSize: 27, lineHeight: 1 }}>{c.emblem || "✦"}</div>
+          <div style={{ color: c.accent || P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 2.5, marginTop: 7 }}>המרכז</div>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginTop: 2 }}>{c.specialty_label}</div>
+        </div>
+      )}
+
+      {/* 🔤 מנוע-המרכז — מפענח-האותיות (specialty=letter-decoder · כריסטינה). מנועי-מרכז נוספים
+          (הצלבות · שער-פסוקים · גילוי-יומי…) ייכנסו כאן לפי specialty בהמשך. */}
+      {c.specialty === "letter-decoder" && (
+        <div style={{ marginBottom: 24 }}><ChristinaDecoder embedded /></div>
+      )}
 
       {/* 🗓️ ציר האירועים שלו — nodes type=event שיוחסו אליו. עדשה על «ציר ההתגלות» הגלובלי (לא עותק);
           כולל את המחקרים הישנים שלו על ציר-זמן + הפניה לציר ההתגלות המלא. */}
@@ -588,20 +607,6 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 🔤 המחשבון של כריסטינה — מפענח-האותיות שהיא בנתה (christina_decomposition_rules).
-          מוטמע בדף-הכתב שלה + חי גם כ-/research?tool=christina (עץ אחד, אותו רכיב). */}
-      {(c.slug === "christina" || (c.display_name || "").includes("כריסטינה")) && (
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>
-            🔤 מפענח-האותיות של {c.display_name}
-          </div>
-          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
-            המחשבון שהיא בנתה — כל אות נושאת משמעות בשיטתה
-          </div>
-          <ChristinaDecoder embedded />
-        </div>
-      )}
-
       {/* 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions, מצביע לשרשור (עץ אחד) */}
       {forumMsgs.length > 0 && (
         <div style={{ marginBottom: 22 }}>
@@ -680,14 +685,16 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 📡 העדכונים החיים שלו — מהוואטסאפ (channel_updates לפי שמו). עץ אחד: אותו מקור של הטיקר. */}
-      {feedUpdates.length > 0 && (
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, textAlign: "center", marginBottom: 4 }}>
-            📡 העדכונים החיים של {c.display_name}
+      {/* 💬 מקור גולמי · וואטסאפ — רצועה צדדית משנית וזמנית (אולי תימחק). מוצג *רק* אצל כתב
+          שמוגדר on_whatsapp=true (writers_page_law) — כך כתב שאינו בוואטסאפ לא רואה כאן וואטסאפ.
+          זה לא המרכז; המרכז הוא ה-specialty למעלה. */}
+      {c.on_whatsapp && feedUpdates.length > 0 && (
+        <div style={{ marginBottom: 22, opacity: 0.94 }}>
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textAlign: "center", marginBottom: 4, letterSpacing: .5 }}>
+            💬 מקור גולמי · וואטסאפ
           </div>
-          <div style={{ color: "#25d366", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textAlign: "center", marginBottom: 12 }}>
-            💬 {feedUpdates.length} עדכונים · לייב מהוואטסאפ
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, textAlign: "center", marginBottom: 12 }}>
+            {feedUpdates.length} הודעות גולמיות · מקור זמני, לא ערוך
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12, alignItems: "start" }}>
             {feedUpdates.map(u => {
