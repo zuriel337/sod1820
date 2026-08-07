@@ -4499,6 +4499,7 @@ function CommandCenterTab() {
   if (!d) return <div style={card}><Empty>אין נתונים.</Empty></div>;
 
   const CN = d.counters || {};
+  const TL = d.traffic_layers || null;
   const chips = [
     ["recommendations_pending", "🧠", "המלצות ממתינות", "#7fb2ff"],
     ["demand_gaps", "🕳️", "פערי-גרף (ביקוש בלי node)", "#e0a86a"],
@@ -4535,6 +4536,42 @@ function CommandCenterTab() {
               <span style={{ color: C.goldDim, fontFamily: F.mono, fontSize: 14 }}>{d.traffic.human_pct}% <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>נטו</span></span>
               <span style={{ color: "#e0a86a", fontFamily: F.mono, fontSize: 14 }}>{Number(d.traffic.suspected || 0).toLocaleString()} <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>חשודות סוננו</span></span>
             </div>
+          </div>
+        )}
+        {TL && TL.edge && (
+          <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+            <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 2 }}>🧅 שכבות התנועה — הצלבת שתי שכבות-הסינון (30 יום)</div>
+            <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginBottom: 10 }}>edge (לפני-JS, סורקים) → first-party (אחרי-JS, התנהגותי). יחידות שונות (בקשות מול סשנים) — רצף, לא חיסור.</div>
+            {(() => {
+              const e = TL.edge, f = TL.first_party || {};
+              const seg = (label, val, total, color) => ({ label, val: Number(val || 0), pct: total ? Math.round((Number(val || 0) / total) * 100) : 0, color });
+              const et = Number(e.total_hits || 1);
+              const edgeSegs = [seg("browser (עבר)", e.browser, et, "#7fb2ff"), seg("goodbot", e.goodbot, et, "#8a7a5a"), seg("bot", e.bot, et, "#b05a5a"), seg("ai", e.ai, et, "#c9a24a")];
+              const ft = Number((f.human_net || 0) + (f.suspected || 0)) || 1;
+              const fpSegs = [seg("אנושי נטו", f.human_net, ft, "#8bd98b"), seg("חשודות", f.suspected, ft, "#e0a86a")];
+              const bar = (segs) => (
+                <div style={{ display: "flex", height: 16, borderRadius: 5, overflow: "hidden", background: "rgba(255,255,255,0.05)" }}>
+                  {segs.map((s, i) => <div key={i} title={`${s.label}: ${s.val.toLocaleString()} (${s.pct}%)`} style={{ width: s.pct + "%", background: s.color }} />)}
+                </div>
+              );
+              const legend = (segs) => (
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
+                  {segs.map((s, i) => <span key={i} style={{ display: "flex", alignItems: "center", gap: 4, color: C.muted, fontFamily: F.body, fontSize: 10.5 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: s.color }} />{s.label} {s.val.toLocaleString()}</span>)}
+                </div>
+              );
+              return (
+                <div style={{ display: "grid", gap: 12 }}>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginBottom: 3 }}><span>🌐 Edge — {et.toLocaleString()} בקשות</span><span style={{ color: "#e08a8a", fontFamily: F.mono }}>{e.bot_pct}% סורקים</span></div>
+                    {bar(edgeSegs)}{legend(edgeSegs)}
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, marginBottom: 3 }}><span>🛰️ First-party — {ft.toLocaleString()} סשנים</span><span style={{ color: "#8bd98b", fontFamily: F.mono }}>{f.human_pct}% אנושי נטו</span></div>
+                    {bar(fpSegs)}{legend(fpSegs)}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
