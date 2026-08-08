@@ -598,10 +598,47 @@ export async function getSiteUpdates(limit = 6) {
     .eq('is_active', true).order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(limit);
   return data || [];
 }
-export async function broadcastChannelUpdate({ text, imageUrl = null, hours = null, urgent = false, credit = null, channel = 'main' }) {
+const VIDEO_URL_RE = /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i;
+// 🎞️ לוכד פריים-תצוגה מסרטון (קנבס בדפדפן) ומעלה כ-thumbnail לדלי gallery.
+// רץ בדפדפן-האדמין (כרום עם H.264) → פוסטר אוטומטי לעדכון-וידאו. נכשל בשקט → בלי פוסטר (כמו קודם).
+export async function captureAndUploadPoster(videoUrl, keyHint = 'broadcast') {
+  if (!supabase || !videoUrl || !VIDEO_URL_RE.test(videoUrl) || typeof document === 'undefined') return null;
+  try {
+    const blob = await new Promise((resolve, reject) => {
+      const v = document.createElement('video');
+      v.crossOrigin = 'anonymous'; v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = videoUrl;
+      const fail = (m) => reject(new Error(m || 'video'));
+      v.onerror = () => fail('load');
+      v.onloadeddata = () => {
+        const t = (v.duration && v.duration > 2) ? 1.0 : (v.duration ? v.duration / 2 : 0);
+        v.onseeked = () => {
+          try {
+            const vw = v.videoWidth || 360, vh = v.videoHeight || 640, s = Math.min(1, 640 / vw);
+            const c = document.createElement('canvas'); c.width = Math.round(vw * s); c.height = Math.round(vh * s);
+            c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+            c.toBlob(b => b ? resolve(b) : fail('blob'), 'image/jpeg', 0.82);
+          } catch { fail('draw'); }
+        };
+        try { v.currentTime = t; } catch { fail('seek'); }
+      };
+      setTimeout(() => fail('timeout'), 30000);
+    });
+    const path = `sod1820/${keyHint}-thumbs/${Date.now()}-${Math.round(Math.random() * 1e6)}.jpg`;
+    const { error } = await supabase.storage.from('gallery').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    if (error) return null;
+    return `${SUPABASE_URL}/storage/v1/object/public/gallery/${path}`;
+  } catch { return null; }
+}
+
+export async function broadcastChannelUpdate({ text, imageUrl = null, hours = null, urgent = false, credit = null, channel = 'main', thumbUrl = null }) {
   if (!supabase) throw new Error('no supabase');
+  // 🎞️ עדכון-וידאו בלי פוסטר → לוכד פריים-תצוגה אוטומטית (בדפדפן) כדי שלא יוצג ריבוע-ריק.
+  let thumb = thumbUrl;
+  if (!thumb && imageUrl && VIDEO_URL_RE.test(imageUrl)) {
+    thumb = await captureAndUploadPoster(imageUrl, channel === 'or-geula' ? 'or-geula' : 'broadcast');
+  }
   const { data, error } = await supabase.from('channel_updates').insert({
-    text, image_url: imageUrl || null, is_urgent: urgent, credit: credit || null, channel,
+    text, image_url: imageUrl || null, thumb_url: thumb || null, is_urgent: urgent, credit: credit || null, channel,
     expires_at: hours ? new Date(Date.now() + hours * 3600e3).toISOString() : null,
   }).select('id').maybeSingle();
   if (error) throw error;
