@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getNumberDossier, askNumberResearcher, sendCandidateFromResearcher, getEntriesSeries } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getNumberDossier, askNumberResearcher, loadResearcherThread, sendCandidateFromResearcher, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4485,9 +4485,13 @@ function NumberResearcher() {
   const [err, setErr] = useState("");
   const [cands, setCands] = useState([]);          // מועמדים ממתינים בשופט (רשימה חיה)
   const [busyC, setBusyC] = useState(null);
+  const [snap, setSnap] = useState(null);          // context_snapshot של התשובה האחרונה
+  const [showSnap, setShowSnap] = useState(false);
 
   const loadCands = () => getConvergenceCandidates(50).then(r => setCands(r?.candidates || [])).catch(() => {});
   useEffect(() => { loadCands(); }, []);
+  // 🧵 השיחה מתמשכת — נטענת מ-agent_user_memory (channel='site') בכל כניסה/רענון, לא נמחקת
+  useEffect(() => { loadResearcherThread().then(h => { if (h?.length) setMsgs(h); }).catch(() => {}); }, []);
   const push = (role, text) => setMsgs(p => [...p, { role, text }]);
 
   const parseVals = (s) => (s.match(/\d{1,6}/g) || []).slice(0, 2).map(Number);
@@ -4525,13 +4529,15 @@ function NumberResearcher() {
   const start = async () => {
     const vals = parseVals(input);
     if (!vals.length) return;
-    setValues(vals); setMsgs([]); setSent(null); setErr(""); setSending(true);
+    setValues(vals); setSent(null); setErr(""); setSending(true);
+    push("user", `🔎 חקירת ${vals.join(" · ")}`);  // השיחה נמשכת — לא מוחקים היסטוריה
     try {
       const ds = await Promise.all(vals.map(v => getNumberDossier(v).catch(() => null)));
       setDossiers(ds);
       const res = await askNumberResearcher(vals, "", []);
       if (res?.dossiers) setDossiers(res.dossiers);
-      setMsgs([{ role: "assistant", text: res?.answer || "(אין תשובה)" }]);
+      if (res?.context_snapshot) setSnap(res.context_snapshot);
+      push("assistant", res?.answer || "(אין תשובה)");
     } catch (e) { setErr(e.message || "שגיאה"); }
     setSending(false);
   };
@@ -4548,6 +4554,7 @@ function NumberResearcher() {
       if (vals.length && vals.join() !== values.join()) { setValues(vals); const ds = await Promise.all(vals.map(v => getNumberDossier(v).catch(() => null))); setDossiers(ds); }
       const res = await askNumberResearcher(vals, m, hist);
       if (res?.dossiers) setDossiers(res.dossiers);
+      if (res?.context_snapshot) setSnap(res.context_snapshot);
       push("assistant", res?.answer || "(אין תשובה — נסה להזכיר מספר)");
     } catch (e) { setErr(e.message || "שגיאה"); }
     setSending(false);
@@ -4615,6 +4622,23 @@ function NumberResearcher() {
           <div>🔀 קשורים: {(dd.related || []).join(" · ") || "—"}</div>
         </div>
       ))}
+
+      {/* 🧬 context_snapshot — «על סמך מה רזיאל ענה?» (ניתן לשחזור, לא מקור-אמת) */}
+      {snap && (
+        <div style={{ marginBottom: 10 }}>
+          <button onClick={() => setShowSnap(s => !s)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>🧬 על סמך מה רזיאל ענה? (context snapshot)</button>
+          {showSnap && (
+            <div style={{ background: "rgba(0,0,0,0.28)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 11px", marginTop: 6, fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.7 }}>
+              <div>🧠 מוח: <b>raziel_brain#1</b> · גרסת-קול {snap.persona?.voice_version ?? "—"} {snap.persona?.updated_at ? `(עודכן ${String(snap.persona.updated_at).slice(0, 10)})` : ""}</div>
+              <div>💾 זיכרון שנקרא: {snap.memory_context?.recent_conversation_n || 0} שיחות אחרונות {snap.memory_context?.summary_present ? "+ סיכום" : ""} {snap.persisted === false ? "(לא מחובר)" : ""}</div>
+              <div>📚 ידע: context {typeof snap.knowledge_context_version === "object" ? (snap.knowledge_context_version?.rules_hash || "—") : (snap.knowledge_context_version || "—")}</div>
+              <div>📏 חוקים: {(snap.rules_snapshot || []).map(r => `${r.rule_id}·v${r.version}`).join(" · ") || "—"}</div>
+              <div>⚙️ מנוע: {(snap.engine_snapshot || []).map(e => e.method_key).join(" · ") || "—"}</div>
+              <div>⚖️ החלטות רלוונטיות: {(snap.decisions || []).length ? snap.decisions.map(d => `${d.subject_ref}:${d.human_decision || d.status}`).join(" · ") : "—"}</div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* השיחה — אזור גדול ונגלל */}
       <div style={{ display: "grid", gap: 8, marginBottom: 10, minHeight: 300, maxHeight: "56vh", overflowY: "auto", padding: 4, background: "rgba(0,0,0,0.18)", borderRadius: 10 }}>

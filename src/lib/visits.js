@@ -274,12 +274,20 @@ export async function getNumberDossier(value) {
   if (error) throw error;
   return data || null;
 }
-// 💬 שיחה עם רזיאל-חוקר (Edge — שולף dossier בצד-שרת). values=[v] או [v1,v2]
+// 💬 שיחה עם רזיאל-חוקר (Edge — אותו raziel_brain + fn_raziel_context + metatron_context בצד-שרת).
+// זהות המשתמש נגזרת מה-JWT בצד-שרת (לא מפרמטר) → הזיכרון הפרטי מוזרק רק לבעליו.
 export async function askNumberResearcher(values, message, history = []) {
   if (!supabase) return null;
   const { data, error } = await supabase.functions.invoke("number-researcher", { body: { values, message, history } });
   if (error) throw error;
   return data || null;
+}
+// 🧵 טעינת השיחה המתמשכת השמורה (agent_user_memory, channel='site') — שלא נמחקת ברענון/יציאה
+export async function loadResearcherThread() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.functions.invoke("number-researcher", { body: { op: "history" } });
+  if (error) return [];
+  return Array.isArray(data?.history) ? data.history : [];
 }
 // ➕ שלח לשופט: יוצר Candidate מלא-trace מה-dossier → השופט הקיים
 export async function sendCandidateFromResearcher(value, note = null, claim = null) {
