@@ -662,8 +662,10 @@ export default function ContributorPage() {
           </div>
         )}
 
-        {/* 🗂️ חומר-גלם (ארכיון) — מערכת ה-media הישנה (עמית/שמעון/ציון). ⚠️1B: נשאר כאן, מקום אחד. */}
-        {hasMedia && (
+        {/* 🗂️ חומר-גלם (ארכיון) — מערכת ה-media הישנה (עמית/שמעון). ⚠️1B: מקום אחד.
+            מוצג רק כשיש כרטיסים גלויים בפועל (visible) — לא רק media קיים: אצל ציון כל הכרטיסים
+            הם top_rank → עברו ל-⭐ מובחרים, ולא נשאר גלם → לא מציגים אזור-חיפוש ריק. */}
+        {visible.length > 0 && (
           <div style={{ marginBottom: 8 }}>
             <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>🗂️ חומר-גלם (ארכיון)</div>
             <div style={{ marginBottom: 12 }}>
