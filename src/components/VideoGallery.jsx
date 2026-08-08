@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
+import { getHomeVideos } from "../lib/supabase.js";
 import HomeHeader from "./HomeHeader.jsx";
 
 // ===== גלריית הסרטים — דף הבית =====
 // מסגרת זהה לחידושי AI. שורה אחת: סרטון מובלט ראשון + השאר (גלילה אופקית).
 // מגיב למתג התמה (usePalette) — בהיר/כהה.
+// הרשימה נמשכת מהטבלה home_videos (ניהול ע"י צוריאל דרך SQL, בלי שינוי קוד);
+// נפילה חיננית לרשימת ברירת-המחדל שכאן אם הטבלה ריקה/לא נגישה.
 
 const VIOLET = "#8458ff";
 
@@ -72,6 +75,21 @@ function ComingCard() {
 export default function VideoGallery() {
   const P = usePalette();
   const [playing, setPlaying] = useState(null);
+  const [rows, setRows] = useState(null); // null = טרם נטען → משתמשים בברירת-מחדל
+
+  useEffect(() => {
+    let alive = true;
+    getHomeVideos().then(data => { if (alive) setRows(data); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  // מהטבלה: הסרטון המובלט (featured) ראשון, ואז השאר. נפילה לברירת-המחדל אם אין נתונים.
+  let featured = FEATURED, list = VIDEOS;
+  if (rows && rows.length) {
+    const feat = rows.find(v => v.featured);
+    featured = feat || rows[0];
+    list = rows.filter(v => v !== featured);
+  }
 
   return (
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px", direction: "rtl" }}>
@@ -95,8 +113,8 @@ export default function VideoGallery() {
 
         {/* שורה אחת — הסרטון המובלט ראשון, ואז השאר (גלילה אופקית) */}
         <div className="vg-row">
-          <VideoCard v={FEATURED} onPlay={setPlaying} featured />
-          {VIDEOS.map(v => <VideoCard key={v.yt} v={v} onPlay={setPlaying} />)}
+          <VideoCard v={featured} onPlay={setPlaying} featured />
+          {list.map(v => <VideoCard key={v.yt} v={v} onPlay={setPlaying} />)}
         </div>
       </div>
 

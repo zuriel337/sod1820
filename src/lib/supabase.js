@@ -57,6 +57,24 @@ export async function getRealityCodePosts(limit = 12) {
   } catch { return []; }
 }
 
+// גלריית הסרטים בדף הבית — נמשכת מהטבלה home_videos (ניהול ע"י צוריאל, בלי שינוי קוד).
+// חוזרת ריק אם אין נתונים/כשל → VideoGallery נופל לרשימת ברירת-המחדל בקוד.
+export async function getHomeVideos({ limit = 24 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from("home_videos")
+      .select("yt, title, slug, featured")
+      .eq("is_active", true)
+      .order("featured", { ascending: false })
+      .order("sort_order", { ascending: true })
+      .order("id", { ascending: true })
+      .limit(limit);
+    if (error) return [];
+    return data || [];
+  } catch { return []; }
+}
+
 // Search in title + content, optional filters
 export async function searchPosts(query, { limit = 40, category = null, tag = null, year = null } = {}) {
   if (!supabase || !query?.trim()) return [];
