@@ -7,6 +7,7 @@ import { stripHtml, formatDateHe, timeAgoHe, fromSlug, toSlug } from "../lib/for
 import { applySeo } from "../lib/seo.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import PopularPrayersBox, { isPrayerTag } from "../components/PopularPrayersBox.jsx";
+import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 
 // ===== דף תגית / קטגוריה — בעיצוב האתר (זהב מלכותי), "טען עוד" במקום עימוד =====
 // כל פוסט מקושר לדף הפוסט; גימטריית השם מקושרת לדף הישות + פותחת את מגירת המספר.
@@ -51,6 +52,9 @@ function TaxonomyView({ kind }) {
   const gem = calcGem(name);
   // 💬 "צאט"/"צ'אט" כתגית → הפניה לדף הצ'אט (גולשים מחפשים את הצ'אט דרך תג/חיפוש)
   const isChatTag = isTag && ((name || "").replace(/['"׳״\s]/g, "") === "צאט" || /chat/i.test(name || ""));
+  // 🎬 קטגוריית «וידאו» → מציגים גם את רצועת «אור הגאולה» המתעדכנת (אותו רכיב של עמוד הבית).
+  // עץ אחד: לא משכפלים — אותו מקור (channel_updates channel=or-geula) + קישור לכל האוסף (/or-geula).
+  const isVideoCat = !isTag && (name || "").trim().replace(/['"׳״]/g, "") === "וידאו";
 
   const [posts, setPosts] = useState([]);
   const [total, setTotal] = useState(0);
@@ -134,6 +138,9 @@ function TaxonomyView({ kind }) {
           )}
         </div>
       </div>
+
+      {/* 🎬 קטגוריית וידאו — רצועת «אור הגאולה» המתעדכנת (כל הסרטונים + קישור לכל האוסף) */}
+      {isVideoCat && <HomeOrGeulaRail />}
 
       {/* תפילות פופולריות — הפניה למי שמחפש תגית של תפילה/רפואה/ישועה */}
       {isTag && isPrayerTag(name) && <PopularPrayersBox />}
