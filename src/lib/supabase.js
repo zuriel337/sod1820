@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { isAnon } from './privacy.js';
 import { isReadable } from './nameMask.js';
 import { AUTHORS } from './authors.js';
+import { stripHtml } from './format.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -64,7 +65,7 @@ export async function getHomeVideos({ limit = 24 } = {}) {
   try {
     const { data, error } = await supabase
       .from("home_videos")
-      .select("yt, title, slug, featured, uploaded_at, video_url, poster_url, cipher_slug")
+      .select("yt, title, slug, featured, uploaded_at, video_url, poster_url, cipher_slug, pinned")
       .eq("is_active", true)
       .order("featured", { ascending: false })
       .order("sort_order", { ascending: true })
@@ -72,6 +73,34 @@ export async function getHomeVideos({ limit = 24 } = {}) {
       .limit(limit);
     if (error) return [];
     return data || [];
+  } catch { return []; }
+}
+
+// 🎬 סרטוני-כותב (למשל אלון לוי) לגלריית-הבית — נמשכים אוטומטית מהפוסטים שלו שיש בהם וידאו.
+// מוחזר בצורת שורת-גלריה (video_url=mp4 מהתוכן · poster_url=image_url · uploaded_at=תאריך הפוסט).
+export async function getAuthorGalleryVideos(author, { limit = 12 } = {}) {
+  if (!supabase || !author) return [];
+  try {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("id, slug, title, image_url, content, date, author")
+      .eq("author", author)
+      .order("date", { ascending: false, nullsFirst: false })
+      .limit(40);
+    if (error || !data) return [];
+    const out = [];
+    for (const p of data) {
+      const m = typeof p.content === "string" && p.content.match(/https?:\/\/[^"'\s]+\.mp4/i);
+      if (!m) continue;
+      out.push({
+        yt: null, title: stripHtml(p.title || ""), slug: p.slug || null,
+        video_url: m[0], poster_url: p.image_url || null,
+        uploaded_at: p.date ? String(p.date).slice(0, 10) : null,
+        featured: false, pinned: false, cipher_slug: null, author: p.author || author,
+      });
+      if (out.length >= limit) break;
+    }
+    return out;
   } catch { return []; }
 }
 

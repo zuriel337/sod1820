@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { stripHtml } from "../lib/format.js";
-import { getHomeVideos } from "../lib/supabase.js";
+import { stripHtml, formatDateHe } from "../lib/format.js";
+import { getHomeVideos, getAuthorGalleryVideos } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
 import ShareActions from "./ShareActions.jsx";
@@ -53,6 +53,11 @@ function VideoCard({ v, onPlay, featured }) {
       <div style={{ marginTop: 9, color: P.accentText, fontFamily: F.royal, fontSize: 14, fontWeight: 700, lineHeight: 1.55, direction: "rtl" }}>
         {stripHtml(v.title)}
       </div>
+      {v.uploaded_at && !v.pinned && (
+        <div style={{ marginTop: 3, color: P.inkSoft, fontFamily: F.heading, fontSize: 11, fontWeight: 700, direction: "rtl" }}>
+          🕒 {formatDateHe(v.uploaded_at)}{v.author ? ` · ${v.author}` : ""}
+        </div>
+      )}
     </div>
   );
 }
@@ -61,6 +66,7 @@ export default function VideoGallery() {
   const P = usePalette();
   const [playing, setPlaying] = useState(null);
   const [rows, setRows] = useState(null); // null = טרם נטען → משתמשים בברירת-מחדל
+  const [authorVids, setAuthorVids] = useState([]); // 🎬 סרטוני אלון לוי — נמשכים אוטומטית מהפוסטים
 
   // 📊 מעקב הפעלת-סרטון — מזין events/visitor_events (נכס קהל-צופי-וידאו, Meta Growth OS)
   const handlePlay = (v) => {
@@ -71,6 +77,7 @@ export default function VideoGallery() {
   useEffect(() => {
     let alive = true;
     getHomeVideos().then(data => { if (alive) setRows(data); }).catch(() => {});
+    getAuthorGalleryVideos("אלון לוי").then(data => { if (alive) setAuthorVids(data || []); }).catch(() => {});
     return () => { alive = false; };
   }, []);
 
@@ -91,12 +98,18 @@ export default function VideoGallery() {
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [playing]);
 
-  // מהטבלה: הסרטון המובלט (featured) ראשון, ואז השאר. נפילה לברירת-המחדל אם אין נתונים.
+  // סדר: הנעוצים (חותים + יום משיח בא) תמיד ראשונים; אחריהם שאר-הטבלה + סרטוני אלון לוי,
+  // ממוזגים לפי תאריך (החדש קודם). סרטון-מתווסף מציג תאריך. נפילה לברירת-המחדל אם אין נתונים.
+  const byDateDesc = (a, b) => String(b.uploaded_at || "").localeCompare(String(a.uploaded_at || ""));
   let featured = FEATURED, list = VIDEOS;
   if (rows && rows.length) {
-    const feat = rows.find(v => v.featured);
-    featured = feat || rows[0];
-    list = rows.filter(v => v !== featured);
+    const pinned = rows.filter(v => v.pinned);
+    const restHome = rows.filter(v => !v.pinned);
+    const added = [...restHome, ...(authorVids || [])].sort(byDateDesc);
+    featured = pinned[0] || rows.find(v => v.featured) || rows[0];
+    list = [...pinned.filter(v => v !== featured), ...added];
+  } else if (authorVids && authorVids.length) {
+    list = [...VIDEOS, ...[...authorVids].sort(byDateDesc)];
   }
 
   return (
