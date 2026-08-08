@@ -782,6 +782,165 @@ function PublicPageCard({ T, goto }) {
   );
 }
 
+// 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה. כותב/קורא update_my_page_config (RPC חי, allowlist).
+//    ה-allowlist כאן חייב להתאים במדויק ל-RPC אחרת השמירה נדחית. accent/emblem/bio מסונכרנים לעמודות.
+const PE_ACCENTS = ['#9c7a1e','#b07d16','#7a52c8','#127f70','#3f8a2f','#c0453c','#9a6a12','#1f6f9c','#8a6a1c','#8a5a2a','#2b6f9c','#d4af37'];
+const PE_EMBLEMS = ['👑','✦','🔤','🔠','🔢','📅','🌅','🕰️','📜','🛸','🔡','✡️','🧭','🔬','🧠','🧩','📖','📊','💎','🌍','🔍','🕯️','📚','✨','🌊','🔥','🎬','⭐'];
+const PE_SECTIONS = [
+  { id: 'highlights',       label: '⭐ מובחרים (בראש)' },
+  { id: 'verified_gematrias', label: '🔢 הגימטריות המאומתות' },
+  { id: 'events',           label: '📅 ציר פעילות ואירועים' },
+  { id: 'posts',            label: '📝 הפוסטים שלי' },
+  { id: 'convergences',     label: '🎯 התכנסויות' },
+  { id: 'featured_gallery', label: '🖼️ גלריה מוצגת' },
+  { id: 'forum',            label: '💬 דיונים ופורום' },
+  { id: 'dossier',          label: '📁 תיק החוקר' },
+  { id: 'links',            label: '🔗 קישורים חיצוניים' },
+];
+function PageEditor({ T, goto }) {
+  const { user } = useAuth();
+  const [loaded, setLoaded] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const [accent, setAccent] = useState("");
+  const [emblem, setEmblem] = useState("");
+  const [bio, setBio] = useState("");
+  const [sections, setSections] = useState(PE_SECTIONS.map(s => ({ id: s.id, visible: true })));
+  const [links, setLinks] = useState([]);
+  const [highlights, setHighlights] = useState([]); // נשמר כפי-שהוא (עריכת-מובחרים בגרסה נפרדת)
+
+  useEffect(() => {
+    let a = true;
+    if (!user?.id) { setLoaded(true); return; }
+    supabase.from("contributors").select("page_config,accent,emblem,bio").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => {
+        if (!a) return;
+        const pc = data?.page_config || {};
+        setAccent(pc.accent || data?.accent || "");
+        setEmblem(pc.emblem || data?.emblem || "");
+        setBio(pc.bio || data?.bio || "");
+        setHighlights(Array.isArray(pc.highlights) ? pc.highlights : []);
+        setLinks(Array.isArray(pc.links) ? pc.links : []);
+        // ממזגים סדר/נראות שמורים עם ברירת-המחדל, כדי שמדור חדש לא ייעלם
+        const saved = Array.isArray(pc.sections) ? pc.sections : [];
+        const byId = Object.fromEntries(saved.map(s => [s.id, s]));
+        const ordered = [
+          ...saved.filter(s => PE_SECTIONS.some(d => d.id === s.id)).map(s => ({ id: s.id, visible: s.visible !== false })),
+          ...PE_SECTIONS.filter(d => !byId[d.id]).map(d => ({ id: d.id, visible: true })),
+        ];
+        setSections(ordered);
+        setLoaded(true);
+      })
+      .catch(() => { if (a) setLoaded(true); });
+    return () => { a = false; };
+  }, [user?.id]);
+
+  const labelOf = id => (PE_SECTIONS.find(s => s.id === id)?.label || id);
+  const move = (i, dir) => setSections(prev => {
+    const n = [...prev]; const j = i + dir; if (j < 0 || j >= n.length) return prev;
+    [n[i], n[j]] = [n[j], n[i]]; return n;
+  });
+  const toggle = i => setSections(prev => prev.map((s, k) => k === i ? { ...s, visible: !s.visible } : s));
+  const addLink = () => setLinks(prev => prev.length >= 6 ? prev : [...prev, { label: "", url: "" }]);
+  const setLink = (i, k, v) => setLinks(prev => prev.map((l, idx) => idx === i ? { ...l, [k]: v } : l));
+  const rmLink = i => setLinks(prev => prev.filter((_, idx) => idx !== i));
+
+  async function save() {
+    setBusy(true); setMsg(null);
+    const p_config = {
+      version: 1,
+      accent: accent || undefined,
+      emblem: emblem || undefined,
+      bio: bio?.trim() || undefined,
+      sections,
+      highlights,
+      links: links.filter(l => l.label?.trim() && l.url?.trim()).map(l => ({ label: l.label.trim(), url: l.url.trim() })),
+    };
+    try {
+      const { data, error } = await supabase.rpc("update_my_page_config", { p_config });
+      if (error || !data?.ok) {
+        const e = data?.error || "";
+        setMsg({ kind: "err", text: e === "bio_too_long" ? "הביו ארוך מדי (עד 600 תווים)." : e.startsWith("bad_link") ? "קישור לא תקין — בדקו כותרת (עד 40) וכתובת (https:// או /)." : "שמירה נכשלה. נסו שוב." });
+      } else {
+        setMsg({ kind: "ok", text: "נשמר! הדף שלך עודכן ✓" });
+      }
+    } catch { setMsg({ kind: "err", text: "שגיאת רשת, נסו שוב." }); }
+    setBusy(false);
+  }
+
+  if (!loaded) return <div style={{ color: T.sub, fontSize: 13, padding: "10px 0" }}>טוען…</div>;
+
+  const chip = { border: `1px solid ${T.line}`, borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 800, cursor: "pointer", background: T.bg, color: T.ink, fontFamily: "inherit" };
+  const H = ({ children }) => <div style={{ fontSize: 13, fontWeight: 800, color: T.ink, margin: "16px 0 8px" }}>{children}</div>;
+  const input = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, background: T.bg, border: `1px solid ${T.line}`, color: T.ink, fontFamily: "inherit", fontSize: 16, outline: "none" };
+
+  return (
+    <div>
+      <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.7, marginBottom: 6 }}>
+        עצב את הדף הפומבי שלך. השינויים נשמרים ומופיעים לכל מבקר.{" "}
+        <button onClick={() => goto("/community/researcher/me?view=public")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>👁 תצוגה מקדימה ←</button>
+      </div>
+
+      <H>🎨 צבע-נושא</H>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {PE_ACCENTS.map(hex => (
+          <button key={hex} onClick={() => setAccent(hex)} title={hex}
+            style={{ width: 30, height: 30, borderRadius: "50%", background: hex, cursor: "pointer",
+              border: accent === hex ? `3px solid ${T.ink}` : `2px solid ${T.line}`, boxShadow: accent === hex ? `0 0 0 2px ${hex}55` : "none" }} />
+        ))}
+      </div>
+
+      <H>✦ סמל</H>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {PE_EMBLEMS.map(e => (
+          <button key={e} onClick={() => setEmblem(emblem === e ? "" : e)}
+            style={{ ...chip, padding: "5px 9px", fontSize: 17, background: emblem === e ? T.accSoft : T.bg, borderColor: emblem === e ? T.acc : T.line }}>{e}</button>
+        ))}
+      </div>
+
+      <H>📝 ביו קצר (עד 600 תווים)</H>
+      <textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 600))} rows={3}
+        placeholder="כמה מילים עליך ועל המחקר שלך…" style={{ ...input, resize: "vertical", minHeight: 64 }} />
+      <div style={{ fontSize: 11, color: T.sub, textAlign: "end", marginTop: 3 }}>{bio.length}/600</div>
+
+      <H>📑 מדורים — סדר ונראות</H>
+      <div style={{ fontSize: 11.5, color: T.sub, marginBottom: 8 }}>הזז מדור למעלה/למטה או הסתר אותו מהדף שלך (מדור מוסתר לא נעלם — פשוט לא מוצג).</div>
+      <div style={{ display: "grid", gap: 6 }}>
+        {sections.map((s, i) => (
+          <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, background: T.bg, border: `1px solid ${T.line}`, borderRadius: 10, padding: "8px 10px" }}>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: s.visible ? T.ink : T.sub, opacity: s.visible ? 1 : .6 }}>{labelOf(s.id)}</span>
+            <button onClick={() => move(i, -1)} disabled={i === 0} style={{ ...chip, padding: "4px 9px", opacity: i === 0 ? .4 : 1 }}>↑</button>
+            <button onClick={() => move(i, 1)} disabled={i === sections.length - 1} style={{ ...chip, padding: "4px 9px", opacity: i === sections.length - 1 ? .4 : 1 }}>↓</button>
+            <button onClick={() => toggle(i)} style={{ ...chip, padding: "4px 11px", background: s.visible ? T.accSoft : T.bg, borderColor: s.visible ? T.acc : T.line, color: s.visible ? T.acc : T.sub }}>{s.visible ? "מוצג" : "מוסתר"}</button>
+          </div>
+        ))}
+      </div>
+
+      <H>🔗 קישורים חיצוניים (עד 6)</H>
+      <div style={{ display: "grid", gap: 8 }}>
+        {links.map((l, i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 6, alignItems: "center" }}>
+            <input value={l.label} onChange={e => setLink(i, "label", e.target.value)} placeholder="כותרת" style={{ ...input, fontSize: 14 }} />
+            <input value={l.url} onChange={e => setLink(i, "url", e.target.value)} placeholder="https://…" dir="ltr" style={{ ...input, fontSize: 14 }} />
+            <button onClick={() => rmLink(i)} style={{ ...chip, padding: "8px 11px", color: "#c0453c" }}>✕</button>
+          </div>
+        ))}
+        {links.length < 6 && <button onClick={addLink} style={{ ...chip, justifySelf: "start" }}>➕ הוסף קישור</button>}
+      </div>
+
+      {msg && (
+        <div style={{ marginTop: 14, fontSize: 12.5, fontWeight: 700, lineHeight: 1.6, borderRadius: 10, padding: "9px 12px",
+          background: msg.kind === "ok" ? "#e9f9ef" : "#fdecea", color: msg.kind === "ok" ? "#1a7f37" : "#b3261e", border: `1px solid ${msg.kind === "ok" ? "#bfe9cd" : "#f5c6c0"}` }}>
+          {msg.text}
+        </div>
+      )}
+      <button onClick={save} disabled={busy} style={{ width: "100%", marginTop: 14, background: T.acc, color: "#fff", border: "none", borderRadius: 11, padding: "13px 16px", minHeight: 48, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: busy ? "default" : "pointer", opacity: busy ? .7 : 1 }}>
+        {busy ? "שומר…" : "💾 שמור את הדף שלי"}
+      </button>
+    </div>
+  );
+}
+
 // 🪪 הפרטים שלי (הועבר מ-/profile) — שם מלא + תאריך-לידה (save_my_info). פרטי; פותח ניתוח-שם + רזיאל.
 function MyInfoPanel({ T }) {
   const nav = useNavigate();
@@ -1000,6 +1159,8 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       render: () => <div><NotificationsPanel T={T} onUnread={onUnread} goto={goto} /><PushPanel T={T} user={user} isAdmin={isAdmin} /></div> },
     // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). מוצג רק למי שיש לו דף (hasPage).
     { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
+    // 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה (כותב update_my_page_config). מוצג רק למי שיש דף.
+    { id: "page-editor", world: "create", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor T={T} goto={goto} /> },
     // 👤 הפרופיל שלי = מקום אחד לזהות+חשבון (איחד את «הגדרות» לתוכו):
     //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה · סיכום-העץ.
     //    המספרים (חיפושים/פוסטים/מחקר/תרומות) גרים במודול «📊 סטטיסטיקות» בלבד — בלי כפילות.
