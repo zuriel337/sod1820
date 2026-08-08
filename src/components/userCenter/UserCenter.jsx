@@ -4,6 +4,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { usePalette } from "../../lib/palette.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { supabase, getUserActivity } from "../../lib/supabase.js";
+import { genAvatar } from "../../lib/avatar.js";
 import MyTreeCard from "../MyTreeCard.jsx";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../../lib/push.js";
 import { useSiteOnline } from "../../lib/presence.js";
@@ -13,7 +14,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount } from "../../lib/commandCenter.js";
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
@@ -141,6 +142,7 @@ export default function UserCenter() {
   const T = dark ? DARK : LIGHT;
   const [center, setCenter] = useState(null); // my_center RPC
   const [unread, setUnread] = useState(0);     // 🔔 התראות שלא-נקראו
+  const [dmUnread, setDmUnread] = useState(0); // 💬 הודעות פרטיות שלא-נקראו
   const [myProfile, setMyProfile] = useState(null); // 💰 קרדיטים/דרגה (beta)
   const [myLevel, setMyLevel] = useState(null);     // 🌳 דרגת-חוקר (מנוע-הגדילה)
   const [nextActions, setNextActions] = useState(null); // 🧠 «מה כדאי לעשות עכשיו»
@@ -164,6 +166,7 @@ export default function UserCenter() {
     let alive = true;
     supabase.rpc("my_center").then(({ data }) => { if (alive) setCenter(data || {}); }).catch(() => {});
     getUnreadCount().then(c => { if (alive) setUnread(c); }).catch(() => {});
+    dmUnreadCount().then(c => { if (alive) setDmUnread(c); }).catch(() => {});
     // 🎁 מענק-מייסד ממתין + ☀️ קרדיט-יומי → נתבעים אוטומטית (idempotent), ואז טוענים את היתרה
     Promise.all([claimFoundingGrants(), claimDailyCredit(), claimWaActivityCredits()]).then(() => getMyProfile()).then(p => { if (alive) setMyProfile(p); }).catch(() => {});
     // 🌳 מנוע-הגדילה — מחשב ושומר דרגה/XP, ומזין את הצ׳יפ בכרטיס-הפתיחה
@@ -188,7 +191,7 @@ export default function UserCenter() {
 
   if (!user) return null;
   const goto = (link) => { close(); if (link) nav(link); };
-  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, onUnread: setUnread, goto, setActive });
+  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, dmUnread, onUnread: setUnread, goto, setActive });
   const activeMod = MODULES.find(m => m.id === active) || null;
   const initial = (profile?.display_name || profile?.username || user.email || "א").trim().charAt(0).toUpperCase();
   // 🪪 זהות: חוקר (is_researcher) · כותב (is_writer) — משולבים. אדמין גובר. (מקור-אמת: identityOf)
@@ -1107,25 +1110,85 @@ function AdminOnlinePanel({ T }) {
   );
 }
 
-// 📨 הודעות — המקום היחיד העתידי לכל ההודעות (placeholder; המערכת עצמה עדיין לא נבנתה).
-function MessagesPlaceholder({ T }) {
-  return (
-    <div>
-      <div style={{ background: T.accSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "16px 15px", textAlign: "center" }}>
-        <div style={{ fontSize: 30 }}>📨</div>
-        <div style={{ fontWeight: 800, fontSize: 15, marginTop: 4 }}>ההודעות שלי — בקרוב</div>
-        <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7, marginTop: 6 }}>
-          כאן יתרכזו <b>כל</b> ההודעות שלך במקום אחד — בלי לחפש בכמה מסכים:
+// 📨 ההודעות שלי — הודעות פרטיות (DM). רשימת-שיחות → שרשור → תשובה. RPCs: dm_inbox/thread/send.
+function InboxPanel({ T }) {
+  const { user } = useAuth();
+  const [list, setList] = useState(null);       // שיחות (dm_inbox)
+  const [active, setActive] = useState(null);   // {counterpart, name, avatar} בשיחה פתוחה
+  const [msgs, setMsgs] = useState(null);        // שרשור פעיל
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+
+  const loadList = useCallback(() => { dmInbox().then(setList).catch(() => setList([])); }, []);
+  useEffect(() => { loadList(); }, [loadList]);
+  const openThread = useCallback(async (conv) => {
+    setActive(conv); setMsgs(null);
+    const m = await dmThread(conv.counterpart, 80); setMsgs(Array.isArray(m) ? m : []);
+    loadList(); // רענון מונה לא-נקראו אחרי שסומן כנקרא
+  }, [loadList]);
+  async function send() {
+    const body = text.trim(); if (!body || !active || busy) return;
+    setBusy(true);
+    const r = await dmSend(active.counterpart, body);
+    if (r?.ok) { setText(""); const m = await dmThread(active.counterpart, 80); setMsgs(Array.isArray(m) ? m : []); loadList(); }
+    setBusy(false);
+  }
+
+  // ── שרשור פתוח ──
+  if (active) {
+    return (
+      <div>
+        <button onClick={() => { setActive(null); setMsgs(null); }} style={{ background: "none", border: "none", color: T.acc, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "0 0 10px" }}>→ לכל השיחות</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <img src={active.avatar || genAvatar(active.name)} alt="" style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover" }} />
+          <span style={{ fontWeight: 800, fontSize: 14.5, color: T.ink }}>{active.name}</span>
+        </div>
+        <div style={{ maxHeight: 360, overflowY: "auto", WebkitOverflowScrolling: "touch", display: "flex", flexDirection: "column", gap: 7, padding: "4px 2px", marginBottom: 10 }}>
+          {msgs === null ? <div style={{ color: T.sub, fontSize: 12.5 }}>טוען…</div>
+            : msgs.length === 0 ? <div style={{ color: T.sub, fontSize: 12.5 }}>אין הודעות עדיין — כתוב הודעה ראשונה.</div>
+            : msgs.map(m => {
+              const mine = m.from_user === user?.id;
+              return (
+                <div key={m.id} style={{ alignSelf: mine ? "flex-end" : "flex-start", maxWidth: "82%", background: mine ? T.acc : T.card, color: mine ? "#fff" : T.ink, border: mine ? "none" : `1px solid ${T.line}`, borderRadius: mine ? "12px 12px 3px 12px" : "12px 12px 12px 3px", padding: "8px 12px" }}>
+                  <div style={{ fontSize: 13.5, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{m.body}</div>
+                  <div style={{ fontSize: 10, opacity: .7, marginTop: 3, textAlign: "end" }}>{fmt(m.created_at)}</div>
+                </div>
+              );
+            })}
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <textarea value={text} onChange={e => setText(e.target.value.slice(0, 4000))} rows={1} placeholder="כתוב הודעה…" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+            style={{ flex: 1, boxSizing: "border-box", background: T.card, border: `1px solid ${T.line}`, borderRadius: 10, padding: "10px 12px", color: T.ink, fontFamily: "inherit", fontSize: 16, resize: "none", outline: "none" }} />
+          <button onClick={send} disabled={busy || !text.trim()} style={{ background: T.acc, color: "#fff", border: "none", borderRadius: 10, padding: "0 16px", fontWeight: 800, fontSize: 14, cursor: busy || !text.trim() ? "default" : "pointer", opacity: busy || !text.trim() ? .6 : 1, fontFamily: "inherit" }}>שלח</button>
         </div>
       </div>
-      <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
-        {[["✉️", "הודעות לכתב", "מישהו כתב לך ישירות"], ["💬", "הודעות פרטיות (DM)", "שיחה בינך לבין משתמש אחר"], ["🗣", "תגובות ודיונים אליי", "מה שכתבו על מחקר/פוסט שלך"]].map(([e, t, s], i) => (
-          <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 13px" }}>
-            <span style={{ fontSize: 18 }}>{e}</span>
-            <div><div style={{ fontWeight: 700, fontSize: 13.5, color: T.ink }}>{t}</div><div style={{ color: T.sub, fontSize: 11.5, lineHeight: 1.5 }}>{s}</div></div>
+    );
+  }
+
+  // ── רשימת שיחות ──
+  if (list === null) return <div style={{ color: T.sub, fontSize: 13, padding: "8px 0" }}>טוען…</div>;
+  if (!list.length) return (
+    <div style={{ textAlign: "center", padding: "26px 14px", color: T.sub }}>
+      <div style={{ fontSize: 30, marginBottom: 8 }}>📨</div>
+      <div style={{ fontSize: 13.5, lineHeight: 1.7 }}>אין עדיין הודעות פרטיות.<br />אפשר לכתוב לכתב מדף-הכתב שלו («שלח הודעה»), וההתכתבות תופיע כאן.</div>
+    </div>
+  );
+  return (
+    <div style={{ display: "grid", gap: 8 }}>
+      {list.map(conv => (
+        <button key={conv.counterpart} onClick={() => openThread(conv)} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "10px 12px", cursor: "pointer", fontFamily: "inherit", color: T.ink }}>
+          <img src={conv.avatar || genAvatar(conv.name)} alt="" style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", flex: "0 0 auto" }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontWeight: 800, fontSize: 13.5 }}>{conv.name}</span>
+              {conv.unread > 0 && <span style={{ background: T.acc, color: "#fff", borderRadius: 999, fontSize: 10.5, fontWeight: 800, padding: "1px 7px" }}>{conv.unread}</span>}
+            </div>
+            <div style={{ color: T.sub, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{conv.last_body}</div>
           </div>
-        ))}
-      </div>
+          <span style={{ color: T.sub, fontSize: 10.5, flex: "0 0 auto" }}>{fmt(conv.last_at)}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -1175,7 +1238,7 @@ function HomeTiles({ T, center, setActive, dark }) {
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
-export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, onUnread, goto, setActive }) {
+export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, dmUnread = 0, onUnread, goto, setActive }) {
   const c = center || {};
   const isWriter = !!(c.is_writer || c.is_publisher);
   // 👑 «הדף הפומבי שלי» מוצג רק למי שיש לו דף-כתב/תורם (has_dossier) או שהוא כותב/חוקר.
@@ -1216,7 +1279,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       </div>
     ) },
     // 📨 הודעות — כניסה אחת עתידית (הודעות-לכתב · DM פרטי · תגובות אליי). placeholder בלבד, לא בנוי.
-    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "soon", render: () => <MessagesPlaceholder T={T} /> },
+    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <InboxPanel T={T} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />

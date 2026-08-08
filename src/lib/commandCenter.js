@@ -5,6 +5,24 @@ import { supabase } from "./supabase.js";
 import { getVisitorId } from "./tracking.js";
 import { getForumFeed } from "./contributions.js";
 
+// 💬 הודעות פרטיות (DM) — עדשות-לקוח על direct_messages דרך RPCs (owner-gateway).
+export async function dmInbox() {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc("dm_inbox"); return Array.isArray(data) ? data : []; } catch { return []; }
+}
+export async function dmThread(withUser, limit = 60) {
+  if (!supabase || !withUser) return [];
+  try { const { data } = await supabase.rpc("dm_thread", { p_with: withUser, p_limit: limit }); return Array.isArray(data) ? data : []; } catch { return []; }
+}
+export async function dmSend(toUser, body) {
+  if (!supabase) return { ok: false, error: "no_supabase" };
+  try { const { data, error } = await supabase.rpc("dm_send", { p_to: toUser, p_body: body }); return error ? { ok: false, error: error.message } : (data || { ok: false }); } catch (e) { return { ok: false, error: String(e) }; }
+}
+export async function dmUnreadCount() {
+  if (!supabase) return 0;
+  try { const { data } = await supabase.rpc("dm_unread_count"); return typeof data === "number" ? data : 0; } catch { return 0; }
+}
+
 // 💰 הפרופיל+יתרת-הקרדיטים של המשתמש (RLS: כל אחד רואה רק את שלו). null אם אין עדיין רשומה.
 export async function getMyProfile() {
   if (!supabase) return null;
