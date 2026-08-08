@@ -20,6 +20,7 @@ import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
 import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
 import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
+import WriterMessage from "../components/WriterMessage.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -485,6 +486,7 @@ export default function ContributorPage() {
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
           {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
           <FollowWriter name={c.display_name} P={P} />
+          <WriterMessage name={c.display_name} P={P} />
           <ShareActions type="researcher"
             url={`https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`}
             title={`${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`}
