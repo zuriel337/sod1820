@@ -27,7 +27,7 @@ export default function HomeOrGeulaRail({ limit = 10 }) {
   if (rows !== null && rows.length === 0) return null;
 
   return (
-    <section className="hn-wrap" style={{ padding: "0 18px 40px" }}>
+    <section id="or-geula-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
         <h2 className="hn-h2" style={{ textAlign: "start", margin: 0 }}>🎬 אור הגאולה — סרטונים אחרונים</h2>
         <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
