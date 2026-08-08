@@ -925,15 +925,15 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       render: () => <div><NotificationsPanel T={T} onUnread={onUnread} goto={goto} /><PushPanel T={T} user={user} isAdmin={isAdmin} /></div> },
     // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). זה מה שסוגר את «שלושת המקומות».
     { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", render: () => <PublicPageCard T={T} goto={goto} /> },
+    // 👤 הפרופיל שלי = מקום אחד לזהות+חשבון (איחד את «הגדרות» לתוכו):
+    //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה · סיכום-העץ.
+    //    המספרים (חיפושים/פוסטים/מחקר/תרומות) גרים במודול «📊 סטטיסטיקות» בלבד — בלי כפילות.
     { id: "profile", world: "me", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
-        <MyTreeCard />
-        <Row T={T} k="סטטוס" v={identityOf(c, isAdmin)} />
-        {hasPosts && <Row T={T} k="פוסטים באתר" v={c.posts} />}
-        <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
-        <Row T={T} k="שמורים" v={c.saved ?? 0} />
-        <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>העולם האישי שלך בתוך SOD1820 — כל גילוי מרחיב את העץ שלך.</div>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: T.accSoft, color: T.acc, border: `1px solid ${T.line}`, borderRadius: 999, padding: "4px 12px", fontSize: 12.5, fontWeight: 800, marginBottom: 14 }}>{identityOf(c, isAdmin)}</div>
+        <ProfileSettings t={{ fieldBg: T.card, ink: T.ink, line: T.line, sub: T.sub, acc: T.acc, btnText: "#fff" }} showSignOut onSignOut={() => goto("/")} />
         <MyInfoPanel T={T} />
+        <div style={{ marginTop: 18 }}><MyTreeCard /></div>
       </div>
     ) },
     { id: "level", world: "me", icon: "🌳", title: "הדרגה שלי", status: "live", render: () => <LevelPanel T={T} /> },
@@ -956,6 +956,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <Row T={T} k="חיפושים" v={c.searched ?? 0} />
         {hasPosts && <Row T={T} k="פוסטים" v={c.posts} />}
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
+        <Row T={T} k="שמורים" v={c.saved ?? 0} />
         <Row T={T} k="תרומות" v={c.contributions ?? 0} />
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: דירוג בקהילה · זמן פעילות · תגים והישגים.</div>
         <RecentActivityPanel T={T} />
@@ -967,7 +968,6 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "bots", world: "agent", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
     { id: "whatsapp", world: "agent", icon: "🟢", title: "הוואטסאפ שלי", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} setActive={setActive} /> },
     { id: "credits", world: "me", icon: "◆", title: "הקרדיטים שלי", status: "live", render: () => <CreditsPanel T={T} /> },
-    { id: "settings", world: "me", icon: "⚙️", title: "הגדרות", status: "live", render: () => <SettingsPanel T={T} /> },
 
     // ─── היצירה שלי — לכותבים בלבד (writerOnly) ───
     ...(isWriter ? [{ id: "myposts", world: "create", icon: "📝", title: "הפוסטים שלי", status: "live", render: () => (
@@ -1138,11 +1138,3 @@ function NotificationsPanel({ T, onUnread, goto }) {
 }
 
 // ── פאנל הגדרות — עורך-פרופיל קנוני (ProfileSettings), אותו רכיב כמו בעמוד /profile ──
-function SettingsPanel({ T }) {
-  return (
-    <ProfileSettings
-      t={{ fieldBg: T.card, ink: T.ink, line: T.line, sub: T.sub, acc: T.acc, btnText: "#fff" }}
-      showSignOut
-    />
-  );
-}
