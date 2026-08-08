@@ -142,7 +142,7 @@ export default function VideoGallery() {
                 // סרטון מאוחסן-בשרת — <video> מתנגן בהקשה בלבד (preload=none, Egress)
                 <video src={playing.video_url} controls autoPlay playsInline preload="none"
                   poster={playing.poster_url || (playing.yt ? `https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg` : undefined)}
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000" }} />
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000", objectFit: "contain" }} />
               ) : (
                 <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
