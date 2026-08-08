@@ -4,6 +4,8 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 import { getHomeVideos } from "../lib/supabase.js";
+import { track } from "../lib/tracking.js";
+import ShareActions from "./ShareActions.jsx";
 import HomeHeader from "./HomeHeader.jsx";
 
 // ===== גלריית הסרטים — דף הבית =====
@@ -77,6 +79,12 @@ export default function VideoGallery() {
   const [playing, setPlaying] = useState(null);
   const [rows, setRows] = useState(null); // null = טרם נטען → משתמשים בברירת-מחדל
 
+  // 📊 מעקב הפעלת-סרטון — מזין events/visitor_events (נכס קהל-צופי-וידאו, Meta Growth OS)
+  const handlePlay = (v) => {
+    try { track("video", v.yt, "play", { title: stripHtml(v.title) }); } catch { /* noop */ }
+    setPlaying(v);
+  };
+
   useEffect(() => {
     let alive = true;
     getHomeVideos().then(data => { if (alive) setRows(data); }).catch(() => {});
@@ -113,8 +121,8 @@ export default function VideoGallery() {
 
         {/* שורה אחת — הסרטון המובלט ראשון, ואז השאר (גלילה אופקית) */}
         <div className="vg-row">
-          <VideoCard v={featured} onPlay={setPlaying} featured />
-          {list.map(v => <VideoCard key={v.yt} v={v} onPlay={setPlaying} />)}
+          <VideoCard v={featured} onPlay={handlePlay} featured />
+          {list.map(v => <VideoCard key={v.yt} v={v} onPlay={handlePlay} />)}
         </div>
       </div>
 
@@ -134,10 +142,15 @@ export default function VideoGallery() {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
             </div>
-            <div style={{ textAlign: "center", marginTop: 12 }}>
-              <Link to={`/${playing.slug}`} onClick={() => setPlaying(null)} style={{ color: "#f6e27a", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-                לפוסט המלא של הסרטון →
-              </Link>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 12 }}>
+              {playing.slug && (
+                <Link to={`/${playing.slug}`} onClick={() => setPlaying(null)} style={{ color: "#f6e27a", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+                  לפוסט המלא של הסרטון →
+                </Link>
+              )}
+              <ShareActions type="video" compact
+                title={stripHtml(playing.title)}
+                url={playing.slug ? `https://sod1820.co.il/${playing.slug}` : `https://youtu.be/${playing.yt}`} />
             </div>
           </div>
         </div>
