@@ -4483,8 +4483,44 @@ function NumberResearcher() {
   const [showDoss, setShowDoss] = useState(false);
   const [sent, setSent] = useState(null);
   const [err, setErr] = useState("");
+  const [cands, setCands] = useState([]);          // מועמדים ממתינים בשופט (רשימה חיה)
+  const [busyC, setBusyC] = useState(null);
+
+  const loadCands = () => getConvergenceCandidates(50).then(r => setCands(r?.candidates || [])).catch(() => {});
+  useEffect(() => { loadCands(); }, []);
+  const push = (role, text) => setMsgs(p => [...p, { role, text }]);
 
   const parseVals = (s) => (s.match(/\d{1,6}/g) || []).slice(0, 2).map(Number);
+
+  // 🎛️ פקודות-שיחה: «אשר 321» · «דחה 665» · «חלקי 424» · «שלח 318 לשופט»
+  const detectCommand = (m) => {
+    const num = (m.match(/\d{1,6}/) || [])[0];
+    if (!num) return null;
+    if (/לשופט|שלח\b/.test(m)) return { kind: "judge", v: num };
+    if (/\b(אשר|תאשר|אישור|מאשר)\b/.test(m)) return { kind: "approve", v: num };
+    if (/\b(דחה|תדחה|דחייה|לדחות|דוחה)\b/.test(m)) return { kind: "reject", v: num };
+    if (/\bחלקי\b/.test(m)) return { kind: "partial", v: num };
+    return null;
+  };
+  const runCommand = async (cmd) => {
+    setBusyC(cmd.v);
+    const c = cands.find(x => String(x.subject_ref) === String(cmd.v));
+    let note;
+    if (cmd.kind === "judge") {
+      const r = await sendCandidateFromResearcher(Number(cmd.v)).catch(() => null);
+      note = r?.status === "sent_to_judge" ? `✅ שלחתי את ${cmd.v} לשופט (${r.recommendation}).` : r?.status === "already_pending" ? `ℹ️ ${cmd.v} כבר ממתין בשופט.` : `לא הצלחתי לשלוח את ${cmd.v}.`;
+      await loadCands();
+    } else if (!c) {
+      note = `אין מועמד ממתין ל-${cmd.v} בשופט. אם תרצה — אמור «שלח ${cmd.v} לשופט» ואייצר מועמד.`;
+    } else {
+      const dec = cmd.kind === "approve" ? "approve" : cmd.kind === "reject" ? "reject" : "partial";
+      const res = await decideCandidate(c.id, dec).catch(() => null);
+      setCands(prev => prev.filter(x => x.id !== c.id));
+      note = `${dec === "approve" ? "✅ אושר" : dec === "reject" ? "❌ נדחה" : "✏️ חלקי"}: ${cmd.v}. נכנס ל-decision_ledger + הזין את Learned-Pattern. ${res?.pattern_key ? "(דפוס: " + res.pattern_key + ")" : ""}`;
+    }
+    push("assistant", note);
+    setBusyC(null);
+  };
 
   const start = async () => {
     const vals = parseVals(input);
@@ -4502,11 +4538,17 @@ function NumberResearcher() {
   const send = async () => {
     const m = chat.trim(); if (!m || sending) return;
     setChat(""); setSending(true); setErr("");
+    push("user", m);
+    // פקודה? מבצע ומעדכן את הרשימה החיה — בלי לשלוח לרזיאל
+    const cmd = detectCommand(m);
+    if (cmd) { await runCommand(cmd); setSending(false); return; }
     const hist = msgs.map(x => ({ role: x.role, text: x.text }));
-    setMsgs(p => [...p, { role: "user", text: m }]);
     try {
-      const res = await askNumberResearcher(values, m, hist);
-      setMsgs(p => [...p, { role: "assistant", text: res?.answer || "(אין תשובה)" }]);
+      const vals = values.length ? values : parseVals(m);
+      if (vals.length && vals.join() !== values.join()) { setValues(vals); const ds = await Promise.all(vals.map(v => getNumberDossier(v).catch(() => null))); setDossiers(ds); }
+      const res = await askNumberResearcher(vals, m, hist);
+      if (res?.dossiers) setDossiers(res.dossiers);
+      push("assistant", res?.answer || "(אין תשובה — נסה להזכיר מספר)");
     } catch (e) { setErr(e.message || "שגיאה"); }
     setSending(false);
   };
@@ -4516,16 +4558,38 @@ function NumberResearcher() {
   const cnt = (o, k) => { try { return (o[k] || []).length; } catch { return 0; } };
   const factsN = (cnt(d0.facts?.convergences || [], "length") || (d0.facts?.convergences || []).length) + ((d0.facts?.anchor) ? 1 : 0);
 
+  const recCol = { strong: "#8bd98b", needs_check: "#c9a24a", weak: C.muted, duplicate: "#7fb2ff" };
   return (
-    <div style={{ ...card, border: "1px solid rgba(127,178,255,0.35)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>💬 חוקר המספרים</span>
-        <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>הקלד מספר (או שניים להשוואה) ודבר עליו — רזיאל על אותו עץ.</span>
+    <div style={{ ...card, border: "1px solid rgba(127,178,255,0.45)", background: "linear-gradient(180deg, rgba(47,109,246,0.06), rgba(8,5,2,0.42))" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+        <span style={{ fontSize: 22 }}>💬</span>
+        <div style={{ flex: 1, minWidth: 160 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>חדר רזיאל — מחקר ופיקוד</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>דבר איתו על כל מספר · «אשר 321» / «דחה 665» / «שלח 424 לשופט» — והרשימה מתעדכנת חי.</div>
+        </div>
+        <button onClick={loadCands} style={{ ...segBtn(false), fontSize: 12 }}>↻</button>
       </div>
+
+      {/* רשימה חיה — מה מחכה לך לאשר (לחיץ + פקודה) */}
+      {cands.length > 0 && (
+        <div style={{ background: "rgba(8,5,2,0.35)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 10px", marginBottom: 10 }}>
+          <div style={{ color: C.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>🗂️ ממתינים לך לאשר ({cands.length}) <span style={{ color: C.muted, fontWeight: 400 }}>— לחץ לחקור, או אמור לרזיאל «אשר …»</span></div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxHeight: 96, overflowY: "auto" }}>
+            {cands.map(c => (
+              <span key={c.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,0.25)", border: `1px solid ${recCol[c.recommendation] || C.border}`, borderRadius: 999, padding: "3px 6px 3px 10px", opacity: busyC === c.subject_ref ? 0.5 : 1 }}>
+                <button onClick={() => { setInput(String(c.subject_ref)); setTimeout(start, 0); }} title="חקור" style={{ background: "none", border: "none", color: recCol[c.recommendation] || C.goldDim, fontFamily: F.mono, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{c.subject_ref}</button>
+                <button onClick={async () => { setBusyC(c.subject_ref); await decideCandidate(c.id, "approve").catch(() => {}); setCands(p => p.filter(x => x.id !== c.id)); push("assistant", `✅ אושר: ${c.subject_ref} (נכנס ל-decision_ledger + Learned-Pattern).`); setBusyC(null); }} title="אשר" style={{ background: "rgba(76,175,80,0.15)", border: "none", color: "#8bd98b", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", fontSize: 11 }}>✓</button>
+                <button onClick={async () => { setBusyC(c.subject_ref); await decideCandidate(c.id, "reject").catch(() => {}); setCands(p => p.filter(x => x.id !== c.id)); push("assistant", `❌ נדחה: ${c.subject_ref} (נשמר כ«חיבור לא-מאושר», לא כנתון-שגוי).`); setBusyC(null); }} title="דחה" style={{ background: "rgba(200,80,80,0.12)", border: "none", color: "#e08a8a", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", fontSize: 11 }}>✕</button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
         <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && start()}
-          placeholder="מספר… (למשל 321  או  321 2212)" dir="rtl"
-          style={{ flex: 1, minWidth: 160, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 12px", fontFamily: F.mono, fontSize: 15 }} />
+          placeholder="מספר לחקירה… (321  ·  או  321 2212 להשוואה)" dir="rtl"
+          style={{ flex: 1, minWidth: 160, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", fontFamily: F.mono, fontSize: 15 }} />
         <button onClick={start} disabled={sending} style={{ ...segBtn(false), fontSize: 13, opacity: sending ? 0.5 : 1 }}>{sending && !msgs.length ? "טוען…" : "🔎 חקור"}</button>
       </div>
 
@@ -4552,27 +4616,24 @@ function NumberResearcher() {
         </div>
       ))}
 
-      {/* השיחה */}
-      {msgs.length > 0 && (
-        <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
-          {msgs.map((m, i) => (
-            <div key={i} style={{ background: m.role === "user" ? "rgba(47,109,246,0.10)" : "rgba(8,5,2,0.35)", border: `1px solid ${m.role === "user" ? "rgba(127,178,255,0.3)" : C.border}`, borderRadius: 10, padding: "9px 12px" }}>
-              <div style={{ color: m.role === "user" ? "#7fb2ff" : C.goldLight, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 3 }}>{m.role === "user" ? "צוריאל" : "🔵 רזיאל · חוקר"}</div>
-              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{m.text}</div>
-            </div>
-          ))}
-          {sending && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>רזיאל חושב…</div>}
-        </div>
-      )}
+      {/* השיחה — אזור גדול ונגלל */}
+      <div style={{ display: "grid", gap: 8, marginBottom: 10, minHeight: 300, maxHeight: "56vh", overflowY: "auto", padding: 4, background: "rgba(0,0,0,0.18)", borderRadius: 10 }}>
+        {!msgs.length && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, padding: 18, textAlign: "center", lineHeight: 1.8 }}>הקלד מספר למעלה או בחר מהרשימה — ואז דבר איתי כמו בצ'אט.<br />נסה: «אשר 321» · «מה הקשר בין 321 ל-2212?» · «שלח 424 לשופט»</div>}
+        {msgs.map((m, i) => (
+          <div key={i} style={{ background: m.role === "user" ? "rgba(47,109,246,0.12)" : "rgba(8,5,2,0.4)", border: `1px solid ${m.role === "user" ? "rgba(127,178,255,0.3)" : C.border}`, borderRadius: 10, padding: "10px 13px", maxWidth: "94%", marginInlineStart: m.role === "user" ? "auto" : 0 }}>
+            <div style={{ color: m.role === "user" ? "#7fb2ff" : C.goldLight, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 3 }}>{m.role === "user" ? "צוריאל" : "🔵 רזיאל · חוקר"}</div>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{m.text}</div>
+          </div>
+        ))}
+        {sending && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, padding: 8 }}>רזיאל חושב…</div>}
+      </div>
 
-      {values.length > 0 && (
-        <div style={{ display: "flex", gap: 8 }}>
-          <input value={chat} onChange={e => setChat(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
-            placeholder="שאל את רזיאל על המספר…" dir="rtl"
-            style={{ flex: 1, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 12px", fontFamily: F.body, fontSize: 13 }} />
-          <button onClick={send} disabled={sending} style={{ ...segBtn(false), fontSize: 13, opacity: sending ? 0.5 : 1 }}>שלח</button>
-        </div>
-      )}
+      <div style={{ display: "flex", gap: 8 }}>
+        <input value={chat} onChange={e => setChat(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
+          placeholder="דבר עם רזיאל / פקודה: «אשר 321» · «דחה 665» · «שלח 424 לשופט»…" dir="rtl"
+          style={{ flex: 1, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "11px 13px", fontFamily: F.body, fontSize: 14 }} />
+        <button onClick={send} disabled={sending} style={{ ...segBtn(false), fontSize: 14, opacity: sending ? 0.5 : 1 }}>שלח</button>
+      </div>
     </div>
   );
 }
@@ -4804,6 +4865,8 @@ function CommandCenterTab({ gotoTab }) {
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
+      {/* 💬 חדר רזיאל — מחקר ופיקוד בראש המפקדה (גדול ואינטראקטיבי) */}
+      <NumberResearcher />
       {/* חיוויים */}
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
@@ -4961,9 +5024,6 @@ function CommandCenterTab({ gotoTab }) {
             );
           })}
       </div>
-
-      {/* 💬 חוקר המספרים — רזיאל על אותו עץ; מזין את השופט דרך «שלח לשופט» */}
-      <NumberResearcher />
 
       {/* 🤖 שופט ההתכנסויות — צמוד לבקרה, מזין את decision_ledger→Learned-Pattern */}
       <ConvergenceJudge />
