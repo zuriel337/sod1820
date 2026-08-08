@@ -1,0 +1,27 @@
+name: media thumbnails (or-geula videos)
+
+# מייצר תמונת-תצוגה לכל עדכון-וידאו חדש (כולל אלה שנקלטו אוטומטית מוואטסאפ)
+# שאין לו thumb_url. רץ יומית + אפשר להריץ ידנית מלשונית Actions.
+on:
+  schedule:
+    - cron: "23 4 * * *" # יומי, 04:23 UTC
+  workflow_dispatch: {}
+
+concurrency:
+  group: media-thumbs
+  cancel-in-progress: false
+
+jobs:
+  thumbs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Ensure ffmpeg
+        run: ffmpeg -version | head -1 || sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Generate thumbnails
+        env:
+          FB_ADMIN_KEY: ${{ secrets.FB_ADMIN_KEY }}
+        run: node scripts/media-thumbs.mjs

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { galThumb } from "../lib/img.js";
+import ShareActions from "../components/ShareActions.jsx";
 
 // 🎬 אור הגאולה — קטלוג-מדיה (ריבועים + סרטונים) מערוץ הוואטסאפ «אור הגאולה».
 // ⚠️ זה לא גימטריה — אוסף מדיה אהוב. עדשה על channel_updates where channel='or-geula'.
@@ -15,6 +17,43 @@ export default function OrGeulaPage() {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const [open, setOpen] = useState(null);
+  const [sp, setSp] = useSearchParams();
+
+  // פתיחת פריט = מעקב + deep-link (?v=id) כדי ששיתוף יגיע *ישר לסרטון הזה*
+  const openItem = (r) => {
+    setOpen(r);
+    try { track("or-geula", String(r.id), "play"); } catch { /* noop */ }
+    const n = new URLSearchParams(sp); n.set("v", String(r.id)); setSp(n);
+  };
+  const closeItem = () => {
+    setOpen(null);
+    const n = new URLSearchParams(sp); n.delete("v"); setSp(n, { replace: true });
+  };
+
+  // 📲 שיתוף לסטורי — משתף את *קובץ הווידאו* דרך share-sheet של המכשיר (אינסטגרם/וואטסאפ סטטוס),
+  //     ונפילה לשיתוף-קישור/העתקה. סופר כ-share_story.
+  async function shareToStory(item) {
+    const url = `${SITE_URL}/or-geula?v=${item.id}`;
+    const cap = (item.text && item.text.length < 180 ? item.text.trim() + "\n\n" : "");
+    try {
+      if (isVideo(item.image_url) && typeof navigator !== "undefined" && navigator.canShare) {
+        const blob = await (await fetch(item.image_url)).blob();
+        const file = new File([blob], "sod1820-or-hageula.mp4", { type: blob.type || "video/mp4" });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: "אור הגאולה · סוד 1820", text: "צפו ושתפו 🙏" });
+          try { track("or-geula", String(item.id), "share_story"); } catch { /* noop */ }
+          return;
+        }
+      }
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "אור הגאולה · סוד 1820", text: cap + "צפו ושתפו 🙏", url });
+        try { track("or-geula", String(item.id), "share_story"); } catch { /* noop */ }
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      alert("הקישור הועתק — הדביקו בסטורי 🙏");
+    } catch { /* המשתמש ביטל / לא נתמך */ }
+  }
 
   useEffect(() => {
     track("or-geula");
@@ -26,6 +65,13 @@ export default function OrGeulaPage() {
       .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
     return () => { alive = false; };
   }, []);
+
+  // deep-link: אם הגיעו עם ?v=<id> — לפתוח ישר את הפריט הזה (שיתוף מגיע לסרטון הספציפי)
+  useEffect(() => {
+    if (!rows || !rows.length) return;
+    const v = sp.get("v");
+    if (v) { const it = rows.find(r => String(r.id) === v); if (it) setOpen(it); }
+  }, [rows]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const first = rows && rows.find(r => r.image_url && !isVideo(r.image_url));
@@ -65,7 +111,7 @@ export default function OrGeulaPage() {
               // תמונה-ממוזערת: thumb_url תמיד עדיף; לתמונה בלי thumb → galThumb; לוידאו בלי thumb → placeholder
               const thumb = r.thumb_url || (vid ? null : galThumb(r, 460));
               return (
-                <button key={r.id} onClick={() => setOpen(r)} title="פתחו במסך מלא"
+                <button key={r.id} onClick={() => openItem(r)} title="פתחו במסך מלא"
                   style={{ cursor: "pointer", textAlign: "start", padding: 0, border: `1px solid ${P.border}`,
                     borderRadius: 15, overflow: "hidden", background: P.card, display: "flex", flexDirection: "column",
                     boxShadow: "0 8px 24px rgba(0,0,0,.10)" }}>
@@ -94,19 +140,36 @@ export default function OrGeulaPage() {
 
       {/* לייטבוקס מסך-מלא */}
       {open && (
-        <div onClick={() => setOpen(null)} role="dialog" aria-modal="true"
+        <div onClick={closeItem} role="dialog" aria-modal="true"
           style={{ position: "fixed", inset: 0, zIndex: 5000, background: "rgba(6,4,12,.94)", display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <button onClick={() => setOpen(null)} aria-label="סגירה"
+            alignItems: "center", justifyContent: "center", padding: 20, overflowY: "auto" }}>
+          <button onClick={closeItem} aria-label="סגירה"
             style={{ position: "absolute", top: 16, insetInlineEnd: 18, background: "rgba(255,255,255,.14)", color: "#fff",
-              border: "none", borderRadius: 999, width: 40, height: 40, fontSize: 20, cursor: "pointer" }}>✕</button>
-          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 900, width: "100%", maxHeight: "82vh", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+              border: "none", borderRadius: 999, width: 40, height: 40, fontSize: 20, cursor: "pointer", zIndex: 2 }}>✕</button>
+          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 900, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, margin: "auto 0" }}>
             {isVideo(open.image_url)
-              ? <video src={open.image_url} controls autoPlay playsInline style={{ maxWidth: "100%", maxHeight: "72vh", borderRadius: 14, background: "#000" }} />
-              : <img src={open.image_url} alt={open.text || "אור הגאולה"} style={{ maxWidth: "100%", maxHeight: "72vh", objectFit: "contain", borderRadius: 14 }} />}
+              ? <video src={open.image_url} controls autoPlay playsInline style={{ maxWidth: "100%", maxHeight: "64vh", borderRadius: 14, background: "#000" }} />
+              : <img src={open.image_url} alt={open.text || "אור הגאולה"} style={{ maxWidth: "100%", maxHeight: "64vh", objectFit: "contain", borderRadius: 14 }} />}
             {open.text && open.text !== "📷 עדכון" && open.text !== "🎬 עדכון וידאו" && (
               <div style={{ color: "#f0ead8", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, textAlign: "center", maxWidth: 640, whiteSpace: "pre-wrap" }}>{open.text}</div>
             )}
+
+            {/* 🙏 עידוד-לשיתוף + שיתוף-לסטורי + שיתופים קנוניים */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 11, width: "100%", maxWidth: 560,
+              background: "rgba(255,255,255,.05)", border: "1px solid rgba(139,92,246,.35)", borderRadius: 16, padding: "16px 16px 14px" }}>
+              <div style={{ color: "#ffd98a", fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, textAlign: "center" }}>
+                אהבתם? שתפו — ותזכו את הרבים 🙏
+              </div>
+              <button onClick={() => shareToStory(open)}
+                style={{ background: "linear-gradient(160deg,#8b5cf6,#d6336c)", color: "#fff", border: "none", borderRadius: 999,
+                  padding: "12px 26px", fontFamily: F.heading, fontSize: 15, fontWeight: 800, cursor: "pointer", minHeight: 46 }}>
+                📲 שתפו לסטורי
+              </button>
+              <ShareActions type="video" compact force
+                url={`${SITE_URL}/or-geula?v=${open.id}`}
+                title={(open.text && open.text.trim().slice(0, 90)) || "אור הגאולה · סוד 1820"}
+                image={open.thumb_url || undefined} />
+            </div>
           </div>
         </div>
       )}
