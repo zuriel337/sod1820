@@ -3,16 +3,18 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { dmSend } from "../lib/commandCenter.js";
 
-// ✉️ הודעה פרטית לכתב — גולש כותב לכתב; ההודעה נכנסת לתיבת-הפניות הקיימת (contact_messages),
-// מתויגת ב-subject «הודעה לכתב: <שם>» כדי שהאדמין/הכתב ינתב אותה. עץ אחד: אין טבלה מקבילה.
-export default function WriterMessage({ name, P: Pp }) {
+// ✉️ הודעה לכתב. מחובר + לכתב יש חשבון → הודעה פרטית אמיתית (DM, dm_send) שמופיעה ב«ההודעות שלי»
+// של שניהם. אחרת (כתב בלי חשבון / צופה לא-מחובר) → נפילה לתיבת-הפניות (contact_messages). עץ אחד.
+export default function WriterMessage({ name, P: Pp, toUserId = null }) {
   const Pctx = usePalette();
   const P = Pp || Pctx;
   const { user, profile } = useAuth();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [state, setState] = useState("idle"); // idle | sending | done | error
+  const canDM = !!(user && toUserId && toUserId !== user.id); // DM אמיתי אפשרי?
 
   // מחובר → מקדימים שם+מייל אמיתיים (כדי שהכתב יוכל לענות, ולא ליפול על ולידציית ה-policy)
   useEffect(() => {
@@ -26,10 +28,16 @@ export default function WriterMessage({ name, P: Pp }) {
 
   async function send(e) {
     e.preventDefault();
-    if (!form.name.trim() || !form.message.trim()) return;
+    if (!form.message.trim()) return;
+    if (!canDM && !form.name.trim()) return;
     setState("sending");
-    // ⚠️ policy «contact_insert» דורש length(email) בין 3 ל-200. מחובר → המייל האמיתי;
-    //    אחרת → כתובת-מערכת תקינה (לא מרככים את ה-policy כדי לעקוף באג).
+    // ✅ DM אמיתי כשאפשר — נכנס ל«ההודעות שלי» של שניהם
+    if (canDM) {
+      const r = await dmSend(toUserId, form.message.trim());
+      setState(r?.ok ? "done" : "error");
+      return;
+    }
+    // נפילה: תיבת-הפניות. policy «contact_insert» דורש length(email) 3..200.
     const typed = form.email.trim();
     const email = typed.length >= 3 ? typed : (user?.email || "no-reply@sod1820.co.il");
     const { error } = await supabase.from("contact_messages").insert({
@@ -65,20 +73,24 @@ export default function WriterMessage({ name, P: Pp }) {
         {state === "done" ? (
           <div style={{ textAlign: "center", padding: "22px 6px" }}>
             <div style={{ fontSize: 38, marginBottom: 8 }}>✅</div>
-            <div style={{ color: P.ink, fontFamily: F.body, fontSize: 15, lineHeight: 1.7 }}>ההודעה נשלחה ל{name}. תודה!</div>
+            <div style={{ color: P.ink, fontFamily: F.body, fontSize: 15, lineHeight: 1.7 }}>
+              ההודעה נשלחה ל{name}.{canDM ? " ההתכתבות תופיע ב«ההודעות שלי» באזור האישי." : " תודה!"}
+            </div>
             <button style={{ ...btn, marginTop: 14 }} onClick={() => setOpen(false)}>סגור</button>
           </div>
         ) : (
           <form onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
-            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.5 }}>כתבו הודעה אישית — היא תגיע לכתב דרך מערכת האתר.</div>
-            <input style={field} placeholder="השם שלכם *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-            <input style={field} type="email" placeholder="אימייל (אם תרצו תשובה)" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.5 }}>
+              {canDM ? `הודעה פרטית ל${name} — תופיע ב«ההודעות שלי» של שניכם, ותוכלו להמשיך שם את השיחה.` : "כתבו הודעה אישית — היא תגיע לכתב דרך מערכת האתר."}
+            </div>
+            {!canDM && <input style={field} placeholder="השם שלכם *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />}
+            {!canDM && <input style={field} type="email" placeholder="אימייל (אם תרצו תשובה)" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />}
             <textarea style={{ ...field, minHeight: 110, resize: "vertical", lineHeight: 1.6 }} placeholder={`ההודעה ל${name} *`} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
             {state === "error" && <div style={{ color: "#e0655e", fontFamily: F.body, fontSize: 13 }}>שגיאה בשליחה — נסו שוב.</div>}
-            <button type="submit" disabled={state === "sending" || !form.name.trim() || !form.message.trim()}
+            <button type="submit" disabled={state === "sending" || !form.message.trim() || (!canDM && !form.name.trim())}
               style={{ ...btn, justifyContent: "center", background: P.accentBtn || P.accentText, color: P.onAccent || "#1a1206", border: "none",
-                opacity: (state === "sending" || !form.name.trim() || !form.message.trim()) ? .6 : 1 }}>
-              {state === "sending" ? "שולח…" : "שלח הודעה ✉️"}
+                opacity: (state === "sending" || !form.message.trim() || (!canDM && !form.name.trim())) ? .6 : 1 }}>
+              {state === "sending" ? "שולח…" : (canDM ? "שלח הודעה פרטית ✉️" : "שלח הודעה ✉️")}
             </button>
           </form>
         )}

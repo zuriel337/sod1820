@@ -873,7 +873,7 @@ export default function ContributorPage() {
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
           {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
           <FollowWriter name={c.display_name} P={P} />
-          <WriterMessage name={c.display_name} P={P} />
+          <WriterMessage name={c.display_name} P={P} toUserId={c.user_id} />
           {/* 💬 קבוצת-הוואטסאפ האישית של הכתב — ליד «שלח הודעה»: התחברות + לראות מה הוא כותב */}
           {c.wa_group_url && (
             <a href={c.wa_group_url} target="_blank" rel="noopener noreferrer"
