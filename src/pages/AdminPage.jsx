@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
-import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getEntriesSeries } from "../lib/visits.js";
+import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getNumberDossier, askNumberResearcher, sendCandidateFromResearcher, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
@@ -4471,6 +4471,112 @@ function GaRetentionBars({ title, items, fmtKey }) {
   );
 }
 
+// ===== 💬 חוקר המספרים — רזיאל במצב-מחקר (UI/Session מעל אותו עץ) =====
+// אינו מקור-ידע חדש: שולף dossier קנוני (fn_number_dossier) ומדבר עליו. אותו עץ, אותו metatron_context.
+function NumberResearcher() {
+  const [input, setInput] = useState("");
+  const [values, setValues] = useState([]);
+  const [dossiers, setDossiers] = useState([]);
+  const [msgs, setMsgs] = useState([]);           // [{role:'user'|'assistant', text}]
+  const [sending, setSending] = useState(false);
+  const [chat, setChat] = useState("");
+  const [showDoss, setShowDoss] = useState(false);
+  const [sent, setSent] = useState(null);
+  const [err, setErr] = useState("");
+
+  const parseVals = (s) => (s.match(/\d{1,6}/g) || []).slice(0, 2).map(Number);
+
+  const start = async () => {
+    const vals = parseVals(input);
+    if (!vals.length) return;
+    setValues(vals); setMsgs([]); setSent(null); setErr(""); setSending(true);
+    try {
+      const ds = await Promise.all(vals.map(v => getNumberDossier(v).catch(() => null)));
+      setDossiers(ds);
+      const res = await askNumberResearcher(vals, "", []);
+      if (res?.dossiers) setDossiers(res.dossiers);
+      setMsgs([{ role: "assistant", text: res?.answer || "(אין תשובה)" }]);
+    } catch (e) { setErr(e.message || "שגיאה"); }
+    setSending(false);
+  };
+  const send = async () => {
+    const m = chat.trim(); if (!m || sending) return;
+    setChat(""); setSending(true); setErr("");
+    const hist = msgs.map(x => ({ role: x.role, text: x.text }));
+    setMsgs(p => [...p, { role: "user", text: m }]);
+    try {
+      const res = await askNumberResearcher(values, m, hist);
+      setMsgs(p => [...p, { role: "assistant", text: res?.answer || "(אין תשובה)" }]);
+    } catch (e) { setErr(e.message || "שגיאה"); }
+    setSending(false);
+  };
+  const toJudge = async (v) => { try { const r = await sendCandidateFromResearcher(v); setSent({ v, ...r }); } catch { setSent({ v, status: "error" }); } };
+
+  const d0 = dossiers[0] || {};
+  const cnt = (o, k) => { try { return (o[k] || []).length; } catch { return 0; } };
+  const factsN = (cnt(d0.facts?.convergences || [], "length") || (d0.facts?.convergences || []).length) + ((d0.facts?.anchor) ? 1 : 0);
+
+  return (
+    <div style={{ ...card, border: "1px solid rgba(127,178,255,0.35)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>💬 חוקר המספרים</span>
+        <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>הקלד מספר (או שניים להשוואה) ודבר עליו — רזיאל על אותו עץ.</span>
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && start()}
+          placeholder="מספר… (למשל 321  או  321 2212)" dir="rtl"
+          style={{ flex: 1, minWidth: 160, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 12px", fontFamily: F.mono, fontSize: 15 }} />
+        <button onClick={start} disabled={sending} style={{ ...segBtn(false), fontSize: 13, opacity: sending ? 0.5 : 1 }}>{sending && !msgs.length ? "טוען…" : "🔎 חקור"}</button>
+      </div>
+
+      {err && <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 12.5, marginBottom: 8 }}>שגיאה: {err}</div>}
+
+      {values.length > 0 && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+          <span style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 14, fontWeight: 700 }}>{values.join(" · ")}</span>
+          <button onClick={() => setShowDoss(s => !s)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>🔍 למה אתה אומר את זה? (מקורות)</button>
+          {values.map(v => <button key={v} onClick={() => toJudge(v)} style={{ background: "rgba(201,162,74,0.13)", border: "1px solid rgba(201,162,74,0.45)", color: "#c9a24a", borderRadius: 7, padding: "3px 10px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>➕ שלח {v} לשופט</button>)}
+          {sent && <span style={{ color: sent.status === "sent_to_judge" ? "#8bd98b" : sent.status === "already_pending" ? "#c9a24a" : "#e08a8a", fontFamily: F.body, fontSize: 11.5 }}>{sent.status === "sent_to_judge" ? `✓ ${sent.v} נשלח (${sent.recommendation})` : sent.status === "already_pending" ? `${sent.v} כבר בשופט` : "שגיאה"}</span>}
+        </div>
+      )}
+
+      {/* מקורות (dossier) — שרשרת הראיות, אותו אובייקט שרזיאל קיבל */}
+      {showDoss && dossiers.map((dd, di) => dd && (
+        <div key={di} style={{ background: "rgba(0,0,0,0.25)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 11px", marginBottom: 8, fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
+          <div style={{ color: "#7fb2ff", fontWeight: 700, marginBottom: 3 }}>📦 dossier · {dd.value} <span style={{ color: C.muted, fontWeight: 400 }}>(context {typeof dd.context_version === "string" ? dd.context_version : JSON.stringify(dd.context_version)})</span></div>
+          {dd.facts?.anchor && <div>⚓ עוגן: {dd.facts.anchor}</div>}
+          <div>🧮 התכנסויות: {(dd.facts?.convergences || []).map(m => `${m.method}(${m.group_size})`).join(" · ") || "—"}</div>
+          <div>🔗 ראיות: {(dd.evidence || []).length ? dd.evidence.map(e => `[${e.method}·${e.status}]`).join(" ") : "—"} · 🎴 כרטיסים: {(dd.cards || []).map(c => c.slug).join(" · ") || "—"}</div>
+          <div>⚖️ ההחלטות שלך: {(dd.decisions || []).length ? dd.decisions.map(x => `${x.human_decision}${x.reason_code ? "·" + x.reason_code : ""}`).join(" · ") : "—"}</div>
+          <div>🔀 קשורים: {(dd.related || []).join(" · ") || "—"}</div>
+        </div>
+      ))}
+
+      {/* השיחה */}
+      {msgs.length > 0 && (
+        <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
+          {msgs.map((m, i) => (
+            <div key={i} style={{ background: m.role === "user" ? "rgba(47,109,246,0.10)" : "rgba(8,5,2,0.35)", border: `1px solid ${m.role === "user" ? "rgba(127,178,255,0.3)" : C.border}`, borderRadius: 10, padding: "9px 12px" }}>
+              <div style={{ color: m.role === "user" ? "#7fb2ff" : C.goldLight, fontFamily: F.heading, fontSize: 11, fontWeight: 700, marginBottom: 3 }}>{m.role === "user" ? "צוריאל" : "🔵 רזיאל · חוקר"}</div>
+              <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{m.text}</div>
+            </div>
+          ))}
+          {sending && <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>רזיאל חושב…</div>}
+        </div>
+      )}
+
+      {values.length > 0 && (
+        <div style={{ display: "flex", gap: 8 }}>
+          <input value={chat} onChange={e => setChat(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
+            placeholder="שאל את רזיאל על המספר…" dir="rtl"
+            style={{ flex: 1, background: "rgba(8,5,2,0.5)", color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 12px", fontFamily: F.body, fontSize: 13 }} />
+          <button onClick={send} disabled={sending} style={{ ...segBtn(false), fontSize: 13, opacity: sending ? 0.5 : 1 }}>שלח</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===== 🤖 שופט ההתכנסויות — Candidate/Recommendation Engine (לא מכריע) =====
 // מציג מועמדים עם «למה הגיע אליי», המלצה מחקרית (לא אמת), וכפתורי החלטה →
 // decision_ledger → Learned-Pattern. אינו מאשר/דוחה בעצמו (#1).
@@ -4855,6 +4961,9 @@ function CommandCenterTab({ gotoTab }) {
             );
           })}
       </div>
+
+      {/* 💬 חוקר המספרים — רזיאל על אותו עץ; מזין את השופט דרך «שלח לשופט» */}
+      <NumberResearcher />
 
       {/* 🤖 שופט ההתכנסויות — צמוד לבקרה, מזין את decision_ledger→Learned-Pattern */}
       <ConvergenceJudge />

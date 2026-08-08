@@ -267,6 +267,27 @@ export async function decideCandidate(id, decision, reasonCode = null, humanReas
   if (error) throw error;
   return data || null;
 }
+// 💬 חוקר-המספרים: ה-dossier הקנוני לערך (אותו אובייקט שרזיאל מקבל)
+export async function getNumberDossier(value) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_number_dossier", { p_value: Number(value) });
+  if (error) throw error;
+  return data || null;
+}
+// 💬 שיחה עם רזיאל-חוקר (Edge — שולף dossier בצד-שרת). values=[v] או [v1,v2]
+export async function askNumberResearcher(values, message, history = []) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.functions.invoke("number-researcher", { body: { values, message, history } });
+  if (error) throw error;
+  return data || null;
+}
+// ➕ שלח לשופט: יוצר Candidate מלא-trace מה-dossier → השופט הקיים
+export async function sendCandidateFromResearcher(value, note = null, claim = null) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_candidate_from_researcher", { p_value: Number(value), p_note: note, p_claim: claim });
+  if (error) throw error;
+  return data || null;
+}
 // פרטי-התכנסות מלאים לערך (הביטויים בפועל בכל שיטה + ראיות)
 export async function getConvergenceDetail(value) {
   if (!supabase) return null;
