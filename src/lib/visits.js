@@ -267,6 +267,36 @@ export async function decideCandidate(id, decision, reasonCode = null, humanReas
   if (error) throw error;
   return data || null;
 }
+// 💬 חוקר-המספרים: ה-dossier הקנוני לערך (אותו אובייקט שרזיאל מקבל)
+export async function getNumberDossier(value) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_number_dossier", { p_value: Number(value) });
+  if (error) throw error;
+  return data || null;
+}
+// 💬 שיחה עם רזיאל-חוקר (Edge — אותו raziel_brain + fn_raziel_context + metatron_context בצד-שרת).
+// זהות המשתמש נגזרת מה-JWT בצד-שרת (לא מפרמטר) → הזיכרון הפרטי מוזרק רק לבעליו.
+export async function askNumberResearcher(values, message, history = []) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.functions.invoke("number-researcher", { body: { values, message, history } });
+  if (error) throw error;
+  return data || null;
+}
+// 🧵 טעינת השיחה המתמשכת השמורה (agent_user_memory, channel='site') — לא נמחקת ברענון/יציאה.
+// מחזיר גם את ה-context_snapshot האחרון כדי ש-«על סמך מה?» יעבוד אחרי כניסה מחדש (Replay).
+export async function loadResearcherThread() {
+  if (!supabase) return { history: [], snapshot: null };
+  const { data, error } = await supabase.functions.invoke("number-researcher", { body: { op: "history" } });
+  if (error) return { history: [], snapshot: null };
+  return { history: Array.isArray(data?.history) ? data.history : [], snapshot: data?.snapshot || null };
+}
+// ➕ שלח לשופט: יוצר Candidate מלא-trace מה-dossier → השופט הקיים
+export async function sendCandidateFromResearcher(value, note = null, claim = null) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_candidate_from_researcher", { p_value: Number(value), p_note: note, p_claim: claim });
+  if (error) throw error;
+  return data || null;
+}
 // פרטי-התכנסות מלאים לערך (הביטויים בפועל בכל שיטה + ראיות)
 export async function getConvergenceDetail(value) {
   if (!supabase) return null;
