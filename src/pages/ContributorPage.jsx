@@ -156,6 +156,7 @@ export default function ContributorPage() {
   const [forumMsgs, setForumMsgs] = useState([]); // 💬 ההודעות האחרונות שלו בפורום (research_contributions)
   const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
+  const [waOpen, setWaOpen] = useState(false);    // 💬 תפריט-וואטסאפ נגלל (סגור כברירת-מחדל)
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
   // 🔢 גימטריה תמיד ראשונה: עדכון שנושא גימטריה (ביטוי = מספר / «בגימטריא» / «מאומת במנוע») עולה לראש
   //    הדף לפני שאר העדכונים, ואז לפי חדש→ישן. בקשת צוריאל: בכל דף-כתב הגימטריה למעלה, ראשונה.
@@ -362,6 +363,9 @@ export default function ContributorPage() {
   // 🔒 תוכן רגיש (סומן בדאטה) — מוסתר מהציבור; אדמין רואה עם תג
   const sensitiveCount = items.filter(e => e.sensitive).length;
   const safeItems = isAdmin ? items : items.filter(e => !e.sensitive);
+  // 📦 האם לכתב יש בכלל חומר-כרטיסים ישן (media)? רק 3 כתבים (עמית/שמעון/ציון) — אצל השאר 0.
+  //    כל ה«כרום» הישן (חיפוש/קטגוריות/גריד/הערת-שוליים) מגודר בזה → דף נקי לכתב בלי media.
+  const hasMedia = safeItems.length > 0;
   // 🏆 הטופ של החוקר — רק כרטיסים שסומנו top_rank (החלטת צוריאל, פר-חוקר; לא באתר הכללי)
   const topGold = safeItems.filter(e => e.top_rank).sort((a, b) => a.top_rank - b.top_rank);
   const topKeys = new Set(topGold.map(e => e.f || e.msg_id));
@@ -647,43 +651,45 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 💬 מקור גולמי · וואטסאפ — רצועה צדדית משנית וזמנית (אולי תימחק). מוצג *רק* אצל כתב
-          שמוגדר on_whatsapp=true (writers_page_law) — כך כתב שאינו בוואטסאפ לא רואה כאן וואטסאפ.
+      {/* 💬 וואטסאפ — תפריט נגלל בסגנון צ'אט (מקור גולמי משני, זמני). מוצג *רק* אצל כתב on_whatsapp
+          (writers_page_law). לא «קבוצות קבוצות» — שרשור-צ'אט אחד מאוחד, סגור כברירת-מחדל.
           זה לא המרכז; המרכז הוא ה-specialty למעלה. */}
       {c.on_whatsapp && feedUpdates.length > 0 && (
-        <div style={{ marginBottom: 22, opacity: 0.94 }}>
-          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textAlign: "center", marginBottom: 4, letterSpacing: .5 }}>
-            💬 מקור גולמי · וואטסאפ
-          </div>
-          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, textAlign: "center", marginBottom: 12 }}>
-            {feedUpdates.length} הודעות גולמיות · מקור זמני, לא ערוך
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12, alignItems: "start" }}>
-            {feedUpdates.map(u => {
-              const b = BRANDS[u.channel] || BRANDS["reality-code"];
-              const vid = u.image_url && isVideoUrl(u.image_url);
-              const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
-              return (
-                <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה במסך מלא"
-                  style={{ display: "flex", flexDirection: "column", background: P.card, border: `1px solid ${P.border}`,
-                    borderTop: `3px solid ${b.accent}`, borderRadius: 14, overflow: "hidden", cursor: "pointer", textAlign: "start" }}>
-                  {u.image_url && (
-                    <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", background: "#0a0710", overflow: "hidden" }}>
-                      {vid
-                        ? <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, color: "#cbb6ff" }}><span style={{ fontSize: 30 }}>▶</span><span style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 800, opacity: .8 }}>וידאו · הקש לצפייה</span></div>
-                        : <img src={galThumb(u, 420)} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
-                    </div>
-                  )}
-                  <div style={{ padding: "10px 12px 11px", display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
-                    <span style={{ alignSelf: "flex-start", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, color: b.accent, background: `color-mix(in srgb,${b.accent} 15%,transparent)`, borderRadius: 999, padding: "2px 9px" }}>{b.emoji} {b.title}</span>
-                    {showTxt && <p style={{ margin: 0, color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word", display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</p>}
-                    <div style={{ marginTop: "auto", color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5 }}>🕒 {timeAgoHe(u.created_at)}</div>
+        <div style={{ marginBottom: 22 }}>
+          <button onClick={() => setWaOpen(o => !o)} aria-expanded={waOpen}
+            style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, cursor: "pointer", textAlign: "start",
+              background: "linear-gradient(135deg,#128c7e,#075e54)", color: "#fff", border: "none",
+              borderRadius: waOpen ? "14px 14px 0 0" : 14, padding: "12px 16px", minHeight: 54 }}>
+            <span style={{ fontSize: 23, lineHeight: 1 }}>💬</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>וואטסאפ · {c.display_name}</div>
+              <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .85 }}>{feedUpdates.length} הודעות · מקור גולמי · הקש {waOpen ? "לסגירה" : "לפתיחה"}</div>
+            </div>
+            <span style={{ fontSize: 15, transform: waOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+          </button>
+          {waOpen && (
+            <div style={{ maxHeight: 520, overflowY: "auto", WebkitOverflowScrolling: "touch",
+              background: "#0b141a", border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 14px 14px",
+              padding: "14px 12px", display: "flex", flexDirection: "column", gap: 9 }}>
+              {feedUpdates.map(u => {
+                const vid = u.image_url && isVideoUrl(u.image_url);
+                const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+                return (
+                  <div key={u.id} onClick={() => setWaLb(u)} title="הקש לפתיחה במסך מלא"
+                    style={{ alignSelf: "flex-end", maxWidth: "85%", cursor: "pointer", background: "#005c4b", color: "#e9edef",
+                      borderRadius: "12px 12px 3px 12px", padding: u.image_url ? 6 : "9px 13px", boxShadow: "0 1px 1.5px rgba(0,0,0,.35)" }}>
+                    {u.image_url && (
+                      vid
+                        ? <div style={{ width: "100%", minWidth: 190, aspectRatio: "16/10", borderRadius: 9, background: "#0a0710", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, color: "#cbb6ff" }}><span style={{ fontSize: 27 }}>▶</span><span style={{ fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, opacity: .8 }}>וידאו · הקש לצפייה</span></div>
+                        : <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ display: "block", width: "100%", minWidth: 190, maxWidth: 300, borderRadius: 9, background: "#0a0710" }} />
+                    )}
+                    {showTxt && <p style={{ margin: u.image_url ? "8px 5px 2px" : 0, fontFamily: F.body, fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{u.text}</p>}
+                    <div style={{ textAlign: "end", marginTop: 3, fontFamily: F.heading, fontSize: 10, color: "#8fb3a8", paddingInline: 4 }}>🕒 {timeAgoHe(u.created_at)}</div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "16px 0 2px" }} />
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
       {waLb && <UpdateModal u={waLb} brand={BRANDS[waLb.channel] || BRANDS["reality-code"]} onClose={() => setWaLb(null)} />}
@@ -707,7 +713,8 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 🔎 חיפוש בתוך הדף — מספר בכל השיטות, או טקסט חופשי */}
+      {/* 🔎 חיפוש בתוך הדף — מספר בכל השיטות, או טקסט חופשי. רק כשיש חומר-כרטיסים (עמית/שמעון/ציון). */}
+      {hasMedia && (<>
       <div style={{ marginBottom: 14 }}>
         <input value={q} onChange={e => { setQ(e.target.value); setLimit(24); }} dir="auto"
           placeholder="🔎 חפשו מספר (למשל 888) או מילה — בכל הכרטיסים והשיטות"
@@ -752,6 +759,8 @@ export default function ContributorPage() {
           style={{ display: "block", margin: "14px auto 0", cursor: "pointer", background: "none", border: `1px dashed ${P.border}`, color: P.accentText, borderRadius: 12, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 26px", minHeight: 44 }}>
           עוד גילויים ({totalInCat - shown.length}) ▾
         </button>
+      )}
+      </>
       )}
 
       {/* 📝 הפוסטים על שמו — קישור לפוסט הקנוני, לא עותק */}
@@ -858,9 +867,11 @@ export default function ContributorPage() {
         </div>
       )}
 
-      <div style={{ marginTop: 22, textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
-        הכרטיסים בעמוד זה = חומר-מחקר בסטייג׳ (research_gold_hints_law) · גימטריה מאומתת מסומנת ✓
-      </div>
+      {hasMedia && (
+        <div style={{ marginTop: 22, textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
+          הכרטיסים בעמוד זה = חומר-מחקר בסטייג׳ (research_gold_hints_law) · גימטריה מאומתת מסומנת ✓
+        </div>
+      )}
 
       {/* 💬 תגובות על החוקר/הכתב — מבנה-התגובות הקנוני (Discourse). «להגיב על משתמש». */}
       <div style={{ marginTop: 36 }}>
