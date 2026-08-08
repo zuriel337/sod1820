@@ -27,6 +27,15 @@ const HIDE_KEY = "sod_hidden_contrib_cards_v1";
 function loadHidden() { try { return new Set(JSON.parse(localStorage.getItem(HIDE_KEY)) || []); } catch { return new Set(); } }
 function saveHidden(s) { try { localStorage.setItem(HIDE_KEY, JSON.stringify([...s])); } catch { /* noop */ } }
 
+// 💬 קבוצת-הוואטסאפ הקנונית (זהה לפוטר/‏/join). לכתב on_whatsapp — «למי שלא בקבוצה וירצה להתחבר».
+const WA_GROUP_URL = "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
+// כללי-ההצטרפות (חובה להצגה+אישור — wa onboarding, work_log «כלל הצטרפות הגילוי היומי»)
+const WA_GROUP_RULES = [
+  "הקבוצה מיועדת לעניינים כלליים, גילויים וחומר משותף. אין להשתמש בקבוצה לעניינים פרטיים או למחקר אישי על שמך.",
+  "המערכת רשאית להגביל או לחסום את יכולת הכתיבה של כל משתתף בקבוצה, לפי שיקול דעתה, בכל עת.",
+  "עצם ההצטרפות אינה מקנה זכות בלתי-מוגבלת לפרסם — חומר מהקבוצה נשאר כללי עד שהכתב מאשר אותו לדף שלו.",
+];
+
 // 👤 דף תורם/חוקר — /community/:slug (identity_architecture_law · research_gold_hints_law)
 // מרנדר את contributors.media: כרטיסי-זהב בסטייג׳, דייג׳סט, קטגוריות. עדשה על מקור אחד — לא עותק.
 const CAT_LABELS = {
@@ -671,6 +680,21 @@ export default function ContributorPage() {
             <div style={{ maxHeight: 520, overflowY: "auto", WebkitOverflowScrolling: "touch",
               background: "#0b141a", border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 14px 14px",
               padding: "14px 12px", display: "flex", flexDirection: "column", gap: 9 }}>
+              {/* 📌 באנר-הצטרפות נעוץ — למי שלא בקבוצה וירצה להתחבר, עם כללי-הקבוצה (onboarding) */}
+              <div style={{ alignSelf: "center", width: "100%", maxWidth: 520, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.13)", borderRadius: 12, padding: "13px 15px", textAlign: "center", color: "#e9edef" }}>
+                <div style={{ fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 3 }}>📌 עוד לא בקבוצה?</div>
+                <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .82, lineHeight: 1.55, marginBottom: 11 }}>הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים ודיונים.</div>
+                <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+                  💬 הצטרפו לקבוצה ←
+                </a>
+                <details style={{ marginTop: 11, textAlign: "start" }}>
+                  <summary style={{ cursor: "pointer", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, color: "#8fb3a8", listStyle: "none" }}>📋 כללי הקבוצה — חשוב לקרוא לפני הצטרפות ▾</summary>
+                  <ol style={{ margin: "9px 0 0", paddingInlineStart: 18, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.65, color: "#c8d3d0", display: "grid", gap: 5 }}>
+                    {WA_GROUP_RULES.map((r, i) => <li key={i}>{r}</li>)}
+                  </ol>
+                </details>
+              </div>
               {feedUpdates.map(u => {
                 const vid = u.image_url && isVideoUrl(u.image_url);
                 const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
