@@ -30,6 +30,9 @@ function saveHidden(s) { try { localStorage.setItem(HIDE_KEY, JSON.stringify([..
 
 // 💬 קבוצת-הוואטסאפ הקנונית (זהה לפוטר/‏/join). לכתב on_whatsapp — «למי שלא בקבוצה וירצה להתחבר».
 const WA_GROUP_URL = "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
+// 📞 וואטסאפ של צוריאל — כתב שרוצה להתחבר (להצטרף ל«הגילוי היומי») שולח הודעה אישית ומחוברים ידנית.
+const ZURIEL_WA = "972556651237";
+const ZURIEL_WA_LINK = `https://wa.me/${ZURIEL_WA}?text=${encodeURIComponent("שלום צוריאל 🙏 אני רוצה להתחבר לוואטסאפ / קבוצת «הגילוי היומי»")}`;
 // כללי-ההצטרפות (חובה להצגה+אישור — wa onboarding, work_log «כלל הצטרפות הגילוי היומי»)
 const WA_GROUP_RULES = [
   "הקבוצה מיועדת לעניינים כלליים, גילויים וחומר משותף. אין להשתמש בקבוצה לעניינים פרטיים או למחקר אישי על שמך.",
@@ -491,10 +494,17 @@ export default function ContributorPage() {
   const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0 && waUpdates.length === 0;
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
-  const voiceEmpty = !effIsOwner && !about && !settings.current_focus;
+  const voiceEmpty = !effIsOwner && !settings.current_focus;   // «על הכותב» עלה למעלה; כאן נותר current_focus + עתידי
   const waEmpty = !!c.on_whatsapp && feedUpdates.length === 0;
   const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
-  const rzFacts = `חוקר: ${c.display_name}. ${matrices.length} צפנים בתיק${level?.contrib ? `, ${level.contrib} חידושים מאושרים` : ""}${level?.label ? `, דרגה: ${level.label}` : ""}.`;
+  const rzFacts = [
+    `כתב: ${c.display_name}`,
+    c.specialty_label ? `התמחות: ${c.specialty_label}` : null,
+    matrices.length ? `${matrices.length} צפנים בתיק` : null,
+    posts.length ? `${posts.length} מחקרים/פוסטים` : null,
+    level?.contrib ? `${level.contrib} חידושים מאושרים` : null,
+    level?.label ? `דרגה: ${level.label}` : null,
+  ].filter(Boolean).join(". ") + ".";
 
   return (
     <PaletteProvider value={PALETTES.lab}>
@@ -548,6 +558,9 @@ export default function ContributorPage() {
         </div>
       </div>
 
+      {/* 🧑 על הכותב — למעלה אצל כולם (בקשת צוריאל): אינטרו קצר + גימטריית-השם, מיד אחרי הכותרת. */}
+      <AboutResearcher P={P} name={c.display_name} about={about} isOwner={effIsOwner} onSave={t => saveSettings({ about: t })} />
+
       {/* ═══ סלוט 2 · 🧠 המרכז שלי ═══ (מנוע-המרכז לפי specialty; המסגרת זהה אצל כולם) */}
       <WriterSlot P={P} emoji="🧠" title="המרכז שלי" empty={!c.specialty_label} emptyText="המרכז בבנייה — יופיע כאן מנוע-המחקר הייחודי של הכתב.">
         {c.specialty_label && (
@@ -563,7 +576,7 @@ export default function ContributorPage() {
       </WriterSlot>
 
       {/* ═══ סלוט 3 · 🔢 הגימטריות המאומתות שלי ═══ (מקור קנוני יחיד + empty-state עצמי) */}
-      <VerifiedGematrias name={c.display_name} acc={c.accent} />
+      <VerifiedGematrias name={c.display_name} acc={c.accent} uid={c.user_id} />
 
       {/* ═══ סלוט 4 · 🔬 המחקר שלי ═══ (עדשות על עץ-הידע; מסגרת זהה, נתונים משתנים) */}
       <WriterSlot P={P} emoji="🔬" title="המחקר שלי" empty={researchEmpty} emptyText="אין עדיין מחקר מוצג לכתב הזה.">
@@ -691,8 +704,8 @@ export default function ContributorPage() {
           </div>
         )}
 
-        {/* 🤖 עוזר-AI — ⚠️5: בתוך המחקר, לא מדור עצמאי */}
-        {matrices.length > 0 && (
+        {/* 🤖 עוזר-AI — ⚠️5: בתוך המחקר, לכל כתב (לא רק לבעל-תיק/צפנים) — רזיאל מדבר על המחקר של כל כתב */}
+        {(
           <AskRaziel kind="research" subject={c.display_name} facts={rzFacts} palette={P}
             title={effIsOwner ? "רזיאל · הסוכן שלך" : `רזיאל · שאל על המחקר של ${c.display_name}`}
             subtitle={effIsOwner ? "נחקור יחד — עובדה מהמנוע, לא נבואה" : "שאל את רזיאל על התיק הזה — עובדה מהמנוע, לא נבואה"}
@@ -704,9 +717,8 @@ export default function ContributorPage() {
         <MyResearchExplored P={P} isOwner={effIsOwner} />
       </WriterSlot>
 
-      {/* ═══ סלוט 5 · ✍️ הקול שלי ═══ (תוכן אישי; יעבור ל-contributor_content ב-Editor) */}
+      {/* ═══ סלוט 5 · ✍️ הקול שלי ═══ (תוכן אישי; «על הכותב» עלה למעלה, כאן «מה אני חוקר עכשיו» + עתידי contributor_content) */}
       <WriterSlot P={P} emoji="✍️" title="הקול שלי" tag="תוכן אישי של הכתב" empty={voiceEmpty} emptyText="הכתב עדיין לא הוסיף תוכן אישי.">
-        <AboutResearcher P={P} name={c.display_name} about={about} isOwner={effIsOwner} onSave={t => saveSettings({ about: t })} />
         <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
       </WriterSlot>
 
@@ -772,11 +784,11 @@ export default function ContributorPage() {
           /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «תורת הרמז», לכתוב, והכתב מחליט אם מוצג */
           <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
             <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
-              הכתב עדיין לא מחובר לוואטסאפ. אפשר להצטרף לקבוצת «תורת הרמז», לכתוב שם — ומה שתבחר להציג יופיע כאן.
+              הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
             </div>
-            <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
+            <a href={ZURIEL_WA_LINK} target="_blank" rel="noopener noreferrer"
               style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
-              💬 התחבר לקבוצת תורת הרמז ←
+              💬 שלחו לי הודעה בוואטסאפ ←
             </a>
           </div>
         )}
