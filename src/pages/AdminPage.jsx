@@ -7,6 +7,7 @@ import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, get
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
+import InfraLoadTab from "../components/InfraLoadTab.jsx";
 import ElsModerationTab from "../components/ElsModerationTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
@@ -89,6 +90,7 @@ const TABS = [
   { key: "suggest",  label: "🧠 המלצות המערכת" },
   { key: "live",     label: "🔴 שידור חי" },
   { key: "traffic",  label: "📊 תנועה" },
+  { key: "infra",    label: "🩺 עומסים ותשתית" },
   { key: "retention",label: "🔁 חוזרים" },
   { key: "users",    label: "👤 משתמשים" },
   { key: "walink",   label: "🟢 חיבור וואטסאפ" },
@@ -133,7 +135,7 @@ const TABS = [
 // הוסרו: «מסעות (ישן)» ו«מיילים» (שכפל את «רשימת תפוצה»). היתומים («סוכנים»→AI, «המרות»→צמיחה) חוברו לקבוצה.
 const GROUPS = [
   { key: "command", label: "🧠 מפקדה",       subs: ["command"] },
-  { key: "measure", label: "📊 מדידה",       subs: ["entries", "traffic", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
+  { key: "measure", label: "📊 מדידה",       subs: ["entries", "traffic", "infra", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
   { key: "growth",  label: "📈 צמיחה",       subs: ["growth", "conversions", "viral", "meta"] },
   { key: "ai",      label: "🤖 AI",           subs: ["aicost", "aistyles", "agents"] },
   { key: "content", label: "✍️ תוכן",         subs: ["topics", "chiddushim", "hintreports", "contribmod", "stream", "broadcast"] },
@@ -272,6 +274,7 @@ export default function AdminPage() {
       {tab === "suggest" && <SystemSuggestionsTab />}
       {tab === "live" && <LiveVisitorsTab />}
       {tab === "traffic" && <RealTrafficPanel />}
+      {tab === "infra" && <InfraLoadTab />}
       {tab === "retention" && <RetentionTab />}
       {tab === "users" && <UsersTab />}
       {tab === "walink" && <WhatsAppLinkTab />}
