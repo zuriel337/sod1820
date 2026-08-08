@@ -19,7 +19,7 @@ function parseFinding(r) {
     .replace(/\s*=\s*\d[\d\s.,!?]*$/, "").replace(/\s*=\s*\d+.*$/, "")   // הסרת «=מספר…»
     .replace(/[!?.·\-\s]+$/, "").replace(/^[(（[\s]+|[)）\]\s]+$/g, "").trim();  // סימני-קצה/סוגריים
   if (!phrase || phrase.length > 60 || !/[א-ת]/.test(phrase)) return null;
-  return { phrase, value };
+  return { phrase, value, method: r.method || null };   // method = שיטה לא-רגילה (מסתתר/מילוי/את־בש…) לתיוג
 }
 
 export default function VerifiedGematrias({ name, acc, uid }) {
@@ -84,7 +84,10 @@ export default function VerifiedGematrias({ name, acc, uid }) {
             style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textDecoration: "none",
               background: P.card, border: `1px solid ${P.border}`, borderRadius: 11, padding: "9px 13px" }}>
             <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.phrase}</span>
-            <span style={{ flex: "none", color: A, fontFamily: F.mono, fontSize: 14, fontWeight: 900 }}>{r.value}</span>
+            <span style={{ flex: "none", display: "flex", alignItems: "center", gap: 6 }}>
+              {r.method && <span title={`שיטה: ${r.method} (לא רגילה)`} style={{ fontFamily: F.heading, fontSize: 9.5, fontWeight: 900, color: P.accentText, background: `${A}22`, border: `1px solid ${A}55`, borderRadius: 999, padding: "1px 7px" }}>{r.method}</span>}
+              <span style={{ color: A, fontFamily: F.mono, fontSize: 14, fontWeight: 900 }}>{r.value}</span>
+            </span>
           </a>
         ))}
       </div>
