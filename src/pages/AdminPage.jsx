@@ -4735,6 +4735,7 @@ function ConvergenceJudge() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(null);
+  const [decErr, setDecErr] = useState("");        // כשל-שמירה של הכרעה — לא «נעלם בשקט»
   const [gen, setGen] = useState(false);
   const [open, setOpen] = useState(null);          // איזה מועמד פתוח («למה»)
   const [inp, setInp] = useState({});              // {id:{code,note}}
@@ -4760,12 +4761,18 @@ function ConvergenceJudge() {
   const setF = (id, k, v) => setInp(p => ({ ...p, [id]: { ...(p[id] || {}), [k]: v } }));
 
   const decide = async (c, decision) => {
-    setBusy(c.id);
+    setBusy(c.id); setDecErr("");
     const f = inp[c.id] || {};
-    let res = null;
-    try { res = await decideCandidate(c.id, decision, f.code || null, f.note || null); } catch { /* noop */ }
-    setHist(h => [{ value: c.subject_ref, rec: c.recommendation, decision, code: f.code, note: f.note, learning: res?.learning, patternKey: res?.pattern_key }, ...h]);
-    setD(prev => prev ? { ...prev, candidates: (prev.candidates || []).filter(x => x.id !== c.id) } : prev);
+    try {
+      const res = await decideCandidate(c.id, decision, f.code || null, f.note || null);
+      if (!res || res.decision_id == null) throw new Error("לא נכתב ל-decision_ledger");
+      // ✅ נכתב בוודאות → רק עכשיו מוסיפים להיסטוריה ומסירים מהשולחן
+      setHist(h => [{ value: c.subject_ref, rec: c.recommendation, decision, code: f.code, note: f.note, learning: res.learning, patternKey: res.pattern_key }, ...h]);
+      setD(prev => prev ? { ...prev, candidates: (prev.candidates || []).filter(x => x.id !== c.id) } : prev);
+    } catch (e) {
+      // ⚠️ נכשל — המועמד נשאר על השולחן, שום דבר לא נלמד; ההכרעה לא בוצעה
+      setDecErr(`ההכרעה על ${c.subject_ref} לא נשמרה — המועמד נשאר על השולחן. נסה שוב. (${e?.message || "שגיאה"})`);
+    }
     setBusy(null);
   };
   const runGen = async () => { setGen(true); try { await generateCandidates(20); } catch { /* noop */ } load(); setGen(false); };
@@ -4802,6 +4809,7 @@ function ConvergenceJudge() {
       <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.6, marginBottom: 8 }}>
         👁️ <b style={{ color: C.goldDim }}>ראיתי ≠ אישרתי</b> · לא־ראיתי ≠ דחיתי · התעלמתי ≠ דחיתי · <b style={{ color: C.goldDim }}>רק דחייה מפורשת = החלטה נלמדת</b>. «כבר ראיתי» נשמר אצלך בלבד ואינו נחשב הכרעה.
       </div>
+      {decErr && <div style={{ background: "rgba(200,80,80,0.12)", border: "1px solid rgba(224,138,138,0.5)", color: "#e08a8a", borderRadius: 8, padding: "8px 11px", marginBottom: 10, fontFamily: F.body, fontSize: 12 }}>⚠️ {decErr}</div>}
 
       {/* תור-עבודה: סינון לפי מצב + «סמן הכל כנראה» */}
       {cands.length > 0 && (
@@ -4950,6 +4958,7 @@ function CommandCenterTab({ gotoTab }) {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(null);
+  const [revErr, setRevErr] = useState("");   // כשל-שמירה של אישור/דחייה — מוצג במקום «להיעלם בשקט»
   const recRef = useRef(null);   // תיבת ההמלצות (לגלילה מהחיווי)
   const actRef = useRef(null);   // מרכז הפעילות (לגלילה מהחיווי)
 
@@ -4960,10 +4969,17 @@ function CommandCenterTab({ gotoTab }) {
   const nLink = (k) => "/number/" + encodeURIComponent(k || "");
 
   const review = async (id, status) => {
-    setBusy(id);
-    try { await reviewRecommendation(id, status); } catch { /* noop */ }
-    setD(prev => prev ? { ...prev, recommendations: (prev.recommendations || []).filter(r => r.id !== id),
-      counters: { ...prev.counters, recommendations_pending: Math.max(0, (prev.counters?.recommendations_pending || 1) - 1) } } : prev);
+    setBusy(id); setRevErr("");
+    try {
+      const res = await reviewRecommendation(id, status);   // ה-RPC מחזיר את השורה המעודכנת
+      if (!res || res.id == null) throw new Error("לא נכתב לשרת (0 שורות עודכנו)");
+      // ✅ רק אחרי שהשמירה אושרה בשרת — מסירים מהתצוגה ומעדכנים את המונה
+      setD(prev => prev ? { ...prev, recommendations: (prev.recommendations || []).filter(r => r.id !== id),
+        counters: { ...prev.counters, recommendations_pending: Math.max(0, (prev.counters?.recommendations_pending || 1) - 1) } } : prev);
+    } catch (e) {
+      // ⚠️ נכשל — ההמלצה נשארת בתצוגה וממתינה; לא «נעלמת בשקט»
+      setRevErr(`השמירה נכשלה — ההמלצה עדיין ממתינה, לא אושרה. נסה שוב. (${e?.message || "שגיאה"})`);
+    }
     setBusy(null);
   };
   const [scanning, setScanning] = useState(false);
@@ -5136,6 +5152,7 @@ function CommandCenterTab({ gotoTab }) {
       <div ref={recRef} style={card}>
         <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>🧠 תיבת המלצות מטטרון</div>
         <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5, marginBottom: 12 }}>מטטרון מגלה ומציע — אתה מאשר. הפעולה על הגרף מתבצעת רק אחרי אישור.</div>
+        {revErr && <div style={{ background: "rgba(200,80,80,0.12)", border: "1px solid rgba(224,138,138,0.5)", color: "#e08a8a", borderRadius: 8, padding: "8px 11px", marginBottom: 10, fontFamily: F.body, fontSize: 12 }}>⚠️ {revErr}</div>}
         {(!d.recommendations || !d.recommendations.length) ? <Empty>אין המלצות ממתינות. ✅</Empty>
           : d.recommendations.map(r => {
             const [bc, bl] = typeBadge(r.type); const conf = Math.round((Number(r.confidence) || 0) * 100);

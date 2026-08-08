@@ -563,6 +563,25 @@
   .filmbar .fb-s{cursor:pointer;background:var(--panel2);border:1px solid var(--line2);color:var(--ink2);border-radius:999px;padding:5px 12px;font-family:inherit;font-size:11.5px;font-weight:700}
   .filmbar .fb-s.on{background:#8b5cf6;color:#fff;border-color:transparent}
   .filmbar .fb-x{cursor:pointer;background:none;border:none;color:var(--ink3);font-size:14px;margin-inline-start:auto;padding:0 4px}
+  /* 🎥 מצב הצגה — מסך נקי לקריינות + הקלטה. שורת-שליטה קבועה למטה. */
+  body.presenting .matacts,body.presenting .filmbar,body.presenting .hintbar,body.presenting .selbar,body.presenting .descbar,body.presenting .mside{display:none!important}
+  body.presenting .matrix-box{margin-inline:auto}
+  #presentbar{position:fixed;inset-inline:0;bottom:0;z-index:99999;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+    background:linear-gradient(180deg,rgba(12,10,22,.86),rgba(12,10,22,.97));border-top:1px solid rgba(139,92,246,.5);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(8px);font-family:inherit}
+  #presentbar button{cursor:pointer;font-family:inherit;font-weight:800;border-radius:10px;border:1px solid var(--line2);background:var(--panel2);color:var(--ink);padding:9px 14px;font-size:14px;min-height:42px}
+  #presentbar button:disabled{opacity:.38;cursor:default}
+  #presentbar .pb-next{background:linear-gradient(160deg,#8b5cf6,#7c3aed);color:#fff;border-color:transparent;font-size:15px;padding:10px 20px}
+  #presentbar .pb-prev{padding:9px 15px}
+  #presentbar .pb-mid{display:flex;flex-direction:column;align-items:center;min-width:150px;line-height:1.25}
+  #presentbar .pb-count{font-size:11.5px;color:var(--ink3);letter-spacing:1px}
+  #presentbar .pb-cur{display:inline-flex;align-items:center;gap:7px;font-size:16px;font-weight:800;color:var(--ink)}
+  #presentbar .pb-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  #presentbar .pb-gap{flex-basis:100%;height:0}
+  #presentbar .pb-secs{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2)}
+  #presentbar .pb-secs input{width:58px;padding:7px;border-radius:8px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);font-family:inherit;font-size:15px}
+  #presentbar .pb-auto{background:linear-gradient(160deg,#0d9488,#0f766e);color:#fff;border-color:transparent}
+  #presentbar .pb-exit{background:none;border-color:transparent;color:var(--ink3)}
   .shareov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
   .sharebox{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:18px 18px 16px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6)}
   .sharebox h3{margin:0 0 4px;font-family:var(--serif);font-size:18px;color:var(--goldBright)}
@@ -2475,6 +2494,83 @@
   // 🎬 השמעת-הסרט מספר-פעמים ברצף (למשל בביקור-ראשון: תורה קדשה ×2)
   let _revealDur=0;
   function playRevealTimes(n){playReveal();if(n>1){const t=setTimeout(()=>playRevealTimes(n-1),_revealDur||3200);_revealTimers.push(t);}}
+  // ── 🎥 מצב הצגה (Presenter) — חשיפה ידנית/מתוזמנת של חלקי-הצופן לקריינות חיה + הקלטה ──
+  //    בונה על אותה מכניקת-חשיפה (rv-hide/rv-pop) אך מקבץ *לפי מילה*: שלב 0 = הציר, ואז כל מילה מוצלבת = שלב.
+  //    ידני = «הבא»/רווח/→ חושף חלק (סנכרון לקריינות חיה) · אוטומטי = שניות-לחלק שאתה קובע.
+  let _present=null,_presentKey=null;
+  function _presentPlan(){
+    if(!lastGrid||!st.res||!st.res.hits.length)return null;
+    const grid=lastGrid,steps=[];
+    const uniqArr=a=>{const s=new Set(),o=[];a.forEach(p=>{if(!s.has(p)){s.add(p);o.push(p);}});return o;};
+    if(!st.hideMain){const ax=(occ()&&occ().positions)||[];if(ax.length)steps.push({label:(st.raw||"הציר"),color:null,cells:uniqArr(ax)});}
+    st.words.forEach(w=>{const pos=[];shownHitsOf(w).forEach(h=>h.positions.forEach(p=>pos.push(p)));if(pos.length)steps.push({label:w.t,color:w.color||null,cells:uniqArr(pos)});});
+    if(!steps.length)return null;
+    const all=new Set();steps.forEach(s=>s.cells.forEach(i=>all.add(i)));
+    const byIdx=new Map();grid.querySelectorAll(".mc").forEach(c=>{const i=+c.dataset.i;if(all.has(i))byIdx.set(i,c);});
+    return {grid,steps,byIdx};
+  }
+  function _presentApply(pop){
+    if(!_present)return;const {steps,byIdx,i}=_present;
+    steps.forEach((s,si)=>s.cells.forEach(idx=>{const c=byIdx.get(idx);if(c)c.classList.toggle("rv-hide",si>i);}));
+    if(pop&&i>=0&&steps[i])steps[i].cells.forEach(idx=>{const c=byIdx.get(idx);if(c){c.classList.add("rv-pop");setTimeout(()=>{try{c.classList.remove("rv-pop");}catch(e){}},340);}});
+    _presentSync();
+  }
+  function presentGoto(k){if(!_present)return;_present.i=Math.max(-1,Math.min(_present.steps.length-1,k));_presentApply(true);}
+  function presentNext(){if(_present)presentGoto(_present.i+1);}
+  function presentPrev(){if(_present)presentGoto(_present.i-1);}
+  function presentTick(){if(!_present||!_present.auto)return;if(_present.i>=_present.steps.length-1){_present.auto=false;_presentSync();return;}presentNext();_present.timer=setTimeout(presentTick,Math.max(0.4,_present.secs||3)*1000);}
+  function presentAuto(on){if(!_present)return;_present.auto=on;if(_present.timer){clearTimeout(_present.timer);_present.timer=null;}if(on){if(_present.i>=_present.steps.length-1)presentGoto(-1);presentTick();}_presentSync();}
+  function _presentSync(){const bar=document.getElementById("presentbar");if(!bar||!_present)return;const n=_present.steps.length,i=_present.i,cur=i>=0&&_present.steps[i]?_present.steps[i]:null;
+    bar.querySelector(".pb-count").textContent=(i+1)+" / "+n;
+    bar.querySelector(".pb-curtxt").textContent=(i<0?"מוכן — הקש «הבא»":"«"+(cur?cur.label:"")+"»");
+    const dot=bar.querySelector(".pb-dot");dot.style.background=(cur&&cur.color)||"transparent";dot.style.visibility=(cur&&cur.color)?"visible":"hidden";
+    bar.querySelector(".pb-auto").textContent=_present.auto?"⏸ עצור":"▶ אוטומטי";
+    bar.querySelector(".pb-prev").disabled=i<0;bar.querySelector(".pb-next").disabled=i>=n-1&&!_present.auto;}
+  function _presentBar(){
+    let bar=document.getElementById("presentbar");if(bar)return bar;
+    bar=document.createElement("div");bar.id="presentbar";
+    bar.innerHTML='<button class="pb-prev" title="הקודם (←)">◀</button>'+
+      '<div class="pb-mid"><div class="pb-count">0 / 0</div><div class="pb-cur"><span class="pb-dot"></span><span class="pb-curtxt">מוכן</span></div></div>'+
+      '<button class="pb-next" title="הבא (רווח / →)">הבא ▶</button>'+
+      '<span class="pb-gap"></span>'+
+      '<label class="pb-secs">⏱ <input type="number" min="0.5" step="0.5" value="3"> ש׳</label>'+
+      '<button class="pb-auto">▶ אוטומטי</button>'+
+      '<button class="pb-full" title="מסך מלא">⤢</button>'+
+      '<button class="pb-exit" title="יציאה (Esc)">✕ יציאה</button>';
+    document.body.appendChild(bar);
+    bar.querySelector(".pb-prev").onclick=presentPrev;
+    bar.querySelector(".pb-next").onclick=presentNext;
+    bar.querySelector(".pb-auto").onclick=()=>presentAuto(!_present.auto);
+    bar.querySelector(".pb-secs input").onchange=e=>{if(_present)_present.secs=Math.max(0.4,+e.target.value||3);};
+    bar.querySelector(".pb-full").onclick=_presentFull;
+    bar.querySelector(".pb-exit").onclick=stopPresent;
+    // התיקון: pb-cur התאפס מעל → נזריק מחדש count/cur נכון דרך _presentSync
+    return bar;
+  }
+  function _presentFull(){try{const el=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else el.requestFullscreen&&el.requestFullscreen();}catch(e){}}
+  function _presentKeys(e){if(!_present)return;const t=e.target;if(t&&/^(INPUT|TEXTAREA)$/.test(t.tagName))return;
+    if(e.key===" "||e.key==="ArrowRight"||e.key==="Enter"){e.preventDefault();presentNext();}
+    else if(e.key==="ArrowLeft"){e.preventDefault();presentPrev();}
+    else if(e.key==="Escape"){e.preventDefault();stopPresent();}}
+  function startPresent(){
+    const p=_presentPlan();if(!p){toast("פתח או חפש צופן קודם");return;}
+    stopReveal();
+    _present={steps:p.steps,byIdx:p.byIdx,i:-1,auto:false,timer:null,secs:3};
+    p.steps.forEach(s=>s.cells.forEach(idx=>{const c=p.byIdx.get(idx);if(c)c.classList.add("rv-hide");}));
+    document.body.classList.add("presenting");
+    _presentBar();_presentSync();
+    _presentKey=_presentKeys;document.addEventListener("keydown",_presentKey);
+    try{lastGrid.scrollIntoView({block:"center"});}catch(e){}
+    toast("🎥 מצב הצגה — «הבא» חושף חלק · רווח/→ · Esc ליציאה");
+  }
+  function stopPresent(){
+    if(_present&&_present.timer)clearTimeout(_present.timer);
+    if(_presentKey){document.removeEventListener("keydown",_presentKey);_presentKey=null;}
+    _present=null;document.body.classList.remove("presenting");
+    const bar=document.getElementById("presentbar");if(bar)bar.remove();
+    if(lastGrid)lastGrid.querySelectorAll(".mc.rv-hide,.mc.rv-pop").forEach(c=>c.classList.remove("rv-hide","rv-pop"));
+    try{document.fullscreenElement&&document.exitFullscreen();}catch(e){}
+  }
   // 🎬 «מתי מתחילים» — הסרט נפתח *רק כשרואים את המטריצה*: כשהיא בתוך חלון-הצפייה ואינה מכוסה ע״י
   //    חלון-הדרכה/מדריך. כך משתמש שעדיין עובר על המסכים שמעל (או שפתח מטריצה שמורה ונגלל אליה) רואה
   //    את הסרט מתחיל בדיוק כשהמטריצה מולו — לא לפני. (במקום טיימר קבוע שרץ לפני שהגיעו למטריצה.)
@@ -2717,7 +2813,7 @@
       // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
       (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
       ((st.cipherSlug&&norm(st.raw)===norm(st.cipherTerm))?'<button class="mact contrib-act" title="שתף את המילים שסימנת כתגובת-מחקר על הצופן הזה">➕ שתף כממצא</button>':'')+
-      '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף</button>'+
+      '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact present-act" title="חשיפה ידנית/מתוזמנת של חלקי-הצופן — לקריינות והקלטה">🎥 מצב הצגה</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
     filmbar.innerHTML='<button class="fb-play">▶ נגן שוב</button><span class="fb-lbl">מהירות:</span>'+
@@ -2742,6 +2838,7 @@
     const la=acts.querySelector(".link-act");if(la)la.onclick=linkToPost;
     const syncSpeed=()=>filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.classList.toggle("on",+bt.dataset.s===st.filmSpeed));
     acts.querySelector(".play-act").onclick=()=>{filmbar.style.display="flex";syncSpeed();playReveal();};
+    const prAct=acts.querySelector(".present-act");if(prAct)prAct.onclick=startPresent;
     filmbar.querySelector(".fb-play").onclick=()=>playReveal();
     filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.onclick=()=>{st.filmSpeed=+bt.dataset.s;syncSpeed();playReveal();});
     filmbar.querySelector(".fb-x").onclick=()=>{stopReveal();filmbar.style.display="none";};

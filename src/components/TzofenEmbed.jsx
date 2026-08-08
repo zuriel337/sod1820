@@ -279,7 +279,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         src={src}
         title="הצופן התנ״כי — דילוגי אותיות (ELS)"
         loading="lazy"
-        allow="clipboard-write; clipboard-read; web-share"
+        allow="clipboard-write; clipboard-read; web-share; fullscreen"
+        allowFullScreen
         style={{
           width: "100%",
           height: full ? "calc(100dvh - 58px)" : "calc(100dvh - 130px)",
