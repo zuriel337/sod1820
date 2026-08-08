@@ -101,9 +101,9 @@ function NextActionCard({ T, dark, profile, myProfile, myLevel, nextActions, set
           </button>
         )}
       </div>
-      {/* 🌳 דרגת-חוקר — לחיצה פותחת «הדרגה שלי» */}
+      {/* 🌳 דרגת-חוקר — לחיצה פותחת «ההתקדמות שלי» */}
       {myLevel && (
-        <button onClick={() => setActive("level")} style={{ display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "right", background: dark ? "#20242e" : "#f3f6ff", border: `1px solid ${T.line}`, borderRadius: 10, padding: "7px 11px", cursor: "pointer", color: T.ink, fontFamily: "inherit", margin: "6px 0 10px" }}>
+        <button onClick={() => setActive("progress")} style={{ display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "right", background: dark ? "#20242e" : "#f3f6ff", border: `1px solid ${T.line}`, borderRadius: 10, padding: "7px 11px", cursor: "pointer", color: T.ink, fontFamily: "inherit", margin: "6px 0 10px" }}>
           <span style={{ fontSize: 16 }}>{(LEVELS.find(l => l.n === myLevel.level) || {}).icon || "🌱"}</span>
           <span style={{ fontWeight: 800, fontSize: 12.5 }}>{myLevel.label}</span>
           <span style={{ fontSize: 11, color: T.sub }}>דרגה {myLevel.level}</span>
@@ -245,9 +245,9 @@ export default function UserCenter() {
             <Stat T={T} label="במחקר" val={center?.research_items ?? "—"} onClick={() => setActive("research")} />
             <Stat T={T} label="שמורים" val={center?.saved ?? "—"}
               onClick={() => { try { localStorage.setItem("rw_hub_tab", "saved"); } catch { /* noop */ } setActive("research"); }} />
-            <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} onClick={() => setActive("stats")} />
+            <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} onClick={() => setActive("progress")} />
             {/* «פוסטים» מוצג רק למי שכתב פוסטים — גולש רגיל לא רואה «אפס פוסטים» */}
-            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("stats")} />}
+            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("progress")} />}
           </div>
           {/* 🟢 סטטוס וואטסאפ — גלוי מיד בכותרת; מנותק = CTA לחיבור, מחובר = ניהול */}
           <WaHeaderChip T={T} onOpen={() => setActive("whatsapp")} />
@@ -1148,7 +1148,6 @@ function HomeTiles({ T, center, setActive, dark }) {
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
 export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, onUnread, goto, setActive }) {
   const c = center || {};
-  const hasPosts = (c.posts ?? 0) > 0;   // מציגים «פוסטים» רק למי שכתב פוסטים (לא «אפס פוסטים» לגולש רגיל)
   const isWriter = !!(c.is_writer || c.is_publisher);
   // 👑 «הדף הפומבי שלי» מוצג רק למי שיש לו דף-כתב/תורם (has_dossier) או שהוא כותב/חוקר.
   //    קורא רגיל לא רואה. הופך לכתב/תורם → hasPage=true → הכרטיס חוזר אוטומטית (לא נמחק).
@@ -1161,18 +1160,25 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
     // 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה (כותב update_my_page_config). מוצג רק למי שיש דף.
     { id: "page-editor", world: "create", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor T={T} goto={goto} /> },
-    // 👤 הפרופיל שלי = מקום אחד לזהות+חשבון (איחד את «הגדרות» לתוכו):
-    //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה · סיכום-העץ.
-    //    המספרים (חיפושים/פוסטים/מחקר/תרומות) גרים במודול «📊 סטטיסטיקות» בלבד — בלי כפילות.
+    // 👤 הפרופיל שלי = זהות/חשבון בלבד (איחד את «הגדרות» לתוכו):
+    //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה.
+    //    דרגה/עץ/מספרים גרים במודול אחד «📈 ההתקדמות שלי» — בלי כפילות (איחוד #1).
     { id: "profile", world: "me", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: T.accSoft, color: T.acc, border: `1px solid ${T.line}`, borderRadius: 999, padding: "4px 12px", fontSize: 12.5, fontWeight: 800, marginBottom: 14 }}>{identityOf(c, isAdmin)}</div>
         <ProfileSettings t={{ fieldBg: T.card, ink: T.ink, line: T.line, sub: T.sub, acc: T.acc, btnText: "#fff" }} showSignOut onSignOut={() => goto("/")} />
         <MyInfoPanel T={T} />
-        <div style={{ marginTop: 18 }}><MyTreeCard /></div>
       </div>
     ) },
-    { id: "level", world: "me", icon: "🌳", title: "הדרגה שלי", status: "live", render: () => <LevelPanel T={T} /> },
+    // 📈 ההתקדמות שלי — מודול אחד לדרגה+עץ+מספרים+פעילות (איחד את «הדרגה» ו«סטטיסטיקות»).
+    { id: "progress", world: "me", icon: "📈", title: "ההתקדמות שלי", status: "live", render: () => (
+      <div>
+        <LevelPanel T={T} />
+        <div style={{ marginTop: 18 }}><MyTreeCard /></div>
+        <RecentActivityPanel T={T} />
+        {isAdmin && <AdminOnlinePanel T={T} />}
+      </div>
+    ) },
     { id: "research", world: "lab", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined, render: () => (
       <div>
         {/* סביבת המחקר המלאה בתוך האזור האישי — סביבה אחת (החלטת צוריאל 9.7.2026) */}
@@ -1187,18 +1193,6 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />
         <Row T={T} k="מהמילים שלך במנוע" v={c.contributions ?? 0} />
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: כמה נכנסו ל«אוצרות» · כמה משתמשים השתמשו · כמה צפיות קיבלו.</div>
-      </div>
-    ) },
-    { id: "stats", world: "me", icon: "📊", title: "סטטיסטיקות", status: "live", render: () => (
-      <div>
-        <Row T={T} k="חיפושים" v={c.searched ?? 0} />
-        {hasPosts && <Row T={T} k="פוסטים" v={c.posts} />}
-        <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
-        <Row T={T} k="שמורים" v={c.saved ?? 0} />
-        <Row T={T} k="תרומות" v={c.contributions ?? 0} />
-        <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: דירוג בקהילה · זמן פעילות · תגים והישגים.</div>
-        <RecentActivityPanel T={T} />
-        {isAdmin && <AdminOnlinePanel T={T} />}
       </div>
     ) },
     { id: "hints", world: "lab", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
