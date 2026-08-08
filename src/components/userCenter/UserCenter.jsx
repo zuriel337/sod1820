@@ -247,7 +247,7 @@ export default function UserCenter() {
               onClick={() => { try { localStorage.setItem("rw_hub_tab", "saved"); } catch { /* noop */ } setActive("research"); }} />
             <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} onClick={() => setActive("progress")} />
             {/* «פוסטים» מוצג רק למי שכתב פוסטים — גולש רגיל לא רואה «אפס פוסטים» */}
-            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("progress")} />}
+            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("myposts")} />}
           </div>
           {/* 🟢 סטטוס וואטסאפ — גלוי מיד בכותרת; מנותק = CTA לחיבור, מחובר = ניהול */}
           <WaHeaderChip T={T} onOpen={() => setActive("whatsapp")} />
@@ -972,7 +972,10 @@ function MyInfoPanel({ T }) {
       </div>
       <div style={{ color: T.sub, fontSize: 12, lineHeight: 1.6, marginBottom: 12 }}>השם ותאריך-הלידה פותחים ניתוח-שם אישי במנוע, ומאפשרים לרזיאל להכיר אותך.</div>
       <div style={{ display: "grid", gap: 10 }}>
-        <input value={name} onChange={e => setName(e.target.value)} dir="rtl" placeholder="השם המלא שלי (שם + שם משפחה)" style={input} />
+        <div>
+          <div style={{ color: T.sub, fontSize: 11.5, marginBottom: 4 }}>שם מלא (פרטי — לניתוח-שם, לא מוצג בפומבי)</div>
+          <input value={name} onChange={e => setName(e.target.value)} dir="rtl" placeholder="השם המלא שלי (שם + שם משפחה)" style={input} />
+        </div>
         <div>
           <div style={{ color: T.sub, fontSize: 11.5, marginBottom: 4 }}>תאריך לידה</div>
           <input type="date" value={bdate || ""} onChange={e => setBdate(e.target.value)} style={{ ...input, direction: "ltr" }} />
