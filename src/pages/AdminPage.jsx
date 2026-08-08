@@ -4490,8 +4490,9 @@ function NumberResearcher() {
 
   const loadCands = () => getConvergenceCandidates(50).then(r => setCands(r?.candidates || [])).catch(() => {});
   useEffect(() => { loadCands(); }, []);
-  // 🧵 השיחה מתמשכת — נטענת מ-agent_user_memory (channel='site') בכל כניסה/רענון, לא נמחקת
-  useEffect(() => { loadResearcherThread().then(h => { if (h?.length) setMsgs(h); }).catch(() => {}); }, []);
+  // 🧵 השיחה מתמשכת — נטענת מ-agent_user_memory (channel='site') בכל כניסה/רענון, לא נמחקת.
+  // משחזר גם את ה-snapshot האחרון → «על סמך מה רזיאל ענה?» עובד מיד אחרי כניסה מחדש (Replay).
+  useEffect(() => { loadResearcherThread().then(r => { if (r?.history?.length) setMsgs(r.history); if (r?.snapshot) setSnap(r.snapshot); }).catch(() => {}); }, []);
   const push = (role, text) => setMsgs(p => [...p, { role, text }]);
 
   const parseVals = (s) => (s.match(/\d{1,6}/g) || []).slice(0, 2).map(Number);

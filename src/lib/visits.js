@@ -282,12 +282,13 @@ export async function askNumberResearcher(values, message, history = []) {
   if (error) throw error;
   return data || null;
 }
-// 🧵 טעינת השיחה המתמשכת השמורה (agent_user_memory, channel='site') — שלא נמחקת ברענון/יציאה
+// 🧵 טעינת השיחה המתמשכת השמורה (agent_user_memory, channel='site') — לא נמחקת ברענון/יציאה.
+// מחזיר גם את ה-context_snapshot האחרון כדי ש-«על סמך מה?» יעבוד אחרי כניסה מחדש (Replay).
 export async function loadResearcherThread() {
-  if (!supabase) return [];
+  if (!supabase) return { history: [], snapshot: null };
   const { data, error } = await supabase.functions.invoke("number-researcher", { body: { op: "history" } });
-  if (error) return [];
-  return Array.isArray(data?.history) ? data.history : [];
+  if (error) return { history: [], snapshot: null };
+  return { history: Array.isArray(data?.history) ? data.history : [], snapshot: data?.snapshot || null };
 }
 // ➕ שלח לשופט: יוצר Candidate מלא-trace מה-dossier → השופט הקיים
 export async function sendCandidateFromResearcher(value, note = null, claim = null) {
