@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { PALETTES, PaletteProvider } from "../lib/palette.js";
-import { supabase, getUpdatesByReporterNames, getConvergencesByAuthor } from "../lib/supabase.js";
+import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
 import { thumb, galThumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
@@ -153,7 +153,6 @@ export default function ContributorPage() {
   const [tagged, setTagged] = useState([]);       // 📌 פוסטים המתויגים בשמו (מופיע בהם, לא בהכרח כתב)
   const [convergences, setConvergences] = useState([]); // 🎯 ההתכנסויות שלו (topic_cards)
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
-  const [gemBank, setGemBank] = useState([]);     // 🔢 הגימטריות שלו במאגר (convergences לפי details.contributors)
   const [forumMsgs, setForumMsgs] = useState([]); // 💬 ההודעות האחרונות שלו בפורום (research_contributions)
   const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
@@ -274,18 +273,6 @@ export default function ContributorPage() {
       .catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name, c?.wa_names]);
-
-  // 🔢 הגימטריות שלו במאגר — עדשה על convergences לפי details.contributors[].author (RPC).
-  //    אוטומציה (בקשת צוריאל): כל גימטריה שנכנסת למאגר עם ייחוס לכתב מופיעה כאן, בראש דף-הכתב.
-  useEffect(() => {
-    if (!c?.display_name) { setGemBank([]); return; }
-    let alive = true;
-    const names = [c.display_name, ...(Array.isArray(c.tags) ? c.tags : []), ...(Array.isArray(c.wa_names) ? c.wa_names : [])];
-    getConvergencesByAuthor(names)
-      .then(r => { if (alive) setGemBank(Array.isArray(r) ? r : []); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [c?.display_name, c?.tags, c?.wa_names]);
 
   // 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions (מאושרות) לפי שם/uid.
   //    «לחיצה על השם → רואים את ההודעות האחרונות שלו». עץ אחד: מצביע לשרשור /forum/:id, לא עותק.
@@ -581,35 +568,6 @@ export default function ContributorPage() {
           </div>
         );
       })()}
-
-      {/* 🔢 הגימטריות שלו במאגר — למעלה, ראשון (בקשת צוריאל). אוטומציה: convergences המיוחסות לכתב. */}
-      {gemBank.length > 0 && (
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>
-            🔢 הגימטריות של {c.display_name} במאגר
-          </div>
-          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
-            עובדות מאומתות במנוע · התכנסויות מהמאגר
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 12, alignItems: "start" }}>
-            {gemBank.map(g => {
-              const phrases = (Array.isArray(g.author_phrases) && g.author_phrases.length) ? g.author_phrases : (g.phrases || []);
-              return (
-                <div key={g.id} style={{ background: P.card, border: `1px solid ${P.border}`, borderTop: `3px solid ${P.accentText}`, borderRadius: 14, padding: "12px 14px" }}>
-                  <a href={`/number/${g.value}`} style={{ display: "inline-block", fontFamily: F.mono, fontSize: 23, fontWeight: 900, color: P.accentText, textDecoration: "none", marginBottom: 6 }}>{g.value}</a>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    {phrases.map((p, i) => (
-                      <div key={i} style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.5 }}>{p} <span style={{ color: P.inkSoft }}>= {g.value}</span></div>
-                    ))}
-                  </div>
-                  {g.note && <div style={{ marginTop: 6, color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.5 }}>{g.note}</div>}
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "16px 0 2px" }} />
-        </div>
-      )}
 
       {/* 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions, מצביע לשרשור (עץ אחד) */}
       {forumMsgs.length > 0 && (
