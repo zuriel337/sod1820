@@ -225,6 +225,40 @@ export function setForumThreadJsonLd({ thread, replies = [], path, image } = {})
 }
 export function clearForumJsonLd() { removeJsonLd("sod-forum-ld"); }
 
+// ── JSON-LD לגלריית הסרטים (דף הבית) — ItemList של VideoObject ──
+// מזין את דוח «וידאו» ב-Search Console → הסרטונים מופיעים כתוצאות-וידאו עשירות בגוגל
+// (thumbnail + כותרת), כדי שמי שמחפש את הסרטונים של סוד1820 יגיע אליהם ראשון.
+// דרישות גוגל ל-VideoObject: name · thumbnailUrl · uploadDate · embedUrl/contentUrl.
+export function setVideoGalleryJsonLd(videos = []) {
+  if (typeof document === "undefined") return;
+  const list = (videos || []).filter(v => v && v.yt);
+  if (!list.length) { removeJsonLd("sod-video-ld"); return; }
+  const items = list.map((v, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "VideoObject",
+      name: plain(v.title || "", 110) || SITE_NAME,
+      description: plain(v.title || "", 300) || SITE_NAME,
+      thumbnailUrl: [`https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`],
+      uploadDate: v.uploaded_at || undefined,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${v.yt}`,
+      contentUrl: `https://www.youtube.com/watch?v=${v.yt}`,
+      url: v.slug ? `${SITE_URL}/${v.slug}` : `https://youtu.be/${v.yt}`,
+      inLanguage: "he-IL",
+      publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
+    },
+  }));
+  setJsonLd("sod-video-ld", {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": SITE_URL + "/#video-gallery",
+    name: "גלריית הסרטים — סוד 1820",
+    itemListElement: items,
+  });
+}
+export function clearVideoGalleryJsonLd() { removeJsonLd("sod-video-ld"); }
+
 // ── עוזרי מטא נוספים ──
 function addMeta(attr, key, content) {
   if (typeof document === "undefined") return;

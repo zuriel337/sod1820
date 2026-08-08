@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 import { getHomeVideos } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
+import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
 import ShareActions from "./ShareActions.jsx";
 import HomeHeader from "./HomeHeader.jsx";
 
@@ -31,7 +32,7 @@ function VideoCard({ v, onPlay, featured }) {
   const P = usePalette();
   return (
     <div className={`vg-item${featured ? " vg-feat" : ""}`}>
-      <button onClick={() => onPlay(v)} style={{
+      <button onClick={() => onPlay(v)} aria-label={`נגן סרטון: ${stripHtml(v.title)}`} style={{
         position: "relative", display: "block", width: "100%", aspectRatio: "16/9",
         borderRadius: 12, overflow: "hidden", cursor: "pointer", padding: 0,
         border: `1px solid ${featured ? VIOLET : P.border}`, background: "#000",
@@ -56,24 +57,6 @@ function VideoCard({ v, onPlay, featured }) {
   );
 }
 
-// ריבוע "בקרוב" ריק
-function ComingCard() {
-  const P = usePalette();
-  return (
-    <div>
-      <div style={{
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
-        width: "100%", aspectRatio: "16/9", borderRadius: 12,
-        border: `1px dashed ${P.borderStrong}`, background: P.cardSoft,
-      }}>
-        <span style={{ fontSize: 26 }}>🚧</span>
-        <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 2 }}>בקרוב</span>
-      </div>
-      <div style={{ marginTop: 9, height: 1 }} aria-hidden />
-    </div>
-  );
-}
-
 export default function VideoGallery() {
   const P = usePalette();
   const [playing, setPlaying] = useState(null);
@@ -90,6 +73,23 @@ export default function VideoGallery() {
     getHomeVideos().then(data => { if (alive) setRows(data); }).catch(() => {});
     return () => { alive = false; };
   }, []);
+
+  // 🔍 JSON-LD (VideoObject) — כדי שגוגל יציג את הסרטונים כתוצאות-וידאו עשירות
+  useEffect(() => {
+    const all = (rows && rows.length) ? rows : [FEATURED, ...VIDEOS];
+    setVideoGalleryJsonLd(all);
+    return () => clearVideoGalleryJsonLd();
+  }, [rows]);
+
+  // ⌨️ נגן: סגירה ב-Esc + נעילת גלילת-הרקע בזמן ניגון
+  useEffect(() => {
+    if (!playing) return;
+    const onKey = (e) => { if (e.key === "Escape") setPlaying(null); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [playing]);
 
   // מהטבלה: הסרטון המובלט (featured) ראשון, ואז השאר. נפילה לברירת-המחדל אם אין נתונים.
   let featured = FEATURED, list = VIDEOS;
@@ -150,6 +150,7 @@ export default function VideoGallery() {
               )}
               <ShareActions type="video" compact
                 title={stripHtml(playing.title)}
+                image={`https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg`}
                 url={playing.slug ? `https://sod1820.co.il/${playing.slug}` : `https://youtu.be/${playing.yt}`} />
             </div>
           </div>
