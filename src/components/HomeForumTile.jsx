@@ -4,6 +4,11 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { stripHtml } from "../lib/format.js";
+import { track } from "../lib/tracking.js";
+
+// 📊 מדידת «כניסה לפורום מעמוד-הבית» — כל קישור-פורום בכרטיס פולט event אחיד (home_cta_click),
+// כדי להשוות מול צ'יפ-הסטורי (מי מושך יותר מהבית).
+const trackForumFromHome = (where) => { try { track("forum", "home", "home_cta_click", { where }); } catch { /* noop */ } };
 
 // 💬 «מהפורום» — 3 הפריטים האחרונים בפורום (→ /forum), + המקום הקנוני שמפנה לכתוב חידוש.
 // מציג 3 (לא 1) כדי לא לחפוף לכרטיס «מה חדש» שמצביע על הפריט האחרון בלבד. מקור-אמת: getForumFeed(3) + forumItemMeta.
@@ -24,8 +29,8 @@ export default function HomeForumTile() {
       {/* כותרת + כתיבת-חידוש */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: items.length ? 9 : 0 }}>
         <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>🌐 מהפורום</span>
-        <Link to="/forum" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>כל הפורום ←</Link>
-        <Link to="/forum?write=1" style={{
+        <Link to="/forum" onClick={() => trackForumFromHome("all")} style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>כל הפורום ←</Link>
+        <Link to="/forum?write=1" onClick={() => trackForumFromHome("write")} style={{
           marginInlineStart: "auto", whiteSpace: "nowrap", textDecoration: "none", background: P.accentBtn, color: P.onAccent,
           fontFamily: F.heading, fontWeight: 800, fontSize: 12, borderRadius: 999, padding: "7px 14px",
         }}>✍️ שתפו חידוש ←</Link>
@@ -38,7 +43,7 @@ export default function HomeForumTile() {
             const m = forumItemMeta(it);
             const text = stripHtml(m.text || "").slice(0, 70) || m.label;
             return (
-              <Link key={it.id || i} to={m.href} style={{
+              <Link key={it.id || i} to={m.href} onClick={() => trackForumFromHome("item")} style={{
                 display: "flex", alignItems: "center", gap: 8, textDecoration: "none", padding: "7px 2px",
                 borderTop: i ? `1px solid ${P.border}` : "none", minWidth: 0, overflow: "hidden",
               }}>
