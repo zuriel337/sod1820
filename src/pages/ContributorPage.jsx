@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { PALETTES, PaletteProvider } from "../lib/palette.js";
 import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
@@ -140,6 +140,11 @@ export default function ContributorPage() {
   // 📁 תיק המחקר = סביבת-מחקר → בהיר-נקי תמיד (research_workspace_law), כמו בית המדרש.
   const P = PALETTES.lab;
   const { user, isAdmin, loading: authLoading } = useAuth(); // isAdmin: הכפתור מוצג רק לאדמין; השרת אוכף שוב בכל קריאה
+  const [searchParams] = useSearchParams();
+  // 👁 «צפה כפי שהציבור רואה» (?view=public) — הבעלים/אדמין רואה את הדף בדיוק כמו מבקר רגיל:
+  //    בלי כלי-בעלים, בלי כלי-אדמין, בלי אשף-הכנה. גישה לא נחסמת (הבעלים תמיד רשאי); רק התצוגה ציבורית.
+  const asPublic = searchParams.get("view") === "public";
+  const effIsAdmin = asPublic ? false : isAdmin;
   const [c, setC] = useState(null);
   const [err, setErr] = useState(false);
   const [lightName, setLightName] = useState(null);   // 👤 שם לפרופיל-חוקר קל (כשאין שורת-contributor אצורה)
@@ -215,8 +220,9 @@ export default function ContributorPage() {
           // אין שורת-תיק אצורה → פרופיל-חוקר קל לפי שם (identity_architecture_law)
           let nm = slug; try { nm = decodeURIComponent(slug); } catch { /* raw */ } setLightName(nm); return;
         }
-        // me → נווט לכתובת הקנונית (URL נקי, deep-link יציב)
-        if (resolveMe && data.slug && data.slug !== "me") { nav(`/community/researcher/${data.slug}`, { replace: true }); return; }
+        // me → נווט לכתובת הקנונית (URL נקי, deep-link יציב). שומרים query (למשל ?view=public) כדי
+        //    ש«צפה כפי שהציבור רואה» יישמר גם אחרי הפנייה מ-«me» לכתובת הקנונית.
+        if (resolveMe && data.slug && data.slug !== "me") { nav(`/community/researcher/${data.slug}${typeof window !== "undefined" ? window.location.search : ""}`, { replace: true }); return; }
         // 🌳 עץ אחד: דף-כותב שאוחד → הפניה לעמוד הקנוני
         if (data.merged_into && data.merged_into !== slug) { nav(`/community/researcher/${data.merged_into}`, { replace: true }); return; }
         setC(data);
@@ -356,9 +362,9 @@ export default function ContributorPage() {
 
   // 🧙 כניסה ראשונה של הבעלים לתיק (בלי onboarded) → אשף הכנת-תיק במקום דף ריק
   useEffect(() => {
-    if (c && user?.id && c.user_id === user.id && !(c.dossier_settings?.onboarded)) setShowOnboard(true);
+    if (!asPublic && c && user?.id && c.user_id === user.id && !(c.dossier_settings?.onboarded)) setShowOnboard(true);
     else setShowOnboard(false);
-  }, [c, user]);
+  }, [c, user, asPublic]);
 
   const media = useMemo(() => (Array.isArray(c?.media) ? c.media : []), [c]);
   const digest = media.find(e => e.kind === "digest");
@@ -366,12 +372,12 @@ export default function ContributorPage() {
   const items = media.filter(e => e.kind !== "digest" && e.kind !== "scan-header");
   const cats = useMemo(() => {
     const s = new Map();
-    (isAdmin ? items : items.filter(x => !x.sensitive)).forEach(e => { const k = e.category || "אחר"; s.set(k, (s.get(k) || 0) + 1); });
+    (effIsAdmin ? items : items.filter(x => !x.sensitive)).forEach(e => { const k = e.category || "אחר"; s.set(k, (s.get(k) || 0) + 1); });
     return [...s.entries()].sort((a, b) => b[1] - a[1]);
-  }, [items, isAdmin]);
+  }, [items, effIsAdmin]);
   // 🔒 תוכן רגיש (סומן בדאטה) — מוסתר מהציבור; אדמין רואה עם תג
   const sensitiveCount = items.filter(e => e.sensitive).length;
-  const safeItems = isAdmin ? items : items.filter(e => !e.sensitive);
+  const safeItems = effIsAdmin ? items : items.filter(e => !e.sensitive);
   // 📦 האם לכתב יש בכלל חומר-כרטיסים ישן (media)? רק 3 כתבים (עמית/שמעון/ציון) — אצל השאר 0.
   //    כל ה«כרום» הישן (חיפוש/קטגוריות/גריד/הערת-שוליים) מגודר בזה → דף נקי לכתב בלי media.
   const hasMedia = safeItems.length > 0;
@@ -439,6 +445,7 @@ export default function ContributorPage() {
   );
 
   const isOwner = !!(user?.id && c.user_id && user.id === c.user_id);
+  const effIsOwner = asPublic ? false : isOwner;   // 👁 בתצוגה-ציבורית אין כלי-בעלים
   const vis = c?.dossier_settings?.visibility || "public";
   // 🔒 תיק פרטי — רק הבעלים/אדמין רואים
   if (vis === "private" && !isOwner && !isAdmin) return (
@@ -461,6 +468,16 @@ export default function ContributorPage() {
         onDone={(s) => { setShowOnboard(false); setC(prev => prev ? { ...prev, dossier_settings: { ...(prev.dossier_settings || {}), ...s } } : prev); }} />
     )}
     <div style={{ direction: "rtl", maxWidth: 1040, margin: "0 auto", padding: "24px 16px 60px" }}>
+      {/* 👁 באנר תצוגה-ציבורית — מוצג רק לבעלים/אדמין שנכנס דרך «צפה כפי שהציבור רואה» */}
+      {asPublic && (isOwner || isAdmin) && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center",
+          background: P.glow, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 16px", marginBottom: 16 }}>
+          <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>👁 תצוגה ציבורית — כך הדף נראה לכל מבקר</span>
+          <a href={`/community/researcher/${c.code || c.slug}`} style={{ color: P.onAccent, background: P.accentBtn, textDecoration: "none", borderRadius: 999, padding: "7px 15px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>
+            ✍️ חזרה למצב-הבעלים
+          </a>
+        </div>
+      )}
       <div style={{ textAlign: "center", marginBottom: 18 }}>
         <img src={c.avatar_url || genAvatar(c.display_name)} alt={c.display_name} loading="lazy"
           style={{ width: 92, height: 92, borderRadius: "50%", objectFit: "cover", border: `2.5px solid ${P.accent}`, boxShadow: `0 6px 22px ${P.glow}`, marginBottom: 10 }} />
@@ -625,7 +642,7 @@ export default function ContributorPage() {
       )}
 
       {/* 📁 אזורי תיק-המחקר (researcher_dossier_law) — כרגע-אני-חוקר · השפעה · תחומים · צפנים · יומן. המחקר במרכז. */}
-      <DossierExtras P={P} c={c} level={level} isOwner={!!(user?.id && c.user_id && user.id === c.user_id)} onCount={setDossierCount} />
+      <DossierExtras P={P} c={c} level={level} isOwner={effIsOwner} onCount={setDossierCount} />
 
       {/* 🎨 גלריה מודגשת בראש — כתב עם feature_media (contributor_featured_media_law · כרגע ציון). תמונות+טקסט ראשונים למעלה. */}
       {c.feature_media && waUpdates.filter(u => u.image_url).length > 0 && (
@@ -728,7 +745,7 @@ export default function ContributorPage() {
             {topGold.map((e, i) => (
               <div key={e.f || i} style={{ position: "relative", breakInside: "avoid" }}>
                 <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: P.accentBtn, color: P.onAccent, borderRadius: 999, fontFamily: F.mono, fontSize: 12, fontWeight: 900, padding: "3px 9px", boxShadow: `0 2px 10px ${P.glow}` }}>#{e.top_rank}</span>
-                <Card e={{ ...e, title: e.top_caption || e.title }} P={P} slug={slug} user={user} isAdmin={isAdmin} onHide={hide} onPromote={onPromote}
+                <Card e={{ ...e, title: e.top_caption || e.title }} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
                   onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); }} />
               </div>
             ))}
@@ -768,7 +785,7 @@ export default function ContributorPage() {
 
       {/* גריד הכרטיסים */}
       <div style={{ columns: "2 300px", columnGap: 12 }}>
-        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} isAdmin={isAdmin} onHide={hide} onPromote={onPromote}
+        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
           onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /* noop */ } }} />)}
       </div>
       {hiddenCount > 0 && (

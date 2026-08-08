@@ -3,7 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { usePalette } from "../../lib/palette.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
-import { supabase } from "../../lib/supabase.js";
+import { supabase, getUserActivity } from "../../lib/supabase.js";
+import MyTreeCard from "../MyTreeCard.jsx";
+import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../../lib/push.js";
+import { useSiteOnline } from "../../lib/presence.js";
 import HintsPanel from "./HintsPanel.jsx";
 import ProfileSettings from "../ProfileSettings.jsx";
 import ResearchCenter from "../ResearchCenter.jsx";
@@ -750,6 +753,165 @@ function WhatsAppPanel({ T, goto, setActive }) {
   );
 }
 
+// 👑 «הדף הפומבי שלי» — הגשר בין הקוקפיט הפרטי (המגירה) לפנים הפומביות (דף-הכתב).
+//    המודל הפשוט: אני → האזור האישי → הדף שלי → צפה / ערוך. «צפה» = תצוגה ציבורית מדויקת
+//    (?view=public, בלי כלי-בעלים); «ערוך» = הדף שלי עם כלי-הבעלים (השער ל-Editor העתידי).
+function PublicPageCard({ T, goto }) {
+  const bBase = { width: "100%", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+    cursor: "pointer", fontFamily: "inherit", fontWeight: 800, fontSize: 14, borderRadius: 11, padding: "13px 16px", minHeight: 48, marginBottom: 10 };
+  return (
+    <div>
+      <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.75, marginBottom: 15 }}>
+        המודל פשוט: <b style={{ color: T.ink }}>אני → האזור האישי → הדף שלי → צפה / ערוך</b>.<br />הדף הפומבי הוא בדיוק מה שכל מבקר רואה — לא גרסה מיוחדת.
+      </div>
+      <button onClick={() => goto("/community/researcher/me?view=public")} style={{ ...bBase, background: T.acc, color: "#fff", border: "none" }}>
+        👁 צפה בדף כפי שהציבור רואה
+      </button>
+      <button onClick={() => goto("/community/researcher/me")} style={{ ...bBase, background: "transparent", color: T.ink, border: `1px solid ${T.line}` }}>
+        ✍️ ערוך את הדף שלי
+      </button>
+      <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4, lineHeight: 1.65 }}>
+        «צפה» = תצוגה ציבורית מדויקת (בלי כלי-עריכה). «ערוך» = הדף שלך עם כלי-הבעלים; עורך-הדף המלא בדרך.
+      </div>
+    </div>
+  );
+}
+
+// 🪪 הפרטים שלי (הועבר מ-/profile) — שם מלא + תאריך-לידה (save_my_info). פרטי; פותח ניתוח-שם + רזיאל.
+function MyInfoPanel({ T }) {
+  const nav = useNavigate();
+  const { close } = useUserCenter();
+  const [name, setName] = useState(""); const [bdate, setBdate] = useState("");
+  const [busy, setBusy] = useState(false); const [note, setNote] = useState(""); const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    let a = true;
+    supabase.from("profiles").select("full_name, birth_date").maybeSingle()
+      .then(({ data }) => { if (!a) return; setName(data?.full_name || ""); setBdate(data?.birth_date || ""); setLoaded(true); })
+      .catch(() => { if (a) setLoaded(true); });
+    return () => { a = false; };
+  }, []);
+  async function save() {
+    setBusy(true); setNote("");
+    try { const { data } = await supabase.rpc("save_my_info", { p_full_name: name.trim() || null, p_birth_date: bdate || null }); setNote(data?.ok ? "✓ נשמר — רזיאל מכיר אותך עכשיו" : "לא נשמר — נסו שוב"); }
+    catch { setNote("שגיאה — נסו שוב"); }
+    setBusy(false);
+  }
+  const input = { width: "100%", boxSizing: "border-box", padding: "11px 13px", borderRadius: 10, background: T.bg, border: `1px solid ${T.line}`, color: T.ink, fontFamily: "inherit", fontSize: 16, outline: "none" };
+  return (
+    <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${T.line}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+        <span style={{ fontSize: 18 }}>🪪</span>
+        <span style={{ color: T.ink, fontWeight: 800, fontSize: 14.5 }}>הפרטים שלי</span>
+        <span style={{ marginInlineStart: "auto", color: T.sub, fontSize: 11 }}>פרטי · רק אתה</span>
+      </div>
+      <div style={{ color: T.sub, fontSize: 12, lineHeight: 1.6, marginBottom: 12 }}>השם ותאריך-הלידה פותחים ניתוח-שם אישי במנוע, ומאפשרים לרזיאל להכיר אותך.</div>
+      <div style={{ display: "grid", gap: 10 }}>
+        <input value={name} onChange={e => setName(e.target.value)} dir="rtl" placeholder="השם המלא שלי (שם + שם משפחה)" style={input} />
+        <div>
+          <div style={{ color: T.sub, fontSize: 11.5, marginBottom: 4 }}>תאריך לידה</div>
+          <input type="date" value={bdate || ""} onChange={e => setBdate(e.target.value)} style={{ ...input, direction: "ltr" }} />
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <button onClick={save} disabled={busy || !loaded} style={{ background: T.acc, color: "#fff", border: "none", borderRadius: 10, padding: "10px 18px", fontWeight: 800, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit", opacity: (busy || !loaded) ? .6 : 1 }}>{busy ? "שומר…" : "שמור"}</button>
+          {name.trim() && <button onClick={() => { close(); nav(`/name-lab?w=${encodeURIComponent(name.trim())}`); }} style={{ background: "none", border: `1px solid ${T.line}`, color: T.ink, borderRadius: 10, padding: "10px 16px", fontFamily: "inherit", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>🔮 נתח את השם שלי →</button>}
+        </div>
+        {note && <div style={{ color: T.ink, fontSize: 13, fontWeight: 700 }}>{note}</div>}
+      </div>
+    </div>
+  );
+}
+
+// 🔔 התראות Push (הועבר מ-/profile) — מצב המכשיר + הפעלה/ביטול. סך-מנויים לאדמין בלבד.
+function PushPanel({ T, user, isAdmin }) {
+  const [status, setStatus] = useState(null); const [total, setTotal] = useState(null);
+  const [busy, setBusy] = useState(false); const [note, setNote] = useState("");
+  const refreshCount = useCallback(async () => { if (!isAdmin) return; try { const { data } = await supabase.rpc("push_sub_count"); if (data && typeof data.total === "number") setTotal(data.total); } catch { /* noop */ } }, [isAdmin]);
+  const refresh = useCallback(async () => { try { setStatus(await getPushStatus()); } catch { /* noop */ } refreshCount(); }, [refreshCount]);
+  useEffect(() => { refresh(); }, [refresh]);
+  async function toggle() {
+    setNote(""); setBusy(true);
+    try {
+      if (status?.subscribed) { await disablePush(); setNote("ההרשמה בוטלה במכשיר זה."); }
+      else { const r = await enablePush({ userId: user?.id || null, topics: [] }); setNote(!r.ok ? (r.reason === "denied" ? "הדפדפן חסם התראות — צריך לאשר בהגדרות האתר." : r.reason === "unsupported" ? "הדפדפן הזה לא תומך בהתראות." : "ההפעלה נכשלה.") : "נרשמת להתראות במכשיר זה ✦"); }
+    } catch { setNote("שגיאה — נסו שוב."); }
+    await new Promise(r => setTimeout(r, 600)); await refresh(); setBusy(false);
+  }
+  if (!PUSH_CONFIGURED) return null;
+  const subscribed = !!status?.subscribed; const unsupported = status && !status.supported;
+  return (
+    <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${T.line}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 18 }}>🔔</span><span style={{ color: T.ink, fontWeight: 800, fontSize: 14.5 }}>התראות Push במכשיר זה</span>
+      </div>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 4, background: T.bg, border: `1px solid ${subscribed ? "#2e7d32" : T.line}`, borderRadius: 999, padding: "6px 15px", color: subscribed ? "#2e9e5b" : T.sub, fontWeight: 700, fontSize: 13 }}>
+        {unsupported ? "⚠️ הדפדפן הזה לא תומך בהתראות" : subscribed ? "✅ רשום להתראות במכשיר זה" : "○ לא רשום במכשיר זה"}
+      </div>
+      {isAdmin && <div style={{ color: T.sub, fontSize: 12.5, marginTop: 8 }}>סך המנויים (אדמין): <b style={{ color: T.ink }}>{total ?? "…"}</b></div>}
+      {!unsupported && (
+        <div style={{ marginTop: 14 }}>
+          <button onClick={toggle} disabled={busy} style={{ background: subscribed ? "transparent" : T.acc, color: subscribed ? T.ink : "#fff", border: subscribed ? `1px solid ${T.line}` : "none", borderRadius: 10, padding: "10px 18px", fontWeight: 800, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit", opacity: busy ? .6 : 1 }}>
+            {busy ? "…" : subscribed ? "בטל הרשמה במכשיר זה" : "הפעל התראות במכשיר זה"}
+          </button>
+        </div>
+      )}
+      {note && <div style={{ color: T.ink, fontSize: 13, fontWeight: 700, marginTop: 12 }}>{note}</div>}
+      <div style={{ color: T.sub, fontSize: 11.5, lineHeight: 1.65, marginTop: 12, opacity: .85 }}>💡 כל מכשיר/דפדפן נרשם בנפרד. באייפון נדרש להוסיף את האתר למסך-הבית לפני הרשמה.</div>
+    </div>
+  );
+}
+
+// 🕒 פעילות אישית אחרונה (הועבר מ-/profile) — חיפושי גימטריה + פוסטים שנגלשו (RLS פר-משתמש).
+function RecentActivityPanel({ T }) {
+  const nav = useNavigate(); const { close } = useUserCenter();
+  const [searches, setSearches] = useState(null); const [posts, setPosts] = useState(null);
+  useEffect(() => {
+    let a = true;
+    getUserActivity(["gematria"], 8).then(d => { if (a) setSearches(d); }).catch(() => {});
+    getUserActivity(["post"], 6).then(d => { if (a) setPosts(d); }).catch(() => {});
+    return () => { a = false; };
+  }, []);
+  const go = (to) => { close(); nav(to); };
+  const chip = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", background: T.bg, border: `1px solid ${T.line}`, borderRadius: 999, padding: "6px 12px", color: T.ink, fontFamily: "inherit", fontSize: 12.5, fontWeight: 600 };
+  return (
+    <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${T.line}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 18 }}>🕒</span><span style={{ color: T.ink, fontWeight: 800, fontSize: 14.5 }}>הפעילות האחרונה שלי</span>
+      </div>
+      <div style={{ color: T.sub, fontSize: 12, marginBottom: 6 }}>🔢 חיפושי גימטריה</div>
+      {searches === null ? <div style={{ color: T.sub, fontSize: 12.5 }}>טוען…</div>
+        : searches.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{searches.map((s, i) => <button key={i} onClick={() => go(`/beit-midrash?w=${encodeURIComponent(s.ref)}`)} style={chip}><span>{s.ref}</span>{s.title ? <span style={{ color: T.sub, fontSize: 11.5 }}>= {s.title}</span> : null}</button>)}</div>
+        : <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.6 }}>כל חיפוש בבית המדרש יופיע כאן.</div>}
+      <div style={{ color: T.sub, fontSize: 12, margin: "14px 0 6px" }}>📜 פוסטים שגלשת בהם</div>
+      {posts === null ? <div style={{ color: T.sub, fontSize: 12.5 }}>טוען…</div>
+        : posts.length ? <div style={{ display: "grid", gap: 2 }}>{posts.map((p, i) => <button key={i} onClick={() => go(`/${p.ref}`)} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", background: "none", border: "none", borderBottom: `1px solid ${T.line}`, padding: "8px 2px", color: T.ink, fontFamily: "inherit", fontSize: 13.5, textAlign: "start" }}><span>›</span><span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.title || p.ref}</span></button>)}</div>
+        : <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.6 }}>הפוסטים שתקרא יופיעו כאן.</div>}
+    </div>
+  );
+}
+
+// 🟢 מחוברים עכשיו (הועבר מ-/profile) — מונה חי, אדמין בלבד. משתמש בו-Presence הגלובלי.
+function AdminOnlinePanel({ T }) {
+  const { total, members, guests } = useSiteOnline();
+  const stat = (n, label, dot) => (
+    <div style={{ flex: 1, minWidth: 84, textAlign: "center", background: T.bg, border: `1px solid ${T.line}`, borderRadius: 10, padding: "10px 8px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+        <span style={{ width: 7, height: 7, borderRadius: "50%", background: dot }} />
+        <span style={{ color: T.ink, fontWeight: 800, fontSize: 22, lineHeight: 1 }}>{n}</span>
+      </div>
+      <div style={{ color: T.sub, fontSize: 11, marginTop: 5 }}>{label}</div>
+    </div>
+  );
+  return (
+    <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${T.line}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 18 }}>🟢</span><span style={{ color: T.ink, fontWeight: 800, fontSize: 14.5 }}>מחוברים עכשיו</span>
+        <span style={{ marginInlineStart: "auto", color: T.sub, fontSize: 10.5, background: T.bg, border: `1px solid ${T.line}`, borderRadius: 999, padding: "2px 9px" }}>LIVE · אדמין</span>
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>{stat(total, "סה״כ", "#5bd16a")}{stat(members, "מחוברים", "#f0c14b")}{stat(guests, "אורחים", "#7bb7ff")}</div>
+    </div>
+  );
+}
+
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
@@ -760,14 +922,18 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים · world = שיוך לאחד מ-5 העולמות ───
     { id: "notifications", world: "me", icon: "🔔", title: "ההתראות שלי", status: "live", badge: unread || undefined,
-      render: () => <NotificationsPanel T={T} onUnread={onUnread} goto={goto} /> },
+      render: () => <div><NotificationsPanel T={T} onUnread={onUnread} goto={goto} /><PushPanel T={T} user={user} isAdmin={isAdmin} /></div> },
+    // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). זה מה שסוגר את «שלושת המקומות».
+    { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", render: () => <PublicPageCard T={T} goto={goto} /> },
     { id: "profile", world: "me", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
+        <MyTreeCard />
         <Row T={T} k="סטטוס" v={identityOf(c, isAdmin)} />
         {hasPosts && <Row T={T} k="פוסטים באתר" v={c.posts} />}
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
         <Row T={T} k="שמורים" v={c.saved ?? 0} />
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>העולם האישי שלך בתוך SOD1820 — כל גילוי מרחיב את העץ שלך.</div>
+        <MyInfoPanel T={T} />
       </div>
     ) },
     { id: "level", world: "me", icon: "🌳", title: "הדרגה שלי", status: "live", render: () => <LevelPanel T={T} /> },
@@ -792,6 +958,8 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <Row T={T} k="פריטים במחקר" v={c.research_items ?? 0} />
         <Row T={T} k="תרומות" v={c.contributions ?? 0} />
         <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: דירוג בקהילה · זמן פעילות · תגים והישגים.</div>
+        <RecentActivityPanel T={T} />
+        {isAdmin && <AdminOnlinePanel T={T} />}
       </div>
     ) },
     { id: "hints", world: "lab", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
