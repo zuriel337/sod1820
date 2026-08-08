@@ -520,9 +520,10 @@ function LevelPanel({ T }) {
 
 // ◆ הקרדיטים שלי — יתרה + ספר-תנועות (בהרצה). credit_ledger own-read.
 const CREDIT_REASON = { founding_grant: "🏛️ מענק חוקר מייסד", wa_link: "🟢 חיבור וואטסאפ", wa_activity: "💬 הודעות בקבוצות", daily: "☀️ פעילות יומית", share: "🔗 שיתוף", referral: "👥 חבר שהזמנת נרשם", referral_welcome: "🎁 בונוס-קבלה", spend: "שימוש", earn: "צבירה" };
-const ZURIEL_WA = "972556651237"; // רכישת קרדיטים = פנייה אישית בוואטסאפ
 function CreditsPanel({ T }) {
   const { user } = useAuth();
+  const nav = useNavigate();
+  const { close } = useUserCenter();
   const [ledger, setLedger] = useState(null);
   const [profile, setProfile] = useState(null);
   const [invited, setInvited] = useState(null);
@@ -542,7 +543,7 @@ function CreditsPanel({ T }) {
       <div style={{ background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "14px 15px", marginBottom: 12, textAlign: "center" }}>
         <div style={{ fontSize: 11.5, color: T.sub, fontWeight: 700 }}>היתרה שלי · בהרצה</div>
         <div style={{ fontSize: 30, fontWeight: 800, color: T.gold, marginTop: 2 }}>◆ {(profile?.credits || 0).toLocaleString("he-IL")}</div>
-        <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4, lineHeight: 1.6 }}>הקרדיטים בהרצה — עדיין ללא מחירים. מחלקים כדי ללמוד מה עובד; ההגדרה הסופית בקרוב.</div>
+        <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4, lineHeight: 1.6 }}>צוברים קרדיטים בפעילות באתר — ואפשר גם לרכוש חבילה בדף הקרדיטים.</div>
       </div>
       <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 7 }}>תנועות אחרונות</div>
       {ledger == null ? (
@@ -587,12 +588,12 @@ function CreditsPanel({ T }) {
         ))}
       </div>
 
-      {/* 💳 רכישת קרדיטים — כרגע פנייה אישית בוואטסאפ */}
+      {/* 💳 רכישת קרדיטים — מקור-אחד: דף הקרדיטים הקנוני (/credits), לא משטח-קנייה מקביל */}
       <div style={{ marginTop: 16, background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "13px 14px" }}>
         <div style={{ fontWeight: 800, fontSize: 13.5, color: T.gold, marginBottom: 4 }}>💳 רכישת קרדיטים</div>
-        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginBottom: 10 }}>רוצה עוד קרדיטים עכשיו? שלח לי הודעה אישית בוואטסאפ ונסדר.</div>
-        <a href={`https://wa.me/${ZURIEL_WA}?text=${encodeURIComponent("היי, אשמח לרכוש קרדיטים ל-סוד 1820")}`} target="_blank" rel="noreferrer"
-          style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", borderRadius: 10, padding: "11px", fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>🟢 לרכישה — הודעה בוואטסאפ</a>
+        <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.6, marginBottom: 10 }}>חבילות ותשלום מאובטח (ביט / העברה) בדף הקרדיטים.</div>
+        <button onClick={() => { try { close?.(); } catch { /* noop */ } nav("/credits"); }}
+          style={{ display: "block", width: "100%", boxSizing: "border-box", textAlign: "center", background: T.gold, color: "#1a0e00", border: "none", borderRadius: 10, padding: "11px", fontWeight: 800, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit" }}>💎 לרכישת קרדיטים ←</button>
       </div>
     </div>
   );
