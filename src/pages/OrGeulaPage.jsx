@@ -34,7 +34,6 @@ export default function OrGeulaPage() {
   // 📲 שיתוף לסטורי — רכיב-שיתוף קנוני יחיד (lib/share). סופר כ-share_story.
   async function shareToStory(item) {
     const r = await shareVideoToStory({
-      videoUrl: isVideo(item.image_url) ? item.image_url : null,
       url: `${SITE_URL}/or-geula?v=${item.id}`,
       text: (item.text || "").trim().slice(0, 140),
     });
@@ -150,7 +149,7 @@ export default function OrGeulaPage() {
               <button onClick={() => shareToStory(open)}
                 style={{ background: "linear-gradient(160deg,#8b5cf6,#d6336c)", color: "#fff", border: "none", borderRadius: 999,
                   padding: "12px 26px", fontFamily: F.heading, fontSize: 15, fontWeight: 800, cursor: "pointer", minHeight: 46 }}>
-                📲 שתפו לסטורי
+                🔗 שתפו קישור לצפייה
               </button>
               <ShareActions type="video" compact force
                 url={`${SITE_URL}/or-geula?v=${open.id}`}
