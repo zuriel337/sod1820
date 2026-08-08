@@ -127,7 +127,7 @@ export default function OrGeulaPage() {
       {/* לייטבוקס מסך-מלא */}
       {open && (
         <div onClick={closeItem} role="dialog" aria-modal="true"
-          style={{ position: "fixed", inset: 0, zIndex: 5000, background: "rgba(6,4,12,.94)", display: "flex", flexDirection: "column",
+          style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "rgba(6,4,12,.94)", display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center", padding: 20, overflowY: "auto" }}>
           <button onClick={closeItem} aria-label="סגירה"
             style={{ position: "absolute", top: 16, insetInlineEnd: 18, background: "rgba(255,255,255,.14)", color: "#fff",

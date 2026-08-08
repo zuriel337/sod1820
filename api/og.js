@@ -137,6 +137,13 @@ export default async function handler(req, res) {
 
   const key = path.replace(/\/$/, '') || '/';
   const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
+  // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
+  let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
+  if (!vParam) {
+    const rp = String((req.query && req.query.path) || '');
+    const qi = rp.indexOf('?');
+    if (qi >= 0) { try { vParam = new URLSearchParams(rp.slice(qi + 1)).get('v') || ''; } catch { /* ignore */ } }
+  }
   if (key === '/gematria' || key === '/גימטריה') {
     // מחשבון הגימטריה — אם שותפו מילה+ערך (?w=&n=) → תמונת כרטיס ויראלית עם המילה.
     const w = String((req.query && req.query.w) || '').trim();
@@ -198,6 +205,26 @@ export default async function handler(req, res) {
       desc = "הקלידו את שמכם וגלו את הסוד הגימטרי שמאחוריו — גשרים, השוואות והקשרים נסתרים.";
       image = `${SITE}/api/card?w=${encodeURIComponent('מעבדת השם')}&sub=${encodeURIComponent('גלו את הסוד שבשם שלכם')}&sig=gem`;
     }
+  } else if (key === '/or-geula' && vParam) {
+    // 🎬 סרטון ספציפי מאור-הגאולה (deep-link ?v=) — תמונת-התצוגה שלו כ-OG.
+    // כך קישור-משותף מציג את פריים-הסרטון → מושך לחיצה חזרה *אל האתר* (לא מפיץ את הקובץ).
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/channel_updates?id=eq.${encodeURIComponent(vParam)}&select=text,image_url,thumb_url&limit=1`, { headers: ogHeaders });
+      const rows = await r.json();
+      const c = Array.isArray(rows) && rows[0];
+      if (c) {
+        const isVid = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i.test(c.image_url || '');
+        const img = c.thumb_url || (!isVid ? c.image_url : null);
+        if (img) image = waSafeImage(img);
+        const t = stripHtml(c.text || '').trim();
+        title = (t ? t.slice(0, 70) : 'אור הגאולה — סרטון') + ' · ' + SITE_NAME;
+        desc = cleanDesc(t || STATIC['/or-geula'].desc, 180) || DEFAULT_DESC;
+        type = 'video.other';
+      } else {
+        title = STATIC['/or-geula'].title; desc = STATIC['/or-geula'].desc;
+        if (STATIC['/or-geula'].card) image = cardUrl(STATIC['/or-geula'].card);
+      }
+    } catch { title = STATIC['/or-geula'].title; desc = STATIC['/or-geula'].desc; }
   } else if (STATIC[key]) {
     title = STATIC[key].title;
     desc = STATIC[key].desc;

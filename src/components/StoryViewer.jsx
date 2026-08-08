@@ -74,7 +74,7 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
 
   return (
     <div onClick={() => onClose && onClose()} role="dialog" aria-modal="true"
-      style={{ position: "fixed", inset: 0, zIndex: 6000, background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div onClick={e => e.stopPropagation()}
         style={{ position: "relative", width: "100%", height: "100%", maxWidth: 480, margin: "0 auto", background: "#000", overflow: "hidden" }}>
 
