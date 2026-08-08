@@ -66,13 +66,8 @@ export async function getProfileNudges({ profile } = {}) {
   if (profile && !((profile.display_name || "").trim())) {
     out.push({ id: "set-name", icon: "✍️", text: "בחר שם-תצוגה — כך יראו אותך בקהילה ובפורום, במקום שם-המשתמש.", cta: "בחר שם", module: "settings" });
   }
-  // 2) וואטסאפ לא מחובר — אולי כבר איתנו בוואטסאפ בלי קשר לחשבון.
-  try {
-    const linked = await getMyLinkedPhones();
-    if (Array.isArray(linked) && linked.length === 0) {
-      out.push({ id: "link-wa", icon: "🟢", text: "חבר את הוואטסאפ שלך — אולי אתה כבר איתנו בוואטסאפ, בלי קשר לחשבון. נחבר ביניהם?", cta: "לחיבור", module: "whatsapp" });
-    }
-  } catch { /* noop */ }
+  // 🚫 נדנוד «חבר וואטסאפ» הוסר (בקשת צוריאל) — לא מציעים חיבור-וואטסאפ פרואקטיבית לאנשים.
+  //    החיבור עדיין זמין יזום (מודול «החיבור לרזיאל» + צ'יפ-הכותרת), רק בלי פופאפ/נדנוד.
   return out;
 }
 
@@ -101,14 +96,7 @@ export async function getNextActions({ center, profile } = {}) {
     out.push({ icon: "✍️", text: "בחר שם-תצוגה — כך יראו אותך בקהילה", cta: "בחר שם", module: "settings" });
   }
 
-  // 1.5) אונבורדינג לסוכן האישי — חבר וואטסאפ (רק אם מחובר-חשבון ואין עדיין טלפון מקושר).
-  // פעולה חד-פעמית: נעלמת ברגע שמחברים. מזינה את «עולם הסוכן האישי».
-  try {
-    const linked = await getMyLinkedPhones();
-    if (Array.isArray(linked) && linked.length === 0) {
-      out.push({ icon: "🟢", text: "חבר את הוואטסאפ שלך — כדי שהסוכן האישי יזהה אותך", cta: "לחיבור", module: "whatsapp" });
-    }
-  } catch { /* noop */ }
+  // 🚫 נדנוד «חבר וואטסאפ» הוסר (בקשת צוריאל) — לא מציעים חיבור-וואטסאפ פרואקטיבית.
 
   // 2) מחקר פעיל (מ-my_center שכבר נטען)
   if ((center?.research_items ?? 0) > 0) {
