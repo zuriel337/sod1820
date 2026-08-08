@@ -13,12 +13,12 @@ const C = {
 };
 const clean = (s) => (s || "").replace(/[^א-ת]/g, "");
 
-export default function ChristinaDecoder({ seed = "", embedded = false }) {
+export default function ChristinaDecoder({ seed = "", embedded = false, hideInput = false }) {
   const [rules, setRules] = useState(null);   // { אות: {meaning, represents} }
   const [word, setWord] = useState(seed);
   const [showKey, setShowKey] = useState(false);
 
-  useEffect(() => { if (seed) setWord(seed); }, [seed]);
+  useEffect(() => { setWord(seed); }, [seed]);
   useEffect(() => {
     let live = true;
     supabase.from("christina_decomposition_rules")
@@ -57,8 +57,10 @@ export default function ChristinaDecoder({ seed = "", embedded = false }) {
         <span style={{ color: C.violet, fontWeight: 700 }}> שיטה פרשנית — לא עובדת-מנוע.</span>
       </div>
 
-      <input value={word} onChange={e => setWord(e.target.value)} style={input}
-        aria-label="מילה לפענוח" placeholder="הקלידו מילה בעברית…" />
+      {!hideInput && (
+        <input value={word} onChange={e => setWord(e.target.value)} style={input}
+          aria-label="מילה לפענוח" placeholder="הקלידו מילה בעברית…" />
+      )}
 
       {rules === null && <div style={{ color: C.ink2, fontSize: 13, padding: "18px 2px" }}>טוען את שיטת האותיות…</div>}
 

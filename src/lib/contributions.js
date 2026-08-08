@@ -468,6 +468,13 @@ export async function getWriterGematrias(name, uid = null) {
   catch { return []; }
 }
 
+// 💬 כל החומר-גלם של הכתב מקבוצות הוואטסאפ (כולל הודעות בלי גימטריה) — SECURITY DEFINER, עוקף RLS.
+export async function getWriterWhatsappMessages(name, uid = null) {
+  if (!supabase || (!name && !uid)) return [];
+  try { const { data } = await supabase.rpc("writer_whatsapp_messages", { p_name: name || "", p_uid: uid || null }); return data || []; }
+  catch { return []; }
+}
+
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
 export async function getReputation(userId = null) {
   if (!supabase) return null;
@@ -510,5 +517,25 @@ export async function promoteFindingToDict(id) {
 // 📌 הצמדת/ביטול-הצמדת תרומה בפורום (אדמין בלבד — נאכף בשרת). pin=false מבטל.
 export async function pinContribution(id, pin = true) {
   const { error } = await supabase.rpc("pin_contribution", { p_id: id, p_pin: pin });
+  if (error) throw error;
+}
+
+// 🎨 סטודיו-הכתב (פיילוט) — מרחב-נתונים אישי של הכתב בדף שלו, נפרד מהאתר.
+//    כתיבה דרך RPC מאומת-קוד (studio_upsert/delete); קריאה מחזירה פרטיים רק לבעלים (קוד/אדמין).
+export async function studioVerify(slug, code = null) {
+  const { data } = await supabase.rpc("studio_verify", { p_slug: slug, p_code: code });
+  return Array.isArray(data) ? data[0] : data;   // {contributor_id, ok, is_admin}
+}
+export async function studioList(slug, code = null) {
+  const { data } = await supabase.rpc("studio_list", { p_slug: slug, p_code: code });
+  return Array.isArray(data) ? data : [];
+}
+export async function studioUpsert(slug, code, entry) {
+  const { data, error } = await supabase.rpc("studio_upsert", { p_slug: slug, p_code: code, p_entry: entry });
+  if (error) throw error;
+  return data;   // id
+}
+export async function studioDelete(slug, code, id) {
+  const { error } = await supabase.rpc("studio_delete", { p_slug: slug, p_code: code, p_id: id });
   if (error) throw error;
 }

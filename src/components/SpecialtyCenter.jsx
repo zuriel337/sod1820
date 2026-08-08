@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
-import ChristinaDecoder from "./ChristinaDecoder.jsx";
+import ChristinaEngine from "./ChristinaEngine.jsx";
 import { getResearcherConvergences } from "../lib/contributions.js";
 
 // ✦ מנוע-המרכז של דף-הכתב — נבחר לפי contributors.specialty (writers_page_law).
@@ -14,7 +14,7 @@ export default function SpecialtyCenter({ c }) {
   const acc = c.accent || P.accent;
   switch (c.specialty) {
     case "letter-decoder":
-      return <ChristinaDecoder embedded />;
+      return <ChristinaEngine embedded />;
     case "crosses":
       return <CrossesWall name={c.display_name} acc={acc} P={P} />;
     case "els-ciphers":

@@ -20,7 +20,7 @@ import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
 import MaftechShowcase from "../components/MaftechShowcase.jsx";
 import NotarikonTool from "../components/NotarikonTool.jsx";
-import ChristinaDecoder from "../components/ChristinaDecoder.jsx";
+import ChristinaEngine from "../components/ChristinaEngine.jsx";
 import DatesTool from "../components/DatesTool.jsx";
 import { NumHrefCtx } from "../lib/numHrefCtx.js";
 import ToolGuide from "../components/research/ToolGuide.jsx";
@@ -267,7 +267,7 @@ export default function ResearchPage() {
           {tool === "life" && <LifeProfile />}
           {tool === "number" && <NumberTool />}
           {tool === "maftech" && <MaftechShowcase seed={seed} />}
-          {tool === "christina" && <ChristinaDecoder seed={seed} />}
+          {tool === "christina" && <ChristinaEngine seed={seed} />}
           {tool === "notarikon" && <NotarikonTool seed={seed} />}
           {tool === "dates" && <DatesTool />}
           {tool === "verse" && <VerseSearch seed={seed} />}

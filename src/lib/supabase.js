@@ -292,6 +292,7 @@ export async function getChannelUpdates(limit = 6, channel = null, byDate = fals
   let q = supabase.from('channel_updates')
     .select('id,text,image_url,thumb_url,credit,channel,is_urgent,created_at,link_url,source')
     .eq('status', 'live')
+    .eq('page_only', false)   // עדכוני-כתב page_only מופיעים רק בדף-הכתב, לא בפידים הגלובליים
     .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
   q = byDate ? q.order('created_at', { ascending: false })
              : q.order('priority', { ascending: false }).order('created_at', { ascending: false });
