@@ -18,7 +18,7 @@ import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
-import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
+import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterGematrias } from "../lib/contributions.js";
 import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
 import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 import WriterMessage from "../components/WriterMessage.jsx";
@@ -193,6 +193,7 @@ export default function ContributorPage() {
   const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   const [waOpen, setWaOpen] = useState(false);    // 💬 תפריט-וואטסאפ נגלל (סגור כברירת-מחדל)
+  const [waFindings, setWaFindings] = useState([]); // 💬 חומר «הגילוי היומי» של הכתב (RPC · עוקף RLS) — כשאין channel_updates
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
   // 🔢 גימטריה תמיד ראשונה: עדכון שנושא גימטריה (ביטוי = מספר / «בגימטריא» / «מאומת במנוע») עולה לראש
   //    הדף לפני שאר העדכונים, ואז לפי חדש→ישן. בקשת צוריאל: בכל דף-כתב הגימטריה למעלה, ראשונה.
@@ -317,6 +318,17 @@ export default function ContributorPage() {
       .catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name, c?.wa_names]);
+
+  // 💬 חומר «הגילוי היומי» של הכתב — כשאין channel_updates, מזינים את 🟢 מ-writer_gematria_findings
+  //    (RPC · SECURITY DEFINER, עוקף RLS ל-published). כך הפיד משקף את הפעילות בקבוצה. תצוגה בלבד — לא נוגע במאגר.
+  useEffect(() => {
+    if (!c?.display_name) { setWaFindings([]); return; }
+    let alive = true;
+    getWriterGematrias(c.display_name, c.user_id || null)
+      .then(r => { if (alive) setWaFindings(Array.isArray(r) ? r : []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [c?.display_name, c?.user_id]);
 
   // 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions (מאושרות) לפי שם/uid.
   //    «לחיצה על השם → רואים את ההודעות האחרונות שלו». עץ אחד: מצביע לשרשור /forum/:id, לא עותק.
@@ -495,7 +507,7 @@ export default function ContributorPage() {
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
   const voiceEmpty = !effIsOwner && !settings.current_focus;   // «על הכותב» עלה למעלה; כאן נותר current_focus + עתידי
-  const waEmpty = !!c.on_whatsapp && feedUpdates.length === 0;
+  const waEmpty = !!c.on_whatsapp && feedUpdates.length === 0 && waFindings.length === 0;
   const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
   const rzFacts = [
     `כתב: ${c.display_name}`,
@@ -782,8 +794,40 @@ export default function ContributorPage() {
               )}
             </div>
           )
+        ) : waFindings.length > 0 ? (
+          /* 💬 חומר «הגילוי היומי» — כשאין channel_updates: מציגים את גימטריות-הכתב מהקבוצה כצ'אט (RPC, עוקף RLS). תצוגה בלבד. */
+          <div>
+            <button onClick={() => setWaOpen(o => !o)} aria-expanded={waOpen}
+              style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, cursor: "pointer", textAlign: "start",
+                background: "linear-gradient(135deg,#128c7e,#075e54)", color: "#fff", border: "none",
+                borderRadius: waOpen ? "14px 14px 0 0" : 14, padding: "12px 16px", minHeight: 54 }}>
+              <span style={{ fontSize: 23, lineHeight: 1 }}>💬</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>הגילוי היומי · {c.display_name}</div>
+                <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .85 }}>{waFindings.length} הודעות מהקבוצה · הקש {waOpen ? "לסגירה" : "לפתיחה"}</div>
+              </div>
+              <span style={{ fontSize: 15, transform: waOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+            </button>
+            {waOpen && (
+              <div style={{ maxHeight: 520, overflowY: "auto", WebkitOverflowScrolling: "touch",
+                background: "#0b141a", border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 14px 14px",
+                padding: "14px 12px", display: "flex", flexDirection: "column", gap: 9 }}>
+                {waFindings.map(f => (
+                  <a key={f.id} href={`/number/${f.value}`}
+                    style={{ alignSelf: "flex-end", maxWidth: "88%", textDecoration: "none", background: "#005c4b", color: "#e9edef",
+                      borderRadius: "12px 12px 3px 12px", padding: "9px 13px", boxShadow: "0 1px 1.5px rgba(0,0,0,.35)" }}>
+                    <p style={{ margin: 0, fontFamily: F.body, fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{String(f.claim).slice(0, 400)}</p>
+                    <div style={{ textAlign: "end", marginTop: 4, fontFamily: F.heading, fontSize: 10.5 }}>
+                      <span style={{ color: "#8ff0c0", fontWeight: 900 }}>🔢 {f.value}</span>
+                      {f.created_at && <span style={{ color: "#8fb3a8", marginInlineStart: 8 }}>🕒 {timeAgoHe(f.created_at)}</span>}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
-          /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «תורת הרמז», לכתוב, והכתב מחליט אם מוצג */
+          /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «הגילוי היומי», שולח הודעה לצוריאל, ומחוברים ידנית */
           <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
             <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
               הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
