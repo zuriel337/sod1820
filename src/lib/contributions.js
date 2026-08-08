@@ -319,7 +319,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
         author_name: c.author_name, author_display: nameMap[c.author_user_id] || null,
         author_user_id: c.author_user_id, intent: c.intent, research_state: c.research_state,
         trustedAuthor: !!c.trusted,
-        target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions,
+        target_type: c.target_type, target_id: c.target_id, title: c.title, body: c.body, reactions: c.reactions, reaction_boosts: c.reaction_boosts || {},
         pinned: !!c.pinned_at, pinned_at: c.pinned_at, linkCount: linkCount[c.id] || 0,
         // 🔢 ערך-הגימטריה של התרומה (לתג «מהנבחרות») — היעד-מספר, ואם אין, מ-gematria_claim.value
         gematriaValue: (c.target_type === "number" && /^\d+$/.test(String(c.target_id || "")))

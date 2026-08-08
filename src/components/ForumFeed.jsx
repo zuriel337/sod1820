@@ -128,7 +128,7 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         {c.author_name
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} />{c.trustedAuthor && <TrustedTick P={P} withText />}</span>
           : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ חבר הקהילה</span>}
-        <ReactionBar id={c.contribId} reactions={c.reactions} compact />
+        <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} />
         {canEdit && !editing && (
           <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} title="ערוך"
             style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>✏️ ערוך</button>
@@ -300,62 +300,58 @@ function TrustedTick({ P, withText = false }) {
 const leadEmoji = (c) =>
   c.kind === "post" ? "📜" : c.kind === "insight" ? "💡" : c.kind === "cipher" ? "🔠" : (intentMeta(c.intent).emoji || "💬");
 
-// 👍 סך-הריאקציות על פריט — reactions הוא { "👍": ["uid",…] }, אז סוכמים אורכי-מערכים.
-function reactionTotal(r) {
-  if (!r || typeof r !== "object") return 0;
-  let n = 0;
-  for (const v of Object.values(r)) n += Array.isArray(v) ? v.length : (Number(v) || 0);
-  return n;
-}
-
-// שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + מהימן · טקסט · מוצמד/נבחרת · 💬 תגובות · 👍 · זמן.
-// 💬 מונה-התגובות גלוי בכל שורה (גם 0) → הפורום נקרא כרשימת-שרשורים אמיתית, רואים מיד היכן יש דיון.
+// שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + מהימן · טקסט · מוצמד/נבחרת · 👍 לייק · 💬 תגובה · זמן.
+// 🆕 לייק + תגובה לחיצים *ישירות על השורה* (בלי לפתוח) לכל הודעה אחרונה — 👍 דרך ReactionBar (variant=row),
+//    💬 פותח את השרשור לתגובה. אזור-הפתיחה הוא הכפתור; הפעולות הן אחים (לא button-בתוך-button).
 function ChatRow({ c, P, onOpen }) {
   const who = c.author_display || c.author_name || "חבר הקהילה";
   const text = oneLine(c.kind === "cipher"
     ? (cipherWords(c.description, c.search_term) || c.title || c.search_term || "צופן")
     : (c.title || c.body || c.excerpt || c.description || "תרומת מחקר"));
   const isContrib = c.kind === "contribution";
-  const rTotal = reactionTotal(c.reactions);
+  const bumped = c.bump && new Date(c.bump) > new Date(c.ts);
   return (
-    <button onClick={onOpen} aria-label="פתח" className="ff-chatrow"
-      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, minHeight: 44, textAlign: "start", cursor: "pointer",
+    <div className="ff-chatrow"
+      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, minHeight: 44,
         background: c.chosen ? "rgba(212,175,55,0.06)" : "transparent",
         border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 11, padding: "9px 12px" }}>
-      <img src={genAvatar(who)} alt="" loading="lazy"
-        style={{ width: 26, height: 26, borderRadius: "50%", flex: "0 0 auto", border: `1px solid ${P.border}` }} />
-      <span className="ff-who" style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", maxWidth: "38%", minWidth: 0 }}>
-        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{who}</span>
-        {c.trustedAuthor && <TrustedTick P={P} />}
-      </span>
-      <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-        <span style={{ marginInlineEnd: 4 }}>{leadEmoji(c)}</span>{text}
-      </span>
-      {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
-      {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
-      {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12.5 }}>{c.challenge.status === "open" ? "🆘" : "🧩"}</span>}
-      {/* 💬 מונה-תגובות — מוצג רק בשרשור פעיל (יש ולו תגובה אחת); בלי תגובות אין מספר כלל */}
-      {isContrib && c.replyCount > 0 && (
-        <span className="ff-count" title={`${c.replyCount} תגובות בשרשור`}
-          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 3, justifyContent: "flex-end",
-            color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
-          💬 {c.replyCount}
+      {/* אזור-הפתיחה (אווטאר · שם · טקסט · סמלי-סטטוס) — לחיצה פותחת את הכרטיס */}
+      <button onClick={onOpen} aria-label="פתח" className="ff-openarea"
+        style={{ display: "flex", alignItems: "center", gap: 9, flex: 1, minWidth: 0, textAlign: "start", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
+        <img src={genAvatar(who)} alt="" loading="lazy"
+          style={{ width: 26, height: 26, borderRadius: "50%", flex: "0 0 auto", border: `1px solid ${P.border}` }} />
+        <span className="ff-who" style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", maxWidth: "34%", minWidth: 0 }}>
+          <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{who}</span>
+          {c.trustedAuthor && <TrustedTick P={P} />}
+        </span>
+        <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <span style={{ marginInlineEnd: 4 }}>{leadEmoji(c)}</span>{text}
+        </span>
+        {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
+        {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
+        {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12.5 }}>{c.challenge.status === "open" ? "🆘" : "🧩"}</span>}
+      </button>
+
+      {/* 🆕 פעולות-שורה — לייק + תגובה לחיצים (רק לתרומות-קהילה, שיש להן contribId) */}
+      {isContrib && c.contribId && (
+        <span className="ff-actions" style={{ display: "inline-flex", alignItems: "center", gap: 6, flex: "0 0 auto" }}>
+          <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} variant="row" />
+          <button onClick={onOpen} title="תגובה בשרשור" className="ff-cmt"
+            style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 3, borderRadius: 999, padding: "3px 10px",
+              border: `1px solid ${c.replyCount > 0 ? P.accent : P.border}`, background: c.replyCount > 0 ? "rgba(212,175,55,0.12)" : "transparent",
+              color: c.replyCount > 0 ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1 }}>
+            <span style={{ fontSize: 14 }}>💬</span>{c.replyCount > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c.replyCount}</span>}
+          </button>
         </span>
       )}
-      {/* 👍 סך-ריאקציות — רק כשיש, סימן-חיים קליל */}
-      {rTotal > 0 && (
-        <span className="ff-count" title={`${rTotal} ריאקציות`}
-          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 2, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
-          👍 {rTotal}
-        </span>
-      )}
-      {/* 💬 עודכן — כשהשרשור קפץ מתגובה/פעילות (bump חדש מ-ts) מציגים את זמן-הפעילות האחרונה */}
-      {c.bump && new Date(c.bump) > new Date(c.ts) ? (
-        <span title="עודכן — תגובה/פעילות אחרונה" style={{ flex: "0 0 auto", color: P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, whiteSpace: "nowrap" }}>💬 {timeAgo(c.bump)}</span>
+
+      {/* זמן — פעילות-אחרונה (bump) אם קפץ, אחרת זמן-היצירה */}
+      {bumped ? (
+        <span title="עודכן — תגובה/פעילות אחרונה" style={{ flex: "0 0 auto", color: P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, whiteSpace: "nowrap" }}>🕒 {timeAgo(c.bump)}</span>
       ) : (
         <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       )}
-    </button>
+    </div>
   );
 }
 
@@ -458,8 +454,10 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         .ff-root .ff-chatrow { -webkit-tap-highlight-color: transparent; }
         .ff-root img, .ff-root video, .ff-root iframe { max-width: 100%; }
         @media (max-width: 520px) {
-          .ff-root .ff-chatrow { gap: 8px; padding: 10px 11px; }
-          .ff-root .ff-who { max-width: 44%; }
+          .ff-root .ff-chatrow { gap: 6px; padding: 10px 11px; }
+          .ff-root .ff-who { max-width: 30%; }
+          .ff-root .ff-actions { gap: 4px; }
+          .ff-root .ff-actions button { padding: 3px 8px; }
           .ff-root .ff-filters { gap: 6px; }
           .ff-root .ff-filters button { padding: 6px 11px; font-size: 12.5px; }
         }
