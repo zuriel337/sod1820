@@ -11,7 +11,8 @@ import StoryViewer from "./StoryViewer.jsx";
 const SEEN_KEY = "orgeula_story";
 const isVideo = (u) => !!u && /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i.test(u);
 
-export default function OrGeulaStoryChip() {
+// scrollTargetId: אם נמסר — הקשה קודם גוללת לרצועת «אור הגאולה» (שיראו את הרשימה), ואז מדליקה את הסטורי.
+export default function OrGeulaStoryChip({ scrollTargetId = null }) {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const [cut, setCut] = useState(() => seenCutoff(SEEN_KEY));
@@ -36,9 +37,16 @@ export default function OrGeulaStoryChip() {
   const dark = P.mode !== "light";
 
   const openStories = () => {
-    setOpen(true);
     try { track("or-geula", String(newest.id), "story_chip"); } catch { /* noop */ }
     markSeenKey(SEEN_KEY, rows[0].created_at);   // סימון נראה → הצ'יפ ייעלם עד סטורי חדש
+    // קודם גוללים לרצועה (שיראו איפה זה חי), ואז מדליקים את הסטורי — לימוד «יש כאן חדש», לא סטורי-לנצח.
+    const el = scrollTargetId && typeof document !== "undefined" ? document.getElementById(scrollTargetId) : null;
+    if (el) {
+      try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { el.scrollIntoView(); }
+      setTimeout(() => setOpen(true), 700);
+    } else {
+      setOpen(true);
+    }
   };
   const closeStories = () => { setOpen(false); setCut(seenCutoff(SEEN_KEY)); };
 
