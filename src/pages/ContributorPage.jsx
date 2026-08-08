@@ -20,6 +20,7 @@ import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterWhatsappMessages } from "../lib/contributions.js";
 import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
+import ContributorStudio from "../components/ContributorStudio.jsx";
 import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 import WriterMessage from "../components/WriterMessage.jsx";
 
@@ -586,6 +587,9 @@ export default function ContributorPage() {
         )}
         <SpecialtyCenter c={c} />
       </WriterSlot>
+
+      {/* ═══ 🎨 הסטודיו של הכתב (פיילוט) ═══ מרחב-נתונים אישי, נפרד מהאתר. מוצג לבעלים (לינק/אדמין) או כשיש תוכן ציבורי. */}
+      <ContributorStudio c={c} P={P} />
 
       {/* ═══ סלוט 3 · 🔢 הגימטריות המאומתות שלי ═══ (מקור קנוני יחיד + empty-state עצמי) */}
       <VerifiedGematrias name={c.display_name} acc={c.accent} uid={c.user_id} />
