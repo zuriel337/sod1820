@@ -64,7 +64,7 @@ export async function getHomeVideos({ limit = 24 } = {}) {
   try {
     const { data, error } = await supabase
       .from("home_videos")
-      .select("yt, title, slug, featured, uploaded_at")
+      .select("yt, title, slug, featured, uploaded_at, video_url, poster_url")
       .eq("is_active", true)
       .order("featured", { ascending: false })
       .order("sort_order", { ascending: true })

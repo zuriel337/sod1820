@@ -38,7 +38,7 @@ function VideoCard({ v, onPlay, featured }) {
         border: `1px solid ${featured ? VIOLET : P.border}`, background: "#000",
         boxShadow: featured ? `0 0 24px ${VIOLET}66` : "none",
       }} className="vg-card">
-        <img src={`https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`} alt={stripHtml(v.title)} loading="lazy"
+        <img src={v.poster_url || `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`} alt={stripHtml(v.title)} loading="lazy"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         {featured && <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: VIOLET, color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999 }}>⭐ מומלץ</span>}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55))" }} />
@@ -137,10 +137,17 @@ export default function VideoGallery() {
               <div style={{ color: "#f6e27a", fontFamily: F.royal, fontSize: 16, fontWeight: 700 }}>{stripHtml(playing.title)}</div>
               <button onClick={() => setPlaying(null)} style={{ background: "none", border: "none", color: "#cfc9d6", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
             </div>
-            <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${VIOLET}`, boxShadow: `0 0 50px ${VIOLET}44` }}>
-              <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+            <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${VIOLET}`, boxShadow: `0 0 50px ${VIOLET}44`, background: "#000" }}>
+              {playing.video_url ? (
+                // סרטון מאוחסן-בשרת — <video> מתנגן בהקשה בלבד (preload=none, Egress)
+                <video src={playing.video_url} controls autoPlay playsInline preload="none"
+                  poster={playing.poster_url || (playing.yt ? `https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg` : undefined)}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000" }} />
+              ) : (
+                <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+              )}
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 12 }}>
               {playing.slug && (
