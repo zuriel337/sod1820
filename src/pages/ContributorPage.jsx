@@ -30,6 +30,9 @@ function saveHidden(s) { try { localStorage.setItem(HIDE_KEY, JSON.stringify([..
 
 // 💬 קבוצת-הוואטסאפ הקנונית (זהה לפוטר/‏/join). לכתב on_whatsapp — «למי שלא בקבוצה וירצה להתחבר».
 const WA_GROUP_URL = "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
+// 📞 וואטסאפ של צוריאל — כתב שרוצה להתחבר (להצטרף ל«הגילוי היומי») שולח הודעה אישית ומחוברים ידנית.
+const ZURIEL_WA = "972556651237";
+const ZURIEL_WA_LINK = `https://wa.me/${ZURIEL_WA}?text=${encodeURIComponent("שלום צוריאל 🙏 אני רוצה להתחבר לוואטסאפ / קבוצת «הגילוי היומי»")}`;
 // כללי-ההצטרפות (חובה להצגה+אישור — wa onboarding, work_log «כלל הצטרפות הגילוי היומי»)
 const WA_GROUP_RULES = [
   "הקבוצה מיועדת לעניינים כלליים, גילויים וחומר משותף. אין להשתמש בקבוצה לעניינים פרטיים או למחקר אישי על שמך.",
@@ -781,11 +784,11 @@ export default function ContributorPage() {
           /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «תורת הרמז», לכתוב, והכתב מחליט אם מוצג */
           <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
             <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
-              הכתב עדיין לא מחובר לוואטסאפ. אפשר להצטרף לקבוצת «תורת הרמז», לכתוב שם — ומה שתבחר להציג יופיע כאן.
+              הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
             </div>
-            <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
+            <a href={ZURIEL_WA_LINK} target="_blank" rel="noopener noreferrer"
               style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
-              💬 התחבר לקבוצת תורת הרמז ←
+              💬 שלחו לי הודעה בוואטסאפ ←
             </a>
           </div>
         )}
