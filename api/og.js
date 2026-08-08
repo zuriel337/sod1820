@@ -216,7 +216,8 @@ export default async function handler(req, res) {
         const isVid = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i.test(c.image_url || '');
         const img = c.thumb_url || (!isVid ? c.image_url : null);
         if (img) image = waSafeImage(img);
-        const t = stripHtml(c.text || '').trim();
+        let t = stripHtml(c.text || '').trim();
+        if (t === '🎬 עדכון וידאו' || t === '📷 עדכון') t = '';   // כיתובי-ברירת-מחדל → לא ככותרת
         title = (t ? t.slice(0, 70) : 'אור הגאולה — סרטון') + ' · ' + SITE_NAME;
         desc = cleanDesc(t || STATIC['/or-geula'].desc, 180) || DEFAULT_DESC;
         type = 'video.other';
