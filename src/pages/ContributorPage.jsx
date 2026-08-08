@@ -151,6 +151,62 @@ function WriterSlot({ P, emoji, title, tag, empty, emptyText, children }) {
   );
 }
 
+// 💬 שער-בעלים: חיבור קבוצת-הוואטסאפ האישית של הכתב/החוקר (owner-gateway set_my_wa_group).
+//    מוצג רק לבעל-הדף. הבעלים מדביק לינק-הזמנה (chat.whatsapp.com/...) → הכפתור «קבוצת הוואטסאפ שלי»
+//    עולה מיד. הפיד-באתר (channel=writer-<slug>) מופעל ע"י מנהל (הוספת הבוט לקבוצה) — הודעה מוצגת.
+function OwnerWaConnect({ P, current, onConnected }) {
+  const [open, setOpen] = useState(!current);
+  const [url, setUrl] = useState(current || "");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  async function save(next) {
+    setBusy(true); setErr("");
+    try {
+      const { data, error } = await supabase.rpc("set_my_wa_group", { p_invite_url: next });
+      if (error || !data?.ok) {
+        setErr(data?.error === "bad_invite_url" ? "לינק לא תקין — נדרש לינק-הזמנה של וואטסאפ (chat.whatsapp.com/...)" : "שמירה נכשלה, נסו שוב.");
+      } else { onConnected(data.connected ? data.url : null); setOpen(false); }
+    } catch { setErr("שגיאת רשת, נסו שוב."); }
+    setBusy(false);
+  }
+  return (
+    <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: "3px solid #25d366", borderRadius: 14, padding: "14px 16px" }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800, marginBottom: 4 }}>💬 חבר את קבוצת הוואטסאפ שלך</div>
+      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 11 }}>
+        {current
+          ? "הקבוצה שלך מחוברת — מבקרים יכולים להצטרף ולראות מה אתה כותב. אפשר לעדכן את הלינק או לנתק."
+          : "אין לך עדיין קבוצת-וואטסאפ מחוברת. הדבק את לינק-ההזמנה של הקבוצה שלך — וכפתור «קבוצת הוואטסאפ שלי» יופיע בדף שלך מיד."}
+      </div>
+      {open ? (
+        <div style={{ display: "grid", gap: 9 }}>
+          <input value={url} onChange={e => setUrl(e.target.value)} inputMode="url" dir="ltr"
+            placeholder="https://chat.whatsapp.com/..."
+            style={{ width: "100%", boxSizing: "border-box", background: P.glow, border: `1px solid ${P.border}`, borderRadius: 10, padding: "11px 13px", color: P.ink, fontFamily: F.body, fontSize: 16 }} />
+          {err && <div style={{ color: "#c0453c", fontFamily: F.body, fontSize: 12 }}>{err}</div>}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button onClick={() => save(url)} disabled={busy || !url.trim()}
+              style={{ background: "#25d366", color: "#04321f", border: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: busy ? "default" : "pointer", minHeight: 44, opacity: busy || !url.trim() ? .6 : 1 }}>
+              {busy ? "שומר…" : (current ? "עדכן לינק" : "חבר את הקבוצה")}
+            </button>
+            {current && <button onClick={() => save("")} disabled={busy}
+              style={{ background: "transparent", color: P.inkSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "10px 18px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 44 }}>
+              נתק קבוצה
+            </button>}
+          </div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.55 }}>
+            💡 כדי שההודעות מהקבוצה יופיעו גם כאן באתר (לא רק בוואטסאפ), המנהל מוסיף את הבוט לקבוצה — פנה אליו אחרי החיבור.
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setOpen(true)}
+          style={{ background: "transparent", color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, padding: "8px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, cursor: "pointer", minHeight: 40 }}>
+          🔗 ערוך / נתק קבוצה
+        </button>
+      )}
+    </div>
+  );
+}
+
 // 🔢 האם עדכון נושא גימטריה? ביטוי = מספר (2-4 ספרות), «בגימטריא/גימטריה», או «מאומת במנוע».
 //    משמש למיון: גימטריה תמיד ראשונה בדף-הכתב (בקשת צוריאל — הגימטריה למעלה בכל דף).
 const GEM_UPDATE_RE = /=\s*\d{2,4}|\d{2,4}\s*=|בגימטרי|גימטריה|מאומת במנוע/;
@@ -497,8 +553,9 @@ export default function ContributorPage() {
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
   const voiceEmpty = !effIsOwner && !settings.current_focus;   // «על הכותב» עלה למעלה; כאן נותר current_focus + עתידי
-  // כתב עם קבוצה אישית (wa_group_url) לא נחשב «ריק» — גם בלי הודעות עדיין נציג CTA-הצטרפות לקבוצתו.
-  const waEmpty = !!c.on_whatsapp && !c.wa_group_url && feedUpdates.length === 0;
+  // כתב עם קבוצה אישית (wa_group_url) לא נחשב «ריק» (מציגים CTA-הצטרפות), וגם לא לבעל-הדף
+  // (מציגים לו את שער-חיבור-הקבוצה) — כדי שתמיד יופיע משהו פעיל, לא טקסט-ריק.
+  const waEmpty = !!c.on_whatsapp && !c.wa_group_url && !effIsOwner && feedUpdates.length === 0;
   const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
   const rzFacts = [
     `כתב: ${c.display_name}`,
@@ -791,20 +848,29 @@ export default function ContributorPage() {
               )}
             </div>
           )
-        ) : (
-          c.wa_group_url ? (
-            /* כתב עם קבוצה אישית שעדיין אין בה הודעות — הזמנה להצטרף ולראות מה הוא כותב */
-            <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
-              <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
-                לקבוצת הוואטסאפ של {c.display_name} יש מקום גם לכם. הצטרפו כדי לראות מה הוא כותב — ברגע שיעלה חומר חדש הוא יופיע גם כאן.
+        ) : (() => {
+          // עדכון-מצב מקומי אחרי חיבור/ניתוק ע"י הבעלים
+          const onConn = (u) => setC(prev => prev ? { ...prev, wa_group_url: u, on_whatsapp: u ? true : prev.on_whatsapp } : prev);
+          if (c.wa_group_url) {
+            // יש קבוצה: בעלים → ניהול (עריכה/ניתוק) · מבקר → הזמנה להצטרף ולראות מה הוא כותב
+            return effIsOwner ? (
+              <OwnerWaConnect P={P} current={c.wa_group_url} onConnected={onConn} />
+            ) : (
+              <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
+                <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
+                  לקבוצת הוואטסאפ של {c.display_name} יש מקום גם לכם. הצטרפו כדי לראות מה הוא כותב — ברגע שיעלה חומר חדש הוא יופיע גם כאן.
+                </div>
+                <a href={c.wa_group_url} target="_blank" rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+                  💬 הצטרפו לקבוצה של {c.display_name} ←
+                </a>
               </div>
-              <a href={c.wa_group_url} target="_blank" rel="noopener noreferrer"
-                style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
-                💬 הצטרפו לקבוצה של {c.display_name} ←
-              </a>
-            </div>
+            );
+          }
+          // אין קבוצה: בעל-הדף → הצעה לחבר את הקבוצה שלו · מבקר → CTA-הצטרפות דרך צוריאל
+          return effIsOwner ? (
+            <OwnerWaConnect P={P} current={null} onConnected={onConn} />
           ) : (
-            /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «תורת הרמז», לכתוב, והכתב מחליט אם מוצג */
             <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
               <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
                 הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
@@ -814,8 +880,8 @@ export default function ContributorPage() {
                 💬 שלחו לי הודעה בוואטסאפ ←
               </a>
             </div>
-          )
-        )}
+          );
+        })()}
       </WriterSlot>
       {waLb && <UpdateModal u={waLb} brand={BRANDS[waLb.channel] || BRANDS["reality-code"]} onClose={() => setWaLb(null)} />}
 
