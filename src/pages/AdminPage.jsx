@@ -10,6 +10,7 @@ import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
 import ElsModerationTab from "../components/ElsModerationTab.jsx";
 import LanguageEngineTab from "../components/LanguageEngineTab.jsx";
 import { CLARITY_CONFIGURED } from "../lib/clarity.js";
+import { judgeLastVisit, markJudgeVisited, getSeenMap, markCandidateSeen, markAllSeen, candidateState, ageLabel, AGING_DAYS } from "../lib/judgeQueue.js";
 
 // כתובת הטמעה של דוח Looker Studio (GA4) — מוגדר ב-VITE_LOOKER_URL
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
@@ -4531,6 +4532,47 @@ function NumberResearcher() {
     setBusyC(null);
   };
 
+  // 🗂️ «קול השולחן» — רזיאל עונה על שאלות-תור מתוך המועמדים הקיימים (אדמין בלבד, בלי מקור-אמת חדש).
+  // קורא את אותו מצב-תור פר-משתמש (localStorage) של שולחן השופט → «חדש/כבר-ראיתי» עקביים בשני המקומות.
+  // כלל-הברזל נשמר: מועמד ממתין = טרם הוכרע → «עדיין אין החלטה שלך». צפייה אינה החלטה.
+  const answerDeskQuery = (m) => {
+    const asksDesk = /(שולחן|שופט|ממת|מחכ|תור|מועמד|רשימה|חדש)/.test(m);
+    const asksWhy = /למה/.test(m);
+    const numInMsg = (m.match(/\d{1,6}/) || [])[0];
+    if (!asksDesk && !(asksWhy && numInMsg)) return null;   // לא שאלת-שולחן → רזיאל הרגיל עונה
+    const cutoff = judgeLastVisit(); const seenMap = getSeenMap();
+    const withS = cands.map(c => ({ c, s: candidateState(c, cutoff, seenMap) }));
+    const at = c => c.created_at || "";
+    const line = (c, s) => `• ${c.subject_ref} — ${REC_META[c.recommendation]?.[1] || c.recommendation}${s.isNew ? " 🆕" : s.isSeen ? " 👀" : ""} · ${(c.why || {}).method_count || 0} שיטות · ממתין ${ageLabel(c.created_at)}`;
+    // «למה X עדיין מחכה» — רק בהקשר-שולחן, כדי לא לחטוף שאלת-גימטריה רגילה
+    if (asksWhy && numInMsg && asksDesk) {
+      const hit = withS.find(x => String(x.c.subject_ref) === String(numInMsg));
+      if (hit) {
+        const w = hit.c.why || {};
+        return `⚖️ ${numInMsg} עדיין מועמד כי השופט דירג «${REC_META[hit.c.recommendation]?.[1] || hit.c.recommendation}»: התכנסות ב-${w.method_count || 0} שיטות${w.anchor ? " · עוגן: " + w.anchor : ""}${(w.evidence_ids || []).length ? " · " + w.evidence_ids.length + " ראיות" : ""}. ממתין ${ageLabel(hit.c.created_at)}.\n👁️ עדיין אין החלטה שלך על הממצא הזה — הוא ממתין להכרעתך (הגיל אינו מעלה חשיבות).`;
+      }
+      return `אין מועמד ממתין ל-${numInMsg} בשולחן — כלומר אין ממצא פתוח שמחכה כרגע להכרעתך עליו. אם תרצה, אמור «שלח ${numInMsg} לשופט».`;
+    }
+    if (!cands.length) return "🗂️ השולחן ריק כרגע — אין מועמדים ממתינים. «🔨 סרוק מועמדים» בשופט יפיק אצווה.";
+    const rank = { strong: 0, needs_check: 1, weak: 2, duplicate: 3 };
+    if (/הרבה זמן|ותיק|ישן|כמה זמן|מזמן/.test(m)) {
+      const old = [...withS].sort((a, b) => at(a.c).localeCompare(at(b.c))).slice(0, 5);
+      return `🕰️ הממתינים הכי מזמן:\n${old.map(({ c, s }) => line(c, s)).join("\n")}\n(תזכורת: גיל אינו מעלה חשיבות — ותיק לא הופך חזק מעצמו.)`;
+    }
+    if (/מעניין|חזק|תשומת/.test(m)) {
+      const unseen = withS.filter(x => !x.s.isSeen);
+      const pool = (unseen.length ? unseen : withS).sort((a, b) => (rank[a.c.recommendation] ?? 9) - (rank[b.c.recommendation] ?? 9) || (b.c.conf || 0) - (a.c.conf || 0)).slice(0, 3);
+      return `🔥 ${unseen.length ? "שלושת המעניינים שעוד לא ראית" : "הכי חזקים על השולחן"}:\n${pool.map(({ c, s }) => line(c, s)).join("\n")}\n(«חזק» = דירוג השופט, לא «תאשר».)`;
+    }
+    if (/חדש/.test(m)) {
+      const fresh = withS.filter(x => x.s.isNew);
+      if (!fresh.length) return "🆕 אין מועמדים חדשים מאז ביקורך האחרון בשולחן.";
+      return `🆕 חדש מאז ביקורך (${fresh.length}):\n${fresh.slice(0, 8).map(({ c, s }) => line(c, s)).join("\n")}`;
+    }
+    const nNew = withS.filter(x => x.s.isNew).length, nSeen = withS.filter(x => x.s.isSeen).length, nStrong = withS.filter(x => x.s.isStrong).length;
+    return `🗂️ על השולחן ${cands.length} מועמדים ממתינים — 🆕 ${nNew} חדשים · 🔥 ${nStrong} דורשי-תשומת-לב · 👀 ${nSeen} שכבר ראית.\n${withS.slice(0, 6).map(({ c, s }) => line(c, s)).join("\n")}\nשאל «מה מחכה הכי הרבה זמן», «הכי מעניינים שלא ראיתי», או «למה ${(cands[0] || {}).subject_ref || "665"} מחכה».`;
+  };
+
   const start = async () => {
     const vals = parseVals(input);
     if (!vals.length) return;
@@ -4553,6 +4595,9 @@ function NumberResearcher() {
     // פקודה? מבצע ומעדכן את הרשימה החיה — בלי לשלוח לרזיאל
     const cmd = detectCommand(m);
     if (cmd) { await runCommand(cmd); setSending(false); return; }
+    // שאלת-שולחן? רזיאל עונה מיד מהתור החי (בלי סבב-שרת) — «מה חדש», «מה מחכה הרבה», «למה X מחכה»
+    const deskAns = answerDeskQuery(m);
+    if (deskAns) { push("assistant", deskAns); setSending(false); return; }
     const hist = msgs.map(x => ({ role: x.role, text: x.text }));
     try {
       const vals = values.length ? values : parseVals(m);
@@ -4577,7 +4622,7 @@ function NumberResearcher() {
         <span style={{ fontSize: 22 }}>💬</span>
         <div style={{ flex: 1, minWidth: 160 }}>
           <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>חדר רזיאל — מחקר ופיקוד</div>
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>דבר איתו על כל מספר · «אשר 321» / «דחה 665» / «שלח 424 לשופט» — והרשימה מתעדכנת חי.</div>
+          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>דבר איתו על כל מספר · «אשר 321» / «דחה 665» / «שלח 424 לשופט» · «מה חדש בשופט» / «מה מחכה הכי הרבה» / «למה 665 מחכה» — והרשימה מתעדכנת חי.</div>
         </div>
         <button onClick={loadCands} style={{ ...segBtn(false), fontSize: 12 }}>↻</button>
       </div>
@@ -4696,6 +4741,12 @@ function ConvergenceJudge() {
   const [hist, setHist] = useState([]);            // היסטוריית החלטות בסשן (#13)
   const [detail, setDetail] = useState({});        // {value: {methods,evidence,...}} — הביטויים בפועל
   const [detBusy, setDetBusy] = useState(null);
+  // 🗂️ תור-עבודה אישי (שכבת UX פר-משתמש, בלי מנגנון-למידה): «חדש/כבר-ראיתי/דורש-תשומת-לב/ממתין»
+  const [cutoff] = useState(() => judgeLastVisit());   // סף ה«חדש» — נלכד פעם אחת, יציב לאורך הסשן
+  const [seen, setSeen] = useState(() => getSeenMap());
+  const [qFilter, setQFilter] = useState("all");        // all · new · attention · aging · seen
+  useEffect(() => () => markJudgeVisited(), []);        // ביציאה: מסמן «בדקתי עכשיו» → «חדש» מתאפס לפעם הבאה
+  const seeCandidate = (ref) => { if (ref && !seen[ref]) setSeen(markCandidateSeen(ref)); };
 
   const loadDetail = (value) => {
     if (detail[value]) { setDetail(p => ({ ...p, [value]: { ...p[value], _open: !p[value]._open } })); return; }
@@ -4720,6 +4771,23 @@ function ConvergenceJudge() {
   const runGen = async () => { setGen(true); try { await generateCandidates(20); } catch { /* noop */ } load(); setGen(false); };
 
   const cands = d?.candidates || [];
+  // 🗂️ שולחן = תור-עבודה אישי: כל מועמד מקבל מצבים (לא בלעדיים) לפי המידע הקיים בלבד.
+  const withState = cands.map(c => ({ c, s: candidateState(c, cutoff, seen) }));
+  const qCounts = {
+    all: withState.length,
+    new: withState.filter(x => x.s.isNew).length,
+    attention: withState.filter(x => x.s.isStrong).length,
+    aging: withState.filter(x => x.s.isAging).length,
+    seen: withState.filter(x => x.s.isSeen).length,
+  };
+  const qMatch = { all: () => true, new: x => x.s.isNew, attention: x => x.s.isStrong, aging: x => x.s.isAging, seen: x => x.s.isSeen };
+  let shown = withState.filter(qMatch[qFilter] || qMatch.all);
+  if (qFilter === "aging") shown = [...shown].sort((a, b) => b.s.days - a.s.days);   // «ממתין הרבה» → הוותיק ראשון
+  const SEG = [
+    ["all", "📋 הכל", C.goldLight], ["new", "🆕 חדש", "#8bd98b"],
+    ["attention", "🔥 דורש תשומת לב", "#e0a86a"], ["aging", `🕰️ ממתין ${AGING_DAYS}ימ+`, "#c9a24a"],
+    ["seen", "👀 כבר ראיתי", "#7fb2ff"],
+  ];
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
@@ -4730,10 +4798,34 @@ function ConvergenceJudge() {
         <button onClick={runGen} disabled={gen} style={{ ...segBtn(false), fontSize: 12, opacity: gen ? 0.5 : 1 }}>{gen ? "סורק…" : "🔨 סרוק מועמדים"}</button>
       </div>
 
+      {/* כלל-הברזל של השולחן — צפייה אינה החלטה */}
+      <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.6, marginBottom: 8 }}>
+        👁️ <b style={{ color: C.goldDim }}>ראיתי ≠ אישרתי</b> · לא־ראיתי ≠ דחיתי · התעלמתי ≠ דחיתי · <b style={{ color: C.goldDim }}>רק דחייה מפורשת = החלטה נלמדת</b>. «כבר ראיתי» נשמר אצלך בלבד ואינו נחשב הכרעה.
+      </div>
+
+      {/* תור-עבודה: סינון לפי מצב + «סמן הכל כנראה» */}
+      {cands.length > 0 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+          {SEG.map(([k, lbl, col]) => {
+            const on = qFilter === k; const n = qCounts[k] || 0;
+            return (
+              <button key={k} onClick={() => setQFilter(k)} disabled={n === 0 && k !== "all"}
+                style={{ cursor: n === 0 && k !== "all" ? "default" : "pointer", background: on ? "rgba(8,5,2,0.6)" : "transparent", border: `1px solid ${on ? col : C.border}`, color: on ? col : C.muted, borderRadius: 999, padding: "4px 11px", fontFamily: F.body, fontSize: 11.5, opacity: n === 0 && k !== "all" ? 0.4 : 1 }}>
+                {lbl} <b style={{ fontFamily: F.mono }}>{n}</b>
+              </button>
+            );
+          })}
+          <span style={{ flex: 1 }} />
+          {qCounts.seen < qCounts.all && <button onClick={() => setSeen(markAllSeen(cands.map(c => c.subject_ref)))} title="סמן את כל המוצג כ«כבר ראיתי» — לא משנה סטטוס ולא נחשב החלטה"
+            style={{ cursor: "pointer", background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, padding: "4px 10px", fontFamily: F.body, fontSize: 11 }}>👀 סמן הכל כנראה</button>}
+        </div>
+      )}
+
       {loading ? <Loading />
         : err ? <div style={{ color: C.crimsonLight, fontFamily: F.body, fontSize: 13, padding: 12 }}>שגיאה: {err}</div>
         : !cands.length ? <Empty>אין מועמדים ממתינים. «🔨 סרוק מועמדים» להפקת אצווה.</Empty>
-        : cands.map(c => {
+        : !shown.length ? <Empty>אין מועמדים במצב «{(SEG.find(s => s[0] === qFilter) || [])[1] || ""}». <button onClick={() => setQFilter("all")} style={{ background: "none", border: "none", color: "#7fb2ff", cursor: "pointer", fontFamily: F.body, fontSize: 13, textDecoration: "underline" }}>הצג הכל</button></Empty>
+        : shown.map(({ c, s }) => {
           const [col, lbl] = REC_META[c.recommendation] || ["#888", c.recommendation];
           const w = c.why || {}; const tl = w.tree_links || {}; const cards = tl.cards || [];
           const isOpen = open === c.id; const f = inp[c.id] || {};
@@ -4746,11 +4838,16 @@ function ConvergenceJudge() {
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span style={{ background: col, color: "#0d0900", fontFamily: F.body, fontSize: 11, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>{lbl}</span>
                 <a href={nLink(c.subject_ref)} target="_blank" rel="noreferrer" style={{ color: C.goldLight, fontFamily: F.mono, fontSize: 15, fontWeight: 700, textDecoration: "none" }}>{c.subject_ref} ↗</a>
+                {/* מצבי-תור — תגיות לפי המידע הקיים (לא החלטה) */}
+                {s.isNew && <span title="נכנס מאז ביקורך האחרון" style={{ background: "rgba(139,217,139,0.15)", color: "#8bd98b", fontFamily: F.body, fontSize: 10, fontWeight: 700, borderRadius: 5, padding: "1px 6px" }}>🆕 חדש</span>}
+                {s.isSeen && <span title="כבר ראית — לא הכרעת (נשמר אצלך בלבד)" style={{ background: "rgba(127,178,255,0.12)", color: "#7fb2ff", fontFamily: F.body, fontSize: 10, borderRadius: 5, padding: "1px 6px" }}>👀 ראיתי</span>}
+                {s.isStrong && <span title="השופט מדרג אותו חזק — כדאי שתסתכל (לא «תאשר»)" style={{ background: "rgba(224,168,106,0.15)", color: "#e0a86a", fontFamily: F.body, fontSize: 10, fontWeight: 700, borderRadius: 5, padding: "1px 6px" }}>🔥 תשומת לב</span>}
                 <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11.5 }}>{w.method_count} שיטות</span>
                 {w.anchor && <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>· {w.anchor}</span>}
                 <span style={{ flex: 1 }} />
+                <span title="גיל על השולחן — אינו מעלה חשיבות" style={{ color: s.isAging ? "#c9a24a" : C.muted, fontFamily: F.body, fontSize: 10.5 }}>🕰️ ממתין {ageLabel(c.created_at)}</span>
                 <span style={{ color: C.muted, fontFamily: F.mono, fontSize: 11.5 }}>{Math.round((c.conf || 0) * 100)}%</span>
-                <button onClick={() => setOpen(isOpen ? null : c.id)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "2px 9px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>{isOpen ? "▲ למה" : "▼ למה הגיע אליי"}</button>
+                <button onClick={() => { seeCandidate(c.subject_ref); setOpen(isOpen ? null : c.id); }} style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "2px 9px", cursor: "pointer", fontFamily: F.body, fontSize: 11.5 }}>{isOpen ? "▲ למה" : "▼ למה הגיע אליי"}</button>
               </div>
 
               {/* מה יקרה אם אאשר (#1) */}
