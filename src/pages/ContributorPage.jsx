@@ -491,10 +491,17 @@ export default function ContributorPage() {
   const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0 && waUpdates.length === 0;
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
-  const voiceEmpty = !effIsOwner && !about && !settings.current_focus;
+  const voiceEmpty = !effIsOwner && !settings.current_focus;   // «על הכותב» עלה למעלה; כאן נותר current_focus + עתידי
   const waEmpty = !!c.on_whatsapp && feedUpdates.length === 0;
   const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
-  const rzFacts = `חוקר: ${c.display_name}. ${matrices.length} צפנים בתיק${level?.contrib ? `, ${level.contrib} חידושים מאושרים` : ""}${level?.label ? `, דרגה: ${level.label}` : ""}.`;
+  const rzFacts = [
+    `כתב: ${c.display_name}`,
+    c.specialty_label ? `התמחות: ${c.specialty_label}` : null,
+    matrices.length ? `${matrices.length} צפנים בתיק` : null,
+    posts.length ? `${posts.length} מחקרים/פוסטים` : null,
+    level?.contrib ? `${level.contrib} חידושים מאושרים` : null,
+    level?.label ? `דרגה: ${level.label}` : null,
+  ].filter(Boolean).join(". ") + ".";
 
   return (
     <PaletteProvider value={PALETTES.lab}>
@@ -547,6 +554,9 @@ export default function ContributorPage() {
           </a>
         </div>
       </div>
+
+      {/* 🧑 על הכותב — למעלה אצל כולם (בקשת צוריאל): אינטרו קצר + גימטריית-השם, מיד אחרי הכותרת. */}
+      <AboutResearcher P={P} name={c.display_name} about={about} isOwner={effIsOwner} onSave={t => saveSettings({ about: t })} />
 
       {/* ═══ סלוט 2 · 🧠 המרכז שלי ═══ (מנוע-המרכז לפי specialty; המסגרת זהה אצל כולם) */}
       <WriterSlot P={P} emoji="🧠" title="המרכז שלי" empty={!c.specialty_label} emptyText="המרכז בבנייה — יופיע כאן מנוע-המחקר הייחודי של הכתב.">
@@ -691,8 +701,8 @@ export default function ContributorPage() {
           </div>
         )}
 
-        {/* 🤖 עוזר-AI — ⚠️5: בתוך המחקר, לא מדור עצמאי */}
-        {matrices.length > 0 && (
+        {/* 🤖 עוזר-AI — ⚠️5: בתוך המחקר, לכל כתב (לא רק לבעל-תיק/צפנים) — רזיאל מדבר על המחקר של כל כתב */}
+        {(
           <AskRaziel kind="research" subject={c.display_name} facts={rzFacts} palette={P}
             title={effIsOwner ? "רזיאל · הסוכן שלך" : `רזיאל · שאל על המחקר של ${c.display_name}`}
             subtitle={effIsOwner ? "נחקור יחד — עובדה מהמנוע, לא נבואה" : "שאל את רזיאל על התיק הזה — עובדה מהמנוע, לא נבואה"}
@@ -704,9 +714,8 @@ export default function ContributorPage() {
         <MyResearchExplored P={P} isOwner={effIsOwner} />
       </WriterSlot>
 
-      {/* ═══ סלוט 5 · ✍️ הקול שלי ═══ (תוכן אישי; יעבור ל-contributor_content ב-Editor) */}
+      {/* ═══ סלוט 5 · ✍️ הקול שלי ═══ (תוכן אישי; «על הכותב» עלה למעלה, כאן «מה אני חוקר עכשיו» + עתידי contributor_content) */}
       <WriterSlot P={P} emoji="✍️" title="הקול שלי" tag="תוכן אישי של הכתב" empty={voiceEmpty} emptyText="הכתב עדיין לא הוסיף תוכן אישי.">
-        <AboutResearcher P={P} name={c.display_name} about={about} isOwner={effIsOwner} onSave={t => saveSettings({ about: t })} />
         <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
       </WriterSlot>
 
