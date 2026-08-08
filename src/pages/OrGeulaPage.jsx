@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -124,8 +125,8 @@ export default function OrGeulaPage() {
         )}
       </div>
 
-      {/* לייטבוקס מסך-מלא */}
-      {open && (
+      {/* לייטבוקס מסך-מלא — Portal ל-body כדי לצאת משכבת-התוכן (אחרת ה-FAB «העדכונים החיים» מסתיר אותו) */}
+      {open && createPortal((
         <div onClick={closeItem} role="dialog" aria-modal="true"
           style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "rgba(6,4,12,.94)", display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center", padding: 20, overflowY: "auto" }}>
@@ -158,7 +159,7 @@ export default function OrGeulaPage() {
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
     </div>
   );
 }

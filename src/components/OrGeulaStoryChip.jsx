@@ -4,7 +4,6 @@ import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import { track } from "../lib/tracking.js";
-import { useAuth } from "../lib/AuthContext.jsx";
 import StoryViewer from "./StoryViewer.jsx";
 
 // 🔴 צ'יפ «סטורי חדש · אור הגאולה» — מצביע קומפקטי שמופיע *רק כשיש סטורי חדש מאז הביקור*
@@ -15,7 +14,6 @@ const isVideo = (u) => !!u && /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i.test(u);
 // scrollTargetId: אם נמסר — הקשה קודם גוללת לרצועת «אור הגאולה» (שיראו את הרשימה), ואז מדליקה את הסטורי.
 export default function OrGeulaStoryChip({ scrollTargetId = null }) {
   const P = usePalette();
-  const { isAdmin } = useAuth();
   const [rows, setRows] = useState(null);
   const [cut, setCut] = useState(() => seenCutoff(SEEN_KEY));
   const [open, setOpen] = useState(false);
@@ -32,11 +30,9 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
 
   if (!rows || !rows.length) return null;
   const fresh = rows.filter(r => r.created_at && r.created_at > cut);
-  // אדמין רואה תמיד (לתצוגה/בדיקה); משתמש רגיל — רק כשיש חדש מאז הביקור (לא-עמוס).
-  if (!fresh.length && !isAdmin) return null;
+  if (!fresh.length) return null;   // מופיע רק כשיש חדש מאז הביקור; אחרי צפייה — נעלם (פעם אחת בלבד).
 
-  const list = fresh.length ? fresh : rows;
-  const newest = list[0];
+  const newest = fresh[0];
   const thumb = newest.thumb_url || (!isVideo(newest.image_url) ? newest.image_url : null);
   const dark = P.mode !== "light";
 

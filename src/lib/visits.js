@@ -136,6 +136,15 @@ export async function getGrowthCenter(days = 30) {
   return data;
 }
 
+// ── 🩺 עומסים ותשתית (מנהל) — תנועת-גולשים יומית מול עומס-רקע שעתי (cron) ──
+// מקור-אמת: admin_infra_load (SECURITY DEFINER, אדמין-בלבד). מחזיר { kpis, daily[], hourly[] }.
+export async function getInfraLoad(days = 10, hours = 48) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_infra_load", { p_days: days, p_hours: hours });
+  if (error) throw error;
+  return data;
+}
+
 // 🚀 טבלת-השגרירים — מי מפיץ קישורים (rid) ומביא אנשים/הרשמות. עצמאי מ-getGrowthCenter
 // כדי לא להכביד על הטעינה הראשית (כמו getGaInsights). אדמין-בלבד (RPC SECURITY DEFINER).
 export async function getAmbassadors(days = 30) {
