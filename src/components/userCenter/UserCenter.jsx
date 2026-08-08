@@ -152,6 +152,7 @@ export default function UserCenter() {
     try { const s = localStorage.getItem("uc_worlds_open"); if (s) return new Set(JSON.parse(s)); } catch { /* noop */ }
     return new Set();
   });
+  const [devOpen, setDevOpen] = useState(false); // 🚧 מדור «בפיתוח» בתחתית — סגור לכולם, אדמין בלבד פותח
   const toggleWorld = (key) => setOpenWorlds(prev => {
     const next = new Set(prev); next.has(key) ? next.delete(key) : next.add(key);
     try { localStorage.setItem("uc_worlds_open", JSON.stringify([...next])); } catch { /* noop */ }
@@ -262,9 +263,9 @@ export default function UserCenter() {
               <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} myLevel={myLevel} nextActions={nextActions} setActive={setActive} goto={goto} />
               {/* 🌍 5 העולמות — קיבוץ המודולים. עולם ריק לא מוצג. */}
               <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".05em", color: T.sub, margin: "6px 2px 9px" }}>עוד באזור האישי</div>
-              {WORLDS.map(w => {
-                // 🗺️ «מה בקרוב» (roadmap) לא אריח בין הפיצ׳רים החיים — מוצג כפוטר-דק בתחתית
-                const mods = MODULES.filter(m => !m.hidden && m.id !== "roadmap" && (m.world || "me") === w.key);
+              {WORLDS.filter(w => w.key !== "create").map(w => {
+                // רק פיצ׳רים חיים למעלה: «בקרוב» (soon), «היצירה שלי» (create) ו-roadmap יורדים למדור «בפיתוח» הסגור בתחתית.
+                const mods = MODULES.filter(m => !m.hidden && m.status !== "soon" && m.id !== "roadmap" && (m.world || "me") === w.key);
                 if (!mods.length) return null;
                 const isOpen = openWorlds.has(w.key);
                 const hasActivity = mods.some(m => m.badge != null);
@@ -299,13 +300,38 @@ export default function UserCenter() {
                   </div>
                 );
               })}
-              {/* 🗺️ מה בקרוב — פוטר דק בתחתית (מפת-הדרך, לא פיצ׳ר חי) */}
-              <button className="uc-whd" onClick={() => setActive("roadmap")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "right", background: "none", border: `1px dashed ${T.line}`, borderRadius: 12, padding: "11px 13px", cursor: "pointer", color: T.sub, fontFamily: "inherit", marginTop: 4 }}>
-                <span style={{ fontSize: 16 }}>🗺️</span>
-                <span style={{ fontWeight: 700, fontSize: 13 }}>מה בקרוב</span>
-                <span style={{ fontSize: 11.5 }}>הארכיטקטורה המלאה שנבנית</span>
-                <span style={{ marginInlineStart: "auto", color: T.acc, fontWeight: 800, fontSize: 12.5 }}>←</span>
-              </button>
+              {/* 🚧 בפיתוח — מדור סגור בתחתית. «היצירה שלי» + «בקרוב» + roadmap. סגור לכולם; רק אדמין פותח. */}
+              {(() => {
+                const devMods = MODULES.filter(m => !m.hidden && (m.status === "soon" || m.id === "roadmap" || (m.world || "me") === "create"));
+                if (!devMods.length) return null;
+                return (
+                  <div style={{ marginTop: 6 }}>
+                    <button className="uc-whd" onClick={() => { if (isAdmin) setDevOpen(o => !o); }}
+                      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "right", background: "none", border: `1px dashed ${T.line}`, borderRadius: 12, padding: "11px 13px", cursor: isAdmin ? "pointer" : "default", color: T.sub, fontFamily: "inherit" }}>
+                      <span style={{ fontSize: 16 }}>🚧</span>
+                      <span style={{ fontWeight: 700, fontSize: 13 }}>בפיתוח</span>
+                      <span style={{ fontSize: 11.5 }}>{isAdmin ? "אזורים שעדיין נבנים — פתוח לך כאדמין" : "בקרוב"}</span>
+                      <span style={{ marginInlineStart: "auto", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        {isAdmin ? <span style={{ fontSize: 12, color: T.sub }}>{devOpen ? "▴" : "▾"}</span> : <span style={{ fontSize: 12 }}>🔒</span>}
+                      </span>
+                    </button>
+                    {isAdmin && devOpen && (
+                      <div className="uc-wgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 9 }}>
+                        {devMods.map(m => (
+                          <button key={m.id} onClick={() => setActive(m.id)} style={{
+                            textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
+                            padding: "13px 13px", cursor: "pointer", position: "relative", minHeight: 74,
+                            display: "flex", flexDirection: "column", gap: 4, color: T.ink }}>
+                            <span style={{ fontSize: 22 }}>{m.icon}</span>
+                            <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.title}</span>
+                            {m.status === "soon" && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </>
           ) : (
             <div>
@@ -1119,12 +1145,10 @@ const HOME_TILE = {
 function HomeTiles({ T, center, setActive, dark }) {
   const c = center || {};
   const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
-  const isWriter = !!(c.is_writer || c.is_publisher);
+  // רק קיצורים חיים בבית; «היצירה שלי»/«הודעות» (בפיתוח) יורדים למדור «בפיתוח» הסגור.
   const ids = ["profile"];
   if (hasPage) ids.push("public-page");
-  ids.push("research");
-  if (isWriter) ids.push("myposts", "messages");
-  ids.push("notifications", "credits", "whatsapp");
+  ids.push("research", "notifications", "credits", "whatsapp");
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".05em", color: T.sub, margin: "2px 2px 9px" }}>הדברים שלי</div>
