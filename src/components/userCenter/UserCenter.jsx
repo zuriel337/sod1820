@@ -673,9 +673,10 @@ function WhatsAppPanel({ T, goto, setActive }) {
     <div>
       {/* למה זה חשוב */}
       <div style={{ background: "#e9f9ef", border: "1px solid #bfe9cd", borderRadius: 12, padding: "11px 13px", marginBottom: 13 }}>
-        <div style={{ fontWeight: 800, fontSize: 13.5, color: "#1a7f37" }}>🟢 חבר את הוואטסאפ שלך</div>
+        <div style={{ fontWeight: 800, fontSize: 13.5, color: "#1a7f37" }}>🟢 חבר את החשבון שלך לבוט רזיאל</div>
         <div style={{ fontSize: 12.5, color: "#2f6b46", lineHeight: 1.6, marginTop: 3 }}>
           כשמחברים, הבוט של סוד 1820 (רזיאל) והסוכן האישי מזהים אותך — הרמזים והשיחות שלך בוואטסאפ מתחברים לפרופיל כאן. שולחים לך קוד בוואטסאפ לאימות שהמספר באמת שלך.
+          <span style={{ display: "block", marginTop: 5, opacity: .85 }}>💡 זהו החיבור האישי שלך לבוט — לא קבוצת-וואטסאפ ולא הפיד של דף-כתב.</span>
         </div>
       </div>
 
@@ -1110,7 +1111,7 @@ const HOME_TILE = {
   messages:      { icon: "📨", title: "ההודעות שלי",  sub: "הודעות ותגובות אליי", soon: true },
   notifications: { icon: "🔔", title: "התראות",       sub: "מה חדש עבורי" },
   credits:       { icon: "◆",  title: "קרדיטים",      sub: "היתרה שלי" },
-  whatsapp:      { icon: "🟢", title: "הבוט שלי",     sub: "וואטסאפ · רזיאל" },
+  whatsapp:      { icon: "🟢", title: "החיבור לרזיאל", sub: "חיבור החשבון לבוט בוואטסאפ" },
 };
 function HomeTiles({ T, center, setActive, dark }) {
   const c = center || {};
@@ -1199,7 +1200,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "hints", world: "lab", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },
     { id: "codes", world: "lab", icon: <img src="/els-icon.png" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover", verticalAlign: "middle" }} />, title: "הצפנים שלי", status: "live", render: () => <MyCodesPanel T={T} user={user} goto={goto} /> },
     { id: "bots", world: "agent", icon: "🤖", title: "צוות הסוכנים", status: "live", render: () => <BotsTeamPanel T={T} goto={goto} /> },
-    { id: "whatsapp", world: "agent", icon: "🟢", title: "הוואטסאפ שלי", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} setActive={setActive} /> },
+    { id: "whatsapp", world: "agent", icon: "🟢", title: "החיבור לרזיאל", status: "live", render: () => <WhatsAppPanel T={T} goto={goto} setActive={setActive} /> },
     { id: "credits", world: "me", icon: "◆", title: "הקרדיטים שלי", status: "live", render: () => <CreditsPanel T={T} /> },
 
     // ─── היצירה שלי — לכותבים בלבד (writerOnly) ───
