@@ -319,6 +319,20 @@ export async function getUpdatesByReporterNames(names, limit = 60) {
     .limit(limit);
   return data || [];
 }
+// 👤 העדכונים של קבוצת-הוואטסאפ האישית של כתב — עדשה על channel_updates לפי channel=writer-<slug>.
+// כשלכתב יש קבוצה אישית (contributors.wa_channel) הפיד שלו = כל מה שנקלט מהקבוצה שלו (עץ אחד, לא עותק).
+export async function getUpdatesByChannel(channel, limit = 60) {
+  const ch = (channel || "").trim();
+  if (!supabase || !ch) return [];
+  const { data } = await supabase.from('channel_updates')
+    .select('id,text,image_url,thumb_url,credit,channel,created_at,link_url,source')
+    .eq('status', 'live')
+    .eq('channel', ch)
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return data || [];
+}
 // 🎗 כתבים מודגשים (contributors.feature_media) לרצועת «עדכונים אחרונים» בדף הבית —
 // כרטיס-כתב עם התמונה האחרונה שלו מהשידורים, שמקפיץ את דף-הכתב כשעולה עדכון-תמונה חדש.
 // עדשה על עץ אחד: contributors ⨯ channel_updates (לפי credit=display_name) — לא עותק.

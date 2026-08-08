@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { PALETTES, PaletteProvider } from "../lib/palette.js";
-import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
+import { supabase, getUpdatesByReporterNames, getUpdatesByChannel } from "../lib/supabase.js";
 import { thumb, galThumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
@@ -226,7 +226,7 @@ export default function ContributorPage() {
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
-    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged,page_config";
+    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged,page_config,wa_channel,wa_group_url";
     const resolveMe = slug === "me";
     // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
     if (resolveMe && authLoading) return;
@@ -307,16 +307,18 @@ export default function ContributorPage() {
     return () => { alive = false; };
   }, [c?.display_name]);
 
-  // 📡 העדכונים החיים שלו — עדשה על channel_updates לפי credit=display_name (עץ אחד, לא עותק)
+  // 📡 העדכונים החיים שלו — קבוצת-וואטסאפ אישית (wa_channel) אם קיימת, אחרת עדשה לפי credit=display_name.
+  //    עץ אחד: אותו channel_updates — או פיד הקבוצה שלו (channel=writer-<slug>) או סינון לפי שמותיו.
   useEffect(() => {
     if (!c?.display_name) { setWaUpdates([]); return; }
     let alive = true;
-    const names = [c.display_name, ...(Array.isArray(c.wa_names) ? c.wa_names : [])];
-    getUpdatesByReporterNames(names, 60)
-      .then(r => { if (alive) setWaUpdates(Array.isArray(r) ? r : []); })
-      .catch(() => {});
+    const p = c.wa_channel
+      ? getUpdatesByChannel(c.wa_channel, 60)
+      : getUpdatesByReporterNames([c.display_name, ...(Array.isArray(c.wa_names) ? c.wa_names : [])], 60);
+    p.then(r => { if (alive) setWaUpdates(Array.isArray(r) ? r : []); })
+     .catch(() => {});
     return () => { alive = false; };
-  }, [c?.display_name, c?.wa_names]);
+  }, [c?.display_name, c?.wa_names, c?.wa_channel]);
 
   // 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions (מאושרות) לפי שם/uid.
   //    «לחיצה על השם → רואים את ההודעות האחרונות שלו». עץ אחד: מצביע לשרשור /forum/:id, לא עותק.
@@ -495,7 +497,8 @@ export default function ContributorPage() {
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
   const voiceEmpty = !effIsOwner && !settings.current_focus;   // «על הכותב» עלה למעלה; כאן נותר current_focus + עתידי
-  const waEmpty = !!c.on_whatsapp && feedUpdates.length === 0;
+  // כתב עם קבוצה אישית (wa_group_url) לא נחשב «ריק» — גם בלי הודעות עדיין נציג CTA-הצטרפות לקבוצתו.
+  const waEmpty = !!c.on_whatsapp && !c.wa_group_url && feedUpdates.length === 0;
   const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
   const rzFacts = [
     `כתב: ${c.display_name}`,
@@ -548,6 +551,14 @@ export default function ContributorPage() {
           {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
           <FollowWriter name={c.display_name} P={P} />
           <WriterMessage name={c.display_name} P={P} />
+          {/* 💬 קבוצת-הוואטסאפ האישית של הכתב — ליד «שלח הודעה»: התחברות + לראות מה הוא כותב */}
+          {c.wa_group_url && (
+            <a href={c.wa_group_url} target="_blank" rel="noopener noreferrer"
+              title={`הצטרפו לקבוצת הוואטסאפ של ${c.display_name} וראו מה הוא כותב`}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#fff", background: "#25D366", textDecoration: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>
+              💬 קבוצת הוואטסאפ שלי
+            </a>
+          )}
           <ShareActions type="researcher"
             url={`https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`}
             title={`${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`}
@@ -747,8 +758,8 @@ export default function ContributorPage() {
                   {/* 📌 באנר-הצטרפות נעוץ — למי שלא בקבוצה וירצה להתחבר, עם כללי-הקבוצה */}
                   <div style={{ alignSelf: "center", width: "100%", maxWidth: 520, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.13)", borderRadius: 12, padding: "13px 15px", textAlign: "center", color: "#e9edef" }}>
                     <div style={{ fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 3 }}>📌 עוד לא בקבוצה?</div>
-                    <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .82, lineHeight: 1.55, marginBottom: 11 }}>הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים ודיונים.</div>
-                    <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
+                    <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .82, lineHeight: 1.55, marginBottom: 11 }}>{c.wa_group_url ? `הצטרפו לקבוצת הוואטסאפ של ${c.display_name} — ותראו מה הוא כותב.` : "הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים ודיונים."}</div>
+                    <a href={c.wa_group_url || WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
                       style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
                       💬 הצטרפו לקבוצה ←
                     </a>
@@ -781,16 +792,29 @@ export default function ContributorPage() {
             </div>
           )
         ) : (
-          /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «תורת הרמז», לכתוב, והכתב מחליט אם מוצג */
-          <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
-            <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
-              הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
+          c.wa_group_url ? (
+            /* כתב עם קבוצה אישית שעדיין אין בה הודעות — הזמנה להצטרף ולראות מה הוא כותב */
+            <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
+              <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
+                לקבוצת הוואטסאפ של {c.display_name} יש מקום גם לכם. הצטרפו כדי לראות מה הוא כותב — ברגע שיעלה חומר חדש הוא יופיע גם כאן.
+              </div>
+              <a href={c.wa_group_url} target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+                💬 הצטרפו לקבוצה של {c.display_name} ←
+              </a>
             </div>
-            <a href={ZURIEL_WA_LINK} target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
-              💬 שלחו לי הודעה בוואטסאפ ←
-            </a>
-          </div>
+          ) : (
+            /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «תורת הרמז», לכתוב, והכתב מחליט אם מוצג */
+            <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
+              <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
+                הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
+              </div>
+              <a href={ZURIEL_WA_LINK} target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+                💬 שלחו לי הודעה בוואטסאפ ←
+              </a>
+            </div>
+          )
         )}
       </WriterSlot>
       {waLb && <UpdateModal u={waLb} brand={BRANDS[waLb.channel] || BRANDS["reality-code"]} onClose={() => setWaLb(null)} />}
