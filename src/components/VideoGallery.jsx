@@ -4,6 +4,9 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 import { getHomeVideos } from "../lib/supabase.js";
+import { track } from "../lib/tracking.js";
+import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
+import ShareActions from "./ShareActions.jsx";
 import HomeHeader from "./HomeHeader.jsx";
 
 // ===== גלריית הסרטים — דף הבית =====
@@ -29,13 +32,13 @@ function VideoCard({ v, onPlay, featured }) {
   const P = usePalette();
   return (
     <div className={`vg-item${featured ? " vg-feat" : ""}`}>
-      <button onClick={() => onPlay(v)} style={{
+      <button onClick={() => onPlay(v)} aria-label={`נגן סרטון: ${stripHtml(v.title)}`} style={{
         position: "relative", display: "block", width: "100%", aspectRatio: "16/9",
         borderRadius: 12, overflow: "hidden", cursor: "pointer", padding: 0,
         border: `1px solid ${featured ? VIOLET : P.border}`, background: "#000",
         boxShadow: featured ? `0 0 24px ${VIOLET}66` : "none",
       }} className="vg-card">
-        <img src={`https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`} alt={stripHtml(v.title)} loading="lazy"
+        <img src={v.poster_url || `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`} alt={stripHtml(v.title)} loading="lazy"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         {featured && <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: VIOLET, color: "#fff", fontFamily: F.heading, fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999 }}>⭐ מומלץ</span>}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55))" }} />
@@ -54,34 +57,39 @@ function VideoCard({ v, onPlay, featured }) {
   );
 }
 
-// ריבוע "בקרוב" ריק
-function ComingCard() {
-  const P = usePalette();
-  return (
-    <div>
-      <div style={{
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
-        width: "100%", aspectRatio: "16/9", borderRadius: 12,
-        border: `1px dashed ${P.borderStrong}`, background: P.cardSoft,
-      }}>
-        <span style={{ fontSize: 26 }}>🚧</span>
-        <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 13, fontWeight: 700, letterSpacing: 2 }}>בקרוב</span>
-      </div>
-      <div style={{ marginTop: 9, height: 1 }} aria-hidden />
-    </div>
-  );
-}
-
 export default function VideoGallery() {
   const P = usePalette();
   const [playing, setPlaying] = useState(null);
   const [rows, setRows] = useState(null); // null = טרם נטען → משתמשים בברירת-מחדל
+
+  // 📊 מעקב הפעלת-סרטון — מזין events/visitor_events (נכס קהל-צופי-וידאו, Meta Growth OS)
+  const handlePlay = (v) => {
+    try { track("video", v.yt, "play", { title: stripHtml(v.title) }); } catch { /* noop */ }
+    setPlaying(v);
+  };
 
   useEffect(() => {
     let alive = true;
     getHomeVideos().then(data => { if (alive) setRows(data); }).catch(() => {});
     return () => { alive = false; };
   }, []);
+
+  // 🔍 JSON-LD (VideoObject) — כדי שגוגל יציג את הסרטונים כתוצאות-וידאו עשירות
+  useEffect(() => {
+    const all = (rows && rows.length) ? rows : [FEATURED, ...VIDEOS];
+    setVideoGalleryJsonLd(all);
+    return () => clearVideoGalleryJsonLd();
+  }, [rows]);
+
+  // ⌨️ נגן: סגירה ב-Esc + נעילת גלילת-הרקע בזמן ניגון
+  useEffect(() => {
+    if (!playing) return;
+    const onKey = (e) => { if (e.key === "Escape") setPlaying(null); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [playing]);
 
   // מהטבלה: הסרטון המובלט (featured) ראשון, ואז השאר. נפילה לברירת-המחדל אם אין נתונים.
   let featured = FEATURED, list = VIDEOS;
@@ -108,13 +116,13 @@ export default function VideoGallery() {
         border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "26px 22px",
         boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
       }}>
-        <HomeHeader title="🎬 גלריית הסרטים" badge={<span className="sod-soon">🚧 בבנייה</span>}
+        <HomeHeader title="🎬 גלריית הסרטים"
           action={{ label: "לכל הסרטים והפוסטים →", to: "/category/וידאו" }} />
 
         {/* שורה אחת — הסרטון המובלט ראשון, ואז השאר (גלילה אופקית) */}
         <div className="vg-row">
-          <VideoCard v={featured} onPlay={setPlaying} featured />
-          {list.map(v => <VideoCard key={v.yt} v={v} onPlay={setPlaying} />)}
+          <VideoCard v={featured} onPlay={handlePlay} featured />
+          {list.map(v => <VideoCard key={v.yt} v={v} onPlay={handlePlay} />)}
         </div>
       </div>
 
@@ -129,15 +137,34 @@ export default function VideoGallery() {
               <div style={{ color: "#f6e27a", fontFamily: F.royal, fontSize: 16, fontWeight: 700 }}>{stripHtml(playing.title)}</div>
               <button onClick={() => setPlaying(null)} style={{ background: "none", border: "none", color: "#cfc9d6", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
             </div>
-            <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${VIOLET}`, boxShadow: `0 0 50px ${VIOLET}44` }}>
-              <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+            <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${VIOLET}`, boxShadow: `0 0 50px ${VIOLET}44`, background: "#000" }}>
+              {playing.video_url ? (
+                // סרטון מאוחסן-בשרת — <video> מתנגן בהקשה בלבד (preload=none, Egress)
+                <video src={playing.video_url} controls autoPlay playsInline preload="none"
+                  poster={playing.poster_url || (playing.yt ? `https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg` : undefined)}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000", objectFit: "contain" }} />
+              ) : (
+                <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+              )}
             </div>
-            <div style={{ textAlign: "center", marginTop: 12 }}>
-              <Link to={`/${playing.slug}`} onClick={() => setPlaying(null)} style={{ color: "#f6e27a", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
-                לפוסט המלא של הסרטון →
-              </Link>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 12 }}>
+              {playing.cipher_slug && (
+                <Link to={`/codes/${playing.cipher_slug}`} onClick={() => setPlaying(null)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `${VIOLET}22`, border: `1px solid ${VIOLET}`, color: "#c9b3ff", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "7px 16px", borderRadius: 999 }}>
+                  🔠 למטריצת הצופן החי →
+                </Link>
+              )}
+              {playing.slug && (
+                <Link to={`/${playing.slug}`} onClick={() => setPlaying(null)} style={{ color: "#f6e27a", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
+                  לפוסט המלא של הסרטון →
+                </Link>
+              )}
+              <ShareActions type="video" compact
+                title={stripHtml(playing.title)}
+                image={`https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg`}
+                url={playing.slug ? `https://sod1820.co.il/${playing.slug}` : `https://youtu.be/${playing.yt}`} />
             </div>
           </div>
         </div>
