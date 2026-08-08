@@ -4962,10 +4962,19 @@ function CommandCenterTab({ gotoTab }) {
           const ms = d.metatron_status; const al = ms.alerts || {}; const gp = ms.gaps || {};
           const rich = gp.rich_numbers_no_card || {};
           const alertDefs = [
-            ["red", "🔴", "דחוף", "#e06666"],
-            ["orange", "🟠", "לתשומת-לב", "#e0a86a"],
-            ["yellow", "🟡", "מעקב", "#d8c860"],
-            ["green", "🟢", "טופל", "#8bd98b"],
+            ["red", "🔴", "דחוף", "#e06666", { scroll: recRef }],
+            ["orange", "🟠", "לתשומת-לב", "#e0a86a", { scroll: recRef }],
+            ["yellow", "🟡", "מעקב", "#d8c860", { scroll: recRef }],
+            ["green", "🟢", "טופל", "#8bd98b", { scroll: recRef }],
+          ];
+          // פערי-שלמות — כל שורה לחיצה ליעד הרלוונטי (המלצות/מרכז-פעילות/טאב)
+          const gapDefs = [
+            ["🕳️", rich.ge10, "מספרים עשירים בלי כרטיס", "#e0a86a", { scroll: recRef }],
+            ["🔧", gp.methods_missing_from_engine, "שיטות חסרות מהמנוע", "#d8c860", { goto: "language" }],
+            ["🎴", gp.cards_approved_not_projected, "כרטיסים לא-מוקרנים", "#c9a24a", { goto: "topics" }],
+            ["✨", (ms.discoveries || {}).waiting, "תגליות בשולחן", "#9bd39b", { scroll: actRef }],
+            ["⚖️", (ms.decisions || {}).pending, "החלטות-ממשל", "#7fb2ff", { scroll: recRef }],
+            ["📜", (ms.laws || {}).active, "חוקים פעילים", "#c9a24a", { goto: "anchors" }],
           ];
           return (
             <div style={{ background: "rgba(30,20,8,0.35)", border: "1px solid rgba(224,168,106,0.35)", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
@@ -4974,23 +4983,31 @@ function CommandCenterTab({ gotoTab }) {
                 <span style={{ flex: 1 }} />
                 <button onClick={runScan} disabled={scanning} style={{ ...segBtn(false), fontSize: 12, opacity: scanning ? 0.5 : 1 }}>{scanning ? "סורק…" : "🔄 סרוק פערים"}</button>
               </div>
-              {/* רמזור-התראות */}
+              {/* רמזור-התראות — כל ריבוע לחיץ → תיבת ההמלצות */}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-                {alertDefs.map(([k, icon, lbl, col]) => (
-                  <div key={k} style={{ display: "flex", alignItems: "baseline", gap: 6, background: "rgba(8,5,2,0.4)", border: `1px solid ${(al[k] || 0) > 0 && k !== "green" ? col : C.border}`, borderRadius: 8, padding: "6px 10px" }}>
-                    <span style={{ color: col, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{Number(al[k] || 0).toLocaleString()}</span>
-                    <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>{icon} {lbl}</span>
-                  </div>
-                ))}
+                {alertDefs.map(([k, icon, lbl, col, target]) => {
+                  const on = (al[k] || 0) > 0 && k !== "green";
+                  return (
+                    <button key={k} onClick={() => chipClick(target)} title="פתח →"
+                      style={{ cursor: "pointer", textAlign: "right", display: "flex", alignItems: "baseline", gap: 6, background: "rgba(8,5,2,0.4)", border: `1px solid ${on ? col : C.border}`, borderRadius: 8, padding: "6px 10px", transition: "border-color .15s, transform .1s" }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = col; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = on ? col : C.border; e.currentTarget.style.transform = "none"; }}>
+                      <span style={{ color: col, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{Number(al[k] || 0).toLocaleString()}</span>
+                      <span style={{ color: C.muted, fontFamily: F.body, fontSize: 11 }}>{icon} {lbl}</span>
+                    </button>
+                  );
+                })}
               </div>
-              {/* פערי-שלמות */}
-              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7 }}>
-                <span>🕳️ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(rich.ge10 || 0).toLocaleString()}</b> מספרים עשירים בלי כרטיס</span>
-                <span>🔧 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(gp.methods_missing_from_engine || 0).toLocaleString()}</b> שיטות חסרות מהמנוע</span>
-                <span>🎴 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(gp.cards_approved_not_projected || 0).toLocaleString()}</b> כרטיסים לא-מוקרנים</span>
-                <span>✨ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.discoveries || {}).waiting || 0).toLocaleString()}</b> תגליות בשולחן</span>
-                <span>⚖️ <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.decisions || {}).pending || 0).toLocaleString()}</b> החלטות-ממשל</span>
-                <span>📜 <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number((ms.laws || {}).active || 0).toLocaleString()}</b> חוקים פעילים</span>
+              {/* פערי-שלמות — כל שורה לחיצה */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {gapDefs.map(([icon, val, lbl, col, target], i) => (
+                  <button key={i} onClick={() => chipClick(target)} title="פתח →"
+                    style={{ cursor: "pointer", textAlign: "right", display: "inline-flex", alignItems: "baseline", gap: 5, background: "transparent", border: "1px solid transparent", borderRadius: 8, padding: "4px 8px", color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, transition: "border-color .15s, background .15s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = col; e.currentTarget.style.background = "rgba(8,5,2,0.4)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.background = "transparent"; }}>
+                    <span>{icon} <b style={{ color: C.goldLight, fontFamily: F.mono }}>{Number(val || 0).toLocaleString()}</b> {lbl}</span>
+                  </button>
+                ))}
               </div>
               <div style={{ color: C.muted, fontFamily: F.body, fontSize: 10.5, marginTop: 8, lineHeight: 1.6 }}>
                 «סרוק פערים» הופך מספרים-עשירים-בלי-כרטיס להמלצות-לאישור למטה. אלה ההתראות שרצו עד היום רק ב-SQL — כעת במקום אחד.
