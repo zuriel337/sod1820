@@ -4473,6 +4473,10 @@ function GaRetentionBars({ title, items, fmtKey }) {
 
 // ===== 💬 חוקר המספרים — רזיאל במצב-מחקר (UI/Session מעל אותו עץ) =====
 // אינו מקור-ידע חדש: שולף dossier קנוני (fn_number_dossier) ומדבר עליו. אותו עץ, אותו metatron_context.
+// שמות-שיטות בעברית לתצוגה (המנוע מחזיר תעתיק אנגלי) — למניעת «אותיות באנגלית» בממשק
+const METHOD_HE = { ragil: "רגיל", gadol: "גדול", katan: "קטן", kadmi: "קדמי", misratar: "מסתתר", atbash: "אתבש", siduri: "סידורי", mispar_katan: "מספר קטן", neelam: "נעלם", meshulash: "משולש", perati: "פרטי" };
+const heM = (m) => METHOD_HE[String(m || "").trim()] || m;
+
 function NumberResearcher() {
   const [input, setInput] = useState("");
   const [values, setValues] = useState([]);
@@ -4615,10 +4619,10 @@ function NumberResearcher() {
       {/* מקורות (dossier) — שרשרת הראיות, אותו אובייקט שרזיאל קיבל */}
       {showDoss && dossiers.map((dd, di) => dd && (
         <div key={di} style={{ background: "rgba(0,0,0,0.25)", border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 11px", marginBottom: 8, fontFamily: F.body, fontSize: 11.5, color: C.goldDim, lineHeight: 1.6 }}>
-          <div style={{ color: "#7fb2ff", fontWeight: 700, marginBottom: 3 }}>📦 dossier · {dd.value} <span style={{ color: C.muted, fontWeight: 400 }}>(context {typeof dd.context_version === "string" ? dd.context_version : JSON.stringify(dd.context_version)})</span></div>
+          <div style={{ color: "#7fb2ff", fontWeight: 700, marginBottom: 3 }}>📦 dossier · {dd.value} <span style={{ color: C.muted, fontWeight: 400 }}>(גרסה {typeof dd.context_version === "object" ? (dd.context_version?.rules_hash || "—") : (dd.context_version || "—")})</span></div>
           {dd.facts?.anchor && <div>⚓ עוגן: {dd.facts.anchor}</div>}
-          <div>🧮 התכנסויות: {(dd.facts?.convergences || []).map(m => `${m.method}(${m.group_size})`).join(" · ") || "—"}</div>
-          <div>🔗 ראיות: {(dd.evidence || []).length ? dd.evidence.map(e => `[${e.method}·${e.status}]`).join(" ") : "—"} · 🎴 כרטיסים: {(dd.cards || []).map(c => c.slug).join(" · ") || "—"}</div>
+          <div>🧮 התכנסויות: {(dd.facts?.convergences || []).map(m => `${heM(m.method)}(${m.group_size})`).join(" · ") || "—"}</div>
+          <div>🔗 ראיות: {(dd.evidence || []).length ? dd.evidence.map(e => `[${heM(e.method)}·${e.status}]`).join(" ") : "—"} · 🎴 כרטיסים: {(dd.cards || []).map(c => c.slug).join(" · ") || "—"}</div>
           <div>⚖️ ההחלטות שלך: {(dd.decisions || []).length ? dd.decisions.map(x => `${x.human_decision}${x.reason_code ? "·" + x.reason_code : ""}`).join(" · ") : "—"}</div>
           <div>🔀 קשורים: {(dd.related || []).join(" · ") || "—"}</div>
         </div>
@@ -4634,7 +4638,7 @@ function NumberResearcher() {
               <div>💾 זיכרון שנקרא: {snap.memory_context?.recent_conversation_n || 0} שיחות אחרונות {snap.memory_context?.summary_present ? "+ סיכום" : ""} {snap.persisted === false ? "(לא מחובר)" : ""}</div>
               <div>📚 ידע: context {typeof snap.knowledge_context_version === "object" ? (snap.knowledge_context_version?.rules_hash || "—") : (snap.knowledge_context_version || "—")}</div>
               <div>📏 חוקים: {(snap.rules_snapshot || []).map(r => `${r.rule_id}·v${r.version}`).join(" · ") || "—"}</div>
-              <div>⚙️ מנוע: {(snap.engine_snapshot || []).map(e => e.method_key).join(" · ") || "—"}</div>
+              <div>⚙️ מנוע: {(snap.engine_snapshot || []).map(e => heM(e.method_key)).join(" · ") || "—"}</div>
               <div>⚖️ החלטות רלוונטיות: {(snap.decisions || []).length ? snap.decisions.map(d => `${d.subject_ref}:${d.human_decision || d.status}`).join(" · ") : "—"}</div>
             </div>
           )}
