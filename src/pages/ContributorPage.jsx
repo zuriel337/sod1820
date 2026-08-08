@@ -250,6 +250,181 @@ function StudioBlocks({ blocks, P }) {
   );
 }
 
+// 📤 העלאת תמונת-סטודיו ל-bucket 'gallery' תחת נתיב-הכתב → URL ציבורי (משתמש מחובר).
+async function studioUpload(file, slug) {
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `sod1820/writers/${slug}/${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`;
+  const { error } = await supabase.storage.from("gallery").upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  return supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl;
+}
+
+const STUDIO_KINDS = [
+  { k: "text", icon: "📝", label: "טקסט/מידע" },
+  { k: "heading", icon: "🔤", label: "כותרת" },
+  { k: "quote", icon: "📜", label: "ציטוט" },
+  { k: "image", icon: "🖼️", label: "תמונה" },
+  { k: "gallery", icon: "🎞️", label: "גלריה" },
+  { k: "link", icon: "🔗", label: "קישור/סרטון" },
+  { k: "pin", icon: "📌", label: "הצמדה לעץ" },
+];
+// בונה p_entry מלא (studio_upsert דורסני — חייב את כל השדות שרוצים לשמור)
+const studioEntry = (b, over = {}) => ({
+  id: b?.id || undefined, kind: b?.kind || "text", title: b?.title ?? null, body: b?.body ?? null,
+  value: b?.value ?? null, image_url: b?.image_url ?? null, link_url: b?.link_url ?? null,
+  media: Array.isArray(b?.media) ? b.media : [], ref: b?.ref ?? null, ref_type: b?.ref_type ?? null,
+  is_public: b?.is_public ?? false, is_personal: b?.is_personal ?? false, sort: b?.sort ?? 0, ...over,
+});
+
+// ✍️ עורך-הסטודיו (בעל-הדף) — פלטת-בלוקים, העלאת-תמונות, טיוטה/מוצג/אישי, סדר. כותב studio_upsert (auth.uid).
+function StudioEditor({ slug, blocks, P, onChange }) {
+  const [edit, setEdit] = useState(null);   // הבלוק בעריכה (חדש = {kind})
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const list = [...(blocks || [])].sort((a, b) => (a.sort - b.sort) || (a.created_at < b.created_at ? -1 : 1));
+
+  async function call(fn, args) { const { data, error } = await supabase.rpc(fn, args); if (error) throw error; return data; }
+  async function save(entry) {
+    setBusy(true); setErr("");
+    try { await call("studio_upsert", { p_slug: slug, p_code: null, p_entry: entry }); setEdit(null); await onChange(); }
+    catch { setErr("שמירה נכשלה — נסו שוב."); }
+    setBusy(false);
+  }
+  async function del(id) { try { await call("studio_delete", { p_slug: slug, p_code: null, p_id: id }); await onChange(); } catch { /* noop */ } }
+  async function move(i, dir) {
+    const j = i + dir; if (j < 0 || j >= list.length) return;
+    const a = list[i], b = list[j];
+    try { await call("studio_upsert", { p_slug: slug, p_code: null, p_entry: studioEntry(a, { sort: b.sort }) });
+          await call("studio_upsert", { p_slug: slug, p_code: null, p_entry: studioEntry(b, { sort: a.sort }) });
+          await onChange(); } catch { /* noop */ }
+  }
+  const statusOf = b => b.is_personal ? "אישי" : b.is_public ? "מוצג" : "טיוטה";
+  const chip = { border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 11.5, fontWeight: 800, cursor: "pointer", background: P.card, color: P.ink, fontFamily: F.heading };
+
+  return (
+    <div style={{ border: `1px dashed ${P.accent}`, borderRadius: 14, padding: "14px 15px", background: P.glow }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>📚 הסטודיו שלי — עורך</div>
+        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>רק אתה רואה את הכלים האלה. «מוצג» = פומבי · «טיוטה»/«אישי» = פרטי.</div>
+      </div>
+
+      {list.length > 0 && (
+        <div style={{ display: "grid", gap: 7, marginBottom: 12 }}>
+          {list.map((b, i) => (
+            <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 7, background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "7px 10px" }}>
+              <span style={{ fontSize: 15 }}>{STUDIO_KINDS.find(k => k.k === b.kind)?.icon || "📄"}</span>
+              <span style={{ flex: 1, minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 12.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.title || b.body?.slice(0, 40) || STUDIO_KINDS.find(k => k.k === b.kind)?.label}</span>
+              <span style={{ ...chip, padding: "2px 8px", cursor: "default", color: b.is_public && !b.is_personal ? "#1a7f37" : P.accentDim }}>{statusOf(b)}</span>
+              <button onClick={() => move(i, -1)} disabled={i === 0} style={{ ...chip, padding: "3px 8px", opacity: i === 0 ? .4 : 1 }}>↑</button>
+              <button onClick={() => move(i, 1)} disabled={i === list.length - 1} style={{ ...chip, padding: "3px 8px", opacity: i === list.length - 1 ? .4 : 1 }}>↓</button>
+              <button onClick={() => setEdit(b)} style={{ ...chip, padding: "3px 9px" }}>✏️</button>
+              <button onClick={() => del(b.id)} style={{ ...chip, padding: "3px 9px", color: "#c0453c" }}>🗑</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {edit ? (
+        <StudioBlockForm block={edit} slug={slug} P={P} busy={busy} err={err}
+          onCancel={() => { setEdit(null); setErr(""); }} onSave={save} />
+      ) : (
+        <div>
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12, fontWeight: 800, marginBottom: 7 }}>➕ הוסף בלוק</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {STUDIO_KINDS.map(k => (
+              <button key={k.k} onClick={() => setEdit({ kind: k.k, is_public: false, is_personal: false })}
+                style={{ ...chip, padding: "8px 12px", fontSize: 12.5 }}>{k.icon} {k.label}</button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// טופס בלוק-סטודיו — שדות לפי סוג + העלאת-תמונות + בורר טיוטה/מוצג/אישי.
+function StudioBlockForm({ block, slug, P, busy, err, onCancel, onSave }) {
+  const [b, setB] = useState(() => ({ ...block, media: Array.isArray(block.media) ? block.media : [] }));
+  const [up, setUp] = useState(false);
+  const set = (k, v) => setB(prev => ({ ...prev, [k]: v }));
+  const status = b.is_personal ? "personal" : b.is_public ? "public" : "draft";
+  const setStatus = s => setB(prev => ({ ...prev, is_public: s === "public", is_personal: s === "personal" }));
+  const input = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, background: P.card, border: `1px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 16, outline: "none" };
+
+  async function pickImage(e, multi) {
+    const files = Array.from(e.target.files || []); if (!files.length) return;
+    setUp(true);
+    try {
+      if (multi) {
+        const urls = [];
+        for (const f of files) urls.push({ url: await studioUpload(f, slug) });
+        setB(prev => ({ ...prev, media: [...(prev.media || []), ...urls] }));
+      } else {
+        set("image_url", await studioUpload(files[0], slug));
+      }
+    } catch { /* noop */ }
+    setUp(false); e.target.value = "";
+  }
+  const kd = STUDIO_KINDS.find(k => k.k === b.kind);
+  const needTitle = ["text", "heading", "image", "gallery", "link", "pin", "quote"].includes(b.kind);
+  const btn = { border: "none", borderRadius: 999, padding: "10px 18px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 44 };
+
+  return (
+    <div style={{ display: "grid", gap: 10, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "13px 14px" }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{kd?.icon} {b.id ? "עריכת" : "בלוק חדש —"} {kd?.label}</div>
+
+      {needTitle && b.kind !== "quote" && <input value={b.title || ""} onChange={e => set("title", e.target.value.slice(0, 200))} placeholder={b.kind === "heading" ? "הכותרת…" : "כותרת (לא חובה)"} style={input} />}
+
+      {["text", "quote", "pin"].includes(b.kind) && (
+        <textarea value={b.body || ""} onChange={e => set("body", e.target.value.slice(0, 20000))} rows={b.kind === "quote" ? 2 : 4}
+          placeholder={b.kind === "quote" ? "הציטוט…" : b.kind === "pin" ? "תיאור קצר (לא חובה)…" : "הטקסט…"} style={{ ...input, resize: "vertical", minHeight: 60 }} />
+      )}
+      {b.kind === "text" && (
+        <input value={b.value ?? ""} onChange={e => set("value", e.target.value.replace(/[^0-9]/g, "") || null)} inputMode="numeric" placeholder="ערך גימטריה (לא חובה, מציג באדג׳ 🔢)" style={input} />
+      )}
+
+      {b.kind === "image" && (
+        <div>
+          {b.image_url && <img src={b.image_url} alt="" style={{ width: "100%", maxWidth: 320, borderRadius: 10, marginBottom: 8 }} />}
+          <label style={{ ...btn, background: P.accentBtn, color: P.onAccent, display: "inline-block" }}>{up ? "מעלה…" : (b.image_url ? "החלף תמונה" : "📤 העלה תמונה")}<input type="file" accept="image/*" hidden onChange={e => pickImage(e, false)} /></label>
+        </div>
+      )}
+      {b.kind === "gallery" && (
+        <div>
+          {(b.media || []).length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(80px,1fr))", gap: 6, marginBottom: 8 }}>
+              {b.media.map((m, i) => (
+                <div key={i} style={{ position: "relative" }}>
+                  <img src={m.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: 8 }} />
+                  <button onClick={() => set("media", b.media.filter((_, k) => k !== i))} style={{ position: "absolute", top: 2, insetInlineEnd: 2, background: "rgba(0,0,0,.6)", color: "#fff", border: "none", borderRadius: 999, width: 20, height: 20, cursor: "pointer", fontSize: 12 }}>✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+          <label style={{ ...btn, background: P.accentBtn, color: P.onAccent, display: "inline-block" }}>{up ? "מעלה…" : "📤 הוסף תמונות"}<input type="file" accept="image/*" multiple hidden onChange={e => pickImage(e, true)} /></label>
+        </div>
+      )}
+      {(b.kind === "link" || b.kind === "pin") && (
+        <input value={(b.kind === "pin" ? b.ref : b.link_url) || ""} onChange={e => set(b.kind === "pin" ? "ref" : "link_url", e.target.value)} dir="ltr"
+          placeholder={b.kind === "pin" ? "נתיב בעץ: /number/358 · /codes/<slug>" : "https://…"} style={input} />
+      )}
+
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>מצב:</span>
+        {[["public", "מוצג (פומבי)"], ["draft", "טיוטה"], ["personal", "אישי (פרטי)"]].map(([v, lbl]) => (
+          <button key={v} onClick={() => setStatus(v)} style={{ border: `1px solid ${status === v ? P.accent : P.border}`, background: status === v ? P.glow : P.card, color: status === v ? P.accentText : P.inkSoft, borderRadius: 999, padding: "6px 12px", fontFamily: F.heading, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>{lbl}</button>
+        ))}
+      </div>
+
+      {err && <div style={{ color: "#c0453c", fontFamily: F.body, fontSize: 12 }}>{err}</div>}
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={() => onSave(studioEntry(b))} disabled={busy || up} style={{ ...btn, background: P.accentBtn, color: P.onAccent, opacity: busy || up ? .6 : 1 }}>{busy ? "שומר…" : "💾 שמור בלוק"}</button>
+        <button onClick={onCancel} disabled={busy} style={{ ...btn, background: "transparent", color: P.inkSoft, border: `1px solid ${P.border}` }}>ביטול</button>
+      </div>
+    </div>
+  );
+}
+
 // 🔢 האם עדכון נושא גימטריה? ביטוי = מספר (2-4 ספרות), «בגימטריא/גימטריה», או «מאומת במנוע».
 //    משמש למיון: גימטריה תמיד ראשונה בדף-הכתב (בקשת צוריאל — הגימטריה למעלה בכל דף).
 const GEM_UPDATE_RE = /=\s*\d{2,4}|\d{2,4}\s*=|בגימטרי|גימטריה|מאומת במנוע/;
@@ -291,6 +466,7 @@ export default function ContributorPage() {
   const [forumMsgs, setForumMsgs] = useState([]); // 💬 ההודעות האחרונות שלו בפורום (research_contributions)
   const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
   const [studioBlocks, setStudioBlocks] = useState([]); // ✍️ הסטודיו/הספרייה האישית (contributor_content דרך studio_list)
+  const [studioNonce, setStudioNonce] = useState(0);    // רענון-סטודיו אחרי עריכה
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   const [waOpen, setWaOpen] = useState(false);    // 💬 תפריט-וואטסאפ נגלל (סגור כברירת-מחדל)
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
@@ -368,7 +544,7 @@ export default function ContributorPage() {
       .then(({ data }) => { if (alive) setStudioBlocks(Array.isArray(data) ? data : []); })
       .catch(() => { if (alive) setStudioBlocks([]); });
     return () => { alive = false; };
-  }, [slug]);
+  }, [slug, studioNonce]);
 
   // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) + סטטיסטיקה — לכרטיס-הדרגה. ציבורי (SECURITY DEFINER).
   const [level, setLevel] = useState(null);
@@ -848,6 +1024,8 @@ export default function ContributorPage() {
           <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
           {/* 📚 הסטודיו/הספרייה האישית — מה שהכתב בחר להציג (מפורסם בלבד). ריק → לא מוצג. */}
           <StudioBlocks blocks={studioBlocks} P={P} />
+          {/* ✍️ עורך-הסטודיו — רק לבעל-הדף (effIsOwner). מוסיף/עורך/מסדר בלוקים דרך studio_upsert. */}
+          {effIsOwner && c?.slug && <StudioEditor slug={c.slug} blocks={studioBlocks} P={P} onChange={async () => setStudioNonce(n => n + 1)} />}
         </div>
       </WriterSlot>
 
