@@ -64,7 +64,7 @@ export async function getHomeVideos({ limit = 24 } = {}) {
   try {
     const { data, error } = await supabase
       .from("home_videos")
-      .select("yt, title, slug, featured, uploaded_at, video_url, poster_url")
+      .select("yt, title, slug, featured, uploaded_at, video_url, poster_url, cipher_slug")
       .eq("is_active", true)
       .order("featured", { ascending: false })
       .order("sort_order", { ascending: true })
@@ -73,6 +73,22 @@ export async function getHomeVideos({ limit = 24 } = {}) {
     if (error) return [];
     return data || [];
   } catch { return []; }
+}
+
+// סרטון-גלריה המקושר לצופן (cipher_slug) — לחיבור דו-כיווני בעמוד הצופן /codes/:slug
+export async function getHomeVideoByCipher(cipherSlug) {
+  if (!supabase || !cipherSlug) return null;
+  try {
+    const { data, error } = await supabase
+      .from("home_videos")
+      .select("yt, title, slug, video_url, poster_url")
+      .eq("is_active", true)
+      .eq("cipher_slug", cipherSlug)
+      .limit(1)
+      .maybeSingle();
+    if (error) return null;
+    return data || null;
+  } catch { return null; }
 }
 
 // Search in title + content, optional filters

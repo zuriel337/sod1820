@@ -150,6 +150,12 @@ export default function VideoGallery() {
               )}
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 12 }}>
+              {playing.cipher_slug && (
+                <Link to={`/codes/${playing.cipher_slug}`} onClick={() => setPlaying(null)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `${VIOLET}22`, border: `1px solid ${VIOLET}`, color: "#c9b3ff", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "7px 16px", borderRadius: 999 }}>
+                  🔠 למטריצת הצופן החי →
+                </Link>
+              )}
               {playing.slug && (
                 <Link to={`/${playing.slug}`} onClick={() => setPlaying(null)} style={{ color: "#f6e27a", textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>
                   לפוסט המלא של הסרטון →

@@ -6,7 +6,7 @@ import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import { applySeo } from "../lib/seo.js";
 import { getMatrixBySlug, getVariantsOf, mergeVariant, getDuplicatesOf } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
-import { getAiAnalysis, supabase } from "../lib/supabase.js";
+import { getAiAnalysis, supabase, getHomeVideoByCipher } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
 import { thumb } from "../lib/img.js";
 import { formatDateHe } from "../lib/format.js";
@@ -41,6 +41,8 @@ export default function CipherPage() {
   const [mergeMsg, setMergeMsg] = useState("");        // משוב מיזוג-גרסה/כפילות
   const [showTool, setShowTool] = useState(false);    // ⚡ הכלי (2.2MB תנ״ך) נטען רק בלחיצה — כניסה מהירה
   const [gate, setGate] = useState(false);            // 🔐 שער-הרשמה לחקירת מטריצת-מחקר חיה (לא-רשום)
+  const [cipherVideo, setCipherVideo] = useState(null); // 🎬 סרטון-הצופן המקושר (home_videos.cipher_slug) — חיבור דו-כיווני
+  const [playVid, setPlayVid] = useState(false);        // ניגון בהקשה בלבד (Egress)
   const uc = useUserCenter();                         // 🫧 floating_ui_yields_law: הכפתור הצף נעלם כשמגירת-המשתמש פתוחה
   const researchRef = useRef(null);                   // 🔬 עוגן ל«מחקר קהילתי» — כדי לגלול+למקד את המלחין בלחיצה אחת
 
@@ -59,8 +61,10 @@ export default function CipherPage() {
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
     setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false);
     setNewFinding(""); setFindMsg(""); setVariants([]); setDups([]); setMergeMsg("");
+    setCipherVideo(null); setPlayVid(false);
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
+    getHomeVideoByCipher(slug).then(v => { if (alive) setCipherVideo(v); }).catch(() => {});
     return () => { alive = false; };
   }, [slug]);
 
@@ -134,6 +138,31 @@ export default function CipherPage() {
             <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
           </div>
         </div>
+
+        {/* 🎬 סרטון הצופן — חיבור דו-כיווני לגלריית-הסרטים (unified_graph_law). ניגון בהקשה בלבד (Egress). */}
+        {cipherVideo && (cipherVideo.video_url || cipherVideo.yt) && (
+          <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 13, padding: "14px 16px", margin: "12px 0 4px" }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 10 }}>🎬 צפו בסרטון הצופן</div>
+            <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${P.border}`, background: "#000" }}>
+              {!playVid ? (
+                <button onClick={() => setPlayVid(true)} aria-label={`נגן: ${cipherVideo.title || m.title || m.search_term}`}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", padding: 0, border: 0, cursor: "pointer", background: "#000" }}>
+                  <img src={cipherVideo.poster_url || (cipherVideo.yt ? `https://i.ytimg.com/vi/${cipherVideo.yt}/hqdefault.jpg` : undefined)} alt="" loading="lazy"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: 0.85 }} />
+                  <span style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 60, height: 60, borderRadius: "50%", background: "rgba(0,0,0,.55)", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 24 }}>▶</span>
+                </button>
+              ) : cipherVideo.video_url ? (
+                <video src={cipherVideo.video_url} controls autoPlay playsInline preload="none"
+                  poster={cipherVideo.poster_url || (cipherVideo.yt ? `https://i.ytimg.com/vi/${cipherVideo.yt}/hqdefault.jpg` : undefined)}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000", objectFit: "contain" }} />
+              ) : (
+                <iframe title={cipherVideo.title || "סרטון הצופן"} src={`https://www.youtube-nocookie.com/embed/${cipherVideo.yt}?autoplay=1&rel=0`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 🔍 מה נמצא בצופן — הצגת הממצא עצמו (המילים המוצלבות), כדי שאין צורך לפתוח את הכלי כדי לראות מה נמצא. */}
         {findings.length > 0 && (
