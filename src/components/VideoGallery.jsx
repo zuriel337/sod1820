@@ -109,7 +109,7 @@ export default function VideoGallery() {
         boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
       }}>
         <HomeHeader title="🎬 גלריית הסרטים" badge={<span className="sod-soon">🚧 בבנייה</span>}
-          action={{ label: "לכל הסרטים והפוסטים →", to: "/post" }} />
+          action={{ label: "לכל הסרטים והפוסטים →", to: "/category/וידאו" }} />
 
         {/* שורה אחת — הסרטון המובלט ראשון, ואז השאר (גלילה אופקית) */}
         <div className="vg-row">
