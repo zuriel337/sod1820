@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { F } from "../theme.js";
 import { SITE_URL } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
@@ -72,7 +73,9 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
   const cap = capOf(cur);
   const shareUrl = `${SITE_URL}/or-geula?v=${cur.id}`;
 
-  return (
+  // Portal ל-body: מציג-הסטורי חייב לצאת משכבת-התוכן (position:relative;z-index:1 של Layout)
+  // אחרת ה-z-index העצום שלו נלכד בתוכה וה-FAB של «העדכונים החיים» (z-index:150 בשורש) מסתיר אותו.
+  const ui = (
     <div onClick={() => onClose && onClose()} role="dialog" aria-modal="true"
       style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div onClick={e => e.stopPropagation()}
@@ -128,4 +131,5 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
       </div>
     </div>
   );
+  return (typeof document !== "undefined" && document.body) ? createPortal(ui, document.body) : ui;
 }
