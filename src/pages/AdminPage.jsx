@@ -4587,7 +4587,7 @@ function NumberResearcher() {
       const res = await askNumberResearcher(vals, "", []);
       if (res?.dossiers) setDossiers(res.dossiers);
       if (res?.context_snapshot) setSnap(res.context_snapshot);
-      push("assistant", res?.answer || "(אין תשובה)");
+      push("assistant", res?.answer || "רגע — נתקעתי לרגע. נסה לשלוח שוב 🌳");
     } catch (e) { setErr(e.message || "שגיאה"); }
     setSending(false);
   };
@@ -4608,7 +4608,7 @@ function NumberResearcher() {
       const res = await askNumberResearcher(vals, m, hist);
       if (res?.dossiers) setDossiers(res.dossiers);
       if (res?.context_snapshot) setSnap(res.context_snapshot);
-      push("assistant", res?.answer || "(אין תשובה — נסה להזכיר מספר)");
+      push("assistant", res?.answer || "רגע — נתקעתי לרגע. נסה לשלוח שוב, או נסח את השאלה אחרת 🌳");
     } catch (e) { setErr(e.message || "שגיאה"); }
     setSending(false);
   };
