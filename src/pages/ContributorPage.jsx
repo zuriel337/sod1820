@@ -207,6 +207,49 @@ function OwnerWaConnect({ P, current, onConnected }) {
   );
 }
 
+// ✍️ הסטודיו/הספרייה האישית — רינדור בלוקי contributor_content (מפורסם+ציבורי) לפי סוג.
+//    empty=לא מרונדר (הדף לא עמוס). כל בלוק = תוכן אישי של הכתב, מופרד ויזואלית מהמערכת הקנונית.
+function StudioBlocks({ blocks, P }) {
+  const pub = (Array.isArray(blocks) ? blocks : []).filter(b => b.is_public && !b.is_personal);
+  if (!pub.length) return null;
+  const card = { background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 16px" };
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      {pub.map(b => {
+        if (b.kind === "heading") return <div key={b.id} style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginTop: 4 }}>{b.title}</div>;
+        const gallery = Array.isArray(b.media) ? b.media.filter(m => m?.url) : [];
+        return (
+          <div key={b.id} style={card}>
+            {(b.title || b.value != null) && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: b.body ? 7 : 0 }}>
+                {b.value != null && <span style={{ background: P.glow, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 900 }}>🔢 {b.value}</span>}
+                {b.title && <span style={{ color: P.ink, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>{b.title}</span>}
+              </div>
+            )}
+            {b.kind === "quote"
+              ? b.body && <blockquote style={{ margin: 0, borderInlineStart: `3px solid ${P.accent}`, paddingInlineStart: 12, color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, fontStyle: "italic" }}>{b.body}</blockquote>
+              : b.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{b.body}</div>}
+            {b.image_url && !isVideoUrl(b.image_url) && (
+              <img src={b.image_url} alt={b.title || ""} loading="lazy" style={{ display: "block", width: "100%", maxWidth: 420, borderRadius: 10, marginTop: b.body ? 10 : 0 }} />
+            )}
+            {gallery.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(120px,1fr))", gap: 8, marginTop: 10 }}>
+                {gallery.map((m, i) => <img key={i} src={m.url} alt={m.caption || ""} loading="lazy" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: 9 }} />)}
+              </div>
+            )}
+            {b.link_url && (
+              <a href={b.link_url} target={b.link_url.startsWith("/") ? undefined : "_blank"} rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", padding: "7px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>
+                🔗 {b.kind === "link" && b.title ? "פתח" : "לקישור"} ←
+              </a>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // 🔢 האם עדכון נושא גימטריה? ביטוי = מספר (2-4 ספרות), «בגימטריא/גימטריה», או «מאומת במנוע».
 //    משמש למיון: גימטריה תמיד ראשונה בדף-הכתב (בקשת צוריאל — הגימטריה למעלה בכל דף).
 const GEM_UPDATE_RE = /=\s*\d{2,4}|\d{2,4}\s*=|בגימטרי|גימטריה|מאומת במנוע/;
@@ -247,6 +290,7 @@ export default function ContributorPage() {
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
   const [forumMsgs, setForumMsgs] = useState([]); // 💬 ההודעות האחרונות שלו בפורום (research_contributions)
   const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
+  const [studioBlocks, setStudioBlocks] = useState([]); // ✍️ הסטודיו/הספרייה האישית (contributor_content דרך studio_list)
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   const [waOpen, setWaOpen] = useState(false);    // 💬 תפריט-וואטסאפ נגלל (סגור כברירת-מחדל)
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
@@ -314,6 +358,17 @@ export default function ContributorPage() {
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
   }, [slug, nav, user, authLoading]);
+
+  // ✍️ הסטודיו/הספרייה האישית — עדשה על contributor_content דרך studio_list (SECURITY DEFINER).
+  //    ציבורי מקבל רק בלוקים מפורסמים; בעל-הדף (auth.uid) מקבל גם טיוטות, אך בדף מציגים מפורסם בלבד.
+  useEffect(() => {
+    if (!slug || slug === "me") { setStudioBlocks([]); return; }
+    let alive = true;
+    supabase.rpc("studio_list", { p_slug: slug })
+      .then(({ data }) => { if (alive) setStudioBlocks(Array.isArray(data) ? data : []); })
+      .catch(() => { if (alive) setStudioBlocks([]); });
+    return () => { alive = false; };
+  }, [slug]);
 
   // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) + סטטיסטיקה — לכרטיס-הדרגה. ציבורי (SECURITY DEFINER).
   const [level, setLevel] = useState(null);
@@ -552,7 +607,9 @@ export default function ContributorPage() {
   const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0 && waUpdates.length === 0;
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
-  const voiceEmpty = !effIsOwner && !settings.current_focus;   // «על הכותב» עלה למעלה; כאן נותר current_focus + עתידי
+  // «על הכותב» עלה למעלה; כאן נותר current_focus + הסטודיו (contributor_content מפורסם). ריק=לא מוצג (לא עמוס).
+  const studioPublicCount = studioBlocks.filter(b => b.is_public && !b.is_personal).length;
+  const voiceEmpty = !effIsOwner && !settings.current_focus && studioPublicCount === 0;
   // כתב עם קבוצה אישית (wa_group_url) לא נחשב «ריק» (מציגים CTA-הצטרפות), וגם לא לבעל-הדף
   // (מציגים לו את שער-חיבור-הקבוצה) — כדי שתמיד יופיע משהו פעיל, לא טקסט-ריק.
   const waEmpty = !!c.on_whatsapp && !c.wa_group_url && !effIsOwner && feedUpdates.length === 0;
@@ -787,7 +844,11 @@ export default function ContributorPage() {
 
       {/* ═══ סלוט 5 · ✍️ הקול שלי ═══ (תוכן אישי; «על הכותב» עלה למעלה, כאן «מה אני חוקר עכשיו» + עתידי contributor_content) */}
       <WriterSlot P={P} emoji="✍️" title="הקול שלי" tag="תוכן אישי של הכתב" empty={voiceEmpty} emptyText="הכתב עדיין לא הוסיף תוכן אישי.">
-        <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
+        <div style={{ display: "grid", gap: 14 }}>
+          <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
+          {/* 📚 הסטודיו/הספרייה האישית — מה שהכתב בחר להציג (מפורסם בלבד). ריק → לא מוצג. */}
+          <StudioBlocks blocks={studioBlocks} P={P} />
+        </div>
       </WriterSlot>
 
       {/* ═══ סלוט 6 · 🟢 WhatsApp ═══ (תמיד נוכח: פיד לפי חומר-אמיתי · empty-state · CTA-הצטרפות)
