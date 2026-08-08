@@ -446,6 +446,11 @@ export default function HomeNewPage() {
         <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
       </section>
 
+      {/* ===== 🎬 גלריית הסרטים — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 8.8.2026) ===== */}
+      <section style={{ padding: "0 0 36px" }}>
+        <VideoGallery />
+      </section>
+
       {/* ===== 👥 הכתבים שהתעדכנו לאחרונה — לוגו/אווטאר + סמל-חתימה + התמחות + «לפני X» ===== */}
       <HomeWritersRail />
 
@@ -636,11 +641,6 @@ export default function HomeNewPage() {
       {/* ===== 🌳 העץ האחד — גוף-הראיות גדל (קישור לבית המדרש; עוגן-גלילה מהפוסט) ===== */}
       <section id="one-tree" className="hn-wrap" style={{ padding: "0 18px 44px", scrollMarginTop: 74 }}>
         <OneTreeWidget />
-      </section>
-
-      {/* ===== גלריית הסרטים — שורה אחת (הוחזרה מ"שולחן העבודה") ===== */}
-      <section style={{ padding: "0 0 36px" }}>
-        <VideoGallery />
       </section>
 
       {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
