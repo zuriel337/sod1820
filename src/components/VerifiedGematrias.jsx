@@ -52,19 +52,34 @@ export default function VerifiedGematrias({ name, acc }) {
     return () => { alive = false; };
   }, [name]);
 
-  if (rows === null || rows.length === 0) return null;
+  if (rows === null) return null;   // טעינה — לא מהבהב
 
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ textAlign: "center", marginBottom: 12 }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>
-          🔢 הגימטריות המאומתות של {name}
-          <span title="אומת במנוע ואושר" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: F.heading, fontSize: 11, fontWeight: 900, color: "#0b3d2e", background: "linear-gradient(135deg,#8ff0c0,#38d493)", borderRadius: 999, padding: "2px 9px" }}>✓ מאומת</span>
-        </div>
+  // מדור קנוני: תמיד נוכח (כותרת+חותם). ריק → empty-state, לא היעלמות (Canonical Writer Page).
+  const Header = (
+    <div style={{ textAlign: "center", marginBottom: 12 }}>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>
+        🔢 הגימטריות המאומתות של {name}
+        <span title="אומת במנוע ואושר" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: F.heading, fontSize: 11, fontWeight: 900, color: "#0b3d2e", background: "linear-gradient(135deg,#8ff0c0,#38d493)", borderRadius: 999, padding: "2px 9px" }}>✓ מאומת</span>
+      </div>
+      {rows.length > 0 && (
         <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginTop: 3 }}>
           {rows.length} ביטויים מאומתים · לחיצה פותחת את דף-המספר
         </div>
-      </div>
+      )}
+    </div>
+  );
+
+  if (rows.length === 0) return (
+    <div style={{ marginBottom: 24 }}>
+      {Header}
+      <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, padding: "14px 10px", border: `1px dashed ${P.border}`, borderRadius: 12 }}>אין גימטריות מאומתות כרגע</div>
+      <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "18px 0 2px" }} />
+    </div>
+  );
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      {Header}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 8 }}>
         {rows.map((r, i) => (
           <a key={i} href={`/number/${encodeURIComponent(r.phrase)}`}

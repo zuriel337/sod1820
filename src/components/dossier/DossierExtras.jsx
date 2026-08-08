@@ -25,7 +25,7 @@ function heYear(ts) { try { return new Date(ts).getFullYear(); } catch { return 
 function heDate(ts) { try { return new Date(ts).toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" }); } catch { return ""; } }
 
 // 📊 השפעה מחקרית — במקום עוקבים/לייקים. מדדי-מחקר בלבד.
-function ImpactBar({ P, level, matrices }) {
+export function ImpactBar({ P, level, matrices }) {
   const published = matrices.filter(m => m.status === "published").length;
   const inDossier = matrices.length;
   const stats = [
@@ -52,7 +52,7 @@ function ImpactBar({ P, level, matrices }) {
 }
 
 // 🔬 תחומי מחקר — אוטומטי מהפעילות (עריך בעתיד). מצביע על מה החוקר מתמקד.
-function ResearchDomains({ P, level, matrices, tags }) {
+export function ResearchDomains({ P, level, matrices, tags }) {
   const domains = useMemo(() => {
     const d = [];
     if (matrices.length) d.push("🔠 דילוגי אותיות");
@@ -77,9 +77,8 @@ function ResearchDomains({ P, level, matrices, tags }) {
 
 // 🏅 כרטיס-החוקר המפואר — הריבוע בראש הדף: דרגה + ניקוד, ספירות (צפנים/ממצאים/גימטריות/פוסטים),
 //    ורשימת הגימטריות שהכניס למערכת. עדשה על researcher_stats RPC. theme-safe (usePalette).
-function ResearcherStatsCard({ P, c, name, level }) {
+export function ResearcherStatsCard({ P, c, name, level }) {
   const [s, setS] = useState(null);
-  const [allGem, setAllGem] = useState(false);
   useEffect(() => { let a = true; getResearcherStats(c?.user_id, name).then(r => { if (a) setS(r); }).catch(() => {}); return () => { a = false; }; }, [c?.user_id, name]);
   if (!s) return null;
   const gems = Array.isArray(s.gematrias) ? s.gematrias : [];
@@ -91,7 +90,6 @@ function ResearcherStatsCard({ P, c, name, level }) {
     { n: s.posts, label: "פוסטים", ic: "📝" },
   ].filter(t => t.n > 0);
   if (!tiles.length && !s.points && !gems.length) return null;
-  const shown = allGem ? gems : gems.slice(0, 8);
   return (
     <div style={{ marginBottom: 22, borderRadius: 18, padding: 2, background: `linear-gradient(135deg, ${P.accent}, ${P.border} 55%, ${P.accent})`, boxShadow: `0 10px 34px ${P.glow}` }}>
       <div style={{ borderRadius: 16, background: P.cardGrad || P.card, padding: "18px 18px 16px" }}>
@@ -133,22 +131,7 @@ function ResearcherStatsCard({ P, c, name, level }) {
           </div>
         )}
 
-        {/* הגימטריות שהכניס למערכת */}
-        {gems.length > 0 && (
-          <div style={{ marginTop: 14 }}>
-            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 8 }}>🔢 הגימטריות שלו במערכת ({gems.length})</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-              {shown.map((g, i) => (
-                <span key={i} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 11px", color: P.accentText, fontFamily: F.body, fontSize: 12.5, fontWeight: 600, direction: "rtl" }}>{g}</span>
-              ))}
-              {gems.length > 8 && (
-                <button onClick={() => setAllGem(v => !v)} style={{ cursor: "pointer", background: "transparent", border: `1px dashed ${P.accent}`, borderRadius: 999, padding: "5px 11px", color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>
-                  {allGem ? "פחות ▲" : `עוד ${gems.length - 8} ▼`}
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+        {/* 🔢 הגימטריות — הוסרו מכאן (כפילות). המקור הקנוני היחיד = «🔢 הגימטריות המאומתות שלי» (VerifiedGematrias). */}
       </div>
     </div>
   );
@@ -157,7 +140,7 @@ function ResearcherStatsCard({ P, c, name, level }) {
 // 🔠 המחקר שלי — הצפנים בתיק. עדשה על els_records (self_published/published). מקשר לעמוד הקנוני.
 // 👑 אדמין: על צופן שעדיין «בתיק» (status!=published) מוצג «⬆️ קדם לספרייה» — מקדם לספרייה הראשית
 //    (moderate→published) מבלי לצאת מדף-האדם. כך צוריאל מחליט מה עולה לראשי (els_dossier_default_law).
-function DossierMatrices({ P, name, matrices, isAdmin, onPromote }) {
+export function DossierMatrices({ P, name, matrices, isAdmin, onPromote }) {
   const [busyId, setBusyId] = useState(null);
   if (!matrices.length) return null;
   const promote = async (id) => {
@@ -298,7 +281,7 @@ function WriterGematrias({ P, name, uid, isAdmin }) {
 
 // 🔬 החידושים של הכתב — נראים ומסודרים. פורום (approved) = רשימה גלויה, מוצמדים קודם.
 //    גולמי-וואטסאפ (published) = קופסה מתקפלת נפרדת (לא מציף את הדף).
-function DossierFindings({ P, name, uid, isAdmin }) {
+export function DossierFindings({ P, name, uid, isAdmin }) {
   const [items, setItems] = useState(null);
   useEffect(() => { let a = true; getResearcherProfile(name, 120, uid).then(r => { if (a) setItems(r?.items || []); }).catch(() => a && setItems([])); return () => { a = false; }; }, [name, uid]);
   const setPin = useCallback((id, on) => setItems(l => (l || []).map(x => x.id === id ? { ...x, pinned_at: on ? new Date().toISOString() : null } : x)
@@ -324,7 +307,7 @@ function DossierFindings({ P, name, uid, isAdmin }) {
 }
 
 // 🧭 יומן המחקר — ציר-זמן. מנוע-אבני-דרך אוטומטי מ-timestamps קיימים (אין הזנה ידנית).
-function ResearchJournal({ P, name, level, matrices, joinedAt }) {
+export function ResearchJournal({ P, name, level, matrices, joinedAt }) {
   const milestones = useMemo(() => {
     const ms = [];
     if (joinedAt) ms.push({ ts: joinedAt, icon: "🌱", text: "הצטרף לקהילת המחקר" });
@@ -369,7 +352,7 @@ function ResearchJournal({ P, name, level, matrices, joinedAt }) {
 }
 
 // 🟢 «כרגע אני חוקר…» — מעבדה חיה. עריכה inline לבעלים (נשמר ל-dossier_settings.current_focus).
-function CurrentFocus({ P, focus, isOwner, onSave }) {
+export function CurrentFocus({ P, focus, isOwner, onSave }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(focus || "");
   const [busy, setBusy] = useState(false);
@@ -402,7 +385,7 @@ function CurrentFocus({ P, focus, isOwner, onSave }) {
 }
 
 // 🧑 על החוקר — קטן (זהות). ביו + גימטריית-השם (מנוע רשמי, רגיל). עריכה inline לבעלים.
-function AboutResearcher({ P, name, about, isOwner, onSave }) {
+export function AboutResearcher({ P, name, about, isOwner, onSave }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(about || "");
   const [busy, setBusy] = useState(false);
@@ -443,7 +426,7 @@ function AboutResearcher({ P, name, about, isOwner, onSave }) {
 
 // 🔬 מה חקרתי — ביטויים/מספרים שהחוקר חקר (research_items, owner-only דרך RLS). זיכרון-המחקר החי:
 // «המחקר שלך מחכה לך» — לחיצה חוזרת אל דף-המספר/הביטוי. מוצג רק לבעלים (אחרים חסומים ב-RLS ממילא).
-function MyResearchExplored({ P, isOwner }) {
+export function MyResearchExplored({ P, isOwner }) {
   const [items, setItems] = useState(null);
   useEffect(() => {
     if (!isOwner) { setItems([]); return; }
@@ -470,7 +453,7 @@ function MyResearchExplored({ P, isOwner }) {
 
 // 🕸 הקשרים שלי — המספרים/הישויות שהמחקר נוגע בהם (מ-primary_number + anchor_numbers).
 // הופך את התיק לחלק מהעץ: כל מספר מצביע לדף-המספר הקנוני (/number/:n). לא משכפל.
-function Connections({ P, matrices }) {
+export function Connections({ P, matrices }) {
   const nums = useMemo(() => {
     const m = new Map();
     matrices.forEach(x => {
@@ -497,7 +480,7 @@ function Connections({ P, matrices }) {
 }
 
 // ⚙️ בקרת-בעלים — נראות התיק (ציבורי/לא-רשום/פרטי). נשמר ל-dossier_settings.visibility.
-function OwnerControls({ P, visibility, onSave }) {
+export function OwnerControls({ P, visibility, onSave }) {
   const [busy, setBusy] = useState(false);
   const opts = [
     { v: "public", label: "🌍 ציבורי", hint: "גלוי לכולם ובגוגל" },
@@ -543,7 +526,7 @@ const PD_META = {
   gematria_signature: { ic: "🔢", label: "חתימת-הגימטריה" },
 };
 const PD_ORDER = ["name", "address", "city", "postal", "phone", "birthday_hebrew", "birthday_gregorian", "date_hebrew", "date_gregorian", "family", "gematria_signature"];
-function PersonalDataCard({ P, slug, isAdmin }) {
+export function PersonalDataCard({ P, slug, isAdmin }) {
   const [facts, setFacts] = useState(null);
   useEffect(() => {
     if (!isAdmin || !slug) { setFacts([]); return; }
@@ -606,6 +589,36 @@ function DossierMap({ P, isOwner }) {
   );
 }
 
+// 📊 hook-נתונים לתיק — טעינה אחת (matrices · joinedAt · settings) + שמירה/קידום.
+//    משמש את הסלוטים הקנוניים (🔬 המחקר · ✍️ הקול · 📁 תיק · 📅 ציר) ב-ContributorPage — מקור-נתונים אחד.
+export function useDossierData(c, isOwner, onCount) {
+  const [matrices, setMatrices] = useState([]);
+  const [joinedAt, setJoinedAt] = useState(null);
+  const [settings, setSettings] = useState(c?.dossier_settings || {});
+  useEffect(() => { setSettings(c?.dossier_settings || {}); }, [c]);
+  useEffect(() => {
+    if (!c?.user_id) { setMatrices([]); onCount?.(0); return; }
+    let alive = true;
+    const load = isOwner ? getMyMatrices(c.user_id).then(a => (a || []).filter(m => m.self_published || m.status !== "hidden")) : getMatricesByOwner(c.user_id);
+    load.then(r => { if (alive) { const arr = Array.isArray(r) ? r : []; setMatrices(arr); onCount?.(arr.length); } }).catch(() => { if (alive) onCount?.(0); });
+    supabase.from("profiles").select("joined_at").eq("user_id", c.user_id).maybeSingle()
+      .then(({ data }) => { if (alive) setJoinedAt(data?.joined_at || c.created_at || null); }).catch(() => { if (alive) setJoinedAt(c?.created_at || null); });
+    return () => { alive = false; };
+  }, [c?.user_id, c?.created_at, isOwner]); // eslint-disable-line react-hooks/exhaustive-deps
+  const saveSettings = useCallback(async (patch) => {
+    const { data } = await supabase.rpc("update_my_dossier", { p_settings: patch });
+    if (data?.ok) setSettings(s => ({ ...s, ...patch }));
+    return data;
+  }, []);
+  const promoteMatrix = useCallback(async (id) => {
+    await moderateMatrix(id, "published");
+    setMatrices(list => list.map(m => (m.id === id ? { ...m, status: "published" } : m)));
+  }, []);
+  return { matrices, joinedAt, settings, saveSettings, promoteMatrix };
+}
+
+// ⚠️ הרכיב המונוליטי הישן — לא בשימוש יותר (ContributorPage מרכיב את הסלוטים הקנוניים ישירות).
+//    נשמר זמנית לתאימות; ינוקה בסבב-הניקוי (יחד עם DossierMap/WriterGematrias שכבר לא מרונדרים).
 export default function DossierExtras({ P, c, level, isOwner, onCount }) {
   const [matrices, setMatrices] = useState([]);
   const [joinedAt, setJoinedAt] = useState(null);
