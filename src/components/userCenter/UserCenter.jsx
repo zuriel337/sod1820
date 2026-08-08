@@ -14,7 +14,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe } from "../../lib/commandCenter.js";
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
@@ -1110,6 +1110,56 @@ function AdminOnlinePanel({ T }) {
   );
 }
 
+// 📨 ההודעות שלי — שני טאבים: 💬 הודעות פרטיות (DM) · 🗣 תגובות אליי (על התרומות שלי).
+function MessagesHub({ T, goto }) {
+  const [tab, setTab] = useState("dm");
+  const tabBtn = (active) => ({ flex: 1, padding: "9px", borderRadius: 9, border: `1px solid ${active ? T.acc : T.line}`, background: active ? T.accSoft : T.card, color: active ? T.acc : T.sub, fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" });
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <button onClick={() => setTab("dm")} style={tabBtn(tab === "dm")}>💬 הודעות</button>
+        <button onClick={() => setTab("replies")} style={tabBtn(tab === "replies")}>🗣 תגובות אליי</button>
+      </div>
+      {tab === "dm" ? <InboxPanel T={T} /> : <RepliesPanel T={T} goto={goto} />}
+    </div>
+  );
+}
+
+// 🗣 תגובות אליי — תגובות של אחרים על התרומות שלי (RPC replies_to_me). לחיצה → הקשר בגרף.
+function RepliesPanel({ T, goto }) {
+  const [rows, setRows] = useState(null);
+  useEffect(() => { repliesToMe(50).then(setRows).catch(() => setRows([])); }, []);
+  const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+  const linkFor = r => (r.target_type === "number" && r.target_id) ? `/number/${r.target_id}` : (r.convergence_slug ? `/topic/${r.convergence_slug}` : null);
+  if (rows === null) return <div style={{ color: T.sub, fontSize: 13, padding: "8px 0" }}>טוען…</div>;
+  if (!rows.length) return (
+    <div style={{ textAlign: "center", padding: "26px 14px", color: T.sub }}>
+      <div style={{ fontSize: 30, marginBottom: 8 }}>🗣</div>
+      <div style={{ fontSize: 13.5, lineHeight: 1.7 }}>אין עדיין תגובות על התרומות שלך.<br />כשמישהו יגיב לרמז/מחקר שלך — זה יופיע כאן.</div>
+    </div>
+  );
+  return (
+    <div style={{ display: "grid", gap: 8 }}>
+      {rows.map(r => {
+        const link = linkFor(r);
+        const inner = (<>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2, flexWrap: "wrap" }}>
+            <span style={{ fontWeight: 800, fontSize: 13, color: T.ink }}>{r.author_name || "משתמש"}</span>
+            <span style={{ color: T.sub, fontSize: 11 }}>הגיב/ה</span>
+            {r.parent_title && <span style={{ color: T.sub, fontSize: 11, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>· על «{r.parent_title}»</span>}
+          </div>
+          <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{r.body}</div>
+          <div style={{ color: T.sub, fontSize: 10.5, marginTop: 3 }}>{fmt(r.created_at)}{link ? " · פתח ←" : ""}</div>
+        </>);
+        const style = { display: "block", textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "10px 12px", color: T.ink, fontFamily: "inherit", width: "100%", boxSizing: "border-box", cursor: link ? "pointer" : "default" };
+        return link
+          ? <button key={r.id} onClick={() => goto(link)} style={style}>{inner}</button>
+          : <div key={r.id} style={style}>{inner}</div>;
+      })}
+    </div>
+  );
+}
+
 // 📨 ההודעות שלי — הודעות פרטיות (DM). רשימת-שיחות → שרשור → תשובה. RPCs: dm_inbox/thread/send.
 function InboxPanel({ T }) {
   const { user } = useAuth();
@@ -1279,7 +1329,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       </div>
     ) },
     // 📨 הודעות — כניסה אחת עתידית (הודעות-לכתב · DM פרטי · תגובות אליי). placeholder בלבד, לא בנוי.
-    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <InboxPanel T={T} /> },
+    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />

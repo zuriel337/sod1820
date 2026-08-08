@@ -22,6 +22,11 @@ export async function dmUnreadCount() {
   if (!supabase) return 0;
   try { const { data } = await supabase.rpc("dm_unread_count"); return typeof data === "number" ? data : 0; } catch { return 0; }
 }
+// 🗣 תגובות אליי — תגובות על התרומות שלי (RPC · owner בלבד)
+export async function repliesToMe(limit = 40) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc("replies_to_me", { p_limit: limit }); return Array.isArray(data) ? data : []; } catch { return []; }
+}
 
 // 💰 הפרופיל+יתרת-הקרדיטים של המשתמש (RLS: כל אחד רואה רק את שלו). null אם אין עדיין רשומה.
 export async function getMyProfile() {
