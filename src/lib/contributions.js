@@ -468,6 +468,13 @@ export async function getWriterGematrias(name, uid = null) {
   catch { return []; }
 }
 
+// 💬 כל החומר-גלם של הכתב מקבוצות הוואטסאפ (כולל הודעות בלי גימטריה) — SECURITY DEFINER, עוקף RLS.
+export async function getWriterWhatsappMessages(name, uid = null) {
+  if (!supabase || (!name && !uid)) return [];
+  try { const { data } = await supabase.rpc("writer_whatsapp_messages", { p_name: name || "", p_uid: uid || null }); return data || []; }
+  catch { return []; }
+}
+
 // 🎖️ «תיק חוקר» — מוניטין + דרגה (מבוסס-איכות)
 export async function getReputation(userId = null) {
   if (!supabase) return null;

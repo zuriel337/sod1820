@@ -18,7 +18,7 @@ import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
-import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterGematrias } from "../lib/contributions.js";
+import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterWhatsappMessages } from "../lib/contributions.js";
 import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
 import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 import WriterMessage from "../components/WriterMessage.jsx";
@@ -324,7 +324,7 @@ export default function ContributorPage() {
   useEffect(() => {
     if (!c?.display_name) { setWaFindings([]); return; }
     let alive = true;
-    getWriterGematrias(c.display_name, c.user_id || null)
+    getWriterWhatsappMessages(c.display_name, c.user_id || null)
       .then(r => { if (alive) setWaFindings(Array.isArray(r) ? r : []); })
       .catch(() => {});
     return () => { alive = false; };
@@ -812,17 +812,19 @@ export default function ContributorPage() {
               <div style={{ maxHeight: 520, overflowY: "auto", WebkitOverflowScrolling: "touch",
                 background: "#0b141a", border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 14px 14px",
                 padding: "14px 12px", display: "flex", flexDirection: "column", gap: 9 }}>
-                {waFindings.map(f => (
-                  <a key={f.id} href={`/number/${f.value}`}
-                    style={{ alignSelf: "flex-end", maxWidth: "88%", textDecoration: "none", background: "#005c4b", color: "#e9edef",
-                      borderRadius: "12px 12px 3px 12px", padding: "9px 13px", boxShadow: "0 1px 1.5px rgba(0,0,0,.35)" }}>
-                    <p style={{ margin: 0, fontFamily: F.body, fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{String(f.claim).slice(0, 400)}</p>
+                {waFindings.map(f => {
+                  const bubbleStyle = { alignSelf: "flex-end", maxWidth: "88%", textDecoration: "none", background: "#005c4b", color: "#e9edef", borderRadius: "12px 12px 3px 12px", padding: "9px 13px", boxShadow: "0 1px 1.5px rgba(0,0,0,.35)" };
+                  const inner = (<>
+                    <p style={{ margin: 0, fontFamily: F.body, fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{String(f.message || "").slice(0, 600)}</p>
                     <div style={{ textAlign: "end", marginTop: 4, fontFamily: F.heading, fontSize: 10.5 }}>
-                      <span style={{ color: "#8ff0c0", fontWeight: 900 }}>🔢 {f.value}</span>
+                      {f.value ? <span style={{ color: "#8ff0c0", fontWeight: 900 }}>🔢 {f.value}</span> : null}
                       {f.created_at && <span style={{ color: "#8fb3a8", marginInlineStart: 8 }}>🕒 {timeAgoHe(f.created_at)}</span>}
                     </div>
-                  </a>
-                ))}
+                  </>);
+                  return f.value
+                    ? <a key={f.id} href={`/number/${f.value}`} style={bubbleStyle}>{inner}</a>
+                    : <div key={f.id} style={bubbleStyle}>{inner}</div>;
+                })}
               </div>
             )}
           </div>
