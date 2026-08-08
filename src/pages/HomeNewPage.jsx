@@ -440,10 +440,15 @@ export default function HomeNewPage() {
       {/* ===== עדכונים אחרונים — 8 עדכונים ממוזגים, כל אחד עם לוגו + מילה קטנה:
           פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
-        <HomeHeader title="📜 עדכונים אחרונים" sub="20 העדכונים האחרונים — פוסטים, זרם המציאות והיכל הגילוי" />
+        <HomeHeader title="📜 עדכונים אחרונים" sub="20 העדכונים האחרונים — פוסטים, זרם המציאות והיכל" />
         {/* ⛔ הקפצת התכנסויות ל«עדכונים אחרונים» מושבתת עד הודעה חדשה (בקשת צוריאל) — ההתכנסויות
             נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
         <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+      </section>
+
+      {/* ===== 🎬 גלריית הסרטים — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 8.8.2026) ===== */}
+      <section style={{ padding: "0 0 36px" }}>
+        <VideoGallery />
       </section>
 
       {/* ===== 👥 הכתבים שהתעדכנו לאחרונה — לוגו/אווטאר + סמל-חתימה + התמחות + «לפני X» ===== */}
@@ -636,11 +641,6 @@ export default function HomeNewPage() {
       {/* ===== 🌳 העץ האחד — גוף-הראיות גדל (קישור לבית המדרש; עוגן-גלילה מהפוסט) ===== */}
       <section id="one-tree" className="hn-wrap" style={{ padding: "0 18px 44px", scrollMarginTop: 74 }}>
         <OneTreeWidget />
-      </section>
-
-      {/* ===== גלריית הסרטים — שורה אחת (הוחזרה מ"שולחן העבודה") ===== */}
-      <section style={{ padding: "0 0 36px" }}>
-        <VideoGallery />
       </section>
 
       {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
