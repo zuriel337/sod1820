@@ -68,7 +68,7 @@ export default function CreditsBuyPage() {
         <h1 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: 0 }}>💎 רכישת קרדיטים</h1>
         {user && profile && (
           <div style={{ color: C.muted, fontFamily: F.heading, fontSize: 14, marginTop: 10 }}>
-            היתרה שלך: <b style={{ color: C.gold }}>{profile.credits ?? 0} קרדיטים</b>
+            היתרה שלך: <b style={{ color: C.gold }}>{(profile.credits ?? 0).toLocaleString("he-IL")} קרדיטים</b>
           </div>
         )}
       </div>

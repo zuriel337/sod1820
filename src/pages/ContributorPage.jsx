@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { PALETTES, PaletteProvider } from "../lib/palette.js";
-import { supabase, getUpdatesByReporterNames } from "../lib/supabase.js";
+import { supabase, getUpdatesByReporterNames, getUpdatesByChannel } from "../lib/supabase.js";
 import { thumb, galThumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
@@ -18,9 +18,8 @@ import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
-import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterWhatsappMessages } from "../lib/contributions.js";
+import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterWhatsappMessages, studioVerify } from "../lib/contributions.js";
 import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
-import ContributorStudio from "../components/ContributorStudio.jsx";
 import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 import WriterMessage from "../components/WriterMessage.jsx";
 
@@ -152,6 +151,280 @@ function WriterSlot({ P, emoji, title, tag, empty, emptyText, children }) {
   );
 }
 
+// 💬 שער-בעלים: חיבור קבוצת-הוואטסאפ האישית של הכתב/החוקר (owner-gateway set_my_wa_group).
+//    מוצג רק לבעל-הדף. הבעלים מדביק לינק-הזמנה (chat.whatsapp.com/...) → הכפתור «קבוצת הוואטסאפ שלי»
+//    עולה מיד. הפיד-באתר (channel=writer-<slug>) מופעל ע"י מנהל (הוספת הבוט לקבוצה) — הודעה מוצגת.
+function OwnerWaConnect({ P, current, onConnected }) {
+  const [open, setOpen] = useState(!current);
+  const [url, setUrl] = useState(current || "");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  async function save(next) {
+    setBusy(true); setErr("");
+    try {
+      const { data, error } = await supabase.rpc("set_my_wa_group", { p_invite_url: next });
+      if (error || !data?.ok) {
+        setErr(data?.error === "bad_invite_url" ? "לינק לא תקין — נדרש לינק-הזמנה של וואטסאפ (chat.whatsapp.com/...)" : "שמירה נכשלה, נסו שוב.");
+      } else { onConnected(data.connected ? data.url : null); setOpen(false); }
+    } catch { setErr("שגיאת רשת, נסו שוב."); }
+    setBusy(false);
+  }
+  return (
+    <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: "3px solid #25d366", borderRadius: 14, padding: "14px 16px" }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800, marginBottom: 4 }}>💬 חבר את קבוצת הוואטסאפ שלך</div>
+      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 11 }}>
+        {current
+          ? "הקבוצה שלך מחוברת — מבקרים יכולים להצטרף ולראות מה אתה כותב. אפשר לעדכן את הלינק או לנתק."
+          : "אין לך עדיין קבוצת-וואטסאפ מחוברת. הדבק את לינק-ההזמנה של הקבוצה שלך — וכפתור «קבוצת הוואטסאפ שלי» יופיע בדף שלך מיד."}
+      </div>
+      {open ? (
+        <div style={{ display: "grid", gap: 9 }}>
+          <input value={url} onChange={e => setUrl(e.target.value)} inputMode="url" dir="ltr"
+            placeholder="https://chat.whatsapp.com/..."
+            style={{ width: "100%", boxSizing: "border-box", background: P.glow, border: `1px solid ${P.border}`, borderRadius: 10, padding: "11px 13px", color: P.ink, fontFamily: F.body, fontSize: 16 }} />
+          {err && <div style={{ color: "#c0453c", fontFamily: F.body, fontSize: 12 }}>{err}</div>}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button onClick={() => save(url)} disabled={busy || !url.trim()}
+              style={{ background: "#25d366", color: "#04321f", border: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: busy ? "default" : "pointer", minHeight: 44, opacity: busy || !url.trim() ? .6 : 1 }}>
+              {busy ? "שומר…" : (current ? "עדכן לינק" : "חבר את הקבוצה")}
+            </button>
+            {current && <button onClick={() => save("")} disabled={busy}
+              style={{ background: "transparent", color: P.inkSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "10px 18px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 44 }}>
+              נתק קבוצה
+            </button>}
+          </div>
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.55 }}>
+            💡 כדי שההודעות מהקבוצה יופיעו גם כאן באתר (לא רק בוואטסאפ), המנהל מוסיף את הבוט לקבוצה — פנה אליו אחרי החיבור.
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setOpen(true)}
+          style={{ background: "transparent", color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, padding: "8px 16px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, cursor: "pointer", minHeight: 40 }}>
+          🔗 ערוך / נתק קבוצה
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ✍️ הסטודיו/הספרייה האישית — רינדור בלוקי contributor_content (מפורסם+ציבורי) לפי סוג.
+//    empty=לא מרונדר (הדף לא עמוס). כל בלוק = תוכן אישי של הכתב, מופרד ויזואלית מהמערכת הקנונית.
+function StudioBlocks({ blocks, P }) {
+  const pub = (Array.isArray(blocks) ? blocks : []).filter(b => b.is_public && !b.is_personal);
+  if (!pub.length) return null;
+  const card = { background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 16px" };
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      {pub.map(b => {
+        if (b.kind === "heading") return <div key={b.id} style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginTop: 4 }}>{b.title}</div>;
+        const gallery = Array.isArray(b.media) ? b.media.filter(m => m?.url) : [];
+        return (
+          <div key={b.id} style={card}>
+            {(b.title || b.value != null) && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: b.body ? 7 : 0 }}>
+                {b.value != null && <span style={{ background: P.glow, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 900 }}>🔢 {b.value}</span>}
+                {b.title && <span style={{ color: P.ink, fontFamily: F.heading, fontSize: 15, fontWeight: 800 }}>{b.title}</span>}
+              </div>
+            )}
+            {b.kind === "quote"
+              ? b.body && <blockquote style={{ margin: 0, borderInlineStart: `3px solid ${P.accent}`, paddingInlineStart: 12, color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, fontStyle: "italic" }}>{b.body}</blockquote>
+              : b.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{b.body}</div>}
+            {b.image_url && !isVideoUrl(b.image_url) && (
+              <img src={b.image_url} alt={b.title || ""} loading="lazy" style={{ display: "block", width: "100%", maxWidth: 420, borderRadius: 10, marginTop: b.body ? 10 : 0 }} />
+            )}
+            {gallery.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(120px,1fr))", gap: 8, marginTop: 10 }}>
+                {gallery.map((m, i) => <img key={i} src={m.url} alt={m.caption || ""} loading="lazy" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: 9 }} />)}
+              </div>
+            )}
+            {b.link_url && (
+              <a href={b.link_url} target={b.link_url.startsWith("/") ? undefined : "_blank"} rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", padding: "7px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>
+                🔗 {b.kind === "link" && b.title ? "פתח" : "לקישור"} ←
+              </a>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// 📤 העלאת תמונת-סטודיו ל-bucket 'gallery' תחת נתיב-הכתב → URL ציבורי (משתמש מחובר).
+async function studioUpload(file, slug) {
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `sod1820/writers/${slug}/${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`;
+  const { error } = await supabase.storage.from("gallery").upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  return supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl;
+}
+
+const STUDIO_KINDS = [
+  { k: "text", icon: "📝", label: "טקסט/מידע" },
+  { k: "heading", icon: "🔤", label: "כותרת" },
+  { k: "quote", icon: "📜", label: "ציטוט" },
+  { k: "image", icon: "🖼️", label: "תמונה" },
+  { k: "gallery", icon: "🎞️", label: "גלריה" },
+  { k: "link", icon: "🔗", label: "קישור/סרטון" },
+  { k: "pin", icon: "📌", label: "הצמדה לעץ" },
+];
+// בונה p_entry מלא (studio_upsert דורסני — חייב את כל השדות שרוצים לשמור)
+const studioEntry = (b, over = {}) => ({
+  id: b?.id || undefined, kind: b?.kind || "text", title: b?.title ?? null, body: b?.body ?? null,
+  value: b?.value ?? null, image_url: b?.image_url ?? null, link_url: b?.link_url ?? null,
+  media: Array.isArray(b?.media) ? b.media : [], ref: b?.ref ?? null, ref_type: b?.ref_type ?? null,
+  is_public: b?.is_public ?? false, is_personal: b?.is_personal ?? false, sort: b?.sort ?? 0, ...over,
+});
+
+// ✍️ עורך-הסטודיו (בעל-הדף) — פלטת-בלוקים, העלאת-תמונות, טיוטה/מוצג/אישי, סדר. כותב studio_upsert (auth.uid).
+function StudioEditor({ slug, blocks, P, onChange, code = null }) {
+  const [edit, setEdit] = useState(null);   // הבלוק בעריכה (חדש = {kind})
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const list = [...(blocks || [])].sort((a, b) => (a.sort - b.sort) || (a.created_at < b.created_at ? -1 : 1));
+
+  async function call(fn, args) { const { data, error } = await supabase.rpc(fn, args); if (error) throw error; return data; }
+  async function save(entry) {
+    setBusy(true); setErr("");
+    try { await call("studio_upsert", { p_slug: slug, p_code: code, p_entry: entry }); setEdit(null); await onChange(); }
+    catch { setErr("שמירה נכשלה — נסו שוב."); }
+    setBusy(false);
+  }
+  async function del(id) { try { await call("studio_delete", { p_slug: slug, p_code: code, p_id: id }); await onChange(); } catch { /* noop */ } }
+  async function move(i, dir) {
+    const j = i + dir; if (j < 0 || j >= list.length) return;
+    const a = list[i], b = list[j];
+    try { await call("studio_upsert", { p_slug: slug, p_code: code, p_entry: studioEntry(a, { sort: b.sort }) });
+          await call("studio_upsert", { p_slug: slug, p_code: code, p_entry: studioEntry(b, { sort: a.sort }) });
+          await onChange(); } catch { /* noop */ }
+  }
+  const statusOf = b => b.is_personal ? "אישי" : b.is_public ? "מוצג" : "טיוטה";
+  const chip = { border: `1px solid ${P.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 11.5, fontWeight: 800, cursor: "pointer", background: P.card, color: P.ink, fontFamily: F.heading };
+
+  return (
+    <div style={{ border: `1px dashed ${P.accent}`, borderRadius: 14, padding: "14px 15px", background: P.glow }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>📚 הסטודיו שלי — עורך</div>
+        <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>רק אתה רואה את הכלים האלה. «מוצג» = פומבי · «טיוטה»/«אישי» = פרטי.</div>
+      </div>
+
+      {list.length > 0 && (
+        <div style={{ display: "grid", gap: 7, marginBottom: 12 }}>
+          {list.map((b, i) => (
+            <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 7, background: P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: "7px 10px" }}>
+              <span style={{ fontSize: 15 }}>{STUDIO_KINDS.find(k => k.k === b.kind)?.icon || "📄"}</span>
+              <span style={{ flex: 1, minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 12.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.title || b.body?.slice(0, 40) || STUDIO_KINDS.find(k => k.k === b.kind)?.label}</span>
+              <span style={{ ...chip, padding: "2px 8px", cursor: "default", color: b.is_public && !b.is_personal ? "#1a7f37" : P.accentDim }}>{statusOf(b)}</span>
+              <button onClick={() => move(i, -1)} disabled={i === 0} style={{ ...chip, padding: "3px 8px", opacity: i === 0 ? .4 : 1 }}>↑</button>
+              <button onClick={() => move(i, 1)} disabled={i === list.length - 1} style={{ ...chip, padding: "3px 8px", opacity: i === list.length - 1 ? .4 : 1 }}>↓</button>
+              <button onClick={() => setEdit(b)} style={{ ...chip, padding: "3px 9px" }}>✏️</button>
+              <button onClick={() => del(b.id)} style={{ ...chip, padding: "3px 9px", color: "#c0453c" }}>🗑</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {edit ? (
+        <StudioBlockForm block={edit} slug={slug} P={P} busy={busy} err={err}
+          onCancel={() => { setEdit(null); setErr(""); }} onSave={save} />
+      ) : (
+        <div>
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12, fontWeight: 800, marginBottom: 7 }}>➕ הוסף בלוק</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {STUDIO_KINDS.map(k => (
+              <button key={k.k} onClick={() => setEdit({ kind: k.k, is_public: false, is_personal: false })}
+                style={{ ...chip, padding: "8px 12px", fontSize: 12.5 }}>{k.icon} {k.label}</button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// טופס בלוק-סטודיו — שדות לפי סוג + העלאת-תמונות + בורר טיוטה/מוצג/אישי.
+function StudioBlockForm({ block, slug, P, busy, err, onCancel, onSave }) {
+  const [b, setB] = useState(() => ({ ...block, media: Array.isArray(block.media) ? block.media : [] }));
+  const [up, setUp] = useState(false);
+  const set = (k, v) => setB(prev => ({ ...prev, [k]: v }));
+  const status = b.is_personal ? "personal" : b.is_public ? "public" : "draft";
+  const setStatus = s => setB(prev => ({ ...prev, is_public: s === "public", is_personal: s === "personal" }));
+  const input = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, background: P.card, border: `1px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 16, outline: "none" };
+
+  async function pickImage(e, multi) {
+    const files = Array.from(e.target.files || []); if (!files.length) return;
+    setUp(true);
+    try {
+      if (multi) {
+        const urls = [];
+        for (const f of files) urls.push({ url: await studioUpload(f, slug) });
+        setB(prev => ({ ...prev, media: [...(prev.media || []), ...urls] }));
+      } else {
+        set("image_url", await studioUpload(files[0], slug));
+      }
+    } catch { /* noop */ }
+    setUp(false); e.target.value = "";
+  }
+  const kd = STUDIO_KINDS.find(k => k.k === b.kind);
+  const needTitle = ["text", "heading", "image", "gallery", "link", "pin", "quote"].includes(b.kind);
+  const btn = { border: "none", borderRadius: 999, padding: "10px 18px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 44 };
+
+  return (
+    <div style={{ display: "grid", gap: 10, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "13px 14px" }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{kd?.icon} {b.id ? "עריכת" : "בלוק חדש —"} {kd?.label}</div>
+
+      {needTitle && b.kind !== "quote" && <input value={b.title || ""} onChange={e => set("title", e.target.value.slice(0, 200))} placeholder={b.kind === "heading" ? "הכותרת…" : "כותרת (לא חובה)"} style={input} />}
+
+      {["text", "quote", "pin"].includes(b.kind) && (
+        <textarea value={b.body || ""} onChange={e => set("body", e.target.value.slice(0, 20000))} rows={b.kind === "quote" ? 2 : 4}
+          placeholder={b.kind === "quote" ? "הציטוט…" : b.kind === "pin" ? "תיאור קצר (לא חובה)…" : "הטקסט…"} style={{ ...input, resize: "vertical", minHeight: 60 }} />
+      )}
+      {b.kind === "text" && (
+        <input value={b.value ?? ""} onChange={e => set("value", e.target.value.replace(/[^0-9]/g, "") || null)} inputMode="numeric" placeholder="ערך גימטריה (לא חובה, מציג באדג׳ 🔢)" style={input} />
+      )}
+
+      {b.kind === "image" && (
+        <div>
+          {b.image_url && <img src={b.image_url} alt="" style={{ width: "100%", maxWidth: 320, borderRadius: 10, marginBottom: 8 }} />}
+          <label style={{ ...btn, background: P.accentBtn, color: P.onAccent, display: "inline-block" }}>{up ? "מעלה…" : (b.image_url ? "החלף תמונה" : "📤 העלה תמונה")}<input type="file" accept="image/*" hidden onChange={e => pickImage(e, false)} /></label>
+        </div>
+      )}
+      {b.kind === "gallery" && (
+        <div>
+          {(b.media || []).length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(80px,1fr))", gap: 6, marginBottom: 8 }}>
+              {b.media.map((m, i) => (
+                <div key={i} style={{ position: "relative" }}>
+                  <img src={m.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: 8 }} />
+                  <button onClick={() => set("media", b.media.filter((_, k) => k !== i))} style={{ position: "absolute", top: 2, insetInlineEnd: 2, background: "rgba(0,0,0,.6)", color: "#fff", border: "none", borderRadius: 999, width: 20, height: 20, cursor: "pointer", fontSize: 12 }}>✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+          <label style={{ ...btn, background: P.accentBtn, color: P.onAccent, display: "inline-block" }}>{up ? "מעלה…" : "📤 הוסף תמונות"}<input type="file" accept="image/*" multiple hidden onChange={e => pickImage(e, true)} /></label>
+        </div>
+      )}
+      {(b.kind === "link" || b.kind === "pin") && (
+        <input value={(b.kind === "pin" ? b.ref : b.link_url) || ""} onChange={e => set(b.kind === "pin" ? "ref" : "link_url", e.target.value)} dir="ltr"
+          placeholder={b.kind === "pin" ? "נתיב בעץ: /number/358 · /codes/<slug>" : "https://…"} style={input} />
+      )}
+
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>מצב:</span>
+        {[["public", "מוצג (פומבי)"], ["draft", "טיוטה"], ["personal", "אישי (פרטי)"]].map(([v, lbl]) => (
+          <button key={v} onClick={() => setStatus(v)} style={{ border: `1px solid ${status === v ? P.accent : P.border}`, background: status === v ? P.glow : P.card, color: status === v ? P.accentText : P.inkSoft, borderRadius: 999, padding: "6px 12px", fontFamily: F.heading, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>{lbl}</button>
+        ))}
+      </div>
+
+      {err && <div style={{ color: "#c0453c", fontFamily: F.body, fontSize: 12 }}>{err}</div>}
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={() => onSave(studioEntry(b))} disabled={busy || up} style={{ ...btn, background: P.accentBtn, color: P.onAccent, opacity: busy || up ? .6 : 1 }}>{busy ? "שומר…" : "💾 שמור בלוק"}</button>
+        <button onClick={onCancel} disabled={busy} style={{ ...btn, background: "transparent", color: P.inkSoft, border: `1px solid ${P.border}` }}>ביטול</button>
+      </div>
+    </div>
+  );
+}
+
 // 🔢 האם עדכון נושא גימטריה? ביטוי = מספר (2-4 ספרות), «בגימטריא/גימטריה», או «מאומת במנוע».
 //    משמש למיון: גימטריה תמיד ראשונה בדף-הכתב (בקשת צוריאל — הגימטריה למעלה בכל דף).
 const GEM_UPDATE_RE = /=\s*\d{2,4}|\d{2,4}\s*=|בגימטרי|גימטריה|מאומת במנוע/;
@@ -192,6 +465,10 @@ export default function ContributorPage() {
   const [waUpdates, setWaUpdates] = useState([]); // 📡 העדכונים החיים שלו מהוואטסאפ (channel_updates לפי credit)
   const [forumMsgs, setForumMsgs] = useState([]); // 💬 ההודעות האחרונות שלו בפורום (research_contributions)
   const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
+  const [studioBlocks, setStudioBlocks] = useState([]); // ✍️ הסטודיו/הספרייה האישית (contributor_content דרך studio_list)
+  const [studioNonce, setStudioNonce] = useState(0);    // רענון-סטודיו אחרי עריכה
+  const [studioCode, setStudioCode] = useState(null);   // 🔑 קוד-בעלים לסטודיו (?studio=<code>) — לכתב בלי חשבון (כריסטינה)
+  const [studioCodeOwner, setStudioCodeOwner] = useState(false); // בעלים-דרך-קוד/אדמין (בנוסף ל-auth.uid)
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   const [waOpen, setWaOpen] = useState(false);    // 💬 תפריט-וואטסאפ נגלל (סגור כברירת-מחדל)
   const [waFindings, setWaFindings] = useState([]); // 💬 חומר «הגילוי היומי» של הכתב (RPC · עוקף RLS) — כשאין channel_updates
@@ -228,7 +505,7 @@ export default function ContributorPage() {
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
-    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged,page_config";
+    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged,page_config,wa_channel,wa_group_url";
     const resolveMe = slug === "me";
     // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
     if (resolveMe && authLoading) return;
@@ -260,6 +537,36 @@ export default function ContributorPage() {
       .catch(() => alive && setErr(true));
     return () => { alive = false; };
   }, [slug, nav, user, authLoading]);
+
+  // 🔑 זיהוי בעלים-דרך-קוד לסטודיו (?studio=<code> / localStorage) — לכתב בלי חשבון (כריסטינה) ולאדמין.
+  //    בנוסף ל-auth.uid (effIsOwner); מאוחד — RPC אחד תומך בשני המסלולים.
+  useEffect(() => {
+    if (!slug || slug === "me") { setStudioCode(null); setStudioCodeOwner(false); return; }
+    let alive = true;
+    let k = null;
+    try {
+      k = new URL(window.location.href).searchParams.get("studio") || localStorage.getItem(`studio:${slug}`) || null;
+    } catch { k = null; }
+    if (!k) { setStudioCode(null); setStudioCodeOwner(false); return; }
+    studioVerify(slug, k).then(v => {
+      if (!alive) return;
+      const ok = !!v?.ok;
+      setStudioCodeOwner(ok); setStudioCode(ok ? k : null);
+      if (ok) { try { localStorage.setItem(`studio:${slug}`, k); } catch { /* noop */ } }
+    }).catch(() => { if (alive) { setStudioCodeOwner(false); setStudioCode(null); } });
+    return () => { alive = false; };
+  }, [slug]);
+
+  // ✍️ הסטודיו/הספרייה האישית — עדשה על contributor_content דרך studio_list (SECURITY DEFINER).
+  //    ציבורי מקבל רק בלוקים מפורסמים; בעל-הדף (auth.uid / code) מקבל גם טיוטות.
+  useEffect(() => {
+    if (!slug || slug === "me") { setStudioBlocks([]); return; }
+    let alive = true;
+    supabase.rpc("studio_list", { p_slug: slug, p_code: studioCode })
+      .then(({ data }) => { if (alive) setStudioBlocks(Array.isArray(data) ? data : []); })
+      .catch(() => { if (alive) setStudioBlocks([]); });
+    return () => { alive = false; };
+  }, [slug, studioNonce, studioCode]);
 
   // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) + סטטיסטיקה — לכרטיס-הדרגה. ציבורי (SECURITY DEFINER).
   const [level, setLevel] = useState(null);
@@ -309,16 +616,18 @@ export default function ContributorPage() {
     return () => { alive = false; };
   }, [c?.display_name]);
 
-  // 📡 העדכונים החיים שלו — עדשה על channel_updates לפי credit=display_name (עץ אחד, לא עותק)
+  // 📡 העדכונים החיים שלו — קבוצת-וואטסאפ אישית (wa_channel) אם קיימת, אחרת עדשה לפי credit=display_name.
+  //    עץ אחד: אותו channel_updates — או פיד הקבוצה שלו (channel=writer-<slug>) או סינון לפי שמותיו.
   useEffect(() => {
     if (!c?.display_name) { setWaUpdates([]); return; }
     let alive = true;
-    const names = [c.display_name, ...(Array.isArray(c.wa_names) ? c.wa_names : [])];
-    getUpdatesByReporterNames(names, 60)
-      .then(r => { if (alive) setWaUpdates(Array.isArray(r) ? r : []); })
-      .catch(() => {});
+    const p = c.wa_channel
+      ? getUpdatesByChannel(c.wa_channel, 60)
+      : getUpdatesByReporterNames([c.display_name, ...(Array.isArray(c.wa_names) ? c.wa_names : [])], 60);
+    p.then(r => { if (alive) setWaUpdates(Array.isArray(r) ? r : []); })
+     .catch(() => {});
     return () => { alive = false; };
-  }, [c?.display_name, c?.wa_names]);
+  }, [c?.display_name, c?.wa_names, c?.wa_channel]);
 
   // 💬 חומר «הגילוי היומי» של הכתב — כשאין channel_updates, מזינים את 🟢 מ-writer_gematria_findings
   //    (RPC · SECURITY DEFINER, עוקף RLS ל-published). כך הפיד משקף את הפעילות בקבוצה. תצוגה בלבד — לא נוגע במאגר.
@@ -507,8 +816,12 @@ export default function ContributorPage() {
   const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0 && waUpdates.length === 0;
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
-  const voiceEmpty = !effIsOwner && !settings.current_focus;   // «על הכותב» עלה למעלה; כאן נותר current_focus + עתידי
-  const waEmpty = !!c.on_whatsapp && feedUpdates.length === 0 && waFindings.length === 0;
+  // «על הכותב» עלה למעלה; כאן נותר current_focus + הסטודיו (contributor_content מפורסם). ריק=לא מוצג (לא עמוס).
+  const studioPublicCount = studioBlocks.filter(b => b.is_public && !b.is_personal).length;
+  const voiceEmpty = !effIsOwner && !studioCodeOwner && !settings.current_focus && studioPublicCount === 0;
+  // כתב עם קבוצה אישית (wa_group_url) לא נחשב «ריק» (מציגים CTA-הצטרפות), וגם לא לבעל-הדף,
+  // וגם לא כשיש חומר «הגילוי היומי» (waFindings) — כדי שתמיד יופיע משהו פעיל, לא טקסט-ריק.
+  const waEmpty = !!c.on_whatsapp && !c.wa_group_url && !effIsOwner && feedUpdates.length === 0 && waFindings.length === 0;
   const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
   const rzFacts = [
     `כתב: ${c.display_name}`,
@@ -561,6 +874,14 @@ export default function ContributorPage() {
           {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
           <FollowWriter name={c.display_name} P={P} />
           <WriterMessage name={c.display_name} P={P} />
+          {/* 💬 קבוצת-הוואטסאפ האישית של הכתב — ליד «שלח הודעה»: התחברות + לראות מה הוא כותב */}
+          {c.wa_group_url && (
+            <a href={c.wa_group_url} target="_blank" rel="noopener noreferrer"
+              title={`הצטרפו לקבוצת הוואטסאפ של ${c.display_name} וראו מה הוא כותב`}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#fff", background: "#25D366", textDecoration: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>
+              💬 קבוצת הוואטסאפ שלי
+            </a>
+          )}
           <ShareActions type="researcher"
             url={`https://sod1820.co.il/community/researcher/${c?.code || c?.slug || slug}`}
             title={`${c?.display_name || "חוקר"} — דף חוקר · סוד 1820`}
@@ -587,9 +908,6 @@ export default function ContributorPage() {
         )}
         <SpecialtyCenter c={c} />
       </WriterSlot>
-
-      {/* ═══ 🎨 הסטודיו של הכתב (פיילוט) ═══ מרחב-נתונים אישי, נפרד מהאתר. מוצג לבעלים (לינק/אדמין) או כשיש תוכן ציבורי. */}
-      <ContributorStudio c={c} P={P} />
 
       {/* ═══ סלוט 3 · 🔢 הגימטריות המאומתות שלי ═══ (מקור קנוני יחיד + empty-state עצמי) */}
       <VerifiedGematrias name={c.display_name} acc={c.accent} uid={c.user_id} />
@@ -737,7 +1055,13 @@ export default function ContributorPage() {
 
       {/* ═══ סלוט 5 · ✍️ הקול שלי ═══ (תוכן אישי; «על הכותב» עלה למעלה, כאן «מה אני חוקר עכשיו» + עתידי contributor_content) */}
       <WriterSlot P={P} emoji="✍️" title="הקול שלי" tag="תוכן אישי של הכתב" empty={voiceEmpty} emptyText="הכתב עדיין לא הוסיף תוכן אישי.">
-        <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
+        <div style={{ display: "grid", gap: 14 }}>
+          <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
+          {/* 📚 הסטודיו/הספרייה האישית — מה שהכתב בחר להציג (מפורסם בלבד). ריק → לא מוצג. */}
+          <StudioBlocks blocks={studioBlocks} P={P} />
+          {/* ✍️ עורך-הסטודיו — רק לבעל-הדף (effIsOwner). מוסיף/עורך/מסדר בלוקים דרך studio_upsert. */}
+          {(effIsOwner || studioCodeOwner) && c?.slug && <StudioEditor slug={c.slug} blocks={studioBlocks} P={P} code={studioCode} onChange={async () => setStudioNonce(n => n + 1)} />}
+        </div>
       </WriterSlot>
 
       {/* ═══ סלוט 6 · 🟢 WhatsApp ═══ (תמיד נוכח: פיד לפי חומר-אמיתי · empty-state · CTA-הצטרפות)
@@ -765,8 +1089,8 @@ export default function ContributorPage() {
                   {/* 📌 באנר-הצטרפות נעוץ — למי שלא בקבוצה וירצה להתחבר, עם כללי-הקבוצה */}
                   <div style={{ alignSelf: "center", width: "100%", maxWidth: 520, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.13)", borderRadius: 12, padding: "13px 15px", textAlign: "center", color: "#e9edef" }}>
                     <div style={{ fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 3 }}>📌 עוד לא בקבוצה?</div>
-                    <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .82, lineHeight: 1.55, marginBottom: 11 }}>הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים ודיונים.</div>
-                    <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
+                    <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .82, lineHeight: 1.55, marginBottom: 11 }}>{c.wa_group_url ? `הצטרפו לקבוצת הוואטסאפ של ${c.display_name} — ותראו מה הוא כותב.` : "הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים ודיונים."}</div>
+                    <a href={c.wa_group_url || WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
                       style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
                       💬 הצטרפו לקבוצה ←
                     </a>
@@ -832,18 +1156,40 @@ export default function ContributorPage() {
               </div>
             )}
           </div>
-        ) : (
-          /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «הגילוי היומי», שולח הודעה לצוריאל, ומחוברים ידנית */
-          <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
-            <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
-              הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
+        ) : (() => {
+          // אין channel_updates ואין waFindings → שכבת-הקבוצה-האישית (שלי): עדכון-מצב מקומי אחרי חיבור/ניתוק ע"י הבעלים
+          const onConn = (u) => setC(prev => prev ? { ...prev, wa_group_url: u, on_whatsapp: u ? true : prev.on_whatsapp } : prev);
+          if (c.wa_group_url) {
+            // יש קבוצה: בעלים → ניהול (עריכה/ניתוק) · מבקר → הזמנה להצטרף ולראות מה הוא כותב
+            return effIsOwner ? (
+              <OwnerWaConnect P={P} current={c.wa_group_url} onConnected={onConn} />
+            ) : (
+              <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
+                <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
+                  לקבוצת הוואטסאפ של {c.display_name} יש מקום גם לכם. הצטרפו כדי לראות מה הוא כותב — ברגע שיעלה חומר חדש הוא יופיע גם כאן.
+                </div>
+                <a href={c.wa_group_url} target="_blank" rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+                  💬 הצטרפו לקבוצה של {c.display_name} ←
+                </a>
+              </div>
+            );
+          }
+          // אין קבוצה: בעל-הדף → הצעה לחבר את הקבוצה שלו · מבקר → CTA-הצטרפות דרך צוריאל
+          return effIsOwner ? (
+            <OwnerWaConnect P={P} current={null} onConnected={onConn} />
+          ) : (
+            <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
+              <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
+                הכתב עדיין לא מחובר לוואטסאפ. רוצים להתחבר ולהצטרף לקבוצת «הגילוי היומי»? שלחו לי הודעה ואחבר אתכם — ומה שתבחרו להציג יופיע כאן.
+              </div>
+              <a href={ZURIEL_WA_LINK} target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+                💬 שלחו לי הודעה בוואטסאפ ←
+              </a>
             </div>
-            <a href={ZURIEL_WA_LINK} target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
-              💬 שלחו לי הודעה בוואטסאפ ←
-            </a>
-          </div>
-        )}
+          );
+        })()}
       </WriterSlot>
       {waLb && <UpdateModal u={waLb} brand={BRANDS[waLb.channel] || BRANDS["reality-code"]} onClose={() => setWaLb(null)} />}
 
