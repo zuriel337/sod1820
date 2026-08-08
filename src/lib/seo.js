@@ -174,6 +174,57 @@ export function setEntityJsonLd({ term, value, isNumber, path, description, imag
 }
 export function clearEntityJsonLd() { removeJsonLd("sod-entity-ld"); }
 
+// ── JSON-LD לפתיל פורום (/forum/:id) — DiscussionForumPosting ──
+// זה המארקאפ שמזין את דוח «פורום דיונים» (Discussion Forum) ב-Search Console.
+// הפתיל = תרומת-מחקר (research_contributions); התגובות = רשומות עם parent_id=הפתיל.
+// גוגל מרנדר את ה-SPA וקורא את ה-JSON-LD הזה (הבוט-routing של הסושיאל נפרד, ב-api/og.js).
+// דרישות גוגל: author + datePublished על הפוסט; author + text על כל Comment.
+function plain(raw = "", max = 5000) {
+  return String(raw).replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim().slice(0, max);
+}
+export function setForumThreadJsonLd({ thread, replies = [], path, image } = {}) {
+  if (typeof document === "undefined" || !thread) return;
+  const canonical = SITE_URL + (path || "");
+  const person = n => ({ "@type": "Person", name: (n && String(n).trim()) || "חבר הקהילה" });
+  const text = plain(thread.body || thread.title || "");
+  const headline = plain(thread.title || text, 110) || "דיון מחקר";
+  const when = thread.created_at || undefined;
+  const comments = (replies || [])
+    .filter(r => r && (r.body || r.title))
+    .map(r => ({
+      "@type": "Comment",
+      text: plain(r.body || r.title || ""),
+      datePublished: r.created_at || undefined,
+      author: person(r.author_name),
+    }));
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "DiscussionForumPosting",
+    "@id": canonical + "#discussion",
+    headline,
+    articleBody: text,
+    url: canonical,
+    mainEntityOfPage: canonical,
+    datePublished: when,
+    dateModified: when,
+    author: person(thread.author_name),
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+    inLanguage: "he-IL",
+    image: image ? [image] : undefined,
+    interactionStatistic: {
+      "@type": "InteractionCounter",
+      interactionType: "https://schema.org/CommentAction",
+      userInteractionCount: comments.length,
+    },
+  };
+  if (comments.length) { ld.comment = comments; ld.commentCount = comments.length; }
+  setJsonLd("sod-forum-ld", ld);
+  removeJsonLd("sod-article-ld"); // דיון אינו Article — מונע כפילות-סוג
+}
+export function clearForumJsonLd() { removeJsonLd("sod-forum-ld"); }
+
 // ── עוזרי מטא נוספים ──
 function addMeta(attr, key, content) {
   if (typeof document === "undefined") return;

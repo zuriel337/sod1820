@@ -35,15 +35,17 @@ const C = {
 
 const clean = (s) => (s || "").replace(/[^א-ת]/g, "");
 
-export default function MaftechShowcase() {
+export default function MaftechShowcase({ seed = "" }) {
   const numHref = useNumHref();
   const [idx, setIdx] = useState(0);
-  const [custom, setCustom] = useState("");     // מילה שהמשתמש הקליד
+  const [custom, setCustom] = useState(seed);   // מילה שהמשתמש הקליד (או seed מ-deep-link)
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(false);
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(!!seed); // seed → עוצר את סיבוב-ההדגמה ומראה את המילה
   const cache = useRef({});
+  // 🔗 deep-link (/research?tool=maftech&q=…) — טוען את המילה ישר לפירוק
+  useEffect(() => { if (seed) { setCustom(seed); setPaused(true); } }, [seed]);
 
   // המילה הפעילה: הקלט של המשתמש גובר על מילות-ההדגמה. פחות מ-2 אותיות עבריות = עדיין בהדגמה.
   const customClean = clean(custom);

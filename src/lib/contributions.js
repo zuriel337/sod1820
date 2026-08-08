@@ -75,11 +75,24 @@ export async function getContributionById(id) {
   if (!supabase || !id) return null;
   try {
     const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,created_at")
+      .select("id,author_name,author_user_id,intent,origin,research_state,status,target_type,target_id,parent_id,title,body,image_url,created_at")
       .eq("id", id).maybeSingle();
     if (data && (data.status === "hidden" || data.status === "rejected")) return null;   // מחוק = לא-נמצא
     return data || null;
   } catch { return null; }
+}
+
+// 💬 תגובות ישירות לפתיל (parent_id=id) — לבניית comment[] של DiscussionForumPosting (SEO)
+// ולתצוגת-הפתיל. מחזיר רק תגובות מאושרות, מהישנה לחדשה (סדר קריאה טבעי).
+export async function getContributionReplies(parentId, limit = 60) {
+  if (!supabase || !parentId) return [];
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,author_name,title,body,created_at")
+      .eq("parent_id", parentId).eq("status", "approved")
+      .order("created_at", { ascending: true }).limit(limit);
+    return data || [];
+  } catch { return []; }
 }
 
 // 💬 ספירת-תגובות לרשימת תרומות — כדי שכל כרטיס בפיד יראה «יש תגובה» (מונה ילדים לפי parent_id).

@@ -14,7 +14,7 @@ import { useThemeMode, toggleTheme } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
 import { isToolReady, ELS_LOGO } from "../../lib/hub/ready.js";
 import { isStandalone, canInstall, promptInstall, isIOS } from "../../lib/install.js";
-import { useStream, STREAMS } from "../../lib/stream.js";
+import { useStream, setStream, STREAMS } from "../../lib/stream.js";
 import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
@@ -443,9 +443,6 @@ function UserMenu({ user, profile, cc }) {
           {isAdmin && (
             <Link to="/admin" style={{ ...item, color: cc.goldBright, borderTop: `1px solid ${cc.border}`, marginTop: 4, paddingTop: 11 }} onMouseEnter={hov} onMouseLeave={out}>👑 דף ניהול</Link>
           )}
-          {isAdmin && (
-            <Link to="/research" style={{ ...item, color: cc.goldBright }} onMouseEnter={hov} onMouseLeave={out}>🔭 היכל הגילוי</Link>
-          )}
         </div>
       )}
     </div>
@@ -564,6 +561,26 @@ function NavThemeToggle() {
   );
 }
 
+// 🎬 שורת מעבר-עדשה במגירת-המובייל (אדמין) — הועברה לכאן מהסרגל העליון (בקשת צוריאל):
+// מחליפה בין «כי לה' המלוכה» ל«קוד המציאות» ומנווטת לבית של העדשה. מקור-אמת: lib/stream.js.
+function LensSwitchRow({ cc, onDone }) {
+  const s = useStream() || "kingdom";
+  const nav = useNavigate();
+  const other = s === "reality" ? "kingdom" : "reality";
+  const next = STREAMS[other];
+  return (
+    <button onClick={() => { setStream(other); onDone?.(); nav(next.home); }} style={{
+      display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
+      fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", width: "100%",
+      background: "none", border: "none", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
+      cursor: "pointer", textAlign: "start",
+    }}>
+      <span style={{ fontSize: 18 }}>{next.emoji}</span>
+      מעבר ל{next.label}
+    </button>
+  );
+}
+
 // ⊞ אייקון תפריט מתקדם — רשת 3×3 (משיק לסגנון "מנוע"/אפליקציה), מחליף את ההמבורגר
 function GridIcon() {
   return (
@@ -654,8 +671,8 @@ export default function Navbar() {
         <span className="sod-nav-mobile-only"><SurpriseButton /></span>
         {/* 🔔 במובייל ההתראות יורדות לאזור-האישי (בקשת צוריאל) — לא תופסות מקום בסרגל */}
 
-        {/* מתג עדשת הזרם — מגודר לאדמין בלבד (מוסתר לציבור) */}
-        <StreamSwitch />
+        {/* מתג עדשת הזרם — מגודר לאדמין בלבד (מוסתר לציבור). במובייל ירד לתוך המגירה (LensSwitchRow). */}
+        <span className="sod-nav-desktop" style={{ display: "inline-flex", alignItems: "center" }}><StreamSwitch /></span>
 
         {/* מתג תמה גלובלי — גלוי בכל מסך */}
         <NavThemeToggle />
@@ -707,12 +724,7 @@ export default function Navbar() {
               fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
             }}>👑 דף ניהול</Link>
           )}
-          {isAdmin && (
-            <Link to="/research" onClick={() => setDrawer(false)} style={{
-              display: "flex", alignItems: "center", gap: 10, color: cc.goldBright, textDecoration: "none",
-              fontFamily: F.royal, fontSize: 14, fontWeight: 700, padding: "8px 14px", borderBottom: `1px solid ${cc.border}`, marginBottom: 6,
-            }}>🔭 היכל הגילוי</Link>
-          )}
+          {isAdmin && <LensSwitchRow cc={cc} onDone={() => setDrawer(false)} />}
           {/* ההיכל = האב; שלוש התוכנות שבמסגרת = הבנים. צ'יפ-אב «🏛️ ההיכל» יושב על קו-המסגרת
               (כמו legend) → הכלים שבתוכה שייכים לו. בלי מילים; המסגרת + הצ'יפ מספרים את ההיררכיה. */}
           <div style={{ position: "relative", margin: "18px 8px 2px", padding: "24px 6px 10px",

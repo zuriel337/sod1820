@@ -79,6 +79,9 @@ const STATIC = {
   // 💬 פורום המחקר הקהילתי (הרשימה; פתיל בודד /forum/:id יטופל בעתיד עם שליפת-DB)
   '/forum': { title: "פורום המחקר הקהילתי · " + SITE_NAME, desc: "כל חידושי, השערות, מקורות ומאמרי הכתבים של הקהילה במקום אחד — פורום המחקר של סוד 1820.",
     card: { w: 'פורום המחקר', sub: 'חידושי הקהילה · מקורות · מאמרים', cap: 'בואו לחקור יחד' } },
+  // 🎬 אור הגאולה — אוסף מדיה (סרטונים + ריבועים)
+  '/or-geula': { title: "אור הגאולה — אוסף הסרטונים והרמזים · " + SITE_NAME, desc: "אור הגאולה — אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה. תיעוד חי ומתעדכן בסוד 1820.",
+    card: { w: 'אור הגאולה', sub: 'סרטונים · ריבועים · רמזי גאולה', cap: 'אוסף חי שמתעדכן' } },
   // 🌐 קשרי שפות
   '/languages': { title: "קשרי שפות · " + SITE_NAME, desc: "הקשרים הנסתרים בין השפות — שורשים, גימטריה ומשמעות. עדות — לא ניבוי.",
     card: { w: 'קשרי שפות', sub: 'שורשים · גימטריה · משמעות', cap: 'מה מקשר בין השפות?', sig: 'gem' } },
@@ -129,6 +132,7 @@ export default async function handler(req, res) {
   let image = cardUrl(STATIC['/'].card);
   let type = 'website';
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
+  let forumThread = null;  // פתיל-פורום (research_contributions) — ל-DiscussionForumPosting
   const canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
@@ -285,6 +289,26 @@ export default async function handler(req, res) {
         }
       } catch { /* fallback to defaults */ }
     }
+  } else if (key.startsWith('/forum/')) {
+    // 💬 פתיל-פורום בודד (research_contributions) — תצוגת-שיתוף אמיתית + DiscussionForumPosting.
+    // משלים את ה-TODO שהיה על /forum: פתיל בודד עם שליפת-DB. רק מאושר (approved) נחשף.
+    let fid = key.slice('/forum/'.length);
+    try { fid = decodeURIComponent(fid); } catch { /* keep */ }
+    if (fid) {
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/research_contributions?id=eq.${encodeURIComponent(fid)}&status=eq.approved&select=id,author_name,title,body,image_url,created_at&limit=1`, { headers: ogHeaders });
+        const rows = await r.json();
+        const c = Array.isArray(rows) && rows[0];
+        if (c && (c.title || c.body)) {
+          forumThread = c;
+          const ttl = stripHtml(c.title || c.body).slice(0, 80);
+          title = `${ttl} — פורום המחקר · ${SITE_NAME}`;
+          desc = cleanDesc(c.body || c.title, 180) || 'דיון מחקר קהילתי בסוד 1820 — הצטרפו לדיון.';
+          image = c.image_url ? c.image_url
+            : cardUrl({ w: ttl.slice(0, 46), sub: 'פורום המחקר · סוד 1820', cap: 'הצטרפו לדיון ←' });
+        }
+      } catch { /* fallback to defaults */ }
+    }
   } else {
     // לטפל כ-slug של פוסט.
     // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים
@@ -353,6 +377,25 @@ export default async function handler(req, res) {
     };
     if (post.date) ld.datePublished = post.date;
     ld.dateModified = post.modified || post.date || undefined;
+    jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  } else if (forumThread) {
+    // 💬 DiscussionForumPosting — הסוג שגוגל מזהה כ«פורום דיונים».
+    const nm = (forumThread.author_name && String(forumThread.author_name).trim()) || 'חבר הקהילה';
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'DiscussionForumPosting',
+      '@id': canonical + '#discussion',
+      headline: stripHtml(forumThread.title || forumThread.body).slice(0, 110) || 'דיון מחקר',
+      articleBody: stripHtml(forumThread.body || forumThread.title).slice(0, 5000),
+      url: canonical,
+      mainEntityOfPage: canonical,
+      author: { '@type': 'Person', name: nm },
+      publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
+      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: SITE },
+      inLanguage: 'he-IL',
+    };
+    if (forumThread.created_at) { ld.datePublished = forumThread.created_at; ld.dateModified = forumThread.created_at; }
+    if (image) ld.image = [image];
     jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
   }
 

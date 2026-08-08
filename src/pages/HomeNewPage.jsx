@@ -319,13 +319,22 @@ export default function HomeNewPage() {
 
         /* ===== 🔠 השער החי — רקע-צופן · חיפוש-לב · דופק (מחויב לעולם הכהה-מלכותי, כמו זרם המציאות) ===== */
         /* 🎨 שער — רקע-CSS מלכותי (בלי תמונה). זוהר-זהב עדין על אבן-לילה. */
+        /* 🖼️ שער עם תמונת-הירו הגדולה (באנר 1820) פרוסה על כל הרוחב, מתחת לתוכן.
+           שכבת-כיסוי כהה (scrim) שומרת על קריאוּת הפסוק/החיפוש שמעליה; הכתר+1820 נשארים גלויים במרכז. */
         .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
-          background: radial-gradient(1000px 560px at 50% -10%, #1a1330 0%, #0b0916 58%, #09080f 100%);
-          border-bottom:1px solid rgba(212,175,55,.22); }
+          background:
+            linear-gradient(180deg, rgba(9,8,15,.34) 0%, rgba(9,8,15,.05) 30%, rgba(9,8,15,.05) 62%, rgba(9,8,15,.40) 100%),
+            url(${HERO_IMG}) center/cover no-repeat;
+          border-bottom:1px solid rgba(212,175,55,.30); }
+        /* וינייטה עדינה בקצוות בלבד — כדי שהפסוק/החיפוש (מימין) והקלפים (משמאל) יישבו על רקע מעט כהה, בלי להחשיך את מרכז התמונה */
         .hn-mx-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; background:
-          radial-gradient(60% 42% at 50% 34%, rgba(212,175,55,.08), transparent 62%); }
+          radial-gradient(120% 100% at 50% 50%, transparent 42%, rgba(9,8,15,.34) 100%); }
         .hn-gate-inner { position:relative; z-index:2; max-width:680px; margin:0 auto;
-          padding:54px 18px 46px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+          min-height:min(74vh,540px); padding:0 18px calc(30px + env(safe-area-inset-bottom));
+          display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:16px; }
+        /* פעולות-השער (חיפוש + שערים) יושבות בתחתית תמונת-ההירו */
+        .hn-hero-actions { width:100%; max-width:540px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+        .hn-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
         .hn-emblem { color:#d4af37; font-family:${F.regal}; font-size:12px; letter-spacing:4px;
           text-transform:uppercase; opacity:.92; }
         .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
@@ -342,7 +351,7 @@ export default function HomeNewPage() {
         .hn-verse::after { inset-inline-start:0; background:linear-gradient(transparent,#d4af37); }
         .hn-verse b { color:#f0d879; }
         .hn-vsrc { color:#9a8a63; font-family:${F.heading}; font-size:12.5px; margin-top:8px; letter-spacing:.5px; }
-        .hn-search { display:flex; align-items:center; gap:8px; width:100%; max-width:470px;
+        .hn-search { display:flex; align-items:center; gap:8px; width:100%; max-width:540px;
           background:rgba(9,7,14,.72); border:1px solid rgba(212,175,55,.55); border-radius:16px;
           padding:5px 8px 5px 16px; box-shadow:0 12px 34px rgba(0,0,0,.5); backdrop-filter:blur(3px); }
         .hn-search:focus-within { border-color:#d4af37; }
@@ -365,21 +374,30 @@ export default function HomeNewPage() {
         .hn-pchip b { color:#f0d879; font-weight:800; }
         .hn-gate-cta { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:2px; }
         .hn-cta2 { text-decoration:none; font-family:${F.heading}; font-weight:800; font-size:14px;
-          padding:10px 22px; border-radius:999px; border:1px solid rgba(212,175,55,.55); color:#d4af37; }
+          padding:11px 24px; border-radius:999px; border:1px solid rgba(212,175,55,.55); color:#f0d879;
+          background:rgba(9,8,15,.55); backdrop-filter:blur(4px); box-shadow:0 8px 22px rgba(0,0,0,.45); }
         .hn-cta2.primary { background:linear-gradient(135deg,#d4af37,#b8901f); color:#1a0e00;
           border-color:transparent; box-shadow:0 6px 22px rgba(212,175,55,.3); }
-        .hn-gates { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:6px; }
-        .hn-gate-col { display:flex; flex-direction:column; align-items:center; gap:9px; }
+        .hn-gates { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:8px auto 0; width:100%; max-width:480px; }
+        .hn-gate-col { display:flex; flex-direction:column; align-items:stretch; gap:9px; }
         .hn-thumb-btn { position:relative; cursor:pointer; padding:0; border:1px solid rgba(212,175,55,.5);
           border-radius:12px; overflow:hidden; background:#000; line-height:0;
           box-shadow:0 6px 20px rgba(0,0,0,.45); transition:transform .15s, border-color .15s; }
         .hn-thumb-btn:hover { transform:translateY(-2px); border-color:#d4af37; }
-        .hn-thumb-img { width:150px; height:96px; object-fit:cover; display:block; }
+        .hn-thumb-btn { width:100%; }
+        .hn-thumb-img { width:100%; height:132px; object-fit:cover; display:block; }
         .hn-thumb-img.emblem { object-fit:contain; background:#000; }
         .hn-thumb-zoom { position:absolute; inset:auto 6px 6px auto; background:rgba(9,7,14,.72);
           color:#f0d879; border:1px solid rgba(212,175,55,.4); border-radius:999px; font-size:10.5px;
           font-family:${F.heading}; font-weight:800; padding:2px 9px; }
-        @media (max-width:520px){ .hn-thumb-img{ width:132px; height:84px; } }
+        /* 🖥️ שער דסקטופ — שתי עמודות שממלאות את הרוחב (במקום עמודה צרה בתוך ריק שחור).
+           ימין (RTL) = זהות: קלף-הפסוק + חיפוש · שמאל = שני שערי-הכניסה כקלפים גדולים. */
+        @media (min-width:900px){
+          .hn-livegate{ min-height:min(82vh,660px); display:flex; align-items:stretch; }
+          .hn-gate-inner{ width:100%; max-width:1200px; min-height:min(82vh,660px); padding:0 44px 52px; }
+          .hn-hero-actions{ max-width:620px; }
+        }
+        @media (max-width:520px){ .hn-thumb-img{ height:118px; } }
         @media (prefers-reduced-motion:reduce){ .hn-matrix,.hn-livedot{ animation:none } }
       `}</style>
 
@@ -389,30 +407,20 @@ export default function HomeNewPage() {
         <div className="hn-gate-inner">
           {/* כותרת נסתרת ל-SEO/נגישות — בשער מוצג רק הפסוק (בקשת צוריאל) */}
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
-          {/* 👑 A · קלף מלכותי — הפסוק בלבד במסגרת-זהב */}
-          <div className="hn-vframe">
-            <blockquote className="hn-verse">«כִּי לַה' <b>הַמְּלוּכָה</b> וּמֹשֵׁל בַּגּוֹיִם»</blockquote>
-            <div className="hn-vsrc">— תהלים כב, כט</div>
-          </div>
-          <form onSubmit={go} className="hn-search">
-            <span className="hn-mag" aria-hidden="true">🔍</span>
-            <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
-              placeholder="הקלד מילה, שם או מספר…" dir="rtl" aria-label="חיפוש מילה, שם או מספר" />
-            <button type="submit" className="hn-search-go">✦ גלו</button>
-          </form>
-          {/* ⚡ הדופק החי הוסר מהשער (בקשת צוריאל) — «מה חי» כבר מופיע ברצועה העליונה,
-              בטיקר התחתון ובכרטיס «מה חדש מאז ביקורך». אין צורך בשלישית בשער. */}
-          {/* שערי-הכניסה: תמונה קטנה (נגיעה = הגדלה) + כפתור-כניסה מתחתיה. שבילי שפה · כאן מתחילים */}
-          <div className="hn-gates">
-            {HERO_SLIDES.map((s, i) => (
-              <div className="hn-gate-col" key={i}>
-                <button type="button" className="hn-thumb-btn" onClick={() => setGateImg(s.img)} aria-label={"הגדלת התמונה: " + s.label}>
-                  <img src={thumb(s.img, 280)} alt={s.alt} className={"hn-thumb-img" + (s.emblem ? " emblem" : "")} loading="lazy" decoding="async" />
-                  <span className="hn-thumb-zoom" aria-hidden="true">🔍 הגדל</span>
-                </button>
-                <Link to={s.to} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
-              </div>
-            ))}
+          {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
+              מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
+          <div className="hn-hero-actions">
+            <form onSubmit={go} className="hn-search">
+              <span className="hn-mag" aria-hidden="true">🔍</span>
+              <input value={q} onChange={e => setQ(e.target.value)} className="hn-search-in"
+                placeholder="הקלד מילה, שם או מספר…" dir="rtl" aria-label="חיפוש מילה, שם או מספר" />
+              <button type="submit" className="hn-search-go">✦ גלו</button>
+            </form>
+            <div className="hn-hero-ctas">
+              {HERO_SLIDES.map((s, i) => (
+                <Link to={s.to} key={i} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>

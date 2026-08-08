@@ -25,7 +25,7 @@ export default function ResearchersIndexPage() {
   useEffect(() => {
     applySeo({ title: "הכתבים והחוקרים", description: "רשימת הכתבים והחוקרים של סוד 1820 — דפי הגילויים האישיים", path: "/community/researchers" });
     let alive = true;
-    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,trusted,avatar_url,media,locked,building,created_at,tags")
+    supabase.from("contributors").select("slug,code,display_name,kind,role,vip,trusted,avatar_url,media,locked,building,created_at,tags,specialty_label,accent,emblem")
       .eq("active", true).neq("kind", "private").not("slug", "like", "r-%").neq("display_name", "sod1820")  // ⛔ פרטי + חשבון-מערכת
       .then(({ data }) => {
         if (!alive) return;
@@ -38,41 +38,58 @@ export default function ResearchersIndexPage() {
     return () => { alive = false; };
   }, []);
 
-  // רקע-דף קנוני (light_mode_background_law)
+  // 🚪 שער-הכתבים — מסך מלא, מפואר. כל כתב = שער עם הסמל, השם וההתמחות (specialty_label) גלויים
+  //    עוד לפני הכניסה (writers_page_law). ריחוף מרים וחושף «היכנס». צבע-חתימה = contributors.accent.
   return (
     <div style={{ background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 }}>
-      <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "26px 14px 60px" }}>
-        <div style={{ textAlign: "center", marginBottom: 22 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,32px)", fontWeight: 800 }}>📜 הכתבים והחוקרים</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, marginTop: 6, lineHeight: 1.7 }}>
-            לכל כותב דף-גילויים אישי — הכרטיסים, האוצרות והפוסטים שלו.
+      <style>{`
+        .wgate{transition:transform .2s ease, box-shadow .2s ease}
+        .wgate:hover{transform:translateY(-6px)}
+        .wgate .wenter{opacity:.38;transition:opacity .2s ease, transform .2s ease}
+        .wgate:hover .wenter{opacity:1;transform:translateX(-4px)}
+        @media (prefers-reduced-motion:reduce){.wgate{transition:none}.wgate:hover{transform:none}}
+      `}</style>
+      <div style={{ direction: "rtl", maxWidth: 1160, margin: "0 auto", padding: "40px 18px 72px" }}>
+        <div style={{ textAlign: "center", marginBottom: 30 }}>
+          <div style={{ fontSize: 30 }}>👑</div>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(28px,5.5vw,44px)", fontWeight: 800, marginTop: 6 }}>שער הכתבים</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, marginTop: 8, lineHeight: 1.7, maxWidth: 520, marginInline: "auto" }}>
+            לכל כתב עולם משלו — ראו את התפקיד, היכנסו למרכז. אותו שלד, חתימה אישית.
           </div>
         </div>
 
         {rows === null ? (
-          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 30 }}>טוען…</div>
+          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 40 }}>טוען…</div>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(232px,1fr))", gap: 16 }}>
             {rows.map(r => {
               const items = itemsOf(r);
               const isNew = isNewWriter(r);
+              const acc = r.accent || P.accent;
+              const center = r.specialty_label || r.role;
               return (
-                <a key={r.slug} href={`/community/researcher/${r.code || r.slug}`}
-                  style={{ position: "relative", display: "flex", alignItems: "center", gap: 13, background: P.card, border: `${isNew ? 1.5 : 1}px solid ${isNew ? P.accent : P.border}`, borderRadius: 14, padding: "13px 15px", textDecoration: "none", boxShadow: isNew ? `0 0 0 3px ${P.glow}` : "none" }}>
-                  <img src={r.avatar_url || genAvatar(r.display_name)} alt={r.display_name} loading="lazy" style={{ width: 54, height: 54, borderRadius: "50%", objectFit: "cover", border: `2px solid ${P.accent}`, flexShrink: 0 }} />
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                      {r.vip ? "👑 " : ""}{r.display_name}{r.building ? " 🚧" : r.locked ? " 🔑" : ""}
-                      {r.trusted && <span title="כתב מהימן" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: F.heading, fontSize: 11, fontWeight: 900, color: "#3a2c00", background: "linear-gradient(135deg,#f6e27a,#d4af37)", borderRadius: 999, padding: "2px 9px", whiteSpace: "nowrap" }}>✓ מהימן</span>}
-                      {isNew && <span style={{ fontFamily: F.heading, fontSize: 11, fontWeight: 800, color: P.onAccent, background: P.accentBtn, borderRadius: 999, padding: "2px 9px", whiteSpace: "nowrap" }}>⭐ כתב חדש</span>}
+                <a key={r.slug} href={`/community/researcher/${r.code || r.slug}`} className="wgate"
+                  style={{ position: "relative", display: "flex", flexDirection: "column", minHeight: 216,
+                    background: `linear-gradient(180deg, ${acc}26, ${P.card} 72%)`,
+                    border: `1px solid ${isNew ? acc : P.border}`, borderTop: `3px solid ${acc}`,
+                    borderRadius: 17, padding: "18px 17px", textDecoration: "none", overflow: "hidden",
+                    boxShadow: isNew ? `0 0 0 3px ${P.glow}` : "0 8px 26px rgba(0,0,0,.10)" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                    <div style={{ fontSize: 34, lineHeight: 1, filter: "drop-shadow(0 3px 8px rgba(0,0,0,.22))" }}>
+                      {r.emblem || (r.vip ? "👑" : "✦")}
                     </div>
-                    {r.building
-                      ? <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12 }}>בבנייה — בקרוב</div>
-                      : r.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>{r.role}</div>}
-                    {!r.building && items > 0 && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>💎 {items} גילויים בדף</div>}
-                    {!r.building && items === 0 && isNew && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>הצטרף/ה זה עתה — בקרוב גילויים</div>}
+                    {r.trusted && <span title="כתב מהימן" style={{ fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, color: "#3a2c00", background: "linear-gradient(135deg,#f6e27a,#d4af37)", borderRadius: 999, padding: "2px 8px" }}>✓</span>}
                   </div>
-                  <span style={{ color: P.accentDim, fontSize: 16 }}>←</span>
+                  <div style={{ marginTop: "auto" }}>
+                    {isNew && <span style={{ display: "inline-block", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, color: P.onAccent, background: P.accentBtn, borderRadius: 999, padding: "2px 9px", marginBottom: 7 }}>⭐ כתב חדש</span>}
+                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>
+                      {r.display_name}{r.building ? " 🚧" : r.locked ? " 🔑" : ""}
+                    </div>
+                    {center && <div style={{ color: acc, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginTop: 4, lineHeight: 1.45 }}>{center}</div>}
+                    {r.building
+                      ? <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 6 }}>בבנייה — בקרוב</div>
+                      : <div className="wenter" style={{ color: acc, fontFamily: F.heading, fontSize: 12, fontWeight: 800, marginTop: 10 }}>היכנס →</div>}
+                  </div>
                 </a>
               );
             })}

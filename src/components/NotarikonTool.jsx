@@ -33,8 +33,9 @@ function ResultRow({ title, sub, txt, badge }) {
 }
 
 // ── מהביטוי → ראשי/אמצעי/סופי + השוואה ──
-function Forward() {
-  const [q, setQ] = useState("");
+function Forward({ seed = "" }) {
+  const [q, setQ] = useState(seed);
+  useEffect(() => { if (seed) setQ(seed); }, [seed]);
   const words = q.trim().split(/\s+/).map(w => onlyHeb(w)).filter(a => a.length);
   const rashei = words.map(a => a[0]).join("");
   const emtzaei = words.map(a => a[midIdx(a)]).join("");
@@ -162,7 +163,7 @@ function Reverse() {
   );
 }
 
-export default function NotarikonTool() {
+export default function NotarikonTool({ seed = "" }) {
   const [dir, setDir] = useState("fwd"); // fwd=מהביטוי · rev=חיפוש הפוך
   return (
     <div className="rw-card">
@@ -182,7 +183,7 @@ export default function NotarikonTool() {
         <button className={dir === "fwd" ? "pri" : ""} onClick={() => setDir("fwd")}>✍️ מהביטוי → אותיות</button>
         <button className={dir === "rev" ? "pri" : ""} onClick={() => setDir("rev")}>🔎 חיפוש הפוך בתורה</button>
       </div>
-      {dir === "fwd" ? <Forward /> : <Reverse />}
+      {dir === "fwd" ? <Forward seed={seed} /> : <Reverse />}
     </div>
   );
 }

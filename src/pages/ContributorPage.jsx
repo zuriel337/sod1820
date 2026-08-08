@@ -18,6 +18,7 @@ import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
+import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -181,7 +182,7 @@ export default function ContributorPage() {
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
-    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at";
+    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged";
     const resolveMe = slug === "me";
     // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
     if (resolveMe && authLoading) return;
@@ -462,7 +463,7 @@ export default function ContributorPage() {
         <img src={c.avatar_url || genAvatar(c.display_name)} alt={c.display_name} loading="lazy"
           style={{ width: 92, height: 92, borderRadius: "50%", objectFit: "cover", border: `2.5px solid ${P.accent}`, boxShadow: `0 6px 22px ${P.glow}`, marginBottom: 10 }} />
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,34px)", fontWeight: 800 }}>
-          {c.vip ? "👑 " : ""}{c.display_name}
+          {c.emblem ? c.emblem + " " : (c.vip ? "👑 " : "")}{c.display_name}
         </div>
         {c.role && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, marginTop: 4 }}>{c.role}</div>}
         {/* ✓ כתב מהימן — סימון-האמון של האתר (contributors.trusted); מסונכרן עם ה-✓ בפורום */}
@@ -492,6 +493,23 @@ export default function ContributorPage() {
           </a>
         </div>
       </div>
+
+      {/* ✦ חתימת-הכתב — המרכז האישי (contributors.specialty). כל כתב והמנוע שלו; לא פיד גנרי.
+          זה מה שמגדיר את הדף — לא הוואטסאפ (שיורד לצד). מוזן משלב-1 (specialty/accent/emblem). */}
+      {c.specialty_label && (
+        <div style={{ textAlign: "center", margin: "0 auto 22px", maxWidth: 640,
+          background: `linear-gradient(180deg, ${(c.accent || P.accent)}1f, transparent)`,
+          border: `1px solid ${P.border}`, borderTop: `3px solid ${c.accent || P.accent}`,
+          borderRadius: 15, padding: "16px 20px" }}>
+          <div style={{ fontSize: 27, lineHeight: 1 }}>{c.emblem || "✦"}</div>
+          <div style={{ color: c.accent || P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 2.5, marginTop: 7 }}>המרכז</div>
+          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginTop: 2 }}>{c.specialty_label}</div>
+        </div>
+      )}
+
+      {/* ✦ מנוע-המרכז — נבחר לפי specialty (letter-decoder→מפענח · crosses→קיר-הצלבות · …).
+          זה הלב של הדף; מנוע שטרם מומש נופל בחזרה למדורים הרגילים למטה. */}
+      <SpecialtyCenter c={c} />
 
       {/* 🗓️ ציר האירועים שלו — nodes type=event שיוחסו אליו. עדשה על «ציר ההתגלות» הגלובלי (לא עותק);
           כולל את המחקרים הישנים שלו על ציר-זמן + הפניה לציר ההתגלות המלא. */}
@@ -600,16 +618,28 @@ export default function ContributorPage() {
             {forumMsgs.map(it => {
               const im = intentMeta(it.intent);
               const txt = stripHtml(it.title || it.body || "");
+              // 🔠 משחקי-אותיות: פריט-פרשנות בלי יעד-מספר (אנגרמה/נוטריקון/מפתח) → קישור לכלי הקנוני
+              // (לא משטח חדש — עץ אחד). זורע את המילה הראשונה בכלי שיטת-המפתח.
+              const isWordplay = it.intent === "interpretation" && !it.target_id;
+              const firstWord = isWordplay ? ((txt.match(/[֐-׿]{2,}/) || [""])[0]) : "";
               return (
-                <a key={it.id} href={`/forum/${it.id}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                    <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>{im.emoji} {im.label}</span>
-                    {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
-                    <span style={{ flex: 1 }} />
-                    <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>{timeAgoHe(it.created_at)}</span>
-                  </div>
-                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{txt}</div>
-                </a>
+                <div key={it.id}>
+                  <a href={`/forum/${it.id}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                      <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>{im.emoji} {im.label}</span>
+                      {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
+                      <span style={{ flex: 1 }} />
+                      <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>{timeAgoHe(it.created_at)}</span>
+                    </div>
+                    <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{txt}</div>
+                  </a>
+                  {firstWord.length >= 2 && (
+                    <a href={`/research?tool=maftech&q=${encodeURIComponent(firstWord)}`}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, marginInlineStart: 4, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none" }}>
+                      🔠 נתח את «{firstWord}» בכלי משחקי-האותיות ←
+                    </a>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -653,14 +683,16 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 📡 העדכונים החיים שלו — מהוואטסאפ (channel_updates לפי שמו). עץ אחד: אותו מקור של הטיקר. */}
-      {feedUpdates.length > 0 && (
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, textAlign: "center", marginBottom: 4 }}>
-            📡 העדכונים החיים של {c.display_name}
+      {/* 💬 מקור גולמי · וואטסאפ — רצועה צדדית משנית וזמנית (אולי תימחק). מוצג *רק* אצל כתב
+          שמוגדר on_whatsapp=true (writers_page_law) — כך כתב שאינו בוואטסאפ לא רואה כאן וואטסאפ.
+          זה לא המרכז; המרכז הוא ה-specialty למעלה. */}
+      {c.on_whatsapp && feedUpdates.length > 0 && (
+        <div style={{ marginBottom: 22, opacity: 0.94 }}>
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textAlign: "center", marginBottom: 4, letterSpacing: .5 }}>
+            💬 מקור גולמי · וואטסאפ
           </div>
-          <div style={{ color: "#25d366", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textAlign: "center", marginBottom: 12 }}>
-            💬 {feedUpdates.length} עדכונים · לייב מהוואטסאפ
+          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, textAlign: "center", marginBottom: 12 }}>
+            {feedUpdates.length} הודעות גולמיות · מקור זמני, לא ערוך
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12, alignItems: "start" }}>
             {feedUpdates.map(u => {
@@ -784,8 +816,9 @@ export default function ContributorPage() {
         </div>
       )}
 
-      {/* 🎯 ההתכנסויות שלו — עדשה על topic_cards, מצביע לעמוד הקנוני /topic/:slug */}
-      {convergences.length > 0 && (
+      {/* 🎯 ההתכנסויות שלו — עדשה על topic_cards, מצביע לעמוד הקנוני /topic/:slug.
+          מוסתר כשקיר-ההצלבות כבר המרכז (specialty=crosses) כדי לא לשכפל (עץ אחד). */}
+      {convergences.length > 0 && c.specialty !== "crosses" && (
         <div style={{ marginTop: 26 }}>
           <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
             🎯 ההתכנסויות של {c.display_name} ({convergences.length})
