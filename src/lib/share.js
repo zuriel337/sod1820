@@ -72,20 +72,13 @@ export async function shareOrCopy({ title = "", url, text = "" } = {}) {
 export const canShareFile = (file) => typeof navigator !== "undefined" && !!navigator.canShare && navigator.canShare({ files: [file] });
 export const shareImageFile = (file, { title = "", text = "" } = {}) => navigator.share({ files: [file], title, text });
 
-// 📲 שיתוף-לסטורי (מקור-אמת יחיד) — משתף את *קובץ-הווידאו* דרך share-sheet של המכשיר
-// (אינסטגרם/וואטסאפ סטטוס), ונפילה חיננית לשיתוף-קישור ואז העתקה. מחזיר 'file'/'link'/'copy'/null.
-export async function shareVideoToStory({ videoUrl = null, url, text = "", title = "אור הגאולה · סוד 1820" } = {}) {
+// 📲 שיתוף שמביא תנועה *לאתר* — משתף **קישור בלבד** (לעולם לא את קובץ-הווידאו!).
+// עיקרון (בקשת צוריאל 8.8.2026): השיתוף מכניס אנשים פנימה לצפות באתר, לא מפיץ את החומר החוצה.
+// הצופה רואה את הקישור (עם תמונת-תצוגה מ-/api/og) → לוחץ → מגיע לאתר. מחזיר 'link'/'copy'/null.
+export async function shareVideoToStory({ url, text = "", title = "אור הגאולה · סוד 1820" } = {}) {
   try {
-    if (videoUrl && typeof navigator !== "undefined" && navigator.canShare) {
-      const blob = await (await fetch(videoUrl)).blob();
-      const file = new File([blob], "sod1820-or-hageula.mp4", { type: blob.type || "video/mp4" });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title, text: "צפו ושתפו 🙏" });
-        return "file";
-      }
-    }
     if (typeof navigator !== "undefined" && navigator.share) {
-      await navigator.share({ title, text: (text ? text + "\n\n" : "") + "צפו ושתפו 🙏", url });
+      await navigator.share({ title, text: (text ? text + "\n\n" : "") + "לצפייה המלאה באתר 👇", url });
       return "link";
     }
     return (await copyLink(url)) ? "copy" : null;

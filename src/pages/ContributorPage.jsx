@@ -18,7 +18,7 @@ import Discourse from "../components/Discourse.jsx";
 import { applySeo } from "../lib/seo.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
-import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats } from "../lib/contributions.js";
+import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterWhatsappMessages, studioVerify } from "../lib/contributions.js";
 import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
 import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 import WriterMessage from "../components/WriterMessage.jsx";
@@ -277,7 +277,7 @@ const studioEntry = (b, over = {}) => ({
 });
 
 // ✍️ עורך-הסטודיו (בעל-הדף) — פלטת-בלוקים, העלאת-תמונות, טיוטה/מוצג/אישי, סדר. כותב studio_upsert (auth.uid).
-function StudioEditor({ slug, blocks, P, onChange }) {
+function StudioEditor({ slug, blocks, P, onChange, code = null }) {
   const [edit, setEdit] = useState(null);   // הבלוק בעריכה (חדש = {kind})
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -286,16 +286,16 @@ function StudioEditor({ slug, blocks, P, onChange }) {
   async function call(fn, args) { const { data, error } = await supabase.rpc(fn, args); if (error) throw error; return data; }
   async function save(entry) {
     setBusy(true); setErr("");
-    try { await call("studio_upsert", { p_slug: slug, p_code: null, p_entry: entry }); setEdit(null); await onChange(); }
+    try { await call("studio_upsert", { p_slug: slug, p_code: code, p_entry: entry }); setEdit(null); await onChange(); }
     catch { setErr("שמירה נכשלה — נסו שוב."); }
     setBusy(false);
   }
-  async function del(id) { try { await call("studio_delete", { p_slug: slug, p_code: null, p_id: id }); await onChange(); } catch { /* noop */ } }
+  async function del(id) { try { await call("studio_delete", { p_slug: slug, p_code: code, p_id: id }); await onChange(); } catch { /* noop */ } }
   async function move(i, dir) {
     const j = i + dir; if (j < 0 || j >= list.length) return;
     const a = list[i], b = list[j];
-    try { await call("studio_upsert", { p_slug: slug, p_code: null, p_entry: studioEntry(a, { sort: b.sort }) });
-          await call("studio_upsert", { p_slug: slug, p_code: null, p_entry: studioEntry(b, { sort: a.sort }) });
+    try { await call("studio_upsert", { p_slug: slug, p_code: code, p_entry: studioEntry(a, { sort: b.sort }) });
+          await call("studio_upsert", { p_slug: slug, p_code: code, p_entry: studioEntry(b, { sort: a.sort }) });
           await onChange(); } catch { /* noop */ }
   }
   const statusOf = b => b.is_personal ? "אישי" : b.is_public ? "מוצג" : "טיוטה";
@@ -467,8 +467,11 @@ export default function ContributorPage() {
   const [axisEvents, setAxisEvents] = useState([]); // 🗓️ אירועי-הציר שלו (nodes type=event) — «ציר ההתגלות» שלו
   const [studioBlocks, setStudioBlocks] = useState([]); // ✍️ הסטודיו/הספרייה האישית (contributor_content דרך studio_list)
   const [studioNonce, setStudioNonce] = useState(0);    // רענון-סטודיו אחרי עריכה
+  const [studioCode, setStudioCode] = useState(null);   // 🔑 קוד-בעלים לסטודיו (?studio=<code>) — לכתב בלי חשבון (כריסטינה)
+  const [studioCodeOwner, setStudioCodeOwner] = useState(false); // בעלים-דרך-קוד/אדמין (בנוסף ל-auth.uid)
   const [waLb, setWaLb] = useState(null);         // מסך-ידיעה לעדכון שנבחר
   const [waOpen, setWaOpen] = useState(false);    // 💬 תפריט-וואטסאפ נגלל (סגור כברירת-מחדל)
+  const [waFindings, setWaFindings] = useState([]); // 💬 חומר «הגילוי היומי» של הכתב (RPC · עוקף RLS) — כשאין channel_updates
   // כתב עם feature_media (ציון) — התמונות מודגשות בראש, אז המקטע התחתון מציג רק עדכוני-טקסט (בלי כפילות)
   // 🔢 גימטריה תמיד ראשונה: עדכון שנושא גימטריה (ביטוי = מספר / «בגימטריא» / «מאומת במנוע») עולה לראש
   //    הדף לפני שאר העדכונים, ואז לפי חדש→ישן. בקשת צוריאל: בכל דף-כתב הגימטריה למעלה, ראשונה.
@@ -535,16 +538,35 @@ export default function ContributorPage() {
     return () => { alive = false; };
   }, [slug, nav, user, authLoading]);
 
+  // 🔑 זיהוי בעלים-דרך-קוד לסטודיו (?studio=<code> / localStorage) — לכתב בלי חשבון (כריסטינה) ולאדמין.
+  //    בנוסף ל-auth.uid (effIsOwner); מאוחד — RPC אחד תומך בשני המסלולים.
+  useEffect(() => {
+    if (!slug || slug === "me") { setStudioCode(null); setStudioCodeOwner(false); return; }
+    let alive = true;
+    let k = null;
+    try {
+      k = new URL(window.location.href).searchParams.get("studio") || localStorage.getItem(`studio:${slug}`) || null;
+    } catch { k = null; }
+    if (!k) { setStudioCode(null); setStudioCodeOwner(false); return; }
+    studioVerify(slug, k).then(v => {
+      if (!alive) return;
+      const ok = !!v?.ok;
+      setStudioCodeOwner(ok); setStudioCode(ok ? k : null);
+      if (ok) { try { localStorage.setItem(`studio:${slug}`, k); } catch { /* noop */ } }
+    }).catch(() => { if (alive) { setStudioCodeOwner(false); setStudioCode(null); } });
+    return () => { alive = false; };
+  }, [slug]);
+
   // ✍️ הסטודיו/הספרייה האישית — עדשה על contributor_content דרך studio_list (SECURITY DEFINER).
-  //    ציבורי מקבל רק בלוקים מפורסמים; בעל-הדף (auth.uid) מקבל גם טיוטות, אך בדף מציגים מפורסם בלבד.
+  //    ציבורי מקבל רק בלוקים מפורסמים; בעל-הדף (auth.uid / code) מקבל גם טיוטות.
   useEffect(() => {
     if (!slug || slug === "me") { setStudioBlocks([]); return; }
     let alive = true;
-    supabase.rpc("studio_list", { p_slug: slug })
+    supabase.rpc("studio_list", { p_slug: slug, p_code: studioCode })
       .then(({ data }) => { if (alive) setStudioBlocks(Array.isArray(data) ? data : []); })
       .catch(() => { if (alive) setStudioBlocks([]); });
     return () => { alive = false; };
-  }, [slug, studioNonce]);
+  }, [slug, studioNonce, studioCode]);
 
   // 🌳 דרגת-החוקר שלו (מנוע-הגדילה) + סטטיסטיקה — לכרטיס-הדרגה. ציבורי (SECURITY DEFINER).
   const [level, setLevel] = useState(null);
@@ -606,6 +628,17 @@ export default function ContributorPage() {
      .catch(() => {});
     return () => { alive = false; };
   }, [c?.display_name, c?.wa_names, c?.wa_channel]);
+
+  // 💬 חומר «הגילוי היומי» של הכתב — כשאין channel_updates, מזינים את 🟢 מ-writer_gematria_findings
+  //    (RPC · SECURITY DEFINER, עוקף RLS ל-published). כך הפיד משקף את הפעילות בקבוצה. תצוגה בלבד — לא נוגע במאגר.
+  useEffect(() => {
+    if (!c?.display_name) { setWaFindings([]); return; }
+    let alive = true;
+    getWriterWhatsappMessages(c.display_name, c.user_id || null)
+      .then(r => { if (alive) setWaFindings(Array.isArray(r) ? r : []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [c?.display_name, c?.user_id]);
 
   // 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions (מאושרות) לפי שם/uid.
   //    «לחיצה על השם → רואים את ההודעות האחרונות שלו». עץ אחד: מצביע לשרשור /forum/:id, לא עותק.
@@ -785,10 +818,10 @@ export default function ContributorPage() {
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
   // «על הכותב» עלה למעלה; כאן נותר current_focus + הסטודיו (contributor_content מפורסם). ריק=לא מוצג (לא עמוס).
   const studioPublicCount = studioBlocks.filter(b => b.is_public && !b.is_personal).length;
-  const voiceEmpty = !effIsOwner && !settings.current_focus && studioPublicCount === 0;
-  // כתב עם קבוצה אישית (wa_group_url) לא נחשב «ריק» (מציגים CTA-הצטרפות), וגם לא לבעל-הדף
-  // (מציגים לו את שער-חיבור-הקבוצה) — כדי שתמיד יופיע משהו פעיל, לא טקסט-ריק.
-  const waEmpty = !!c.on_whatsapp && !c.wa_group_url && !effIsOwner && feedUpdates.length === 0;
+  const voiceEmpty = !effIsOwner && !studioCodeOwner && !settings.current_focus && studioPublicCount === 0;
+  // כתב עם קבוצה אישית (wa_group_url) לא נחשב «ריק» (מציגים CTA-הצטרפות), וגם לא לבעל-הדף,
+  // וגם לא כשיש חומר «הגילוי היומי» (waFindings) — כדי שתמיד יופיע משהו פעיל, לא טקסט-ריק.
+  const waEmpty = !!c.on_whatsapp && !c.wa_group_url && !effIsOwner && feedUpdates.length === 0 && waFindings.length === 0;
   const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
   const rzFacts = [
     `כתב: ${c.display_name}`,
@@ -963,8 +996,10 @@ export default function ContributorPage() {
           </div>
         )}
 
-        {/* 🗂️ חומר-גלם (ארכיון) — מערכת ה-media הישנה (עמית/שמעון/ציון). ⚠️1B: נשאר כאן, מקום אחד. */}
-        {hasMedia && (
+        {/* 🗂️ חומר-גלם (ארכיון) — מערכת ה-media הישנה (עמית/שמעון). ⚠️1B: מקום אחד.
+            מוצג רק כשיש כרטיסים גלויים בפועל (visible) — לא רק media קיים: אצל ציון כל הכרטיסים
+            הם top_rank → עברו ל-⭐ מובחרים, ולא נשאר גלם → לא מציגים אזור-חיפוש ריק. */}
+        {visible.length > 0 && (
           <div style={{ marginBottom: 8 }}>
             <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>🗂️ חומר-גלם (ארכיון)</div>
             <div style={{ marginBottom: 12 }}>
@@ -1025,7 +1060,7 @@ export default function ContributorPage() {
           {/* 📚 הסטודיו/הספרייה האישית — מה שהכתב בחר להציג (מפורסם בלבד). ריק → לא מוצג. */}
           <StudioBlocks blocks={studioBlocks} P={P} />
           {/* ✍️ עורך-הסטודיו — רק לבעל-הדף (effIsOwner). מוסיף/עורך/מסדר בלוקים דרך studio_upsert. */}
-          {effIsOwner && c?.slug && <StudioEditor slug={c.slug} blocks={studioBlocks} P={P} onChange={async () => setStudioNonce(n => n + 1)} />}
+          {(effIsOwner || studioCodeOwner) && c?.slug && <StudioEditor slug={c.slug} blocks={studioBlocks} P={P} code={studioCode} onChange={async () => setStudioNonce(n => n + 1)} />}
         </div>
       </WriterSlot>
 
@@ -1087,8 +1122,42 @@ export default function ContributorPage() {
               )}
             </div>
           )
+        ) : waFindings.length > 0 ? (
+          /* 💬 חומר «הגילוי היומי» — כשאין channel_updates: מציגים את גימטריות-הכתב מהקבוצה כצ'אט (RPC, עוקף RLS). תצוגה בלבד. */
+          <div>
+            <button onClick={() => setWaOpen(o => !o)} aria-expanded={waOpen}
+              style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, cursor: "pointer", textAlign: "start",
+                background: "linear-gradient(135deg,#128c7e,#075e54)", color: "#fff", border: "none",
+                borderRadius: waOpen ? "14px 14px 0 0" : 14, padding: "12px 16px", minHeight: 54 }}>
+              <span style={{ fontSize: 23, lineHeight: 1 }}>💬</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>הגילוי היומי · {c.display_name}</div>
+                <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .85 }}>{waFindings.length} הודעות מהקבוצה · הקש {waOpen ? "לסגירה" : "לפתיחה"}</div>
+              </div>
+              <span style={{ fontSize: 15, transform: waOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+            </button>
+            {waOpen && (
+              <div style={{ maxHeight: 520, overflowY: "auto", WebkitOverflowScrolling: "touch",
+                background: "#0b141a", border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 14px 14px",
+                padding: "14px 12px", display: "flex", flexDirection: "column", gap: 9 }}>
+                {waFindings.map(f => {
+                  const bubbleStyle = { alignSelf: "flex-end", maxWidth: "88%", textDecoration: "none", background: "#005c4b", color: "#e9edef", borderRadius: "12px 12px 3px 12px", padding: "9px 13px", boxShadow: "0 1px 1.5px rgba(0,0,0,.35)" };
+                  const inner = (<>
+                    <p style={{ margin: 0, fontFamily: F.body, fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{String(f.message || "").slice(0, 600)}</p>
+                    <div style={{ textAlign: "end", marginTop: 4, fontFamily: F.heading, fontSize: 10.5 }}>
+                      {f.value ? <span style={{ color: "#8ff0c0", fontWeight: 900 }}>🔢 {f.value}</span> : null}
+                      {f.created_at && <span style={{ color: "#8fb3a8", marginInlineStart: 8 }}>🕒 {timeAgoHe(f.created_at)}</span>}
+                    </div>
+                  </>);
+                  return f.value
+                    ? <a key={f.id} href={`/number/${f.value}`} style={bubbleStyle}>{inner}</a>
+                    : <div key={f.id} style={bubbleStyle}>{inner}</div>;
+                })}
+              </div>
+            )}
+          </div>
         ) : (() => {
-          // עדכון-מצב מקומי אחרי חיבור/ניתוק ע"י הבעלים
+          // אין channel_updates ואין waFindings → שכבת-הקבוצה-האישית (שלי): עדכון-מצב מקומי אחרי חיבור/ניתוק ע"י הבעלים
           const onConn = (u) => setC(prev => prev ? { ...prev, wa_group_url: u, on_whatsapp: u ? true : prev.on_whatsapp } : prev);
           if (c.wa_group_url) {
             // יש קבוצה: בעלים → ניהול (עריכה/ניתוק) · מבקר → הזמנה להצטרף ולראות מה הוא כותב
