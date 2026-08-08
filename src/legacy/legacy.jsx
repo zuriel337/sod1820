@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
+import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4297,6 +4298,8 @@ function SpotimChatPage() {
         @media (max-width: 900px) { .sod-chat-layout { gap: 20px; } }
       `}</style>
       <ChatScrollRail />
+      {/* 🔴 סטורי חדש · אור הגאולה — מצביע שמופיע רק כשעלה סטורי חדש מאז הביקור */}
+      <OrGeulaStoryChip />
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
 
       <div className="sod-chat-layout">

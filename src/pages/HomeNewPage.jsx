@@ -34,6 +34,7 @@ import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/fee
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
 import WhatsNewCard from "../components/WhatsNewCard.jsx";
+import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
 import ActivityPulse from "../components/ActivityPulse.jsx";
 import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import HomeTeasers from "../components/HomeTeasers.jsx";
@@ -429,6 +430,8 @@ export default function HomeNewPage() {
 
       {/* ===== 🔔 מה חדש מאז ביקורך — מצביע קומפקטי למרכז השידורים (מופיע רק כשיש חדש; לא-עמוס) ===== */}
       <WhatsNewCard />
+      {/* ===== 🔴 סטורי חדש · אור הגאולה — מופיע רק כשעלה סטורי חדש מאז הביקור ===== */}
+      <OrGeulaStoryChip />
 
       {/* ===== 🔑 חלונות הגילוי — הוסרו מעמוד הבית «בשלב זה» (בקשת צוריאל 10.7.2026).
            הרכיב נשמר (RevelationWindows.jsx) — להחזרה: החזר את השורה למטה ואת ה-import למעלה. ===== */}
