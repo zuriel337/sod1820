@@ -30,6 +30,18 @@ function normalize(row) {
   };
 }
 
+// 📤 העלאת תמונת-רמז מהמכשיר ל-bucket 'gallery' (ציבורי) → URL ציבורי.
+//    משתמש מחובר (policy public_upload); התמונה נשמרת ב-metadata.image_url של הרמז.
+export async function uploadHintImage(user, file) {
+  if (!supabase) throw new Error("no_supabase");
+  if (!file) throw new Error("no_file");
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `sod1820/hints/${user?.id || "anon"}/${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`;
+  const { error } = await supabase.storage.from("gallery").upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  return supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl;
+}
+
 // ── קריאה: כל הרמזים של המשתמש (עדכני→ישן) ──
 export async function getMyHints(user) {
   if (user && supabase) {

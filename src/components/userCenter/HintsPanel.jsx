@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { HINT_TYPES, hintTypeMeta } from "../../lib/hintTypes.js";
-import { getMyHints, addHint, removeHint, countByType } from "../../lib/hints.js";
+import { getMyHints, addHint, removeHint, countByType, uploadHintImage } from "../../lib/hints.js";
 
 // 🧩 הרמזים שלי — ארכיון אישי לפי סוג. פאנל עצמאי (ניתן לרנדור גם במסך-מלא עתידי).
 // עץ אחד: כל רמז מצביע למספר → /number/:n, לא משכפל תוכן.
@@ -107,9 +107,20 @@ function AddHintForm({ T, user, onDone }) {
   const [sourceUrl, setSourceUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [showUrl, setShowUrl] = useState(false); // הדבקת-קישור = אופציה מתקדמת
 
-  const fld = { width: "100%", padding: "9px 11px", background: T.card, color: T.ink, border: `1px solid ${T.line}`, borderRadius: 9, fontSize: 14, marginTop: 5, boxSizing: "border-box" };
+  const pickImage = async (e) => {
+    const file = (e.target.files || [])[0]; if (!file) return;
+    setUploading(true); setErr("");
+    try { setImageUrl(await uploadHintImage(user, file)); }
+    catch { setErr("העלאת התמונה נכשלה — נסו שוב."); }
+    setUploading(false); e.target.value = "";
+  };
+
+  const fld = { width: "100%", padding: "9px 11px", background: T.card, color: T.ink, border: `1px solid ${T.line}`, borderRadius: 9, fontSize: 16, marginTop: 5, boxSizing: "border-box" };
   const lbl = { color: T.sub, fontSize: 12, marginTop: 10, display: "block" };
+  const uploadBtn = { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", boxSizing: "border-box", padding: "11px", borderRadius: 10, background: T.accSoft, color: T.acc, border: `1px dashed ${T.acc}`, fontSize: 14, fontWeight: 800, cursor: "pointer", minHeight: 46 };
 
   const save = async () => {
     setBusy(true); setErr("");
@@ -135,12 +146,25 @@ function AddHintForm({ T, user, onDone }) {
       <input style={fld} value={number} onChange={e => setNumber(e.target.value.replace(/[^\d]/g, ""))} inputMode="numeric" placeholder="1820" dir="ltr" />
       <label style={lbl}>הערה / תיאור</label>
       <input style={fld} value={note} onChange={e => setNote(e.target.value)} dir="rtl" placeholder="מה ראית?" />
-      <label style={lbl}>קישור לתמונה (אופציונלי)</label>
-      <input style={fld} value={imageUrl} onChange={e => setImageUrl(e.target.value)} dir="ltr" placeholder="https://…" />
+      {/* 📷 תמונה — העלאה מהמכשיר (הדרך הנורמלית) + תצוגה מקדימה; הדבקת-קישור = אופציה מתקדמת */}
+      <label style={lbl}>תמונה (אופציונלי)</label>
+      {imageUrl ? (
+        <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 10 }}>
+          <img src={imageUrl} alt="" style={{ width: 64, height: 64, borderRadius: 10, objectFit: "cover", border: `1px solid ${T.line}` }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ ...uploadBtn, width: "auto", padding: "7px 12px", minHeight: 0, background: "transparent", color: T.acc, borderStyle: "solid" }}>{uploading ? "מעלה…" : "החלף תמונה"}<input type="file" accept="image/*" hidden onChange={pickImage} /></label>
+            <button type="button" onClick={() => setImageUrl("")} style={{ background: "none", border: "none", color: T.sub, fontSize: 12, cursor: "pointer", padding: 0, textAlign: "start" }}>✕ הסר</button>
+          </div>
+        </div>
+      ) : (
+        <label style={{ ...uploadBtn, marginTop: 6, opacity: uploading ? .7 : 1 }}>{uploading ? "📷 מעלה…" : "📷 העלה תמונה מהמכשיר"}<input type="file" accept="image/*" hidden onChange={pickImage} /></label>
+      )}
+      <button type="button" onClick={() => setShowUrl(s => !s)} style={{ background: "none", border: "none", color: T.sub, fontSize: 11.5, cursor: "pointer", padding: "7px 0 0", textAlign: "start", display: "block" }}>{showUrl ? "− הסתר הדבקת-קישור" : "או הדבק קישור לתמונה"}</button>
+      {showUrl && <input style={fld} value={imageUrl} onChange={e => setImageUrl(e.target.value)} dir="ltr" placeholder="https://…" />}
       <label style={lbl}>קישור למקור (אופציונלי)</label>
       <input style={fld} value={sourceUrl} onChange={e => setSourceUrl(e.target.value)} dir="ltr" placeholder="https://…" />
-      <button onClick={save} disabled={busy} style={{ width: "100%", marginTop: 14, background: T.acc, color: "#fff", border: "none", borderRadius: 9, padding: "11px", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>
-        {busy ? "שומר…" : "שמור רמז"}
+      <button onClick={save} disabled={busy || uploading} style={{ width: "100%", marginTop: 14, background: T.acc, color: "#fff", border: "none", borderRadius: 9, padding: "11px", fontWeight: 800, fontSize: 14, cursor: busy || uploading ? "default" : "pointer", opacity: busy || uploading ? .6 : 1 }}>
+        {busy ? "שומר…" : uploading ? "ממתין לתמונה…" : "שמור רמז"}
       </button>
       {err && <div style={{ color: "#e5484d", fontSize: 12.5, marginTop: 8, textAlign: "center" }}>{err}</div>}
     </div>
