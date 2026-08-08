@@ -1,24 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // ✉️ הודעה פרטית לכתב — גולש כותב לכתב; ההודעה נכנסת לתיבת-הפניות הקיימת (contact_messages),
 // מתויגת ב-subject «הודעה לכתב: <שם>» כדי שהאדמין/הכתב ינתב אותה. עץ אחד: אין טבלה מקבילה.
 export default function WriterMessage({ name, P: Pp }) {
   const Pctx = usePalette();
   const P = Pp || Pctx;
+  const { user, profile } = useAuth();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [state, setState] = useState("idle"); // idle | sending | done | error
+
+  // מחובר → מקדימים שם+מייל אמיתיים (כדי שהכתב יוכל לענות, ולא ליפול על ולידציית ה-policy)
+  useEffect(() => {
+    if (!user) return;
+    setForm(f => ({
+      ...f,
+      name: f.name || profile?.display_name || profile?.username || "",
+      email: f.email || user.email || "",
+    }));
+  }, [user, profile]);
 
   async function send(e) {
     e.preventDefault();
     if (!form.name.trim() || !form.message.trim()) return;
     setState("sending");
+    // ⚠️ policy «contact_insert» דורש length(email) בין 3 ל-200. מחובר → המייל האמיתי;
+    //    אחרת → כתובת-מערכת תקינה (לא מרככים את ה-policy כדי לעקוף באג).
+    const typed = form.email.trim();
+    const email = typed.length >= 3 ? typed : (user?.email || "no-reply@sod1820.co.il");
     const { error } = await supabase.from("contact_messages").insert({
       name: form.name.trim(),
-      email: (form.email.trim() || "—"),
+      email,
       subject: `✉️ הודעה לכתב: ${name}`,
       message: form.message.trim(),
     });

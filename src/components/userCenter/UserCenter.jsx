@@ -146,9 +146,11 @@ export default function UserCenter() {
   const [nextActions, setNextActions] = useState(null); // 🧠 «מה כדאי לעשות עכשיו»
   // 🪗 Progressive Disclosure (research_workspace_law: «פשוט בהתחלה») — עולמות-הליבה פתוחים,
   //    השאר מקופלים בהקשה (עם מונה + נקודת-פעילות). הבחירה נזכרת בין ביקורים.
+  // 🪗 עולמות מקופלים כברירת-מחדל — «הבית» (HomeTiles) נותן את העיקר; העולמות = «עוד», נפתחים בהקשה.
+  //    (מונע «קיר צ'יפים» למשתמש חדש. משתמש קיים שומר את בחירתו ב-localStorage.)
   const [openWorlds, setOpenWorlds] = useState(() => {
     try { const s = localStorage.getItem("uc_worlds_open"); if (s) return new Set(JSON.parse(s)); } catch { /* noop */ }
-    return new Set(["me", "lab"]);
+    return new Set();
   });
   const toggleWorld = (key) => setOpenWorlds(prev => {
     const next = new Set(prev); next.has(key) ? next.delete(key) : next.add(key);
@@ -255,8 +257,11 @@ export default function UserCenter() {
         <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: 14 }}>
           {!activeMod ? (
             <>
+              {/* 🏠 הבית — האריחים החשובים ביותר במקום אחד (מותאם לסוג-המשתמש), ואז «הצעד הבא». */}
+              <HomeTiles T={T} center={center} setActive={setActive} dark={dark} />
               <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} myLevel={myLevel} nextActions={nextActions} setActive={setActive} goto={goto} />
               {/* 🌍 5 העולמות — קיבוץ המודולים. עולם ריק לא מוצג. */}
+              <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".05em", color: T.sub, margin: "6px 2px 9px" }}>עוד באזור האישי</div>
               {WORLDS.map(w => {
                 // 🗺️ «מה בקרוב» (roadmap) לא אריח בין הפיצ׳רים החיים — מוצג כפוטר-דק בתחתית
                 const mods = MODULES.filter(m => !m.hidden && m.id !== "roadmap" && (m.world || "me") === w.key);
@@ -912,6 +917,73 @@ function AdminOnlinePanel({ T }) {
   );
 }
 
+// 📨 הודעות — המקום היחיד העתידי לכל ההודעות (placeholder; המערכת עצמה עדיין לא נבנתה).
+function MessagesPlaceholder({ T }) {
+  return (
+    <div>
+      <div style={{ background: T.accSoft, border: `1px solid ${T.line}`, borderRadius: 14, padding: "16px 15px", textAlign: "center" }}>
+        <div style={{ fontSize: 30 }}>📨</div>
+        <div style={{ fontWeight: 800, fontSize: 15, marginTop: 4 }}>ההודעות שלי — בקרוב</div>
+        <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7, marginTop: 6 }}>
+          כאן יתרכזו <b>כל</b> ההודעות שלך במקום אחד — בלי לחפש בכמה מסכים:
+        </div>
+      </div>
+      <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+        {[["✉️", "הודעות לכתב", "מישהו כתב לך ישירות"], ["💬", "הודעות פרטיות (DM)", "שיחה בינך לבין משתמש אחר"], ["🗣", "תגובות ודיונים אליי", "מה שכתבו על מחקר/פוסט שלך"]].map(([e, t, s], i) => (
+          <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "11px 13px" }}>
+            <span style={{ fontSize: 18 }}>{e}</span>
+            <div><div style={{ fontWeight: 700, fontSize: 13.5, color: T.ink }}>{t}</div><div style={{ color: T.sub, fontSize: 11.5, lineHeight: 1.5 }}>{s}</div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// 🏠 «הבית» של המגירה — האריחים החשובים ביותר במקום אחד (5–10 שניות: מי אני · הדף שלי · המחקר
+//    שלי · הודעות · קרדיטים · התראות). לא מסך/עולם חדש — סקשן בראש ה-Home. מותאם לסוג-המשתמש.
+const HOME_TILE = {
+  profile:       { icon: "👤", title: "החשבון שלי",   sub: "מי אני והפרטים שלי" },
+  "public-page": { icon: "👑", title: "הדף שלי",      sub: "מה שהעולם רואה" },
+  research:      { icon: "🧠", title: "המחקר שלי",    sub: "מחקר · שמורים · צפנים" },
+  myposts:       { icon: "✍️", title: "היצירה שלי",   sub: "הפוסטים שכתבתי" },
+  messages:      { icon: "📨", title: "ההודעות שלי",  sub: "הודעות ותגובות אליי", soon: true },
+  notifications: { icon: "🔔", title: "התראות",       sub: "מה חדש עבורי" },
+  credits:       { icon: "◆",  title: "קרדיטים",      sub: "היתרה שלי" },
+  whatsapp:      { icon: "🟢", title: "הבוט שלי",     sub: "וואטסאפ · רזיאל" },
+};
+function HomeTiles({ T, center, setActive, dark }) {
+  const c = center || {};
+  const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
+  const isWriter = !!(c.is_writer || c.is_publisher);
+  const ids = ["profile"];
+  if (hasPage) ids.push("public-page");
+  ids.push("research");
+  if (isWriter) ids.push("myposts", "messages");
+  ids.push("notifications", "credits", "whatsapp");
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".05em", color: T.sub, margin: "2px 2px 9px" }}>הדברים שלי</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {ids.map(id => {
+          const t = HOME_TILE[id]; if (!t) return null;
+          return (
+            <button key={id} onClick={() => setActive(id)} style={{
+              textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderTop: `3px solid ${T.acc}`,
+              borderRadius: 14, padding: "12px 13px", cursor: "pointer", position: "relative", minHeight: 78,
+              display: "flex", flexDirection: "column", gap: 3, color: T.ink, fontFamily: "inherit" }}>
+              <span style={{ fontSize: 21 }}>{t.icon}</span>
+              <span style={{ fontWeight: 800, fontSize: 13.5 }}>{t.title}</span>
+              <span style={{ color: T.sub, fontSize: 11, lineHeight: 1.4 }}>{t.sub}</span>
+              {t.soon && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
@@ -919,12 +991,15 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
   const c = center || {};
   const hasPosts = (c.posts ?? 0) > 0;   // מציגים «פוסטים» רק למי שכתב פוסטים (לא «אפס פוסטים» לגולש רגיל)
   const isWriter = !!(c.is_writer || c.is_publisher);
+  // 👑 «הדף הפומבי שלי» מוצג רק למי שיש לו דף-כתב/תורם (has_dossier) או שהוא כותב/חוקר.
+  //    קורא רגיל לא רואה. הופך לכתב/תורם → hasPage=true → הכרטיס חוזר אוטומטית (לא נמחק).
+  const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים · world = שיוך לאחד מ-5 העולמות ───
     { id: "notifications", world: "me", icon: "🔔", title: "ההתראות שלי", status: "live", badge: unread || undefined,
       render: () => <div><NotificationsPanel T={T} onUnread={onUnread} goto={goto} /><PushPanel T={T} user={user} isAdmin={isAdmin} /></div> },
-    // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). זה מה שסוגר את «שלושת המקומות».
-    { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", render: () => <PublicPageCard T={T} goto={goto} /> },
+    // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). מוצג רק למי שיש לו דף (hasPage).
+    { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
     // 👤 הפרופיל שלי = מקום אחד לזהות+חשבון (איחד את «הגדרות» לתוכו):
     //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה · סיכום-העץ.
     //    המספרים (חיפושים/פוסטים/מחקר/תרומות) גרים במודול «📊 סטטיסטיקות» בלבד — בלי כפילות.
@@ -944,6 +1019,8 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <Link to="/research" style={{ display: "inline-block", marginTop: 14, color: T.acc, textDecoration: "none", fontWeight: 700, fontSize: 13 }}>למעבדה המלאה (מסך רחב) ←</Link>
       </div>
     ) },
+    // 📨 הודעות — כניסה אחת עתידית (הודעות-לכתב · DM פרטי · תגובות אליי). placeholder בלבד, לא בנוי.
+    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "soon", render: () => <MessagesPlaceholder T={T} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />
