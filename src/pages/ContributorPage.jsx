@@ -10,7 +10,8 @@ import ShareActions from "../components/ShareActions.jsx";
 import FollowWriter from "../components/FollowWriter.jsx";
 import RankCard from "../components/RankCard.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
-import DossierExtras from "../components/dossier/DossierExtras.jsx";
+import { useDossierData, AboutResearcher, CurrentFocus, ResearchDomains, DossierMatrices, DossierFindings, Connections, MyResearchExplored, PersonalDataCard, OwnerControls, ResearcherStatsCard, ImpactBar, ResearchJournal } from "../components/dossier/DossierExtras.jsx";
+import AskRaziel from "../components/AskRaziel.jsx";
 import { genAvatar } from "../lib/avatar.js";
 import DossierOnboarding from "../components/dossier/DossierOnboarding.jsx";
 import Discourse from "../components/Discourse.jsx";
@@ -129,6 +130,24 @@ function Card({ e, P, slug, user, isAdmin, onHide, onPromote, onNumClick }) {
   );
 }
 
+// 🧱 מסגרת-מדור קנונית — אותה כותרת/מסגרת/empty-state לכל כתב (Canonical Writer Page).
+//    מדור לעולם לא נעלם: אין תוכן → empty-state. ההבדל בין כתבים = הנתונים, לא השלד.
+function WriterSlot({ P, emoji, title, tag, empty, emptyText, children }) {
+  return (
+    <section style={{ marginBottom: 26 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+        <span style={{ fontSize: 20, lineHeight: 1 }}>{emoji}</span>
+        <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800 }}>{title}</span>
+        {tag && <span style={{ color: P.accentDim, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 10px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>✍️ {tag}</span>}
+      </div>
+      {empty
+        ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, padding: "16px 12px", border: `1px dashed ${P.border}`, borderRadius: 12, textAlign: "center" }}>{emptyText}</div>
+        : children}
+      <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "20px 0 0" }} />
+    </section>
+  );
+}
+
 // 🔢 האם עדכון נושא גימטריה? ביטוי = מספר (2-4 ספרות), «בגימטריא/גימטריה», או «מאומת במנוע».
 //    משמש למיון: גימטריה תמיד ראשונה בדף-הכתב (בקשת צוריאל — הגימטריה למעלה בכל דף).
 const GEM_UPDATE_RE = /=\s*\d{2,4}|\d{2,4}\s*=|בגימטרי|גימטריה|מאומת במנוע/;
@@ -192,13 +211,19 @@ export default function ContributorPage() {
     } catch { setPwErr(true); }
   }, [slug, pw]);
 
+  // 🪪 בעלות — מחושב מוקדם (לפני early-returns) כי useDossierData הוק שחייב לרוץ בכל render.
+  //    c עשוי להיות null בתחילה (הוק מגן פנימית). effIsOwner=false בתצוגה-ציבורית (?view=public).
+  const isOwner = !!(user?.id && c?.user_id && user.id === c.user_id);
+  const effIsOwner = asPublic ? false : isOwner;
+  const { matrices, joinedAt, settings, saveSettings, promoteMatrix } = useDossierData(c, effIsOwner, setDossierCount);
+
   useEffect(() => {
     let alive = true;
     setC(null); setErr(false); setLightName(null);   // איפוס בין slugs (כולל מעבר אצור↔קל)
     // כתובת קנונית לפי קוד-מספר (למשל 888) או slug — הקוד עדיף (בלי שמות-אנשים בכתובת)
     // ⛔ wa_names מוסר מהשליפה הציבורית (עמודה רגישה, חסומה ל-anon; הקוד נופל ל-display_name בלבד).
     // 📁 slug="me" → התיק של המשתמש המחובר (resolved לפי user_id, ואז ניווט לכתובת הקנונית).
-    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged";
+    const cols = "slug,code,display_name,role,bio,notes,vip,trusted,media,avatar_url,locked,building,tags,feature_media,user_id,merged_into,dossier_settings,created_at,specialty,specialty_label,on_whatsapp,accent,emblem,engaged,page_config";
     const resolveMe = slug === "me";
     // 📁 «me» = התיק שלי. מחכים שהאימות ייטען; לא-מחובר → כניסה. אין תיק עדיין → יוצרים ומנווטים.
     if (resolveMe && authLoading) return;
@@ -376,16 +401,15 @@ export default function ContributorPage() {
     return [...s.entries()].sort((a, b) => b[1] - a[1]);
   }, [items, effIsAdmin]);
   // 🔒 תוכן רגיש (סומן בדאטה) — מוסתר מהציבור; אדמין רואה עם תג
-  const sensitiveCount = items.filter(e => e.sensitive).length;
   const safeItems = effIsAdmin ? items : items.filter(e => !e.sensitive);
   // 📦 האם לכתב יש בכלל חומר-כרטיסים ישן (media)? רק 3 כתבים (עמית/שמעון/ציון) — אצל השאר 0.
-  //    כל ה«כרום» הישן (חיפוש/קטגוריות/גריד/הערת-שוליים) מגודר בזה → דף נקי לכתב בלי media.
+  //    לפי הכרעת ⚠️1B: החומר נשאר כ«חומר-גלם» בתוך 🔬 המחקר שלי (מקום אחד), הגירה-לעץ בהמשך.
   const hasMedia = safeItems.length > 0;
   // 🏆 הטופ של החוקר — רק כרטיסים שסומנו top_rank (החלטת צוריאל, פר-חוקר; לא באתר הכללי)
   const topGold = safeItems.filter(e => e.top_rank).sort((a, b) => a.top_rank - b.top_rank);
   const topKeys = new Set(topGold.map(e => e.f || e.msg_id));
   const visible = safeItems.filter(e => !hidden.has(`contrib-${slug}-${e.f || e.msg_id || e.title}`) && !topKeys.has(e.f || e.msg_id));
-  // 🔎 חיפוש בתוך הדף: מספר → התאמת מספר-שלם בכל השיטות/הכרטיסים; טקסט → הכלה חופשית
+  // 🔎 חיפוש בתוך חומר-הגלם: מספר → התאמת מספר-שלם בכל השיטות/הכרטיסים; טקסט → הכלה חופשית
   const nq = q.trim();
   const isNum = /^\d+$/.test(nq);
   const numRe = useMemo(() => (isNum ? new RegExp(`(^|[^\\d])${nq}([^\\d]|$)`) : null), [nq, isNum]);
@@ -444,8 +468,6 @@ export default function ContributorPage() {
     </div>
   );
 
-  const isOwner = !!(user?.id && c.user_id && user.id === c.user_id);
-  const effIsOwner = asPublic ? false : isOwner;   // 👁 בתצוגה-ציבורית אין כלי-בעלים
   const vis = c?.dossier_settings?.visibility || "public";
   // 🔒 תיק פרטי — רק הבעלים/אדמין רואים
   if (vis === "private" && !isOwner && !isAdmin) return (
@@ -458,6 +480,20 @@ export default function ContributorPage() {
       </div>
     </div>
   );
+
+  // ─── מצבי-ריק + נתונים-נגזרים לסלוטים הקנוניים (Canonical Writer Page) ───
+  const about = settings.about || c.bio || "";
+  const highlights = Array.isArray(c.page_config?.highlights) ? c.page_config.highlights : [];
+  const postSlugs = new Set(posts.map(p => p.slug));
+  const taggedFeatured = tagged.filter(p => !postSlugs.has(p.slug));
+  const galleryUpdates = waUpdates.filter(u => u.image_url);
+  const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0;
+  const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
+  const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
+  const voiceEmpty = !effIsOwner && !about && !settings.current_focus;
+  const waEmpty = !!c.on_whatsapp && feedUpdates.length === 0;
+  const dossierEmpty = !effIsOwner && !effIsAdmin && !level && matrices.length === 0;
+  const rzFacts = `חוקר: ${c.display_name}. ${matrices.length} צפנים בתיק${level?.contrib ? `, ${level.contrib} חידושים מאושרים` : ""}${level?.label ? `, דרגה: ${level.label}` : ""}.`;
 
   return (
     <PaletteProvider value={PALETTES.lab}>
@@ -478,7 +514,9 @@ export default function ContributorPage() {
           </a>
         </div>
       )}
-      <div style={{ textAlign: "center", marginBottom: 18 }}>
+
+      {/* ═══ סלוט 1 · 👤 כותרת הכתב ═══ (זהות · תמונה · תפקיד · trusted · דרגה · עקוב · הודעה) */}
+      <div style={{ textAlign: "center", marginBottom: 22 }}>
         <img src={c.avatar_url || genAvatar(c.display_name)} alt={c.display_name} loading="lazy"
           style={{ width: 92, height: 92, borderRadius: "50%", objectFit: "cover", border: `2.5px solid ${P.accent}`, boxShadow: `0 6px 22px ${P.glow}`, marginBottom: 10 }} />
         <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(24px,5vw,34px)", fontWeight: 800 }}>
@@ -494,11 +532,6 @@ export default function ContributorPage() {
         <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 6, maxWidth: 460, marginInline: "auto", lineHeight: 1.5 }}>כל הגילויים, החידושים והקשרים שנאספו לאורך הדרך.</div>
         {/* 🎖️ כרטיס-הדרגה המלא — מנוע-הגדילה + סטטיסטיקת-החוקר (דרגה, XP, פס-התקדמות, פירוט) */}
         <RankCard level={level} stats={stats} P={P} />
-        {header?.stats && (
-          <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, marginTop: 8 }}>
-            📚 {header.title} · {header.stats.images_scanned?.toLocaleString()} תמונות נסרקו · <b style={{ color: P.accentText }}>{header.stats.gold} זהב</b>
-          </div>
-        )}
         {/* 🔗 שיתוף הדף — רכיב-השיתוף הקנוני (canonical_ui_components_law) */}
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
           {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
@@ -514,362 +547,92 @@ export default function ContributorPage() {
         </div>
       </div>
 
-      {/* ✦ חתימת-הכתב — המרכז האישי (contributors.specialty). כל כתב והמנוע שלו; לא פיד גנרי.
-          זה מה שמגדיר את הדף — לא הוואטסאפ (שיורד לצד). מוזן משלב-1 (specialty/accent/emblem). */}
-      {c.specialty_label && (
-        <div style={{ textAlign: "center", margin: "0 auto 22px", maxWidth: 640,
-          background: `linear-gradient(180deg, ${(c.accent || P.accent)}1f, transparent)`,
-          border: `1px solid ${P.border}`, borderTop: `3px solid ${c.accent || P.accent}`,
-          borderRadius: 15, padding: "16px 20px" }}>
-          <div style={{ fontSize: 27, lineHeight: 1 }}>{c.emblem || "✦"}</div>
-          <div style={{ color: c.accent || P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: 2.5, marginTop: 7 }}>המרכז</div>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, marginTop: 2 }}>{c.specialty_label}</div>
-        </div>
-      )}
+      {/* ═══ סלוט 2 · 🧠 המרכז שלי ═══ (מנוע-המרכז לפי specialty; המסגרת זהה אצל כולם) */}
+      <WriterSlot P={P} emoji="🧠" title="המרכז שלי" empty={!c.specialty_label} emptyText="המרכז בבנייה — יופיע כאן מנוע-המחקר הייחודי של הכתב.">
+        {c.specialty_label && (
+          <div style={{ textAlign: "center", margin: "0 auto 14px", maxWidth: 640,
+            background: `linear-gradient(180deg, ${(c.accent || P.accent)}1f, transparent)`,
+            border: `1px solid ${P.border}`, borderTop: `3px solid ${c.accent || P.accent}`,
+            borderRadius: 15, padding: "13px 20px" }}>
+            <div style={{ fontSize: 25, lineHeight: 1 }}>{c.emblem || "✦"}</div>
+            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, marginTop: 3 }}>{c.specialty_label}</div>
+          </div>
+        )}
+        <SpecialtyCenter c={c} />
+      </WriterSlot>
 
-      {/* ✦ מנוע-המרכז — נבחר לפי specialty (letter-decoder→מפענח · crosses→קיר-הצלבות · …).
-          זה הלב של הדף; מנוע שטרם מומש נופל בחזרה למדורים הרגילים למטה. */}
-      <SpecialtyCenter c={c} />
-
-      {/* 🔢 הגימטריות המאומתות — מקום אחד, רק מה שאומת ואושר (gematria_words source=contribution) */}
+      {/* ═══ סלוט 3 · 🔢 הגימטריות המאומתות שלי ═══ (מקור קנוני יחיד + empty-state עצמי) */}
       <VerifiedGematrias name={c.display_name} acc={c.accent} />
 
-      {/* 🗓️ ציר האירועים שלו — nodes type=event שיוחסו אליו. עדשה על «ציר ההתגלות» הגלובלי (לא עותק);
-          כולל את המחקרים הישנים שלו על ציר-זמן + הפניה לציר ההתגלות המלא. */}
-      {axisEvents.length > 0 && (() => {
-        const evs = [...axisEvents].sort((a, b) => (Number(b.metadata?.year) || 0) - (Number(a.metadata?.year) || 0) || (b.weight || 0) - (a.weight || 0));
-        const postsByYear = (() => {
-          const m = new Map();
-          for (const p of posts) { const y = (p.date && String(p.date).slice(0, 4)) || "—"; if (!m.has(y)) m.set(y, []); m.get(y).push(p); }
-          return [...m.entries()].sort((a, b) => String(b[0]).localeCompare(String(a[0])));
-        })();
-        const theme = evs[0]?.axis_theme;
-        return (
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>
-              🗓️ ציר האירועים של {c.display_name}{theme ? ` — ${theme}` : ""}
-            </div>
-            <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textAlign: "center", marginBottom: 14 }}>
-              התכנסות תאריכים ורמזים · מחובר ל«ציר ההתגלות» של האתר
-            </div>
-            <div style={{ position: "relative", marginInlineStart: 10, paddingInlineStart: 22, borderInlineStart: `2px solid ${P.accent}55`, display: "grid", gap: 12 }}>
-              {evs.map(ev => (
-                <div key={ev.id} style={{ position: "relative", background: P.card, border: `1px solid ${(ev.weight || 0) >= 4 ? P.accent : P.border}`, borderRadius: 14, padding: "13px 16px" }}>
-                  <div style={{ position: "absolute", top: 18, insetInlineStart: -29, width: 12, height: 12, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%, #fff8e1, ${P.accentText} 60%)`, boxShadow: `0 0 10px ${P.accent}` }} />
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 5 }}>
-                    {ev.hebrew_date && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🕯 {ev.hebrew_date}</span>}
-                    {ev.metadata?.greg_date && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· {ev.metadata.greg_date}</span>}
-                    {(ev.weight || 0) >= 5 && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>★ מרכזי</span>}
-                  </div>
-                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, lineHeight: 1.5 }}>{ev.label}</div>
-                  {ev.description && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginTop: 5 }}>{ev.description}</div>}
-                  {(ev.metadata?.gematria || (ev.metadata?.numbers || []).length) ? (
-                    <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
-                      {ev.metadata?.gematria && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 11px" }}>🔢 {ev.metadata.gematria}</span>}
-                      {(ev.metadata?.numbers || []).map(n => <a key={n} href={`/number/${n}`} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px", textDecoration: "none" }}>{n}</a>)}
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-            {postsByYear.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 8 }}>📝 המחקרים שלו לאורך השנים</div>
-                <div style={{ display: "grid", gap: 10 }}>
-                  {postsByYear.map(([y, ps]) => (
-                    <div key={y} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                      <span style={{ flex: "0 0 auto", minWidth: 44, color: P.accentText, fontFamily: F.mono, fontSize: 14, fontWeight: 900 }}>{y}</span>
-                      <div style={{ display: "grid", gap: 5, minWidth: 0 }}>
-                        {ps.map(p => (
-                          <a key={p.slug} href={`/${p.slug}`} style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.5, textDecoration: "none", borderBottom: `1px dotted ${P.border}` }}>{p.participated ? "🤝 " : ""}{stripHtml(p.title)}</a>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <a href="/timeline" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 20px", minHeight: 44 }}>
-                🌅 הכל בציר ההתגלות של האתר ←
-              </a>
-            </div>
-            <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "20px 0 2px" }} />
-          </div>
-        );
-      })()}
+      {/* ═══ סלוט 4 · 🔬 המחקר שלי ═══ (עדשות על עץ-הידע; מסגרת זהה, נתונים משתנים) */}
+      <WriterSlot P={P} emoji="🔬" title="המחקר שלי" empty={researchEmpty} emptyText="אין עדיין מחקר מוצג לכתב הזה.">
+        <ResearchDomains P={P} level={level} matrices={matrices} tags={c.tags} />
+        {/* צפנים — אצל כתבי-צפנים זה כבר «המרכז» (SpecialtyCenter), לכן לא מוצג כאן (בלי כפילות) */}
+        {c.specialty !== "els-ciphers" && <DossierMatrices P={P} name={c.display_name} matrices={matrices} isAdmin={effIsAdmin} onPromote={promoteMatrix} />}
+        <DossierFindings P={P} name={c.display_name} uid={c.user_id} isAdmin={effIsAdmin} />
+        <Connections P={P} matrices={matrices} />
 
-      {/* 💬 ההודעות האחרונות שלו בפורום — עדשה על research_contributions, מצביע לשרשור (עץ אחד) */}
-      {forumMsgs.length > 0 && (
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>
-            💬 ההודעות האחרונות של {c.display_name} בפורום
-          </div>
-          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>
-            לחיצה פותחת את ההודעה והתגובות
-          </div>
-          <div style={{ display: "grid", gap: 9 }}>
-            {forumMsgs.map(it => {
-              const im = intentMeta(it.intent);
-              const txt = stripHtml(it.title || it.body || "");
-              // 🔠 משחקי-אותיות: פריט-פרשנות בלי יעד-מספר (אנגרמה/נוטריקון/מפתח) → קישור לכלי הקנוני
-              // (לא משטח חדש — עץ אחד). זורע את המילה הראשונה בכלי שיטת-המפתח.
-              const isWordplay = it.intent === "interpretation" && !it.target_id;
-              const firstWord = isWordplay ? ((txt.match(/[֐-׿]{2,}/) || [""])[0]) : "";
-              return (
-                <div key={it.id}>
-                  <a href={`/forum/${it.id}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                      <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>{im.emoji} {im.label}</span>
-                      {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
-                      <span style={{ flex: 1 }} />
-                      <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>{timeAgoHe(it.created_at)}</span>
-                    </div>
-                    <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{txt}</div>
-                  </a>
-                  {firstWord.length >= 2 && (
-                    <a href={`/research?tool=maftech&q=${encodeURIComponent(firstWord)}`}
-                      style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, marginInlineStart: 4, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none" }}>
-                      🔠 נתח את «{firstWord}» בכלי משחקי-האותיות ←
-                    </a>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "16px 0 2px" }} />
-        </div>
-      )}
-
-      {/* 📁 אזורי תיק-המחקר (researcher_dossier_law) — כרגע-אני-חוקר · השפעה · תחומים · צפנים · יומן. המחקר במרכז. */}
-      <DossierExtras P={P} c={c} level={level} isOwner={effIsOwner} onCount={setDossierCount} />
-
-      {/* 🎨 גלריה מודגשת בראש — כתב עם feature_media (contributor_featured_media_law · כרגע ציון). תמונות+טקסט ראשונים למעלה. */}
-      {c.feature_media && waUpdates.filter(u => u.image_url).length > 0 && (
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textAlign: "center", marginBottom: 12 }}>
-            🎨 הכרטיסים של {c.display_name}
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 12 }}>
-            {waUpdates.filter(u => u.image_url).map(u => {
-              const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
-              return (
-                <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה" style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                  <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block", background: "#0a0710" }} />
-                  {showTxt && <div style={{ padding: "10px 12px", color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, whiteSpace: "pre-wrap", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</div>}
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "18px 0 2px" }} />
-        </div>
-      )}
-
-      {/* אימותי-מנוע מהסריקה */}
-      {header?.engine_verified && (
-        <div style={{ background: P.surface, border: `1.5px solid ${P.borderStrong}`, borderRadius: 14, padding: "14px 16px", marginBottom: 18 }}>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 800, marginBottom: 8 }}>🔢 עובדות שאומתו במנוע</div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {header.engine_verified.map((v, i) => (
-              <span key={i} style={{ color: P.ink, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "4px 11px", fontFamily: F.body, fontSize: 12 }}>{v}</span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 💬 וואטסאפ — תפריט נגלל בסגנון צ'אט (מקור גולמי משני, זמני). מוצג *רק* אצל כתב on_whatsapp
-          (writers_page_law). לא «קבוצות קבוצות» — שרשור-צ'אט אחד מאוחד, סגור כברירת-מחדל.
-          זה לא המרכז; המרכז הוא ה-specialty למעלה. */}
-      {c.on_whatsapp && feedUpdates.length > 0 && (
-        <div style={{ marginBottom: 22 }}>
-          <button onClick={() => setWaOpen(o => !o)} aria-expanded={waOpen}
-            style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, cursor: "pointer", textAlign: "start",
-              background: "linear-gradient(135deg,#128c7e,#075e54)", color: "#fff", border: "none",
-              borderRadius: waOpen ? "14px 14px 0 0" : 14, padding: "12px 16px", minHeight: 54 }}>
-            <span style={{ fontSize: 23, lineHeight: 1 }}>💬</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>וואטסאפ · {c.display_name}</div>
-              <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .85 }}>{feedUpdates.length} הודעות · מקור גולמי · הקש {waOpen ? "לסגירה" : "לפתיחה"}</div>
+        {/* 🎯 ההתכנסויות — מוסתר כשקיר-ההצלבות כבר המרכז (specialty=crosses) */}
+        {convergences.length > 0 && c.specialty !== "crosses" && (
+          <div style={{ marginBottom: 22 }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
+              🎯 ההתכנסויות של {c.display_name} ({convergences.length})
             </div>
-            <span style={{ fontSize: 15, transform: waOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
-          </button>
-          {waOpen && (
-            <div style={{ maxHeight: 520, overflowY: "auto", WebkitOverflowScrolling: "touch",
-              background: "#0b141a", border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 14px 14px",
-              padding: "14px 12px", display: "flex", flexDirection: "column", gap: 9 }}>
-              {/* 📌 באנר-הצטרפות נעוץ — למי שלא בקבוצה וירצה להתחבר, עם כללי-הקבוצה (onboarding) */}
-              <div style={{ alignSelf: "center", width: "100%", maxWidth: 520, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.13)", borderRadius: 12, padding: "13px 15px", textAlign: "center", color: "#e9edef" }}>
-                <div style={{ fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 3 }}>📌 עוד לא בקבוצה?</div>
-                <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .82, lineHeight: 1.55, marginBottom: 11 }}>הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים ודיונים.</div>
-                <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
-                  💬 הצטרפו לקבוצה ←
-                </a>
-                <details style={{ marginTop: 11, textAlign: "start" }}>
-                  <summary style={{ cursor: "pointer", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, color: "#8fb3a8", listStyle: "none" }}>📋 כללי הקבוצה — חשוב לקרוא לפני הצטרפות ▾</summary>
-                  <ol style={{ margin: "9px 0 0", paddingInlineStart: 18, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.65, color: "#c8d3d0", display: "grid", gap: 5 }}>
-                    {WA_GROUP_RULES.map((r, i) => <li key={i}>{r}</li>)}
-                  </ol>
-                </details>
-              </div>
-              {feedUpdates.map(u => {
-                const vid = u.image_url && isVideoUrl(u.image_url);
-                const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+            <div style={{ display: "grid", gap: 8 }}>
+              {convergences.map(t => {
+                const nums = [...new Set([...(t.highlight_numbers || []), ...(t.numbers || [])])].slice(0, 5);
                 return (
-                  <div key={u.id} onClick={() => setWaLb(u)} title="הקש לפתיחה במסך מלא"
-                    style={{ alignSelf: "flex-end", maxWidth: "85%", cursor: "pointer", background: "#005c4b", color: "#e9edef",
-                      borderRadius: "12px 12px 3px 12px", padding: u.image_url ? 6 : "9px 13px", boxShadow: "0 1px 1.5px rgba(0,0,0,.35)" }}>
-                    {u.image_url && (
-                      vid
-                        ? <div style={{ width: "100%", minWidth: 190, aspectRatio: "16/10", borderRadius: 9, background: "#0a0710", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, color: "#cbb6ff" }}><span style={{ fontSize: 27 }}>▶</span><span style={{ fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, opacity: .8 }}>וידאו · הקש לצפייה</span></div>
-                        : <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ display: "block", width: "100%", minWidth: 190, maxWidth: 300, borderRadius: 9, background: "#0a0710" }} />
+                  <a key={t.slug} href={`/topic/${t.slug}`} style={{ display: "block", background: P.card, border: `1px solid ${t._authored ? "#d4af37" : P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none", boxShadow: t._authored ? "0 0 0 1px #d4af37 inset" : "none" }}>
+                    {t._authored && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, marginBottom: 5 }}>✦ יצר את ההתכנסות</span>}
+                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, lineHeight: 1.45 }}>{stripHtml(t.title)}</div>
+                    {t.subtitle && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>{stripHtml(t.subtitle)}</div>}
+                    {nums.length > 0 && (
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6 }}>
+                        {nums.map(n => <span key={n} style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 9px", fontFamily: F.mono, fontSize: 11.5 }}>{n}</span>)}
+                      </div>
                     )}
-                    {showTxt && <p style={{ margin: u.image_url ? "8px 5px 2px" : 0, fontFamily: F.body, fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{u.text}</p>}
-                    <div style={{ textAlign: "end", marginTop: 3, fontFamily: F.heading, fontSize: 10, color: "#8fb3a8", paddingInline: 4 }}>🕒 {timeAgoHe(u.created_at)}</div>
-                  </div>
+                  </a>
                 );
               })}
             </div>
-          )}
-        </div>
-      )}
-      {waLb && <UpdateModal u={waLb} brand={BRANDS[waLb.channel] || BRANDS["reality-code"]} onClose={() => setWaLb(null)} />}
-
-      {/* 🏆 הזהב — הטופ שצוריאל קבע, בראש הדף של החוקר בלבד */}
-      {topGold.length > 0 && !nq && (
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, textAlign: "center", marginBottom: 10 }}>
-            🏆 הזהב של {c.display_name}
-          </div>
-          <div style={{ columns: "2 300px", columnGap: 12 }}>
-            {topGold.map((e, i) => (
-              <div key={e.f || i} style={{ position: "relative", breakInside: "avoid" }}>
-                <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: P.accentBtn, color: P.onAccent, borderRadius: 999, fontFamily: F.mono, fontSize: 12, fontWeight: 900, padding: "3px 9px", boxShadow: `0 2px 10px ${P.glow}` }}>#{e.top_rank}</span>
-                <Card e={{ ...e, title: e.top_caption || e.title }} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
-                  onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); }} />
-              </div>
-            ))}
-          </div>
-          <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "6px 0 2px" }} />
-        </div>
-      )}
-
-      {/* 🔎 חיפוש בתוך הדף — מספר בכל השיטות, או טקסט חופשי. רק כשיש חומר-כרטיסים (עמית/שמעון/ציון). */}
-      {hasMedia && (<>
-      <div style={{ marginBottom: 14 }}>
-        <input value={q} onChange={e => { setQ(e.target.value); setLimit(24); }} dir="auto"
-          placeholder="🔎 חפשו מספר (למשל 888) או מילה — בכל הכרטיסים והשיטות"
-          style={{ width: "100%", boxSizing: "border-box", padding: "12px 15px", borderRadius: 12, background: P.cardSoft, border: `1.5px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 16, outline: "none" }} />
-        {nq && (
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 8 }}>
-            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>
-              {searched.length} כרטיסים מכילים «{nq}»
-            </span>
-            {isNum && (
-              <a href={`/number/${nq}`} style={{ color: P.onAccent, background: P.accentBtn, textDecoration: "none", borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>
-                🔢 לדף המספר {nq} ←
-              </a>
-            )}
-            <button onClick={() => setQ("")} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.body, fontSize: 12, textDecoration: "underline" }}>נקה</button>
           </div>
         )}
-      </div>
 
-      {/* קטגוריות */}
-      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 16 }}>
-        <button onClick={() => { setCat("all"); setLimit(24); }} style={chip(P, cat === "all")}>הכל ({searched.length})</button>
-        {cats.map(([k, n]) => (
-          <button key={k} onClick={() => { setCat(k); setLimit(24); }} style={chip(P, cat === k)}>{CAT_LABELS[k] || k} ({n})</button>
-        ))}
-      </div>
-
-      {/* גריד הכרטיסים */}
-      <div style={{ columns: "2 300px", columnGap: 12 }}>
-        {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
-          onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /* noop */ } }} />)}
-      </div>
-      {hiddenCount > 0 && (
-        <div style={{ textAlign: "center", marginTop: 10 }}>
-          <button onClick={unhideAll} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.body, fontSize: 12, textDecoration: "underline" }}>
-            🙈 {hiddenCount} כרטיסים מוסתרים אצלך — הצג הכל מחדש
-          </button>
-        </div>
-      )}
-      {shown.length < totalInCat && (
-        <button onClick={() => setLimit(l => l + 24)}
-          style={{ display: "block", margin: "14px auto 0", cursor: "pointer", background: "none", border: `1px dashed ${P.border}`, color: P.accentText, borderRadius: 12, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 26px", minHeight: 44 }}>
-          עוד גילויים ({totalInCat - shown.length}) ▾
-        </button>
-      )}
-      </>
-      )}
-
-      {/* 📝 הפוסטים על שמו — קישור לפוסט הקנוני, לא עותק */}
-      {posts.length > 0 && (
-        <div style={{ marginTop: 26 }}>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
-            🔬 המחקרים של {c.display_name} ({posts.length})
-          </div>
-          <div style={{ display: "grid", gap: 8 }}>
-            {posts.map(p => (
-              <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
-                {p.image_url && <img src={galThumb(p, 96)} alt="" loading="lazy" style={{ width: 48, height: 48, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>
-                    {p.participated && <span style={{ color: P.accentDim, fontWeight: 600 }}>🤝 בהשתתפות · </span>}{stripHtml(p.title)}
-                  </div>
-                  {p.date && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{String(p.date).slice(0, 10)}</div>}
-                </div>
-                <span style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 14 }}>←</span>
-              </a>
-            ))}
-          </div>
-          <a href={`/post?author=${encodeURIComponent(c.display_name)}`} style={{ display: "inline-block", marginTop: 10, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>
-            📖 כל המחקרים של {c.display_name} ←
-          </a>
-        </div>
-      )}
-
-      {/* 🎯 ההתכנסויות שלו — עדשה על topic_cards, מצביע לעמוד הקנוני /topic/:slug.
-          מוסתר כשקיר-ההצלבות כבר המרכז (specialty=crosses) כדי לא לשכפל (עץ אחד). */}
-      {convergences.length > 0 && c.specialty !== "crosses" && (
-        <div style={{ marginTop: 26 }}>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
-            🎯 ההתכנסויות של {c.display_name} ({convergences.length})
-          </div>
-          <div style={{ display: "grid", gap: 8 }}>
-            {convergences.map(t => {
-              const nums = [...new Set([...(t.highlight_numbers || []), ...(t.numbers || [])])].slice(0, 5);
-              return (
-                <a key={t.slug} href={`/topic/${t.slug}`} style={{ display: "block", background: P.card, border: `1px solid ${t._authored ? "#d4af37" : P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none", boxShadow: t._authored ? "0 0 0 1px #d4af37 inset" : "none" }}>
-                  {t._authored && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, marginBottom: 5 }}>✦ יצר את ההתכנסות</span>}
-                  <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, lineHeight: 1.45 }}>{stripHtml(t.title)}</div>
-                  {t.subtitle && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>{stripHtml(t.subtitle)}</div>}
-                  {nums.length > 0 && (
-                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6 }}>
-                      {nums.map(n => <span key={n} style={{ color: P.accentText, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 9px", fontFamily: F.mono, fontSize: 11.5 }}>{n}</span>)}
+        {/* 📝 הפוסטים על שמו — קישור לפוסט הקנוני, לא עותק */}
+        {posts.length > 0 && (
+          <div style={{ marginBottom: 22 }}>
+            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>
+              📖 המחקרים של {c.display_name} ({posts.length})
+            </div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {posts.map(p => (
+                <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
+                  {p.image_url && <img src={galThumb(p, 96)} alt="" loading="lazy" style={{ width: 48, height: 48, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>
+                      {p.participated && <span style={{ color: P.accentDim, fontWeight: 600 }}>🤝 בהשתתפות · </span>}{stripHtml(p.title)}
                     </div>
-                  )}
+                    {p.date && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{String(p.date).slice(0, 10)}</div>}
+                  </div>
+                  <span style={{ marginInlineStart: "auto", color: P.accentDim, fontSize: 14 }}>←</span>
                 </a>
-              );
-            })}
+              ))}
+            </div>
+            <a href={`/post?author=${encodeURIComponent(c.display_name)}`} style={{ display: "inline-block", marginTop: 10, color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>
+              📖 כל המחקרים של {c.display_name} ←
+            </a>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 📌 מופיע גם בפוסטים אלו (תיוגים) — לא בהכרח כתב, מצביע לפוסט הקנוני */}
-      {(() => {
-        const authoredSlugs = new Set(posts.map(p => p.slug));
-        const featured = tagged.filter(p => !authoredSlugs.has(p.slug));
-        if (!featured.length) return null;
-        return (
-          <div style={{ marginTop: 26 }}>
+        {/* 📌 מופיע גם בפוסטים אלו (תיוגים) — מצביע לפוסט הקנוני */}
+        {taggedFeatured.length > 0 && (
+          <div style={{ marginBottom: 22 }}>
             <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 4 }}>
-              📌 מופיע גם בפוסטים אלו ({featured.length})
+              📌 מופיע גם בפוסטים אלו ({taggedFeatured.length})
             </div>
             <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginBottom: 10 }}>פוסטים המתויגים בשמו — לחיצה פותחת את הפוסט המלא.</div>
             <div style={{ display: "grid", gap: 8 }}>
-              {featured.map(p => (
+              {taggedFeatured.map(p => (
                 <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
                   {p.image_url && <img src={galThumb(p, 96)} alt="" loading="lazy" style={{ width: 44, height: 44, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
                   <div style={{ minWidth: 0, flex: 1 }}>
@@ -883,41 +646,277 @@ export default function ContributorPage() {
               ))}
             </div>
           </div>
-        );
-      })()}
+        )}
 
-      {/* דייג׳סט-טקסט */}
-      {digest?.data && (
-        <div style={{ marginTop: 26 }}>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 15, fontWeight: 800, marginBottom: 10 }}>📇 {digest.title}</div>
-          {Object.entries(digest.data).map(([k, arr]) => Array.isArray(arr) && (
-            <details key={k} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}>
-              <summary style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
-                {{ identity: "👑 זהות", languages: "🌍 שפות", eight88: "✨ 888", foundations: "🏛 יסודות", best_standalone: "💎 פנינים" }[k] || k} ({arr.length})
-              </summary>
-              <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
-                {arr.map((e, i) => (
-                  <div key={i} style={{ borderInlineStart: `2px solid ${P.border}`, paddingInlineStart: 10 }}>
-                    <div style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>{e.claim}</div>
-                    {e.quote && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.55, marginTop: 2 }}>«{e.quote}»</div>}
+        {/* 🗂️ חומר-גלם (ארכיון) — מערכת ה-media הישנה (עמית/שמעון/ציון). ⚠️1B: נשאר כאן, מקום אחד. */}
+        {hasMedia && (
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>🗂️ חומר-גלם (ארכיון)</div>
+            <div style={{ marginBottom: 12 }}>
+              <input value={q} onChange={e => { setQ(e.target.value); setLimit(24); }} dir="auto"
+                placeholder="🔎 חפשו מספר (למשל 888) או מילה — בכל הכרטיסים"
+                style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px", borderRadius: 12, background: P.cardSoft, border: `1.5px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 16, outline: "none" }} />
+              {nq && (
+                <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 8 }}>
+                  <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{searched.length} כרטיסים מכילים «{nq}»</span>
+                  {isNum && <a href={`/number/${nq}`} style={{ color: P.onAccent, background: P.accentBtn, textDecoration: "none", borderRadius: 999, padding: "6px 14px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🔢 לדף המספר {nq} ←</a>}
+                  <button onClick={() => setQ("")} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.body, fontSize: 12, textDecoration: "underline" }}>נקה</button>
+                </div>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap", justifyContent: "center", marginBottom: 14 }}>
+              <button onClick={() => { setCat("all"); setLimit(24); }} style={chip(P, cat === "all")}>הכל ({searched.length})</button>
+              {cats.map(([k, n]) => (
+                <button key={k} onClick={() => { setCat(k); setLimit(24); }} style={chip(P, cat === k)}>{CAT_LABELS[k] || k} ({n})</button>
+              ))}
+            </div>
+            <div style={{ columns: "2 300px", columnGap: 12 }}>
+              {shown.map((e, i) => <Card key={e.f || e.msg_id || i} e={e} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
+                onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /* noop */ } }} />)}
+            </div>
+            {hiddenCount > 0 && (
+              <div style={{ textAlign: "center", marginTop: 10 }}>
+                <button onClick={unhideAll} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.body, fontSize: 12, textDecoration: "underline" }}>
+                  🙈 {hiddenCount} כרטיסים מוסתרים אצלך — הצג הכל מחדש
+                </button>
+              </div>
+            )}
+            {shown.length < totalInCat && (
+              <button onClick={() => setLimit(l => l + 24)}
+                style={{ display: "block", margin: "14px auto 0", cursor: "pointer", background: "none", border: `1px dashed ${P.border}`, color: P.accentText, borderRadius: 12, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, padding: "11px 26px", minHeight: 44 }}>
+                עוד גילויים ({totalInCat - shown.length}) ▾
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* 🤖 עוזר-AI — ⚠️5: בתוך המחקר, לא מדור עצמאי */}
+        {matrices.length > 0 && (
+          <AskRaziel kind="research" subject={c.display_name} facts={rzFacts} palette={P}
+            title={effIsOwner ? "רזיאל · הסוכן שלך" : `רזיאל · שאל על המחקר של ${c.display_name}`}
+            subtitle={effIsOwner ? "נחקור יחד — עובדה מהמנוע, לא נבואה" : "שאל את רזיאל על התיק הזה — עובדה מהמנוע, לא נבואה"}
+            greeting={effIsOwner ? "עברתי על המחקר שלך, ומצאתי כמה נקודות שעשויות לעניין אותך." : `עברתי על המחקר של ${c.display_name}, ומצאתי כמה נקודות שעשויות לעניין אותך.`}
+            waText={effIsOwner ? `שלום רזיאל 🌳 בקשר לתיק המחקר שלי — ` : `שלום רזיאל 🌳 בקשר לתיק המחקר של ${c.display_name} — `} />
+        )}
+
+        {/* 🔬 מה חקרתי — פרטי לבעלים בלבד (RLS) */}
+        <MyResearchExplored P={P} isOwner={effIsOwner} />
+      </WriterSlot>
+
+      {/* ═══ סלוט 5 · ✍️ הקול שלי ═══ (תוכן אישי; יעבור ל-contributor_content ב-Editor) */}
+      <WriterSlot P={P} emoji="✍️" title="הקול שלי" tag="תוכן אישי של הכתב" empty={voiceEmpty} emptyText="הכתב עדיין לא הוסיף תוכן אישי.">
+        <AboutResearcher P={P} name={c.display_name} about={about} isOwner={effIsOwner} onSave={t => saveSettings({ about: t })} />
+        <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
+      </WriterSlot>
+
+      {/* ═══ סלוט 6 · 🟢 WhatsApp ═══ (תמיד נוכח: פיד · empty-state · CTA-הצטרפות) */}
+      <WriterSlot P={P} emoji="🟢" title="WhatsApp" empty={waEmpty} emptyText="אין מידע מהוואטסאפ כרגע.">
+        {c.on_whatsapp ? (
+          feedUpdates.length > 0 && (
+            <div>
+              <button onClick={() => setWaOpen(o => !o)} aria-expanded={waOpen}
+                style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, cursor: "pointer", textAlign: "start",
+                  background: "linear-gradient(135deg,#128c7e,#075e54)", color: "#fff", border: "none",
+                  borderRadius: waOpen ? "14px 14px 0 0" : 14, padding: "12px 16px", minHeight: 54 }}>
+                <span style={{ fontSize: 23, lineHeight: 1 }}>💬</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>וואטסאפ · {c.display_name}</div>
+                  <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .85 }}>{feedUpdates.length} הודעות · מקור גולמי · הקש {waOpen ? "לסגירה" : "לפתיחה"}</div>
+                </div>
+                <span style={{ fontSize: 15, transform: waOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+              </button>
+              {waOpen && (
+                <div style={{ maxHeight: 520, overflowY: "auto", WebkitOverflowScrolling: "touch",
+                  background: "#0b141a", border: `1px solid ${P.border}`, borderTop: "none", borderRadius: "0 0 14px 14px",
+                  padding: "14px 12px", display: "flex", flexDirection: "column", gap: 9 }}>
+                  {/* 📌 באנר-הצטרפות נעוץ — למי שלא בקבוצה וירצה להתחבר, עם כללי-הקבוצה */}
+                  <div style={{ alignSelf: "center", width: "100%", maxWidth: 520, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.13)", borderRadius: 12, padding: "13px 15px", textAlign: "center", color: "#e9edef" }}>
+                    <div style={{ fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 3 }}>📌 עוד לא בקבוצה?</div>
+                    <div style={{ fontFamily: F.body, fontSize: 11.5, opacity: .82, lineHeight: 1.55, marginBottom: 11 }}>הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים ודיונים.</div>
+                    <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 22px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+                      💬 הצטרפו לקבוצה ←
+                    </a>
+                    <details style={{ marginTop: 11, textAlign: "start" }}>
+                      <summary style={{ cursor: "pointer", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, color: "#8fb3a8", listStyle: "none" }}>📋 כללי הקבוצה — חשוב לקרוא לפני הצטרפות ▾</summary>
+                      <ol style={{ margin: "9px 0 0", paddingInlineStart: 18, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.65, color: "#c8d3d0", display: "grid", gap: 5 }}>
+                        {WA_GROUP_RULES.map((r, i) => <li key={i}>{r}</li>)}
+                      </ol>
+                    </details>
+                  </div>
+                  {feedUpdates.map(u => {
+                    const vid = u.image_url && isVideoUrl(u.image_url);
+                    const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+                    return (
+                      <div key={u.id} onClick={() => setWaLb(u)} title="הקש לפתיחה במסך מלא"
+                        style={{ alignSelf: "flex-end", maxWidth: "85%", cursor: "pointer", background: "#005c4b", color: "#e9edef",
+                          borderRadius: "12px 12px 3px 12px", padding: u.image_url ? 6 : "9px 13px", boxShadow: "0 1px 1.5px rgba(0,0,0,.35)" }}>
+                        {u.image_url && (
+                          vid
+                            ? <div style={{ width: "100%", minWidth: 190, aspectRatio: "16/10", borderRadius: 9, background: "#0a0710", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, color: "#cbb6ff" }}><span style={{ fontSize: 27 }}>▶</span><span style={{ fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, opacity: .8 }}>וידאו · הקש לצפייה</span></div>
+                            : <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ display: "block", width: "100%", minWidth: 190, maxWidth: 300, borderRadius: 9, background: "#0a0710" }} />
+                        )}
+                        {showTxt && <p style={{ margin: u.image_url ? "8px 5px 2px" : 0, fontFamily: F.body, fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{u.text}</p>}
+                        <div style={{ textAlign: "end", marginTop: 3, fontFamily: F.heading, fontSize: 10, color: "#8fb3a8", paddingInline: 4 }}>🕒 {timeAgoHe(u.created_at)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        ) : (
+          /* ⚠️2: כתב-ללא-וואטסאפ → CTA להתחבר לקבוצת «תורת הרמז», לכתוב, והכתב מחליט אם מוצג */
+          <div style={{ background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderInlineStart: `3px solid #25d366`, borderRadius: 14, padding: "14px 16px" }}>
+            <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, marginBottom: 10 }}>
+              הכתב עדיין לא מחובר לוואטסאפ. אפשר להצטרף לקבוצת «תורת הרמז», לכתוב שם — ומה שתבחר להציג יופיע כאן.
+            </div>
+            <a href={WA_GROUP_URL} target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#25d366", color: "#04321f", textDecoration: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, minHeight: 44 }}>
+              💬 התחבר לקבוצת תורת הרמז ←
+            </a>
+          </div>
+        )}
+      </WriterSlot>
+      {waLb && <UpdateModal u={waLb} brand={BRANDS[waLb.channel] || BRANDS["reality-code"]} onClose={() => setWaLb(null)} />}
+
+      {/* ═══ סלוט 7 · 📅 ציר פעילות ואירועים ═══ (אירועים-אצורים + אבני-דרך אוטומטיות — ציר אחד) */}
+      <WriterSlot P={P} emoji="📅" title="ציר פעילות ואירועים" empty={timelineEmpty} emptyText="אין עדיין אירועים בציר.">
+        {axisEvents.length > 0 && (() => {
+          const evs = [...axisEvents].sort((a, b) => (Number(b.metadata?.year) || 0) - (Number(a.metadata?.year) || 0) || (b.weight || 0) - (a.weight || 0));
+          const postsByYear = (() => {
+            const m = new Map();
+            for (const p of posts) { const y = (p.date && String(p.date).slice(0, 4)) || "—"; if (!m.has(y)) m.set(y, []); m.get(y).push(p); }
+            return [...m.entries()].sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+          })();
+          const theme = evs[0]?.axis_theme;
+          return (
+            <div style={{ marginBottom: 18 }}>
+              {theme && <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 12 }}>התכנסות תאריכים ורמזים — {theme}</div>}
+              <div style={{ position: "relative", marginInlineStart: 10, paddingInlineStart: 22, borderInlineStart: `2px solid ${P.accent}55`, display: "grid", gap: 12 }}>
+                {evs.map(ev => (
+                  <div key={ev.id} style={{ position: "relative", background: P.card, border: `1px solid ${(ev.weight || 0) >= 4 ? P.accent : P.border}`, borderRadius: 14, padding: "13px 16px" }}>
+                    <div style={{ position: "absolute", top: 18, insetInlineStart: -29, width: 12, height: 12, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%, #fff8e1, ${P.accentText} 60%)`, boxShadow: `0 0 10px ${P.accent}` }} />
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 5 }}>
+                      {ev.hebrew_date && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>🕯 {ev.hebrew_date}</span>}
+                      {ev.metadata?.greg_date && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· {ev.metadata.greg_date}</span>}
+                      {(ev.weight || 0) >= 5 && <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800 }}>★ מרכזי</span>}
+                    </div>
+                    <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, lineHeight: 1.5 }}>{ev.label}</div>
+                    {ev.description && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65, marginTop: 5 }}>{ev.description}</div>}
+                    {(ev.metadata?.gematria || (ev.metadata?.numbers || []).length) ? (
+                      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
+                        {ev.metadata?.gematria && <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800, background: P.glow, border: `1px solid ${P.border}`, borderRadius: 999, padding: "2px 11px" }}>🔢 {ev.metadata.gematria}</span>}
+                        {(ev.metadata?.numbers || []).map(n => <a key={n} href={`/number/${n}`} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12, color: P.accentText, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px", textDecoration: "none" }}>{n}</a>)}
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
-            </details>
-          ))}
-        </div>
-      )}
+              {postsByYear.length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 8 }}>📝 המחקרים שלו לאורך השנים</div>
+                  <div style={{ display: "grid", gap: 10 }}>
+                    {postsByYear.map(([y, ps]) => (
+                      <div key={y} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                        <span style={{ flex: "0 0 auto", minWidth: 44, color: P.accentText, fontFamily: F.mono, fontSize: 14, fontWeight: 900 }}>{y}</span>
+                        <div style={{ display: "grid", gap: 5, minWidth: 0 }}>
+                          {ps.map(p => (
+                            <a key={p.slug} href={`/${p.slug}`} style={{ color: P.ink, fontFamily: F.body, fontSize: 13, lineHeight: 1.5, textDecoration: "none", borderBottom: `1px dotted ${P.border}` }}>{p.participated ? "🤝 " : ""}{stripHtml(p.title)}</a>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={{ textAlign: "center", marginTop: 16 }}>
+                <a href="/timeline" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 20px", minHeight: 44 }}>
+                  🌅 הכל בציר ההתגלות של האתר ←
+                </a>
+              </div>
+            </div>
+          );
+        })()}
+        <ResearchJournal P={P} name={c.display_name} level={level} matrices={matrices} joinedAt={joinedAt} />
+      </WriterSlot>
 
-      {hasMedia && (
-        <div style={{ marginTop: 22, textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>
-          הכרטיסים בעמוד זה = חומר-מחקר בסטייג׳ (research_gold_hints_law) · גימטריה מאומתת מסומנת ✓
-        </div>
-      )}
+      {/* ═══ סלוט 8 · ⭐ מובחרים ═══ (הפניות + הזהב שנקבע) */}
+      <WriterSlot P={P} emoji="⭐" title="מובחרים" empty={featuredEmpty} emptyText="אין מובחרים כרגע.">
+        {topGold.length > 0 && (
+          <div style={{ marginBottom: galleryUpdates.length ? 20 : 0 }}>
+            <div style={{ columns: "2 300px", columnGap: 12 }}>
+              {topGold.map((e, i) => (
+                <div key={e.f || i} style={{ position: "relative", breakInside: "avoid" }}>
+                  <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: P.accentBtn, color: P.onAccent, borderRadius: 999, fontFamily: F.mono, fontSize: 12, fontWeight: 900, padding: "3px 9px", boxShadow: `0 2px 10px ${P.glow}` }}>#{e.top_rank}</span>
+                  <Card e={{ ...e, title: e.top_caption || e.title }} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
+                    onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {c.feature_media && galleryUpdates.length > 0 && (
+          <div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 12 }}>
+              {galleryUpdates.map(u => {
+                const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+                return (
+                  <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה" style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                    <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block", background: "#0a0710" }} />
+                    {showTxt && <div style={{ padding: "10px 12px", color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, whiteSpace: "pre-wrap", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </WriterSlot>
 
-      {/* 💬 תגובות על החוקר/הכתב — מבנה-התגובות הקנוני (Discourse). «להגיב על משתמש». */}
-      <div style={{ marginTop: 36 }}>
+      {/* ═══ סלוט 9 · 💬 דיונים ופורום ═══ (שרשורי-הכתב + תגובות; Discourse תמיד נוכח) */}
+      <WriterSlot P={P} emoji="💬" title="דיונים ופורום" empty={false}>
+        {forumMsgs.length > 0 && (
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginBottom: 10 }}>ההודעות האחרונות בפורום — לחיצה פותחת את ההודעה והתגובות</div>
+            <div style={{ display: "grid", gap: 9 }}>
+              {forumMsgs.map(it => {
+                const im = intentMeta(it.intent);
+                const txt = stripHtml(it.title || it.body || "");
+                const isWordplay = it.intent === "interpretation" && !it.target_id;
+                const firstWord = isWordplay ? ((txt.match(/[֐-׿]{2,}/) || [""])[0]) : "";
+                return (
+                  <div key={it.id}>
+                    <a href={`/forum/${it.id}`} style={{ display: "block", background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 14px", textDecoration: "none" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>{im.emoji} {im.label}</span>
+                        {it.target_id && <span style={{ color: P.accent, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>{it.target_type === "number" ? "🔢" : it.target_type === "els" ? "🔠" : "🔖"} {it.target_id}</span>}
+                        <span style={{ flex: 1 }} />
+                        <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>{timeAgoHe(it.created_at)}</span>
+                      </div>
+                      <div style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{txt}</div>
+                    </a>
+                    {firstWord.length >= 2 && (
+                      <a href={`/research?tool=maftech&q=${encodeURIComponent(firstWord)}`}
+                        style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, marginInlineStart: 4, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none" }}>
+                        🔠 נתח את «{firstWord}» בכלי משחקי-האותיות ←
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <Discourse target={{ type: "contributor", id: slug }} origin="profile" archive={[]} />
-      </div>
+      </WriterSlot>
+
+      {/* ═══ סלוט 10 · 📁 תיק החוקר ═══ (מטא-מחקר · השפעה · בקרת-בעלים · נתונים-אישיים אדמין) */}
+      <WriterSlot P={P} emoji="📁" title="תיק החוקר" empty={dossierEmpty} emptyText="התיק עדיין ריק.">
+        {effIsOwner && <OwnerControls P={P} visibility={settings.visibility} onSave={v => saveSettings({ visibility: v })} />}
+        <PersonalDataCard P={P} slug={c.slug} isAdmin={effIsAdmin} />
+        <ResearcherStatsCard P={P} c={c} name={c.display_name} level={level} />
+        <ImpactBar P={P} level={level} matrices={matrices} />
+      </WriterSlot>
     </div>
     </div>
     </PaletteProvider>
