@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase.js";
 import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import { track } from "../lib/tracking.js";
 import StoryViewer from "./StoryViewer.jsx";
+import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 
 // 🔴 צ'יפ «סטורי חדש · אור הגאולה» — מצביע קומפקטי שמופיע *רק כשיש סטורי חדש מאז הביקור*
 // (whats_new_law, פר-משתמש). הקשה → StoryViewer. רכיב קנוני יחיד — בית + צ'אט (canonical_ui_components_law).
@@ -66,7 +67,7 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
           <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#000", border: `2px solid ${P.card}` }}>
             {thumb
               ? <img src={thumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              : <span style={{ display: "grid", placeItems: "center", width: "100%", height: "100%", fontSize: 22 }}>🎬</span>}
+              : <img src={OR_GEULA_LOGO} alt="אור הגאולה" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
           </span>
         </span>
         {/* טקסט */}
