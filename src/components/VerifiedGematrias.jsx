@@ -2,27 +2,27 @@ import React, { useState, useEffect } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
+import { getWriterGematrias } from "../lib/contributions.js";
 
-// 🔢 הגימטריות המאומתות של הכתב — מקום אחד, רק מה שאומת ואושר.
-// מאחד שני מקורות (כי חומר-הכתבים יושב בשניהם):
-//   • gematria_words  — source='contribution:<שם>' , is_verified  (קוהורטים שהוזרמו, למשל צבי)
-//   • research_contributions — חידושי-הכתב המאושרים עם ערך-מספר (למשל יניב, שחר, אריאל בן משה)
+// 🔢 הגימטריות המאומתות של הכתב — מקום אחד, רק מה שאומת ואושר. מאחד שני מקורות:
+//   • gematria_words  — source='contribution:<שם>' , is_verified  (קוהורטים שהוזרמו, למשל צבי=227)
+//   • writer_gematria_findings (RPC · SECURITY DEFINER) — חידושי-הכתב הפורסמו עם ערך-מנוע
+//     (יניב/שחר/ציון). ⚠️ חובה RPC ולא שאילתה-ישירה: RLS על research_contributions חושף רק
+//     status='approved' ל-anon, אבל הגימטריות שלהם status='published' → שאילתה-ישירה מחזירה 0.
 // כל ביטוי → דף-המספר הקנוני. עץ אחד: מצביע, לא משכפל. (writers_page_law)
 const stripNikud = (s) => (s || "").replace(/[֑-ׇ]/g, "");
-// חילוץ ערך מספרי מכותרת-חידוש: "אחזה רעננה=396" → 396 ; מסיר את «=מספר» מהביטוי.
-function parseContribGem(it) {
-  const raw = stripNikud(it.title || it.body || "").replace(/\s+/g, " ").trim();
-  let value = null;
-  if (it.target_id && /^\d+$/.test(String(it.target_id))) value = parseInt(it.target_id, 10);
-  const m = raw.match(/=\s*(\d{1,5})\b/);
-  if (value == null && m) value = parseInt(m[1], 10);
-  if (value == null) return null;                    // לא גימטריה (אין ערך) — לא נכנס
-  const phrase = raw.replace(/\s*=\s*\d[\d\s.,!]*$/, "").replace(/\s*=\s*\d+.*$/, "").trim();
-  if (!phrase || phrase.length > 60) return null;
+// חילוץ {ביטוי,ערך} מממצא-כתב: claim="צירוף מקרים=776" / value=776 → {phrase:"צירוף מקרים", value:776}
+function parseFinding(r) {
+  const value = Number(r.value);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  let phrase = stripNikud(String(r.claim || "")).split("\n")[0]
+    .replace(/\s*=\s*\d[\d\s.,!?]*$/, "").replace(/\s*=\s*\d+.*$/, "")   // הסרת «=מספר…»
+    .replace(/[!?.·\-\s]+$/, "").replace(/^[(（[\s]+|[)）\]\s]+$/g, "").trim();  // סימני-קצה/סוגריים
+  if (!phrase || phrase.length > 60 || !/[א-ת]/.test(phrase)) return null;
   return { phrase, value };
 }
 
-export default function VerifiedGematrias({ name, acc }) {
+export default function VerifiedGematrias({ name, acc, uid }) {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const A = acc || P.accent;
@@ -31,26 +31,24 @@ export default function VerifiedGematrias({ name, acc }) {
     if (!name) return;
     let alive = true;
     (async () => {
-      const [bank, contribs] = await Promise.all([
+      const [bank, findings] = await Promise.all([
         supabase.from("gematria_words").select("phrase,ragil")
           .eq("source", `contribution:${name}`).eq("is_verified", true).not("ragil", "is", null).limit(400),
-        supabase.from("research_contributions").select("title,body,target_id,intent")
-          .eq("author_name", name).in("status", ["approved", "published"])
-          .in("intent", ["gematria", "מקור", "חידוש", "תצפית"]).limit(400),
+        getWriterGematrias(name, uid || null),   // RPC — עוקף RLS, כולל published
       ]);
       const map = new Map();
       for (const r of (bank.data || [])) {
         if (r.phrase && r.ragil != null) map.set(`${r.phrase}|${r.ragil}`, { phrase: r.phrase, value: r.ragil });
       }
-      for (const it of (contribs.data || [])) {
-        const g = parseContribGem(it);
+      for (const r of (Array.isArray(findings) ? findings : [])) {
+        const g = parseFinding(r);
         if (g) map.set(`${g.phrase}|${g.value}`, g);
       }
       const list = [...map.values()].sort((a, b) => a.value - b.value);
       if (alive) setRows(list);
     })();
     return () => { alive = false; };
-  }, [name]);
+  }, [name, uid]);
 
   if (rows === null) return null;   // טעינה — לא מהבהב
 
