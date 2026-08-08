@@ -487,7 +487,8 @@ export default function ContributorPage() {
   const postSlugs = new Set(posts.map(p => p.slug));
   const taggedFeatured = tagged.filter(p => !postSlugs.has(p.slug));
   const galleryUpdates = waUpdates.filter(u => u.image_url);
-  const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0;
+  // 🔬 ריק רק כשאין באמת שום אות-מחקר — כולל waUpdates (חומר-גלם/ממצאים מקושרים), כדי לא להסתיר תוכן.
+  const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0 && waUpdates.length === 0;
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
   const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
   const voiceEmpty = !effIsOwner && !about && !settings.current_focus;
@@ -709,10 +710,12 @@ export default function ContributorPage() {
         <CurrentFocus P={P} focus={settings.current_focus || ""} isOwner={effIsOwner} onSave={t => saveSettings({ current_focus: t })} />
       </WriterSlot>
 
-      {/* ═══ סלוט 6 · 🟢 WhatsApp ═══ (תמיד נוכח: פיד · empty-state · CTA-הצטרפות) */}
+      {/* ═══ סלוט 6 · 🟢 WhatsApp ═══ (תמיד נוכח: פיד לפי חומר-אמיתי · empty-state · CTA-הצטרפות)
+          מפתח על feedUpdates (חומר בפועל), לא על הדגל on_whatsapp — כי יש כתבים עם חומר-וואטסאפ
+          ו-on_whatsapp=false. יש חומר → פיד ; אין חומר + כתב-וואטסאפ → empty-state ; אחרת → CTA. */}
       <WriterSlot P={P} emoji="🟢" title="WhatsApp" empty={waEmpty} emptyText="אין מידע מהוואטסאפ כרגע.">
-        {c.on_whatsapp ? (
-          feedUpdates.length > 0 && (
+        {feedUpdates.length > 0 ? (
+          (
             <div>
               <button onClick={() => setWaOpen(o => !o)} aria-expanded={waOpen}
                 style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, cursor: "pointer", textAlign: "start",
