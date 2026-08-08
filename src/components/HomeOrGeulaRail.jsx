@@ -4,6 +4,7 @@ import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
+import StoryViewer from "./StoryViewer.jsx";
 
 // 🎬 רצועת «אור הגאולה» לעמוד-הבית — הסרטונים האחרונים שעלו + מתי. מצביע ל-/or-geula.
 // עץ אחד: אותו מקור (channel_updates channel=or-geula) של עמוד-הקטלוג; כאן רק טעימה.
@@ -12,6 +13,7 @@ const isVideo = (u) => !!u && /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i.test(u);
 export default function HomeOrGeulaRail({ limit = 10 }) {
   const P = usePalette();
   const [rows, setRows] = useState(null);
+  const [story, setStory] = useState(-1);   // אינדקס הפריט הפתוח כסטורי (-1 = סגור)
   useEffect(() => {
     let alive = true;
     supabase.from("channel_updates")
@@ -37,7 +39,7 @@ export default function HomeOrGeulaRail({ limit = 10 }) {
           const thumb = r.thumb_url || (vid ? null : galThumb(r, 340));
           const cap = r.text && r.text !== "📷 עדכון" && r.text !== "🎬 עדכון וידאו" ? r.text : "";
           return (
-            <a key={r.id} href="/or-geula" style={{ flex: "0 0 160px", scrollSnapAlign: "start", textDecoration: "none",
+            <button key={r.id} onClick={() => setStory(i)} title="צפו כסטורי" style={{ flex: "0 0 160px", scrollSnapAlign: "start", textDecoration: "none", textAlign: "start", padding: 0, cursor: "pointer",
               background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
               <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", background: "linear-gradient(160deg,#1a1030,#0a0710)", overflow: "hidden" }}>
                 {thumb
@@ -55,10 +57,14 @@ export default function HomeOrGeulaRail({ limit = 10 }) {
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700 }}>🕒 {timeAgoHe(r.created_at)}</div>
                 {cap && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{cap}</div>}
               </div>
-            </a>
+            </button>
           );
         })}
       </div>
+
+      {story >= 0 && rows && rows[story] && (
+        <StoryViewer items={rows} startIndex={story} onClose={() => setStory(-1)} />
+      )}
     </section>
   );
 }

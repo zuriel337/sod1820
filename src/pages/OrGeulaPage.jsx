@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { galThumb } from "../lib/img.js";
+import { shareVideoToStory } from "../lib/share.js";
 import ShareActions from "../components/ShareActions.jsx";
 
 // 🎬 אור הגאולה — קטלוג-מדיה (ריבועים + סרטונים) מערוץ הוואטסאפ «אור הגאולה».
@@ -30,29 +31,15 @@ export default function OrGeulaPage() {
     const n = new URLSearchParams(sp); n.delete("v"); setSp(n, { replace: true });
   };
 
-  // 📲 שיתוף לסטורי — משתף את *קובץ הווידאו* דרך share-sheet של המכשיר (אינסטגרם/וואטסאפ סטטוס),
-  //     ונפילה לשיתוף-קישור/העתקה. סופר כ-share_story.
+  // 📲 שיתוף לסטורי — רכיב-שיתוף קנוני יחיד (lib/share). סופר כ-share_story.
   async function shareToStory(item) {
-    const url = `${SITE_URL}/or-geula?v=${item.id}`;
-    const cap = (item.text && item.text.length < 180 ? item.text.trim() + "\n\n" : "");
-    try {
-      if (isVideo(item.image_url) && typeof navigator !== "undefined" && navigator.canShare) {
-        const blob = await (await fetch(item.image_url)).blob();
-        const file = new File([blob], "sod1820-or-hageula.mp4", { type: blob.type || "video/mp4" });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: "אור הגאולה · סוד 1820", text: "צפו ושתפו 🙏" });
-          try { track("or-geula", String(item.id), "share_story"); } catch { /* noop */ }
-          return;
-        }
-      }
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: "אור הגאולה · סוד 1820", text: cap + "צפו ושתפו 🙏", url });
-        try { track("or-geula", String(item.id), "share_story"); } catch { /* noop */ }
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      alert("הקישור הועתק — הדביקו בסטורי 🙏");
-    } catch { /* המשתמש ביטל / לא נתמך */ }
+    const r = await shareVideoToStory({
+      videoUrl: isVideo(item.image_url) ? item.image_url : null,
+      url: `${SITE_URL}/or-geula?v=${item.id}`,
+      text: (item.text || "").trim().slice(0, 140),
+    });
+    if (r) { try { track("or-geula", String(item.id), "share_story"); } catch { /* noop */ } }
+    else if (r === null) { /* בוטל/נכשל — שקט */ }
   }
 
   useEffect(() => {
