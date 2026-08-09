@@ -140,14 +140,6 @@ function TaxonomyView({ kind }) {
         </div>
       </div>
 
-      {/* 🔔 מנוי-קטגוריה (מנוע-המשפך) — עדכון כשיתפרסם פוסט חדש בקטגוריה. WatchButton קנוני. */}
-      {!isTag && (
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-          <WatchButton topic={`cat:${name}`} source="category" compact
-            label={`עקוב אחרי «${name}»`} explainer="תקבל עדכון כשיתפרסם פוסט חדש בקטגוריה הזו." />
-        </div>
-      )}
-
       {/* 🎬 קטגוריית וידאו — רצועת «אור הגאולה» המתעדכנת (כל הסרטונים + קישור לכל האוסף) */}
       {isVideoCat && <HomeOrGeulaRail />}
 
@@ -179,6 +171,14 @@ function TaxonomyView({ kind }) {
             </div>
           )}
         </>
+      )}
+
+      {/* 🔔 מנוי-קטגוריה — בתחתית (value-first: אחרי הפוסטים, לא בראש). WatchButton קנוני. */}
+      {!isTag && posts.length > 0 && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 34 }}>
+          <WatchButton topic={`cat:${name}`} source="category" compact
+            label={`עקוב אחרי «${name}»`} explainer="תקבל עדכון כשיתפרסם פוסט חדש בקטגוריה הזו." />
+        </div>
       )}
 
       <div style={{ textAlign: "center", marginTop: 40 }}>
