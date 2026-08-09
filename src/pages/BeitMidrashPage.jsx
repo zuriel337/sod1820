@@ -13,6 +13,8 @@ import { on, EVENTS } from "../lib/research/eventBus.js";
 import { entityFromInsight, entityFromPhrase } from "../lib/research/entity.js";
 import QuickActions from "../components/QuickActions.jsx";
 import ResearcherLink from "../components/ResearcherLink.jsx";
+import { useReporter } from "../components/ReporterLink.jsx";
+import ShareActions from "../components/ShareActions.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import { METHODS, DEPTH_METHODS, onlyHeb, GEM } from "../lib/gematria.js";
 import SubscribeGate, { useSubscribed } from "../components/SubscribeGate.jsx";
@@ -51,7 +53,6 @@ const SECTIONS = [
   // 📚 מחקר ותוכן
   { key: "atlas", icon: "🌳", label: "אטלס הממצאים", group: "research" },
   { key: "convergence", icon: "🌐", label: "צירי התכנסות", group: "research" },
-  { key: "writercross", icon: "🔗", label: "התכנסויות הכתבים", group: "research" },
   { key: "searches", icon: "🔎", label: "מה נחקר", group: "research" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true, group: "research" },
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות", group: "research" },
@@ -997,16 +998,36 @@ function ShiurSparks() {
   );
 }
 function ConvergenceSection() {
-  const [cards, setCards] = useState(null);
+  const [thematic, setThematic] = useState(null);
+  const [writers, setWriters] = useState(null);
   const { subscribed } = useSubscribed();
-  const FREE = 4; // פתיחה: לפחות 4 חידושים/צירים גלויים למי שלא מנוי
+  const FREE = 4; // פתיחה: 4 צירים תמטיים גלויים למי שלא מנוי (רצועת-הכתבים למעלה גלויה תמיד)
   useEffect(() => {
     let live = true;
-    getTopicCards({ approvedOnly: true }).then(c => { if (live) setCards(c || []); }).catch(() => setCards([]));
+    (async () => {
+      try {
+        const [all, consRes] = await Promise.all([
+          getTopicCards({ approvedOnly: true }),
+          supabase.from("contributors").select("display_name,specialty_label,accent,emblem"),
+        ]);
+        if (!live) return;
+        const byName = {};
+        (consRes?.data || []).forEach(c => { if (c.display_name) byName[c.display_name] = c; });
+        const groups = {}; const rest = [];
+        (all || []).forEach(c => {
+          if (c.created_by && byName[c.created_by]) (groups[c.created_by] = groups[c.created_by] || []).push(c);
+          else rest.push(c);
+        });
+        const wl = Object.entries(groups)
+          .map(([writer, cs]) => ({ writer, con: byName[writer], cards: cs.sort((a, b) => (b.meter_score || b.quality || 0) - (a.meter_score || a.quality || 0)) }))
+          .sort((a, b) => b.cards.length - a.cards.length);
+        setWriters(wl); setThematic(rest);
+      } catch { if (live) { setWriters([]); setThematic([]); } }
+    })();
     return () => { live = false; };
   }, []);
-  if (cards === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
-  if (!cards.length) return (
+  if (thematic === null || writers === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
+  if (!thematic.length && !writers.length) return (
     <div>
       <ShiurSparks />
     <div style={{ textAlign: "center", padding: "50px 20px", color: L.sub }}>
@@ -1021,25 +1042,107 @@ function ConvergenceSection() {
   return (
     <div>
       <ShiurSparks />
-      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, margin: "0 0 18px", maxWidth: 620 }}>
-        🌿 החקירה ממשיכה — כל ציר הוא <b style={{ color: L.goldDeep }}>גשר</b> שמחבר מספר, אירוע וגלריה, ומוסיף ענף נוסף לעץ הידע. לחיצה פותחת את מרכז ההתכנסות.
+      {/* שכבה 1 — מחכמי הרמז (הכתבים בראש, גלוי תמיד) */}
+      <WriterConvergenceHero writers={writers} />
+      {/* שכבה 2 — צירים תמטיים (מנוע/נושאים), עם שער על הזנב הארוך */}
+      {thematic.length > 0 && (
+        <div>
+          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 800, marginBottom: 6 }}>🌐 צירים תמטיים</div>
+          <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, margin: "0 0 16px", maxWidth: 620 }}>
+            🌿 כל ציר הוא <b style={{ color: L.goldDeep }}>גשר</b> שמחבר מספר, אירוע וגלריה, ומוסיף ענף נוסף לעץ הידע. לחיצה פותחת את מרכז ההתכנסות.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 }}>
+            {(subscribed ? thematic : thematic.slice(0, FREE)).map(c => {
+              const hot = (c.highlight_numbers || []);
+              const tag = topicTag(c);
+              return (
+                <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none" }}>
+                  <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 12, padding: "15px 16px", height: "100%", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                    {tag && <div style={{ display: "inline-block", color: L.goldDeep, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${L.gold}`, background: "#fbf3da", borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+                      <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{c.title}</span>
+                      <ConvergenceStars q={c.quality} />
+                    </div>
+                    {c.subtitle && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>{c.subtitle}</div>}
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {hot.map(n => (
+                        <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 13, padding: "2px 10px", borderRadius: 999, border: `1px solid ${L.gold}`, background: "#fbf3da", color: L.goldDeep }}>{n}</span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          {!subscribed && thematic.length > FREE && (
+            <div style={{ marginTop: 18, textAlign: "center", border: `1px solid ${L.gold}`, borderRadius: 14, padding: "22px 20px", background: "linear-gradient(180deg, #fffdf6, #fbf3da)" }}>
+              <div style={{ fontSize: 26, marginBottom: 6 }}>🔒</div>
+              <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>עוד {thematic.length - FREE} צירים תמטיים ממתינים</div>
+              <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, maxWidth: 420, margin: "0 auto 14px" }}>
+                הצטרפו (חינם) כדי לראות את כל צירי ההתכנסות — אסון מירון, 1820, משיח בן דוד, הציר ההודי ועוד.
+              </p>
+              <SubscribeGate source="beit-midrash-convergence" />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 🔗 מחכמי הרמז — שכבה-1 של «צירי התכנסות»: קירות-ההצלבות של הכתבים (topic_cards created_by=<כתב>),
+// מקובצים ומיוחסים, כתב-הדגל ראשון. עדשה על אותו מקור כמו «קיר ההצלבות» בדף-הכתב — מפנה ל-/topic
+// הקנוני (משטח ה-SEO+OG), לא משכפל. שיתוף הקיר → עמוד-הכתב הקנוני (גם הוא OG). כתב = created_by
+// שתואם contributors.display_name (מנוע/AI/מערכת מסוננים אוטומטית).
+function WriterConvergenceHero({ writers }) {
+  if (!writers || !writers.length) return null;
+  return (
+    <div style={{ marginBottom: 34 }}>
+      <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 21, fontWeight: 800, marginBottom: 6 }}>✦ מחכמי הרמז</div>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+        קירות ההצלבות של החוקרים שלנו — ביטויים ששווים לאותו ערך במנוע. קודם מי גילה. לחיצה על כרטיס פותחת את ההתכנסות; על מספר — את דף המספר.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 16 }}>
-        {(subscribed ? cards : cards.slice(0, FREE)).map(c => {
-          const hot = (c.highlight_numbers || []);
-          const tag = topicTag(c);
+      <div style={{ display: "grid", gap: 22 }}>
+        {writers.map((g, i) => <WriterWall key={g.writer} g={g} flagship={i === 0} />)}
+      </div>
+    </div>
+  );
+}
+
+function WriterWall({ g, flagship }) {
+  const r = useReporter(g.writer);
+  const acc = g.con?.accent || L.gold;
+  const PER = flagship ? 8 : 4;
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
+  const wallUrl = `${origin}/community/researcher/${encodeURIComponent(r?.slug || g.writer)}`;
+  return (
+    <div style={{ background: flagship ? "linear-gradient(180deg,#fffdf6,#fbf7ea 70%)" : "transparent",
+      border: flagship ? `1px solid ${acc}` : "none", borderRadius: flagship ? 16 : 0, padding: flagship ? "16px 16px 18px" : 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 11, borderInlineStart: `3px solid ${acc}`, paddingInlineStart: 10 }}>
+        {flagship && <span style={{ color: L.goldDeep, fontFamily: F.heading, fontSize: 11, fontWeight: 800, background: "#fbf3da", border: `1px solid ${acc}`, borderRadius: 999, padding: "2px 9px" }}>👑 מוביל ההצלבות</span>}
+        <ResearcherLink name={g.writer} style={{ color: L.ink, fontFamily: F.regal, fontSize: flagship ? 22 : 18, fontWeight: 800, textDecoration: "none" }}>
+          {(g.con?.emblem ? `${g.con.emblem} ` : "") + g.writer}
+        </ResearcherLink>
+        <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+          {g.cards.length} התכנסויות{g.con?.specialty_label ? ` · ${g.con.specialty_label}` : ""}
+        </span>
+        <div style={{ marginInlineStart: "auto" }}>
+          <ShareActions type="researcher" url={wallUrl} title={`ההתכנסויות של ${g.writer} · סוד 1820`}
+            channels={["native", "whatsapp", "telegram", "copy"]} compact force />
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${flagship ? 250 : 230}px,1fr))`, gap: 12 }}>
+        {g.cards.slice(0, PER).map(c => {
+          const hot = [...new Set([...(c.highlight_numbers || []), ...(c.numbers || [])])].filter(n => n != null).slice(0, 4);
           return (
             <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none" }}>
-              <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderInlineStart: `3px solid ${L.gold}`, borderRadius: 12, padding: "15px 16px", height: "100%", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-                {tag && <div style={{ display: "inline-block", color: L.goldDeep, fontFamily: F.heading, fontSize: 10.5, fontWeight: 700, border: `1px solid ${L.gold}`, background: "#fbf3da", borderRadius: 999, padding: "2px 8px", marginBottom: 8 }}>{tag.icon} {tag.label}</div>}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-                  <span style={{ color: L.ink, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>{c.title}</span>
-                  <ConvergenceStars q={c.quality} />
-                </div>
-                {c.subtitle && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>{c.subtitle}</div>}
+              <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderTop: `3px solid ${acc}`, borderRadius: 12, padding: "13px 15px", height: "100%", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, lineHeight: 1.4, marginBottom: 6 }}>{c.title}</div>
+                {c.subtitle && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12, lineHeight: 1.55, marginBottom: 8 }}>{c.subtitle}</div>}
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {hot.map(n => (
-                    <span key={n} style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 13, padding: "2px 10px", borderRadius: 999, border: `1px solid ${L.gold}`, background: "#fbf3da", color: L.goldDeep }}>{n}</span>
+                    <a key={n} href={`/number/${n}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/number/${n}`; }}
+                      style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, padding: "2px 10px", borderRadius: 999, border: `1px solid ${acc}`, background: "#fbf3da", color: L.goldDeep, textDecoration: "none" }}>{n}</a>
                   ))}
                 </div>
               </div>
@@ -1047,102 +1150,13 @@ function ConvergenceSection() {
           );
         })}
       </div>
-      {!subscribed && cards.length > FREE && (
-        <div style={{ marginTop: 18, textAlign: "center", border: `1px solid ${L.gold}`, borderRadius: 14, padding: "22px 20px", background: "linear-gradient(180deg, #fffdf6, #fbf3da)" }}>
-          <div style={{ fontSize: 26, marginBottom: 6 }}>🔒</div>
-          <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 6 }}>עוד {cards.length - FREE} צירי התכנסות ממתינים</div>
-          <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14, lineHeight: 1.8, maxWidth: 420, margin: "0 auto 14px" }}>
-            הצטרפו (חינם) כדי לראות את כל צירי ההתכנסות — אסון מירון, 1820, משיח בן דוד, הציר ההודי ועוד.
-          </p>
-          <SubscribeGate source="beit-midrash-convergence" />
+      {g.cards.length > PER && (
+        <div style={{ marginTop: 9 }}>
+          <ResearcherLink name={g.writer} style={{ color: L.blue, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>
+            כל {g.cards.length} ההתכנסויות של {g.writer} בדף הכתב ←
+          </ResearcherLink>
         </div>
       )}
-    </div>
-  );
-}
-
-// 🔗 התכנסויות הכתבים — קירות-ההצלבות של הכתבים (topic_cards created_by=<כתב>), מקובצים ומיוחסים.
-// עדשה על אותו מקור כמו «קיר ההצלבות» בדף-הכתב; כאן בבית-המדרש, מרוכז לכל הכתבים ומיוחס. מפנה, לא משכפל.
-// כתב = created_by שתואם contributors.display_name (מנוע/AI/מערכת מסוננים אוטומטית). מקסימום לכל כתב → דף-הכתב.
-function WriterConvergencesTab() {
-  const [data, setData] = useState(null);
-  const PER = 6;
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try {
-        const [cards, consRes] = await Promise.all([
-          getTopicCards({ approvedOnly: true }),
-          supabase.from("contributors").select("display_name,specialty_label,accent,emblem"),
-        ]);
-        if (!live) return;
-        const byName = {};
-        (consRes?.data || []).forEach(c => { if (c.display_name) byName[c.display_name] = c; });
-        const groups = {};
-        (cards || []).forEach(c => {
-          const w = c.created_by;
-          if (!w || !byName[w]) return;                 // רק כתבים אמיתיים (לא «מנוע · …»/ai/system)
-          (groups[w] = groups[w] || []).push(c);
-        });
-        const list = Object.entries(groups)
-          .map(([writer, cs]) => ({
-            writer, con: byName[writer],
-            cards: cs.sort((a, b) => (b.meter_score || b.quality || 0) - (a.meter_score || a.quality || 0)),
-          }))
-          .sort((a, b) => b.cards.length - a.cards.length);
-        setData(list);
-      } catch { if (live) setData([]); }
-    })();
-    return () => { live = false; };
-  }, []);
-  if (data === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
-  if (!data.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין התכנסויות של כתבים.</div>;
-  return (
-    <div style={{ display: "grid", gap: 26 }}>
-      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, margin: 0, maxWidth: 640 }}>
-        🔗 קירות ההצלבות של חכמי-הרמז שלנו — ביטויים ששווים לאותו ערך במנוע. כל כתב וההתכנסויות שיצר. לחיצה על כרטיס פותחת את ההתכנסות; על מספר — את דף המספר.
-      </p>
-      {data.map(g => {
-        const acc = g.con?.accent || L.gold;
-        return (
-          <div key={g.writer}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 10, borderInlineStart: `3px solid ${acc}`, paddingInlineStart: 10 }}>
-              <ResearcherLink name={g.writer} style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textDecoration: "none" }}>
-                {(g.con?.emblem ? `${g.con.emblem} ` : "") + g.writer}
-              </ResearcherLink>
-              <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
-                {g.cards.length} התכנסויות{g.con?.specialty_label ? ` · ${g.con.specialty_label}` : ""}
-              </span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px,1fr))", gap: 12 }}>
-              {g.cards.slice(0, PER).map(c => {
-                const hot = [...new Set([...(c.highlight_numbers || []), ...(c.numbers || [])])].filter(n => n != null).slice(0, 4);
-                return (
-                  <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none" }}>
-                    <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderTop: `3px solid ${acc}`, borderRadius: 12, padding: "13px 15px", height: "100%", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-                      <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, lineHeight: 1.4, marginBottom: 6 }}>{c.title}</div>
-                      {c.subtitle && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12, lineHeight: 1.55, marginBottom: 8 }}>{c.subtitle}</div>}
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {hot.map(n => (
-                          <a key={n} href={`/number/${n}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/number/${n}`; }}
-                            style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, padding: "2px 10px", borderRadius: 999, border: `1px solid ${acc}`, background: "#fbf3da", color: L.goldDeep, textDecoration: "none" }}>{n}</a>
-                        ))}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-            {g.cards.length > PER && (
-              <div style={{ marginTop: 8 }}>
-                <ResearcherLink name={g.writer} style={{ color: L.blue, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>
-                  כל {g.cards.length} ההתכנסויות של {g.writer} בדף הכתב ←
-                </ResearcherLink>
-              </div>
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -1360,7 +1374,6 @@ export default function BeitMidrashPage() {
             {tab === "methods" && <MethodsTab />}
             {tab === "atlas" && <AtlasFindings />}
             {tab === "convergence" && <ConvergenceSection />}
-            {tab === "writercross" && <WriterConvergencesTab />}
             {tab === "verified" && <VerifiedTab />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
             {tab === "community" && <CommunityTab highlightId={insightParam} />}
