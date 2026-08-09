@@ -1410,13 +1410,6 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
-          {/* 🔔 מנוי-מספר (מנוע-המשפך) — גלוי בשני המצבים (קריאה+מחקר), ליד האות הקהילתי. WatchButton קנוני. */}
-          {value != null && (
-            <div style={{ display: "flex", justifyContent: "center", margin: "10px 0 2px" }}>
-              <WatchButton topic={`number:${value}`} source="entity_page" compact
-                label={`עקוב אחרי ${value}`} explainer="תקבל עדכון כשמתווסף חומר חדש על המספר הזה." />
-            </div>
-          )}
           {/* 🤖 ה-AI במצב מחקר — אותו אקורדיון סגור כמו במצב קריאה (בקשת צוריאל: תמיד מקופל, לא פתוח/גבוה) */}
           {showBody && aiFold}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
@@ -1666,6 +1659,12 @@ export default function EntityPage({ embedPhrase } = {}) {
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>כל המילים · תמונות · פוסטים · DNA · משפחות · הצלבות · כלים</div>
                   </div>
                 </Reveal>
+                {/* 🔔 אזור-מעקב קנוני (מובחן משיתוף, Value-First: אחרי התוכן/המחקר, לא בראש) */}
+                {isNumber && value != null && (
+                  <WatchButton topic={`number:${value}`} source="entity_page" gate
+                    heading={`רוצה לדעת כשמתווסף חומר על ${value}?`}
+                    label={`עקוב אחרי ${value}`} explainer="נעדכן אותך כשמתווסף מחקר / רמז / חומר חדש על המספר הזה." />
+                )}
               </div>
             )}
           </>

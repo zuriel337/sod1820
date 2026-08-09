@@ -140,12 +140,11 @@ function TaxonomyView({ kind }) {
         </div>
       </div>
 
-      {/* 🔔 מנוי-קטגוריה (מנוע-המשפך) — עדכון כשיתפרסם פוסט חדש בקטגוריה. WatchButton קנוני. */}
-      {!isTag && (
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-          <WatchButton topic={`cat:${name}`} source="category" compact
-            label={`עקוב אחרי «${name}»`} explainer="תקבל עדכון כשיתפרסם פוסט חדש בקטגוריה הזו." />
-        </div>
+      {/* 🔔 אזור-מעקב קנוני — קטגוריה: בראש (כשנכנסים לקטגוריה מציעים לעקוב מיד), מובחן משיתוף. */}
+      {!isTag && total > 0 && (
+        <WatchButton topic={`cat:${name}`} source="category" gate
+          heading={`רוצה לדעת כשמתפרסם פוסט חדש ב«${name}»?`}
+          label={`עקוב אחרי «${name}»`} explainer="נעדכן אותך על כל פוסט חדש בקטגוריה הזו." />
       )}
 
       {/* 🎬 קטגוריית וידאו — רצועת «אור הגאולה» המתעדכנת (כל הסרטונים + קישור לכל האוסף) */}

@@ -11,6 +11,7 @@ import { filterHints, hintNums, domNum, shortDate, effDate } from "../lib/realit
 import { cleanName } from "../lib/galleryName.js";
 import RiverStream from "./RiverStream.jsx";
 import NumberBubbles from "./NumberBubbles.jsx";
+import WatchButton from "./WatchButton.jsx";
 import { computeBubbles } from "../lib/bubbles.js";
 import Lightbox from "./Lightbox.jsx";
 
@@ -158,6 +159,14 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
       {!hideHeader && (<>
         <h2 className="hn-h2">🌊 זרם המציאות</h2>
         <p className="hn-sub">גלריה חיה ומתכווננת — המספרים שמתעוררים במציאות. בחרו גלריית-רמזים או סננו לפי מספר.</p>
+        {/* 🔔 מעקב אחרי הזרם — נעדכן כשעולה תמונה/רמז חדש (subscription_funnel_law · topic=stream:reality) */}
+        {!compact && (
+          <div style={{ marginBottom: 16 }}>
+            <WatchButton topic="stream:reality" source="reality_stream" compact
+              label="עקוב אחרי הזרם"
+              explainer="נעדכן אותך כשעולה תמונה/רמז חדש בזרם המציאות." />
+          </div>
+        )}
       </>)}
 
       {/* 🫧 בועות המספרים החיים — כל בועה מפנה לכל התמונות של אותו מספר בארכיון (עץ אחד) */}
