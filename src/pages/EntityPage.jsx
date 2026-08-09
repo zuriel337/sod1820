@@ -1410,8 +1410,8 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
-          {/* 🔔 מנוי-מספר (מנוע-המשפך) — עדכון כשמתווסף חומר על המספר. WatchButton קנוני. */}
-          {showBody && value != null && (
+          {/* 🔔 מנוי-מספר (מנוע-המשפך) — גלוי בשני המצבים (קריאה+מחקר), ליד האות הקהילתי. WatchButton קנוני. */}
+          {value != null && (
             <div style={{ display: "flex", justifyContent: "center", margin: "10px 0 2px" }}>
               <WatchButton topic={`number:${value}`} source="entity_page" compact
                 label={`עקוב אחרי ${value}`} explainer="תקבל עדכון כשמתווסף חומר חדש על המספר הזה." />
