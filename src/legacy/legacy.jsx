@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } fro
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
+import OrGeulaStoryColumn from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4287,42 +4288,65 @@ function SpotimChatPage() {
   }, []);
 
   return (
-    <div style={{ direction: "rtl", maxWidth: 900, margin: "0 auto", padding: "52px 16px 96px" }}>
+    <div className="sod-chat-page" style={{ direction: "rtl", margin: "0 auto", padding: "52px 16px 96px" }}>
       {/* מסתירים את סרגל המערכת בדף הצ'אט — את מקומו תופס הרכבל המשולב (ChatScrollRail).
-          פריסת-הצ'אט (טור אחד): הצ'אט למעלה + ריבוע-הפורום למטה — גם בדסקטופ וגם במובייל. */}
+          פריסת-הצ'אט (טור אחד): הצ'אט למעלה + ריבוע-הפורום למטה — גם בדסקטופ וגם במובייל.
+          דסקטופ (≥1000px): עמודת «אור הגאולה» — כל הסרטונים מלמעלה-למטה — נוספת בצד שמאל (בקשת צוריאל).
+          מובייל: העמודה מוסתרת, נשאר הצ'יפ הקומפקטי (כדי לא לעמוס). */}
       <style>{`
         html.sod-chat-scroll { scrollbar-width: none; }
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
+        .sod-chat-page { max-width: 900px; }
         .sod-chat-layout { display: flex; flex-direction: column; gap: 30px; }
         .sod-chat-aside, .sod-chat-main { width: 100%; }
-        @media (max-width: 900px) { .sod-chat-layout { gap: 20px; } }
+        /* עמודת-הסרטונים ומצביע-החדש — נראים לסירוגין לפי רוחב: */
+        .sod-chat-videos { display: none; }        /* מובייל: מוסתרת (הצ'יפ תופס את מקומה) */
+        .sod-chat-grid { display: block; }
+        @media (max-width: 999px) { .sod-chat-layout { gap: 20px; } }
+        @media (min-width: 1000px) {
+          .sod-chat-page { max-width: 1240px; }
+          .sod-chat-chip-mobile { display: none; }  /* בדסקטופ העמודה מחליפה את הצ'יפ */
+          .sod-chat-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 30px; align-items: start; }
+          .sod-chat-videos { display: block; position: sticky; top: 78px; max-height: calc(100vh - 96px); overflow-y: auto;
+            padding-inline-start: 4px; scrollbar-width: thin; }
+        }
       `}</style>
       <ChatScrollRail />
-      {/* 🔴 סטורי חדש · אור הגאולה — מצביע שמופיע רק כשעלה סטורי חדש מאז הביקור */}
-      <OrGeulaStoryChip />
+      {/* 🔴 סטורי חדש · אור הגאולה — מצביע קומפקטי; במובייל בלבד (בדסקטופ העמודה מחליפה אותו) */}
+      <div className="sod-chat-chip-mobile"><OrGeulaStoryChip /></div>
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
 
-      <div className="sod-chat-layout">
-        <div className="sod-chat-main">
-          <div style={{ textAlign: "center", marginBottom: 40 }}>
-            <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
-              דף צ'אט
-            </h1>
-            <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
-          </div>
+      <div className="sod-chat-grid">
+        {/* עמודה ראשית — צ'אט + פורום (מימין ב-RTL) */}
+        <div>
+          <div className="sod-chat-layout">
+            <div className="sod-chat-main">
+              <div style={{ textAlign: "center", marginBottom: 40 }}>
+                <h1 style={{ color: P.accentText, fontFamily: F.royal, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, margin: "0 0 10px" }}>
+                  דף צ'אט
+                </h1>
+                <RoyalDivider width={120} style={{ margin: "18px auto 0" }} />
+              </div>
 
-          {/* הצ'אט הקהילתי (Spot.IM) — «מחקר קהילתי» הוסר מכאן לבקשת צוריאל (17.7.2026). */}
-          <div
-            data-spotim-module="conversation"
-            data-post-id="POST_ID_GOES_HERE"
-            data-post-url="https://sod1820.co.il/community/chat"
-            style={{ minHeight: 400 }}
-          />
+              {/* הצ'אט הקהילתי (Spot.IM) — «מחקר קהילתי» הוסר מכאן לבקשת צוריאל (17.7.2026). */}
+              <div
+                data-spotim-module="conversation"
+                data-post-id="POST_ID_GOES_HERE"
+                data-post-url="https://sod1820.co.il/community/chat"
+                style={{ minHeight: 400 }}
+              />
+            </div>
+
+            {/* 📋 עדכונים אחרונים מהפורום — למטה בדסקטופ / למעלה במובייל */}
+            <aside className="sod-chat-aside">
+              <ForumUpdatesBox limit={7} />
+            </aside>
+          </div>
         </div>
 
-        {/* 📋 עדכונים אחרונים מהפורום — למטה בדסקטופ / למעלה במובייל */}
-        <aside className="sod-chat-aside">
-          <ForumUpdatesBox limit={7} />
+        {/* 🎬 עמודת «אור הגאולה» — כל הסרטונים מלמעלה-למטה (דסקטופ בלבד, בצד שמאל) */}
+        <aside className="sod-chat-videos">
+          <OrGeulaStoryColumn limit={30} />
         </aside>
       </div>
 
