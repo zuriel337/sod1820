@@ -1410,18 +1410,16 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
-          {/* 🔔 מנוי-מספר (מנוע-המשפך) — גלוי בשני המצבים (קריאה+מחקר), ליד האות הקהילתי. WatchButton קנוני. */}
-          {value != null && (
-            <div style={{ display: "flex", justifyContent: "center", margin: "10px 0 2px" }}>
-              <WatchButton topic={`number:${value}`} source="entity_page" compact
-                label={`עקוב אחרי ${value}`} explainer="תקבל עדכון כשמתווסף חומר חדש על המספר הזה." />
-            </div>
-          )}
           {/* 🤖 ה-AI במצב מחקר — אותו אקורדיון סגור כמו במצב קריאה (בקשת צוריאל: תמיד מקופל, לא פתוח/גבוה) */}
           {showBody && aiFold}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
           <CollectiveBadge type={isNumber ? "number" : "phrase"} refv={isNumber ? value : term}
             label={isNumber ? "את המספר הזה" : "את הביטוי הזה"} />
+          {/* 🔔 מנוי-מספר (מנוע-המשפך) — בלוק נפרד ומובחן (שער קנוני), לא בתוך פס-הפעולות/שיתופים. */}
+          {isNumber && value != null && (
+            <WatchButton topic={`number:${value}`} source="entity_page" gate
+              label={`עקוב אחרי ${value}`} explainer={`תקבל עדכון כשמתווסף חומר חדש על ${value}.`} />
+          )}
         </div>
 
         {/* מתג המצב עבר לשורה העליונה (ליד המחשבון) — «מצב מחקר / מצב רגיל». */}
