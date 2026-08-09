@@ -9,6 +9,7 @@ import { track } from "../lib/tracking.js";
 import { galThumb } from "../lib/img.js";
 import { shareVideoToStory } from "../lib/share.js";
 import ShareActions from "../components/ShareActions.jsx";
+import { OR_GEULA_LOGO } from "../components/BrandTicker.jsx";
 
 // 🎬 אור הגאולה — קטלוג-מדיה (ריבועים + סרטונים) מערוץ הוואטסאפ «אור הגאולה».
 // ⚠️ זה לא גימטריה — אוסף מדיה אהוב. עדשה על channel_updates where channel='or-geula'.
@@ -78,7 +79,8 @@ export default function OrGeulaPage() {
       <div style={inner}>
         {/* הירו */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 34 }}>🌅</div>
+          <img src={OR_GEULA_LOGO} alt="אור הגאולה" width="76" height="76"
+            style={{ width: 76, height: 76, borderRadius: "50%", objectFit: "cover", display: "inline-block", boxShadow: "0 4px 18px rgba(0,0,0,.35)" }} />
           <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(28px,5.5vw,44px)", fontWeight: 800, margin: "8px 0 0" }}>אור הגאולה</h1>
           <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.7, maxWidth: 540, margin: "10px auto 0" }}>
             אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה — תיעוד חי שמתעדכן.
@@ -105,7 +107,7 @@ export default function OrGeulaPage() {
                   <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", background: "linear-gradient(160deg,#1a1030,#0a0710)", overflow: "hidden" }}>
                     {thumb
                       ? <img src={thumb} alt={showTxt ? r.text.slice(0, 60) : "אור הגאולה"} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      : <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#6b5aa0", fontSize: 40 }}>🎬</div>}
+                      : <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}><img src={OR_GEULA_LOGO} alt="אור הגאולה" loading="lazy" style={{ width: "52%", height: "52%", objectFit: "contain", opacity: .92 }} /></div>}
                     {vid && (
                       <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "rgba(0,0,0,.28)" }}>
                         <div style={{ width: 54, height: 54, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 4px 16px rgba(0,0,0,.4)" }}>

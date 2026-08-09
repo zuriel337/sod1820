@@ -5,6 +5,7 @@ import { SITE_URL } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { shareVideoToStory } from "../lib/share.js";
 import ShareActions from "./ShareActions.jsx";
+import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 
 // 📲 מציג-סטורי מלא-מסך (סגנון אינסטגרם/וואטסאפ) על פריטי-מדיה (channel_updates).
 // פסי-התקדמות למעלה · הקשה שמאל=הקודם / ימין=הבא / מרכז=השהה · התקדמות-אוטומטית · שיתוף-לסטורי.
@@ -92,7 +93,10 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
 
         {/* שורה עליונה — מיתוג + השתקה + סגירה */}
         <div style={{ position: "absolute", top: 18, insetInline: 0, zIndex: 5, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px" }}>
-          <span style={{ color: "#fff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>🌅 אור הגאולה</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "#fff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>
+            <img src={OR_GEULA_LOGO} alt="" width="24" height="24" style={{ width: 24, height: 24, borderRadius: "50%", objectFit: "cover", border: "1.5px solid rgba(255,255,255,.85)" }} />
+            אור הגאולה
+          </span>
           <div style={{ display: "flex", gap: 6 }}>
             {vid && <button onClick={() => setMuted(m => !m)} aria-label="השתקה" style={iconBtn}>{muted ? "🔇" : "🔊"}</button>}
             <button onClick={() => onClose && onClose()} aria-label="סגירה" style={iconBtn}>✕</button>
