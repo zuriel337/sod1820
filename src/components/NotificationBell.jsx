@@ -5,6 +5,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { useThemeMode } from "../lib/themeMode.js";
 import { chromeColors } from "../lib/chromeTheme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../lib/notifications.js";
+import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 
 // 🔔 פעמון ההתראות — עדשה על user_notifications (RLS מסננת לשורות המשתמש). מוצג רק למחוברים.
 // לחיצה על התראה → ניווט אל «המיקום» (link) + סימון «נקרא». מקור-אמת אחד עם המודול באזור-האישי.
@@ -24,6 +25,7 @@ export default function NotificationBell() {
   const cc = chromeColors(useThemeMode());
   const nav = useNavigate();
   const { user } = useAuth();
+  const { open: openCenter } = useUserCenter();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState(null);
   const [unread, setUnread] = useState(0);
@@ -56,7 +58,12 @@ export default function NotificationBell() {
   async function pick(n) {
     setOpen(false);
     if (!n.read_at) { await markNotificationRead(n.id); refreshCount(); }
-    if (n.link) nav(n.link);
+    // 🔗 קישור-/me פותח את המגירה למודול+שיחה הנכונים (למשל הודעות + השולח); שאר הקישורים = ניווט.
+    if (n.link && n.link.startsWith("/me")) {
+      const params = new URLSearchParams((n.link.split("?")[1] || ""));
+      const dm = params.get("dm");
+      openCenter(params.get("tab") || null, dm ? { dm } : null);
+    } else if (n.link) { nav(n.link); }
   }
 
   async function readAll() {

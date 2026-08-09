@@ -137,7 +137,7 @@ export default function UserCenter() {
   const { user, profile, isAdmin, signOut } = useAuth();
   const P = usePalette();
   const nav = useNavigate();
-  const { isOpen, active, open, close, setActive } = useUserCenter();
+  const { isOpen, active, activeParam, open, close, setActive } = useUserCenter();
   const dark = P?.mode !== "light";
   const T = dark ? DARK : LIGHT;
   const [center, setCenter] = useState(null); // my_center RPC
@@ -191,7 +191,7 @@ export default function UserCenter() {
 
   if (!user) return null;
   const goto = (link) => { close(); if (link) nav(link); };
-  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, dmUnread, onUnread: setUnread, goto, setActive });
+  const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, dmUnread, onUnread: setUnread, goto, setActive, activeParam });
   const activeMod = MODULES.find(m => m.id === active) || null;
   const initial = (profile?.display_name || profile?.username || user.email || "א").trim().charAt(0).toUpperCase();
   // 🪪 זהות: חוקר (is_researcher) · כותב (is_writer) — משולבים. אדמין גובר. (מקור-אמת: identityOf)
@@ -1111,8 +1111,8 @@ function AdminOnlinePanel({ T }) {
 }
 
 // 📨 ההודעות שלי — שני טאבים: 💬 הודעות פרטיות (DM) · 🗣 תגובות אליי (על התרומות שלי).
-function MessagesHub({ T, goto }) {
-  const [tab, setTab] = useState("dm");
+function MessagesHub({ T, goto, initialDm = null }) {
+  const [tab, setTab] = useState("dm");   // deep-link ל-DM → תמיד טאב ההודעות
   const tabBtn = (active) => ({ flex: 1, padding: "9px", borderRadius: 9, border: `1px solid ${active ? T.acc : T.line}`, background: active ? T.accSoft : T.card, color: active ? T.acc : T.sub, fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" });
   return (
     <div>
@@ -1120,7 +1120,7 @@ function MessagesHub({ T, goto }) {
         <button onClick={() => setTab("dm")} style={tabBtn(tab === "dm")}>💬 הודעות</button>
         <button onClick={() => setTab("replies")} style={tabBtn(tab === "replies")}>🗣 תגובות אליי</button>
       </div>
-      {tab === "dm" ? <InboxPanel T={T} /> : <RepliesPanel T={T} goto={goto} />}
+      {tab === "dm" ? <InboxPanel T={T} initialDm={initialDm} /> : <RepliesPanel T={T} goto={goto} />}
     </div>
   );
 }
@@ -1201,13 +1201,14 @@ function MyContributionsList({ T, goto }) {
 }
 
 // 📨 ההודעות שלי — הודעות פרטיות (DM). רשימת-שיחות → שרשור → תשובה. RPCs: dm_inbox/thread/send.
-function InboxPanel({ T }) {
+function InboxPanel({ T, initialDm = null }) {
   const { user } = useAuth();
   const [list, setList] = useState(null);       // שיחות (dm_inbox)
   const [active, setActive] = useState(null);   // {counterpart, name, avatar} בשיחה פתוחה
   const [msgs, setMsgs] = useState(null);        // שרשור פעיל
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [autoDone, setAutoDone] = useState(false);   // deep-link נפתח פעם אחת בלבד
   const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
 
   const loadList = useCallback(() => { dmInbox().then(setList).catch(() => setList([])); }, []);
@@ -1217,6 +1218,13 @@ function InboxPanel({ T }) {
     const m = await dmThread(conv.counterpart, 80); setMsgs(Array.isArray(m) ? m : []);
     loadList(); // רענון מונה לא-נקראו אחרי שסומן כנקרא
   }, [loadList]);
+  // 🔗 deep-link מהתראת-DM (?dm=<uid>) — פותחים ישר את השיחה עם השולח (פעם אחת, כשהרשימה מוכנה).
+  useEffect(() => {
+    if (!initialDm || autoDone || !Array.isArray(list)) return;
+    setAutoDone(true);
+    const conv = list.find(c => c.counterpart === initialDm) || { counterpart: initialDm, name: "שיחה" };
+    openThread(conv);
+  }, [initialDm, autoDone, list, openThread]);
   async function send() {
     const body = text.trim(); if (!body || !active || busy) return;
     setBusy(true);
@@ -1328,7 +1336,7 @@ function HomeTiles({ T, center, setActive, dark }) {
 // ── ה-registry: 22 מודולים. live = פאנל אמיתי · soon = התוכנית האמיתית ──
 // כל render() הוא פאנל עצמאי (לא תלוי בשלד המגירה) → אפשר לרנדר אותו בעתיד גם
 // במסך-מלא (/me/:module) עם אותו registry, בלי לגעת ב-UserCenter. לכן buildModules מיוצא.
-export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, dmUnread = 0, onUnread, goto, setActive }) {
+export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, dmUnread = 0, onUnread, goto, setActive, activeParam = null }) {
   const c = center || {};
   const isWriter = !!(c.is_writer || c.is_publisher);
   // 👑 «הדף הפומבי שלי» מוצג רק למי שיש לו דף-כתב/תורם (has_dossier) או שהוא כותב/חוקר.
@@ -1337,7 +1345,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים · world = שיוך לאחד מ-5 העולמות ───
     { id: "notifications", world: "me", icon: "🔔", title: "ההתראות שלי", status: "live", badge: unread || undefined,
-      render: () => <div><NotificationsPanel T={T} onUnread={onUnread} goto={goto} /><PushPanel T={T} user={user} isAdmin={isAdmin} /></div> },
+      render: () => <div><NotificationsPanel T={T} onUnread={onUnread} goto={goto} setActive={setActive} /><PushPanel T={T} user={user} isAdmin={isAdmin} /></div> },
     // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). מוצג רק למי שיש לו דף (hasPage).
     { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
     // 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה (כותב update_my_page_config). מוצג רק למי שיש דף.
@@ -1369,7 +1377,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
       </div>
     ) },
     // 📨 הודעות — כניסה אחת עתידית (הודעות-לכתב · DM פרטי · תגובות אליי). placeholder בלבד, לא בנוי.
-    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} /> },
+    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} initialDm={activeParam?.dm} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />
@@ -1501,13 +1509,22 @@ function relTime(ts) {
     return new Date(ts).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
   } catch { return ""; }
 }
-function NotificationsPanel({ T, onUnread, goto }) {
+// 🔗 פתיחת יעד-התראה: קישור-/me פותח מודול-בתוך-המגירה (למשל הודעות + שיחה), שאר הקישורים = ניווט.
+function openNotifTarget(link, { goto, setActive }) {
+  if (link && link.startsWith("/me")) {
+    const params = new URLSearchParams((link.split("?")[1] || ""));
+    const tab = params.get("tab"); const dm = params.get("dm");
+    setActive ? setActive(tab || null, dm ? { dm } : null) : goto?.(link);
+  } else if (link) { goto?.(link); }
+}
+
+function NotificationsPanel({ T, onUnread, goto, setActive }) {
   const [items, setItems] = useState(null);
   useEffect(() => { getMyNotifications().then(setItems).catch(() => setItems([])); }, []);
 
   async function pick(n) {
     if (!n.read_at) { await markNotificationRead(n.id); onUnread?.(u => Math.max(0, (u || 1) - 1)); }
-    if (n.link) goto?.(n.link);
+    openNotifTarget(n.link, { goto, setActive });
   }
   async function readAll() {
     await markAllRead();
