@@ -871,8 +871,8 @@ export default function ContributorPage() {
         <RankCard level={level} stats={stats} P={P} />
         {/* 🔗 שיתוף הדף — רכיב-השיתוף הקנוני (canonical_ui_components_law) */}
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
-          {/* 🔔 מעקב — הרכיב הקנוני (notification_prefs · author:<name>), בלי טבלה מקבילה */}
-          <FollowWriter name={c.display_name} P={P} />
+          {/* 🔔 מעקב — WatchButton הקנוני היחיד (subscription_funnel_law v7 · author:<name>, source=writer) */}
+          <FollowWriter name={c.display_name} />
           <WriterMessage name={c.display_name} P={P} toUserId={c.user_id} />
           {/* 💬 קבוצת-הוואטסאפ האישית של הכתב — ליד «שלח הודעה»: התחברות + לראות מה הוא כותב */}
           {c.wa_group_url && (
