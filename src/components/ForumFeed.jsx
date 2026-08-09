@@ -15,6 +15,12 @@ import AdminModerate from "./AdminModerate.jsx";
 import Discourse from "./Discourse.jsx";
 import ChallengeCard, { ChallengeCreate } from "./ChallengeCard.jsx";
 import { getChallengesByContribs, CHALLENGE_STATUS } from "../lib/challenges.js";
+import { seenCutoff, markSeenKey, withinFresh } from "../lib/crossesNew.js";
+
+// 🆕 מפתח «נראה» לפורום (whats_new_law, פר-משתמש) — תג «חדש» רק על מה שעלה מאז הביקור האחרון.
+const FORUM_SEEN_KEY = "forum_feed";
+// פריט «חדש» = עלה אחרי הביקור האחרון *וגם* בתוך חלון-הטריות (48ש') — לא מהבהב לנצח.
+const isFreshNew = (it, cutoff) => !!(it && it.ts && it.ts > cutoff && withinFresh(it.ts));
 
 // 🌐 <ForumFeed> — גוף-הפורום המשותף (עץ אחד): הסינונים + כרטיסי-הזרם, בלי כותרת/SEO/כפיית-מראה.
 // מרונדר בשני שערים זהים: דף /forum (ForumPage — עם ההירו סביבו) וטאב «פורום» במרכז השידורים.
@@ -40,6 +46,17 @@ const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "
 
 const STATE_RANK = { canonical: 5, validated: 4, investigating: 3, discussion: 2, idea: 1 };
 const sigScore = (it) => (STATE_RANK[it.research_state] || 0) * 10 + (it.verified ? 5 : 0) + (it.has_1820 ? 3 : 0);
+
+// 🔥 «הכי מדובר» — ניקוד-מעורבות: תגובות + לייקי-משתמשים + בוסטי-אדמין (סך אמיתי כמו בתצוגה).
+const reactionsSum = (r) => {
+  if (!r || typeof r !== "object") return 0;
+  let n = 0; for (const v of Object.values(r)) n += Array.isArray(v) ? v.length : 0; return n;
+};
+const boostsSum = (b) => {
+  if (!b || typeof b !== "object") return 0;
+  let n = 0; for (const v of Object.values(b)) n += Number(v) || 0; return n;
+};
+const engagementScore = (it) => (it.replyCount || 0) + reactionsSum(it.reactions) + boostsSum(it.reaction_boosts);
 
 function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
   const { user } = useAuth();
@@ -303,13 +320,14 @@ const leadEmoji = (c) =>
 // שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + מהימן · טקסט · מוצמד/נבחרת · 👍 לייק · 💬 תגובה · זמן.
 // 🆕 לייק + תגובה לחיצים *ישירות על השורה* (בלי לפתוח) לכל הודעה אחרונה — 👍 דרך ReactionBar (variant=row),
 //    💬 פותח את השרשור לתגובה. אזור-הפתיחה הוא הכפתור; הפעולות הן אחים (לא button-בתוך-button).
-function ChatRow({ c, P, onOpen }) {
+function ChatRow({ c, P, onOpen, cutoff }) {
   const who = c.author_display || c.author_name || "חבר הקהילה";
   const text = oneLine(c.kind === "cipher"
     ? (cipherWords(c.description, c.search_term) || c.title || c.search_term || "צופן")
     : (c.title || c.body || c.excerpt || c.description || "תרומת מחקר"));
   const isContrib = c.kind === "contribution";
   const bumped = c.bump && new Date(c.bump) > new Date(c.ts);
+  const isNew = isFreshNew(c, cutoff);   // 🆕 עלה מאז הביקור האחרון (ובתוך 48ש')
   return (
     <div className="ff-chatrow"
       style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, minHeight: 44,
@@ -324,6 +342,7 @@ function ChatRow({ c, P, onOpen }) {
           <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{who}</span>
           {c.trustedAuthor && <TrustedTick P={P} />}
         </span>
+        {isNew && <span title="חדש מאז הביקור האחרון" style={{ flex: "0 0 auto", background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 9.5, fontWeight: 900, borderRadius: 999, padding: "1px 6px", letterSpacing: .3 }}>🆕 חדש</span>}
         <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           <span style={{ marginInlineEnd: 4 }}>{leadEmoji(c)}</span>{text}
         </span>
@@ -356,9 +375,9 @@ function ChatRow({ c, P, onOpen }) {
 }
 
 // פריט-פיד: שורת-צ'אט כברירת-מחדל; בלחיצה נפתח הכרטיס המלא (עם «כווץ» לחזרה לשורה).
-function FeedItem({ c, P, isAdmin, onChanged }) {
+function FeedItem({ c, P, isAdmin, onChanged, cutoff }) {
   const [open, setOpen] = useState(false);
-  if (!open) return <ChatRow c={c} P={P} onOpen={() => setOpen(true)} />;
+  if (!open) return <ChatRow c={c} P={P} onOpen={() => setOpen(true)} cutoff={cutoff} />;
   const full = c.kind === "post" ? <PostCard c={c} P={P} />
     : c.kind === "insight" ? <InsightCard c={c} P={P} isAdmin={isAdmin} onChanged={onChanged} />
     : c.kind === "cipher" ? <CipherCard c={c} P={P} />
@@ -383,6 +402,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   const [writer, setWriter] = useState(null);
   const [state, setState] = useState(null);
   const [sort, setSort] = useState("new");
+  // 🆕 סף «נראה» פר-משתמש — נלכד פעם אחת בכניסה; תגי «חדש» מחושבים מולו, ואז מסמנים נראה (whats_new_law).
+  const [newCutoff] = useState(() => seenCutoff(FORUM_SEEN_KEY));
   // ✍️ «דף ריק לכתוב חידוש» — נפתח אוטומטית בהגעה מ-/forum?write=1 (כפתור «שתפו חידוש» בדף הבית)
   const [sp] = useSearchParams();
   const wantWrite = sp.get("write") === "1";
@@ -406,6 +427,13 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
     }).catch(() => setAllItems([]));
   }, []);
   useEffect(() => { load(); }, [load]);
+  // 🆕 אחרי טעינה — מסמנים «נראה» עם החדש-ביותר, כך שבביקור הבא רק מה שעלה מעכשיו יסומן «חדש».
+  //     ה-cutoff לתצוגה כבר נלכד ב-newCutoff לפני הסימון → התגים של הביקור הזה נשמרים.
+  useEffect(() => {
+    if (!allItems || !allItems.length) return;
+    const newest = allItems.reduce((m, it) => (it.ts && it.ts > m ? it.ts : m), "");
+    if (newest) markSeenKey(FORUM_SEEN_KEY, newest);
+  }, [allItems]);
 
   const postCount = useMemo(() => (allItems || []).filter(it => it.kind === "post").length, [allItems]);
   const insightCount = useMemo(() => (allItems || []).filter(it => it.kind === "insight").length, [allItems]);
@@ -432,6 +460,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
     else out = allItems;
     if (state) out = out.filter(it => it.research_state === state);
     if (sort === "significance") out = [...out].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.trustedAuthor ? 1 : 0) - (a.trustedAuthor ? 1 : 0) || sigScore(b) - sigScore(a) || (new Date(b.ts) - new Date(a.ts)));
+    // 🔥 הכי מדובר — מוצמדים ראשונים, ואז לפי מעורבות (תגובות+לייקים+בוסטים), שובר-שוויון לפי טריות.
+    else if (sort === "hot") out = [...out].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || engagementScore(b) - engagementScore(a) || (new Date(b.ts) - new Date(a.ts)));
     return out;
   }, [allItems, type, writer, state, sort]);
 
@@ -515,6 +545,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         )}
         <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>מיון:</span>
         <button onClick={() => setSort("new")} style={{ ...chip(sort === "new"), fontSize: 12, padding: "4px 11px" }}>🆕 חדש</button>
+        <button onClick={() => setSort("hot")} style={{ ...chip(sort === "hot"), fontSize: 12, padding: "4px 11px" }}>🔥 הכי מדובר</button>
         <button onClick={() => setSort("significance")} style={{ ...chip(sort === "significance"), fontSize: 12, padding: "4px 11px" }}>⭐ מובהקות</button>
       </div>
 
@@ -527,7 +558,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         </div>
       ) : (
         <div style={{ display: "grid", gap: 8 }}>
-          {items.map(c => <FeedItem key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} />)}
+          {items.map(c => <FeedItem key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} cutoff={newCutoff} />)}
         </div>
       )}
     </div>
