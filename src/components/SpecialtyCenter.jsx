@@ -19,9 +19,67 @@ export default function SpecialtyCenter({ c }) {
       return <CrossesWall name={c.display_name} acc={acc} P={P} />;
     case "els-ciphers":
       return <CiphersWall name={c.display_name} acc={acc} P={P} />;
+    case "wordplay-langs":
+      return <WordplayWall name={c.display_name} acc={acc} P={P} />;
     default:
       return null;
   }
+}
+
+// ✎ קיר משחקי-האותיות — נוטריקון · אנגרם · שפות (writer_material_home_law §2).
+// עדשה על research_contributions (author_name, intent=חידוש, gematria_claim.kind ∈ אנגרם/נוטריקון/...).
+// אנגרם/נוטריקון = רמז-פרשני; רק ערך-הגימטריה עובדה מאומתת. מספר → /number הקנוני, לא משכפל.
+const WORDPLAY_KINDS = ["anagram", "notarikon", "anagram+notarikon", "wordplay", "cross_language"];
+function WordplayWall({ name, acc, P }) {
+  const [rows, setRows] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    supabase.from("research_contributions")
+      .select("id,title,body,target_id,gematria_claim,created_at")
+      .eq("author_name", name).eq("status", "approved")
+      .not("gematria_claim", "is", null)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!alive) return;
+        const wp = (Array.isArray(data) ? data : []).filter(r => WORDPLAY_KINDS.includes(r.gematria_claim?.kind));
+        setRows(wp);
+      });
+    return () => { alive = false; };
+  }, [name]);
+
+  if (rows === null || rows.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ textAlign: "center", marginBottom: 12 }}>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>✎ משחקי-האותיות של {name}</div>
+        <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginTop: 3 }}>
+          {rows.length} רמזים — נוטריקון · אנגרם · שפות · הערך מאומת במנוע, הצירוף רמז משלים
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 12 }}>
+        {rows.map(r => {
+          const val = r.gematria_claim?.value;
+          return (
+            <div key={r.id}
+              style={{ display: "flex", flexDirection: "column", gap: 8,
+                background: `linear-gradient(180deg, ${acc}1c, ${P.card} 70%)`,
+                border: `1px solid ${P.border}`, borderTop: `3px solid ${acc}`, borderRadius: 14, padding: "13px 15px" }}>
+              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, lineHeight: 1.4 }}>{r.title}</div>
+              {r.body && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.5 }}>{r.body}</div>}
+              {val != null && (
+                <div style={{ marginTop: "auto" }}>
+                  <a href={`/number/${val}`} onClick={(e) => e.stopPropagation()}
+                    style={{ fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, color: acc, textDecoration: "none",
+                      border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 10px" }}>{val}</a>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "18px 0 2px" }} />
+    </div>
+  );
 }
 
 // 🔡 קיר הצפנים — הצפנים שהכתב פרסם (els_records published). כל צופן → /codes הקנוני.
