@@ -20,8 +20,27 @@ const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 // מפתח anon ציבורי (זהה לזה שב-api/ga-insights.js · api/ga-sync.js) — בטוח להטמעה.
 const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
-// שכבה זמנית — ניסוי חסימת מדינה. להסרה: הפוך ל-new Set(). (CN=סין, SG=סינגפור)
-const BLOCKED_COUNTRIES = new Set(['CN', 'SG']);
+// 🌍 חסימת מדינה — נשלטת מ-DB, בלי פריסה (בעקבות site_flags_lock_law).
+// הרשימה חיה בטבלת public.edge_blocked_countries; ה-RPC public.blocked_countries()
+// מחזיר את הקודים הפעילים. שינוי = INSERT/DELETE/UPDATE שם → חי מיד (cache שעה כאן),
+// בלי דחיפת-Vercel. FALLBACK קשיח (CN=סין, SG=סינגפור) אם ה-DB לא זמין — כדי לשמר
+// את ההתנהגות הקיימת ולא "להיפתח" בשקט בכישלון-רשת.
+const BLOCKED_COUNTRIES_FALLBACK = new Set(['CN', 'SG']);
+let BLOCKED = null, BLOCKED_AT = 0;
+async function blockedCountriesSet() {
+  const now = Date.now();
+  if (BLOCKED && now - BLOCKED_AT < 3600000) return BLOCKED;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/blocked_countries`, {
+      method: 'POST',
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    const arr = await r.json();
+    if (Array.isArray(arr)) { BLOCKED = new Set(arr.map((c) => String(c).toUpperCase())); BLOCKED_AT = now; }
+  } catch { /* אם נכשל — נשארים עם ה-cache הקודם (או fallback בבדיקה) */ }
+  return BLOCKED || BLOCKED_COUNTRIES_FALLBACK;
+}
 
 // בוטים מותרים — מנועי חיפוש (SEO), בוטי תצוגת-שיתוף (OG), וכל הסורקים של מטא
 // (facebookexternalhit/facebot=תצוגות · meta-externalagent/facebookbot=סורק התוכן/AI).
@@ -127,7 +146,10 @@ export default async function middleware(request, context) {
   let blocked = false;
   if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
   else if (kind === 'bot') blocked = true;
-  if (kind !== 'goodbot' && kind !== 'ai' && BLOCKED_COUNTRIES.has(country)) blocked = true;
+  if (kind !== 'goodbot' && kind !== 'ai') {
+    const blockedCountries = await blockedCountriesSet();
+    if (blockedCountries.has(country)) blocked = true;
+  }
   // 🤖 דף-מספר טהור מעל 4 ספרות: חוסמים בוט רק אם המספר **ריק** (לא ב-allowlist התוכן).
   //    מספר-גדול עם תוכן (מילה/צופן/עוגן) → מותר ומאונדקס (בקשת צוריאל). דף-ריק → נחסם.
   //    הכלל הקליינטי (noindex) לא מגיע לבוטים חסרי-JS, לכן האכיפה כאן בקצה.
