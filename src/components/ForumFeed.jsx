@@ -17,6 +17,10 @@ import ChallengeCard, { ChallengeCreate } from "./ChallengeCard.jsx";
 import { getChallengesByContribs, CHALLENGE_STATUS } from "../lib/challenges.js";
 import { seenCutoff, markSeenKey, withinFresh } from "../lib/crossesNew.js";
 
+// 👍 לייקים בפורום — מוסתרים כעת (החלטת צוריאל: מעט כניסות, מתמקדים בתגובה/DM/מעקב+התראות).
+//    כבוי = אין 👍/בוסט בשורה ובכרטיס; הכל נשאר בקוד וב-DB, החזרה = SHOW_FORUM_LIKES=true בלבד.
+const SHOW_FORUM_LIKES = false;
+
 // 🆕 מפתח «נראה» לפורום (whats_new_law, פר-משתמש) — תג «חדש» רק על מה שעלה מאז הביקור האחרון.
 const FORUM_SEEN_KEY = "forum_feed";
 // פריט «חדש» = עלה אחרי הביקור האחרון *וגם* בתוך חלון-הטריות (48ש') — לא מהבהב לנצח.
@@ -145,7 +149,7 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         {c.author_name
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} />{c.trustedAuthor && <TrustedTick P={P} withText />}</span>
           : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ חבר הקהילה</span>}
-        <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} />
+        {SHOW_FORUM_LIKES && <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} />}
         {canEdit && !editing && (
           <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} title="ערוך"
             style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>✏️ ערוך</button>
@@ -354,7 +358,7 @@ function ChatRow({ c, P, onOpen, cutoff }) {
       {/* 🆕 פעולות-שורה — לייק + תגובה לחיצים (רק לתרומות-קהילה, שיש להן contribId) */}
       {isContrib && c.contribId && (
         <span className="ff-actions" style={{ display: "inline-flex", alignItems: "center", gap: 6, flex: "0 0 auto" }}>
-          <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} variant="row" />
+          {SHOW_FORUM_LIKES && <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} variant="row" />}
           <button onClick={onOpen} title="תגובה בשרשור" className="ff-cmt"
             style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 3, borderRadius: 999, padding: "3px 10px",
               border: `1px solid ${c.replyCount > 0 ? P.accent : P.border}`, background: c.replyCount > 0 ? "rgba(212,175,55,0.12)" : "transparent",
