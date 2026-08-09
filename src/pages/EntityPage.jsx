@@ -1415,11 +1415,6 @@ export default function EntityPage({ embedPhrase } = {}) {
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
           <CollectiveBadge type={isNumber ? "number" : "phrase"} refv={isNumber ? value : term}
             label={isNumber ? "את המספר הזה" : "את הביטוי הזה"} />
-          {/* 🔔 מנוי-מספר (מנוע-המשפך) — בלוק נפרד ומובחן (שער קנוני), לא בתוך פס-הפעולות/שיתופים. */}
-          {isNumber && value != null && (
-            <WatchButton topic={`number:${value}`} source="entity_page" gate
-              label={`עקוב אחרי ${value}`} explainer={`תקבל עדכון כשמתווסף חומר חדש על ${value}.`} />
-          )}
         </div>
 
         {/* מתג המצב עבר לשורה העליונה (ליד המחשבון) — «מצב מחקר / מצב רגיל». */}
@@ -1664,6 +1659,13 @@ export default function EntityPage({ embedPhrase } = {}) {
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>כל המילים · תמונות · פוסטים · DNA · משפחות · הצלבות · כלים</div>
                   </div>
                 </Reveal>
+                {/* 🔔 מנוי-מספר — קומפקטי, בתחתית תצוגת-הקריאה (לא בראש, לא בשורת-השיתופים) */}
+                {isNumber && value != null && (
+                  <div style={{ display: "flex", justifyContent: "center", marginTop: 4, marginBottom: 4 }}>
+                    <WatchButton topic={`number:${value}`} source="entity_page" compact
+                      label={`עקוב אחרי ${value}`} explainer="תקבל עדכון כשמתווסף חומר חדש על המספר הזה." />
+                  </div>
+                )}
               </div>
             )}
           </>
