@@ -8,6 +8,7 @@ import { applySeo } from "../lib/seo.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import PopularPrayersBox, { isPrayerTag } from "../components/PopularPrayersBox.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
+import WatchButton from "../components/WatchButton.jsx";
 
 // ===== דף תגית / קטגוריה — בעיצוב האתר (זהב מלכותי), "טען עוד" במקום עימוד =====
 // כל פוסט מקושר לדף הפוסט; גימטריית השם מקושרת לדף הישות + פותחת את מגירת המספר.
@@ -138,6 +139,14 @@ function TaxonomyView({ kind }) {
           )}
         </div>
       </div>
+
+      {/* 🔔 מנוי-קטגוריה (מנוע-המשפך) — עדכון כשיתפרסם פוסט חדש בקטגוריה. WatchButton קנוני. */}
+      {!isTag && (
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+          <WatchButton topic={`cat:${name}`} source="category" compact
+            label={`עקוב אחרי «${name}»`} explainer="תקבל עדכון כשיתפרסם פוסט חדש בקטגוריה הזו." />
+        </div>
+      )}
 
       {/* 🎬 קטגוריית וידאו — רצועת «אור הגאולה» המתעדכנת (כל הסרטונים + קישור לכל האוסף) */}
       {isVideoCat && <HomeOrGeulaRail />}

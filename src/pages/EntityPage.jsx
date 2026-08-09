@@ -26,6 +26,7 @@ import ForumNumberMentions from "../components/ForumNumberMentions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import PulseRing, { pulseFromCounts } from "../components/PulseRing.jsx";
 import QuickActions from "../components/QuickActions.jsx";
+import WatchButton from "../components/WatchButton.jsx";
 import ReportHint from "../components/ReportHint.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import AiFeedback from "../components/AiFeedback.jsx";
@@ -1409,6 +1410,13 @@ export default function EntityPage({ embedPhrase } = {}) {
               <Link to={H.journey(term ?? value)} title="מסע אקראי בגרף" style={{ textDecoration: "none" }}><button type="button">🎲 מסע</button></Link>
               <button type="button" onClick={openCard} title="תצוגת כרטיס המספר">🖼 כרטיס</button>
             </>} />}
+          {/* 🔔 מנוי-מספר (מנוע-המשפך) — עדכון כשמתווסף חומר על המספר. WatchButton קנוני. */}
+          {showBody && value != null && (
+            <div style={{ display: "flex", justifyContent: "center", margin: "10px 0 2px" }}>
+              <WatchButton topic={`number:${value}`} source="entity_page" compact
+                label={`עקוב אחרי ${value}`} explainer="תקבל עדכון כשמתווסף חומר חדש על המספר הזה." />
+            </div>
+          )}
           {/* 🤖 ה-AI במצב מחקר — אותו אקורדיון סגור כמו במצב קריאה (בקשת צוריאל: תמיד מקופל, לא פתוח/גבוה) */}
           {showBody && aiFold}
           {/* 🔎 אות קהילתי — הספירה הציבורית כשער כניסה (Collective Discovery + משפך למנויים) */}
