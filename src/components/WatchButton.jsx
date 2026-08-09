@@ -12,8 +12,8 @@ import { trackConversion } from "../lib/marketing.js";
 // חוקי-ברזל: (1) אותו רכיב בכל מקום, רק ה-topic משתנה · (2) כל Follow שומר source · (3) משפט-הסבר
 // «מה מקבלים» · (4) Follow קודם, ערוץ אח"כ (escalation: אחרי Follow → הצעת Push, לא לפני) ·
 // (7) מצב gate לתחתית-תוכן. אין רכיב-מעקב אחר.
-//   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · gate (שער-תחתית) · compact
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", gate = false, compact = false }) {
+//   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false }) {
   const P = usePalette();
   const { user } = useAuth();
   const [following, setFollowing] = useState(false);
@@ -74,26 +74,28 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   );
   const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>{pushMsg}</div>;
 
-  // ── מצב שער-תחתית-תוכן (חוק #7) ──
+  // ── אזור-מעקב קנוני (מובחן משיתוף, Value-First, שפה אחידה בכל האתר) ──
   if (gate) {
     return (
-      <div style={{ marginTop: 30, textAlign: "center", direction: "rtl", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "20px 18px" }}>
-        {!following ? (
-          <>
-            <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>רוצה לדעת כשיש המשך?</div>
-            {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
-            <button onClick={toggle} disabled={busy} style={btn}>🔔 {label}</button>
-          </>
-        ) : (
-          <>
-            <div style={{ color: gold, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>✓ אתה במעקב</div>
-            {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>{explainer}</div>}
-            <div style={{ marginTop: 8 }}>
-              <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
-            </div>
-            {pushOffer}{pushDone}
-          </>
-        )}
+      <div style={{ marginTop: 30, paddingTop: 22, borderTop: `1px solid ${P.border}`, textAlign: "center", direction: "rtl" }}>
+        <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "18px 18px", maxWidth: 460, margin: "0 auto" }}>
+          {!following ? (
+            <>
+              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
+              {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
+              <button onClick={toggle} disabled={busy} style={btn}>🔔 {label}</button>
+            </>
+          ) : (
+            <>
+              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>✓ אתה במעקב</div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>{explainer || "נעדכן אותך כשמתפרסם משהו חדש."}</div>
+              <div style={{ marginTop: 8 }}>
+                <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
+              </div>
+              {pushOffer}{pushDone}
+            </>
+          )}
+        </div>
       </div>
     );
   }

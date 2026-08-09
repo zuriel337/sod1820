@@ -15,7 +15,6 @@ import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import SubscribeGate from "../components/SubscribeGate.jsx";
 import Discourse from "../components/Discourse.jsx";
 import ShareActions from "../components/ShareActions.jsx";
-import WatchButton from "../components/WatchButton.jsx";
 
 // גימטריה רגילה (יסוד) בצד-הלקוח — סופיות מקופלות לבסיס (GEM כולל אותן). לעובדות ה-AI בלבד.
 const ragil = (s) => [...String(s || "")].reduce((a, c) => a + (GEM[c] || 0), 0);
@@ -137,8 +136,9 @@ export default function CipherPage() {
             <ShareActions type="code" url={`https://sod1820.co.il/codes/${encodeURIComponent(slug)}`}
               title={`🔠 צופן דילוג: «${m.title || m.search_term}» · דילוג ${m.skip_distance} — סוד 1820`} image={m.image_url || undefined} />
             <Link to="/code" style={{ display: "inline-flex", alignItems: "center", color: P.accentDim, border: `1px solid ${P.border}`, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 16px", minHeight: 40 }}>🔍 חפשו צופן משלכם ←</Link>
-            <WatchButton topic="codes:new" source="code_page" compact label="עדכנו אותי על צפנים חדשים" explainer="תקבל התראה כשיעלה צופן חדש." />
           </div>
+          {/* 🔔 «מעקב אחרי הצופן הזה» (code:<slug>) יתווסף כשיהיה fan-out אמיתי (שלב 2) — לא מציגים
+              codes:new כאן כי הוא «צפנים חדשים» כלליים ולא הצופן הספציפי. codes:new חי בדף /code. */}
         </div>
 
         {/* 🎬 סרטון הצופן — חיבור דו-כיווני לגלריית-הסרטים (unified_graph_law). ניגון בהקשה בלבד (Egress). */}

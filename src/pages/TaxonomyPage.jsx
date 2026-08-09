@@ -173,12 +173,11 @@ function TaxonomyView({ kind }) {
         </>
       )}
 
-      {/* 🔔 מנוי-קטגוריה — בתחתית (value-first: אחרי הפוסטים, לא בראש). WatchButton קנוני. */}
+      {/* 🔔 אזור-מעקב קנוני — Value-First (אחרי הפוסטים, לא בראש), מובחן משיתוף. */}
       {!isTag && posts.length > 0 && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 34 }}>
-          <WatchButton topic={`cat:${name}`} source="category" compact
-            label={`עקוב אחרי «${name}»`} explainer="תקבל עדכון כשיתפרסם פוסט חדש בקטגוריה הזו." />
-        </div>
+        <WatchButton topic={`cat:${name}`} source="category" gate
+          heading={`רוצה לדעת כשמתפרסם פוסט חדש ב«${name}»?`}
+          label={`עקוב אחרי «${name}»`} explainer="נעדכן אותך על כל פוסט חדש בקטגוריה הזו." />
       )}
 
       <div style={{ textAlign: "center", marginTop: 40 }}>
