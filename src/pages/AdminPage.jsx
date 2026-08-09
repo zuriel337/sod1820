@@ -6984,12 +6984,41 @@ function BroadcastTab() {
   const [busy, setBusy] = useState(false);
   const [rows, setRows] = useState([]);
   const [msg, setMsg] = useState("");
+  // 🎞️ backfill פוסטרים לסרטוני «אור הגאולה» שנכנסו מוואטסאפ בלי thumb_url (נלכד בדפדפן-האדמין).
+  const [poster, setPoster] = useState({ missing: 0, busy: false, msg: "" });
+  const posterAutoRan = useRef(false);
 
   const load = useCallback(async () => {
     try { const { listChannelUpdates } = await import("../lib/supabase.js"); setRows(await listChannelUpdates(30)); }
     catch { /* ignore */ }
   }, []);
   useEffect(() => { load(); }, [load]);
+
+  const fillPosters = useCallback(async () => {
+    setPoster(p => ({ ...p, busy: true, msg: "לוכד פריימים בדפדפן… (השאירו את הטאב פתוח)" }));
+    try {
+      const { backfillChannelPosters, countMissingChannelPosters } = await import("../lib/supabase.js");
+      const res = await backfillChannelPosters({ channel: "or-geula", limit: 20,
+        onProgress: ({ filled, total }) => setPoster(p => ({ ...p, msg: `לוכד פריימים… ${filled}/${total}` })) });
+      const missing = await countMissingChannelPosters("or-geula").catch(() => 0);
+      setPoster({ missing, busy: false, msg: res.filled
+        ? `✅ נוספו ${res.filled} פוסטרים${res.failed ? ` · ${res.failed} נכשלו` : ""}${missing ? ` · נותרו ${missing}` : ""}`
+        : (res.scanned ? "לא הצלחתי ללכוד פריים (וידאו לא-נתמך בדפדפן?)" : "אין וידאו חסר-פוסטר 🎉") });
+      load();
+    } catch (e) { setPoster(p => ({ ...p, busy: false, msg: "שגיאה: " + (e.message || e) })); }
+  }, [load]);
+
+  // סריקה + הרצה-אוטומטית פעם אחת כשנפתח הטאב: אם יש סרטונים חסרי-פוסטר → למלא לבד.
+  useEffect(() => {
+    (async () => {
+      try {
+        const { countMissingChannelPosters } = await import("../lib/supabase.js");
+        const missing = await countMissingChannelPosters("or-geula");
+        setPoster(p => ({ ...p, missing }));
+        if (missing > 0 && !posterAutoRan.current) { posterAutoRan.current = true; fillPosters(); }
+      } catch { /* ignore */ }
+    })();
+  }, [fillPosters]);
 
   async function send() {
     if (!text.trim()) { setMsg("כתבו את העדכון קודם"); return; }
@@ -7044,6 +7073,20 @@ function BroadcastTab() {
           </button>
         </div>
         {msg && <div style={{ marginTop: 10, color: msg.startsWith("✅") ? "#7bbf7b" : "#ff8080", fontFamily: F.body, fontSize: 13 }}>{msg}</div>}
+      </div>
+
+      <div style={card}>
+        <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 14, marginBottom: 6 }}>🎞️ פוסטרים לסרטוני «אור הגאולה»</div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, marginBottom: 10 }}>
+          סרטון שנכנס מוואטסאפ מקבל כאן תמונת-פוסטר אוטומטית (נלכדת בדפדפן) → נראית ברצועת-הבית ובסטורי. נמלא לבד כשנפתח הטאב.
+        </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <button onClick={fillPosters} disabled={poster.busy} style={{ cursor: poster.busy ? "wait" : "pointer", background: "none",
+            border: `1px solid ${C.border}`, color: C.goldLight, borderRadius: 999, fontFamily: F.heading, fontWeight: 700, fontSize: 13, padding: "8px 18px" }}>
+            {poster.busy ? "לוכד…" : `🎞️ מלא פוסטרים חסרים${poster.missing ? ` (${poster.missing})` : ""}`}
+          </button>
+          {poster.msg && <span style={{ color: (poster.msg.startsWith("✅") || poster.msg.includes("🎉")) ? "#7bbf7b" : C.muted, fontFamily: F.body, fontSize: 12.5 }}>{poster.msg}</span>}
+        </div>
       </div>
 
       <div style={card}>
