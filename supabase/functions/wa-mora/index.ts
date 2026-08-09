@@ -1,4 +1,8 @@
 // 🧪 wa-mora — בוט המורה של «מעבדה להבנת משמעות» בוואטסאפ.
+// v4 (9.8.2026): ה-cron הואט לכל 30 דק (חיסכון משאבים). כדי שלא יידלגו הודעות בין הרצות רחוקות:
+//   MAX_PER_RUN 3→20 + getChatHistory 25→40 (כל ההודעות שבחלון 3 השעות נקלטות), ומענה אחד לריצה —
+//   להודעה האחרונה שראויה למענה עם כל ההקשר; קודמות שטרם טופלו מסומנות superseded (נקלטות לזיכרון,
+//   לא נדלגות ולא מקבלות מענה כפול). קריאת-AI אחת לריצה = פחות משאבים, בלי ספאם ובלי החמצה.
 // מאזין → מבין → עונה, ולומד: טוען זיכרון-לומד (lab_learner+lab_progress) לפני כל תשובה.
 // מבודד לגמרי: action=lab_mora, קבוצה מ-lab_wa_config, שולח דרך wa_admin (רזיאל לא נגוע).
 // polling מ-pg_cron, מוגן ?s=SECRET. לולאת-הלמידה (עדכון הזיכרון) = lab-reflect.
@@ -9,7 +13,7 @@ const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
 const FAST_MODEL = Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5";
 const ACTION = "lab_mora";
-const MAX_PER_RUN = 3;
+const MAX_PER_RUN = 20;
 
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
@@ -84,7 +88,7 @@ async function run() {
   const fast = cfg.fast === true;
   const nowSec = Date.now() / 1000;
 
-  let hist; try { hist = await waAdmin("getChatHistory", { chatId, count: 25 }); } catch { return { err: "history" }; }
+  let hist; try { hist = await waAdmin("getChatHistory", { chatId, count: 40 }); } catch { return { err: "history" }; }
   const all = pick(hist).filter((m: any) => {
     const typ = m.typeMessage || "";
     const ok = ["textMessage", "extendedTextMessage", "quotedMessage"].includes(typ);
@@ -92,9 +96,15 @@ async function run() {
   }).sort((a: any, b: any) => Number(a.timestamp) - Number(b.timestamp));
 
   const textOf = (m: any) => m.textMessage || m.extendedTextMessage?.text || m.extendedTextMessageData?.text || "";
+  const windowMsgs = all.slice(-MAX_PER_RUN);
+  // מענה אחד לריצה: מאתרים את ההודעה האחרונה שראויה למענה (לא ריקה) ועונים רק לה — עם כל ההקשר.
+  // הודעות קודמות שטרם טופלו נקלטות לזיכרון ומסומנות superseded → לא נדלגות וגם לא מקבלות מענה כפול.
+  let answerIdx = -1;
+  for (let i = windowMsgs.length - 1; i >= 0; i--) { if (clean(textOf(windowMsgs[i])).length >= 2) { answerIdx = i; break; } }
   let memory = ""; let memLoaded = false;
   let n = 0;
-  for (const m of all.slice(-MAX_PER_RUN)) {
+  for (let i = 0; i < windowMsgs.length; i++) {
+    const m = windowMsgs[i];
     const msgId = m.idMessage; if (!msgId || await alreadyDone(msgId)) continue;
     const text = textOf(m); const sname = m.senderName || ""; const snd = m.senderId || chatId;
     if (clean(text).length < 2) { await logBot({ group_id: chatId, msg_id: msgId, sender: snd, sender_name: sname, text_in: text.slice(0, 500), reply_out: "[skip:short]" }); continue; }
@@ -103,10 +113,12 @@ async function run() {
 
     if (mode === "listen") { await logBot({ group_id: chatId, msg_id: msgId, sender: snd, sender_name: sname, text_in: text.slice(0, 500), reply_out: "[listen]" }); continue; }
 
+    if (i !== answerIdx) { await logBot({ group_id: chatId, msg_id: msgId, sender: snd, sender_name: sname, text_in: text.slice(0, 500), reply_out: "[skip:superseded]" }); continue; }
+
     if (!memLoaded) { memory = await loadMemory(); memLoaded = true; }   // טעינת זיכרון פעם אחת לריצה
     const recent = all.filter((x: any) => nowSec - Number(x.timestamp || 0) < 3 * 3600).slice(-12);
     const transcript = recent.map((x: any) => `${x.senderName || "חבר"}: ${clean(textOf(x))}`).filter((l: string) => l.length > 3).join("\n");
-    const userPrompt = `זו שיחה בקבוצת-הלימוד (אתה המורה). ההיסטוריה האחרונה:\n${transcript}${memory}\n\nענה כמורה להודעה האחרונה, לפי השיטה ובהתאם לזיכרון.`;
+    const userPrompt = `זו שיחה בקבוצת-הלימוד (אתה המורה). ההיסטוריה האחרונה:\n${transcript}${memory}\n\nענה כמורה לשיחה — התייחס לשאלה או לנקודה הפתוחה האחרונה שטרם נענתה (לא בהכרח רק השורה האחרונה), לפי השיטה ובהתאם לזיכרון.`;
     const reply = await teacherReply(userPrompt, fast);
 
     if (reply && reply.replace(/\s/g, "") !== "[[skip]]" && !reply.includes("[[skip]]")) {
