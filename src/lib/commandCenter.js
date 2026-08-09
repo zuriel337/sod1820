@@ -28,6 +28,12 @@ export async function repliesToMe(limit = 40) {
   try { const { data } = await supabase.rpc("replies_to_me", { p_limit: limit }); return Array.isArray(data) ? data : []; } catch { return []; }
 }
 
+// 🗨️ הפעילות שלי — התרומות והתגובות שאני-עצמי כתבתי (RPC · owner בלבד, כולל הקשר-אב).
+export async function myContributions(limit = 50) {
+  if (!supabase) return [];
+  try { const { data } = await supabase.rpc("my_contributions", { p_limit: limit }); return Array.isArray(data) ? data : []; } catch { return []; }
+}
+
 // 💰 הפרופיל+יתרת-הקרדיטים של המשתמש (RLS: כל אחד רואה רק את שלו). null אם אין עדיין רשומה.
 export async function getMyProfile() {
   if (!supabase) return null;
