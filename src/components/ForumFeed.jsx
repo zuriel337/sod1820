@@ -15,6 +15,16 @@ import AdminModerate from "./AdminModerate.jsx";
 import Discourse from "./Discourse.jsx";
 import ChallengeCard, { ChallengeCreate } from "./ChallengeCard.jsx";
 import { getChallengesByContribs, CHALLENGE_STATUS } from "../lib/challenges.js";
+import { seenCutoff, markSeenKey, withinFresh } from "../lib/crossesNew.js";
+
+// 👍 לייקים בפורום — מוסתרים כעת (החלטת צוריאל: מעט כניסות, מתמקדים בתגובה/DM/מעקב+התראות).
+//    כבוי = אין 👍/בוסט בשורה ובכרטיס; הכל נשאר בקוד וב-DB, החזרה = SHOW_FORUM_LIKES=true בלבד.
+const SHOW_FORUM_LIKES = false;
+
+// 🆕 מפתח «נראה» לפורום (whats_new_law, פר-משתמש) — תג «חדש» רק על מה שעלה מאז הביקור האחרון.
+const FORUM_SEEN_KEY = "forum_feed";
+// פריט «חדש» = עלה אחרי הביקור האחרון *וגם* בתוך חלון-הטריות (48ש') — לא מהבהב לנצח.
+const isFreshNew = (it, cutoff) => !!(it && it.ts && it.ts > cutoff && withinFresh(it.ts));
 
 // 🌐 <ForumFeed> — גוף-הפורום המשותף (עץ אחד): הסינונים + כרטיסי-הזרם, בלי כותרת/SEO/כפיית-מראה.
 // מרונדר בשני שערים זהים: דף /forum (ForumPage — עם ההירו סביבו) וטאב «פורום» במרכז השידורים.
@@ -40,6 +50,17 @@ const badge = (col, txt) => <span style={{ display: "inline-flex", alignItems: "
 
 const STATE_RANK = { canonical: 5, validated: 4, investigating: 3, discussion: 2, idea: 1 };
 const sigScore = (it) => (STATE_RANK[it.research_state] || 0) * 10 + (it.verified ? 5 : 0) + (it.has_1820 ? 3 : 0);
+
+// 🔥 «הכי מדובר» — ניקוד-מעורבות: תגובות + לייקי-משתמשים + בוסטי-אדמין (סך אמיתי כמו בתצוגה).
+const reactionsSum = (r) => {
+  if (!r || typeof r !== "object") return 0;
+  let n = 0; for (const v of Object.values(r)) n += Array.isArray(v) ? v.length : 0; return n;
+};
+const boostsSum = (b) => {
+  if (!b || typeof b !== "object") return 0;
+  let n = 0; for (const v of Object.values(b)) n += Number(v) || 0; return n;
+};
+const engagementScore = (it) => (it.replyCount || 0) + reactionsSum(it.reactions) + boostsSum(it.reaction_boosts);
 
 function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
   const { user } = useAuth();
@@ -128,7 +149,7 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         {c.author_name
           ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ <ResearcherBadge name={c.author_name} display={c.author_display} uid={c.author_user_id} size={20} />{c.trustedAuthor && <TrustedTick P={P} withText />}</span>
           : <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ חבר הקהילה</span>}
-        <ReactionBar id={c.contribId} reactions={c.reactions} compact />
+        {SHOW_FORUM_LIKES && <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} />}
         {canEdit && !editing && (
           <button onClick={() => { setEditBody(c.body || ""); setEditing(true); }} title="ערוך"
             style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "3px 11px" }}>✏️ ערוך</button>
@@ -300,69 +321,67 @@ function TrustedTick({ P, withText = false }) {
 const leadEmoji = (c) =>
   c.kind === "post" ? "📜" : c.kind === "insight" ? "💡" : c.kind === "cipher" ? "🔠" : (intentMeta(c.intent).emoji || "💬");
 
-// 👍 סך-הריאקציות על פריט — reactions הוא { "👍": ["uid",…] }, אז סוכמים אורכי-מערכים.
-function reactionTotal(r) {
-  if (!r || typeof r !== "object") return 0;
-  let n = 0;
-  for (const v of Object.values(r)) n += Array.isArray(v) ? v.length : (Number(v) || 0);
-  return n;
-}
-
-// שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + מהימן · טקסט · מוצמד/נבחרת · 💬 תגובות · 👍 · זמן.
-// 💬 מונה-התגובות גלוי בכל שורה (גם 0) → הפורום נקרא כרשימת-שרשורים אמיתית, רואים מיד היכן יש דיון.
-function ChatRow({ c, P, onOpen }) {
+// שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + מהימן · טקסט · מוצמד/נבחרת · 👍 לייק · 💬 תגובה · זמן.
+// 🆕 לייק + תגובה לחיצים *ישירות על השורה* (בלי לפתוח) לכל הודעה אחרונה — 👍 דרך ReactionBar (variant=row),
+//    💬 פותח את השרשור לתגובה. אזור-הפתיחה הוא הכפתור; הפעולות הן אחים (לא button-בתוך-button).
+function ChatRow({ c, P, onOpen, cutoff }) {
   const who = c.author_display || c.author_name || "חבר הקהילה";
   const text = oneLine(c.kind === "cipher"
     ? (cipherWords(c.description, c.search_term) || c.title || c.search_term || "צופן")
     : (c.title || c.body || c.excerpt || c.description || "תרומת מחקר"));
   const isContrib = c.kind === "contribution";
-  const rTotal = reactionTotal(c.reactions);
+  const bumped = c.bump && new Date(c.bump) > new Date(c.ts);
+  const isNew = isFreshNew(c, cutoff);   // 🆕 עלה מאז הביקור האחרון (ובתוך 48ש')
   return (
-    <button onClick={onOpen} aria-label="פתח" className="ff-chatrow"
-      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, minHeight: 44, textAlign: "start", cursor: "pointer",
+    <div className="ff-chatrow"
+      style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", minWidth: 0, minHeight: 44,
         background: c.chosen ? "rgba(212,175,55,0.06)" : "transparent",
         border: `1px solid ${c.pinned ? P.accentText : P.border}`, borderRadius: 11, padding: "9px 12px" }}>
-      <img src={genAvatar(who)} alt="" loading="lazy"
-        style={{ width: 26, height: 26, borderRadius: "50%", flex: "0 0 auto", border: `1px solid ${P.border}` }} />
-      <span className="ff-who" style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", maxWidth: "38%", minWidth: 0 }}>
-        <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{who}</span>
-        {c.trustedAuthor && <TrustedTick P={P} />}
-      </span>
-      <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-        <span style={{ marginInlineEnd: 4 }}>{leadEmoji(c)}</span>{text}
-      </span>
-      {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
-      {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
-      {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12.5 }}>{c.challenge.status === "open" ? "🆘" : "🧩"}</span>}
-      {/* 💬 מונה-תגובות — מוצג רק בשרשור פעיל (יש ולו תגובה אחת); בלי תגובות אין מספר כלל */}
-      {isContrib && c.replyCount > 0 && (
-        <span className="ff-count" title={`${c.replyCount} תגובות בשרשור`}
-          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 3, justifyContent: "flex-end",
-            color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>
-          💬 {c.replyCount}
+      {/* אזור-הפתיחה (אווטאר · שם · טקסט · סמלי-סטטוס) — לחיצה פותחת את הכרטיס */}
+      <button onClick={onOpen} aria-label="פתח" className="ff-openarea"
+        style={{ display: "flex", alignItems: "center", gap: 9, flex: 1, minWidth: 0, textAlign: "start", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
+        <img src={genAvatar(who)} alt="" loading="lazy"
+          style={{ width: 26, height: 26, borderRadius: "50%", flex: "0 0 auto", border: `1px solid ${P.border}` }} />
+        <span className="ff-who" style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", maxWidth: "34%", minWidth: 0 }}>
+          <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{who}</span>
+          {c.trustedAuthor && <TrustedTick P={P} />}
+        </span>
+        {isNew && <span title="חדש מאז הביקור האחרון" style={{ flex: "0 0 auto", background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 9.5, fontWeight: 900, borderRadius: 999, padding: "1px 6px", letterSpacing: .3 }}>🆕 חדש</span>}
+        <span style={{ flex: 1, minWidth: 0, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <span style={{ marginInlineEnd: 4 }}>{leadEmoji(c)}</span>{text}
+        </span>
+        {c.pinned && <span title="מוצמד" style={{ flex: "0 0 auto", fontSize: 12 }}>📌</span>}
+        {c.chosen && <span title="מהנבחרות" style={{ flex: "0 0 auto", fontSize: 12 }}>🏆</span>}
+        {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12.5 }}>{c.challenge.status === "open" ? "🆘" : "🧩"}</span>}
+      </button>
+
+      {/* 🆕 פעולות-שורה — לייק + תגובה לחיצים (רק לתרומות-קהילה, שיש להן contribId) */}
+      {isContrib && c.contribId && (
+        <span className="ff-actions" style={{ display: "inline-flex", alignItems: "center", gap: 6, flex: "0 0 auto" }}>
+          {SHOW_FORUM_LIKES && <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} variant="row" />}
+          <button onClick={onOpen} title="תגובה בשרשור" className="ff-cmt"
+            style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 3, borderRadius: 999, padding: "3px 10px",
+              border: `1px solid ${c.replyCount > 0 ? P.accent : P.border}`, background: c.replyCount > 0 ? "rgba(212,175,55,0.12)" : "transparent",
+              color: c.replyCount > 0 ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1 }}>
+            <span style={{ fontSize: 14 }}>💬</span>{c.replyCount > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c.replyCount}</span>}
+          </button>
         </span>
       )}
-      {/* 👍 סך-ריאקציות — רק כשיש, סימן-חיים קליל */}
-      {rTotal > 0 && (
-        <span className="ff-count" title={`${rTotal} ריאקציות`}
-          style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 2, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
-          👍 {rTotal}
-        </span>
-      )}
-      {/* 💬 עודכן — כשהשרשור קפץ מתגובה/פעילות (bump חדש מ-ts) מציגים את זמן-הפעילות האחרונה */}
-      {c.bump && new Date(c.bump) > new Date(c.ts) ? (
-        <span title="עודכן — תגובה/פעילות אחרונה" style={{ flex: "0 0 auto", color: P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, whiteSpace: "nowrap" }}>💬 {timeAgo(c.bump)}</span>
+
+      {/* זמן — פעילות-אחרונה (bump) אם קפץ, אחרת זמן-היצירה */}
+      {bumped ? (
+        <span title="עודכן — תגובה/פעילות אחרונה" style={{ flex: "0 0 auto", color: P.accentText, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, whiteSpace: "nowrap" }}>🕒 {timeAgo(c.bump)}</span>
       ) : (
         <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       )}
-    </button>
+    </div>
   );
 }
 
 // פריט-פיד: שורת-צ'אט כברירת-מחדל; בלחיצה נפתח הכרטיס המלא (עם «כווץ» לחזרה לשורה).
-function FeedItem({ c, P, isAdmin, onChanged }) {
+function FeedItem({ c, P, isAdmin, onChanged, cutoff }) {
   const [open, setOpen] = useState(false);
-  if (!open) return <ChatRow c={c} P={P} onOpen={() => setOpen(true)} />;
+  if (!open) return <ChatRow c={c} P={P} onOpen={() => setOpen(true)} cutoff={cutoff} />;
   const full = c.kind === "post" ? <PostCard c={c} P={P} />
     : c.kind === "insight" ? <InsightCard c={c} P={P} isAdmin={isAdmin} onChanged={onChanged} />
     : c.kind === "cipher" ? <CipherCard c={c} P={P} />
@@ -387,6 +406,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
   const [writer, setWriter] = useState(null);
   const [state, setState] = useState(null);
   const [sort, setSort] = useState("new");
+  // 🆕 סף «נראה» פר-משתמש — נלכד פעם אחת בכניסה; תגי «חדש» מחושבים מולו, ואז מסמנים נראה (whats_new_law).
+  const [newCutoff] = useState(() => seenCutoff(FORUM_SEEN_KEY));
   // ✍️ «דף ריק לכתוב חידוש» — נפתח אוטומטית בהגעה מ-/forum?write=1 (כפתור «שתפו חידוש» בדף הבית)
   const [sp] = useSearchParams();
   const wantWrite = sp.get("write") === "1";
@@ -410,6 +431,13 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
     }).catch(() => setAllItems([]));
   }, []);
   useEffect(() => { load(); }, [load]);
+  // 🆕 אחרי טעינה — מסמנים «נראה» עם החדש-ביותר, כך שבביקור הבא רק מה שעלה מעכשיו יסומן «חדש».
+  //     ה-cutoff לתצוגה כבר נלכד ב-newCutoff לפני הסימון → התגים של הביקור הזה נשמרים.
+  useEffect(() => {
+    if (!allItems || !allItems.length) return;
+    const newest = allItems.reduce((m, it) => (it.ts && it.ts > m ? it.ts : m), "");
+    if (newest) markSeenKey(FORUM_SEEN_KEY, newest);
+  }, [allItems]);
 
   const postCount = useMemo(() => (allItems || []).filter(it => it.kind === "post").length, [allItems]);
   const insightCount = useMemo(() => (allItems || []).filter(it => it.kind === "insight").length, [allItems]);
@@ -436,6 +464,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
     else out = allItems;
     if (state) out = out.filter(it => it.research_state === state);
     if (sort === "significance") out = [...out].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.trustedAuthor ? 1 : 0) - (a.trustedAuthor ? 1 : 0) || sigScore(b) - sigScore(a) || (new Date(b.ts) - new Date(a.ts)));
+    // 🔥 הכי מדובר — מוצמדים ראשונים, ואז לפי מעורבות (תגובות+לייקים+בוסטים), שובר-שוויון לפי טריות.
+    else if (sort === "hot") out = [...out].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || engagementScore(b) - engagementScore(a) || (new Date(b.ts) - new Date(a.ts)));
     return out;
   }, [allItems, type, writer, state, sort]);
 
@@ -458,8 +488,10 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         .ff-root .ff-chatrow { -webkit-tap-highlight-color: transparent; }
         .ff-root img, .ff-root video, .ff-root iframe { max-width: 100%; }
         @media (max-width: 520px) {
-          .ff-root .ff-chatrow { gap: 8px; padding: 10px 11px; }
-          .ff-root .ff-who { max-width: 44%; }
+          .ff-root .ff-chatrow { gap: 6px; padding: 10px 11px; }
+          .ff-root .ff-who { max-width: 30%; }
+          .ff-root .ff-actions { gap: 4px; }
+          .ff-root .ff-actions button { padding: 3px 8px; }
           .ff-root .ff-filters { gap: 6px; }
           .ff-root .ff-filters button { padding: 6px 11px; font-size: 12.5px; }
         }
@@ -517,6 +549,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         )}
         <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700 }}>מיון:</span>
         <button onClick={() => setSort("new")} style={{ ...chip(sort === "new"), fontSize: 12, padding: "4px 11px" }}>🆕 חדש</button>
+        <button onClick={() => setSort("hot")} style={{ ...chip(sort === "hot"), fontSize: 12, padding: "4px 11px" }}>🔥 הכי מדובר</button>
         <button onClick={() => setSort("significance")} style={{ ...chip(sort === "significance"), fontSize: 12, padding: "4px 11px" }}>⭐ מובהקות</button>
       </div>
 
@@ -529,7 +562,7 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
         </div>
       ) : (
         <div style={{ display: "grid", gap: 8 }}>
-          {items.map(c => <FeedItem key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} />)}
+          {items.map(c => <FeedItem key={c.id} c={c} P={P} isAdmin={isAdmin} onChanged={load} cutoff={newCutoff} />)}
         </div>
       )}
     </div>

@@ -14,7 +14,7 @@ import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions } from "../../lib/commandCenter.js";
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
@@ -1160,6 +1160,46 @@ function RepliesPanel({ T, goto }) {
   );
 }
 
+// 🗨️ הפעילות שלי — התרומות והתגובות שאני-עצמי כתבתי (RPC my_contributions). לחיצה → הקשר בגרף/פורום.
+function MyContributionsList({ T, goto }) {
+  const [rows, setRows] = useState(null);
+  useEffect(() => { myContributions(50).then(setRows).catch(() => setRows([])); }, []);
+  const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+  // תגובה → עמוד-השרשור (/forum/<אב>); תרומת-שורש → דף-המספר/הישות אם יש יעד, אחרת עמוד-התרומה.
+  const linkFor = r => r.is_reply
+    ? (r.parent_id ? `/forum/${r.parent_id}` : `/forum/${r.id}`)
+    : (r.target_type === "number" && r.target_id ? `/number/${r.target_id}`
+       : r.convergence_slug ? `/topic/${r.convergence_slug}` : `/forum/${r.id}`);
+  const statusLabel = s => s === "pending" ? "⏳ ממתין לאישור" : s === "approved" ? "✓ פעיל" : s;
+  if (rows === null) return <div style={{ color: T.sub, fontSize: 13, padding: "8px 0" }}>טוען…</div>;
+  if (!rows.length) return (
+    <div style={{ textAlign: "center", padding: "22px 14px", color: T.sub }}>
+      <div style={{ fontSize: 28, marginBottom: 8 }}>🗨️</div>
+      <div style={{ fontSize: 13, lineHeight: 1.7 }}>עדיין לא כתבת תרומות או תגובות.<br />כל רמז/תגובה שתכתוב בפורום או בדף-מספר יופיע כאן.</div>
+    </div>
+  );
+  return (
+    <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+      {rows.map(r => {
+        const label = (r.title && r.title.trim()) || (r.body && r.body.trim()) || (r.target_id || "תרומה");
+        const ctx = r.is_reply
+          ? `תגובה${r.parent_title ? ` · על «${r.parent_title}»` : (r.parent_author ? ` · ל${r.parent_author}` : "")}`
+          : (r.intent || "תרומה");
+        return (
+          <button key={r.id} onClick={() => goto(linkFor(r))} style={{ display: "block", textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "10px 12px", color: T.ink, fontFamily: "inherit", width: "100%", boxSizing: "border-box", cursor: "pointer" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: T.gold, background: T.accSoft, borderRadius: 999, padding: "1px 8px" }}>{r.is_reply ? "💬" : "✦"} {ctx}</span>
+              <span style={{ color: T.sub, fontSize: 10.5 }}>{statusLabel(r.status)}</span>
+            </div>
+            <div style={{ color: T.ink, fontSize: 13, lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{label}</div>
+            <div style={{ color: T.sub, fontSize: 10.5, marginTop: 3 }}>{fmt(r.created_at)} · פתח ←</div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // 📨 ההודעות שלי — הודעות פרטיות (DM). רשימת-שיחות → שרשור → תשובה. RPCs: dm_inbox/thread/send.
 function InboxPanel({ T }) {
   const { user } = useAuth();
@@ -1333,8 +1373,8 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />
-        <Row T={T} k="מהמילים שלך במנוע" v={c.contributions ?? 0} />
-        <div style={{ marginTop: 12, fontSize: 12.5, color: T.sub, lineHeight: 1.7 }}>בקרוב: כמה נכנסו ל«אוצרות» · כמה משתמשים השתמשו · כמה צפיות קיבלו.</div>
+        <div style={{ margin: "12px 0 6px", fontSize: 12.5, fontWeight: 800, color: T.ink }}>🗨️ הפעילות שלי — תרומות ותגובות</div>
+        <MyContributionsList T={T} goto={goto} />
       </div>
     ) },
     { id: "hints", world: "lab", icon: "🧩", title: "הרמזים שלי", status: "live", badge: c.hints || undefined, render: () => <HintsPanel T={T} user={user} /> },

@@ -677,11 +677,22 @@ export default function Navbar() {
         {/* מתג תמה גלובלי — גלוי בכל מסך */}
         <NavThemeToggle />
 
-        <button className="sod-nav-burger" aria-label="תפריט" onClick={() => setDrawer(d => !d)} style={{
+        <button className="sod-nav-burger" aria-label={`תפריט${user && unread > 0 ? ` — ${unread} התראות חדשות` : ""}`} onClick={() => setDrawer(d => !d)} style={{
+          position: "relative",
           display: "none", background: "none", border: `1px solid ${cc.borderGold}`,
           color: cc.goldBright, cursor: "pointer", borderRadius: 8,
           width: 40, height: 40, marginInlineStart: 8, alignItems: "center", justifyContent: "center",
-        }}>{drawer ? <span style={{ fontSize: 18 }}>✕</span> : <GridIcon />}</button>
+        }}>
+          {drawer ? <span style={{ fontSize: 18 }}>✕</span> : <GridIcon />}
+          {/* 🔔 נקודת-התראה במובייל — הפעמון ירד מהסרגל, אז הכניסה-לאזור מסמנת שיש חדש (בלי לפתוח) */}
+          {!drawer && user && unread > 0 && (
+            <span aria-hidden style={{ position: "absolute", top: -4, insetInlineStart: -4, minWidth: 16, height: 16, padding: "0 4px",
+              background: "#d64545", color: "#fff", borderRadius: 999, fontFamily: F.heading, fontSize: 9.5, fontWeight: 800,
+              display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 2px ${cc.bg}` }}>
+              {unread > 9 ? "9+" : unread}
+            </span>
+          )}
+        </button>
       </div>
 
       {drawer && (

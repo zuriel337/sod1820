@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
 import StoryViewer from "./StoryViewer.jsx";
+import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 
 // 🎬 רצועת «אור הגאולה» לעמוד-הבית — הסרטונים האחרונים שעלו + מתי. מצביע ל-/or-geula.
 // עץ אחד: אותו מקור (channel_updates channel=or-geula) של עמוד-הקטלוג; כאן רק טעימה.
@@ -29,7 +30,10 @@ export default function HomeOrGeulaRail({ limit = 10 }) {
   return (
     <section id="or-geula-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-        <h2 className="hn-h2" style={{ textAlign: "start", margin: 0 }}>🎬 אור הגאולה — סרטונים אחרונים</h2>
+        <h2 className="hn-h2" style={{ textAlign: "start", margin: 0, display: "inline-flex", alignItems: "center", gap: 9 }}>
+          <img src={OR_GEULA_LOGO} alt="" width="30" height="30" style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover", flex: "0 0 auto" }} />
+          אור הגאולה — סרטונים אחרונים
+        </h2>
         <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, scrollSnapType: "x proximity" }}>
@@ -44,7 +48,7 @@ export default function HomeOrGeulaRail({ limit = 10 }) {
               <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", background: "linear-gradient(160deg,#1a1030,#0a0710)", overflow: "hidden" }}>
                 {thumb
                   ? <img src={thumb} alt={cap.slice(0, 40) || "אור הגאולה"} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                  : <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#6b5aa0", fontSize: 34 }}>🎬</div>}
+                  : <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}><img src={OR_GEULA_LOGO} alt="אור הגאולה" loading="lazy" style={{ width: "54%", height: "54%", objectFit: "contain", opacity: .92 }} /></div>}
                 {vid && (
                   <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "rgba(0,0,0,.25)" }}>
                     <div style={{ width: 42, height: 42, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center" }}>
