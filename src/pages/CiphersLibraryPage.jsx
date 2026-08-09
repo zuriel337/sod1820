@@ -8,6 +8,7 @@ import { getSavedMatrices, getDraftMatrices, moderateMatrix, deleteMatrix } from
 import { useAuth } from "../lib/AuthContext.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import ElsPulseChip from "../components/ElsPulseChip.jsx";
+import WatchButton from "../components/WatchButton.jsx";
 import { formatDateHe } from "../lib/format.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 
@@ -181,6 +182,13 @@ export default function CiphersLibraryPage() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* 🔔 מעקב אחרי צפנים חדשים — הערוץ הקנוני codes:new (subscription_funnel_law). קומפקטי, ממורכז,
+            אזור-מעקב מובחן (לא בשורת-השיתוף). מתריע כשעולה צופן חדש לספרייה (admin/community). */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+          <WatchButton topic="codes:new" source="codes_library" compact
+            icon="🧩" label="עקוב אחרי צפנים חדשים" />
         </div>
 
         {/* 🗂️ תיקיית-הניהול (אדמין) — כל הטיוטות/מוסתרים, פרסום-לראשי בלחיצה */}
