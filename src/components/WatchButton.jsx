@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { usePalette, PALETTES } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { getNotificationPrefs } from "../lib/supabase.js";
@@ -13,8 +13,10 @@ import { trackConversion } from "../lib/marketing.js";
 // «מה מקבלים» · (4) Follow קודם, ערוץ אח"כ (escalation: אחרי Follow → הצעת Push, לא לפני) ·
 // (7) מצב gate לתחתית-תוכן. אין רכיב-מעקב אחר.
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false }) {
-  const P = usePalette();
+//   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null }) {
+  const auto = usePalette();
+  const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
