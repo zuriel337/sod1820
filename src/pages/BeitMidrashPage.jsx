@@ -51,6 +51,7 @@ const SECTIONS = [
   // 📚 מחקר ותוכן
   { key: "atlas", icon: "🌳", label: "אטלס הממצאים", group: "research" },
   { key: "convergence", icon: "🌐", label: "צירי התכנסות", group: "research" },
+  { key: "writercross", icon: "🔗", label: "התכנסויות הכתבים", group: "research" },
   { key: "searches", icon: "🔎", label: "מה נחקר", group: "research" },
   { key: "verified", icon: "🔵", label: "פוסטים מאומתים", ai: true, group: "research" },
   { key: "sod1820", icon: "✦", label: "1820 · סוד הסודות", group: "research" },
@@ -1060,6 +1061,92 @@ function ConvergenceSection() {
   );
 }
 
+// 🔗 התכנסויות הכתבים — קירות-ההצלבות של הכתבים (topic_cards created_by=<כתב>), מקובצים ומיוחסים.
+// עדשה על אותו מקור כמו «קיר ההצלבות» בדף-הכתב; כאן בבית-המדרש, מרוכז לכל הכתבים ומיוחס. מפנה, לא משכפל.
+// כתב = created_by שתואם contributors.display_name (מנוע/AI/מערכת מסוננים אוטומטית). מקסימום לכל כתב → דף-הכתב.
+function WriterConvergencesTab() {
+  const [data, setData] = useState(null);
+  const PER = 6;
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const [cards, consRes] = await Promise.all([
+          getTopicCards({ approvedOnly: true }),
+          supabase.from("contributors").select("display_name,specialty_label,accent,emblem"),
+        ]);
+        if (!live) return;
+        const byName = {};
+        (consRes?.data || []).forEach(c => { if (c.display_name) byName[c.display_name] = c; });
+        const groups = {};
+        (cards || []).forEach(c => {
+          const w = c.created_by;
+          if (!w || !byName[w]) return;                 // רק כתבים אמיתיים (לא «מנוע · …»/ai/system)
+          (groups[w] = groups[w] || []).push(c);
+        });
+        const list = Object.entries(groups)
+          .map(([writer, cs]) => ({
+            writer, con: byName[writer],
+            cards: cs.sort((a, b) => (b.meter_score || b.quality || 0) - (a.meter_score || a.quality || 0)),
+          }))
+          .sort((a, b) => b.cards.length - a.cards.length);
+        setData(list);
+      } catch { if (live) setData([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  if (data === null) return <div style={{ color: L.sub, padding: 20 }}>טוען…</div>;
+  if (!data.length) return <div style={{ color: L.sub, padding: 20 }}>עדיין אין התכנסויות של כתבים.</div>;
+  return (
+    <div style={{ display: "grid", gap: 26 }}>
+      <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, margin: 0, maxWidth: 640 }}>
+        🔗 קירות ההצלבות של חכמי-הרמז שלנו — ביטויים ששווים לאותו ערך במנוע. כל כתב וההתכנסויות שיצר. לחיצה על כרטיס פותחת את ההתכנסות; על מספר — את דף המספר.
+      </p>
+      {data.map(g => {
+        const acc = g.con?.accent || L.gold;
+        return (
+          <div key={g.writer}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 10, borderInlineStart: `3px solid ${acc}`, paddingInlineStart: 10 }}>
+              <ResearcherLink name={g.writer} style={{ color: L.ink, fontFamily: F.regal, fontSize: 19, fontWeight: 800, textDecoration: "none" }}>
+                {(g.con?.emblem ? `${g.con.emblem} ` : "") + g.writer}
+              </ResearcherLink>
+              <span style={{ color: L.sub, fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                {g.cards.length} התכנסויות{g.con?.specialty_label ? ` · ${g.con.specialty_label}` : ""}
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px,1fr))", gap: 12 }}>
+              {g.cards.slice(0, PER).map(c => {
+                const hot = [...new Set([...(c.highlight_numbers || []), ...(c.numbers || [])])].filter(n => n != null).slice(0, 4);
+                return (
+                  <Link key={c.id} to={`/topic/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none" }}>
+                    <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderTop: `3px solid ${acc}`, borderRadius: 12, padding: "13px 15px", height: "100%", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                      <div style={{ color: L.ink, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, lineHeight: 1.4, marginBottom: 6 }}>{c.title}</div>
+                      {c.subtitle && <div style={{ color: L.sub, fontFamily: F.body, fontSize: 12, lineHeight: 1.55, marginBottom: 8 }}>{c.subtitle}</div>}
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {hot.map(n => (
+                          <a key={n} href={`/number/${n}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/number/${n}`; }}
+                            style={{ fontFamily: F.mono, fontWeight: 800, fontSize: 12.5, padding: "2px 10px", borderRadius: 999, border: `1px solid ${acc}`, background: "#fbf3da", color: L.goldDeep, textDecoration: "none" }}>{n}</a>
+                        ))}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            {g.cards.length > PER && (
+              <div style={{ marginTop: 8 }}>
+                <ResearcherLink name={g.writer} style={{ color: L.blue, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>
+                  כל {g.cards.length} ההתכנסויות של {g.writer} בדף הכתב ←
+                </ResearcherLink>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function BeitMidrashPage() {
   const loc = useLocation();
   const { isAdmin } = useAuth();
@@ -1273,6 +1360,7 @@ export default function BeitMidrashPage() {
             {tab === "methods" && <MethodsTab />}
             {tab === "atlas" && <AtlasFindings />}
             {tab === "convergence" && <ConvergenceSection />}
+            {tab === "writercross" && <WriterConvergencesTab />}
             {tab === "verified" && <VerifiedTab />}
             {tab === "sod1820" && <Gated><Sod1820Tab /></Gated>}
             {tab === "community" && <CommunityTab highlightId={insightParam} />}
