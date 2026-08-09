@@ -1659,12 +1659,11 @@ export default function EntityPage({ embedPhrase } = {}) {
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 8 }}>כל המילים · תמונות · פוסטים · DNA · משפחות · הצלבות · כלים</div>
                   </div>
                 </Reveal>
-                {/* 🔔 מנוי-מספר — קומפקטי, בתחתית תצוגת-הקריאה (לא בראש, לא בשורת-השיתופים) */}
+                {/* 🔔 אזור-מעקב קנוני (מובחן משיתוף, Value-First: אחרי התוכן/המחקר, לא בראש) */}
                 {isNumber && value != null && (
-                  <div style={{ display: "flex", justifyContent: "center", marginTop: 4, marginBottom: 4 }}>
-                    <WatchButton topic={`number:${value}`} source="entity_page" compact
-                      label={`עקוב אחרי ${value}`} explainer="תקבל עדכון כשמתווסף חומר חדש על המספר הזה." />
-                  </div>
+                  <WatchButton topic={`number:${value}`} source="entity_page" gate
+                    heading={`רוצה לדעת כשמתווסף חומר על ${value}?`}
+                    label={`עקוב אחרי ${value}`} explainer="נעדכן אותך כשמתווסף מחקר / רמז / חומר חדש על המספר הזה." />
                 )}
               </div>
             )}
