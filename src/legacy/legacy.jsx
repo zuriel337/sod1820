@@ -4914,8 +4914,8 @@ function PostPageBySlug({ onNav }) {
 
             {/* 🎓 משפך «שיעור 1» הוסר (662 צפיות → 0 הרשמות — לא הביא כלום). בקשת צוריאל 5.7. */}
 
-            {/* מעקב בתוך הפוסט — קטגוריה בלבד (subscription_funnel_law v8, אין מעקב-כתב). */}
-            <PostFollowBox categories={cats} postMode={postMode} />
+            {/* מעקב בתוך הפוסט — שער: 📁 קטגוריה + ✍️ כתב (subscription_funnel_law v10, אין מעקב-פוסט). */}
+            <PostFollowBox categories={cats} author={author} postMode={postMode} />
 
             {/* 🌱 «הקהילה בשלב ההקמה» — במקום תגובות-פתוחות (0 תגובות = נראה מת), הזמנה איכותית
                 לכתוב חידוש בבית המדרש (החלטת צוריאל). Spot.IM הוסר; תגובות-WP ההיסטוריות בארכיון-מקופל למטה. */}

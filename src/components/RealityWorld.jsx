@@ -160,13 +160,6 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         <h2 className="hn-h2">🌊 זרם המציאות</h2>
         <p className="hn-sub">גלריה חיה ומתכווננת — המספרים שמתעוררים במציאות. בחרו גלריית-רמזים או סננו לפי מספר.</p>
       </>)}
-      {/* 🔔 מעקב אחרי הזרם — קומפקטי, ממורכז, בשורה אחת. מוצג גם בבית וגם בארכיון (מחוץ ל-hideHeader).
-          paletteMode תואם ל-forceDark כדי שלא יהיה כפתור-בהיר בתוך זרם כהה (subscription_funnel_law · stream:reality). */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
-        <WatchButton topic="stream:reality" source="reality_stream" compact
-          paletteMode={forceDark ? "dark" : null} label="עקוב אחרי הזרם" />
-      </div>
-
       {/* 🫧 בועות המספרים החיים — כל בועה מפנה לכל התמונות של אותו מספר בארכיון (עץ אחד) */}
       {bubbles.length > 0 && (
         <div style={{ marginBottom: 18, padding: "15px 16px 16px", borderRadius: 16, border: `1px solid ${P.borderStrong}`, background: P.cardSoft }}>
@@ -254,6 +247,9 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
           </span>
         )}
         <span style={{ flex: 1 }} />
+        {/* 🔔 מעקב אחרי הזרם — בתוך שורת-הסינון (subscription_funnel_law v10 · stream:reality). מוצג בבית ובארכיון. */}
+        <WatchButton topic="stream:reality" source="reality_stream" compact
+          paletteMode={forceDark ? "dark" : null} label="עקוב אחרי הזרם" />
         {isAdmin && <button onClick={() => picker ? setPicker(null) : openPicker()} style={chip(P, picker != null)} title="הוסף תמונה מכל הגלריות לזרם המציאות">🖼️ הוסף לזרם</button>}
         <span style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 12 }}>{filtered.length} רמזים</span>
       </div>
