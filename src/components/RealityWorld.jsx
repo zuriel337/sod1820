@@ -159,15 +159,13 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
       {!hideHeader && (<>
         <h2 className="hn-h2">🌊 זרם המציאות</h2>
         <p className="hn-sub">גלריה חיה ומתכווננת — המספרים שמתעוררים במציאות. בחרו גלריית-רמזים או סננו לפי מספר.</p>
-        {/* 🔔 מעקב אחרי הזרם — נעדכן כשעולה תמונה/רמז חדש (subscription_funnel_law · topic=stream:reality) */}
-        {!compact && (
-          <div style={{ marginBottom: 16 }}>
-            <WatchButton topic="stream:reality" source="reality_stream" compact
-              label="עקוב אחרי הזרם"
-              explainer="נעדכן אותך כשעולה תמונה/רמז חדש בזרם המציאות." />
-          </div>
-        )}
       </>)}
+      {/* 🔔 מעקב אחרי הזרם — קומפקטי, ממורכז, בשורה אחת. מוצג גם בבית וגם בארכיון (מחוץ ל-hideHeader).
+          paletteMode תואם ל-forceDark כדי שלא יהיה כפתור-בהיר בתוך זרם כהה (subscription_funnel_law · stream:reality). */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+        <WatchButton topic="stream:reality" source="reality_stream" compact
+          paletteMode={forceDark ? "dark" : null} label="עקוב אחרי הזרם" />
+      </div>
 
       {/* 🫧 בועות המספרים החיים — כל בועה מפנה לכל התמונות של אותו מספר בארכיון (עץ אחד) */}
       {bubbles.length > 0 && (
