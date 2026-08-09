@@ -6,6 +6,7 @@
 //   • כל הפוסטים → /<slug>
 //   • דפי המספר → /number/:n  (כל מספר ≥10 שיש לו תמונות בגלריה, primary_value)
 //   • צירי ההתכנסות המאושרים → /topic/:slug
+//   • דפי הכתבים → /community/researcher/:slug  (contributors עם slug/code)
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
@@ -131,6 +132,20 @@ export default async function handler(req, res) {
       urls.push({ loc: '/codes/' + encodeURIComponent(c.slug), lastmod, changefreq: 'monthly', priority: '0.7' });
     }
   } catch (e) { /* ממשיכים גם בלי צפנים */ }
+
+  // ── דפי הכתבים → /community/researcher/:slug (contributors עם slug/code) ──
+  // המשטח הציבורי/SEO של כל חוקר — קיר-ההצלבות, האוצרות והרמזים שלו. אותו slug שה-OG מזהה (code||slug).
+  try {
+    const cons = await fetchAll('contributors?select=slug,code');
+    const seen = new Set();
+    for (const c of cons) {
+      const slug = c.code || c.slug;
+      // דילוג על פרופילים אוטומטיים (r-<hash>) — לא דפי-כתב אצורים, לא לאינדקס
+      if (!slug || seen.has(slug) || /^r-[0-9a-f]{16,}$/i.test(slug)) continue;
+      seen.add(slug);
+      urls.push({ loc: '/community/researcher/' + encodeURIComponent(slug), changefreq: 'weekly', priority: '0.6' });
+    }
+  } catch (e) { /* ממשיכים גם בלי דפי-כתבים */ }
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
