@@ -162,16 +162,11 @@ export async function getAgentStats() {
   } catch { return {}; }
 }
 
-// 🧠 הזיכרון שלי מול הבוטים — agent_user_memory (RLS own-read: רק השורות שלי). פרטיות = הלב.
-export async function getMyAgentMemory(limit = 20) {
-  if (!supabase) return [];
-  try {
-    const { data } = await supabase.from("agent_user_memory")
-      .select("id,agent,topic,content,memory_type,visibility,created_at")
-      .order("created_at", { ascending: false }).limit(limit);
-    return data || [];
-  } catch { return []; }
-}
+// 🧠 הזיכרון שלי מול הבוטים — הוסר (חוקת רזיאל · שלב 4, memory_architecture):
+//    הקריאה הישירה הזו סוננה לפי RLS-own-read (auth.uid) בלבד → לא ראתה את זיכרון-הוואטסאפ
+//    שנשמר תחת הטלפון, ולכן הציגה זיכרון לא-עקבי עם מה שרזיאל באמת קורא דרך הגשר.
+//    מקור-אמת יחיד לקריאת-זיכרון = הגשר הקנוני fn_raziel_context (איחוד uid↔טלפון).
+//    לתצוגת «מה הסוכן זוכר עליי» השתמש ב-getMyWaMemory (עדשת get_my_wa_memory, מגושרת דרך wa_account_links).
 
 // ◆ ספר-הקרדיטים שלי — credit_ledger (RLS owner-read).
 export async function getMyCreditLedger(limit = 15) {
@@ -225,7 +220,8 @@ export async function verifyWaLinkCode(phone, code) {
 }
 
 // 🧠 הזיכרון שהבוטים צברו על הטלפון המקושר שלי (עדשת get_my_wa_memory — join דרך wa_account_links).
-// עדיף על getMyAgentMemory כי user_ref הוא טלפון, לא auth.uid.
+// זו הקריאה המגושרת הקנונית לתצוגת-זיכרון-משתמש (user_ref = טלפון, מאוחד ל-uid), בהתאמה למה
+// שרזיאל קורא דרך fn_raziel_context (חוקת רזיאל · שלב 4).
 export async function getMyWaMemory(limit = 30) {
   if (!supabase) return [];
   try {
