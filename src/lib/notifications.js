@@ -61,12 +61,36 @@ export async function getMyNotifications(limit = 30) {
   try {
     const { data } = await supabase
       .from("user_notifications")
-      .select("id,kind,title,body,link,read_at,created_at")
+      .select("id,kind,title,body,link,read_at,created_at,source_topic")
       .order("created_at", { ascending: false })
       .limit(limit);
     return data || [];
   } catch { return []; }
 }
+
+// ===== שכבת-הייצוג (label resolution) — ההופכי של resolve_topics שב-DB =====
+// topic קנוני (cat:/author:/number:/stream:reality/codes:new + נושאי-שער ישנים) → תצוגה ידידותית.
+// זו נקודת-הבידוד בצד-הלקוח (Future-Proof v12): כשנעבור ל-cat:<id>/author:<id>, רק כאן נפתור id→שם
+// (או לפי locale) — בלי לגעת בשאר ה-UI. הזהות היא ה-topic; השם/האייקון/הקישור = ייצוג בלבד.
+export function topicLabel(topic) {
+  if (!topic) return null;
+  const t = String(topic);
+  if (t.startsWith("cat:"))    { const v = t.slice(4);  return { icon: "📁", label: v, link: `/category/${encodeURIComponent(v)}`, kind: "קטגוריה" }; }
+  if (t.startsWith("author:")) { const v = t.slice(7);  return { icon: "✍️", label: v, link: `/community/researcher/${encodeURIComponent(v)}`, kind: "כתב" }; }
+  if (t.startsWith("number:")) { const v = t.slice(7);  return { icon: "🔢", label: v, link: `/number/${v}`, kind: "מספר" }; }
+  if (t === "stream:reality")  return { icon: "🌊", label: "זרם המציאות", link: "/archive", kind: "ערוץ" };
+  if (t === "codes:new")       return { icon: "🧩", label: "צפנים חדשים", link: "/codes", kind: "ערוץ" };
+  const g = NOTIFICATION_TOPICS.find(x => x.key === t);
+  if (g) return { icon: g.emoji, label: g.label, link: null, kind: "נושא" };
+  return { icon: "🔔", label: t, link: null, kind: "" };
+}
+
+// שלושת המצבים — לעולם לא מתערבבים (subscription_funnel_law). כרגע רק הראשון פעיל.
+export const FOLLOW_STATES = [
+  { key: "follow",  icon: "🔔", label: "אני עוקב",     note: "בחירה מפורשת שלך",       live: true  },
+  { key: "signal",  icon: "🟢", label: "רלוונטי אליך", note: "סיגנל שהמערכת תזהה",     live: false },
+  { key: "raziel",  icon: "✨", label: "רזיאל מציע",   note: "המלצה אישית",            live: false },
+];
 
 export async function getUnreadCount() {
   if (!supabase) return 0;
