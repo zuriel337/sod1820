@@ -7,7 +7,6 @@ import { thumb, galThumb } from "../lib/img.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
-import FollowWriter from "../components/FollowWriter.jsx";
 import RankCard from "../components/RankCard.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import { useDossierData, AboutResearcher, CurrentFocus, ResearchDomains, DossierMatrices, DossierFindings, Connections, MyResearchExplored, PersonalDataCard, OwnerControls, ResearcherStatsCard, ImpactBar, ResearchJournal } from "../components/dossier/DossierExtras.jsx";
@@ -871,8 +870,7 @@ export default function ContributorPage() {
         <RankCard level={level} stats={stats} P={P} />
         {/* 🔗 שיתוף הדף — רכיב-השיתוף הקנוני (canonical_ui_components_law) */}
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
-          {/* 🔔 מעקב — WatchButton הקנוני היחיד (subscription_funnel_law v7 · author:<name>, source=writer) */}
-          <FollowWriter name={c.display_name} />
+          {/* 🔕 מעקב-אחרי-כתב הוסר (subscription_funnel_law v8, החלטת צוריאל): המעקב הוא על קטגוריה בלבד. */}
           <WriterMessage name={c.display_name} P={P} toUserId={c.user_id} />
           {/* 💬 קבוצת-הוואטסאפ האישית של הכתב — ליד «שלח הודעה»: התחברות + לראות מה הוא כותב */}
           {c.wa_group_url && (
