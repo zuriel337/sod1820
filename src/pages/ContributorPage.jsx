@@ -8,6 +8,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import RankCard from "../components/RankCard.jsx";
+import FollowWriter from "../components/FollowWriter.jsx";
 import ResearcherProfile from "../components/ResearcherProfile.jsx";
 import { useDossierData, AboutResearcher, CurrentFocus, ResearchDomains, DossierMatrices, DossierFindings, Connections, MyResearchExplored, PersonalDataCard, OwnerControls, ResearcherStatsCard, ImpactBar, ResearchJournal } from "../components/dossier/DossierExtras.jsx";
 import AskRaziel from "../components/AskRaziel.jsx";
@@ -870,7 +871,9 @@ export default function ContributorPage() {
         <RankCard level={level} stats={stats} P={P} />
         {/* 🔗 שיתוף הדף — רכיב-השיתוף הקנוני (canonical_ui_components_law) */}
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
-          {/* 🔕 מעקב-אחרי-כתב הוסר (subscription_funnel_law v8, החלטת צוריאל): המעקב הוא על קטגוריה בלבד. */}
+          {/* 🔔 מעקב אחרי הכתב — הוחזר (subscription_funnel_law v9): מעקב-כתב הגיוני בדף-הכתב עצמו.
+              (רק בתחתית-פוסט אין מעקב-כתב — שם עוקבים אחרי קטגוריה/פוסט.) */}
+          <FollowWriter name={c.display_name} />
           <WriterMessage name={c.display_name} P={P} toUserId={c.user_id} />
           {/* 💬 קבוצת-הוואטסאפ האישית של הכתב — ליד «שלח הודעה»: התחברות + לראות מה הוא כותב */}
           {c.wa_group_url && (

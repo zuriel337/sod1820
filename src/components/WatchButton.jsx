@@ -14,7 +14,8 @@ import { trackConversion } from "../lib/marketing.js";
 // (7) מצב gate לתחתית-תוכן. אין רכיב-מעקב אחר.
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null }) {
+//   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
@@ -59,12 +60,14 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   if (!topic) return null;
   const gold = P.accentText, soft = P.glow || "rgba(212,175,55,0.15)";
 
+  const outline = following || ghost;   // מתאר: תמיד כשעוקבים, וגם ghost כברירת-מחדל (פעולה משנית סמוכה)
   const btn = {
     cursor: busy ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
     minHeight: 40, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
     fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap",
-    border: `1px solid ${following ? P.accent : "transparent"}`,
-    background: following ? soft : P.accentBtn, color: following ? gold : (P.onAccent || "#1a0e00"),
+    border: `1px solid ${outline ? P.accent : "transparent"}`,
+    background: following ? soft : (ghost ? "transparent" : P.accentBtn),
+    color: outline ? gold : (P.onAccent || "#1a0e00"),
   };
 
   // הצעת-Push אחרי Follow (חוק #4: הפעולה הבאה בלבד) — רק אם הופעל עכשיו, יש תמיכה, ועוד לא פעיל
@@ -85,7 +88,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
             <>
               <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
               {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
-              <button onClick={toggle} disabled={busy} style={btn}>🔔 {label}</button>
+              <button onClick={toggle} disabled={busy} style={btn}>{icon} {label}</button>
             </>
           ) : (
             <>
@@ -107,7 +110,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     <div style={{ direction: "rtl" }}>
       <button onClick={toggle} disabled={busy} aria-pressed={following}
         title={following ? "לחצו לביטול" : explainer || label} style={btn}>
-        🔔 {following ? "עוקבים ✓" : label}
+        {icon} {following ? "עוקבים ✓" : label}
       </button>
       {!following && explainer && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
       {pushOffer}{pushDone}
