@@ -22,10 +22,11 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 
 // 🌍 חסימת מדינה — נשלטת מ-DB, בלי פריסה (בעקבות site_flags_lock_law).
 // הרשימה חיה בטבלת public.edge_blocked_countries; ה-RPC public.blocked_countries()
-// מחזיר את הקודים הפעילים. שינוי = INSERT/DELETE/UPDATE שם → חי מיד (cache שעה כאן),
-// בלי דחיפת-Vercel. FALLBACK קשיח (CN=סין, SG=סינגפור) אם ה-DB לא זמין — כדי לשמר
-// את ההתנהגות הקיימת ולא "להיפתח" בשקט בכישלון-רשת.
-const BLOCKED_COUNTRIES_FALLBACK = new Set(['CN', 'SG']);
+// מחזיר את הקודים הפעילים. שינוי = INSERT/UPDATE enabled שם → חי מיד (cache שעה כאן),
+// בלי דחיפת-Vercel. כרגע (9.8.2026, בבקשת צוריאל) אין אף מדינה חסומה — CN/SG הושבתו
+// (enabled=false, נשמרו להיסטוריה). FALLBACK ריק: אם ה-DB לא זמין ברירת-המחדל היא
+// לא-לחסום אף מדינה (לא "להחזיר" חסימה בטעות בכישלון-רשת).
+const BLOCKED_COUNTRIES_FALLBACK = new Set();
 let BLOCKED = null, BLOCKED_AT = 0;
 async function blockedCountriesSet() {
   const now = Date.now();
