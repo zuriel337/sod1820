@@ -645,7 +645,7 @@ export async function getSiteUpdates(limit = 6) {
 const VIDEO_URL_RE = /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i;
 // 🎞️ לוכד פריים-תצוגה מסרטון (קנבס בדפדפן) ומעלה כ-thumbnail לדלי gallery.
 // רץ בדפדפן-האדמין (כרום עם H.264) → פוסטר אוטומטי לעדכון-וידאו. נכשל בשקט → בלי פוסטר (כמו קודם).
-export async function captureAndUploadPoster(videoUrl, keyHint = 'broadcast', explicitPath = null) {
+export async function captureAndUploadPoster(videoUrl, keyHint = 'broadcast') {
   if (!supabase || !videoUrl || !VIDEO_URL_RE.test(videoUrl) || typeof document === 'undefined') return null;
   try {
     const blob = await new Promise((resolve, reject) => {
@@ -667,39 +667,11 @@ export async function captureAndUploadPoster(videoUrl, keyHint = 'broadcast', ex
       };
       setTimeout(() => fail('timeout'), 30000);
     });
-    // explicitPath = נתיב דטרמיניסטי לפי מזהה-שורה (backfill idempotent, upsert); אחרת נתיב-זמן ייחודי.
-    const path = explicitPath || `sod1820/${keyHint}-thumbs/${Date.now()}-${Math.round(Math.random() * 1e6)}.jpg`;
-    const { error } = await supabase.storage.from('gallery').upload(path, blob, { contentType: 'image/jpeg', upsert: !!explicitPath });
+    const path = `sod1820/${keyHint}-thumbs/${Date.now()}-${Math.round(Math.random() * 1e6)}.jpg`;
+    const { error } = await supabase.storage.from('gallery').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
     if (error) return null;
     return `${SUPABASE_URL}/storage/v1/object/public/gallery/${path}`;
   } catch { return null; }
-}
-
-// 🎞️ Backfill פוסטרים לעדכוני-וידאו שנכנסו מוואטסאפ (wa-channel-ingest) בלי thumb_url.
-// ה-ingest ב-edge לא יכול ללכוד פריים (אין דפדפן/ffmpeg), לכן הלכידה חייבת לרוץ בדפדפן-אדמין (canvas).
-// idempotent: הפוסטר נשמר לפי מזהה-שורה (or-geula-thumbs/<id>.jpg) ו-thumb_url מתעדכן ל-channel_updates.
-export async function countMissingChannelPosters(channel = 'or-geula') {
-  if (!supabase) return 0;
-  const { data } = await supabase.from('channel_updates')
-    .select('id,image_url').eq('channel', channel).is('thumb_url', null).limit(200);
-  return (data || []).filter(r => VIDEO_URL_RE.test(r.image_url || '')).length;
-}
-export async function backfillChannelPosters({ channel = 'or-geula', limit = 20, onProgress = null } = {}) {
-  if (!supabase) return { filled: 0, failed: 0, scanned: 0 };
-  const { data } = await supabase.from('channel_updates')
-    .select('id,image_url').eq('channel', channel).is('thumb_url', null)
-    .order('created_at', { ascending: false }).limit(200);
-  const vids = (data || []).filter(r => VIDEO_URL_RE.test(r.image_url || '')).slice(0, limit);
-  let filled = 0, failed = 0;
-  for (const r of vids) {
-    const poster = await captureAndUploadPoster(r.image_url, 'or-geula', `sod1820/or-geula-thumbs/${r.id}.jpg`);
-    if (poster) {
-      const { error } = await supabase.from('channel_updates').update({ thumb_url: poster }).eq('id', r.id);
-      if (error) failed++; else filled++;
-    } else failed++;
-    if (onProgress) { try { onProgress({ filled, failed, total: vids.length }); } catch { /* noop */ } }
-  }
-  return { filled, failed, scanned: vids.length };
 }
 
 export async function broadcastChannelUpdate({ text, imageUrl = null, hours = null, urgent = false, credit = null, channel = 'main', thumbUrl = null }) {
