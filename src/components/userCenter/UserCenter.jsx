@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { usePalette } from "../../lib/palette.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
-import { supabase, getUserActivity } from "../../lib/supabase.js";
+import { supabase, getUserActivity, getNotificationPrefs } from "../../lib/supabase.js";
 import { genAvatar } from "../../lib/avatar.js";
 import MyTreeCard from "../MyTreeCard.jsx";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../../lib/push.js";
@@ -12,9 +12,9 @@ import HintsPanel from "./HintsPanel.jsx";
 import ProfileSettings from "../ProfileSettings.jsx";
 import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
-import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead } from "../../lib/notifications.js";
+import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead, topicLabel, FOLLOW_STATES } from "../../lib/notifications.js";
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
-import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions } from "../../lib/commandCenter.js";
+import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions, watchToggle } from "../../lib/commandCenter.js";
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
@@ -1344,8 +1344,24 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
   const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים · world = שיוך לאחד מ-5 העולמות ───
-    { id: "notifications", world: "me", icon: "🔔", title: "ההתראות שלי", status: "live", badge: unread || undefined,
-      render: () => <div><NotificationsPanel T={T} onUnread={onUnread} goto={goto} setActive={setActive} /><PushPanel T={T} user={user} isAdmin={isAdmin} /></div> },
+    { id: "notifications", world: "me", icon: "🔔", title: "מרכז העדכונים", status: "live", badge: unread || undefined,
+      render: () => (
+        <div style={{ display: "grid", gap: 22 }}>
+          <section>
+            <div style={{ color: T.acc, fontWeight: 800, fontSize: 13, letterSpacing: 0.5, marginBottom: 10 }}>🔔 מה חדש בשבילי</div>
+            <NotificationsPanel T={T} onUnread={onUnread} goto={goto} setActive={setActive} />
+          </section>
+          <section>
+            <div style={{ color: T.acc, fontWeight: 800, fontSize: 13, letterSpacing: 0.5, marginBottom: 10 }}>🔔 אחרי מה אני עוקב</div>
+            <FollowingPanel T={T} goto={goto} />
+          </section>
+          <section>
+            <div style={{ color: T.acc, fontWeight: 800, fontSize: 13, letterSpacing: 0.5, marginBottom: 10 }}>⚙️ ערוצים והעדפות</div>
+            <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.6, marginBottom: 8 }}>כרגע העדכונים מגיעים <b style={{ color: T.ink }}>בתוך האתר</b> (כאן). התראה מיידית (Push) ומייל — בקרוב.</div>
+            <PushPanel T={T} user={user} isAdmin={isAdmin} />
+          </section>
+        </div>
+      ) },
     // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). מוצג רק למי שיש לו דף (hasPage).
     { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
     // 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה (כותב update_my_page_config). מוצג רק למי שיש דף.
@@ -1560,10 +1576,77 @@ function NotificationsPanel({ T, onUnread, goto, setActive }) {
               <span style={{ color: T.sub, fontSize: 10.5, whiteSpace: "nowrap" }}>{relTime(n.created_at)}</span>
             </div>
             {n.body && <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.6 }}>{n.body}</div>}
+            {/* «למה קיבלתי» — ה-topic שבאמת התאים לך (source_topic מה-Dispatcher) */}
+            {(() => { const w = topicLabel(n.source_topic); return w ? (
+              <div style={{ color: T.sub, fontSize: 11, marginTop: 5, opacity: 0.85 }}>כי אתה עוקב אחרי {w.icon} {w.label}</div>
+            ) : null; })()}
             {n.link && <div style={{ color: T.acc, fontSize: 11.5, fontWeight: 700, marginTop: 5 }}>לצפייה ←</div>}
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── 🔔 אחרי מה אני עוקב — רשימת ה-topics שהמשתמש בחר במפורש (notification_prefs.topics),
+//    עם שם ידידותי (topicLabel), קישור, וביטול-מעקב דרך אותו מנוע (watch_toggle). ──
+//    שלושת המצבים לא מתערבבים: כאן רק «🔔 אני עוקב». 🟢 רלוונטי / ✨ רזיאל = בקרוב.
+function FollowingPanel({ T, goto }) {
+  const { user } = useAuth();
+  const [topics, setTopics] = useState(null);
+  const [busy, setBusy] = useState("");
+
+  useEffect(() => {
+    if (!user?.id) { setTopics([]); return; }
+    getNotificationPrefs({ userId: user.id })
+      .then(p => setTopics(Array.isArray(p?.topics) ? p.topics : []))
+      .catch(() => setTopics([]));
+  }, [user?.id]);
+
+  async function unfollow(topic) {
+    setBusy(topic);
+    try { await watchToggle(topic, "center", false, null); setTopics(list => (list || []).filter(t => t !== topic)); }
+    catch { /* noop */ } finally { setBusy(""); }
+  }
+
+  const legend = (
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", margin: "0 0 12px", fontSize: 11, color: T.sub }}>
+      {FOLLOW_STATES.map(s => (
+        <span key={s.key} style={{ opacity: s.live ? 1 : 0.5 }} title={s.note}>
+          {s.icon} {s.label}{s.live ? "" : " · בקרוב"}
+        </span>
+      ))}
+    </div>
+  );
+
+  if (topics === null) return <div style={{ color: T.sub, fontSize: 13, padding: 14 }}>טוען…</div>;
+  return (
+    <div>
+      {legend}
+      {!topics.length ? (
+        <div style={{ textAlign: "center", padding: "20px 16px", color: T.sub, fontSize: 13.5, lineHeight: 1.7 }}>
+          <div style={{ fontSize: 26, marginBottom: 6, opacity: 0.7 }}>🔔</div>
+          עדיין לא בחרת לעקוב אחרי משהו.<br />בכל קטגוריה, כתב, מספר או בזרם המציאות — לחצו «עקוב» ונעדכן אתכם כאן.
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 8 }}>
+          {topics.map(t => {
+            const w = topicLabel(t); if (!w) return null;
+            return (
+              <div key={t} style={{ display: "flex", alignItems: "center", gap: 10, background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "10px 12px" }}>
+                <span style={{ fontSize: 18 }}>{w.icon}</span>
+                <button onClick={() => w.link && goto?.(w.link)} disabled={!w.link} style={{ flex: 1, textAlign: "right", background: "none", border: "none", cursor: w.link ? "pointer" : "default", color: T.ink, fontSize: 13.5, fontWeight: 700, fontFamily: "inherit", padding: 0 }}>
+                  {w.label}
+                  {w.kind && <span style={{ color: T.sub, fontSize: 11, fontWeight: 500, marginInlineStart: 6 }}>· {w.kind}</span>}
+                </button>
+                <button onClick={() => unfollow(t)} disabled={busy === t} title="ביטול מעקב" style={{ background: "none", border: `1px solid ${T.line}`, color: T.sub, borderRadius: 999, cursor: busy === t ? "wait" : "pointer", fontSize: 11.5, fontWeight: 700, padding: "4px 10px", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                  {busy === t ? "…" : "עוקב ✓"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
