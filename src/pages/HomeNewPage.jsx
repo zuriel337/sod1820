@@ -453,16 +453,19 @@ export default function HomeNewPage() {
                 <Link to={s.to} key={i} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
               ))}
             </div>
-            {/* 🔥 שורת-דופק חיה — המספר החם עכשיו (מפת-החום 7 ימים). מופיע רק כשיש נתון. */}
-            {hotNums.length > 0 && (
-              <Link to={`/number/${hotNums[0].n}`} className="hn-heropulse">
-                <span className="hn-hb" aria-hidden><i /><i className="p" /></span>
-                <span>🔥 המספר החם עכשיו: <b>{hotNums[0].n}</b></span>
-              </Link>
-            )}
           </div>
         </div>
       </section>
+
+      {/* 🔥 שורת-דופק — מתחת לשער (לא על התמונה, בקשת צוריאל). מופיע רק כשיש נתון. */}
+      {hotNums.length > 0 && (
+        <div style={{ textAlign: "center", padding: "16px 18px 0" }}>
+          <Link to={`/number/${hotNums[0].n}`} className="hn-heropulse">
+            <span className="hn-hb" aria-hidden><i /><i className="p" /></span>
+            <span>🔥 המספר החם עכשיו: <b>{hotNums[0].n}</b></span>
+          </Link>
+        </div>
+      )}
 
       {/* ===== 🔔 מה חדש מאז ביקורך — מצביע קומפקטי למרכז השידורים (מופיע רק כשיש חדש; לא-עמוס) ===== */}
       <WhatsNewCard />
