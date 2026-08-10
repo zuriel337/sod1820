@@ -9,6 +9,7 @@ import MyTreeCard from "../MyTreeCard.jsx";
 import { PUSH_CONFIGURED, getPushStatus, enablePush, disablePush } from "../../lib/push.js";
 import { useSiteOnline } from "../../lib/presence.js";
 import HintsPanel from "./HintsPanel.jsx";
+import ReportHint from "../ReportHint.jsx";
 import ProfileSettings from "../ProfileSettings.jsx";
 import ResearchCenter from "../ResearchCenter.jsx";
 import { rwCss, RW_VARS } from "../../lib/research/theme.js";
@@ -1396,6 +1397,8 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} initialDm={activeParam?.dm} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
+        {/* ➕ דווח רמז — תרומה חדשה לזרם המציאות (community_hints → אישור אדמין). רכיב קנוני יחיד. */}
+        <div style={{ marginBottom: 14 }}><ReportHint variant="banner" /></div>
         <Row T={T} k="פריטים שהוספת (אושרו)" v={c.contributions ?? 0} />
         <div style={{ margin: "12px 0 6px", fontSize: 12.5, fontWeight: 800, color: T.ink }}>🗨️ הפעילות שלי — תרומות ותגובות</div>
         <MyContributionsList T={T} goto={goto} />
