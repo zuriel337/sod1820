@@ -15,7 +15,6 @@ import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
-import ForumUpdatesBox from "../components/ForumUpdatesBox.jsx";
 import Discourse from "../components/Discourse.jsx";
 import CommunityForming from "../components/CommunityForming.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
@@ -4337,10 +4336,7 @@ function SpotimChatPage() {
               />
             </div>
 
-            {/* 📋 עדכונים אחרונים מהפורום — למטה בדסקטופ / למעלה במובייל */}
-            <aside className="sod-chat-aside">
-              <ForumUpdatesBox limit={7} />
-            </aside>
+            {/* 📋 «עדכונים אחרונים מהפורום» (ForumUpdatesBox) הוסר מהצ'אט בזמן שהפורום בתהליכי בנייה (בקשת צוריאל 10.8.2026). */}
           </div>
         </div>
 

@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useThemeMode, setForcedMode } from "../lib/themeMode.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import ForumFeed from "../components/ForumFeed.jsx";
-import ContributorsUpdatesRail from "../components/ContributorsUpdatesRail.jsx";
 import { markForumSeen } from "../lib/forumActivity.js";
 
 // 🌐 הפורום — פיד-מחקר מאוחד (research_contribution_law + עץ אחד). הגוף (סינונים + כרטיסים)
@@ -14,6 +15,9 @@ import { markForumSeen } from "../lib/forumActivity.js";
 export default function ForumPage() {
   const P = usePalette();
   const mode = useThemeMode();
+  const { user, loading } = useAuth();
+  // 🚧 הפורום בתהליכי בנייה — פתוח כרגע רק למשתמשים רשומים (מחוברים). אורח רואה הודעת-בנייה.
+  const registered = !!user;
 
   useEffect(() => { track("forum"); applySeo({ title: "פורום המחקר הקהילתי · סוד 1820", description: "כל חידושי, השערות, מקורות ומאמרי הכתבים של הקהילה במקום אחד — פורום המחקר של סוד 1820.", path: "/forum" }); }, []);
   // 🔴 נכנסת לפורום = ראית את הפעילות → מנקה את נקודת «חדש» בכל המשטחים (Footer/צ'אט/פיד)
@@ -32,6 +36,20 @@ export default function ForumPage() {
           {mode === "light" ? "🌙 מצב כהה" : "☀️ מצב בהיר"}
         </button>
       </div>
+
+      {/* 🚧 באנר בנייה — מוצג תמיד למעלה בזמן שהפורום בשיפוץ */}
+      <div style={{
+        textAlign: "center", background: P.faint || "rgba(0,0,0,0.04)",
+        border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 18px", marginBottom: 18,
+      }}>
+        <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>
+          🚧 הפורום בתהליכי בנייה מסיביים
+        </div>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, marginTop: 4 }}>
+          שובו בקרוב 🙏
+        </div>
+      </div>
+
       <div style={{ textAlign: "center", marginBottom: 18 }}>
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>מחקר קהילתי · פורום</div>
         <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,40px)", fontWeight: 800, margin: "0 0 8px" }}>🌐 פורום המחקר</h1>
@@ -40,8 +58,30 @@ export default function ForumPage() {
         </p>
       </div>
 
-      <ContributorsUpdatesRail limit={12} />
-      <ForumFeed maxWidth={780} />
+      {/* 🔒 שער — הפורום פתוח כרגע רק למשתמשים רשומים. אורח מקבל הזמנה להתחבר. */}
+      {loading ? null : registered ? (
+        <ForumFeed maxWidth={780} />
+      ) : (
+        <div style={{
+          textAlign: "center", background: P.faint || "rgba(0,0,0,0.04)",
+          border: `1px solid ${P.border}`, borderRadius: 16, padding: "30px 22px", marginTop: 8,
+        }}>
+          <div style={{ fontSize: 34, marginBottom: 8 }}>🔒</div>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 18, fontWeight: 800, marginBottom: 8 }}>
+            הפורום פתוח כרגע למשתמשים רשומים בלבד
+          </div>
+          <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 460, margin: "0 auto 18px" }}>
+            אנחנו משפצים ומרחיבים את הפורום. בזמן הבנייה הכניסה פתוחה למי שמחובר לחשבון.
+          </p>
+          <Link to="/login" style={{
+            display: "inline-block", background: P.accent || P.accentText, color: "#fff",
+            fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, textDecoration: "none",
+            borderRadius: 999, padding: "11px 26px",
+          }}>
+            התחברות / הרשמה ←
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
