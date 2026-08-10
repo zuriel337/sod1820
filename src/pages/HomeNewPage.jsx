@@ -457,18 +457,9 @@ export default function HomeNewPage() {
         </div>
       </section>
 
-      {/* 🔥 שורת-דופק — מתחת לשער (לא על התמונה, בקשת צוריאל). מופיע רק כשיש נתון. */}
-      {hotNums.length > 0 && (
-        <div style={{ textAlign: "center", padding: "16px 18px 0" }}>
-          <Link to={`/number/${hotNums[0].n}`} className="hn-heropulse">
-            <span className="hn-hb" aria-hidden><i /><i className="p" /></span>
-            <span>🔥 המספר החם עכשיו: <b>{hotNums[0].n}</b></span>
-          </Link>
-        </div>
-      )}
+      {/* 🔥 שורת «המספר החם עכשיו» הוסרה מדף הבית — בקשת צוריאל 10.8.2026. */}
 
-      {/* ===== 🔔 מה חדש מאז ביקורך — מצביע קומפקטי למרכז השידורים (מופיע רק כשיש חדש; לא-עמוס) ===== */}
-      <WhatsNewCard />
+      {/* «מה חדש בפורום» (WhatsNewCard) ירד למטה, מתחת ל«עדכונים אחרונים» — בקשת צוריאל 10.8.2026. */}
       {/* ===== 🔴 סטורי חדש · אור הגאולה — גולל לרצועה (מראה את הרשימה) ואז מדליק את הסטורי ===== */}
       <OrGeulaStoryChip scrollTargetId="or-geula-home" />
 
@@ -487,6 +478,11 @@ export default function HomeNewPage() {
             נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
         <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
       </section>
+
+      {/* ===== 🔔 מה חדש בפורום מאז ביקורך — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 10.8.2026) ===== */}
+      <div className="hn-wrap" style={{ padding: "0 18px 30px" }}>
+        <WhatsNewCard />
+      </div>
 
       {/* ===== 🎬 גלריית הסרטים — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 8.8.2026) ===== */}
       <section style={{ padding: "0 0 36px" }}>
