@@ -191,6 +191,39 @@ export default function UserCenter() {
   }, [isOpen]);
 
   if (!user) return null;
+
+  // 🚧 האזור האישי בפיתוח — פתוח כרגע רק לחשבונות של צוריאל (allowlist). כל השאר רואים
+  //     הודעת-בנייה במקום המודולים. להסרת הנעילה: למחוק את הבלוק הזה + UC_ALLOWED.
+  const UC_ALLOWED = ["zyz997@gmail.com", "yosiviner7@gmail.com"];
+  const ucAllowed = UC_ALLOWED.includes((user.email || "").trim().toLowerCase());
+  if (!ucAllowed) {
+    return (
+      <>
+        <div onClick={close} style={{
+          position: "fixed", inset: 0, background: "rgba(6,8,14,0.55)", zIndex: 4000,
+          opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? "auto" : "none", transition: "opacity .22s",
+        }} />
+        <aside dir="rtl" style={{
+          position: "fixed", top: 0, bottom: 0, left: 0, zIndex: 4001,
+          width: "min(410px, 92vw)", background: T.bg, color: T.ink,
+          boxShadow: "6px 0 40px rgba(0,0,0,0.4)", display: "flex", flexDirection: "column",
+          transform: isOpen ? "translateX(0)" : "translateX(-104%)", transition: "transform .26s cubic-bezier(.4,0,.2,1)",
+          fontFamily: "'Heebo','Assistant',sans-serif",
+        }}>
+          <div style={{ padding: "18px 18px 14px", borderBottom: `1px solid ${T.line}`, background: T.card, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".07em", color: T.gold }}>🧑 האזור האישי</div>
+            <button onClick={close} aria-label="סגור" style={{ background: "none", border: "none", color: T.sub, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>✕</button>
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "30px 24px" }}>
+            <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
+            <div style={{ color: T.ink, fontWeight: 800, fontSize: 19, marginBottom: 8 }}>האזור האישי בתהליכי בנייה</div>
+            <div style={{ color: T.sub, fontSize: 14, lineHeight: 1.8, maxWidth: 300 }}>אנחנו משדרגים את האזור האישי — שובו בקרוב 🙏</div>
+          </div>
+        </aside>
+      </>
+    );
+  }
+
   const goto = (link) => { close(); if (link) nav(link); };
   const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, dmUnread, onUnread: setUnread, goto, setActive, activeParam });
   const activeMod = MODULES.find(m => m.id === active) || null;
