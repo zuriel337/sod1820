@@ -4,6 +4,7 @@ import { F, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
+import { publicAuthorName } from "../lib/publicIdentity.js";
 import { langLinkAdd, langLinksList, langLinksPending, langLinkReview } from "../lib/supabase.js";
 import EnglishDiscovery from "../components/EnglishDiscovery.jsx";
 
@@ -45,7 +46,7 @@ function LinkRow({ r, P, admin, onReview }) {
       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
         <span style={{ color: P.accentText, background: P.glow, fontFamily: F.heading, fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "2px 10px", border: `1px solid ${P.border}` }}>{rel.emoji} {rel.label}</span>
         <StatusBadge status={r.status} P={P} />
-        {r.created_by_name && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· מאת {r.created_by_name}</span>}
+        {r.created_by_name && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· מאת {publicAuthorName(r.created_by_name)}</span>}
       </div>
       {r.note && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>{r.note}</div>}
       {admin && (

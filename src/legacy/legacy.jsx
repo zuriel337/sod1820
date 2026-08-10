@@ -7,6 +7,7 @@ import OrGeulaStoryColumn from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
+import { publicAuthorName, SYSTEM_BYLINE } from "../lib/publicIdentity.js";
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -1150,7 +1151,7 @@ function WPArticleCard({ post, onPost }) {
   const cats   = terms.filter(t => t.taxonomy === "category");
   const tags   = terms.filter(t => t.taxonomy === "post_tag").slice(0, 5);
   const date   = formatDateWP(post.date);
-  const author = post.author || "מערכת כי לה' המלוכה";
+  const author = publicAuthorName(post.author);   // 🔒 resolver קנוני — זהות פרטית/ריק → «מערכת כי לה׳ המלוכה»
   const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 320);
 
   return (
@@ -2610,7 +2611,7 @@ function PostPage({ post, onBack }) {
               fontSize: 9, color: C.muted, letterSpacing: 4,
               marginBottom: 18, fontFamily: F.heading, textTransform: "uppercase",
             }}>
-              {date}{author && ` · ${author}`}
+              {date}{author && ` · ${publicAuthorName(author)}`}
             </div>
 
             <h1 style={{
@@ -4671,7 +4672,7 @@ function PostPageBySlug({ onNav }) {
       type: "article",
       publishedTime: post.date || undefined,
       modifiedTime: post.modified || post.date || undefined,
-      author: by?.name && by.name !== "המערכת" ? by.name : undefined,
+      author: by?.name && by.name !== SYSTEM_BYLINE ? by.name : undefined,
       tags: post.tags || [],
       section: (post.categories || [])[0] || undefined,
     });
@@ -4782,8 +4783,9 @@ function PostPageBySlug({ onNav }) {
               )}
               {(() => {
                 const by = resolveAuthor(author);
-                // כותב ברירת מחדל ("המערכת", כשהשדה ריק) — לא מציגים תיבת כותב כלל.
-                if (by.name === "המערכת") return null;
+                // כותב ברירת מחדל (המערכת, כשהשדה ריק/פרטי) — לא מציגים תיבת כותב כלל.
+                // ה-resolver ממפה ריק/צוריאל/AI/מנוע → «מערכת כי לה׳ המלוכה» → מוסתר כאן (כמו קודם).
+                if (by.name === SYSTEM_BYLINE) return null;
                 const isVerified = !!(post.verified || post.ai_touched);
                 return (
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
@@ -4814,7 +4816,7 @@ function PostPageBySlug({ onNav }) {
               {(() => {
                 const list = Array.isArray(post.authors) ? post.authors.filter(Boolean) : [];
                 const primary = author || list[0] || "";
-                const others = list.filter(a => a && a !== primary && a !== "המערכת");
+                const others = list.filter(a => a && a !== primary && a !== "המערכת" && a !== SYSTEM_BYLINE);
                 if (!others.length) return null;
                 return (
                   <div style={{ textAlign: "center", margin: "-6px 0 14px", color: pc.muted, fontFamily: F.heading, fontSize: 12.5 }}>
@@ -4823,8 +4825,8 @@ function PostPageBySlug({ onNav }) {
                       <span key={a}>
                         {i > 0 ? " · " : " "}
                         <span onClick={() => navigate('/post?author=' + encodeURIComponent(a))}
-                          title={`כל הפוסטים של ${a}`}
-                          style={{ color: pc.goldLight, cursor: "pointer", borderBottom: `1px dotted ${pc.muted}` }}>{a}</span>
+                          title={`כל הפוסטים של ${publicAuthorName(a)}`}
+                          style={{ color: pc.goldLight, cursor: "pointer", borderBottom: `1px dotted ${pc.muted}` }}>{publicAuthorName(a)}</span>
                       </span>
                     ))}
                   </div>

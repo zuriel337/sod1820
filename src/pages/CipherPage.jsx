@@ -10,6 +10,7 @@ import { getAiAnalysis, supabase, getHomeVideoByCipher } from "../lib/supabase.j
 import { GEM } from "../lib/gematria.js";
 import { thumb } from "../lib/img.js";
 import { formatDateHe } from "../lib/format.js";
+import { publicAuthorName } from "../lib/publicIdentity.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import SubscribeGate from "../components/SubscribeGate.jsx";
@@ -128,7 +129,7 @@ export default function CipherPage() {
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             <span>דילוג <b style={{ color: P.accentText }}>{m.skip_distance}</b></span>
             <span>· {m.scope === "tanakh" ? "כל התנ״ך" : "התורה"}</span>
-            {m.author_name && <span>· ✍️ {m.author_name}</span>}
+            {m.author_name && <span>· ✍️ {publicAuthorName(m.author_name)}</span>}
             {m.created_at && <span>· 🕐 {formatDateHe(m.created_at)}</span>}
           </div>
           {m.description && <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, maxWidth: 620, margin: "10px auto 0" }}>{m.description}</p>}
@@ -373,7 +374,7 @@ export default function CipherPage() {
                       return (
                         <div key={v.id} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 9, padding: "9px 11px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: vf.length ? 6 : 0 }}>
-                            <span style={{ color: P.inkSoft, fontSize: 12, fontWeight: 700 }}>✍️ {v.author_name || "אורח"}</span>
+                            <span style={{ color: P.inkSoft, fontSize: 12, fontWeight: 700 }}>✍️ {v.author_name ? publicAuthorName(v.author_name) : "אורח"}</span>
                             <span style={{ color: P.accentDim, fontSize: 11 }}>· {vf.length} ממצאים</span>
                             <span style={{ flex: 1 }} />
                             <button onClick={() => doMerge(v)} style={aiBtn(P, true)}>🔀 מזג לצופן</button>

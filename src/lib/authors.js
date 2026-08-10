@@ -1,5 +1,7 @@
 // מרשם הכותבים — שם כותב → תמונה ותפקיד. ברירת מחדל: "המערכת" (הלוגו).
 // להוסיף תמונה אישית: שים קובץ תחת public/authors/<name>.jpg והוסף ערך כאן.
+import { publicAuthorName } from "./publicIdentity.js";
+
 export const AUTHORS = {
   "המערכת": { avatar: "/logo.png", role: "מערכת סוד 1820" },
   "מזכה הרבים": { avatar: "/logo.png", role: "מדור התחזקות וזיכוי הרבים" },
@@ -19,7 +21,9 @@ export const AUTHORS = {
 // מחזיר אובייקט כותב {name, avatar, role, cat?}. אם השם ריק → "המערכת".
 // cat (אופציונלי): שם קטגוריה — כשקיים, לחיצה על הכותב מובילה ל-/category/<cat>.
 export function resolveAuthor(name) {
-  const key = (name && String(name).trim()) || "המערכת";
+  // 🔒 זהות: כל שם עובר קודם דרך ה-resolver הקנוני — זהות פרטית/מותג/provenance
+  //    (ריק · צוריאל · sod1820 · AI · מנוע · זהב) → «מערכת כי לה׳ המלוכה»; כתב אמיתי נשאר.
+  const key = publicAuthorName(name);
   const meta = AUTHORS[key] || { avatar: "/logo.png", role: "כתב/ת" };
   return { name: key, avatar: meta.avatar, role: meta.role, cat: meta.cat || null };
 }

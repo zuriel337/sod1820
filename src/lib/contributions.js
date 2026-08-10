@@ -1,6 +1,7 @@
 // 🔬 מערכת תרומות-המחקר (research_contribution_law) — עדשת-לקוח על research_contributions.
 // מקור-אמת אחד; כל המשטחים (מחקר-קהילתי בכל דף) הם הקרנות. כתיבה דרך RPC (אוכף מודרציה-לפי-סוג).
 import { supabase } from "./supabase.js";
+import { publicAuthorName } from "./publicIdentity.js";
 
 // intent — מה המשתמש רצה לתרום. «תגובה» עולה מיד; השאר דורש אישור.
 export const INTENTS = [
@@ -217,14 +218,11 @@ function feedSig(author, text) {
   return a + "|" + t;
 }
 
-// שם-מחבר לחידוש (insights) לפי origin
+// שם-מחבר לחידוש (insights) לפי origin — עובר דרך ה-resolver הקנוני היחיד.
+// 🔒 זהות: provenance של המערכת/AI/מנוע וכן השם הפרטי «צוריאל» → «מערכת כי לה׳ המלוכה»
+//    (ה-origin נשמר בנתונים כ-provenance פנימי; רק התצוגה מוכרעת). כתב אמיתי (שם-מזין) נשאר.
 function insightAuthor(origin) {
-  if (origin === "ai") return "בית המדרש · AI";
-  if (!origin || origin === "system") return "בית המדרש";
-  // 🔒 זהות: השם הפרטי «צוריאל»/«צוריאל פולייס» לעולם לא מוצג ככותב ציבורי.
-  // ה-origin נשמר בנתונים (provenance פנימי) — רק התצוגה הופכת ל«מערכת כי לה׳ המלוכה».
-  if (origin === "צוריאל" || origin === "צוריאל פולייס") return "מערכת כי לה׳ המלוכה";
-  return origin; // כתבים אחרים (למשל שם-מזין) נשארים כפי שהם
+  return publicAuthorName(origin);
 }
 
 export async function getForumFeed({ type = null, writer = null, limit = 80, includePosts = true } = {}) {
@@ -274,7 +272,7 @@ export async function getForumFeed({ type = null, writer = null, limit = 80, inc
       return {
       kind: "insight", id: "i_" + x.id, insightId: x.id, ts: x.created_at,   // insightId = uuid גולמי למודרציה
       // 👤 חידוש-קהילה: השם האמיתי חי ב-panel_data.author (origin='צוריאל' הוא רק המזין/מאשר).
-      author_name: community ? (x.panel_data?.author || insightAuthor(x.origin)) : insightAuthor(x.origin),
+      author_name: community ? publicAuthorName(x.panel_data?.author || x.origin) : insightAuthor(x.origin),
       origin: x.origin,
       _community: community,
       _convSlug: x.panel_data?.convergence_slug || null,   // בעל-התכנסות מיוצג ע"י התרומה/עמוד-ההתכנסות

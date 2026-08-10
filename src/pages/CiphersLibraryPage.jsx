@@ -10,6 +10,7 @@ import ShareActions from "../components/ShareActions.jsx";
 import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import WatchButton from "../components/WatchButton.jsx";
 import { formatDateHe } from "../lib/format.js";
+import { publicAuthorName } from "../lib/publicIdentity.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 
 // 📚 ספריית הצפנים — העדשה הקנונית על כל הצפנים המאושרים (els_records published).
@@ -127,7 +128,7 @@ export default function CiphersLibraryPage() {
           ) : null}
           {/* 🕐 תאריך קנוני (יום הגילוי) + מחבר — מוצג באותו פורמט בכל האתר */}
           <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginTop: "auto", paddingTop: 4 }}>
-            🕐 {formatDateHe(m.created_at)}{isCommunity && m.author_name ? ` · ✍️ ${m.author_name}` : ""}
+            🕐 {formatDateHe(m.created_at)}{isCommunity && m.author_name ? ` · ✍️ ${publicAuthorName(m.author_name)}` : ""}
           </div>
         </div>
       </Link>

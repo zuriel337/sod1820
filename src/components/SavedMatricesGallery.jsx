@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
+import { publicAuthorName } from "../lib/publicIdentity.js";
 import { thumb } from "../lib/img.js";
 import ShareActions from "./ShareActions.jsx";
 
@@ -66,7 +67,7 @@ export default function SavedMatricesGallery({ open, onClose }) {
                     </div>
                     {m.description && <div style={{ color: "#cdbf9f", fontSize: 12.5, lineHeight: 1.6 }}>{String(m.description).slice(0, 120)}</div>}
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 6, flexWrap: "wrap" }}>
-                      {m.author_name && <span style={{ color: "#8a8270", fontSize: 11 }}>✍️ {m.author_name}</span>}
+                      {m.author_name && <span style={{ color: "#8a8270", fontSize: 11 }}>✍️ {publicAuthorName(m.author_name)}</span>}
                       <span style={{ marginInlineStart: "auto" }}>
                         <ShareActions type="code" compact channels={["native", "whatsapp", "copy"]}
                           url={`https://sod1820.co.il/codes/${encodeURIComponent(m.slug || m.id)}`}
