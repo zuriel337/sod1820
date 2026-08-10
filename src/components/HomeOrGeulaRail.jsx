@@ -29,10 +29,21 @@ export default function HomeOrGeulaRail({ limit = 10 }) {
 
   return (
     <section id="or-geula-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-        <h2 className="hn-h2" style={{ textAlign: "start", margin: 0, display: "inline-flex", alignItems: "center", gap: 9 }}>
+      <style>{`@keyframes ogr-ping{0%{transform:scale(.9);opacity:.85}70%{transform:scale(1.7);opacity:0}100%{opacity:0}}`}</style>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+        <h2 className="hn-h2" style={{ textAlign: "start", margin: 0, display: "inline-flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
           <img src={OR_GEULA_LOGO} alt="" width="30" height="30" style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover", flex: "0 0 auto" }} />
-          אור הגאולה — סרטונים אחרונים
+          אור הגאולה
+          {/* צ'יפ «● סטורי» — טבעת-גרדיאנט (זהה לטבעת-הסטורי) + נקודה מהבהבת */}
+          <span style={{ display: "inline-block", padding: 2, borderRadius: 999, flex: "0 0 auto", background: "conic-gradient(from 210deg, #d6336c, #8b5cf6, #f6c453, #d6336c)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: P.card, borderRadius: 999, padding: "3px 11px 3px 9px" }}>
+              <span style={{ position: "relative", width: 7, height: 7, flex: "0 0 auto" }}>
+                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#e0556a" }} />
+                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#e0556a", animation: "ogr-ping 1.9s ease-out infinite" }} />
+              </span>
+              <span style={{ color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 12, letterSpacing: .2 }}>סטורי</span>
+            </span>
+          </span>
         </h2>
         <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
       </div>

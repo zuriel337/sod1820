@@ -20,7 +20,6 @@ import { setForcedMode } from "../lib/themeMode.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
-import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import RecentNumbers from "../components/RecentNumbers.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
@@ -33,6 +32,7 @@ import { track } from "../lib/tracking.js";
 import { getStoredTopics, isRelatedToTopics, RELATED_BOOST_MS } from "../lib/feedRanking.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
+import LiveTag from "../components/LiveTag.jsx";
 import WhatsNewCard from "../components/WhatsNewCard.jsx";
 import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
 import ActivityPulse from "../components/ActivityPulse.jsx";
@@ -65,11 +65,10 @@ const HOME_FEED_HIDE_CONV = new Set(["atzirut-hageula", "ezor-hayetzia-geula"]);
 
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
-  { icon: "🌳", label: "עץ ההתכנסויות", to: "/numbers" },
   { icon: "📚", label: "בית המדרש", to: "/beit-midrash" },
   { img: "/els-icon.png", label: "הצופן התנכי", to: "/code" },   // 🔠 לוגו-הצופן האמיתי (כמו בתוך התוכנה)
   { icon: "🖼️", label: "גלריות", to: "/archive" },
-  { icon: "🌅", label: "ציר הזמן", to: "/timeline" },
+  { icon: "🌅", label: "ציר ההתגלות", to: "/timeline" },
   { icon: "📰", label: "כל הפוסטים", to: "/post" },
 ];
 
@@ -157,6 +156,22 @@ export default function HomeNewPage() {
   // «אלא אם כן שינה בעמוד זה»: המתג (toggleTheme) משנה את הכפייה כל עוד המשתמש בבית.
   // ביציאה — משחזר את ההעדפה הגלובלית (setForcedMode(null)).
   useEffect(() => { setForcedMode("dark"); return () => setForcedMode(null); }, []);
+
+  // ✨ אנימציית-כניסה עדינה בגלילה — כל סקשן «עולה» כשמגיעים אליו (מכבד prefers-reduced-motion).
+  // חל על ילדי-הבלוק הישירים של השורש (לא על השער — הוא מיידי). אחרי החשיפה transform:none → בלי side-effects.
+  const homeRef = useRef(null);
+  useEffect(() => {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+    const root = homeRef.current; if (!root) return;
+    const io = new IntersectionObserver((ents) => {
+      ents.forEach(e => { if (e.isIntersecting) { e.target.classList.add("hn-in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    const kids = Array.from(root.children).filter(el =>
+      el.tagName !== "STYLE" && !el.classList.contains("hn-livegate"));
+    kids.forEach(el => { el.classList.add("hn-reveal"); io.observe(el); });
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
@@ -265,9 +280,23 @@ export default function HomeNewPage() {
   const archAgo = archN <= 0 ? "השנה" : archN === 1 ? "לפני שנה" : `לפני ${archN} שנים`;
 
   return (
-    <div style={{ direction: "rtl", minHeight: "100vh", background: rootBg, color: P.ink }}>
+    <div ref={homeRef} style={{ direction: "rtl", minHeight: "100vh", background: rootBg, color: P.ink }}>
       <style>{`
         .hn-wrap { max-width: 1180px; margin: 0 auto; padding: 0 18px; }
+        /* ✨ אנימציית-כניסה עדינה בגלילה */
+        .hn-reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s cubic-bezier(.2,.8,.2,1), transform .6s cubic-bezier(.2,.8,.2,1); }
+        .hn-reveal.hn-in { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) { .hn-reveal { opacity: 1 !important; transform: none !important; transition: none; } }
+        /* 🔥 שורת-דופק בשער */
+        .hn-heropulse { display:inline-flex; align-items:center; gap:9px; margin-top:13px; text-decoration:none;
+          font-family:${F.body}; font-size:13px; color:#e7dcc0; background:rgba(212,175,55,.10);
+          border:1px solid rgba(212,175,55,.32); border-radius:999px; padding:6px 15px; }
+        .hn-heropulse b { color:#f6c453; font-family:${F.mono}; font-weight:800; }
+        .hn-hb { position:relative; width:8px; height:8px; flex:0 0 auto; }
+        .hn-hb i { position:absolute; inset:0; border-radius:50%; background:#e0556a; }
+        .hn-hb i.p { animation:lt-ping 1.9s ease-out infinite; }
+        @keyframes lt-ping { 0%{transform:scale(.9);opacity:.85} 70%{transform:scale(1.7);opacity:0} 100%{opacity:0} }
+        @media (prefers-reduced-motion: reduce) { .hn-hb i.p { animation:none } }
         .hn-cta { display:inline-block; text-decoration:none; background:${P.accentBtn}; color:${P.onAccent};
           font-family:${F.heading}; font-weight:800; font-size:18px; padding:14px 38px; border-radius:999px; box-shadow:0 6px 26px ${P.glow}; }
         .hn-gate { position:relative; max-width:1040px; margin:0 auto; display:inline-block; }
@@ -424,6 +453,13 @@ export default function HomeNewPage() {
                 <Link to={s.to} key={i} className={"hn-cta2" + (i === HERO_SLIDES.length - 1 ? " primary" : "")}>{s.cta}</Link>
               ))}
             </div>
+            {/* 🔥 שורת-דופק חיה — המספר החם עכשיו (מפת-החום 7 ימים). מופיע רק כשיש נתון. */}
+            {hotNums.length > 0 && (
+              <Link to={`/number/${hotNums[0].n}`} className="hn-heropulse">
+                <span className="hn-hb" aria-hidden><i /><i className="p" /></span>
+                <span>🔥 המספר החם עכשיו: <b>{hotNums[0].n}</b></span>
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -539,25 +575,8 @@ export default function HomeNewPage() {
       {/* ===== 🗓 המספר של היום — באנר יומי מתחלף ===== */}
       <NumberOfDay />
 
-      {/* ===== עץ ההתכנסויות — כניסה חיה (יעד גלילה מ«עדכונים אחרונים») ===== */}
-      <section id="convergences-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
-        <HomeHeader title="🕸️ עץ ההתכנסויות" sub="כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד" />
-        {/* ✨ קונסטלציה חיה — תצוגה מקדימה (אותו אפקט מבית-הקוד), מקושר ל-/numbers בלי שכפול */}
-        <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "0 auto" }}>
-          <div style={{ position: "relative", overflow: "hidden", textAlign: "center", background: "#070b12", border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "34px 22px", boxShadow: "0 16px 46px rgba(0,0,0,0.35)" }}>
-            {/* האפקט החי — קנבס ברקע (position:absolute, aria-hidden, מכבד reduced-motion) */}
-            <Fx kind="constellation" color="#d4af37" />
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(7,11,18,0.28), rgba(7,11,18,0.82) 78%)", pointerEvents: "none" }} />
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <div style={{ display: "inline-block", color: "#d4af37", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 2, border: "1px solid rgba(212,175,55,0.45)", borderRadius: 999, padding: "3px 12px", marginBottom: 14 }}>✨ קונסטלציה חיה</div>
-              <div style={{ color: "#eaf2fa", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, maxWidth: 470, margin: "0 auto 20px" }}>
-                כל מספר הוא כוכב, וכל התכנסות חוט אור שמחבר ביניהם — רשת חיה שגדלה עם כל רמז חדש.
-              </div>
-              <span className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</span>
-            </div>
-          </div>
-        </Link>
-      </section>
+      {/* ===== עץ ההתכנסויות — הוסר מעמוד-הבית «כרגע» (בקשת צוריאל). נשאר חי ב-/numbers ובבית-המדרש.
+           להחזרה: החזר את הסקשן (section id="convergences-home" עם Fx kind="constellation") ואת אריח-הניווט. ===== */}
 
       {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}
       <StartHereCard />
@@ -583,7 +602,9 @@ export default function HomeNewPage() {
           </div>
         )}
         <div style={{ marginTop: 14 }}><RecentNumbers max={8} light={P.mode === "light"} /></div>
-        <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" /></div>
+        {/* 🔒 חיפושים = סודיים. לגולש RecentSearches רק משכפל את ActivityPulse הקומפקטי מלמעלה →
+            מציגים אותו לאדמין בלבד (חיפושים אמיתיים). הציבור נשאר עם דופק-פעילות אחד, בלי כפילות ובלי טיזר. */}
+        {isAdmin && <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" /></div>}
         <div style={{ marginTop: 14 }}><CommunityWordsBox max={4} /></div>
       </section>
 
@@ -648,7 +669,7 @@ export default function HomeNewPage() {
 
       {/* ===== חדשות בית המדרש · LIVE (צירי התכנסות) ===== */}
       <section id="conv-home" className="hn-wrap" style={{ padding: "0 18px 60px", scrollMarginTop: 74 }}>
-        <HomeHeader title={<><span style={{ color: "#e0556a" }}>● LIVE</span> · חדשות בית המדרש</>}
+        <HomeHeader title={<><LiveTag label="LIVE" /> · חדשות בית המדרש</>}
           sub="ארבע ההתכנסויות האחרונות — החדש מודגש" />
         <div className="hn-postgrid">
           {liveCards.map(c => {
@@ -662,7 +683,7 @@ export default function HomeNewPage() {
                 {bigNum != null && <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.mono, fontSize: 50, fontWeight: 800, color: "rgba(255,255,255,0.16)", letterSpacing: 2, pointerEvents: "none" }}>{bigNum}</span>}
                 <span style={{ position: "absolute", top: 8, insetInlineEnd: 10, fontSize: 23, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.55))", pointerEvents: "none" }}>{cov.emoji}</span>
                 <span style={{ position: "relative", zIndex: 1, color: "#ffe9a8", fontSize: 11, letterSpacing: 1, background: "rgba(0,0,0,0.42)", borderRadius: 999, padding: "2px 9px", margin: 8 }}>{stars(c.quality)}</span>
-                {fresh && <span style={{ position: "relative", zIndex: 1, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", margin: 8, animation: "hn-pulse 1.8s ease-in-out infinite" }}>🆕 חדש</span>}
+                {fresh && <span style={{ position: "relative", zIndex: 1, margin: 8 }}><LiveTag label="חדש" mini /></span>}
               </div>
               <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
                 <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{c.title}</div>
