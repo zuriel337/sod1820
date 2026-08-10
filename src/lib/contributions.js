@@ -221,7 +221,10 @@ function feedSig(author, text) {
 function insightAuthor(origin) {
   if (origin === "ai") return "בית המדרש · AI";
   if (!origin || origin === "system") return "בית המדרש";
-  return origin; // «צוריאל» וכו'
+  // 🔒 זהות: השם הפרטי «צוריאל»/«צוריאל פולייס» לעולם לא מוצג ככותב ציבורי.
+  // ה-origin נשמר בנתונים (provenance פנימי) — רק התצוגה הופכת ל«מערכת כי לה׳ המלוכה».
+  if (origin === "צוריאל" || origin === "צוריאל פולייס") return "מערכת כי לה׳ המלוכה";
+  return origin; // כתבים אחרים (למשל שם-מזין) נשארים כפי שהם
 }
 
 export async function getForumFeed({ type = null, writer = null, limit = 80, includePosts = true } = {}) {
