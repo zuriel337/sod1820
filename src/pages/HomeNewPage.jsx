@@ -621,7 +621,9 @@ export default function HomeNewPage() {
           </div>
         )}
         <div style={{ marginTop: 14 }}><RecentNumbers max={8} light={P.mode === "light"} /></div>
-        <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" /></div>
+        {/* 🔒 חיפושים = סודיים. לגולש RecentSearches רק משכפל את ActivityPulse הקומפקטי מלמעלה →
+            מציגים אותו לאדמין בלבד (חיפושים אמיתיים). הציבור נשאר עם דופק-פעילות אחד, בלי כפילות ובלי טיזר. */}
+        {isAdmin && <div style={{ marginTop: 14 }}><RecentSearches max={6} light={P.mode === "light"} seeAllTo="/beit-midrash?tab=searches" /></div>}
         <div style={{ marginTop: 14 }}><CommunityWordsBox max={4} /></div>
       </section>
 
