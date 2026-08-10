@@ -4,7 +4,7 @@ name: media thumbnails (or-geula videos)
 # שאין לו thumb_url. רץ יומית + אפשר להריץ ידנית מלשונית Actions.
 on:
   schedule:
-    - cron: "23 4 * * *" # יומי, 04:23 UTC
+    - cron: "17 */2 * * *" # כל שעתיים (בדקה 17) — סרטון חדש מקבל פוסטר תוך ~שעתיים
   workflow_dispatch: {}
 
 concurrency:
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
       - name: Ensure ffmpeg
         run: ffmpeg -version | head -1 || sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Generate thumbnails
