@@ -170,16 +170,14 @@
 - **SYSTEM_BYLINE = «מערכת כי לה׳ המלוכה»** (עם גרש ׳). role ב-authors.js = «מנוע חידושי ההצלבות · סוד 1820».
 - **APPROVED (מיפוי-זהות):** מקור-חומר ≠ אדם-מביא ≠ עיבוד-AI ≠ author ציבורי. השם הפרטי «צוריאל/צוריאל פולייס» **לעולם לא** ככותב ציבורי. «מעבדת צוריאל» = קטגוריה פנימית (לא byline). כתב-אורח דרך `posts.authors[]`. AI-provenance נשמר פנימי, byline=system. **אל תשנה provenance פנימי רק כדי לשנות תצוגה.**
 - **APPROVED (רזיאל·כריסטינה):** author ציבורי=«מערכת כי לה׳ המלוכה»; כריסטינה=sourceCredit (מקור-חומר); רזיאל=עיבוד. לוגיקה כללית (מקור≠מעבד≠author), לא רק ל-3 הכרטיסים.
-- **⚠️⚠️ תיקון-יושר קריטי (אימות-דיסק בזמן ה-EXPORT):** סיכום-החלק-המוקדם של הסשן תיאר בניית `publicIdentity.js` + חיווט 5-מסלולים + commit DEPLOYED `5b90e19` של `insightAuthor`. **בדיקה בפועל של הקונטיינר הנוכחי מראה שכל זה אינו קיים:**
-  - `src/lib/publicIdentity.js` — **לא קיים** (`ls`: No such file).
-  - `src/lib/authors.js` — **לא מייבא** publicIdentity (grep ריק).
-  - commit **`5b90e19`** — **אינו object תקין** (`git cat-file`: Not a valid object name); לא נמצא בשום ענף.
-  - `src/lib/contributions.js` `insightAuthor` — **לא מכיל** את מיפוי «צוריאל→מערכת כי לה׳ המלוכה» בקונטיינר הזה.
-  - HEAD = `8183185` (merge של `claude/whatsapp-auto-reply-setup`), הענף `claude/raziel-capabilities-audit-h5k9ww` יושב עליו.
-  - **מסקנה: עבודת-הקוד של הזהות אינה על הדיסק — כנראה אבדה עם קונטיינר שהוחזר, או בוצעה בסשן/קונטיינר נפרד שאינו זה. סטטוס אמיתי = NOT PRESENT / UNVERIFIED.**
-- **APPROVED (עומד בתוקף — החלטות-עיצוב, גם אם הקוד לא-קיים):** SYSTEM_BYLINE=«מערכת כי לה׳ המלוכה»; חתימת ה-resolver `publicIdentity({internalIdentity,provenance,contentType,sourceResearcher,lens})→{author,sourceCredit}`; `SYSTEM_ALIASES` (''/המערכת/מערכת/sod1820/system/צוריאל/צוריאל פולייס/zuriel/ai/בית המדרש/gap-fill/זהב לא-מחובר/זהב אחר/admin-hunt/מנוע-התגליות/מנוע-הגילויים/מנוע-חידושי-ההצלבות + וריאנט apostrophe); `AGENT_NAMES` (רזיאל/מטטרון/אוריאל/גבריאל/סנדלפון/התשבי/מיכאל/אספקלריא — **כריסטינה לא כאן**); `splitAgentSource` («רזיאל·כריסטינה»→author=system+sourceCredit=כריסטינה); 5 מסלולי-תצוגה לחיווט (resolveAuthor/insightAuthor/els-ciphers/topic_cards-created_by/discoveries-source).
-- **TODO (יישום מחדש):** **הקוד צריך להיכתב מחדש** (או להתאתר בסשן שבו נעשה). לפני commit: הצגת-diff + מיפוי-5-מסלולים + שימור-כריסטינה, בלי deploy — לפי החלטת-צוריאל המקורית.
-- **ענף פיתוח לסשן:** `claude/raziel-capabilities-audit-h5k9ww` (HEAD 8183185). (ענף שהוזכר ב-CLAUDE.md: `claude/prayer-sharing-popup-u1kn3s`.)
+- **✅ IMPLEMENTED + COMMITTED על הענף `claude/raziel-capabilities-audit-h5k9ww` (אומת מ-origin ב-fetch):**
+  - commit **`5b90e19`** — «השם צוריאל לא מוצג ככותב חידושים — מוצג מערכת כי לה׳ המלוכה» (`insightAuthor`).
+  - commit **`79225f8`** — «resolver קנוני יחיד `publicIdentity()` לכל תצוגת-כותב ציבורית».
+  - `src/lib/publicIdentity.js` **קיים**; מיובא ב-authors.js/contributions.js/CipherPage/CiphersLibraryPage/LanguagesPage/legacy.jsx/SavedMatricesGallery.
+  - **הערת-הליך:** בזמן-ה-EXPORT הקונטיינר-המקומי היה **checkout ישן** (HEAD 8183185, לפני שתי הקומיטים) — לכן הקבצים «נראו חסרים»; אחרי `git fetch`+`rebase` על `origin/...` הם חזרו. תיקנתי כאן לפי המצב-האמיתי בענף.
+- **תוכן הקוד (IMPLEMENTED):** `publicIdentity({internalIdentity,provenance,contentType,sourceResearcher,lens})→{author,sourceCredit}` + `publicAuthorName`; `SYSTEM_BYLINE`=«מערכת כי לה׳ המלוכה»; `SYSTEM_ALIASES` (''/המערכת/מערכת/sod1820/system/צוריאל/צוריאל פולייס/zuriel/ai/בית המדרש/gap-fill/זהב לא-מחובר/זהב אחר/admin-hunt/מנוע-התגליות/מנוע-הגילויים/מנוע-חידושי-ההצלבות + apostrophe-variant); `AGENT_NAMES` (רזיאל/מטטרון/אוריאל/גבריאל/סנדלפון/התשבי/מיכאל/אספקלריא — **כריסטינה לא כאן**); `splitAgentSource` («רזיאל·כריסטינה»→author=system+sourceCredit=כריסטינה). חיווט 5-מסלולים: resolveAuthor · insightAuthor(+community panel_data.author) · els-ciphers(CipherPage 131/376,CiphersLibraryPage 130,LanguagesPage 48,SavedMatricesGallery 69) · legacy.jsx (1153/2613/4675/4786/4817-4826) · topic_cards/discoveries (מתועד, ללא byline-ציבורי גולמי).
+- **⚠️ DEPLOY-status = UNVERIFIED:** הקומיטים על **הענף** בלבד. **לא אומת שהם על `main`** (הסיכום טען «DEPLOYED to main» — לא נבדק בסשן זה). → APPROVED+IMPLEMENTED על-ענף; deploy-ל-main = UNKNOWN, טעון בדיקה.
+- **ענף פיתוח לסשן:** `claude/raziel-capabilities-audit-h5k9ww` (origin tip = 79225f8; + commit ה-EXPORT). (ענף ב-CLAUDE.md: `claude/prayer-sharing-popup-u1kn3s`.)
 
 ## 18. קונסטלציית-הצמתים (OBSERVED — היכן הכי-הרבה שכבות מתלכדות)
 | מספר | משמעות | גלריות | כרטיסים | insights | conv group |
@@ -363,11 +361,12 @@
 ## 54. Flags / Feature Flags
 - `site_flags` (mode='all'/'anon'): `lock_reality`, `lock_galleries` (IMPLEMENTED). `panel_data.forum_hidden` (קוהורט). `tzofen_onboarded_v1`, `tzuriel_lab`. `treasure` (bool). `curator_hidden`. `space` (core/lab). `visibility_tier` (1/2/3). `ignoreCommand` ב-vercel.json — **DEPRECATED** (הוסר, חסם פריסות).
 
-## 55. Commits חשובים
-- **`5b90e19`** — ⚠️ **אינו קיים** (git cat-file: Not a valid object). תואר בסיכום כ-DEPLOYED ל-main, אך **לא אומת ואינו בריפו**. → UNVERIFIED, כנראה לא-בוצע-בפועל בקונטיינר הזה.
-- **publicIdentity.js** — ⚠️ **אינו קיים על הדיסק** ולא-committed בשום ענף. → NOT PRESENT.
-- HEAD בזמן-ה-EXPORT = **`8183185`** (merge `claude/whatsapp-auto-reply-setup`).
-- **EXPORT זה עצמו** — `SOD1820_CLAUDE_SESSION_EXPORT.md` (untracked בזמן-כתיבה; commit ל-branch בסוף-הסשן).
+## 55. Commits חשובים (על הענף `claude/raziel-capabilities-audit-h5k9ww`)
+- **`5b90e19`** — «השם «צוריאל» לא מוצג ככותב חידושים — מוצג «מערכת כי לה׳ המלוכה»» (`insightAuthor`). ✅ קיים ו-committed על הענף.
+- **`79225f8`** — «resolver קנוני יחיד `publicIdentity()` לכל תצוגת-כותב ציבורית» (`src/lib/publicIdentity.js` + חיווט 5 המסלולים). ✅ קיים ו-committed על הענף.
+- **`dfbcc38`** — EXPORT זה עצמו (`SOD1820_CLAUDE_SESSION_EXPORT.md`). ✅ committed על הענף.
+- **הערת-הליך:** בזמן כתיבת-ה-EXPORT הקונטיינר-המקומי היה **checkout ישן** (HEAD `8183185`, merge `claude/whatsapp-auto-reply-setup`, לפני שתי הקומיטים) — לכן `git cat-file`/`ls` דיווחו «אינו קיים». אחרי `git fetch origin <branch>` + `rebase` הקומיטים והקבצים חזרו. → הרשומה תוקנה למצב-האמת.
+- **⚠️ DEPLOY-status = UNVERIFIED:** כל הקומיטים על **הענף** בלבד. **לא אומת שהם על `main`** — deploy-ל-main = UNKNOWN, טעון «תעלה» מפורש של צוריאל.
 
 ## 56. Migrations / Schema changes
 - **לא בוצעו migrations בסשן.** רק READ (execute_sql). migrations שנזכרו (קיימים): `20260730_writer_convergence_star.sql`, `20260712_anchor_families.sql`, `20260712_anchor_family_status.sql`, `20260716_bot_watchdog_delivery_aware.sql`, `20260808_admin_infra_load.sql`.
@@ -392,7 +391,7 @@
 
 # חלק ז׳ — Timeline
 
-1. **זהות ציבורית** — הוחלט (APPROVED): byline=«מערכת כי לה׳ המלוכה», resolver `publicIdentity()`, splitAgentSource, 5 מסלולים. ⚠️ **הקוד שתואר (insightAuthor/5b90e19/publicIdentity.js) אינו בקונטיינר הנוכחי — לא-אומת/כנראה-אבד** (ראה §17). ההחלטות בתוקף; היישום צריך להיכתב מחדש.
+1. **זהות ציבורית** — הוחלט (APPROVED) + מומש (IMPLEMENTED, committed): byline=«מערכת כי לה׳ המלוכה», resolver `publicIdentity()`, `splitAgentSource`, 5 מסלולים. הקוד קיים ו-committed על הענף (`5b90e19` insightAuthor, `79225f8` publicIdentity.js + חיווט). ⚠️ deploy-ל-main = UNVERIFIED (ראה §17, §55).
 2. **מיפוי גוף-הידע (READ-ONLY):** Audit 269 חידושי-צוריאל (MY 129/OTHER 107/COMMUNITY 23/UNKNOWN 7/AI 3) → מודל Research Item + 3 מישורים → Linkage Audit (ID קנוני=nodes.id; 4 מאגרים-מנותקים) → תכנון שכבת-רזיאל (הצעה=קשת מוסברת ב-edges.metadata) → **Canonical Baseline v1.0** (13 עקרונות + חוק-ההשוואה).
 3. **למידת-טעם (READ-ONLY):** Curation Policy Audit (ניתוב-לפי-intent; A מול B) → תיקון «לא-אושר≠נדחה» (ביטול negative-evidence) → Essence & Trust (8 ממדים, מסלולים) → אוצרות/צירים/AI (שרשראות-סקאלה, 1820=177 ביטויים) → Taste-Map capstone → Discovery Depth (22% עצים; enrichment) → ממד K (פענוח-מודרני; 1111→1820) → Latent Discovery PoC (ביטקוין→משיח בן יוסף) → מפת-פוטנציאל (ספירה רוויה; ביטקוין fail-test) → «העצים עצמם» (התאמה≠התכנסות) → **Rank-don't-hide** → שער נון↔רשת האינטרנט (הצלבה כפולה) + הָאָדָם=50 + 2 candidates → **המנוע-הלומד** (3 שכבות + Candidate Registry + rerun-על-פזורים).
 4. **קנוני מול ניסיוני:** קנוני = 13 עקרונות-הבסיס + זהות. ניסיוני = כל המחקר (OBSERVED/CANDIDATE), Latent Discovery, 3-שכבות, learning-engine (PROPOSED, ממתין לקיפול).
@@ -445,7 +444,7 @@
 2. **ערכי-המנוע המדויקים** של כל הזרעים (§38) — אומתו במנוע בסשן, ייתכן שלא-שמורים ב-DB/Master.
 3. **ההצלבות/עצים** (שער נון↔רשת-אינטרנט, ביטקוין, עת→182=קוד-גנטי, מערכת→506) — OBSERVED בסשן, לא-נכתבו ל-DB.
 4. **הנתונים-הסטטיסטיים** (269 audit, gallery-mining 2533, enrichment, constellation-table, 94% unlinked) — snapshots מהסשן.
-5. **עבודת-הקוד של הזהות (publicIdentity.js + חיווט + commit 5b90e19)** — ⚠️ **אינה בקונטיינר הנוכחי** (אומת). ההחלטות-עיצוב APPROVED, אבל **הקוד צריך להיכתב מחדש או להתאתר בסשן שבו נעשה**. זו אולי אבֵדה אמיתית — לברר בסשן החדש.
+5. **עבודת-הקוד של הזהות (publicIdentity.js + חיווט + commits `5b90e19`/`79225f8`)** — ✅ קיימת ו-committed על הענף `claude/raziel-capabilities-audit-h5k9ww` (לא אבֵדה; «נראתה חסרה» רק בגלל checkout ישן בקונטיינר, תוקן ב-fetch+rebase). ⚠️ החסר האמיתי: deploy-ל-main = UNVERIFIED — לוודא אם הענף מוזג ל-main.
 6. **3 עקרונות-העל שממתינים לקיפול ל-Baseline** (Rank-don't-hide, Learning-Engine, 3-Layers).
 7. **תוכן-מלא של חוקי-DB שלא-נקראו** (unified_ai_brain_law וכו') — קיימים ב-nodes, לא-נשלפו במלואם.
 8. **ה-Canonical Baseline v1.0** (artifact 61a49220) — לא-מעוגן ב-DB (project_codex) — OPEN item.
@@ -479,7 +478,7 @@
 
 ## CURRENT STATE
 - **הבנה/מיפוי גוף-הידע ~85-90% · ארכיטקטורה/עיצוב ~65% · יישום ~0-2% · מודל-טעם ~30%.** כולל: ~20-25% מהחזון-המלא. כמעט-כל-החשיבה, כמעט-אפס-בנייה — במכוון.
-- **הכל READ-ONLY.** ⚠️ עבודת-הקוד של הזהות (publicIdentity.js + commit 5b90e19) שתוארה בסיכום — **אינה בקונטיינר הנוכחי** (אומת בזמן-ה-EXPORT). היישום בפועל = 0 קוד-מאומת; רק ה-EXPORT נכתב לדיסק.
+- **כמעט-הכל READ-ONLY.** החריג היחיד שנכתב-כקוד: עבודת-הזהות (`publicIdentity.js` + חיווט 5 מסלולים) = committed על הענף (`5b90e19` + `79225f8`). כל השאר (audits/מחקר) = קריאה בלבד. ⚠️ deploy-ל-main של הזהות = UNVERIFIED (על הענף בלבד).
 
 ## LAST DECISIONS
 - Rank-don't-hide (Discovery≠Filter). · המנוע-הלומד + Candidate Registry (candidate≠canonical≠discard). · 3 שכבות. · הָאָדָם=50 מאומת. · 2 candidates נרשמו. · rerun על-פזורים הראה התכנסות (עם אזהרת-saturation; הקוהרנטיות=שיפוט).
@@ -497,8 +496,8 @@
 ראה חלק י׳ (10 פריטים).
 
 ## CHANGE LOG (בסשן)
-- ⚠️ **לא-אומת (תואר-בסיכום, לא-בקונטיינר):** insightAuthor/5b90e19, publicIdentity.js + חיווט — **אינם על הדיסק** (ראה §17/§55).
-- **בוצע-בפועל (READ-ONLY, מאומת):** audits — 269-audit, linkage, curation×5, discovery-depth, latent-discovery, potential-map, trees, שער-נון, learning-engine · אומתו-במנוע: כל הזרעים ב-§38 + ההצלבות (execute_sql על project linswmnnkjxvweumprav) · תובנות: אדם→האדם=50, ביטול negative-evidence, התאמה≠התכנסות, saturation, Rank-don't-hide, Learning-Engine · נרשמו: 2-3 candidate methods · 16 artifacts פורסמו · **נכתב לדיסק: `SOD1820_CLAUDE_SESSION_EXPORT.md` בלבד.**
+- **קוד (committed על הענף):** `5b90e19` insightAuthor · `79225f8` publicIdentity.js + חיווט 5 מסלולים (authors.js, contributions.js, CipherPage, CiphersLibraryPage, LanguagesPage, SavedMatricesGallery, legacy.jsx) · `dfbcc38` EXPORT זה. ⚠️ deploy-ל-main = UNVERIFIED.
+- **בוצע-בפועל (READ-ONLY, מאומת):** audits — 269-audit, linkage, curation×5, discovery-depth, latent-discovery, potential-map, trees, שער-נון, learning-engine · אומתו-במנוע: כל הזרעים ב-§38 + ההצלבות (execute_sql על project linswmnnkjxvweumprav) · תובנות: אדם→האדם=50, ביטול negative-evidence, התאמה≠התכנסות, saturation, Rank-don't-hide, Learning-Engine · נרשמו: 2-3 candidate methods · 16 artifacts פורסמו.
 
 ---
 *סוף EXPORT. נוצר בסוף סשן `claude/raziel-capabilities-audit-h5k9ww`. כל UNKNOWN נשאר UNKNOWN; שום השערה לא הוצגה כעובדה; שום חומר לא סונן; מאוחר-וברור גובר על מוקדם.*
