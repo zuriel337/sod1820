@@ -4299,12 +4299,14 @@ function SpotimChatPage() {
         .sod-chat-layout { display: flex; flex-direction: column; gap: 30px; }
         .sod-chat-aside, .sod-chat-main { width: 100%; }
         /* עמודת-הסרטונים ומצביע-החדש — נראים לסירוגין לפי רוחב: */
-        .sod-chat-videos { display: none; }        /* מובייל: מוסתרת (הצ'יפ תופס את מקומה) */
+        .sod-chat-videos { display: none; }        /* מובייל: מוסתרת (הרצועה האופקית תופסת את מקומה) */
+        .sod-chat-stories-mobile { display: block; margin: 12px 16px 0; }  /* מובייל: רצועת-סטוריז אופקית קבועה */
         .sod-chat-grid { display: block; }
         @media (max-width: 999px) { .sod-chat-layout { gap: 20px; } }
         @media (min-width: 1000px) {
           .sod-chat-page { max-width: 1240px; }
           .sod-chat-chip-mobile { display: none; }  /* בדסקטופ העמודה מחליפה את הצ'יפ */
+          .sod-chat-stories-mobile { display: none; }  /* בדסקטופ העמודה המלאה מחליפה את הרצועה */
           .sod-chat-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 30px; align-items: start; }
           .sod-chat-videos { display: block; position: sticky; top: 78px; max-height: calc(100vh - 96px); overflow-y: auto;
             padding-inline-start: 4px; scrollbar-width: thin; }
@@ -4313,6 +4315,9 @@ function SpotimChatPage() {
       <ChatScrollRail />
       {/* 🔴 סטורי חדש · אור הגאולה — מצביע קומפקטי; במובייל בלבד (בדסקטופ העמודה מחליפה אותו) */}
       <div className="sod-chat-chip-mobile"><OrGeulaStoryChip /></div>
+      {/* 🎞️ רצועת-סטוריז אופקית קבועה — מובייל בלבד: תמיד גלויה (גם אחרי צפייה), כי עמודת-הסרטונים
+          המלאה היא דסקטופ-בלבד. אותו רכיב קנוני (OrGeulaStoryColumn) בגרסת rail — בלי כפילות. */}
+      <div className="sod-chat-stories-mobile"><OrGeulaStoryColumn variant="rail" limit={20} /></div>
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
 
       <div className="sod-chat-grid">

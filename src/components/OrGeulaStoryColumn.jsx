@@ -17,7 +17,7 @@ import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 const isVideo = (u) => !!u && /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i.test(u);
 const capOf = (r) => (r && r.text && r.text !== "📷 עדכון" && r.text !== "🎬 עדכון וידאו") ? r.text : "";
 
-export default function OrGeulaStoryColumn({ limit = 30 }) {
+export default function OrGeulaStoryColumn({ limit = 30, variant = "column" }) {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const [story, setStory] = useState(-1);   // אינדקס הפריט הפתוח כסטורי (-1 = סגור)
@@ -42,6 +42,53 @@ export default function OrGeulaStoryColumn({ limit = 30 }) {
   };
 
   const dark = P.mode !== "light";
+
+  const viewer = (story >= 0 && rows && rows[story])
+    ? <StoryViewer items={rows} startIndex={story} onClose={() => setStory(-1)} />
+    : null;
+
+  // 🎞️ variant="rail" — רצועת-סטוריז אופקית (סגנון אינסטגרם), קבועה למובייל: תמיד גלויה,
+  // גם אחרי צפייה. אותו מקור + אותו StoryViewer קנוני — בלי כפילות (canonical_ui_components_law).
+  if (variant === "rail") {
+    return (
+      <section aria-label="אור הגאולה — סטוריז" style={{ direction: "rtl" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
+          <img src={OR_GEULA_LOGO} alt="" width="22" height="22" style={{ width: 22, height: 22, borderRadius: "50%", objectFit: "cover", flex: "0 0 auto" }} />
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>אור הגאולה · סטוריז</div>
+          <a href="/or-geula" style={{ marginInlineStart: "auto", color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, textDecoration: "none" }}>לכל האוסף ←</a>
+        </div>
+        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+          {(rows || Array.from({ length: 8 })).map((r, i) => {
+            if (!r) return <div key={i} style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
+            const vid = isVideo(r.image_url);
+            const thumb = r.thumb_url || (vid ? null : galThumb(r, 160));
+            const cap = capOf(r);
+            return (
+              <button key={r.id} onClick={() => setStory(i)} title="צפו כסטורי" aria-label={cap.slice(0, 40) || "סטורי אור הגאולה"}
+                style={{ flex: "0 0 auto", width: 72, cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                <span style={{ position: "relative", width: 66, height: 66, borderRadius: "50%", padding: 3,
+                  background: "conic-gradient(from 210deg, #d6336c, #8b5cf6, #f6c453, #d6336c)", flex: "0 0 auto" }}>
+                  <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "linear-gradient(160deg,#1a1030,#0a0710)", border: `2px solid ${P.card}` }}>
+                    {thumb
+                      ? <img src={thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                      : <span style={{ display: "grid", placeItems: "center", width: "100%", height: "100%" }}><img src={OR_GEULA_LOGO} alt="אור הגאולה" loading="lazy" style={{ width: "56%", height: "56%", objectFit: "contain", opacity: .92 }} /></span>}
+                  </span>
+                  {vid && (
+                    <span style={{ position: "absolute", inset: 3, borderRadius: "50%", display: "grid", placeItems: "center", background: "rgba(0,0,0,.18)" }}>
+                      <span style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", color: "#111", fontSize: 10 }}>▶</span>
+                    </span>
+                  )}
+                </span>
+                <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{timeAgoHe(r.created_at)}</span>
+              </button>
+            );
+          })}
+        </div>
+        {viewer}
+      </section>
+    );
+  }
+
   return (
     <section aria-label="אור הגאולה — סרטונים">
       <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
@@ -94,9 +141,7 @@ export default function OrGeulaStoryColumn({ limit = 30 }) {
         })}
       </div>
 
-      {story >= 0 && rows && rows[story] && (
-        <StoryViewer items={rows} startIndex={story} onClose={() => setStory(-1)} />
-      )}
+      {viewer}
     </section>
   );
 }
