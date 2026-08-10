@@ -20,7 +20,6 @@ import { setForcedMode } from "../lib/themeMode.js";
 import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 import { useHotPostSlugs } from "../lib/hotPosts.js";
 import VideoGallery from "../components/VideoGallery.jsx";
-import Fx from "../components/fx/Fx.jsx";
 import RecentSearches from "../components/RecentSearches.jsx";
 import RecentNumbers from "../components/RecentNumbers.jsx";
 import CommunityWordsBox from "../components/CommunityWordsBox.jsx";
@@ -66,11 +65,10 @@ const HOME_FEED_HIDE_CONV = new Set(["atzirut-hageula", "ezor-hayetzia-geula"]);
 
 const TILES = [
   { icon: "🧮", label: "מחשבון גימטריה", to: "/gematria" },
-  { icon: "🌳", label: "עץ ההתכנסויות", to: "/numbers" },
   { icon: "📚", label: "בית המדרש", to: "/beit-midrash" },
   { img: "/els-icon.png", label: "הצופן התנכי", to: "/code" },   // 🔠 לוגו-הצופן האמיתי (כמו בתוך התוכנה)
   { icon: "🖼️", label: "גלריות", to: "/archive" },
-  { icon: "🌅", label: "ציר הזמן", to: "/timeline" },
+  { icon: "🌅", label: "ציר ההתגלות", to: "/timeline" },
   { icon: "📰", label: "כל הפוסטים", to: "/post" },
 ];
 
@@ -577,25 +575,8 @@ export default function HomeNewPage() {
       {/* ===== 🗓 המספר של היום — באנר יומי מתחלף ===== */}
       <NumberOfDay />
 
-      {/* ===== עץ ההתכנסויות — כניסה חיה (יעד גלילה מ«עדכונים אחרונים») ===== */}
-      <section id="convergences-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
-        <HomeHeader title="🕸️ עץ ההתכנסויות" sub="כל מספר במרכז — וחוטים לכל הקשרים שלו: התכנסויות ומספרים שמתכנסים יחד" />
-        {/* ✨ קונסטלציה חיה — תצוגה מקדימה (אותו אפקט מבית-הקוד), מקושר ל-/numbers בלי שכפול */}
-        <Link to="/numbers" style={{ display: "block", textDecoration: "none", maxWidth: 620, margin: "0 auto" }}>
-          <div style={{ position: "relative", overflow: "hidden", textAlign: "center", background: "#070b12", border: `1px solid ${P.borderStrong}`, borderRadius: 16, padding: "34px 22px", boxShadow: "0 16px 46px rgba(0,0,0,0.35)" }}>
-            {/* האפקט החי — קנבס ברקע (position:absolute, aria-hidden, מכבד reduced-motion) */}
-            <Fx kind="constellation" color="#d4af37" />
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(7,11,18,0.28), rgba(7,11,18,0.82) 78%)", pointerEvents: "none" }} />
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <div style={{ display: "inline-block", color: "#d4af37", fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 2, border: "1px solid rgba(212,175,55,0.45)", borderRadius: 999, padding: "3px 12px", marginBottom: 14 }}>✨ קונסטלציה חיה</div>
-              <div style={{ color: "#eaf2fa", fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, maxWidth: 470, margin: "0 auto 20px" }}>
-                כל מספר הוא כוכב, וכל התכנסות חוט אור שמחבר ביניהם — רשת חיה שגדלה עם כל רמז חדש.
-              </div>
-              <span className="hn-cta" style={{ fontSize: 15, padding: "11px 30px" }}>🕸️ כניסה לעץ ההתכנסויות</span>
-            </div>
-          </div>
-        </Link>
-      </section>
+      {/* ===== עץ ההתכנסויות — הוסר מעמוד-הבית «כרגע» (בקשת צוריאל). נשאר חי ב-/numbers ובבית-המדרש.
+           להחזרה: החזר את הסקשן (section id="convergences-home" עם Fx kind="constellation") ואת אריח-הניווט. ===== */}
 
       {/* ===== 🚀 כאן מתחילים — אונבורדינג למתחילים ===== */}
       <StartHereCard />
