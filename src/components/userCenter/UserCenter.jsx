@@ -217,7 +217,12 @@ export default function UserCenter() {
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "30px 24px" }}>
             <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
             <div style={{ color: T.ink, fontWeight: 800, fontSize: 19, marginBottom: 8 }}>האזור האישי בתהליכי בנייה</div>
-            <div style={{ color: T.sub, fontSize: 14, lineHeight: 1.8, maxWidth: 300 }}>אנחנו משדרגים את האזור האישי — שובו בקרוב 🙏</div>
+            <div style={{ color: T.sub, fontSize: 14, lineHeight: 1.8, maxWidth: 300, marginBottom: 22 }}>אנחנו משדרגים את האזור האישי — שובו בקרוב 🙏</div>
+            <button onClick={() => { try { signOut(); } catch { /* noop */ } close(); }}
+              style={{ cursor: "pointer", border: `1px solid ${T.line}`, background: T.card, color: T.sub,
+                borderRadius: 999, padding: "10px 22px", fontSize: 13.5, fontWeight: 800, fontFamily: "inherit" }}>
+              ↩ התנתק מהחשבון
+            </button>
           </div>
         </aside>
       </>
