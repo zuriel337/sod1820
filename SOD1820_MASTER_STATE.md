@@ -246,6 +246,16 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 - כל מבנה שנחבר בשלב-הקרוב (למשל חיווט Discovery→`research_objects`) חייב להישאר **גנרי** (provenance מלא · `parent_id`/`kind` · `meta` jsonb לתיוג-שכבה) כדי שהחזון (one-tree · PAST→FUTURE · 3D-renderer · cross-language · intake) **לא ייחסם**.
 - **המערכת לומדת מהעולם — אך אינה הופכת את מה שהעולם שלח לאמת אוטומטית.**
 
+### 10.3 «זרם המציאות» — ציר-מקור/קורפוס עתידי של מנוע-הגילויים (`VISION`/`PROPOSED`, 11.8.2026)
+> **החלטת צוריאל: להוסיף למפת One-Knowledge-Tree כ-ציר-מקור עתידי — לא כ-UI נפרד, לא כעץ-חדש. אין לשנות/לסנכרן עכשיו · אין schema.**
+- **מה הוא (`EXISTING`):** `reality_stream_law` (חוק נעול) · ראוט `/archive` · `gallery_images source='update'` (**23** שורות, `primary_value` 21, `occurred_at` 22) · רכיבים `RealityWorld`/`RealityStream`/`RealityPulse` · חישוב `src/lib/reality.js`. הקורפוס הרחב: `gallery_images`(2,533) → **2,020 תמונות כבר `nodes type=image` עם 2,020 קשתות למספרים** (כלומר הציר **כבר מחובר-חלקית** לגרף).
+- **התפקיד בחזון (`PROPOSED`):** «זרם המציאות» = **SOURCE / CORPUS / SEED** — ציר-הקשר (תמונות/אירועים/היסטוריה/תאריכים/מספרים/גימטריות/פסוקים/אוצרות שהצטברו) ש**מזין** את מנוע-הגילויים. **לא** מקור-אמת-לפרשנות, **לא** עץ-נפרד.
+- **השרשרת העתידית (`PROPOSED`):**
+  `זרם המציאות → אוצרות/תמונות/אירועים → OCR/חילוץ → Language → Source → Methods → Values → Cross → Convergence → Discovery Candidate → research_objects → Human Gate → Knowledge Graph → [דף-המספר · זרם-המציאות · מעבדת-המחקר · מספרים-קשורים · מסעות · מקורות · שפות · (עתיד) 3D]`.
+- **⚠️ כלל-ברזל (`CANONICAL`, הרחבת §10.0):** **התוכן מזין, לא קובע.** תמונה/אירוע/פרשנות שצוריאל מעלה = `FACT`/`SOURCE`/`OBSERVATION`/`SIGNAL`/`SEED` — אך **רק החישוב והראיות קובעים את ה-Discovery**. פרשנות-בזרם **אינה** הופכת אוטומטית לעובדה.
+- **עקרון-שימור (`CANONICAL`):** האוצרות שנבנו לאורך השנים **לא נבנים מחדש** — המנוע **לומד לקרוא ולחבר** אותם לעץ; **לא** מעתיקים אותם למקום-אחר.
+- **גבול עכשיו:** ⛔ לא לשנות זרם-המציאות · לא schema · לא סנכרון · **H-1 נשאר בדיוק כפי-שאושר** (`collectionConvergences → research_objects(candidate) → Human Gate → Graph`). «זרם המציאות» = **אחד המקורות העתידיים** שיזינו את אותה שרשרת — `FUTURE`.
+
 ---
 
 ## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
@@ -269,6 +279,7 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 5 | 10.8.2026 | תיקון §9.3ג: הסרת «Definite Article / אדם→הָאָדָם» מרשימת-השיטות (2 candidate, לא 3) | צוריאל הבהיר: זו דוגמה-מחקרית חד-פעמית, לא Method/Candidate | «Definite-Article כ-candidate» → הוסר לגמרי | `APPROVED` (תיקון) |
 | 6 | 10.8.2026 | בקשת-רישום ל-`gematria_methods` של 3 שיטות-המשולש (משולש מילה/הפוך/מדרגות) → **אימות מצא שהן כבר רשומות** (שורות 21–23, `in_engine=false`/`active=false`/ללא function/db_column). **0 שורות נוספו · 0 עודכנו** — המצב-הרצוי כבר מתקיים. לא בוצע INSERT (מנע כפילות) | לרשום את המתודות כ-Storage בלבד, ממתינות ל-lifecycle | — (אין שינוי; כבר קיים) | `EXISTING` (מאומת); כתיבה=no-op |
 | 7 | 11.8.2026 | §10 «מנוע-הגילויים — חזון + עקרונות-ארכיטקטורה»: §10.0 חוק-היסוד Fact-first (Discovery≠Interpretation, המנוע-מתקן, פורמט FACT/CROSS/SOURCE/DISCOVERY/INTERPRETATION/STATUS) + מבחני-אמת מאומתי-מנוע (1331/974/1234; דורות≠974) · §10.1 חזון «Global Research Intake→Fact-first Discovery→Traceable Tree» (10 עקרונות: one-tree/cross-language/OCR-intake/signals/PAST→FUTURE/3D-renderer) · §10.2 אי-חסימה | לנעול את החזון כ-VISION לפני בנייה, כדי שהארכיטקטורה לא תחסום אותו | הרחבת §9 (הצינור) + `ai_analyze_contract`/`unified_graph_law` | §10.0/2/8/9 = `APPROVED`+`CANONICAL` · שאר §10.1 = `VISION`/`PROPOSED` · אפס `IMPLEMENTED` |
+| 8 | 11.8.2026 | §10.3 «זרם המציאות» כציר-מקור/קורפוס עתידי (SOURCE/CORPUS/SEED) של מנוע-הגילויים · כלל-ברזל «התוכן מזין, לא קובע» · עקרון-שימור (לא בונים מחדש אוצרות) · אימות-חי: source='update' 23 · 2,020 image-nodes עם 2,020 קשתות-למספרים (מחובר-חלקית) | להוסיף את «זרם המציאות» למפת One-Knowledge-Tree כציר-מקור, לא כ-UI/עץ נפרד | «זרם המציאות = עוד UI/אוסף בצד» → ציר-מקור שמזין את המנוע | ציר-מקור = `VISION`/`PROPOSED` · כלל «תוכן-לא-קובע»+שימור = `CANONICAL` (הרחבת §10.0) · אפס-שינוי/schema/sync · H-1 ללא-שינוי |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. השינוי-ב-DB היחיד בסשן: הקפאת cron job 27 (`metatron-nightly`, הפיך). מלבדו READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE).*
