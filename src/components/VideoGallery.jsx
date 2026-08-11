@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
-import { getHomeVideos, getAuthorGalleryVideos } from "../lib/supabase.js";
+import { getHomeVideos, getAuthorGalleryVideos, getCategoryVideos } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
 import ShareActions from "./ShareActions.jsx";
@@ -64,13 +64,21 @@ function VideoCard({ v, onPlay, featured }) {
 
 export default function VideoGallery() {
   const P = usePalette();
+  const navigate = useNavigate();
   const [playing, setPlaying] = useState(null);
   const [rows, setRows] = useState(null); // null = טרם נטען → משתמשים בברירת-מחדל
   const [authorVids, setAuthorVids] = useState([]); // 🎬 סרטוני אלון לוי — נמשכים אוטומטית מהפוסטים
+  const [catVids, setCatVids] = useState([]); // 🎬 כל פוסט בקטגוריית «וידאו» — נכנס לספרייה אוטומטית
 
   // 📊 מעקב הפעלת-סרטון — מזין events/visitor_events (נכס קהל-צופי-וידאו, Meta Growth OS)
   const handlePlay = (v) => {
-    try { track("video", v.yt, "play", { title: stripHtml(v.title) }); } catch { /* noop */ }
+    // פוסט-וידאו בלי מקור-ניגון מזוהה → פותחים את הפוסט המלא (שם הווידאו מתנגן)
+    if (v.post_only && v.slug) {
+      try { track("video", v.slug, "open_post"); } catch { /* noop */ }
+      navigate("/" + v.slug);
+      return;
+    }
+    try { track("video", v.yt || v.slug || "", "play", { title: stripHtml(v.title) }); } catch { /* noop */ }
     setPlaying(v);
   };
 
@@ -78,6 +86,7 @@ export default function VideoGallery() {
     let alive = true;
     getHomeVideos().then(data => { if (alive) setRows(data); }).catch(() => {});
     getAuthorGalleryVideos("אלון לוי").then(data => { if (alive) setAuthorVids(data || []); }).catch(() => {});
+    getCategoryVideos("וידאו").then(data => { if (alive) setCatVids(data || []); }).catch(() => {});
     return () => { alive = false; };
   }, []);
 
@@ -101,15 +110,22 @@ export default function VideoGallery() {
   // סדר: הנעוצים (חותים + יום משיח בא) תמיד ראשונים; אחריהם שאר-הטבלה + סרטוני אלון לוי,
   // ממוזגים לפי תאריך (החדש קודם). סרטון-מתווסף מציג תאריך. נפילה לברירת-המחדל אם אין נתונים.
   const byDateDesc = (a, b) => String(b.uploaded_at || "").localeCompare(String(a.uploaded_at || ""));
+  const vkey = (v) => v.slug || v.yt || v.video_url || null;
+  const dedup = (arr) => {
+    const seen = new Set(); const out = [];
+    for (const v of arr) { const k = vkey(v); if (k && seen.has(k)) continue; if (k) seen.add(k); out.push(v); }
+    return out;
+  };
   let featured = FEATURED, list = VIDEOS;
-  if (rows && rows.length) {
-    const pinned = rows.filter(v => v.pinned);
-    const restHome = rows.filter(v => !v.pinned);
-    const added = [...restHome, ...(authorVids || [])].sort(byDateDesc);
-    featured = pinned[0] || rows.find(v => v.featured) || rows[0];
-    list = [...pinned.filter(v => v !== featured), ...added];
-  } else if (authorVids && authorVids.length) {
-    list = [...VIDEOS, ...[...authorVids].sort(byDateDesc)];
+  const homeRows = rows || [];
+  if (homeRows.length || (authorVids && authorVids.length) || (catVids && catVids.length)) {
+    const pinned = homeRows.filter(v => v.pinned);
+    const restHome = homeRows.filter(v => !v.pinned);
+    // כל פוסט בקטגוריית «וידאו» + סרטוני-כותב מתמזגים לפי תאריך, מנוכי-כפילויות (לפי slug/yt)
+    const added = dedup([...restHome, ...(authorVids || []), ...(catVids || [])].sort(byDateDesc));
+    featured = pinned[0] || homeRows.find(v => v.featured) || added[0] || FEATURED;
+    const fkey = vkey(featured);
+    list = dedup([...pinned, ...added]).filter(v => v !== featured && vkey(v) !== fkey).slice(0, 40);
   }
 
   return (
@@ -135,7 +151,7 @@ export default function VideoGallery() {
         {/* שורה אחת — הסרטון המובלט ראשון, ואז השאר (גלילה אופקית) */}
         <div className="vg-row">
           <VideoCard v={featured} onPlay={handlePlay} featured />
-          {list.map(v => <VideoCard key={v.yt} v={v} onPlay={handlePlay} />)}
+          {list.map((v, i) => <VideoCard key={vkey(v) || i} v={v} onPlay={handlePlay} />)}
         </div>
       </div>
 

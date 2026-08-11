@@ -155,6 +155,10 @@ export default function CiphersLibraryPage() {
             {"★".repeat(q.stars)}<span style={{ opacity: 0.3 }}>{"☆".repeat(5 - q.stars)}</span>
           </div>
           {rt && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>{q.verified ? "🎯 " : ""}{rt}</div>}
+          {/* 🕐 תאריך העלאת הצופן — אותו פורמט קנוני כמו בכל האתר */}
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5, marginTop: 2 }}>
+            🕐 {formatDateHe(m.created_at)}
+          </div>
         </div>
       </Link>
     );

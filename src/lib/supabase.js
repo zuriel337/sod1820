@@ -136,6 +136,28 @@ export async function getAuthorGalleryVideos(author, { limit = 12 } = {}) {
   } catch { return []; }
 }
 
+// 🎬 סרטוני-קטגוריה (למשל 'וידאו') לספריית-הסרטים — כל פוסט בקטגוריה נכנס אוטומטית.
+// החילוץ (mp4 מאוחסן / קישור YouTube) נעשה בצד-השרת (RPC get_category_videos) כדי לא לשלוח
+// את גוף-הפוסטים ללקוח. פוסט בלי מקור-ניגון מזוהה (post_only) → כרטיס שמפנה לפוסט.
+export async function getCategoryVideos(category = "וידאו", { limit = 60 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc("get_category_videos", { p_category: category, p_limit: limit });
+    if (error || !data) return [];
+    return data.map(r => ({
+      yt: r.yt || null,
+      title: stripHtml(r.title || ""),
+      slug: r.slug || null,
+      video_url: r.video_url || null,
+      poster_url: r.poster_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),
+      uploaded_at: r.uploaded_at || null,
+      author: r.author || null,
+      featured: false, pinned: false, cipher_slug: null,
+      post_only: !!r.post_only,
+    }));
+  } catch { return []; }
+}
+
 // סרטון-גלריה המקושר לצופן (cipher_slug) — לחיבור דו-כיווני בעמוד הצופן /codes/:slug
 export async function getHomeVideoByCipher(cipherSlug) {
   if (!supabase || !cipherSlug) return null;
@@ -2605,6 +2627,8 @@ export function adaptPost(row) {
     slug: row.slug,
     author: row.author ?? '',
     source: row.source ?? null,
+    categories: row.categories ?? [],   // top-level — כדי שכרטיסי-פוסט יזהו «וידאו» בלי לחפור ב-_embedded
+    tags: row.tags ?? [],
     _embedded: {
       'wp:featuredmedia': row.image_url ? [{ source_url: row.image_url }] : [],
       'wp:term': [

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { formatDateHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { getResearchMatrices } from "../lib/elsMatrices.js";
@@ -64,7 +65,10 @@ export default function ResearchCodesPage() {
                   <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12 }}>
                     {m.skip_distance ? `דילוג ${m.skip_distance}` : ""}{m.scope === "tanakh" ? " · כל התנ״ך" : m.skip_distance ? " · תורה" : ""}
                   </div>
-                  {m.author_name && <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginTop: "auto", paddingTop: 4 }}>✍️ {m.author_name}</div>}
+                  {/* 🕐 תאריך העלאת הצופן (+ מחבר אם יש) — פורמט קנוני כמו בספריית הצפנים */}
+                  <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11, marginTop: "auto", paddingTop: 4 }}>
+                    🕐 {formatDateHe(m.created_at)}{m.author_name ? ` · ✍️ ${m.author_name}` : ""}
+                  </div>
                 </div>
               </Link>
             ))}
