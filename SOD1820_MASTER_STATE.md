@@ -466,6 +466,29 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 
 ---
 
+## §13. CC-1 SPEC — «חדר המפקדה» View קורא-בלבד (מאושר · נעול 11.8.2026)
+> **מהות:** מפקדת-**כל-האוצר** (לא מפקדת-Discovery). View/Control-Center מעל המידע הקיים. `status`: מפרט=`APPROVED` · מימוש=`READ-ONLY`/טרם-בנייה (על-אישור-נפרד).
+
+**13.1 שני מרחבים:** 🔴 **«עכשיו»** (נכנס/מתעורר — `wa_bot_log`/`wa_vip_inbox`/`research_contributions`/`posts`/`gallery_images`/`discovery_events` + `getHotNumbers`/`computePulse` + Pattern-Lab) · 🗂️ **«כל-האוצר»** (בורר: כתב/קבוצה/פוסט/תגובות/גלריה/WhatsApp/צופן/שפה/מספר → **כל-חומר-הישות, היסטורי+טרי** + «עובד/מחכה»).
+
+**13.2 מסלול-חומר (לכל פריט):** `מקור → חילוץ → גימטריה → הצלבות → Pattern → רזיאל → שיפוט → גרף → פרסום`, כל שלב 🟢 הושלם · 🟡 חלקי · ⚪ לא-נבדק · 🔴 נעצר. **כל מצב נגזר מנתונים קיימים** (`all_values`/`gematria_claim`/`engine_verified`/`convergences`/`research_objects`/`nodes-edges`/`channel_updates`) — 🔴 = חומר-מחושב-שלא-התקדם («איפה נעצר»). אפס מנוע/סוכן חדש.
+
+**13.3 עדשת-כתבים (VIP=עדיפות, לא-אמת):** כל-חומר-הכותב מאוחד בין-מקורות (יניב/שמעון/ציון/צבי/יצחק + עתידיים) — `research_contributions.author`+`posts.author`+`wa_vip_senders`+`wa_vip_inbox.sender`. אותו-שם בכמה-מקומות = אותו כותב.
+
+**13.4 שכבות:** 🤖 רזיאל=הבנה+הצעת-תבניות (לא-שופט) · 🕸️ מטטרון=תמונת-על (לא-שופט) · ⚖️ שופט=Human-Gate יחיד (`admin_research_review`+`ConvergenceWizard`, לא שער-שלישי) · 👤 צוריאל=מחליט.
+
+**13.5 חוקים:** `HOT≠TRUE · VIP≠TRUE · Claim≠Fact · Interpretation≠Fact` · Rank-Don't-Hide · שום-חומר-לא-נמחק (◻️ «לא-נעלם»: UNKNOWN/UNVERIFIED/REJECTED/WEAK נגישים).
+
+**13.6 מסלולי-מעבר:** פריט→«חקור»→`/number/:n` (§10.4, לא-נוגעים)→«בעץ» (`getNumberGraph`) · מועמד→⚖️→canonical/גרף→📝 Publication-Queue (יעדי-פרסום קיימים; CANONICAL≠PUBLISHED).
+
+**13.7 קיים-להציג:** `admin_command_center`·`getHotNumbers`·`computePulse`·`getRealityHints`·`getPostsFromSupabase`·`getAllContributions`·`getGematriaByValue`·`getConvergenceForValue`·`getNumberGraph`·`getGraphBridges`·`getDiscoveries`·`getAiAnalysis`·`admin_research_review`·`research_items`. **חסר (למען View):** (1) read-RPC אחד (SECURITY-DEFINER, **בלי כתיבת-נתונים**) לחשיפת טבלאות-WA השרת-בלבד · (2) client-wrapper ל-`admin_research_feed` · (3) הרכבת-View (`discovery.js` טיוטה).
+
+**13.8 🔒 20 גבולות-הברזל של CC-1 (נעולים):** (1) לא מאגר-חדש · (2) לא Discovery-Engine-חדש · (3) לא Source-of-Truth-חדש · (4) רק View/Control-Center מעל הקיים · (5) `research_objects`=שכבת-זיכרון-Discovery (ללא-שינוי) · (6) Knowledge-Graph=הגרף-הקנוני · (7) `EntityPage`/§10.4 ללא-שינוי · (8) רזיאל=הבנה, לא-שופט · (9) מטטרון=תמונת-על, לא-שופט · (10) השופט=Human-Gate-יחיד · (11) צוריאל=המחליט · (12) שום-חומר-לא-נמחק (חלש/לא-מאומת/UNKNOWN) · (13) HOT≠TRUE · (14) VIP≠TRUE · (15) Claim≠Fact · (16) Interpretation≠Fact · (17) CC-1 לא מקדם ל-canonical · (18) CC-1 לא מפעיל H-1 ולא פותח-הקיר · (19) CC-1 לא בונה feeders · (20) CC-1 לא משנה מנוע-גימטריה. **חומר לפני-`research_objects` נראה במפקדה** (§11.34).
+
+**13.9 היקף:** CC-1=View קורא-בלבד (+read-RPC אחד, על-אישור-WRITE נפרד). פתיחת-הקיר (`fn_persist_discovery` מצד-שרת)=**CC-2**. adapters (פוסט-parser/חדשות)=**CC-3+**. **הבא:** מפרט-בנייה-טכני (קומפוננטות·helpers·read-RPC·שאילתות·הרכבה·ביצועים·מניעת-כפילות·ייצוג-מסלול) → עצירה לאישור לפני WRITE.
+
+---
+
 ## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
 1. `gematria_methods` (23 שורות) — הרישום עצמו לא-הוכרז קודם ב-CLAUDE.md/EXPORT.
 2. `method_lifecycle` — קדם ל«Candidate Registry» שהוצע בסשן; אין לבנות מקביל.
@@ -499,6 +522,7 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 17 | 11.8.2026 | §11-C חידוד + `command_center_law` ל-CLAUDE.md: רזיאל/מטטרון/שופט/צוריאל = **מערכת-אחת** (11.29) · 8 טיפוסי-תבנית קנוניים (11.30) · 8 אזורי-מסך (11.31) · גלובלי+שפה (ערך≠תרגום≠תעתיק, 11.32) · דליברבל «מפת-מסך לפני UI» (11.33). הוראת-פרויקט חדשה `🎛️ command_center_law` ב-CLAUDE.md שמצביעה ל-§11/§11-B/§12 | צוריאל: ההגדרה חייבת להיות **בהוראות** כדי שסוכן לא יבין את המפקדה כ-Dashboard טכני | «חדר-מפקדה = טאב-אדמין» → «שער-אחד, מערכת-אחת, מנוע-מציג-צוריאל-בוחר» | `CANONICAL` (הוראה+חידוד) · אפס-קוד/DB/UI · מפת-מסך = הדליברבל הבא (טרם-בנייה) |
 | 18 | 11.8.2026 | §12-B מפת-תקיעות-הקלט + «הקיר-האחד» (מיפוי-קוד READ-ONLY): **אף edge-function (0/29) לא כותב `research_objects`** → כל מקור-שרת נתקע לפני השער; מינימום = דלת-שרת אחת ל-`fn_persist_discovery` · WhatsApp config-driven (`wa_bot_config`) אך **רדום ~5 שבועות** (inbox 3.7/queue 5.7) · כתבים-מועדפים = `wa_vip_senders` קיים (5, כולל שמעון-חיימוב) · Agents→Adapters (1 מנוע/1 שער/1 סוכן-שיחה; השאר feeders) · Seed-Dry-Run (358·676·974·1234·1331·1820 + 2701=בראשית מהגלריות) הצליב חי מול האוצר — EXISTING פר-מספר, אין feeder | צוריאל: «לפתוח את זרימת האוצר אל השער» — לוודא שכל מקור מגיע לשער-אחד, לא עוד Agent | «חבר עוד 5 קבוצות» → «כל מקור=feeder לאותו מנוע; קיר-אחד לפתוח» | `READ-ONLY` מיפוי-קוד מאומת · אפס בנייה/DB/UI · פתיחת-הקיר=`PROPOSED` (CC-4+) |
 | 19 | 11.8.2026 | §11.34 «Discovery-Gate = שער-החלטה לא שער-ראות» (המפקדה מציגה כל-החומר לפני-Discovery; `research_objects` אינו תנאי-לראות; סטטוסי-מחזור-חיים כולל REJECTED/UNVERIFIED/UNKNOWN; פורום=פוסט+כל-תגובותיו נראים) + §12-C מפת-קליטה-חיה (עובדות): דלת-יחידה=`fn_persist_discovery` · 81 wa-raziel=הכנסה-שנעצרה · WA כבוי (`enabled=false`) · פורום 339/248-claim (יניב `engine_verified_layers`) 0-במנוע · גלריות `all_values` עובד · ~90% קיים | צוריאל: «מפקדת-כל-האוצר, לא מפקדת-Discovery» — שער-החלטה≠שער-ראות | «Command-Center = research_objects viewer» → «חלון-אחד לכל-האוצר; Discovery=שלב» | `CANONICAL` (§11.34 חוק) + `READ-ONLY` עובדות (§12-C) · אפס בנייה/DB/סוכן/engine |
+| 20 | 11.8.2026 | **§13 CC-1 SPEC נעול (מאושר):** מפקדת-כל-האוצר · שני-מרחבים (🔴עכשיו / 🗂️כל-האוצר-היסטורי+טרי) · מסלול-חומר 9-שלבים×4-מצבים (🟢🟡⚪🔴 «איפה נעצר») · עדשת-כתבים (VIP=עדיפות) · רזיאל/מטטרון/שופט/צוריאל · **20 גבולות-ברזל** (View-בלבד · לא מאגר/engine/SoT/feeder · research_objects+גרף+EntityPage קנוניים · אין קידום-לקנוני/H-1/קיר/שינוי-מנוע · שום-חומר-לא-נמחק · HOT/VIP/Claim/Interpretation≠TRUE/Fact) · חומר-לפני-research_objects נראה · חסר=read-RPC-אחד(קריאה)+wrapper+הרכבת-View | צוריאל אישר עקרונית + בדיקת-גבולות סופית | «מפרט-מסך» → «CC-1 קנוני נעול» | `APPROVED` (מפרט) · `READ-ONLY`/טרם-בנייה · הבא=מפרט-בנייה-טכני→עצירה-לאישור-לפני-WRITE |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. שינויי-DB בסשן: (1) הקפאת cron job 27 (`metatron-nightly`, הפיך); (2) **H-1** — RPC `fn_persist_discovery` + מועמד-בדיקה-אחד (878=משיח↔דבר-מתוך-דבר, status=`candidate`, ממתין ל-Human-Gate). מלבדם READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence היסטורי לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE + §10 חזון + H-1 front-half).*
