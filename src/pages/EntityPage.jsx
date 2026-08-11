@@ -9,7 +9,7 @@ import { F, calcGem, KEY_NUMBERS } from "../theme.js";
 import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberDossier, getNumberMap, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
 import { getCiphersForNumber } from "../lib/elsMatrices.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
-import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache } from "../lib/deepAnalysis.js";
+import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache, persistDiscoveries } from "../lib/deepAnalysis.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { emit, on, EVENTS } from "../lib/research/eventBus.js";
 // RealityHint (בועת-רמזים צפה) הוסרה מדף המספר לבקשת צוריאל (הפריעה בנייד).
@@ -898,6 +898,7 @@ export default function EntityPage({ embedPhrase } = {}) {
     }).join("\n");
     // 🫀 התכנסויות בין-שיטתיות באוסף (עובדת-מנוע) — כדי שה-AI לא יפספס משיח(מילוי)↔דבר-מתוך-דבר(רגיל).
     const convs = collectionConvergences(researchItems);
+    persistDiscoveries(convs, { sourceRef: "entity-combo" });   // 🌉 H-1 — התכנסות אמיתית → מועמד (Human Gate), non-blocking
     const facts = itemsLine + (convs.length ? `\n\n🔮 התכנסויות בין-שיטתיות שהמנוע זיהה:\n${convergencesFactLine(convs)}` : "");
     let txt = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${researchItems.length} ישויות`, facts, fast: true });
     if (!txt) { await new Promise(r => setTimeout(r, 800)); txt = await getAiAnalysis({ kind: "research", subject: `אוסף מחקר · ${researchItems.length} ישויות`, facts, again: true, fast: true }); }
