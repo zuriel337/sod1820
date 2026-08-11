@@ -23,6 +23,7 @@ import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
+import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp } from "../lib/tracking.js";
@@ -1205,6 +1206,7 @@ function WPArticleCard({ post, onPost }) {
         borderBottom: excerpt ? `1px solid ${C.border}` : "none",
         fontSize: 10.5, color: C.muted, fontFamily: F.heading,
       }}>
+        {postHasVideo(post) && <VideoBadge variant="chip" />}
         <span>מאת {author}</span>
         <span style={{ color: C.border }}>|</span>
         <span style={{ direction: "ltr", display: "inline-block" }}>{date}</span>
@@ -1298,6 +1300,7 @@ function PostCard({ post, onPost }) {
             fontFamily: F.mono, fontSize: 12, fontWeight: 800, padding: "2px 9px", borderRadius: 999, zIndex: 2,
           }}>ג׳ {gem}</span>
         )}
+        {postHasVideo(post) && <VideoBadge variant="corner" style={{ top: gem > 0 ? 38 : 8 }} />}
       </div>
 
       {/* תוכן */}

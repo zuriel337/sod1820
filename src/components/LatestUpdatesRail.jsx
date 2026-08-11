@@ -9,6 +9,7 @@ import { thumb, galThumb } from "../lib/img.js";
 import { streamDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
+import VideoBadge, { postHasVideo } from "./VideoBadge.jsx";
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
 //   פוסט · זרם המציאות (🌊) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
@@ -69,7 +70,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       const ai = d.ai_touched || aiRe.test(d.content || "");
       return (
         <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className="lur-card" style={{ "--acc": cPost }}>
-          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}</div>
+          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}{postHasVideo(d) && <VideoBadge variant="corner" label={false} />}</div>
           <div className="lur-body"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>
             <h3 className="lur-title">{stripHtml(d.title || "")}</h3><Meta when={it.when} ai={ai} /></div>
         </Link>
