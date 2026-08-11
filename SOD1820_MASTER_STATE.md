@@ -277,6 +277,27 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
   והכיוון-ההפוך: `משתמש רואה ממצא → לוחץ מספר/מילה/קשר → דף-המספר → ממשיך לחקור → נוצר מסע → (עתיד) 3D`.
 - **חוק-על:** ממצאי-Discovery **חדשים** (כשהמנוע יזין את הדף) נכנסים ל**אותו עולם-תצוגה** — **לא** UI מקביל של «עוד מערכת». `KEEP EVERYTHING → REORGANIZE → SIMPLIFY → ADD` — הסידור **מסביב**, לא על-חשבון-האזור.
 
+### 10.5 POST CORPUS + ONE DISCOVERY ENGINE — מקורות-קלט מרובים, מנוע אחד (11.8.2026)
+> **החלטת צוריאל: «זרם המציאות» אינו המקור היחיד. כל קורפוס-קיים = SOURCE/CORPUS/SEED לאותו מנוע-גילויים ולאותו עץ.**
+- **ONE DISCOVERY ENGINE, מקורות-Input מרובים (`CANONICAL` עיקרון):** `זרם-המציאות` · `פוסטים` · `דיווחי-משתמשים` · `גלריות` · `OCR` — **כולם מזינים מנוע-אחד**, לא מנוע-לכל-מקור:
+  ```
+       Reality Stream   Posts   User Reports   Galleries   OCR
+              └──────────────┴──────┴──────────┴──────┘
+                             ↓
+        INPUT → OCR/TEXT → LANGUAGE → SOURCE → PHRASE/WORD → METHODS → VALUES
+              → CROSS → CONVERGENCE → DISCOVERY → EVIDENCE → HUMAN GATE
+              → KNOWLEDGE GRAPH → CANONICAL      (אותו lifecycle לכולם)
+  ```
+  ⛔ **אין** «Post Discovery Engine»/«Gallery Discovery Engine»/«User-Report Discovery Engine» נפרדים.
+- **POST CORPUS (`VISION`/`PROPOSED`):** פוסט = **מקור-מחקר אפשרי**, גם אם לא הוזן ל«זרם המציאות». `POST → extract → calculate → cross → convergence → candidate discovery`. **הפוסט נשאר במקורו** (לא מועתק לזרם), עם provenance ברור.
+- **⚠️ `POST CONTENT ≠ TRUTH` (`CANONICAL`, הרחבת §10.0):** גימטריה שהכותב כתב («X=974») = **טענה/קלט לבדיקה, לא אמת**. המנוע: מזהה X → **מחשב בעצמו** → בודק שיטות/הצלבות → שומר הפוסט כ-provenance → **מבחין בין מה-שאומת-במנוע לבין מה-שהכותב-טען** → רק אם נמצא Discovery → `research_objects(candidate)`. **Human Gate = השער היחיד לקנוני.** (מקביל ל-`SIGNAL ≠ DISCOVERY ≠ CANONICAL` ול-re-verify של H-1.)
+- **פוסטים = אוצר-היסטורי (`CANONICAL` שימור):** לא «תוכן-אתר» בלבד — אוצר-מחקרי שהצטבר לאורך השנים. **לא בונים מחדש, לא מוחקים** — המנוע לומד לקרוא/לחשב/להצליב/לחבר לעץ.
+- **הבחנת-מקורות (לא לאחד):** `זרם-המציאות`=ציר מה-שמתעורר-לאורך-זמן · `פוסטים`=קורפוס-תוכן/מחקר היסטורי+שוטף · `גלריות`=קורפוס-חזותי · `דיווחי-משתמשים`=UGC · `OCR`=שער-חילוץ · `Discovery-Engine`=המצליב · `Knowledge-Graph`=היעד. **מזינים אותו מנוע, לא הופכים לאותו-דבר.**
+- **HOT ממקור-פוסטים (`PROPOSED`):** מספר שמופיע בפוסטים-חדשים/חוזרים → `HOT/SIGNAL/DEMAND`. **`HOT ≠ TRUE`** (§10.3.1) — חם ≠ Discovery ≠ Canonical.
+- **זמן-כחלק-מהמודל (`PROPOSED`):** `posts.date`/`modified` (100% מלא) = temporal-provenance → «מה הופיע/מתי/איפה/מה-לפני-מה/מה-התעורר-לאחרונה» → ציר `PAST→PRESENT→FUTURE`, **בלי להפוך פרשנות-עתידית לעובדה.**
+- **אימות-חי (`EXISTING`):** `posts`(1,235, date/modified 100%, source wordpress/ai) · 304 post-nodes · `posts_by_number_tag`/`posts_harvested_for_number`/`cross_source_posts`/`fn_raziel_extract_subject`/`fn_split_gematria` · OCR (`wa-ocr`/`gallery-ocr`) · `research-extract` cron שעתי · מנוע-גימטריה (קריא). **`MISSING`:** 0 קשתות `post→number` (קישור דרך tags) · pipeline post→discovery לא-מחווט · re-verify-טענות לא-מוחל.
+- **⛔ עכשיו — KEEP EVERYTHING:** לא לשנות פוסטים · לא להעביר פוסטים לזרם · לא Tree/Store/מנוע/מקור-אמת חדש · לא לשנות §10.0 · לא לעקוף Human-Gate · לא להפוך טענות-בפוסטים לעובדות. **רק תוספת-חזון:** כל קורפוס-קיים = Source/Corpus/Seed, והפלט עובר את אותו Fact-first lifecycle. `research_objects` + One-Knowledge-Tree הקיימים מספיקים — **אין מערכת חדשה.**
+
 ---
 
 ## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
@@ -303,6 +324,7 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 8 | 11.8.2026 | §10.3 «זרם המציאות» כציר-מקור/קורפוס עתידי (SOURCE/CORPUS/SEED) של מנוע-הגילויים · כלל-ברזל «התוכן מזין, לא קובע» · עקרון-שימור (לא בונים מחדש אוצרות) · אימות-חי: source='update' 23 · 2,020 image-nodes עם 2,020 קשתות-למספרים (מחובר-חלקית) | להוסיף את «זרם המציאות» למפת One-Knowledge-Tree כציר-מקור, לא כ-UI/עץ נפרד | «זרם המציאות = עוד UI/אוסף בצד» → ציר-מקור שמזין את המנוע | ציר-מקור = `VISION`/`PROPOSED` · כלל «תוכן-לא-קובע»+שימור = `CANONICAL` (הרחבת §10.0) · אפס-שינוי/schema/sync · H-1 ללא-שינוי |
 | 9 | 11.8.2026 | §10.3.1 שני-ממדי-הזרם (ARCHIVE/CORPUS + REALITY-SIGNAL) · Temporal Discovery (מה-חדש/מה-מצטבר/מה-חוזר) · כלל `HOT ≠ TRUE` (חם=Signal-של-פעילות, לא-אמת/לא-Discovery) · הזמן-כהקשר-מחקרי (occurred_at) · השתלבות-עתידית עם RealityPulse/hot-fns/demand_signal/research_intelligence | להפריד תפקיד-ארכיון מתפקיד-אות-חי; לנעול ש«חם» אינו הופך למספר-אמת ללא המסלול המלא | «חם/חדש = discovery» → `HOT ≠ TRUE`, המסלול המלא חובה | שני-הממדים = `VISION`/`PROPOSED` · `HOT≠TRUE` = `CANONICAL` (הרחבת §10.0) · אפס מנוע-HOT/טבלה/שינוי-זרם · H-1 ללא-שינוי |
 | 10 | 11.8.2026 | §10.4 אזור-הממצאים בדף-המספר (`EntityPage` מד-התכנסות/התכנסות-מילים/רב-שיטתי/אשכול/קשרי-גרף/צירופי-שיטות-ומילים) = View קנוני קיים — לא-לעצב-מחדש, לא-אקורדיון, לא-למחוק-נתונים. צמצום Blueprint §A: reorg=מעטפת+סדר-בין-אזורים+קיבוץ-«מספרים-קשורים» בלבד, לא אזור-הממצאים. ממצאי-Discovery עתידיים → אותו עולם-תצוגה, לא UI מקביל | צוריאל אוהב את האזור (צילום /number/199); לשמר אותו כ-View מרכזי של מנוע-הגילויים | «לפשט דף-מספר ע"י אקורדיון/עיצוב-מחדש של אזור-הממצאים» → הסידור מסביב, לא על-חשבונו | `CANONICAL` (שימור-View) · Rank-Don't-Hide · אפס-שינוי-קוד/UI |
+| 11 | 11.8.2026 | §10.5 POST CORPUS + ONE DISCOVERY ENGINE: כל קורפוס (זרם/פוסטים/דיווחים/גלריות/OCR) = Source/Corpus/Seed → מנוע-אחד → עץ-אחד (אין מנוע-לכל-מקור) · כלל `POST CONTENT ≠ TRUTH` (טענת-כותב=קלט, המנוע מחשב+מאמת בעצמו) · פוסטים=אוצר-היסטורי (שימור) · HOT-ממקור-פוסטים כפוף ל-HOT≠TRUE · temporal-provenance (posts.date/modified) · אימות-חי (posts 1235/304-nodes/extract-fns/OCR/research-extract-cron; חסר: 0 post→number edges + pipeline לא-מחווט) | «זרם המציאות = המקור היחיד» → כל קורפוס-קיים מזין את אותו מנוע; המנוע לומד לקרוא את כל האתר | «פוסט=תוכן-להצגה בלבד» / «גימטריית-הכותב=אמת» → קורפוס-מחקר + טענה-לבדיקה | One-Engine + `POST CONTENT≠TRUTH` + שימור = `CANONICAL` (הרחבת §10.0) · POST-CORPUS-כמקור = `VISION`/`PROPOSED` · אפס engine/store/tree/שינוי · Human-Gate ללא-עקיפה |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. השינוי-ב-DB היחיד בסשן: הקפאת cron job 27 (`metatron-nightly`, הפיך). מלבדו READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE).*
