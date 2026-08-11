@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getChannelUpdates, getRealityHints } from "../lib/supabase.js";
+import { getChannelUpdates, getRealityHints, adminSetChannelUpdateHidden } from "../lib/supabase.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { getForumFeed } from "../lib/contributions.js";
 import { hintNums } from "../lib/reality.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
@@ -97,6 +98,14 @@ function applyCaps(list) {
 
 export default function LiveChannelFeed() {
   const P = usePalette();
+  const { isAdmin } = useAuth();
+  const [hidden, setHidden] = useState(() => new Set());   // 🙈 אדמין: פריטי-ערוץ שהוסתרו מיד (אופטימי)
+  // רק פריט-ערוץ אמיתי (channel_updates) ניתן להסתרה — לא אירועי-פורום/זרם (id סינתטי fev_/rev_)
+  const canHideItem = (u) => CHANNEL_KEYS.includes(u.ch) && u.id && !/^(fev_|rev_)/.test(String(u.id));
+  const hideItem = async (u) => {
+    setHidden(s => { const n = new Set(s); n.add(u.id); return n; });
+    try { await adminSetChannelUpdateHidden(u.id, true); } catch { /* נשאר מוסתר ויזואלית */ }
+  };
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" && window.matchMedia(DESKTOP_MQ).matches);
   const [open, setOpen] = useState(false); // סגור כברירת-מחדל בשני המצבים (מחשב+מובייל) — המשתמש פותח בעצמו
   const [raw, setRaw] = useState([]);
@@ -149,7 +158,7 @@ export default function LiveChannelFeed() {
     return () => { live = false; clearInterval(id); };
   }, []);
 
-  const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch])).slice(-60), [raw, active]);
+  const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch] && !hidden.has(u.id))).slice(-60), [raw, active, hidden]);
   // שורת-העדכון האחרון לגלולה הצפה (מובייל) — מתחלפת בין ה-6 החדשים
   const latest = useMemo(() => items.slice(-6).reverse(), [items]);
   const cur = latest.length ? latest[tick % latest.length] : null;
@@ -217,6 +226,8 @@ export default function LiveChannelFeed() {
         .lcf-row.recv{justify-content:flex-start}
         .lcf-row.sent{justify-content:flex-end}
         .lcf-b{position:relative;max-width:82%;padding:6px 9px 5px;border-radius:8px;box-shadow:0 1px .5px rgba(0,0,0,.13);animation:lcf-pop .28s ease both}
+        .lcf-hide{position:absolute;top:-8px;inset-inline-end:-8px;z-index:6;width:24px;height:24px;border-radius:999px;border:none;cursor:pointer;background:rgba(0,0,0,.6);color:#fff;font-size:12px;line-height:1;display:grid;place-items:center;opacity:.9}
+        .lcf-hide:hover{opacity:1;background:#c8102e}
         @keyframes lcf-pop{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
         .lcf-b.rb{background:${WA.recv};color:${WA.recvInk};border-top-right-radius:0}
         .lcf-b.sb{background:${WA.sent};color:${WA.sentInk};border-top-left-radius:0}
@@ -293,6 +304,10 @@ export default function LiveChannelFeed() {
                   return (
                     <div key={(u.id || i) + "" + u.ch} className={"lcf-row " + (ai ? "sent" : "recv")}>
                       <div className={"lcf-b " + (ai ? "sb" : "rb")}>
+                        {isAdmin && canHideItem(u) && (
+                          <button type="button" className="lcf-hide" title="הסתר מהעדכונים ומהטיקר (אדמין)"
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); hideItem(u); }}>🙈</button>
+                        )}
                         {ai
                           ? <div className="lcf-ai"><span className="rb2">🤖</span>רזיאל · AI</div>
                           : <div className="lcf-snd" style={{ color: c.c }}><ReporterAvatar credit={u.credit} size={20} ring={c.c} fallback={BRANDS[u.ch]?.logo} /><span>{c.em} <ReporterLink credit={u.credit} canonical style={{ color: c.c, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 700 }}>{u.credit || c.name}</ReporterLink></span></div>}

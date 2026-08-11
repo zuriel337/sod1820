@@ -38,6 +38,21 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
   return { posts: data ?? [], total: count ?? 0 };
 }
 
+// 🙈 אדמין — הסתר/הצג פוסט מ«עדכונים אחרונים» בבית (posts.home_hidden דרך RPC מאובטח rd_is_admin).
+//    הפוסט נשאר חי בקטגוריות/‏/post/בעמוד עצמו — מוסתר רק מרצועת-הבית.
+export async function adminSetPostHomeHidden(id, hidden) {
+  if (!supabase || id == null) return false;
+  const { error } = await supabase.rpc('admin_set_post_home_hidden', { p_id: id, p_hidden: !!hidden });
+  return !error;
+}
+// 🙈 אדמין — הסתר/הצג פריט-ערוץ מהטיקר ומכל הפידים (channel_updates.status='hidden'/'live';
+//    כל הרכיבים מסננים status='live' → הסתרה אחת מעלימה מכל מקום).
+export async function adminSetChannelUpdateHidden(id, hidden) {
+  if (!supabase || id == null) return false;
+  const { error } = await supabase.rpc('admin_set_channel_update_hidden', { p_id: id, p_hidden: !!hidden });
+  return !error;
+}
+
 // 🎬 פוסטי «קוד המציאות» — עדשת המציאות/קולנוע. מאחד את כל התגיות של העולם הזה
 // (מימד חמש · מטריקס · משחקי הדיונון · קולנוע/סרטים) + קטגוריית «הצופן בסרטים», ממוזג
 // ומדורג לפי תאריך-עדכון. עץ אחד — לא טבלה חדשה, רק עדשה על posts.

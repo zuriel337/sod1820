@@ -1,7 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { adminSetPostHomeHidden, setImageCuration } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
 import { streamDate, domNum } from "../lib/reality.js";
@@ -34,6 +36,21 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
     return out.sort((a, b) => b.when - a.when).slice(0, 20);
   }, [posts, convergences, hints, researchers, ciphers]);
+
+  // 🙈 אדמין — הסתרת פריט מ«עדכונים אחרונים» (פוסט→home_hidden · רמז-זרם→curator_hidden). אופטימי + נשמר ב-DB.
+  const { isAdmin } = useAuth();
+  const [hidden, setHidden] = useState(() => new Set());
+  const keyOf = (it) => it.type + ":" + (it.data.id ?? it.data.slug ?? it.data.code ?? it.data.title ?? "");
+  const canHide = (it) => it.type === "post" || it.type === "reality";
+  const hideItem = async (it) => {
+    const k = keyOf(it);
+    setHidden(s => { const n = new Set(s); n.add(k); return n; });   // אופטימי — נעלם מיד
+    try {
+      if (it.type === "post") await adminSetPostHomeHidden(it.data.id, true);
+      else if (it.type === "reality") await setImageCuration(it.data.id, { curator_hidden: true });
+    } catch { /* נשאר מוסתר ויזואלית; ריענון יחזיר אם הכתיבה נכשלה */ }
+  };
+  const visible = items.filter(it => !hidden.has(keyOf(it)));
 
   // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
   const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
@@ -126,9 +143,21 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:10.5px;color:${P.muted};font-family:${F.heading};flex-wrap:wrap}
         .lur-ai{color:#3ea6ff;font-weight:800;background:rgba(62,166,255,.13);border:1px solid rgba(62,166,255,.4);border-radius:999px;padding:1px 7px}
         .lur-more{font-weight:800}
+        .lur-cell{position:relative}
+        .lur-hide{position:absolute;top:6px;inset-inline-end:6px;z-index:4;width:27px;height:27px;border-radius:999px;border:none;cursor:pointer;
+          background:rgba(0,0,0,.55);color:#fff;font-size:13px;line-height:1;display:grid;place-items:center;opacity:.9;backdrop-filter:blur(2px)}
+        .lur-hide:hover{opacity:1;background:#c8102e;transform:scale(1.06)}
         @media(max-width:640px){.lur-media{width:74px;flex-basis:74px}}
       `}</style>
-      <div className="lur-grid">{items.map(card)}</div>
+      <div className="lur-grid">{visible.map(it => (
+        <div key={keyOf(it)} className="lur-cell">
+          {card(it)}
+          {isAdmin && canHide(it) && (
+            <button type="button" className="lur-hide" title="הסתר מ«עדכונים אחרונים» (אדמין)"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); hideItem(it); }}>🙈</button>
+          )}
+        </div>
+      ))}</div>
       <div style={{ textAlign: "center", marginTop: 16, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
         <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
         <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>
