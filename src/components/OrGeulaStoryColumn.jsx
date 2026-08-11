@@ -24,11 +24,17 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column" }) {
 
   useEffect(() => {
     let alive = true;
+    // «אור הגאולה · סטוריז» = סרטונים בלבד. מושכים מרווח גדול יותר ומסננים לוידאו בצד-הלקוח
+    // (isVideo מטפל גם ב-?/# בסוף ה-URL), אחרת תמונות שנכנסו לערוץ (למשל פוסט-צופן כ-.jpg) מופיעות כסטורי.
     supabase.from("channel_updates")
       .select("id,text,image_url,thumb_url,created_at")
       .eq("channel", "or-geula").not("image_url", "is", null)
-      .order("created_at", { ascending: false }).limit(limit)
-      .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
+      .order("created_at", { ascending: false }).limit(Math.max(limit * 2, 40))
+      .then(({ data }) => {
+        if (!alive) return;
+        const vids = (Array.isArray(data) ? data : []).filter(r => isVideo(r.image_url)).slice(0, limit);
+        setRows(vids);
+      });
     return () => { alive = false; };
   }, [limit]);
 
