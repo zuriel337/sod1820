@@ -20,6 +20,7 @@ import CommunityForming from "../components/CommunityForming.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
+import UpdatesBox from "../components/UpdatesBox.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
 import { POST_FX } from "../lib/postFx.js";
