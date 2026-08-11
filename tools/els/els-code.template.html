@@ -566,6 +566,10 @@
   /* 🎥 מצב הצגה — מסך נקי לקריינות + הקלטה. שורת-שליטה קבועה למטה. */
   body.presenting .matacts,body.presenting .filmbar,body.presenting .hintbar,body.presenting .selbar,body.presenting .descbar,body.presenting .mside{display:none!important}
   body.presenting .matrix-box{margin-inline:auto}
+  /* 🎥 מטריצה נקייה במצב-הצגה (בקשת צוריאל): תא שעדיין לא נחשף נראה כמו אות-רקע רגילה של המטריצה —
+     בלי אות-רפאים אפורה מעומעמת (opacity .22) ובלי מסגרת-הזהב של תחילת-מילה. כך בולטות רק המילים שכבר נחשפו. */
+  body.presenting .mc.rv-hide .l{opacity:1!important}
+  body.presenting .mc.rv-hide.start::after{display:none!important}
   #presentbar{position:fixed;inset-inline:0;bottom:0;z-index:99999;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
     background:linear-gradient(180deg,rgba(12,10,22,.86),rgba(12,10,22,.97));border-top:1px solid rgba(139,92,246,.5);
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(8px);font-family:inherit}
@@ -761,6 +765,8 @@
   .witem .st.on{color:var(--goldBright)}
   .witem button{cursor:pointer;background:none;border:none;font-size:14px;line-height:1;padding:3px;color:var(--ink2)}
   .witem button:hover{color:var(--goldBright)}
+  .witem button:disabled{opacity:.28;cursor:default;color:var(--ink2)}
+  .witem .mvup,.witem .mvdn{font-size:12px;padding:3px 2px}
   .wempty{color:var(--ink3);font-size:12px;line-height:1.6}
   .witem.mainrow{border-color:rgba(210,170,80,.4);background:linear-gradient(180deg,rgba(122,19,32,.16),var(--panel2));box-shadow:inset 0 0 0 1px rgba(122,19,32,.25)}
   .witem.mainrow.off{opacity:.55}
@@ -3513,11 +3519,18 @@
           '<span class="t">'+w.t+'</span>'+stTxt+
           (canExp?'<button class="lineb'+(st.lineFor===i?" on":"")+'" title="הצג את שורת-הצופן המלאה">🔭</button>':'')+
           (canExp?'<button class="exp" title="פתח מופעים">'+(st.expand===i?"▴":"▾")+'</button>':'')+
+          // 🔀 סדר-ההצגה: מקדים/מאחר את המילה במצב-הצגה (ובסרט). המילה הראשונה ברשימה מוצגת ראשונה (אחרי הציר).
+          (st.words.length>1?'<button class="mvup" title="הקדם — יוצג מוקדם יותר"'+(i===0?" disabled":"")+'>▲</button><button class="mvdn" title="אחר — יוצג מאוחר יותר"'+(i===st.words.length-1?" disabled":"")+'>▼</button>':'')+
           '<button class="del" title="הסר">🗑</button>';
         it.querySelector(".dot").onclick=()=>{st.swOpen=st.swOpen===i?-1:i;renderList();};
         const lb=it.querySelector(".lineb");if(lb)lb.onclick=()=>{st.lineFor=st.lineFor===i?-1:i;renderList();};
         const eb=it.querySelector(".exp");if(eb)eb.onclick=()=>{st.expand=st.expand===i?-1:i;renderList();};
         it.querySelector(".del").onclick=()=>{st.words.splice(i,1);if(st.swOpen===i)st.swOpen=-1;if(st.expand===i)st.expand=-1;recomputeWords();recolorOnly();renderList();};
+        // 🔀 מיון סדר-ההצגה: החלפת מקומות ב-st.words → משנה גם את סדר מצב-ההצגה וגם את סרט-הצופן.
+        //    (סוגרים פאנלים פתוחים כדי שאינדקסים לא יתבלבלו; recolorOnly כי בתא-הצלבה צבע-המילה-הראשונה גובר.)
+        const swap=(a,b)=>{const w=st.words;[w[a],w[b]]=[w[b],w[a]];st.swOpen=-1;st.expand=-1;st.lineFor=-1;recolorOnly();renderList();};
+        const mvu=it.querySelector(".mvup");if(mvu)mvu.onclick=()=>{if(i>0)swap(i-1,i);};
+        const mvd=it.querySelector(".mvdn");if(mvd)mvd.onclick=()=>{if(i<st.words.length-1)swap(i+1,i);};
         list.appendChild(it);
         if(st.swOpen===i){
           const sw=document.createElement("div");sw.className="swatches open";
