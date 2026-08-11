@@ -319,6 +319,122 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 
 ---
 
+## §11. DISCOVERY CONTROL CENTER — «חדר המפקדה» (מפרט Product/UX קנוני)
+> **נעל ע״י צוריאל 11.8.2026.** פקודת **Product/UX ל-View**, *לא* שינוי-מנוע. `status`: מפרט=`CANONICAL` · מימוש=`ROADMAP`/פאזות.
+> **משפט-העל:** «המנוע מגלה ומארגן; **אני** חוקר, מפרש ובוחר.» ה-Control Center = **עמדת-המחקר-והבחירה של צוריאל**, לא מכונה שמחליטה מה לפרסם.
+
+**11.0 עקרון-יסוד (חוק):** המנוע **לא מחליט משמעות**. הוא מציג **תבניות-גילוי אפשריות**, וצוריאל מחליט מה לחקור/לפרסם. ניסוח-הממשק תמיד «המנוע מצא את התבנית הבאה — רוצה לחקור?» ולעולם לא «המנוע גילה שהאירוע הוא…».
+
+**11.1 המסך במבט-אחד עונה:** מה התעורר במציאות? · אילו מספרים הופיעו? · אילו תבניות המנוע מצא? · אילו מאומתות? · אילו רק Candidate/Interpretation? · מה אפשר לקחת למחקר/פרסום?
+
+**11.2 ראש-המסך — REALITY / HOT:** מה שעלה במקורות (זרם-המציאות · פוסטים · גלריות · דיווחי-משתמשים · OCR · חדשות/מקורות-נוספים). לכל פריט: `תאריך → מקור → מספר/ים → מה-נמצא → כמה-חדש/חוזר → קישור-למקור`. **חוק:** `HOT ≠ TRUE` — «חם/חדש» = אות-עדיפות בלבד, לא אמת ולא דירוג-אמינות.
+
+**11.3 מרכז-המסך — DISCOVERY PATTERNS (הלב):** לא «ממצא אחד» — **כמה תבניות אפשריות מאותו seed**. טיפוסים: **A** שרשרת-מספרית (74→דע→474→דעת→4740) · **B** Number↔Concept (74↔דע: כל המילים ב-74, מקורות, פוסטים, גלריות, הופעות-היסטוריות, מספרים-קשורים) · **C** Historical-recurrence («המספר מתעורר שוב?» — עכשיו/פוסטים/גלריות/אירועים-קודמים) · **D** Expansion (74→474→4740 עם החוליות והדרך) · **E** Cross-system (`number→phrase→method→cross→source`).
+
+**11.4 כרטיס-החלטה לכל Pattern:** `שם-התבנית` · `הזרע (seed)` · `FACTS` (מה-המנוע-אימת) · `CROSSES` (הצלבות) · `SOURCES` (מאיפה כל נתון) · `TEMPORAL` (מתי-הופיע) · `INTERPRETATION` (אם קיימת — **בנפרד וברור שהיא פרשנות**) · `STATUS` ∈ {FACT · CROSS · DISCOVERY · CANDIDATE · HYPOTHESIS · UNKNOWN}. **לעולם לא לערבב בין הסטטוסים.**
+
+**11.5 פעולות על כל Pattern (6):** 🔍 **חקור** (פותח עץ+מקורות) · 🌳 **פתח-בעץ** (מאיפה הגיע ולאן מתחבר) · ➕ **הוסף-למחקר** (Research Journey / Research Bus) · ✏️ **בחר-לפרסום** · 🚫 **דחה-כיוון** (**לא מוחק נתון** — רק «לא-מעניין-כרגע», הפיך) · 📌 **שמור**.
+
+**11.6 RANK, DON'T HIDE (חוק):** מיון חוזק `1-Strong · 2-Interesting · 3-Possible · 4-Weak · 5-Unknown` — **אבל כולן נשארות נגישות**. אסור למחוק/להסתיר אפשרות רק כי חלשה.
+
+**11.7 שני ציונים נפרדים (חוק):** `Evidence/Verification` **≠** `Interestingness/Discovery-Priority`. אפשרי Verified-גבוה+Interesting-נמוך, או Verified-חלקי+Interesting-גבוה. **מעניין ≠ נכון.** אסור לערבב.
+
+**11.8 «Why this pattern?»:** תצוגה נפתחת `Seed ↓ Methods ↓ Values ↓ Crosses ↓ Sources ↓ Temporal ↓ Convergence ↓ Discovery` — לראות בדיוק איך המנוע הגיע להצעה.
+
+**11.9 «NOT FOUND / REJECTED»:** להציג גם כישלונות («חיפשנו X בגלריות/ערוצים — לא נמצא»). לא להעלים — חלק מהמחקר.
+
+**11.10 ONE KNOWLEDGE TREE (חוק):** כל Pattern מחובר לאותו Knowledge-Graph. **אין «Pattern-Database» נפרד.** ה-Control Center = **View על העץ, לא עץ חדש.** צינור: `מקור → Input → Extraction → Methods → Values → Cross → Convergence → Discovery → Evidence → Human-Gate → Knowledge-Graph → Patterns/Views`.
+
+**11.11 SELECTED BY ME:** אחרי בחירת-Pattern — אזור «My Selected Discoveries»: `Pattern → Research-Journey → Evidence → Draft → Publication`. כך ה-Control Center = עמדת-המחקר-והבחירה, לא מכונת-פרסום.
+
+**11.12 שימור אזור-הממצאים הקנוני:** `EntityPage`/אזור-הממצאים הנעולים (§10.4) **נשארים כפי שהם**. ה-Control Center **לא מחליף** אותם — שכבת-עבודה **מעל** המידע: `Reality → Discovery-Control-Center → Pattern → EntityPage/Research → Knowledge-Tree`.
+
+**11.13 כלל-יסוד:** `KEEP EVERYTHING → REORGANIZE → SIMPLIFY → ADD`. לא-למחוק-מקורות · לא-מנוע-נפרד-לכל-מקור · לא-עץ-חדש · לא Candidate→Fact · לא Interpretation→Fact · לא-להסתיר-חלשים. **מטרת-המסך:** לתת כמה דרכים לקרוא את אותה מציאות — ואז לתת לצוריאל לבחור לאן ללכת.
+
+### §11-B. הרחבה קנונית (11.8.2026) — המפקדה = שער-כניסה יחיד לכל SOD1820
+> **תיקון-מהות של צוריאל:** המפקדה **אינה** Dashboard של Discovery Patterns בלבד — היא **השער המרכזי היחיד** שדרכו צוריאל רואה, מנהל ומנתב את **כל** חומר-המחקר שנכנס למערכת מכל מקום. «SOD1820 RESEARCH COMMAND CENTER».
+
+**11.14 הגדרה-על:** המפקדה = המקום שבו **כל מה שנכנס ל-SOD1820 עובר דרך שער אחד**, ושם צוריאל **רואה · בודק · בוחר · חוקר · מאשר** מה הופך לממצא. ציר-העל: `מה-נכנס → מה-התגלה → מה-נבדק → מה-נדחה → מה-אושר → מה-נחקר → מה-מוכן-לפרסום → מה-פורסם`.
+
+**11.15 כל-המקורות → מפקדה (16+):** הודעות · תגובות · קבוצות-WhatsApp · דיווחי-משתמשים · פוסטים · גלריות · זרם-המציאות · תמונות · OCR · שפות · המלצות · חיפושים · מקורות-חיצוניים · חדשות · פסוקים/מקורות · ELS · מספרים-חדשים · גילויי-מנוע-עצמאיים · **וכל מקור עתידי**. לא-משנה-מאיפה — נראה במפקדה.
+
+**11.16 הצינור (INTAKE→DISCOVERY→JUDGE→PUBLISH):** `INPUT ↓ INTAKE ↓ EXTRACTION/OCR/LANGUAGE ↓ CALCULATION ↓ CROSS/CONVERGENCE ↓ PATTERN-DISCOVERY ↓ REVIEW/JUDGE ↓ APPROVED-DISCOVERY ↓ RESEARCH ↓ PUBLISH`. **לא כפייה-אוטומטית** — המפקדה מראה **באיזה שלב** כל דבר נמצא.
+
+**11.17 🔴 INCOMING «מה נכנס עכשיו»:** אזור-על עם הדברים החדשים שהגיעו (וגם **חומר שטרם-נבדק**). לכל פריט: `SOURCE · TIME · LANGUAGE · RAW-CONTENT · EXTRACTED-NUMBERS · STATUS`.
+
+**11.18 מחזור-החיים המלא (7 סטטוסים — כולם נראים):** `SIGNAL` (משהו הגיע) · `CANDIDATE` (נראה מעניין) · `DISCOVERY` (המנוע מצא קשר מאומת) · `PATTERN` (תבנית שמחברת כמה גילויים) · `REVIEW` (צוריאל/השופט בודקים) · `APPROVED` (עבר שער) · `PUBLISHED` (פורסם). לראות את **כל החיים** של הממצא.
+
+**11.19 שער-אחד ≠ מקור-אמת-אחד:** המקורות נשארים **נפרדים**; המפקדה רק **מרכזת**. כל פריט שומר provenance מלא: `Source → Author/User → Date → Language → Original-Content → Extraction → Calculations → Evidence`.
+
+**11.20 תפקידים (לא מתערבבים):** **המנוע** מחשב ומוצא · **רזיאל** מבין-קלט/מסביר/מקשר/מסייע · **השופט** בודק-לפי-חוקים · **צוריאל** חוקר+מאשר-סופי-לפרסום. **AI מציע ומסייע — לא מחליט מה אמת ומה מתפרסם.**
+
+**11.21 AUTOMATIC DISCOVERY (עתיד):** המערכת יכולה לומר «מצאתי משהו בקורפוס» (למשל `Reality→74 → דע → 474 → דעת` + בדיקת מקורות/היסטוריה/פוסטים/גלריות/שפות/אירועים) ולהציג `🔎 NEW DISCOVERY PATTERN` — **בלי לפרסם לבד**. צוריאל מחליט.
+
+**11.22 🔥 HOT NUMBERS «מספרים שהתעוררו»:** זיהוי-לאורך-זמן של מה-חדש-במציאות. ליד כל מספר: מתי-הופיע · איפה · כמה-מקורות · כמה-לאחרונה · האם-בעבר · גילויים-סביבו · שפות-קשורות · פוסטים/גלריות. **`HOT ≠ TRUE`** (פעיל/מתעורר, לא אמת).
+
+**11.23 PATTERN LAB:** «אלה התבניות שמצאתי» (PATTERN 01… שרשרת/הופעות-היסטוריות/מקורות-שונים-אותו-ערך/שפות-shared-value). לכל תבנית: `FACTS · EVIDENCE · SOURCES · CROSSINGS · INTERPRETATION · STATUS`.
+
+**11.24 החוקר בוחר (המערכת לא אומרת «זו המשמעות», אלא «מצאתי את האפשרויות»):** `🔍 INVESTIGATE · ⭐ SELECT · ❌ DISMISS-DIRECTION (לא-מחיקה — הנתונים נשארים) · 📤 PREPARE-FOR-PUBLICATION`.
+
+**11.25 🟢 APPROVED DISCOVERIES (הכספת):** כל מה שעבר-שער. לכל אחד: `Discovery-ID · Source · Numbers · Evidence · Methods · Crossings · Research · Approval · Publication-status`. זו כספת-הצפנים/הממצאים המאושרים.
+
+**11.26 🟡 PUBLICATION QUEUE:** אחרי אישור — לא-חייב-מיד-להתפרסם. `READY FOR PUBLICATION` → בחירת-יעד: פוסט · זרם-המציאות · גלריה · Newsletter · WhatsApp · Research · אתר · קורס-עתידי. **`DISCOVERY ≠ PUBLICATION`.**
+
+**11.27 🔒 חוקים-שלא-לשבור:** מקורות-מרובים→**מנוע-גילויים-אחד** · **שער-אחד** (לא מערכות-אישור-נפרדות) · `Signal ≠ Discovery ≠ Canonical ≠ Publication` · `HOT ≠ TRUE` · `Fact ≠ Interpretation` · `Rank, Don't Hide` · **כל provenance נשמר** · **שום חומר-היסטורי לא-נמחק** · ידני-**או**-אוטומטי · AI-מציע-לא-מחליט · **Human-Gate נשאר השער הקנוני** · מאושרים חוזרים לאותו **Knowledge-Graph** ול-**Views הקיימים**.
+
+**11.28 סדר-ביצוע (חוק):** **קודם למפות את ה-UI והזרימה מול התשתיות שכבר קיימות** ולשמר את כל הסטטוסים וההפרדות הקנוניות — **לא לבנות מערכת חדשה מאחור**. הבנייה בפאזות, כל פאזה על-אישור. המימוש = View מעל התשתית הקיימת (§11.12), לא engine/tree/DB חדש (§10.6).
+
+---
+
+## §12. COMMAND CENTER — מפת-התשתית (INFRASTRUCTURE MAP, READ-ONLY · 11.8.2026)
+> **מסקנת-על:** רוב מחזור-החיים **כבר בנוי** — מפוזר בין ~10 טבלאות-סטטוס ו-~14 טאבי-אדמין. המפקדה = **View שמאחד** את הקיים תחת שער-אחד; **מרחיבים את `admin_command_center` הקיים, לא בונים aggregator מקביל.** ממלאים רק את הפערים האמיתיים.
+
+**12.0 עיקרון-מימוש:** קיים כבר aggregator — RPC **`admin_command_center`** (helper `getCommandCenter()` · טאב `CommandCenterTab`=«🧠 מפקדה») שמאגד: המלצות · `ti_demand_signals`/`demand_gaps` · `convergences_new_7d` · `journey_seeds` · `work_log` · `zuriel_definitions` · `hints_pending` · counters + `NumberResearcher` (רזיאל). **מרחיבים אותו** + מטמיעים טאבים קיימים כ-**עדשות**, לא משכפלים.
+
+**12.1 צינור (§11.16) ↔ עמוד-שדרה קיים:**
+| שלב | תשתית חיה | מצב |
+|---|---|---|
+| INTAKE | טבלאות-מקור עם `status` (למטה §12.2) | ✅ מפוזר |
+| EXTRACTION/OCR/LANGUAGE | `gallery-ocr`·`wa-ocr` · `word_review_queue`·`translit_suggestions`·`language_links` (`LanguageEngineTab`) | ✅ |
+| CALCULATION | מנוע רשמי (`fn_ragil…` · `computeEntity` · `crossMethodPairs`) | ✅ |
+| CROSS/CONVERGENCE | `collectionConvergences` · `convergences` (8917, קפוא) · `number_cross_resonance` | ✅ |
+| PATTERN-DISCOVERY | `discovery_events` (739 `detected`) · `scan_discovery_events`/`discovery_events_pending` | 🟡 קיים, קבור ב-Language tab |
+| REVIEW/JUDGE | **שני מסלולים** (§12.4): `admin_research_review` (DB, לא-מחווט) · `ConvergenceWizard`+`admin_convergence_candidates`/`admin_candidate_decide` (משוגר) + `FindingsTab`/`ScannerTab`/`ChiddushReviewTab`/`word_review_queue` | 🟡 מפוצל |
+| APPROVED | `research_objects.status=canonical`→`promoted_node_id` → `nodes`+`edges` · `decision_ledger` | ✅ |
+| RESEARCH | `research_items` (5214) · Research Bus · `EntityPage`/§10.4 | ✅ |
+| PUBLISH | פוסטים · `social_post` (FB/IG) · `send-newsletter` · `channel_updates`/`BroadcastTab` · זרם | ✅ מפוזר |
+
+**12.2 מקורות-קליטה (§11.15) ↔ מה קיים ↔ טאב-מאחד:**
+| מקור | תשתית + טאב קיים | מצב |
+|---|---|---|
+| WhatsApp | edge `wa-webhook/poll/process/ocr/raziel/vip-backfill` · `wa_deep_queue`/`wa_vip_inbox`/`wa_bot_log` · טאב `walink` (קישור בלבד) | 🟡 backend חי, **אין תור-אדמין לקליטה הגולמית** |
+| תגובות/תרומות | `research_contributions` (330) · `contributions.js` · `ContribModTab` | ✅ |
+| דיווחי-רמזים | `community_hints` · `community.js` · `HintReportsTab` | ✅ |
+| פוסטים | `posts` (1224) · `getPostsFromSupabase` · `TopicsTab` | 🟡 קליטת-טענת-גימטריה-של-כותב לא-בנויה |
+| גלריות/OCR/תמונות | `gallery_images` (2525) · `gallery-ocr`/`wa-ocr` · `CurationTab`/`OcrTab`/`ClassifyTab` | ✅ |
+| זרם-המציאות | `getRealityHints`·`computePulse` · `StreamAdminTab` | ✅ |
+| שפות | `word_review_queue`/`translit_suggestions`/`language_links` · `LanguageEngineTab` | ✅ |
+| המלצות | `admin_recommendation_review`·`admin_run_metatron_recommend` · `SystemSuggestionsTab` | ✅ |
+| חיפושים (ביקוש) | `search_log` (48K) · `getHotNumbers` · `SearchesTab` | ✅ |
+| חדשות/חיצוני | `news_gematria` (11, לא-מחווט) · אין edge-קליטת-חדשות | 🔴 חסר |
+| פסוקים/תורה | `tanach_verses` (23K)·`torah_stream` (306K) — נתונים ללא טאב-אדמין | 🟡 נתונים, אין עדשה |
+| ELS | `els_records` (77)·`els_finds` · `ElsModerationTab` | ✅ |
+| גילויי-מנוע | `discovery_events` (739)·`convergences`·`research_objects` (82 `candidate`) | 🟡 אין טאב שמציג את הפיד |
+| הגדרות-חוקר | `researcher_definitions` · `DefinitionsInbox` (בתוך `AnchorFamiliesTab`) | ✅ |
+| מספרים-חמים | `hot_research_nodes` (סכמה עשירה, **0 שורות**)·`fn_promote_hot`·`getHotNumbers`·pulse | 🟡 סכמה-מוכנה, ריקה |
+
+**12.3 הפערים האמיתיים למילוי (רק אלה):** (a) **אין תור-אדמין לקליטת WhatsApp** הגולמית/VIP. (b) **אין UI לפיד/שער של `research_objects`** — `admin_research_feed`/`admin_research_review` קיימים ב-DB אך **לא מחווטים לקליינט**; ה-converter `src/lib/discovery.js` (טיוטה) עוד לא בשימוש שום טאב. (c) קליטת-חדשות + טענת-גימטריה-מפוסט לא-בנויה. (d) פסוקים/תורה — נתונים בלי עדשת-אדמין. (e) `discovery_events` קבור ב-Language tab. (f) `hot_research_nodes` ריק (אין populate).
+
+**12.4 שני שערי-שיפוט — לאחד, לא לשכפל:** (1) `admin_research_review(id,decision)` — DB-RPC שמקדם `research_objects`→`nodes+edges+status=canonical` (מה ש-H-1 מזין; **אין לו UI**). (2) `ConvergenceWizard`+`admin_convergence_candidates`/`admin_candidate_decide`+`decision_ledger` — שער-הקליינט **המשוגר** (JudgeQueue). **המפקדה = השער-האחד (§11.27) שמאחד את שניהם** — לא שער שלישי.
+
+**12.5 סדר-בנייה מוצע (ROADMAP · `PROPOSED` · כל פאזה על-אישור-נפרד · §11.28):**
+- **CC-1 (View קורא-בלבד):** טאב-אדמין «🎛️ חדר המפקדה» שמרחיב את payload `admin_command_center` ומרנדר: 🔴 INCOMING (מ-`research_objects` דרך `discovery.js` + `discovery_events` + counters קיימים) · 🔥 HOT (getHotNumbers+pulse) · Pattern-Lab (המועמדים) · Approved (canonical) — **בלי כתיבה, בלי engine, בלי DB חדש.** מטמיע טאבים קיימים כעדשות (deep-link), לא משכפל.
+- **CC-2:** חיווט השער — `admin_research_feed`/`admin_research_review` לקליינט **מאוחד עם** `ConvergenceWizard` (§12.4), 4 הפעולות (§11.24) עם DISMISS הפיך.
+- **CC-3:** Publication Queue (§11.26) מעל יעדי-הפרסום הקיימים · SELECTED-BY-ME (§11.11) מעל `research_items`.
+- **CC-4+:** מילוי פערים (§12.3) — תור-WA · populate `hot_research_nodes` · חדשות/פסוקים · AUTOMATIC-DISCOVERY (§11.21) מ-`discovery_events`.
+
+---
+
 ## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
 1. `gematria_methods` (23 שורות) — הרישום עצמו לא-הוכרז קודם ב-CLAUDE.md/EXPORT.
 2. `method_lifecycle` — קדם ל«Candidate Registry» שהוצע בסשן; אין לבנות מקביל.
@@ -346,6 +462,9 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 11 | 11.8.2026 | §10.5 POST CORPUS + ONE DISCOVERY ENGINE: כל קורפוס (זרם/פוסטים/דיווחים/גלריות/OCR) = Source/Corpus/Seed → מנוע-אחד → עץ-אחד (אין מנוע-לכל-מקור) · כלל `POST CONTENT ≠ TRUTH` (טענת-כותב=קלט, המנוע מחשב+מאמת בעצמו) · פוסטים=אוצר-היסטורי (שימור) · HOT-ממקור-פוסטים כפוף ל-HOT≠TRUE · temporal-provenance (posts.date/modified) · אימות-חי (posts 1235/304-nodes/extract-fns/OCR/research-extract-cron; חסר: 0 post→number edges + pipeline לא-מחווט) | «זרם המציאות = המקור היחיד» → כל קורפוס-קיים מזין את אותו מנוע; המנוע לומד לקרוא את כל האתר | «פוסט=תוכן-להצגה בלבד» / «גימטריית-הכותב=אמת» → קורפוס-מחקר + טענה-לבדיקה | One-Engine + `POST CONTENT≠TRUTH` + שימור = `CANONICAL` (הרחבת §10.0) · POST-CORPUS-כמקור = `VISION`/`PROPOSED` · אפס engine/store/tree/שינוי · Human-Gate ללא-עקיפה |
 | 12 | 11.8.2026 | §10.6 DISCOVERY ENGINE כ-LOGICAL LAYER אחד: מנוע-לוגי-אחד (לא engine/store/tree/table פיזי חדש) · נקודת-כתיבה-משותפת `fn_persist_discovery` (generic, source/source_ref) · מקורות reality_stream/post/gallery/user_report/ocr/tanach/els/language/news/raw/channel + adapters-דקים · lifecycle-אחד (SIGNAL≠DISCOVERY≠CANONICAL, HOT≠TRUE, Fact-first) · research_objects=memory · Human-Gate=שער-יחיד · H-1=גשר-ראשון-בלבד · ROADMAP H-1..H-5 (לא-אישור-ביצוע) · למידה דו-כיוונית (USER DEMAND + EXISTING CORPUS) | לקבע Discovery-Engine כ-layer לוגי עם נקודת-כתיבה-אחת לכל המקורות, בלי מנועים-נפרדים | «מנוע-לכל-מקור» / «H-1 תלוי-EntityPage» → layer-אחד generic | `APPROVED`+`CANONICAL` (עיקרון-ארכיטקטוני) · Roadmap = `PROPOSED`/`ROADMAP` (כל H-stage אישור-נפרד) · אפס code/DB/RPC/UI/שינוי-H-1 |
 | 13 | 11.8.2026 | **H-1 מומש (WRITE ראשון בסשן, באישור-מפורש):** נוצר RPC `fn_persist_discovery` (SECURITY DEFINER · `kind='relation'`+`status='candidate'` קבועים · אימות-מנוע-חוזר לכל (ביטוי,שיטה) מול `fn_ragil/fn_miluy/fn_misratar/kadmi_calc/fn_gadol/fn_siduri/atbash_calc/fn_albam/fn_ribua` · dedup value+sorted-distinct-terms תחת `pg_advisory_xact_lock` · `revoke public`+`grant execute authenticated`). Call-site `persistDiscoveries()` ב-`deepAnalysis.js` (non-blocking, requestIdleCallback) + חיווט ב-3 משטחים (EntityPage.runCombo · ResearchCenter.runAnalyze · ActiveEntityPanel.DefaultTower) בלי שינוי-UI. E2E מלא (A valid→candidate · B dedup · C engine-fail · D insufficient · feed · promotion הפיך→node+edge ב-rollback). front-half בלבד | לחבר את ה-Discovery-Engine (front-half): התכנסות-אמיתית → מועמד ל-Human-Gate, בלי לקבע/לקדם | «התכנסויות מחושבות-ונשכחות (0-linked)» → נשמרות כמועמד ל-review | RPC+Call-site = `IMPLEMENTED` · Human-Gate ללא-עקיפה · H-2..H-5 טרם (אישור-נפרד) · 8,917 FROZEN + Metatron-off ללא-שינוי |
+| 14 | 11.8.2026 | §11 «DISCOVERY CONTROL CENTER» — מפרט Product/UX (11.0-11.13): המנוע-מגלה/המשתמש-בוחר · Reality-HOT · Discovery-Patterns (A-E) · כרטיס-החלטה (FACTS/CROSSES/SOURCES/TEMPORAL/INTERPRETATION/STATUS) · 6 פעולות · Rank-Don't-Hide · שני-ציונים · Why-this-pattern · Not-Found · One-Tree · Selected-By-Me · שימור-§10.4 | לנעול את פקודת ה-Product/UX של חדר-הבקרה כקנון | «מנוע מחליט משמעות» → «מנוע מציג, צוריאל בוחר» | מפרט=`CANONICAL` · מימוש=`ROADMAP` · H-1 בלבד `IMPLEMENTED` (deploy נפרד ל-main) |
+| 15 | 11.8.2026 | §11-B הרחבה (11.14-11.28): המפקדה = **שער-כניסה יחיד לכל SOD1820** (לא Dashboard) · צינור INTAKE→DISCOVERY→JUDGE→PUBLISH · 16 מקורות · 🔴 INCOMING · 7 סטטוסי-מחזור-חיים · provenance מלא · תפקידים (מנוע/רזיאל/שופט/צוריאל) · AUTOMATIC-DISCOVERY · HOT-NUMBERS · Pattern-Lab · Approved-Vault · Publication-Queue (DISCOVERY≠PUBLICATION) · 12 חוקים-שלא-לשבור · §11.28 «מפה-קודם-לא-בנה» | תיקון-מהות של צוריאל: המפקדה היא השער המרכזי לכל החומר הנכנס, לא רק תצוגת-תבניות | «Discovery-Patterns Dashboard» → «SOD1820 Research Command Center — שער-אחד» | `CANONICAL` (הגדרה) · מימוש=`ROADMAP` בפאזות · אפס-בנייה עד מיפוי+אישור |
+| 16 | 11.8.2026 | §12 מפת-התשתית (READ-ONLY): צינור+16-מקורות ↔ תשתית-חיה (EXISTS/PARTIAL/MISSING) · `admin_command_center` = aggregator-קיים-להרחבה · שני-שערי-שיפוט לאיחוד (§12.4) · 6 פערים-אמיתיים (§12.3) · ROADMAP CC-1..CC-4 · טיוטת `src/lib/discovery.js` (converter טהור, לא-מחווט) | «קודם למפות מול הקיים» (§11.28) — לגלות שרוב מחזור-החיים כבר בנוי ומפוזר | «לבנות מערכת חדשה» → «View שמאחד ~10 טבלאות + ~14 טאבים קיימים» | מפה=`READ-ONLY` מאומתת-DB · CC-1..CC-4=`PROPOSED`/`ROADMAP` · `discovery.js`=טיוטה לא-מחווטת · אפס engine/DB-write/UI-חי |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. שינויי-DB בסשן: (1) הקפאת cron job 27 (`metatron-nightly`, הפיך); (2) **H-1** — RPC `fn_persist_discovery` + מועמד-בדיקה-אחד (878=משיח↔דבר-מתוך-דבר, status=`candidate`, ממתין ל-Human-Gate). מלבדם READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence היסטורי לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE + §10 חזון + H-1 front-half).*
