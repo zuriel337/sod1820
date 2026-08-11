@@ -395,6 +395,8 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 
 **11.33 דליברבל לפני UI (חוק):** לפני כתיבת-קוד — **מפת-מסך מלאה בעברית** (ראש/צדדים/מרכז · כרטיסים · סטטוסים · איך-נראה Discovery/Pattern/Source/Evidence/Judge/Approved · «חקור»/«פרסם» · כניסת רזיאל/מטטרון/שופט · התכנסות-כל-המקורות-לשער-אחד · חזרה גילוי→דף-מספר→זרם→גרף-ידע). רק אחרי אישור-המפה — מתחילים UI.
 
+**11.34 Discovery-Gate = שער-החלטה, לא שער-ראות (חוק-על):** `research_objects` **אינו תנאי** להופעה במפקדה. המפקדה מציגה את **כל** החומר לאורך כל מחזור-החיים — כולל RAW/לא-מנותח — עם סטטוס גלוי: `INCOMING/RAW · EXTRACTED · CALCULATED · CROSSED · PATTERN · CANDIDATE · JUDGMENT · APPROVED · PUBLISHED` + `REJECTED · UNVERIFIED · UNKNOWN`. **שום אוצר לא נעלם רק כי טרם-Discovery.** פורום: `פוסט → כל-תגובותיו → מי/מתי/טענה/אימות-מנוע/מספרים/הצלבות` — נראה גם בלי `research_objects` (יניב-בתגובה = קלט-מחקר בפני-עצמו, לא metadata). WhatsApp/צופן: הקלט נראה + **«איפה נעצר»**. השער קובע מה מתקדם ל-Discovery/Canonical — **לא** מה מותר לראות. **המפקדה = מפקדת-כל-האוצר-והמחקר; Discovery = שלב אחד בתוכה, לא הגדרתה** (חידוד §11.17-11.18).
+
 ---
 
 ## §12. COMMAND CENTER — מפת-התשתית (INFRASTRUCTURE MAP, READ-ONLY · 11.8.2026)
@@ -453,6 +455,15 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 - **🤖 Agents→Adapters (מסקנת Q11):** קיימים כבר ~6 סוכני-wa (`wa-raziel/michael/hatishbi/gabriel/uriel/mora`)+`field-router`+`number-researcher` — **יותר-מדי.** קנון: **1 מנוע · 1 שער · 1 סוכן-שיחה (רזיאל) · מטטרון=ניטור · שופט=צוריאל+`admin_research_review`.** WhatsApp/News/Gallery/Post/Cipher = **Adapters/Workers/Pipelines (feeders), לא Agents.**
 - **מינימום-פתיחה (סדר-תשואה):** (1) דלת-שרת→`research_objects` מ-`wa-process` · (2) adapter תמונה→גלריה + מספר→Seed · (3) EN→מערכת-השפות · (4) parser פוסט/תגובה · (5) news adapter · (6) אימות WA-חי. **הכול מיפוי — טרם-בנייה, על-אישור-נפרד (§11.28).**
 
+### §12-C. מפת-קליטה-חיה (עובדות מאומתות-DB · READ-ONLY · 11.8.2026)
+> נעול כ**עובדות** בלבד (לא החלטות). הליבה:
+- **דלת-המנוע:** הכותב-היחיד ל-`research_objects` = `fn_persist_discovery` (דפדפן, H-1). 81 שורות `wa-raziel` = **הכנסה חד-פעמית 23.7–5.8 שנעצרה** → **אין feeder-שרת חי.**
+- **WhatsApp:** `wa_bot_config` = 3 שורות **כולן `enabled=false` (כבוי)**; מחקר-קבוצות אחרון 13.7; `wa_vip_inbox` (שמעון, 41, text+image, **`numbers=0`**); `wa_deep_queue` 102 `done` (5.7); טיקרים `torat-haremez`(1030)/`gilui-yomi`(105) חיים = **פלט**, לא קליטה.
+- **פורום:** `research_contributions` 339 (**248 `gematria_claim`**); יניב-לוי 35 (אחרון היום; claim מובנה + `engine_verified_layers` + `needs_investigation` = Fact≠Claim **כבר מיושם**); הפוריים (ציון 120·צבי 44·יניב 35·שמעון 15) → **0 בגרף, 0 במנוע**; רק ~17 הגיעו לגרף (`ConvergenceWizard`).
+- **גלריות:** `all_values`(int[]) חילוץ-OCR **עובד**; 2701=בראשית ברא אלהים (208 קשתות, הכי-מחובר).
+- **פוסטים:** אין parser-מספרים (`raw_gematria` = ייבוא DOCX, לא-מפוסט).
+- **מסקנה:** ~90% (מנוע/OCR/שפות/claim-מאומת/שער/הקרנה/אגרגטור) **קיים**; החסר = **חוט אחד** (דלת-שרת→`fn_persist_discovery`) + adapters דקים. **אין צורך בסוכן חדש** — הקיימים (רזיאל/gabriel/uriel/gallery-ocr/ContribMod/ConvergenceWizard) מספיקים.
+
 ---
 
 ## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
@@ -487,6 +498,7 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 16 | 11.8.2026 | §12 מפת-התשתית (READ-ONLY): צינור+16-מקורות ↔ תשתית-חיה (EXISTS/PARTIAL/MISSING) · `admin_command_center` = aggregator-קיים-להרחבה · שני-שערי-שיפוט לאיחוד (§12.4) · 6 פערים-אמיתיים (§12.3) · ROADMAP CC-1..CC-4 · טיוטת `src/lib/discovery.js` (converter טהור, לא-מחווט) | «קודם למפות מול הקיים» (§11.28) — לגלות שרוב מחזור-החיים כבר בנוי ומפוזר | «לבנות מערכת חדשה» → «View שמאחד ~10 טבלאות + ~14 טאבים קיימים» | מפה=`READ-ONLY` מאומתת-DB · CC-1..CC-4=`PROPOSED`/`ROADMAP` · `discovery.js`=טיוטה לא-מחווטת · אפס engine/DB-write/UI-חי |
 | 17 | 11.8.2026 | §11-C חידוד + `command_center_law` ל-CLAUDE.md: רזיאל/מטטרון/שופט/צוריאל = **מערכת-אחת** (11.29) · 8 טיפוסי-תבנית קנוניים (11.30) · 8 אזורי-מסך (11.31) · גלובלי+שפה (ערך≠תרגום≠תעתיק, 11.32) · דליברבל «מפת-מסך לפני UI» (11.33). הוראת-פרויקט חדשה `🎛️ command_center_law` ב-CLAUDE.md שמצביעה ל-§11/§11-B/§12 | צוריאל: ההגדרה חייבת להיות **בהוראות** כדי שסוכן לא יבין את המפקדה כ-Dashboard טכני | «חדר-מפקדה = טאב-אדמין» → «שער-אחד, מערכת-אחת, מנוע-מציג-צוריאל-בוחר» | `CANONICAL` (הוראה+חידוד) · אפס-קוד/DB/UI · מפת-מסך = הדליברבל הבא (טרם-בנייה) |
 | 18 | 11.8.2026 | §12-B מפת-תקיעות-הקלט + «הקיר-האחד» (מיפוי-קוד READ-ONLY): **אף edge-function (0/29) לא כותב `research_objects`** → כל מקור-שרת נתקע לפני השער; מינימום = דלת-שרת אחת ל-`fn_persist_discovery` · WhatsApp config-driven (`wa_bot_config`) אך **רדום ~5 שבועות** (inbox 3.7/queue 5.7) · כתבים-מועדפים = `wa_vip_senders` קיים (5, כולל שמעון-חיימוב) · Agents→Adapters (1 מנוע/1 שער/1 סוכן-שיחה; השאר feeders) · Seed-Dry-Run (358·676·974·1234·1331·1820 + 2701=בראשית מהגלריות) הצליב חי מול האוצר — EXISTING פר-מספר, אין feeder | צוריאל: «לפתוח את זרימת האוצר אל השער» — לוודא שכל מקור מגיע לשער-אחד, לא עוד Agent | «חבר עוד 5 קבוצות» → «כל מקור=feeder לאותו מנוע; קיר-אחד לפתוח» | `READ-ONLY` מיפוי-קוד מאומת · אפס בנייה/DB/UI · פתיחת-הקיר=`PROPOSED` (CC-4+) |
+| 19 | 11.8.2026 | §11.34 «Discovery-Gate = שער-החלטה לא שער-ראות» (המפקדה מציגה כל-החומר לפני-Discovery; `research_objects` אינו תנאי-לראות; סטטוסי-מחזור-חיים כולל REJECTED/UNVERIFIED/UNKNOWN; פורום=פוסט+כל-תגובותיו נראים) + §12-C מפת-קליטה-חיה (עובדות): דלת-יחידה=`fn_persist_discovery` · 81 wa-raziel=הכנסה-שנעצרה · WA כבוי (`enabled=false`) · פורום 339/248-claim (יניב `engine_verified_layers`) 0-במנוע · גלריות `all_values` עובד · ~90% קיים | צוריאל: «מפקדת-כל-האוצר, לא מפקדת-Discovery» — שער-החלטה≠שער-ראות | «Command-Center = research_objects viewer» → «חלון-אחד לכל-האוצר; Discovery=שלב» | `CANONICAL` (§11.34 חוק) + `READ-ONLY` עובדות (§12-C) · אפס בנייה/DB/סוכן/engine |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. שינויי-DB בסשן: (1) הקפאת cron job 27 (`metatron-nightly`, הפיך); (2) **H-1** — RPC `fn_persist_discovery` + מועמד-בדיקה-אחד (878=משיח↔דבר-מתוך-דבר, status=`candidate`, ממתין ל-Human-Gate). מלבדם READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence היסטורי לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE + §10 חזון + H-1 front-half).*
