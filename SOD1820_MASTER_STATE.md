@@ -216,6 +216,38 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 
 ---
 
+## 10. מנוע-הגילויים — חזון + עקרונות-ארכיטקטורה (VISION / PROPOSED, 11.8.2026)
+> **החלטת צוריאל: לנעול כ-VISION/עיקרון-ארכיטקטוני, לא כמומש.** אף חלק מ§10 אינו `IMPLEMENTED`. אין ליצור טבלאות/מערכות חדשות רק כדי לתת שם לרעיון. המטרה: **שהארכיטקטורה שנחבר עכשיו לא תחסום את החזון.**
+
+### 10.0 חוק-היסוד — Fact-first (`APPROVED` + `CANONICAL`; הרחבת `ai_analyze_contract`+`gematria_engine_law`+Rank-don't-hide)
+- **`Discovery ≠ Interpretation` · Fact-first · Interpretation-tagged · Traceable Tree.** רצף: `חישוב → מקור → קשר → Discovery → Evidence → Interpretation`. **לעולם לא הופכים פרשנות לחישוב/עובדה.**
+- **המנוע מתקן את המשתמש — לא מתאים את המציאות להשערה.** אם ערך אינו מאמת → אומרים זאת.
+- **מבחני-אמת מאומתי-מנוע (החישוב, לא הפרשנות):**
+  - `FACT`: אינטרנט · קדמי(משולש) = **1331** · משיח · קדמי(משולש) = **1331** → הצלבה מאומתת (ברגיל שונים: 329/358). הפרשנות «רמז לקשר משיח↔רשת» = **`INTERPRETATION`/hypothesis**, שכבה נפרדת.
+  - `FACT`: בינה מלאכותית · רגיל = **974** (מוצלב עם «מי נבחר למשיחו האחרון»/«זכות ישראל»). ⚠️ **`דורות`=616 · `בריאת העולם`=764 — אינם 974**; הצמד «דורות/בריאת→974» **נדחה ע"י המנוע** (דוגמה חיה לחוק-היסוד).
+  - `FACT`: רשת האינטרנט · רגיל = **1234** (מסתתר=676) — נשמר/מוצג רק כי החישוב מאומת; המערכת **לא** אומרת «1234 מוכיח X».
+- **פורמט-הצגה קנוני לכל ממצא:** `FACT`(חישוב) · `CROSS`(מה באותו ערך/שיטה) · `SOURCE`(מאיפה) · `DISCOVERY`(הקשר) · `INTERPRETATION`(קריאה מוצעת, מתויגת) · `STATUS`(רמת-אימות). = Rank, Don't Hide.
+
+### 10.1 החזון הרחב (`VISION`/`PROPOSED`) — «Global Research Intake → Fact-first Discovery → Traceable Knowledge Tree»
+10 עקרונות (כולם `PROPOSED`, למעט 1-2-8-9 שהם הרחבת-קנון-קיים):
+1. **Fact-first** (§10.0, `CANONICAL`).
+2. **Interpretation-tagged** (§10.0, `CANONICAL`).
+3. **Full provenance** — seed/source/method/value/cross/creator/timestamp/rank/evidence/parent (מבנה `research_objects` כבר תומך). `PROPOSED` (שימוש).
+4. **One knowledge tree** — **גוף-ידע אחד** (`nodes`+`edges`), לא עצים-נפרדים (OCR/Language/Gematria/Discovery/Journey = **שכבות/סוגי-צמתים באותו עץ**). הרחבת `unified_graph_law`. `PROPOSED`.
+5. **Cross-language by design** — שפה **אינה** יוצרת Number-Entity חדש; אותו `value` = אותו צומת. `shared_value ≠ translation ≠ transliteration` (שדות נפרדים ב-`language_links`). גבריאל/`xlang_calibration`/`englishGematria`/`getGraphBridges` נכנסים למסלול. `PROPOSED` (מנועים `EXISTING`).
+6. **OCR / user-submitted intake** — OCR = **שער-כניסה** למנוע, לא «עוד כלי». זרימה: `Input → OCR → Language Detection → Source Extraction → Methods → Values → Cross → Discovery → Evidence → Human Gate → Tree → Canonical`. (`wa-ocr`/`gallery-ocr` `EXISTING`; חיבורם-כשער = `PROPOSED`.)
+7. **Signals from user demand** — דיווחים/בקשות/גיאוגרפיה = **Research Signal**. `Signal ≠ Discovery ≠ Canonical`; דיווח נכנס כ-`CANDIDATE`/`UNKNOWN` עם provenance, מתקדם רק אחרי בדיקה. (`edge_geo_log`/`translit_suggestions`/`research_intelligence` `EXISTING`; surface-מאוחד `PROPOSED`.)
+8. **Human Gate before Canonical** — הרחבת §9 + `method_lifecycle`. `CANONICAL`.
+9. **PAST → PRESENT → FUTURE navigation** — כניסה ממושג-מודרני («רשת האינטרנט») **או** מהעבר; העץ **תמיד יורד עד העובדות והמקורות**. `PROPOSED`.
+10. **Journey & 3D = renderings** מעל **אותו עץ** — 3D הוא **Renderer של הידע, לא בסיס-נתונים חדש**. `FUTURE IDEA`.
+
+### 10.2 עקרון-אי-חסימה (המחייב עכשיו)
+- **KEEP EVERYTHING → REORGANIZE → SIMPLIFY → ADD.**
+- כל מבנה שנחבר בשלב-הקרוב (למשל חיווט Discovery→`research_objects`) חייב להישאר **גנרי** (provenance מלא · `parent_id`/`kind` · `meta` jsonb לתיוג-שכבה) כדי שהחזון (one-tree · PAST→FUTURE · 3D-renderer · cross-language · intake) **לא ייחסם**.
+- **המערכת לומדת מהעולם — אך אינה הופכת את מה שהעולם שלח לאמת אוטומטית.**
+
+---
+
 ## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
 1. `gematria_methods` (23 שורות) — הרישום עצמו לא-הוכרז קודם ב-CLAUDE.md/EXPORT.
 2. `method_lifecycle` — קדם ל«Candidate Registry» שהוצע בסשן; אין לבנות מקביל.
@@ -236,6 +268,7 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 4 | 10.8.2026 | §9 «מנוע-הגילויים החדש»: עקרון-הצינור (Engine→Store→Discovery→Gate/Rank→Promote→Display) · `group_size` אסור כמדד-חוזק · הנחיות-מעבדה א-ו (23 שיטות/4 reconstructed/3 חדשות COMPUTE-STORAGE-פנימי/אזוטרי UNKNOWN) · שימור-כריסטינה | לעגן את החלטות-ה-Audit לפני בניית המנוע; להבטיח COMPUTE≫DISPLAY | «כל-מה-שנמצא→מוצג» → צינור עם Human-Gate | `APPROVED` + `CANONICAL` (Design; טרם-נבנה) |
 | 5 | 10.8.2026 | תיקון §9.3ג: הסרת «Definite Article / אדם→הָאָדָם» מרשימת-השיטות (2 candidate, לא 3) | צוריאל הבהיר: זו דוגמה-מחקרית חד-פעמית, לא Method/Candidate | «Definite-Article כ-candidate» → הוסר לגמרי | `APPROVED` (תיקון) |
 | 6 | 10.8.2026 | בקשת-רישום ל-`gematria_methods` של 3 שיטות-המשולש (משולש מילה/הפוך/מדרגות) → **אימות מצא שהן כבר רשומות** (שורות 21–23, `in_engine=false`/`active=false`/ללא function/db_column). **0 שורות נוספו · 0 עודכנו** — המצב-הרצוי כבר מתקיים. לא בוצע INSERT (מנע כפילות) | לרשום את המתודות כ-Storage בלבד, ממתינות ל-lifecycle | — (אין שינוי; כבר קיים) | `EXISTING` (מאומת); כתיבה=no-op |
+| 7 | 11.8.2026 | §10 «מנוע-הגילויים — חזון + עקרונות-ארכיטקטורה»: §10.0 חוק-היסוד Fact-first (Discovery≠Interpretation, המנוע-מתקן, פורמט FACT/CROSS/SOURCE/DISCOVERY/INTERPRETATION/STATUS) + מבחני-אמת מאומתי-מנוע (1331/974/1234; דורות≠974) · §10.1 חזון «Global Research Intake→Fact-first Discovery→Traceable Tree» (10 עקרונות: one-tree/cross-language/OCR-intake/signals/PAST→FUTURE/3D-renderer) · §10.2 אי-חסימה | לנעול את החזון כ-VISION לפני בנייה, כדי שהארכיטקטורה לא תחסום אותו | הרחבת §9 (הצינור) + `ai_analyze_contract`/`unified_graph_law` | §10.0/2/8/9 = `APPROVED`+`CANONICAL` · שאר §10.1 = `VISION`/`PROPOSED` · אפס `IMPLEMENTED` |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. השינוי-ב-DB היחיד בסשן: הקפאת cron job 27 (`metatron-nightly`, הפיך). מלבדו READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE).*
