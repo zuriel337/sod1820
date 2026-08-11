@@ -5,7 +5,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { getCloudNotes, saveCloudNotes } from "../lib/auth.js";
 import { ENTITY_ICON, ENTITY_LABEL, entityFromPhrase } from "../lib/research/entity.js";
 import { getAiAnalysis, getHotNumbers, getTopCollective } from "../lib/supabase.js";
-import { collectionConvergences, convergencesFactLine } from "../lib/deepAnalysis.js";
+import { collectionConvergences, convergencesFactLine, persistDiscoveries } from "../lib/deepAnalysis.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { trackAi, trackJourneyStep } from "../lib/tracking.js";
 import { calcGem } from "../theme.js";
@@ -178,6 +178,7 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
     if (!analyzeItems.length) { setAiState("empty"); setAiText(null); return; }
     setAiEngine(engine);
     setAiState("busy");
+    persistDiscoveries(convergences, { sourceRef: "research-center" });   // 🌉 H-1 — התכנסות אמיתית → מועמד (Human Gate), non-blocking
     trackAi("research", "personal");   // 📊 שימוש ב-AI — ניתוח המחקר האישי
     const itemsLine = analyzeItems.map(e => {
       if (e.type === "number") return `• מספר ${e.title}${e.metadata?.meaning ? ` — ${e.metadata.meaning}` : ""}`;

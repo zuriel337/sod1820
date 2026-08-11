@@ -3,7 +3,7 @@
 // עדשה אחת → אותו עומק בכל מקום: דף מספר · מעבדת-השם (מחקר לפי שפות) · מרכז מחקר · השוואות.
 // ✅ לא מחשב מחדש — משתמש רק בערכי-המנוע הרשמיים ובהצלבות מ-bidim (number_cross_resonance).
 import { crossMethodPairs, METHODS, CROSS_METHODS } from "./gematria.js";
-import { getNumberCrossResonance, getNumberResonanceStats, getAiAnalysis, getMethodSemantics, getAtlasFindingsForEntity, getStrongestCrossings } from "./supabase.js";
+import { supabase, getNumberCrossResonance, getNumberResonanceStats, getAiAnalysis, getMethodSemantics, getAtlasFindingsForEntity, getStrongestCrossings } from "./supabase.js";
 
 // 🫀 לב המערכת — זיהוי התכנסות בין-שיטתית בתוך אוסף (לא רק "שווים ברגיל").
 //    דוגמה נעולה: משיח(מילוי=878) ↔ «דבר מתוך דבר»(רגיל=878) ↔ «עולם הפוך ראיתי»(רגיל=878).
@@ -45,6 +45,53 @@ export function convergencesFactLine(convs, limit = 6) {
   return (convs || []).slice(0, limit).map(c =>
     `${c.value} = ${c.members.map(m => `${m.phrase}(${m.methods.join("/")})`).join(" · ")}${c.crossMethod ? " ⟵ הצלבת שיטות" : ""}`
   ).join("\n");
+}
+
+// 🌉 H-1 · גשר-ההתמדה (Discovery Engine — front-half). התכנסות בין-שיטתית *אמיתית* (עובדת-מנוע)
+//    → מועמד ב-research_objects (kind='relation', status='candidate'). לא מפרש · לא מקבע · לא מקדם.
+//    ה-Human Gate (admin_research_review) נשאר — רק *צוריאל* מקדם מועמד לגרף הקנוני.
+//    ⚙️ non-blocking ל-UI (requestIdleCallback/setTimeout) · dedup אמיתי חי ב-RPC (advisory-lock).
+//    אימות-מנוע חוזר קורה ב-RPC עצמו; כאן רק סינון לשיטות שה-RPC יודע לאמת + בניית payload.
+const _persistedKeys = new Set();   // אופטימיזציה בלבד (חוסך RPC כפול בסשן) — לא ה-dedup האמיתי.
+const RPC_METHODS = new Set(["רגיל", "מילוי", "מסתתר", "קדמי", "גדול", "סידורי", "אתבש", "אלבם", "ריבוע"]);
+
+export function persistDiscoveries(convs, { source = "discovery-engine", sourceRef = null } = {}) {
+  if (!supabase || !Array.isArray(convs) || !convs.length) return;
+  const defer = (typeof requestIdleCallback === "function")
+    ? requestIdleCallback
+    : (fn => setTimeout(fn, 1200));
+  for (const conv of convs) {
+    try {
+      if (!conv || conv.crossMethod !== true || !conv.value) continue;
+      // רק חברים עם שיטות-אותיות שה-RPC יודע לאמת (בלי "המספר"/פסבדו-שיטות)
+      const realMembers = (conv.members || [])
+        .map(m => ({ phrase: String(m?.phrase || "").trim(), methods: (m?.methods || []).filter(x => RPC_METHODS.has(x)) }))
+        .filter(m => m.phrase && m.methods.length);
+      if (realMembers.length < 2) continue;                                   // ≥2 ביטויים אמיתיים
+      const distinctMethods = new Set(realMembers.flatMap(m => m.methods));
+      if (distinctMethods.size < 2) continue;                                 // חייב להישאר הצלבת-שיטות
+      const terms = [...new Set(realMembers.map(m => m.phrase))];
+      if (terms.length < 2) continue;
+      const key = `${conv.value}::${[...terms].sort().join("|")}`;
+      if (_persistedKeys.has(key)) continue;                                  // כבר נשלח בסשן הזה
+      _persistedKeys.add(key);
+      const engineDetail = Object.fromEntries(realMembers.map(m => [m.phrase, [...new Set(m.methods)]]));
+      const statement = `${conv.value} = ${realMembers.map(m => `${m.phrase}(${m.methods.join("/")})`).join(" · ")} ⟵ הצלבת שיטות`;
+      defer(() => {
+        try {
+          supabase.rpc("fn_persist_discovery", {
+            p_value: conv.value,
+            p_terms: terms,
+            p_statement: statement,
+            p_engine_detail: engineDetail,
+            p_source: source,
+            p_source_ref: sourceRef,
+          }).then(({ error }) => { if (error) console.error("persistDiscovery", error.message || error); })
+            .catch(e => console.error("persistDiscovery", e));
+        } catch (e) { console.error("persistDiscovery", e); }
+      });
+    } catch { /* התמדה = רקע בלבד; לעולם לא שוברת את המשטח */ }
+  }
 }
 
 const _cache = new Map();  // מילה → {methodsLine, crossLine, groups, stats} (ממוזג per-session, חוסך קריאות)
