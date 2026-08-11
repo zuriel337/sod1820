@@ -6,6 +6,7 @@ import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getNumberDossier, askNumberResearcher, loadResearcherThread, sendCandidateFromResearcher, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
+import HiddenItemsPanel from "../components/HiddenItemsPanel.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
 import InfraLoadTab from "../components/InfraLoadTab.jsx";
 import ElsModerationTab from "../components/ElsModerationTab.jsx";
@@ -89,6 +90,7 @@ const TABS = [
   { key: "aistyles", label: "🤖 ניתוחי AI" },
   { key: "suggest",  label: "🧠 המלצות המערכת" },
   { key: "live",     label: "🔴 שידור חי" },
+  { key: "hidden",   label: "🙈 מוסתרים" },
   { key: "traffic",  label: "📊 תנועה" },
   { key: "infra",    label: "🩺 עומסים ותשתית" },
   { key: "retention",label: "🔁 חוזרים" },
@@ -273,6 +275,7 @@ export default function AdminPage() {
       {tab === "aistyles" && <AiStylesTab />}
       {tab === "suggest" && <SystemSuggestionsTab />}
       {tab === "live" && <LiveVisitorsTab />}
+      {tab === "hidden" && <HiddenItemsPanel />}
       {tab === "traffic" && <RealTrafficPanel />}
       {tab === "infra" && <InfraLoadTab />}
       {tab === "retention" && <RetentionTab />}

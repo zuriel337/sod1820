@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { adminSetPostHomeHidden, setImageCuration } from "../lib/supabase.js";
+import { adminSetPostHomeHidden, adminSetCipherHomeHidden, setImageCuration } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
 import { streamDate, domNum } from "../lib/reality.js";
@@ -41,13 +41,14 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
   const { isAdmin } = useAuth();
   const [hidden, setHidden] = useState(() => new Set());
   const keyOf = (it) => it.type + ":" + (it.data.id ?? it.data.slug ?? it.data.code ?? it.data.title ?? "");
-  const canHide = (it) => it.type === "post" || it.type === "reality";
+  const canHide = (it) => it.type === "post" || it.type === "reality" || it.type === "cipher";
   const hideItem = async (it) => {
     const k = keyOf(it);
     setHidden(s => { const n = new Set(s); n.add(k); return n; });   // אופטימי — נעלם מיד
     try {
       if (it.type === "post") await adminSetPostHomeHidden(it.data.id, true);
       else if (it.type === "reality") await setImageCuration(it.data.id, { curator_hidden: true });
+      else if (it.type === "cipher") await adminSetCipherHomeHidden(it.data.id, true);
     } catch { /* נשאר מוסתר ויזואלית; ריענון יחזיר אם הכתיבה נכשלה */ }
   };
   const visible = items.filter(it => !hidden.has(keyOf(it)));

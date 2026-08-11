@@ -52,6 +52,23 @@ export async function adminSetChannelUpdateHidden(id, hidden) {
   const { error } = await supabase.rpc('admin_set_channel_update_hidden', { p_id: id, p_hidden: !!hidden });
   return !error;
 }
+// 🙈 אדמין — הסתר/הצג צופן מ«עדכונים אחרונים» בבית (els_records.home_hidden; נשאר חי ב-/codes ובספרייה).
+export async function adminSetCipherHomeHidden(id, hidden) {
+  if (!supabase || id == null) return false;
+  const { error } = await supabase.rpc('admin_set_cipher_home_hidden', { p_id: id, p_hidden: !!hidden });
+  return !error;
+}
+// ↩️ אדמין — כל הפריטים שהוסתרו (לפאנל «בטל הסתרה»): פוסטים · צפנים · פריטי-ערוץ · רמזי-זרם.
+export async function getHiddenHomeItems() {
+  if (!supabase) return { posts: [], ciphers: [], channels: [], hints: [] };
+  const [posts, ciphers, channels, hints] = await Promise.all([
+    supabase.from('posts').select('id,slug,title,image_url').eq('home_hidden', true).order('modified', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+    supabase.from('els_records').select('id,slug,title,search_term').eq('home_hidden', true).order('created_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+    supabase.from('channel_updates').select('id,text,credit,channel,image_url').eq('status', 'hidden').order('created_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+    supabase.from('gallery_images').select('id,name,primary_value,image_url,thumb_url').eq('source', 'update').eq('curator_hidden', true).order('stream_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+  ]);
+  return { posts, ciphers, channels, hints };
+}
 
 // 🎬 פוסטי «קוד המציאות» — עדשת המציאות/קולנוע. מאחד את כל התגיות של העולם הזה
 // (מימד חמש · מטריקס · משחקי הדיונון · קולנוע/סרטים) + קטגוריית «הצופן בסרטים», ממוזג

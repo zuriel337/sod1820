@@ -23,6 +23,7 @@ export async function getSystemCiphers(limit = 20) {
   try {
     const { data } = await supabase.from("els_records").select(COLS)
       .eq("status", "published").not("source", "in", "(community,research)")
+      .not("home_hidden", "is", true)   // 🙈 צופן שאדמין הסתיר מ«עדכונים אחרונים» בבית
       .order("created_at", { ascending: false }).limit(limit);
     return data || [];
   } catch { return []; }
