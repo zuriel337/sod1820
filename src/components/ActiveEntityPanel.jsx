@@ -5,7 +5,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { getContributions, intentMeta } from "../lib/contributions.js";
 import { getGematriaByValue, getGematriaCountByValue, getConvergenceForValue, proposeCommunityWord } from "../lib/supabase.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { collectionConvergences } from "../lib/deepAnalysis.js";
+import { collectionConvergences, persistDiscoveries } from "../lib/deepAnalysis.js";
 
 // 🌳 מילים שוות — מרכז-המחקר המתקדם של הערך, בטור הימני (מסך-מלא): כל הביטויים השווים,
 // מד-נדירות, סינון חוצה-שיטות (רגיל/מסתתר/קדמי), «עוד», התכנסות רשומה, והצעת ביטוי חדש.
@@ -286,6 +286,9 @@ function DefaultTower() {
   const active = [...(pinned || []), ...(cart || [])];
   const recent = (history || []).slice(0, 5);
   const topConv = active.length >= 2 ? (collectionConvergences(active)[0] || null) : null;
+  // 🌉 H-1 — התכנסות אמיתית שהוצגה במגדל → מועמד (Human Gate), non-blocking; פעם אחת לכל conv.
+  const topConvKey = topConv ? `${topConv.value}:${(topConv.members || []).map(m => m.phrase).join("|")}` : "";
+  useEffect(() => { if (topConv) persistDiscoveries([topConv], { sourceRef: "active-panel" }); }, [topConvKey]);   // eslint-disable-line react-hooks/exhaustive-deps
   const towerH = { fontSize: 12, fontWeight: 800, color: "var(--ink2,#5b6472)", marginBottom: 7 };
   const nHref = it => `/research?tool=number&n=${encodeURIComponent(it?.title ?? it?.value ?? "")}`;
   return (
