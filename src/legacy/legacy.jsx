@@ -4880,6 +4880,14 @@ function PostPageBySlug({ onNav }) {
             {/* 📅 יומן-העדכונים החי (מרקר data-sod-changelog בתוכן) — נשען על channel_updates,
                 המקור הקנוני של הטיקר: מתעדכן לבד עם כל פוסט/ממצא/עוגן חדש (עץ אחד, אפס תחזוקה) */}
             {String(content).includes("data-sod-changelog") && <SiteChangelog pc={pc} />}
+            {/* ✉️ תיבת-הרשמה בתוך הפוסט (מרקר data-sod-signup) — «רוצים עוד צפנים?» → מייל. רכיב קנוני UpdatesBox. */}
+            {String(content).includes("data-sod-signup") && (
+              <div style={{ margin: "34px 0 6px" }}>
+                <UpdatesBox variant="panel" source="post-ciphers"
+                  title="רוצים עוד צפנים מדהימים כאלה?"
+                  body="הירשמו — והצפנים, החידושים והממצאים החדשים יגיעו אליכם ראשונים, ישירות למייל." />
+              </div>
+            )}
             {/* 🖼 רצועת גישה לגלריה העריכה — התמונות המוטמעות נשארות; זו רק הפניה (עץ אחד) */}
             <PostGalleryLinks content={content} wpId={post?.wp_id} />
             {lbImages && <Lightbox images={lbImages} initialIndex={lbStartIdx} onClose={() => setLbImages(null)} />}
