@@ -2511,7 +2511,12 @@
   }
   function _presentApply(pop){
     if(!_present)return;const {steps,byIdx,i}=_present;
-    steps.forEach((s,si)=>s.cells.forEach(idx=>{const c=byIdx.get(idx);if(c)c.classList.toggle("rv-hide",si>i);}));
+    // 🔀 תא-הצלבה שייך לכמה שלבים (מילה שחוצה מילה) — הוא צריך להידלק בשלב המוקדם ביותר שבו הוא מופיע,
+    //    ואסור ששלב מאוחר יותר יכבה אותו שוב. אחרת, בזמן צפייה במילה הראשונה אות-ההצלבה נראית שחורה/מעומעמת
+    //    (המילה נשברת). לכן קובעים גלוי לפי השלב-המוקדם-ביותר של כל תא (minStep<=i → גלוי), לא שלב-שלב.
+    const minStep=new Map();
+    steps.forEach((s,si)=>s.cells.forEach(idx=>{if(!minStep.has(idx))minStep.set(idx,si);}));
+    minStep.forEach((si,idx)=>{const c=byIdx.get(idx);if(c)c.classList.toggle("rv-hide",si>i);});
     if(pop&&i>=0&&steps[i])steps[i].cells.forEach(idx=>{const c=byIdx.get(idx);if(c){c.classList.add("rv-pop");setTimeout(()=>{try{c.classList.remove("rv-pop");}catch(e){}},340);}});
     _presentSync();
   }
