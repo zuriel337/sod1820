@@ -298,6 +298,25 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 - **אימות-חי (`EXISTING`):** `posts`(1,235, date/modified 100%, source wordpress/ai) · 304 post-nodes · `posts_by_number_tag`/`posts_harvested_for_number`/`cross_source_posts`/`fn_raziel_extract_subject`/`fn_split_gematria` · OCR (`wa-ocr`/`gallery-ocr`) · `research-extract` cron שעתי · מנוע-גימטריה (קריא). **`MISSING`:** 0 קשתות `post→number` (קישור דרך tags) · pipeline post→discovery לא-מחווט · re-verify-טענות לא-מוחל.
 - **⛔ עכשיו — KEEP EVERYTHING:** לא לשנות פוסטים · לא להעביר פוסטים לזרם · לא Tree/Store/מנוע/מקור-אמת חדש · לא לשנות §10.0 · לא לעקוף Human-Gate · לא להפוך טענות-בפוסטים לעובדות. **רק תוספת-חזון:** כל קורפוס-קיים = Source/Corpus/Seed, והפלט עובר את אותו Fact-first lifecycle. `research_objects` + One-Knowledge-Tree הקיימים מספיקים — **אין מערכת חדשה.**
 
+### 10.6 DISCOVERY ENGINE כ-LOGICAL LAYER אחד (`APPROVED` + `CANONICAL`, 11.8.2026)
+> **החלטת צוריאל: Discovery Engine = LAYER לוגי אחד בלבד.** ⛔ אין ליצור Engine פיזי חדש · Store חדש · Tree חדש · טבלת-Discovery חדשה.
+- **הנוסחה:** `ONE DISCOVERY ENGINE + MULTIPLE EXISTING CORPORA + ONE KNOWLEDGE GRAPH/TREE`.
+- **הצינור הלוגי:** `INPUT SOURCES → EXTRACTION → NORMALIZATION → GEMATRIA/METHODS → VALUES → CROSS → CONVERGENCE → RANK → DISCOVERY → research_objects → HUMAN GATE → KNOWLEDGE GRAPH → VIEWS`.
+- **נקודת-הכתיבה המשותפת:** **`fn_persist_discovery`** — RPC **generic**, אינו תלוי ב-`EntityPage`/Reality-Stream/Gallery/Post. כל מקור עתידי מזין את **אותו** lifecycle ו**אותה** נקודת-כתיבה; `source`/`source_ref`/provenance מזהים מאיפה הגיע הממצא.
+- **מקורות (`source=`):** `reality_stream` · `post` · `gallery` · `user_report` · `ocr` · `tanach` · `els` · `language` · `news` · `raw` · `channel` · וכל מקור-עתידי-מאושר. כל מקור = **adapter/feeder דק** ל-extraction/normalization; ⛔ **אין** Discovery-Engine נפרד לכל מקור.
+- **LIFECYCLE CANONICAL:** `SIGNAL ≠ DISCOVERY` · `DISCOVERY ≠ CANONICAL` · `HOT ≠ TRUE`. כל מקור עובר `Input → Calculation → Verification → Cross → Discovery → Evidence → Human Gate → Graph`. **אין מסלול-promotion נפרד לפי מקור.**
+- **`research_objects` = memory/provenance layer** של Discovery. **Human Gate = השער היחיד ל-Canonical.** **Fact-first** נשאר חוק-היסוד (§10.0): `Discovery ≠ Interpretation · Fact-first · Interpretation-tagged · Traceable Tree`.
+- **H-1 (`APPROVED spec`, טרם-בוצע) = רק הגשר-הראשון:** `collectionConvergences → fn_persist_discovery → research_objects(candidate) → Human Gate → Graph`. **H-1 אינו כולל feeders נוספים.**
+- **ROADMAP (`ROADMAP` בלבד — אינו אישור-ביצוע; כל שלב דורש אישור+בדיקה נפרדים לפני WRITE):**
+  - **H-1** — `collectionConvergences → research_objects` (Discovery persistence).
+  - **H-2** — Reality-Stream / Gallery ingestion.
+  - **H-3** — Post-Corpus ingestion.
+  - **H-4** — Additional corpora (ELS/news/raw/verses/language).
+  - **H-5** — Temporal / HOT intelligence (כפוף `HOT ≠ TRUE`).
+- **למידה דו-כיוונית (`CANONICAL`):** המערכת לומדת מ-`USER DEMAND` **וגם** מ-`EXISTING CORPUS` — לא רק מגיבה למה-שמחפשים, אלא (בעתיד) **קוראת-מחדש את האוצר** ההיסטורי והחי. **היעד:** *כל מה שנבנה לאורך השנים → נקרא-מחדש-חישובית → נבדק-מחדש → מוצלב → נשמר-עם-provenance → Human-Gate → אותו Knowledge-Tree → נגיש דרך ה-Views הקיימים.*
+- **⛔ עיקרון-שימור:** `KEEP EVERYTHING → REORGANIZE → SIMPLIFY → ADD`. אין למחוק/להחליף אוצר קיים כדי לבנות את Discovery-Engine.
+- **⚠️ עיקרון-ארכיטקטוני בלבד:** §10.6 **אינו** מחייב שום שינוי בקוד/DB/RPC/UI. **לא משנה החלטות-קודמות · לא משנה את H-1 · לא מבצע H-1 · לא יוצר RPC/adapter בפועל.**
+
 ---
 
 ## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
@@ -325,6 +344,7 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 9 | 11.8.2026 | §10.3.1 שני-ממדי-הזרם (ARCHIVE/CORPUS + REALITY-SIGNAL) · Temporal Discovery (מה-חדש/מה-מצטבר/מה-חוזר) · כלל `HOT ≠ TRUE` (חם=Signal-של-פעילות, לא-אמת/לא-Discovery) · הזמן-כהקשר-מחקרי (occurred_at) · השתלבות-עתידית עם RealityPulse/hot-fns/demand_signal/research_intelligence | להפריד תפקיד-ארכיון מתפקיד-אות-חי; לנעול ש«חם» אינו הופך למספר-אמת ללא המסלול המלא | «חם/חדש = discovery» → `HOT ≠ TRUE`, המסלול המלא חובה | שני-הממדים = `VISION`/`PROPOSED` · `HOT≠TRUE` = `CANONICAL` (הרחבת §10.0) · אפס מנוע-HOT/טבלה/שינוי-זרם · H-1 ללא-שינוי |
 | 10 | 11.8.2026 | §10.4 אזור-הממצאים בדף-המספר (`EntityPage` מד-התכנסות/התכנסות-מילים/רב-שיטתי/אשכול/קשרי-גרף/צירופי-שיטות-ומילים) = View קנוני קיים — לא-לעצב-מחדש, לא-אקורדיון, לא-למחוק-נתונים. צמצום Blueprint §A: reorg=מעטפת+סדר-בין-אזורים+קיבוץ-«מספרים-קשורים» בלבד, לא אזור-הממצאים. ממצאי-Discovery עתידיים → אותו עולם-תצוגה, לא UI מקביל | צוריאל אוהב את האזור (צילום /number/199); לשמר אותו כ-View מרכזי של מנוע-הגילויים | «לפשט דף-מספר ע"י אקורדיון/עיצוב-מחדש של אזור-הממצאים» → הסידור מסביב, לא על-חשבונו | `CANONICAL` (שימור-View) · Rank-Don't-Hide · אפס-שינוי-קוד/UI |
 | 11 | 11.8.2026 | §10.5 POST CORPUS + ONE DISCOVERY ENGINE: כל קורפוס (זרם/פוסטים/דיווחים/גלריות/OCR) = Source/Corpus/Seed → מנוע-אחד → עץ-אחד (אין מנוע-לכל-מקור) · כלל `POST CONTENT ≠ TRUTH` (טענת-כותב=קלט, המנוע מחשב+מאמת בעצמו) · פוסטים=אוצר-היסטורי (שימור) · HOT-ממקור-פוסטים כפוף ל-HOT≠TRUE · temporal-provenance (posts.date/modified) · אימות-חי (posts 1235/304-nodes/extract-fns/OCR/research-extract-cron; חסר: 0 post→number edges + pipeline לא-מחווט) | «זרם המציאות = המקור היחיד» → כל קורפוס-קיים מזין את אותו מנוע; המנוע לומד לקרוא את כל האתר | «פוסט=תוכן-להצגה בלבד» / «גימטריית-הכותב=אמת» → קורפוס-מחקר + טענה-לבדיקה | One-Engine + `POST CONTENT≠TRUTH` + שימור = `CANONICAL` (הרחבת §10.0) · POST-CORPUS-כמקור = `VISION`/`PROPOSED` · אפס engine/store/tree/שינוי · Human-Gate ללא-עקיפה |
+| 12 | 11.8.2026 | §10.6 DISCOVERY ENGINE כ-LOGICAL LAYER אחד: מנוע-לוגי-אחד (לא engine/store/tree/table פיזי חדש) · נקודת-כתיבה-משותפת `fn_persist_discovery` (generic, source/source_ref) · מקורות reality_stream/post/gallery/user_report/ocr/tanach/els/language/news/raw/channel + adapters-דקים · lifecycle-אחד (SIGNAL≠DISCOVERY≠CANONICAL, HOT≠TRUE, Fact-first) · research_objects=memory · Human-Gate=שער-יחיד · H-1=גשר-ראשון-בלבד · ROADMAP H-1..H-5 (לא-אישור-ביצוע) · למידה דו-כיוונית (USER DEMAND + EXISTING CORPUS) | לקבע Discovery-Engine כ-layer לוגי עם נקודת-כתיבה-אחת לכל המקורות, בלי מנועים-נפרדים | «מנוע-לכל-מקור» / «H-1 תלוי-EntityPage» → layer-אחד generic | `APPROVED`+`CANONICAL` (עיקרון-ארכיטקטוני) · Roadmap = `PROPOSED`/`ROADMAP` (כל H-stage אישור-נפרד) · אפס code/DB/RPC/UI/שינוי-H-1 |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. השינוי-ב-DB היחיד בסשן: הקפאת cron job 27 (`metatron-nightly`, הפיך). מלבדו READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE).*
