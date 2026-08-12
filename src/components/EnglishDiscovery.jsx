@@ -5,7 +5,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
 import { enSearch } from "../lib/supabase.js";
-import { trackRareSearch } from "../lib/tracking.js";
+import { track, trackRareSearch } from "../lib/tracking.js";
 
 // 🔎 English Discovery — שער-הכניסה למנוע-הגילויים החוצה-שפתי (research_workspace_law).
 // לא "עוד תיבת חיפוש": מילה לועזית → fn_en_search → מסננים בנדירות → מציגים רק זהב קודם
@@ -79,6 +79,8 @@ export default function EnglishDiscovery() {
       const data = await enSearch(q);
       setRows(data);
       emit(EVENTS.SEARCH_GEMATRIA, { q, source: "english-discovery", hits: data.length });
+      // 📊 מדידת חיפוש-גימטריה (events) — אות אנושי מובהק + דאטת-משפך. בוט נזרק ב-ingest_event.
+      try { track("gematria", q.slice(0, 60), "compute", { source: "english", hits: data.length }); } catch { /* מדידה לא שוברת גלישה */ }
       // שכבה 2 — חיפוש-נדיר: נרשם רק כשצף זהב/חזק (התכנסות אמיתית), לא לכל חיפוש.
       const g = (data || []).filter(r => r.signal === "gold");
       const s = (data || []).filter(r => r.signal === "strong");
