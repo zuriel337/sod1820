@@ -75,7 +75,9 @@ async function translate(text: string, targetLang: string): Promise<{ text: stri
   } catch (e) { LAST_ERR = "fetch_threw:" + String((e as Error)?.message || e); return null; }
   if (!r.ok) { LAST_ERR = `http_${r.status}:` + (await r.text()).slice(0, 300); return null; }
   const data = await r.json();
-  const out = (data?.content?.[0]?.text || "").trim();
+  // claude-sonnet-5 עשוי לפלוט בלוק "thinking" ראשון — בוחרים את בלוק ה-text הראשון
+  const textBlock = (data?.content || []).find((c: { type?: string }) => c?.type === "text");
+  const out = (textBlock?.text || "").trim();
   if (!out) { LAST_ERR = "empty_out:" + JSON.stringify(data).slice(0, 200); return null; }
   return { text: out, model: MODEL };
 }
@@ -128,8 +130,21 @@ Deno.serve(async (req) => {
       return json({ ok: true, rows: await r.json() });
     }
 
-    const original_text = String(b.original_text || "").trim();
-    const original_lang = String(b.original_lang || "he").trim();
+    let original_text = String(b.original_text || "").trim();
+    let original_lang = String(b.original_lang || "he").trim();
+
+    // אם לא נשלח טקסט-מקור — שולפים את המקור הקיים מהטבלה (מאפשר תרגום בקבוצות בלי לשלוח שוב)
+    if (!original_text) {
+      const r = await fetch(
+        `${SB_URL}/rest/v1/video_transcripts?video_key=eq.${encodeURIComponent(video_key)}&is_original=eq.true&select=lang,transcript&limit=1`,
+        { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } },
+      );
+      const ex = await r.json();
+      if (Array.isArray(ex) && ex[0]?.transcript) {
+        original_text = String(ex[0].transcript);
+        original_lang = String(ex[0].lang || original_lang);
+      }
+    }
     if (!original_text) return json({ error: "original_text_required" }, 400);
 
     // 1) שמירת המקור (is_original=true, מפורסם)
