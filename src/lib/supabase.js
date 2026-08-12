@@ -334,6 +334,20 @@ export async function getUpdatesByChannel(channel, limit = 60) {
     .limit(limit);
   return data || [];
 }
+// 👤 CORE של כתב — מילים מאוצרות (gematria_words) לפי מפתחות-הזהות (vip_source ∈ names · source='contribution:<name>').
+// READ-ONLY. reuse של אותם מפתחות (display_name+wa_names). מחזיר שדות-סיווג (method/tags/tier) ל-Writer OS.
+export async function getWriterCoreWords(names, limit = 500) {
+  const list = (Array.isArray(names) ? names : [names]).map(n => (n || "").trim()).filter(Boolean);
+  if (!supabase || !list.length) return [];
+  const sel = 'id,phrase,ragil,other_method,essence_method,tags,vip_source,source,is_verified,visibility_tier,node_id,created_at,notes';
+  const [byVip, bySrc] = await Promise.all([
+    supabase.from('gematria_words').select(sel).in('vip_source', list).not('ragil', 'is', null).limit(limit),
+    supabase.from('gematria_words').select(sel).in('source', list.map(n => `contribution:${n}`)).not('ragil', 'is', null).limit(limit),
+  ]);
+  const map = new Map();
+  for (const r of [...(byVip.data || []), ...(bySrc.data || [])]) if (r && !map.has(r.id)) map.set(r.id, r);
+  return [...map.values()];
+}
 // 🎗 כתבים מודגשים (contributors.feature_media) לרצועת «עדכונים אחרונים» בדף הבית —
 // כרטיס-כתב עם התמונה האחרונה שלו מהשידורים, שמקפיץ את דף-הכתב כשעולה עדכון-תמונה חדש.
 // עדשה על עץ אחד: contributors ⨯ channel_updates (לפי credit=display_name) — לא עותק.

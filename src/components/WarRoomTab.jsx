@@ -17,6 +17,7 @@ import {
   tierOf, TIER,
 } from "../lib/discovery.js";
 import AiAnalyze from "./AiAnalyze.jsx";
+import WriterOS from "./WriterOS.jsx";
 
 const WRITERS = ["יניב לוי", "שמעון חיימוב", "ציון סיבוני", "צבי (OPOC)", "יצחק שחר קנדרו", "כריסטינה", "סלי מור"];
 
@@ -383,6 +384,8 @@ export default function WarRoomTab() {
   }, []);
 
   useEffect(() => { if (mode === "now") loadNow(); }, [mode, loadNow]);
+  // אינדקס-זהות זמין בשני המצבים (Writer OS צריך אותו גם ב-treasure).
+  useEffect(() => { if (!writerIdx) getContributorsIndex().then(rows => setWriterIdx(buildWriterIndex(rows || []))).catch(() => {}); }, [writerIdx]);
   useEffect(() => { if (mode === "treasure") getWaGroups().then(setGroups); }, [mode]);
   useEffect(() => { if (mode === "treasure" && lens === "writers") loadWriter(writer); }, [mode, lens, writer, loadWriter]);
   useEffect(() => { if (mode === "treasure" && lens === "groups" && groupSel) loadGroup(groupSel); }, [mode, lens, groupSel, loadGroup]);
@@ -525,9 +528,14 @@ export default function WarRoomTab() {
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {WRITERS.map(w => <button key={w} style={chip(writer === w, "#b08bd8")} onClick={() => setWriter(w)}>{w}</button>)}
               </div>
-              <div style={{ color: C.faint, fontSize: 11 }}>👤 {writer} · כל החומר (פורום+פוסטים+WhatsApp) · VIP=עדיפות, לא אמת {busy && "…"}</div>
-              {writerItems.length ? writerItems.map(it => <ItemCard key={it.key} item={it} onFocus={setFocusN} />)
-                : <div style={{ color: C.muted, fontSize: 13 }}>לא נמצא חומר לכתב זה במקורות שנבדקו.</div>}
+              {/* CC-1.4 · Writer Research OS — שכבה אחת reusable לכל contributor */}
+              {(() => {
+                const wr = writerIdx ? resolveWriter(writer, writerIdx) : null;
+                const wc = wr?.canonical || wr?.contributor || null;
+                if (!writerIdx) return <div style={{ color: C.muted, fontSize: 12 }}>טוען אינדקס-כתבים…</div>;
+                if (!wc) return <div style={{ color: C.muted, fontSize: 13 }}>«{writer}» לא נמצא ב-contributors (אין דף-כתב עדיין).</div>;
+                return <WriterOS contributor={wc} writerIndex={writerIdx} />;
+              })()}
             </div>
           )}
 
