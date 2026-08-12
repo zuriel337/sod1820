@@ -159,6 +159,30 @@ export async function getCategoryVideos(category = "וידאו", { limit = 60 } 
   } catch { return []; }
 }
 
+// 🎬 גלריית-הסרטים בבית — **החומר שלנו בלבד** (מציאות/צפנים/מספרים), החדש ראשון, כוכב על צפנים.
+// עדשה ממוקדת: פוסטים עם וידאו מתנגן בקטגוריות שלנו (צפונות בתורה·הצופן בסרטים·תיעוד אירועים·
+// סוד האותיות והמספרים), **בלי הצפת החיזוק/הרצאות** (מחריגים «מזכה הרבים» + קטגוריות-חיזוק).
+// מחליף את המשיכה הישנה מכל קטגוריית «וידאו» (185 פוסטים, רובם לא שלנו). is_cipher=צופן→כוכב.
+export async function getRealityVideos({ limit = 40 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc("get_reality_videos", { p_limit: limit });
+    if (error || !data) return [];
+    return data.map(r => ({
+      yt: r.yt || null,
+      title: stripHtml(r.title || ""),
+      slug: r.slug || null,
+      video_url: r.video_url || null,
+      poster_url: r.poster_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),
+      uploaded_at: r.uploaded_at || null,
+      author: r.author || null,
+      featured: false, pinned: false, cipher_slug: null,
+      is_cipher: !!r.is_cipher,
+      post_only: !!r.post_only,
+    }));
+  } catch { return []; }
+}
+
 // 📌 הצופן הנעוץ — סטורי יחיד שנעוץ ראשון ברצועת-הצ'אט. **מנגן את הסרט עצמו** (image_url=mp4 →
 // StoryViewer מנגן וידאו), לא מנווט לפוסט. המקור: home_videos (הסרטון-צופן המנוהל, mp4 נעוץ/אחרון).
 export async function getPinnedCipherStory() {

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
-import { getHomeVideos, getAuthorGalleryVideos, getCategoryVideos } from "../lib/supabase.js";
+import { getRealityVideos } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
 import ShareActions from "./ShareActions.jsx";
@@ -75,8 +75,6 @@ export default function VideoGallery() {
   const navigate = useNavigate();
   const [playing, setPlaying] = useState(null);
   const [rows, setRows] = useState(null); // null = טרם נטען → משתמשים בברירת-מחדל
-  const [authorVids, setAuthorVids] = useState([]); // 🎬 סרטוני אלון לוי — נמשכים אוטומטית מהפוסטים
-  const [catVids, setCatVids] = useState([]); // 🎬 כל פוסט בקטגוריית «וידאו» — נכנס לספרייה אוטומטית
 
   // 📊 מעקב הפעלת-סרטון — מזין events/visitor_events (נכס קהל-צופי-וידאו, Meta Growth OS)
   const handlePlay = (v) => {
@@ -92,9 +90,7 @@ export default function VideoGallery() {
 
   useEffect(() => {
     let alive = true;
-    getHomeVideos().then(data => { if (alive) setRows(data); }).catch(() => {});
-    getAuthorGalleryVideos("אלון לוי").then(data => { if (alive) setAuthorVids(data || []); }).catch(() => {});
-    getCategoryVideos("וידאו").then(data => { if (alive) setCatVids(data || []); }).catch(() => {});
+    getRealityVideos({ limit: 40 }).then(data => { if (alive) setRows(data); }).catch(() => {});
     return () => { alive = false; };
   }, []);
 
@@ -115,24 +111,10 @@ export default function VideoGallery() {
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [playing]);
 
-  // סדר (ללא הבלטת-כרטיס — בקשת צוריאל 11.8.2026): סרטוני «הצופן התנכי» תמיד ראשונים,
-  // כל אחד עם כוכב מהבהב שאי-אפשר לדלג עליו; אחריהם שאר הסרטונים לפי תאריך (החדש קודם).
-  // ממזגים home_videos + סרטוני אלון לוי + כל פוסט בקטגוריית «וידאו», מנוכי-כפילויות.
-  const byDateDesc = (a, b) => String(b.uploaded_at || "").localeCompare(String(a.uploaded_at || ""));
+  // סדר: **החדש ראשון** (getRealityVideos כבר ממוין לפי תאריך יורד). הכוכב המהבהב על סרטוני-הצופן
+  // הוא אקסנט שאי-אפשר לדלג עליו — לא מפריע לסדר-הזמן. מקור יחיד = החומר שלנו בלבד (בלי הצפת חיזוק).
   const vkey = (v) => v.slug || v.yt || v.video_url || null;
-  const dedup = (arr) => {
-    const seen = new Set(); const out = [];
-    for (const v of arr) { const k = vkey(v); if (k && seen.has(k)) continue; if (k) seen.add(k); out.push(v); }
-    return out;
-  };
-  let list = VIDEOS;
-  const homeRows = rows || [];
-  if (homeRows.length || (authorVids && authorVids.length) || (catVids && catVids.length)) {
-    const merged = dedup([...homeRows, ...(authorVids || []), ...(catVids || [])]);
-    const ciphers = merged.filter(isCipherVid).sort(byDateDesc);
-    const others = merged.filter(v => !isCipherVid(v)).sort(byDateDesc);
-    list = [...ciphers, ...others].slice(0, 40);
-  }
+  const list = (rows && rows.length) ? rows : VIDEOS;
 
   return (
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px", direction: "rtl" }}>
