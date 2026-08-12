@@ -3145,6 +3145,57 @@ export async function getDiscoveries(value, term) {
   if (error) return [];
   return data || [];
 }
+// ── CC-1 · «חדר המפקדה» — עטיפות-קריאה דקות (READ-ONLY · reuse-first · אפס WRITE) ──
+// מועמדי-מנוע (research_objects) דרך ה-RPC הקיים admin_research_feed (SECURITY DEFINER, admin).
+export async function getResearchFeed({ status = 'candidate', kind = null, limit = 100 } = {}) {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc('admin_research_feed', { p_status: status, p_kind: kind, p_limit: limit });
+  if (error) { console.error('getResearchFeed', error.message || error); return []; }
+  return data || [];
+}
+// קבוצות-WhatsApp (wa_bot_config — policy admin) — כולל מצב enabled (לזהות מקור-רדום).
+export async function getWaGroups() {
+  if (!supabase) return [];
+  const { data } = await supabase.from('wa_bot_config')
+    .select('group_id,enabled,max_per_hour,ai_chat,created_at').order('enabled', { ascending: false });
+  return data || [];
+}
+// יומן-הודעות WhatsApp (wa_bot_log — policy wabl_admin_read) — טקסט/ערך/פעולה.
+export async function getWaLog({ group = null, sender = null, limit = 80 } = {}) {
+  if (!supabase) return [];
+  let q = supabase.from('wa_bot_log')
+    .select('group_id,sender,sender_name,text_in,value,action,created_at')
+    .order('created_at', { ascending: false }).limit(limit);
+  if (group) q = q.eq('group_id', group);
+  if (sender) q = q.ilike('sender_name', `%${sender}%`);
+  const { data } = await q;
+  return data || [];
+}
+// חומר-פורום (research_contributions — policy rc_public_read) — טענת-גימטריה + provenance.
+export async function getForumMaterial({ author = null, limit = 120 } = {}) {
+  if (!supabase) return [];
+  let q = supabase.from('research_contributions')
+    .select('id,author_name,target_type,target_id,title,body,gematria_claim,image_url,graph_node_id,projected_insight_id,status,created_at')
+    .order('created_at', { ascending: false }).limit(limit);
+  if (author) q = q.eq('author_name', author);
+  const { data } = await q;
+  return data || [];
+}
+// שכבת-השפות: קישורים מובחנים (תרגום/תעתיק/ערך-משותף) + מוני-רזרבה.
+export async function getLanguageLinks(limit = 200) {
+  if (!supabase) return [];
+  const { data } = await supabase.from('language_links')
+    .select('hebrew,foreign_word,lang,relationship_type,gematria_he,status,human_verified,method').limit(limit);
+  return data || [];
+}
+export async function getLanguageStats() {
+  const out = { translitOpen: null, xlang: null };
+  if (!supabase) return out;
+  try { const t = await supabase.from('translit_suggestions').select('id', { count: 'exact', head: true }).eq('status', 'open'); out.translitOpen = t.count ?? null; } catch { /* noop */ }
+  try { const x = await supabase.from('xlang_calibration').select('id', { count: 'exact', head: true }); out.xlang = x.count ?? null; } catch { /* noop */ }
+  return out;
+}
+
 // 🗺️ מפת-כיסוי — "כבר בדקנו את X?" (החזרה ריקה = לא נסרק).
 export async function wasScanned(term) {
   if (!supabase || !term) return [];

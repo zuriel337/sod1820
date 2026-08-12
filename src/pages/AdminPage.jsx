@@ -39,6 +39,7 @@ import ImageEditModal from "../components/ImageEditModal.jsx";
 import ViralIntelTab from "../components/ViralIntelTab.jsx";
 import AnchorFamiliesTab from "../components/AnchorFamiliesTab.jsx";
 import FindingsTab from "../components/FindingsTab.jsx";
+import WarRoomTab from "../components/WarRoomTab.jsx";
 import AiStylesTab from "../components/AiStylesTab.jsx";
 import SystemSuggestionsTab from "../components/SystemSuggestionsTab.jsx";
 import CalendarHeatmap from "../components/CalendarHeatmap.jsx";
@@ -82,6 +83,7 @@ const ADMIN_THEME_CSS = `
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "command",  label: "🧠 מפקדה" },
+  { key: "warroom",  label: "🎛️ חדר המפקדה" },
   { key: "entries",  label: "🛰️ כניסות אמיתיות" },
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
@@ -134,7 +136,7 @@ const TABS = [
 // מדידה: כל טאבי-התנועה שהיו פזורים (analytics+journeys) מתאחדים כאן. צמיחה: המרות/ויראל/צמיחה/Meta.
 // הוסרו: «מסעות (ישן)» ו«מיילים» (שכפל את «רשימת תפוצה»). היתומים («סוכנים»→AI, «המרות»→צמיחה) חוברו לקבוצה.
 const GROUPS = [
-  { key: "command", label: "🧠 מפקדה",       subs: ["command"] },
+  { key: "command", label: "🧠 מפקדה",       subs: ["command", "warroom"] },
   { key: "measure", label: "📊 מדידה",       subs: ["entries", "traffic", "infra", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
   { key: "growth",  label: "📈 צמיחה",       subs: ["growth", "conversions", "viral", "meta"] },
   { key: "ai",      label: "🤖 AI",           subs: ["aicost", "aistyles", "agents"] },
@@ -266,6 +268,7 @@ export default function AdminPage() {
       {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
       {tab === "command" && <CommandCenterTab gotoTab={gotoTab} />}
+      {tab === "warroom" && <WarRoomTab />}
       {tab === "entries" && <TrafficIntelligenceTab />}
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}

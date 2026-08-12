@@ -143,3 +143,35 @@ export function rankPatterns(patterns, pulseByValue = null) {
     .sort((a, b) => (b._interest - a._interest) || (b._verified - a._verified) ||
       (new Date(b.temporal.created_at || 0) - new Date(a.temporal.created_at || 0)));
 }
+
+// ── CC-1 · «חדר המפקדה» — תוספות View קורא-בלבד ─────────────────────────────
+// 🧵 מסלול-החומר (§13.2): 9 שלבים × 4 מצבים. נגזר מנתונים קיימים בלבד (אפס מנוע).
+// 🔴 «נעצר» = מצב תפעולי (מחושב/מוצלב אך לא-התקדם) — **לא** ציון-איכות (§14 · 3 צירים).
+export const MATERIAL_STAGES = ["מקור", "חילוץ", "גימטריה", "הצלבות", "Pattern", "רזיאל", "שיפוט", "גרף", "פרסום"];
+const _has = v => v != null && v !== "" && !(Array.isArray(v) && v.length === 0);
+export function materialTrack(it = {}) {
+  const hasNums = _has(it.extracted) || _has(it.numbers);
+  const hasVals = it.engineVerified === true || _has(it.values);
+  const hasCross = it.hasCross === true;
+  const s = {};
+  s["מקור"] = "done";
+  s["חילוץ"] = hasNums || _has(it.phrases) ? "done" : "unchecked";
+  s["גימטריה"] = hasVals ? "done" : (hasNums ? "partial" : "unchecked");
+  s["הצלבות"] = hasCross ? "done" : "unchecked";
+  s["Pattern"] = it.patternId ? "done" : "unchecked";
+  s["רזיאל"] = it.raziel ? "done" : "unchecked";
+  s["שיפוט"] = it.inFeed ? (it.judged ? "done" : "partial") : "unchecked";
+  const ready = hasVals && hasCross;                       // מחושב-ומוצלב אך לא-בגרף = 🔴 נעצר
+  s["גרף"] = it.inGraph ? "done" : (ready && !it.patternId ? "stalled" : "unchecked");
+  s["פרסום"] = it.published ? "done" : "unchecked";
+  return MATERIAL_STAGES.map(k => ({ stage: k, state: s[k] }));
+}
+export const TRACK_COLOR = { done: "#4caf7d", partial: "#c79a2e", unchecked: "#8a8a95", stalled: "#e0563a" };
+export const TRACK_LABEL = { done: "🟢 הושלם", partial: "🟡 חלקי", unchecked: "⚪ לא-נבדק", stalled: "🔴 נעצר" };
+
+// ציר-רביעי «My Preference» (§14.1) — ניטרלי כרגע; משפיע רק על סדר-הצגה, לעולם לא על אמת. hook לעתיד.
+export function preferenceScore(/* item, prefs */) { return 0; }
+
+// שפה (§14.2): תרגום ≠ תעתיק ≠ ערך-משותף ≠ משמעות. תווית-אנוש להפרדה.
+export const LANG_REL = { shared_value: "ערך-משותף", translation: "תרגום", transliteration: "תעתיק", parallel: "מקבילה", concept: "קשר-רעיוני" };
+export const langRelLabel = r => LANG_REL[r] || r || "—";
