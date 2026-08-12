@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } fro
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
-import OrGeulaStoryColumn from "../components/OrGeulaStoryColumn.jsx";
+import OrGeulaStoryColumn, { BRAND_MELUCHA } from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4319,9 +4319,11 @@ function SpotimChatPage() {
       <ChatScrollRail />
       {/* 🔴 סטורי חדש · אור הגאולה — מצביע קומפקטי; במובייל בלבד (בדסקטופ העמודה מחליפה אותו) */}
       <div className="sod-chat-chip-mobile"><OrGeulaStoryChip /></div>
-      {/* 🎞️ רצועת-סטוריז אופקית קבועה — מובייל בלבד: תמיד גלויה (גם אחרי צפייה), כי עמודת-הסרטונים
-          המלאה היא דסקטופ-בלבד. אותו רכיב קנוני (OrGeulaStoryColumn) בגרסת rail — בלי כפילות. */}
-      <div className="sod-chat-stories-mobile"><OrGeulaStoryColumn variant="rail" limit={20} /></div>
+      {/* 🎞️ רצועות-סטוריז אופקיות קבועות — מובייל בלבד: תמיד גלויות (גם אחרי צפייה), כי העמודות
+          המלאות הן דסקטופ-בלבד. אותו רכיב קנוני (OrGeulaStoryColumn) בגרסת rail — בלי כפילות.
+          👑 «כי לה׳ המלוכה» (הצפנים של האתר) ראשונה ומובחנת מ«אור הגאולה» (אגרגציה) — בקשת צוריאל. */}
+      <div className="sod-chat-stories-mobile"><OrGeulaStoryColumn variant="rail" limit={20} brand={BRAND_MELUCHA} /></div>
+      <div className="sod-chat-stories-mobile" style={{ marginTop: 14 }}><OrGeulaStoryColumn variant="rail" limit={20} /></div>
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
 
       <div className="sod-chat-grid">
@@ -4349,8 +4351,11 @@ function SpotimChatPage() {
           </div>
         </div>
 
-        {/* 🎬 עמודת «אור הגאולה» — כל הסרטונים מלמעלה-למטה (דסקטופ בלבד, בצד שמאל) */}
+        {/* 🎬 עמודות-סטוריז (דסקטופ בלבד, בצד שמאל):
+            👑 «כי לה׳ המלוכה» — הצפנים של האתר, ראשונה ומובחנת; אחריה «אור הגאולה» (אגרגציה). */}
         <aside className="sod-chat-videos">
+          <OrGeulaStoryColumn limit={30} brand={BRAND_MELUCHA} />
+          <div style={{ height: 26 }} />
           <OrGeulaStoryColumn limit={30} />
         </aside>
       </div>
@@ -4954,9 +4959,7 @@ function PostPageBySlug({ onNav }) {
             {/* מעקב בתוך הפוסט — שער: 📁 קטגוריה + ✍️ כתב (subscription_funnel_law v10, אין מעקב-פוסט). */}
             <PostFollowBox categories={cats} author={author} postMode={postMode} />
 
-            {/* 🌱 «הקהילה בשלב ההקמה» — במקום תגובות-פתוחות (0 תגובות = נראה מת), הזמנה איכותית
-                לכתוב חידוש בבית המדרש (החלטת צוריאל). Spot.IM הוסר; תגובות-WP ההיסטוריות בארכיון-מקופל למטה. */}
-            <CommunityForming to="/beit-midrash" />
+            {/* «הקהילה בשלב ההקמה» (CommunityForming) הוסר מהפוסטים לבקשת צוריאל (11.8.2026). */}
 
             {/* ── תגובות ישנות (ארכיון WordPress) — מקופל, נשמר ולא נמחק (אופציה ב') ── */}
             {comments.length > 0 && (

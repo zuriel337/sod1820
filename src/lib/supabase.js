@@ -153,6 +153,7 @@ export async function getCategoryVideos(category = "וידאו", { limit = 60 } 
       uploaded_at: r.uploaded_at || null,
       author: r.author || null,
       featured: false, pinned: false, cipher_slug: null,
+      is_cipher: !!r.is_cipher,
       post_only: !!r.post_only,
     }));
   } catch { return []; }

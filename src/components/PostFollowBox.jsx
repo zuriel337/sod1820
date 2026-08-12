@@ -26,11 +26,11 @@ export default function PostFollowBox({ categories = [], author = "", postMode =
       <div style={{ display: "flex", gap: 9, justifyContent: "center", flexWrap: "wrap" }}>
         {primaryCat && (
           <WatchButton topic={`cat:${primaryCat}`} source="post_footer" compact paletteMode={postMode}
-            icon="📁" label="עקוב אחרי הקטגוריה" explainer="" />
+            icon="📁" label={`עקוב אחרי ${primaryCat}`} followLabel={`עוקב אחרי ${primaryCat} ✓`} explainer="" />
         )}
         {hasWriter && (
           <WatchButton topic={`author:${by.name}`} source="post_footer" compact ghost paletteMode={postMode}
-            icon="✍️" label="עקוב אחרי הכתב" explainer="" />
+            icon="✍️" label={`עקוב אחרי ${by.name}`} followLabel={`עוקב אחרי ${by.name} ✓`} explainer="" />
         )}
       </div>
     </div>

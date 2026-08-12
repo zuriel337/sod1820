@@ -15,7 +15,7 @@ import { trackConversion } from "../lib/marketing.js";
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
 //   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false }) {
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
@@ -110,7 +110,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     <div style={{ direction: "rtl" }}>
       <button onClick={toggle} disabled={busy} aria-pressed={following}
         title={following ? "לחצו לביטול" : explainer || label} style={btn}>
-        {icon} {following ? "עוקבים ✓" : label}
+        {icon} {following ? (followLabel || "עוקבים ✓") : label}
       </button>
       {!following && explainer && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
       {pushOffer}{pushDone}
