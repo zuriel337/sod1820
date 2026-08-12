@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
-import OrGeulaStoryColumn, { BRAND_TZOFON, BRAND_OR_GEULA, MergedStoriesRail } from "../components/OrGeulaStoryColumn.jsx";
+import OrGeulaStoryColumn, { BRAND_TZOFON, MergedStoriesRail } from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4319,7 +4319,7 @@ function SpotimChatPage() {
       {/* 🎞️ רצועת-סטוריז אחת (מובייל בלבד; בדסקטופ העמודות בצד שמאל מחליפות אותה). שורה **אחת**
           ממוזגת: הסרטון האחרון שלנו («צפונות בתורה») ראשון ומודגש בכתר-זהב, ואחריו סטוריז חדשים
           של אור הגאולה (טבעת ורודה + לוגו). מקרא זעיר מפענח את הטבעות → מבחינים בלי שתי שורות. */}
-      <div className="sod-chat-stories-mobile"><MergedStoriesRail sources={[BRAND_TZOFON, BRAND_OR_GEULA]} limit={20} /></div>
+      <div className="sod-chat-stories-mobile"><MergedStoriesRail limit={20} /></div>
 
       <div className="sod-chat-grid">
         {/* עמודה ראשית — צ'אט + פורום (מימין ב-RTL) */}

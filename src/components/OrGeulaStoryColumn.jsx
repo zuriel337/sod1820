@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { supabase, getTzofonStories } from "../lib/supabase.js";
+import { supabase, getTzofonStories, getPinnedCipherStory } from "../lib/supabase.js";
 import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
@@ -45,7 +45,7 @@ const saveSeen = (key, set) => { try { localStorage.setItem(key, JSON.stringify(
 // באדג׳ לוגו-מיתוג (± כוכב) בפינת הסטורי — מזהה לאיזה ערוץ הפריט שייך (כתר=שלנו / לוגו=אור הגאולה).
 // star=true (הסטורי המודגש/האחרון-שלנו) מוסיף ⭐. size: 'sm' (רצועה) | 'md' (עמודה)
 function BrandBadge({ size = "sm", brand, star = true }) {
-  const d = size === "md" ? 26 : 22, l = size === "md" ? 17 : 14, st = size === "md" ? 13 : 11;
+  const d = size === "lg" ? 34 : size === "md" ? 26 : 22, l = size === "lg" ? 24 : size === "md" ? 17 : 14, st = size === "lg" ? 15 : size === "md" ? 13 : 11;
   return (
     <span style={{ position: "absolute", bottom: -3, insetInlineStart: -3, width: d, height: d, borderRadius: "50%", background: "#fff", border: `2px solid ${brand.badgeColor}`, display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.45)", zIndex: 2 }}>
       <img src={brand.logo} alt={brand.name} style={{ width: l, height: l, borderRadius: "50%", objectFit: "cover" }} />
@@ -69,7 +69,8 @@ async function fetchBrandRows(brand, limit) {
 }
 
 // 🎞️ אריח-רצועה קנוני יחיד (עיגול-סטורי) — משמש את הרצועה הבודדת ואת הרצועה הממוזגת.
-function StoryRailTile({ r, brand, feat = false, brandBadge = false, onOpen, P }) {
+//   badgeBoost → הלוגו שלנו גדול יותר (הבלטה). pin → 📌 בפינה (הסטורי הנעוץ = הצופן).
+function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost = false, pin = false, onOpen, P }) {
   if (!r) return <div style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
   const vid = r.is_video || isVideo(r.image_url);
   const thumb = r.thumb_url || (vid ? null : galThumb(r, 160));
@@ -88,68 +89,61 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, onOpen, P }
             <span style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", color: "#111", fontSize: 10 }}>▶</span>
           </span>
         )}
-        {(feat || brandBadge) && <BrandBadge size="sm" brand={brand} star={feat} />}
+        {pin && <span aria-hidden style={{ position: "absolute", top: -6, insetInlineEnd: -4, fontSize: 16, transform: "rotate(8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>📌</span>}
+        {(feat || brandBadge) && <BrandBadge size={badgeBoost ? "lg" : "sm"} brand={brand} star={feat && !pin} />}
       </span>
-      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{timeAgoHe(r.created_at)}</span>
+      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pin ? "📌 הצופן" : timeAgoHe(r.created_at)}</span>
     </button>
   );
 }
 
-// 🔀 רצועה ממוזגת (מובייל = שורה אחת): הסרטון האחרון שלנו ראשון ומודגש (כתר-זהב), ואחריו
-// סטוריז חדשים של אור הגאולה (טבעת ורודה + לוגו). כל פריט נושא את זהותו → מבחינים בלי שתי שורות.
-export function MergedStoriesRail({ sources, limit = 20 }) {
+// 🔀 רצועה ממוזגת (מובייל = שורה אחת):
+//   📌 הסטורי הנעוץ הראשון = **הצופן** (כתר-זהב גדול + 📌) — לחיצה **מנגנת את הסרט עצמו** (וידאו
+//      ב-StoryViewer), לא ניווט לפוסט. · שאר הפריטים = אור הגאולה (טבעת ורודה + לוגו קטן), נעלמים
+//      אחרי צפייה. הלוגו שלנו גדול משלהם להבלטה.
+export function MergedStoriesRail({ limit = 20 }) {
   const P = usePalette();
-  const navigate = useNavigate();
-  const primary = sources[0];
-  const bkey = (b) => b.channel || b.seenKey || b.name;
-  const [rowsMap, setRowsMap] = useState(null);
-  const [seen, setSeen] = useState(() => { const s = new Set(); sources.forEach(b => loadSeen(b.seenKey).forEach(id => s.add(id))); return s; });
-  const [viewer, setViewer] = useState(null);   // { items, index, brand }
+  const OURS = BRAND_TZOFON, OG = BRAND_OR_GEULA;
+  const [cipher, setCipher] = useState(undefined);   // undefined=טרם, null=אין, obj=נעוץ
+  const [ogRows, setOgRows] = useState(null);
+  const [seen, setSeen] = useState(() => loadSeen(OG.seenKey));
+  const [viewer, setViewer] = useState(null);        // { items, index, brand }
 
   useEffect(() => {
     let alive = true;
-    Promise.all(sources.map(b => fetchBrandRows(b, limit))).then(res => {
-      if (!alive) return;
-      const map = {}; sources.forEach((b, i) => { map[bkey(b)] = res[i] || []; });
-      setRowsMap(map);
-    });
+    getPinnedCipherStory().then(c => { if (alive) setCipher(c || null); }).catch(() => { if (alive) setCipher(null); });
+    fetchBrandRows(OG, limit).then(r => { if (alive) setOgRows(r); }).catch(() => { if (alive) setOgRows([]); });
     return () => { alive = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit]);
 
-  const primaryRows = (rowsMap && rowsMap[bkey(primary)]) || [];
+  const ready = ogRows !== null && cipher !== undefined;
+  const ogNew = (ogRows || []).filter(r => r && !seen.has(r.id));
   const merged = [];
-  if (rowsMap) {
-    const pushId = new Set();
-    const add = (r, b) => { if (r && !pushId.has(r.id)) { pushId.add(r.id); merged.push({ ...r, _brand: b }); } };
-    if (primary.pinFirst && primaryRows[0]) add(primaryRows[0], primary);   // האחרון שלנו — תמיד ראשון
-    sources.forEach(b => (rowsMap[bkey(b)] || []).forEach(r => { if (!seen.has(r.id)) add(r, b); }));   // חדש בלבד
-  }
-  if (rowsMap && merged.length === 0) return null;
+  if (cipher) merged.push({ ...cipher, _brand: OURS });
+  ogNew.forEach(r => merged.push({ ...r, _brand: OG }));
+  if (ready && merged.length === 0) return null;
 
   const openItem = (r) => {
-    const b = r._brand || primary;
-    setSeen(prev => { const n = new Set(prev); n.add(r.id); const bs = loadSeen(b.seenKey); bs.add(r.id); saveSeen(b.seenKey, bs); return n; });
-    if (b.linkMode === "post" && r.link_url) { navigate(r.link_url); return; }
-    const rows = (rowsMap && rowsMap[bkey(b)]) || [];
-    setViewer({ items: rows, index: Math.max(0, rows.findIndex(x => x.id === r.id)), brand: b });
+    if (r.cipher) { setViewer({ items: [r], index: 0, brand: OURS }); return; }   // הצופן — מנגן וידאו, לא נעלם
+    setSeen(prev => { const n = new Set(prev); n.add(r.id); saveSeen(OG.seenKey, n); return n; });
+    setViewer({ items: ogRows || [], index: Math.max(0, (ogRows || []).findIndex(x => x.id === r.id)), brand: OG });
   };
-  const isPinned = (r) => !!(r && r._brand?.pinFirst && r.id === primaryRows[0]?.id);
 
   return (
-    <section aria-label="סטוריז — הצפנים שלנו ואור הגאולה" style={{ direction: "rtl" }}>
+    <section aria-label="סטוריז — הצופן ואור הגאולה" style={{ direction: "rtl" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, flexWrap: "wrap" }}>
         <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🎬 סטוריז</div>
-        {/* מקרא זעיר — מפענח את הטבעות */}
+        {/* מקרא זעיר — מפענח את הטבעות (הלוגו שלנו גדול יותר) */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5 }}>
-          <img src={primary.logo} alt="" width="14" height="14" style={{ width: 14, height: 14, borderRadius: "50%", border: `1.5px solid ${primary.badgeColor}` }} /> שלנו
+          <img src={OURS.logo} alt="" width="17" height="17" style={{ width: 17, height: 17, borderRadius: "50%", border: `1.5px solid ${OURS.badgeColor}` }} /> 📌 הצופן
           <span style={{ opacity: .5, margin: "0 2px" }}>·</span>
-          <img src={BRAND_OR_GEULA.logo} alt="" width="14" height="14" style={{ width: 14, height: 14, borderRadius: "50%" }} /> אור הגאולה
+          <img src={OG.logo} alt="" width="13" height="13" style={{ width: 13, height: 13, borderRadius: "50%" }} /> אור הגאולה
         </span>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-        {(rowsMap ? merged : Array.from({ length: 8 })).map((r, i) => (
-          <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || primary} feat={isPinned(r)} brandBadge onOpen={openItem} P={P} />
+        {(ready ? merged : Array.from({ length: 8 })).map((r, i) => (
+          <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || OURS}
+            feat={!!r?.cipher} brandBadge badgeBoost={!!r?.cipher} pin={!!r?.cipher} onOpen={openItem} P={P} />
         ))}
       </div>
       {viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand} onClose={() => setViewer(null)} />}

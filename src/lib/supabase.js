@@ -159,6 +159,29 @@ export async function getCategoryVideos(category = "וידאו", { limit = 60 } 
   } catch { return []; }
 }
 
+// 📌 הצופן הנעוץ — סטורי יחיד שנעוץ ראשון ברצועת-הצ'אט. **מנגן את הסרט עצמו** (image_url=mp4 →
+// StoryViewer מנגן וידאו), לא מנווט לפוסט. המקור: home_videos (הסרטון-צופן המנוהל, mp4 נעוץ/אחרון).
+export async function getPinnedCipherStory() {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.from("home_videos")
+      .select("id, slug, title, video_url, poster_url, yt, uploaded_at")
+      .not("is_active", "is", false).not("video_url", "is", null)
+      .order("pinned", { ascending: false }).order("uploaded_at", { ascending: false })
+      .limit(1);
+    const v = data && data[0];
+    if (!v || !v.video_url) return null;
+    return {
+      id: `cipher:${v.id}`,
+      text: stripHtml(v.title || ""),
+      image_url: v.video_url,                                                    // mp4 → הסטורי מנגן את הסרט
+      thumb_url: v.poster_url || (v.yt ? `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg` : null),
+      link_url: v.slug ? "/" + v.slug : null,
+      is_video: true, cipher: true, created_at: v.uploaded_at, priority: 2000,
+    };
+  } catch { return null; }
+}
+
 // 🔯 «צפונות בתורה» — סטוריז ממותגים (כתר «כי לה׳ המלוכה») לדף הצ'אט. עדשה על הפוסטים
 // לפי **קטגוריה** (צפונות בתורה + הצופן בסרטים), לא תגיות. לחיצה מנווטת לפוסט (link_url).
 // מוחזר בצורת שורת-סטורי (כמו channel_updates) כדי לעבוד עם אותו רכיב קנוני (OrGeulaStoryColumn).
