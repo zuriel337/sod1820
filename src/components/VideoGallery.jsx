@@ -8,6 +8,7 @@ import { track } from "../lib/tracking.js";
 import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
 import ShareActions from "./ShareActions.jsx";
 import HomeHeader from "./HomeHeader.jsx";
+import VideoTranscript from "./VideoTranscript.jsx";
 
 // ===== גלריית הסרטים — דף הבית =====
 // מסגרת זהה לחידושי AI. שורה אחת: סרטון מובלט ראשון + השאר (גלילה אופקית).
@@ -159,7 +160,7 @@ export default function VideoGallery() {
           position: "fixed", inset: 0, zIndex: 200, background: "rgba(3,2,8,0.92)",
           display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
         }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: "min(960px, 96vw)", direction: "rtl" }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: "min(960px, 96vw)", maxHeight: "94vh", overflowY: "auto", direction: "rtl" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, gap: 12 }}>
               <div style={{ color: "#f6e27a", fontFamily: F.royal, fontSize: 16, fontWeight: 700 }}>{stripHtml(playing.title)}</div>
               <button onClick={() => setPlaying(null)} style={{ background: "none", border: "none", color: "#cfc9d6", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
@@ -193,6 +194,8 @@ export default function VideoGallery() {
                 image={`https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg`}
                 url={playing.slug ? `https://sod1820.co.il/${playing.slug}` : `https://youtu.be/${playing.yt}`} />
             </div>
+            {/* 📝 תמלול רב-לשוני (video_transcription_law) — מוצג רק אם קיים לסרטון */}
+            <VideoTranscript videoKey={playing.yt || playing.slug} yt={playing.yt || undefined} title={stripHtml(playing.title)} />
           </div>
         </div>
       )}
