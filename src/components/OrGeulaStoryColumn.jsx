@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase, getTzofonStories, getPinnedCipherStory } from "../lib/supabase.js";
+import { isFreshSearchLanding } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
@@ -203,6 +204,30 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
       </div>
       {viewerEl}
     </section>
+  );
+}
+
+// 🔎 סטוריז-גילוי לנוחתים מגוגל — הרצועה הממוזגת (הצופן + אור הגאולה) מוצגת רק ל**מבקר ראשוני
+//    שהגיע ממקור חיצוני** (גוגל/רשת · isFreshSearchLanding), ורק על פוסטים **מעל חודש באתר**.
+//    מטרה: לחשוף למי שנוחת מגוגל ולא מכיר את האתר את התוכן החי — בלי להטריד מבקרים חוזרים.
+export function LandingDiscoveryStories({ postDate, olderThanDays = 30 }) {
+  const P = usePalette();
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    let ok = false;
+    try {
+      const t = postDate ? new Date(postDate).getTime() : 0;
+      const oldEnough = t > 0 && (Date.now() - t) > olderThanDays * 864e5;
+      ok = oldEnough && isFreshSearchLanding();
+    } catch { ok = false; }
+    setShow(ok);
+  }, [postDate, olderThanDays]);
+  if (!show) return null;
+  return (
+    <div style={{ margin: "0 0 22px", padding: "12px 14px 8px", border: `1px solid ${P.borderStrong}`, borderRadius: 14, background: P.card, direction: "rtl" }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 8, letterSpacing: .3 }}>✨ חדשים כאן? הצצה לתוכן החי של האתר</div>
+      <MergedStoriesRail limit={20} />
+    </div>
   );
 }
 
