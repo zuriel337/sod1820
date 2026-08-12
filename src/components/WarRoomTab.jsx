@@ -160,10 +160,12 @@ function ItemCard({ item, onFocus }) {
   );
 }
 
-// CC-1.2 · תג-רובד (Tier Lens) — ניווט בלבד, לא משנה סמנטיקה.
-function TierBadge({ tier }) {
+// CC-1.2 · תג-רובד (Tier Lens) — ניווט בלבד, לא משנה סמנטיקה. CC-1.3: לחיץ → פילטר.
+function TierBadge({ tier, onClick }) {
   if (!tier) return null;
-  return <span style={{ ...pill(tier.color), fontWeight: 800 }} title="רובד-ניווט (נגזר מהסטטוס הקיים; לא משנה אמת)">{tier.he}</span>;
+  return <span onClick={onClick ? (e => { e.stopPropagation(); onClick(); }) : undefined}
+    style={{ ...pill(tier.color), fontWeight: 800, cursor: onClick ? "pointer" : "default" }}
+    title={onClick ? `סנן לרובד ${tier.he}` : "רובד-ניווט (נגזר מהסטטוס הקיים; לא משנה אמת)"}>{tier.he}</span>;
 }
 // CC-1.2 · צ'יפ-זהות — מציג את מצב ה-resolver. **לא בוחר אוטומטית.**
 //   matched → הישות הקנונית (עם provenance של השם המקורי אם ממוזג) · ambiguous/unknown → השם הגולמי + מועמדים.
@@ -194,19 +196,116 @@ function WriterChip({ writer }) {
   );
 }
 
-// שורת-קליטה קומפקטית לצינור A (עם תיוג חדש/קיים/כפול + רובד + זהות). תצוגה בלבד.
-function IngestRow({ item }) {
+// שורת-קליטה לצינור A. CC-1.3: השורה לחיצה → Detail Panel · תג-רובד/flag לחיצים → פילטר.
+function IngestRow({ item, onOpen, onFilter }) {
   const f = INGEST_FLAG[item.flag] || INGEST_FLAG.new;
   return (
-    <div style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5, flexWrap: "wrap" }}>
-      <TierBadge tier={item.tier} />
-      <span style={pill(f.c)}>{f.t}</span>
+    <div onClick={() => onOpen && onOpen(item)} title="פתח פרטים ופעולות"
+      style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5, flexWrap: "wrap", cursor: "pointer" }}>
+      <TierBadge tier={item.tier} onClick={onFilter ? () => onFilter({ type: "tier", value: item.tier?.key, label: "רובד: " + item.tier?.he, color: item.tier?.color }) : undefined} />
+      <span onClick={onFilter ? (e => { e.stopPropagation(); onFilter({ type: "flag", value: item.flag, label: "סוג: " + f.t, color: f.c }); }) : undefined}
+        style={{ ...pill(f.c), cursor: onFilter ? "pointer" : "default" }} title={onFilter ? "סנן לפי סוג" : undefined}>{f.t}</span>
       <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 11, whiteSpace: "nowrap" }}>{item.source}</span>
       <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap" }}>{fmt(item.ts)}</span>
       <span style={{ color: C.goldLight, flex: 1, minWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {item.raw ? item.raw.slice(0, 100) : <span style={{ color: C.faint }}>(ללא טקסט)</span>}
       </span>
       <WriterChip writer={item.writer} />
+    </div>
+  );
+}
+
+// ── CC-1.3 · פאזה 1 — Clickable-everything + Row Action Panel + פילטרים-חיים (READ/navigation בלבד) ──
+// ⛔ אין WRITE: פעולות-עבודה (שיפוט/קידום/למד) = פאזה 3. כאן ניווט + חקירה + פילטר בלבד.
+function matchesFilter(it, f) {
+  if (!f) return true;
+  switch (f.type) {
+    case "tier": return it.tier?.key === f.value;
+    case "flag": return it.flag === f.value;
+    case "kind": return it.kind === f.value;
+    case "src":  return f.value === "discovery" ? C_SOURCES.includes(it.src) : it.src === f.value;
+    case "writer": {
+      const w = it.writer;
+      if (f.value === "__UNKNOWN__") return !!w && w.state !== "matched";
+      const canon = w?.canonical?.display_name || w?.contributor?.display_name;
+      return canon === f.value || it.rawAuthor === f.value;
+    }
+    default: return true;
+  }
+}
+// פילטר פעיל אחד + ניקוי. כל badge/מונה מגדיר אותו; הרשימות מסתננות מולו.
+function FilterBar({ filter, onClear }) {
+  if (!filter) return null;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "2px 0" }}>
+      <span style={{ color: C.faint, fontSize: 11 }}>🔎 פילטר פעיל:</span>
+      <span style={{ ...pill(filter.color || C.goldBright), fontWeight: 800 }}>{filter.label || `${filter.type}: ${filter.value}`}</span>
+      <button onClick={onClear} style={chip(false)}>✕ נקה</button>
+    </div>
+  );
+}
+const Field = ({ k, v }) => (
+  <div style={{ display: "flex", gap: 8, fontSize: 12.5, padding: "3px 0", borderBottom: `1px solid ${C.border}` }}>
+    <span style={{ color: C.faint, minWidth: 108 }}>{k}</span>
+    <span style={{ color: C.goldLight, flex: 1, minWidth: 0, wordBreak: "break-word" }}>{v}</span>
+  </div>
+);
+function whyTier(it) {
+  switch (it.tier?.key) {
+    case "RAW": return "channel_updates / חומר-מקור";
+    case "VAULT": return it.status === "candidate" ? "research_objects.status=candidate" : "מועמד / לא-מקושר-לגרף";
+    case "CORE": return "מקושר-לגרף / visibility_tier=1";
+    case "CANONICAL": return "approved / published";
+    default: return "—";
+  }
+}
+// 🗂️ Row Detail/Action Panel חכם — הפעולות משתנות לפי סוג-החומר (לא 20 כפתורים בשורה).
+function DetailPanel({ item, onClose, onFilter }) {
+  if (!item) return null;
+  const w = item.writer;
+  const canon = w?.canonical?.display_name || w?.contributor?.display_name;
+  const slug = w?.canonical?.slug || w?.contributor?.slug;
+  const v = (item.values && item.values.length ? item.values[0] : item.value);
+  const idText = w?.state === "matched" ? `✓ ${canon}`
+    : w?.state === "ambiguous" ? `⚠️ כמה התאמות: ${(w.candidates || []).map(c => c.display_name).join(" / ")}`
+    : `❔ לא-מזוהה: «${w?.raw || item.rawAuthor || "—"}»`;
+  const go = (f) => { onFilter && onFilter(f); onClose && onClose(); };
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "#000a", zIndex: 5000, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "6vh 12px", overflow: "auto" }}>
+      <div onClick={e => e.stopPropagation()} style={{ ...box, maxWidth: 560, width: "100%", background: C.surface || C.surface2 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+          <TierBadge tier={item.tier} />
+          <span style={pill(C.goldBright)}>{item.source}</span>
+          <span style={{ color: C.faint, fontSize: 11 }}>{fmt(item.ts)}</span>
+          <button onClick={onClose} style={{ ...chip(false), marginInlineStart: "auto" }}>✕ סגור</button>
+        </div>
+        <div style={{ color: C.goldLight, fontSize: 13.5, lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto", marginBottom: 10 }}>
+          {item.raw || <span style={{ color: C.faint }}>(ללא טקסט)</span>}
+        </div>
+        <Field k="מקור (provenance)" v={`${item.source}${item.rawAuthor ? ` · «${item.rawAuthor}»` : ""}`} />
+        <Field k="רובד" v={item.tier ? `${item.tier.he} · ${item.tier.key}` : "—"} />
+        <Field k="זהות-כתב" v={idText} />
+        {w?.mergedFrom && <Field k="אליאס" v={`«${w.raw}» → ${canon}`} />}
+        <Field k="מספרים/ערכים" v={item.values?.length ? item.values.join(" · ") : (v ?? "—")} />
+        <Field k="אימות" v={item.engineVerified ? "✔ אומת במנוע (חישובי — לא אישור-אנושי)" : "—"} />
+        <Field k="סטטוס" v={item.status || (item.published ? "פורסם" : "—")} />
+        <Field k="קשרים" v={item.inGraph ? "מחובר-לגרף" : (item.hasCross ? "הצלבת-שיטות" : "—")} />
+        <div style={{ color: C.faint, fontSize: 11, marginTop: 6 }}>
+          למה רובד «{item.tier?.he}»: {whyTier(item)}. <b>engine_verified ≠ Human-approved · Claim ≠ Fact.</b>
+        </div>
+        {/* פעולות-ניווט (עובדות בפאזה 1) — משתנות לפי סוג-החומר */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          {v != null && <Link to={`/number/${v}`} style={{ ...pill(C.gold), textDecoration: "none" }}>🔢 דף-מספר {v}</Link>}
+          {slug && <Link to={`/community/researcher/${slug}`} style={{ ...pill("#b08bd8"), textDecoration: "none" }}>👤 דף-כתב</Link>}
+          {item.link && <Link to={item.link} style={{ ...pill(C.muted), textDecoration: "none" }}>📄 לפוסט</Link>}
+          {canon && <span onClick={() => go({ type: "writer", value: canon, label: "כתב: " + canon, color: "#b08bd8" })} style={{ ...pill("#b08bd8"), cursor: "pointer" }}>🔎 כל חומר-הכתב</span>}
+          {item.tier && <span onClick={() => go({ type: "tier", value: item.tier.key, label: "רובד: " + item.tier.he, color: item.tier.color })} style={{ ...pill(item.tier.color), cursor: "pointer" }}>🔎 כל רובד {item.tier.he}</span>}
+          {w && w.state !== "matched" && <span onClick={() => go({ type: "writer", value: "__UNKNOWN__", label: "זהות: לא-מזוהה", color: "#8a8a95" })} style={{ ...pill("#8a8a95"), cursor: "pointer" }}>🔎 כל ה-UNKNOWN</span>}
+        </div>
+        <div style={{ color: C.faint, fontSize: 10.5, marginTop: 10, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
+          פעולות-עבודה (שיפוט · קדם→גרף · <b>למד-זהות</b> · סווג · העדפה) = <b>פאזה 3</b> (Human-Gate של צוריאל). כאן פאזה-1: ניווט וחקירה בלבד — אפס WRITE.
+        </div>
+      </div>
     </div>
   );
 }
@@ -218,6 +317,8 @@ export default function WarRoomTab() {
   const [writer, setWriter] = useState(WRITERS[0]);
   const [groupSel, setGroupSel] = useState(null);
   const [focusN, setFocusN] = useState(null);
+  const [filter, setFilter] = useState(null);     // CC-1.3 · פילטר-חי אחד (tier/flag/kind/writer/src)
+  const [detail, setDetail] = useState(null);     // CC-1.3 · פריט פתוח ב-Detail Panel
 
   const [incoming, setIncoming] = useState([]);
   const [hot, setHot] = useState([]);
@@ -289,6 +390,9 @@ export default function WarRoomTab() {
 
   // צינור C — מועמדי-מנוע בלבד (discovery-engine…), מופרד מ-wa-raziel של צינור B.
   const discoveryC = useMemo(() => (candidates || []).filter(c => C_SOURCES.includes(c.src)), [candidates]);
+  // CC-1.3 · רשימות מסוננות מול הפילטר הפעיל (Rank-Don't-Hide: פילטר=מיקוד, לא מחיקה).
+  const liveAf = useMemo(() => (liveA || []).filter(it => matchesFilter(it, filter)), [liveA, filter]);
+  const candF = useMemo(() => (candidates || []).filter(c => matchesFilter(c, filter)), [candidates, filter]);
 
   if (!isAdmin) return <div style={{ color: C.muted, padding: 30, textAlign: "center" }}>אין לך הרשאת ניהול.</div>;
 
@@ -329,22 +433,25 @@ export default function WarRoomTab() {
         <div style={box}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
             <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>📡 קליטה חיה (LIVE INGESTION)</span>
-            <span style={{ color: C.faint, fontSize: 11 }}>שלושה צינורות · הפרדה מלאה · תצוגה-בלבד (לא feeder, לא WRITE) {busy && "…"}</span>
+            <span style={{ color: C.faint, fontSize: 11 }}>שלושה צינורות · לחיץ · תצוגה-בלבד (לא feeder, לא WRITE) {busy && "…"}</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10 }}>
-            <div style={{ ...box, borderColor: "#4caf7d55" }}>
+          <FilterBar filter={filter} onClear={() => setFilter(null)} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10, marginTop: 8 }}>
+            <div onClick={() => setFilter({ type: "tier", value: "RAW", label: "רובד: מקור (RAW)", color: "#8a8a95" })}
+              style={{ ...box, borderColor: "#4caf7d55", cursor: "pointer" }} title="סנן לחומר-A (RAW)">
               <div style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800 }}>🟢 LIVE · צינור A</div>
               <div style={{ color: C.muted, fontSize: 11, margin: "3px 0" }}>ערוצי-שידור (WhatsApp) → channel_updates</div>
               <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{liveA.length}</div>
               <div style={{ color: C.faint, fontSize: 10.5 }}>חי · מגיע לאתר · <b style={{ color: "#e0563a" }}>טרם-במנוע</b></div>
             </div>
-            <div style={{ ...box, borderColor: "#3ea6ff55" }}>
+            <div onClick={() => setFilter({ type: "src", value: "discovery", label: "צינור C · Discovery", color: "#3ea6ff" })}
+              style={{ ...box, borderColor: "#3ea6ff55", cursor: "pointer" }} title="סנן למועמדי-מנוע (C)">
               <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontWeight: 800 }}>🔵 DISCOVERY · צינור C</div>
               <div style={{ color: C.muted, fontSize: 11, margin: "3px 0" }}>מנוע-הגילויים → research_objects</div>
               <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{discoveryC.length}</div>
               <div style={{ color: C.faint, fontSize: 10.5 }}>הגיע למנוע · ממתין לשער-אנושי</div>
             </div>
-            <div style={{ ...box, borderColor: "#e0563a55" }}>
+            <div style={{ ...box, borderColor: "#e0563a55" }} title="מקור רדום — אין תור לעבודה">
               <div style={{ color: "#e0563a", fontFamily: F.heading, fontWeight: 800 }}>🔴 DORMANT · צינור B</div>
               <div style={{ color: C.muted, fontSize: 11, margin: "3px 0" }}>רזיאל/VIP → wa_bot_log</div>
               <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{bDormant ? `${bDormant.enabled}/${bDormant.total}` : "—"}</div>
@@ -356,15 +463,16 @@ export default function WarRoomTab() {
             <div style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, marginBottom: 4 }}>
               🟢 חומר-A שנכנס (חדש/קיים/כפול):
             </div>
-            {liveA.length ? liveA.slice(0, 20).map(it => <IngestRow key={it.key} item={it} />)
-              : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : "אין חומר-A חי כרגע (status='live')."}</div>}
-            {liveA.length > 20 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 20 מתוך {liveA.length}.</div>}
+            {liveAf.length ? liveAf.slice(0, 20).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} />)
+              : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : (filter ? "אין חומר-A תואם לפילטר." : "אין חומר-A חי כרגע (status='live').")}</div>}
+            {liveAf.length > 20 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 20 מתוך {liveAf.length}{filter ? " (מסונן)" : ""}.</div>}
           </div>
           {/* CC-1.2 · מקרא-רבדים (Tier Lens) — ניווט בלבד, נגזר מהסטטוס הקיים */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
-            <span style={{ color: C.faint, fontSize: 10.5 }}>רבדים:</span>
+            <span style={{ color: C.faint, fontSize: 10.5 }}>רבדים (לחיץ):</span>
             {Object.values(TIER).sort((a, b) => a.order - b.order).map(t => (
-              <span key={t.key} style={{ ...pill(t.color), fontWeight: 800 }}>{t.he} · {t.key}</span>
+              <span key={t.key} onClick={() => setFilter({ type: "tier", value: t.key, label: "רובד: " + t.he, color: t.color })}
+                style={{ ...pill(t.color), fontWeight: 800, cursor: "pointer" }} title={`סנן לרובד ${t.he}`}>{t.he} · {t.key}</span>
             ))}
           </div>
           <div style={{ color: C.faint, fontSize: 10.5, marginTop: 8, lineHeight: 1.6 }}>
@@ -381,19 +489,23 @@ export default function WarRoomTab() {
           <div style={{ display: "grid", gap: 12, alignContent: "start" }}>
             <RazielPanel focusN={focusN} />
             <div style={box}>
-              <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, marginBottom: 8 }}>⚖️ ממתין לשיפוט</div>
-              {candidates.slice(0, 8).map(c => (
-                <div key={c.key} style={{ borderBottom: `1px solid ${C.border}`, padding: "6px 0", fontSize: 12.5, color: C.goldLight }}>
+              <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, marginBottom: 8 }}>
+                ⚖️ ממתין לשיפוט <span style={{ color: C.faint, fontSize: 11, fontWeight: 400 }}>({candF.length}{filter ? " מסונן" : ""})</span>
+              </div>
+              {candF.slice(0, 10).map(c => (
+                <div key={c.key} onClick={() => setDetail(c)} title="פתח פרטים ופעולות"
+                  style={{ borderBottom: `1px solid ${C.border}`, padding: "6px 0", fontSize: 12.5, color: C.goldLight, cursor: "pointer" }}>
                   <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
-                    <TierBadge tier={c.tier} />
-                    <span style={pill(c.kind === "relation" ? "#3ea6ff" : "#4caf7d")}>{c.kind}</span>
-                    {c.value ? <Link to={`/number/${c.value}`} style={{ color: C.goldBright }}>{c.value}</Link> : null}
+                    <TierBadge tier={c.tier} onClick={() => setFilter({ type: "tier", value: c.tier?.key, label: "רובד: " + c.tier?.he, color: c.tier?.color })} />
+                    <span onClick={e => { e.stopPropagation(); setFilter({ type: "kind", value: c.kind, label: "סוג: " + c.kind, color: c.kind === "relation" ? "#3ea6ff" : "#4caf7d" }); }}
+                      style={{ ...pill(c.kind === "relation" ? "#3ea6ff" : "#4caf7d"), cursor: "pointer" }} title="סנן לפי סוג">{c.kind}</span>
+                    {c.value ? <Link to={`/number/${c.value}`} onClick={e => e.stopPropagation()} style={{ color: C.goldBright }}>{c.value}</Link> : null}
                     <WriterChip writer={c.writer} />
                   </div>
                   <div style={{ color: C.muted, fontSize: 12 }}>{c.raw.slice(0, 60)}</div>
                 </div>
               ))}
-              {!candidates.length && <div style={{ color: C.muted, fontSize: 12 }}>אין מועמדים.</div>}
+              {!candF.length && <div style={{ color: C.muted, fontSize: 12 }}>{filter ? "אין מועמדים תואמים לפילטר." : "אין מועמדים. התור נקי ✓"}</div>}
             </div>
           </div>
         </div>
@@ -444,6 +556,9 @@ export default function WarRoomTab() {
           )}
         </div>
       )}
+
+      {/* CC-1.3 · Row Detail/Action Panel — נפתח מכל שורה/פריט. ניווט+חקירה בלבד (פאזה 1). */}
+      {detail && <DetailPanel item={detail} onClose={() => setDetail(null)} onFilter={setFilter} />}
     </div>
   );
 }
