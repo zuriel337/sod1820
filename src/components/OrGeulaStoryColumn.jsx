@@ -42,14 +42,118 @@ export const BRAND_TZOFON = {
 // 👁️ «כבר נראה» — מסתירים סטורי שהמשתמש כבר צפה בו (localStorage per-משתמש · whats_new_law).
 const loadSeen = (key) => { try { return new Set(JSON.parse(localStorage.getItem(key) || "[]")); } catch { return new Set(); } };
 const saveSeen = (key, set) => { try { localStorage.setItem(key, JSON.stringify([...set].slice(-500))); } catch { /* noop */ } };
-// באדג׳ הכוכב+לוגו — מוצג רק על הסטורי הממותג. size: 'sm' (רצועה) | 'md' (עמודה)
-function FeaturedBadge({ size = "sm", brand }) {
+// באדג׳ לוגו-מיתוג (± כוכב) בפינת הסטורי — מזהה לאיזה ערוץ הפריט שייך (כתר=שלנו / לוגו=אור הגאולה).
+// star=true (הסטורי המודגש/האחרון-שלנו) מוסיף ⭐. size: 'sm' (רצועה) | 'md' (עמודה)
+function BrandBadge({ size = "sm", brand, star = true }) {
   const d = size === "md" ? 26 : 22, l = size === "md" ? 17 : 14, st = size === "md" ? 13 : 11;
   return (
     <span style={{ position: "absolute", bottom: -3, insetInlineStart: -3, width: d, height: d, borderRadius: "50%", background: "#fff", border: `2px solid ${brand.badgeColor}`, display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.45)", zIndex: 2 }}>
       <img src={brand.logo} alt={brand.name} style={{ width: l, height: l, borderRadius: "50%", objectFit: "cover" }} />
-      <span style={{ position: "absolute", top: -8, insetInlineEnd: -6, fontSize: st, textShadow: "0 1px 2px rgba(0,0,0,.5)" }}>⭐</span>
+      {star && <span style={{ position: "absolute", top: -8, insetInlineEnd: -6, fontSize: st, textShadow: "0 1px 2px rgba(0,0,0,.5)" }}>⭐</span>}
     </span>
+  );
+}
+
+// שליפת שורות למיתוג (ערוץ channel_updates או fetchRows מותאם) — משמש גם רצועה בודדת וגם ממוזגת.
+async function fetchBrandRows(brand, limit) {
+  try {
+    if (brand.fetchRows) { const d = await brand.fetchRows(limit); return Array.isArray(d) ? d : []; }
+    const nowIso = new Date().toISOString();
+    const { data } = await supabase.from("channel_updates")
+      .select("id,text,image_url,thumb_url,created_at,priority,credit,expires_at,link_url")
+      .eq("channel", brand.channel).not("image_url", "is", null)
+      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+      .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(limit);
+    return Array.isArray(data) ? data : [];
+  } catch { return []; }
+}
+
+// 🎞️ אריח-רצועה קנוני יחיד (עיגול-סטורי) — משמש את הרצועה הבודדת ואת הרצועה הממוזגת.
+function StoryRailTile({ r, brand, feat = false, brandBadge = false, onOpen, P }) {
+  if (!r) return <div style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
+  const vid = r.is_video || isVideo(r.image_url);
+  const thumb = r.thumb_url || (vid ? null : galThumb(r, 160));
+  const cap = capOf(r);
+  return (
+    <button onClick={() => onOpen(r)} title="צפו כסטורי" aria-label={cap.slice(0, 40) || `סטורי ${brand.name}`}
+      style={{ flex: "0 0 auto", width: 72, cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+      <span style={{ position: "relative", width: 66, height: 66, borderRadius: "50%", padding: 3, background: feat ? brand.featRing : brand.ring, flex: "0 0 auto" }}>
+        <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "linear-gradient(160deg,#1a1030,#0a0710)", border: `2px solid ${P.card}` }}>
+          {thumb
+            ? <img src={thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            : <span style={{ display: "grid", placeItems: "center", width: "100%", height: "100%" }}><img src={brand.logo} alt={brand.name} loading="lazy" style={{ width: "56%", height: "56%", objectFit: "contain", opacity: .92 }} /></span>}
+        </span>
+        {vid && (
+          <span style={{ position: "absolute", inset: 3, borderRadius: "50%", display: "grid", placeItems: "center", background: "rgba(0,0,0,.18)" }}>
+            <span style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", color: "#111", fontSize: 10 }}>▶</span>
+          </span>
+        )}
+        {(feat || brandBadge) && <BrandBadge size="sm" brand={brand} star={feat} />}
+      </span>
+      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{timeAgoHe(r.created_at)}</span>
+    </button>
+  );
+}
+
+// 🔀 רצועה ממוזגת (מובייל = שורה אחת): הסרטון האחרון שלנו ראשון ומודגש (כתר-זהב), ואחריו
+// סטוריז חדשים של אור הגאולה (טבעת ורודה + לוגו). כל פריט נושא את זהותו → מבחינים בלי שתי שורות.
+export function MergedStoriesRail({ sources, limit = 20 }) {
+  const P = usePalette();
+  const navigate = useNavigate();
+  const primary = sources[0];
+  const bkey = (b) => b.channel || b.seenKey || b.name;
+  const [rowsMap, setRowsMap] = useState(null);
+  const [seen, setSeen] = useState(() => { const s = new Set(); sources.forEach(b => loadSeen(b.seenKey).forEach(id => s.add(id))); return s; });
+  const [viewer, setViewer] = useState(null);   // { items, index, brand }
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all(sources.map(b => fetchBrandRows(b, limit))).then(res => {
+      if (!alive) return;
+      const map = {}; sources.forEach((b, i) => { map[bkey(b)] = res[i] || []; });
+      setRowsMap(map);
+    });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [limit]);
+
+  const primaryRows = (rowsMap && rowsMap[bkey(primary)]) || [];
+  const merged = [];
+  if (rowsMap) {
+    const pushId = new Set();
+    const add = (r, b) => { if (r && !pushId.has(r.id)) { pushId.add(r.id); merged.push({ ...r, _brand: b }); } };
+    if (primary.pinFirst && primaryRows[0]) add(primaryRows[0], primary);   // האחרון שלנו — תמיד ראשון
+    sources.forEach(b => (rowsMap[bkey(b)] || []).forEach(r => { if (!seen.has(r.id)) add(r, b); }));   // חדש בלבד
+  }
+  if (rowsMap && merged.length === 0) return null;
+
+  const openItem = (r) => {
+    const b = r._brand || primary;
+    setSeen(prev => { const n = new Set(prev); n.add(r.id); const bs = loadSeen(b.seenKey); bs.add(r.id); saveSeen(b.seenKey, bs); return n; });
+    if (b.linkMode === "post" && r.link_url) { navigate(r.link_url); return; }
+    const rows = (rowsMap && rowsMap[bkey(b)]) || [];
+    setViewer({ items: rows, index: Math.max(0, rows.findIndex(x => x.id === r.id)), brand: b });
+  };
+  const isPinned = (r) => !!(r && r._brand?.pinFirst && r.id === primaryRows[0]?.id);
+
+  return (
+    <section aria-label="סטוריז — הצפנים שלנו ואור הגאולה" style={{ direction: "rtl" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, flexWrap: "wrap" }}>
+        <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🎬 סטוריז</div>
+        {/* מקרא זעיר — מפענח את הטבעות */}
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5 }}>
+          <img src={primary.logo} alt="" width="14" height="14" style={{ width: 14, height: 14, borderRadius: "50%", border: `1.5px solid ${primary.badgeColor}` }} /> שלנו
+          <span style={{ opacity: .5, margin: "0 2px" }}>·</span>
+          <img src={BRAND_OR_GEULA.logo} alt="" width="14" height="14" style={{ width: 14, height: 14, borderRadius: "50%" }} /> אור הגאולה
+        </span>
+      </div>
+      <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+        {(rowsMap ? merged : Array.from({ length: 8 })).map((r, i) => (
+          <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || primary} feat={isPinned(r)} brandBadge onOpen={openItem} P={P} />
+        ))}
+      </div>
+      {viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand} onClose={() => setViewer(null)} />}
+    </section>
   );
 }
 
@@ -118,33 +222,9 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
           <a href={brand.href} style={{ marginInlineStart: "auto", color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, textDecoration: "none" }}>לכל האוסף ←</a>
         </div>
         <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-          {(rows ? shown : Array.from({ length: 8 })).map((r, i) => {
-            if (!r) return <div key={i} style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
-            const vid = r.is_video || isVideo(r.image_url);
-            const feat = isFeatured(r) || (brand.pinFirst && i === 0);
-            const thumb = r.thumb_url || (vid ? null : galThumb(r, 160));
-            const cap = capOf(r);
-            return (
-              <button key={r.id} onClick={() => openAt(r)} title="צפו כסטורי" aria-label={cap.slice(0, 40) || `סטורי ${brand.name}`}
-                style={{ flex: "0 0 auto", width: 72, cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                <span style={{ position: "relative", width: 66, height: 66, borderRadius: "50%", padding: 3,
-                  background: feat ? brand.featRing : brand.ring, flex: "0 0 auto" }}>
-                  <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "linear-gradient(160deg,#1a1030,#0a0710)", border: `2px solid ${P.card}` }}>
-                    {thumb
-                      ? <img src={thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      : <span style={{ display: "grid", placeItems: "center", width: "100%", height: "100%" }}><img src={brand.logo} alt={brand.name} loading="lazy" style={{ width: "56%", height: "56%", objectFit: "contain", opacity: .92 }} /></span>}
-                  </span>
-                  {vid && (
-                    <span style={{ position: "absolute", inset: 3, borderRadius: "50%", display: "grid", placeItems: "center", background: "rgba(0,0,0,.18)" }}>
-                      <span style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", color: "#111", fontSize: 10 }}>▶</span>
-                    </span>
-                  )}
-                  {feat && <FeaturedBadge size="sm" brand={brand} />}
-                </span>
-                <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{timeAgoHe(r.created_at)}</span>
-              </button>
-            );
-          })}
+          {(rows ? shown : Array.from({ length: 8 })).map((r, i) => (
+            <StoryRailTile key={r?.id || i} r={r} brand={brand} feat={isFeatured(r) || (brand.pinFirst && i === 0)} onOpen={openAt} P={P} />
+          ))}
         </div>
         {viewer}
       </section>
@@ -187,7 +267,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
                     </div>
                   </div>
                 )}
-                {feat && <FeaturedBadge size="md" brand={brand} />}
+                {feat && <BrandBadge size="md" brand={brand} />}
               </div>
               {/* טקסט + זמן */}
               <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
