@@ -9,6 +9,7 @@ import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
 import ShareActions from "./ShareActions.jsx";
 import HomeHeader from "./HomeHeader.jsx";
 import VideoTranscript from "./VideoTranscript.jsx";
+import CaptionedVideo, { vttTracks } from "./CaptionedVideo.jsx";
 
 // ===== גלריית הסרטים — דף הבית =====
 // מסגרת זהה לחידושי AI. שורה אחת: סרטון מובלט ראשון + השאר (גלילה אופקית).
@@ -167,9 +168,10 @@ export default function VideoGallery() {
             </div>
             <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${VIOLET}`, boxShadow: `0 0 50px ${VIOLET}44`, background: "#000" }}>
               {playing.video_url ? (
-                // סרטון מאוחסן-בשרת — <video> מתנגן בהקשה בלבד (preload=none, Egress)
-                <video src={playing.video_url} controls autoPlay playsInline preload="none"
+                // סרטון מאוחסן-בשרת — נגן קנוני עם כתוביות (עברית ברירת-מחדל). מתנגן בהקשה (preload=none, Egress).
+                <CaptionedVideo src={playing.video_url} autoPlay
                   poster={playing.poster_url || (playing.yt ? `https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg` : undefined)}
+                  tracks={vttTracks(playing.video_url, playing.caption_langs || ["he"])}
                   style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000", objectFit: "contain" }} />
               ) : (
                 <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
