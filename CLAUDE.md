@@ -25,6 +25,14 @@
 - **כבוד לרמז + יושר:** תמיד להפריד גימטריה (עובדה) מפרשנות (רמז משלים).
 - **המקור המלא:** `select body from project_codex where slug='convergence_law';` ו-`nodes` rule `unified_graph_law`.
 
+## 🌍 חוק התרגום — כל התוכן הולך לתרגום (חוק ליבה · `content_translation_law`)
+> **האתר עובר לרב-לשוני. כל תוכן חדש נועד מראש לתרגום — לא להשאיר «רק בעברית» בלי מסלול-תרגום.** החוק המלא: `select description from nodes where rule_id='content_translation_law';` (weight=5, ליבה).
+- **מקור אחד + פיזור אוטומטי:** לכל פריט (פוסט · סרטון · תמלול · צופן · רמז · כותרת · תיאור) נשמר טקסט-מקור בשפת-המקור (בד״כ עברית, שדה `lang`), ומתרגמים אוטומטית לסט הקנוני: **he·en·ar·es·fr·ru·pt·de** (ניתן להרחבה). ⛔ אסור מנגנון-תרגום מקביל.
+- **המנוע הקנוני:** Edge Function `video-transcribe` + SQL `select public.video_translate('{...}'::jsonb)` (Anthropic claude-sonnet-5 — תרגום נאמן ששומר שמות/פסוקים/מספרי-גימטריה; שער `x-fb-admin-key` כמו facebook-admin). מימוש-משנה חי: `video_transcription_law` (טבלת `video_transcripts` · רכיב בורר-שפה `src/components/VideoTranscript.jsx`).
+- **סרטונים:** תמלול-מקור מהאודיו (STT חיצוני — Claude לא עושה STT) → `video_transcripts` → פיזור לכל השפות. **פוסטים/ישויות:** אותו דפוס — טבלת-תרגומים לפי (entity, lang).
+- **חובת-סוכן:** בכל יצירת תוכן — מקור נקי + שפת-מקור מסומנת + פיזור דרך המנוע הקנוני. לא לתרגם ידנית לכל שפה, לא לשכפל. `status='published'` בלבד נחשף.
+- **יעד:** כשהאתר יעלה לרב-לשוני — הכל כבר מתורגם ומוכן, בלי עבודה רטרואקטיבית.
+
 ## ⛔ פוסטים ישנים / גלריות — פרוטוקול קשיח (`legacy_content_protocol`)
 לפני נגיעה בפוסט ישן (WordPress) או בגלריה/קרוסלה — **קרא את החוק המלא:** `select description from nodes where rule_id='legacy_content_protocol';`. אלו תקלות שחזרו שוב ושוב — דלג עליהן מראש (אל תמציא מנגנון מקביל, השתמש ברכיבים הקנוניים, ותמיד אמת ויזואלית):
 
