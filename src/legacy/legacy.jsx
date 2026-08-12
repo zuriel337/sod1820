@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
-import OrGeulaStoryColumn, { BRAND_TZOFON, MergedStoriesRail } from "../components/OrGeulaStoryColumn.jsx";
+import { MergedStoriesRail } from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4346,12 +4346,10 @@ function SpotimChatPage() {
           </div>
         </div>
 
-        {/* 🎬 עמודות-סטוריז (דסקטופ בלבד, בצד שמאל):
-            🔯 «צפונות בתורה» — הצפנים של האתר (קטגוריה), ראשונה ומובחנת; אחריה «אור הגאולה» (אגרגציה). */}
+        {/* 🎬 סטוריז (דסקטופ בלבד, בצד שמאל) — **אותו דבר כמו במובייל**: רצועה ממוזגת אחת בגרסת-עמודה,
+            הצופן הנעוץ ראשון ומודגש (🦅) ואחריו אור הגאולה. בקשת צוריאל 12.8.2026. */}
         <aside className="sod-chat-videos">
-          <OrGeulaStoryColumn limit={30} brand={BRAND_TZOFON} />
-          <div style={{ height: 26 }} />
-          <OrGeulaStoryColumn limit={30} />
+          <MergedStoriesRail layout="column" limit={30} />
         </aside>
       </div>
 

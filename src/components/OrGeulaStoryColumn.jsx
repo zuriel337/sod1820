@@ -97,11 +97,44 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost 
   );
 }
 
-// 🔀 רצועה ממוזגת (מובייל = שורה אחת):
-//   📌 הסטורי הנעוץ הראשון = **הצופן** (כתר-זהב גדול + 📌) — לחיצה **מנגנת את הסרט עצמו** (וידאו
+// 🃏 אריח-עמודה קנוני (כרטיס אופקי: תמונה + טקסט) — לגרסת-העמודה של הרצועה הממוזגת (דסקטופ, צד שמאל).
+function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = false, onOpen, P }) {
+  if (!r) return <div style={{ height: 76, borderRadius: 12, background: P.card, opacity: .5 }} />;
+  const vid = r.is_video || isVideo(r.image_url);
+  const thumb = r.thumb_url || (vid ? null : galThumb(r, 200));
+  const cap = capOf(r);
+  return (
+    <div onClick={() => onOpen(r)} title="צפו כסטורי" role="button" tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(r); } }}
+      style={{ cursor: "pointer", display: "flex", gap: 10, alignItems: "stretch", textAlign: "start",
+        background: P.card, border: `1px solid ${feat ? brand.badgeColor : P.border}`, borderRadius: 12, overflow: "hidden", padding: 8,
+        boxShadow: feat ? `0 0 0 1px ${brand.badgeColor}, 0 4px 16px rgba(212,175,55,0.18)` : "none" }}>
+      <div style={{ position: "relative", flex: "0 0 64px", width: 64, height: 64, borderRadius: 9, overflow: "hidden", background: "linear-gradient(160deg,#1a1030,#0a0710)" }}>
+        {thumb
+          ? <img src={thumb} alt={cap.slice(0, 40) || brand.name} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          : <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}><img src={brand.logo} alt={brand.name} loading="lazy" style={{ width: "56%", height: "56%", objectFit: "contain", opacity: .92 }} /></div>}
+        {vid && (
+          <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "rgba(0,0,0,.25)" }}>
+            <div style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center" }}><span style={{ color: "#111", fontSize: 11, marginInlineStart: 1 }}>▶</span></div>
+          </div>
+        )}
+        {pin && <span aria-hidden style={{ position: "absolute", top: -6, insetInlineEnd: -4, fontSize: 17, transform: "rotate(-8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>🦅</span>}
+        {(feat || badgeBoost) && <BrandBadge size={badgeBoost ? "md" : "sm"} brand={brand} star={feat && !pin} />}
+      </div>
+      <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 3, justifyContent: "center" }}>
+        <div style={{ color: pin ? brand.badgeColor : P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>{pin ? "🦅 הצופן" : `🕒 ${timeAgoHe(r.created_at)}`}</div>
+        {cap && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{cap}</div>}
+      </div>
+    </div>
+  );
+}
+
+// 🔀 רצועה ממוזגת:
+//   📌 הסטורי הנעוץ הראשון = **הצופן** (כתר-זהב גדול + 🦅) — לחיצה **מנגנת את הסרט עצמו** (וידאו
 //      ב-StoryViewer), לא ניווט לפוסט. · שאר הפריטים = אור הגאולה (טבעת ורודה + לוגו קטן), נעלמים
 //      אחרי צפייה. הלוגו שלנו גדול משלהם להבלטה.
-export function MergedStoriesRail({ limit = 20 }) {
+//   layout='rail' (מובייל, שורה אחת אופקית) · layout='column' (דסקטופ, עמודה בצד שמאל — «אותו דבר»).
+export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
   const P = usePalette();
   const OURS = BRAND_TZOFON, OG = BRAND_OR_GEULA;
   const [cipher, setCipher] = useState(undefined);   // undefined=טרם, null=אין, obj=נעוץ
@@ -129,24 +162,46 @@ export function MergedStoriesRail({ limit = 20 }) {
     setViewer({ items: ogRows || [], index: Math.max(0, (ogRows || []).findIndex(x => x.id === r.id)), brand: OG });
   };
 
+  const header = (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🎬 סטוריז</div>
+      {/* מקרא זעיר — מפענח את הטבעות (הלוגו שלנו גדול יותר) */}
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5 }}>
+        <img src={OURS.logo} alt="" width="17" height="17" style={{ width: 17, height: 17, borderRadius: "50%", border: `1.5px solid ${OURS.badgeColor}` }} /> 🦅 הצופן
+        <span style={{ opacity: .5, margin: "0 2px" }}>·</span>
+        <img src={OG.logo} alt="" width="13" height="13" style={{ width: 13, height: 13, borderRadius: "50%" }} /> אור הגאולה
+      </span>
+    </div>
+  );
+  const viewerEl = viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand} onClose={() => setViewer(null)} />;
+
+  // דסקטופ — «אותו דבר, בצד שמאל»: עמודה אנכית (כרטיסים), הצופן הנעוץ ראשון ומודגש
+  if (layout === "column") {
+    return (
+      <section aria-label="סטוריז — הצופן ואור הגאולה" style={{ direction: "rtl" }}>
+        {header}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {(ready ? merged : Array.from({ length: 6 })).map((r, i) => (
+            <StoryColumnCard key={r?.id || i} r={r} brand={r?._brand || OURS}
+              feat={!!r?.cipher} pin={!!r?.cipher} badgeBoost={!!r?.cipher} onOpen={openItem} P={P} />
+          ))}
+        </div>
+        {viewerEl}
+      </section>
+    );
+  }
+
+  // מובייל — שורה אחת אופקית (עיגולים)
   return (
     <section aria-label="סטוריז — הצופן ואור הגאולה" style={{ direction: "rtl" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, flexWrap: "wrap" }}>
-        <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🎬 סטוריז</div>
-        {/* מקרא זעיר — מפענח את הטבעות (הלוגו שלנו גדול יותר) */}
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5 }}>
-          <img src={OURS.logo} alt="" width="17" height="17" style={{ width: 17, height: 17, borderRadius: "50%", border: `1.5px solid ${OURS.badgeColor}` }} /> 🦅 הצופן
-          <span style={{ opacity: .5, margin: "0 2px" }}>·</span>
-          <img src={OG.logo} alt="" width="13" height="13" style={{ width: 13, height: 13, borderRadius: "50%" }} /> אור הגאולה
-        </span>
-      </div>
+      {header}
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
         {(ready ? merged : Array.from({ length: 8 })).map((r, i) => (
           <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || OURS}
             feat={!!r?.cipher} brandBadge badgeBoost={!!r?.cipher} pin={!!r?.cipher} onOpen={openItem} P={P} />
         ))}
       </div>
-      {viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand} onClose={() => setViewer(null)} />}
+      {viewerEl}
     </section>
   );
 }
