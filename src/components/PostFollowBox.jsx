@@ -20,10 +20,10 @@ export default function PostFollowBox({ categories = [], author = "", postMode =
   return (
     <div style={{ marginTop: 34, paddingTop: 20, borderTop: `1px solid ${P.border}`, direction: "rtl" }}>
       <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, marginBottom: 3, textAlign: "center" }}>
-        🔔 עקוב וקבל עדכון כשעולה חדש
+        🔔 עקוב וקבל עדכון באתר כשעולה חדש
       </div>
       <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginBottom: 14, textAlign: "center" }}>
-        סמן וי על מה שמעניין אותך — ונעדכן אותך.
+        סמן וי על מה שמעניין אותך — ההתראה תחכה לך כאן באתר, באזור ההתראות 🔔 (לא במייל).
       </div>
       <div style={{ maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8 }}>
         {cats.map((cat) => (
