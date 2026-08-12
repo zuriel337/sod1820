@@ -159,6 +159,34 @@ export async function getCategoryVideos(category = "וידאו", { limit = 60 } 
   } catch { return []; }
 }
 
+// 🔯 «צפונות בתורה» — סטוריז ממותגים (כתר «כי לה׳ המלוכה») לדף הצ'אט. עדשה על הפוסטים
+// לפי **קטגוריה** (צפונות בתורה + הצופן בסרטים), לא תגיות. לחיצה מנווטת לפוסט (link_url).
+// מוחזר בצורת שורת-סטורי (כמו channel_updates) כדי לעבוד עם אותו רכיב קנוני (OrGeulaStoryColumn).
+export async function getTzofonStories({ limit = 30 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("id, slug, title, image_url, thumb_url, date")
+      .overlaps("categories", ["צפונות בתורה", "הצופן בסרטים"])
+      .not("image_url", "is", null)
+      .order("date", { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return data.map(r => ({
+      id: r.id,
+      text: stripHtml(r.title || ""),
+      image_url: r.thumb_url || r.image_url,   // כרזה (תמונה) — התצוגה מציגה אותה; הניגון בפוסט
+      thumb_url: r.thumb_url || r.image_url,
+      link_url: "/" + r.slug,
+      is_video: true,                          // כרטיס-וידאו (מסמן ▶) — הסרטון מתנגן בפוסט
+      created_at: r.date,
+      priority: 100,
+      credit: "צפונות בתורה · סוד 1820",
+    }));
+  } catch { return []; }
+}
+
 // סרטון-גלריה המקושר לצופן (cipher_slug) — לחיבור דו-כיווני בעמוד הצופן /codes/:slug
 export async function getHomeVideoByCipher(cipherSlug) {
   if (!supabase || !cipherSlug) return null;

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } fro
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
-import OrGeulaStoryColumn, { BRAND_MELUCHA } from "../components/OrGeulaStoryColumn.jsx";
+import OrGeulaStoryColumn, { BRAND_TZOFON } from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4321,8 +4321,8 @@ function SpotimChatPage() {
       <div className="sod-chat-chip-mobile"><OrGeulaStoryChip /></div>
       {/* 🎞️ רצועות-סטוריז אופקיות קבועות — מובייל בלבד: תמיד גלויות (גם אחרי צפייה), כי העמודות
           המלאות הן דסקטופ-בלבד. אותו רכיב קנוני (OrGeulaStoryColumn) בגרסת rail — בלי כפילות.
-          👑 «כי לה׳ המלוכה» (הצפנים של האתר) ראשונה ומובחנת מ«אור הגאולה» (אגרגציה) — בקשת צוריאל. */}
-      <div className="sod-chat-stories-mobile"><OrGeulaStoryColumn variant="rail" limit={20} brand={BRAND_MELUCHA} /></div>
+          🔯 «צפונות בתורה» (הצפנים של האתר, מקור=קטגוריה) ראשונה ומובחנת מ«אור הגאולה» (אגרגציה). */}
+      <div className="sod-chat-stories-mobile"><OrGeulaStoryColumn variant="rail" limit={20} brand={BRAND_TZOFON} /></div>
       <div className="sod-chat-stories-mobile" style={{ marginTop: 14 }}><OrGeulaStoryColumn variant="rail" limit={20} /></div>
       {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
 
@@ -4352,9 +4352,9 @@ function SpotimChatPage() {
         </div>
 
         {/* 🎬 עמודות-סטוריז (דסקטופ בלבד, בצד שמאל):
-            👑 «כי לה׳ המלוכה» — הצפנים של האתר, ראשונה ומובחנת; אחריה «אור הגאולה» (אגרגציה). */}
+            🔯 «צפונות בתורה» — הצפנים של האתר (קטגוריה), ראשונה ומובחנת; אחריה «אור הגאולה» (אגרגציה). */}
         <aside className="sod-chat-videos">
-          <OrGeulaStoryColumn limit={30} brand={BRAND_MELUCHA} />
+          <OrGeulaStoryColumn limit={30} brand={BRAND_TZOFON} />
           <div style={{ height: 26 }} />
           <OrGeulaStoryColumn limit={30} />
         </aside>

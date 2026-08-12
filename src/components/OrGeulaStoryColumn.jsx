@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { supabase } from "../lib/supabase.js";
+import { supabase, getTzofonStories } from "../lib/supabase.js";
 import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
@@ -27,12 +28,15 @@ export const BRAND_OR_GEULA = {
   featRing: "conic-gradient(from 210deg, #e8c84a, #c9a52e, #f6e27a, #e8c84a)",
   badgeColor: "#e8c84a", railTitle: "אור הגאולה · סטוריז", colTitle: "אור הגאולה",
 };
-export const BRAND_MELUCHA = {
-  channel: "sod-codes", name: "כי לה׳ המלוכה", logo: LOGO_URL, href: "/codes",
-  seenKey: "sodcodes_seen_v1", trackKey: "sod-codes", shareBase: "/codes",
+// 🔯 «צפונות בתורה» — הצפנים של האתר (כתר «כי לה׳ המלוכה»). המקור = פוסטים לפי **קטגוריה**
+//    (צפונות בתורה + הצופן בסרטים), לא ערוץ channel_updates. לחיצה מנווטת לפוסט (linkMode='post').
+export const BRAND_TZOFON = {
+  fetchRows: (limit) => getTzofonStories({ limit }), linkMode: "post",
+  name: "צפונות בתורה", logo: LOGO_URL, href: "/category/צפונות בתורה",
+  seenKey: "tzofon_seen_v1", trackKey: "tzofon", shareBase: "/category/צפונות בתורה",
   ring: "conic-gradient(from 210deg, #e8c84a, #c9a52e, #f6e27a, #e8c84a)",
   featRing: "conic-gradient(from 210deg, #f6e27a, #e8c84a, #b8860b, #f6e27a)",
-  badgeColor: "#e8c84a", railTitle: "כי לה׳ המלוכה · הצפנים שלנו", colTitle: "כי לה׳ המלוכה",
+  badgeColor: "#e8c84a", railTitle: "צפונות בתורה · הצפנים שלנו", colTitle: "צפונות בתורה",
 };
 
 // 👁️ «כבר נראה» — מסתירים סטורי שהמשתמש כבר צפה בו (localStorage per-משתמש · whats_new_law).
@@ -51,15 +55,25 @@ function FeaturedBadge({ size = "sm", brand }) {
 
 export default function OrGeulaStoryColumn({ limit = 30, variant = "column", brand = BRAND_OR_GEULA }) {
   const P = usePalette();
+  const navigate = useNavigate();
   const [rows, setRows] = useState(null);
   const [story, setStory] = useState(-1);   // אינדקס הפריט הפתוח כסטורי (-1 = סגור)
   const [seen, setSeen] = useState(() => loadSeen(brand.seenKey));
-  // פתיחת סטורי: מסמנים «נראה» (נעלם מהרצועה) ופותחים את המציג על הרשימה המלאה (rows) לפי id
-  const openAt = (r) => { setSeen(prev => { const n = new Set(prev); n.add(r.id); saveSeen(brand.seenKey, n); return n; }); setStory(rows.indexOf(r)); };
+  // פתיחת פריט: מסמנים «נראה» (נעלם) → linkMode='post' מנווט לפוסט; אחרת פותח StoryViewer על rows
+  const openAt = (r) => {
+    setSeen(prev => { const n = new Set(prev); n.add(r.id); saveSeen(brand.seenKey, n); return n; });
+    if (brand.linkMode === "post" && r.link_url) { navigate(r.link_url); return; }
+    setStory(rows.indexOf(r));
+  };
   const shown = (rows || []).filter(r => r && !seen.has(r.id));
 
   useEffect(() => {
     let alive = true;
+    // מקור-נתונים מותאם-מיתוג (למשל «צפונות בתורה» = פוסטים לפי קטגוריה) — עוקף את שאילתת הערוץ
+    if (brand.fetchRows) {
+      brand.fetchRows(limit).then(data => { if (alive) setRows(Array.isArray(data) ? data : []); }).catch(() => { if (alive) setRows([]); });
+      return () => { alive = false; };
+    }
     const nowIso = new Date().toISOString();
     supabase.from("channel_updates")
       .select("id,text,image_url,thumb_url,created_at,priority,credit,expires_at,link_url")
@@ -68,7 +82,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
       .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(limit)   // מוצמד (priority↑) ראשון
       .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
     return () => { alive = false; };
-  }, [limit, brand.channel]);
+  }, [limit, brand.channel, brand.fetchRows]);
 
   if (rows !== null && shown.length === 0) return null;
 
@@ -99,7 +113,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
         <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
           {(rows ? shown : Array.from({ length: 8 })).map((r, i) => {
             if (!r) return <div key={i} style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
-            const vid = isVideo(r.image_url);
+            const vid = r.is_video || isVideo(r.image_url);
             const feat = isFeatured(r);
             const thumb = r.thumb_url || (vid ? null : galThumb(r, 160));
             const cap = capOf(r);
