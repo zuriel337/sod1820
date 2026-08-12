@@ -17,6 +17,8 @@ import VideoBadge, { postHasVideo } from "./VideoBadge.jsx";
 //   ⛔ קשרי-שפות (cross-language) לא מוצגים כאן — מקומם הקנוני הוא דף «קשרי-שפות» (/languages).
 
 const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/i;
+// 📌 פוסט «נעוץ» = tree_priority גבוה (מוצמד ידנית ע"י אדמין). מוצג ראשון + תג «נעוץ».
+const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 
 export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [] }) {
   const P = usePalette();
@@ -35,7 +37,13 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: streamDate(h), data: h }));
     (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
     (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
-    return out.sort((a, b) => b.when - a.when).slice(0, 20);
+    // 📌 פוסטים נעוצים תמיד ראשונים (sticky), ואז לפי זמן-עדכון
+    return out.sort((a, b) => {
+      const pa = a.type === "post" && isPinnedPost(a.data) ? 1 : 0;
+      const pb = b.type === "post" && isPinnedPost(b.data) ? 1 : 0;
+      if (pa !== pb) return pb - pa;
+      return b.when - a.when;
+    }).slice(0, 20);
   }, [posts, convergences, hints, researchers, ciphers]);
 
   // 🙈 אדמין — הסתרת פריט מ«עדכונים אחרונים» (פוסט→home_hidden · רמז-זרם→curator_hidden). אופטימי + נשמר ב-DB.
@@ -68,10 +76,12 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     const d = it.data;
     if (it.type === "post") {
       const ai = d.ai_touched || aiRe.test(d.content || "");
+      const pinned = isPinnedPost(d);
       return (
-        <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className="lur-card" style={{ "--acc": cPost }}>
+        <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className={"lur-card" + (pinned ? " pinned" : "")} style={{ "--acc": cPost }}>
           <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}{postHasVideo(d) && <VideoBadge variant="corner" label={false} />}</div>
-          <div className="lur-body"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>
+          <div className="lur-body">
+            <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
             <h3 className="lur-title">{stripHtml(d.title || "")}</h3><Meta when={it.when} ai={ai} /></div>
         </Link>
       );
@@ -141,6 +151,11 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-body{padding:9px 12px;display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
         .lur-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-family:${F.heading};font-size:10px;font-weight:800;
           padding:2px 8px;border-radius:999px;white-space:nowrap;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent)}
+        .lur-tagrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+        .lur-pin{display:inline-flex;align-items:center;gap:3px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;
+          color:${light ? "#8a6d10" : "#f0d879"};background:${light ? "rgba(212,175,55,.16)" : "rgba(212,175,55,.14)"};border:1px solid rgba(212,175,55,.5)}
+        .lur-card.pinned{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.35)}
+        .lur-card.pinned::before{width:4px;background:linear-gradient(180deg,#f0d879,#c8a83a)}
         .lur-title{font-family:${F.regal};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
         .lur-meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:10.5px;color:${P.muted};font-family:${F.heading};flex-wrap:wrap}
         .lur-ai{color:#3ea6ff;font-weight:800;background:rgba(62,166,255,.13);border:1px solid rgba(62,166,255,.4);border-radius:999px;padding:1px 7px}
