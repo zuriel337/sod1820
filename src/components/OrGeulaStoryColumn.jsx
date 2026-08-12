@@ -31,7 +31,7 @@ export const BRAND_OR_GEULA = {
 // 🔯 «צפונות בתורה» — הצפנים של האתר (כתר «כי לה׳ המלוכה»). המקור = פוסטים לפי **קטגוריה**
 //    (צפונות בתורה + הצופן בסרטים), לא ערוץ channel_updates. לחיצה מנווטת לפוסט (linkMode='post').
 export const BRAND_TZOFON = {
-  fetchRows: (limit) => getTzofonStories({ limit }), linkMode: "post",
+  fetchRows: (limit) => getTzofonStories({ limit }), linkMode: "post", pinFirst: true,
   name: "צפונות בתורה", logo: LOGO_URL, href: "/category/צפונות בתורה",
   seenKey: "tzofon_seen_v1", trackKey: "tzofon", shareBase: "/category/צפונות בתורה",
   ring: "conic-gradient(from 210deg, #e8c84a, #c9a52e, #f6e27a, #e8c84a)",
@@ -65,7 +65,14 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
     if (brand.linkMode === "post" && r.link_url) { navigate(r.link_url); return; }
     setStory(rows.indexOf(r));
   };
-  const shown = (rows || []).filter(r => r && !seen.has(r.id));
+  // בדרך-כלל מסתירים סטורי שנצפה. brand.pinFirst → הפריט האחרון שלנו (rows[0]) **תמיד** מוצג
+  //   ומודגש (הסרטון האחרון של האתר תמיד למעלה); רק הישנים יותר נעלמים אחרי צפייה.
+  const shown = (() => {
+    const list = (rows || []).filter(Boolean);
+    if (!brand.pinFirst || !list.length) return list.filter(r => !seen.has(r.id));
+    const [first, ...rest] = list;
+    return [first, ...rest.filter(r => !seen.has(r.id))];
+  })();
 
   useEffect(() => {
     let alive = true;
@@ -114,7 +121,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
           {(rows ? shown : Array.from({ length: 8 })).map((r, i) => {
             if (!r) return <div key={i} style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
             const vid = r.is_video || isVideo(r.image_url);
-            const feat = isFeatured(r);
+            const feat = isFeatured(r) || (brand.pinFirst && i === 0);
             const thumb = r.thumb_url || (vid ? null : galThumb(r, 160));
             const cap = capOf(r);
             return (

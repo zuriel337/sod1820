@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
-import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
 import OrGeulaStoryColumn, { BRAND_TZOFON } from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
@@ -4317,14 +4316,20 @@ function SpotimChatPage() {
         }
       `}</style>
       <ChatScrollRail />
-      {/* 🔴 סטורי חדש · אור הגאולה — מצביע קומפקטי; במובייל בלבד (בדסקטופ העמודה מחליפה אותו) */}
-      <div className="sod-chat-chip-mobile"><OrGeulaStoryChip /></div>
-      {/* 🎞️ רצועות-סטוריז אופקיות קבועות — מובייל בלבד: תמיד גלויות (גם אחרי צפייה), כי העמודות
-          המלאות הן דסקטופ-בלבד. אותו רכיב קנוני (OrGeulaStoryColumn) בגרסת rail — בלי כפילות.
-          🔯 «צפונות בתורה» (הצפנים של האתר, מקור=קטגוריה) ראשונה ומובחנת מ«אור הגאולה» (אגרגציה). */}
-      <div className="sod-chat-stories-mobile"><OrGeulaStoryColumn variant="rail" limit={20} brand={BRAND_TZOFON} /></div>
-      <div className="sod-chat-stories-mobile" style={{ marginTop: 14 }}><OrGeulaStoryColumn variant="rail" limit={20} /></div>
-      {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
+      {/* 🎞️ רצועות-סטוריז אופקיות — מובייל בלבד (בדסקטופ העמודות בצד שמאל מחליפות אותן).
+          ההבחנה «שלנו מול אור הגאולה»: (1) «צפונות בתורה» יושבת בכרטיס-זהב ממוסגר עם כותרת
+          «הצפנים שלנו» ולוגו-הכתר — הסרטון האחרון שלנו תמיד ראשון ומודגש (pinFirst), לא נעלם.
+          (2) אור הגאולה מתחתיו, בלי מסגרת, טבעת ורודה — רק חדש, ונעלם אחרי צפייה. הצ'יפ הכפול הוסר. */}
+      <div className="sod-chat-stories-mobile">
+        <div style={{ border: `1px solid ${C.gold}55`, background: `linear-gradient(180deg, ${C.gold}14, transparent)`, borderRadius: 14, padding: "12px 12px 8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.gold, boxShadow: `0 0 8px ${C.gold}` }} />
+            <span style={{ color: C.gold, fontFamily: F.heading, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>הצפנים שלנו · סוד1820</span>
+          </div>
+          <OrGeulaStoryColumn variant="rail" limit={20} brand={BRAND_TZOFON} />
+        </div>
+      </div>
+      <div className="sod-chat-stories-mobile" style={{ marginTop: 16 }}><OrGeulaStoryColumn variant="rail" limit={20} /></div>
 
       <div className="sod-chat-grid">
         {/* עמודה ראשית — צ'אט + פורום (מימין ב-RTL) */}
