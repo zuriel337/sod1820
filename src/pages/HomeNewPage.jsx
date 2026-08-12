@@ -40,6 +40,7 @@ import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import HomeTeasers from "../components/HomeTeasers.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
+import DimensionFiveRail from "../components/DimensionFiveRail.jsx";
 import HomeWritersRail from "../components/HomeWritersRail.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
@@ -477,6 +478,11 @@ export default function HomeNewPage() {
         {/* ⛔ הקפצת התכנסויות ל«עדכונים אחרונים» מושבתת עד הודעה חדשה (בקשת צוריאל) — ההתכנסויות
             נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
         <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+      </section>
+
+      {/* ===== 🌀 מימד חמש — שורת-פוסטים ייעודית (קטגוריה «מימד חמש», מחוץ ל«עדכונים אחרונים») ===== */}
+      <section style={{ padding: "0 0 30px" }}>
+        <DimensionFiveRail />
       </section>
 
       {/* ===== 🔔 מה חדש בפורום מאז ביקורך — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 10.8.2026) ===== */}
