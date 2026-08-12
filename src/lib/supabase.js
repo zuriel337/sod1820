@@ -3153,6 +3153,15 @@ export async function getResearchFeed({ status = 'candidate', kind = null, limit
   if (error) { console.error('getResearchFeed', error.message || error); return []; }
   return data || [];
 }
+// 🔖 אינדקס-כתבים (CC-1.2 · Identity Resolver) — עמודות בטוחות בלבד (column-grants; access_code/phone/email חסומים).
+// READ-ONLY. משמש את resolveWriter() למיפוי מחרוזת-מחבר → contributor קנוני (כולל wa_names + merged_into).
+export async function getContributorsIndex() {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('contributors')
+    .select('id,slug,display_name,wa_names,merged_into,vip');
+  if (error) { console.error('getContributorsIndex', error.message || error); return []; }
+  return data || [];
+}
 // קבוצות-WhatsApp (wa_bot_config — policy admin) — כולל מצב enabled (לזהות מקור-רדום).
 export async function getWaGroups() {
   if (!supabase) return [];

@@ -9,10 +9,12 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
-  getChannelUpdates,
+  getChannelUpdates, getContributorsIndex,
 } from "../lib/supabase.js";
+import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
+  tierOf, TIER,
 } from "../lib/discovery.js";
 import AiAnalyze from "./AiAnalyze.jsx";
 
@@ -81,6 +83,8 @@ function normCandidate(r) {
     hasCross: (r.kind === "relation"), inFeed: true, judged: r.status !== "candidate",
     inGraph: !!r.promoted_node_id, published: false, value: r.value, kind: r.kind, status: r.status,
     src: r.source,   // מקור הצינור (discovery-engine / wa-raziel…) — להפרדת C מ-B
+    rawAuthor: (r.contributor || r.source || "").trim(),   // מחרוזת-מקור ל-resolver (provenance)
+    tier: tierOf("research_objects", r),                   // candidate=VAULT · promoted=CORE
   };
 }
 // A · ערוץ-שידור → פריט-קליטה מנורמל. published=מקושר-לפוסט (link_url) = «קיים» באתר.
@@ -91,6 +95,8 @@ function normChannel(r, chLabel) {
     ts: r.created_at, raw: t, channel: r.channel, link: r.link_url || null,
     engineVerified: false, values: [], hasCross: false, value: null,
     inFeed: false, inGraph: false, published: !!r.link_url,
+    rawAuthor: (r.credit || "").trim(),               // מחרוזת-מקור ל-resolver (provenance)
+    tier: tierOf("channel_updates", r),               // צינור-A = תמיד RAW
   };
 }
 // חדש / קיים / כפול — רק מה שניתן לקבוע מנתונים קיימים (בלי engine/parser):
@@ -154,18 +160,53 @@ function ItemCard({ item, onFocus }) {
   );
 }
 
-// שורת-קליטה קומפקטית לצינור A (עם תיוג חדש/קיים/כפול). תצוגה בלבד.
+// CC-1.2 · תג-רובד (Tier Lens) — ניווט בלבד, לא משנה סמנטיקה.
+function TierBadge({ tier }) {
+  if (!tier) return null;
+  return <span style={{ ...pill(tier.color), fontWeight: 800 }} title="רובד-ניווט (נגזר מהסטטוס הקיים; לא משנה אמת)">{tier.he}</span>;
+}
+// CC-1.2 · צ'יפ-זהות — מציג את מצב ה-resolver. **לא בוחר אוטומטית.**
+//   matched → הישות הקנונית (עם provenance של השם המקורי אם ממוזג) · ambiguous/unknown → השם הגולמי + מועמדים.
+function WriterChip({ writer }) {
+  if (!writer) return null;
+  const st = WRITER_STATE[writer.state] || WRITER_STATE.unknown;
+  if (writer.state === "matched") {
+    const canon = writer.canonical?.display_name || writer.contributor?.display_name || writer.raw;
+    return (
+      <span style={{ color: C.muted, fontSize: 10.5, whiteSpace: "nowrap" }} title={`מזוהה: ${canon}`}>
+        <span style={{ color: st.c }}>✓</span> {canon}
+        {writer.mergedFrom && (
+          <span style={{ color: C.faint }} title={`ממוזג מ: ${writer.mergedFrom.display_name}`}> ⟵ «{writer.raw}»</span>
+        )}
+      </span>
+    );
+  }
+  return (
+    <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap" }}
+      title={writer.state === "ambiguous"
+        ? "כמה התאמות — דורש מיזוג-אנושי (merged_into). לא נבחר אוטומטית."
+        : "לא-מזוהה — לא נבחר contributor. השם המקורי נשמר."}>
+      <span style={{ color: st.c }}>{st.t}</span>: «{writer.raw || "—"}»
+      {writer.state === "ambiguous" && writer.candidates?.length > 0 && (
+        <span> ({writer.candidates.map(c => c.display_name).filter(Boolean).join(" / ")})</span>
+      )}
+    </span>
+  );
+}
+
+// שורת-קליטה קומפקטית לצינור A (עם תיוג חדש/קיים/כפול + רובד + זהות). תצוגה בלבד.
 function IngestRow({ item }) {
   const f = INGEST_FLAG[item.flag] || INGEST_FLAG.new;
   return (
-    <div style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5 }}>
+    <div style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5, flexWrap: "wrap" }}>
+      <TierBadge tier={item.tier} />
       <span style={pill(f.c)}>{f.t}</span>
       <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 11, whiteSpace: "nowrap" }}>{item.source}</span>
       <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap" }}>{fmt(item.ts)}</span>
-      <span style={{ color: C.goldLight, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <span style={{ color: C.goldLight, flex: 1, minWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {item.raw ? item.raw.slice(0, 100) : <span style={{ color: C.faint }}>(ללא טקסט)</span>}
       </span>
-      {item.author && item.author !== "—" && <span style={{ color: C.muted, fontSize: 10.5, whiteSpace: "nowrap" }}>· {item.author}</span>}
+      <WriterChip writer={item.writer} />
     </div>
   );
 }
@@ -183,6 +224,7 @@ export default function WarRoomTab() {
   const [candidates, setCandidates] = useState([]);
   const [liveA, setLiveA] = useState([]);          // צינור A — ערוצי-שידור חיים (channel_updates)
   const [bDormant, setBDormant] = useState(null);   // צינור B — {enabled,total} (רדום)
+  const [writerIdx, setWriterIdx] = useState(null); // CC-1.2 · אינדקס-זהות (contributors) ל-resolver
   const [groups, setGroups] = useState([]);
   const [writerItems, setWriterItems] = useState([]);
   const [groupItems, setGroupItems] = useState([]);
@@ -192,21 +234,26 @@ export default function WarRoomTab() {
 
   const loadNow = useCallback(async () => {
     setBusy(true);
-    const [forum, wa, posts, hn, feed, groups] = await Promise.all([
+    const [forum, wa, posts, hn, feed, groups, contribs] = await Promise.all([
       getForumMaterial({ limit: 40 }), getWaLog({ limit: 40 }),
       getPostsFromSupabase({ limit: 12 }), getHotNumbers(30, 12),
       getResearchFeed({ status: "candidate", limit: 120 }), getWaGroups(),
+      getContributorsIndex(),
     ]);
+    // CC-1.2 · אינדקס-זהות (contributors + wa_names + merged_into) — נבנה פעם, קורא-בלבד.
+    const widx = buildWriterIndex(contribs || []);
+    setWriterIdx(widx);
+    const withWriter = (it) => ({ ...it, writer: resolveWriter(it.rawAuthor, widx) });
     const merged = [
       ...(forum || []).map(normForum), ...(wa || []).map(normWa), ...((posts?.posts) || []).map(normPost),
     ].sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0)).slice(0, 60);
     // A · ערוצי-שידור החיים — reuse של getChannelUpdates לכל אחד מ-4 המקורות (status='live').
     const chArr = await Promise.all(A_CHANNELS.map(([ch, lbl]) =>
       getChannelUpdates(25, ch, true).then(r => (r || []).map(x => normChannel(x, lbl))).catch(() => [])));
-    const aMerged = classifyIngest(chArr.flat().sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0)));
+    const aMerged = classifyIngest(chArr.flat().sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0))).map(withWriter);
     setLiveA(aMerged);
     setBDormant({ total: (groups || []).length, enabled: (groups || []).filter(g => g.enabled).length });
-    setIncoming(merged); setHot(hn || []); setCandidates((feed || []).map(normCandidate));
+    setIncoming(merged); setHot(hn || []); setCandidates((feed || []).map(normCandidate).map(withWriter));
     setBusy(false);
   }, []);
 
@@ -313,8 +360,15 @@ export default function WarRoomTab() {
               : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : "אין חומר-A חי כרגע (status='live')."}</div>}
             {liveA.length > 20 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 20 מתוך {liveA.length}.</div>}
           </div>
+          {/* CC-1.2 · מקרא-רבדים (Tier Lens) — ניווט בלבד, נגזר מהסטטוס הקיים */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
+            <span style={{ color: C.faint, fontSize: 10.5 }}>רבדים:</span>
+            {Object.values(TIER).sort((a, b) => a.order - b.order).map(t => (
+              <span key={t.key} style={{ ...pill(t.color), fontWeight: 800 }}>{t.he} · {t.key}</span>
+            ))}
+          </div>
           <div style={{ color: C.faint, fontSize: 10.5, marginTop: 8, lineHeight: 1.6 }}>
-            ⛔ תצוגה בלבד: אף פריט לא נכתב ל-research_objects · צינור A אינו מחובר למנוע (0 קשרים) · «חדש/קיים/כפול» נקבע מנתונים קיימים בלבד (link_url + טקסט חוזר), לא ממנוע.
+            ⛔ תצוגה בלבד: אף פריט לא נכתב ל-research_objects · צינור A אינו מחובר למנוע (0 קשרים) · «חדש/קיים/כפול» נקבע מנתונים קיימים בלבד (link_url + טקסט חוזר), לא ממנוע · הרובד = ניווט הנגזר מהסטטוס הקיים (לא משנה verified/candidate/approved/canonical) · זהות = resolver קורא-בלבד, אין בחירה-אוטומטית ואין מיזוג-אליאס.
           </div>
         </div>
 
@@ -330,8 +384,13 @@ export default function WarRoomTab() {
               <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, marginBottom: 8 }}>⚖️ ממתין לשיפוט</div>
               {candidates.slice(0, 8).map(c => (
                 <div key={c.key} style={{ borderBottom: `1px solid ${C.border}`, padding: "6px 0", fontSize: 12.5, color: C.goldLight }}>
-                  <span style={pill(c.kind === "relation" ? "#3ea6ff" : "#4caf7d")}>{c.kind}</span>{" "}
-                  {c.value ? <Link to={`/number/${c.value}`} style={{ color: C.goldBright }}>{c.value}</Link> : ""} · {c.raw.slice(0, 60)}
+                  <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
+                    <TierBadge tier={c.tier} />
+                    <span style={pill(c.kind === "relation" ? "#3ea6ff" : "#4caf7d")}>{c.kind}</span>
+                    {c.value ? <Link to={`/number/${c.value}`} style={{ color: C.goldBright }}>{c.value}</Link> : null}
+                    <WriterChip writer={c.writer} />
+                  </div>
+                  <div style={{ color: C.muted, fontSize: 12 }}>{c.raw.slice(0, 60)}</div>
                 </div>
               ))}
               {!candidates.length && <div style={{ color: C.muted, fontSize: 12 }}>אין מועמדים.</div>}

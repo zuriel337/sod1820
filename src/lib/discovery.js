@@ -175,3 +175,46 @@ export function preferenceScore(/* item, prefs */) { return 0; }
 // שפה (§14.2): תרגום ≠ תעתיק ≠ ערך-משותף ≠ משמעות. תווית-אנוש להפרדה.
 export const LANG_REL = { shared_value: "ערך-משותף", translation: "תרגום", transliteration: "תעתיק", parallel: "מקבילה", concept: "קשר-רעיוני" };
 export const langRelLabel = r => LANG_REL[r] || r || "—";
+
+// ── CC-1.2 · Tier Lens (READ-ONLY navigation) ──────────────────────────────
+// ⛔ שכבת-ניווט/מיפוי בלבד. **אינה משנה סמנטיקה ואינה יוצרת inference חדש:**
+//    engine_verified/is_verified = אימות-חישובי בלבד · candidate = מועמד · approved/published/Canonical = כהגדרת-הסכמה + Human-Gate בלבד.
+//    הרובד **נגזר** מעמודות-הסטטוס הקיימות — אין מקור-אמת חדש (הרחבת unified_graph_law).
+export const TIER = {
+  RAW:       { key: "RAW",       he: "מקור",  color: "#8a8a95", order: 0 },
+  VAULT:     { key: "VAULT",     he: "מחקר",  color: "#b08bd8", order: 1 },
+  CORE:      { key: "CORE",      he: "אוצר",  color: "#c79a2e", order: 2 },
+  CANONICAL: { key: "CANONICAL", he: "קנוני", color: "#4caf7d", order: 3 },
+};
+const _tier = k => TIER[k];
+// tierOf(store,row) — store ∈ channel_updates|wa|christina|research_contributions|
+//   research_objects|gematria_words|maftech_lexicon|topic_cards|nodes|insights|posts.
+export function tierOf(store, row = {}) {
+  switch (store) {
+    case "channel_updates":
+    case "wa":                       // wa_vip_inbox / wa_deep_queue / wa_bot_log
+    case "christina":                // christina_letter_combinations
+      return _tier("RAW");
+    case "research_contributions":
+      if (row.status === "published" || row.projected_insight_id) return _tier("CANONICAL");
+      if (row.research_state === "validated" && row.status === "approved") return _tier("CORE");
+      if (row.research_state === "raw") return _tier("RAW");
+      return _tier("VAULT");         // idea / discussion / investigating
+    case "research_objects":
+      return row.promoted_node_id ? _tier("CORE") : _tier("VAULT");   // candidate = VAULT (מקודם→node)
+    case "gematria_words":
+      return (row.visibility_tier === 1 || row.node_id) ? _tier("CORE") : _tier("VAULT");
+    case "maftech_lexicon":
+      return row.in_core ? _tier("CORE") : _tier("VAULT");
+    case "topic_cards":
+      return row.status === "approved" ? _tier("CANONICAL") : _tier("VAULT");   // draft = VAULT
+    case "nodes":
+      return row.type === "convergence" ? _tier("CANONICAL") : _tier("CORE");
+    case "insights":
+      return row.verified ? _tier("CANONICAL") : _tier("VAULT");
+    case "posts":
+      return _tier("CANONICAL");
+    default:
+      return _tier("RAW");
+  }
+}
