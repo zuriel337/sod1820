@@ -183,6 +183,23 @@ export async function getRealityVideos({ limit = 40 } = {}) {
   } catch { return []; }
 }
 
+// 🆕 2 הפוסטים האחרונים (לפי זמן-עדכון) — לרצועת-הגילוי לנוחתים מגוגל. מחזיר slug/כותרת/כרזה/עדכון.
+export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.from("posts")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags")
+      .not("slug", "is", null)
+      .order("modified", { ascending: false, nullsFirst: false })
+      .limit(limit + 5);
+    if (error || !data) return [];
+    return data
+      .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
+      .slice(0, limit)
+      .map(p => ({ slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
+  } catch { return []; }
+}
+
 // 📌 הצופן הנעוץ — סטורי יחיד שנעוץ ראשון ברצועת-הצ'אט. **מנגן את הסרט עצמו** (image_url=mp4 →
 // StoryViewer מנגן וידאו), לא מנווט לפוסט. המקור: home_videos (הסרטון-צופן המנוהל, mp4 נעוץ/אחרון).
 export async function getPinnedCipherStory() {

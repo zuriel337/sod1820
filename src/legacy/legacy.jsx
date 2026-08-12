@@ -4846,8 +4846,9 @@ function PostPageBySlug({ onNav }) {
               </div>
               <RoyalDivider width={160} />
             </div>
-            {/* 🔎 סטוריז-גילוי — רק לנוחת ראשוני מגוגל/חוץ, ורק בפוסט מעל חודש (בקשת צוריאל 12.8.2026) */}
-            <LandingDiscoveryStories postDate={post.date} olderThanDays={30} />
+            {/* 🔎 סטוריז-גילוי — רק במחשב, לנוחת ראשוני מגוגל/חוץ, בפוסט מעל חודש; כולל 2 הפוסטים
+                האחרונים עם זמן-עדכון (בקשת צוריאל 12.8.2026) */}
+            <LandingDiscoveryStories postDate={post.date} olderThanDays={30} excludeSlug={post.slug} />
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
             {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
             {/* "מספרים קשורים" הוסר לבקשת צוריאל — כפול עם הערת הלחיצוּת ("כל מספר לחיץ") שמתחת. */}

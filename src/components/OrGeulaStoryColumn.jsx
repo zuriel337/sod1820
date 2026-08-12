@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { supabase, getTzofonStories, getPinnedCipherStory } from "../lib/supabase.js";
+import { supabase, getTzofonStories, getPinnedCipherStory, getLatestPostCards } from "../lib/supabase.js";
 import { isFreshSearchLanding } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
@@ -210,23 +210,47 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
 // 🔎 סטוריז-גילוי לנוחתים מגוגל — הרצועה הממוזגת (הצופן + אור הגאולה) מוצגת רק ל**מבקר ראשוני
 //    שהגיע ממקור חיצוני** (גוגל/רשת · isFreshSearchLanding), ורק על פוסטים **מעל חודש באתר**.
 //    מטרה: לחשוף למי שנוחת מגוגל ולא מכיר את האתר את התוכן החי — בלי להטריד מבקרים חוזרים.
-export function LandingDiscoveryStories({ postDate, olderThanDays = 30 }) {
+export function LandingDiscoveryStories({ postDate, olderThanDays = 30, excludeSlug = null }) {
   const P = usePalette();
   const [show, setShow] = useState(false);
+  const [latest, setLatest] = useState([]);   // 2 הפוסטים האחרונים + זמן-עדכון
   useEffect(() => {
     let ok = false;
     try {
+      const isDesktop = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(min-width: 1000px)").matches;
       const t = postDate ? new Date(postDate).getTime() : 0;
       const oldEnough = t > 0 && (Date.now() - t) > olderThanDays * 864e5;
-      ok = oldEnough && isFreshSearchLanding();
+      ok = isDesktop && oldEnough && isFreshSearchLanding();   // מחשב בלבד · פוסט מעל חודש · נוחת ראשוני מגוגל
     } catch { ok = false; }
     setShow(ok);
-  }, [postDate, olderThanDays]);
+    if (ok) getLatestPostCards({ limit: 2, excludeSlug }).then(r => setLatest(r || [])).catch(() => {});
+  }, [postDate, olderThanDays, excludeSlug]);
   if (!show) return null;
   return (
-    <div style={{ margin: "0 0 22px", padding: "12px 14px 8px", border: `1px solid ${P.borderStrong}`, borderRadius: 14, background: P.card, direction: "rtl" }}>
+    <div style={{ margin: "0 0 22px", padding: "12px 14px", border: `1px solid ${P.borderStrong}`, borderRadius: 14, background: P.card, direction: "rtl" }}>
       <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 8, letterSpacing: .3 }}>✨ חדשים כאן? הצצה לתוכן החי של האתר</div>
       <MergedStoriesRail limit={20} />
+      {latest.length > 0 && (
+        <>
+          <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: .5, margin: "14px 0 8px" }}>🆕 העדכונים האחרונים</div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {latest.map(p => (
+              <a key={p.slug} href={"/" + p.slug} style={{ flex: "1 1 200px", minWidth: 0, display: "flex", gap: 9, alignItems: "center", textDecoration: "none",
+                background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 10, padding: 7 }}>
+                <div style={{ flex: "0 0 46px", width: 46, height: 46, borderRadius: 8, overflow: "hidden", background: "#0a0710" }}>
+                  {p.poster
+                    ? <img src={p.poster} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    : <div style={{ display: "grid", placeItems: "center", width: "100%", height: "100%" }}><img src={LOGO_URL} alt="" style={{ width: "62%", height: "62%", objectFit: "contain", opacity: .9 }} /></div>}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ color: P.accentText, fontFamily: F.royal, fontSize: 12.5, fontWeight: 700, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.title}</div>
+                  {p.modified && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700, marginTop: 2 }}>✏️ עודכן {timeAgoHe(p.modified)}</div>}
+                </div>
+              </a>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
