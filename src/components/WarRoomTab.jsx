@@ -198,11 +198,12 @@ function WriterChip({ writer }) {
 }
 
 // שורת-קליטה לצינור A. CC-1.3: השורה לחיצה → Detail Panel · תג-רובד/flag לחיצים → פילטר.
-function IngestRow({ item, onOpen, onFilter }) {
+function IngestRow({ item, onOpen, onFilter, selected, onToggle }) {
   const f = INGEST_FLAG[item.flag] || INGEST_FLAG.new;
   return (
     <div onClick={() => onOpen && onOpen(item)} title="פתח פרטים ופעולות"
       style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5, flexWrap: "wrap", cursor: "pointer" }}>
+      {onToggle && <input type="checkbox" checked={!!selected} onClick={e => e.stopPropagation()} onChange={() => onToggle(item.key)} style={{ cursor: "pointer", alignSelf: "center" }} />}
       <TierBadge tier={item.tier} onClick={onFilter ? () => onFilter({ type: "tier", value: item.tier?.key, label: "רובד: " + item.tier?.he, color: item.tier?.color }) : undefined} />
       <span onClick={onFilter ? (e => { e.stopPropagation(); onFilter({ type: "flag", value: item.flag, label: "סוג: " + f.t, color: f.c }); }) : undefined}
         style={{ ...pill(f.c), cursor: onFilter ? "pointer" : "default" }} title={onFilter ? "סנן לפי סוג" : undefined}>{f.t}</span>
@@ -311,6 +312,28 @@ function DetailPanel({ item, onClose, onFilter }) {
   );
 }
 
+// CC-1.3 ש2 · מפת-ניתוב — לאן חומר יכול ללכת מכל רובד (עדשות: VAULT→CORE→Atlas→שכבת-הציר). תצוגה/הכוונה בלבד.
+const ROUTES = {
+  RAW:       [["VAULT", "חילוץ→מועמד", "#b08bd8"]],
+  VAULT:     [["CORE", "קידום · Human-Gate", "#c79a2e"], ["Atlas", "יחס", "#3ea6ff"], ["שכבת-הציר", "זמן/אירוע", "#8458ff"]],
+  CORE:      [["Atlas", "יחס", "#3ea6ff"], ["שכבת-הציר", "זמן/אירוע", "#8458ff"]],
+  CANONICAL: [["Atlas", "יחס", "#3ea6ff"]],
+};
+// Bulk Bar — פעולות על הנבחרים. כולן gated (פאזה 3 · Human-Gate). Bulk = לולאה מעל single-id RPC קיים.
+function BulkBar({ n, onClear }) {
+  if (!n) return null;
+  const act = a => alert(`«${a}» על ${n} פריטים — פאזה 3 (Human-Gate של צוריאל). לא בוצע WRITE.`);
+  return (
+    <div style={{ ...box, borderColor: C.goldBright, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+      <b style={{ color: C.goldBright, fontFamily: F.heading }}>נבחרו {n}</b>
+      {["🔬 בדוק במנוע", "🏷️ סווג", "🧠 למד", "📥 → VAULT", "🔗 → Atlas", "🕐 → שכבת-הציר", "⚖️ שיפוט"].map(a =>
+        <button key={a} onClick={() => act(a)} style={chip(false)}>{a}</button>)}
+      <button onClick={onClear} style={{ ...chip(false), marginInlineStart: "auto" }}>נקה בחירה</button>
+      <span style={{ color: C.faint, fontSize: 10 }}>gated · אין קידום-אוטומטי · Rank-Don't-Hide</span>
+    </div>
+  );
+}
+
 export default function WarRoomTab() {
   const { isAdmin } = useAuth();
   const [mode, setMode] = useState("now");        // now | treasure
@@ -320,6 +343,7 @@ export default function WarRoomTab() {
   const [focusN, setFocusN] = useState(null);
   const [filter, setFilter] = useState(null);     // CC-1.3 · פילטר-חי אחד (tier/flag/kind/writer/src)
   const [detail, setDetail] = useState(null);     // CC-1.3 · פריט פתוח ב-Detail Panel
+  const [sel, setSel] = useState(() => new Set()); // CC-1.3 ש2 · רב-בחירה (מפתחות פריטים)
 
   const [incoming, setIncoming] = useState([]);
   const [hot, setHot] = useState([]);
@@ -396,6 +420,15 @@ export default function WarRoomTab() {
   // CC-1.3 · רשימות מסוננות מול הפילטר הפעיל (Rank-Don't-Hide: פילטר=מיקוד, לא מחיקה).
   const liveAf = useMemo(() => (liveA || []).filter(it => matchesFilter(it, filter)), [liveA, filter]);
   const candF = useMemo(() => (candidates || []).filter(c => matchesFilter(c, filter)), [candidates, filter]);
+  // CC-1.3 ש2 · רב-בחירה על שתי הרשימות המוצגות (Rank-Don't-Hide: בוחרים מהמוצג, לא מסתירים).
+  const shown = useMemo(() => [...liveAf, ...candF], [liveAf, candF]);
+  const toggleSel = (k) => setSel(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
+  const selectAllShown = () => setSel(new Set(shown.map(i => i.key)));
+  const clearSel = () => setSel(new Set());
+  const selectWriter = (name) => setSel(new Set(shown.filter(i => {
+    const w = i.writer; const canon = w?.canonical?.display_name || w?.contributor?.display_name;
+    return canon === name || i.rawAuthor === name;
+  }).map(i => i.key)));
 
   if (!isAdmin) return <div style={{ color: C.muted, padding: 30, textAlign: "center" }}>אין לך הרשאת ניהול.</div>;
 
@@ -463,10 +496,14 @@ export default function WarRoomTab() {
           </div>
           {/* פיד צינור A — חדש/קיים/כפול (ככל שניתן לקבוע מנתונים קיימים) */}
           <div style={{ marginTop: 12, display: "grid", gap: 2 }}>
-            <div style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, marginBottom: 4 }}>
-              🟢 חומר-A שנכנס (חדש/קיים/כפול):
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+              <span style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>🟢 חומר-A שנכנס (חדש/קיים/כפול):</span>
+              <button onClick={selectAllShown} style={chip(false)}>☐ בחר מוצג</button>
+              {filter?.type === "writer" && filter.value !== "__UNKNOWN__" &&
+                <button onClick={() => selectWriter(filter.value)} style={chip(false, "#b08bd8")}>👤 בחר כל {filter.value}</button>}
+              {sel.size > 0 && <button onClick={clearSel} style={chip(false)}>נקה ({sel.size})</button>}
             </div>
-            {liveAf.length ? liveAf.slice(0, 20).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} />)
+            {liveAf.length ? liveAf.slice(0, 20).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} selected={sel.has(it.key)} onToggle={toggleSel} />)
               : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : (filter ? "אין חומר-A תואם לפילטר." : "אין חומר-A חי כרגע (status='live').")}</div>}
             {liveAf.length > 20 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 20 מתוך {liveAf.length}{filter ? " (מסונן)" : ""}.</div>}
           </div>
@@ -478,10 +515,25 @@ export default function WarRoomTab() {
                 style={{ ...pill(t.color), fontWeight: 800, cursor: "pointer" }} title={`סנן לרובד ${t.he}`}>{t.he} · {t.key}</span>
             ))}
           </div>
+          {/* CC-1.3 ש2 · מפת-ניתוב — לאן חומר הולך (עדשות עץ-אחד) */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
+            <span style={{ color: C.faint, fontSize: 10.5 }}>ניתוב:</span>
+            {Object.entries(ROUTES).map(([from, tos]) => (
+              <span key={from} style={{ fontSize: 10.5, color: C.muted }}>
+                <b style={{ color: TIER[from]?.color || C.muted }}>{TIER[from]?.he || from}</b> →{" "}
+                {tos.map((t, i) => <span key={i} style={{ color: t[2] }}>{t[0]}{i < tos.length - 1 ? " · " : ""}</span>)}
+                {" "}<span style={{ color: C.faint }}>|</span>{" "}
+              </span>
+            ))}
+            <span style={{ color: C.faint, fontSize: 10 }}>Human-Gate לכל קידום</span>
+          </div>
           <div style={{ color: C.faint, fontSize: 10.5, marginTop: 8, lineHeight: 1.6 }}>
             ⛔ תצוגה בלבד: אף פריט לא נכתב ל-research_objects · צינור A אינו מחובר למנוע (0 קשרים) · «חדש/קיים/כפול» נקבע מנתונים קיימים בלבד (link_url + טקסט חוזר), לא ממנוע · הרובד = ניווט הנגזר מהסטטוס הקיים (לא משנה verified/candidate/approved/canonical) · זהות = resolver קורא-בלבד, אין בחירה-אוטומטית ואין מיזוג-אליאס.
           </div>
         </div>
+
+        {/* CC-1.3 ש2 · Bulk Bar — מופיע כשיש בחירה (פעולות gated) */}
+        <BulkBar n={sel.size} onClear={clearSel} />
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,320px)", gap: 14 }}>
           <div style={{ display: "grid", gap: 10, alignContent: "start" }}>
@@ -499,6 +551,7 @@ export default function WarRoomTab() {
                 <div key={c.key} onClick={() => setDetail(c)} title="פתח פרטים ופעולות"
                   style={{ borderBottom: `1px solid ${C.border}`, padding: "6px 0", fontSize: 12.5, color: C.goldLight, cursor: "pointer" }}>
                   <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
+                    <input type="checkbox" checked={sel.has(c.key)} onClick={e => e.stopPropagation()} onChange={() => toggleSel(c.key)} style={{ cursor: "pointer", alignSelf: "center" }} />
                     <TierBadge tier={c.tier} onClick={() => setFilter({ type: "tier", value: c.tier?.key, label: "רובד: " + c.tier?.he, color: c.tier?.color })} />
                     <span onClick={e => { e.stopPropagation(); setFilter({ type: "kind", value: c.kind, label: "סוג: " + c.kind, color: c.kind === "relation" ? "#3ea6ff" : "#4caf7d" }); }}
                       style={{ ...pill(c.kind === "relation" ? "#3ea6ff" : "#4caf7d"), cursor: "pointer" }} title="סנן לפי סוג">{c.kind}</span>
