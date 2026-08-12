@@ -17,7 +17,7 @@ const iconBtn = { background: "rgba(0,0,0,.42)", color: "#fff", border: "none", 
 
 const DEFAULT_BRAND = { name: "אור הגאולה", logo: OR_GEULA_LOGO, shareBase: "/or-geula", trackKey: "or-geula" };
 
-export default function StoryViewer({ items = [], startIndex = 0, onClose, trackKey, brand = DEFAULT_BRAND }) {
+export default function StoryViewer({ items = [], startIndex = 0, onClose, trackKey, brand = DEFAULT_BRAND, onSeen }) {
   const brandTrackKey = trackKey || brand.trackKey || "or-geula";
   const [idx, setIdx] = useState(Math.max(0, Math.min(startIndex, items.length - 1)));
   const [paused, setPaused] = useState(false);
@@ -34,12 +34,16 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
   const next = useCallback(() => go(idx + 1), [go, idx]);
   const prev = useCallback(() => go(idx - 1), [go, idx]);
 
-  // מעקב-צפייה לכל פריט
-  useEffect(() => { if (cur) { try { track(brandTrackKey, String(cur.id), "story_view"); } catch { /* noop */ } } }, [idx]); // eslint-disable-line
-
-  // התקדמות + מעבר-אוטומטי לתמונות (וידאו מתקדם דרך onTimeUpdate/onEnded)
+  // מעקב-צפייה לכל פריט + סימון «נצפה» (onSeen) → הסטורי נעלם מהרצועה (כמו אינסטגרם)
   useEffect(() => {
-    if (!cur || isVideo(cur.image_url)) return;
+    if (!cur) return;
+    try { track(brandTrackKey, String(cur.id), "story_view"); } catch { /* noop */ }
+    if (onSeen) { try { onSeen(cur); } catch { /* noop */ } }
+  }, [idx]); // eslint-disable-line
+
+  // התקדמות + מעבר-אוטומטי לתמונות (וידאו/יוטיוב מתקדמים ידנית/דרך onEnded)
+  useEffect(() => {
+    if (!cur || isVideo(cur.image_url) || cur.yt) return;
     let raf, start = null;
     const tick = (t) => {
       if (start === null) start = t;
@@ -106,14 +110,18 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
           </div>
         </div>
 
-        {/* מדיה */}
+        {/* מדיה — mp4 (<video>) · יוטיוב (<iframe>) · תמונה */}
         <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
           {vid
             ? <video ref={vidRef} src={cur.image_url} autoPlay playsInline
                 onTimeUpdate={e => { const v = e.currentTarget; if (v.duration) setProg(v.currentTime / v.duration); }}
                 onEnded={next}
                 style={{ width: "100%", height: "100%", objectFit: "contain", background: "#000" }} />
-            : <img src={cur.image_url} alt={cap || brand.name || "אור הגאולה"} style={{ width: "100%", height: "100%", objectFit: "contain" }} />}
+            : cur.yt
+              ? <iframe title={cap || brand.name} src={`https://www.youtube-nocookie.com/embed/${cur.yt}?autoplay=1&rel=0&playsinline=1`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen
+                  style={{ width: "100%", height: "100%", border: 0, background: "#000" }} />
+              : <img src={cur.image_url} alt={cap || brand.name || "אור הגאולה"} style={{ width: "100%", height: "100%", objectFit: "contain" }} />}
         </div>
 
         {/* אזורי-הקשה: שמאל=הקודם · ימין=הבא · מרכז=השהה/נגן */}

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { supabase, getTzofonStories, getPinnedCipherStory, getLatestPostCards } from "../lib/supabase.js";
+import { supabase, getTzofonStories, getCipherStories, getLatestPostCards } from "../lib/supabase.js";
 import { isFreshSearchLanding } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
-import { timeAgoHe } from "../lib/format.js";
+import { timeAgoHe, formatDateHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
 import { track } from "../lib/tracking.js";
 import { shareVideoToStory } from "../lib/share.js";
@@ -93,13 +93,13 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost 
         {pin && <span aria-hidden style={{ position: "absolute", top: -8, insetInlineEnd: -6, fontSize: 18, transform: "rotate(-8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>🦅</span>}
         {(feat || brandBadge) && <BrandBadge size={badgeBoost ? "lg" : "sm"} brand={brand} star={feat && !pin} />}
       </span>
-      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pin ? "🦅 הצופן" : timeAgoHe(r.created_at)}</span>
+      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.cipher ? (r.created_at ? formatDateHe(r.created_at) : "🦅 הצופן") : timeAgoHe(r.created_at)}</span>
     </button>
   );
 }
 
 // 🃏 אריח-עמודה קנוני (כרטיס אופקי: תמונה + טקסט) — לגרסת-העמודה של הרצועה הממוזגת (דסקטופ, צד שמאל).
-function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = false, onOpen, P }) {
+function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = false, brandBadge = false, onOpen, P }) {
   if (!r) return <div style={{ height: 76, borderRadius: 12, background: P.card, opacity: .5 }} />;
   const vid = r.is_video || isVideo(r.image_url);
   const thumb = r.thumb_url || (vid ? null : galThumb(r, 200));
@@ -120,10 +120,10 @@ function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = fal
           </div>
         )}
         {pin && <span aria-hidden style={{ position: "absolute", top: -6, insetInlineEnd: -4, fontSize: 17, transform: "rotate(-8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>🦅</span>}
-        {(feat || badgeBoost) && <BrandBadge size={badgeBoost ? "md" : "sm"} brand={brand} star={feat && !pin} />}
+        {(feat || badgeBoost || brandBadge) && <BrandBadge size={badgeBoost ? "md" : "sm"} brand={brand} star={feat && !pin} />}
       </div>
       <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 3, justifyContent: "center" }}>
-        <div style={{ color: pin ? brand.badgeColor : P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>{pin ? "🦅 הצופן" : `🕒 ${timeAgoHe(r.created_at)}`}</div>
+        <div style={{ color: (feat || r.cipher) ? brand.badgeColor : P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>{r.cipher ? `🦅 ${r.created_at ? formatDateHe(r.created_at) : "הצופן"}` : `🕒 ${timeAgoHe(r.created_at)}`}</div>
         {cap && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{cap}</div>}
       </div>
     </div>
@@ -138,29 +138,41 @@ function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = fal
 export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
   const P = usePalette();
   const OURS = BRAND_TZOFON, OG = BRAND_OR_GEULA;
-  const [cipher, setCipher] = useState(undefined);   // undefined=טרם, null=אין, obj=נעוץ
+  const [ciphers, setCiphers] = useState(null);      // רשימת סטוריז-הצופן (האחרונים)
   const [ogRows, setOgRows] = useState(null);
-  const [seen, setSeen] = useState(() => loadSeen(OG.seenKey));
-  const [viewer, setViewer] = useState(null);        // { items, index, brand }
+  const [cipherSeen, setCipherSeen] = useState(() => loadSeen(OURS.seenKey));
+  const [ogSeen, setOgSeen] = useState(() => loadSeen(OG.seenKey));
+  const [viewer, setViewer] = useState(null);        // { items, index, brand, seenKey }
 
   useEffect(() => {
     let alive = true;
-    getPinnedCipherStory().then(c => { if (alive) setCipher(c || null); }).catch(() => { if (alive) setCipher(null); });
+    getCipherStories({ limit: 8 }).then(c => { if (alive) setCiphers(Array.isArray(c) ? c : []); }).catch(() => { if (alive) setCiphers([]); });
     fetchBrandRows(OG, limit).then(r => { if (alive) setOgRows(r); }).catch(() => { if (alive) setOgRows([]); });
     return () => { alive = false; };
   }, [limit]);
 
-  const ready = ogRows !== null && cipher !== undefined;
-  const ogNew = (ogRows || []).filter(r => r && !seen.has(r.id));
-  const merged = [];
-  if (cipher) merged.push({ ...cipher, _brand: OURS });
-  ogNew.forEach(r => merged.push({ ...r, _brand: OG }));
+  const ready = ogRows !== null && ciphers !== null;
+  // עד 3 צפנים לא-נצפים (מי שצפה — נעלם, והבא-אחורה צף); הראשון מודגש (🦅 גדול). תאריך-עלייה לכל אחד.
+  const cipherShown = (ciphers || []).filter(r => r && !cipherSeen.has(r.id)).slice(0, 3);
+  const ogNew = (ogRows || []).filter(r => r && !ogSeen.has(r.id));
+  const merged = [
+    ...cipherShown.map((r, i) => ({ ...r, _brand: OURS, _feat: i === 0 })),
+    ...ogNew.map(r => ({ ...r, _brand: OG, _feat: false })),
+  ];
   if (ready && merged.length === 0) return null;
 
+  const markSeen = (seenKey, id) => {
+    const s = loadSeen(seenKey); s.add(id); saveSeen(seenKey, s);
+    if (seenKey === OURS.seenKey) setCipherSeen(new Set(s)); else setOgSeen(new Set(s));
+  };
   const openItem = (r) => {
-    if (r.cipher) { setViewer({ items: [r], index: 0, brand: OURS }); return; }   // הצופן — מנגן וידאו, לא נעלם
-    setSeen(prev => { const n = new Set(prev); n.add(r.id); saveSeen(OG.seenKey, n); return n; });
-    setViewer({ items: ogRows || [], index: Math.max(0, (ogRows || []).findIndex(x => x.id === r.id)), brand: OG });
+    if (r.cipher) {   // הצופן — מנגן את הסרט (mp4/יוטיוב) ברצף הצפנים; מסומן נצפה → נעלם
+      markSeen(OURS.seenKey, r.id);
+      setViewer({ items: cipherShown, index: Math.max(0, cipherShown.findIndex(x => x.id === r.id)), brand: OURS, seenKey: OURS.seenKey });
+      return;
+    }
+    markSeen(OG.seenKey, r.id);
+    setViewer({ items: ogRows || [], index: Math.max(0, (ogRows || []).findIndex(x => x.id === r.id)), brand: OG, seenKey: OG.seenKey });
   };
 
   const header = (
@@ -174,9 +186,10 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
       </span>
     </div>
   );
-  const viewerEl = viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand} onClose={() => setViewer(null)} />;
+  const viewerEl = viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand}
+    onSeen={(it) => markSeen(viewer.seenKey, it.id)} onClose={() => setViewer(null)} />;
 
-  // דסקטופ — «אותו דבר, בצד שמאל»: עמודה אנכית (כרטיסים), הצופן הנעוץ ראשון ומודגש
+  // דסקטופ — «אותו דבר, בצד שמאל»: עמודה אנכית (כרטיסים), הצופן הראשון מודגש (🦅)
   if (layout === "column") {
     return (
       <section aria-label="סטוריז — הצופן ואור הגאולה" style={{ direction: "rtl" }}>
@@ -184,7 +197,7 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {(ready ? merged : Array.from({ length: 6 })).map((r, i) => (
             <StoryColumnCard key={r?.id || i} r={r} brand={r?._brand || OURS}
-              feat={!!r?.cipher} pin={!!r?.cipher} badgeBoost={!!r?.cipher} onOpen={openItem} P={P} />
+              feat={!!r?._feat} pin={!!r?._feat} badgeBoost={!!r?._feat} brandBadge onOpen={openItem} P={P} />
           ))}
         </div>
         {viewerEl}
@@ -199,7 +212,7 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
         {(ready ? merged : Array.from({ length: 8 })).map((r, i) => (
           <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || OURS}
-            feat={!!r?.cipher} brandBadge badgeBoost={!!r?.cipher} pin={!!r?.cipher} onOpen={openItem} P={P} />
+            feat={!!r?._feat} brandBadge badgeBoost={!!r?._feat} pin={!!r?._feat} onOpen={openItem} P={P} />
         ))}
       </div>
       {viewerEl}

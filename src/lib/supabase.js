@@ -200,6 +200,28 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
   } catch { return []; }
 }
 
+// 🔯 סטוריז-הצופן — הצפנים האחרונים («כי לה׳ המלוכה») כרשימת-סטוריז שמתנגנת (mp4 או יוטיוב).
+// המבקר רואה עד 3 לא-נצפים; מי שצפה באחד — נעלם לו (seen), והבא-אחריו-אחורה צף. תאריך-עלייה לכל אחד.
+export async function getCipherStories({ limit = 8 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.rpc("get_reality_videos", { p_limit: 200 });
+    if (!Array.isArray(data)) return [];
+    return data
+      .filter(r => r && r.is_cipher && (r.video_url || r.yt))
+      .slice(0, limit)
+      .map(r => ({
+        id: `cipher:${r.slug}`,
+        text: stripHtml(r.title || ""),
+        image_url: r.video_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),   // mp4 מנגן ב-<video>; יוטיוב מזוהה דרך yt
+        yt: r.yt || null,
+        thumb_url: r.poster_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),
+        link_url: r.slug ? "/" + r.slug : null,
+        is_video: true, cipher: true, created_at: r.uploaded_at, priority: 2000,
+      }));
+  } catch { return []; }
+}
+
 // 📌 הצופן הנעוץ — סטורי יחיד שנעוץ ראשון ברצועת-הצ'אט. **מנגן את הסרט עצמו** (image_url=mp4 →
 // StoryViewer מנגן וידאו), לא מנווט לפוסט. המקור: home_videos (הסרטון-צופן המנוהל, mp4 נעוץ/אחרון).
 export async function getPinnedCipherStory() {
