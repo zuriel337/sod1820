@@ -74,18 +74,21 @@ function normCandidate(r) {
 }
 
 // ── מסלול-החומר (הרכיב המרכזי) ─────────────────────────────────────────────
+const TRACK_DOT = { done: "🟢", partial: "🟡", unchecked: "⚪", stalled: "🔴" };
+// שורת-סטטוס (לא כפתורים!) — מראה איפה הפריט נמצא במסלול. cursor:default, בלי מראה-כפתור.
 function TrackBar({ item }) {
   const track = useMemo(() => materialTrack(item), [item]);
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginTop: 8 }}>
-      {track.map((t, i) => (
-        <span key={i} title={`${t.stage}: ${TRACK_LABEL[t.state]}`}
-          style={{
-            fontSize: 9.5, fontWeight: 800, fontFamily: F.heading, borderRadius: 6, padding: "2px 6px",
-            color: TRACK_COLOR[t.state], border: `1px solid ${TRACK_COLOR[t.state]}55`,
-            background: TRACK_COLOR[t.state] + "14",
-          }}>{t.stage}</span>
-      ))}
+    <div style={{ marginTop: 8, cursor: "default" }}>
+      <span style={{ fontSize: 9.5, color: C.faint, fontFamily: F.heading, marginInlineEnd: 6 }}>מצב-החומר (לתצוגה, לא ללחיצה):</span>
+      <span style={{ display: "inline", lineHeight: 1.9 }}>
+        {track.map((t, i) => (
+          <span key={i} title={`${t.stage}: ${TRACK_LABEL[t.state]}`}
+            style={{ fontSize: 10.5, fontWeight: 700, fontFamily: F.heading, color: TRACK_COLOR[t.state], whiteSpace: "nowrap", marginInlineEnd: 4 }}>
+            {TRACK_DOT[t.state]} {t.stage}{i < track.length - 1 ? <span style={{ color: C.faint, fontWeight: 400 }}> › </span> : ""}
+          </span>
+        ))}
+      </span>
     </div>
   );
 }
