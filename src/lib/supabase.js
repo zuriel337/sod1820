@@ -174,6 +174,28 @@ export async function getHomeVideoByCipher(cipherSlug) {
   } catch { return null; }
 }
 
+// 🎬 תמלול רב-לשוני לסרטון (video_transcription_law) — מחזיר את כל השורות המפורסמות
+// לפי זהות הסרטון. מקבל אחד מ: videoKey (yt id / reel shortcode / slug), yt, או sourceUrl.
+// מוחזר ממוין: המקור (is_original) קודם, ואז שאר השפות. הלקוח קורא ישירות (RLS: status='published').
+export async function getVideoTranscripts({ videoKey, yt, sourceUrl } = {}) {
+  if (!supabase) return [];
+  const key = videoKey || yt || sourceUrl;
+  if (!key) return [];
+  try {
+    let dbq = supabase
+      .from("video_transcripts")
+      .select("video_key, yt, source_url, title, lang, transcript, summary, is_original, translated_by, updated_at");
+    if (videoKey) dbq = dbq.eq("video_key", videoKey);
+    else if (yt) dbq = dbq.eq("yt", yt);
+    else dbq = dbq.eq("source_url", sourceUrl);
+    const { data, error } = await dbq
+      .order("is_original", { ascending: false })
+      .order("lang", { ascending: true });
+    if (error) return [];
+    return data || [];
+  } catch { return []; }
+}
+
 // Search in title + content, optional filters
 export async function searchPosts(query, { limit = 40, category = null, tag = null, year = null } = {}) {
   if (!supabase || !query?.trim()) return [];
