@@ -2,7 +2,7 @@
 // נתוני האתר החדש, נאספים ישירות לבסיס הנתונים שלנו — ללא תלות בגוגל.
 // פרטיות: בלי IP / בלי PII. מזהה-גולש = מחרוזת אקראית ב-localStorage (לספירת ייחודיים בלבד).
 import { supabase } from "./supabase.js";
-import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
+import { emit, isBot } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
 
 const VKEY = "sod_visitor";
 
@@ -34,20 +34,16 @@ function externalReferrer() {
 
 let firstHit = true;
 
-// 🤖 זיהוי בוטים: בוט שמריץ JS (Googlebot/מוניטורים/קרולרים) חושף עצמו ב-userAgent.
-// שינוי מדיניות (11.7): לא *מדלגים* על הבוט — **מסמנים** אותו (is_bot) ורושמים בכל זאת.
-// כך נשמרים שני מונים אחידים: «כולל בוטים» (הכל) ו«אנשים בלבד» (is_bot=false), בלי מדרגה.
-const BOT_UA = /bot|crawl|spider|slurp|googlebot|bingpreview|jetmon|uptime|monitor|headless|phantom|puppeteer|playwright|python|curl|wget|libwww|okhttp|java\/|go-http|facebookexternal|externalhit|preview|lighthouse|pagespeed|gtmetrix|semrush|ahrefs|mj12|dotbot|petalbot|dataprovider|scan|um-ic|feedfetch/i;
-function isBotUA() {
-  try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; }
-  catch { return false; }
-}
+// 🤖 זיהוי בוטים: מקור-אמת = פסק-הקצה (cookie vb מה-middleware, דרך isBot() ב-events.js) —
+// מחושב מה-UA האמיתי בצד-שרת, ונופל ל-heuristic של UA בצד-לקוח רק אם אין עדיין cookie.
+// מדיניות (11.7): לא *מדלגים* על הבוט — **מסמנים** אותו (is_bot) ורושמים בכל זאת → שני מונים
+// אחידים: «כולל בוטים» (הכל) ו«אנשים בלבד» (is_bot=false), בלי מדרגה.
 
 // רישום כניסה לדף. fire-and-forget — לעולם לא שובר גלישה.
 export async function trackVisit(path) {
   if (!supabase || !path) return;
   if (path.startsWith("/admin")) return;   // לא סופרים את עמוד הניהול עצמו
-  const bot = isBotUA();                     // 🤖 מסמנים (לא מדלגים) → שני מונים: כולל-בוטים + אנשים
+  const bot = isBot();                       // 🤖 פסק-קצה סמכותי → שני מונים: כולל-בוטים + אנשים
   const referrer = firstHit ? externalReferrer() : null;
   firstHit = false;
   try {

@@ -174,5 +174,11 @@ export default async function middleware(request, context) {
   if (blocked) return new Response('Access denied', { status: 403, headers: { 'cache-control': 'no-store' } });
   // 🇮🇱 חושפים את מדינת-המבקר ללקוח (cookie vc) — לגידור מודעות ל-IL בלבד (בקשת צוריאל:
   //    פרסומות לא-צנועות הגיעו מתעבורה זרה). המודעות ממילא רק בפוסטים הישנים.
-  return next({ headers: { 'set-cookie': `vc=${country}; Path=/; Max-Age=86400; SameSite=Lax` } });
+  // 🤖 חושפים גם את פסק-הבוט של הקצה (cookie vb=<kind>): browser=אדם · goodbot/ai/bot=בוט.
+  //    מחושב מה-UA האמיתי בצד-שרת → הלקוח (events.js/visits.js) מסמן is_bot לפיו במקום זיהוי-UA
+  //    חלש בצד-לקוח (שמפספס headless שמזייף UA). ניתן-קריאה ל-JS (לא HttpOnly), כמו vc.
+  const outHeaders = new Headers();
+  outHeaders.append('set-cookie', `vc=${country}; Path=/; Max-Age=86400; SameSite=Lax`);
+  outHeaders.append('set-cookie', `vb=${kind}; Path=/; Max-Age=86400; SameSite=Lax`);
+  return next({ headers: outHeaders });
 }
