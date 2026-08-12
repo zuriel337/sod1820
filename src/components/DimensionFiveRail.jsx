@@ -7,10 +7,10 @@ import { stripHtml, formatDateHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import HomeHeader from "./HomeHeader.jsx";
 
-// 🌀 «מימד חמש» — שורת-פוסטים ייעודית בדף הבית, אוסף כל הפוסטים בקטגוריה «מימד חמש».
-// עצמאית: מושכת לפי קטגוריה בלבד → מוצגת גם אם הפוסטים home_hidden (מחוץ ל«עדכונים אחרונים»).
+// 🌀 «מימד חמש» — שורת-פוסטים ייעודית בדף הבית, אוסף כל הפוסטים עם התגית «מימד חמש».
+// עצמאית: מושכת לפי תגית בלבד → מוצגת גם אם הפוסטים home_hidden (מחוץ ל«עדכונים אחרונים»).
 const IND = "#8458ff";
-const CAT = "מימד חמש";
+const TAG = "מימד חמש";
 
 export default function DimensionFiveRail() {
   const P = usePalette();
@@ -18,7 +18,7 @@ export default function DimensionFiveRail() {
 
   useEffect(() => {
     let alive = true;
-    getPostsFromSupabase({ category: CAT, limit: 12, orderBy: "modified" })
+    getPostsFromSupabase({ tag: TAG, limit: 12, orderBy: "modified" })
       .then(({ posts: r }) => { if (alive) setPosts(r || []); })
       .catch(() => { if (alive) setPosts([]); });
     return () => { alive = false; };
@@ -39,7 +39,7 @@ export default function DimensionFiveRail() {
         .d5-card:hover .d5-media{ transform:translateY(-3px); border-color:${IND}; box-shadow:0 0 22px ${IND}55; }
       `}</style>
       <div className="d5-wrap">
-        <HomeHeader title="🌀 מימד חמש" action={{ label: "לכל מימד חמש →", to: `/category/${CAT}` }} />
+        <HomeHeader title="🌀 מימד חמש" action={{ label: "לכל מימד חמש →", to: `/tag/${TAG}` }} />
         <div className="d5-row">
           {list.map(p => (
             <Link key={p.id} to={`/${p.slug}`} className="d5-card">

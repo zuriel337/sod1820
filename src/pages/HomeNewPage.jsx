@@ -480,11 +480,6 @@ export default function HomeNewPage() {
         <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
       </section>
 
-      {/* ===== 🌀 מימד חמש — שורת-פוסטים ייעודית (קטגוריה «מימד חמש», מחוץ ל«עדכונים אחרונים») ===== */}
-      <section style={{ padding: "0 0 30px" }}>
-        <DimensionFiveRail />
-      </section>
-
       {/* ===== 🔔 מה חדש בפורום מאז ביקורך — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 10.8.2026) ===== */}
       <div className="hn-wrap" style={{ padding: "0 18px 30px" }}>
         <WhatsNewCard />
@@ -500,6 +495,11 @@ export default function HomeNewPage() {
 
       {/* ===== 🎬 אור הגאולה — הסרטונים האחרונים שעלו + מתי (רצועה → /or-geula) ===== */}
       <HomeOrGeulaRail />
+
+      {/* ===== 🌀 מימד חמש — שורת-פוסטים לפי תגית «מימד חמש» (מתחת לסטורי/רצועת אור הגאולה) ===== */}
+      <section style={{ padding: "18px 0 30px" }}>
+        <DimensionFiveRail />
+      </section>
 
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
       <TreasuresHome />
