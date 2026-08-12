@@ -911,7 +911,7 @@ export default function ContributorPage() {
       </WriterSlot>
 
       {/* ═══ סלוט 3 · 🔢 הגימטריות המאומתות שלי ═══ (מקור קנוני יחיד + empty-state עצמי) */}
-      <VerifiedGematrias name={c.display_name} acc={c.accent} uid={c.user_id} />
+      <VerifiedGematrias name={c.display_name} acc={c.accent} uid={c.user_id} waNames={c.wa_names} />
 
       {/* ═══ סלוט 4 · 🔬 המחקר שלי ═══ (עדשות על עץ-הידע; מסגרת זהה, נתונים משתנים) */}
       <WriterSlot P={P} emoji="🔬" title="המחקר שלי" empty={researchEmpty} emptyText="אין עדיין מחקר מוצג לכתב הזה.">

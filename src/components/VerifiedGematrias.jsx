@@ -22,7 +22,7 @@ function parseFinding(r) {
   return { phrase, value, method: r.method || null };   // method = שיטה לא-רגילה (מסתתר/מילוי/את־בש…) לתיוג
 }
 
-export default function VerifiedGematrias({ name, acc, uid }) {
+export default function VerifiedGematrias({ name, acc, uid, waNames }) {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const A = acc || P.accent;
@@ -30,25 +30,38 @@ export default function VerifiedGematrias({ name, acc, uid }) {
   useEffect(() => {
     if (!name) return;
     let alive = true;
+    // מפתחות-הזהות של הכתב — display_name + wa_names (reuse: אותם מפתחות של getUpdatesByReporterNames).
+    const names = [name, ...(Array.isArray(waNames) ? waNames : [])].map(s => (s || "").trim()).filter(Boolean);
+    const uniqNames = [...new Set(names)];
     (async () => {
-      const [bank, findings] = await Promise.all([
+      const [bank, vip, findings] = await Promise.all([
+        // סכמה א׳: source='contribution:<display_name>' (קוהורטים ישנים, למשל צבי=227)
         supabase.from("gematria_words").select("phrase,ragil")
           .eq("source", `contribution:${name}`).eq("is_verified", true).not("ragil", "is", null).limit(400),
+        // סכמה ב׳: vip_source ∈ {display_name + wa_names} — האוצר שתויג ממקור-הכתב (engine-verified בלבד).
+        supabase.from("gematria_words").select("phrase,ragil,vip_source")
+          .in("vip_source", uniqNames).eq("is_verified", true).not("ragil", "is", null).limit(400),
         getWriterGematrias(name, uid || null),   // RPC — עוקף RLS, כולל published
       ]);
       const map = new Map();
       for (const r of (bank.data || [])) {
         if (r.phrase && r.ragil != null) map.set(`${r.phrase}|${r.ragil}`, { phrase: r.phrase, value: r.ragil });
       }
+      for (const r of (vip.data || [])) {        // dedup לפי phrase|value — לא דורס רשומה קיימת
+        if (r.phrase && r.ragil != null) {
+          const k = `${r.phrase}|${r.ragil}`;
+          if (!map.has(k)) map.set(k, { phrase: r.phrase, value: r.ragil, via: r.vip_source || null });
+        }
+      }
       for (const r of (Array.isArray(findings) ? findings : [])) {
         const g = parseFinding(r);
-        if (g) map.set(`${g.phrase}|${g.value}`, g);
+        if (g && !map.has(`${g.phrase}|${g.value}`)) map.set(`${g.phrase}|${g.value}`, g);
       }
       const list = [...map.values()].sort((a, b) => a.value - b.value);
       if (alive) setRows(list);
     })();
     return () => { alive = false; };
-  }, [name, uid]);
+  }, [name, uid, Array.isArray(waNames) ? waNames.join("|") : ""]);
 
   if (rows === null) return null;   // טעינה — לא מהבהב
 
@@ -57,7 +70,7 @@ export default function VerifiedGematrias({ name, acc, uid }) {
     <div style={{ textAlign: "center", marginBottom: 12 }}>
       <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>
         🔢 הגימטריות המאומתות של {name}
-        <span title="אומת במנוע ואושר" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: F.heading, fontSize: 11, fontWeight: 900, color: "#0b3d2e", background: "linear-gradient(135deg,#8ff0c0,#38d493)", borderRadius: 999, padding: "2px 9px" }}>✓ מאומת</span>
+        <span title="אומת במנוע (אימות חישובי — לא אישור אנושי/קנוני)" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: F.heading, fontSize: 11, fontWeight: 900, color: "#0b3d2e", background: "linear-gradient(135deg,#8ff0c0,#38d493)", borderRadius: 999, padding: "2px 9px" }}>✓ אומת במנוע</span>
       </div>
       {rows.length > 0 && (
         <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, marginTop: 3 }}>
