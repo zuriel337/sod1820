@@ -164,15 +164,13 @@ export async function getCategoryVideos(category = "וידאו", { limit = 60 } 
 export async function getPinnedCipherStory() {
   if (!supabase) return null;
   try {
-    const { data } = await supabase.from("home_videos")
-      .select("id, slug, title, video_url, poster_url, yt, uploaded_at")
-      .not("is_active", "is", false).not("video_url", "is", null)
-      .order("pinned", { ascending: false }).order("uploaded_at", { ascending: false })
-      .limit(1);
-    const v = data && data[0];
-    if (!v || !v.video_url) return null;
+    // הצופן החדש ביותר בקטגוריית «צפונות בתורה» שיש לו וידאו מתנגן (mp4) — אוטומטי: כל צופן
+    // חדש שיעלה עם סרטון יינעץ ראשון. ה-RPC כבר מחלץ video_url ומסדר לפי תאריך יורד.
+    const { data } = await supabase.rpc("get_category_videos", { p_category: "צפונות בתורה", p_limit: 30 });
+    const v = Array.isArray(data) ? data.find(r => r && r.video_url) : null;
+    if (!v) return null;
     return {
-      id: `cipher:${v.id}`,
+      id: `cipher:${v.slug}`,
       text: stripHtml(v.title || ""),
       image_url: v.video_url,                                                    // mp4 → הסטורי מנגן את הסרט
       thumb_url: v.poster_url || (v.yt ? `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg` : null),

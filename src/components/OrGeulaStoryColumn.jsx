@@ -89,10 +89,10 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost 
             <span style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", color: "#111", fontSize: 10 }}>▶</span>
           </span>
         )}
-        {pin && <span aria-hidden style={{ position: "absolute", top: -6, insetInlineEnd: -4, fontSize: 16, transform: "rotate(8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>📌</span>}
+        {pin && <span aria-hidden style={{ position: "absolute", top: -8, insetInlineEnd: -6, fontSize: 18, transform: "rotate(-8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>🦅</span>}
         {(feat || brandBadge) && <BrandBadge size={badgeBoost ? "lg" : "sm"} brand={brand} star={feat && !pin} />}
       </span>
-      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pin ? "📌 הצופן" : timeAgoHe(r.created_at)}</span>
+      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pin ? "🦅 הצופן" : timeAgoHe(r.created_at)}</span>
     </button>
   );
 }
@@ -135,7 +135,7 @@ export function MergedStoriesRail({ limit = 20 }) {
         <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🎬 סטוריז</div>
         {/* מקרא זעיר — מפענח את הטבעות (הלוגו שלנו גדול יותר) */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5 }}>
-          <img src={OURS.logo} alt="" width="17" height="17" style={{ width: 17, height: 17, borderRadius: "50%", border: `1.5px solid ${OURS.badgeColor}` }} /> 📌 הצופן
+          <img src={OURS.logo} alt="" width="17" height="17" style={{ width: 17, height: 17, borderRadius: "50%", border: `1.5px solid ${OURS.badgeColor}` }} /> 🦅 הצופן
           <span style={{ opacity: .5, margin: "0 2px" }}>·</span>
           <img src={OG.logo} alt="" width="13" height="13" style={{ width: 13, height: 13, borderRadius: "50%" }} /> אור הגאולה
         </span>
