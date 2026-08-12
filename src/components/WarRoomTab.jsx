@@ -9,6 +9,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
+  getChannelUpdates,
 } from "../lib/supabase.js";
 import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
@@ -16,6 +17,15 @@ import {
 import AiAnalyze from "./AiAnalyze.jsx";
 
 const WRITERS = ["יניב לוי", "שמעון חיימוב", "ציון סיבוני", "צבי (OPOC)", "יצחק שחר קנדרו", "כריסטינה", "סלי מור"];
+
+// ── CC-1.1 · LIVE INGESTION — הפרדת שלושת הצינורות (READ-ONLY, בלי feeder/WRITE) ──
+// A = ערוצי-שידור (channel_updates, חי) · C = מנוע-הגילויים (research_objects) · B = רזיאל/VIP (רדום).
+// ⛔ תצוגה בלבד: אין fn_persist_discovery, אין שינוי research_objects, אין הפעלת B.
+const A_CHANNELS = [
+  ["gilui-yomi", "הגילוי היומי"], ["torat-haremez", "תורת הרמז"],
+  ["or-geula", "אור הגאולה"], ["sfot-vheker", "שפות וחקר מציאות"],
+];
+const C_SOURCES = ["discovery-engine", "entity-combo", "research-center", "active-panel"];
 
 const box = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", minWidth: 0 };
 const chip = (active, col) => ({
@@ -70,8 +80,34 @@ function normCandidate(r) {
     engineVerified: r.engine_verified === true, values: r.value != null ? [r.value] : [],
     hasCross: (r.kind === "relation"), inFeed: true, judged: r.status !== "candidate",
     inGraph: !!r.promoted_node_id, published: false, value: r.value, kind: r.kind, status: r.status,
+    src: r.source,   // מקור הצינור (discovery-engine / wa-raziel…) — להפרדת C מ-B
   };
 }
+// A · ערוץ-שידור → פריט-קליטה מנורמל. published=מקושר-לפוסט (link_url) = «קיים» באתר.
+function normChannel(r, chLabel) {
+  const t = String(r.text || "").replace(/<[^>]+>/g, "").trim();
+  return {
+    key: "ch:" + r.id, source: "ערוץ · " + (chLabel || r.channel || "—"), author: r.credit || "—",
+    ts: r.created_at, raw: t, channel: r.channel, link: r.link_url || null,
+    engineVerified: false, values: [], hasCross: false, value: null,
+    inFeed: false, inGraph: false, published: !!r.link_url,
+  };
+}
+// חדש / קיים / כפול — רק מה שניתן לקבוע מנתונים קיימים (בלי engine/parser):
+//   כפול = אותו טקסט מנורמל חוזר בתוך המנה · קיים = מקושר-לפוסט (link_url) · חדש = ראשון ולא-מקושר.
+function classifyIngest(items) {
+  const seen = new Set();
+  return items.map(it => {
+    const norm = (it.raw || "").replace(/\s+/g, " ").trim().toLowerCase();
+    let flag;
+    if (norm && seen.has(norm)) flag = "dup";
+    else { if (norm) seen.add(norm); flag = it.link ? "existing" : "new"; }
+    return { ...it, flag };
+  });
+}
+const INGEST_FLAG = {
+  new: { t: "🆕 חדש", c: "#4caf7d" }, existing: { t: "🔗 קיים", c: "#b08bd8" }, dup: { t: "♻️ כפול", c: "#8a8a95" },
+};
 
 // ── מסלול-החומר (הרכיב המרכזי) ─────────────────────────────────────────────
 const TRACK_DOT = { done: "🟢", partial: "🟡", unchecked: "⚪", stalled: "🔴" };
@@ -118,6 +154,22 @@ function ItemCard({ item, onFocus }) {
   );
 }
 
+// שורת-קליטה קומפקטית לצינור A (עם תיוג חדש/קיים/כפול). תצוגה בלבד.
+function IngestRow({ item }) {
+  const f = INGEST_FLAG[item.flag] || INGEST_FLAG.new;
+  return (
+    <div style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5 }}>
+      <span style={pill(f.c)}>{f.t}</span>
+      <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 11, whiteSpace: "nowrap" }}>{item.source}</span>
+      <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap" }}>{fmt(item.ts)}</span>
+      <span style={{ color: C.goldLight, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        {item.raw ? item.raw.slice(0, 100) : <span style={{ color: C.faint }}>(ללא טקסט)</span>}
+      </span>
+      {item.author && item.author !== "—" && <span style={{ color: C.muted, fontSize: 10.5, whiteSpace: "nowrap" }}>· {item.author}</span>}
+    </div>
+  );
+}
+
 export default function WarRoomTab() {
   const { isAdmin } = useAuth();
   const [mode, setMode] = useState("now");        // now | treasure
@@ -129,6 +181,8 @@ export default function WarRoomTab() {
   const [incoming, setIncoming] = useState([]);
   const [hot, setHot] = useState([]);
   const [candidates, setCandidates] = useState([]);
+  const [liveA, setLiveA] = useState([]);          // צינור A — ערוצי-שידור חיים (channel_updates)
+  const [bDormant, setBDormant] = useState(null);   // צינור B — {enabled,total} (רדום)
   const [groups, setGroups] = useState([]);
   const [writerItems, setWriterItems] = useState([]);
   const [groupItems, setGroupItems] = useState([]);
@@ -138,13 +192,20 @@ export default function WarRoomTab() {
 
   const loadNow = useCallback(async () => {
     setBusy(true);
-    const [forum, wa, posts, hn, feed] = await Promise.all([
+    const [forum, wa, posts, hn, feed, groups] = await Promise.all([
       getForumMaterial({ limit: 40 }), getWaLog({ limit: 40 }),
-      getPostsFromSupabase({ limit: 12 }), getHotNumbers(30, 12), getResearchFeed({ status: "candidate", limit: 60 }),
+      getPostsFromSupabase({ limit: 12 }), getHotNumbers(30, 12),
+      getResearchFeed({ status: "candidate", limit: 120 }), getWaGroups(),
     ]);
     const merged = [
       ...(forum || []).map(normForum), ...(wa || []).map(normWa), ...((posts?.posts) || []).map(normPost),
     ].sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0)).slice(0, 60);
+    // A · ערוצי-שידור החיים — reuse של getChannelUpdates לכל אחד מ-4 המקורות (status='live').
+    const chArr = await Promise.all(A_CHANNELS.map(([ch, lbl]) =>
+      getChannelUpdates(25, ch, true).then(r => (r || []).map(x => normChannel(x, lbl))).catch(() => [])));
+    const aMerged = classifyIngest(chArr.flat().sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0)));
+    setLiveA(aMerged);
+    setBDormant({ total: (groups || []).length, enabled: (groups || []).filter(g => g.enabled).length });
     setIncoming(merged); setHot(hn || []); setCandidates((feed || []).map(normCandidate));
     setBusy(false);
   }, []);
@@ -178,6 +239,9 @@ export default function WarRoomTab() {
   useEffect(() => { if (mode === "treasure" && lens === "writers") loadWriter(writer); }, [mode, lens, writer, loadWriter]);
   useEffect(() => { if (mode === "treasure" && lens === "groups" && groupSel) loadGroup(groupSel); }, [mode, lens, groupSel, loadGroup]);
   useEffect(() => { if (mode === "treasure" && lens === "language") loadLanguage(); }, [mode, lens, loadLanguage]);
+
+  // צינור C — מועמדי-מנוע בלבד (discovery-engine…), מופרד מ-wa-raziel של צינור B.
+  const discoveryC = useMemo(() => (candidates || []).filter(c => C_SOURCES.includes(c.src)), [candidates]);
 
   if (!isAdmin) return <div style={{ color: C.muted, padding: 30, textAlign: "center" }}>אין לך הרשאת ניהול.</div>;
 
@@ -213,9 +277,50 @@ export default function WarRoomTab() {
       </div>
 
       {mode === "now" && (
+       <>
+        {/* CC-1.1 · קליטה חיה — שלושת הצינורות מופרדים (READ-ONLY, בלי feeder) */}
+        <div style={box}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+            <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>📡 קליטה חיה (LIVE INGESTION)</span>
+            <span style={{ color: C.faint, fontSize: 11 }}>שלושה צינורות · הפרדה מלאה · תצוגה-בלבד (לא feeder, לא WRITE) {busy && "…"}</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10 }}>
+            <div style={{ ...box, borderColor: "#4caf7d55" }}>
+              <div style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800 }}>🟢 LIVE · צינור A</div>
+              <div style={{ color: C.muted, fontSize: 11, margin: "3px 0" }}>ערוצי-שידור (WhatsApp) → channel_updates</div>
+              <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{liveA.length}</div>
+              <div style={{ color: C.faint, fontSize: 10.5 }}>חי · מגיע לאתר · <b style={{ color: "#e0563a" }}>טרם-במנוע</b></div>
+            </div>
+            <div style={{ ...box, borderColor: "#3ea6ff55" }}>
+              <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontWeight: 800 }}>🔵 DISCOVERY · צינור C</div>
+              <div style={{ color: C.muted, fontSize: 11, margin: "3px 0" }}>מנוע-הגילויים → research_objects</div>
+              <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{discoveryC.length}</div>
+              <div style={{ color: C.faint, fontSize: 10.5 }}>הגיע למנוע · ממתין לשער-אנושי</div>
+            </div>
+            <div style={{ ...box, borderColor: "#e0563a55" }}>
+              <div style={{ color: "#e0563a", fontFamily: F.heading, fontWeight: 800 }}>🔴 DORMANT · צינור B</div>
+              <div style={{ color: C.muted, fontSize: 11, margin: "3px 0" }}>רזיאל/VIP → wa_bot_log</div>
+              <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{bDormant ? `${bDormant.enabled}/${bDormant.total}` : "—"}</div>
+              <div style={{ color: C.faint, fontSize: 10.5 }}>כבוי · לא מזין כרגע</div>
+            </div>
+          </div>
+          {/* פיד צינור A — חדש/קיים/כפול (ככל שניתן לקבוע מנתונים קיימים) */}
+          <div style={{ marginTop: 12, display: "grid", gap: 2 }}>
+            <div style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, marginBottom: 4 }}>
+              🟢 חומר-A שנכנס (חדש/קיים/כפול):
+            </div>
+            {liveA.length ? liveA.slice(0, 20).map(it => <IngestRow key={it.key} item={it} />)
+              : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : "אין חומר-A חי כרגע (status='live')."}</div>}
+            {liveA.length > 20 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 20 מתוך {liveA.length}.</div>}
+          </div>
+          <div style={{ color: C.faint, fontSize: 10.5, marginTop: 8, lineHeight: 1.6 }}>
+            ⛔ תצוגה בלבד: אף פריט לא נכתב ל-research_objects · צינור A אינו מחובר למנוע (0 קשרים) · «חדש/קיים/כפול» נקבע מנתונים קיימים בלבד (link_url + טקסט חוזר), לא ממנוע.
+          </div>
+        </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,320px)", gap: 14 }}>
           <div style={{ display: "grid", gap: 10, alignContent: "start" }}>
-            <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800 }}>🔴 נכנס עכשיו {busy && "…"}</div>
+            <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800 }}>🔴 נכנס עכשיו (פורום·פוסטים·WhatsApp-לוג) {busy && "…"}</div>
             {incoming.length ? incoming.map(it => <ItemCard key={it.key} item={it} onFocus={setFocusN} />)
               : <div style={{ color: C.muted, fontSize: 13 }}>אין חומר טרי כרגע.</div>}
           </div>
@@ -233,6 +338,7 @@ export default function WarRoomTab() {
             </div>
           </div>
         </div>
+       </>
       )}
 
       {mode === "treasure" && (
