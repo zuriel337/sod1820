@@ -225,6 +225,19 @@ export function setForumThreadJsonLd({ thread, replies = [], path, image } = {})
 }
 export function clearForumJsonLd() { removeJsonLd("sod-forum-ld"); }
 
+// 📅 uploadDate ל-VideoObject חייב להיות ISO 8601 **עם אזור-זמן** (דרישת דוח «סרטונים» ב-GSC:
+//    date בלבד «YYYY-MM-DD» → אזהרות «ערך לא תקין» + «חסר אזור-זמן»). המקור אצלנו הוא תאריך-בלבד
+//    (home_videos.uploaded_at = date · פוסטים = date), לכן מעגנים לחצות UTC (+00:00) — תקין,
+//    יציב (לא מזיז את היום), ומספק את דרישת ה-timezone. ערך שכבר מלא-ותקין נשאר כפי-שהוא.
+function videoUploadDate(raw) {
+  if (!raw) return undefined;
+  const s = String(raw).trim();
+  const day = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (!day) return undefined;                                   // ערך לא-מזוהה → משמיטים (עדיף מ«לא תקין»)
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/.test(s)) return s; // כבר תקין עם tz
+  return `${day[1]}T00:00:00+00:00`;                            // date-only → חצות UTC עם offset מפורש
+}
+
 // ── JSON-LD לגלריית הסרטים (דף הבית) — ItemList של VideoObject ──
 // מזין את דוח «וידאו» ב-Search Console → הסרטונים מופיעים כתוצאות-וידאו עשירות בגוגל
 // (thumbnail + כותרת), כדי שמי שמחפש את הסרטונים של סוד1820 יגיע אליהם ראשון.
@@ -241,7 +254,7 @@ export function setVideoGalleryJsonLd(videos = []) {
       name: plain(v.title || "", 110) || SITE_NAME,
       description: plain(v.title || "", 300) || SITE_NAME,
       thumbnailUrl: [v.poster_url || `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`],
-      uploadDate: v.uploaded_at || undefined,
+      uploadDate: videoUploadDate(v.uploaded_at),
       embedUrl: v.yt ? `https://www.youtube-nocookie.com/embed/${v.yt}` : undefined,
       contentUrl: v.video_url || (v.yt ? `https://www.youtube.com/watch?v=${v.yt}` : undefined),
       url: v.slug ? `${SITE_URL}/${v.slug}` : `https://youtu.be/${v.yt}`,
