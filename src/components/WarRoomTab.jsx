@@ -318,7 +318,8 @@ function LanguageZone({ byRel, stats, busy }) {
         <span style={pill("#3ea6ff")}>תרגום {byRel.translation.length}</span>
         <span style={pill("#e0913a")}>תעתיק {byRel.transliteration.length}</span>
         <span style={pill(C.muted)}>🔵 תעתיקים-ממתינים (לא-נסקרו): {stats.translitOpen ?? "—"}</span>
-        <span style={pill(C.muted)}>🔵 כיול-חוצה-שפות (גולמי): {stats.xlang ?? "—"}</span>
+        <span style={pill(C.faint)}>כיול-חוצה-שפות (21K · server-only)</span>
+        {stats.en && <span style={pill("#3ea6ff")}>אנגלית: מאושר {stats.en.en_approved ?? "—"} · ממתין {stats.en.en_pending ?? "—"}</span>}
       </div>
       <Group title={`${langRelLabel("shared_value")} (Hebrew↔English)`} col="#4caf7d" items={byRel.shared_value} />
       <Group title={langRelLabel("translation")} col="#3ea6ff" items={byRel.translation} />

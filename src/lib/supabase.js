@@ -3181,18 +3181,21 @@ export async function getForumMaterial({ author = null, limit = 120 } = {}) {
   const { data } = await q;
   return data || [];
 }
-// שכבת-השפות: קישורים מובחנים (תרגום/תעתיק/ערך-משותף) + מוני-רזרבה.
+// שכבת-השפות: קישורים מובחנים (תרגום/תעתיק/ערך-משותף) דרך הנתיב הקנוני.
+// ⚠️ language_links חסום לקריאה-ישירה (RLS: 0 policies) — קוראים דרך ה-RPC lang_links_list
+//    (SECURITY DEFINER), אותו מקור שבו «דף האנגלית» משתמש. reuse, בלי טבלה/RPC/DB חדש.
 export async function getLanguageLinks(limit = 200) {
   if (!supabase) return [];
-  const { data } = await supabase.from('language_links')
-    .select('hebrew,foreign_word,lang,relationship_type,gematria_he,status,human_verified,method').limit(limit);
-  return data || [];
+  const { data, error } = await supabase.rpc('lang_links_list', { p_visitor: null });
+  if (error) { console.error('getLanguageLinks', error.message || error); return []; }
+  return (data || []).slice(0, limit);
 }
 export async function getLanguageStats() {
-  const out = { translitOpen: null, xlang: null };
+  const out = { translitOpen: null, xlang: null, en: null };
   if (!supabase) return out;
+  // translit_suggestions קריא ישירות (policy translit_sugg_public_read); xlang_calibration server-only.
   try { const t = await supabase.from('translit_suggestions').select('id', { count: 'exact', head: true }).eq('status', 'open'); out.translitOpen = t.count ?? null; } catch { /* noop */ }
-  try { const x = await supabase.from('xlang_calibration').select('id', { count: 'exact', head: true }); out.xlang = x.count ?? null; } catch { /* noop */ }
+  try { const { data } = await supabase.rpc('admin_lang_stats'); if (data && !data.error) out.en = data; } catch { /* noop */ }
   return out;
 }
 
