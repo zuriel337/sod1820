@@ -9,8 +9,9 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
-  getChannelUpdates, getContributorsIndex,
+  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims,
 } from "../lib/supabase.js";
+import { extractCandidates, identifyMethod, proposeMethods, buildMethodProfile } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
@@ -351,6 +352,102 @@ function whyTier(it) {
     default: return "—";
   }
 }
+// 🔬 Smart Analysis Flow — פאזה 1 (READ/preview) בתוך ה-DetailPanel. שלבים 1–4 בלבד, כל אחד עם why.
+// ⛔ אין הרצת-מנוע ואין כתיבה (פאזה 2 גייטד). «שיטת-כתב» נלמדת מהיסטוריה מאומתת — לא מומצאת מממצא יחיד.
+function SmartAnalysis({ item }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [db, setDb] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const cands = useMemo(() => extractCandidates(item?.raw), [item?.raw]);
+  const top = cands[0] || null;
+  const identified = useMemo(() => (top ? identifyMethod(top, item?.raw) : null), [top, item?.raw]);
+  const proposed = useMemo(() => (top ? proposeMethods(top, identified, profile) : []), [top, identified, profile]);
+
+  const run = useCallback(async () => {
+    setOpen(true); setLoading(true);
+    const phrases = cands.filter(c => ["explicit-claim", "equation", "emphasized", "verse"].includes(c.type)).flatMap(c => c.parts || [c.text]);
+    const value = top?.value ?? (cands.find(c => c.value != null)?.value ?? null);
+    const w = item?.writer;
+    const canon = w?.canonical?.display_name || w?.contributor?.display_name;
+    const names = [canon, item?.rawAuthor, item?.author, ...((w?.canonical?.wa_names) || [])].filter(Boolean);
+    try {
+      const [d, claims] = await Promise.all([dbFirstLookup(phrases, value), getWriterVerifiedClaims(names)]);
+      setDb(d); setProfile(buildMethodProfile(claims));
+    } catch { /* ignore */ }
+    setLoading(false);
+  }, [cands, top, item]);
+
+  if (!item?.raw) return null;
+  const Stage = ({ n, title, children }) => (
+    <div style={{ borderInlineStart: `2px solid ${C.gold}`, paddingInlineStart: 10, marginBottom: 10 }}>
+      <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>{n}. {title}</div>
+      <div style={{ marginTop: 4 }}>{children}</div>
+    </div>
+  );
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: C.gold }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>🔬 ניתוח חכם (פאזה 1 · תצוגה)</span>
+        {!open && <button onClick={run} style={chip(true, C.gold)}>נתח</button>}
+        {loading && <span style={{ color: C.faint, fontSize: 11 }}>טוען…</span>}
+        <span style={{ color: C.faint, fontSize: 10 }}>קורא-בלבד · בלי מנוע · בלי כתיבה</span>
+      </div>
+      {open && (
+        <div style={{ marginTop: 10 }}>
+          <Stage n={1} title={`חילוץ מועמדים (${cands.length}) — לא כל הטקסט`}>
+            {cands.length ? cands.slice(0, 6).map((c, i) => (
+              <div key={i} style={{ fontSize: 12, padding: "2px 0", color: C.goldLight }}>
+                <span style={{ ...pill(i === 0 ? C.gold : C.muted), marginInlineEnd: 6 }}>{c.type}</span>
+                <b>{c.text}</b>{c.value != null ? <span style={{ color: C.gold }}> = {c.value}</span> : null}
+                <span style={{ color: C.faint }}> — {c.why}</span>
+              </div>
+            )) : <span style={{ color: C.faint, fontSize: 12 }}>אין מועמד ברור.</span>}
+          </Stage>
+          <Stage n={2} title="DB-First — מה כבר קיים">
+            {db ? (
+              <div style={{ fontSize: 12, color: C.goldLight }}>
+                {db.known.length ? db.known.map((k, i) => (
+                  <div key={i}>✓ «{k.phrase}»={k.ragil} כבר בבנק{k.vip_source ? ` · ${k.vip_source}` : ""}</div>
+                )) : <div style={{ color: C.faint }}>הביטויים לא בבנק — חדש.</div>}
+                {db.hubValue != null && <div style={{ color: "#3ea6ff" }}>צביר {db.hubValue}: {db.hubCount} ביטויים מאומתים</div>}
+              </div>
+            ) : <span style={{ color: C.faint, fontSize: 12 }}>…</span>}
+          </Stage>
+          <Stage n={3} title="שיטת-הכתב (נלמד מהיסטוריה מאומתת)">
+            <div style={{ fontSize: 12, color: C.goldLight }}>
+              <div>שיטת-הממצא הזה: <b>{identified?.method || "—"}</b> <span style={{ color: C.faint }}>— {identified?.why}</span></div>
+              {profile ? (
+                profile.total >= 1 ? (
+                  <div style={{ marginTop: 3 }}>
+                    פרופיל-כתב ({profile.total} מאומתים): {profile.dominant
+                      ? <b style={{ color: C.gold }}>דומיננטי: {profile.dominant}</b>
+                      : <span style={{ color: C.faint }}>טרם דומיננטי (צריך ≥2)</span>}
+                    {profile.methods.length > 0 && <span> · {profile.methods.map(m => `${m.method}×${m.count}`).join(" · ")}</span>}
+                  </div>
+                ) : <div style={{ color: C.faint, marginTop: 3 }}>אין עדיין ממצאים מאומתים לכתב — פרופיל ייבנה מהלכידות.</div>
+              ) : <span style={{ color: C.faint }}>…</span>}
+              <div style={{ color: C.faint, fontSize: 10.5, marginTop: 2 }}>רק ממצא מאומת נספר · Claim לא הופך לעובדה · לא נקבעת שיטה מממצא יחיד.</div>
+            </div>
+          </Stage>
+          <Stage n={4} title="שיטות מוצעות (מנוע קיים בלבד)">
+            {proposed.length ? proposed.map((p, i) => (
+              <div key={i} style={{ fontSize: 12, color: C.goldLight, padding: "1px 0" }}>
+                <span style={{ ...pill(p.hint ? C.muted : C.gold), marginInlineEnd: 6 }}>{p.method}</span>
+                <code style={{ color: C.faint }}>{p.fn}</code> <span style={{ color: C.faint }}>— {p.why}</span>
+              </div>
+            )) : <span style={{ color: C.faint, fontSize: 12 }}>—</span>}
+          </Stage>
+          <div style={{ marginTop: 8, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
+            <button disabled style={{ ...chip(false), opacity: 0.5, cursor: "not-allowed" }}>▶ הרץ מנוע (פאזה 2)</button>
+            <span style={{ color: C.faint, fontSize: 10.5, marginInlineStart: 8 }}>הרצת-מנוע + לכידה (Fact/VAULT/Atlas/סגור) = פאזה 2 גייטד — אחרי שתאשר שהניתוח נכון.</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // מקרא-פעולות ל-DetailPanel (מצב מדויק לכל פעולה).
 const ACTIONS = [["close", "סגור-מהתור"], ["engine", "בדוק-מנוע"], ["atlas", "→ Atlas"], ["axis", "→ שכבת-הציר"], ["core", "קדם→CORE"], ["notarikon", "נוטריקון (ר״ת/ס״ת)"]];
 // 🗂️ Row Detail/Action Panel חכם — הפעולות משתנות לפי סוג-החומר (לא 20 כפתורים בשורה).
@@ -413,6 +510,9 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
             </>
           )}
         </div>
+
+        {/* 🔬 Smart Analysis Flow — פאזה 1 (חילוץ→DB-First→שיטת-כתב→שיטות-מוצעות), READ/preview */}
+        <SmartAnalysis item={item} />
 
         {/* מצב-פעולות מדויק — בוצע / ממתין-לאישור / לא-ניתן / חסר-מידע (מחליף «לא בוצע») */}
         <div style={{ marginTop: 12, borderTop: `1px dashed ${C.border}`, paddingTop: 10 }}>

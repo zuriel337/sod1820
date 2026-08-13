@@ -136,6 +136,39 @@ export async function getPostByCipher(cipherSlug) {
   } catch { return null; }
 }
 
+// Smart Analysis Flow · DB-First — מה כבר קיים בבנק לביטויים ולערך (READ-ONLY, בלי הרצת-מנוע).
+export async function dbFirstLookup(phrases = [], value = null) {
+  const out = { known: [], hubValue: value, hubCount: 0 };
+  if (!supabase) return out;
+  const uniq = [...new Set((phrases || []).map(p => (p || "").trim()).filter(Boolean))];
+  try {
+    if (uniq.length) {
+      const { data } = await supabase.from("gematria_words")
+        .select("phrase,ragil,is_verified,vip_source,source").in("phrase", uniq).limit(50);
+      out.known = data || [];
+    }
+    if (value != null) {
+      const { count } = await supabase.from("gematria_words")
+        .select("id", { count: "exact", head: true }).eq("ragil", value).eq("is_verified", true);
+      out.hubCount = count || 0;
+    }
+  } catch { /* ignore */ }
+  return out;
+}
+
+// Smart Analysis Flow · פרופיל-שיטות של כתב — טענות עם gematria_claim בלבד (המאומתות מסוננות בצד-הלקוח). READ-ONLY.
+export async function getWriterVerifiedClaims(names = []) {
+  if (!supabase) return [];
+  const uniq = [...new Set((names || []).map(n => (n || "").trim()).filter(Boolean))];
+  if (!uniq.length) return [];
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("id,author_name,title,gematria_claim,created_at")
+      .in("author_name", uniq).not("gematria_claim", "is", null).limit(200);
+    return data || [];
+  } catch { return []; }
+}
+
 // Search in title + content, optional filters
 export async function searchPosts(query, { limit = 40, category = null, tag = null, year = null } = {}) {
   if (!supabase || !query?.trim()) return [];
