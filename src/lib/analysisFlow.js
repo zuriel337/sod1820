@@ -37,6 +37,40 @@ export function normMethod(s) {
   return String(s || "").trim() || null;   // לא-מזוהה — לא ממציאים, שומרים כפי-שהוא
 }
 
+// methodToken: מזהה טוקן-שיטה יחיד (עם קידומת ב/ה) ומחזיר את **תווית-הכתב** (משולש נשמר משולש, לא ריבוע). לא-שיטה → null.
+function methodToken(tok) {
+  const t = String(tok || "").replace(/["'׳״().]/g, "").trim();
+  if (/^ה?ב?מילוי$/.test(t)) return "מילוי";
+  if (/^ה?ב?משולש$/.test(t)) return "משולש";
+  if (/^ה?ב?ריבוע$/.test(t)) return "ריבוע";
+  if (/^ה?ב?רגיל$/.test(t)) return "רגיל";
+  if (/^ה?ב?אתבש$/.test(t)) return "את\"בש";
+  if (/^ה?ב?קדמי$/.test(t)) return "קדמי";
+  if (/^ה?ב?סידורי$/.test(t)) return "סידורי";
+  if (/^ה?ב?אלבם$/.test(t)) return "אלבם";
+  if (/^ה?ב?מסתתר$/.test(t)) return "מסתתר";
+  if (/^ה?ב?גדול$/.test(t)) return "גדול";
+  if (/^ה?ב?נוטריקון$/.test(t)) return "נוטריקון";
+  return null;
+}
+// splitMethod: מפריד «שיטה» מ«ביטוי» כשהכתב כתב אותה — בסוגריים בסוף «(מילים ואותיות)» או כמילה-אחרונה «… משולש».
+// ⛔ לא ממציא: אם לא צוינה שיטה → method=null («שיטת החישוב לא צוינה»). לא פוגע בביטוי חד-מילתי.
+export function splitMethod(rawPhrase) {
+  let p = String(rawPhrase || "").trim();
+  let method = null;
+  const par = p.match(/\(([^)]+)\)\s*$/);            // «…(מילים ואותיות)» / «…(מילוי)»
+  if (par) {
+    const inner = par[1].trim();
+    if (/מילים.{0,3}ו?אותיות/.test(inner)) { method = "מילים ואותיות"; p = p.slice(0, par.index).trim(); }
+    else { const mm = methodToken(inner); if (mm) { method = mm; p = p.slice(0, par.index).trim(); } }
+  }
+  if (!method) {                                      // מילת-שיטה אחרונה (רק אם נשארות ≥2 מילים בביטוי)
+    const words = p.split(/\s+/).filter(Boolean);
+    if (words.length >= 2) { const mm = methodToken(words[words.length - 1]); if (mm) { method = mm; words.pop(); p = words.join(" ").trim(); } }
+  }
+  return { phrase: p, method };
+}
+
 const HEB = /[א-ת]/;
 const NIKUD_G = /[֑-ׇ]/g;
 const stripNikud = (s) => String(s || "").replace(NIKUD_G, "");
@@ -64,7 +98,8 @@ export function extractCandidates(rawText) {
   if (!text.trim()) return [];
   const out = [];
   const seen = new Set();
-  const add = (c) => { const k = c.type + "|" + c.text; if (!seen.has(k)) { seen.add(k); out.push(c); } };
+  // dedup לפי type+text+**value+method** — אותו ביטוי בשני ערכים/שיטות (ברכו את ה' המברך=1402 וגם =922) = שתי טענות.
+  const add = (c) => { const k = c.type + "|" + c.text + "|" + (c.value ?? "") + "|" + (c.method ?? ""); if (!seen.has(k)) { seen.add(k); out.push(c); } };
   // mk: בונה מועמד עם `text` = המקור-כפי-שנכתב, ו-`norm` (צורת-מנוע) **רק אם שונה** — לצד המקור, לא במקומו.
   const mk = (raw, base) => { const t = origForm(raw); const n = clean(raw); const o = { ...base, text: t }; if (n && n !== t) o.norm = n; return o; };
   const lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
@@ -85,12 +120,16 @@ export function extractCandidates(rawText) {
       }
       continue;
     }
-    // explicit-claim (שורה): «ביטוי = מספר» — גם כשיש מרכאות/סימני-פיסוק לפני ה-«=» (מה זאת עשית"=1233 · ...ימלט." =1233).
-    let mm = line.match(/^(.*?[א-ת])[.,;:"'«»“”‘’׳״\s]*=\s*(\d{1,5})\b/);
-    if (mm) {
-      const disp = origForm(mm[1]), nf = clean(mm[1]);
+    // explicit-claim (שורה): «ביטוי [שיטה] = מספר» — סובלני לפיסוק/כוכבית/סוגריים לפני «=» (ראש הממשלה*= 922 · …(מילים ואותיות)=1149).
+    // שיטה נכתבת מופרדת לשדה `method` (ליל הבדלח משולש=434 → ביטוי «ליל הבדלח» · שיטה «משולש»). לא צוינה → method=null.
+    let mm = line.match(/^(.+?)\s*=\s*(\d{1,5})\b/);
+    if (mm && HEB.test(mm[1])) {
+      const val = Number(mm[2]);
+      const { phrase: ph, method } = splitMethod(mm[1]);
+      const disp = origForm(ph), nf = clean(ph);
       if (disp && HEB.test(nf || disp) && (nf || disp).length >= 2 && disp.length <= 48)
-        add(mk(mm[1], { type: "explicit-claim", value: Number(mm[2]), why: "הכתב כתב «=» מפורש עם ערך — טענה ישירה", score: 100 }));
+        add(mk(ph, { type: "explicit-claim", value: val, method: method || undefined,
+          why: method ? `הכתב: «${disp}» בשיטת «${method}» = ${val}` : `הכתב: «${disp}» = ${val} — שיטה לא צוינה (נדרש זיהוי/אימות)`, score: 100 }));
       continue;
     }
     // equation (שורה): «A = B» (שני ביטויים עבריים). דילוג על משוואות-סכום (מטופלות בנפרד).
@@ -239,14 +278,17 @@ export function detectSources(text) {
   const bookStop = new Set(["תורה", "התורה", "הזה", "זה"]);  // «ספר תורה» = מגילה, לא מקור-ציטוט
   while ((m = bookRe.exec(t))) { const name = clean(m[1]); if (name && !bookStop.has(name) && !seen.has("b:" + name)) { seen.add("b:" + name); out.push({ type: "book", name, citation: null }); } }
   for (const b of TANACH) {
-    const idx = t.indexOf(b);
+    // גבול-מילה: לא תת-מחרוזת (רות בתוך «הבחירות» → נדחה). קידומת-אות אחת מותרת (בישעיהו). חייב מספר-הפניה אחרי כדי להיחשב ציטוט.
+    const bm = t.match(new RegExp("(?:^|[^א-ת])[בהלמוכש]?(" + b + ")(?![א-ת])"));
+    const idx = bm ? bm.index + bm[0].length - b.length : -1;
     if (idx >= 0 && !seen.has("t:" + b) && !seen.has("b:" + b)) {   // כבר נלכד כ«ספר X» → לא לשכפל
-      seen.add("t:" + b);
       const after = t.slice(idx + b.length, idx + b.length + 20);
-      // מספר-עברי = 1–2 אותיות + גרשיים אופציונליים + עוד אות (ט"ז / י"ג). לוכד פרק [, פסוק].
-      const NUM = "[א-ת]{1,2}[\"'׳״]?[א-ת]{0,2}";
-      const cit = (after.match(new RegExp("^[\\s.,]*(" + NUM + "(?:\\s*[,:]\\s*" + NUM + ")?)")) || [])[1] || null;
-      out.push({ type: "tanach", name: b, citation: cit ? clean(cit) : null });
+      // הפניה תקינה: מספר-עברי עם גרשיים (ט"ז / מ"ד) או אות-בודדת (ו) — לא מילה-ארוכה בלי גרשיים («אשתי»).
+      const NUM = "[א-ת]{1,2}[\"'׳״][א-ת]{0,2}";
+      const cit0 = (after.match(new RegExp("^[\\s.,]*(" + NUM + "(?:\\s*[,:]\\s*" + NUM + ")?|[א-ת]['׳]?(?![א-ת]))")) || [])[1] || null;
+      if (!cit0) continue;   // שם-ספר בלי הפניה-תקינה = לא ציטוט (מונע «רות» בתוך פרוזה)
+      seen.add("t:" + b);
+      out.push({ type: "tanach", name: b, citation: clean(cit0) });
     }
   }
   return out;
@@ -279,34 +321,99 @@ export function detectOccurrenceClaims(text) {
   return out;
 }
 
+// ── אשכולות-ערך (writer-claimed) — קיבוץ טענות לפי הערך שהכתב ייחס. ≥2 ביטויים שונים = «התכנסות מועמדת» ──
+// ⛔ מועמדת בלבד — מחכה לאימות-מנוע לכל ביטוי בנפרד. HOT≠TRUE · CLAIM≠FACT. השיטה שונה בין ביטויים → לא אחידה.
+export function clusterClaims(claims = []) {
+  const byVal = new Map();
+  for (const c of claims) {
+    if (c.type !== "explicit-claim" || c.value == null) continue;
+    if (!byVal.has(c.value)) byVal.set(c.value, []);
+    byVal.get(c.value).push({ text: c.text, method: c.method || null, norm: c.norm || null });
+  }
+  return [...byVal.entries()].map(([value, items]) => {
+    const distinct = [...new Set(items.map(i => i.text))];
+    const methods = [...new Set(items.map(i => i.method).filter(Boolean))];
+    return { value, items, distinctExprs: distinct.length, methods, uniformMethod: methods.length <= 1, candidateConvergence: distinct.length >= 2 };
+  }).sort((a, b) => b.distinctExprs - a.distinctExprs || b.value - a.value);
+}
+
+// ── מפת ביטוי×שיטה×ערך — לכל ביטוי חוזר, כל (שיטה,ערך) שהכתב ייחס לו. «לנסוע לאורך/רוחב/עומק» ללא הסקת-משמעות. ──
+export function exprMethodValueMap(claims = []) {
+  const byExpr = new Map();
+  for (const c of claims) {
+    if (c.type !== "explicit-claim" || c.value == null) continue;
+    if (!byExpr.has(c.text)) byExpr.set(c.text, []);
+    const arr = byExpr.get(c.text); const key = (c.method || "—") + "|" + c.value;
+    if (!arr.some(x => x.key === key)) arr.push({ key, method: c.method || null, value: c.value });
+  }
+  return [...byExpr.entries()].map(([expr, rows]) => ({ expr, rows: rows.sort((a, b) => a.value - b.value) }))
+    .filter(e => e.rows.length >= 2).sort((a, b) => b.rows.length - a.rows.length);
+}
+
+// ── טענות שטרם-נבדקו: «X - טרם נבדק» (כולל שגיאת-כתיב «טאם נבדק»). לא מחשבים — מסמנים כבדיקה-ממתינה. המקור נשמר כלשונו. ──
+export function detectPending(text) {
+  const out = []; const seen = new Set();
+  for (const raw of String(text || "").split(/\n/)) {
+    const m = raw.match(/^\s*(.+?)\s*[-–—]\s*(טרם\s*נבדק|טאם\s*נבדק|לא\s*נבדק|לבדוק|טרם\s*אומת)/);
+    if (m) { const p = origForm(m[1]); if (p && HEB.test(p) && !/\d/.test(p) && p.length <= 40 && !seen.has(p)) { seen.add(p); out.push({ phrase: p, note: m[2].replace(/\s+/g, " ").trim(), why: "הטקסט מציין שהבדיקה טרם בוצעה — הצע בדיקת-גימטריה רגילה, ואז שיטות נוספות רק בהצדקה" }); } }
+  }
+  return out;
+}
+
+// ── הערת-כותב / טענת-תאריך (AUTHOR_NOTE · DATE_CLAIM) — תאריך עברי/לועזי + אירוע אישי → מועמד לשכבת-הציר, לא ממצא-גימטריה. ──
+const HEB_MONTHS = ["מרחשון", "מר חשון", "חשון", "תשרי", "כסלו", "טבת", "שבט", "אדר", "ניסן", "אייר", "סיון", "סיוון", "תמוז", "אלול", "אב"];
+export function detectDateClaims(text) {
+  const t = String(text || ""); const out = [];
+  const greg = t.match(/\b(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})\b/);
+  const monthRe = new RegExp("([א-ת]{1,3}['\"׳״]?)\\s+((?:" + HEB_MONTHS.join(")|(?:") + "))");
+  const hebDate = t.match(monthRe);
+  const birthday = /יום\s*הולדת/.test(t);
+  const age = (t.match(/יום\s*הולדת\S*\s*ה[־\-]?\s*(\d{1,3})/) || t.match(/בן\s*(\d{2,3})/) || [])[1] || null;
+  const note = (t.match(/[^\n]*יום\s*הולדת[^\n]*/) || [])[0]?.trim() || (t.match(/[^\n]*ב"ה[^\n]*/) || [])[0]?.trim() || null;
+  if (greg || (hebDate && birthday)) {
+    out.push({
+      kind: "AUTHOR_NOTE · DATE_CLAIM",
+      hebDate: hebDate ? origForm(hebDate[0]) : null,
+      gregDate: greg ? greg[0] : null,
+      claim: birthday ? `יום הולדת${age ? ` ${age}` : ""}` : null,
+      note: note ? note.slice(0, 160) : null,
+      why: "הערת-כותב עם תאריך/אירוע — מועמד לשכבת-הציר בכפוף לאימות תאריך+אירוע. ⛔ לא נכנס למנוע-הגימטריה.",
+    });
+  }
+  return out;
+}
+
 // המלצות-מחקר (H) — כל אחת עם `why` ו-`rank` (high=גבוהה · mid=בינונית · interp=פרשני·לא-Fact).
 // מוצעות בלבד, לא מבוצעות ולא מקדמות (Human-Gate). ⛔ שרשרת-פרשנות = interp, לעולם לא Fact.
-export function researchSuggestions({ engine, claims, koll, verses, sources, products, occurrences, writerName, dbHubKnown }) {
+export function researchSuggestions({ engine, claims, clusters, exprMap, pending, dateClaims, koll, verses, sources, products, occurrences, writerName, dbHubKnown }) {
   const s = [];
   const conv = engine?.convergences || [];
-  const convVals = new Set(conv.map(c => c.value));
-  // ── גבוהה — התכנסויות (Fact ניתן-לאימות) + טענות-מספר + הופעות + מכפלות ──
-  conv.slice(0, 3).forEach((hub, i) => {
+  const cand = (clusters || []).filter(c => c.candidateConvergence);
+  // ── גבוהה — אשכולות-מועמדים (writer-claimed) לפי כמות-הביטויים + התכנסויות-מנוע + הופעות/מכפלות/כולל ──
+  cand.slice(0, 6).forEach(cl => s.push({
+    rank: "high",
+    t: `אמת את כל ${cl.distinctExprs} הביטויים באשכול ${cl.value}`,
+    why: `הכתב ייחס ${cl.distinctExprs} ביטויים שונים לערך ${cl.value}${cl.uniformMethod ? "" : ` (שיטות שונות: ${cl.methods.join("·") || "לא-אחיד"} — כל ביטוי דורש אימות נפרד)`} — התכנסות מועמדת, לא מאומתת`,
+  }));
+  conv.slice(0, 2).forEach(hub => {
     const terms = [...new Set(hub.members.map(m => m.term))];
-    s.push({ rank: "high", t: `אמת את ההתכנסות ${hub.value}: ${terms.join(" ↔ ")}`, why: `${terms.length} ביטויים שונים בערך ${hub.value} (${[...new Set(hub.members.map(m => m.method))].join(",")}) — לאמת במנוע` });
-    if (i === 0) s.push({ rank: "high", t: `בדוק אם ${hub.value} כבר בצביר קיים ב-DB`, why: dbHubKnown != null ? `בבנק כרגע ${dbHubKnown} ביטויים בערך זה — למנוע כפילות ולחבר לעץ` : "למנוע כפילות ולחבר לעץ-הידע" });
+    s.push({ rank: "high", t: `התכנסות-מנוע ${hub.value}: ${terms.join(" ↔ ")}`, why: `${terms.length} ביטויים שהמנוע כבר מצא שווי-ערך (${[...new Set(hub.members.map(m => m.method))].join(",")}) — FACT חישובי` });
   });
   (occurrences || []).forEach(o => s.push({ rank: "high", t: `בדוק את טענת-ההופעה: «${o.phrase}» ${o.count}`, why: o.why }));
   (products || []).forEach(p => s.push({ rank: "high", t: `בדוק את טענת-המכפלה: ${p.factor} × «${p.unit}»${p.phrase ? ` = «${p.phrase}»` : ""}`, why: p.why }));
-  (claims || []).filter(c => c.type === "explicit-claim" && c.value != null && !convVals.has(c.value)).slice(0, 3)
-    .forEach(c => s.push({ rank: "high", t: `אמת «${c.text}» = ${c.value}`, why: "טענת-ערך של הכתב שאינה חלק מהתכנסות — לאמת במנוע" }));
+  (pending || []).forEach(p => s.push({ rank: "high", t: `בדוק «${p.phrase}» (${p.note})`, why: p.why }));
   if (koll?.length) s.push({ rank: "high", t: `אמת את מתודת-הכולל (${koll.join(" · ")})`, why: "המספר הוא CLAIM עם תוספת-חישוב — לאמת במנוע, לא להניח" });
   const sum = (claims || []).find(c => c.type === "sum-equation");
   if (sum) s.push({ rank: "high", t: `בדוק את המשוואה ${sum.text}`, why: `משוואת-סכום${sum.verifiedSum ? " (מאומתת חשבונית)" : ""} שהכתב הציג` });
-  // ── בינונית — מקורות · הרחבות · דפוס-כתב ──
-  (sources || []).forEach(src => {
-    if (src.type === "tanach") s.push({ rank: "mid", t: `אמת את המקור ${src.name}${src.citation ? ` ${src.citation}` : ""} וחפש הופעות נוספות`, why: "לזהות ספר/פרק ולבדוק אם הפסוק/הביטוי כבר ב-DB (לא לשכפל)" });
-  });
-  conv.slice(1, 3).forEach(hub => s.push({ rank: "mid", t: `בדוק קשרים קיימים של ${hub.value}`, why: "אולי כבר קיים צביר/ממצאים בערך זה" }));
+  // ── בינונית — צמתים-חוזרים · השוואת-שיטות · DB-First · מקורות · דפוס-כתב ──
+  (exprMap || []).slice(0, 3).forEach(e => s.push({ rank: "mid", t: `בדוק אם «${e.expr}» צומת-חוזר (${e.rows.length} שילובי שיטה×ערך)`, why: `הביטוי מופיע ב-${e.rows.map(r => `${r.method || "רגיל?"}→${r.value}`).join(" · ")} — השווה את השיטות במנוע` }));
+  s.push({ rank: "mid", t: "בדוק אילו מהביטויים כבר קיימים ב-DB", why: dbHubKnown != null ? `חלק מהערכים כבר בבנק — חדש מול חיזוק-קיים` : "DB-First לכל אשכול — חדש או חיזוק-לקיים" });
+  (sources || []).forEach(src => { if (src.type === "tanach") s.push({ rank: "mid", t: `אמת את המקור ${src.name}${src.citation ? ` ${src.citation}` : ""}`, why: "לזהות ספר/פרק ולבדוק אם כבר ב-DB (לא לשכפל)" }); });
   if (writerName) s.push({ rank: "mid", t: `בדוק ממצאים נוספים של ${writerName} עם מבנה דומה`, why: "לזהות דפוס-עבודה חוזר (פרופיל-שיטה)" });
-  s.push({ rank: "mid", t: "בדוק אם קיימת התכנסות דומה אצל כתבים אחרים", why: "הצלבה בין-כתבים מחזקת ממצא" });
+  // ── ציר — טענות-תאריך (לא Fact-גימטריה) ──
+  (dateClaims || []).forEach(d => s.push({ rank: "axis", t: `בדוק תאריך/אירוע: ${[d.hebDate, d.gregDate].filter(Boolean).join(" · ")}${d.claim ? ` (${d.claim})` : ""}`, why: d.why }));
   // ── פרשני — לא Fact ──
-  s.push({ rank: "interp", t: "בחן את שרשרת-הפרשנות שהכתב מציע", why: "קשר רעיוני (כיסוי/הגנה/קדושה/כתר) — Interpretation, לא עובדת-מנוע. לא לאמת כ-Fact ולא לקדם ל-Canonical" });
+  s.push({ rank: "interp", t: "בחן את הקשרים הרעיוניים שהכתב מציע", why: "פרשנות/הקשר — Interpretation, לא עובדת-מנוע. לא לאמת כ-Fact ולא לקדם ל-Canonical" });
   return s;
 }
 
@@ -323,9 +430,13 @@ export function analyzeFull(rawText, { writerName = null, dbHubKnown = null } = 
   const sources = detectSources(rawText);
   const products = detectProducts(rawText);
   const occurrences = detectOccurrenceClaims(rawText);
-  const suggestions = researchSuggestions({ engine, claims, koll, verses, sources, products, occurrences, writerName, dbHubKnown });
-  // מבנה-הממצא (🧩): המשוואה + ההתכנסות המרכזית + כל ההתכנסויות — «יחידות-טיעון».
+  const clusters = clusterClaims(cands);             // אשכולות writer-claimed (מועמדי-התכנסות)
+  const exprMap = exprMethodValueMap(cands);         // מפת ביטוי×שיטה×ערך
+  const pending = detectPending(rawText);            // «טרם נבדק»
+  const dateClaims = detectDateClaims(rawText);      // AUTHOR_NOTE · DATE_CLAIM
+  const suggestions = researchSuggestions({ engine, claims, clusters, exprMap, pending, dateClaims, koll, verses, sources, products, occurrences, writerName, dbHubKnown });
+  // מבנה-הממצא (🧩): המשוואה + ההתכנסות המרכזית + אשכולות + מפת-שיטות — «יחידות-טיעון».
   const sumEq = cands.find(c => c.type === "sum-equation");
-  const structure = { sumEq: sumEq || null, hub: engine.convergences[0] || null, convergences: engine.convergences, phrases, verses, sources, products, occurrences };
-  return { cands, claims, phrases, engine, koll, verses, sources, products, occurrences, suggestions, structure };
+  const structure = { sumEq: sumEq || null, hub: engine.convergences[0] || null, convergences: engine.convergences, clusters, exprMap, pending, dateClaims, phrases, verses, sources, products, occurrences };
+  return { cands, claims, phrases, engine, koll, verses, sources, products, occurrences, clusters, exprMap, pending, dateClaims, suggestions, structure };
 }

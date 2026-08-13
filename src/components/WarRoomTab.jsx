@@ -465,8 +465,8 @@ function FullAnalysis({ item }) {
           <Lyr t="A · מקור" c={C.muted}>{item.source}{res.wname ? ` · ${res.wname}` : ""}{item.ts ? ` · ${fmt(item.ts)}` : ""}</Lyr>
           {/* B · חילוץ — כל טענה מוצגת בדיוק כפי-שנכתבה במקור (`text`); צורת-מנוע (`norm`) לצדה, רק אם שונה */}
           <Lyr t={`B · חילוץ (${r.claims.length} טענות · ${r.phrases.length} ביטויים) — כלשונו`}>
-            {r.claims.slice(0, 6).map((c, i) => <span key={i} style={{ marginInlineEnd: 8 }}>«{c.text}»{c.norm ? <span style={{ color: C.faint, fontSize: 10 }}> (מנוע: {c.norm})</span> : null}{c.value != null ? <b style={{ color: C.gold }}>={c.value}</b> : ""}</span>)}
-            <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>הטקסט נשמר כלשונו — «מנוע:» = צורה מקופת-מקפים לחיפוש-בנק בלבד, לעולם לא מחליפה את המקור.</div>
+            {r.claims.slice(0, 8).map((c, i) => <span key={i} style={{ marginInlineEnd: 8 }}>«{c.text}»{c.method ? <span style={{ ...pill("#8458ff"), fontSize: 10, marginInline: 3 }}>{c.method}</span> : null}{c.norm ? <span style={{ color: C.faint, fontSize: 10 }}> (מנוע: {c.norm})</span> : null}{c.value != null ? <b style={{ color: C.gold }}>={c.value}</b> : ""}</span>)}
+            <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>הטקסט נשמר כלשונו · «שיטה» מופרדת כשהכתב כתבּה (ליל הבדלח <b>משולש</b>=434) · «מנוע:» = צורה לחיפוש-בנק, לא מחליפה את המקור.</div>
           </Lyr>
           {/* C · שיטה + פרופיל-כתב */}
           <Lyr t="C · שיטה (רק באינדיקציה אמיתית)">
@@ -487,17 +487,49 @@ function FullAnalysis({ item }) {
               {r.engine.convergences.slice(0, 5).map((cv, i) => <div key={i}><b style={{ color: C.gold }}>{cv.value}</b> = {cv.members.map(m => `«${m.term}»·${m.method}`).join(" = ")}</div>)}
             </Lyr>
           )}
-          {/* F · טענות-חבויות (מכפלה / הופעה) — CLAIM לבדיקה, לא Fact */}
-          {(r.products.length > 0 || r.occurrences.length > 0) && (
-            <Lyr t="F · טענות-חבויות (לבדיקה · לא-Fact)" c="#c77dd8">
+          {/* E2 · אשכולות writer-claimed = מועמדי-התכנסות (מחכים לאימות — לא Fact) */}
+          {(r.clusters || []).filter(c => c.candidateConvergence).length > 0 && (
+            <Lyr t={`E2 · מועמדי-התכנסות (writer-claimed · ${(r.clusters || []).filter(c => c.candidateConvergence).length}) — מחכה לאימות`} c="#e08a2e">
+              {(r.clusters || []).filter(c => c.candidateConvergence).slice(0, 8).map((cl, i) => (
+                <div key={i} style={{ padding: "1px 0" }}>
+                  🔵 <b style={{ color: C.gold }}>{cl.value}</b> <span style={{ color: C.faint }}>({cl.distinctExprs} ביטויים{cl.uniformMethod ? "" : ` · שיטות שונות: ${cl.methods.join("·")}`})</span>: {cl.items.map(it => `«${it.text}»${it.method ? `/${it.method}` : ""}`).join(" · ")}
+                </div>
+              ))}
+              <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>מועמד = הכתב ייחס אותו ערך ל-≥2 ביטויים. <b>CLAIM≠FACT · HOT≠TRUE</b> — שיטה לא-אחידה = כל ביטוי דורש אימות-מנוע נפרד.</div>
+            </Lyr>
+          )}
+          {/* 🧭 מפת ביטוי×שיטה×ערך — ביטוי חוזר לאורך שיטות/ערכים (בלי הסקת-משמעות) */}
+          {(r.exprMap || []).length > 0 && (
+            <Lyr t="🧭 מפת ביטוי × שיטה × ערך" c="#3ea6ff">
+              {r.exprMap.slice(0, 6).map((e, i) => (
+                <div key={i} style={{ padding: "1px 0" }}>«<b>{e.expr}</b>» → {e.rows.map(row => `${row.method || "?"}→${row.value}`).join("  ·  ")}</div>
+              ))}
+              <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>צומת-חוזר: אותו ביטוי בכמה שיטות/ערכים — משמעותי לכתב, אך לא מסיק משמעות. «?» = שיטה לא צוינה.</div>
+            </Lyr>
+          )}
+          {/* F · טענות-חבויות (מכפלה / הופעה / טרם-נבדק) — CLAIM לבדיקה, לא Fact */}
+          {(r.products.length > 0 || r.occurrences.length > 0 || (r.pending || []).length > 0) && (
+            <Lyr t="F · טענות-חבויות / ממתינות (לבדיקה · לא-Fact)" c="#c77dd8">
               {r.products.map((p, i) => <div key={"p" + i}>✖️ מכפלה: <b>{p.factor}</b> × «{p.unit}»{p.phrase ? <> = «{p.phrase}»</> : null} <span style={{ color: C.faint }}>— לאמת במנוע, לא להניח</span></div>)}
               {r.occurrences.map((o, i) => <div key={"o" + i}>📖 הופעה: «{o.phrase}» <b>{o.count}</b> <span style={{ color: C.faint }}>— לבדוק בחיפוש-תנ״ך</span></div>)}
+              {(r.pending || []).map((p, i) => <div key={"pd" + i}>🟡 טרם-נבדק: «{p.phrase}» <span style={{ color: C.faint }}>— {p.note} · הצע גימטריה רגילה תחילה</span></div>)}
+            </Lyr>
+          )}
+          {/* 🕐 טענת-תאריך / הערת-כותב → מועמד לשכבת-הציר (לא ממצא-גימטריה) */}
+          {(r.dateClaims || []).length > 0 && (
+            <Lyr t="🕐 הערת-כותב · DATE_CLAIM → מועמד לשכבת-הציר" c="#4caf7d">
+              {r.dateClaims.map((d, i) => (
+                <div key={i} style={{ padding: "1px 0" }}>
+                  {[d.hebDate, d.gregDate].filter(Boolean).join(" · ")}{d.claim ? <b style={{ color: C.gold }}> · {d.claim}</b> : null}
+                  <div style={{ color: C.faint, fontSize: 10 }}>⛔ לא נכנס למנוע-הגימטריה · מועמד לשכבת-הציר בכפוף לאימות תאריך+אירוע</div>
+                </div>
+              ))}
             </Lyr>
           )}
           {/* G · פרשנות + H · המלצות (מדורגות: גבוהה/בינונית/פרשני) */}
           <Lyr t="G · פרשנות הכתב" c={C.muted}>מוצגת בנפרד מהעובדות — CLAIM/INTERPRETATION, לא Fact.</Lyr>
           <Lyr t={`H · המלצות מחקר (${r.suggestions.length}) — לבחירתך`} c="#c79a2e">
-            {[["high", "🔴 גבוהה", "#d1493f"], ["mid", "🟡 בינונית", "#c79a2e"], ["interp", "🟣 פרשני (לא-Fact)", "#8458ff"]].map(([rk, lbl, col]) => {
+            {[["high", "🔴 גבוהה", "#d1493f"], ["mid", "🟡 בינונית", "#c79a2e"], ["axis", "🕐 ציר", "#4caf7d"], ["interp", "🟣 פרשני (לא-Fact)", "#8458ff"]].map(([rk, lbl, col]) => {
               const g = r.suggestions.filter(s => s.rank === rk);
               if (!g.length) return null;
               return (
