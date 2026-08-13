@@ -2,7 +2,7 @@
 // חוקי-ברזל (§13.8): אין WRITE · אין קידום · אין engine · אין שינוי EntityPage/גרף.
 // שער=החלטה-לא-ראות (§11.34): חומר שלפני research_objects נראה כאן. HOT≠TRUE · VIP≠TRUE · Claim≠Fact.
 // כל הנתונים מ-helpers קיימים בלבד (reuse-first). מסלול-החומר מראה «איפה נעצר».
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -583,6 +583,8 @@ export default function WarRoomTab() {
   const [sort, setSort] = useState("new");        // CC-1.3 · מיון (new/old/value)
   const [handled, setHandled] = useState(() => new Map()); // marker אישי «handled» (research_items) → Map(key→meta)
   const [showHandled, setShowHandled] = useState(false);   // «הצג גם שטופלו»
+  const [candExpanded, setCandExpanded] = useState(false); // הרחבת רשימת-המועמדים (לחיצה על המונה)
+  const candRef = useRef(null);                            // עוגן-גלילה לפאנל-המועמדים
   const [detail, setDetail] = useState(null);     // CC-1.3 · פריט פתוח ב-Detail Panel
   const [sel, setSel] = useState(() => new Set()); // CC-1.3 ש2 · רב-בחירה (מפתחות פריטים)
   // תאימות-קליק: setFilter({type,value}) ממזג facet לתוך אובייקט-הסינון (כל ה-onFilter הקיימים ממשיכים לעבוד).
@@ -698,6 +700,9 @@ export default function WarRoomTab() {
   // CC-1.3 ש2 · רב-בחירה. shown = מאגר-הכתב (אם פעיל) אחרת התור המוצג. בחירת-כתב = כל-החומר (כל הצינורות).
   const shown = useMemo(() => writerPool || [...liveAf, ...candF], [writerPool, liveAf, candF]);
   const hasFilter = Object.keys(filters).length > 0;
+  // מונה-התור החי: מועמדים שלא-שוטפלו (יורד כשסוגרים פריט מהתור). לא תלוי בפילטר — עומק-התור האמיתי.
+  const pendingCand = useMemo(() => (candidates || []).map(withH).filter(c => !c.handled), [candidates, withH]);
+  const openAllCandidates = () => { setMode("now"); setFilters({}); setShowHandled(false); setCandExpanded(true); setTimeout(() => candRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); };
   const selItems = useMemo(() => poolAll.filter(i => sel.has(i.key)), [poolAll, sel]);
   const toggleSel = (k) => setSel(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
   const selectAllShown = () => setSel(new Set(shown.map(i => i.key)));
@@ -741,7 +746,7 @@ export default function WarRoomTab() {
       {/* מטטרון — פס תמונת-על */}
       <div style={{ ...box, display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
         <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 13 }}>🕸️ מטטרון</span>
-        <span style={{ color: C.muted, fontSize: 12 }}>מועמדים ממתינים: <b style={{ color: C.goldLight }}>{candidates.length}</b></span>
+        <span style={{ color: C.muted, fontSize: 12 }}>מועמדים ממתינים: <b onClick={openAllCandidates} title="הצג את כל התור" style={{ color: C.goldBright, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{pendingCand.length}</b></span>
         <span style={{ color: C.muted, fontSize: 12 }}>🔥 מתעורר: {(hot || []).slice(0, 8).map(h => <b key={h.n} style={{ color: C.goldLight, cursor: "pointer", marginInlineEnd: 6 }} onClick={() => setFocusN(h.n)}>{h.n}</b>)}</span>
         <span style={{ color: C.faint, fontSize: 11 }}>(חם = אות, לא אמת)</span>
       </div>
@@ -842,11 +847,14 @@ export default function WarRoomTab() {
           </div>
           <div style={{ display: "grid", gap: 12, alignContent: "start" }}>
             <RazielPanel focusN={focusN} />
-            <div style={box}>
-              <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, marginBottom: 8 }}>
-                ⚖️ ממתין לשיפוט <span style={{ color: C.faint, fontSize: 11, fontWeight: 400 }}>({candF.length}{hasFilter ? " מסונן" : ""})</span>
+            <div style={box} ref={candRef}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800 }}>
+                  ⚖️ ממתין לשיפוט <span style={{ color: C.faint, fontSize: 11, fontWeight: 400 }}>({candF.length}{hasFilter ? " מסונן" : ""})</span>
+                </span>
+                {candF.length > 10 && <button onClick={() => setCandExpanded(v => !v)} style={{ ...chip(candExpanded, C.gold), marginInlineStart: "auto" }}>{candExpanded ? "הצג פחות" : `הצג את כל ${candF.length}`}</button>}
               </div>
-              {candF.slice(0, 10).map(c => (
+              {(candExpanded ? candF : candF.slice(0, 10)).map(c => (
                 <div key={c.key} onClick={() => setDetail(c)} title="פתח פרטים ופעולות"
                   style={{ borderBottom: `1px solid ${C.border}`, padding: "6px 0", fontSize: 12.5, color: C.goldLight, cursor: "pointer", opacity: c.handled ? 0.55 : 1 }}>
                   <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
