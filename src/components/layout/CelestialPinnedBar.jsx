@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 
 // 🌌 שורה נעוצה גלובלית — «שלושה דברים שמימיים בערב ראש חודש אלול».
-//    מוצגת בכל האתר (מתחת לנאבבר), מפנה לפוסט הקנוני. פריט-אחד-בכל-פעם בדהייה רכה
-//    (לא marquee) → רגוע במובייל. תמה-מודע (city_background_dual_theme_law §3):
-//    בבהיר טקסט כהה-קריא, בכהה שמי-לילה זהב. ניתנת לסגירה לדפדפן (× → localStorage),
-//    ותחזור אם צוריאל ירצה — או תוסר כשהאירוע יעבור.
-const POST_PATH = "/shalosh-devarim-shemeymiyim-elul";
+//    מוצגת בכל האתר (מתחת לנאבבר), פריט-אחד-בכל-פעם בדהייה רכה (לא marquee) →
+//    רגוע במובייל. תמה-מודע (city_background_dual_theme_law §3): בבהיר טקסט
+//    כהה-קריא, בכהה שמי-לילה זהב. ניתנת לסגירה לדפדפן (× → localStorage).
+//
+//    🌅 מחוברת מושגית ל«ציר ההתגלות» — תחנה עתידית שצוריאל יעדכן. בשלב זה
+//    אין קישור (הציר עוד «בבנייה») — מסומן «מחובר לציר ההתגלות · בבנייה», לא לחיץ.
 const DISMISS_KEY = "celestial_elul_5786_dismissed_v1";
+const VIOLET = "#8458ff"; // צבע ציר ההתגלות
 const LABEL = "✦ ערב ראש חודש אלול";
 const ITEMS = [
   "🌠 שיא מטר המטאורים «פרסאידים»",
@@ -43,6 +44,7 @@ export default function CelestialPinnedBar() {
   const ink = isLight ? "#33260a" : "#f6e7a8";
   const accent = isLight ? "#6d4e0b" : "#f2d789";
   const border = isLight ? "rgba(120,86,12,0.45)" : "rgba(212,175,55,0.32)";
+  const axisInk = isLight ? "#5b3fb0" : "#b9a4ff"; // «מחובר לציר» — סגול-הציר, קריא בשני המצבים
 
   const dismiss = (e) => {
     e.preventDefault(); e.stopPropagation();
@@ -52,7 +54,7 @@ export default function CelestialPinnedBar() {
 
   return (
     <div
-      role="region" aria-label="עדכון שמימי — ערב ראש חודש אלול"
+      role="region" aria-label="עדכון שמימי — ערב ראש חודש אלול · מחובר לציר ההתגלות"
       style={{
         direction: "rtl", background: barBg, borderBottom: `1px solid ${border}`,
         borderTop: isLight ? "1px solid rgba(120,86,12,0.18)" : "1px solid rgba(212,175,55,0.18)",
@@ -60,11 +62,10 @@ export default function CelestialPinnedBar() {
       }}
     >
       <style>{`@keyframes cpb-fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}`}</style>
-      <Link
-        to={POST_PATH}
+      <div
         style={{
           flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-          textDecoration: "none", padding: "6px 40px 6px 34px", overflow: "hidden", whiteSpace: "nowrap",
+          padding: "6px 40px 6px 34px", overflow: "hidden", whiteSpace: "nowrap", flexWrap: "wrap",
         }}
       >
         <span style={{ fontFamily: F.heading, fontWeight: 900, fontSize: 12.5, color: accent, letterSpacing: 0.3, flexShrink: 0 }}>{LABEL}</span>
@@ -73,8 +74,18 @@ export default function CelestialPinnedBar() {
           fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, color: ink,
           animation: "cpb-fade .5s ease both", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>{cur}</span>
-        <span style={{ fontFamily: F.heading, fontWeight: 800, fontSize: 11.5, color: accent, flexShrink: 0, opacity: 0.9 }}>← לקריאה</span>
-      </Link>
+        {/* 🌅 חיבור לציר ההתגלות — לא לחיץ, «בבנייה» (הציר יעודכן בעתיד ע״י צוריאל) */}
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 5, flexShrink: 0,
+          padding: "2px 9px", borderRadius: 999,
+          border: `1px solid ${axisInk}66`, color: axisInk,
+          fontFamily: F.heading, fontWeight: 800, fontSize: 10.5, letterSpacing: 0.4,
+          background: isLight ? "rgba(132,88,255,0.08)" : "rgba(132,88,255,0.14)",
+        }}>
+          <span aria-hidden>🌅</span>
+          מחובר לציר ההתגלות · בבנייה
+        </span>
+      </div>
       <button
         onClick={dismiss} aria-label="סגירת השורה"
         style={{
