@@ -212,7 +212,7 @@ function WriterChip({ writer }) {
   if (writer.state === "matched") {
     const canon = writer.canonical?.display_name || writer.contributor?.display_name || writer.raw;
     return (
-      <span style={{ color: C.muted, fontSize: 10.5, whiteSpace: "nowrap" }} title={`מזוהה: ${canon}`}>
+      <span style={{ color: C.muted, fontSize: 10.5, whiteSpace: "nowrap", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis" }} title={`מזוהה: ${canon}`}>
         <span style={{ color: st.c }}>✓</span> {canon}
         {writer.mergedFrom && (
           <span style={{ color: C.faint }} title={`ממוזג מ: ${writer.mergedFrom.display_name}`}> ⟵ «{writer.raw}»</span>
@@ -221,7 +221,7 @@ function WriterChip({ writer }) {
     );
   }
   return (
-    <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap" }}
+    <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis" }}
       title={writer.state === "ambiguous"
         ? "כמה התאמות — דורש מיזוג-אנושי (merged_into). לא נבחר אוטומטית."
         : "לא-מזוהה — לא נבחר contributor. השם המקורי נשמר."}>
@@ -236,23 +236,30 @@ function WriterChip({ writer }) {
 // שורת-קליטה. CC-1.3: לחיצה → Detail Panel · תג-רובד/flag → פילטר · ✔ סגור-מהתור / ↩︎ החזר · תווית מי→מה→שיטה→סטטוס→יעד→חסר.
 function IngestRow({ item, onOpen, onFilter, selected, onToggle, onClose, onUnclose }) {
   const f = INGEST_FLAG[item.flag] || INGEST_FLAG.new;
+  const closeBtn = item.handled
+    ? (onUnclose && <button onClick={e => { e.stopPropagation(); onUnclose(item); }} style={{ ...chip(false, "#e0913a"), padding: "2px 9px", flex: "none" }} title="החזר לתור">↩︎</button>)
+    : (onClose && <button onClick={e => { e.stopPropagation(); onClose(item); }} style={{ ...chip(false, "#4caf7d"), padding: "2px 9px", flex: "none" }} title="סגור מהתור">✔</button>);
   return (
     <div onClick={() => onOpen && onOpen(item)} title="פתח פרטים ופעולות"
-      style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5, flexWrap: "wrap", cursor: "pointer", opacity: item.handled ? 0.55 : 1 }}>
-      {onToggle && <input type="checkbox" checked={!!selected} onClick={e => e.stopPropagation()} onChange={() => onToggle(item.key)} style={{ cursor: "pointer", alignSelf: "center" }} />}
-      <TierBadge tier={item.tier} onClick={onFilter ? () => onFilter({ type: "tier", value: item.tier?.key }) : undefined} />
-      <span onClick={onFilter ? (e => { e.stopPropagation(); onFilter({ type: "flag", value: item.flag }); }) : undefined}
-        style={{ ...pill(f.c), cursor: onFilter ? "pointer" : "default" }} title={onFilter ? "סנן לפי סוג" : undefined}>{f.t}</span>
-      {item.handled && <span style={pill("#8a8a95")} title={item.handledMeta?.reason || "טופל"}>✅ טופל</span>}
-      <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 11, whiteSpace: "nowrap" }}>{item.source}</span>
-      <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap" }}>{fmt(item.ts)}</span>
-      <span style={{ color: C.goldLight, flex: 1, minWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {item.raw ? item.raw.slice(0, 100) : <span style={{ color: C.faint }}>(ללא טקסט)</span>}
-      </span>
-      <WriterChip writer={item.writer} />
-      {item.handled
-        ? (onUnclose && <button onClick={e => { e.stopPropagation(); onUnclose(item); }} style={{ ...chip(false, "#e0913a"), padding: "2px 8px" }} title="החזר לתור">↩︎</button>)
-        : (onClose && <button onClick={e => { e.stopPropagation(); onClose(item); }} style={{ ...chip(false, "#4caf7d"), padding: "2px 8px" }} title="סגור מהתור">✔</button>)}
+      style={{ borderBottom: `1px solid ${C.border}`, padding: "7px 0", cursor: "pointer", opacity: item.handled ? 0.55 : 1, minWidth: 0, overflow: "hidden" }}>
+      {/* שורה 1 — בחירה · טקסט · סגור (הטקסט מתכווץ עם ellipsis, לא דוחף מעבר לרוחב) */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", minWidth: 0 }}>
+        {onToggle && <input type="checkbox" checked={!!selected} onClick={e => e.stopPropagation()} onChange={() => onToggle(item.key)} style={{ cursor: "pointer", flex: "none" }} />}
+        <span style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, fontWeight: 600, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {item.raw ? item.raw.trim() : <span style={{ color: C.faint }}>(ללא טקסט)</span>}
+        </span>
+        {closeBtn}
+      </div>
+      {/* שורה 2 — תגיות (נשברות נקי) */}
+      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 4 }}>
+        <TierBadge tier={item.tier} onClick={onFilter ? () => onFilter({ type: "tier", value: item.tier?.key }) : undefined} />
+        <span onClick={onFilter ? (e => { e.stopPropagation(); onFilter({ type: "flag", value: item.flag }); }) : undefined}
+          style={{ ...pill(f.c), cursor: onFilter ? "pointer" : "default" }} title={onFilter ? "סנן לפי סוג" : undefined}>{f.t}</span>
+        {item.handled && <span style={pill("#8a8a95")} title={item.handledMeta?.reason || "טופל"}>✅ טופל</span>}
+        <span style={{ color: C.muted, fontFamily: F.heading, fontWeight: 700, fontSize: 10.5, whiteSpace: "nowrap" }}>{item.source}</span>
+        <span style={{ color: C.faint, fontSize: 10, whiteSpace: "nowrap" }}>{fmt(item.ts)}</span>
+        <WriterChip writer={item.writer} />
+      </div>
       <RowSummary item={item} />
     </div>
   );
@@ -342,7 +349,7 @@ function RowSummary({ item }) {
   const miss = whatMissing(item);
   const arr = <span style={{ color: C.faint }}> → </span>;
   return (
-    <div style={{ fontSize: 10, color: C.faint, marginTop: 2, lineHeight: 1.5, flexBasis: "100%" }}>
+    <div style={{ fontSize: 10, color: C.faint, marginTop: 3, lineHeight: 1.6, wordBreak: "break-word", width: "100%" }}>
       <b style={{ color: "#b08bd8" }}>{who}</b>{arr}{what}{arr}<span style={{ color: C.muted }}>{method}</span>
       {arr}<span style={{ color: st.c }}>{st.he}</span>{arr}<span style={{ color: "#3ea6ff" }}>{dests.join("·") || "—"}</span>
       {arr}חסר: <span style={{ color: "#e0563a" }}>{miss}</span>
