@@ -15,7 +15,7 @@ import { analyzeTime } from "../lib/timeFlow.js";
 import { crossMethodPairs } from "../lib/gematria.js";
 import { detectLanguage, replyLanguage, LANG_HE, CANON_LANGS } from "../lib/lang.js";
 import { creditsFor, providerCost } from "../lib/cost.js";
-import { waTranslate, waSendReply } from "../lib/waReply.js";
+import { waTranslate, waPrepareReply, waSendArtifact } from "../lib/waReply.js";
 import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
@@ -780,18 +780,18 @@ function ReplyFlow({ item }) {
     if (r.error) setErr("תרגום-נכנס נכשל: " + r.error); else setHeIn(r);
     setBusy(null);
   };
-  const doPreview = async () => {
-    if (!heReply.trim()) return;
+  const doPreview = async () => {   // prepare — יוצר artifact-מאושר (הטקסט המדויק שיישלח)
+    if (!heReply.trim() || !item?.group) return;
     setBusy("prev"); setErr(null); setPreview(null);
-    const r = await waTranslate({ text: heReply, target: recip, ...prov });
-    if (r.error) setErr("תרגום-תשובה נכשל: " + r.error); else setPreview(r);
+    const r = await waPrepareReply({ chatId: item.group, hebrew: heReply, target: recip, ref: item?.msgId || null, userRef: prov.userRef, msgIn: item?.raw || null });
+    if (r.error) setErr("הכנת-תרגום נכשלה: " + (r.detail || r.error)); else setPreview(r);   // r = {artifact, text}
     setBusy(null);
   };
-  const doSend = async () => {   // 🔒 Human-Gate — נקרא רק בלחיצה מפורשת, ורק כשיש Preview
-    if (!preview?.text || !item?.group) return;
+  const doSend = async () => {   // 🔒 Human-Gate — שולח את ה-artifact המאושר בלבד (מילה-במילה). Idempotent.
+    if (!preview?.artifact) return;
     setBusy("send"); setErr(null);
-    const r = await waSendReply({ chatId: item.group, text: preview.text, msgIn: item?.raw || null });
-    if (r.error) setErr("שליחה נכשלה: " + (r.detail || r.error)); else setSent({ at: r.at, text: preview.text });
+    const r = await waSendArtifact({ artifact: preview.artifact });
+    if (r.error) setErr("שליחה נכשלה: " + (r.detail || r.error)); else setSent({ at: r.at, text: preview.text, idempotent: r.idempotent });
     setBusy(null);
   };
 
@@ -846,10 +846,10 @@ function ReplyFlow({ item }) {
           </div>
           {/* 5 · אישור ושליחה (Human-Gate) */}
           <div style={{ borderTop: `1px dashed ${C.border}`, paddingTop: 6 }}>
-            <button onClick={doSend} disabled={!preview?.text || busy === "send"} style={chip(true, preview?.text ? "#128c4b" : "#8a8a95")}>
-              {busy === "send" ? "שולח…" : "✅ אשר (ZURIEL) ושלח"}
+            <button onClick={doSend} disabled={!preview?.artifact || busy === "send"} style={chip(true, preview?.artifact ? "#128c4b" : "#8a8a95")}>
+              {busy === "send" ? "שולח…" : "✅ אשר (ZURIEL) ושלח את המאושר"}
             </button>
-            <span style={{ color: C.faint, fontSize: 10, marginInlineStart: 8 }}>נשלח רק אחרי Preview + אישור מפורש · recipient מהרשומה ({item?.group || "—"})</span>
+            <span style={{ color: C.faint, fontSize: 10, marginInlineStart: 8 }}>שולח את ה-artifact המאושר בלבד (מילה-במילה) · recipient מהרשומה ({item?.group || "—"}) · double-click בטוח</span>
           </div>
         </div>
       )}
