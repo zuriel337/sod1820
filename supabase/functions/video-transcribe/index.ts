@@ -82,6 +82,50 @@ async function translate(text: string, targetLang: string): Promise<{ text: stri
   return { text: out, model: MODEL };
 }
 
+// 🌍 מצב-raw (Language Layer) — זיהוי-שפה + תרגום-ליעד בקריאה אחת, בלי video_key ובלי כתיבה ל-video_transcripts.
+// מחזיר usage (טוקנים) לרישום-עלות. אותם כללי-תרגום נאמנים (שמות/פסוקים/גימטריות נשמרים).
+// ⚠️ טרם נפרס — additive בלבד (לא נוגע במסלולי translate/set_original/list הקיימים).
+async function detectAndTranslate(text: string, targetLang: string) {
+  if (!ANTHROPIC_KEY) { LAST_ERR = "no_key"; return null; }
+  const sys = TRANSLATE_SYSTEM +
+    "\n\nADDITIONAL: First DETECT the source language (ISO-639-1 code). Then translate the text into " + langName(targetLang) + "." +
+    " Return ONLY strict JSON, no markdown/prose: {\"detected_language\":\"<iso>\",\"confidence\":<0..1>,\"translation\":\"<translated text>\"}.";
+  const body = { model: MODEL, max_tokens: 4000, system: sys, messages: [{ role: "user", content: `Text:\n\n${text}` }] };
+  let r;
+  try {
+    r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (e) { LAST_ERR = "fetch_threw:" + String((e as Error)?.message || e); return null; }
+  if (!r.ok) { LAST_ERR = `http_${r.status}:` + (await r.text()).slice(0, 300); return null; }
+  const data = await r.json();
+  const textBlock = (data?.content || []).find((c: { type?: string }) => c?.type === "text");
+  const outTxt = (textBlock?.text || "").trim();
+  if (!outTxt) { LAST_ERR = "empty_out"; return null; }
+  const m = outTxt.match(/\{[\s\S]*\}/);
+  let parsed: { detected_language?: string; confidence?: number; translation?: string } | null = null;
+  try { parsed = JSON.parse(m ? m[0] : outTxt); } catch { parsed = null; }
+  if (!parsed || typeof parsed.translation !== "string") { LAST_ERR = "bad_json_out:" + outTxt.slice(0, 160); return null; }
+  return {
+    detected: String(parsed.detected_language || "").toLowerCase().slice(0, 5) || null,
+    confidence: typeof parsed.confidence === "number" ? Math.max(0, Math.min(1, parsed.confidence)) : null,
+    translation: parsed.translation, model: MODEL, usage: data?.usage || null,
+  };
+}
+
+// 💰 רישום-עלות — reuse של ai_token_log (בלי schema חדש) עם provenance (ref=msg_id · ref_name=group · visitor=user_ref).
+async function logTokens(row: Record<string, unknown>) {
+  try {
+    await fetch(`${SB_URL}/rest/v1/ai_token_log`, {
+      method: "POST",
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(row),
+    });
+  } catch { /* fire-and-forget — לא מפיל את התרגום */ }
+}
+
 // upsert שורת-תמלול (service role → REST) לפי (video_key, lang)
 async function upsertRow(row: Record<string, unknown>) {
   const r = await fetch(`${SB_URL}/rest/v1/video_transcripts?on_conflict=video_key,lang`, {
@@ -110,6 +154,24 @@ Deno.serve(async (req) => {
   try { b = await req.json(); } catch { return json({ error: "bad_json" }, 400); }
 
   const action = String(b.action || "translate");
+
+  // 🌍 מצב-raw כללי (Language Layer · WhatsApp) — זיהוי+תרגום של טקסט חופשי, ללא video_key וללא כתיבה ל-video_transcripts.
+  // ⛔ המקור לעולם לא נשמר/נדרס כאן — מחזיר תרגום כשכבת-תקשורת; רישום-עלות ל-ai_token_log עם provenance.
+  if (action === "raw" || action === "detect_translate") {
+    const text = String(b.text || "").trim();
+    const target = String(b.target_lang || "he").trim();
+    if (!text) return json({ error: "text_required" }, 400);
+    const out = await detectAndTranslate(text, target);
+    if (!out) return json({ error: "translate_failed", detail: LAST_ERR }, 502);
+    await logTokens({
+      source: "wa-translate", kind: "detect_translate", model: out.model,
+      input_tokens: (out.usage as { input_tokens?: number } | null)?.input_tokens || 0,
+      output_tokens: (out.usage as { output_tokens?: number } | null)?.output_tokens || 0,
+      ref: b.ref ?? null, ref_name: b.ref_name ?? null, visitor: b.user_ref ?? null,
+    });
+    return json({ ok: true, detected_lang: out.detected, confidence: out.confidence, text: out.translation, target, model: out.model, usage: out.usage });
+  }
+
   const video_key = String(b.video_key || "").trim();
   if (!video_key) return json({ error: "video_key_required" }, 400);
 

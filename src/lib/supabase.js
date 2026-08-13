@@ -1206,13 +1206,15 @@ function aiVisitorId() {
     return v;
   } catch { return null; }
 }
-export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron }) {
+export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation }) {
   if (!supabase) return null;
   try {
     // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
     // ✨ long=true → ניתוח עמוק ממוזג ארוך (השרת מרים את הגבלת-האורך; אינרטי אם לא נשלח).
     // 🌳 metatron=true → השרת נשען על «העץ האחד» (חוקים+גרף) → תשובה מבוססת-חומר (בטא, opt-in).
-    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine, long, metatron, visitor_id: aiVisitorId() } });
+    // provenance-עלות (ref=msg_id · ref_name=group/conversation · user_ref) נשלח לרישום ב-ai_token_log.
+    // ⚠️ non-breaking: ה-edge הנוכחי מתעלם מהשדות עד עדכון; מוכן לשרשור user→conversation→message→model→tokens→cost.
+    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine, long, metatron, visitor_id: aiVisitorId(), ref, ref_name, user_ref, operation } });
     if (error) { try { console.warn('[ai-analyze] invoke error:', error?.message || error); } catch { /* noop */ } return null; }
     // 🚦 מכסת-AI נגמרה → שדר אירוע גלובלי (שער-הרשמה/הודעה); מחזיר null → הקורא מציג נפילה בחן.
     if (data?.error === 'quota') {

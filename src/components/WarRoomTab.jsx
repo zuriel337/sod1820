@@ -13,6 +13,8 @@ import {
 } from "../lib/supabase.js";
 import { analyzeTime } from "../lib/timeFlow.js";
 import { crossMethodPairs } from "../lib/gematria.js";
+import { detectLanguage, replyLanguage, LANG_HE } from "../lib/lang.js";
+import { creditsFor, providerCost } from "../lib/cost.js";
 import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
@@ -678,8 +680,11 @@ async function runAxis(item) {
 async function runAI(item) {
   const a = analyzeFull(item?.raw || "", {});
   const facts = { phrases: a.phrases.slice(0, 8), convergences: a.engine.convergences.slice(0, 4).map(c => ({ value: c.value, terms: [...new Set(c.members.map(m => m.term))] })) };
-  const text = await getAiAnalysis({ kind: "research", subject: (item?.raw || "").slice(0, 300), facts, fast: true });
-  return { kind: "ai", text, why: "רזיאל (ai-analyze · Haiku) מפרש עובדות-מנוע בלבד — מציע, לא אמת", prov: "edge ai-analyze" };
+  // provenance-עלות: user→conversation(group)→message→operation→model — נרשם ל-ai_token_log (שדות קיימים).
+  const text = await getAiAnalysis({ kind: "research", subject: (item?.raw || "").slice(0, 300), facts, fast: true,
+    ref: item?.msgId || null, ref_name: item?.group || null, user_ref: item?.phone ? `wa:${item.phone}` : null, operation: "ai" });
+  return { kind: "ai", text, credits: creditsFor("ai"),
+    why: "רזיאל (ai-analyze · Haiku) מפרש עובדות-מנוע בלבד — מציע, לא אמת", prov: "edge ai-analyze · usage→ai_token_log (ref=msg_id)" };
 }
 const RUNNERS = { gematria: runGematria, search: runSearch, axis: runAxis, ai: runAI };
 const ACT_META = {
@@ -724,7 +729,14 @@ function ActionRunner({ item }) {
         </div>
       );
     }
-    if (k === "ai") return r.text ? <div style={{ fontSize: 12, color: "#1b1d22", whiteSpace: "pre-wrap", overflowWrap: "anywhere", background: "#faf7ff", border: "1px solid #b08bd833", borderRadius: 8, padding: "6px 8px" }}>{r.text}</div> : <div style={{ color: C.faint, fontSize: 11.5 }}>אין תשובת-AI (מכסה/שגיאה) — נסה שוב.</div>;
+    if (k === "ai") return (
+      <div>
+        {r.text ? <div style={{ fontSize: 12, color: "#1b1d22", whiteSpace: "pre-wrap", overflowWrap: "anywhere", background: "#faf7ff", border: "1px solid #b08bd833", borderRadius: 8, padding: "6px 8px" }}>{r.text}</div> : <div style={{ color: C.faint, fontSize: 11.5 }}>אין תשובת-AI (מכסה/שגיאה) — נסה שוב.</div>}
+        <div style={{ fontSize: 10, color: C.faint, marginTop: 3 }}>
+          💰 <b>עלות-ספק</b> (₪) נמדדת בשרת (ai_token_log→agent_token_costs) · 🎟️ <b>קרדיטים</b>: {r.credits} (Human-Gate — <b>לא נגבו</b>) · 💵 מחיר-לקוח: לא-מוגדר. <span style={{ color: "#8a8a95" }}>שלוש שכבות נפרדות.</span>
+        </div>
+      </div>
+    );
     return null;
   };
   return (
@@ -788,6 +800,32 @@ function WaContext({ item }) {
       <Row k="זהות" v={matched ? `contributor: ${contributor?.display_name}${vip ? " · VIP" : ""}` : (w?.state === "ambiguous" ? "מועמד — דורש מיזוג-אנושי (לא קנוני)" : "UNKNOWN — לא נבחר contributor")} />
       <Row k="תאריך/שעה" v={fmt(item.ts)} />
       <Row k="provenance" v={`action=${item.action || "—"}${item.botMode ? ` · mode=${item.botMode}` : ""}${item.msgId ? ` · msg=${item.msgId}` : ""}`} />
+
+      {/* 🌍 שכבת-שפה — זיהוי (heuristic·confidence) · תצוגת-אדמין תמיד עברית · שפת-תשובה. המקור לא משתנה. */}
+      {(() => {
+        const det = detectLanguage(item.raw || "");
+        const rep = replyLanguage(det, null);   // אין העדפת-משתמש מאומתת עדיין (agent_user_memory · שלב עתידי)
+        const isHe = det.code === "he";
+        return (
+          <div style={{ ...box, marginTop: 8, background: "#f6f7ff", borderColor: "#3ea6ff55", padding: "8px 10px" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <b style={{ color: "#1c4bbf", fontSize: 12 }}>🌍 שפה</b>
+              <span style={{ ...pill(det.confidence >= 0.6 ? "#3ea6ff" : det.confidence >= 0.4 ? "#c79a2e" : "#8a8a95") }}>
+                {det.code === "unknown" ? "❔ לא-ודאי" : det.name} · confidence {Math.round((det.confidence || 0) * 100)}%
+              </span>
+              <span style={{ color: C.faint, fontSize: 10 }}>{det.why}</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: C.goldLight, marginTop: 4, lineHeight: 1.7 }}>
+              <div>👁️ <b>תצוגת-אדמין (עברית):</b> {isHe
+                ? <span style={{ color: "#2e9e63" }}>המקור כבר עברית — אין צורך בתרגום</span>
+                : <span style={{ color: "#c79a2e" }}>תרגום-לעברית מוכן דרך מצב-raw של video-transcribe — <b>מופעל בפריסת-edge</b> (טרם נפרס)</span>}
+              </div>
+              <div>↩️ <b>שפת-תשובה (ברירת-מחדל):</b> {LANG_HE[rep.code] || rep.code} <span style={{ color: C.faint }}>({rep.note}) · ניתן לשינוי ידני</span></div>
+              <div style={{ color: C.faint, fontSize: 10 }}>⛔ המקור נשמר כלשונו · הניתוח המחקרי תמיד על המקור, לא על התרגום · תרגום = שכבת-תקשורת בלבד</div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 💬 הודעה + 🤖 תשובת-הבוט */}
       <div style={{ marginTop: 10 }}>
