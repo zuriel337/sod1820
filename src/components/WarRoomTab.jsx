@@ -9,8 +9,9 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
-  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts,
+  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData,
 } from "../lib/supabase.js";
+import { analyzeTime } from "../lib/timeFlow.js";
 import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
@@ -407,6 +408,64 @@ function whyTier(it) {
     default: return "—";
   }
 }
+// 🕐 שכבת בדיקת-ציר-וזמן — מציגה תאריכים/שנים/רצפים + CHECK_EXISTING_AXIS_DATA (♻️ כבר בציר / 🆕 חדש).
+// כל תוצאה נושאת role + tag (FACT/DATE_CLAIM/EXISTING/NEW/CANDIDATE). ⛔ לא יוצר Event, לא מקרין — הקרנה = Human-Gate.
+const ROLE_TAG = {
+  EVENT: { t: "מועמד-אירוע", c: "#e08a2e" }, PERSONAL: { t: "DATE_CLAIM · אישי", c: "#c77dd8" },
+  MENTIONED: { t: "מוזכר", c: "#8a8a95" }, SOURCE: { t: "תאריך-המקור", c: "#3ea6ff" },
+};
+function TimeAxisLayer({ time, axis, Lyr }) {
+  if (!time) return null;
+  const dates = [...(time.gregs || []), ...(time.hebrews || [])];
+  const hasAny = dates.length || (time.years || []).length || (time.sequences || []).length;
+  if (!hasAny) return null;
+  const axHit = (year, iso, raw) => {
+    if (!axis) return null;
+    return (year != null && axis.byYear?.get(year)) || (iso && axis.byIso?.get(iso))
+      || (axis.byHebrew || []).filter(h => raw && (h.hebrew_date || "").replace(/[־\-'"׳״\s]/g, "").includes(String(raw).replace(/[־\-'"׳״\s]/g, "").slice(0, 4))) || null;
+  };
+  const Existing = ({ hits }) => hits && hits.length ? (
+    <span style={{ ...pill("#3ea6ff"), fontSize: 10, marginInline: 4 }}>♻️ בציר: {hits[0].label?.slice(0, 28)}{hits.length > 1 ? ` +${hits.length - 1}` : ""}</span>
+  ) : <span style={{ ...pill("#4caf7d"), fontSize: 10, marginInline: 4 }}>🆕 חדש</span>;
+  return (
+    <Lyr t="🕐 בדיקת ציר וזמן — EXTRACT → NORMALIZE → LINK → CHECK-AXIS → SEQUENCES" c="#4caf7d">
+      {dates.map((d, i) => {
+        const rt = ROLE_TAG[d.role] || ROLE_TAG.MENTIONED;
+        const hits = axHit(d.y != null ? d.y : null, d.iso, d.kind === "hebrew" ? d.raw : null);
+        return (
+          <div key={"d" + i} style={{ padding: "1px 0" }}>
+            {d.kind === "hebrew" ? "🔯" : "📅"} <b>{d.raw}</b>{d.iso ? <span style={{ color: C.faint }}> ={d.iso}</span> : (d.partial ? <span style={{ color: C.faint }}> (חלקי)</span> : null)}
+            <span style={{ ...pill(rt.c), fontSize: 10, marginInline: 4 }}>{rt.t}</span>
+            {d.event ? <span style={{ color: C.goldLight }}>→ {d.event}</span> : null}
+            {d.role !== "PERSONAL" && <Existing hits={hits} />}
+          </div>
+        );
+      })}
+      {(time.normalized || []).map((n, i) => (
+        <div key={"n" + i} style={{ color: "#2e9e63", fontSize: 11.5 }}>♻️ נרמול: «{n.hebrew}» = «{n.greg}» {n.iso ? `(${n.iso})` : ""} {n.inferred ? "· שנה מהוסקת" : ""} — לא כפילות</div>
+      ))}
+      {(time.years || []).filter(y => y.role !== "PERSONAL").length > 0 && (
+        <div style={{ marginTop: 3 }}>
+          <span style={{ color: C.faint, fontSize: 10.5 }}>שנים: </span>
+          {time.years.map((y, i) => {
+            const hits = axis?.byYear?.get(y.year);
+            return <span key={"y" + i} style={{ marginInlineEnd: 6, fontSize: 11.5 }}><b>{y.year}</b>{hits ? <span style={{ color: "#3ea6ff" }}> ♻️</span> : <span style={{ color: "#4caf7d" }}> 🆕</span>}</span>;
+          })}
+        </div>
+      )}
+      {(time.sequences || []).map((s, i) => (
+        <div key={"s" + i} style={{ marginTop: 4, padding: "4px 8px", background: "#eef7f0", borderRadius: 8 }}>
+          <b style={{ color: "#2e9e63" }}>🕐 רצף רב-שנתי (CANDIDATE):</b> {s.years.join(" → ")}
+          <div style={{ color: C.faint, fontSize: 10 }}>{s.why} · מועמד להתכנסות-ציר, לא קשר-מוכח</div>
+        </div>
+      ))}
+      <div style={{ color: C.faint, fontSize: 10, marginTop: 4, borderTop: `1px dashed ${C.border}`, paddingTop: 4 }}>
+        ♻️ = כבר קיים בציר (nodes/teder — DB-First לזמן) · 🆕 = חדש · <b>FACT</b>=תאריך-מנורמל · <b>DATE_CLAIM</b>=אישי/טענה · <b>CANDIDATE</b>=מועמד. ⛔ אין יצירת Event ואין הקרנה — «🕐 → שכבת-הציר» תחת Human-Gate.
+      </div>
+    </Lyr>
+  );
+}
+
 // 🔬 «ניתוח מלא» — Orchestration חכם מעל המנועים/DB הקיימים (READ/preview · אין WRITE · אין קידום).
 //   מבין את המבנה שהכתב סימן → מציג A-H + דיאגרמת-מבנה + המלצות. הפעולות (לכידה/Atlas/…) = Human-Gate בלמטה.
 function FullAnalysis({ item }) {
@@ -419,16 +478,21 @@ function FullAnalysis({ item }) {
     const wname = canon || item?.rawAuthor || item?.author || null;
     const names = [canon, item?.rawAuthor, item?.author, ...((w?.canonical?.wa_names) || [])].filter(Boolean);
     const a0 = analyzeFull(item?.raw, { writerName: wname });
+    const t0 = analyzeTime(item?.raw, { sourceDate: item?.ts });   // 🕐 שלב-זמן (טהור)
     const hubVal = a0.structure.hub?.value ?? (a0.claims.find(c => c.value != null)?.value ?? null);
     const clusterVals = (a0.clusters || []).filter(c => c.candidateConvergence).map(c => c.value);
+    const tYears = t0.years.map(y => y.year);
+    const tIsos = [...t0.gregs, ...t0.hebrews].map(d => d.iso).filter(Boolean);
+    const tHeb = t0.hebrews.map(h => h.raw);
     try {
-      const [db, claims, hubCounts] = await Promise.all([
+      const [db, claims, hubCounts, axis] = await Promise.all([
         dbFirstLookup(a0.phrases, hubVal), getWriterVerifiedClaims(names), getHubCounts(clusterVals),
+        checkAxisData({ years: tYears, isoDates: tIsos, hebrew: tHeb }),
       ]);
       const profile = buildMethodProfile(claims);
       const a = analyzeFull(item?.raw, { writerName: wname, dbHubKnown: db.hubCount });
-      setRes({ a, db, profile, hubVal, wname, hubCounts });
-    } catch { setRes({ a: a0, db: { known: [], hubCount: 0, hubValue: hubVal }, profile: null, hubVal, wname, hubCounts: new Map() }); }
+      setRes({ a, db, profile, hubVal, wname, hubCounts, time: t0, axis });
+    } catch { setRes({ a: a0, db: { known: [], hubCount: 0, hubValue: hubVal }, profile: null, hubVal, wname, hubCounts: new Map(), time: t0, axis: null }); }
     setLoading(false);
   }, [item]);
   if (!item?.raw) return null;
@@ -534,6 +598,8 @@ function FullAnalysis({ item }) {
               ))}
             </Lyr>
           )}
+          {/* 🕐 בדיקת ציר וזמן — EXTRACT→NORMALIZE→LINK→CHECK_EXISTING_AXIS→SEQUENCES (עדשת-זמן, גייטד) */}
+          <TimeAxisLayer time={res.time} axis={res.axis} Lyr={Lyr} />
           {/* G · פרשנות + H · המלצות (מדורגות: גבוהה/בינונית/פרשני) */}
           <Lyr t="G · פרשנות הכתב" c={C.muted}>מוצגת בנפרד מהעובדות — CLAIM/INTERPRETATION, לא Fact.</Lyr>
           <Lyr t={`H · המלצות מחקר (${r.suggestions.length}) — לבחירתך`} c="#c79a2e">
