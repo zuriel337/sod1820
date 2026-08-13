@@ -33,6 +33,8 @@ export default function Layout() {
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
   // 📡 טיקר-החדשות הזז (LiveActivityBar) מוסתר בדף הבית (בקשת צוריאל 30.7.2026) — נשאר בשאר האתר.
   const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
+  // 🏛️ אזור ההיכל (מחקר/דילוגים) — שם מעולם לא היה באנר, ולא מציגים אותו (בקשת צוריאל).
+  const isHeichal = [/^\/research/, /^\/beit-midrash/, /^\/code/, /^\/heichal/].some(re => re.test(pathname));
   // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
   const showBanner = /^\/post$/.test(pathname) || /^\/community\/chat$/.test(pathname) || POST_SLUG_RE.test(pathname);
   // 🌅 ציר ההתגלות (הפס הקבוע בצד) — מוצג בעמוד הציר עצמו (/timeline) ובעמודי-פוסט (בקשת צוריאל).
@@ -64,13 +66,15 @@ export default function Layout() {
         <CelestialPinnedBar />
         {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
         {false && <MaintenanceTicker />}
-        {/* 🌌 באנר-העל הקוסמי (פסוק + שמי-כוכבים + אור-נגלה + נגן-רקע) — רק בפוסטים ובצ'אט. */}
-        {showBanner && <CosmicVerseBanner mode={mode} />}
+        {/* 🌌 באנר-העל הקוסמי הישן (פסוק + נגן-רקע) — הוחלף בבאנר המתחלף (המלך בשדה ↔ צופן).
+            להחזרה: הסר את false. */}
+        {false && showBanner && <CosmicVerseBanner mode={mode} />}
         {/* 📡 טיקר-החדשות «עכשיו באתר» — מוסתר כרגע (בקשת צוריאל 4.8.2026). להחזרה: הסר את false. */}
         {false && !isHome && <LiveActivityBar />}
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
-        {/* 🎺📜 באנר מתחלף (אלול «אני לדודי» ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית */}
-        {!isHome && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
+        {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
+            מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
+        {!isHome && !isHeichal && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
         <main>
           <ErrorBoundary routeKey={pathname}>
             <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: dark ? "#9a8a66" : P.ink, fontFamily: F.body }}>

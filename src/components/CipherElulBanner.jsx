@@ -53,7 +53,7 @@ const CSS = `
 .ceb-lbl.red{background:#e5484d;color:#fff}.ceb-lbl.purple{background:#a78bfa}.ceb-lbl.green{background:#4ade80}
 .ceb-lbl.orange{background:#fbbf24}.ceb-lbl.blue{background:#60a5fa}
 .ceb-scan{position:absolute;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,rgba(233,200,74,.85),transparent);
-  box-shadow:0 0 18px 3px rgba(233,200,74,.6);opacity:0;animation:ceb-scan 9.4s linear infinite}
+  box-shadow:0 0 18px 3px rgba(233,200,74,.6);opacity:0;animation:ceb-scan 13s linear infinite}
 @keyframes ceb-scan{0%{right:-2%;opacity:0}6%{opacity:.9}52%{opacity:.9}60%{opacity:0}100%{right:102%;opacity:0}}
 .ceb-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
   padding:11px 16px;background:rgba(10,10,18,.72);border-top:1px solid rgba(233,200,74,.2)}
@@ -89,11 +89,12 @@ const LABELS = [
 export default function CipherElulBanner() {
   const rootRef = useRef(null);
   const audioRef = useRef(null);
-  const [slide, setSlide] = useState(0);
+  // 🎲 התחלה אקראית בכל כניסה — «פעם כזה פעם כזה» (לפעמים אלול קודם, לפעמים הצופן)
+  const [slide, setSlide] = useState(() => (Math.random() < 0.5 ? 0 : 1));
 
-  // מעבר אוטומטי בין שני הבאנרים
+  // מעבר אוטומטי בין שני הבאנרים (איטי — כדי לתת לצופן להיחשף במלואו)
   useEffect(() => {
-    const t = setInterval(() => setSlide((s) => (s + 1) % 2), 9600);
+    const t = setInterval(() => setSlide((s) => (s + 1) % 2), 13000);
     return () => clearInterval(t);
   }, []);
 
@@ -128,11 +129,11 @@ export default function CipherElulBanner() {
           labels[k] && labels[k].classList.add("lit");
           frame && frame.classList.add("alive");
           dim(k + 1);
-        }, 600 + k * 950))
+        }, 800 + k * 1500))
       );
     };
     run();
-    const loop = setInterval(run, 9500);
+    const loop = setInterval(run, 13000);
     return () => { clearInterval(loop); timers.forEach(clearTimeout); };
   }, []);
 
