@@ -40,6 +40,18 @@ const C = {
   faint: "#8a93a3",        // טקסט עמום
 };
 
+// 📱 זיהוי מסך-צר (מובייל) — לפריסה רספונסיבית בלי media-query ב-inline styles.
+function useNarrow(bp = 760) {
+  const [n, setN] = useState(typeof window !== "undefined" && window.innerWidth < bp);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const f = () => setN(window.innerWidth < bp);
+    f(); window.addEventListener("resize", f);
+    return () => window.removeEventListener("resize", f);
+  }, [bp]);
+  return n;
+}
+
 // היררכיית-כתבים (תצוגה בלבד — לא קנוני): מרכזיים ראשונים, שאר-המקורות אחריהם.
 const WRITERS = CORE_WRITERS;
 // תוויות-פאסטים לתצוגה ב-FilterBar (מפתח-סינון → עברית).
@@ -574,6 +586,7 @@ function BulkBar({ items, onClear, onCloseQueue }) {
 export default function WarRoomTab() {
   const { user, isAdmin } = useAuth();
   const uid = user?.id || null;
+  const narrow = useNarrow();   // 📱 מובייל → פריסה חד-טורית
   const [mode, setMode] = useState("now");        // now | treasure
   const [lens, setLens] = useState("writers");    // writers | groups | language | candidates
   const [writer, setWriter] = useState(WRITERS[0]);
@@ -839,13 +852,13 @@ export default function WarRoomTab() {
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,320px)", gap: 14 }}>
-          <div style={{ display: "grid", gap: 10, alignContent: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: narrow ? "minmax(0,1fr)" : "minmax(0,1fr) minmax(0,320px)", gap: 14 }}>
+          <div style={{ display: "grid", gap: 10, alignContent: "start", minWidth: 0 }}>
             <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800 }}>🔴 נכנס עכשיו (פורום·פוסטים·WhatsApp-לוג) {busy && "…"}</div>
             {incoming.length ? incoming.map(it => <ItemCard key={it.key} item={it} onFocus={setFocusN} />)
               : <div style={{ color: C.muted, fontSize: 13 }}>אין חומר טרי כרגע.</div>}
           </div>
-          <div style={{ display: "grid", gap: 12, alignContent: "start" }}>
+          <div style={{ display: "grid", gap: 12, alignContent: "start", minWidth: 0 }}>
             <RazielPanel focusN={focusN} />
             <div style={box} ref={candRef}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
