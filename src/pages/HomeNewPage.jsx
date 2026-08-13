@@ -41,6 +41,7 @@ import HomeTeasers from "../components/HomeTeasers.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 import DimensionFiveRail from "../components/DimensionFiveRail.jsx";
+import DimensionFiveCloud from "../components/DimensionFiveCloud.jsx";
 import YearTicker from "../components/YearTicker.jsx";
 import HomeWritersRail from "../components/HomeWritersRail.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
@@ -711,6 +712,9 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "8px 18px 48px" }}>
         <DimensionFiveRail />
       </section>
+
+      {/* ☁️ ענן-מעופף «מימד חמש» — סטורי צף בצד שמאל, דסקטופ בלבד (מובייל: מוחזר null; מסתמך על השורה למעלה) */}
+      <DimensionFiveCloud />
 
       {/* רמז שנפתח כתמונה מלאה (זמני — עד שזרם המציאות יושק). מנהל יכול לערוך משם. */}
       {lbImg && (
