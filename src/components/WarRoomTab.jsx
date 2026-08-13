@@ -159,17 +159,19 @@ const TRACK_DOT = { done: "🟢", partial: "🟡", unchecked: "⚪", stalled: "�
 // שורת-סטטוס (לא כפתורים!) — מראה איפה הפריט נמצא במסלול. cursor:default, בלי מראה-כפתור.
 function TrackBar({ item }) {
   const track = useMemo(() => materialTrack(item), [item]);
+  // 📱 Responsive: flex-wrap — כל שלב הוא צ'יפ שנשבר לשורה הבאה במסך צר, אף פעם לא יוצא מגבול הכרטיס.
+  // הפרדה ב-gap (לא «›» שגורם bidi-bleed ב-RTL). הכל נשמר גלוי — בלי overflow-hidden שמסתיר.
   return (
-    <div style={{ marginTop: 8, cursor: "default" }}>
-      <span style={{ fontSize: 9.5, color: C.faint, fontFamily: F.heading, marginInlineEnd: 6 }}>מצב-החומר (לתצוגה, לא ללחיצה):</span>
-      <span style={{ display: "inline", lineHeight: 1.9 }}>
+    <div style={{ marginTop: 8, cursor: "default", minWidth: 0 }}>
+      <div style={{ fontSize: 9.5, color: C.faint, fontFamily: F.heading, marginBottom: 3 }}>מצב-החומר (לתצוגה, לא ללחיצה):</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 10px", alignItems: "baseline", maxWidth: "100%" }}>
         {track.map((t, i) => (
           <span key={i} title={`${t.stage}: ${TRACK_LABEL[t.state]}`}
-            style={{ fontSize: 10.5, fontWeight: 700, fontFamily: F.heading, color: TRACK_COLOR[t.state], whiteSpace: "nowrap", marginInlineEnd: 4 }}>
-            {TRACK_DOT[t.state]} {t.stage}{i < track.length - 1 ? <span style={{ color: C.faint, fontWeight: 400 }}> › </span> : ""}
+            style={{ fontSize: 10.5, fontWeight: 700, fontFamily: F.heading, color: TRACK_COLOR[t.state], whiteSpace: "nowrap" }}>
+            {TRACK_DOT[t.state]} {t.stage}
           </span>
         ))}
-      </span>
+      </div>
     </div>
   );
 }
@@ -187,7 +189,7 @@ function ItemCard({ item, onFocus }) {
         {item.published && <span style={pill("#b08bd8")}>פורסם</span>}
         {v != null && <b style={{ marginInlineStart: "auto", color: C.goldBright, cursor: "pointer", fontFamily: F.heading }} onClick={() => onFocus && onFocus(v)}>{v}</b>}
       </div>
-      <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.5, maxHeight: 60, overflow: "hidden", whiteSpace: "pre-wrap" }}>
+      <div style={{ color: C.goldLight, fontFamily: F.body, fontSize: 13, lineHeight: 1.5, maxHeight: 60, overflow: "hidden", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>
         {item.raw ? item.raw.slice(0, 200) : <span style={{ color: C.faint }}>(ללא טקסט)</span>}
       </div>
       <TrackBar item={item} />
