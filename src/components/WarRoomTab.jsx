@@ -11,7 +11,7 @@ import {
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
   getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims,
 } from "../lib/supabase.js";
-import { extractCandidates, identifyMethod, proposeMethods, buildMethodProfile, runEngineOnTerms } from "../lib/analysisFlow.js";
+import { extractCandidates, identifyMethod, proposeMethods, buildMethodProfile, runEngineOnTerms, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
@@ -407,6 +407,99 @@ function whyTier(it) {
     default: return "—";
   }
 }
+// 🔬 «ניתוח מלא» — Orchestration חכם מעל המנועים/DB הקיימים (READ/preview · אין WRITE · אין קידום).
+//   מבין את המבנה שהכתב סימן → מציג A-H + דיאגרמת-מבנה + המלצות. הפעולות (לכידה/Atlas/…) = Human-Gate בלמטה.
+function FullAnalysis({ item }) {
+  const [res, setRes] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const run = useCallback(async () => {
+    setLoading(true);
+    const w = item?.writer;
+    const canon = w?.canonical?.display_name || w?.contributor?.display_name;
+    const wname = canon || item?.rawAuthor || item?.author || null;
+    const names = [canon, item?.rawAuthor, item?.author, ...((w?.canonical?.wa_names) || [])].filter(Boolean);
+    const a0 = analyzeFull(item?.raw, { writerName: wname });
+    const hubVal = a0.structure.hub?.value ?? (a0.claims.find(c => c.value != null)?.value ?? null);
+    try {
+      const [db, claims] = await Promise.all([dbFirstLookup(a0.phrases, hubVal), getWriterVerifiedClaims(names)]);
+      const profile = buildMethodProfile(claims);
+      const a = analyzeFull(item?.raw, { writerName: wname, dbHubKnown: db.hubCount });
+      setRes({ a, db, profile, hubVal, wname });
+    } catch { setRes({ a: a0, db: { known: [], hubCount: 0, hubValue: hubVal }, profile: null, hubVal, wname }); }
+    setLoading(false);
+  }, [item]);
+  if (!item?.raw) return null;
+  const Lyr = ({ t, c, children }) => (
+    <div style={{ borderInlineStart: `2px solid ${c || C.gold}`, paddingInlineStart: 9, marginBottom: 9 }}>
+      <div style={{ color: c || C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 11.5 }}>{t}</div>
+      <div style={{ marginTop: 3, fontSize: 12, color: C.goldLight }}>{children}</div>
+    </div>
+  );
+  const r = res?.a; const db = res?.db; const prof = res?.profile;
+  const st = r?.structure;
+  const known = new Set((db?.known || []).map(k => k.phrase));
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: C.gold }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>🔬 ניתוח מלא</span>
+        {!res && <button onClick={run} style={chip(true, C.gold)}>הרץ ניתוח מלא</button>}
+        {loading && <span style={{ color: C.faint, fontSize: 11 }}>מנתח…</span>}
+        <span style={{ color: C.faint, fontSize: 10 }}>Orchestration · מקסימום-הקשר · לא brute-force · אין WRITE</span>
+      </div>
+      {r && (
+        <div style={{ marginTop: 10 }}>
+          {/* 🧩 מבנה-הממצא (יחידת-טיעון אחת) */}
+          {(st.sumEq || st.hub) && (
+            <div style={{ ...box, background: "#eef2f8", borderColor: "#8458ff55", marginBottom: 10, padding: "10px 12px" }}>
+              <div style={{ color: "#7a5cff", fontFamily: F.heading, fontWeight: 800, fontSize: 12, marginBottom: 5 }}>🧩 מבנה הממצא שזוהה</div>
+              <div style={{ fontFamily: F.mono, fontSize: 12.5, color: "#1b1d22", lineHeight: 1.9 }}>
+                {st.sumEq && <div>{st.sumEq.text} {st.sumEq.verifiedSum ? <b style={{ color: "#2e9e63" }}>✓</b> : <b style={{ color: "#e0563a" }}>⚠️</b>}</div>}
+                {st.hub && <div>↕ <b style={{ color: C.gold }}>{st.hub.value}</b> = {st.hub.members.map(m => `«${m.term}» (${m.method})`).join(" = ")}</div>}
+                {r.verses.length > 0 && <div>↓ 📖 {r.verses.length} פסוק/מקור</div>}
+                {r.sources.length > 0 && <div>↓ 📚 {r.sources.map(s => s.name + (s.citation ? " " + s.citation : "")).join(" · ")}</div>}
+                <div style={{ color: C.faint }}>↓ 💬 פרשנות הכתב (בנפרד — לא עובדה)</div>
+              </div>
+            </div>
+          )}
+          {/* A · מקור */}
+          <Lyr t="A · מקור" c={C.muted}>{item.source}{res.wname ? ` · ${res.wname}` : ""}{item.ts ? ` · ${fmt(item.ts)}` : ""}</Lyr>
+          {/* B · חילוץ */}
+          <Lyr t={`B · חילוץ (${r.claims.length} טענות · ${r.phrases.length} ביטויים)`}>
+            {r.claims.slice(0, 6).map((c, i) => <span key={i} style={{ marginInlineEnd: 8 }}>«{c.text}»{c.value != null ? <b style={{ color: C.gold }}>={c.value}</b> : ""}</span>)}
+          </Lyr>
+          {/* C · שיטה + פרופיל-כתב */}
+          <Lyr t="C · שיטה (רק באינדיקציה אמיתית)">
+            {r.koll.length ? <span style={{ ...pill("#c79a2e"), marginInlineEnd: 6 }}>כולל: {r.koll.join("·")} (CLAIM)</span> : null}
+            {st.sumEq ? <span style={{ ...pill("#8458ff"), marginInlineEnd: 6 }}>משוואה</span> : null}
+            {r.engine.convergences.length ? <span style={{ ...pill("#3ea6ff"), marginInlineEnd: 6 }}>התכנסות</span> : null}
+            {r.verses.length ? <span style={{ ...pill("#4caf7d"), marginInlineEnd: 6 }}>פסוקים</span> : null}
+            {prof ? <span style={{ color: C.faint }}> · פרופיל-כתב: {prof.dominant ? <b style={{ color: C.gold }}>{prof.dominant} (דומיננטי · {prof.total})</b> : `${prof.total} מאומתים (טרם דומיננטי)`}</span> : null}
+          </Lyr>
+          {/* D · DB-First */}
+          <Lyr t="D · DB-First (מה כבר קיים)" c="#3ea6ff">
+            {res.hubVal != null && <div>צביר {res.hubVal}: <b>{db.hubCount}</b> ביטויים מאומתים בבנק</div>}
+            {r.phrases.slice(0, 6).map((p, i) => <span key={i} style={{ marginInlineEnd: 8, color: known.has(p) ? "#2e9e63" : "#e0563a" }}>{known.has(p) ? "✓ קיים" : "🆕 חדש"}: {p}</span>)}
+          </Lyr>
+          {/* E · התכנסות (FACT) */}
+          {r.engine.convergences.length > 0 && (
+            <Lyr t="E · התכנסות (FACT · אומת-מנוע)" c="#2e9e63">
+              {r.engine.convergences.slice(0, 5).map((cv, i) => <div key={i}><b style={{ color: C.gold }}>{cv.value}</b> = {cv.members.map(m => `«${m.term}»·${m.method}`).join(" = ")}</div>)}
+            </Lyr>
+          )}
+          {/* G · פרשנות + H · המלצות */}
+          <Lyr t="G · פרשנות הכתב" c={C.muted}>מוצגת בנפרד מהעובדות — CLAIM/INTERPRETATION, לא Fact.</Lyr>
+          <Lyr t={`H · המלצות מחקר (${r.suggestions.length}) — לבחירתך`} c="#c79a2e">
+            {r.suggestions.slice(0, 10).map((s, i) => <div key={i} style={{ padding: "1px 0" }}>💡 {s.t} <span style={{ color: C.faint }}>— {s.why}</span></div>)}
+          </Lyr>
+          <div style={{ color: C.faint, fontSize: 10.5, borderTop: `1px dashed ${C.border}`, paddingTop: 6 }}>
+            הפרדה: <b style={{ color: "#2e9e63" }}>FACT</b>=אומת-מנוע · <b style={{ color: "#c79a2e" }}>CLAIM</b>=טענת-הכתב · <b style={{ color: "#8458ff" }}>STRUCTURAL</b>=מבנה · <b style={{ color: "#3ea6ff" }}>CONVERGENCE</b>=ערך-משותף · <b style={{ color: C.muted }}>INTERPRETATION</b>=פרשנות. ניתוח ≠ אישור — הפעולות (לכידה/Atlas/ציר/סגירה) למטה, תחת Human-Gate.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // 🔬 Smart Analysis Flow — פאזה 1 (READ/preview) בתוך ה-DetailPanel. שלבים 1–4 בלבד, כל אחד עם why.
 // ⛔ אין הרצת-מנוע ואין כתיבה (פאזה 2 גייטד). «שיטת-כתב» נלמדת מהיסטוריה מאומתת — לא מומצאת מממצא יחיד.
 function SmartAnalysis({ item }) {
@@ -590,8 +683,8 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
           )}
         </div>
 
-        {/* 🔬 Smart Analysis Flow — פאזה 1 (חילוץ→DB-First→שיטת-כתב→שיטות-מוצעות), READ/preview */}
-        <SmartAnalysis item={item} />
+        {/* 🔬 ניתוח מלא — Orchestration (A-H + מבנה + המלצות), READ/preview · פעולות למטה תחת Human-Gate */}
+        <FullAnalysis item={item} />
 
         {/* מצב-פעולות מדויק — בוצע / ממתין-לאישור / לא-ניתן / חסר-מידע (מחליף «לא בוצע») */}
         <div style={{ marginTop: 12, borderTop: `1px dashed ${C.border}`, paddingTop: 10 }}>

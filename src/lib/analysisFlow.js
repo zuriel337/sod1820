@@ -204,3 +204,72 @@ export function runEngineOnTerms(terms = []) {
     .sort((a, b) => b.members.length - a.members.length || b.value - a.value);
   return { terms: uniq, facts, convergences };
 }
+
+// ── «ניתוח מלא» · Orchestration מעל המנועים הקיימים (אין מנוע/טבלה חדשים) ──
+// כל הפונקציות טהורות. DB-First + פרופיל-כתב מוזרקים מהרכיב (async). מקסימום-הקשר, לא brute-force.
+
+// «כולל»/תוספות-חשבוניות — מסמן שהמספר הוא CLAIM עם מתודה (לא ערך-מנוע ישיר). לא מניחים שהמספר נכון.
+const KOLL_MARKERS = ["עם הכולל", "הכולל", "כולל", "עם האות", "עם המילה", "עם המילים", "עם הכולל והמילה", "בחישוב", "סה\"כ", "סהכ"];
+export function detectKoll(text) {
+  const t = String(text || "");
+  return [...new Set(KOLL_MARKERS.filter(mk => t.includes(mk)))];
+}
+
+// מקורות ספרותיים/תנ"כיים: «בספר X» · שם-ספר-תנ"ך + הפניה. לא מאבד את הקשר אם המקור באמצע פסקה.
+const TANACH = ["תהילים", "תהלים", "יואל", "ישעיהו", "ישעיה", "ירמיהו", "ירמיה", "יחזקאל", "בראשית", "שמות", "ויקרא", "במדבר", "דברים", "זכריה", "עמוס", "הושע", "מיכה", "דניאל", "עזרא", "נחמיה", "משלי", "איוב", "קהלת", "רות", "אסתר", "עובדיה", "יונה", "נחום", "חבקוק", "צפניה", "חגי", "מלאכי", "שופטים", "שמואל", "מלכים", "יהושע"];
+export function detectSources(text) {
+  const t = String(text || ""); const out = []; const seen = new Set();
+  let m; const bookRe = /ב?ספר\s+([א-ת][א-ת\s'"׳״]{1,28}?)(?=[\s.,;)"]|$)/g;
+  while ((m = bookRe.exec(t))) { const name = clean(m[1]); if (name && !seen.has("b:" + name)) { seen.add("b:" + name); out.push({ type: "book", name, citation: null }); } }
+  for (const b of TANACH) {
+    const idx = t.indexOf(b);
+    if (idx >= 0 && !seen.has("t:" + b)) {
+      seen.add("t:" + b);
+      const after = t.slice(idx + b.length, idx + b.length + 14);
+      const cit = (after.match(/^[\s.,]*([א-ת]{1,4}['׳"]?\s*[,:]?\s*[א-ת]{1,4}['׳"]?)/) || [])[1] || null;
+      out.push({ type: "tanach", name: b, citation: cit ? clean(cit) : null });
+    }
+  }
+  return out;
+}
+
+// פסוק: ניקוד = סימן חזק לציטוט-מקור (גם כשלא מסומן יפה). מחזיר את השורות המנוקדות.
+export function detectVerses(text) {
+  return String(text || "").split(/\n/).map(l => l.trim())
+    .filter(l => /[֑-ׇ]/.test(l) && l.length > 6).map(l => ({ text: l.slice(0, 140), nikud: true }));
+}
+
+// המלצות-מחקר (H) — עם why חובה. מוצעות בלבד, לא מבוצעות ולא מקדמות (Human-Gate).
+export function researchSuggestions({ engine, claims, koll, verses, sources, writerName, dbHubKnown }) {
+  const s = [];
+  const hub = engine?.convergences?.[0];
+  if (hub) {
+    s.push({ t: `בדוק את כל הביטויים סביב ${hub.value}`, why: `נמצאה התכנסות של ${hub.members.length} ביטויים בערך ${hub.value}` });
+    s.push({ t: `בדוק אם ${hub.value} כבר בצביר קיים ב-DB`, why: dbHubKnown != null ? `בבנק כרגע ${dbHubKnown} ביטויים בערך זה — למנוע כפילות ולחבר לעץ` : "למנוע כפילות ולחבר לעץ-הידע" });
+  }
+  (claims || []).filter(c => c.type === "explicit-claim").slice(0, 3).forEach(c => s.push({ t: `בדוק «${c.text}» בשיטות הרלוונטיות`, why: `הכתב טען ערך ${c.value ?? "?"}` }));
+  if (koll?.length) s.push({ t: `אמת את מתודת-הכולל שהכתב ציין (${koll.join(" · ")})`, why: "המספר הוא CLAIM עם תוספת-חישוב — חובה לאמת במנוע, לא להניח" });
+  const sum = (claims || []).find(c => c.type === "sum-equation");
+  if (sum) s.push({ t: `בדוק את המשוואה ${sum.text}`, why: `משוואת-סכום${sum.verifiedSum ? " (מאומתת חשבונית)" : ""} שהכתב הציג` });
+  if (verses?.length) s.push({ t: "בדוק את הפסוקים שהכתב הביא", why: `${verses.length} ציטוטי-מקור מנוקדים — לזהות ספר/פרק ולבדוק אם קיימים ב-DB` });
+  if (writerName) s.push({ t: `בדוק ממצאים נוספים של ${writerName} סביב הערך`, why: "לזהות דפוס-עבודה חוזר (פרופיל-שיטה)" });
+  s.push({ t: "בדוק אם קיימת התכנסות דומה אצל כתבים אחרים", why: "הצלבה בין-כתבים מחזקת ממצא" });
+  return s;
+}
+
+// analyzeFull — מרכיב את כל השכבות הטהורות (B/C/E + koll/verses/sources + suggestions).
+// A(מקור)/D(DB-First)/פרופיל-כתב מגיעים מהרכיב (async) ומוזרקים ל-suggestions דרך dbHubKnown/writerName.
+export function analyzeFull(rawText, { writerName = null, dbHubKnown = null } = {}) {
+  const cands = extractCandidates(rawText);
+  const claims = cands.filter(c => ["explicit-claim", "sum-equation", "equation"].includes(c.type));
+  const phrases = [...new Set(cands.filter(c => ["explicit-claim", "equation", "emphasized"].includes(c.type)).flatMap(c => c.parts || [c.text]))];
+  const engine = runEngineOnTerms(phrases);
+  const koll = detectKoll(rawText);
+  const verses = detectVerses(rawText);
+  const sources = detectSources(rawText);
+  const suggestions = researchSuggestions({ engine, claims, koll, verses, sources, writerName, dbHubKnown });
+  // מבנה-הממצא (🧩): המשוואה + ההתכנסות המרכזית — «יחידת-טיעון אחת».
+  const sumEq = cands.find(c => c.type === "sum-equation");
+  const structure = { sumEq: sumEq || null, hub: engine.convergences[0] || null, phrases, verses, sources };
+  return { cands, claims, phrases, engine, koll, verses, sources, suggestions, structure };
+}
