@@ -16,10 +16,18 @@ import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
   tierOf, TIER,
 } from "../lib/discovery.js";
+import { getHandledMap, markHandled, unmarkHandled } from "../lib/handled.js";
+import {
+  CORE_WRITERS, orderWriters, ROUTES, destinations, fallbackTier,
+  normStatus, statusOptions, structuralExtract, actionState, ACT_STATE, whatMissing, sortItems,
+} from "../lib/ccwork.js";
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
 
-const WRITERS = ["יניב לוי", "שמעון חיימוב", "ציון סיבוני", "צבי (OPOC)", "יצחק שחר קנדרו", "כריסטינה", "סלי מור"];
+// היררכיית-כתבים (תצוגה בלבד — לא קנוני): מרכזיים ראשונים, שאר-המקורות אחריהם.
+const WRITERS = CORE_WRITERS;
+// תוויות-פאסטים לתצוגה ב-FilterBar (מפתח-סינון → עברית).
+const FACET_HE = { writer: "כתב", status: "סטטוס", method: "שיטה", dest: "יעד", tier: "רובד", flag: "סוג", kind: "סוג-מועמד", src: "צינור", from: "מ-", to: "עד" };
 
 // ── CC-1.1 · LIVE INGESTION — הפרדת שלושת הצינורות (READ-ONLY, בלי feeder/WRITE) ──
 // A = ערוצי-שידור (channel_updates, חי) · C = מנוע-הגילויים (research_objects) · B = רזיאל/VIP (רדום).
@@ -197,52 +205,119 @@ function WriterChip({ writer }) {
   );
 }
 
-// שורת-קליטה לצינור A. CC-1.3: השורה לחיצה → Detail Panel · תג-רובד/flag לחיצים → פילטר.
-function IngestRow({ item, onOpen, onFilter, selected, onToggle }) {
+// שורת-קליטה. CC-1.3: לחיצה → Detail Panel · תג-רובד/flag → פילטר · ✔ סגור-מהתור / ↩︎ החזר · תווית מי→מה→שיטה→סטטוס→יעד→חסר.
+function IngestRow({ item, onOpen, onFilter, selected, onToggle, onClose, onUnclose }) {
   const f = INGEST_FLAG[item.flag] || INGEST_FLAG.new;
   return (
     <div onClick={() => onOpen && onOpen(item)} title="פתח פרטים ופעולות"
-      style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5, flexWrap: "wrap", cursor: "pointer" }}>
+      style={{ display: "flex", gap: 8, alignItems: "baseline", borderBottom: `1px solid ${C.border}`, padding: "5px 0", fontSize: 12.5, flexWrap: "wrap", cursor: "pointer", opacity: item.handled ? 0.55 : 1 }}>
       {onToggle && <input type="checkbox" checked={!!selected} onClick={e => e.stopPropagation()} onChange={() => onToggle(item.key)} style={{ cursor: "pointer", alignSelf: "center" }} />}
-      <TierBadge tier={item.tier} onClick={onFilter ? () => onFilter({ type: "tier", value: item.tier?.key, label: "רובד: " + item.tier?.he, color: item.tier?.color }) : undefined} />
-      <span onClick={onFilter ? (e => { e.stopPropagation(); onFilter({ type: "flag", value: item.flag, label: "סוג: " + f.t, color: f.c }); }) : undefined}
+      <TierBadge tier={item.tier} onClick={onFilter ? () => onFilter({ type: "tier", value: item.tier?.key }) : undefined} />
+      <span onClick={onFilter ? (e => { e.stopPropagation(); onFilter({ type: "flag", value: item.flag }); }) : undefined}
         style={{ ...pill(f.c), cursor: onFilter ? "pointer" : "default" }} title={onFilter ? "סנן לפי סוג" : undefined}>{f.t}</span>
+      {item.handled && <span style={pill("#8a8a95")} title={item.handledMeta?.reason || "טופל"}>✅ טופל</span>}
       <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 11, whiteSpace: "nowrap" }}>{item.source}</span>
       <span style={{ color: C.faint, fontSize: 10.5, whiteSpace: "nowrap" }}>{fmt(item.ts)}</span>
       <span style={{ color: C.goldLight, flex: 1, minWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {item.raw ? item.raw.slice(0, 100) : <span style={{ color: C.faint }}>(ללא טקסט)</span>}
       </span>
       <WriterChip writer={item.writer} />
+      {item.handled
+        ? (onUnclose && <button onClick={e => { e.stopPropagation(); onUnclose(item); }} style={{ ...chip(false, "#e0913a"), padding: "2px 8px" }} title="החזר לתור">↩︎</button>)
+        : (onClose && <button onClick={e => { e.stopPropagation(); onClose(item); }} style={{ ...chip(false, "#4caf7d"), padding: "2px 8px" }} title="סגור מהתור">✔</button>)}
+      <RowSummary item={item} />
     </div>
   );
 }
 
 // ── CC-1.3 · פאזה 1 — Clickable-everything + Row Action Panel + פילטרים-חיים (READ/navigation בלבד) ──
 // ⛔ אין WRITE: פעולות-עבודה (שיפוט/קידום/למד) = פאזה 3. כאן ניווט + חקירה + פילטר בלבד.
-function matchesFilter(it, f) {
+// CC-1.3 · סינון-עבודה רב-ממדי (כתב · סטטוס · שיטה · יעד · טווח-תאריכים · רובד/סוג/צינור).
+// כל facet אופציונלי; פריט עובר רק אם עומד בכל ה-facets הפעילים (Rank-Don't-Hide: מיקוד, לא מחיקה).
+function matchesFilters(it, f) {
   if (!f) return true;
-  switch (f.type) {
-    case "tier": return it.tier?.key === f.value;
-    case "flag": return it.flag === f.value;
-    case "kind": return it.kind === f.value;
-    case "src":  return f.value === "discovery" ? C_SOURCES.includes(it.src) : it.src === f.value;
-    case "writer": {
-      const w = it.writer;
-      if (f.value === "__UNKNOWN__") return !!w && w.state !== "matched";
-      const canon = w?.canonical?.display_name || w?.contributor?.display_name;
-      return canon === f.value || it.rawAuthor === f.value;
-    }
-    default: return true;
+  const w = it.writer;
+  const canon = w?.canonical?.display_name || w?.contributor?.display_name;
+  if (f.writer) {
+    if (f.writer === "__UNKNOWN__") { if (!(w && w.state !== "matched")) return false; }
+    else if (!(canon === f.writer || it.rawAuthor === f.writer || it.author === f.writer)) return false;
   }
+  if (f.tier && it.tier?.key !== f.tier) return false;
+  if (f.flag && it.flag !== f.flag) return false;
+  if (f.kind && it.kind !== f.kind) return false;
+  if (f.src) { const ok = f.src === "discovery" ? C_SOURCES.includes(it.src) : it.src === f.src; if (!ok) return false; }
+  if (f.status && normStatus(it).key !== f.status) return false;
+  if (f.dest && !destinations(it).includes(f.dest)) return false;
+  if (f.method) { if (f.method === "__STRUCT__") { if (!structuralExtract(it.raw)) return false; } else if ((it.method || "") !== f.method) return false; }
+  if (f.from && new Date(it.ts || 0) < new Date(f.from)) return false;
+  if (f.to && new Date(it.ts || 0) > new Date(f.to + "T23:59:59")) return false;
+  return true;
 }
-// פילטר פעיל אחד + ניקוי. כל badge/מונה מגדיר אותו; הרשימות מסתננות מולו.
-function FilterBar({ filter, onClear }) {
-  if (!filter) return null;
+// פאסטים-פעילים כצ'יפים ניתנים-להסרה + ניקוי-כללי.
+function FilterBar({ filters, onClear, onRemove }) {
+  const keys = Object.keys(filters || {}).filter((k) => filters[k] != null && filters[k] !== "");
+  if (!keys.length) return null;
+  const label = (k, v) => `${FACET_HE[k] || k}: ${v === "__UNKNOWN__" ? "לא-מזוהה" : v === "__STRUCT__" ? "מבנה" : v}`;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "2px 0" }}>
-      <span style={{ color: C.faint, fontSize: 11 }}>🔎 פילטר פעיל:</span>
-      <span style={{ ...pill(filter.color || C.goldBright), fontWeight: 800 }}>{filter.label || `${filter.type}: ${filter.value}`}</span>
-      <button onClick={onClear} style={chip(false)}>✕ נקה</button>
+      <span style={{ color: C.faint, fontSize: 11 }}>🔎 פעיל:</span>
+      {keys.map((k) => (
+        <span key={k} onClick={() => onRemove(k)} style={{ ...pill(C.goldBright), cursor: "pointer" }} title="הסר פילטר">{label(k, filters[k])} ✕</span>
+      ))}
+      <button onClick={onClear} style={chip(false)}>נקה הכל</button>
+    </div>
+  );
+}
+// שורת-בקרות הסינון (dropdowns) + מיון + «הצג גם שטופלו».
+function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowHandled, writers, statuses, methods, handledCount }) {
+  const set = (k, v) => setFilters((cur) => { const n = { ...cur }; if (!v) delete n[k]; else n[k] = v; return n; });
+  const sel = { background: C.surface2, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 8px", fontSize: 12, fontFamily: F.heading };
+  return (
+    <div style={{ ...box, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+      <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>🎚️ סינון-עבודה</span>
+      <select value={filters.writer || ""} onChange={(e) => set("writer", e.target.value)} style={sel}>
+        <option value="">כל הכתבים</option>
+        {writers.map((w) => <option key={w} value={w}>{w}</option>)}
+        <option value="__UNKNOWN__">❔ לא-מזוהה</option>
+      </select>
+      <select value={filters.status || ""} onChange={(e) => set("status", e.target.value)} style={sel}>
+        <option value="">כל הסטטוסים</option>
+        {statuses.map((s) => <option key={s.key} value={s.key}>{s.he}</option>)}
+      </select>
+      <select value={filters.method || ""} onChange={(e) => set("method", e.target.value)} style={sel}>
+        <option value="">כל השיטות</option>
+        <option value="__STRUCT__">מבנה (ר״ת/ס״ת/נוטריקון)</option>
+        {methods.map((m) => <option key={m} value={m}>{m}</option>)}
+      </select>
+      <select value={filters.dest || ""} onChange={(e) => set("dest", e.target.value)} style={sel}>
+        <option value="">כל היעדים</option>
+        {["VAULT", "CORE", "Atlas", "שכבת-הציר"].map((d) => <option key={d} value={d}>{d}</option>)}
+      </select>
+      <label style={{ color: C.faint, fontSize: 11, display: "inline-flex", gap: 3, alignItems: "center" }}>מ־<input type="date" value={filters.from || ""} onChange={(e) => set("from", e.target.value)} style={sel} /></label>
+      <label style={{ color: C.faint, fontSize: 11, display: "inline-flex", gap: 3, alignItems: "center" }}>עד<input type="date" value={filters.to || ""} onChange={(e) => set("to", e.target.value)} style={sel} /></label>
+      <select value={sort} onChange={(e) => setSort(e.target.value)} style={sel}>
+        <option value="new">מיון: חדש→ישן</option><option value="old">מיון: ישן→חדש</option><option value="value">מיון: ערך↓</option>
+      </select>
+      <button onClick={() => setShowHandled((v) => !v)} style={chip(showHandled, "#8a8a95")}>{showHandled ? "🙈 הסתר שטופלו" : `👁 הצג גם שטופלו${handledCount ? ` (${handledCount})` : ""}`}</button>
+      <button onClick={() => setFilters({})} style={chip(false)}>נקה סינון</button>
+    </div>
+  );
+}
+// תווית-שורה אחידה: מי → מה → שיטה → סטטוס → יעד → מה-חסר.
+function RowSummary({ item }) {
+  const w = item.writer;
+  const who = w?.state === "matched" ? (w.canonical?.display_name || w.contributor?.display_name) : (item.rawAuthor || item.author || "—");
+  const what = item.source || item.kind || "—";
+  const method = item.method || (structuralExtract(item.raw) ? "נוטריקון?" : "—");
+  const st = normStatus(item);
+  const dests = destinations(item);
+  const miss = whatMissing(item);
+  const arr = <span style={{ color: C.faint }}> → </span>;
+  return (
+    <div style={{ fontSize: 10, color: C.faint, marginTop: 2, lineHeight: 1.5, flexBasis: "100%" }}>
+      <b style={{ color: "#b08bd8" }}>{who}</b>{arr}{what}{arr}<span style={{ color: C.muted }}>{method}</span>
+      {arr}<span style={{ color: st.c }}>{st.he}</span>{arr}<span style={{ color: "#3ea6ff" }}>{dests.join("·") || "—"}</span>
+      {arr}חסר: <span style={{ color: "#e0563a" }}>{miss}</span>
     </div>
   );
 }
@@ -261,13 +336,16 @@ function whyTier(it) {
     default: return "—";
   }
 }
+// מקרא-פעולות ל-DetailPanel (מצב מדויק לכל פעולה).
+const ACTIONS = [["close", "סגור-מהתור"], ["engine", "בדוק-מנוע"], ["atlas", "→ Atlas"], ["axis", "→ שכבת-הציר"], ["core", "קדם→CORE"], ["notarikon", "נוטריקון (ר״ת/ס״ת)"]];
 // 🗂️ Row Detail/Action Panel חכם — הפעולות משתנות לפי סוג-החומר (לא 20 כפתורים בשורה).
-function DetailPanel({ item, onClose, onFilter }) {
+function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
   if (!item) return null;
   const w = item.writer;
   const canon = w?.canonical?.display_name || w?.contributor?.display_name;
   const slug = w?.canonical?.slug || w?.contributor?.slug;
   const v = (item.values && item.values.length ? item.values[0] : item.value);
+  const struct = structuralExtract(item.raw);
   const idText = w?.state === "matched" ? `✓ ${canon}`
     : w?.state === "ambiguous" ? `⚠️ כמה התאמות: ${(w.candidates || []).map(c => c.display_name).join(" / ")}`
     : `❔ לא-מזוהה: «${w?.raw || item.rawAuthor || "—"}»`;
@@ -304,46 +382,96 @@ function DetailPanel({ item, onClose, onFilter }) {
           {item.tier && <span onClick={() => go({ type: "tier", value: item.tier.key, label: "רובד: " + item.tier.he, color: item.tier.color })} style={{ ...pill(item.tier.color), cursor: "pointer" }}>🔎 כל רובד {item.tier.he}</span>}
           {w && w.state !== "matched" && <span onClick={() => go({ type: "writer", value: "__UNKNOWN__", label: "זהות: לא-מזוהה", color: "#8a8a95" })} style={{ ...pill("#8a8a95"), cursor: "pointer" }}>🔎 כל ה-UNKNOWN</span>}
         </div>
+
+        {/* סגור-מהתור / בטל-סגירה (marker אישי חוצה-מכשירים · לא נוגע בסטטוס-המקור) */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
+          {item.handled ? (
+            <>
+              <span style={pill("#8a8a95")}>✅ טופל · {item.handledMeta?.reason || "—"}{item.handledMeta?.at ? ` · ${fmt(item.handledMeta.at)}` : ""}</span>
+              <button onClick={() => { onUnhandle && onUnhandle(item); onClose && onClose(); }} style={chip(false, "#e0913a")}>↩︎ בטל סגירה (החזר לתור)</button>
+            </>
+          ) : (
+            <>
+              <span style={{ color: C.faint, fontSize: 11 }}>סגור-מהתור:</span>
+              {["טופל", "לא-רלוונטי", "כפול", "נבדק", "נותב"].map((rs) =>
+                <button key={rs} onClick={() => { onHandle && onHandle(item, rs); onClose && onClose(); }} style={chip(false, "#4caf7d")}>{rs}</button>)}
+            </>
+          )}
+        </div>
+
+        {/* מצב-פעולות מדויק — בוצע / ממתין-לאישור / לא-ניתן / חסר-מידע (מחליף «לא בוצע») */}
+        <div style={{ marginTop: 12, borderTop: `1px dashed ${C.border}`, paddingTop: 10 }}>
+          <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, marginBottom: 6 }}>מצב-פעולות (מדויק)</div>
+          <div style={{ display: "grid", gap: 4 }}>
+            {ACTIONS.map(([a, lbl]) => {
+              const r = actionState(item, a); const stt = ACT_STATE[r.s];
+              return (
+                <div key={a} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, flexWrap: "wrap" }}>
+                  <span style={{ ...pill(stt.c), minWidth: 84, textAlign: "center" }}>{stt.t}</span>
+                  <b style={{ color: C.goldLight, minWidth: 120 }}>{lbl}</b>
+                  <span style={{ color: C.faint, flex: 1, minWidth: 140 }}>{r.why}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* חילוץ-מבנה (נוטריקון · ר״ת/ס״ת) — פרשנות בלבד, לא ערך ולא עובדה. שמעון-flow: חילוץ→נבדק→נותב→סגור-מהתור. */}
+        {struct && (
+          <div style={{ ...box, marginTop: 10, borderColor: "#8458ff55" }}>
+            <div style={{ color: "#a48bff", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>🔡 חילוץ-מבנה (פרשנות · לא-עובדה)</div>
+            <Field k="מילים" v={struct.words} />
+            <Field k="ראשי-תיבות" v={struct.rashei} />
+            <Field k="סופי-תיבות" v={`${struct.sofei}${struct.sofeiNorm !== struct.sofei ? ` (מנורמל: ${struct.sofeiNorm})` : ""}`} />
+            <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>
+              אלו אותיות בלבד — לא ערך-גימטריה ולא «קריאה» מאושרת. אנגרמה/צירוף = פרשנות. בדיקת-מנוע-לערך = ממתין-לאישור (פאזה 3).
+            </div>
+            {!item.handled && <button onClick={() => { onHandle && onHandle(item, "נבדק · נוטריקון (מבנה) — פרשנות, ללא Fact/Canonical"); onClose && onClose(); }} style={{ ...chip(false, "#8458ff"), marginTop: 6 }}>נבדק — סגור מהתור</button>}
+          </div>
+        )}
+
         <div style={{ color: C.faint, fontSize: 10.5, marginTop: 10, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
-          פעולות-עבודה (שיפוט · קדם→גרף · <b>למד-זהות</b> · סווג · העדפה) = <b>פאזה 3</b> (Human-Gate של צוריאל). כאן פאזה-1: ניווט וחקירה בלבד — אפס WRITE.
+          «סגור-מהתור» = marker אישי (research_items) — מבוצע. פעולות-עבודה (שיפוט · קדם→גרף · <b>למד-זהות</b> · סווג · העדפה · בדיקת-מנוע-לערך) = <b>פאזה 3</b> (Human-Gate של צוריאל) — אין WRITE לחומר, אין Claim→Fact, אין קידום Canonical.
         </div>
       </div>
     </div>
   );
 }
 
-// CC-1.3 ש2 · מפת-ניתוב — לאן חומר יכול ללכת מכל רובד (עדשות: VAULT→CORE→Atlas→שכבת-הציר). תצוגה/הכוונה בלבד.
-const ROUTES = {
-  RAW:       [["VAULT", "חילוץ→מועמד", "#b08bd8"]],
-  VAULT:     [["CORE", "קידום · Human-Gate", "#c79a2e"], ["Atlas", "יחס", "#3ea6ff"], ["שכבת-הציר", "זמן/אירוע", "#8458ff"]],
-  CORE:      [["Atlas", "יחס", "#3ea6ff"], ["שכבת-הציר", "זמן/אירוע", "#8458ff"]],
-  CANONICAL: [["Atlas", "יחס", "#3ea6ff"]],
-};
-// Bulk Bar — פעולות על הנבחרים. כולן gated (פאזה 3 · Human-Gate). Bulk = לולאה מעל single-id RPC קיים.
-function BulkBar({ n, onClear }) {
+// Bulk Bar — «סגור מהתור» מבוצע בפועל (marker אישי); שאר-הפעולות gated (פאזה 3 · Human-Gate).
+function BulkBar({ items, onClear, onCloseQueue }) {
+  const n = items.length;
   if (!n) return null;
-  const act = a => alert(`«${a}» על ${n} פריטים — פאזה 3 (Human-Gate של צוריאל). לא בוצע WRITE.`);
+  const gated = (a) => alert(`«${a}» על ${n} פריטים — ממתין לאישור (פאזה 3 · Human-Gate). לא בוצע WRITE.`);
   return (
     <div style={{ ...box, borderColor: C.goldBright, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
       <b style={{ color: C.goldBright, fontFamily: F.heading }}>נבחרו {n}</b>
-      {["🔬 בדוק במנוע", "🏷️ סווג", "🧠 למד", "📥 → VAULT", "🔗 → Atlas", "🕐 → שכבת-הציר", "⚖️ שיפוט"].map(a =>
-        <button key={a} onClick={() => act(a)} style={chip(false)}>{a}</button>)}
+      <button onClick={() => onCloseQueue(items)} style={chip(false, "#4caf7d")}>✔ סגור מהתור ({n})</button>
+      <span style={{ color: C.faint, fontSize: 10 }}>|</span>
+      {["🔬 בדוק במנוע", "🏷️ סווג", "🧠 למד", "📥 → VAULT", "🔗 → Atlas", "🕐 → שכבת-הציר", "⚖️ שיפוט"].map((a) =>
+        <button key={a} onClick={() => gated(a)} style={chip(false)}>{a}</button>)}
       <button onClick={onClear} style={{ ...chip(false), marginInlineStart: "auto" }}>נקה בחירה</button>
-      <span style={{ color: C.faint, fontSize: 10 }}>gated · אין קידום-אוטומטי · Rank-Don't-Hide</span>
+      <span style={{ color: C.faint, fontSize: 10 }}>«סגור-מהתור» מבוצע · שאר הפעולות פאזה 3 · Rank-Don't-Hide</span>
     </div>
   );
 }
 
 export default function WarRoomTab() {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const uid = user?.id || null;
   const [mode, setMode] = useState("now");        // now | treasure
   const [lens, setLens] = useState("writers");    // writers | groups | language | candidates
   const [writer, setWriter] = useState(WRITERS[0]);
   const [groupSel, setGroupSel] = useState(null);
   const [focusN, setFocusN] = useState(null);
-  const [filter, setFilter] = useState(null);     // CC-1.3 · פילטר-חי אחד (tier/flag/kind/writer/src)
+  const [filters, setFilters] = useState({});     // CC-1.3 · סינון רב-ממדי (writer/status/method/dest/tier/flag/kind/src/from/to)
+  const [sort, setSort] = useState("new");        // CC-1.3 · מיון (new/old/value)
+  const [handled, setHandled] = useState(() => new Map()); // marker אישי «handled» (research_items) → Map(key→meta)
+  const [showHandled, setShowHandled] = useState(false);   // «הצג גם שטופלו»
   const [detail, setDetail] = useState(null);     // CC-1.3 · פריט פתוח ב-Detail Panel
   const [sel, setSel] = useState(() => new Set()); // CC-1.3 ש2 · רב-בחירה (מפתחות פריטים)
+  // תאימות-קליק: setFilter({type,value}) ממזג facet לתוך אובייקט-הסינון (כל ה-onFilter הקיימים ממשיכים לעבוד).
+  const setFilter = useCallback((f) => { if (!f) return setFilters({}); setFilters((cur) => ({ ...cur, [f.type]: f.value })); }, []);
 
   const [incoming, setIncoming] = useState([]);
   const [hot, setHot] = useState([]);
@@ -369,10 +497,10 @@ export default function WarRoomTab() {
     // CC-1.2 · אינדקס-זהות (contributors + wa_names + merged_into) — נבנה פעם, קורא-בלבד.
     const widx = buildWriterIndex(contribs || []);
     setWriterIdx(widx);
-    const withWriter = (it) => ({ ...it, writer: resolveWriter(it.rawAuthor, widx) });
+    const withWriter = (it) => ({ ...it, writer: resolveWriter(it.rawAuthor || it.author, widx) });
     const merged = [
       ...(forum || []).map(normForum), ...(wa || []).map(normWa), ...((posts?.posts) || []).map(normPost),
-    ].sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0)).slice(0, 60);
+    ].sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0)).slice(0, 60).map(withWriter);
     // A · ערוצי-שידור החיים — reuse של getChannelUpdates לכל אחד מ-4 המקורות (status='live').
     const chArr = await Promise.all(A_CHANNELS.map(([ch, lbl]) =>
       getChannelUpdates(25, ch, true).then(r => (r || []).map(x => normChannel(x, lbl))).catch(() => [])));
@@ -414,20 +542,53 @@ export default function WarRoomTab() {
   useEffect(() => { if (mode === "treasure" && lens === "writers") loadWriter(writer); }, [mode, lens, writer, loadWriter]);
   useEffect(() => { if (mode === "treasure" && lens === "groups" && groupSel) loadGroup(groupSel); }, [mode, lens, groupSel, loadGroup]);
   useEffect(() => { if (mode === "treasure" && lens === "language") loadLanguage(); }, [mode, lens, loadLanguage]);
+  // marker אישי «handled» — נטען חוצה-מכשירים (research_items) עם ה-uid.
+  useEffect(() => { if (uid) getHandledMap(uid).then(setHandled).catch(() => {}); }, [uid]);
+
+  const reloadHandled = useCallback(async () => { if (uid) setHandled(await getHandledMap(uid)); }, [uid]);
+  const clearSel = useCallback(() => setSel(new Set()), []);
+  // סגור-מהתור (יחיד או Bulk) — insert marker(ים); לא נוגע בסטטוס-המקור.
+  const doClose = useCallback(async (items, reason) => {
+    if (!uid) { alert("סגירה חוצה-מכשירים דורשת התחברות."); return; }
+    const arr = Array.isArray(items) ? items : [items];
+    for (const it of arr) { try { await markHandled(uid, it, reason); } catch (e) { console.warn("markHandled", e); } }
+    await reloadHandled(); clearSel();
+  }, [uid, reloadHandled, clearSel]);
+  // בטל-סגירה — delete marker → חוזר לתור.
+  const doUnclose = useCallback(async (item) => {
+    if (!uid) return;
+    try { await unmarkHandled(uid, item); } catch (e) { console.warn("unmarkHandled", e); }
+    await reloadHandled();
+  }, [uid, reloadHandled]);
 
   // צינור C — מועמדי-מנוע בלבד (discovery-engine…), מופרד מ-wa-raziel של צינור B.
   const discoveryC = useMemo(() => (candidates || []).filter(c => C_SOURCES.includes(c.src)), [candidates]);
-  // CC-1.3 · רשימות מסוננות מול הפילטר הפעיל (Rank-Don't-Hide: פילטר=מיקוד, לא מחיקה).
-  const liveAf = useMemo(() => (liveA || []).filter(it => matchesFilter(it, filter)), [liveA, filter]);
-  const candF = useMemo(() => (candidates || []).filter(c => matchesFilter(c, filter)), [candidates, filter]);
-  // CC-1.3 ש2 · רב-בחירה על שתי הרשימות המוצגות (Rank-Don't-Hide: בוחרים מהמוצג, לא מסתירים).
-  const shown = useMemo(() => [...liveAf, ...candF], [liveAf, candF]);
+  // withH — מצרף רובד-נסיגה (אם חסר) + דגל-handled מה-marker. pass — סינון רב-ממדי + הסתרת-שטופלו (אלא-אם showHandled).
+  const withH = useCallback((it) => {
+    const tier = it.tier || fallbackTier(it);
+    const base = it.tier ? it : { ...it, tier };
+    return handled.has(it.key) ? { ...base, handled: true, handledMeta: handled.get(it.key) } : base;
+  }, [handled]);
+  const pass = useCallback((it) => matchesFilters(it, filters) && (showHandled || !it.handled), [filters, showHandled]);
+  // CC-1.3 · רשימות מסוננות+ממויינות (Rank-Don't-Hide: פילטר=מיקוד; «שטופל» יוצא רק מתור-העבודה האישי).
+  const liveAf = useMemo(() => sortItems((liveA || []).map(withH).filter(pass), sort), [liveA, withH, pass, sort]);
+  const candF = useMemo(() => sortItems((candidates || []).map(withH).filter(pass), sort), [candidates, withH, pass, sort]);
+  // כל-החומר-של-הכתב (דרישה 8): איחוד כל הצינורות — ערוץ+מנוע+פורום+פוסט+וואטסאפ — לא רק חומר-שנותב.
+  const poolAll = useMemo(() => [...(liveA || []), ...(candidates || []), ...(incoming || [])].map(withH), [liveA, candidates, incoming, withH]);
+  const writerPool = useMemo(() => filters.writer ? sortItems(poolAll.filter(pass), sort) : null, [filters.writer, poolAll, pass, sort]);
+  // אפשרויות ל-dropdowns של הסינון (נגזרות מהמאגר).
+  const writerOptions = useMemo(() => orderWriters(poolAll.map(i => i.writer?.canonical?.display_name || i.writer?.contributor?.display_name).filter(Boolean)), [poolAll]);
+  const statusOpts = useMemo(() => statusOptions(poolAll), [poolAll]);
+  const methodOpts = useMemo(() => [...new Set(poolAll.map(i => i.method).filter(Boolean))], [poolAll]);
+  // CC-1.3 ש2 · רב-בחירה. shown = מאגר-הכתב (אם פעיל) אחרת התור המוצג. בחירת-כתב = כל-החומר (כל הצינורות).
+  const shown = useMemo(() => writerPool || [...liveAf, ...candF], [writerPool, liveAf, candF]);
+  const hasFilter = Object.keys(filters).length > 0;
+  const selItems = useMemo(() => poolAll.filter(i => sel.has(i.key)), [poolAll, sel]);
   const toggleSel = (k) => setSel(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
   const selectAllShown = () => setSel(new Set(shown.map(i => i.key)));
-  const clearSel = () => setSel(new Set());
-  const selectWriter = (name) => setSel(new Set(shown.filter(i => {
+  const selectWriter = (name) => setSel(new Set(poolAll.filter(i => {
     const w = i.writer; const canon = w?.canonical?.display_name || w?.contributor?.display_name;
-    return canon === name || i.rawAuthor === name;
+    return canon === name || i.rawAuthor === name || i.author === name;
   }).map(i => i.key)));
 
   if (!isAdmin) return <div style={{ color: C.muted, padding: 30, textAlign: "center" }}>אין לך הרשאת ניהול.</div>;
@@ -471,7 +632,8 @@ export default function WarRoomTab() {
             <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>📡 קליטה חיה (LIVE INGESTION)</span>
             <span style={{ color: C.faint, fontSize: 11 }}>שלושה צינורות · לחיץ · תצוגה-בלבד (לא feeder, לא WRITE) {busy && "…"}</span>
           </div>
-          <FilterBar filter={filter} onClear={() => setFilter(null)} />
+          <WorkFilters filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} showHandled={showHandled} setShowHandled={setShowHandled} writers={writerOptions} statuses={statusOpts} methods={methodOpts} handledCount={handled.size} />
+          <FilterBar filters={filters} onClear={() => setFilters({})} onRemove={(k) => setFilters((cur) => { const n = { ...cur }; delete n[k]; return n; })} />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10, marginTop: 8 }}>
             <div onClick={() => setFilter({ type: "tier", value: "RAW", label: "רובד: מקור (RAW)", color: "#8a8a95" })}
               style={{ ...box, borderColor: "#4caf7d55", cursor: "pointer" }} title="סנן לחומר-A (RAW)">
@@ -499,13 +661,13 @@ export default function WarRoomTab() {
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
               <span style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>🟢 חומר-A שנכנס (חדש/קיים/כפול):</span>
               <button onClick={selectAllShown} style={chip(false)}>☐ בחר מוצג</button>
-              {filter?.type === "writer" && filter.value !== "__UNKNOWN__" &&
-                <button onClick={() => selectWriter(filter.value)} style={chip(false, "#b08bd8")}>👤 בחר כל {filter.value}</button>}
+              {filters.writer && filters.writer !== "__UNKNOWN__" &&
+                <button onClick={() => selectWriter(filters.writer)} style={chip(false, "#b08bd8")}>👤 בחר כל {filters.writer}</button>}
               {sel.size > 0 && <button onClick={clearSel} style={chip(false)}>נקה ({sel.size})</button>}
             </div>
-            {liveAf.length ? liveAf.slice(0, 20).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} selected={sel.has(it.key)} onToggle={toggleSel} />)
-              : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : (filter ? "אין חומר-A תואם לפילטר." : "אין חומר-A חי כרגע (status='live').")}</div>}
-            {liveAf.length > 20 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 20 מתוך {liveAf.length}{filter ? " (מסונן)" : ""}.</div>}
+            {liveAf.length ? liveAf.slice(0, 20).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} selected={sel.has(it.key)} onToggle={toggleSel} onClose={(x) => doClose(x, "טופל")} onUnclose={doUnclose} />)
+              : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : (hasFilter ? "אין חומר-A תואם לפילטר." : "אין חומר-A חי כרגע (status='live').")}</div>}
+            {liveAf.length > 20 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 20 מתוך {liveAf.length}{hasFilter ? " (מסונן)" : ""}.</div>}
           </div>
           {/* CC-1.2 · מקרא-רבדים (Tier Lens) — ניווט בלבד, נגזר מהסטטוס הקיים */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
@@ -532,8 +694,23 @@ export default function WarRoomTab() {
           </div>
         </div>
 
-        {/* CC-1.3 ש2 · Bulk Bar — מופיע כשיש בחירה (פעולות gated) */}
-        <BulkBar n={sel.size} onClear={clearSel} />
+        {/* CC-1.3 ש2 · Bulk Bar — «סגור מהתור» מבוצע; שאר gated */}
+        <BulkBar items={selItems} onClear={clearSel} onCloseQueue={(items) => doClose(items, "טופל · Bulk")} />
+
+        {/* דרישה 8 · כל-החומר-של-הכתב — איחוד כל הצינורות (לא רק חומר-שנותב) */}
+        {filters.writer && filters.writer !== "__UNKNOWN__" && (
+          <div style={{ ...box, borderColor: "#b08bd855" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+              <span style={{ color: "#b08bd8", fontFamily: F.heading, fontWeight: 900 }}>👤 כל החומר של {filters.writer}</span>
+              <span style={{ color: C.goldLight, fontWeight: 800 }}>{(writerPool || []).length}</span>
+              <span style={{ color: C.faint, fontSize: 10.5 }}>כל הצינורות (ערוץ · מנוע · פורום · פוסט · וואטסאפ) — לא רק חומר-שנותב</span>
+              <button onClick={() => selectWriter(filters.writer)} style={{ ...chip(false, "#b08bd8"), marginInlineStart: "auto" }}>בחר הכל</button>
+            </div>
+            {(writerPool || []).slice(0, 40).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} selected={sel.has(it.key)} onToggle={toggleSel} onClose={(x) => doClose(x, "טופל")} onUnclose={doUnclose} />)}
+            {(writerPool || []).length === 0 && <div style={{ color: C.muted, fontSize: 12 }}>אין חומר לכתב זה בטווח/סינון הנוכחי.</div>}
+            {(writerPool || []).length > 40 && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>מוצגים 40 מתוך {writerPool.length}.</div>}
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,320px)", gap: 14 }}>
           <div style={{ display: "grid", gap: 10, alignContent: "start" }}>
@@ -545,23 +722,27 @@ export default function WarRoomTab() {
             <RazielPanel focusN={focusN} />
             <div style={box}>
               <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, marginBottom: 8 }}>
-                ⚖️ ממתין לשיפוט <span style={{ color: C.faint, fontSize: 11, fontWeight: 400 }}>({candF.length}{filter ? " מסונן" : ""})</span>
+                ⚖️ ממתין לשיפוט <span style={{ color: C.faint, fontSize: 11, fontWeight: 400 }}>({candF.length}{hasFilter ? " מסונן" : ""})</span>
               </div>
               {candF.slice(0, 10).map(c => (
                 <div key={c.key} onClick={() => setDetail(c)} title="פתח פרטים ופעולות"
-                  style={{ borderBottom: `1px solid ${C.border}`, padding: "6px 0", fontSize: 12.5, color: C.goldLight, cursor: "pointer" }}>
+                  style={{ borderBottom: `1px solid ${C.border}`, padding: "6px 0", fontSize: 12.5, color: C.goldLight, cursor: "pointer", opacity: c.handled ? 0.55 : 1 }}>
                   <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
                     <input type="checkbox" checked={sel.has(c.key)} onClick={e => e.stopPropagation()} onChange={() => toggleSel(c.key)} style={{ cursor: "pointer", alignSelf: "center" }} />
-                    <TierBadge tier={c.tier} onClick={() => setFilter({ type: "tier", value: c.tier?.key, label: "רובד: " + c.tier?.he, color: c.tier?.color })} />
-                    <span onClick={e => { e.stopPropagation(); setFilter({ type: "kind", value: c.kind, label: "סוג: " + c.kind, color: c.kind === "relation" ? "#3ea6ff" : "#4caf7d" }); }}
+                    <TierBadge tier={c.tier} onClick={() => setFilter({ type: "tier", value: c.tier?.key })} />
+                    <span onClick={e => { e.stopPropagation(); setFilter({ type: "kind", value: c.kind }); }}
                       style={{ ...pill(c.kind === "relation" ? "#3ea6ff" : "#4caf7d"), cursor: "pointer" }} title="סנן לפי סוג">{c.kind}</span>
+                    {c.handled && <span style={pill("#8a8a95")} title={c.handledMeta?.reason || "טופל"}>✅ טופל</span>}
                     {c.value ? <Link to={`/number/${c.value}`} onClick={e => e.stopPropagation()} style={{ color: C.goldBright }}>{c.value}</Link> : null}
                     <WriterChip writer={c.writer} />
+                    {c.handled
+                      ? <button onClick={e => { e.stopPropagation(); doUnclose(c); }} style={{ ...chip(false, "#e0913a"), padding: "2px 8px", marginInlineStart: "auto" }} title="החזר לתור">↩︎</button>
+                      : <button onClick={e => { e.stopPropagation(); doClose(c, "טופל"); }} style={{ ...chip(false, "#4caf7d"), padding: "2px 8px", marginInlineStart: "auto" }} title="סגור מהתור">✔</button>}
                   </div>
-                  <div style={{ color: C.muted, fontSize: 12 }}>{c.raw.slice(0, 60)}</div>
+                  <RowSummary item={c} />
                 </div>
               ))}
-              {!candF.length && <div style={{ color: C.muted, fontSize: 12 }}>{filter ? "אין מועמדים תואמים לפילטר." : "אין מועמדים. התור נקי ✓"}</div>}
+              {!candF.length && <div style={{ color: C.muted, fontSize: 12 }}>{hasFilter ? "אין מועמדים תואמים לפילטר." : "אין מועמדים. התור נקי ✓"}</div>}
             </div>
           </div>
         </div>
@@ -619,7 +800,7 @@ export default function WarRoomTab() {
       )}
 
       {/* CC-1.3 · Row Detail/Action Panel — נפתח מכל שורה/פריט. ניווט+חקירה בלבד (פאזה 1). */}
-      {detail && <DetailPanel item={detail} onClose={() => setDetail(null)} onFilter={setFilter} />}
+      {detail && <DetailPanel item={withH(detail)} onClose={() => setDetail(null)} onFilter={setFilter} onHandle={(it, r) => doClose(it, r)} onUnhandle={doUnclose} />}
     </div>
   );
 }
