@@ -130,14 +130,20 @@ export default function RevelationAxis() {
         .eq("axis_pin", 1)                            // מוצג בכפייה (גם אם אינו עומד באוטומטי)
         .order("modified", { ascending: false, nullsFirst: false }).limit(8),
     ]).then(([a, b]) => {
+      // 📍 נעוצים-בכפייה (axis_pin=1) = תחנות-ציר קבועות → תמיד מוצגים, גם ישנים
+      //    (עוקפים את סינון-הטריות). האוטומטיים (ai_touched) מסוננים לטריים בלבד.
+      const forced = (b.data || []);
+      const fresh  = (a.data || []).filter(p => withinFresh(p.modified, AXIS_FRESH_HOURS));
       const byId = new Map();
-      for (const r of [...(a.data || []), ...(b.data || [])]) if (!byId.has(r.wp_id)) byId.set(r.wp_id, r);
+      for (const r of [...forced, ...fresh]) if (!byId.has(r.wp_id)) byId.set(r.wp_id, r); // forced קודם → עדיפות בדדופ
       const merged = [...byId.values()].sort((x, y) => {
+        const fp = (y.axis_pin === 1 ? 1 : 0) - (x.axis_pin === 1 ? 1 : 0);  // נעוצים-בכפייה קודם
+        if (fp) return fp;
         const tp = (y.tree_priority ?? -1) - (x.tree_priority ?? -1);   // גבוה=למעלה
         if (tp) return tp;
         return String(y.modified || "").localeCompare(String(x.modified || ""));
-      }).filter(p => withinFresh(p.modified, AXIS_FRESH_HOURS)).slice(0, 5);
-      setAiPosts(merged);   // רק עדכוני-AI *טריים* (כחולים) מופיעים; אין «3 כחולים» קבועים
+      }).slice(0, 6);
+      setAiPosts(merged);   // נעוצים-בכפייה (תחנות קבועות) + עדכוני-AI טריים (כחולים)
     });
   }, []);
 
