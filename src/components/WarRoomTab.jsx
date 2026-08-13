@@ -13,8 +13,9 @@ import {
 } from "../lib/supabase.js";
 import { analyzeTime } from "../lib/timeFlow.js";
 import { crossMethodPairs } from "../lib/gematria.js";
-import { detectLanguage, replyLanguage, LANG_HE } from "../lib/lang.js";
+import { detectLanguage, replyLanguage, LANG_HE, CANON_LANGS } from "../lib/lang.js";
 import { creditsFor, providerCost } from "../lib/cost.js";
+import { waTranslate, waSendReply } from "../lib/waReply.js";
 import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
@@ -758,6 +759,106 @@ function ActionRunner({ item }) {
   );
 }
 
+// ✍️ Phase 3B · Admin-Reply flow — Human-Gate מלא: תרגום-נכנס→עברית · ניסוח-עברית · תרגום→שפת-המקבל · Preview · אישור · שליחה.
+// ⛔ אין Auto-Send · recipient = item.group (מהרשומה) · כל תרגום→ai_token_log · שליחה→wa_send הקיים.
+function ReplyFlow({ item }) {
+  const [open, setOpen] = useState(false);
+  const [heIn, setHeIn] = useState(null);       // ההודעה-הנכנסת מתורגמת לעברית (לקריאת האדמין)
+  const [heReply, setHeReply] = useState("");   // התשובה שהאדמין מנסח בעברית
+  const det = detectLanguage(item?.raw || "");
+  const [recip, setRecip] = useState(det.code !== "unknown" ? det.code : "he");   // שפת-המקבל (ברירת: שזוהתה)
+  const [preview, setPreview] = useState(null); // התשובה מתורגמת לשפת-המקבל
+  const [busy, setBusy] = useState(null);
+  const [sent, setSent] = useState(null);
+  const [err, setErr] = useState(null);
+  const isHe = det.code === "he";
+  const prov = { ref: item?.msgId || null, group: item?.group || null, userRef: item?.phone ? `wa:${item.phone}` : null };
+
+  const doTranslateIn = async () => {
+    setBusy("in"); setErr(null);
+    const r = await waTranslate({ text: item?.raw || "", target: "he", ...prov });
+    if (r.error) setErr("תרגום-נכנס נכשל: " + r.error); else setHeIn(r);
+    setBusy(null);
+  };
+  const doPreview = async () => {
+    if (!heReply.trim()) return;
+    setBusy("prev"); setErr(null); setPreview(null);
+    const r = await waTranslate({ text: heReply, target: recip, ...prov });
+    if (r.error) setErr("תרגום-תשובה נכשל: " + r.error); else setPreview(r);
+    setBusy(null);
+  };
+  const doSend = async () => {   // 🔒 Human-Gate — נקרא רק בלחיצה מפורשת, ורק כשיש Preview
+    if (!preview?.text || !item?.group) return;
+    setBusy("send"); setErr(null);
+    const r = await waSendReply({ chatId: item.group, text: preview.text, msgIn: item?.raw || null });
+    if (r.error) setErr("שליחה נכשלה: " + (r.detail || r.error)); else setSent({ at: r.at, text: preview.text });
+    setBusy(null);
+  };
+
+  const box2 = { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 10px", fontSize: 12.5, color: "#1b1d22", whiteSpace: "pre-wrap", overflowWrap: "anywhere" };
+  if (!open) return (
+    <button onClick={() => setOpen(true)} style={{ ...chip(true, "#128c4b"), marginTop: 6 }}>✍️ השב (Human-Gate)</button>
+  );
+  return (
+    <div style={{ ...box, marginTop: 8, borderColor: "#128c4b55", background: "#f2fbf5" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+        <b style={{ color: "#128c4b", fontSize: 13 }}>✍️ השב — מסלול אנושי</b>
+        <span style={{ color: C.faint, fontSize: 10 }}>ניסוח→תרגום→Preview→אישור→שליחה · אין Auto-Send</span>
+        <button onClick={() => setOpen(false)} style={{ ...chip(false), marginInlineStart: "auto" }}>✕</button>
+      </div>
+      {sent ? (
+        <div style={{ ...box2, borderColor: "#4caf7d", background: "#eef7f0" }}>
+          <b style={{ color: "#2e9e63" }}>✅ נשלח</b> · {fmt(sent.at)} · אל {item.group}
+          <div style={{ marginTop: 4 }}>🗣️ מקור: {item?.raw?.slice(0, 60)}</div>
+          <div>↩️ תשובה ({LANG_HE[recip] || recip}): {sent.text}</div>
+          <div style={{ color: C.faint, fontSize: 10, marginTop: 3 }}>סטטוס: sent · תועד ב-wa_bot_log+bot_outbox (מי→למי→מתי→מה)</div>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 7 }}>
+          {/* 1 · הודעה-נכנסת → עברית */}
+          <div>
+            <div style={{ fontSize: 11, color: "#128c4b", fontWeight: 700 }}>1️⃣ ההודעה בעברית (לקריאתך)</div>
+            {isHe ? <div style={{ ...box2, color: "#2e9e63" }}>המקור כבר עברית — {item?.raw?.slice(0, 80)}</div>
+              : heIn ? <div style={box2}>{heIn.text} <span style={{ color: C.faint, fontSize: 9.5 }}>(detected {heIn.detected} · {Math.round((heIn.confidence || 0) * 100)}%)</span></div>
+                : <button onClick={doTranslateIn} disabled={busy === "in"} style={chip(false, "#3ea6ff")}>{busy === "in" ? "מתרגם…" : "📥 תרגם לעברית"}</button>}
+          </div>
+          {/* 2 · ניסוח-תשובה בעברית */}
+          <div>
+            <div style={{ fontSize: 11, color: "#128c4b", fontWeight: 700 }}>2️⃣ נסח תשובה בעברית</div>
+            <textarea value={heReply} onChange={e => { setHeReply(e.target.value); setPreview(null); }} rows={3} dir="rtl"
+              placeholder="כתוב כאן בעברית…" style={{ width: "100%", boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 8px", fontSize: 13, fontFamily: F.body, resize: "vertical" }} />
+          </div>
+          {/* 3 · שפת-המקבל + override */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ fontSize: 11, color: "#128c4b", fontWeight: 700 }}>3️⃣ שפת-המקבל:</span>
+            <span style={{ ...pill(det.confidence >= 0.6 ? "#3ea6ff" : "#c79a2e"), fontSize: 10 }}>זוהה: {det.code === "unknown" ? "לא-ודאי" : det.name} {Math.round((det.confidence || 0) * 100)}%</span>
+            <select value={recip} onChange={e => { setRecip(e.target.value); setPreview(null); }} style={{ border: `1px solid ${C.border}`, borderRadius: 8, padding: "3px 6px", fontSize: 12 }}>
+              {CANON_LANGS.map(l => <option key={l} value={l}>{LANG_HE[l]}</option>)}
+            </select>
+            <span style={{ color: C.faint, fontSize: 9.5 }}>override ידני</span>
+          </div>
+          {/* 4 · Preview */}
+          <div>
+            <button onClick={doPreview} disabled={!heReply.trim() || busy === "prev"} style={chip(!!preview, "#c79a2e")}>{busy === "prev" ? "מתרגם…" : "👁️ תצוגה מקדימה (תרגום)"}</button>
+            {preview && <div style={{ ...box2, marginTop: 5, borderColor: "#c79a2e55" }}>
+              <div style={{ color: C.faint, fontSize: 10 }}>התשובה ב{LANG_HE[recip] || recip} (מה שיישלח):</div>{preview.text}
+            </div>}
+          </div>
+          {/* 5 · אישור ושליחה (Human-Gate) */}
+          <div style={{ borderTop: `1px dashed ${C.border}`, paddingTop: 6 }}>
+            <button onClick={doSend} disabled={!preview?.text || busy === "send"} style={chip(true, preview?.text ? "#128c4b" : "#8a8a95")}>
+              {busy === "send" ? "שולח…" : "✅ אשר (ZURIEL) ושלח"}
+            </button>
+            <span style={{ color: C.faint, fontSize: 10, marginInlineStart: 8 }}>נשלח רק אחרי Preview + אישור מפורש · recipient מהרשומה ({item?.group || "—"})</span>
+          </div>
+        </div>
+      )}
+      {err && <div style={{ color: "#c0392b", fontSize: 11.5, marginTop: 5 }}>⚠️ {err}</div>}
+      <div style={{ color: C.faint, fontSize: 9.5, marginTop: 5 }}>💰 כל תרגום נרשם ל-ai_token_log (ref/msg/group/user) · קרדיטים לא נגבים (מדידה בלבד).</div>
+    </div>
+  );
+}
+
 // 📱 הקשר-מלא של הודעת WhatsApp/DM — זהות · הודעה · תשובת-בוט · timeline · provenance · מצב-פעולות.
 // ⛔ READ בלבד (wa_bot_log/getWaThread) · זהות דרך ה-resolver הקיים (UNKNOWN כשאין) · אין טבלת-conversations חדשה · אין שליחה.
 function WaContext({ item }) {
@@ -862,8 +963,9 @@ function WaContext({ item }) {
           <span style={{ color: C.faint, fontSize: 10 }}>קלט = ההודעה הזו בלבד (לא כל ה-thread)</span>
         </div>
         <ActionRunner item={item} />
+        <ReplyFlow item={item} />
         <div style={{ color: C.faint, fontSize: 10.5, marginTop: 6 }}>
-          🔬 <b>ניתוח מלא</b> (Smart Analysis Flow — חילוץ·DB-First·שיטה·מנוע·FACT/CLAIM/CONVERGENCE·המלצה) בפאנל שמתחת · ✍️ <b>השב</b> = <span style={{ color: "#c0392b" }}>שלב 3 (חסום — עדיין לא נבנה)</span>
+          🔬 <b>ניתוח מלא</b> (Smart Analysis Flow — חילוץ·DB-First·שיטה·מנוע·FACT/CLAIM/CONVERGENCE·המלצה) בפאנל שמתחת.
         </div>
       </div>
     </div>
