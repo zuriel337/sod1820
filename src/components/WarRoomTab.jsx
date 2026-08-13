@@ -11,7 +11,7 @@ import {
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
   getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims,
 } from "../lib/supabase.js";
-import { extractCandidates, identifyMethod, proposeMethods, buildMethodProfile, runEngineOnTerms, analyzeFull } from "../lib/analysisFlow.js";
+import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
@@ -486,133 +486,29 @@ function FullAnalysis({ item }) {
               {r.engine.convergences.slice(0, 5).map((cv, i) => <div key={i}><b style={{ color: C.gold }}>{cv.value}</b> = {cv.members.map(m => `«${m.term}»·${m.method}`).join(" = ")}</div>)}
             </Lyr>
           )}
-          {/* G · פרשנות + H · המלצות */}
+          {/* F · טענות-חבויות (מכפלה / הופעה) — CLAIM לבדיקה, לא Fact */}
+          {(r.products.length > 0 || r.occurrences.length > 0) && (
+            <Lyr t="F · טענות-חבויות (לבדיקה · לא-Fact)" c="#c77dd8">
+              {r.products.map((p, i) => <div key={"p" + i}>✖️ מכפלה: <b>{p.factor}</b> × «{p.unit}»{p.phrase ? <> = «{p.phrase}»</> : null} <span style={{ color: C.faint }}>— לאמת במנוע, לא להניח</span></div>)}
+              {r.occurrences.map((o, i) => <div key={"o" + i}>📖 הופעה: «{o.phrase}» <b>{o.count}</b> <span style={{ color: C.faint }}>— לבדוק בחיפוש-תנ״ך</span></div>)}
+            </Lyr>
+          )}
+          {/* G · פרשנות + H · המלצות (מדורגות: גבוהה/בינונית/פרשני) */}
           <Lyr t="G · פרשנות הכתב" c={C.muted}>מוצגת בנפרד מהעובדות — CLAIM/INTERPRETATION, לא Fact.</Lyr>
           <Lyr t={`H · המלצות מחקר (${r.suggestions.length}) — לבחירתך`} c="#c79a2e">
-            {r.suggestions.slice(0, 10).map((s, i) => <div key={i} style={{ padding: "1px 0" }}>💡 {s.t} <span style={{ color: C.faint }}>— {s.why}</span></div>)}
+            {[["high", "🔴 גבוהה", "#d1493f"], ["mid", "🟡 בינונית", "#c79a2e"], ["interp", "🟣 פרשני (לא-Fact)", "#8458ff"]].map(([rk, lbl, col]) => {
+              const g = r.suggestions.filter(s => s.rank === rk);
+              if (!g.length) return null;
+              return (
+                <div key={rk} style={{ marginTop: 4 }}>
+                  <div style={{ color: col, fontWeight: 700, fontSize: 11 }}>{lbl}</div>
+                  {g.map((s, i) => <div key={i} style={{ padding: "1px 0 1px 6px" }}>💡 {s.t} <span style={{ color: C.faint }}>— {s.why}</span></div>)}
+                </div>
+              );
+            })}
           </Lyr>
           <div style={{ color: C.faint, fontSize: 10.5, borderTop: `1px dashed ${C.border}`, paddingTop: 6 }}>
             הפרדה: <b style={{ color: "#2e9e63" }}>FACT</b>=אומת-מנוע · <b style={{ color: "#c79a2e" }}>CLAIM</b>=טענת-הכתב · <b style={{ color: "#8458ff" }}>STRUCTURAL</b>=מבנה · <b style={{ color: "#3ea6ff" }}>CONVERGENCE</b>=ערך-משותף · <b style={{ color: C.muted }}>INTERPRETATION</b>=פרשנות. ניתוח ≠ אישור — הפעולות (לכידה/Atlas/ציר/סגירה) למטה, תחת Human-Gate.
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// 🔬 Smart Analysis Flow — פאזה 1 (READ/preview) בתוך ה-DetailPanel. שלבים 1–4 בלבד, כל אחד עם why.
-// ⛔ אין הרצת-מנוע ואין כתיבה (פאזה 2 גייטד). «שיטת-כתב» נלמדת מהיסטוריה מאומתת — לא מומצאת מממצא יחיד.
-function SmartAnalysis({ item }) {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [db, setDb] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [p2, setP2] = useState(null);   // פאזה 2 · תוצאות-מנוע
-  const cands = useMemo(() => extractCandidates(item?.raw), [item?.raw]);
-  const runEngine = useCallback(() => {
-    const terms = [...new Set(cands.filter(c => ["explicit-claim", "equation", "emphasized"].includes(c.type)).flatMap(c => c.parts || [c.text]))];
-    setP2(runEngineOnTerms(terms));
-  }, [cands]);
-  const top = cands[0] || null;
-  const identified = useMemo(() => (top ? identifyMethod(top, item?.raw) : null), [top, item?.raw]);
-  const proposed = useMemo(() => (top ? proposeMethods(top, identified, profile) : []), [top, identified, profile]);
-
-  const run = useCallback(async () => {
-    setOpen(true); setLoading(true);
-    const phrases = cands.filter(c => ["explicit-claim", "equation", "emphasized", "verse"].includes(c.type)).flatMap(c => c.parts || [c.text]);
-    const value = top?.value ?? (cands.find(c => c.value != null)?.value ?? null);
-    const w = item?.writer;
-    const canon = w?.canonical?.display_name || w?.contributor?.display_name;
-    const names = [canon, item?.rawAuthor, item?.author, ...((w?.canonical?.wa_names) || [])].filter(Boolean);
-    try {
-      const [d, claims] = await Promise.all([dbFirstLookup(phrases, value), getWriterVerifiedClaims(names)]);
-      setDb(d); setProfile(buildMethodProfile(claims));
-    } catch { /* ignore */ }
-    setLoading(false);
-  }, [cands, top, item]);
-
-  if (!item?.raw) return null;
-  const Stage = ({ n, title, children }) => (
-    <div style={{ borderInlineStart: `2px solid ${C.gold}`, paddingInlineStart: 10, marginBottom: 10 }}>
-      <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>{n}. {title}</div>
-      <div style={{ marginTop: 4 }}>{children}</div>
-    </div>
-  );
-  return (
-    <div style={{ ...box, marginTop: 12, borderColor: C.gold }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>🔬 ניתוח חכם (פאזה 1 · תצוגה)</span>
-        {!open && <button onClick={run} style={chip(true, C.gold)}>נתח</button>}
-        {loading && <span style={{ color: C.faint, fontSize: 11 }}>טוען…</span>}
-        <span style={{ color: C.faint, fontSize: 10 }}>קורא-בלבד · בלי מנוע · בלי כתיבה</span>
-      </div>
-      {open && (
-        <div style={{ marginTop: 10 }}>
-          <Stage n={1} title={`חילוץ מועמדים (${cands.length}) — לא כל הטקסט`}>
-            {cands.length ? cands.slice(0, 6).map((c, i) => (
-              <div key={i} style={{ fontSize: 12, padding: "2px 0", color: C.goldLight }}>
-                <span style={{ ...pill(i === 0 ? C.gold : C.muted), marginInlineEnd: 6 }}>{c.type}</span>
-                <b>{c.text}</b>{c.value != null ? <span style={{ color: C.gold }}> = {c.value}</span> : null}
-                <span style={{ color: C.faint }}> — {c.why}</span>
-              </div>
-            )) : <span style={{ color: C.faint, fontSize: 12 }}>אין מועמד ברור.</span>}
-          </Stage>
-          <Stage n={2} title="DB-First — מה כבר קיים">
-            {db ? (
-              <div style={{ fontSize: 12, color: C.goldLight }}>
-                {db.known.length ? db.known.map((k, i) => (
-                  <div key={i}>✓ «{k.phrase}»={k.ragil} כבר בבנק{k.vip_source ? ` · ${k.vip_source}` : ""}</div>
-                )) : <div style={{ color: C.faint }}>הביטויים לא בבנק — חדש.</div>}
-                {db.hubValue != null && <div style={{ color: "#3ea6ff" }}>צביר {db.hubValue}: {db.hubCount} ביטויים מאומתים</div>}
-              </div>
-            ) : <span style={{ color: C.faint, fontSize: 12 }}>…</span>}
-          </Stage>
-          <Stage n={3} title="שיטת-הכתב (נלמד מהיסטוריה מאומתת)">
-            <div style={{ fontSize: 12, color: C.goldLight }}>
-              <div>שיטת-הממצא הזה: <b>{identified?.method || "—"}</b> <span style={{ color: C.faint }}>— {identified?.why}</span></div>
-              {profile ? (
-                profile.total >= 1 ? (
-                  <div style={{ marginTop: 3 }}>
-                    פרופיל-כתב ({profile.total} מאומתים): {profile.dominant
-                      ? <b style={{ color: C.gold }}>דומיננטי: {profile.dominant}</b>
-                      : <span style={{ color: C.faint }}>טרם דומיננטי (צריך ≥2)</span>}
-                    {profile.methods.length > 0 && <span> · {profile.methods.map(m => `${m.method}×${m.count}`).join(" · ")}</span>}
-                  </div>
-                ) : <div style={{ color: C.faint, marginTop: 3 }}>אין עדיין ממצאים מאומתים לכתב — פרופיל ייבנה מהלכידות.</div>
-              ) : <span style={{ color: C.faint }}>…</span>}
-              <div style={{ color: C.faint, fontSize: 10.5, marginTop: 2 }}>רק ממצא מאומת נספר · Claim לא הופך לעובדה · לא נקבעת שיטה מממצא יחיד.</div>
-            </div>
-          </Stage>
-          <Stage n={4} title="שיטות מוצעות (מנוע קיים בלבד)">
-            {proposed.length ? proposed.map((p, i) => (
-              <div key={i} style={{ fontSize: 12, color: C.goldLight, padding: "1px 0" }}>
-                <span style={{ ...pill(p.hint ? C.muted : C.gold), marginInlineEnd: 6 }}>{p.method}</span>
-                <code style={{ color: C.faint }}>{p.fn}</code> <span style={{ color: C.faint }}>— {p.why}</span>
-              </div>
-            )) : <span style={{ color: C.faint, fontSize: 12 }}>—</span>}
-          </Stage>
-          <div style={{ marginTop: 8, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
-            <button onClick={runEngine} style={chip(true, C.gold)}>▶ הרץ מנוע (חשב ביטויים)</button>
-            <span style={{ color: C.faint, fontSize: 10.5, marginInlineStart: 8 }}>חישוב-בלבד (מנוע קנוני) · לכידה/ניתוב = ההחלטה שלך</span>
-            {p2 && (
-              <div style={{ marginTop: 8 }}>
-                {p2.convergences.length ? (
-                  <>
-                    <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12, marginBottom: 4 }}>🔗 התכנסויות שהמנוע מצא ({p2.convergences.length}) · FACT</div>
-                    {p2.convergences.slice(0, 8).map((cv, i) => (
-                      <div key={i} style={{ fontSize: 12, color: C.goldLight, padding: "2px 0", lineHeight: 1.5 }}>
-                        <b style={{ color: C.gold }}>{cv.value}</b> = {cv.members.map(m => `«${m.term}» (${m.method})`).join("  =  ")}
-                      </div>
-                    ))}
-                    <div style={{ color: C.faint, fontSize: 10.5, marginTop: 3 }}>FACT = ערך-מנוע · CONVERGENCE = ערך משותף ל-≥2 ביטויים · פרשנות-הכתב בנפרד. אין WRITE — לכידה = הכפתורים למעלה.</div>
-                  </>
-                ) : (
-                  <div style={{ fontSize: 12, color: C.goldLight }}>
-                    {p2.terms.length ? <>ביטוי יחיד: {p2.facts.slice(0, 7).map((f, i) => <span key={i} style={{ marginInlineEnd: 8 }}>{f.method}=<b style={{ color: C.gold }}>{f.value}</b></span>)}<div style={{ color: C.faint, fontSize: 10.5, marginTop: 2 }}>אין הצלבה פנימית — ראה DB-First לצביר סביב הערך.</div></> : <span style={{ color: C.faint }}>אין ביטוי לחילוץ מהטקסט.</span>}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       )}

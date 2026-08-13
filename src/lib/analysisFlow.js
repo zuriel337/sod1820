@@ -43,8 +43,11 @@ const stripNikud = (s) => String(s || "").replace(NIKUD_G, "");
 // clean: מוריד ניקוד/מרכאות/(ערך) + מקפים (י-ה-ו-ה → יהוה, כדי שהמנוע וההצלבה יתפסו).
 const clean = (s) => stripNikud(s).replace(/["'«»“”‘’׳״]/g, "").replace(/\(\s*\d+\s*\)/g, " ")
   .replace(/[־\-]/g, "").replace(/\s+/g, " ").replace(/^[\s.,;:!?()]+|[\s.,;:!?()]+$/g, "").trim();
-// מילות-מטא שאינן ביטוי-מחקר («כל הפסוק» = הפניה, לא ביטוי לחישוב).
-const META_STOP = new Set(["כל הפסוק", "הפסוק", "פסוק זה", "הפסוק הזה", "הפסוק השלם", "פסוק שלם", "כל המילים", "המילה", "כל הפסוק הזה"]);
+// מילות-מטא שאינן ביטוי-מחקר («כל הפסוק» = הפניה · «שלושתם» = כינוי-ריבוי המפנה לביטויים, לא ביטוי לחישוב).
+const META_STOP = new Set([
+  "כל הפסוק", "הפסוק", "פסוק זה", "הפסוק הזה", "הפסוק השלם", "פסוק שלם", "כל המילים", "המילה", "כל הפסוק הזה",
+  "שלושתם", "שלשתם", "שלושתן", "שניהם", "שניהן", "שתיהם", "שתיהן", "ארבעתם", "חמשתם", "כולם", "כולן", "שניהמ",
+]);
 // ביטוי-תקף: עברית בלבד, 2–40 תווים, עד 6 מילים, בלי ספרות/נקודתיים/סוגריים, לא מילת-מטא.
 const validPhrase = (p) => !!p && HEB.test(p) && p.length >= 2 && p.length <= 40 && !/[0-9:()]/.test(p) && p.split(/\s+/).filter(Boolean).length <= 6 && !META_STOP.has(p);
 
@@ -106,7 +109,8 @@ export function extractCandidates(rawText) {
   const parenRe = new RegExp("([א-ת]" + P + "{1,38}?)\\s*\\((\\d{2,5})\\)", "g");
   while ((m = parenRe.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: Number(m[2]), why: "ביטוי + ערך בסוגריים (הכתב סימן)", score: 95 }); }
   // B1 · ביטוי + «גימטריא/שווה/עולה» + ערך  (הערך אחרי הביטוי): «נאות מדבר» גימטריא 703
-  const gemAfter = new RegExp(Q + "?([א-ת]" + P + "{1,34}?)" + Q + "?\\s*(?:[בהלמושכ]?גימטרי[אה]|שוו?ה|עולה)\\s*[:=\\s]*(\\d{2,5})", "g");
+  // ⛔ מדלג על «N פעמים …» (זו טענת-מכפלה, לא ערך ישיר — «ענן בגימטריא 10 פעמים טוב» ≠ ענן=10). נלכד ב-detectProducts.
+  const gemAfter = new RegExp(Q + "?([א-ת]" + P + "{1,34}?)" + Q + "?\\s*(?:[בהלמושכ]?גימטרי[אה]|שוו?ה|עולה)\\s*[:=\\s]*(\\d{2,5})(?!\\s*פעמ)", "g");
   while ((m = gemAfter.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: Number(m[2]), why: "ביטוי + «גימטריא» + ערך", score: 92 }); }
   // B2 · «גימטריא» + ביטוי  (הביטוי אחרי המילה): בגימטריא «יומא דשבתא»
   const gemBefore = new RegExp("[בהלמושכ]?גימטרי[אה]\\s*[:=]?\\s*" + Q + "([א-ת]" + P + "{1,34}?)" + Q, "g");
@@ -228,10 +232,12 @@ export function detectSources(text) {
   while ((m = bookRe.exec(t))) { const name = clean(m[1]); if (name && !bookStop.has(name) && !seen.has("b:" + name)) { seen.add("b:" + name); out.push({ type: "book", name, citation: null }); } }
   for (const b of TANACH) {
     const idx = t.indexOf(b);
-    if (idx >= 0 && !seen.has("t:" + b)) {
+    if (idx >= 0 && !seen.has("t:" + b) && !seen.has("b:" + b)) {   // כבר נלכד כ«ספר X» → לא לשכפל
       seen.add("t:" + b);
-      const after = t.slice(idx + b.length, idx + b.length + 14);
-      const cit = (after.match(/^[\s.,]*([א-ת]{1,4}['׳"]?\s*[,:]?\s*[א-ת]{1,4}['׳"]?)/) || [])[1] || null;
+      const after = t.slice(idx + b.length, idx + b.length + 20);
+      // מספר-עברי = 1–2 אותיות + גרשיים אופציונליים + עוד אות (ט"ז / י"ג). לוכד פרק [, פסוק].
+      const NUM = "[א-ת]{1,2}[\"'׳״]?[א-ת]{0,2}";
+      const cit = (after.match(new RegExp("^[\\s.,]*(" + NUM + "(?:\\s*[,:]\\s*" + NUM + ")?)")) || [])[1] || null;
       out.push({ type: "tanach", name: b, citation: cit ? clean(cit) : null });
     }
   }
@@ -244,25 +250,59 @@ export function detectVerses(text) {
     .filter(l => /[֑-ׇ]/.test(l) && l.length > 6).map(l => ({ text: l.slice(0, 140), nikud: true }));
 }
 
-// המלצות-מחקר (H) — עם why חובה. מוצעות בלבד, לא מבוצעות ולא מקדמות (Human-Gate).
-export function researchSuggestions({ engine, claims, koll, verses, sources, writerName, dbHubKnown }) {
-  const s = [];
-  const hub = engine?.convergences?.[0];
-  if (hub) {
-    s.push({ t: `בדוק את כל הביטויים סביב ${hub.value}`, why: `נמצאה התכנסות של ${hub.members.length} ביטויים בערך ${hub.value}` });
-    s.push({ t: `בדוק אם ${hub.value} כבר בצביר קיים ב-DB`, why: dbHubKnown != null ? `בבנק כרגע ${dbHubKnown} ביטויים בערך זה — למנוע כפילות ולחבר לעץ` : "למנוע כפילות ולחבר לעץ-הידע" });
+// טענת-מכפלה: «X בגימטריא N פעמים Y» (ענן = 10 פעמים טו"ב). המספר הוא CLAIM-מכפלה — לא ערך-מנוע ישיר.
+// לא מניחים שהמתמטיקה נכונה: מציעים לבדוק N × gem(Y) מול הערך של X (Human-Gate).
+export function detectProducts(text) {
+  const t = stripNikud(String(text || "")); const out = []; let m;
+  const re = /([א-ת][א-ת\s]{0,20}?)\s*(?:[בהלמושכ]?גימטרי[אה]|שוו?ה|עולה)?\s*(\d{1,4})\s*פעמים\s*["'«»“”‘’׳״]?([א-ת][א-ת\s"'׳״]{0,18}?)["'«»“”‘’׳״]?(?=[\s.,;)}]|$)/g;
+  while ((m = re.exec(t))) {
+    const phrase = clean(m[1]), factor = Number(m[2]), unit = clean(m[3]);
+    if (unit && HEB.test(unit) && factor > 1) out.push({ phrase: validPhrase(phrase) ? phrase : null, factor, unit, why: `טענת-מכפלה: ${factor} × «${unit}»${validPhrase(phrase) ? ` = «${phrase}»` : ""} — לבדוק במנוע, לא להניח` });
   }
-  (claims || []).filter(c => c.type === "explicit-claim").slice(0, 3).forEach(c => s.push({ t: `בדוק «${c.text}» בשיטות הרלוונטיות`, why: `הכתב טען ערך ${c.value ?? "?"}` }));
-  if (koll?.length) s.push({ t: `אמת את מתודת-הכולל שהכתב ציין (${koll.join(" · ")})`, why: "המספר הוא CLAIM עם תוספת-חישוב — חובה לאמת במנוע, לא להניח" });
+  return out;
+}
+
+// טענת-הופעה: «X מופיע פעם אחת / N פעמים בתורה/בתנ"ך/ב<ספר>» — Claim שניתן לבדוק בחיפוש-מקור, לא Fact.
+// זה בדיוק המקום שבו ה-AI חוקר (מציע בדיקת-תנ״ך), לא מחשבון.
+export function detectOccurrenceClaims(text) {
+  const t = stripNikud(String(text || "")); const out = []; const seen = new Set(); let m;
+  const re = /["'«»“”‘’׳״]([א-ת][א-ת\s]{1,24}?)["'«»“”‘’׳״]\s*(?:כבר\s*)?(?:מופיע|מופיעה|מוזכר|מוזכרת|נמצא|נמצאת|בא|באה)\s+(פעם\s+אחת|פעמיים|שלוש\s+פעמים|\d+\s*פעמים)/g;
+  while ((m = re.exec(t))) { const phrase = clean(m[1]); if (validPhrase(phrase) && !seen.has(phrase)) { seen.add(phrase); out.push({ phrase, count: m[2].replace(/\s+/g, " ").trim(), why: "טענת-הופעה בטקסט-מקור — ניתנת לבדיקה בחיפוש-תנ״ך, לא עובדת-מנוע" }); } }
+  return out;
+}
+
+// המלצות-מחקר (H) — כל אחת עם `why` ו-`rank` (high=גבוהה · mid=בינונית · interp=פרשני·לא-Fact).
+// מוצעות בלבד, לא מבוצעות ולא מקדמות (Human-Gate). ⛔ שרשרת-פרשנות = interp, לעולם לא Fact.
+export function researchSuggestions({ engine, claims, koll, verses, sources, products, occurrences, writerName, dbHubKnown }) {
+  const s = [];
+  const conv = engine?.convergences || [];
+  const convVals = new Set(conv.map(c => c.value));
+  // ── גבוהה — התכנסויות (Fact ניתן-לאימות) + טענות-מספר + הופעות + מכפלות ──
+  conv.slice(0, 3).forEach((hub, i) => {
+    const terms = [...new Set(hub.members.map(m => m.term))];
+    s.push({ rank: "high", t: `אמת את ההתכנסות ${hub.value}: ${terms.join(" ↔ ")}`, why: `${terms.length} ביטויים שונים בערך ${hub.value} (${[...new Set(hub.members.map(m => m.method))].join(",")}) — לאמת במנוע` });
+    if (i === 0) s.push({ rank: "high", t: `בדוק אם ${hub.value} כבר בצביר קיים ב-DB`, why: dbHubKnown != null ? `בבנק כרגע ${dbHubKnown} ביטויים בערך זה — למנוע כפילות ולחבר לעץ` : "למנוע כפילות ולחבר לעץ-הידע" });
+  });
+  (occurrences || []).forEach(o => s.push({ rank: "high", t: `בדוק את טענת-ההופעה: «${o.phrase}» ${o.count}`, why: o.why }));
+  (products || []).forEach(p => s.push({ rank: "high", t: `בדוק את טענת-המכפלה: ${p.factor} × «${p.unit}»${p.phrase ? ` = «${p.phrase}»` : ""}`, why: p.why }));
+  (claims || []).filter(c => c.type === "explicit-claim" && c.value != null && !convVals.has(c.value)).slice(0, 3)
+    .forEach(c => s.push({ rank: "high", t: `אמת «${c.text}» = ${c.value}`, why: "טענת-ערך של הכתב שאינה חלק מהתכנסות — לאמת במנוע" }));
+  if (koll?.length) s.push({ rank: "high", t: `אמת את מתודת-הכולל (${koll.join(" · ")})`, why: "המספר הוא CLAIM עם תוספת-חישוב — לאמת במנוע, לא להניח" });
   const sum = (claims || []).find(c => c.type === "sum-equation");
-  if (sum) s.push({ t: `בדוק את המשוואה ${sum.text}`, why: `משוואת-סכום${sum.verifiedSum ? " (מאומתת חשבונית)" : ""} שהכתב הציג` });
-  if (verses?.length) s.push({ t: "בדוק את הפסוקים שהכתב הביא", why: `${verses.length} ציטוטי-מקור מנוקדים — לזהות ספר/פרק ולבדוק אם קיימים ב-DB` });
-  if (writerName) s.push({ t: `בדוק ממצאים נוספים של ${writerName} סביב הערך`, why: "לזהות דפוס-עבודה חוזר (פרופיל-שיטה)" });
-  s.push({ t: "בדוק אם קיימת התכנסות דומה אצל כתבים אחרים", why: "הצלבה בין-כתבים מחזקת ממצא" });
+  if (sum) s.push({ rank: "high", t: `בדוק את המשוואה ${sum.text}`, why: `משוואת-סכום${sum.verifiedSum ? " (מאומתת חשבונית)" : ""} שהכתב הציג` });
+  // ── בינונית — מקורות · הרחבות · דפוס-כתב ──
+  (sources || []).forEach(src => {
+    if (src.type === "tanach") s.push({ rank: "mid", t: `אמת את המקור ${src.name}${src.citation ? ` ${src.citation}` : ""} וחפש הופעות נוספות`, why: "לזהות ספר/פרק ולבדוק אם הפסוק/הביטוי כבר ב-DB (לא לשכפל)" });
+  });
+  conv.slice(1, 3).forEach(hub => s.push({ rank: "mid", t: `בדוק קשרים קיימים של ${hub.value}`, why: "אולי כבר קיים צביר/ממצאים בערך זה" }));
+  if (writerName) s.push({ rank: "mid", t: `בדוק ממצאים נוספים של ${writerName} עם מבנה דומה`, why: "לזהות דפוס-עבודה חוזר (פרופיל-שיטה)" });
+  s.push({ rank: "mid", t: "בדוק אם קיימת התכנסות דומה אצל כתבים אחרים", why: "הצלבה בין-כתבים מחזקת ממצא" });
+  // ── פרשני — לא Fact ──
+  s.push({ rank: "interp", t: "בחן את שרשרת-הפרשנות שהכתב מציע", why: "קשר רעיוני (כיסוי/הגנה/קדושה/כתר) — Interpretation, לא עובדת-מנוע. לא לאמת כ-Fact ולא לקדם ל-Canonical" });
   return s;
 }
 
-// analyzeFull — מרכיב את כל השכבות הטהורות (B/C/E + koll/verses/sources + suggestions).
+// analyzeFull — מרכיב את כל השכבות הטהורות (B/C/E + koll/verses/sources/products/occurrences + suggestions).
 // A(מקור)/D(DB-First)/פרופיל-כתב מגיעים מהרכיב (async) ומוזרקים ל-suggestions דרך dbHubKnown/writerName.
 export function analyzeFull(rawText, { writerName = null, dbHubKnown = null } = {}) {
   const cands = extractCandidates(rawText);
@@ -272,9 +312,11 @@ export function analyzeFull(rawText, { writerName = null, dbHubKnown = null } = 
   const koll = detectKoll(rawText);
   const verses = detectVerses(rawText);
   const sources = detectSources(rawText);
-  const suggestions = researchSuggestions({ engine, claims, koll, verses, sources, writerName, dbHubKnown });
-  // מבנה-הממצא (🧩): המשוואה + ההתכנסות המרכזית — «יחידת-טיעון אחת».
+  const products = detectProducts(rawText);
+  const occurrences = detectOccurrenceClaims(rawText);
+  const suggestions = researchSuggestions({ engine, claims, koll, verses, sources, products, occurrences, writerName, dbHubKnown });
+  // מבנה-הממצא (🧩): המשוואה + ההתכנסות המרכזית + כל ההתכנסויות — «יחידות-טיעון».
   const sumEq = cands.find(c => c.type === "sum-equation");
-  const structure = { sumEq: sumEq || null, hub: engine.convergences[0] || null, phrases, verses, sources };
-  return { cands, claims, phrases, engine, koll, verses, sources, suggestions, structure };
+  const structure = { sumEq: sumEq || null, hub: engine.convergences[0] || null, convergences: engine.convergences, phrases, verses, sources, products, occurrences };
+  return { cands, claims, phrases, engine, koll, verses, sources, products, occurrences, suggestions, structure };
 }
