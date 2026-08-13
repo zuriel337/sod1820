@@ -808,7 +808,7 @@ function ReplyFlow({ item }) {
       </div>
       {sent ? (
         <div style={{ ...box2, borderColor: "#4caf7d", background: "#eef7f0" }}>
-          <b style={{ color: "#2e9e63" }}>✅ נשלח</b> · {fmt(sent.at)} · אל {item.group}
+          <b style={{ color: "#2e9e63" }}>✅ נשלח</b> · {fmt(sent.at)} · אל <bdi dir="ltr">{item.group}</bdi>
           <div style={{ marginTop: 4 }}>🗣️ מקור: {item?.raw?.slice(0, 60)}</div>
           <div>↩️ תשובה ({LANG_HE[recip] || recip}): {sent.text}</div>
           <div style={{ color: C.faint, fontSize: 10, marginTop: 3 }}>סטטוס: sent · תועד ב-wa_bot_log+bot_outbox (מי→למי→מתי→מה)</div>
@@ -849,7 +849,7 @@ function ReplyFlow({ item }) {
             <button onClick={doSend} disabled={!preview?.artifact || busy === "send"} style={chip(true, preview?.artifact ? "#128c4b" : "#8a8a95")}>
               {busy === "send" ? "שולח…" : "✅ אשר (ZURIEL) ושלח את המאושר"}
             </button>
-            <span style={{ color: C.faint, fontSize: 10, marginInlineStart: 8 }}>שולח את ה-artifact המאושר בלבד (מילה-במילה) · recipient מהרשומה ({item?.group || "—"}) · double-click בטוח</span>
+            <span style={{ color: C.faint, fontSize: 10, marginInlineStart: 8 }}>שולח את ה-artifact המאושר בלבד (מילה-במילה) · recipient מהרשומה (<bdi dir="ltr">{item?.group || "—"}</bdi>) · double-click בטוח</span>
           </div>
         </div>
       )}
