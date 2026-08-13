@@ -9,7 +9,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
-  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims,
+  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts,
 } from "../lib/supabase.js";
 import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
@@ -420,12 +420,15 @@ function FullAnalysis({ item }) {
     const names = [canon, item?.rawAuthor, item?.author, ...((w?.canonical?.wa_names) || [])].filter(Boolean);
     const a0 = analyzeFull(item?.raw, { writerName: wname });
     const hubVal = a0.structure.hub?.value ?? (a0.claims.find(c => c.value != null)?.value ?? null);
+    const clusterVals = (a0.clusters || []).filter(c => c.candidateConvergence).map(c => c.value);
     try {
-      const [db, claims] = await Promise.all([dbFirstLookup(a0.phrases, hubVal), getWriterVerifiedClaims(names)]);
+      const [db, claims, hubCounts] = await Promise.all([
+        dbFirstLookup(a0.phrases, hubVal), getWriterVerifiedClaims(names), getHubCounts(clusterVals),
+      ]);
       const profile = buildMethodProfile(claims);
       const a = analyzeFull(item?.raw, { writerName: wname, dbHubKnown: db.hubCount });
-      setRes({ a, db, profile, hubVal, wname });
-    } catch { setRes({ a: a0, db: { known: [], hubCount: 0, hubValue: hubVal }, profile: null, hubVal, wname }); }
+      setRes({ a, db, profile, hubVal, wname, hubCounts });
+    } catch { setRes({ a: a0, db: { known: [], hubCount: 0, hubValue: hubVal }, profile: null, hubVal, wname, hubCounts: new Map() }); }
     setLoading(false);
   }, [item]);
   if (!item?.raw) return null;
@@ -490,12 +493,17 @@ function FullAnalysis({ item }) {
           {/* E2 · אשכולות writer-claimed = מועמדי-התכנסות (מחכים לאימות — לא Fact) */}
           {(r.clusters || []).filter(c => c.candidateConvergence).length > 0 && (
             <Lyr t={`E2 · מועמדי-התכנסות (writer-claimed · ${(r.clusters || []).filter(c => c.candidateConvergence).length}) — מחכה לאימות`} c="#e08a2e">
-              {(r.clusters || []).filter(c => c.candidateConvergence).slice(0, 8).map((cl, i) => (
-                <div key={i} style={{ padding: "1px 0" }}>
-                  🔵 <b style={{ color: C.gold }}>{cl.value}</b> <span style={{ color: C.faint }}>({cl.distinctExprs} ביטויים{cl.uniformMethod ? "" : ` · שיטות שונות: ${cl.methods.join("·")}`})</span>: {cl.items.map(it => `«${it.text}»${it.method ? `/${it.method}` : ""}`).join(" · ")}
-                </div>
-              ))}
-              <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>מועמד = הכתב ייחס אותו ערך ל-≥2 ביטויים. <b>CLAIM≠FACT · HOT≠TRUE</b> — שיטה לא-אחידה = כל ביטוי דורש אימות-מנוע נפרד.</div>
+              {(r.clusters || []).filter(c => c.candidateConvergence).slice(0, 8).map((cl, i) => {
+                const inBank = res.hubCounts?.get(cl.value);
+                return (
+                  <div key={i} style={{ padding: "1px 0" }}>
+                    🔵 <b style={{ color: C.gold }}>{cl.value}</b> <span style={{ color: C.faint }}>({cl.distinctExprs} ביטויים{cl.uniformMethod ? "" : ` · שיטות שונות: ${cl.methods.join("·")}`})</span>
+                    {inBank != null && <span style={{ ...pill(inBank > 0 ? "#3ea6ff" : "#8a8a95"), fontSize: 10, marginInline: 4 }}>{inBank > 0 ? `♻️ ${inBank} כבר בבנק — חיזוק` : "🆕 ערך חדש"}</span>}
+                    : {cl.items.map(it => `«${it.text}»${it.method ? `/${it.method}` : ""}`).join(" · ")}
+                  </div>
+                );
+              })}
+              <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>מועמד = הכתב ייחס אותו ערך ל-≥2 ביטויים. <b>CLAIM≠FACT · HOT≠TRUE</b> · שיטה לא-אחידה = כל ביטוי דורש אימות נפרד · «♻️ בבנק» = הכתב מוסיף ביטוי לצביר קיים (לא מספר חדש).</div>
             </Lyr>
           )}
           {/* 🧭 מפת ביטוי×שיטה×ערך — ביטוי חוזר לאורך שיטות/ערכים (בלי הסקת-משמעות) */}

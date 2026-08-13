@@ -324,6 +324,21 @@ export async function dbFirstLookup(phrases = [], value = null) {
   return out;
 }
 
+// DB-First לכל אשכול — כמה ביטויים מאומתים כבר בבנק לכל ערך-אשכול (שאילתה אחת, READ-ONLY).
+// מחזיר Map(value → count). כך «ניתוח מלא» מראה לכל אשכול «X בבנק · שלך חדש/חיזוק» בלי לשכפל.
+export async function getHubCounts(values = []) {
+  const map = new Map();
+  if (!supabase) return map;
+  const uniq = [...new Set((values || []).map(Number).filter(v => Number.isFinite(v)))];
+  if (!uniq.length) return map;
+  try {
+    const { data } = await supabase.from("gematria_words")
+      .select("ragil").in("ragil", uniq).eq("is_verified", true);
+    for (const r of data || []) map.set(r.ragil, (map.get(r.ragil) || 0) + 1);
+  } catch { /* ignore */ }
+  return map;
+}
+
 // Smart Analysis Flow · פרופיל-שיטות של כתב — טענות עם gematria_claim בלבד (המאומתות מסוננות בצד-הלקוח). READ-ONLY.
 export async function getWriterVerifiedClaims(names = []) {
   if (!supabase) return [];
