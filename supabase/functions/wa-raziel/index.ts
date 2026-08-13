@@ -1,4 +1,6 @@
-// wa-raziel (רזיאל) — v46 — 25.7.2026 — תפריט-מסלולים חכם: רק כשההודעה הראשונה כללית.
+// wa-raziel (רזיאל) — v47 — 13.8.2026 — אינסטרומנטציה בלבד למסלול ה-fallback (ללא שינוי התנהגות).
+//   v47: logFallbackDiag() — כשה-guardian נדלק, נכתבת רשומת-אבחון ל-bot_transcripts (http_status+meta)
+//        המסווגת את סיבת הכשל: A_refusal · B_empty · C_http · C_net · D_parse. בלי שינוי בפרומפט/guardian/ניתוב/תשובה.
 //   v46: isOpenerMsg — פתיח כללי/ברכה → תפריט 6 מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
 //   v45: welcome אנונימי — «מאיפה תרצה להתחיל?» + 6 מסלולים; הוסר «3 שאלות ביום» (after_gate=unlimited).
 //   v44: postFacts()→chat_search_facts — RAG על הפוסטים (עץ אחד, משותף עם האתר).
@@ -52,6 +54,30 @@ function pick(v) { return (Array.isArray(v) ? v : (v?.result ?? [])); }
 const clean = (s) => (s || "").replace(/[^א-ת ]+/g, " ").replace(/\s+/g, " ").trim();
 async function logBot(row) {
   try { await sb.from("wa_bot_log").insert(row); } catch { /* noop */ }
+}
+// 🔬 אבחון-fallback בלבד (instrumentation) — reuse טבלת bot_transcripts (http_status+meta jsonb).
+//    נכתב *רק* כשה-guardian נדלק. לא משנה פרומפט/guardian/ניתוב ולא את התשובה למשתמש.
+//    לא נשמר תוכן פרטי של ההודעה — רק מזהים קיימים (chatId/msgId/userRef) + מטא-דאטה של קריאת ה-AI.
+//    class: A_refusal · B_empty · C_http · C_net · D_parse.
+async function logFallbackDiag(chatId, quotedId, http, cls, step, stopReason, respLen, opts, usage) {
+  try {
+    await sb.from("bot_transcripts").insert({
+      chat_id: chatId,
+      message: "[raziel-fallback-diag]",
+      http_status: (typeof http === "number" ? http : null),
+      meta: {
+        agent: "raziel", event: "ai_fallback",
+        msg_id: quotedId || null,
+        ref: opts?.userRef || null,
+        class: cls, step,
+        stop_reason: stopReason ?? null,
+        resp_len: (typeof respLen === "number" ? respLen : null),
+        in_tok: usage?.input_tokens ?? null,
+        out_tok: usage?.output_tokens ?? null,
+        last_attempt: !!opts?.lastAttempt,
+      },
+    });
+  } catch { /* best-effort — אינסטרומנטציה לעולם לא משפיעה על ההתנהגות */ }
 }
 
 const HE_VAL = { "א":1,"ב":2,"ג":3,"ד":4,"ה":5,"ו":6,"ז":7,"ח":8,"ט":9,"י":10,"כ":20,"ך":20,"ל":30,"מ":40,"ם":40,"נ":50,"ן":50,"ס":60,"ע":70,"פ":80,"ף":80,"צ":90,"ץ":90,"ק":100,"ר":200,"ש":300,"ת":400 };
@@ -361,20 +387,23 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
     });
   } catch (e) {
     trace.push({ step: "ai_throw", e: String(e) });
-    if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; }
+    if (opts.lastAttempt) { await logFallbackDiag(chatId, quotedId, 0, "C_net", "ai_fetch_throw", null, 0, opts); await guardian(); return { status: "refused_with_fallback" }; }
     return { status: "retryable_error" };
   }
   if (!resp.ok) {
     trace.push({ step: "ai_http", st: resp.status });
     if (TRANSIENT_HTTP.has(resp.status) && !opts.lastAttempt) return { status: "retryable_error" };
+    await logFallbackDiag(chatId, quotedId, resp.status, "C_http", "ai_http_error", null, 0, opts);
     await guardian(); return { status: "refused_with_fallback" };
   }
   let d;
   try { d = await resp.json(); }
-  catch { if (opts.lastAttempt) { await guardian(); return { status: "refused_with_fallback" }; } return { status: "retryable_error" }; }
+  catch { if (opts.lastAttempt) { await logFallbackDiag(chatId, quotedId, 200, "D_parse", "ai_json_parse", null, 0, opts); await guardian(); return { status: "refused_with_fallback" }; } return { status: "retryable_error" }; }
   const refused = d?.stop_reason === "refusal";
-  let reply = refused ? "" : (d?.content||[]).filter((c)=>c.type==="text").map((c)=>c.text).join("\n").trim();
+  const rawText = (d?.content||[]).filter((c)=>c.type==="text").map((c)=>c.text).join("\n");
+  let reply = refused ? "" : rawText.trim();
   if (refused || !reply) {
+    await logFallbackDiag(chatId, quotedId, 200, refused ? "A_refusal" : "B_empty", refused ? "ai_refusal" : "ai_empty", d?.stop_reason ?? null, rawText.length, opts, d?.usage);
     await guardian();
     return { status: "refused_with_fallback" };
   }
