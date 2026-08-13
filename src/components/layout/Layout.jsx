@@ -6,6 +6,7 @@ import { effectiveMode, POST_SLUG_RE } from "../../lib/lightRoutes.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
+import VerseBackground from "./VerseBackground.jsx"; // 📜 «כתובת החומה» — זכריה יג,ט חקוק ברקע (כל עמוד חוץ מהבית)
 import Navbar from "./Navbar.jsx";
 import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על קוסמי עם פסוק (מתחת לתפריט)
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
@@ -51,6 +52,8 @@ export default function Layout() {
       <style>{GLOBAL_CSS}</style>
       {/* הקוסמוס הגלובלי — רק במצב כהה (במצב בהיר הרקע הוא קלף קרם נקי) */}
       {dark && <SpaceBackground />}
+      {/* 📜 «כתובת החומה» — הפסוק זכריה יג,ט חקוק ברקע בכל עמוד חוץ מהבית (שומר על זהות המלכות של הבית) */}
+      {!isHome && <VerseBackground dark={dark} />}
       {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
