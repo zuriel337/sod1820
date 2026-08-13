@@ -4,7 +4,7 @@
 // כל הנתונים מ-helpers קיימים בלבד (reuse-first). מסלול-החומר מראה «איפה נעצר».
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
@@ -16,6 +16,7 @@ import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
   tierOf, TIER,
 } from "../lib/discovery.js";
+import { PaletteProvider, PALETTES } from "../lib/palette.js";
 import { getHandledMap, markHandled, unmarkHandled } from "../lib/handled.js";
 import {
   CORE_WRITERS, orderWriters, ROUTES, destinations, fallbackTier,
@@ -23,6 +24,20 @@ import {
 } from "../lib/ccwork.js";
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
+
+// 🏙️ עור «היכל» בהיר (research_workspace_law + city_background_dual_theme_law) — חדר המפקדה
+// מרונדר בשפה הבהירה-נקייה של סביבת-המחקר (כרטיסים לבנים, אקסנט-כחול, נגיעת-זהב), מעל רקע-העיר.
+// מיפוי סמנטי: אותם מפתחות שהקוד כבר משתמש בהם (surface/border/gold*/muted/faint) → ערכי-היכל בהירים,
+// כך שכל הרכיבים הופכים בהירים בבת-אחת בלי לגעת בכל שורה. ⛔ scoped לטאב בלבד — לא נוגע בעיצוב-האתר.
+const C = {
+  surface: "#ffffff", surface2: "#ffffff", card: "#ffffff",
+  border: "#dbe1ea",
+  goldBright: "#1c4bbf",   // אקסנט-היכל (כחול קריא) — כותרות/הדגשות/ערכים
+  gold: "#2f6df6",         // אקסנט-כחול
+  goldLight: "#1b1d22",    // טקסט ראשי כהה (קריא על בהיר)
+  muted: "#5b6472",        // טקסט משני
+  faint: "#8a93a3",        // טקסט עמום
+};
 
 // היררכיית-כתבים (תצוגה בלבד — לא קנוני): מרכזיים ראשונים, שאר-המקורות אחריהם.
 const WRITERS = CORE_WRITERS;
@@ -600,7 +615,14 @@ export default function WarRoomTab() {
   }, [langLinks]);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 14 }}>
+    <PaletteProvider value={PALETTES.lab}>
+    <div style={{ position: "relative", background: "#f6f7f9", borderRadius: 16, padding: "14px 14px 22px", overflow: "hidden", minHeight: "60vh" }}>
+      {/* 🏙️ רקע-עיר בהיר, scoped לטאב (city_background_dual_theme_law) — לא נוגע בשאר-האתר */}
+      <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/city-bg.jpg)", backgroundSize: "cover", backgroundPosition: "center", filter: "grayscale(0.4) brightness(1.5) contrast(0.85)", opacity: 0.12 }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(47,109,246,0.05), rgba(20,50,95,0.04))" }} />
+      </div>
+      <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 14 }}>
       {/* סרגל-על */}
       <div style={{ ...box, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div style={{ color: C.goldBright, fontFamily: F.heading, fontSize: 18, fontWeight: 900 }}>🎛️ חדר המפקדה</div>
@@ -801,7 +823,9 @@ export default function WarRoomTab() {
 
       {/* CC-1.3 · Row Detail/Action Panel — נפתח מכל שורה/פריט. ניווט+חקירה בלבד (פאזה 1). */}
       {detail && <DetailPanel item={withH(detail)} onClose={() => setDetail(null)} onFilter={setFilter} onHandle={(it, r) => doClose(it, r)} onUnhandle={doUnclose} />}
+      </div>
     </div>
+    </PaletteProvider>
   );
 }
 

@@ -5,7 +5,14 @@
 // ⛔ אין טבלה/מנוע/גרף/מקור-אמת/RPC חדש. Governance: RAW≠VAULT≠CORE≠CANONICAL · Claim≠Fact · engine≠human · Preference≠Truth.
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
+// 🏙️ עור «היכל» בהיר — מוטמע אך-ורק בחדר-המפקדה, לכן מרונדר באותה שפה בהירה (כרטיסים לבנים, אקסנט-כחול).
+// אותם מפתחות → ערכי-היכל, כך שכל הרכיב הופך בהיר בבת-אחת (עקבי עם WarRoomTab).
+const C = {
+  surface: "#ffffff", surface2: "#ffffff",
+  border: "#dbe1ea", goldBright: "#1c4bbf", gold: "#2f6df6",
+  goldLight: "#1b1d22", muted: "#5b6472", faint: "#8a93a3",
+};
 import { supabase, getUpdatesByReporterNames, getWriterCoreWords, getResearchFeed } from "../lib/supabase.js";
 import { getResearcherProfile } from "../lib/contributions.js";
 import { resolveWriter } from "../lib/writers.js";
