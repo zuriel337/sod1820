@@ -41,6 +41,7 @@ import ViralIntelTab from "../components/ViralIntelTab.jsx";
 import AnchorFamiliesTab from "../components/AnchorFamiliesTab.jsx";
 import FindingsTab from "../components/FindingsTab.jsx";
 import WarRoomTab from "../components/WarRoomTab.jsx";
+import AudienceOverlapTab from "../components/admin/AudienceOverlapTab.jsx";
 import AiStylesTab from "../components/AiStylesTab.jsx";
 import SystemSuggestionsTab from "../components/SystemSuggestionsTab.jsx";
 import CalendarHeatmap from "../components/CalendarHeatmap.jsx";
@@ -93,6 +94,7 @@ const TABS = [
   { key: "live",     label: "🔴 שידור חי" },
   { key: "hidden",   label: "🙈 מוסתרים" },
   { key: "traffic",  label: "📊 תנועה" },
+  { key: "audience", label: "🫂 קהלים (מימד חמש/אור הגאולה)" },
   { key: "infra",    label: "🩺 עומסים ותשתית" },
   { key: "retention",label: "🔁 חוזרים" },
   { key: "users",    label: "👤 משתמשים" },
@@ -269,6 +271,7 @@ export default function AdminPage() {
       {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
       {tab === "warroom" && <WarRoomTab />}
+      {tab === "audience" && <AudienceOverlapTab />}
       {tab === "entries" && <TrafficIntelligenceTab />}
       {tab === "stats" && <StatsTab />}
       {tab === "aicost" && <AiCostTab />}
