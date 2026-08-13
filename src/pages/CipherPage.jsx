@@ -6,7 +6,7 @@ import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 import { applySeo } from "../lib/seo.js";
 import { getMatrixBySlug, getVariantsOf, mergeVariant, getDuplicatesOf } from "../lib/elsMatrices.js";
 import { getContributions } from "../lib/contributions.js";
-import { getAiAnalysis, supabase, getHomeVideoByCipher } from "../lib/supabase.js";
+import { getAiAnalysis, supabase, getHomeVideoByCipher, getPostByCipher } from "../lib/supabase.js";
 import { GEM } from "../lib/gematria.js";
 import { thumb } from "../lib/img.js";
 import { formatDateHe } from "../lib/format.js";
@@ -43,6 +43,7 @@ export default function CipherPage() {
   const [showTool, setShowTool] = useState(false);    // ⚡ הכלי (2.2MB תנ״ך) נטען רק בלחיצה — כניסה מהירה
   const [gate, setGate] = useState(false);            // 🔐 שער-הרשמה לחקירת מטריצת-מחקר חיה (לא-רשום)
   const [cipherVideo, setCipherVideo] = useState(null); // 🎬 סרטון-הצופן המקושר (home_videos.cipher_slug) — חיבור דו-כיווני
+  const [linkedPost, setLinkedPost] = useState(null);   // 📰 הפוסט/כתבה המקושר (posts.cipher_slug) — קשר בלתי-נפרד + תגובות משותפות
   const [playVid, setPlayVid] = useState(false);        // ניגון בהקשה בלבד (Egress)
   const uc = useUserCenter();                         // 🫧 floating_ui_yields_law: הכפתור הצף נעלם כשמגירת-המשתמש פתוחה
   const researchRef = useRef(null);                   // 🔬 עוגן ל«מחקר קהילתי» — כדי לגלול+למקד את המלחין בלחיצה אחת
@@ -62,10 +63,11 @@ export default function CipherPage() {
     setM(undefined); setContribCount(0); setDesc(null); setSavedMsg(false); setAiMsg("");
     setTitleEdit(null); setMetaMsg(""); setShowTool(false); setGate(false);
     setNewFinding(""); setFindMsg(""); setVariants([]); setDups([]); setMergeMsg("");
-    setCipherVideo(null); setPlayVid(false);
+    setCipherVideo(null); setPlayVid(false); setLinkedPost(null);
     getMatrixBySlug(slug).then(r => { if (alive) setM(r); }).catch(() => alive && setM(null));
     getContributions("els", slug).then(list => { if (alive) setContribCount((list || []).length); }).catch(() => {});
     getHomeVideoByCipher(slug).then(v => { if (alive) setCipherVideo(v); }).catch(() => {});
+    getPostByCipher(slug).then(p => { if (alive) setLinkedPost(p); }).catch(() => {});
     return () => { alive = false; };
   }, [slug]);
 
@@ -165,6 +167,19 @@ export default function CipherPage() {
               )}
             </div>
           </div>
+        )}
+
+        {/* 📰 קשר בלתי-נפרד לכתבה/פוסט (posts.cipher_slug) — מראה קנוני של סלוט-הסרטון, לכיוון צופן→פוסט. */}
+        {linkedPost && (
+          <Link to={`/${encodeURIComponent(linkedPost.slug)}`}
+            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none",
+              background: P.card, border: `1px solid ${P.border}`, borderRadius: 13, padding: "12px 14px", margin: "12px 0 4px" }}>
+            {linkedPost.image_url && <img src={linkedPost.image_url} alt="" loading="lazy" style={{ width: 54, height: 54, objectFit: "cover", borderRadius: 9, flex: "none" }} />}
+            <span style={{ minWidth: 0 }}>
+              <span style={{ display: "block", color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>📰 לכתבה המלאה ←</span>
+              <span style={{ display: "block", color: P.ink, fontFamily: F.heading, fontSize: 14, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{linkedPost.title}</span>
+            </span>
+          </Link>
         )}
 
         {/* 🔍 מה נמצא בצופן — הצגת הממצא עצמו (המילים המוצלבות), כדי שאין צורך לפתוח את הכלי כדי לראות מה נמצא. */}

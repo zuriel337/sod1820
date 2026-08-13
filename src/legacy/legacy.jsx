@@ -4943,6 +4943,23 @@ function PostPageBySlug({ onNav }) {
                 לכתוב חידוש בבית המדרש (החלטת צוריאל). Spot.IM הוסר; תגובות-WP ההיסטוריות בארכיון-מקופל למטה. */}
             <CommunityForming to="/beit-midrash" />
 
+            {/* 🔯 קשר בלתי-נפרד פוסט↔צופן (posts.cipher_slug) — קישור-לצופן + פיד-תגובות משותף.
+                שימוש חוזר ברכיב הקנוני Discourse עם אותו target=els:slug של עמוד-הצופן → אותן תגובות בשני העמודים. */}
+            {post.cipher_slug && (
+              <div style={{ marginTop: 44 }}>
+                <a href={`/codes/${encodeURIComponent(post.cipher_slug)}`}
+                  onClick={e => { e.preventDefault(); navigate(`/codes/${encodeURIComponent(post.cipher_slug)}`); }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none",
+                    background: pc.surface, border: `1px solid ${pc.borderGold}`, borderRadius: 12, padding: "11px 16px",
+                    color: pc.goldLight, fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>
+                  🔯 לצופן המלא · דילוגי-האותיות ←
+                </a>
+                <div style={{ marginTop: 22 }}>
+                  <Discourse target={{ type: "els", id: post.cipher_slug }} origin="els" archive={[]} />
+                </div>
+              </div>
+            )}
+
             {/* ── תגובות ישנות (ארכיון WordPress) — מקופל, נשמר ולא נמחק (אופציה ב') ── */}
             {comments.length > 0 && (
               <details style={{ marginTop: 44 }}>

@@ -120,6 +120,22 @@ export async function getHomeVideoByCipher(cipherSlug) {
   } catch { return null; }
 }
 
+// הפוסט/כתבה המקושר לצופן (posts.cipher_slug) — מראה קנוני של getHomeVideoByCipher, לכיוון צופן→פוסט.
+export async function getPostByCipher(cipherSlug) {
+  if (!supabase || !cipherSlug) return null;
+  try {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("id, wp_id, title, slug, image_url")
+      .eq("cipher_slug", cipherSlug)
+      .order("modified", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) return null;
+    return data || null;
+  } catch { return null; }
+}
+
 // Search in title + content, optional filters
 export async function searchPosts(query, { limit = 40, category = null, tag = null, year = null } = {}) {
   if (!supabase || !query?.trim()) return [];
