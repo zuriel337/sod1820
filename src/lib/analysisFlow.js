@@ -40,10 +40,13 @@ export function normMethod(s) {
 const HEB = /[א-ת]/;
 const NIKUD_G = /[֑-ׇ]/g;
 const stripNikud = (s) => String(s || "").replace(NIKUD_G, "");
+// clean: מוריד ניקוד/מרכאות/(ערך) + מקפים (י-ה-ו-ה → יהוה, כדי שהמנוע וההצלבה יתפסו).
 const clean = (s) => stripNikud(s).replace(/["'«»“”‘’׳״]/g, "").replace(/\(\s*\d+\s*\)/g, " ")
-  .replace(/\s+/g, " ").replace(/^[\s.,;:!?()]+|[\s.,;:!?()]+$/g, "").trim();
-// ביטוי-תקף: עברית בלבד, 2–40 תווים, עד 6 מילים, בלי ספרות/נקודתיים/סוגריים (חוסם רעש כמו «כ:764. לעומת זאת»).
-const validPhrase = (p) => !!p && HEB.test(p) && p.length >= 2 && p.length <= 40 && !/[0-9:()]/.test(p) && p.split(/\s+/).filter(Boolean).length <= 6;
+  .replace(/[־\-]/g, "").replace(/\s+/g, " ").replace(/^[\s.,;:!?()]+|[\s.,;:!?()]+$/g, "").trim();
+// מילות-מטא שאינן ביטוי-מחקר («כל הפסוק» = הפניה, לא ביטוי לחישוב).
+const META_STOP = new Set(["כל הפסוק", "הפסוק", "פסוק זה", "הפסוק הזה", "הפסוק השלם", "פסוק שלם", "כל המילים", "המילה", "כל הפסוק הזה"]);
+// ביטוי-תקף: עברית בלבד, 2–40 תווים, עד 6 מילים, בלי ספרות/נקודתיים/סוגריים, לא מילת-מטא.
+const validPhrase = (p) => !!p && HEB.test(p) && p.length >= 2 && p.length <= 40 && !/[0-9:()]/.test(p) && p.split(/\s+/).filter(Boolean).length <= 6 && !META_STOP.has(p);
 
 // ── שלב 2 · SMART EXTRACTION — טקסט → Candidate[] (מחרוזת טהורה, אפס גימטריה) ──
 // טענות/שקילויות נחלצות **שורה-שורה** (הרווח/הירידה שוברים — כדי לא לבלוע מילים מיותרות משורה אחרת).
@@ -72,8 +75,8 @@ export function extractCandidates(rawText) {
       }
       continue;
     }
-    // explicit-claim (שורה): «ביטוי = מספר» — הביטוי הוא הקטע-שלפני-«=» באותה שורה (לא חוצה-שורות).
-    let mm = line.match(/^(.*?[א-ת])\s*=\s*(\d{1,5})\b/);
+    // explicit-claim (שורה): «ביטוי = מספר» — גם כשיש מרכאות/סימני-פיסוק לפני ה-«=» (מה זאת עשית"=1233 · ...ימלט." =1233).
+    let mm = line.match(/^(.*?[א-ת])[.,;:"'«»“”‘’׳״\s]*=\s*(\d{1,5})\b/);
     if (mm) {
       const phrase = clean(mm[1]);
       if (phrase && HEB.test(phrase) && phrase.length >= 2 && phrase.length <= 48)
@@ -98,20 +101,21 @@ export function extractCandidates(rawText) {
     add({ type: "sum-equation", text: `${p1}(${a}) + ${p2}(${b}) = ${p3}(${c})`, value: c, parts: [p1, p2, p3], verifiedSum: a + b === c, why: `משוואת-סכום עם ביטויים${a + b === c ? " ✓ מאומתת-חשבונית" : " ⚠️ לא-שקולה"}`, score: 97 });
     [[p1, a], [p2, b], [p3, c]].forEach(([p, v]) => { if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: v, why: "ביטוי במשוואת-הסכום", score: 94 }); });
   }
+  const P = "[א-ת\\s־\\-]";  // תווי-ביטוי: אותיות + רווח + מקף (י-ה-ו-ה)
   // A · «ביטוי(ערך)» — נאות מדבר(703)
-  const parenRe = /([א-ת][א-ת\s'"׳״]{1,38}?)\s*\((\d{2,5})\)/g;
+  const parenRe = new RegExp("([א-ת]" + P + "{1,38}?)\\s*\\((\\d{2,5})\\)", "g");
   while ((m = parenRe.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: Number(m[2]), why: "ביטוי + ערך בסוגריים (הכתב סימן)", score: 95 }); }
   // B1 · ביטוי + «גימטריא/שווה/עולה» + ערך  (הערך אחרי הביטוי): «נאות מדבר» גימטריא 703
-  const gemAfter = new RegExp(Q + "?([א-ת][א-ת\\s]{1,34}?)" + Q + "?\\s*(?:ב?גימטרי[אה]|שוו?ה|עולה)\\s*[:=\\s]*(\\d{2,5})", "g");
+  const gemAfter = new RegExp(Q + "?([א-ת]" + P + "{1,34}?)" + Q + "?\\s*(?:[בהלמושכ]?גימטרי[אה]|שוו?ה|עולה)\\s*[:=\\s]*(\\d{2,5})", "g");
   while ((m = gemAfter.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: Number(m[2]), why: "ביטוי + «גימטריא» + ערך", score: 92 }); }
   // B2 · «גימטריא» + ביטוי  (הביטוי אחרי המילה): בגימטריא «יומא דשבתא»
-  const gemBefore = new RegExp("ב?גימטרי[אה]\\s*[:=]?\\s*" + Q + "([א-ת][א-ת\\s]{1,34}?)" + Q, "g");
+  const gemBefore = new RegExp("[בהלמושכ]?גימטרי[אה]\\s*[:=]?\\s*" + Q + "([א-ת]" + P + "{1,34}?)" + Q, "g");
   while ((m = gemBefore.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "emphasized", text: p, why: "ביטוי שהוצג כשווה-גימטריא", score: 90 }); }
   // C · משוואת-סכום שהכתב הציג: 703 + 61 = 764 (בודקים שהיא נכונה חשבונית — לא מחשבים גימטריה)
   const sumRe = /(\d{2,5})\s*\+\s*(\d{2,5})\s*=\s*(\d{2,5})/g;
   while ((m = sumRe.exec(text))) { const a = +m[1], b = +m[2], c = +m[3]; add({ type: "sum-equation", text: `${a} + ${b} = ${c}`, value: c, parts: [a, b, c], verifiedSum: a + b === c, why: `משוואת-סכום שהכתב הציג${a + b === c ? " ✓ מאומתת-חשבונית" : " ⚠️ לא-שקולה"}`, score: 96 }); }
-  // D · ביטויים במרכאות (הכתב סימן כמשמעותיים) — כולל מרכאות מסולסלות
-  const qRe = new RegExp(Q + "([א-ת][א-ת\\s]{1,38}?)" + Q, "g");
+  // D · ביטויים במרכאות (הכתב סימן כמשמעותיים) — כולל מרכאות מסולסלות + מקפים (י-ה-ו-ה)
+  const qRe = new RegExp(Q + "([א-ת]" + P + "{1,38}?)" + Q, "g");
   while ((m = qRe.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "emphasized", text: p, why: "ביטוי במרכאות (הכתב סימן)", score: 30 }); }
 
   // structural-trigger: מילת-מפתח שמצביעה על שיטה מבנית.
@@ -220,7 +224,8 @@ const TANACH = ["תהילים", "תהלים", "יואל", "ישעיהו", "יש�
 export function detectSources(text) {
   const t = String(text || ""); const out = []; const seen = new Set();
   let m; const bookRe = /ב?ספר\s+([א-ת][א-ת\s'"׳״]{1,28}?)(?=[\s.,;)"]|$)/g;
-  while ((m = bookRe.exec(t))) { const name = clean(m[1]); if (name && !seen.has("b:" + name)) { seen.add("b:" + name); out.push({ type: "book", name, citation: null }); } }
+  const bookStop = new Set(["תורה", "התורה", "הזה", "זה"]);  // «ספר תורה» = מגילה, לא מקור-ציטוט
+  while ((m = bookRe.exec(t))) { const name = clean(m[1]); if (name && !bookStop.has(name) && !seen.has("b:" + name)) { seen.add("b:" + name); out.push({ type: "book", name, citation: null }); } }
   for (const b of TANACH) {
     const idx = t.indexOf(b);
     if (idx >= 0 && !seen.has("t:" + b)) {
