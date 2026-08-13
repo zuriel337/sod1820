@@ -79,6 +79,26 @@ export default function AudienceOverlapTab() {
             <Stat label="👥 סה״כ אנשים ייחודיים" val={totalPeople} sub={`חלון ${days} ימים`} color={C.border} />
           </div>
 
+          {/* פילוח קליקי מימד-חמש לפי מקור (בית / ענן / פוטר) */}
+          {d.dim5_by_surface && Object.keys(d.dim5_by_surface).length > 0 && (
+            <div style={{ background: C.card, border: `1px solid ${IND}55`, borderRadius: 12, padding: "13px 16px", marginBottom: 14 }}>
+              <div style={{ color: IND, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 10 }}>🌀 קליקי מימד חמש לפי מקור</div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {Object.entries(d.dim5_by_surface)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([surface, cnt]) => {
+                    const label = { "home-rail": "🏠 שורת דף הבית", "cloud": "☁️ ענן מעופף", "footer": "📎 סרגל פוטר" }[surface] || surface;
+                    return (
+                      <div key={surface} style={{ flex: "1 1 130px", background: `${IND}14`, border: `1px solid ${IND}44`, borderRadius: 10, padding: "10px 12px" }}>
+                        <div style={{ color: "#fff", fontFamily: F.heading, fontSize: 22, fontWeight: 900 }}>{cnt}</div>
+                        <div style={{ color: C.inkSoft, fontFamily: F.body, fontSize: 11.5, marginTop: 3 }}>{label}</div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "13px 16px", color: C.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
             <b style={{ color: C.accentText }}>איך לקרוא:</b> «אנשים» = מבקרים שונים (visitor_id אנונימי) שלחצו, מכל מקום באתר.
             {" "}מעקב <b>מימד חמש</b> נוסף ב-13.8.2026 — לכן המספר שלו מתחיל מ-0 ומתמלא מעכשיו (אין נתונים היסטוריים).
