@@ -171,7 +171,7 @@ export default function VideoGallery() {
                 // סרטון מאוחסן-בשרת — נגן קנוני עם כתוביות (עברית ברירת-מחדל). מתנגן בהקשה (preload=none, Egress).
                 <CaptionedVideo src={playing.video_url} autoPlay
                   poster={playing.poster_url || (playing.yt ? `https://i.ytimg.com/vi/${playing.yt}/hqdefault.jpg` : undefined)}
-                  tracks={vttTracks(playing.video_url, playing.caption_langs || ["he"])}
+                  tracks={vttTracks(playing.video_url, playing.caption_langs || ["he", "en"])}
                   style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000", objectFit: "contain" }} />
               ) : (
                 <iframe title={stripHtml(playing.title)} src={`https://www.youtube-nocookie.com/embed/${playing.yt}?autoplay=1&rel=0`}
