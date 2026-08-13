@@ -496,11 +496,6 @@ export default function HomeNewPage() {
       {/* ===== 🎬 אור הגאולה — הסרטונים האחרונים שעלו + מתי (רצועה → /or-geula) ===== */}
       <HomeOrGeulaRail />
 
-      {/* ===== 🌀 מימד חמש — שורת-פוסטים לפי תגית «מימד חמש» (מתחת לסטורי/רצועת אור הגאולה) ===== */}
-      <section style={{ padding: "18px 0 30px" }}>
-        <DimensionFiveRail />
-      </section>
-
       {/* ===== 👑 אוצרות הגילוי — ציר-הערך, מעל הזרם (החלטת צוריאל: אוצרות ← ואז הזרם) ===== */}
       <TreasuresHome />
 
@@ -708,6 +703,11 @@ export default function HomeNewPage() {
       {/* ===== סקשן סיום — הקריאה הראשית להישאר מעודכן (מייל/פוש, בחירת המשתמש) ===== */}
       <section className="hn-wrap" style={{ padding: "8px 18px 64px" }}>
         <StayUpdatedCTA variant="home" />
+      </section>
+
+      {/* ===== 🌀 מימד חמש — שורת-פוסטים לפי תגית «מימד חמש» · בתחתית העמוד (בקשת צוריאל) ===== */}
+      <section className="hn-wrap" style={{ padding: "8px 18px 48px" }}>
+        <DimensionFiveRail />
       </section>
 
       {/* רמז שנפתח כתמונה מלאה (זמני — עד שזרם המציאות יושק). מנהל יכול לערוך משם. */}
