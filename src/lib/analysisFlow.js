@@ -102,7 +102,9 @@ export function extractCandidates(rawText) {
   const add = (c) => { const k = c.type + "|" + c.text + "|" + (c.value ?? "") + "|" + (c.method ?? ""); if (!seen.has(k)) { seen.add(k); out.push(c); } };
   // mk: בונה מועמד עם `text` = המקור-כפי-שנכתב, ו-`norm` (צורת-מנוע) **רק אם שונה** — לצד המקור, לא במקומו.
   const mk = (raw, base) => { const t = origForm(raw); const n = clean(raw); const o = { ...base, text: t }; if (n && n !== t) o.norm = n; return o; };
-  const lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
+  // שורות = שבירת-שורה **וגם** גבול-משפט («. » נקודה+רווח) — פוסטים צפופים של צבי הם פסקה-אחת עם טענות רבות.
+  // ⛔ «7.10»/«1.11.26» לא נשברים (נקודה בין ספרות בלי רווח). כך «מעט=119. דמעה=119.» = שתי טענות.
+  const lines = text.split(/\n+/).flatMap(l => l.split(/\.\s+/)).map(l => l.trim()).filter(Boolean);
 
   for (const line of lines) {
     // relation format: «מספר = ביטוי(שיטה) · ביטוי(שיטה) ⟵ …» (הצלבת-שיטות של מנוע-הגילויים).
@@ -119,6 +121,22 @@ export function extractCandidates(rawText) {
           add(mk(rawP, { type: "explicit-claim", value, method, why: method ? `הכתב: «${disp}» ב${method} = ${value}` : `הכתב: «${disp}» = ${value}`, score: 100 }));
       }
       continue;
+    }
+    // שרשרת-שוויון: «A = N = B = C» או «מעט=דמעה=אביונים=119» — כל הביטויים = N (אשכול-כתב). נפוץ מאוד אצל צבי.
+    // ⛔ מדלג על שורות-סכום (מכילות «+»/«×») — אלו מטופלות בנפרד.
+    if ((line.match(/=/g) || []).length >= 2 && !/[+×]/.test(line)) {
+      const parts = line.split("=").map(s => s.trim()).filter(Boolean);
+      const nums = [...new Set(parts.filter(p => /^\d{1,5}$/.test(p)))];
+      const phrs = parts.filter(p => HEB.test(p) && !/^\d/.test(p));
+      if (nums.length === 1 && phrs.length >= 2) {
+        const val = Number(nums[0]);
+        for (const rawP of phrs) {
+          const { phrase: ph, method } = splitMethod(rawP);
+          if (validPhrase(clean(ph)))
+            add(mk(ph, { type: "explicit-claim", value: val, method: method || undefined, why: `הכתב: שרשרת-שוויון «${origForm(ph)}» = ${val}`, score: 99 }));
+        }
+        continue;
+      }
     }
     // explicit-claim (שורה): «ביטוי [שיטה] = מספר» — סובלני לפיסוק/כוכבית/סוגריים לפני «=» (ראש הממשלה*= 922 · …(מילים ואותיות)=1149).
     // שיטה נכתבת מופרדת לשדה `method` (ליל הבדלח משולש=434 → ביטוי «ליל הבדלח» · שיטה «משולש»). לא צוינה → method=null.
@@ -150,6 +168,13 @@ export function extractCandidates(rawText) {
     const a = +m[2], b = +m[4], c = +m[6];
     add({ type: "sum-equation", text: `${p1o}(${a}) + ${p2o}(${b}) = ${p3o}(${c})`, value: c, parts: [clean(m[1]), clean(m[3]), clean(m[5])], verifiedSum: a + b === c, why: `משוואת-סכום עם ביטויים${a + b === c ? " ✓ מאומתת-חשבונית" : " ⚠️ לא-שקולה"}`, score: 97 });
     [[m[1], a], [m[3], b], [m[5], c]].forEach(([rp, v]) => { if (validPhrase(clean(rp))) add(mk(rp, { type: "explicit-claim", value: v, why: "ביטוי במשוואת-הסכום", score: 94 })); });
+  }
+  // A0b · משוואת-סכום עם אגף-ימני-מספרי: «A(x) + B(y) = C» (אלהים(86)+יהוה(26)=112 · נא(51)+נא(51)=102)
+  const pSumNumRe = /([א-ת][א-ת\s]{1,30})\s*\((\d{2,5})\)\s*\+\s*([א-ת][א-ת\s]{1,30})\s*\((\d{2,5})\)\s*=\s*(\d{2,5})(?!\s*\()/g;
+  while ((m = pSumNumRe.exec(text))) {
+    const p1 = m[1], b1 = +m[2], p2 = m[3], b2 = +m[4], c = +m[5];
+    add({ type: "sum-equation", text: `${origForm(p1)}(${b1}) + ${origForm(p2)}(${b2}) = ${c}`, value: c, parts: [clean(p1), clean(p2)], verifiedSum: b1 + b2 === c, why: `משוואת-סכום${b1 + b2 === c ? " ✓ מאומתת-חשבונית" : " ⚠️ לא-שקולה"}`, score: 97 });
+    [[p1, b1], [p2, b2]].forEach(([rp, v]) => { if (validPhrase(clean(rp))) add(mk(rp, { type: "explicit-claim", value: v, why: "ביטוי במשוואת-הסכום", score: 94 })); });
   }
   const P = "[א-ת\\s־\\-]";  // תווי-ביטוי: אותיות + רווח + מקף (י-ה-ו-ה)
   // A · «ביטוי(ערך)» — נאות מדבר(703)
@@ -304,7 +329,8 @@ export function detectVerses(text) {
 // לא מניחים שהמתמטיקה נכונה: מציעים לבדוק N × gem(Y) מול הערך של X (Human-Gate).
 export function detectProducts(text) {
   const t = stripNikud(String(text || "")); const out = []; let m;
-  const re = /([א-ת][א-ת\s]{0,20}?)\s*(?:[בהלמושכ]?גימטרי[אה]|שוו?ה|עולה)?\s*(\d{1,4})\s*פעמים\s*["'«»“”‘’׳״]?([א-ת][א-ת\s"'׳״]{0,18}?)["'«»“”‘’׳״]?(?=[\s.,;)}]|$)/g;
+  // ⛔ חייב עוגן-גימטריה («בגימטריא/שווה/עולה») לפני המספר — «מופיעה 214 פעמים» = הופעה, לא מכפלה.
+  const re = /([א-ת][א-ת\s]{0,20}?)\s*(?:[בהלמושכ]?גימטרי[אה]|שוו?ה|עולה)\s*(\d{1,4})\s*פעמים\s*["'«»“”‘’׳״]?([א-ת][א-ת\s"'׳״]{0,18}?)["'«»“”‘’׳״]?(?=[\s.,;)}]|$)/g;
   while ((m = re.exec(t))) {
     const phrase = origForm(m[1]), factor = Number(m[2]), unit = origForm(m[3]), ok = validPhrase(clean(m[1]));  // תצוגה = מקור
     if (unit && HEB.test(unit) && factor > 1) out.push({ phrase: ok ? phrase : null, factor, unit, why: `טענת-מכפלה: ${factor} × «${unit}»${ok ? ` = «${phrase}»` : ""} — לבדוק במנוע, לא להניח` });

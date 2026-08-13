@@ -453,12 +453,20 @@ function TimeAxisLayer({ time, axis, Lyr }) {
           })}
         </div>
       )}
-      {(time.sequences || []).map((s, i) => (
-        <div key={"s" + i} style={{ marginTop: 4, padding: "4px 8px", background: "#eef7f0", borderRadius: 8 }}>
-          <b style={{ color: "#2e9e63" }}>🕐 רצף רב-שנתי (CANDIDATE):</b> {s.years.join(" → ")}
-          <div style={{ color: C.faint, fontSize: 10 }}>{s.why} · מועמד להתכנסות-ציר, לא קשר-מוכח</div>
-        </div>
-      ))}
+      {(time.sequences || []).map((s, i) => {
+        const inAxis = s.years.filter(y => axis?.byYear?.get(y));
+        return (
+          <div key={"s" + i} style={{ marginTop: 4, padding: "4px 8px", background: "#eef7f0", borderRadius: 8 }}>
+            <b style={{ color: "#2e9e63" }}>🕐 רצף רב-שנתי (CANDIDATE):</b> {s.years.map(y => <span key={y}>{y}{axis?.byYear?.get(y) ? "♻️" : ""} </span>)}
+            <div style={{ fontSize: 10.5, marginTop: 2 }}>
+              <div><b style={{ color: s.contentCriterion ? "#2e9e63" : "#c79a2e" }}>למה נבחר:</b> {s.criterion}</div>
+              <div><b>מקורות:</b> {s.eventLinked} מקושרים-לאירוע · פערים {s.gaps?.join("/")}</div>
+              <div><b>כבר בציר:</b> {inAxis.length}/{s.years.length} שנים ({inAxis.join(", ") || "—"})</div>
+              <div style={{ color: "#c0392b" }}>⛔ סדר-כרונולוגי ≠ משמעות · קשר-נוסף + הקרנה = Human-Gate</div>
+            </div>
+          </div>
+        );
+      })}
       <div style={{ color: C.faint, fontSize: 10, marginTop: 4, borderTop: `1px dashed ${C.border}`, paddingTop: 4 }}>
         ♻️ = כבר קיים בציר (nodes/teder — DB-First לזמן) · 🆕 = חדש · <b>FACT</b>=תאריך-מנורמל · <b>DATE_CLAIM</b>=אישי/טענה · <b>CANDIDATE</b>=מועמד. ⛔ אין יצירת Event ואין הקרנה — «🕐 → שכבת-הציר» תחת Human-Gate.
       </div>
@@ -774,6 +782,7 @@ export default function WarRoomTab() {
   const [writerIdx, setWriterIdx] = useState(null); // CC-1.2 · אינדקס-זהות (contributors) ל-resolver
   const [groups, setGroups] = useState([]);
   const [writerItems, setWriterItems] = useState([]);
+  const [writerFull, setWriterFull] = useState([]);   // כל-החומר-המלא של הכתב המסונן (לא רק 40 הטריים) — לעיבוד-בכמות
   const [groupItems, setGroupItems] = useState([]);
   const [langLinks, setLangLinks] = useState([]);
   const [langStats, setLangStats] = useState({});
@@ -837,6 +846,19 @@ export default function WarRoomTab() {
   useEffect(() => { if (mode === "treasure" && lens === "language") loadLanguage(); }, [mode, lens, loadLanguage]);
   // marker אישי «handled» — נטען חוצה-מכשירים (research_items) עם ה-uid.
   useEffect(() => { if (uid) getHandledMap(uid).then(setHandled).catch(() => {}); }, [uid]);
+  // 👤 כתב-מסונן → טוען את **כל** החומר שלו (לא רק 40 הטריים) כדי לעבד בכמות ולראות מונה שיורד.
+  useEffect(() => {
+    const name = filters.writer;
+    if (!name || name === "__UNKNOWN__" || name === "__ZURIEL__" || !writerIdx) { setWriterFull([]); return; }
+    let alive = true;
+    Promise.all([getForumMaterial({ author: name, limit: 200 }), getPostsFromSupabase({ author: name, limit: 60 })])
+      .then(([forum, posts]) => {
+        if (!alive) return;
+        const withWriter = (it) => ({ ...it, writer: resolveWriter(it.rawAuthor || it.author, writerIdx) });
+        setWriterFull([...(forum || []).map(normForum), ...((posts?.posts) || []).map(normPost)].map(withWriter));
+      }).catch(() => { if (alive) setWriterFull([]); });
+    return () => { alive = false; };
+  }, [filters.writer, writerIdx]);
 
   const reloadHandled = useCallback(async () => { if (uid) setHandled(await getHandledMap(uid)); }, [uid]);
   const clearSel = useCallback(() => setSel(new Set()), []);
@@ -866,9 +888,21 @@ export default function WarRoomTab() {
   // CC-1.3 · רשימות מסוננות+ממויינות (Rank-Don't-Hide: פילטר=מיקוד; «שטופל» יוצא רק מתור-העבודה האישי).
   const liveAf = useMemo(() => sortItems((liveA || []).map(withH).filter(pass), sort), [liveA, withH, pass, sort]);
   const candF = useMemo(() => sortItems((candidates || []).map(withH).filter(pass), sort), [candidates, withH, pass, sort]);
-  // כל-החומר-של-הכתב (דרישה 8): איחוד כל הצינורות — ערוץ+מנוע+פורום+פוסט+וואטסאפ — לא רק חומר-שנותב.
-  const poolAll = useMemo(() => [...(liveA || []), ...(candidates || []), ...(incoming || [])].map(withH), [liveA, candidates, incoming, withH]);
+  // כל-החומר-של-הכתב (דרישה 8): איחוד כל הצינורות — ערוץ+מנוע+פורום+פוסט+וואטסאפ + החומר-המלא של הכתב. dedup לפי key.
+  const poolAll = useMemo(() => {
+    const seen = new Set(); const out = [];
+    for (const it of [...(liveA || []), ...(candidates || []), ...(incoming || []), ...(writerFull || [])].map(withH))
+      if (!seen.has(it.key)) { seen.add(it.key); out.push(it); }
+    return out;
+  }, [liveA, candidates, incoming, writerFull, withH]);
   const writerPool = useMemo(() => filters.writer ? sortItems(poolAll.filter(pass), sort) : null, [filters.writer, poolAll, pass, sort]);
+  // מונה-כתב חי: סה"כ/ממתין/טופל עבור הכתב המסונן (יורד כשסוגרים) — «לפתוח צבי, לעבד בכמות, לראות מונה יורד».
+  const writerCounts = useMemo(() => {
+    if (!filters.writer) return null;
+    const mine = poolAll.filter(it => matchesFilters(it, { writer: filters.writer }));
+    const handledN = mine.filter(i => i.handled).length;
+    return { total: mine.length, handled: handledN, waiting: mine.length - handledN };
+  }, [filters.writer, poolAll]);
   // אפשרויות ל-dropdowns של הסינון (נגזרות מהמאגר).
   const writerOptions = useMemo(() => orderWriters(poolAll.map(i => i.writer?.canonical?.display_name || i.writer?.contributor?.display_name).filter(Boolean)), [poolAll]);
   const statusOpts = useMemo(() => statusOptions(poolAll), [poolAll]);
@@ -1034,8 +1068,13 @@ export default function WarRoomTab() {
           <div style={{ ...box, borderColor: "#b08bd855" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
               <span style={{ color: "#b08bd8", fontFamily: F.heading, fontWeight: 900 }}>👤 כל החומר של {filters.writer}</span>
-              <span style={{ color: C.goldLight, fontWeight: 800 }}>{(writerPool || []).length}</span>
-              <span style={{ color: C.faint, fontSize: 10.5 }}>כל הצינורות (ערוץ · מנוע · פורום · פוסט · וואטסאפ) — לא רק חומר-שנותב</span>
+              {writerCounts && <>
+                <span style={{ ...pill("#c79a2e"), fontWeight: 800 }} title="ממתין לעיבוד (יורד כשסוגרים)">ממתין {writerCounts.waiting}</span>
+                <span style={{ ...pill("#4caf7d") }} title="טופל (סגור מהתור)">טופל {writerCounts.handled}</span>
+                <span style={{ color: C.faint, fontSize: 11 }}>מתוך {writerCounts.total}</span>
+                <button onClick={() => setShowHandled(v => !v)} style={{ ...chip(showHandled, "#4caf7d") }}>{showHandled ? "הסתר שטופלו" : "הצג גם שטופלו"}</button>
+              </>}
+              <span style={{ color: C.faint, fontSize: 10.5 }}>כל הצינורות — החומר המלא של הכתב, לעיבוד בכמות</span>
               <button onClick={() => selectWriter(filters.writer)} style={{ ...chip(false, "#b08bd8"), marginInlineStart: "auto" }}>בחר הכל</button>
             </div>
             {(writerPool || []).slice(0, 40).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} selected={sel.has(it.key)} onToggle={toggleSel} onClose={(x) => doClose(x, "טופל")} onUnclose={doUnclose} />)}

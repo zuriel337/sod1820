@@ -79,10 +79,24 @@ export function extractYears(text) {
 }
 
 // ── DETECT_SEQUENCES · ≥3 שנים = מועמד-רצף (לא ממציא קשר, רק מזהה רב-שנתיות) ──
+// ⛔ סדר-כרונולוגי לבד ≠ משמעות. מחזיר קריטריון מפורש + פערים, כדי שהמערכת לא תציג רצף כאילו הוא בהכרח משמעותי.
+// שרשרת עתידית: רצף → למה מעניין (criterion) → מקורות (roles) → מה בציר (מהרכיב) → קשר-נוסף → Human-Gate.
 export function detectSequences(years) {
-  const ys = [...new Set((years || []).map(y => y.year))].sort((a, b) => a - b);
+  const withRole = (years || []).filter(y => y.role !== "PERSONAL");
+  const ys = [...new Set(withRole.map(y => y.year))].sort((a, b) => a - b);
   if (ys.length < 3) return [];
-  return [{ years: ys, span: ys[ys.length - 1] - ys[0], why: `זוהו ${ys.length} שנים שונות (${ys[0]}–${ys[ys.length - 1]}) — מועמד להתכנסות רב-שנתית בציר, לא קשר-מוכח` }];
+  const gaps = ys.slice(1).map((y, i) => y - ys[i]);
+  const eventLinked = withRole.filter(y => y.role === "EVENT").length;
+  // קריטריון גלוי: כרגע הרצף הוא co-occurrence בטקסט + סדר. אם רק חלק מקושרים-לאירוע — לסמן במפורש.
+  const criterion = eventLinked >= 2
+    ? `${eventLinked}/${ys.length} מהשנים מקושרות במפורש לאירוע בטקסט`
+    : "כרונולוגי + הופעה-משותפת בטקסט אחד — טרם זוהה קריטריון-תוכן משותף";
+  return [{
+    years: ys, span: ys[ys.length - 1] - ys[0], gaps, eventLinked,
+    criterion,
+    contentCriterion: eventLinked >= 2,
+    why: `זוהו ${ys.length} שנים (${ys[0]}–${ys[ys.length - 1]}). קריטריון: ${criterion}. ⛔ סדר-כרונולוגי ≠ משמעות — מועמד לבדיקה: מקורות → מה כבר בציר → קשר-נוסף → Human-Gate.`,
+  }];
 }
 
 // ── CLASSIFY role + LINK_DATE_TO_EVENT · תפקיד-התאריך (מקור/מוזכר/אירוע/אישי/טענה) + האירוע הצמוד ──
