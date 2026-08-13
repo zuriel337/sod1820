@@ -9,9 +9,10 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
-  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData, getWaThread,
+  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData, getWaThread, getAiAnalysis,
 } from "../lib/supabase.js";
 import { analyzeTime } from "../lib/timeFlow.js";
+import { crossMethodPairs } from "../lib/gematria.js";
 import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
@@ -643,6 +644,108 @@ function waChannel(group) {
   if (/@g\.us$/.test(g)) return { t: "קבוצה", c: "#3ea6ff", phone: null };
   return { t: g || "—", c: "#8a8a95", phone: null };
 }
+// ── ⚙️ מריצי-פעולות · כל אחד מקבל את ה-source item ומריץ מנוע **קיים** על ההודעה בלבד (לא brute-force על thread). ──
+// כולם READ בלבד — מחשבים/קוראים, לא מקדמים (Human-Gate). מחזירים {result, why, prov}.
+async function runGematria(item) {
+  const a = analyzeFull(item?.raw || "", {});
+  const explicit = a.claims.filter(c => c.type === "explicit-claim" && c.value != null);
+  const contradictions = [];
+  for (const c of explicit) {                                   // המנוע סותר Claim? רגיל-מנוע מול הטענה
+    const eng = crossMethodPairs(c.norm || c.text).find(p => p.method === "רגיל")?.value;
+    if (eng != null && eng !== c.value) contradictions.push({ text: c.text, claimed: c.value, engine: eng });
+  }
+  const vals = [...new Set(explicit.map(c => c.value))];
+  const hubVal = a.structure.hub?.value ?? (vals[0] ?? item?.value ?? null);
+  const [db, hubCounts] = await Promise.all([dbFirstLookup(a.phrases, hubVal), getHubCounts(vals)]);
+  const known = new Set((db.known || []).map(k => k.phrase));
+  return { kind: "gematria", claims: explicit, convergences: a.engine.convergences.slice(0, 4), contradictions, known, hubCounts, hubVal, hubCount: db.hubCount,
+    why: "מנוע-הלקוח הקנוני (7 שיטות) על ביטויי-ההודעה בלבד · DB-First לכל ערך", prov: "gematria.js crossMethodPairs + gematria_words" };
+}
+async function runSearch(item) {
+  const a = analyzeFull(item?.raw || "", {});
+  const val = a.structure.hub?.value ?? (a.claims.find(c => c.value != null)?.value ?? item?.value ?? null);
+  const db = await dbFirstLookup(a.phrases, val);
+  return { kind: "search", phrases: a.phrases, known: db.known || [], hubValue: db.hubValue, hubCount: db.hubCount,
+    why: "חיפוש ביטויי-ההודעה בבנק-הגימטריה + גודל-הצביר (מה כבר קיים)", prov: "gematria_words (dbFirstLookup)" };
+}
+async function runAxis(item) {
+  const t = analyzeTime(item?.raw || "", { sourceDate: item?.ts });
+  const years = t.years.map(y => y.year);
+  const isos = [...t.gregs, ...t.hebrews].map(d => d.iso).filter(Boolean);
+  const axis = await checkAxisData({ years, isoDates: isos, hebrew: t.hebrews.map(h => h.raw) });
+  return { kind: "axis", time: t, axis, why: "EXTRACT→NORMALIZE→LINK→CHECK_EXISTING_AXIS_DATA על ההודעה", prov: "timeFlow + nodes(event)/teder_stations" };
+}
+async function runAI(item) {
+  const a = analyzeFull(item?.raw || "", {});
+  const facts = { phrases: a.phrases.slice(0, 8), convergences: a.engine.convergences.slice(0, 4).map(c => ({ value: c.value, terms: [...new Set(c.members.map(m => m.term))] })) };
+  const text = await getAiAnalysis({ kind: "research", subject: (item?.raw || "").slice(0, 300), facts, fast: true });
+  return { kind: "ai", text, why: "רזיאל (ai-analyze · Haiku) מפרש עובדות-מנוע בלבד — מציע, לא אמת", prov: "edge ai-analyze" };
+}
+const RUNNERS = { gematria: runGematria, search: runSearch, axis: runAxis, ai: runAI };
+const ACT_META = {
+  gematria: { icon: "🔢", label: "גימטריה", c: "#c79a2e" }, search: { icon: "📚", label: "חיפוש בגוף-הידע", c: "#3ea6ff" },
+  axis: { icon: "🕐", label: "בדיקת ציר/זמן", c: "#4caf7d" }, ai: { icon: "🧠", label: "AI (רזיאל)", c: "#b08bd8" },
+};
+// ⚙️ ActionRunner — 4 פעולות רצות-בפועל על ההודעה. 🔬 «ניתוח מלא» = FullAnalysis (Smart Analysis Flow) בפאנל שמתחת.
+function ActionRunner({ item }) {
+  const [res, setRes] = useState({});
+  const [busy, setBusy] = useState(null);
+  const run = async (key) => {
+    setBusy(key);
+    try { const out = await RUNNERS[key](item); setRes(r => ({ ...r, [key]: out })); }
+    catch (e) { setRes(r => ({ ...r, [key]: { err: String(e?.message || e) } })); }
+    setBusy(null);
+  };
+  const Res = ({ k, r }) => {
+    if (r?.err) return <div style={{ color: "#c0392b", fontSize: 11.5 }}>שגיאה: {r.err}</div>;
+    if (k === "gematria") return (
+      <div style={{ fontSize: 11.5, color: C.goldLight, lineHeight: 1.7 }}>
+        {r.contradictions?.length > 0 && <div style={{ color: "#c0392b", fontWeight: 700 }}>⚠️ המנוע סותר: {r.contradictions.map(c => `«${c.text}» טען ${c.claimed} · רגיל-מנוע ${c.engine}`).join(" · ")} — לא לאשר</div>}
+        {r.convergences?.length > 0
+          ? r.convergences.map((cv, i) => <div key={i}>🔗 <b style={{ color: C.goldBright }}>{cv.value}</b> = {[...new Set(cv.members.map(m => m.term))].join(" ↔ ")} {r.hubCounts?.get(cv.value) ? <span style={{ color: "#3ea6ff" }}>♻️ {r.hubCounts.get(cv.value)} כבר בבנק</span> : <span style={{ color: "#4caf7d" }}>🆕</span>}</div>)
+          : <div style={{ color: C.faint }}>אין הצלבה פנימית בין ביטויי-ההודעה.</div>}
+        {r.claims?.length > 0 && <div style={{ color: C.faint }}>טענות: {r.claims.slice(0, 5).map(c => `«${c.text}»=${c.value}${r.known.has(c.norm || c.text) ? "♻️" : "🆕"}`).join(" · ")}</div>}
+      </div>
+    );
+    if (k === "search") return (
+      <div style={{ fontSize: 11.5, color: C.goldLight, lineHeight: 1.7 }}>
+        {r.hubValue != null && <div>צביר {r.hubValue}: <b>{r.hubCount}</b> ביטויים מאומתים בבנק</div>}
+        {r.known?.length ? <div>♻️ כבר קיים: {r.known.slice(0, 8).map(x => `«${x.phrase}»=${x.ragil}`).join(" · ")}</div> : <div style={{ color: "#4caf7d" }}>🆕 אף אחד מביטויי-ההודעה לא בבנק — חדש.</div>}
+      </div>
+    );
+    if (k === "axis") {
+      const dates = [...(r.time.gregs || []), ...(r.time.hebrews || [])];
+      return (
+        <div style={{ fontSize: 11.5, color: C.goldLight, lineHeight: 1.7 }}>
+          {dates.length === 0 && (r.time.years || []).length === 0 ? <div style={{ color: C.faint }}>לא זוהו תאריכים/שנים בהודעה.</div> : null}
+          {dates.map((d, i) => <div key={i}>{d.kind === "hebrew" ? "🔯" : "📅"} {d.raw}{d.iso ? `=${d.iso}` : ""} · {d.role}{d.event ? ` → ${d.event}` : ""}</div>)}
+          {(r.time.years || []).filter(y => y.role !== "PERSONAL").map((y, i) => <span key={"y" + i} style={{ marginInlineEnd: 6 }}>{y.year}{r.axis?.byYear?.get(y.year) ? <span style={{ color: "#3ea6ff" }}> ♻️{r.axis.byYear.get(y.year)[0]?.label?.slice(0, 20)}</span> : <span style={{ color: "#4caf7d" }}> 🆕</span>}</span>)}
+          {(r.time.sequences || []).map((s, i) => <div key={"s" + i} style={{ color: "#2e9e63" }}>🕐 רצף: {s.years.join("→")} — {s.criterion}</div>)}
+        </div>
+      );
+    }
+    if (k === "ai") return r.text ? <div style={{ fontSize: 12, color: "#1b1d22", whiteSpace: "pre-wrap", overflowWrap: "anywhere", background: "#faf7ff", border: "1px solid #b08bd833", borderRadius: 8, padding: "6px 8px" }}>{r.text}</div> : <div style={{ color: C.faint, fontSize: 11.5 }}>אין תשובת-AI (מכסה/שגיאה) — נסה שוב.</div>;
+    return null;
+  };
+  return (
+    <div style={{ display: "grid", gap: 6 }}>
+      {Object.keys(ACT_META).map(k => {
+        const m = ACT_META[k]; const r = res[k];
+        return (
+          <div key={k} style={{ border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 8px", background: "#fff" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <b style={{ color: m.c, fontSize: 12.5 }}>{m.icon} {m.label}</b>
+              <button onClick={() => run(k)} disabled={busy === k} style={{ ...chip(!!r, m.c), marginInlineStart: "auto" }}>{busy === k ? "מריץ…" : r ? "הרץ שוב" : "▶ הרץ"}</button>
+              {r && !r.err && <span style={{ ...pill("#4caf7d"), fontSize: 10 }}>בוצע</span>}
+            </div>
+            {r && <div style={{ marginTop: 5 }}><Res k={k} r={r} /><div style={{ color: C.faint, fontSize: 9.5, marginTop: 3 }}>למה: {r.why || "—"} · provenance: {r.prov || "—"} · <b>מציע, לא מקדם (Human-Gate)</b></div></div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // 📱 הקשר-מלא של הודעת WhatsApp/DM — זהות · הודעה · תשובת-בוט · timeline · provenance · מצב-פעולות.
 // ⛔ READ בלבד (wa_bot_log/getWaThread) · זהות דרך ה-resolver הקיים (UNKNOWN כשאין) · אין טבלת-conversations חדשה · אין שליחה.
 function WaContext({ item }) {
@@ -661,17 +764,6 @@ function WaContext({ item }) {
   const matched = w?.state === "matched";
   const contributor = matched ? (w.canonical || w.contributor) : null;
   const vip = contributor?.vip;
-  // מצב-פעולות (מנועים קיימים בלבד) — done/pending/blocked/missing + why. Human-Gate: המנוע מציע, לא מקדם.
-  const hasHeb = /[א-ת]/.test(item.raw || "");
-  const acts = [
-    ["🔬 ניתוח מלא", hasHeb ? { s: "done", why: "רץ למטה (חילוץ·DB-First·מנוע·ציר·המלצות)" } : { s: "missing", why: "אין טקסט עברי לחילוץ" }],
-    ["🔢 גימטריה", item.value != null ? { s: "done", why: `ערך ${item.value} כבר חושב` } : hasHeb ? { s: "pending", why: "המנוע יחשב בניתוח — Human-Gate" } : { s: "missing", why: "אין ביטוי" }],
-    ["📚 חיפוש בגוף-הידע", hasHeb ? { s: "pending", why: "smart-search קיים — הרצה = Human-Gate" } : { s: "missing", why: "אין שאילתה" }],
-    ["🕐 בדיקת ציר/זמן", { s: "pending", why: "שלב-הזמן רץ בניתוח (CHECK_EXISTING_AXIS_DATA)" }],
-    ["🧠 AI (רזיאל)", { s: "pending", why: "getAiAnalysis קיים — הרצה = Human-Gate" }],
-    ["👤 זיהוי כתב/משתמש", matched ? { s: "done", why: `זוהה: ${contributor?.display_name}` } : { s: "missing", why: "לא-מזוהה (UNKNOWN) — לא מנחשים" }],
-    ["✍️ השב (בוט)", { s: "blocked", why: "שלב 3 — נתיב wa_send הקיים דרך edge אדמין (טרם נבנה)" }],
-  ];
   const Row = ({ k, v }) => (
     <div style={{ display: "flex", gap: 8, fontSize: 12, padding: "2px 0", borderBottom: `1px solid ${C.border}`, flexWrap: "wrap" }}>
       <span style={{ color: C.faint, minWidth: 92 }}>{k}</span>
@@ -725,17 +817,15 @@ function WaContext({ item }) {
             )}
       </div>
 
-      {/* ⚙️ פעולות — מנועים קיימים בלבד + מצב (בוצע/ממתין/חסום/חסר) */}
+      {/* ⚙️ פעולות — מנועים קיימים, רצות בפועל על ההודעה (Human-Gate: מחשב/קורא, לא מקדם) */}
       <div style={{ marginTop: 10, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
-        <div style={{ color: "#128c4b", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>⚙️ פעולות (מנועים קיימים · Human-Gate)</div>
-        <div style={{ display: "grid", gap: 4 }}>
-          {acts.map(([lbl, r]) => { const stt = ACT_STATE[r.s]; return (
-            <div key={lbl} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, flexWrap: "wrap" }}>
-              <span style={{ ...pill(stt.c), minWidth: 84, textAlign: "center" }}>{stt.t}</span>
-              <b style={{ color: C.goldLight, minWidth: 130 }}>{lbl}</b>
-              <span style={{ color: C.faint, flex: 1, minWidth: 140 }}>{r.why}</span>
-            </div>
-          ); })}
+        <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap", marginBottom: 5 }}>
+          <span style={{ color: "#128c4b", fontWeight: 800, fontSize: 12 }}>⚙️ פעולות · רצות על ההודעה</span>
+          <span style={{ color: C.faint, fontSize: 10 }}>קלט = ההודעה הזו בלבד (לא כל ה-thread)</span>
+        </div>
+        <ActionRunner item={item} />
+        <div style={{ color: C.faint, fontSize: 10.5, marginTop: 6 }}>
+          🔬 <b>ניתוח מלא</b> (Smart Analysis Flow — חילוץ·DB-First·שיטה·מנוע·FACT/CLAIM/CONVERGENCE·המלצה) בפאנל שמתחת · ✍️ <b>השב</b> = <span style={{ color: "#c0392b" }}>שלב 3 (חסום — עדיין לא נבנה)</span>
         </div>
       </div>
     </div>
