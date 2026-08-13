@@ -5,7 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { supabase, getTzofonStories, getVideoStories, getLatestPostCards } from "../lib/supabase.js";
 import { isFreshSearchLanding } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
-import { timeAgoHe, formatDateHe } from "../lib/format.js";
+import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
 import { track } from "../lib/tracking.js";
 import { shareVideoToStory } from "../lib/share.js";
@@ -93,7 +93,7 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost 
         {pin && <span aria-hidden style={{ position: "absolute", top: -8, insetInlineEnd: -6, fontSize: 18, transform: "rotate(-8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>🦅</span>}
         {(feat || brandBadge) && <BrandBadge size={badgeBoost ? "lg" : "sm"} brand={brand} star={feat && !pin} />}
       </span>
-      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.ours ? (r.created_at ? formatDateHe(r.created_at) : "שלנו") : timeAgoHe(r.created_at)}</span>
+      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.created_at ? timeAgoHe(r.created_at) : (r.ours ? "שלנו" : "")}</span>
     </button>
   );
 }
@@ -123,7 +123,7 @@ function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = fal
         {(feat || badgeBoost || brandBadge) && <BrandBadge size={badgeBoost ? "md" : "sm"} brand={brand} star={feat && !pin} />}
       </div>
       <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 3, justifyContent: "center" }}>
-        <div style={{ color: (feat || r.ours) ? brand.badgeColor : P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>{r.ours ? `${r.is_cipher ? "🦅 " : ""}${r.created_at ? formatDateHe(r.created_at) : "שלנו"}` : `🕒 ${timeAgoHe(r.created_at)}`}</div>
+        <div style={{ color: (feat || r.ours) ? brand.badgeColor : P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 800 }}>{r.ours ? `${r.is_cipher ? "🦅 " : ""}${r.created_at ? "🕒 " + timeAgoHe(r.created_at) : "שלנו"}` : `🕒 ${timeAgoHe(r.created_at)}`}</div>
         {cap && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{cap}</div>}
       </div>
     </div>
