@@ -463,9 +463,10 @@ function FullAnalysis({ item }) {
           )}
           {/* A · מקור */}
           <Lyr t="A · מקור" c={C.muted}>{item.source}{res.wname ? ` · ${res.wname}` : ""}{item.ts ? ` · ${fmt(item.ts)}` : ""}</Lyr>
-          {/* B · חילוץ */}
-          <Lyr t={`B · חילוץ (${r.claims.length} טענות · ${r.phrases.length} ביטויים)`}>
-            {r.claims.slice(0, 6).map((c, i) => <span key={i} style={{ marginInlineEnd: 8 }}>«{c.text}»{c.value != null ? <b style={{ color: C.gold }}>={c.value}</b> : ""}</span>)}
+          {/* B · חילוץ — כל טענה מוצגת בדיוק כפי-שנכתבה במקור (`text`); צורת-מנוע (`norm`) לצדה, רק אם שונה */}
+          <Lyr t={`B · חילוץ (${r.claims.length} טענות · ${r.phrases.length} ביטויים) — כלשונו`}>
+            {r.claims.slice(0, 6).map((c, i) => <span key={i} style={{ marginInlineEnd: 8 }}>«{c.text}»{c.norm ? <span style={{ color: C.faint, fontSize: 10 }}> (מנוע: {c.norm})</span> : null}{c.value != null ? <b style={{ color: C.gold }}>={c.value}</b> : ""}</span>)}
+            <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>הטקסט נשמר כלשונו — «מנוע:» = צורה מקופת-מקפים לחיפוש-בנק בלבד, לעולם לא מחליפה את המקור.</div>
           </Lyr>
           {/* C · שיטה + פרופיל-כתב */}
           <Lyr t="C · שיטה (רק באינדיקציה אמיתית)">
