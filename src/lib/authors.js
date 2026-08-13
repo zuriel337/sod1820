@@ -12,7 +12,7 @@ export const AUTHORS = {
   "שמעון חיימוב": { avatar: "/logo.png", role: "כתב" },
   "סלי מור": { avatar: "/logo.png", role: "חוקרת גימטריה וצפנים" },
   "צבי": { avatar: "/logo.png", role: "כתב" },
-  "בדרך לנצח": { avatar: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/authors/baderech-lanetzach.png", role: "מסרי מימד חמש" },
+  "בדרך לנצח": { avatar: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/authors/baderech-lanetzach.gif", role: "מסרי מימד חמש" },
   // עלון «סוד החשמל» — לחיצה על הכותב מובילה לכל הקטגוריה שלו (cat), לא לפוסטים לפי-כותב.
   "סוד החשמל": { avatar: "/authors/sod-hachashmal.svg", role: "עלון סוד החשמל · פנימיות התורה", cat: "סוד החשמל" },
 };
