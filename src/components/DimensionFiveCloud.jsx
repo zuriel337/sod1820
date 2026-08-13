@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
+import { track } from "../lib/tracking.js";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 
 // ☁️ «ענן מעופף» — סטורי-מימד-חמש צף בצד שמאל של דף הבית, **דסקטופ בלבד**.
@@ -87,7 +88,7 @@ export default function DimensionFiveCloud() {
         <span aria-hidden style={{ position: "absolute", top: -12, insetInlineStart: 118, width: 34, height: 34, borderRadius: "50%", background: P.card, border: `1px solid ${P.borderStrong}`, boxShadow: "0 -3px 10px rgba(0,0,0,.12)" }} />
 
         <button
-          onClick={() => nav(`/${p.slug}`)}
+          onClick={() => { try { track("dim5", p.slug, "click", { surface: "cloud" }); } catch { /* noop */ } nav(`/${p.slug}`); }}
           title="צפו כסטורי — מימד חמש"
           style={{
             position: "relative", zIndex: 1, width: "100%", cursor: "pointer", textAlign: "start",

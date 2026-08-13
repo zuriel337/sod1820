@@ -5,6 +5,7 @@ import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
+import { track } from "../lib/tracking.js";
 import HomeHeader from "./HomeHeader.jsx";
 
 // 🌀 «מימד חמש» — שורת-פוסטים ייעודית בדף הבית, אוסף כל הפוסטים עם התגית «מימד חמש».
@@ -42,7 +43,8 @@ export default function DimensionFiveRail() {
         <HomeHeader title="🌀 מימד חמש" action={{ label: "לכל מימד חמש →", to: `/tag/${TAG}` }} />
         <div className="d5-row">
           {list.map(p => (
-            <Link key={p.id} to={`/${p.slug}`} className="d5-card">
+            <Link key={p.id} to={`/${p.slug}`} className="d5-card"
+              onClick={() => { try { track("dim5", p.slug, "click", { surface: "home-rail" }); } catch { /* noop */ } }}>
               <div className="d5-media" style={{
                 position: "relative", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden",
                 border: `1px solid ${P.border}`, background: "#0a0713", transition: "transform .15s, border-color .15s, box-shadow .15s",
