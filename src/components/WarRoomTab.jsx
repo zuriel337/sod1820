@@ -55,7 +55,8 @@ function useNarrow(bp = 760) {
 // היררכיית-כתבים (תצוגה בלבד — לא קנוני): מרכזיים ראשונים, שאר-המקורות אחריהם.
 const WRITERS = CORE_WRITERS;
 // תוויות-פאסטים לתצוגה ב-FilterBar (מפתח-סינון → עברית).
-const FACET_HE = { writer: "כתב", status: "סטטוס", method: "שיטה", dest: "יעד", tier: "רובד", flag: "סוג", kind: "סוג-מועמד", src: "צינור", from: "מ-", to: "עד" };
+const FACET_HE = { writer: "כתב", status: "סטטוס", method: "שיטה", dest: "יעד", tier: "רובד", flag: "סוג", kind: "סוג-מועמד", src: "צינור", srckind: "סוג-מקור", hasnum: "מכיל מספר", hasgem: "מכיל גימטריה", hasimg: "מכיל תמונה", engine: "נותח", judging: "לשיפוט", from: "מ-", to: "עד" };
+const SRCKIND_HE = { post: "📄 פוסט", comment: "💬 תגובה", channel: "📡 ערוץ", finding: "🔬 ממצא", wa: "🟢 וואטסאפ" };
 
 // ── CC-1.1 · LIVE INGESTION — הפרדת שלושת הצינורות (READ-ONLY, בלי feeder/WRITE) ──
 // A = ערוצי-שידור (channel_updates, חי) · C = מנוע-הגילויים (research_objects) · B = רזיאל/VIP (רדום).
@@ -85,8 +86,8 @@ function claimInfo(gc) {
 function normForum(r) {
   const ci = claimInfo(r.gematria_claim);
   return {
-    key: "c:" + r.id, source: "תגובה", author: r.author_name || "—", ts: r.created_at,
-    raw: (r.body || r.title || "").trim(), lang: null,
+    key: "c:" + r.id, source: "תגובה", srckind: "comment", author: r.author_name || "—", ts: r.created_at,
+    raw: (r.body || r.title || "").trim(), lang: null, img: r.image_url || null,
     engineVerified: ci.verified, values: ci.values, hasCross: ci.cross,
     inFeed: false, inGraph: !!r.graph_node_id, published: r.status === "published",
     value: null, target: r.target_type,
@@ -96,8 +97,8 @@ function normWa(r) {
   const act = r.action || "";
   return {
     key: "w:" + (r.group_id || "") + ":" + (r.created_at || "") + ":" + (r.sender_name || ""),
-    source: "WhatsApp", author: r.sender_name || "—", group: r.group_id, ts: r.created_at,
-    raw: (r.text_in || "").trim(), lang: null,
+    source: "WhatsApp", srckind: "wa", author: r.sender_name || "—", group: r.group_id, ts: r.created_at,
+    raw: (r.text_in || "").trim(), lang: null, img: r.image_url || null,
     engineVerified: r.value != null, values: r.value != null ? [r.value] : [], hasCross: false,
     inFeed: false, inGraph: false, published: /saved|channel|vip/.test(act),
     value: r.value,
@@ -106,15 +107,15 @@ function normWa(r) {
 function normPost(r) {
   const t = r.title?.rendered || r.title || "";
   return {
-    key: "p:" + (r.slug || r.id), source: "פוסט", author: r.author || "המערכת", ts: r.date,
-    raw: String(t).replace(/<[^>]+>/g, "").trim(), lang: null,
+    key: "p:" + (r.slug || r.id), source: "פוסט", srckind: "post", author: r.author || "המערכת", ts: r.date,
+    raw: String(t).replace(/<[^>]+>/g, "").trim(), lang: null, img: r.image_url || null,
     engineVerified: false, values: [], hasCross: false,
     inFeed: false, inGraph: false, published: true, value: null, link: r.link || (r.slug ? "/" + r.slug : null),
   };
 }
 function normCandidate(r) {
   return {
-    key: "r:" + r.id, source: "מנוע", author: r.contributor || "מנוע-הגילויים", ts: r.created_at,
+    key: "r:" + r.id, source: "מנוע", srckind: "finding", author: r.contributor || "מנוע-הגילויים", ts: r.created_at,
     raw: r.statement || "", lang: null,
     engineVerified: r.engine_verified === true, values: r.value != null ? [r.value] : [],
     hasCross: (r.kind === "relation"), inFeed: true, judged: r.status !== "candidate",
@@ -128,8 +129,8 @@ function normCandidate(r) {
 function normChannel(r, chLabel) {
   const t = String(r.text || "").replace(/<[^>]+>/g, "").trim();
   return {
-    key: "ch:" + r.id, source: "ערוץ · " + (chLabel || r.channel || "—"), author: r.credit || "—",
-    ts: r.created_at, raw: t, channel: r.channel, link: r.link_url || null,
+    key: "ch:" + r.id, source: "ערוץ · " + (chLabel || r.channel || "—"), srckind: "channel", author: r.credit || "—",
+    ts: r.created_at, raw: t, channel: r.channel, link: r.link_url || null, img: r.image_url || null,
     engineVerified: false, values: [], hasCross: false, value: null,
     inFeed: false, inGraph: false, published: !!r.link_url,
     rawAuthor: (r.credit || "").trim(),               // מחרוזת-מקור ל-resolver (provenance)
@@ -269,21 +270,41 @@ function IngestRow({ item, onOpen, onFilter, selected, onToggle, onClose, onUncl
 // ⛔ אין WRITE: פעולות-עבודה (שיפוט/קידום/למד) = פאזה 3. כאן ניווט + חקירה + פילטר בלבד.
 // CC-1.3 · סינון-עבודה רב-ממדי (כתב · סטטוס · שיטה · יעד · טווח-תאריכים · רובד/סוג/צינור).
 // כל facet אופציונלי; פריט עובר רק אם עומד בכל ה-facets הפעילים (Rank-Don't-Hide: מיקוד, לא מחיקה).
+// 👑 ZURIEL / 1237 — מקור-ראשי/מערכתי, לא כתב חיצוני רגיל. סיווג-תצוגה בלבד (לא בעלות/פרטיות/routing).
+const ZURIEL_KEYS = ["1237", "צוריאל", "zuriel", "כי לה' המלוכה", "מערכת כי לה' המלוכה", "מערכת «כי לה' המלוכה»"];
+function isZuriel(it) {
+  const a = String(it?.rawAuthor || it?.author || "").trim().toLowerCase();
+  const w = it?.writer; const canon = String(w?.canonical?.display_name || w?.contributor?.display_name || "").toLowerCase();
+  if (/\b1237\b/.test(a)) return true;
+  return ZURIEL_KEYS.some(k => { const kk = k.toLowerCase(); return a === kk || canon === kk || a.includes("כי לה' המלוכה"); });
+}
+// גזירות-תצוגה טהורות (אין DB): מכיל-מספר · מכיל-טענת-גימטריה · מכיל-תמונה.
+const hasNum = (it) => it?.value != null || (it?.values && it.values.length > 0) || /(?<![\d=])\b\d{2,5}\b/.test(it?.raw || "");
+const hasGem = (it) => it?.engineVerified === true || it?.hasCross === true || /[א-ת][^=\n]{0,40}=\s*\d/.test(it?.raw || "") || /\d{2,5}\s*=\s*[א-ת]/.test(it?.raw || "");
+const hasImg = (it) => !!it?.img || /https?:\/\/\S+\.(?:jpg|jpeg|png|webp|gif)/i.test(it?.raw || "");
+
 function matchesFilters(it, f) {
   if (!f) return true;
   const w = it.writer;
   const canon = w?.canonical?.display_name || w?.contributor?.display_name;
   if (f.writer) {
-    if (f.writer === "__UNKNOWN__") { if (!(w && w.state !== "matched")) return false; }
+    if (f.writer === "__ZURIEL__") { if (!isZuriel(it)) return false; }
+    else if (f.writer === "__UNKNOWN__") { if (isZuriel(it) || !(w && w.state !== "matched")) return false; }
     else if (!(canon === f.writer || it.rawAuthor === f.writer || it.author === f.writer)) return false;
   }
   if (f.tier && it.tier?.key !== f.tier) return false;
+  if (f.srckind && it.srckind !== f.srckind) return false;
   if (f.flag && it.flag !== f.flag) return false;
   if (f.kind && it.kind !== f.kind) return false;
   if (f.src) { const ok = f.src === "discovery" ? C_SOURCES.includes(it.src) : it.src === f.src; if (!ok) return false; }
   if (f.status && normStatus(it).key !== f.status) return false;
   if (f.dest && !destinations(it).includes(f.dest)) return false;
   if (f.method) { if (f.method === "__STRUCT__") { if (!structuralExtract(it.raw)) return false; } else if ((it.method || "") !== f.method) return false; }
+  if (f.hasnum && !hasNum(it)) return false;
+  if (f.hasgem && !hasGem(it)) return false;
+  if (f.hasimg && !hasImg(it)) return false;
+  if (f.engine && it.engineVerified !== true) return false;               // «נותח» = אומת-מנוע (הסיגנל היחיד הקיים)
+  if (f.judging && normStatus(it).key !== "candidate") return false;      // «ממתין לשיפוט»
   if (f.from && new Date(it.ts || 0) < new Date(f.from)) return false;
   if (f.to && new Date(it.ts || 0) > new Date(f.to + "T23:59:59")) return false;
   return true;
@@ -292,7 +313,12 @@ function matchesFilters(it, f) {
 function FilterBar({ filters, onClear, onRemove }) {
   const keys = Object.keys(filters || {}).filter((k) => filters[k] != null && filters[k] !== "");
   if (!keys.length) return null;
-  const label = (k, v) => `${FACET_HE[k] || k}: ${v === "__UNKNOWN__" ? "לא-מזוהה" : v === "__STRUCT__" ? "מבנה" : v}`;
+  const label = (k, v) => {
+    if (v === true) return FACET_HE[k] || k;                       // צ'יפ-toggle (מכיל-מספר/נותח/…)
+    if (k === "srckind") return SRCKIND_HE[v] || v;
+    const vv = v === "__UNKNOWN__" ? "לא-מזוהה" : v === "__ZURIEL__" ? "👑 ZURIEL/1237" : v === "__STRUCT__" ? "מבנה" : v;
+    return `${FACET_HE[k] || k}: ${vv}`;
+  };
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "2px 0" }}>
       <span style={{ color: C.faint, fontSize: 11 }}>🔎 פעיל:</span>
@@ -312,6 +338,7 @@ function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowH
       <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>🎚️ סינון-עבודה</span>
       <select value={filters.writer || ""} onChange={(e) => set("writer", e.target.value)} style={sel}>
         <option value="">כל הכתבים</option>
+        <option value="__ZURIEL__">👑 ZURIEL / 1237 (מקור-ראשי)</option>
         {writers.map((w) => <option key={w} value={w}>{w}</option>)}
         <option value="__UNKNOWN__">❔ לא-מזוהה</option>
       </select>
@@ -335,6 +362,15 @@ function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowH
       </select>
       <button onClick={() => setShowHandled((v) => !v)} style={chip(showHandled, "#8a8a95")}>{showHandled ? "🙈 הסתר שטופלו" : `👁 הצג גם שטופלו${handledCount ? ` (${handledCount})` : ""}`}</button>
       <button onClick={() => setFilters({})} style={chip(false)}>נקה סינון</button>
+      {/* פאסטים-toggle (כבויים כברירת-מחדל — מצמצמים תצוגה, לא מוחקים ולא מסמנים «טופל») */}
+      <span style={{ flexBasis: "100%", height: 0 }} />
+      <span style={{ color: C.faint, fontSize: 10.5 }}>הצג רק:</span>
+      {[["srckind", "post", "📄 פוסט"], ["srckind", "comment", "💬 תגובה"], ["srckind", "channel", "📡 ערוץ"], ["srckind", "finding", "🔬 ממצא"],
+        ["hasnum", true, "🔢 מספר"], ["hasgem", true, "🔢 גימטריה"], ["hasimg", true, "🖼️ תמונה"],
+        ["engine", true, "🔬 נותח"], ["judging", true, "⚖️ לשיפוט"]].map(([k, v, lbl]) => {
+        const active = filters[k] === v;
+        return <button key={k + String(v)} onClick={() => set(k, active ? "" : v)} style={chip(active, "#3ea6ff")}>{lbl}</button>;
+      })}
     </div>
   );
 }
