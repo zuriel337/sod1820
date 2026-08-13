@@ -11,6 +11,7 @@ import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על �
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
 import MaintenanceTicker from "./MaintenanceTicker.jsx"; // 🚧 רצועת «האתר בבנייה» — שורה זזה גלובלית
 import CelestialPinnedBar from "./CelestialPinnedBar.jsx"; // 🌌 שורה נעוצה גלובלית — «שלושה דברים שמימיים בערב ראש חודש אלול»
+import EnglishSoonBar from "./EnglishSoonBar.jsx"; // 🌍 טיקר-אנגלית עבה — רק לדוברי אנגלית/ארה״ב
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -53,6 +54,8 @@ export default function Layout() {
       {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
+        {/* 🌍 טיקר-אנגלית עבה — מוצג רק לדוברי אנגלית / מבקרים מארה״ב: «בקרוב האתר יהיה באנגלית». */}
+        <EnglishSoonBar />
         {/* 🌌 שורה נעוצה גלובלית — עדכון שמימי לערב ראש חודש אלול. בכל האתר, מפנה לפוסט הקנוני. */}
         <CelestialPinnedBar />
         {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
