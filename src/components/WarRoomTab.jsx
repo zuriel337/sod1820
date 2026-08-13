@@ -11,7 +11,7 @@ import {
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
   getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims,
 } from "../lib/supabase.js";
-import { extractCandidates, identifyMethod, proposeMethods, buildMethodProfile } from "../lib/analysisFlow.js";
+import { extractCandidates, identifyMethod, proposeMethods, buildMethodProfile, runEngineOnTerms } from "../lib/analysisFlow.js";
 import { buildWriterIndex, resolveWriter, WRITER_STATE } from "../lib/writers.js";
 import {
   materialTrack, MATERIAL_STAGES, TRACK_COLOR, TRACK_LABEL, langRelLabel,
@@ -371,7 +371,12 @@ function SmartAnalysis({ item }) {
   const [loading, setLoading] = useState(false);
   const [db, setDb] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [p2, setP2] = useState(null);   // פאזה 2 · תוצאות-מנוע
   const cands = useMemo(() => extractCandidates(item?.raw), [item?.raw]);
+  const runEngine = useCallback(() => {
+    const terms = [...new Set(cands.filter(c => ["explicit-claim", "equation"].includes(c.type)).flatMap(c => c.parts || [c.text]))];
+    setP2(runEngineOnTerms(terms));
+  }, [cands]);
   const top = cands[0] || null;
   const identified = useMemo(() => (top ? identifyMethod(top, item?.raw) : null), [top, item?.raw]);
   const proposed = useMemo(() => (top ? proposeMethods(top, identified, profile) : []), [top, identified, profile]);
@@ -451,8 +456,27 @@ function SmartAnalysis({ item }) {
             )) : <span style={{ color: C.faint, fontSize: 12 }}>—</span>}
           </Stage>
           <div style={{ marginTop: 8, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
-            <button disabled style={{ ...chip(false), opacity: 0.5, cursor: "not-allowed" }}>▶ הרץ מנוע (פאזה 2)</button>
-            <span style={{ color: C.faint, fontSize: 10.5, marginInlineStart: 8 }}>הרצת-מנוע + לכידה (Fact/VAULT/Atlas/סגור) = פאזה 2 גייטד — אחרי שתאשר שהניתוח נכון.</span>
+            <button onClick={runEngine} style={chip(true, C.gold)}>▶ הרץ מנוע (חשב ביטויים)</button>
+            <span style={{ color: C.faint, fontSize: 10.5, marginInlineStart: 8 }}>חישוב-בלבד (מנוע קנוני) · לכידה/ניתוב = ההחלטה שלך</span>
+            {p2 && (
+              <div style={{ marginTop: 8 }}>
+                {p2.convergences.length ? (
+                  <>
+                    <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12, marginBottom: 4 }}>🔗 התכנסויות שהמנוע מצא ({p2.convergences.length}) · FACT</div>
+                    {p2.convergences.slice(0, 8).map((cv, i) => (
+                      <div key={i} style={{ fontSize: 12, color: C.goldLight, padding: "2px 0", lineHeight: 1.5 }}>
+                        <b style={{ color: C.gold }}>{cv.value}</b> = {cv.members.map(m => `«${m.term}» (${m.method})`).join("  =  ")}
+                      </div>
+                    ))}
+                    <div style={{ color: C.faint, fontSize: 10.5, marginTop: 3 }}>FACT = ערך-מנוע · CONVERGENCE = ערך משותף ל-≥2 ביטויים · פרשנות-הכתב בנפרד. אין WRITE — לכידה = הכפתורים למעלה.</div>
+                  </>
+                ) : (
+                  <div style={{ fontSize: 12, color: C.goldLight }}>
+                    {p2.terms.length ? <>ביטוי יחיד: {p2.facts.slice(0, 7).map((f, i) => <span key={i} style={{ marginInlineEnd: 8 }}>{f.method}=<b style={{ color: C.gold }}>{f.value}</b></span>)}<div style={{ color: C.faint, fontSize: 10.5, marginTop: 2 }}>אין הצלבה פנימית — ראה DB-First לצביר סביב הערך.</div></> : <span style={{ color: C.faint }}>אין ביטוי לחילוץ מהטקסט.</span>}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@
 // שלבים 1+4: חילוץ-מועמדים · זיהוי-שיטת-הממצא · הצעת-שיטות — כל אחד עם `why`. (DB-First + פרופיל-כתב = reads ב-supabase.js.)
 // ⛔ חוקי-ברזל: NO_COMPUTE_ALL (בוחר מועמדים, לא כל הטקסט) · EXPLAIN_WHY (כל פריט עם הסבר) ·
 //    לא ממציא שיטה בלי מנוע · Claim≠Fact (חילוץ=מועמד בלבד, האימות בשלב-המנוע הגייטד).
+import { crossMethodPairs } from "./gematria.js"; // מנוע-הלקוח הקנוני (gematria_engine_law) — 7 שיטות קריאות.
 
 // ── רישום-שיטות (רק כאלה עם מנוע קיים) — מיפוי label→engine fn. לא להוסיף בלי fn. ──
 export const METHODS = {
@@ -54,6 +55,20 @@ export function extractCandidates(rawText) {
   const lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
 
   for (const line of lines) {
+    // relation format: «מספר = ביטוי(שיטה) · ביטוי(שיטה) ⟵ …» (הצלבת-שיטות של מנוע-הגילויים).
+    let mr = line.match(/^(\d{2,5})\s*=\s*(.+)/);
+    if (mr && /[א-ת].*\(/.test(mr[2])) {
+      const value = Number(mr[1]);
+      const rhs = mr[2].replace(/[⟵←→].*$/, "");
+      for (const seg of rhs.split(/[·•|]/).map(s => s.trim()).filter(Boolean)) {
+        const pm = seg.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+        const phrase = clean(pm ? pm[1] : seg);
+        const method = pm ? normMethod(pm[2]) : null;
+        if (phrase && HEB.test(phrase) && phrase.length >= 2)
+          add({ type: "explicit-claim", text: phrase, value, method, why: method ? `הכתב: «${phrase}» ב${method} = ${value}` : `הכתב: «${phrase}» = ${value}`, score: 100 });
+      }
+      continue;
+    }
     // explicit-claim (שורה): «ביטוי = מספר» — הביטוי הוא הקטע-שלפני-«=» באותה שורה (לא חוצה-שורות).
     let mm = line.match(/^(.*?[א-ת])\s*=\s*(\d{1,5})\b/);
     if (mm) {
@@ -138,4 +153,26 @@ export function buildMethodProfile(rows = []) {
   // «דומיננטי» רק אם ≥2 ממצאים מאומתים *וגם* השיטה המובילה מופיעה ≥2 (לא מממצא בודד).
   const dominant = (total >= 2 && methods[0] && methods[0].count >= 2) ? methods[0].method : null;
   return { total, methods, dominant, evidence };
+}
+
+// ── שלב 7 · הרצת-מנוע (פאזה 2) — מחשב כל ביטוי ב-7 השיטות הקריאות (מנוע-הלקוח הקנוני),
+// ומזהה התכנסויות: ערך שמופיע ב-≥2 ביטויים שונים (הצלבת-שיטות). FACT = ערך-מנוע · CONVERGENCE = ערך-משותף.
+// ⛔ חישוב בלבד (gematria_engine_law) — אין WRITE. הלכידה/ניתוב = שלב נפרד וגייטד.
+export function runEngineOnTerms(terms = []) {
+  const uniq = [...new Set((terms || []).map(t => String(t || "").trim()).filter(t => /[א-ת]/.test(t) && t.length >= 2))];
+  const facts = [];
+  const byValue = new Map();
+  for (const t of uniq) {
+    for (const p of crossMethodPairs(t)) {
+      facts.push({ term: t, method: p.method, value: p.value });
+      if (!byValue.has(p.value)) byValue.set(p.value, []);
+      byValue.get(p.value).push({ term: t, method: p.method });
+    }
+  }
+  // התכנסות = ערך המשותף ל-≥2 ביטויים *שונים* (לא אותו ביטוי בשתי שיטות-בנות).
+  const convergences = [...byValue.entries()]
+    .filter(([, mem]) => new Set(mem.map(m => m.term)).size >= 2)
+    .map(([value, members]) => ({ value, members }))
+    .sort((a, b) => b.members.length - a.members.length || b.value - a.value);
+  return { terms: uniq, facts, convergences };
 }
