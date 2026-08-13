@@ -255,7 +255,7 @@ function IngestRow({ item, onOpen, onFilter, selected, onToggle, onClose, onUncl
         <TierBadge tier={item.tier} onClick={onFilter ? () => onFilter({ type: "tier", value: item.tier?.key }) : undefined} />
         <span onClick={onFilter ? (e => { e.stopPropagation(); onFilter({ type: "flag", value: item.flag }); }) : undefined}
           style={{ ...pill(f.c), cursor: onFilter ? "pointer" : "default" }} title={onFilter ? "סנן לפי סוג" : undefined}>{f.t}</span>
-        {item.handled && <span style={pill("#8a8a95")} title={item.handledMeta?.reason || "טופל"}>✅ טופל</span>}
+        {item.handled && <span style={pill("#8a8a95")} title={`טופל · ${item.handledMeta?.reason || "—"}${item.handledMeta?.at ? " · " + fmt(item.handledMeta.at) : ""}`}>✅ {item.handledMeta?.reason || "טופל"}</span>}
         <span style={{ color: C.muted, fontFamily: F.heading, fontWeight: 700, fontSize: 10.5, whiteSpace: "nowrap" }}>{item.source}</span>
         <span style={{ color: C.faint, fontSize: 10, whiteSpace: "nowrap" }}>{fmt(item.ts)}</span>
         <WriterChip writer={item.writer} />
@@ -747,6 +747,16 @@ export default function WarRoomTab() {
   // מונה-התור החי: מועמדים שלא-שוטפלו (יורד כשסוגרים פריט מהתור). לא תלוי בפילטר — עומק-התור האמיתי.
   const pendingCand = useMemo(() => (candidates || []).map(withH).filter(c => !c.handled), [candidates, withH]);
   const openAllCandidates = () => { setMode("now"); setFilters({}); setShowHandled(false); setCandExpanded(true); setTimeout(() => candRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); };
+  // 📊 מונים עקביים — נגזרים מהנתונים הטעונים + מפת handled (אין DB, אין schema).
+  // נכנס = כל מה שנטען · טופל = כמה מהם handled · ממתין = נכנס − טופל. Rank-Don't-Hide: החומר לא נמחק.
+  const countHandled = useCallback((list) => (list || []).reduce((n, i) => n + (handled.has(i.key) ? 1 : 0), 0), [handled]);
+  const stats = useMemo(() => {
+    // מאגר-העבודה הניתן-לסגירה = צינור A + מועמדים (incoming/פורום = תצוגת-«נכנס עכשיו» קורא-בלבד, לא נספר).
+    const aE = liveA.length, aH = countHandled(liveA);
+    const cE = (candidates || []).length, cH = countHandled(candidates);
+    const entered = aE + cE, handledN = aH + cH;
+    return { entered, handledN, waiting: entered - handledN, judging: pendingCand.length, aE, aWait: aE - aH };
+  }, [liveA, candidates, countHandled, pendingCand.length]);
   const selItems = useMemo(() => poolAll.filter(i => sel.has(i.key)), [poolAll, sel]);
   const toggleSel = (k) => setSel(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
   const selectAllShown = () => setSel(new Set(shown.map(i => i.key)));
@@ -797,6 +807,25 @@ export default function WarRoomTab() {
 
       {mode === "now" && (
        <>
+        {/* 📊 מונים — נכנס / ממתין / טופל / לשיפוט · עקביים (נכנסו−טופלו=ממתינים) · לחיצים */}
+        <div style={{ ...box, padding: 0, overflow: "hidden" }}>
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {[
+              { label: "נכנסו", n: stats.entered, c: C.goldBright, on: () => { setFilters({}); setShowHandled(true); }, tip: "כל מה שנטען (חי + מועמדים + נכנס-עכשיו) — לא נמחק לעולם" },
+              { label: "ממתינים", n: stats.waiting, c: "#c79a2e", on: () => { setFilters({}); setShowHandled(false); }, tip: "תור-העבודה הפעיל (לא-טופל)" },
+              { label: "טופלו", n: stats.handledN, c: "#4caf7d", on: () => { setShowHandled(true); setFilters({ status: "handled" }); }, tip: "מה שסגרת — עם הסיבה. «בטל סגירה» מחזיר לתור" },
+              { label: "לשיפוט", n: stats.judging, c: "#3ea6ff", on: openAllCandidates, tip: "מועמדים שממתינים לשיפוט (לא-טופל)" },
+            ].map((k, i) => (
+              <div key={i} onClick={k.on} title={k.tip}
+                style={{ flex: "1 1 84px", minWidth: 78, cursor: "pointer", padding: "11px 6px", textAlign: "center", borderInlineStart: i ? `1px solid ${C.border}` : "none" }}>
+                <div style={{ color: k.c, fontFamily: F.heading, fontWeight: 900, fontSize: 25, lineHeight: 1 }}>{k.n}</div>
+                <div style={{ color: C.muted, fontSize: 11, fontWeight: 700, marginTop: 3 }}>{k.label}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop: `1px solid ${C.border}`, color: C.faint, fontSize: 10, textAlign: "center", padding: "4px 6px" }}>נכנסו − טופלו = ממתינים · לחיצה על מספר מסננת אליו · החומר המקורי נשמר</div>
+        </div>
+
         {/* CC-1.1 · קליטה חיה — שלושת הצינורות מופרדים (READ-ONLY, בלי feeder) */}
         <div style={box}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
@@ -810,8 +839,8 @@ export default function WarRoomTab() {
               style={{ ...box, borderColor: "#4caf7d55", cursor: "pointer" }} title="סנן לחומר-A (RAW)">
               <div style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800 }}>🟢 LIVE · צינור A</div>
               <div style={{ color: C.muted, fontSize: 11, margin: "3px 0" }}>ערוצי-שידור (WhatsApp) → channel_updates</div>
-              <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{liveA.length}</div>
-              <div style={{ color: C.faint, fontSize: 10.5 }}>חי · מגיע לאתר · <b style={{ color: "#e0563a" }}>טרם-במנוע</b></div>
+              <div style={{ color: C.goldLight, fontSize: 22, fontWeight: 900, fontFamily: F.heading }}>{stats.aWait}<span style={{ fontSize: 12, color: C.faint, fontWeight: 700 }}> / {stats.aE}</span></div>
+              <div style={{ color: C.faint, fontSize: 10.5 }}>ממתינים / נכנסו · <b style={{ color: "#e0563a" }}>טרם-במנוע</b></div>
             </div>
             <div onClick={() => setFilter({ type: "src", value: "discovery", label: "צינור C · Discovery", color: "#3ea6ff" })}
               style={{ ...box, borderColor: "#3ea6ff55", cursor: "pointer" }} title="סנן למועמדי-מנוע (C)">
