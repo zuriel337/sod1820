@@ -13,7 +13,7 @@ import HomeHeader from "./HomeHeader.jsx";
 const IND = "#8458ff";
 const TAG = "מימד חמש";
 
-export default function DimensionFiveRail() {
+export default function DimensionFiveRail({ compact = false, surface = compact ? "footer" : "home-rail" }) {
   const P = usePalette();
   const [posts, setPosts] = useState(null); // null=טוען
 
@@ -27,6 +27,44 @@ export default function DimensionFiveRail() {
 
   if (posts && posts.length === 0) return null; // אין פוסטים → לא מציגים כלום
   const list = posts || [];
+
+  // 🎬 גרסה קומפקטית — סרגל-סרטונים קטן לאזור הפוטר (בכל האתר חוץ מדף הבית).
+  if (compact) {
+    return (
+      <section aria-label="מימד חמש — סרטונים" style={{ maxWidth: 1040, margin: "0 auto", padding: "4px 20px 10px", direction: "rtl" }}>
+        <style>{`
+          .d5c-row{ display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+          .d5c-row::-webkit-scrollbar{ display:none; }
+          .d5c-card{ flex:0 0 88px; text-decoration:none; }
+          .d5c-card:hover .d5c-media{ border-color:${IND}; box-shadow:0 0 14px ${IND}66; }
+        `}</style>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <span style={{ color: IND, fontFamily: F.heading, fontSize: 12.5, fontWeight: 900 }}>🌀 מימד חמש</span>
+          <Link to={`/tag/${TAG}`} style={{ marginInlineStart: "auto", color: P.inkSoft, fontFamily: F.body, fontSize: 11, textDecoration: "none" }}>לכל מימד חמש →</Link>
+        </div>
+        <div className="d5c-row">
+          {list.map(p => (
+            <Link key={p.id} to={`/${p.slug}`} className="d5c-card"
+              onClick={() => { try { track("dim5", p.slug, "click", { surface }); } catch { /* noop */ } }}>
+              <div className="d5c-media" style={{
+                position: "relative", aspectRatio: "3/4", borderRadius: 10, overflow: "hidden",
+                border: `1px solid ${P.border}`, background: "#0a0713", transition: "border-color .15s, box-shadow .15s",
+              }}>
+                {p.image_url
+                  ? <img src={thumb(p.image_url, 200)} alt={stripHtml(p.title)} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  : <div style={{ width: "100%", height: "100%", display: "grid", placeItems: "center", color: IND, fontSize: 22 }}>🌀</div>}
+                {/* אייקון-נגן קטן — אלו סרטונים */}
+                <span aria-hidden style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "rgba(0,0,0,.14)" }}>
+                  <span style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,.9)", display: "grid", placeItems: "center", color: "#111", fontSize: 9 }}>▶</span>
+                </span>
+              </div>
+              <div style={{ marginTop: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 88 }}>{stripHtml(p.title)}</div>
+            </Link>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px", direction: "rtl" }}>

@@ -6,6 +6,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
 import { useStream } from "../../lib/stream.js";
 import StayUpdatedCTA from "../StayUpdatedCTA.jsx";
+import DimensionFiveRail from "../DimensionFiveRail.jsx";
 
 // עמודות נושאיות בגובה אחיד — ההיכל (המנועים) · מה חדש (המנועים האחרונים) · הגנזך (תוכן) · הקהילה והשער
 // «בני ההיכל» הוסר (בקשת צוריאל 2.7.2026); «מה חדש» מרכז את המנועים החדשים.
@@ -168,6 +169,7 @@ export default function Footer() {
   const cc = chromeColors(useThemeMode());
   const { pathname } = useLocation();
   const reality = useStream() === "reality";
+  const isHome = ["/", "/home-new", "/בית-חדש"].includes(pathname);
   const tagline = reality ? "קוד המציאות" : "כי לה' המלוכה";
   const subline = reality ? "המספרים שמאחורי המציאות" : "אתר רמזי הגאולה הגדול בעולם";
   return (
@@ -175,6 +177,13 @@ export default function Footer() {
       <style>{FOOTER_CSS(cc)}</style>
 
       {/* 🌐 רצועת «מהפורום» הוסרה מהפוטר לבקשת צוריאל (לא רצויה שם). הפורום נגיש מהניווט/עמוד /forum. */}
+
+      {/* 🌀 מימד חמש — סרגל-סרטונים קטן באזור הפוטר, בכל האתר חוץ מדף הבית (שם יש כבר את השורה המלאה) */}
+      {!isHome && (
+        <div style={{ borderBottom: `1px solid ${cc.faint}`, paddingBottom: 8, marginBottom: 6 }}>
+          <DimensionFiveRail compact />
+        </div>
+      )}
 
       {/* הרשמה במייל בפוטר — מוסתרת בעמוד הבית (שם יש כבר את הקריאה הראשית מעל) */}
       {pathname !== "/" && <StayUpdatedCTA variant="footer" />}
