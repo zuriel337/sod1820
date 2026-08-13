@@ -57,10 +57,10 @@ const CSS = `
 .ceb-cipher{flex:1;position:relative;display:flex;flex-direction:column;width:100%}
 .ceb-frame{position:relative;width:100%;aspect-ratio:1287/473;overflow:hidden;background:#07080f}
 .ceb-mx{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ceb-mx.base{filter:grayscale(1) brightness(.5) contrast(1.02)}          /* מתחיל שחור — אותיות כהות בלי צבע */
-.ceb-win{position:absolute;overflow:hidden;opacity:0;transition:opacity .7s ease}  /* חלון-מילה — הצבע נכנס */
+.ceb-mx.base{filter:grayscale(1) brightness(.5) contrast(1.02);transition:filter 1.1s ease}  /* מתחיל שחור */
+.ceb-mx.base.ceb-full{filter:none}                                       /* בסוף — המטריצה הצבעונית המלאה (כמו המקור) */
+.ceb-win{position:absolute;overflow:hidden;opacity:0;transition:opacity .7s ease}  /* חלון-מילה — הצבע האמיתי נכנס */
 .ceb-win.lit{opacity:1}
-.ceb-win img{filter:brightness(1.45) saturate(1.4)}                       /* המילה שנחשפת — צבע חי ובוהק */
 .ceb-lbl{position:absolute;font-weight:800;font-size:clamp(10px,1.5vw,14px);padding:3px 8px;border-radius:8px;color:#0b0a06;
   opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;white-space:nowrap;pointer-events:none;z-index:3}
 .ceb-lbl.lit{opacity:1;transform:translateY(0)}
@@ -102,20 +102,27 @@ export default function CipherElulBanner() {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    const base = root.querySelector(".ceb-mx.base");
     const wins = Array.from(root.querySelectorAll(".ceb-win")).sort((a, b) => a.dataset.i - b.dataset.i);
     const labels = Array.from(root.querySelectorAll(".ceb-lbl")).sort((a, b) => a.dataset.i - b.dataset.i);
-    const off = () => { wins.forEach((w) => w.classList.remove("lit")); labels.forEach((l) => l.classList.remove("lit")); };
+    const off = () => {
+      wins.forEach((w) => w.classList.remove("lit"));
+      labels.forEach((l) => l.classList.remove("lit"));
+      base && base.classList.remove("ceb-full");   // חזרה לשחור
+    };
     if (slide !== 1) { off(); return; }
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
     let timers = [];
     off();
-    if (reduce) { wins.forEach((w) => w.classList.add("lit")); labels.forEach((l) => l.classList.add("lit")); return; }
+    if (reduce) { wins.forEach((w) => w.classList.add("lit")); labels.forEach((l) => l.classList.add("lit")); base && base.classList.add("ceb-full"); return; }
     wins.forEach((w, k) =>
       timers.push(setTimeout(() => {
         w.classList.add("lit");
         labels[k] && labels[k].classList.add("lit");
       }, 700 + k * 1400))
     );
+    // אחרי שכל המילים נחשפו → כל המטריצה הופכת צבעונית מלאה (כמו המקור)
+    timers.push(setTimeout(() => { base && base.classList.add("ceb-full"); }, 700 + wins.length * 1400 + 200));
     return () => timers.forEach(clearTimeout);
   }, [slide]);
 
