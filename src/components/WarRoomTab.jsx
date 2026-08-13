@@ -417,7 +417,7 @@ function SmartAnalysis({ item }) {
   const [p2, setP2] = useState(null);   // פאזה 2 · תוצאות-מנוע
   const cands = useMemo(() => extractCandidates(item?.raw), [item?.raw]);
   const runEngine = useCallback(() => {
-    const terms = [...new Set(cands.filter(c => ["explicit-claim", "equation"].includes(c.type)).flatMap(c => c.parts || [c.text]))];
+    const terms = [...new Set(cands.filter(c => ["explicit-claim", "equation", "emphasized"].includes(c.type)).flatMap(c => c.parts || [c.text]))];
     setP2(runEngineOnTerms(terms));
   }, [cands]);
   const top = cands[0] || null;

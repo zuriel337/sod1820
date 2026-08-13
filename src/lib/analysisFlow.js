@@ -40,7 +40,10 @@ export function normMethod(s) {
 const HEB = /[א-ת]/;
 const NIKUD_G = /[֑-ׇ]/g;
 const stripNikud = (s) => String(s || "").replace(NIKUD_G, "");
-const clean = (s) => stripNikud(s).replace(/[«»"״]/g, "").replace(/\s+/g, " ").trim();
+const clean = (s) => stripNikud(s).replace(/["'«»“”‘’׳״]/g, "").replace(/\(\s*\d+\s*\)/g, " ")
+  .replace(/\s+/g, " ").replace(/^[\s.,;:!?()]+|[\s.,;:!?()]+$/g, "").trim();
+// ביטוי-תקף: עברית בלבד, 2–40 תווים, עד 6 מילים, בלי ספרות/נקודתיים/סוגריים (חוסם רעש כמו «כ:764. לעומת זאת»).
+const validPhrase = (p) => !!p && HEB.test(p) && p.length >= 2 && p.length <= 40 && !/[0-9:()]/.test(p) && p.split(/\s+/).filter(Boolean).length <= 6;
 
 // ── שלב 2 · SMART EXTRACTION — טקסט → Candidate[] (מחרוזת טהורה, אפס גימטריה) ──
 // טענות/שקילויות נחלצות **שורה-שורה** (הרווח/הירידה שוברים — כדי לא לבלוע מילים מיותרות משורה אחרת).
@@ -77,13 +80,40 @@ export function extractCandidates(rawText) {
         add({ type: "explicit-claim", text: phrase, value: Number(mm[2]), why: "הכתב כתב «=» מפורש עם ערך — טענה ישירה", score: 100 });
       continue;
     }
-    // equation (שורה): «A = B» (שני ביטויים עבריים).
-    let me = line.match(/^([א-ת][^=]{1,40}?)\s*=\s*([א-ת][^=]{1,40})$/);
+    // equation (שורה): «A = B» (שני ביטויים עבריים). דילוג על משוואות-סכום (מטופלות בנפרד).
+    let me = line.includes("+") ? null : line.match(/^([א-ת][^=]{1,40}?)\s*=\s*([א-ת][^=]{1,40})$/);
     if (me) {
       const a = clean(me[1]), b = clean(me[2]);
       if (a && b && a !== b) add({ type: "equation", text: `${a} = ${b}`, parts: [a, b], why: "שני ביטויים שהכתב משווה — לבדוק שקילות-ערך", score: 80 });
     }
   }
+  // ── פרוזה-גימטריה כללית (לא רק «phrase=number» בשורה) — עובד על צבי/ZURIEL/כל כתב ──
+  // הכתב *מסמן* מבנה: מרכאות · (ערך) · «גימטריא» · משוואת-סכום. מחלצים את המסומן — לא כל מילה (NO_COMPUTE_ALL).
+  const Q = "[\"'«»“”‘’׳״]";
+  let m;
+  // A0 · משוואת-סכום עם ביטויים: «A(x) + B(y) = C(z)» — מחלץ 3 ביטויים נקיים + מאמת a+b=c (כללי, לא צבי-ספציפי)
+  const pSumRe = /([א-ת][א-ת\s]{1,30})\s*\((\d{2,5})\)\s*\+\s*([א-ת][א-ת\s]{1,30})\s*\((\d{2,5})\)\s*=\s*([א-ת][א-ת\s]{1,30})\s*\((\d{2,5})\)/g;
+  while ((m = pSumRe.exec(text))) {
+    const p1 = clean(m[1]), a = +m[2], p2 = clean(m[3]), b = +m[4], p3 = clean(m[5]), c = +m[6];
+    add({ type: "sum-equation", text: `${p1}(${a}) + ${p2}(${b}) = ${p3}(${c})`, value: c, parts: [p1, p2, p3], verifiedSum: a + b === c, why: `משוואת-סכום עם ביטויים${a + b === c ? " ✓ מאומתת-חשבונית" : " ⚠️ לא-שקולה"}`, score: 97 });
+    [[p1, a], [p2, b], [p3, c]].forEach(([p, v]) => { if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: v, why: "ביטוי במשוואת-הסכום", score: 94 }); });
+  }
+  // A · «ביטוי(ערך)» — נאות מדבר(703)
+  const parenRe = /([א-ת][א-ת\s'"׳״]{1,38}?)\s*\((\d{2,5})\)/g;
+  while ((m = parenRe.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: Number(m[2]), why: "ביטוי + ערך בסוגריים (הכתב סימן)", score: 95 }); }
+  // B1 · ביטוי + «גימטריא/שווה/עולה» + ערך  (הערך אחרי הביטוי): «נאות מדבר» גימטריא 703
+  const gemAfter = new RegExp(Q + "?([א-ת][א-ת\\s]{1,34}?)" + Q + "?\\s*(?:ב?גימטרי[אה]|שוו?ה|עולה)\\s*[:=\\s]*(\\d{2,5})", "g");
+  while ((m = gemAfter.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "explicit-claim", text: p, value: Number(m[2]), why: "ביטוי + «גימטריא» + ערך", score: 92 }); }
+  // B2 · «גימטריא» + ביטוי  (הביטוי אחרי המילה): בגימטריא «יומא דשבתא»
+  const gemBefore = new RegExp("ב?גימטרי[אה]\\s*[:=]?\\s*" + Q + "([א-ת][א-ת\\s]{1,34}?)" + Q, "g");
+  while ((m = gemBefore.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "emphasized", text: p, why: "ביטוי שהוצג כשווה-גימטריא", score: 90 }); }
+  // C · משוואת-סכום שהכתב הציג: 703 + 61 = 764 (בודקים שהיא נכונה חשבונית — לא מחשבים גימטריה)
+  const sumRe = /(\d{2,5})\s*\+\s*(\d{2,5})\s*=\s*(\d{2,5})/g;
+  while ((m = sumRe.exec(text))) { const a = +m[1], b = +m[2], c = +m[3]; add({ type: "sum-equation", text: `${a} + ${b} = ${c}`, value: c, parts: [a, b, c], verifiedSum: a + b === c, why: `משוואת-סכום שהכתב הציג${a + b === c ? " ✓ מאומתת-חשבונית" : " ⚠️ לא-שקולה"}`, score: 96 }); }
+  // D · ביטויים במרכאות (הכתב סימן כמשמעותיים) — כולל מרכאות מסולסלות
+  const qRe = new RegExp(Q + "([א-ת][א-ת\\s]{1,38}?)" + Q, "g");
+  while ((m = qRe.exec(text))) { const p = clean(m[1]); if (validPhrase(p)) add({ type: "emphasized", text: p, why: "ביטוי במרכאות (הכתב סימן)", score: 30 }); }
+
   // structural-trigger: מילת-מפתח שמצביעה על שיטה מבנית.
   for (const t of TRIGGERS) if (text.includes(t)) { add({ type: "structural-trigger", text: t, why: `הכתב הזכיר «${t}» — רמז לשיטה מבנית`, score: 60 }); break; }
   // verse: ניקוד במקור = ציטוט-פסוק (בודקים את המקור לפני הסרת-ניקוד).
@@ -93,11 +123,9 @@ export function extractCandidates(rawText) {
   }
   // number-anchor: מספר בודד (2–5 ספרות) שלא נלכד כטענה.
   const claimedVals = new Set(out.filter(c => c.value != null).map(c => c.value));
-  let m; const numRe = /(?<![\d=])\b(\d{2,5})\b/g;
+  const numRe = /(?<![\d=])\b(\d{2,5})\b/g;
   while ((m = numRe.exec(text))) { const n = Number(m[1]); if (!claimedVals.has(n)) add({ type: "number-anchor", text: String(n), value: n, why: "מספר משמעותי בטקסט — עוגן-חיפוש (לא מחושב)", score: 40 }); }
-  // emphasized: ביטוי ב-«...» — הכתב סימן.
-  const emRe = /[«"]([^«»"]{2,40})[»"]/g;
-  while ((m = emRe.exec(String(rawText || "")))) { const p = clean(m[1]); if (p && HEB.test(p)) add({ type: "emphasized", text: p, why: "ביטוי שהכתב הדגיש/סימן", score: 30 }); }
+  // (ביטויים-במרכאות מחולצים ב-qRe למעלה עם validPhrase — אין צורך ב-regex-מרכאות נוסף.)
 
   return out.sort((a, b) => b.score - a.score);
 }
