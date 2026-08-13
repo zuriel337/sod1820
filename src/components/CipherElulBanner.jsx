@@ -57,9 +57,10 @@ const CSS = `
 .ceb-cipher{flex:1;position:relative;display:flex;flex-direction:column;width:100%}
 .ceb-frame{position:relative;width:100%;aspect-ratio:1287/473;overflow:hidden;background:#07080f}
 .ceb-mx{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ceb-mx.base{filter:grayscale(1) brightness(.5) contrast(1.05)}          /* רקע: אותיות אפורות-עמומות */
-.ceb-win{position:absolute;overflow:hidden;opacity:0;transition:opacity .7s ease}  /* חלון-מילה — נחשף בצבע */
+.ceb-mx.base{filter:brightness(.72) saturate(.85)}                       /* רקע: המטריצה הצבעונית, מעט מעומעמת */
+.ceb-win{position:absolute;overflow:hidden;opacity:0;transition:opacity .7s ease}  /* חלון-מילה — המילה בוהקת בצבע */
 .ceb-win.lit{opacity:1}
+.ceb-win img{filter:brightness(1.5) saturate(1.4)}                        /* המילה שנחשפת — צבע חי ובוהק */
 .ceb-lbl{position:absolute;font-weight:800;font-size:clamp(10px,1.5vw,14px);padding:3px 8px;border-radius:8px;color:#0b0a06;
   opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;white-space:nowrap;pointer-events:none;z-index:3}
 .ceb-lbl.lit{opacity:1;transform:translateY(0)}
