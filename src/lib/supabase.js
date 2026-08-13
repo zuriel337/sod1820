@@ -3492,14 +3492,27 @@ export async function getWaGroups() {
     .select('group_id,enabled,max_per_hour,ai_chat,created_at').order('enabled', { ascending: false });
   return data || [];
 }
-// יומן-הודעות WhatsApp (wa_bot_log — policy wabl_admin_read) — טקסט/ערך/פעולה.
+// יומן-הודעות WhatsApp (wa_bot_log — policy wabl_admin_read) — נכנס+תשובת-בוט באותה שורה.
+// כולל reply_out (תשובת-הבוט) · msg_id (מזהה-ספק) · bot_mode + sender (טלפון) — לפאנל-הקשר-מלא. READ-ONLY.
 export async function getWaLog({ group = null, sender = null, limit = 80 } = {}) {
   if (!supabase) return [];
   let q = supabase.from('wa_bot_log')
-    .select('group_id,sender,sender_name,text_in,value,action,created_at')
+    .select('group_id,sender,sender_name,text_in,reply_out,msg_id,bot_mode,value,action,created_at')
     .order('created_at', { ascending: false }).limit(limit);
   if (group) q = q.eq('group_id', group);
   if (sender) q = q.ilike('sender_name', `%${sender}%`);
+  const { data } = await q;
+  return data || [];
+}
+// 🕐 Timeline של שיחה אחת — כל ההודעות של אותו group_id (הקשר קיים, לא טבלת-conversations חדשה). READ-ONLY.
+// ממוין ישן→חדש (סדר-שיחה). כל שורה = מה האדם שלח (text_in) + מה הבוט החזיר (reply_out).
+export async function getWaThread({ groupId = null, sender = null, limit = 60 } = {}) {
+  if (!supabase || (!groupId && !sender)) return [];
+  let q = supabase.from('wa_bot_log')
+    .select('group_id,sender,sender_name,text_in,reply_out,msg_id,bot_mode,value,action,created_at')
+    .order('created_at', { ascending: true }).limit(limit);
+  if (groupId) q = q.eq('group_id', groupId);
+  else if (sender) q = q.eq('sender', sender);
   const { data } = await q;
   return data || [];
 }

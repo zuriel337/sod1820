@@ -9,7 +9,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
-  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData,
+  getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData, getWaThread,
 } from "../lib/supabase.js";
 import { analyzeTime } from "../lib/timeFlow.js";
 import { buildMethodProfile, analyzeFull } from "../lib/analysisFlow.js";
@@ -103,6 +103,9 @@ function normWa(r) {
     engineVerified: r.value != null, values: r.value != null ? [r.value] : [], hasCross: false,
     inFeed: false, inGraph: false, published: /saved|channel|vip/.test(act),
     value: r.value,
+    // 📱 הקשר-מלא (wa_bot_log): טלפון · תשובת-בוט · מזהה-ספק · מצב-בוט · action=provenance
+    phone: r.sender || null, senderName: r.sender_name || null, botReply: r.reply_out || null,
+    msgId: r.msg_id || null, botMode: r.bot_mode || null, action: act,
   };
 }
 function normPost(r) {
@@ -633,6 +636,112 @@ function FullAnalysis({ item }) {
   );
 }
 
+// 📱 ערוץ מהודעת-WhatsApp: group_id → DM (@c.us) · קבוצה (@g.us) · תווית-אנוש.
+function waChannel(group) {
+  const g = String(group || "");
+  if (/@c\.us$/.test(g)) return { t: "DM · פרטי", c: "#25d366", phone: g.replace(/@c\.us$/, "") };
+  if (/@g\.us$/.test(g)) return { t: "קבוצה", c: "#3ea6ff", phone: null };
+  return { t: g || "—", c: "#8a8a95", phone: null };
+}
+// 📱 הקשר-מלא של הודעת WhatsApp/DM — זהות · הודעה · תשובת-בוט · timeline · provenance · מצב-פעולות.
+// ⛔ READ בלבד (wa_bot_log/getWaThread) · זהות דרך ה-resolver הקיים (UNKNOWN כשאין) · אין טבלת-conversations חדשה · אין שליחה.
+function WaContext({ item }) {
+  const [thread, setThread] = useState(null);
+  useEffect(() => {
+    if (item?.srckind !== "wa" || (!item?.group && !item?.phone)) { setThread(null); return; }
+    let alive = true; setThread(null);
+    getWaThread({ groupId: item.group, sender: item.phone, limit: 60 })
+      .then(rows => { if (alive) setThread(rows || []); }).catch(() => { if (alive) setThread([]); });
+    return () => { alive = false; };
+  }, [item?.group, item?.phone, item?.srckind]);
+  if (item?.srckind !== "wa") return null;
+  const w = item.writer;
+  const ch = waChannel(item.group);
+  const phone = item.phone || ch.phone;
+  const matched = w?.state === "matched";
+  const contributor = matched ? (w.canonical || w.contributor) : null;
+  const vip = contributor?.vip;
+  // מצב-פעולות (מנועים קיימים בלבד) — done/pending/blocked/missing + why. Human-Gate: המנוע מציע, לא מקדם.
+  const hasHeb = /[א-ת]/.test(item.raw || "");
+  const acts = [
+    ["🔬 ניתוח מלא", hasHeb ? { s: "done", why: "רץ למטה (חילוץ·DB-First·מנוע·ציר·המלצות)" } : { s: "missing", why: "אין טקסט עברי לחילוץ" }],
+    ["🔢 גימטריה", item.value != null ? { s: "done", why: `ערך ${item.value} כבר חושב` } : hasHeb ? { s: "pending", why: "המנוע יחשב בניתוח — Human-Gate" } : { s: "missing", why: "אין ביטוי" }],
+    ["📚 חיפוש בגוף-הידע", hasHeb ? { s: "pending", why: "smart-search קיים — הרצה = Human-Gate" } : { s: "missing", why: "אין שאילתה" }],
+    ["🕐 בדיקת ציר/זמן", { s: "pending", why: "שלב-הזמן רץ בניתוח (CHECK_EXISTING_AXIS_DATA)" }],
+    ["🧠 AI (רזיאל)", { s: "pending", why: "getAiAnalysis קיים — הרצה = Human-Gate" }],
+    ["👤 זיהוי כתב/משתמש", matched ? { s: "done", why: `זוהה: ${contributor?.display_name}` } : { s: "missing", why: "לא-מזוהה (UNKNOWN) — לא מנחשים" }],
+    ["✍️ השב (בוט)", { s: "blocked", why: "שלב 3 — נתיב wa_send הקיים דרך edge אדמין (טרם נבנה)" }],
+  ];
+  const Row = ({ k, v }) => (
+    <div style={{ display: "flex", gap: 8, fontSize: 12, padding: "2px 0", borderBottom: `1px solid ${C.border}`, flexWrap: "wrap" }}>
+      <span style={{ color: C.faint, minWidth: 92 }}>{k}</span>
+      <span style={{ color: C.goldLight, flex: 1, minWidth: 0, wordBreak: "break-word" }}>{v}</span>
+    </div>
+  );
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: "#25d36688", background: "#f2fbf5" }}>
+      {/* 👤 מי זה */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ color: "#128c4b", fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>📱 הקשר ההודעה</span>
+        <span style={{ ...pill(ch.c) }}>{ch.t}</span>
+        {matched
+          ? <span style={{ ...pill("#4caf7d") }}>✓ {contributor?.display_name}</span>
+          : w?.state === "ambiguous"
+            ? <span style={{ ...pill("#c79a2e") }}>⚠️ מועמדים: {(w.candidates || []).map(c => c.display_name).join(" / ")}</span>
+            : <span style={{ ...pill("#8a8a95") }}>❔ UNKNOWN — לא מזוהה</span>}
+        {vip && <span style={{ ...pill("#b08bd8") }}>👑 VIP</span>}
+      </div>
+      <Row k="שם" v={item.senderName || item.author || "—"} />
+      <Row k="טלפון" v={phone || "— (לא זמין ברשומה)"} />
+      <Row k="זהות" v={matched ? `contributor: ${contributor?.display_name}${vip ? " · VIP" : ""}` : (w?.state === "ambiguous" ? "מועמד — דורש מיזוג-אנושי (לא קנוני)" : "UNKNOWN — לא נבחר contributor")} />
+      <Row k="תאריך/שעה" v={fmt(item.ts)} />
+      <Row k="provenance" v={`action=${item.action || "—"}${item.botMode ? ` · mode=${item.botMode}` : ""}${item.msgId ? ` · msg=${item.msgId}` : ""}`} />
+
+      {/* 💬 הודעה + 🤖 תשובת-הבוט */}
+      <div style={{ marginTop: 10 }}>
+        <div style={{ color: "#128c4b", fontWeight: 800, fontSize: 12 }}>💬 ההודעה המלאה</div>
+        <div style={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 10px", fontSize: 13, color: "#1b1d22", whiteSpace: "pre-wrap", overflowWrap: "anywhere", marginTop: 3 }}>{item.raw || <span style={{ color: C.faint }}>(ללא טקסט)</span>}</div>
+        <div style={{ color: "#128c4b", fontWeight: 800, fontSize: 12, marginTop: 8 }}>🤖 תשובת הבוט</div>
+        <div style={{ background: "#eef7f0", border: `1px solid #25d36633`, borderRadius: 10, padding: "8px 10px", fontSize: 13, color: "#1b1d22", whiteSpace: "pre-wrap", overflowWrap: "anywhere", marginTop: 3 }}>
+          {item.botReply ? (/^\[.*\]$/.test(item.botReply) ? <span style={{ color: C.faint }}>{item.botReply} (marker — הטקסט המלא ב-timeline/bot_outbox)</span> : item.botReply) : <span style={{ color: C.faint }}>(אין תשובה מתועדת בשורה)</span>}
+        </div>
+      </div>
+
+      {/* 🕐 Timeline — כל השיחה לפי group_id (הקשר קיים, לא טבלה חדשה) */}
+      <div style={{ marginTop: 10 }}>
+        <div style={{ color: "#128c4b", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>🕐 Timeline · כל השיחה {thread ? `(${thread.length})` : "…"}</div>
+        {thread === null ? <div style={{ color: C.faint, fontSize: 12 }}>טוען שיחה…</div>
+          : !thread.length ? <div style={{ color: C.faint, fontSize: 12 }}>אין הודעות נוספות בשיחה זו.</div>
+            : (
+              <div style={{ display: "grid", gap: 6, maxHeight: 260, overflowY: "auto", paddingInlineEnd: 2 }}>
+                {thread.map((m, i) => (
+                  <div key={i} style={{ borderInlineStart: `2px solid ${C.border}`, paddingInlineStart: 8 }}>
+                    <div style={{ fontSize: 9.5, color: C.faint }}>{fmt(m.created_at)}{m.action ? ` · ${m.action}` : ""}</div>
+                    {m.text_in && <div style={{ fontSize: 12.5, color: "#1b1d22", background: "#fff", border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 8px", marginTop: 2, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}><b style={{ color: "#128c4b" }}>👤</b> {m.text_in}</div>}
+                    {m.reply_out && <div style={{ fontSize: 12.5, color: "#1b1d22", background: "#eef7f0", borderRadius: 8, padding: "5px 8px", marginTop: 3, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}><b>🤖</b> {/^\[.*\]$/.test(m.reply_out) ? <span style={{ color: C.faint }}>{m.reply_out}</span> : m.reply_out}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+      </div>
+
+      {/* ⚙️ פעולות — מנועים קיימים בלבד + מצב (בוצע/ממתין/חסום/חסר) */}
+      <div style={{ marginTop: 10, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
+        <div style={{ color: "#128c4b", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>⚙️ פעולות (מנועים קיימים · Human-Gate)</div>
+        <div style={{ display: "grid", gap: 4 }}>
+          {acts.map(([lbl, r]) => { const stt = ACT_STATE[r.s]; return (
+            <div key={lbl} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, flexWrap: "wrap" }}>
+              <span style={{ ...pill(stt.c), minWidth: 84, textAlign: "center" }}>{stt.t}</span>
+              <b style={{ color: C.goldLight, minWidth: 130 }}>{lbl}</b>
+              <span style={{ color: C.faint, flex: 1, minWidth: 140 }}>{r.why}</span>
+            </div>
+          ); })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // מקרא-פעולות ל-DetailPanel (מצב מדויק לכל פעולה).
 const ACTIONS = [["close", "סגור-מהתור"], ["engine", "בדוק-מנוע"], ["atlas", "→ Atlas"], ["axis", "→ שכבת-הציר"], ["core", "קדם→CORE"], ["notarikon", "נוטריקון (ר״ת/ס״ת)"]];
 // 🗂️ Row Detail/Action Panel חכם — הפעולות משתנות לפי סוג-החומר (לא 20 כפתורים בשורה).
@@ -695,6 +804,9 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
             </>
           )}
         </div>
+
+        {/* 📱 הקשר-הודעה (WhatsApp/DM) — זהות · הודעה · תשובת-בוט · timeline · provenance · פעולות. READ בלבד. */}
+        <WaContext item={item} />
 
         {/* 🔬 ניתוח מלא — Orchestration (A-H + מבנה + המלצות), READ/preview · פעולות למטה תחת Human-Gate */}
         <FullAnalysis item={item} />
