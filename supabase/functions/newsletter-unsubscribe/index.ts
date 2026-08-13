@@ -32,7 +32,7 @@ async function process(e: string, t: string): Promise<{ ok: boolean; email: stri
   if (!email || t !== await hmac(email)) return { ok: false, email: "", reason: "bad_link" };
   try {
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
-    await admin.from("subscribers").update({ active: false }).eq("email", email);
+    await admin.from("subscribers").update({ active: false, unsubscribed_at: new Date().toISOString() }).eq("email", email);
   } catch { /* גם אם נכשל — לא חושפים */ }
   return { ok: true, email };
 }

@@ -15,7 +15,7 @@ import { trackConversion } from "../lib/marketing.js";
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
 //   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false }) {
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
@@ -70,8 +70,29 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     color: outline ? gold : (P.onAccent || "#1a0e00"),
   };
 
+  // ☑️ וריאנט צ'קבוקס — «דשבורד מעקב» קטן: שורה עם וי לכל נושא (קטגוריה/כתב), בלי פוש.
+  // אותו מנוע-מעקב קנוני (getNotificationPrefs/watchToggle), רק תצוגה כצ'קבוקס.
+  if (checkbox) {
+    return (
+      <button onClick={toggle} disabled={busy} role="checkbox" aria-checked={following}
+        title={following ? "בטל מעקב" : explainer || label}
+        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", cursor: busy ? "wait" : "pointer",
+          background: following ? soft : "transparent", border: `1px solid ${following ? P.accent : P.border}`,
+          borderRadius: 10, padding: "9px 13px", textAlign: "start", direction: "rtl", minHeight: 44 }}>
+        <span aria-hidden style={{ flex: "0 0 auto", width: 21, height: 21, borderRadius: 6,
+          border: `2px solid ${following ? P.accent : P.border}`, background: following ? P.accent : "transparent",
+          color: following ? (P.onAccent || "#1a0e00") : "transparent", display: "grid", placeItems: "center",
+          fontSize: 13, fontWeight: 900, transition: "all .15s ease" }}>✓</span>
+        <span style={{ flex: 1, minWidth: 0, color: following ? gold : P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {icon} {label}
+        </span>
+        {following && <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>עוקב</span>}
+      </button>
+    );
+  }
+
   // הצעת-Push אחרי Follow (חוק #4: הפעולה הבאה בלבד) — רק אם הופעל עכשיו, יש תמיכה, ועוד לא פעיל
-  const pushOffer = justFollowed && following && pushReady && !pushOn && (
+  const pushOffer = !noPush && justFollowed && following && pushReady && !pushOn && (
     <div style={{ marginTop: 9, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: gate ? "center" : "flex-start" }}>
       <span style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5 }}>📱 רוצה גם התראה מיידית?</span>
       <button onClick={turnOnPush} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${P.accent}`, color: gold, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>הפעל התראות</button>
@@ -110,7 +131,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     <div style={{ direction: "rtl" }}>
       <button onClick={toggle} disabled={busy} aria-pressed={following}
         title={following ? "לחצו לביטול" : explainer || label} style={btn}>
-        {icon} {following ? "עוקבים ✓" : label}
+        {icon} {following ? (followLabel || "עוקבים ✓") : label}
       </button>
       {!following && explainer && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
       {pushOffer}{pushDone}

@@ -7,6 +7,7 @@ import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { setStream } from "../lib/stream.js";
 import MatrixRain from "../components/MatrixRain.jsx";
+import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 
 // ===== בית-הקוד · עדשת «קוד המציאות» (/reality + root-swap) =====
 // עץ אחד, עדשה שנייה: אותו API/DB כמו בית-המלוכה — רק מסגור (כהה/ניאון/טכנולוגי).
@@ -44,9 +45,13 @@ function PostCard({ p }) {
   return (
     <Link to={`/${p.slug}`} style={{ ...card, borderColor: "rgba(127,200,255,0.45)", background: "rgba(127,200,255,0.08)" }}>
       {p.image_url && (
-        <div style={{ marginBottom: 12, borderRadius: 10, overflow: "hidden", maxHeight: 200 }}>
+        <div style={{ position: "relative", marginBottom: 12, borderRadius: 10, overflow: "hidden", maxHeight: 200 }}>
           <img src={p.image_url} alt="" style={{ width: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
+          {postHasVideo(p) && <VideoBadge variant="corner" />}
         </div>
+      )}
+      {!p.image_url && postHasVideo(p) && (
+        <div style={{ marginBottom: 8 }}><VideoBadge variant="chip" /></div>
       )}
       <div style={{ fontFamily: F.regal, fontSize: 19, fontWeight: 800, color: "#eaf2fa", lineHeight: 1.35, marginBottom: 6 }}>
         {p.title}
@@ -69,6 +74,7 @@ function MiniCard({ p }) {
         ? <img src={p.image_url} alt="" style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} loading="lazy" />
         : <span style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0, background: "rgba(127,200,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🔢</span>}
       <span style={{ color: "#bccedd", fontFamily: F.regal, fontSize: 13.5, fontWeight: 700, lineHeight: 1.4 }}>{stripHtml(p.title)}</span>
+      {postHasVideo(p) && <VideoBadge variant="chip" style={{ flexShrink: 0, marginInlineStart: "auto" }} />}
     </Link>
   );
 }

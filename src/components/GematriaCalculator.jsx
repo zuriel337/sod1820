@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
+import { track } from "../lib/tracking.js";
 import { supabase, addWallWord, logSearch, saveWallWordPrivate, getWallPrivate } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { setAnon } from "../lib/privacy.js";
@@ -157,6 +158,9 @@ export default function GematriaCalculator({ seed, onResult, research = false })
   }, [word]); // eslint-disable-line
 
   // שמירה + רישום חיפושים (עץ אחד).
+  // מזהה המילה שכבר נמדדה כ«חיפוש-גימטריה» (dedup) — מאותחל ל-seed כדי שטעינת-קישור לא תיספר כחיפוש.
+  const gemTracked = useRef(seed != null && seed !== "" ? String(seed) : "");
+
   // ציבורי (כולל אדמין): נשמר לקיר הציבורי ונרשם לרשימת החיפושים (אלא אם מצב אנונימי).
   // מצב מחקר (research): נשמר רק לקיר הפרטי שלי — לא לקיר הציבורי ולא לרשימת החיפושים.
   useEffect(() => {
@@ -165,6 +169,14 @@ export default function GematriaCalculator({ seed, onResult, research = false })
       // onResult = חישוב טהור בצד הלקוח → פולטים מיד, לפני כל I/O (QuickActions תלוי בו;
       // אסור שיהיה תלוי בשמירה ל-DB שעלולה להיכשל/להיתקע ברשת/הרשאות).
       if (onResult) onResult({ word, ragil: ragilVal });
+      // 📊 מדידת חיפוש-גימטריה ל-pipeline האירועים (events) — הפעולה החתומה ביותר של האתר
+      //    ואות אנושי מובהק (בוט לא מקליד מילה ומחשב). track() כותב visitor_events + events;
+      //    בוט ממילא נזרק ב-ingest_event. פעם אחת למילה מיושבת (dedup ב-ref), *לא* בטעינת seed.
+      //    במצב-מחקר שולחים ערך בלבד (בלי המילה) לכבוד הפרטיות; ציבורי שולח גם את המילה («מה מחפשים»).
+      if (word !== gemTracked.current) {
+        gemTracked.current = word;
+        try { track("gematria", research ? null : word.slice(0, 60), "compute", { value: ragilVal }); } catch { /* מדידה לעולם לא שוברת גלישה */ }
+      }
       try {
         if (research) {
           await saveWallWordPrivate(word, ragilVal);     // 🔬 מחקר אישי — פרטי בלבד

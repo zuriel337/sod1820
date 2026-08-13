@@ -38,6 +38,38 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
   return { posts: data ?? [], total: count ?? 0 };
 }
 
+// 🙈 אדמין — הסתר/הצג פוסט מ«עדכונים אחרונים» בבית (posts.home_hidden דרך RPC מאובטח rd_is_admin).
+//    הפוסט נשאר חי בקטגוריות/‏/post/בעמוד עצמו — מוסתר רק מרצועת-הבית.
+export async function adminSetPostHomeHidden(id, hidden) {
+  if (!supabase || id == null) return false;
+  const { error } = await supabase.rpc('admin_set_post_home_hidden', { p_id: id, p_hidden: !!hidden });
+  return !error;
+}
+// 🙈 אדמין — הסתר/הצג פריט-ערוץ מהטיקר ומכל הפידים (channel_updates.status='hidden'/'live';
+//    כל הרכיבים מסננים status='live' → הסתרה אחת מעלימה מכל מקום).
+export async function adminSetChannelUpdateHidden(id, hidden) {
+  if (!supabase || id == null) return false;
+  const { error } = await supabase.rpc('admin_set_channel_update_hidden', { p_id: id, p_hidden: !!hidden });
+  return !error;
+}
+// 🙈 אדמין — הסתר/הצג צופן מ«עדכונים אחרונים» בבית (els_records.home_hidden; נשאר חי ב-/codes ובספרייה).
+export async function adminSetCipherHomeHidden(id, hidden) {
+  if (!supabase || id == null) return false;
+  const { error } = await supabase.rpc('admin_set_cipher_home_hidden', { p_id: id, p_hidden: !!hidden });
+  return !error;
+}
+// ↩️ אדמין — כל הפריטים שהוסתרו (לפאנל «בטל הסתרה»): פוסטים · צפנים · פריטי-ערוץ · רמזי-זרם.
+export async function getHiddenHomeItems() {
+  if (!supabase) return { posts: [], ciphers: [], channels: [], hints: [] };
+  const [posts, ciphers, channels, hints] = await Promise.all([
+    supabase.from('posts').select('id,slug,title,image_url').eq('home_hidden', true).order('modified', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+    supabase.from('els_records').select('id,slug,title,search_term').eq('home_hidden', true).order('created_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+    supabase.from('channel_updates').select('id,text,credit,channel,image_url').eq('status', 'hidden').order('created_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+    supabase.from('gallery_images').select('id,name,primary_value,image_url,thumb_url').eq('source', 'update').eq('curator_hidden', true).order('stream_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
+  ]);
+  return { posts, ciphers, channels, hints };
+}
+
 // 🎬 פוסטי «קוד המציאות» — עדשת המציאות/קולנוע. מאחד את כל התגיות של העולם הזה
 // (מימד חמש · מטריקס · משחקי הדיונון · קולנוע/סרטים) + קטגוריית «הצופן בסרטים», ממוזג
 // ומדורג לפי תאריך-עדכון. עץ אחד — לא טבלה חדשה, רק עדשה על posts.
@@ -104,6 +136,142 @@ export async function getAuthorGalleryVideos(author, { limit = 12 } = {}) {
   } catch { return []; }
 }
 
+// 🎬 סרטוני-קטגוריה (למשל 'וידאו') לספריית-הסרטים — כל פוסט בקטגוריה נכנס אוטומטית.
+// החילוץ (mp4 מאוחסן / קישור YouTube) נעשה בצד-השרת (RPC get_category_videos) כדי לא לשלוח
+// את גוף-הפוסטים ללקוח. פוסט בלי מקור-ניגון מזוהה (post_only) → כרטיס שמפנה לפוסט.
+export async function getCategoryVideos(category = "וידאו", { limit = 60 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc("get_category_videos", { p_category: category, p_limit: limit });
+    if (error || !data) return [];
+    return data.map(r => ({
+      yt: r.yt || null,
+      title: stripHtml(r.title || ""),
+      slug: r.slug || null,
+      video_url: r.video_url || null,
+      poster_url: r.poster_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),
+      uploaded_at: r.uploaded_at || null,
+      author: r.author || null,
+      featured: false, pinned: false, cipher_slug: null,
+      is_cipher: !!r.is_cipher,
+      post_only: !!r.post_only,
+    }));
+  } catch { return []; }
+}
+
+// 🎬 גלריית-הסרטים בבית — **החומר שלנו בלבד** (מציאות/צפנים/מספרים), החדש ראשון, כוכב על צפנים.
+// עדשה ממוקדת: פוסטים עם וידאו מתנגן בקטגוריות שלנו (צפונות בתורה·הצופן בסרטים·תיעוד אירועים·
+// סוד האותיות והמספרים), **בלי הצפת החיזוק/הרצאות** (מחריגים «מזכה הרבים» + קטגוריות-חיזוק).
+// מחליף את המשיכה הישנה מכל קטגוריית «וידאו» (185 פוסטים, רובם לא שלנו). is_cipher=צופן→כוכב.
+export async function getRealityVideos({ limit = 40 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.rpc("get_reality_videos", { p_limit: limit });
+    if (error || !data) return [];
+    return data.map(r => ({
+      yt: r.yt || null,
+      title: stripHtml(r.title || ""),
+      slug: r.slug || null,
+      video_url: r.video_url || null,
+      poster_url: r.poster_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),
+      uploaded_at: r.uploaded_at || null,
+      author: r.author || null,
+      featured: false, pinned: false, cipher_slug: null,
+      is_cipher: !!r.is_cipher,
+      post_only: !!r.post_only,
+    }));
+  } catch { return []; }
+}
+
+// 🆕 2 הפוסטים האחרונים (לפי זמן-עדכון) — לרצועת-הגילוי לנוחתים מגוגל. מחזיר slug/כותרת/כרזה/עדכון.
+export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.from("posts")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags")
+      .not("slug", "is", null)
+      .order("modified", { ascending: false, nullsFirst: false })
+      .limit(limit + 5);
+    if (error || !data) return [];
+    return data
+      .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
+      .slice(0, limit)
+      .map(p => ({ slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
+  } catch { return []; }
+}
+
+// 🎬 סטוריז-הסרטונים שלנו — **כל מה שעולה לקטגוריית וידאו** (החומר שלנו: צפנים + מציאות + מספרים,
+// בלי הצפת חיזוק), כרשימת-סטוריז שמתנגנת (mp4 או יוטיוב). המבקר רואה עד 3 לא-נצפים; מי שצפה
+// באחד — נעלם לו (seen), והבא-אחריו-אחורה צף. תאריך-עלייה לכל אחד. ציון is_cipher לצפנים (🦅).
+export async function getVideoStories({ limit = 10 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase.rpc("get_reality_videos", { p_limit: 200 });
+    if (!Array.isArray(data)) return [];
+    return data
+      .filter(r => r && (r.video_url || r.yt))
+      .slice(0, limit)
+      .map(r => ({
+        id: `vid:${r.slug}`,
+        text: stripHtml(r.title || ""),
+        image_url: r.video_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),   // mp4 מנגן ב-<video>; יוטיוב מזוהה דרך yt
+        yt: r.yt || null,
+        thumb_url: r.poster_url || (r.yt ? `https://i.ytimg.com/vi/${r.yt}/hqdefault.jpg` : null),
+        link_url: r.slug ? "/" + r.slug : null,
+        is_video: true, ours: true, is_cipher: !!r.is_cipher, created_at: r.uploaded_at, priority: 2000,
+      }));
+  } catch { return []; }
+}
+
+// 📌 הצופן הנעוץ — סטורי יחיד שנעוץ ראשון ברצועת-הצ'אט. **מנגן את הסרט עצמו** (image_url=mp4 →
+// StoryViewer מנגן וידאו), לא מנווט לפוסט. המקור: home_videos (הסרטון-צופן המנוהל, mp4 נעוץ/אחרון).
+export async function getPinnedCipherStory() {
+  if (!supabase) return null;
+  try {
+    // הצופן החדש ביותר בקטגוריית «צפונות בתורה» שיש לו וידאו מתנגן (mp4) — אוטומטי: כל צופן
+    // חדש שיעלה עם סרטון יינעץ ראשון. ה-RPC כבר מחלץ video_url ומסדר לפי תאריך יורד.
+    const { data } = await supabase.rpc("get_category_videos", { p_category: "צפונות בתורה", p_limit: 30 });
+    const v = Array.isArray(data) ? data.find(r => r && r.video_url) : null;
+    if (!v) return null;
+    return {
+      id: `cipher:${v.slug}`,
+      text: stripHtml(v.title || ""),
+      image_url: v.video_url,                                                    // mp4 → הסטורי מנגן את הסרט
+      thumb_url: v.poster_url || (v.yt ? `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg` : null),
+      link_url: v.slug ? "/" + v.slug : null,
+      is_video: true, cipher: true, created_at: v.uploaded_at, priority: 2000,
+    };
+  } catch { return null; }
+}
+
+// 🔯 «צפונות בתורה» — סטוריז ממותגים (כתר «כי לה׳ המלוכה») לדף הצ'אט. עדשה על הפוסטים
+// לפי **קטגוריה** (צפונות בתורה + הצופן בסרטים), לא תגיות. לחיצה מנווטת לפוסט (link_url).
+// מוחזר בצורת שורת-סטורי (כמו channel_updates) כדי לעבוד עם אותו רכיב קנוני (OrGeulaStoryColumn).
+export async function getTzofonStories({ limit = 30 } = {}) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("id, slug, title, image_url, thumb_url, date")
+      .overlaps("categories", ["צפונות בתורה", "הצופן בסרטים"])
+      .not("image_url", "is", null)
+      .order("date", { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return data.map(r => ({
+      id: r.id,
+      text: stripHtml(r.title || ""),
+      image_url: r.thumb_url || r.image_url,   // כרזה (תמונה) — התצוגה מציגה אותה; הניגון בפוסט
+      thumb_url: r.thumb_url || r.image_url,
+      link_url: "/" + r.slug,
+      is_video: true,                          // כרטיס-וידאו (מסמן ▶) — הסרטון מתנגן בפוסט
+      created_at: r.date,
+      priority: 100,
+      credit: "צפונות בתורה · סוד 1820",
+    }));
+  } catch { return []; }
+}
+
 // סרטון-גלריה המקושר לצופן (cipher_slug) — לחיבור דו-כיווני בעמוד הצופן /codes/:slug
 export async function getHomeVideoByCipher(cipherSlug) {
   if (!supabase || !cipherSlug) return null;
@@ -165,6 +333,28 @@ export async function getWriterVerifiedClaims(names = []) {
     const { data } = await supabase.from("research_contributions")
       .select("id,author_name,title,gematria_claim,created_at")
       .in("author_name", uniq).not("gematria_claim", "is", null).limit(200);
+    return data || [];
+  } catch { return []; }
+}
+
+// 🎬 תמלול רב-לשוני לסרטון (video_transcription_law) — מחזיר את כל השורות המפורסמות
+// לפי זהות הסרטון. מקבל אחד מ: videoKey (yt id / reel shortcode / slug), yt, או sourceUrl.
+// מוחזר ממוין: המקור (is_original) קודם, ואז שאר השפות. הלקוח קורא ישירות (RLS: status='published').
+export async function getVideoTranscripts({ videoKey, yt, sourceUrl } = {}) {
+  if (!supabase) return [];
+  const key = videoKey || yt || sourceUrl;
+  if (!key) return [];
+  try {
+    let dbq = supabase
+      .from("video_transcripts")
+      .select("video_key, yt, source_url, title, lang, transcript, summary, is_original, translated_by, updated_at");
+    if (videoKey) dbq = dbq.eq("video_key", videoKey);
+    else if (yt) dbq = dbq.eq("yt", yt);
+    else dbq = dbq.eq("source_url", sourceUrl);
+    const { data, error } = await dbq
+      .order("is_original", { ascending: false })
+      .order("lang", { ascending: true });
+    if (error) return [];
     return data || [];
   } catch { return []; }
 }
@@ -2636,6 +2826,8 @@ export function adaptPost(row) {
     slug: row.slug,
     author: row.author ?? '',
     source: row.source ?? null,
+    categories: row.categories ?? [],   // top-level — כדי שכרטיסי-פוסט יזהו «וידאו» בלי לחפור ב-_embedded
+    tags: row.tags ?? [],
     _embedded: {
       'wp:featuredmedia': row.image_url ? [{ source_url: row.image_url }] : [],
       'wp:term': [

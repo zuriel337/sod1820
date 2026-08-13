@@ -4,33 +4,35 @@ import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { resolveAuthor } from "../lib/authors.js";
 
-// 🔔 מעקב בתחתית פוסט — subscription_funnel_law v10: הפוסט הוא **שער**, לא יעד.
-// שתי פעולות קטנות ומובחנות, שתיהן דרך ה-WatchButton הקנוני היחיד והמנוע הקנוני:
-//   📁 עקוב אחרי הקטגוריה (cat:<שם>)  ·  ✍️ עקוב אחרי הכתב (author:<שם>)
-// אין post:<id>, אין מעקב-אחרי-פוסט, אין fan-out לפוסט. לא נראה כמו שיתוף/ניוזלטר —
-// אזור-מעקב מובחן (קו-הפרדה + כותרת), פילים קטנות ממורכזות, בלי עומס.
+// 🔔 דשבורד-מעקב בתחתית פוסט — subscription_funnel_law v11: הפוסט הוא **שער**, לא יעד.
+// «דשבורד קטן»: צ'קבוקס (וי) לכל קטגוריה של הפוסט + שורת-כתב — מסמנים וי על מה שרוצים
+// לעקוב, **בלי פוש**. שתי קטגוריות → שני צ'קבוקסים (בקשת צוריאל). הכל דרך ה-WatchButton
+// הקנוני היחיד והמנוע הקנוני (cat:<שם> / author:<שם>). אין post:<id>, אין fan-out לפוסט.
 // paletteMode=postMode כדי שיתאים לצבע-הפוסט (נעול-כהה מול מצב-אתר בהיר).
 export default function PostFollowBox({ categories = [], author = "", postMode = null }) {
   const auto = usePalette();
   const P = postMode ? (PALETTES[postMode] || auto) : auto;
-  const primaryCat = (categories || []).find(Boolean) || null;
+  const cats = [...new Set((categories || []).filter(Boolean))];
   const by = resolveAuthor(author);
   const hasWriter = by.name && by.name !== "המערכת";
-  if (!primaryCat && !hasWriter) return null;
+  if (!cats.length && !hasWriter) return null;
 
   return (
-    <div style={{ marginTop: 34, paddingTop: 20, borderTop: `1px solid ${P.border}`, textAlign: "center", direction: "rtl" }}>
-      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, marginBottom: 12 }}>
-        🔔 רוצה לדעת כשיש חדש?
+    <div style={{ marginTop: 34, paddingTop: 20, borderTop: `1px solid ${P.border}`, direction: "rtl" }}>
+      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, marginBottom: 3, textAlign: "center" }}>
+        🔔 עקוב — וההתראה תחכה לך באתר (בפעמון), לא במייל
       </div>
-      <div style={{ display: "flex", gap: 9, justifyContent: "center", flexWrap: "wrap" }}>
-        {primaryCat && (
-          <WatchButton topic={`cat:${primaryCat}`} source="post_footer" compact paletteMode={postMode}
-            icon="📁" label="עקוב אחרי הקטגוריה" explainer="" />
-        )}
+      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginBottom: 14, textAlign: "center" }}>
+        סמן וי על מה שמעניין אותך.
+      </div>
+      <div style={{ maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8 }}>
+        {cats.map((cat) => (
+          <WatchButton key={`cat:${cat}`} topic={`cat:${cat}`} source="post_footer" checkbox noPush
+            paletteMode={postMode} icon="📁" label={cat} explainer="" />
+        ))}
         {hasWriter && (
-          <WatchButton topic={`author:${by.name}`} source="post_footer" compact ghost paletteMode={postMode}
-            icon="✍️" label="עקוב אחרי הכתב" explainer="" />
+          <WatchButton key={`author:${by.name}`} topic={`author:${by.name}`} source="post_footer" checkbox noPush
+            paletteMode={postMode} icon="✍️" label={`מאת ${by.name}`} explainer="" />
         )}
       </div>
     </div>

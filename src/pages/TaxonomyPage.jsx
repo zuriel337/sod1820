@@ -9,6 +9,7 @@ import { openNumberDrawer } from "../lib/numberDrawer.js";
 import PopularPrayersBox, { isPrayerTag } from "../components/PopularPrayersBox.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import WatchButton from "../components/WatchButton.jsx";
+import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 
 // ===== דף תגית / קטגוריה — בעיצוב האתר (זהב מלכותי), "טען עוד" במקום עימוד =====
 // כל פוסט מקושר לדף הפוסט; גימטריית השם מקושרת לדף הישות + פותחת את מגירת המספר.
@@ -30,6 +31,7 @@ function PostCard({ p, i }) {
       }}>
         {!image && <span className="tax-thumb-mark">✦</span>}
         <span className="tax-thumb-holo" />
+        {postHasVideo(p) && <VideoBadge variant="corner" style={{ top: isWarmNumber(gem) ? 38 : 8 }} />}
         {isWarmNumber(gem) && <span className="tax-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
       </div>
       <div className="tax-body">

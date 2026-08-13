@@ -24,6 +24,7 @@ function rowToItem(m) {
     name: m.title || m.search_term, term: m.search_term,
     skip: m.skip_distance || 0, scope: m.scope || "torah",
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
+    hideMain: !!m.positions?.hideMain,   // 📌 ציר מוסתר — הצופן נטען עם הממצאים בלבד, בלי עמוד-השדרה
     postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
     desc: m.description || "",   // 📖 הסבר-הצופן → מוצג בכלי מתחת למטריצה
     // 🖼 תצוגה-מקדימה בגלריה = ממוזערת (thumb) ולא הכרטיס המלא — חיסכון ~5-6× Egress, טעינה קלה.
@@ -119,7 +120,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       const imageUrl = (d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
       // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
       const positions = { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
-        quality: d.quality || null, shapeUrl: shapeUrl || null };
+        quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain };
 
       // 🔄 #2 מניעת-כפילות (unified_graph_law): שמירה בזמן שצופן קיים פתוח — אותו מונח·דילוג·היקף —
       //    היא «עדכון הצופן», לא צופן חדש. אדמין → עדכון-במקום (preserve_linked_row). אחר → נשמר

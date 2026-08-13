@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
-import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
-import OrGeulaStoryColumn from "../components/OrGeulaStoryColumn.jsx";
+import { MergedStoriesRail, LandingDiscoveryStories } from "../components/OrGeulaStoryColumn.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -21,8 +20,10 @@ import CommunityForming from "../components/CommunityForming.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
 import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
+import UpdatesBox from "../components/UpdatesBox.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
+import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp } from "../lib/tracking.js";
@@ -1205,6 +1206,7 @@ function WPArticleCard({ post, onPost }) {
         borderBottom: excerpt ? `1px solid ${C.border}` : "none",
         fontSize: 10.5, color: C.muted, fontFamily: F.heading,
       }}>
+        {postHasVideo(post) && <VideoBadge variant="chip" />}
         <span>מאת {author}</span>
         <span style={{ color: C.border }}>|</span>
         <span style={{ direction: "ltr", display: "inline-block" }}>{date}</span>
@@ -1298,6 +1300,7 @@ function PostCard({ post, onPost }) {
             fontFamily: F.mono, fontSize: 12, fontWeight: 800, padding: "2px 9px", borderRadius: 999, zIndex: 2,
           }}>ג׳ {gem}</span>
         )}
+        {postHasVideo(post) && <VideoBadge variant="corner" style={{ top: gem > 0 ? 38 : 8 }} />}
       </div>
 
       {/* תוכן */}
@@ -4300,21 +4303,24 @@ function SpotimChatPage() {
         .sod-chat-layout { display: flex; flex-direction: column; gap: 30px; }
         .sod-chat-aside, .sod-chat-main { width: 100%; }
         /* עמודת-הסרטונים ומצביע-החדש — נראים לסירוגין לפי רוחב: */
-        .sod-chat-videos { display: none; }        /* מובייל: מוסתרת (הצ'יפ תופס את מקומה) */
+        .sod-chat-videos { display: none; }        /* מובייל: מוסתרת (הרצועה האופקית תופסת את מקומה) */
+        .sod-chat-stories-mobile { display: block; margin: 12px 16px 0; }  /* מובייל: רצועת-סטוריז אופקית קבועה */
         .sod-chat-grid { display: block; }
         @media (max-width: 999px) { .sod-chat-layout { gap: 20px; } }
         @media (min-width: 1000px) {
           .sod-chat-page { max-width: 1240px; }
           .sod-chat-chip-mobile { display: none; }  /* בדסקטופ העמודה מחליפה את הצ'יפ */
+          .sod-chat-stories-mobile { display: none; }  /* בדסקטופ העמודה המלאה מחליפה את הרצועה */
           .sod-chat-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 30px; align-items: start; }
           .sod-chat-videos { display: block; position: sticky; top: 78px; max-height: calc(100vh - 96px); overflow-y: auto;
             padding-inline-start: 4px; scrollbar-width: thin; }
         }
       `}</style>
       <ChatScrollRail />
-      {/* 🔴 סטורי חדש · אור הגאולה — מצביע קומפקטי; במובייל בלבד (בדסקטופ העמודה מחליפה אותו) */}
-      <div className="sod-chat-chip-mobile"><OrGeulaStoryChip /></div>
-      {/* רצועת «אור הגאולה» העליונה הוסרה — «העדכונים החיים» (LiveChannelFeed) תופס את מקומה בצ'אט ובבית. */}
+      {/* 🎞️ רצועת-סטוריז אחת (מובייל בלבד; בדסקטופ העמודות בצד שמאל מחליפות אותה). שורה **אחת**
+          ממוזגת: הסרטון האחרון שלנו («צפונות בתורה») ראשון ומודגש בכתר-זהב, ואחריו סטוריז חדשים
+          של אור הגאולה (טבעת ורודה + לוגו). מקרא זעיר מפענח את הטבעות → מבחינים בלי שתי שורות. */}
+      <div className="sod-chat-stories-mobile"><MergedStoriesRail limit={20} /></div>
 
       <div className="sod-chat-grid">
         {/* עמודה ראשית — צ'אט + פורום (מימין ב-RTL) */}
@@ -4341,9 +4347,10 @@ function SpotimChatPage() {
           </div>
         </div>
 
-        {/* 🎬 עמודת «אור הגאולה» — כל הסרטונים מלמעלה-למטה (דסקטופ בלבד, בצד שמאל) */}
+        {/* 🎬 סטוריז (דסקטופ בלבד, בצד שמאל) — **אותו דבר כמו במובייל**: רצועה ממוזגת אחת בגרסת-עמודה,
+            הצופן הנעוץ ראשון ומודגש (🦅) ואחריו אור הגאולה. בקשת צוריאל 12.8.2026. */}
         <aside className="sod-chat-videos">
-          <OrGeulaStoryColumn limit={30} />
+          <MergedStoriesRail layout="column" limit={30} />
         </aside>
       </div>
 
@@ -4841,6 +4848,9 @@ function PostPageBySlug({ onNav }) {
               </div>
               <RoyalDivider width={160} />
             </div>
+            {/* 🔎 סטוריז-גילוי — רק במחשב, לנוחת ראשוני מגוגל/חוץ, בפוסט מעל חודש; כולל 2 הפוסטים
+                האחרונים עם זמן-עדכון (בקשת צוריאל 12.8.2026) */}
+            <LandingDiscoveryStories postDate={post.date} olderThanDays={30} excludeSlug={post.slug} />
             {(post.verified || post.ai_touched) && <AiVerifiedDisclaimer />}
             {post.ai_addition && <AiAdditionBox html={post.ai_addition} number={post.ai_number} />}
             {/* "מספרים קשורים" הוסר לבקשת צוריאל — כפול עם הערת הלחיצוּת ("כל מספר לחיץ") שמתחת. */}
@@ -4877,6 +4887,14 @@ function PostPageBySlug({ onNav }) {
             {/* 📅 יומן-העדכונים החי (מרקר data-sod-changelog בתוכן) — נשען על channel_updates,
                 המקור הקנוני של הטיקר: מתעדכן לבד עם כל פוסט/ממצא/עוגן חדש (עץ אחד, אפס תחזוקה) */}
             {String(content).includes("data-sod-changelog") && <SiteChangelog pc={pc} />}
+            {/* ✉️ תיבת-הרשמה בתוך הפוסט (מרקר data-sod-signup) — «רוצים עוד צפנים?» → מייל. רכיב קנוני UpdatesBox. */}
+            {String(content).includes("data-sod-signup") && (
+              <div style={{ margin: "34px 0 6px" }}>
+                <UpdatesBox variant="panel" source="post-ciphers"
+                  title="רוצים עוד צפנים מדהימים כאלה?"
+                  body="הירשמו — והצפנים, החידושים והממצאים החדשים יגיעו אליכם ראשונים, ישירות למייל." />
+              </div>
+            )}
             {/* 🖼 רצועת גישה לגלריה העריכה — התמונות המוטמעות נשארות; זו רק הפניה (עץ אחד) */}
             <PostGalleryLinks content={content} wpId={post?.wp_id} />
             {lbImages && <Lightbox images={lbImages} initialIndex={lbStartIdx} onClose={() => setLbImages(null)} />}
@@ -4939,9 +4957,7 @@ function PostPageBySlug({ onNav }) {
             {/* מעקב בתוך הפוסט — שער: 📁 קטגוריה + ✍️ כתב (subscription_funnel_law v10, אין מעקב-פוסט). */}
             <PostFollowBox categories={cats} author={author} postMode={postMode} />
 
-            {/* 🌱 «הקהילה בשלב ההקמה» — במקום תגובות-פתוחות (0 תגובות = נראה מת), הזמנה איכותית
-                לכתוב חידוש בבית המדרש (החלטת צוריאל). Spot.IM הוסר; תגובות-WP ההיסטוריות בארכיון-מקופל למטה. */}
-            <CommunityForming to="/beit-midrash" />
+            {/* «הקהילה בשלב ההקמה» (CommunityForming) הוסר מהפוסטים לבקשת צוריאל (11.8.2026). */}
 
             {/* 🔯 קשר בלתי-נפרד פוסט↔צופן (posts.cipher_slug) — קישור-לצופן + פיד-תגובות משותף.
                 שימוש חוזר ברכיב הקנוני Discourse עם אותו target=els:slug של עמוד-הצופן → אותן תגובות בשני העמודים. */}

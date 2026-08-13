@@ -17,8 +17,20 @@ function vcCountry() {
   catch { return null; }
 }
 // 🤖 סימון בוט (עקבי עם visits.js): מסמנים ולא מדלגים → dashboard יכול להפריד אנשים/בוטים.
+// 🌍 מקור-אמת ראשי = פסק-הקצה: ה-middleware מזריק cookie vb=<kind> (browser=אדם ·
+//    goodbot/ai/bot=בוט) מתוך ה-UA האמיתי + אותות Vercel. עדיף על זיהוי-UA בצד-לקוח שמפספס
+//    headless שמזייף UA. נופלים ל-heuristic הישן רק אם ה-cookie עוד לא נכתב (בקשה ראשונה/נחסם).
 const BOT_UA = /bot|crawl|spider|slurp|googlebot|bingpreview|jetmon|uptime|monitor|headless|phantom|puppeteer|playwright|python|curl|wget|libwww|okhttp|java\/|go-http|facebookexternal|externalhit|preview|lighthouse|pagespeed|gtmetrix|semrush|ahrefs|mj12|dotbot|petalbot|dataprovider|scan|um-ic|feedfetch/i;
-export function isBot() { try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; } catch { return false; } }
+function serverBotVerdict() {
+  // null = אין פסק-קצה עדיין; true/false = פסק סמכותי (kind!=='browser' → בוט)
+  try { const m = document.cookie.match(/(?:^|;\s*)vb=([a-z]+)/i); return m ? (m[1].toLowerCase() !== "browser") : null; }
+  catch { return null; }
+}
+export function isBot() {
+  const v = serverBotVerdict();
+  if (v !== null) return v;              // פסק-הקצה גובר
+  try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; } catch { return false; }
+}
 
 // via — מאיפה הגיע: תיוג מפורש (via=) → rid → utm_source → referrer → direct
 function via() {

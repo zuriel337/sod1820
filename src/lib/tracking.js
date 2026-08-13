@@ -221,15 +221,34 @@ function currentTouch() {
   };
 }
 
+// האם הטעינה הנוכחית היא הכניסה הראשונה-אי-פעם של המבקר. נקבע **בזמן טעינת-המודול** (import),
+// לפני שכל אפקט-React רץ — כי אפקטים רצים ילד→הורה, אז DiscoveryStories עלול לקרוא לפני
+// ש-App קורא ל-captureAcquisition. בטעינת-המודול ACQ_FIRST עדיין משקף רק sessions קודמים → אמין.
+let _firstEverVisit = false;
+try { _firstEverVisit = (typeof localStorage !== "undefined") && !localStorage.getItem("sod_acq_first"); } catch { _firstEverVisit = false; }
+
 // נקרא בעליית האפליקציה (App). שומר first פעם-אחת, ומעדכן last בכל הגעה-אמיתית.
 export function captureAcquisition() {
   if (typeof window === "undefined") return;
   try {
     const t = currentTouch();
     const real = t.tagged || !!t.rid || !!t.ref; // אות אמיתי (לא רענון-ישיר/ניווט-פנימי)
-    if (!localStorage.getItem(ACQ_FIRST)) localStorage.setItem(ACQ_FIRST, JSON.stringify(t));
+    const hadFirst = !!localStorage.getItem(ACQ_FIRST);
+    _firstEverVisit = !hadFirst;                  // ← נכון רק אם מעולם לא היה כאן
+    if (!hadFirst) localStorage.setItem(ACQ_FIRST, JSON.stringify(t));
     if (real) localStorage.setItem(ACQ_LAST, JSON.stringify(t));
   } catch { /* noop */ }
+}
+
+// הגעה נוכחית מהפניה חיצונית (גוגל/רשת) — לא ניווט-פנימי ולא רענון-ישיר.
+export function isSearchLanding() {
+  return !!externalReferrer();
+}
+
+// «מבקר-נחיתה טרי»: הכניסה הראשונה-אי-פעם שלו לאתר, והיא הגיעה ממקור חיצוני (גוגל/רשת).
+// captureAcquisition חייב לרוץ קודם (עולה ב-App לפני עומק-הדף) — לכן הערך אמין.
+export function isFreshSearchLanding() {
+  return _firstEverVisit && isSearchLanding();
 }
 
 // { first, last } לצירוף להמרה. last נופל ל-first אם אין הגעה-אמיתית מאוחרת יותר.

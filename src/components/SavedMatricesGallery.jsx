@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getSavedMatrices } from "../lib/elsMatrices.js";
 import { publicAuthorName } from "../lib/publicIdentity.js";
 import { thumb } from "../lib/img.js";
+import { formatDateHe } from "../lib/format.js";
 import ShareActions from "./ShareActions.jsx";
 
 // 🖼️ גלריית-המטריצות השמורות של הצופן — נפתחת מהכפתור התחתון בדף הצופן.
@@ -67,6 +68,7 @@ export default function SavedMatricesGallery({ open, onClose }) {
                     </div>
                     {m.description && <div style={{ color: "#cdbf9f", fontSize: 12.5, lineHeight: 1.6 }}>{String(m.description).slice(0, 120)}</div>}
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 6, flexWrap: "wrap" }}>
+                      <span style={{ color: "#8a8270", fontSize: 11 }}>🕐 {formatDateHe(m.created_at)}</span>
                       {m.author_name && <span style={{ color: "#8a8270", fontSize: 11 }}>✍️ {publicAuthorName(m.author_name)}</span>}
                       <span style={{ marginInlineStart: "auto" }}>
                         <ShareActions type="code" compact channels={["native", "whatsapp", "copy"]}

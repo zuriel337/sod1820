@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
+import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 
 // פוסטים מאומתים בלבד — verified=true (חוק ai_disclaimer_law).
 export default function VerifiedPostsPage() {
@@ -14,7 +15,7 @@ export default function VerifiedPostsPage() {
   useEffect(() => {
     applySeo({ title: "פוסטים מאומתים", description: "כל הפוסטים שנסרקו ואומתו על ידי AI באתר SOD1820.", path: "/verified" });
     let live = true;
-    supabase.from("posts").select("wp_id,title,slug,excerpt,image_url,modified")
+    supabase.from("posts").select("wp_id,title,slug,excerpt,image_url,modified,categories")
       .eq("verified", true).order("modified", { ascending: false, nullsFirst: false }).limit(60)
       .then(({ data }) => { if (live) setPosts(data || []); });
     return () => { live = false; };
@@ -45,6 +46,7 @@ export default function VerifiedPostsPage() {
               <Link key={p.wp_id} to={`/${p.slug}`} style={{ display: "flex", flexDirection: "column", textDecoration: "none", overflow: "hidden", border: `1px solid ${P.borderStrong}`, borderRadius: 14, background: P.cardGrad }}>
                 <div style={{ position: "relative", aspectRatio: "16/10", background: img ? `center/cover no-repeat url(${img})` : `linear-gradient(135deg, ${P.onAccent}, ${P.cardSoft})` }}>
                   <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><VerifiedBadge variant="ai" size={14} label="מאומת" /></span>
+                  {postHasVideo(p) && <VideoBadge variant="corner" style={{ top: 38 }} />}
                 </div>
                 <div style={{ padding: "12px 14px" }}>
                   <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>

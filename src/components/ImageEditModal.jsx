@@ -111,7 +111,8 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     if (treasure !== !!b.treasure) patch.treasure = treasure;
     const origTags = JSON.stringify([...(b.tags || [])].sort());
     if (JSON.stringify([...tags].sort()) !== origTags) patch.tags = tags;
-    if (newImageUrl && newImageUrl !== im.image_url) patch.image_url = newImageUrl;   // 🖼️ החלפת התמונה הפיזית
+    // 🖼️ החלפת התמונה הפיזית — גם מאפסים thumb_url הישן (אחרת galThumb/gen-thumb ממשיכים להגיש את התמונה הישנה)
+    if (newImageUrl && newImageUrl !== im.image_url) { patch.image_url = newImageUrl; patch.thumb_url = null; }
     await onSave(patch);
     setSaving(false);
   }

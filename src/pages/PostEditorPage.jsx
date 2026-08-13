@@ -363,7 +363,10 @@ export default function PostEditorPage() {
     setErr(""); setMsg(""); setUploadingImg(true);
     try {
       const ext = (f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-      const path = `posts/${(slug || "post").replace(/[^a-z0-9א-ת_-]/gi, "").slice(0, 40) || "post"}-${Date.now()}.${ext}`;
+      // מפתח-אחסון של Supabase חייב להיות ASCII בלבד (\w=[A-Za-z0-9_]) — slug עברי נדחה כ-"Invalid key".
+      // לכן בונים מפתח בטוח: תחילית ה-slug רק אם היא לטינית, אחרת נופלים ל"post" + חותמת-זמן ואקראי.
+      const asciiSlug = (slug || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 40);
+      const path = `posts/${asciiSlug || "post"}-${Date.now()}-${Math.round(Math.random() * 1e5)}.${ext}`;
       const { error } = await supabase.storage.from("gallery").upload(path, f, { upsert: false, contentType: f.type });
       if (error) throw error;
       setImageUrl(supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl);

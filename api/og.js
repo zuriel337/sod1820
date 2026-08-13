@@ -357,7 +357,12 @@ export default async function handler(req, res) {
           post = rows[0];
           title = stripHtml(post.title) + ' · ' + SITE_NAME;
           desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
-          if (post.image_url) {
+          // 🛡 post_og_image_law: og:image חייב רסטר (זחלנים לא מציגים SVG, ולא raw.githubusercontent).
+          //    image_url לא-תקין → נפילה אוטומטית לכרטיס /api/card ממותג (self-healing).
+          const okOg = post.image_url
+            && !/\.svg(\?|#|$)/i.test(post.image_url)
+            && !/raw\.githubusercontent\.com/i.test(post.image_url);
+          if (okOg) {
             image = post.image_url;
           } else {
             const ttl = stripHtml(post.title);

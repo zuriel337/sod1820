@@ -40,6 +40,7 @@ import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import HomeTeasers from "../components/HomeTeasers.jsx";
 import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
+import DimensionFiveRail from "../components/DimensionFiveRail.jsx";
 import HomeWritersRail from "../components/HomeWritersRail.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
@@ -176,7 +177,7 @@ export default function HomeNewPage() {
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
     // «לא-בבית» = תגית להסתרת פוסט מדף הבית בלבד (נשאר רגיל ב-/post). «הינוקא» = מוסתר מדף הבית (בקשת צוריאל). מושכים יותר ומסננים.
-    const hiddenAtHome = p => (p.tags || []).includes("לא-בבית") || (p.tags || []).some(t => /ינוק/.test(t)) || /ינוק/.test(p.title || "");
+    const hiddenAtHome = p => p.home_hidden === true || (p.tags || []).includes("לא-בבית") || (p.tags || []).some(t => /ינוק/.test(t)) || /ינוק/.test(p.title || "");
     getPostsFromSupabase({ limit: 32, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !hiddenAtHome(p)).slice(0, 18)); markSeenKey("home-posts"); }).catch(() => {});
     // רמזי-הזרם נטענים ב-effect נפרד, מותנה בדגל lock_reality (ראה למטה)
     getGalleryImageCount().then(setImgCount).catch(() => {});
@@ -702,6 +703,11 @@ export default function HomeNewPage() {
       {/* ===== סקשן סיום — הקריאה הראשית להישאר מעודכן (מייל/פוש, בחירת המשתמש) ===== */}
       <section className="hn-wrap" style={{ padding: "8px 18px 64px" }}>
         <StayUpdatedCTA variant="home" />
+      </section>
+
+      {/* ===== 🌀 מימד חמש — שורת-פוסטים לפי תגית «מימד חמש» · בתחתית העמוד (בקשת צוריאל) ===== */}
+      <section className="hn-wrap" style={{ padding: "8px 18px 48px" }}>
+        <DimensionFiveRail />
       </section>
 
       {/* רמז שנפתח כתמונה מלאה (זמני — עד שזרם המציאות יושק). מנהל יכול לערוך משם. */}

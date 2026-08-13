@@ -566,6 +566,10 @@
   /* 🎥 מצב הצגה — מסך נקי לקריינות + הקלטה. שורת-שליטה קבועה למטה. */
   body.presenting .matacts,body.presenting .filmbar,body.presenting .hintbar,body.presenting .selbar,body.presenting .descbar,body.presenting .mside{display:none!important}
   body.presenting .matrix-box{margin-inline:auto}
+  /* 🎥 מטריצה נקייה במצב-הצגה (בקשת צוריאל): תא שעדיין לא נחשף נראה כמו אות-רקע רגילה של המטריצה —
+     בלי אות-רפאים אפורה מעומעמת (opacity .22) ובלי מסגרת-הזהב של תחילת-מילה. כך בולטות רק המילים שכבר נחשפו. */
+  body.presenting .mc.rv-hide .l{opacity:1!important}
+  body.presenting .mc.rv-hide.start::after{display:none!important}
   #presentbar{position:fixed;inset-inline:0;bottom:0;z-index:99999;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
     background:linear-gradient(180deg,rgba(12,10,22,.86),rgba(12,10,22,.97));border-top:1px solid rgba(139,92,246,.5);
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(8px);font-family:inherit}
@@ -655,6 +659,12 @@
   .locpop .lp-hl:hover{background:var(--gold);color:#1a0e00}
   .mc.verse-hl{outline:2px solid var(--goldBright);outline-offset:-2px;z-index:2}
   .mc.verse-hl .l{color:var(--goldBright)!important;font-weight:800}
+  /* 📖 קריאת-פסוק: כל מילה בפסוק בגוון מתחלף (כחול/כתום) כדי לקרוא את הפסוק בתוך המטריצה. חל על אותיות-רקע
+     (וגם על תאי-צופן שעדיין לא נחשפו במצב-הצגה); מילות-הצופן שכבר נחשפו שומרות על צבען הבולט = «מילים + פסוק». */
+  .mc.bg.vw-a,.mc.rv-hide.vw-a{background:rgba(56,120,220,.34)!important}
+  .mc.bg.vw-b,.mc.rv-hide.vw-b{background:rgba(214,120,40,.34)!important}
+  .mc.bg.vw-a .l,.mc.bg.vw-b .l,.mc.rv-hide.vw-a .l,.mc.rv-hide.vw-b .l{opacity:1!important;font-weight:700}
+  .matacts .mact.on{background:linear-gradient(160deg,var(--gold),#a6761a);color:#1a0e00;border-color:transparent}
   .mc.rv-hide{background:var(--cellBg)!important;box-shadow:none!important}
   .mc.rv-hide .l{opacity:.22;color:var(--cellInk)!important}
   .mc.rv-pop{animation:rvpop .34s ease}
@@ -761,6 +771,8 @@
   .witem .st.on{color:var(--goldBright)}
   .witem button{cursor:pointer;background:none;border:none;font-size:14px;line-height:1;padding:3px;color:var(--ink2)}
   .witem button:hover{color:var(--goldBright)}
+  .witem button:disabled{opacity:.28;cursor:default;color:var(--ink2)}
+  .witem .mvup,.witem .mvdn{font-size:12px;padding:3px 2px}
   .wempty{color:var(--ink3);font-size:12px;line-height:1.6}
   .witem.mainrow{border-color:rgba(210,170,80,.4);background:linear-gradient(180deg,rgba(122,19,32,.16),var(--panel2));box-shadow:inset 0 0 0 1px rgba(122,19,32,.25)}
   .witem.mainrow.off{opacity:.55}
@@ -1134,6 +1146,8 @@
   // 🤖 מאגר-מונחים ל«הצע אשכול» (בכלי העצמאי — באתר יוזרם מ-ai-analyze דינמית)
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
+  // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
+  st.verseRead=false;st.verseHL=-1;
   const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;
   // המופעים המוצגים של ממצא = ברירת-מחדל (showN הקרובים) פחות מה שכובה ידנית, ועוד מה שהודלק ידנית
   function shownHitsOf(w){
@@ -1240,6 +1254,7 @@
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
       postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
         findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,desc:st.desc||"",author:st.author||"",
+        hideMain:!!st.hideMain,   // 📌 שומרים אם הציר מוסתר (👁) כדי שהצופן ייטען כך בעתיד
         image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null,editId:editId});
     },30);
   }
@@ -2262,6 +2277,7 @@
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
   function loadMatrix(item,filmTimes){
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
+    st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
     st.scope=item.scope==="tanakh"?"tanakh":"torah";updateScopeUI();   // מטריצה שמורה נטענת בהיקף שבו נמצאה
     st.postUrl=item.postUrl||"";st.postTitle=item.postTitle||"";   // 📖 קישור-לפוסט של המטריצה
     st.desc=item.desc||"";   // 📖 הסבר-הצופן (מוצג מתחת למטריצה, שמור באתר)
@@ -2272,7 +2288,8 @@
     if(!st.res.hits.length){updGem();render();return;}
     let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
     if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
-    st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;st.hideMain=false;
+    st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
+    st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
     st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
     updGem();render();
     try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
@@ -2511,7 +2528,12 @@
   }
   function _presentApply(pop){
     if(!_present)return;const {steps,byIdx,i}=_present;
-    steps.forEach((s,si)=>s.cells.forEach(idx=>{const c=byIdx.get(idx);if(c)c.classList.toggle("rv-hide",si>i);}));
+    // 🔀 תא-הצלבה שייך לכמה שלבים (מילה שחוצה מילה) — הוא צריך להידלק בשלב המוקדם ביותר שבו הוא מופיע,
+    //    ואסור ששלב מאוחר יותר יכבה אותו שוב. אחרת, בזמן צפייה במילה הראשונה אות-ההצלבה נראית שחורה/מעומעמת
+    //    (המילה נשברת). לכן קובעים גלוי לפי השלב-המוקדם-ביותר של כל תא (minStep<=i → גלוי), לא שלב-שלב.
+    const minStep=new Map();
+    steps.forEach((s,si)=>s.cells.forEach(idx=>{if(!minStep.has(idx))minStep.set(idx,si);}));
+    minStep.forEach((si,idx)=>{const c=byIdx.get(idx);if(c)c.classList.toggle("rv-hide",si>i);});
     if(pop&&i>=0&&steps[i])steps[i].cells.forEach(idx=>{const c=byIdx.get(idx);if(c){c.classList.add("rv-pop");setTimeout(()=>{try{c.classList.remove("rv-pop");}catch(e){}},340);}});
     _presentSync();
   }
@@ -2813,7 +2835,7 @@
       // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
       (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
       ((st.cipherSlug&&norm(st.raw)===norm(st.cipherTerm))?'<button class="mact contrib-act" title="שתף את המילים שסימנת כתגובת-מחקר על הצופן הזה">➕ שתף כממצא</button>':'')+
-      '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact present-act" title="חשיפה ידנית/מתוזמנת של חלקי-הצופן — לקריינות והקלטה">🎥 מצב הצגה</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף</button>'+
+      '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact present-act" title="חשיפה ידנית/מתוזמנת של חלקי-הצופן — לקריינות והקלטה">🎥 מצב הצגה</button><button class="mact vread-act'+(st.verseRead?" on":"")+'" title="לחיצה על אות מדליקה את כל הפסוק — מילה-מילה בגוונים מתחלפים (קוראים את הפסוק בתוך המטריצה)">📖 קריאת פסוק</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
     const filmbar=document.createElement("div");filmbar.className="filmbar";filmbar.style.display="none";
     filmbar.innerHTML='<button class="fb-play">▶ נגן שוב</button><span class="fb-lbl">מהירות:</span>'+
@@ -2839,6 +2861,11 @@
     const syncSpeed=()=>filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.classList.toggle("on",+bt.dataset.s===st.filmSpeed));
     acts.querySelector(".play-act").onclick=()=>{filmbar.style.display="flex";syncSpeed();playReveal();};
     const prAct=acts.querySelector(".present-act");if(prAct)prAct.onclick=startPresent;
+    // 📖 קריאת-פסוק: הפעלה/כיבוי. דלוק → לחיצה על אות מדליקה את כל הפסוק מילה-מילה בגוונים; כבוי → מנקה וחוזר להקשה=מיקום.
+    const vrAct=acts.querySelector(".vread-act");
+    if(vrAct)vrAct.onclick=()=>{st.verseRead=!st.verseRead;vrAct.classList.toggle("on",st.verseRead);
+      if(st.verseRead){ensureVerseText();toast("📖 קריאת-פסוק דלוקה — הקש על אות והפסוק כולו יידלק, מילה-מילה בכחול/כתום. הקש על פסוק אחר למעבר.");}
+      else{st.verseHL=-1;clearVerseWords();toast("קריאת-פסוק כבויה");}};
     filmbar.querySelector(".fb-play").onclick=()=>playReveal();
     filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.onclick=()=>{st.filmSpeed=+bt.dataset.s;syncSpeed();playReveal();});
     filmbar.querySelector(".fb-x").onclick=()=>{stopReveal();filmbar.style.display="none";};
@@ -2860,6 +2887,7 @@
     // התאמה-למסך (או מרכוז על המילה במצב חופשי)
     requestAnimationFrame(()=>{if(st.fit){fitMatrixToScreen();mb.scrollTop=0;mb.scrollLeft=mb.scrollWidth;}else centerMain(mb);});
     refreshLenses();   // 🔬 עדשות פעילות מתעדכנות על התוצאה החדשה
+    reapplyVerseWords();   // 📖 שחזור צביעת-קריאת-הפסוק על הרשת החדשה (אם המצב דלוק ופסוק נבחר)
   }
 
   let lastGrid=null,lastBlock=null,lastPX=26,lastCw=26,dragMoved=false,lastHeat=null;
@@ -2965,6 +2993,8 @@
       const cell=e.target.closest(".mc");if(!cell||cell.dataset.i===undefined)return;
       const idx=+cell.dataset.i;
       if(st.selMode){const k=st.selCells.indexOf(idx);if(k>=0)st.selCells.splice(k,1);else st.selCells.push(idx);recolorOnly();updateSelBar();return;}
+      // 📖 מצב קריאת-פסוק: לחיצה מדליקה את כל הפסוק (מילה-מילה בגוונים) — בלי חלונית-המיקום. לחיצה על פסוק אחר = מעבר.
+      if(st.verseRead){const loc=locateLetter(idx);if(loc){st.verseHL=loc.verseIndex;highlightVerseWords(loc.verseIndex);}return;}
       showLocate(cell,idx);
     });
     return grid;
@@ -2978,6 +3008,31 @@
     lastGrid.querySelectorAll(".mc").forEach(c=>{const i=+c.dataset.i;if(i>=a&&i<b){c.classList.add("verse-hl");n++;}});
     toast(n?("✨ "+refStr(vi)+" — "+heb(n)+" אותיות מהפסוק מודגשות בחלון"):("✨ "+refStr(vi)+" — אין מאותיות הפסוק בחלון הנראה"));
   }
+  // ── 📖 קריאת-פסוק (מילה-מילה בגוונים מתחלפים) ──────────────────────────────
+  function clearVerseWords(){if(lastGrid)lastGrid.querySelectorAll(".mc.vw-a,.mc.vw-b").forEach(c=>c.classList.remove("vw-a","vw-b"));}
+  // ממפה כל אות-בפסוק לזוגיות-מילה (0/1): מפצל את טקסט-הפסוק למילים (רווח/מקף), סופר אותיות-עבריות לכל מילה,
+  // ומחלק את אותיות-הפסוק ברצף לפי הספירות. עודף (יישור לא-מדויק) → צבע המילה האחרונה.
+  function verseWordParity(vi){
+    const tx=(VTEXT&&VTEXT[vi]);if(tx==null)return null;
+    const a=VCUM[vi],b=VCUM[vi+1];
+    const counts=tx.split(/[\s־ֽ–\-]+/).map(w=>(w.match(/[א-ת]/g)||[]).length).filter(n=>n>0);
+    const map=new Map();let li=a,wi=0;
+    for(const cnt of counts){for(let k=0;k<cnt&&li<b;k++){map.set(li,wi%2);li++;}wi++;}
+    while(li<b){map.set(li,Math.max(0,wi-1)%2);li++;}
+    return map;
+  }
+  function highlightVerseWords(vi){
+    if(!lastGrid||vi<0)return;
+    const apply=()=>{
+      clearVerseWords();
+      const map=verseWordParity(vi);if(!map)return;
+      let n=0;lastGrid.querySelectorAll(".mc").forEach(c=>{const i=+c.dataset.i;if(map.has(i)){c.classList.add(map.get(i)===0?"vw-a":"vw-b");n++;}});
+      const tx=(VTEXT&&VTEXT[vi])||"";
+      toast(n?("📖 "+refStr(vi)+" · «"+tx.slice(0,44)+(tx.length>44?"…":"")+"»"):("📖 "+refStr(vi)+" — אין מאותיות הפסוק בחלון הנראה"));
+    };
+    if(VTEXT)apply();else ensureVerseText().then(apply);
+  }
+  function reapplyVerseWords(){if(st.verseRead&&st.verseHL>=0)highlightVerseWords(st.verseHL);}
   // 🎯 לאיזה ממצא שייכת האות שנגעו בה (הציר הראשי או אחת המילים הצבועות)
   function findingAt(idx){
     if(!st.hideMain){const h=occ();if(h&&h.positions.indexOf(idx)>=0)return {t:st.raw,color:"#f4c84a"};}
@@ -3025,6 +3080,7 @@
       else{cls="mc bg";if(lastHeat){const hc=heatColor((lastHeat.heat.get(idx)||0)/lastHeat.mx);if(hc)cell.style.background=hc;}}
       if(selSet.has(idx))cls+=" sel";
       cell.className=cls;}
+    reapplyVerseWords();   // 📖 שחזור צביעת-הפסוק אחרי צביעה-מחדש (הוספת/מיון מילים במצב קריאת-פסוק)
   }
   // בר-הבחירה-הידנית: מציג את האותיות שנבחרו + מרכיב אותן למילה + גימטריה
   function updateSelBar(){
@@ -3508,11 +3564,18 @@
           '<span class="t">'+w.t+'</span>'+stTxt+
           (canExp?'<button class="lineb'+(st.lineFor===i?" on":"")+'" title="הצג את שורת-הצופן המלאה">🔭</button>':'')+
           (canExp?'<button class="exp" title="פתח מופעים">'+(st.expand===i?"▴":"▾")+'</button>':'')+
+          // 🔀 סדר-ההצגה: מקדים/מאחר את המילה במצב-הצגה (ובסרט). המילה הראשונה ברשימה מוצגת ראשונה (אחרי הציר).
+          (st.words.length>1?'<button class="mvup" title="הקדם — יוצג מוקדם יותר"'+(i===0?" disabled":"")+'>▲</button><button class="mvdn" title="אחר — יוצג מאוחר יותר"'+(i===st.words.length-1?" disabled":"")+'>▼</button>':'')+
           '<button class="del" title="הסר">🗑</button>';
         it.querySelector(".dot").onclick=()=>{st.swOpen=st.swOpen===i?-1:i;renderList();};
         const lb=it.querySelector(".lineb");if(lb)lb.onclick=()=>{st.lineFor=st.lineFor===i?-1:i;renderList();};
         const eb=it.querySelector(".exp");if(eb)eb.onclick=()=>{st.expand=st.expand===i?-1:i;renderList();};
         it.querySelector(".del").onclick=()=>{st.words.splice(i,1);if(st.swOpen===i)st.swOpen=-1;if(st.expand===i)st.expand=-1;recomputeWords();recolorOnly();renderList();};
+        // 🔀 מיון סדר-ההצגה: החלפת מקומות ב-st.words → משנה גם את סדר מצב-ההצגה וגם את סרט-הצופן.
+        //    (סוגרים פאנלים פתוחים כדי שאינדקסים לא יתבלבלו; recolorOnly כי בתא-הצלבה צבע-המילה-הראשונה גובר.)
+        const swap=(a,b)=>{const w=st.words;[w[a],w[b]]=[w[b],w[a]];st.swOpen=-1;st.expand=-1;st.lineFor=-1;recolorOnly();renderList();};
+        const mvu=it.querySelector(".mvup");if(mvu)mvu.onclick=()=>{if(i>0)swap(i-1,i);};
+        const mvd=it.querySelector(".mvdn");if(mvd)mvd.onclick=()=>{if(i<st.words.length-1)swap(i+1,i);};
         list.appendChild(it);
         if(st.swOpen===i){
           const sw=document.createElement("div");sw.className="swatches open";

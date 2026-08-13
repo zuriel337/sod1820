@@ -6,6 +6,7 @@ import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getNumberDossier, askNumberResearcher, loadResearcherThread, sendCandidateFromResearcher, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
 import ElsStatsTab from "../components/ElsStatsTab.jsx";
+import HiddenItemsPanel from "../components/HiddenItemsPanel.jsx";
 import GrowthCenterTab from "../components/GrowthCenterTab.jsx";
 import InfraLoadTab from "../components/InfraLoadTab.jsx";
 import ElsModerationTab from "../components/ElsModerationTab.jsx";
@@ -82,7 +83,6 @@ const ADMIN_THEME_CSS = `
 
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
-  { key: "command",  label: "🧠 מפקדה" },
   { key: "warroom",  label: "🎛️ חדר המפקדה" },
   { key: "entries",  label: "🛰️ כניסות אמיתיות" },
   { key: "stats",    label: "📊 סטטיסטיקות" },
@@ -91,6 +91,7 @@ const TABS = [
   { key: "aistyles", label: "🤖 ניתוחי AI" },
   { key: "suggest",  label: "🧠 המלצות המערכת" },
   { key: "live",     label: "🔴 שידור חי" },
+  { key: "hidden",   label: "🙈 מוסתרים" },
   { key: "traffic",  label: "📊 תנועה" },
   { key: "infra",    label: "🩺 עומסים ותשתית" },
   { key: "retention",label: "🔁 חוזרים" },
@@ -136,7 +137,7 @@ const TABS = [
 // מדידה: כל טאבי-התנועה שהיו פזורים (analytics+journeys) מתאחדים כאן. צמיחה: המרות/ויראל/צמיחה/Meta.
 // הוסרו: «מסעות (ישן)» ו«מיילים» (שכפל את «רשימת תפוצה»). היתומים («סוכנים»→AI, «המרות»→צמיחה) חוברו לקבוצה.
 const GROUPS = [
-  { key: "command", label: "🧠 מפקדה",       subs: ["command", "warroom"] },
+  { key: "command", label: "🎛️ חדר המפקדה",  subs: ["warroom"] },
   { key: "measure", label: "📊 מדידה",       subs: ["entries", "traffic", "infra", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
   { key: "growth",  label: "📈 צמיחה",       subs: ["growth", "conversions", "viral", "meta"] },
   { key: "ai",      label: "🤖 AI",           subs: ["aicost", "aistyles", "agents"] },
@@ -215,7 +216,7 @@ function PulseBar({ goto }) {
 
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
-  const [tab, setTab] = useState("command");
+  const [tab, setTab] = useState("warroom");
   const [group, setGroup] = useState("command");
   const mobile = useIsMobile();
   const activeGroup = GROUPS.find(g => g.key === group) || GROUPS[0];
@@ -267,7 +268,6 @@ export default function AdminPage() {
       )}
       {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
-      {tab === "command" && <CommandCenterTab gotoTab={gotoTab} />}
       {tab === "warroom" && <WarRoomTab />}
       {tab === "entries" && <TrafficIntelligenceTab />}
       {tab === "stats" && <StatsTab />}
@@ -276,6 +276,7 @@ export default function AdminPage() {
       {tab === "aistyles" && <AiStylesTab />}
       {tab === "suggest" && <SystemSuggestionsTab />}
       {tab === "live" && <LiveVisitorsTab />}
+      {tab === "hidden" && <HiddenItemsPanel />}
       {tab === "traffic" && <RealTrafficPanel />}
       {tab === "infra" && <InfraLoadTab />}
       {tab === "retention" && <RetentionTab />}

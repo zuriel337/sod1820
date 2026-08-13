@@ -59,7 +59,13 @@ export default function WelcomePage() {
         👀 מבקר &nbsp;→&nbsp; 🔎 מגלה &nbsp;→&nbsp; 🔬 חוקר
       </div>
 
-      {/* 🤖 רזיאל — הסוכן האישי מקבל את פני הנכנס (דומיננטי, בטא · מטטרון · זיכרון חוצה-ערוצים) */}
+      {/* 🤖 רזיאל בדף הברוכים-הבאים — בהקמה (סגור זמנית). להחזרה: החזר את בלוק <AskRaziel/> שמתחת. */}
+      <div style={{ marginBottom: 18, background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 16, padding: "18px 18px", textAlign: "center" }}>
+        <div style={{ fontSize: 30, lineHeight: 1, marginBottom: 6 }}>🚧</div>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 3 }}>רזיאל · הסוכן האישי — בהקמה</div>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>אנחנו משדרגים את רזיאל 🌳 חוזר בקרוב. בינתיים אפשר להתחיל מאחת משלוש הדרכים למטה.</div>
+      </div>
+      {/* בלוק רזיאל החי (סגור זמנית — בהקמה):
       <div style={{ marginBottom: 18 }}>
         <AskRaziel
           subject="1820"
@@ -72,6 +78,7 @@ export default function WelcomePage() {
           waText="שלום רזיאל 🌳 הגעתי לסוד 1820 — "
         />
       </div>
+      */}
 
       {/* 🧭 מלווה-כניסה — נתב אישי (נתיבים מהירים + סוכן AI). אותו רכיב כמו ב-«כאן מתחילים». */}
       <StartConcierge source="welcome" />
