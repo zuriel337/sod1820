@@ -6,6 +6,7 @@ import { getPostsFromSupabase } from "../lib/supabase.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { track } from "../lib/tracking.js";
+import { openD5Feed } from "../lib/d5feed.js";
 import HomeHeader from "./HomeHeader.jsx";
 
 // 🌀 «מימד חמש» — שורת-פוסטים ייעודית בדף הבית, אוסף כל הפוסטים עם התגית «מימד חמש».
@@ -45,7 +46,7 @@ export default function DimensionFiveRail({ compact = false, surface = compact ?
         <div className="d5c-row">
           {list.map(p => (
             <Link key={p.id} to={`/${p.slug}`} className="d5c-card"
-              onClick={() => { try { track("dim5", p.slug, "click", { surface }); } catch { /* noop */ } }}>
+              onClick={(e) => { e.preventDefault(); try { track("dim5", p.slug, "click", { surface }); } catch { /* noop */ } openD5Feed(p.slug); }}>
               <div className="d5c-media" style={{
                 position: "relative", aspectRatio: "3/4", borderRadius: 10, overflow: "hidden",
                 border: `1px solid ${P.border}`, background: "#0a0713", transition: "border-color .15s, box-shadow .15s",
@@ -82,7 +83,7 @@ export default function DimensionFiveRail({ compact = false, surface = compact ?
         <div className="d5-row">
           {list.map(p => (
             <Link key={p.id} to={`/${p.slug}`} className="d5-card"
-              onClick={() => { try { track("dim5", p.slug, "click", { surface: "home-rail" }); } catch { /* noop */ } }}>
+              onClick={(e) => { e.preventDefault(); try { track("dim5", p.slug, "click", { surface: "home-rail" }); } catch { /* noop */ } openD5Feed(p.slug); }}>
               <div className="d5-media" style={{
                 position: "relative", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden",
                 border: `1px solid ${P.border}`, background: "#0a0713", transition: "transform .15s, border-color .15s, box-shadow .15s",

@@ -20,6 +20,7 @@ import NumberDrawer from "../NumberDrawer.jsx";
 import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import JoinCelebration from "../JoinCelebration.jsx";
+import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
 
 // 🌗 רשימת הראוטים התומכים בבהיר עברה ל-src/lib/lightRoutes.js (מקור-אמת יחיד),
 // כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
@@ -93,6 +94,8 @@ export default function Layout() {
       <NumberDrawer hideLauncher={liveChrome || /^\/code/.test(pathname) || (pathname === "/research" && /tool=els/.test(search))} />
       {liveChrome && <LiveChannelFeed />}
       <JoinCelebration />
+      {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
+      <DimensionFiveFeed />
     </div>
   );
 }

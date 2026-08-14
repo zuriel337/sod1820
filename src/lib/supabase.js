@@ -38,6 +38,33 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
   return { posts: data ?? [], total: count ?? 0 };
 }
 
+// 🎬 כל סרטוני «מימד חמש» — לפיד-הרצף (נגן סגנון Shorts/YouTube). מושך את פוסטי התגית,
+//    מסנן רק כאלה עם וידאו (.mp4 בתוכן), ומחלץ וידאו/פוסטר/כתוביות. ממוין מהחדש לישן.
+export async function getDimensionFiveVideos() {
+  try {
+    const { posts } = await getPostsFromSupabase({ tag: "מימד חמש", limit: 50, orderBy: "modified" });
+    const items = [];
+    for (const p of (posts || [])) {
+      const c = typeof p.content === "string" ? p.content : "";
+      const mp4 = c.match(/https?:\/\/[^"'\s]+\.mp4/i);
+      if (!mp4) continue; // רק פוסטים עם וידאו שלנו
+      const video_url = mp4[0];
+      const poster = (c.match(/poster="([^"]+)"/i) || [])[1] || p.image_url || null;
+      const heM = c.match(/src="([^"]+)"[^>]*srclang="he"/i) || c.match(/srclang="he"[^>]*src="([^"]+)"/i);
+      const enM = c.match(/src="([^"]+)"[^>]*srclang="en"/i) || c.match(/srclang="en"[^>]*src="([^"]+)"/i);
+      items.push({
+        id: p.id, slug: p.slug, title: p.title,
+        video_url,
+        poster,
+        card: p.image_url || poster,
+        he_vtt: (heM && heM[1]) || video_url.replace(/\.mp4$/i, ".he.vtt"),
+        en_vtt: (enM && enM[1]) || video_url.replace(/\.mp4$/i, ".en.vtt"),
+      });
+    }
+    return items;
+  } catch { return []; }
+}
+
 // 🙈 אדמין — הסתר/הצג פוסט מ«עדכונים אחרונים» בבית (posts.home_hidden דרך RPC מאובטח rd_is_admin).
 //    הפוסט נשאר חי בקטגוריות/‏/post/בעמוד עצמו — מוסתר רק מרצועת-הבית.
 export async function adminSetPostHomeHidden(id, hidden) {

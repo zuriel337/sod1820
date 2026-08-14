@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { stripHtml } from "../lib/format.js";
 import { thumb } from "../lib/img.js";
 import { track } from "../lib/tracking.js";
+import { openD5Feed } from "../lib/d5feed.js";
 import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 
 // ☁️ «ענן מעופף» — סטורי-מימד-חמש צף בצד שמאל של דף הבית, **דסקטופ בלבד**.
@@ -19,7 +19,6 @@ const DISMISS_KEY = "d5_cloud_dismissed_v1";
 
 export default function DimensionFiveCloud() {
   const P = usePalette();
-  const nav = useNavigate();
   const { isOpen } = useUserCenter();
   const [posts, setPosts] = useState(null);
   const [idx, setIdx] = useState(0);
@@ -88,7 +87,7 @@ export default function DimensionFiveCloud() {
         <span aria-hidden style={{ position: "absolute", top: -12, insetInlineStart: 118, width: 34, height: 34, borderRadius: "50%", background: P.card, border: `1px solid ${P.borderStrong}`, boxShadow: "0 -3px 10px rgba(0,0,0,.12)" }} />
 
         <button
-          onClick={() => { try { track("dim5", p.slug, "click", { surface: "cloud" }); } catch { /* noop */ } nav(`/${p.slug}`); }}
+          onClick={() => { try { track("dim5", p.slug, "click", { surface: "cloud" }); } catch { /* noop */ } openD5Feed(p.slug); }}
           title="צפו כסטורי — מימד חמש"
           style={{
             position: "relative", zIndex: 1, width: "100%", cursor: "pointer", textAlign: "start",
