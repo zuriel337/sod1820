@@ -16,7 +16,7 @@ export default function LatestUpdatesPanel({ limit = 10 }) {
   }, []);
   if (!d) return null;
   return (
-    <LatestUpdatesRail posts={d.posts} convergences={[]} hints={d.hints}
+    <LatestUpdatesRail heading posts={d.posts} convergences={[]} hints={d.hints}
       researchers={d.researchers} ciphers={d.ciphers} limit={limit} />
   );
 }

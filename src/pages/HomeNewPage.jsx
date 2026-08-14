@@ -478,10 +478,10 @@ export default function HomeNewPage() {
       {/* ===== עדכונים אחרונים — 8 עדכונים ממוזגים, כל אחד עם לוגו + מילה קטנה:
           פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
-        <HomeHeader title="📜 עדכונים אחרונים" sub="20 העדכונים האחרונים — פוסטים, זרם המציאות והיכל" />
+        {/* 👑 מיתוג «עדכונים אחרונים» — עכשיו מתוך LatestUpdatesRail (heading) כדי שיהיה זהה בבית/פוסט/צ'אט/מובייל */}
         {/* ⛔ הקפצת התכנסויות ל«עדכונים אחרונים» מושבתת עד הודעה חדשה (בקשת צוריאל) — ההתכנסויות
             נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
-        <LatestUpdatesRail posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+        <LatestUpdatesRail heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
       </section>
 
       {/* ===== 🔔 מה חדש בפורום מאז ביקורך — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 10.8.2026) ===== */}

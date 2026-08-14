@@ -4725,17 +4725,6 @@ function PostPageBySlug({ onNav }) {
       {post && !loading && adsAllowed && <StickyAnchorAd />}
       {post && !loading && adsAllowed && <SideRailAd side="right" />}
       {post && !loading && adsAllowed && <SideRailAd side="left" />}
-      {/* 📂 שער אור הגאולה — עמודת-צד שמאל בשוליים הפנויים (fixed, מחוץ לזרימה) → לא דוחף ולא מכווץ
-          את עמודת-הקריאה (800). רוחב מחושב מהשוליים הפנויים בלבד → לעולם לא חופף לתוכן; מוצג ≥1200px. */}
-      {wideSide && post && !loading && (
-        <aside className="post-og-side" style={{ position: "fixed", top: 72, left: 16, zIndex: 40,
-          width: "min(330px, calc((100vw - 800px) / 2 - 28px))", maxHeight: "calc(100vh - 96px)",
-          overflowY: "auto", overflowX: "hidden", direction: "rtl" }}>
-          <style>{`.side-updates .lur-grid{grid-template-columns:1fr;max-width:none;gap:10px}.side-updates .lur-media{width:60px;flex-basis:60px}`}</style>
-          <MergedStoriesRail ogOnly layout="rail" limit={20} surface="POST_PAGE" />
-          <div className="side-updates" style={{ marginTop: 18 }}><LatestUpdatesPanel limit={10} /></div>
-        </aside>
-      )}
       {/* באנר מטריקס-ריין בראש העמוד — ה-hero לפוסט עם fx (לדוגמה מטריקס: ירוק + 506 נוזל). מחליף את תמונת ה-hero. */}
       {fx && !loading && (
         <div style={{ position: "relative", height: "clamp(200px, 34vw, 320px)", overflow: "hidden", background: "#070b12" }}>
@@ -4753,6 +4742,19 @@ function PostPageBySlug({ onNav }) {
           </div>
         );
       })()}
+      {/* עוטף-יחס: מאפשר לשער אור-הגאולה לשבת בשוליים הפנויים כ-absolute — מתחת ל-Hero (העוטף מתחיל
+          אחרי ה-Hero) ולא חופף אותו, ובלי לדחוף/לכווץ את עמודת-הקריאה (800). */}
+      <div style={{ position: "relative" }}>
+      {/* 📂 שער אור הגאולה — עמודת-צד שמאל (absolute) בשוליים הפנויים, מתחת ל-Hero. רוחב מהשוליים בלבד
+          → לעולם לא חופף לתוכן; מוצג ≥1200px. */}
+      {wideSide && post && !loading && (
+        <aside className="post-og-side" style={{ position: "absolute", top: 0, left: 16, zIndex: 2,
+          width: "min(330px, calc((100vw - 800px) / 2 - 28px))", overflowX: "hidden", direction: "rtl" }}>
+          <style>{`.side-updates .lur-grid{grid-template-columns:1fr;max-width:none;gap:10px}.side-updates .lur-media{width:60px;flex-basis:60px}`}</style>
+          <MergedStoriesRail ogOnly layout="rail" limit={20} surface="POST_PAGE" />
+          <div className="side-updates" style={{ marginTop: 18 }}><LatestUpdatesPanel limit={10} /></div>
+        </aside>
+      )}
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "52px 16px 96px" }}>
         <button onClick={() => navigate("/post")}
           style={{ background: "none", border: "none", color: pc.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 13, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
@@ -5059,6 +5061,7 @@ function PostPageBySlug({ onNav }) {
           </>
         )}
       </div>
+      </div>{/* /position:relative wrapper */}
       {/* 📜 «עדכונים אחרונים» — נערם מתחת לתוכן ברוחב צר/מובייל (בדסקטופ רחב הוא בעמודת-הצד).
           אותו source/visibility בדיוק כמו הבית (homeUpdates). */}
       {!wideSide && (

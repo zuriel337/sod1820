@@ -11,7 +11,8 @@ import { shareOrCopy } from "../lib/share.js";
 // לייטבוקס מועשר: תמונה + פאנל-מידע (צד בדסקטופ, מתחת במובייל) עם כל המספרים
 // כקישורים, משמעויות מספרי-הליבה, תגיות, תיאור מלא, ו-CTA לדף-המספר (עץ אחד —
 // כל ההקשרים חיים שם, לא משוכפלים כאן).
-export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null }) {
+// seeAllHref — אם מסופק, מציג כפתור «לכל זרם המציאות →» שמפנה לארכיון הקיים (למשל /archive).
+export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null, seeAllHref = null }) {
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
   const [shared, setShared] = useState(false);
@@ -55,7 +56,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   const nums = [...new Set(hintNums(h || {}))];
   const tags = Array.isArray(h?.tags) ? h.tags.filter(Boolean) : [];
   const desc = h?.description ? h.description.replace(/<[^>]+>/g, "").trim() : "";
-  const hasInfo = !!(title || h?.name || date || desc || nums.length || tags.length || onEdit || note);
+  const hasInfo = !!(title || h?.name || date || desc || nums.length || tags.length || onEdit || note || seeAllHref);
 
   return createPortal((
     <div
@@ -185,6 +186,13 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
             {v != null && (
               <Link to={`/number/${v}`} onClick={onClose} className="lb-cta">
                 כל הרמזים וההקשרים של {v} →
+              </Link>
+            )}
+
+            {seeAllHref && (
+              <Link to={seeAllHref} onClick={onClose} className="lb-cta"
+                style={{ marginTop: v != null ? 10 : 16, background: "linear-gradient(135deg,#7a1320,#d4af37)", color: "#fff" }}>
+                🌊 לכל זרם המציאות →
               </Link>
             )}
 
