@@ -919,7 +919,7 @@ function WaContext({ item }) {
             <div style={{ fontSize: 11.5, color: C.goldLight, marginTop: 4, lineHeight: 1.7 }}>
               <div>👁️ <b>תצוגת-אדמין (עברית):</b> {isHe
                 ? <span style={{ color: "#2e9e63" }}>המקור כבר עברית — אין צורך בתרגום</span>
-                : <span style={{ color: "#c79a2e" }}>מנוע-התרגום (video-transcribe · raw) <b>פרוס וחי</b> — חיבור-הכפתור מהמפקדה דורש RPC-אדמין דק (מבודד · יחד עם ✍️ השב)</span>}
+                : <span style={{ color: "#2e9e63" }}>תרגום ההודעה לעברית זמין ב«✍️ השב» ← «📥 תרגם לעברית» (מנוע video-transcribe · raw, דרך wa_admin_reply · <b>מחובר וחי</b>)</span>}
               </div>
               <div>↩️ <b>שפת-תשובה (ברירת-מחדל):</b> {LANG_HE[rep.code] || rep.code} <span style={{ color: C.faint }}>({rep.note}) · ניתן לשינוי ידני</span></div>
               <div style={{ color: C.faint, fontSize: 10 }}>⛔ המקור נשמר כלשונו · הניתוח המחקרי תמיד על המקור, לא על התרגום · תרגום = שכבת-תקשורת בלבד</div>
