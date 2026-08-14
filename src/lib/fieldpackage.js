@@ -128,6 +128,65 @@ export function projectRequests(requests = []) {
   }));
 }
 
+// ── GAP-3 · read-model לממצא-מורכב (equality / sum / chain) — נגזר מ-analyzeFull (analysisFlow) ──
+// ⛔ אין UI/טבלה/מנוע חדש · אחסון עתידי = research_items.metadata. שומר בנפרד לכל רכיב:
+//   components(expression·method·value·verified) · relation · arithmetic{text,verifiedSum} · target ·
+//   claim(=true עד Human-Gate) · verification{arithmetic,gematriaPerPart} · interpretation(isFact:false) · source.
+// verifiedSum = אימות **חשבוני** (a+b===c) — לא גימטריה. gematriaPerPart מתאמת רק אחרי fn_gematria_pack פר-רכיב.
+function parseExprVals(text) {
+  const out = []; const re = /([^()+=·]+?)\s*\((\d{1,6})\)/g; let m;
+  while ((m = re.exec(String(text || "")))) out.push({ expression: m[1].trim(), value: Number(m[2]) });
+  return out;
+}
+export function projectCompoundFinding(analysis, { source = null, interpretation = null } = {}) {
+  const rs = (analysis && analysis.researchStructure) || {};
+  const exprMap = rs.methodComparison || (analysis && analysis.exprMap) || {};
+  const valOf = (e) => { const x = exprMap && (exprMap[e] || exprMap[String(e).trim()]); return x ? (x.value ?? (Array.isArray(x) ? x[0]?.value : null)) : null; };
+  const interp = interpretation ? { isFact: false, ...interpretation } : null; // interpretation לעולם isFact:false
+  const out = [];
+
+  // sum / ± — «expr(a) + expr(b) = expr(c)» או צורה מספרית «a + b = c»
+  for (const eq of (rs.equations || [])) {
+    const pairs = parseExprVals(eq.text);
+    let components, target;
+    if (pairs.length >= 2) { target = pairs[pairs.length - 1]; components = pairs.slice(0, -1); }
+    else {
+      const p = eq.parts || [];
+      const isNum = (x) => typeof x === "number" || /^\d+$/.test(String(x));
+      if (p.length >= 3 && p.every(isNum)) { const a = p.map(Number); target = { expression: null, value: eq.value ?? a[a.length - 1] }; components = a.slice(0, 2).map((v) => ({ expression: null, value: v })); }
+      else { components = p.map((x) => (isNum(x) ? { expression: null, value: Number(x) } : { expression: String(x), value: valOf(x) })); target = { expression: null, value: eq.value ?? null }; }
+    }
+    out.push({
+      kind: "compound", relation: eq.type === "sum-equation" ? "sum" : "arithmetic",
+      components: components.map((c) => ({ expression: c.expression, method: null, value: c.value, verified: false })),
+      target: { expression: target?.expression ?? null, value: target?.value ?? eq.value ?? null },
+      arithmetic: { text: eq.text, verifiedSum: !!eq.verifiedSum },
+      claim: true,
+      verification: { arithmetic: !!eq.verifiedSum, gematriaPerPart: false },
+      interpretation: interp, source: source || null,
+    });
+  }
+  // equality — «A = B» (שני ביטויים; value מ-exprMap)
+  for (const eq of (rs.equalities || [])) {
+    out.push({
+      kind: "compound", relation: "equality",
+      components: (eq.parts || []).map((p) => ({ expression: p, method: null, value: valOf(p), verified: false })),
+      target: null, arithmetic: null, claim: true,
+      verification: { arithmetic: null, gematriaPerPart: false }, interpretation: interp, source: source || null,
+    });
+  }
+  // chain — ביטויים שונים המתכנסים לערך אחד (candidateConvergence · לא לאחד עם sum/equality)
+  for (const cl of (rs.chains || [])) {
+    out.push({
+      kind: "compound", relation: "chain",
+      components: (cl.items || []).map((it) => ({ expression: it.term ?? it.phrase ?? it.expr ?? null, method: cl.uniformMethod ? (cl.methods?.[0] ?? null) : null, value: cl.value, verified: false })),
+      target: { expression: null, value: cl.value }, arithmetic: null, claim: true,
+      verification: { arithmetic: null, gematriaPerPart: false }, interpretation: interp, source: source || null,
+    });
+  }
+  return out;
+}
+
 // ── הרכבה טהורה (בלי רשת) — pack + requests → Field Package מלא. ניתן-לבדיקה. ──
 export function buildFieldPackage(pack, requests = []) {
   return {
