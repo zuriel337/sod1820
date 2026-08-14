@@ -33,7 +33,7 @@ export default function DimensionFiveRail({ compact = false, surface = compact ?
     return (
       <section aria-label="מימד חמש — סרטונים" style={{ maxWidth: 1040, margin: "0 auto", padding: "4px 20px 10px", direction: "rtl" }}>
         <style>{`
-          .d5c-row{ display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+          .d5c-row{ display:flex; align-items:flex-start; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
           .d5c-row::-webkit-scrollbar{ display:none; }
           .d5c-card{ flex:0 0 88px; text-decoration:none; }
           .d5c-card:hover .d5c-media{ border-color:${IND}; box-shadow:0 0 14px ${IND}66; }
@@ -58,7 +58,7 @@ export default function DimensionFiveRail({ compact = false, surface = compact ?
                   <span style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,.9)", display: "grid", placeItems: "center", color: "#111", fontSize: 9 }}>▶</span>
                 </span>
               </div>
-              <div style={{ marginTop: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 88 }}>{stripHtml(p.title)}</div>
+              <div style={{ marginTop: 5, color: P.inkSoft, fontFamily: F.body, fontSize: 10.5, lineHeight: 1.35, width: 88, whiteSpace: "normal", wordBreak: "break-word", overflowWrap: "anywhere" }}>{stripHtml(p.title)}</div>
             </Link>
           ))}
         </div>
