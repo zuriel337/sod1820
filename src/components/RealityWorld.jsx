@@ -156,6 +156,16 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
 
   return (
     <div style={{ direction: "rtl" }}>
+      {/* 🌊 אנימציות ה-Hero (הרמז הבולט) — עצמאיות ברכיב כדי לעבוד גם בבית וגם בארכיון */}
+      <style>{`
+        @keyframes rw-hero-pop { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:scale(1); } }
+        @keyframes rw-hero-glow { 0%,100% { box-shadow: inset 0 0 0 1.5px rgba(212,175,55,.30), 0 0 22px -8px rgba(212,175,55,.35); } 50% { box-shadow: inset 0 0 0 2px rgba(246,226,122,.62), 0 0 42px -4px rgba(212,175,55,.6); } }
+        @keyframes rw-ribbon { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -2px); } }
+        .rw-hero-box { animation: rw-hero-pop .6s cubic-bezier(.2,.8,.2,1) both; }
+        .rw-hero-box .rw-glow { animation: rw-hero-glow 2.6s ease-in-out infinite; }
+        .rw-hero-ribbon { animation: rw-ribbon 2.6s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .rw-hero-box, .rw-hero-box .rw-glow, .rw-hero-ribbon { animation: none !important; } }
+      `}</style>
       {!hideHeader && (<>
         <h2 className="hn-h2">🌊 זרם המציאות</h2>
         <p className="hn-sub">גלריה חיה ומתכווננת — המספרים שמתעוררים במציאות. בחרו גלריית-רמזים או סננו לפי מספר.</p>
@@ -295,12 +305,14 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         const isFresh = isNewSince(h, cutoff);
         return (
           <div
-            className="rw-hero"
+            className="rw-hero rw-hero-box"
             onClick={() => setLbIdx(0)}
             style={{ cursor: "zoom-in", position: "relative", overflow: "hidden", borderRadius: 18, marginBottom: 18, minHeight: 260 }}
           >
+            {/* 🌊 סרט «עכשיו בזרם» — מושך את העין אל התמונה (זה העיקר) */}
+            <span className="rw-hero-ribbon" style={{ position: "absolute", top: 12, insetInlineStart: "50%", zIndex: 3, background: "linear-gradient(90deg,#7a1320,#d4af37)", color: "#fff", fontFamily: F.heading, fontSize: 12, fontWeight: 900, letterSpacing: .4, borderRadius: 999, padding: "5px 15px", boxShadow: "0 6px 18px -6px rgba(0,0,0,.7)", whiteSpace: "nowrap" }}>🌊 עכשיו בזרם המציאות</span>
             {h.image_url
-              ? <img src={h.image_url} alt={title || ""} style={{ width: "100%", height: "min(60vh, 560px)", objectFit: "contain", display: "block", borderRadius: 18, background: "#09080f" }} />
+              ? <img src={h.image_url} alt={title || ""} style={{ width: "100%", height: "min(62vh, 580px)", objectFit: "contain", display: "block", borderRadius: 18, background: "#09080f" }} />
               : <div style={{ height: 300, background: "linear-gradient(135deg, #1a1200, #0a0a0a)", borderRadius: 18 }} />
             }
             {/* overlay */}
@@ -324,8 +336,8 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
               {title && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: "clamp(17px,2.5vw,24px)", fontWeight: 700, textShadow: "0 2px 12px rgba(0,0,0,0.8)", marginBottom: 4 }}>{title}</div>}
               {date && <div style={{ color: "rgba(255,255,255,0.65)", fontFamily: F.heading, fontSize: 12.5 }}>🗓️ {date} · לחץ לפתיחה</div>}
             </div>
-            {/* גבול זהב */}
-            <div style={{ position: "absolute", inset: 0, borderRadius: 18, boxShadow: "inset 0 0 0 1.5px rgba(212,175,55,0.28)", pointerEvents: "none" }} />
+            {/* גבול זהב פועם — «קופץ» ומושך את העין */}
+            <div className="rw-glow" style={{ position: "absolute", inset: 0, borderRadius: 18, pointerEvents: "none" }} />
           </div>
         );
       })()}

@@ -539,7 +539,7 @@ export default function HomeNewPage() {
 
           {/* 🌊 הזרם המלא — אחד-לאחד כמו טאב «זרם המציאות» בגלריה (בועות · גלריות-רמזים · סינון ·
               הנהר · שערי-הסטים · בועות-החום), רק בתוך אשנב: ~3 רמזים ענקיים בכל רגע + מוט-ענק לגלילה. */}
-          <RealityWorld forceDark windowed hideHeader />
+          <RealityWorld forceDark windowed hideHeader showHero />
 
           {/* 📸 באנר האוצר — כמות התמונות בארכיון */}
           <Link to="/archive" style={{ display: "block", marginTop: 18, textAlign: "center", textDecoration: "none", background: "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(122,19,32,0.16))", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 14, padding: "15px 18px" }}>

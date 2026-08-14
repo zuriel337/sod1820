@@ -882,7 +882,7 @@ export default function ArchivePage() {
       {/* ============ טאב זרם המציאות — הגלריה החיה והמתכווננת (מעל האוספים) ============ */}
       {tab === "reality" && (
         <div style={{ maxWidth: 1100, margin: "0 auto", background: GALLERY_BG, borderRadius: 22, padding: "26px clamp(12px,2.5vw,28px) 30px", border: "1px solid rgba(212,175,55,0.18)" }}>
-          <RealityWorld forceDark centered presetSetId={new URLSearchParams(loc.search).get("set")} presetValue={new URLSearchParams(loc.search).get("q")} />
+          <RealityWorld forceDark centered showHero presetSetId={new URLSearchParams(loc.search).get("set")} presetValue={new URLSearchParams(loc.search).get("q")} />
         </div>
       )}
 
