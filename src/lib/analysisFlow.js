@@ -347,6 +347,52 @@ export function detectOccurrenceClaims(text) {
   return out;
 }
 
+// ── משוואות-חשבון נוספות: חיסור «a − b = c» ומכפלה «a × b = c» (חיבור כבר נלכד כ-sum-equation). ──
+// ⛔ אין חישוב-גימטריה חדש: בודקים רק את החשבון שהכתב עצמו רשם (כמו verifiedSum הקיים). Claim≠Fact.
+export function detectArithmetic(text) {
+  const t = stripNikud(String(text || "")); const out = []; const seen = new Set(); let m;
+  const push = (op, a, b, c, ok) => {
+    const key = `${a}${op}${b}=${c}`; if (seen.has(key)) return; seen.add(key);
+    out.push({ type: op === "×" ? "product-equation" : "diff-equation", op, a, b, c, value: c, verified: ok,
+      text: `${a} ${op} ${b} = ${c}`, why: `משוואת-${op === "×" ? "מכפלה" : "חיסור"} שהכתב הציג${ok ? " ✓ מאומתת-חשבונית" : " ⚠️ לא-שקולה (בדוק)"}` });
+  };
+  // חיסור — «358 - 6 = 352». lookbehind/ahead מונעים חיתוך בתוך מספר/תאריך ארוך.
+  const subRe = /(?<![\d.])(\d{1,6})\s*[-−–]\s*(\d{1,6})\s*=\s*(-?\d{1,6})(?![\d.])/g;
+  while ((m = subRe.exec(t))) { const a = +m[1], b = +m[2], c = +m[3]; push("−", a, b, c, a - b === c); }
+  // מכפלה — «26 × 7 = 182» (× / x / X / *). «N פעמים» = טענת-מכפלה-ביטויית → detectProducts, לא כאן.
+  const mulRe = /(?<![\d.])(\d{1,5})\s*[×xX*]\s*(\d{1,5})\s*=\s*(\d{1,7})(?![\d.])/g;
+  while ((m = mulRe.exec(t))) { const a = +m[1], b = +m[2], c = +m[3]; push("×", a, b, c, a * b === c); }
+  return out;
+}
+
+// ── תלות בין ממצאים — קשר בין טענות/משוואות (לא Fact, תיאור-קשר בלבד): ──
+//   (1) value-reuse: תוצאת-משוואה שהיא גם ערך שהכתב ייחס לביטוי אחר · (2) chain: תוצאה שהיא אופרנד במשוואה אחרת ·
+//   (3) סימני-גזירה לשוניים («ולכן/מכאן/נובע») שבהם הכתב מקשר ממצא לקודמו. ⛔ מצביע «נשען-על», לא מאשר.
+const DERIV_MARKERS = ["ולכן", "לכן", "ומכאן", "מכאן", "נובע", "לפי זה", "לפיכך", "כלומר", "וכך", "ובגלל", "משום כך"];
+export function detectDependencies(cands = [], arithmetic = [], text = "") {
+  const eqs = [...cands.filter(c => c.type === "sum-equation"), ...(arithmetic || [])].filter(e => e.value != null);
+  const claimByVal = new Map();
+  for (const c of cands) if (c.type === "explicit-claim" && c.value != null) {
+    if (!claimByVal.has(c.value)) claimByVal.set(c.value, new Set());
+    claimByVal.get(c.value).add(c.text);
+  }
+  const edges = []; const seen = new Set();
+  const addEdge = (kind, from, to, value, why) => { const k = kind + "|" + from + "|" + to; if (seen.has(k)) return; seen.add(k); edges.push({ kind, from, to, value, why }); };
+  // (1) תוצאת-משוואה = ערך של ביטוי-אחר שהכתב טען. ⛔ לא self-reference: אם אותיות-הביטוי מוכלות באיברי-המשוואה עצמה — דלג.
+  const heOnly = (s) => String(s || "").replace(/[^א-ת]/g, "");
+  for (const e of eqs) { const exprs = claimByVal.get(e.value);
+    if (exprs) for (const ex of exprs) if (!heOnly(e.text).includes(heOnly(ex)))
+      addEdge("value-reuse", e.text, `${ex} = ${e.value}`, e.value, `תוצאת «${e.text}» (${e.value}) היא גם הערך שהכתב ייחס ל«${ex}» — תלות בין ממצאים`);
+  }
+  // (2) שרשרת-משוואות: תוצאה מספרית של אחת = אופרנד של אחרת
+  const numOps = (e) => e.a != null ? [e.a, e.b] : (Array.isArray(e.parts) && e.parts.every(p => typeof p === "number") ? e.parts.slice(0, -1) : []);
+  for (const e1 of eqs) for (const e2 of eqs) if (e1 !== e2 && numOps(e2).includes(e1.value))
+    addEdge("chain", e1.text, e2.text, e1.value, `תוצאת «${e1.text}» (${e1.value}) משמשת כאיבר ב«${e2.text}» — שרשרת-משוואות`);
+  // (3) סימני-גזירה לשוניים (הכתב קישר ממצא לקודמו במפורש)
+  const derivationMarkers = [...new Set(DERIV_MARKERS.filter(mk => String(text || "").includes(mk)))];
+  return { edges, derivationMarkers };
+}
+
 // ── אשכולות-ערך (writer-claimed) — קיבוץ טענות לפי הערך שהכתב ייחס. ≥2 ביטויים שונים = «התכנסות מועמדת» ──
 // ⛔ מועמדת בלבד — מחכה לאימות-מנוע לכל ביטוי בנפרד. HOT≠TRUE · CLAIM≠FACT. השיטה שונה בין ביטויים → לא אחידה.
 export function clusterClaims(claims = []) {
@@ -411,7 +457,7 @@ export function detectDateClaims(text) {
 
 // המלצות-מחקר (H) — כל אחת עם `why` ו-`rank` (high=גבוהה · mid=בינונית · interp=פרשני·לא-Fact).
 // מוצעות בלבד, לא מבוצעות ולא מקדמות (Human-Gate). ⛔ שרשרת-פרשנות = interp, לעולם לא Fact.
-export function researchSuggestions({ engine, claims, clusters, exprMap, pending, dateClaims, koll, verses, sources, products, occurrences, writerName, dbHubKnown }) {
+export function researchSuggestions({ engine, claims, clusters, exprMap, pending, dateClaims, koll, verses, sources, products, occurrences, arithmetic, dependencies, writerName, dbHubKnown }) {
   const s = [];
   const conv = engine?.convergences || [];
   const cand = (clusters || []).filter(c => c.candidateConvergence);
@@ -431,8 +477,11 @@ export function researchSuggestions({ engine, claims, clusters, exprMap, pending
   if (koll?.length) s.push({ rank: "high", t: `אמת את מתודת-הכולל (${koll.join(" · ")})`, why: "המספר הוא CLAIM עם תוספת-חישוב — לאמת במנוע, לא להניח" });
   const sum = (claims || []).find(c => c.type === "sum-equation");
   if (sum) s.push({ rank: "high", t: `בדוק את המשוואה ${sum.text}`, why: `משוואת-סכום${sum.verifiedSum ? " (מאומתת חשבונית)" : ""} שהכתב הציג` });
+  (arithmetic || []).forEach(a => s.push({ rank: "high", t: `בדוק את המשוואה ${a.text}`, why: a.why }));
   // ── בינונית — צמתים-חוזרים · השוואת-שיטות · DB-First · מקורות · דפוס-כתב ──
   (exprMap || []).slice(0, 3).forEach(e => s.push({ rank: "mid", t: `בדוק אם «${e.expr}» צומת-חוזר (${e.rows.length} שילובי שיטה×ערך)`, why: `הביטוי מופיע ב-${e.rows.map(r => `${r.method || "רגיל?"}→${r.value}`).join(" · ")} — השווה את השיטות במנוע` }));
+  (dependencies?.edges || []).slice(0, 4).forEach(d => s.push({ rank: "mid", t: `תלות בין ממצאים: ${d.from} → ${d.to}`, why: d.why }));
+  if (dependencies?.derivationMarkers?.length) s.push({ rank: "mid", t: `הכתב מקשר ממצאים («${dependencies.derivationMarkers.join("», «")}»)`, why: "סימני-גזירה לשוניים — בדוק אם המסקנה נשענת על ממצא קודם (תלות, לא Fact עצמאי)" });
   s.push({ rank: "mid", t: "בדוק אילו מהביטויים כבר קיימים ב-DB", why: dbHubKnown != null ? `חלק מהערכים כבר בבנק — חדש מול חיזוק-קיים` : "DB-First לכל אשכול — חדש או חיזוק-לקיים" });
   (sources || []).forEach(src => { if (src.type === "tanach") s.push({ rank: "mid", t: `אמת את המקור ${src.name}${src.citation ? ` ${src.citation}` : ""}`, why: "לזהות ספר/פרק ולבדוק אם כבר ב-DB (לא לשכפל)" }); });
   if (writerName) s.push({ rank: "mid", t: `בדוק ממצאים נוספים של ${writerName} עם מבנה דומה`, why: "לזהות דפוס-עבודה חוזר (פרופיל-שיטה)" });
@@ -456,13 +505,61 @@ export function analyzeFull(rawText, { writerName = null, dbHubKnown = null } = 
   const sources = detectSources(rawText);
   const products = detectProducts(rawText);
   const occurrences = detectOccurrenceClaims(rawText);
-  const clusters = clusterClaims(cands);             // אשכולות writer-claimed (מועמדי-התכנסות)
-  const exprMap = exprMethodValueMap(cands);         // מפת ביטוי×שיטה×ערך
+  const clusters = clusterClaims(cands);             // אשכולות writer-claimed (מועמדי-התכנסות) = שרשראות-שוויון
+  const exprMap = exprMethodValueMap(cands);         // מפת ביטוי×שיטה×ערך = השוואת-שיטות
   const pending = detectPending(rawText);            // «טרם נבדק»
   const dateClaims = detectDateClaims(rawText);      // AUTHOR_NOTE · DATE_CLAIM
-  const suggestions = researchSuggestions({ engine, claims, clusters, exprMap, pending, dateClaims, koll, verses, sources, products, occurrences, writerName, dbHubKnown });
+  const arithmetic = detectArithmetic(rawText);      // חיסור/מכפלה (חיבור = sum-equation)
+  const dependencies = detectDependencies(cands, arithmetic, rawText);  // תלות בין ממצאים
+  const suggestions = researchSuggestions({ engine, claims, clusters, exprMap, pending, dateClaims, koll, verses, sources, products, occurrences, arithmetic, dependencies, writerName, dbHubKnown });
   // מבנה-הממצא (🧩): המשוואה + ההתכנסות המרכזית + אשכולות + מפת-שיטות — «יחידות-טיעון».
   const sumEq = cands.find(c => c.type === "sum-equation");
-  const structure = { sumEq: sumEq || null, hub: engine.convergences[0] || null, convergences: engine.convergences, clusters, exprMap, pending, dateClaims, phrases, verses, sources, products, occurrences };
-  return { cands, claims, phrases, engine, koll, verses, sources, products, occurrences, clusters, exprMap, pending, dateClaims, suggestions, structure };
+  // 🧩 Research Structure — חמש הקטגוריות שהתבקשו, שכבת-ניתוח מעל המקור (READ · לא Fact · לא קידום):
+  const researchStructure = {
+    equalities: (cands || []).filter(c => c.type === "equation"),                      // שוויון «A = B»
+    chains: (clusters || []).filter(c => c.candidateConvergence),                      // שרשרת-שוויונות (ביטויים שונים→ערך אחד)
+    equations: [...(cands || []).filter(c => c.type === "sum-equation"), ...arithmetic], // חיבור/חיסור/מכפלה (עם אימות-חשבוני)
+    dependencies,                                                                       // תלות בין ממצאים
+    methodComparison: exprMap,                                                          // השוואת-שיטות (ביטוי×שיטה×ערך)
+  };
+  const structure = { sumEq: sumEq || null, hub: engine.convergences[0] || null, convergences: engine.convergences, clusters, exprMap, pending, dateClaims, arithmetic, dependencies, phrases, verses, sources, products, occurrences };
+  return { cands, claims, phrases, engine, koll, verses, sources, products, occurrences, clusters, exprMap, pending, dateClaims, arithmetic, dependencies, suggestions, structure, researchStructure };
+}
+
+// ── OCR → אותו Flow (הגדרה·מתאם טהור) — תמונה נכנסת ל-Smart Analysis כ«מקור-נוסף», בלי טבלה/מנוע חדשים. ──
+// שרשרת: מקור-תמונה(image_url) → טקסט-OCR(ocr_text) → confidence(כן) → Candidate/Structure(analyzeFull) → הצלבת-מקור(dbHubKnown) → מנוע(runEngineOnTerms).
+// ⛔ המקור = התמונה, לעולם לא מוחלף ב-OCR (image_url נשמר). OCR = CLAIM בלבד — לא Fact עד אימות-מנוע + אישור-אנושי (primary_value).
+// אין ציון-OCR מספרי במערכת (gallery-ocr לא כותב confidence) → נגזרת איכותית כנה מהאותות הקיימים (scored:false).
+export function ocrConfidence(row = {}) {
+  const status = row.ocr_status || null;
+  const approved = row.primary_value != null;                       // אושר-אנושי (הדומיננטי) — ImageEditModal
+  const hasText = !!(row.ocr_text && String(row.ocr_text).trim());
+  const nums = Array.isArray(row.ocr_numbers) ? row.ocr_numbers.length : 0;
+  const hasGem = !!(row.ocr_meta && row.ocr_meta.gematria);
+  let level = "medium", why = "OCR הושלם (טקסט בלבד) — טרם אושר דומיננטי";
+  if (status === "error" || !hasText) { level = "none"; why = "OCR נכשל/ריק — אין טקסט לניתוח"; }
+  else if (status === "pending") { level = "low"; why = "OCR טרם הושלם (pending)"; }
+  else if (approved) { level = "high"; why = "טקסט-OCR + מספר-דומיננטי מאושר-אנושי (primary_value)"; }
+  else if (nums || hasGem) { level = "medium"; why = "OCR הושלם עם מספרים/גימטריה מוצעים — טרם אושר דומיננטי"; }
+  return { level, why, status, approved, numbersProposed: nums, hasGematria: hasGem, scored: false };
+}
+
+// analyzeOcrSource(row) — row = שורת gallery_images (image_url/ocr_text/ocr_numbers/ocr_meta/ocr_status/primary_value).
+// טהור (בלי DB): הרכיב שולף את השורה ומזריק dbHubKnown/writerName כמו בפוסט. מחזיר את התמונה כמקור + הניתוח על ה-OCR.
+export function analyzeOcrSource(row = {}, opts = {}) {
+  const ocrText = String(row.ocr_text || "");
+  const confidence = ocrConfidence(row);
+  const meta = row.ocr_meta || {};
+  return {
+    provenance: "ocr:gallery_images",
+    source: { imageUrl: row.image_url || null, thumb: row.thumb_url || null,
+      imageType: row.image_type || meta.image_type || null, ocrAt: row.ocr_at || null, scene: meta.scene || null },
+    ocrText,                                            // ⛔ שכבת-תקשורת — לא מחליף את התמונה
+    entities: Array.isArray(meta.entities) ? meta.entities : [],
+    proposedNumbers: Array.isArray(row.ocr_numbers) ? row.ocr_numbers : [],   // הצעות-OCR (CLAIM, לא Fact)
+    approvedPrimary: row.primary_value ?? null,          // מאושר-אנושי (אם קיים)
+    ocrGematria: meta.gematria || null,                  // טענת-OCR (phrase+values) — לאמת במנוע, לא להניח
+    confidence,
+    analysis: confidence.level === "none" ? null : analyzeFull(ocrText, opts),  // אותו analyzeFull — שוויון/שרשרת/±×/תלות/שיטות
+  };
 }
