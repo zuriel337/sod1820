@@ -302,6 +302,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         const v = domNum(h);
         const title = cleanName(h?.name);
         const date = shortDate(h);
+        const desc = (h?.description || "").replace(/<[^>]+>/g, "").trim();   // 📝 התיאור שנכתב לתמונה
         const isFresh = isNewSince(h, cutoff);
         return (
           <div
@@ -334,6 +335,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
             {/* מידע תחתי */}
             <div style={{ position: "absolute", bottom: 0, right: 0, left: 0, padding: "18px 20px", zIndex: 2, direction: "rtl" }}>
               {title && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: "clamp(17px,2.5vw,24px)", fontWeight: 700, textShadow: "0 2px 12px rgba(0,0,0,0.8)", marginBottom: 4 }}>{title}</div>}
+              {desc && <div style={{ color: "rgba(255,255,255,0.92)", fontFamily: F.body, fontSize: "clamp(13px,1.9vw,15px)", lineHeight: 1.55, textShadow: "0 2px 10px rgba(0,0,0,0.9)", marginBottom: 6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{desc}</div>}
               {date && <div style={{ color: "rgba(255,255,255,0.65)", fontFamily: F.heading, fontSize: 12.5 }}>🗓️ {date} · לחץ לפתיחה</div>}
             </div>
             {/* גבול זהב פועם — «קופץ» ומושך את העין */}
