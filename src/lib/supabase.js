@@ -351,6 +351,74 @@ export async function dbFirstLookup(phrases = [], value = null) {
   return out;
 }
 
+// DB-First לכל אשכול — כמה ביטויים מאומתים כבר בבנק לכל ערך-אשכול (שאילתה אחת, READ-ONLY).
+// מחזיר Map(value → count). כך «ניתוח מלא» מראה לכל אשכול «X בבנק · שלך חדש/חיזוק» בלי לשכפל.
+export async function getHubCounts(values = []) {
+  const map = new Map();
+  if (!supabase) return map;
+  const uniq = [...new Set((values || []).map(Number).filter(v => Number.isFinite(v)))];
+  if (!uniq.length) return map;
+  try {
+    const { data } = await supabase.from("gematria_words")
+      .select("ragil").in("ragil", uniq).eq("is_verified", true);
+    for (const r of data || []) map.set(r.ragil, (map.get(r.ragil) || 0) + 1);
+  } catch { /* ignore */ }
+  return map;
+}
+
+// CHECK_EXISTING_AXIS_DATA · DB-First לציר — האם תאריך/שנה/אירוע כבר בציר? READ-ONLY, בלי טבלה/פונקציה חדשה.
+// מקורות-הציר הקיימים: nodes(type='event') + teder_stations. התאמה לפי שנה · תאריך-לועזי (occurred_at/event_date) · תאריך-עברי.
+// מחזיר { byYear:Map(year→[hit]), byIso:Map(iso→[hit]), byHebrew:[hit], events:[...] } — כל hit נושא source/label/matchedBy.
+export async function checkAxisData({ years = [], isoDates = [], hebrew = [] } = {}) {
+  const res = { byYear: new Map(), byIso: new Map(), byHebrew: [], all: [] };
+  if (!supabase) return res;
+  const yrs = [...new Set(years.map(String))].filter(Boolean);
+  const isos = [...new Set(isoDates)].filter(Boolean);
+  try {
+    // events: לפי שנה (server-side) + כל בעלי תאריך-עברי (קטן) לצורך התאמה עברית.
+    const queries = [];
+    if (yrs.length) queries.push(supabase.from("nodes").select("id,label,hebrew_date,metadata").eq("type", "event").filter("metadata->>year", "in", `(${yrs.join(",")})`).limit(60));
+    queries.push(supabase.from("nodes").select("id,label,hebrew_date,metadata").eq("type", "event").not("hebrew_date", "is", null).limit(60));
+    queries.push(supabase.from("teder_stations").select("id,title,year,event_date,hebrew_date,central_numbers").limit(60));
+    const [ev1, evHeb, teder] = await Promise.all([
+      yrs.length ? queries[0] : Promise.resolve({ data: [] }),
+      queries[yrs.length ? 1 : 0], queries[yrs.length ? 2 : 1],
+    ]);
+    const evRows = [...(ev1?.data || []), ...(evHeb?.data || [])];
+    const seen = new Set();
+    const addHit = (hit, bucket, key) => {
+      if (bucket === "year") { if (!res.byYear.has(key)) res.byYear.set(key, []); res.byYear.get(key).push(hit); }
+      else if (bucket === "iso") { if (!res.byIso.has(key)) res.byIso.set(key, []); res.byIso.get(key).push(hit); }
+      else res.byHebrew.push(hit);
+      const uk = hit.source + hit.id; if (!seen.has(uk)) { seen.add(uk); res.all.push(hit); }
+    };
+    for (const r of evRows) {
+      const y = r.metadata?.year != null ? String(r.metadata.year) : null;
+      const occ = r.metadata?.occurred_at ? String(r.metadata.occurred_at).slice(0, 10) : null;
+      const hit = { source: "event", id: r.id, label: r.label, year: y, occurred_at: occ, hebrew_date: r.hebrew_date };
+      if (y && yrs.includes(y)) addHit({ ...hit, matchedBy: "year" }, "year", +y);
+      if (occ && isos.includes(occ)) addHit({ ...hit, matchedBy: "occurred_at" }, "iso", occ);
+      if (r.hebrew_date) for (const h of hebrew) if (h && hebrewMatch(r.hebrew_date, h)) addHit({ ...hit, matchedBy: "hebrew_date" }, "hebrew");
+    }
+    for (const r of (teder?.data || [])) {
+      const y = r.year != null ? String(r.year) : null;
+      const occ = r.event_date ? String(r.event_date).slice(0, 10) : null;
+      const hit = { source: "teder", id: r.id, label: r.title, year: y, occurred_at: occ, hebrew_date: r.hebrew_date };
+      if (y && yrs.includes(y)) addHit({ ...hit, matchedBy: "year" }, "year", +y);
+      if (occ && isos.includes(occ)) addHit({ ...hit, matchedBy: "occurred_at" }, "iso", occ);
+    }
+  } catch { /* ignore */ }
+  return res;
+}
+// התאמת תאריך-עברי גמישה: אותו יום+חודש (מתעלם מגרשיים/מקפים/שנה) — «טז׳ מר-חשון תרצ״ט» ~ «טז מרחשון».
+function hebrewMatch(a, b) {
+  const norm = (s) => String(s || "").replace(/[־\-'"׳״]/g, "").replace(/מרחשון|מרחשוון/g, "חשון").replace(/\s+/g, " ").trim();
+  const na = norm(a), nb = norm(b);
+  if (!na || !nb) return false;
+  const dayMon = (s) => (s.match(/^(\S+)\s+(\S+)/) || []).slice(1, 3).join(" ");
+  return na.includes(nb) || nb.includes(na) || (dayMon(na) && dayMon(na) === dayMon(nb));
+}
+
 // Smart Analysis Flow · פרופיל-שיטות של כתב — טענות עם gematria_claim בלבד (המאומתות מסוננות בצד-הלקוח). READ-ONLY.
 export async function getWriterVerifiedClaims(names = []) {
   if (!supabase) return [];
@@ -1165,13 +1233,15 @@ function aiVisitorId() {
     return v;
   } catch { return null; }
 }
-export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron }) {
+export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation }) {
   if (!supabase) return null;
   try {
     // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
     // ✨ long=true → ניתוח עמוק ממוזג ארוך (השרת מרים את הגבלת-האורך; אינרטי אם לא נשלח).
     // 🌳 metatron=true → השרת נשען על «העץ האחד» (חוקים+גרף) → תשובה מבוססת-חומר (בטא, opt-in).
-    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine, long, metatron, visitor_id: aiVisitorId() } });
+    // provenance-עלות (ref=msg_id · ref_name=group/conversation · user_ref) נשלח לרישום ב-ai_token_log.
+    // ⚠️ non-breaking: ה-edge הנוכחי מתעלם מהשדות עד עדכון; מוכן לשרשור user→conversation→message→model→tokens→cost.
+    const { data, error } = await supabase.functions.invoke('ai-analyze', { body: { kind, subject, facts, again, fast, engine, long, metatron, visitor_id: aiVisitorId(), ref, ref_name, user_ref, operation } });
     if (error) { try { console.warn('[ai-analyze] invoke error:', error?.message || error); } catch { /* noop */ } return null; }
     // 🚦 מכסת-AI נגמרה → שדר אירוע גלובלי (שער-הרשמה/הודעה); מחזיר null → הקורא מציג נפילה בחן.
     if (data?.error === 'quota') {
@@ -3451,14 +3521,27 @@ export async function getWaGroups() {
     .select('group_id,enabled,max_per_hour,ai_chat,created_at').order('enabled', { ascending: false });
   return data || [];
 }
-// יומן-הודעות WhatsApp (wa_bot_log — policy wabl_admin_read) — טקסט/ערך/פעולה.
+// יומן-הודעות WhatsApp (wa_bot_log — policy wabl_admin_read) — נכנס+תשובת-בוט באותה שורה.
+// כולל reply_out (תשובת-הבוט) · msg_id (מזהה-ספק) · bot_mode + sender (טלפון) — לפאנל-הקשר-מלא. READ-ONLY.
 export async function getWaLog({ group = null, sender = null, limit = 80 } = {}) {
   if (!supabase) return [];
   let q = supabase.from('wa_bot_log')
-    .select('group_id,sender,sender_name,text_in,value,action,created_at')
+    .select('group_id,sender,sender_name,text_in,reply_out,msg_id,bot_mode,value,action,created_at')
     .order('created_at', { ascending: false }).limit(limit);
   if (group) q = q.eq('group_id', group);
   if (sender) q = q.ilike('sender_name', `%${sender}%`);
+  const { data } = await q;
+  return data || [];
+}
+// 🕐 Timeline של שיחה אחת — כל ההודעות של אותו group_id (הקשר קיים, לא טבלת-conversations חדשה). READ-ONLY.
+// ממוין ישן→חדש (סדר-שיחה). כל שורה = מה האדם שלח (text_in) + מה הבוט החזיר (reply_out).
+export async function getWaThread({ groupId = null, sender = null, limit = 60 } = {}) {
+  if (!supabase || (!groupId && !sender)) return [];
+  let q = supabase.from('wa_bot_log')
+    .select('group_id,sender,sender_name,text_in,reply_out,msg_id,bot_mode,value,action,created_at')
+    .order('created_at', { ascending: true }).limit(limit);
+  if (groupId) q = q.eq('group_id', groupId);
+  else if (sender) q = q.eq('sender', sender);
   const { data } = await q;
   return data || [];
 }
