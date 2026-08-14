@@ -11,7 +11,6 @@ import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
 import VideoBadge, { postHasVideo } from "./VideoBadge.jsx";
 import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכונים אחרונים» הקנוני — זהה בבית/צד/מובייל
-import Lightbox from "./Lightbox.jsx";               // 🌊 הצגת פריט זרם-המציאות במקום (reuse — לא viewer חדש)
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
 //   פוסט · זרם המציאות (🌊) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
@@ -25,10 +24,6 @@ const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false }) {
   const P = usePalette();
   const [expanded, setExpanded] = useState(false);   // «פתח עוד» — פותח מ-limit לכל הפריטים (רק כשמועבר limit)
-  // 🌊 זרם-המציאות — פתיחה במקום (Lightbox קנוני) במקום גלילה ל-#reality-home (שלא קיים בפוסט/צ'אט).
-  const [lbIdx, setLbIdx] = useState(null);
-  const realityImages = useMemo(() => (hints || []).filter(h => h && h.image_url), [hints]);
-  const openReality = (d) => { const i = realityImages.findIndex(x => x.id === d.id); setLbIdx(i >= 0 ? i : 0); };
   const light = P.mode === "light";
   const cGilui = light ? "#6d3bd4" : "#b79bff";
   const cReality = light ? "#0e9b8e" : "#4fd6c9";
@@ -99,11 +94,11 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     if (it.type === "reality") {
       const v = domNum(d);
       return (
-        <button key={"r" + d.id} type="button" onClick={() => openReality(d)} className="lur-card" style={{ "--acc": cReality }}>
+        <button key={"r" + d.id} type="button" onClick={() => scrollTo("reality-home")} className="lur-card" style={{ "--acc": cReality }}>
           <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} />{v != null && <span className="lur-onimg">{v}</span>}</div>
           <div className="lur-body"><Tag acc={cReality} logo={<RealityLogo s={13} />}>זרם המציאות</Tag>
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
-            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>🔍 לצפייה</span></div></div>
+            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>↓ בזרם למטה</span></div></div>
         </button>
       );
     }
@@ -199,10 +194,6 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
         <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>
       </div>
-      {/* 🌊 זרם המציאות — פתיחה במקום ב-Lightbox הקנוני (reuse), עם «לכל זרם המציאות» → הארכיון הקיים /archive */}
-      {lbIdx != null && realityImages.length > 0 && (
-        <Lightbox images={realityImages} initialIndex={lbIdx} seeAllHref="/archive" textFirst onClose={() => setLbIdx(null)} />
-      )}
     </>
   );
 }
