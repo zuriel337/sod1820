@@ -187,7 +187,7 @@ async function runGemini(user: string, maxTokens: number, system: string = SYSTE
 }
 
 // ===== 📏 מכסת-AI (ai_quota_law) — אכיפה אמיתית בשרת =====
-// אורח 3/יום · רשום 15/יום · מנוי 100/יום · אדמין ∞. הזהות: משתמש מאומת > visitor_id > IP.
+// עומק (Sonnet) 2/יום לכולם (אדמין פטור) · מהיר 30/200 · מלווה 40/300. הזהות: משתמש מאומת > visitor_id > IP.
 const SB_URL = Deno.env.get("SUPABASE_URL") || "";
 const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_ANON = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
@@ -331,14 +331,34 @@ Deno.serve(async (req: Request) => {
       const rAgain = !!body?.again;
       if (!rSubject && !rFacts) return json({ analysis: null, error: "empty" });
 
+      // 🧠 5B — deterministic-first (מאחורי flag; test-visitor בלבד עד אישור rollout). fail-open מלא.
+      //    gematria/ELS מגיעים מהמנוע הדטרמיניסטי (fn_raziel_answer) — Claude *לא* נקרא ואין צריכת-מכסה.
+      //    mode!=deterministic (כולל flag OFF למשתמשים אמיתיים) → נופל בדיוק למסלול Claude הישן שלמטה.
+      try {
+        if (rSubject && SB_URL && SB_SVC) {
+          const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
+            method: "POST", headers: svcHeaders(),
+            body: JSON.stringify({ p_question: rSubject, p_context_type: "public_user", p_user_ref: null, p_visitor: String(body?.visitor_id || "") }),
+          });
+          if (detR.ok) {
+            const det = await detR.json();
+            if (det && det.enabled === true && det.mode === "deterministic" && det.needs_synthesis === false) {
+              const dFacts = Array.isArray(det.facts) ? det.facts.map((f: any) => ({ label: f.label, value: f.value })) : [];
+              return json({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
+                facts: dFacts, suggested_paths: [], follow_up_question: null, continue_wa: true,
+                deterministic: true, source_of_truth: det.source_of_truth || null, trace: det.trace || null },
+                engine: "deterministic", model: "none" });
+            }
+          }
+        }
+      } catch { /* fail-open → מסלול Claude הישן */ }
+
       const { identity, tier } = await resolveIdentity(req, body);
-      // מכסת-AI (ai_quota_law) — רזיאל-עומק תחת אותה מכסה כמו שאר האתר (3/15/100/∞).
+      // מכסת-AI (ai_quota_law) — רזיאל-עומק: 2/יום לכולם (אדמין פטור · ai_quota_check).
       const q = await checkQuota(identity, tier);
       if (!q.allowed) {
         return json({ analysis: null, error: "quota", surface: "raziel", tier: q.tier, used: q.used, limit: q.limit,
-          message: q.tier === "anon"
-            ? "השתמשת ב-3 שיחות-רזיאל המעמיקות היומיות. הירשמו בחינם (פחות מדקה) ל-15 ביום, ולשמירת המחקר והמשכיות."
-            : "הגעת למכסת שיחות-רזיאל המעמיקות היומית. המכסה מתחדשת מחר." });
+          message: "הגעת ל-2 שיחות-רזיאל המעמיקות שלך להיום. המכסה מתחדשת מחר." });
       }
 
       const userRef = identity.startsWith("u:") ? identity.slice(2) : null;  // זיכרון = למשתמש מזוהה בלבד
@@ -394,12 +414,10 @@ Deno.serve(async (req: Request) => {
     const isDeep = !body?.fast;
     const { identity, tier } = await resolveIdentity(req, body);
     if (isDeep) {
-      const q = await checkQuota(identity, tier);            // עמוק: 3/15/100/∞
+      const q = await checkQuota(identity, tier);            // עמוק: 2/יום לכולם · אדמין פטור
       if (!q.allowed) {
         return json({ analysis: null, error: "quota", surface: "deep", tier: q.tier, used: q.used, limit: q.limit,
-          message: q.tier === "anon"
-            ? "השתמשת ב-3 ניתוחי-ה-AI המעמיקים היומיים. הירשמו בחינם (פחות מדקה) ל-15 ביום, ולשמירת היסטוריה ומסעות."
-            : "הגעת למכסת ניתוחי-ה-AI המעמיקים היומית. המכסה מתחדשת מחר." });
+          message: "הגעת ל-2 ניתוחי-ה-AI המעמיקים שלך להיום. הניתוח המהיר עדיין פתוח — והמכסה המעמיקה מתחדשת מחר." });
       }
     } else if (tier === "anon" || tier === "user") {
       const lim = tier === "anon" ? 30 : 200;                // מהיר: נדיב, אנטי-לולאה; מנוי/אדמין = חופשי
