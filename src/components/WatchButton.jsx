@@ -15,7 +15,7 @@ import { trackConversion } from "../lib/marketing.js";
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
 //   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false }) {
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
@@ -58,6 +58,27 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   }
 
   if (!topic) return null;
+
+  // ✓ וריאנט mini — «וי קטן» עדין למשטחי-מדיה כהים (למשל בתוך נגן-הShorts). כמעט-שקוף כשלא-עוקב,
+  //   מתמלא בסגול כשעוקב. אותו מנוע-מעקב קנוני (watchToggle/getNotificationPrefs), רק תצוגה זעירה.
+  if (variant === "mini") {
+    return (
+      <button onClick={toggle} disabled={busy} aria-pressed={following}
+        title={following ? "עוקב — לחצו לביטול" : (explainer || "עקבו אחרי מימד חמש")}
+        style={{
+          display: "inline-flex", alignItems: "center", gap: 5, cursor: busy ? "wait" : "pointer",
+          background: following ? "rgba(132,88,255,.9)" : "rgba(255,255,255,.10)",
+          border: `1px solid ${following ? "rgba(190,165,255,.8)" : "rgba(255,255,255,.28)"}`,
+          color: "#fff", borderRadius: 999, padding: "4px 10px",
+          fontFamily: F.heading, fontWeight: 800, fontSize: 11, lineHeight: 1,
+          opacity: following ? 1 : 0.5, transition: "opacity .2s, background .2s",
+        }}>
+        <span aria-hidden style={{ fontSize: 11 }}>✓</span>
+        <span>{following ? (followLabel || "עוקב") : (label || "מעקב")}</span>
+      </button>
+    );
+  }
+
   const gold = P.accentText, soft = P.glow || "rgba(212,175,55,0.15)";
 
   const outline = following || ghost;   // מתאר: תמיד כשעוקבים, וגם ghost כברירת-מחדל (פעולה משנית סמוכה)

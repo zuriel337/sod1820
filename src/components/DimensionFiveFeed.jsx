@@ -6,6 +6,7 @@ import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
 import { shareVideoToStory } from "../lib/share.js";
+import WatchButton from "./WatchButton.jsx";
 
 // 🎬 פיד-הרצף של «מימד חמש» — נגן מסך-מלא בסגנון Shorts/TikTok. נפתח מכל כרטיס-מימד-חמש
 //    (סרגל/פוטר/ענן) דרך openD5Feed(slug), טוען את כל הסרטונים, ומאפשר מעבר מאחד לשני
@@ -106,6 +107,8 @@ export default function DimensionFiveFeed() {
       {/* שורה עליונה: כותרת · מונה · סגירה */}
       <div style={{ width: "100%", maxWidth: 480, display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", flex: "0 0 auto" }}>
         <span style={{ background: `${IND}dd`, color: "#fff", fontFamily: F.heading, fontWeight: 800, fontSize: 11, padding: "3px 9px", borderRadius: 999, flex: "0 0 auto" }}>🌀 מימד חמש</span>
+        {/* ✓ וי-מעקב עדין אחרי קטגוריית «מימד חמש» — כמעט בלתי-נראה עד שעוקבים */}
+        <span style={{ flex: "0 0 auto" }}><WatchButton variant="mini" topic="category:מימד חמש" source="dim5-feed" label="מעקב" followLabel="עוקב" explainer="עקבו אחרי מימד חמש — נעדכן כשעולה סרטון חדש" /></span>
         <span style={{ color: "#cdbff2", fontFamily: F.heading, fontSize: 12, fontWeight: 700, flex: "0 0 auto" }}>{idx + 1}/{total}</span>
         <div style={{ color: "#fff", fontFamily: F.royal, fontSize: 14, fontWeight: 700, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>{stripHtml(cur.title || "")}</div>
         <button onClick={close} aria-label="סגירה" style={{ flex: "0 0 auto", width: 34, height: 34, borderRadius: "50%", background: "rgba(255,255,255,.14)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button>
