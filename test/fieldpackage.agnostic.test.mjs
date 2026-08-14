@@ -41,6 +41,11 @@ ok([1, 2, 3, 4, 5, 6, 7, 8].every((i) => keys.has("שיטה-חדשה-" + i)), "a
 const byM = Object.fromEntries(f.methods.map((m) => [m.method, m.value]));
 ok(byM["שיטה-חדשה-5"] === 10005 && byM["מילוי"] === 1820, "novel + known values both intact (no ragil-only reduction)");
 
+// 1b · selfBridge is method-agnostic too — every distinct value becomes a node, novel methods included
+ok(Array.isArray(f.selfBridge) && f.selfBridge.length >= 1, "selfBridge built for N methods");
+const sbVals = new Set(f.selfBridge.map((b) => b.value));
+ok([1, 2, 3, 4, 5, 6, 7, 8].every((i) => sbVals.has(10000 + i)), "all 8 novel-method values appear as bridge nodes (no cap)");
+
 // 2 · convergence on a novel method is not dropped
 ok(f.convergences.length === 2, "both convergence groups render (incl. novel-method group)");
 ok(f.convergences.some((c) => c.method === "שיטה-חדשה-3"), "convergence keyed on a novel method still appears (row not filtered out)");

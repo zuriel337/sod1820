@@ -47,6 +47,13 @@ ok(f.primaryValue === 1020, "primaryValue is ONE of the methods (ragil), not the
 ok(f.bridges.some((b) => b.kind === "cross_method" && b.partner === "תורה אחת" && b.nMethods === 3), "cross-method bridge preserved with detail");
 ok(f.bridges.some((b) => b.kind === "zero_scale"), "zero-scale bridge preserved");
 
+// 2b · same-finding bridge — one expression, methods[] grouped by value (each value a nav node)
+ok(Array.isArray(f.selfBridge), "selfBridge present");
+const sb1020 = f.selfBridge.find((b) => b.value === 1020);
+ok(sb1020 && sb1020.methods.includes("רגיל") && sb1020.methods.includes("גדול"), "1020 groups רגיל+גדול (same finding, two methods → one value node)");
+ok(f.selfBridge.some((b) => b.value === 1820 && b.methods.includes("מילוי")), "1820 is its own node (מילוי) — the ראגיל⇄מילוי bridge");
+ok(f.selfBridge.length > 1, "selfBridge has multiple value-nodes to bridge");
+
 // 3 · convergences annotated with per-method value (the expression×method×value bridge)
 const miluyConv = f.convergences.find((c) => c.method === "miluy");
 ok(miluyConv && miluyConv.value === 1820, "miluy convergence group annotated with subject's miluy value=1820");

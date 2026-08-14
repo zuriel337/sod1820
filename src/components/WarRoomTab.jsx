@@ -25,6 +25,7 @@ import {
 import { PaletteProvider, PALETTES } from "../lib/palette.js";
 import { getHandledMap, markHandled, unmarkHandled } from "../lib/handled.js";
 import { assembleFieldPackage } from "../lib/fieldpackage.js"; // P2 read-model (מפת-מצב) — תצוגה בלבד
+import { createRequest } from "../lib/inforequest.js"; // P1 · «מה חסר» → הכנת בקשת-מידע (טיוטה, פנימי)
 import {
   CORE_WRITERS, orderWriters, ROUTES, destinations, fallbackTier,
   normStatus, statusOptions, structuralExtract, actionState, ACT_STATE, whatMissing, sortItems,
@@ -1015,6 +1016,11 @@ function MiluiDrill({ expr }) {
     </div>
   );
 }
+// 🔗 צומת-ניווט לחיץ → דף-הישות הקיים (/number/:phrase — מספר או ביטוי). ⛔ לא מערכת-ניווט חדשה.
+const numLink = (key) => `/number/${encodeURIComponent(String(key))}`;
+function Node({ to, color = "#6ea0ff", title, children }) {
+  return <Link to={numLink(to)} title={title || `פתח את «${to}»`} style={{ ...pill(color), textDecoration: "none", cursor: "pointer" }}>{children}</Link>;
+}
 function FieldPackageSection({ item }) {
   const { user } = useAuth();
   const uid = user?.id || null;
@@ -1022,6 +1028,8 @@ function FieldPackageSection({ item }) {
   const [pkg, setPkg] = useState(null);
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [reload, setReload] = useState(0);
+  const [reqBusy, setReqBusy] = useState(false);
   useEffect(() => {
     let live = true;
     if (!expr) { setPkg(null); return; }
@@ -1031,7 +1039,21 @@ function FieldPackageSection({ item }) {
       .catch((e) => { if (live) setErr(e?.message || "שגיאה"); })
       .finally(() => { if (live) setBusy(false); });
     return () => { live = false; };
-  }, [expr, uid, item.key]);
+  }, [expr, uid, item.key, reload]);
+
+  // «מה חסר» → הכנת בקשת-מידע (P1). טיוטה פנימית בלבד (owner-scoped) — ⛔ בלי outward/Raziel/שליחה.
+  const prepareRequest = useCallback(async (missingKind) => {
+    if (!uid) { alert("הכנת בקשת-מידע דורשת התחברות."); return; }
+    setReqBusy(true);
+    try {
+      await createRequest(uid, { findingRef: item.key, missingKind: missingKind || null,
+        personRef: item.rawAuthor || item.writer?.canonical?.display_name || null,
+        why: `חסר «${MissLabel[missingKind] || missingKind || "מידע"}» עבור «${expr || item.key}»`,
+        lang: "he", channel: null });
+      setReload((n) => n + 1); // רענון — הבקשה תופיע ברשימה
+    } catch (e) { alert("לא ניתן להכין בקשה: " + (e?.message || e)); }
+    finally { setReqBusy(false); }
+  }, [uid, item, expr]);
 
   const src = fullSource(item);
   const sm = pkg?.stateMap;
@@ -1062,22 +1084,41 @@ function FieldPackageSection({ item }) {
         <div style={{ marginTop: 8, display: "grid", gap: 12 }}>
           {/* 2 · גימטריה — כל השיטות (לא רק רגיל) + גשרים + מילוי-נפתח */}
           <div>
-            <div style={{ color: "#6ea0ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>🔢 גימטריה · «{pkg.finding.expression}»</div>
+            <div style={{ color: "#6ea0ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>🔢 גימטריה · <Node to={pkg.finding.expression} color={C.gold} title={`דף-הישות של «${pkg.finding.expression}»`}>«{pkg.finding.expression}» ↗</Node></div>
+            {/* כל שיטה = ערך לחיץ → /number/<value>. השיטה = הקשר; הערך = הצומת. אין צמצום לרגיל. */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
               {pkg.finding.methods.map((m) => (
-                <span key={m.method} style={{ ...pill(m.method === "רגיל" ? C.gold : "#8aa0c0"), fontFamily: F.body }}>{m.method} <b style={{ color: C.goldBright }}>{m.value}</b></span>
+                <Node key={m.method} to={m.value} color={m.method === "רגיל" ? C.gold : "#8aa0c0"} title={`${m.method} = ${m.value} → דף-המספר`}>
+                  {m.method} <b style={{ color: C.goldBright }}>{m.value}</b>
+                </Node>
               ))}
             </div>
+            {/* 🌉 גשר אותו-ביטוי — expression אחד, methods[] → כמה ערכים, כל אחד צומת ניווט. «ובתורתו: 1020(רגיל·גדול) ⇄ 1820(מילוי) …» */}
+            {pkg.finding.selfBridge && pkg.finding.selfBridge.length > 1 && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ color: C.faint, fontSize: 11, marginBottom: 3 }}>🌉 גשר אותו-ביטוי (ממצא אחד · מספר שיטות):</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                  {pkg.finding.selfBridge.map((b, i) => (
+                    <React.Fragment key={b.value}>
+                      {i > 0 && <span style={{ color: "#6ea0ff", fontWeight: 800 }}>⇄</span>}
+                      <Node to={b.value} color={b.methods.includes("רגיל") ? C.gold : "#8aa0c0"} title={`${b.value} (${b.methods.join("·")}) → דף-המספר`}>
+                        <b style={{ color: C.goldBright }}>{b.value}</b> <span style={{ fontSize: 9.5, opacity: 0.85 }}>{b.methods.join("·")}</span>
+                      </Node>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            )}
             <MiluiDrill expr={pkg.finding.expression} />
             {pkg.finding.bridges.length > 0 && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ color: C.faint, fontSize: 11, marginBottom: 3 }}>🌉 גשרים בין-שיטתיים:</div>
-                <div style={{ display: "grid", gap: 3 }}>
+                <div style={{ color: C.faint, fontSize: 11, marginBottom: 3 }}>🌉 גשרים בין-שיטתיים (ביטויים אחרים):</div>
+                <div style={{ display: "grid", gap: 4 }}>
                   {pkg.finding.bridges.map((b, i) => (
-                    <div key={i} style={{ fontSize: 11.5, color: C.goldLight }}>
-                      {b.kind === "cross_method" ? <>«{b.partner}» — נפגש ב-{b.nMethods} שיטות <span style={{ color: C.faint }}>({b.detail})</span></>
-                        : b.kind === "zero_scale" ? <>סקאלת-אפס · שורש {b.root} → {(b.matches || []).slice(0, 3).map((m) => `«${m.phrase}»`).join(" · ")}</>
-                        : <>ניווט-אפס · {b.stripped} → {(b.matches || []).slice(0, 3).map((m) => `«${m.phrase}»`).join(" · ")}</>}
+                    <div key={i} style={{ fontSize: 11.5, color: C.goldLight, display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
+                      {b.kind === "cross_method" ? <><Node to={b.partner} color="#b08bd8" title={`דף-הישות של «${b.partner}»`}>«{b.partner}»</Node> <span style={{ color: C.faint }}>נפגש ב-{b.nMethods} שיטות ({b.detail})</span></>
+                        : b.kind === "zero_scale" ? <><span style={{ color: C.faint }}>סקאלת-אפס · שורש {b.root} →</span> {(b.matches || []).slice(0, 4).map((m) => <Node key={m.phrase} to={m.phrase} color="#b08bd8">«{m.phrase}»</Node>)}</>
+                        : <><span style={{ color: C.faint }}>ניווט-אפס · {b.stripped} →</span> {(b.matches || []).slice(0, 4).map((m) => <Node key={m.phrase} to={m.phrase} color="#b08bd8">«{m.phrase}»</Node>)}</>}
                     </div>
                   ))}
                 </div>
@@ -1085,11 +1126,15 @@ function FieldPackageSection({ item }) {
             )}
             {pkg.finding.convergences.length > 0 && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ color: C.faint, fontSize: 11, marginBottom: 3 }}>♻️ התכנסויות (per-method · ערך-השיטה):</div>
-                <div style={{ display: "grid", gap: 3 }}>
+                <div style={{ color: C.faint, fontSize: 11, marginBottom: 3 }}>♻️ התכנסויות (per-method · ערך-השיטה = שער למספר):</div>
+                <div style={{ display: "grid", gap: 4 }}>
                   {pkg.finding.convergences.map((c, i) => (
-                    <div key={i} style={{ fontSize: 11.5, color: C.goldLight }}>
-                      <b style={{ color: C.goldBright }}>{c.methodHe}={c.value}</b> · {c.size} ביטויים <span style={{ color: C.faint }}>({(c.phrases || []).slice(0, 3).map((p) => `«${p}»`).join(" · ")}…) · {c.status}</span>
+                    <div key={i} style={{ fontSize: 11.5, color: C.goldLight, display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
+                      {c.value != null
+                        ? <Node to={c.value} color={C.gold} title={`התכנסות ${c.value} (${c.methodHe}) → דף-המספר`}><b style={{ color: C.goldBright }}>{c.value}</b> · {c.methodHe}</Node>
+                        : <b style={{ color: C.goldBright }}>{c.methodHe}</b>}
+                      <span style={{ color: C.faint }}>· {c.size} ביטויים · {c.status}</span>
+                      {(c.phrases || []).slice(0, 4).map((p) => <Node key={p} to={p} color="#b08bd8" title={`דף-הישות של «${p}»`}>«{p}»</Node>)}
                     </div>
                   ))}
                 </div>
@@ -1111,11 +1156,19 @@ function FieldPackageSection({ item }) {
           {sm.missing.length > 0 && (
             <div>
               <div style={{ color: "#e0913a", fontFamily: F.heading, fontWeight: 800, fontSize: 12, marginBottom: 4 }}>⚠️ מה חסר (actionable)</div>
-              <div style={{ display: "grid", gap: 3 }}>
+              <div style={{ display: "grid", gap: 4 }}>
                 {sm.missing.map((m, i) => (
-                  <div key={i} style={{ fontSize: 11.5, color: C.goldLight }}>• {MissLabel[m.missingKind] || m.label}{m.ref ? <span style={{ color: C.faint }}> · בקשה {m.ref}</span> : null}</div>
+                  <div key={i} style={{ fontSize: 11.5, color: C.goldLight, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                    <span>• {MissLabel[m.missingKind] || m.label}{m.ref ? <span style={{ color: C.faint }}> · בקשה {m.ref}</span> : null}</span>
+                    {/* «מה חסר» → הכנת בקשת-מידע (P1, טיוטה פנימית). ⛔ בלי שליחה/Raziel/outward. Request ≠ Finding ≠ Fact. */}
+                    {m.kind === "info_request" && !m.ref && <button disabled={reqBusy} onClick={() => prepareRequest(m.missingKind)} style={{ ...chip(false, "#c79a2e"), fontSize: 10.5 }}>✉️ הכן בקשת-מידע</button>}
+                  </div>
                 ))}
               </div>
+              {/* גם כשאין חוסר-מסוג-אדם: אפשר להכין בקשה כללית לפריט (טיוטה בלבד). */}
+              {!sm.missing.some((m) => m.kind === "info_request") && (
+                <button disabled={reqBusy} onClick={() => prepareRequest(null)} style={{ ...chip(false, "#c79a2e"), fontSize: 10.5, marginTop: 6 }}>✉️ הכן בקשת-מידע לפריט</button>
+              )}
             </div>
           )}
           {sm.checkable.length > 0 && (

@@ -27,6 +27,19 @@ export function projectFinding(pack) {
     .map(([method, value]) => ({ method, value }))
     .sort((a, b) => a.method.localeCompare(b.method, "he"));
 
+  // 🌉 גשר אותו-ביטוי (contract): expression אחד עם methods[] — לא כמה ממצאים.
+  // מקבץ את ערכי-הביטוי לפי value (1020↦[רגיל,גדול] · 1820↦[מילוי] …). כל value = צומת ניווט ל-/number/value.
+  // ⛔ נגזר מ-methods[] בלבד — אין מודל חדש, אין קיבוע מספר-שיטות (עובד ל-N שיטות).
+  const valueMap = new Map();
+  for (const { method, value } of methods) {
+    if (value == null) continue;
+    if (!valueMap.has(value)) valueMap.set(value, []);
+    valueMap.get(value).push(method);
+  }
+  const selfBridge = [...valueMap.entries()]
+    .map(([value, ms]) => ({ value, methods: ms }))
+    .sort((a, b) => b.methods.length - a.methods.length || b.value - a.value);
+
   // גשרים בין-שיטתיים: (א) cross — שותף שנפגש ב-2+ שיטות עצמאיות · (ב) גשרי-סקאלה (אפס).
   const crossings = ((st.cross && st.cross.crossings) || []).map((c) => ({
     kind: "cross_method", partner: c.partner, nMethods: c.n_methods, detail: c.methods_detail,
@@ -55,7 +68,7 @@ export function projectFinding(pack) {
 
   return { expression: pack?.subject ?? pack?.trace?.question ?? null,
     primaryValue: pack?.value ?? methodsEvidence["רגיל"] ?? null, // *אחת* מהשיטות — לא הזהות היחידה
-    methods, bridges, convergences, verses, sources };
+    methods, selfBridge, bridges, convergences, verses, sources };
 }
 
 // ── פרויקציה טהורה: pack → מפת-מצב (ידוע/נטען/אומת/חסר/ניתן-לבדוק) ──────────
