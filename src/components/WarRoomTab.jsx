@@ -12,7 +12,7 @@ import {
   getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData, getWaThread, getAiAnalysis,
 } from "../lib/supabase.js";
 import { analyzeTime } from "../lib/timeFlow.js";
-import { crossMethodPairs } from "../lib/gematria.js";
+import { crossMethodPairs, miluiLettersV, miluiValueV, MILUI_VAR_DEFAULT } from "../lib/gematria.js";
 import { detectLanguage, replyLanguage, LANG_HE, CANON_LANGS } from "../lib/lang.js";
 import { creditsFor, providerCost } from "../lib/cost.js";
 import { waTranslate, waPrepareReply, waSendArtifact } from "../lib/waReply.js";
@@ -24,6 +24,7 @@ import {
 } from "../lib/discovery.js";
 import { PaletteProvider, PALETTES } from "../lib/palette.js";
 import { getHandledMap, markHandled, unmarkHandled } from "../lib/handled.js";
+import { assembleFieldPackage } from "../lib/fieldpackage.js"; // P2 read-model (מפת-מצב) — תצוגה בלבד
 import {
   CORE_WRITERS, orderWriters, ROUTES, destinations, fallbackTier,
   normStatus, statusOptions, structuralExtract, actionState, ACT_STATE, whatMissing, sortItems,
@@ -975,6 +976,178 @@ function WaContext({ item }) {
 // מקרא-פעולות ל-DetailPanel (מצב מדויק לכל פעולה).
 const ACTIONS = [["close", "סגור-מהתור"], ["engine", "בדוק-מנוע"], ["atlas", "→ Atlas"], ["axis", "→ שכבת-הציר"], ["core", "קדם→CORE"], ["notarikon", "נוטריקון (ר״ת/ס״ת)"]];
 // 🗂️ Row Detail/Action Panel חכם — הפעולות משתנות לפי סוג-החומר (לא 20 כפתורים בשורה).
+// 🗺️ Field Package — תצוגת ה-read-model (fieldpackage.js) בתוך ה-DetailPanel הקיים. READ בלבד.
+// ⛔ שום דבר כאן לא מקדם קנוני, לא מפרסם, לא שולח, לא כותב ל-DB. מפת-מצב + גימטריה-מלאה + מקור + חסר + בקשות.
+// ⛔ לא לצמצם לרגיל — מציג את כל השיטות, גשרים, ומילוי ניתן-לפתיחה (אותיות→ערכים→סכום).
+function deriveExpression(item) {
+  const cand = item.phrase || item.term || "";
+  if (cand && /[א-ת]/.test(cand)) return String(cand).trim();
+  const heWords = String(item.raw || "").replace(/[^א-ת\s]/g, " ").split(/\s+/).filter((w) => /[א-ת]/.test(w));
+  return heWords.length ? heWords.slice(0, 3).join(" ") : null;
+}
+// כפתור «מקור מלא» לפי סוג-המקור (פוסט→קישור · WhatsApp→הקשר-הודעה למטה · OCR→תמונה · תרומה→שרשור).
+function fullSource(item) {
+  const kind = item.srckind || item.source || "";
+  const img = item.image_url || item.image || item.ocr?.image_url;
+  if (item.link) return { href: item.link, label: /post|פוסט/i.test(kind) ? "📄 הפוסט המלא" : "🔗 מקור מלא", nav: true };
+  if (img) return { href: img, label: "🖼 תמונת-המקור (OCR)", nav: false };
+  if (/wa|whatsapp|וואטס/i.test(kind)) return { label: "📱 הודעת WhatsApp — ראו «הקשר-הודעה» למטה", note: true };
+  return null;
+}
+const MissLabel = { תאריך: "תאריך-אירוע", ערך: "ערך/ביטוי", מקור: "מקור", אימות: "אימות-מנוע", כותב: "מידע-מהאדם" };
+function MiluiDrill({ expr }) {
+  const [open, setOpen] = useState(false);
+  const info = useMemo(() => (open ? miluiLettersV(expr, MILUI_VAR_DEFAULT) : null), [open, expr]);
+  const sum = useMemo(() => (open ? miluiValueV(expr, MILUI_VAR_DEFAULT) : null), [open, expr]);
+  return (
+    <div style={{ marginTop: 4 }}>
+      <button onClick={() => setOpen((v) => !v)} style={{ ...chip(open, "#c79a2e") }}>{open ? "▾ מילוי — סגור" : "▸ מילוי — פתח אותיות"}</button>
+      {open && info && (
+        <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+          {info.segs.map((s, i) => (
+            <span key={i} style={{ ...pill("#c79a2e"), fontFamily: F.body }}>
+              <b>{s.from}</b>→{s.name} <span style={{ color: C.goldBright }}>={s.val}</span>
+            </span>
+          ))}
+          <span style={{ color: C.goldBright, fontWeight: 800, fontFamily: F.heading }}>Σ = {sum}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+function FieldPackageSection({ item }) {
+  const { user } = useAuth();
+  const uid = user?.id || null;
+  const expr = useMemo(() => deriveExpression(item), [item]);
+  const [pkg, setPkg] = useState(null);
+  const [err, setErr] = useState(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    let live = true;
+    if (!expr) { setPkg(null); return; }
+    setBusy(true); setErr(null);
+    assembleFieldPackage(expr, { uid, findingRef: item.key })
+      .then((p) => { if (live) setPkg(p); })
+      .catch((e) => { if (live) setErr(e?.message || "שגיאה"); })
+      .finally(() => { if (live) setBusy(false); });
+    return () => { live = false; };
+  }, [expr, uid, item.key]);
+
+  const src = fullSource(item);
+  const sm = pkg?.stateMap;
+  const person = item.writer?.canonical?.display_name || item.writer?.contributor?.display_name || item.rawAuthor || "—";
+  const next = whatMissing(item);
+
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: "#2f6df655", ["--header-h"]: "64px" }}>
+      {/* תמונת-מצב עליונה — sticky בתוך המודאל (המודאל מעל הנאב z:5000>100 → שום תוכן לא מחליק מתחת לסרגל). */}
+      <div style={{ position: "sticky", top: 0, background: C.surface2, zIndex: 2, paddingBottom: 6, marginBottom: 4, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ color: "#6ea0ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>🗺️ Field Package · מפת-מצב (תצוגה בלבד)</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6, fontSize: 11 }}>
+          <span style={pill("#b08bd8")}>👤 {person}</span>
+          <span style={pill(C.goldBright)}>מקור: {item.source}</span>
+          {sm && <><span style={pill("#4caf7d")}>ידוע {sm.known.length}</span>
+            <span style={pill("#3ea6ff")}>אומת {sm.verified.length}</span>
+            <span style={pill("#c79a2e")}>נטען {sm.claimed.length}</span>
+            <span style={pill("#e0563a")}>חסר {sm.missing.length}</span></>}
+        </div>
+        <div style={{ marginTop: 6, color: C.goldLight, fontSize: 12 }}>🎯 הצעד הבא (המלצה): <b>{next === "—" ? "אין צעד פתוח" : next}</b></div>
+      </div>
+
+      {!expr && <div style={{ color: C.faint, fontSize: 11.5, marginTop: 6 }}>אין ביטוי עברי בפריט — Field Package זמין לביטוי עברי. (הפריט עדיין ניתן-לטיפול דרך שאר הכלים.)</div>}
+      {busy && <div style={{ color: C.faint, fontSize: 11.5, marginTop: 8 }}>טוען מפת-מצב… (fn_gematria_pack · דטרמיניסטי, 0 tokens)</div>}
+      {err && <div style={{ color: "#e0563a", fontSize: 11.5, marginTop: 8 }}>לא ניתן להרכיב: {err}</div>}
+
+      {pkg && (
+        <div style={{ marginTop: 8, display: "grid", gap: 12 }}>
+          {/* 2 · גימטריה — כל השיטות (לא רק רגיל) + גשרים + מילוי-נפתח */}
+          <div>
+            <div style={{ color: "#6ea0ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12 }}>🔢 גימטריה · «{pkg.finding.expression}»</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+              {pkg.finding.methods.map((m) => (
+                <span key={m.method} style={{ ...pill(m.method === "רגיל" ? C.gold : "#8aa0c0"), fontFamily: F.body }}>{m.method} <b style={{ color: C.goldBright }}>{m.value}</b></span>
+              ))}
+            </div>
+            <MiluiDrill expr={pkg.finding.expression} />
+            {pkg.finding.bridges.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ color: C.faint, fontSize: 11, marginBottom: 3 }}>🌉 גשרים בין-שיטתיים:</div>
+                <div style={{ display: "grid", gap: 3 }}>
+                  {pkg.finding.bridges.map((b, i) => (
+                    <div key={i} style={{ fontSize: 11.5, color: C.goldLight }}>
+                      {b.kind === "cross_method" ? <>«{b.partner}» — נפגש ב-{b.nMethods} שיטות <span style={{ color: C.faint }}>({b.detail})</span></>
+                        : b.kind === "zero_scale" ? <>סקאלת-אפס · שורש {b.root} → {(b.matches || []).slice(0, 3).map((m) => `«${m.phrase}»`).join(" · ")}</>
+                        : <>ניווט-אפס · {b.stripped} → {(b.matches || []).slice(0, 3).map((m) => `«${m.phrase}»`).join(" · ")}</>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {pkg.finding.convergences.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ color: C.faint, fontSize: 11, marginBottom: 3 }}>♻️ התכנסויות (per-method · ערך-השיטה):</div>
+                <div style={{ display: "grid", gap: 3 }}>
+                  {pkg.finding.convergences.map((c, i) => (
+                    <div key={i} style={{ fontSize: 11.5, color: C.goldLight }}>
+                      <b style={{ color: C.goldBright }}>{c.methodHe}={c.value}</b> · {c.size} ביטויים <span style={{ color: C.faint }}>({(c.phrases || []).slice(0, 3).map((p) => `«${p}»`).join(" · ")}…) · {c.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 3 · מקור — כפתור «מקור מלא» תמיד נגיש */}
+          <div>
+            <div style={{ color: "#6ea0ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12, marginBottom: 4 }}>📖 מקור</div>
+            {src ? (src.note ? <span style={{ color: C.faint, fontSize: 11.5 }}>{src.label}</span>
+              : src.nav ? <Link to={src.href} style={{ ...pill(C.gold), textDecoration: "none" }}>{src.label}</Link>
+              : <a href={src.href} target="_blank" rel="noreferrer" style={{ ...pill(C.gold), textDecoration: "none" }}>{src.label}</a>)
+              : <span style={{ color: C.faint, fontSize: 11.5 }}>אין קישור-מקור ישיר · provenance: {item.source}{item.rawAuthor ? ` · «${item.rawAuthor}»` : ""}</span>}
+            {pkg.finding.sources && <div style={{ color: C.faint, fontSize: 11, marginTop: 4 }}>הופעות בתנ״ך: {pkg.finding.sources.count ?? 0} · פסוקים=הערך: {pkg.finding.verses.length}</div>}
+          </div>
+
+          {/* 4 · מידע שחסר — actionable, כל חסר עם סיבה */}
+          {sm.missing.length > 0 && (
+            <div>
+              <div style={{ color: "#e0913a", fontFamily: F.heading, fontWeight: 800, fontSize: 12, marginBottom: 4 }}>⚠️ מה חסר (actionable)</div>
+              <div style={{ display: "grid", gap: 3 }}>
+                {sm.missing.map((m, i) => (
+                  <div key={i} style={{ fontSize: 11.5, color: C.goldLight }}>• {MissLabel[m.missingKind] || m.label}{m.ref ? <span style={{ color: C.faint }}> · בקשה {m.ref}</span> : null}</div>
+                ))}
+              </div>
+            </div>
+          )}
+          {sm.checkable.length > 0 && (
+            <div style={{ color: C.faint, fontSize: 11 }}>🧪 ניתן לבדוק: {sm.checkable.map((c) => c.label).join(" · ")}</div>
+          )}
+
+          {/* 5 · Information Requests — מה/ממי/למה/סטטוס/תשובה(RAW) */}
+          <div>
+            <div style={{ color: "#6ea0ff", fontFamily: F.heading, fontWeight: 800, fontSize: 12, marginBottom: 4 }}>✉️ בקשות-מידע (P1)</div>
+            {pkg.requests.length === 0 ? <span style={{ color: C.faint, fontSize: 11.5 }}>אין בקשות-מידע לפריט זה.</span>
+              : <div style={{ display: "grid", gap: 6 }}>
+                {pkg.requests.map((r) => (
+                  <div key={r.ref} style={{ ...box, padding: "8px 10px", borderColor: "#2f6df633" }}>
+                    <div style={{ fontSize: 11.5, color: C.goldLight }}><b>ביקשנו:</b> {r.what} · <b>ממי:</b> {r.from || "—"} · <b>למה:</b> {MissLabel[r.missingKind] || r.missingKind || "—"}</div>
+                    <div style={{ fontSize: 11, marginTop: 3 }}><span style={pill(r.status === "verified" ? "#4caf7d" : r.status === "answered" ? "#3ea6ff" : "#c79a2e")}>{r.statusHe}</span>
+                      {r.received ? <span style={{ color: C.faint, marginInlineStart: 6 }}>תשובה התקבלה — RAW (לא Fact): {r.received.raw.rawTable}#{r.received.raw.rawId}</span>
+                        : <span style={{ color: C.faint, marginInlineStart: 6 }}>טרם התקבלה תשובה</span>}</div>
+                  </div>
+                ))}
+              </div>}
+          </div>
+
+          {/* 6 · Human-Gate */}
+          <div style={{ color: C.faint, fontSize: 10.5, borderTop: `1px dashed ${C.border}`, paddingTop: 8 }}>
+            🔒 מפת-מצב בלבד · <b>שום דבר כאן לא מקדם קנוני, לא מפרסם, לא שולח.</b> עובדות-מנוע חינם (0 tokens) · פרשנות בשכבה נפרדת · תשובת-אדם נשארת RAW.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
   if (!item) return null;
   const w = item.writer;
@@ -1018,6 +1191,9 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
           {item.tier && <span onClick={() => go({ type: "tier", value: item.tier.key, label: "רובד: " + item.tier.he, color: item.tier.color })} style={{ ...pill(item.tier.color), cursor: "pointer" }}>🔎 כל רובד {item.tier.he}</span>}
           {w && w.state !== "matched" && <span onClick={() => go({ type: "writer", value: "__UNKNOWN__", label: "זהות: לא-מזוהה", color: "#8a8a95" })} style={{ ...pill("#8a8a95"), cursor: "pointer" }}>🔎 כל ה-UNKNOWN</span>}
         </div>
+
+        {/* 🗺️ Field Package — מפת-מצב מה-read-model (P2). תצוגה בלבד · לא outward · לא WhatsApp/Raziel. */}
+        <FieldPackageSection item={item} />
 
         {/* סגור-מהתור / בטל-סגירה (marker אישי חוצה-מכשירים · לא נוגע בסטטוס-המקור) */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
