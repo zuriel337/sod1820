@@ -132,15 +132,23 @@ export function buildFieldPackage(pack, requests = []) {
   };
 }
 
-// ── הרכבה עם רשת (Command-Center) — קורא fn_gematria_pack + P1 requests. קריאה בלבד. ──
+// ── הרכבה עם רשת (Command-Center) — דרך ה-wrapper האדמין field-pack → fn_gematria_pack + P1 requests. קריאה בלבד. ──
 // expression: הביטוי (מחרוזת) · opts.uid: לשיבוץ Information Requests של המשתמש · opts.findingRef: לסינון הבקשות.
+// ⛔ fn_gematria_pack מורשה ל-service_role בלבד — לכן קוראים דרך Edge Function אדמין-gated (field-pack),
+//    שמחזיר את פלט-המנוע **verbatim** (כל השיטות, cross, convergence, metadata). אין reshape כאן.
 export async function assembleFieldPackage(expression, { uid, findingRef } = {}) {
   if (!expression || !String(expression).trim()) return null;
-  const { data: pack, error } = await supabase.rpc("fn_gematria_pack", { p_subject: String(expression).trim() });
-  if (error) throw error;
+  const { data: pack, error } = await supabase.functions.invoke("field-pack", { body: { subject: String(expression).trim() } });
+  if (error) {
+    // לחשוף את סיבת-השרת (denied / unauthenticated / engine_error) אם קיימת בגוף-התשובה.
+    let reason = error.message || "engine_error";
+    try { const ctx = await error.context?.json?.(); if (ctx?.error) reason = ctx.error; } catch { /* ignore */ }
+    throw new Error(reason);
+  }
+  if (!pack || pack.error) throw new Error(pack?.error || "engine_error");
   let requests = [];
   if (uid) {
     try { requests = await listRequests(uid, { findingRef: findingRef || null }); } catch { requests = []; }
   }
-  return buildFieldPackage(pack, requests);
+  return buildFieldPackage(pack, requests); // buildFieldPackage/projectFinding אגנוסטיים למספר-שיטות (מבחן 21)
 }
