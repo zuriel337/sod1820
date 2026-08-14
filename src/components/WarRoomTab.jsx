@@ -1148,7 +1148,7 @@ function FieldPackageSection({ item }) {
   );
 }
 
-function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
+export function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
   if (!item) return null;
   const w = item.writer;
   const canon = w?.canonical?.display_name || w?.contributor?.display_name;
