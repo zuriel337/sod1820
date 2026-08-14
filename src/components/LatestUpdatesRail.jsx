@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -69,6 +69,13 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
 
   // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
   const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  // 🌊 זרם המציאות: בבית — גלילה לסקשן הזרם; מחוץ לבית (פוסט/צ'אט, אין #reality-home) — לארכיון הקנוני.
+  const navigate = useNavigate();
+  const goReality = () => {
+    const el = typeof document !== "undefined" ? document.getElementById("reality-home") : null;
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    else navigate("/archive?tab=reality");
+  };
 
   const Tag = ({ acc, logo, children }) => (
     <span className="lur-tag" style={{ "--acc": acc }}>{logo}{children}</span>
@@ -94,11 +101,11 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     if (it.type === "reality") {
       const v = domNum(d);
       return (
-        <button key={"r" + d.id} type="button" onClick={() => scrollTo("reality-home")} className="lur-card" style={{ "--acc": cReality }}>
+        <button key={"r" + d.id} type="button" onClick={goReality} className="lur-card" style={{ "--acc": cReality }}>
           <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} />{v != null && <span className="lur-onimg">{v}</span>}</div>
           <div className="lur-body"><Tag acc={cReality} logo={<RealityLogo s={13} />}>זרם המציאות</Tag>
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
-            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>↓ בזרם למטה</span></div></div>
+            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>🌊 לזרם המציאות</span></div></div>
         </button>
       );
     }
