@@ -12,7 +12,9 @@ import { shareOrCopy } from "../lib/share.js";
 // כקישורים, משמעויות מספרי-הליבה, תגיות, תיאור מלא, ו-CTA לדף-המספר (עץ אחד —
 // כל ההקשרים חיים שם, לא משוכפלים כאן).
 // seeAllHref — אם מסופק, מציג כפתור «לכל זרם המציאות →» שמפנה לארכיון הקיים (למשל /archive).
-export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null, seeAllHref = null }) {
+// textFirst — מצב «התוכן מובלט»: התקציר/הטקסט שנערך מוצג גדול וברור והתמונה מוכלת (לא ממסך-מלא).
+//   משמש את זרם-המציאות ב«עדכונים אחרונים» (בקשת צוריאל). שאר הקוראים (RealityWorld/Archive) לא מושפעים.
+export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdit, note = null, seeAllHref = null, textFirst = false }) {
   const [idx, setIdx] = useState(initialIndex);
   const [fadeKey, setFadeKey] = useState(0);
   const [shared, setShared] = useState(false);
@@ -63,6 +65,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
       role="dialog"
       aria-modal
       onClick={onClose}
+      className={textFirst ? "lb-textfirst" : undefined}
       style={{
         position: "fixed", inset: 0, zIndex: 2147483600,
         background: "rgba(2,1,6,0.97)",
@@ -168,9 +171,9 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
             )}
 
             {desc && (
-              <div className="lb-sec">
+              <div className="lb-sec lb-desc-sec">
                 <div className="lb-sec-t">תיאור</div>
-                <div style={{ color: "#ffffffb5", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{desc}</div>
+                <div className="lb-desc" style={{ color: "#ffffffb5", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{desc}</div>
               </div>
             )}
 
@@ -265,6 +268,20 @@ const LB_CSS = `
       background: linear-gradient(200deg, rgba(20,15,8,0.5), rgba(6,4,2,0.4)); }
     .lb-img { max-height: calc(100vh - 150px); max-width: 100%; }
     .lb-img.tall { width: auto; max-width: 100%; max-height: none; }
+  }
+  /* 📝 textFirst — «התוכן מובלט»: התמונה מוכלת (לא ממסך-מלא) והטקסט/התקציר שנערך גדול וברור.
+     מובייל: פאנל-הטקסט למעלה, התמונה מתחת ומוכלת. */
+  .lb-textfirst .lb-main { flex-direction: column-reverse; }
+  .lb-textfirst .lb-imgpane { flex: 0 0 auto; }
+  .lb-textfirst .lb-img { max-height: 40vh; }
+  .lb-textfirst .lb-panel { max-height: 52vh; }
+  .lb-textfirst .lb-desc { color: #ffffff; font-size: 16px; line-height: 1.9; }
+  @media (min-width: 920px) {
+    .lb-textfirst .lb-main { flex-direction: row; }
+    .lb-textfirst .lb-imgpane { flex: 1 1 auto; }
+    .lb-textfirst .lb-panel { width: 460px; }
+    .lb-textfirst .lb-img { max-height: calc(100vh - 160px); }
+    .lb-textfirst .lb-desc { font-size: 16.5px; }
   }
 `;
 

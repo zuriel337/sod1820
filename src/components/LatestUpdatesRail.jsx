@@ -201,7 +201,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       </div>
       {/* 🌊 זרם המציאות — פתיחה במקום ב-Lightbox הקנוני (reuse), עם «לכל זרם המציאות» → הארכיון הקיים /archive */}
       {lbIdx != null && realityImages.length > 0 && (
-        <Lightbox images={realityImages} initialIndex={lbIdx} seeAllHref="/archive" onClose={() => setLbIdx(null)} />
+        <Lightbox images={realityImages} initialIndex={lbIdx} seeAllHref="/archive" textFirst onClose={() => setLbIdx(null)} />
       )}
     </>
   );
