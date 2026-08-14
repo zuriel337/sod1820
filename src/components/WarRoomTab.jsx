@@ -1112,6 +1112,9 @@ export default function WarRoomTab() {
   const [handled, setHandled] = useState(() => new Map()); // marker אישי «handled» (research_items) → Map(key→meta)
   const [showHandled, setShowHandled] = useState(false);   // «הצג גם שטופלו»
   const [candExpanded, setCandExpanded] = useState(false); // הרחבת רשימת-המועמדים (לחיצה על המונה)
+  // «נכנס עכשיו» = תצוגה-בלבד (פורום/פוסטים/WhatsApp-לוג) — ניתן לקפל, וההעדפה נשמרת (אם סגרת, יישאר סגור).
+  const [showIncoming, setShowIncoming] = useState(() => { try { return localStorage.getItem("cc_hide_incoming") !== "1"; } catch { return true; } });
+  const toggleIncoming = () => setShowIncoming(v => { const nv = !v; try { localStorage.setItem("cc_hide_incoming", nv ? "0" : "1"); } catch { /* ignore */ } return nv; });
   const candRef = useRef(null);                            // עוגן-גלילה לפאנל-המועמדים
   const [detail, setDetail] = useState(null);     // CC-1.3 · פריט פתוח ב-Detail Panel
   const [sel, setSel] = useState(() => new Set()); // CC-1.3 ש2 · רב-בחירה (מפתחות פריטים)
@@ -1427,12 +1430,20 @@ export default function WarRoomTab() {
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: narrow ? "minmax(0,1fr)" : "minmax(0,1fr) minmax(0,320px)", gap: 14 }}>
-          <div style={{ display: "grid", gap: 10, alignContent: "start", minWidth: 0 }}>
-            <div style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800 }}>🔴 נכנס עכשיו (פורום·פוסטים·WhatsApp-לוג) {busy && "…"}</div>
-            {incoming.length ? incoming.map(it => <ItemCard key={it.key} item={it} onFocus={setFocusN} />)
-              : <div style={{ color: C.muted, fontSize: 13 }}>אין חומר טרי כרגע.</div>}
-          </div>
+        <div style={{ display: "grid", gridTemplateColumns: narrow ? "minmax(0,1fr)" : (showIncoming ? "minmax(0,1fr) minmax(0,320px)" : "minmax(0,1fr)"), gap: 14 }}>
+          {showIncoming ? (
+            <div style={{ display: "grid", gap: 10, alignContent: "start", minWidth: 0 }}>
+              {/* 👁️ תצוגה-בלבד — צבע ניטרלי (אפור) כדי לא להתנגש עם 🔴 DORMANT (צינור B כבוי). ניתן להסתרה. */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ color: C.muted, fontFamily: F.heading, fontWeight: 800 }}>👁️ נכנס עכשיו (פורום·פוסטים·WhatsApp-לוג) · תצוגה-בלבד {busy && "…"}</span>
+                <button onClick={toggleIncoming} title="הסתר את העמודה (יישמר)" style={{ ...chip(false), marginInlineStart: "auto" }}>✕ הסתר</button>
+              </div>
+              {incoming.length ? incoming.map(it => <ItemCard key={it.key} item={it} onFocus={setFocusN} />)
+                : <div style={{ color: C.muted, fontSize: 13 }}>אין חומר טרי כרגע.</div>}
+            </div>
+          ) : (
+            <div><button onClick={toggleIncoming} style={chip(false, C.muted)} title="הצג שוב את «נכנס עכשיו»">👁️ הצג «נכנס עכשיו»{incoming.length ? ` (${incoming.length})` : ""}</button></div>
+          )}
           <div style={{ display: "grid", gap: 12, alignContent: "start", minWidth: 0 }}>
             <RazielPanel focusN={focusN} />
             <div style={box} ref={candRef}>
