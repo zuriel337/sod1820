@@ -158,11 +158,12 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
             <div style={{ color: "#ffd98a", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>שתפו — ותזכו את הרבים 🙏</div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-              <button onClick={async () => { setPaused(true); await shareVideoToStory({ url: shareUrl, text: cap.slice(0, 140) }); storyEvent(brandTrackKey, cur.id, "share_story", { surface, entry, index: idx, channel: "link" }); }}
+              <button onClick={async () => { setPaused(true); const r = await shareVideoToStory({ url: shareUrl, text: cap.slice(0, 140) }); if (r) storyEvent(brandTrackKey, cur.id, "share_story", { surface, entry, index: idx, channel: "link" }); /* ביטול (r===null) ≠ שיתוף — לא נספר, כמו OrGeulaPage */ }}
                 style={{ background: "linear-gradient(160deg,#8b5cf6,#d6336c)", color: "#fff", border: "none", borderRadius: 999, padding: "11px 22px", fontFamily: F.heading, fontSize: 14, fontWeight: 800, cursor: "pointer", minHeight: 44 }}>
                 🔗 שתפו קישור לצפייה
               </button>
-              <ShareActions type="video" compact force url={shareUrl} title={cap.slice(0, 90) || `${brand.name || "אור הגאולה"} · סוד 1820`} image={cur.thumb_url || undefined} />
+              {/* ערוצים בלבד — בלי כפתור native כפול (מקור-native יחיד = «🔗 שתפו קישור לצפייה» למעלה) */}
+              <ShareActions type="video" compact force channels={["whatsapp", "telegram", "facebook", "x", "email", "copy"]} url={shareUrl} title={cap.slice(0, 90) || `${brand.name || "אור הגאולה"} · סוד 1820`} image={cur.thumb_url || undefined} />
             </div>
           </div>
         </div>
