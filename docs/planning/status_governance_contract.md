@@ -98,6 +98,9 @@
 - ❌ לא נבנה כלום · ❌ אין WRITE ל-DB · ❌ אין שינוי `ccwork.js`/`handled.js`/`research_items` · ❌ אין כפתור-אישור-ממצא חדש · ❌ אין migration · ❌ אין Master-State · ❌ אין פריסה.
 - ✅ רק חוזה-כתוב לאישור. המימוש (הרחבת `ACT_STATE` ל-5-תצוגות, `whatMissing→missingKind`, תווית «🎯 הצעד הבא», והפרדת-כפתור «✓ אשר ממצא») — **רק אחרי אישורך המפורש.**
 
+## הרחבה — Pipeline · Information Request · Field Package · Raziel · Field Layer
+ראה `research_pipeline_contract.md` (חוזה נלווה): מגדיר Pipeline אחד מעל primitives קיימים, עם מפת-reuse (8/10 שלבים קיימים), 5 gaps (חיבור/read-model בלבד), ושכבת-Field עתידית (Foundation-only). **לא לפני אישור שלב 0+1 והפייפליין.**
+
 ## אחרי שתאשר — סדר-המימוש המוצע (שלב 0+1 בלבד)
 1. **0** · מיפוי-תצוגה: `ACT_STATE` → 5 מצבים (+`⚪ לא-נבדק`), `whatMissing` מחזיר `{text, missingKind}`. קובץ אחד (`ccwork.js`), אפס DB.
 2. **1a** · תצוגת-Governance: להפריד ויזואלית «סיום בדיקה» (ציר-ב׳) מ«אשר ממצא» (ציר-א׳) ב-DetailPanel — כרגע רק **תצוגה** (הכפתור «✓ אשר ממצא» מושבת/«בקרוב» עד פאזת-הכתיבה).
