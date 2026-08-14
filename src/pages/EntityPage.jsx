@@ -572,6 +572,10 @@ export default function EntityPage({ embedPhrase } = {}) {
   const P = usePalette();
   const [sp] = useSearchParams();
   const fromCalc = sp.get("from") === "calc";
+  // 🧭 קונטקסט-ניווט (GAP-1) — «הגעת ל-value דרך method של expr · מקור: src». provenance בלבד: לא משנה את
+  //    משמעות המספר ולא הופך את הביטוי ל-Fact. המספר נשאר הצומת הקנוני; ה-method = הקשר-ההגעה.
+  const navCtx = { method: sp.get("method") || "", expr: sp.get("expr") || "", src: sp.get("src") || "" };
+  const hasNavCtx = !!(navCtx.method || navCtx.expr || navCtx.src);
   const { term, value, isNumber } = resolve(decodeURIComponent(phrase || ""));
   // 🤖 חסימת בוטים: דף-מספר טהור מעל 4 ספרות (≥10000) = כמעט תמיד סריקת-זבל של בוט
   // (/number/<מספר-אקראי>). כזה עמוד → noindex + לא נרשם ל-page_views. דפי-ביטוי (מילים) לא מושפעים.
@@ -1222,6 +1226,18 @@ export default function EntityPage({ embedPhrase } = {}) {
         </button>
       )}
       <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "30px 20px 100px" }}>
+        {/* 🧭 באנר קונטקסט-ניווט (GAP-1) — לא-הרסני. provenance/ניווט בלבד; לא משנה משמעות ולא הופך ל-Fact. */}
+        {hasNavCtx && (
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 16, padding: "9px 13px", borderRadius: 10, background: P.cardGrad, border: `1px solid ${P.border}`, fontFamily: F.body, fontSize: 12.5, color: P.accentDim }}>
+            <span style={{ fontSize: 15 }}>🧭</span>
+            <span>הגעת ל-<b style={{ color: P.accentText }}>{value}</b>
+              {navCtx.method ? <> דרך <b style={{ color: P.accentText }}>{navCtx.method}</b></> : null}
+              {navCtx.expr ? <> של «<b style={{ color: P.accentText }}>{navCtx.expr}</b>»</> : null}
+              {navCtx.src ? <> · מקור: {navCtx.src}</> : null}
+            </span>
+            <span style={{ color: P.accentDim, opacity: 0.65, fontSize: 10.5 }}>· קונטקסט-ניווט (provenance) — לא משנה את משמעות המספר</span>
+          </div>
+        )}
         {/* ── שורה עליונה: חזרה · חיפוש · מתג תמה ── */}
         {/* במובייל: החיפוש הופך לסרגל מלא בראש (order:-1) כדי שלא "יירד למטה" וייקבר */}
         <style>{`
