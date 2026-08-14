@@ -379,3 +379,42 @@ Approve (or amend) **only these decisions** — nothing is coded until then:
 4. The 5 **Open Questions** above (esp. #1 section strategy, #2 CIPHERS-vs-DIM5, #4 /or-geula unification).
 
 On written approval → next phase is **instrumentation only** (additive `emit`/`track` calls in the existing components), then verify rows land in `visitor_events`. **No** ranking, dashboard, audience system, or table — each remains separately gated.
+
+---
+---
+
+# PART III — APPROVED DIRECTION · Canonical Spec v1 (design-frozen)
+
+**actor=CLAUDE · status=design only.** Zuriel approved the design direction (2026-08-14). Still **no WRITE, no migration, no code, no deploy.**
+
+## Strategic framing (approved read-only findings — the *why*)
+- Two **BEHAVIORAL CONTENT CLUSTERS** (explicitly **not** user identities):
+  - **A — NUMBER / RESEARCH / CIPHER / GEMATRIA**
+  - **B — CHAT / OR_GEULA**
+- `/number/*` is the **hub** of cluster A: research→number **71%**, gematria→number **47%**, cipher→number **28%**.
+- Cluster B behaves separately: chat→number **8.4%**; chat↔or-geula **46%** of Or-Geula users.
+- Traffic ≈ **94% Google+Direct**; `/number/*` reached by **2,527 persons / 30d** → core asset.
+- **These are content-cluster signals, not "types of people". AFFINITY ≠ IDENTITY.**
+
+## Frozen v1 enums (approved)
+- **Events (8):** `story_impression` · `story_open` · `story_view` · `story_next` · `story_prev` · `story_close` · `story_complete` · `story_share` — semantics per §1. **`story_open ≠ story_view`**; `story_view` stays **per-item**; **`advance ∈ {open, user_next, user_prev, auto}`** separates `user_next` from `auto_advance`.
+- **Surfaces (5):** `HOME` · `CHAT` · `OR_GEULA_PAGE` · `VIDEO_CATEGORY` · `POST_PAGE` (+ `entry` sub-field). No surface beyond audited reality.
+- **Content Worlds (9):** `OR_GEULA` · `DIM5` · `CIPHERS` · `GEMATRIA` · `NUMBERS` · `REALITY` · `RESEARCH` · `AI` · `COMMUNITY` — behavioral signals only.
+
+## Open questions → recommended resolutions (need one-line confirm before code)
+| # | question | recommended resolution |
+|---|---|---|
+| 1 | `section` strategy | **Keep `section` per-world** (back-compat; preserves 30d continuity) **+ add canonical `content_world` in meta.** |
+| 2 | CIPHERS vs DIM5 | tzofon "our-video" stories → **CIPHERS**; מימד-חמש Shorts (`section=dim5`) → **DIM5**. |
+| 3 | impression scope | `story_impression` = **per-tile** (IntersectionObserver ≥50% for ≥1 s), **deduped once per (story_id, surface, session)**. |
+| 4 | `/or-geula` player | **Instrument in place** (map `play`→`story_open`; emit canonical events from the existing player). Defer StoryViewer refactor. |
+| 5 | dwell | **Include** optional `session_ms` (open→close) on `story_close`/`story_complete` from v1 (free; enables depth later). |
+
+## Architecture (locked)
+Single source of truth = existing **`visitor_events`** + its existing dual-write to **`events`** (person-level). All new fields live in **jsonb meta** → **no migration, no new table, no parallel tracker/engine, no ranking engine.**
+
+## Future affinity (design only — restated)
+`visitor → events → normalize section/content_world → per-(person, content_world) counts → [FUTURE] weighted affinity`. **Weights undecided. No audience system, no user labels, no segmentation table.** AFFINITY ≠ IDENTITY.
+
+## NEXT ACTION (single gate before any code)
+Confirm (or amend) the **5 recommended resolutions** above. On your one-line "yes", the next phase is **instrumentation only** — additive `emit`/`track` calls in the audited components (home rail+chip, chat rail+column, `/or-geula`, video-category, post-page), verified by rows landing in `visitor_events`/`events`. Audience, affinity, ranking, and dashboards each remain **separately gated** — nothing built until explicitly approved.
