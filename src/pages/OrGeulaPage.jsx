@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
@@ -6,6 +6,7 @@ import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
+import { storyOpen, storyEvent } from "../lib/storyTrack.js";
 import { galThumb } from "../lib/img.js";
 import { shareVideoToStory } from "../lib/share.js";
 import ShareActions from "../components/ShareActions.jsx";
@@ -21,25 +22,34 @@ export default function OrGeulaPage() {
   const [rows, setRows] = useState(null);
   const [open, setOpen] = useState(null);
   const [sp, setSp] = useSearchParams();
+  const openTimeRef = useRef(0);   // dwell (session_ms) for story_close
 
+  // מנוע-סטורי קנוני על ה-player הקיים (approved OQ4: play→story_open, בלי refactor ל-StoryViewer).
+  const beginStory = (r, entry) => {
+    openTimeRef.current = Date.now();
+    storyOpen("or-geula", r.id, { surface: "OR_GEULA_PAGE", entry, index: 0 });                         // canonical open
+    storyEvent("or-geula", r.id, "story_view", { surface: "OR_GEULA_PAGE", entry, index: 0, advance: "open" }); // per-item view
+  };
   // פתיחת פריט = מעקב + deep-link (?v=id) כדי ששיתוף יגיע *ישר לסרטון הזה*
   const openItem = (r) => {
     setOpen(r);
-    try { track("or-geula", String(r.id), "play"); } catch { /* noop */ }
+    try { track("or-geula", String(r.id), "play"); } catch { /* noop */ }   // back-compat (existing)
+    beginStory(r, "grid");
     const n = new URLSearchParams(sp); n.set("v", String(r.id)); setSp(n);
   };
   const closeItem = () => {
+    if (open) storyEvent("or-geula", open.id, "story_close", { surface: "OR_GEULA_PAGE", entry: "grid", index: 0, reason: "close", session_ms: Date.now() - (openTimeRef.current || Date.now()) });
     setOpen(null);
     const n = new URLSearchParams(sp); n.delete("v"); setSp(n, { replace: true });
   };
 
-  // 📲 שיתוף לסטורי — רכיב-שיתוף קנוני יחיד (lib/share). סופר כ-share_story.
+  // 📲 שיתוף לסטורי — רכיב-שיתוף קנוני יחיד (lib/share). סופר כ-share_story (≡ story_share, מועשר ב-meta).
   async function shareToStory(item) {
     const r = await shareVideoToStory({
       url: `${SITE_URL}/or-geula?v=${item.id}`,
       text: (item.text || "").trim().slice(0, 140),
     });
-    if (r) { try { track("or-geula", String(item.id), "share_story"); } catch { /* noop */ } }
+    if (r) { storyEvent("or-geula", item.id, "share_story", { surface: "OR_GEULA_PAGE", entry: "grid", index: 0, channel: "link" }); }
     else if (r === null) { /* בוטל/נכשל — שקט */ }
   }
 
@@ -58,7 +68,7 @@ export default function OrGeulaPage() {
   useEffect(() => {
     if (!rows || !rows.length) return;
     const v = sp.get("v");
-    if (v) { const it = rows.find(r => String(r.id) === v); if (it) setOpen(it); }
+    if (v) { const it = rows.find(r => String(r.id) === v); if (it && !open) { setOpen(it); beginStory(it, "deeplink"); } }
   }, [rows]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

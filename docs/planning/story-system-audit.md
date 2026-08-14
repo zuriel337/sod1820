@@ -418,3 +418,39 @@ Single source of truth = existing **`visitor_events`** + its existing dual-write
 
 ## NEXT ACTION (single gate before any code)
 Confirm (or amend) the **5 recommended resolutions** above. On your one-line "yes", the next phase is **instrumentation only** — additive `emit`/`track` calls in the audited components (home rail+chip, chat rail+column, `/or-geula`, video-category, post-page), verified by rows landing in `visitor_events`/`events`. Audience, affinity, ranking, and dashboards each remain **separately gated** — nothing built until explicitly approved.
+
+---
+---
+
+# PART IV — INSTRUMENTATION (v1) · Human-Gate approved by ZURIEL (2026-08-14)
+
+**actor=CLAUDE · status=instrumentation.** Additive tracking only. **No** migration / new table / analytics engine / audience table / affinity / ranking / dashboard / story-order change / home-design change / **deploy**. Committed to the **dev branch only** (production untouched).
+
+## Files changed (tracking-only)
+| file | what was added |
+|---|---|
+| `src/lib/storyTrack.js` (**new**) | `contentWorld()` map (`or-geula→OR_GEULA`, `tzofon→CIPHERS`, `dim5→DIM5`), `storyEvent()` (wraps existing `track()`, injects `meta.content_world`), `storyOpen()`, `storyImpression()` (dedupe Set per `session:surface:story_id`), `useQualifiedImpression()` hook (≥50% for ≥1 s). |
+| `StoryViewer.jsx` | props `surface`,`entry`; `story_view` enriched `{surface,index,advance}`; **user vs auto** (`userNext`/`userPrev`→`story_next`/`story_prev`; `autoNext`→`advance:"auto"`, no next event); `story_complete` (trigger) / `story_close` (reason,`session_ms`) via single-fire `endSession`; `share_story` enriched. |
+| `HomeOrGeulaRail.jsx` | `RailTile` w/ qualified impression; `story_open` on click; viewer `surface`/`entry="rail"`; `surface` prop (HOME default). |
+| `OrGeulaStoryChip.jsx` | `story_open` on open (kept legacy `story_chip`); qualified impression on chip; viewer props. |
+| `OrGeulaStoryColumn.jsx` | `surface` prop (CHAT default); `story_open` in `openItem` (tzofon→CIPHERS / or-geula→OR_GEULA); impressions in both tiles; viewer `surface`/`entry`. |
+| `OrGeulaPage.jsx` | own player: `story_open`+`story_view` (`beginStory`), `story_close` (`session_ms`); kept legacy `play`; `share_story` enriched. |
+| `TaxonomyPage.jsx` / `LandingDiscoveryStories` | pass `surface="VIDEO_CATEGORY"` / `"POST_PAGE"`. |
+
+## Static verification (code-level — build passes)
+| # | check | result |
+|---|---|---|
+| 2 | story_id + surface + content_world + ts on each event | ✅ story_id=slug · surface in meta at every site · content_world auto-injected (or-geula/tzofon/dim5) · ts automatic |
+| 3 | `story_open ≠ story_view` | ✅ open = 5 opener sites; view = per-item in viewer + /or-geula |
+| 4 | auto ≠ user_next | ✅ `autoNext`→`advance:"auto"` (no `story_next`); `userNext`→`story_next`+`advance:"user_next"` |
+| 5 | impression dedupe | ✅ Set keyed `session:surface:story_id`, qualified ≥50%/≥1 s |
+| 6 | `/or-geula` player | ✅ `beginStory`/`closeItem`, share enriched, legacy `play` kept |
+| 7 | no duplicate events | ✅ one `story_open`/open, one `story_view`/idx, `share_story` enriched (not doubled). **Note:** `/or-geula` fires `play`(legacy)+`story_open`+`story_view` = 3 **distinct** semantics for one open, by approved design (OQ4) — not a duplicate. |
+| 8 | no existing tracking broken | ✅ `story_chip` + `play` preserved; `share_story` same name/enriched; build green |
+
+## Runtime verification — **pending a gated deploy**
+Check #1 (events actually land in `visitor_events`/`events`) and live values need a real browser. **Deploy is out of scope here** → runtime verification **not yet done**. On deploy approval: open a story from each surface (home rail/chip · chat rail/column · /or-geula · video-cat · post-page) and confirm rows with correct `event_type` + `meta.surface` + `meta.content_world` + `advance`, and one impression per tile.
+
+## NEXT ACTION
+1. (Optional) approve a **deploy** so runtime verification can run — or keep on the dev branch for code review first.
+2. **STOP after verification.** Do **not** proceed to Audience / Affinity / Ranking / Dashboard — each separately gated. Return the runtime-verification result as its own audit.
