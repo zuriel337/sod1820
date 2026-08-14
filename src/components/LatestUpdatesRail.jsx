@@ -20,8 +20,9 @@ const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/
 // 📌 פוסט «נעוץ» = tree_priority גבוה (מוצמד ידנית ע"י אדמין). מוצג ראשון + תג «נעוץ».
 const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 
-export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [] }) {
+export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null }) {
   const P = usePalette();
+  const [expanded, setExpanded] = useState(false);   // «פתח עוד» — פותח מ-limit לכל הפריטים (רק כשמועבר limit)
   const light = P.mode === "light";
   const cGilui = light ? "#6d3bd4" : "#b79bff";
   const cReality = light ? "#0e9b8e" : "#4fd6c9";
@@ -61,6 +62,9 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     } catch { /* נשאר מוסתר ויזואלית; ריענון יחזיר אם הכתיבה נכשלה */ }
   };
   const visible = items.filter(it => !hidden.has(keyOf(it)));
+  // «פתח עוד»: כשמועבר limit — מציגים limit ראשונים עד שלוחצים. ללא limit (בית) — הכל כרגיל.
+  const shownList = (limit && !expanded) ? visible.slice(0, limit) : visible;
+  const hasMore = !!limit && !expanded && visible.length > limit;
 
   // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
   const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
@@ -166,7 +170,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-hide:hover{opacity:1;background:#c8102e;transform:scale(1.06)}
         @media(max-width:640px){.lur-media{width:74px;flex-basis:74px}}
       `}</style>
-      <div className="lur-grid">{visible.map(it => (
+      <div className="lur-grid">{shownList.map(it => (
         <div key={keyOf(it)} className="lur-cell">
           {card(it)}
           {isAdmin && canHide(it) && (
@@ -175,6 +179,15 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
           )}
         </div>
       ))}</div>
+      {hasMore && (
+        <div style={{ textAlign: "center", marginTop: 14 }}>
+          <button type="button" onClick={() => setExpanded(true)}
+            style={{ background: "none", border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 999, cursor: "pointer",
+              color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 13, padding: "8px 20px" }}>
+            פתח עוד ({visible.length - limit}) ↓
+          </button>
+        </div>
+      )}
       <div style={{ textAlign: "center", marginTop: 16, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
         <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
         <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>

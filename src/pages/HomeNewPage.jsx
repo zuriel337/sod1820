@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F, GALLERY_BG } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { getPostsFromSupabase, getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers, getFeaturedResearchers } from "../lib/supabase.js";
+import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers, getFeaturedResearchers } from "../lib/supabase.js";
 import NumberBubbles from "../components/NumberBubbles.jsx";
 import LanguageCosmos from "../components/LanguageCosmos.jsx";
 // חלונות הגילוי הוסרו מעמוד הבית «בשלב זה» (10.7.2026) — להחזרה, בטל את ההערה כאן ובשימוש למטה.
@@ -47,6 +47,7 @@ import HomeWritersRail from "../components/HomeWritersRail.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
+import { fetchHomePosts } from "../lib/homeUpdates.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -178,9 +179,9 @@ export default function HomeNewPage() {
 
   useEffect(() => {
     applySeo({ title: "כי לה' המלוכה — סוד 1820", description: "בית המדרש של סוד 1820 — גימטריה קבלית וחכמת הקשרים.", path: "/home-new" });
-    // «לא-בבית» = תגית להסתרת פוסט מדף הבית בלבד (נשאר רגיל ב-/post). «הינוקא» = מוסתר מדף הבית (בקשת צוריאל). מושכים יותר ומסננים.
-    const hiddenAtHome = p => p.home_hidden === true || (p.tags || []).includes("לא-בבית") || (p.tags || []).some(t => /ינוק/.test(t)) || /ינוק/.test(p.title || "");
-    getPostsFromSupabase({ limit: 32, orderBy: "modified" }).then(({ posts: r }) => { setPosts((r || []).filter(p => !hiddenAtHome(p)).slice(0, 18)); markSeenKey("home-posts"); }).catch(() => {});
+    // «עדכונים אחרונים» — פוסטים לבית דרך המקור הקנוני היחיד (homeUpdates.fetchHomePosts):
+    // אותה שאילתה + אותו סינון «לא-בבית»/«הינוקא»/home_hidden. מקור-אמת אחד, משותף עם פוסט/צ'אט.
+    fetchHomePosts().then(r => { setPosts(r); markSeenKey("home-posts"); }).catch(() => {});
     // רמזי-הזרם נטענים ב-effect נפרד, מותנה בדגל lock_reality (ראה למטה)
     getGalleryImageCount().then(setImgCount).catch(() => {});
     getTopPrimaryValues(16).then(setTopNums).catch(() => {});
