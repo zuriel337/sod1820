@@ -1,7 +1,7 @@
 // src/lib/fieldpackage.js — P2 · Field Package (read-model בלבד · reuse-first) · Command-Center-first.
 // ⚠️ אין טבלה חדשה · אין מנוע חדש · אין Field-Map storage · אין קידום קנוני. הרכבה-על-קריאה בלבד.
 // המקורות (כולם קיימים): RPC public.fn_gematria_pack(p_subject) — חבילת-מחקר דטרמיניסטית (tokens:0, used_llm:false)
-//   הנושאת expression × method × value לכל 13 השיטות + גשרים בין-שיטתיים (cross) + convergences per-method
+//   הנושאת expression × method × value לכל השיטות (מספר דינמי — לא מקובע!) + גשרים בין-שיטתיים (cross) + convergences per-method
 //   + פסוקים + מקורות-תנ״ך מלאים + פירוק (FACT מול INTERPRETATION מופרדים כבר במקור).
 //   ובנוסף: listRequests (P1) — Information Requests משובצים בתוך ה-Package.
 // חוקי-ברזל (research_pipeline_contract §2):
