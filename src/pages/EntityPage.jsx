@@ -833,13 +833,14 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
   const [aiDeep, setAiDeep] = useState(false);         // false=Haiku מהיר · true=Sonnet עמוק (מכסה)
   const [aiCross, setAiCross] = useState(null);        // {groups, resonance, ...} — עדשת ההצלבה + מדד-התהודה
+  const [crossOpen, setCrossOpen] = useState(false);   // GAP-2 · פתיחת-הצלבות דטרמיניסטית (חינם, בלי AI); מקופל כברירת-מחדל (declutter 12.7)
   const [comboBusy, setComboBusy] = useState(false);
   const [comboText, setComboText] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadStatus, setLeadStatus] = useState("idle");  // idle | sending | done | err
   // מספר/מילה חדשים → איפוס, אבל עם זיכרון: ניתוח שכבר רץ על המילה נטען מהקאש (חוזרים ורואים, בלי לשלם שוב).
   useEffect(() => {
-    setAiBusy(false); setAiCross(null); setComboText(""); setLeadStatus("idle");
+    setAiBusy(false); setAiCross(null); setCrossOpen(false); setComboText(""); setLeadStatus("idle");
     const cached = loadAiCache(String(term ?? value));
     setAiText(cached?.text || ""); setAiEngine(cached?.engine || "claude"); setAiDeep(!!cached?.deep);
   }, [value, term]);
@@ -856,16 +857,16 @@ export default function EntityPage({ embedPhrase } = {}) {
     getNumberMap(value).then(m => { if (alive) setGmap(m); }).catch(() => {});
     return () => { alive = false; };
   }, [value, isNumber]);
-  // 🧹 החלטת צוריאל (12.7): עובדות-העומק נחשפות רק בלחיצה על ה-AI — לא נטענות מראש,
-  //    שהמסך לא יתמלא. חריג יחיד: ניתוח שחזר מהקאש משלים את שכבת-העובדות שלו.
+  // 🧹 declutter (צוריאל 12.7): ההצלבות מקופלות כברירת-מחדל. GAP-2 · הן נטענות **דטרמיניסטית וללא AI**
+  //    כשהמשתמש פותח את מדור-ההצלבות (crossOpen) — או כשריצת-AI קיימת (aiText). getWordCrossFacts = 0 tokens (bidim).
   useEffect(() => {
     let live = true;
     const key = isNumber ? String(value || "") : (term || "");
-    if (key && aiText) {
+    if (key && (crossOpen || aiText)) {
       getWordCrossFacts(key).then(c => { if (live && c && (c.groups?.length || c.resonance)) setAiCross(c); }).catch(() => {});
     }
     return () => { live = false; };
-  }, [isNumber, term, value, aiText]);
+  }, [isNumber, term, value, aiText, crossOpen]);
   // 🤖 חיפוש-AI — כולם דרך המודול המשותף analyzeWordDeep (שכבת-העומק הבין-שיטתית נוספת אוטומטית).
   //    deep=false → Haiku (מהיר, נדיב) · deep=true → Sonnet (מדויק, נכנס למכסת-העומק). עומק חל רק לדף-מילה.
   async function runAiNumber(engine = "claude", deep = false) {
@@ -1059,6 +1060,14 @@ export default function EntityPage({ embedPhrase } = {}) {
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
         </div>
       </div>
+      {/* 🔗 GAP-2 · הצלבות בין-שיטתיות — עובדה חינמית (bidim, 0 tokens), מקופל כברירת-מחדל, פתיחה בלי AI. */}
+      {!aiText && (
+        <div style={{ marginBottom: 9, textAlign: "start" }}>
+          {!crossOpen
+            ? <button onClick={() => setCrossOpen(true)} style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "6px 12px" }}>🔗 הצלבות בין-שיטתיות (חינם · בלי AI) ▾</button>
+            : (aiCross ? aiCrossBlock : <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5 }}>טוען הצלבות… (דטרמיניסטי · 0 tokens)</div>)}
+        </div>
+      )}
       {!aiText && !aiBusy && (
         <div>
           <div style={{ display: "flex", gap: 7 }}>
