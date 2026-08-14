@@ -24,6 +24,12 @@ const u2 = numLink("תורה אחת", { src: "פורום" });
 const q2 = new URLSearchParams(u2.split("?")[1]);
 ok(q2.get("src") === "פורום" && !q2.get("method") && !q2.get("expr"), "only provided ctx keys included");
 
+// 3b · srcUrl (return-link to source) carried only when present (never invented)
+const u3 = numLink(1820, { method: "מילוי", src: "פורום · צבי", srcUrl: "/post/zvi-764" });
+const q3 = new URLSearchParams(u3.split("?")[1]);
+ok(q3.get("srcUrl") === "/post/zvi-764", "srcUrl carried as return-link");
+ok(!new URLSearchParams(numLink(1820, { src: "פורום" }).split("?")[1]).get("srcUrl"), "no srcUrl when none provided (not invented)");
+
 // 4 · empty ctx → no query (identical to bare)
 ok(numLink(764, {}) === "/number/764", "empty ctx adds no query");
 ok(numLink(764, { method: "", expr: "", src: "" }) === "/number/764", "all-empty ctx adds no query");

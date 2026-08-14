@@ -574,7 +574,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   const fromCalc = sp.get("from") === "calc";
   // 🧭 קונטקסט-ניווט (GAP-1) — «הגעת ל-value דרך method של expr · מקור: src». provenance בלבד: לא משנה את
   //    משמעות המספר ולא הופך את הביטוי ל-Fact. המספר נשאר הצומת הקנוני; ה-method = הקשר-ההגעה.
-  const navCtx = { method: sp.get("method") || "", expr: sp.get("expr") || "", src: sp.get("src") || "" };
+  const navCtx = { method: sp.get("method") || "", expr: sp.get("expr") || "", src: sp.get("src") || "", srcUrl: sp.get("srcUrl") || "" };
   const hasNavCtx = !!(navCtx.method || navCtx.expr || navCtx.src);
   const { term, value, isNumber } = resolve(decodeURIComponent(phrase || ""));
   // 🤖 חסימת בוטים: דף-מספר טהור מעל 4 ספרות (≥10000) = כמעט תמיד סריקת-זבל של בוט
@@ -840,7 +840,9 @@ export default function EntityPage({ embedPhrase } = {}) {
   const [leadStatus, setLeadStatus] = useState("idle");  // idle | sending | done | err
   // מספר/מילה חדשים → איפוס, אבל עם זיכרון: ניתוח שכבר רץ על המילה נטען מהקאש (חוזרים ורואים, בלי לשלם שוב).
   useEffect(() => {
-    setAiBusy(false); setAiCross(null); setCrossOpen(false); setComboText(""); setLeadStatus("idle");
+    // GAP-1A · הגעה דרך method → פותחים אוטומטית את ההצלבות (עדשת-השיטה), כדי שהתוכן-הרלוונטי יתועדף,
+    //   לא רק הבאנר. ביקור רגיל (בלי method) נשאר מקופל (declutter 12.7). דטרמיניסטי — עדיין בלי AI.
+    setAiBusy(false); setAiCross(null); setCrossOpen(!!sp.get("method")); setComboText(""); setLeadStatus("idle");
     const cached = loadAiCache(String(term ?? value));
     setAiText(cached?.text || ""); setAiEngine(cached?.engine || "claude"); setAiDeep(!!cached?.deep);
   }, [value, term]);
@@ -1235,15 +1237,17 @@ export default function EntityPage({ embedPhrase } = {}) {
         </button>
       )}
       <div style={{ direction: "rtl", maxWidth: 920, margin: "0 auto", padding: "30px 20px 100px" }}>
-        {/* 🧭 באנר קונטקסט-ניווט (GAP-1) — לא-הרסני. provenance/ניווט בלבד; לא משנה משמעות ולא הופך ל-Fact. */}
+        {/* 🧭 באנר קונטקסט-ניווט (GAP-1A) — עדשת-שיטה + provenance. לא-הרסני; לא משנה משמעות ולא הופך ל-Fact.
+            expr = קישור-חזרה לדף-הביטוי · src = קישור-חזרה למקור-המלא (רק כשיש URL קיים; לא ממציאים). */}
         {hasNavCtx && (
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 16, padding: "9px 13px", borderRadius: 10, background: P.cardGrad, border: `1px solid ${P.border}`, fontFamily: F.body, fontSize: 12.5, color: P.accentDim }}>
             <span style={{ fontSize: 15 }}>🧭</span>
             <span>הגעת ל-<b style={{ color: P.accentText }}>{value}</b>
               {navCtx.method ? <> דרך <b style={{ color: P.accentText }}>{navCtx.method}</b></> : null}
-              {navCtx.expr ? <> של «<b style={{ color: P.accentText }}>{navCtx.expr}</b>»</> : null}
-              {navCtx.src ? <> · מקור: {navCtx.src}</> : null}
+              {navCtx.expr ? <> של «<Link to={numHref(encodeURIComponent(navCtx.expr))} style={{ color: P.accentText, fontWeight: 800, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>{navCtx.expr}</Link>»</> : null}
+              {navCtx.src ? <> · מקור: {navCtx.srcUrl ? <Link to={navCtx.srcUrl} style={{ color: P.accentText, textDecoration: "none", borderBottom: `1px dotted ${P.accentDim}` }}>{navCtx.src} ↗</Link> : navCtx.src}</> : null}
             </span>
+            {navCtx.method && <span style={{ background: P.glow, border: `1px solid ${P.borderStrong}`, color: P.accentText, borderRadius: 999, padding: "2px 9px", fontSize: 10.5, fontWeight: 800, fontFamily: F.heading }}>🔍 עדשה: {navCtx.method}</span>}
             <span style={{ color: P.accentDim, opacity: 0.65, fontSize: 10.5 }}>· קונטקסט-ניווט (provenance) — לא משנה את משמעות המספר</span>
           </div>
         )}

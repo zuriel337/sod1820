@@ -1060,8 +1060,10 @@ function FieldPackageSection({ item }) {
   const sm = pkg?.stateMap;
   const person = item.writer?.canonical?.display_name || item.writer?.contributor?.display_name || item.rawAuthor || "—";
   const next = whatMissing(item);
-  // provenance-string לקונטקסט-ניווט (מקור·כותב) — מוצג ב-EntityPage banner, לא משנה משמעות.
+  // provenance לקונטקסט-ניווט: תווית (מקור·כותב) + URL-מקור קיים (item.link) לקישור-חזרה. לא ממציאים מקור.
   const provSrc = [item.source, item.rawAuthor].filter(Boolean).join(" · ") || null;
+  const provUrl = item.link || null;
+  const navCtxBase = { src: provSrc, srcUrl: provUrl };
   const exprOf = pkg?.finding?.expression || expr;
 
   return (
@@ -1092,7 +1094,7 @@ function FieldPackageSection({ item }) {
             {/* כל שיטה = ערך לחיץ → /number/<value>. השיטה = הקשר; הערך = הצומת. אין צמצום לרגיל. */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
               {pkg.finding.methods.map((m) => (
-                <Node key={m.method} to={m.value} ctx={{ method: m.method, expr: exprOf, src: provSrc }} color={m.method === "רגיל" ? C.gold : "#8aa0c0"} title={`${m.method} = ${m.value} → דף-המספר`}>
+                <Node key={m.method} to={m.value} ctx={{ method: m.method, expr: exprOf, ...navCtxBase }} color={m.method === "רגיל" ? C.gold : "#8aa0c0"} title={`${m.method} = ${m.value} → דף-המספר`}>
                   {m.method} <b style={{ color: C.goldBright }}>{m.value}</b>
                 </Node>
               ))}
@@ -1105,7 +1107,7 @@ function FieldPackageSection({ item }) {
                   {pkg.finding.selfBridge.map((b, i) => (
                     <React.Fragment key={b.value}>
                       {i > 0 && <span style={{ color: "#6ea0ff", fontWeight: 800 }}>⇄</span>}
-                      <Node to={b.value} ctx={{ method: b.methods.join("·"), expr: exprOf, src: provSrc }} color={b.methods.includes("רגיל") ? C.gold : "#8aa0c0"} title={`${b.value} (${b.methods.join("·")}) → דף-המספר`}>
+                      <Node to={b.value} ctx={{ method: b.methods.join("·"), expr: exprOf, ...navCtxBase }} color={b.methods.includes("רגיל") ? C.gold : "#8aa0c0"} title={`${b.value} (${b.methods.join("·")}) → דף-המספר`}>
                         <b style={{ color: C.goldBright }}>{b.value}</b> <span style={{ fontSize: 9.5, opacity: 0.85 }}>{b.methods.join("·")}</span>
                       </Node>
                     </React.Fragment>
@@ -1120,9 +1122,9 @@ function FieldPackageSection({ item }) {
                 <div style={{ display: "grid", gap: 4 }}>
                   {pkg.finding.bridges.map((b, i) => (
                     <div key={i} style={{ fontSize: 11.5, color: C.goldLight, display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
-                      {b.kind === "cross_method" ? <><Node to={b.partner} ctx={{ src: provSrc }} color="#b08bd8" title={`דף-הישות של «${b.partner}»`}>«{b.partner}»</Node> <span style={{ color: C.faint }}>נפגש ב-{b.nMethods} שיטות ({b.detail})</span></>
-                        : b.kind === "zero_scale" ? <><span style={{ color: C.faint }}>סקאלת-אפס · שורש {b.root} →</span> {(b.matches || []).slice(0, 4).map((m) => <Node key={m.phrase} to={m.phrase} ctx={{ src: provSrc }} color="#b08bd8">«{m.phrase}»</Node>)}</>
-                        : <><span style={{ color: C.faint }}>ניווט-אפס · {b.stripped} →</span> {(b.matches || []).slice(0, 4).map((m) => <Node key={m.phrase} to={m.phrase} ctx={{ src: provSrc }} color="#b08bd8">«{m.phrase}»</Node>)}</>}
+                      {b.kind === "cross_method" ? <><Node to={b.partner} ctx={{ ...navCtxBase }} color="#b08bd8" title={`דף-הישות של «${b.partner}»`}>«{b.partner}»</Node> <span style={{ color: C.faint }}>נפגש ב-{b.nMethods} שיטות ({b.detail})</span></>
+                        : b.kind === "zero_scale" ? <><span style={{ color: C.faint }}>סקאלת-אפס · שורש {b.root} →</span> {(b.matches || []).slice(0, 4).map((m) => <Node key={m.phrase} to={m.phrase} ctx={{ ...navCtxBase }} color="#b08bd8">«{m.phrase}»</Node>)}</>
+                        : <><span style={{ color: C.faint }}>ניווט-אפס · {b.stripped} →</span> {(b.matches || []).slice(0, 4).map((m) => <Node key={m.phrase} to={m.phrase} ctx={{ ...navCtxBase }} color="#b08bd8">«{m.phrase}»</Node>)}</>}
                     </div>
                   ))}
                 </div>
@@ -1135,10 +1137,10 @@ function FieldPackageSection({ item }) {
                   {pkg.finding.convergences.map((c, i) => (
                     <div key={i} style={{ fontSize: 11.5, color: C.goldLight, display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
                       {c.value != null
-                        ? <Node to={c.value} ctx={{ method: c.methodHe, expr: exprOf, src: provSrc }} color={C.gold} title={`התכנסות ${c.value} (${c.methodHe}) → דף-המספר`}><b style={{ color: C.goldBright }}>{c.value}</b> · {c.methodHe}</Node>
+                        ? <Node to={c.value} ctx={{ method: c.methodHe, expr: exprOf, ...navCtxBase }} color={C.gold} title={`התכנסות ${c.value} (${c.methodHe}) → דף-המספר`}><b style={{ color: C.goldBright }}>{c.value}</b> · {c.methodHe}</Node>
                         : <b style={{ color: C.goldBright }}>{c.methodHe}</b>}
                       <span style={{ color: C.faint }}>· {c.size} ביטויים · {c.status}</span>
-                      {(c.phrases || []).slice(0, 4).map((p) => <Node key={p} to={p} ctx={{ src: provSrc }} color="#b08bd8" title={`דף-הישות של «${p}»`}>«{p}»</Node>)}
+                      {(c.phrases || []).slice(0, 4).map((p) => <Node key={p} to={p} ctx={{ ...navCtxBase }} color="#b08bd8" title={`דף-הישות של «${p}»`}>«{p}»</Node>)}
                     </div>
                   ))}
                 </div>

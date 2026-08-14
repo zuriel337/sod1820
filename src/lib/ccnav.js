@@ -7,7 +7,8 @@ export function numLink(key, ctx) {
     const qs = new URLSearchParams();
     if (ctx.method) qs.set("method", ctx.method);
     if (ctx.expr) qs.set("expr", ctx.expr);
-    if (ctx.src) qs.set("src", ctx.src);
+    if (ctx.src) qs.set("src", ctx.src);       // תווית-מקור (מקור·כותב) — לתצוגה
+    if (ctx.srcUrl) qs.set("srcUrl", ctx.srcUrl); // URL-מקור קיים → קישור-חזרה (רק אם קיים; לא ממציאים)
     const s = qs.toString();
     if (s) u += `?${s}`;
   }
