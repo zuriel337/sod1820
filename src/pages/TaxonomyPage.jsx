@@ -150,7 +150,7 @@ function TaxonomyView({ kind }) {
       )}
 
       {/* 🎬 קטגוריית וידאו — רצועת «אור הגאולה» המתעדכנת (כל הסרטונים + קישור לכל האוסף) */}
-      {isVideoCat && <HomeOrGeulaRail />}
+      {isVideoCat && <HomeOrGeulaRail surface="VIDEO_CATEGORY" />}
 
       {/* תפילות פופולריות — הפניה למי שמחפש תגית של תפילה/רפואה/ישועה */}
       {isTag && isPrayerTag(name) && <PopularPrayersBox />}

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } fro
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { MergedStoriesRail, LandingDiscoveryStories } from "../components/OrGeulaStoryColumn.jsx";
+import LatestUpdatesPanel from "../components/LatestUpdatesPanel.jsx";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4309,11 +4310,17 @@ function SpotimChatPage() {
         .sod-chat-videos { display: none; }        /* מובייל: מוסתרת (הרצועה האופקית תופסת את מקומה) */
         .sod-chat-stories-mobile { display: block; margin: 12px 16px 0; }  /* מובייל: רצועת-סטוריז אופקית קבועה */
         .sod-chat-grid { display: block; }
+        .sod-chat-latest-mobile { display: block; margin-top: 26px; }   /* מובייל: «עדכונים אחרונים» מתחת לתוכן */
+        .sod-chat-latest-side { margin-top: 20px; }                     /* דסקטופ: «עדכונים אחרונים» מתחת לסטוריז בעמודה */
+        /* «עדכונים אחרונים» בעמודה צרה — טור אחד + מדיה קטנה כדי שלא ייווצר overflow אופקי */
+        .side-updates .lur-grid { grid-template-columns: 1fr; max-width: none; gap: 10px; }
+        .side-updates .lur-media { width: 60px; flex-basis: 60px; }
         @media (max-width: 999px) { .sod-chat-layout { gap: 20px; } }
         @media (min-width: 1000px) {
           .sod-chat-page { max-width: 1240px; }
           .sod-chat-chip-mobile { display: none; }  /* בדסקטופ העמודה מחליפה את הצ'יפ */
           .sod-chat-stories-mobile { display: none; }  /* בדסקטופ העמודה המלאה מחליפה את הרצועה */
+          .sod-chat-latest-mobile { display: none; }   /* בדסקטופ «עדכונים אחרונים» חי בעמודת-הצד */
           .sod-chat-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 30px; align-items: start; }
           .sod-chat-videos { display: block; position: sticky; top: 78px; max-height: calc(100vh - 96px); overflow-y: auto;
             padding-inline-start: 4px; scrollbar-width: thin; }
@@ -4323,7 +4330,7 @@ function SpotimChatPage() {
       {/* 🎞️ רצועת-סטוריז אחת (מובייל בלבד; בדסקטופ העמודות בצד שמאל מחליפות אותה). שורה **אחת**
           ממוזגת: הסרטון האחרון שלנו («צפונות בתורה») ראשון ומודגש בכתר-זהב, ואחריו סטוריז חדשים
           של אור הגאולה (טבעת ורודה + לוגו). מקרא זעיר מפענח את הטבעות → מבחינים בלי שתי שורות. */}
-      <div className="sod-chat-stories-mobile"><MergedStoriesRail limit={20} /></div>
+      <div className="sod-chat-stories-mobile"><MergedStoriesRail ogOnly limit={20} surface="CHAT" /></div>
 
       <div className="sod-chat-grid">
         {/* עמודה ראשית — צ'אט + פורום (מימין ב-RTL) */}
@@ -4350,12 +4357,17 @@ function SpotimChatPage() {
           </div>
         </div>
 
-        {/* 🎬 סטוריז (דסקטופ בלבד, בצד שמאל) — **אותו דבר כמו במובייל**: רצועה ממוזגת אחת בגרסת-עמודה,
-            הצופן הנעוץ ראשון ומודגש (🦅) ואחריו אור הגאולה. בקשת צוריאל 12.8.2026. */}
+        {/* 🎬 שער אור הגאולה (דסקטופ, עמודת-צד שמאל) — OR-GEULA בלבד (בלי צפנים): רצועת-preview
+            אופקית (≈3 גלויים + גלילה) + «כל אור הגאולה» לתיקייה הקיימת, ומתחתיה «עדכונים אחרונים»
+            (אותו source/visibility כמו הבית). בקשת צוריאל 14.8.2026. */}
         <aside className="sod-chat-videos">
-          <MergedStoriesRail layout="column" limit={30} />
+          <MergedStoriesRail ogOnly layout="rail" limit={20} surface="CHAT" />
+          <div className="sod-chat-latest-side side-updates"><LatestUpdatesPanel limit={10} /></div>
         </aside>
       </div>
+
+      {/* 📜 «עדכונים אחרונים» — מובייל בלבד, מתחת לתוכן (בדסקטופ הוא חי בעמודת-הצד). */}
+      <div className="sod-chat-latest-mobile"><LatestUpdatesPanel limit={10} /></div>
 
     </div>
   );
@@ -4693,6 +4705,17 @@ function PostPageBySlug({ onNav }) {
     if (user && post?.slug) logActivity("post", post.slug, title);
   }, [user, post?.slug]);  // eslint-disable-line
 
+  // 📐 שער אור הגאולה בפוסט — עמודת-צד שמאל רק ברוחב שמאפשר לשבת בשוליים הפנויים בלי לדחוף/לכווץ
+  //    את עמודת-הקריאה (800). ברוחב צר (וגם מובייל) → נערם: רצועה מעל התוכן + «עדכונים» מתחת.
+  const [wideSide, setWideSide] = useState(() => typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(min-width:1200px)").matches : false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const m = window.matchMedia("(min-width:1200px)");
+    const h = () => setWideSide(m.matches);
+    m.addEventListener ? m.addEventListener("change", h) : m.addListener(h);
+    return () => { m.removeEventListener ? m.removeEventListener("change", h) : m.removeListener(h); };
+  }, []);
+
   return (
     // מצב-התמה נקבע פר-פוסט (postMode): light/dark כופים, auto עוקב אחרי המתג. עצמאי ממתג-האתר.
     <div data-theme={postMode} style={{ direction: "rtl", background: postMode === "dark" ? "transparent" : pc.bg, minHeight: "100vh", color: pc.ink }}>
@@ -4719,6 +4742,19 @@ function PostPageBySlug({ onNav }) {
           </div>
         );
       })()}
+      {/* עוטף-יחס: מאפשר לשער אור-הגאולה לשבת בשוליים הפנויים כ-absolute — מתחת ל-Hero (העוטף מתחיל
+          אחרי ה-Hero) ולא חופף אותו, ובלי לדחוף/לכווץ את עמודת-הקריאה (800). */}
+      <div style={{ position: "relative" }}>
+      {/* 📂 שער אור הגאולה — עמודת-צד שמאל (absolute) בשוליים הפנויים, מתחת ל-Hero. רוחב מהשוליים בלבד
+          → לעולם לא חופף לתוכן; מוצג ≥1200px. */}
+      {wideSide && post && !loading && (
+        <aside className="post-og-side" style={{ position: "absolute", top: 0, left: 16, zIndex: 2,
+          width: "min(330px, calc((100vw - 800px) / 2 - 28px))", overflowX: "hidden", direction: "rtl" }}>
+          <style>{`.side-updates .lur-grid{grid-template-columns:1fr;max-width:none;gap:10px}.side-updates .lur-media{width:60px;flex-basis:60px}`}</style>
+          <MergedStoriesRail ogOnly layout="rail" limit={20} surface="POST_PAGE" />
+          <div className="side-updates" style={{ marginTop: 18 }}><LatestUpdatesPanel limit={10} /></div>
+        </aside>
+      )}
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "52px 16px 96px" }}>
         <button onClick={() => navigate("/post")}
           style={{ background: "none", border: "none", color: pc.muted, cursor: "pointer", fontFamily: F.heading, fontSize: 13, marginBottom: 40, letterSpacing: 4, textTransform: "uppercase" }}>
@@ -4851,6 +4887,12 @@ function PostPageBySlug({ onNav }) {
               </div>
               <RoyalDivider width={160} />
             </div>
+            {/* 📂 שער אור הגאולה — נערם מעל התוכן ברוחב צר/מובייל (בדסקטופ רחב הוא בעמודת-הצד השמאלית). */}
+            {!wideSide && (
+              <div className="post-og-mobile" style={{ margin: "4px 0 22px" }}>
+                <MergedStoriesRail ogOnly limit={20} surface="POST_PAGE" />
+              </div>
+            )}
             {/* 🔎 סטוריז-גילוי — רק במחשב, לנוחת ראשוני מגוגל/חוץ, בפוסט מעל חודש; כולל 2 הפוסטים
                 האחרונים עם זמן-עדכון (בקשת צוריאל 12.8.2026) */}
             <LandingDiscoveryStories postDate={post.date} olderThanDays={30} excludeSlug={post.slug} />
@@ -5019,6 +5061,14 @@ function PostPageBySlug({ onNav }) {
           </>
         )}
       </div>
+      </div>{/* /position:relative wrapper */}
+      {/* 📜 «עדכונים אחרונים» — נערם מתחת לתוכן ברוחב צר/מובייל (בדסקטופ רחב הוא בעמודת-הצד).
+          אותו source/visibility בדיוק כמו הבית (homeUpdates). */}
+      {!wideSide && (
+        <div className="side-updates" style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px 44px", direction: "rtl" }}>
+          <LatestUpdatesPanel limit={10} />
+        </div>
+      )}
     </div>
   );
 }

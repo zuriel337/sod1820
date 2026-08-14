@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
@@ -6,6 +6,7 @@ import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import { track } from "../lib/tracking.js";
 import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
+import { storyOpen, storyImpression } from "../lib/storyTrack.js";
 
 // 🔴 צ'יפ «סטורי חדש · אור הגאולה» — מצביע קומפקטי שמופיע *רק כשיש סטורי חדש מאז הביקור*
 // (whats_new_law, פר-משתמש). הקשה → StoryViewer. רכיב קנוני יחיד — בית + צ'אט (canonical_ui_components_law).
@@ -18,6 +19,9 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
   const [rows, setRows] = useState(null);
   const [cut, setCut] = useState(() => seenCutoff(SEEN_KEY));
   const [open, setOpen] = useState(false);
+  // QUALIFIED IMPRESSION — observer מוקם פעם אחת; dedupe אמיתי ב-storyImpression (פר story/surface/session).
+  const imprDone = useRef(false);
+  const imprIO = useRef(null);
 
   useEffect(() => {
     let alive = true;
@@ -38,7 +42,8 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
   const dark = P.mode !== "light";
 
   const openStories = () => {
-    try { track("or-geula", String(newest.id), "story_chip"); } catch { /* noop */ }
+    try { track("or-geula", String(newest.id), "story_chip"); } catch { /* noop */ }   // back-compat (existing)
+    storyOpen("or-geula", newest.id, { surface: "HOME", entry: "chip" });                // canonical open
     markSeenKey(SEEN_KEY, rows[0].created_at);   // סימון נראה → הצ'יפ ייעלם עד סטורי חדש
     // קודם גוללים לרצועה (שיראו איפה זה חי), ואז מדליקים את הסטורי — לימוד «יש כאן חדש», לא סטורי-לנצח.
     const el = scrollTargetId && typeof document !== "undefined" ? document.getElementById(scrollTargetId) : null;
@@ -54,7 +59,20 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
   return (
     <div style={{ padding: "10px 16px 0", boxSizing: "border-box" }}>
       <style>{`@keyframes ogc-ping{0%{transform:scale(.9);opacity:.85}70%{transform:scale(1.5);opacity:0}100%{opacity:0}}`}</style>
-      <button onClick={openStories} aria-label="סטורי חדש באור הגאולה" style={{
+      <button onClick={openStories} aria-label="סטורי חדש באור הגאולה"
+        ref={(el) => {
+          if (!el || imprDone.current || imprIO.current || typeof IntersectionObserver === "undefined") return;
+          let timer = null;
+          const io = new IntersectionObserver((es) => {
+            for (const e of es) {
+              if (e.isIntersecting && e.intersectionRatio >= 0.5) {
+                if (!timer) timer = setTimeout(() => { imprDone.current = true; storyImpression("or-geula", newest.id, { surface: "HOME", entry: "chip" }); io.disconnect(); imprIO.current = null; }, 1000);
+              } else if (timer) { clearTimeout(timer); timer = null; }
+            }
+          }, { threshold: [0.5] });
+          imprIO.current = io; io.observe(el);
+        }}
+        style={{
         maxWidth: 660, margin: "0 auto", width: "100%", boxSizing: "border-box", cursor: "pointer",
         display: "flex", alignItems: "center", gap: 13, textAlign: "start",
         background: `linear-gradient(160deg, ${dark ? "rgba(139,92,246,.14)" : "rgba(139,92,246,.12)"}, ${P.card})`,
@@ -87,7 +105,7 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
         )}
       </button>
 
-      {open && <StoryViewer items={rows} startIndex={0} onClose={closeStories} />}
+      {open && <StoryViewer items={rows} startIndex={0} onClose={closeStories} trackKey="or-geula" surface="HOME" entry="chip" />}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -10,6 +10,7 @@ import { streamDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
 import VideoBadge, { postHasVideo } from "./VideoBadge.jsx";
+import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכונים אחרונים» הקנוני — זהה בבית/צד/מובייל
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
 //   פוסט · זרם המציאות (🌊) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
@@ -20,8 +21,9 @@ const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/
 // 📌 פוסט «נעוץ» = tree_priority גבוה (מוצמד ידנית ע"י אדמין). מוצג ראשון + תג «נעוץ».
 const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 
-export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [] }) {
+export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false }) {
   const P = usePalette();
+  const [expanded, setExpanded] = useState(false);   // «פתח עוד» — פותח מ-limit לכל הפריטים (רק כשמועבר limit)
   const light = P.mode === "light";
   const cGilui = light ? "#6d3bd4" : "#b79bff";
   const cReality = light ? "#0e9b8e" : "#4fd6c9";
@@ -61,9 +63,19 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     } catch { /* נשאר מוסתר ויזואלית; ריענון יחזיר אם הכתיבה נכשלה */ }
   };
   const visible = items.filter(it => !hidden.has(keyOf(it)));
+  // «פתח עוד»: כשמועבר limit — מציגים limit ראשונים עד שלוחצים. ללא limit (בית) — הכל כרגיל.
+  const shownList = (limit && !expanded) ? visible.slice(0, limit) : visible;
+  const hasMore = !!limit && !expanded && visible.length > limit;
 
   // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
   const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  // 🌊 זרם המציאות: בבית — גלילה לסקשן הזרם; מחוץ לבית (פוסט/צ'אט, אין #reality-home) — לארכיון הקנוני.
+  const navigate = useNavigate();
+  const goReality = () => {
+    const el = typeof document !== "undefined" ? document.getElementById("reality-home") : null;
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    else navigate("/archive?tab=reality");
+  };
 
   const Tag = ({ acc, logo, children }) => (
     <span className="lur-tag" style={{ "--acc": acc }}>{logo}{children}</span>
@@ -89,11 +101,11 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     if (it.type === "reality") {
       const v = domNum(d);
       return (
-        <button key={"r" + d.id} type="button" onClick={() => scrollTo("reality-home")} className="lur-card" style={{ "--acc": cReality }}>
+        <button key={"r" + d.id} type="button" onClick={goReality} className="lur-card" style={{ "--acc": cReality }}>
           <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} />{v != null && <span className="lur-onimg">{v}</span>}</div>
           <div className="lur-body"><Tag acc={cReality} logo={<RealityLogo s={13} />}>זרם המציאות</Tag>
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
-            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>↓ בזרם למטה</span></div></div>
+            <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>🌊 לזרם המציאות</span></div></div>
         </button>
       );
     }
@@ -137,6 +149,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
 
   return (
     <>
+      {heading && <HomeHeader title="📜 עדכונים אחרונים" />}
       <style>{`
         .lur-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;max-width:1120px;margin:0 auto}
         .lur-card{position:relative;display:flex;flex-direction:row;width:100%;text-align:start;font:inherit;background:${P.card};border:1px solid ${P.border};
@@ -166,7 +179,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-hide:hover{opacity:1;background:#c8102e;transform:scale(1.06)}
         @media(max-width:640px){.lur-media{width:74px;flex-basis:74px}}
       `}</style>
-      <div className="lur-grid">{visible.map(it => (
+      <div className="lur-grid">{shownList.map(it => (
         <div key={keyOf(it)} className="lur-cell">
           {card(it)}
           {isAdmin && canHide(it) && (
@@ -175,6 +188,15 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
           )}
         </div>
       ))}</div>
+      {hasMore && (
+        <div style={{ textAlign: "center", marginTop: 14 }}>
+          <button type="button" onClick={() => setExpanded(true)}
+            style={{ background: "none", border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 999, cursor: "pointer",
+              color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 13, padding: "8px 20px" }}>
+            פתח עוד ({visible.length - limit}) ↓
+          </button>
+        </div>
+      )}
       <div style={{ textAlign: "center", marginTop: 16, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
         <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
         <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>

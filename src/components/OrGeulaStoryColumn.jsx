@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -11,6 +11,7 @@ import { track } from "../lib/tracking.js";
 import { shareVideoToStory } from "../lib/share.js";
 import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
+import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
 
 // 🎬 עמודת-סטוריז ממותגת — כל הסרטונים מלמעלה-למטה (דף הצ'אט).
 // עדשה אחת על channel_updates לפי brand.channel — לא רכיב מקביל (canonical_ui_components_law).
@@ -71,13 +72,14 @@ async function fetchBrandRows(brand, limit) {
 
 // 🎞️ אריח-רצועה קנוני יחיד (עיגול-סטורי) — משמש את הרצועה הבודדת ואת הרצועה הממוזגת.
 //   badgeBoost → הלוגו שלנו גדול יותר (הבלטה). pin → 📌 בפינה (הסטורי הנעוץ = הצופן).
-function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost = false, pin = false, onOpen, P }) {
+function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost = false, pin = false, onOpen, P, surface = "CHAT", index = 0 }) {
+  const ir = useQualifiedImpression(useCallback(() => { if (r) storyImpression(brand?.trackKey || "or-geula", r.id, { surface, entry: "rail", index }); }, [r?.id, brand?.trackKey, surface, index]));
   if (!r) return <div style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
   const vid = r.is_video || isVideo(r.image_url);
   const thumb = r.thumb_url || (vid ? null : galThumb(r, 160));
   const cap = capOf(r);
   return (
-    <button onClick={() => onOpen(r)} title="צפו כסטורי" aria-label={cap.slice(0, 40) || `סטורי ${brand.name}`}
+    <button ref={ir} onClick={() => onOpen(r)} title="צפו כסטורי" aria-label={cap.slice(0, 40) || `סטורי ${brand.name}`}
       style={{ flex: "0 0 auto", width: 72, cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
       <span style={{ position: "relative", width: 66, height: 66, borderRadius: "50%", padding: 3, background: feat ? brand.featRing : brand.ring, flex: "0 0 auto" }}>
         <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "linear-gradient(160deg,#1a1030,#0a0710)", border: `2px solid ${P.card}` }}>
@@ -99,13 +101,14 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost 
 }
 
 // 🃏 אריח-עמודה קנוני (כרטיס אופקי: תמונה + טקסט) — לגרסת-העמודה של הרצועה הממוזגת (דסקטופ, צד שמאל).
-function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = false, brandBadge = false, onOpen, P }) {
+function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = false, brandBadge = false, onOpen, P, surface = "CHAT", index = 0 }) {
+  const ir = useQualifiedImpression(useCallback(() => { if (r) storyImpression(brand?.trackKey || "or-geula", r.id, { surface, entry: "column", index }); }, [r?.id, brand?.trackKey, surface, index]));
   if (!r) return <div style={{ height: 76, borderRadius: 12, background: P.card, opacity: .5 }} />;
   const vid = r.is_video || isVideo(r.image_url);
   const thumb = r.thumb_url || (vid ? null : galThumb(r, 200));
   const cap = capOf(r);
   return (
-    <div onClick={() => onOpen(r)} title="צפו כסטורי" role="button" tabIndex={0}
+    <div ref={ir} onClick={() => onOpen(r)} title="צפו כסטורי" role="button" tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(r); } }}
       style={{ cursor: "pointer", display: "flex", gap: 10, alignItems: "stretch", textAlign: "start",
         background: P.card, border: `1px solid ${feat ? brand.badgeColor : P.border}`, borderRadius: 12, overflow: "hidden", padding: 8,
@@ -135,9 +138,12 @@ function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = fal
 //      ב-StoryViewer), לא ניווט לפוסט. · שאר הפריטים = אור הגאולה (טבעת ורודה + לוגו קטן), נעלמים
 //      אחרי צפייה. הלוגו שלנו גדול משלהם להבלטה.
 //   layout='rail' (מובייל, שורה אחת אופקית) · layout='column' (דסקטופ, עמודה בצד שמאל — «אותו דבר»).
-export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
+// ogOnly=true → שער קנוני של **אור הגאולה בלבד** (בלי הצפנים/CIPHERS): רק ערוץ אור הגאולה,
+//   כותרת ממותגת אור-הגאולה + כניסה «כל אור הגאולה» לתיקייה/ארכיון הקיים (/or-geula). preview של הערוץ.
+export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT", ogOnly = false }) {
   const P = usePalette();
   const OURS = BRAND_TZOFON, OG = BRAND_OR_GEULA;
+  const entry = layout === "column" ? "column" : "rail";   // sub-surface
   const [videos, setVideos] = useState(null);        // כל הסרטונים שלנו (וידאו) — פיד-סטוריז
   const [ogRows, setOgRows] = useState(null);
   const [oursSeen, setOursSeen] = useState(() => loadSeen(OURS.seenKey));
@@ -146,10 +152,11 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
 
   useEffect(() => {
     let alive = true;
-    getVideoStories({ limit: 10 }).then(c => { if (alive) setVideos(Array.isArray(c) ? c : []); }).catch(() => { if (alive) setVideos([]); });
+    if (ogOnly) { setVideos([]); }   // אור הגאולה בלבד — לא מושכים סרטוני-צופן (CIPHERS)
+    else getVideoStories({ limit: 10 }).then(c => { if (alive) setVideos(Array.isArray(c) ? c : []); }).catch(() => { if (alive) setVideos([]); });
     fetchBrandRows(OG, limit).then(r => { if (alive) setOgRows(r); }).catch(() => { if (alive) setOgRows([]); });
     return () => { alive = false; };
-  }, [limit]);
+  }, [limit, ogOnly]);
 
   const ready = ogRows !== null && videos !== null;
   // עד 3 סרטונים-שלנו לא-נצפים (מי שצפה — נעלם, והבא-אחורה צף); הראשון מודגש. תאריך-עלייה לכל אחד.
@@ -167,15 +174,27 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
   };
   const openItem = (r) => {
     if (r.ours) {   // סרטון שלנו — מנגן את הסרט (mp4/יוטיוב) ברצף; מסומן נצפה → נעלם
+      const i = Math.max(0, oursShown.findIndex(x => x.id === r.id));
+      storyOpen("tzofon", r.id, { surface, entry, index: i });   // content_world=CIPHERS
       markSeen(OURS.seenKey, r.id);
-      setViewer({ items: oursShown, index: Math.max(0, oursShown.findIndex(x => x.id === r.id)), brand: OURS, seenKey: OURS.seenKey });
+      setViewer({ items: oursShown, index: i, brand: OURS, seenKey: OURS.seenKey });
       return;
     }
+    const i = Math.max(0, (ogRows || []).findIndex(x => x.id === r.id));
+    storyOpen("or-geula", r.id, { surface, entry, index: i });   // content_world=OR_GEULA
     markSeen(OG.seenKey, r.id);
-    setViewer({ items: ogRows || [], index: Math.max(0, (ogRows || []).findIndex(x => x.id === r.id)), brand: OG, seenKey: OG.seenKey });
+    setViewer({ items: ogRows || [], index: i, brand: OG, seenKey: OG.seenKey });
   };
 
-  const header = (
+  // כותרת: ogOnly → מיתוג אור-הגאולה בלבד + «כל אור הגאולה ←» (לתיקייה הקיימת /or-geula);
+  //        אחרת → כותרת ממוזגת (סרטונים שלנו + אור הגאולה) כמו בצ'אט.
+  const header = ogOnly ? (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+      <img src={OG.logo} alt="" width="22" height="22" style={{ width: 22, height: 22, borderRadius: "50%", objectFit: "cover", flex: "0 0 auto" }} />
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>אור הגאולה · סטוריז</div>
+      <a href={OG.href} style={{ marginInlineStart: "auto", color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, textDecoration: "none", whiteSpace: "nowrap" }}>כל אור הגאולה ←</a>
+    </div>
+  ) : (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
       <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🎬 סטוריז</div>
       {/* מקרא זעיר — מפענח את הטבעות (הלוגו שלנו גדול יותר) */}
@@ -186,7 +205,18 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
       </span>
     </div>
   );
+  // 📂 אריח-כניסה בסוף הרצועה → התיקייה/ארכיון הקיים של אור הגאולה (/or-geula). לא ארכיון חדש.
+  const allTile = ogOnly ? (
+    <a href={OG.href} title="כל אור הגאולה" aria-label="כל אור הגאולה — כל הסטוריז"
+      style={{ flex: "0 0 auto", width: 72, textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+      <span style={{ width: 66, height: 66, borderRadius: "50%", border: `2px dashed ${P.borderStrong || P.border}`, display: "grid", placeItems: "center", background: P.card, flex: "0 0 auto" }}>
+        <span style={{ fontSize: 22 }}>📂</span>
+      </span>
+      <span style={{ color: P.accentText, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, textAlign: "center", fontWeight: 700 }}>כל אור הגאולה</span>
+    </a>
+  ) : null;
   const viewerEl = viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand}
+    surface={surface} entry={entry}
     onSeen={(it) => markSeen(viewer.seenKey, it.id)} onClose={() => setViewer(null)} />;
 
   // דסקטופ — «אותו דבר, בצד שמאל»: עמודה אנכית (כרטיסים), הצופן הראשון מודגש (🦅)
@@ -196,9 +226,12 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
         {header}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {(ready ? merged : Array.from({ length: 6 })).map((r, i) => (
-            <StoryColumnCard key={r?.id || i} r={r} brand={r?._brand || OURS}
+            <StoryColumnCard key={r?.id || i} r={r} brand={r?._brand || OURS} surface={surface} index={i}
               feat={!!r?._feat} pin={!!(r?._feat && r?.is_cipher)} badgeBoost={!!r?._feat} brandBadge onOpen={openItem} P={P} />
           ))}
+          {ready && ogOnly && (
+            <a href={OG.href} style={{ textAlign: "center", color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, textDecoration: "none", padding: "8px 0" }}>📂 כל אור הגאולה ←</a>
+          )}
         </div>
         {viewerEl}
       </section>
@@ -211,9 +244,10 @@ export function MergedStoriesRail({ limit = 20, layout = "rail" }) {
       {header}
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
         {(ready ? merged : Array.from({ length: 8 })).map((r, i) => (
-          <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || OURS}
+          <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || OURS} surface={surface} index={i}
             feat={!!r?._feat} brandBadge badgeBoost={!!r?._feat} pin={!!(r?._feat && r?.is_cipher)} onOpen={openItem} P={P} />
         ))}
+        {ready && allTile}
       </div>
       {viewerEl}
     </section>
@@ -242,7 +276,7 @@ export function LandingDiscoveryStories({ postDate, olderThanDays = 30, excludeS
   return (
     <div style={{ margin: "0 0 22px", padding: "12px 14px", border: `1px solid ${P.borderStrong}`, borderRadius: 14, background: P.card, direction: "rtl" }}>
       <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 8, letterSpacing: .3 }}>✨ חדשים כאן? הצצה לתוכן החי של האתר</div>
-      <MergedStoriesRail limit={20} />
+      <MergedStoriesRail ogOnly limit={20} surface="POST_PAGE" />
       {latest.length > 0 && (
         <>
           <div style={{ color: P.inkSoft, fontFamily: F.heading, fontSize: 10.5, fontWeight: 800, letterSpacing: .5, margin: "14px 0 8px" }}>🆕 העדכונים האחרונים</div>

@@ -302,6 +302,7 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
         const v = domNum(h);
         const title = cleanName(h?.name);
         const date = shortDate(h);
+        const desc = (h?.description || "").replace(/<[^>]+>/g, "").trim();   // 📝 התיאור שנכתב לתמונה
         const isFresh = isNewSince(h, cutoff);
         return (
           <div
@@ -331,10 +332,12 @@ export default function RealityWorld({ compact = false, forceDark = false, prese
                 style={{ position: "absolute", top: 14, insetInlineStart: 14, background: "rgba(212,175,55,0.95)", color: "#1a0e00", fontFamily: F.mono, fontWeight: 900, fontSize: "clamp(32px,5vw,62px)", borderRadius: 14, padding: "4px 18px", zIndex: 2, textDecoration: "none", lineHeight: 1.1 }}
               >{v}</Link>
             )}
-            {/* מידע תחתי */}
-            <div style={{ position: "absolute", bottom: 0, right: 0, left: 0, padding: "18px 20px", zIndex: 2, direction: "rtl" }}>
-              {title && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: "clamp(17px,2.5vw,24px)", fontWeight: 700, textShadow: "0 2px 12px rgba(0,0,0,0.8)", marginBottom: 4 }}>{title}</div>}
-              {date && <div style={{ color: "rgba(255,255,255,0.65)", fontFamily: F.heading, fontSize: 12.5 }}>🗓️ {date} · לחץ לפתיחה</div>}
+            {/* מידע תחתי — על רקע כהה מלא מתחת לטקסט (מדרג חזק) כדי שהכותרת+התיאור יהיו קריאים על כל תמונה */}
+            <div style={{ position: "absolute", bottom: 0, right: 0, left: 0, padding: "44px 20px 18px", zIndex: 2, direction: "rtl", borderRadius: "0 0 18px 18px",
+              background: "linear-gradient(to top, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.8) 45%, rgba(0,0,0,0.4) 78%, rgba(0,0,0,0) 100%)" }}>
+              {title && <div style={{ color: "#fff", fontFamily: F.regal, fontSize: "clamp(17px,2.5vw,24px)", fontWeight: 700, textShadow: "0 2px 12px rgba(0,0,0,0.9)", marginBottom: 5 }}>{title}</div>}
+              {desc && <div style={{ color: "#fff", fontFamily: F.body, fontSize: "clamp(13.5px,1.9vw,15.5px)", lineHeight: 1.6, textShadow: "0 1px 6px rgba(0,0,0,0.95)", marginBottom: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{desc}</div>}
+              {date && <div style={{ color: "rgba(255,255,255,0.72)", fontFamily: F.heading, fontSize: 12.5 }}>🗓️ {date} · לחץ לפתיחה</div>}
             </div>
             {/* גבול זהב פועם — «קופץ» ומושך את העין */}
             <div className="rw-glow" style={{ position: "absolute", inset: 0, borderRadius: 18, pointerEvents: "none" }} />

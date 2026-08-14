@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { F } from "../theme.js";
 import { SITE_URL } from "../lib/seo.js";
-import { track } from "../lib/tracking.js";
+import { storyEvent } from "../lib/storyTrack.js";
 import { shareVideoToStory } from "../lib/share.js";
 import ShareActions from "./ShareActions.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
@@ -17,8 +17,8 @@ const iconBtn = { background: "rgba(0,0,0,.42)", color: "#fff", border: "none", 
 
 const DEFAULT_BRAND = { name: "אור הגאולה", logo: OR_GEULA_LOGO, shareBase: "/or-geula", trackKey: "or-geula" };
 
-export default function StoryViewer({ items = [], startIndex = 0, onClose, trackKey, brand = DEFAULT_BRAND, onSeen }) {
-  const brandTrackKey = trackKey || brand.trackKey || "or-geula";
+export default function StoryViewer({ items = [], startIndex = 0, onClose, trackKey, brand = DEFAULT_BRAND, onSeen, surface = null, entry = null }) {
+  const brandTrackKey = trackKey || brand.trackKey || "or-geula";   // = canonical `section` (→ content_world)
   const [idx, setIdx] = useState(Math.max(0, Math.min(startIndex, items.length - 1)));
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -26,18 +26,41 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
   const vidRef = useRef(null);
   const cur = items[idx];
 
+  // 🎬 taxonomy state: how the current item was reached, dwell start, and single-fire end guard.
+  const advanceRef = useRef("open");             // open | user_next | user_prev | auto
+  const openTimeRef = useRef(Date.now());
+  const endedRef = useRef(false);
+  const idxRef = useRef(idx); idxRef.current = idx;
+
+  // סיום-סשן: story_complete (הגיע לסוף) או story_close (סגירה מוקדמת) — פעם אחת בלבד, ואז onClose האמיתי.
+  const endSession = useCallback((kind, reason) => {
+    if (endedRef.current) return; endedRef.current = true;
+    const session_ms = Date.now() - openTimeRef.current;
+    const i = idxRef.current, last = items[i];
+    if (kind === "complete") {
+      storyEvent(brandTrackKey, last?.id, "story_complete", { surface, entry, items_count: items.length, trigger: advanceRef.current === "auto" ? "auto" : "user", session_ms });
+    } else {
+      storyEvent(brandTrackKey, last?.id, "story_close", { surface, entry, index: i, reason, session_ms });
+    }
+    onClose && onClose();
+  }, [items, brandTrackKey, surface, entry, onClose]);
+
   const go = useCallback((n) => {
     if (n < 0) { setIdx(0); return; }
-    if (n >= items.length) { onClose && onClose(); return; }
+    if (n >= items.length) { endSession("complete"); return; }   // past last = completion
     setIdx(n); setProg(0); setPaused(false);
-  }, [items.length, onClose]);
-  const next = useCallback(() => go(idx + 1), [go, idx]);
-  const prev = useCallback(() => go(idx - 1), [go, idx]);
+  }, [items.length, endSession]);
+  // user vs auto advance — story_next/story_prev fire ONLY on user action; auto sets advance="auto" (no next event).
+  const userNext = useCallback(() => { advanceRef.current = "user_next"; storyEvent(brandTrackKey, items[idxRef.current]?.id, "story_next", { surface, entry, from_index: idxRef.current, to_index: idxRef.current + 1 }); go(idxRef.current + 1); }, [go, brandTrackKey, surface, entry, items]);
+  const userPrev = useCallback(() => { advanceRef.current = "user_prev"; storyEvent(brandTrackKey, items[idxRef.current]?.id, "story_prev", { surface, entry, from_index: idxRef.current, to_index: Math.max(0, idxRef.current - 1) }); go(idxRef.current - 1); }, [go, brandTrackKey, surface, entry, items]);
+  const autoNext = useCallback(() => { advanceRef.current = "auto"; go(idxRef.current + 1); }, [go]);
+  const next = userNext;   // taps/keyboard = user
+  const prev = userPrev;
 
-  // מעקב-צפייה לכל פריט + סימון «נצפה» (onSeen) → הסטורי נעלם מהרצועה (כמו אינסטגרם)
+  // per-item view (KEEP per-item semantics) — advance distinguishes open/user_next/user_prev/auto.
   useEffect(() => {
     if (!cur) return;
-    try { track(brandTrackKey, String(cur.id), "story_view"); } catch { /* noop */ }
+    storyEvent(brandTrackKey, cur.id, "story_view", { surface, entry, index: idx, advance: advanceRef.current });
     if (onSeen) { try { onSeen(cur); } catch { /* noop */ } }
   }, [idx]); // eslint-disable-line
 
@@ -50,7 +73,7 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
       if (paused) { start = t - prog * IMG_MS; raf = requestAnimationFrame(tick); return; }
       const p = Math.min(1, (t - start) / IMG_MS);
       setProg(p);
-      if (p >= 1) { next(); return; }
+      if (p >= 1) { autoNext(); return; }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -69,12 +92,12 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
     const onKey = (e) => {
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); next(); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
-      else if (e.key === "Escape") { e.preventDefault(); onClose && onClose(); }
+      else if (e.key === "Escape") { e.preventDefault(); endSession("close", "esc"); }
     };
     document.addEventListener("keydown", onKey);
     const prevOv = document.body.style.overflow; document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prevOv; };
-  }, [next, prev, onClose]);
+  }, [next, prev, endSession]);
 
   if (!cur) return null;
   const vid = isVideo(cur.image_url);
@@ -84,7 +107,7 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
   // Portal ל-body: מציג-הסטורי חייב לצאת משכבת-התוכן (position:relative;z-index:1 של Layout)
   // אחרת ה-z-index העצום שלו נלכד בתוכה וה-FAB של «העדכונים החיים» (z-index:150 בשורש) מסתיר אותו.
   const ui = (
-    <div onClick={() => onClose && onClose()} role="dialog" aria-modal="true"
+    <div onClick={() => endSession("close", "backdrop")} role="dialog" aria-modal="true"
       style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div onClick={e => e.stopPropagation()}
         style={{ position: "relative", width: "100%", height: "100%", maxWidth: 480, margin: "0 auto", background: "#000", overflow: "hidden" }}>
@@ -106,7 +129,7 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
           </span>
           <div style={{ display: "flex", gap: 6 }}>
             {vid && <button onClick={() => setMuted(m => !m)} aria-label="השתקה" style={iconBtn}>{muted ? "🔇" : "🔊"}</button>}
-            <button onClick={() => onClose && onClose()} aria-label="סגירה" style={iconBtn}>✕</button>
+            <button onClick={() => endSession("close", "x")} aria-label="סגירה" style={iconBtn}>✕</button>
           </div>
         </div>
 
@@ -115,7 +138,7 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
           {vid
             ? <video ref={vidRef} src={cur.image_url} autoPlay playsInline
                 onTimeUpdate={e => { const v = e.currentTarget; if (v.duration) setProg(v.currentTime / v.duration); }}
-                onEnded={next}
+                onEnded={autoNext}
                 style={{ width: "100%", height: "100%", objectFit: "contain", background: "#000" }} />
             : cur.yt
               ? <iframe title={cap || brand.name} src={`https://www.youtube-nocookie.com/embed/${cur.yt}?autoplay=1&rel=0&playsinline=1`}
@@ -135,7 +158,7 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
             <div style={{ color: "#ffd98a", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>שתפו — ותזכו את הרבים 🙏</div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-              <button onClick={async () => { setPaused(true); await shareVideoToStory({ url: shareUrl, text: cap.slice(0, 140) }); try { track(brandTrackKey, String(cur.id), "share_story"); } catch { /* noop */ } }}
+              <button onClick={async () => { setPaused(true); await shareVideoToStory({ url: shareUrl, text: cap.slice(0, 140) }); storyEvent(brandTrackKey, cur.id, "share_story", { surface, entry, index: idx, channel: "link" }); }}
                 style={{ background: "linear-gradient(160deg,#8b5cf6,#d6336c)", color: "#fff", border: "none", borderRadius: 999, padding: "11px 22px", fontFamily: F.heading, fontSize: 14, fontWeight: 800, cursor: "pointer", minHeight: 44 }}>
                 🔗 שתפו קישור לצפייה
               </button>
