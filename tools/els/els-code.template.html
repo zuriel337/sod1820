@@ -449,6 +449,9 @@
   .crossbanner .cb-main{font-family:var(--serif);font-size:16px;color:var(--ink);font-weight:700;text-align:center;line-height:1.5}
   .crossbanner .cb-main .cb-n{font-size:22px;color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
   .crossbanner .cb-main .cb-t{color:var(--goldBright)}
+  /* 🧭 סימון הציר שנבחר אוטומטית, בתוך זוג-המונחים שהמשתמש הזין */
+  .crossbanner .cb-main .cb-t.cb-axis{text-shadow:0 0 10px rgba(232,200,64,.30)}
+  .crossbanner .cb-main .cb-t.cb-axis i{font-style:normal;font-size:10.5px;font-weight:700;opacity:.85}
   .crossbanner .cb-nav{display:inline-flex;align-items:center;gap:8px}
   .crossbanner .cb-nav button{cursor:pointer;background:var(--panel2);border:1px solid var(--line2);color:var(--goldBright);border-radius:9px;min-width:34px;height:34px;font-weight:800;font-size:18px;padding:0}
   .crossbanner .cb-nav button:disabled{opacity:.4;cursor:default}
@@ -1686,7 +1689,12 @@
       else axis=norm(A)<=norm(B)?A:B;
       const useA=norm(axis)===norm(A),R=useA?r1:r2,other=useA?B:A;
       st.res=R.resA;st.crossMeetings=R.meetings;st.crossIdx=0;st.crossTerms=[other];st.crossTotal=1;st.crossSimple=true;st.crossFree=false;st.crossBridge=false;st.crossB=norm(other);st.raw=axis;
-      q.value=axis;updGem();
+      // 🧾 הפרדה בין *מה שהמשתמש הזין* לבין *מי נבחר כציר*: הציר נבחר אוטומטית (לפי מספר
+      //    אזורי-המפגש), ולכן הוא עלול להיות המונח השני. שומרים את שני המונחים המקוריים
+      //    כפי שהוקלדו, ו**לא דורסים את שדות-הקלט** — אחרת שתי השורות מציגות את אותה מילה.
+      //    st.crossPairA/B כבר קיימים ב-st (שימשו עד כה רק במצב «גשר») — אין state חדש.
+      st.crossPairA=A;st.crossPairB=B;
+      updGem();
       openZone(0);
       const sw=norm(axis)!==norm(A);
       toast("🔀 "+heb(R.meetings.length)+" מפגשים של «"+A+"»+«"+B+"»"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול — ששניהם נכנסים)":""));
@@ -2839,7 +2847,12 @@
     // 🔀 באנר-מפגש בולט מעל התוצאה (מחליף את שבב-המספר הקטן שהיה «לא ברור») — רק במוצלב-פשוט
     if(st.crossSimple&&st.crossMeetings&&st.crossMeetings.length){
       const nM=st.crossMeetings.length,banner=document.createElement("div");banner.className="crossbanner";
-      banner.innerHTML='<span class="cb-main">🔀 נמצאו <span class="cb-n">'+heb(nM)+'</span> מפגשים של <span class="cb-t">«'+st.raw+'»</span> עם <span class="cb-t">«'+st.crossB+'»</span></span>'+
+      // 🧾 מציגים את שני המונחים **כפי שהמשתמש הזין** (st.crossPairA/B), ומסמנים מי נבחר כציר.
+      //    הציר נבחר אוטומטית לפי מספר אזורי-המפגש, ולכן הוא עשוי להיות דווקא המונח השני —
+      //    בלי ההפרדה הזו נראה היה כאילו המשתמש חיפש את אותה מילה פעמיים.
+      const _aN=norm(st.raw||""),_pA=st.crossPairA||st.raw,_pB=st.crossPairB||st.crossB;
+      const _tag=t=>'<span class="cb-t'+(norm(t)===_aN?" cb-axis":"")+'">«'+t+'»'+(norm(t)===_aN?'<i> ◆ ציר</i>':'')+'</span>';
+      banner.innerHTML='<span class="cb-main">🔀 נמצאו <span class="cb-n">'+heb(nM)+'</span> מפגשים של '+_tag(_pA)+' + '+_tag(_pB)+'</span>'+
         (nM>1?'<span class="cb-nav"><button class="cb-prev" title="מפגש קודם">‹</button><span class="cb-pos">מפגש '+(st.crossIdx+1)+' מתוך '+heb(nM)+'</span><button class="cb-next" title="מפגש הבא">›</button></span>':'');
       wrap.appendChild(banner);
       if(nM>1){banner.querySelector(".cb-prev").onclick=()=>openMeeting(st.crossIdx-1);banner.querySelector(".cb-next").onclick=()=>openMeeting(st.crossIdx+1);}
