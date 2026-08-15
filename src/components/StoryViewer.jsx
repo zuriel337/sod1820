@@ -136,7 +136,7 @@ export default function StoryViewer({ items = [], startIndex = 0, onClose, track
         {/* מדיה — mp4 (<video>) · יוטיוב (<iframe>) · תמונה */}
         <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
           {vid
-            ? <video ref={vidRef} src={cur.image_url} autoPlay playsInline
+            ? <video ref={vidRef} src={cur.image_url} autoPlay playsInline poster={cur.thumb_url || undefined}
                 onTimeUpdate={e => { const v = e.currentTarget; if (v.duration) setProg(v.currentTime / v.duration); }}
                 onEnded={autoNext}
                 style={{ width: "100%", height: "100%", objectFit: "contain", background: "#000" }} />

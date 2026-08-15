@@ -30,15 +30,19 @@ function urlTag({ loc, lastmod, changefreq, priority }) {
 // 🎬 Video Sitemap (video:video) — כל סרטון של אור-הגאולה = תוצאת-וידאו בגוגל.
 const VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 const cleanCap = t => { const s = String(t || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); return (s && s !== '📷 עדכון' && s !== '🎬 עדכון וידאו') ? s : ''; };
+// כרטיס ממותד כרשת-ביטחון ל-thumbnail — רק כשעדיין אין פריים אמיתי (הלכידה מהצד-לקוח תחליף אותו).
+// כך כל סרטון נכנס למפת-הסרטונים מיד, בלי להמתין ללכידה. thumbnail_loc חובה ב-video:video.
+const cardThumb = v => `${SITE}/api/card?w=${encodeURIComponent(cleanCap(v.text).slice(0, 60) || 'אור הגאולה')}&sub=${encodeURIComponent('אור הגאולה · סרטון')}&sig=orgeula`;
 function videoUrlTag(v) {
   const title = cleanCap(v.text).slice(0, 100) || 'אור הגאולה — סרטון';
   const desc = cleanCap(v.text).slice(0, 2048) || title;
+  const thumb = v.thumb_url || cardThumb(v);
   let pub; try { pub = v.created_at ? new Date(v.created_at).toISOString() : undefined; } catch { pub = undefined; }
   return [
     '  <url>',
     `    <loc>${esc(SITE + '/or-geula?v=' + v.id)}</loc>`,
     '    <video:video>',
-    `      <video:thumbnail_loc>${esc(v.thumb_url)}</video:thumbnail_loc>`,
+    `      <video:thumbnail_loc>${esc(thumb)}</video:thumbnail_loc>`,
     `      <video:title>${esc(title)}</video:title>`,
     `      <video:description>${esc(desc)}</video:description>`,
     `      <video:content_loc>${esc(v.image_url)}</video:content_loc>`,
@@ -172,7 +176,8 @@ export default async function handler(req, res) {
   let videoUrls = [];
   try {
     const rows = await fetchAll('channel_updates?select=id,text,image_url,thumb_url,created_at&channel=eq.or-geula&image_url=not.is.null&order=created_at.desc');
-    videoUrls = rows.filter(r => r.image_url && VIDEO_RE.test(r.image_url) && r.thumb_url);
+    // כל סרטון נכנס — thumbnail אמיתי אם יש, אחרת כרטיס-ממותד זמני (videoUrlTag דואג לנפילה).
+    videoUrls = rows.filter(r => r.image_url && VIDEO_RE.test(r.image_url));
   } catch (e) { /* ממשיכים גם בלי סרטונים */ }
 
   const xml = [

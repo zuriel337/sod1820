@@ -7,6 +7,7 @@ import { isFreshSearchLanding } from "../lib/tracking.js";
 import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
+import { ensureVideoThumbs } from "../lib/videoThumb.js";
 import { track } from "../lib/tracking.js";
 import { shareVideoToStory } from "../lib/share.js";
 import StoryViewer from "./StoryViewer.jsx";
@@ -156,7 +157,7 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
     let alive = true;
     if (ogOnly) { setVideos([]); }   // אור הגאולה בלבד — לא מושכים סרטוני-צופן (CIPHERS)
     else getVideoStories({ limit: 10 }).then(c => { if (alive) setVideos(Array.isArray(c) ? c : []); }).catch(() => { if (alive) setVideos([]); });
-    fetchBrandRows(OG, limit).then(r => { if (alive) setOgRows(r); }).catch(() => { if (alive) setOgRows([]); });
+    fetchBrandRows(OG, limit).then(r => { if (alive) { setOgRows(r); ensureVideoThumbs(r); } }).catch(() => { if (alive) setOgRows([]); });
     return () => { alive = false; };
   }, [limit, ogOnly]);
 
@@ -326,7 +327,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
     let alive = true;
     // מקור-נתונים מותאם-מיתוג (למשל «צפונות בתורה» = פוסטים לפי קטגוריה) — עוקף את שאילתת הערוץ
     if (brand.fetchRows) {
-      brand.fetchRows(limit).then(data => { if (alive) setRows(Array.isArray(data) ? data : []); }).catch(() => { if (alive) setRows([]); });
+      brand.fetchRows(limit).then(data => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } }).catch(() => { if (alive) setRows([]); });
       return () => { alive = false; };
     }
     const nowIso = new Date().toISOString();
@@ -335,7 +336,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
       .eq("channel", brand.channel).not("image_url", "is", null)
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)   // סטורי-שבוע פג לבד; שאר הפריטים (expires_at=null) נשארים
       .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(limit)   // מוצמד (priority↑) ראשון
-      .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
+      .then(({ data }) => { if (alive) { const rs = Array.isArray(data) ? data : []; setRows(rs); ensureVideoThumbs(rs); } });
     return () => { alive = false; };
   }, [limit, brand.channel, brand.fetchRows]);
 
