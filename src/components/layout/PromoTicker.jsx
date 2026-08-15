@@ -113,10 +113,10 @@ function buildPromos(en) {
       body: (<><span style={{ color: "#fff", fontWeight: 800 }}>מבריאת העולם עד שנת 6000</span> — כל התאריכים על ציר אחד <AxisYearsMarquee /></>),
     },
     {
-      key: "personal", icon: "🧬", title: "ציר התגלות אישי", dir: "rtl",
+      key: "family", icon: "🧬", title: "קוד המשפחה", dir: "rtl",
       body: (<span style={{ display: "inline-flex", alignItems: "center", gap: 9, flexWrap: "wrap", justifyContent: "center" }}>
         <DnaMini />
-        <span style={{ color: "#fff", fontWeight: 800 }}>ה-DNA המספרי שלך — התאריכים, הרמזים והמספרים שלך על ציר-זמן חי</span>
+        <span style={{ color: "#fff", fontWeight: 800 }}>ניתוח כל המשפחה — שמות, תאריכים ומספרים — מונע AI</span>
         <MovingNumbers />
         <AiSpark label="מונע AI" />
       </span>),
