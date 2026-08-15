@@ -7,7 +7,6 @@ import React, { useEffect, useMemo, useState } from "react";
 //   1) 🌅 ציר ההתגלות — תאריכים נגללים ימין→שמאל, מבריאת העולם עד שנת 6000.
 //   2) ✦ ציר התגלות אישי — «בקרוב».
 //   3) 🔠 חיפוש בתורה בדילוגי אותיות (ELS) — «בקרוב» + שעון-חול לספירה-לאחור של שבועיים.
-//   4) 📅 שנת תשפ״ו «הארת פנים» — 786 (מאומת במנוע).
 //   + למבקרים דוברי-אנגלית/ארה״ב בלבד: 🌍 SOD 1820 in English — coming soon.
 const DISMISS_KEY = "promo_ticker_dismissed_v1";
 const ROTATE_MS = 7000;
@@ -53,7 +52,7 @@ function Countdown({ target }) {
 function AxisYearsMarquee() {
   const strip = [...AXIS_YEARS, ...AXIS_YEARS];   // כפול לגלילה חלקה
   return (
-    <span style={{ position: "relative", overflow: "hidden", maxWidth: "min(52vw, 420px)", maskImage: "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)", WebkitMaskImage: "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)" }}>
+    <span className="pt-marq" style={{ position: "relative", overflow: "hidden", maxWidth: "min(52vw, 420px)", maskImage: "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)", WebkitMaskImage: "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)" }}>
       <span style={{ display: "inline-flex", gap: 14, whiteSpace: "nowrap", animation: "promo-marq 18s linear infinite", willChange: "transform" }}>
         {strip.map((y, i) => (
           <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: y === 5786 ? "#ffe9a8" : "#e9d9b0", fontWeight: y === 5786 ? 900 : 700, fontSize: 12.5 }}>
@@ -83,10 +82,6 @@ function buildPromos(en) {
         <Countdown target={ELS_TARGET} />
       </span>),
     },
-    {
-      key: "year", icon: "📅", title: "שנת תשפ״ו · הארת פנים", dir: "rtl", noSoon: true,
-      body: (<span style={{ color: "#fff", fontWeight: 800 }}>786 = «הארת פנים» = «ברחמים גדולים» ×2 <span style={{ color: "#ffe9a8" }}>(מאומת במנוע)</span></span>),
-    },
   ];
   // 🌍 שקופית-אנגלית בסבב — רק למבקר דובר-אנגלית/ארה״ב (או תצוגה-מקדימה ?enbar=1)
   if (en) promos.push({
@@ -100,7 +95,7 @@ export default function PromoTicker() {
   const [show, setShow] = useState(false);
   const [en, setEn] = useState(false);
   const PROMOS = useMemo(() => buildPromos(en), [en]);
-  const start = useMemo(() => Math.floor(Math.random() * 4), []);   // «מתחלף כל פעם» — התחלה אקראית
+  const start = useMemo(() => Math.floor(Math.random() * 3), []);   // «מתחלף כל פעם» — התחלה אקראית (3 פרומואי-ליבה)
   const [idx, setIdx] = useState(start);
   const [fade, setFade] = useState(true);
 
@@ -127,10 +122,10 @@ export default function PromoTicker() {
   const dismiss = (e) => { e.preventDefault(); e.stopPropagation(); try { localStorage.setItem(DISMISS_KEY, "1"); } catch { /* ignore */ } setShow(false); };
 
   return (
-    <div dir={p.dir} role="region" aria-label="בקרוב באתר"
+    <div className="promo-ticker" dir={p.dir} role="region" aria-label="בקרוב באתר"
       style={{
         position: "relative", minHeight: 52, display: "flex", alignItems: "center", justifyContent: "center",
-        gap: 12, padding: "8px 48px", overflow: "hidden",
+        gap: 12, padding: "8px 48px", overflow: "hidden", maxWidth: "100%", boxSizing: "border-box",
         background: "linear-gradient(90deg,#140a2c,#3a1f66 42%,#6d4bb0 66%,#3a1f66)",
         borderBottom: "2px solid #e8c84a", boxShadow: "0 2px 14px rgba(0,0,0,.35)",
       }}>
@@ -138,21 +133,30 @@ export default function PromoTicker() {
         @keyframes promo-shine{0%{transform:translateX(120%)}100%{transform:translateX(-220%)}}
         @keyframes promo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
         @keyframes promo-marq{0%{transform:translateX(0)}100%{transform:translateX(50%)}}
+        /* 📱 מובייל — למנוע «אותיות שבורחות»: פחות ריפוד, פונט קטן יותר, רוחב-מקסימום, וגלישה-לשורה. */
+        @media (max-width:600px){
+          .promo-ticker{padding:7px 32px !important;min-height:46px !important;gap:7px !important;}
+          .promo-ticker .pt-body{font-size:12.5px !important;gap:6px !important;max-width:100% !important;}
+          .promo-ticker .pt-title{font-size:13.5px !important;}
+          .promo-ticker .pt-icon{font-size:15px !important;}
+          .promo-ticker .pt-marq{max-width:62vw !important;}
+          .promo-ticker .pt-sep{display:none !important;}
+        }
       `}</style>
       {/* ברק נע — תחושת טיקר חי */}
       <span aria-hidden style={{ position: "absolute", top: 0, bottom: 0, width: "26%", background: "linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent)", animation: "promo-shine 5s ease-in-out infinite", pointerEvents: "none" }} />
 
-      {/* תג «בקרוב» — מוסתר בשקופיות שאינן «בקרוב» (שנה/אנגלית מציגות NEW) */}
+      {/* תג «בקרוב» — אנגלית מציגה NEW */}
       <span style={{ flex: "0 0 auto", background: "#e8c84a", color: "#241247", fontFamily: "sans-serif", fontWeight: 900, fontSize: 12, letterSpacing: 1, padding: "3px 11px", borderRadius: 999, animation: "promo-pulse 2.2s ease-in-out infinite" }}>
         {p.noSoon ? (p.key === "en" ? "NEW" : "✦") : "בקרוב"}
       </span>
 
       {/* התוכן המתחלף */}
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center", textAlign: "center", opacity: fade ? 1 : 0, transition: "opacity .26s ease", color: "#f0e6cf", fontFamily: "sans-serif", fontSize: 15.5, lineHeight: 1.3 }}>
-        <span aria-hidden style={{ fontSize: 20 }}>{p.icon}</span>
-        <b style={{ color: "#ffe9a8", fontWeight: 900, fontSize: 16.5 }}>{p.title}</b>
-        <span style={{ opacity: .55 }}>·</span>
-        <span>{p.body}</span>
+      <div className="pt-body" style={{ display: "inline-flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center", textAlign: "center", maxWidth: "100%", minWidth: 0, opacity: fade ? 1 : 0, transition: "opacity .26s ease", color: "#f0e6cf", fontFamily: "sans-serif", fontSize: 15.5, lineHeight: 1.3 }}>
+        <span className="pt-icon" aria-hidden style={{ fontSize: 20 }}>{p.icon}</span>
+        <b className="pt-title" style={{ color: "#ffe9a8", fontWeight: 900, fontSize: 16.5 }}>{p.title}</b>
+        <span className="pt-sep" style={{ opacity: .55 }}>·</span>
+        <span style={{ maxWidth: "100%", minWidth: 0 }}>{p.body}</span>
       </div>
 
       {/* נקודות-מצב */}
