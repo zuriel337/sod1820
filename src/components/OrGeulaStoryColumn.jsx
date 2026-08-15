@@ -72,7 +72,7 @@ async function fetchBrandRows(brand, limit) {
 
 // 🎞️ אריח-רצועה קנוני יחיד (עיגול-סטורי) — משמש את הרצועה הבודדת ואת הרצועה הממוזגת.
 //   badgeBoost → הלוגו שלנו גדול יותר (הבלטה). pin → 📌 בפינה (הסטורי הנעוץ = הצופן).
-function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost = false, pin = false, onOpen, P, surface = "CHAT", index = 0 }) {
+function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost = false, pin = false, isNew = false, onOpen, P, surface = "CHAT", index = 0 }) {
   const ir = useQualifiedImpression(useCallback(() => { if (r) storyImpression(brand?.trackKey || "or-geula", r.id, { surface, entry: "rail", index }); }, [r?.id, brand?.trackKey, surface, index]));
   if (!r) return <div style={{ flex: "0 0 auto", width: 66, height: 66, borderRadius: "50%", background: P.card, opacity: .5 }} />;
   const vid = r.is_video || isVideo(r.image_url);
@@ -93,6 +93,7 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost 
           </span>
         )}
         {pin && <span aria-hidden style={{ position: "absolute", top: -8, insetInlineEnd: -6, fontSize: 18, transform: "rotate(-8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>🦅</span>}
+        {isNew && <span aria-hidden title="חדש מאז שלא היית" style={{ position: "absolute", top: -2, insetInlineStart: -2, width: 12, height: 12, borderRadius: "50%", background: "#e0556a", border: `2px solid ${P.card}`, zIndex: 4 }} />}
         {(feat || brandBadge) && <BrandBadge size={badgeBoost ? "lg" : "sm"} brand={brand} star={feat && !pin} />}
       </span>
       <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.created_at ? timeAgoHe(r.created_at) : (r.ours ? "שלנו" : "")}</span>
@@ -101,7 +102,7 @@ function StoryRailTile({ r, brand, feat = false, brandBadge = false, badgeBoost 
 }
 
 // 🃏 אריח-עמודה קנוני (כרטיס אופקי: תמונה + טקסט) — לגרסת-העמודה של הרצועה הממוזגת (דסקטופ, צד שמאל).
-function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = false, brandBadge = false, onOpen, P, surface = "CHAT", index = 0 }) {
+function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = false, brandBadge = false, isNew = false, onOpen, P, surface = "CHAT", index = 0 }) {
   const ir = useQualifiedImpression(useCallback(() => { if (r) storyImpression(brand?.trackKey || "or-geula", r.id, { surface, entry: "column", index }); }, [r?.id, brand?.trackKey, surface, index]));
   if (!r) return <div style={{ height: 76, borderRadius: 12, background: P.card, opacity: .5 }} />;
   const vid = r.is_video || isVideo(r.image_url);
@@ -123,6 +124,7 @@ function StoryColumnCard({ r, brand, feat = false, pin = false, badgeBoost = fal
           </div>
         )}
         {pin && <span aria-hidden style={{ position: "absolute", top: -6, insetInlineEnd: -4, fontSize: 17, transform: "rotate(-8deg)", textShadow: "0 1px 3px rgba(0,0,0,.6)", zIndex: 3 }}>🦅</span>}
+        {isNew && <span aria-hidden title="חדש מאז שלא היית" style={{ position: "absolute", top: -3, insetInlineStart: -3, width: 12, height: 12, borderRadius: "50%", background: "#e0556a", border: `2px solid ${P.card}`, zIndex: 4 }} />}
         {(feat || badgeBoost || brandBadge) && <BrandBadge size={badgeBoost ? "md" : "sm"} brand={brand} star={feat && !pin} />}
       </div>
       <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 3, justifyContent: "center" }}>
@@ -159,12 +161,13 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
   }, [limit, ogOnly]);
 
   const ready = ogRows !== null && videos !== null;
-  // עד 3 סרטונים-שלנו לא-נצפים (מי שצפה — נעלם, והבא-אחורה צף); הראשון מודגש. תאריך-עלייה לכל אחד.
-  const oursShown = (videos || []).filter(r => r && !oursSeen.has(r.id)).slice(0, 3);
-  const ogNew = (ogRows || []).filter(r => r && !ogSeen.has(r.id));
+  // ⛔ לא מסתירים אחרי צפייה (בקשת צוריאל 15.8.2026 — «Rank, Don't Hide»): מציגים את הכל,
+  // רק מסמנים «חדש» (נקודה אדומה) על מה שטרם נצפה. עד 3 סרטונים-שלנו, הראשון מודגש.
+  const oursShown = (videos || []).filter(Boolean).slice(0, 3);
+  const ogAll = (ogRows || []).filter(Boolean);
   const merged = [
-    ...oursShown.map((r, i) => ({ ...r, _brand: OURS, _feat: i === 0 })),
-    ...ogNew.map(r => ({ ...r, _brand: OG, _feat: false })),
+    ...oursShown.map((r, i) => ({ ...r, _brand: OURS, _feat: i === 0, _new: !oursSeen.has(r.id) })),
+    ...ogAll.map(r => ({ ...r, _brand: OG, _feat: false, _new: !ogSeen.has(r.id) })),
   ];
   if (ready && merged.length === 0) return null;
 
@@ -227,7 +230,7 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {(ready ? merged : Array.from({ length: 6 })).map((r, i) => (
             <StoryColumnCard key={r?.id || i} r={r} brand={r?._brand || OURS} surface={surface} index={i}
-              feat={!!r?._feat} pin={!!(r?._feat && r?.is_cipher)} badgeBoost={!!r?._feat} brandBadge onOpen={openItem} P={P} />
+              feat={!!r?._feat} pin={!!(r?._feat && r?.is_cipher)} badgeBoost={!!r?._feat} brandBadge isNew={!!r?._new} onOpen={openItem} P={P} />
           ))}
           {ready && ogOnly && (
             <a href={OG.href} style={{ textAlign: "center", color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, textDecoration: "none", padding: "8px 0" }}>📂 כל אור הגאולה ←</a>
@@ -245,7 +248,7 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
         {(ready ? merged : Array.from({ length: 8 })).map((r, i) => (
           <StoryRailTile key={r?.id || i} r={r} brand={r?._brand || OURS} surface={surface} index={i}
-            feat={!!r?._feat} brandBadge badgeBoost={!!r?._feat} pin={!!(r?._feat && r?.is_cipher)} onOpen={openItem} P={P} />
+            feat={!!r?._feat} brandBadge badgeBoost={!!r?._feat} pin={!!(r?._feat && r?.is_cipher)} isNew={!!r?._new} onOpen={openItem} P={P} />
         ))}
         {ready && allTile}
       </div>
@@ -314,14 +317,10 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
     if (brand.linkMode === "post" && r.link_url) { navigate(r.link_url); return; }
     setStory(rows.indexOf(r));
   };
-  // בדרך-כלל מסתירים סטורי שנצפה. brand.pinFirst → הפריט האחרון שלנו (rows[0]) **תמיד** מוצג
-  //   ומודגש (הסרטון האחרון של האתר תמיד למעלה); רק הישנים יותר נעלמים אחרי צפייה.
-  const shown = (() => {
-    const list = (rows || []).filter(Boolean);
-    if (!brand.pinFirst || !list.length) return list.filter(r => !seen.has(r.id));
-    const [first, ...rest] = list;
-    return [first, ...rest.filter(r => !seen.has(r.id))];
-  })();
+  // ⛔ לא מסתירים אחרי צפייה (בקשת צוריאל 15.8.2026 — «Rank, Don't Hide»): מציגים את כל הפריטים
+  //   (newest-first), ורק מסמנים «חדש» (נקודה אדומה) על מה שטרם נצפה. כך אחרי יומיים עדיין רואים
+  //   את החדשים למעלה — ולא נדחפים לתוכן ישן שצף כי החדשים «נעלמו».
+  const shown = (rows || []).filter(Boolean);
 
   useEffect(() => {
     let alive = true;
@@ -368,7 +367,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
         </div>
         <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
           {(rows ? shown : Array.from({ length: 8 })).map((r, i) => (
-            <StoryRailTile key={r?.id || i} r={r} brand={brand} feat={isFeatured(r) || (brand.pinFirst && i === 0)} onOpen={openAt} P={P} />
+            <StoryRailTile key={r?.id || i} r={r} brand={brand} feat={isFeatured(r) || (brand.pinFirst && i === 0)} isNew={!!(r && !seen.has(r.id))} onOpen={openAt} P={P} />
           ))}
         </div>
         {viewer}
@@ -413,10 +412,11 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
                   </div>
                 )}
                 {feat && <BrandBadge size="md" brand={brand} />}
+                {!seen.has(r.id) && <span aria-hidden title="חדש מאז שלא היית" style={{ position: "absolute", top: -3, insetInlineStart: -3, width: 12, height: 12, borderRadius: "50%", background: "#e0556a", border: `2px solid ${P.card}`, zIndex: 4 }} />}
               </div>
               {/* טקסט + זמן */}
               <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>🕒 {timeAgoHe(r.created_at)}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>🕒 {timeAgoHe(r.created_at)}{!seen.has(r.id) && <span style={{ color: "#e0556a", fontWeight: 800 }}> · חדש</span>}</div>
                 {cap && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{cap}</div>}
               </div>
               {/* 🔗 שיתוף ישיר — בלי לפתוח */}
