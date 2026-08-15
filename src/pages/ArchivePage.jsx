@@ -53,6 +53,20 @@ function eventLabel(im) {
   const d = descDate(im.description);
   return d ? d.toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" }) : null;
 }
+
+// 🏷️ תקציר על אריח-הגלריה — שם + תיאור מקוצר (כמו בזרם המציאות), מעל שכבת-ההצללה התחתונה.
+// בקשת צוריאל 15.8.2026: לגלריות לא היה תקציר על התמונה, בניגוד לזרם — עכשיו אחיד.
+function TileCaption({ im }) {
+  const name = im?.name ? String(im.name).trim() : "";
+  const desc = im?.description ? stripHtml(im.description).trim() : "";
+  if (!name && !desc) return null;
+  return (
+    <span style={{ position: "absolute", insetInlineStart: 0, insetInlineEnd: 0, bottom: 24, padding: "0 8px", zIndex: 2, pointerEvents: "none", textAlign: "start", direction: "rtl" }}>
+      {name && <b style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden", color: "#ffe9a8", fontFamily: F.heading, fontSize: 12, fontWeight: 800, lineHeight: 1.3, textShadow: "0 1px 5px rgba(0,0,0,.95)" }}>{name}</b>}
+      {desc && <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", color: "#f1ead9", fontFamily: F.body, fontSize: 10.5, lineHeight: 1.4, marginTop: 2, textShadow: "0 1px 5px rgba(0,0,0,.95)" }}>{desc}</span>}
+    </span>
+  );
+}
 export default function ArchivePage() {
   const { user, isAdmin } = useAuth();
   const loc = useLocation();
@@ -1325,6 +1339,7 @@ export default function ArchivePage() {
                           <span className="ar-pos">{idx + 1}</span>
                           {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
                           {eventLabel(im) && <span className="ar-imgdate">{eventLabel(im)}</span>}
+                          <TileCaption im={im} />
                         </button>
                         {curating && (
                           <div className="ar-movebar">
@@ -1346,6 +1361,7 @@ export default function ArchivePage() {
                     <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, rgba(5,4,0,0.85))" }} />
                     {im.primary_value != null && <span className="ar-anchor">{im.primary_value}</span>}
                     {eventLabel(im) && <span className="ar-imgdate">{eventLabel(im)}</span>}
+                    <TileCaption im={im} />
                   </button>
                 ))}
               </div>

@@ -18,7 +18,7 @@ function isEnglishOrUS() {
 
 // כל טיזר עם פלטת-צבע לפי המהות שלו (שחר-זהב · חיים-ירוק · צופן-סגול · גלובלי-כחול).
 const TEASERS = [
-  { key: "axis", icon: "🌅", title: "ציר ההתגלות", tag: "הזמן מקבל צורה", dir: "rtl",
+  { key: "axis", icon: "🌌", title: "מרחבי הזמן", tag: "מסע חדש דרך אלפי שנים, אירועים וגילויים", dir: "rtl",
     bg: "linear-gradient(90deg,#2a1405,#7a3d0e 42%,#e8862a 66%,#7a3d0e)", accent: "#ffd27a" },
   { key: "roots", icon: "🧬", title: "מסע השורשים", tag: "הסיפור שלך מתחיל הרבה לפניך", dir: "rtl",
     bg: "linear-gradient(90deg,#03211a,#064e3b 42%,#0d9488 66%,#064e3b)", accent: "#86efac" },
@@ -28,7 +28,9 @@ const TEASERS = [
 const EN_TEASER = { key: "en", icon: "🌍", title: "SOD 1820 in English", tag: "Coming soon — the full experience", dir: "ltr",
   bg: "linear-gradient(90deg,#07234f,#1e40af 45%,#3b82f6 66%,#1e40af)", accent: "#93c5fd" };
 
-export default function PromoTicker() {
+// rotate=false → הטיזר לא מתחלף (סלייד אחד, עדיין לחיץ) — למניעת עומס-תנועה בעמודים
+// שבהם כבר יש באנר מונפש (פוסטים/צ'אט עם CipherElulBanner). בקשת צוריאל 15.8.2026 (א+ב).
+export default function PromoTicker({ rotate = true, onOpenChange }) {
   const [en, setEn] = useState(false);
   const promos = useMemo(() => (en ? [...TEASERS, EN_TEASER] : TEASERS), [en]);
   const start = useMemo(() => Math.floor(Math.random() * TEASERS.length), []);
@@ -43,19 +45,20 @@ export default function PromoTicker() {
   }, []);
 
   useEffect(() => {
+    if (!rotate) return;   // סטטי — סלייד אחד, בלי החלפה
     const t = setInterval(() => {
       setFade(false);
       setTimeout(() => { setIdx(i => (i + 1) % promos.length); setFade(true); }, 260);
     }, ROTATE_MS);
     return () => clearInterval(t);
-  }, [promos.length]);
+  }, [promos.length, rotate]);
 
   const p = promos[idx % promos.length];
   const isEn = p.dir === "ltr";
 
   return (
     <>
-      <button onClick={() => setOpen(true)} dir={p.dir} aria-label={isEn ? "Preview what's coming" : "הצצה למה שעומד לבוא"}
+      <button onClick={() => { setOpen(true); onOpenChange?.(true); }} dir={p.dir} aria-label={isEn ? "Preview what's coming" : "הצצה למה שעומד לבוא"}
         className="promo-teaser"
         style={{
           width: "100%", border: "none", cursor: "pointer", position: "relative",
@@ -107,7 +110,7 @@ export default function PromoTicker() {
         </span>
       </button>
 
-      <ComingSoonModal open={open} onClose={() => setOpen(false)} />
+      <ComingSoonModal open={open} onClose={() => { setOpen(false); onOpenChange?.(false); }} />
     </>
   );
 }

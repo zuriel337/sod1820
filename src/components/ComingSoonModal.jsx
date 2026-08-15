@@ -7,7 +7,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 // הרשמה אחת כללית (source="coming-soon") דרך UpdatesBox הקיים → טבלת subscribers (בלי מנגנון חדש).
 const SECTIONS = [
   {
-    icon: "🌅", title: "ציר ההתגלות", tag: "הזמן מקבל צורה",
+    icon: "🌌", title: "מרחבי הזמן", tag: "מסע חדש דרך אלפי שנים, אירועים וגילויים",
     accent: "#ffd27a", glow: "rgba(232,134,42,.45)", grad: "linear-gradient(135deg,#7a3d0e,#e8862a)",
     body: [
       "מבריאת העולם ועד שנת ו׳ אלפים — מסע על ציר זמן אחד, המחבר בין תאריכים, אירועים ונקודות מפתח.",

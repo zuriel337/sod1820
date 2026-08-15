@@ -8,6 +8,10 @@ import { SITE_URL } from "../lib/seo.js";
 import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
 import { ensureVideoThumbs } from "../lib/videoThumb.js";
+import { withinFresh } from "../lib/crossesNew.js";
+
+// נקודת «חדש» רק אם טרם-נצפה וגם עלה ב-24 השעות האחרונות (בקשת צוריאל: לא נקודות על סטורי מעל 24ש׳).
+const isNewFresh = (r, seen) => !!(r && !seen.has(r.id) && withinFresh(r.created_at, 24));
 import { track } from "../lib/tracking.js";
 import { shareVideoToStory } from "../lib/share.js";
 import StoryViewer from "./StoryViewer.jsx";
@@ -167,8 +171,8 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
   const oursShown = (videos || []).filter(Boolean).slice(0, 3);
   const ogAll = (ogRows || []).filter(Boolean);
   const merged = [
-    ...oursShown.map((r, i) => ({ ...r, _brand: OURS, _feat: i === 0, _new: !oursSeen.has(r.id) })),
-    ...ogAll.map(r => ({ ...r, _brand: OG, _feat: false, _new: !ogSeen.has(r.id) })),
+    ...oursShown.map((r, i) => ({ ...r, _brand: OURS, _feat: i === 0, _new: isNewFresh(r, oursSeen) })),
+    ...ogAll.map(r => ({ ...r, _brand: OG, _feat: false, _new: isNewFresh(r, ogSeen) })),
   ];
   if (ready && merged.length === 0) return null;
 
@@ -368,7 +372,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
         </div>
         <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
           {(rows ? shown : Array.from({ length: 8 })).map((r, i) => (
-            <StoryRailTile key={r?.id || i} r={r} brand={brand} feat={isFeatured(r) || (brand.pinFirst && i === 0)} isNew={!!(r && !seen.has(r.id))} onOpen={openAt} P={P} />
+            <StoryRailTile key={r?.id || i} r={r} brand={brand} feat={isFeatured(r) || (brand.pinFirst && i === 0)} isNew={isNewFresh(r, seen)} onOpen={openAt} P={P} />
           ))}
         </div>
         {viewer}
@@ -413,11 +417,11 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
                   </div>
                 )}
                 {feat && <BrandBadge size="md" brand={brand} />}
-                {!seen.has(r.id) && <span aria-hidden title="חדש מאז שלא היית" style={{ position: "absolute", top: -3, insetInlineStart: -3, width: 12, height: 12, borderRadius: "50%", background: "#e0556a", border: `2px solid ${P.card}`, zIndex: 4 }} />}
+                {isNewFresh(r, seen) && <span aria-hidden title="חדש מאז שלא היית" style={{ position: "absolute", top: -3, insetInlineStart: -3, width: 12, height: 12, borderRadius: "50%", background: "#e0556a", border: `2px solid ${P.card}`, zIndex: 4 }} />}
               </div>
               {/* טקסט + זמן */}
               <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>🕒 {timeAgoHe(r.created_at)}{!seen.has(r.id) && <span style={{ color: "#e0556a", fontWeight: 800 }}> · חדש</span>}</div>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10, fontWeight: 700 }}>🕒 {timeAgoHe(r.created_at)}{isNewFresh(r, seen) && <span style={{ color: "#e0556a", fontWeight: 800 }}> · חדש</span>}</div>
                 {cap && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{cap}</div>}
               </div>
               {/* 🔗 שיתוף ישיר — בלי לפתוח */}
