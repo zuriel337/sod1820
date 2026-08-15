@@ -13,8 +13,7 @@ import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על �
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
 import MaintenanceTicker from "./MaintenanceTicker.jsx"; // 🚧 רצועת «האתר בבנייה» — שורה זזה גלובלית
 import CelestialPinnedBar from "./CelestialPinnedBar.jsx"; // 🌌 שורה נעוצה גלובלית — «שלושה דברים שמימיים בערב ראש חודש אלול»
-import EnglishSoonBar from "./EnglishSoonBar.jsx"; // 🌍 טיקר-אנגלית עבה — רק לדוברי אנגלית/ארה״ב
-import PromoTicker from "./PromoTicker.jsx"; // 🎗️ טיקר-פרומו מתחלף «בקרוב» (ציר ההתגלות · ציר אישי · דילוגי-אותיות)
+import PromoTicker from "./PromoTicker.jsx"; // 🎗️ טיקר יחיד מתחלף «בקרוב» (ציר ההתגלות · ציר אישי · דילוגי-אותיות · תשפ״ו · English) — מחליף את כל הטיקרים הישנים
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -62,11 +61,11 @@ export default function Layout() {
       {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
-        {/* 🌍 טיקר-אנגלית עבה — מוצג רק לדוברי אנגלית / מבקרים מארה״ב: «בקרוב האתר יהיה באנגלית». */}
-        <EnglishSoonBar />
-        {/* 🎗️ טיקר-פרומו מתחלף «בקרוב» — בסגנון סרגל-האנגלית, מחליף כל 7ש׳ בין 3 פרומואים:
-            🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי · 🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים).
-            גלובלי, ניתן-לסגירה. מחליף את הטיקרים הישנים (CelestialPinnedBar + CipherElulBanner מושבתים למטה). */}
+        {/* 🎗️ טיקר יחיד מתחלף «בקרוב» — סרגל אחד גלובלי שמחליף כל 7ש׳ בין הפרומואים:
+            🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי ·
+            🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
+            🌍 English (רק לדוברי-אנגלית, בסבב). מחליף את כל הטיקרים הישנים —
+            EnglishSoonBar + YearTicker + CelestialPinnedBar + CipherElulBanner (מושבתים). */}
         <PromoTicker />
         {/* 🌌 שורה נעוצה גלובלית — הושבתה לטובת טיקר-הפרומו (בקשת צוריאל 15.8.2026). להחזרה: הסר את false. */}
         {false && <CelestialPinnedBar />}
