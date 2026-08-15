@@ -157,6 +157,51 @@ function Collapse({ title, sub, children, locked, defaultOpen = false }) {
   );
 }
 
+// 🎯 כרטיס-מפגש קנוני — נקודת-מפגש אחת מ-fn_cross_research. משותף ל-Section 08 ול-BirthDateResearchCard
+//    (canonical_ui_components_law — רכיב יחיד, בלי רינדור מקביל). value · hits · equals · tanach · from.
+function MeetingPointCard({ mp }) {
+  return (
+    <div style={{ background: "linear-gradient(180deg,#fbfdff,#f3f7ff)", border: `1px solid #d9e5ff`, borderRadius: 12, padding: "11px 14px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <b style={{ fontFamily: F.m, color: C.blue, fontSize: 18 }}>{mp.value}</b>
+        <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12.5, fontWeight: 700 }}>{mp.hits} נקודות-מפגש{mp.across_items > 1 ? ` · ${mp.across_items} פריטים` : ""}</span>
+        {mp.tanach_verses > 0 && <span style={{ background: "#e8f6ee", border: "1px solid #bfe4cd", borderRadius: 999, color: "#1f8a4c", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>📜 {mp.tanach_verses} פסוקים</span>}
+      </div>
+      {mp.equals && <div style={{ color: "#3a4553", fontFamily: F.h, fontSize: 13, lineHeight: 1.6, marginTop: 5 }}>= {mp.equals}</div>}
+      {Array.isArray(mp.from) && mp.from.length > 0 && <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11.5, marginTop: 4 }}>{mp.from.join(" · ")}</div>}
+    </div>
+  );
+}
+
+// 🎂 כרטיס «המחקר מתאריך-הלידה» — presentation/read-only. עדשה על dossier.cross הקיים (בלי fetch/AI/מצב חדש).
+//    SOURCE (התאריך שסופק) · DERIVED (עברי + גימטריה מ-cross.items) · EVIDENCE (נקודות-מפגש שהתאריך משתתף בהן).
+//    מוצג רק דרך deep-link-זהות (bdParam). Section 08 לא נגוע ולא נפתח.
+function BirthDateResearchCard({ source, hebrew, cross }) {
+  const dateItem = Array.isArray(cross?.items) ? cross.items.find(it => it && it.item === hebrew) : null;
+  const dateVal = dateItem?.methods?.["רגיל"];
+  const mps = (Array.isArray(cross?.meeting_points) ? cross.meeting_points : [])
+    .filter(mp => Array.isArray(mp?.from) && mp.from.some(f => typeof f === "string" && f.includes(hebrew)));
+  const gDate = (typeof source === "string" && /^\d{4}-\d{2}-\d{2}$/.test(source)) ? source.split("-").reverse().join(".") : source;
+  const lbl = { color: C.dim, fontFamily: F.h, fontSize: 11, fontWeight: 800, letterSpacing: 1.2, textTransform: "uppercase" };
+  const row = { background: "#f8f9fb", border: `1px solid ${C.line}`, borderRadius: 10, padding: "9px 12px" };
+  const val = { color: C.ink, fontFamily: F.h, fontSize: 15, fontWeight: 700, marginTop: 2 };
+  return (
+    <Section n="🎂" icon="🎂" title="המחקר מתאריך-הלידה שלך" sub="התאריך שסיפקת → התאריך העברי → נקודות-מפגש שנמצאו במנוע.">
+      <div style={{ display: "grid", gap: 8 }}>
+        <div style={row}><div style={lbl}>מקור</div><div style={val}>תאריך-הלידה שסיפקת: <b>{gDate}</b></div></div>
+        <div style={row}><div style={lbl}>נגזר</div><div style={val}>התאריך העברי: <b>{hebrew}</b>{dateVal != null && <span style={{ color: C.dim, fontWeight: 700 }}> · גימטריה (רגיל): <b style={{ color: C.blue }}>{dateVal}</b></span>}</div></div>
+        <div>
+          <div style={{ ...lbl, marginBottom: 6 }}>עדות</div>
+          {mps.length > 0
+            ? <div style={{ display: "grid", gap: 8 }}>{mps.map((mp, i) => <MeetingPointCard key={i} mp={mp} />)}</div>
+            : <div style={{ color: C.dim, fontFamily: F.h, fontSize: 13.5, lineHeight: 1.6 }}>לא נמצאו נקודות-מפגש שבהן התאריך משתתף (עדיין).</div>}
+        </div>
+        <div style={{ color: "#8a94a6", fontFamily: F.h, fontSize: 11.5, lineHeight: 1.6 }}><b>נקודת-מפגש = עובדה, המשמעות = השערה.</b> הערכים חושבו במנוע; פרשנות תיווסף בנפרד.</div>
+      </div>
+    </Section>
+  );
+}
+
 // embedded=true → מוטמע בתוך היכל הגילוי: לא נוגע ב-URL (לא דורס tool=name) ובלי עטיפת רקע-מלא.
 // full=true → מצב «מה השם שלך מסתיר» (דף /name): הכל חשוף מיד — האקורדיון «כל כלי המחקר» פתוח ולא נעול.
 export default function NameLabPage({ embedded = false, full = false }) {
@@ -362,6 +407,12 @@ export default function NameLabPage({ embedded = false, full = false }) {
             )}
           </Section>
 
+          {/* 🎂 מחקר תאריך-הלידה — במשבצת הגלויה, מחוץ ל-Collapse. מוצג רק כשהגיע תאריך דרך deep-link-זהות (bdParam);
+              קורא מ-dossier.cross הקיים (בלי fetch/AI). name-only (בלי bdParam) → לא מופיע. Section 08 לא נגוע. */}
+          {bdParam && birthdate && (
+            <BirthDateResearchCard source={bdParam} hebrew={birthdate} cross={dossier && dossier.cross} />
+          )}
+
           <Collapse locked={!full} defaultOpen={full} title="כל כלי המחקר" sub={full ? "מסע · שיטות · תנ״ך · גשרים · הקשר" : "מסע · שיטות · תנ״ך · גשרים · הקשר — ייפתחו בקרוב"}>
           {/* 🧭 מסע-המחקר (גל 3) — הפרוטוקול המאוחד (fn_name_protocol): התקדמות אמיתית + מסמך בשכבות. */}
           <NameJourney word={word} />
@@ -547,17 +598,7 @@ export default function NameLabPage({ embedded = false, full = false }) {
             </form>
             {dossier && dossier.cross && Array.isArray(dossier.cross.meeting_points) && dossier.cross.meeting_points.length > 0 ? (
               <div style={{ display: "grid", gap: 8 }}>
-                {dossier.cross.meeting_points.map((mp, i) => (
-                  <div key={i} style={{ background: "linear-gradient(180deg,#fbfdff,#f3f7ff)", border: `1px solid #d9e5ff`, borderRadius: 12, padding: "11px 14px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                      <b style={{ fontFamily: F.m, color: C.blue, fontSize: 18 }}>{mp.value}</b>
-                      <span style={{ color: C.dim, fontFamily: F.h, fontSize: 12.5, fontWeight: 700 }}>{mp.hits} נקודות-מפגש{mp.across_items > 1 ? ` · ${mp.across_items} פריטים` : ""}</span>
-                      {mp.tanach_verses > 0 && <span style={{ background: "#e8f6ee", border: "1px solid #bfe4cd", borderRadius: 999, color: "#1f8a4c", fontFamily: F.h, fontSize: 11, fontWeight: 800, padding: "2px 9px" }}>📜 {mp.tanach_verses} פסוקים</span>}
-                    </div>
-                    {mp.equals && <div style={{ color: "#3a4553", fontFamily: F.h, fontSize: 13, lineHeight: 1.6, marginTop: 5 }}>= {mp.equals}</div>}
-                    {Array.isArray(mp.from) && mp.from.length > 0 && <div style={{ color: "#9aa1ad", fontFamily: F.h, fontSize: 11.5, marginTop: 4 }}>{mp.from.join(" · ")}</div>}
-                  </div>
-                ))}
+                {dossier.cross.meeting_points.map((mp, i) => <MeetingPointCard key={i} mp={mp} />)}
               </div>
             ) : null}
           </Section>
