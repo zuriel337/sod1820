@@ -4,6 +4,7 @@ import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { englishAll, EN_TAGS, hasLatin } from "../lib/englishGematria.js";
 import { hebrewLatinOptions } from "../lib/translit.js";
 import { getAiAnalysis, getValuePhraseList, getNameDossier } from "../lib/supabase.js";
+import { gregToHebrewSpelled } from "../lib/hebrewDate.js";
 import AskRaziel from "../components/AskRaziel.jsx";
 import MethodAnalyze from "../components/MethodAnalyze.jsx";
 import NameJourney from "../components/NameJourney.jsx";
@@ -176,6 +177,22 @@ export default function NameLabPage({ embedded = false, full = false }) {
   const { addToResearch, saveItem, isPinned, togglePin } = useResearch();
 
   useEffect(() => { document.title = "מעבדת השם · סוד 1820"; }, []);
+
+  // 🎂 deep-link «נתח את השם והתאריך שלי» (UserCenter → הפרטים שלי) — bd=<ISO גרגוריאני מ-profiles.birth_date>
+  //    → המרה לתאריך-עברי מאויית (@hebcal · gregToHebrewSpelled) → מוזרם *רק* לנתיב ההצלבה-המורחבת
+  //    (birthdate → getNameDossier → fn_cross_research), לא ל-NameMultiSearch. opt-in מפורש: המשתמש לחץ בכפתור.
+  //    profiles.birth_date נשאר מקור-האמת; העברי הוא derived-בזמן-ריצה (לא נשמר).
+  const bdParam = sp.get("bd");
+  useEffect(() => {
+    if (embedded || !bdParam) return;
+    let live = true;
+    gregToHebrewSpelled(bdParam).then(h => {
+      if (!live || !h) return;
+      setCrossBirth(h.pretty);   // מוצג בשדה «הצלבה מורחבת» — שקוף למשתמש, ניתן לעריכה
+      setBirthdate(h.pretty);    // מריץ getNameDossier עם התאריך-העברי המאויית
+    }).catch(() => {});
+    return () => { live = false; };
+  }, [embedded, bdParam]);
 
   const hebVals = useMemo(() => word ? HEB.map(m => ({ ...m, value: m.fn(word) })) : [], [word]);
   const regVal = hebVals[0]?.value || 0;
