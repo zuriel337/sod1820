@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
-import { applySeo, SITE_URL } from "../lib/seo.js";
+import { applySeo, SITE_URL, setOrGeulaVideosJsonLd, clearOrGeulaVideosJsonLd } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { storyOpen, storyEvent } from "../lib/storyTrack.js";
 import { galThumb } from "../lib/img.js";
@@ -79,7 +79,12 @@ export default function OrGeulaPage() {
       path: "/or-geula",
       image: first ? first.image_url : undefined,
     });
+    // 🎬 structured data עשיר — ItemList של VideoObject מכל סרטוני-הערוץ (תוצאות-וידאו בגוגל)
+    setOrGeulaVideosJsonLd(rows || []);
   }, [rows]);
+
+  // ניקוי ה-JSON-LD של הסרטונים ביציאה מהדף (SPA — לא להשאיר שאריות לדף הבא)
+  useEffect(() => () => clearOrGeulaVideosJsonLd(), []);
 
   const wrap = { background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 };
   const inner = { direction: "rtl", maxWidth: 1160, margin: "0 auto", padding: "40px 16px 72px" };

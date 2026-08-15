@@ -272,6 +272,46 @@ export function setVideoGalleryJsonLd(videos = []) {
 }
 export function clearVideoGalleryJsonLd() { removeJsonLd("sod-video-ld"); }
 
+// ── JSON-LD לדף «אור הגאולה» (/or-geula) — ItemList של VideoObject מקבצי-הווידאו של הערוץ ──
+// מזין את דוח «וידאו» ב-Search Console → הסרטונים של אור הגאולה מופיעים כתוצאות-וידאו עשירות
+// (thumbnail + כותרת) בגוגל. אלו **קבצי-מדיה** (channel_updates: image_url=mp4, thumb_url=תמונה),
+// לא יוטיוב — לכן VideoObject עם contentUrl (הקובץ) + thumbnailUrl + uploadDate + url לסרטון הספציפי
+// (/or-geula?v=id, ה-deep-link הקיים). דרישות גוגל ל-VideoObject: name · thumbnailUrl · uploadDate · contentUrl.
+const OG_VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
+export function setOrGeulaVideosJsonLd(rows = []) {
+  if (typeof document === "undefined") return;
+  const clean = (t) => { const s = plain(t || ""); return (s && s !== "📷 עדכון" && s !== "🎬 עדכון וידאו") ? s : ""; };
+  const vids = (rows || []).filter(r => r && r.image_url && OG_VIDEO_RE.test(r.image_url) && r.thumb_url).slice(0, 50);
+  if (!vids.length) { removeJsonLd("sod-orgeula-vid-ld"); return; }
+  const items = vids.map((v, i) => {
+    const name = clean(v.text).slice(0, 110) || "אור הגאולה — סרטון";
+    return {
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "VideoObject",
+        name,
+        description: clean(v.text).slice(0, 300) || name,
+        thumbnailUrl: [v.thumb_url],
+        uploadDate: videoUploadDate(v.created_at),
+        contentUrl: v.image_url,
+        url: `${SITE_URL}/or-geula?v=${v.id}`,
+        inLanguage: "he-IL",
+        publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
+      },
+    };
+  });
+  setJsonLd("sod-orgeula-vid-ld", {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": SITE_URL + "/or-geula#videos",
+    name: "אור הגאולה — אוסף הסרטונים והרמזים",
+    numberOfItems: items.length,
+    itemListElement: items,
+  });
+}
+export function clearOrGeulaVideosJsonLd() { removeJsonLd("sod-orgeula-vid-ld"); }
+
 // ── עוזרי מטא נוספים ──
 function addMeta(attr, key, content) {
   if (typeof document === "undefined") return;
