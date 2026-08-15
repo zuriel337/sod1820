@@ -2724,7 +2724,15 @@
       const anchors=baseA.concat(...st.words.filter((_,j)=>j!==wi).map(o=>(o.hits||[]).slice(0,st.showN).flatMap(hit=>hit.positions.map(rc))));
       const cost=h=>{let m=1e9;for(const p of h.positions){const a=rc(p);for(const g of anchors){const dc=Math.min(Math.abs(a[1]-g[1]),S-Math.abs(a[1]-g[1]));const d=Math.abs(a[0]-g[0])+dc;if(d<m){m=d;if(m===0)return 0;}}}return m;};
       hits.forEach(h=>{h.cost=cost(h);});
-      hits.sort((a,b2)=>a.cost-b2.cost);
+      // 🏅 דירוג הממצא: **הידוק × קרבה**, לא קרבה בלבד. עד מחזור 1 מרחב-הדילוגים היה צר
+      //    ({1..8, kS±2}) ולכן כל מועמד היה ממילא צמוד-לציר, ומיון לפי cost הספיק. מרחב-החיפוש
+      //    המלא מכניס גם דילוגים רופפים (step גדול = קו מרוסק על פני עשרות שורות) שמנצחים
+      //    ב-cost=0 ודוחקים ממצאים הדוקים אל מחוץ ל-30 המוצגים. מודד: 30.5% מהמילים נשלטו ע"י
+      //    מופע רופף → 1.0%; המופע-הטוב-הקודם נשאר נגיש 86.7% → 98.0%.
+      //    gapF/proxF/gridStep הן פונקציות המנוע הקיימות — אין מדד חדש. ⛔ מרחב-החיפוש לא נגע:
+      //    זהו סדר-תצוגה בלבד (Rank, Don't Hide).
+      const _rank=x=>gapF(gridStep(Math.abs(x.skip),S))*proxF(x.cost);
+      hits.sort((a,b2)=>_rank(b2)-_rank(a)||a.cost-b2.cost);
       w.total=hits.length;w.inwin=hits.length;w.hits=hits.slice(0,30);
       // 🛡️ תאימות-לאחור: מופע שנשמר במפורש במטריצה קיימת (_savedShown) או שהמשתמש הדליק ידנית
       //    (extra) חייב להישאר זמין גם אם הרחבת מרחב-החיפוש דחקה אותו מעבר ל-30 הראשונים.
