@@ -1904,7 +1904,7 @@
     const P=pat.split(""),L=P.length;if(L<2||P.filter(c=>c!=="?").length<1)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
+    const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),p0=P[0],out=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=N)continue;if(p0!=="?"&&T[s0]!==p0)continue;
       for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
@@ -2083,11 +2083,10 @@
     if(!st.res||!st.res.hits.length)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
     const mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
-    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]);if(!starts)continue;
+    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]);if(!starts)continue;const skips=searchSpace(b,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
@@ -2747,12 +2746,11 @@
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>anchors.push(rc(p)))));
     const byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const cellCost=(r,c)=>{let m=1e9;for(const a of anchors){const dc=Math.min(Math.abs(c-a[1]),S-Math.abs(c-a[1]));const d=Math.abs(r-a[0])+dc;if(d<m){m=d;if(m===0)return 0;}}return m;};
     const existing=new Set(st.words.map(w=>w.t)),out=[];
     for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2||existing.has(t))continue;
-      const starts=byChar.get(t[0]);if(!starts)continue;let best=null,bestSkip=0;
+      const starts=byChar.get(t[0]);if(!starts)continue;let best=null,bestSkip=0;const skips=searchSpace(b,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){
         const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
@@ -2961,6 +2959,10 @@
   function clusterStat(r0,r1,c0,cw,S,anchorCol,words,showN){
     const c1=c0+cw,byChar=new Map();
     for(let r=r0;r<=r1;r++)for(let c=c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
+    // ⏸️ מחזור 1B — הצרכן היחיד שנשאר על המרחב הישן, בכוונה ובהמתנה להחלטה.
+    //    clusterStat היא מודל-האפס של מונטה-קרלו ורצה 401 פעם לכל בדיקה (ובתוך זרימת-השמירה).
+    //    מדידה: מעבר ל-searchSpace המלא העלה את runMonteCarlo מ-2ms ל-3,837ms → הקפאת-שמירה.
+    //    לא לאחד את זה בלי פתרון-ביצועים (מחזור 2). ראה work_log 2026-08-15.
     const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=r0&&r<=r1&&c>=c0&&c<c1;};
     const coldist=c=>Math.min(Math.abs(c-anchorCol),S-Math.abs(c-anchorCol));
