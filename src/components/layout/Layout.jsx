@@ -66,7 +66,8 @@ export default function Layout() {
             🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
             🌍 English (רק לדוברי-אנגלית, בסבב). מחליף את כל הטיקרים הישנים —
             EnglishSoonBar + YearTicker + CelestialPinnedBar + CipherElulBanner (מושבתים). */}
-        <PromoTicker />
+        {/* בפוסטים+צ'אט (showBanner) הטיזר סטטי — כי שם חוזר באנר-הצופן המונפש למטה (א+ב, מניעת עומס-תנועה). */}
+        <PromoTicker rotate={!showBanner} />
         {/* 🌌 שורה נעוצה גלובלית — הושבתה לטובת טיקר-הפרומו (בקשת צוריאל 15.8.2026). להחזרה: הסר את false. */}
         {false && <CelestialPinnedBar />}
         {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
@@ -79,7 +80,9 @@ export default function Layout() {
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
             מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
-        {false && !isHome && !isHeichal && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
+        {/* 🎺📜 באנר הצופן/אלול חזר — רק בפוסטים + צ'אט (showBanner). הטיזר למעלה סטטי שם כדי
+            שלא יהיו שתי רצועות זזות ביחד (בקשת צוריאל 15.8.2026, א+ב). */}
+        {showBanner && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
         <main>
           <ErrorBoundary routeKey={pathname}>
             <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: dark ? "#9a8a66" : P.ink, fontFamily: F.body }}>

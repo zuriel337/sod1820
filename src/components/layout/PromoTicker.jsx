@@ -28,7 +28,9 @@ const TEASERS = [
 const EN_TEASER = { key: "en", icon: "🌍", title: "SOD 1820 in English", tag: "Coming soon — the full experience", dir: "ltr",
   bg: "linear-gradient(90deg,#07234f,#1e40af 45%,#3b82f6 66%,#1e40af)", accent: "#93c5fd" };
 
-export default function PromoTicker() {
+// rotate=false → הטיזר לא מתחלף (סלייד אחד, עדיין לחיץ) — למניעת עומס-תנועה בעמודים
+// שבהם כבר יש באנר מונפש (פוסטים/צ'אט עם CipherElulBanner). בקשת צוריאל 15.8.2026 (א+ב).
+export default function PromoTicker({ rotate = true }) {
   const [en, setEn] = useState(false);
   const promos = useMemo(() => (en ? [...TEASERS, EN_TEASER] : TEASERS), [en]);
   const start = useMemo(() => Math.floor(Math.random() * TEASERS.length), []);
@@ -43,12 +45,13 @@ export default function PromoTicker() {
   }, []);
 
   useEffect(() => {
+    if (!rotate) return;   // סטטי — סלייד אחד, בלי החלפה
     const t = setInterval(() => {
       setFade(false);
       setTimeout(() => { setIdx(i => (i + 1) % promos.length); setFade(true); }, 260);
     }, ROTATE_MS);
     return () => clearInterval(t);
-  }, [promos.length]);
+  }, [promos.length, rotate]);
 
   const p = promos[idx % promos.length];
   const isEn = p.dir === "ltr";
