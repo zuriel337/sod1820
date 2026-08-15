@@ -551,15 +551,8 @@
   .searchload .sl-box{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:22px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
   .searchload .sl-t{color:var(--goldBright);font-family:var(--serif);font-size:16px;font-weight:800;margin-bottom:6px}
   .searchload .sl-s{color:var(--ink2);font-size:12.5px;line-height:1.6;margin-bottom:13px}
-  .searchload .sl-bar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
-  .searchload .sl-bar i{display:block;height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--goldBright));animation:slmove 1.05s ease-in-out infinite}
-  .searchload.done .sl-bar i{animation:none;width:100%;margin-left:0}
+  .searchload.stage .sl-s{margin-bottom:0}   /* אין עוד פס-התקדמות מתחת — בלי רווח-מת בתחתית התיבה */
   /* מצב-שלבים: בלי פס-נע ובלי מונה — בזמן חסימה הם היו קופאים ונראים שבורים */
-  .searchload.stage .sl-bar{display:none}
-  .searchload.stage .sl-time{display:none}
-  @keyframes slmove{0%{margin-left:-40%}100%{margin-left:102%}}
-  .searchload .sl-time{color:var(--ink3);font-size:12.5px;margin-top:11px;font-variant-numeric:tabular-nums}
-  .searchload.done .sl-time{color:var(--goldBright);font-weight:800}
   .matacts .post-act{flex:1 1 auto;background:linear-gradient(160deg,rgba(232,200,74,.07),var(--panel));color:var(--ink2);border-color:var(--line2);font-weight:700;font-size:12px}
   .matacts .post-act:hover{border-color:var(--gold);color:var(--goldBright);background:var(--panel2)}
   .matacts .link-act{border-style:dashed;color:var(--ink2)}
@@ -1490,7 +1483,7 @@
     let n=0;const ping=()=>{postHost({type:"ready"});if(!st.tierKnown&&++n<8)setTimeout(ping,350);};ping();}
 
   // ⏳ מד-חיווי לחיפוש בתנ״ך — החיפוש בתנ״ך כבד (1.2M אותיות) ולוקח רגע; מראים שהוא רץ + הזמן שחלף.
-  let _sl=null,_slInt=null,_slT0=0;
+  let _sl=null;
   const _now=()=>(window.performance&&performance.now?performance.now():Date.now());
   // 🔬 חיווי-שלבים סטטי (A+B). נמדד: בזמן חישוב סינכרוני **שום דבר על המסך לא יכול לזוז** —
   //    גם אנימציית-CSS על ה-compositor קופאת (0ms התקדמות ב-13.5ש׳ חסימה). לכן כאן אין פס-נע,
@@ -1498,7 +1491,7 @@
   //    משתמש באותו אלמנט .searchload הקיים — בלי state חדש ובלי רכיב חדש.
   function _slEnsure(){
     if(!_sl){_sl=document.createElement("div");_sl.className="searchload";
-      _sl.innerHTML='<div class="sl-box"><div class="sl-t"></div><div class="sl-s"></div><div class="sl-bar"><i></i></div><div class="sl-time"></div></div>';
+      _sl.innerHTML='<div class="sl-box"><div class="sl-t"></div><div class="sl-s"></div></div>';
       document.body.appendChild(_sl);}
     return _sl;
   }
@@ -1506,28 +1499,12 @@
     const el=_slEnsure();
     el.querySelector(".sl-t").textContent=title;
     el.querySelector(".sl-s").textContent=sub||"";
-    el.querySelector(".sl-time").textContent="";
-    clearInterval(_slInt);
     el.classList.remove("done");el.classList.add("on","stage");
   }
   function hideStage(){if(_sl)_sl.classList.remove("on","stage");}
   // צביעה מובטחת לפני החסימה: rAF רץ לפני הציור, ו-setTimeout שבתוכו רץ אחריו.
   const paintThen=fn=>{try{requestAnimationFrame(()=>setTimeout(fn,0));}catch(e){setTimeout(fn,16);}};
 
-  function showSearchLoad(){
-    if(!_sl){_sl=document.createElement("div");_sl.className="searchload";
-      _sl.innerHTML='<div class="sl-box"><div class="sl-t">🔍 מחפש בכל התנ״ך</div><div class="sl-s">24 ספרי התנ״ך · '+heb(N)+' אותיות — מעט איטי יותר מהתורה</div><div class="sl-bar"><i></i></div><div class="sl-time">מחפש… 0.0 שניות</div></div>';
-      document.body.appendChild(_sl);}
-    const tm=_sl.querySelector(".sl-time");tm.textContent="מחפש… 0.0 שניות";
-    _sl.classList.remove("done");_sl.classList.add("on");_slT0=_now();
-    clearInterval(_slInt);_slInt=setInterval(()=>{tm.textContent="מחפש… "+((_now()-_slT0)/1000).toFixed(1)+" שניות";},90);
-  }
-  function doneSearchLoad(nhits){
-    if(!_sl)return;clearInterval(_slInt);
-    _sl.classList.add("done");
-    _sl.querySelector(".sl-time").textContent="✓ נמצא ב-"+((_now()-_slT0)/1000).toFixed(1)+" שניות · "+heb(nhits||0)+" מופעים";
-    setTimeout(()=>{try{if(_sl)_sl.classList.remove("on");}catch(e){}},950);
-  }
   // 🔄 כפתור-חיפוש «עסוק» — עיגול-מסתובב + טקסט, משוב מיידי בכל חיפוש (כולל התורה המהירה)
   function goBusy(txt){go.disabled=true;go.innerHTML='<span class="btn-spin" aria-hidden="true"></span>'+txt;}
   // 📊 צ׳יפ-מדדים אחרי חיפוש/פתיחה — נמצא ב-X שנ׳ · N מופעים · דילוג. ms=null → בלי זמן (פתיחת-צופן שמור).
@@ -1564,24 +1541,35 @@
     if(isAnon())bumpFree();
     st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
     const _t0=_now();
-    const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
-    setTimeout(()=>{
-      st.res=findAll(w,4000);
+    // ⏳ אותם שלבים אמיתיים כמו בפתיחת-צופן: כל תווית נצבעת **לפני** החסימה שאחריה.
+    //    החליף את המד הישן (פס-נע + מונה-שניות) שקפא בפועל בזמן חישוב סינכרוני ולכן היה מטעה.
+    showStage("🔬 מחפש בצופן…","מאתר את «"+w+"» ב"+(st.scope==="tanakh"?"כל התנ״ך":"תורה"));
+    paintThen(()=>{
+      st.res=findAll(w,4000);                                            // ← השלב הכבד
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
       st.postUrl="";st.postTitle="";st.desc="";   // 📖 חיפוש חדש = צופן חדש → אין קישור/הסבר של הצופן הקודם
       if(!preserveWords)st.words=savedWordsInit();
-      go.disabled=false;go.textContent=goLabel();updGem();render();
-      if(_slow)doneSearchLoad(st.res?st.res.hits.length:0);   // ⏳ סיום — מציג את הזמן שחלף + מספר המופעים
-      logSearch("regular",w);   // 📊 רישום לאתר (דרך העוטף → track/events)
-      // 🔎 «חפש את השם שלך» — אחרי החיפוש, מציע אוטומטית ממצאים סביב השם
-      if(st.nameMode){st.nameMode=false;if(st.res&&st.res.hits.length){st.suggest=suggestCluster();render();
-        toast(st.suggest&&st.suggest.length?("🔎 «"+w+"» — מצאתי "+heb(st.suggest.length)+" מילים קרובות סביב השם"):("🔎 «"+w+"» נמצא — הוסף ממצאים ידנית"));}}
-      // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש (כמו פתיחת-צופן).
-      if(st.res&&st.res.hits.length){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
-      else hideSearchStat();
-    },10);
+      const _n=st.res.hits.length;
+      // תווית-שלב-2 לפי מה שבאמת קורה: יש ממצאים → מחשבים אותם; אין → רק בונים את המטריצה.
+      showStage(st.words.length?"🧩 מחשב את הממצאים…":"🧩 בונה מטריצה…",
+                _n?(heb(_n)+(st.res.capped?"+":"")+" מופעים"):"");
+      paintThen(()=>{
+        go.disabled=false;go.textContent=goLabel();updGem();render();     // ← recomputeWords + בניית ה-DOM
+        showStage("✨ מציג תוצאות…",_n?("דילוג "+heb(Math.abs(st.res.hits[st.occ].skip))):"");
+        paintThen(()=>{
+          hideStage();
+          logSearch("regular",w);   // 📊 רישום לאתר (דרך העוטף → track/events)
+          // 🔎 «חפש את השם שלך» — אחרי החיפוש, מציע אוטומטית ממצאים סביב השם
+          if(st.nameMode){st.nameMode=false;if(st.res&&st.res.hits.length){st.suggest=suggestCluster();render();
+            toast(st.suggest&&st.suggest.length?("🔎 «"+w+"» — מצאתי "+heb(st.suggest.length)+" מילים קרובות סביב השם"):("🔎 «"+w+"» נמצא — הוסף ממצאים ידנית"));}}
+          // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש.
+          if(st.res&&st.res.hits.length){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
+          else hideSearchStat();
+        });
+      });
+    });
   }
   function savedWordsInit(){return [];}
   // 🔎 חפש את השם שלך — כניסה אישית: מרוקן, ממקד, ואחרי החיפוש מציע אשכול סביב השם
