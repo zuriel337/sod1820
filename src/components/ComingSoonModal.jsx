@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import UpdatesBox from "./UpdatesBox.jsx";
+import { useSubscribed } from "./SubscribeGate.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 
 // ✨ «מה עומד לבוא ב-SOD 1820» — מודאל שנפתח מהטיזר. כל מקטע בצבעים לפי התוכן שלו.
 // הרשמה אחת כללית (source="coming-soon") דרך UpdatesBox הקיים → טבלת subscribers (בלי מנגנון חדש).
@@ -45,6 +47,10 @@ const SECTIONS = [
 ];
 
 export default function ComingSoonModal({ open, onClose }) {
+  const { subscribed } = useSubscribed();
+  const { user } = useAuth();
+  const alreadyIn = subscribed || !!user;   // מחובר או רשום-מאומת → אין טופס, רק הבטחה
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
@@ -108,14 +114,28 @@ export default function ComingSoonModal({ open, onClose }) {
           ))}
         </div>
 
-        {/* הרשמה אחת כללית — דרך UpdatesBox הקיים (subscribers · source=coming-soon) */}
+        {/* מחובר/רשום → הבטחה במקום טופס. אחרת → הרשמה אחת כללית דרך UpdatesBox (subscribers · source=coming-soon). */}
         <div style={{ padding: "8px 16px 22px" }}>
-          <UpdatesBox
-            source="coming-soon"
-            title="רוצה להיות בין הראשונים?"
-            body="רוצה לקבל עדכון כשדברים חדשים נפתחים ב־SOD 1820? השאירו מייל ונעדכן אתכם כשכל חוויה חדשה תיפתח — הרשמה אחת לכל השלושה."
-            cta="עדכנו אותי"
-          />
+          {alreadyIn ? (
+            <div style={{
+              direction: "rtl", textAlign: "center", borderRadius: 18,
+              background: "linear-gradient(180deg,rgba(232,200,74,.10),rgba(232,200,74,.03))",
+              border: "1px solid rgba(232,200,74,.28)", padding: "24px 20px",
+            }}>
+              <div style={{ fontSize: 30, marginBottom: 6 }}>✦</div>
+              <div style={{ color: "#ffe9a8", fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 900, fontSize: 20 }}>אתה כבר בפנים</div>
+              <p style={{ color: "#d6cde6", fontSize: 14.5, lineHeight: 1.8, maxWidth: 440, margin: "8px auto 0" }}>
+                ברגע שכל אחד מהעולמות החדשים ייפתח — תהיה מהראשונים לדעת, בלי לעשות כלום.
+              </p>
+            </div>
+          ) : (
+            <UpdatesBox
+              source="coming-soon"
+              title="רוצה להיות בין הראשונים?"
+              body="רוצה לקבל עדכון כשדברים חדשים נפתחים ב־SOD 1820? השאירו מייל ונעדכן אתכם כשכל חוויה חדשה תיפתח — הרשמה אחת לכל השלושה."
+              cta="עדכנו אותי"
+            />
+          )}
         </div>
       </div>
     </div>
