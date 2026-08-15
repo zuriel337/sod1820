@@ -7,7 +7,6 @@ import { isToolReady, UPGRADE_MSG, ELS_LOGO } from "../../lib/hub/ready.js";
 // «אותם דפים, מעטפת אחת»: הדוק חי מחוץ לראוטים → לא קופץ במעבר בין כלים.
 // כלי-זהב בלבד (החזקים, בכבוד); השאר תחת «עוד». מובייל-first (ניווט תחתון + safe-area).
 const TOOLS = [
-  { id: "journey",  icon: "🧭", label: "מסע",    to: "/research?tool=journey" },
   { id: "gematria", icon: "🧮", label: "מחשבון", to: "/research?tool=gematria" },
   { id: "els",      icon: "🔡", label: "צופן",   to: "/research?tool=els" },
   { id: "number",   icon: "🔢", label: "מספר",   to: "/number" },

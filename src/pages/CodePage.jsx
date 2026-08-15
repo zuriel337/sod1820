@@ -47,8 +47,8 @@ export default function CodePage() {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
   // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים. מציג את «הצופן התנ״כי» — הכלי העצמאי (public/tzofen.html)
-  // דרך TzofenEmbed. אותו כלי בדיוק משוכפל בהיכל (/research?tool=els). מנוע ה-ElsGrid של הסוכן השני
-  // נשמר בקוד (src/components/ElsGrid.jsx) ולא נמחק — רק הרינדור הקנוני עבר לכלי החדש.
+  // דרך TzofenEmbed. ההיכל (/research?tool=els) מטמיע את **אותו iframe בדיוק** — לא עותק ולא מנוע שני.
+  // מקור-אמת יחיד: tools/els/els-code.template.html → build.py → public/tzofen.html.
   // 🔓 פתוח לכולם — הכלי עצמו אוכף את שער-ההרשמה (לא-רשום: 5 חיפושים רגילים · מוצלב לרשומים).
   //    לסגירה זמנית: `return <CodeClosed />;` (הרכיב נשמר למטה) או ELS_PUBLIC=false + תנאי isAdmin.
   return (

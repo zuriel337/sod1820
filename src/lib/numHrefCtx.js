@@ -18,7 +18,7 @@ export function useHubHrefs() {
     hub,
     root: hub ? "/research?tool=number" : "/number",
     calc: hub ? "/research?tool=midrash&tab=calc" : "/beit-midrash?tab=calc",
-    journey: (x) => hub ? `/research?tool=journey&q=${encodeURIComponent(x)}` : `/journey?from=${encodeURIComponent(x)}`,
+    journey: (x) => `/journey?from=${encodeURIComponent(x)}`,   // המסע האישי — עמוד עצמאי; אב-הטיפוס ?tool=journey הוסר
     numbers: (x) => hub ? `/research?tool=number&n=${encodeURIComponent(x)}` : `/numbers?n=${encodeURIComponent(x)}`,
   };
 }

@@ -104,7 +104,6 @@ export default function CompareTwo({ onOpenTool }) {
           <div className="rw-card c2-sum">
             <span>{cmp.ta} + {cmp.tb} =</span>
             <Link to={`/number/${cmp.sum}?from=compare`} className="c2-sumv">{cmp.sum.toLocaleString("he")}</Link>
-            {onOpenTool && <button className="c2-open" onClick={() => onOpenTool("journey", cmp.ta)}>מסע על «{cmp.ta}» →</button>}
           </div>
           <div className="rw-sub" style={{ marginTop: 8 }}>⚖️ «אותה שיטה» = שני הצדדים באותה דרך-חישוב (חזק). «חוצה-שיטות» = דרכים שונות שמצטלבות בערך (עקיף). המערכת מציגה עובדה — הפרשנות שלך.</div>
 

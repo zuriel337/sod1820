@@ -68,7 +68,6 @@ const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
 const OrGeulaPage = React.lazy(() => import("./pages/OrGeulaPage.jsx"));
 const ForumThreadPage = React.lazy(() => import("./pages/ForumThreadPage.jsx"));
-const CodeArchivePage = React.lazy(() => import("./pages/CodeArchivePage.jsx"));
 const CipherPage = React.lazy(() => import("./pages/CipherPage.jsx"));
 const CiphersLibraryPage = React.lazy(() => import("./pages/CiphersLibraryPage.jsx"));
 const ResearchCodesPage = React.lazy(() => import("./pages/ResearchCodesPage.jsx"));
@@ -293,8 +292,6 @@ export default function App() {
           <Route path="/gematria-3d" element={<Gematria3DPage />} />
           <Route path="/גימטריה-תלת-ממדית" element={<Gematria3DPage />} />
           <Route path="/code" element={<CodePage />} />
-          <Route path="/code/ארכיון" element={<CodeArchivePage />} />
-          <Route path="/code-archive" element={<CodeArchivePage />} />
           {/* הפרדה: /code = הכלי · /codes = ספרייה · /codes/:slug = עמוד קנוני לצופן (SEO, בלי התנגשות, מקום לגדול) */}
           <Route path="/codes" element={<CiphersLibraryPage />} />
           {/* 🔬 תיקיית-המחקר (unlisted) — לפני :slug כדי לא להיתפס כ-slug. לא מקושרת בשום מקום. */}

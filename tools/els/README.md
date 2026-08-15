@@ -16,12 +16,23 @@
 הגשר iframe↔אתר (ב-`TzofenEmbed`): (1) שולח דרגת-משתמש (`postMessage tier`), (2) רושם כל חיפוש
 דרך `track("els",…)` הקיים → `events`+`visitor_events`, (3) מציג `SubscribeGate` בשער-ההרשמה.
 
-## «מי נגד מי» — שני מימושי-ELS בקוד (לא למחוק בטעות!)
-1. **הכלי הזה (`public/tzofen.html`) = הקנוני.** מה שהמשתמשים רואים ב-`/code` + היכל.
-2. **`src/components/ElsGrid.jsx` (React) — מנוע ה-ELS הישן/של סוכן קודם. נשמר, לא נמחק.**
-   מוצג ב-`/code/ארכיון` (`src/pages/CodeArchivePage.jsx`). היסטוריית-git שלו (ענף
-   `claude/els-research-lab` / PR #101) **לא-קשורה** ל-main (unrelated histories) — אי-אפשר
-   למזג. הכלי החדש החליף אותו ברינדור הקנוני; הישן נשמר כארכיון בלבד.
+## מנוע אחד — אין מימוש שני (`els_single_engine_law`)
+**קיים בדיוק מנוע-ELS אחד בפרויקט:** `tools/els/els-code.template.html` → `build.py` → `public/tzofen.html`.
+כל המשטחים מטמיעים את **אותו iframe בדיוק** (`TzofenEmbed.jsx`, נתיב קשיח `/tzofen.html?embed=1`):
+`/code` · `/research?tool=els` (ההיכל) · `/codes/:slug`. ההבדל היחיד בין המשטחים הוא ה-prop `full`
+(גובה ה-iframe בלבד) — הבדל-UI, לא הבדל-מנוע.
+
+⛔ **אין להחזיר מנוע שני.** המימוש הישן (`ElsGrid.jsx` · `features/els/Els.jsx` · `lib/els/*` ·
+`SearchJourney.jsx` · `lib/research/torah.js` · `els-demo.html` · ראוטי `/code/ארכיון`) **הוסר במלואו**
+(15.8.2026). ארבע יכולות שהיו רק בו נרשמו כדרישות-עתיד ולא מומשו: התאמה-מקורבת (`maxMismatches=1`) ·
+היקף ספר-בודד · תבניות-דילוג (חזקות-2/פיבונאצ׳י/ראשוניים) · Web Worker. פרטים ב-`work_log`.
+
+### מקור-הקורפוס — יחיד
+`tools/els/data/tk-letters.txt` הוא **הקורפוס הגולמי היחיד** והקלט של `build.py`.
+העותק הכפול `public/tanakh-letters.txt` (בייט-בבייט זהה) **הוסר** כדי שלא ייראה כמקור-אמת שני.
+**הכלי הבנוי מוטמע-עצמאית ואינו מושך שום קובץ מ-`public/` בזמן-ריצה** (כל התנ״ך דחוס בתוכו).
+`public/torah-verses.json` ו-`public/tanakh-verses.json` נשארו — הם משרתים כלים חיים שאינם ELS
+(VerseSearch · NotarikonTool · NameStory · VerseGematriaPage).
 
 ## בנייה / עריכה
 ```bash
