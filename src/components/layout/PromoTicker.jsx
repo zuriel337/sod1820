@@ -1,24 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
+import ComingSoonModal from "../ComingSoonModal.jsx";
 
-// 🎗️ טיקר יחיד — סרגל אחד גלובלי שמתחלף כל כמה שניות בין כמה פרומואים «בקרוב».
-//   ⛔ אין עוד סרגלים נערמים: זה מחליף את סרגל-האנגלית, את YearTicker (תשפ״ו),
-//      את CelestialPinnedBar ואת CipherElulBanner — הכל בתוך בר-אחד מתחלף.
-//   הפרומואים (מתחלפים כל 7ש׳, התחלה אקראית):
-//   1) 🌅 ציר ההתגלות — תאריכים נגללים ימין→שמאל, מבריאת העולם עד שנת 6000.
-//   2) ✦ ציר התגלות אישי — «בקרוב».
-//   3) 🔠 חיפוש בתורה בדילוגי אותיות (ELS) — «בקרוב» + שעון-חול לספירה-לאחור של שבועיים.
-//   + למבקרים דוברי-אנגלית/ארה״ב בלבד: 🌍 SOD 1820 in English — coming soon.
-const DISMISS_KEY = "promo_ticker_dismissed_v1";
-const ROTATE_MS = 7000;
+// 🎗️ טיזרים מתחלפים — סרגל יחיד גלובלי, כל שקופית בצבעים לפי התוכן שלה.
+//   ⛔ לא ניתן לסגור (בקשת צוריאל 15.8.2026) — תמיד מזמין ללחוץ.
+//   לחיצה על הסרגל פותחת את «מה עומד לבוא» (ComingSoonModal) עם הטקסט המלא + הרשמה אחת.
+//   הטיזרים: 🌅 ציר ההתגלות (הזמן מקבל צורה) · 🧬 מסע השורשים · 🔠 הצופן. + 🌍 English לדוברי-אנגלית.
+const ROTATE_MS = 5200;
 
-// יעד ספירת-לאחור ל-ELS — כשבועיים קדימה (יעד קבוע כדי שהשעון לא יתאפס בכל טעינה).
-const ELS_TARGET = new Date("2026-08-29T20:00:00+03:00").getTime();
-
-// שנות-ציון על ציר הבריאה (0 → 6000). ~5786 = «היום» (השנה העברית הנוכחית בקירוב).
-const AXIS_YEARS = [0, 1000, 2000, 3000, 4000, 5000, 5786, 6000];
-const yearLabel = (y) => (y === 0 ? "בריאת העולם" : y === 5786 ? "היום · ה׳תשפ״ו" : y === 6000 ? "שנת ו׳ אלפים" : `שנת ${y.toLocaleString("he")}`);
-
-// 🌍 זיהוי מבקר דובר-אנגלית/ארה״ב (כמו EnglishSoonBar) — כדי שהשקופית באנגלית תופיע בסבב רק להם.
 function isEnglishOrUS() {
   try {
     const langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ""];
@@ -28,196 +16,96 @@ function isEnglishOrUS() {
   } catch { return false; }
 }
 
-function Countdown({ target }) {
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
-  const ms = Math.max(0, target - now);
-  if (ms <= 0) return <b style={{ color: "#ffe9a8" }}>ממש בקרוב</b>;
-  const d = Math.floor(ms / 86400000), h = Math.floor((ms % 86400000) / 3600000), m = Math.floor((ms % 3600000) / 60000), s = Math.floor((ms % 60000) / 1000);
-  const box = { background: "rgba(0,0,0,.28)", borderRadius: 7, padding: "2px 7px", fontFamily: "monospace", fontWeight: 800, color: "#ffe9a8", minWidth: 26, textAlign: "center", display: "inline-block" };
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, direction: "ltr" }} aria-label={`עוד ${d} ימים`}>
-      <span aria-hidden style={{ fontSize: 16 }}>⏳</span>
-      <span style={box}>{d}<small style={{ opacity: .7, fontWeight: 600 }}>י</small></span>
-      <span style={box}>{String(h).padStart(2, "0")}</span>
-      <span style={{ opacity: .6 }}>:</span>
-      <span style={box}>{String(m).padStart(2, "0")}</span>
-      <span style={{ opacity: .6 }}>:</span>
-      <span style={box}>{String(s).padStart(2, "0")}</span>
-    </span>
-  );
-}
-
-// 🌅 רצועת-שנים נגללת ימין→שמאל (מבריאת העולם עד 6000)
-function AxisYearsMarquee() {
-  const strip = [...AXIS_YEARS, ...AXIS_YEARS];   // כפול לגלילה חלקה
-  return (
-    <span className="pt-marq" style={{ position: "relative", overflow: "hidden", maxWidth: "min(52vw, 420px)", maskImage: "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)", WebkitMaskImage: "linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)" }}>
-      <span style={{ display: "inline-flex", gap: 14, whiteSpace: "nowrap", animation: "promo-marq 18s linear infinite", willChange: "transform" }}>
-        {strip.map((y, i) => (
-          <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: y === 5786 ? "#ffe9a8" : "#e9d9b0", fontWeight: y === 5786 ? 900 : 700, fontSize: 12.5 }}>
-            <span style={{ opacity: .55 }}>◆</span>{yearLabel(y)}
-          </span>
-        ))}
-      </span>
-    </span>
-  );
-}
-
-// ✨ צ׳יפ «AI» — תג-מוצר קטן עם ניצוץ וזוהר (החידוש של צוריאל: הכל מונע-AI).
-function AiSpark({ label = "AI" }) {
-  return (
-    <span className="pt-ai" style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto", padding: "2px 9px", borderRadius: 999, fontSize: 11.5, fontWeight: 900, letterSpacing: .5, color: "#0b0620", background: "linear-gradient(90deg,#ffe9a8,#8fd0ff 55%,#c7a6ff)", backgroundSize: "200% 100%", animation: "promo-ai 3.5s linear infinite", boxShadow: "0 0 10px rgba(150,200,255,.45)" }}>
-      <span aria-hidden style={{ fontSize: 12 }}>✨</span>{label}
-    </span>
-  );
-}
-
-// 🧬 סליל-DNA זעיר (SVG) — שני גדילים מצטלבים + «חוליות» שמהבהבות בזו-אחר-זו (תחושת נתונים זורמים).
-function DnaMini() {
-  const rungs = [3.5, 7.5, 11.5, 15.5, 19.5, 22.5];
-  return (
-    <span className="pt-dna" aria-hidden style={{ display: "inline-flex", flex: "0 0 auto", verticalAlign: "middle" }}>
-      <svg width="20" height="26" viewBox="0 0 20 26" fill="none">
-        <path d="M3 1 C 15 5, 5 8, 17 13 C 5 18, 15 21, 3 25" stroke="#ffe9a8" strokeWidth="1.4" strokeLinecap="round" opacity=".9" />
-        <path d="M17 1 C 5 5, 15 8, 3 13 C 15 18, 5 21, 17 25" stroke="#8fd0ff" strokeWidth="1.4" strokeLinecap="round" opacity=".85" />
-        {rungs.map((y, i) => (
-          <line key={i} x1="4" y1={y} x2="16" y2={y} stroke="#c7a6ff" strokeWidth="1.1" strokeLinecap="round"
-            style={{ animation: `promo-dna 1.6s ease-in-out ${i * 0.18}s infinite` }} />
-        ))}
-      </svg>
-    </span>
-  );
-}
-
-// 🔢 «אודומטר» מספרים זזים — ערכי-מפתח מתחלפים כמו מונה (תחושת מנוע-מספרים חי).
-const ODO_NUMS = [1820, 26, 86, 541, 358, 137, 613, 72];
-function MovingNumbers() {
-  const strip = [...ODO_NUMS, ODO_NUMS[0]];
-  return (
-    <span className="pt-nums" aria-hidden style={{ display: "inline-block", flex: "0 0 auto", height: 22, width: 54, overflow: "hidden", verticalAlign: "middle", borderRadius: 6, background: "rgba(0,0,0,.3)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,.12)", maskImage: "linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent)", WebkitMaskImage: "linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent)" }}>
-      <span style={{ display: "block", animation: "promo-nums 7.2s steps(8) infinite", willChange: "transform" }}>
-        {strip.map((n, i) => (
-          <span key={i} style={{ display: "flex", height: 22, alignItems: "center", justifyContent: "center", fontFamily: "monospace", fontWeight: 800, fontSize: 13.5, color: "#ffe9a8" }}>{n}</span>
-        ))}
-      </span>
-    </span>
-  );
-}
-
-// כל השקופיות — עברית תמיד, אנגלית רק לדוברי-אנגלית. מוגדרות כפונקציה כדי לבנות לפי המבקר.
-function buildPromos(en) {
-  const promos = [
-    {
-      key: "axis", icon: "🌅", title: "ציר ההתגלות", dir: "rtl",
-      body: (<><span style={{ color: "#fff", fontWeight: 800 }}>מבריאת העולם עד שנת 6000</span> — כל התאריכים על ציר אחד <AxisYearsMarquee /></>),
-    },
-    {
-      key: "family", icon: "🧬", title: "קוד המשפחה", dir: "rtl",
-      body: (<span style={{ display: "inline-flex", alignItems: "center", gap: 9, flexWrap: "wrap", justifyContent: "center" }}>
-        <DnaMini />
-        <span style={{ color: "#fff", fontWeight: 800 }}>ניתוח כל המשפחה — שמות, תאריכים ומספרים — מונע AI</span>
-        <MovingNumbers />
-        <AiSpark label="מונע AI" />
-      </span>),
-    },
-    {
-      key: "els", icon: "🔠", title: "הצופן התנכי בדילוגי אותיות", dir: "rtl",
-      body: (<span style={{ display: "inline-flex", alignItems: "center", gap: 9, flexWrap: "wrap", justifyContent: "center" }}>
-        <span style={{ color: "#fff", fontWeight: 800 }}>לחפש את הקוד בתנ״ך — עם ניתוח</span>
-        <AiSpark label="AI" />
-        <Countdown target={ELS_TARGET} />
-      </span>),
-    },
-  ];
-  // 🌍 שקופית-אנגלית בסבב — רק למבקר דובר-אנגלית/ארה״ב (או תצוגה-מקדימה ?enbar=1)
-  if (en) promos.push({
-    key: "en", icon: "🌍", title: "SOD 1820 in English", dir: "ltr", noSoon: true,
-    body: (<span style={{ color: "#fff", fontWeight: 800 }}>Coming soon — the full site in English. <b style={{ color: "#ffe9a8" }}>Stay tuned!</b></span>),
-  });
-  return promos;
-}
+// כל טיזר עם פלטת-צבע לפי המהות שלו (שחר-זהב · חיים-ירוק · צופן-סגול · גלובלי-כחול).
+const TEASERS = [
+  { key: "axis", icon: "🌅", title: "ציר ההתגלות", tag: "הזמן מקבל צורה", dir: "rtl",
+    bg: "linear-gradient(90deg,#2a1405,#7a3d0e 42%,#e8862a 66%,#7a3d0e)", accent: "#ffd27a" },
+  { key: "roots", icon: "🧬", title: "מסע השורשים", tag: "הסיפור שלך מתחיל הרבה לפניך", dir: "rtl",
+    bg: "linear-gradient(90deg,#03211a,#064e3b 42%,#0d9488 66%,#064e3b)", accent: "#86efac" },
+  { key: "cipher", icon: "🔠", title: "הצופן", tag: "מה מסתתר בין האותיות?", dir: "rtl",
+    bg: "linear-gradient(90deg,#170a2b,#4c1d95 45%,#7c3aed 66%,#4c1d95)", accent: "#c4b5fd" },
+];
+const EN_TEASER = { key: "en", icon: "🌍", title: "SOD 1820 in English", tag: "Coming soon — the full experience", dir: "ltr",
+  bg: "linear-gradient(90deg,#07234f,#1e40af 45%,#3b82f6 66%,#1e40af)", accent: "#93c5fd" };
 
 export default function PromoTicker() {
-  const [show, setShow] = useState(false);
   const [en, setEn] = useState(false);
-  const PROMOS = useMemo(() => buildPromos(en), [en]);
-  const start = useMemo(() => Math.floor(Math.random() * 3), []);   // «מתחלף כל פעם» — התחלה אקראית (3 פרומואי-ליבה)
+  const promos = useMemo(() => (en ? [...TEASERS, EN_TEASER] : TEASERS), [en]);
+  const start = useMemo(() => Math.floor(Math.random() * TEASERS.length), []);
   const [idx, setIdx] = useState(start);
   const [fade, setFade] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    let dismissed = false;
-    try { dismissed = localStorage.getItem(DISMISS_KEY) === "1"; } catch { /* ignore */ }
-    setShow(!dismissed);
-    let force = false;
-    try { force = /[?&]enbar=1\b/.test(window.location.search); } catch { /* ignore */ }
-    setEn(force || isEnglishOrUS());
+    let f = false;
+    try { f = /[?&]enbar=1\b/.test(window.location.search); } catch { /* ignore */ }
+    setEn(f || isEnglishOrUS());
   }, []);
 
   useEffect(() => {
-    if (!show) return;
     const t = setInterval(() => {
       setFade(false);
-      setTimeout(() => { setIdx(i => (i + 1) % PROMOS.length); setFade(true); }, 260);
+      setTimeout(() => { setIdx(i => (i + 1) % promos.length); setFade(true); }, 260);
     }, ROTATE_MS);
     return () => clearInterval(t);
-  }, [show, PROMOS.length]);
+  }, [promos.length]);
 
-  if (!show) return null;
-  const p = PROMOS[idx % PROMOS.length];
-  const dismiss = (e) => { e.preventDefault(); e.stopPropagation(); try { localStorage.setItem(DISMISS_KEY, "1"); } catch { /* ignore */ } setShow(false); };
+  const p = promos[idx % promos.length];
+  const isEn = p.dir === "ltr";
 
   return (
-    <div className="promo-ticker" dir={p.dir} role="region" aria-label="בקרוב באתר"
-      style={{
-        position: "relative", minHeight: 52, display: "flex", alignItems: "center", justifyContent: "center",
-        gap: 12, padding: "8px 48px", overflow: "hidden", maxWidth: "100%", boxSizing: "border-box",
-        background: "linear-gradient(90deg,#140a2c,#3a1f66 42%,#6d4bb0 66%,#3a1f66)",
-        borderBottom: "2px solid #e8c84a", boxShadow: "0 2px 14px rgba(0,0,0,.35)",
-      }}>
-      <style>{`
-        @keyframes promo-shine{0%{transform:translateX(120%)}100%{transform:translateX(-220%)}}
-        @keyframes promo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-        @keyframes promo-marq{0%{transform:translateX(0)}100%{transform:translateX(50%)}}
-        @keyframes promo-ai{0%{background-position:0% 0}100%{background-position:200% 0}}
-        @keyframes promo-dna{0%,100%{opacity:.25}50%{opacity:1}}
-        @keyframes promo-nums{0%{transform:translateY(0)}100%{transform:translateY(-176px)}}
-        /* 📱 מובייל — למנוע «אותיות שבורחות»: פחות ריפוד, פונט קטן יותר, רוחב-מקסימום, וגלישה-לשורה. */
-        @media (max-width:600px){
-          .promo-ticker{padding:7px 32px !important;min-height:46px !important;gap:7px !important;}
-          .promo-ticker .pt-body{font-size:12.5px !important;gap:6px !important;max-width:100% !important;}
-          .promo-ticker .pt-title{font-size:13.5px !important;}
-          .promo-ticker .pt-icon{font-size:15px !important;}
-          .promo-ticker .pt-marq{max-width:62vw !important;}
-          .promo-ticker .pt-sep{display:none !important;}
-        }
-      `}</style>
-      {/* ברק נע — תחושת טיקר חי */}
-      <span aria-hidden style={{ position: "absolute", top: 0, bottom: 0, width: "26%", background: "linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent)", animation: "promo-shine 5s ease-in-out infinite", pointerEvents: "none" }} />
+    <>
+      <button onClick={() => setOpen(true)} dir={p.dir} aria-label={isEn ? "Preview what's coming" : "הצצה למה שעומד לבוא"}
+        className="promo-teaser"
+        style={{
+          width: "100%", border: "none", cursor: "pointer", position: "relative",
+          minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center",
+          gap: 12, padding: "8px 20px", overflow: "hidden",
+          background: p.bg, borderBottom: `2px solid ${p.accent}`, boxShadow: "0 2px 14px rgba(0,0,0,.35)",
+          transition: "background .55s ease, border-color .55s ease",
+        }}>
+        <style>{`
+          @keyframes pt-sheen{0%{transform:translateX(120%)}100%{transform:translateX(-220%)}}
+          @keyframes pt-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+          @keyframes pt-nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(-4px)}}
+          @media (max-width:600px){
+            .promo-teaser{padding:7px 14px !important;min-height:48px !important;gap:8px !important;}
+            .promo-teaser .pt-title{font-size:15px !important;}
+            .promo-teaser .pt-tag{font-size:12px !important;}
+            .promo-teaser .pt-cue{display:none !important;}
+            .promo-teaser .pt-ico{font-size:19px !important;}
+          }
+        `}</style>
+        {/* ברק נע */}
+        <span aria-hidden style={{ position: "absolute", top: 0, bottom: 0, width: "26%", background: "linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent)", animation: "pt-sheen 5s ease-in-out infinite", pointerEvents: "none" }} />
 
-      {/* תג «בקרוב» — אנגלית מציגה NEW */}
-      <span style={{ flex: "0 0 auto", background: "#e8c84a", color: "#241247", fontFamily: "sans-serif", fontWeight: 900, fontSize: 12, letterSpacing: 1, padding: "3px 11px", borderRadius: 999, animation: "promo-pulse 2.2s ease-in-out infinite" }}>
-        {p.noSoon ? (p.key === "en" ? "NEW" : "✦") : "בקרוב"}
-      </span>
+        {/* תג «בקרוב» */}
+        <span style={{ flex: "0 0 auto", background: p.accent, color: "#1a1030", fontFamily: "sans-serif", fontWeight: 900, fontSize: 11.5, letterSpacing: 1, padding: "3px 10px", borderRadius: 999, animation: "pt-pulse 2.4s ease-in-out infinite" }}>
+          {isEn ? "SOON" : "בקרוב"}
+        </span>
 
-      {/* התוכן המתחלף */}
-      <div className="pt-body" style={{ display: "inline-flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center", textAlign: "center", maxWidth: "100%", minWidth: 0, opacity: fade ? 1 : 0, transition: "opacity .26s ease", color: "#f0e6cf", fontFamily: "sans-serif", fontSize: 15.5, lineHeight: 1.3 }}>
-        <span className="pt-icon" aria-hidden style={{ fontSize: 20 }}>{p.icon}</span>
-        <b className="pt-title" style={{ color: "#ffe9a8", fontWeight: 900, fontSize: 16.5 }}>{p.title}</b>
-        <span className="pt-sep" style={{ opacity: .55 }}>·</span>
-        <span style={{ maxWidth: "100%", minWidth: 0 }}>{p.body}</span>
-      </div>
+        {/* תוכן הטיזר המתחלף */}
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, opacity: fade ? 1 : 0, transition: "opacity .26s ease", textAlign: "center", justifyContent: "center", flexWrap: "wrap" }}>
+          <span className="pt-ico" aria-hidden style={{ fontSize: 22, filter: `drop-shadow(0 0 10px ${p.accent}88)` }}>{p.icon}</span>
+          <b className="pt-title" style={{ color: "#fff", fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 900, fontSize: 17.5 }}>{p.title}</b>
+          <span aria-hidden style={{ color: p.accent, opacity: .8 }}>—</span>
+          <span className="pt-tag" style={{ color: p.accent, fontFamily: "sans-serif", fontWeight: 700, fontSize: 14.5 }}>{p.tag}</span>
+        </span>
 
-      {/* נקודות-מצב */}
-      <span aria-hidden style={{ position: "absolute", insetInlineStart: 12, bottom: 5, display: "inline-flex", gap: 4 }}>
-        {PROMOS.map((_, i) => (
-          <span key={i} style={{ width: i === (idx % PROMOS.length) ? 14 : 6, height: 4, borderRadius: 999, background: i === (idx % PROMOS.length) ? "#e8c84a" : "rgba(255,255,255,.3)", transition: "all .25s" }} />
-        ))}
-      </span>
+        {/* קריאה-ללחיצה */}
+        <span className="pt-cue" style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 6, color: "#fff", fontFamily: "sans-serif", fontWeight: 800, fontSize: 13, opacity: .95 }}>
+          <span style={{ animation: "pt-nudge 1.6s ease-in-out infinite" }}>{isEn ? "Peek →" : "← הצצה"}</span>
+        </span>
 
-      <button onClick={dismiss} aria-label="סגירה"
-        style={{ position: "absolute", insetInlineEnd: 10, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,.16)", border: "none", color: "#fff", cursor: "pointer", width: 26, height: 26, borderRadius: "50%", fontSize: 15, lineHeight: 1, display: "grid", placeItems: "center" }}>×</button>
-    </div>
+        {/* נקודות-מצב */}
+        <span aria-hidden style={{ position: "absolute", insetInlineStart: 12, bottom: 5, display: "inline-flex", gap: 4 }}>
+          {promos.map((_, i) => (
+            <span key={i} style={{ width: i === (idx % promos.length) ? 15 : 6, height: 4, borderRadius: 999, background: i === (idx % promos.length) ? p.accent : "rgba(255,255,255,.35)", transition: "all .25s" }} />
+          ))}
+        </span>
+      </button>
+
+      <ComingSoonModal open={open} onClose={() => setOpen(false)} />
+    </>
   );
 }

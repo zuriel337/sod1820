@@ -4,6 +4,7 @@ import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
 import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import { ensureVideoThumbs } from "../lib/videoThumb.js";
+import { timeAgoHe } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
 import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
@@ -36,10 +37,11 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
 
   if (!rows || !rows.length) return null;
   const fresh = rows.filter(r => r.created_at && r.created_at > cut);
-  // ⛔ לא נעלם אחרי צפייה (בקשת צוריאל 15.8.2026): הצ'יפ נשאר נגיש תמיד; ה«חדש» האדום
-  //   + המונה דולקים רק כשיש טרי מאז הביקור, אחרת מצב רגוע «אור הגאולה · סטורי».
-  const hasNew = fresh.length > 0;
-  const newest = fresh[0] || rows[0];
+  // 🔵 חריג הבית (בקשת צוריאל 15.8.2026): הצ'יפ שמעל «עדכונים אחרונים» הוא מצביע-התראה —
+  //   אחרי שלחצו, הסטורי שנצפה נעלם *מכאן* (לא יופיע שוב מעל העדכונים). רשימת-הסטורים למטה
+  //   (HomeOrGeulaRail/רצועות) נשארת קבועה תמיד. לכן: אין חדש → אין צ'יפ.
+  if (!fresh.length) return null;
+  const newest = fresh[0];
   const thumb = newest.thumb_url || (!isVideo(newest.image_url) ? newest.image_url : null);
   const dark = P.mode !== "light";
 
@@ -93,18 +95,16 @@ export default function OrGeulaStoryChip({ scrollTargetId = null }) {
         {/* טקסט */}
         <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>
-            {hasNew && (
-              <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0 }}>
-                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#e0556a" }} />
-                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#e0556a", animation: "ogc-ping 1.9s ease-out infinite" }} />
-              </span>
-            )}
-            {hasNew ? "סטורי חדש · אור הגאולה" : "אור הגאולה · סטורי"}
+            <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0 }}>
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#e0556a" }} />
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#e0556a", animation: "ogc-ping 1.9s ease-out infinite" }} />
+            </span>
+            סטורי חדש · אור הגאולה
           </span>
-          <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>הקישו לצפייה במסך מלא ←</span>
+          <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12 }}>🕒 עלה {timeAgoHe(newest.created_at)} · הקישו לצפייה ←</span>
         </span>
-        {/* מונה — רק כשיש חדש */}
-        {hasNew && fresh.length > 1 && (
+        {/* מונה */}
+        {fresh.length > 1 && (
           <span style={{ flexShrink: 0, background: "#e0556a", color: "#fff", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5, borderRadius: 999, padding: "3px 10px" }}>{fresh.length} חדשים</span>
         )}
       </button>
