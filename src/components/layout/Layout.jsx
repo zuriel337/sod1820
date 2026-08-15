@@ -13,7 +13,7 @@ import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על �
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
 import MaintenanceTicker from "./MaintenanceTicker.jsx"; // 🚧 רצועת «האתר בבנייה» — שורה זזה גלובלית
 import CelestialPinnedBar from "./CelestialPinnedBar.jsx"; // 🌌 שורה נעוצה גלובלית — «שלושה דברים שמימיים בערב ראש חודש אלול»
-import EnglishSoonBar from "./EnglishSoonBar.jsx"; // 🌍 טיקר-אנגלית עבה — רק לדוברי אנגלית/ארה״ב
+import PromoTicker from "./PromoTicker.jsx"; // 🎗️ טיקר יחיד מתחלף «בקרוב» (ציר ההתגלות · ציר אישי · דילוגי-אותיות · תשפ״ו · English) — מחליף את כל הטיקרים הישנים
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -61,10 +61,14 @@ export default function Layout() {
       {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
-        {/* 🌍 טיקר-אנגלית עבה — מוצג רק לדוברי אנגלית / מבקרים מארה״ב: «בקרוב האתר יהיה באנגלית». */}
-        <EnglishSoonBar />
-        {/* 🌌 שורה נעוצה גלובלית — עדכון שמימי לערב ראש חודש אלול. בכל האתר, מפנה לפוסט הקנוני. */}
-        <CelestialPinnedBar />
+        {/* 🎗️ טיקר יחיד מתחלף «בקרוב» — סרגל אחד גלובלי שמחליף כל 7ש׳ בין הפרומואים:
+            🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי ·
+            🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
+            🌍 English (רק לדוברי-אנגלית, בסבב). מחליף את כל הטיקרים הישנים —
+            EnglishSoonBar + YearTicker + CelestialPinnedBar + CipherElulBanner (מושבתים). */}
+        <PromoTicker />
+        {/* 🌌 שורה נעוצה גלובלית — הושבתה לטובת טיקר-הפרומו (בקשת צוריאל 15.8.2026). להחזרה: הסר את false. */}
+        {false && <CelestialPinnedBar />}
         {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
         {false && <MaintenanceTicker />}
         {/* 🌌 באנר-העל הקוסמי הישן (פסוק + נגן-רקע) — הוחלף בבאנר המתחלף (המלך בשדה ↔ צופן).
@@ -75,7 +79,7 @@ export default function Layout() {
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
             מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
-        {!isHome && !isHeichal && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
+        {false && !isHome && !isHeichal && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
         <main>
           <ErrorBoundary routeKey={pathname}>
             <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: dark ? "#9a8a66" : P.ink, fontFamily: F.body }}>

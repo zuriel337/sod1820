@@ -42,7 +42,7 @@ import HomeForumTile from "../components/HomeForumTile.jsx";
 import LatestUpdatesRail from "../components/LatestUpdatesRail.jsx";
 import DimensionFiveRail from "../components/DimensionFiveRail.jsx";
 import DimensionFiveCloud from "../components/DimensionFiveCloud.jsx";
-import YearTicker from "../components/YearTicker.jsx";
+// YearTicker הוסר — שנת תשפ״ו קופלה לתוך טיקר-הפרומו היחיד ב-Layout (PromoTicker).
 import HomeWritersRail from "../components/HomeWritersRail.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
@@ -285,7 +285,7 @@ export default function HomeNewPage() {
 
   return (
     <div ref={homeRef} style={{ direction: "rtl", minHeight: "100vh", background: rootBg, color: P.ink }}>
-      <YearTicker />
+      {/* 🎞️ YearTicker (שנת תשפ״ו) הוסר — קופל לתוך טיקר-הפרומו היחיד ב-Layout (בקשת צוריאל 15.8.2026: «רק טיקר אחד, מתחלף»). */}
       <style>{`
         .hn-wrap { max-width: 1180px; margin: 0 auto; padding: 0 18px; }
         /* ✨ אנימציית-כניסה עדינה בגלילה */

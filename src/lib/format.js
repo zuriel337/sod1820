@@ -54,13 +54,15 @@ export function formatDateWP(isoDate) {
   return `${dd}/${mm}/${yyyy}, ${hh}:${mi}`;
 }
 
-// "לפני X דקות/שעות/ימים" — זמן יחסי בעברית. ישן מ-7 ימים → תאריך מלא.
+// "לפני X דקות/שעות/ימים/שבועות/חודשים/שנים" — זמן יחסי בעברית, תמיד יחסי («יותר יפה»,
+// בקשת צוריאל 15.8.2026: בכל האתר להציג «לפני כמה זמן» במקום תאריך). בלי נפילה-לתאריך.
+// למי שעדיין צריך תאריך מלא (SEO/סכמה/ארכיון) — יש formatDateHe/formatDateWP.
 export function timeAgoHe(dateStr) {
   if (!dateStr) return "";
   const then = new Date(dateStr).getTime();
   if (Number.isNaN(then)) return formatDateHe(dateStr);
   const sec = Math.max(0, Math.floor((Date.now() - then) / 1000));
-  if (sec < 60) return "לפני דקה";
+  if (sec < 60) return "לפני רגע";
   const min = Math.floor(sec / 60);
   if (min === 1) return "לפני דקה";
   if (min < 60) return `לפני ${min} דקות`;
@@ -70,7 +72,15 @@ export function timeAgoHe(dateStr) {
   const day = Math.floor(hr / 24);
   if (day === 1) return "אתמול";
   if (day < 7) return `לפני ${day} ימים`;
-  return formatDateHe(dateStr);
+  const week = Math.floor(day / 7);
+  if (week === 1) return "לפני שבוע";
+  if (day < 30) return `לפני ${week} שבועות`;
+  const month = Math.floor(day / 30);
+  if (month === 1) return "לפני חודש";
+  if (month < 12) return `לפני ${month} חודשים`;
+  const year = Math.floor(day / 365);
+  if (year === 1) return "לפני שנה";
+  return `לפני ${year} שנים`;
 }
 
 // 🎬 מזהה-וידאו יוטיוב מתוך טקסט חופשי (youtu.be/ID · watch?v=ID · embed/ID · shorts/ID).

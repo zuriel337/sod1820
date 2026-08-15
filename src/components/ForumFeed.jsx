@@ -35,7 +35,9 @@ function timeAgo(ts) {
     if (s < 3600) return `לפני ${Math.max(1, Math.floor(s / 60))} דק׳`;
     if (s < 86400) return `לפני ${Math.floor(s / 3600)} שע׳`;
     if (s < 604800) return `לפני ${Math.floor(s / 86400)} ימים`;
-    return new Date(ts).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
+    if (s < 2592000) return `לפני ${Math.max(1, Math.floor(s / 604800))} שבועות`;
+    if (s < 31536000) return `לפני ${Math.max(1, Math.floor(s / 2592000))} חודשים`;
+    return `לפני ${Math.floor(s / 31536000)} שנים`;
   } catch { return ""; }
 }
 
@@ -277,7 +279,7 @@ function CipherCard({ c, P }) {
         </div>
       </Link>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 11 }}>
-        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נמצא על ידי <b style={{ color: P.accentText }}>{c.author_name || "גולש"}</b>{c.ts ? ` · 🕐 ${formatDateHe(c.ts)}` : ""}</span>
+        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>✍️ נמצא על ידי <b style={{ color: P.accentText }}>{c.author_name || "גולש"}</b>{c.ts ? ` · 🕐 ${timeAgo(c.ts)}` : ""}</span>
         <Link to={to} style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>🔍 לצופן ולמחקר ←</Link>
       </div>
     </div>
