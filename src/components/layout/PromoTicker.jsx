@@ -18,7 +18,7 @@ function isEnglishOrUS() {
 
 // כל טיזר עם פלטת-צבע לפי המהות שלו (שחר-זהב · חיים-ירוק · צופן-סגול · גלובלי-כחול).
 const TEASERS = [
-  { key: "axis", icon: "🌅", title: "ציר ההתגלות", tag: "הזמן מקבל צורה", dir: "rtl",
+  { key: "axis", icon: "🌌", title: "מרחבי הזמן", tag: "מסע חדש דרך אלפי שנים, אירועים וגילויים", dir: "rtl",
     bg: "linear-gradient(90deg,#2a1405,#7a3d0e 42%,#e8862a 66%,#7a3d0e)", accent: "#ffd27a" },
   { key: "roots", icon: "🧬", title: "מסע השורשים", tag: "הסיפור שלך מתחיל הרבה לפניך", dir: "rtl",
     bg: "linear-gradient(90deg,#03211a,#064e3b 42%,#0d9488 66%,#064e3b)", accent: "#86efac" },
