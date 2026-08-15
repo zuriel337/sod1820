@@ -27,6 +27,27 @@ function urlTag({ loc, lastmod, changefreq, priority }) {
   ].filter(Boolean).join('\n');
 }
 
+// 🎬 Video Sitemap (video:video) — כל סרטון של אור-הגאולה = תוצאת-וידאו בגוגל.
+const VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
+const cleanCap = t => { const s = String(t || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); return (s && s !== '📷 עדכון' && s !== '🎬 עדכון וידאו') ? s : ''; };
+function videoUrlTag(v) {
+  const title = cleanCap(v.text).slice(0, 100) || 'אור הגאולה — סרטון';
+  const desc = cleanCap(v.text).slice(0, 2048) || title;
+  let pub; try { pub = v.created_at ? new Date(v.created_at).toISOString() : undefined; } catch { pub = undefined; }
+  return [
+    '  <url>',
+    `    <loc>${esc(SITE + '/or-geula?v=' + v.id)}</loc>`,
+    '    <video:video>',
+    `      <video:thumbnail_loc>${esc(v.thumb_url)}</video:thumbnail_loc>`,
+    `      <video:title>${esc(title)}</video:title>`,
+    `      <video:description>${esc(desc)}</video:description>`,
+    `      <video:content_loc>${esc(v.image_url)}</video:content_loc>`,
+    pub ? `      <video:publication_date>${pub}</video:publication_date>` : '',
+    '    </video:video>',
+    '  </url>',
+  ].filter(Boolean).join('\n');
+}
+
 // עמודי-על קנוניים (מקבילים ל-scripts/gen-sitemap.mjs)
 const STATIC = [
   { loc: '/',             priority: '1.0', changefreq: 'daily'   },
@@ -147,13 +168,21 @@ export default async function handler(req, res) {
     }
   } catch (e) { /* ממשיכים גם בלי דפי-כתבים */ }
 
+  // ── סרטוני אור-הגאולה → Video Sitemap (video:video) ──
+  let videoUrls = [];
+  try {
+    const rows = await fetchAll('channel_updates?select=id,text,image_url,thumb_url,created_at&channel=eq.or-geula&image_url=not.is.null&order=created_at.desc');
+    videoUrls = rows.filter(r => r.image_url && VIDEO_RE.test(r.image_url) && r.thumb_url);
+  } catch (e) { /* ממשיכים גם בלי סרטונים */ }
+
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">',
     urls.map(urlTag).join('\n'),
+    videoUrls.map(videoUrlTag).join('\n'),
     '</urlset>',
     '',
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   // נשמר בקאש שעה בדפדפן / 6 שעות ב-CDN — טרי מספיק, וזול על המכסה.

@@ -123,6 +123,11 @@ function cleanDesc(raw = '', max = 160) {
   return s.replace(/[\s,.;:–-]+$/, '') + '…';
 }
 
+// 🎬 og:video — סוג המדיה לפי סיומת (לתצוגה מתנגנת ברשתות שתומכות)
+const ogVideoType = (u = '') => /\.webm/i.test(u) ? 'video/webm' : /\.mov/i.test(u) ? 'video/quicktime' : /\.m4v/i.test(u) ? 'video/x-m4v' : 'video/mp4';
+// uploadDate ל-VideoObject — ISO 8601 עם אזור-זמן (created_at מ-REST כבר תקין; date-only → חצות UTC)
+const vidUploadIso = (s) => { s = String(s || ''); return /^\d{4}-\d{2}-\d{2}T/.test(s) ? s : (/^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) + 'T00:00:00+00:00' : undefined); };
+
 export default async function handler(req, res) {
   let path = String((req.query && req.query.path) || '/').split('?')[0];
   if (!path.startsWith('/')) path = '/' + path;
@@ -133,6 +138,7 @@ export default async function handler(req, res) {
   let type = 'website';
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let forumThread = null;  // פתיל-פורום (research_contributions) — ל-DiscussionForumPosting
+  let orgeulaVid = null;   // 🎬 סרטון אור-הגאולה ספציפי (?v=) — ל-VideoObject + og:video
   const canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
@@ -209,18 +215,20 @@ export default async function handler(req, res) {
     // 🎬 סרטון ספציפי מאור-הגאולה (deep-link ?v=) — תמונת-התצוגה שלו כ-OG.
     // כך קישור-משותף מציג את פריים-הסרטון → מושך לחיצה חזרה *אל האתר* (לא מפיץ את הקובץ).
     try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/channel_updates?id=eq.${encodeURIComponent(vParam)}&select=text,image_url,thumb_url&limit=1`, { headers: ogHeaders });
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/channel_updates?id=eq.${encodeURIComponent(vParam)}&select=text,image_url,thumb_url,created_at&limit=1`, { headers: ogHeaders });
       const rows = await r.json();
       const c = Array.isArray(rows) && rows[0];
       if (c) {
         const isVid = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i.test(c.image_url || '');
         const img = c.thumb_url || (!isVid ? c.image_url : null);
         if (img) image = waSafeImage(img);
+        else if (STATIC['/or-geula'].card) image = cardUrl(STATIC['/or-geula'].card);   // אין thumb → כרטיס אור-הגאולה הממותג (לא כרטיס-הבית)
         let t = stripHtml(c.text || '').trim();
         if (t === '🎬 עדכון וידאו' || t === '📷 עדכון') t = '';   // כיתובי-ברירת-מחדל → לא ככותרת
         title = (t ? t.slice(0, 70) : 'אור הגאולה — סרטון') + ' · ' + SITE_NAME;
         desc = cleanDesc(t || STATIC['/or-geula'].desc, 180) || DEFAULT_DESC;
         type = 'video.other';
+        if (isVid) orgeulaVid = { contentUrl: c.image_url, thumb: c.thumb_url || (waSafeImage(image)), name: (t ? t.slice(0, 110) : 'אור הגאולה — סרטון'), desc, uploadDate: c.created_at };
       } else {
         title = STATIC['/or-geula'].title; desc = STATIC['/or-geula'].desc;
         if (STATIC['/or-geula'].card) image = cardUrl(STATIC['/or-geula'].card);
@@ -430,6 +438,21 @@ export default async function handler(req, res) {
     if (forumThread.created_at) { ld.datePublished = forumThread.created_at; ld.dateModified = forumThread.created_at; }
     if (image) ld.image = [image];
     jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  } else if (orgeulaVid) {
+    // 🎬 VideoObject — סרטון אור-הגאולה ספציפי (?v=) → תוצאת-וידאו בגוגל גם ל-crawler שלא מריץ JS.
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'VideoObject',
+      name: orgeulaVid.name,
+      description: orgeulaVid.desc,
+      thumbnailUrl: orgeulaVid.thumb ? [orgeulaVid.thumb] : undefined,
+      uploadDate: vidUploadIso(orgeulaVid.uploadDate),
+      contentUrl: orgeulaVid.contentUrl,
+      url: `${SITE}/or-geula?v=${encodeURIComponent(vParam)}`,
+      inLanguage: 'he-IL',
+      publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
+    };
+    jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
   }
 
   const html = `<!doctype html>
@@ -449,6 +472,7 @@ export default async function handler(req, res) {
 <meta property="og:image:secure_url" content="${esc(image)}"/>
 <meta property="og:image:type" content="${imgType}"/>
 ${imgDims ? `<meta property="og:image:width" content="${imgDims.w}"/><meta property="og:image:height" content="${imgDims.h}"/>` : ''}
+${orgeulaVid ? `<meta property="og:video" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:secure_url" content="${esc(orgeulaVid.contentUrl)}"/><meta property="og:video:type" content="${ogVideoType(orgeulaVid.contentUrl)}"/>` : ''}
 ${articleMeta}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="${esc(title)}"/>
