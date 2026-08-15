@@ -30,7 +30,7 @@ const EN_TEASER = { key: "en", icon: "🌍", title: "SOD 1820 in English", tag: 
 
 // rotate=false → הטיזר לא מתחלף (סלייד אחד, עדיין לחיץ) — למניעת עומס-תנועה בעמודים
 // שבהם כבר יש באנר מונפש (פוסטים/צ'אט עם CipherElulBanner). בקשת צוריאל 15.8.2026 (א+ב).
-export default function PromoTicker({ rotate = true }) {
+export default function PromoTicker({ rotate = true, onOpenChange }) {
   const [en, setEn] = useState(false);
   const promos = useMemo(() => (en ? [...TEASERS, EN_TEASER] : TEASERS), [en]);
   const start = useMemo(() => Math.floor(Math.random() * TEASERS.length), []);
@@ -58,7 +58,7 @@ export default function PromoTicker({ rotate = true }) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} dir={p.dir} aria-label={isEn ? "Preview what's coming" : "הצצה למה שעומד לבוא"}
+      <button onClick={() => { setOpen(true); onOpenChange?.(true); }} dir={p.dir} aria-label={isEn ? "Preview what's coming" : "הצצה למה שעומד לבוא"}
         className="promo-teaser"
         style={{
           width: "100%", border: "none", cursor: "pointer", position: "relative",
@@ -110,7 +110,7 @@ export default function PromoTicker({ rotate = true }) {
         </span>
       </button>
 
-      <ComingSoonModal open={open} onClose={() => setOpen(false)} />
+      <ComingSoonModal open={open} onClose={() => { setOpen(false); onOpenChange?.(false); }} />
     </>
   );
 }

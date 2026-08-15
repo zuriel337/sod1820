@@ -7,7 +7,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
 import VerseBackground from "./VerseBackground.jsx"; // 📜 «כתובת החומה» — זכריה יג,ט חקוק ברקע (כל עמוד חוץ מהבית)
-import CipherElulBanner from "../CipherElulBanner.jsx"; // 🎺📜 באנר מתחלף אלול↔צופן (כל עמוד חוץ מהבית)
+import RotatingTopBanner from "./RotatingTopBanner.jsx"; // 🔁 רצועה מתחלפת (טיזר ↔ צופן/אלול) — פוסטים+צ'אט
 import Navbar from "./Navbar.jsx";
 import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על קוסמי עם פסוק (מתחת לתפריט)
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
@@ -66,8 +66,9 @@ export default function Layout() {
             🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
             🌍 English (רק לדוברי-אנגלית, בסבב). מחליף את כל הטיקרים הישנים —
             EnglishSoonBar + YearTicker + CelestialPinnedBar + CipherElulBanner (מושבתים). */}
-        {/* בפוסטים+צ'אט (showBanner) הטיזר סטטי — כי שם חוזר באנר-הצופן המונפש למטה (א+ב, מניעת עומס-תנועה). */}
-        <PromoTicker rotate={!showBanner} />
+        {/* בפוסטים+צ'אט: רצועה אחת מתחלפת «או טיזר או צופן» (RotatingTopBanner) — לא שניהם ביחד.
+            בשאר האתר: טיזר-הפרומו הרגיל שמתחלף בין הטיזרים. (בקשת צוריאל 15.8.2026) */}
+        {showBanner ? <RotatingTopBanner /> : <PromoTicker />}
         {/* 🌌 שורה נעוצה גלובלית — הושבתה לטובת טיקר-הפרומו (בקשת צוריאל 15.8.2026). להחזרה: הסר את false. */}
         {false && <CelestialPinnedBar />}
         {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
@@ -80,9 +81,7 @@ export default function Layout() {
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
             מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
-        {/* 🎺📜 באנר הצופן/אלול חזר — רק בפוסטים + צ'אט (showBanner). הטיזר למעלה סטטי שם כדי
-            שלא יהיו שתי רצועות זזות ביחד (בקשת צוריאל 15.8.2026, א+ב). */}
-        {showBanner && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
+        {/* באנר הצופן/אלול משולב עכשיו בתוך RotatingTopBanner למעלה (מתחלף עם הטיזר) — לא מוצג כאן בנפרד. */}
         <main>
           <ErrorBoundary routeKey={pathname}>
             <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: dark ? "#9a8a66" : P.ink, fontFamily: F.body }}>
