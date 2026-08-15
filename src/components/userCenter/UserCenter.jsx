@@ -1050,7 +1050,7 @@ function MyInfoPanel({ T }) {
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <button onClick={save} disabled={busy || !loaded} style={{ background: T.acc, color: "#fff", border: "none", borderRadius: 10, padding: "10px 18px", fontWeight: 800, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit", opacity: (busy || !loaded) ? .6 : 1 }}>{busy ? "שומר…" : "שמור"}</button>
-          {name.trim() && <button onClick={() => { close(); nav(`/name-lab?w=${encodeURIComponent(name.trim())}${bdate ? `&bd=${encodeURIComponent(bdate)}` : ""}`); }} style={{ background: "none", border: `1px solid ${T.line}`, color: T.ink, borderRadius: 10, padding: "10px 16px", fontFamily: "inherit", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>{bdate ? "🔮 נתח את השם והתאריך שלי →" : "🔮 נתח את השם שלי →"}</button>}
+          {name.trim() && <button onClick={() => { close(); nav(`/name-lab?w=${encodeURIComponent(name.trim())}`, bdate ? { state: { bd: bdate } } : undefined); }} style={{ background: "none", border: `1px solid ${T.line}`, color: T.ink, borderRadius: 10, padding: "10px 16px", fontFamily: "inherit", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>{bdate ? "🔮 נתח את השם והתאריך שלי →" : "🔮 נתח את השם שלי →"}</button>}
         </div>
         {note && <div style={{ color: T.ink, fontSize: 13, fontWeight: 700 }}>{note}</div>}
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, useLocation, Link } from "react-router-dom";
 import { METHODS, DEPTH_METHODS } from "../lib/gematria.js";
 import { englishAll, EN_TAGS, hasLatin } from "../lib/englishGematria.js";
 import { hebrewLatinOptions } from "../lib/translit.js";
@@ -178,11 +178,12 @@ export default function NameLabPage({ embedded = false, full = false }) {
 
   useEffect(() => { document.title = "מעבדת השם · סוד 1820"; }, []);
 
-  // 🎂 deep-link «נתח את השם והתאריך שלי» (UserCenter → הפרטים שלי) — bd=<ISO גרגוריאני מ-profiles.birth_date>
+  // 🎂 deep-link «נתח את השם והתאריך שלי» (UserCenter → הפרטים שלי) — תאריך-הלידה מגיע ב-React-Router
+  //    nav state (location.state.bd), *לא* ב-URL/query — כדי שלא ידלוף ל-Referer/היסטוריה (F1 privacy).
   //    → המרה לתאריך-עברי מאויית (@hebcal · gregToHebrewSpelled) → מוזרם *רק* לנתיב ההצלבה-המורחבת
   //    (birthdate → getNameDossier → fn_cross_research), לא ל-NameMultiSearch. opt-in מפורש: המשתמש לחץ בכפתור.
   //    profiles.birth_date נשאר מקור-האמת; העברי הוא derived-בזמן-ריצה (לא נשמר).
-  const bdParam = sp.get("bd");
+  const bdParam = useLocation().state?.bd;
   useEffect(() => {
     if (embedded || !bdParam) return;
     let live = true;
