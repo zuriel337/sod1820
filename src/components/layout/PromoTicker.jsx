@@ -22,7 +22,7 @@ const TEASERS = [
     bg: "linear-gradient(90deg,#2a1405,#7a3d0e 42%,#e8862a 66%,#7a3d0e)", accent: "#ffd27a" },
   { key: "roots", icon: "🧬", title: "מסע השורשים", tag: "הסיפור שלך מתחיל הרבה לפניך", dir: "rtl",
     bg: "linear-gradient(90deg,#03211a,#064e3b 42%,#0d9488 66%,#064e3b)", accent: "#86efac" },
-  { key: "cipher", icon: "🔠", title: "הצופן", tag: "מה מסתתר בין האותיות?", dir: "rtl",
+  { key: "cipher", icon: "🔠", logo: "/els-logo.png", title: "הצופן התנ״כי — הדור הבא", tag: "חיפוש עמוק יותר · מרחב רחב יותר · מחקר בעזרת AI", dir: "rtl",
     bg: "linear-gradient(90deg,#170a2b,#4c1d95 45%,#7c3aed 66%,#4c1d95)", accent: "#c4b5fd" },
 ];
 const EN_TEASER = { key: "en", icon: "🌍", title: "SOD 1820 in English", tag: "Coming soon — the full experience", dir: "ltr",
@@ -86,7 +86,9 @@ export default function PromoTicker() {
 
         {/* תוכן הטיזר המתחלף */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, opacity: fade ? 1 : 0, transition: "opacity .26s ease", textAlign: "center", justifyContent: "center", flexWrap: "wrap" }}>
-          <span className="pt-ico" aria-hidden style={{ fontSize: 22, filter: `drop-shadow(0 0 10px ${p.accent}88)` }}>{p.icon}</span>
+          {p.logo
+            ? <img className="pt-ico" src={p.logo} alt="" aria-hidden style={{ width: 26, height: 26, borderRadius: 7, objectFit: "cover", flex: "0 0 auto", filter: `drop-shadow(0 0 10px ${p.accent}88)` }} />
+            : <span className="pt-ico" aria-hidden style={{ fontSize: 22, filter: `drop-shadow(0 0 10px ${p.accent}88)` }}>{p.icon}</span>}
           <b className="pt-title" style={{ color: "#fff", fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 900, fontSize: 17.5 }}>{p.title}</b>
           <span aria-hidden style={{ color: p.accent, opacity: .8 }}>—</span>
           <span className="pt-tag" style={{ color: p.accent, fontFamily: "sans-serif", fontWeight: 700, fontSize: 14.5 }}>{p.tag}</span>

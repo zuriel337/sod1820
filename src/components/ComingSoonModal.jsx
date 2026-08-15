@@ -25,7 +25,7 @@ const SECTIONS = [
     ],
   },
   {
-    icon: "🔠", title: "הצופן", tag: "מה מסתתר בין האותיות?",
+    icon: "🔠", logo: "/els-logo.png", title: "הצופן התנ״כי — הדור הבא", tag: "חיפוש עמוק יותר · מרחב חיפוש רחב יותר · מחקר בעזרת AI",
     accent: "#c4b5fd", glow: "rgba(124,58,237,.45)", grad: "linear-gradient(135deg,#4c1d95,#7c3aed)",
     body: [
       "הצופן הוא לא רק חיפוש של מילה — הוא מרחב מחקר.",
@@ -101,7 +101,9 @@ export default function ComingSoonModal({ open, onClose }) {
               }}>
               <div aria-hidden style={{ position: "absolute", insetInlineEnd: -30, top: -30, width: 120, height: 120, borderRadius: "50%", background: s.grad, opacity: .16, filter: "blur(6px)" }} />
               <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 8 }}>
-                <span style={{ fontSize: 26, filter: `drop-shadow(0 0 10px ${s.glow})` }}>{s.icon}</span>
+                {s.logo
+                  ? <img src={s.logo} alt="" style={{ width: 34, height: 34, borderRadius: 9, objectFit: "cover", flex: "0 0 auto", filter: `drop-shadow(0 0 10px ${s.glow})` }} />
+                  : <span style={{ fontSize: 26, filter: `drop-shadow(0 0 10px ${s.glow})` }}>{s.icon}</span>}
                 <div>
                   <div style={{ color: s.accent, fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 900, fontSize: 19, lineHeight: 1.15 }}>{s.title}</div>
                   <div style={{ color: "#fff", fontWeight: 700, fontSize: 14, opacity: .92 }}>{s.tag}</div>
