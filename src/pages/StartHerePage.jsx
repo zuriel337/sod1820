@@ -25,7 +25,7 @@ const STEPS = [
       { label: "🧮 מחשבון גימטריה", to: "/research?tool=gematria" },
       { label: "🔢 דף המספר", to: "/research?tool=number" },
       { label: "📜 חיפוש בפסוקים", to: "/research?tool=verse" },
-      { label: "🧭 המסע האישי", to: "/research?tool=journey" },
+      { label: "🧭 המסע האישי", to: "/journey" },
     ] },
   { tier: "🫀 הלב", emoji: "🌊", title: "זרם המציאות — תיעוד רמזי הגאולה", badge: "חדש",
     body: "תיעוד חי של רמזי הגאולה כפי שהם מופיעים במציאות: כל רמז חדש שעולה נכנס לזרם — תמונה, מספר דומיננטי ותאריך האירוע. כל מספר מוביל לדף-המספר שלו בגרף.",

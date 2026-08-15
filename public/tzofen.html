@@ -449,6 +449,9 @@
   .crossbanner .cb-main{font-family:var(--serif);font-size:16px;color:var(--ink);font-weight:700;text-align:center;line-height:1.5}
   .crossbanner .cb-main .cb-n{font-size:22px;color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
   .crossbanner .cb-main .cb-t{color:var(--goldBright)}
+  /* 🧭 סימון הציר שנבחר אוטומטית, בתוך זוג-המונחים שהמשתמש הזין */
+  .crossbanner .cb-main .cb-t.cb-axis{text-shadow:0 0 10px rgba(232,200,64,.30)}
+  .crossbanner .cb-main .cb-t.cb-axis i{font-style:normal;font-size:10.5px;font-weight:700;opacity:.85}
   .crossbanner .cb-nav{display:inline-flex;align-items:center;gap:8px}
   .crossbanner .cb-nav button{cursor:pointer;background:var(--panel2);border:1px solid var(--line2);color:var(--goldBright);border-radius:9px;min-width:34px;height:34px;font-weight:800;font-size:18px;padding:0}
   .crossbanner .cb-nav button:disabled{opacity:.4;cursor:default}
@@ -1578,7 +1581,33 @@
   const lenF=L=>Math.min(1.3,0.7+((typeof L==="string"?L.length:L)-2)*0.15);
   const rarF=c=>c<=1?1.4:c<=5?1.2:c<=30?1.05:c<=120?.95:c<=500?.85:.7;       // נדירות בתורה
   const starsFromTq=tq=>tq>=2.6?5:tq>=1.8?4:tq>=1.1?3:tq>=0.5?2:1;
-  const skipsFor=S=>{const a=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)a.push(s);}return a;};
+  // 🔭 מרחב-החיפוש הקנוני של ממצאים סמוכים (els_search_space_law).
+  //    מחזיר את **כל** הדילוגים שהגאומטריה של החלון מאפשרת עבור מונח באורך L — בלי whitelist,
+  //    בלי חורים, בשני הכיוונים (קבוצת-התאים זהה לשני הכיוונים ⇒ החוקיות אינה תלוית-כיוון).
+  //    קודמו (kS±2 · 1..8) כיסה 2%-19% מהמרחב החוקי והסתיר ממצאים אמיתיים בדילוגים 9..38.
+  //    חלון מלא-רוחב (cw>=S) → גלישת-עמודה חופשית ⇒ כל s עד maxS. חלון צר → העמודות הנצפות
+  //    חייבות ליפול ברצועה; זהו חיתוך L קשתות מעגליות שוות-אורך, ולכן די לבדוק את L נקודות-ההתחלה.
+  const _spaceCache=new Map();
+  function searchSpace(geo,L){
+    const S=geo.S,c0=geo.c0,cw=geo.cw,r0=geo.r0,r1=geo.r1;
+    if(!(L>=2)||!(S>=1))return [];
+    const key=S+"|"+c0+"|"+cw+"|"+r0+"|"+r1+"|"+L;
+    const memo=_spaceCache.get(key);if(memo)return memo;
+    const rows=r1-r0+1,maxS=Math.floor(((rows-1)*S+cw-1)/(L-1)),out=[];
+    if(cw>=S){for(let s=1;s<=maxS;s++)out.push(s);}
+    else{const a=new Array(L);
+      for(let s=1;s<=maxS;s++){const o=s%S;
+        for(let k=0;k<L;k++)a[k]=(o*k)%S;
+        let best=-1;
+        for(let ci=0;ci<L;ci++){const u=(S-a[ci])%S;if(u>=cw)continue;
+          let ok=1;for(let k=0;k<L;k++)if((u+a[k])%S>=cw){ok=0;break;}
+          if(!ok)continue;
+          const colEnd=(u+a[L-1])%S,drift=(s*(L-1)-(colEnd-u))/S;
+          if(best<0||drift<best)best=drift;}
+        if(best>=0&&best<=rows-1)out.push(s);}}
+    if(_spaceCache.size>300)_spaceCache.clear();
+    _spaceCache.set(key,out);return out;
+  }
   function crossFindMulti(A,terms,pure,maxOcc,preRes){
     pure=pure||8;maxOcc=maxOcc||150;
     const resA=preRes||faMemo(A),T2=[...new Set(terms.map(norm).filter(t=>t.length>=2))];
@@ -1595,11 +1624,11 @@
       const RH=30,CW=Math.min(S,80),c0=Math.max(0,Math.min(S-CW,mainCol-40)),r0=Math.max(0,mr-RH),r1=mr+RH;
       const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=r0&&r<=r1&&c>=c0&&c<c0+CW;};
       const rc=p=>[Math.floor(p/S),((p%S)+S)%S],anchorCells=ah.positions.map(rc);
-      const skips=skipsFor(S);
+      const _geo={S:S,c0:c0,cw:CW,r0:r0,r1:r1};
       const byChar=new Map();
       for(let r=r0;r<=r1;r++)for(let c=c0;c<c0+CW;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
       const detail=[];let score=0,tq=0;
-      for(const t of T2){const L=t.length,starts=byChar.get(t[0]);if(!starts)continue;let bc=1e9,bsk=0,bdir=1,bs0=-1;
+      for(const t of T2){const L=t.length,starts=byChar.get(t[0]);if(!starts)continue;let bc=1e9,bsk=0,bdir=1,bs0=-1;const skips=searchSpace(_geo,L);
         for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
           for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
           if(!ok)continue;let cc=1e9;for(const p of pos){const a2=rc(p);for(const a of anchorCells){const dc=Math.min(Math.abs(a2[1]-a[1]),S-Math.abs(a2[1]-a[1]));const dd=Math.abs(a2[0]-a[0])+dc;if(dd<cc)cc=dd;}}
@@ -1660,7 +1689,12 @@
       else axis=norm(A)<=norm(B)?A:B;
       const useA=norm(axis)===norm(A),R=useA?r1:r2,other=useA?B:A;
       st.res=R.resA;st.crossMeetings=R.meetings;st.crossIdx=0;st.crossTerms=[other];st.crossTotal=1;st.crossSimple=true;st.crossFree=false;st.crossBridge=false;st.crossB=norm(other);st.raw=axis;
-      q.value=axis;updGem();
+      // 🧾 הפרדה בין *מה שהמשתמש הזין* לבין *מי נבחר כציר*: הציר נבחר אוטומטית (לפי מספר
+      //    אזורי-המפגש), ולכן הוא עלול להיות המונח השני. שומרים את שני המונחים המקוריים
+      //    כפי שהוקלדו, ו**לא דורסים את שדות-הקלט** — אחרת שתי השורות מציגות את אותה מילה.
+      //    st.crossPairA/B כבר קיימים ב-st (שימשו עד כה רק במצב «גשר») — אין state חדש.
+      st.crossPairA=A;st.crossPairB=B;
+      updGem();
       openZone(0);
       const sw=norm(axis)!==norm(A);
       toast("🔀 "+heb(R.meetings.length)+" מפגשים של «"+A+"»+«"+B+"»"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול — ששניהם נכנסים)":""));
@@ -1805,7 +1839,7 @@
     t=norm(t);if(!st.res||!st.res.hits.length||t.length<2)return null;
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,L=t.length,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
+    const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions);let best=null;   // mainSet = תאי-הציר (לפסילת חפיפה טריוויאלית, כמו היפוך על אותן אותיות)
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=N||T[s0]!==t[0])continue;
       for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
@@ -1839,11 +1873,10 @@
     if(!st.res||!st.res.hits.length)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const existing=new Set(st.words.map(w=>w.t)),out=[];
-    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2||existing.has(t))continue;
+    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2||existing.has(t))continue;const skips=searchSpace(b,L);
       const starts=byChar.get(t[0]);if(!starts)continue;let best=null;
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
@@ -1879,7 +1912,7 @@
     const P=pat.split(""),L=P.length;if(L<2||P.filter(c=>c!=="?").length<1)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
+    const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),p0=P[0],out=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=N)continue;if(p0!=="?"&&T[s0]!==p0)continue;
       for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
@@ -2058,11 +2091,10 @@
     if(!st.res||!st.res.hits.length)return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
     const mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
-    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]);if(!starts)continue;
+    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]);if(!starts)continue;const skips=searchSpace(b,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
@@ -2670,16 +2702,13 @@
     const mh=occ();
     // דילוגי-אלכסון: סביב כל כפולה של רוחב-המטריצה (kS±2, k=1..4) → תופס אלכסונים מקבילים בכל שיפוע
     // (כולל «התורה» ב-2S+2, מקביל דליל ל«אמיתית»), וגם שורות/אלכסונים קצרים (1..8).
-    const _sk=[1,2,3,4,5,6,7,8];
-    for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)_sk.push(s);}
-    const skips=[...new Set(_sk)];
     const rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     // ⭐ קרבה נמדדת לאשכול שעל הדף: המילה הראשית + המילים שכבר מוצגות (לא רק לעוגן).
     const baseA=mh.positions.map(rc);
     const mainSet=new Set(mh.positions);   // לפסילת מופע חופף-לעוגן (תת-מחרוזת של המילה הראשית = טריוויאלי)
     st.words.forEach((w,wi)=>{
-      const t=norm(w.t),L=t.length,hits=[],seen=new Set();
+      const t=norm(w.t),L=t.length,hits=[],seen=new Set();const skips=searchSpace(b,L);
       // סורקים רק את החלון הנראה — מילים «רחוקות» (72 עמודות…) לא רלוונטיות
       for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){
         const s0=r*S+c;if(s0<0||s0>=N||T[s0]!==t[0])continue;
@@ -2697,6 +2726,13 @@
       hits.forEach(h=>{h.cost=cost(h);});
       hits.sort((a,b2)=>a.cost-b2.cost);
       w.total=hits.length;w.inwin=hits.length;w.hits=hits.slice(0,30);
+      // 🛡️ תאימות-לאחור: מופע שנשמר במפורש במטריצה קיימת (_savedShown) או שהמשתמש הדליק ידנית
+      //    (extra) חייב להישאר זמין גם אם הרחבת מרחב-החיפוש דחקה אותו מעבר ל-30 הראשונים.
+      //    שימור בלבד — מתווסף בסוף, בלי לשנות סדר/דירוג ובלי לגעת בברירת-המחדל (showN).
+      {const keep=new Set([...(w._savedShown||[]),...(w.extra||[])]);
+       if(keep.size){const inTop=new Set(w.hits.map(hitKey));
+         const pin=hits.filter(h=>{const k=hitKey(h);return keep.has(k)&&!inTop.has(k);});
+         if(pin.length)w.hits=w.hits.concat(pin);}}
       // 🔁 שחזור בחירת-הנראות שנשמרה (פעם אחת אחרי טעינה): מתרגם את רשימת ההופעות-שהוצגו
       //    ל-off/extra מול ברירת-המחדל, כך שהופעה רחוקה שהמשתמש הסתיר לא תחזור בפתיחת הצופן.
       if(w._savedShown){
@@ -2718,12 +2754,11 @@
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>anchors.push(rc(p)))));
     const byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
-    const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const cellCost=(r,c)=>{let m=1e9;for(const a of anchors){const dc=Math.min(Math.abs(c-a[1]),S-Math.abs(c-a[1]));const d=Math.abs(r-a[0])+dc;if(d<m){m=d;if(m===0)return 0;}}return m;};
     const existing=new Set(st.words.map(w=>w.t)),out=[];
     for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2||existing.has(t))continue;
-      const starts=byChar.get(t[0]);if(!starts)continue;let best=null,bestSkip=0;
+      const starts=byChar.get(t[0]);if(!starts)continue;let best=null,bestSkip=0;const skips=searchSpace(b,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){
         const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
@@ -2812,7 +2847,12 @@
     // 🔀 באנר-מפגש בולט מעל התוצאה (מחליף את שבב-המספר הקטן שהיה «לא ברור») — רק במוצלב-פשוט
     if(st.crossSimple&&st.crossMeetings&&st.crossMeetings.length){
       const nM=st.crossMeetings.length,banner=document.createElement("div");banner.className="crossbanner";
-      banner.innerHTML='<span class="cb-main">🔀 נמצאו <span class="cb-n">'+heb(nM)+'</span> מפגשים של <span class="cb-t">«'+st.raw+'»</span> עם <span class="cb-t">«'+st.crossB+'»</span></span>'+
+      // 🧾 מציגים את שני המונחים **כפי שהמשתמש הזין** (st.crossPairA/B), ומסמנים מי נבחר כציר.
+      //    הציר נבחר אוטומטית לפי מספר אזורי-המפגש, ולכן הוא עשוי להיות דווקא המונח השני —
+      //    בלי ההפרדה הזו נראה היה כאילו המשתמש חיפש את אותה מילה פעמיים.
+      const _aN=norm(st.raw||""),_pA=st.crossPairA||st.raw,_pB=st.crossPairB||st.crossB;
+      const _tag=t=>'<span class="cb-t'+(norm(t)===_aN?" cb-axis":"")+'">«'+t+'»'+(norm(t)===_aN?'<i> ◆ ציר</i>':'')+'</span>';
+      banner.innerHTML='<span class="cb-main">🔀 נמצאו <span class="cb-n">'+heb(nM)+'</span> מפגשים של '+_tag(_pA)+' + '+_tag(_pB)+'</span>'+
         (nM>1?'<span class="cb-nav"><button class="cb-prev" title="מפגש קודם">‹</button><span class="cb-pos">מפגש '+(st.crossIdx+1)+' מתוך '+heb(nM)+'</span><button class="cb-next" title="מפגש הבא">›</button></span>':'');
       wrap.appendChild(banner);
       if(nM>1){banner.querySelector(".cb-prev").onclick=()=>openMeeting(st.crossIdx-1);banner.querySelector(".cb-next").onclick=()=>openMeeting(st.crossIdx+1);}
@@ -2932,6 +2972,10 @@
   function clusterStat(r0,r1,c0,cw,S,anchorCol,words,showN){
     const c1=c0+cw,byChar=new Map();
     for(let r=r0;r<=r1;r++)for(let c=c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
+    // ⏸️ מחזור 1B — הצרכן היחיד שנשאר על המרחב הישן, בכוונה ובהמתנה להחלטה.
+    //    clusterStat היא מודל-האפס של מונטה-קרלו ורצה 401 פעם לכל בדיקה (ובתוך זרימת-השמירה).
+    //    מדידה: מעבר ל-searchSpace המלא העלה את runMonteCarlo מ-2ms ל-3,837ms → הקפאת-שמירה.
+    //    לא לאחד את זה בלי פתרון-ביצועים (מחזור 2). ראה work_log 2026-08-15.
     const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=r0&&r<=r1&&c>=c0&&c<c1;};
     const coldist=c=>Math.min(Math.abs(c-anchorCol),S-Math.abs(c-anchorCol));

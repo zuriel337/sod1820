@@ -14,7 +14,6 @@ import { useUserCenter } from "../lib/userCenter/UserCenterContext.jsx";
 // מוסיפים כלי עתידי בשורה אחת ב-TOOLS — בלי לגעת בשלד (registry).
 // cat = רמת הישות (טקסונומיית-ממשק, לא חוק): engine=מנוע · tool=כלי · midrash=לימוד · ai
 export const TOOLS = [
-  { id: "journey", icon: "🧭", cat: "engine", title: "מסע חיפוש", desc: "קלט אחד → כל המנועים יחד (גימטריה · דילוגים · פסוקים · מספרים) → דוח-מחקר אחד. נקודת-הפתיחה.", status: "live" },
   { id: "name", icon: "🪪", cat: "engine", title: "מנוע השמות", desc: "גלה את הערך, מבנה האותיות, הפסוק וההתכנסויות של שמך — או של כל שם יקר.", status: "live" },
   { id: "family", icon: "👨‍👩‍👧", cat: "tool", title: "הקשרים במשפחה", desc: "גלו את ההתכנסויות הנסתרות בין שמות בני המשפחה — עובדה מחושבת, לא ניחוש.", status: "live" },
   { id: "compare", icon: "🔀", cat: "tool", title: "השוואת מילים", desc: "שני ביטויים זה מול זה — היכן הם נפגשים בערך (אותה שיטה = חזק · חוצה-שיטות = עקיף).", status: "live" },

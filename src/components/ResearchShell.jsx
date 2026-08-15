@@ -4,7 +4,6 @@ import { rwCss } from "../lib/research/theme.js";
 import ResearchCenter, { LEFT_TABS } from "./ResearchCenter.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { on, emit, EVENTS } from "../lib/research/eventBus.js";
-import ElsResultsPanel from "./ElsResultsPanel.jsx";
 import ActiveEntityPanel from "./ActiveEntityPanel.jsx";
 import Navbar from "./layout/Navbar.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
@@ -20,7 +19,6 @@ const ICONS = { tools: ["🔧", "🤖"], context: ["👤", "🧠", "📂", "🗺
 
 // ארגז-הכלים ההקשרי של כל מודול (מנועי המחקר). ניתן להרחבה — מודול חדש = שורה.
 const TOOL_ENGINES = {
-  journey: { title: "מסע חיפוש", items: ["גימטריה (ליבה)", "דילוגי אותיות", "פסוקים (פרק:פסוק)", "מאותו ערך במאגר", "מספרים קשורים", "עובדה ⇄ פרשנות", "פתח כל מנוע בנפרד"] },
   els: { title: "דילוגי אותיות", items: ["חיפוש שם", "כמה מונחים יחד", "חיפוש בתוך חיפוש (קרבה)", "כולל קרובים", "מרחקי דילוג", "כיוון", "ספר", "רשימת תוצאות + מיקום", "צפיפות + גרף מרחקים", "מסך מלא"] },
   name: { title: "תורת השם", items: ["20 שיטות", "פסוק לשם", "התכנסויות", "בני משפחה", "כרטיס שיתוף", "ניתוח AI"] },
   midrash: { title: "בית המדרש", items: ["שיטות הצלבה", "מפרשים", "פסוקים קשורים", "גימטריה · מילוי · אתב״ש", "השוואות"] },
@@ -114,10 +112,6 @@ export default function ResearchShell({ children, subnav }) {
     return () => offs.forEach(f => f());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // תוצאות חיות מהכלי הפעיל (כרגע ELS) → מוצגות בקיר הימני (Event Bus)
-  const [elsState, setElsState] = useState(null);
-  useEffect(() => on(EVENTS.ELS_STATE, setElsState), []);
-  useEffect(() => { if (tool !== "els") setElsState(null); }, [tool]);
 
   useEffect(() => { document.title = "ההיכל · סוד 1820"; }, []);
   // המעבדה תמיד «בצבע יום»: כופים בהיר *לפני* שהילדים (הנאב) מתרנדרים — useState-init רץ פעם אחת
@@ -155,7 +149,6 @@ export default function ResearchShell({ children, subnav }) {
       <div className="rw-phead"><span>{rightTitle}</span><button onClick={() => setRightOpen(false)} title="קפל סרגל"><PanelIcon /></button></div>
       {/* 🎯 הישות הפעילה — הפאנל ההקשרי: מציג את הפירוק המלא של מה שהכלי משדר (Event Bus) */}
       <ActiveEntityPanel />
-      {tool === "els" && <ElsResultsPanel state={elsState} onLoad={sv => emit(EVENTS.ELS_LOAD, sv)} />}
       {tool === "midrash" && <MidrashNav />}
       {/* פאנל «מה הכלי יודע» הוסר — חפף עם «❓ איך משתמשים» (ToolGuide). הכלי עצמו + ההדרכה המקופלת מספיקים. */}
       <ResearchCenter variant="tools" />

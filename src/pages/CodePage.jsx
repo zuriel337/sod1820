@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import ElsUpgradePromo from "../components/ElsUpgradePromo.jsx";
 import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
@@ -47,13 +48,14 @@ export default function CodePage() {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
   // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים. מציג את «הצופן התנ״כי» — הכלי העצמאי (public/tzofen.html)
-  // דרך TzofenEmbed. אותו כלי בדיוק משוכפל בהיכל (/research?tool=els). מנוע ה-ElsGrid של הסוכן השני
-  // נשמר בקוד (src/components/ElsGrid.jsx) ולא נמחק — רק הרינדור הקנוני עבר לכלי החדש.
+  // דרך TzofenEmbed. ההיכל (/research?tool=els) מטמיע את **אותו iframe בדיוק** — לא עותק ולא מנוע שני.
+  // מקור-אמת יחיד: tools/els/els-code.template.html → build.py → public/tzofen.html.
   // 🔓 פתוח לכולם — הכלי עצמו אוכף את שער-ההרשמה (לא-רשום: 5 חיפושים רגילים · מוצלב לרשומים).
   //    לסגירה זמנית: `return <CodeClosed />;` (הרכיב נשמר למטה) או ELS_PUBLIC=false + תנאי isAdmin.
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
       <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("term", term); n.delete("q"); return n; })} />
+      <ElsUpgradePromo />
       <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
       {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>

@@ -29,7 +29,5 @@ export const EVENTS = {
   ENTITY_BLUR: "entity:blur",     // הכלי איבד מוקד (עזיבה/איפוס) → הפאנל מתרוקן
   ENTITY_SECTION: "entity:section", // 🧭 הפאנל מבקש מדף-המספר לקפוץ למקטע (words/dna/galleries/posts/roots) → EntityPage גולל
   AI_ANALYZE: "ai:analyze",
-  ELS_STATE: "els:state",   // ElsGrid מפרסם את תוצאותיו → הקיר הימני מציג
-  ELS_LOAD: "els:load",     // הקיר הימני מבקש לטעון חיפוש שמור → ElsGrid מיישם
   MIDRASH_NAV: "midrash:nav", // הקיר הימני מבקש מבית-המדרש לעבור מדור/שיטה → BeitMidrashPage מיישם
 };

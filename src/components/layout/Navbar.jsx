@@ -459,7 +459,6 @@ const LAB_MENU = [
   { e: "🔀", l: "השוואת מילים", to: "/research?tool=compare" },
   { e: "🔠", l: "נוטריקון", to: "/research?tool=notarikon" },
   { e: "📊", l: "ניתוח קובץ", to: "/research?tool=import" },
-  { e: "🧭", l: "מסע חיפוש", to: "/research?tool=journey" },
 ];
 // מזהה-כלי מתוך ה-to (…?tool=xxx) — לאיחוד הנעילה מול isToolReady (מקור-אמת אחד).
 const labToolId = to => (to.match(/tool=([a-z]+)/) || [])[1] || null;
