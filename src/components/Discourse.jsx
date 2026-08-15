@@ -31,7 +31,9 @@ function timeAgo(ts) {
   if (d < 3600) return `לפני ${Math.floor(d / 60)} דק׳`;
   if (d < 86400) return `לפני ${Math.floor(d / 3600)} שע׳`;
   if (d < 604800) return `לפני ${Math.floor(d / 86400)} ימים`;
-  return new Date(t).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
+  if (d < 2592000) return `לפני ${Math.max(1, Math.floor(d / 604800))} שבועות`;
+  if (d < 31536000) return `לפני ${Math.max(1, Math.floor(d / 2592000))} חודשים`;
+  return `לפני ${Math.floor(d / 31536000)} שנים`;
 }
 
 

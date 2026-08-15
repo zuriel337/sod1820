@@ -17,7 +17,9 @@ function fmt(ts) {
     if (diff < 3600) return `לפני ${Math.floor(diff / 60)} דק׳`;
     if (diff < 86400) return `לפני ${Math.floor(diff / 3600)} שע׳`;
     if (diff < 604800) return `לפני ${Math.floor(diff / 86400)} ימים`;
-    return d.toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
+    if (diff < 2592000) return `לפני ${Math.max(1, Math.floor(diff / 604800))} שבועות`;
+    if (diff < 31536000) return `לפני ${Math.max(1, Math.floor(diff / 2592000))} חודשים`;
+    return `לפני ${Math.floor(diff / 31536000)} שנים`;
   } catch { return ""; }
 }
 

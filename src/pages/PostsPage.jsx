@@ -68,8 +68,8 @@ function PostCard({ p, i, view, hot, isAdmin }) {
   const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title = stripHtml(p.title?.rendered ?? "");
   const excerpt = stripHtml(p.excerpt?.rendered ?? "").slice(0, view === "list" ? 200 : 120);
-  const created = shortDate(p.date);
-  const updated = shortDate(p.modified || p.date);
+  const created = timeAgoHe(p.date);            // «לפני כמה זמן» במקום תאריך (בקשת צוריאל)
+  const updated = timeAgoHe(p.modified || p.date);
   const wasUpdated = p.modified && p.modified !== p.date;
   const gem = calcGem(title);
   return (
@@ -89,8 +89,8 @@ function PostCard({ p, i, view, hot, isAdmin }) {
           {excerpt && <div className="pp-excerpt">{excerpt}…</div>}
           <div className="pp-meta">
             <span className="pp-dates" title={`נוצר ${formatDateHe(p.date)} · עודכן ${formatDateHe(p.modified || p.date)}`}>
-              <span>📅 {created}</span>
-              <span style={{ color: wasUpdated ? P.accentText : P.inkSoft }}>· ✏️ {updated}</span>
+              <span>🕒 {created}</span>
+              {wasUpdated && <span style={{ color: P.accentText }}>· ✏️ עודכן {updated}</span>}
             </span>
             <span aria-hidden>←</span>
           </div>

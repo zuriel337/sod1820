@@ -1147,13 +1147,41 @@ function formatDateWP(isoDate) {
   return `${dd}/${mm}/${yyyy}, ${hh}:${mi}`;
 }
 
+// «לפני כמה זמן» — זמן יחסי בעברית (בקשת צוריאל 15.8.2026: בכל האתר במקום תאריך, יותר יפה).
+// עותק מקומי כדי לשמור על legacy.jsx עצמאי (כמו יתר עזרי-התאריך כאן); מקור-אמת ב-src/lib/format.js.
+function timeAgoHe(dateStr) {
+  if (!dateStr) return "";
+  const then = new Date(dateStr).getTime();
+  if (Number.isNaN(then)) return formatDateHe(dateStr);
+  const sec = Math.max(0, Math.floor((Date.now() - then) / 1000));
+  if (sec < 60) return "לפני רגע";
+  const min = Math.floor(sec / 60);
+  if (min === 1) return "לפני דקה";
+  if (min < 60) return `לפני ${min} דקות`;
+  const hr = Math.floor(min / 60);
+  if (hr === 1) return "לפני שעה";
+  if (hr < 24) return `לפני ${hr} שעות`;
+  const day = Math.floor(hr / 24);
+  if (day === 1) return "אתמול";
+  if (day < 7) return `לפני ${day} ימים`;
+  const week = Math.floor(day / 7);
+  if (week === 1) return "לפני שבוע";
+  if (day < 30) return `לפני ${week} שבועות`;
+  const month = Math.floor(day / 30);
+  if (month === 1) return "לפני חודש";
+  if (month < 12) return `לפני ${month} חודשים`;
+  const year = Math.floor(day / 365);
+  if (year === 1) return "לפני שנה";
+  return `לפני ${year} שנים`;
+}
+
 function WPArticleCard({ post, onPost }) {
   const [hov, setHov] = useState(false);
   const title  = stripHtml(post.title?.rendered ?? "");
   const terms  = (post._embedded?.["wp:term"] ?? []).flat();
   const cats   = terms.filter(t => t.taxonomy === "category");
   const tags   = terms.filter(t => t.taxonomy === "post_tag").slice(0, 5);
-  const date   = formatDateWP(post.date);
+  const date   = timeAgoHe(post.date);   // «לפני כמה זמן» במקום תאריך (בקשת צוריאל)
   const author = publicAuthorName(post.author);   // 🔒 resolver קנוני — זהות פרטית/ריק → «מערכת כי לה׳ המלוכה»
   const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 320);
 
@@ -1273,7 +1301,7 @@ function PostCard({ post, onPost }) {
   const image   = post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const title   = stripHtml(post.title?.rendered ?? "");
   const excerpt = stripHtml(post.excerpt?.rendered ?? "").slice(0, 120);
-  const date    = formatDateHe(post.date);
+  const date    = timeAgoHe(post.date);   // «לפני כמה זמן» במקום תאריך (בקשת צוריאל)
   const gem     = calcGem(title);
 
   return (
@@ -2548,7 +2576,7 @@ function PostPage({ post, onBack }) {
   const image   = fullPost?.image_url ?? post?._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
   const author  = fullPost?.author ?? "";
   const title   = stripHtml(fullPost?.title ?? post?.title?.rendered ?? "");
-  const date    = formatDateHe(fullPost?.date ?? post?.date ?? "");
+  const date    = timeAgoHe(fullPost?.date ?? post?.date ?? "");   // «לפני כמה זמן» במקום תאריך (בקשת צוריאל)
   const content = fullPost?.content ?? "";
 
   const fx = POST_FX[post?.slug] || POST_FX[fullPost?.slug];
@@ -4641,9 +4669,9 @@ function PostPageBySlug({ onNav }) {
   }, [author]);
   const authorTo = authorContrib ? contributorHref(authorContrib) : null;
   const title    = stripHtml(post?.title ?? "");
-  const date     = formatDateHe(post?.date ?? "");
+  const date     = timeAgoHe(post?.date ?? "");   // «לפני כמה זמן» במקום תאריך (בקשת צוריאל); התאריך העברי נשמר כמשני
   const dateHeb  = formatDateHebrewCal(post?.date ?? "");
-  const modified = post?.modified && post.modified !== post.date ? formatDateHe(post.modified) : null;
+  const modified = post?.modified && post.modified !== post.date ? timeAgoHe(post.modified) : null;
   // מודעות מוצגות רק על **פוסטים ישנים** (וורדפרס legacy, source!='ai') — לעולם לא על
   // התוכן החדש/הנקי של צוריאל. (בקשת צוריאל 10.7.2026: פרסומות רק בפוסטים הישנים.)
   const adsAllowed = !!post && post.source !== "ai";
