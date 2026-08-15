@@ -11,6 +11,7 @@ import VerseSearch from "../components/VerseSearch.jsx";
 import NameLabPage from "./NameLabPage.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import ElsUpgradePromo from "../components/ElsUpgradePromo.jsx";
 import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
 import FileAnalyzer from "../components/FileAnalyzer.jsx";
@@ -249,6 +250,7 @@ export default function ResearchPage() {
           {tool === "els" && (wide ? (
             <>
               <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("tool", "els"); n.set("term", term); n.delete("q"); return n; })} />
+              <ElsUpgradePromo />
               <TzofenEmbed seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
             </>
           ) : (

@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import ElsUpgradePromo from "../components/ElsUpgradePromo.jsx";
 import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
@@ -54,6 +55,7 @@ export default function CodePage() {
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
       <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("term", term); n.delete("q"); return n; })} />
+      <ElsUpgradePromo />
       <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
       {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
