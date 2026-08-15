@@ -72,12 +72,14 @@ export default function OrGeulaPage() {
   }, [rows]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const first = rows && rows.find(r => r.image_url && !isVideo(r.image_url));
+    // 🖼 תמונת-שיתוף ממותגת (1200×630) — אותו כרטיס /api/card שה-crawler כבר משתמש בו לדף (עקביות
+    //    בין גוגל/SPA לבין רשתות; מותג «אור הגאולה» במקום «תמונה ראשונה» אקראית). הכרטיס כבר חי בפרודקשן.
+    const shareCard = `${SITE_URL}/api/card?w=${encodeURIComponent("אור הגאולה")}&sub=${encodeURIComponent("סרטונים · ריבועים · רמזי גאולה")}&cap=${encodeURIComponent("אוסף חי שמתעדכן")}`;
     applySeo({
       title: "אור הגאולה — אוסף הסרטונים והרמזים",
       description: "אור הגאולה — אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה. תיעוד חי, מתעדכן, בערוץ אור הגאולה של סוד 1820.",
       path: "/or-geula",
-      image: first ? first.image_url : undefined,
+      image: shareCard,
     });
     // 🎬 structured data עשיר — ItemList של VideoObject מכל סרטוני-הערוץ (תוצאות-וידאו בגוגל)
     setOrGeulaVideosJsonLd(rows || []);
