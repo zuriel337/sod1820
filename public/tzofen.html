@@ -554,6 +554,9 @@
   .searchload .sl-bar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
   .searchload .sl-bar i{display:block;height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--goldBright));animation:slmove 1.05s ease-in-out infinite}
   .searchload.done .sl-bar i{animation:none;width:100%;margin-left:0}
+  /* מצב-שלבים: בלי פס-נע ובלי מונה — בזמן חסימה הם היו קופאים ונראים שבורים */
+  .searchload.stage .sl-bar{display:none}
+  .searchload.stage .sl-time{display:none}
   @keyframes slmove{0%{margin-left:-40%}100%{margin-left:102%}}
   .searchload .sl-time{color:var(--ink3);font-size:12.5px;margin-top:11px;font-variant-numeric:tabular-nums}
   .searchload.done .sl-time{color:var(--goldBright);font-weight:800}
@@ -1489,6 +1492,28 @@
   // ⏳ מד-חיווי לחיפוש בתנ״ך — החיפוש בתנ״ך כבד (1.2M אותיות) ולוקח רגע; מראים שהוא רץ + הזמן שחלף.
   let _sl=null,_slInt=null,_slT0=0;
   const _now=()=>(window.performance&&performance.now?performance.now():Date.now());
+  // 🔬 חיווי-שלבים סטטי (A+B). נמדד: בזמן חישוב סינכרוני **שום דבר על המסך לא יכול לזוז** —
+  //    גם אנימציית-CSS על ה-compositor קופאת (0ms התקדמות ב-13.5ש׳ חסימה). לכן כאן אין פס-נע,
+  //    אין מונה-שניות ואין אחוזים: רק שם-שלב אמיתי, שנצבע **לפני** תחילת החסימה.
+  //    משתמש באותו אלמנט .searchload הקיים — בלי state חדש ובלי רכיב חדש.
+  function _slEnsure(){
+    if(!_sl){_sl=document.createElement("div");_sl.className="searchload";
+      _sl.innerHTML='<div class="sl-box"><div class="sl-t"></div><div class="sl-s"></div><div class="sl-bar"><i></i></div><div class="sl-time"></div></div>';
+      document.body.appendChild(_sl);}
+    return _sl;
+  }
+  function showStage(title,sub){
+    const el=_slEnsure();
+    el.querySelector(".sl-t").textContent=title;
+    el.querySelector(".sl-s").textContent=sub||"";
+    el.querySelector(".sl-time").textContent="";
+    clearInterval(_slInt);
+    el.classList.remove("done");el.classList.add("on","stage");
+  }
+  function hideStage(){if(_sl)_sl.classList.remove("on","stage");}
+  // צביעה מובטחת לפני החסימה: rAF רץ לפני הציור, ו-setTimeout שבתוכו רץ אחריו.
+  const paintThen=fn=>{try{requestAnimationFrame(()=>setTimeout(fn,0));}catch(e){setTimeout(fn,16);}};
+
   function showSearchLoad(){
     if(!_sl){_sl=document.createElement("div");_sl.className="searchload";
       _sl.innerHTML='<div class="sl-box"><div class="sl-t">🔍 מחפש בכל התנ״ך</div><div class="sl-s">24 ספרי התנ״ך · '+heb(N)+' אותיות — מעט איטי יותר מהתורה</div><div class="sl-bar"><i></i></div><div class="sl-time">מחפש… 0.0 שניות</div></div>';
@@ -2316,20 +2341,33 @@
     st.author=item.author||"";   // ✍️ שם-המחבר (לפרֵה-מילוי חלון חובת-ההסבר בשמירה חוזרת)
     st.cipherSlug=item.slug||"";st.cipherTerm=item.term||"";   // 🔗 1ב — הקשר-הצופן: מאפשר «שתף כממצא» כתגובה
 
-    q.value=item.term;st.raw=item.term;st.res=findAll(item.term,4000);
-    if(!st.res.hits.length){updGem();render();return;}
-    let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
-    if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
-    st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
-    st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
-    st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
-    updGem();render();
-    try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
-    // 🎬 כל צופן שנפתח מתנגן כסרט (ברירת-מחדל פעם אחת; ביקור-ראשון = פעמיים). ביטול: filmTimes=0.
-    //    הסרט מתחיל *כשרואים את המטריצה* (armReveal) ולא בטיימר קבוע — כדי שלא יתנגן לפני שהגיעו אליה.
-    const n=(filmTimes==null?1:filmTimes);
-    if(n>0){try{armReveal(n);}catch(e){}}
-    try{showSearchStat(st.res,null);}catch(e){}   // 📊 מדדי-הצופן הפתוח (מופעים · דילוג)
+    q.value=item.term;st.raw=item.term;
+    // ⏳ פתיחת-צופן שמור הייתה עד כה סינכרונית לגמרי וללא שום חיווי — מסך שנראה קפוא עד 15 שניות
+    //    (נמדד: findAll על תנ״ך = 13.5ש׳ = 87% מהזמן). מפרידים לשלושה שלבים אמיתיים, וכל שם-שלב
+    //    נצבע לפני החסימה שאחריו. אין אחוזים ואין אנימציה — הם היו קופאים ממילא.
+    showStage("🔬 מפענח את הצופן…","מאתר את «"+(item.term||"")+"» ב"+(st.scope==="tanakh"?"כל התנ״ך":"תורה"));
+    paintThen(()=>{
+      st.res=findAll(item.term,4000);                                    // ← השלב הכבד
+      if(!st.res.hits.length){hideStage();updGem();render();return;}
+      let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
+      if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
+      st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
+      st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
+      st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
+      showStage("🧩 בונה מטריצה…",heb(st.res.hits.length)+" מופעים · דילוג "+heb(Math.abs(st.res.hits[idx].skip)));
+      paintThen(()=>{
+        updGem();render();                                               // ← recomputeWords + בניית ה-DOM
+        showStage("✨ מציג ממצאים…",st.words.length?(heb(st.words.length)+" ממצאים במטריצה"):"");
+        paintThen(()=>{
+          hideStage();
+          try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
+          // 🎬 כל צופן שנפתח מתנגן כסרט (ברירת-מחדל פעם אחת; ביקור-ראשון = פעמיים). ביטול: filmTimes=0.
+          const n=(filmTimes==null?1:filmTimes);
+          if(n>0){try{armReveal(n);}catch(e){}}
+          try{showSearchStat(st.res,null);}catch(e){}   // 📊 מדדי-הצופן הפתוח (מופעים · דילוג)
+        });
+      });
+    });
   }
 
   // ── 🔗 שיתוף · 🖼️ תמונה · 🎬 סרט ──────────────────────────────────────────
