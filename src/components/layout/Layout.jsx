@@ -8,6 +8,7 @@ import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
 import VerseBackground from "./VerseBackground.jsx"; // 📜 «כתובת החומה» — זכריה יג,ט חקוק ברקע (כל עמוד חוץ מהבית)
 import RandomTopBanner from "./RandomTopBanner.jsx"; // 🎲 רצועה אקראית (טיזר או צופן/אלול) — פוסטים+צ'אט
+import CipherElulBanner from "../CipherElulBanner.jsx"; // 🎺📜 באנר צופן/אלול (בפוסטים+צ'אט)
 import Navbar from "./Navbar.jsx";
 import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על קוסמי עם פסוק (מתחת לתפריט)
 import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
@@ -66,9 +67,9 @@ export default function Layout() {
             🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
             🌍 English (רק לדוברי-אנגלית, בסבב). מחליף את כל הטיקרים הישנים —
             EnglishSoonBar + YearTicker + CelestialPinnedBar + CipherElulBanner (מושבתים). */}
-        {/* פוסטים + צ'אט: רצועה אקראית (טיזר או צופן/אלול). דף הבית: טיזר בלבד — בלי באנר-אלול,
-            כי בבית כבר יש באנר-ענק (בקשת צוריאל 15.8.2026). שאר האתר: טיזר רגיל. */}
-        {showBanner ? <RandomTopBanner /> : <PromoTicker />}
+        {/* 🚫 טיזר «בקרוב» מוסתר כרגע (בקשת צוריאל 16.8.2026). באנר-הצופן/אלול נשאר בפוסטים+צ'אט בלבד.
+            להחזרת הטיזר: {showBanner ? <RandomTopBanner /> : <PromoTicker />} */}
+        {showBanner && <div style={{ padding: "14px 16px 0" }}><CipherElulBanner /></div>}
         {/* 🌌 שורה נעוצה גלובלית — הושבתה לטובת טיקר-הפרומו (בקשת צוריאל 15.8.2026). להחזרה: הסר את false. */}
         {false && <CelestialPinnedBar />}
         {/* 🚧 רצועת «האתר בבנייה» — שורה זזה, בכל האתר. מוסתרת כרגע בכל האתר (בקשת צוריאל 6.8.2026). להחזרה: הסר את false. */}
