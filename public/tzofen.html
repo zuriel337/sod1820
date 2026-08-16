@@ -102,6 +102,21 @@
   .searchstat b{color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
   .searchstat .ss-sep{opacity:.4}
   .searchstat .ss-cap{font-style:normal;color:var(--ink3);font-size:11.5px;font-weight:600}
+  /* 🧬 לוח צורות-הפיצול (FORMS · Split/Join) */
+  .formsout{display:none;max-width:760px;margin:10px auto 0;background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:12px 13px;box-sizing:border-box}
+  .formsout .fo-head{color:var(--goldBright);font-family:var(--serif);font-size:14.5px;font-weight:800;margin-bottom:9px;line-height:1.6}
+  .formsout .fo-tok{color:var(--ink2);font-family:inherit;font-size:12px;font-weight:600}
+  .formsout .fo-meta{display:block;color:var(--ink3);font-size:11.5px;font-weight:600;margin-top:2px}
+  .formsout .fo-rows{display:flex;flex-direction:column;gap:5px}
+  .formsout .fo-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 10px;min-height:44px;box-sizing:border-box}
+  .formsout .fo-row.off{opacity:.5}
+  .formsout .fo-w{color:var(--goldBright);font-size:15px;font-weight:800;letter-spacing:.5px}
+  .formsout .fo-d{color:var(--ink3);font-size:11px;font-weight:600;direction:ltr;unicode-bidi:isolate}
+  .formsout .fo-n{color:var(--ink2);font-size:12px;margin-inline-start:auto;font-variant-numeric:tabular-nums}
+  .formsout .fo-go{cursor:pointer;border:none;border-radius:999px;background:var(--gold);color:var(--accInk,#1a0e00);font-family:inherit;font-weight:800;font-size:12px;padding:7px 13px;min-height:36px;flex:none}
+  .formsout .fo-foot{margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .formsout .fo-deep{cursor:pointer;border:1px solid var(--line2);border-radius:999px;background:transparent;color:var(--goldBright);font-family:inherit;font-weight:800;font-size:12.5px;padding:8px 14px;min-height:44px}
+  .formsout .fo-note{color:var(--ink3);font-size:11px;line-height:1.6;flex:1;min-width:180px}
   .bar .qb{width:100%;min-width:0;background:var(--field);border:1px solid var(--line2);color:var(--ink);border-radius:10px;padding:14px 16px;font-family:var(--serif);font-size:17px;text-align:center;outline:none}
   .bar .qb:focus{border-color:var(--gold)}.bar .qb::placeholder{color:var(--ink3)}
   .crossrow{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:9px}
@@ -1636,6 +1651,8 @@
     // חיפוש רגיל — עד 5 חינם לאנונימי
     if(!canRegular()){gate("limit");return;}
     if(isAnon())bumpFree();
+    // 🧬 לוח-הצורות נשאר פתוח כשפותחים צורה מתוכו; חיפוש-מונח לא-קשור סוגר אותו.
+    try{if(!_formsShown.has(t))hideForms();}catch(e){}
     st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
     const _t0=_now();
     // ⏳ אותם שלבים אמיתיים כמו בפתיחת-צופן: כל תווית נצבעת **לפני** החסימה שאחריה.
@@ -1849,9 +1866,9 @@
   // 🔄 «מכל הצדדים / אופציות פנימיות» — סורק את השם לאורך ולרוחב **וגם** בכל חילופי-האותיות הפנימיים שלו
   //    (אתב״ש · אלב״ם · אבג״ד · היפוך) כצירים נוספים, וגם מנסה התכנסות של הצורות זו-על-זו. עדות, לא ניבוי.
   //    חי בעדשת «🔄 מכל-הצדדים» (אזור-הניסוי), פועל על המטריצה הנוכחית.
-  function sidesForms(A){const base=norm(A),raw=[{name:"מקורי",w:base}];
-    MIRRORS.forEach(m=>{const w=norm(m.f(A));if(w.length>=2)raw.push({name:m.n,w});});
-    const forms=[],seen=new Set();raw.forEach(f=>{if(!seen.has(f.w)){seen.add(f.w);forms.push(f);}});return forms;}
+  // 🪞 «כל הצדדים» — עדשה על מרשם-הצורות הקנוני (FORMS.mirrors). לא abstraction מקביל:
+  //    אותה לוגיקה שהייתה כאן חיה עכשיו ב-FORMS, וזו קריאה אליה. החוזה {name,w} נשמר.
+  function sidesForms(A){return formsOf("mirrors",A);}
   function runCrossSides(A,termsSrc){
     const xr=document.getElementById("xrun"),base=norm(A);
     const forms=sidesForms(A);   // ייחודי (צורה שווה למקור מסוננת)
@@ -1944,6 +1961,143 @@
     {n:"אבג״ד", f:w=>cipher(w,i=>ALEF[(i+1)%22])},
     {n:"הפוך",  f:w=>norm(w).split("").reverse().join("")},
   ];
+
+  // ═══ 🧬 FORMS — מרשם-הצורות הקנוני ═══════════════════════════════════════════════
+  //  גנרטור-צורות = פונקציה **טהורה** `(input) => [{name,w,derivation,tokens,original}]`.
+  //  זהו המקום **היחיד** שבו נולדות צורות-מחקר. ⛔ אין גנרטור מקביל, אין FORMS שני,
+  //  ואין מנוע Split/Join נפרד — הצורות זורמות אל **אותו** findAll הקנוני.
+  //  `w` הוא engine_input: מנורמל, בלי רווחים. `derivation` שומר איך הצורה נגזרה (provenance).
+  const _rev=s=>s.split("").reverse().join("");
+  // פיצול-לטוקנים: שתי מילים = A ו-B. שלוש ומעלה → A=הראשונה, B=כל השאר (עקבי עם splitToCross).
+  function _tokens(input){
+    const parts=String(input||"").trim().split(/\s+/).filter(Boolean);
+    if(parts.length<2)return null;
+    const A=norm(parts[0]),B=norm(parts.slice(1).join(""));
+    return (A&&B)?[A,B]:null;
+  }
+  const FORMS={
+    // 🪞 מראות — התקדים הקיים (sidesForms) מתאחד לכאן במקום abstraction מקביל.
+    mirrors:{
+      id:"mirrors",label:"מראות (אתב״ש · אלב״ם · אבג״ד · היפוך)",
+      gen(input){
+        const base=norm(input),out=[{name:"מקורי",w:base,derivation:"original",tokens:null,original:input}];
+        MIRRORS.forEach(m=>{const w=norm(m.f(input));if(w.length>=2)out.push({name:m.n,w,derivation:m.n,tokens:null,original:input});});
+        return out;
+      }
+    },
+    // 🧬 פיצול/איחוד — {A, reverse(A)} × {B, reverse(B)} × {AB, BA} = עד 8 צורות.
+    //    «סוד החשמל» → סודהחשמל · דוסהחשמל · סודלמשחה · דוסלמשחה · החשמלסוד · למשחהסוד · החשמלדוס · למשחהדוס
+    splitjoin:{
+      id:"splitjoin",label:"פיצול/איחוד (טוקנים · היפוך · סדר)",
+      gen(input){
+        const tk=_tokens(input);if(!tk)return [];
+        const A=tk[0],B=tk[1],rA=_rev(A),rB=_rev(B),out=[];
+        const xs=[[A,"A"],[rA,"reverse(A)"]],ys=[[B,"B"],[rB,"reverse(B)"]];
+        for(const x of xs)for(const y of ys)for(const ord of [0,1]){
+          const w=ord?(y[0]+x[0]):(x[0]+y[0]);
+          const derivation=ord?(y[1]+" + "+x[1]):(x[1]+" + "+y[1]);
+          if(w.length>=2)out.push({name:derivation,w,derivation,tokens:[A,B],original:input});
+        }
+        return out;
+      }
+    }
+  };
+  // מריץ גנרטור מהמרשם ומסיר כפילויות-engine_input (הצורה הראשונה שנוצרה מנצחת).
+  function formsOf(kind,input){
+    const g=FORMS[kind];if(!g)return [];
+    const out=[],seen=new Set();
+    for(const f of g.gen(input)){if(!f.w||f.w.length<2||seen.has(f.w))continue;seen.add(f.w);out.push(f);}
+    return out;
+  }
+  // 🔗 זיווג-היפוך: findAll סורק את המונח **וגם את היפוכו** בקריאה אחת ⇒ 8 צורות = 4 קריאות.
+  //    כל זוג {צורה, היפוכה} מקבל נציג אחד; ממצאי dir=+1 שייכים לנציג, dir=-1 להיפוכו.
+  function formPairs(forms){
+    const byW=new Map(forms.map(f=>[f.w,f])),pairs=[],done=new Set();
+    for(const f of forms){
+      if(done.has(f.w))continue;
+      const r=_rev(f.w),mate=(r!==f.w&&byW.has(r))?byW.get(r):null;
+      done.add(f.w);if(mate)done.add(mate.w);
+      pairs.push({probe:f,mate});
+    }
+    return pairs;
+  }
+
+  // ── 🧬 הרצת צורות-הפיצול דרך המנוע הקנוני ────────────────────────────────────────
+  //  ⛔ אין findAll חדש. הצורות זורמות אל **אותו** findAll, עם אותו cap ואותו D4.
+  //  📖 ברירת-המחדל = **תורה בלבד**. תנ״ך רק כשהמשתמש בוחר במפורש Deep (deep=true),
+  //     כדי לא להכפיל עומס: נמדד ~0.4ש׳ בתורה מול ~8ש׳ בתנ״ך לאותן 4 קריאות.
+  const FORMS_CAP=4000;
+  function formsPanel(){
+    let el=document.getElementById("formsout");
+    if(!el){el=document.createElement("div");el.id="formsout";el.className="formsout";
+      if(out&&out.parentNode)out.parentNode.insertBefore(el,out);}
+    return el;
+  }
+  function runForms(input,deep){
+    if(!ensureOnboarded())return;
+    const forms=formsOf("splitjoin",input);
+    if(forms.length<2){toast("🧬 פיצול/איחוד דורש שתי מילים — למשל «סוד החשמל»");return;}
+    if(deep&&tanakhLocked()){gate("tanakh");return;}
+    if(!canRegular()){gate("limit");return;}
+    if(isAnon())bumpFree();
+    const range=deep?[0,N]:[0,TORAH_N],scopeName=deep?"כל התנ״ך":"תורה";
+    const pairs=formPairs(forms),hitsOf=new Map(),t0=_now();
+    let i=0;
+    const stepOne=()=>{
+      if(i>=pairs.length){
+        const ms=_now()-t0;
+        renderForms(input,forms,hitsOf,deep,ms,pairs.length);
+        hideStage();logSearch("forms",input);
+        return;
+      }
+      const p=pairs[i];
+      showStage("🧬 סורק צורה "+heb(i+1)+" מתוך "+heb(pairs.length)+"…",
+                "«"+p.probe.w+"»"+(p.mate?" ו«"+p.mate.w+"»":"")+" ב"+scopeName);
+      paintThen(()=>{
+        const r=findAll(p.probe.w,FORMS_CAP,range);          // ← המנוע הקנוני, קריאה אחת לזוג
+        hitsOf.set(p.probe.w,r.hits.filter(h=>h.dir===1));   // קדימה = הצורה עצמה
+        if(p.mate)hitsOf.set(p.mate.w,r.hits.filter(h=>h.dir===-1));   // אחורה = הצורה ההפוכה
+        i++;stepOne();
+      });
+    };
+    showStage("🧬 מכין "+heb(forms.length)+" צורות…","פיצול · היפוך · סדר — ב"+scopeName);
+    paintThen(stepOne);
+  }
+  function renderForms(input,forms,hitsOf,deep,ms,calls){
+    const el=formsPanel();
+    const rows=forms.map(f=>{const h=hitsOf.get(f.w)||[];
+      return {f,n:h.length,best:h.length?Math.abs(h[0].skip):null};});
+    // מיון: נמצא קודם · אחר-כך הנדיר יותר · ואז הדילוג הקטן ביותר. (מיון-תצוגה בלבד — לא ranking של המנוע.)
+    rows.sort((a,b)=>(b.n>0)-(a.n>0)||a.n-b.n||(a.best||1e9)-(b.best||1e9));
+    const found=rows.filter(r=>r.n>0).length;
+    const tk=forms[0].tokens||[];
+    let html='<div class="fo-head"><b>🧬 '+heb(forms.length)+' צורות</b> של «'+escH(input)+'»'+
+      (tk.length?' <span class="fo-tok">'+escH(tk[0])+' · '+escH(tk[1])+'</span>':'')+
+      '<span class="fo-meta">'+heb(found)+' נמצאו · '+heb(calls)+' קריאות מנוע · '+
+      (deep?"כל התנ״ך":"תורה")+' · '+(ms/1000).toFixed(2)+' שנ׳</span></div>';
+    html+='<div class="fo-rows">'+rows.map(r=>
+      '<div class="fo-row'+(r.n?"":" off")+'">'+
+        '<b class="fo-w">'+escH(r.f.w)+'</b>'+
+        '<span class="fo-d">'+escH(r.f.derivation)+'</span>'+
+        '<span class="fo-n">'+(r.n?heb(r.n)+' מופעים · דילוג '+heb(r.best):'לא נמצא')+'</span>'+
+        (r.n?'<button class="fo-go" data-w="'+escH(r.f.w)+'">פתח ←</button>':'')+
+      '</div>').join("")+'</div>';
+    if(!deep)html+='<div class="fo-foot"><button class="fo-deep">📜 הרחב לכל התנ״ך (איטי — Deep)</button>'+
+      '<span class="fo-note">ברירת-המחדל היא תורה. סריקת התנ״ך כבדה פי כמה ולכן נפתחת רק בבחירה מפורשת.</span></div>';
+    // ⚠️ חייב "block" מפורש: כלל ה-CSS הוא display:none, ולכן style.display="" היה מחזיר אותו ומסתיר את הלוח.
+    el.innerHTML=html;el.style.display="block";
+    _formsShown=new Set(forms.map(f=>f.w));
+    el.querySelectorAll(".fo-go").forEach(b=>b.onclick=()=>{
+      q.value=b.dataset.w;
+      const want=deep?"tanakh":"torah";
+      if(st.scope!==want){st.scope=want;updateScopeUI();}
+      run();   // ← המסלול הקנוני: אותו findAll, אותו דירוג, אותה גאומטריה
+    });
+    const db=el.querySelector(".fo-deep");if(db)db.onclick=()=>runForms(input,true);
+  }
+  function hideForms(){const el=document.getElementById("formsout");if(el){el.style.display="none";el.innerHTML="";}_formsShown=new Set();}
+  // הלוח נשאר פתוח כשפותחים צורה מתוכו (כדי להשוות בין הצורות), ונסגר רק בחיפוש-מונח לא-קשור.
+  let _formsShown=new Set();
   // חיפוש מילה בתוך החלון-הנראה הנוכחי (blockOf) — מחזיר את המופע הקרוב-ביותר לציר, או null
   function findInBlock(t){
     t=norm(t);if(!st.res||!st.res.hits.length||t.length<2)return null;
@@ -4013,8 +4167,12 @@
     if(words.length>=2){
       const a=words[0],b=words.slice(1).join(" ");
       el.style.display="";
-      el.innerHTML='<div class="coach-t">🧭 שתי מילים? זה בדיוק <b>חיפוש מוצלב</b> — כך מוצאים <b>מפגש</b> בין השתיים (הצורה החזקה).</div><button class="coach-go" type="button">🔀 פצל והצלב</button>';
+      // 🧬 שתי מילים פותחות **שני** מסלולים על אותו מנוע: מפגש (הצלבה) או צורות (פיצול/היפוך/סדר).
+      el.innerHTML='<div class="coach-t">🧭 שתי מילים? זה בדיוק <b>חיפוש מוצלב</b> — כך מוצאים <b>מפגש</b> בין השתיים (הצורה החזקה).</div>'+
+        '<button class="coach-go" type="button">🔀 פצל והצלב</button>'+
+        '<button class="coach-go coach-forms" type="button" title="מייצר את כל צורות הפיצול/היפוך/סדר וסורק אותן בתורה">🧬 8 צורות</button>';
       const cb=el.querySelector(".coach-go");if(cb)cb.onclick=function(){splitToCross(a,b);};
+      const fb=el.querySelector(".coach-forms");if(fb)fb.onclick=function(){runForms(w,false);};   // 📖 תורה = ברירת-מחדל
     }else if(t.length>=7){
       el.style.display="";
       el.innerHTML='<div class="coach-t">🧭 «'+escH(w)+'» ארוכה ('+heb(t.length)+' אותיות) — נדירה מאוד כדילוג. נסו <b>מילה קצרה</b> (2־5 אותיות), או פצלו לשתי מילים והצליבו.</div>';
