@@ -101,6 +101,7 @@
      padding:7px 15px;font-size:12px;color:var(--ink2);animation:gfade .4s ease}
   .searchstat b{color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
   .searchstat .ss-sep{opacity:.4}
+  .searchstat .ss-cap{font-style:normal;color:var(--ink3);font-size:11.5px;font-weight:600}
   .bar .qb{width:100%;min-width:0;background:var(--field);border:1px solid var(--line2);color:var(--ink);border-radius:10px;padding:14px 16px;font-family:var(--serif);font-size:17px;text-align:center;outline:none}
   .bar .qb:focus{border-color:var(--gold)}.bar .qb::placeholder{color:var(--ink3)}
   .crossrow{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:9px}
@@ -1103,27 +1104,78 @@
 
   // ===== מנוע חיפוש מהיר =====
   function lb(a,x){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<x)lo=m+1;else hi=m;}return lo;}
-  function fwd(tt,cap,hits,orient,stt){
-    const SN=scopeN();
+  // ── 🔭 D4 · scopeRange — טווח-הסריקה [from,to) ───────────────────────────────────────
+  //    היום תמיד ההיקף המלא. הפרמטר הוא ה**תפר** שמאפשר למנוע לסרוק מקטע — וזה מה שמאפשר
+  //    לפזר את התקציב על פני הקורפוס במקום למלא אותו מתחילתו.
+  //    ⛔ אינו משנה את searchSpace, את הדירוג או את מודל-החיפוש. רק *היכן* ובאיזה סדר סורקים.
+  function scopeRange(){return [0,scopeN()];}
+
+  // הכנה משותפת: מפות-מיקום + שתי אותיות-העוגן הנדירות. זהה לקוד שהיה, רק מוגבל לטווח.
+  function _prep(tt,from,to){
     const L=tt.length,need=new Set(tt),pos=new Map();
     for(const c of need)pos.set(c,[]);
-    for(let i=0;i<SN;i++){const a=pos.get(T[i]);if(a)a.push(i);}
-    for(const c of need)if(!pos.get(c).length)return;
+    for(let i=from;i<to;i++){const a=pos.get(T[i]);if(a)a.push(i);}
+    for(const c of need)if(!pos.get(c).length)return null;
     const ord=[];for(let k=0;k<L;k++)ord.push(k);
     ord.sort((a,b)=>pos.get(tt[a]).length-pos.get(tt[b]).length);
     let i=ord[0],j=ord[1];if(i>j){const t=i;i=j;j=t;}
-    const g=j-i,Pi=pos.get(tt[i]),Pj=pos.get(tt[j]),mx=Math.floor((SN-1)/(L-1))||1;
-    for(let a=0;a<Pi.length;a++){if(stt.capped)return;const pi=Pi[a],lo=pi+g,hi=pi+g*mx;
-      for(let b=lb(Pj,lo);b<Pj.length;b++){const pj=Pj[b];if(pj>hi)break;const d=pj-pi;if(d%g)continue;
-        const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;if(start<0||end>=SN)continue;
-        let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
-        if(orient==="back"){const s0=start+(L-1)*s,p=[];for(let k=0;k<L;k++)p.push(s0-k*s);hits.push({skip:s,dir:-1,start:s0,positions:p});}
-        else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);hits.push({skip:s,dir:1,start,positions:p});}
-        if(hits.length>=cap){stt.capped=1;return;}}}
+    return {L,i,g:j-i,Pi:pos.get(tt[i]),Pj:pos.get(tt[j]),mx:Math.floor((to-from-1)/(L-1))||1};
   }
-  function findAll(raw,cap){const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
-    const s={capped:0};fwd(t,cap,hits,"fwd",s);fwd(t.split("").reverse().join(""),cap,hits,"back",s);
-    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));return{hits,capped:s.capped,t};}
+  // סורק את העוגנים [a0,a1) עד שנאספו budget ממצאים. מחזיר את אינדקס-העוגן שבו נעצר.
+  // גוף-הלולאה זהה מילה-במילה לקוד הקודם — נוסף רק dedup ותקציב.
+  function _scanRange(tt,P,a0,a1,budget,orient,from,to,hits,seen){
+    const L=P.L,i=P.i,g=P.g,Pi=P.Pi,Pj=P.Pj,mx=P.mx;let got=0,a=a0;
+    while(a<a1&&got<budget){
+      const pi=Pi[a],lo=pi+g,hi=pi+g*mx;
+      for(let b=lb(Pj,lo);b<Pj.length;b++){
+        const pj=Pj[b];if(pj>hi)break;const d=pj-pi;if(d%g)continue;
+        const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;
+        if(start<from||end>=to)continue;
+        let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
+        let h;
+        if(orient==="back"){const s0=start+(L-1)*s,p=[];for(let k=0;k<L;k++)p.push(s0-k*s);h={skip:s,dir:-1,start:s0,positions:p};}
+        else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);h={skip:s,dir:1,start,positions:p};}
+        const kk=hitKey(h);if(seen.has(kk))continue;seen.add(kk);
+        hits.push(h);got++;if(got>=budget)break;
+      }
+      a++;
+    }
+    return a;
+  }
+  const _SEG=16;   // מספר מקטעי-הפיזור. 1 = ההתנהגות הישנה (קיצוץ-קידומת).
+  // ⚖️ שני שלבים, וזה הלב של D4:
+  //    ⓐ קידומת — בדיוק ההתנהגות הקיימת, אותו תקציב, אותו סדר ⇒ **כל מה שנראה היום נשאר**.
+  //    ⓑ פיזור — רץ **רק אם ⓐ נחתך**: מחלק את מרחב-העוגנים ל-_SEG מקטעים ונותן לכל אחד נתח
+  //       שווה מהתקציב ⇒ הממצאים פרושים על כל הקורפוס במקום על הקידומת בלבד.
+  //    מונח נדיר (שלא מגיע לתקרה) → ⓑ כלל לא רץ ⇒ תוצאה זהה ביט-לביט להיום, ובאותה עלות.
+  //    בנוסף: הסרנו את `if(stt.capped)return` שגרם לכיוון «אחורה» לקבל **אפס** ממצאים בכל
+  //    מונח שנחתך (נמדד: 0 ממצאים אחורה בכל מונח נפוץ). כל כיוון מקבל תקציב משלו.
+  function fwd(tt,cap,hits,orient,stt,from,to){
+    const P=_prep(tt,from,to);if(!P)return;
+    const seen=stt.seen;
+    const aEnd=_scanRange(tt,P,0,P.Pi.length,cap,orient,from,to,hits,seen);          // ⓐ
+    if(aEnd>=P.Pi.length)return;                                                     // לא נחתך
+    stt.capped=1;stt.spread=1;
+    const segs=Math.max(1,Math.min(_SEG,P.Pi.length)),per=Math.ceil(cap/segs);
+    for(let sg=0;sg<segs;sg++){                                                      // ⓑ
+      const a0=Math.floor(P.Pi.length*sg/segs),a1=Math.floor(P.Pi.length*(sg+1)/segs);
+      if(a1<=aEnd)continue;                                                          // כבר נסרק ב-ⓐ
+      const at=_scanRange(tt,P,Math.max(a0,aEnd),a1,per,orient,from,to,hits,seen);
+      stt.scanned+=at-Math.max(a0,aEnd);stt.anchors+=a1-Math.max(a0,aEnd);
+    }
+  }
+  function findAll(raw,cap,range){
+    const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
+    const R=range||scopeRange(),from=R[0],to=R[1];
+    const s={capped:0,spread:0,scanned:0,anchors:0,seen:new Set()};
+    fwd(t,cap,hits,"fwd",s,from,to);
+    fwd(t.split("").reverse().join(""),cap,hits,"back",s,from,to);
+    // סדר קנוני, בלתי-תלוי באסטרטגיית-הסריקה: |דילוג| → כיוון (קדימה לפני אחורה) → מיקום.
+    // זה **משחזר בדיוק** את הסדר הקיים (קדימה נדחפו קודם, ובתוך דילוג זהה המיקום עולה),
+    // ומבטיח שהתוצאה לא תלויה בפיזור — מה שמאפשר להוכיח יציבות.
+    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip)||b.dir-a.dir||a.start-b.start);
+    return{hits,capped:s.capped,spread:s.spread,scanned:s.scanned,anchors:s.anchors,t};
+  }
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
     const t=norm(raw),L=t.length,out=[];if(L<1)return out;
@@ -1445,7 +1497,11 @@
     return Object.assign(base,{
       status:"ok",length:L,
       axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),length:L},
-      occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
+      // 🔭 D4 — כיסוי-הסריקה נחשף כדי שאפשר יהיה **להוכיח** שאין קיצוץ-קידומת שקט:
+      //    spread=האם רץ שלב-הפיזור · lastStart=המופע הרחוק ביותר שנמצא · corpusLetters להשוואה.
+      occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped,spread:!!r.spread,
+        firstStart:r.hits[0].start,lastStart:r.hits.reduce((m,h)=>h.start>m?h.start:m,0),
+        forward:r.hits.reduce((n,h)=>n+(h.dir===1?1:0),0),backward:r.hits.reduce((n,h)=>n+(h.dir===-1?1:0),0)},
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       findings:st.words.map(w=>({t:w.t,color:w.color,total:(w.hits||[]).length,
         inWindow:w.inwin||0,shown:shownHitsOf(w).map(hitKey)})),
@@ -1558,7 +1614,9 @@
     const parts=[];
     if(ms!=null){const s=ms/1000;parts.push('<span>✓ נמצא '+(s<0.1?"מיד":("ב-"+s.toFixed(s<1?2:1)+" שנ׳"))+'</span>');}
     else parts.push('<span>✓ צופן פתוח</span>');
-    parts.push('<span><b>'+heb(res.hits.length)+'</b> מופעים</span>');
+    // 🔭 D4 — «אין קיצוץ שקט»: כשהמונח נפוץ והגענו לתקרה, אומרים זאת במפורש במקום להציג
+    //    מספר שנראה כמו «הכול». הממצאים פרושים על כל הקורפוס (שלב-הפיזור), לא רק על תחילתו.
+    parts.push('<span><b>'+heb(res.hits.length)+'</b> מופעים'+(res.capped?' <i class="ss-cap" title="מונח נפוץ — הוצג מדגם פרוש על כל ההיקף, לא רק מתחילתו">(מדגם מכל ההיקף)</i>':'')+'</span>');
     parts.push('<span>דילוג <b>'+heb(shownSkip)+'</b></span>');
     el.innerHTML=parts.join('<span class="ss-sep">·</span>');
   }
