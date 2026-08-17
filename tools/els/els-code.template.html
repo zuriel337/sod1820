@@ -101,6 +101,29 @@
      padding:7px 15px;font-size:12px;color:var(--ink2);animation:gfade .4s ease}
   .searchstat b{color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
   .searchstat .ss-sep{opacity:.4}
+  /* ↩ מסע-המחקר — נראה רק כשיש היסטוריה */
+  .jtrail{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 auto 8px;max-width:760px;font-size:12px;color:var(--ink3)}
+  .jtrail .j-ic{color:var(--goldBright);font-size:13px;flex:none}
+  .jtrail .j-n{cursor:pointer;border:1px solid var(--line2);background:var(--panel2);color:var(--ink2);
+    border-radius:999px;padding:4px 11px;font-family:inherit;font-size:12px;font-weight:700;min-height:30px}
+  .jtrail .j-n:hover{color:var(--goldBright);border-color:var(--gold)}
+  .jtrail .j-ar{opacity:.5}
+  .jtrail .j-cur{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#241a02;
+    border-radius:999px;padding:4px 11px;font-weight:800;font-size:12px}
+  /* ↑ הפוך לציר ראשי — הפעולה שסוגרת את לולאת-המחקר */
+  .witem .toax{cursor:pointer;border:1px solid var(--gold);background:transparent;color:var(--goldBright);
+    border-radius:8px;padding:3px 8px;font-family:inherit;font-size:11px;font-weight:800;white-space:nowrap;min-height:28px}
+  .witem .toax:hover{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#241a02;border-color:transparent}
+  /* 👁 גיליון-התצוגה של המטריצה */
+  .dispsheet{margin:8px auto 0;max-width:560px;background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:11px 12px}
+  .dispsheet .ds-seg{display:flex;gap:4px;background:var(--panel2);border-radius:10px;padding:3px;margin-bottom:9px}
+  .dispsheet .ds-seg button{flex:1;cursor:pointer;border:none;background:transparent;color:var(--ink2);
+    border-radius:8px;padding:8px 4px;font-family:inherit;font-size:12px;font-weight:700;min-height:38px}
+  .dispsheet .ds-seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .dispsheet .ds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:6px}
+  .dispsheet .ds-grid button{cursor:pointer;border:1px solid var(--line2);background:var(--card);color:var(--ink2);
+    border-radius:9px;padding:9px 6px;font-family:inherit;font-size:12px;font-weight:700;min-height:40px}
+  .dispsheet .ds-grid button.on{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#241a02;border-color:transparent}
   .searchstat .ss-cap{font-style:normal;color:var(--ink3);font-size:11.5px;font-weight:600}
   /* 🧬 לוח צורות-הפיצול (FORMS · Split/Join) */
   .formsout{display:none;max-width:760px;margin:10px auto 0;background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:12px 13px;box-sizing:border-box}
@@ -1214,6 +1237,10 @@
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
+  // ↩ מסע-המחקר: ציר → ממצא → הממצא הופך לציר → ממצאים חדשים → …
+  //   כל צומת שומר את **כל** מצב-המחקר שלו (מונח·מופע·ממצאים·צבעים·תצוגה), ולכן חזרה
+  //   מחזירה בדיוק למקום שממנו יצאת. שום מידע מחקרי לא נעלם. (החלטת צוריאל 17.8.2026)
+  st.journey=[];st.dispOpen=false;
   const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;
   // המופעים המוצגים של ממצא = ברירת-מחדל (showN הקרובים) פחות מה שכובה ידנית, ועוד מה שהודלק ידנית
   function shownHitsOf(w){
@@ -1473,11 +1500,11 @@
       el.innerHTML='💡 <b>המלצה:</b> '+nT+' מונחים ('+shortN+' קצרים) וטוהר '+st.crossPure+' — צפויות הרבה תוצאות רועשות. כדאי <b>להדק טוהר</b> (≤5) או <b>לסנן אחרי החיפוש</b>: מלאים · דילוג-מוכר · שוויון-גימטריה · 🔭 מילים-על-הקו.';}
     else el.style.display="none";
   }
-  document.getElementById("xrun").onclick=()=>{if(!ensureOnboarded())return;const w=q.value.trim();
+  document.getElementById("xrun").onclick=()=>{const w=q.value.trim();
     if(norm(w).length<2){if(st.crossTerms.length<2){toast("להתכנסות חופשית — הוסף לפחות 2 מונחים (או כתוב ציר למעלה)");return;}runCrossFree();return;}
     if(!st.crossTerms.length){toast("הוסף לפחות מונח אחד לסט");return;}
     runCross(w);};
-  document.getElementById("xbridge").onclick=()=>{if(!ensureOnboarded())return;const a=q.value.trim();let A,B;
+  document.getElementById("xbridge").onclick=()=>{const a=q.value.trim();let A,B;
     if(norm(a).length>=2&&st.crossTerms.length>=1){A=a;B=st.crossTerms[0];}
     else if(st.crossTerms.length>=2){A=st.crossTerms[0];B=st.crossTerms[1];}
     else{toast("לגשר: כתוב ציר עליון + מונח אחד, או הוסף שני מונחים");return;}
@@ -1636,7 +1663,6 @@
     el.innerHTML=parts.join('<span class="ss-sep">·</span>');
   }
   function run(preserveWords){
-    if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
     if(t.length<2){toast("רשום לפחות 2 אותיות");return;}
     // ✏️ חיפוש-מונח חדש שיזם המשתמש מנקה את קשר-העריכה — שלא נעדכן בטעות צופן שנטען קודם (loadMatrix לא עובר כאן)
@@ -1651,6 +1677,7 @@
     // חיפוש רגיל — עד 5 חינם לאנונימי
     if(!canRegular()){gate("limit");return;}
     if(isAnon())bumpFree();
+    st.journey=[];   // ↩ חיפוש-מונח חדש = מסע חדש (חזרה לצומת קודם עוברת דרך journeyGoto, לא דרך כאן)
     // 🧬 לוח-הצורות נשאר פתוח כשפותחים צורה מתוכו; חיפוש-מונח לא-קשור סוגר אותו.
     try{if(!_formsShown.has(t))hideForms();}catch(e){}
     st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
@@ -2034,7 +2061,6 @@
     return el;
   }
   function runForms(input,deep){
-    if(!ensureOnboarded())return;
     const forms=formsOf("splitjoin",input);
     if(forms.length<2){toast("🧬 פיצול/איחוד דורש שתי מילים — למשל «סוד החשמל»");return;}
     if(deep&&tanakhLocked()){gate("tanakh");return;}
@@ -2571,6 +2597,39 @@
   }
 
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
+  // ── ↩ מסע-המחקר ──────────────────────────────────────────────────────────────
+  //  צילום-מצב של הצומת הנוכחי. **סריאליזציה בלבד** — אפס חישוב, אפס נגיעה במנוע.
+  function journeySnap(){
+    if(!st.res||!st.res.hits.length)return null;
+    const h=occ();
+    return {term:st.raw,scope:st.scope,occ:st.occ,skip:Math.abs(h.skip),dir:h.dir,start:h.start,
+      hit:{skip:h.skip,dir:h.dir,start:h.start,positions:h.positions.slice()},
+      words:st.words.map(w=>({t:w.t,color:w.color,sh:shownHitsOf(w).map(hitKey)})),
+      showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit};
+  }
+  // שחזור צומת — בדיוק אותו מופע ואותם ממצאים. משתמש ב-loadMatrix הקנוני.
+  function journeyGoto(i){
+    const node=st.journey[i];if(!node)return;
+    st.journey=st.journey.slice(0,i);            // חוזרים אחורה → הצמתים שאחריו נגזרים
+    st.scope=node.scope;updateScopeUI();
+    st.showN=node.showN;st.ctxR=node.ctxR;st.zoom=node.zoom;st.fit=node.fit;
+    loadMatrix({term:node.term,skip:node.skip,start:node.start,hit:node.hit,scope:node.scope,words:node.words,hideMain:node.hideMain},0);
+    toast("↩ חזרה ל«"+node.term+"»");
+  }
+  // ↑ הפיכת ממצא משני לציר ראשי. הציר הקודם **נשמר אוטומטית** — גם במסע וגם כממצא מוזהב.
+  function promoteToAxis(wi){
+    const w=st.words[wi];if(!w)return;
+    const sh=shownHitsOf(w);if(!sh.length){toast("אין מופע מוצג ל«"+w.t+"» — אי-אפשר לעגן עליו");return;}
+    const prevTerm=st.raw,prevColor=AXIS_COLOR;
+    const snap=journeySnap();if(snap)st.journey.push(snap);       // ① הצומת הנוכחי נשמר במסע
+    const sk=Math.abs(sh[0].skip),hit0=sh[0];
+    // ② הציר הקודם נכנס כממצא-ראשון, בזהב — כדי שהקשר הנראה-לעין לא יאבד
+    const carry=[{t:prevTerm,color:prevColor},...st.words.filter((_,i)=>i!==wi).map(x=>({t:x.t,color:x.color}))].slice(0,12);
+    loadMatrix({term:w.t,skip:sk,start:hit0.start,hit:hit0,scope:st.scope,words:carry},0);   // ③ המסלול הקנוני — אותו findAll
+    toast("↑ «"+w.t+"» הוא הציר · «"+prevTerm+"» נשמר במסע");
+  }
+  const AXIS_COLOR="#e8c84a";   // זהב — הציר-לשעבר, כדי שייראה שונה מממצא רגיל
+
   function loadMatrix(item,filmTimes){
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
@@ -2588,7 +2647,19 @@
     paintThen(()=>{
       st.res=findAll(item.term,4000);                                    // ← השלב הכבד
       if(!st.res.hits.length){hideStage();updGem();render();return;}
-      let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
+      // 🎯 עיגון-מדויק: אם נמסר start (מסע-מחקר / הפיכת-ממצא-לציר) — נועלים על **אותו מופע בדיוק**.
+      //    צפנים שמורים אינם נושאים start ולכן ממשיכים בהתאמה לפי |דילוג| — התנהגות ללא שינוי.
+      let idx=-1;
+      if(item.start!=null)idx=st.res.hits.findIndex(h=>h.start===item.start&&(!item.skip||Math.abs(h.skip)===item.skip));
+      // ⚠️ מונח נפוץ מגיע לתקרת ה-cap, ולכן המופע שהמשתמש ראה עשוי לא להיות בקבוצה שנחשפה.
+      //    במקרה כזה **לא מחפשים מחדש** — המופע כבר בידינו (item.hit), ומשתילים אותו כמות-שהוא.
+      //    זה שומר על «הפוך לציר» ועל «↩ חזור» מדויקים גם למילים נפוצות, בלי לגעת ב-findAll.
+      if(idx<0&&item.hit&&item.hit.positions&&item.hit.positions.length){
+        st.res.hits.push({skip:item.hit.skip,dir:item.hit.dir,start:item.hit.start,positions:item.hit.positions.slice()});
+        st.res.hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip)||b.dir-a.dir||a.start-b.start);
+        idx=st.res.hits.findIndex(h=>h.start===item.hit.start&&Math.abs(h.skip)===Math.abs(item.hit.skip));
+      }
+      if(idx<0)idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
       if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
       st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
       st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
@@ -3121,6 +3192,15 @@
     recomputeWords();
     const h=occ(),S=Math.abs(h.skip),n=r.hits.length,st0=h.positions[0];
     const wrap=document.createElement("div");
+    // ↩ שורת-מסע-המחקר — נראית רק כשיש היסטוריה. כל צומת לחיץ ומחזיר בדיוק למופע שלו.
+    if(st.journey.length){
+      const tr=document.createElement("div");tr.className="jtrail";
+      tr.innerHTML='<span class="j-ic" title="מסע המחקר">↩</span>'+
+        st.journey.map((n,i)=>'<button class="j-n" data-i="'+i+'" title="חזור ל«'+n.term+'» · דילוג '+heb(n.skip)+'">'+n.term+'</button><span class="j-ar">›</span>').join("")+
+        '<span class="j-cur">'+st.raw+'</span>';
+      tr.querySelectorAll(".j-n").forEach(b=>b.onclick=()=>journeyGoto(+b.dataset.i));
+      wrap.appendChild(tr);
+    }
     const head=document.createElement("div");head.className="rhead";
     head.innerHTML=
       '<span class="found">נמצא <b>'+st.raw+'</b></span>'+
@@ -3154,7 +3234,9 @@
     if(st3d.on)enable3D(mb);else enablePan(mb);
     const hb=document.createElement("div");hb.className="hintbar";
     hb.innerHTML='<span class="ht">📍 הקש אות למיקום בתורה · '+(st.fit?"מותאם למסך · צבוט/± להגדיל":"גרור · צבוט להגדיל")+'</span>'+
-      '<span class="zoomctl"><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="heatbtn'+(st.heat?" on":"")+'" title="מפת-חום צפיפות">🌡️ חום</button><button class="selbtn'+(st.selMode?" on":"")+'" title="סימון ידני">✏️ סימון</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button></span>';
+      // 🔭 סרגל-המטריצה: ניקוד · התאם · − · ＋ · 👁 (החלטת צוריאל — הניקוד יושב **עם** בקרות-התצוגה).
+      //    חום/סימון עברו לגיליון 👁 יחד עם שאר יכולות-התצוגה. שום יכולת לא נמחקה.
+      '<span class="zoomctl"><button class="nqm'+(st.niqqud?" on":"")+'" title="ניקוד">◌ ניקוד</button><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button><button class="dispbtn'+(st.dispOpen?" on":"")+'" title="תצוגה — ערכה · סרט · תלת-ממד · הצגה · פסוק · חום · סימון · תמונה">👁</button></span>';
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
     const isEdit=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים → «עדכן ממצא» במקום «שמור»
@@ -3196,15 +3278,21 @@
     filmbar.querySelector(".fb-play").onclick=()=>playReveal();
     filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.onclick=()=>{st.filmSpeed=+bt.dataset.s;syncSpeed();playReveal();});
     filmbar.querySelector(".fb-x").onclick=()=>{stopReveal();filmbar.style.display="none";};
+    if(st.dispOpen){const ds=buildDisplaySheet(selbar);mbWrap.appendChild(ds);
+      // 🎬/🎥/🖼️ מחוברים לאותם מטפלים של הפעולות הקיימות — אפס כפילות-לוגיקה
+      ds.querySelector(".d-film").onclick=()=>{filmbar.style.display="flex";playReveal();};
+      ds.querySelector(".d-pres").onclick=()=>{try{startPresent();}catch(e){}};
+      ds.querySelector(".d-img").onclick=()=>{try{downloadMatrixPNG();}catch(e){}};}
     work.appendChild(buildSide());
     wrap.appendChild(work);
     // ⛔ התגובות-הפרימיטיביות (localStorage) הוסרו — המחקר-הקהילתי הקנוני חי בעמוד-הצופן /codes/:slug (Discourse).
     out.innerHTML="";out.appendChild(wrap);
     hb.querySelector(".fitbtn").onclick=()=>{st.fit=!st.fit;st.zoom=1;render();};
+    hb.querySelector(".nqm").onclick=async()=>{if(!st.niqqud)await ensureNiqqud();st.niqqud=!st.niqqud;applyView();render();};
+    hb.querySelector(".dispbtn").onclick=()=>{st.dispOpen=!st.dispOpen;render();};
     hb.querySelector(".zo").onclick=()=>setZoom(st.zoom-0.2);
     hb.querySelector(".zi").onclick=()=>setZoom(st.zoom+0.2);
-    hb.querySelector(".heatbtn").onclick=()=>{st.heat=!st.heat;hb.querySelector(".heatbtn").classList.toggle("on",st.heat);recolorOnly();};
-    hb.querySelector(".selbtn").onclick=()=>{st.selMode=!st.selMode;hb.querySelector(".selbtn").classList.toggle("on",st.selMode);selbar.style.display=st.selMode?"flex":"none";updateSelBar();};
+    // (חום/סימון חיים עכשיו בגיליון 👁 — ראה buildDisplaySheet)
     updateSelBar();
     head.querySelector(".occbtn").onclick=()=>{st.occOpen=!st.occOpen;const p=wrap.querySelector(".occpanel");if(p)p.style.display=st.occOpen?"block":"none";head.querySelector(".occbtn").lastChild.textContent=st.occOpen?" ▴":" ▾";};
     if(st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
@@ -3711,6 +3799,32 @@
     renderC();return card;
   }
 
+  // ── 👁 גיליון-התצוגה ─────────────────────────────────────────────────────────
+  //  שלוש ערכות-המטריצה + כל יכולות-התצוגה במקום אחד, נפתח על-פי-דרישה.
+  //  ⛔ העדפת-תצוגה בלבד — אינה משנה שום תוצאת-מנוע (אותו findAll, אותו דירוג).
+  function buildDisplaySheet(selbar){
+    const d=document.createElement("div");d.className="dispsheet";
+    const TH=[["royal","👑 מלכותי"],["classic","☀️ קלאסי"],["klaf","📜 קלף"]];
+    d.innerHTML='<div class="ds-seg">'+TH.map(t=>'<button data-th="'+t[0]+'"'+(st.theme===t[0]?' class="on"':'')+'>'+t[1]+'</button>').join("")+'</div>'+
+      '<div class="ds-grid">'+
+        '<button class="d-film">🎬 סרט</button>'+
+        '<button class="d-3d'+(st3d.on?" on":"")+'">🧊 תלת-ממד</button>'+
+        '<button class="d-pres">🎥 מצב הצגה</button>'+
+        '<button class="d-verse'+(st.verseRead?" on":"")+'">📖 קריאת פסוק</button>'+
+        '<button class="d-heat'+(st.heat?" on":"")+'">🌡️ מפת חום</button>'+
+        '<button class="d-sel'+(st.selMode?" on":"")+'">✏️ סימון תאים</button>'+
+        '<button class="d-img">🖼️ תמונה</button>'+
+      '</div>';
+    d.querySelectorAll(".ds-seg button").forEach(b=>b.onclick=()=>{st.theme=b.dataset.th;applyView();render();});
+    d.querySelector(".d-3d").onclick=()=>{st3d.on=!st3d.on;if(!st3d.on){st3d.rx=44;st3d.rz=0;}render();
+      toast(st3d.on?"🧊 תלת-מימד — גררו לסובב · הקש שוב לביטול":"חזרה לתצוגה רגילה");};
+    d.querySelector(".d-heat").onclick=()=>{st.heat=!st.heat;render();};
+    d.querySelector(".d-sel").onclick=()=>{st.selMode=!st.selMode;render();};
+    d.querySelector(".d-verse").onclick=()=>{st.verseRead=!st.verseRead;
+      if(st.verseRead){ensureVerseText();toast("📖 קריאת-פסוק דלוקה — הקש על אות והפסוק כולו יידלק");}
+      else{st.verseHL=-1;clearVerseWords();toast("קריאת-פסוק כבויה");}render();};
+    return d;
+  }
   function buildSide(){
     const side=document.createElement("div");side.className="side";
     const card=document.createElement("div");card.className="card findings-card";
@@ -3896,12 +4010,15 @@
           '<span class="t">'+w.t+'</span>'+stTxt+
           (canExp?'<button class="lineb'+(st.lineFor===i?" on":"")+'" title="הצג את שורת-הצופן המלאה">🔭</button>':'')+
           (canExp?'<button class="exp" title="פתח מופעים">'+(st.expand===i?"▴":"▾")+'</button>':'')+
+          // ↑ הפיכת הממצא לציר ראשי — סוגר את לולאת-המחקר. הציר הקודם נשמר במסע וכממצא מוזהב.
+          (canExp&&shown.length?'<button class="toax" title="הפוך את «'+w.t+'» לציר הראשי — הציר הנוכחי יישמר במסע">↑ ציר</button>':'')+
           // 🔀 סדר-ההצגה: מקדים/מאחר את המילה במצב-הצגה (ובסרט). המילה הראשונה ברשימה מוצגת ראשונה (אחרי הציר).
           (st.words.length>1?'<button class="mvup" title="הקדם — יוצג מוקדם יותר"'+(i===0?" disabled":"")+'>▲</button><button class="mvdn" title="אחר — יוצג מאוחר יותר"'+(i===st.words.length-1?" disabled":"")+'>▼</button>':'')+
           '<button class="del" title="הסר">🗑</button>';
         it.querySelector(".dot").onclick=()=>{st.swOpen=st.swOpen===i?-1:i;renderList();};
         const lb=it.querySelector(".lineb");if(lb)lb.onclick=()=>{st.lineFor=st.lineFor===i?-1:i;renderList();};
         const eb=it.querySelector(".exp");if(eb)eb.onclick=()=>{st.expand=st.expand===i?-1:i;renderList();};
+        const tx=it.querySelector(".toax");if(tx)tx.onclick=()=>promoteToAxis(i);
         it.querySelector(".del").onclick=()=>{st.words.splice(i,1);if(st.swOpen===i)st.swOpen=-1;if(st.expand===i)st.expand=-1;recomputeWords();recolorOnly();renderList();};
         // 🔀 מיון סדר-ההצגה: החלפת מקומות ב-st.words → משנה גם את סדר מצב-ההצגה וגם את סרט-הצופן.
         //    (סוגרים פאנלים פתוחים כדי שאינדקסים לא יתבלבלו; recolorOnly כי בתא-הצלבה צבע-המילה-הראשונה גובר.)
