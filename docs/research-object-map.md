@@ -429,6 +429,184 @@ Therefore:
 
 No view is allowed to silently create a second Finding, second tree, second engine or alternative source of truth.
 
+## Device-Adaptive Compute Orchestration — Mobile-First, Compute-Agnostic
+
+The product should be **mobile-first at the interface level, but device-adaptive at the compute level**. The user should experience one ELS system regardless of whether they are on a phone, tablet or desktop. The system decides where a task should execute based on measured cost and device capability.
+
+### One research system, multiple execution tiers
+
+```text
+                         USER / RESEARCH CASE
+                                  │
+                                  ▼
+                        COMPUTE ORCHESTRATOR
+                                  │
+             ┌────────────────────┼────────────────────┐
+             │                    │                    │
+          LOCAL UI           WORKER / WASM         SERVER
+        (small tasks)        (medium/heavy)      (deep tasks)
+             │                    │                    │
+             └────────────────────┼────────────────────┘
+                                  ▼
+                        SAME ENGINE CONTRACT
+                                  │
+                                  ▼
+                     SAME FINDINGS / PROVENANCE
+```
+
+This is **execution routing, not a second engine**. All execution paths must preserve the same canonical engine semantics, search-space rules, ranking contract, provenance and Research Object identity.
+
+### Tier 0 — UI/local execution
+
+Use the main thread only for cheap, immediate operations where latency is predictably small:
+
+- pan / pinch / zoom / fit / focus;
+- color and display changes;
+- selecting a finding;
+- changing the active occurrence;
+- opening an existing matrix state;
+- lightweight state transitions.
+
+The UI thread must never be deliberately burdened with a deep corpus scan merely because the device happens to be powerful.
+
+### Tier 1 — Local Worker / WASM / GPU
+
+Use local parallel compute when the operation is substantial but the corpus and algorithm can remain safely on-device:
+
+- larger on-demand ELS scans;
+- candidate generation;
+- multi-term or multi-form searches;
+- expensive matrix recomputation;
+- future 3D spatial calculations that can be bounded locally;
+- operations whose result can be returned without exposing private research data to a server.
+
+A Worker must import/use the **same canonical engine logic** or a shared compiled representation. A copied engine inside a Worker is prohibited because it would create a hidden second implementation.
+
+WASM/GPU are acceleration layers, not new semantics.
+
+### Tier 2 — Server-side deep research
+
+Use server compute when the search is too large, too slow, too memory-intensive, or too broad for a reliable mobile session:
+
+- full-corpus deep searches;
+- large candidate expansions;
+- many seeds / many methods / many widths or depths;
+- expensive Monte Carlo / null-model workloads;
+- cross-case or multi-object research jobs;
+- AI orchestration over large result sets;
+- long-running research experiments.
+
+The server returns Research Objects / Evidence / Candidate results with provenance, not an opaque answer. The UI can then render those results through the same Matrix State / Finding model.
+
+### The user must not choose the compute tier
+
+The user chooses **what to investigate**, not whether it should run in a Worker, GPU or server.
+
+The orchestrator should consider:
+
+- estimated operation cost;
+- corpus scope;
+- number of terms/seeds;
+- search-space width/depth;
+- expected memory;
+- device CPU/GPU capability;
+- current device load;
+- network availability and latency;
+- privacy requirements;
+- entitlement (free / premium, where applicable).
+
+A premium tier may receive larger research budgets and deeper server execution, but it must not change the underlying evidence rules or silently convert candidates into facts.
+
+### Progressive execution
+
+A deep investigation should not require the user to wait for one giant opaque job. Where useful, the orchestrator should return results progressively:
+
+```text
+REQUEST
+  ↓
+PLAN
+  ↓
+FAST FIRST PASS
+  ↓
+EARLY FINDINGS
+  ↓
+RANK / USER CHOICE
+  ↓
+DEEPEN SELECTED PATH
+  ↓
+VERIFY / CONTROL
+  ↓
+FINAL RESEARCH SNAPSHOT
+```
+
+This is particularly important for mobile. The user can begin inspecting early verified results while deeper work continues, without pretending that an incomplete search is complete.
+
+### Compute provenance
+
+Every non-trivial research execution should be reproducible from an execution record containing, as applicable:
+
+- engine/version identifier;
+- corpus/version identifier;
+- search-space definition;
+- parameters and scope;
+- execution tier (local / Worker / WASM / GPU / server);
+- device/runtime class when relevant to reproducibility;
+- start/end or job identifier;
+- ranking version;
+- random seed for randomized tests;
+- result object IDs;
+- status: complete / partial / failed / cancelled.
+
+**Execution tier is provenance, not evidence.** A server result is not inherently stronger than a local result, and a GPU result is not inherently more truthful than a CPU result.
+
+### Mobile failure policy
+
+A mobile device must never silently substitute a weaker search because it is slow.
+
+If a requested operation exceeds local limits, the system should:
+
+1. preserve the requested research specification;
+2. route it to an allowed stronger tier when available;
+3. otherwise report that the requested search is incomplete or unavailable;
+4. never present a truncated prefix as though it were the full search.
+
+This directly protects **Rank, Don't Hide** and **NO SILENT LOSS**.
+
+### Compute budget as part of Research Planning
+
+The existing AI Research Budget should be extended to include compute routing:
+
+```text
+Research request
+  ├─ Scope: Torah / Tanakh / selected books
+  ├─ Seeds: N
+  ├─ Terms/forms: N
+  ├─ Geometry: width / depth / directions
+  ├─ Methods: N
+  ├─ Controls: N
+  ├─ Expected cost: low / medium / high
+  ├─ Preferred execution: automatic
+  └─ Maximum allowed budget: user/entitlement policy
+```
+
+The user should see **what the system is going to investigate**, not infrastructure jargon. For example:
+
+> "בדיקה עמוקה: 24 מונחים × 6 צורות × כל הדילוגים. המערכת תבצע זאת אוטומטית בהדרגה."
+
+The exact compute tier can remain hidden unless diagnostics are requested.
+
+### Three non-negotiable rules
+
+1. **One engine, many execution environments.** Local, Worker/WASM/GPU and server are execution modes, never competing algorithms.
+2. **No silent degradation.** If the requested search cannot be completed, the result is marked partial/incomplete rather than silently narrowed.
+3. **Same Research Object identity.** Moving from mobile local search to server deep search, or from 2D to 3D, must preserve the same Finding/Evidence/Provenance identity where the underlying result is the same.
+
+### Architectural consequence
+
+This model allows the product to be extremely capable without forcing every device to perform every calculation. A phone can expose the **same research universe** as desktop; the orchestrator simply chooses the safest and fastest execution path.
+
+It also prevents a future architectural trap: building separate "mobile ELS", "desktop ELS", "premium ELS" or "3D ELS" engines. There should remain one canonical engine and shared Research Objects.
+
 ## Next step — DO NOT BUILD YET
 
 Create a **Capability → Object Map** for the 78 capabilities identified by the ELS research.
@@ -444,6 +622,7 @@ For each capability, determine:
 7. Whether the capability changes the roadmap priority.
 8. For AI capabilities, whether the output is a Candidate, Recommendation, Hypothesis, Interpretation, Experiment or other existing object.
 9. For multi-engine capabilities, which shared object identity must remain stable across views.
+10. For compute-heavy capabilities, which execution tier(s) are eligible and what must trigger escalation from local → Worker/WASM/GPU → server.
 
 The output should identify missing primitives and duplicates **before any implementation begins**.
 
@@ -459,11 +638,14 @@ The output should identify missing primitives and duplicates **before any implem
 - No promotion to canonical or publication by AI alone.
 - 3D visualization is not evidence by itself.
 - AI recommendations must not silently expand the search space.
+- Compute routing must not alter the canonical search semantics.
+- Local/Worker/server are execution tiers, not separate engines.
+- Partial or failed computation must be labeled; never disguise truncation as completion.
 
 ## Current status
 
-**Completed:** Research Object Map captured as a durable strategy document; shared-engine/view model and AI Research Navigator concept added.
+**Completed:** Research Object Map captured as a durable strategy document; shared-engine/view model, AI Research Navigator, and device-adaptive Compute Orchestration concept added.
 
-**Not completed:** Capability → Object Map for the 78 ELS capabilities.
+**Not completed:** Capability → Object Map for the 78 ELS capabilities; execution thresholds/benchmarks are not yet defined.
 
-**Next action:** Map the 78 capabilities to these objects, identify duplication/gaps, then decide what (if anything) needs to be built.
+**Next action:** Map the 78 capabilities to these objects, identify duplication/gaps, then define evidence-based compute routing thresholds before implementation.
