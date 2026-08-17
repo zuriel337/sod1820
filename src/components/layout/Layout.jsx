@@ -15,6 +15,7 @@ import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשי
 import MaintenanceTicker from "./MaintenanceTicker.jsx"; // 🚧 רצועת «האתר בבנייה» — שורה זזה גלובלית
 import CelestialPinnedBar from "./CelestialPinnedBar.jsx"; // 🌌 שורה נעוצה גלובלית — «שלושה דברים שמימיים בערב ראש חודש אלול»
 import PromoTicker from "./PromoTicker.jsx"; // 🎗️ טיקר יחיד מתחלף «בקרוב» (ציר ההתגלות · ציר אישי · דילוגי-אותיות · תשפ״ו · English) — מחליף את כל הטיקרים הישנים
+import UpgradeTicker from "./UpgradeTicker.jsx"; // 🏗️ טיקר «בונים את 2.0» — הודעות-מעבר בתנועת תריסים (גלובלי)
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
@@ -62,6 +63,8 @@ export default function Layout() {
       {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
+        {/* 🏗️ טיקר «בונים את 2.0» — רצועת הודעות-מעבר גלובלית בתנועת תריסים (בקשת צוריאל 17.8.2026). גלובלי בכל הדפים. */}
+        <UpgradeTicker />
         {/* 🎗️ טיקר יחיד מתחלף «בקרוב» — סרגל אחד גלובלי שמחליף כל 7ש׳ בין הפרומואים:
             🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי ·
             🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
