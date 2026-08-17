@@ -138,6 +138,297 @@ Examples:
 
 This object-first model is intended to reduce UI proliferation and prevent duplicate concepts.
 
+## Shared Engine Views — no parallel engines
+
+The research workspace should treat each analysis engine as a **view/capability over shared Research Objects**, not as a separate source of truth.
+
+A single Finding must remain the same Finding when the researcher moves between views:
+
+```text
+                         FINDING
+                            │
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+       2D MATRIX         3D SPACE          SOURCE
+          │                 │                 │
+       ELS path       depth relations     Torah text
+          │                 │                 │
+          └─────────────────┼─────────────────┘
+                            │
+                       AI RESEARCH
+                            │
+             ┌──────────────┼──────────────┐
+             ↓              ↓              ↓
+          Hypothesis     Comparison     Experiment
+```
+
+The same `finding_id`, provenance and evidence must travel between views. A 2D matrix, 3D spatial view, source view, numerical analysis, graph view and experiment view are representations/capabilities over the same underlying objects.
+
+### Cross-view navigation
+
+The UI should support explicit **Open in...** transitions without creating duplicate research objects:
+
+- Open in 2D
+- Open in 3D
+- Open in Source
+- Open in Numerical
+- Open in Graph
+- Open in Experiment
+
+A research breadcrumb should preserve context, for example:
+
+```text
+Research Case
+  > Seed: 1820
+  > Finding #1842
+  > 3D Spatial View
+  > Depth Search
+  > Layer 128
+```
+
+Switching to another view changes the representation, not the identity of the research object.
+
+### 2D ↔ 3D synchronization
+
+The 2D and 3D views should remain synchronized around the same Finding. Selecting a Finding in either view should locate the same object in the other view.
+
+The 3D layer is therefore a Matrix State / spatial-analysis capability, not a new research engine. ELS remains responsible for finding occurrences; the spatial layer maps existing findings to coordinates and studies relationships between them.
+
+### Progressive disclosure in 3D
+
+The 3D workspace should not attempt to render the entire corpus as a dense field of individual letters at once. The intended research UX is progressive:
+
+```text
+Universe → Layer → Region → Matrix → Letters
+```
+
+Possible operations include:
+
+- Anchor / Pin Finding
+- Look Below
+- Look Above
+- Show Path
+- Show Neighbors
+- Diagonals
+- Cross Section / Slice
+- Compare
+- Local neighborhood / local volume
+- 2D ↔ 3D synchronization
+
+Visualization is not evidence. Geometry must remain tied to explicit coordinates, methods, provenance and status.
+
+## AI Research Navigator
+
+The AI layer should not be a generic chatbot placed beside the matrix. Its primary role is to help navigate the research space by proposing **testable next paths** over existing objects.
+
+For a selected Finding, the AI may present structured research options such as:
+
+```text
+RESEARCH OPTIONS
+
+1. Geometry
+   - What is below?
+   - What is above?
+   - What is diagonal?
+   - Which findings are nearby?
+
+2. ELS
+   - Reverse / parallel occurrences
+   - Related axes
+   - Additional occurrences under the existing search contract
+
+3. Text
+   - Source context
+   - Nearby terms
+   - Verse / passage context
+
+4. Numerical
+   - Existing canonical calculation methods
+   - Related numerical candidates
+
+5. Cross-Finding
+   - Nearby findings
+   - Cluster relationships
+   - Shared axes / terms
+
+6. Verification
+   - Reproduce
+   - Null model
+   - Control / counterexample
+```
+
+The AI should rank or explain these options, but it must not silently execute an open-ended search expansion merely because it can think of one.
+
+### AI Research Map
+
+A Finding can expose a structured map of possible research paths:
+
+```text
+Finding A
+   │
+   ├── Spatial
+   │    ├── Below
+   │    ├── Above
+   │    └── Diagonal
+   │
+   ├── ELS
+   │    ├── Reverse
+   │    ├── Parallel
+   │    └── Related axis
+   │
+   ├── Text
+   │    ├── Context
+   │    └── Terms
+   │
+   └── Verification
+        ├── Null
+        ├── Control
+        └── Reproduce
+```
+
+The resulting path belongs to the Research Path / Research Case model. It is not a second tree or engine.
+
+## AI Research Budget
+
+Because expanded search spaces can increase false-positive risk, AI-proposed investigations should expose their expected search cost before execution when the cost is material.
+
+A research budget can include:
+
+```text
+Seeds: 1
+Widths: 1
+Depth: 20
+Methods: 2
+Controls: 2
+```
+
+The AI should be able to state when a proposed action materially expands the search space and why that expansion could change a decision. This is especially important for 3D, where adding width/height/depth, directions, seeds and methods can create many degrees of freedom.
+
+A recommendation should therefore contain, where applicable:
+
+- what it tests;
+- why it is needed;
+- expected search-space cost;
+- what decision changes if the result is A vs B;
+- whether the test is exploratory or confirmatory.
+
+If a proposed test cannot change a decision, it should not be prioritized merely to generate more information.
+
+## AI Challenge Mode
+
+For an existing Finding or Hypothesis, AI should have a **Challenge** capability whose purpose is to search for alternative explanations rather than reinforce the user's preferred interpretation.
+
+Possible challenge questions:
+
+- Is the result parameter-dependent?
+- Does it survive the declared null model?
+- Did post-hoc parameter selection create the apparent signal?
+- Are there many similar findings by chance?
+- Does the relation persist under the declared control?
+- Is the observed relation a property of the chosen geometry rather than the text?
+
+Challenge output remains Evidence / Candidate / Interpretation as appropriate. It does not promote a claim to fact.
+
+## AI Research Brief
+
+For a selected Finding, the system may generate a compact structured brief:
+
+```text
+FINDING #1842
+
+OBSERVED
+What was actually found.
+
+GEOMETRY
+Coordinates, method and spatial relations.
+
+KNOWN
+Existing verified evidence.
+
+UNKNOWN
+What has not yet been established.
+
+POSSIBLE HYPOTHESES
+Explicit hypotheses, not facts.
+
+RECOMMENDED NEXT TEST
+The highest-value test under the current research plan.
+
+WHY
+What decision the test could change.
+
+DO NOT TEST YET
+Lower-value or redundant investigations and why they are deferred.
+```
+
+This is an Intelligence-layer artifact. It must preserve provenance and the distinction between observation, evidence, inference and recommendation.
+
+## Compare Views
+
+A research case should support comparison of representations without duplicating the underlying finding.
+
+Example:
+
+```text
+┌──────────────────┬──────────────────┐
+│     2D MATRIX    │    3D SPACE      │
+│                  │                  │
+│       ★          │       ★          │
+│                  │       │          │
+│                  │       ●          │
+│                  │       │          │
+│                  │       ●          │
+└──────────────────┴──────────────────┘
+```
+
+The same Finding is highlighted in both views. The purpose is to make explicit what the 3D representation adds relative to the 2D representation, rather than assuming that visual complexity is research value.
+
+## Research Timeline / Path Replay
+
+A research session should be able to preserve the sequence of meaningful transitions:
+
+```text
+Seed 1820
+   ↓
+Finding #1842
+   ↓
+2D inspection
+   ↓
+3D depth
+   ↓
+Finding #1921
+   ↓
+Compare
+   ↓
+Hypothesis H3
+   ↓
+Experiment E7
+   ↓
+Null test
+   ↓
+Conclusion
+```
+
+This is a Research Path / Snapshot capability. It should make it possible to return to a prior research state without reconstructing the investigation manually.
+
+## Architectural rule for the AI + engines
+
+**Every engine is a view/capability over shared Research Objects, never a parallel source of truth.**
+
+Therefore:
+
+- ELS engine → finds occurrences.
+- Matrix State → represents the current research workspace.
+- 2D / 3D → views of the matrix/workspace.
+- Spatial analysis → measures explicit geometric relations between existing findings/evidence.
+- Numerical engines → calculate using the canonical calculation engine.
+- Graph → represents relationships between research objects.
+- Experiment → evaluates a hypothesis under explicit conditions.
+- AI → proposes, challenges, summarizes and prioritizes.
+- Human-Gate → decides what is accepted, promoted or published.
+
+No view is allowed to silently create a second Finding, second tree, second engine or alternative source of truth.
+
 ## Next step — DO NOT BUILD YET
 
 Create a **Capability → Object Map** for the 78 capabilities identified by the ELS research.
@@ -151,6 +442,8 @@ For each capability, determine:
 5. Whether it is DATA, RESEARCH, or INTELLIGENCE.
 6. Whether a missing underlying object is blocking implementation.
 7. Whether the capability changes the roadmap priority.
+8. For AI capabilities, whether the output is a Candidate, Recommendation, Hypothesis, Interpretation, Experiment or other existing object.
+9. For multi-engine capabilities, which shared object identity must remain stable across views.
 
 The output should identify missing primitives and duplicates **before any implementation begins**.
 
@@ -164,10 +457,12 @@ The output should identify missing primitives and duplicates **before any implem
 - Preserve provenance; do not silently delete research material.
 - Gematria must use the canonical engine functions, never memory/manual arithmetic.
 - No promotion to canonical or publication by AI alone.
+- 3D visualization is not evidence by itself.
+- AI recommendations must not silently expand the search space.
 
 ## Current status
 
-**Completed:** Research Object Map captured as a durable strategy document.
+**Completed:** Research Object Map captured as a durable strategy document; shared-engine/view model and AI Research Navigator concept added.
 
 **Not completed:** Capability → Object Map for the 78 ELS capabilities.
 
