@@ -5,85 +5,322 @@
 **Human-Gate:** ZURIEL
 **Branch:** `gpt/research-object-map`
 
-## Purpose
+> This document is a strategic map only. It does not authorize code, DB, schema, migration, UI implementation, merge, deploy, canonical promotion or publication.
 
-Preserve the current research-system model so future sessions can continue without reconstructing the architecture from memory.
+---
 
-The immediate goal is to model the research objects first, then map the existing ELS capabilities onto them. No new engine, parallel tree, or duplicate subsystem is implied by this document.
+# 0. Purpose
 
-## Core separation
+The purpose of this document is to preserve the research-system model and, at the higher level, the whole SOD1820 product model so future sessions do not reconstruct the architecture from memory.
 
-The system must keep three layers distinct:
+The central idea is a **single research substrate underneath many entrances and experiences**.
 
-1. **DATA** — what the engine actually found or calculated.
-2. **RESEARCH** — what the human researcher is investigating, testing, and deciding.
-3. **INTELLIGENCE** — what AI proposes, prioritizes, summarizes, or infers.
+SOD1820 may have different public entrances, audiences and journeys — אור הגאולה, מימד חמש, סנכרונים/רמזים, מחקר, הצופן התנכי, פורום, archive, number/topic pages and business surfaces — but these are not intended to become independent information systems.
 
-AI suggestions are never automatically canonical facts, publications, or human decisions.
+They are different **views, entrances, journeys or distribution surfaces over a shared research world**.
 
-## Research objects
+No new engine, parallel tree, duplicate database, duplicate research object system or alternate source of truth is implied by this document.
 
-### 1. Entity
-The research subject or graph entity: person, name, place, event, date, number, concept, signal-derived entity, etc.
+---
 
-### 2. Term
-A word or phrase that can be searched or tested. Track whether it is source-derived, system-suggested, researcher-selected, or rejected.
+# 1. SOD1820 — Whole-System Product Map / Zoom-Out
 
-### 3. Axis
-A research axis: term, skip, direction, start/occurrence, geometry, scope, verse context, calculation and provenance. An axis can generate a new axis through a finding.
+## 1.1 North Star
 
-### 4. Finding
-A concrete research result: what term/axis was found, where, under what conditions, with skip/distance/direction/geometric context, ranking, rarity and provenance.
+> **Maximum useful research / Minimum unnecessary computation**
+>
+> **מקסימום מידע מחקרי שימושי במינימום חישוב מיותר.**
 
-### 5. Cluster
-A group of findings that converge on the same region, entity, concept, or research structure.
+The goal is not to maximize the number of features, screens, searches or calculations.
 
-### 6. Candidate
-A system-generated or human-suggested thing worth checking. Candidate is not a finding and is not a fact.
+The goal is to maximize the amount of **useful, reproducible, decision-relevant research** produced by the system while minimizing:
 
-### 7. Hypothesis
-A proposition the researcher wants to test. It remains a hypothesis until supported or rejected by evidence.
+- unnecessary search-space expansion;
+- redundant computation;
+- duplicated engines;
+- duplicated research objects;
+- repeated work;
+- UI complexity that does not improve a decision;
+- AI-generated exploration that cannot change a decision;
+- silent loss or silent narrowing of research.
 
-### 8. Experiment
-A hypothesis plus explicit method, conditions, search space, tools, result and evaluation.
+Therefore, every future capability must eventually be evaluated through:
 
-### 9. Evidence
-The underlying observable/calculated datum: occurrence, coordinate, skip, distance, value, source passage, etc. Evidence must remain distinct from interpretation.
+> **Object + Value + Cost + Coverage + Risk + Decision Impact**
 
-### 10. Interpretation
-A human or AI explanation of what evidence may mean. Interpretation is not automatically fact.
+This is a planning criterion, not a new runtime architecture.
 
-### 11. Research Path
-The trace of the investigation: entity → term → axis → finding → cluster/new axis → hypothesis → experiment → analysis → interpretation.
+---
 
-### 12. Research Case
-The top-level research container: question, entities, terms, axes, findings, clusters, candidates, hypotheses, experiments, sources, decisions, interpretations and conclusions.
+## 1.2 One system, many entrances
 
-### 13. Matrix State
-The current matrix/workspace state: text, axis, geometry, zoom, focus, findings, display mode, 3D/simulation state, film/presentation state, etc. Matrix State is a workspace, not the research itself.
+```text
+                         SOD1820
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+           ENTRANCES      COMMUNITY      BUSINESS
+              │             │             │
+      ┌───────┼───────┐     │             │
+      │       │       │     │             │
+   אור הגאולה  מימד חמש  רמזים/סנכרונים  credits / future membership
+      │       │       │     │             │
+      └───────┴───────┴─────┴─────────────┘
+                            │
+                     SHARED RESEARCH
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+       DATA              RESEARCH          INTELLIGENCE
+        │                   │                   │
+        └───────────────────┼───────────────────┘
+                            │
+                     SHARED OBJECTS
+                            │
+      Entity · Term · Axis · Finding · Evidence
+      Candidate · Cluster · Hypothesis · Experiment
+      Research Path · Case · Snapshot · Decision
+                            │
+                 ┌──────────┼──────────┐
+                 │          │          │
+                AI        VIEWS      HUMAN GATE
+                 │          │          │
+                 └──────────┼──────────┘
+                            │
+                    community / output
+```
 
-### 14. Source
-An external or originating source: article, post, image, video, verse, document, user contribution, AI-generated suggestion, etc. Provenance must remain attached.
+Different entrances can feel different.
 
-### 15. Signal
-A real-world/external signal such as a news item. A signal can yield entities, dates, numbers and terms for research, but it is not itself a canonical research fact.
+The underlying research identity must remain shared.
 
-### 16. Research Plan
-A structured plan for answering a research question: strategy, anchors, tools, check order and confidence. It belongs to the research lifecycle rather than becoming a second engine.
+---
 
-### 17. Recommendation
-A proposed next action, such as checking a candidate term or opening a related axis. Recommendation is actionable intelligence, not a decision.
+# 2. Whole-system status legend
 
-### 18. Decision
-A human-gated choice: accept/reject candidate, keep/discard hypothesis, promote/reject finding, etc. ZURIEL is the Human-Gate.
+The product map uses the following planning statuses exactly as requested:
 
-### 19. Research Snapshot
-A saved reproducible state of a research session: matrix state + active terms/axes/findings + path/context.
+| Status | Meaning in this strategy map |
+|---|---|
+| **קיים** | Verified as existing/active in the current project evidence. |
+| **קיים חלקית** | Some infrastructure/capability exists, but the full intended system flow does not. |
+| **בבנייה** | Explicitly under active implementation/review in the current workstream. |
+| **מתוכנן** | Strategy/design exists, but implementation has not begun. |
+| **חסר** | No sufficient existing capability was established for the intended role. |
+| **כפילות** | A duplicate or parallel concept exists or has existed and must be consolidated/removed rather than expanded. |
 
-### 20. Conclusion
-The conclusion of a research case. It is a research conclusion, not automatically a canonical fact.
+These labels describe the **product-planning state**, not canonical DB lifecycle. Where a status is based on current architectural evidence rather than a direct DB field, it remains a planning assessment and does not overwrite Master State.
 
-## Core lifecycle
+---
+
+# 3. Pages / entrances map
+
+| Surface / Page family | Status | Product role | Research relationship |
+|---|---|---|---|
+| Home / main SOD1820 entry | **קיים** | General entry into the ecosystem | Entry into shared graph/research world |
+| אור הגאולה | **קיים** | Content / spiritual discovery entrance | Can lead users toward research objects, signals and sources |
+| מימד חמש | **קיים** | Video / external-knowledge discovery entrance | Signals and source material can become research seeds |
+| סנכרונים / רמזים | **קיים** | Convergence / discovery entrance | Feeds signals, entities, numbers and candidate research |
+| `/code` — הצופן התנכי | **קיים** | Primary ELS research surface | Canonical ELS engine |
+| `/research?tool=els` / היכל | **קיים** | Research-oriented ELS presentation | Same canonical ELS iframe/artifact as `/code` |
+| ELS Work Area / `/lab/els` | **בבנייה** | Researcher workspace / state exposure | Same ELS engine; work area is a view, not a new engine |
+| Forum | **קיים** | Community contribution/discussion | Questions, observations, candidate research and feedback |
+| Archive / reality stream | **קיים** | Historical/current signal presentation | Source/signal layer feeding shared research context |
+| `/number/:n` | **קיים** | Canonical number/entity lens | One graph/entity page, not a separate number system |
+| `/topic/:slug` | **קיים** | Canonical convergence/topic lens | One graph/entity/convergence lens |
+| Share / research snapshots | **קיים חלקית** | Distribution/reproducibility | Snapshot should preserve research identity and provenance |
+| `/credits` / `/buy` | **קיים** | Current business entry | Credits fund defined capabilities; not a separate research system |
+| `/members` | **קיים חלקית** | Intended membership surface | Subscription infrastructure not integrated; currently placeholder/frozen |
+| Admin / research management surfaces | **קיים** | Human operations / moderation | Human Gate and operational control |
+
+### Architectural reading
+
+These pages are **not separate products**.
+
+The correct model is:
+
+> **Different entrance → different user journey → same underlying research substrate.**
+
+A page may emphasize content, video, community, numbers, ELS or business. That does not justify creating a parallel research object model.
+
+---
+
+# 4. User Types
+
+The system should reason about users by **journey and capability**, not by creating separate products.
+
+| User type | Status | Primary need | Research relationship |
+|---|---|---|---|
+| Visitor / Explorer | **קיים** | Discover and understand | Consumes sources, signals and lightweight research |
+| Registered user | **קיים** | Search/save/interact | Creates and revisits research state |
+| Researcher | **קיים חלקית** | Deep investigation | Needs Research Objects, paths, comparisons and verification |
+| Contributor | **קיים** | Submit material / findings / questions | Adds sources, observations and candidates; not automatically facts |
+| Community participant | **קיים** | Discuss and challenge | Provides social context, questions and counterexamples |
+| Advanced / Premium researcher | **קיים חלקית** | Larger/deeper research budgets | Future deep compute, comparison and AI navigation |
+| Admin / Moderator | **קיים** | Review, moderation, operations | Human-gated promotion and publication |
+| AI Research Assistant | **קיים חלקית** | Navigate and challenge research | Intelligence layer; never Human Gate |
+
+The AI user type is conceptual shorthand for a system role, not a new autonomous authority.
+
+---
+
+# 5. User Journeys
+
+The whole system should support several journeys that converge on the same research model.
+
+## 5.1 Discovery journey
+
+```text
+Content / video / post / signal
+        ↓
+Entity / term / number / source
+        ↓
+Candidate
+        ↓
+Human choice
+        ↓
+Research
+```
+
+Status: **קיים חלקית** as a complete cross-site journey.
+
+## 5.2 ELS research journey
+
+```text
+Search
+  ↓
+Matrix
+  ↓
+Finding
+  ↓
+Evidence
+  ↓
+Inspect / compare
+  ↓
+↑ Axis
+  ↓
+Research Path
+  ↓
+Hypothesis / Experiment / Challenge
+```
+
+Status: **קיים חלקית / בבנייה**. Core ELS and the research journey components exist; the full Research Object/AI journey is still strategic work.
+
+## 5.3 Signal → research journey
+
+```text
+Real-world signal
+  ↓
+Source
+  ↓
+Entity / date / number / terms
+  ↓
+Candidates
+  ↓
+Human selection
+  ↓
+Research Case
+```
+
+Status: **קיים חלקית**.
+
+## 5.4 Community → research journey
+
+```text
+Forum / WhatsApp / social
+  ↓
+Observation / question / source
+  ↓
+Candidate / Evidence
+  ↓
+Research
+  ↓
+Human review
+```
+
+Status: **קיים חלקית**.
+
+## 5.5 Research → publication journey
+
+```text
+Research
+  ↓
+Evidence
+  ↓
+Interpretation
+  ↓
+Human Decision
+  ↓
+Canonical / Publication path
+```
+
+Status: **קיים חלקית**.
+
+The critical rule is that publication is not a shortcut around research provenance or Human-Gate.
+
+---
+
+# 6. Engines / Capabilities
+
+The engines/capabilities are grouped by role, but all remain subordinate to the shared research model.
+
+| Capability family | Status | Role |
+|---|---|---|
+| Canonical ELS engine | **קיים** | Finds ELS occurrences |
+| Canonical `searchSpace` | **קיים** | Defines legal geometric search space |
+| ELS ranking / geometry | **קיים** | Orders and represents findings |
+| ELS FORMS / Split-Join | **בבנייה** | Generates research forms through same engine |
+| ELS Research Path / journey | **בבנייה** | Preserves investigation transitions |
+| Matrix State | **קיים** | Workspace state |
+| 2D view | **קיים** | Matrix representation |
+| 3D / spatial capability | **קיים חלקית** | Spatial representation/analysis over findings |
+| Source / verse context | **קיים** | Evidence/source view |
+| Numerical/gematria engines | **קיים** | Canonical calculations |
+| Graph / shared tree | **קיים** | Shared entity/relation structure |
+| Experiment / null-model research | **קיים חלקית** | Verification and controlled investigation |
+| Candidate generation | **קיים חלקית** | Produces candidates for human selection |
+| AI Research Navigator | **מתוכנן** | Research navigation and prioritization |
+| AI Research Budget | **מתוכנן** | Controls search-space cost and value |
+| AI Challenge Mode | **מתוכנן** | Alternative explanations / controls |
+| Research Brief | **מתוכנן** | Structured research synthesis |
+| Research Timeline / Path Replay | **מתוכנן** | Reconstruct investigation sequence |
+| Research Snapshot | **קיים חלקית** | Saved reproducible research state |
+| Device-adaptive compute orchestration | **מתוכנן** | Route work across execution tiers |
+
+### Duplicate-engine rule
+
+The historical/legacy ELS implementations that were removed are **not a candidate for restoration**. Reintroducing them would be **כפילות** and would violate the one-engine rule.
+
+---
+
+# 7. Research Objects
+
+The shared object model is the core of the whole product.
+
+## 7.1 Objects
+
+1. **Entity** — person, name, place, event, date, number, concept, signal-derived entity.
+2. **Term** — searchable/testable word or phrase.
+3. **Axis** — term + skip + direction + occurrence/start + geometry + scope + provenance.
+4. **Finding** — concrete result under explicit conditions.
+5. **Cluster** — related/convergent findings.
+6. **Candidate** — something proposed for checking; not a fact.
+7. **Hypothesis** — proposition to test.
+8. **Experiment** — hypothesis + explicit method + conditions + result + evaluation.
+9. **Evidence** — observable/calculated datum.
+10. **Interpretation** — explanation of what evidence may mean.
+11. **Research Path** — sequence of meaningful research transitions.
+12. **Research Case** — top-level investigation container.
+13. **Matrix State** — current matrix/workspace state.
+14. **Source** — originating/external material with provenance.
+15. **Signal** — real-world/external event or information signal.
+16. **Research Plan** — strategy and ordered checks.
+17. **Recommendation** — proposed next action.
+18. **Decision** — Human-Gated choice.
+19. **Research Snapshot** — reproducible saved research state.
+20. **Conclusion** — conclusion of a research case; not automatically canonical fact.
+
+## 7.2 Core lifecycle
 
 ```text
 SOURCE
@@ -122,530 +359,606 @@ FINDING
     RESEARCH CASE
 ```
 
-## Architectural implication
+---
 
-The key UX question is not "where does this button go?" but **"which research object does this capability operate on?"**
+# 8. Shared Engine Views — no parallel engines
 
-Examples:
-
-- Monte Carlo / simulation → the relevant finding/axis/experiment object.
-- `↑ Axis` → a finding or axis transition.
-- AI-generated search term → candidate.
-- Zoom / geometry / playback → matrix state.
-- Return to investigation → research path/case.
-- AI next-step suggestion → recommendation.
-- Accept/reject → decision.
-
-This object-first model is intended to reduce UI proliferation and prevent duplicate concepts.
-
-## Shared Engine Views — no parallel engines
-
-The research workspace should treat each analysis engine as a **view/capability over shared Research Objects**, not as a separate source of truth.
-
-A single Finding must remain the same Finding when the researcher moves between views:
+The research workspace treats every analysis engine as a **View/Capability over Shared Research Objects**, never as a separate source of truth.
 
 ```text
-                         FINDING
-                            │
-          ┌─────────────────┼─────────────────┐
-          │                 │                 │
-       2D MATRIX         3D SPACE          SOURCE
-          │                 │                 │
-       ELS path       depth relations     Torah text
-          │                 │                 │
-          └─────────────────┼─────────────────┘
-                            │
-                       AI RESEARCH
-                            │
-             ┌──────────────┼──────────────┐
-             ↓              ↓              ↓
-          Hypothesis     Comparison     Experiment
+                         SHARED FINDING
+                              │
+          ┌───────────────────┼───────────────────┐
+          │                   │                   │
+        2D MATRIX           3D SPACE            SOURCE
+          │                   │                   │
+       ELS path        spatial analysis       Torah/text
+          │                   │                   │
+          └───────────────────┼───────────────────┘
+                              │
+                    Numerical / Graph
+                              │
+                         Experiment
+                              │
+                              AI
 ```
 
-The same `finding_id`, provenance and evidence must travel between views. A 2D matrix, 3D spatial view, source view, numerical analysis, graph view and experiment view are representations/capabilities over the same underlying objects.
+The same `finding_id`, provenance and evidence must remain attached when a researcher moves between:
 
-### Cross-view navigation
+- 2D;
+- 3D;
+- Source;
+- Numerical;
+- Graph;
+- Experiment.
 
-The UI should support explicit **Open in...** transitions without creating duplicate research objects:
+Changing the view changes the representation, not the identity of the research object.
 
-- Open in 2D
-- Open in 3D
-- Open in Source
-- Open in Numerical
-- Open in Graph
-- Open in Experiment
+## 8.1 3D rule
 
-A research breadcrumb should preserve context, for example:
+**3D is Matrix State / Spatial Analysis capability, not a separate research engine.**
+
+ELS finds the occurrences.
+
+The spatial layer works over those occurrences and explicit coordinates.
+
+Visualization alone is not evidence.
+
+## 8.2 Navigation
+
+The conceptual navigation is:
+
+`Open in 2D → Open in 3D → Open in Source → Open in Numerical → Open in Graph → Open in Experiment`
+
+All such transitions preserve research identity and provenance.
+
+---
+
+# 9. AI
+
+AI is the **Research Navigator**, not the source of truth and not the Human Gate.
+
+## 9.1 Existing AI infrastructure
+
+The project already has AI infrastructure and AI analysis flows. These should be understood as part of the Intelligence layer, not as a separate research substrate.
+
+Status: **קיים**.
+
+## 9.2 Future Research Navigator role
+
+Status: **מתוכנן**.
+
+The AI should:
+
+- propose research directions;
+- rank possible next paths;
+- explain why a path is useful;
+- estimate cost where material;
+- identify redundant tests;
+- challenge findings;
+- suggest controlled experiments;
+- summarize known/unknown state;
+- preserve provenance and object identity.
+
+AI must not:
+
+- decide what is canonical;
+- publish independently;
+- silently change search parameters;
+- silently expand search space;
+- turn Candidate into Fact;
+- turn Interpretation into Evidence;
+- replace Human-Gate.
+
+## 9.3 AI Research Map
+
+A Finding may expose structured research directions:
 
 ```text
-Research Case
-  > Seed: 1820
-  > Finding #1842
-  > 3D Spatial View
-  > Depth Search
-  > Layer 128
+Finding
+  ├── Spatial
+  ├── ELS
+  ├── Text / Source
+  ├── Numerical
+  ├── Cross-Finding
+  └── Verification
 ```
 
-Switching to another view changes the representation, not the identity of the research object.
+This is a navigation map over the Research Path, not a second tree.
 
-### 2D ↔ 3D synchronization
+---
 
-The 2D and 3D views should remain synchronized around the same Finding. Selecting a Finding in either view should locate the same object in the other view.
+# 10. AI Research Budget
 
-The 3D layer is therefore a Matrix State / spatial-analysis capability, not a new research engine. ELS remains responsible for finding occurrences; the spatial layer maps existing findings to coordinates and studies relationships between them.
+Status: **מתוכנן**.
 
-### Progressive disclosure in 3D
+The AI Research Budget exists to enforce the North Star:
 
-The 3D workspace should not attempt to render the entire corpus as a dense field of individual letters at once. The intended research UX is progressive:
+> Maximum useful research / Minimum unnecessary computation.
 
-```text
-Universe → Layer → Region → Matrix → Letters
-```
+Before a material investigation is executed, the system should be able to reason about:
 
-Possible operations include:
+- seeds;
+- terms/forms;
+- widths/geometry;
+- depth;
+- methods;
+- controls;
+- expected search-space expansion;
+- expected compute cost;
+- whether the test can change a decision.
 
-- Anchor / Pin Finding
-- Look Below
-- Look Above
-- Show Path
-- Show Neighbors
-- Diagonals
-- Cross Section / Slice
-- Compare
-- Local neighborhood / local volume
-- 2D ↔ 3D synchronization
+A recommendation should answer:
 
-Visualization is not evidence. Geometry must remain tied to explicit coordinates, methods, provenance and status.
+1. **What does this test?**
+2. **Why is it needed?**
+3. **What does it cost?**
+4. **What coverage does it add?**
+5. **What risk does it introduce?**
+6. **What decision changes if the result is A vs B?**
 
-## AI Research Navigator
+If the answer to decision impact is effectively “none”, the test should not be prioritized merely to produce more information.
 
-The AI layer should not be a generic chatbot placed beside the matrix. Its primary role is to help navigate the research space by proposing **testable next paths** over existing objects.
+This is a planning rule, not permission for AI to execute automatically.
 
-For a selected Finding, the AI may present structured research options such as:
+---
 
-```text
-RESEARCH OPTIONS
+# 11. AI Challenge Mode
 
-1. Geometry
-   - What is below?
-   - What is above?
-   - What is diagonal?
-   - Which findings are nearby?
+Status: **מתוכנן**.
 
-2. ELS
-   - Reverse / parallel occurrences
-   - Related axes
-   - Additional occurrences under the existing search contract
+Challenge Mode exists to reduce confirmation bias and post-hoc research drift.
 
-3. Text
-   - Source context
-   - Nearby terms
-   - Verse / passage context
+It should examine, where relevant:
 
-4. Numerical
-   - Existing canonical calculation methods
-   - Related numerical candidates
+- alternative explanations;
+- null models;
+- parameter dependence;
+- geometry dependence;
+- post-hoc parameter selection;
+- multiple similar findings by chance;
+- control/counterexample behaviour;
+- reproducibility.
 
-5. Cross-Finding
-   - Nearby findings
-   - Cluster relationships
-   - Shared axes / terms
+Challenge output remains appropriately classified as Evidence, Candidate, Hypothesis, Interpretation or Experiment.
 
-6. Verification
-   - Reproduce
-   - Null model
-   - Control / counterexample
-```
+Challenge does not promote a claim to fact.
 
-The AI should rank or explain these options, but it must not silently execute an open-ended search expansion merely because it can think of one.
+---
 
-### AI Research Map
+# 12. Research Path / Timeline / Snapshot
 
-A Finding can expose a structured map of possible research paths:
+These three concepts form the reproducibility layer.
 
-```text
-Finding A
-   │
-   ├── Spatial
-   │    ├── Below
-   │    ├── Above
-   │    └── Diagonal
-   │
-   ├── ELS
-   │    ├── Reverse
-   │    ├── Parallel
-   │    └── Related axis
-   │
-   ├── Text
-   │    ├── Context
-   │    └── Terms
-   │
-   └── Verification
-        ├── Null
-        ├── Control
-        └── Reproduce
-```
+## Research Path
 
-The resulting path belongs to the Research Path / Research Case model. It is not a second tree or engine.
+Status: **בבנייה**.
 
-## AI Research Budget
+Records meaningful transitions such as:
 
-Because expanded search spaces can increase false-positive risk, AI-proposed investigations should expose their expected search cost before execution when the cost is material.
+`Seed → Axis → Finding → New Axis → Cluster → Candidate → Experiment → Challenge → Conclusion`
 
-A research budget can include:
+## Research Timeline
 
-```text
-Seeds: 1
-Widths: 1
-Depth: 20
-Methods: 2
-Controls: 2
-```
+Status: **מתוכנן**.
 
-The AI should be able to state when a proposed action materially expands the search space and why that expansion could change a decision. This is especially important for 3D, where adding width/height/depth, directions, seeds and methods can create many degrees of freedom.
+Allows the researcher to understand the chronological sequence of meaningful research decisions and branches.
 
-A recommendation should therefore contain, where applicable:
+## Research Snapshot
 
-- what it tests;
-- why it is needed;
-- expected search-space cost;
-- what decision changes if the result is A vs B;
-- whether the test is exploratory or confirmatory.
+Status: **קיים חלקית**.
 
-If a proposed test cannot change a decision, it should not be prioritized merely to generate more information.
+A Snapshot should preserve a reproducible state including, where applicable:
 
-## AI Challenge Mode
+- matrix state;
+- active axis;
+- findings;
+- terms;
+- path/context;
+- geometry;
+- provenance;
+- research status.
 
-For an existing Finding or Hypothesis, AI should have a **Challenge** capability whose purpose is to search for alternative explanations rather than reinforce the user's preferred interpretation.
+The purpose is to return to a research state without reconstructing it manually.
 
-Possible challenge questions:
+---
 
-- Is the result parameter-dependent?
-- Does it survive the declared null model?
-- Did post-hoc parameter selection create the apparent signal?
-- Are there many similar findings by chance?
-- Does the relation persist under the declared control?
-- Is the observed relation a property of the chosen geometry rather than the text?
+# 13. Community
 
-Challenge output remains Evidence / Candidate / Interpretation as appropriate. It does not promote a claim to fact.
+Community is a **source and research-input layer**, not a separate knowledge tree.
 
-## AI Research Brief
+| Community surface | Status | Role |
+|---|---|---|
+| Forum | **קיים** | Questions, discussion, observations and contributions |
+| WhatsApp / Raziel | **קיים** | Inbound material, research interaction and distribution |
+| Newsletter | **קיים** | Research/content distribution |
+| Facebook / Instagram publishing | **קיים** | Distribution of approved/public material |
+| Reality / signal stream | **קיים** | Real-world signals and source material |
+| Community → Research integration | **קיים חלקית** | Needs shared object/provenance wiring |
+| Community challenge / verification loop | **מתוכנן** | Community can challenge rather than merely amplify |
 
-For a selected Finding, the system may generate a compact structured brief:
+Community material must retain provenance and epistemic status.
 
-```text
-FINDING #1842
+A user submission is not automatically a fact.
 
-OBSERVED
-What was actually found.
+---
 
-GEOMETRY
-Coordinates, method and spatial relations.
+# 14. Business / Monetization
 
-KNOWN
-Existing verified evidence.
+Business is another layer of the same product, not a separate research system.
 
-UNKNOWN
-What has not yet been established.
+| Business component | Status | Role |
+|---|---|---|
+| Credits | **קיים** | Current monetization mechanism for defined capabilities |
+| `/credits` / `/buy` | **קיים** | Current purchase flow |
+| Manual payment approval | **קיים** | Current operational payment flow |
+| Subscription infrastructure | **קיים חלקית** | Provider/strategy exists, full integration not active |
+| `/members` | **קיים חלקית** | Placeholder / future membership surface |
+| Premium research model | **מתוכנן** | Research depth, compute budget and advanced capabilities |
+| Premium ≠ truth | **קיים** | Non-negotiable epistemic rule |
 
-POSSIBLE HYPOTHESES
-Explicit hypotheses, not facts.
+The intended Premium model is **research depth**, not privileged truth.
 
-RECOMMENDED NEXT TEST
-The highest-value test under the current research plan.
+Premium may increase:
 
-WHY
-What decision the test could change.
+- research budget;
+- deep search scope;
+- long-running work;
+- multi-matrix comparison;
+- advanced AI navigation;
+- reproducibility;
+- compute availability.
 
-DO NOT TEST YET
-Lower-value or redundant investigations and why they are deferred.
-```
+Premium must not:
 
-This is an Intelligence-layer artifact. It must preserve provenance and the distinction between observation, evidence, inference and recommendation.
+- bypass Human-Gate;
+- convert candidates into facts;
+- change canonical evidence rules;
+- create a parallel engine.
 
-## Compare Views
+---
 
-A research case should support comparison of representations without duplicating the underlying finding.
+# 15. Analytics
 
-Example:
+Analytics already exists as a shared measurement layer and must not be duplicated.
 
-```text
-┌──────────────────┬──────────────────┐
-│     2D MATRIX    │    3D SPACE      │
-│                  │                  │
-│       ★          │       ★          │
-│                  │       │          │
-│                  │       ●          │
-│                  │       │          │
-│                  │       ●          │
-└──────────────────┴──────────────────┘
-```
+| Analytics capability | Status | Role |
+|---|---|---|
+| Google Analytics 4 | **קיים** | Product/usage measurement |
+| Microsoft Clarity | **קיים** | Session recordings / heatmaps |
+| Meta Pixel / CAPI | **קיים** | Marketing/conversion measurement |
+| Google Search Console | **קיים** | Search visibility / acquisition |
+| ELS usage tracking | **קיים** | ELS activity measurement |
+| Unified research funnel | **קיים חלקית** | Need one interpretation across entrances |
+| Research-value analytics | **מתוכנן** | Measure useful research outcomes, not only clicks |
 
-The same Finding is highlighted in both views. The purpose is to make explicit what the 3D representation adds relative to the 2D representation, rather than assuming that visual complexity is research value.
+The long-term analytical question is not merely:
 
-## Research Timeline / Path Replay
+> “How many people clicked?”
 
-A research session should be able to preserve the sequence of meaningful transitions:
+but:
+
+> “Which entrance produced useful research, meaningful continuation, verification and retained research objects?”
+
+This must still use the existing analytics stack rather than introducing a parallel analytics system.
+
+---
+
+# 16. Whole-system research funnel
+
+The intended unified funnel is:
 
 ```text
-Seed 1820
-   ↓
-Finding #1842
-   ↓
-2D inspection
-   ↓
-3D depth
-   ↓
-Finding #1921
-   ↓
-Compare
-   ↓
-Hypothesis H3
-   ↓
-Experiment E7
-   ↓
-Null test
-   ↓
-Conclusion
-```
-
-This is a Research Path / Snapshot capability. It should make it possible to return to a prior research state without reconstructing the investigation manually.
-
-## Architectural rule for the AI + engines
-
-**Every engine is a view/capability over shared Research Objects, never a parallel source of truth.**
-
-Therefore:
-
-- ELS engine → finds occurrences.
-- Matrix State → represents the current research workspace.
-- 2D / 3D → views of the matrix/workspace.
-- Spatial analysis → measures explicit geometric relations between existing findings/evidence.
-- Numerical engines → calculate using the canonical calculation engine.
-- Graph → represents relationships between research objects.
-- Experiment → evaluates a hypothesis under explicit conditions.
-- AI → proposes, challenges, summarizes and prioritizes.
-- Human-Gate → decides what is accepted, promoted or published.
-
-No view is allowed to silently create a second Finding, second tree, second engine or alternative source of truth.
-
-## Device-Adaptive Compute Orchestration — Mobile-First, Compute-Agnostic
-
-The product should be **mobile-first at the interface level, but device-adaptive at the compute level**. The user should experience one ELS system regardless of whether they are on a phone, tablet or desktop. The system decides where a task should execute based on measured cost and device capability.
-
-### One research system, multiple execution tiers
-
-```text
-                         USER / RESEARCH CASE
-                                  │
-                                  ▼
-                        COMPUTE ORCHESTRATOR
-                                  │
-             ┌────────────────────┼────────────────────┐
-             │                    │                    │
-          LOCAL UI           WORKER / WASM         SERVER
-        (small tasks)        (medium/heavy)      (deep tasks)
-             │                    │                    │
-             └────────────────────┼────────────────────┘
-                                  ▼
-                        SAME ENGINE CONTRACT
-                                  │
-                                  ▼
-                     SAME FINDINGS / PROVENANCE
-```
-
-This is **execution routing, not a second engine**. All execution paths must preserve the same canonical engine semantics, search-space rules, ranking contract, provenance and Research Object identity.
-
-### Tier 0 — UI/local execution
-
-Use the main thread only for cheap, immediate operations where latency is predictably small:
-
-- pan / pinch / zoom / fit / focus;
-- color and display changes;
-- selecting a finding;
-- changing the active occurrence;
-- opening an existing matrix state;
-- lightweight state transitions.
-
-The UI thread must never be deliberately burdened with a deep corpus scan merely because the device happens to be powerful.
-
-### Tier 1 — Local Worker / WASM / GPU
-
-Use local parallel compute when the operation is substantial but the corpus and algorithm can remain safely on-device:
-
-- larger on-demand ELS scans;
-- candidate generation;
-- multi-term or multi-form searches;
-- expensive matrix recomputation;
-- future 3D spatial calculations that can be bounded locally;
-- operations whose result can be returned without exposing private research data to a server.
-
-A Worker must import/use the **same canonical engine logic** or a shared compiled representation. A copied engine inside a Worker is prohibited because it would create a hidden second implementation.
-
-WASM/GPU are acceleration layers, not new semantics.
-
-### Tier 2 — Server-side deep research
-
-Use server compute when the search is too large, too slow, too memory-intensive, or too broad for a reliable mobile session:
-
-- full-corpus deep searches;
-- large candidate expansions;
-- many seeds / many methods / many widths or depths;
-- expensive Monte Carlo / null-model workloads;
-- cross-case or multi-object research jobs;
-- AI orchestration over large result sets;
-- long-running research experiments.
-
-The server returns Research Objects / Evidence / Candidate results with provenance, not an opaque answer. The UI can then render those results through the same Matrix State / Finding model.
-
-### The user must not choose the compute tier
-
-The user chooses **what to investigate**, not whether it should run in a Worker, GPU or server.
-
-The orchestrator should consider:
-
-- estimated operation cost;
-- corpus scope;
-- number of terms/seeds;
-- search-space width/depth;
-- expected memory;
-- device CPU/GPU capability;
-- current device load;
-- network availability and latency;
-- privacy requirements;
-- entitlement (free / premium, where applicable).
-
-A premium tier may receive larger research budgets and deeper server execution, but it must not change the underlying evidence rules or silently convert candidates into facts.
-
-### Progressive execution
-
-A deep investigation should not require the user to wait for one giant opaque job. Where useful, the orchestrator should return results progressively:
-
-```text
-REQUEST
+ENTRANCE
   ↓
-PLAN
+USER JOURNEY
   ↓
-FAST FIRST PASS
+SOURCE / SIGNAL / INPUT
   ↓
-EARLY FINDINGS
+ENTITY / TERM
   ↓
-RANK / USER CHOICE
+CANDIDATE
   ↓
-DEEPEN SELECTED PATH
+HUMAN CHOICE
   ↓
-VERIFY / CONTROL
+RESEARCH PLAN
   ↓
-FINAL RESEARCH SNAPSHOT
+AXIS
+  ↓
+FINDING
+  ↓
+EVIDENCE
+  ↓
+CLUSTER / NEW AXIS
+  ↓
+HYPOTHESIS
+  ↓
+EXPERIMENT / CHALLENGE
+  ↓
+INTERPRETATION
+  ↓
+DECISION
+  ↓
+SNAPSHOT / CONCLUSION
+  ↓
+COMMUNITY / PUBLICATION / NEXT RESEARCH
 ```
 
-This is particularly important for mobile. The user can begin inspecting early verified results while deeper work continues, without pretending that an incomplete search is complete.
+This is the common substrate behind the different site entrances.
 
-### Compute provenance
+---
 
-Every non-trivial research execution should be reproducible from an execution record containing, as applicable:
+# 17. One graph / one research tree
 
-- engine/version identifier;
-- corpus/version identifier;
-- search-space definition;
-- parameters and scope;
-- execution tier (local / Worker / WASM / GPU / server);
-- device/runtime class when relevant to reproducibility;
-- start/end or job identifier;
-- ranking version;
-- random seed for randomized tests;
-- result object IDs;
-- status: complete / partial / failed / cancelled.
+The product already follows the principle that the site is one graph/tree rather than independent worlds.
 
-**Execution tier is provenance, not evidence.** A server result is not inherently stronger than a local result, and a GPU result is not inherently more truthful than a CPU result.
+The same rule applies to research:
 
-### Mobile failure policy
+- number pages are lenses;
+- convergence pages are lenses;
+- posts are sources/content;
+- gallery items are sources/signals;
+- ELS is a research capability;
+- forum is a community input layer;
+- WhatsApp is an input/distribution layer;
+- AI is an intelligence layer;
+- analytics is a measurement layer;
+- business is an entitlement/transaction layer.
 
-A mobile device must never silently substitute a weaker search because it is slow.
+None of these justify a duplicate research tree.
 
-If a requested operation exceeds local limits, the system should:
+The architecture should remain:
+
+> **Many entrances → one research substrate → many views → one Human Gate.**
+
+---
+
+# 18. Device-Adaptive Compute Orchestration
+
+Status: **מתוכנן**.
+
+The interface is mobile-first, but computation is device-adaptive.
+
+```text
+USER / RESEARCH CASE
+        ↓
+COMPUTE ORCHESTRATOR
+        ├── Local UI
+        ├── Worker / WASM / GPU
+        └── Server Deep Research
+        ↓
+SAME ENGINE CONTRACT
+        ↓
+SAME RESEARCH OBJECTS
+```
+
+## Tier 0 — local/UI
+
+Cheap operations such as:
+
+- pan;
+- pinch;
+- zoom;
+- fit;
+- focus;
+- display/color;
+- selection;
+- lightweight state changes.
+
+## Tier 1 — Worker / WASM / GPU
+
+Substantial but bounded operations that can safely remain local.
+
+## Tier 2 — server
+
+Large or long-running work such as deep full-corpus searches, large candidate expansions, expensive Monte Carlo/null-model work and multi-object experiments.
+
+The user chooses **what to research**. The system chooses **where to compute**.
+
+Execution routing is not a second engine.
+
+A Worker must use the canonical engine logic or a shared compiled representation. WASM/GPU are acceleration layers, not new semantics.
+
+## No silent degradation
+
+If a requested search cannot be completed at the current tier:
 
 1. preserve the requested research specification;
-2. route it to an allowed stronger tier when available;
-3. otherwise report that the requested search is incomplete or unavailable;
-4. never present a truncated prefix as though it were the full search.
+2. route upward where possible;
+3. otherwise report incomplete/unavailable;
+4. never present a truncated search as complete.
 
-This directly protects **Rank, Don't Hide** and **NO SILENT LOSS**.
+Execution tier is provenance, not evidence.
 
-### Compute budget as part of Research Planning
+---
 
-The existing AI Research Budget should be extended to include compute routing:
+# 19. Capability evaluation framework
 
-```text
-Research request
-  ├─ Scope: Torah / Tanakh / selected books
-  ├─ Seeds: N
-  ├─ Terms/forms: N
-  ├─ Geometry: width / depth / directions
-  ├─ Methods: N
-  ├─ Controls: N
-  ├─ Expected cost: low / medium / high
-  ├─ Preferred execution: automatic
-  └─ Maximum allowed budget: user/entitlement policy
-```
+The North Star requires a standard evaluation frame before building future capabilities.
 
-The user should see **what the system is going to investigate**, not infrastructure jargon. For example:
+For each capability:
 
-> "בדיקה עמוקה: 24 מונחים × 6 צורות × כל הדילוגים. המערכת תבצע זאת אוטומטית בהדרגה."
+### Object
+Which Research Object does it operate on?
 
-The exact compute tier can remain hidden unless diagnostics are requested.
+### Value
+What useful research value does it add?
 
-### Three non-negotiable rules
+### Cost
+What computation, complexity or user attention does it consume?
 
-1. **One engine, many execution environments.** Local, Worker/WASM/GPU and server are execution modes, never competing algorithms.
-2. **No silent degradation.** If the requested search cannot be completed, the result is marked partial/incomplete rather than silently narrowed.
-3. **Same Research Object identity.** Moving from mobile local search to server deep search, or from 2D to 3D, must preserve the same Finding/Evidence/Provenance identity where the underlying result is the same.
+### Coverage
+What additional research space or evidence does it cover?
 
-### Architectural consequence
+### Risk
+What can go wrong? Examples: false positives, parameter freedom, duplicate concepts, silent loss, misleading visualization.
 
-This model allows the product to be extremely capable without forcing every device to perform every calculation. A phone can expose the **same research universe** as desktop; the orchestrator simply chooses the safest and fastest execution path.
+### Decision Impact
+What decision can actually change because this capability exists?
 
-It also prevents a future architectural trap: building separate "mobile ELS", "desktop ELS", "premium ELS" or "3D ELS" engines. There should remain one canonical engine and shared Research Objects.
+The six dimensions are not a new database object. They are the evaluation lens for the roadmap.
 
-## Next step — DO NOT BUILD YET
+---
 
-Create a **Capability → Object Map** for the 78 capabilities identified by the ELS research.
+# 20. What is explicitly NOT being added by this map
 
-For each capability, determine:
+This Zoom-Out does **not** authorize:
 
-1. Primary research object.
-2. Secondary object(s), if any.
-3. Whether the capability already exists in the current system.
-4. Whether it duplicates another capability.
-5. Whether it is DATA, RESEARCH, or INTELLIGENCE.
-6. Whether a missing underlying object is blocking implementation.
-7. Whether the capability changes the roadmap priority.
-8. For AI capabilities, whether the output is a Candidate, Recommendation, Hypothesis, Interpretation, Experiment or other existing object.
-9. For multi-engine capabilities, which shared object identity must remain stable across views.
-10. For compute-heavy capabilities, which execution tier(s) are eligible and what must trigger escalation from local → Worker/WASM/GPU → server.
+- a new ELS engine;
+- a new research database;
+- a second graph/tree;
+- a second AI research engine;
+- a second analytics system;
+- a new community knowledge base;
+- a new premium engine;
+- a new 3D engine;
+- a new source-of-truth layer;
+- automatic AI promotion;
+- automatic search-space expansion;
+- new UI implementation;
+- code changes;
+- schema changes;
+- migrations;
+- deployment.
 
-The output should identify missing primitives and duplicates **before any implementation begins**.
+The purpose is to **organize the existing system and roadmap**, not expand architecture.
 
-## Guardrails
+---
 
-- One engine, many sources, one graph/tree, one Human-Gate.
-- Do not create a parallel engine/table/tree merely to support the model.
-- Keep source → extraction → calculation → cross-check → interpretation separate.
-- Claim ≠ Fact; HOT ≠ TRUE; VIP ≠ TRUE; CANONICAL ≠ PUBLISHED.
-- Rank, don't hide weak material.
-- Preserve provenance; do not silently delete research material.
-- Gematria must use the canonical engine functions, never memory/manual arithmetic.
-- No promotion to canonical or publication by AI alone.
-- 3D visualization is not evidence by itself.
-- AI recommendations must not silently expand the search space.
-- Compute routing must not alter the canonical search semantics.
-- Local/Worker/server are execution tiers, not separate engines.
-- Partial or failed computation must be labeled; never disguise truncation as completion.
+# 21. Current architectural principles
 
-## Current status
+1. **The entire site is one system, not a collection of separate systems.**
+2. Different entrances may produce different experiences, but the research substrate remains shared.
+3. **One engine / many sources / one tree / one Human Gate.**
+4. Every engine is a View/Capability over Shared Research Objects.
+5. No view is an independent Source of Truth.
+6. The same `finding_id`, provenance and evidence must survive movement between 2D, 3D, Source, Numerical, Graph and Experiment.
+7. **3D = Matrix State / Spatial Analysis**, not a separate research engine.
+8. AI = Research Navigator, not Human Gate.
+9. AI may propose, rank, explain, budget, challenge and summarize.
+10. AI does not decide canonical status or publication.
+11. AI Research Budget limits unnecessary search-space expansion and false-positive exposure.
+12. AI Challenge Mode actively seeks alternative explanations.
+13. Research Path / Timeline / Snapshot preserve reproducibility.
+14. Premium changes research depth/budget, not epistemic truth.
+15. Community material remains provenance-tagged and epistemically separated.
+16. Analytics measures the same product; it does not become a parallel product.
+17. Compute routing is execution infrastructure, not a new algorithm.
+18. Rank, Don't Hide.
+19. No silent degradation or silent loss.
+20. Source → extraction → calculation → cross-check → interpretation remain separate.
+21. Candidate ≠ Fact; Claim ≠ Fact; HOT ≠ TRUE; VIP ≠ TRUE; CANONICAL ≠ PUBLISHED.
 
-**Completed:** Research Object Map captured as a durable strategy document; shared-engine/view model, AI Research Navigator, and device-adaptive Compute Orchestration concept added.
+---
 
-**Not completed:** Capability → Object Map for the 78 ELS capabilities; execution thresholds/benchmarks are not yet defined.
+# 22. Current status and roadmap boundary
 
-**Next action:** Map the 78 capabilities to these objects, identify duplication/gaps, then define evidence-based compute routing thresholds before implementation.
+### Kיים
+
+- Shared site/graph principle.
+- Canonical ELS engine.
+- ELS `/code` + research hall using the same artifact.
+- Core Matrix State and visual capabilities.
+- Existing AI infrastructure.
+- Community/distribution infrastructure.
+- Credits/payment flow.
+- Analytics stack.
+
+### קיים חלקית
+
+- Full cross-site research journey.
+- Research Object persistence across all entrances.
+- Community → Research integration.
+- Research → Publication provenance chain.
+- Advanced researcher workspace.
+- Premium research model.
+- Unified research analytics.
+- Research Snapshot as a full reproducibility layer.
+
+### בבנייה
+
+- ELS Research Path / Work Area layer.
+- Current ELS forms/journey workstream where explicitly approved.
+
+### מתוכנן
+
+- Whole-system Research Navigator.
+- AI Research Budget.
+- AI Challenge Mode.
+- Research Timeline / replay.
+- Full Shared View synchronization.
+- Multi-geometry research evaluation.
+- Device-adaptive compute orchestration.
+- Premium deep research workspace.
+
+### חסר
+
+A missing capability here means the **intended whole-system role is not sufficiently represented yet**. It does not mean a related low-level function does not exist somewhere in the current system.
+
+### כפילות
+
+The major architectural duplication risk is not to create a new feature, but to accidentally recreate an existing capability as:
+
+- another engine;
+- another tree;
+- another research object store;
+- another AI research layer;
+- another analytics layer;
+- another ELS implementation.
+
+The strategy is therefore to **connect and expose existing capabilities before creating anything new**.
+
+---
+
+# 23. Final strategic rule
+
+The product should feel simple at the surface and extremely capable underneath.
+
+The user should not need to understand the architecture.
+
+The architecture must nevertheless remain strict:
+
+> **Many entrances. One research world.**
+>
+> **Many views. One object identity.**
+>
+> **Many execution environments. One engine contract.**
+>
+> **Many AI suggestions. One Human Gate.**
+
+The engine discovers and organizes.
+
+The researcher investigates, interprets and chooses.
+
+AI assists, prioritizes and challenges.
+
+The Human Gate determines what becomes canonical or published.
+
+---
+
+# 24. Next step — DO NOT BUILD YET
+
+The next step is explicitly:
+
+> **Capability → Object → Value → Cost → Coverage → Risk → Decision Impact**
+
+Apply this framework to the **78 ELS capabilities**.
+
+For each of the 78 capabilities, determine:
+
+1. Which Research Object it operates on.
+2. What useful value it adds.
+3. What it costs in computation, complexity or attention.
+4. What coverage it adds.
+5. What risk it introduces.
+6. What decision it can change.
+7. Whether it already exists.
+8. Whether it is partially implemented.
+9. Whether it duplicates an existing capability.
+10. Whether it is DATA, RESEARCH or INTELLIGENCE.
+11. Whether it depends on another unfinished capability.
+12. Whether it belongs in Simple, Researcher or Deep/Premium experience.
+
+**Only after this 78-capability mapping is complete should the project decide what, if anything, actually needs to be built.**
+
+No code. No UI implementation. No schema change. No new engine. No deployment.
