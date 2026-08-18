@@ -1,4 +1,35 @@
 -- ============================================================
+--  ⛔ SUPERSEDED 18.8.2026 — this file no longer defines current state.
+--
+--  Two blocks in it were stale and would have reverted the ELS Corpus
+--  Reconciliation + Position Normalization if this file were ever replayed
+--  (supabase db push / db reset). Both have been brought in line with what
+--  is live; nothing here is a new mechanism.
+--
+--   (a) corpus populate  — REMOVED. It rebuilt torah_stream from
+--       tanach_verses (306,269 contaminated). See the block below.
+--   (b) fn_els_search    — BODY REPLACED with the current live definition
+--       (prosrc md5 1373a3c57a865b16ff7c3870461f4165, 2,444 chars).
+--       Replaying this file now reproduces the CURRENT contract:
+--       start is 0-based, and the envelope carries corpus_id /
+--       position_base / engine / profile / coverage / skip_domain /
+--       plain_excluded / truncated / ordering.
+--       The previous body here emitted 1-based start and none of those keys.
+--
+--  Known, deliberate deltas still present in this file:
+--   • fn_notarikon below is the ORIGINAL slow version. It is superseded in
+--     replay order by 20260728_namelab_perf.sql, whose definition matches
+--     live exactly (md5 78651228ae24a0062d407a9e5eacf8ce) — so an ordered
+--     replay ends in the correct state. Left untouched on purpose.
+--   • fn_els_for_name below already matches live byte-for-byte
+--     (md5 b470633bbec779f079176c2c0983bcb3).
+--   • This file keeps `set search_path=public` on fn_els_search. The live
+--     function currently has proconfig=NULL and prosecdef=false — it lost
+--     both `set search_path` and `security definer` in the 18.8 rewrite.
+--     Restoring those on the live object is a separate decision; see work_log.
+-- ============================================================
+
+-- ============================================================
 --  Name Research Protocol — Wave 2.1
 --  Real ELS engine over the Torah + richer Notarikon (rashei+sofei).
 --
@@ -100,9 +131,21 @@ returns jsonb language sql stable set search_path=public as $$
     'plain', (select count(*) from allh where skip=1 and dir=1),
     'els_count', (select count(*) from allh where skip>=2),
     'min_skip', (select min(skip) from allh where skip>=2),
-    'hits', coalesce((select jsonb_agg(jsonb_build_object('skip',skip,'dir',dir,'start',st) order by skip, st)
+    'hits', coalesce((select jsonb_agg(jsonb_build_object('skip',skip,'dir',dir,'start',st-1) order by skip, st)
                       from (select * from allh where skip>=2 order by skip, st limit p_maxhits) z),'[]'::jsonb),
-    'searched_maxskip', p_maxskip, 'scope','torah'
+    'searched_maxskip', p_maxskip, 'scope','torah',
+    'corpus_id', '0b022e8eef6f9c16',
+    'position_base', 0,
+    'engine', 'sql-scan',
+    'profile', 'server-scan',
+    'coverage', 'partial',
+    'skip_domain', jsonb_build_object('min', 2, 'max', p_maxskip,
+      'full_domain_max', case when (select ln from qq) > 1
+                              then floor(((select hi from qq)-1)::numeric / ((select ln from qq)-1))::int
+                              else null end),
+    'plain_excluded', true,
+    'truncated', (select count(*) from allh where skip>=2) > p_maxhits,
+    'ordering', 'skip,start'
   );
 $$;
 
