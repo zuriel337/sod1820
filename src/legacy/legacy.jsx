@@ -4915,7 +4915,8 @@ function PostPageBySlug({ onNav }) {
               </div>
               <RoyalDivider width={160} />
             </div>
-            {/* 📂 שער אור הגאולה — רק במחשב (בעמודת-הצד השמאלית, wideSide). במובייל לא מוצג בפוסטים (בקשת צוריאל). */}
+            {/* 📂 שער אור הגאולה — בדסקטופ בעמודת-הצד השמאלית (wideSide); במובייל נערם מתחת לתוכן
+                הפוסט, מעל «עדכונים אחרונים» (ראה למטה) — לא לפני הפוסט (בקשת צוריאל). */}
             {/* 🔎 סטוריז-גילוי — רק במחשב, לנוחת ראשוני מגוגל/חוץ, בפוסט מעל חודש; כולל 2 הפוסטים
                 האחרונים עם זמן-עדכון (בקשת צוריאל 12.8.2026) */}
             <LandingDiscoveryStories postDate={post.date} olderThanDays={30} excludeSlug={post.slug} />
@@ -5085,6 +5086,13 @@ function PostPageBySlug({ onNav }) {
         )}
       </div>
       </div>{/* /position:relative wrapper */}
+      {/* 📂 שער אור הגאולה — במובייל נערם מתחת לתוכן הפוסט, מעל «עדכונים אחרונים»
+          (אותו סדר כמו בעמודת-הצד בדסקטופ). לא לפני הפוסט (בקשת צוריאל). */}
+      {!wideSide && (
+        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px" }}>
+          <MergedStoriesRail ogOnly limit={20} surface="POST_PAGE" />
+        </div>
+      )}
       {/* 📜 «עדכונים אחרונים» — נערם מתחת לתוכן ברוחב צר/מובייל (בדסקטופ רחב הוא בעמודת-הצד).
           אותו source/visibility בדיוק כמו הבית (homeUpdates). */}
       {!wideSide && (
