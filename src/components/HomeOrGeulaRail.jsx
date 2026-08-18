@@ -8,6 +8,7 @@ import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
 import { ensureVideoThumbs } from "../lib/videoThumb.js";
+import { useHiddenWidget } from "../lib/hiddenWidgets.js";
 
 // 🎬 רצועת «אור הגאולה» לעמוד-הבית — הסרטונים האחרונים שעלו + מתי. מצביע ל-/or-geula.
 // עץ אחד: אותו מקור (channel_updates channel=or-geula) של עמוד-הקטלוג; כאן רק טעימה.
@@ -18,6 +19,8 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const [story, setStory] = useState(-1);   // אינדקס הפריט הפתוח כסטורי (-1 = סגור)
+  // 🙈 «הסר מהעדכונים» — למשתמש מחובר בלבד; ברגע שהוסר, נעלם מכל מקום שהסטורי מוצג בו (בענן, לא לוקאלי).
+  const { canRemove, hidden, ready, remove } = useHiddenWidget("or_geula_story");
   useEffect(() => {
     let alive = true;
     supabase.from("channel_updates")
@@ -29,6 +32,7 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
   }, [limit]);
 
   if (rows !== null && rows.length === 0) return null;
+  if (hidden || (canRemove && !ready)) return null;
 
   return (
     <section id="or-geula-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
@@ -48,7 +52,17 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
             </span>
           </span>
         </h2>
-        <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "0 0 auto" }}>
+          <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
+          {canRemove && (
+            <button onClick={() => { if (window.confirm("להסיר את הסטורי של אור הגאולה מהעדכונים? לא תראה אותו יותר.")) remove(); }}
+              title="הסר מהעדכונים" aria-label="הסר את סטורי אור הגאולה מהעדכונים"
+              style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999,
+                color: P.inkSoft, fontFamily: F.body, fontSize: 11, padding: "4px 10px", whiteSpace: "nowrap" }}>
+              ✕ הסר מהעדכונים
+            </button>
+          )}
+        </div>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, scrollSnapType: "x proximity" }}>
         {(rows || Array.from({ length: 6 })).map((r, i) => {
