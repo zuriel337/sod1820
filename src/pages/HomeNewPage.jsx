@@ -34,7 +34,6 @@ import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 import HomeHeader from "../components/HomeHeader.jsx";
 import LiveTag from "../components/LiveTag.jsx";
 import WhatsNewCard from "../components/WhatsNewCard.jsx";
-import OrGeulaStoryChip from "../components/OrGeulaStoryChip.jsx";
 import ActivityPulse from "../components/ActivityPulse.jsx";
 import ElsPulseChip from "../components/ElsPulseChip.jsx";
 import HomeTeasers from "../components/HomeTeasers.jsx";
@@ -465,8 +464,8 @@ export default function HomeNewPage() {
       {/* 🔥 שורת «המספר החם עכשיו» הוסרה מדף הבית — בקשת צוריאל 10.8.2026. */}
 
       {/* «מה חדש בפורום» (WhatsNewCard) ירד למטה, מתחת ל«עדכונים אחרונים» — בקשת צוריאל 10.8.2026. */}
-      {/* ===== 🔴 סטורי חדש · אור הגאולה — גולל לרצועה (מראה את הרשימה) ואז מדליק את הסטורי ===== */}
-      <OrGeulaStoryChip scrollTargetId="or-geula-home" />
+      {/* ===== 🔴 הצ׳יפ «סטורי חדש · אור הגאולה» (לפני «עדכונים אחרונים») הוסר מדף הבית — בקשת צוריאל.
+           הסטורי עצמו עדיין מופיע ברצועת HomeOrGeulaRail למטה. ===== */}
 
       {/* ===== 🔑 חלונות הגילוי — הוסרו מעמוד הבית «בשלב זה» (בקשת צוריאל 10.7.2026).
            הרכיב נשמר (RevelationWindows.jsx) — להחזרה: החזר את השורה למטה ואת ה-import למעלה. ===== */}

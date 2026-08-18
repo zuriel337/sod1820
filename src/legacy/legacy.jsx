@@ -4326,8 +4326,8 @@ function SpotimChatPage() {
     <div className="sod-chat-page" style={{ direction: "rtl", margin: "0 auto", padding: "52px 16px 96px" }}>
       {/* מסתירים את סרגל המערכת בדף הצ'אט — את מקומו תופס הרכבל המשולב (ChatScrollRail).
           פריסת-הצ'אט (טור אחד): הצ'אט למעלה + ריבוע-הפורום למטה — גם בדסקטופ וגם במובייל.
-          דסקטופ (≥1000px): עמודת «אור הגאולה» — כל הסרטונים מלמעלה-למטה — נוספת בצד שמאל (בקשת צוריאל).
-          מובייל: העמודה מוסתרת, נשאר הצ'יפ הקומפקטי (כדי לא לעמוס). */}
+          הסטורי של אור הגאולה מוצג רק במובייל (הרצועה האופקית); בדסקטופ עמודת-הצד מציגה
+          רק את «עדכונים אחרונים», בלי סטורי (בקשת צוריאל). */}
       <style>{`
         html.sod-chat-scroll { scrollbar-width: none; }
         html.sod-chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
@@ -4388,8 +4388,8 @@ function SpotimChatPage() {
         {/* 🎬 שער אור הגאולה (דסקטופ, עמודת-צד שמאל) — OR-GEULA בלבד (בלי צפנים): רצועת-preview
             אופקית (≈3 גלויים + גלילה) + «כל אור הגאולה» לתיקייה הקיימת, ומתחתיה «עדכונים אחרונים»
             (אותו source/visibility כמו הבית). בקשת צוריאל 14.8.2026. */}
+        {/* דסקטופ: הסטורי של אור הגאולה מוצג רק במובייל (הרצועה למעלה) — לא בעמודת-הצד (בקשת צוריאל). */}
         <aside className="sod-chat-videos">
-          <MergedStoriesRail ogOnly layout="rail" limit={20} surface="CHAT" />
           <div className="sod-chat-latest-side side-updates"><LatestUpdatesPanel limit={10} /></div>
         </aside>
       </div>
@@ -4915,12 +4915,7 @@ function PostPageBySlug({ onNav }) {
               </div>
               <RoyalDivider width={160} />
             </div>
-            {/* 📂 שער אור הגאולה — נערם מעל התוכן ברוחב צר/מובייל (בדסקטופ רחב הוא בעמודת-הצד השמאלית). */}
-            {!wideSide && (
-              <div className="post-og-mobile" style={{ margin: "4px 0 22px" }}>
-                <MergedStoriesRail ogOnly limit={20} surface="POST_PAGE" />
-              </div>
-            )}
+            {/* 📂 שער אור הגאולה — רק במחשב (בעמודת-הצד השמאלית, wideSide). במובייל לא מוצג בפוסטים (בקשת צוריאל). */}
             {/* 🔎 סטוריז-גילוי — רק במחשב, לנוחת ראשוני מגוגל/חוץ, בפוסט מעל חודש; כולל 2 הפוסטים
                 האחרונים עם זמן-עדכון (בקשת צוריאל 12.8.2026) */}
             <LandingDiscoveryStories postDate={post.date} olderThanDays={30} excludeSlug={post.slug} />
