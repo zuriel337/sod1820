@@ -19,14 +19,45 @@ create table if not exists public.torah_stream (
 );
 alter table public.torah_stream enable row level security;   -- server-only
 
-truncate public.torah_stream;
-with letters as (
-  select string_agg(translate(regexp_replace(text,'[^א-ת]','','g'),'ךםןףץ','כמנפצ'),'' order by book_idx,chapter,verse) s
-  from tanach_verses where book_idx <= 4
-)
-insert into public.torah_stream(idx, ch)
-select ord::int, ch
-from letters, regexp_split_to_table(letters.s, '') with ordinality as t(ch, ord);
+-- ⛔ NEUTRALIZED 18.8.2026 — do NOT repopulate torah_stream from tanach_verses.
+-- The original block here was:
+--     truncate public.torah_stream;
+--     insert into public.torah_stream(idx, ch)
+--     select ord::int, ch from (
+--       select string_agg(translate(regexp_replace(text,'[^א-ת]','','g'),
+--                                   'ךםןףץ','כמנפצ'),''
+--                         order by book_idx,chapter,verse) s
+--       from tanach_verses where book_idx <= 4
+--     ) letters, regexp_split_to_table(letters.s,'') with ordinality as t(ch, ord);
+--
+-- Why it was removed (verified empirically, read-only, 18.8.2026):
+--   Re-running that expression against the live schema yields exactly
+--     length 306,269 · md5 d4351c0237a8b5e98e7d1652ec599aa6
+--   which is byte-identical to the contaminated pre-SWAP stream
+--   (public.torah_stream_bak_20260818). tanach_verses.text carries masorah notes
+--   inline as ordinary Hebrew words (e.g. Gen 4:13 «מנשא בספרי ספרד ואשכנז מנשוא»),
+--   so it cannot be cleaned by any rule — it is not a valid corpus source.
+--   Left in place, this block silently reverts the approved corpus reconciliation.
+--
+-- The canonical corpus source of truth is the file, not this table:
+--   tools/els/data/tk-letters.txt
+--     full stream   1,204,583 letters
+--                   sha256 0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b
+--     Torah prefix    304,805 letters
+--                   sha256 9692eb34eca2f7a10f6e828d04b3dac50d5b0b688bf1d74d6936a6bd2fb92be4
+--                   md5    0066c2431821863d258745e664d3883e
+--     corpus_id     0b022e8eef6f9c16   (= sha256(full)[0:16], content-addressed)
+--
+-- public.torah_stream is a MATERIALIZATION of that Torah prefix, populated only by
+-- the approved ELS Corpus Reconciliation procedure (staging load -> checksum verify
+-- -> SWAP), executed and verified 18.8.2026 under Human-Gate. It is deliberately not
+-- reproduced here: a migration must never be able to overwrite the canonical corpus.
+--
+-- On a fresh database this migration therefore leaves torah_stream EMPTY. That is
+-- intentional and fail-safe: fn_els_search then returns zero hits (visibly nothing)
+-- instead of hits computed over a wrong 306,269-letter stream (silently wrong data).
+-- Populate it by running the reconciliation procedure — see work_log
+-- 'ELS — נטרול מקור הרגרסיה של הקורפוס' (18.8.2026).
 
 create index if not exists torah_stream_ch on public.torah_stream(ch, idx);
 
