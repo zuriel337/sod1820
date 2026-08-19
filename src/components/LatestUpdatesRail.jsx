@@ -11,6 +11,7 @@ import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
 import { postHasVideo } from "./VideoBadge.jsx";
 import { postHasStrongHint } from "./StrongHintBadge.jsx";
+import { primaryIconedCategory } from "../lib/categoryIcons.js";
 import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכונים אחרונים» הקנוני — זהה בבית/צד/מובייל
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
@@ -105,7 +106,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className={"lur-card" + (pinned ? " pinned" : "")} style={{ "--acc": cPost }}>
           <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}</div>
           <div className="lur-body">
-            <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{postHasStrongHint(d) && <CatBadge cat="רמזים חזקים" cls="diamond">💎 רמז חזק</CatBadge>}{postHasVideo(d) && <CatBadge cat="וידאו" cls="video">🎬 וידאו</CatBadge>}{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
+            <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{postHasStrongHint(d) && <CatBadge cat="רמזים חזקים" cls="diamond">💎 רמז חזק</CatBadge>}{postHasVideo(d) && <CatBadge cat="וידאו" cls="video">🎬 וידאו</CatBadge>}{(() => { const pc = primaryIconedCategory(d.categories); return pc ? <CatBadge cat={pc.name} cls="cat">{`${pc.icon} ${pc.name}`}</CatBadge> : null; })()}{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
             <h3 className="lur-title">{stripHtml(d.title || "")}</h3><Meta when={it.when} ai={ai} /></div>
         </Link>
       );
@@ -189,6 +190,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-badge.diamond{color:#2a1c00;background:linear-gradient(135deg,#f7e08a,#d4af37 55%,#b8891f);box-shadow:0 0 0 1px rgba(255,230,150,.5)}
         .lur-badge.video{color:${light ? "#5a2fb0" : "#d9c9ff"};background:color-mix(in srgb,#7c4dff ${light ? "14%" : "22%"},transparent);border-color:color-mix(in srgb,#7c4dff 45%,transparent)}
         .lur-badge.num{font-family:${F.mono};color:${cReality};background:color-mix(in srgb,${cReality} ${light ? "14%" : "20%"},transparent);border-color:color-mix(in srgb,${cReality} 45%,transparent)}
+        .lur-badge.cat{color:${light ? "#8a5a10" : "#e8c15a"};background:color-mix(in srgb,${cPost} ${light ? "13%" : "17%"},transparent);border-color:color-mix(in srgb,${cPost} 45%,transparent)}
         .lur-card.pinned{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.35)}
         .lur-card.pinned::before{width:4px;background:linear-gradient(180deg,#f0d879,#c8a83a)}
         .lur-title{font-family:${F.regal};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
