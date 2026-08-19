@@ -9,8 +9,8 @@ import { thumb, galThumb } from "../lib/img.js";
 import { streamDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
-import VideoBadge, { postHasVideo } from "./VideoBadge.jsx";
-import StrongHintBadge, { postHasStrongHint } from "./StrongHintBadge.jsx";
+import { postHasVideo } from "./VideoBadge.jsx";
+import { postHasStrongHint } from "./StrongHintBadge.jsx";
 import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכונים אחרונים» הקנוני — זהה בבית/צד/מובייל
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
@@ -70,6 +70,14 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
 
   // גלילה לסקשן היעד בעמוד הבית (מפנה, לא מנווט החוצה)
   const scrollTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  // 🏷 תג-קטגוריה לחיץ ליד «פוסט» (לא על התמונה) — לחיצה מנווטת לעמוד-הקטגוריה. הכרטיס עצמו הוא <a>,
+  //    לכן זה <span role="link"> עם navigate + עצירת-אירוע (בלי לקנן <a> בתוך <a>).
+  const goCat = (cat, e) => { e.preventDefault(); e.stopPropagation(); navigate(`/category/${encodeURIComponent(cat)}`); };
+  const keyGo = (cat, e) => { if (e.key === "Enter" || e.key === " ") goCat(cat, e); };
+  const CatBadge = ({ cat, cls, children }) => (
+    <span role="link" tabIndex={0} title={`${children} — לקטגוריה`} className={`lur-badge ${cls}`}
+      onClick={(e) => goCat(cat, e)} onKeyDown={(e) => keyGo(cat, e)}>{children}</span>
+  );
   // 🌊 זרם המציאות: בבית — גלילה לסקשן הזרם; מחוץ לבית (פוסט/צ'אט, אין #reality-home) — לארכיון הקנוני.
   const navigate = useNavigate();
   const goReality = () => {
@@ -92,9 +100,9 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       const pinned = isPinnedPost(d);
       return (
         <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className={"lur-card" + (pinned ? " pinned" : "")} style={{ "--acc": cPost }}>
-          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}{postHasVideo(d) && <VideoBadge variant="corner" label={false} />}{postHasStrongHint(d) && <StrongHintBadge variant="corner" label={false} />}</div>
+          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}</div>
           <div className="lur-body">
-            <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
+            <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{postHasStrongHint(d) && <CatBadge cat="רמזים חזקים" cls="diamond">💎 רמז חזק</CatBadge>}{postHasVideo(d) && <CatBadge cat="וידאו" cls="video">🎬 וידאו</CatBadge>}{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
             <h3 className="lur-title">{stripHtml(d.title || "")}</h3><Meta when={it.when} ai={ai} /></div>
         </Link>
       );
@@ -168,6 +176,11 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-tagrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
         .lur-pin{display:inline-flex;align-items:center;gap:3px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;
           color:${light ? "#8a6d10" : "#f0d879"};background:${light ? "rgba(212,175,55,.16)" : "rgba(212,175,55,.14)"};border:1px solid rgba(212,175,55,.5)}
+        .lur-badge{display:inline-flex;align-items:center;gap:4px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:filter .12s,transform .12s}
+        .lur-badge:hover{filter:brightness(1.06);transform:translateY(-1px)}
+        .lur-badge:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+        .lur-badge.diamond{color:#2a1c00;background:linear-gradient(135deg,#f7e08a,#d4af37 55%,#b8891f);box-shadow:0 0 0 1px rgba(255,230,150,.5)}
+        .lur-badge.video{color:${light ? "#5a2fb0" : "#d9c9ff"};background:color-mix(in srgb,#7c4dff ${light ? "14%" : "22%"},transparent);border-color:color-mix(in srgb,#7c4dff 45%,transparent)}
         .lur-card.pinned{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.35)}
         .lur-card.pinned::before{width:4px;background:linear-gradient(180deg,#f0d879,#c8a83a)}
         .lur-title{font-family:${F.regal};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

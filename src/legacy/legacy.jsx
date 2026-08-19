@@ -1334,13 +1334,17 @@ function PostCard({ post, onPost }) {
             fontFamily: F.mono, fontSize: 12, fontWeight: 800, padding: "2px 9px", borderRadius: 999, zIndex: 2,
           }}>ג׳ {gem}</span>
         )}
-        {postHasVideo(post) && <VideoBadge variant="corner" style={{ top: gem > 0 ? 38 : 8 }} />}
-        {postHasDim5(post) && <DimensionFiveBadge variant="corner" />}
-        {postHasStrongHint(post) && <StrongHintBadge variant="corner" style={{ top: postHasDim5(post) ? 40 : 8 }} />}
       </div>
 
       {/* תוכן */}
       <div style={{ padding: "13px 15px 15px", display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
+        {(postHasStrongHint(post) || postHasDim5(post) || postHasVideo(post)) && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {postHasStrongHint(post) && <StrongHintBadge variant="chip" />}
+            {postHasDim5(post) && <DimensionFiveBadge variant="chip" />}
+            {postHasVideo(post) && <VideoBadge variant="chip" />}
+          </div>
+        )}
         <div style={{
           color: C.goldBright, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4,
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",

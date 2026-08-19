@@ -47,10 +47,14 @@ export default function VerifiedPostsPage() {
               <Link key={p.wp_id} to={`/${p.slug}`} style={{ display: "flex", flexDirection: "column", textDecoration: "none", overflow: "hidden", border: `1px solid ${P.borderStrong}`, borderRadius: 14, background: P.cardGrad }}>
                 <div style={{ position: "relative", aspectRatio: "16/10", background: img ? `center/cover no-repeat url(${img})` : `linear-gradient(135deg, ${P.onAccent}, ${P.cardSoft})` }}>
                   <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><VerifiedBadge variant="ai" size={14} label="מאומת" /></span>
-                  {postHasVideo(p) && <VideoBadge variant="corner" style={{ top: 38 }} />}
-                  {postHasStrongHint(p) && <StrongHintBadge variant="corner" style={{ top: 38 }} />}
                 </div>
                 <div style={{ padding: "12px 14px" }}>
+                  {(postHasStrongHint(p) || postHasVideo(p)) && (
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+                      {postHasStrongHint(p) && <StrongHintBadge variant="chip" />}
+                      {postHasVideo(p) && <VideoBadge variant="chip" />}
+                    </div>
+                  )}
                   <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>
                   <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, marginTop: 6 }}>עודכן · {timeAgoHe(p.modified)}</div>
                 </div>

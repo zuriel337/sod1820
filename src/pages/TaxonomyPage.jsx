@@ -33,11 +33,15 @@ function PostCard({ p, i }) {
       }}>
         {!image && <span className="tax-thumb-mark">✦</span>}
         <span className="tax-thumb-holo" />
-        {postHasVideo(p) && <VideoBadge variant="corner" style={{ top: isWarmNumber(gem) ? 38 : 8 }} />}
-        {postHasStrongHint(p) && <StrongHintBadge variant="corner" style={{ top: isWarmNumber(gem) ? 38 : 8 }} />}
         {isWarmNumber(gem) && <span className="tax-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
       </div>
       <div className="tax-body">
+        {(postHasStrongHint(p) || postHasVideo(p)) && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 5 }}>
+            {postHasStrongHint(p) && <StrongHintBadge variant="chip" />}
+            {postHasVideo(p) && <VideoBadge variant="chip" />}
+          </div>
+        )}
         <div className="tax-name">{title}</div>
         {excerpt && <div className="tax-excerpt">{excerpt}…</div>}
         <div className="tax-meta">
