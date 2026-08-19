@@ -11,6 +11,7 @@ import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import WatchButton from "../components/WatchButton.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
+import { categoryLabel } from "../lib/categoryIcons.js";
 
 // ===== דף תגית / קטגוריה — בעיצוב האתר (זהב מלכותי), "טען עוד" במקום עימוד =====
 // כל פוסט מקושר לדף הפוסט; גימטריית השם מקושרת לדף הישות + פותחת את מגירת המספר.
@@ -125,7 +126,7 @@ function TaxonomyView({ kind }) {
           {isTag ? "🔖" : "🗂️"} {eyebrow}
         </div>
         <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,44px)", fontWeight: 700, margin: 0, textShadow: "0 0 40px rgba(212,175,55,0.3)" }}>
-          {name}
+          {isTag ? name : categoryLabel(name)}
         </h1>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", alignItems: "center", flexWrap: "wrap", marginTop: 14 }}>
           {total > 0 && (
