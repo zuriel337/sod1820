@@ -12,6 +12,7 @@ import NumberEngineLogo from "../components/NumberEngineLogo.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import RealityWorld from "../components/RealityWorld.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
+import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
 import { track } from "../lib/tracking.js";
 
 // רצועת מותג דקה — מעל השערים (סטטי, רגוע). כאן יושב המותג "סוד 1820".
@@ -264,6 +265,7 @@ function LatestPostsRail({ posts, onPost }) {
                 <span className="sod-pf-thumb-holo" />
                 <span className="sod-pf-corner tl" /><span className="sod-pf-corner br" />
                 {postHasVideo(p) && <VideoBadge variant="corner" />}
+                {postHasStrongHint(p) && <StrongHintBadge variant="corner" />}
               </div>
 
               <div className="sod-pf-body">

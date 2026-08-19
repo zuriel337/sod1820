@@ -26,6 +26,7 @@ import Lightbox from "../components/Lightbox.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import DimensionFiveBadge, { postHasDim5 } from "../components/DimensionFiveBadge.jsx";
+import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
 import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp } from "../lib/tracking.js";
@@ -1236,6 +1237,7 @@ function WPArticleCard({ post, onPost }) {
         borderBottom: excerpt ? `1px solid ${C.border}` : "none",
         fontSize: 10.5, color: C.muted, fontFamily: F.heading,
       }}>
+        {postHasStrongHint(post) && <StrongHintBadge variant="chip" />}
         {postHasDim5(post) && <DimensionFiveBadge variant="chip" />}
         {postHasVideo(post) && <VideoBadge variant="chip" />}
         <span>מאת {author}</span>
@@ -1333,6 +1335,7 @@ function PostCard({ post, onPost }) {
         )}
         {postHasVideo(post) && <VideoBadge variant="corner" style={{ top: gem > 0 ? 38 : 8 }} />}
         {postHasDim5(post) && <DimensionFiveBadge variant="corner" />}
+        {postHasStrongHint(post) && <StrongHintBadge variant="corner" style={{ top: postHasDim5(post) ? 40 : 8 }} />}
       </div>
 
       {/* תוכן */}

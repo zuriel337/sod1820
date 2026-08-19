@@ -7,6 +7,7 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
+import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
 
 // פוסטים מאומתים בלבד — verified=true (חוק ai_disclaimer_law).
 export default function VerifiedPostsPage() {
@@ -47,6 +48,7 @@ export default function VerifiedPostsPage() {
                 <div style={{ position: "relative", aspectRatio: "16/10", background: img ? `center/cover no-repeat url(${img})` : `linear-gradient(135deg, ${P.onAccent}, ${P.cardSoft})` }}>
                   <span style={{ position: "absolute", top: 8, insetInlineStart: 8 }}><VerifiedBadge variant="ai" size={14} label="מאומת" /></span>
                   {postHasVideo(p) && <VideoBadge variant="corner" style={{ top: 38 }} />}
+                  {postHasStrongHint(p) && <StrongHintBadge variant="corner" style={{ top: 38 }} />}
                 </div>
                 <div style={{ padding: "12px 14px" }}>
                   <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>
