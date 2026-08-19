@@ -48,12 +48,13 @@ function PostCard({ p }) {
       {p.image_url && (
         <div style={{ position: "relative", marginBottom: 12, borderRadius: 10, overflow: "hidden", maxHeight: 200 }}>
           <img src={p.image_url} alt="" style={{ width: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
-          {postHasVideo(p) && <VideoBadge variant="corner" />}
-          {postHasStrongHint(p) && <StrongHintBadge variant="corner" />}
         </div>
       )}
-      {!p.image_url && postHasVideo(p) && (
-        <div style={{ marginBottom: 8 }}><VideoBadge variant="chip" /></div>
+      {(postHasStrongHint(p) || postHasVideo(p)) && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+          {postHasStrongHint(p) && <StrongHintBadge variant="chip" />}
+          {postHasVideo(p) && <VideoBadge variant="chip" />}
+        </div>
       )}
       <div style={{ fontFamily: F.regal, fontSize: 19, fontWeight: 800, color: "#eaf2fa", lineHeight: 1.35, marginBottom: 6 }}>
         {p.title}

@@ -264,11 +264,15 @@ function LatestPostsRail({ posts, onPost }) {
                 {!image && <span className="sod-pf-thumb-mark">✦</span>}
                 <span className="sod-pf-thumb-holo" />
                 <span className="sod-pf-corner tl" /><span className="sod-pf-corner br" />
-                {postHasVideo(p) && <VideoBadge variant="corner" />}
-                {postHasStrongHint(p) && <StrongHintBadge variant="corner" />}
               </div>
 
               <div className="sod-pf-body">
+                {(postHasStrongHint(p) || postHasVideo(p)) && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+                    {postHasStrongHint(p) && <StrongHintBadge variant="chip" />}
+                    {postHasVideo(p) && <VideoBadge variant="chip" />}
+                  </div>
+                )}
                 <div className="sod-pf-name">{title}</div>
                 <div className="sod-pf-meta">
                   <span className="sod-pf-date" title={`נוצר ${created}${updatedAgo ? ` · עודכן ${formatDateHe(p.modified)}` : ""}`}>נוצר {createdShort}{updatedAgo ? ` · עודכן ${updatedAgo}` : ""}</span>
