@@ -60,37 +60,37 @@ returns jsonb
 language sql stable
 set search_path = public
 as $$
-  with w as (
-    select btrim(regexp_replace($1, '['||chr(1425)||'-'||chr(1479)||']', '', 'g')) t
-  ),
+  with w as (select btrim(regexp_replace($1,'['||chr(1425)||'-'||chr(1479)||']','','g')) t),
   recs as (
     select coalesce(jsonb_agg(jsonb_build_object(
              'title', r.title, 'term', r.search_term, 'skip', r.skip_distance,
              'scope', r.scope, 'book', r.torah_book, 'direction', r.direction,
              'positions', case when jsonb_typeof(r.positions)='array' then jsonb_array_length(r.positions) else 0 end,
              'image_url', r.image_url, 'primary_number', r.primary_number
-           ) order by r.importance desc nulls last), '[]'::jsonb) j,
-           count(*) c
+           ) order by r.importance desc nulls last), '[]'::jsonb) j, count(*) c
     from els_records r, w
     where coalesce(r.status,'published') <> 'rejected'
       and coalesce(r.visibility,'public') <> 'private'
       and (r.search_term = w.t or replace(r.search_term,' ','') = replace(w.t,' ',''))
   ),
-  finds as (
-    select coalesce(jsonb_agg(jsonb_build_object(
-             'skip', f.skip, 'dir', f.dir, 'start_pos', f.start_pos, 'value', f.value)), '[]'::jsonb) j,
-           count(*) c
-    from els_finds f, w
-    where f.approved and (f.term = w.t or replace(f.term,' ','') = replace(w.t,' ',''))
-  )
+  live as (select fn_els_search((select t from w), 40, 16) d)
   select jsonb_build_object(
-    'term',    (select t from w),
+    'term', (select t from w),
     'on_file', (select j from recs),
-    'finds',   (select j from finds),
-    'count',   (select c from recs) + (select c from finds),
-    'note', case when (select c from recs) + (select c from finds) = 0
-                 then 'אין דילוג שמור לשם זה — חיפוש דילוגים חי בכלי הצופן (tzofen)'
-                 else 'דילוגים שאותרו/נשמרו עבור שם זה' end
+    'saved_count', (select c from recs),
+    'search', (select d from live),
+    'plain', (select (d->>'plain')::int from live),
+    'els_count', (select (d->>'els_count')::int from live),
+    'min_skip', (select (d->>'min_skip')::int from live),
+    'count', (select c from recs) + coalesce((select (d->>'els_count')::int from live),0),
+    'low_signal', coalesce(length((select t from w)) < 3, true),
+    'note', case
+      when coalesce((select (d->>'els_count')::int from live),0) = 0 and (select c from recs)=0
+        then 'לא נמצא דילוג לשם זה בתורה (עד דילוג 40)'
+      when length((select t from w)) < 3
+        then 'מונח קצר (2 אותיות) — דילוגים שכיחים מאוד בתורה, ערך-מחקר נמוך'
+      else 'דילוגים בתורה שאותרו לשם זה — הדילוג הקצר ביותר הוא המשמעותי. הכלי החי המלא: הצופן (tzofen).'
+    end
   );
 $$;
 
