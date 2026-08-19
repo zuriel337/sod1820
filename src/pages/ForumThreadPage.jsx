@@ -77,6 +77,11 @@ export default function ForumThreadPage() {
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
         </div>
       )}
+      {/* 🖼 תמונת-תרומה (אינפוגרפיקה/כרטיס) — מוצגת כשיש image_url ואין וידאו מוטמע */}
+      {!ytId && c.image_url && (
+        <img src={c.image_url} alt={stripHtml(c.title || "תמונת תרומה")} loading="lazy"
+          style={{ width: "100%", maxWidth: 560, display: "block", margin: "0 auto 16px", borderRadius: 14, border: `1px solid ${P.border}`, boxShadow: "0 10px 40px rgba(0,0,0,0.35)" }} />
+      )}
       {hasTarget ? (
         <Discourse target={{ type: c.target_type, id: c.target_id }} focusId={c.id} origin="forum" />
       ) : (
