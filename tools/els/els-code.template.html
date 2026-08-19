@@ -1203,16 +1203,20 @@
     }
   }
   function findAll(raw,cap,range){
-    const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
+    const t=norm(raw);if(t.length<2)return{hits:[],capped:0,t};
     const R=range||scopeRange(),from=R[0],to=R[1];
-    const s={capped:0,spread:0,scanned:0,anchors:0,seen:new Set()};
-    fwd(t,cap,hits,"fwd",s,from,to);
-    fwd(t.split("").reverse().join(""),cap,hits,"back",s,from,to);
+    // תיקון els2 (בידוד-כיוון): כל כיוון מקבל state ומאגר-ממצאים משלו. במימוש המשותף,
+    // ה-cap של המעבר קדימה עצר את המעבר אחורה עוד לפני הממצא הראשון — הכיוון ההפוך אבד.
+    // משמר את ארכיטקטורת-הטווח/פיזור של work-area (fwd ללא-שינוי); רק ההפרדה-לכיוון נוספה.
+    const sf={capped:0,spread:0,scanned:0,anchors:0,seen:new Set()};
+    const sb={capped:0,spread:0,scanned:0,anchors:0,seen:new Set()};
+    const hf=[],hb=[];
+    fwd(t,cap,hf,"fwd",sf,from,to);
+    fwd(t.split("").reverse().join(""),cap,hb,"back",sb,from,to);
+    const hits=hf.concat(hb);
     // סדר קנוני, בלתי-תלוי באסטרטגיית-הסריקה: |דילוג| → כיוון (קדימה לפני אחורה) → מיקום.
-    // זה **משחזר בדיוק** את הסדר הקיים (קדימה נדחפו קודם, ובתוך דילוג זהה המיקום עולה),
-    // ומבטיח שהתוצאה לא תלויה בפיזור — מה שמאפשר להוכיח יציבות.
     hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip)||b.dir-a.dir||a.start-b.start);
-    return{hits,capped:s.capped,spread:s.spread,scanned:s.scanned,anchors:s.anchors,t};
+    return{hits,capped:sf.capped|sb.capped,spread:sf.spread|sb.spread,scanned:sf.scanned+sb.scanned,anchors:sf.anchors+sb.anchors,t};
   }
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
