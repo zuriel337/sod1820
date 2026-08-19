@@ -1125,9 +1125,13 @@
         else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);hits.push({skip:s,dir:1,start,positions:p});}
         if(hits.length>=cap){stt.capped=1;return;}}}
   }
-  function findAll(raw,cap){const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
-    const s={capped:0};fwd(t,cap,hits,"fwd",s);fwd(t.split("").reverse().join(""),cap,hits,"back",s);
-    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));return{hits,capped:s.capped,t};}
+  function findAll(raw,cap){const t=norm(raw);if(t.length<2)return{hits:[],capped:0,t};
+    // כל כיוון מקבל state ומאגר-ממצאים משלו. במימוש הקודם שניהם היו משותפים, ולכן cap
+    // במעבר קדימה עצר את המעבר אחורה עוד לפני הממצא הראשון — הכיוון ההפוך אבד לגמרי.
+    const sf={capped:0},sb={capped:0},hf=[],hb=[];
+    fwd(t,cap,hf,"fwd",sf);fwd(t.split("").reverse().join(""),cap,hb,"back",sb);
+    const hits=hf.concat(hb);
+    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));return{hits,capped:sf.capped|sb.capped,t};}
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
     const t=norm(raw),L=t.length,out=[];if(L<1)return out;
