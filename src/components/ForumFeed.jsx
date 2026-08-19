@@ -155,6 +155,11 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
           <source src={mp4} type="video/mp4" />
         </video>
       )}
+      {/* 🖼 תמונת-תרומה (אינפוגרפיקה/כרטיס) — מוצגת כשיש image_url ואין וידאו */}
+      {!ytId && !mp4 && c.image_url && (
+        <img src={c.image_url} alt={titleText} loading="lazy"
+          style={{ width: "100%", maxWidth: 300, maxHeight: "60vh", objectFit: "contain", borderRadius: 12, border: `1px solid ${P.border}`, background: P.card, margin: "9px 0", display: "block" }} />
+      )}
       {/* ✏️ עריכה inline של גוף-התרומה */}
       {editing && (
         <div style={{ display: "grid", gap: 8, marginTop: 6 }}>
