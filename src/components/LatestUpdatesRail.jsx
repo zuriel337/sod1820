@@ -74,6 +74,9 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
   //    לכן זה <span role="link"> עם navigate + עצירת-אירוע (בלי לקנן <a> בתוך <a>).
   const goCat = (cat, e) => { e.preventDefault(); e.stopPropagation(); navigate(`/category/${encodeURIComponent(cat)}`); };
   const keyGo = (cat, e) => { if (e.key === "Enter" || e.key === " ") goCat(cat, e); };
+  // 🔢 מספר-זרם לחיץ ליד «זרם המציאות» (לא על התמונה) — לחיצה לדף-המספר הקנוני.
+  const goNum = (n, e) => { e.preventDefault(); e.stopPropagation(); navigate(`/number/${encodeURIComponent(n)}`); };
+  const keyNum = (n, e) => { if (e.key === "Enter" || e.key === " ") goNum(n, e); };
   const CatBadge = ({ cat, cls, children }) => (
     <span role="link" tabIndex={0} title={`${children} — לקטגוריה`} className={`lur-badge ${cls}`}
       onClick={(e) => goCat(cat, e)} onKeyDown={(e) => keyGo(cat, e)}>{children}</span>
@@ -111,8 +114,12 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       const v = domNum(d);
       return (
         <button key={"r" + d.id} type="button" onClick={goReality} className="lur-card" style={{ "--acc": cReality }}>
-          <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} />{v != null && <span className="lur-onimg">{v}</span>}</div>
-          <div className="lur-body"><Tag acc={cReality} logo={<RealityLogo s={13} />}>זרם המציאות</Tag>
+          <div className="lur-media"><span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /></div>
+          <div className="lur-body">
+            <div className="lur-tagrow"><Tag acc={cReality} logo={<RealityLogo s={13} />}>זרם המציאות</Tag>{v != null && (
+              <span role="link" tabIndex={0} title={`מספר ${v} — לדף המספר`} className="lur-badge num"
+                onClick={(e) => goNum(v, e)} onKeyDown={(e) => keyNum(v, e)}>🔢 {v}</span>
+            )}</div>
             <h3 className="lur-title">{cleanName(d.name) || (v != null ? `מספר ${v}` : "רמז חדש")}</h3>
             <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cReality }}>🌊 לזרם המציאות</span></div></div>
         </button>
@@ -181,6 +188,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-badge:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
         .lur-badge.diamond{color:#2a1c00;background:linear-gradient(135deg,#f7e08a,#d4af37 55%,#b8891f);box-shadow:0 0 0 1px rgba(255,230,150,.5)}
         .lur-badge.video{color:${light ? "#5a2fb0" : "#d9c9ff"};background:color-mix(in srgb,#7c4dff ${light ? "14%" : "22%"},transparent);border-color:color-mix(in srgb,#7c4dff 45%,transparent)}
+        .lur-badge.num{font-family:${F.mono};color:${cReality};background:color-mix(in srgb,${cReality} ${light ? "14%" : "20%"},transparent);border-color:color-mix(in srgb,${cReality} 45%,transparent)}
         .lur-card.pinned{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.35)}
         .lur-card.pinned::before{width:4px;background:linear-gradient(180deg,#f0d879,#c8a83a)}
         .lur-title{font-family:${F.regal};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
