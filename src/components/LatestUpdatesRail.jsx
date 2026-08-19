@@ -10,6 +10,7 @@ import { streamDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
 import VideoBadge, { postHasVideo } from "./VideoBadge.jsx";
+import StrongHintBadge, { postHasStrongHint } from "./StrongHintBadge.jsx";
 import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכונים אחרונים» הקנוני — זהה בבית/צד/מובייל
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
@@ -91,7 +92,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       const pinned = isPinnedPost(d);
       return (
         <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className={"lur-card" + (pinned ? " pinned" : "")} style={{ "--acc": cPost }}>
-          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}{postHasVideo(d) && <VideoBadge variant="corner" label={false} />}</div>
+          <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}{postHasVideo(d) && <VideoBadge variant="corner" label={false} />}{postHasStrongHint(d) && <StrongHintBadge variant="corner" label={false} />}</div>
           <div className="lur-body">
             <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
             <h3 className="lur-title">{stripHtml(d.title || "")}</h3><Meta when={it.when} ai={ai} /></div>

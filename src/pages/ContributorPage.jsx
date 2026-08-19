@@ -23,6 +23,7 @@ import SpecialtyCenter from "../components/SpecialtyCenter.jsx";
 import VerifiedGematrias from "../components/VerifiedGematrias.jsx";
 import WriterMessage from "../components/WriterMessage.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
+import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
 
 // הסתרת-כרטיסים פר-משתמש (מקומי; מסונכרן דרך saved כשמעבירים למחקר)
 const HIDE_KEY = "sod_hidden_contrib_cards_v1";
@@ -961,7 +962,7 @@ export default function ContributorPage() {
                   <div style={{ minWidth: 0 }}>
                     <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 }}>
                       {p.participated && <span style={{ color: P.accentDim, fontWeight: 600 }}>🤝 בהשתתפות · </span>}{stripHtml(p.title)}
-                      {postHasVideo(p) && <VideoBadge variant="chip" style={{ marginInlineStart: 6, verticalAlign: "middle" }} />}
+                      {postHasVideo(p) && <VideoBadge variant="chip" style={{ marginInlineStart: 6, verticalAlign: "middle" }} />}{postHasStrongHint(p) && <StrongHintBadge variant="chip" style={{ marginInlineStart: 6, verticalAlign: "middle" }} />}
                     </div>
                     {p.date && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{String(p.date).slice(0, 10)}</div>}
                   </div>
@@ -987,7 +988,7 @@ export default function ContributorPage() {
                 <a key={p.slug} href={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 11, background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 13px", textDecoration: "none" }}>
                   {p.image_url && <img src={galThumb(p, 96)} alt="" loading="lazy" style={{ width: 44, height: 44, borderRadius: 9, objectFit: "cover", flexShrink: 0 }} />}
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>{stripHtml(p.title)}{postHasVideo(p) && <VideoBadge variant="chip" style={{ marginInlineStart: 6, verticalAlign: "middle" }} />}</div>
+                    <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>{stripHtml(p.title)}{postHasVideo(p) && <VideoBadge variant="chip" style={{ marginInlineStart: 6, verticalAlign: "middle" }} />}{postHasStrongHint(p) && <StrongHintBadge variant="chip" style={{ marginInlineStart: 6, verticalAlign: "middle" }} />}</div>
                     <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5 }}>
                       {p.author ? `${p.author} · ` : ""}{p.date ? String(p.date).slice(0, 10) : ""}
                     </div>

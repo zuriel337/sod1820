@@ -26,6 +26,8 @@ import Lightbox from "../components/Lightbox.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
 import DimensionFiveBadge, { postHasDim5 } from "../components/DimensionFiveBadge.jsx";
+import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
+import { categoryLabel } from "../lib/categoryIcons.js";
 import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
 import { track, trackWhatsapp } from "../lib/tracking.js";
@@ -1236,6 +1238,7 @@ function WPArticleCard({ post, onPost }) {
         borderBottom: excerpt ? `1px solid ${C.border}` : "none",
         fontSize: 10.5, color: C.muted, fontFamily: F.heading,
       }}>
+        {postHasStrongHint(post) && <StrongHintBadge variant="chip" />}
         {postHasDim5(post) && <DimensionFiveBadge variant="chip" />}
         {postHasVideo(post) && <VideoBadge variant="chip" />}
         <span>מאת {author}</span>
@@ -1333,6 +1336,7 @@ function PostCard({ post, onPost }) {
         )}
         {postHasVideo(post) && <VideoBadge variant="corner" style={{ top: gem > 0 ? 38 : 8 }} />}
         {postHasDim5(post) && <DimensionFiveBadge variant="corner" />}
+        {postHasStrongHint(post) && <StrongHintBadge variant="corner" style={{ top: postHasDim5(post) ? 40 : 8 }} />}
       </div>
 
       {/* תוכן */}
@@ -1506,7 +1510,7 @@ function BlogPage({ onNav, pageContent, adminMode, filterCategory = null, filter
             {filterCategory ? "קטגוריה" : "תגית"}
           </div>
           <h1 style={{ color: C.goldBright, fontFamily: F.royal, fontWeight: 700, fontSize: "clamp(22px, 4vw, 36px)", margin: "0 0 12px", lineHeight: 1.3 }}>
-            {filterCategory || filterTag}
+            {filterCategory ? categoryLabel(filterCategory) : filterTag}
           </h1>
           {filterCategory === "תיעוד אירועים" && (
             <p style={{ color: C.muted, fontFamily: F.body, fontSize: 14, margin: 0, lineHeight: 1.8 }}>
@@ -4842,7 +4846,7 @@ function PostPageBySlug({ onNav }) {
                       color: pc.goldBright, fontSize: 12, padding: "4px 11px",
                       fontFamily: F.heading, letterSpacing: 1,
                       textTransform: "uppercase", borderRadius: 1,
-                    }}>{name}</span>
+                    }}>{categoryLabel(name)}</span>
                   ))}
                 </div>
               )}

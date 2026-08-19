@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { categoryIcon } from "../lib/categoryIcons.js";
 import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -41,6 +42,20 @@ function timeAgo(ts) {
   } catch { return ""; }
 }
 
+// 🎥 וידאו אחסון-עצמי בגוף-התרומה — מנגן ישירות בפורום (כמו קליפ יוטיוב, אבל mp4 שלנו).
+//    מזהים רק URL של Storage ציבורי שמסתיים ב-.mp4; הפוסטר = ה-.jpg/.png שבאותו גוף (אם יש).
+const SELF_MP4_RE = /(https?:\/\/[^\s"'<>]+\/storage\/v1\/object\/public\/[^\s"'<>]+\.mp4)/i;
+const POSTER_RE = /(https?:\/\/[^\s"'<>]+\/storage\/v1\/object\/public\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp))/i;
+function selfMp4(body) { const m = String(body || "").match(SELF_MP4_RE); return m ? m[1] : null; }
+function selfPoster(body) { const m = String(body || "").match(POSTER_RE); return m ? m[1] : null; }
+// מנקה מהתקציר את שורות-המדיה (וידאו/פוסטר/מקור) שכבר מיוצגות ע"י הנגן/הקישורים.
+function stripMediaLines(body) {
+  return String(body || "")
+    .split("\n")
+    .filter((ln) => !/(🎥|🖼|🔗)\s*\S/.test(ln) && !SELF_MP4_RE.test(ln) && !POSTER_RE.test(ln))
+    .join("\n");
+}
+
 function targetHref(t) {
   if (!t?.target_id) return null;
   if (t.target_type === "number" || t.target_type === "phrase") return `/number/${encodeURIComponent(t.target_id)}#comments`;
@@ -70,7 +85,10 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
   const href = targetHref(c);
   const threadHref = c.contribId ? `/forum/${c.contribId}` : href;
   const ytId = youtubeId(c.body || "");                         // 🎬 קליפ מוטמע — כרטיס-וידאו
-  const snippetSrc = ytId ? (c.body || "").replace(youtubeUrl(c.body || "") || "", "") : (c.body || "");
+  const mp4 = ytId ? null : selfMp4(c.body || "");              // 🎥 וידאו אחסון-עצמי — מנגן ישירות בפורום
+  const poster = mp4 ? selfPoster(c.body || "") : null;
+  let snippetSrc = ytId ? (c.body || "").replace(youtubeUrl(c.body || "") || "", "") : (c.body || "");
+  if (mp4) snippetSrc = stripMediaLines(snippetSrc);            // מנקים שורות-מדיה כשמוצג נגן
   const snippet = snippetSrc.replace(/\s+/g, " ").trim();
   const titleText = c.title || snippet.slice(0, 72) || "תרומת מחקר";
   const [pinBusy, setPinBusy] = useState(false);
@@ -99,7 +117,7 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         {/* 🏆 «מהנבחרות» — גימטריה שהערך שלה קיים במאגר ההתכנסויות האצור (convergence_values_present) */}
         {c.chosen && <span title="גימטריה מאומתת שהערך שלה שמור במאגר ההתכנסויות של האתר"
           style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "1px 9px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 900 }}>🏆 מהנבחרות</span>}
-        {ytId && badge(P.accentText, "🎬 סרטון")}
+        {(ytId || mp4) && badge(P.accentText, "🎬 סרטון")}
         {badge(P.accentText, `${im.emoji} ${im.label}`)}
         {badge(P.accentDim, `${sm.emoji} ${sm.label}`)}
         {/* 🔗 תגית-קשרים חכמה — נדלקת רק כשיש ולו קשר אחד (edge בגרף מ«מצאתי קשר») */}
@@ -130,6 +148,13 @@ function ContribCard({ c, P, isAdmin, onChanged, defaultOpen = false }) {
         )}
         {snippet && !editing && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: open ? 20 : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{snippet}</div>}
       </button>
+      {/* 🎥 נגן וידאו אחסון-עצמי — מחוץ לכפתור-הפתיחה כדי שפקדי-הנגן לא יקפלו/יפתחו את הכרטיס */}
+      {mp4 && (
+        <video controls playsInline preload="none" poster={poster || undefined}
+          style={{ width: "100%", maxWidth: 320, maxHeight: "72vh", borderRadius: 12, border: `1px solid ${P.border}`, background: "#000", margin: "9px 0", display: "block" }}>
+          <source src={mp4} type="video/mp4" />
+        </video>
+      )}
       {/* ✏️ עריכה inline של גוף-התרומה */}
       {editing && (
         <div style={{ display: "grid", gap: 8, marginTop: 6 }}>
@@ -198,7 +223,7 @@ function PostCard({ c, P }) {
     <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "15px 17px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
         {badge(P.accentText, "📜 מאמר")}
-        {cat && <Link to={`/category/${encodeURIComponent(cat)}`} style={{ textDecoration: "none" }}>{badge(P.accent, `🏷️ ${cat}`)}</Link>}
+        {cat && <Link to={`/category/${encodeURIComponent(cat)}`} style={{ textDecoration: "none" }}>{badge(P.accent, `${categoryIcon(cat) || "🏷️"} ${cat}`)}</Link>}
         <span style={{ flex: 1 }} />
         <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>{timeAgo(c.ts)}</span>
       </div>

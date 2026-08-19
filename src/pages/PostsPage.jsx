@@ -18,6 +18,7 @@ import { cleanName } from "../lib/galleryName.js";
 import Lightbox from "../components/Lightbox.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import VideoBadge, { postHasVideo } from "../components/VideoBadge.jsx";
+import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadge.jsx";
 
 const REALITY_CAT = "🌊 זרם המציאות";   // קטגוריה-מדומה: מסננת לרמזי זרם המציאות (gallery_images)
 
@@ -82,6 +83,7 @@ function PostCard({ p, i, view, hot, isAdmin }) {
           <span className="pp-thumb-holo" />
           {hot && <span title="חם השבוע" style={{ position: "absolute", top: 8, insetInlineStart: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, borderRadius: 999, padding: "2px 7px" }}>🔥</span>}
           {postHasVideo(p) && <VideoBadge variant="corner" style={{ top: hot ? 38 : 8 }} />}
+          {postHasStrongHint(p) && <StrongHintBadge variant="corner" style={{ top: hot ? 38 : 8 }} />}
           {isWarmNumber(gem) && <span className="pp-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
         </div>
         <div className="pp-body">
