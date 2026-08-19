@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>SOD1820 · 3D Knowledge Universe Preview</title>
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03040a;color:#f4ead0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+  canvas{display:block}
+  #ui{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:24px;box-sizing:border-box}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+  .brand{letter-spacing:.28em;font-size:12px;color:#d6b85b;text-transform:uppercase}
+  h1{margin:6px 0 0;font-size:clamp(24px,4vw,46px);font-weight:700;letter-spacing:.02em}
+  .sub{margin-top:5px;color:#a9a6b5;font-size:14px;max-width:620px;line-height:1.7}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .pill{border:1px solid rgba(214,184,91,.35);background:rgba(10,12,24,.58);backdrop-filter:blur(10px);border-radius:999px;padding:7px 11px;font-size:12px;color:#d9d5c7}
+  .bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+  .hint{color:#858393;font-size:12px;line-height:1.6}
+  .focus{min-width:260px;max-width:430px;padding:14px 16px;border:1px solid rgba(214,184,91,.38);background:rgba(6,8,18,.68);backdrop-filter:blur(14px);border-radius:18px;box-shadow:0 12px 50px rgba(0,0,0,.35)}
+  .focus b{color:#f1d777}.focus .path{margin-top:6px;font-size:15px;line-height:1.8;color:#eee9dc}
+  .fade{position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 48%,transparent 0,transparent 38%,rgba(0,0,0,.48) 100%)}
+  @media(max-width:700px){#ui{padding:16px}.legend{display:none}.bottom{flex-direction:column-reverse;align-items:stretch}.focus{max-width:none}}
+</style>
+</head>
+<body>
+<div id="ui">
+  <div class="top">
+    <div>
+      <div class="brand">S O D 1 8 2 0 · RESEARCH UNIVERSE</div>
+      <h1>מסע הידע התלת־ממדי</h1>
+      <div class="sub">ניסיון ויזואלי בלבד — מספרים, שיטות, ישויות ומסלולים כמרחב. שום נתון כאן אינו נכתב ל־DB.</div>
+    </div>
+    <div class="legend">
+      <span class="pill">🟡 מספר</span><span class="pill">🔵 שיטה</span><span class="pill">⚪ ישות</span><span class="pill">✦ מסלול</span>
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="hint">גרור כדי לסובב · גלול כדי להתקרב · לחץ על צומת כדי להתמקד</div>
+    <div class="focus" id="focus"><b>צומת פתיחה</b><div class="path">משיח · 358</div></div>
+  </div>
+</div>
+<div class="fade"></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x03040a);
+scene.fog=new THREE.FogExp2(0x03040a,.018);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,200);
+camera.position.set(0,3.8,18);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.prepend(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.055;controls.minDistance=7;controls.maxDistance=38;controls.target.set(0,0,0);
+scene.add(new THREE.AmbientLight(0x6e7190,.55));
+const key=new THREE.PointLight(0xf1d777,65,45);key.position.set(0,4,8);scene.add(key);
+const blue=new THREE.PointLight(0x4b72ff,35,32);blue.position.set(-10,-4,-8);scene.add(blue);
+
+function glowTexture(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,'rgba(255,238,150,.9)');r.addColorStop(.2,'rgba(255,210,70,.35)');r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
+const glow=glowTexture();
+const dustGeo=new THREE.BufferGeometry(),count=1800,pos=new Float32Array(count*3);
+for(let i=0;i<count;i++){const r=7+Math.random()*32,a=Math.random()*Math.PI*2;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=(Math.random()-.5)*24;pos[i*3+2]=Math.sin(a)*r-4}
+dustGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({map:glow,size:.34,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.75}));scene.add(dust);
+
+const data=[
+ {id:'mashiach',label:'משיח',value:'358',kind:'entity',p:[-7,2,0]},
+ {id:'miluy',label:'מילוי',value:'שיטה',kind:'method',p:[-4,3,-1]},
+ {id:'878',label:'878',value:'878',kind:'number',p:[0,2,0]},
+ {id:'world',label:'עולם הפוך ראיתי',value:'878 · רגיל',kind:'entity',p:[4,4,-2]},
+ {id:'davar',label:'דבר מתוך דבר',value:'878 · רגיל',kind:'entity',p:[4,-1,1]},
+ {id:'gadol',label:'גדול',value:'שיטה',kind:'method',p:[-3,-2,2]},
+ {id:'1358',label:'1358',value:'1358 · גדול',kind:'number',p:[1,-3,1]},
+ {id:'chochma',label:'חכמה',value:'מסתתר → 67',kind:'entity',p:[-7,-4,-1]},
+ {id:'67',label:'67',value:'67 · צומת',kind:'number',p:[-3,-5,0]},
+ {id:'bina',label:'בינה',value:'67 · רגיל',kind:'entity',p:[1,-5,-1]},
+ {id:'1820',label:'1820',value:'Hub',kind:'number',p:[7,0,-1]}
+];
+const colors={number:0xf1d777,method:0x5d8cff,entity:0xd9d7d0};
+const nodes=new Map(), ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
+function labelSprite(text,color){const c=document.createElement('canvas');c.width=512;c.height=128;const g=c.getContext('2d');g.font='700 42px Arial';g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(0,0,0,.9)';g.shadowBlur=14;g.fillStyle='#fff';g.fillText(text,256,50);g.font='500 22px Arial';g.fillStyle='#c9c5b8';g.fillText(color,256,94);const t=new THREE.CanvasTexture(c);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false}));s.scale.set(3.5,.9,1);return s}
+function makeNode(d){const g=new THREE.Group();g.position.set(...d.p);g.userData=d;const c=colors[d.kind];const core=new THREE.Mesh(new THREE.IcosahedronGeometry(d.kind==='number'?.7:.56,2),new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.55,metalness:.55,roughness:.28}));g.add(core);const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glow,color:c,transparent:true,opacity:.38,depthWrite:false,blending:THREE.AdditiveBlending}));halo.scale.set(3.1,3.1,1);g.add(halo);const s=labelSprite(d.label,d.value);s.position.y=-1.15;g.add(s);scene.add(g);nodes.set(d.id,g)}
+data.forEach(makeNode);
+const links=[['mashiach','miluy'],['miluy','878'],['878','world'],['878','davar'],['mashiach','gadol'],['gadol','1358'],['chochma','67'],['67','bina'],['878','1820'],['1358','1820'],['bina','1820']];
+for(const [a,b] of links){const A=new THREE.Vector3(...data.find(x=>x.id===a).p),B=new THREE.Vector3(...data.find(x=>x.id===b).p);const geo=new THREE.BufferGeometry().setFromPoints([A,B]);scene.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x8d7a43,transparent:true,opacity:.62})))}
+const ring=new THREE.Mesh(new THREE.TorusGeometry(7.8,.018,10,240),new THREE.MeshBasicMaterial({color:0x6f603d,transparent:true,opacity:.35}));ring.rotation.x=Math.PI/2.5;scene.add(ring);
+const focus=document.getElementById('focus');
+function select(obj){const d=obj?.userData;if(!d)return;focus.innerHTML='<b>'+d.label+'</b><div class="path">'+d.value+' · צומת מחקר</div>';controls.target.copy(obj.position);}
+addEventListener('pointerdown',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects([...nodes.values()].map(g=>g.children[0]),true);if(hits.length)select(hits[0].object.parent)});
+let t=0;function animate(){requestAnimationFrame(animate);t+=.004;dust.rotation.y+=.00045;ring.rotation.z+=.0008;nodes.forEach((g,i)=>{g.position.y=g.userData.p[1]+Math.sin(t*1.8+i)*.035});controls.update();renderer.render(scene,camera)}animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script>
+</body>
+</html>
