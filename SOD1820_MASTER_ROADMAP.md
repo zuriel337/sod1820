@@ -33,7 +33,7 @@
 
 ## 🕒 טריות המפה (FRESHNESS)
 - **LAST_RECONCILED:** `2026-08-20` (הסשן הזה; יושב מול `work_log` העדכני + `main` HEAD `38a8f784`).
-- **SYNC STATUS:** `SYNCED` *נכון ל־LAST_RECONCILED*.
+- **SYNC STATUS:** 🟠 **`STALE`** *(תוקן בסשן זה, 20.8.2026 — אומת ישירות מול `git`)*: `origin/main` HEAD בפועל = **`548d4a4`** ("feat(admin): read-only Roadmap command-center tab (CC-1, admin-only)") — **לא** `38a8f784`. `38a8f784` הוא אב-קדמון (`ancestor`) של `548d4a4`, לא ה-HEAD הנוכחי — אומת: `git merge-base --is-ancestor 38a8f784 origin/main` → `true`. **לא תוקן שדה זה עצמו כאן מעבר לסימון-STALE + ציון-העובדה** (לפי כלל-הטריות למטה — מזהים+מסמנים, לא כותבים-קנון-חדש בלי שער נפרד לכל שאר-המפה שתלויה ב-`LAST_RECONCILED`/`38a8f784`). ר' "פערים שנמצאו" בדו"ח-הסגירה.
 - **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס. הזיהוי = השוואת `LAST_RECONCILED` ל־timestamp/commit החדש ביותר.
 - **אין עדכון־אוטומטי־שקט:** בסוף סשן אסור לשכתב את המפה אוטומטית. יש **לזהות** drift, לסמן `STALE`, **ולהציע** את העדכון דרך חוקי ה־WRITE/Human-Gate — לעולם לא לכתוב קנון בלי שער.
 
@@ -238,18 +238,18 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **LAST_VERIFIED:** 2026-08-19 (לא אומת מחדש בסשן זה).
 - **STATE:** `PARALLEL_READY`/`OPEN`.
 
-### WS-GAMMA — γ שתי־שכבות (Atlas / Ledger)
-- **WHERE_WE_ARE:** החלטה מאושרת+מתועדת; אפס שינוי DB.
-- **WHAT_IS_DONE:** `docs/decisions/2026-08-20-gamma-two-layer-atlas-ledger.md` (`7985e0ce`). Atlas=`relation_evidence` · Ledger=`research_objects` · מנועים שומרים store · קישור `source_ref` · `nodes`/`edges` קנוני.
-- **WHAT_IS_OPEN:** §19-old → γ Master State rewrite.
+### WS-GAMMA — γ שתי־שכבות (Atlas / Ledger) + SOD1820 Universal Research Contract v1.0
+- **WHERE_WE_ARE:** החלטה מאושרת+מתועדת+**כעת גם כתובה ב-Master State**; אפס שינוי DB. הורחב בסשן זה (20.8) לכלול את ה-Universal Research Contract v1.0 המלא (18 סעיפים) שאושר ע״י צוריאל וממסגר את γ כחלק ממנו (סעיפים 7-8).
+- **WHAT_IS_DONE:** `docs/decisions/2026-08-20-gamma-two-layer-atlas-ledger.md` (`7985e0ce`, ענף `claude/raziel-capabilities-audit-h5k9ww`) · **§19-A/§19-B נכתבו ל-`SOD1820_MASTER_STATE.md`** (סשן זה, ענף `claude/els-function-inventory-86klre`, Change Log #29) — Atlas=`relation_evidence` · Ledger=`research_objects` · מנועים שומרים store · קישור `source_ref` · `nodes`/`edges` קנוני · + חוזה-העל המלא (Entry Context/Focused-before-Expansion/Method-Preserving/Calculation/Value-Scan/Zero-Nav/Finding/One-Tree/Fact-separation/Contextual-Intelligence/External-Research/Raziel/Human-Gate/Privacy/Premium-as-gate/Future-proof/Canonical-Architecture-Principle/Test-Case).
+- **WHAT_IS_OPEN:** מיזוג `claude/raziel-capabilities-audit-h5k9ww`→`main` (כדי ש-`docs/decisions/...` עצמו יהיה על main — כרגע רק Master State's §19 מכיל את התוכן, לא הקובץ המקורי); יישום-בפועל של עקרונות-החוזה בממשק (Entry Context/Focused-before-Expansion UX) — **טרם-אושר לבנייה, מפרט-בלבד**.
 - **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** צוריאל — §19→γ Master rewrite.
-- **NEXT_ACTION:** הטמעת γ ב-Master State, סימון §19-old SUPERSEDED שם.
-- **DEPENDENCIES:** מזין את `WS-LEDGER-REVIEW`, `WS-MASTERSTATE`.
-- **CANONICAL_HOME:** רשומת־החלטה → Master State (ממתין).
-- **PROVENANCE:** `7985e0ce`.
+- **HUMAN_GATE:** צוריאל — אישור-בנייה נפרד לכל יישום-UX של החוזה (§19-B סעיף 17).
+- **NEXT_ACTION:** אין בנייה כעת. אם/כשצוריאל יאשר יישום — מפת-מסך קודם (per `research_workspace_law`/`command_center_law` deliverable-before-UI).
+- **DEPENDENCIES:** מזין את `WS-LEDGER-REVIEW`, `WS-MASTERSTATE`, `WS-URC` (חדש, למטה).
+- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-A/§19-B (main, אחרי מיזוג-ענף זה) + רשומת־החלטה `7985e0ce`.
+- **PROVENANCE:** `7985e0ce` · work_log (20.8.2026, "UNIVERSAL RESEARCH CONTRACT v1.0 — SSOT update") · Master State Change Log #29.
 - **LAST_VERIFIED:** 2026-08-20.
-- **STATE:** `DONE` (החלטה) · §19→γ rewrite `OPEN` · §19-old `SUPERSEDED` 🗄️.
+- **STATE:** `DONE` (החלטה) · §19→γ Master rewrite **`DONE`** (סעיף זה סגר את שער-פתוח #6-חלק-γ) · §19-old `SUPERSEDED` 🗄️ · יישום-UX `FUTURE`/`DESIGN`.
 
 ### WS-SEC — הקשחת אבטחה (RLS / privacy)
 - **WHERE_WE_ARE:** דליפות קונקרטיות נסגרו ב-live DB (19.8).
@@ -291,17 +291,17 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **STATE:** תשתית `LIVE`-לא־מחווטת · חיווט `OPEN` · L1–L14 `DESIGN` · repo-tracking `UNKNOWN` ❔.
 
 ### WS-MASTERSTATE — ממשל/סנכרון Master State
-- **WHERE_WE_ARE:** P1 sync חי ב-main; §17 מיושן לגבי Finding Identity.
-- **WHAT_IS_DONE:** `ae8272c2` — §15/§16/§17/§18 + Change Log #23–#28. §19 הוחרג.
-- **WHAT_IS_OPEN:** §17 (`FROZEN → IN_PROGRESS`, Steps 1–3 LIVE, `f5834f44`); הטמעת γ; אנומרציית `WS-SEC`; ציון Roadmap `0d247a1d`/`38a8f784`.
+- **WHERE_WE_ARE:** P1 sync חי ב-main; §17 מיושן לגבי Finding Identity; **§19 A/B נכתב בסשן זה (ענף, טרם-main)**.
+- **WHAT_IS_DONE:** `ae8272c2` — §15/§16/§17/§18 + Change Log #23–#28. §19 הוחרג ב-P1, **כעת נכתב** (Change Log #29, סשן 20.8 זה) — γ (§19-A) + Universal Research Contract v1.0 (§19-B).
+- **WHAT_IS_OPEN:** §17 (`FROZEN → IN_PROGRESS`, Steps 1–3 LIVE, `f5834f44`); אנומרציית `WS-SEC`; ציון Roadmap `0d247a1d`/`38a8f784`; מיזוג §19-A/B מהענף ל-main; רשומת-הזהות-האחרת שגם-תויגה "§19" (Change Log #26, OD-F10a) **עדיין לא-נכתבה לגוף-המסמך** — פער-נפרד, לא-טופל בסבב זה.
 - **WHAT_IS_BLOCKED:** —
 - **HUMAN_GATE:** צוריאל — Master WRITE gate.
-- **NEXT_ACTION:** בשער, עדכוני §17/γ/security כירורגית.
+- **NEXT_ACTION:** בשער, עדכוני §17/security כירורגית; ואם-יאושר — כתיבת רשומת-הזהות (OD-F10a) שנותרה-בפער.
 - **DEPENDENCIES:** `WS-GAMMA`, `WS-ELS-IDENTITY`, `WS-SEC`.
 - **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` (main).
-- **PROVENANCE:** `ae8272c2`.
-- **LAST_VERIFIED:** 2026-08-20 (§17 עדיין FROZEN).
-- **STATE:** sync `DONE`/`LIVE` · עדכון §17/γ `PARALLEL_READY`/`OPEN`.
+- **PROVENANCE:** `ae8272c2` · Change Log #29 (20.8, ענף `claude/els-function-inventory-86klre`).
+- **LAST_VERIFIED:** 2026-08-20 (§17 עדיין FROZEN; §19 A/B נכתב היום).
+- **STATE:** sync `DONE`/`LIVE` · §19 A/B `DONE`(ענף)/`OPEN`(מיזוג-למיין) · עדכון §17 `PARALLEL_READY`/`OPEN` · רשומת-זהות-OD-F10a `OPEN` (פער-ישן, לא-חדש).
 
 ### WS-PERSON — זהות־אדם (OD-F10a)
 - **WHERE_WE_ARE:** חוזה מאושר (design); self-ledger חי; משפחה חסומה.
@@ -342,6 +342,19 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **LAST_VERIFIED:** 2026-08-20 (החוק תועד; אין קוד).
 - **STATE:** `FUTURE` 🔮 (מימוש) · `DESIGN` 📐 (חוק/מפרט). **אין ליצור טבלת DB או feature-flag infrastructure בשלב הזה.**
 
+### WS-URC — SOD1820 Universal Research Contract v1.0 (עקרון-על, `NEW` 20.8.2026)
+- **WHERE_WE_ARE:** החוזה **מאושר לתיעוד** (`APPROVED FOR SSOT DOCUMENTATION`, Scope: `DOCUMENTATION / ROADMAP ONLY`); נכתב ל-Master State §19-B. יישום-UX **לא-התחיל, לא-אושר**.
+- **WHAT_IS_DONE:** 18-סעיפי-החוזה (Entry Context·Focused-before-Expansion·Method-Preserving Discovery·Calculation·Value Scan·Zero Navigation·Research Finding·One Knowledge Tree·Fact-separation·Contextual Intelligence·External Research·Raziel·Human-Gate·Privacy·Premium-as-gate·Future-proof·Canonical Architecture Principle·Test-Case) נכתבים verbatim ל-Master State §19-B, מאומתים מול תשתית-חיה (§19-B "תשתית-תומכת"), אפס-סתירה נמצאה מול חוקים-קיימים.
+- **WHAT_IS_OPEN:** יישום-UX בפועל (Entry-Context-aware navigation · Focused-result-first UI · Method-tag תמידי על ערך מוצג) בכל משטח (ELS/Number/Gematria/Cross/Beit-Midrash/Command-Center) — **טרם-אושר, טרם-תוכנן ברמת-מסך**.
+- **WHAT_IS_BLOCKED:** יישום-UX — עד מפת-מסך מאושרת פר-משטח (per `research_workspace_law`/`command_center_law`/§11.33 "דליברבל לפני UI").
+- **HUMAN_GATE:** צוריאל — שער-תכנון פר-משטח, ואז שער-בנייה (כמו `WS-FEATURE-CONTROL`, שני-שערים-נפרדים).
+- **NEXT_ACTION:** אין בנייה כעת. אם/כשצוריאל יבקש יישום — להתחיל ממשטח-בודד (למשל ELS/tzofen "Focused Before Expansion", הכי-קרוב-להשלמה כי `§CC-2` GAP-1/GAP-1A כבר-בנוי-על-branch) ולהציג מפת-מסך לפני קוד.
+- **DEPENDENCIES:** `WS-GAMMA` (§19-A מספק את שכבת ה-Finding/Atlas/Ledger שהחוזה בסעיף 7 מסתמך-עליה) · `WS-CC` (Command-Center הוא אחד המשטחים שהחוזה חל-עליו) · `WS-MASTERSTATE`.
+- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-B.
+- **PROVENANCE:** הועבר בצ'אט כ-`actor=ZURIEL`/`HUMAN-GATE DECISION`, 20.8.2026 · Master State Change Log #29 · work_log (20.8.2026).
+- **LAST_VERIFIED:** 2026-08-20.
+- **STATE:** חוזה `APPROVED`(תיעוד) · יישום-UX `FUTURE`🔮/`DESIGN`📐 — **אין ליצור UI/קוד/מנוע בשלב הזה.** **עדכון 20.8.2026 (תיקון ממוקד, Master State §19-C/§19-D):** 3 הבהרות נוספו ל-18-הסעיפים (Entry-Context=זהות-מחקר · Method-Preserving=חובה · Focused≠Full-Research) + §0 סעיף-15 חדש (Context-Integrity/No-Context-Loss-Law). **18-הסעיפים נשארים מתועדים; המסגרת-הארכיטקטונית-הרחבה-יותר (סדר-יישום/משטחים) נשארת `OPEN` לrevisit של צוריאל — לא `CLOSED`.**
+
 ---
 
 ## 🔮 מרשם העתיד (FUTURE REGISTRY) — **INCOMPLETE** (רק provenance קיים; בלי המצאה)
@@ -367,6 +380,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | נטרול רגרסיית־קורפוס | 🔀 מוזג ל-main · 🌐 חי · ✅ אומת | `f5834f44` |
 | ELS Finding Identity Step 3 (DB) | 🚀 חי · ✅ אומת (regression PASS) | migration `20260820023525` |
 | γ שתי־שכבות (החלטה) | ✅ מתועד | `7985e0ce` |
+| SOD1820 Universal Research Contract v1.0 → SSOT | ✅ נכתב ל-Master State §19-A/B (ענף; ממתין-למיזוג ל-main) | Change Log #29, work_log 20.8.2026 |
 | Master Roadmap v1→v3 קנוני | 🔀 מוזג ל-main | `0d247a1d` (v1) · `38a8f784` (v3) |
 | הקשחת אבטחה #8/#9/#10B/metatron/LATENT-A | 🚀 חי · ✅ אומת | work_log 19.8 |
 
@@ -381,6 +395,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | ELS Finding Identity Steps 1–3 | צוריאל · 2026-08-20 | זהות server-derived, INSERT-only, legacy ללא־שינוי | הקפאת Finding-Identity | migrations step1/2/3 (`20260820023525`), client `7045f7b3` |
 | Master Roadmap = מפת־העבודה | צוריאל · 2026-08-20 | מסמך ניווט קנוני (v1→v3) | — | `0d247a1d`, `38a8f784`, work_log `790b54c0`/`e6b0b302` |
 | חוק BUILDING/נראות + פורמט v3/v4 | צוריאל · 2026-08-20 | החוק + מודל־מצבים + Hebrew-first + Branch Tracker + Release Pipeline | פורמט v2/v3 | v4 draft (מסמך זה) |
+| SOD1820 Universal Research Contract v1.0 | צוריאל · 2026-08-20 | חוזה-על 18-סעיפים: Entry Context·Focused-before-Expansion·Method-Preserving Discovery·Calculation·Value Scan·Zero Navigation·Research Finding·One Knowledge Tree·Fact/Evidence/Discovery/Interpretation/Hypothesis-separation·Contextual Intelligence·External Research·Raziel-role·Human-Gate·Privacy·Premium-as-gate·Future-proof·Canonical Architecture Principle·Test-Case. **DOCUMENTATION/ROADMAP-ONLY** — אפס build/migration/schema/deploy | §19-old (שתי-שכבות-ממצא, לא-נכתב-מעולם) — ממסגר-ומרחיב את γ | Master State §19-A/§19-B (Change Log #29) · הועבר בצ'אט כ-`actor=ZURIEL`/`HUMAN-GATE DECISION` |
 
 ---
 
@@ -399,18 +414,21 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 **כלל:** אין להסיק `LIVE` מקיום ענף; אין להסיק `DONE` מקיום commit — `DONE` דורש `✅ אומת`.
 
 ## 🚪 שערי־צוריאל פתוחים (OPEN HUMAN-GATES)
-1. **Roadmap v4 → קנוני** (merge ל-main).
+1. **Roadmap v4 → קנוני** (merge ל-main). *(עדיין פתוח; ר' גם FRESHNESS למעלה — `main` HEAD בפועל `548d4a4`, לא `38a8f784`.)*
 2. **ELS Step 3 merge + deploy + אימות.**
 3. **ELS Step 4** (`BLOCKED` עד #2).
 4. **`corpus_id` תנ״ך** (בלי המצאה).
 5. **`fn_els_search`** שחזור secdef/search_path.
-6. **§19→γ + הסרת הקפאת §17 + אנומרציית אבטחה** ב-Master State.
+6. ~~**§19→γ + הסרת הקפאת §17 + אנומרציית אבטחה** ב-Master State.~~ → **פוצל, 20.8.2026:** חלק-γ (§19→§19-A/B) **נסגר** (ר' `WS-GAMMA`/`WS-MASTERSTATE`) — **`DONE`(ענף)/ממתין-למיזוג**. הסרת-הקפאת-§17 + אנומרציית-אבטחה **נשארות פתוחות** כשער עצמאי (מספר #6 להלן, מוחלף).
+6′. **הסרת הקפאת §17 (Finding-Identity FROZEN→IN_PROGRESS) + אנומרציית אבטחה** ב-Master State — *(ממשיך את #6 המקורי, אחרי פיצול)*.
 7. **ELS Full-Search-Space** מיזוג (D4 מול Item 1).
 8. **admin_research_review** → תכנון.
 9. **מרכז־הניהול UI** (אחרי שהמפה קנונית).
 10. **WS-FEATURE-CONTROL** שער תכנון, ואז שער בנייה.
 11. **Person F-1b** (OD-F9a/F9b/F8).
 12. **חיווט Raziel.**
+13. **יישום-UX של SOD1820 Universal Research Contract v1.0** (Entry Context / Focused-before-Expansion / Method-Preserving Discovery בממשק בפועל) — `NEW, 20.8.2026`. החוזה עצמו **מאושר-לתיעוד** (§19-B); זהו שער-נפרד ל**בנייה**, טרם-נפתח.
+14. **רשומת-זהות שנותרה-בפער (Change Log #26, OD-F10a)** — לא-נכתבה-מעולם לגוף Master State; אינה חלק מ-§19-B; שער נפרד אם/כשצוריאל ירצה לסגור אותה. `NEW, 20.8.2026` (זוהה, לא-נוצר).
 
 ## 🧬 עמוד־השדרה של התלויות (DEPENDENCY SPINE)
 ```
