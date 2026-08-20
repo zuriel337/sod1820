@@ -34,8 +34,9 @@
 12. **קיים-בקוד אך לא-אושר-כקנוני → `IMPLEMENTED BUT NOT CANONICAL`.**
 13. **כל שינוי עתידי של צבע/שם/UI/UX/התנהגות עובר דרך מנגנון זה** — אין «שינוי קטן» מחוץ ל-Master State.
 14. **ה-Master State נשאר ה-Single Source of Truth** הניתן-להעברה בין מודלים וסשנים.
+15. **CONTEXT INTEGRITY / NO CONTEXT LOSS LAW** (`חוק חדש`, Human-Gate ZURIEL, 20.8.2026 — הבהרה ל-§19-B, ר' §19-C): לפני החלטה מהותית, סיכום ארכיטקטוני, שינוי Master/Roadmap, או הכרזה על CLOSED — הסוכן חייב **לשחזר את ההקשר המצטבר של הסשן** (Context Reconstruction), לא להסתמך על ההודעה האחרונה בלבד. חובה להפריד בין: **Architecture Decision · Contract · Feature · Example · Open Question · Build Task** — ולא לערבב ביניהם. **אין להניח שהנושא האחרון שנדון הוא מטרת-העל של הסשן.** אם קיים ספק לגבי רלוונטיות של הקשר קודם — לבצע Context Reconstruction לפני החלטה, לא אחריה. **אין להכריז על ארכיטקטורה/חוזה כ-`CLOSED`** כאשר קיימות החלטות ארכיטקטוניות רלוונטיות שטרם עברו Human-Gate.
 
-> **סטטוס חוק-הניהול:** `APPROVED` + `CANONICAL` (החלטת צוריאל, 10.8.2026). התוספת אינה משנה שום החלטה קיימת אחרת במסמך.
+> **סטטוס חוק-הניהול:** `APPROVED` + `CANONICAL` (החלטת צוריאל, 10.8.2026; סעיף 15 נוסף 20.8.2026). התוספת אינה משנה שום החלטה קיימת אחרת במסמך.
 
 ---
 
@@ -618,6 +619,15 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 
 **סתירות שנבדקו ולא נמצאו:** נבדק מול `els_single_engine_law`, `gematria_engine_law`, `unified_graph_law`, `reality_graph_law`, §10.0-§10.6, §11-§15, §CC-2, §16-§18 — **לא נמצאה סתירה חיה**. פער-תיעוד (לא-סתירה) נמצא ותועד למעלה: "§19" הכפול ב-Change Log ורשומה #26 (החלטות-זהות) שלא-נכתבה-מעולם לגוף-המסמך.
 
+### §19-C. הבהרות מחייבות ל-§19-B (Human-Gate ZURIEL · 20.8.2026) — **אינן משנות את 18 הסעיפים עצמם**
+> תוקן ממוקד, ללא audit חוזר. מבהיר/מחדד שלושה סעיפים קיימים — לא מוסיף עקרון חדש לחוזה.
+
+- **A. Entry Context = חלק מזהות-המחקר (הרחבת סעיף 1):** Entry Context **אינו רק UI/navigation-context** — הוא חלק מה-**provenance וה-זהות** של מסלול-המחקר, ויש לשמרו לאורך כל השרשרת `Discovery → Finding → Research` (לא רק בכניסה).
+- **B. Method-Preserving Discovery = חובה, לא-אופציה (הבהרת סעיף 3):** כשערך נוצר באמצעות method מסוים — ה-method נשמר כחלק **מזהות ההתאמה עצמה**, לא רק כמטא-דאטה נלווה. **דוגמה מחייבת (לא רק Test-Case לדוגמה):** ELS 1258 → "מפתח לגן" → מילוי=1258 → בתוצאת-ELS מוצג **"מפתח לגן — מילוי 1258" בלבד**. פתיחת כל שיטות-הגימטריה של הביטוי מותרת **רק** כשהמשתמש נכנס ל-Research/Explore.
+- **C. Focused Result ≠ Full Research Context (הבהרת סעיף 2, עקרון-הפרדה מפורש):** משטח-הכניסה (Entry surface) מציג את התוצאה הרלוונטית להקשר-הכניסה **בלבד**. משטח-המחקר (Research surface) רשאי להרחיב לאותו Finding, למנועים, לקשרים, ול-One Knowledge Tree. **אסור להציף את משטח-הכניסה בכל הידע הקיים** — ההפרדה בין שני המשטחים היא עקרון-ארכיטקטוני מפורש, לא רק המלצת-UX.
+
+**§19-D. STATUS (עדכון 20.8.2026 — Human-Gate ZURIEL, ללא ביטול תיעוד קיים):** 18-סעיפי ה-Universal Research Contract v1.0 (§19-B) **נשארים מתועדים ומאושרים-לתיעוד** כפי שאושרו — **לא בוטלו ולא שונו**. יחד עם זאת: **המסגרת הארכיטקטונית הרחבה יותר** (כיצד היישום-בפועל של 18 הסעיפים יתפרס על-פני משטחים, מה סדר-הבנייה, אילו החלטות-משנה נוספות נדרשות) **נשארת `OPEN`** ל-review נוסף של צוריאל בסשן חדש — **אינה `CLOSED`**. אין ב-status זה כדי לגרוע מהאישור-לתיעוד של §19-A/§19-B; הוא חל על **ההמשך מעבר לתיעוד**, לא על התיעוד עצמו. אין merge ל-main. אין build/schema/migration/deploy.
+
 ---
 
 ## §CL. CHANGE LOG
@@ -653,6 +663,7 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 26 | 19.8.2026 | **§19 החלטות-זהות (מאושר):** `persons`/`identity_edges`=קנוני · `wa_account_links`=channel · `own_in_progress_allowed=TRUE` · רזיאל propose≠decide · Person-Identity Contract OD-F10a + `fn_upsert_self_profile` (SELF) | לקבע זהות-קנונית לפני מסעות Family/Life; רזיאל קורא-own בלי לקדם | «זהות מפוזרת / רזיאל-מקדם-status» → person_id קנוני + propose-only | `APPROVED` · `fn_upsert_self_profile`=`IMPLEMENTED` |
 | 27 | 19.8.2026 | **§19 שתי-שכבות-ממצא (DESIGN/READ-ONLY):** `research_contributions`(ציבורי-מיוחס, ELS-ציבורי 27 כבר כאן) מול `research_objects`(שרת/R1-פרטי); פיצול-לפי-פרטיות; `open/closed`=ציר-העל; **חוב Human-Gate כפול** (`graph_node_id` מול `promoted_node_id`) | להגדיר יחס במקום לאחד; מסע-חיים פרטי עוקף את השער-הציבורי | **(S1)** «ELS→research_objects.engine_detail» **SUPERSEDED** · **(S2)** «corpus_id על els_records» **SUPERSEDED** | `DESIGN`/READ-ONLY · V3+G2=`OPEN` · טרם-בנייה |
 | 28 | 19.8.2026 | **סנכרון Master (drift 15.8→19.8):** הוספת §16-§19 + רשומות #23-#27 + סימון 2 supersessions (S1/S2). אין סתירות-חיות | צוריאל: «כל ההחלטות ב-Master + סמן סותרות» | Master קפוא ב-15.8 (רק §15) → מעודכן ל-19.8 | `APPROVED` (תיעוד) · ענף `claude/premium-research-audit-bzmjop` · אפס deploy |
+| 30 | 20.8.2026 | **תיקון ממוקד ל-§19-B (ללא audit חוזר):** §19-C — 3 הבהרות מחייבות (A. Entry Context=חלק-מזהות-המחקר/provenance, לא רק UI · B. Method-Preserving Discovery=חובה לא-אופציה, דוגמת ELS-1258-מילוי מחייבת · C. Focused-Result≠Full-Research-Context, הפרדת Entry-surface/Research-surface מפורשת) · §19-D STATUS (18-הסעיפים נשארים מתועדים-ומאושרים; **המסגרת-הרחבה-יותר נשארת `OPEN`** ל-review-נוסף, לא `CLOSED`) · §0 סעיף 15 חדש — CONTEXT INTEGRITY / NO CONTEXT LOSS LAW (Context-Reconstruction לפני החלטה-מהותית/CLOSED; הפרדת Architecture-Decision/Contract/Feature/Example/Open-Question/Build-Task; איסור-הנחה-שהנושא-האחרון=מטרת-העל) | צוריאל: הבהרות ממוקדות לחוזה + חוק-עבודה כללי למניעת אובדן-הקשר, בלי לפתוח סבב-audit חדש | אינו-מחליף כלום; מוסיף-בלבד | `APPROVED` · documentation-only · אפס DB/build/migration/deploy · אפס merge-ל-main |
 | 29 | 20.8.2026 | **§19 נכתב לראשונה לגוף-המסמך (P1 sync 19.8 החריג אותו בכוונה):** §19-A γ שתי-שכבות-ממצא (Atlas=`relation_evidence`/Ledger=`research_objects`/מנוע=מחסנית-עצמו, קישור-string `source`/`source_ref`, אפס-DB-change) — מטמיע `docs/decisions/2026-08-20-gamma-two-layer-atlas-ledger.md` (`7985e0ce`, ענף `claude/raziel-capabilities-audit-h5k9ww`, לא-במיין) · §19-B SOD1820 Universal Research Contract v1.0 (18 סעיפים, verbatim, Entry-Context→Focused→Method-Preserving→Calculation→Value-Scan→Zero-Nav→Finding→One-Tree→Fact-separation→Contextual-Intelligence→External-Research→Raziel→Human-Gate→Privacy→Premium-as-gate→Future-proof→Canonical-Architecture-Principle→Test-Case) | GPT/צוריאל: לעדכן SSOT+Roadmap לפי חוזה מאושר; לסגור את שער `WS-GAMMA`/OPEN-GATE#6 (§19→γ) | §19-old (שתי-שכבות-ממצא, לא-נכתב-מעולם לגוף) → §19-A/γ | `APPROVED` (documentation-only) · §19 (החלטות-זהות/OD-F10a, Change-Log #26) **נשאר-פער-נפרד, לא-נכתב, לא-הומצא** · אפס DB/schema/migration/deploy |
 
 ---

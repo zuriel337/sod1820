@@ -353,7 +353,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-B.
 - **PROVENANCE:** הועבר בצ'אט כ-`actor=ZURIEL`/`HUMAN-GATE DECISION`, 20.8.2026 · Master State Change Log #29 · work_log (20.8.2026).
 - **LAST_VERIFIED:** 2026-08-20.
-- **STATE:** חוזה `APPROVED`(תיעוד) · יישום-UX `FUTURE`🔮/`DESIGN`📐 — **אין ליצור UI/קוד/מנוע בשלב הזה.**
+- **STATE:** חוזה `APPROVED`(תיעוד) · יישום-UX `FUTURE`🔮/`DESIGN`📐 — **אין ליצור UI/קוד/מנוע בשלב הזה.** **עדכון 20.8.2026 (תיקון ממוקד, Master State §19-C/§19-D):** 3 הבהרות נוספו ל-18-הסעיפים (Entry-Context=זהות-מחקר · Method-Preserving=חובה · Focused≠Full-Research) + §0 סעיף-15 חדש (Context-Integrity/No-Context-Loss-Law). **18-הסעיפים נשארים מתועדים; המסגרת-הארכיטקטונית-הרחבה-יותר (סדר-יישום/משטחים) נשארת `OPEN` לrevisit של צוריאל — לא `CLOSED`.**
 
 ---
 
