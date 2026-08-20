@@ -537,6 +537,48 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 
 ---
 
+## §15. MULTILINGUAL INPUT — חוזה-קלט קנוני (`APPROVED` · Human-Gate ZURIEL · 15.8.2026)
+> פורמליזציה של §14.2 (רב-לשוניות=ציר-מרכזי). **צוריאל אישר את העיקרון כתשתית (15.8.2026).**
+- **עיקרון:** קלט יכול להיות עברית/אנגלית/שפה-נתמכת. **שפת-הקלט-המקורית והערך-המקורי נשמרים ללא-שינוי.** תרגום/תעתיק/מועמדים-עבריים = **DERIVED בלבד** — לא הופכים ל-Fact ולא מחליפים את המקור. כמה-מועמדים → מוצגים כמועמדים + provenance; אין בחירה-משמעותית-כאמת בלי **Human-Gate/בחירה**. `translation ≠ transliteration ≠ shared_value ≠ meaning`.
+- **6 שדות לפני כל מנוע רגיש-טקסט:** `original_value · original_language · input_type · derived_candidates · selected_research_form · provenance`.
+- **חל על:** שמות-אנגלית · מילים-אנגלית · ביטויים/פסוקים · **קלט-ELS** · תאריכים · Research-Context · Raziel.
+- **קיים (EXISTING · מאומת-DB/קוד):** `translit_suggestions` (input_norm/lang/**input_type**/proposed_hebrew/**alt_answers**/confirmations/rejections/**resolved_hebrew**/reason) · `word_aliases` (alias/lang/source/confidence/verified/is_primary) · `language_links` (foreign_word/lang/relationship_type/**evidence_level**/**translation_source**/**human_verified**) · `name_variants` · `xlang_calibration` (ai_score/ai_reason) · `englishGematria.js`+`translit.js` (hasLatin=input_type · hebrewLatinOptions=candidates) · NameLab (heInput=input_type · translitOpts=derived_candidates · enWord=selected_research_form · «תעתוק מוצהר»=provenance) · תאריך-לידה (Gregorian מקור → `gregToHebrewSpelled` derived; profiles.birth_date נשאר SoT).
+- **חסר-חיווט (NEEDS WIRING · לא-עכשיו):** (1) **קלט-ELS** — `tzofen norm()` מוחק לא-עברית; אין English→Hebrew-candidate לפני ELS. (2) **חוזה-אחיד** — 6-השדות מפוזרים per-domain; אין מעטפת-קלט יחידה מפורשת לכל מנוע רגיש-טקסט. (3) Research-Context/Raziel — רושמים input+evidence_legend, לא את 6-השדות כמבנה-אחיד.
+- **⛔ עכשיו:** אפס schema/migration/translation-engine/UI/שינוי-ELS/שינוי-NameLab — Audit+תיעוד בלבד. חיווט = `ROADMAP` (כל שלב אישור-נפרד).
+
+---
+
+## נספח — פערים מסומנים (`MISSING FROM MASTER STATE`, לא-מוכנס-לקנון)
+1. `gematria_methods` (23 שורות) — הרישום עצמו לא-הוכרז קודם ב-CLAUDE.md/EXPORT.
+2. `method_lifecycle` — קדם ל«Candidate Registry» שהוצע בסשן; אין לבנות מקביל.
+3. `raziel_companion_layer_law` · `never_silent_metatron_law` · `unified_ai_brain_law` · `research_engine_law` · `metatron_rollout_law` · `bot_experience_architecture_law` — נעולים, נתפסו קודם כ-PROPOSED/UNKNOWN.
+4. משפחת `fn_arcana` / `fn_tarot_sos` / `fn_destiny_matrix` / `fn_human_design_gate` / `fn_anagrams_engine` / `fn_maftech_decompose`.
+5. תיקון-נתון: `nodes` = 5,867 (לא ~9,200 כפי שנרשם ב-EXPORT).
+
+---
+
+## §16. R1 — פרטיות-ממצא-מחקר (`owner_person_id` + `privacy_scope`) — `APPLIED` (Human-Gate ZURIEL · 19.8.2026)
+> **נעול ומאומת ב-DB חי.** `research_objects` הוא כעת owner/privacy-scoped — כל סוכן חייב לדעת זאת לפני שנוגע בו.
+- **סכימה (הוחל):** `research_objects.owner_person_id uuid NULL` (FK→`persons.person_id`, `ON DELETE SET NULL`) + `privacy_scope text NOT NULL DEFAULT 'private'` CHECK ∈ {`private`,`family_shared`,`public_candidate`} + index `(owner_person_id,privacy_scope)`.
+- **גשר-אכיפה:** `owner_person_id` ≠ `auth.uid`; RLS עתידי עובר דרך `persons.account_user_id`. הטבלה **server-only** כיום (אין GRANT ללקוח).
+- **תיקון-merge:** `link_identity` בענף-המיזוג מ-re-point את `owner_person_id` לפני `DELETE v_old` — מיזוג-זהות לא מאבד בעלות.
+- **legacy (backfill):** שורות קיימות → `owner_person_id=NULL` + `privacy_scope='public_candidate'` (אפס-רגרסיה).
+- **חוקי-ברזל:** `privacy_scope`=הרשאת-גישה · `status`=מעמד-מחקרי — **צירים נפרדים**. אין person_id → אין owner-scoped. `private ≠ candidate ≠ approved ≠ canonical ≠ published`. `family_shared` = ערך-חוזה-עתידי (אין ACL פעיל; נקרא כ-owner בלבד).
+
+## §17. ELS — קורפוס קנוני + `corpus_id` — `APPLIED` (Session 2 · 18-19.8.2026)
+> **יישור-קורפוס נסגר.** ELS-שרת = ELS-לקוח = אמת-אחת.
+- **קורפוס קנוני:** `torah_stream` = **304,805** (Koren, `tk-letters.txt`) · `corpus_id = 0b022e8eef6f9c16` · position-space **0-based**.
+- **`fn_els_search` normalized** + חוזה provenance/coverage (`corpus_id`/`position_base`/`coverage`/`skip_domain`). **20/20 baseline-equivalence** מול הלקוח.
+- **migration ישנה** `20260726_name_protocol_wave2_1_els_real.sql` = **SUPERSEDED** (replay לא משחזר קורפוס/חוזה ישן).
+- **Finding Identity — `FROZEN`:** `FindingID = {corpus_id, term_norm, dir, skip, start}` (positions נגזרות; geometry=lens). מוקפא עד מיפוי מול `research_objects`/`research_contributions` (§19). legacy `els_records` (106) → `corpus_id` **לא-מוכח** מ-provenance קיים → נשאר `NULL` (אין batch-assign, אין המצאה; re-anchor=opt-in פר-רשומה). **תנאי לכל ממצא-ELS חדש:** הלקוח `tzofen.html` חייב לפלוט `corpus_id` (כיום 0 אזכורים) + `corpus_id` מוגדר לקורפוס-התנ״ך.
+
+## §18. SECURITY — סחיפת-הקשחה (privacy/ACL) — `APPLIED`+verified (19.8.2026)
+> **~10 פרצות נסגרו עם WRITE+אימות. אל תפתח מחדש — כולן חיות.**
+- `link_identity` account-takeover · `admin_research_feed` bypass · `visitor_events` harvesting (ALTER POLICY) · `research_meta` aggregate-bypass (REVOKE EXECUTE) · `metatron_context` ACL + privacy-guards P2/P3/P4 · `number_dossier_json` (LATENT-A — מחזיר RO רק ב-`public_candidate`) · `metatron_plan` (דליפת `researcher_definitions` ל-anon → REVOKE) · `engraved_facts` P1 · `numbers_worked` P2 (identity-scoped).
+- **עיקרון:** פונקציות server-internal = `REVOKE FROM PUBLIC` + `GRANT service_role`; owner-scoped reads דרך `account_user_id`.
+
+---
+
 ## §CL. CHANGE LOG
 > כל שינוי מהותי נרשם כאן: **מה · מתי · למה · מה-הוחלף · סטטוס**. לא מוחקים היסטוריה — החלטה חדשה מסמנת שהחליפה את הישנה; המאוחרת והברורה גוברת.
 
@@ -564,6 +606,12 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 | 21 | 11.8.2026 | **CC-1 v1 נבנה (WRITE-קוד ראשון של המפקדה, באישור):** טאב-אדמין «🎛️ חדר המפקדה» = **View קורא-בלבד**. קבצים: `WarRoomTab.jsx` (חדש) · `discovery.js` (+`materialTrack`/`preferenceScore`/`langRelLabel`) · `supabase.js` (+`getResearchFeed`/`getWaGroups`/`getWaLog`/`getForumMaterial`/`getLanguageLinks`/`getLanguageStats` — **reuse-first, אפס RPC חדש**) · חיווט AdminPage. תכולה: 2-מרחבים (🔴עכשיו/🗂️כל-האוצר) · מסלול-חומר 9×4 («איפה נעצר») · עדשות כתבים/קבוצות(סימון-כבוי)/**שפות** (תרגום≠תעתיק≠ערך-משותף+233-תעתיקים+21K-כיול)/מועמדים · רזיאל(AiAnalyze)/מטטרון · באנרים HOT/VIP/Claim/Interpretation≠ · ציר-העדפה ניטרלי · `build ✓` | לבנות CC-1 לפי המפרט המאושר + תיקוני-Audit (H1–H4/F1–F5) | «מפרט» → «View חי על-branch» | `IMPLEMENTED` (branch, **לא-פרוס**) · READ-ONLY (SELECT/RPC-קריאה בלבד) · אפס WRITE-DB/engine/EntityPage/גרף/RPC-חדש |
 | 20 | 11.8.2026 | **§13 CC-1 SPEC נעול (מאושר):** מפקדת-כל-האוצר · שני-מרחבים (🔴עכשיו / 🗂️כל-האוצר-היסטורי+טרי) · מסלול-חומר 9-שלבים×4-מצבים (🟢🟡⚪🔴 «איפה נעצר») · עדשת-כתבים (VIP=עדיפות) · רזיאל/מטטרון/שופט/צוריאל · **20 גבולות-ברזל** (View-בלבד · לא מאגר/engine/SoT/feeder · research_objects+גרף+EntityPage קנוניים · אין קידום-לקנוני/H-1/קיר/שינוי-מנוע · שום-חומר-לא-נמחק · HOT/VIP/Claim/Interpretation≠TRUE/Fact) · חומר-לפני-research_objects נראה · חסר=read-RPC-אחד(קריאה)+wrapper+הרכבת-View | צוריאל אישר עקרונית + בדיקת-גבולות סופית | «מפרט-מסך» → «CC-1 קנוני נעול» | `APPROVED` (מפרט) · `READ-ONLY`/טרם-בנייה · הבא=מפרט-בנייה-טכני→עצירה-לאישור-לפני-WRITE |
 | 22 | 14.8.2026 | **§CC-2 Command Center Research Layer:** P1 Info-Request · P2 Field Package read-model · P2-UI · P2.5 nav-gateway · GAP-1/1A method-aware · GAP-2 cross-AI-free · GAP-3 compound read-model · Edge `field-pack` (הכל §CC-2) | להפוך CC-1 (View קורא-בלבד) לשרשרת-מחקר-ניווטית מעל המנועים הקיימים, reuse-first | «Field Package=מסך-מידע» → «שער-ניווט read-model» · «cross מאחורי AI» → «cross דטרמיניסטי-חינם» | **קוד: `IMPLEMENTED`** (branch `claude/raziel-capabilities-audit-h5k9ww`, **לא-main · לא-deployed-frontend · not-live-verified**; unit 108+build) · **Edge `field-pack`: `DEPLOYED`** (Supabase ACTIVE v1); **`LIVE-VERIFIED` deny-paths בלבד** (admin לא) · **DB: 0 שינוי** (0 migration/canonical-write) · OPEN O1–O6 = non-blocker |
+| 23 | 18-19.8.2026 | **§16 R1 מומש (WRITE · Human-Gate ZURIEL):** `owner_person_id`+`privacy_scope` על `research_objects` (FK→persons · CHECK · index) + תיקון-merge `link_identity` (re-point owner לפני DELETE) + backfill legacy→`public_candidate`. הכל בטרנזקציה אחת · אומת (constraints/FK/index/116-rows/regression 0-הפרות · server-only נשמר) | שכבת-פרטיות owner-scoped לממצאי-מחקר (Family/Life/Hints) בלי טבלה מקבילה | «research_objects בלי owner/privacy» → owner/privacy-scoped | `APPLIED`+verified (DB חי · server-only · אפס deploy) |
+| 24 | 18-19.8.2026 | **§17 ELS קורפוס קנוני (Session 2):** `torah_stream`=**304,805** · `corpus_id=0b022e8eef6f9c16` · 0-based · `fn_els_search` normalized+provenance/coverage · migration `wave2_1_els_real`=SUPERSEDED · Finding-Identity `FROZEN` | ELS-שרת=ELS-לקוח=אמת-אחת (יישור-קורפוס) | קורפוס 306,269 + `fn_els_search` ישן → 304,805 Koren + חוזה | `APPLIED` (DB · 20/20 baseline) · Finding-Identity=`FROZEN` |
+| 25 | 19.8.2026 | **§18 סחיפת-אבטחה (WRITE-per-item · Human-Gate ZURIEL):** ~10 privacy/ACL guards — link_identity account-takeover · admin_research_feed bypass · visitor_events harvesting · research_meta · metatron_context P2/P3/P4 · number_dossier_json (LATENT-A) · metatron_plan (דליפת researcher_definitions ל-anon) · engraved_facts P1 · numbers_worked P2 | לסגור bypass/harvesting/leaks חיים | פונקציות פתוחות-ל-PUBLIC + דליפות-anon → REVOKE+identity-scoped | `APPLIED`+verified · אפס deploy |
+| 26 | 19.8.2026 | **§19 החלטות-זהות (מאושר):** `persons`/`identity_edges`=קנוני · `wa_account_links`=channel · `own_in_progress_allowed=TRUE` · רזיאל propose≠decide · Person-Identity Contract OD-F10a + `fn_upsert_self_profile` (SELF) | לקבע זהות-קנונית לפני מסעות Family/Life; רזיאל קורא-own בלי לקדם | «זהות מפוזרת / רזיאל-מקדם-status» → person_id קנוני + propose-only | `APPROVED` · `fn_upsert_self_profile`=`IMPLEMENTED` |
+| 27 | 19.8.2026 | **§19 שתי-שכבות-ממצא (DESIGN/READ-ONLY):** `research_contributions`(ציבורי-מיוחס, ELS-ציבורי 27 כבר כאן) מול `research_objects`(שרת/R1-פרטי); פיצול-לפי-פרטיות; `open/closed`=ציר-העל; **חוב Human-Gate כפול** (`graph_node_id` מול `promoted_node_id`) | להגדיר יחס במקום לאחד; מסע-חיים פרטי עוקף את השער-הציבורי | **(S1)** «ELS→research_objects.engine_detail» **SUPERSEDED** · **(S2)** «corpus_id על els_records» **SUPERSEDED** | `DESIGN`/READ-ONLY · V3+G2=`OPEN` · טרם-בנייה |
+| 28 | 19.8.2026 | **סנכרון Master (drift 15.8→19.8):** הוספת §16-§19 + רשומות #23-#27 + סימון 2 supersessions (S1/S2). אין סתירות-חיות | צוריאל: «כל ההחלטות ב-Master + סמן סותרות» | Master קפוא ב-15.8 (רק §15) → מעודכן ל-19.8 | `APPROVED` (תיעוד) · ענף `claude/premium-research-audit-bzmjop` · אפס deploy |
 
 ---
 *בסיס-עובד v2. נשמר בענף `claude/raziel-capabilities-audit-h5k9ww`. שינויי-DB בסשן: (1) הקפאת cron job 27 (`metatron-nightly`, הפיך); (2) **H-1** — RPC `fn_persist_discovery` + מועמד-בדיקה-אחד (878=משיח↔דבר-מתוך-דבר, status=`candidate`, ממתין ל-Human-Gate). מלבדם READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence היסטורי לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE + §10 חזון + H-1 front-half).*
