@@ -1256,6 +1256,7 @@
       // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
       postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
+        start:h.start,   // 🆔 עוגן-הממצא 0-based (occ().start === positions[0]) → start_index. corpus_id/term_norm נגזרים בשרת.
         findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,desc:st.desc||"",author:st.author||"",
         hideMain:!!st.hideMain,   // 📌 שומרים אם הציר מוסתר (👁) כדי שהצופן ייטען כך בעתיד
         image:cipherCardDataURL(),shape:cipherGridDataURL(),quality:st.lastQuality||null,editId:editId});

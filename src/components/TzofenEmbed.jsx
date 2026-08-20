@@ -157,6 +157,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         positions: isReSave ? { ...positions, variantOf: matrix.id, variantOfSlug: matrix.slug || null } : positions,
         // 📝 «מה רואים בצופן» — חובה שנאכפת בכלי; נשמר כ-description (p_note→description ב-RPC).
         title: d.postTitle || d.term, note: d.desc || null, imageUrl,
+        // 🆔 עוגן-הממצא 0-based (occ().start מהמנוע). `!= null` כי start=0 חוקי. corpus_id/term_norm נגזרים בשרת.
+        startIndex: d.start != null ? d.start : null,
       };
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
