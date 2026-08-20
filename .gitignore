@@ -14,3 +14,6 @@ orphan-preview.html
 # סקריפטים זמניים (צילומי-מסך / אודיט Playwright) בשורש — לא נשמרים
 /_*.mjs
 scripts/.card-preview/
+# שרידי-עבודה זמניים (build/צילומי-מסך של הרנס) — לא נשמרים
+/dist-harness/
+/harness/
