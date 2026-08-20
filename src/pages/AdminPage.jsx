@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import RoadmapCommandCenter from "../components/admin/RoadmapCommandCenter.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
 import { getVisitStats, getVisitDetail, getSearchConsole, getTrafficHistory, getLegacyTopPages, syncGoogleAnalytics, getGaInsights, getArrivalSources, getPageDwell, getVisitorJourneys, getJourneyShares, getAiUsage, getResearchUsage, getTrafficComposition, getVisitsTwoMeter, getTrafficDayDetail, getCrawlIntel, getEntriesDaily, getEntriesBreakdown, getEntryDayDetail, getMeasurementGap, getTrafficUnified, getFunnel, getTrafficInsights, getCommandCenter, reviewRecommendation, runMetatronRecommend, getConvergenceCandidates, decideCandidate, generateCandidates, getConvergenceDetail, getNumberDossier, askNumberResearcher, loadResearcherThread, sendCandidateFromResearcher, getEntriesSeries } from "../lib/visits.js";
 import SearchesTab from "../components/SearchesTab.jsx";
@@ -85,6 +86,7 @@ const ADMIN_THEME_CSS = `
 // ===== פאנל הניהול (/admin) — נעול ל-role=admin, טאבים =====
 const TABS = [
   { key: "warroom",  label: "🎛️ חדר המפקדה" },
+  { key: "roadmap",  label: "🧭 מפת העבודה" },
   { key: "entries",  label: "🛰️ כניסות אמיתיות" },
   { key: "stats",    label: "📊 סטטיסטיקות" },
   { key: "aicost",   label: "💰 עלות AI" },
@@ -139,7 +141,7 @@ const TABS = [
 // מדידה: כל טאבי-התנועה שהיו פזורים (analytics+journeys) מתאחדים כאן. צמיחה: המרות/ויראל/צמיחה/Meta.
 // הוסרו: «מסעות (ישן)» ו«מיילים» (שכפל את «רשימת תפוצה»). היתומים («סוכנים»→AI, «המרות»→צמיחה) חוברו לקבוצה.
 const GROUPS = [
-  { key: "command", label: "🎛️ חדר המפקדה",  subs: ["warroom"] },
+  { key: "command", label: "🎛️ חדר המפקדה",  subs: ["warroom", "roadmap"] },
   { key: "measure", label: "📊 מדידה",       subs: ["entries", "traffic", "infra", "live", "retention", "popularity", "users", "searches", "stats", "heatmap"] },
   { key: "growth",  label: "📈 צמיחה",       subs: ["growth", "conversions", "viral", "meta"] },
   { key: "ai",      label: "🤖 AI",           subs: ["aicost", "aistyles", "agents"] },
@@ -271,6 +273,7 @@ export default function AdminPage() {
       {activeGroup.subs.length <= 1 && <div style={{ marginBottom: 26 }} />}
 
       {tab === "warroom" && <WarRoomTab />}
+      {tab === "roadmap" && <RoadmapCommandCenter />}
       {tab === "audience" && <AudienceOverlapTab />}
       {tab === "entries" && <TrafficIntelligenceTab />}
       {tab === "stats" && <StatsTab />}
