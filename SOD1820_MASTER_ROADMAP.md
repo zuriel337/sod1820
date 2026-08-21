@@ -331,7 +331,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 
 ### WS-GAMMA — γ שתי־שכבות + Universal Research Contract v1.0 — עודכן-v5 (מוזג-למיין)
 - **WHERE_WE_ARE:** **§19-A/B/C/D כולם על `main`** (לא-עוד "ענף, טרם-מיין") — `6b8160b4`/`3a09b8dd` דרך `c8d3672`.
-- **WHAT_IS_DONE:** γ (Atlas=`relation_evidence`/Ledger=`research_objects`) + חוזה-18-סעיפים + §19-C הבהרות + §19-D status + §0#15 Context-Integrity-Law — כולם ב-Master-State החי.
+- **WHAT_IS_DONE:** γ (Atlas=`relation_evidence`/Ledger=`research_objects`) + חוזה-18-סעיפים + §19-C הבהרות + §19-D status + §0#15 Context-Integrity-Law — כולם ב-Master-State החי. **תזכורת:** Ledger (`research_objects`) הוא owner/privacy-scoped, server-only (§16/R1) — ר' `WS-JUDGE-UNIFICATION` להרחבה.
 - **WHAT_IS_OPEN:** יישום-UX בפועל (Entry-Context/Focused-before-Expansion) — **עדיין `OPEN` לפי §19-D המפורש, לא `CLOSED`**.
 - **HUMAN_GATE:** צוריאל — שער-בנייה נפרד לכל יישום-UX פר-משטח.
 - **NEXT_ACTION:** אין בנייה — מפת-מסך-קודם אם/כשיאושר.
@@ -383,7 +383,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 ### WS-JUDGE-UNIFICATION — Unified Judgment & Human-Gate Contract — **עודכן 21.8: Gate #18 Crosswalk**
 - **WHERE_WE_ARE:** Crosswalk מלא (READ-ONLY, 21.8) מצא **~30 מנגנוני-שיפוט/Promotion בפועל על-פני 6 pipelines** (לא ≥5 כבקודם) — כולל: `admin_research_review`(יתום/מת, אין caller) · `wizard_build_convergence`+`sync_convergence`(חי) · `approve_contribution`+`project_contribution_to_graph`(חי) · `admin_candidate_decide`/`moderate_els_matrix` · `admin_verify_bridge`+`project_language_bridges`(חי) · ועוד. רק **4 פונקציות בפועל כותבות ל-`nodes`/`edges`** מתוך כל-אלה. `CANONICAL≠PUBLISHED` נשאר-חוק, אך בפועל Canonical-effect ו-Publish-effect הם אותה קריאה אטומית בכל pipeline חי שנבדק. AI/Raziel אומת כ-"מציע-בלבד" ללא-סטייה בכל הנתיבים החיים.
 - **WHAT_IS_DONE:** מיפוי-מלא של ~30-המנגנונים/6-ה-pipelines, אימות-קצה-לקצה של סמכות-אדם מול-AI, מיפוי כתיבות node/edge בפועל (21.8, Gate #18 crosswalk).
-- **WHAT_IS_OPEN:** קיים **Contract מוביל/מועמד** (`research_objects`/Universal Research Contract v1.0, §19-A/B/C/D) — נדרשת התכנסות של ה-pipelines החיים אל **Unified Judgment Contract אחד**; **טרם-הוכרע** האם `research_objects`/`admin_research_review` יהיה ה-canonical implementation או-חלופה אחרת. **אין לבנות Judgment system חדש/מקביל** בכל מקרה. האופן המדויק של ההתכנסות — לא-הוכרע (Gate #18 עצמו).
+- **WHAT_IS_OPEN:** קיים **Contract מוביל/מועמד** (`research_objects`/Universal Research Contract v1.0, §19-A/B/C/D) — נדרשת התכנסות של ה-pipelines החיים אל **Unified Judgment Contract אחד**; **טרם-הוכרע** האם `research_objects`/`admin_research_review` יהיה ה-canonical implementation או-חלופה אחרת. **אין לבנות Judgment system חדש/מקביל** בכל מקרה. האופן המדויק של ההתכנסות — לא-הוכרע (Gate #18 עצמו). **⚠️ אילוץ-קיים לתכנון (§16/R1, Master State, 19.8):** `research_objects` כבר owner/privacy-scoped (`owner_person_id`+`privacy_scope`, ברירת-מחדל `private`) ו-**server-only** (אין GRANT ללקוח) — כל תכנון-התכנסות חייב לכבד זאת, לא להניח מצע-ציבורי/פתוח-לקריאה.
 - **WHAT_IS_BLOCKED:** תלוי בהכרעת-`WS-CC` (CC-1-target, Gate #9) לפני שתיקבע היקף-הבנייה בפועל.
 - **HUMAN_GATE:** צוריאל — Gate #18, **OPEN/INTAKE-CRITICAL**: לא-חוסם קנוניזציית-v5, כן-חוסם בנייה-סופית של שכבת-Judgment מאוחדת.
 - **NEXT_ACTION:** אין — נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`. שום איחוד/שינוי-pipeline בלי-שער-מפורש.
