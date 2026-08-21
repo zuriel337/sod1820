@@ -52,7 +52,7 @@
 ---
 
 ## 🕒 טריות המפה (FRESHNESS)
-- **LAST_RECONCILED:** `2026-08-21` (הסשן הזה; יושב מול `work_log` העדכני + `main` HEAD `fc123caa` — עודכן אחרי Gate #3, היה `d245e5eb`).
+- **LAST_RECONCILED:** `2026-08-21` (הסשן הזה; יושב מול `work_log` העדכני + `main` HEAD `fc123caa` — Gate #3+Gate #2 שניהם סגורים; `main` עצמו לא-זז מ-Gate #3, ל-Gate #2 אין deploy-ל-main).
 - **SYNC STATUS:** `SYNCED` *נכון ל־LAST_RECONCILED — אבל המסמך הזה עצמו (v5) עדיין DRAFT, לא-קנוני, לא על main.*
 - **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס.
 - **אין עדכון־אוטומטי־שקט:** בסוף סשן אסור לשכתב את המפה אוטומטית. יש **לזהות** drift, לסמן `STALE`, **ולהציע** את העדכון דרך חוקי ה־WRITE/Human-Gate — לעולם לא לכתוב קנון בלי שער.
@@ -153,8 +153,8 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 ---
 
 ## 🌌 היקום המלא (FULL UNIVERSE) — כלום לא מוסתר
-- **🔵 עכשיו (NOW)** → **ריק זמנית** — `WS-ELS-IDENTITY` Step-3 **הושלם+נפרס+אומת** (Gate #3 Verified/Closed, 21.8) — לא-נבחר-מועמד-חדש כאן (חוק-בטיחות-ACTIVE_NOW: אין-להמציא מועמד בלי-אישור-צוריאל-נפרד; ר' Gate #2 תחת "הבא").
-- **🟡 הבא (NEXT)** → פריסת `claude/els-unified-merge`@`542c7147` ל-Preview (Gate #2, Decision #1 פתור, ממתין-לשער-בלבד) · שחזור `fn_els_search` secdef · עדכון Master State §17-אנומרציה · Step 4 (dedup/UNIQUE, בנייה) — עכשיו לא-חסום-על-Step3, ממתין-לשער-נפרד-משלו.
+- **🔵 עכשיו (NOW)** → **ריק בכוונה** — Gate #3 (ELS Step-3, 21.8) **וגם** Gate #2 (ELS Unified Preview, 21.8) שניהם נסגרו. **לא-נבחר-מועמד-חדש כאן** (חוק-בטיחות-ACTIVE_NOW: אין-להמציא מועמד בלי-אישור-צוריאל-נפרד) — ממתין-להנחייתך-הבאה.
+- **🟡 הבא (NEXT)** → **לא-נקבע כאן.** שערים-פתוחים שנותרו (ר' Open Human-Gates): מיזוג-`els-unified-merge`-ל-main (שער-חדש, טרם-נפתח) · Research-Journey/Matrix/שכבות-ELS-נוספות (עבודה-ממשיכה ב-Preview, לא-שער-רשמי-עדיין) · שחזור `fn_els_search` secdef · Master-State §17-אנומרציה · Step 4 (dedup/UNIQUE) · שאר-שערי-#7-#20.
 - **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳.
 - **⏸️ מושהה (PARKED)** → סליקה/מנויים (Hyp) · Human-Design/Tarot/`digit_language`/`number_series`/`number_products` (schema-בלבד, מכוון-נכון).
 - **🗄️ הוחלף (SUPERSEDED, provenance)** → writer-os · `CommandCenterTab.jsx` (הוחלף ע"י `WarRoomTab`) · §19-old · ELS-2 Item-1 **כענף-עצמאי** (תוכנו נספג בפועל ל-D4, ר' `WS-ELS-FSS`).
@@ -247,18 +247,18 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **STATE:** Steps 1-4-Identity `LIVE`/`DB-LIVE` ✅ (הושלם, לא-עוד `ACTIVE_NOW`) · Step-4-הבנייה `OPEN-HUMAN-GATE` (לא `BLOCKED`).
 - תת-פריט `WS-TANAKH` — זהות־תורה `0b022e8eef6f9c16`; זהות־תנ״ך = תנאי פתוח מפורש (§17), בלי המצאה: `OPEN-HUMAN-GATE`.
 
-### WS-ELS-FSS — ELS Full Search Space — **Decision #1 נפתר, v5**
-- **WHERE_WE_ARE:** D4 נבחר-קנונית (`cfc995ca`, 19.8) ← **Item1 כבר-grafted-לתוכו** (`fdd94acd`, 19.8 22:51, "canonical merge") ← ניקוי-מיגרציה עליו (`542c7147`). **החבילה המאוחדת = `claude/els-unified-merge`@`542c7147` = מועמד-Preview יחיד.** אין-עוד "שתי-חלופות".
-- **WHAT_IS_DONE:** D4 (`7f066e23`) מתקן cap-prefix-bias + backward-starvation; Item1's fix (בידוד-כיוון-הפוך) הושתל לתוך `findAll` של D4 (`fdd94acd`) בלי-לפגוע ב-`scopeRange`. בדיקת-קבלה **ל-D4-בלבד**: 97 `els_records`, 13/13 שדות, 84/84 מטריצות זהות-מופע, 0 הפרות-superset.
-- **WHAT_IS_OPEN:** (א) **אין רשומת-בדיקה מתועדת ל-מצב-המאוחד-הסופי** (אחרי ה-graft) — הבדיקה היסודית קדמה ל-`fdd94acd`. (ב) שער-מיזוג/Preview עצמו.
+### WS-ELS-FSS — ELS Full Search Space — **Gate #2 Preview-Verified, 21.8**
+- **WHERE_WE_ARE:** D4 נבחר-קנונית (`cfc995ca`, 19.8) ← **Item1 כבר-grafted-לתוכו** (`fdd94acd`, 19.8 22:51, "canonical merge") ← ניקוי-מיגרציה עליו (`542c7147`). **החבילה המאוחדת = `claude/els-unified-merge`@`542c7147`.** Gate #2 (שער-ה-Preview) **נסגר Verified** (21.8) — צוריאל אימת-אישית שה-Preview (PR #163, draft) נפתח ועובד; אימות-קוד מקביל (build.py דטרמיניסטי + diff-review) ב-`work_log ba4427e5`. **⚠️ הבהרה-קריטית (צוריאל, 21.8): סגירת-Gate #2 = אישור-שער-Preview בלבד. היא אינה אומרת ש-Research Journey הושלם. ה-Preview נשאר "אזור-הנישואים"/מעבדת-החיבור שאליה חוזרים לבנות ולחבר את המסע (Journey), ה-Matrix, ושאר שכבות-ה-ELS — עבודה זו לא-נפתחה-כאן ולא-הוכרעה.**
+- **WHAT_IS_DONE:** D4 (`7f066e23`) מתקן cap-prefix-bias + backward-starvation; Item1's fix (בידוד-כיוון-הפוך) הושתל לתוך `findAll` של D4 (`fdd94acd`) בלי-לפגוע ב-`scopeRange`. בדיקת-קבלה ל-D4-בלבד (16.8): 97 `els_records`, 13/13 שדות, 84/84 מטריצות זהות-מופע, 0 הפרות-superset. **Preview חי ואומת (21.8):** PR #163 (draft, DO-NOT-MERGE) → Vercel `Ready`/`DEPLOYED` על `542c7147` בדיוק · צוריאל אימת-אישית פתיחה+עבודה דרך-הערוץ-המאומת-שלו · אימות-קוד מקביל (9/9 סעיפי-NO-WRITE PASS, כולל build.py דטרמיניסטי ביט-לביט) — `work_log ba4427e5`.
+- **WHAT_IS_OPEN:** מיזוג-ל-main (שער-הבא, **לא-נפתח-כאן, לא-הוכרע**) · **Research Journey/Matrix/שכבות-ELS-נוספות — עדיין-לא-הושלמו**, ה-Preview הוא מרחב-העבודה-הממשיך שלהן, לא תוצר-סגור.
 - **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** צוריאל — (1) אישור-Preview ל-`els-unified-merge`@`542c7147`; (2) לוודא/לבקש בדיקת-קבלה טרייה למצב-המאוחד לפני main.
-- **NEXT_ACTION:** ממתין לאישור-צוריאל בלבד — שום קוד/בדיקה נוספת בלי שער.
+- **HUMAN_GATE:** Gate #2 (Preview) — **סגור/Verified**. שער-המיזוג-ל-main — נפרד, **טרם-נפתח**.
+- **NEXT_ACTION:** אין — ממתין להנחיית-צוריאל הבאה (מיזוג? המשך-בניית-Journey/Matrix ב-Preview? שער-חדש?). שום קוד/מיזוג/deploy נוסף בלי שער-מפורש.
 - **DEPENDENCIES:** חולק קורפוס+זהות עם `WS-ELS-IDENTITY`; מזין `WS-ELS-WORKAREA` (למטה).
-- **CANONICAL_HOME:** `claude/els-unified-merge`@`542c7147` (ענף, לא-main).
-- **PROVENANCE:** `cfc995ca`(החלטה) · `fdd94acd`(graft) · `542c7147`(תיק-נוכחי) · `fb9c23ea`(Item1 המקורי, superseded-reference-בלבד).
-- **LAST_VERIFIED:** 2026-08-21 (אומת-שוב ב-git ישירות).
-- **STATE:** `PREVIEW` (מועמד) / `OPEN-HUMAN-GATE`.
+- **CANONICAL_HOME:** `claude/els-unified-merge`@`542c7147` (ענף, לא-main) · PR #163 (draft, GitHub, לא-ממוזג).
+- **PROVENANCE:** `cfc995ca`(החלטה) · `fdd94acd`(graft) · `542c7147`(תיק-נוכחי) · `fb9c23ea`(Item1 המקורי, superseded-reference-בלבד) · PR #163 · `work_log ba4427e5`(אימות-Preview, Gate #2 סגירה).
+- **LAST_VERIFIED:** 2026-08-21 (Preview חי, אומת ע"י צוריאל + code-review מקביל).
+- **STATE:** Gate #2 `PREVIEW-VERIFIED` ✅ (21.8) · מיזוג-ל-main `OPEN-HUMAN-GATE` (טרם-נפתח) · Journey/Matrix/שכבות-נוספות `OPEN` (לא-הושלמו, ממשיכות ב-Preview כ"אזור-נישואים").
 
 ### WS-ELS-WORKAREA — `/lab/els` + State Contract + FORMS — **חדש-v5, מפוצל מ-WS-ELS-FSS**
 - **WHERE_WE_ARE:** **פוצל לשני שכבות שונות בפריסה:** (1) **ה-shell עצמו — `LIVE` על `main`** (`3e77f15a`/`d245e5eb`, 21.8) — `ElsWorkAreaPage.jsx`, ראוט `/lab/els`, מבודד-מאומת (0 קריאות-מנוע, 0 כתיבות `els_records`, `tzofen.html`/template **לא-נגועים**, md5 זהה-ל-main). (2) **State Contract + FORMS/Split-Join — עדיין `BUILDING`🏗️ רק על `claude/els-unified-merge`** — לא-פרוסים, המנוע לא-משדר `type:"state"` עדיין.
@@ -495,7 +495,8 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | γ + Universal Research Contract v1.0 → main *(עודכן-v5)* | 🔀 מוזג · 🌐 חי | `6b8160b4`,`3a09b8dd`,`c8d3672` |
 | Master Roadmap v1→v4 קנוני + תיקון-header-drift *(עודכן-v5)* | 🔀 מוזג · 🌐 חי · ✅ אומת מול הבנדל-הפרוס | `0d247a1d`→`38a8f784`→`a757eeec`→`f375327f` |
 | הקשחת אבטחה #8/#9/#10B/metatron/LATENT-A | 🚀 חי · ✅ אומת | work_log 19.8 |
-| **ELS Full-Search-Space — D4 נבחר, Item1 grafted** *(חדש-v5)* | ✅ הוכרע ומומש טכנית; ממתין-Preview-בלבד | `cfc995ca`,`fdd94acd`,`542c7147` |
+| **ELS Full-Search-Space — D4 נבחר, Item1 grafted** *(חדש-v5)* | ✅ הוכרע ומומש טכנית | `cfc995ca`,`fdd94acd`,`542c7147` |
+| **ELS Unified Preview — Gate #2 Preview-Verified** *(נוסף-21.8)* | 👁️ Preview חי ואומת (PR #163 draft) · **לא** production, **לא** Research-Journey-מושלם | PR #163 · `work_log ba4427e5` |
 | **`/lab/els` Work-Area shell → main** *(חדש-v5)* | 🔀 מוזג · 🌐 חי (מעטפת אינרטית-מכוונת) | `3e77f15a`,`d245e5eb` |
 | **ELS capability audit (85 יכולות) הופק** *(חדש-v5)* | ✅ נכתב; מענה-לצוריאל עדיין-פתוח | `fe4a3cef`,`e0a2247a` |
 | **תיקון-שורש `all_values`: trigger קבוע + backfill מלא ל-15,453 שורות** *(נוסף-21.8, ביקורת-קנוניזציה — פעולת סשן-מקביל, לא-v5-עצמה)* | 🚀 חי · ✅ אומת ומאושר-צוריאל | `work_log 3ef4a674` · migration `20260821022454 gw_enforce_engine_maintain_all_values` |
@@ -522,7 +523,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 |---|---|---|---|---|---|---|---|---|---|
 | `main` | צוריאל | production | `LIVE` 🚀 | 🔀 מוזג | ✅ | 🌐 ✅ | ✅ | `f375327f`→`3e77f15a`→`d245e5eb`→`fc123caa` | — |
 | `claude/els-step3-identity` | CLAUDE | ELS Step 3 client | `LIVE` 🚀 (עודכן 21.8) | 🔀 מוזג | ✅ | 🌐 ✅ | ✅ | `7045f7b3`→`fc123caa` | — (Gate #3 Verified/Closed) |
-| `claude/els-unified-merge` | CLAUDE | **מנוע-ELS-מאוחד (D4+Item1-graft+FORMS+WorkArea+ניקוי)** *(תוקן-v5, ראה DRIFT למטה)* | `BUILDING`🏗️/`PREVIEW`-מועמד | 🟡 מוכן־למיזוג | ❌ | ❌ | ❌ | `542c7147` | Human-Gate → Preview → main |
+| `claude/els-unified-merge` | CLAUDE | **מנוע-ELS-מאוחד (D4+Item1-graft+FORMS+WorkArea+ניקוי)** *(תוקן-v5)* | `PREVIEW-VERIFIED`✅👁️ (21.8) | 🟡 מוכן־למיזוג (עדיין) | ❌ | 👁️ Preview (PR #163) | ✅ Preview | `542c7147` | ממתין להנחיה — מיזוג-ל-main **טרם-מאושר** |
 | `claude/els-work-area` | CLAUDE | D4 + FORMS + Work-Area (בסיס ל-unified-merge) | `SUPERSEDED`🗄️ *(תוכן, לא ענף)* | 🗄️ הוחלף | ❌ | ❌ | ❌ | `ce148f07` | ר' `els-unified-merge` — **הענף עצמו לא-נמחק/לא-נסגר-בגיט**, כל commits שלו הם אבות-קדמונים מלאים של `els-unified-merge`; ה-`SUPERSEDED` מתייחס לתפקיד-התוכן בלבד |
 | `claude/els2-b45k5h` | CLAUDE | תיקוני-רגרסיה (על-main) + capability-audit + FSS-Item1 (superseded) | חלקי | 🗄️ (רגרסיה נספגה; היתר reference | ✅(חלקי, `f5834f44`) | — | — | `fb9c23ea`,`e0a2247a` | אין — Item1 לא-נמזג-בנפרד |
 | `gpt/research-object-map` | GPT | מפת-מוצר zoom-out + ELS-capability-map | `DESIGN` | 🔨 בעבודה | ❌ | — | — | `7cc48889` | Gate #20 |
@@ -539,7 +540,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 
 ## 🚪 שערי־צוריאל פתוחים (OPEN HUMAN-GATES) — ממוספר-מחדש v5
 1. ~~Roadmap v4 → קנוני~~ — **✅ נסגר** (`f375327f`, main, אומת מול הבנדל-הפרוס). הועבר ל-History.
-2. **ELS FSS → Preview** — `claude/els-unified-merge`@`542c7147` (עודכן-v5, לא-עוד "D4 מול Item1" — זה הוכרע).
+2. ~~ELS FSS → Preview~~ — **✅ נסגר Preview-Verified** (21.8, PR #163 draft, `work_log ba4427e5`). **לא-אומר ש-Research Journey/Matrix/שכבות-ELS-נוספות הושלמו** — הן ממשיכות ב-Preview כמרחב-עבודה. שער-מיזוג-ל-main נפרד, טרם-נפתח. הועבר ל-History.
 3. ~~ELS Step 3 merge + deploy + אימות~~ — **✅ נסגר** (`fc123caa`, main, round-trip חי אומת — `work_log ed5cc880`, 21.8). הועבר ל-History.
 4. **ELS Step 4** (בנייה — לא-עוד `BLOCKED`-על-#3; דורש שער-אישור-נפרד).
 5. **`corpus_id` תנ״ך.**
@@ -566,7 +567,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
    └── WS-ELS-IDENTITY  «Gate #3 Verified/Closed, 21.8»
           Steps 1–3 DONE/LIVE/VERIFIED (client fc123caa, נפרס+אומת-בפרודקשן)
           Step 4 (בנייה) לא-עוד-BLOCKED-על-Step3 — ממתין-שער-בנייה-נפרד; עד-אז KU-3D/Navigator/ELS-Matrix נשארים BLOCKED כפי-שהיו
-WS-ELS-FSS (Decision #1 נפתר, PREVIEW-מועמד 542c7147) ── שער-Human-Gate ── WS-ELS-WORKAREA (shell LIVE, מנוע ממתין)
+WS-ELS-FSS (Gate #2 Preview-Verified 542c7147, PR #163) ── מיזוג-ל-main OPEN (שער-חדש-טרם-נפתח) ── WS-ELS-WORKAREA (shell LIVE, מנוע ב-Preview)
    └── WS-ELS-CAPABILITY-AUDIT (4 שאלות פתוחות)
 WS-GAMMA (LIVE, main) ── יישום-UX OPEN ── WS-URC (OPEN) ── WS-RESEARCH-OBJECT-FRAMEWORK (Gate #20)
 WS-SEC (LIVE) ── §18 enumeration OPEN
@@ -582,33 +583,39 @@ WS-NUMBER-LANGUAGE / WS-NAMELAB / WS-TIME-DISAMBIGUATION / WS-READ-COMPOSER — 
 
 ## 📌 נקודת־בקרה לסשן (SESSION HANDOFF — כל התשובות מהמפה בלבד) — רענון-מלא v5
 ```
-LAST_RECONCILED: 2026-08-21 (Gate #3 closure)   SYNC: SYNCED (v5 עצמו DRAFT, לא-קנוני)
+LAST_RECONCILED: 2026-08-21 (Gate #2 closure)   SYNC: SYNCED (v5 עצמו DRAFT, לא-קנוני)
 
 איפה אנחנו:        ELS Finding Identity Step 3 **הושלם, נפרס, אומת (Gate #3 Verified/Closed, `fc123caa`)**;
-                   ELS FSS Decision #1 נפתר (D4+Item1-graft, מועמד-Preview מוגדר, Gate #2 עדיין-פתוח);
+                   ELS Unified Preview (D4+Item1-graft+FORMS+State-Contract) — **Gate #2 Preview-Verified**
+                   (21.8, PR #163 draft, `work_log ba4427e5`) — **לא** production, **לא** Research-Journey-מושלם;
                    v4 קנוני+מתוקן על main; /lab/els shell עלה ל-main (מעטפת-בלבד, אינרטי-מכוון);
                    URC+γ על main במלואם. Gate #16 (Number-Language) הופרד לסשן-ייעודי (`work_log 48856d02`).
-מה הושלם:          f5834f44(קורפוס) · Step3 DB 20260820023525 · Step3 client 7045f7b3→**fc123caa (main, נפרס+אומת)** ·
+מה הושלם:          f5834f44(קורפוס) · Step3 DB 20260820023525 · Step3 client 7045f7b3→fc123caa (main, נפרס+אומת) ·
                    f375327f(header-fix) · 3e77f15a/d245e5eb(/lab/els shell) · cfc995ca/fdd94acd(ELS-FSS resolution) ·
+                   **els-unified-merge Preview 542c7147 → Gate #2 Verified (PR #163)** ·
                    6b8160b4/3a09b8dd(URC על main) · fe4a3cef/e0a2247a(capability-audit) ·
                    all_values trigger+backfill (`20260821022454`, סשן-מקביל).
-מה בבנייה:          claude/els-unified-merge(המנוע, ממתין-Preview) · GPT 3D preview.
-מה מחכה:           Preview-אישור ל-els-unified-merge (Gate #2) · Step-4-בנייה (שער-נפרד, לא-עוד-חסום) ·
-                   4-שאלות-capability-audit · CC-1-target ·
+מה בבנייה:          Research Journey / Matrix / שכבות-ELS-נוספות ב-`claude/els-unified-merge` — **ממשיכות
+                   כעבודה בתוך ה-Preview** (PR #163, "אזור-הנישואים") — לא-הושלמו, לא-נסגרו. GPT 3D preview.
+מה מחכה:           הכרעה על-מיזוג `els-unified-merge`→main (**שער חדש, טרם-נפתח כאן**) · Step-4-בנייה
+                   (שער-נפרד, לא-עוד-חסום) · 4-שאלות-capability-audit · CC-1-target ·
                    Name-Lab/judge-unification/raziel_brain/Research-Object-framework
                    (Number-Language עבר לסשן-ייעודי נפרד — לא-בתור-כאן).
-מה חסום:           KU-3D product · Person F-1b · תוכן-אמיתי ב-/lab/els (עד Preview-מנוע). **Step 4 לא-עוד-חסום** (רק ממתין-שער-בנייה).
-מה הצעד הבא:        Gate #2 — אישור-Preview ל-els-unified-merge@542c7147 (Decision #1, פתור-טכנית, ממתין-לשער-בלבד) —
-                   השער-הבא-בתור לפי סדר-העדיפות הקיים (ר' Open Human-Gates).
-למה זה הצעד הבא:    מוכן-טכנית ומאומת; מה שחסר הוא אך-ורק שער-Human-Gate; שער-הקוד-הגמור-הבא-בתור אחרי #3.
+מה חסום:           KU-3D product · Person F-1b · תוכן-אמיתי ב-/lab/els (עד שיוחלט-על-מיזוג-המנוע). Step 4 לא-עוד-חסום
+                   (רק ממתין-שער-בנייה).
+מה הצעד הבא:        **לא-נקבע כאן** — Gate #2 ו-Gate #3 שניהם סגורים; אין ACTIVE_NOW/NEXT חדש נבחר. ממתין
+                   להנחיית-צוריאל (מיזוג? המשך-Journey/Matrix ב-Preview? שער-אחר?).
+למה זה הצעד הבא:    —
 מה אסור לבנות:      Step 4 (עד שער-בנייה-נפרד) · KU-3D product · Command-Center-UI-חדש (יש-כבר-2-חיים) · Feature-Control ·
-                   F-1b · Raziel-wiring · זהות־תנ״ך · שום-קוד-נוסף ב-ELS-engine בלי-שער.
+                   F-1b · Raziel-wiring · זהות־תנ״ך · מיזוג-`els-unified-merge`-ל-main (טרם-אושר) ·
+                   שום-קוד-נוסף ב-ELS-engine בלי-שער.
 מה בעתיד:           Command Center+Feature-Control · Meta Growth OS · Platform-tiers+Credits+Academy ·
                    UGC · רב־לשוניות · ELS שלב ב׳ · מסגרת-Research-Object (FUTURE REGISTRY=INCOMPLETE).
 אילו החלטות:        ראה יומן ההחלטות + Decision Register (v5, 9 סעיפים חדשים).
 provenance:        main fc123caa (היה d245e5eb) · Step3 client 7045f7b3→fc123caa (Gate #3 closed) ·
-                   els-unified-merge 542c7147 · capability-audit e0a2247a · γ/URC 6b8160b4/3a09b8dd ·
-                   work_log 48856d02(Gate#16 deferral)/ed5cc880(Gate#3 verification).
+                   els-unified-merge 542c7147, PR #163 (Gate #2 closed) · capability-audit e0a2247a ·
+                   γ/URC 6b8160b4/3a09b8dd · work_log 48856d02(Gate#16 deferral)/ed5cc880(Gate#3)/
+                   ba4427e5(Gate#2 code-verification)/8f926aa4(Gate#2 closure).
 ROADMAP:           קנוני על main = v4 (f375327f). v5 זה — DRAFT, ממתין לשער-קנוניזציה נפרד,
                    בדיוק כמו v3→v4.
 ```
@@ -619,7 +626,7 @@ ROADMAP:           קנוני על main = v4 (f375327f). v5 זה — DRAFT, ממ
 | Gate # | Decision | A/B/C | למה מהותי | מה משתנה A מול B |
 |---|---|---|---|---|
 | — | ~~ELS FSS D4/Item1~~ | — | **✅ נפתר בסשן זה** לפי provenance קיים (Gate-הקודם #1-הישן נסגר; שער-ההמשך = **Gate #2**, ר' שורה הבאה) | D4+Item1-graft = הקנון; `els-unified-merge`@`542c7147` = Preview-מועמד |
-| **#2** | פריסת-Preview ל-`els-unified-merge`@`542c7147` | A=כן-עכשיו · B=לבקש-קודם בדיקת-קבלה-טרייה ל-graft · C=לא-עכשיו | ה-shell כבר-חי וממתין-לתוכן | A:תוכן-מיד. B:איכות-מאומתת-קודם. C:נשאר-אינרטי |
+| ~~#2~~ | ~~פריסת-Preview ל-`els-unified-merge`@`542c7147`~~ | — | **✅ נסגר 21.8 — Preview-Verified** (A נבחר בפועל: Preview חי, אומת ע"י צוריאל + code-review). **אינו-אישור-Research-Journey/Matrix** — אלה ממשיכים כעבודה ב-Preview | מיזוג-ל-main = שער-נפרד-עתידי, טרם-נפתח |
 | **#9** | Command Center — איזה ארטיפקט = CC-1? | A=`WarRoomTab` · B=`RoadmapCommandCenter` · C=שלישי-לפי-מפרט | חוסם §12.0 | קובע-כיוון-בנייה |
 | **#15** | 4 שאלות capability-audit (`fe4a3cef`) | ר' פירוט ב-`WS-ELS-CAPABILITY-AUDIT` | חוסמות עדיפויות 2-10 | תלוי-בשאלה |
 | **#16** | Number-Language — לאמץ או לגנוז? | A=לאמץ+לתעד · B=`PARKED` | **תוקן-21.8:** `number_anchors` **אינו** ריק — 35 שורות תוכן-אמיתי כבר-מוצגות על דפי-מספר ספציפיים מ-23.7.2026 (DRIFT-CORRECTED); שאר-7-הטבלאות עדיין ריקות/יתומות | A:תוכן+חיווט-מלא-לכולם. B:35-הדפים-הקיימים ממשיכים-כפי-שהם, השאר-נשאר-ריק |
