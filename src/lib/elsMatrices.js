@@ -151,11 +151,12 @@ export async function selfPublishMatrix(id, on = true) {
   return data;
 }
 
-export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true, fromTopic = null }) {
+export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true, fromTopic = null, startIndex = null }) {
+  // 🆔 startIndex = עוגן-הממצא 0-based (occ().start). corpus_id/term_norm נגזרים בשרת — לא בצד-לקוח.
   const { data, error } = await supabase.rpc("save_els_matrix", {
     p_term: term, p_scope: scope, p_skip: skip, p_direction: direction,
     p_positions: positions, p_image_url: imageUrl, p_title: title, p_note: note,
-    p_public: isPublic, p_from_topic: fromTopic,
+    p_public: isPublic, p_from_topic: fromTopic, p_start_index: startIndex,
   });
   if (error) throw error;
   return data;
@@ -163,11 +164,11 @@ export async function saveMatrix({ term, scope = "torah", skip = null, direction
 
 // 👤 שמירה למשתמש לא-רשום (אנונימי) — נשמר עם visitor_id, נכנס כ«ממתין לאישור»
 // (status=pending, source=community) ומופיע לאדמין בטאב-האישור. לא ציבורי עד אישור.
-export async function saveMatrixAnon({ visitorId, authorName = null, term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null }) {
+export async function saveMatrixAnon({ visitorId, authorName = null, term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, startIndex = null }) {
   const { data, error } = await supabase.rpc("save_els_matrix_anon", {
     p_visitor_id: visitorId, p_term: term, p_scope: scope, p_skip: skip,
     p_direction: direction, p_positions: positions, p_image_url: imageUrl,
-    p_title: title, p_note: note, p_author_name: authorName,
+    p_title: title, p_note: note, p_author_name: authorName, p_start_index: startIndex,
   });
   if (error) throw error;
   return data;
