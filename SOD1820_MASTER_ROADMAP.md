@@ -1,6 +1,6 @@
-# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5 DRAFT (מרוכז, ממתין לשער־קנוניזציה)
+# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5 (קנוני)
 
-> **⚠️ v5 DRAFT — לא קנוני עדיין.** כתיבה מרוכזת אחת, לפי inter_agent_coordination_law, על-בסיס Absorption Matrix מאושר (21.8.2026) + Resolution מאומת ל-ELS FSS. **אינה ממוזגת ל-`main`.** קנוניזציה (merge) היא Human-Gate **נפרד**, בדיוק כמו v3→v4. **הגרסה הקנונית הנוכחית = v4 על `main` (`f375327f`).**
+> **✅ v5 קנוני על `main`.** אושר על-ידי צוריאל (Human-Gate — "DECISION — Canonize Roadmap v5") ומוזג ל־`main` בקומיט `f1503a28` (merge מ-`0249fece` על ענף `claude/human-gate-provenance-a757eeec-lzocl4`, provenance מלא ב־`work_log`). זוהי הגרסה הקנונית הנוכחית של מפת-הניווט. שינוי תיעודי/ניווטי בלבד — ללא deploy אפליקטיבי, ללא DB migration, ללא שינוי Master State. **Gate #4 ו-Gate #18 נשארים OPEN/INTAKE-CRITICAL; יתר השערים-הפתוחים נשארים פתוחים** — הקנוניזציה מאשרת את המסמך כניווט-רשמי, אינה סוגרת אף שער.
 >
 > **מהות.** מקור־הניווט התפעולי היחיד של SOD1820. המנוע מגלה ומארגן · **המפה מנווטת** · מרכז־הניהול (עתידי) **מציג** (Lens מעל הקובץ הזה) · `work_log` שומר provenance · **צוריאל מחליט**. שום דבר אינו הופך לקנוני רק משום שסוכן ביצע אותו.
 >
@@ -52,8 +52,8 @@
 ---
 
 ## 🕒 טריות המפה (FRESHNESS)
-- **LAST_RECONCILED:** `2026-08-21` (הסשן הזה; יושב מול `work_log` העדכני + `main` HEAD `fc123caa` — Gate #3+Gate #2 שניהם סגורים; `main` עצמו לא-זז מ-Gate #3, ל-Gate #2 אין deploy-ל-main).
-- **SYNC STATUS:** `SYNCED` *נכון ל־LAST_RECONCILED — אבל המסמך הזה עצמו (v5) עדיין DRAFT, לא-קנוני, לא על main.*
+- **LAST_RECONCILED:** `2026-08-21` (v5 קנוניזציה; `main` HEAD `f1503a28` — מכיל את v5 המאושרת במלואה: Gate #4/#18 OPEN/INTAKE-CRITICAL, Brain Responsibility מאושר, WS-GEMATRIA-CORPUS-PACKAGES ACTIVE_NOW).
+- **SYNC STATUS:** `SYNCED` — **v5 קנוני על `main` (`f1503a28`)**, לא-עוד DRAFT.
 - **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס.
 - **אין עדכון־אוטומטי־שקט:** בסוף סשן אסור לשכתב את המפה אוטומטית. יש **לזהות** drift, לסמן `STALE`, **ולהציע** את העדכון דרך חוקי ה־WRITE/Human-Gate — לעולם לא לכתוב קנון בלי שער.
 
@@ -630,7 +630,7 @@ WS-NUMBER-LANGUAGE / WS-NAMELAB / WS-TIME-DISAMBIGUATION / WS-READ-COMPOSER — 
 
 ## 📌 נקודת־בקרה לסשן (SESSION HANDOFF — כל התשובות מהמפה בלבד) — רענון-מלא v5
 ```
-LAST_RECONCILED: 2026-08-21 (Gate #4/#18 → OPEN/INTAKE-CRITICAL + Brain Responsibility מאושר)   SYNC: SYNCED (v5 עצמו DRAFT, לא-קנוני)
+LAST_RECONCILED: 2026-08-21 (v5 קנוניזציה ל-main, f1503a28)   SYNC: SYNCED (v5 קנוני על main, לא-עוד DRAFT)
 
 איפה אנחנו:        ELS Finding Identity Step 3 **הושלם, נפרס, אומת (Gate #3 Verified/Closed, `fc123caa`)**;
                    ELS Unified Preview (D4+Item1-graft+FORMS+State-Contract) — **Gate #2 Preview-Verified**
@@ -671,9 +671,10 @@ provenance:        main fc123caa (היה d245e5eb) · Step3 client 7045f7b3→fc
                    γ/URC 6b8160b4/3a09b8dd · work_log 48856d02(Gate#16 deferral)/ed5cc880(Gate#3)/
                    ba4427e5(Gate#2 code-verification)/8f926aa4(Gate#2 closure)/62a36e0c(save_els_matrix bugfix) ·
                    Gate#4/#18 renames+Brain-Responsibility: הודעות-צוריאל 21.8 ("v5 CANONIZATION PREP" +
-                   "HUMAN-GATE DECISION"), טרם work_log נפרד.
-ROADMAP:           קנוני על main = v4 (f375327f). v5 זה — DRAFT, ממתין לשער-קנוניזציה נפרד,
-                   בדיוק כמו v3→v4. Gate #4 ו-Gate #18 הם שני השערים הארכיטקטוניים הפתוחים שהם
+                   "HUMAN-GATE DECISION") · v5 קנוניזציה ל-main: merge f1503a28 מ-0249fece,
+                   work_log 7614ce69 (actor=CLAUDE).
+ROADMAP:           קנוני על main = v5 (`f1503a28`, merge מ-`0249fece`), בדיוק כמו v3→v4→v5. Gate #4 ו-Gate #18
+                   נשארים OPEN/INTAKE-CRITICAL, הם שני השערים הארכיטקטוניים הפתוחים שהם
                    Intake-critical למסלול הנוכחי; יתר השערים הפתוחים מתועדים ואינם חוסמים קנוניזציית v5.
 ```
 
