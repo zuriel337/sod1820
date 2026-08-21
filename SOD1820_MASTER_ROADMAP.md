@@ -214,7 +214,10 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **WHAT_IS_DONE:** `torah_stream`=304,805 (Koren); `corpus_id 0b022e8eef6f9c16`; `fn_els_search` 0-based.
 - **WHAT_IS_OPEN:** `corpus_id` תנ״ך (`WS-TANAKH`).
 - **HUMAN_GATE:** אין (סגור).
+- **NEXT_ACTION:** אין — סגור; ממתין רק להכרעת `WS-TANAKH` (תת-פריט נפרד תחת `WS-ELS-IDENTITY`).
+- **DEPENDENCIES:** אין תלות-נכנסת (workstream־שורש) — `WS-ELS-REGRESSION` ו-`WS-ELS-IDENTITY` תלויים-בו, לא-להיפך (ר' הכרטיסים שלהם).
 - **CANONICAL_HOME:** Master State §17 + live DB.
+- **PROVENANCE:** Master State §17 · `corpus_id 0b022e8eef6f9c16` (מצוטט ב-WHAT_IS_DONE למעלה).
 - **STATE:** `DB-LIVE`.
 
 ### WS-ELS-REGRESSION — נטרול רגרסיית־קורפוס — ללא-שינוי-עובדתי (תיקון-מבנה בלבד, שוחזרו-שדות)
@@ -340,27 +343,33 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **WHAT_IS_OPEN:** האם/איך לאחד את כולם תחת שער-אחד (§12.4).
 - **WHAT_IS_BLOCKED:** תלוי בהכרעת-`WS-CC` (CC-1-target).
 - **HUMAN_GATE:** צוריאל — ר' Gate #18 (Decision Register).
+- **NEXT_ACTION:** ממתין להכרעת Gate #9 (CC-1-target) ואז Gate #18 (איחוד) — שום פעולה נוספת בלי שער.
+- **DEPENDENCIES:** `WS-CC` (הכרעת-CC-1-target חוסמת את היקף-האיחוד — ר' `WS-CC`.DEPENDENCIES).
 - **CANONICAL_HOME:** `AdminPage.jsx` (מפוזר, main).
 - **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8) + Absorption-Matrix (21.8).
 - **LAST_VERIFIED:** 2026-08-21.
 - **STATE:** `DB-LIVE` (5 המנגנונים) · `OPEN-HUMAN-GATE` (איחוד).
 
 ### WS-RAZIEL — תשתית Raziel + L1–L14 — עודכן-v5
-- **WHERE_WE_ARE:** 3 מימושים-LLM/DB-native ידועים + **תשתית-WA-תפעולית רביעית, חדש-v5** (`raziel_unlimited`/`raziel_quota`/`raziel_dm_policy`/`raziel_link_flow` — כולם `DB-LIVE`, נקראים-בפועל ע"י `wa-raziel/index.ts`) + **`raziel_brain` — חדש-v5: נקרא-חי (`number-researcher/index.ts:218`) אך 0-שורות, מחזיר `null`.**
+- **WHERE_WE_ARE:** 3 מימושים-LLM/DB-native ידועים + **תשתית-WA-תפעולית רביעית, חדש-v5** (`raziel_unlimited`/`raziel_quota`/`raziel_dm_policy`/`raziel_link_flow` — כולם `DB-LIVE`, נקראים-בפועל ע"י `wa-raziel/index.ts`) + **`raziel_brain` — תוקן-21.8 (DRIFT-CORRECTED, ביקורת-קנוניזציה):** נקרא-חי (`number-researcher/index.ts:218`, שאילתה `raziel_brain?id=eq.1`) — **יש שורה אחת (`id=1`), מ-23.7.2026, מכילה קונפיג-פרסונה/system-prompt מלא (`voice_version=1`, `model=claude-sonnet-5`)** — הקוד **מקבל את השורה בפועל, לא `null`**, בניגוד-למה-שנטען-בטעות ב-v5-הקודמת.
 - **WHAT_IS_DONE:** `fn_raziel_route`,`agent_identity`(12 שורות, לא-4),`resolve_person`/`identity_edges`(67,552) — קיימים. תשתית-WA מאומתת-חיה.
-- **WHAT_IS_OPEN:** חיווט `fn_raziel_turn`(STUB); `raziel_brain` ריק; אף מימוש לא-קורא `resolve_person`/`identity_edges` — **החסם המדויק ל-"Raziel אישי"**, חוזר בכל משטח.
-- **HUMAN_GATE:** צוריאל — (א) אישור-בניית-חיווט; (ב) לאכלס `raziel_brain` או להסיר-את-התלות (ר' Gate #19, Decision Register).
+- **WHAT_IS_OPEN:** חיווט `fn_raziel_turn`(STUB); `raziel_brain` **מאוכלס-חלקית** (1-שורת-persona, לא-0) — האם-מספיק-כפי-שהוא או-דורש-הרחבה (UNKNOWN, לא-הוכרע); אף מימוש לא-קורא `resolve_person`/`identity_edges` — **החסם המדויק ל-"Raziel אישי"**, חוזר בכל משטח.
+- **HUMAN_GATE:** צוריאל — (א) אישור-בניית-חיווט; (ב) `raziel_brain` כבר-מאוכלס-חלקית — להכריע אם-להרחיב או-להשאיר-כפי-שהוא (לא-עוד "לאכלס-מאפס") (ר' Gate #19, Decision Register).
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #12 חיווט-זהות + Gate #19 raziel_brain) — שום קוד-נוסף בלי-שער.
 - **DEPENDENCIES:** Ledger, metatron.
 - **CANONICAL_HOME:** live DB + `wa-raziel`/`number-researcher` edge functions.
-- **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8), אומת שוב באודיט-ממוקד (21.8).
-- **LAST_VERIFIED:** 2026-08-21.
-- **STATE:** 3-variants+WA-infra=`LIVE`/`DB-LIVE` · `raziel_brain`=`OPEN-HUMAN-GATE` · חיווט-זהות=`OPEN-HUMAN-GATE`.
+- **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8), אומת שוב באודיט-ממוקד (21.8) · תוכן-`raziel_brain` אומת ישירות (SELECT + קריאת-קוד `number-researcher/index.ts:218`) בביקורת-הקנוניזציה (21.8).
+- **LAST_VERIFIED:** 2026-08-21 (תוקן).
+- **STATE:** 3-variants+WA-infra=`LIVE`/`DB-LIVE` · `raziel_brain`=`DB-LIVE`(מאוכלס-חלקית)/`OPEN-HUMAN-GATE`(היקף) · חיווט-זהות=`OPEN-HUMAN-GATE`.
 
 ### WS-MASTERSTATE — ממשל/סנכרון Master State — עודכן-v5
 - **WHERE_WE_ARE:** §19 A/B/C/D **כבר על main** (לא-עוד "טרם-מיין"). §17 עדיין `FROZEN`-חלקית לגבי-Finding-Identity.
 - **WHAT_IS_OPEN:** §17 אנומרציה; רשומת-זהות-שנותרה-בפער (Change Log #26, OD-F10a); **אם v5 יאושר — עדכון-Master-State-מתאים נשאר `PENDING`, לא-בוצע-כאן** (per הוראה מפורשת: לא-לשנות Master State אלא-כחלק-מפורש-מאושר).
 - **HUMAN_GATE:** צוריאל — Master WRITE gate נפרד.
+- **NEXT_ACTION:** ממתין ל-Master WRITE gate נפרד (אחרי קנוניזציית v5) לביצוע §17-אנומרציה + Change-Log-#26/OD-F10a.
+- **DEPENDENCIES:** אין תלות-נכנסת מתועדת (workstream משילי-ממשל) — UNKNOWN אם קיימת תלות-נסתרת שלא-אותרה.
 - **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` (main).
+- **PROVENANCE:** ר' `WS-GAMMA` (`6b8160b4`,`3a09b8dd`,`c8d3672`) עבור §19; §17-אנומרציה/Change-Log-#26 — UNKNOWN commit-ספציפי, לא-אותר במקור-נפרד.
 - **STATE:** sync `LIVE` · §19 `LIVE`(main) · §17-אנומרציה `OPEN-HUMAN-GATE`.
 
 ### WS-PERSON — זהות־אדם (OD-F10a) — ללא-שינוי-עובדתי (שוחזרו-שדות)
@@ -390,24 +399,33 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **STATE:** `BUILDING`🏗️ (ענף/preview GPT) · הפעלה `OPEN-HUMAN-GATE`.
 
 ### WS-FEATURE-CONTROL — מרכז־ניהול נראות־פיצ'רים — עודכן-v5
+- **WHERE_WE_ARE:** תכנון-בלבד, לא-נבנה (שוחזר-משדות: DO-NOT-BUILD-YET + Future-Registry). תלוי-בסגירת ארכיטקטורת-Command-Center (`WS-CC`).
 - **WHAT_IS_BLOCKED:** **עודכן:** לא-עוד "v4 טרם קנוני" — אלא ארכיטקטורת-Command-Center עדיין לא-סגורה (תלוי ב-`WS-CC`/CC-1-target).
+- **HUMAN_GATE:** צוריאל — שני שערים נפרדים: שער-design ואז שער-build (ר' DO-NOT-BUILD-YET).
+- **NEXT_ACTION:** אין — ממתין להכרעת `WS-CC`/CC-1-target (Gate #9) לפני-פתיחת שער-תכנון.
+- **DEPENDENCIES:** `WS-CC` (CC-1-target, Gate #9).
+- **PROVENANCE:** מרשם-העתיד (Future Registry) + טבלת DO-NOT-BUILD-YET (v4/v5) — אין commit/work_log ספציפי-נוסף מעבר-לכך; UNKNOWN אם קיים תיעוד-מפורט יותר.
 - **STATE:** `FUTURE`🔮 (מימוש) · `DESIGN`📐 (חוק/מפרט).
 
 ### WS-NUMBER-LANGUAGE — "שפת המספרים" (8 טבלאות) — **חדש-v5**
 - **WHERE_WE_ARE:** `number_roots`/`digit_language`/`number_readings`/`number_series`/`number_branches`/`number_sets`/`number_products`/`number_anchors` — הערות-DB מזהות-מחבר=צוריאל, מבנה 4-שכבתי מכוון (אות→מילה→משפט→טקסט).
-- **WHAT_IS_DONE:** `number_anchors` — **`DB-LIVE`, מחובר בפועל ל-`EntityPage.jsx` בכל דף-מספר** (`getNumberAnchor()`) — ריק (0 שורות), לכן אינרטי-בשקט. `number_roots`/`number_branches` — קומפוננטה בנויה (`NumberTree.jsx`) + 2 פונקציות-DB (`fn_number_journey`,`fn_metatron_scan`) — **אף route לא מרכיב את הקומפוננטה.**
-- **WHAT_IS_OPEN:** לאמץ (לתעד+לחווט) או להשאיר `PARKED`.
+- **WHAT_IS_DONE:** `number_anchors` — **`DB-LIVE`, מחובר בפועל ל-`EntityPage.jsx` בכל דף-מספר** (`getNumberAnchor()`) — **תוקן-21.8 (DRIFT-CORRECTED, ביקורת-קנוניזציה):** **אינו ריק** — 35 שורות תוכן-אמיתי (למשל `333=חשכה=שכחה=קוד הבריאה`, `2701=בראשית ברא אלהים...`), נוצרו 1–23.7.2026 (לפני-v5, לא-חדש). מכיוון שהרכיב מחובר-בפועל, סביר ש-35 דפי-המספר הספציפיים-האלה **כן מציגים תוכן** כרגע — לא-אינרטי כפי-שנטען-בטעות ב-v5-הקודמת. `number_roots`/`number_branches` — קומפוננטה בנויה (`NumberTree.jsx`) + 2 פונקציות-DB (`fn_number_journey`,`fn_metatron_scan`) — **אף route לא מרכיב את הקומפוננטה.**
+- **WHAT_IS_OPEN:** לאמץ (לתעד+לחווט לכל 8-הטבלאות) או להשאיר `PARKED` — כולל ההכרעה אם 35-השורות-הקיימות-ב-`number_anchors` מספיקות-כפי-שהן או-דורשות-הרחבה.
 - **HUMAN_GATE:** צוריאל — ר' Gate #16 (Decision Register).
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #16) — שום חיווט/תיעוד-נוסף בלי-שער.
+- **DEPENDENCIES:** אין (עצמאי, ר' Dependency Spine: "עצמאיים, לא-חוסמים").
 - **CANONICAL_HOME:** live DB + `src/features/numbertree/NumberTree.jsx` (יתום).
-- **PROVENANCE:** Legacy-Reconciliation (21.8).
-- **LAST_VERIFIED:** 2026-08-21.
-- **STATE:** `number_anchors`=`DB-LIVE` · `roots/branches`=`BUILDING`🏗️(יתום) · היתר=`DESIGN`/`PARKED`-מועמד · כולו `OPEN-HUMAN-GATE`.
+- **PROVENANCE:** Legacy-Reconciliation (21.8) · תיקון-מספרים אומת ישירות מול live DB בביקורת-הקנוניזציה (21.8).
+- **LAST_VERIFIED:** 2026-08-21 (תוקן).
+- **STATE:** `number_anchors`=`DB-LIVE` (מאוכלס, 35 שורות) · `roots/branches`=`BUILDING`🏗️(יתום) · היתר=`DESIGN`/`PARKED`-מועמד · כולו `OPEN-HUMAN-GATE`.
 
 ### WS-NAMELAB — Name Lab + Christina + Maftech — **חדש-v5**
 - **WHERE_WE_ARE:** 3 כלים חיים-וציבוריים, בלי-ייצוג-רשמי: Name Lab (`/name-lab`, 178 שאילתות, אחרונה 20.8 19:35) · Christina (`/research?tool=christina`) · Maftech (`/research?tool=maftech`, **חסר גם ברשימת-הכלים ב-CLAUDE.md**).
 - **WHAT_IS_DONE:** שלושתם `LIVE` ופעילים.
 - **WHAT_IS_OPEN:** להוסיף-כ-workstream-רשמי / לתקן רשימת-כלים ב-CLAUDE.md — ר' Gate #17 (Decision Register).
 - **HUMAN_GATE:** צוריאל.
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #17).
+- **DEPENDENCIES:** אין (עצמאי, ר' Dependency Spine: "עצמאיים, לא-חוסמים").
 - **CANONICAL_HOME:** `NameLabPage.jsx`/`ChristinaEngine.jsx`/`MaftechShowcase.jsx` (main).
 - **PROVENANCE:** Legacy-Reconciliation (21.8); §9.4 (Christina, ישן).
 - **LAST_VERIFIED:** 2026-08-21.
@@ -417,6 +435,8 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **WHERE_WE_ARE:** "זמן" = **3 דברים לא-קשורים**: (1) Journey v1/v2 (`/journey`,`/journey-beta`) — `LIVE`, legacy-מוצהר. (2) `journey_seeds` (461 שורות) — `DB-LIVE`, admin-בלבד, מזין `CommandCenterTab`. (3) `RevelationAxis.jsx` — `LIVE`, קומפוננטה ציבורית גלובלית בסיידבר. (4) `/timeline` route — `LIVE`, עומק לא-נבדק. (5) "מרחבי הזמן" בטיקר — **שיווק-בלבד**, מצביע ל-`ComingSoonModal`, לא-פיצ'ר.
 - **WHAT_IS_OPEN:** האם לאחד/לשיים-מחדש/להבהיר — Decision Register (סעיף חדש, לא-חוסם).
 - **HUMAN_GATE:** צוריאל, לא-דחוף.
+- **NEXT_ACTION:** אין-דחוף — ממתין-להזדמנות-נוחה להכרעת-צוריאל (לא-חוסם workstream אחר).
+- **DEPENDENCIES:** אין (עצמאי, ר' Dependency Spine: "עצמאיים, לא-חוסמים").
 - **CANONICAL_HOME:** מפוזר (`JourneyPage.jsx`/`V2`/`RevelationAxis.jsx`/`TimelinePage.jsx`).
 - **PROVENANCE:** Legacy-Reconciliation (21.8).
 - **LAST_VERIFIED:** 2026-08-21.
@@ -427,6 +447,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **WHAT_IS_DONE:** חוזה-קריאה מלא (`{bucket,context_type,resolved_person_id,via,confidence,owner_person_id,privacy_scope,status,class,is_fact,epistemic,source_ref,payload}`) + מיפוי מלא ל-14-שכבות-Research-Context (L1-L14) + policy לגזירת `is_fact`.
 - **WHAT_IS_OPEN:** מפת-גזירה קבועה `(kind,status,owner_person_id)→{bucket,class,epistemic,is_fact}` ששני-הצרכנים (Web+WhatsApp) גוזרים-ממנה זהה — עדיין לא-נבנתה.
 - **HUMAN_GATE:** אין-שער-דחוף — DESIGN בלבד, ממתין-ליישום.
+- **NEXT_ACTION:** אין-בנייה-כעת — אם/כשצוריאל-יבקש יישום, לבנות-קודם את מפת-הגזירה הקבועה `(kind,status,owner_person_id)→{bucket,class,epistemic,is_fact}` (ר' WHAT_IS_OPEN).
 - **DEPENDENCIES:** קשור-ישירות ל-`els-foundation-addendum.md` §8 ("Unified Context Item Contract") — **אותו-רעיון-בדיוק**, לא-כפילות.
 - **CANONICAL_HOME:** work_log `61c3ee2a` (לא-קובץ נפרד).
 - **PROVENANCE:** 15.8.2026.
@@ -438,6 +459,8 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **WHAT_IS_DONE:** קריאה-מלאה+cross-check הושלמו (21.8) — **אין סתירה** מול קנון-קיים; חופף-משמעותית ל-`WS-READ-COMPOSER` (14-שכבות ⇔ Unified-Context-Contract).
 - **WHAT_IS_OPEN:** האם/איך-לספוג את המסגרת-הכללית (לא רק את החלק-ה-ELS-הספציפי, שכבר-נענה דרך `WS-ELS-CAPABILITY-AUDIT`) — ר' Gate #20 (Decision Register).
 - **HUMAN_GATE:** צוריאל.
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #20) — אין-ספיגה-נוספת בלי-שער.
+- **DEPENDENCIES:** `WS-URC` (ר' Dependency Spine: WS-GAMMA→WS-URC→WS-RESEARCH-OBJECT-FRAMEWORK) + חפיפה-מושגית עם `WS-READ-COMPOSER` (לא-תלות-חוסמת).
 - **CANONICAL_HOME:** ענפי-GPT (לא-main).
 - **PROVENANCE:** work_log `346ac96c`,`56f01027`,`bbed9a30`,`d5e02c7d`,`39dd51f7` (17.8).
 - **LAST_VERIFIED:** 2026-08-21.
@@ -474,6 +497,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | **ELS Full-Search-Space — D4 נבחר, Item1 grafted** *(חדש-v5)* | ✅ הוכרע ומומש טכנית; ממתין-Preview-בלבד | `cfc995ca`,`fdd94acd`,`542c7147` |
 | **`/lab/els` Work-Area shell → main** *(חדש-v5)* | 🔀 מוזג · 🌐 חי (מעטפת אינרטית-מכוונת) | `3e77f15a`,`d245e5eb` |
 | **ELS capability audit (85 יכולות) הופק** *(חדש-v5)* | ✅ נכתב; מענה-לצוריאל עדיין-פתוח | `fe4a3cef`,`e0a2247a` |
+| **תיקון-שורש `all_values`: trigger קבוע + backfill מלא ל-15,453 שורות** *(נוסף-21.8, ביקורת-קנוניזציה — פעולת סשן-מקביל, לא-v5-עצמה)* | 🚀 חי · ✅ אומת ומאושר-צוריאל | `work_log 3ef4a674` · migration `20260821022454 gw_enforce_engine_maintain_all_values` |
 
 ---
 
@@ -593,10 +617,10 @@ ROADMAP:           קנוני על main = v4 (f375327f). v5 זה — DRAFT, ממ
 | **#2** | פריסת-Preview ל-`els-unified-merge`@`542c7147` | A=כן-עכשיו · B=לבקש-קודם בדיקת-קבלה-טרייה ל-graft · C=לא-עכשיו | ה-shell כבר-חי וממתין-לתוכן | A:תוכן-מיד. B:איכות-מאומתת-קודם. C:נשאר-אינרטי |
 | **#9** | Command Center — איזה ארטיפקט = CC-1? | A=`WarRoomTab` · B=`RoadmapCommandCenter` · C=שלישי-לפי-מפרט | חוסם §12.0 | קובע-כיוון-בנייה |
 | **#15** | 4 שאלות capability-audit (`fe4a3cef`) | ר' פירוט ב-`WS-ELS-CAPABILITY-AUDIT` | חוסמות עדיפויות 2-10 | תלוי-בשאלה |
-| **#16** | Number-Language — לאמץ או לגנוז? | A=לאמץ+לתעד · B=`PARKED` | `number_anchors` כבר-רץ-ריק על כל דף-מספר | A:תוכן+חיווט. B:נשאר-ריק |
+| **#16** | Number-Language — לאמץ או לגנוז? | A=לאמץ+לתעד · B=`PARKED` | **תוקן-21.8:** `number_anchors` **אינו** ריק — 35 שורות תוכן-אמיתי כבר-מוצגות על דפי-מספר ספציפיים מ-23.7.2026 (DRIFT-CORRECTED); שאר-7-הטבלאות עדיין ריקות/יתומות | A:תוכן+חיווט-מלא-לכולם. B:35-הדפים-הקיימים ממשיכים-כפי-שהם, השאר-נשאר-ריק |
 | **#17** | Name-Lab/Christina/Maftech — workstreams רשמיים? | A=כן · B=להשאיר-שקוף | חיים-בלי-ייצוג | A:נראים-לכל-audit. B:ממשיכים-להיעלם |
 | **#18** | לאחד 5 מנגנוני-שיפוט? | תלוי-ב-#9 | כרגע נפרדים | קובע-היקף-CC-2 |
-| **#19** | `raziel_brain` — לאכלס או להסיר-תלות? | A=לאכלס · B=להסיר | קוד-פרודקשן קורא-ומקבל-null | A:זהות-מרכזית. B:שינוי-קוד |
+| **#19** | `raziel_brain` — לאכלס או להסיר-תלות? | A=לאכלס · B=להסיר | **תוקן-21.8:** יש-כבר 1-שורה חיה (`id=1`, persona, מ-23.7.2026) — קוד-הפרודקשן (`number-researcher/index.ts:218`, `id=eq.1`) **מקבל את השורה, לא `null`**, בניגוד-למה-שנטען-קודם. אפשר-שהאופציות A/B יתפרשו-כעת כ"להרחיב" מול "להשאיר-כפי-שהוא" — ההכרעה עצמה נשארת-פתוחה-לצוריאל, לא-שונתה כאן | A:זהות-מרכזית/הרחבה. B:נשאר-כפי-שהוא |
 | **#20** | לספוג את `research-object-map.md` ל-Master-State? | A=מלא(§20) · B=רק-עקרונות(כמו §10.0) · C=לא-עכשיו | קובע אוצר-מילים-חדש (Research-Object/Axis/Cluster) | A:שינוי-גדול. B:תוספת-קטנה. C:נשאר-בענף |
 
 > **הערה:** מספור-Gate הוא **המספור היחיד-הקנוני** לכל 8 ההחלטות הפתוחות. הטבלה הזו רק **מוסיפה עמודות A/B/C/למה/מה-משתנה** לשערים שכבר-קיימים ברשימת ה-OPEN HUMAN-GATES — היא **אינה** יוצרת סט-שני-של-מזהים.
