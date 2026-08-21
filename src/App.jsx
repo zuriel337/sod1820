@@ -91,6 +91,7 @@ const GalleryPage = React.lazy(() => import("./pages/GalleryPage.jsx"));
 const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
 const PostEditorPage = React.lazy(() => import("./pages/PostEditorPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
+const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
 const HeichalPage = React.lazy(() => import("./pages/HeichalPage.jsx"));
@@ -361,6 +362,8 @@ export default function App() {
           <Route path="/מסע" element={<JourneyPage />} />
           <Route path="/journey-beta" element={<JourneyPageV2 />} />
           <Route path="/lab" element={<LabIndex />} />
+          {/* 🧭 Work Area של הצופן — אותו TzofenEmbed ואותו /tzofen.html?embed=1. קריאה-בלבד. */}
+          <Route path="/lab/els" element={<ElsWorkAreaPage />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
           <Route path="/sulamot2" element={<ConvergenceGalaxy level={2} />} />
           <Route path="/sulamot3" element={<ConvergenceGalaxy level={3} />} />

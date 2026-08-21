@@ -33,7 +33,9 @@ function rowToItem(m) {
   };
 }
 
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null }) {
+// 🛰️ onState — מקבל-המצב של Work Area. ה-iframe הוא **מקור-העובדות**; ה-host רק מקבל אותן.
+//    ⛔ אין כאן לוגיקת ELS, אין adapter למנוע אחר, ואין TzofenLabEmbed — אותו iframe בדיוק.
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -189,6 +191,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
         return;
       }
+      if (d.type === "state") {
+        // 🛰️ תמונת-מצב מהמנוע (סריאליזציה בלבד — ראה elsState() ב-els-code.template.html).
+        //    מועברת כמות-שהיא לצרכן. React לא מחשב ELS ולא נוגע בנתון.
+        onState?.(d);
+        return;
+      }
       if (d.type === "search") {
         try {
           track("els", (d.term || "").slice(0, 80),
@@ -230,7 +238,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
