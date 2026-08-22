@@ -1,10 +1,29 @@
-# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v4 (קנוני)
+# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5 (קנוני)
 
-> **✅ v4 קנוני על `main`.** אושר על-ידי צוריאל (Human-Gate) ומוזג ל־`main` בקומיט `a757eeec` (fast-forward מ־`38a8f784`, provenance מלא ב־`work_log`). זוהי הגרסה הקנונית הנוכחית של מפת-הניווט.
+> **✅ v5 קנוני על `main`.** אושר על-ידי צוריאל (Human-Gate — "DECISION — Canonize Roadmap v5") ומוזג ל־`main` בקומיט `f1503a28` (merge מ-`0249fece` על ענף `claude/human-gate-provenance-a757eeec-lzocl4`, provenance מלא ב־`work_log`). זוהי הגרסה הקנונית הנוכחית של מפת-הניווט. שינוי תיעודי/ניווטי בלבד — ללא deploy אפליקטיבי, ללא DB migration, ללא שינוי Master State. **Gate #4 ו-Gate #18 נשארים OPEN/INTAKE-CRITICAL; יתר השערים-הפתוחים נשארים פתוחים** — הקנוניזציה מאשרת את המסמך כניווט-רשמי, אינה סוגרת אף שער.
 >
 > **מהות.** מקור־הניווט התפעולי היחיד של SOD1820. המנוע מגלה ומארגן · **המפה מנווטת** · מרכז־הניהול (עתידי) **מציג** (Lens מעל הקובץ הזה) · `work_log` שומר provenance · **צוריאל מחליט**. שום דבר אינו הופך לקנוני רק משום שסוכן ביצע אותו.
 >
 > **סדר־סמכות:** live DB + `main` + `SOD1820_MASTER_STATE.md` (מצב קנוני) > המפה הזאת (ניווט) > זיכרון. המפה **מפנה** אל המצב הקנוני; לעולם אינה אמת מקבילה ואינה בסיס־נתונים.
+>
+> **v5 מוסיף על v4:** ספיגת עבודה-היסטורית (ELS/Premium-Research/Legacy-Systems) שנחקרה ב-4 סבבי-READ-ONLY (Architecture Reconstruction · Legacy Reconciliation · GPT-docs cross-check · Absorption Matrix) + פתרון Decision #1 (ELS Full-Search-Space) לפי provenance קיים. **כל תוכן v4 שלא צוין כאן במפורש כ-SUPERSEDED/DRIFT-CORRECTED נשאר בתוקף ללא-שינוי** (NO-DISAPPEARING-WORK).
+
+---
+
+## 🏷️ אוצר־תגיות v5 (משמש בכל טבלת-ספיגה למטה — משלים, לא מחליף, את מודל 5-הצירים)
+> **שכבות-שימוש (תיקון-מבנה, לא-שינוי-עובדה):** תגיות-v5 (טור-שמאל) משמשות בתוך **כרטיסי-Workstream** (שדה `STATE`). הסקציות-העליוניות (`🔵 ACTIVE_NOW`, `🟡 PARALLEL_READY`) ממשיכות-להשתמש באוצר-המילים-המקורי (`ACTIVE_NOW`/`PARALLEL_READY`) כי אלה **ניווט-סשן**, לא סיווג-workstream. הטבלה הזו היא מפת-ההמרה הרשמית ביניהם — **אין שתי-מערכות סותרות, יש שתי-רמות (workstream-level / session-navigation-level).**
+
+| תגית v5 | משמעות | מקביל במודל-הקיים |
+|---|---|---|
+| `LIVE` | חי בקוד/UI בפרודקשן, נצפה-בפועל | PROJECT=`DONE`, RELEASE=Live |
+| `DB-LIVE` | חי ב-DB (טבלה/RPC נקראת-בפועל), לאו-דווקא עם UI | PROJECT=`DONE`/`EXISTING`, ACCESS משתנה |
+| `BUILDING` 🏗️ | קיים בקוד/ענף, לא-פרוס/לא-שלם | PROJECT=`BUILDING` |
+| `PREVIEW` | ארטיפקט-מועמד מוגדר, ממתין לשער-אדם להעלאה ל-Preview/main | PROJECT=`BUILDING`, ACCESS=`PREVIEW(admin)` יעדי |
+| `OPEN-HUMAN-GATE` | דורש הכרעת-צוריאל לפני שיזוז | PROJECT=`OPEN` |
+| `PARKED` | הושהה בכוונה, לא-הוחלף | PROJECT=`PARKED` |
+| `SUPERSEDED` | הוחלף בהחלטה חדשה, נשמר כ-provenance | PROJECT=`SUPERSEDED` |
+| `DESIGN` | מפרט/חוזה קיים, לא-נבנה | PROJECT=`DESIGN` |
+| `OUTSIDE` | קיים בריפו/DB אך מחוץ-לתחום SOD1820 | — (חדש ב-v5) |
 
 ---
 
@@ -28,13 +47,14 @@
 | DESIGN | 📐 תכנון |
 | SUPERSEDED | 🗄️ הוחלף (נשמר כ־provenance) |
 | UNKNOWN | ❔ לא־ידוע (provenance חסר) |
+| OUTSIDE | 🚪 מחוץ-לתחום (חדש, v5) |
 
 ---
 
 ## 🕒 טריות המפה (FRESHNESS)
-- **LAST_RECONCILED:** `2026-08-20` (הסשן הזה; יושב מול `work_log` העדכני + `main` HEAD `c8d3672`; המסמך עצמו קנוני מאז `a757eeec`).
-- **SYNC STATUS:** `SYNCED` *נכון ל־LAST_RECONCILED*.
-- **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס. הזיהוי = השוואת `LAST_RECONCILED` ל־timestamp/commit החדש ביותר.
+- **LAST_RECONCILED:** `2026-08-21` (v5 קנוניזציה; `main` HEAD `f1503a28` — מכיל את v5 המאושרת במלואה: Gate #4/#18 OPEN/INTAKE-CRITICAL, Brain Responsibility מאושר, WS-GEMATRIA-CORPUS-PACKAGES ACTIVE_NOW).
+- **SYNC STATUS:** `SYNCED` — **v5 קנוני על `main` (`f1503a28`)**, לא-עוד DRAFT.
+- **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס.
 - **אין עדכון־אוטומטי־שקט:** בסוף סשן אסור לשכתב את המפה אוטומטית. יש **לזהות** drift, לסמן `STALE`, **ולהציע** את העדכון דרך חוקי ה־WRITE/Human-Gate — לעולם לא לכתוב קנון בלי שער.
 
 ---
@@ -72,99 +92,134 @@
 - `SUPERSEDED` 🗄️ — הוחלף בהחלטה חדשה; נשמר כ־provenance היסטורי בלבד.
 - `UNKNOWN` ❔ — provenance חסר; לעולם לא ממציאים.
 
-**ערובות אי־סתירה (יאומתו ב־§FINAL VALIDATION):**
-- `BUILDING` (עבודה) ≠ `BLOCKED` (עבודה חסומה) — בנייה פעילה אינה חסימה.
-- `LOCKED` (גישה) ≠ `BLOCKED` (עבודה) — פיצ'ר בנוי־אך־נעול אינו עבודה־שלא־החלה.
-- `FUTURE` (מתוכנן) ≠ `PARKED` (מושהה) — זה טרם התחיל; זה הושהה אחרי שהיה.
-- `LIVE` ≠ `MERGED` — מיזוג ל־main אינו פריסה/הפעלה.
-- `MERGED` ≠ `VERIFIED` — מוזג אינו אומת ב־production.
-- `Admin Preview` 👁️ ≠ `Production` 🚀 — תצוגת־מנהל אינה הפעלה למשתמשים.
-- `VISIBILITY` (רואים) ≠ `ACCESS` (יכולים להשתמש).
-- `LIVE` נקבע **רק** מ־RELEASE=Live/Verified, לעולם לא מקיום ענף/commit/preview.
+**ערובות אי־סתירה:**
+- `BUILDING` (עבודה) ≠ `BLOCKED` (עבודה חסומה). · `LOCKED` (גישה) ≠ `BLOCKED` (עבודה). · `FUTURE` (מתוכנן) ≠ `PARKED` (מושהה). · `LIVE` ≠ `MERGED`. · `MERGED` ≠ `VERIFIED`. · `Admin Preview` 👁️ ≠ `Production` 🚀. · `VISIBILITY` ≠ `ACCESS`. · `LIVE` נקבע **רק** מ־RELEASE=Live/Verified.
 
 ---
 
 ## ⚖️ חוקי־על (GOVERNING LAWS)
 
 ### 1. חוק BUILDING / נראות־פיצ'ר — `גלוי ≠ מופעל`
-**מטרה:** כל פיצ'ר בבנייה **גלוי** במפה ובמרכז־הניהול, אך **אינו פעיל למשתמשים רגילים עד שצוריאל מאשר שהוא מוכן.**
-- `BUILDING` הוא **PROJECT STATE רשמי**, לא הערה.
-- פיצ'ר `BUILDING` עשוי להתקיים בקוד/ענף/preview, אך **אינו DONE, אינו LIVE, אינו פתוח למשתמשים רגילים**. `גלוי ≠ מופעל`.
-- משתמש רגיל **רואה** `🏗️ בבנייה` אך **ללא גישה** לפונקציונליות הלא־גמורה.
-- מנהל/צוריאל יכולים לראות/לבדוק `BUILDING` לפי הרשאה (ACCESS=`PREVIEW 👁️`). **Admin Preview ≠ Production.**
-- **`BUILDING → LIVE` הוא Human-Gate של צוריאל.** לעולם לא להסיק `BUILDING`/`LIVE` אוטומטית מקיום ענף/commit/prototype.
-- **רינדור באתר** כש־PROJECT=`BUILDING` ו־VISIBILITY=`PUBLIC`: **`🏗️ בבנייה — אנחנו עובדים על היכולת הזאת. היא עדיין אינה זמינה.`** לעולם לא להציג פיצ'ר לא־גמור כמוצר פעיל.
-- **מודל 5־הצירים** (למעלה) — לעולם לא לערבב PROJECT/BRANCH/RELEASE/VISIBILITY/ACCESS.
-- **הערת Control-Plane:** מנגנון Feature-Control העתידי הוא ה־control-plane של מרכז־הניהול, **לא** מקור־האמת של הפרויקט. המפה מתארת *מצב־עבודה*; המנגנון העתידי ינהל *התנהגות־מוצר*. **לא בונים אותו עכשיו** (ראה `WS-FEATURE-CONTROL`).
+כל פיצ'ר בבנייה **גלוי** במפה, אך **אינו פעיל למשתמשים רגילים עד אישור צוריאל**. `BUILDING → LIVE` הוא Human-Gate. לעולם לא להסיק `BUILDING`/`LIVE` אוטומטית מקיום ענף/commit/prototype.
 
 ### 2. חוק פיוס־סשן (SESSION RECONCILIATION)
-לאחר **כל שלב מהותי** (לא כל הודעה): **אמת → פייס → עדכן מפה → checkpoint.** לשאול: מה באמת השתנה · מה אומת · מה נכנס ל־DONE · מה נשאר OPEN · מה הפך BLOCKED · האם ACTIVE_NOW זז · האם נוצר Human-Gate · האם יש provenance/commit/migration · האם OPEN נסגר · מה ה־NEXT_ACTION המדויק. **לעולם לא DONE על כוונה. לעולם לא להמציא provenance.** בסוף סשן: **אין להניח שהמפה עודכנה** — לזהות `LAST_RECONCILED < עבודה מאומתת חדשה` → לסמן `STALE`, **ולהציע** עדכון דרך שער; אין כתיבה אוטומטית.
+אמת → פייס → עדכן מפה → checkpoint. לעולם לא DONE על כוונה. לעולם לא להמציא provenance.
 
 ### 3. חוק אין־עבודה־נעלמת (NO-DISAPPEARING-WORK)
-כל פריט יושב בדיוק ב־PROJECT STATE אחד. **`BUILDING`, `FUTURE`, `PARKED` לעולם לא נעלמים מהיקום.** עבודה שהסתיימה → **History/Completed** עם provenance. הוחלפה → `SUPERSEDED` + הפניה. הושהתה → `PARKED`. ענף שמוזג → נשמר בהיסטוריית branch/release. היסטוריה לא־ידועה → `UNKNOWN`, לעולם לא ממציאים. **שום עבודה אינה מוסתרת רק משום שאינה פעילה כעת.**
+כל פריט יושב בדיוק ב־PROJECT STATE אחד. `BUILDING`/`FUTURE`/`PARKED` לעולם לא נעלמים. הושלמה→History. הוחלפה→SUPERSEDED. הושהתה→PARKED.
 
 ### 4. חוק לוגיקת־החלטה (DECISION LOGIC)
-לסווג כל טענה: `FACT · INFERENCE · RECOMMENDATION · DECISION · OPEN QUESTION`. רק **DECISION שאושרה ע״י צוריאל** הופכת לקנון, וכל אחת עם provenance (מי/מתי/מה/מה הוחלף). ראה **יומן ההחלטות**.
+לסווג כל טענה: `FACT · INFERENCE · RECOMMENDATION · DECISION · OPEN QUESTION`. רק DECISION שאושרה ע״י צוריאל הופכת לקנון, עם provenance.
 
 ### 5. חוק בטיחות־ACTIVE_NOW
-בדיוק **אחד** `ACTIVE_NOW`. **`ACTIVE_NOW` הוא מועמד (המלצה) עד שצוריאל מאשר את הפעולה הבאה בפועל** — אסור שיהפוך להחלטה רק משום שקלוד הסיק אותו מסדר־תלויות. מידע לא־מספיק → `ACTIVE_NOW = UNKNOWN` ודרישת פיוס. אין לדלג ל־downstream מעניין בזמן שתלות בעדיפות גבוהה פתוחה.
+בדיוק **אחד** `ACTIVE_NOW`. מועמד עד אישור-בפועל של צוריאל.
+
+---
+
+## 🏛️ עקרונות־ארכיטקטורה (ARCHITECTURE PRINCIPLES LEDGER) — חדש ב-v5
+> נבדקו-מחדש מול קוד+3 מסמכי-GPT+כל מה שנבדק בסשן זה — **כולם מקוימים, אפס-הפרה נמצאה.**
+
+| עיקרון | חוק-מקור (`rule_id`) | סטטוס-קיום | הערה |
+|---|---|---|---|
+| **ONE ENGINE** | `els_single_engine_law`, §10.6 | `LIVE` ✅ | מאומת: מימושי-ELS מקבילים הוסרו, `gematria.js` מקור-יחיד |
+| **ONE TREE** | `unified_graph_law`, §11.10 | `LIVE`-חלקי ⚠️ | `persons`/`els_records`/`relation_evidence` עדיין מחוץ ל-`nodes`/`edges` — DRIFT-ידוע, לא-נפתר ב-v5 |
+| **ONE HUMAN GATE** | §12.4, §13.8 | `LIVE`-חלקי ⚠️ | ~30 מנגנוני-שיפוט/6 pipelines בפועל (Gate #18 crosswalk, 21.8) — Contract-מוביל/מועמד קיים, pipelines חיים דורשים התכנסות; אין לבנות Judgment system חדש (ר' `WS-JUDGE-UNIFICATION`, Decision Register #18) |
+| provenance | §0 governance | `LIVE` ✅ | עקבי בכל commit/work_log |
+| Candidate ≠ Fact | §10.0, §19-B#9 | `LIVE` ✅ | עקבי |
+| HOT ≠ TRUE | §10.3.1 | `LIVE` ✅ | עקבי (`journey_seeds`, `demand_gaps`) |
+| Premium ≠ Truth | §19-B#15 | `LIVE` ✅ | אין-הפרה כי אין-מימוש-בכלל (`PARKED`) |
+| Canonical ≠ Published | §19-A | `LIVE` ✅ | עקבי |
+| Rank, Don't Hide | §11.6 | `LIVE` ✅ | עקבי, מאושש גם ע"י `research-object-map.md`#18 |
+
+---
+
+## 🧠 Brain Responsibility — מאושר ✅ (Governance בלבד, לא-Implementation) — חדש ב-v5, 21.8
+> provenance: החלטת-צוריאל, HUMAN-GATE DECISION — APPROVED FOR v5 (21.8.2026).
+> **אין** להפעיל flags / לבנות Protocol v2 / לשנות Raziel runtime / ליצור agent/table/brain נוסף /
+> implementation בעקבות זה כרגע. **טרם נכנס ל-Master State** — ממתין לשער נפרד.
+
+**עיקרון 1 — ONE SYSTEM BRAIN · METATRON CORE · RAZIEL RESEARCH ORCHESTRATOR:**
+- SOD1820 מחזיק System Brain אחד. Sources of Truth, rules, engines, methods, Graph
+  (`nodes`/`edges`), Research Context והרשאות שייכים למערכת המרכזית.
+- Metatron/Core = שכבת איחוד/context של אותו מוח — אינו Source of Truth מתחרה.
+- Raziel אינו מוח/מאגר/מערכת-מחקר מקבילה — הוא Research Orchestrator של אותו System Brain:
+  מזהה intent, מנתב למנועים/מומחים קיימים, מקבל Evidence, מצליב, מסנתז, מלווה לפי Context+הרשאות.
+  הרחבות נעשות במערכת המרכזית; Raziel צורך אותן דרך ה-Core.
+
+**עיקרון 2 — BRAIN CONTEXT BOUNDARY — Public/Private:**
+- אותו Raziel פועל מעל אותו System Brain בשני Context boundaries.
+- Identity/Memory/Research Context/מידע-נגיש מסוננים לפי משתמש, בעלות, הרשאה, ערוץ.
+- רצף cross-channel נשמר רק לזהות מאומתת ומורשית.
+- Private≠Public · Public≠Canonical · Personal Memory≠Canonical Knowledge — מידע אישי לא-מתקדם
+  ל-Canonical/One-Tree מכוח Memory בלבד; כל קידום עובר Intake/Research pipeline + Human Gate
+  (עקבי עם Candidate≠Fact / Canonical≠Published הקיימים).
+
+**⚠️ יישוב ניסוחים ישנים ב-v5 (תיקון-נוסח בלבד):**
+- `WS-RAZIEL`: "3 מימושים ידועים" = מימושים כפולים/לא-מסונכרנים של **אותו** תפקיד-Orchestrator —
+  לא 3 מוחות מתחרים. הכפילות היא בעיית-סנכרון-implementation (שער עתידי), לא ריבוי-מוחות מאושר.
+- טבלת `raziel_brain` — שם מטעה historically: קונפיג-פרסונה ל-Orchestrator, לא System Brain מתחרה.
+- Gate #19 (`raziel_brain` לאכלס/להסיר) נשאר פתוח כפי-שהוא — רק הובהר שהוא פועל בתוך
+  Brain-Context-Boundary (שכבת-persona), לא מחוצה-לו.
+
+---
+
+## 🔀 עקרון-תפעול: עבודה רוחבית + נקודת-חזרה — חדש ב-v5
+> **מקור/provenance:** `work_log af29e88b` (21.8.2026) — עיקרון ניהולי-תפעולי בלבד, **לא** סטטוס חדש ו**לא** שינוי לאוצר-הסטטוסים הקיים (ר' crosswalk A/B/C/D באותה רשומה). **טרם נכנס ל-Master State** — ממתין ל-Master Reconciliation נפרד שיכריע לאיזו שכבת-Governance (אם בכלל, מעבר ל-Roadmap) הוא שייך.
+
+- **אין חובה לסיים workstream לפני מעבר לענף אחר.** ניתן לעבוד במקביל על כמה ענפים ולעבור ביניהם לפי סדר-עדיפות המחקר של צוריאל — לא לפי סדר-פתיחה.
+- **כל עצירה בענף חייבת להשאיר נקודת-חזרה מתועדת** בכרטיס ה-workstream: `STATE` · החלטות שהתקבלו · `OPEN ITEMS` · `DEPENDENCIES` · `NEXT_ACTION`. (זהו בדיוק מבנה 11-השדות של כרטיסי ה-workstream שכבר קיים ב-Roadmap — העיקרון רק מחייב לשמור אותו מעודכן בכל מעבר, לא מוסיף שדה חדש.)
+- **מעבר לענף אחר אינו סגירה, נטישה, או `SUPERSEDED`.** workstream שמושהה זמנית לטובת עבודה על ענף אחר נשאר במצב-ה-PROJECT-STATE האמיתי שלו (`BUILDING`/`OPEN`/וכו') — לא זז ל-`PARKED` ולא ל-`SUPERSEDED` רק בגלל מעבר-מיקוד. `PARKED`/`SUPERSEDED` נשארים שמורים למשמעותם המקורית (הושהה-בכוונה / הוחלף-בהחלטה).
 
 ---
 
 ## 🔀 צינור השחרור (RELEASE PIPELINE)
-מרכז־הניהול העתידי יציג את שרשרת־החיים, **כל שלב ניתן־לזיהוי בנפרד**:
-
 ```
 Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נפרס) → Live(🚀 פעיל) → Verified(✅ אומת)
 ```
-- אסור להציג עבודה כ־`LIVE` רק משום שהיא קיימת בענף.
-- אסור להציג עבודה כ־`DONE` רק משום שיש commit. **`DONE` דורש אימות** לפי חוקי הפרויקט.
-- **דוגמה חיה (ELS Step 3 client):** Branch ✅ · Review ✅ · Main ❌ · Deploy ❌ · Live ❌ · Verified ❌ → לכן אינו LIVE ואינו DONE.
+- אסור להציג עבודה כ־`LIVE` רק משום שהיא קיימת בענף. אסור להציג עבודה כ־`DONE` רק משום שיש commit.
+- **דוגמה חיה (ELS Step 3 client) — עודכן 21.8, Gate #3 Verified/Closed:** Branch ✅ · Review ✅ · **Main ✅** (`fc123caa`) · **Deploy ✅** · **Live ✅** · **Verified ✅** (round-trip חי על `save_els_matrix_anon`: `start_index===positions[0]`, כולל קצה `start=0`; `work_log ed5cc880`) → **LIVE וגם DONE.**
+- **דוגמה חיה נוספת (`/lab/els` shell, v5):** Branch ✅ · Review ✅ · **Main ✅** (`3e77f15a`/`d245e5eb`) · Deploy ✅ · **Live ✅ (ACCESS מוגבל — ראוט קיים, אין ניווט-פנימי אליו)** · **Verified ⚠️ חלקי** (מוצהר-אינרטי במפורש: "עדיין לא הגיעה תמונת-מצב" עד שהמנוע ב-`main` ישדר `type:"state"` — זה **מחיר-מכוון** של "אל תיגע במנוע", לא תקלה).
 
 ---
 
 ## 🌌 היקום המלא (FULL UNIVERSE) — כלום לא מוסתר
-- **🔵 עכשיו (NOW)** → `WS-ELS-IDENTITY` — Step 3 completion *(ACTIVE_NOW — מועמד, ממתין לאישור צוריאל)*.
-- **🟡 הבא (NEXT)** → שחזור `fn_els_search` secdef · עדכון Master State §17/γ · מיזוג ELS Full-Search-Space · תכנון admin_research_review.
-- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳ *(ראה מרשם העתיד — מסומן INCOMPLETE)*.
-- **⏸️ מושהה (PARKED)** → סליקה/מנויים (Hyp) *(ראה מרשם המושהים)*.
-- **🗄️ הוחלף (SUPERSEDED, provenance)** → writer-os · ענף מחיקת־ELS (Option B) · §19-old.
+- **🔵 עכשיו (NOW)** → **`WS-GEMATRIA-CORPUS-PACKAGES`** (21.8, הנחיית-צוריאל מפורשת) — ארגון חומרי-גימטריה (רשימות/חבילות) לכדי corpus מחקרי, לפני חזרה ל-Gate #4/#18. Gate #3+Gate #2 סגורים (History). Gate #4+Gate #18 הם שני שערים ארכיטקטוניים פתוחים, **Intake-critical למסלול הנוכחי** — לא-חוסמים v5.
+- **🟡 הבא (NEXT)** → לפי נקודת-החזרה שנקבעה: **Gate #4 (Universal Finding Identity & Multi-Source Provenance)** ← אחרי-ארגון-החומרים ← ואז **Gate #18 (Unified Judgment & Human-Gate Contract)**. שאר-השערים-הפתוחים (ר' Open Human-Gates): מיזוג-`els-unified-merge`-ל-main · Research-Journey/Matrix/שכבות-ELS-נוספות (Preview) · שחזור `fn_els_search` secdef · Master-State §17-אנומרציה · שאר-שערי-#7-#20 — כולם מתועדים ואינם חוסמים קנוניזציית v5.
+- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳.
+- **⏸️ מושהה (PARKED)** → סליקה/מנויים (Hyp) · Human-Design/Tarot/`digit_language`/`number_series`/`number_products` (schema-בלבד, מכוון-נכון).
+- **🗄️ הוחלף (SUPERSEDED, provenance)** → writer-os · `CommandCenterTab.jsx` (הוחלף ע"י `WarRoomTab`) · §19-old · ELS-2 Item-1 **כענף-עצמאי** (תוכנו נספג בפועל ל-D4, ר' `WS-ELS-FSS`).
+- **🚪 מחוץ־לתחום (OUTSIDE, חדש-v5)** → "מעבדה להבנת משמעות" (`/meaning-lab`, `lab_*` tables) — פרויקט-צד נפרד לגמרי, לא-שייך ל-SOD1820, לא-לגעת.
 
 ---
 
 ## 🧭 ניווט מרכז־הניהול (בעברית — למימוש עתידי)
-המפה העתידית תציג:
-- **📍 איפה אני** — ה־workstream הפעיל (`ACTIVE_NOW`).
-- **❓ למה זה הצעד הבא** — הסיבה התלויית־Roadmap.
-- **⏭️ מה עושים עכשיו** — ה־NEXT_ACTION.
-- **🚫 מה לא לבנות עדיין** — DO NOT BUILD YET.
-- **🕐 מה השתנה מאז הסשן הקודם** — WHAT CHANGED.
-- **📜 למה התקבלה ההחלטה** — Decision + provenance.
+המפה העתידית תציג: 📍 איפה אני · ❓ למה זה הצעד הבא · ⏭️ מה עושים עכשיו · 🚫 מה לא לבנות עדיין · 🕐 מה השתנה · 📜 למה התקבלה ההחלטה.
 
-## 🔵 ACTIVE_NOW — **מועמד (ממתין לאישור צוריאל)**
-> **עמדת־עבודה שאושרה ע״י צוריאל: `טרם אושרה` (המועמד להלן).**
->
-> **📍 איפה אני (מועמד):** `WS-ELS-IDENTITY` — השלמת ELS Finding Identity Step 3 (deploy + אימות).
-> **❓ למה זה הצעד הבא (הסקה, לא החלטה):** Steps 1–3 בנויים; ה־client של Step 3 (`7045f7b3`) הוא החלק היחיד בין Finding Identity לבין LIVE מקצה־לקצה; Step 4 ו־downstream `BLOCKED` עליו. *זו הסקת־תלויות של קלוד — היא הופכת לפעולה הפעילה רק באישורך.*
-> **⏭️ מה עושים עכשיו (באישור):** merge `claude/els-step3-identity` (`7045f7b3`) → `main` → deploy → אימות ש־`start_index` נכתב בשמירות־תורה חדשות → שחרור Step 4 מ־BLOCKED.
-> **🕐 מה השתנה מאז הסשן הקודם:** נטרול רגרסיית־הקורפוס ב־main (`f5834f44`); Step 3 DB חי (`20260820023525`) + client בנוי (`7045f7b3`); המפה נוצרה→main (`0d247a1d`) ושודרגה v2→v3→v4.
+## 🔵 ACTIVE_NOW — **עודכן 21.8: מיקוד עבר לארגון חומרי-גימטריה (לפני חזרה ל-Gate #4/#18)**
+> **📍 איפה אני:** `WS-GEMATRIA-CORPUS-PACKAGES` — ארגון הרשימות/חבילות-הגדולות של חומרי-גימטריה לכדי corpus מחקרי מסודר, מוכן להזנה עתידית לעץ-האחד. Gate #3 ו-Gate #2 סגורים (ר' History).
+> **✅ מה קרה:** צוריאל החליט (21.8) לא-לפתור את Gate #4/#18 כרגע. שניהם שונו-שם ומוגדרים במפורש **OPEN/INTAKE-CRITICAL** (חוסמים רק בנייה-סופית של שכבת-Identity/Judgment, לא-קנוניזציית-v5), עם נקודת-חזרה מפורשת: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`. Gate #18 עודכן: Contract-מוביל/מועמד קיים, pipelines חיים דורשים התכנסות ל-Unified-Judgment-Contract אחד — טרם-הוכרע אם `research_objects`/`admin_research_review` יהיה ה-canonical implementation; אין-לבנות Judgment system חדש. 2 ממצאי-אבטחה (`wa_word_review`,`project_contribution_to_graph`) הועברו ל-`WS-SEC` כמעקב-נפרד. גם עקרון **Brain Responsibility** (ONE SYSTEM BRAIN + Public/Private Context Boundary) אושר ונכנס ל-v5 כ-Governance (ר' סעיף ייעודי למעלה).
+> **⏭️ מה נפתח כתוצאה:** אחרי ארגון-החומרים — חזרה ל-Gate #4, ואז Gate #18, ואז Intake build.
+> **🕐 מה השתנה מאז הסשן הקודם:** Gate #4/#18 שונו-שם ומוגדרו-במפורש OPEN/INTAKE-CRITICAL עם resume-point, לפי עקרון-עבודה-רוחבית (`work_log af29e88b`) — בלי status חדש. Brain Responsibility נוסף כעקרון מאושר.
 
 ## 🟡 PARALLEL_READY (מגודר; אינו העמדה הפעילה)
 - **`WS-ELS-REGRESSION-FN`** — שחזור `search_path=public` + `security definer` על `fn_els_search` החי.
-- **`WS-MASTERSTATE` §17/γ** — הסרת הקפאת Finding-Identity + γ אל Master State.
-- **`WS-ELS-FSS`** — הכרעת מיזוג/פריסה (Item 1 `fb9c23ea` מול els-work-area D4).
-- **`WS-LEDGER-REVIEW`** — admin_research_review מ־DESIGN לתכנון.
+- **`WS-MASTERSTATE`** — §17 אנומרציה + סנכרון-provenance.
+- **`WS-ELS-FSS`** *(workstream-tag: `PREVIEW`/`OPEN-HUMAN-GATE`)* — **עודכן v5:** לא-עוד "הכרעת D4/Item1" (הוכרע) — אלא שער **מיזוג/פריסה-ל-Preview** של `claude/els-unified-merge`@`542c7147`.
+- **`WS-LEDGER-REVIEW`** *(workstream-tag: `DESIGN`/`OPEN-HUMAN-GATE`)* — `admin_research_review` מ־DESIGN לתכנון.
+- **`WS-ELS-CAPABILITY-AUDIT`** *(workstream-tag: `OPEN-HUMAN-GATE`, חדש-v5)* — 4 שאלות ל-צוריאל מ-18.8, 3 ימים ללא-מענה.
 
 ## 🚫 DO NOT BUILD YET — מה שלא מתחילים עדיין
 | מה | למה לא עכשיו | מה חוסם | מה פותח אותו |
 |---|---|---|---|
 | ELS Step 4 (dedup/UNIQUE) | זהות חייבת להיות חיה קודם | Step 3 לא נפרס/לא אומת | פריסת+אימות Step 3 |
 | KU-3D / Navigator / ELS-Matrix (כמוצר) | תלוי בזהות חיה | Finding Identity לא LIVE מקצה־לקצה | Step 3 LIVE+Verified |
-| מרכז־הניהול UI | המפה חייבת להיסגר קודם | v4 טרם קנוני | אישור v4 + canonicalize |
-| מנגנון WS-FEATURE-CONTROL | תכנון בלבד | אין ארכיטקטורת Command Center | שער design נפרד → שער build |
+| מרכז־הניהול UI (בנייה חדשה) | **עודכן v5:** לא-עוד "v4 טרם קנוני" (זה נפתר) — אלא: 3 ארטיפקטים חיים כבר-קיימים (`WarRoomTab`/`RoadmapCommandCenter`/מפרט-לא-בנוי) בלי הכרעה-איזה-הוא-CC-1 | הכרעת-CC-1-target | Human-Gate ייעודי |
+| מנגנון WS-FEATURE-CONTROL | תכנון בלבד | אין ארכיטקטורת Command Center סגורה | שער design → שער build |
 | Person F-1b (בני־משפחה) | חוזה־זהות לא סגור | OD-F9a / OD-F9b / OD-F8 | הכרעת שלושת ה־OD |
 | חיווט Raziel (`fn_raziel_turn`, `session_state`, L1–L14) | פתוח | אין שער בנייה | שער בנייה של צוריאל |
-| השלמת זהות תנ״ך | `corpus_id` תנ״ך פתוח | אין corpus_id תנ״ך קנוני (§17) | הכרעת צוריאל (בלי המצאה) |
+| השלמת זהות תנ״ך | `corpus_id` תנ״ך פתוח | אין corpus_id תנ״ך קנוני (§17) | הכרעת צוריאל |
+| מיזוג/פריסת `els-unified-merge` (המנוע, לא ה-shell) *(חדש-v5)* | Decision #1 פתור אך שער-אדם עוד לא ניתן | אישור-Human-Gate | צוריאל מאשר Preview |
+| אימוץ Number-Language / Name-Lab-רשמי / איחוד-שופטים *(חדש-v5)* | כולם OPEN-HUMAN-GATE, ר' שערים #16/#17/#18 (Decision Register) | הכרעות-צוריאל נפרדות | ר' שערים 15-19 למטה |
 
 ---
 
@@ -172,32 +227,30 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 *(כל workstream: WHERE_WE_ARE / WHAT_IS_DONE / WHAT_IS_OPEN / WHAT_IS_BLOCKED / HUMAN_GATE / NEXT_ACTION / DEPENDENCIES / CANONICAL_HOME / PROVENANCE / LAST_VERIFIED / STATE)*
 
 ### WS-CC — ממשל המפה + מרכז־הניהול
-- **WHERE_WE_ARE:** המפה ב־v4 draft; מרכז־הניהול UI לא התחיל.
-- **WHAT_IS_DONE:** v1 (`b3a19102`→`0d247a1d` main) · v2 (`8a45ddb2`) · v3 (`6c16e9b3`→`38a8f784` main, קנוני) · v4 draft.
-- **WHAT_IS_OPEN:** קנוניזציית v4; Lens של מרכז־הניהול.
-- **WHAT_IS_BLOCKED:** מרכז־הניהול UI — עד שהמפה מאומתת+קנונית.
-- **HUMAN_GATE:** צוריאל — אישור v4→קנוני; בהמשך שער בניית CC.
-- **NEXT_ACTION:** בדיקת v4 → שער קנוניזציה → (בהמשך) CC-1 Lens קורא־בלבד.
-- **DEPENDENCIES:** קורא את המפה בלבד; אין store חדש.
-- **CANONICAL_HOME:** `SOD1820_MASTER_ROADMAP.md` (main).
-- **PROVENANCE:** `b3a19102` · `0d247a1d` · `8a45ddb2` · `6c16e9b3` · `38a8f784` · v4 draft.
-- **LAST_VERIFIED:** 2026-08-20.
-- **STATE:** ממשל־מפה `DONE`-לגרסה · מרכז־הניהול `DESIGN`.
+- **WHERE_WE_ARE:** המפה (v4) **קנונית על main**; v5 בכתיבה. מרכז־הניהול UI — **DRIFT-CORRECTED v5:** לא "לא-התחיל" — **`WarRoomTab.jsx`(1,589 שורות) ו-`RoadmapCommandCenter.jsx` שניהם `LIVE` על main כבר!** `CommandCenterTab.jsx` = `SUPERSEDED` (הוסר מהרינדור, RPC עדיין חי בלי caller).
+- **WHAT_IS_DONE:** v1→v4 קנוני (`0d247a1d`→`38a8f784`→`a757eeec`→`f375327f`). `WarRoomTab`/`RoadmapCommandCenter` `LIVE`.
+- **WHAT_IS_OPEN:** איזה מ-3 הארטיפקטים (`WarRoomTab`/`RoadmapCommandCenter`/מפרט-§11-§13-לא-בנוי) הוא יעד-הבנייה הרשמי של CC-1 — **ר' Gate #9** (Decision Register).
+- **WHAT_IS_BLOCKED:** בנייה-נוספת של Command Center — עד הכרעת-CC-1-target.
+- **HUMAN_GATE:** צוריאל — הכרעת-CC-1-target.
+- **NEXT_ACTION:** ממתין להכרעה; שום בנייה נוספת.
+- **DEPENDENCIES:** `WS-JUDGE-UNIFICATION` (תלוי בהכרעה זו).
+- **CANONICAL_HOME:** `SOD1820_MASTER_ROADMAP.md` (main) + `src/components/WarRoomTab.jsx`/`RoadmapCommandCenter.jsx` (main).
+- **PROVENANCE:** `548d4a4` (RoadmapCommandCenter deploy) · work_log `fbe34f97` ("צוריאל אמר תעלה").
+- **LAST_VERIFIED:** 2026-08-21.
+- **STATE:** `LIVE` (2 ארטיפקטים) · `SUPERSEDED` (1) · `OPEN-HUMAN-GATE` (הכרעת-יעד).
 
-### WS-ELS-CORPUS — קורפוס ELS קנוני (§17)
+### WS-ELS-CORPUS — קורפוס ELS קנוני (§17) — ללא-שינוי
 - **WHERE_WE_ARE:** קורפוס־תורה קנוני וחי; זהות־תנ״ך לא מוגדרת.
-- **WHAT_IS_DONE:** `torah_stream`=304,805 (Koren, `md5 0066c243…`); מקור `tk-letters.txt` (1,204,583 אותיות); `corpus_id 0b022e8eef6f9c16`; `fn_els_search` 0-based, `coverage 'partial'`.
+- **WHAT_IS_DONE:** `torah_stream`=304,805 (Koren); `corpus_id 0b022e8eef6f9c16`; `fn_els_search` 0-based.
 - **WHAT_IS_OPEN:** `corpus_id` תנ״ך (`WS-TANAKH`).
-- **WHAT_IS_BLOCKED:** —
 - **HUMAN_GATE:** אין (סגור).
-- **NEXT_ACTION:** אין.
-- **DEPENDENCIES:** מוגן ע״י `WS-ELS-REGRESSION`.
+- **NEXT_ACTION:** אין — סגור; ממתין רק להכרעת `WS-TANAKH` (תת-פריט נפרד תחת `WS-ELS-IDENTITY`).
+- **DEPENDENCIES:** אין תלות-נכנסת (workstream־שורש) — `WS-ELS-REGRESSION` ו-`WS-ELS-IDENTITY` תלויים-בו, לא-להיפך (ר' הכרטיסים שלהם).
 - **CANONICAL_HOME:** Master State §17 + live DB.
-- **PROVENANCE:** §17 sync `ae8272c2`; corpus SWAP 18.8.
-- **LAST_VERIFIED:** 2026-08-20.
-- **STATE:** `DONE` / `LIVE` 🚀.
+- **PROVENANCE:** Master State §17 · `corpus_id 0b022e8eef6f9c16` (מצוטט ב-WHAT_IS_DONE למעלה).
+- **STATE:** `DB-LIVE`.
 
-### WS-ELS-REGRESSION — נטרול רגרסיית־קורפוס
+### WS-ELS-REGRESSION — נטרול רגרסיית־קורפוס — ללא-שינוי-עובדתי (תיקון-מבנה בלבד, שוחזרו-שדות)
 - **WHERE_WE_ARE:** נטרול in-place (Option A) חי ב־main.
 - **WHAT_IS_DONE:** `main f5834f44` — הסרת `TRUNCATE+INSERT`, סנכרון `fn_els_search` בקובץ ל־0-based, כותר SUPERSEDED.
 - **WHAT_IS_OPEN:** תכונות האובייקט החי (סעיף־משנה).
@@ -208,102 +261,161 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **CANONICAL_HOME:** `supabase/migrations/20260726_…_els_real.sql` (main).
 - **PROVENANCE:** `f5834f44` · מקור `f946ed51`.
 - **LAST_VERIFIED:** 2026-08-20.
-- **STATE:** `DONE` / `LIVE` 🚀.
-  - **`WS-ELS-REGRESSION-FN`:** שחזור `search_path`+`security definer` על `fn_els_search` החי. **STATE:** `PARALLEL_READY`/`OPEN`. שער: צוריאל.
+- **STATE:** `LIVE` (`f5834f44`, main). תת-פריט `WS-ELS-REGRESSION-FN`: `OPEN-HUMAN-GATE`.
 
-### WS-ELS-IDENTITY — ELS Finding Identity `{corpus_id, term_norm, dir, skip, start}` — **אינו FROZEN**
-- **WHERE_WE_ARE:** Steps 1–3 הושלמו; client של Step 3 בנוי, לא נפרס; Step 4 חסום.
-- **WHAT_IS_DONE:** Step 1 (LIVE) · Step 2 13-arg (LIVE) · R1 (start 0-based, `positions[0]===start`, מרחב־תורה תואם) · Step 3 DB helpers + INSERT-only + `save_els_matrix_anon` 11-arg (LIVE, `20260820023525`) · Step 3 client (`7045f7b3`). regression suite PASS.
-- **WHAT_IS_OPEN:** פריסת ה־client; זהות־תנ״ך (`WS-TANAKH`).
-- **WHAT_IS_BLOCKED:** **Step 4 (dedup/UNIQUE) = `BLOCKED` 🚧** עד פריסת+אימות Step 3.
-- **HUMAN_GATE:** צוריאל — merge+deploy של Step 3; בהמשך שער Step 4.
-- **NEXT_ACTION:** merge `claude/els-step3-identity` → main → deploy → אימות `start_index`.
+### WS-ELS-IDENTITY — ELS Finding Identity `{corpus_id, term_norm, dir, skip, start}` — **עודכן 21.8: Gate #3 Verified/Closed**
+- **WHERE_WE_ARE:** Steps 1–4-Identity הושלמו-כולן; client (`7045f7b3`) **מוזג+נפרס+אומת-בפרודקשן** (`fc123caa`). Step 4 (dedup/UNIQUE, בנייה נפרדת) לא-עוד-חסום-על-Step3-identity — ממתין לשער-בנייה-נפרד (עודכן 21.8: השער = **Gate #4 "Universal Finding Identity & Multi-Source Provenance"**, OPEN/INTAKE-CRITICAL, לא-חוסם-v5; ר' Open Human-Gates #4).
+- **WHAT_IS_DONE:** Step 1 (LIVE) · Step 2 13-arg (LIVE) · R1 (start 0-based, `positions[0]===start`, מרחב־תורה תואם) · Step 3 DB helpers + INSERT-only + `save_els_matrix_anon` 11-arg (LIVE, `20260820023525`) · Step 3 client (`7045f7b3`, **LIVE על main `fc123caa`**). regression suite PASS (rollback, 20.8) **+ round-trip חי בפרודקשן (21.8):** `save_els_matrix_anon` עם `p_start_index=0` ו-`p_start_index=42` — `start_index===positions[0]` בשני המקרים (כולל קצה `start=0`, לא-קורס-ל-null), `corpus_id`/`term_norm` נגזרו-נכון בשרת. שורות-הבדיקה נמחקו-מיד (0 נותרו). 3 משטחי-ELS הקנוניים (`/code`,`/research?tool=els`,`/heichal.html`) — HTTP 200 ללא-regression.
+- **WHAT_IS_OPEN:** זהות־תנ״ך (`WS-TANAKH`) — בלבד.
+- **WHAT_IS_BLOCKED:** אין (Step 4 עצמה עדיין דורשת שער-בנייה-נפרד — לא `BLOCKED` על Step3 יותר).
+- **HUMAN_GATE:** סגור עבור merge+deploy+אימות Step 3 (בוצע). Step 4 = **Gate #4** (renamed, INTAKE-CRITICAL) — שער-בנייה נפרד, טרם-נפתח.
+- **NEXT_ACTION:** אין — ממתין לנקודת-החזרה: `Gematria packages organized → **Gate #4** → Gate #18 → Intake build`. הבאג הנקודתי ב-`save_els_matrix` (direction/start_index) כבר-תוקן-בנפרד (`work_log 62a36e0c`) ואינו-פותר את Gate #4 עצמו.
 - **DEPENDENCIES:** `WS-ELS-CORPUS` (LIVE); שלמות־תנ״ך על `WS-TANAKH`.
-- **CANONICAL_HOME:** פונקציות live DB + Master State §17 (דורש עדכון).
-- **PROVENANCE:** migrations step1/2/3 (`20260820023525`); client `7045f7b3`.
-- **LAST_VERIFIED:** 2026-08-20 (חתימות + regression suite ב-rollback).
-- **STATE:** `ACTIVE_NOW` *(מועמד)* 🔵; Steps 1–3 `DONE`/`LIVE`; Step 4 `BLOCKED`.
-  - **`WS-TANAKH` — `corpus_id` תנ״ך:** זהות־תורה `0b022e8eef6f9c16`; זהות־תנ״ך = תנאי פתוח מפורש (§17). **בלי המצאה.** **STATE:** `OPEN`.
+- **CANONICAL_HOME:** פונקציות live DB + Master State §17 (דורש עדכון — נשאר `PENDING`, לא-בוצע-כאן).
+- **PROVENANCE:** migrations step1/2/3 (`20260820023525`); client `7045f7b3`→merge `fc123caa`; `work_log ed5cc880` (אימות-מלא, 21.8).
+- **LAST_VERIFIED:** 2026-08-21 (round-trip חי בפרודקשן, לא רק rollback).
+- **STATE:** Steps 1-4-Identity `LIVE`/`DB-LIVE` ✅ (הושלם, לא-עוד `ACTIVE_NOW`) · Step-4-הבנייה = **Gate #4**, `OPEN-HUMAN-GATE`/`INTAKE-CRITICAL` (לא `BLOCKED`, לא-חוסם-קנוניזציה).
+- תת-פריט `WS-TANAKH` — זהות־תורה `0b022e8eef6f9c16`; זהות־תנ״ך = תנאי פתוח מפורש (§17), בלי המצאה: `OPEN-HUMAN-GATE`.
 
-### WS-ELS-FSS — ELS Full Search Space / כיוון־הפוך
-- **WHERE_WE_ARE:** הכיוון הוכרע; ממתין לשער מיזוג/פריסה.
-- **WHAT_IS_DONE:** ניתוח מרחב־חיפוש READ-ONLY (els_records 1743/1743, 19.8); Item 1 write+verify; הכרעה: els-work-area **D4** מועדף על ELS-2 **Item 1**.
-- **WHAT_IS_OPEN:** איזה ארטיפקט מתמזג; מיזוג/פריסה.
+### WS-ELS-FSS — ELS Full Search Space — **Gate #2 Preview-Verified, 21.8**
+- **WHERE_WE_ARE:** D4 נבחר-קנונית (`cfc995ca`, 19.8) ← **Item1 כבר-grafted-לתוכו** (`fdd94acd`, 19.8 22:51, "canonical merge") ← ניקוי-מיגרציה עליו (`542c7147`). **החבילה המאוחדת = `claude/els-unified-merge`@`542c7147`.** Gate #2 (שער-ה-Preview) **נסגר Verified** (21.8) — צוריאל אימת-אישית שה-Preview (PR #163, draft) נפתח ועובד; אימות-קוד מקביל (build.py דטרמיניסטי + diff-review) ב-`work_log ba4427e5`. **⚠️ הבהרה-קריטית (צוריאל, 21.8): סגירת-Gate #2 = אישור-שער-Preview בלבד. היא אינה אומרת ש-Research Journey הושלם. ה-Preview נשאר "אזור-הנישואים"/מעבדת-החיבור שאליה חוזרים לבנות ולחבר את המסע (Journey), ה-Matrix, ושאר שכבות-ה-ELS — עבודה זו לא-נפתחה-כאן ולא-הוכרעה.**
+- **WHAT_IS_DONE:** D4 (`7f066e23`) מתקן cap-prefix-bias + backward-starvation; Item1's fix (בידוד-כיוון-הפוך) הושתל לתוך `findAll` של D4 (`fdd94acd`) בלי-לפגוע ב-`scopeRange`. בדיקת-קבלה ל-D4-בלבד (16.8): 97 `els_records`, 13/13 שדות, 84/84 מטריצות זהות-מופע, 0 הפרות-superset. **Preview חי ואומת (21.8):** PR #163 (draft, DO-NOT-MERGE) → Vercel `Ready`/`DEPLOYED` על `542c7147` בדיוק · צוריאל אימת-אישית פתיחה+עבודה דרך-הערוץ-המאומת-שלו · אימות-קוד מקביל (9/9 סעיפי-NO-WRITE PASS, כולל build.py דטרמיניסטי ביט-לביט) — `work_log ba4427e5`.
+- **WHAT_IS_OPEN:** מיזוג-ל-main (שער-הבא, **לא-נפתח-כאן, לא-הוכרע**) · **Research Journey/Matrix/שכבות-ELS-נוספות — עדיין-לא-הושלמו**, ה-Preview הוא מרחב-העבודה-הממשיך שלהן, לא תוצר-סגור.
 - **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** צוריאל — הכרעת מיזוג/פריסה.
-- **NEXT_ACTION:** צוריאל בוחר D4/Item 1 → שער מיזוג.
-- **DEPENDENCIES:** חולק קורפוס+זהות עם `WS-ELS-IDENTITY`.
-- **CANONICAL_HOME:** ארטיפקטי ענף (`claude/els-work-area`, ELS-2).
-- **PROVENANCE:** Item 1 `fb9c23ea`; work_log 19.8.
-- **LAST_VERIFIED:** 2026-08-19 (לא אומת מחדש בסשן זה).
-- **STATE:** `PARALLEL_READY`/`OPEN`.
+- **HUMAN_GATE:** Gate #2 (Preview) — **סגור/Verified**. שער-המיזוג-ל-main — נפרד, **טרם-נפתח**.
+- **NEXT_ACTION:** אין — ממתין להנחיית-צוריאל הבאה (מיזוג? המשך-בניית-Journey/Matrix ב-Preview? שער-חדש?). שום קוד/מיזוג/deploy נוסף בלי שער-מפורש.
+- **DEPENDENCIES:** חולק קורפוס+זהות עם `WS-ELS-IDENTITY`; מזין `WS-ELS-WORKAREA` (למטה).
+- **CANONICAL_HOME:** `claude/els-unified-merge`@`542c7147` (ענף, לא-main) · PR #163 (draft, GitHub, לא-ממוזג).
+- **PROVENANCE:** `cfc995ca`(החלטה) · `fdd94acd`(graft) · `542c7147`(תיק-נוכחי) · `fb9c23ea`(Item1 המקורי, superseded-reference-בלבד) · PR #163 · `work_log ba4427e5`(אימות-Preview, Gate #2 סגירה).
+- **LAST_VERIFIED:** 2026-08-21 (Preview חי, אומת ע"י צוריאל + code-review מקביל).
+- **STATE:** Gate #2 `PREVIEW-VERIFIED` ✅ (21.8) · מיזוג-ל-main `OPEN-HUMAN-GATE` (טרם-נפתח) · Journey/Matrix/שכבות-נוספות `OPEN` (לא-הושלמו, ממשיכות ב-Preview כ"אזור-נישואים").
 
-### WS-GAMMA — γ שתי־שכבות (Atlas / Ledger) + SOD1820 Universal Research Contract v1.0
-- **WHERE_WE_ARE:** החלטה מאושרת+מתועדת+**כעת גם כתובה ב-Master State**; אפס שינוי DB. הורחב בסשן זה (20.8) לכלול את ה-Universal Research Contract v1.0 המלא (18 סעיפים) שאושר ע״י צוריאל וממסגר את γ כחלק ממנו (סעיפים 7-8).
-- **WHAT_IS_DONE:** `docs/decisions/2026-08-20-gamma-two-layer-atlas-ledger.md` (`7985e0ce`, ענף `claude/raziel-capabilities-audit-h5k9ww`) · **§19-A/§19-B נכתבו ל-`SOD1820_MASTER_STATE.md`** (סשן זה, ענף `claude/els-function-inventory-86klre`, Change Log #29) — Atlas=`relation_evidence` · Ledger=`research_objects` · מנועים שומרים store · קישור `source_ref` · `nodes`/`edges` קנוני · + חוזה-העל המלא (Entry Context/Focused-before-Expansion/Method-Preserving/Calculation/Value-Scan/Zero-Nav/Finding/One-Tree/Fact-separation/Contextual-Intelligence/External-Research/Raziel/Human-Gate/Privacy/Premium-as-gate/Future-proof/Canonical-Architecture-Principle/Test-Case).
-- **WHAT_IS_OPEN:** מיזוג `claude/raziel-capabilities-audit-h5k9ww`→`main` (כדי ש-`docs/decisions/...` עצמו יהיה על main — כרגע רק Master State's §19 מכיל את התוכן, לא הקובץ המקורי); יישום-בפועל של עקרונות-החוזה בממשק (Entry Context/Focused-before-Expansion UX) — **טרם-אושר לבנייה, מפרט-בלבד**.
-- **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** צוריאל — אישור-בנייה נפרד לכל יישום-UX של החוזה (§19-B סעיף 17).
-- **NEXT_ACTION:** אין בנייה כעת. אם/כשצוריאל יאשר יישום — מפת-מסך קודם (per `research_workspace_law`/`command_center_law` deliverable-before-UI).
-- **DEPENDENCIES:** מזין את `WS-LEDGER-REVIEW`, `WS-MASTERSTATE`, `WS-URC` (חדש, למטה).
-- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-A/§19-B (main, אחרי מיזוג-ענף זה) + רשומת־החלטה `7985e0ce`.
-- **PROVENANCE:** `7985e0ce` · work_log (20.8.2026, "UNIVERSAL RESEARCH CONTRACT v1.0 — SSOT update") · Master State Change Log #29.
-- **LAST_VERIFIED:** 2026-08-20.
-- **STATE:** `DONE` (החלטה) · §19→γ Master rewrite **`DONE`** (סעיף זה סגר את שער-פתוח #6-חלק-γ) · §19-old `SUPERSEDED` 🗄️ · יישום-UX `FUTURE`/`DESIGN`.
+### WS-ELS-WORKAREA — `/lab/els` + State Contract + FORMS — **חדש-v5, מפוצל מ-WS-ELS-FSS**
+- **WHERE_WE_ARE:** **פוצל לשני שכבות שונות בפריסה:** (1) **ה-shell עצמו — `LIVE` על `main`** (`3e77f15a`/`d245e5eb`, 21.8) — `ElsWorkAreaPage.jsx`, ראוט `/lab/els`, מבודד-מאומת (0 קריאות-מנוע, 0 כתיבות `els_records`, `tzofen.html`/template **לא-נגועים**, md5 זהה-ל-main). (2) **State Contract + FORMS/Split-Join — עדיין `BUILDING`🏗️ רק על `claude/els-unified-merge`** — לא-פרוסים, המנוע לא-משדר `type:"state"` עדיין.
+- **WHAT_IS_DONE:** ה-shell חי; מוצהר-במפורש-אינרטי ("עדיין לא הגיעה תמונת-מצב") — זה **תוצאה-מכוונת** של "אל תיגע במנוע", לא-תקלה.
+- **WHAT_IS_OPEN:** מתי (אם) לפרוס את שכבת-המנוע (`WS-ELS-FSS`) כדי שה-shell יקבל תוכן אמיתי.
+- **WHAT_IS_BLOCKED:** תוכן-אמיתי ב-`/lab/els` — עד פריסת `WS-ELS-FSS`.
+- **HUMAN_GATE:** תלוי-לחלוטין ב-`WS-ELS-FSS`.
+- **NEXT_ACTION:** אין — ה-shell כבר-חי, ממתין-בלבד לשכבת-המנוע.
+- **DEPENDENCIES:** `WS-ELS-FSS`.
+- **CANONICAL_HOME:** `src/pages/ElsWorkAreaPage.jsx` (main, shell) + `claude/els-unified-merge` (מנוע, ענף).
+- **PROVENANCE:** `3e77f15a`, `d245e5eb` (main) · `98d91a5b`,`2dbb658f` (state-contract/forms, ענף).
+- **LAST_VERIFIED:** 2026-08-21 (git ישיר).
+- **STATE:** shell=`LIVE` · מנוע=`BUILDING`🏗️/`OPEN-HUMAN-GATE`.
 
-### WS-SEC — הקשחת אבטחה (RLS / privacy)
+### WS-ELS-CAPABILITY-AUDIT — ביקורת-85-היכולות — **חדש-v5**
+- **WHERE_WE_ARE:** תגובה-קלוד ל-3 מסמכי-אסטרטגיה של GPT (`gpt/research-object-map`, `gpt/els-capability-map`, `gpt/els-foundation-integration`, כולם 17.8) — `docs/els-capability-audit.md`, ממתין-3-ימים ל-Human-Gate.
+- **WHAT_IS_DONE:** 85 יכולות ייחודיות מוצלבות (72 חיות·2 בענף·2 חלקיות·1 מת·7 חסרות·1 אסורה) · 9 GAPs קונקרטיים (GAP-1 חלון-סטטיסטיקה≠חלון-תצוגה · GAP-2 `CW=min(S,80)` חותך-בלי-provenance · GAP-3 `ctxR` קפוא · GAP-4 `findAtSkips()` קוד-מת · GAP-5 `els_records` חסרה-עמודות-provenance · GAP-6 אין-Worker · GAP-7 אין-חיווט-ל-Research-Bus · GAP-8 4-פונקציות-יתומות · GAP-9 FORMS/State-Contract רק-בענף — **סעיף זה נפתר ב-v5 דרך `WS-ELS-FSS`/`WS-ELS-WORKAREA`**) · סדר-עדיפויות מומלץ.
+- **WHAT_IS_OPEN:** 4 שאלות-מפורשות לצוריאל (ר' Gate #15, Decision Register).
+- **WHAT_IS_BLOCKED:** עדיפויות 2-10 בביקורת חסומות עד מענה.
+- **HUMAN_GATE:** צוריאל — 4 שאלות, ר' Gate #15 (Decision Register).
+- **NEXT_ACTION:** ממתין למענה-צוריאל.
+- **DEPENDENCIES:** `WS-ELS-FSS`.
+- **CANONICAL_HOME:** `docs/els-capability-audit.md` (ענף `claude/els2-b45k5h`, `e0a2247a`, לא-main).
+- **PROVENANCE:** work_log `fe4a3cef` (18.8).
+- **LAST_VERIFIED:** 2026-08-21 (קרוא ומאומת בסשן זה).
+- **STATE:** `OPEN-HUMAN-GATE`.
+
+### WS-GEMATRIA-CORPUS-PACKAGES — ארגון חומרי-גימטריה לקורפוס-מחקרי — **חדש-v5, נפתח 21.8**
+- **WHERE_WE_ARE:** לפי החלטת-צוריאל (21.8): לפני חזרה ל-Gate #4/#18, המיקוד-הפעיל יורד לשכבת חומרי-הגימטריה — ארגון הרשימות והחבילות-הגדולות הקיימות (`gematria_words`, ביטויים, מסמכי-מקור) לכדי corpus מחקרי מסודר, מוכן להזנה עתידית לעץ-האחד (`nodes`/`edges`). זו "עבודה-רוחבית" לפי `work_log af29e88b` — לא-סוגרת את Gate #4/#18, רק-קודמת-להם בסדר-העדיפות.
+- **WHAT_IS_DONE:** טרם-החל (נפתח כרגע, 21.8) — אין-עדיין פעולת-ארגון-בפועל.
+- **WHAT_IS_OPEN:** היקף מלא של הרשימות/חבילות הקיימות (טרם-נסקר); שיטת-הארגון (per-list?/per-source?/per-method?); יעד-הקליטה הסופי לעץ-האחד.
+- **WHAT_IS_BLOCKED:** אין — עצמאי, לא-תלוי-בגייטים-אחרים.
+- **HUMAN_GATE:** אין-שער-חדש כרגע — עבודת-ארגון/WRITE-מוגבל לפי-סוג-הפעולה (ייתכן-Human-Gate נפרד כשתתגבש-תוכנית מפורטת).
+- **NEXT_ACTION:** לסקור/למפות את הרשימות/חבילות הקיימות ולהציע מבנה-ארגון ל-corpus, לפני כל WRITE לטבלאות-הליבה.
+- **DEPENDENCIES:** מזין-בעתיד את Gate #4 (Identity/Provenance) ואת Gate #18 (Judgment). נקודת-החזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`.
+- **CANONICAL_HOME:** TBD (חומרי-מקור קיימים ב-Storage/DB; יעד-סופי = `nodes`/`edges`).
+- **PROVENANCE:** החלטת-צוריאל, הודעת "v5 CANONIZATION PREP" (21.8.2026).
+- **LAST_VERIFIED:** —
+- **STATE:** `ACTIVE_NOW` (מיקוד-פעיל לפי-הנחיית-צוריאל-מפורשת, 21.8).
+
+### WS-GAMMA — γ שתי־שכבות + Universal Research Contract v1.0 — עודכן-v5 (מוזג-למיין)
+- **WHERE_WE_ARE:** **§19-A/B/C/D כולם על `main`** (לא-עוד "ענף, טרם-מיין") — `6b8160b4`/`3a09b8dd` דרך `c8d3672`.
+- **WHAT_IS_DONE:** γ (Atlas=`relation_evidence`/Ledger=`research_objects`) + חוזה-18-סעיפים + §19-C הבהרות + §19-D status + §0#15 Context-Integrity-Law — כולם ב-Master-State החי. **תזכורת:** Ledger (`research_objects`) הוא owner/privacy-scoped, server-only (§16/R1) — ר' `WS-JUDGE-UNIFICATION` להרחבה.
+- **WHAT_IS_OPEN:** יישום-UX בפועל (Entry-Context/Focused-before-Expansion) — **עדיין `OPEN` לפי §19-D המפורש, לא `CLOSED`**.
+- **HUMAN_GATE:** צוריאל — שער-בנייה נפרד לכל יישום-UX פר-משטח.
+- **NEXT_ACTION:** אין בנייה — מפת-מסך-קודם אם/כשיאושר.
+- **DEPENDENCIES:** מזין `WS-LEDGER-REVIEW`, `WS-URC`.
+- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-A/B/C/D (main).
+- **PROVENANCE:** `6b8160b4`,`3a09b8dd`,`c8d3672` (main) · `7985e0ce` (decision-record, עדיין-ענף-בלבד).
+- **LAST_VERIFIED:** 2026-08-21.
+- **STATE:** תיעוד `LIVE` (על main) · יישום-UX `DESIGN`/`OPEN-HUMAN-GATE`.
+
+### WS-URC — SOD1820 Universal Research Contract v1.0 — עודכן-v5 (שוחזרו-שדות)
+- **WHERE_WE_ARE:** החוזה (18-סעיפים) **תיעודו כבר על `main`** *(עודכן-v5: לא-עוד "ענף, טרם-מיין" — ר' `WS-GAMMA`)*. יישום-UX **לא-התחיל, לא-אושר**.
+- **WHAT_IS_DONE:** 18-סעיפי-החוזה (Entry Context·Focused-before-Expansion·Method-Preserving Discovery·Calculation·Value Scan·Zero Navigation·Research Finding·One Knowledge Tree·Fact-separation·Contextual Intelligence·External Research·Raziel·Human-Gate·Privacy·Premium-as-gate·Future-proof·Canonical Architecture Principle·Test-Case) + §19-C הבהרות + §19-D status — כולם ב-Master-State החי (main).
+- **WHAT_IS_OPEN:** יישום-UX בפועל (Entry-Context-aware navigation · Focused-result-first UI · Method-tag תמידי) בכל משטח (ELS/Number/Gematria/Cross/Beit-Midrash/Command-Center) — **טרם-אושר, טרם-תוכנן ברמת-מסך**, ועדיין `OPEN` לפי §19-D המפורש (לא `CLOSED`).
+- **WHAT_IS_BLOCKED:** יישום-UX — עד מפת-מסך מאושרת פר-משטח (per `research_workspace_law`/`command_center_law`/§11.33).
+- **HUMAN_GATE:** צוריאל — שער-תכנון פר-משטח, ואז שער-בנייה (שני שערים נפרדים, כמו `WS-FEATURE-CONTROL`).
+- **NEXT_ACTION:** אין בנייה כעת. אם/כשצוריאל יבקש יישום — להתחיל ממשטח-בודד (למשל ELS/tzofen "Focused Before Expansion", הכי-קרוב-להשלמה כי `§CC-2` GAP-1/GAP-1A כבר-בנוי-על-branch) ולהציג מפת-מסך לפני קוד.
+- **DEPENDENCIES:** `WS-GAMMA` (מספק שכבת Finding/Atlas/Ledger) · `WS-CC` (Command-Center הוא אחד המשטחים שהחוזה חל-עליו) · `WS-MASTERSTATE`. **חדש-v5:** קשר-ישיר ל-`WS-RESEARCH-OBJECT-FRAMEWORK` (למטה) — שני המסמכים חופפים-משמעותית (Entry-Context/Focused-before-Expansion ⇔ North-Star/Object-Value-Cost-Coverage-Risk) בלי-סתירה.
+- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-B/C/D (main).
+- **PROVENANCE:** `6b8160b4`,`3a09b8dd` (main) · Master State Change Log #29/#30 · work_log (20.8.2026).
+- **LAST_VERIFIED:** 2026-08-21.
+- **STATE:** תיעוד `LIVE` (main, כחלק מ-`WS-GAMMA`) · יישום-UX `DESIGN`/`OPEN-HUMAN-GATE` (§19-D: "לא CLOSED").
+
+### WS-SEC — הקשחת אבטחה (RLS / privacy) — ללא-שינוי-עובדתי (שוחזרו-שדות)
 - **WHERE_WE_ARE:** דליפות קונקרטיות נסגרו ב-live DB (19.8).
 - **WHAT_IS_DONE:** `engraved_facts` P1 (#8) · `metatron_context` P2/P3/P4 (#9) · `numbers_worked`/`metatron_context` P2 identity-scoping (#10B) · `metatron_plan` REVOKE-from-public · `number_dossier_json` privacy guard (LATENT-A). כל WRITE אומת.
-- **WHAT_IS_OPEN:** אימות אנומרציה ב-Master State §18.
+- **WHAT_IS_OPEN:** אימות אנומרציה ב-Master State §18. **2 ממצאי-אבטחה חדשים (נמצאו אגב Gate #18 crosswalk, 21.8, נפרדים ולא-נפתרים-כאן):** (א) `wa_word_review(p_id,p_action)` — אין-בדיקת-actor, `EXECUTE` פתוח ל-`PUBLIC`/`anon`, יכול-לשנות `gematria_words.is_verified` או-למחוק-שורות ללא-הזדהות (נקרא מ-`src/lib/supabase.js:855`). (ב) `project_contribution_to_graph(p_id)` — `GRANT`-ed ל-`PUBLIC` בלי-בדיקה-פנימית (כרגע מוגן-בעקיפין כי מגיע רק דרך `approve_contribution` המגודר — latent, לא-מנוצל-בפועל). **לא-לפתור במסגרת Gate #18 — מעקב נפרד.**
 - **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** סגור פר־פריט.
-- **NEXT_ACTION:** אנומרציה ב-§18 ב-Master WRITE הבא.
+- **HUMAN_GATE:** סגור פר־פריט (מלבד 2 ממצאי-האבטחה החדשים, שממתינים-להכרעת-צוריאל בנפרד).
+- **NEXT_ACTION:** אנומרציה ב-§18 ב-Master WRITE הבא. שער-נפרד לטיפול ב-2 ממצאי-האבטחה.
 - **DEPENDENCIES:** `research_objects` (Ledger), metatron.
 - **CANONICAL_HOME:** מדיניות live DB + Master State §18.
-- **PROVENANCE:** work_log 19.8.
+- **PROVENANCE:** work_log 19.8 · 2 ממצאי-אבטחה חדשים: Gate #18 Crosswalk (21.8, conversational, טרם work_log).
 - **LAST_VERIFIED:** 2026-08-19 (לא אומת מחדש בסשן זה).
-- **STATE:** `DONE`/`LIVE` (פר־פריט).
+- **STATE:** `DB-LIVE` (פר־פריט).
 
-### WS-LEDGER-REVIEW — admin_research_review / תכנון Ledger
+### WS-LEDGER-REVIEW — admin_research_review / תכנון Ledger — ללא-שינוי-עובדתי (שוחזרו-שדות)
 - **WHERE_WE_ARE:** smoke-test READ-ONLY עבר; תכנון לא התחיל.
 - **WHAT_IS_DONE:** `admin_research_review` על `research_objects` (fact+relation), rollback מלא, PASS (19.8).
 - **WHAT_IS_OPEN:** provenance על `node.metadata`; כתיבות `decision_ledger`; מסלולים מרובי-איברים דרך `relates`/`engine_detail`.
 - **WHAT_IS_BLOCKED:** —
 - **HUMAN_GATE:** צוריאל — אישור מעבר לתכנון.
 - **NEXT_ACTION:** שער → תכנון provenance/decision_ledger (בלי קוד).
-- **DEPENDENCIES:** `WS-GAMMA`.
+- **DEPENDENCIES:** `WS-GAMMA`. **חדש-v5:** תלוי גם ב-`WS-JUDGE-UNIFICATION`.
 - **CANONICAL_HOME:** `research_objects`/`relation_evidence` + רשומת־החלטה עתידית.
 - **PROVENANCE:** work_log 19.8 smoke-test.
 - **LAST_VERIFIED:** 2026-08-19 (לא אומת מחדש).
-- **STATE:** `DESIGN`/`OPEN`.
+- **STATE:** `DESIGN`/`OPEN-HUMAN-GATE`.
 
-### WS-RAZIEL — תשתית Raziel + L1–L14
-- **WHERE_WE_ARE:** תשתית DB פרוסה אך לא־מחווטת; חוזה read-model מתוכנן.
-- **WHAT_IS_DONE:** `fn_raziel_route`, `agent_identity`, `ti_demand_signals`, `fn_raziel_research_intel[_scoped]` live (migrations 20260809); R1, `resolve_person`/identity_edges (67,552), `fn_raziel_context`.
-- **WHAT_IS_OPEN:** חיווט: `fn_raziel_turn` STUB; `session_state` חסר; הפעלת L1–L14.
-- **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** צוריאל — אישור בניית חיווט.
-- **NEXT_ACTION:** בשער, תכנון החיווט.
+### WS-JUDGE-UNIFICATION — Unified Judgment & Human-Gate Contract — **עודכן 21.8: Gate #18 Crosswalk**
+- **WHERE_WE_ARE:** Crosswalk מלא (READ-ONLY, 21.8) מצא **~30 מנגנוני-שיפוט/Promotion בפועל על-פני 6 pipelines** (לא ≥5 כבקודם) — כולל: `admin_research_review`(יתום/מת, אין caller) · `wizard_build_convergence`+`sync_convergence`(חי) · `approve_contribution`+`project_contribution_to_graph`(חי) · `admin_candidate_decide`/`moderate_els_matrix` · `admin_verify_bridge`+`project_language_bridges`(חי) · ועוד. רק **4 פונקציות בפועל כותבות ל-`nodes`/`edges`** מתוך כל-אלה. `CANONICAL≠PUBLISHED` נשאר-חוק, אך בפועל Canonical-effect ו-Publish-effect הם אותה קריאה אטומית בכל pipeline חי שנבדק. AI/Raziel אומת כ-"מציע-בלבד" ללא-סטייה בכל הנתיבים החיים.
+- **WHAT_IS_DONE:** מיפוי-מלא של ~30-המנגנונים/6-ה-pipelines, אימות-קצה-לקצה של סמכות-אדם מול-AI, מיפוי כתיבות node/edge בפועל (21.8, Gate #18 crosswalk).
+- **WHAT_IS_OPEN:** קיים **Contract מוביל/מועמד** (`research_objects`/Universal Research Contract v1.0, §19-A/B/C/D) — נדרשת התכנסות של ה-pipelines החיים אל **Unified Judgment Contract אחד**; **טרם-הוכרע** האם `research_objects`/`admin_research_review` יהיה ה-canonical implementation או-חלופה אחרת. **אין לבנות Judgment system חדש/מקביל** בכל מקרה. האופן המדויק של ההתכנסות — לא-הוכרע (Gate #18 עצמו). **⚠️ אילוץ-קיים לתכנון (§16/R1, Master State, 19.8):** `research_objects` כבר owner/privacy-scoped (`owner_person_id`+`privacy_scope`, ברירת-מחדל `private`) ו-**server-only** (אין GRANT ללקוח) — כל תכנון-התכנסות חייב לכבד זאת, לא להניח מצע-ציבורי/פתוח-לקריאה.
+- **WHAT_IS_BLOCKED:** תלוי בהכרעת-`WS-CC` (CC-1-target, Gate #9) לפני שתיקבע היקף-הבנייה בפועל.
+- **HUMAN_GATE:** צוריאל — Gate #18, **OPEN/INTAKE-CRITICAL**: לא-חוסם קנוניזציית-v5, כן-חוסם בנייה-סופית של שכבת-Judgment מאוחדת.
+- **NEXT_ACTION:** אין — נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`. שום איחוד/שינוי-pipeline בלי-שער-מפורש.
+- **DEPENDENCIES:** `WS-CC` (הכרעת-CC-1-target חוסמת את היקף-האיחוד) · Gate #4 (Identity) קודם-בשרשרת-החזרה.
+- **CANONICAL_HOME:** `AdminPage.jsx` (מפוזר, main) · `research_objects`/Universal Research Contract (§19) — Contract-מועמד, לא-עוד-מוכרע-כ-canonical-implementation.
+- **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8) + Absorption-Matrix (21.8) + Gate #18 Crosswalk (21.8, conversational, טרם work_log).
+- **LAST_VERIFIED:** 2026-08-21.
+- **STATE:** `DB-LIVE` (~30 מנגנונים, 6 pipelines) · `OPEN-HUMAN-GATE`/`INTAKE-CRITICAL` (איחוד).
+
+### WS-RAZIEL — תשתית Raziel + L1–L14 — עודכן-v5
+- **WHERE_WE_ARE:** 3 מימושים-LLM/DB-native ידועים + **תשתית-WA-תפעולית רביעית, חדש-v5** (`raziel_unlimited`/`raziel_quota`/`raziel_dm_policy`/`raziel_link_flow` — כולם `DB-LIVE`, נקראים-בפועל ע"י `wa-raziel/index.ts`) + **`raziel_brain` — תוקן-21.8 (DRIFT-CORRECTED, ביקורת-קנוניזציה):** נקרא-חי (`number-researcher/index.ts:218`, שאילתה `raziel_brain?id=eq.1`) — **יש שורה אחת (`id=1`), מ-23.7.2026, מכילה קונפיג-פרסונה/system-prompt מלא (`voice_version=1`, `model=claude-sonnet-5`)** — הקוד **מקבל את השורה בפועל, לא `null`**, בניגוד-למה-שנטען-בטעות ב-v5-הקודמת.
+- **WHAT_IS_DONE:** `fn_raziel_route`,`agent_identity`(12 שורות, לא-4),`resolve_person`/`identity_edges`(67,552) — קיימים. תשתית-WA מאומתת-חיה.
+- **WHAT_IS_OPEN:** חיווט `fn_raziel_turn`(STUB); `raziel_brain` **מאוכלס-חלקית** (1-שורת-persona, לא-0) — האם-מספיק-כפי-שהוא או-דורש-הרחבה (UNKNOWN, לא-הוכרע); אף מימוש לא-קורא `resolve_person`/`identity_edges` — **החסם המדויק ל-"Raziel אישי"**, חוזר בכל משטח.
+- **HUMAN_GATE:** צוריאל — (א) אישור-בניית-חיווט; (ב) `raziel_brain` כבר-מאוכלס-חלקית — להכריע אם-להרחיב או-להשאיר-כפי-שהוא (לא-עוד "לאכלס-מאפס") (ר' Gate #19, Decision Register).
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #12 חיווט-זהות + Gate #19 raziel_brain) — שום קוד-נוסף בלי-שער.
 - **DEPENDENCIES:** Ledger, metatron.
-- **CANONICAL_HOME:** live DB + Master State (§ Raziel).
-- **PROVENANCE:** migrations 20260809; `writer-os`=SUPERSEDED; `raziel-upgrade` main-tracking `UNKNOWN`.
-- **LAST_VERIFIED:** 2026-08 (תשתית קודם; לא הורץ מחדש).
-- **STATE:** תשתית `LIVE`-לא־מחווטת · חיווט `OPEN` · L1–L14 `DESIGN` · repo-tracking `UNKNOWN` ❔.
+- **CANONICAL_HOME:** live DB + `wa-raziel`/`number-researcher` edge functions.
+- **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8), אומת שוב באודיט-ממוקד (21.8) · תוכן-`raziel_brain` אומת ישירות (SELECT + קריאת-קוד `number-researcher/index.ts:218`) בביקורת-הקנוניזציה (21.8).
+- **LAST_VERIFIED:** 2026-08-21 (תוקן).
+- **STATE:** 3-variants+WA-infra=`LIVE`/`DB-LIVE` · `raziel_brain`=`DB-LIVE`(מאוכלס-חלקית)/`OPEN-HUMAN-GATE`(היקף) · חיווט-זהות=`OPEN-HUMAN-GATE`.
 
-### WS-MASTERSTATE — ממשל/סנכרון Master State
-- **WHERE_WE_ARE:** P1 sync חי ב-main; §17 מיושן לגבי Finding Identity; **§19 A/B נכתב בסשן זה (ענף, טרם-main)**.
-- **WHAT_IS_DONE:** `ae8272c2` — §15/§16/§17/§18 + Change Log #23–#28. §19 הוחרג ב-P1, **כעת נכתב** (Change Log #29, סשן 20.8 זה) — γ (§19-A) + Universal Research Contract v1.0 (§19-B).
-- **WHAT_IS_OPEN:** §17 (`FROZEN → IN_PROGRESS`, Steps 1–3 LIVE, `f5834f44`); אנומרציית `WS-SEC`; ציון Roadmap `0d247a1d`/`38a8f784`; מיזוג §19-A/B מהענף ל-main; רשומת-הזהות-האחרת שגם-תויגה "§19" (Change Log #26, OD-F10a) **עדיין לא-נכתבה לגוף-המסמך** — פער-נפרד, לא-טופל בסבב זה.
-- **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** צוריאל — Master WRITE gate.
-- **NEXT_ACTION:** בשער, עדכוני §17/security כירורגית; ואם-יאושר — כתיבת רשומת-הזהות (OD-F10a) שנותרה-בפער.
-- **DEPENDENCIES:** `WS-GAMMA`, `WS-ELS-IDENTITY`, `WS-SEC`.
+### WS-MASTERSTATE — ממשל/סנכרון Master State — עודכן-v5
+- **WHERE_WE_ARE:** §19 A/B/C/D **כבר על main** (לא-עוד "טרם-מיין"). §17 עדיין `FROZEN`-חלקית לגבי-Finding-Identity.
+- **WHAT_IS_OPEN:** §17 אנומרציה; רשומת-זהות-שנותרה-בפער (Change Log #26, OD-F10a); **אם v5 יאושר — עדכון-Master-State-מתאים נשאר `PENDING`, לא-בוצע-כאן** (per הוראה מפורשת: לא-לשנות Master State אלא-כחלק-מפורש-מאושר).
+- **HUMAN_GATE:** צוריאל — Master WRITE gate נפרד.
+- **NEXT_ACTION:** ממתין ל-Master WRITE gate נפרד (אחרי קנוניזציית v5) לביצוע §17-אנומרציה + Change-Log-#26/OD-F10a.
+- **DEPENDENCIES:** אין תלות-נכנסת מתועדת (workstream משילי-ממשל) — UNKNOWN אם קיימת תלות-נסתרת שלא-אותרה.
 - **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` (main).
-- **PROVENANCE:** `ae8272c2` · Change Log #29 (20.8, ענף `claude/els-function-inventory-86klre`).
-- **LAST_VERIFIED:** 2026-08-20 (§17 עדיין FROZEN; §19 A/B נכתב היום).
-- **STATE:** sync `DONE`/`LIVE` · §19 A/B `DONE`(ענף)/`OPEN`(מיזוג-למיין) · עדכון §17 `PARALLEL_READY`/`OPEN` · רשומת-זהות-OD-F10a `OPEN` (פער-ישן, לא-חדש).
+- **PROVENANCE:** ר' `WS-GAMMA` (`6b8160b4`,`3a09b8dd`,`c8d3672`) עבור §19; §17-אנומרציה/Change-Log-#26 — UNKNOWN commit-ספציפי, לא-אותר במקור-נפרד.
+- **STATE:** sync `LIVE` · §19 `LIVE`(main) · §17-אנומרציה `OPEN-HUMAN-GATE`.
 
-### WS-PERSON — זהות־אדם (OD-F10a)
+### WS-PERSON — זהות־אדם (OD-F10a) — ללא-שינוי-עובדתי (שוחזרו-שדות)
 - **WHERE_WE_ARE:** חוזה מאושר (design); self-ledger חי; משפחה חסומה.
 - **WHAT_IS_DONE:** חוזה `docs/planning/family_identity_contract.md`; **F-1a′** `fn_upsert_self_profile` LIVE.
 - **WHAT_IS_OPEN:** F-1b (בני־משפחה + parent_of).
@@ -314,9 +426,9 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **CANONICAL_HOME:** חוזה + `research_objects` (self rows).
 - **PROVENANCE:** F-1a′ live; רשומת־חוזה.
 - **LAST_VERIFIED:** 2026-08 (F-1a′ קודם).
-- **STATE:** חוזה `APPROVED`/`DESIGN` · F-1a′ `DONE`/`LIVE` · F-1b `BLOCKED`.
+- **STATE:** חוזה `DESIGN` · F-1a′ `LIVE`/`DB-LIVE` · F-1b `OPEN-HUMAN-GATE`.
 
-### WS-KU3D — GPT Knowledge Universe 3D preview
+### WS-KU3D — GPT Knowledge Universe 3D preview — ללא-שינוי-עובדתי (שוחזרו-שדות)
 - **WHERE_WE_ARE:** preview חזותי בבניית GPT על ענף; לא נפרס.
 - **WHAT_IS_DONE:** 3D Knowledge Universe visual preview (actor=GPT), ענף/preview בלבד.
 - **WHAT_IS_OPEN:** היקף; מקור־נתונים (חייב לקרוא את הגרף האחד, לא store מקביל); שער־שחרור.
@@ -327,151 +439,265 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **CANONICAL_HOME:** ענף/preview של GPT.
 - **PROVENANCE:** work_log 19.8 "3D Knowledge Universe visual preview (actor=GPT)".
 - **LAST_VERIFIED:** 2026-08-19 (דווח ע״י GPT; לא אומת ע״י CLAUDE).
-- **STATE:** PROJECT=`BUILDING` 🏗️ · VISIBILITY(מתוכנן)=`PUBLIC` · ACCESS=`PREVIEW(admin)` 👁️ · RELEASE=`UNRELEASED`.
+- **STATE:** `BUILDING`🏗️ (ענף/preview GPT) · הפעלה `OPEN-HUMAN-GATE`.
 
-### WS-FEATURE-CONTROL — מרכז־ניהול נראות־פיצ'רים (control plane)
-- **WHERE_WE_ARE:** החוק מתוכנן (מסמך זה); מנגנון לא נבנה.
-- **WHAT_IS_DONE:** חוק BUILDING/נראות + מודל 5־הצירים מוגדרים במפה.
-- **WHAT_IS_OPEN:** ה-control-plane עצמו — אזור עתידי שבו צוריאל קובע פר־פיצ'ר: Project State (`LIVE/BUILDING/LOCKED/FUTURE/PARKED/HIDDEN`), האם מוצג במפה, האם משתמש רגיל רואה, האם יכול להשתמש, האם admin רואה preview.
-- **WHAT_IS_BLOCKED:** בנייה — עד ש-v4 קנוני **וגם** קיימת ארכיטקטורת Command Center; רצף: v4 → שער → קנוניזציה, ואז **בנפרד** תכנון Feature-Control → תוכנית schema/impl → שער → build.
-- **HUMAN_GATE:** צוריאל — שער תכנון, ואז שער בנייה (שני שערים נפרדים).
-- **NEXT_ACTION:** אין כעת — **לא בונים את המנגנון**; המפה תגיד בדיוק היכן הוא נכנס.
-- **DEPENDENCIES:** Roadmap v4 (קנוני) + ארכיטקטורת Command Center.
-- **CANONICAL_HOME:** Command Center / ממשל־המפה.
-- **PROVENANCE:** v4 draft (טקסט־החוק סופק ע״י צוריאל, 2026-08-20). אין מימוש.
-- **LAST_VERIFIED:** 2026-08-20 (החוק תועד; אין קוד).
-- **STATE:** `FUTURE` 🔮 (מימוש) · `DESIGN` 📐 (חוק/מפרט). **אין ליצור טבלת DB או feature-flag infrastructure בשלב הזה.**
+### WS-FEATURE-CONTROL — מרכז־ניהול נראות־פיצ'רים — עודכן-v5
+- **WHERE_WE_ARE:** תכנון-בלבד, לא-נבנה (שוחזר-משדות: DO-NOT-BUILD-YET + Future-Registry). תלוי-בסגירת ארכיטקטורת-Command-Center (`WS-CC`).
+- **WHAT_IS_BLOCKED:** **עודכן:** לא-עוד "v4 טרם קנוני" — אלא ארכיטקטורת-Command-Center עדיין לא-סגורה (תלוי ב-`WS-CC`/CC-1-target).
+- **HUMAN_GATE:** צוריאל — שני שערים נפרדים: שער-design ואז שער-build (ר' DO-NOT-BUILD-YET).
+- **NEXT_ACTION:** אין — ממתין להכרעת `WS-CC`/CC-1-target (Gate #9) לפני-פתיחת שער-תכנון.
+- **DEPENDENCIES:** `WS-CC` (CC-1-target, Gate #9).
+- **PROVENANCE:** מרשם-העתיד (Future Registry) + טבלת DO-NOT-BUILD-YET (v4/v5) — אין commit/work_log ספציפי-נוסף מעבר-לכך; UNKNOWN אם קיים תיעוד-מפורט יותר.
+- **STATE:** `FUTURE`🔮 (מימוש) · `DESIGN`📐 (חוק/מפרט).
 
-### WS-URC — SOD1820 Universal Research Contract v1.0 (עקרון-על, `NEW` 20.8.2026)
-- **WHERE_WE_ARE:** החוזה **מאושר לתיעוד** (`APPROVED FOR SSOT DOCUMENTATION`, Scope: `DOCUMENTATION / ROADMAP ONLY`); נכתב ל-Master State §19-B. יישום-UX **לא-התחיל, לא-אושר**.
-- **WHAT_IS_DONE:** 18-סעיפי-החוזה (Entry Context·Focused-before-Expansion·Method-Preserving Discovery·Calculation·Value Scan·Zero Navigation·Research Finding·One Knowledge Tree·Fact-separation·Contextual Intelligence·External Research·Raziel·Human-Gate·Privacy·Premium-as-gate·Future-proof·Canonical Architecture Principle·Test-Case) נכתבים verbatim ל-Master State §19-B, מאומתים מול תשתית-חיה (§19-B "תשתית-תומכת"), אפס-סתירה נמצאה מול חוקים-קיימים.
-- **WHAT_IS_OPEN:** יישום-UX בפועל (Entry-Context-aware navigation · Focused-result-first UI · Method-tag תמידי על ערך מוצג) בכל משטח (ELS/Number/Gematria/Cross/Beit-Midrash/Command-Center) — **טרם-אושר, טרם-תוכנן ברמת-מסך**.
-- **WHAT_IS_BLOCKED:** יישום-UX — עד מפת-מסך מאושרת פר-משטח (per `research_workspace_law`/`command_center_law`/§11.33 "דליברבל לפני UI").
-- **HUMAN_GATE:** צוריאל — שער-תכנון פר-משטח, ואז שער-בנייה (כמו `WS-FEATURE-CONTROL`, שני-שערים-נפרדים).
-- **NEXT_ACTION:** אין בנייה כעת. אם/כשצוריאל יבקש יישום — להתחיל ממשטח-בודד (למשל ELS/tzofen "Focused Before Expansion", הכי-קרוב-להשלמה כי `§CC-2` GAP-1/GAP-1A כבר-בנוי-על-branch) ולהציג מפת-מסך לפני קוד.
-- **DEPENDENCIES:** `WS-GAMMA` (§19-A מספק את שכבת ה-Finding/Atlas/Ledger שהחוזה בסעיף 7 מסתמך-עליה) · `WS-CC` (Command-Center הוא אחד המשטחים שהחוזה חל-עליו) · `WS-MASTERSTATE`.
-- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-B.
-- **PROVENANCE:** הועבר בצ'אט כ-`actor=ZURIEL`/`HUMAN-GATE DECISION`, 20.8.2026 · Master State Change Log #29 · work_log (20.8.2026).
-- **LAST_VERIFIED:** 2026-08-20.
-- **STATE:** חוזה `APPROVED`(תיעוד) · יישום-UX `FUTURE`🔮/`DESIGN`📐 — **אין ליצור UI/קוד/מנוע בשלב הזה.** **עדכון 20.8.2026 (תיקון ממוקד, Master State §19-C/§19-D):** 3 הבהרות נוספו ל-18-הסעיפים (Entry-Context=זהות-מחקר · Method-Preserving=חובה · Focused≠Full-Research) + §0 סעיף-15 חדש (Context-Integrity/No-Context-Loss-Law). **18-הסעיפים נשארים מתועדים; המסגרת-הארכיטקטונית-הרחבה-יותר (סדר-יישום/משטחים) נשארת `OPEN` לrevisit של צוריאל — לא `CLOSED`.**
+### WS-NUMBER-LANGUAGE — "שפת המספרים" (8 טבלאות) — **חדש-v5**
+- **WHERE_WE_ARE:** `number_roots`/`digit_language`/`number_readings`/`number_series`/`number_branches`/`number_sets`/`number_products`/`number_anchors` — הערות-DB מזהות-מחבר=צוריאל, מבנה 4-שכבתי מכוון (אות→מילה→משפט→טקסט).
+- **WHAT_IS_DONE:** `number_anchors` — **`DB-LIVE`, מחובר בפועל ל-`EntityPage.jsx` בכל דף-מספר** (`getNumberAnchor()`) — **תוקן-21.8 (DRIFT-CORRECTED, ביקורת-קנוניזציה):** **אינו ריק** — 35 שורות תוכן-אמיתי (למשל `333=חשכה=שכחה=קוד הבריאה`, `2701=בראשית ברא אלהים...`), נוצרו 1–23.7.2026 (לפני-v5, לא-חדש). מכיוון שהרכיב מחובר-בפועל, סביר ש-35 דפי-המספר הספציפיים-האלה **כן מציגים תוכן** כרגע — לא-אינרטי כפי-שנטען-בטעות ב-v5-הקודמת. `number_roots`/`number_branches` — קומפוננטה בנויה (`NumberTree.jsx`) + 2 פונקציות-DB (`fn_number_journey`,`fn_metatron_scan`) — **אף route לא מרכיב את הקומפוננטה.**
+- **WHAT_IS_OPEN:** לאמץ (לתעד+לחווט לכל 8-הטבלאות) או להשאיר `PARKED` — כולל ההכרעה אם 35-השורות-הקיימות-ב-`number_anchors` מספיקות-כפי-שהן או-דורשות-הרחבה.
+- **HUMAN_GATE:** צוריאל — ר' Gate #16 (Decision Register).
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #16) — שום חיווט/תיעוד-נוסף בלי-שער.
+- **DEPENDENCIES:** אין (עצמאי, ר' Dependency Spine: "עצמאיים, לא-חוסמים").
+- **CANONICAL_HOME:** live DB + `src/features/numbertree/NumberTree.jsx` (יתום).
+- **PROVENANCE:** Legacy-Reconciliation (21.8) · תיקון-מספרים אומת ישירות מול live DB בביקורת-הקנוניזציה (21.8).
+- **LAST_VERIFIED:** 2026-08-21 (תוקן).
+- **STATE:** `number_anchors`=`DB-LIVE` (מאוכלס, 35 שורות) · `roots/branches`=`BUILDING`🏗️(יתום) · היתר=`DESIGN`/`PARKED`-מועמד · כולו `OPEN-HUMAN-GATE`.
+
+### WS-NAMELAB — Name Lab + Christina + Maftech — **חדש-v5**
+- **WHERE_WE_ARE:** 3 כלים חיים-וציבוריים, בלי-ייצוג-רשמי: Name Lab (`/name-lab`, 178 שאילתות, אחרונה 20.8 19:35) · Christina (`/research?tool=christina`) · Maftech (`/research?tool=maftech`, **חסר גם ברשימת-הכלים ב-CLAUDE.md**).
+- **WHAT_IS_DONE:** שלושתם `LIVE` ופעילים.
+- **WHAT_IS_OPEN:** להוסיף-כ-workstream-רשמי / לתקן רשימת-כלים ב-CLAUDE.md — ר' Gate #17 (Decision Register).
+- **HUMAN_GATE:** צוריאל.
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #17).
+- **DEPENDENCIES:** אין (עצמאי, ר' Dependency Spine: "עצמאיים, לא-חוסמים").
+- **CANONICAL_HOME:** `NameLabPage.jsx`/`ChristinaEngine.jsx`/`MaftechShowcase.jsx` (main).
+- **PROVENANCE:** Legacy-Reconciliation (21.8); §9.4 (Christina, ישן).
+- **LAST_VERIFIED:** 2026-08-21.
+- **STATE:** `LIVE` (שלושתם) · `OPEN-HUMAN-GATE` (פורמליזציה).
+
+### WS-TIME-DISAMBIGUATION — Journey / journey_seeds / RevelationAxis / Timeline — **חדש-v5**
+- **WHERE_WE_ARE:** "זמן" = **3 דברים לא-קשורים**: (1) Journey v1/v2 (`/journey`,`/journey-beta`) — `LIVE`, legacy-מוצהר. (2) `journey_seeds` (461 שורות) — `DB-LIVE`, admin-בלבד, מזין `CommandCenterTab`. (3) `RevelationAxis.jsx` — `LIVE`, קומפוננטה ציבורית גלובלית בסיידבר. (4) `/timeline` route — `LIVE`, עומק לא-נבדק. (5) "מרחבי הזמן" בטיקר — **שיווק-בלבד**, מצביע ל-`ComingSoonModal`, לא-פיצ'ר.
+- **WHAT_IS_OPEN:** האם לאחד/לשיים-מחדש/להבהיר — Decision Register (סעיף חדש, לא-חוסם).
+- **HUMAN_GATE:** צוריאל, לא-דחוף.
+- **NEXT_ACTION:** אין-דחוף — ממתין-להזדמנות-נוחה להכרעת-צוריאל (לא-חוסם workstream אחר).
+- **DEPENDENCIES:** אין (עצמאי, ר' Dependency Spine: "עצמאיים, לא-חוסמים").
+- **CANONICAL_HOME:** מפוזר (`JourneyPage.jsx`/`V2`/`RevelationAxis.jsx`/`TimelinePage.jsx`).
+- **PROVENANCE:** Legacy-Reconciliation (21.8).
+- **LAST_VERIFIED:** 2026-08-21.
+- **STATE:** `LIVE`/`DB-LIVE` (כל הרכיבים) · `OPEN-HUMAN-GATE` (עיצוב-מחדש, לא-דחוף).
+
+### WS-READ-COMPOSER — Unified Context Item Contract — **חדש-v5 (תיקון: לא UNKNOWN)**
+- **WHERE_WE_ARE:** נמצא — **קיים כבר כ-DESIGN גמור**, לא UNKNOWN כפי שסומן-בטעות ב-Absorption-Matrix הקודם. `work_log 61c3ee2a` (15.8): "Read-Composer × R1 — Unified Context Item Contract".
+- **WHAT_IS_DONE:** חוזה-קריאה מלא (`{bucket,context_type,resolved_person_id,via,confidence,owner_person_id,privacy_scope,status,class,is_fact,epistemic,source_ref,payload}`) + מיפוי מלא ל-14-שכבות-Research-Context (L1-L14) + policy לגזירת `is_fact`.
+- **WHAT_IS_OPEN:** מפת-גזירה קבועה `(kind,status,owner_person_id)→{bucket,class,epistemic,is_fact}` ששני-הצרכנים (Web+WhatsApp) גוזרים-ממנה זהה — עדיין לא-נבנתה.
+- **HUMAN_GATE:** אין-שער-דחוף — DESIGN בלבד, ממתין-ליישום.
+- **NEXT_ACTION:** אין-בנייה-כעת — אם/כשצוריאל-יבקש יישום, לבנות-קודם את מפת-הגזירה הקבועה `(kind,status,owner_person_id)→{bucket,class,epistemic,is_fact}` (ר' WHAT_IS_OPEN).
+- **DEPENDENCIES:** קשור-ישירות ל-`els-foundation-addendum.md` §8 ("Unified Context Item Contract") — **אותו-רעיון-בדיוק**, לא-כפילות.
+- **CANONICAL_HOME:** work_log `61c3ee2a` (לא-קובץ נפרד).
+- **PROVENANCE:** 15.8.2026.
+- **LAST_VERIFIED:** 2026-08-21 (אותר תוך-כדי resolution של Decision #1).
+- **STATE:** `DESIGN` (גמור, לא-מיושם).
+
+### WS-RESEARCH-OBJECT-FRAMEWORK — מסגרת-העל של GPT — **חדש-v5**
+- **WHERE_WE_ARE:** `docs/research-object-map.md`+`els-capability-map.md`+`els-foundation-addendum.md` (GPT, 17.8) — North-Star, 20-סוגי-Research-Object, Context בן-14-שכבות, AI-Navigator/Budget/Challenge-Mode. **מעולם לא-נספג ל-Master-State** (0 אזכורים מאומתים).
+- **WHAT_IS_DONE:** קריאה-מלאה+cross-check הושלמו (21.8) — **אין סתירה** מול קנון-קיים; חופף-משמעותית ל-`WS-READ-COMPOSER` (14-שכבות ⇔ Unified-Context-Contract).
+- **WHAT_IS_OPEN:** האם/איך-לספוג את המסגרת-הכללית (לא רק את החלק-ה-ELS-הספציפי, שכבר-נענה דרך `WS-ELS-CAPABILITY-AUDIT`) — ר' Gate #20 (Decision Register).
+- **HUMAN_GATE:** צוריאל.
+- **NEXT_ACTION:** ממתין-להכרעת-צוריאל (Gate #20) — אין-ספיגה-נוספת בלי-שער.
+- **DEPENDENCIES:** `WS-URC` (ר' Dependency Spine: WS-GAMMA→WS-URC→WS-RESEARCH-OBJECT-FRAMEWORK) + חפיפה-מושגית עם `WS-READ-COMPOSER` (לא-תלות-חוסמת).
+- **CANONICAL_HOME:** ענפי-GPT (לא-main).
+- **PROVENANCE:** work_log `346ac96c`,`56f01027`,`bbed9a30`,`d5e02c7d`,`39dd51f7` (17.8).
+- **LAST_VERIFIED:** 2026-08-21.
+- **STATE:** `DESIGN` (ענף-בלבד) · `OPEN-HUMAN-GATE`.
 
 ---
 
-## 🔮 מרשם העתיד (FUTURE REGISTRY) — **INCOMPLETE** (רק provenance קיים; בלי המצאה)
-> מסומן `INCOMPLETE`: תוכניות עתידיות הקיימות ב-provenance (`CLAUDE.md`) או שסופקו ע״י צוריאל. **אינו ממצה**; מוסיפים לפי צוריאל. שום שם לא הומצא.
-
+## 🔮 מרשם העתיד (FUTURE REGISTRY) — **INCOMPLETE**
 | תוכנית | מטרה | canonical home | dependencies | provenance | status |
 |---|---|---|---|---|---|
-| מרכז־הניהול + `WS-FEATURE-CONTROL` | ניהול Feature states/visibility/access/release ע״י צוריאל | Command Center / ממשל־המפה | Roadmap v4 + ארכיטקטורת CC | מפה + צוריאל (2026-08-20) | `FUTURE`/`DESIGN` |
-| Meta Growth OS (24 שכבות; 5–9, 12–24 לא נעשו) | הפיכת האתר למערכת־הפעלה של משמעות | Master State + `CLAUDE.md` | Meta Graph API tokens (6–9) | `CLAUDE.md` טבלת Meta Growth OS | `FUTURE` |
-| פלטפורמת 6־דרגות + Sod Credits + Academy | דרגות־גישה + מטבע פנימי + קורסים | `platform_tiers_law` | `profiles`/RLS-per-tier | `CLAUDE.md` `platform_tiers_law` | `FUTURE` |
-| UGC / `community_hints` / Collective Discovery / Research Score | שכבת תרומת־תוכן קהילתית | `identity_architecture_law` | `community_hints` table + admin review | `CLAUDE.md` `identity_architecture_law` | `FUTURE`/`DESIGN` |
-| רב־לשוניות (he·en·ar·es·fr·ru·pt·de) | האתר רב־לשוני | `content_translation_law` | `video-transcribe`/`video_translate` | `CLAUDE.md` `content_translation_law` (§15 APPROVED) | `FUTURE` |
-| ELS `els_records` שלב ב׳ (מאגר־מחקר) | ELS כמאגר־מחקר | ELS map | Finding Identity LIVE | `CLAUDE.md` ELS map / `work_log` | `FUTURE` |
+| מרכז־הניהול + `WS-FEATURE-CONTROL` | ניהול Feature states ע״י צוריאל | Command Center | `WS-CC` (CC-1-target) | מפה + צוריאל | `FUTURE`/`DESIGN` |
+| Meta Growth OS (24 שכבות) | הפיכת האתר למערכת־הפעלה | Master State + `CLAUDE.md` | Meta Graph API tokens | `CLAUDE.md` | `FUTURE` |
+| פלטפורמת 6־דרגות + Credits + Academy | דרגות־גישה + מטבע | `platform_tiers_law` | `profiles`/RLS | `CLAUDE.md` | `FUTURE` |
+| UGC / Collective Discovery | תרומת־תוכן קהילתית | `identity_architecture_law` | `community_hints` | `CLAUDE.md` | `FUTURE`/`DESIGN` |
+| רב־לשוניות | האתר רב־לשוני | `content_translation_law` | `video-transcribe` | §15 | `FUTURE` |
+| ELS `els_records` שלב ב׳ | ELS כמאגר־מחקר | ELS map | Finding Identity LIVE | `CLAUDE.md`/work_log | `FUTURE` |
+| מסגרת Research-Object (GPT) *(חדש-v5)* | North-Star/AI-Navigator/Budget/Challenge | `WS-RESEARCH-OBJECT-FRAMEWORK` | Gate #20 | `gpt/research-object-map` | `FUTURE`/`DESIGN` |
 
-## ⏸️ מרשם המושהים (PARKED REGISTRY) — הושהה בכוונה, נשמר; ≠ SUPERSEDED
-| פריט | למה מושהה (לא הוחלף) | provenance |
+## ⏸️ מרשם המושהים (PARKED REGISTRY)
+| פריט | למה מושהה | provenance |
 |---|---|---|
-| סליקה / מנויים (Hyp Pay, HK) | הושהה בכוונה; מערכת ה**קרדיטים** פעילה כחלופה־ביניים; עשוי לחזור | `CLAUDE.md` §סליקה («מנויי-תשלום בהקפאה») |
+| סליקה / מנויים (Hyp Pay) | קרדיטים פעילים כחלופה; עשוי לחזור | `CLAUDE.md` |
+| Human-Design/Tarot טבלאות *(חדש-v5)* | schema-בלבד, מכוון-נכון, `fn_human_design_gate`/`fn_tarot_sos` UNKNOWN-כשיטה | Legacy-Reconciliation |
+| `number_series`/`number_products`/`digit_language`/`number_readings` *(חדש-v5)* | schema-בלבד, ממתין להכרעת `WS-NUMBER-LANGUAGE` | Legacy-Reconciliation |
 
-## ✔️ הושלם / היסטוריה (HISTORY / COMPLETED) — נשמר עם provenance (NO-DISAPPEARING-WORK)
+## ✔️ הושלם / היסטוריה (HISTORY / COMPLETED)
 | עבודה | תוצאה | provenance |
 |---|---|---|
-| נטרול רגרסיית־קורפוס | 🔀 מוזג ל-main · 🌐 חי · ✅ אומת | `f5834f44` |
-| ELS Finding Identity Step 3 (DB) | 🚀 חי · ✅ אומת (regression PASS) | migration `20260820023525` |
-| γ שתי־שכבות (החלטה) | ✅ מתועד | `7985e0ce` |
-| SOD1820 Universal Research Contract v1.0 → SSOT | ✅ נכתב ל-Master State §19-A/B (ענף; ממתין-למיזוג ל-main) | Change Log #29, work_log 20.8.2026 |
-| Master Roadmap v1→v3 קנוני | 🔀 מוזג ל-main | `0d247a1d` (v1) · `38a8f784` (v3) |
+| נטרול רגרסיית־קורפוס | 🔀 מוזג · 🌐 חי · ✅ אומת | `f5834f44` |
+| ELS Finding Identity Step 3 (DB) | 🚀 חי · ✅ אומת | `20260820023525` |
+| **ELS Finding Identity Step 3 (client) — Gate #3 Verified/Closed** *(נוסף-21.8)* | 🔀 מוזג · 🌐 חי · ✅ אומת (round-trip חי בפרודקשן, `start_index===positions[0]` כולל `start=0`; אין-regression ב-3 משטחי-ELS) | `7045f7b3`→`fc123caa` · `work_log ed5cc880` |
+| γ + Universal Research Contract v1.0 → main *(עודכן-v5)* | 🔀 מוזג · 🌐 חי | `6b8160b4`,`3a09b8dd`,`c8d3672` |
+| Master Roadmap v1→v4 קנוני + תיקון-header-drift *(עודכן-v5)* | 🔀 מוזג · 🌐 חי · ✅ אומת מול הבנדל-הפרוס | `0d247a1d`→`38a8f784`→`a757eeec`→`f375327f` |
 | הקשחת אבטחה #8/#9/#10B/metatron/LATENT-A | 🚀 חי · ✅ אומת | work_log 19.8 |
+| **ELS Full-Search-Space — D4 נבחר, Item1 grafted** *(חדש-v5)* | ✅ הוכרע ומומש טכנית | `cfc995ca`,`fdd94acd`,`542c7147` |
+| **ELS Unified Preview — Gate #2 Preview-Verified** *(נוסף-21.8)* | 👁️ Preview חי ואומת (PR #163 draft) · **לא** production, **לא** Research-Journey-מושלם | PR #163 · `work_log ba4427e5` |
+| **`/lab/els` Work-Area shell → main** *(חדש-v5)* | 🔀 מוזג · 🌐 חי (מעטפת אינרטית-מכוונת) | `3e77f15a`,`d245e5eb` |
+| **ELS capability audit (85 יכולות) הופק** *(חדש-v5)* | ✅ נכתב; מענה-לצוריאל עדיין-פתוח | `fe4a3cef`,`e0a2247a` |
+| **תיקון-שורש `all_values`: trigger קבוע + backfill מלא ל-15,453 שורות** *(נוסף-21.8, ביקורת-קנוניזציה — פעולת סשן-מקביל, לא-v5-עצמה)* | 🚀 חי · ✅ אומת ומאושר-צוריאל | `work_log 3ef4a674` · migration `20260821022454 gw_enforce_engine_maintain_all_values` |
+| **`save_els_matrix` false-merge bugfix (direction/start_index)** *(נוסף-21.8)* | 🚀 חי · ✅ אומת (predicate-logic נבדק ישירות מול שורות-בדיקה זמניות ב-`els_records`); Gate #4 עצמו נשאר-OPEN | migration `els_save_matrix_match_direction_start_index` · `work_log 62a36e0c` |
+| **Gate #4 + Gate #18 → OPEN/INTAKE-CRITICAL, נקודת-חזרה נקבעה; Brain Responsibility (ONE SYSTEM BRAIN + Public/Private Context Boundary) אושר כ-Governance** *(נוסף-21.8)* | ✅ תועד ב-v5; לא-Master-State, לא-implementation | הודעות-צוריאל 21.8 ("v5 CANONIZATION PREP"+"HUMAN-GATE DECISION"), טרם work_log נפרד |
 
 ---
 
-## 🧾 יומן ההחלטות (DECISIONS LOG) — מאושר ע״י צוריאל, עם provenance
+## 🧾 יומן ההחלטות (DECISIONS LOG)
 | החלטה | מי / מתי | מה | מחליף | provenance |
 |---|---|---|---|---|
-| קורפוס קנוני (§17) | צוריאל · 18–19.8 | תורה 304,805, `corpus_id 0b022e8eef6f9c16`, 0-based | קורפוס מזוהם 306,269 | Master State §17 (`ae8272c2`) |
-| תיקון־רגרסיה = Option A | צוריאל · 2026-08-20 | נטרול in-place ב-main | ענף מחיקה (Option B) | `f5834f44` |
-| γ שתי־שכבות | צוריאל · 2026-08-20 | שתי שכבות + קישור־מחרוזת | מודל §19-old | `7985e0ce` |
-| ELS Finding Identity Steps 1–3 | צוריאל · 2026-08-20 | זהות server-derived, INSERT-only, legacy ללא־שינוי | הקפאת Finding-Identity | migrations step1/2/3 (`20260820023525`), client `7045f7b3` |
-| Master Roadmap = מפת־העבודה | צוריאל · 2026-08-20 | מסמך ניווט קנוני (v1→v3) | — | `0d247a1d`, `38a8f784`, work_log `790b54c0`/`e6b0b302` |
-| חוק BUILDING/נראות + פורמט v3/v4 | צוריאל · 2026-08-20 | החוק + מודל־מצבים + Hebrew-first + Branch Tracker + Release Pipeline | פורמט v2/v3 | v4 draft (מסמך זה) |
-| SOD1820 Universal Research Contract v1.0 | צוריאל · 2026-08-20 | חוזה-על 18-סעיפים: Entry Context·Focused-before-Expansion·Method-Preserving Discovery·Calculation·Value Scan·Zero Navigation·Research Finding·One Knowledge Tree·Fact/Evidence/Discovery/Interpretation/Hypothesis-separation·Contextual Intelligence·External Research·Raziel-role·Human-Gate·Privacy·Premium-as-gate·Future-proof·Canonical Architecture Principle·Test-Case. **DOCUMENTATION/ROADMAP-ONLY** — אפס build/migration/schema/deploy | §19-old (שתי-שכבות-ממצא, לא-נכתב-מעולם) — ממסגר-ומרחיב את γ | Master State §19-A/§19-B (Change Log #29) · הועבר בצ'אט כ-`actor=ZURIEL`/`HUMAN-GATE DECISION` |
+| קורפוס קנוני (§17) | צוריאל · 18–19.8 | תורה 304,805, 0-based | קורפוס מזוהם 306,269 | §17 |
+| תיקון־רגרסיה = Option A | צוריאל · 20.8 | נטרול in-place ב-main | ענף מחיקה (Option B) | `f5834f44` |
+| γ שתי־שכבות | צוריאל · 20.8 | שתי שכבות + קישור־מחרוזת | §19-old | `7985e0ce` |
+| ELS Finding Identity Steps 1–3 | צוריאל · 20.8 | זהות server-derived, INSERT-only | הקפאת Finding-Identity | `20260820023525` |
+| Master Roadmap v1→v4 = מפת־העבודה | צוריאל · 20.8 | מסמך ניווט קנוני | — | `a757eeec` |
+| חוק BUILDING/נראות + פורמט v4 | צוריאל · 20.8 | החוק + מודל־מצבים | פורמט v2/v3 | v4 |
+| Universal Research Contract v1.0 | צוריאל · 20.8 | חוזה-על 18-סעיפים, תיעוד-בלבד | §19-old | §19-A/B |
+| **ELS FSS: D4 קנוני, Item1 grafted-לתוכו, לא-נמזג-בנפרד** *(חדש-v5)* | צוריאל (מרומז דרך-אישור-ראשוני, 19.8) + מומש-טכנית ע"י CLAUDE | D4=superset מוכח; Item1=reference-בלבד | "שתי-חלופות" | `cfc995ca`,`fdd94acd` |
+| **תיקון header-drift v4 → מוזג ל-main** *(חדש-v5)* | צוריאל · 21.8 ("אני ארצה שתמזג") | איחוד 2 נסיונות-תיקון | הכותרת-הסותרת-הישנה | `f375327f` |
 
 ---
 
-## 🌿 מעקב הענפים (BRANCH TRACKER) — Work State ≠ Branch State ≠ Release State
+## 🌿 מעקב הענפים (BRANCH TRACKER) — עודכן-מלא v5
 | ענף | actor | העבודה | Work State | Branch State | main | deploy | verified | provenance | next action |
 |---|---|---|---|---|---|---|---|---|---|
-| `main` | צוריאל | production | `LIVE` 🚀 | 🔀 מוזג | ✅ | 🌐 ✅ | ✅ | `ae8272c2`→`f5834f44`→`38a8f784` | — |
-| `claude/els-step3-identity` | CLAUDE | ELS Step 3 client | `BUILDING` 🏗️ | 🟡 מוכן־למיזוג | ❌ | ❌ | ❌ | `7045f7b3` | merge→deploy→verify (ACTIVE_NOW) |
-| `claude/roadmap-v4` | CLAUDE | Roadmap v4 draft | `DESIGN` 📐 | 🟡 מוכן־למיזוג | ❌ | — | — | (this) | אישור צוריאל → קנוניזציה |
-| `claude/raziel-capabilities-audit-h5k9ww` | CLAUDE | audits + γ record + v2/v3 draft | `DONE`-חלקי | 🔨 בעבודה | ❌ | — | — | `7985e0ce`,`8a45ddb2`,`6c16e9b3` | — (dev) |
-| `claude/els-work-area` / ELS-2 | CLAUDE/GPT | Full-Search-Space | `OPEN` | 🔨 בעבודה | ❌ | ❌ | ❌ | `fb9c23ea` | הכרעת D4/Item 1 |
-| `claude/els2-b45k5h` | CLAUDE | מקור נטרול in-place | `SUPERSEDED` 🗄️ | 🗄️ נסגר | (מוזג דרך main) | — | — | `f946ed51` | — |
-| `claude/els-unified-merge` | CLAUDE | נטרול מחיקה (Option B) | `SUPERSEDED` 🗄️ | 🗄️ נסגר | ❌ | — | — | `542c7147` | — |
-| GPT 3D-preview | GPT | Knowledge Universe | `BUILDING` 🏗️ | 🔨 בעבודה | ❌ | ❌ | ❌ | work_log 19.8 | preview בלבד; אימות מול הגרף |
+| `main` | צוריאל | production | `LIVE` 🚀 | 🔀 מוזג | ✅ | 🌐 ✅ | ✅ | `f375327f`→`3e77f15a`→`d245e5eb`→`fc123caa` | — |
+| `claude/els-step3-identity` | CLAUDE | ELS Step 3 client | `LIVE` 🚀 (עודכן 21.8) | 🔀 מוזג | ✅ | 🌐 ✅ | ✅ | `7045f7b3`→`fc123caa` | — (Gate #3 Verified/Closed) |
+| `claude/els-unified-merge` | CLAUDE | **מנוע-ELS-מאוחד (D4+Item1-graft+FORMS+WorkArea+ניקוי)** *(תוקן-v5)* | `PREVIEW-VERIFIED`✅👁️ (21.8) | 🟡 מוכן־למיזוג (עדיין) | ❌ | 👁️ Preview (PR #163) | ✅ Preview | `542c7147` | ממתין להנחיה — מיזוג-ל-main **טרם-מאושר** |
+| `claude/els-work-area` | CLAUDE | D4 + FORMS + Work-Area (בסיס ל-unified-merge) | `SUPERSEDED`🗄️ *(תוכן, לא ענף)* | 🗄️ הוחלף | ❌ | ❌ | ❌ | `ce148f07` | ר' `els-unified-merge` — **הענף עצמו לא-נמחק/לא-נסגר-בגיט**, כל commits שלו הם אבות-קדמונים מלאים של `els-unified-merge`; ה-`SUPERSEDED` מתייחס לתפקיד-התוכן בלבד |
+| `claude/els2-b45k5h` | CLAUDE | תיקוני-רגרסיה (על-main) + capability-audit + FSS-Item1 (superseded) | חלקי | 🗄️ (רגרסיה נספגה; היתר reference | ✅(חלקי, `f5834f44`) | — | — | `fb9c23ea`,`e0a2247a` | אין — Item1 לא-נמזג-בנפרד |
+| `gpt/research-object-map` | GPT | מפת-מוצר zoom-out + ELS-capability-map | `DESIGN` | 🔨 בעבודה | ❌ | — | — | `7cc48889` | Gate #20 |
+| `gpt/els-foundation-integration` | GPT | חוזה-שילוב-ELS | `DESIGN`, חלק-ELS `SUPERSEDED`(נענה) | 🔨 בעבודה | ❌ | — | — | `daabf497` | Gate #20 |
+| `claude/raziel-capabilities-audit-h5k9ww` | CLAUDE | γ record + roadmap v2/v3 draft | `DONE`-חלקי (γ נספג ל-main בנפרד) | 🔨 בעבודה | ❌(תוכן-כן-נספג) | — | — | `7985e0ce`,`6c16e9b3` | אין |
+| `claude/premium-research-audit-bzmjop` | CLAUDE | §19-old (הוחלף ע"י γ) | `SUPERSEDED` 🗄️ | 🗄️ נסגר | ❌ | — | — | `38eed658` | אין |
+| GPT 3D-preview | GPT | Knowledge Universe | `BUILDING` 🏗️ | 🔨 בעבודה | ❌ | ❌ | ❌ | work_log 19.8 | preview בלבד |
+
+**⚠️ DRIFT-CORRECTED (v5):** בגרסאות-קודמות `claude/els-unified-merge` תויג "נטרול מחיקה (Option B) SUPERSEDED" — **שגוי**. אימות-git ישיר (21.8) מראה ש-HEAD הנוכחי (`542c7147`) הוא **המשך-ישיר** של `els-work-area`(D4)←`fdd94acd`(Item1-graft) — כלומר **חבילת-המנוע-המאוחדת**, לא "Option B". הזהות/ענף המדויקים של "Option B" ההיסטורי (המוחלף ב-`f5834f44`) — **לא אומתו מחדש כאן ונשארים UNKNOWN**; לא הומצא ענף חלופי.
 
 **כלל:** אין להסיק `LIVE` מקיום ענף; אין להסיק `DONE` מקיום commit — `DONE` דורש `✅ אומת`.
 
-## 🚪 שערי־צוריאל פתוחים (OPEN HUMAN-GATES)
-1. **Roadmap v4 → קנוני** (merge ל-main). *(עדיין פתוח; ר' גם FRESHNESS למעלה — `main` HEAD בפועל `548d4a4`, לא `38a8f784`.)*
-2. **ELS Step 3 merge + deploy + אימות.**
-3. **ELS Step 4** (`BLOCKED` עד #2).
-4. **`corpus_id` תנ״ך** (בלי המצאה).
-5. **`fn_els_search`** שחזור secdef/search_path.
-6. ~~**§19→γ + הסרת הקפאת §17 + אנומרציית אבטחה** ב-Master State.~~ → **פוצל, 20.8.2026:** חלק-γ (§19→§19-A/B) **נסגר** (ר' `WS-GAMMA`/`WS-MASTERSTATE`) — **`DONE`(ענף)/ממתין-למיזוג**. הסרת-הקפאת-§17 + אנומרציית-אבטחה **נשארות פתוחות** כשער עצמאי (מספר #6 להלן, מוחלף).
-6′. **הסרת הקפאת §17 (Finding-Identity FROZEN→IN_PROGRESS) + אנומרציית אבטחה** ב-Master State — *(ממשיך את #6 המקורי, אחרי פיצול)*.
-7. **ELS Full-Search-Space** מיזוג (D4 מול Item 1).
-8. **admin_research_review** → תכנון.
-9. **מרכז־הניהול UI** (אחרי שהמפה קנונית).
-10. **WS-FEATURE-CONTROL** שער תכנון, ואז שער בנייה.
-11. **Person F-1b** (OD-F9a/F9b/F8).
-12. **חיווט Raziel.**
-13. **יישום-UX של SOD1820 Universal Research Contract v1.0** (Entry Context / Focused-before-Expansion / Method-Preserving Discovery בממשק בפועל) — `NEW, 20.8.2026`. החוזה עצמו **מאושר-לתיעוד** (§19-B); זהו שער-נפרד ל**בנייה**, טרם-נפתח.
-14. **רשומת-זהות שנותרה-בפער (Change Log #26, OD-F10a)** — לא-נכתבה-מעולם לגוף Master State; אינה חלק מ-§19-B; שער נפרד אם/כשצוריאל ירצה לסגור אותה. `NEW, 20.8.2026` (זוהה, לא-נוצר).
+---
 
-## 🧬 עמוד־השדרה של התלויות (DEPENDENCY SPINE)
+## 🚪 שערי־צוריאל פתוחים (OPEN HUMAN-GATES) — ממוספר-מחדש v5
+1. ~~Roadmap v4 → קנוני~~ — **✅ נסגר** (`f375327f`, main, אומת מול הבנדל-הפרוס). הועבר ל-History.
+2. ~~ELS FSS → Preview~~ — **✅ נסגר Preview-Verified** (21.8, PR #163 draft, `work_log ba4427e5`). **לא-אומר ש-Research Journey/Matrix/שכבות-ELS-נוספות הושלמו** — הן ממשיכות ב-Preview כמרחב-עבודה. שער-מיזוג-ל-main נפרד, טרם-נפתח. הועבר ל-History.
+3. ~~ELS Step 3 merge + deploy + אימות~~ — **✅ נסגר** (`fc123caa`, main, round-trip חי אומת — `work_log ed5cc880`, 21.8). הועבר ל-History.
+4. **Universal Finding Identity & Multi-Source Provenance** *(עודכן 21.8 — היה "ELS Step 4")* — **OPEN/INTAKE-CRITICAL.** לא-חוסם קנוניזציית-v5; **כן חוסם** בנייה-סופית של שכבת-Identity (ELS Step 4 dedup/UNIQUE + כל identity רב-מקורית עתידית). באג-נקודתי נפרד כבר-תוקן (`save_els_matrix` false-merge על direction/start_index, `work_log 62a36e0c`, 21.8) ואינו-פותר את השער עצמו. נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`.
+5. **`corpus_id` תנ״ך.**
+6. **`fn_els_search`** שחזור secdef/search_path.
+7. **§17 אנומרציה + Master-State §18** (γ עצמה כבר-נספגה, ר' `WS-GAMMA`).
+8. **admin_research_review** → תכנון.
+9. **Command-Center CC-1-target** (עודכן-v5: 3 ארטיפקטים קיימים, לא "UI לא-התחיל").
+10. **WS-FEATURE-CONTROL** שער תכנון+בנייה.
+11. **Person F-1b** (OD-F9a/F9b/F8).
+12. **חיווט Raziel** (`fn_raziel_turn`, `session_state`, L1-L14).
+13. **יישום-UX Universal Research Contract** (עדיין `OPEN` per §19-D).
+14. **רשומת-זהות OD-F10a שנותרה-בפער** (Change Log #26).
+15. **4 שאלות ELS-capability-audit** *(חדש-v5)* — merge/גניזת `els-work-area`(נפתר-חלקית ב-v5, ר' #2) · רשימת-78-רשמית-חיצונית? · `SIGNIFICANT`/`DICT` כחוקים-מגורסים? · עמודות-provenance ל-`els_records` (GAP-5).
+16. **Number-Language אימוץ/גניזה** *(חדש-v5)*.
+17. **Name-Lab/Christina/Maftech פורמליזציה** *(חדש-v5)*.
+18. **Unified Judgment & Human-Gate Contract** *(עודכן 21.8 — היה "איחוד-5-מנגנוני-שיפוט", תלוי ב-#9)* — **OPEN/INTAKE-CRITICAL.** Crosswalk מלא (21.8) מצא ~30 מנגנוני-שיפוט על-פני 6 pipelines (לא 5). קיים Contract מוביל/מועמד (`research_objects`); נדרשת התכנסות של ה-pipelines החיים ל-Unified Judgment Contract אחד — **טרם-הוכרע** אם `research_objects`/`admin_research_review` יהיה ה-canonical implementation. אין לבנות Judgment system חדש. לא-חוסם קנוניזציית-v5; **כן חוסם** בנייה-סופית של שכבת-Judgment המאוחדת (CC-2+). נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`.
+19. **`raziel_brain` — לאכלס או להסיר-תלות** *(חדש-v5)*.
+20. **מסגרת Research-Object-Map — לספוג ואיך** *(חדש-v5)*.
+
+## 🧬 עמוד־השדרה של התלויות (DEPENDENCY SPINE) — עודכן-v5
 ```
+WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW, 21.8) ── מזין-עתידית ── Gate #4 ── Gate #18 ── Intake build
 קורפוס (WS-ELS-CORPUS, LIVE) ── מוגן ע״י ── WS-ELS-REGRESSION (LIVE, f5834f44)
    ├── WS-TANAKH corpus_id ............................ OPEN
-   └── WS-ELS-IDENTITY  «ACTIVE_NOW מועמד»
-          Steps 1–3 DONE/LIVE (client BUILDING, פריסה ממתינה)
-          Step 4 BLOCKED → KU-3D/Navigator/ELS-Matrix BLOCKED
-WS-GAMMA (DONE) ── §19→γ rewrite OPEN ── WS-LEDGER-REVIEW (DESIGN)
-WS-SEC (DONE/LIVE) ── §18 enumeration OPEN
-WS-RAZIEL (LIVE-לא־מחווט) ── חיווט OPEN ── L1–L14 DESIGN
-WS-PERSON: F-1a′ DONE/LIVE ── F-1b BLOCKED
-WS-KU3D (BUILDING preview) ── הפעלה BLOCKED על זהות LIVE
-WS-CC (מפה) ── Command Center UI DESIGN ── WS-FEATURE-CONTROL FUTURE/DESIGN
+   └── WS-ELS-IDENTITY  «Gate #3 Verified/Closed, 21.8»
+          Steps 1–3 DONE/LIVE/VERIFIED (client fc123caa, נפרס+אומת-בפרודקשן)
+          Step 4 (בנייה) = Gate #4 "Universal Finding Identity & Multi-Source Provenance" — OPEN/INTAKE-CRITICAL,
+          לא-חוסם-v5; עד-אז KU-3D/Navigator/ELS-Matrix נשארים BLOCKED כפי-שהיו
+WS-ELS-FSS (Gate #2 Preview-Verified 542c7147, PR #163) ── מיזוג-ל-main OPEN (שער-חדש-טרם-נפתח) ── WS-ELS-WORKAREA (shell LIVE, מנוע ב-Preview)
+   └── WS-ELS-CAPABILITY-AUDIT (4 שאלות פתוחות)
+WS-GAMMA (LIVE, main) ── יישום-UX OPEN ── WS-URC (OPEN) ── WS-RESEARCH-OBJECT-FRAMEWORK (Gate #20)
+WS-SEC (LIVE) ── §18 enumeration OPEN ── 2 ממצאי-אבטחה חדשים (wa_word_review/project_contribution_to_graph) OPEN-נפרד
+WS-RAZIEL (3-variants+WA-infra LIVE, פועלים בתוך Brain-Context-Boundary) ── חיווט-זהות OPEN ── L1–L14 DESIGN ── raziel_brain OPEN
+WS-PERSON: F-1a′ LIVE ── F-1b BLOCKED
+WS-KU3D (BUILDING preview) ── הפעלה BLOCKED
+WS-CC (LIVE ×2 ארטיפקטים) ── CC-1-target OPEN ── WS-FEATURE-CONTROL FUTURE ── WS-JUDGE-UNIFICATION = Gate #18 "Unified Judgment & Human-Gate Contract" OPEN/INTAKE-CRITICAL
+WS-NUMBER-LANGUAGE / WS-NAMELAB / WS-TIME-DISAMBIGUATION / WS-READ-COMPOSER — עצמאיים, לא-חוסמים
 מרשם העתיד (INCOMPLETE) · מרשם המושהים · הושלם/היסטוריה · SUPERSEDED (provenance)
 ```
 
 ---
 
-## 📌 נקודת־בקרה לסשן (SESSION HANDOFF — כל התשובות מהמפה בלבד)
+## 📌 נקודת־בקרה לסשן (SESSION HANDOFF — כל התשובות מהמפה בלבד) — רענון-מלא v5
 ```
-LAST_RECONCILED: 2026-08-20   SYNC: SYNCED (נכון לפיוס)
+LAST_RECONCILED: 2026-08-21 (v5 קנוניזציה ל-main, f1503a28)   SYNC: SYNCED (v5 קנוני על main, לא-עוד DRAFT)
 
-איפה אנחנו:        ELS Finding Identity כמעט שלם; client של Step 3 בנוי, ממתין לפריסה.
-מה הושלם:          f5834f44 (קורפוס) · Step3 DB 20260820023525 · Step3 client 7045f7b3 · γ 7985e0ce ·
-                   roadmap→main 0d247a1d(v1)/38a8f784(v3) · v2 8a45ddb2 · הקשחת אבטחה 19.8.
-מה בבנייה:          Step3 client (BUILDING) · GPT 3D preview (BUILDING).
-מה מחכה:           fn_els_search secdef · Master State §17/γ · ELS Full-Search-Space · Ledger planning.
-מה חסום:           Step 4 · KU-3D product · Person F-1b.
-מה הצעד הבא:        merge claude/els-step3-identity (7045f7b3) → main → deploy → verify → שחרור Step4.
-למה זה הצעד הבא:    הזהות חייבת LIVE מקצה־לקצה לפני Step 4/downstream (סדר־תלויות; מועמד עד אישור צוריאל).
-מה אסור לבנות:      Step 4 · KU-3D product · Command Center UI · Feature-Control · F-1b · Raziel wiring · זהות־תנ״ך.
-מה בעתיד:           Command Center+Feature-Control · Meta Growth OS · Platform tiers+Credits+Academy ·
-                   UGC · רב־לשוניות · ELS שלב ב׳  (FUTURE REGISTRY = INCOMPLETE).
-מה השתנה מאז העדכון האחרון: Finding Identity FROZEN→IN_PROGRESS (Steps 1–3 LIVE); Roadmap v3→v4
-                   (Hebrew-first, Branch Tracker, Release Pipeline, Admin Preview, History/Completed).
-אילו החלטות:        ראה יומן ההחלטות (קורפוס/OptionA/γ/Steps1-3/roadmap/feature-law).
-provenance:        main 38a8f784 · Step3 client 7045f7b3 · γ 7985e0ce · Step3 DB 20260820023525.
-ROADMAP:           קנוני על main = 38a8f784 (v3) · v4 DRAFT על claude/roadmap-v4 (לבדיקה, לא מוזג).
+איפה אנחנו:        ELS Finding Identity Step 3 **הושלם, נפרס, אומת (Gate #3 Verified/Closed, `fc123caa`)**;
+                   ELS Unified Preview (D4+Item1-graft+FORMS+State-Contract) — **Gate #2 Preview-Verified**
+                   (21.8, PR #163 draft, `work_log ba4427e5`) — **לא** production, **לא** Research-Journey-מושלם;
+                   v4 קנוני+מתוקן על main; /lab/els shell עלה ל-main (מעטפת-בלבד, אינרטי-מכוון);
+                   URC+γ על main במלואם. Gate #16 (Number-Language) הופרד לסשן-ייעודי (`work_log 48856d02`).
+                   **Gate #4 (Universal Finding Identity & Multi-Source Provenance) ו-Gate #18 (Unified Judgment &
+                   Human-Gate Contract) נשארו OPEN/INTAKE-CRITICAL — לא-חוסמים v5, חוסמים בנייה-סופית של Identity/Judgment.**
+                   **Brain Responsibility (ONE SYSTEM BRAIN + Public/Private Context Boundary) אושר כ-Governance.**
+                   מיקוד-העבודה-הפעיל עבר ל-`WS-GEMATRIA-CORPUS-PACKAGES` (ארגון חומרי-גימטריה), לפי-הנחיית-צוריאל.
+מה הושלם:          f5834f44(קורפוס) · Step3 DB 20260820023525 · Step3 client 7045f7b3→fc123caa (main, נפרס+אומת) ·
+                   f375327f(header-fix) · 3e77f15a/d245e5eb(/lab/els shell) · cfc995ca/fdd94acd(ELS-FSS resolution) ·
+                   **els-unified-merge Preview 542c7147 → Gate #2 Verified (PR #163)** ·
+                   6b8160b4/3a09b8dd(URC על main) · fe4a3cef/e0a2247a(capability-audit) ·
+                   all_values trigger+backfill (`20260821022454`, סשן-מקביל).
+מה בבנייה:          Research Journey / Matrix / שכבות-ELS-נוספות ב-`claude/els-unified-merge` — **ממשיכות
+                   כעבודה בתוך ה-Preview** (PR #163, "אזור-הנישואים") — לא-הושלמו, לא-נסגרו. GPT 3D preview.
+מה מחכה:           נקודת-החזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build` · הכרעה
+                   על-מיזוג `els-unified-merge`→main (**שער חדש**) · 4-שאלות-capability-audit · CC-1-target ·
+                   Name-Lab/raziel_brain/Research-Object-framework · 2 ממצאי-אבטחה
+                   (`wa_word_review`,`project_contribution_to_graph`, מעקב-נפרד, לא-במסגרת-Gate-#18)
+                   (Number-Language עבר לסשן-ייעודי נפרד — לא-בתור-כאן).
+מה חסום:           KU-3D product · Person F-1b · תוכן-אמיתי ב-/lab/els (עד שיוחלט-על-מיזוג-המנוע). Gate #4/#18
+                   עצמם לא-BLOCKED — רק ממתינים-לנקודת-החזרה (אחרי ארגון-חומרי-הגימטריה).
+מה הצעד הבא:        `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW, הנחיית-צוריאל 21.8) — ואז Gate #4, ואז Gate #18.
+למה זה הצעד הבא:    החלטת-צוריאל מפורשת (21.8): לפני חזרה לשני השערים הארכיטקטוניים, להכין corpus מחקרי מסודר
+                   מחומרי-הגימטריה להזנה עתידית לעץ-האחד.
+מה אסור לבנות:      Step 4 בפועל (עד Gate #4) · Judgment system חדש/מקביל (עד Gate #18) · KU-3D product ·
+                   Command-Center-UI-חדש (יש-כבר-2-חיים) · Feature-Control · F-1b · Raziel-wiring/runtime
+                   (Brain Responsibility = Governance-בלבד, אין-implementation) · זהות־תנ״ך ·
+                   מיזוג-`els-unified-merge`-ל-main (טרם-אושר) · פתרון 2-ממצאי-האבטחה (מעקב-נפרד, לא-כאן) ·
+                   שום-קוד-נוסף ב-ELS-engine בלי-שער.
+מה בעתיד:           Command Center+Feature-Control · Meta Growth OS · Platform-tiers+Credits+Academy ·
+                   UGC · רב־לשוניות · ELS שלב ב׳ · מסגרת-Research-Object (FUTURE REGISTRY=INCOMPLETE).
+אילו החלטות:        ראה יומן ההחלטות + Decision Register (כולל שורה חדשה ל-Gate #4, ו-Gate #18 מעודכן).
+provenance:        main fc123caa (היה d245e5eb) · Step3 client 7045f7b3→fc123caa (Gate #3 closed) ·
+                   els-unified-merge 542c7147, PR #163 (Gate #2 closed) · capability-audit e0a2247a ·
+                   γ/URC 6b8160b4/3a09b8dd · work_log 48856d02(Gate#16 deferral)/ed5cc880(Gate#3)/
+                   ba4427e5(Gate#2 code-verification)/8f926aa4(Gate#2 closure)/62a36e0c(save_els_matrix bugfix) ·
+                   Gate#4/#18 renames+Brain-Responsibility: הודעות-צוריאל 21.8 ("v5 CANONIZATION PREP" +
+                   "HUMAN-GATE DECISION") · v5 קנוניזציה ל-main: merge f1503a28 מ-0249fece,
+                   work_log 7614ce69 (actor=CLAUDE).
+ROADMAP:           קנוני על main = v5 (`f1503a28`, merge מ-`0249fece`), בדיוק כמו v3→v4→v5. Gate #4 ו-Gate #18
+                   נשארים OPEN/INTAKE-CRITICAL, הם שני השערים הארכיטקטוניים הפתוחים שהם
+                   Intake-critical למסלול הנוכחי; יתר השערים הפתוחים מתועדים ואינם חוסמים קנוניזציית v5.
 ```
+
+---
+
+## 🎯 Decision Register — v5 (הרחבת-A/B/C לשערים קיימים — **תיקון-מבנה:** אינו-מספור-עצמאי-נפרד. כל שורה = הרחבה של Gate-מספר-מ-OPEN-HUMAN-GATES למעלה, אותו-מספר-בדיוק, לא-שני-רישומים-נפרדים)
+| Gate # | Decision | A/B/C | למה מהותי | מה משתנה A מול B |
+|---|---|---|---|---|
+| — | ~~ELS FSS D4/Item1~~ | — | **✅ נפתר בסשן זה** לפי provenance קיים (Gate-הקודם #1-הישן נסגר; שער-ההמשך = **Gate #2**, ר' שורה הבאה) | D4+Item1-graft = הקנון; `els-unified-merge`@`542c7147` = Preview-מועמד |
+| ~~#2~~ | ~~פריסת-Preview ל-`els-unified-merge`@`542c7147`~~ | — | **✅ נסגר 21.8 — Preview-Verified** (A נבחר בפועל: Preview חי, אומת ע"י צוריאל + code-review). **אינו-אישור-Research-Journey/Matrix** — אלה ממשיכים כעבודה ב-Preview | מיזוג-ל-main = שער-נפרד-עתידי, טרם-נפתח |
+| **#4** | Universal Finding Identity & Multi-Source Provenance (היה "ELS Step 4") | `OPEN`/`INTAKE-CRITICAL` — טרם-הוכרעה A/B/C | לא-חוסם-v5; חוסם-בנייה-סופית-של-Identity; באג-נקודתי (`save_els_matrix` false-merge) כבר-תוקן-בנפרד (`work_log 62a36e0c`) ואינו-פותר-את-השער | נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build` |
+| **#9** | Command Center — איזה ארטיפקט = CC-1? | A=`WarRoomTab` · B=`RoadmapCommandCenter` · C=שלישי-לפי-מפרט | חוסם §12.0 | קובע-כיוון-בנייה |
+| **#15** | 4 שאלות capability-audit (`fe4a3cef`) | ר' פירוט ב-`WS-ELS-CAPABILITY-AUDIT` | חוסמות עדיפויות 2-10 | תלוי-בשאלה |
+| **#16** | Number-Language — לאמץ או לגנוז? | A=לאמץ+לתעד · B=`PARKED` | **תוקן-21.8:** `number_anchors` **אינו** ריק — 35 שורות תוכן-אמיתי כבר-מוצגות על דפי-מספר ספציפיים מ-23.7.2026 (DRIFT-CORRECTED); שאר-7-הטבלאות עדיין ריקות/יתומות | A:תוכן+חיווט-מלא-לכולם. B:35-הדפים-הקיימים ממשיכים-כפי-שהם, השאר-נשאר-ריק |
+| **#17** | Name-Lab/Christina/Maftech — workstreams רשמיים? | A=כן · B=להשאיר-שקוף | חיים-בלי-ייצוג | A:נראים-לכל-audit. B:ממשיכים-להיעלם |
+| **#18** | Unified Judgment & Human-Gate Contract — קיים Contract-מוביל/מועמד (`research_objects`); נדרשת התכנסות ל-Unified Judgment Contract אחד; **טרם-הוכרע** אם `research_objects`/`admin_research_review` יהיה ה-canonical implementation; אין-לבנות Judgment system חדש | `OPEN`/`INTAKE-CRITICAL`, תלוי-גם-ב-#9 — אופן-ההתכנסות טרם-הוכרע | ~30 מנגנונים/6 pipelines בפועל (לא 5, תוקן 21.8) | קובע-היקף-CC-2; נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build` |
+| **#19** | `raziel_brain` — לאכלס או להסיר-תלות? | A=לאכלס · B=להסיר | **תוקן-21.8:** יש-כבר 1-שורה חיה (`id=1`, persona, מ-23.7.2026) — קוד-הפרודקשן (`number-researcher/index.ts:218`, `id=eq.1`) **מקבל את השורה, לא `null`**, בניגוד-למה-שנטען-קודם. אפשר-שהאופציות A/B יתפרשו-כעת כ"להרחיב" מול "להשאיר-כפי-שהוא" — ההכרעה עצמה נשארת-פתוחה-לצוריאל, לא-שונתה כאן | A:זהות-מרכזית/הרחבה. B:נשאר-כפי-שהוא |
+| **#20** | לספוג את `research-object-map.md` ל-Master-State? | A=מלא(§20) · B=רק-עקרונות(כמו §10.0) · C=לא-עכשיו | קובע אוצר-מילים-חדש (Research-Object/Axis/Cluster) | A:שינוי-גדול. B:תוספת-קטנה. C:נשאר-בענף |
+
+> **הערה:** מספור-Gate הוא **המספור היחיד-הקנוני** לכל 8 ההחלטות הפתוחות. הטבלה הזו רק **מוסיפה עמודות A/B/C/למה/מה-משתנה** לשערים שכבר-קיימים ברשימת ה-OPEN HUMAN-GATES — היא **אינה** יוצרת סט-שני-של-מזהים.
 
 ---
 
 **עיקרון־על:** המנוע מגלה ומארגן · **המפה מנווטת** · מרכז־הניהול מציג · `work_log` שומר provenance · **צוריאל מחליט** · שום דבר אינו הופך לקנוני/פעיל/משוחרר רק משום שסוכן ביצע אותו.
 
-_v4 DRAFT — לבדיקה בלבד. קנוניזציה (merge ל-main) ובניית מנגנון Feature-Control הם שערי־Human-Gate נפרדים. קודם סוגרים את המפה כמפת־על; אחר כך היא תגיד בדיוק היכן מנגנון ה-BUILDING נכנס. אחרי v4 — רעיונות חדשים נכנסים לפי חוקי ה-Roadmap, לא פותחים את המפה מחדש כל יומיים._
+_v5 DRAFT — כתיבה מרוכזת אחת, per אישור-מפורש ("GO — WRITE v5 ONLY"). קנוניזציה (merge ל-main) היא Human-Gate **נפרד**, בדיוק כמו כל גרסה קודמת. אין merge/deploy/DB-write בכתיבה הזו. שינוי-Master-State הנדרש (למשל: §19 provenance-location, §17 אנומרציה) נשאר `PENDING` — לא בוצע כאן, כמבוקש במפורש._
