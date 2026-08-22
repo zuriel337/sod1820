@@ -341,18 +341,18 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **LAST_VERIFIED:** 2026-08-21.
 - **STATE:** תיעוד `LIVE` (על main) · יישום-UX `DESIGN`/`OPEN-HUMAN-GATE`.
 
-### WS-URC — SOD1820 Universal Research Contract v1.0 — עודכן-v5 (שוחזרו-שדות)
-- **WHERE_WE_ARE:** החוזה (18-סעיפים) **תיעודו כבר על `main`** *(עודכן-v5: לא-עוד "ענף, טרם-מיין" — ר' `WS-GAMMA`)*. יישום-UX **לא-התחיל, לא-אושר**.
-- **WHAT_IS_DONE:** 18-סעיפי-החוזה (Entry Context·Focused-before-Expansion·Method-Preserving Discovery·Calculation·Value Scan·Zero Navigation·Research Finding·One Knowledge Tree·Fact-separation·Contextual Intelligence·External Research·Raziel·Human-Gate·Privacy·Premium-as-gate·Future-proof·Canonical Architecture Principle·Test-Case) + §19-C הבהרות + §19-D status — כולם ב-Master-State החי (main).
+### WS-URC — SOD1820 Universal Research Contract v1.0 — עודכן-22.8 (§19-C הורחב D-G)
+- **WHERE_WE_ARE:** החוזה (18-סעיפים) **תיעודו כבר על `main`** *(עודכן-v5: לא-עוד "ענף, טרם-מיין" — ר' `WS-GAMMA`)*. **חדש 22.8:** §19-C הורחב בארבע הבהרות נוספות D/E/F/G (זמן · transformation-provenance כללי · התכנסות-מורכבת · תמונה-כ-Source-Adapter) — Human-Gate ZURIEL, בעקבות Targeted Gap Check ממוקד על חומר-המחקר של ציון סיבוני (`work_log 99f1ae69`). יישום-UX **לא-התחיל, לא-אושר**.
+- **WHAT_IS_DONE:** 18-סעיפי-החוזה (Entry Context·Focused-before-Expansion·Method-Preserving Discovery·Calculation·Value Scan·Zero Navigation·Research Finding·One Knowledge Tree·Fact-separation·Contextual Intelligence·External Research·Raziel·Human-Gate·Privacy·Premium-as-gate·Future-proof·Canonical Architecture Principle·Test-Case) + §19-C הבהרות **A-G** (A-C מ-20.8; **D-G חדש 22.8**: D=זמן כממד-מחקרי לגיטימי · E=method-slot קנוני לכל טרנספורמציה (לא-רק-גימטריה) · F=התכנסות-מורכבת≠אמת (`relates[]`/`parent_id`, אין Finding Table) · G=תמונה=Entry-Context/Source-Adapter (לא מערכת-מקבילה)) + §19-D status — כולם ב-Master-State החי (main). **אומת ש-D/E/F/G מיוצגים במלואם ע"י הסכמה הקיימת (`gallery_images.occurred_at`/`nodes.hebrew_date`/`research_objects.source_ref`/`engine_detail`/`relates[]`/`relation_evidence.method`) — אפס schema/table/engine/tree חדש.**
 - **WHAT_IS_OPEN:** יישום-UX בפועל (Entry-Context-aware navigation · Focused-result-first UI · Method-tag תמידי) בכל משטח (ELS/Number/Gematria/Cross/Beit-Midrash/Command-Center) — **טרם-אושר, טרם-תוכנן ברמת-מסך**, ועדיין `OPEN` לפי §19-D המפורש (לא `CLOSED`).
 - **WHAT_IS_BLOCKED:** יישום-UX — עד מפת-מסך מאושרת פר-משטח (per `research_workspace_law`/`command_center_law`/§11.33).
-- **HUMAN_GATE:** צוריאל — שער-תכנון פר-משטח, ואז שער-בנייה (שני שערים נפרדים, כמו `WS-FEATURE-CONTROL`).
+- **HUMAN_GATE:** צוריאל — שער-תכנון פר-משטח, ואז שער-בנייה (שני שערים נפרדים, כמו `WS-FEATURE-CONTROL`). **חדש:** בניית פונקציית-חישוב-לוח דטרמיניסטית (§19-C.D) = שער-בנייה נפרד, קטן ומגודר — ר' מרשם-העתיד.
 - **NEXT_ACTION:** אין בנייה כעת. אם/כשצוריאל יבקש יישום — להתחיל ממשטח-בודד (למשל ELS/tzofen "Focused Before Expansion", הכי-קרוב-להשלמה כי `§CC-2` GAP-1/GAP-1A כבר-בנוי-על-branch) ולהציג מפת-מסך לפני קוד.
 - **DEPENDENCIES:** `WS-GAMMA` (מספק שכבת Finding/Atlas/Ledger) · `WS-CC` (Command-Center הוא אחד המשטחים שהחוזה חל-עליו) · `WS-MASTERSTATE`. **חדש-v5:** קשר-ישיר ל-`WS-RESEARCH-OBJECT-FRAMEWORK` (למטה) — שני המסמכים חופפים-משמעותית (Entry-Context/Focused-before-Expansion ⇔ North-Star/Object-Value-Cost-Coverage-Risk) בלי-סתירה.
-- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-B/C/D (main).
-- **PROVENANCE:** `6b8160b4`,`3a09b8dd` (main) · Master State Change Log #29/#30 · work_log (20.8.2026).
-- **LAST_VERIFIED:** 2026-08-21.
-- **STATE:** תיעוד `LIVE` (main, כחלק מ-`WS-GAMMA`) · יישום-UX `DESIGN`/`OPEN-HUMAN-GATE` (§19-D: "לא CLOSED").
+- **CANONICAL_HOME:** `SOD1820_MASTER_STATE.md` §19-B/C(A-G)/D (main).
+- **PROVENANCE:** `6b8160b4`,`3a09b8dd` (main) · Master State Change Log #29/#30/**#31** · work_log `99f1ae69` (Gap Check, READ-ONLY) + work_log (22.8.2026, canonization).
+- **LAST_VERIFIED:** 2026-08-22.
+- **STATE:** תיעוד `LIVE` (main, כחלק מ-`WS-GAMMA`) · יישום-UX `DESIGN`/`OPEN-HUMAN-GATE` (§19-D: "לא CLOSED") · **§19-C D-G: `APPROVED`/documentation-only** (טרם merge ל-main — ר' Branch Tracker).
 
 ### WS-SEC — הקשחת אבטחה (RLS / privacy) — ללא-שינוי-עובדתי (שוחזרו-שדות)
 - **WHERE_WE_ARE:** דליפות קונקרטיות נסגרו ב-live DB (19.8).
@@ -521,6 +521,8 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | רב־לשוניות | האתר רב־לשוני | `content_translation_law` | `video-transcribe` | §15 | `FUTURE` |
 | ELS `els_records` שלב ב׳ | ELS כמאגר־מחקר | ELS map | Finding Identity LIVE | `CLAUDE.md`/work_log | `FUTURE` |
 | מסגרת Research-Object (GPT) *(חדש-v5)* | North-Star/AI-Navigator/Budget/Challenge | `WS-RESEARCH-OBJECT-FRAMEWORK` | Gate #20 | `gpt/research-object-map` | `FUTURE`/`DESIGN` |
+| **Deterministic Temporal Capability** *(חדש-22.8)* — Gregorian↔Hebrew · day-of-week · parasha · elapsed-days · event-relative time | transformations דטרמיניסטיות אל Universal Research Contract §19-C.D — **לא Contract חדש, לא Temporal Research System** | `WS-URC` (§19-C.D) | אין תלות חוסמת; שער-בנייה-נפרד-קטן-ומגודר אם/כשיאושר | Targeted Gap Check `work_log 99f1ae69` · Change Log #31 | `PLANNED`/`NOT IMPLEMENTED` |
+| **Visual Research Scanner** *(חדש-22.8)* — Drop/Select Image→Extract→Classify→Verify→Cross-reference→Research Candidates→Human Review, עם הפרדת-שכבות (Extracted/Engine-Verified/Source-Verified/Existing-in-Tree/New-Candidate/Interpretation/Awaiting-Human-Decision) | View/Workflow עתידי במפקדה מעל `gallery_images`/`gallery-ocr`/`wa-ocr`+RPCs-קיימים — **לא image_findings/visual_research/מנוע/עץ חדש** | `WS-CC` | Gate #9 (CC-1-target — טרם-הוכרע; אין בנייה עד הכרעה) | Targeted Gap Check `work_log 99f1ae69` · §19-C.G | `FUTURE`/`DESIGN` (candidate, ממתין ל-Gate #9) |
 
 ## ⏸️ מרשם המושהים (PARKED REGISTRY)
 | פריט | למה מושהה | provenance |
