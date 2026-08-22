@@ -850,6 +850,16 @@ export default function PostEditorPage() {
             </div>
           </div>
 
+          {/* 📌 נעיצה ב«עדכונים אחרונים» — tree_priority>=50 מוצג ראשון עם תג «נעוץ» (LatestUpdatesRail.isPinnedPost) */}
+          <div className="pe-ctl">
+            <h4>📌 נעיצה ב«עדכונים אחרונים»</h4>
+            <div className="pe-seg">
+              <button type="button" className={(treePriority ?? 0) < 50 ? "on" : ""} onClick={() => setTreePriority(null)}>🔄 רגיל</button>
+              <button type="button" className={(treePriority ?? 0) >= 50 ? "on" : ""} onClick={() => setTreePriority(50)}>📌 נעוץ ראשון</button>
+            </div>
+            <p className="hint">«נעוץ ראשון» = הפוסט תמיד ראשון ברצועת «עדכונים אחרונים» בעמוד הבית, עם תג «נעוץ» — עד שתבטל כאן.</p>
+          </div>
+
           {/* 🔒 שמור מיקום — אל תקפיץ לראש «עדכונים אחרונים» */}
           <div className="pe-ctl">
             <h4>🔒 שמירת מיקום בעדכונים</h4>
