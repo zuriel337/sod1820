@@ -127,7 +127,7 @@
 | provenance | §0 governance | `LIVE` ✅ | עקבי בכל commit/work_log |
 | Candidate ≠ Fact | §10.0, §19-B#9 | `LIVE` ✅ | עקבי |
 | HOT ≠ TRUE | §10.3.1 | `LIVE` ✅ | עקבי (`journey_seeds`, `demand_gaps`) |
-| Premium ≠ Truth | §19-B#15 | `LIVE` ✅ | אין-הפרה כי אין-מימוש-בכלל (`PARKED`) |
+| Premium ≠ Truth | §19-B#15, מאופיין ב-§19-E (22.8, "LEGACY ACCESS PRESERVATION + PREMIUM DEPTH LAW") | `LIVE` ✅ | אין-הפרה כי אין-מימוש-בכלל (`PARKED`) — §19-E מוסיף: legacy-יכולות-קיימות לא-ננעלות רטרואקטיבית ע"י Research DNA; Premium חל רק-על facets-חדשים+עומק/כלים (Cross Engine וכו'), לא-על-האמת-המתמטית |
 | Canonical ≠ Published | §19-A | `LIVE` ✅ | עקבי |
 | Rank, Don't Hide | §11.6 | `LIVE` ✅ | עקבי, מאושש גם ע"י `research-object-map.md`#18 |
 
