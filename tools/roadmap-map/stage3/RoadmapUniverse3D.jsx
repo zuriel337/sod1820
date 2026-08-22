@@ -1,4 +1,4 @@
-// Stage 3→4 — Bird's-Eye 3D Prototype + Semantic Zoom Navigation.
+// Stage 3→4 — Bird's-Eye 3D Prototype + Semantic Zoom Navigation (Hebrew-first UI).
 //
 // Pipeline (hard rule, never broken here):
 //   SOD1820_MASTER_ROADMAP.md -> roadmapParser.parseRoadmap() -> view model -> this scene
@@ -16,19 +16,25 @@
 // this side-project fully decoupled from the live app).
 //
 // group_hint clustering is DISPLAY-ONLY. It is not, and must never become,
-// a canonical world/ontology — see GROUP_DISCLAIMER, shown on every cluster
-// label and in the cluster panel. Stage 4 does not resolve the "Worlds"
-// question; it only tests whether these derived clusters are even useful
-// as a navigation aid.
+// a canonical world/ontology — shown to the user in Hebrew as "קיבוץ תצוגה
+// משוער — אינו חלוקה קנונית", with the technical id (e.g. "ELS") demoted to
+// a small secondary line. Stage 4 does not resolve the "Worlds" question.
 //
-// Stage 4 adds: a three-level zoom state machine (universe / cluster /
-// workstream) with a breadcrumb, Home/Back/Focus actions, incoming/outgoing
-// dependency lists, sibling-workstream navigation without returning to the
-// bird's-eye view every time, a full Zoom-3 operational inspector (all 11
-// Roadmap card fields, read-only — this stays a Viewer, never an editor),
-// and a "you are here / next / later" itinerary framing of the SAME
-// explicit return_point_chain array already produced by the parser (using
-// its existing order, not a new interpretation).
+// HEBREW-FIRST CORRECTION (this pass): SOD1820_MASTER_ROADMAP.md's own
+// "חוק — עברית כברירת־מחדל (HEBREW-FIRST COMMAND CENTER)" is canonical —
+// every label/status/nav/explanation a manager sees defaults to Hebrew;
+// technical identifiers (WS-ids, commit SHAs, function/table names, and
+// the return-point chain's own literal English text, which is raw
+// provenance quoted from the Roadmap, not a UI label) stay as secondary,
+// smaller, English provenance. Status words use the SAME bilingual
+// dictionary already canonical in the Roadmap (its "מילון־סטטוס דו־לשוני"
+// table + this session's OPEN-HUMAN-GATE/PREVIEW additions) — no new
+// translation was invented for any status token. Per-workstream titles are
+// NOT hand-translated (that would be new interpretation the parser never
+// produced) — the existing ws.title field (already Hebrew for the large
+// majority of cards) is shown as the primary label, with ws.id demoted to
+// a small secondary technical line underneath, exactly the pattern asked
+// for without inventing glosses for the few English-titled cards.
 
 import React, { useMemo, useRef, useState, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
@@ -37,7 +43,43 @@ import * as THREE from "three";
 import { parseRoadmap, summarizeCoverage } from "../roadmapParser.js";
 import roadmapMd from "../../../SOD1820_MASTER_ROADMAP.md?raw";
 
-const GROUP_DISCLAIMER = "DERIVED GROUP — NOT CANONICAL WORLD";
+const FONT_HE = "'Segoe UI', Arial, sans-serif";
+const FONT_MONO = "ui-monospace, 'SF Mono', Consolas, monospace";
+
+const CLUSTER_DISCLAIMER_HE = "קיבוץ תצוגה משוער — אינו חלוקה קנונית";
+
+// ---------- Canonical bilingual status dictionary (from the Roadmap itself, not a new translation) ----------
+const HE_STATUS_TAG = {
+  "LIVE": "🚀 פעיל",
+  "DB-LIVE": "🚀 פעיל (במסד-הנתונים)",
+  "BUILDING": "🏗️ בבנייה",
+  "PREVIEW": "👁️ תצוגה מקדימה",
+  "PREVIEW-VERIFIED": "👁️ תצוגה מקדימה · ✅ אומת",
+  "OPEN-HUMAN-GATE": "🚪 ממתין להחלטה",
+  "OPEN": "🚪 ממתין להחלטה",
+  "PARKED": "⏸️ מושהה",
+  "DESIGN": "📐 תכנון",
+  "BLOCKED": "🚧 חסום",
+  "VERIFIED": "✅ אומת",
+  "DONE": "✔️ הושלם",
+  "ACTIVE_NOW": "🔵 עכשיו",
+  "SUPERSEDED": "🗄️ הוחלף",
+  "FUTURE": "🔮 בעתיד",
+  "UNKNOWN": "❔ לא ידוע",
+  "OUTSIDE": "🚪 מחוץ לתחום",
+  "PARALLEL_READY": "🟡 מוכן במקביל",
+  "INTAKE-CRITICAL": "🔴 קריטי לשכבת הקליטה",
+};
+function heTags(tags) {
+  if (!tags || tags.length === 0) return "❔ לא ידוע";
+  return tags.map((t) => HE_STATUS_TAG[t] || t).join(" · ");
+}
+function gateStatusHe(status) {
+  if (status === "CLOSED") return "🟢 סגור";
+  if (status === "OPEN_INTAKE_CRITICAL") return "🚪 קריטי לשכבת הקליטה";
+  if (status === "OPEN") return "🚪 פתוח";
+  return "❔ לא ידוע";
+}
 
 // ---------- Fibonacci-sphere placement (same technique as ConvergenceGalaxy.jsx) ----------
 function fibSphere(n, R) {
@@ -55,15 +97,19 @@ function fibSphere(n, R) {
   return pts;
 }
 
-// ---------- Status -> visual mapping (a RENDERING PRIORITY over EXISTING tags, not a new taxonomy) ----------
+// ---------- Status -> visual COLOR mapping (a rendering priority over EXISTING tags, not a new taxonomy) ----------
+// This picks ONE color for the 3D sphere; the textual Hebrew status shown in
+// panels lists ALL of a card's known_tags via heTags() above, so nothing is
+// lost — this priority only decides which color wins when several tags
+// co-exist (e.g. "LIVE" + "SUPERSEDED" + "OPEN-HUMAN-GATE" on one card).
 const STATUS_PRIORITY = [
-  { test: (tags) => tags.includes("OPEN-HUMAN-GATE") && tags.includes("INTAKE-CRITICAL"), key: "INTAKE_CRITICAL", color: "#e0563a", label: "OPEN · INTAKE-CRITICAL" },
-  { test: (tags) => tags.includes("OPEN-HUMAN-GATE") || tags.includes("OPEN"), key: "OPEN", color: "#c79a2e", label: "OPEN-HUMAN-GATE" },
-  { test: (tags) => tags.includes("BUILDING") || tags.includes("PREVIEW-VERIFIED") || tags.includes("PREVIEW"), key: "BUILDING", color: "#3ea6ff", label: "BUILDING / PREVIEW" },
-  { test: (tags) => tags.includes("LIVE") || tags.includes("DB-LIVE") || tags.includes("VERIFIED") || tags.includes("DONE"), key: "LIVE", color: "#4caf7d", label: "LIVE / VERIFIED" },
-  { test: (tags) => tags.includes("PARKED") || tags.includes("SUPERSEDED") || tags.includes("FUTURE"), key: "PARKED", color: "#8a8a95", label: "PARKED / FUTURE / SUPERSEDED" },
+  { test: (tags) => tags.includes("OPEN-HUMAN-GATE") && tags.includes("INTAKE-CRITICAL"), key: "INTAKE_CRITICAL", color: "#e0563a" },
+  { test: (tags) => tags.includes("OPEN-HUMAN-GATE") || tags.includes("OPEN"), key: "OPEN", color: "#c79a2e" },
+  { test: (tags) => tags.includes("BUILDING") || tags.includes("PREVIEW-VERIFIED") || tags.includes("PREVIEW"), key: "BUILDING", color: "#3ea6ff" },
+  { test: (tags) => tags.includes("LIVE") || tags.includes("DB-LIVE") || tags.includes("VERIFIED") || tags.includes("DONE"), key: "LIVE", color: "#4caf7d" },
+  { test: (tags) => tags.includes("PARKED") || tags.includes("SUPERSEDED") || tags.includes("FUTURE"), key: "PARKED", color: "#8a8a95" },
 ];
-const UNKNOWN_STATUS = { key: "UNKNOWN", color: "#5b6472", label: "UNKNOWN (no recognized tag)" };
+const UNKNOWN_STATUS = { key: "UNKNOWN", color: "#5b6472" };
 const ACTIVE_NOW_COLOR = "#ffe9a8";
 
 function classifyWorkstream(ws) {
@@ -160,13 +206,14 @@ function WorkstreamNode({ node, isActiveNow, isSelected, isHovered, opacity, onC
       </mesh>
       {(isHovered || isSelected || isActiveNow) && !dimmed && (
         <Html center distanceFactor={16} style={{ pointerEvents: "none" }}>
-          <div style={{
+          <div dir="rtl" style={{
             color: isActiveNow ? "#ffe9a8" : "#f3f2ee",
-            fontFamily: "monospace", fontSize: 11.5, fontWeight: 700,
+            fontFamily: FONT_HE, fontSize: 12, fontWeight: 700,
             whiteSpace: "nowrap", textShadow: "0 0 8px #000, 0 0 3px #000",
             transform: "translateY(-2.4em)", textAlign: "center",
           }}>
-            {isActiveNow ? "🔵 ACTIVE_NOW · " : ""}{node.ws.id}
+            {isActiveNow ? "🔵 עכשיו · " : ""}
+            <span style={{ fontFamily: FONT_MONO, fontSize: 10.5 }}>{node.ws.id}</span>
           </div>
         </Html>
       )}
@@ -174,15 +221,21 @@ function WorkstreamNode({ node, isActiveNow, isSelected, isHovered, opacity, onC
   );
 }
 
+// In-scene label stays SHORT (a repeated long disclaimer at every one of 18
+// clusters overlapped neighboring content at bird's-eye distance) — the
+// Hebrew explanation of what a cluster even is lives once in the header
+// notice instead. "תחום" (domain/area) is Hebrew-primary; the technical
+// group_hint id is demoted to a small secondary monospace line below it.
 function GroupLabel({ groupId, center, onClick, dimmed }) {
   return (
     <Html position={center} center distanceFactor={22} style={{ pointerEvents: "auto" }}>
       <div
+        dir="rtl"
         onClick={(e) => { e.stopPropagation(); onClick(groupId); }}
         style={{ textAlign: "center", cursor: "pointer", opacity: dimmed ? 0.25 : 1 }}
       >
-        <div style={{ color: "#d4af37", fontFamily: "monospace", fontWeight: 700, fontSize: 13, textShadow: "0 0 8px #000" }}>{groupId}</div>
-        <div style={{ color: "#9a9285", fontFamily: "monospace", fontSize: 8.5, textShadow: "0 0 6px #000" }}>{GROUP_DISCLAIMER}</div>
+        <div style={{ color: "#d4af37", fontFamily: FONT_HE, fontWeight: 700, fontSize: 13, textShadow: "0 0 8px #000" }}>🧩 תחום</div>
+        <div style={{ color: "#9a9285", fontFamily: FONT_MONO, fontSize: 10, textShadow: "0 0 6px #000", marginTop: 1 }}>{groupId}</div>
       </div>
     </Html>
   );
@@ -227,7 +280,6 @@ function CameraRig({ focusPos, desiredDistance }) {
 function nodeOpacity(zoomLevel, node, selectedGroup, selectedWsId) {
   if (zoomLevel === "universe") return 1;
   if (zoomLevel === "cluster") return node.group === selectedGroup ? 1 : 0.15;
-  // zoomLevel === "workstream"
   if (node.ws.id === selectedWsId) return 1;
   if (node.group === selectedGroup) return 0.45;
   return 0.12;
@@ -239,7 +291,6 @@ function edgeOpacity(zoomLevel, e, selectedGroup, selectedWsId, layout) {
     const touches = groupOf(e.from) === selectedGroup || groupOf(e.to) === selectedGroup;
     return touches ? 0.65 : 0.06;
   }
-  // workstream
   if (e.from === selectedWsId || e.to === selectedWsId) return 0.85;
   if (groupOf(e.from) === selectedGroup && groupOf(e.to) === selectedGroup) return 0.18;
   return 0.04;
@@ -308,7 +359,7 @@ function statusPillStyle(status) {
     OPEN: { bg: "#fbf1dd", fg: "#c79a2e" },
   };
   const c = map[status] || { bg: "#eeecec", fg: "#6a655e" };
-  return { display: "inline-block", padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: c.bg, color: c.fg };
+  return { display: "inline-block", padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: c.bg, color: c.fg, fontFamily: FONT_HE };
 }
 
 function webglAvailable() {
@@ -332,19 +383,21 @@ function mdParts(str) {
   while ((m = re.exec(str))) {
     if (m.index > lastIndex) parts.push(str.slice(lastIndex, m.index));
     if (m[1]) parts.push(<b key={key++}>{m[1].slice(2, -2)}</b>);
-    else parts.push(<code key={key++}>{m[2].slice(1, -1)}</code>);
+    else parts.push(<code key={key++} style={{ fontFamily: FONT_MONO }}>{m[2].slice(1, -1)}</code>);
     lastIndex = re.lastIndex;
   }
   if (lastIndex < str.length) parts.push(str.slice(lastIndex));
   return parts;
 }
 
+// label = Hebrew field name (canonical). value = raw Roadmap text (mixed
+// Hebrew/English/technical — shown as-is, never re-translated).
 function Field({ label, value }) {
   if (!value) return null;
   return (
     <div style={{ marginTop: 6 }}>
-      <div style={{ color: "#9db4f0", fontSize: 10.5 }}>{label}</div>
-      <div style={{ fontSize: 11, lineHeight: 1.4 }}>{mdParts(value)}</div>
+      <div style={{ color: "#9db4f0", fontSize: 11, fontFamily: FONT_HE, fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: 11.5, lineHeight: 1.5, fontFamily: FONT_HE }}>{mdParts(value)}</div>
     </div>
   );
 }
@@ -353,7 +406,7 @@ function EdgeChip({ label, onClick }) {
   return (
     <button
       onClick={onClick}
-      style={{ background: "#20263a", color: "#9db4f0", border: "1px solid #3a4468", borderRadius: 999, padding: "2px 9px", fontFamily: "monospace", fontSize: 10.5, cursor: "pointer", margin: "2px 3px 2px 0" }}
+      style={{ background: "#20263a", color: "#9db4f0", border: "1px solid #3a4468", borderRadius: 999, padding: "2px 9px", fontFamily: FONT_HE, fontSize: 11, cursor: "pointer", margin: "2px 3px 2px 0" }}
     >
       {label}
     </button>
@@ -362,7 +415,7 @@ function EdgeChip({ label, onClick }) {
 
 const HUD_PANEL_STYLE = {
   background: "rgba(10,7,20,0.94)", border: "1px solid #5b7fd6", borderRadius: 14,
-  color: "#e8e6df", fontFamily: "monospace", fontSize: 12,
+  color: "#e8e6df", fontFamily: FONT_HE, fontSize: 12,
 };
 
 export default function RoadmapUniverse3D() {
@@ -407,11 +460,11 @@ export default function RoadmapUniverse3D() {
 
   if (!canRender3D) {
     return (
-      <div style={{ padding: 16, fontFamily: "-apple-system, Arial, sans-serif" }}>
+      <div dir="rtl" style={{ padding: 16, fontFamily: FONT_HE }}>
         <div style={{ background: "#fbf6e6", border: "1px dashed #b8860b", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
-          ⚠️ WebGL לא-זמין או viewport קטן-מדי לפרוטוטייפ תלת-ממדי. נופל-בחזרה ל-Diagnostic 2D (Stage 2) — אין מסך-שבור.
+          ⚠️ תלת־הממד אינו זמין (WebGL חסר או המסך צר מדי). נופלים בחזרה אוטומטית לתצוגת האבחון הדו־ממדית — אין מסך שבור.
         </div>
-        <iframe src="../diagnostic.html" title="Roadmap Diagnostic 2D fallback" style={{ width: "100%", height: "85vh", border: "1px solid #dfe3e8", borderRadius: 8 }} />
+        <iframe src="../diagnostic.html" title="תצוגת אבחון דו-ממדית (גיבוי)" style={{ width: "100%", height: "85vh", border: "1px solid #dfe3e8", borderRadius: 8 }} />
       </div>
     );
   }
@@ -420,47 +473,52 @@ export default function RoadmapUniverse3D() {
   const groupEdges = selectedGroup && zoomLevel === "cluster" ? edgesTouchingGroup(vm, layout, selectedGroup) : null;
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100vh", background: "radial-gradient(circle at 50% 40%, #0d0a1a, #05030a)" }}>
-      {/* Header + Breadcrumb */}
-      <div style={{ position: "absolute", top: 12, insetInlineStart: 12, zIndex: 3, color: "#e8e6df", fontFamily: "monospace", fontSize: 12, maxWidth: 360 }}>
-        <div style={{ fontWeight: 700, fontSize: 14, color: "#ffe9a8" }}>🗺️ Roadmap Universe — Stage 4 (navigation)</div>
-        <div style={{ opacity: 0.75, marginTop: 2 }}>
-          v{vm.meta.version_label} · {vm.meta.canonical_status} · {coverage.workstreams} workstreams · {coverage.dependency_edges} edges · {coverage.total_warnings} warning(s)
+    <div dir="rtl" style={{ position: "relative", width: "100%", height: "100vh", background: "radial-gradient(circle at 50% 40%, #0d0a1a, #05030a)" }}>
+      {/* כותרת + פירורי-לחם */}
+      <div style={{ position: "absolute", top: 12, insetInlineStart: 12, zIndex: 3, color: "#e8e6df", fontFamily: FONT_HE, fontSize: 13, maxWidth: 360 }}>
+        <div style={{ fontWeight: 700, fontSize: 15, color: "#ffe9a8" }}>🗺️ מפת־העל התלת־ממדית — שלב 4 (ניווט)</div>
+        <div style={{ opacity: 0.8, marginTop: 3, fontSize: 12 }}>
+          גרסה {vm.meta.version_label} · {vm.meta.canonical_status === "CANONICAL" ? "קנוני" : vm.meta.canonical_status} · {coverage.workstreams} מסלולי-עבודה · {coverage.dependency_edges} קשרים · {coverage.total_warnings} אזהרות
         </div>
-        <div style={{ marginTop: 8, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
-          <span onClick={goHome} style={{ cursor: "pointer", color: zoomLevel === "universe" ? "#ffe9a8" : "#9db4f0", fontWeight: zoomLevel === "universe" ? 700 : 500 }}>🌌 Universe</span>
-          {selectedGroup && <><span style={{ opacity: 0.5 }}>→</span>
-            <span onClick={() => goToCluster(selectedGroup)} style={{ cursor: "pointer", color: zoomLevel === "cluster" ? "#ffe9a8" : "#9db4f0", fontWeight: zoomLevel === "cluster" ? 700 : 500 }}>🧩 {selectedGroup}</span></>}
-          {selectedWsId && <><span style={{ opacity: 0.5 }}>→</span>
-            <span style={{ color: "#ffe9a8", fontWeight: 700 }}>📦 {selectedWsId}</span></>}
+        <div style={{ marginTop: 5, fontSize: 10.5, color: "#9a9285", lineHeight: 1.4 }}>
+          🧩 "תחומים" במפה = {CLUSTER_DISCLAIMER_HE}
+        </div>
+        <div style={{ marginTop: 8, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4, fontSize: 13 }}>
+          <span onClick={goHome} style={{ cursor: "pointer", color: zoomLevel === "universe" ? "#ffe9a8" : "#9db4f0", fontWeight: zoomLevel === "universe" ? 700 : 500 }}>🌌 מבט־על</span>
+          {selectedGroup && <><span style={{ opacity: 0.5 }}>◀</span>
+            <span onClick={() => goToCluster(selectedGroup)} style={{ cursor: "pointer", color: zoomLevel === "cluster" ? "#ffe9a8" : "#9db4f0", fontWeight: zoomLevel === "cluster" ? 700 : 500 }}>
+              🧩 תחום <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{selectedGroup}</span>
+            </span></>}
+          {selectedWsId && <><span style={{ opacity: 0.5 }}>◀</span>
+            <span style={{ color: "#ffe9a8", fontWeight: 700 }}>📦 <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{selectedWsId}</span></span></>}
         </div>
         {zoomLevel !== "universe" && (
           <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
-            <button onClick={goBack} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 10px", fontFamily: "monospace", fontSize: 11, cursor: "pointer" }}>◀ Back</button>
-            <button onClick={goHome} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 10px", fontFamily: "monospace", fontSize: 11, cursor: "pointer" }}>🏠 Home</button>
+            <button onClick={goBack} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 12px", fontFamily: FONT_HE, fontSize: 12, cursor: "pointer" }}>◀ חזרה</button>
+            <button onClick={goHome} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 12px", fontFamily: FONT_HE, fontSize: 12, cursor: "pointer" }}>🌌 מבט־על</button>
           </div>
         )}
       </div>
 
-      {/* Return Path itinerary — "here / next / later" over the SAME explicit chain, in its existing order. No invented nodes for non-workstream steps. */}
+      {/* נקודת החזרה — "עכשיו / הבא / בהמשך" מעל אותה שרשרת מפורשת, באותו סדר. אין nodes מומצאים לשלבים שאינם מסלולי-עבודה. */}
       {returnChain && (
-        <div style={{ position: "absolute", top: 12, insetInlineEnd: 12, zIndex: 3, ...HUD_PANEL_STYLE, padding: "8px 12px", maxWidth: 330 }}>
-          <div style={{ color: "#9db4f0", fontSize: 10.5, marginBottom: 4 }}>↩️ Return Path (Gate #4.return_point_chain)</div>
-          <div style={{ fontSize: 11.5, lineHeight: 1.5 }}>
-            <div>🔵 <b>כאן:</b> {returnChain[0]}</div>
-            {returnChain[1] && <div style={{ opacity: 0.85 }}>⏭ <b>הבא:</b> {returnChain[1]}</div>}
-            {returnChain.length > 2 && <div style={{ opacity: 0.6 }}>… {returnChain.slice(2).join(" → ")}</div>}
+        <div style={{ position: "absolute", top: 12, insetInlineEnd: 12, zIndex: 3, ...HUD_PANEL_STYLE, padding: "10px 14px", maxWidth: 330 }}>
+          <div style={{ color: "#9db4f0", fontSize: 11.5, marginBottom: 5, fontWeight: 700 }}>↩️ נקודת החזרה</div>
+          <div style={{ fontSize: 12.5, lineHeight: 1.6 }}>
+            <div>🔵 <b>עכשיו:</b> <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{returnChain[0]}</span></div>
+            {returnChain[1] && <div style={{ opacity: 0.85 }}>⏭ <b>הבא:</b> <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{returnChain[1]}</span></div>}
+            {returnChain.length > 2 && <div style={{ opacity: 0.6 }}>… <b>בהמשך:</b> <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{returnChain.slice(2).join(" ← ")}</span></div>}
           </div>
         </div>
       )}
 
-      {/* Human Gates HUD */}
-      <div style={{ position: "absolute", bottom: 12, insetInlineStart: 12, zIndex: 3, ...HUD_PANEL_STYLE, border: "1px solid #333", padding: "8px 12px", maxHeight: 200, overflowY: "auto", width: 260 }}>
-        <div style={{ marginBottom: 4, fontWeight: 700, fontSize: 10.5 }}>🚪 Open Human-Gates</div>
+      {/* שערי החלטה */}
+      <div style={{ position: "absolute", bottom: 12, insetInlineStart: 12, zIndex: 3, ...HUD_PANEL_STYLE, border: "1px solid #333", padding: "10px 14px", maxHeight: 210, overflowY: "auto", width: 260 }}>
+        <div style={{ marginBottom: 5, fontWeight: 700, fontSize: 12 }}>🚪 שערי החלטה</div>
         {vm.open_human_gates.map((g) => (
-          <div key={g.number} style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 10.5, color: "#c9c7c0", padding: "1px 0" }}>
-            <span>#{g.number}</span>
-            <span style={statusPillStyle(g.status)}>{g.status}</span>
+          <div key={g.number} style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 11, color: "#c9c7c0", padding: "1.5px 0" }}>
+            <span style={{ fontFamily: FONT_MONO }}>#{g.number}</span>
+            <span style={statusPillStyle(g.status)}>{gateStatusHe(g.status)}</span>
           </div>
         ))}
       </div>
@@ -484,68 +542,74 @@ export default function RoadmapUniverse3D() {
         </Suspense>
       </Canvas>
 
-      {/* Zoom 2 — Cluster panel */}
+      {/* רמה 2 — פאנל תחום/אשכול */}
       {zoomLevel === "cluster" && selectedGroup && (
-        <div style={{ position: "absolute", insetInlineEnd: 12, top: 150, zIndex: 4, width: "min(360px, 88vw)", ...HUD_PANEL_STYLE, padding: "14px 16px", maxHeight: "70vh", overflowY: "auto" }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: "#ffe9a8" }}>🧩 {selectedGroup}</div>
-          <div style={{ color: "#9a9285", fontSize: 9.5, marginBottom: 8 }}>{GROUP_DISCLAIMER}</div>
-          <div style={{ color: "#9db4f0", fontSize: 10.5, marginBottom: 4 }}>{clusterMembers.length} workstream(s) — לחיצה פותחת Zoom 3</div>
+        <div style={{ position: "absolute", insetInlineEnd: 12, top: 158, zIndex: 4, width: "min(370px, 88vw)", ...HUD_PANEL_STYLE, padding: "16px 18px", maxHeight: "70vh", overflowY: "auto" }}>
+          <div style={{ fontWeight: 700, fontSize: 15, color: "#ffe9a8" }}>🧩 תחום עבודה</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: "#9a9285", marginBottom: 3 }}>{selectedGroup}</div>
+          <div style={{ color: "#9a9285", fontSize: 10.5, marginBottom: 10 }}>{CLUSTER_DISCLAIMER_HE}</div>
+          <div style={{ color: "#9db4f0", fontSize: 11.5, marginBottom: 5, fontWeight: 700 }}>מסלולי עבודה בתחום זה ({clusterMembers.length}) — לחיצה פותחת פירוט מלא</div>
           {clusterMembers.map((n) => {
             const status = classifyWorkstream(n.ws);
             return (
-              <div key={n.ws.id} onClick={() => goToWorkstream(n.ws.id)} style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 6, padding: "4px 0", borderTop: "1px solid #2a2740", fontSize: 11 }}>
-                <span>{n.ws.id}{n.ws.parse_warnings.length > 0 ? " ⚠" : ""}</span>
-                <span style={{ color: status.color, fontWeight: 700 }}>{status.key}</span>
+              <div key={n.ws.id} onClick={() => goToWorkstream(n.ws.id)} style={{ cursor: "pointer", padding: "6px 0", borderTop: "1px solid #2a2740" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 12 }}>
+                  <span>{mdParts(n.ws.title)}{n.ws.parse_warnings.length > 0 ? " ⚠️" : ""}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 6, marginTop: 2 }}>
+                  <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: "#7a7f8f" }}>{n.ws.id}</span>
+                  <span style={{ color: status.color, fontWeight: 700, fontSize: 11 }}>{heTags(n.ws.fields.STATE?.known_tags)}</span>
+                </div>
               </div>
             );
           })}
           {groupEdges && (groupEdges.inbound.length > 0 || groupEdges.outbound.length > 0) && (
-            <div style={{ marginTop: 10 }}>
-              <div style={{ color: "#9db4f0", fontSize: 10.5 }}>קשרים חוצי-cluster</div>
-              {groupEdges.inbound.map((e, i) => <div key={"in" + i} style={{ fontSize: 10.5 }}>← {e.from} → {e.to}</div>)}
-              {groupEdges.outbound.map((e, i) => <div key={"out" + i} style={{ fontSize: 10.5 }}>{e.from} → {e.to} →</div>)}
+            <div style={{ marginTop: 12 }}>
+              <div style={{ color: "#9db4f0", fontSize: 11.5, fontWeight: 700 }}>קשרים חוצי־תחום</div>
+              {groupEdges.inbound.map((e, i) => <div key={"in" + i} style={{ fontSize: 11, marginTop: 2, fontFamily: FONT_MONO }}>← {e.from} → {e.to}</div>)}
+              {groupEdges.outbound.map((e, i) => <div key={"out" + i} style={{ fontSize: 11, marginTop: 2, fontFamily: FONT_MONO }}>{e.from} → {e.to} →</div>)}
             </div>
           )}
         </div>
       )}
 
-      {/* Zoom 3 — Operational Inspector (all 11 Roadmap card fields, read-only viewer) */}
+      {/* רמה 3 — פירוט תפעולי מלא (Viewer בלבד — לא ניתן לעריכה) */}
       {zoomLevel === "workstream" && selectedWs && (
-        <div style={{ position: "absolute", insetInlineEnd: 12, top: 150, zIndex: 4, width: "min(380px, 88vw)", ...HUD_PANEL_STYLE, padding: "14px 16px", maxHeight: "76vh", overflowY: "auto" }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: "#ffe9a8", marginBottom: 2 }}>{selectedWs.id}</div>
-          <div style={{ marginBottom: 8, opacity: 0.85 }}>{mdParts(selectedWs.title)}</div>
+        <div style={{ position: "absolute", insetInlineEnd: 12, top: 158, zIndex: 4, width: "min(390px, 88vw)", ...HUD_PANEL_STYLE, padding: "16px 18px", maxHeight: "76vh", overflowY: "auto" }}>
+          <div style={{ fontWeight: 700, fontSize: 15, color: "#ffe9a8", marginBottom: 2 }}>{mdParts(selectedWs.title)}</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: "#9a9285", marginBottom: 10 }}>{selectedWs.id}</div>
 
-          <Field label="WHERE_WE_ARE" value={selectedWs.fields.WHERE_WE_ARE?.raw} />
-          <Field label="STATE" value={selectedWs.fields.STATE?.raw} />
-          <Field label="WHAT_IS_DONE" value={selectedWs.fields.WHAT_IS_DONE?.raw} />
-          <Field label="WHAT_IS_OPEN" value={selectedWs.fields.WHAT_IS_OPEN?.raw} />
-          <Field label="WHAT_IS_BLOCKED" value={selectedWs.fields.WHAT_IS_BLOCKED?.raw} />
-          <Field label="DEPENDENCIES" value={selectedWs.fields.DEPENDENCIES?.raw} />
-          <Field label="HUMAN_GATE" value={selectedWs.fields.HUMAN_GATE?.raw} />
-          <Field label="NEXT_ACTION" value={selectedWs.fields.NEXT_ACTION?.raw} />
-          <Field label="PROVENANCE" value={selectedWs.fields.PROVENANCE?.raw} />
-          <Field label="CANONICAL_HOME" value={selectedWs.fields.CANONICAL_HOME?.raw} />
-          <Field label="LAST_VERIFIED" value={selectedWs.fields.LAST_VERIFIED?.raw} />
+          <Field label="איפה אנחנו" value={selectedWs.fields.WHERE_WE_ARE?.raw} />
+          <Field label="מצב" value={selectedWs.fields.STATE?.raw} />
+          <Field label="מה הושלם" value={selectedWs.fields.WHAT_IS_DONE?.raw} />
+          <Field label="מה פתוח" value={selectedWs.fields.WHAT_IS_OPEN?.raw} />
+          <Field label="מה חסום" value={selectedWs.fields.WHAT_IS_BLOCKED?.raw} />
+          <Field label="תלותים" value={selectedWs.fields.DEPENDENCIES?.raw} />
+          <Field label="שער החלטה" value={selectedWs.fields.HUMAN_GATE?.raw} />
+          <Field label="הצעד הבא" value={selectedWs.fields.NEXT_ACTION?.raw} />
+          <Field label="מקור ותיעוד" value={selectedWs.fields.PROVENANCE?.raw} />
+          <Field label="מקור קנוני" value={selectedWs.fields.CANONICAL_HOME?.raw} />
+          <Field label="אומת לאחרונה" value={selectedWs.fields.LAST_VERIFIED?.raw} />
 
           {selectedWs.gate_mentions.length > 0 && (
-            <Field label="Gate mentions (not governance)" value={selectedWs.gate_mentions.map((n) => `#${n}`).join(", ")} />
+            <Field label="אזכור שער (לא קשר ניהולי)" value={selectedWs.gate_mentions.map((n) => `#${n}`).join(", ")} />
           )}
 
           {outgoingIncoming && (outgoingIncoming.outgoing.length > 0 || outgoingIncoming.incoming.length > 0) && (
-            <div style={{ marginTop: 8 }}>
-              <div style={{ color: "#9db4f0", fontSize: 10.5, marginBottom: 3 }}>Dependencies (navigate directly)</div>
+            <div style={{ marginTop: 10 }}>
+              <div style={{ color: "#9db4f0", fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>תלוי ב־ / תלוי בזה (ניווט ישיר)</div>
               {outgoingIncoming.outgoing.map((e, i) => (
-                <EdgeChip key={"o" + i} label={"→ " + e.to} onClick={() => goToWorkstream(e.to)} />
+                <EdgeChip key={"o" + i} label={"תלוי ב־ " + e.to} onClick={() => goToWorkstream(e.to)} />
               ))}
               {outgoingIncoming.incoming.map((e, i) => (
-                <EdgeChip key={"i" + i} label={e.from + " →"} onClick={() => goToWorkstream(e.from)} />
+                <EdgeChip key={"i" + i} label={e.from + " תלוי בזה"} onClick={() => goToWorkstream(e.from)} />
               ))}
             </div>
           )}
 
           {clusterMembers.length > 1 && (
-            <div style={{ marginTop: 8 }}>
-              <div style={{ color: "#9db4f0", fontSize: 10.5, marginBottom: 3 }}>שכנים ב-{selectedGroup} (בלי לחזור ל-Universe)</div>
+            <div style={{ marginTop: 10 }}>
+              <div style={{ color: "#9db4f0", fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>מסלולים נוספים באותו תחום (בלי לחזור למבט־על)</div>
               {clusterMembers.filter((n) => n.ws.id !== selectedWsId).map((n) => (
                 <EdgeChip key={n.ws.id} label={n.ws.id} onClick={() => goToWorkstream(n.ws.id)} />
               ))}
@@ -553,10 +617,10 @@ export default function RoadmapUniverse3D() {
           )}
 
           {selectedWs.parse_warnings.length > 0 && (
-            <div style={{ marginTop: 8, border: "1px solid #e0563a", borderRadius: 6, padding: "6px 8px", background: "rgba(224,86,58,0.12)" }}>
-              <div style={{ color: "#e0563a", fontWeight: 700, fontSize: 11 }}>⚠ Parse Warnings</div>
+            <div style={{ marginTop: 10, border: "1px solid #e0563a", borderRadius: 6, padding: "7px 10px", background: "rgba(224,86,58,0.12)" }}>
+              <div style={{ color: "#e0563a", fontWeight: 700, fontSize: 12 }}>⚠ אזהרות</div>
               {selectedWs.parse_warnings.map((w, i) => (
-                <div key={i} style={{ fontSize: 10.5, marginTop: 2 }}>{w.code}: {typeof w.detail === "string" ? w.detail : JSON.stringify(w.detail)}</div>
+                <div key={i} style={{ fontSize: 11, marginTop: 3, fontFamily: FONT_MONO }}>{w.code}: {typeof w.detail === "string" ? w.detail : JSON.stringify(w.detail)}</div>
               ))}
             </div>
           )}
