@@ -241,7 +241,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | 1 | Roadmap v4 → קנוני | WS-CC | `CLOSED` | — (היסטורי) | — | — | `f375327f` (main), הועבר ל-History | צוריאל (בוצע) | אין |
 | 2 | ELS FSS → Preview | WS-ELS-FSS | `CLOSED` | — (היסטורי; מיזוג-ל-main נפרד עדיין-פתוח כפריט-לא-ממוספר בכרטיס ה-workstream) | — | PR #163 draft, `work_log ba4427e5` | צוריאל (בוצע) | אין — ההמשך (מיזוג-ל-main) עוקב-דרך `WS-ELS-FSS`, לא-מספר-Gate נפרד |
 | 3 | ELS Step 3 merge+deploy+אימות | WS-ELS-IDENTITY | `CLOSED` | — (היסטורי) | — | `fc123caa`, `work_log ed5cc880` | צוריאל (בוצע) | אין |
-| 4 | Universal Finding Identity & Multi-Source Provenance (ELS Step 4) | WS-ELS-IDENTITY | `OPEN-CRITICAL` | **INTAKE-CRITICAL** | Step 4 dedup/UNIQUE · KU-3D/Navigator/ELS-Matrix · כל-identity-רב-מקורית-עתידית | WS-GEMATRIA-CORPUS-PACKAGES (סדר-עבודה-מוצהר, **לא**-חסימה-טכנית — ר' §12 reconciliation) | Steps 1-3 LIVE/Verified (`fc123caa`) | צוריאל | ממתין לנקודת-החזרה של צוריאל; **v5.1: פנוי-טכנית לפתיחה כבר עכשיו** |
+| 4 | Universal Finding Identity & Multi-Source Provenance (ELS Step 4) | WS-ELS-IDENTITY | `CLOSED` | — (היסטורי; Identity/Architecture Decision, **ELS-scope בלבד** — לא Research-DNA-Identity/Universal) | — (ההחלטה עצמה; ה-build ממשיך non-blocking, ר' Parallel/Non-blocking למטה) | Steps 1-3 LIVE/Verified (`fc123caa`); Human-Gate ZURIEL 22.8.2026: `FindingID={corpus_id,term_norm,dir,skip,start}` מאומץ · provenance/context (`source`/`source_ref`/`contributor`/`time`/`confidence`/`privacy_scope`/`channel`) מחוץ-לזהות · multi-observation-per-Finding כעיקרון (מנגנון-קישור=implementation) · Visibility/Privacy≠Identity, אין-שינוי-רטרואקטיבי · corpus_id/term_norm server-derived מאומת-חי (`save_els_matrix`/`_anon`) — Master State §17 מעודכן | צוריאל (בוצע) | אין — **Implementation** (אכיפת-DB אם-בכלל, חיווט-כתיבת-observations בפועל) נשאר `OPEN` כ-workstream-build נפרד, **אינו-חלק מסטטוס-הסגירה** |
 | 5 | `corpus_id` תנ״ך | WS-TANAKH | `OPEN-NONBLOCKING` | נמוכה | זהות-תנ״ך מלאה | WS-ELS-CORPUS (LIVE) | Master State §17 | צוריאל | ממתין |
 | 6 | `fn_els_search` secdef/search_path שחזור | WS-ELS-REGRESSION-FN | `OPEN-NONBLOCKING` | נמוכה-בינונית (אבטחה) | — | אין | נמצא ב-capability-audit | צוריאל | ממתין |
 | 7 | §17 אנומרציה + Master-State §18 | WS-MASTERSTATE | `OPEN-NONBLOCKING` | תיעודי-בלבד | Master WRITE הבא | קנוניזציית v5/v5.1 (בוצעה) | §19 A-D כבר-על-main | צוריאל | Master WRITE gate נפרד (לא כאן — ר' `DO NOT DO` §16) |
@@ -259,14 +259,17 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | 19 | `raziel_brain` — לאכלס או להסיר | WS-RAZIEL | `OPEN-NONBLOCKING` | נמוכה | היקף-Raziel-אישי | אין | 1-שורה חיה (`id=1`) | צוריאל | ממתין |
 | 20 | מסגרת Research-Object-Map — לספוג ואיך | WS-RESEARCH-OBJECT-FRAMEWORK | `OPEN-NONBLOCKING` | **v5.1: היקף-צומצם** | ספיגה עתידית ל-Master State | WS-URC (חפיפה-מושגית) | ענפי-GPT, `work_log` 17.8 | צוריאל | **v5.1: השאלה-שנותרה מצומצמת ל-AI-Navigator/Budget/Challenge-Mode בלבד** — שאר-הליבה כבר-נענתה ע"י Foundation Contract §2/§11 |
 
+> **עדכון ממוקד (22.8.2026, מאוחר יותר אותו-יום — Gate #4 ELS Finding Identity Decision, Human-Gate ZURIEL):** שורה 4 עודכנה ל-`CLOSED` (Identity/Architecture Decision, ELS-scope בלבד — ר' Master State §17 המעודכן). **הערת-עקביות:** הנרטיב למעלה (`🌌 היקום המלא`, `🧭 סדר-היסוד האסטרטגי`) עדיין מתאר Gate #4 כפתוח/חוסם — טרם עבר reconciliation לעדכון הזה (עריכה ממוקדת בטבלה עצמה בלבד, כנדרש). **הטבלה כאן היא ה-authority** (ר' הערת-המתודולוגיה למעלה) — הנרטיב ייחשב חלקית-`STALE` ביחס ל-Gate #4 עד reconciliation נפרד.
+
 ### Critical Path — רק מה שבאמת חוסם את קו-העבודה הראשי
-**Gate #4** ו-**Gate #18** בלבד. אלה שני-השערים ה-`INTAKE-CRITICAL` היחידים שחוסמים את המעבר לבניית Research Intake — בדיוק כפי-ש-v5 כבר-קבעה, ו-v5.1 מאשרת-מחדש שדבר לא-השתנה בכך. כל שאר-ה-18-השערים הם `OPEN-NONBLOCKING`/`BLOCKED`(מקומי)/`DEFERRED` — אינם עוצרים את קו-Research-DNA→Intake הראשי.
+**Gate #18 בלבד**, החל מ-22.8.2026 (Gate #4 נסגר — ר' עדכון-ממוקד למעלה). זהו כעת השער ה-`INTAKE-CRITICAL` היחיד שחוסם את המעבר לבניית Research Intake. כל שאר-ה-19-השערים (כולל #4, כעת `CLOSED`) הם `CLOSED`/`OPEN-NONBLOCKING`/`BLOCKED`(מקומי)/`DEFERRED` — אינם עוצרים את קו-Research-DNA→Intake הראשי.
 
 ### Parallel/Non-blocking Work — יכול-להתקדם בלי לעכב את ה-Critical Path
 - **Methods Build #1** (Foundation Contract §8-§17, 11 החלטות A-K כבר קיימות ב-`GEMATRIA_METHODS_HUMAN_GATE.csv`) — `PARALLEL_READY`.
 - **Corpus/Number DNA Persistence v1** (32-שורות + 764-נוספות) — `OPEN-HUMAN-GATE` אך לא-תלוי-טכנית ב-Methods Build.
 - **Multilingual Foundation v1** — `PARALLEL_READY`, אינו-חוסם Methods.
-- Gates #5, #6, #7, #8, #10 (תלוי-ב-#9), #11 (תלוי-בOD), #12, #13, #14, #15, #16, #17, #19, #20 — כולם עצמאיים-ביחס-לציר Gate#4→Gate#18.
+- **ELS Identity Implementation (Gate #4 build)** — נפרד מסטטוס-הסגירה של Gate #4: אכיפת-DB אם-בכלל (unique-index) + חיווט-כתיבת-observations בפועל — `OPEN`, `PARALLEL_READY`, לא-חוסם דבר.
+- Gates #5, #6, #7, #8, #10 (תלוי-ב-#9), #11 (תלוי-בOD), #12, #13, #14, #15, #16, #17, #19, #20 — כולם עצמאיים-ביחס-לציר Gate#18.
 - Entity Hub / Raziel (3 מימושים) — `LIVE`/`PARTIAL` **כבר-היום**, לא ממתינים לשום שלב-קודם.
 
 ### Return Point — מתי חוזרים ל-Research Intake
