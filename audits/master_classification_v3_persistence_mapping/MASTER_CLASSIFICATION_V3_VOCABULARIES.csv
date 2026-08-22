@@ -1,0 +1,87 @@
+vocabulary_column,value,row_count,exists_in_live_db,canonical_candidate_or_inferred,belongs_to,notes
+corpus_role,research_vocabulary,8843,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,thematic_corpus,2858,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,research_package,1713,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,public_core,762,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,numeric_word_construct,704,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,archival_raw,337,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,personal_or_restricted,123,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,conversational_noise,84,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,human_review,6,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,duplicate_normalized,2,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+corpus_role,garbage_or_broken,1,NO (no live column holds this exact vocabulary),"candidate (v3-internal, unreviewed)",research_dna / possible future gematria_words column,Overlaps but does not match dna_status's 4-value vocabulary.
+primary_confidence,high,9648,NO,candidate,research_dna,reconstructed_step3 = the 330 WhatsApp-intake rows from the Step-3 closure.
+primary_confidence,medium,4460,NO,candidate,research_dna,reconstructed_step3 = the 330 WhatsApp-intake rows from the Step-3 closure.
+primary_confidence,low,995,NO,candidate,research_dna,reconstructed_step3 = the 330 WhatsApp-intake rows from the Step-3 closure.
+primary_confidence,reconstructed_step3,330,NO,candidate,research_dna,reconstructed_step3 = the 330 WhatsApp-intake rows from the Step-3 closure.
+display_recommendation,eligible via existing lens (per corpus_role),15217,NO,"candidate (recommendation, not applied)",research_dna (never auto-applied to visibility_tier),
+display_recommendation,hold/restrict,214,NO,"candidate (recommendation, not applied)",research_dna (never auto-applied to visibility_tier),
+display_recommendation,dedupe-then-display,2,NO,"candidate (recommendation, not applied)",research_dna (never auto-applied to visibility_tier),
+world_theme,"(column present, always empty)",0,N/A — no data,N/A,N/A — dead column,"Live gematria_words.world (1341 rows, 5 real values) already covers this ground and is NOT reflected in v3 at all."
+research_package_cluster,none,1339,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,messianic_claim_linked,65,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,entity_world_geulah,32,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,ysk_1011,4,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,cross_1237,4,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,ysk_1835,3,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,tzvi_786_keter,3,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,sod1820_branch_786,2,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,sali_mor_tisha_bav,2,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,tzvi_opoc_610,2,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,ysk_hitkansut,2,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,sod1820_anchor_1718,1,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,sod1820_branch_780,1,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,sod1820_anchor_665,1,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,sod1820_anchor_776,1,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_cluster,otzarot_hagilui_1820,1,NO (no live edges/nodes group by these cluster names),"candidate (unreviewed, groups multiple rows = relationship, not attribute)",graph (nodes type=convergence / edges) — NOT a gematria_words column,
+research_package_availability,deep_research,765,NO,candidate,"research_dna (conceptually related to platform_tiers_law access levels, not yet mapped)",
+research_package_availability,public_expanded,565,NO,candidate,"research_dna (conceptually related to platform_tiers_law access levels, not yet mapped)",
+research_package_availability,internal_only,47,NO,candidate,"research_dna (conceptually related to platform_tiers_law access levels, not yet mapped)",
+research_package_availability,public_core,40,NO,candidate,"research_dna (conceptually related to platform_tiers_law access levels, not yet mapped)",
+research_package_availability,premium_candidate,28,NO,candidate,"research_dna (conceptually related to platform_tiers_law access levels, not yet mapped)",
+research_package_availability,do_not_display,18,NO,candidate,"research_dna (conceptually related to platform_tiers_law access levels, not yet mapped)",
+research_package_sensitivity,normal,1397,NO (research_objects.privacy_scope exists but is a different table/column),candidate,research_dna (research_objects.privacy_scope if promoted),
+research_package_sensitivity,personal_claim,65,NO (research_objects.privacy_scope exists but is a different table/column),candidate,research_dna (research_objects.privacy_scope if promoted),
+research_package_sensitivity,unverified_community,1,NO (research_objects.privacy_scope exists but is a different table/column),candidate,research_dna (research_objects.privacy_scope if promoted),
+method_mention_type,research_instruction,273,NO,candidate,"research_dna (research_objects, per existing unexecuted plan)",
+method_mention_type,multi_method_instruction,247,NO,candidate,"research_dna (research_objects, per existing unexecuted plan)",
+method_mention_type,lexical_use,137,NO,candidate,"research_dna (research_objects, per existing unexecuted plan)",
+method_mention_type,method_result_claim,93,NO,candidate,"research_dna (research_objects, per existing unexecuted plan)",
+method_mention_type,candidate_method,37,NO,candidate,"research_dna (research_objects, per existing unexecuted plan)",
+method_mention_type,method_word_as_subject,9,NO,candidate,"research_dna (research_objects, per existing unexecuted plan)",
+method_claim_status,no_claimed_value,282,NO,candidate,research_dna (research_objects),
+method_claim_status,unresolved_mismatch,203,NO,candidate,research_dna (research_objects),
+method_claim_status,not_a_method_claim,137,NO,candidate,research_dna (research_objects),
+method_claim_status,no_claim_verified,105,NO,candidate,research_dna (research_objects),
+method_claim_status,candidate_pending,37,NO,candidate,research_dna (research_objects),
+method_claim_status,engine_verified,32,PARTIAL — research_objects.engine_verified boolean exists and is a good structural fit,"candidate (32 rows already ran through the official engine per this classification, but 0 written to research_objects yet)",research_dna (research_objects),
+candidate_method_dependency,no,759,NO,candidate (flag),research_dna,
+candidate_method_dependency,yes,37,NO,candidate (flag),research_dna,
+numeric_word_category,mixed_numeric_phrase,396,NO,candidate,research_dna (research_objects),
+numeric_word_category,ambiguous,93,NO,candidate,research_dna (research_objects),
+numeric_word_category,numeric_quantity,54,NO,candidate,research_dna (research_objects),
+numeric_word_category,numeric_sequence,27,NO,candidate,research_dna (research_objects),
+yeartime_category,year_in_phrase,85,NO — MASTER_STATE confirms 0 live year<->number edges,candidate,graph-candidate (nodes type=year / edges) once reviewed,
+yeartime_category,research_year,10,NO — MASTER_STATE confirms 0 live year<->number edges,candidate,graph-candidate (nodes type=year / edges) once reviewed,
+yeartime_category,date_or_period,10,NO — MASTER_STATE confirms 0 live year<->number edges,candidate,graph-candidate (nodes type=year / edges) once reviewed,
+yeartime_category,event_year,4,NO — MASTER_STATE confirms 0 live year<->number edges,candidate,graph-candidate (nodes type=year / edges) once reviewed,
+yeartime_category,ambiguous,2,NO — MASTER_STATE confirms 0 live year<->number edges,candidate,graph-candidate (nodes type=year / edges) once reviewed,
+normalization_state,true,11365,"N/A (build-pipeline metadata, not project data)",N/A — recommend not persisting,archive-only / do-not-persist,"4 values for what should be a single boolean — case-inconsistency bug in the CSV build, not live-DB data."
+normalization_state,false,2618,"N/A (build-pipeline metadata, not project data)",N/A — recommend not persisting,archive-only / do-not-persist,"4 values for what should be a single boolean — case-inconsistency bug in the CSV build, not live-DB data."
+normalization_state,True,1190,"N/A (build-pipeline metadata, not project data)",N/A — recommend not persisting,archive-only / do-not-persist,"4 values for what should be a single boolean — case-inconsistency bug in the CSV build, not live-DB data."
+normalization_state,False,260,"N/A (build-pipeline metadata, not project data)",N/A — recommend not persisting,archive-only / do-not-persist,"4 values for what should be a single boolean — case-inconsistency bug in the CSV build, not live-DB data."
+duplicate_flag,yes,2,NO live counterpart at these specific rows (see RECONCILIATION.csv),"candidate (flag, closed)",archive-only,
+garbage_broken_flag,yes,1,consistent with live is_verified=False for that row,"candidate (flag, closed per work_log 491aee81)",archive-only,
+ambiguity_unresolved_flag,yes,1,soft tension with live is_verified=True for that row (different axis),"candidate (flag, closed per work_log 491aee81 as the single 'genuinely_unresolved' row)",archive-only,
+conflict_detail,[RESOLVED: deterministic_rule],109,N/A — provenance text for already-closed conflicts (work_log ad874cd1),PROVENANCE (resolved),archive-only,
+conflict_detail,[RESOLVED: human_decided],11,N/A — provenance text for already-closed conflicts (work_log ad874cd1),PROVENANCE (resolved),archive-only,
+source (top 10 of 162 distinct),promoted:raw_docx_v2,7274,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),excel_import,5883,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),sod1820,416,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),wa-vip,283,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),contribution:צבי (OPOC),227,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),entity_seed_v1,184,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),גיורא בן-יעקוב SMS,167,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),entity_expansion_v1,112,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),admin_curated,71,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),
+source (top 10 of 162 distinct),promoted:raw_docx,43,"YES — exact match against live gematria_words.source (100% agreement, 15433/15433)",FACT / PROVENANCE (already live),gematria_words.source (already there),

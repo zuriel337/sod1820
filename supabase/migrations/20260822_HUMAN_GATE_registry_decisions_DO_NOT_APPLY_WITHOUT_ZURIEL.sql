@@ -1,0 +1,109 @@
+-- ============================================================================
+-- ⛔⛔⛔ DO NOT RUN THIS FILE VIA apply_migration / supabase CLI / execute_sql. ⛔⛔⛔
+-- This is a DRAFT prepared by Claude for Zuriel's review. It is intentionally NOT wired
+-- into the live database. Every block below is a distinct Human-Gate decision — see
+-- audits/gematria_methods_unification/GEMATRIA_METHODS_HUMAN_GATE.csv for the same list
+-- with full context. Apply only the specific blocks Zuriel approves, one at a time, after
+-- reading PLAN.md. None of these have been executed against project linswmnnkjxvweumprav.
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- DECISION A — "Registry correction" (near-zero risk): make gematria_methods describe
+-- behavior that is ALREADY LIVE in production today. gw_enforce_engine (the trigger that
+-- fires on every gematria_words insert/update) already calls hakpala_calc, hakpala_gadol_calc,
+-- miluy_demiluy_calc and ribua_gadol_calc for every approved word RIGHT NOW — this pass
+-- verified all four SQL functions exist and their outputs match the locked DB-rule examples
+-- exactly (hakpala_def, hakpala_gadol_def would need writing — see PLAN.md note; miluy_demiluy_def,
+-- ribua_definition already locked). Applying this block does NOT compute a single new value —
+-- it only corrects gematria_methods.function/active to stop under-reporting what is already
+-- running, so fn_all_methods_full (and the new fn_method_profile) stop hiding them.
+--
+-- Two more rows (מסתתר גדול / מילוי דמילוי גדול) have fully-built, already-verified SQL
+-- functions (mistater_gadol_calc, miluy_demiluy_gadol_calc) that are NOT called by
+-- gw_enforce_engine (no storage column exists for them) — registering them here only makes
+-- them DISPATCHABLE on demand (fn_all_methods_full/fn_method_profile), it does NOT add them
+-- to the stored/auto-calc column set (that would need a new column — schema change,
+-- explicitly out of scope this pass per orchestrator rail #3).
+-- ----------------------------------------------------------------------------
+-- UPDATE public.gematria_methods SET function = 'hakpala_calc',            active = true WHERE method_key = 'הכפלה';
+-- UPDATE public.gematria_methods SET function = 'hakpala_gadol_calc',      active = true WHERE method_key = 'הכפלה גדולה';
+-- UPDATE public.gematria_methods SET function = 'miluy_demiluy_calc',      active = true WHERE method_key = 'מילוי דמילוי';
+-- UPDATE public.gematria_methods SET function = 'ribua_gadol_calc',        active = true WHERE method_key = 'ריבוע גדול';
+-- UPDATE public.gematria_methods SET function = 'mistater_gadol_calc',     active = true WHERE method_key = 'מסתתר גדול';
+-- UPDATE public.gematria_methods SET function = 'miluy_demiluy_gadol_calc',active = true WHERE method_key = 'מילוי דמילוי גדול';
+
+-- ----------------------------------------------------------------------------
+-- DECISION B — in_engine bookkeeping fix (zero functional impact — in_engine is not read by
+-- fn_all_methods_full or fn_method_profile at all, only `active`+`function` are). Corrects
+-- 3 rows where in_engine=false but src/lib/gematria.js actually implements the method today
+-- (אטבח at METHODS line 83, מילוי בלבד at line 86, מסתתר גדול in DEPTH_METHODS).
+-- ----------------------------------------------------------------------------
+-- UPDATE public.gematria_methods SET in_engine = true WHERE method_key IN ('אטבח', 'מילוי בלבד', 'מסתתר גדול');
+
+-- ----------------------------------------------------------------------------
+-- DECISION C — wire משולש מילה / משולש הפוך to the new SQL functions prepared in
+-- 20260822_gematria_triangle_word_functions_prepared.sql, as DISPATCHABLE-ONLY.
+-- `active` is left FALSE here deliberately: `active` is what gw_enforce_engine's hardcoded
+-- column list would need to match to become part of the auto-calc profile for every approved
+-- word, and this task's orchestrator rail #4 forbids changing that default path without a
+-- separate, explicit Zuriel decision. Setting function (with active=false) makes NOTHING
+-- happen automatically — fn_all_methods_full's own loop requires active=true, so these stay
+-- invisible to it until Zuriel flips active separately (see DECISION D).
+-- Requires the companion function file to be applied FIRST.
+-- ----------------------------------------------------------------------------
+-- UPDATE public.gematria_methods SET function = 'triangle_word_calc'    WHERE method_key = 'משולש מילה';
+-- UPDATE public.gematria_methods SET function = 'triangle_reverse_calc' WHERE method_key = 'משולש הפוך';
+-- UPDATE public.gematria_methods SET function = 'stair_triangle_calc'   WHERE method_key = 'משולש מדרגות';  -- bonus, not explicitly requested
+
+-- ----------------------------------------------------------------------------
+-- DECISION D — ACTIVATE משולש מילה / משולש הפוך for on-demand dispatch (fn_all_methods_full).
+-- ⛔ This is the step orchestrator rail #4 explicitly reserves for Zuriel. Do NOT apply
+-- without him seeing this exact block. Note this does NOT add them to gw_enforce_engine's
+-- stored/auto-calc column list (that still requires a schema decision — see PLAN.md §6) —
+-- it only means "ask for משולש מילה and get an answer" becomes possible, same as any other
+-- currently-active method.
+-- ----------------------------------------------------------------------------
+-- UPDATE public.gematria_methods SET active = true WHERE method_key IN ('משולש מילה', 'משולש הפוך');
+-- -- UPDATE public.gematria_methods SET active = true WHERE method_key = 'משולש מדרגות';  -- optional, not requested by task section 6
+
+-- ----------------------------------------------------------------------------
+-- DECISION E — proposed Composite Research Transform catalog rows (task section 8/9).
+-- category='composite' is a NEW category value (existing values today: 'base','depth' — see
+-- LIVE_STATUS.csv). required_entitlement values below are PROPOSALS per Zuriel's stated
+-- default intent ("Composite Methods = Premium/Deep Research candidates") — not a final
+-- tier decision; per research_dna_v1 §4.7 / gematria_methods_catalog, Premium never changes
+-- the canonical numbers, only visibility. function/db_column are intentionally NULL —
+-- composites are computed client-side by src/lib/research/compositeMethods.js from the two
+-- canonical atomic outputs; there is no new atomic SQL function to write for them.
+-- ----------------------------------------------------------------------------
+-- INSERT INTO public.gematria_methods
+--   (method_key, display_label, category, sub, sort_order, db_column, in_engine, function,
+--    active, deterministic, source_of_truth, required_entitlement, version)
+-- VALUES
+--   ('רגיל+מילוי',                 'רגיל + מילוי',                  'composite', 'הגלוי מול הפנימיות', 25, NULL, true, NULL, false, true, 'composite of fn_ragil + fn_miluy (canonical atoms)', 'premium',      1),
+--   ('רגיל+מסתתר',                 'רגיל + מסתתר',                  'composite', 'הגלוי מול הנסתר',    26, NULL, true, NULL, false, true, 'composite of fn_ragil + fn_misratar (canonical atoms)', 'premium',   1),
+--   ('רגיל+משולש',                 'רגיל + משולש (קדמי)',           'composite', 'הגלוי מול השורש',    27, NULL, true, NULL, false, true, 'composite of fn_ragil + kadmi_calc (canonical atoms)', 'premium',    1),
+--   ('משולש מילה+משולש הפוך',      'משולש מילה + משולש הפוך',       'composite', 'ההיבנות מול ההיפרדות', 28, NULL, true, NULL, false, true, 'composite of triangle_word_calc + triangle_reverse_calc (canonical atoms, once DECISION C applied)', 'deep_research', 1);
+
+-- ----------------------------------------------------------------------------
+-- DECISION F — ⚠️ HIGH-VALUE BUG FIX CANDIDATE, distinct from all the above (those add/
+-- correct dormant rows; this corrects an ACTIVE, currently-dispatchable one). This pass
+-- found that gematria_methods row method_key='אטבח' points `function` at public.fn_atbach,
+-- but TWO SQL functions exist: fn_atbach and fn_atbach_maharshal. They implement DIFFERENT
+-- final-letter mappings and disagree on real input:
+--   'יום משיח' → fn_atbach = 696   vs.   fn_atbach_maharshal = 506
+-- src/lib/gematria.js's ATBACH_L map (the JS engine users see in the UI, comment cites
+-- "יום משיח = 506", "מהרש\"ל") agrees exactly with fn_atbach_maharshal, NOT with fn_atbach.
+-- There is no locked `nodes` rule (no atbach_def / atbach_maharshal_def) to independently
+-- arbitrate which is "correct" — but the registry currently dispatches the one that
+-- disagrees with the UI's own displayed value for any word containing a final letter. This
+-- is a real, reproducible, evidenced bug, not a guess. Recommended fix (pending Zuriel):
+-- ----------------------------------------------------------------------------
+-- UPDATE public.gematria_methods SET function = 'fn_atbach_maharshal' WHERE method_key = 'אטבח';
+-- -- Zuriel may instead prefer to keep fn_atbach and correct ATBACH_L in gematria.js — either
+-- -- direction requires his call, since "which cipher is the real אטבח" is a content decision,
+-- -- not a code decision. Do not apply either side without him confirming which is canonical.
+
+-- ============================================================================
+-- End of draft. Apply blocks individually, never as a single blind `psql -f`.
+-- ============================================================================

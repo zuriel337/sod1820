@@ -3,6 +3,7 @@ import { isAnon } from './privacy.js';
 import { isReadable } from './nameMask.js';
 import { AUTHORS } from './authors.js';
 import { stripHtml } from './format.js';
+import { METHOD_DB_COLS } from './gematria.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -528,7 +529,9 @@ export async function getGematriaByPhrases(phrases) {
 // Get gematria words matching a specific value.
 // opts.method = 'ragil' | 'misratar' | 'kadmi' (עמודת-ההשוואה, לסינון חוצה-שיטות) · opts.limit (ברירת-מחדל 12).
 // תאימות-לאחור: קריאה עם ערך בלבד → רגיל, 12.
-const GEM_METHOD_COL = { ragil: 'ragil', misratar: 'misratar', kadmi: 'kadmi' };
+// 🔗 נגזר מ-gematria.js METHOD_DB_COLS (מקור-אמת יחיד לשם-שיטה→עמודת-DB) — לא רשימה מקבילה משלה
+// (canonical_methods_registry_law). אותם 3 ערכים בדיוק כמו קודם: ragil/misratar/kadmi.
+const GEM_METHOD_COL = { ragil: METHOD_DB_COLS['רגיל'], misratar: METHOD_DB_COLS['מסתתר'], kadmi: METHOD_DB_COLS['קדמי'] };
 export async function getGematriaByValue(value, opts = {}) {
   if (!supabase || !value) return [];
   const col = GEM_METHOD_COL[opts.method] || 'ragil';
