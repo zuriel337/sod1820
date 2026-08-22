@@ -3,8 +3,14 @@
 // SOD1820_MASTER_ROADMAP.md (v4) — נטען ישירות (?raw), בלי DB, בלי feature-flags,
 // בלי מערכת מקבילה. מתעדכן אוטומטית עם המפה. גלוי ≠ מופעל.
 // שייך לקבוצת «🎛️ חדר המפקדה» ב-AdminPage; מגודר ב-isAdmin ברמת העמוד.
-import React from "react";
+//
+// 🗺️ מצב-מפה תלת-ממדית (החלטת צוריאל 22.8.2026): הרחבה של אותה עדשה עצמה —
+// לא ארטיפקט חדש, לא נוגע בהכרעת CC-1-target (Gate #9). ברירת-מחדל = מפה
+// תלת-ממדית (RoadmapMap3D, "מרכז המחקר של הפיתוח" עצמו); תצוגת-הטקסט למטה
+// נשארת כפתור-מעבר וגם הגיבוי האוטומטי כש-WebGL לא זמין / מסך צר מדי.
+import React, { useState, useEffect } from "react";
 import roadmapMd from "../../../SOD1820_MASTER_ROADMAP.md?raw";
+import RoadmapMap3D, { webglAvailable } from "./RoadmapMap3D.jsx";
 
 // --- markdown → HTML מינימלי, מותאם למבנה של v4 (כותרות/טבלאות/רשימות/ציטוט/קוד) ---
 // הקלט הוא קובץ-מקור שלנו (מהימן), לא קלט-משתמש.
@@ -125,6 +131,13 @@ const CSS = `
 
 export default function RoadmapCommandCenter() {
   const html = React.useMemo(() => mdToHtml(roadmapMd), []);
+  const [canMap, setCanMap] = useState(true);
+  useEffect(() => {
+    setCanMap(webglAvailable() && window.innerWidth >= 480);
+  }, []);
+  const [mode, setMode] = useState("map"); // "map" | "text" — ברירת-מחדל: המפה התלת-ממדית
+  const effectiveMode = canMap ? mode : "text";
+
   return (
     <div className="roadmap-cc">
       <style>{CSS}</style>
@@ -133,7 +146,35 @@ export default function RoadmapCommandCenter() {
         <span className="s">Lens חי מעל SOD1820_MASTER_ROADMAP.md (v4) · מקור יחיד · אין מערכת מקבילה</span>
         <a href="https://github.com/zuriel337/sod1820/blob/main/SOD1820_MASTER_ROADMAP.md" target="_blank" rel="noreferrer">קובץ המקור ↗</a>
       </div>
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <button
+          onClick={() => setMode("map")}
+          disabled={!canMap}
+          title={canMap ? "" : "תלת־הממד אינו זמין (WebGL חסר או מסך צר מדי) — נופל אוטומטית לתצוגת טקסט"}
+          style={{
+            cursor: canMap ? "pointer" : "not-allowed", opacity: canMap ? 1 : 0.4,
+            borderRadius: 999, padding: "6px 14px", fontFamily: "Heebo,system-ui,sans-serif", fontSize: 12.5, fontWeight: 800,
+            border: `1px solid ${effectiveMode === "map" ? "#e8c84a" : "rgba(232,200,74,.3)"}`,
+            background: effectiveMode === "map" ? "rgba(232,200,74,.16)" : "transparent",
+            color: effectiveMode === "map" ? "#e8c84a" : "#9aa2b6",
+          }}
+        >🌌 מפה תלת־ממדית</button>
+        <button
+          onClick={() => setMode("text")}
+          style={{
+            cursor: "pointer",
+            borderRadius: 999, padding: "6px 14px", fontFamily: "Heebo,system-ui,sans-serif", fontSize: 12.5, fontWeight: 800,
+            border: `1px solid ${effectiveMode === "text" ? "#e8c84a" : "rgba(232,200,74,.3)"}`,
+            background: effectiveMode === "text" ? "rgba(232,200,74,.16)" : "transparent",
+            color: effectiveMode === "text" ? "#e8c84a" : "#9aa2b6",
+          }}
+        >📄 טקסט מלא</button>
+      </div>
+
+      {effectiveMode === "map"
+        ? <RoadmapMap3D height="80vh" />
+        : <div dangerouslySetInnerHTML={{ __html: html }} />}
     </div>
   );
 }
