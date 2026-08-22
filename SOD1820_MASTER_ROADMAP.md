@@ -172,8 +172,9 @@
 
 ---
 
-## 🧭 סדר-היסוד האסטרטגי (STRATEGIC FOUNDATION ORDER) — חדש, נוסף 22.8
+## 🧭 סדר-היסוד האסטרטגי (STRATEGIC FOUNDATION ORDER) — חדש, נוסף 22.8, **תוקן 22.8 (FOUNDATION_ORDER_CORRECTION)**
 > **provenance:** הודעת-צוריאל 22.8 ("STRATEGIC FOUNDATION ORDER — SOD1820"). עיקרון-סדר אסטרטגי, **לא** סטטוס חדש ו**לא** workstream בפני-עצמו — קובע את סדר-ההתקדמות בין-workstreams קיימים (ובגאפים-שטרם-קיבלו-כרטיס). **טרם נכנס ל-Master State** — כמו עקרון-עבודה-רוחבית למעלה, ממתין ל-Master Reconciliation נפרד.
+> **תיקון-ממוקד (22.8, אותו-יום):** 3 תיקונים-עובדתיים בטבלה למטה (שורות 2, 4, 6-7) — לא-נקבע-מראש יעד-Persistence, לא-מוזג Research-DNA-Identity עם Gate #4/`WS-ELS-IDENTITY`, ו-Entity-Hub/Raziel מובהרים כ-`LIVE`/`PARTIAL`-כבר-היום (לא-חסומים עד-שלב 6-7). ר' `work_log` (`actor=CLAUDE task=FOUNDATION_ORDER_CORRECTION`).
 
 **השרשרת (7 שלבים):**
 ```
@@ -185,12 +186,12 @@ Entity Hub → Raziel Orchestration
 | # | שלב | ה-workstream/מצב הקיים | STATE |
 |---|---|---|---|
 | 1 | Corpus Classification | `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) + `MASTER_CLASSIFICATION_v3` (work_log 22.8: 15,433/15,433 שורות מסווגות, `closed_awaiting_human_gate`, 4 פריטים ב-Human-Gate בלבד) | `ACTIVE_NOW`/כמעט-סגור |
-| 2 | Corpus Persistence | **אין-עדיין כרטיס** — הצעד הבא: להעביר את `MASTER_CLASSIFICATION_v3.csv` (scratchpad, READ-ONLY עד-כה) בפועל ל-DB (`gematria_words`/שדות-corpus_role) אחרי Human-Gate | `OPEN` — לא-נפתח-כאן, ממתין-לשער |
+| 2 | Corpus Persistence | **אין-עדיין כרטיס.** `MASTER_CLASSIFICATION_v3.csv` (scratchpad, READ-ONLY עד-כה) ממתין ל-Human-Gate — אך **היעד המדויק (אילו שדות, אילו טבלאות) טרם-נקבע כאן ולא-מונח-מראש** שהוא `gematria_words`/שדות-corpus_role או כל-זה-בטבלה-אחת. ההעברה-בפועל תיקבע ע"י **`MASTER_CLASSIFICATION_v3` Persistence Mapping** — צעד-תכנון נפרד שחייב להפריד בין **facts** (עובדות-מנוע-מחושבות) / **derived** (נגזר/מסווג) / **research** (הקשר-מחקרי, packages/worlds/וכו') / **provenance** (מקור+שרשרת-אימות) — כל שכבה עשויה לנחות במקום-שונה בגרף הקיים (`nodes`/`edges`/`research_objects`/עמודות-קיימות), לא-בהכרח-יחד ולא-בהכרח בכל 27 הממדים-שסווגו | `OPEN` — לא-נפתח-כאן, ממתין ל-Persistence Mapping ואז-לשער |
 | 3 | Research DNA v1 | "Legacy → Research DNA Crosswalk" (work_log 22.8, `returned_to_zuriel_gpt_for_decision`) — הרחבת `WS-GAMMA`, derived-view לפי דרישת-צוריאל (work_log "🧬 Research DNA v1 — Zuriel constraint", 22.8) | `OPEN-HUMAN-GATE` |
-| 4 | Identity / Multilingual / Numeric transforms | Gate #4 (`WS-ELS-IDENTITY`, Universal Finding Identity & Multi-Source Provenance) + `content_translation_law` (רב-לשוניות) + NUMERIC-DNA generation-slot (מוגדר-בעיצוב, לא-בנוי) | `OPEN/INTAKE-CRITICAL` |
+| 4 | Identity / Multilingual / Numeric transforms | **שכבת Research DNA לזהות מילים/שמות/aliases/שפות/טרנספורמציות** (איך ביטוי מזוהה, מתורגם, מומר-למספר-ובחזרה) — `content_translation_law` (רב-לשוניות) + NUMERIC-DNA generation-slot (מוגדר-בעיצוב, לא-בנוי). **⚠️ לא-זהה ל-Gate #4/`WS-ELS-IDENTITY`** (Universal Finding Identity & Multi-Source Provenance) — זה עוסק בזהות-**ממצא-ELS** (`{corpus_id,term_norm,dir,skip,start}`) ובמקוריות/provenance שלו *בתוך המנוע*, סובסיסטם נפרד עם primitives משלו. ייתכן-שיתיישרו בעתיד לחוזה-Identity משותף — **אין-למזג את שני הסובסיסטמים כעת** | `OPEN-HUMAN-GATE` (שכבת Research-DNA-Identity, טרם-הוכרעה) — Gate #4 עצמו נשאר `OPEN/INTAKE-CRITICAL` כשער **נפרד** |
 | 5 | Cross & ELS Engines | `WS-CROSS-ENGINE` (DESIGN/FUTURE) + אשכול `WS-ELS-FSS`/`WS-ELS-WORKAREA`/`WS-ELS-IDENTITY` | `DESIGN`/`OPEN-HUMAN-GATE` (ELS: חלקים `LIVE`) |
-| 6 | Entity Hub | `EntityHubRails`/`EntityPage.jsx` (קוד חי, `docs/planning/full-site-layout-state.md`) — **אין-עדיין כרטיס-workstream ייעודי** | `LIVE` (קוד) · `UNTRACKED` (כ-workstream) |
-| 7 | Raziel Orchestration | `WS-RAZIEL` + עקרון Brain Responsibility (למעלה, מאושר-Governance) | `LIVE` (3 מימושים) · חיווט-זהות `OPEN` |
+| 6 | Entity Hub | `EntityHubRails`/`EntityPage.jsx` (קוד חי, `docs/planning/full-site-layout-state.md`) — **כבר `LIVE`/`PARTIAL` היום, לא ממתין לשלבים 1-5.** שלב 6 בשרשרת מתייחס ל**דור-המאוחד** של Entity Hub — עדשה עשירה-יותר על אותה ישות, מונעת ע"י Research DNA + `WS-CROSS-ENGINE`/ELS מלאים — **לא** לאיסור-לעבוד על ה-Entity Hub הקיים בינתיים. אין-עדיין כרטיס-workstream ייעודי (לא-לקיים, לא-לדור-המאוחד) | `LIVE`/`PARTIAL` (קיים) · `FUTURE`/`UNTRACKED` (הדור-המאוחד) |
+| 7 | Raziel Orchestration | `WS-RAZIEL` + עקרון Brain Responsibility (למעלה, מאושר-Governance) — **כבר `LIVE`/`PARTIAL` היום (3 מימושים), לא ממתין לשלבים 1-5.** שלב 7 מתייחס ל**דור-המאוחד** של Raziel כ-Orchestrator מעל Research DNA + Cross/ELS המלאים — **לא** לאיסור-לעבוד על Raziel הקיים/חיווט-הזהות בינתיים | `LIVE`/`PARTIAL` (3 מימושים, קיים) · חיווט-זהות `OPEN` · `FUTURE` (הדור-המאוחד) |
 
 **העיקרון המנחה (כלשונו):** **אין צורך להשלים כל enrichment אפשרי בקורפוס לפני התקדמות.** `MASTER_CLASSIFICATION_v3` מספק בסיס מספיק למעבר לשלב-הבא (Foundation) — לא-נדרש איפוס/שכלול-אינסופי לפני שממשיכים בשרשרת. **הרחבות-קורפוס עתידיות (עוד מקורות, עוד שיטות, עוד שפות) נכנסות דרך אותו Research DNA v1 (שלב 3) ואינן יוצרות schema/engine/tree מקביל** — מתיישר-במלואו עם `unified_graph_law`/γ ועם דרישת-ה-extensibility שכבר נרשמה ל-Research DNA v1 (work_log 22.8: "future corpus expansion, new methods, numeric-language generation, multilingual identity, without schema redesign").
 
