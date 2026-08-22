@@ -181,6 +181,10 @@ export const rwCss = (t = RW) => `
   .rw-er-sel{flex:none;max-width:92px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
     border-radius:8px;font-size:11.5px;font-weight:700;font-family:inherit;padding:5px 6px;cursor:pointer}
   .rw-er-sel:hover{border-color:var(--acc)}
+  /* תיוג-ארגון אוסף-מחקר פרטי (נושא/עולם/מספר/שנה) */
+  .rw-in{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;
+    font-size:11.5px;font-weight:600;font-family:inherit;padding:6px 8px}
+  .rw-in:focus{outline:none;border-color:var(--acc)}
   /* התחברות + מצב «בבנייה» */
   .rw-cta button.off{opacity:.5;cursor:default}
   .rw-login{width:100%;border:1px solid var(--acc);background:var(--accS);color:var(--acc);border-radius:12px;
