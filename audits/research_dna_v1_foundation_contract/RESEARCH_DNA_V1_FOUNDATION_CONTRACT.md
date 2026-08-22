@@ -1,11 +1,13 @@
 # SOD1820 — RESEARCH DNA v1 · FOUNDATION CONTRACT
-### Architecture/Contract + Roadmap Alignment · actor=CLAUDE · 2026-08-22 · **§4 corrected 22.8 (fifth, final pass)**
+### Architecture/Contract + Roadmap Alignment · actor=CLAUDE · 2026-08-22 · **§4 corrected 22.8 (fifth pass); §8–§25 added 22.8 (seventh, FINAL pass)**
 
-**This is the fourth pass in a chain on the same subject; §4 was corrected/replaced by a fifth, final pass the same day.** It is an architecture/contract synthesis — it does not re-research. It closes decisions already reached by: `MASTER_CLASSIFICATION_V3` (schema profile, persistence mapping, final decision pack), the **Legacy → Research DNA Crosswalk**, the **Research DNA v1 Proof-of-Model** (20 real cases, readiness decision: *architecturally ready*), **Methods Expansion Phase 1**, **Hebrew Identity Phase 2**, **Numeric Language Phase 1–5**, and the **Multilingual Corpus Inventory**. Companions: `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`.
+**This is the seventh pass in a chain on the same subject, and is intended by Tzuriel as the FINAL contract consolidation before his Human-Gate decision on PR #166.** It is an architecture/contract synthesis — it does not re-research and it does not implement. It closes decisions already reached by: `MASTER_CLASSIFICATION_V3` (schema profile, persistence mapping, final decision pack), the **Legacy → Research DNA Crosswalk**, the **Research DNA v1 Proof-of-Model** (20 real cases, readiness decision: *architecturally ready*), **Methods Expansion Phase 1**, **Hebrew Identity Phase 2**, **Numeric Language Phase 1–5**, the **Multilingual Corpus Inventory**, and the live DB rule `gematria_methods_catalog` (Zuriel, decided 2026-08-21). Companions: `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`, and the new `RESEARCH_DNA_V1_FINAL_CONTRACT_COVERAGE.md` checklist.
 
-**§4 correction, 22.8 (this pass):** the fourth pass's §4 ("Legacy Access Preservation + Premium Depth Law") used wording Tzuriel judged too rigid (*"an approved method's raw computed value is never Premium"*, *"Premium controls depth and tooling — not truth"*). §4 below **replaces** that section in full with: a new Legacy Baseline Law (§4.1), an explicit Additive Enrichment Law separating Classification/Provenance-Generation/Approval/Access as four orthogonal axes (§4.3), a corrected World Access Law (§4.4), a corrected Method Access Law (§4.6), a corrected Premium Law slogan (§4.7), and a Future Management View requirement (§4.11). §2's dimension table gained an explicit **Approval** dimension and a **Baseline/Enrichment Provenance** sub-field of Provenance. Everything else in this document (§1, §2's other dimensions, §3, §5's original text, §6, §7) is unchanged in substance from the fourth pass — see the inline "added 22.8" markers for exactly what is new.
+**§4 correction, 22.8 (fifth pass):** the fourth pass's §4 ("Legacy Access Preservation + Premium Depth Law") used wording Tzuriel judged too rigid (*"an approved method's raw computed value is never Premium"*, *"Premium controls depth and tooling — not truth"*). §4 below **replaces** that section in full with: a new Legacy Baseline Law (§4.1), an explicit Additive Enrichment Law separating Classification/Provenance-Generation/Approval/Access as four orthogonal axes (§4.3), a corrected World Access Law (§4.4), a corrected Method Access Law (§4.6), a corrected Premium Law slogan (§4.7), and a Future Management View requirement (§4.11). §2's dimension table gained an explicit **Approval** dimension and a **Baseline/Enrichment Provenance** sub-field of Provenance. §1–§7 are unchanged in substance from the fourth/fifth pass — see the inline "added 22.8" markers for exactly what is new there.
 
-**Explicitly NOT performed by this contract:** persistence of the 32 rows, aliases, method activation, schema changes, application build. **0 DB writes** except the single closing `work_log` memo.
+**§8–§25, added 22.8 (this, seventh pass — FINAL CONTRACT CONSOLIDATION):** brings in every architecture decision reached *after* the fifth pass, per Tzuriel's own verbatim instruction: a formal **Unified Gematria Method Law** (§8, grounding the already-live `gematria_methods_catalog` DB rule as the method registry SSOT), the **Technical Identity ≠ Display Label** principle (§9), **Full Method Profile** for approved words (§10) and its **Method Profile Contract** (§11), **Method Versioning** (§12), **Method Families** (§13), explicit **status-only** documentation of the specific candidate methods Zuriel named — איק בכר, אחס בטע, משולש מילה, משולש מילה הפוך (§14), the **Atomic ≠ Composite** law (§15), **Method Baseline** provenance (§16), a restated **no-25-method-target** reminder (§17, cross-reference only), the **Multi-Method Cross** contract requirement (§18), **Method Consensus/Convergence** (§19), bringing the already-completed **Numeric Language** research into the durable contract (§20–§22), a **Bidim/`gematria_words`** cross-reference confirmation (§23), an extended **Future Human-Gate/Admin** and **Future Management View** requirement (§24), and a **Canonical Rule/Codex candidacy recommendation** (§25) — Human-Gate required before any of it becomes a live DB rule.
+
+**Explicitly NOT performed by this contract, in any pass including this one:** persistence of the 32 rows, aliases, method activation, composite implementation, Numeric Language implementation, schema changes, application build, deploy, merge. **0 DB writes** except the single closing `work_log` memo.
 
 ---
 
@@ -37,6 +39,14 @@ Every claim about a phrase's gematria value — anywhere in the system, present 
 - **`not_tested`** — a claim exists but no engine run has been performed against it yet (the honest default state for anything not yet reviewed — this is what the 764 remaining `method_mention_type` rows should carry, not `engine_verified` and not `unresolved_mismatch` conflated together).
 
 **Hard rule, stated once for reuse everywhere:** a label of `engine_verified=true` (or `verification_state='match'`) is only ever written when `engine_method_tested` and `engine_result` are persisted alongside it, from a fresh run against the row **as it actually sits today** — never inferred from an import-pipeline heuristic, never carried forward from a stale prior computation, and never applied to a whole messy phrase when only a substring was actually tested. **Claim ≠ Fact.** This is the same discipline `gematria_engine_law` and `verified_value_is_system_data` already establish for ordinary gematria display — this section extends it explicitly to *claim verification*, where the 32-row incident showed it was not yet being honored.
+
+### 1.1 NEGATIVE RESULTS PRESERVATION LAW — new, added 22.8 (seventh pass)
+
+**A `mismatch` (or `no_fit`) verification result is itself research evidence, not a failed row to discard.** This is not a new principle invented here — it is the explicit, literal behavior already demonstrated by `METHODS_EXPANSION_PHASE_1` (ר"ת's standard reading tested against 6 rows: 1/6 fit, explicitly disclosed and *kept*, not deleted; ס"ת's standard reading: 1/13, likewise kept) and by the 31/32 mismatched rows from the Final Persistence Decision Pack, which route to Human-Gate rather than being dropped (`CORPUS_APPROVAL_LIFECYCLE.md` §2). This pass makes the rule explicit and general, for every future claim/method/transform verification, anywhere in the system:
+
+- **A `tested → mismatch` (or `tested → no_fit`) result is never deleted.** It is a disclosed, negative finding — proof that a specific hypothesis was actually checked and did not hold, which is strictly more valuable than silence (`not_tested`).
+- **A claim/method/transform that has already been tested and decided `mismatch`/`no_fit` is not silently re-tested again** without a new reason to do so (a new candidate definition, new corpus evidence, an explicit Zuriel instruction) — re-running an already-decided negative result without cause wastes effort and risks a future pass "discovering" the same non-fit as if it were new, exactly the kind of duplicate-reconstruction `method_lifecycle`'s own provenance requirement (`discovered_vs_reproduced`, keyed claim+value tracking) already guards against.
+- **Where this lives:** the same `research_objects.engine_detail` jsonb convention as §1's `verification_state` — a `mismatch`/`no_fit` value is a first-class, permanent state, not a placeholder pending deletion. No new table or column is required.
 
 ### Where this lives (no new table)
 
@@ -206,6 +216,8 @@ Carried forward, not decided, not newly opened by this pass:
 4. **The phonetic/sound-pattern multilingual layer's structured home** — disclosed gap, per §2.4 above, no mechanism proposed.
 5. **Whether to finally wire `dna_status` into app code as an active QUALITY-DNA read signal** — real, well-shaped, currently unread; a recommendation, not a decision, in the Crosswalk.
 6. **N-many arbitrary theme-edges per record** (beyond the current 2-axis world+category) — architecturally available, not the active write-path; a scope/UI decision for later.
+7. **Method Versioning** (§12, added 22.8 seventh pass) — no confirmed definition/version-history mechanism exists for `gematria_methods` rows; `IMPLEMENTATION DECISION REQUIRED`, same disposition as item 0 above, generalized from content-rows to methods.
+8. **Method Baseline provenance** (§16, added 22.8 seventh pass) — whether `gematria_methods` carries the same row-level `created_at`-against-cutoff answerability that `gematria_words`/`edges`/`nodes` do (item 0) is unconfirmed (no schema inspection performed this pass); `IMPLEMENTATION DECISION REQUIRED`.
 
 None of these block Research DNA v1's readiness as a *contract* — the Proof-of-Model already confirmed all 20 stress-tested cases pass without needing any of the above resolved first. They are named here so no future pass mistakes silence for resolution.
 
@@ -215,8 +227,193 @@ None of these block Research DNA v1's readiness as a *contract* — the Proof-of
 
 **NOT YET — same verdict as every prior pass in this chain, reconfirmed, not re-litigated.** Every dimension of Research DNA v1, every stage of the Corpus Approval Lifecycle, and every stage of the Method Lifecycle maps onto a structure that already exists (`gematria_words`, `research_objects`, `research_contributions`, `word_aliases`, `edges`/`nodes`, `gematria_methods`). The one concrete future build item (a `targets` edge-type vocabulary value) is a controlled-vocabulary addition, not a schema change, and is itself gated behind a Zuriel definition that has not yet been given.
 
-**Added 22.8, this pass — one open item, verdict unchanged:** §4.1/§6 item 0 (field-level baseline/enrichment provenance — no `updated_at` on `research_objects`/`edges`/`nodes`, no `is_baseline`/`batch`/`generation` field anywhere) is `IMPLEMENTATION DECISION REQUIRED`, not `SCHEMA CHANGE REQUIRED NOW`. Row-level baseline/enrichment already works today via `created_at` against a fixed cutoff — no schema change needed for that. Whether field-level enrichment eventually needs a new column, an append-only audit row, or a documented jsonb convention is a decision for the future build pass, not this contract. The verdict stays **NOT YET**.
+**Added 22.8, fifth pass — one open item, verdict unchanged:** §4.1/§6 item 0 (field-level baseline/enrichment provenance — no `updated_at` on `research_objects`/`edges`/`nodes`, no `is_baseline`/`batch`/`generation` field anywhere) is `IMPLEMENTATION DECISION REQUIRED`, not `SCHEMA CHANGE REQUIRED NOW`. Row-level baseline/enrichment already works today via `created_at` against a fixed cutoff — no schema change needed for that. Whether field-level enrichment eventually needs a new column, an append-only audit row, or a documented jsonb convention is a decision for the future build pass, not this contract. The verdict stays **NOT YET**.
+
+**Added 22.8, seventh/FINAL pass — two more open items, verdict still unchanged:** §12 (Method Versioning) and §16 (Method Baseline) are the method-registry-layer analogs of the same gap, both `IMPLEMENTATION DECISION REQUIRED`, both explicitly **not** schema changes performed by this contract. Every dimension of Research DNA v1, every stage of both lifecycles (Corpus Approval, Method), and every new §8–§25 principle this pass adds (Unified Method Law, Full Method Profile, Method Profile Contract, Method Families, Atomic/Composite, Numeric Language Transform Contract) maps onto structures that already exist or are explicitly named as future `IMPLEMENTATION DECISION REQUIRED` gaps — none of them requires schema **now**. **The verdict, reconfirmed a third time in this chain: NOT YET.**
 
 ---
 
-*Governance: docs-only pass. 0 DB writes except the single closing `work_log` memo, which covers this document together with `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`, and the `SOD1820_MASTER_ROADMAP.md` edit. §4 correction pass, 22.8: fifth and final pass in this chain — closes the Foundation/Access/Premium wording question; no further correction pass on this subject is anticipated before Human-Gate.*
+# PART II — GEMATRIA METHODS · NUMERIC LANGUAGE · CROSS · PREMIUM (§8–§25, added 22.8, seventh/FINAL pass)
+
+**Everything below is contract text, not build.** It closes the architecture decisions Tzuriel reached after the fifth pass, so that Methods Build implementation can start from PR #166 alone, without depending on this chat. It grounds itself in the already-live DB rule `gematria_methods_catalog` (Zuriel, decided 2026-08-21, re-read live this pass) wherever that rule already states the same thing — cross-referenced, not restated with different wording, per this pass's own governing instruction (§0: "search result ≠ SSOT... don't re-litigate").
+
+## 8. UNIFIED GEMATRIA METHOD LAW — new, named explicitly
+
+**One engine · one registry · one source of truth for methods.** This is not a new invention — it is the formal naming of what `gematria_methods_catalog` (live DB rule, §1: *"מקור-האמת לשיטות הוא public.gematria_methods... אין לקבע בחוק מספר קבוע של שיטות"*) already establishes. This section states it as a standing law for every future pass and every future agent touching methods:
+
+- **`public.gematria_methods` is the intended real SSOT registry for methods** — not a CSV, not a hardcoded array in a JS/SQL file, not a second "candidate methods" table. A future goal (not performed by this contract) is to end the current situation where a new/candidate method can be informally referenced in multiple lists/engines without a single registry entry governing all of them.
+- **Definition of Done for a method, future state:** `Method Definition → Deterministic Engine Function → Registry Entry (`gematria_methods`) → Tests (real-sample match-rate, per `method_lifecycle` §2 discipline) → Human-Gate (Zuriel) → Active`. Only once `active=true` and `function` is wired does a method become available to: Research DNA (as a normal METHOD-dimension fact, §2 above), the approved-word auto-calc profile (§10 below), the number page, the Cross Engine (§18 below), and Raziel/Deep Research — on the same terms as the 13 current methods, per `METHOD_LIFECYCLE_ALIGNMENT.md` §4 (unchanged, cross-referenced here).
+- **No parallel registry, no parallel engine.** This is the same discipline `METHOD_LIFECYCLE_ALIGNMENT.md` §1 already states ("No parallel registry, no separate 'candidate methods' table is created anywhere in this alignment") — §8 here elevates it from an implementation detail of that document to a named, standalone law so future passes cite it directly without having to re-derive it from the lifecycle document.
+
+## 9. METHOD DISPLAY NAME — Technical Identity ≠ Display Label (new, named explicitly)
+
+`gematria_methods_catalog` §2 already decided this precisely: the internal method קדמי/`kadmi`/`kadmi_calc` is shown to users as **"משולש"** (קדמי גדול → משולש גדול). This section names the general principle behind that specific decision, for reuse on every future method:
+
+> **Technical identity ≠ Display label.** A method's `method_key`, DB column names, SQL function names, registry keys, and historical provenance/discovery record **never change** to match a friendlier UI word. The UI label is a presentation-layer fact only. `gematria_methods_catalog` §7 already states this for קדמי specifically ("אין לשנות שמות פנימיים/עמודות/פונקציות כדי להתאים לשפת-הפרונט") — §9 here generalizes it as a standing rule for every future display-name decision, so it does not need to be re-litigated method-by-method.
+
+## 10. FULL METHOD PROFILE FOR APPROVED WORDS
+
+Once a word/phrase is `corpus_approved` (per `CORPUS_APPROVAL_LIFECYCLE.md` Stage 6), it should be able to expose a **Full Method Profile** — a computed value under every approved/active/dispatchable method, not only the methods that happen to have a dedicated `gematria_words` column today. This is a natural extension of the already-live `gw_enforce_engine` trigger behavior (`gematria_auto_registry_law`: *"הטריגר gw_enforce_engine מחשב את כל השיטות אוטומטית"*) and `gematria_methods_catalog` §4 (*"כל מילה/ביטוי... יחושבו אוטומטית בכל השיטות הקנוניות... יישמרו/יוקרנו כך שהמערכת תקרא את הערכים במקום לחשב מחדש"*) — §10 states explicitly that **no requirement exists that every method be its own physical `gematria_words` column** for this to work; a method's result can be dispatched/computed on demand from the registry-driven engine and cached/projected as convenient, not necessarily stored as a dedicated column per method.
+
+**This introduces a second, narrower four-way split — distinct from §4.3's Classification/Provenance-Generation/Approval/Access axes, which govern content/enrichment provenance.** §10's split governs the lifecycle of one computed *method result*, a different layer entirely:
+
+| Concern | Question it answers |
+|---|---|
+| **Dispatchable** | Can the engine compute this method for this expression right now, given a registered, active, wired function? |
+| **Auto-calculated** | Is this method actually run automatically (e.g. on every new approved word, per `gw_enforce_engine`/§4-style triggers) rather than only on manual request? |
+| **Stored-Cached** | Is the computed result persisted (a `gematria_words` column, a cache row, `research_objects.engine_detail`) so surfaces read it instead of recomputing? |
+| **Displayed** | Is the result actually shown on a given surface (number page, calculator, DNA panel) — a presentation decision, independent of whether it was computed/stored? |
+| **Access** | Which tier can see this method's result on this surface — a `gematria_methods_catalog` §3 access-layer decision (public/premium/deep_research), the same Access axis §4.6/§4.7 already govern for methods generally |
+
+**Calculation ≠ Storage ≠ Display ≠ Access — stated once, for reuse.** None of the four implies another: a method can be Dispatchable and Auto-calculated without being Stored (recomputed on read); Stored without being Displayed everywhere (available for DNA/Cross even if hidden on the plain number page); Displayed to one tier and not another (Access); and none of this changes the Mathematical Truth invariant already locked by §4.6.
+
+## 11. METHOD PROFILE CONTRACT
+
+A method result, wherever it is consumed (Number Page, Cross Engine, Raziel, Deep Research), must be able to return **at least** the following fields — no new table required, the same `research_objects.engine_detail`/`gematria_methods` convention already used throughout this contract:
+
+| Field | What it records |
+|---|---|
+| Method identity/key | The registry `method_key` (e.g. `kadmi`) — the technical identity, never the display label (§9) |
+| Display label | The UI-facing name (e.g. "משולש") — presentation only |
+| Family/category | Optional grouping (§13) — metadata, not a formula fork |
+| Lifecycle state | Where the method sits in `method_lifecycle`'s own vocabulary (`known → reconstructed → candidate → verified → canonical`) |
+| Computed value | The engine's fresh result for the given expression |
+| Verification source | Which engine run/pass produced this value, per §1's Claim/Calculation/Verification field set |
+| Definition/version provenance | Which method definition/version computed this result (§12) |
+| Stored vs. derived | Whether this value is cached/persisted or computed on demand (§10) |
+| Access state/tier | Public / Premium / Deep Research, per `gematria_methods_catalog` §3 and §4.6/§4.7 |
+| Atomic vs. composite | Whether this is an independent formula or a Composite Research Operator over other methods' outputs (§15) |
+
+**No independent method list per surface.** Number Page, Cross Engine, Raziel, and Deep Research all consume the same Method Profile shape — this is the direct method-layer analog of Research DNA's own "one projection, many lenses" principle (§2's opening line) and of `unified_graph_law`'s "מציירים פעם אחת, מפנים מכל מקום."
+
+## 12. METHOD VERSIONING — new
+
+Every method definition needs a **provenance/version concept**, so that if a formula is later corrected or redefined, the system can still say which definition/version produced a historical result. This mirrors, at the method layer, exactly the same gap §4.1 already named at the world/content layer (field-level baseline/enrichment provenance) — and inherits the same disposition: **`IMPLEMENTATION DECISION REQUIRED`.** No migration, no new column, no versioning table is invented by this contract. `gematria_methods` today has no visible version/definition-history column (not verified schema-live this pass, since no schema inspection was performed — this is a documented gap, not a confirmed absence). A future build pass should decide, deliberately, among options such as: a `definition_version` column on `gematria_methods`, an append-only `method_definition_history` table, or a documented convention that a method's `engine_detail`/registry metadata always carries a `{defined_at, definition_hash}` sibling key. **Not decided here.**
+
+## 13. METHOD FAMILIES — new
+
+Research DNA must be able to **group methods into research families as metadata/research organization, without changing their technical identifiers.** Example, directly per Tzuriel's instruction: a "משולש" family could group משולש (קדמי) / משולש מילה / משולש מילה הפוך under their approved definitions, once/if the latter two clear Human-Gate (§14). Family membership:
+
+- Is a labeling/grouping fact layered over the registry (e.g. a `family` tag on a `gematria_methods` row, or an edge in the graph), never a formula change.
+- Does not imply shared access tier, shared lifecycle state, or shared verification status — each family member's Method Profile (§11) fields are still independent per §10's four-way split.
+- Is the method-layer counterpart of §2's `Semantic (worlds/themes)` dimension — grouping without merging, exactly as `world` vs. `category` never collapse (§2.1).
+
+## 14. SPECIFIC METHODS — status only, from prior research, not new investigation
+
+Per Tzuriel's explicit instruction: document current status and readiness for the next Methods Build. **Nothing below is activated, tested afresh, or promoted by this contract.**
+
+| Method | Current status | Evidence this pass reused (not re-derived) |
+|---|---|---|
+| **ר"ת (רת)** | `candidate` — unchanged | `METHODS_EXPANSION_PHASE_1`: standard reading (first letter of each word, run through all 13 live methods) explains 1/6 testable rows (id `18207155`→337, via רגיל/גדול) but explicitly **fails** the strongest anchor cluster (644, "צמח דוד"/"צמח דויד", 6 occurrences, spelling-invariant). Not elevated. Cross-ref `METHOD_LIFECYCLE_ALIGNMENT.md` §3. |
+| **ס"ת (סת)** | `candidate` — unchanged | Same source: standard reading explains 1/13 testable rows (590, "יהוה יפיל את בראק חוסיין אובאמה"). Positive evidence the recurring claimed value 1335 is a Scripture citation (Daniel 12:12), not a computed value. Weaker than ר"ת. Not elevated. |
+| **רגיל ישר והפוך** | `candidate`, not testable | Zero worked examples exist anywhere in the corpus (3 bare category-tag mentions only) — per `method_lifecycle`'s own rule ("לא-שוחזר → עצור → אדם"), no reconstruction was attempted. Cannot advance without Zuriel supplying a worked example or explicit definition. |
+| **איק בכר (איק בכ"ר)** | `discovered`/`known` — **not yet a tested candidate** | Named as a future-approved-to-expand candidate in the live `gematria_methods_catalog` §5 (`future_method_candidates`). In the raw corpus (`METHOD_MENTIONS_CLASSIFIED.csv`/`METHOD_CLAIMS_PHASE3.csv`, era1-method-mentions), the label appears **5 times**, but every occurrence was classified `lexical_use`/`research_instruction`/`not_a_method_claim` or folded into a ס"ת candidate row's source text (`72c33f16...`) — **no row exists where "איק בכר" was itself run as its own tested hypothesis** in `METHODS_EXPANSION_PHASE_1`, which explicitly scoped itself to only ר"ת/ס"ת/רגיל-ישר-והפוך. **Readiness for next Methods Build: needs a reconstruction attempt first** (definition-testing stage), exactly like ר"ת/ס"ת were tested — not ready for Human-Gate yet, no algorithm has been proposed or tested against real rows. |
+| **אחס בטע (אח"ס בט"ע)** | `discovered`/`known` — **not yet a tested candidate** | Same live-rule candidacy (`gematria_methods_catalog` §5). Appears **1 time** in the corpus (`91f90c74...`, "644 זרע לוט-אחרי - 1118 -אחס בטע"), classified `lexical_use`/`not_a_method_claim` — a single occurrence, no recurring anchor, no worked definition. **Readiness: not testable yet** (parallel to `רגיל ישר והפוך`'s status — one occurrence is too thin to reconstruct without guessing, which `method_lifecycle`/§3/§5 forbid). Needs Zuriel to supply a worked example or definition before any reconstruction attempt is possible. |
+| **משולש מילה** | `candidate`/pre-registry, prior-mapped | Named in the live `gematria_methods_catalog` §5 `future_method_candidates` and §13 above (family grouping). Per Tzuriel's instruction: he wants it wired into the approved-word auto-calc profile (§10) in the next Methods Build, **contingent on confirming its existing definition is unambiguous and deterministic** — that confirmation step is not performed by this contract (no engine/schema touched). |
+| **משולש מילה הפוך** | `candidate`/pre-registry, prior-mapped | Same status and same condition as משולש מילה — Zuriel's instruction pairs them (§15's composite list also names their combination). Confirmation of an unambiguous, deterministic existing definition is the next Methods Build's first task for this pair, not performed here. |
+
+**Net for Methods Build #1 (see final chat answer, §30):** ר"ת/ס"ת/רגיל-ישר-והפוך are disciplined dead-ends unless Zuriel supplies new provenance — not blocking work. איק בכר/אחס בטע need a first reconstruction attempt (currently `known`, not `candidate` with a testable hypothesis). משולש מילה / משולש מילה הפוך are the closest to ready — they need only a **definition-confirmation** pass (deterministic? unambiguous?) before Human-Gate, not a from-scratch reconstruction.
+
+## 15. ATOMIC ≠ COMPOSITE
+
+Restated here as **contract text**, independent of and prior to any separate implementation pass (including the concurrently-running, not-yet-reviewed Methods Unification build — this section is what that build should conform to, not the reverse):
+
+- **Atomic methods** are independent formulas, each computed directly from a phrase's letters: רגיל, מילוי, מסתתר, משולש (=קדמי), משולש מילה, משולש מילה הפוך (once each clears Human-Gate), and the rest of the current 13 active methods.
+- **Composite Research Methods/Transforms** compose the *canonical outputs* of atomic methods — they are not independent mathematical implementations and require no new DB column per combination. Per Tzuriel's instruction and the live `gematria_methods_catalog` §6 (`composite_research_operators`, currently listing רגיל+מילוי / רגיל+מסתתר / רגיל+משולש), the target composite set is:
+  - רגיל+מילוי
+  - רגיל+מסתתר
+  - רגיל+משולש
+  - **משולש מילה+משולש מילה הפוך** — new to this pass; not yet in the live DB rule's `composite_research_operators` list. Recommended for addition to that rule after Human-Gate (§25 below), not written by this contract.
+- **Composite methods:** use the canonical, already-computed outputs of their atomic components (never re-derive the math independently), preserve each component's own provenance (so a composite result can always be traced back to which atomic values produced it), and can be assigned a **separate** access tier from their components (§4.6's "Method Approved ≠ Free automatically" applies to composites too — a composite's tier is its own Human-Gate decision, not inherited from its atomic parts). Composites target Research DNA (as a METHOD-dimension fact, §2), the Cross Engine (§18), and Deep Research — not the plain baseline number-page display by default.
+- **No new atomic math is invented by treating a composite as a "new method"** — this is the same distinction `gematria_methods_catalog` §6 and `METHOD_LIFECYCLE_ALIGNMENT.md` §4 already draw for the acronym-extraction-composed-with-canonical-method pattern found in Methods Expansion Phase 1's §6 collision check.
+
+## 16. METHOD BASELINE — new
+
+Like Worlds (§4.1), **Methods need baseline/enrichment provenance too** — the future ability to know which methods existed at baseline (the current 13 active methods) vs. which were added later, alongside each method's lifecycle state, approval, access tier, and definition/version (§12). This is not a new problem distinct from §4.1 — it is the **same gap, generalized from content-rows to method-registry-rows**: `gematria_methods` was not schema-inspected for a `created_at`/version-history column in this pass, so whether row-level baseline/enrichment already works for methods the way it does for `gematria_words` rows (§4.1) is itself unconfirmed. **`IMPLEMENTATION DECISION REQUIRED`** — no schema created by this contract. A future pass should explicitly check `gematria_methods`'s actual columns before deciding whether this needs a new field or already has one.
+
+## 17. NO ARTIFICIAL 25-METHOD TARGET — cross-reference only, not re-litigated
+
+Confirmed already stated in this chain (prior passes, `gematria_methods_catalog` §1's own "אין לקבע בחוק מספר קבוע של שיטות"): **~25 is a product/research target, not a truth-dictating count.** No method is invented to reach it; no genuine method is discarded to stay under it. Nothing new to add here — named so the Coverage Matrix (§29 of the task, `RESEARCH_DNA_V1_FINAL_CONTRACT_COVERAGE.md`) has an explicit anchor point.
+
+## 18. MULTI-METHOD CROSS — contract requirement only, no build
+
+**The future Cross Engine (`WS-CROSS-ENGINE`) must be able to use the same Method Profile (§11) to search across *different* methods, not only `A.ragil = B.ragil`.** Concretely, the contract requires the eventual engine to support queries of the shape:
+
+- `A.method_X = B.method_Y` for any two registered methods X, Y (e.g. `A.ragil = B.milui`, `A.triangle = B.mistater`)
+- `composite_of(A) = other_method_of(B)` (a Composite Research Method's result on A matching an atomic or composite method's result on B)
+
+**This is a contract requirement for a future build, not performed in PR #166.** It composes directly with §4.6/§4.7 (Access) — a multi-method cross query's *results* can be tiered, but the underlying Method Profile shape (§11) that makes the query possible must already treat every method uniformly, atomic or composite, exactly as §10/§11 specify. `RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md` §2's own dimension table (`Access`) and §5 (Number Page compatibility) already name `WS-CROSS-ENGINE` as a future consumer of the same Research DNA projection — §18 makes the *method-crossing* requirement explicit within that.
+
+## 19. METHOD CONSENSUS / CONVERGENCE — new
+
+Research DNA must be able to **recognize when the same number or relationship appears through several independent methods** — e.g. two different methods on two different phrases both landing on 776, or a composite and an atomic method independently agreeing on a value. This is a **research signal**, exactly the same epistemic category as the Numeric Language Phase 5 "flagship finding" (§20 below) — it may, in the future, influence ranking or research-relevance surfacing (per `command_center_law`'s `Rank, Don't Hide`), but:
+
+> **Convergence ≠ Fact.** Multiple independent methods landing on the same value is evidence worth surfacing, never proof of a canonical relationship. It routes through the same Claim/Calculation/Verification discipline (§1) and Approval axis (§4.3) as any other finding — it does not bypass Human-Gate, and it is not itself a `verification_state='match'` event.
+
+No new table is required — a convergence is a *derived, computed observation* over already-stored Method Profile results (§11), not a stored fact in its own right, exactly as `dna_status`/`corpus_role` stay derived-and-displayed rather than merged (§2.1).
+
+## 20. NUMERIC LANGUAGE — bringing the completed research into the contract
+
+§2.3 above already named Numeric Language's architectural slot (a `method`/`engine_detail`-shaped transform, not a parallel numbers table) and confirmed Phase 5's verdict (**NOT YET** ready for a full bidirectional model, 46.7% words→number coverage). §20 makes explicit, as durable contract text, the specific finding Tzuriel's instruction calls out:
+
+> **Research DNA must support deterministic Number → Language representations, including digit-to-word representation** — the canonical example, reproduced independently from raw corpus text (not only generated): **776 → "שבע שבע שש"** (digit-read form). Per `NUMERIC_LANGUAGE_STRONG_NUMBERS_METHOD_SHEET.md` (era2-strong-numbers) and `NUMBER_LANGUAGE_BIDIRECTIONAL_REPORT.md` §6/§8 (era2-numeric-language-phase5): this exact digit-sequence appears in the raw corpus (row id 64, `NUMBER_WORDS_RECONCILED.csv`) as a byte-identical match to the system's own Phase-1-generated digit-read form for 776 — one of only two rows in the entire 570-row corpus sample independently reproducing the "75/148/776 triangle" the Phase 2–3 *generation* direction had already established (75→776, 148→776, both via רגיל on their cardinal-word forms, both `↔GRAPH-DIRECT` confirmed). This is the single strongest piece of evidence in the whole 5-phase Numeric Language arc that the representation reflects something latent in the corpus, not only a generator artifact — still disclosed as "a striking coincidence-of-independent-discovery, not yet a statistically established pattern" (Phase 5's own words), not elevated further by this contract.
+
+- **The original number stays the numeric identity.** A generated/parsed language representation is a **derived representation of** that number — never a competing identity.
+- **Number ≠ Generated Language Representation.** 776 and "שבע שבע שש" are not interchangeable identities; the representation is a fact *about* 776, layered on top of it, exactly as `word_aliases` layers language variants on top of `gematria_words.id` (§2.4) rather than forking identity.
+- **A generated representation does not automatically become an approved `gematria_words` entry.** It stays in the Numeric Language transform layer (§21 below) until/unless a separate, explicit Human-Gate decision promotes it into the approved corpus — the same Stage 5/6 discipline as any other claim (`CORPUS_APPROVAL_LIFECYCLE.md` §1).
+- **No parallel numeric/language corpus.** Everything above composes with the existing `gematria_words`/`research_objects`/`word_aliases` structures per §2.3/§2.4 — nothing new is created by this section.
+
+## 21. NUMERIC LANGUAGE TRANSFORM CONTRACT
+
+Every approved Numeric Language transform must be able to store/return **at least**:
+
+| Field | What it records |
+|---|---|
+| Input number | The originating numeric identity |
+| Transform type | e.g. `digit_read`, `cardinal_wording`, `number_to_word`, `word_to_number` (per Phase 1–5's own `parse_type` vocabulary: `digit_sequence`, `cardinal_number`, `year_expression`, `mixed_numeric_phrase`) |
+| Generated representation | The resulting Hebrew (or, per `content_translation_law`, future-multilingual) text |
+| Language | Per the 8-language canonical set (he·en·ar·es·fr·ru·pt·de), `content_translation_law` |
+| Transform definition/version | Which generator/parser version produced this — the Numeric Language analog of §12's Method Versioning, same `IMPLEMENTATION DECISION REQUIRED` disposition until a future pass decides the mechanism |
+| Provenance | Which pass/engine run produced it, per §1's field-set discipline |
+| Deterministic/reproducible state | Whether the same input reliably reproduces the same representation — Phase 1–4's NUMBER→WORDS generation direction is confirmed reliable; WORDS→NUMBER parsing is confirmed only 46.7% reliable (Phase 5) |
+
+**Reuse the already-researched rules — do not reinvent.** The Numeric Language artifacts already establish these transform rules across `era2-numeric-language-phase1` through `phase5` (anchor generation, cross-anchor network, full anchor validation, representative sample validation, words→numbers reconciliation) and `era2-strong-numbers` (the 13-method × cardinal/digit-read sheet for the 11 seed numbers + 24 additional TOP20/hub/fan-out numbers). **Undecided transforms route to Human-Gate**, exactly like any other candidate claim — no transform is auto-promoted to canonical.
+
+## 22. NUMBER → LANGUAGE → METHOD → NUMBER — contract requirement only, no build
+
+A derived language representation must be **passable through approved gematria methods** in a future pipeline: `NUMBER → LANGUAGE REPRESENTATION → METHOD → RESULT NUMBER`, then fed into cross/convergence search (§18/§19) from there. Conceptual example, grounded in already-completed research (not invented): **776 → "שבע שבע שש" → רגיל → 1344** (per `NUMERIC_LANGUAGE_STRONG_NUMBERS_METHOD_SHEET.md`'s own live-engine table for 776's digit-read form — רגיל=1344, גדול=1344, משולש גדול=5036, etc., all 13 methods already computed and disclosed in that sheet). **This is a Research DNA/Cross contract requirement for a future pass — the engine that runs this pipeline automatically is not built in PR #166.** It composes §11 (Method Profile, consuming a Numeric Language representation exactly as it would consume any other expression), §18 (Multi-Method Cross), and §19 (Consensus) without requiring any new primitive beyond what those sections already define.
+
+## 23. BIDIM / `GEMATRIA_WORDS` — cross-reference, confirmed, not re-litigated
+
+Already established in this chain (per a prior pass's §12, re-confirmed live this pass): **`gematria_words` is the canonical/wide word storage; `bidim` is the long/reverse index for search by method+value.** They are not merged. The forward-looking requirement this contract adds no new text to (already covered): a future Methods Build must align `bidim`'s reverse index generation with the `gematria_methods` registry (§8) rather than a hardcoded method list, so that a newly-approved method automatically gains reverse-index coverage without a bespoke code change. **`gematria_words.all_values` is a derived convenience representation, not a Method SSOT** — the SSOT for what methods exist and how they compute is exclusively `gematria_methods` (§8), and `all_values` is downstream of it, never the other way around.
+
+## 24. FUTURE HUMAN-GATE / ADMIN — document only, no UI, extending §4.11
+
+**Two concrete future Human-Gate flow examples** (documentation only, per Tzuriel's instruction — no admin screen built):
+
+1. **Method path:** Method "אחס בטע" → Candidate (a worked definition is proposed, per §14's current `discovered` status) → Definition verified (deterministic, letter-value-based, per `method_lifecycle`'s reconstruction-permission rule) → Test vectors passed (a real-sample match-rate, not one coincidental hit, per `METHOD_LIFECYCLE_ALIGNMENT.md` §2's discipline) → Engine reproducible → Suggested access tier (§4.6) → **[Human Gate — Zuriel]** → active/canonical, entering `gematria_methods` (§8).
+2. **Expression path:** Expression X → source/researcher identified (Stage 1, `CORPUS_APPROVAL_LIFECYCLE.md`) → method calculations run fresh (Stage 2) → verification checked (Stage 3, §1's field set) → candidate (Stage 4, research/provenance attached) → **[Approve to corpus — Zuriel]** → Stage 6, approved corpus.
+
+**Extending §4.11's Future Management View to explicitly cover Methods and Corpus, not only Worlds** (§4.11 already specifies the World breakdown; this section adds the other two legs of the same future view, same "requirement only, nothing built" status):
+
+- **Methods breakdown:** *Method: משולש מילה / Baseline: no (not yet approved) / Lifecycle state: candidate / Free-exposure: TBD / Premium-exposure: TBD / Pending Human-Gate: yes.* Per method, the same shape §4.11 already specifies per world.
+- **Corpus breakdown:** *Existing rows: N / New submissions: N / Engine-tested: N / Pending Human-Gate: N / Approved: N* — the same six-stage `CORPUS_APPROVAL_LIFECYCLE.md` funnel, rendered as counts.
+- Both depend on the same §4.1/§16 baseline-provenance decisions being made first, exactly as §4.11 already notes for the World breakdown — **not built, not scheduled, requirement only.**
+
+## 25. CANONICAL RULE / CODEX CANDIDACY — recommendation only, no DB rule written
+
+**No `nodes type='rule'` row and no `project_codex` entry is written by this pass.** Per Tzuriel's explicit instruction, this section returns a recommendation of which principles above are strong candidates to become live DB rules/codex entries **after Human-Gate** — locking any of them remains Zuriel's decision, not this contract's:
+
+| Principle | Candidacy | Why |
+|---|---|---|
+| **Unified Gematria Method Law (§8)** | **Strong candidate** | Names, as a standing law, what `gematria_methods_catalog` §1 already half-states — worth its own citable `rule_id` so future passes don't have to re-derive "one registry" from a longer catalog rule. |
+| **Engine Verified ≠ Corpus Approved (`CORPUS_APPROVAL_LIFECYCLE.md` §2)** | **Strong candidate** | Already phrased as a hard, quotable rule; grounded in a real, disclosed incident (31/32 mismatch); exactly the shape of SOD1820's other locked one-liner rules (`verified_value_is_system_data`, `gematria_engine_law`). |
+| **Atomic ≠ Composite (§15)** | **Candidate, after the composite set is confirmed** | Conceptually ready, but recommend waiting for Human-Gate confirmation of the exact composite list (including the new משולש מילה+משולש מילה הפוך pairing) before locking wording, so the rule doesn't need a version bump immediately after creation. |
+| **Calculation ≠ Storage ≠ Display ≠ Access (§10)** | **Candidate** | A genuinely new, reusable four-way separation not previously named anywhere in the DB rules; useful the moment Methods Build #1 starts touching auto-calc/caching decisions. |
+| **Number ≠ Language Representation (§20)** | **Candidate, lower priority** | Correct and useful, but Numeric Language itself is still `NOT YET` per Phase 5's own verdict — recommend locking this rule only once/if a future pass revisits Numeric Language readiness, to avoid a codex entry that outlives its own generating research's open status. |
+
+**Human-Gate required before locking any of the above as a live rule** — this table is a recommendation for Tzuriel's review, not a proposal awaiting silent approval.
+
+---
+
+*Governance: docs-only pass. 0 DB writes except the single closing `work_log` memo, which covers this document together with `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`, `RESEARCH_DNA_V1_FINAL_CONTRACT_COVERAGE.md`, and the `SOD1820_MASTER_ROADMAP.md` edit. §4 correction, 22.8: fifth pass in this chain. §8–§25, 22.8: seventh and FINAL pass in this chain, per Tzuriel's explicit framing — no further contract-consolidation pass on this subject is anticipated before Human-Gate; the next pass on this subject should be Methods Build implementation, not further contract text.*

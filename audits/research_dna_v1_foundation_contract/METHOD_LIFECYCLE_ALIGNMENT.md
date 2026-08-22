@@ -76,4 +76,10 @@ None of this is built by this contract. It documents the wiring that already exi
 
 ---
 
+## 6. Cross-reference, added 22.8 (seventh/FINAL pass)
+
+`RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md` §8–§19 (Part II, added this pass) extend everything above without changing it: §8 (Unified Gematria Method Law) formally names this document's own "no parallel registry, no separate candidate methods table" (§1 above) as a standing law; §14 states explicit, status-only readiness for איק בכר/אחס בטע/משולש מילה/משולש מילה הפוך (candidates this document did not cover — it scoped itself to ר"ת/ס"ת/רגיל-ישר-והפוך only, per its own §0); §15 restates Atomic ≠ Composite as contract text, grounded in this document's own §4 composite/derived-methods paragraph; §12 (Method Versioning) and §16 (Method Baseline) are new open items, both `IMPLEMENTATION DECISION REQUIRED`, at the same lifecycle layer this document governs. **Nothing in §1–§5 above changes as a result of any of this** — this is a pointer to newly-added, adjacent contract text, not a revision of ר"ת/ס"ת/רגיל-ישר-והפוך's status or of the lifecycle stages themselves.
+
+---
+
 *Governance: READ-ONLY/docs-only. 0 `gematria_methods` writes. 0 registry changes. Closing `work_log` memo covers this document together with the other two Foundation Contract documents and the Roadmap edit.*

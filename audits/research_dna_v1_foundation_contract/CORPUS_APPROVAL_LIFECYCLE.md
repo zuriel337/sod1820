@@ -74,4 +74,10 @@ Per the Final Persistence Decision Pack §3 (already-confirmed, reused here not 
 
 ---
 
+## 6. Cross-reference, added 22.8 (seventh/FINAL pass)
+
+`RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md` §8 (Unified Gematria Method Law) and §25 (Canonical Rule/Codex Candidacy) both name this document's §2 rule (**"Engine Verified ≠ Corpus Approved"**) as a strong candidate to become its own locked DB rule after Human-Gate — nothing here changes as a result; this is a pointer, not a revision. §1.1 of the Foundation Contract (Negative Results Preservation Law, new this pass) is the direct generalization of this document's own §2 finding (mismatched rows route to Human-Gate, they are never deleted) — applied beyond corpus rows to every future claim/method/transform verification. Nothing in §1–§5 above changes as a result.
+
+---
+
 *Governance: READ-ONLY/docs-only. 0 DB writes except the single closing `work_log` memo (inserted separately, covering all three contract documents + the roadmap edit together).*
