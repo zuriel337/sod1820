@@ -101,6 +101,45 @@
      padding:7px 15px;font-size:12px;color:var(--ink2);animation:gfade .4s ease}
   .searchstat b{color:var(--goldBright);font-weight:800;font-variant-numeric:tabular-nums}
   .searchstat .ss-sep{opacity:.4}
+  /* ↩ מסע-המחקר — נראה רק כשיש היסטוריה */
+  .jtrail{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 auto 8px;max-width:760px;font-size:12px;color:var(--ink3)}
+  .jtrail .j-ic{color:var(--goldBright);font-size:13px;flex:none}
+  .jtrail .j-n{cursor:pointer;border:1px solid var(--line2);background:var(--panel2);color:var(--ink2);
+    border-radius:999px;padding:4px 11px;font-family:inherit;font-size:12px;font-weight:700;min-height:30px}
+  .jtrail .j-n:hover{color:var(--goldBright);border-color:var(--gold)}
+  .jtrail .j-ar{opacity:.5}
+  .jtrail .j-cur{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#241a02;
+    border-radius:999px;padding:4px 11px;font-weight:800;font-size:12px}
+  /* ↑ הפוך לציר ראשי — הפעולה שסוגרת את לולאת-המחקר */
+  .witem .toax{cursor:pointer;border:1px solid var(--gold);background:transparent;color:var(--goldBright);
+    border-radius:8px;padding:3px 8px;font-family:inherit;font-size:11px;font-weight:800;white-space:nowrap;min-height:28px}
+  .witem .toax:hover{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#241a02;border-color:transparent}
+  /* 👁 גיליון-התצוגה של המטריצה */
+  .dispsheet{margin:8px auto 0;max-width:560px;background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:11px 12px}
+  .dispsheet .ds-seg{display:flex;gap:4px;background:var(--panel2);border-radius:10px;padding:3px;margin-bottom:9px}
+  .dispsheet .ds-seg button{flex:1;cursor:pointer;border:none;background:transparent;color:var(--ink2);
+    border-radius:8px;padding:8px 4px;font-family:inherit;font-size:12px;font-weight:700;min-height:38px}
+  .dispsheet .ds-seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .dispsheet .ds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:6px}
+  .dispsheet .ds-grid button{cursor:pointer;border:1px solid var(--line2);background:var(--card);color:var(--ink2);
+    border-radius:9px;padding:9px 6px;font-family:inherit;font-size:12px;font-weight:700;min-height:40px}
+  .dispsheet .ds-grid button.on{background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#241a02;border-color:transparent}
+  .searchstat .ss-cap{font-style:normal;color:var(--ink3);font-size:11.5px;font-weight:600}
+  /* 🧬 לוח צורות-הפיצול (FORMS · Split/Join) */
+  .formsout{display:none;max-width:760px;margin:10px auto 0;background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:12px 13px;box-sizing:border-box}
+  .formsout .fo-head{color:var(--goldBright);font-family:var(--serif);font-size:14.5px;font-weight:800;margin-bottom:9px;line-height:1.6}
+  .formsout .fo-tok{color:var(--ink2);font-family:inherit;font-size:12px;font-weight:600}
+  .formsout .fo-meta{display:block;color:var(--ink3);font-size:11.5px;font-weight:600;margin-top:2px}
+  .formsout .fo-rows{display:flex;flex-direction:column;gap:5px}
+  .formsout .fo-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 10px;min-height:44px;box-sizing:border-box}
+  .formsout .fo-row.off{opacity:.5}
+  .formsout .fo-w{color:var(--goldBright);font-size:15px;font-weight:800;letter-spacing:.5px}
+  .formsout .fo-d{color:var(--ink3);font-size:11px;font-weight:600;direction:ltr;unicode-bidi:isolate}
+  .formsout .fo-n{color:var(--ink2);font-size:12px;margin-inline-start:auto;font-variant-numeric:tabular-nums}
+  .formsout .fo-go{cursor:pointer;border:none;border-radius:999px;background:var(--gold);color:var(--accInk,#1a0e00);font-family:inherit;font-weight:800;font-size:12px;padding:7px 13px;min-height:36px;flex:none}
+  .formsout .fo-foot{margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .formsout .fo-deep{cursor:pointer;border:1px solid var(--line2);border-radius:999px;background:transparent;color:var(--goldBright);font-family:inherit;font-weight:800;font-size:12.5px;padding:8px 14px;min-height:44px}
+  .formsout .fo-note{color:var(--ink3);font-size:11px;line-height:1.6;flex:1;min-width:180px}
   .bar .qb{width:100%;min-width:0;background:var(--field);border:1px solid var(--line2);color:var(--ink);border-radius:10px;padding:14px 16px;font-family:var(--serif);font-size:17px;text-align:center;outline:none}
   .bar .qb:focus{border-color:var(--gold)}.bar .qb::placeholder{color:var(--ink3)}
   .crossrow{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:9px}
@@ -551,12 +590,8 @@
   .searchload .sl-box{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:22px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
   .searchload .sl-t{color:var(--goldBright);font-family:var(--serif);font-size:16px;font-weight:800;margin-bottom:6px}
   .searchload .sl-s{color:var(--ink2);font-size:12.5px;line-height:1.6;margin-bottom:13px}
-  .searchload .sl-bar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
-  .searchload .sl-bar i{display:block;height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--goldBright));animation:slmove 1.05s ease-in-out infinite}
-  .searchload.done .sl-bar i{animation:none;width:100%;margin-left:0}
-  @keyframes slmove{0%{margin-left:-40%}100%{margin-left:102%}}
-  .searchload .sl-time{color:var(--ink3);font-size:12.5px;margin-top:11px;font-variant-numeric:tabular-nums}
-  .searchload.done .sl-time{color:var(--goldBright);font-weight:800}
+  .searchload.stage .sl-s{margin-bottom:0}   /* אין עוד פס-התקדמות מתחת — בלי רווח-מת בתחתית התיבה */
+  /* מצב-שלבים: בלי פס-נע ובלי מונה — בזמן חסימה הם היו קופאים ונראים שבורים */
   .matacts .post-act{flex:1 1 auto;background:linear-gradient(160deg,rgba(232,200,74,.07),var(--panel));color:var(--ink2);border-color:var(--line2);font-weight:700;font-size:12px}
   .matacts .post-act:hover{border-color:var(--gold);color:var(--goldBright);background:var(--panel2)}
   .matacts .link-act{border-style:dashed;color:var(--ink2)}
@@ -1107,27 +1142,78 @@
 
   // ===== מנוע חיפוש מהיר =====
   function lb(a,x){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<x)lo=m+1;else hi=m;}return lo;}
-  function fwd(tt,cap,hits,orient,stt){
-    const SN=scopeN();
+  // ── 🔭 D4 · scopeRange — טווח-הסריקה [from,to) ───────────────────────────────────────
+  //    היום תמיד ההיקף המלא. הפרמטר הוא ה**תפר** שמאפשר למנוע לסרוק מקטע — וזה מה שמאפשר
+  //    לפזר את התקציב על פני הקורפוס במקום למלא אותו מתחילתו.
+  //    ⛔ אינו משנה את searchSpace, את הדירוג או את מודל-החיפוש. רק *היכן* ובאיזה סדר סורקים.
+  function scopeRange(){return [0,scopeN()];}
+
+  // הכנה משותפת: מפות-מיקום + שתי אותיות-העוגן הנדירות. זהה לקוד שהיה, רק מוגבל לטווח.
+  function _prep(tt,from,to){
     const L=tt.length,need=new Set(tt),pos=new Map();
     for(const c of need)pos.set(c,[]);
-    for(let i=0;i<SN;i++){const a=pos.get(T[i]);if(a)a.push(i);}
-    for(const c of need)if(!pos.get(c).length)return;
+    for(let i=from;i<to;i++){const a=pos.get(T[i]);if(a)a.push(i);}
+    for(const c of need)if(!pos.get(c).length)return null;
     const ord=[];for(let k=0;k<L;k++)ord.push(k);
     ord.sort((a,b)=>pos.get(tt[a]).length-pos.get(tt[b]).length);
     let i=ord[0],j=ord[1];if(i>j){const t=i;i=j;j=t;}
-    const g=j-i,Pi=pos.get(tt[i]),Pj=pos.get(tt[j]),mx=Math.floor((SN-1)/(L-1))||1;
-    for(let a=0;a<Pi.length;a++){if(stt.capped)return;const pi=Pi[a],lo=pi+g,hi=pi+g*mx;
-      for(let b=lb(Pj,lo);b<Pj.length;b++){const pj=Pj[b];if(pj>hi)break;const d=pj-pi;if(d%g)continue;
-        const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;if(start<0||end>=SN)continue;
-        let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
-        if(orient==="back"){const s0=start+(L-1)*s,p=[];for(let k=0;k<L;k++)p.push(s0-k*s);hits.push({skip:s,dir:-1,start:s0,positions:p});}
-        else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);hits.push({skip:s,dir:1,start,positions:p});}
-        if(hits.length>=cap){stt.capped=1;return;}}}
+    return {L,i,g:j-i,Pi:pos.get(tt[i]),Pj:pos.get(tt[j]),mx:Math.floor((to-from-1)/(L-1))||1};
   }
-  function findAll(raw,cap){const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
-    const s={capped:0};fwd(t,cap,hits,"fwd",s);fwd(t.split("").reverse().join(""),cap,hits,"back",s);
-    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));return{hits,capped:s.capped,t};}
+  // סורק את העוגנים [a0,a1) עד שנאספו budget ממצאים. מחזיר את אינדקס-העוגן שבו נעצר.
+  // גוף-הלולאה זהה מילה-במילה לקוד הקודם — נוסף רק dedup ותקציב.
+  function _scanRange(tt,P,a0,a1,budget,orient,from,to,hits,seen){
+    const L=P.L,i=P.i,g=P.g,Pi=P.Pi,Pj=P.Pj,mx=P.mx;let got=0,a=a0;
+    while(a<a1&&got<budget){
+      const pi=Pi[a],lo=pi+g,hi=pi+g*mx;
+      for(let b=lb(Pj,lo);b<Pj.length;b++){
+        const pj=Pj[b];if(pj>hi)break;const d=pj-pi;if(d%g)continue;
+        const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;
+        if(start<from||end>=to)continue;
+        let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
+        let h;
+        if(orient==="back"){const s0=start+(L-1)*s,p=[];for(let k=0;k<L;k++)p.push(s0-k*s);h={skip:s,dir:-1,start:s0,positions:p};}
+        else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);h={skip:s,dir:1,start,positions:p};}
+        const kk=hitKey(h);if(seen.has(kk))continue;seen.add(kk);
+        hits.push(h);got++;if(got>=budget)break;
+      }
+      a++;
+    }
+    return a;
+  }
+  const _SEG=16;   // מספר מקטעי-הפיזור. 1 = ההתנהגות הישנה (קיצוץ-קידומת).
+  // ⚖️ שני שלבים, וזה הלב של D4:
+  //    ⓐ קידומת — בדיוק ההתנהגות הקיימת, אותו תקציב, אותו סדר ⇒ **כל מה שנראה היום נשאר**.
+  //    ⓑ פיזור — רץ **רק אם ⓐ נחתך**: מחלק את מרחב-העוגנים ל-_SEG מקטעים ונותן לכל אחד נתח
+  //       שווה מהתקציב ⇒ הממצאים פרושים על כל הקורפוס במקום על הקידומת בלבד.
+  //    מונח נדיר (שלא מגיע לתקרה) → ⓑ כלל לא רץ ⇒ תוצאה זהה ביט-לביט להיום, ובאותה עלות.
+  //    בנוסף: הסרנו את `if(stt.capped)return` שגרם לכיוון «אחורה» לקבל **אפס** ממצאים בכל
+  //    מונח שנחתך (נמדד: 0 ממצאים אחורה בכל מונח נפוץ). כל כיוון מקבל תקציב משלו.
+  function fwd(tt,cap,hits,orient,stt,from,to){
+    const P=_prep(tt,from,to);if(!P)return;
+    const seen=stt.seen;
+    const aEnd=_scanRange(tt,P,0,P.Pi.length,cap,orient,from,to,hits,seen);          // ⓐ
+    if(aEnd>=P.Pi.length)return;                                                     // לא נחתך
+    stt.capped=1;stt.spread=1;
+    const segs=Math.max(1,Math.min(_SEG,P.Pi.length)),per=Math.ceil(cap/segs);
+    for(let sg=0;sg<segs;sg++){                                                      // ⓑ
+      const a0=Math.floor(P.Pi.length*sg/segs),a1=Math.floor(P.Pi.length*(sg+1)/segs);
+      if(a1<=aEnd)continue;                                                          // כבר נסרק ב-ⓐ
+      const at=_scanRange(tt,P,Math.max(a0,aEnd),a1,per,orient,from,to,hits,seen);
+      stt.scanned+=at-Math.max(a0,aEnd);stt.anchors+=a1-Math.max(a0,aEnd);
+    }
+  }
+  function findAll(raw,cap,range){
+    const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
+    const R=range||scopeRange(),from=R[0],to=R[1];
+    const s={capped:0,spread:0,scanned:0,anchors:0,seen:new Set()};
+    fwd(t,cap,hits,"fwd",s,from,to);
+    fwd(t.split("").reverse().join(""),cap,hits,"back",s,from,to);
+    // סדר קנוני, בלתי-תלוי באסטרטגיית-הסריקה: |דילוג| → כיוון (קדימה לפני אחורה) → מיקום.
+    // זה **משחזר בדיוק** את הסדר הקיים (קדימה נדחפו קודם, ובתוך דילוג זהה המיקום עולה),
+    // ומבטיח שהתוצאה לא תלויה בפיזור — מה שמאפשר להוכיח יציבות.
+    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip)||b.dir-a.dir||a.start-b.start);
+    return{hits,capped:s.capped,spread:s.spread,scanned:s.scanned,anchors:s.anchors,t};
+  }
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
     const t=norm(raw),L=t.length,out=[];if(L<1)return out;
@@ -1151,6 +1237,10 @@
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
+  // ↩ מסע-המחקר: ציר → ממצא → הממצא הופך לציר → ממצאים חדשים → …
+  //   כל צומת שומר את **כל** מצב-המחקר שלו (מונח·מופע·ממצאים·צבעים·תצוגה), ולכן חזרה
+  //   מחזירה בדיוק למקום שממנו יצאת. שום מידע מחקרי לא נעלם. (החלטת צוריאל 17.8.2026)
+  st.journey=[];st.dispOpen=false;
   const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;
   // המופעים המוצגים של ממצא = ברירת-מחדל (showN הקרובים) פחות מה שכובה ידנית, ועוד מה שהודלק ידנית
   function shownHitsOf(w){
@@ -1411,11 +1501,11 @@
       el.innerHTML='💡 <b>המלצה:</b> '+nT+' מונחים ('+shortN+' קצרים) וטוהר '+st.crossPure+' — צפויות הרבה תוצאות רועשות. כדאי <b>להדק טוהר</b> (≤5) או <b>לסנן אחרי החיפוש</b>: מלאים · דילוג-מוכר · שוויון-גימטריה · 🔭 מילים-על-הקו.';}
     else el.style.display="none";
   }
-  document.getElementById("xrun").onclick=()=>{if(!ensureOnboarded())return;const w=q.value.trim();
+  document.getElementById("xrun").onclick=()=>{const w=q.value.trim();
     if(norm(w).length<2){if(st.crossTerms.length<2){toast("להתכנסות חופשית — הוסף לפחות 2 מונחים (או כתוב ציר למעלה)");return;}runCrossFree();return;}
     if(!st.crossTerms.length){toast("הוסף לפחות מונח אחד לסט");return;}
     runCross(w);};
-  document.getElementById("xbridge").onclick=()=>{if(!ensureOnboarded())return;const a=q.value.trim();let A,B;
+  document.getElementById("xbridge").onclick=()=>{const a=q.value.trim();let A,B;
     if(norm(a).length>=2&&st.crossTerms.length>=1){A=a;B=st.crossTerms[0];}
     else if(st.crossTerms.length>=2){A=st.crossTerms[0];B=st.crossTerms[1];}
     else{toast("לגשר: כתוב ציר עליון + מונח אחד, או הוסף שני מונחים");return;}
@@ -1432,6 +1522,49 @@
   const freeCount=()=>{try{return parseInt(localStorage.getItem(FREEKEY)||"0")||0;}catch(e){return 0;}};
   const bumpFree=()=>{try{localStorage.setItem(FREEKEY,String(freeCount()+1));}catch(e){}};
   const postHost=m=>{try{if(window.parent&&window.parent!==window)window.parent.postMessage(Object.assign({source:"tzofen"},m),"*");}catch(e){}};
+
+  // ── 🛰️ חוזה-המצב היוצא (`state`) — Work Area · Phase 1 ────────────────────────────────
+  // ⚠️ **סריאליזציה בלבד.** כל שדה כאן כבר קיים בזיכרון (st · occ() · blockOf() · shownHitsOf()).
+  //    אפס חישוב-ELS חדש · אפס findAll · אפס שינוי Search Space · אפס שינוי Ranking.
+  // ⛔ positions **אינן** משודרות — הן נגזרות אצל המקבל מ-start/skip/direction/length.
+  // 🔑 hitId = הפורמט הקיים hitKey() = `skip_dir_start`. אין מזהה חדש ואין selectedHitId מומצא.
+  // 🎯 בחירת-ממצא = הסמנטיקה הקיימת בלבד: st.expand (איזה ממצא פתוח) · st.swOpen (בורר-צבע)
+  //    · st.selCells (תאים שנבחרו ידנית). st.focus אינו בשימוש בקוד — לא ממחזרים אותו.
+  // 📖 פסוקים אינם במסר הבסיסי (on-demand בשלב הבא) — verseSpan דורש VTEXT ופענוח עצל.
+  function elsState(){
+    const r=st.res;
+    const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
+      scope:st.scope,corpusLetters:scopeN(),tier:st.tier,admin:!!st.admin};
+    if(!r||!r.hits.length)return Object.assign(base,{status:"empty"});
+    const h=occ(),b=blockOf(),L=(r.t||"").length;
+    return Object.assign(base,{
+      status:"ok",length:L,
+      axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),length:L},
+      // 🔭 D4 — כיסוי-הסריקה נחשף כדי שאפשר יהיה **להוכיח** שאין קיצוץ-קידומת שקט:
+      //    spread=האם רץ שלב-הפיזור · lastStart=המופע הרחוק ביותר שנמצא · corpusLetters להשוואה.
+      occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped,spread:!!r.spread,
+        firstStart:r.hits[0].start,lastStart:r.hits.reduce((m,h)=>h.start>m?h.start:m,0),
+        forward:r.hits.reduce((n,h)=>n+(h.dir===1?1:0),0),backward:r.hits.reduce((n,h)=>n+(h.dir===-1?1:0),0)},
+      geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
+      findings:st.words.map(w=>({t:w.t,color:w.color,total:(w.hits||[]).length,
+        inWindow:w.inwin||0,shown:shownHitsOf(w).map(hitKey)})),
+      ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
+        showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
+        heat:!!st.heat,selMode:!!st.selMode,verseRead:!!st.verseRead},
+      search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
+        crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
+        crossTerms:(st.crossTerms||[]).slice(),crossPure:st.crossPure,
+        zones:st.crossMeetings?st.crossMeetings.length:0,zoneIndex:st.crossIdx},
+      provenance:{editId:st.editId||null,cipherSlug:st.cipherSlug||"",cipherTerm:st.cipherTerm||"",
+        postUrl:st.postUrl||"",postTitle:st.postTitle||"",desc:st.desc||"",author:st.author||"",
+        quality:st.lastQuality||null}
+    });
+  }
+  // חתימה למניעת-שידור-כפול: render() נקרא הרבה; משדרים רק כשהמצב באמת השתנה.
+  // (משתנה-עזר לסריאליזציה — אינו state של המנוע ואינו משפיע על שום חישוב.)
+  let _stateSig="";
+  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}}
+
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
@@ -1488,22 +1621,28 @@
     let n=0;const ping=()=>{postHost({type:"ready"});if(!st.tierKnown&&++n<8)setTimeout(ping,350);};ping();}
 
   // ⏳ מד-חיווי לחיפוש בתנ״ך — החיפוש בתנ״ך כבד (1.2M אותיות) ולוקח רגע; מראים שהוא רץ + הזמן שחלף.
-  let _sl=null,_slInt=null,_slT0=0;
+  let _sl=null;
   const _now=()=>(window.performance&&performance.now?performance.now():Date.now());
-  function showSearchLoad(){
+  // 🔬 חיווי-שלבים סטטי (A+B). נמדד: בזמן חישוב סינכרוני **שום דבר על המסך לא יכול לזוז** —
+  //    גם אנימציית-CSS על ה-compositor קופאת (0ms התקדמות ב-13.5ש׳ חסימה). לכן כאן אין פס-נע,
+  //    אין מונה-שניות ואין אחוזים: רק שם-שלב אמיתי, שנצבע **לפני** תחילת החסימה.
+  //    משתמש באותו אלמנט .searchload הקיים — בלי state חדש ובלי רכיב חדש.
+  function _slEnsure(){
     if(!_sl){_sl=document.createElement("div");_sl.className="searchload";
-      _sl.innerHTML='<div class="sl-box"><div class="sl-t">🔍 מחפש בכל התנ״ך</div><div class="sl-s">24 ספרי התנ״ך · '+heb(N)+' אותיות — מעט איטי יותר מהתורה</div><div class="sl-bar"><i></i></div><div class="sl-time">מחפש… 0.0 שניות</div></div>';
+      _sl.innerHTML='<div class="sl-box"><div class="sl-t"></div><div class="sl-s"></div></div>';
       document.body.appendChild(_sl);}
-    const tm=_sl.querySelector(".sl-time");tm.textContent="מחפש… 0.0 שניות";
-    _sl.classList.remove("done");_sl.classList.add("on");_slT0=_now();
-    clearInterval(_slInt);_slInt=setInterval(()=>{tm.textContent="מחפש… "+((_now()-_slT0)/1000).toFixed(1)+" שניות";},90);
+    return _sl;
   }
-  function doneSearchLoad(nhits){
-    if(!_sl)return;clearInterval(_slInt);
-    _sl.classList.add("done");
-    _sl.querySelector(".sl-time").textContent="✓ נמצא ב-"+((_now()-_slT0)/1000).toFixed(1)+" שניות · "+heb(nhits||0)+" מופעים";
-    setTimeout(()=>{try{if(_sl)_sl.classList.remove("on");}catch(e){}},950);
+  function showStage(title,sub){
+    const el=_slEnsure();
+    el.querySelector(".sl-t").textContent=title;
+    el.querySelector(".sl-s").textContent=sub||"";
+    el.classList.remove("done");el.classList.add("on","stage");
   }
+  function hideStage(){if(_sl)_sl.classList.remove("on","stage");}
+  // צביעה מובטחת לפני החסימה: rAF רץ לפני הציור, ו-setTimeout שבתוכו רץ אחריו.
+  const paintThen=fn=>{try{requestAnimationFrame(()=>setTimeout(fn,0));}catch(e){setTimeout(fn,16);}};
+
   // 🔄 כפתור-חיפוש «עסוק» — עיגול-מסתובב + טקסט, משוב מיידי בכל חיפוש (כולל התורה המהירה)
   function goBusy(txt){go.disabled=true;go.innerHTML='<span class="btn-spin" aria-hidden="true"></span>'+txt;}
   // 📊 צ׳יפ-מדדים אחרי חיפוש/פתיחה — נמצא ב-X שנ׳ · N מופעים · דילוג. ms=null → בלי זמן (פתיחת-צופן שמור).
@@ -1518,12 +1657,13 @@
     const parts=[];
     if(ms!=null){const s=ms/1000;parts.push('<span>✓ נמצא '+(s<0.1?"מיד":("ב-"+s.toFixed(s<1?2:1)+" שנ׳"))+'</span>');}
     else parts.push('<span>✓ צופן פתוח</span>');
-    parts.push('<span><b>'+heb(res.hits.length)+'</b> מופעים</span>');
+    // 🔭 D4 — «אין קיצוץ שקט»: כשהמונח נפוץ והגענו לתקרה, אומרים זאת במפורש במקום להציג
+    //    מספר שנראה כמו «הכול». הממצאים פרושים על כל הקורפוס (שלב-הפיזור), לא רק על תחילתו.
+    parts.push('<span><b>'+heb(res.hits.length)+'</b> מופעים'+(res.capped?' <i class="ss-cap" title="מונח נפוץ — הוצג מדגם פרוש על כל ההיקף, לא רק מתחילתו">(מדגם מכל ההיקף)</i>':'')+'</span>');
     parts.push('<span>דילוג <b>'+heb(shownSkip)+'</b></span>');
     el.innerHTML=parts.join('<span class="ss-sep">·</span>');
   }
   function run(preserveWords){
-    if(!ensureOnboarded())return;   // 🎓 חובה לקרוא «איך מחפשים נכון» לפני החיפוש הראשון
     const w=q.value.trim(),t=norm(w);
     if(t.length<2){toast("רשום לפחות 2 אותיות");return;}
     // ✏️ חיפוש-מונח חדש שיזם המשתמש מנקה את קשר-העריכה — שלא נעדכן בטעות צופן שנטען קודם (loadMatrix לא עובר כאן)
@@ -1538,26 +1678,40 @@
     // חיפוש רגיל — עד 5 חינם לאנונימי
     if(!canRegular()){gate("limit");return;}
     if(isAnon())bumpFree();
+    st.journey=[];   // ↩ חיפוש-מונח חדש = מסע חדש (חזרה לצומת קודם עוברת דרך journeyGoto, לא דרך כאן)
+    // 🧬 לוח-הצורות נשאר פתוח כשפותחים צורה מתוכו; חיפוש-מונח לא-קשור סוגר אותו.
+    try{if(!_formsShown.has(t))hideForms();}catch(e){}
     st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
     const _t0=_now();
-    const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
-    setTimeout(()=>{
-      st.res=findAll(w,4000);
+    // ⏳ אותם שלבים אמיתיים כמו בפתיחת-צופן: כל תווית נצבעת **לפני** החסימה שאחריה.
+    //    החליף את המד הישן (פס-נע + מונה-שניות) שקפא בפועל בזמן חישוב סינכרוני ולכן היה מטעה.
+    showStage("🔬 מחפש בצופן…","מאתר את «"+w+"» ב"+(st.scope==="tanakh"?"כל התנ״ך":"תורה"));
+    paintThen(()=>{
+      st.res=findAll(w,4000);                                            // ← השלב הכבד
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
       st.postUrl="";st.postTitle="";st.desc="";   // 📖 חיפוש חדש = צופן חדש → אין קישור/הסבר של הצופן הקודם
       if(!preserveWords)st.words=savedWordsInit();
-      go.disabled=false;go.textContent=goLabel();updGem();render();
-      if(_slow)doneSearchLoad(st.res?st.res.hits.length:0);   // ⏳ סיום — מציג את הזמן שחלף + מספר המופעים
-      logSearch("regular",w);   // 📊 רישום לאתר (דרך העוטף → track/events)
-      // 🔎 «חפש את השם שלך» — אחרי החיפוש, מציע אוטומטית ממצאים סביב השם
-      if(st.nameMode){st.nameMode=false;if(st.res&&st.res.hits.length){st.suggest=suggestCluster();render();
-        toast(st.suggest&&st.suggest.length?("🔎 «"+w+"» — מצאתי "+heb(st.suggest.length)+" מילים קרובות סביב השם"):("🔎 «"+w+"» נמצא — הוסף ממצאים ידנית"));}}
-      // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש (כמו פתיחת-צופן).
-      if(st.res&&st.res.hits.length){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
-      else hideSearchStat();
-    },10);
+      const _n=st.res.hits.length;
+      // תווית-שלב-2 לפי מה שבאמת קורה: יש ממצאים → מחשבים אותם; אין → רק בונים את המטריצה.
+      showStage(st.words.length?"🧩 מחשב את הממצאים…":"🧩 בונה מטריצה…",
+                _n?(heb(_n)+(st.res.capped?"+":"")+" מופעים"):"");
+      paintThen(()=>{
+        go.disabled=false;go.textContent=goLabel();updGem();render();     // ← recomputeWords + בניית ה-DOM
+        showStage("✨ מציג תוצאות…",_n?("דילוג "+heb(Math.abs(st.res.hits[st.occ].skip))):"");
+        paintThen(()=>{
+          hideStage();
+          logSearch("regular",w);   // 📊 רישום לאתר (דרך העוטף → track/events)
+          // 🔎 «חפש את השם שלך» — אחרי החיפוש, מציע אוטומטית ממצאים סביב השם
+          if(st.nameMode){st.nameMode=false;if(st.res&&st.res.hits.length){st.suggest=suggestCluster();render();
+            toast(st.suggest&&st.suggest.length?("🔎 «"+w+"» — מצאתי "+heb(st.suggest.length)+" מילים קרובות סביב השם"):("🔎 «"+w+"» נמצא — הוסף ממצאים ידנית"));}}
+          // 📊 מדדים + 🎬 «המטריצה מציירת את עצמה»: תוצאת-חיפוש נבנית כסרט כשהיא מול המשתמש.
+          if(st.res&&st.res.hits.length){showSearchStat(st.res,_now()-_t0);try{armReveal(1);}catch(e){}}
+          else hideSearchStat();
+        });
+      });
+    });
   }
   function savedWordsInit(){return [];}
   // 🔎 חפש את השם שלך — כניסה אישית: מרוקן, ממקד, ואחרי החיפוש מציע אשכול סביב השם
@@ -1740,9 +1894,9 @@
   // 🔄 «מכל הצדדים / אופציות פנימיות» — סורק את השם לאורך ולרוחב **וגם** בכל חילופי-האותיות הפנימיים שלו
   //    (אתב״ש · אלב״ם · אבג״ד · היפוך) כצירים נוספים, וגם מנסה התכנסות של הצורות זו-על-זו. עדות, לא ניבוי.
   //    חי בעדשת «🔄 מכל-הצדדים» (אזור-הניסוי), פועל על המטריצה הנוכחית.
-  function sidesForms(A){const base=norm(A),raw=[{name:"מקורי",w:base}];
-    MIRRORS.forEach(m=>{const w=norm(m.f(A));if(w.length>=2)raw.push({name:m.n,w});});
-    const forms=[],seen=new Set();raw.forEach(f=>{if(!seen.has(f.w)){seen.add(f.w);forms.push(f);}});return forms;}
+  // 🪞 «כל הצדדים» — עדשה על מרשם-הצורות הקנוני (FORMS.mirrors). לא abstraction מקביל:
+  //    אותה לוגיקה שהייתה כאן חיה עכשיו ב-FORMS, וזו קריאה אליה. החוזה {name,w} נשמר.
+  function sidesForms(A){return formsOf("mirrors",A);}
   function runCrossSides(A,termsSrc){
     const xr=document.getElementById("xrun"),base=norm(A);
     const forms=sidesForms(A);   // ייחודי (צורה שווה למקור מסוננת)
@@ -1835,6 +1989,142 @@
     {n:"אבג״ד", f:w=>cipher(w,i=>ALEF[(i+1)%22])},
     {n:"הפוך",  f:w=>norm(w).split("").reverse().join("")},
   ];
+
+  // ═══ 🧬 FORMS — מרשם-הצורות הקנוני ═══════════════════════════════════════════════
+  //  גנרטור-צורות = פונקציה **טהורה** `(input) => [{name,w,derivation,tokens,original}]`.
+  //  זהו המקום **היחיד** שבו נולדות צורות-מחקר. ⛔ אין גנרטור מקביל, אין FORMS שני,
+  //  ואין מנוע Split/Join נפרד — הצורות זורמות אל **אותו** findAll הקנוני.
+  //  `w` הוא engine_input: מנורמל, בלי רווחים. `derivation` שומר איך הצורה נגזרה (provenance).
+  const _rev=s=>s.split("").reverse().join("");
+  // פיצול-לטוקנים: שתי מילים = A ו-B. שלוש ומעלה → A=הראשונה, B=כל השאר (עקבי עם splitToCross).
+  function _tokens(input){
+    const parts=String(input||"").trim().split(/\s+/).filter(Boolean);
+    if(parts.length<2)return null;
+    const A=norm(parts[0]),B=norm(parts.slice(1).join(""));
+    return (A&&B)?[A,B]:null;
+  }
+  const FORMS={
+    // 🪞 מראות — התקדים הקיים (sidesForms) מתאחד לכאן במקום abstraction מקביל.
+    mirrors:{
+      id:"mirrors",label:"מראות (אתב״ש · אלב״ם · אבג״ד · היפוך)",
+      gen(input){
+        const base=norm(input),out=[{name:"מקורי",w:base,derivation:"original",tokens:null,original:input}];
+        MIRRORS.forEach(m=>{const w=norm(m.f(input));if(w.length>=2)out.push({name:m.n,w,derivation:m.n,tokens:null,original:input});});
+        return out;
+      }
+    },
+    // 🧬 פיצול/איחוד — {A, reverse(A)} × {B, reverse(B)} × {AB, BA} = עד 8 צורות.
+    //    «סוד החשמל» → סודהחשמל · דוסהחשמל · סודלמשחה · דוסלמשחה · החשמלסוד · למשחהסוד · החשמלדוס · למשחהדוס
+    splitjoin:{
+      id:"splitjoin",label:"פיצול/איחוד (טוקנים · היפוך · סדר)",
+      gen(input){
+        const tk=_tokens(input);if(!tk)return [];
+        const A=tk[0],B=tk[1],rA=_rev(A),rB=_rev(B),out=[];
+        const xs=[[A,"A"],[rA,"reverse(A)"]],ys=[[B,"B"],[rB,"reverse(B)"]];
+        for(const x of xs)for(const y of ys)for(const ord of [0,1]){
+          const w=ord?(y[0]+x[0]):(x[0]+y[0]);
+          const derivation=ord?(y[1]+" + "+x[1]):(x[1]+" + "+y[1]);
+          if(w.length>=2)out.push({name:derivation,w,derivation,tokens:[A,B],original:input});
+        }
+        return out;
+      }
+    }
+  };
+  // מריץ גנרטור מהמרשם ומסיר כפילויות-engine_input (הצורה הראשונה שנוצרה מנצחת).
+  function formsOf(kind,input){
+    const g=FORMS[kind];if(!g)return [];
+    const out=[],seen=new Set();
+    for(const f of g.gen(input)){if(!f.w||f.w.length<2||seen.has(f.w))continue;seen.add(f.w);out.push(f);}
+    return out;
+  }
+  // 🔗 זיווג-היפוך: findAll סורק את המונח **וגם את היפוכו** בקריאה אחת ⇒ 8 צורות = 4 קריאות.
+  //    כל זוג {צורה, היפוכה} מקבל נציג אחד; ממצאי dir=+1 שייכים לנציג, dir=-1 להיפוכו.
+  function formPairs(forms){
+    const byW=new Map(forms.map(f=>[f.w,f])),pairs=[],done=new Set();
+    for(const f of forms){
+      if(done.has(f.w))continue;
+      const r=_rev(f.w),mate=(r!==f.w&&byW.has(r))?byW.get(r):null;
+      done.add(f.w);if(mate)done.add(mate.w);
+      pairs.push({probe:f,mate});
+    }
+    return pairs;
+  }
+
+  // ── 🧬 הרצת צורות-הפיצול דרך המנוע הקנוני ────────────────────────────────────────
+  //  ⛔ אין findAll חדש. הצורות זורמות אל **אותו** findAll, עם אותו cap ואותו D4.
+  //  📖 ברירת-המחדל = **תורה בלבד**. תנ״ך רק כשהמשתמש בוחר במפורש Deep (deep=true),
+  //     כדי לא להכפיל עומס: נמדד ~0.4ש׳ בתורה מול ~8ש׳ בתנ״ך לאותן 4 קריאות.
+  const FORMS_CAP=4000;
+  function formsPanel(){
+    let el=document.getElementById("formsout");
+    if(!el){el=document.createElement("div");el.id="formsout";el.className="formsout";
+      if(out&&out.parentNode)out.parentNode.insertBefore(el,out);}
+    return el;
+  }
+  function runForms(input,deep){
+    const forms=formsOf("splitjoin",input);
+    if(forms.length<2){toast("🧬 פיצול/איחוד דורש שתי מילים — למשל «סוד החשמל»");return;}
+    if(deep&&tanakhLocked()){gate("tanakh");return;}
+    if(!canRegular()){gate("limit");return;}
+    if(isAnon())bumpFree();
+    const range=deep?[0,N]:[0,TORAH_N],scopeName=deep?"כל התנ״ך":"תורה";
+    const pairs=formPairs(forms),hitsOf=new Map(),t0=_now();
+    let i=0;
+    const stepOne=()=>{
+      if(i>=pairs.length){
+        const ms=_now()-t0;
+        renderForms(input,forms,hitsOf,deep,ms,pairs.length);
+        hideStage();logSearch("forms",input);
+        return;
+      }
+      const p=pairs[i];
+      showStage("🧬 סורק צורה "+heb(i+1)+" מתוך "+heb(pairs.length)+"…",
+                "«"+p.probe.w+"»"+(p.mate?" ו«"+p.mate.w+"»":"")+" ב"+scopeName);
+      paintThen(()=>{
+        const r=findAll(p.probe.w,FORMS_CAP,range);          // ← המנוע הקנוני, קריאה אחת לזוג
+        hitsOf.set(p.probe.w,r.hits.filter(h=>h.dir===1));   // קדימה = הצורה עצמה
+        if(p.mate)hitsOf.set(p.mate.w,r.hits.filter(h=>h.dir===-1));   // אחורה = הצורה ההפוכה
+        i++;stepOne();
+      });
+    };
+    showStage("🧬 מכין "+heb(forms.length)+" צורות…","פיצול · היפוך · סדר — ב"+scopeName);
+    paintThen(stepOne);
+  }
+  function renderForms(input,forms,hitsOf,deep,ms,calls){
+    const el=formsPanel();
+    const rows=forms.map(f=>{const h=hitsOf.get(f.w)||[];
+      return {f,n:h.length,best:h.length?Math.abs(h[0].skip):null};});
+    // מיון: נמצא קודם · אחר-כך הנדיר יותר · ואז הדילוג הקטן ביותר. (מיון-תצוגה בלבד — לא ranking של המנוע.)
+    rows.sort((a,b)=>(b.n>0)-(a.n>0)||a.n-b.n||(a.best||1e9)-(b.best||1e9));
+    const found=rows.filter(r=>r.n>0).length;
+    const tk=forms[0].tokens||[];
+    let html='<div class="fo-head"><b>🧬 '+heb(forms.length)+' צורות</b> של «'+escH(input)+'»'+
+      (tk.length?' <span class="fo-tok">'+escH(tk[0])+' · '+escH(tk[1])+'</span>':'')+
+      '<span class="fo-meta">'+heb(found)+' נמצאו · '+heb(calls)+' קריאות מנוע · '+
+      (deep?"כל התנ״ך":"תורה")+' · '+(ms/1000).toFixed(2)+' שנ׳</span></div>';
+    html+='<div class="fo-rows">'+rows.map(r=>
+      '<div class="fo-row'+(r.n?"":" off")+'">'+
+        '<b class="fo-w">'+escH(r.f.w)+'</b>'+
+        '<span class="fo-d">'+escH(r.f.derivation)+'</span>'+
+        '<span class="fo-n">'+(r.n?heb(r.n)+' מופעים · דילוג '+heb(r.best):'לא נמצא')+'</span>'+
+        (r.n?'<button class="fo-go" data-w="'+escH(r.f.w)+'">פתח ←</button>':'')+
+      '</div>').join("")+'</div>';
+    if(!deep)html+='<div class="fo-foot"><button class="fo-deep">📜 הרחב לכל התנ״ך (איטי — Deep)</button>'+
+      '<span class="fo-note">ברירת-המחדל היא תורה. סריקת התנ״ך כבדה פי כמה ולכן נפתחת רק בבחירה מפורשת.</span></div>';
+    // ⚠️ חייב "block" מפורש: כלל ה-CSS הוא display:none, ולכן style.display="" היה מחזיר אותו ומסתיר את הלוח.
+    el.innerHTML=html;el.style.display="block";
+    _formsShown=new Set(forms.map(f=>f.w));
+    el.querySelectorAll(".fo-go").forEach(b=>b.onclick=()=>{
+      q.value=b.dataset.w;
+      const want=deep?"tanakh":"torah";
+      if(st.scope!==want){st.scope=want;updateScopeUI();}
+      run();   // ← המסלול הקנוני: אותו findAll, אותו דירוג, אותה גאומטריה
+    });
+    const db=el.querySelector(".fo-deep");if(db)db.onclick=()=>runForms(input,true);
+  }
+  function hideForms(){const el=document.getElementById("formsout");if(el){el.style.display="none";el.innerHTML="";}_formsShown=new Set();}
+  // הלוח נשאר פתוח כשפותחים צורה מתוכו (כדי להשוות בין הצורות), ונסגר רק בחיפוש-מונח לא-קשור.
+  let _formsShown=new Set();
   // חיפוש מילה בתוך החלון-הנראה הנוכחי (blockOf) — מחזיר את המופע הקרוב-ביותר לציר, או null
   function findInBlock(t){
     t=norm(t);if(!st.res||!st.res.hits.length||t.length<2)return null;
@@ -2308,6 +2598,39 @@
   }
 
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
+  // ── ↩ מסע-המחקר ──────────────────────────────────────────────────────────────
+  //  צילום-מצב של הצומת הנוכחי. **סריאליזציה בלבד** — אפס חישוב, אפס נגיעה במנוע.
+  function journeySnap(){
+    if(!st.res||!st.res.hits.length)return null;
+    const h=occ();
+    return {term:st.raw,scope:st.scope,occ:st.occ,skip:Math.abs(h.skip),dir:h.dir,start:h.start,
+      hit:{skip:h.skip,dir:h.dir,start:h.start,positions:h.positions.slice()},
+      words:st.words.map(w=>({t:w.t,color:w.color,sh:shownHitsOf(w).map(hitKey)})),
+      showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit};
+  }
+  // שחזור צומת — בדיוק אותו מופע ואותם ממצאים. משתמש ב-loadMatrix הקנוני.
+  function journeyGoto(i){
+    const node=st.journey[i];if(!node)return;
+    st.journey=st.journey.slice(0,i);            // חוזרים אחורה → הצמתים שאחריו נגזרים
+    st.scope=node.scope;updateScopeUI();
+    st.showN=node.showN;st.ctxR=node.ctxR;st.zoom=node.zoom;st.fit=node.fit;
+    loadMatrix({term:node.term,skip:node.skip,start:node.start,hit:node.hit,scope:node.scope,words:node.words,hideMain:node.hideMain},0);
+    toast("↩ חזרה ל«"+node.term+"»");
+  }
+  // ↑ הפיכת ממצא משני לציר ראשי. הציר הקודם **נשמר אוטומטית** — גם במסע וגם כממצא מוזהב.
+  function promoteToAxis(wi){
+    const w=st.words[wi];if(!w)return;
+    const sh=shownHitsOf(w);if(!sh.length){toast("אין מופע מוצג ל«"+w.t+"» — אי-אפשר לעגן עליו");return;}
+    const prevTerm=st.raw,prevColor=AXIS_COLOR;
+    const snap=journeySnap();if(snap)st.journey.push(snap);       // ① הצומת הנוכחי נשמר במסע
+    const sk=Math.abs(sh[0].skip),hit0=sh[0];
+    // ② הציר הקודם נכנס כממצא-ראשון, בזהב — כדי שהקשר הנראה-לעין לא יאבד
+    const carry=[{t:prevTerm,color:prevColor},...st.words.filter((_,i)=>i!==wi).map(x=>({t:x.t,color:x.color}))].slice(0,12);
+    loadMatrix({term:w.t,skip:sk,start:hit0.start,hit:hit0,scope:st.scope,words:carry},0);   // ③ המסלול הקנוני — אותו findAll
+    toast("↑ «"+w.t+"» הוא הציר · «"+prevTerm+"» נשמר במסע");
+  }
+  const AXIS_COLOR="#e8c84a";   // זהב — הציר-לשעבר, כדי שייראה שונה מממצא רגיל
+
   function loadMatrix(item,filmTimes){
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
@@ -2317,20 +2640,45 @@
     st.author=item.author||"";   // ✍️ שם-המחבר (לפרֵה-מילוי חלון חובת-ההסבר בשמירה חוזרת)
     st.cipherSlug=item.slug||"";st.cipherTerm=item.term||"";   // 🔗 1ב — הקשר-הצופן: מאפשר «שתף כממצא» כתגובה
 
-    q.value=item.term;st.raw=item.term;st.res=findAll(item.term,4000);
-    if(!st.res.hits.length){updGem();render();return;}
-    let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
-    if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
-    st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
-    st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
-    st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
-    updGem();render();
-    try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
-    // 🎬 כל צופן שנפתח מתנגן כסרט (ברירת-מחדל פעם אחת; ביקור-ראשון = פעמיים). ביטול: filmTimes=0.
-    //    הסרט מתחיל *כשרואים את המטריצה* (armReveal) ולא בטיימר קבוע — כדי שלא יתנגן לפני שהגיעו אליה.
-    const n=(filmTimes==null?1:filmTimes);
-    if(n>0){try{armReveal(n);}catch(e){}}
-    try{showSearchStat(st.res,null);}catch(e){}   // 📊 מדדי-הצופן הפתוח (מופעים · דילוג)
+    q.value=item.term;st.raw=item.term;
+    // ⏳ פתיחת-צופן שמור הייתה עד כה סינכרונית לגמרי וללא שום חיווי — מסך שנראה קפוא עד 15 שניות
+    //    (נמדד: findAll על תנ״ך = 13.5ש׳ = 87% מהזמן). מפרידים לשלושה שלבים אמיתיים, וכל שם-שלב
+    //    נצבע לפני החסימה שאחריו. אין אחוזים ואין אנימציה — הם היו קופאים ממילא.
+    showStage("🔬 מפענח את הצופן…","מאתר את «"+(item.term||"")+"» ב"+(st.scope==="tanakh"?"כל התנ״ך":"תורה"));
+    paintThen(()=>{
+      st.res=findAll(item.term,4000);                                    // ← השלב הכבד
+      if(!st.res.hits.length){hideStage();updGem();render();return;}
+      // 🎯 עיגון-מדויק: אם נמסר start (מסע-מחקר / הפיכת-ממצא-לציר) — נועלים על **אותו מופע בדיוק**.
+      //    צפנים שמורים אינם נושאים start ולכן ממשיכים בהתאמה לפי |דילוג| — התנהגות ללא שינוי.
+      let idx=-1;
+      if(item.start!=null)idx=st.res.hits.findIndex(h=>h.start===item.start&&(!item.skip||Math.abs(h.skip)===item.skip));
+      // ⚠️ מונח נפוץ מגיע לתקרת ה-cap, ולכן המופע שהמשתמש ראה עשוי לא להיות בקבוצה שנחשפה.
+      //    במקרה כזה **לא מחפשים מחדש** — המופע כבר בידינו (item.hit), ומשתילים אותו כמות-שהוא.
+      //    זה שומר על «הפוך לציר» ועל «↩ חזור» מדויקים גם למילים נפוצות, בלי לגעת ב-findAll.
+      if(idx<0&&item.hit&&item.hit.positions&&item.hit.positions.length){
+        st.res.hits.push({skip:item.hit.skip,dir:item.hit.dir,start:item.hit.start,positions:item.hit.positions.slice()});
+        st.res.hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip)||b.dir-a.dir||a.start-b.start);
+        idx=st.res.hits.findIndex(h=>h.start===item.hit.start&&Math.abs(h.skip)===Math.abs(item.hit.skip));
+      }
+      if(idx<0)idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
+      if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
+      st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
+      st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
+      st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
+      showStage("🧩 בונה מטריצה…",heb(st.res.hits.length)+" מופעים · דילוג "+heb(Math.abs(st.res.hits[idx].skip)));
+      paintThen(()=>{
+        updGem();render();                                               // ← recomputeWords + בניית ה-DOM
+        showStage("✨ מציג ממצאים…",st.words.length?(heb(st.words.length)+" ממצאים במטריצה"):"");
+        paintThen(()=>{
+          hideStage();
+          try{window.scrollTo({top:0,behavior:"smooth"});}catch{}
+          // 🎬 כל צופן שנפתח מתנגן כסרט (ברירת-מחדל פעם אחת; ביקור-ראשון = פעמיים). ביטול: filmTimes=0.
+          const n=(filmTimes==null?1:filmTimes);
+          if(n>0){try{armReveal(n);}catch(e){}}
+          try{showSearchStat(st.res,null);}catch(e){}   // 📊 מדדי-הצופן הפתוח (מופעים · דילוג)
+        });
+      });
+    });
   }
 
   // ── 🔗 שיתוף · 🖼️ תמונה · 🎬 סרט ──────────────────────────────────────────
@@ -2838,11 +3186,22 @@
       }
       out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>'+_extra+'</div>';
       const _b=document.getElementById("emptyTk");if(_b)_b.onclick=()=>{const _tb=document.querySelector('.scopebtn[data-scope="tanakh"]');if(_tb)_tb.click();};   // רשום → מחליף היקף ומחפש · אנונימי → שער-הרשמה (המודל נשמר)
-      try{hideSearchStat();}catch(e){}return;
+      try{hideSearchStat();}catch(e){}
+      emitState();   // 🛰️ גם «לא נמצא» הוא מצב — ה-host צריך לדעת (status:"empty")
+      return;
     }
     recomputeWords();
     const h=occ(),S=Math.abs(h.skip),n=r.hits.length,st0=h.positions[0];
     const wrap=document.createElement("div");
+    // ↩ שורת-מסע-המחקר — נראית רק כשיש היסטוריה. כל צומת לחיץ ומחזיר בדיוק למופע שלו.
+    if(st.journey.length){
+      const tr=document.createElement("div");tr.className="jtrail";
+      tr.innerHTML='<span class="j-ic" title="מסע המחקר">↩</span>'+
+        st.journey.map((n,i)=>'<button class="j-n" data-i="'+i+'" title="חזור ל«'+n.term+'» · דילוג '+heb(n.skip)+'">'+n.term+'</button><span class="j-ar">›</span>').join("")+
+        '<span class="j-cur">'+st.raw+'</span>';
+      tr.querySelectorAll(".j-n").forEach(b=>b.onclick=()=>journeyGoto(+b.dataset.i));
+      wrap.appendChild(tr);
+    }
     const head=document.createElement("div");head.className="rhead";
     head.innerHTML=
       '<span class="found">נמצא <b>'+st.raw+'</b></span>'+
@@ -2876,7 +3235,9 @@
     if(st3d.on)enable3D(mb);else enablePan(mb);
     const hb=document.createElement("div");hb.className="hintbar";
     hb.innerHTML='<span class="ht">📍 הקש אות למיקום בתורה · '+(st.fit?"מותאם למסך · צבוט/± להגדיל":"גרור · צבוט להגדיל")+'</span>'+
-      '<span class="zoomctl"><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="heatbtn'+(st.heat?" on":"")+'" title="מפת-חום צפיפות">🌡️ חום</button><button class="selbtn'+(st.selMode?" on":"")+'" title="סימון ידני">✏️ סימון</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button></span>';
+      // 🔭 סרגל-המטריצה: ניקוד · התאם · − · ＋ · 👁 (החלטת צוריאל — הניקוד יושב **עם** בקרות-התצוגה).
+      //    חום/סימון עברו לגיליון 👁 יחד עם שאר יכולות-התצוגה. שום יכולת לא נמחקה.
+      '<span class="zoomctl"><button class="nqm'+(st.niqqud?" on":"")+'" title="ניקוד">◌ ניקוד</button><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button><button class="dispbtn'+(st.dispOpen?" on":"")+'" title="תצוגה — ערכה · סרט · תלת-ממד · הצגה · פסוק · חום · סימון · תמונה">👁</button></span>';
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
     const isEdit=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים → «עדכן ממצא» במקום «שמור»
@@ -2918,15 +3279,21 @@
     filmbar.querySelector(".fb-play").onclick=()=>playReveal();
     filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.onclick=()=>{st.filmSpeed=+bt.dataset.s;syncSpeed();playReveal();});
     filmbar.querySelector(".fb-x").onclick=()=>{stopReveal();filmbar.style.display="none";};
+    if(st.dispOpen){const ds=buildDisplaySheet(selbar);mbWrap.appendChild(ds);
+      // 🎬/🎥/🖼️ מחוברים לאותם מטפלים של הפעולות הקיימות — אפס כפילות-לוגיקה
+      ds.querySelector(".d-film").onclick=()=>{filmbar.style.display="flex";playReveal();};
+      ds.querySelector(".d-pres").onclick=()=>{try{startPresent();}catch(e){}};
+      ds.querySelector(".d-img").onclick=()=>{try{downloadMatrixPNG();}catch(e){}};}
     work.appendChild(buildSide());
     wrap.appendChild(work);
     // ⛔ התגובות-הפרימיטיביות (localStorage) הוסרו — המחקר-הקהילתי הקנוני חי בעמוד-הצופן /codes/:slug (Discourse).
     out.innerHTML="";out.appendChild(wrap);
     hb.querySelector(".fitbtn").onclick=()=>{st.fit=!st.fit;st.zoom=1;render();};
+    hb.querySelector(".nqm").onclick=async()=>{if(!st.niqqud)await ensureNiqqud();st.niqqud=!st.niqqud;applyView();render();};
+    hb.querySelector(".dispbtn").onclick=()=>{st.dispOpen=!st.dispOpen;render();};
     hb.querySelector(".zo").onclick=()=>setZoom(st.zoom-0.2);
     hb.querySelector(".zi").onclick=()=>setZoom(st.zoom+0.2);
-    hb.querySelector(".heatbtn").onclick=()=>{st.heat=!st.heat;hb.querySelector(".heatbtn").classList.toggle("on",st.heat);recolorOnly();};
-    hb.querySelector(".selbtn").onclick=()=>{st.selMode=!st.selMode;hb.querySelector(".selbtn").classList.toggle("on",st.selMode);selbar.style.display=st.selMode?"flex":"none";updateSelBar();};
+    // (חום/סימון חיים עכשיו בגיליון 👁 — ראה buildDisplaySheet)
     updateSelBar();
     head.querySelector(".occbtn").onclick=()=>{st.occOpen=!st.occOpen;const p=wrap.querySelector(".occpanel");if(p)p.style.display=st.occOpen?"block":"none";head.querySelector(".occbtn").lastChild.textContent=st.occOpen?" ▴":" ▾";};
     if(st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
@@ -2937,6 +3304,7 @@
     requestAnimationFrame(()=>{if(st.fit){fitMatrixToScreen();mb.scrollTop=0;mb.scrollLeft=mb.scrollWidth;}else centerMain(mb);});
     refreshLenses();   // 🔬 עדשות פעילות מתעדכנות על התוצאה החדשה
     reapplyVerseWords();   // 📖 שחזור צביעת-קריאת-הפסוק על הרשת החדשה (אם המצב דלוק ופסוק נבחר)
+    emitState();   // 🛰️ המנוע הוא מקור-העובדות: אחרי כל רינדור (חיפוש · מעבר-מופע · טעינת-צופן) — משדר את מצבו
   }
 
   let lastGrid=null,lastBlock=null,lastPX=26,lastCw=26,dragMoved=false,lastHeat=null;
@@ -3432,6 +3800,32 @@
     renderC();return card;
   }
 
+  // ── 👁 גיליון-התצוגה ─────────────────────────────────────────────────────────
+  //  שלוש ערכות-המטריצה + כל יכולות-התצוגה במקום אחד, נפתח על-פי-דרישה.
+  //  ⛔ העדפת-תצוגה בלבד — אינה משנה שום תוצאת-מנוע (אותו findAll, אותו דירוג).
+  function buildDisplaySheet(selbar){
+    const d=document.createElement("div");d.className="dispsheet";
+    const TH=[["royal","👑 מלכותי"],["classic","☀️ קלאסי"],["klaf","📜 קלף"]];
+    d.innerHTML='<div class="ds-seg">'+TH.map(t=>'<button data-th="'+t[0]+'"'+(st.theme===t[0]?' class="on"':'')+'>'+t[1]+'</button>').join("")+'</div>'+
+      '<div class="ds-grid">'+
+        '<button class="d-film">🎬 סרט</button>'+
+        '<button class="d-3d'+(st3d.on?" on":"")+'">🧊 תלת-ממד</button>'+
+        '<button class="d-pres">🎥 מצב הצגה</button>'+
+        '<button class="d-verse'+(st.verseRead?" on":"")+'">📖 קריאת פסוק</button>'+
+        '<button class="d-heat'+(st.heat?" on":"")+'">🌡️ מפת חום</button>'+
+        '<button class="d-sel'+(st.selMode?" on":"")+'">✏️ סימון תאים</button>'+
+        '<button class="d-img">🖼️ תמונה</button>'+
+      '</div>';
+    d.querySelectorAll(".ds-seg button").forEach(b=>b.onclick=()=>{st.theme=b.dataset.th;applyView();render();});
+    d.querySelector(".d-3d").onclick=()=>{st3d.on=!st3d.on;if(!st3d.on){st3d.rx=44;st3d.rz=0;}render();
+      toast(st3d.on?"🧊 תלת-מימד — גררו לסובב · הקש שוב לביטול":"חזרה לתצוגה רגילה");};
+    d.querySelector(".d-heat").onclick=()=>{st.heat=!st.heat;render();};
+    d.querySelector(".d-sel").onclick=()=>{st.selMode=!st.selMode;render();};
+    d.querySelector(".d-verse").onclick=()=>{st.verseRead=!st.verseRead;
+      if(st.verseRead){ensureVerseText();toast("📖 קריאת-פסוק דלוקה — הקש על אות והפסוק כולו יידלק");}
+      else{st.verseHL=-1;clearVerseWords();toast("קריאת-פסוק כבויה");}render();};
+    return d;
+  }
   function buildSide(){
     const side=document.createElement("div");side.className="side";
     const card=document.createElement("div");card.className="card findings-card";
@@ -3617,12 +4011,15 @@
           '<span class="t">'+w.t+'</span>'+stTxt+
           (canExp?'<button class="lineb'+(st.lineFor===i?" on":"")+'" title="הצג את שורת-הצופן המלאה">🔭</button>':'')+
           (canExp?'<button class="exp" title="פתח מופעים">'+(st.expand===i?"▴":"▾")+'</button>':'')+
+          // ↑ הפיכת הממצא לציר ראשי — סוגר את לולאת-המחקר. הציר הקודם נשמר במסע וכממצא מוזהב.
+          (canExp&&shown.length?'<button class="toax" title="הפוך את «'+w.t+'» לציר הראשי — הציר הנוכחי יישמר במסע">↑ ציר</button>':'')+
           // 🔀 סדר-ההצגה: מקדים/מאחר את המילה במצב-הצגה (ובסרט). המילה הראשונה ברשימה מוצגת ראשונה (אחרי הציר).
           (st.words.length>1?'<button class="mvup" title="הקדם — יוצג מוקדם יותר"'+(i===0?" disabled":"")+'>▲</button><button class="mvdn" title="אחר — יוצג מאוחר יותר"'+(i===st.words.length-1?" disabled":"")+'>▼</button>':'')+
           '<button class="del" title="הסר">🗑</button>';
         it.querySelector(".dot").onclick=()=>{st.swOpen=st.swOpen===i?-1:i;renderList();};
         const lb=it.querySelector(".lineb");if(lb)lb.onclick=()=>{st.lineFor=st.lineFor===i?-1:i;renderList();};
         const eb=it.querySelector(".exp");if(eb)eb.onclick=()=>{st.expand=st.expand===i?-1:i;renderList();};
+        const tx=it.querySelector(".toax");if(tx)tx.onclick=()=>promoteToAxis(i);
         it.querySelector(".del").onclick=()=>{st.words.splice(i,1);if(st.swOpen===i)st.swOpen=-1;if(st.expand===i)st.expand=-1;recomputeWords();recolorOnly();renderList();};
         // 🔀 מיון סדר-ההצגה: החלפת מקומות ב-st.words → משנה גם את סדר מצב-ההצגה וגם את סרט-הצופן.
         //    (סוגרים פאנלים פתוחים כדי שאינדקסים לא יתבלבלו; recolorOnly כי בתא-הצלבה צבע-המילה-הראשונה גובר.)
@@ -3888,8 +4285,12 @@
     if(words.length>=2){
       const a=words[0],b=words.slice(1).join(" ");
       el.style.display="";
-      el.innerHTML='<div class="coach-t">🧭 שתי מילים? זה בדיוק <b>חיפוש מוצלב</b> — כך מוצאים <b>מפגש</b> בין השתיים (הצורה החזקה).</div><button class="coach-go" type="button">🔀 פצל והצלב</button>';
+      // 🧬 שתי מילים פותחות **שני** מסלולים על אותו מנוע: מפגש (הצלבה) או צורות (פיצול/היפוך/סדר).
+      el.innerHTML='<div class="coach-t">🧭 שתי מילים? זה בדיוק <b>חיפוש מוצלב</b> — כך מוצאים <b>מפגש</b> בין השתיים (הצורה החזקה).</div>'+
+        '<button class="coach-go" type="button">🔀 פצל והצלב</button>'+
+        '<button class="coach-go coach-forms" type="button" title="מייצר את כל צורות הפיצול/היפוך/סדר וסורק אותן בתורה">🧬 8 צורות</button>';
       const cb=el.querySelector(".coach-go");if(cb)cb.onclick=function(){splitToCross(a,b);};
+      const fb=el.querySelector(".coach-forms");if(fb)fb.onclick=function(){runForms(w,false);};   // 📖 תורה = ברירת-מחדל
     }else if(t.length>=7){
       el.style.display="";
       el.innerHTML='<div class="coach-t">🧭 «'+escH(w)+'» ארוכה ('+heb(t.length)+' אותיות) — נדירה מאוד כדילוג. נסו <b>מילה קצרה</b> (2־5 אותיות), או פצלו לשתי מילים והצליבו.</div>';
