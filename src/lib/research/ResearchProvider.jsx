@@ -116,11 +116,22 @@ export default function ResearchProvider({ children }) {
   }, []);
   const isPinned = useCallback((id) => pinned.some(e => e.id === id), [pinned]);
 
-  // 📁 אוספים — קיבוץ שמורים לתיקיות בעלות-שם.
-  const addCollection = useCallback((name) => {
+  // 📁 אוספי-מחקר פרטיים — קיבוץ שמורים לתיקיות בעלות-שם, עם תיוג-ארגון אופציונלי
+  // (topic/world/number/year — research_workspace_law). תוכן-אישי: Lens/Ownership layer
+  // בלבד, Local-first + סנכרון-ענן ל-user_research (בלוב, per-user) — לא Canonical, לא Public.
+  const addCollection = useCallback((name, meta) => {
     const id = "c" + Date.now();
-    setCollections(cs => [...cs, { id, name: (name || "אוסף").trim() }]);
+    const { topic, world, number, year } = meta || {};
+    setCollections(cs => [...cs, {
+      id, name: (name || "אוסף").trim(),
+      topic: topic || null, world: world || null,
+      number: (number || number === 0) ? Number(number) : null,
+      year: (year || year === 0) ? Number(year) : null,
+    }]);
     return id;
+  }, []);
+  const updateCollection = useCallback((id, patch) => {
+    setCollections(cs => cs.map(c => (c.id === id ? { ...c, ...patch } : c)));
   }, []);
   const removeCollection = useCallback((id) => {
     setCollections(cs => cs.filter(c => c.id !== id));
@@ -148,7 +159,7 @@ export default function ResearchProvider({ children }) {
   const value = {
     cart, saved, pinned, history, collections, journeys,
     addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
-    logHistory, clearHistory, addCollection, removeCollection, assignCollection,
+    logHistory, clearHistory, addCollection, updateCollection, removeCollection, assignCollection,
     addJourney, removeJourney, clearJourneys,
     mode, setMode, enterDiscovery, toggleMode,
   };
