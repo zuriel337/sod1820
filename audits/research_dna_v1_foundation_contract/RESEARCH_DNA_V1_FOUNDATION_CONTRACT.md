@@ -1,5 +1,7 @@
 # SOD1820 — RESEARCH DNA v1 · FOUNDATION CONTRACT
-### Architecture/Contract + Roadmap Alignment · actor=CLAUDE · 2026-08-22 · **§4 corrected 22.8 (fifth pass); §8–§25 added 22.8 (seventh pass); method-count/status wording corrected 22.8 (ninth pass, ZURIEL Human-Gate decision)**
+### Architecture/Contract + Roadmap Alignment · actor=CLAUDE · 2026-08-22 · **§4 corrected 22.8 (fifth pass); §8–§25 added 22.8 (seventh pass); method-count/status wording corrected 22.8 (ninth pass, ZURIEL Human-Gate decision); §26–§29 (Part III) added 22.8 (tenth pass, ZURIEL Human-Gate decisions on the Methods Unification Human-Gate pack + new Number Coverage / Deep Corpus Research law suite)**
+
+**§26–§29 correction, 22.8 (tenth pass):** Tzuriel sent (1) his Human-Gate decisions on the separate Methods Unification implementation pass's 11-item Human-Gate pack (A–K, recorded in `audits/gematria_methods_unification/GEMATRIA_METHODS_HUMAN_GATE.csv`), and (2) a new Number Coverage / Deep Corpus Research law suite. Part III below (§26–§29) brings both into this contract as durable text, extending rather than duplicating Part I/II. **Still docs-only: 0 DB writes except the closing `work_log` memo. F/G/H/I remain HOLD (unresolved cipher definitions / verification gap). Decision K's architecture is approved but not implemented — `gw_enforce_engine`/`bidim_sync` are untouched.** See the companion `audits/research_dna_v1_foundation_contract/RAZIEL_PERSONALIZATION_LAW.md` for Tzuriel's third, separate Research Preference & Raziel Personalization decision — kept as its own file per the same judgment call `CORPUS_APPROVAL_LIFECYCLE.md`/`METHOD_LIFECYCLE_ALIGNMENT.md` already made, since Raziel is a big enough, distinct enough subsystem.
 
 **This is the seventh pass in a chain on the same subject** (an eighth, reconciliation-only pass and this ninth, correction pass followed). **§9 correction, 22.8 (this pass):** `CANONICAL_RULES_RECONCILIATION.md` (eighth pass) surfaced two conflicts against the live rule book. ZURIEL resolved both by explicit Human-Gate decision: (1) **no single fixed method-count exists** — `gematria_methods` is the count SSOT, any count must be capability/state-qualified (registered/active/dispatchable/stored/displayed), historical counts (13/14/20/24) are preserved as provenance/snapshots but not treated as canonical law, and implementation is not modified merely to make historical counts agree — every "13 active/current methods" reference below is corrected accordingly (§8, §14's summary line, §15, §16); (2) **the method-lifecycle stage order** is corrected in `METHOD_LIFECYCLE_ALIGNMENT.md` §1 to `discovered/unresolved → definition reconstructed/defined → candidate → engine-tested/reproducible → Human-Gate approved → active`, and §14 below reclassifies רגיל ישר והפוך from `candidate` to `discovered/unresolved` accordingly (it has no defined formula, unlike ר"ת/ס"ת). **No live rule was written or changed; no method activated; PR #166 not merged** — see `METHOD_LIFECYCLE_ALIGNMENT.md` §7 for the full correction record.
 
@@ -418,4 +420,152 @@ Already established in this chain (per a prior pass's §12, re-confirmed live th
 
 ---
 
-*Governance: docs-only pass. 0 DB writes except the single closing `work_log` memo, which covers this document together with `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`, `RESEARCH_DNA_V1_FINAL_CONTRACT_COVERAGE.md`, and the `SOD1820_MASTER_ROADMAP.md` edit. §4 correction, 22.8: fifth pass in this chain. §8–§25, 22.8: seventh and FINAL pass in this chain, per Tzuriel's explicit framing — no further contract-consolidation pass on this subject is anticipated before Human-Gate; the next pass on this subject should be Methods Build implementation, not further contract text.*
+# PART III — NUMBER COVERAGE & DEEP CORPUS RESEARCH (§26–§29, added 22.8, tenth pass)
+
+**Everything below is contract text, not build — same discipline as Part II.** This Part closes two things Tzuriel sent together: (1) his Human-Gate decisions on the Methods Unification implementation pass's 11-item pack (A–K), now recorded verbatim in `audits/gematria_methods_unification/GEMATRIA_METHODS_HUMAN_GATE.csv`, including two new laws he named explicitly under Decision K (§26 below); and (2) a new, freestanding Number Coverage / Deep Corpus Research law suite extending the Number Page/Cross/Access architecture Part I/II already established (§27 below). **No live rule written. No `gematria_methods` row changed. No migration applied. `gw_enforce_engine`/`bidim_sync` untouched — Decision K's registry-driven direction is approved architecturally but explicitly deferred to Methods Build.**
+
+## 26. METHOD STORAGE LAW & DEEP CROSS LAW — the two laws named in Decision K
+
+Per Tzuriel's explicit instruction under Human-Gate Decision K (`GEMATRIA_METHODS_HUMAN_GATE.csv`, decision_id=K): *"Add the two approved laws to the contract."* Both are elevated here from a Human-Gate decision note to standing contract text, grounded in — not replacing — §10's existing split.
+
+### 26.1 METHOD STORAGE LAW
+
+> **Existing method columns are Legacy Baseline. New methods do not automatically create columns. Full Method Profile can grow independently of `gematria_words` width.**
+
+This is the direct contract-text form of Decision J's resolution (`GEMATRIA_METHODS_HUMAN_GATE.csv` J, verbatim): *"Preserve the existing 14 method columns as Legacy Baseline. New approved methods do not automatically receive physical columns. משולש מילה / משולש מילה הפוך must still be capable of automatic calculation, Full Method Profile, searchable/indexable representation, Deep Cross and Research Trace without requiring new `gematria_words` columns."* Concretely: the 14 existing stored columns (`ragil, misratar, miluy, kadmi, gadol, siduri, atbash, albam, miluy_demiluy, kadmi_gadol, ribua, ribua_gadol, hakpala, hakpala_gadol`) are **Legacy Baseline storage** — preserved exactly as-is (§3 Preserve & Expand Law), never removed, never treated as the ceiling of what the system can research. משולש מילה / משולש מילה הפוך (Human-Gate Decision D, approved) and every future approved method reach dispatch, Full Method Profile (§10/§11), Deep Cross (§26.2 below) and Research Trace **without** requiring `gematria_words` to grow a physical column for each of them. **Storage location must never limit research capability** — Decision J's own governing sentence, restated here as a standing law rather than a one-off resolution note.
+
+### 26.2 DEEP CROSS LAW
+
+> **Every approved method may participate in Reverse Lookup / Multi-Method Cross / Consensus / Research DNA / Numeric Language / Composite Research regardless of physical storage representation. Large-scale Cross methods must have an appropriate searchable/indexable representation.**
+
+This is the direct contract-text form of Decision K's second named law. It composes with, and does not re-open, §18 (Multi-Method Cross) and §19 (Method Consensus/Convergence) above: those sections already require the Cross Engine to treat every registered method uniformly via the Method Profile (§11); §26.2 adds the explicit corollary that **participation in Cross is never gated on whether a method happens to have a dedicated `gematria_words` column** — a dispatch-on-demand method (§10's "Dispatchable" concern) is exactly as eligible for Deep Cross as a stored one, *provided* it has "an appropriate searchable/indexable representation" for the scale at which it is being queried. That qualifier is deliberate: a method computed fresh per-request is fine for a single-word lookup; a method used as one side of a large reverse-index Cross query (e.g. "find every phrase where `X`'s Method-Y result equals a target value") needs *some* indexable form — which the Method Storage Law (§26.1) confirms does **not** have to be a `gematria_words` column. It could be a cache table, a materialized view, or an extension of `bidim`'s reverse index (§23) keyed off the registry (§8) rather than a hardcoded method list — the exact mechanism is `IMPLEMENTATION DECISION REQUIRED`, not decided here, consistent with §23's own forward-looking note that a future Methods Build should align `bidim`'s generation with `gematria_methods` (§8) so a newly-approved method gains reverse-index coverage automatically.
+
+### 26.3 Reconciling the four-way split (§10) with the five-way split (Decision J)
+
+Decision J's own wording states the principle as a **five**-way split: *"Calculation ≠ Storage ≠ Indexing ≠ Display ≠ Access."* §10 above already established a **four**-way split for one computed method result: **Dispatchable / Auto-calculated / Stored-Cached / Displayed / Access** — which, read carefully, is already five concerns, not four; §10's own prose undercounted its own table by folding "Dispatchable" and "Auto-calculated" together in its one-line summary sentence (*"Calculation ≠ Storage ≠ Display ≠ Access"*) while the table beside it lists five rows. **§26.3 resolves this explicitly, not by contradiction but by precise correspondence:**
+
+| Decision J's term | §10's matching concern |
+|---|---|
+| **Calculation** | §10's **Dispatchable** (can the engine compute this right now) *and* **Auto-calculated** (is it actually run automatically) — Decision J's "Calculation" collapses these two into one plain-language word; §10's table keeps them separately named because they answer different questions (capability vs. actual trigger behavior) |
+| **Storage** | §10's **Stored-Cached** — identical concept, same name in different words |
+| **Indexing** | **New, named explicitly by Decision J** — not a separate §10 row, but a refinement *within* Stored-Cached: a value can be stored/cached without being indexed for reverse/Cross lookup (§26.2's "appropriate searchable/indexable representation" qualifier is precisely this distinction). §10 is corrected here, not by adding a sixth axis, but by naming that **Stored-Cached has two sub-states** — stored-for-direct-read vs. stored-and-indexed-for-Cross — going forward. |
+| **Display** | §10's **Displayed** — identical |
+| **Access** | §10's **Access** — identical |
+
+**The governing one-liner, updated for reuse:** **Calculation ≠ Storage ≠ Indexing ≠ Display ≠ Access** (Decision J's five-word form) is the correct, complete statement going forward — it does not replace §10's table, it **names the sub-distinction between Storage and Indexing that §10's table already implied** (via its own "Stored-Cached" row's parenthetical: *"a `gematria_words` column, a cache row, `research_objects.engine_detail`"* — three different storage shapes, only some of which are indexable at Cross scale) but had not yet named as its own concern. No prior sentence in this contract is contradicted; §10's prose sentence is superseded by Decision J's more precise five-term form, and this §26.3 is the record of that supersession, per the same non-silent-correction discipline `METHOD_LIFECYCLE_ALIGNMENT.md` §1/§7 already modeled for the method-count and lifecycle-order corrections.
+
+## 27. NUMBER COVERAGE & DEEP CORPUS RESEARCH LAW SUITE
+
+Tzuriel's new law suite, restated here as durable contract text, each law cross-referenced to the existing section it extends rather than duplicated.
+
+### 27.1 NUMBER COVERAGE LAW
+
+> Number Page / Number Research Coverage must not be limited to ragil, legacy `gematria_words` columns, or legacy corpus matches. Any approved method result that is appropriately searchable/indexable may contribute to Number Coverage regardless of its physical storage representation. The intended outcome is that numbers with little or no legacy information — including large numbers — can gain meaningful research coverage from approved deep methods, composites, Numeric Language and Cross results.
+
+Extends §5 (Number Page/Entity Hub Compatibility) and §26.1 (Method Storage Law) directly: the number page's *existing* capabilities are preserved exactly as-is (§3/§5), and this law is the corpus-coverage half of the same idea — a number's page is no longer capped by which legacy columns happen to have a row for it. A number with zero legacy `gematria_words` matches can still surface real research content once approved deep methods/composites/Numeric Language/Cross results exist for it, **once those are actually built** (nothing here is built by this contract — see §27.2).
+
+### 27.2 DEEP CORPUS SCAN LAW
+
+> SOD1820 must support a deterministic research pipeline conceptually equivalent to: **APPROVED CORPUS × APPROVED METHODS → METHOD RESULTS → SEARCHABLE/INDEXABLE RESEARCH COVERAGE.** This is not permission to perform the scan during contract closure. It is an architectural requirement for Methods Build / Research DNA implementation.
+
+This is the batch/pipeline-shaped counterpart of §10's per-word Full Method Profile and §26.2's Deep Cross Law — the same "every approved method, every approved word" computation, stated as a systemic requirement rather than a per-record contract. **Not performed by this pass or any prior pass in this chain** — no scan was run, no corpus×method cross-product was materialized.
+
+### 27.3 CORPUS GROWTH LAW
+
+> Newly Human-Gate-approved corpus expressions must be capable of entering the same Full Method Profile / indexing pipeline incrementally, without requiring redesign or a complete manual corpus rescan.
+
+Extends `CORPUS_APPROVAL_LIFECYCLE.md`'s six-stage funnel (Stage 6, Approved Corpus) forward: once a new expression clears Human-Gate, it must be able to join the Deep Corpus Scan Law's (§27.2) pipeline the same way every prior approved expression did — an incremental append, not a full-corpus re-run. This is a design requirement on whatever mechanism eventually implements §27.2, not a new mechanism itself.
+
+### 27.4 COMPOSITE COVERAGE LAW
+
+> Composite Research Transforms do not require `gematria_words` columns. However, composites that materially contribute to Number Coverage / Cross may receive an appropriate searchable/indexable or precomputed representation when justified by query/performance needs.
+
+Directly extends §15 (Atomic ≠ Composite) and §26.1/§26.2: composites (Human-Gate Decision E, approved for existence) stay column-free by default, exactly as `GEMATRIA_METHODS_COMPOSITE_CONTRACT.md` §2 already states (*"It does not get its own `db_column` or SQL calc function"*) — but §27.4 clarifies this is a default, not an absolute prohibition. If a specific composite turns out to be heavily queried at Cross scale, the same §26.2 "appropriate searchable/indexable representation when justified by query/performance needs" applies to it as to any atomic method — a future, evidence-driven decision, not a default assumption.
+
+### 27.5 COMPUTED MATCH ≠ CANONICAL FINDING
+
+> A deterministic method match proves the mathematical result only. **Computed Match ≠ Interpretation ≠ Research Finding ≠ Canonical Finding.** AI/system discovery may surface and rank a match but cannot promote its interpretation to canonical status without the existing Human-Gate.
+
+This is the Number-Coverage-layer restatement of two already-locked chains: §1's `verification_state` vocabulary (a `match` is a mechanical fact about `engine_result == claimed_value`, never itself an interpretation) and `CORPUS_APPROVAL_LIFECYCLE.md` §2's `Engine Verified ≠ Corpus Approved` (the 31/32-mismatch incident that motivated the whole Claim/Calculation/Verification Contract in the first place). §27.5 extends the same discipline explicitly to the *coverage* context this Part III opens up: as Number Coverage grows to include deep methods/composites/Numeric Language results a number never had before, the temptation to treat "the engine found a match" as "this is a real, meaningful finding about this number" grows with it. **The law forecloses that shortcut explicitly** — every one of §27.1's newly-surfaced results is a Computed Match until a human (Zuriel, via Human-Gate) reviews and promotes an interpretation of it, exactly as any other claim in the system.
+
+### 27.6 NUMBER PAGE RANKING LAW
+
+> Increased Research DNA coverage must not turn Number Page into an unranked dump of method results. Preserve the existing Number Page experience and apply: **Rank, Don't Hide.** Core/legacy information remains clear; additional method findings are organized/ranked and deeper layers may be progressively disclosed through Research / Deep Research surfaces.
+
+This is §3's (Preserve & Expand Law) own `Rank, Don't Hide` principle — already stated there as inherited from `command_center_law` — applied specifically to the *consequence* of §27.1's coverage expansion: more coverage is not itself a UI mandate to show more by default. §5's existing "modes and facets" future-direction (Reader / Research / DNA / Cross) is the natural home for the progressive disclosure this law requires — not built here, named as the compatible destination.
+
+### 27.7 NUMBER CONVERGENCE SIGNAL
+
+> Independent methods/paths converging on the same number may increase research relevance/ranking. Convergence is a research signal only: **Convergence ≠ Fact ≠ Canonical Interpretation.**
+
+This is §19 (Method Consensus/Convergence) restated at the Number Coverage layer rather than the Method Profile layer — §19 already established, word for word, *"Convergence ≠ Fact"* and that convergence "may, in the future, influence ranking or research-relevance surfacing... but... does not bypass Human-Gate." §27.7 confirms the identical rule applies once convergence is observed *across numbers* (independent methods/paths landing on the same number), not only across methods on the same expression — no new epistemic category is introduced, the same derived-observation-not-stored-fact treatment (§19's closing paragraph) applies here too.
+
+### 27.8 METHOD VERSION / RECOMPUTATION LAW
+
+> Indexed/precomputed method results must retain enough method-definition/version provenance to determine when results became stale after a method-definition change. Future implementation must support safe recomputation/invalidation without destroying historical provenance.
+
+This is the Numeric-Language-and-general-method analog of §12 (Method Versioning) — §12 already named the identical gap (*"a provenance/version concept, so that if a formula is later corrected or redefined, the system can still say which definition/version produced a historical result"*) and gave it the same disposition this law inherits: **`IMPLEMENTATION DECISION REQUIRED`**, no migration/column/table invented here. §27.8 adds one concrete requirement §12 did not yet spell out: whatever mechanism is eventually chosen must support **recomputation/invalidation** (not just labeling staleness) — so that when a method's definition is corrected (the exact scenario Decision F's אטבח drift represents today, unresolved), previously-indexed results can be safely recomputed **without silently destroying the historical record of what the old definition had produced** (per §1.1's Negative Results Preservation Law — a superseded value is disclosed history, not deleted).
+
+### 27.9 TRACE ≠ SEARCH INDEX
+
+> Rich Research Trace/Structure (e.g. מילוי decomposition, משולש מילה construction, reverse triangle structure) is separate from the minimal searchable/indexable method result. Do not require the reverse index to store the full visualization/trace merely to support Cross.
+
+This is a scope-limiting corollary of §26.2 (Deep Cross Law): the "appropriate searchable/indexable representation" §26.2 requires for Cross participation is deliberately **minimal** — a value (and enough provenance to trace it back, per §11's Method Profile Contract fields) — not the full explanatory/visualization structure a number page or a dossier might render for a human reader (e.g. showing the letter-by-letter מילוי expansion, or the row-by-row משולש מילה triangle construction). Keeping these separate means the reverse-index/Cross layer stays cheap and fast at scale, while the richer Trace layer is computed/rendered only where and when a human is actually looking at it — consistent with §10's own "Stored vs. Displayed are independent" principle, refined further by §26.3's Storage/Indexing split.
+
+### 27.10 DISCOVERY ACCESS ≠ USER DISPLAY ACCESS
+
+> Internal deterministic research availability and user-visible entitlement are separate concerns. Premium/Deep Research gating must not change mathematical results or canonical status, while user-facing exposure must continue to respect the approved access/tier policy.
+
+Extends §4.6 (Method Access Law) and §4.7 (Premium Law) directly: those sections already separate **Mathematical Truth (invariant)** from **Method Access (tier-assignable)** and state that *"Premium controls access, depth and tooling — never mathematical truth or canonical status."* §27.10 names the specific consequence for the internal engine/index layer this Part III concerns: a method/composite/Numeric-Language result can be **internally available** — computed, indexed, feeding Cross/Consensus/Research DNA (§26.2, §27.7) — for a tier or surface the average reader never sees, without that availability by itself deciding what any given user is shown. Discovery/computation happening "in the background" for Research DNA purposes is not the same event as a user's browser rendering it — exactly the same "one projection, many lenses, tier decided per-lens" pattern §2's dimension table and §10's "Displayed" row already establish, now stated as its own named law because Part III's coverage expansion makes the distinction load-bearing in a way it wasn't before (more internally-available data increases the chance of accidentally conflating "the engine can see it" with "the user can see it").
+
+### 27.11 NUMBER PAGE AS RESEARCH HUB
+
+> Research DNA should allow Number Page to evolve additively from a legacy lookup surface into a unified Number Research Hub drawing, where appropriate, from: legacy corpus + approved methods + composites + Cross + Numeric Language + convergence + worlds + research objects/findings + provenance. This is additive. Do not remove or retroactively lock existing Number Page capabilities. The DNA may become deeper while the default UX remains controlled and readable.
+
+This is the summary destination §5, §27.1 and §27.6 already point toward, named explicitly as its own forward-looking law: every dimension this contract has separately established (Research DNA's eleven dimensions, §2; Method Profile, §11; Composite, §15; Numeric Language, §20–§22; Convergence, §19/§27.7) are all, eventually, facets the same one Number Page can additively draw from — never a rebuild, never a parallel "research view" page competing with the existing one. **Nothing in §27 is built by this pass.**
+
+## 28. PROPOSED ACCESS/TIER TREATMENT FOR D AND E — recommendation only, awaiting ZURIEL approval
+
+Per Tzuriel's own framing (*"final proposed access treatment for D/E for ZURIEL approval"*), this section is the orchestrator's reasoned proposal, **not a decision** — recorded here so it travels with the contract rather than living only in a chat reply. Also recorded, in shorter form, in `GEMATRIA_METHODS_HUMAN_GATE.csv` rows D and E.
+
+### 28.1 D — משולש מילה / משולש מילה הפוך dispatch/Full-Method-Profile access
+
+**Proposal: keep them at the same baseline (public/free) access level they already have today as client-side `DEPTH_METHODS`, for calculator/number-drawer display — but treat their *new* Full Method Profile / Deep Cross / server-side dispatch participation as a separately-assignable surface, not automatically bundled at the same tier.**
+
+Reasoning:
+- These are **not new-to-users**. They already compute and display client-side today via `DEPTH_METHODS`, live in the UI since 25.7.2026, at the same tier as the other depth methods (קדמי גדול/מסתתר גדול). Per the Legacy Baseline Law (§4.1/§4.4) and the no-retroactive-lockout principle (§4.6: *"methods already visible at baseline keep their existing baseline access level"*), simply becoming registry-active/dispatchable is not, by itself, a new user-facing capability — a user who could already see משולש מילה's value in the calculator yesterday sees the identical value today. There is no principled reason to newly restrict something a user already had.
+- **But** joining the *formal* Full Method Profile (§10/§11) is a different surface than calculator display — it unlocks Deep Cross (§26.2)/Consensus (§19)/Research DNA participation (§2), i.e. these two methods becoming one more searchable axis across the *entire* corpus, not just computable for one word a user types in. That is closer to a genuinely new capability (§4.6's "a method newly approved in the future can be assigned its own access tier"), even though the underlying math is unchanged.
+- **Recommendation:** two tier answers, not one — (a) **calculator/number-drawer display: stays public/free**, unchanged from today (Legacy Baseline, no lockout); (b) **Full Method Profile / Deep Cross / Cross-Engine participation: `public` is still defensible** given these are simple, already-verified, already-displayed atomic methods with no ambiguity in their definition (unlike F/G/H/I) — but if Tzuriel wants any new-registry-entry to default toward a more conservative tier until a pattern of over-exposure is proven otherwise, `premium` for the Deep Cross/Profile surface specifically (not the plain calculator) is the next most defensible fallback. **This orchestrator's default recommendation is (b)=public**, on the grounds that gatekeeping *math a user already sees* behind a *different* access wall than the wall it already clears reads as an arbitrary distinction to the researcher, and Premium is better spent (per §4.7) on genuinely new depth (composites, Cross UI, multi-method comparison) than on relabeling an existing free calculator method as premium-for-cross-purposes-only.
+
+### 28.2 E — the 4 composites' tier
+
+**Proposal: re-affirm `compositeMethods.js`'s existing default (`premium` for the three simple pairs, `deep_research` for the triangle pair) as the *user-display* default, while explicitly decoupling it from *internal* Cross/DNA availability per §27.10 (Discovery Access ≠ User Display Access).**
+
+Reasoning:
+- `compositeMethods.js`'s `tierHint` values were written by a prior pass as a **default proposal, explicitly not activated** — Tzuriel's message reconfirms *"Final access/tier assignment remains pending"*, so this is genuinely still open, not a formality.
+- §15 already states composites "target Research DNA (as a METHOD-dimension fact), the Cross Engine, and Deep Research — not the plain baseline number-page display by default" — i.e. the *existing contract text*, written before this pass, already leans toward composites being a deeper-tier *display* surface, consistent with the prior pass's `premium`/`deep_research` proposal. This pass does not find new evidence to challenge that lean.
+- **Where this pass refines the existing proposal, rather than simply re-affirming it verbatim:** §27.10's Discovery-Access≠User-Display-Access distinction, new to this pass, means the `premium`/`deep_research` `tierHint` should be understood as governing **what a user sees when they open a composite view**, not whether the composite's *numbers* are computed/indexed/available internally for Cross/Consensus/Number-Coverage purposes (§26.2/§27.1) — those can and should be available at the engine level regardless of a given viewer's tier, exactly as §4.6's Mathematical-Truth-is-invariant clause already requires. Concretely: a composite result can quietly feed a `Number Convergence Signal` (§27.7) or Deep Cross query for *any* number's coverage, even for a viewer who could never open the composite's own dedicated view.
+- The triangle-pair composite (משולש מילה+משולש מילה הפוך) additionally depends on its own atoms clearing Human-Gate — which they now have (Decision D, approved). `GEMATRIA_METHODS_COMPOSITE_CONTRACT.md` §6's stated reason for the stricter `deep_research` tier ("both atoms are themselves still `candidate`... the composite cannot outrank its own atoms") **no longer fully applies** now that D is approved — this pass recommends Tzuriel revisit whether the triangle-pair composite should move to `premium` (matching its sibling three) now that its atoms are active, or whether `deep_research` should stay for an independent product reason (e.g. it is a genuinely deeper/rarer research lens on its own merits, not merely because its atoms were unverified). **This orchestrator does not have enough product-taste signal to pick between those two on its own — flagged as the one sub-question genuinely worth a direct answer**, distinct from the three simpler composites where `premium` stands unchallenged.
+
+### 28.3 Summary table
+
+| Item | Proposed | Status |
+|---|---|---|
+| D — calculator/number-drawer display | `public` (unchanged from today) | Proposal, low ambiguity |
+| D — Full Method Profile / Deep Cross participation | `public` (orchestrator's default) or `premium` (conservative fallback) | Proposal, ZURIEL's call between the two |
+| E — רגיל+מילוי / רגיל+מסתתר / רגיל+משולש (display) | `premium` | Proposal, re-affirms existing `compositeMethods.js` default |
+| E — משולש מילה+משולש מילה הפוך (display) | `premium` (revisit) or `deep_research` (keep as-is) | Proposal, genuinely open sub-question |
+| E — all 4 composites, internal Cross/DNA availability | Available regardless of display tier, per §27.10 | Proposal, follows directly from §4.6/§27.10, low ambiguity |
+
+## 29. WHAT PART III LEAVES OPEN
+
+Carried forward, not decided, not newly opened beyond what is already named above:
+
+1. **F, G, H, I remain HOLD** (`GEMATRIA_METHODS_HUMAN_GATE.csv`) — אטבח's competing definitions (F), אי״ק בכ״ר's and אח״ס בט״ע's missing cipher definitions (G, H), and מילוי גדול's missing worked example (I). None of these block Part III's contract text — §26/§27's laws apply to whichever methods eventually clear Human-Gate, whenever that happens.
+2. **§26.2's "appropriate searchable/indexable representation" mechanism** — not chosen here (cache table / materialized view / `bidim` extension / other). `IMPLEMENTATION DECISION REQUIRED`, same disposition as §12/§16/§27.8.
+3. **§28's D/E tier questions** — proposals only, awaiting Tzuriel's explicit Human-Gate approval, including the one genuinely open sub-question (§28.2, the triangle-pair composite's tier now that its atoms are active).
+4. **Research Preference & Raziel Personalization** — Tzuriel's third decision in this same message is deliberately **not** folded into Part III; it is its own document, `RAZIEL_PERSONALIZATION_LAW.md`, per the size/distinctness judgment call explained at its own top. Cross-referenced, not restated, here.
+
+---
+
+*Governance: docs-only pass. 0 DB writes except the single closing `work_log` memo, which covers this document together with `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`, `RESEARCH_DNA_V1_FINAL_CONTRACT_COVERAGE.md`, `RAZIEL_PERSONALIZATION_LAW.md`, `GEMATRIA_METHODS_HUMAN_GATE.csv`, and the `SOD1820_MASTER_ROADMAP.md` edit. §4 correction, 22.8: fifth pass in this chain. §8–§25, 22.8: seventh and FINAL pass in this chain. §26–§29 (Part III), 22.8: tenth pass — applies ZURIEL's Human-Gate decisions on the Methods Unification pack and adds the Number Coverage/Deep Corpus Research law suite; §28's D/E tier treatment is a proposal, not a decision, per Tzuriel's own explicit request for "final proposed access treatment... for ZURIEL approval." No further contract-consolidation pass on Part I/II is anticipated; Part III may still need a closing Human-Gate round-trip on §28's open sub-question before Methods Build implementation begins.*
