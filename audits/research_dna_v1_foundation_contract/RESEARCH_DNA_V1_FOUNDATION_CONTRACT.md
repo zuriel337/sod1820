@@ -103,7 +103,27 @@ This is not a new law invented for this contract — it is the direct extension 
 
 ---
 
-## 4. NUMBER PAGE / ENTITY HUB COMPATIBILITY — documented only, nothing built
+## 4. LEGACY ACCESS PRESERVATION + PREMIUM DEPTH LAW
+
+**Added by Tzuriel, 22.8, as a direct corollary of §3 (Preserve & Expand Law) — access-tier scope, not content scope.**
+
+> כל world / method / DNA capability / convergence / number-page capability שכבר זמינים למשתמשים במערכת החיה נשמרים ברמת הגישה הקיימת שלהם; Research DNA v1 אינו משמש רטרואקטיבית לנעילת יכולות קיימות.
+> Worlds/facets חדשים הנוצרים מתוך Research DNA — כגון emotional/semantic/research-depth dimensions — יכולים להיות מסווגים כ־Premium Research Depth.
+> שיטות חדשות שאושרו נכנסות למנוע האחד; עצם האמת המתמטית אינה "Premium truth", אך ניתן להגביל ל־Premium את עומק המחקר מעליה: multi-method exploration, matrices, comparison, advanced filtering, Cross Engine, graph paths, advanced provenance and Raziel research.
+> Premium controls depth and tooling — not truth.
+
+**In plain terms:**
+- **No retroactive lockout.** Every world/method/DNA-capability/convergence/number-page capability a user already has access to *today*, on the live site, keeps that exact access level. Research DNA v1 landing is never itself the trigger that moves something from free to paywalled.
+- **New surfaces born from Research DNA may be Premium from birth.** A new emotional/semantic/research-depth world or facet that did not exist before this contract can be classified as Premium Research Depth at creation — that is not a lockout, because nothing pre-existing is being restricted.
+- **An approved method's raw truth is never Premium.** Once a method clears the Method Lifecycle (`METHOD_LIFECYCLE_ALIGNMENT.md`) and enters the one live engine, its plain computed value is available at whatever tier gematria values are available at today — the same `method_priority`/`method_hierarchy_ragil_foundation` engine output for everyone. What *can* be gated to Premium is the **depth and tooling layered on top**: multi-method exploration, comparison matrices, advanced filtering, the Cross Engine (`WS-CROSS-ENGINE`), graph-path traversal, advanced provenance detail, and Raziel-driven research.
+- **The one-sentence rule:** **Premium controls depth and tooling — not truth.**
+- This is an access-tier constraint on top of §3, not a new content/taxonomy rule — it governs *who sees how much*, never *what the math says*. It composes directly with the existing `platform_tiers_law` (6-tier access model, CLAUDE.md) — this law says how Research DNA-born surfaces slot into that existing tier system, it does not replace it.
+
+**Not yet decided by this note (left open, same as §5 below):** the exact tier cutline for each specific future facet/mode (e.g. is Graph-Path traversal tier 3 or tier 4?) — that is a per-feature Human-Gate call when each surface is actually built, not something this contract pre-assigns.
+
+---
+
+## 5. NUMBER PAGE / ENTITY HUB COMPATIBILITY — documented only, nothing built
 
 - **The existing number page remains the experiential base.** Research DNA v1 is designed to *feed* it (additional facts becoming available to render), never to replace its layout, its existing sections, or its current read path.
 - **Future-possible, not scoped or built here:** exposing **modes** (Reader / Research / DNA / Cross) and **facets** (by world / method / verification-state / source / researcher) as optional lenses over the same entity. This is explicitly named as a future direction per this task's instruction, with no screen map, no component, and no redesign performed in this pass — consistent with `research_workspace_law`'s own hard rule (*"מפה-קודם, מסך-קודם, לא-בונים-מאחור"*) and `command_center_law`'s identical execution-order rule.
@@ -111,7 +131,7 @@ This is not a new law invented for this contract — it is the direct extension 
 
 ---
 
-## 5. WHAT THIS CONTRACT LEAVES EXPLICITLY OPEN
+## 6. WHAT THIS CONTRACT LEAVES EXPLICITLY OPEN
 
 Carried forward, not decided, not newly opened by this pass:
 
@@ -126,7 +146,7 @@ None of these block Research DNA v1's readiness as a *contract* — the Proof-of
 
 ---
 
-## 6. SCHEMA VERDICT
+## 7. SCHEMA VERDICT
 
 **NOT YET — same verdict as every prior pass in this chain, reconfirmed, not re-litigated.** Every dimension of Research DNA v1, every stage of the Corpus Approval Lifecycle, and every stage of the Method Lifecycle maps onto a structure that already exists (`gematria_words`, `research_objects`, `research_contributions`, `word_aliases`, `edges`/`nodes`, `gematria_methods`). The one concrete future build item (a `targets` edge-type vocabulary value) is a controlled-vocabulary addition, not a schema change, and is itself gated behind a Zuriel definition that has not yet been given.
 
