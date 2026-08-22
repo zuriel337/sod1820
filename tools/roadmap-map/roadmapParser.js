@@ -132,6 +132,30 @@ function extractWsIdRefs(rawText) {
   return ids;
 }
 
+const GATE_MENTION_RE = /Gate #(\d+)/g;
+
+/**
+ * Distinct "Gate #N" numbers literally mentioned across the given raw field
+ * texts. This is a MENTION signal, not a governance claim — e.g. WS-SEC's
+ * WHAT_IS_OPEN mentions "Gate #18" only as a dateline for when 2 unrelated
+ * security findings were discovered, not because Gate #18 gates WS-SEC. Stage
+ * 2's diagnostic UI must present this as "gate numbers mentioned in this
+ * card's own text", not "the gate governing this workstream".
+ */
+function extractGateMentions(rawTexts) {
+  const numbers = [];
+  for (const text of rawTexts) {
+    if (!text) continue;
+    GATE_MENTION_RE.lastIndex = 0;
+    let m;
+    while ((m = GATE_MENTION_RE.exec(text))) {
+      const n = parseInt(m[1], 10);
+      if (!numbers.includes(n)) numbers.push(n);
+    }
+  }
+  return numbers.sort((a, b) => a - b);
+}
+
 /**
  * Naive, explicitly-not-canonical grouping hint from a workstream id.
  * WS-ELS-CORPUS -> "ELS" (3+ hyphen-separated segments -> use the 2nd segment)
@@ -329,6 +353,13 @@ function parseWorkstreams(lines, warnings) {
       (fields.WHERE_WE_ARE && extractReturnPointChains(fields.WHERE_WE_ARE.raw)[0]) ||
       null;
 
+    // Gate numbers literally mentioned in this card's own HUMAN_GATE/WHAT_IS_OPEN
+    // text — a mention signal, not a governance claim (see extractGateMentions doc).
+    const gate_mentions = extractGateMentions([
+      fields.HUMAN_GATE && fields.HUMAN_GATE.raw,
+      fields.WHAT_IS_OPEN && fields.WHAT_IS_OPEN.raw,
+    ]);
+
     workstreams.push({
       id,
       title,
@@ -338,6 +369,7 @@ function parseWorkstreams(lines, warnings) {
       missing_core_fields,
       dependency_refs,
       return_point_chain,
+      gate_mentions,
       parse_warnings: cardWarnings,
     });
 
@@ -484,12 +516,17 @@ export function parseRoadmap(roadmapMarkdown) {
   for (const ws of workstreams) {
     for (const dep of ws.dependency_refs) {
       if (!knownIds.has(dep)) {
-        warnings.push({
+        const warning = {
           scope: "workstream",
           id: ws.id,
           code: "dependency_ref_unknown_id",
           detail: dep,
-        });
+        };
+        warnings.push(warning);
+        // Also backfill onto the card's own parse_warnings so a UI reading
+        // ws.parse_warnings alone (the per-card warning badge) sees it too —
+        // the global `warnings` list and each card's own list must agree.
+        ws.parse_warnings.push({ field: "DEPENDENCIES", code: warning.code, detail: warning.detail });
         continue;
       }
       dependency_edges.push({ from: ws.id, to: dep, source: "DEPENDENCIES_field" });
@@ -532,5 +569,6 @@ export const _internal = {
   extractTags,
   extractReturnPointChains,
   extractWsIdRefs,
+  extractGateMentions,
   groupHintFromId,
 };

@@ -158,6 +158,36 @@ test("dependency_edges: only explicit backtick WS-id refs become edges, and all 
   assert.ok(elsIdentityCorpus, "expected WS-ELS-IDENTITY -> WS-ELS-CORPUS dependency edge");
 });
 
+test("the one real warning (WS-ELS-IDENTITY -> WS-TANAKH) appears BOTH globally and on the card's own parse_warnings", () => {
+  const vm = parseRoadmap(loadRoadmap());
+  assert.ok(
+    vm.warnings.some((w) => w.scope === "workstream" && w.id === "WS-ELS-IDENTITY" && w.code === "dependency_ref_unknown_id")
+  );
+  const ws = vm.workstreams.find((w) => w.id === "WS-ELS-IDENTITY");
+  assert.ok(
+    ws.parse_warnings.some((w) => w.code === "dependency_ref_unknown_id" && w.detail === "WS-TANAKH"),
+    "expected the cross-referenced dependency warning to be backfilled onto the card's own parse_warnings (for a per-card UI badge)"
+  );
+});
+
+test("gate_mentions: extracted from HUMAN_GATE/WHAT_IS_OPEN only, as a mention signal (not a governance claim)", () => {
+  const vm = parseRoadmap(loadRoadmap());
+  const byId = Object.fromEntries(vm.workstreams.map((w) => [w.id, w]));
+  assert.deepEqual(byId["WS-ELS-IDENTITY"].gate_mentions, [4]);
+  assert.deepEqual(byId["WS-JUDGE-UNIFICATION"].gate_mentions, [18]);
+  assert.deepEqual(byId["WS-CC"].gate_mentions, [9]);
+  assert.deepEqual(byId["WS-ELS-CAPABILITY-AUDIT"].gate_mentions, [15]);
+  assert.deepEqual(byId["WS-NAMELAB"].gate_mentions, [17]);
+  assert.deepEqual(byId["WS-RESEARCH-OBJECT-FRAMEWORK"].gate_mentions, [20]);
+  // WS-SEC mentions "Gate #18" only as a dateline for when 2 unrelated security
+  // findings were found (Gate #18 crosswalk) — NOT because Gate #18 governs
+  // WS-SEC. gate_mentions surfaces it honestly as a mention; a UI must label
+  // it as such, not as "this workstream's gate".
+  assert.deepEqual(byId["WS-SEC"].gate_mentions, [18]);
+  // a card with no gate mention anywhere in those two fields -> empty array, not null/guessed.
+  assert.deepEqual(byId["WS-ELS-REGRESSION"].gate_mentions, []);
+});
+
 test("STATE tags: WS-JUDGE-UNIFICATION carries both a known tag and the newer unclassified INTAKE-CRITICAL-style tag correctly bucketed", () => {
   const vm = parseRoadmap(loadRoadmap());
   const ws = vm.workstreams.find((w) => w.id === "WS-JUDGE-UNIFICATION");
@@ -223,6 +253,7 @@ test("summarizeCoverage returns sane counters for the real file", () => {
   const vm = parseRoadmap(loadRoadmap());
   const cov = summarizeCoverage(vm);
   assert.equal(cov.workstreams, 23);
+  assert.equal(cov.workstreams_with_warnings, 1);
   assert.equal(cov.gates, 20);
   assert.equal(cov.gates_closed, 3);
   assert.equal(cov.gates_open, 17);

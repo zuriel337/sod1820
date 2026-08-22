@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>Roadmap Diagnostic Lens — Stage 2</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --ink: #1b1d22; --muted: #5b6472;
+    --line: #dfe3e8; --accent: #2f6df6; --gold: #b8860b;
+    --ok: #2f9e6b; --warn: #c79a2e; --crit: #d64545; --gray: #9a9285;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family: -apple-system, "Segoe UI", Arial, sans-serif; line-height:1.5; padding: 20px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 10px; border-bottom: 2px solid var(--line); padding-bottom: 6px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  code, .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12.5px; direction: ltr; unicode-bidi: embed; }
+  .muted { color: var(--muted); font-size: 12.5px; }
+  .pill { display:inline-block; padding:2px 8px; border-radius: 999px; font-size:11.5px; font-weight:600; margin-inline-end:4px; }
+  .pill-ok { background:#e4f6ee; color:var(--ok); }
+  .pill-warn { background:#fbf1dd; color:var(--warn); }
+  .pill-crit { background:#fbe6e6; color:var(--crit); }
+  .pill-gray { background:#eeecec; color:#6a655e; }
+  .badge-warn { background:var(--crit); color:#fff; border-radius:999px; padding:1px 7px; font-size:11px; font-weight:700; margin-inline-start:6px; }
+  .header-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+  .stat { border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
+  .stat .k { font-size:11px; color:var(--muted); }
+  .stat .v { font-size:15px; font-weight:700; }
+  .disclaimer { font-size:11.5px; color:var(--gold); background:#fbf6e6; border:1px dashed var(--gold); border-radius:6px; padding:6px 10px; margin-bottom:10px; display:inline-block; }
+  .group { border:1px solid var(--line); border-radius:8px; margin-bottom:10px; overflow:hidden; }
+  .group > summary { cursor:pointer; padding:8px 12px; background:#f0f2f5; font-weight:700; list-style:none; }
+  .group > summary::-webkit-details-marker { display:none; }
+  .ws-card { padding:10px 14px; border-top:1px solid var(--line); }
+  .ws-card:first-of-type { border-top:none; }
+  .ws-title { font-weight:700; }
+  .ws-field { font-size:12.5px; margin-top:4px; }
+  .ws-field b { color: var(--muted); font-weight:600; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { border:1px solid var(--line); padding:6px 8px; text-align:right; vertical-align:top; }
+  th { background:#f0f2f5; }
+  .chain { display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; }
+  .chain .step { background:#eef3ff; border:1px solid #cddcfb; border-radius:6px; padding:4px 10px; }
+  .chain .arrow { color: var(--accent); font-weight:700; }
+  .dep-list { display:grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap:6px; font-size:12.5px; }
+  .dep-edge { display:flex; align-items:center; gap:6px; }
+  .warn-item { border:1px solid var(--crit); background:#fff5f5; border-radius:6px; padding:8px 10px; margin-bottom:6px; font-size:12.5px; }
+  .warn-item .code { color:var(--crit); font-weight:700; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script id="payload" type="application/json"><!--ROADMAP_DIAGNOSTIC_PAYLOAD--></script>
+<script>
+  window.__ROADMAP_DIAGNOSTIC_DATA__ = JSON.parse(document.getElementById("payload").textContent);
+</script>
+<script src="diagnostic-render.js"></script>
+</body>
+</html>
