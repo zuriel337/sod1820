@@ -172,6 +172,32 @@
 
 ---
 
+## 🧭 סדר-היסוד האסטרטגי (STRATEGIC FOUNDATION ORDER) — חדש, נוסף 22.8
+> **provenance:** הודעת-צוריאל 22.8 ("STRATEGIC FOUNDATION ORDER — SOD1820"). עיקרון-סדר אסטרטגי, **לא** סטטוס חדש ו**לא** workstream בפני-עצמו — קובע את סדר-ההתקדמות בין-workstreams קיימים (ובגאפים-שטרם-קיבלו-כרטיס). **טרם נכנס ל-Master State** — כמו עקרון-עבודה-רוחבית למעלה, ממתין ל-Master Reconciliation נפרד.
+
+**השרשרת (7 שלבים):**
+```
+Corpus Classification → Corpus Persistence → Research DNA v1 →
+Identity / Multilingual / Numeric transforms → Cross & ELS Engines →
+Entity Hub → Raziel Orchestration
+```
+
+| # | שלב | ה-workstream/מצב הקיים | STATE |
+|---|---|---|---|
+| 1 | Corpus Classification | `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) + `MASTER_CLASSIFICATION_v3` (work_log 22.8: 15,433/15,433 שורות מסווגות, `closed_awaiting_human_gate`, 4 פריטים ב-Human-Gate בלבד) | `ACTIVE_NOW`/כמעט-סגור |
+| 2 | Corpus Persistence | **אין-עדיין כרטיס** — הצעד הבא: להעביר את `MASTER_CLASSIFICATION_v3.csv` (scratchpad, READ-ONLY עד-כה) בפועל ל-DB (`gematria_words`/שדות-corpus_role) אחרי Human-Gate | `OPEN` — לא-נפתח-כאן, ממתין-לשער |
+| 3 | Research DNA v1 | "Legacy → Research DNA Crosswalk" (work_log 22.8, `returned_to_zuriel_gpt_for_decision`) — הרחבת `WS-GAMMA`, derived-view לפי דרישת-צוריאל (work_log "🧬 Research DNA v1 — Zuriel constraint", 22.8) | `OPEN-HUMAN-GATE` |
+| 4 | Identity / Multilingual / Numeric transforms | Gate #4 (`WS-ELS-IDENTITY`, Universal Finding Identity & Multi-Source Provenance) + `content_translation_law` (רב-לשוניות) + NUMERIC-DNA generation-slot (מוגדר-בעיצוב, לא-בנוי) | `OPEN/INTAKE-CRITICAL` |
+| 5 | Cross & ELS Engines | `WS-CROSS-ENGINE` (DESIGN/FUTURE) + אשכול `WS-ELS-FSS`/`WS-ELS-WORKAREA`/`WS-ELS-IDENTITY` | `DESIGN`/`OPEN-HUMAN-GATE` (ELS: חלקים `LIVE`) |
+| 6 | Entity Hub | `EntityHubRails`/`EntityPage.jsx` (קוד חי, `docs/planning/full-site-layout-state.md`) — **אין-עדיין כרטיס-workstream ייעודי** | `LIVE` (קוד) · `UNTRACKED` (כ-workstream) |
+| 7 | Raziel Orchestration | `WS-RAZIEL` + עקרון Brain Responsibility (למעלה, מאושר-Governance) | `LIVE` (3 מימושים) · חיווט-זהות `OPEN` |
+
+**העיקרון המנחה (כלשונו):** **אין צורך להשלים כל enrichment אפשרי בקורפוס לפני התקדמות.** `MASTER_CLASSIFICATION_v3` מספק בסיס מספיק למעבר לשלב-הבא (Foundation) — לא-נדרש איפוס/שכלול-אינסופי לפני שממשיכים בשרשרת. **הרחבות-קורפוס עתידיות (עוד מקורות, עוד שיטות, עוד שפות) נכנסות דרך אותו Research DNA v1 (שלב 3) ואינן יוצרות schema/engine/tree מקביל** — מתיישר-במלואו עם `unified_graph_law`/γ ועם דרישת-ה-extensibility שכבר נרשמה ל-Research DNA v1 (work_log 22.8: "future corpus expansion, new methods, numeric-language generation, multilingual identity, without schema redesign").
+
+**מה זה קובע בפועל:** סדר-העדיפות בין `WS-GEMATRIA-CORPUS-PACKAGES` (עכשיו) ← Persistence (שער-הבא, טרם-נפתח) ← Research DNA v1 (Human-Gate תלוי) ← Identity/Multilingual/Numeric ← `WS-CROSS-ENGINE`+ELS ← Entity Hub ← Raziel — **לא** משנה את `ACTIVE_NOW` הנוכחי (`WS-GEMATRIA-CORPUS-PACKAGES`) ולא סוגר/פותח שום Gate בפני-עצמו.
+
+---
+
 ## 🔀 צינור השחרור (RELEASE PIPELINE)
 ```
 Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נפרס) → Live(🚀 פעיל) → Verified(✅ אומת)
