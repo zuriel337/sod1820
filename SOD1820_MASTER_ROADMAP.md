@@ -127,7 +127,7 @@
 | provenance | §0 governance | `LIVE` ✅ | עקבי בכל commit/work_log |
 | Candidate ≠ Fact | §10.0, §19-B#9 | `LIVE` ✅ | עקבי |
 | HOT ≠ TRUE | §10.3.1 | `LIVE` ✅ | עקבי (`journey_seeds`, `demand_gaps`) |
-| Premium ≠ Truth | §19-B#15 | `LIVE` ✅ | אין-הפרה כי אין-מימוש-בכלל (`PARKED`) |
+| Premium ≠ Truth | §19-B#15, מאופיין ב-§4 של `RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md` (PR #166, מוזג 22.8) | `LIVE` ✅ | אין-הפרה כי אין-מימוש-בכלל (`PARKED`) — §4 (ratified, אחרי-תיקון-צוריאל): "Premium controls access, depth and tooling — never mathematical truth or canonical status" |
 | Canonical ≠ Published | §19-A | `LIVE` ✅ | עקבי |
 | Rank, Don't Hide | §11.6 | `LIVE` ✅ | עקבי, מאושש גם ע"י `research-object-map.md`#18 |
 
@@ -218,7 +218,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 ## 🌌 היקום המלא (FULL UNIVERSE) — כלום לא מוסתר
 - **🔵 עכשיו (NOW)** → **`WS-GEMATRIA-CORPUS-PACKAGES`** (21.8, הנחיית-צוריאל מפורשת) — ארגון חומרי-גימטריה (רשימות/חבילות) לכדי corpus מחקרי, לפני חזרה ל-Gate #4/#18. Gate #3+Gate #2 סגורים (History). Gate #4+Gate #18 הם שני שערים ארכיטקטוניים פתוחים, **Intake-critical למסלול הנוכחי** — לא-חוסמים v5.
 - **🟡 הבא (NEXT)** → לפי נקודת-החזרה שנקבעה: **Gate #4 (Universal Finding Identity & Multi-Source Provenance)** ← אחרי-ארגון-החומרים ← ואז **Gate #18 (Unified Judgment & Human-Gate Contract)**. שאר-השערים-הפתוחים (ר' Open Human-Gates): מיזוג-`els-unified-merge`-ל-main · Research-Journey/Matrix/שכבות-ELS-נוספות (Preview) · שחזור `fn_els_search` secdef · Master-State §17-אנומרציה · שאר-שערי-#7-#20 — כולם מתועדים ואינם חוסמים קנוניזציית v5.
-- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳ · **מנוע הצלבות מתקדם (Cross-Research Engine, `WS-CROSS-ENGINE`, נוסף 22.8)**.
+- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳ · **מנוע הצלבות מתקדם (Cross-Research Engine, `WS-CROSS-ENGINE`, נוסף 22.8)** · **Raziel: External Reflective Interpreter + Conversational Intent Classification (`WS-RAZIEL`, נוסף 22.8)**.
 - **⏸️ מושהה (PARKED)** → סליקה/מנויים (Hyp) · Human-Design/Tarot/`digit_language`/`number_series`/`number_products` (schema-בלבד, מכוון-נכון).
 - **🗄️ הוחלף (SUPERSEDED, provenance)** → writer-os · `CommandCenterTab.jsx` (הוחלף ע"י `WarRoomTab`) · §19-old · ELS-2 Item-1 **כענף-עצמאי** (תוכנו נספג בפועל ל-D4, ר' `WS-ELS-FSS`).
 - **🚪 מחוץ־לתחום (OUTSIDE, חדש-v5)** → "מעבדה להבנת משמעות" (`/meaning-lab`, `lab_*` tables) — פרויקט-צד נפרד לגמרי, לא-שייך ל-SOD1820, לא-לגעת.
@@ -437,7 +437,12 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **CANONICAL_HOME:** live DB + `wa-raziel`/`number-researcher` edge functions.
 - **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8), אומת שוב באודיט-ממוקד (21.8) · תוכן-`raziel_brain` אומת ישירות (SELECT + קריאת-קוד `number-researcher/index.ts:218`) בביקורת-הקנוניזציה (21.8).
 - **LAST_VERIFIED:** 2026-08-21 (תוקן).
-- **STATE:** 3-variants+WA-infra=`LIVE`/`DB-LIVE` · `raziel_brain`=`DB-LIVE`(מאוכלס-חלקית)/`OPEN-HUMAN-GATE`(היקף) · חיווט-זהות=`OPEN-HUMAN-GATE`.
+- **STATE:** 3-variants+WA-infra=`LIVE`/`DB-LIVE` · `raziel_brain`=`DB-LIVE`(מאוכלס-חלקית)/`OPEN-HUMAN-GATE`(היקף) · חיווט-זהות=`OPEN-HUMAN-GATE` · **+2 Future Requirements (22.8, למטה) — לא-חוסמים, לא-לבנייה-כעת.**
+
+**FUTURE_REQUIREMENTS (נוסף 22.8 — שתי דרישות-עתידיות של צוריאל, מתועדות-בלבד, לא-חוסמות ולא-לבנייה-כעת):**
+1. **External Reflective Interpreter:** בעתיד Raziel יוכל להזמין סוכן/מודל חיצוני (כגון GPT או Grok) לדעה-שנייה, סינתזה ופרשנות-רפלקטיבית. הסוכן-החיצוני מקבל **חבילת-הקשר מבוקרת** מתוך ממצאי-SOD1820 בלבד, ו**אינו מקור-אמת**: אסור-לו לחשב-גימטריה-עצמאית, להמציא-ממצאים, לקבוע עובדות/נבואות, לקדם-חומר-לקנון או לכתוב-לעץ. התוצאה חוזרת ל-Raziel, שמפריד Evidence/Interpretation ומנסח את התשובה-הסופית. Raziel מפעיל סוכן-חיצוני **רק כשמוסיף ערך ממשי** מעבר-למערכת-הקיימת. עיקרון (כלשונו): `SOD1820 researches → external model interprets/challenges → Raziel synthesizes → Human-Gate governs canon`. **מתיישר במלואו** עם §19-B (Master State) סעיף 11 EXTERNAL RESEARCH (מקור-חיצוני נשמר כ-External Source, אינו-הופך-אוטומטית ל-Fact/Canonical) + סעיף 12 RAZIEL (אינו Judge/Canonicalizer/Publisher) + סעיף 13 HUMAN GATE, ועם עקרון **Brain Responsibility** (למעלה במפה) — Raziel אינו-מוח-מקביל גם-כשהוא-מזמין סוכן-שלישי; זה נשאר **כלי בתוך אותה מסגרת**, לא מוח-שני/מקור-אמת-נוסף. **אין מנוע/מוח מקביל נוצר.**
+2. **Conversational Intent Classification:** Raziel חייב-להבחין בין 5 סוגי-פנייה: **שאלה חדשה** (new) · **המשך-שיחה** (continuation) · **בקשת-פישוט** (explain_previous) · **בקשת-משמעות/פרשנות** (reflective_interpretation) · **בקשת-מחקר** (research). בקשת-פישוט או המשך-שיחה **אינה מפעילה מחקר-מחדש שלא-לצורך**. נתגלה מתצפית על שאלות-משתמשים אמיתיות (usage-observation), לא-ספיציפיקציה-מופשטת — מתחבר-ישירות לתפקיד-ה-Orchestrator של Raziel (`agents_team_law`, "מזהה intent, מנתב למנועים/מומחים קיימים").
+- **מה-לא-הוכרע (נשאר-פתוח, לא-מומצא):** מנגנון-הבחירה בפועל של הסוכן-החיצוני (איזה מודל, מתי "ערך-ממשי"), פורמט-חבילת-ההקשר, ומימוש-הסיווג-השיחתי (state-machine? classifier? קונטקסט-שיחה?) — כל-אלה שאלות-בנייה-עתידיות, לא-הוכרעו-כאן.
 
 ### WS-MASTERSTATE — ממשל/סנכרון Master State — עודכן-v5
 - **WHERE_WE_ARE:** §19 A/B/C/D **כבר על main** (לא-עוד "טרם-מיין"). §17 עדיין `FROZEN`-חלקית לגבי-Finding-Identity.
@@ -578,6 +583,8 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | ELS `els_records` שלב ב׳ | ELS כמאגר־מחקר | ELS map | Finding Identity LIVE | `CLAUDE.md`/work_log | `FUTURE` |
 | מסגרת Research-Object (GPT) *(חדש-v5)* | North-Star/AI-Navigator/Budget/Challenge | `WS-RESEARCH-OBJECT-FRAMEWORK` | Gate #20 | `gpt/research-object-map` | `FUTURE`/`DESIGN` |
 | מנוע הצלבות מתקדם (Cross-Research Engine) *(חדש, 22.8)* | הצלבה מתמטית מלאה בין שיטות/עולמות/שנים/חוקרים/מקורות + Graph-traversal + Deep-Research-candidate + "מצא לי הצלבה" | `WS-CROSS-ENGINE` | Research DNA v1 · Gate #18 · `WS-GEMATRIA-CORPUS-PACKAGES` | הודעת-צוריאל 22.8 | `FUTURE`/`DESIGN` |
+| External Reflective Interpreter (Raziel) *(חדש, 22.8)* | Raziel מזמין סוכן/מודל חיצוני (GPT/Grok) לדעה-שנייה/סינתזה — אינו-מקור-אמת, אינו-מחשב-גימטריה, אינו-מקדם-לקנון | `WS-RAZIEL` | §19-B#11/#12/#13 · Brain Responsibility | הודעת-צוריאל 22.8 | `FUTURE`/`DOCUMENTED` |
+| Conversational Intent Classification (Raziel) *(חדש, 22.8)* | הבחנה בין שאלה-חדשה/המשך-שיחה/פישוט/פרשנות/מחקר — פישוט/המשך לא-מפעילים מחקר-מחדש שלא-לצורך | `WS-RAZIEL` | `agents_team_law` (Orchestrator/intent) | הודעת-צוריאל 22.8 (usage-observation) | `FUTURE`/`DOCUMENTED` |
 
 ## ⏸️ מרשם המושהים (PARKED REGISTRY)
 | פריט | למה מושהה | provenance |
