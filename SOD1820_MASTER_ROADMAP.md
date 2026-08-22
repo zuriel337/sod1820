@@ -185,7 +185,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 ## 🌌 היקום המלא (FULL UNIVERSE) — כלום לא מוסתר
 - **🔵 עכשיו (NOW)** → **`WS-GEMATRIA-CORPUS-PACKAGES`** (21.8, הנחיית-צוריאל מפורשת) — ארגון חומרי-גימטריה (רשימות/חבילות) לכדי corpus מחקרי, לפני חזרה ל-Gate #4/#18. Gate #3+Gate #2 סגורים (History). Gate #4+Gate #18 הם שני שערים ארכיטקטוניים פתוחים, **Intake-critical למסלול הנוכחי** — לא-חוסמים v5.
 - **🟡 הבא (NEXT)** → לפי נקודת-החזרה שנקבעה: **Gate #4 (Universal Finding Identity & Multi-Source Provenance)** ← אחרי-ארגון-החומרים ← ואז **Gate #18 (Unified Judgment & Human-Gate Contract)**. שאר-השערים-הפתוחים (ר' Open Human-Gates): מיזוג-`els-unified-merge`-ל-main · Research-Journey/Matrix/שכבות-ELS-נוספות (Preview) · שחזור `fn_els_search` secdef · Master-State §17-אנומרציה · שאר-שערי-#7-#20 — כולם מתועדים ואינם חוסמים קנוניזציית v5.
-- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳.
+- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳ · **מנוע הצלבות מתקדם (Cross-Research Engine, `WS-CROSS-ENGINE`, נוסף 22.8)**.
 - **⏸️ מושהה (PARKED)** → סליקה/מנויים (Hyp) · Human-Design/Tarot/`digit_language`/`number_series`/`number_products` (schema-בלבד, מכוון-נכון).
 - **🗄️ הוחלף (SUPERSEDED, provenance)** → writer-os · `CommandCenterTab.jsx` (הוחלף ע"י `WarRoomTab`) · §19-old · ELS-2 Item-1 **כענף-עצמאי** (תוכנו נספג בפועל ל-D4, ר' `WS-ELS-FSS`).
 - **🚪 מחוץ־לתחום (OUTSIDE, חדש-v5)** → "מעבדה להבנת משמעות" (`/meaning-lab`, `lab_*` tables) — פרויקט-צד נפרד לגמרי, לא-שייך ל-SOD1820, לא-לגעת.
@@ -220,6 +220,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | השלמת זהות תנ״ך | `corpus_id` תנ״ך פתוח | אין corpus_id תנ״ך קנוני (§17) | הכרעת צוריאל |
 | מיזוג/פריסת `els-unified-merge` (המנוע, לא ה-shell) *(חדש-v5)* | Decision #1 פתור אך שער-אדם עוד לא ניתן | אישור-Human-Gate | צוריאל מאשר Preview |
 | אימוץ Number-Language / Name-Lab-רשמי / איחוד-שופטים *(חדש-v5)* | כולם OPEN-HUMAN-GATE, ר' שערים #16/#17/#18 (Decision Register) | הכרעות-צוריאל נפרדות | ר' שערים 15-19 למטה |
+| מנוע הצלבות מתקדם (`WS-CROSS-ENGINE`) *(חדש, 22.8)* | ספיציפיקציה בלבד, אין One-Tree-Check עדיין | Research DNA v1 טרם-הוכרעה + Gate #18 טרם-הוכרע + קורפוס עדיין-בארגון | Research DNA v1 decision → Gate #18 → One-Tree-Check מלא |
 
 ---
 
@@ -509,6 +510,28 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **LAST_VERIFIED:** 2026-08-21.
 - **STATE:** `DESIGN` (ענף-בלבד) · `OPEN-HUMAN-GATE`.
 
+### WS-CROSS-ENGINE — מנוע הצלבות מתקדם (Cross-Research Engine) — **חדש, נוסף 22.8**
+- **WHERE_WE_ARE:** ספיציפיקציה ראשונית בלבד, ממסר-צוריאל (22.8). אין קוד/schema/UI חדשים. **לא-מתחיל-מאפס** — דור-ראשון-בפועל כבר-חי בקוד: `collectionConvergences`+`persistDiscoveries` (`src/lib/deepAnalysis.js`), `getNumberCrossResonance`/`getStrongestCrossings`/`getAtlasFindingsForEntity` (`src/lib/supabase.js`, נשען על `relation_evidence`=Atlas). אלה **הגרעין** שהמנוע-המתקדם מרחיב — לא-להמציא-מנגנון-מקביל.
+- **WHAT_IS_DONE:** תיעוד-הדרישה (למטה) + זיהוי-הגרעין-הקיים בקוד.
+- **WHAT_IS_OPEN:** *(הדרישות כפי-שנמסרו, טרם One-Tree-Check מלא מול הגרף):*
+  1. הצלבה מתמטית בין **כל** השיטות (לא-רק זוגות/רגיל-מול-רגיל).
+  2. הפרדת **Fact / Claim / Candidate** מפורשת (לבדוק: האם `research_objects.status` [candidate/…] + `engine_verified` כבר-מספיקים, או-נדרשת-הבחנה-נוספת).
+  3. דירוג-חוזק **מוסבר** (נימוק, לא רק רשימת-שוויונות/ערך-תואם) — הרחבה על `resonanceScore` הקיים (`deepAnalysis.js`).
+  4. הצלבות לפי **עולמות · שנים · חוקרים · חבילות-מחקר · מקורות** — facets נוספים על ה-Cross הקיים.
+  5. **מסלולי-Graph:** ביטוי→מספר→שיטה→חבילה→שנה/אירוע→מספר-אחר (traversal, לא-רק זוגות-בודדים).
+  6. **Deep Research** שמציע הצלבות-חדשות **כ-candidate-בלבד** — זו בדיוק הרחבה של הגשר-הקיים H-1 (`persistDiscoveries`→`fn_persist_discovery`→`research_objects` candidate, ר' `WS-GAMMA`), לא-מנגנון-נפרד.
+  7. **`targets` נפרד מ-`computed_value_of`** — שני-סוגי-קשת/יחס נבדלים בגרף (לאן-מצביע ≠ מה-מחושב-אליו) — טרם-ממופה ל-`edges`/`relates[]` הקיימים.
+  8. עובד מעל **Research DNA + One Tree**; **אין מנוע/עץ/טבלה מקבילים** — דרישת-צוריאל מפורשת, מתיישרת עם `unified_graph_law`/γ.
+  9. חזון-עתידי: לב של "מצא לי הצלבה" בדף-המספר (`EntityPage`) ובמחקר-העמוק (`ResearchCenter`).
+- **WHAT_IS_BLOCKED:** כל build — עד: (א) Research DNA v1 עצמה תוכרע (derived-view, `work_log` 22.8 — עדיין `Legacy → Research DNA Crosswalk`, `returned_to_zuriel_gpt_for_decision`), (ב) Gate #18 (Fact/Claim/Candidate = שכבת-Judgment המאוחדת) יוכרע, (ג) `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) יסתיים — אין-טעם-להצליב-קורפוס-שעדיין-בארגון.
+- **HUMAN_GATE:** צוריאל — **מפה-קודם/מסך-קודם** (per `research_workspace_law`/`command_center_law`): נדרש One-Tree-Check מלא (כמו ה-Crosswalk שנעשה ל-Research DNA v1) לפני כל schema/build.
+- **NEXT_ACTION:** אין קוד. הצעד-הבא (כשיאושר): One-Tree-Check — למפות כל 9 הסעיפים למעלה ל-primitive קיים בגרף (`nodes`/`edges`/`relates[]`/`research_objects`/`relation_evidence`) בדיוק כפי-שנעשה ל-Research DNA v1, ולסמן MISSING-מפורש איפה-שאין.
+- **DEPENDENCIES:** Research DNA v1 (הרחבת-`WS-GAMMA`, `work_log` 22.8) · Gate #18 (`WS-JUDGE-UNIFICATION`) · `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) · `WS-URC` (Method-Preserving-Discovery/Research-Finding, סעיפים חופפים).
+- **CANONICAL_HOME:** TBD — מחויב-להתבסס-על `research_objects`/`relation_evidence`/`nodes`/`edges` הקיימים (γ, §19-A), **לא**-טבלה-חדשה, לפי דרישת-צוריאל המפורשת.
+- **PROVENANCE:** הודעת-צוריאל 22.8 ("Cross-Research Engine / מנוע הצלבות מתקדם").
+- **LAST_VERIFIED:** —
+- **STATE:** `DESIGN`/`FUTURE` · `OPEN-HUMAN-GATE`.
+
 ---
 
 ## 🔮 מרשם העתיד (FUTURE REGISTRY) — **INCOMPLETE**
@@ -521,6 +544,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | רב־לשוניות | האתר רב־לשוני | `content_translation_law` | `video-transcribe` | §15 | `FUTURE` |
 | ELS `els_records` שלב ב׳ | ELS כמאגר־מחקר | ELS map | Finding Identity LIVE | `CLAUDE.md`/work_log | `FUTURE` |
 | מסגרת Research-Object (GPT) *(חדש-v5)* | North-Star/AI-Navigator/Budget/Challenge | `WS-RESEARCH-OBJECT-FRAMEWORK` | Gate #20 | `gpt/research-object-map` | `FUTURE`/`DESIGN` |
+| מנוע הצלבות מתקדם (Cross-Research Engine) *(חדש, 22.8)* | הצלבה מתמטית מלאה בין שיטות/עולמות/שנים/חוקרים/מקורות + Graph-traversal + Deep-Research-candidate + "מצא לי הצלבה" | `WS-CROSS-ENGINE` | Research DNA v1 · Gate #18 · `WS-GEMATRIA-CORPUS-PACKAGES` | הודעת-צוריאל 22.8 | `FUTURE`/`DESIGN` |
 
 ## ⏸️ מרשם המושהים (PARKED REGISTRY)
 | פריט | למה מושהה | provenance |
@@ -617,6 +641,8 @@ WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW, 21.8) ── מזין-עתידית ─�
 WS-ELS-FSS (Gate #2 Preview-Verified 542c7147, PR #163) ── מיזוג-ל-main OPEN (שער-חדש-טרם-נפתח) ── WS-ELS-WORKAREA (shell LIVE, מנוע ב-Preview)
    └── WS-ELS-CAPABILITY-AUDIT (4 שאלות פתוחות)
 WS-GAMMA (LIVE, main) ── יישום-UX OPEN ── WS-URC (OPEN) ── WS-RESEARCH-OBJECT-FRAMEWORK (Gate #20)
+WS-GAMMA ── Research DNA v1 (derived-view, work_log 22.8, OPEN) ── WS-CROSS-ENGINE (DESIGN/FUTURE, 22.8)
+   └── תלוי-גם-ב ── Gate #18 (Fact/Claim/Candidate) + WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW)
 WS-SEC (LIVE) ── §18 enumeration OPEN ── 2 ממצאי-אבטחה חדשים (wa_word_review/project_contribution_to_graph) OPEN-נפרד
 WS-RAZIEL (3-variants+WA-infra LIVE, פועלים בתוך Brain-Context-Boundary) ── חיווט-זהות OPEN ── L1–L14 DESIGN ── raziel_brain OPEN
 WS-PERSON: F-1a′ LIVE ── F-1b BLOCKED
