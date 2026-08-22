@@ -110,6 +110,66 @@ function SavedRow({ e, collections, onAssign, onRemove }) {
   );
 }
 
+// 📁 אוסף-מחקר פרטי בודד — Lens/Ownership layer מעל research_items (research_workspace_law).
+//    תיוג-ארגון אופציונלי (נושא/עולם/מספר/שנה) · כלי-מחקר קיימים (הצלבות-המנוע) · «הצע למחקר» =
+//    פעולה מפורשת יחידה שמעבירה התכנסות-אמיתית ל-research_objects(candidate) דרך הגשר הקיים
+//    (H-1 · fn_persist_discovery) — Human Gate של צוריאל נשאר השער היחיד ל-Canonical. אין מנוע מקביל.
+function CollectionBlock({ c, items, collections, onAssign, onRemove, onDelete, onUpdate }) {
+  const [editing, setEditing] = useState(false);
+  const [propose, setPropose] = useState("idle"); // idle | sent | empty
+  const convs = useMemo(() => collectionConvergences(items), [items]);
+  const tags = [c.topic, c.world, c.number != null ? `🔢 ${c.number}` : null, c.year != null ? `📅 ${c.year}` : null].filter(Boolean);
+  const proposeToResearch = () => {
+    if (!convs.length) { setPropose("empty"); return; }
+    persistDiscoveries(convs, { source: "private-collection", sourceRef: `collection:${c.id}` });
+    setPropose("sent");
+  };
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div className="rw-sec-t" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📁 {c.name} · {items.length}</span>
+        <span style={{ display: "flex", gap: 4 }}>
+          <button className="rw-mini" title="תיוג-ארגון (נושא/עולם/מספר/שנה)" onClick={() => setEditing(v => !v)}>✏️</button>
+          <button className="rw-mini" title="מחק אוסף" onClick={onDelete}>🗑</button>
+        </span>
+      </div>
+      {tags.length > 0 && !editing && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, margin: "2px 0 6px" }}>
+          {tags.map((t, i) => <span key={i} className="rw-chip" style={{ fontSize: 11 }}>{t}</span>)}
+        </div>
+      )}
+      {editing && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "2px 0 8px" }}>
+          <input className="rw-in" placeholder="נושא" defaultValue={c.topic || ""} style={{ width: 90 }}
+            onBlur={e => onUpdate({ topic: e.target.value.trim() || null })} />
+          <input className="rw-in" placeholder="עולם" defaultValue={c.world || ""} style={{ width: 90 }}
+            onBlur={e => onUpdate({ world: e.target.value.trim() || null })} />
+          <input className="rw-in" placeholder="מספר" type="number" defaultValue={c.number ?? ""} style={{ width: 74 }}
+            onBlur={e => onUpdate({ number: e.target.value === "" ? null : Number(e.target.value) })} />
+          <input className="rw-in" placeholder="שנה" type="number" defaultValue={c.year ?? ""} style={{ width: 74 }}
+            onBlur={e => onUpdate({ year: e.target.value === "" ? null : Number(e.target.value) })} />
+        </div>
+      )}
+      {items.length === 0 ? <div className="rw-empty" style={{ padding: "2px 2px 4px" }}>ריק — בחרו «{c.name}» בשורת-שמור.</div>
+        : <>
+            {items.map(e => <SavedRow key={e.id} e={e} collections={collections} onAssign={onAssign} onRemove={onRemove} />)}
+            {convs.length > 0 && (
+              <div style={{ margin: "6px 0", fontSize: 11.5, color: "var(--acc)" }}>
+                🔮 {convs.length} התכנסויות בין-שיטתיות באוסף הזה — עובדת-מנוע.
+              </div>
+            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+              <button className="rw-mini" title="הצע את ההתכנסויות באוסף למחקר המשותף — עובר Human Gate, לא הופך אוטומטית לקנוני" onClick={proposeToResearch}>
+                🔬 הצע למחקר
+              </button>
+              {propose === "sent" && <span className="rw-muted" style={{ fontSize: 11 }}>✓ נשלח כמועמד ל-Human Gate</span>}
+              {propose === "empty" && <span className="rw-muted" style={{ fontSize: 11 }}>אין עדיין הצלבת-שיטות באוסף — הוסיפו עוד ביטויים/מספרים</span>}
+            </div>
+          </>}
+    </div>
+  );
+}
+
 // פאנל בודד — מודול עצמאי (Panel Registry).
 function Panel({ icon, title, extra, children, bare }) {
   if (bare) return <div className="rw-pb bare">{children}</div>;
@@ -151,7 +211,7 @@ function HotNumbers() {
 export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
   const {
     cart = [], saved = [], pinned = [], history = [], collections = [], journeys = [],
-    removeFromResearch, removeSaved, togglePin, clearHistory, addCollection, removeCollection, assignCollection, removeJourney,
+    removeFromResearch, removeSaved, togglePin, clearHistory, addCollection, updateCollection, removeCollection, assignCollection, removeJourney,
   } = useResearch();
   const { user, profile, signOut } = useAuth();
   const nav = useNavigate();
@@ -353,19 +413,11 @@ export default function ResearchCenter({ variant, tabbed, activeTab, onTab }) {
             ? <div className="rw-empty">השמורים שלך יופיעו כאן — לחצו ⭐ על כל ישות.</div>
             : <>
                 {loose.map(e => <SavedRow key={e.id} e={e} collections={collections} onAssign={assignCollection} onRemove={x => removeSaved?.(x.id)} />)}
-                {collections.map(c => {
-                  const items = inColl(c.id);
-                  return (
-                    <div key={c.id} style={{ marginTop: 8 }}>
-                      <div className="rw-sec-t" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span>📁 {c.name} · {items.length}</span>
-                        <button className="rw-mini" title="מחק אוסף" onClick={() => removeCollection?.(c.id)}>🗑</button>
-                      </div>
-                      {items.length === 0 ? <div className="rw-empty" style={{ padding: "2px 2px 4px" }}>ריק — בחרו «{c.name}» בשורת-שמור.</div>
-                        : items.map(e => <SavedRow key={e.id} e={e} collections={collections} onAssign={assignCollection} onRemove={x => removeSaved?.(x.id)} />)}
-                    </div>
-                  );
-                })}
+                {collections.map(c => (
+                  <CollectionBlock key={c.id} c={c} items={inColl(c.id)} collections={collections}
+                    onAssign={assignCollection} onRemove={x => removeSaved?.(x.id)}
+                    onDelete={() => removeCollection?.(c.id)} onUpdate={patch => updateCollection?.(c.id, patch)} />
+                ))}
                 <button className="rw-mini" style={{ marginTop: 9 }} onClick={newCollection}>➕ אוסף חדש</button>
               </>}
         </Panel>
