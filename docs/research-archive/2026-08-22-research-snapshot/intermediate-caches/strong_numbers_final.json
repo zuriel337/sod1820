@@ -1,0 +1,176 @@
+{
+ "45": [
+  "canonical-graph-relation(phase3)",
+  "explicit_seed(instruction §1)",
+  "graph-direct(phase2)",
+  "graph-direct(phase3)"
+ ],
+ "50": [
+  "explicit_seed(instruction §1)"
+ ],
+ "75": [
+  "explicit_seed(instruction §1)",
+  "graph-direct(phase2)",
+  "source-claim(phase2)",
+  "source-claim(phase3)"
+ ],
+ "90": [
+  "TOP20(phase4,source)",
+  "fan-out(phase4,out-degree=4)"
+ ],
+ "95": [
+  "TOP20(phase4,source)"
+ ],
+ "111": [
+  "explicit_seed(instruction §1)"
+ ],
+ "123": [
+  "TOP20(phase4,target)"
+ ],
+ "127": [
+  "hub(phase4,in-degree=5)"
+ ],
+ "131": [
+  "hub(phase4,in-degree=4)"
+ ],
+ "143": [
+  "TOP20(phase4,source)"
+ ],
+ "148": [
+  "explicit_seed(instruction §1)",
+  "graph-direct(phase2)",
+  "source-claim(phase2)",
+  "source-claim(phase3)"
+ ],
+ "170": [
+  "TOP20(phase4,target)",
+  "fan-out(phase4,out-degree=4)",
+  "high-research-amplification / explicit-report-callout",
+  "hub(phase4,in-degree=4)"
+ ],
+ "190": [
+  "TOP20(phase4,source)",
+  "hub(phase4,in-degree=4)"
+ ],
+ "216": [
+  "explicit_seed(instruction §1)"
+ ],
+ "222": [
+  "TOP20(phase4,source)",
+  "explicit_seed(instruction §1)",
+  "high-research-amplification / explicit-report-callout"
+ ],
+ "306": [
+  "TOP20(phase4,target)"
+ ],
+ "310": [
+  "TOP20(phase4,source)"
+ ],
+ "318": [
+  "TOP20(phase4,target)"
+ ],
+ "337": [
+  "TOP20(phase4,source)",
+  "TOP20(phase4,target)",
+  "high-research-amplification / explicit-report-callout"
+ ],
+ "370": [
+  "TOP20(phase4,target)"
+ ],
+ "424": [
+  "explicit_seed(instruction §1)"
+ ],
+ "430": [
+  "TOP20(phase4,source)"
+ ],
+ "455": [
+  "TOP20(phase4,source)"
+ ],
+ "466": [
+  "TOP20(phase4,source)"
+ ],
+ "474": [
+  "explicit_seed(instruction §1)"
+ ],
+ "501": [
+  "TOP20(phase4,source)"
+ ],
+ "502": [
+  "TOP20(phase4,target)"
+ ],
+ "506": [
+  "TOP20(phase4,target)"
+ ],
+ "514": [
+  "TOP20(phase4,target)"
+ ],
+ "515": [
+  "TOP20(phase4,source)"
+ ],
+ "539": [
+  "hub(phase4,in-degree=4)"
+ ],
+ "620": [
+  "TOP20(phase4,source)"
+ ],
+ "644": [
+  "TOP20(phase4,target)"
+ ],
+ "776": [
+  "explicit_seed(instruction §1)",
+  "graph-direct(phase2)",
+  "source-claim(phase2)",
+  "source-claim(phase3)"
+ ],
+ "880": [
+  "TOP20(phase4,source)"
+ ],
+ "907": [
+  "fan-out(phase4,out-degree=4)"
+ ],
+ "915": [
+  "TOP20(phase4,source)"
+ ],
+ "1111": [
+  "TOP20(phase4,target)"
+ ],
+ "1118": [
+  "TOP20(phase4,target)"
+ ],
+ "1234": [
+  "TOP20(phase4,target)"
+ ],
+ "1237": [
+  "canonical-graph-relation(phase3)",
+  "explicit_seed(instruction §1)",
+  "graph-direct(phase2)",
+  "graph-direct(phase3)"
+ ],
+ "1246": [
+  "TOP20(phase4,source)"
+ ],
+ "1452": [
+  "TOP20(phase4,source)"
+ ],
+ "1561": [
+  "fan-out(phase4,out-degree=4)"
+ ],
+ "1690": [
+  "TOP20(phase4,source)"
+ ],
+ "1710": [
+  "TOP20(phase4,source)"
+ ],
+ "1910": [
+  "fan-out(phase4,out-degree=4)"
+ ],
+ "1999": [
+  "fan-out(phase4,out-degree=6)"
+ ],
+ "2048": [
+  "hub(phase4,in-degree=4)"
+ ],
+ "3960": [
+  "TOP20(phase4,target)"
+ ]
+}

@@ -1,0 +1,571 @@
+id,original_phrase,numeric_expression,parse_type,parsed_number,parse_confidence,roundtrip_status,gematria_values,self_numeric_hit,cross_research_hits,year_overlap,method_claim_overlap,target_overlap,generated_existing_match,ambiguity_reason,special_flags,source,category_prior
+1,אלף,אלף,B_cardinal_number,1000,high,exact_roundtrip,111,False,anchor:111;research_interest:111,False,,strong_number_target:111,,,B_gematria_hits:111,auto:תיעוד אירועים wp16294,numeric_quantity
+2,עשרים,עשרים,B_cardinal_number,20,high,exact_roundtrip,620,False,research_interest:620,False,,strong_number_target:620,,,B_gematria_hits:620,auto:תיעוד אירועים wp16571,numeric_quantity
+3,שבעים וחמש,"חמש, שבעים",B_cardinal_number,75,high,exact_roundtrip,776,False,anchor:776,False,,strong_number_source:75;strong_number_target:776,75,,A_words_denote:75;B_gematria_hits:776,auto:תיעוד אירועים wp16571,numeric_quantity
+4,שלושים ושלושה,"שלושה, שלושים",B_cardinal_number,33,high,alternate_valid_form,1333,False,,False,,,,,,auto:תיעוד אירועים wp16571,numeric_quantity
+5,אלף ארבעים וארבע,"אלף, ארבע, ארבעים",B_cardinal_number,1044,high,exact_roundtrip,713,False,,False,,,,,,auto:תיעוד אירועים wp19647,numeric_quantity
+6,שבעים חמש,"חמש, שבעים",B_cardinal_number,75,high,normalized_roundtrip,770,False,,False,,strong_number_source:75,,,A_words_denote:75,auto:תיעוד אירועים wp27754,numeric_quantity
+7,שבע מאות,"מאות, שבע",B_cardinal_number,700,high,exact_roundtrip,819,False,,False,,,,,,auto:תיעוד אירועים wp32852,numeric_quantity
+8,מאה ארבעים ושמונה,"ארבעים, מאה, שמונה",B_cardinal_number,148,high,exact_roundtrip,776,False,anchor:776,False,,strong_number_source:148;strong_number_target:776,148,,A_words_denote:148;B_gematria_hits:776,auto:תיעוד אירועים wp9298,numeric_quantity
+9,אלף חמש מאות ושש,"אלף, חמש, מאות, שש",D_year_expression,1506,high,exact_roundtrip,1512,False,,False,,,,,,excel_import,numeric_quantity
+10,אלף שלש מאות שלשים וחמש,"אלף, חמש, מאות, שלש, שלשים",D_year_expression,1335,high,normalized_roundtrip,2222,False,,False,,,,,,excel_import,numeric_quantity
+11,אלף שמונה מאות עשרים,"אלף, מאות, עשרים, שמונה",D_year_expression,1820,high,normalized_roundtrip,1579,False,,False,,,,,A_words_denote:1820,excel_import,numeric_quantity
+12,אלפיים וחמש עשרה,"אלפיים, חמש, עשרה",D_year_expression,2015,high,exact_roundtrip,1100,False,,True,,,2015,,,excel_import,numeric_quantity
+13,אלפיים שש עשרה,"אלפיים, עשרה, שש",D_year_expression,2016,high,normalized_roundtrip,1346,False,,True,,,,,,excel_import,numeric_quantity
+14,אלפים וחמש עשרה,"אלפים, חמש, עשרה",D_year_expression,2015,high,alternate_valid_form,1090,False,,False,,,,,,excel_import,numeric_quantity
+15,חמש מאות שלושים ושלוש,"חמש, מאות, שלוש, שלושים",B_cardinal_number,533,high,exact_roundtrip,2123,False,,False,,,533,,,excel_import,numeric_quantity
+16,חמשת אלפים שבע מאות שבעים ושש,"אלפים, חמשת, מאות, שבע, שבעים, שש",B_cardinal_number,5776,high,exact_roundtrip,2756,False,,True,,,,,,excel_import,numeric_quantity
+17,חמשת אלפים שבע מאות שמונים וארבע,"אלפים, ארבע, חמשת, מאות, שבע, שמונים",B_cardinal_number,5784,high,exact_roundtrip,2453,False,,True,,,,,,excel_import,numeric_quantity
+18,עשר,עשר,B_cardinal_number,10,high,exact_roundtrip,570,False,,False,,,,,,excel_import,numeric_quantity
+19,שבעים ושלש,"שבעים, שלש",B_cardinal_number,73,high,normalized_roundtrip,1058,False,,False,,,,,,excel_import,numeric_quantity
+20,שבעים ושש,"שבעים, שש",B_cardinal_number,76,high,exact_roundtrip,1028,False,,False,,,,,,excel_import,numeric_quantity
+21,שלוש מאות חמישים ושמונה,"חמישים, מאות, שלוש, שמונה",B_cardinal_number,358,high,exact_roundtrip,1898,False,,False,,,358,,,excel_import,numeric_quantity
+22,שש מאות ששים וארבע,"ארבע, מאות, שש, ששים",B_cardinal_number,664,high,alternate_valid_form,1976,False,,False,,,,,,excel_import,numeric_quantity
+23,אחת,אחת,B_cardinal_number,1,high,exact_roundtrip,409,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+24,ארבע,ארבע,B_cardinal_number,4,high,exact_roundtrip,273,False,,False,,,4,,,promoted:raw_docx_v2,numeric_quantity
+25,ארבע מאות,"ארבע, מאות",B_cardinal_number,400,high,exact_roundtrip,720,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+26,ארבעים,ארבעים,B_cardinal_number,40,high,exact_roundtrip,323,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+27,חמש,חמש,B_cardinal_number,5,high,exact_roundtrip,348,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+28,חמשים,חמשים,B_cardinal_number,50,high,alternate_valid_form,398,False,,False,,strong_number_source:50,,,A_words_denote:50,promoted:raw_docx_v2,numeric_quantity
+29,מאה,מאה,B_cardinal_number,100,high,exact_roundtrip,46,False,,False,,,100,,,promoted:raw_docx_v2,numeric_quantity
+30,מאתיים,מאתיים,B_cardinal_number,200,high,exact_roundtrip,501,False,research_interest:501,False,,strong_number_target:501,,,B_gematria_hits:501,promoted:raw_docx_v2,numeric_quantity
+31,מיליון,מיליון,B_cardinal_number,1000000,high,no_roundtrip,146,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+32,עשרה,עשרה,B_cardinal_number,10,high,alternate_valid_form,575,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+33,רבבה,רבבה,B_cardinal_number,10000,high,no_roundtrip,209,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+34,שבע,שבע,B_cardinal_number,7,high,exact_roundtrip,372,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+35,שבעה,שבעה,B_cardinal_number,7,high,alternate_valid_form,377,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+36,שבעים,שבעים,B_cardinal_number,70,high,exact_roundtrip,422,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+37,שבעים אלף,"אלף, שבעים",B_cardinal_number,70000,high,no_roundtrip,533,False,research_interest:533,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+38,שבעים ואחד,"אחד, שבעים",B_cardinal_number,71,high,alternate_valid_form,441,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+39,שלוש,שלוש,B_cardinal_number,3,high,exact_roundtrip,636,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+40,שלש,שלש,B_cardinal_number,3,high,normalized_roundtrip,630,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+41,שלשה,שלשה,B_cardinal_number,3,high,alternate_valid_form,635,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+42,שלשים,שלשים,B_cardinal_number,30,high,normalized_roundtrip,680,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+43,שמונה,שמונה,B_cardinal_number,8,high,exact_roundtrip,401,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+44,שמונה עשרה,"עשרה, שמונה",B_cardinal_number,18,high,exact_roundtrip,976,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+45,שש,שש,B_cardinal_number,6,high,exact_roundtrip,600,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+46,שש מאות אלף,"אלף, מאות, שש",B_cardinal_number,600000,high,no_roundtrip,1158,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+47,ששה,ששה,B_cardinal_number,6,high,alternate_valid_form,605,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+48,ששים,ששים,B_cardinal_number,60,high,alternate_valid_form,650,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+49,ששת,ששת,B_cardinal_number,6,high,alternate_valid_form,1000,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+50,שתי,שתי,B_cardinal_number,2,high,alternate_valid_form,710,False,,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+51,תשעה,תשעה,B_cardinal_number,9,high,alternate_valid_form,775,False,research_interest:775,False,,,,,,promoted:raw_docx_v2,numeric_quantity
+52,תשעים,תשעים,B_cardinal_number,90,high,exact_roundtrip,820,False,,False,,strong_number_source:90,90,,A_words_denote:90,promoted:raw_docx_v2,numeric_quantity
+53,אפס,אפס,B_cardinal_number,0,high,exact_roundtrip,141,False,,False,,,,,,sod1820,numeric_quantity
+54,תשע,תשע,B_cardinal_number,9,high,exact_roundtrip,770,False,,False,,,,,,wp_id:36710,numeric_quantity
+55,אחת אחת אפס אפס,"אחת, אפס",A_digit_sequence,1100,high,alternate_valid_form,1100,True,,False,,,,,,auto:תיעוד אירועים wp6463,numeric_sequence
+56,אחד אפס אפס אפס,"אחד, אפס",A_digit_sequence,1000,high,exact_roundtrip,436,False,,False,,,,,,excel_import,numeric_sequence
+57,אחת שלש שלש חמש,"אחת, חמש, שלש",A_digit_sequence,1335,high,alternate_valid_form,2017,False,,False,,,,,,excel_import,numeric_sequence
+58,ארבע ארבע אחד,"אחד, ארבע",A_digit_sequence,441,high,exact_roundtrip,559,False,,False,,,,,,excel_import,numeric_sequence
+59,ארבע שתיים ארבע ארבע,"ארבע, שתיים",A_digit_sequence,4244,high,exact_roundtrip,1579,False,,False,,,,,,excel_import,numeric_sequence
+60,חמש מאות שלושים ושלוש שלוש שלוש שבע,"חמש, מאות, שבע, שלוש, שלושים",A_digit_sequence,,high,no_roundtrip,3767,False,,False,,,,,,excel_import,numeric_sequence
+61,חמש שבע שבע שש,"חמש, שבע, שש",A_digit_sequence,5776,high,exact_roundtrip,1692,False,research_interest:1692;hub:1692,False,,,,,,excel_import,numeric_sequence
+62,חמשים ושבע שבעים ושש,"חמשים, שבע, שבעים, שש",A_digit_sequence,5776,high,alternate_valid_form,1804,False,,False,,,,,,excel_import,numeric_sequence
+63,עשרים עשרים,עשרים,A_digit_sequence,2020,high,alternate_valid_form,1240,False,,False,,,,,,excel_import,numeric_sequence
+64,שבע שבע שש,"שבע, שש",A_digit_sequence,776,high,exact_roundtrip,1344,False,,False,,strong_number_source:776,776,,A_words_denote:776,excel_import,numeric_sequence
+65,שבעים ושש בשבע שמונה אחת,"אחת, שבע, שבעים, שמונה, שש",A_digit_sequence,,high,no_roundtrip,2212,False,anchor:2212,False,,,,,,excel_import,numeric_sequence
+66,שבעים ושש חמשים ושבע,"חמשים, שבע, שבעים, שש",A_digit_sequence,7657,high,alternate_valid_form,1804,False,,False,,,,,,excel_import,numeric_sequence
+67,שש ארבע ארבע,"ארבע, שש",A_digit_sequence,644,high,exact_roundtrip,1146,False,,False,,strong_number_source:644,644,,A_words_denote:644,excel_import,numeric_sequence
+68,ארבעה וחמשה,"ארבעה, חמשה",A_digit_sequence,45,high,alternate_valid_form,637,False,,False,,strong_number_source:45,,,A_words_denote:45,promoted:raw_docx_v2,numeric_sequence
+69,שבעה שבעת,"שבעה, שבעת",A_digit_sequence,,high,no_roundtrip,1149,False,,False,,,,,,promoted:raw_docx_v2,numeric_sequence
+70,אחת ארבע שבע ושתיים,"אחת, ארבע, שבע, שתיים",A_digit_sequence,1472,high,alternate_valid_form,1820,False,anchor:1820,False,,,,,B_gematria_hits:1820,sod1820,numeric_sequence
+71,שלש חמש חמש,"חמש, שלש",A_digit_sequence,355,high,normalized_roundtrip,1326,False,,False,,,,,,sod1820,numeric_sequence
+72,שבעים שנה,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,777,False,anchor:777,False,,,,,,auto:תיעוד אירועים wp11082,mixed_numeric_phrase
+73,בית שבע,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,784,False,,False,,,,,,auto:תיעוד אירועים wp11557,mixed_numeric_phrase
+74,עשרים כסף,עשרים,E_mixed_numeric_phrase,20,medium,no_roundtrip,780,False,,False,,,,,,auto:תיעוד אירועים wp16571,mixed_numeric_phrase
+75,קרית שמונה,שמונה,E_mixed_numeric_phrase,8,medium,no_roundtrip,1111,False,research_interest:1111,False,,strong_number_target:1111,,,B_gematria_hits:1111,auto:תיעוד אירועים wp19498,mixed_numeric_phrase
+76,כביש אחד,אחד,F_ambiguous,,,no_roundtrip,345,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,auto:תיעוד אירועים wp19647,mixed_numeric_phrase
+77,ביידן ארבעים ושש,"ארבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1005,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,auto:תיעוד אירועים wp22588,mixed_numeric_phrase
+78,ארבע עשרה תינוקות,"ארבע, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,1820,False,anchor:1820,False,,,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:1820,auto:תיעוד אירועים wp27374,mixed_numeric_phrase
+79,שבעת ימי המילואים,שבעת,E_mixed_numeric_phrase,7,medium,no_roundtrip,974,False,anchor:974,False,,,,,,auto:תיעוד אירועים wp27754,mixed_numeric_phrase
+80,חמש שנים,"חמש, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,748,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,auto:תיעוד אירועים wp32852,mixed_numeric_phrase
+81,כטבם צימד שלוש,שלוש,E_mixed_numeric_phrase,3,medium,no_roundtrip,851,False,,False,,,,,,auto:תיעוד אירועים wp33462,mixed_numeric_phrase
+82,עם אחד,אחד,F_ambiguous,,,no_roundtrip,123,False,anchor:123,False,,strong_number_target:123,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:123,auto:תיעוד אירועים wp34138,mixed_numeric_phrase
+83,ארבעים וחמש ימים,"ארבעים, חמש",E_mixed_numeric_phrase,,low,no_roundtrip,777,False,anchor:777,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,auto:תיעוד אירועים wp34433,mixed_numeric_phrase
+84,בן שני,שני,F_ambiguous,,,no_roundtrip,412,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,auto:תיעוד אירועים wp34433,mixed_numeric_phrase
+85,מלחמת ששת הימים,ששת,E_mixed_numeric_phrase,6,medium,no_roundtrip,1623,False,,False,,,,,,auto:תיעוד אירועים wp34433,mixed_numeric_phrase
+86,שבע השנים,"שבע, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,777,False,anchor:777,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,auto:תיעוד אירועים wp34433,mixed_numeric_phrase
+87,זמן השבע,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,474,False,anchor:474;hub:474,False,,strong_number_target:474,,,B_gematria_hits:474,auto:תיעוד אירועים wp36007,mixed_numeric_phrase
+88,הקטן יהיה לאלף,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,335,False,,False,,,,,,auto:תיעוד אירועים wp36103,mixed_numeric_phrase
+89,שלש מאות כסף,"מאות, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,1237,False,anchor:1237,False,,strong_number_target:1237,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:1237,auto:תיעוד אירועים wp36103,mixed_numeric_phrase
+90,חמש שתים אחד,"חמש, שתים, אחד",A_digit_sequence,521,high,alternate_valid_form,1111,False,research_interest:1111,False,,strong_number_target:1111,,,B_gematria_hits:1111,auto:תיעוד אירועים wp36110,numeric_sequence
+91,אחד באפריל,אחד,F_ambiguous,,,no_roundtrip,336,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,auto:תיעוד אירועים wp36317,mixed_numeric_phrase
+92,אחד באפריל תשפו,אחד,F_ambiguous,,,no_roundtrip,1122,False,,True,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,auto:תיעוד אירועים wp36317,mixed_numeric_phrase
+93,שבעה ילדים נספו,שבעה,E_mixed_numeric_phrase,7,medium,no_roundtrip,667,False,,False,,,,,,auto:תיעוד אירועים wp3951,mixed_numeric_phrase
+94,ההסכם שלשים לשישי יכשל,שלשים,E_mixed_numeric_phrase,30,medium,no_roundtrip,1820,False,anchor:1820,False,,,,,B_gematria_hits:1820,auto:תיעוד אירועים wp4561,mixed_numeric_phrase
+95,תשעה באב,תשעה,E_mixed_numeric_phrase,9,medium,no_roundtrip,780,False,,True,,,,,,auto:תיעוד אירועים wp4561,mixed_numeric_phrase
+96,הגירה לאירופה התשעה,תשעה,E_mixed_numeric_phrase,9,medium,no_roundtrip,1335,False,research_interest:1335,True,,,,,,auto:תיעוד אירועים wp4941,mixed_numeric_phrase
+97,ההגירה ההמונית בשנת התשעה,תשעה,E_mixed_numeric_phrase,9,medium,no_roundtrip,2276,False,,True,,,,,,auto:תיעוד אירועים wp4941,mixed_numeric_phrase
+98,חמור בן מאה גוונים משיח בן דוד,מאה,E_mixed_numeric_phrase,100,medium,no_roundtrip,891,False,,False,,,,,,cleanup_sample30,mixed_numeric_phrase
+99,את הפסח בארבעה עשר,"ארבעה, עשר",E_mixed_numeric_phrase,,low,no_roundtrip,1404,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,community,mixed_numeric_phrase
+100,שבע יפול צדיק,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,702,False,,False,,,,,,community,mixed_numeric_phrase
+101,את הכבש אחד תעשה בבקר,אחד,F_ambiguous,,,no_roundtrip,1820,False,anchor:1820,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1820,contribution:צבי (OPOC),mixed_numeric_phrase
+102,והיה יום אחד,אחד,F_ambiguous,,,no_roundtrip,95,False,research_interest:95,False,,strong_number_target:95,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:95,contribution:צבי (OPOC),mixed_numeric_phrase
+103,ורועה אחד יהיה לכלם,אחד,F_ambiguous,,,no_roundtrip,450,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,contribution:צבי (OPOC),mixed_numeric_phrase
+104,שנים עשר אנחנו אחים,"עשר, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,1144,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,contribution:צבי (OPOC),mixed_numeric_phrase
+105,ששים אמה,ששים,E_mixed_numeric_phrase,60,medium,no_roundtrip,696,False,research_interest:696,False,,,,,,contribution:צבי (OPOC),mixed_numeric_phrase
+106,תורה אחת,אחת,F_ambiguous,,,no_roundtrip,1020,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,contribution:צבי (OPOC),mixed_numeric_phrase
+107,חמשה חומשי תורה,חמשה,E_mixed_numeric_phrase,5,medium,no_roundtrip,1328,False,,False,,,,,,entity_expansion_v1,mixed_numeric_phrase
+108,(חמור בן מאה גוונים משיח בן דוד)=891!,מאה,E_mixed_numeric_phrase,100,medium,no_roundtrip,,False,,False,,,,,,excel_import,mixed_numeric_phrase
+109,1692 - מסתתר (אחד) - רגיל 2133,אחד,F_ambiguous,,,no_roundtrip,,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+110,2660 3370 6440 5140 5330 3960 עשרה - רגיל ומסתתר,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,18200,False,,False,no_claim_verified,,,,,excel_import,mixed_numeric_phrase
+111,434 בעשרים ושנים דצמבר אלפים חמש עשרה,"אלפים, חמש, עשרה, עשרים, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,3630,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+112,אדם אלף דלת מם,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,670,False,hub:670,False,,,,,,excel_import,mixed_numeric_phrase
+113,אובמה גוג יעלה לציון בראש שבעים עמים ∆,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,5776,False,,False,,,,,,excel_import,mixed_numeric_phrase
+114,אחד אחד אחד אחד אפס סופי תיבות,"אחד, אפס",E_mixed_numeric_phrase,,low,no_roundtrip,1167,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+115,אחד אחד שתים (יחוד הויה אלוה,"אחד, אחד, שתים",E_mixed_numeric_phrase,,low,no_roundtrip,776,False,anchor:776,False,,strong_number_target:776,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:776,excel_import,mixed_numeric_phrase
+116,אחד ארבע שבע ושתיים (1472) רגיל 1424 - מסתתר 2216,"אחד, ארבע, שבע, שתיים",E_mixed_numeric_phrase,,low,no_roundtrip,1424,False,,False,unresolved_mismatch,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+117,אחד ויחיד,אחד,F_ambiguous,,,no_roundtrip,51,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+118,אחד מעיר,אחד,F_ambiguous,,,no_roundtrip,333,False,anchor:333,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+119,אחד שתים שלוש שבע,"אחד, שתים, שלוש, שבע",A_digit_sequence,1237,high,alternate_valid_form,1771,False,,False,,strong_number_source:1237,,,A_words_denote:1237,excel_import,numeric_sequence
+120,אחד שתים שלש שבע,"אחד, שתים, שלש, שבע",A_digit_sequence,1237,high,alternate_valid_form,1765,False,,False,,strong_number_source:1237,,,A_words_denote:1237,excel_import,numeric_sequence
+121,אחשף בכי ליהוה המלוכה בעשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1573,False,,False,,,,,,excel_import,mixed_numeric_phrase
+122,אחת אחת אפס אפס ר ישרפוך,"אחת, אפס",E_mixed_numeric_phrase,,low,no_roundtrip,1916,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+123,אחת ארבע שבע ושתיים = 1820 (1472),"אחת, ארבע, שבע, שתיים",E_mixed_numeric_phrase,,low,no_roundtrip,1820,False,anchor:1820,False,,,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:1820,excel_import,mixed_numeric_phrase
+124,אין עוד מלבדו אפס זולתו,אפס,E_mixed_numeric_phrase,0,medium,no_roundtrip,813,False,,False,,,,,,excel_import,mixed_numeric_phrase
+125,אליהו הנביא יתגלה אלי בעשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1599,False,,False,,,,,,excel_import,mixed_numeric_phrase
+126,אליהו הנביא עשרה בטבת (מילוי),עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,3580,False,,False,no_claimed_value,,,,,excel_import,mixed_numeric_phrase
+127,אליהו יבא בעוד עשרים וששה יום=פי 5,"עשרים, ששה",E_mixed_numeric_phrase,,low,no_roundtrip,7170,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+128,אלף 12358,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,111,False,anchor:111;research_interest:111,False,,strong_number_target:111,,,B_gematria_hits:111,excel_import,mixed_numeric_phrase
+129,אלף מאתים ושתים (1202),אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,1358,False,,False,,,,,,excel_import,mixed_numeric_phrase
+130,אלף מאתים ושתים 1358,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,1871,False,,False,,,,,,excel_import,mixed_numeric_phrase
+131,אלף מאתים שלושים ושבע,"אלף, שבע, שלושים",E_mixed_numeric_phrase,,low,no_roundtrip,1666,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+132,אלף מאתים שלושים ושבע התגלות,"אלף, שבע, שלושים",E_mixed_numeric_phrase,,low,no_roundtrip,2510,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+133,אלף מטר יציאה,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,476,False,,False,,,,,,excel_import,mixed_numeric_phrase
+134,אלף שמונה מאות ועשרים משיח,"אלף, מאות, עשרים, שמונה",E_mixed_numeric_phrase,,low,no_roundtrip,1943,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+135,אלפיים ושבע עשרה - מקדש,"אלפיים, עשרה, שבע",E_mixed_numeric_phrase,,low,no_roundtrip,1568,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+136,אמונה באל אחד,אחד,F_ambiguous,,,no_roundtrip,148,False,anchor:148,False,,strong_number_target:148,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:148,excel_import,mixed_numeric_phrase
+137,אמלוך באלפיים שש עשרה-מסתתר =פי 5,"אלפיים, עשרה, שש",E_mixed_numeric_phrase,,low,no_roundtrip,3960,False,research_interest:3960,True,no_claimed_value,strong_number_target:3960,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:3960,excel_import,mixed_numeric_phrase
+138,אמשח למשיח בעוד שלשים ושבעה יום,"שבעה, שלשים",E_mixed_numeric_phrase,,low,no_roundtrip,1938,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+139,אני אפס אפסים,אפס,E_mixed_numeric_phrase,0,medium,no_roundtrip,393,False,,False,,,,,,excel_import,mixed_numeric_phrase
+140,אפס 1371 414 555 661,אפס,E_mixed_numeric_phrase,0,medium,no_roundtrip,141,False,,False,,,,,,excel_import,mixed_numeric_phrase
+141,אקבל דרגת היחידה בעוד שלשים יום,שלשים,E_mixed_numeric_phrase,30,medium,no_roundtrip,1600,False,,False,,,,,,excel_import,mixed_numeric_phrase
+142,אקבל שבעים ושלש,"שבעים, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,1191,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+143,ארבע שלוש ארבע ∆ (434 = משיח בן דויד),"ארבע, שלוש",E_mixed_numeric_phrase,,low,no_roundtrip,4456,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+144,אשרי המחכה לעשרה בטבת 776 -מילולי ללא =פי 5,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,59000,False,,False,,,,,,excel_import,mixed_numeric_phrase
+145,אתגלה בעתה בשנה החדשה ב22 12 -לי אחד - 7810- מילוי,אחד,F_ambiguous,,,no_roundtrip,3860,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+146,אתה המלך האחד,אחד,F_ambiguous,,,no_roundtrip,519,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+147,ב״שית אלף שנין תבוא הגאולה״ = 1692 רגיל !!,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,,False,,False,engine_verified,,,,,excel_import,mixed_numeric_phrase
+148,בהיכל יהוה קדוש אבקר בעשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1796,False,,False,,,,,,excel_import,mixed_numeric_phrase
+149,בוא משיח שתים אפס אחת חמש,"שתים, אפס, אחת, חמש",E_mixed_numeric_phrase,,low,no_roundtrip,2015,False,research_interest:2015,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+150,בחמש שבע שבע שש משיח בן יוסף,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2260,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+151,ביאת אליהו באלפים חמש עשרה,"אלפים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,1551,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+152,ביאת בן דוד בעשירי בטבת חמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,3176,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+153,ביאת המלך בעשירי בטבת חמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,3205,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+154,ביאת המשיח אלף שלש מאות שלשים וחמשה,"אלף, חמשה, מאות, שלש, שלשים",E_mixed_numeric_phrase,,low,no_roundtrip,3003,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+155,ביאת המשיח בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2625,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+156,ביאת המשיח בשנת אלפיים חמש עשרה - אחרי,"אלפיים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,4440,False,,True,not_a_method_claim,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+157,ביאתי 1335- מילוי ללא לפי -אחת,אחת,F_ambiguous,,,no_roundtrip,7180,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+158,בית המקדש באלפים חמש עשרה -אותיות,"אלפים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,2770,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+159,בן דוד יבוא בחמש שבע שבע שש ∆,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,6634,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+160,בן דויד אליהו חמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1820,False,anchor:1820,False,,,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:1820,excel_import,mixed_numeric_phrase
+161,בן דויד חמש שבע שבע שש ∆,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,6606,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+162,בן דויד יבוא ב י טבת בחמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2212,False,anchor:2212,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+163,בניסן חמשת אלפים שבע מאות שבעים ושש,"אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2928,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+164,"ברק חוסיין אובמה השני גוג י""ח ∆",שני,F_ambiguous,,,no_roundtrip,12441,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+165,בשנת חמשת אלפים שבע מאות שבעים ושש,"אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,3508,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+166,בשתי שבתות,שתי,F_ambiguous,,,no_roundtrip,1820,False,anchor:1820,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1820,excel_import,mixed_numeric_phrase
+167,גאולה בעתה בחמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2216,False,anchor:2216,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+168,גואל חמש שש שש,"חמש, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1588,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+169,דוד בן ישי עשרה טבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1372,False,,False,,,,,,excel_import,mixed_numeric_phrase
+170,דויד בן ישי בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2245,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+171,דויד בן ישי בשבע שבע שש לפני,"שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1912,False,,False,not_a_method_claim,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+172,דעת 337 - לפני - מילוי ללא 1396 (שלוש),שלוש,E_mixed_numeric_phrase,3,medium,no_roundtrip,1474,False,,False,no_claimed_value,,,,,excel_import,mixed_numeric_phrase
+173,דעת ארבע שבע ארבע,"ארבע, שבע",E_mixed_numeric_phrase,,low,no_roundtrip,1392,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+174,דעת עשרים עשרים ושתים,עשרים,E_mixed_numeric_phrase,20,medium,no_roundtrip,2470,False,,False,,,,,,excel_import,mixed_numeric_phrase
+175,דרגתי בעתה אחת אחת אחת אחת אחת,אחת,F_ambiguous,,,no_roundtrip,3139,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+176,האחד שלי 1317,אחד,F_ambiguous,,,no_roundtrip,358,False,anchor:358,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+177,האחת היחידה,אחת,F_ambiguous,,,no_roundtrip,456,False,anchor:456,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+178,האלף האחרון 386 עם האותיות 396,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,386,False,research_interest:386,False,,,,,,excel_import,mixed_numeric_phrase
+179,הוא אחד,אחד,F_ambiguous,,,no_roundtrip,25,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+180,הוא משיחכם באלפיים חמש עשרה - סת,"אלפיים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,386,False,research_interest:386,True,candidate_pending,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+181,החטר מגזע ישי באלפים חמש עשרה,"אלפים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,1748,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+182,הישועה בימינו עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1502,False,,False,,,,,,excel_import,mixed_numeric_phrase
+183,הכנסת העשרים היא האחרונה,עשרים,E_mixed_numeric_phrase,20,medium,no_roundtrip,1451,False,,False,,,,,,excel_import,mixed_numeric_phrase
+184,המלך 1335 1290- לפני 4340- איק בכר לפי- אחד,אחד,F_ambiguous,,,no_roundtrip,2212,False,anchor:2212,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+185,המלך האחרון בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2214,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+186,המשיח בעשרה בטבת שבע מאות שבעים ושש,"מאות, עשרה, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,3200,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+187,המשיח ברוח הקדש בעשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1978,False,,False,,,,,,excel_import,mixed_numeric_phrase
+188,המשיח בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2212,False,anchor:2212,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+189,המשיח ואליהו באלפים חמש עשרה -מסתתר,"אלפים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,1644,False,,False,no_claimed_value,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+190,המשיח שש שבע,"שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1335,False,research_interest:1335,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+191,הנשמה בת ששת אלפים השנים,"אלפים, שנים, ששת",E_mixed_numeric_phrase,,low,no_roundtrip,2368,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+192,העשרת אורניום - 2310 וכן 1288,עשרת,E_mixed_numeric_phrase,10,medium,no_roundtrip,3330,False,,False,,,,,,excel_import,mixed_numeric_phrase
+193,הקדוש ברוך הוא + תורה + ישראל + אחד,אחד,F_ambiguous,,,no_roundtrip,1820,False,anchor:1820,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1820,excel_import,mixed_numeric_phrase
+194,הקץ חמשת אלפים שבע מאות שבעים ושש,"אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2951,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+195,השכינה בעשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1380,False,,False,,,,,,excel_import,mixed_numeric_phrase
+196,השכינה הקדשה ישראל אחד,אחד,F_ambiguous,,,no_roundtrip,1358,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+197,השנה אלפיים חמש עשרה - ריבוע,"אלפיים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,1742,False,,True,no_claimed_value,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+198,התגלות אליהו והמשיח בעוד ארבעים יום,ארבעים,E_mixed_numeric_phrase,40,medium,no_roundtrip,1726,False,,False,,,,,,excel_import,mixed_numeric_phrase
+199,התגלות בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2693,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+200,התגלות המשיח בחמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2901,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+201,התגלות המשיח בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,3056,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+202,התגלותו בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2699,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+203,התגלותך בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2713,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+204,התגלותך כמשיח בעוד שלשים וחמשה יום,"חמשה, שלשים",E_mixed_numeric_phrase,,low,no_roundtrip,2419,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+205,וארבע מאות איש עמו,"ארבע, מאות",E_mixed_numeric_phrase,,low,no_roundtrip,1153,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+206,"וּבָא לְצִיּוֹן גּוֹאֵל, וּלְשָׁבֵי פֶשַׁע בְּיַעֲקֹב--נְאֻם, יְהוָה ליהוה בחמשת אלפים שבע מאות שבעים ושש- משולש גדול","אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,26626,False,,True,no_claimed_value,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+207,"וְזֹאת לִיהוּדָה, וַיֹּאמַר, שְׁמַע יְהוָה קוֹל יְהוּדָה, וְאֶל-עַמּוֹ תְּבִיאֶנּוּ; יָדָיו רָב לוֹ, וְעֵזֶר מִצָּרָיו תִּהְיֶה התגלות מלך המשיח בחמשת אלפים שבע מאות שבעים ושש","אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2660,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+208,ויהוה עליהם יראה ויו יוד הי ויו הי עין למד יוד הי מם יוד ריש אלף הי,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,1472,False,,False,,,,,,excel_import,mixed_numeric_phrase
+209,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים ביאת המשיח באלפיים חמש עשרה - מילוי,"אלפיים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,14000,False,,True,no_claimed_value,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+210,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים ביאת המשיח באלפיים חמש עשרה-מיקום האות -70000-מילוי =פי 5,"אלפיים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,4440,False,,True,unresolved_mismatch,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+211,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים. אלפיים חמש עשרה,"אלפיים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,4620,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+212,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים. חמשת אלפים שבע מאות שבעים ושש -33750-לפני =פי 5,"אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,22120,False,,True,not_a_method_claim,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+213,חכמה שבעים ושלש,"שבעים, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,1131,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+214,חמש שבע שבע שש באותיות,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2517,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+215,חמש שבע שבע שש המשכלים יבינו,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2215,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+216,חמש שלש שלש (533) - מילוי דמילוי,"חמש, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,13360,False,,False,unresolved_mismatch,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+217,י ה ו ה אחד מעתה ועד עולם,אחד,F_ambiguous,,,no_roundtrip,780,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+218,יבא גואל בעתה חמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2222,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+219,יהיה אחד,אחד,F_ambiguous,,,no_roundtrip,43,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+220,יהיה אחד * 26 - מסתתר,אחד,F_ambiguous,,,no_roundtrip,676,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+221,יום ביאת המשיח האמיתי עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,2286,False,,False,,,,,,excel_import,mixed_numeric_phrase
+222,יום הדין העשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1118,False,anchor:1118,False,,strong_number_target:1118,,,B_gematria_hits:1118,excel_import,mixed_numeric_phrase
+223,יום ההתגלות עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1893,False,,False,,,,,,excel_import,mixed_numeric_phrase
+224,יום הויה הגדול והנורא עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1386,False,,False,,,,,,excel_import,mixed_numeric_phrase
+225,יום התגלותי כמשיח יהוה עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,2302,False,,False,,,,,,excel_import,mixed_numeric_phrase
+226,יפול מצדך אלף ורבבה מימינך,"אלף, רבבה",E_mixed_numeric_phrase,,low,no_roundtrip,776,False,anchor:776,False,,strong_number_target:776,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:776,excel_import,mixed_numeric_phrase
+227,כי לה' המלוכה אלף שמונה מאות עשרים,"אלף, מאות, עשרים, שמונה",E_mixed_numeric_phrase,,low,no_roundtrip,1750,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+228,כי שבע יפול צדיק וקם,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,878,False,anchor:878,False,,,,,,excel_import,mixed_numeric_phrase
+229,כתובת המשיח באחוזה ששים ושמונה אחרי,"שמונה, ששים",E_mixed_numeric_phrase,,low,no_roundtrip,2496,False,,False,not_a_method_claim,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+230,לי דרגת מלך המשיח ה11111-גדול- אחת,אחת,F_ambiguous,,,no_roundtrip,3630,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+231,מאה ארבעים ושמונה (148),"ארבעים, מאה, שמונה",E_mixed_numeric_phrase,,low,no_roundtrip,776,False,anchor:776,False,,strong_number_target:776,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:776,excel_import,mixed_numeric_phrase
+232,מי ימשח למלך בעוד עשרים וששה יום,"עשרים, ששה",E_mixed_numeric_phrase,,low,no_roundtrip,1897,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+233,מי יקבל תורה חדשה משלוש,שלוש,E_mixed_numeric_phrase,3,medium,no_roundtrip,1796,False,,False,,,,,,excel_import,mixed_numeric_phrase
+234,מי יתגלה בעוד ארבעים יום,ארבעים,E_mixed_numeric_phrase,40,medium,no_roundtrip,959,False,,False,,,,,,excel_import,mixed_numeric_phrase
+235,מימד חמש 1472,חמש,E_mixed_numeric_phrase,5,medium,no_roundtrip,442,False,,False,,,,,,excel_import,mixed_numeric_phrase
+236,מלחמה אחת אהובי בא,אחת,F_ambiguous,,,no_roundtrip,559,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+237,מלחמה אלפים חמש מאות וארבע,"אלפים, ארבע, חמש, מאות",E_mixed_numeric_phrase,,low,no_roundtrip,1358,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+238,מלחמת גוג ומגוג בעוד עשרים ושבעה יום,"עשרים, שבעה",E_mixed_numeric_phrase,,low,no_roundtrip,1729,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+239,מלך אחד על כל העולם,אחד,F_ambiguous,,,no_roundtrip,404,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+240,מלך המשיח בעשירי בטבת חמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,3150,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+241,מלך המשיח יבוא באלפיים שש עשרה,"אלפיים, עשרה, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1820,False,anchor:1820,True,,,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:1820,excel_import,mixed_numeric_phrase
+242,מלכותי באלפיים שש עשרה -לפני =פי 5,"אלפיים, עשרה, שש",E_mixed_numeric_phrase,,low,no_roundtrip,6440,False,,True,not_a_method_claim,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+243,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת בשנה החדשה חמשת אלפים שבע מאות שבעים ושש - אחס בטע,"אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,5312,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+244,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת. חמשת אלפים שבע מאות שבעים ושש,"אלפים, חמשת, מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,4483,False,,True,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+245,מצפון תפתח הרעה בעוד עשרים ושבעה יום,"עשרים, שבעה",E_mixed_numeric_phrase,,low,no_roundtrip,2575,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+246,משיח בן דוד עבדך חמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2212,False,anchor:2212,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+247,משיח בן דוד שבע שבע שש ∆,"שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,6606,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+248,משיח בן דויד חמש שבע שבע שש ( ∆ ישר והפוך),"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,15334,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+249,משיח בשבע מאות שבעים ושש,"מאות, שבע, שבעים, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2207,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+250,משיח יבא בשבע שבע שש,"שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1717,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+251,משיח יה שלוש חמש שמונה,"חמש, שלוש, שמונה",E_mixed_numeric_phrase,,low,no_roundtrip,1758,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+252,משיח יהוה באלפים חמש עשרה - מיקום,"אלפים, חמש, עשרה",E_mixed_numeric_phrase,,low,no_roundtrip,248,False,research_interest:248,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+253,משיח יהוה יתגלה עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1820,False,anchor:1820,False,,,,,B_gematria_hits:1820,excel_import,mixed_numeric_phrase
+254,משיחי יתגלה בעוד ארבעים יום,ארבעים,E_mixed_numeric_phrase,40,medium,no_roundtrip,1277,False,,False,,,,,,excel_import,mixed_numeric_phrase
+255,סוד 1820 - אחד,אחד,F_ambiguous,,,no_roundtrip,83,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+256,סוד אלף שמונה מאות עשרים כי לה' המלוכה,"אלף, מאות, עשרים, שמונה",E_mixed_numeric_phrase,,low,no_roundtrip,1820,False,anchor:1820,False,,,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:1820,excel_import,mixed_numeric_phrase
+257,סוד המשיח האחרון 1335-גדול -לפי-אחת,אחת,F_ambiguous,,,no_roundtrip,3370,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+258,סוד יהוה 1820 סופי תיבות (אחת) 1337 לפני,אחת,F_ambiguous,,,no_roundtrip,514,False,research_interest:514,False,not_a_method_claim,strong_number_target:514,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:514,excel_import,mixed_numeric_phrase
+259,עם קשה עורף אנחנו ב = 988 רגיל = עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,,False,,False,engine_verified,,,,,excel_import,mixed_numeric_phrase
+260,עצמאות שבעים ושלוש,"שבעים, שלוש",E_mixed_numeric_phrase,,low,no_roundtrip,1671,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+261,עשר הספירות,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1331,False,,False,,,,,,excel_import,mixed_numeric_phrase
+262,עשר שמיטות,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1335,False,research_interest:1335,False,,,,,,excel_import,mixed_numeric_phrase
+263,עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,988,False,,False,,,,,,excel_import,mixed_numeric_phrase
+264,עשרה בטבת דויד בן ישי יתגלה,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1832,False,,False,,,,,,excel_import,mixed_numeric_phrase
+265,עשרה בטבת סוד יהוה,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1084,False,,False,,,,,,excel_import,mixed_numeric_phrase
+266,עשרה בטבת סוד יהוה יחשף,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1482,False,,False,,,,,,excel_import,mixed_numeric_phrase
+267,עשרה בניסן,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,747,False,,False,,,,,,excel_import,mixed_numeric_phrase
+268,עשרים ושבע האותיות (גדול),"עשרים, שבע",E_mixed_numeric_phrase,,low,no_roundtrip,2386,False,,False,no_claimed_value,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+269,עשרים ושתים אותיות כולל,עשרים,E_mixed_numeric_phrase,20,medium,no_roundtrip,2285,False,,False,,,,,,excel_import,mixed_numeric_phrase
+270,עת האלף,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,586,False,,False,,,,,,excel_import,mixed_numeric_phrase
+271,צמח דוד בחמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1846,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+272,צמח דוד חמש שבע שבע שש,"חמש, שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1844,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+273,צמח המשיח ימשח בשמן המשחה בעשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,2599,False,,False,,,,,,excel_import,mixed_numeric_phrase
+274,רוח אלהים תרד בעוד עשרים וששה יום,"עשרים, ששה",E_mixed_numeric_phrase,,low,no_roundtrip,2273,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+275,שבע מאות חמישים. = 1227 (750 סכום המענק לכל אזרח),"חמישים, מאות, שבע",E_mixed_numeric_phrase,,low,no_roundtrip,1227,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+276,שבע שש יום,"שבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1028,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+277,שבעה באוקטובר,שבעה,E_mixed_numeric_phrase,7,medium,no_roundtrip,703,False,,False,,,,,,excel_import,mixed_numeric_phrase
+278,שבעים וחמש = ביום ההוא = 75,"חמש, שבעים",E_mixed_numeric_phrase,,low,no_roundtrip,776,False,anchor:776,False,,strong_number_target:776,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:776,excel_import,mixed_numeric_phrase
+279,שבעים ושלוש ∆ (חכמה = שבעים ושלוש),"שבעים, שלוש",E_mixed_numeric_phrase,,low,no_roundtrip,3960,False,research_interest:3960,False,,strong_number_target:3960,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:3960,excel_import,mixed_numeric_phrase
+280,שבעים עמים יעלו לציון למלחמה השנה,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,1397,False,,False,,,,,,excel_import,mixed_numeric_phrase
+281,שבעים עמים יעלו על ציון,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,954,False,,False,,,,,,excel_import,mixed_numeric_phrase
+282,שבעים עמים יעלו על ציון בעתה,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,1431,False,,False,,,,,,excel_import,mixed_numeric_phrase
+283,שורש אחד,אחד,F_ambiguous,,,no_roundtrip,819,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+284,שלושים ושבע פעמים שבעים ושלוש,"שבע, שבעים, שלוש, שלושים",E_mixed_numeric_phrase,,low,no_roundtrip,2368,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+285,שלש חמש חמש (355),"חמש, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,1326,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+286,שלש עשרה עקרי האמונה,"עשרה, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,1692,False,research_interest:1692;hub:1692,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+287,שלשים ווששה יום להתגלות צמח דוד,שלשים,E_mixed_numeric_phrase,30,medium,no_roundtrip,2379,False,,False,,,,,,excel_import,mixed_numeric_phrase
+288,שלשים ווששה יום ליום הדין,שלשים,E_mixed_numeric_phrase,30,medium,no_roundtrip,1508,False,,False,,,,,,excel_import,mixed_numeric_phrase
+289,שלשים ושבע יום לביאת המשיח =פי 5,"שבע, שלשים",E_mixed_numeric_phrase,,low,no_roundtrip,15200,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+290,שלשים ושבעה ליום התגלותך,"שבעה, שלשים",E_mixed_numeric_phrase,,low,no_roundtrip,2013,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+291,שמנה עשרה,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,970,False,,False,,,,,,excel_import,mixed_numeric_phrase
+292,שמע ישראל יה וה אלהינו יה וה אחד,אחד,F_ambiguous,,,no_roundtrip,1118,False,anchor:1118,False,,strong_number_target:1118,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1118,excel_import,mixed_numeric_phrase
+293,שנת אלפים עשרים ואחד,"אחד, אלפים, עשרים",E_mixed_numeric_phrase,,low,no_roundtrip,1550,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+294,שנת שבעים וחמש למדינת ישראל,"חמש, שבעים",E_mixed_numeric_phrase,,low,no_roundtrip,2601,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+295,"שש ארבע ארבע אתב""ש","ארבע, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1849,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+296,שש מאות ארבעים וארבע המשיח,"ארבע, ארבעים, מאות, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2012,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+297,שש מאות ארבעים וארבע צמח דויד בן ישי,"ארבע, ארבעים, מאות, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2183,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+298,שתים חמש חמש,"שתים, חמש, חמש",A_digit_sequence,255,high,alternate_valid_form,1446,False,,False,,,,,,excel_import,numeric_sequence
+299,שתים חמש חמש רעיה,"שתים, חמש, חמש",E_mixed_numeric_phrase,,low,no_roundtrip,1731,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+300,שתים חמש חמש שלש שלש שבע,"שתים, חמש, חמש, שלש, שלש, שבע",A_digit_sequence,,high,no_roundtrip,3078,False,,False,,,,,,excel_import,numeric_sequence
+301,שתים שש שש,"שתים, שש, שש",A_digit_sequence,266,high,alternate_valid_form,1950,False,,False,,,,,,excel_import,numeric_sequence
+302,שתים שש שש שורש דויד המלך בימינו,"שתים, שש, שש",E_mixed_numeric_phrase,,low,no_roundtrip,2993,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+303,שתים שש שש שש ארבע ארבע ∆,"שתים, שש, שש, שש, ארבע, ארבע",A_digit_sequence,,high,no_roundtrip,3096,False,,False,,,,,,excel_import,numeric_sequence
+304,תכלית אחד,אחד,F_ambiguous,,,no_roundtrip,873,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,mixed_numeric_phrase
+305,תרגיל למשיחי - מסתתר = עשרה בטבת,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,988,False,,False,no_claim_verified,,,,,excel_import,mixed_numeric_phrase
+306,חמש סלעים,חמש,E_mixed_numeric_phrase,5,medium,no_roundtrip,558,False,,False,,,,,,promoted:raw_docx,mixed_numeric_phrase
+307,רב ששת,ששת,E_mixed_numeric_phrase,6,medium,no_roundtrip,1202,False,anchor:1202,False,,,,,,promoted:raw_docx,mixed_numeric_phrase
+308,תשעה ערי מקלט,תשעה,E_mixed_numeric_phrase,9,medium,no_roundtrip,1234,False,anchor:1234,False,,strong_number_target:1234,,,B_gematria_hits:1234,promoted:raw_docx,mixed_numeric_phrase
+309,אבן אחת,אחת,F_ambiguous,,,no_roundtrip,462,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+310,אור שבעת הימים,שבעת,E_mixed_numeric_phrase,7,medium,no_roundtrip,1084,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+311,אחד בפה ואחד בלב,אחד,F_ambiguous,,,no_roundtrip,153,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+312,אחד שש שלש שמנה,"אחד, שלש, שש",E_mixed_numeric_phrase,,low,no_roundtrip,1638,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+313,אחת היא יונתי תמתי,אחת,F_ambiguous,,,no_roundtrip,1751,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+314,אחת שתים,"אחת, שתים",A_digit_sequence,12,high,alternate_valid_form,1159,False,,False,,,,,,promoted:raw_docx_v2,numeric_sequence
+315,אין דבר שבערוה פחות משנים,שנים,F_ambiguous,,,no_roundtrip,1784,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+316,אלף אלפי הבדלות,"אלף, אלפי",E_mixed_numeric_phrase,,low,no_roundtrip,679,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+317,אלף כסף,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,271,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+318,אלף שנה,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,466,False,research_interest:466,False,,strong_number_target:466,,,B_gematria_hits:466,promoted:raw_docx_v2,mixed_numeric_phrase
+319,אלף שנים,"אלף, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,511,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+320,אלפי מנשה,אלפי,E_mixed_numeric_phrase,,,no_roundtrip,516,False,,False,,,,bare_multiplier_word_no_standalone_value,,promoted:raw_docx_v2,mixed_numeric_phrase
+321,אלפיים אמה,אלפיים,E_mixed_numeric_phrase,2000,medium,no_roundtrip,217,False,research_interest:217,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+322,אלפים אמה,אלפים,E_mixed_numeric_phrase,,,no_roundtrip,207,False,,False,,,,bare_multiplier_word_no_standalone_value,,promoted:raw_docx_v2,mixed_numeric_phrase
+323,ארבע אמהוות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,731,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+324,ארבע אמות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,720,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+325,ארבע גלוויות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,734,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+326,ארבע גליות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,722,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+327,ארבע כוסות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,765,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+328,ארבע מאות שקל כסף,"ארבע, מאות",E_mixed_numeric_phrase,,low,no_roundtrip,1310,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+329,ארבע מאת שקל כסף,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,1304,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+330,ארבע פרשיות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,1269,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+331,ארבע קושיות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,1095,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+332,ארבע רוחות השמים,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,1288,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+333,ארבע רשויות,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,1195,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+334,ארבעה מינים,ארבעה,E_mixed_numeric_phrase,4,medium,no_roundtrip,428,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+335,ארבעים יום וארבעים לילה,ארבעים,E_mixed_numeric_phrase,40,medium,no_roundtrip,783,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+336,ארבעים סאה,ארבעים,E_mixed_numeric_phrase,40,medium,no_roundtrip,389,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+337,ארבעים סאה חסר קרטוב,ארבעים,E_mixed_numeric_phrase,40,medium,no_roundtrip,974,False,anchor:974,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+338,ארבעים שנה,ארבעים,E_mixed_numeric_phrase,40,medium,no_roundtrip,678,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+339,ארבעת המינים,ארבעת,E_mixed_numeric_phrase,4,medium,no_roundtrip,828,False,hub:828,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+340,באים כאחד,אחד,F_ambiguous,,,no_roundtrip,86,False,anchor:86,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+341,בגדי שש,שש,E_mixed_numeric_phrase,6,medium,no_roundtrip,619,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+342,בטול בששים,ששים,E_mixed_numeric_phrase,60,medium,no_roundtrip,699,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+343,בשר אחד,אחד,F_ambiguous,,,no_roundtrip,515,False,,False,,strong_number_target:515,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:515,promoted:raw_docx_v2,mixed_numeric_phrase
+344,בת שבע,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,774,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+345,דבר שיש לו מתירין,שיש,F_ambiguous,,,no_roundtrip,1562,False,,False,,,,not_actually_a_number_word_false_positive,,promoted:raw_docx_v2,mixed_numeric_phrase
+346,דוד בת שבע,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,788,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+347,הטור האחד,אחד,F_ambiguous,,,no_roundtrip,238,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+348,העלם אחד,אחד,F_ambiguous,,,no_roundtrip,158,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+349,התר מאה רבנים,מאה,E_mixed_numeric_phrase,100,medium,no_roundtrip,953,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+350,ושתי המלכה,שתי,F_ambiguous,,,no_roundtrip,816,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+351,זה בורר לו אחד,אחד,F_ambiguous,,,no_roundtrip,469,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+352,חזקת שלש שנים,"שלש, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,1545,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+353,חמישה חומשי תורה,חמישה,E_mixed_numeric_phrase,5,medium,no_roundtrip,1338,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+354,חמישה חמשי תורה,חמישה,E_mixed_numeric_phrase,5,medium,no_roundtrip,1332,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+355,חמש אצבעות,חמש,E_mixed_numeric_phrase,5,medium,no_roundtrip,917,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+356,חמשה עשר באב,"חמשה, עשר",E_mixed_numeric_phrase,,low,no_roundtrip,928,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+357,חמשה עשר בשבט,"חמשה, עשר",E_mixed_numeric_phrase,,low,no_roundtrip,1236,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+358,יום אחד,אחד,F_ambiguous,,,no_roundtrip,69,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+359,יחיד ממאה,מאה,E_mixed_numeric_phrase,100,medium,no_roundtrip,118,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+360,ימים אלף מאתים ותשעים,"אלף, תשעים",E_mixed_numeric_phrase,,low,no_roundtrip,1528,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+361,לאלף דור,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,351,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+362,לב אחד,אחד,F_ambiguous,,,no_roundtrip,45,False,anchor:45,False,,strong_number_target:45,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:45,promoted:raw_docx_v2,mixed_numeric_phrase
+363,לבשר אחד,אחד,F_ambiguous,,,no_roundtrip,545,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+364,מאה באמה,מאה,E_mixed_numeric_phrase,100,medium,no_roundtrip,94,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+365,מאה ברכות,מאה,E_mixed_numeric_phrase,100,medium,no_roundtrip,674,False,research_interest:674,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+366,מאה שערים,מאה,E_mixed_numeric_phrase,100,medium,no_roundtrip,666,False,anchor:666,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+367,מקרה אחד,אחד,F_ambiguous,,,no_roundtrip,358,False,anchor:358,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+368,נצר חסד לאלפים,אלפים,E_mixed_numeric_phrase,,,no_roundtrip,603,False,,False,,,,bare_multiplier_word_no_standalone_value,,promoted:raw_docx_v2,mixed_numeric_phrase
+369,עץ אחד,אחד,F_ambiguous,,,no_roundtrip,173,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+370,ערב תשעה באב,תשעה,E_mixed_numeric_phrase,9,medium,no_roundtrip,1052,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+371,עשר אצבעות,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1139,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+372,עשר המכות,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1041,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+373,עשר וכבוד,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,608,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+374,עשר מכות מצרים,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1416,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+375,עשר ספירות,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1326,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+376,עשרה בטלנים,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,716,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+377,עשרה דבריא,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,792,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+378,עשרה הרוגי מלכות,עשרה,E_mixed_numeric_phrase,10,medium,no_roundtrip,1295,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+379,עשרת הדברים,עשרת,E_mixed_numeric_phrase,10,medium,no_roundtrip,1231,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+380,עשרת הרוגי מלכות,עשרת,E_mixed_numeric_phrase,10,medium,no_roundtrip,1690,False,,False,,strong_number_target:1690,,,B_gematria_hits:1690,promoted:raw_docx_v2,mixed_numeric_phrase
+381,עשרת ימי תשובה,עשרת,E_mixed_numeric_phrase,10,medium,no_roundtrip,1743,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+382,פי שנים,שנים,F_ambiguous,,,no_roundtrip,490,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+383,פסחים על שתי הסעפים,שתי,F_ambiguous,,,no_roundtrip,1273,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+384,קרית ארבע,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,983,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+385,רבבות אפרים,רבבות,E_mixed_numeric_phrase,,,no_roundtrip,941,False,,False,,,,bare_multiplier_word_no_standalone_value,,promoted:raw_docx_v2,mixed_numeric_phrase
+386,רגע אחד,אחד,F_ambiguous,,,no_roundtrip,286,False,hub:286,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+387,שבע אומות,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,825,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+388,שבע ברכות,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,1000,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+389,שבע דנחמתא,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,875,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+390,שבע הקפות,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,963,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+391,שבע נקיים,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,582,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+392,שבע פעמים,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,612,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+393,שבע שמחות,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,1126,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+394,שבעה ימים,שבעה,E_mixed_numeric_phrase,7,medium,no_roundtrip,477,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+395,שבעה נקיים,שבעה,E_mixed_numeric_phrase,7,medium,no_roundtrip,587,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+396,שבעה עינים,שבעה,E_mixed_numeric_phrase,7,medium,no_roundtrip,557,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+397,שבעה עשר בתמוז,"עשר, שבעה",E_mixed_numeric_phrase,,low,no_roundtrip,1402,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+398,שבעים יום,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,478,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+399,שבעים פנים,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,602,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+400,שבעת המינים,שבעת,E_mixed_numeric_phrase,7,medium,no_roundtrip,927,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+401,שבעת הסריסים,שבעת,E_mixed_numeric_phrase,7,medium,no_roundtrip,1157,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+402,שלוש שנים,"שלוש, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,1036,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+403,שלמה בן בת שבע,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,1201,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+404,שלש סעודות,שלש,E_mixed_numeric_phrase,3,medium,no_roundtrip,1176,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+405,שלש עשרה מדות,"עשרה, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,1655,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+406,שלש עשרה שנה,"עשרה, שלש",E_mixed_numeric_phrase,,low,no_roundtrip,1560,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+407,שלש פעמים,שלש,E_mixed_numeric_phrase,3,medium,no_roundtrip,870,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+408,שלש רגלים,שלש,E_mixed_numeric_phrase,3,medium,no_roundtrip,913,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+409,שלש שנים,"שלש, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,1030,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+410,שלשה אבות,שלשה,E_mixed_numeric_phrase,3,medium,no_roundtrip,1044,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+411,שלשה ימים,שלשה,E_mixed_numeric_phrase,3,medium,no_roundtrip,735,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+412,שלשה ירחים,שלשה,E_mixed_numeric_phrase,3,medium,no_roundtrip,903,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+413,שלשה עדרי צאן,שלשה,E_mixed_numeric_phrase,3,medium,no_roundtrip,1060,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+414,שלשים כסף,שלשים,E_mixed_numeric_phrase,30,medium,no_roundtrip,840,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+415,שלשים של עבד,שלשים,E_mixed_numeric_phrase,30,medium,no_roundtrip,1086,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+416,שמונה ימי מילה,שמונה,E_mixed_numeric_phrase,8,medium,no_roundtrip,546,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+417,שמונה עשר דבר,"עשר, שמונה",E_mixed_numeric_phrase,,low,no_roundtrip,1177,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+418,שמנה עשר דבר,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1171,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+419,שני גזרי עצים,שני,F_ambiguous,,,no_roundtrip,790,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+420,שני חיי יעקב,שני,F_ambiguous,,,no_roundtrip,570,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+421,שני חיי יצחק,שני,F_ambiguous,,,no_roundtrip,596,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+422,שני כתובים הבאים כאחד,"אחד, שני",E_mixed_numeric_phrase,,low,no_roundtrip,929,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+423,שני לוחות,שני,F_ambiguous,,,no_roundtrip,810,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+424,שני לוחת,שני,F_ambiguous,,,no_roundtrip,804,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+425,שני לוחת האבנים,שני,F_ambiguous,,,no_roundtrip,912,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+426,שני לחות הברית,שני,F_ambiguous,,,no_roundtrip,1421,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+427,שני לחת העדת,שני,F_ambiguous,,,no_roundtrip,1277,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+428,שני עשר שבטי ישראל,"עשר, שני",E_mixed_numeric_phrase,,low,no_roundtrip,1792,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+429,שנים מקרא ואחד תרגום,"אחד, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,1409,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+430,שנים עשר חדש,"עשר, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,1282,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+431,שנים עשר חודש,"עשר, שנים",E_mixed_numeric_phrase,,low,no_roundtrip,1288,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+432,שנים שעשו,שנים,F_ambiguous,,,no_roundtrip,1076,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+433,שנת החמשים,חמשים,E_mixed_numeric_phrase,50,medium,no_roundtrip,1153,False,,False,,strong_number_source:50,,,A_words_denote:50,promoted:raw_docx_v2,mixed_numeric_phrase
+434,שער החמישים,חמישים,E_mixed_numeric_phrase,50,medium,no_roundtrip,983,False,,False,,strong_number_source:50,,,A_words_denote:50,promoted:raw_docx_v2,mixed_numeric_phrase
+435,שער החמשים,חמשים,E_mixed_numeric_phrase,50,medium,no_roundtrip,973,False,,False,,strong_number_source:50,,,A_words_denote:50,promoted:raw_docx_v2,mixed_numeric_phrase
+436,שרי אלפים,אלפים,E_mixed_numeric_phrase,,,no_roundtrip,671,False,,False,,,,bare_multiplier_word_no_standalone_value,,promoted:raw_docx_v2,mixed_numeric_phrase
+437,שש כנפים,שש,E_mixed_numeric_phrase,6,medium,no_roundtrip,800,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+438,שש מעלות לכסא,שש,E_mixed_numeric_phrase,6,medium,no_roundtrip,1257,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+439,ששה מיליון יהודים,"מיליון, ששה",E_mixed_numeric_phrase,,low,no_roundtrip,826,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+440,ששה סדרי משנה,ששה,E_mixed_numeric_phrase,6,medium,no_roundtrip,1274,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+441,ששים ריבוא,ששים,E_mixed_numeric_phrase,60,medium,no_roundtrip,869,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+442,ששת ימי המעשה,ששת,E_mixed_numeric_phrase,6,medium,no_roundtrip,1480,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+443,שתי הלחם,שתי,F_ambiguous,,,no_roundtrip,793,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+444,שתי וערב,שתי,F_ambiguous,,,no_roundtrip,988,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+445,שתי טבעות זהב,שתי,F_ambiguous,,,no_roundtrip,1211,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+446,שתי שבתות,שתי,F_ambiguous,,,no_roundtrip,1818,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+447,שתי שערות,שתי,F_ambiguous,,,no_roundtrip,1686,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,mixed_numeric_phrase
+448,שתים עשרה האבנים,שתים עשרה,E_mixed_numeric_phrase,,,no_roundtrip,1433,False,,False,,,,unrecognized_single_token,,promoted:raw_docx_v2,mixed_numeric_phrase
+449,תשלומי ארבעה וחמישה,"ארבעה, חמישה",E_mixed_numeric_phrase,,low,no_roundtrip,1433,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,mixed_numeric_phrase
+450,תשעה ירחי לידה,תשעה,E_mixed_numeric_phrase,9,medium,no_roundtrip,1052,False,,False,,,,,,promoted:raw_docx_v2,mixed_numeric_phrase
+451,הרב עמוס גואטה נרצח ארבע דקירות סכין בחזה,ארבע,E_mixed_numeric_phrase,4,medium,no_roundtrip,1910,False,,False,,strong_number_target:1910,,,B_gematria_hits:1910,shachar-kandro,mixed_numeric_phrase
+452,אלף מאתים ושתים,אלף,E_mixed_numeric_phrase,1000,medium,no_roundtrip,1358,False,,False,,,,,,sod1820,mixed_numeric_phrase
+453,האחד שלי,אחד,F_ambiguous,,,no_roundtrip,358,False,anchor:358,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,sod1820,mixed_numeric_phrase
+454,המשיח בנ ששים ושתים,ששים,E_mixed_numeric_phrase,60,medium,no_roundtrip,1821,False,,False,,,,,,sod1820,mixed_numeric_phrase
+455,הקדוש ברוך הוא תורה ישראל אחד,אחד,F_ambiguous,,,no_roundtrip,1820,False,anchor:1820,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1820,sod1820,mixed_numeric_phrase
+456,וארא בחלמי והנה שבע שבלים,שבע,E_mixed_numeric_phrase,7,medium,no_roundtrip,1118,False,anchor:1118,False,,strong_number_target:1118,,,B_gematria_hits:1118,sod1820,mixed_numeric_phrase
+457,ועשה חסד לאלפים,אלפים,E_mixed_numeric_phrase,,,no_roundtrip,644,False,research_interest:644,False,,strong_number_target:644,,bare_multiplier_word_no_standalone_value,B_gematria_hits:644,sod1820,mixed_numeric_phrase
+458,חמשה חמשי תורה חמשה ספרי תהלים,חמשה,E_mixed_numeric_phrase,5,medium,no_roundtrip,2510,False,,False,,,,,,sod1820,mixed_numeric_phrase
+459,מימד חמש,חמש,E_mixed_numeric_phrase,5,medium,no_roundtrip,442,False,,False,,,,,,sod1820,mixed_numeric_phrase
+460,מימים רבים תפקד באחרית השנים תבוא אל ארץ משובבת מחרב מקבצת מעמים רבים על הרי ישראל אשר היו לחרבה,שנים,F_ambiguous,,,no_roundtrip,6440,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,sod1820,mixed_numeric_phrase
+461,סוד אחד,אחד,F_ambiguous,,,no_roundtrip,83,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,sod1820,mixed_numeric_phrase
+462,סוד אלף שמונה מאות עשרים כי לה המלוכה,"אלף, מאות, עשרים, שמונה",E_mixed_numeric_phrase,,low,no_roundtrip,1820,False,anchor:1820,False,,,,multi_token_embedded_phrase_no_confident_single_parse,B_gematria_hits:1820,sod1820,mixed_numeric_phrase
+463,שתים שש שש שש ארבע ארבע,"שתים, שש, שש, שש, ארבע, ארבע",A_digit_sequence,,high,no_roundtrip,3096,False,,False,,,,,,sod1820,numeric_sequence
+464,הארת פנים חלק ד מביא ששה חלקי פסוקים שהגימטריא שלהם,ששה,E_mixed_numeric_phrase,6,medium,no_roundtrip,2983,False,,False,,,,,,wa-deep,mixed_numeric_phrase
+465,סוד אחד שתים שלש שבע,"אחד, שתים, שלש, שבע",A_digit_sequence,1237,high,alternate_valid_form,1835,False,,False,,strong_number_source:1237,,,A_words_denote:1237,wa-gilui-yomi,numeric_sequence
+466,בגימטריא עשר פעמים,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,1085,False,,False,,,,,,wa-vip,mixed_numeric_phrase
+467,ה בחמשת חומשי התורה,חמשת,E_mixed_numeric_phrase,5,medium,no_roundtrip,1735,False,,False,,,,,,wa-vip,mixed_numeric_phrase
+468,ועשה חסד לאלפים לאהבי ולשמרי מצותי,אלפים,E_mixed_numeric_phrase,,,no_roundtrip,1824,False,,False,,,,bare_multiplier_word_no_standalone_value,,wa-vip,mixed_numeric_phrase
+469,יש אחד ביקום שיקבל מדריגה וברכה שתושיט יד לתבל כולו דרך כל הנפשות,אחד,F_ambiguous,,,no_roundtrip,4096,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,wa-vip,mixed_numeric_phrase
+470,כפול עשרים,עשרים,E_mixed_numeric_phrase,20,medium,no_roundtrip,756,False,,False,,,,,,wa-vip,mixed_numeric_phrase
+471,שבעים פנים לתורה,שבעים,E_mixed_numeric_phrase,70,medium,no_roundtrip,1243,False,,False,,,,,,wa-vip,mixed_numeric_phrase
+472,שרית בגימטריא עשר פעמים מלאך,עשר,E_mixed_numeric_phrase,10,medium,no_roundtrip,2086,False,,False,,,,,,wa-vip,mixed_numeric_phrase
+473,שתי הערות חשובות,שתי,F_ambiguous,,,no_roundtrip,2113,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,wa-vip,mixed_numeric_phrase
+474,בשתי ידים,שתי,F_ambiguous,,,no_roundtrip,776,False,anchor:776,False,,strong_number_target:776,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:776,wp_id:23886,mixed_numeric_phrase
+475,בכל לבבך בשני יצריך ובכל נפשך אפילו הוא נוטל את נפשך ובכל מאדך בכל ממונך,שני,F_ambiguous,,,no_roundtrip,2722,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,גיורא בן-יעקוב SMS,mixed_numeric_phrase
+476,שש קצוות,שש,E_mixed_numeric_phrase,6,medium,no_roundtrip,1202,False,anchor:1202,False,,,,,,סשן 23.7.2026,mixed_numeric_phrase
+477,שני,שני,F_ambiguous,,,no_roundtrip,360,False,anchor:360,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,auto:תיעוד אירועים wp33173,ambiguous
+478,ביום ההוא יהיה יהוה אחד ושמו אחד,אחד,F_ambiguous,,,no_roundtrip,509,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,contribution:צבי (OPOC),ambiguous
+479,אחד,אחד,F_ambiguous,,,no_roundtrip,13,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,entity_seed_v1,ambiguous
+480,11111 דרגת היחידה לצמח דוד - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,644,False,research_interest:644,False,,strong_number_target:644,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:644,excel_import,ambiguous
+481,11111 דרגת היחידה- לפי אחת,אחת,F_ambiguous,,,no_roundtrip,2701,False,anchor:2701,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+482,11111 דרגת מלך-לפי אחת,אחת,F_ambiguous,,,no_roundtrip,2015,False,research_interest:2015,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+483,11111 דרגת משיח -- אטבח -66 אטבח לפי אחת,אחת,F_ambiguous,,,no_roundtrip,26600,False,,False,no_claim_verified,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+484,1118 כי ליהוה המלוכה - אטבח 1118 - (לפי אחד) - לפי אחת 1820,"אחד, אחת",F_ambiguous,,low,no_roundtrip,555,False,anchor:555,False,no_claim_verified,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,ambiguous
+485,1335 1290 התגלותי כמלך המשיח האמיתי - לפי אחת,אחת,F_ambiguous,,,no_roundtrip,5880,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+486,1335 1290 התגלותי כמשיחך - לפני לפי אחד,אחד,F_ambiguous,,,no_roundtrip,3245,False,,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+487,1335 1290 התגלותי כמשיחך - מסתתר -לפי אחת,אחת,F_ambiguous,,,no_roundtrip,5330,False,,False,no_claimed_value,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+488,1335 1290 סוד גאלת ישראל - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,4340,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+489,1335 1290 סוד מיכאל בספר דניאל - לפני -לפי אחת,אחת,F_ambiguous,,,no_roundtrip,5330,False,,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+490,1335 1290 עד עת קץ סוד התגלותי - לפני - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,3630,False,,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+491,1335- מילוי ללא -לפי אחד,אחד,F_ambiguous,,,no_roundtrip,1820,False,anchor:1820,False,no_claimed_value,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1820,excel_import,ambiguous
+492,363 צומח בכי ליהוה המלוכה -מילוי- לפי שלוש,שלוש,F_ambiguous,3,medium,no_roundtrip,3960,False,research_interest:3960,False,no_claimed_value,strong_number_target:3960,,,B_gematria_hits:3960,excel_import,ambiguous
+493,396 גואל האחרון ב2015- לפי אחת,אחת,F_ambiguous,,,no_roundtrip,3960,False,research_interest:3960,True,,strong_number_target:3960,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:3960,excel_import,ambiguous
+494,אבקר בהילכך ב22 12 - לפני - לפי אחת,אחת,F_ambiguous,,,no_roundtrip,2212,False,anchor:2212,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+495,אלף שלש מאות שלשים וחמשה 1335 -לפי אחד,"אחד, אלף, חמשה, מאות, שלש, שלשים",F_ambiguous,,low,no_roundtrip,3860,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,ambiguous
+496,באר שבע,שבע,F_ambiguous,7,medium,no_roundtrip,575,False,,False,,,,,,excel_import,ambiguous
+497,ביאת הגאל 1335 1290- גדול ואותיות -לפי אחד,אחד,F_ambiguous,,,no_roundtrip,4340,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+498,ביאת המשיח 1335 1290- לפי אחד - אתבש,אחד,F_ambiguous,,,no_roundtrip,2660,False,,False,no_claimed_value,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+499,ביום ההוא יהיה יהוה אחד,אחד,F_ambiguous,,,no_roundtrip,144,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+500,דרגת היחידה דרגת הנבואה 11111 - לפי אחת,אחת,F_ambiguous,,,no_roundtrip,3370,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+501,דרגת קודש 11111 -7170-מילוי רגיל -לפי אחת,אחת,F_ambiguous,,,no_roundtrip,7170,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+502,הוא יעלה לדרגת מלך המשיח 11111 - לפי אחת,אחת,F_ambiguous,,,no_roundtrip,7170,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+503,הכתרת יהוה למלך העולם ב2015- מיקום -לפי אחד,אחד,F_ambiguous,,,no_roundtrip,396,False,research_interest:396,True,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+504,המלך 1335- גדול ואותיות -לפי אחד,אחד,F_ambiguous,,,no_roundtrip,,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+505,המשיח 1335 1290-לפני -לפי אחת,אחת,F_ambiguous,,,no_roundtrip,3630,False,,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+506,המשיח יעשה שלום עולמי ב2016- מיקום-לפי אחד,אחד,F_ambiguous,,,no_roundtrip,396,False,research_interest:396,True,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+507,המשיח יקבל דרגת יחידה 11111 ב22 12 -לפי אחת -פי 5,אחת,F_ambiguous,,,no_roundtrip,51400,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+508,השכינה הקדשה תשרה על צמח דוד ב22 12 - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,14000,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+509,השם אחד,אחד,F_ambiguous,,,no_roundtrip,358,False,anchor:358,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+510,התגלות אליהו הנביא פלאית ב22 12 - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,3245,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+511,התגלות פלאית ב22 12 - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,3630,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+512,התגלות צמח דוד ב22 12 - מסתתר לפי אחת,אחת,F_ambiguous,,,no_roundtrip,3580,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+513,יהוה אחד בימינו,אחד,F_ambiguous,,,no_roundtrip,157,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+514,יהוה אחד שמונה שתים אפס,"אחד, שמונה, שתים, אפס",E_mixed_numeric_phrase,,low,no_roundtrip,1331,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,excel_import,mixed_numeric_phrase
+515,יהוה יערוך נר למשיח ב2015- לפני לפי אחת,אחת,F_ambiguous,,,no_roundtrip,1820,False,anchor:1820,True,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1820,excel_import,ambiguous
+516,יהוה יצמיח קרן לדוד ב2015 - לפי אחת - אחרי,אחת,F_ambiguous,,,no_roundtrip,3960,False,research_interest:3960,True,not_a_method_claim,strong_number_target:3960,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:3960,excel_import,ambiguous
+517,יהוה שמו אחד,אחד,F_ambiguous,,,no_roundtrip,385,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+518,יש אלהים אחד,אחד,F_ambiguous,,,no_roundtrip,409,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+519,לא יקבלו אותי כמשיח ב2015-לפי אחד,אחד,F_ambiguous,,,no_roundtrip,3960,False,research_interest:3960,True,,strong_number_target:3960,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:3960,excel_import,ambiguous
+520,לי דרגת 11111 - משולש -לפי אחד,אחד,F_ambiguous,,,no_roundtrip,2701,False,anchor:2701,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+521,לי הדרגת 11111 - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,717,False,research_interest:717,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+522,מי צמח דוד ב781 -רגיל ומשולש לפי אחת,אחת,F_ambiguous,,,no_roundtrip,3960,False,research_interest:3960,False,unresolved_mismatch,strong_number_target:3960,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:3960,excel_import,ambiguous
+523,מלך המשיח 11111- אחרי -לפי אחת,אחת,F_ambiguous,,,no_roundtrip,5660,False,,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+524,משיח 337 533 396 מסתתר לפי שלש,שלש,F_ambiguous,3,medium,no_roundtrip,4240,False,,False,unresolved_mismatch,,,,,excel_import,ambiguous
+525,משיח יהוה יקבל דרגת יחידה 11111-לפי אחת,אחת,F_ambiguous,,,no_roundtrip,2448,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+526,מתי אתגלה ב22 12 -רת-לפי אחת,אחת,F_ambiguous,,,no_roundtrip,644,False,research_interest:644,False,candidate_pending,strong_number_target:644,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:644,excel_import,ambiguous
+527,נשמת מלך המשיח תנוח עלי ב22 12 - אחרי -לפי אחד,אחד,F_ambiguous,,,no_roundtrip,7760,False,,False,not_a_method_claim,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+528,נשמתי תעלה 11111- סת - לפי אחד,אחד,F_ambiguous,,,no_roundtrip,2015,False,research_interest:2015,False,candidate_pending,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+529,סוד דניאל הנביא 1335- סת - לפי אחת,אחת,F_ambiguous,,,no_roundtrip,1335,False,research_interest:1335,False,candidate_pending,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+530,סוד המשיח 1820 - מסתתר גדול -לפי אחת,אחת,F_ambiguous,,,no_roundtrip,1820,False,anchor:1820,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:1820,excel_import,ambiguous
+531,סוד יהוה המספר 1335 בספר דניאל - לפי אחת,אחת,F_ambiguous,,,no_roundtrip,2015,False,research_interest:2015,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+532,סוד מלאך דניאל 1335 1290- לפני -לפי אחת,אחת,F_ambiguous,,,no_roundtrip,3960,False,research_interest:3960,False,not_a_method_claim,strong_number_target:3960,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),B_gematria_hits:3960,excel_import,ambiguous
+533,סודך 1290 ו1335-אתבש לפי אחד,אחד,F_ambiguous,,,no_roundtrip,2015,False,research_interest:2015,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+534,עד עת קץ 1335-גדול ומלים-לפי אחת,אחת,F_ambiguous,,,no_roundtrip,3580,False,,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+535,צמח דוד ב1335-אתבש -לפי אחד,אחד,F_ambiguous,,,no_roundtrip,1335,False,research_interest:1335,False,unresolved_mismatch,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+536,צמח דוד יקבל דרגת יחידה 11111 ב22 12 -לפי אחת -פי 5,אחת,F_ambiguous,,,no_roundtrip,3630,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+537,רצון יהוה את 396 - מסתתר -לפי שלוש,שלוש,F_ambiguous,3,medium,no_roundtrip,2212,False,anchor:2212,False,unresolved_mismatch,,,,,excel_import,ambiguous
+538,שאול המלך משלש,שלש,F_ambiguous,3,medium,no_roundtrip,1102,False,,False,,,,,,excel_import,ambiguous
+539,שישים ריבו,שישים,F_ambiguous,60,medium,no_roundtrip,878,False,anchor:878,False,,,,,,excel_import,ambiguous
+540,שמע ישראל י ה ו ה אלוהינו י ה ו ה אחד + כולל,אחד,F_ambiguous,,,no_roundtrip,1210,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,excel_import,ambiguous
+541,אדר שני,שני,F_ambiguous,,,no_roundtrip,565,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+542,אלף זעירא,אלף,F_ambiguous,1000,medium,no_roundtrip,399,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+543,אלף עד תיו במילוי,אלף,F_ambiguous,1000,medium,no_roundtrip,699,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+544,אלף עד תיו במילוי גדול,אלף,F_ambiguous,1000,medium,no_roundtrip,742,False,,False,no_claimed_value,,,,,promoted:raw_docx_v2,ambiguous
+545,בית המקדש השני,שני,F_ambiguous,,,no_roundtrip,1226,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+546,בית שני,שני,F_ambiguous,,,no_roundtrip,772,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+547,ושתי,שתי,F_ambiguous,,,no_roundtrip,716,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+548,חוט שני,שני,F_ambiguous,,,no_roundtrip,383,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+549,חורבן בית המקדש השני,שני,F_ambiguous,,,no_roundtrip,1492,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+550,יום טוב שני של גליות,שני,F_ambiguous,,,no_roundtrip,1212,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+551,יום שני,שני,F_ambiguous,,,no_roundtrip,416,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+552,כלי שני,שני,F_ambiguous,,,no_roundtrip,420,False,research_interest:420,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+553,מעשר,עשר,F_ambiguous,10,medium,no_roundtrip,610,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+554,מעשר בהמה,עשר,F_ambiguous,10,medium,no_roundtrip,662,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+555,מעשר ירק,עשר,F_ambiguous,10,medium,no_roundtrip,920,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+556,מעשר כספים,עשר,F_ambiguous,10,medium,no_roundtrip,820,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+557,מעשר ראשון,עשר,F_ambiguous,10,medium,no_roundtrip,1167,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+558,מעשר שני,"עשר, שני",F_ambiguous,,low,no_roundtrip,970,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,ambiguous
+559,משלש,שלש,F_ambiguous,3,medium,no_roundtrip,670,False,hub:670,False,,,,,,promoted:raw_docx_v2,ambiguous
+560,משלש ברמודה,שלש,F_ambiguous,3,medium,no_roundtrip,927,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+561,פדיון מעשר שני,"עשר, שני",F_ambiguous,,low,no_roundtrip,1120,False,,False,,,,multi_token_embedded_phrase_no_confident_single_parse,,promoted:raw_docx_v2,ambiguous
+562,פסח שני,שני,F_ambiguous,,,no_roundtrip,508,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+563,שיש,שיש,F_ambiguous,,,no_roundtrip,610,False,,False,,,,not_actually_a_number_word_false_positive,,promoted:raw_docx_v2,ambiguous
+564,שני וחמישי,שני,F_ambiguous,,,no_roundtrip,734,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+565,שני לטומאה,שני,F_ambiguous,,,no_roundtrip,451,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+566,שנים,שנים,F_ambiguous,,,no_roundtrip,400,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+567,תולעת השני,שני,F_ambiguous,,,no_roundtrip,1271,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+568,תולעת שני,שני,F_ambiguous,,,no_roundtrip,1266,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,promoted:raw_docx_v2,ambiguous
+569,תרומת מעשר,עשר,F_ambiguous,10,medium,no_roundtrip,1656,False,,False,,,,,,promoted:raw_docx_v2,ambiguous
+570,יהוה אחד,אחד,F_ambiguous,,,no_roundtrip,39,False,,False,,,,bare_low_digit_or_ordinal_word_needs_context (Sec.4 false-positive rule: אחד/שני-class),,זכריה יד:ט — ביום ההוא יהיה יהוה אחד ושמו אחד,ambiguous

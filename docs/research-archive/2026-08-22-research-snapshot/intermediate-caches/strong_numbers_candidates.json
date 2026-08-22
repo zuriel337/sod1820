@@ -1,0 +1,500 @@
+{
+ "127": [
+  "hub(phase4,in-degree=5)"
+ ],
+ "286": [
+  "hub(phase4,in-degree=3)"
+ ],
+ "257": [
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "131": [
+  "hub(phase4,in-degree=4)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "828": [
+  "fan-out(phase4,out-degree=3)",
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "199": [
+  "fan-out(phase4,out-degree=3)",
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "463": [
+  "hub(phase4,in-degree=3)"
+ ],
+ "115": [
+  "hub(phase4,in-degree=3)"
+ ],
+ "232": [
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "222": [
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "2048": [
+  "hub(phase4,in-degree=4)"
+ ],
+ "337": [
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "170": [
+  "fan-out(phase4,out-degree=4)",
+  "hub(phase4,in-degree=4)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1692": [
+  "fan-out(phase4,out-degree=3)",
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "190": [
+  "hub(phase4,in-degree=4)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "539": [
+  "fan-out(phase4,out-degree=3)",
+  "hub(phase4,in-degree=4)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "670": [
+  "fan-out(phase4,out-degree=3)",
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "278": [
+  "hub(phase4,in-degree=3)"
+ ],
+ "526": [
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "474": [
+  "hub(phase4,in-degree=3)",
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)"
+ ],
+ "656": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "876": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "907": [
+  "fan-out(phase4,out-degree=4)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1246": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1490": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1557": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1561": [
+  "fan-out(phase4,out-degree=4)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1705": [
+  "fan-out(phase4,out-degree=3)"
+ ],
+ "1710": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1899": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1910": [
+  "fan-out(phase4,out-degree=4)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1999": [
+  "fan-out(phase4,out-degree=6)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "3988": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "90": [
+  "fan-out(phase4,out-degree=4)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "100": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "119": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "396": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "470": [
+  "fan-out(phase4,out-degree=3)"
+ ],
+ "718": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1111": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "217": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)"
+ ],
+ "300": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "466": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "500": [
+  "fan-out(phase4,out-degree=3)",
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "86": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "143": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "318": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "580": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "295": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "302": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "611": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "411": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "180": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "515": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "506": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "414": [
+  "multi-evidence(phase3,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "248": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "126": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "717": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "753": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "779": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "296": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "812": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1237": [
+  "canonical-graph-relation(phase3,target)",
+  "graph-direct(phase2,target)",
+  "graph-direct(phase3,target)",
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,target)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "246": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "240": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "880": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "370": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "277": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "915": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "514": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "990": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "110": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1005": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "501": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1258": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1308": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "496": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1452": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "333": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "136": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1690": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "306": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "644": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "98": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1810": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "223": [
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,target)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "455": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1930": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "220": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "590": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "2678": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "216": [
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,target)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "3066": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "3626": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "4040": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "420": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "75": [
+  "graph-direct(phase2,source)",
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,source)",
+  "multi-evidence(phase3,E,target)",
+  "multi-evidence(phase4,E,target)",
+  "source-claim(phase2,source)",
+  "source-claim(phase3,source)"
+ ],
+ "424": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "363": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "352": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "513": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "310": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "156": [
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,target)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "533": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "350": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "696": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1335": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "477": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "95": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "1118": [
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,target)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "1234": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "775": [
+  "multi-evidence(phase4,E,source)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "123": [
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,target)",
+  "multi-evidence(phase4,E,target)"
+ ],
+ "490": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "108": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "502": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "620": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "3960": [
+  "multi-evidence(phase4,E,target)"
+ ],
+ "430": [
+  "multi-evidence(phase4,E,source)"
+ ],
+ "45": [
+  "canonical-graph-relation(phase3,source)",
+  "graph-direct(phase2,source)",
+  "graph-direct(phase3,source)",
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)"
+ ],
+ "50": [
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)"
+ ],
+ "59": [
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)"
+ ],
+ "73": [
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)"
+ ],
+ "776": [
+  "graph-direct(phase2,target)",
+  "multi-evidence(phase2,E,target)",
+  "multi-evidence(phase3,E,target)",
+  "source-claim(phase2,target)",
+  "source-claim(phase3,target)"
+ ],
+ "148": [
+  "graph-direct(phase2,source)",
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)",
+  "source-claim(phase2,source)",
+  "source-claim(phase3,source)"
+ ],
+ "456": [
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)"
+ ],
+ "555": [
+  "multi-evidence(phase2,E,source)",
+  "multi-evidence(phase3,E,source)"
+ ],
+ "358": [
+  "multi-evidence(phase3,E,target)"
+ ],
+ "999": [
+  "multi-evidence(phase3,E,source)"
+ ],
+ "360": [
+  "multi-evidence(phase3,E,target)"
+ ]
+}

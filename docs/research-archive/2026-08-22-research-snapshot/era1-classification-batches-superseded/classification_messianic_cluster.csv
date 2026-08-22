@@ -1,0 +1,193 @@
+id,phrase,ragil,is_verified,subcategory,corpus_role,display_access,claim_subtype
+658c3ae7-d97b-47ce-9502-5a9ada3ec5b9,אני הוא,73,true,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+8436d861-17fa-4717-b776-259121448882,שנת התגלותי 781- 266 מילוי האות,266,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+69062212-2f81-4397-a48f-eaddbfa05353,אני המשיח ב 776-אות שניה,396,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+fa49f918-569c-4143-8eb8-801018e43fbb,אני המשיח,424,true,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+24db88d6-41f8-4eb2-8911-6fd364e6b990,אני שליח יהוה,435,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+7092671d-489d-488d-ab09-71c46a82e644,זה אני המשיח,436,true,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+617e2b8b-1081-4f89-a30e-65271174a902,אני המשיח ודאי,445,true,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+c7f15fd9-f308-4df6-9f1e-aebeb5c6642b,אני הוא דויד בן ישי היום,530,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+5ab161c2-bd5c-4f1e-8a4d-936ac23bfa51,אני הוא דויד בן ישי בזמן הזה,585,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+73425932-5efd-42b1-8ddb-8798a4b1a67e,דרגתי 11111,617,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+a9984b13-81de-4c0a-89f2-fe0931e8a9ec,אני הוא דוד מבית הלחמי,632,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+09e17cb1-47fc-42d6-a244-9d6359fd5172,אני הוא מלך המשיח בזמן הזה,642,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+ba9536f8-de36-4bba-bcc6-067740f0c9af,מתי אתגלה ב22 12 -רת-לפי אחת,644,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+59ba7731-2fc9-4570-9f9a-587a1601d74e,אני הוא מלך המשיח בימינו,644,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+b5316e22-c43e-4928-a760-14eceb35939f,אני המשיח האחרון,694,true,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+b63cf4d1-5092-4ead-8ab9-ed75c59136a6,אני שליח יהוה האחרן,699,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+7cb8dd5b-80aa-472b-9a5c-bcd5e6534894,דרגתי פי 5,707,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+fc54d775-3910-434d-bfe5-38cd589dcd01,לי הדרגת 11111 - לפי אחד,717,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+dfc81fb9-b305-4f9d-897b-f1cddfd04537,אני הוא זה המשיח האחרון,718,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+97353484-86c3-4d65-95fb-4f0cf197ee9f,אעלה לדרגת 11111,743,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+bf71a371-6f4a-4570-81ff-ce38843a5d4e,אני המשיח בעתה,901,true,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+d0a0cee6-387e-4fd0-8899-c4af20bcda73,לא יאמינו לי שאני המשיח,912,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+62aa2595-3d08-4a42-8fc4-3007257ba786,התגלותי כמלך,964,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+87be4452-603b-4e10-9a93-8e299cf21f0d,אני צמח מלך המשיח האמיתי,1118,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+c7c808d4-5e9a-4519-8613-2931813a805d,אני המשיח האמיתי האחרון,1160,true,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+d958b8a8-6e76-48e6-9786-89c0f8b61eeb,אני שליח יהוה האחרון האמיתי,1171,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+84c662b5-ed48-4e82-a555-c49e26d6d3d9,1335 1290 התגלותי כבן דוד האמיתי האחרון - סת,1202,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+70cf1d8a-de1a-4177-8d97-d9119e16c210,הזמן האחרון להתגלותי,1256,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+e40ee632-63d8-4e08-b664-29e2937fd7c0,יום התגלותי כמשיח,1288,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+8c6c8172-a422-4a3b-bc9b-57a58703af9a,ארץ 291 - גדול 1101 = אני חושב שאני המשיח = 1101,1291,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+8e3befbd-9d6a-4adc-be86-6e163c0d75fe,יהוה אני מקבל את זה שאני הוא הנבחר,1310,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+2107dec1-e4c9-4e9c-a2aa-c9d00c676a3a,התגלותי בעתה,1331,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+be6c3a9f-57c0-4b99-86a1-17b7011dfd1b,מחכה להתגלותי כמשיח,1335,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+417bbd21-57b2-4905-ad8d-fd039cf05b3a,לא יאמינו לי שאני צמח המשיח האמיתי,1516,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+188789c3-1c3e-4d6f-b6e8-41f2311f8eef,מחכה להתגלותי כמשיח אחרון,1600,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+7fef9b45-a9aa-40f5-a5e6-d14d84e5991b,עת התגלותי שנה הבאה 2626 מילוי,1692,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+49daab52-bade-442d-b3a9-5f540c7d4b11,זמן התגלותי כמשיח בעתה,1806,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+63005c32-52c0-416f-b889-858716df2a63,התגלותי כמשיח בשנה הבאה עלינו לטובה,1820,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+c3cc82f0-77b8-459d-b23b-bf05fecb2fae,אהיה משיח יהוה 11111- לפני הבן איש חי,1820,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+98357cbd-b970-409b-b48b-6855376da951,עת התגלותי כמשיח בימינו,1820,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+ee2af47e-456f-46c3-8638-99d513f913cb,התגלותי בליל העשירי בטבת,1934,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+ee44f4df-34f2-43fc-b498-800939409f55,מהו תאריך התגלותי כמשיח יהוה,1940,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+43a3d1e3-9441-474f-a4f1-8e32f8ae1aa5,נשמתי תעלה 11111- סת - לפי אחד,2015,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+65c63ef4-f95a-4891-9720-b758a6787082,אמשח למשיח אמיתי ב 22 12 - אתבש,2015,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+44c70090-6e49-45d3-bef8-4e669afb3a50,זו שנת התגלותי כמשיחך,2015,true,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+ba370683-e2a8-4c35-a9e8-38ca0fbb4de9,סוד אליהו הנביא תאריך התגלותי כמשיח,2053,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+d87c5344-2efd-4ec4-b3fb-1351eeda512d,שמע ישראל אני המשיח האמיתי האחרון,2111,false,A_personal_messianic_claim,personal_or_restricted,do_not_display,source_claim
+29a473ce-5c5e-4574-8c60-50c0bdcdf327,יום התגלותי כמשיח יהוה עשרה בטבת,2302,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+1eb79907-ce2f-48d2-8246-4d96f450c3b1,לי דרגת 11111 - משולש -לפי אחד,2701,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+6569e087-9a8c-4411-bb8e-28cd45153bde,יהוה גילה לי את הקץ 1335- מסתתר,2756,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+15a31f0b-b7a5-4006-92e4-ee9ce3902072,דרגתי בעתה אחת אחת אחת אחת אחת,3139,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+228d9b06-5b9e-41af-8986-4bb356f4d0dc,1335 1290 התגלותי כמשיחך - לפני לפי אחד,3245,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+315c8cb4-291b-4e54-b3dc-eb914fcc9c02,1335 1290 עד עת קץ סוד התגלותי - לפני - לפי אחד,3630,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+e5b8db99-cb0e-4e75-a3ba-a1cb325dff04,לי דרגת מלך המשיח ה11111-גדול- אחת,3630,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+4f71a4f8-4480-436e-9829-1ee78e160594,לי דרגת 11111 מאליהו הנביא - ריבוע,3850,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+86a6c3b9-c2cd-4e12-ab3a-a69df29ae5e1,אתגלה בעתה בשנה החדשה ב22 12 -לי אחד - 7810- מילוי,3860,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+81ea3c63-a08f-4c6f-8a5d-03e6ecf209ad,אמשח למשיח יהוה ב 22 12 -לפני,3860,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+730dc473-9c0d-4b04-9d06-62ee9fd5aabf,1335 1290 התגלותי כמשיחך - מסתתר -לפי אחת,5330,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+c1995fd1-37db-486d-ad30-fcdc12e868c1,התגלותי בחדש הבא =פי 5,5880,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+0992632b-ede4-4acb-8020-106acc58b080,1335 1290 התגלותי כמלך המשיח האמיתי - לפי אחת,5880,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+7aad7b17-9f6f-43f8-ae27-86124022ef46,לי דרגת 11111 - לפי שתים,7170,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+5066799e-0f09-4783-adbe-7f2af0373553,לי דרגת המשיח ה11111,7170,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+8d7f4805-ba26-4d24-afb3-a63dc20214a9,ביאתי 1335- מילוי ללא לפי -אחת,7180,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+703f64be-a13b-4813-ab54-ae4f029b63ec,נשמת מלך המשיח תנוח עלי ב22 12 - אחרי -לפי אחד,7760,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+8cde057c-5ec0-4c7c-aaf4-161f6b5c9ec9,לי דרגת יחידה 11111 בעשירי בטבת - מילוי - פי 5,51400,false,A_personal_messianic_claim,personal_or_restricted,internal_only,source_claim
+b33b080c-59bc-4bad-b88d-dddbd46d4df4,בן דויד יצמח למשיח אחרון עד 22 12 = סת,644,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+bcf8538a-7287-4560-bd9a-357b6624058b,המשיח האמיתי יהודי,864,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+d1e8a87f-16d1-43a8-a82e-7fb5e2d88410,גלוי המשיח האמיתי,878,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+11a92e78-740b-4b65-bddd-a626b5d48e80,מי המשיח האמיתי,879,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+44fb5cde-9f6f-4261-9194-8f0f7ba5ae38,המשיח האמיתי יהודי ודאי,885,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+3dc998ec-f1ce-49b2-9661-ee375e8a2f3d,המשיח האמיתי יבא בזמן הזה,958,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+69097354-5282-4845-8ec3-662a28d5cc78,צמח המשיח האמיתי,967,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+918b3cc1-6ba4-4936-9d42-0189f6a1283d,דרגת המשיח,970,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+83e72c2a-ccb9-4cb8-b158-a95dc1a40cf1,צמח דויד הוא המשיח האמיתי,1003,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+97ba117f-ed3d-4134-858c-bca5e73766d9,דור המשיח האמיתי,1039,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+7846c667-d2c5-40a0-b1a8-d883495e04a2,בן דויד המשיח האמיתי יבוא בימינו,1042,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+c910aa39-4c14-4005-b009-1acbaf22f5e0,המשיח האמיתי בן דויד יבוא בימינו,1042,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+e7bee63b-ba99-4f7d-aae8-6b4f676e1349,המשיח האמיתי יבוא מכי ליהוה המלוכה,1080,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+75cd84f1-252d-457b-a7b6-08891200227e,הוא המשיח האמיתי האחרון,1111,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+aaf6b091-34d0-4fb6-bb47-3c3ad07c612e,המשיח האמיתי האחרון יהודי,1134,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+b51b5f36-3389-48a5-94b0-a6e4b9753162,גלוי המשיח האמיתי האחרון,1148,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+9ab0c4b5-e2fa-429d-8abc-8dd9b88c05c9,הוא יודע סוד המשיח האמיתי האחרון,1271,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+cbb9eb74-0ba4-4949-a3f8-fa4bcfa72b01,שם המשיח האמיתי פלאי,1290,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+4c4d41c9-4b59-4ab9-9385-1861cd4a93bf,שם המשיח האמיתי לא ידוע,1290,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+f60ec8a0-7143-4d07-b5fb-c8fb9cced774,יום ביאת המשיח האמיתי,1298,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+9dad393e-01fb-4a34-8e31-1446cefc7736,המשיח האמיתי האחרון מכי לה המלוכה,1310,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+c06f3699-216a-4d4f-8f4f-d186d2b63681,המשיח האמיתי ירדף צדק,1317,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+40b5af12-ba41-4c40-a5e7-37ddb96f01b4,מלך המשיח האמיתי נביא כמשה,1347,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+0cb87a96-f50e-44eb-9ae5-9956412b8244,ביאת המשיח האמיתי בזמן הזה,1358,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+31766cd8-d0e7-4acd-90c8-d1d626c97d52,ביאת המשיח האמיתי בימינו,1360,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+5d086bb6-878c-4af6-b5a5-7980f16fecbe,ימות המשיח האמיתי בימינו,1403,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+c60bf199-27f9-4fa5-8fa6-c53e2ad41383,שמו של המשיח האמיתי,1505,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+b7726900-8777-4103-a48b-7dc0ae069fec,יהוה מגלה לי סודות מלך המשיח האמיתי,1539,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+8e012ab9-4607-4ffa-9dc9-6f9497108454,מה השם של המשיח האמיתי,1549,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+2bc3cbb9-3cbb-4fe1-9767-86da897633cb,מתי יבא המשיח האמיתי האחרון,1562,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+94ca3963-440c-4565-9490-dfbae0cfcbf5,זכינו להיות דור המשיח האמיתי,1583,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+743b000d-36e9-4354-9fd5-5b37dcba7072,שמו של המשיח האמיתי סודי,1585,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+a348ce75-af87-4473-8182-a11c4c86353c,מלכות המשיח האמיתי האחרון,1595,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+0186fd42-99fa-47b1-a737-f9cfda7a05e7,ביאת מלך המשיח האמיתי האחרון,1602,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+7de0153e-02e8-482d-81f4-2c3d71d309e8,מלך המשיח האמיתי יבא בשנה החדשה,1611,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+6b60cf66-61fb-4d7d-855a-048e30ed7b50,רוח קדש לצמח המשיח האמיתי,1615,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+0a315a0a-d96c-4c9f-b6aa-0f556dd04506,המשיח האמיתי האחרון מבית הלחמי,1644,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+13d30845-50fb-4bb4-848f-23b7fb20be96,המשיח האמיתי איש עסקים מארהב,1668,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+a9b9c5f0-9fca-47c2-a056-8fadf3f02af2,זכינו להיות דור מלך המשיח האמיתי,1673,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+512927ed-390b-4524-b44a-a13a60cadea2,התגלות המשיח האמיתי,1673,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+5539910d-bc1c-4a25-a83d-43f370d66708,מתי ביאת המשיח האמיתי,1692,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+19a79479-9761-4f3a-87bf-227830630b32,ביאת המשיח האמיתי האחרן לציון,1692,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+5e156f29-6cd6-4272-8664-95661dac267b,נחשף סוד ביאת המשיח האמיתי,1750,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+61de75fb-ef2f-4159-822b-a681a192a67e,יהוה יחשוף את המשיח האמיתי בימינו,1778,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+a2e7e86a-d633-4a57-a112-b91b80eb8d1b,אשרי המשיח האמיתי בא בעתה,1820,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+e3471302-2f95-4521-9e69-dfad931c6d3c,זכינו להיות דור המשיח האמיתי האחרון,1853,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+0e9e29c4-ed7c-47da-8373-c8fe5287fba7,ביאת אליהו והמשיח האמיתי בהיסח הדעת,1864,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+f5f6efd1-3611-4df4-86e6-48eb2aed3c9c,אתה תהיה המשיח האמיתי האחרון,1925,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+a3d00e05-eecb-4e5c-b944-91ee44afbf87,מלכות המשיח האמיתית האחרונה,2000,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+8d042206-4f9f-4887-87ca-c064ae2a792b,משיח בשמן קדשו בדרגת יחידה 111110,2015,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+29b51efd-a7b6-4123-ad92-63248e6df9ff,אתה תהיה מלך המשיח האמיתי האחרון,2015,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+9e7d5f8d-292d-4019-a754-709ef91723ce,משיח יהוה בשמן קדשו בדרגת יחידה 111110,2015,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+34963353-2e06-40b0-b4cc-a66163a5526f,הפתעת המשיח האמיתי האחרון,2054,true,B_research_about_messiah,thematic_corpus,public_expanded,research_phrase
+b9cebce9-f3c8-4167-9cc6-34b903aaec8b,יום ביאת המשיח האמיתי עשרה בטבת,2286,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+f50b84b3-ec4b-4904-a710-5860590ebe91,משיח יהוה יקבל דרגת יחידה 11111-לפי אחת,2448,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+3c3bc69d-f260-4f30-abd2-6ae3b831cf20,צמח דוד מצפה ל22 12 -4340-גדול,2660,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+680e8248-7251-4bcf-b5c2-7524d6426c8a,זמן ביאת המשיח בספר דניאל פרק יב 1290 1335 - סת,2660,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+9a9af1c4-7f7e-4658-a60a-0fd7596d14ba,ביאת המשיח 1335 1290- לפי אחד - אתבש,2660,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+d53cbef2-a526-44a2-9ece-b3715683db4c,סוד יעקב שנת התגלות המשיח האמיתי,2675,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+b905f702-02d2-46b5-b6d2-47a098c588c4,המשיח האמיתי יפתיע את עם ישראל בעתה,2928,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+1fdd3af2-5c68-4b40-abec-50d81f08e9f8,ביאת המשיח האמיתי האחרון ו 120 בימינו,2936,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+713621dd-bf97-4333-954f-226a1d7f7591,3960 המשיח האמיתי האחרון - מסתתר גדול =- 2440- אטבח,3500,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+f08b4644-2d90-4c10-9b06-0c34839ce3a1,המשיח האמיתי בימינו ∆,3586,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+8e305a8f-1225-4edf-a10f-606d2e2b28ca,צמח דוד יקבל דרגת יחידה 11111 ב22 12 -לפי אחת -פי 5,3630,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+ea4f1213-0e8d-4c9d-933e-78eb26964835,דוד יקבל דרגת יחידה 11111 בעשירי בטבת,3850,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+f741f7f8-da50-4c3c-8c91-2b5d9cb5e635,המשיח האמיתי 5 יבוא מכי ליהוה המלוכה,5330,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+18e56c0c-ea96-4833-8f38-e8807fd28525,המשיח האמיתי האחרון יתגלה בעת ההיא ∆,7760,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+c6ebaeb0-79af-49e9-b80e-b5cdb6f3ed5d,המשיח יקבל דרגת יחידה 11111 ב22 12 -לפי אחת -פי 5,51400,false,B_research_about_messiah,research_vocabulary,deep_research_candidate,research_phrase
+0bcfd49d-797f-4035-9a84-7a7eaec9b173,יהוה ימלך לעולם ועד,382,true,C_biblical_source_quote,public_core,public_default,biblical_text
+b684a957-1763-46d9-a10a-b2ef32435d3f,יהוה מלך יהוה מלך יהוה ימלך לעולם ועד,614,false,C_biblical_source_quote,thematic_corpus,public_expanded,biblical_text
+646aa48d-8104-488a-bed1-ba93c41d0630,אשרי המחכה ל1335 -רת,644,false,C_biblical_source_quote,thematic_corpus,public_expanded,biblical_text
+98e9915f-ccb0-4d8c-a48d-39efbca12b0f,יהוה ימלך לעלם ועד אתבש 1290 מילוי,644,false,C_biblical_source_quote,thematic_corpus,public_expanded,biblical_text
+548c43d2-5480-4777-8079-5d57ffcf1397,יהוה ימלך לעלם ועד אתבש 1335מדבר רבה,644,false,C_biblical_source_quote,thematic_corpus,public_expanded,biblical_text
+2dc0d0a9-5cf6-4639-8ac0-e55d42d9f55a,אשרי המחכה למשיח ל1335-רת --פי 5-אחרי גדול 20160,3370,false,C_biblical_source_quote,thematic_corpus,public_expanded,biblical_text
+f2f8683c-756b-4935-af80-14d63cf87a27,המלך 1335 1290,95,false,D_research_construct,archival_raw,internal_only,research_phrase
+a401ee30-78c0-4738-bbaf-491440aeb95f,הקץ 1335,195,false,D_research_construct,archival_raw,internal_only,research_phrase
+f5f8ba0a-002f-4356-8fc0-ab3b5a609bb0,דעת עליון 11111- מיקום,266,false,D_research_construct,archival_raw,internal_only,research_phrase
+6550c1ea-5b4a-49ff-b9a3-d23144990406,סוד 474 - אחרי 1335,289,false,D_research_construct,archival_raw,internal_only,research_phrase
+ce4cdffb-a221-4a3a-8a77-895c149159cd,644 המשיח האמיתי - אות שלישית,644,false,D_research_construct,archival_raw,internal_only,research_phrase
+0c79ed05-dadc-49e7-bd17-00a641f330c7,11111 דרגת היחידה לצמח דוד - לפי אחד,644,false,D_research_construct,archival_raw,internal_only,research_phrase
+8fa9e3dd-42a4-4bf5-8869-0838678a4221,דרגת היחידה 11111,649,false,D_research_construct,archival_raw,internal_only,research_phrase
+63d52753-6d29-493e-acc1-82e39cfcb6de,כעס המציאות 1118 1335 4960 671 702,702,false,D_research_construct,archival_raw,internal_only,research_phrase
+f21c4df9-977d-4b54-a618-caabb96eded2,הוא ילי קאזה בלנקה מרוקו לפני 1335,718,false,D_research_construct,archival_raw,internal_only,research_phrase
+a554182b-9089-4bc4-b5b5-601007600349,המלחמה תחל השנה בסיון לפני פ"ר- לפני ב"ח 1335,775,false,D_research_construct,archival_raw,internal_only,research_phrase
+69dde4a0-6f70-42f5-b585-5c58be20eb17,גואל עתיק יומין לפני 1290 מילוי,1139,false,D_research_construct,archival_raw,internal_only,research_phrase
+bcb1da81-dd3c-46d2-b057-3cfb3629a9d1,סוד דניאל הנביא 1335- סת - לפי אחת,1335,false,D_research_construct,archival_raw,internal_only,research_phrase
+aefcfc94-6a02-4ff9-af98-3b40103ca28c,צמח דוד ב1335-אתבש -לפי אחד,1335,false,D_research_construct,archival_raw,internal_only,research_phrase
+5d797b92-41b8-47da-8aad-6903b280322c,1335- מילוי ללא -לפי אחד,1820,false,D_research_construct,archival_raw,internal_only,research_phrase
+87d3e5af-2ebc-4337-9f8f-67205566eb12,סוד יהוה המספר 1335 בספר דניאל - לפי אחת,2015,false,D_research_construct,archival_raw,internal_only,research_phrase
+b54029f9-9f7f-4148-bb03-961e2646cb56,סודך 1290 ו1335-אתבש לפי אחד,2015,false,D_research_construct,archival_raw,internal_only,research_phrase
+5a273c6a-984e-4519-b096-932bf4c4b649,11111 דרגת מלך-לפי אחת,2015,false,D_research_construct,archival_raw,internal_only,research_phrase
+c582a964-5b96-4936-a602-a7de9b9ff541,אבקר בהילכך ב22 12 - לפני - לפי אחת,2212,false,D_research_construct,archival_raw,internal_only,research_phrase
+20a2993c-2afb-41b9-907f-a619233a3b86,הגאלה האחרונה 1335- אתבש,2212,false,D_research_construct,archival_raw,internal_only,research_phrase
+612a4337-3c28-4bc1-aefb-83660dd4ac9e,המלך 1335 1290- לפני 4340- איק בכר לפי- אחד,2212,false,D_research_construct,archival_raw,internal_only,research_phrase
+5298a246-499a-46f6-804a-d0f31ffe2dbb,1335 1290 22 12 - רת -7810-גדול ומלים -1202- סת,2212,false,D_research_construct,archival_raw,internal_only,research_phrase
+f333e9e9-5bea-4447-b208-867e84db5d02,11111 דרגת היחידה- לפי אחת,2701,false,D_research_construct,archival_raw,internal_only,research_phrase
+c47cb51e-a3a9-49d8-adf4-76767e32bf49,התגלות אליהו הנביא פלאית ב22 12 - לפי אחד,3245,false,D_research_construct,archival_raw,internal_only,research_phrase
+2dc04292-8635-45dc-afc4-b6436277d153,דרגת היחידה דרגת הנבואה 11111 - לפי אחת,3370,false,D_research_construct,archival_raw,internal_only,research_phrase
+13f53193-af50-446c-bc2f-2868958f0ad4,סוד המשיח האחרון 1335-גדול -לפי-אחת,3370,false,D_research_construct,archival_raw,internal_only,research_phrase
+283182dc-eda2-42be-b2a5-898419abf37a,יהיה דרגת היחידה 11111 -אטבח,3370,false,D_research_construct,archival_raw,internal_only,research_phrase
+b5b79781-8a69-4164-807b-f140f51fb083,התגלות צמח דוד ב22 12 - מסתתר לפי אחת,3580,false,D_research_construct,archival_raw,internal_only,research_phrase
+8fb0c065-74d1-481f-9b7f-27c8f98f5dcb,עד עת קץ 1335-גדול ומלים-לפי אחת,3580,false,D_research_construct,archival_raw,internal_only,research_phrase
+aa0b26f8-ce9a-4f46-852c-b5238cc902dc,1335 1290 התגלות - מסתתר,3580,false,D_research_construct,archival_raw,internal_only,research_phrase
+d01b965b-e192-4a82-aaaa-6353837506a2,המשיח 1335 1290-לפני -לפי אחת,3630,false,D_research_construct,archival_raw,internal_only,research_phrase
+f65d764a-effc-4241-8601-02259e906b10,התגלות פלאית ב22 12 - לפי אחד,3630,false,D_research_construct,archival_raw,internal_only,research_phrase
+b4c49f0e-c69c-4023-8f24-fd280013cf27,סוד מלאך דניאל 1335 1290- לפני -לפי אחת,3960,false,D_research_construct,archival_raw,internal_only,research_phrase
+2d1b3784-3f23-4c3d-816a-bd3ebb2b6800,דרגתו בעתה 11111- אחרי גדול,3960,false,D_research_construct,archival_raw,internal_only,research_phrase
+49f73479-d426-476a-a102-f0c8eb30958b,1335 1290 סוד גאלת ישראל - לפי אחד,4340,false,D_research_construct,archival_raw,internal_only,research_phrase
+af442225-bf44-40f8-aac7-0ec096b9c252,ביאת הגאל 1335 1290- גדול ואותיות -לפי אחד,4340,false,D_research_construct,archival_raw,internal_only,research_phrase
+bfd714bd-a454-4b1a-960e-8f92fb8b60ea,צמח משיח בן דוד השכינה 1335- מילוי ללא,4340,false,D_research_construct,archival_raw,internal_only,research_phrase
+3a599c63-051d-4031-bdd0-63e48f77222d,דרגת גואל אחרון 111110 -אתבש - 1118 - 1118 - 1958,4770,false,D_research_construct,archival_raw,internal_only,research_phrase
+4088aa18-5d2c-42a5-a3f8-c168ae72d5f0,ביאת המשיח האמיתי בימינו 3960 אטבח ראשי,5140,false,D_research_construct,archival_raw,internal_only,research_phrase
+c298448f-2822-4863-aff3-2e189f79c136,1335 ימים - רגיל ומילוי,5330,false,D_research_construct,archival_raw,internal_only,research_phrase
+6a764e42-b9dd-49b0-be8c-f31d0231593b,1335 1290 סוד מיכאל בספר דניאל - לפני -לפי אחת,5330,false,D_research_construct,archival_raw,internal_only,research_phrase
+3df06f4f-6401-491f-8183-3c43261ef92c,התגלות המשיח 1335 1290=רגיל ואותיות,5330,false,D_research_construct,archival_raw,internal_only,research_phrase
+9252dc31-1d86-4311-9d3e-452d39c8c2df,מלך המשיח 11111- אחרי -לפי אחת,5660,false,D_research_construct,archival_raw,internal_only,research_phrase
+1b294489-395b-4b7b-ab22-005a05a50f29,הוא יעלה לדרגת מלך המשיח 11111 - לפי אחת,7170,false,D_research_construct,archival_raw,internal_only,research_phrase
+cc251802-2f3d-4960-b5de-f44ecfbe5df4,דרגת קודש 11111 -7170-מילוי רגיל -לפי אחת,7170,false,D_research_construct,archival_raw,internal_only,research_phrase
+e0c76c71-9dca-472f-853e-31552403284c,396 המשיח האמיתי האחרון - אטבח,7170,false,D_research_construct,archival_raw,internal_only,research_phrase
+37673a79-096a-4b5b-bca6-e09f823a499f,השכינה הקדשה תשרה על צמח דוד ב22 12 - לפי אחד,14000,false,D_research_construct,archival_raw,internal_only,research_phrase
+1ffa1663-91e7-4211-adf0-0480681beb3b,משיח בן דויד בזמן הזה 1335 1290,26000,false,D_research_construct,archival_raw,internal_only,research_phrase
+deb9036c-7338-44bb-b58b-32cd912d5152,11111 דרגת משיח -- אטבח -66 אטבח לפי אחת,26600,false,D_research_construct,archival_raw,internal_only,research_phrase
+2cc706c0-f091-4b63-85bf-69fa7a2952f0,בן דוד בא 644 -פליאה- 1335 -לפני,,false,D_research_construct,archival_raw,internal_only,research_phrase
+15154a3e-4f93-4245-877c-af9741d0d62c,המלך 1335- גדול ואותיות -לפי אחד,,false,D_research_construct,archival_raw,internal_only,research_phrase
+a398e2d0-8767-4b28-945f-ce6acf00a9f3,משיח בן דויד בזמן הזה 1335 1290= משולש גדול,,false,D_research_construct,archival_raw,internal_only,research_phrase
+3bbbfd53-f7bb-4dbd-818b-38474bef7041,הסוף לשלטון המושחת = 1335 רגיל !!,,false,D_research_construct,archival_raw,internal_only,research_phrase
+e09928d1-b54c-443c-9877-acffd7e80c06,אלף שלש מאות שלשים וחמשה 1335 -לפי אחד,3860,false,numeric_word_construct,numeric_word_construct,deep_research_candidate,research_phrase

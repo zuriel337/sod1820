@@ -1,0 +1,27 @@
+source_number,generated_expression,generation_type,method,target_number
+45,ארבעים וחמש,cardinal_wording,גדול,1237
+50,חמישים,cardinal_wording,סידורי,75
+50,חמש אפס,digit_read,אלבם,152
+50,חמש אפס,digit_read,סידורי,75
+59,חמש תשע,digit_read,גדול,1118
+59,חמש תשע,digit_read,רגיל,1118
+73,שבע שלוש,digit_read,אלבם,156
+75,שבעים וחמש,cardinal_wording,רגיל,776
+145,אחד ארבע חמש,digit_read,אטבח,256
+148,מאה ארבעים ושמונה,cardinal_wording,רגיל,776
+148,אחד ארבע שמונה,digit_read,אטבח,313
+148,אחד ארבע שמונה,digit_read,סידורי,111
+414,ארבע מאות וארבע עשרה,cardinal_wording,אלבם,474
+414,ארבע אחד ארבע,digit_read,אלבם,358
+456,ארבע חמש שש,digit_read,אלבם,216
+456,ארבע חמש שש,digit_read,סידורי,123
+474,ארבע שבע ארבע,digit_read,אלבם,223
+506,חמש מאות ושש,cardinal_wording,מסתתר,1024
+512,חמש מאות ושתים עשרה,cardinal_wording,אטבח,974
+555,חמש חמש חמש,digit_read,אתבש,216
+566,חמש מאות שישים ושש,cardinal_wording,אותיות אחרי,2216
+566,חמש שש שש,digit_read,אלבם,152
+665,שש מאות שישים וחמש,cardinal_wording,אותיות אחרי,2216
+665,שש שש חמש,digit_read,אלבם,152
+999,תשע תשע תשע,digit_read,אטבח,360
+1948,אחד תשע ארבע שמונה,digit_read,אלבם,474

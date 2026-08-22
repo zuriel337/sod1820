@@ -1,0 +1,291 @@
+source_number,source_pool,generated_expression,generation_type,method,target_number,hit_types,target_is_anchor,corpus_support,corpus_phrase_count,node_support,convergence_support,package_support,independent_evidence_count,mechanical_duplicate,mechanical_reason,evidence_class
+4,representative,ארבע,cardinal_wording,אטבח,127,ANCHOR,True,True,5,True,False,False,1,False,,B
+4,representative,ארבע,digit_read,אטבח,127,ANCHOR,True,True,5,True,False,False,1,False,,B
+69,representative,שישים ותשע,cardinal_wording,סידורי,140,ORDINARY_POOL,False,True,23,True,False,False,1,True,digit_permutation_partner=96,MECHANICAL_DUPLICATE
+69,representative,שש תשע,digit_read,אטבח,220,ORDINARY_POOL,False,True,24,True,True,True,3,True,digit_permutation_partner=96,MECHANICAL_DUPLICATE
+69,representative,שש תשע,digit_read,אתבש,14,ANCHOR,True,True,14,True,False,False,1,True,digit_permutation_partner=96,MECHANICAL_DUPLICATE
+104,representative,מאה וארבע,cardinal_wording,אטבח,205,ORDINARY_POOL,False,True,16,True,False,False,1,True,digit_permutation_partner=140,MECHANICAL_DUPLICATE
+104,representative,מאה וארבע,cardinal_wording,אלבם,266,ORDINARY_POOL,False,True,48,True,True,True,3,True,digit_permutation_partner=140,MECHANICAL_DUPLICATE
+104,representative,מאה וארבע,cardinal_wording,מסתתר,513,ORDINARY_POOL,False,True,19,False,True,True,3,True,digit_permutation_partner=140,MECHANICAL_DUPLICATE
+131,representative,אחד שלוש אחד,digit_read,גדול,662,ORDINARY_POOL,False,True,6,True,False,False,1,False,,B
+131,representative,אחד שלוש אחד,digit_read,רגיל,662,ORDINARY_POOL,False,True,6,True,False,False,1,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+131,representative,אחד שלוש אחד,digit_read,סידורי,86,ANCHOR,True,True,14,True,True,False,2,False,,E
+140,representative,מאה וארבעים,cardinal_wording,מסתתר,603,ORDINARY_POOL,False,True,10,True,False,False,1,True,digit_permutation_partner=104,MECHANICAL_DUPLICATE
+140,representative,מאה וארבעים,cardinal_wording,אותיות אחרי,520,ORDINARY_POOL,False,True,26,True,True,True,3,True,digit_permutation_partner=104,MECHANICAL_DUPLICATE
+143,representative,אחד ארבע שלוש,digit_read,אטבח,318,ORDINARY_POOL,False,True,35,True,True,True,3,False,,E
+186,representative,מאה שמונים ושש,cardinal_wording,אותיות אחרי,1452,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+186,representative,אחד שמונה שש,digit_read,אטבח,286,ORDINARY_POOL,False,True,11,True,False,False,1,False,,B
+199,representative,אחד תשע תשע,digit_read,אטבח,257,ORDINARY_POOL,False,True,21,True,True,True,3,False,,E
+199,representative,אחד תשע תשע,digit_read,אתבש,580,ORDINARY_POOL,False,True,27,True,True,True,3,False,,E
+199,representative,אחד תשע תשע,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,False,,B
+205,representative,מאתיים וחמש,cardinal_wording,מילוי,1607,ORDINARY_POOL,False,True,1,True,False,False,1,True,digit_permutation_partner=502,MECHANICAL_DUPLICATE
+232,representative,מאתיים שלושים ושתיים,cardinal_wording,אתבש,828,ORDINARY_POOL,False,True,18,True,True,True,3,False,,E
+240,representative,מאתיים וארבעים,cardinal_wording,אלבם,1120,ORDINARY_POOL,False,True,16,True,False,False,1,True,digit_permutation_partner=420,MECHANICAL_DUPLICATE
+240,representative,שתיים ארבע אפס,digit_read,סידורי,148,ANCHOR,True,True,19,True,False,False,1,True,digit_permutation_partner=420,MECHANICAL_DUPLICATE
+278,representative,שתיים שבע שמונה,digit_read,אלבם,852,ORDINARY_POOL,False,True,7,True,False,False,1,False,,B
+286,representative,מאתיים שמונים ושש,cardinal_wording,מילוי,2137,ANCHOR,True,True,1,True,False,False,1,False,,B
+295,representative,מאתיים תשעים וחמש,cardinal_wording,סידורי,199,ORDINARY_POOL,False,True,5,False,True,True,3,False,,E
+295,representative,שתיים תשע חמש,digit_read,אלבם,779,ORDINARY_POOL,False,True,7,True,False,False,1,False,,B
+302,representative,שלוש אפס שתיים,digit_read,אתבש,611,ANCHOR,True,True,26,True,True,True,3,False,,E
+378,representative,שלוש שבע שמונה,digit_read,אלבם,321,ANCHOR,True,True,14,True,False,False,1,False,,B
+389,representative,שלוש מאות שמונים ותשע,cardinal_wording,רגיל,2305,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+389,representative,שלוש שמונה תשע,digit_read,אטבח,463,ORDINARY_POOL,False,True,11,True,False,False,1,False,,B
+389,representative,שלוש שמונה תשע,digit_read,מילוי,2305,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+409,representative,ארבע אפס תשע,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,True,digit_permutation_partner=490,MECHANICAL_DUPLICATE
+411,representative,ארבע מאות ואחת עשרה,cardinal_wording,גדול,1710,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+411,representative,ארבע מאות ואחת עשרה,cardinal_wording,רגיל,1710,ORDINARY_POOL,False,True,2,True,False,False,1,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+411,representative,ארבע מאות ואחת עשרה,cardinal_wording,סידורי,180,ORDINARY_POOL,False,True,22,True,True,True,3,False,,E
+451,representative,ארבע חמש אחד,digit_read,אטבח,256,ANCHOR,True,True,13,False,False,False,1,True,digit_permutation_partner=514,MECHANICAL_DUPLICATE
+451,representative,ארבע חמש אחד,digit_read,אלבם,386,ORDINARY_POOL,False,True,33,False,True,True,3,True,digit_permutation_partner=514,MECHANICAL_DUPLICATE
+451,representative,ארבע חמש אחד,digit_read,גדול,634,ORDINARY_POOL,False,True,21,True,True,True,3,True,digit_permutation_partner=514,MECHANICAL_DUPLICATE
+451,representative,ארבע חמש אחד,digit_read,רגיל,634,ORDINARY_POOL,False,True,21,True,True,True,3,True,digit_permutation_partner=514,MECHANICAL_DUPLICATE
+463,representative,ארבע מאות שישים ושלוש,cardinal_wording,סידורי,222,ANCHOR,True,True,27,True,True,True,3,True,digit_permutation_partner=634,MECHANICAL_DUPLICATE
+463,representative,ארבע שש שלוש,digit_read,אלבם,205,ORDINARY_POOL,False,True,16,True,False,False,1,True,digit_permutation_partner=634,MECHANICAL_DUPLICATE
+480,representative,ארבע שמונה אפס,digit_read,גדול,815,ORDINARY_POOL,False,True,8,True,False,False,1,False,,B
+480,representative,ארבע שמונה אפס,digit_read,רגיל,815,ORDINARY_POOL,False,True,8,True,False,False,1,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+480,representative,ארבע שמונה אפס,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,False,,B
+490,representative,ארבע תשע אפס,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,True,digit_permutation_partner=409,MECHANICAL_DUPLICATE
+496,representative,ארבע תשע שש,digit_read,סידורי,140,ORDINARY_POOL,False,True,23,True,False,False,1,False,,B
+513,representative,חמש מאות ושלוש עשרה,cardinal_wording,מסתתר,2137,ANCHOR,True,True,1,True,False,False,1,False,,B
+513,representative,חמש אחד שלוש,digit_read,סידורי,115,ORDINARY_POOL,False,True,17,True,False,False,1,False,,B
+515,representative,חמש מאות וחמש עשרה,cardinal_wording,אטבח,506,ANCHOR,True,True,30,True,True,True,3,False,,E
+515,representative,חמש אחד חמש,digit_read,אלבם,414,ANCHOR,True,True,20,True,True,True,3,False,,E
+539,representative,חמש מאות שלושים ותשע,cardinal_wording,סידורי,232,ORDINARY_POOL,False,True,9,False,False,False,1,False,,B
+539,representative,חמש שלוש תשע,digit_read,אלבם,248,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+539,representative,חמש שלוש תשע,digit_read,אתבש,186,ORDINARY_POOL,False,True,16,True,False,False,1,False,,B
+552,representative,חמש מאות חמישים ושתיים,cardinal_wording,מסתתר,2216,ANCHOR,True,True,9,True,False,False,1,False,,B
+552,representative,חמש מאות חמישים ושתיים,cardinal_wording,אותיות לפני,1810,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+603,representative,שש מאות ושלוש,cardinal_wording,אלבם,333,ANCHOR,True,True,22,True,True,True,3,True,digit_permutation_partner=306,MECHANICAL_DUPLICATE
+621,representative,שש שתיים אחד,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,True,digit_permutation_partner=126,MECHANICAL_DUPLICATE
+656,representative,שש מאות חמישים ושש,cardinal_wording,אותיות אחרי,2216,ANCHOR,True,True,9,True,False,False,1,False,,B
+656,representative,שש חמש שש,digit_read,אלבם,152,ANCHOR,True,True,18,True,False,False,1,False,,B
+656,representative,שש חמש שש,digit_read,סידורי,126,ORDINARY_POOL,False,True,22,True,True,True,3,False,,E
+662,representative,שש שש שתיים,digit_read,מסתתר,520,ORDINARY_POOL,False,True,26,True,True,True,3,True,digit_permutation_partner=266,MECHANICAL_DUPLICATE
+670,representative,שש מאות ושבעים,cardinal_wording,סידורי,152,ANCHOR,True,True,18,True,False,False,1,False,,B
+670,representative,שש שבע אפס,digit_read,אטבח,257,ORDINARY_POOL,False,True,21,True,True,True,3,False,,E
+670,representative,שש שבע אפס,digit_read,אלבם,115,ORDINARY_POOL,False,True,17,True,False,False,1,False,,B
+691,representative,שש מאות תשעים ואחת,cardinal_wording,אטבח,878,ANCHOR,True,True,28,True,False,False,1,False,,B
+717,representative,שבע אחד שבע,digit_read,אלבם,300,ORDINARY_POOL,False,True,23,True,True,True,3,False,,E
+753,representative,שבע מאות חמישים ושלוש,cardinal_wording,סידורי,222,ANCHOR,True,True,27,True,True,True,3,False,,E
+753,representative,שבע חמש שלוש,digit_read,מסתתר,1246,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+779,representative,שבע שבע תשע,digit_read,אטבח,296,ORDINARY_POOL,False,True,21,True,True,True,3,False,,E
+779,representative,שבע שבע תשע,digit_read,אלבם,145,ANCHOR,True,True,12,True,False,False,1,False,,B
+812,representative,שמונה אחד שתיים,digit_read,סידורי,148,ANCHOR,True,True,19,True,False,False,1,False,,B
+812,representative,שמונה אחד שתיים,digit_read,אותיות לפני,1237,ANCHOR,True,True,44,True,False,True,2,False,,E
+813,representative,שמונה אחד שלוש,digit_read,אטבח,360,ANCHOR,True,True,43,True,False,True,2,True,digit_permutation_partner=318,MECHANICAL_DUPLICATE
+813,representative,שמונה אחד שלוש,digit_read,אלבם,456,ANCHOR,True,True,19,False,True,True,3,True,digit_permutation_partner=318,MECHANICAL_DUPLICATE
+828,representative,שמונה מאות עשרים ושמונה,cardinal_wording,רגיל,1875,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+828,representative,שמונה מאות עשרים ושמונה,cardinal_wording,מסתתר,2048,ANCHOR,True,True,2,False,False,False,1,False,,B
+828,representative,שמונה מאות עשרים ושמונה,cardinal_wording,סידורי,246,ORDINARY_POOL,False,True,19,False,True,True,3,False,,E
+876,representative,שמונה שבע שש,digit_read,אלבם,240,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+876,representative,שמונה שבע שש,digit_read,סידורי,140,ORDINARY_POOL,False,True,23,True,False,False,1,False,,B
+876,representative,שמונה שבע שש,digit_read,אותיות אחרי,1806,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+880,representative,שמונה מאות ושמונים,cardinal_wording,אותיות לפני,1333,ORDINARY_POOL,False,True,10,True,False,False,1,False,,B
+880,representative,שמונה שמונה אפס,digit_read,אלבם,370,ANCHOR,True,True,37,True,True,True,3,False,,E
+907,representative,תשע מאות ושבע,cardinal_wording,אלבם,302,ORDINARY_POOL,False,True,15,True,False,False,1,False,,B
+907,representative,תשע מאות ושבע,cardinal_wording,אותיות לפני,1561,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+907,representative,תשע אפס שבע,digit_read,אטבח,277,ORDINARY_POOL,False,True,21,False,True,True,3,False,,E
+907,representative,תשע אפס שבע,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,False,,B
+915,representative,תשע מאות וחמש עשרה,cardinal_wording,אטבח,514,ORDINARY_POOL,False,True,35,True,True,True,3,False,,E
+915,representative,תשע אחד חמש,digit_read,אלבם,337,ORDINARY_POOL,False,True,31,True,True,True,3,False,,E
+937,representative,תשע מאות שלושים ושבע,cardinal_wording,אותיות אחרי,1948,ANCHOR,True,True,2,True,False,False,1,True,digit_permutation_partner=973,MECHANICAL_DUPLICATE
+937,representative,תשע שלוש שבע,digit_read,אותיות לפני,1246,ORDINARY_POOL,False,True,2,True,False,False,1,True,digit_permutation_partner=973,MECHANICAL_DUPLICATE
+972,representative,תשע שבע שתיים,digit_read,אטבח,878,ANCHOR,True,True,28,True,False,False,1,False,,B
+973,representative,תשע מאות שבעים ושלוש,cardinal_wording,אותיות אחרי,1948,ANCHOR,True,True,2,True,False,False,1,True,digit_permutation_partner=937,MECHANICAL_DUPLICATE
+973,representative,תשע שבע שלוש,digit_read,אותיות לפני,1246,ORDINARY_POOL,False,True,2,True,False,False,1,True,digit_permutation_partner=937,MECHANICAL_DUPLICATE
+990,representative,תשע מאות ותשעים,cardinal_wording,אותיות לפני,1899,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+990,representative,תשע תשע אפס,digit_read,אלבם,110,ORDINARY_POOL,False,True,21,True,True,True,3,False,,E
+1005,representative,אחד אפס אפס חמש,digit_read,מסתתר,501,ORDINARY_POOL,False,True,22,True,True,True,3,False,,E
+1068,representative,אלף שישים ושמונה,cardinal_wording,סידורי,170,ORDINARY_POOL,False,True,28,False,True,True,3,True,digit_permutation_partner=1608,MECHANICAL_DUPLICATE
+1120,representative,אלף מאה ועשרים,cardinal_wording,אתבש,1068,ORDINARY_POOL,False,True,2,True,False,False,1,True,digit_permutation_partner=1012,MECHANICAL_DUPLICATE
+1168,representative,אחד אחד שש שמונה,digit_read,סידורי,127,ANCHOR,True,True,5,True,False,False,1,False,,B
+1246,representative,אלף מאתיים ארבעים ושש,cardinal_wording,רגיל,1541,ORDINARY_POOL,False,True,3,True,False,False,1,False,,B
+1246,representative,אחד שתיים ארבע שש,digit_read,סידורי,170,ORDINARY_POOL,False,True,28,False,True,True,3,False,,E
+1246,representative,אחד שתיים ארבע שש,digit_read,אותיות אחרי,1692,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+1258,representative,אלף מאתיים חמישים ושמונה,cardinal_wording,אטבח,1833,ORDINARY_POOL,False,True,3,True,False,False,1,False,,B
+1258,representative,אחד שתיים חמש שמונה,digit_read,סידורי,190,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+1308,representative,אלף שלוש מאות ושמונה,cardinal_wording,אלבם,515,ORDINARY_POOL,False,True,20,True,True,True,3,False,,E
+1308,representative,אחד שלוש אפס שמונה,digit_read,אלבם,496,ORDINARY_POOL,False,True,15,False,True,True,3,False,,E
+1333,representative,אחד שלוש שלוש שלוש,digit_read,אטבח,539,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+1413,representative,אלף ארבע מאות ושלוש עשרה,cardinal_wording,רגיל,2048,ANCHOR,True,True,2,False,False,False,1,False,,B
+1413,representative,אחד ארבע אחד שלוש,digit_read,אותיות לפני,1806,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+1452,representative,אחד ארבע חמש שתיים,digit_read,סידורי,170,ORDINARY_POOL,False,True,28,False,True,True,3,False,,E
+1463,representative,אחד ארבע שש שלוש,digit_read,אותיות אחרי,2048,ANCHOR,True,True,2,False,False,False,1,False,,B
+1490,representative,אלף ארבע מאות ותשעים,cardinal_wording,אלבם,670,ORDINARY_POOL,False,True,19,True,False,False,1,False,,B
+1490,representative,אלף ארבע מאות ותשעים,cardinal_wording,סידורי,199,ORDINARY_POOL,False,True,5,False,True,True,3,False,,E
+1490,representative,אחד ארבע תשע אפס,digit_read,אטבח,333,ANCHOR,True,True,22,True,True,True,3,False,,E
+1532,representative,אחד חמש שלוש שתיים,digit_read,אטבח,973,ORDINARY_POOL,False,True,8,True,False,False,1,False,,B
+1541,representative,אחד חמש ארבע אחד,digit_read,מסתתר,779,ORDINARY_POOL,False,True,7,True,False,False,1,False,,B
+1541,representative,אחד חמש ארבע אחד,digit_read,אותיות אחרי,876,ORDINARY_POOL,False,True,7,True,False,False,1,False,,B
+1557,representative,אלף חמש מאות חמישים ושבע,cardinal_wording,רגיל,1692,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+1557,representative,אלף חמש מאות חמישים ושבע,cardinal_wording,אותיות אחרי,1690,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+1557,representative,אחד חמש חמש שבע,digit_read,סידורי,136,ORDINARY_POOL,False,True,23,False,True,True,3,False,,E
+1561,representative,אחד חמש שש אחד,digit_read,אטבח,246,ORDINARY_POOL,False,True,19,False,True,True,3,False,,E
+1561,representative,אחד חמש שש אחד,digit_read,אלבם,512,ANCHOR,True,True,6,False,False,False,1,False,,B
+1561,representative,אחד חמש שש אחד,digit_read,גדול,974,ANCHOR,True,True,14,True,False,False,1,False,,B
+1561,representative,אחד חמש שש אחד,digit_read,רגיל,974,ANCHOR,True,True,14,True,False,False,1,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+1561,representative,אחד חמש שש אחד,digit_read,סידורי,110,ORDINARY_POOL,False,True,21,True,True,True,3,False,,E
+1607,representative,אחד שש אפס שבע,digit_read,סידורי,127,ANCHOR,True,True,5,True,False,False,1,False,,B
+1608,representative,אלף שש מאות ושמונה,cardinal_wording,אטבח,665,ANCHOR,True,True,3,True,False,False,1,True,digit_permutation_partner=1806,MECHANICAL_DUPLICATE
+1690,representative,אחד שש תשע אפס,digit_read,אטבח,306,ORDINARY_POOL,False,True,29,True,True,True,3,False,,E
+1705,representative,אחד שבע אפס חמש,digit_read,אטבח,286,ORDINARY_POOL,False,True,11,True,False,False,1,False,,B
+1705,representative,אחד שבע אפס חמש,digit_read,סידורי,127,ANCHOR,True,True,5,True,False,False,1,False,,B
+1705,representative,אחד שבע אפס חמש,digit_read,אותיות אחרי,1120,ORDINARY_POOL,False,True,16,True,False,False,1,False,,B
+1710,representative,אלף שבע מאות ועשר,cardinal_wording,אטבח,644,ORDINARY_POOL,False,True,80,True,True,True,3,False,,E
+1710,representative,אחד שבע אחד אפס,digit_read,גדול,539,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+1710,representative,אחד שבע אחד אפס,digit_read,רגיל,539,ORDINARY_POOL,False,True,2,True,False,False,1,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+1710,representative,אחד שבע אחד אפס,digit_read,סידורי,98,ORDINARY_POOL,False,True,25,False,True,True,3,False,,E
+1785,representative,אלף שבע מאות שמונים וחמש,cardinal_wording,אלבם,813,ORDINARY_POOL,False,True,7,True,False,False,1,True,digit_permutation_partner=1875,MECHANICAL_DUPLICATE
+1785,representative,אחד שבע שמונה חמש,digit_read,אטבח,386,ORDINARY_POOL,False,True,33,False,True,True,3,True,digit_permutation_partner=1875,MECHANICAL_DUPLICATE
+1806,representative,אלף שמונה מאות ושש,cardinal_wording,אטבח,665,ANCHOR,True,True,3,True,False,False,1,True,digit_permutation_partner=1608,MECHANICAL_DUPLICATE
+1810,representative,אחד שמונה אחד אפס,digit_read,אטבח,272,ORDINARY_POOL,False,True,17,True,False,False,1,False,,B
+1810,representative,אחד שמונה אחד אפס,digit_read,אותיות אחרי,717,ORDINARY_POOL,False,True,27,True,True,True,3,False,,E
+1875,representative,אחד שמונה שבע חמש,digit_read,אטבח,386,ORDINARY_POOL,False,True,33,False,True,True,3,True,digit_permutation_partner=1785,MECHANICAL_DUPLICATE
+1899,representative,אלף שמונה מאות תשעים ותשע,cardinal_wording,אתבש,1258,ORDINARY_POOL,False,True,6,True,False,False,1,False,,B
+1899,representative,אלף שמונה מאות תשעים ותשע,cardinal_wording,סידורי,278,ORDINARY_POOL,False,True,15,True,False,False,1,False,,B
+1899,representative,אחד שמונה תשע תשע,digit_read,סידורי,190,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+1910,representative,אחד תשע אחד אפס,digit_read,אטבח,223,ANCHOR,True,True,20,True,True,True,3,False,,E
+1910,representative,אחד תשע אחד אפס,digit_read,אלבם,455,ORDINARY_POOL,False,True,23,True,True,True,3,False,,E
+1910,representative,אחד תשע אחד אפס,digit_read,גדול,937,ORDINARY_POOL,False,True,6,True,False,False,1,False,,B
+1910,representative,אחד תשע אחד אפס,digit_read,רגיל,937,ORDINARY_POOL,False,True,6,True,False,False,1,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+1910,representative,אחד תשע אחד אפס,digit_read,מסתתר,451,ORDINARY_POOL,False,True,10,True,False,False,1,False,,B
+1930,representative,אלף תשע מאות ושלושים,cardinal_wording,סידורי,220,ORDINARY_POOL,False,True,24,True,True,True,3,False,,E
+1999,representative,אלף תשע מאות תשעים ותשע,cardinal_wording,אטבח,1246,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+1999,representative,אלף תשע מאות תשעים ותשע,cardinal_wording,אלבם,656,ORDINARY_POOL,False,True,13,False,True,True,3,False,,E
+1999,representative,אלף תשע מאות תשעים ותשע,cardinal_wording,סידורי,278,ORDINARY_POOL,False,True,15,True,False,False,1,False,,B
+1999,representative,אחד תשע תשע תשע,digit_read,אלבם,295,ORDINARY_POOL,False,True,18,True,False,False,1,False,,B
+1999,representative,אחד תשע תשע תשע,digit_read,אתבש,590,ANCHOR,True,True,22,True,True,True,3,False,,E
+1999,representative,אחד תשע תשע תשע,digit_read,סידורי,190,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+2129,representative,אלפיים מאה עשרים ותשע,cardinal_wording,אתבש,1168,ORDINARY_POOL,False,True,5,True,False,False,1,False,,B
+2129,representative,שתיים אחד שתיים תשע,digit_read,סידורי,224,ANCHOR,True,True,9,True,False,False,1,False,,B
+2305,representative,אלפיים שלוש מאות וחמש,cardinal_wording,רגיל,1608,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+2678,representative,שתיים שש שבע שמונה,digit_read,סידורי,216,ANCHOR,True,True,39,True,False,True,2,False,,E
+3066,representative,שלוש אפס שש שש,digit_read,אתבש,526,ORDINARY_POOL,False,True,22,True,True,True,3,False,,E
+3626,representative,שלוש שש שתיים שש,digit_read,אתבש,205,ORDINARY_POOL,False,True,16,True,False,False,1,False,,B
+3626,representative,שלוש שש שתיים שש,digit_read,סידורי,220,ORDINARY_POOL,False,True,24,True,True,True,3,False,,E
+3988,representative,שלושת אלפים תשע מאות שמונים ושמונה,cardinal_wording,סידורי,378,ORDINARY_POOL,False,True,16,True,False,False,1,False,,B
+3988,representative,שלוש תשע שמונה שמונה,digit_read,אלבם,466,ORDINARY_POOL,False,True,23,False,True,True,3,False,,E
+3988,representative,שלוש תשע שמונה שמונה,digit_read,אתבש,496,ORDINARY_POOL,False,True,15,False,True,True,3,False,,E
+4040,representative,ארבע אפס ארבע אפס,digit_read,אלבם,248,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+4040,representative,ארבע אפס ארבע אפס,digit_read,גדול,828,ORDINARY_POOL,False,True,18,True,True,True,3,False,,E
+4040,representative,ארבע אפס ארבע אפס,digit_read,רגיל,828,ORDINARY_POOL,False,True,18,True,True,True,3,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+90,research_interest,תשעים,cardinal_wording,אלבם,337,ORDINARY_POOL,False,True,31,True,True,True,3,False,,E
+90,research_interest,תשעים,cardinal_wording,מסתתר,420,ORDINARY_POOL,False,True,24,True,True,True,3,False,,E
+90,research_interest,תשע אפס,digit_read,אלבם,75,ANCHOR,True,True,22,True,True,True,3,False,,E
+90,research_interest,תשע אפס,digit_read,אתבש,424,ORDINARY_POOL,False,True,42,True,False,True,2,False,,E
+96,research_interest,תשע שש,digit_read,אטבח,220,ORDINARY_POOL,False,True,24,True,True,True,3,True,digit_permutation_partner=69,MECHANICAL_DUPLICATE
+96,research_interest,תשע שש,digit_read,אתבש,14,ANCHOR,True,True,14,True,False,False,1,True,digit_permutation_partner=69,MECHANICAL_DUPLICATE
+100,research_interest,מאה,cardinal_wording,אתבש,500,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+100,research_interest,מאה,cardinal_wording,ריבוע,127,ANCHOR,True,True,5,True,False,False,1,False,,B
+100,research_interest,אחד אפס אפס,digit_read,גדול,295,ORDINARY_POOL,False,True,18,True,False,False,1,False,,B
+100,research_interest,אחד אפס אפס,digit_read,רגיל,295,ORDINARY_POOL,False,True,18,True,False,False,1,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+119,research_interest,מאה ותשע עשרה,cardinal_wording,אטבח,363,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+119,research_interest,אחד אחד תשע,digit_read,מסתתר,352,ORDINARY_POOL,False,True,12,False,True,True,3,False,,E
+119,research_interest,אחד אחד תשע,digit_read,אותיות אחרי,513,ORDINARY_POOL,False,True,19,False,True,True,3,False,,E
+170,research_interest,מאה ושבעים,cardinal_wording,אטבח,656,ORDINARY_POOL,False,True,13,False,True,True,3,False,,E
+170,research_interest,מאה ושבעים,cardinal_wording,אלבם,539,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+170,research_interest,מאה ושבעים,cardinal_wording,רגיל,474,ANCHOR,True,True,31,True,False,False,1,False,,B
+170,research_interest,אחד שבע אפס,digit_read,גדול,526,ORDINARY_POOL,False,True,22,True,True,True,3,False,,E
+170,research_interest,אחד שבע אפס,digit_read,רגיל,526,ORDINARY_POOL,False,True,22,True,True,True,3,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+266,research_interest,שתיים שש שש,digit_read,מסתתר,520,ORDINARY_POOL,False,True,26,True,True,True,3,True,digit_permutation_partner=662,MECHANICAL_DUPLICATE
+306,research_interest,שלוש מאות ושש,cardinal_wording,אלבם,333,ANCHOR,True,True,22,True,True,True,3,True,digit_permutation_partner=603,MECHANICAL_DUPLICATE
+310,research_interest,שלוש מאות ועשר,cardinal_wording,אטבח,451,ORDINARY_POOL,False,True,10,True,False,False,1,False,,B
+310,research_interest,שלוש מאות ועשר,cardinal_wording,אלבם,337,ORDINARY_POOL,False,True,31,True,True,True,3,False,,E
+318,research_interest,שלוש אחד שמונה,digit_read,אטבח,360,ANCHOR,True,True,43,True,False,True,2,True,digit_permutation_partner=813,MECHANICAL_DUPLICATE
+318,research_interest,שלוש אחד שמונה,digit_read,אלבם,456,ANCHOR,True,True,19,False,True,True,3,True,digit_permutation_partner=813,MECHANICAL_DUPLICATE
+337,research_interest,שלוש שלוש שבע,digit_read,אלבם,257,ORDINARY_POOL,False,True,21,True,True,True,3,False,,E
+337,research_interest,שלוש שלוש שבע,digit_read,אותיות לפני,1111,ORDINARY_POOL,False,True,40,True,True,True,3,False,,E
+386,research_interest,שלוש שמונה שש,digit_read,אלבם,286,ORDINARY_POOL,False,True,11,True,False,False,1,False,,B
+396,research_interest,שלוש מאות תשעים ושש,cardinal_wording,אלבם,670,ORDINARY_POOL,False,True,19,True,False,False,1,False,,B
+396,research_interest,שלוש מאות תשעים ושש,cardinal_wording,סידורי,232,ORDINARY_POOL,False,True,9,False,False,False,1,False,,B
+396,research_interest,שלוש תשע שש,digit_read,אלבם,156,ANCHOR,True,True,26,False,True,True,3,False,,E
+470,research_interest,ארבע מאות ושבעים,cardinal_wording,אותיות אחרי,1005,ORDINARY_POOL,False,True,10,True,False,False,1,False,,B
+470,research_interest,ארבע שבע אפס,digit_read,ריבוע,1875,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+470,research_interest,ארבע שבע אפס,digit_read,סידורי,111,ANCHOR,True,True,24,True,False,False,1,False,,B
+502,research_interest,חמש מאות ושתיים,cardinal_wording,רגיל,1561,ORDINARY_POOL,False,True,1,True,False,False,1,True,digit_permutation_partner=520,MECHANICAL_DUPLICATE
+514,research_interest,חמש מאות וארבע עשרה,cardinal_wording,אטבח,521,ORDINARY_POOL,False,True,22,True,True,True,3,True,digit_permutation_partner=451,MECHANICAL_DUPLICATE
+514,research_interest,חמש מאות וארבע עשרה,cardinal_wording,אלבם,502,ORDINARY_POOL,False,True,30,True,True,True,3,True,digit_permutation_partner=451,MECHANICAL_DUPLICATE
+514,research_interest,חמש אחד ארבע,digit_read,אטבח,256,ANCHOR,True,True,13,False,False,False,1,True,digit_permutation_partner=451,MECHANICAL_DUPLICATE
+514,research_interest,חמש אחד ארבע,digit_read,אלבם,386,ORDINARY_POOL,False,True,33,False,True,True,3,True,digit_permutation_partner=451,MECHANICAL_DUPLICATE
+514,research_interest,חמש אחד ארבע,digit_read,גדול,634,ORDINARY_POOL,False,True,21,True,True,True,3,True,digit_permutation_partner=451,MECHANICAL_DUPLICATE
+514,research_interest,חמש אחד ארבע,digit_read,רגיל,634,ORDINARY_POOL,False,True,21,True,True,True,3,True,digit_permutation_partner=451,MECHANICAL_DUPLICATE
+520,research_interest,חמש מאות ועשרים,cardinal_wording,סידורי,170,ORDINARY_POOL,False,True,28,False,True,True,3,True,digit_permutation_partner=502,MECHANICAL_DUPLICATE
+533,research_interest,חמש מאות שלושים ושלוש,cardinal_wording,אלבם,828,ORDINARY_POOL,False,True,18,True,True,True,3,False,,E
+552,research_interest,חמש מאות חמישים ושתיים,cardinal_wording,מסתתר,2216,ANCHOR,True,True,9,True,False,False,1,False,,B
+552,research_interest,חמש מאות חמישים ושתיים,cardinal_wording,אותיות לפני,1810,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+580,research_interest,חמש שמונה אפס,digit_read,אטבח,350,ORDINARY_POOL,False,True,23,True,True,True,3,False,,E
+644,research_interest,שש מאות ארבעים וארבע,cardinal_wording,מסתתר,1463,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+696,research_interest,שש תשע שש,digit_read,אלבם,75,ANCHOR,True,True,22,True,True,True,3,False,,E
+696,research_interest,שש תשע שש,digit_read,סידורי,143,ORDINARY_POOL,False,True,10,True,False,False,1,False,,B
+717,research_interest,שבע אחד שבע,digit_read,אלבם,300,ORDINARY_POOL,False,True,23,True,True,True,3,False,,E
+718,research_interest,שבע מאות ושמונה עשרה,cardinal_wording,אטבח,539,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+718,research_interest,שבע מאות ושמונה עשרה,cardinal_wording,אלבם,526,ORDINARY_POOL,False,True,22,True,True,True,3,False,,E
+718,research_interest,שבע אחד שמונה,digit_read,סידורי,111,ANCHOR,True,True,24,True,False,False,1,False,,B
+1111,research_interest,אלף מאה ואחת עשרה,cardinal_wording,אלבם,463,ORDINARY_POOL,False,True,11,True,False,False,1,False,,B
+1111,research_interest,אלף מאה ואחת עשרה,cardinal_wording,סידורי,148,ANCHOR,True,True,19,True,False,False,1,False,,B
+1111,research_interest,אחד אחד אחד אחד,digit_read,מסתתר,44,ANCHOR,True,True,11,True,False,False,1,False,,B
+1335,research_interest,אחד שלוש שלוש חמש,digit_read,אטבח,477,ORDINARY_POOL,False,True,20,True,True,True,3,False,,E
+1692,research_interest,אלף שש מאות תשעים ושתיים,cardinal_wording,סידורי,278,ORDINARY_POOL,False,True,15,True,False,False,1,False,,B
+1692,research_interest,אחד שש תשע שתיים,digit_read,אטבח,907,ORDINARY_POOL,False,True,6,True,False,False,1,False,,B
+1692,research_interest,אחד שש תשע שתיים,digit_read,סידורי,190,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+2015,research_interest,שתיים אפס אחד חמש,digit_read,אלבם,974,ANCHOR,True,True,14,True,False,False,1,False,,B
+3960,research_interest,שלוש תשע שש אפס,digit_read,אטבח,463,ORDINARY_POOL,False,True,11,True,False,False,1,False,,B
+95,research_interest,תשע חמש,digit_read,אטבח,232,ORDINARY_POOL,False,True,9,False,False,False,1,False,,B
+95,research_interest,תשע חמש,digit_read,גדול,1118,ANCHOR,True,True,40,True,True,True,3,False,,E
+95,research_interest,תשע חמש,digit_read,רגיל,1118,ANCHOR,True,True,40,True,True,True,3,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+108,research_interest,מאה ושמונה,cardinal_wording,אותיות לפני,718,ORDINARY_POOL,False,True,27,True,True,True,3,True,digit_permutation_partner=180,MECHANICAL_DUPLICATE
+108,research_interest,אחד אפס שמונה,digit_read,גדול,555,ANCHOR,True,True,19,True,False,False,1,True,digit_permutation_partner=180,MECHANICAL_DUPLICATE
+108,research_interest,אחד אפס שמונה,digit_read,רגיל,555,ANCHOR,True,True,19,True,False,False,1,True,digit_permutation_partner=180,MECHANICAL_DUPLICATE
+110,research_interest,אחד אחד אפס,digit_read,אלבם,420,ORDINARY_POOL,False,True,24,True,True,True,3,False,,E
+110,research_interest,אחד אחד אפס,digit_read,סידורי,59,ANCHOR,True,True,13,True,False,False,1,False,,B
+126,research_interest,מאה עשרים ושש,cardinal_wording,אטבח,828,ORDINARY_POOL,False,True,18,True,True,True,3,True,digit_permutation_partner=621,MECHANICAL_DUPLICATE
+126,research_interest,מאה עשרים ושש,cardinal_wording,מילוי,2048,ANCHOR,True,True,2,False,False,False,1,True,digit_permutation_partner=621,MECHANICAL_DUPLICATE
+126,research_interest,אחד שתיים שש,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,True,digit_permutation_partner=621,MECHANICAL_DUPLICATE
+136,research_interest,אחד שלוש שש,digit_read,סידורי,115,ORDINARY_POOL,False,True,17,True,False,False,1,False,,B
+180,research_interest,מאה ושמונים,cardinal_wording,אותיות לפני,753,ORDINARY_POOL,False,True,8,True,False,False,1,True,digit_permutation_partner=108,MECHANICAL_DUPLICATE
+180,research_interest,אחד שמונה אפס,digit_read,גדול,555,ANCHOR,True,True,19,True,False,False,1,True,digit_permutation_partner=108,MECHANICAL_DUPLICATE
+180,research_interest,אחד שמונה אפס,digit_read,רגיל,555,ANCHOR,True,True,19,True,False,False,1,True,digit_permutation_partner=108,MECHANICAL_DUPLICATE
+190,research_interest,מאה ותשעים,cardinal_wording,מילוי,1234,ANCHOR,True,True,38,True,True,True,3,False,,E
+190,research_interest,אחד תשע אפס,digit_read,אותיות לפני,1490,ORDINARY_POOL,False,True,3,True,False,False,1,False,,B
+210,research_interest,שתיים אחד אפס,digit_read,סידורי,122,ORDINARY_POOL,False,True,15,True,False,False,1,False,,B
+217,research_interest,שתיים אחד שבע,digit_read,אטבח,775,ORDINARY_POOL,False,True,24,True,True,True,3,False,,E
+217,research_interest,שתיים אחד שבע,digit_read,גדול,1705,ORDINARY_POOL,False,True,1,True,False,False,1,False,,B
+217,research_interest,שתיים אחד שבע,digit_read,אותיות אחרי,990,ORDINARY_POOL,False,True,7,True,False,False,1,False,,B
+220,research_interest,מאתיים ועשרים,cardinal_wording,מסתתר,1472,ORDINARY_POOL,False,True,10,True,False,False,1,False,,B
+240,research_interest,מאתיים וארבעים,cardinal_wording,אלבם,1120,ORDINARY_POOL,False,True,16,True,False,False,1,True,digit_permutation_partner=420,MECHANICAL_DUPLICATE
+240,research_interest,שתיים ארבע אפס,digit_read,סידורי,148,ANCHOR,True,True,19,True,False,False,1,True,digit_permutation_partner=420,MECHANICAL_DUPLICATE
+248,research_interest,מאתיים ארבעים ושמונה,cardinal_wording,אתבש,1532,ORDINARY_POOL,False,True,5,True,False,False,1,False,,B
+257,research_interest,שתיים חמש שבע,digit_read,אתבש,474,ANCHOR,True,True,31,True,False,False,1,False,,B
+296,research_interest,מאתיים תשעים ושש,cardinal_wording,סידורי,199,ORDINARY_POOL,False,True,5,False,True,True,3,False,,E
+300,research_interest,שלוש מאות,cardinal_wording,אותיות אחרי,907,ORDINARY_POOL,False,True,6,True,False,False,1,False,,B
+300,research_interest,שלוש אפס אפס,digit_read,ריבוע,2048,ANCHOR,True,True,2,False,False,False,1,False,,B
+300,research_interest,שלוש אפס אפס,digit_read,סידורי,126,ORDINARY_POOL,False,True,22,True,True,True,3,False,,E
+346,research_interest,שלוש מאות ארבעים ושש,cardinal_wording,מסתתר,1875,ORDINARY_POOL,False,True,1,True,False,False,1,True,digit_permutation_partner=634,MECHANICAL_DUPLICATE
+346,research_interest,שלוש ארבע שש,digit_read,אלבם,205,ORDINARY_POOL,False,True,16,True,False,False,1,True,digit_permutation_partner=634,MECHANICAL_DUPLICATE
+350,research_interest,שלוש מאות וחמישים,cardinal_wording,אותיות אחרי,1463,ORDINARY_POOL,False,True,2,True,False,False,1,False,,B
+350,research_interest,שלוש חמש אפס,digit_read,אתבש,590,ANCHOR,True,True,22,True,True,True,3,False,,E
+363,research_interest,שלוש שש שלוש,digit_read,אלבם,222,ANCHOR,True,True,27,True,True,True,3,False,,E
+420,research_interest,ארבע שתיים אפס,digit_read,סידורי,148,ANCHOR,True,True,19,True,False,False,1,True,digit_permutation_partner=240,MECHANICAL_DUPLICATE
+455,research_interest,ארבע חמש חמש,digit_read,סידורי,123,ANCHOR,True,True,32,True,True,True,3,False,,E
+466,research_interest,ארבע מאות שישים ושש,cardinal_wording,אטבח,1024,ANCHOR,True,True,4,False,False,False,1,False,,B
+466,research_interest,ארבע שש שש,digit_read,אתבש,718,ORDINARY_POOL,False,True,27,True,True,True,3,False,,E
+466,research_interest,ארבע שש שש,digit_read,סידורי,123,ANCHOR,True,True,32,True,True,True,3,False,,E
+500,research_interest,חמש מאות,cardinal_wording,אותיות לפני,972,ORDINARY_POOL,False,True,8,True,False,False,1,False,,B
+500,research_interest,חמש אפס אפס,digit_read,מסתתר,490,ORDINARY_POOL,False,True,19,True,True,True,3,False,,E
+500,research_interest,חמש אפס אפס,digit_read,סידורי,108,ORDINARY_POOL,False,True,21,True,True,True,3,False,,E
+501,research_interest,חמש מאות ואחת,cardinal_wording,אלבם,474,ANCHOR,True,True,31,True,False,False,1,False,,B
+501,research_interest,חמש אפס אחד,digit_read,גדול,502,ORDINARY_POOL,False,True,30,True,True,True,3,False,,E
+501,research_interest,חמש אפס אחד,digit_read,רגיל,502,ORDINARY_POOL,False,True,30,True,True,True,3,True,method_equiv_with=גדול,MECHANICAL_DUPLICATE
+521,research_interest,חמש שתיים אחד,digit_read,סידורי,131,ORDINARY_POOL,False,True,14,False,False,False,1,False,,B
+526,research_interest,חמש מאות עשרים ושש,cardinal_wording,אלבם,670,ORDINARY_POOL,False,True,19,True,False,False,1,False,,B
+526,research_interest,חמש שתיים שש,digit_read,מסתתר,812,ORDINARY_POOL,False,True,6,True,False,False,1,False,,B
+620,research_interest,שש מאות ועשרים,cardinal_wording,סידורי,170,ORDINARY_POOL,False,True,28,False,True,True,3,False,,E
+634,research_interest,שש שלוש ארבע,digit_read,אלבם,205,ORDINARY_POOL,False,True,16,True,False,False,1,True,digit_permutation_partner=463,MECHANICAL_DUPLICATE
+775,research_interest,שבע שבע חמש,digit_read,אלבם,222,ANCHOR,True,True,27,True,True,True,3,False,,E
+775,research_interest,שבע שבע חמש,digit_read,מסתתר,1024,ANCHOR,True,True,4,False,False,False,1,False,,B
+111,research_interest,מאה ואחת עשרה,cardinal_wording,מסתתר,972,ORDINARY_POOL,False,True,8,True,False,False,1,False,,B
+111,research_interest,אחד אחד אחד,digit_read,ריבוע,69,ORDINARY_POOL,False,True,13,True,False,False,1,False,,B
+222,research_interest,מאתיים עשרים ושתיים,cardinal_wording,אלבם,1692,ORDINARY_POOL,False,True,25,True,True,True,3,False,,E
+222,research_interest,שתיים שתיים שתיים,digit_read,גדול,3960,ORDINARY_POOL,False,True,29,True,True,True,3,False,,E
+430,research_interest,ארבע מאות ושלושים,cardinal_wording,סידורי,170,ORDINARY_POOL,False,True,28,False,True,True,3,False,,E
+430,research_interest,ארבע שלוש אפס,digit_read,אטבח,370,ANCHOR,True,True,37,True,True,True,3,False,,E

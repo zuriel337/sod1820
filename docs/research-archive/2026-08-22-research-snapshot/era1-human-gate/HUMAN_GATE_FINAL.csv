@@ -1,0 +1,5 @@
+item,count,decision_needed,impacts
+"ר""ת (רת) candidate method -- anchor value 644",18,"לאשר את 644 כ-anchor למחקר-המשך (ולא כהגדרת-שיטה סופית), או להשאיר candidate סתום לצמיתות?",registry decision (לא מוסיפים ל-gematria_methods בלי אישור מפורש)
+203 historical_method_claim mismatches -- blanket policy,203,"מדיניות אחת: legacy/unverified כקבוצה שלמה, או בדיקה פרטנית מדגמית (מומלץ: method_alias_issue=21 + wrong_expression_boundary=11 -- 32 השורות הכי-פתירות)?","משמעות-נתון (interpretation), לא הצגה-לציבור (השורות כבר לא public_core ברובן)"
+WhatsApp rows referencing real named people -- sensitive content,6,אישור-אדמין ידני נדרש לכל שורה לפני כל שימוש/הצגה כלשהי (רצח/פרטים-אישיים של אנשים אמיתיים בשמם).,הצגה-לציבור + משמעות-נתון + פרטיות
+Genuinely unresolved single row ('יהוה בעת ההיא'),1,"לא דחוף -- רק לתעד כ-thematic_corpus עם temporal-reference מעורפל, אלא אם צוריאל רוצה לסווג אחרת.",none -- נמוך-סיכון

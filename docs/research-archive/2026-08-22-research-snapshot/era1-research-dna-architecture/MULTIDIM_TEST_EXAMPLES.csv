@@ -1,0 +1,21 @@
+id,phrase,source,corpus_role,research_package_cluster,research_package_availability,method_mention_type,method_claim_status,numeric_word_category,numeric_word_value,yeartime_category,year_hebrew,year_gregorian
+13f53193-af50-446c-bc2f-2868958f0ad4,סוד המשיח האחרון 1335-גדול -לפי-אחת,excel_import,archival_raw,none,deep_research,multi_method_instruction,unresolved_mismatch,mixed_numeric_phrase,,,,
+15154a3e-4f93-4245-877c-af9741d0d62c,המלך 1335- גדול ואותיות -לפי אחד,excel_import,archival_raw,none,deep_research,multi_method_instruction,unresolved_mismatch,ambiguous,,,,
+1eb79907-ce2f-48d2-8246-4d96f450c3b1,לי דרגת 11111 - משולש -לפי אחד,excel_import,personal_or_restricted,messianic_claim_linked,internal_only,multi_method_instruction,unresolved_mismatch,ambiguous,,,,
+228d9b06-5b9e-41af-8986-4bb356f4d0dc,1335 1290 התגלותי כמשיחך - לפני לפי אחד,excel_import,personal_or_restricted,messianic_claim_linked,internal_only,lexical_use,not_a_method_claim,ambiguous,,,,
+2de7b823-d34a-4c67-a991-e93d49ee66f1,סוד המשיח 1820 - מסתתר גדול -לפי אחת,excel_import,thematic_corpus,none,deep_research,multi_method_instruction,unresolved_mismatch,ambiguous,,,,
+315c8cb4-291b-4e54-b3dc-eb914fcc9c02,1335 1290 עד עת קץ סוד התגלותי - לפני - לפי אחד,excel_import,personal_or_restricted,messianic_claim_linked,internal_only,lexical_use,not_a_method_claim,ambiguous,,,,
+3b986387-7e4a-4683-80f1-0fd41443a659,תרגיל למשיחי - מסתתר = עשרה בטבת,excel_import,thematic_corpus,none,deep_research,multi_method_instruction,no_claim_verified,mixed_numeric_phrase,,,,
+43a3d1e3-9441-474f-a4f1-8e32f8ae1aa5,נשמתי תעלה 11111- סת - לפי אחד,excel_import,personal_or_restricted,messianic_claim_linked,internal_only,candidate_method,candidate_pending,ambiguous,,,,
+44e15865-79a5-4960-a239-896e2a781269,ביאת המשיח בשנת אלפיים חמש עשרה - אחרי,excel_import,numeric_word_construct,none,deep_research,lexical_use,not_a_method_claim,mixed_numeric_phrase,2015,year_in_phrase,,2015
+566b7ee1-5112-4188-a561-cc880b1765c4,בחרתי בך למשיחי ב2015 - מסתתר,excel_import,archival_raw,none,deep_research,multi_method_instruction,unresolved_mismatch,,,year_in_phrase,,2015
+5d797b92-41b8-47da-8aad-6903b280322c,1335- מילוי ללא -לפי אחד,excel_import,archival_raw,none,deep_research,research_instruction,no_claimed_value,ambiguous,,,,
+5f62fa57-d41f-48c6-966f-6f055ae0ed78,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים ביאת המשיח באלפיים חמש עשרה-מיקום האות -70000-מילוי =פי 5,excel_import,archival_raw,none,deep_research,multi_method_instruction,unresolved_mismatch,mixed_numeric_phrase,2015,year_in_phrase,,2015
+612a4337-3c28-4bc1-aefb-83660dd4ac9e,המלך 1335 1290- לפני 4340- איק בכר לפי- אחד,excel_import,archival_raw,none,deep_research,lexical_use,not_a_method_claim,mixed_numeric_phrase,,,,
+6672205c-8ab9-4e60-8220-d2e9d5189c54,הגואל ב2015 - מילוי גדול,excel_import,archival_raw,none,deep_research,multi_method_instruction,unresolved_mismatch,,,year_in_phrase,,2015
+6a764e42-b9dd-49b0-be8c-f31d0231593b,1335 1290 סוד מיכאל בספר דניאל - לפני -לפי אחת,excel_import,archival_raw,none,deep_research,lexical_use,not_a_method_claim,ambiguous,,,,
+6f4ec955-f04e-4e2a-9019-de4c9d6da71c,משיח 337 533 396 מסתתר לפי שלש,excel_import,archival_raw,none,deep_research,multi_method_instruction,unresolved_mismatch,ambiguous,,,,
+703f64be-a13b-4813-ab54-ae4f029b63ec,נשמת מלך המשיח תנוח עלי ב22 12 - אחרי -לפי אחד,excel_import,personal_or_restricted,messianic_claim_linked,internal_only,lexical_use,not_a_method_claim,ambiguous,,,,
+730dc473-9c0d-4b04-9d06-62ee9fd5aabf,1335 1290 התגלותי כמשיחך - מסתתר -לפי אחת,excel_import,personal_or_restricted,messianic_claim_linked,internal_only,research_instruction,no_claimed_value,ambiguous,,,,
+7e2ca998-e626-494e-8826-351ac82c3642,יהוה יערוך נר למשיח ב2015- לפני לפי אחת,excel_import,thematic_corpus,none,deep_research,lexical_use,not_a_method_claim,ambiguous,,year_in_phrase,,2015
+86a6c3b9-c2cd-4e12-ab3a-a69df29ae5e1,אתגלה בעתה בשנה החדשה ב22 12 -לי אחד - 7810- מילוי,excel_import,personal_or_restricted,messianic_claim_linked,internal_only,multi_method_instruction,unresolved_mismatch,mixed_numeric_phrase,,,,

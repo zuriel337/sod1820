@@ -1,0 +1,797 @@
+id,original_phrase,source,resolved_corpus_role,method_mention_type,n_distinct_canonical_methods,multi_method_flag,method_mentioned,canonical_method_id,research_expression,claimed_value,instruction_confidence,verification_state,has_engine_verified_mismatch,has_engine_verified_match,candidate_labels,temporal_markers
+0002e48c-696d-4bf0-aa55-0225650b1f0f,הישועה בימינו 644 - אתבש - 1100 לפני,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,אתבש,הישועה בימינו,1100,high,engine_verified_mismatch,yes,no,,לפני
+004a33ef-58e7-49f4-86f2-9b951fa082f9,הוא הצדיק הנסתר-3962- משולש,excel_import,research_vocabulary,multi_method_instruction,1,yes,משולש,רגיל,הוא הצדיק הנסתר,3962,low,engine_verified_mismatch,yes,no,,
+01625343-f922-4dcf-84b6-a676bfb7dcb3,יהיה אחד * 26 - מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,יהיה אחד,26,low,engine_verified_mismatch,yes,no,,
+017f5051-4f19-4408-b190-b75ed24966e0,לא יאמינו למשיח האחרון אחרי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+0201af93-bb71-4453-99df-738c8bebcb44,הסוף לבנקים ב = 396 רגיל ואותיות,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לבנקים ב =,396,low,engine_verified_mismatch,yes,no,,
+02414171-733c-4f7c-82d1-d48995fb78bd,אמלוך באלפיים שש עשרה-מסתתר =פי 5,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,אמלוך באלפיים שש עשרה,,low,not_applicable,no,no,,
+02e2f7b3-a0b2-4467-b395-935d75f643a1,דמשק תיפל בית מקדש 3850 ריבוע,excel_import,numeric_word_construct,multi_method_instruction,1,yes,ריבוע,רגיל,דמשק תיפל בית מקדש,3850,low,engine_verified_mismatch,yes,no,,
+03288505-b54e-4f9f-81b3-40bc7c4aca53,אלף עד תיו במילוי גדול,promoted:raw_docx_v2,thematic_corpus,research_instruction,1,no,מילוי גדול,מילוי גדול,אלף עד תיו ב,,low,not_applicable,no,no,,
+03b15a06-8df1-4f04-b278-324316385879,נשמת דויד המשיח האחרון לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+03bc233b-def3-48ee-abbf-59a093573a43,הסוף לסוחרי העבדים ב =1692 ריבוע רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,ריבוע|רגיל,רגיל|רגיל,הסוף לסוחרי העבדים ב =|הסוף לסוחרי העבדים ב =,1692|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+03d6a104-c442-4898-b6d4-01ec6cd87354,סוד 533 337 - פי 5 - מסתתר 14370 - לפני 11180 - ריבוע 33070,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|ריבוע,מסתתר|ריבוע,סוד 533 337 - פי 5|14370 - לפני 11180,14370|33070,high|high,engine_verified_mismatch|not_verifiable,yes,no,,לפני
+03dc422d-0273-4b81-8ecf-9e991401d45c,יהוה הוה וה ה הכפלה,excel_import,thematic_corpus,research_instruction,1,no,הכפלה,הכפלה,יהוה הוה וה ה,,low,not_applicable,no,no,,
+03e607cb-f37b-45e2-a9fa-e68c37c4440f,סוד יהוה 1820 סופי תיבות (אחת) 1337 לפני,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+05cf1e44-a9e7-48f4-ae4a-b192d56c31df,ביאתי לציון מילוי ללא,excel_import,research_vocabulary,research_instruction,1,no,מילוי,מילוי,ביאתי לציון,,low,not_applicable,no,no,,
+06123052-6a8e-48ed-bdfe-5793a3104092,מילוי 7790\ כִּי הִנֵּה הַמְּלָכִים נוֹעֲדוּ עָבְרוּ יַחְדָּו,excel_import,thematic_corpus,method_result_claim,1,no,מילוי,מילוי,,7790,high,not_applicable,no,no,,
+0798945c-59ef-486a-a8d6-9109cb60e9aa,משבר מניות עולמי = ריבוע,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,משבר מניות עולמי =,,low,not_applicable,no,no,,
+07e79df5-dd2b-4139-886a-da9dbfe4de73,המלך ימלך אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+07f3f6ab-dc74-45dd-9de5-443e992c6cb3,אימתי (רגיל ו ∆ ),excel_import,thematic_corpus,research_instruction,1,no,רגיל,רגיל,אימתי,,low,not_applicable,no,no,,
+081ba72b-39e1-49df-8bd4-0a58bbe7e9d7,644 363 533 1820 781 אתבש,excel_import,numeric_word_construct,research_instruction,1,no,אתבש,אתבש,644 363 533 1820 781,,low,not_applicable,no,no,,
+082666cb-6d22-4e9d-bc60-ad0ab0cf35a0,סוד הגדול בעולם- 533 אלבם,excel_import,research_vocabulary,multi_method_instruction,2,yes,גדול|אלבם,גדול|אלבם,סוד ה|בעולם- 533,|,low|low,not_applicable|not_applicable,no,no,,
+08b05a76-25de-47a3-b89f-614d2198737c,"וְקָרָאת אֶתְכֶם הָרָעָה,בזמן הזה -רגיל ומסתתר -1820- מילוי ללא- 1118-אלבם",excel_import,thematic_corpus,multi_method_instruction,4,yes,רגיל|מסתתר|מילוי|אלבם,רגיל|מסתתר|מילוי|אלבם,"וְקָרָאת אֶתְכֶם הָרָעָה,בזמן הזה|ו|1820|ללא- 1118",|1820||,low|high|low|low,not_applicable|engine_verified_mismatch|not_applicable|not_applicable,yes,no,,
+0954e5f1-14ee-4acd-afa2-7041667d5872,בעת ההיא . יהוה יקבץ את עם ישראל משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,בעת ההיא . יהוה יקבץ את עם ישראל,,low,not_applicable,no,no,,
+09817eed-2a59-4a6d-8e06-01b23e1c2132,המשיח בעוד 29 יום -לפני -3630-רגיל ומסתתר -=פי 5,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,המשיח בעוד 29 יום -לפני|ו,3630|,low|low,engine_verified_mismatch|not_applicable,yes,no,,לפני
+0a3f754f-cce7-4ad8-8682-cdfa4c4e5532,שופר גדול - קץ גלות,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,שופר,,low,not_applicable,no,no,,
+0a45eeb1-86d0-4d88-87cf-af08d9bc4129,הוא עבד יהוה הנאמן בעתה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+0a7a18b1-758a-4d7b-abdd-bd7a739d8b24,התגלות הגואל מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,התגלות הגואל,,low,not_applicable,no,no,,
+0b7fd319-4a77-4060-beeb-0a4888d7d157,סוף לאבטלה בימינו = 363 מסתתר רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר|רגיל,רגיל|רגיל,סוף לאבטלה בימינו =|סוף לאבטלה בימינו =,363|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+0c9d67eb-65ad-4719-8bc1-28620a4a3690,בחרת בי אחרי,sod1820,public_core,lexical_use,0,no,,,,,,,no,no,,אחרי
+0cae3991-079c-4c2b-be4d-b9a35ddd784b,אָנֹכִי אָנֹכִי הוּא מְנַחֶמְכֶם = 1430 משולש,excel_import,thematic_corpus,multi_method_instruction,1,yes,משולש,רגיל,אָנֹכִי אָנֹכִי הוּא מְנַחֶמְכֶם =,1430,low,engine_verified_mismatch,yes,no,,
+0cde87bf-ad23-4541-89de-9397bf7b82db,המלכת משיח בן דוד ב 2212 -לפני =פי 5,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+0dd43e80-6c87-439a-9e89-f2665629216b,אתקע שופר גדול בציון,excel_import,research_package,research_instruction,1,no,גדול,גדול,אתקע שופר,,low,not_applicable,no,no,,
+0de5b88d-49b9-4feb-8de6-b0f3ae6cae61,סוד יהוה 1820 נחשף לדר האחרון אחרי,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,אחרי
+0e77037c-cdcb-46ed-b86a-9f86dfb2562c,סוד 3960 - מילוי,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי,רגיל,סוד,3960,low,engine_verified_mismatch,yes,no,,
+0e873ae8-3bd2-4a00-a5e4-4db1cb1f9e68,שנת המשיח מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,שנת המשיח,,low,not_applicable,no,no,,
+0f1a1bbc-602c-40ff-9a55-46439a58d589,אדם גדול,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,אדם,,low,not_applicable,no,no,,
+0f25d4a6-9797-4d3e-88a9-88705e660015,התמדה 506 מילוי בלבד,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי בלבד,רגיל,התמדה,506,low,engine_verified_mismatch,yes,no,,
+0fcbe92b-f4e9-490a-b88f-eea46813d515,אמחה את זכר עמלק ב 781 מילוי,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי,רגיל,אמחה את זכר עמלק ב,781,low,engine_verified_mismatch,yes,no,,
+10022285-5339-4536-a951-7f6e4f5d5d8d,אליהו הנביא והמשיח מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,אליהו הנביא והמשיח,,low,not_applicable,no,no,,
+10616358-c80b-4287-b58d-cb58842039fd,דוד המלך מסתתר 2701,excel_import,numeric_word_construct,method_result_claim,1,no,מסתתר,מסתתר,דוד המלך,2701,high,engine_verified_mismatch,yes,no,,
+1083efe8-524e-4849-a50c-81e46b2872b6,396 יגאלנו ב2015 -לפני רזא -386 -מיקום האות - 3750 רגיל,excel_import,research_vocabulary,method_result_claim,1,no,רגיל,רגיל,396 יגאלנו ב2015 -לפני רזא -386 -מיקום האות,3750,low,engine_verified_mismatch,yes,no,,לפני
+114625b6-6952-4c0a-8146-9d6293a5991f,מילוי מיכאל,wa-vip,MISSING_STRUCTURED_DATA,research_instruction,1,no,מילוי,מילוי,,,low,not_applicable,no,no,,
+115eaf29-92f0-4151-b9c1-bf48e1221d93,אישתי הרוחנית משולש מילה 18200 משולש 69069 19884,excel_import,numeric_word_construct,multi_method_instruction,2,yes,משולש מילה|משולש,משולש מילה|קדמי,אישתי הרוחנית|18200,18200|69069,high|high,not_applicable|not_verifiable,no,no,,
+12069a1b-7e61-4b41-b988-20e0081d38d2,עד מתי קץ הפלאות (רגיל ו ∆ ישר והפוך),excel_import,thematic_corpus,candidate_method,1,no,רגיל|ישר והפוך,רגיל|CANDIDATE_RAGIL_YASHAR_HAFUCH,עד מתי קץ הפלאות|ו ∆,|,low|low,not_applicable|not_applicable,no,no,ישר והפוך,
+122736a2-e8d9-40b9-be8b-88f87b51a2fd,רחמים גדולים - רגיל ומילוי - משולש 1518,excel_import,numeric_word_construct,multi_method_instruction,4,yes,גדול|רגיל|מילוי|משולש,גדול|רגיל|מילוי|קדמי,רחמים|ים|ו|רחמים,|||1518,low|low|low|high,not_applicable|not_applicable|not_applicable|engine_verified_mismatch,yes,no,,
+1238749e-14cf-4454-aa6c-5819100e3a39,אני בראתי 2600 משולש,excel_import,personal_or_restricted,multi_method_instruction,1,yes,משולש,רגיל,אני בראתי,2600,low,engine_verified_mismatch,yes,no,,
+127eecea-a61b-4b5c-a104-743e9548bd86,396 דויד בן ישי - רגיל ומסתתר - 12020 - ריבוע,excel_import,numeric_word_construct,multi_method_instruction,3,yes,רגיל|מסתתר|ריבוע,רגיל|מסתתר|ריבוע,396 דויד בן ישי|ו|12020,|12020|,low|high|low,not_applicable|engine_verified_mismatch|not_applicable,yes,no,,
+12de2d7e-66dd-4682-aa79-f21a220915af,עת שער הנון מילוי המילה,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,עת שער הנון,,low,not_applicable,no,no,,
+12edb52d-1c3d-46cd-977b-f3f9da5d8857,מיהו בן דויד ב 781- מילוי ללא,excel_import,research_vocabulary,multi_method_instruction,1,yes,מילוי,רגיל,מיהו בן דויד ב,781,low,engine_verified_mismatch,yes,no,,
+1350f9fd-a225-4a58-8d4b-03ec4b20577b,הסוף לשוק ההון בימינו = 775 רגיל ומילים,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לשוק ההון בימינו =,775,low,engine_verified_mismatch,yes,no,,
+138990ed-2077-4541-a547-972a71678919,ביאתי אתבש= 434-רגיל ומלים,excel_import,research_vocabulary,multi_method_instruction,2,yes,אתבש|רגיל,אתבש|רגיל,ביאתי|= 434,|,low|low,not_applicable|not_applicable,no,no,,
+139f1d1f-2d33-4bd0-8868-b01259bc6c2a,העבור אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+13b5a88c-b3f7-4457-8c7e-83fe98221de2,חיל בלע ויקיאנו אתבש 1100,excel_import,numeric_word_construct,method_result_claim,1,no,אתבש,אתבש,חיל בלע ויקיאנו,1100,high,not_verifiable,no,no,,
+13e6b157-ec23-4a6a-87be-70dfa31f77e3,ריבוע,promoted:raw_docx_v2,research_vocabulary,method_word_as_subject,1,no,ריבוע,ריבוע,,,low,not_applicable,no,no,,
+13f53193-af50-446c-bc2f-2868958f0ad4,סוד המשיח האחרון 1335-גדול -לפי-אחת,excel_import,archival_raw,multi_method_instruction,1,yes,גדול,רגיל,סוד המשיח האחרון,1335,low,engine_verified_mismatch,yes,no,,
+148f9811-4ec6-459f-b497-235a8d7acd3b,בשורת המשיח - אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,בשורת המשיח,,low,not_applicable,no,no,,
+14d82ba1-f0ed-462f-ac53-2e3e33a4c952,סתמים וחתמים הדברים עד עת -1400-לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+14e16a72-5ef4-4573-9eaa-68f32625d4e5,396 משיח בן דוד בזמן הזה -משולש -14370-מסתתר =פי 5,excel_import,thematic_corpus,multi_method_instruction,2,yes,משולש|מסתתר,קדמי|מסתתר,396 משיח בן דוד בזמן הזה|14370,14370|,high|low,not_verifiable|not_applicable,no,no,,
+15154a3e-4f93-4245-877c-af9741d0d62c,המלך 1335- גדול ואותיות -לפי אחד,excel_import,archival_raw,multi_method_instruction,1,yes,גדול,רגיל,המלך,1335,low,engine_verified_mismatch,yes,no,,
+15bca0e7-d661-46c1-9831-751c25d7a3a6,644 עבד יהוה - רגיל ומשולש,excel_import,archival_raw,multi_method_instruction,2,yes,רגיל|משולש,רגיל|קדמי,644 עבד יהוה|ו,|,low|low,not_applicable|not_applicable,no,no,,
+15ce7a50-3f57-40b2-9aec-654eb2498ea4,אימתי רגיל ו,sod1820,public_core,research_instruction,1,no,רגיל,רגיל,אימתי,,low,not_applicable,no,no,,
+15d2a328-6b91-4464-b0a5-3b567272ac23,ברית בין הבתרים רגיל 1331 ועוד ∆ 5430,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,ברית בין הבתרים,1331,high,engine_verified_match,no,yes,,
+161107bf-631d-4e19-931c-bf2a886efa72,גדולת יהוה - רגיל ומשולש,excel_import,thematic_corpus,multi_method_instruction,3,yes,גדול|רגיל|משולש,גדול|רגיל|קדמי,ת יהוה|ת יהוה|ו,||,low|low|low,not_applicable|not_applicable|not_applicable,no,no,,
+16213bb8-c924-4322-80f3-aff83c94b43d,צדיק נסתר בצמח- מילוי -5330-רגיל ואותיות =פי 5,excel_import,research_vocabulary,multi_method_instruction,2,yes,מילוי|רגיל,מילוי|רגיל,צדיק נסתר בצמח|5330,5330|,high|low,not_verifiable|not_applicable,no,no,,
+16239a41-0f55-4338-99c5-52dd5d1a8979,יום הגאולה יסתר - גדול 1336,excel_import,archival_raw,method_result_claim,1,no,גדול,גדול,יום הגאולה יסתר,1336,high,not_verifiable,no,no,,
+169333f2-5dc9-4820-85db-a73c65f8f85a,סוד משיח כמוס מילוי 1776,excel_import,archival_raw,method_result_claim,1,no,מילוי,מילוי,סוד משיח כמוס,1776,high,not_verifiable,no,no,,
+17014f65-11d8-4796-ae96-42c59cdc669a,מלחמת העולם תחל הקיץ מסתתר 5333 משולש,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|משולש,מסתתר|קדמי,מלחמת העולם תחל הקיץ|5333,5333|,high|low,engine_verified_mismatch|not_applicable,yes,no,,
+1725afd7-a843-473b-97b0-6c51037b0920,נפש משיחך נכספת אליך בעתה 3630 אחרי גדול,excel_import,archival_raw,research_instruction,1,no,גדול,גדול,נפש משיחך נכספת אליך בעתה 3630 אחרי,,low,not_applicable,no,no,,אחרי
+172c9282-584f-4cb1-9544-b049e69c65f4,מיהו בן דויד ∆ גדול,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,מיהו בן דויד ∆,,low,not_applicable,no,no,,
+18207155-aac9-448d-aee6-608314dcfe0b,"אֲנִי אֶהְיֶה-לּוֹ לְאָב, וְהוּא יִהְיֶה-לִּי לְבֵן; לך צמח דוד מכי ליהוה המלוכה -מילוי -רת 337",excel_import,archival_raw,candidate_method,1,no,מילוי|רת,מילוי|CANDIDATE_ROSHEI_TEVOT,"אֲנִי אֶהְיֶה-לּוֹ לְאָב, וְהוּא יִהְיֶה-לִּי לְבֵן; לך צמח דוד מכי ליהוה המלוכה|אֲנִי אֶהְיֶה-לּוֹ לְאָב, וְהוּא יִהְיֶה-לִּי לְבֵן; לך צמח דוד מכי ליהוה המלוכה",|337,low|high,not_applicable|not_applicable,no,no,רת,
+189b84ee-7eeb-4d87-ab40-cfe7a81227b2,אני מודה לך על הנסיון האחרון 717 רגיל,excel_import,thematic_corpus,method_result_claim,1,no,רגיל,רגיל,אני מודה לך על הנסיון האחרון,717,low,engine_verified_match,no,yes,,
+18e319de-3f9b-4f09-8940-49e39440db62,מיהו המשיח האחרון בעתה אחישנה = משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,מיהו המשיח האחרון בעתה אחישנה =,,low,not_applicable,no,no,,
+18fc4035-0056-42cf-a6b6-bb9a7aff49d3,שם המשיח נסתר -מסתתר גדול,excel_import,thematic_corpus,research_instruction,1,no,מסתתר גדול,מסתתר גדול,שם המשיח נסתר,,low,not_applicable,no,no,,
+199cf66e-6864-44fe-a4da-2084eb3e726b,הסתרת המשיח ב776 אחרי גדול- 2504 מדבר רבה,excel_import,thematic_corpus,method_result_claim,1,no,גדול,גדול,הסתרת המשיח ב776 אחרי,2504,high,not_verifiable,no,no,,אחרי
+19b34a2f-8e44-41e3-a77e-cb329839bc57,: וְעֹשֶׂה חֶסֶד לִמְשִׁיחוֹ לְדָוִד וּלְזַרְעוֹ עַד עוֹלָם = 1430 רגיל,excel_import,thematic_corpus,method_result_claim,1,no,רגיל,רגיל,וְעֹשֶׂה חֶסֶד לִמְשִׁיחוֹ לְדָוִד וּלְזַרְעוֹ עַד עוֹלָם =,1430,low,engine_verified_match,no,yes,,
+19d39b18-0604-4616-b7d4-826bd6638608,אחדות ישראל 644 אותיות לפני,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אותיות לפני,רגיל,אחדות ישראל,644,low,engine_verified_mismatch,yes,no,,
+19ecac59-5322-4379-bcb4-8ffaac46e616,ביאת המשיח 2756- סת,excel_import,thematic_corpus,candidate_method,1,no,סת,רגיל,ביאת המשיח,2756,low,engine_verified_mismatch,yes,no,סת,
+1a18cb44-612b-4c16-aa9f-8c1bfbc25f4c,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת בעתה אחישנה ביאת הגואל האמתי האחרון -מילוי ללא מילה,excel_import,archival_raw,research_instruction,1,no,מילוי,מילוי,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת בעתה אחישנה ביאת הגואל האמתי האחרון,,low,not_applicable,no,no,,
+1a92a168-1a45-4b7d-bbc1-bbeb481042ab,מי צומח למלך ישראל ?מסתתר 5 - אתבש 3750,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|אתבש,מסתתר|אתבש,מי צומח למלך ישראל ?|5,5|3750,high|high,engine_verified_mismatch|not_verifiable,yes,no,,
+1b37df27-b45f-48de-818d-1ee41dcd13cb,נשמה יתירה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,נשמה,מילוי,,,low,not_applicable,no,no,,
+1b90604a-ec40-49cb-b15f-7d6a1c45cdde,הוא מסתתר בכי ליהוה המלוכה - מדבר רבה,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,הוא,,low,not_applicable,no,no,,
+1c153a98-d212-4cce-bffd-4b8e33be3515,המשיח עוזר יהוה בגאולה מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,המשיח עוזר יהוה בגאולה,,low,not_applicable,no,no,,
+1c7a632c-c810-44c3-916d-b869109db809,שנת גאולתנו 776- מילוי,excel_import,research_vocabulary,multi_method_instruction,1,yes,מילוי,רגיל,שנת גאולתנו,776,low,engine_verified_mismatch,yes,no,,
+1cb2118f-3259-457b-8e0f-5efc797f69c8,משיח הגיע 446 - אתבש 449 - 1393 396 מסתתר,excel_import,archival_raw,multi_method_instruction,2,yes,אתבש|מסתתר,אתבש|מסתתר,משיח הגיע|449 - 1393 396,449|,high|low,engine_verified_match|not_applicable,no,yes,,
+1e0ad25f-c7f2-46ca-92cd-8292f4771ff4,חטר מגזע ישי יתגלה ב2015 -לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+1e438835-5b94-467e-b1b4-e55a21aa7f6c,2660 3370 המשיח האחרון - אחרי,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,אחרי
+1eb79907-ce2f-48d2-8246-4d96f450c3b1,לי דרגת 11111 - משולש -לפי אחד,excel_import,personal_or_restricted,multi_method_instruction,1,yes,משולש,רגיל,לי דרגת,11111,low,engine_verified_mismatch,yes,no,,
+1efa97ae-774a-4293-89cb-605746b105d4,לפני,sod1820,public_core,lexical_use,0,no,,,,,,,no,no,,לפני
+20a2993c-2afb-41b9-907f-a619233a3b86,הגאלה האחרונה 1335- אתבש,excel_import,archival_raw,multi_method_instruction,1,yes,אתבש,רגיל,הגאלה האחרונה,1335,low,engine_verified_mismatch,yes,no,,
+20a8210a-88b6-4368-acee-75718908b171,לעורר רגיל - מילוי 1237,excel_import,numeric_word_construct,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,לעורר|לעורר,|1237,low|high,not_applicable|not_verifiable,no,no,,
+21eb6cdc-679f-4365-bf6e-10718cb5db78,מיהו מלך המשיח בעתה =מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,מיהו מלך המשיח בעתה =,,low,not_applicable,no,no,,
+228d9b06-5b9e-41af-8986-4bb356f4d0dc,1335 1290 התגלותי כמשיחך - לפני לפי אחד,excel_import,personal_or_restricted,lexical_use,0,no,,,,,,,no,no,,לפני
+22a85483-b93b-4579-af14-9c0b73272c71,644 במלכות - 1396 מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,644 במלכות,1396,low,engine_verified_mismatch,yes,no,,
+23036604-a1a6-47ee-a327-5e11f7c7bba7,אכרית את זרעו מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,אכרית את זרעו,,low,not_applicable,no,no,,
+23193a94-2f3f-48f0-b9ba-dac8e3519b2b,משיח פוטנציאל,excel_import,thematic_corpus,research_instruction,1,no,פוטנציאל,קדמי,משיח,,low,not_applicable,no,no,,
+235216b7-773b-4183-ac3d-92eb2bf5f3a9,1948 אליהו הנביא בימינו - מסתתר 1506,excel_import,numeric_word_construct,method_result_claim,1,no,מסתתר,מסתתר,1948 אליהו הנביא בימינו,1506,high,engine_verified_mismatch,yes,no,,
+237e91fc-b5d0-4ccf-9f27-cc868027419e,יהוה המלך האמיתי = משולש -590- רגיל ומלים,excel_import,thematic_corpus,multi_method_instruction,2,yes,משולש|רגיל,קדמי|רגיל,יהוה המלך האמיתי =|590,590|,high|low,not_verifiable|not_applicable,no,no,,
+23b8fc35-e79a-4f3e-b8d4-c611b1e66365,363 צומח בכי ליהוה המלוכה -מילוי- לפי שלוש,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,363 צומח בכי ליהוה המלוכה,,low,not_applicable,no,no,,
+23cf3a56-0cd2-43d6-9dc6-374c3bca60f9,שכינה = רגיל 385 + ∆1438 = 1820 !!,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,שכינה =,385,high,engine_verified_match,no,yes,,
+243a8c0c-ed80-4394-899d-ce5147b0fa06,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי צופן תנכי -ריבוע -=פי 5,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי צופן תנכי,,low,not_applicable,no,no,,
+24530c87-da86-47da-9d93-b75aae4daab3,0502169455 מספר הטלפון של צמח דוד -אתבש =5,excel_import,research_vocabulary,research_instruction,1,no,אתבש,אתבש,0502169455 מספר הטלפון של צמח דוד,,low,not_applicable,no,no,,
+24b60bdd-9678-489c-93ba-a352b40eccea,אור מלך המשיח שאול מסתתר 1363 אחרי,excel_import,archival_raw,method_result_claim,1,no,מסתתר,מסתתר,אור מלך המשיח שאול,1363,high,engine_verified_mismatch,yes,no,,אחרי
+24db3335-6957-463d-9a90-460720c32d30,דברי חזל דברי אלהים משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,דברי חזל דברי אלהים,,low,not_applicable,no,no,,
+251bf3a6-1028-4c69-a754-af928a7c51b4,533 יודע סודי - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,533 יודע סודי,,low,not_applicable,no,no,,
+2548ed27-3c68-44d7-898b-f6d453147052,הסוף למטוסי הקרב בימינו = 2756 מילוי רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,הסוף למטוסי הקרב בימינו =|הסוף למטוסי הקרב בימינו =,2756|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+2562b218-8f2c-4533-a519-a05e0f605736,צמח דויד בנ ישי לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+25717fd1-aced-4e95-a836-4b14059871f8,זכיתי אטבח 477 בעתה,excel_import,archival_raw,method_result_claim,1,no,אטבח,אטבח,זכיתי,477,high,not_applicable,no,no,,
+25781270-6f21-49ab-b93c-dc9fab774572,שנת 2448= לפני,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+25ac7ce3-fd62-459d-a4d2-03a159459094,- מילוי 1212 השכינה מרחפת,excel_import,research_vocabulary,method_result_claim,1,no,מילוי,מילוי,,1212,high,not_applicable,no,no,,
+26322037-306a-4725-b3bc-fac5ba0a3a79,המשיח האחרון האמיתי 396 -אטבח,excel_import,thematic_corpus,multi_method_instruction,1,yes,אטבח,רגיל,המשיח האחרון האמיתי,396,low,engine_verified_mismatch,yes,no,,
+2660ff76-72ab-4782-95f6-580342143590,1692 - מסתתר (אחד) - רגיל 2133,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|רגיל,מסתתר|רגיל,1692|אחד,|2133,low|high,not_applicable|engine_verified_mismatch,yes,no,,
+26b4de57-ef12-451b-8379-8301f4735663,644 358 -משולש,excel_import,research_vocabulary,research_instruction,1,no,משולש,קדמי,644 358,,low,not_applicable,no,no,,
+26fe9632-80a9-444e-b56e-4772e1a13798,מתי יבוא דויד בן ישי 644 אותיות לפני,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אותיות לפני,רגיל,מתי יבוא דויד בן ישי,644,low,engine_verified_mismatch,yes,no,,
+271a0658-7723-4718-9db2-b84370dbee5b,גרזן . מילוי בלבד. הרגיל 260 וכן יש 676,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מילוי בלבד|רגיל,מילוי בלבד|רגיל,גרזן|ה,|260,low|high,not_applicable|engine_verified_mismatch,yes,no,,
+272269c3-116d-47e1-947d-cd55d336eaf1,1820 סוד הגאל האחרון האמיתי- רגיל ומסתתר,excel_import,research_vocabulary,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,1820 סוד הגאל האחרון האמיתי|ו,|,low|low,not_applicable|not_applicable,no,no,,
+27a3cf72-e323-4d74-a6e0-d60f42736c78,משיח יהוה ירושלם אחרי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+27ff92c2-0616-4d52-bd31-072416422bf3,תהלת יהוה בפי - לפני =פי 5,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+283182dc-eda2-42be-b2a5-898419abf37a,יהיה דרגת היחידה 11111 -אטבח,excel_import,archival_raw,multi_method_instruction,1,yes,אטבח,רגיל,יהיה דרגת היחידה,11111,low,engine_verified_mismatch,yes,no,,
+28456ba4-6b6f-41e3-9368-11bed86eb27b,סוף לריבית = 1692 רגיל ומסתתר,excel_import,numeric_word_construct,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,סוף לריבית =|ו,1692|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+285ac82c-05ba-4e15-831a-c6bbfe23eeea,נסיון 533 אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,נסיון,533,low,engine_verified_mismatch,yes,no,,
+287a15f7-eff7-4315-bf7c-49135ebe5dcc,המשיח יבוא 776 -אתבש,excel_import,thematic_corpus,multi_method_instruction,1,yes,אתבש,רגיל,המשיח יבוא,776,low,engine_verified_mismatch,yes,no,,
+28ac61ea-df26-43b1-833d-ba285857715a,צמח דויד 644 - רת,excel_import,numeric_word_construct,candidate_method,1,no,רת,רגיל,צמח דויד,644,low,engine_verified_mismatch,yes,no,רת,
+28f17dd6-0102-4145-afa4-811ecd4d8c99,משכב זכר מילוי ללא 4340,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,משכב זכר,,low,not_applicable,no,no,,
+29125411-8bf0-48c4-83fc-97046e09f31e,המשיח לדור האחרון = משולש גדול,excel_import,thematic_corpus,research_instruction,1,no,משולש גדול,משולש גדול,המשיח לדור האחרון =,,low,not_applicable,no,no,,
+299d3386-ef1c-43db-b733-1bb0963ae4bc,סוד הגאולה סתום - ריבוע 238,excel_import,archival_raw,method_result_claim,1,no,ריבוע,ריבוע,סוד הגאולה סתום,238,high,not_verifiable,no,no,,
+29a8576d-8cc9-4163-b1db-6d152afd1b56,אני משיח יהוה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+2a29042e-1ccd-4c61-a76a-b25a1c7cf7d9,כן זה מופיע בסרטון הזה שעשיתי לפני עשור,wa-deep,MISSING_STRUCTURED_DATA,lexical_use,0,no,,,,,,,no,no,,לפני
+2a60ebb2-50cc-42d0-9a93-d664b0938066,יהוה יפיל אויבינו בימינו - משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,יהוה יפיל אויבינו בימינו,,low,not_applicable,no,no,,
+2a9cec42-4cf6-402e-9be3-d998aa032c1c,2756 - לפני,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+2bb86a84-390a-4a08-a31e-ffb21e9da4bd,גאולה 396 -אטבח,excel_import,research_vocabulary,multi_method_instruction,1,yes,אטבח,רגיל,גאולה,396,low,engine_verified_mismatch,yes,no,,
+2c2dc4a2-de37-420b-aabb-a827ed3d681a,יהוה מסתיר את הגאל האחרון -1820 מסתתר,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר,רגיל,יהוה מסתיר את הגאל האחרון,1820,low,engine_verified_mismatch,yes,no,,
+2c6fe61d-dfb4-4281-a0b6-3aaaa701b0fa,הכונו לביאת המשיח לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+2cc706c0-f091-4b63-85bf-69fa7a2952f0,בן דוד בא 644 -פליאה- 1335 -לפני,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+2d1b3784-3f23-4c3d-816a-bd3ebb2b6800,דרגתו בעתה 11111- אחרי גדול,excel_import,archival_raw,research_instruction,1,no,גדול,גדול,דרגתו בעתה 11111- אחרי,,low,not_applicable,no,no,,אחרי
+2d70c288-52e6-4850-9558-fb0f56038786,יהוה מפליא אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,יהוה מפליא,,low,not_applicable,no,no,,
+2dc0d0a9-5cf6-4639-8ac0-e55d42d9f55a,אשרי המחכה למשיח ל1335-רת --פי 5-אחרי גדול 20160,excel_import,thematic_corpus,candidate_method,2,no,רת|גדול,רגיל|גדול,אשרי המחכה למשיח ל|פי 5-אחרי,1335|20160,low|high,engine_verified_mismatch|not_verifiable,yes,no,רת,אחרי
+2ddfe7ab-ef71-4235-a12e-8258e9b481c9,סוד המשיח 533- מסתתר,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר,רגיל,סוד המשיח,533,low,engine_verified_mismatch,yes,no,,
+2de7b823-d34a-4c67-a991-e93d49ee66f1,סוד המשיח 1820 - מסתתר גדול -לפי אחת,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר גדול,רגיל,סוד המשיח,1820,low,engine_verified_mismatch,yes,no,,
+2e080574-1ada-4736-bfba-e05a0d3e9d0f,644 צומח למשיח יהוה - לפני,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+2e463dc1-94ff-4b21-a984-fae937999646,אחד ארבע שבע ושתיים (1472) רגיל 1424 - מסתתר 2216,excel_import,numeric_word_construct,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,אחד ארבע שבע ושתיים|1424,1424|2216,high|high,engine_verified_match|engine_verified_mismatch,yes,yes,,
+2e9af27f-9afa-482f-a2b4-30fb9a44d226,717 משיח בן דויד אתבש,excel_import,archival_raw,research_instruction,1,no,אתבש,אתבש,717 משיח בן דויד,,low,not_applicable,no,no,,
+2f01418e-4635-46b0-af4b-7805f6fb66c9,"וְקָרָאת אֶתְכֶם הָרָעָה,ב--משולש - 4340- אטבח",excel_import,thematic_corpus,multi_method_instruction,2,yes,משולש|אטבח,קדמי|אטבח,"וְקָרָאת אֶתְכֶם הָרָעָה,ב|4340",4340|,high|low,not_verifiable|not_applicable,no,no,,
+2f43b8d1-eb7c-4624-9b87-7b1de1010271,הסוף לטרור בימינו = 717 רגיל ומילים,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לטרור בימינו =,717,low,engine_verified_mismatch,yes,no,,
+2fad301c-3ee1-4207-95a1-9c6965f95cf4,סוד הגאולה מילוי בלבד 776,excel_import,archival_raw,method_result_claim,1,no,מילוי בלבד,מילוי בלבד,סוד הגאולה,776,high,not_applicable,no,no,,
+2fd1e12c-1b19-47b8-b34d-f449307bb1a5,רוח המשיח מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,רוח המשיח,,low,not_applicable,no,no,,
+300fab2b-ec2d-47ff-8286-d4d5c7693d9b,בן דויד יתגלה לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+302c64ed-825c-468f-aac8-650b626a35d7,גִימַטְרִיָּה- תּוֹרָה - מסתתר - רגיל 888,excel_import,thematic_corpus,multi_method_instruction,2,yes,מסתתר|רגיל,מסתתר|רגיל,גִימַטְרִיָּה- תּוֹרָה|גִימַטְרִיָּה- תּוֹרָה,|888,low|high,not_applicable|not_verifiable,no,no,,
+31037963-a9af-4f22-8954-c974d819ffa1,הסוף לשליטים = 775 מסתתר רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר|רגיל,רגיל|רגיל,הסוף לשליטים =|הסוף לשליטים =,775|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+313e1a82-607c-47aa-be69-0a62423a0a03,מסתתר,auto:תיעוד אירועים wp36103,thematic_corpus,method_word_as_subject,1,no,מסתתר,מסתתר,,,low,not_applicable,no,no,,
+313e471d-9ded-4f4d-b822-a018f56b676f,שיר לרעיתי 336 מיקום של מילוי,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,שיר לרעיתי 336 מיקום של,,low,not_applicable,no,no,,
+315c8cb4-291b-4e54-b3dc-eb914fcc9c02,1335 1290 עד עת קץ סוד התגלותי - לפני - לפי אחד,excel_import,personal_or_restricted,lexical_use,0,no,,,,,,,no,no,,לפני
+320da36e-68da-411b-800a-349d64a2b3ff,"אֲנִי אֶהְיֶה-לּוֹ לְאָב, וְהוּא יִהְיֶה-לִּי לְבֵן; לצמח -אחרי -1139-רגיל",excel_import,thematic_corpus,method_result_claim,1,no,רגיל,רגיל,"אֲנִי אֶהְיֶה-לּוֹ לְאָב, וְהוּא יִהְיֶה-לִּי לְבֵן; לצמח -אחרי",1139,low,not_verifiable,no,no,,אחרי
+32362db7-9bcb-4fda-b9ae-ee5072a68dbc,יהוה יפיל אויבינו - מילוי דה מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי|מילוי,מילוי|מילוי,יהוה יפיל אויבינו|דה,|,low|low,not_applicable|not_applicable,no,no,,
+32467d9b-feb9-452f-ad2a-8ec399d85edf,צמח משיח בן דויד מצפה לשכינה =1118- אתבש,excel_import,thematic_corpus,multi_method_instruction,1,yes,אתבש,רגיל,צמח משיח בן דויד מצפה לשכינה =,1118,low,engine_verified_mismatch,yes,no,,
+32b0a61e-471b-41c2-b496-cdd61527610e,דמשק תפל משולש,excel_import,research_vocabulary,research_instruction,1,no,משולש,קדמי,דמשק תפל,,low,not_applicable,no,no,,
+32e2de1d-c9af-4017-9c11-b599a5f92373,"וּבָא לְצִיּוֹן גּוֹאֵל, וּלְשָׁבֵי פֶשַׁע בְּיַעֲקֹב--נְאֻם, יְהוָה ליהוה בחמשת אלפים שבע מאות שבעים ושש- משולש גדול",excel_import,archival_raw,research_instruction,1,no,משולש גדול,משולש גדול,"וּבָא לְצִיּוֹן גּוֹאֵל, וּלְשָׁבֵי פֶשַׁע בְּיַעֲקֹב--נְאֻם, יְהוָה ליהוה בחמשת אלפים שבע מאות שבעים ושש",,low,not_applicable,no,no,,
+339a2c5d-64dd-4df3-9633-32ca3352ba19,אופיע כמשיח יהוה האחרון = משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,אופיע כמשיח יהוה האחרון =,,low,not_applicable,no,no,,
+33cc8e53-3268-490c-a364-4b02a7eb9410,יתקע בשופר גדול בעתה,excel_import,research_package,research_instruction,1,no,גדול,גדול,יתקע בשופר,,low,not_applicable,no,no,,
+33d6d95c-7120-48ce-a6f4-d8d7abf5dea5,האמת תהיה נעדרת ב 776 = 2936 רגיל,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,האמת תהיה נעדרת ב 776 =,2936,low,engine_verified_mismatch,yes,no,,
+3409c3ff-ab03-431d-9d88-7cfbe7ab20f9,מפלת דמשק לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+34442d14-f139-48b1-9b0a-ba5451f66eba,המשיח האחרון יופיע - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,המשיח האחרון יופיע,,low,not_applicable,no,no,,
+3468e323-c44a-4acc-a3e1-455e472469a0,מלכות שמים תתגלה ב776- גדול,excel_import,research_vocabulary,multi_method_instruction,1,yes,גדול,רגיל,מלכות שמים תתגלה ב,776,low,engine_verified_mismatch,yes,no,,
+34752dc4-6d50-4950-bb0d-06d6ad3fd198,המשיח בכי לה המלוכה מילוי -אטבח 1514,excel_import,thematic_corpus,multi_method_instruction,2,yes,מילוי|אטבח,מילוי|אטבח,המשיח בכי לה המלוכה|המשיח בכי לה המלוכה,|1514,low|high,not_applicable|not_applicable,no,no,,
+353ea785-5edd-45fd-8d0d-426ef72e9429,ויבכו בכי גדול,contribution:צבי (OPOC),research_vocabulary,research_instruction,1,no,גדול,גדול,ויבכו בכי,,low,not_applicable,no,no,,
+35511f83-3e62-4ca4-bf36-250e337851e8,666 - מילוי,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,666,,low,not_applicable,no,no,,
+35b31136-af76-47bf-bb19-a3fe39f72ba1,דויד בן ישי צדיק נסתר - אטבח,excel_import,thematic_corpus,research_instruction,1,no,אטבח,אטבח,דויד בן ישי צדיק נסתר,,low,not_applicable,no,no,,
+35f8e788-bb38-4ad5-b753-98dada98b6d7,מלך המשיח גוג= מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,מלך המשיח גוג=,,low,not_applicable,no,no,,
+369b87fb-f8ef-45f5-866e-4728e1bb1947,המשיח יבא ב 776 - משולש,excel_import,archival_raw,multi_method_instruction,1,yes,משולש,רגיל,המשיח יבא ב,776,low,engine_verified_mismatch,yes,no,,
+36a9c285-ad43-44f0-8731-5a9161027fa4,בעל רוחני רק 555 2388 1202 גם אלבם משולש 2388,excel_import,numeric_word_construct,multi_method_instruction,2,yes,אלבם|משולש,אלבם|קדמי,בעל רוחני רק 555 2388 1202 גם|בעל רוחני רק 555 2388 1202 גם,|2388,low|high,not_applicable|not_verifiable,no,no,,
+371e4e62-5052-413b-95e3-127c80be968f,סתר יהוה -מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,סתר יהוה,,low,not_applicable,no,no,,
+3769f761-3471-48ca-97ee-26bb0421956a,משיח בן דויד ימלך לפני- 396 אות שניה,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+37be8cb2-6bb6-47a4-b45c-c09e6325029c,רצון יהוה בזמן הזה =לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+37d36ee6-5eb1-420a-a678-4fabea412935,יהוה אוהב את עמו 396 - רגיל ומסתתר,excel_import,archival_raw,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,יהוה אוהב את עמו|ו,396|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+37e2acfd-72fd-4786-ad8f-3cb99932f6b1,- משולש יהוה ישיש בימינו,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,,,low,not_applicable,no,no,,
+37fc0e51-e580-4bbd-bc8c-0c44aa4f82ec,הסוף לגזענות = 717 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לגזענות =,717,low,engine_verified_match,no,yes,,
+381331b6-6a40-4acd-8bb4-4cf461360540,שנת ביאת המשיח האחרון 776 - 1212 רת,excel_import,archival_raw,candidate_method,1,no,רת,רגיל,שנת ביאת המשיח האחרון 776,1212,low,engine_verified_mismatch,yes,no,רת,
+38a64786-643a-43a0-a4db-53c84ecb0b47,משיח אמיתי בעתה מילוי ללא מילה,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,משיח אמיתי בעתה,,low,not_applicable,no,no,,
+38adf918-fbb1-45a5-ac75-023a5deeffb8,יוד ספירות - אתבש 358,excel_import,numeric_word_construct,method_result_claim,1,no,אתבש,אתבש,יוד ספירות,358,high,not_verifiable,no,no,,
+38cb2fdc-6649-475e-8949-446f381ae296,יהוה ימליך אותי ב2016 -ריבוע -,excel_import,thematic_corpus,multi_method_instruction,1,yes,ריבוע,רגיל,יהוה ימליך אותי ב,2016,low,engine_verified_mismatch,yes,no,,
+38f354ac-7948-4a7b-b632-b8c9c94b71b9,אנחנו בחלום כבר אלבם. 2368,excel_import,numeric_word_construct,research_instruction,1,no,אלבם,אלבם,אנחנו בחלום כבר,,low,not_applicable,no,no,,
+39984aa0-f511-4780-b7d2-49c799907b3e,משיח בן דוד. גדול,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,משיח בן דוד,,low,not_applicable,no,no,,
+39d27c2f-3147-4c77-a0dc-0432a78b2f67,רוח אלהים אותיות אחרי - 3333 מילוי דה מילוי,excel_import,numeric_word_construct,multi_method_instruction,2,yes,אותיות אחרי|מילוי|מילוי,אותיות אחרי|מילוי|מילוי,רוח אלהים|3333|דה,3333||,high|low|low,engine_verified_mismatch|not_applicable|not_applicable,yes,no,,
+3a599c63-051d-4031-bdd0-63e48f77222d,דרגת גואל אחרון 111110 -אתבש - 1118 - 1118 - 1958,excel_import,archival_raw,multi_method_instruction,1,yes,אתבש,אתבש,דרגת גואל אחרון,1118,high,not_verifiable,no,no,,
+3a931237-83b0-434c-870e-6ff0a7752e50,דירה בתחתונים ליהוה בימינו אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,דירה בתחתונים ליהוה בימינו,,low,not_applicable,no,no,,
+3a957d25-875c-4886-b49d-a44ee1dc0349,הגאולה ברחמים (רגיל ו ∆ ) ריבוע 1331,excel_import,archival_raw,multi_method_instruction,2,yes,רגיל|ריבוע,רגיל|ריבוע,הגאולה ברחמים|ו ∆,|1331,low|high,not_applicable|not_verifiable,no,no,,
+3afad72f-0422-4e8e-b7f1-c81c7fd7a1fc,בשורת הגאולה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+3b6d22c7-7f1f-4f12-8dc0-8bdddf6e8af3,ריבוע 396 -10000-רגיל -פי 5 - משולש 37000,excel_import,research_vocabulary,multi_method_instruction,3,yes,ריבוע|רגיל|משולש,ריבוע|רגיל|קדמי,396 -10000|396 -10000|פי 5,396||37000,high|low|high,not_verifiable|not_applicable|not_verifiable,no,no,,
+3b6ebafb-3f98-4f08-b45b-f3891e7f4596,עם קשה עורף אנחנו ב = 988 רגיל = עשרה בטבת,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,עם קשה עורף אנחנו ב =,988,low,engine_verified_match,no,yes,,
+3b986387-7e4a-4683-80f1-0fd41443a659,תרגיל למשיחי - מסתתר = עשרה בטבת,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,ת|למשיחי,|,low|low,not_applicable|not_applicable,no,no,,
+3b9c1c44-84bc-4485-b74f-fb9f066e03aa,644 אתבש,excel_import,numeric_word_construct,research_instruction,1,no,אתבש,אתבש,644,,low,not_applicable,no,no,,
+3ba6851a-4a0a-4d74-a13a-7092448c5439,266 יהיה גואלנו בשנה הבאה - מסתתר,excel_import,archival_raw,research_instruction,1,no,מסתתר,מסתתר,266 יהיה גואלנו בשנה הבאה,,low,not_applicable,no,no,,
+3bbbfd53-f7bb-4dbd-818b-38474bef7041,הסוף לשלטון המושחת = 1335 רגיל !!,excel_import,archival_raw,method_result_claim,1,no,רגיל,רגיל,הסוף לשלטון המושחת =,1335,low,engine_verified_match,no,yes,,
+3bfe0b42-4970-4d53-abd6-f7757fbfdc1e,אני משיחו האמתי רגיל ומילוי,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,אני משיחו האמתי|ו,|,low|low,not_applicable|not_applicable,no,no,,
+3c3bc69d-f260-4f30-abd2-6ae3b831cf20,צמח דוד מצפה ל22 12 -4340-גדול,excel_import,research_vocabulary,multi_method_instruction,1,yes,גדול,רגיל,צמח דוד מצפה ל22 12,4340,low,engine_verified_mismatch,yes,no,,
+3c745b79-5f47-4c65-b5fb-a9a138d9c68d,עליית העולמות 396 אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,עליית העולמות,396,low,engine_verified_mismatch,yes,no,,
+3cf9bfb2-f4e6-46d1-b720-c6e213078651,533 337 משיח - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,533 337 משיח,,low,not_applicable,no,no,,
+3d1788b3-c9b7-433f-ae89-cf4e71df1fe6,המשיח האחרון אותיות ועוד רגיל,excel_import,thematic_corpus,research_instruction,1,no,רגיל,רגיל,המשיח האחרון אותיות ועוד,,low,not_applicable,no,no,,
+3d567577-768b-4f68-a256-a5f162780f3a,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת. ביאתי כמשיח יהוה האמיתי - אלבם,excel_import,thematic_corpus,research_instruction,1,no,אלבם,אלבם,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת. ביאתי כמשיח יהוה האמיתי,,low,not_applicable,no,no,,
+3df06f4f-6401-491f-8183-3c43261ef92c,התגלות המשיח 1335 1290=רגיל ואותיות,excel_import,archival_raw,research_instruction,1,no,רגיל,רגיל,התגלות המשיח 1335 1290=,,low,not_applicable,no,no,,
+3e6820b8-be35-48e5-b739-6a27d46c8462,כתר על ראש לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+402a7788-9483-43ac-a120-af28b3a6f264,אחרי,promoted:raw_docx_v2,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+40627db3-97e6-45bd-815d-0d418e523aeb,קץ היהדות רגיל 620 1037,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,קץ היהדות,620,high,engine_verified_match,no,yes,,
+4088aa18-5d2c-42a5-a3f8-c168ae72d5f0,ביאת המשיח האמיתי בימינו 3960 אטבח ראשי,excel_import,archival_raw,multi_method_instruction,1,yes,אטבח,רגיל,ביאת המשיח האמיתי בימינו,3960,low,engine_verified_mismatch,yes,no,,
+416cf667-a254-48eb-82e6-078dd7521e4e,מלכותו בזמן הזה ב 776 - מילוי ללא מילה -1118 אלבם,excel_import,research_vocabulary,multi_method_instruction,2,yes,מילוי|אלבם,רגיל|אלבם,מלכותו בזמן הזה ב|ללא מילה -1118,776|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+4197e2c1-3206-4d23-b45a-a2c271ea4ce3,תִּצְמַח הַיְשׁוּעָה לְיִשְׂרָאֵל מכי ליהוה המלוכה - לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+419c6a0c-a236-4021-aa1b-a25a548c47a8,גדול בתורה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,,,low,not_applicable,no,no,,
+42191a1c-f41c-4ea8-adb8-91650c4fa305,2660 3370 בזמן הזה -מסתתר- מילוי ללא 2212,excel_import,research_vocabulary,multi_method_instruction,2,yes,מסתתר|מילוי,מסתתר|מילוי,2660 3370 בזמן הזה|2660 3370 בזמן הזה,|,low|low,not_applicable|not_applicable,no,no,,
+42ffeb12-a067-437d-ad64-4a45a07fcf89,בראשית דוד בן ישי בית הלחמי לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+43235059-8614-49cb-9add-fb673b4b002c,צמח דוד הוא האמיתי הכפלה,excel_import,thematic_corpus,research_instruction,1,no,הכפלה,הכפלה,צמח דוד הוא האמיתי,,low,not_applicable,no,no,,
+4333b4c7-5bbf-4ab5-b1f1-af5e641b1661,514 * 10 - רגיל ואתויות,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,514 * 10,,low,not_applicable,no,no,,
+434ad93e-0c2c-437c-913c-6d60dfbf0bc6,המלכתי ב2016 -רגיל ומלים,excel_import,research_vocabulary,method_result_claim,1,no,רגיל,רגיל,המלכתי ב,2016,low,engine_verified_mismatch,yes,no,,
+43555693-4832-4e6d-993c-c702fae0dd8f,לי כסא דוד משולש - פי 5 - מילוי ללא 5900,excel_import,personal_or_restricted,multi_method_instruction,2,yes,משולש|מילוי,קדמי|מילוי,לי כסא דוד|פי 5,|,low|low,not_applicable|not_applicable,no,no,,
+435c5f4f-373b-463c-8895-d033a1bfee80,אור 3370 פי 5 - רגיל לפני אחרי,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,אור 3370 פי 5,,low,not_applicable,no,no,,לפני|אחרי
+438dbda7-99bf-4c01-9bb9-6c34d2d9d479,וראית את אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+43a3d1e3-9441-474f-a4f1-8e32f8ae1aa5,נשמתי תעלה 11111- סת - לפי אחד,excel_import,personal_or_restricted,candidate_method,1,no,סת,רגיל,נשמתי תעלה,11111,low,engine_verified_mismatch,yes,no,סת,
+43bb7299-ccf8-4b34-800b-c7a1ad5d43c9,רצון יהוה את 396 - מסתתר -לפי שלוש,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר,רגיל,רצון יהוה את,396,low,engine_verified_mismatch,yes,no,,
+43c94189-133a-4244-a164-e7666e2cef53,מיהו 644-אתבש,excel_import,research_vocabulary,multi_method_instruction,1,yes,אתבש,רגיל,מיהו,644,low,engine_verified_mismatch,yes,no,,
+44b9d74a-1d57-47aa-8ce3-f742c9193ace,מלחמת דעאש מלחמת יהוה 1289 מסתתר,excel_import,archival_raw,multi_method_instruction,1,yes,מסתתר,רגיל,מלחמת דעאש מלחמת יהוה,1289,low,engine_verified_mismatch,yes,no,,
+44e15865-79a5-4960-a239-896e2a781269,ביאת המשיח בשנת אלפיים חמש עשרה - אחרי,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,אחרי
+4515e733-105a-4462-89d5-74bbd3c58c54,גדול האחים,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,,,low,not_applicable,no,no,,
+457ea907-3d22-4b88-a3d5-8072a5844596,בית המקדש יבנה בניסן מילוי גדול 7600,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי גדול,מילוי גדול,בית המקדש יבנה בניסן,7600,high,not_applicable,no,no,,
+45850c22-db48-497d-ac2e-8a2f3a1133c9,פני הדור כפני הכלב בימינו = 2756 מילוי רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,פני הדור כפני הכלב בימינו =|פני הדור כפני הכלב בימינו =,2756|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+45a8f5b0-c663-41a8-b6f7-893f268d820b,266 משולש,excel_import,numeric_word_construct,research_instruction,1,no,משולש,קדמי,266,,low,not_applicable,no,no,,
+461694f9-0afa-4f2f-8662-67c0d1517a4a,הסוף להגרלות הלוטו = 2756 ריבוע גדול,excel_import,numeric_word_construct,multi_method_instruction,1,yes,ריבוע גדול,רגיל,הסוף להגרלות הלוטו =,2756,low,engine_verified_mismatch,yes,no,,
+4699e539-a8b6-4ade-97f5-a2b065fe7989,סוף פוליטיקה = 396 רגיל,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,סוף פוליטיקה =,396,low,engine_verified_match,no,yes,,
+46a02c44-95dd-49ca-9473-ae3015029db5,ביאתי כמשיח בזמן הזה לפני - פי 5 - - אתבש 7810,excel_import,thematic_corpus,method_result_claim,1,no,אתבש,אתבש,ביאתי כמשיח בזמן הזה לפני - פי 5,7810,high,not_verifiable,no,no,,לפני
+46f5fa5e-35cb-4816-9174-d2ac1344ac25,רעידת האדמה בנפל לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+47046bc3-5594-428d-b885-14d1bac91172,הסוף לזנות = 644 רגיל,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לזנות =,644,low,engine_verified_match,no,yes,,
+47097335-f7e0-47b1-86f9-c344e3927883,"יהוה השולט על כל העולם, מסתתר 1414",excel_import,archival_raw,method_result_claim,1,no,מסתתר,מסתתר,יהוה השולט על כל העולם,1414,high,engine_verified_mismatch,yes,no,,
+4734e5a2-34e9-4147-86e0-548d841eee2e,- לפני הפליאה 3960 6440 3580 2660 5140 7810 20150,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+47464be8-191d-4496-9a89-a5eed8a64e6f,סמוך לימות המשיח דבר גדול בא. = 1227,excel_import,archival_raw,research_instruction,1,no,גדול,גדול,סמוך לימות המשיח דבר,,low,not_applicable,no,no,,
+47b44e70-9e25-4614-846e-0f33a65db361,מתי משיח יופיע אחרון -לפני פליאה,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+47ddf011-a35e-4457-b6ab-c50b701916e2,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי תאריך ביאת אליהו הנביא והמשיח -רת -1400-קטן,excel_import,archival_raw,candidate_method,0,no,רת,CANDIDATE_ROSHEI_TEVOT,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי תאריך ביאת אליהו הנביא והמשיח,1400,high,not_applicable,no,no,רת,
+495a2f22-d89a-4962-aaa9-62df99d95b93,צמח דויד רת,sod1820,public_core,candidate_method,0,no,רת,CANDIDATE_ROSHEI_TEVOT,צמח דויד,,low,not_applicable,no,no,רת,
+4a74e1bc-f5e3-492f-8624-291ab29fe579,מלכות דוד אחרי גדול,excel_import,research_vocabulary,research_instruction,1,no,גדול,גדול,מלכות דוד אחרי,,low,not_applicable,no,no,,אחרי
+4abb0de5-ef2d-4189-9438-f7e93a618c98,רוח אלהים מרחפת על פני 717- לפני -5140-סת =פי 5,excel_import,research_vocabulary,candidate_method,1,no,סת,רגיל,רוח אלהים מרחפת על פני 717- לפני,5140,low,engine_verified_mismatch,yes,no,סת,לפני
+4b46a0fa-bc2a-4448-81e4-95442387996e,396 רגיל ואותיות !,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,396,,low,not_applicable,no,no,,
+4bf45bbc-91f3-478f-94df-d7de70faeacc,המלחמה תפרוץ בחודש הבא רת,excel_import,thematic_corpus,candidate_method,0,no,רת,CANDIDATE_ROSHEI_TEVOT,המלחמה תפרוץ בחודש הבא,,low,not_applicable,no,no,רת,
+4c419c17-7bed-4a16-a39f-ed6195517727,מתאוה = ריבוע רגיל -644- מילוי ללא,excel_import,research_vocabulary,multi_method_instruction,3,yes,ריבוע|רגיל|מילוי,ריבוע|רגיל|מילוי,מתאוה =|מתאוה =|644,|644|,low|high|low,not_applicable|engine_verified_mismatch|not_applicable,yes,no,,
+4d6068a6-8f2e-449e-a7cd-8c8920ad1fb9,2662 המשיח רגיל,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,2662 המשיח,,low,not_applicable,no,no,,
+4d681545-8cfb-4a2a-bfd8-288578114cf2,זה הקטן גדול יהיה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,זה הקטן,,low,not_applicable,no,no,,
+4d9580dd-a756-4dd1-84fb-72daec10bfae,וַיִּזְכֹּר אֱלֹהִים אֶת בְּרִיתוֹ אֶת אַבְרָהָם אֶת יִצְחָק וְאֶת יַעֲקֹב - פי 5 מילוי דמילוי - מילוי דמילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי דמילוי|מילוי דמילוי,מילוי דמילוי|מילוי דמילוי,וַיִּזְכֹּר אֱלֹהִים אֶת בְּרִיתוֹ אֶת אַבְרָהָם אֶת יִצְחָק וְאֶת יַעֲקֹב - פי 5|וַיִּזְכֹּר אֱלֹהִים אֶת בְּרִיתוֹ אֶת אַבְרָהָם אֶת יִצְחָק וְאֶת יַעֲקֹב - פי 5,|,low|low,not_applicable|not_applicable,no,no,,
+4d972040-0879-4004-8b13-afeef9ca42d6,גִּילִי מְאֹד בַּת צִיּוֹן הָרִיעִי בַּת יְרוּשָׁלַ‍ִם הִנֵּה מַלְכֵּךְ אנכי - 363- מסתתר -266-ניקוד,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר,מסתתר,גִּילִי מְאֹד בַּת צִיּוֹן הָרִיעִי בַּת יְרוּשָׁלַ‍ִם הִנֵּה מַלְכֵּךְ אנכי,266,high,engine_verified_mismatch,yes,no,,
+4da1ccef-8ba5-45d1-98f1-f1e538569dda,מי צמח דוד ב781 -רגיל ומשולש לפי אחת,excel_import,research_vocabulary,multi_method_instruction,2,yes,רגיל|משולש,רגיל|קדמי,מי צמח דוד ב|ו,781|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+4e26c77c-b49d-423e-9925-98909dc2fa4c,מלכות שמים 337-אחרי גדול- 3096-גדול ואותיות,excel_import,research_vocabulary,method_result_claim,1,no,גדול|גדול,גדול|גדול,מלכות שמים 337-אחרי|3096,3096|,high|low,not_verifiable|not_applicable,no,no,,אחרי
+4e4fb4f3-4ebd-462d-b6c6-e041ccdc67b0,363 396 120 781 26 שער ן מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,363 396 120 781 26 שער ן,,low,not_applicable,no,no,,
+4ec34b50-e250-4d80-bd04-e346acefd902,יהוה הוֹשִׁיעָה הַמֶּלֶךְ יַעֲנֵנוּ בְיוֹם קָרְאֵנוּ:-2756-מילוי 1202-לם=פני,excel_import,thematic_corpus,multi_method_instruction,1,yes,מילוי,מילוי,יהוה הוֹשִׁיעָה הַמֶּלֶךְ יַעֲנֵנוּ בְיוֹם קָרְאֵנוּ,1202,high,not_verifiable,no,no,,
+4f71a4f8-4480-436e-9829-1ee78e160594,לי דרגת 11111 מאליהו הנביא - ריבוע,excel_import,personal_or_restricted,research_instruction,1,no,ריבוע,ריבוע,לי דרגת 11111 מאליהו הנביא,,low,not_applicable,no,no,,
+505b8383-1122-469b-8caa-baeb6b23c8c1,לפני הפליאה,sod1820,public_core,lexical_use,0,no,,,,,,,no,no,,לפני
+509b1e3b-1b9d-46b9-8bc0-2796d1a90c3d,אליהו הנביא ימשח את 717- ריבוע,excel_import,research_vocabulary,multi_method_instruction,1,yes,ריבוע,רגיל,אליהו הנביא ימשח את,717,low,engine_verified_mismatch,yes,no,,
+50abe4db-0bf6-4a67-8a0b-49de684a11f5,מלחמת עולם נוראית 1358 מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,מלחמת עולם נוראית,1358,low,engine_verified_mismatch,yes,no,,
+50d130f9-34e8-49b4-b4a6-41f37e5423dd,גלוי גדול למשיח יהוה,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,גלוי,,low,not_applicable,no,no,,
+5168c7a4-e010-4c5b-9288-0acf7df48713,1692 המשיח מילוי,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,1692 המשיח,,low,not_applicable,no,no,,
+517d3f45-d8ba-44bc-881e-a629e8c15361,ביאתו ב781 -אטבח,excel_import,research_vocabulary,multi_method_instruction,1,yes,אטבח,רגיל,ביאתו ב,781,low,engine_verified_mismatch,yes,no,,
+51997e66-6021-42c1-b991-5fd807723be9,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי לי סודות הגאולה האמתית השלמה -לפני,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+519db5e1-ddeb-4f2d-bab9-ca991bfd1555,ישלחני במועדו משולש,excel_import,research_vocabulary,research_instruction,1,no,משולש,קדמי,ישלחני במועדו,,low,not_applicable,no,no,,
+523a577e-0b65-4dc6-a093-d88b568f8085,בית המקדש המקדש ירד ב2016 - סת,excel_import,numeric_word_construct,candidate_method,1,no,סת,רגיל,בית המקדש המקדש ירד ב,2016,low,engine_verified_mismatch,yes,no,סת,
+524e8391-c6a3-4989-bb05-8fce216a2600,בן דוד מסתתר בימינו,excel_import,research_package,research_instruction,1,no,מסתתר,מסתתר,בן דוד,,low,not_applicable,no,no,,
+5298a246-499a-46f6-804a-d0f31ffe2dbb,1335 1290 22 12 - רת -7810-גדול ומלים -1202- סת,excel_import,archival_raw,candidate_method,1,no,רת|גדול|סת,CANDIDATE_ROSHEI_TEVOT|גדול|CANDIDATE_SOFEI_TEVOT,1335 1290 22 12|7810|ומלים -1202,7810||,high|low|low,not_applicable|not_applicable|not_applicable,no,no,סת|רת,
+52a011ae-4f4d-44a2-a8d8-3a64bd5e6711,מילוי,promoted:raw_docx_v2,research_vocabulary,method_word_as_subject,1,no,מילוי,מילוי,,,low,not_applicable,no,no,,
+52cb13ed-571c-4050-ac8f-de47e419a4c7,סוד יום הגאולה 176 רגיל משולש 670 - מסתתר 152,excel_import,archival_raw,multi_method_instruction,3,yes,רגיל|משולש|מסתתר,רגיל|קדמי|מסתתר,סוד יום הגאולה|סוד יום הגאולה|670,176|670|152,low|high|high,engine_verified_match|not_verifiable|engine_verified_mismatch,yes,yes,,
+52eb5c83-ae03-4cc6-b001-443a65581b70,396 שם המשיח -לפני בן איש חי -1717 מסתתר,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר,רגיל,396 שם המשיח -לפני בן איש חי,1717,low,engine_verified_mismatch,yes,no,,לפני
+533a709b-ba41-4d99-a6cb-911e296cd4f2,נפשי נכספה אליך יהוה (משולש),excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,נפשי נכספה אליך יהוה,,low,not_applicable,no,no,,
+53745a16-b9f2-4f3a-8c9f-4e9bcd80ddf5,מצאתי דוד עבדי + רגיל ומלים,excel_import,thematic_corpus,research_instruction,1,no,רגיל,רגיל,מצאתי דוד עבדי +,,low,not_applicable,no,no,,
+538471b3-335c-4c6c-b5cf-d67ea5dd4afe,יה 396 - אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,יה,396,low,engine_verified_mismatch,yes,no,,
+538a8536-61a9-4ee7-b14e-35f47be7ceba,משיח גימטריה מסתתר - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר|מסתתר,מסתתר|מסתתר,משיח גימטריה|משיח גימטריה,|,low|low,not_applicable|not_applicable,no,no,,
+53dead65-7be8-468c-8bc4-c4a924d224d7,מספר הטלפון שלי 0502169455 - אחרי גדול - פי 5 -,excel_import,research_vocabulary,research_instruction,1,no,גדול,גדול,מספר הטלפון שלי 0502169455 - אחרי,,low,not_applicable,no,no,,אחרי
+53f0bb90-b536-4218-a3cc-b0fafb5d89e9,הסוף לאוכלי החינם ב = 363 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לאוכלי החינם ב =,363,low,engine_verified_match,no,yes,,
+5409ee4f-fd19-4b55-9f13-8bede9b94297,דוד בֶּן יִשַׁי בֵּית הַלַּחְמִי בזמן הזה - משולש מילה פי5,excel_import,thematic_corpus,research_instruction,1,no,משולש מילה,משולש מילה,דוד בֶּן יִשַׁי בֵּית הַלַּחְמִי בזמן הזה,,low,not_applicable,no,no,,
+5471d1b0-b144-4601-97cb-d97015acff25,את מי בחרת למלך המשיח בזמן הזה - אחרי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+548c43d2-5480-4777-8079-5d57ffcf1397,יהוה ימלך לעלם ועד אתבש 1335מדבר רבה,excel_import,thematic_corpus,method_result_claim,1,no,אתבש,אתבש,יהוה ימלך לעלם ועד,1335,high,engine_verified_mismatch,yes,no,,
+54cff86a-7d93-49bf-bc3e-e28801fcaafc,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת. ביאתי כמשיח יהוה האחרון- לפני-4770- איק בכר,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+54d22f48-ca06-4d8c-b3d5-f47dff1e3df0,אתה נבחרת למשיח בזמן הזה - אחרי =פי 5,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,אחרי
+54e2b7dc-5064-41d7-b84a-6d5b90cdddad,ברוך אתה יהוה אלהינו מלך העולם שֶחָלַק מחכמתו ליראיו - 3732 - גדול,excel_import,thematic_corpus,multi_method_instruction,1,yes,גדול,רגיל,ברוך אתה יהוה אלהינו מלך העולם שֶחָלַק מחכמתו ליראיו,3732,low,engine_verified_mismatch,yes,no,,
+552f9545-5e97-4908-b854-ee9055cec747,הסתר משיחו האמיתי בימינו - לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+553f7810-a315-45d7-bbae-bd58c2e95a15,1118 ביאת המשיח בעתה - מסתתר,excel_import,archival_raw,research_instruction,1,no,מסתתר,מסתתר,1118 ביאת המשיח בעתה,,low,not_applicable,no,no,,
+555ae3dc-6d06-4b17-937a-6a5ae593772c,גאולה אטבח,sod1820,public_core,research_instruction,1,no,אטבח,אטבח,גאולה,,low,not_applicable,no,no,,
+5592ab25-eb26-4f1a-b867-f935c09b50b3,אור מלך המשיח מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,אור מלך המשיח,,low,not_applicable,no,no,,
+55a13627-9968-4e3e-8cb4-613a4a2d2f70,1437 אלוהים אוהב אותך - מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,1437 אלוהים אוהב אותך,,low,not_applicable,no,no,,
+566b7ee1-5112-4188-a561-cc880b1765c4,בחרתי בך למשיחי ב2015 - מסתתר,excel_import,archival_raw,multi_method_instruction,1,yes,מסתתר,רגיל,בחרתי בך למשיחי ב,2015,low,engine_verified_mismatch,yes,no,,
+5676b8ec-36c6-4aa1-9c42-c370230c3a40,ביאתי בזמן הזה מילוי ללא,excel_import,personal_or_restricted,research_instruction,1,no,מילוי,מילוי,ביאתי בזמן הזה,,low,not_applicable,no,no,,
+56d6d492-6e7b-49b9-ac48-2530f4101700,הסוף לאטום בימינו = 358 רגיל ומילים,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לאטום בימינו =,358,low,engine_verified_mismatch,yes,no,,
+5720b3e2-07b3-4d64-9444-5124bb8c53b0,אלול 337 - ריבוע,excel_import,numeric_word_construct,multi_method_instruction,1,yes,ריבוע,רגיל,אלול,337,low,engine_verified_mismatch,yes,no,,
+5726230d-ed78-4787-b72b-b8cb42098666,משיח (רגיל ישר והפוך),excel_import,thematic_corpus,candidate_method,0,no,רגיל ישר והפוך,CANDIDATE_RAGIL_YASHAR_HAFUCH,משיח,,low,not_applicable,no,no,רגיל ישר והפוך,
+572ad645-81f2-4e6d-bc7a-d9cc2c82ba9b,396 זה 474 - מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,396 זה,474,low,engine_verified_mismatch,yes,no,,
+58088252-4ce0-4466-b133-e02c18a09511,קץ הסתר הפנים - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,קץ הסתר הפנים,,low,not_applicable,no,no,,
+5815bcbb-505a-4e80-a5f4-ecd604530070,נר נשמה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,נשמה,מילוי,נר,,low,not_applicable,no,no,,
+5823caf6-e550-4545-b9fe-d56b6515038a,שחכבמ אותיות אחרי שחכבמ מחשב חכם,wa-vip,MISSING_STRUCTURED_DATA,research_instruction,1,no,אותיות אחרי,אותיות אחרי,שחכבמ,,low,not_applicable,no,no,,
+586da8de-82a4-4123-857e-1ffa85315e1f,המחירים יאמירו בימינו = 717 רגיל ואותיות,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,המחירים יאמירו בימינו =,717,low,engine_verified_mismatch,yes,no,,
+588a09eb-7ff5-41e9-a317-d69839151a42,1118 כי ליהוה המלוכה - אטבח 1118 - (לפי אחד) - לפי אחת 1820,excel_import,archival_raw,method_result_claim,1,no,אטבח,אטבח,1118 כי ליהוה המלוכה,1118,high,not_applicable,no,no,,
+58c4bd03-4ce4-4061-aafa-164ca7a51ee2,הכרת הרע שבלב - משולש מילה 6700,excel_import,numeric_word_construct,method_result_claim,1,no,משולש מילה,משולש מילה,הכרת הרע שבלב,6700,high,not_applicable,no,no,,
+5915180e-961f-44dd-8b3a-3cd376d49234,יורד לפני התבה,promoted:raw_docx_v2,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+5a28eef1-bb78-4fc1-ba96-4a7476f5a3ae,חכמה מילוי ללא מילה מילוי רגיל 613,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מילוי|מילוי|רגיל,מילוי|מילוי|רגיל,חכמה|ללא מילה|חכמה,||613,low|low|high,not_applicable|not_applicable|engine_verified_mismatch,yes,no,,
+5a400c01-84ca-4bc5-9af1-d1c298cb9539,מי עבד יהוה הנאמן ב2015- לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+5a6ef96f-96e3-46ef-b439-f294b3e7aa72,396 צמח דוד - פי 5 - אטבח,excel_import,numeric_word_construct,research_instruction,1,no,אטבח,אטבח,396 צמח דוד - פי 5,,low,not_applicable,no,no,,
+5aae7f9f-3be2-4643-9ab7-371c5a8c58ec,המשיח יליד מרוקו אחרי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+5b661c0f-9142-420d-b88c-e451f27a8954,סוד אחרי,sod1820,public_core,lexical_use,0,no,,,,,,,no,no,,אחרי
+5bb747ae-9681-4bdb-978b-0c8fa90c35c3,1820 סוד יהוה בזמן הזה -לפני רזא,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+5be77e40-07df-4a3b-b7fc-b14f1680fb98,לגבי זה פלא גדול מאד,wa-vip,MISSING_STRUCTURED_DATA,research_instruction,1,no,גדול,גדול,לגבי זה פלא,,low,not_applicable,no,no,,
+5cdbcb7c-b8ce-45fb-942b-7cb35f3e62e9,כי גדול כבוד יהוה,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,כי,,low,not_applicable,no,no,,
+5cfcaf71-f5eb-4e18-83dd-5755c1e20e24,644 משיח בן דוד- לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+5d797b92-41b8-47da-8aad-6903b280322c,1335- מילוי ללא -לפי אחד,excel_import,archival_raw,research_instruction,1,no,מילוי,מילוי,1335,,low,not_applicable,no,no,,
+5dc939a6-97fa-471e-a31a-1615f56fa801,סודי מלך המשיח =1202 רגיל ומסתתר,excel_import,archival_raw,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,סודי מלך המשיח =|ו,1202|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+5e9103d5-fc9f-4cc3-a611-a1339fe7e57a,ראש השנה 776 - מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,ראש השנה,776,low,engine_verified_mismatch,yes,no,,
+5eae7929-111b-44c0-8b74-2356747f5fff,לי בשורת הגאולה - אחרי גדול,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,לי בשורת הגאולה - אחרי,,low,not_applicable,no,no,,אחרי
+5f62fa57-d41f-48c6-966f-6f055ae0ed78,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים ביאת המשיח באלפיים חמש עשרה-מיקום האות -70000-מילוי =פי 5,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי,רגיל,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים ביאת המשיח באלפיים חמש עשרה-מיקום האות,70000,low,engine_verified_mismatch,yes,no,,
+5f75184d-68eb-46ff-a243-be386463bc5d,אליהו הנביא עשרה בטבת (מילוי),excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,אליהו הנביא עשרה בטבת,,low,not_applicable,no,no,,
+5f97a8b1-8fdc-4321-9f26-cd43c91af687,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים. משיח בן דויד -33700-לפני =פי 5,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+612a4337-3c28-4bc1-aefb-83660dd4ac9e,המלך 1335 1290- לפני 4340- איק בכר לפי- אחד,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+613ad337-5c05-483f-8663-5746b381ceb2,משכבי זכר טמאת הערב רב בעתה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+61418c1f-daf5-488a-b7c7-b974de5b5950,644 צמח דוד בן ישי - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,644 צמח דוד בן ישי,,low,not_applicable,no,no,,
+614d3127-d9cf-45b3-be4b-d46f992bc71e,בשורת הגאולה -אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,בשורת הגאולה,,low,not_applicable,no,no,,
+6161c7cf-23a0-4c25-bb15-bc70ae7c9d39,גילוי יהוה הכפלה,excel_import,thematic_corpus,research_instruction,1,no,הכפלה,הכפלה,גילוי יהוה,,low,not_applicable,no,no,,
+61c33b63-93d3-489b-9fc3-3f308efaa72f,ימחו עמלק בעתה מילוי ללא מילה 1202,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,ימחו עמלק בעתה,,low,not_applicable,no,no,,
+6269983a-2934-4c1c-9716-6302b841ccd0,המשיח מכי לה המלוכה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+62c2f17e-9851-402f-8ee5-da3ad159a7fe,נטילת נשמה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,נשמה,מילוי,נטילת,,low,not_applicable,no,no,,
+63745d65-41df-4a29-8b41-722f36326fc2,266 644- רגיל -1202 רת,excel_import,research_vocabulary,candidate_method,1,no,רגיל|רת,רגיל|CANDIDATE_ROSHEI_TEVOT,266 644|1202,1202|,high|low,engine_verified_mismatch|not_applicable,yes,no,רת,
+642137e8-1426-4beb-8f94-bafda3690aad,ניגון = 119 (דוד המלך) מילוי 337 1537 1218 1472,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי,מילוי,ניגון = 119 (דוד המלך,337,high,not_verifiable,no,no,,
+646aa48d-8104-488a-bed1-ba93c41d0630,אשרי המחכה ל1335 -רת,excel_import,thematic_corpus,candidate_method,1,no,רת,רגיל,אשרי המחכה ל,1335,low,engine_verified_mismatch,yes,no,רת,
+64b11bab-19f1-45b2-9398-73c7e3fcb8f5,יבנה לפני,sod1820,public_core,lexical_use,0,no,,,,,,,no,no,,לפני
+64c34830-c0bb-4331-bc48-4a91bf97053a,בשורת הגאולה ב 776- מסתתר,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר,רגיל,בשורת הגאולה ב,776,low,engine_verified_mismatch,yes,no,,
+64e959c9-7127-450d-8f0d-8dd3851bd2ea,הסוף לבתי הכלא בימינו = 767 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לבתי הכלא בימינו =,767,low,engine_verified_match,no,yes,,
+64ee5eb1-2fb5-47ce-af16-ed3fba7313b1,"לוּ חָכְמוּ, יַשְׂכִּילוּ זֹאת = 3333 משולש",excel_import,thematic_corpus,multi_method_instruction,1,yes,משולש,רגיל,"לוּ חָכְמוּ, יַשְׂכִּילוּ זֹאת =",3333,low,not_verifiable,no,no,,
+6550c1ea-5b4a-49ff-b9a3-d23144990406,סוד 474 - אחרי 1335,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,אחרי
+6569e087-9a8c-4411-bb8e-28cd45153bde,יהוה גילה לי את הקץ 1335- מסתתר,excel_import,personal_or_restricted,multi_method_instruction,1,yes,מסתתר,רגיל,יהוה גילה לי את הקץ,1335,low,engine_verified_mismatch,yes,no,,
+65c63ef4-f95a-4891-9720-b758a6787082,אמשח למשיח אמיתי ב 22 12 - אתבש,excel_import,personal_or_restricted,multi_method_instruction,1,yes,אתבש,רגיל,אמשח למשיח אמיתי ב 22,12,low,engine_verified_mismatch,yes,no,,
+65dda433-da4e-4488-974f-7ca3fd4ed5e6,ביאתי כמשיח לציון ירושלם מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,ביאתי כמשיח לציון ירושלם,,low,not_applicable,no,no,,
+663e6160-1c5a-43c6-9511-5f2180ee56dd,דמשק תיפל בית מקדש 1820 רגיל,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,דמשק תיפל בית מקדש,1820,low,engine_verified_match,no,yes,,
+66442de1-5d7f-4116-a0a2-fcdccb6e75f6,הסוף לעושק = 781 מסתתר רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר|רגיל,רגיל|רגיל,הסוף לעושק =|הסוף לעושק =,781|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+66466939-6db1-443f-8597-e11809e52750,עשרים ושבע האותיות (גדול),excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,עשרים ושבע האותיות,,low,not_applicable,no,no,,
+6672205c-8ab9-4e60-8220-d2e9d5189c54,הגואל ב2015 - מילוי גדול,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי גדול,רגיל,הגואל ב,2015,low,engine_verified_mismatch,yes,no,,
+6672db06-9161-4c68-9369-e6529b433e01,ימלך בישראל 781 - משולש גדול,excel_import,numeric_word_construct,multi_method_instruction,1,yes,משולש גדול,רגיל,ימלך בישראל,781,low,engine_verified_mismatch,yes,no,,
+66fd7307-149a-4c17-b02b-2c4d31faa165,ישועת ישראל בזכות מילוי - פי 5 - אט בח 6440,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,ישועת ישראל בזכות,,low,not_applicable,no,no,,
+674e63c1-c3a8-4052-aac2-28bcfb9029cb,644 ב 2936- אטבח,excel_import,research_vocabulary,multi_method_instruction,1,yes,אטבח,רגיל,644 ב,2936,low,engine_verified_mismatch,yes,no,,
+675faae9-3568-46b3-912d-b7c298ff144d,דמשק תפל בימות המשיח אתבש 1775 רגיל,excel_import,archival_raw,multi_method_instruction,2,yes,אתבש|רגיל,אתבש|רגיל,דמשק תפל בימות המשיח|1775,1775|,high|low,not_verifiable|not_applicable,no,no,,
+6779ab75-8bcf-4af6-9bab-3e28ed6bf0cd,הסתרת 396 בזמן הזה - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,הסתרת 396 בזמן הזה,,low,not_applicable,no,no,,
+677d7f23-5e1c-4a76-add1-5b30034d36ea,תריס 2600 משולש 555 111,excel_import,numeric_word_construct,multi_method_instruction,1,yes,משולש,קדמי,תריס,555,high,not_verifiable,no,no,,
+680e8248-7251-4bcf-b5c2-7524d6426c8a,זמן ביאת המשיח בספר דניאל פרק יב 1290 1335 - סת,excel_import,research_vocabulary,candidate_method,1,no,סת,רגיל,זמן ביאת המשיח בספר דניאל פרק יב 1290,1335,low,engine_verified_mismatch,yes,no,סת,
+6892e0e6-8aa7-47d3-86a6-5bbb347b79d7,533 יודע סוד ביאת המשיח - מילוי ללא,excel_import,archival_raw,research_instruction,1,no,מילוי,מילוי,533 יודע סוד ביאת המשיח,,low,not_applicable,no,no,,
+695f1134-ac79-44d5-a625-4514731b270e,266 דוד לפני 644 סופי תיבות 1266 אטבח,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אטבח,רגיל,266 דוד לפני 644 סופי תיבות,1266,low,engine_verified_mismatch,yes,no,,לפני
+69dde4a0-6f70-42f5-b585-5c58be20eb17,גואל עתיק יומין לפני 1290 מילוי,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי,רגיל,גואל עתיק יומין לפני,1290,low,engine_verified_mismatch,yes,no,,לפני
+6a764e42-b9dd-49b0-be8c-f31d0231593b,1335 1290 סוד מיכאל בספר דניאל - לפני -לפי אחת,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+6b681bf2-7539-43a1-9a1e-6de008ffff11,במוצאי שביעית הזה ∆ אותיות אחרי 1118,excel_import,numeric_word_construct,method_result_claim,1,no,אותיות אחרי,אותיות אחרי,במוצאי שביעית הזה ∆,1118,high,engine_verified_mismatch,yes,no,,
+6bf4a4c8-a18f-41e9-861f-558168202764,סוד מלכותי פי 5 - מילוי 6440,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי,מילוי,סוד מלכותי פי 5,6440,high,not_verifiable,no,no,,
+6c21483f-499c-4a5c-bc04-207bfa5625c6,נשמה קדושה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,נשמה,מילוי,,,low,not_applicable,no,no,,
+6d2f2882-9bd7-49e9-9372-4fb853067ad3,מלכות ב2015 -אחרי גדול,excel_import,research_vocabulary,research_instruction,1,no,גדול,גדול,מלכות ב2015 -אחרי,,low,not_applicable,no,no,,אחרי
+6d30fd94-8123-4c9b-855d-5fc44a76d682,ביאת משיח יהוה ב 477- רגיל ועוד משולש,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|משולש,רגיל|קדמי,ביאת משיח יהוה ב|ועוד,477|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+6d73712d-242a-4a2f-abe1-232910491129,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת. ביאת המשיח - לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+6dc57432-5139-4912-8ade-9e3c1d155f40,המשיח יבוא באחרית הימים - אתבש - 776- לפני,excel_import,thematic_corpus,method_result_claim,1,no,אתבש,אתבש,המשיח יבוא באחרית הימים,776,high,not_verifiable,no,no,,לפני|אחרי
+6dcd3c69-896b-4e59-a268-4885c8b61611,בימינו 2880 - מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,בימינו,2880,low,engine_verified_mismatch,yes,no,,
+6e0be302-f2b5-4e76-93ef-4dde75ebc9f2,אחרי מות קדשים,promoted:raw_docx_v2,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+6ed7ad78-1d74-4690-8756-f551abfa9386,590 המשיח האחרון -לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+6f28753c-fa48-4d67-b32c-dc117f9815e4,מצמיח קרן אותיות לפני,excel_import,research_vocabulary,research_instruction,1,no,אותיות לפני,אותיות לפני,מצמיח קרן,,low,not_applicable,no,no,,
+6f4ec955-f04e-4e2a-9019-de4c9d6da71c,משיח 337 533 396 מסתתר לפי שלש,excel_import,archival_raw,multi_method_instruction,1,yes,מסתתר,רגיל,משיח 337 533,396,low,engine_verified_mismatch,yes,no,,
+6f567bf1-6fe8-4c1e-9655-7a9c9671ab72,הסוף למזומנים = 386 רגיל ואותיות,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף למזומנים =,386,low,engine_verified_mismatch,yes,no,,
+6f5a5906-52e2-4265-95c9-24cfa9ed50a2,644 משיחי האחרון האמיתי - מילוי גדול,excel_import,archival_raw,research_instruction,1,no,מילוי גדול,מילוי גדול,644 משיחי האחרון האמיתי,,low,not_applicable,no,no,,
+6fbab824-f7fa-41c8-99cd-db10718c9ee7,שלח אליהו הנביא לעמך ישראל לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+703f64be-a13b-4813-ab54-ae4f029b63ec,נשמת מלך המשיח תנוח עלי ב22 12 - אחרי -לפי אחד,excel_import,personal_or_restricted,lexical_use,0,no,,,,,,,no,no,,אחרי
+70cf753a-602b-4b11-a313-9564f64c5c19,514-רגיל ואותיות -פי 5,excel_import,research_vocabulary,research_instruction,1,no,רגיל,רגיל,514,,low,not_applicable,no,no,,
+713621dd-bf97-4333-954f-226a1d7f7591,3960 המשיח האמיתי האחרון - מסתתר גדול =- 2440- אטבח,excel_import,research_vocabulary,multi_method_instruction,2,yes,מסתתר גדול|אטבח,מסתתר גדול|אטבח,3960 המשיח האמיתי האחרון|=- 2440,|,low|low,not_applicable|not_applicable,no,no,,
+719f8189-b3e0-4e52-979c-90091b8791a4,474 הגואל - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,474 הגואל,,low,not_applicable,no,no,,
+71a1a144-8ede-49b2-96d7-59d25f8d1892,משיח יגאלנו באחרית הימים - מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,משיח יגאלנו באחרית הימים,,low,not_applicable,no,no,,אחרי
+71d82e09-a188-4027-aeae-a4ba953bbbc4,יהוה ימליך אותי ב2016 - מילוי,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי,רגיל,יהוה ימליך אותי ב,2016,low,engine_verified_mismatch,yes,no,,
+722e9a32-07f3-4ab8-b1d2-86bc1a43c8a9,פילוג העם אתבש 453,excel_import,numeric_word_construct,method_result_claim,1,no,אתבש,אתבש,פילוג העם,453,high,not_verifiable,no,no,,
+72c33f16-4b1b-4838-846e-b623c11dc276,337 יודע סוד צמח דוד המלך -איק בכר-776-סת -1437-אתבש,excel_import,research_vocabulary,candidate_method,1,no,סת|אתבש,CANDIDATE_SOFEI_TEVOT|אתבש,337 יודע סוד צמח דוד המלך -איק בכר|1437,1437|,high|low,not_applicable|not_applicable,no,no,סת,
+72f5c343-8871-46b0-8336-9b002427ce28,בשורת הגאלה לישראל מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,בשורת הגאלה לישראל,,low,not_applicable,no,no,,
+730dc473-9c0d-4b04-9d06-62ee9fd5aabf,1335 1290 התגלותי כמשיחך - מסתתר -לפי אחת,excel_import,personal_or_restricted,research_instruction,1,no,מסתתר,מסתתר,1335 1290 התגלותי כמשיחך,,low,not_applicable,no,no,,
+740723f5-fe40-427c-a12d-d89228387209,ישועתך ב781 -לפני 5900--אטבח=פי 5,excel_import,research_vocabulary,multi_method_instruction,1,yes,אטבח,רגיל,ישועתך ב781 -לפני,5900,low,engine_verified_mismatch,yes,no,,לפני
+742b893f-e58c-49aa-b2e5-8162f34d0c04,עטרת משיח בן דוד - אותיות לפני,excel_import,thematic_corpus,research_instruction,1,no,אותיות לפני,אותיות לפני,עטרת משיח בן דוד,,low,not_applicable,no,no,,
+742e62dd-4519-4486-b1b7-73eb3ac5beb7,נשמה,excel_import,public_core,method_word_as_subject,1,no,נשמה,מילוי,,,low,not_applicable,no,no,,
+744069c0-d633-4299-9ac1-82f65808092e,סוד יעקב זהות המשיח,excel_import,thematic_corpus,research_instruction,1,no,זהות,רגיל,סוד יעקב,,low,not_applicable,no,no,,
+749d7082-e2be-41c7-b385-b364fdea1be7,משיח יהוה 644 מילוי,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי,רגיל,משיח יהוה,644,low,engine_verified_mismatch,yes,no,,
+74ec0127-7282-4d6f-9e48-858757e3fbbf,צמח דוד ברחוב אחוזה 68 -רגיל ומילוי,excel_import,research_vocabulary,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,צמח דוד ברחוב אחוזה|ו,68|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+74f8536d-f0e9-49c8-92f8-0ab86abe5f75,הוא צמח בן דוד האחרון = משולש- 1134- לפני,excel_import,research_vocabulary,method_result_claim,1,no,משולש,קדמי,הוא צמח בן דוד האחרון =,1134,high,not_verifiable,no,no,,לפני
+770f6808-82b3-43c1-8555-e03372483c23,ביאת המשיח 644 בזמן הזה - מילוי,excel_import,archival_raw,research_instruction,1,no,מילוי,מילוי,ביאת המשיח 644 בזמן הזה,,low,not_applicable,no,no,,
+7725ced8-72d3-4e84-b7ec-11dd8ee92970,יהוה יתקדש בעלם ב2016= אתבש,excel_import,archival_raw,research_instruction,1,no,אתבש,אתבש,יהוה יתקדש בעלם ב2016=,,low,not_applicable,no,no,,
+77a8f069-7fff-457d-a30a-8ec1b53eed1e,יהוה רוצה דירה בתחתונים אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,יהוה רוצה דירה בתחתונים,,low,not_applicable,no,no,,
+787cee07-efff-4932-9bfa-3523fc9b809d,"לָמָּה, רָגְשׁוּ גוֹיִם וּלְאֻומִּים יֶהְגּוּ-רִיק - משולש 4444",excel_import,thematic_corpus,method_result_claim,1,no,משולש,קדמי,"לָמָּה, רָגְשׁוּ גוֹיִם וּלְאֻומִּים יֶהְגּוּ-רִיק",4444,high,not_verifiable,no,no,,
+78903aff-beff-4b56-90c8-778de5abd2a9,צמח דוד יקבל נשמה,excel_import,research_package,research_instruction,1,no,נשמה,מילוי,צמח דוד יקבל,,low,not_applicable,no,no,,
+789fcc13-9483-400d-8ea8-3e7445a1a011,רצון יהוה בתשובת ישראל ב2016 -מילוי -590-קטן,excel_import,thematic_corpus,multi_method_instruction,1,yes,מילוי,מילוי,רצון יהוה בתשובת ישראל ב,590,high,not_verifiable,no,no,,
+78a4da1b-7e34-48e9-aaa7-0855f73bfa95,משיח בן דוד יבוא ב 2504 - אחרי גדול,excel_import,archival_raw,research_instruction,1,no,גדול,גדול,משיח בן דוד יבוא ב 2504 - אחרי,,low,not_applicable,no,no,,אחרי
+78c33c6b-ea5a-4c0f-bb0c-038cc04dca2a,זעם אפי לפטיש כבד - מסתתר + רגיל 1337,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|רגיל,מסתתר|רגיל,זעם אפי לפטיש כבד|+,|1337,low|high,not_applicable|engine_verified_mismatch,yes,no,,
+78fecb55-09b2-48b5-8458-d3856b060256,סודי הגדול יחשף 776 - מסתתר,excel_import,numeric_word_construct,multi_method_instruction,2,yes,גדול|מסתתר,גדול|מסתתר,סודי ה|יחשף 776,|,low|low,not_applicable|not_applicable,no,no,,
+7973108b-4d65-4f74-a1d6-9aed7a3781cf,סערות תימן מילוי 1820 1310,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי,מילוי,סערות תימן,1820,high,engine_verified_match,no,yes,,
+797b17c7-ad25-4641-9efd-3093cdacaae0,סוד יהוה שנת 781- מילוי רגיל,excel_import,thematic_corpus,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,סוד יהוה שנת|סוד יהוה שנת,781|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+7981d9e6-27ce-4b73-8c42-70d1e23807aa,הסוף לחולים בימינו = 396 רגיל ומילים,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לחולים בימינו =,396,low,engine_verified_mismatch,yes,no,,
+79d65bfa-62e9-496c-87e3-f61182157927,2660 3370 6440 5140 5330 3960 עשרה - רגיל ומסתתר,excel_import,numeric_word_construct,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,2660 3370 6440 5140 5330 3960 עשרה|ו,|,low|low,not_applicable|not_applicable,no,no,,
+7a091554-71ab-4a41-9407-8fd288f7c128,396 יבנה את בית המקדש -רגיל ועוד מילוי,excel_import,research_vocabulary,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,396 יבנה את בית המקדש|ועוד,|,low|low,not_applicable|not_applicable,no,no,,
+7a348caf-f1bd-43db-af2d-ad6ec53fa8e6,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי סוד משיחו האמיתי -3370-לפני -4770-,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+7aac4bf5-2202-42f1-a507-6fd4b17551d1,עת 76 מילוי ללא,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי,רגיל,עת,76,low,engine_verified_mismatch,yes,no,,
+7af5acb6-60cf-4be6-a405-03ec4365ccfb,הסוף למלחמות העמים בימינו = 998 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף למלחמות העמים בימינו =,998,low,engine_verified_mismatch,yes,no,,
+7b04166d-0243-45cf-9cd9-c1cad0a044ce,אקבל את המלוכה ב 781 - לפני,excel_import,personal_or_restricted,lexical_use,0,no,,,,,,,no,no,,לפני
+7d2dc8ad-4bdc-499d-940d-f77b7ff8353e,בחרת בי - אחרי,excel_import,personal_or_restricted,lexical_use,0,no,,,,,,,no,no,,אחרי
+7d399c80-8e5a-403c-a8b9-38d215945d9f,עת הזמיר בשנה הבאה עלינו לטובה 3968 מילוי,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי,רגיל,עת הזמיר בשנה הבאה עלינו לטובה,3968,low,engine_verified_mismatch,yes,no,,
+7de333dc-a909-45eb-9a37-fbb5718eba47,יום נפלא כי ליהוה המלוכה משולש/,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,יום נפלא כי ליהוה המלוכה,,low,not_applicable,no,no,,
+7e2ca998-e626-494e-8826-351ac82c3642,יהוה יערוך נר למשיח ב2015- לפני לפי אחת,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+7e47213b-c09b-4cce-b983-29bb49d69c13,הגואל האחרון צדיק נסתר - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,הגואל האחרון צדיק נסתר,,low,not_applicable,no,no,,
+7f355712-503e-4a8a-bd42-798d024b2193,חמש שלש שלש (533) - מילוי דמילוי,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי דמילוי,רגיל,חמש שלש שלש,533,low,engine_verified_mismatch,yes,no,,
+7f57e2d6-4095-4e59-8443-8e4337ca22f4,גאולה 2212-מסתתר רגיל,excel_import,thematic_corpus,multi_method_instruction,1,yes,מסתתר|רגיל,רגיל|רגיל,גאולה|גאולה,2212|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+7f8c2ae0-4de0-436d-8805-10a779f76929,644 - מסתתר - 1424 אתבש,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|אתבש,מסתתר|אתבש,644|1424,1424|,high|low,engine_verified_mismatch|not_applicable,yes,no,,
+7f8c84b7-c204-4e85-a6e3-0ee0532c85df,2368 אתבש,excel_import,research_vocabulary,research_instruction,1,no,אתבש,אתבש,2368,,low,not_applicable,no,no,,
+7fc28dc8-6af6-4b86-a73b-20b39eb83771,337 יודע סודי- רגיל ומסתתר,excel_import,research_vocabulary,multi_method_instruction,2,yes,רגיל|מסתתר,רגיל|מסתתר,337 יודע סודי|ו,|,low|low,not_applicable|not_applicable,no,no,,
+7fef9b45-a9aa-40f5-a5e6-d14d84e5991b,עת התגלותי שנה הבאה 2626 מילוי,excel_import,personal_or_restricted,multi_method_instruction,1,yes,מילוי,רגיל,עת התגלותי שנה הבאה,2626,low,engine_verified_mismatch,yes,no,,
+7ff47346-e9ee-40db-baab-a6e6bd93a0fe,לי בשורת הגאולה השלמה- ריבוע,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,לי בשורת הגאולה השלמה,,low,not_applicable,no,no,,
+8074e53f-ca4d-43af-af2d-dc208d3e0857,מסר גדול מעת בורא עולם,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,מסר,,low,not_applicable,no,no,,
+808de4ae-bb58-40ba-bc0a-67dc681d55ba,מלחמת גוג ומגוג בעתה משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,מלחמת גוג ומגוג בעתה,,low,not_applicable,no,no,,
+80ed7679-0fbc-4fb0-9368-8682e31e25fc,337 סוד- מילוי ללא,excel_import,research_vocabulary,research_instruction,1,no,מילוי,מילוי,337 סוד,,low,not_applicable,no,no,,
+8108b24f-b1fb-498b-a8e8-48740f679bba,המלחמה תיפתח לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+8131e6c3-2407-45db-8486-87036f165a29,הגאולה תהיה בעתה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+81ea3c63-a08f-4c6f-8a5d-03e6ecf209ad,אמשח למשיח יהוה ב 22 12 -לפני,excel_import,personal_or_restricted,lexical_use,0,no,,,,,,,no,no,,לפני
+8253a548-5beb-4933-963d-b783f8c88e05,מלכותי תהיה 2015ב- 2600 רגיל ואותיות,excel_import,research_vocabulary,method_result_claim,1,no,רגיל,רגיל,מלכותי תהיה 2015ב,2600,low,engine_verified_mismatch,yes,no,,
+828a33eb-9073-41d4-b94a-847aad753b64,ביאתו ב אטבח,sod1820,public_core,research_instruction,1,no,אטבח,אטבח,ביאתו ב,,low,not_applicable,no,no,,
+83027255-ffe0-4aad-987e-7dc79219f837,האספו ואגידה לכם משולש גדול,excel_import,thematic_corpus,research_instruction,1,no,משולש גדול,משולש גדול,האספו ואגידה לכם,,low,not_applicable,no,no,,
+8363fc54-7004-4b15-bd14-1ec4760bc731,שׁוּבָה יִשְׂרָאֵל עַד יְהוָה אֱלֹהֶיךָ כִּי כָשַׁלְתָּ בַּעֲו‍ֹנֶךָ - אותיות לפני 1336,excel_import,thematic_corpus,method_result_claim,1,no,אותיות לפני,אותיות לפני,שׁוּבָה יִשְׂרָאֵל עַד יְהוָה אֱלֹהֶיךָ כִּי כָשַׁלְתָּ בַּעֲו‍ֹנֶךָ,1336,high,engine_verified_mismatch,yes,no,,
+836d1a41-3ac3-42be-894b-48961d381637,סוד יהוה מסתתר בימינו - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר|מסתתר,מסתתר|מסתתר,סוד יהוה|בימינו,|,low|low,not_applicable|not_applicable,no,no,,
+83768f7e-dd9b-422e-be0b-983968ff3f12,חייזרים מאלוהים גם מילוי 1537 - 913 אתבש,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מילוי|אתבש,מילוי|אתבש,חייזרים מאלוהים גם|1537 - 913,1537|,high|low,not_verifiable|not_applicable,no,no,,
+83f27395-39b2-4171-b663-10d57c1dc620,נִכְסְפָה וְגַם כָּלְתָה נַפְשִׁי לְחַצְרוֹת יְהוָה לִבִּי וּבְשָׂרִי יְרַנְּנוּ אֶל אֵל חָי. - מילוי - המשולש שלו,excel_import,archival_raw,multi_method_instruction,2,yes,מילוי|משולש,מילוי|קדמי,נִכְסְפָה וְגַם כָּלְתָה נַפְשִׁי לְחַצְרוֹת יְהוָה לִבִּי וּבְשָׂרִי יְרַנְּנוּ אֶל אֵל חָי|ה,|,low|low,not_applicable|not_applicable,no,no,,
+842106a9-7dd4-408d-ba51-488f0e844c0d,"""תורה חדשה"" בעתה לפני",excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+843535a8-245d-424c-b36b-e6dd9fdc5929,היום לפני הגאולה בעתה ט בטבת,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+8436d861-17fa-4717-b776-259121448882,שנת התגלותי 781- 266 מילוי האות,excel_import,personal_or_restricted,multi_method_instruction,1,yes,מילוי,רגיל,שנת התגלותי 781,266,low,engine_verified_mismatch,yes,no,,
+84c662b5-ed48-4e82-a555-c49e26d6d3d9,1335 1290 התגלותי כבן דוד האמיתי האחרון - סת,excel_import,personal_or_restricted,candidate_method,0,no,סת,CANDIDATE_SOFEI_TEVOT,1335 1290 התגלותי כבן דוד האמיתי האחרון,,low,not_applicable,no,no,סת,
+84f40dc4-4cfb-429c-a619-1e3ab76a2e12,הסתרת המשיח בזמן הזה -מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,הסתרת המשיח בזמן הזה,,low,not_applicable,no,no,,
+85b13f5e-b0ed-45bc-857b-edd9c634cd40,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי - משולש -3960- מדבר רבה,excel_import,thematic_corpus,method_result_claim,1,no,משולש,קדמי,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי,3960,high,not_verifiable,no,no,,
+85b2749d-ac5b-416b-8783-833fb7e586f8,תורת ישראל -לפני פי 5,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+85eea5ab-00cc-494f-b41d-171fe8a52227,יוקר המחיה בימינו = 424 מסתתר רגיל וגדול,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|רגיל|גדול,רגיל|רגיל|גדול,יוקר המחיה בימינו =|יוקר המחיה בימינו =|ו,424||,low|low|low,engine_verified_mismatch|not_applicable|not_applicable,yes,no,,
+86601078-1048-43ae-b74b-ebc5c77788ec,נבחרת למשיחי לדר האחרון -7810-לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+86a6c3b9-c2cd-4e12-ab3a-a69df29ae5e1,אתגלה בעתה בשנה החדשה ב22 12 -לי אחד - 7810- מילוי,excel_import,personal_or_restricted,multi_method_instruction,1,yes,מילוי,רגיל,אתגלה בעתה בשנה החדשה ב22 12 -לי אחד,7810,low,engine_verified_mismatch,yes,no,,
+86f657b4-87d3-4eae-9e7a-a13e65874d43,בן דויד בשנת הגאולה ∆ רגיל 878,excel_import,archival_raw,method_result_claim,1,no,רגיל,רגיל,בן דויד בשנת הגאולה ∆,878,high,engine_verified_match,no,yes,,
+87324094-cecc-48db-bed7-27573c090032,קריסת הכלכלה העולמית - ריבוע,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,קריסת הכלכלה העולמית,,low,not_applicable,no,no,,
+8764e97b-bbdb-4f96-8bc2-0826274a5e22,צמח דוד 644 - רת,excel_import,numeric_word_construct,candidate_method,1,no,רת,רגיל,צמח דוד,644,low,engine_verified_mismatch,yes,no,רת,
+876b136e-776e-4f45-a238-8f7752a3212b,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים. חמשת אלפים שבע מאות שבעים ושש -33750-לפני =פי 5,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+87ea2dae-6295-4af3-a4db-778dfc1d1e97,ישלח מלאכו (משולש מילה),excel_import,thematic_corpus,research_instruction,1,no,משולש מילה,משולש מילה,ישלח מלאכו,,low,not_applicable,no,no,,
+882ee3d0-e287-4022-9f87-c73053ec5c60,506 מסתתר מספר - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר|מסתתר,מסתתר|מסתתר,506|מספר,|,low|low,not_applicable|not_applicable,no,no,,
+88355db1-6cd0-4a6a-9428-1a895f843f3e,שנת 776 - מילוי דמילוי,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי דמילוי,רגיל,שנת,776,low,engine_verified_mismatch,yes,no,,
+895749e4-9499-4cc3-a4e9-cc0a57e4a137,363 396 120 781 26 ן רגיל שער נון,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,363 396 120 781 26 ן,,low,not_applicable,no,no,,
+89967ba4-b6c0-4f9b-b17d-08e2643c3ca2,המשיח יבא 776 - מילוי - משולש 6441 - מילוי ללא 2240,excel_import,archival_raw,multi_method_instruction,3,yes,מילוי|משולש|מילוי,רגיל|קדמי|מילוי,המשיח יבא|המשיח יבא|6441,776|6441|,low|high|low,engine_verified_mismatch|engine_verified_mismatch|not_applicable,yes,no,,
+89a26bb0-984e-4ba1-9ebe-4a70f31757c1,ב״שית אלף שנין תבוא הגאולה״ = 1692 רגיל !!,excel_import,archival_raw,method_result_claim,1,no,רגיל,רגיל,ב״שית אלף שנין תבוא הגאולה״ =,1692,low,engine_verified_match,no,yes,,
+89bfeb12-5ac1-4e8d-b623-c657c7fc7d35,עת 26 הגואל - אטבח,excel_import,archival_raw,research_instruction,1,no,אטבח,אטבח,עת 26 הגואל,,low,not_applicable,no,no,,
+8a1dc4d1-1109-44f0-80ce-63e4066f96f3,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים ביאת המשיח באלפיים חמש עשרה - מילוי,excel_import,archival_raw,research_instruction,1,no,מילוי,מילוי,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים ביאת המשיח באלפיים חמש עשרה,,low,not_applicable,no,no,,
+8a1ee4c3-aacc-464f-aeef-36babc59863d,סוד 1820 נסתר - מילוי,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,סוד 1820 נסתר,,low,not_applicable,no,no,,
+8a8ea75c-e6c2-4bde-a0aa-fd540bf3603b,הוא יהיה משיחך מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,הוא יהיה משיחך,,low,not_applicable,no,no,,
+8ab495eb-b0eb-41ee-8e3e-ce5ca71dac1d,פינחס - ריבוע,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,פינחס,,low,not_applicable,no,no,,
+8af3d462-b053-4c2c-aaeb-be82fa80eb12,הבורא האינסופי - ריבוע 661,excel_import,numeric_word_construct,method_result_claim,1,no,ריבוע,ריבוע,הבורא האינסופי,661,high,not_verifiable,no,no,,
+8b108e9b-6d8e-4159-98f5-2eb1deaee282,644 המשיח בעתה -רגיל ריבוע משולש,excel_import,thematic_corpus,multi_method_instruction,3,yes,רגיל|ריבוע|משולש,רגיל|ריבוע|קדמי,644 המשיח בעתה|644 המשיח בעתה|644 המשיח בעתה,||,low|low|low,not_applicable|not_applicable|not_applicable,no,no,,
+8b7574ff-e948-4ff1-98d0-6bf24d6d053d,סוד יהוה מצפן בתורה ה קדושה אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,סוד יהוה מצפן בתורה ה קדושה,,low,not_applicable,no,no,,
+8b7d3f7f-cfda-4c3f-90ec-bab1ce48c83c,"1437 סוד יהוה - מסתתר - אחס""ע 1692 - לפני 1234 - אטבח 1414",excel_import,archival_raw,multi_method_instruction,2,yes,מסתתר|אטבח,מסתתר|אטבח,"1437 סוד יהוה|אחס""ע 1692 - לפני 1234",|1414,low|high,not_applicable|not_applicable,no,no,,לפני
+8ba1df2f-6014-4184-a2eb-72755979a9c3,יהוה חשף סודו זהות המשיח אות שלישית,excel_import,thematic_corpus,research_instruction,1,no,זהות,רגיל,יהוה חשף סודו,,low,not_applicable,no,no,,
+8c19af0f-84df-4a2d-a494-3b3d3ef71090,יום נפלא לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+8c6c8172-a422-4a3b-bc9b-57a58703af9a,ארץ 291 - גדול 1101 = אני חושב שאני המשיח = 1101,excel_import,personal_or_restricted,multi_method_instruction,1,yes,גדול,גדול,ארץ,1101,high,engine_verified_match,no,yes,,
+8c9741ca-421d-447a-bfb1-2a76a1a0200d,יהוה עתיק יומין לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+8c9efbb3-c14b-4ad7-a666-026d843f4a5d,הסתר פנים -משולש מסתתר 695,excel_import,research_vocabulary,multi_method_instruction,2,yes,משולש|מסתתר,קדמי|מסתתר,הסתר פנים|הסתר פנים,|695,low|high,not_applicable|engine_verified_match,no,yes,,
+8cde057c-5ec0-4c7c-aaf4-161f6b5c9ec9,לי דרגת יחידה 11111 בעשירי בטבת - מילוי - פי 5,excel_import,personal_or_restricted,research_instruction,1,no,מילוי,מילוי,לי דרגת יחידה 11111 בעשירי בטבת,,low,not_applicable,no,no,,
+8d7f4805-ba26-4d24-afb3-a63dc20214a9,ביאתי 1335- מילוי ללא לפי -אחת,excel_import,personal_or_restricted,multi_method_instruction,1,yes,מילוי,רגיל,ביאתי,1335,low,engine_verified_mismatch,yes,no,,
+8e422141-ebdf-47d3-b7d6-19fb4881cd14,שכינתך תנוח מילוי ללא מילה,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,שכינתך תנוח,,low,not_applicable,no,no,,
+8ebcae40-964b-43a3-9524-ce8e1bd30527,יהוה מדבר - משולש - + רגיל = 1331,excel_import,archival_raw,multi_method_instruction,2,yes,משולש|רגיל,קדמי|רגיל,יהוה מדבר|+,|,low|low,not_applicable|not_applicable,no,no,,
+8f20870d-db97-45ef-a15d-c12e952b891f,הוא מלך המשיח ב2015 -אטבח,excel_import,thematic_corpus,multi_method_instruction,1,yes,אטבח,רגיל,הוא מלך המשיח ב,2015,low,engine_verified_mismatch,yes,no,,
+8f620cc3-97af-4a2f-9127-14e2e56b321b,הארת נשמה,excel_import,research_vocabulary,research_instruction,1,no,נשמה,מילוי,הארת,,low,not_applicable,no,no,,
+8fb0c065-74d1-481f-9b7f-27c8f98f5dcb,עד עת קץ 1335-גדול ומלים-לפי אחת,excel_import,archival_raw,multi_method_instruction,1,yes,גדול,רגיל,עד עת קץ,1335,low,engine_verified_mismatch,yes,no,,
+901e14fa-8e68-46d4-87ad-34a25e5319b4,קול גדול,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,קול,,low,not_applicable,no,no,,
+90286a16-68c7-4937-b3f4-20c3f9895ce4,תשועת ישראל ב2015 - מילוי גדול אות שניה 5140 - פי 5 -,excel_import,research_vocabulary,multi_method_instruction,1,yes,מילוי גדול,רגיל,תשועת ישראל ב,2015,low,engine_verified_mismatch,yes,no,,
+908835cb-2fd8-49c3-ae1a-629cd59361aa,נשמה טהורה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,נשמה,מילוי,,,low,not_applicable,no,no,,
+9094ad87-d08c-49e6-a964-40bbcb1cb3b4,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי דילוגי אתיות בתורה - לפני,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+9145a4ec-516f-4e7e-85c3-bb1480b0317c,שואה שניה בדרך (משולש),excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,שואה שניה בדרך,,low,not_applicable,no,no,,
+9170fc94-aa70-4427-99a0-d436539c4601,הסוד אסתר 710 - אתבש 690 שנחבר רגיל 1426,excel_import,numeric_word_construct,multi_method_instruction,2,yes,אתבש|רגיל,אתבש|רגיל,הסוד אסתר|690 שנחבר,690|1426,high|high,not_verifiable|engine_verified_mismatch,yes,no,,
+917dd3d5-b0d9-4d64-8af5-d8790126cdae,644 הנבחר למשיח האחרון - אתבש,excel_import,archival_raw,research_instruction,1,no,אתבש,אתבש,644 הנבחר למשיח האחרון,,low,not_applicable,no,no,,
+919ef8fe-cac7-4c32-b17a-b71effa2b052,2216 סוד המשיח- סת -4240-רגיל ומסתתר,excel_import,thematic_corpus,candidate_method,2,no,סת|רגיל|מסתתר,CANDIDATE_SOFEI_TEVOT|רגיל|מסתתר,2216 סוד המשיח|4240|ו,4240||,high|low|low,not_applicable|not_applicable|not_applicable,no,no,סת,
+91f90c74-331c-4cfb-9e48-523962de57fd,644 זרע לוט-אחרי - 1118 -אחס בטע,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+9216b91e-2453-4854-8e81-97df57c5e07c,מלך המשיח יבא מכי ליהוה המלוכה ב2016 -01300-רגיל,excel_import,thematic_corpus,method_result_claim,1,no,רגיל,רגיל,מלך המשיח יבא מכי ליהוה המלוכה ב2016,1300,low,engine_verified_mismatch,yes,no,,
+923d581e-537b-4881-be82-0849f7ace097,מלאך יהוה מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,מלאך יהוה,,low,not_applicable,no,no,,
+9252dc31-1d86-4311-9d3e-452d39c8c2df,מלך המשיח 11111- אחרי -לפי אחת,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,אחרי
+925d72bf-5a47-4d4a-9091-62d706ae10cc,כי לה המלוכה בעתה ריבוע,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,כי לה המלוכה בעתה,,low,not_applicable,no,no,,
+9273e0f7-12a5-45a0-862c-ed55911c3bd9,המלחמה תיפתח מצפון מילוי ללא,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,המלחמה תיפתח מצפון,,low,not_applicable,no,no,,
+9276e51d-96f5-4afd-ba0a-b7c1530f29bb,מִזְמוֹר שִׁיר לְיוֹם הַשַּׁבָּת: המשיח - רגיל ומילוי,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,מִזְמוֹר שִׁיר לְיוֹם הַשַּׁבָּת: המשיח|ו,|,low|low,not_applicable|not_applicable,no,no,,
+92f57f9a-b365-4a44-a2d1-ee9ac915e742,שאול המלך דויד המלך מילוי - 450 מסתתר - 375 אחרי,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מילוי|מסתתר,מילוי|מסתתר,שאול המלך דויד המלך|450,450|375,high|high,not_verifiable|engine_verified_mismatch,yes,no,,אחרי
+9310ce6b-873f-4503-b5e7-b12bb6a5be96,אחרית הימינם - פי 5 - מסתתר גדול,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר גדול,מסתתר גדול,אחרית הימינם - פי 5,,low,not_applicable,no,no,,אחרי
+9325b43d-7627-40ce-a967-ad3f8223e9e7,משיח בן דוד=ריבוע -424,excel_import,thematic_corpus,method_result_claim,1,no,ריבוע,ריבוע,משיח בן דוד=,424,high,not_verifiable,no,no,,
+93838122-3598-4f2c-8daa-5525ab0ae0c6,מלך המשיח יקבל נשמה כוללת,excel_import,thematic_corpus,research_instruction,1,no,נשמה,מילוי,מלך המשיח יקבל,,low,not_applicable,no,no,,
+93cab836-b847-4fb2-9428-7faffed0eec0,מלך המשיח בימינו אחרי גדול,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,מלך המשיח בימינו אחרי,,low,not_applicable,no,no,,אחרי
+93fcc439-b980-4385-b63c-63efca29812a,בחרתי אותך לגאול את עם ישראל ב2015 -לפני =פי 5,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+943abbba-7bd4-4578-938b-552053b026e2,533 337 -אתבש,excel_import,research_vocabulary,research_instruction,1,no,אתבש,אתבש,533 337,,low,not_applicable,no,no,,
+948be4aa-791e-4a8b-bdc5-ecd2ddc6cf29,הוא שליח יהוה 1434 ∆ - 1820 -רגיל ומשולש,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|משולש,רגיל|קדמי,הוא שליח יהוה 1434 ∆|ו,1820|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+95a0dcf9-e4d6-428b-a79c-d3ba0d2fe346,גילוי הויה הכפלה,excel_import,research_vocabulary,research_instruction,1,no,הכפלה,הכפלה,גילוי הויה,,low,not_applicable,no,no,,
+95aea439-2d56-4123-8759-104d6ed4ec5b,משולש,excel_import,public_core,method_word_as_subject,1,no,משולש,קדמי,,,low,not_applicable,no,no,,
+95c3152b-b0e8-4288-b10a-75a4ad02761a,"אֲנִי אֶהְיֶה-לּוֹ לְאָב, וְהוּא יִהְיֶה-לִּי לְבֵן; לבן דוד -לפני =פי 5",excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+95e03baf-be2d-4f33-b886-6cc7cf2a0cca,צמח המשיח מוסתר בזמן הזה -אחרי-,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+95f2d6da-07e1-45b7-9b3b-2cb4180c70c6,האמת תהיה נעדרת ב = 3096 מילוי רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,האמת תהיה נעדרת ב =|האמת תהיה נעדרת ב =,3096|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+9629738f-e4b2-4e0c-b317-eb2c8b400cd3,644 המשיח האחרון -לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+9652694a-89ff-4153-90d9-768b4700ab92,1820 ריבוע גדול,excel_import,numeric_word_construct,research_instruction,1,no,ריבוע גדול,ריבוע גדול,1820,,low,not_applicable,no,no,,
+969913dc-7a95-4275-b3ff-32a7288f21fc,אותיות אחרי,wa-vip,MISSING_STRUCTURED_DATA,method_word_as_subject,1,no,אותיות אחרי,אותיות אחרי,,,low,not_applicable,no,no,,
+96e4c102-1b0f-478f-b8de-e1a50442d6b6,הסוף לאיילי הנפט = 386 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לאיילי הנפט =,386,low,engine_verified_match,no,yes,,
+97425044-c823-4245-bb9e-6788ecd47fc0,מי עבד יהוה =משולש -152- צמח דוד,excel_import,thematic_corpus,method_result_claim,1,no,משולש,קדמי,מי עבד יהוה =,152,high,not_verifiable,no,no,,
+97a7c031-e3a0-4580-af6a-9d3770d01a14,עת התגלות המשיח בימינו לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+97c681ec-67d1-47e8-bba3-9ab8f3ab63f5,שנת לפני,sod1820,public_core,lexical_use,0,no,,,,,,,no,no,,לפני
+97dcf14a-c308-4f09-be27-6f27b3ce5d6f,יהוה ישוב לציון ברחמים ב 781- לפני הארי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+97e2daad-897b-4f26-bcda-b5351cebc64a,קריסת מטבע הדולר ב - מילוי לפני 781,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,קריסת מטבע הדולר ב,,low,not_applicable,no,no,,לפני
+98a49cd2-7a75-4a17-96cc-13baee545b82,בעת ההיא . יהוה יקבץ את עמו משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,בעת ההיא . יהוה יקבץ את עמו,,low,not_applicable,no,no,,
+98b51b3a-0988-4454-b87d-45edc36aa222,"וְזֹאת לִיהוּדָה, וַיֹּאמַר, שְׁמַע יְהוָה קוֹל יְהוּדָה, וְאֶל-עַמּוֹ תְּבִיאֶנּוּ; יָדָיו רָב לוֹ, וְעֵזֶר מִצָּרָיו תִּהְיֶה בעתה-לפני -266 -קטן",excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+98e9915f-ccb0-4d8c-a48d-39efbca12b0f,יהוה ימלך לעלם ועד אתבש 1290 מילוי,excel_import,thematic_corpus,multi_method_instruction,2,yes,אתבש|מילוי,אתבש|מילוי,יהוה ימלך לעלם ועד|1290,1290|,high|low,engine_verified_mismatch|not_applicable,yes,no,,
+99026375-63c5-4bb4-917f-fc42f6be149b,משיח יהוה בזמן הזה מסתתר - 1212 מילוי ללא,excel_import,archival_raw,multi_method_instruction,2,yes,מסתתר|מילוי,מסתתר|מילוי,משיח יהוה בזמן הזה|1212,1212|,high|low,engine_verified_mismatch|not_applicable,yes,no,,
+9964513a-9c33-4262-be50-ee422d489bf8,משיח 337 533 396 566 משולש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,משולש,רגיל,משיח 337 533 396,566,low,engine_verified_mismatch,yes,no,,
+9a3560ea-642b-4767-9133-9a7f70a94724,סכר אטאטורק מסתתר רוחב הסכר 1820 מטר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,סכר אטאטורק,,low,not_applicable,no,no,,
+9a48af71-662b-426e-916d-9c93126fb65d,נפש רוח נשמה חיה יחידה,promoted:raw_docx_v2,thematic_corpus,research_instruction,1,no,נשמה,מילוי,נפש רוח,,low,not_applicable,no,no,,
+9a85518b-7c6f-4fc8-b0ee-00f2a5b02e19,הצמח 363- רגיל ואותיות,excel_import,research_vocabulary,method_result_claim,1,no,רגיל,רגיל,הצמח,363,low,engine_verified_mismatch,yes,no,,
+9a9af1c4-7f7e-4658-a60a-0fd7596d14ba,ביאת המשיח 1335 1290- לפי אחד - אתבש,excel_import,research_vocabulary,research_instruction,1,no,אתבש,אתבש,ביאת המשיח 1335 1290- לפי אחד,,low,not_applicable,no,no,,
+9ab0713a-b077-4fab-a9b5-ac2884edc588,סלין אשתו של המשיח האחרון 13031 ∆ גדול,excel_import,archival_raw,research_instruction,1,no,גדול,גדול,סלין אשתו של המשיח האחרון 13031 ∆,,low,not_applicable,no,no,,
+9ad63acb-0fcf-4ef4-924f-3647a8c6a086,גילוי השכינה (משולש),excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,גילוי השכינה,,low,not_applicable,no,no,,
+9ae77a10-f21f-4edf-aef7-dec773bf7687,נשמת משיחי פי 5 - משולש,excel_import,archival_raw,research_instruction,1,no,משולש,קדמי,נשמת משיחי פי 5,,low,not_applicable,no,no,,
+9b45cf3d-0dd7-4cb8-afc6-dc8fd699856a,אטבח,sod1820,public_core,method_word_as_subject,1,no,אטבח,אטבח,,,low,not_applicable,no,no,,
+9ba35341-53fd-4a7b-aae5-2a314f1a6f61,236375 מספר חשבון הבנק של צמח דויד -אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+9bf53201-6369-4ee5-a260-66362ef1088d,השנה אלפיים חמש עשרה - ריבוע,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,השנה אלפיים חמש עשרה,,low,not_applicable,no,no,,
+9c6cfdec-d95f-4657-a196-f2752372911d,337 עוזר המשיח 266- אתבש,excel_import,archival_raw,multi_method_instruction,1,yes,אתבש,רגיל,337 עוזר המשיח,266,low,engine_verified_mismatch,yes,no,,
+9c915472-6765-411f-9346-43a8940b88b2,יהוה יפיל את בראק חוסיין אובאמה -590-סת,excel_import,thematic_corpus,candidate_method,1,no,סת,רגיל,יהוה יפיל את בראק חוסיין אובאמה,590,low,engine_verified_mismatch,yes,no,סת,
+9cd51b65-ae6b-44d1-bd09-93bbaa42ee2f,יהוה ציון 182 424 -אתבש,excel_import,thematic_corpus,multi_method_instruction,1,yes,אתבש,רגיל,יהוה ציון 182,424,low,engine_verified_mismatch,yes,no,,
+9d943da6-c1aa-4909-abe9-53f1868c3e75,פירוד דעת - אתבש - רגיל ומילים 776,excel_import,numeric_word_construct,multi_method_instruction,2,yes,אתבש|רגיל,אתבש|רגיל,פירוד דעת|פירוד דעת,|,low|low,not_applicable|not_applicable,no,no,,
+9dabaac6-eea2-4c55-8e2b-f01a23307f86,הגאולה בעתה אותיות לפני,excel_import,thematic_corpus,research_instruction,1,no,אותיות לפני,אותיות לפני,הגאולה בעתה,,low,not_applicable,no,no,,
+9de209e4-4a6b-4185-a4d9-fa96dd0b1c53,צמח המשיח מסתתר בזמן הזה,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,צמח המשיח,,low,not_applicable,no,no,,
+9e50655b-bb76-4388-8b87-4a563e115d1d,ההסתרה תגמר - מילוי 2180,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי,מילוי,ההסתרה תגמר,2180,high,not_verifiable,no,no,,
+9e9ba728-a849-4279-916c-8e0891e7f78c,רעידת אדמה גדולה השנה -לפני =פי 5,excel_import,research_vocabulary,research_instruction,1,no,גדול,גדול,רעידת אדמה,,low,not_applicable,no,no,,לפני
+9ef975b6-4a9f-4351-869b-f880b848f878,396 ב-ריבוע -פי 5,excel_import,research_vocabulary,research_instruction,1,no,ריבוע,ריבוע,396 ב,,low,not_applicable,no,no,,
+9f2f79bd-47dd-409e-9683-fa780524bbd9,בחרת בי -אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+9f45b7a1-04d7-4e7a-9813-26aaab241054,לך מלכות דויד בן ישי ב2015 - ריבוע,excel_import,numeric_word_construct,multi_method_instruction,1,yes,ריבוע,רגיל,לך מלכות דויד בן ישי ב,2015,low,engine_verified_mismatch,yes,no,,
+9f54aeb1-57d2-439c-88ca-70dc38eb2896,ממשלת האחדות = 1234 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,ממשלת האחדות =,1234,low,engine_verified_match,no,yes,,
+a0432802-6ee3-4fc3-a81d-c51cd877f3d5,לֹא יָסוּר שֵׁבֶט מִיהוּדָה וּמְחֹקֵק מִבֵּין רַגְלָיו עַד כִּי יָבֹא שִׁילֹה וְלוֹ יִקְּהַת עַמִּים :המשיח האחרון - לפני,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+a045b996-8cc8-42b2-ae33-2eb480e2b111,אבוא במוצאי שמיטה 776- אחרי - 386 אות שניה,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+a13e08c4-3280-42a3-8e6c-421f0966306d,מחנה ישראל 3630 מילוי ללא מילה,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי,רגיל,מחנה ישראל,3630,low,engine_verified_mismatch,yes,no,,
+a1623f60-fafc-4d52-9a62-d28aedb2dd4f,נשמתי משה משולש - 1437 מילוי רגיל,excel_import,personal_or_restricted,multi_method_instruction,3,yes,משולש|מילוי|רגיל,קדמי|מילוי|רגיל,נשמתי משה|1437|נשמתי משה,1437||,high|low|low,engine_verified_mismatch|not_applicable|not_applicable,yes,no,,
+a1656908-cc14-47cd-98b8-6f9deb615618,רגיל רת,sod1820,public_core,candidate_method,1,no,רגיל|רת,רגיל|CANDIDATE_ROSHEI_TEVOT,|,|,low|low,not_applicable|not_applicable,no,no,רת,
+a24d8ca9-4e79-4de0-8777-cafa5cb0c4c9,תורתו של בן דוד - אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,תורתו של בן דוד,,low,not_applicable,no,no,,
+a3166485-f7f0-425a-a384-f73f0b46fba1,סוד 266 - פי 5 - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,סוד 266 - פי 5,,low,not_applicable,no,no,,
+a3294819-d63e-420b-81d3-70a2e742b13e,בן יוסף נסתר משיח - רגיל ומילים,excel_import,thematic_corpus,research_instruction,1,no,רגיל,רגיל,בן יוסף נסתר משיח,,low,not_applicable,no,no,,
+a398e2d0-8767-4b28-945f-ce6acf00a9f3,משיח בן דויד בזמן הזה 1335 1290= משולש גדול,excel_import,archival_raw,research_instruction,1,no,משולש גדול,משולש גדול,משיח בן דויד בזמן הזה 1335 1290=,,low,not_applicable,no,no,,
+a3c1cee4-1451-4e94-a8f5-c2e9e23d0ea8,הוא הגואל האחרון לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+a3cd1a10-72b5-41ce-ab5d-e61070098e31,תיו (400 איש עמו) - מילוי 458,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי,מילוי,תיו (400 איש עמו,458,high,not_verifiable,no,no,,
+a45f2511-9c95-4b49-bced-e8a981bf381e,הסוף לשלטון = 717?מילןי ללא מילה רגיל,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,הסוף לשלטון = 717?מילןי ללא מילה,,low,not_applicable,no,no,,
+a4fe9096-59fb-45c6-a0dc-2a1381d10a80,נסיון הגאוה למשיח יהוה מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,נסיון הגאוה למשיח יהוה,,low,not_applicable,no,no,,
+a5383e6a-2871-48ac-9f4f-dfee269b9cff,1820 סוד יהוה - הפרש משולש ורגיל,excel_import,archival_raw,multi_method_instruction,2,yes,משולש|רגיל,קדמי|רגיל,1820 סוד יהוה - הפרש|ו,|,low|low,not_applicable|not_applicable,no,no,,
+a554182b-9089-4bc4-b5b5-601007600349,"המלחמה תחל השנה בסיון לפני פ""ר- לפני ב""ח 1335",excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני|לפני
+a55df17f-cede-44b0-8f00-18c889002d4a,זה + זה = 474 - רגיל 137 סמי הזיה - מילוי,excel_import,numeric_word_construct,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,זה + זה =|137 סמי הזיה,137|,high|low,engine_verified_mismatch|not_applicable,yes,no,,
+a560a943-0ed5-4a5d-873c-34358ebf619a,וּמָשְׁלוֹ מִיָּם עַד יָם וּמִנָּהָר עַד אַפְסֵי אָרֶץ משולש גדול 15180,excel_import,thematic_corpus,method_result_claim,1,no,משולש גדול,משולש גדול,וּמָשְׁלוֹ מִיָּם עַד יָם וּמִנָּהָר עַד אַפְסֵי אָרֶץ,15180,high,not_verifiable,no,no,,
+a5780a5c-ae4b-41a2-8880-3c7e154e11ff,דרך חדשה אתבש 385,excel_import,numeric_word_construct,method_result_claim,1,no,אתבש,אתבש,דרך חדשה,385,high,not_verifiable,no,no,,
+a584b919-17a0-4064-917d-32e73cb1e59a,הסוף לעבדים ולשפחות ב = 1139 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לעבדים ולשפחות ב =,1139,low,engine_verified_match,no,yes,,
+a5d24d7c-fa01-41d1-889f-9d5f3497abcf,לי כתר דויד המלך ב2015- לפני =פי 5,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+a754f6cd-4950-4f16-a79f-af8571a94ae5,אהוביך הכפלה,excel_import,research_vocabulary,research_instruction,1,no,הכפלה,הכפלה,אהוביך,,low,not_applicable,no,no,,
+a78e212e-7305-4af4-aea3-a4d2df6b45ab,נשמה יתרה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,נשמה,מילוי,,,low,not_applicable,no,no,,
+a792c382-1f03-48f3-8f43-2d44f88b78c7,יהוה מדבר עם ישראל - ריבוע 2510 / 3070,excel_import,archival_raw,method_result_claim,1,no,ריבוע,ריבוע,יהוה מדבר עם ישראל,2510,high,not_verifiable,no,no,,
+a81f450d-fe5f-4526-87f5-e955a1d85f44,רוח אלהים תצלח =מילוי ללא -פי 5,excel_import,research_vocabulary,research_instruction,1,no,מילוי,מילוי,רוח אלהים תצלח =,,low,not_applicable,no,no,,
+a823657f-34af-432b-9132-992f4386a68e,בואו בשנת 776 -מסתתר,excel_import,research_vocabulary,multi_method_instruction,1,yes,מסתתר,רגיל,בואו בשנת,776,low,engine_verified_mismatch,yes,no,,
+a852b342-a345-420a-a41e-2eb22544ecf4,ענן גדול,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,ענן,,low,not_applicable,no,no,,
+a946926b-5cbe-42d1-a02b-8c9ef1d3ee67,אליהו יבשר לצמח דויד 396 - מילוי גדול 11390,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי גדול,מילוי גדול,אליהו יבשר לצמח דויד,11390,high,not_applicable,no,no,,
+a9528aa6-d0c8-406a-833f-edd742506580,266 הצדיק נסתר -לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+aa0b26f8-ce9a-4f46-852c-b5238cc902dc,1335 1290 התגלות - מסתתר,excel_import,archival_raw,research_instruction,1,no,מסתתר,מסתתר,1335 1290 התגלות,,low,not_applicable,no,no,,
+aa722a04-7949-4833-af7c-8c5891f46022,"וְהָיָה, בַּיּוֹם הַהוּא, שֹׁרֶשׁ יִשַׁי אֲשֶׁר עֹמֵד לְנֵס עַמִּים, אֵלָיו גּוֹיִם יִדְרֹשׁוּ; וְהָיְתָה מְנֻחָתוֹ, כָּבוֹד (לפני)-3750-לפני",excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני|לפני
+ab2e9e4d-5bfa-44ac-ac29-c8037c844ddf,מספרים הכפלה,excel_import,research_vocabulary,research_instruction,1,no,הכפלה,הכפלה,מספרים,,low,not_applicable,no,no,,
+abfd038d-9ce1-4f5e-8827-11da82ffc9d1,ראש ממשלה 1590 מילוי 4740 מילוי,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי|מילוי,מילוי|מילוי,ראש ממשלה|4740,4740|,high|low,not_verifiable|not_applicable,no,no,,
+ac9c9371-c0e1-4c52-815b-3fb5a10d2bbe,סוד יהוה נסתר - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,סוד יהוה נסתר,,low,not_applicable,no,no,,
+ad3a9170-4c62-4f67-bd0f-3cf30690c5a1,יהוה מסתיר את צמח המשיח - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,יהוה מסתיר את צמח המשיח,,low,not_applicable,no,no,,
+ad4fbe46-1b61-4ffb-82e6-587e8112ad24,הִנֵּה יַשְׂכִּיל עַבְדִּי יָרוּם וְנִשָּׂא וְגָבַהּ מְאֹד. המשיח -מילוי דה מילוי=פי 5,excel_import,archival_raw,research_instruction,1,no,מילוי|מילוי,מילוי|מילוי,הִנֵּה יַשְׂכִּיל עַבְדִּי יָרוּם וְנִשָּׂא וְגָבַהּ מְאֹד. המשיח|דה,|,low|low,not_applicable|not_applicable,no,no,,
+ae06be2d-f636-4be8-8a56-c547777b76ac,המשיח יקבל נשמה,excel_import,thematic_corpus,research_instruction,1,no,נשמה,מילוי,המשיח יקבל,,low,not_applicable,no,no,,
+aeb968c5-69df-457e-b8a6-18cd722b856e,כִּי יִמְלְאוּ יָמֶיךָ וְשָׁכַבְתָּ אֶת-אֲבֹתֶיךָ וַהֲקִימֹתִי אֶת-זַרְעֲךָ אַחֲרֶיךָ אֲשֶׁר יֵצֵא מִמֵּעֶיךָ וַהֲכִינֹתִי אֶת-מַמְלַכְתּוֹ: -ריבוע =פי 5,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,כִּי יִמְלְאוּ יָמֶיךָ וְשָׁכַבְתָּ אֶת-אֲבֹתֶיךָ וַהֲקִימֹתִי אֶת-זַרְעֲךָ אַחֲרֶיךָ אֲשֶׁר יֵצֵא מִמֵּעֶיךָ וַהֲכִינֹתִי אֶת-מַמְלַכְתּוֹ,,low,not_applicable,no,no,,
+aefcfc94-6a02-4ff9-af98-3b40103ca28c,צמח דוד ב1335-אתבש -לפי אחד,excel_import,archival_raw,multi_method_instruction,1,yes,אתבש,רגיל,צמח דוד ב,1335,low,engine_verified_mismatch,yes,no,,
+af288cfd-fd1c-45d9-b1fe-58cdb4b418da,נשמה חיה,wa-vip,MISSING_STRUCTURED_DATA,research_instruction,1,no,נשמה,מילוי,,,low,not_applicable,no,no,,
+af442225-bf44-40f8-aac7-0ec096b9c252,ביאת הגאל 1335 1290- גדול ואותיות -לפי אחד,excel_import,archival_raw,multi_method_instruction,1,yes,גדול,רגיל,ביאת הגאל 1335,1290,low,engine_verified_mismatch,yes,no,,
+af9c93ad-bbbf-4912-be2d-87235d91a2b6,נפש רוח נשמה,entity_expansion_v1,thematic_corpus,research_instruction,1,no,נשמה,מילוי,נפש רוח,,low,not_applicable,no,no,,
+afce07dc-f050-408a-9a81-b2dda473b587,באחישנה עד ט בטבת 781 - אתבש =פי 5,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,באחישנה עד ט בטבת,781,low,engine_verified_mismatch,yes,no,,
+b05b114b-e544-458f-a7c7-60c862295ba4,רגיל ואותיות מיקום אות 66,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,,,low,not_applicable,no,no,,
+b092da60-db16-4f75-a5c1-f427bd5fc47c,המשיח 477- מילו - 2480 מילוי ללא - 676 אלבם,excel_import,thematic_corpus,multi_method_instruction,2,yes,מילוי|אלבם,רגיל|אלבם,המשיח 477- מילו|ללא - 676,2480|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+b12574cb-0aa3-4946-87eb-a77896411ea6,חוכמת סופרים תסרח = 3333 מילוי רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,חוכמת סופרים תסרח =|חוכמת סופרים תסרח =,3333|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+b1741e61-6135-4d89-83fb-a5841ebca09d,אתה נבחרת- רגיל -12020- מילוי ללא -פי 5,excel_import,research_vocabulary,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,אתה נבחרת|12020,12020|,high|low,engine_verified_mismatch|not_applicable,yes,no,,
+b1748637-1ea0-4d48-8ee2-4f374786b4cf,363 צומח למשיח בן דויד אמיתי אחרון - מילוי,excel_import,archival_raw,research_instruction,1,no,מילוי,מילוי,363 צומח למשיח בן דויד אמיתי אחרון,,low,not_applicable,no,no,,
+b184a780-9595-43af-8bd8-dd663c6b2727,רצון יהוה משיח צדק ב2015 -משולש,excel_import,thematic_corpus,multi_method_instruction,1,yes,משולש,רגיל,רצון יהוה משיח צדק ב,2015,low,engine_verified_mismatch,yes,no,,
+b1c6ad35-56ba-4ecc-b432-1284972abe54,בן דוד יבא 644 2015ב -מילוי גדול,excel_import,research_vocabulary,research_instruction,1,no,מילוי גדול,מילוי גדול,בן דוד יבא 644 2015ב,,low,not_applicable,no,no,,
+b1c6f127-fa8c-4a5c-8ab4-b1dfa3939915,משיח לא פיזי אטבח 634,excel_import,archival_raw,method_result_claim,1,no,אטבח,אטבח,משיח לא פיזי,634,high,not_applicable,no,no,,
+b27c1550-ae21-40e5-b99f-bbcb9bf9b370,יבא לציון גואל ולשבי פשע ביעקב לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+b296cb3a-c0f3-4f8e-8e5f-d0c7598e04e0,אתה נבחרת למשיחי -לפני פי 5,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+b29a92e1-aff5-44a3-8a1c-934c05da7e42,יוקר המחיה = 386 רגיל ומילים,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,יוקר המחיה =,386,low,engine_verified_mismatch,yes,no,,
+b33b080c-59bc-4bad-b88d-dddbd46d4df4,בן דויד יצמח למשיח אחרון עד 22 12 = סת,excel_import,research_vocabulary,candidate_method,0,no,סת,CANDIDATE_SOFEI_TEVOT,בן דויד יצמח למשיח אחרון עד 22 12 =,,low,not_applicable,no,no,סת,
+b34c4ce4-1289-4ebc-9b22-9d2d7228d648,נפשי נכספה אליך רגיל ומשולש,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|משולש,רגיל|קדמי,נפשי נכספה אליך|ו,|,low|low,not_applicable|not_applicable,no,no,,
+b37c1be2-fe66-4c2a-adfa-fb0a9decbc3e,ביאת מלך המשיח אותיות לפני,excel_import,thematic_corpus,research_instruction,1,no,אותיות לפני,אותיות לפני,ביאת מלך המשיח,,low,not_applicable,no,no,,
+b4c49f0e-c69c-4023-8f24-fd280013cf27,סוד מלאך דניאל 1335 1290- לפני -לפי אחת,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+b4d8badd-9bc4-42a2-bdcb-647cc1189e1a,9328 - מסתתר - אתבש 358,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|אתבש,מסתתר|אתבש,9328|9328,|358,low|high,not_applicable|not_verifiable,no,no,,
+b4eaa8b1-e021-464b-8bb7-4eaef71b3742,הסוף לצה״ל בימינו = 424 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לצה״ל בימינו =,424,low,engine_verified_match,no,yes,,
+b54029f9-9f7f-4148-bb03-961e2646cb56,סודך 1290 ו1335-אתבש לפי אחד,excel_import,archival_raw,multi_method_instruction,1,yes,אתבש,רגיל,סודך 1290 ו,1335,low,engine_verified_mismatch,yes,no,,
+b581693b-b610-4265-8fc2-3f9604e06c08,הצלחת רגיל 533 מסתתר 559 ריבוע 891,excel_import,numeric_word_construct,multi_method_instruction,3,yes,רגיל|מסתתר|ריבוע,רגיל|מסתתר|ריבוע,הצלחת|533|559,533|559|891,high|high|high,engine_verified_match|engine_verified_mismatch|not_verifiable,yes,yes,,
+b588b652-133a-49cd-bb7e-b6cdfcbf5a71,ויכלו הכפלה,excel_import,research_vocabulary,research_instruction,1,no,הכפלה,הכפלה,ויכלו,,low,not_applicable,no,no,,
+b5a7d25c-a76e-4d0a-b6a4-c5680bd7b97f,בשבילי מה בראת 1506 - אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,בשבילי מה בראת,1506,low,engine_verified_mismatch,yes,no,,
+b5b79781-8a69-4164-807b-f140f51fb083,התגלות צמח דוד ב22 12 - מסתתר לפי אחת,excel_import,archival_raw,multi_method_instruction,1,yes,מסתתר,רגיל,התגלות צמח דוד ב22,12,low,engine_verified_mismatch,yes,no,,
+b5d54567-6c30-49ca-b544-6e486f26d596,גאולת ישראל השלמה ב2015 - פי 5 - רגיל ואותיות,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,גאולת ישראל השלמה ב2015 - פי 5,,low,not_applicable,no,no,,
+b5e47069-d7eb-4d3f-8d0e-85253fc99397,בשורת הגאולה על ידי אליהו הנביא - רת,excel_import,thematic_corpus,candidate_method,0,no,רת,CANDIDATE_ROSHEI_TEVOT,בשורת הגאולה על ידי אליהו הנביא,,low,not_applicable,no,no,רת,
+b7bbb4f9-f6d3-4fc6-aed7-9dc563c7ac9f,אני המלך בזמן רגיל ואותיות- 988 אתבש,excel_import,research_vocabulary,multi_method_instruction,2,yes,רגיל|אתבש,רגיל|אתבש,אני המלך בזמן|ואותיות- 988,|,low|low,not_applicable|not_applicable,no,no,,
+b8268ee4-40c6-4956-8ff8-9d34bff3e6b6,בחרת אותי לגואל ישראל האחרון -אחרי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+b9a898f5-b1f4-4c02-82fd-0554fa38ac3a,המשיח ב781 - משולש,excel_import,archival_raw,multi_method_instruction,1,yes,משולש,רגיל,המשיח ב,781,low,engine_verified_mismatch,yes,no,,
+ba02e084-fd80-4a52-9069-ea2af1d8e7a5,בשורת מלך המשיח בימינו-לפני - 434- סת,excel_import,thematic_corpus,candidate_method,1,no,סת,רגיל,בשורת מלך המשיח בימינו-לפני,434,low,engine_verified_mismatch,yes,no,סת,לפני
+ba45425b-ab1e-4cfd-b748-cfbe3a95cca8,וראיתי את אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+ba6321ab-83c4-49b8-ad00-ad2dda5cd09b,תקע בשפר גדול לחרותינו,excel_import,research_package,research_instruction,1,no,גדול,גדול,תקע בשפר,,low,not_applicable,no,no,,
+ba9536f8-de36-4bba-bcc6-067740f0c9af,מתי אתגלה ב22 12 -רת-לפי אחת,excel_import,personal_or_restricted,candidate_method,1,no,רת,רגיל,מתי אתגלה ב22,12,low,engine_verified_mismatch,yes,no,רת,
+bb2ffd96-7efc-4d53-8137-6cad7a5c435b,משיח = 112 (אתבש),excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,משיח =,112,low,engine_verified_mismatch,yes,no,,
+bcb1da81-dd3c-46d2-b057-3cfb3629a9d1,סוד דניאל הנביא 1335- סת - לפי אחת,excel_import,archival_raw,candidate_method,1,no,סת,רגיל,סוד דניאל הנביא,1335,low,engine_verified_mismatch,yes,no,סת,
+bcb9bc03-f18d-4d5b-bf5b-06b74bdfddf2,396-קטן -44400 מילוי דה מילוי,excel_import,archival_raw,multi_method_instruction,2,yes,מילוי|מילוי,רגיל|מילוי,396-קטן|דה,44400|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+bd1061a2-fb5c-496c-8b81-05884634f3b5,גוף נשמה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,נשמה,מילוי,גוף,,low,not_applicable,no,no,,
+bdb5dced-29bc-4dc7-b7ad-7943bafabffa,דעתי קלה 881 גם מסתתתר וגם מילוי,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,דעתי קלה 881 גם מסתתתר וגם,,low,not_applicable,no,no,,
+be335a7a-4429-4ea0-ab49-2a6efdf26dbb,שם המשיח האחרון מסתתר- לפני,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,שם המשיח האחרון,,low,not_applicable,no,no,,לפני
+be3d45e0-e934-4d23-b0ec-6bcedd1e6c38,באו 396- 676 סת,excel_import,research_vocabulary,candidate_method,1,no,סת,רגיל,באו 396,676,low,engine_verified_mismatch,yes,no,סת,
+be3d768a-2b5c-4084-a706-93dee976b29f,363 396 120 781 26 לפני,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+be3dd4c9-d5de-4167-86ed-8a88d15b58b3,הכסא שלי . מסתתר 404 מילוי 337 ו 590,excel_import,personal_or_restricted,multi_method_instruction,2,yes,מסתתר|מילוי,מסתתר|מילוי,הכסא שלי|404,404|337,high|high,engine_verified_match|not_verifiable,no,yes,,
+be851555-cbb6-4626-9298-9cc99ea4328f,יבוא באחרית הימים - משולש - 5330 משולש גדול,excel_import,numeric_word_construct,multi_method_instruction,2,yes,משולש|משולש גדול,קדמי|משולש גדול,יבוא באחרית הימים|5330,5330|,high|low,not_verifiable|not_applicable,no,no,,אחרי
+bece6a9c-07be-4e51-a103-873686743576,זעקת ישראל אטבח 1202,excel_import,numeric_word_construct,method_result_claim,1,no,אטבח,אטבח,זעקת ישראל,1202,high,not_applicable,no,no,,
+bf47f8e7-b13a-4494-83d6-b83890c4b2da,סוד המשיח מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,סוד המשיח,,low,not_applicable,no,no,,
+bf6d75e5-2a9d-4c1b-b115-8d82be5f5e4b,המלך 644 האחרון - אתבש,excel_import,numeric_word_construct,research_instruction,1,no,אתבש,אתבש,המלך 644 האחרון,,low,not_applicable,no,no,,
+bfd714bd-a454-4b1a-960e-8f92fb8b60ea,צמח משיח בן דוד השכינה 1335- מילוי ללא,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי,רגיל,צמח משיח בן דוד השכינה,1335,low,engine_verified_mismatch,yes,no,,
+bfdb1aaa-7dcf-41e8-aef5-e9b36bd19aa6,הנחש מסתתר באובאמה - פי 5 -,excel_import,research_vocabulary,research_instruction,1,no,מסתתר,מסתתר,הנחש,,low,not_applicable,no,no,,
+c01a748a-2f90-4496-965a-770a1f6627cf,מילוי רגיל - 5330,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מילוי|רגיל,מילוי|רגיל,|,|5330,low|high,not_applicable|not_applicable,no,no,,
+c0372b97-7650-4415-a808-32da86c86a16,בראק חוסיין אובאמה מסתתר - פי 5 - איק בכר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,בראק חוסיין אובאמה,,low,not_applicable,no,no,,
+c085291c-1fe3-429f-9968-b5b941bca702,המשיח ואליהו באלפים חמש עשרה -מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,המשיח ואליהו באלפים חמש עשרה,,low,not_applicable,no,no,,
+c10afd10-fbd3-46a3-bd92-ad44f286e9ba,אֲנִי יְהוָה לֹא שָׁנִיתִי - משולש 3358,excel_import,thematic_corpus,method_result_claim,1,no,משולש,קדמי,אֲנִי יְהוָה לֹא שָׁנִיתִי,3358,high,not_verifiable,no,no,,
+c135c618-162c-4867-9ccc-c14b9d322f45,בית יהוה האחרון בירושלם (מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,בית יהוה האחרון בירושלם,,low,not_applicable,no,no,,
+c167fefa-547d-4ee0-88bf-bb85ba7da73b,הסוף לחיילים בימינו = 424 רגיל ואותיות,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לחיילים בימינו =,424,low,engine_verified_mismatch,yes,no,,
+c1d4df37-371a-4dba-ab22-09f58d5ce8da,מתי יתגלה המשיח האחרון משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,מתי יתגלה המשיח האחרון,,low,not_applicable,no,no,,
+c214d76d-220e-45ce-8aa3-c9d11fff398c,יהיה שלום בעולם לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+c23dc68b-092d-4bd0-8b4f-fe59caa52a12,יוֹדוּךָ עַמִּים אֱלֹהִים יוֹדוּךָ עַמִּים כֻּלָּם - תהילים פרק 67-6 - אותיות לפני 776,excel_import,thematic_corpus,multi_method_instruction,1,yes,אותיות לפני,אותיות לפני,יוֹדוּךָ עַמִּים אֱלֹהִים יוֹדוּךָ עַמִּים כֻּלָּם - תהילים פרק 67,776,high,engine_verified_mismatch,yes,no,,
+c273a91c-c674-45a8-9a1b-68ded9e1cb9b,ה533 ה644 - מילוי ללא - אחסע 3370 - מסתתר 2600,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מילוי|מסתתר,רגיל|מסתתר,ה533 ה|ללא - אחסע 3370,644|2600,low|high,engine_verified_mismatch|engine_verified_mismatch,yes,no,,
+c27f4388-318d-4682-920d-dffaa30cd012,הִנֵּה הַחֹשֶׁךְ יְכַסֶּה אֶרֶץ = 779 - משולש 3137 1230,excel_import,thematic_corpus,multi_method_instruction,1,yes,משולש,קדמי,הִנֵּה הַחֹשֶׁךְ יְכַסֶּה אֶרֶץ =,3137,high,not_verifiable,no,no,,
+c298448f-2822-4863-aff3-2e189f79c136,1335 ימים - רגיל ומילוי,excel_import,archival_raw,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,1335 ימים|ו,|,low|low,not_applicable|not_applicable,no,no,,
+c3011b57-6415-4a67-bc01-a2b7b581d3b8,כסא יהוה יהיה שלם ב 776 -רגיל ועוד מילוי,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,כסא יהוה יהיה שלם ב|ועוד,776|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+c31157e1-a41d-4e8a-8625-e0dcc4c22424,יהוה יחזיר מלכות דויד ב 781- אחרי-4770- אטבח,excel_import,thematic_corpus,multi_method_instruction,1,yes,אטבח,רגיל,יהוה יחזיר מלכות דויד ב 781- אחרי,4770,low,engine_verified_mismatch,yes,no,,אחרי
+c38ecf38-1649-4bc6-b0aa-c4a2af6cef67,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים הגאולה האמיתית-לפני -12020-פי 5,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+c3a6cc91-663d-4709-84d4-f04ee9f62eec,אלף= 511 - משולש ריבוע 143,excel_import,numeric_word_construct,multi_method_instruction,2,yes,משולש|ריבוע,רגיל|ריבוע,אלף=|אלף=,511|143,low|high,engine_verified_mismatch|not_verifiable,yes,no,,
+c3cc82f0-77b8-459d-b23b-bf05fecb2fae,אהיה משיח יהוה 11111- לפני הבן איש חי,excel_import,personal_or_restricted,lexical_use,0,no,,,,,,,no,no,,לפני
+c45be136-3d58-4a79-9bdb-05cbb506fe74,ארץ הקודש לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+c49a193d-3678-4196-b317-256de26019a2,כהן גדול,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,כהן,,low,not_applicable,no,no,,
+c523ba24-eab3-4c96-a089-16344bc4bbca,גאולת העולם בימינו אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+c582a964-5b96-4936-a602-a7de9b9ff541,אבקר בהילכך ב22 12 - לפני - לפי אחת,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+c59a7685-911f-462f-b9dc-e7328a5f5891,סתום נסתר - גדול - מילוי גדול 3960 - מסתתר = 1318,excel_import,numeric_word_construct,multi_method_instruction,3,yes,גדול|מילוי גדול|מסתתר,גדול|מילוי גדול|מסתתר,סתום נסתר|סתום נסתר|3960,|3960|,low|high|low,not_applicable|not_applicable|not_applicable,no,no,,
+c5fcb98f-300c-473c-b4ea-69704dba8903,יהוה בסתרים 1400 + מילוי מודבק - 2137,excel_import,archival_raw,research_instruction,1,no,מילוי,מילוי,יהוה בסתרים 1400 +,,low,not_applicable,no,no,,
+c746d644-a334-4065-8823-78f40b16f8e4,מלחמת גוג ומגוג ב2016- אטבח,excel_import,research_vocabulary,multi_method_instruction,1,yes,אטבח,רגיל,מלחמת גוג ומגוג ב,2016,low,engine_verified_mismatch,yes,no,,
+c7a5367c-7df4-4bb2-9b38-137eab6edcb6,בר יהודה אפרים מילוי 2212,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי,מילוי,בר יהודה אפרים,2212,high,not_verifiable,no,no,,
+c7b818c9-55ac-42bb-b94b-9f5f0bf7e22b,הסוף לתאוות העלם = 1139 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לתאוות העלם =,1139,low,engine_verified_match,no,yes,,
+c8759cae-9360-4109-9b9d-8f40eed4142e,3960 6440 3580 2660 5140 -אטבח,excel_import,research_vocabulary,research_instruction,1,no,אטבח,אטבח,3960 6440 3580 2660 5140,,low,not_applicable,no,no,,
+c8ac0885-cb0c-4138-945e-0dde15d751b7,"חברון משולש י""ה",excel_import,research_vocabulary,research_instruction,1,no,משולש,קדמי,חברון,,low,not_applicable,no,no,,
+ca39506e-f48a-4ef0-bb1c-39ee208a8c26,מלכותי באלפיים שש עשרה -לפני =פי 5,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+cacb6579-c6a5-4495-8072-34054269c5be,הסוף לנדלן = 717 מילוי ללא מילה רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,הסוף לנדלן =|ללא מילה,717|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+cb08e6dc-166e-4954-831a-5fc42f3b790a,644 צמח דוד - רת,excel_import,numeric_word_construct,candidate_method,0,no,רת,CANDIDATE_ROSHEI_TEVOT,644 צמח דוד,,low,not_applicable,no,no,רת,
+cb12174f-dc0e-42de-baf8-79aac0f13372,מלך 363 - מילוי ללא- 1820- מדבר רבה,excel_import,research_vocabulary,multi_method_instruction,1,yes,מילוי,רגיל,מלך,363,low,engine_verified_mismatch,yes,no,,
+cb7f5c45-e9e5-4795-828b-634ebb7dc2d5,השכינה בעתה אחרי גדול,excel_import,research_vocabulary,research_instruction,1,no,גדול,גדול,השכינה בעתה אחרי,,low,not_applicable,no,no,,אחרי
+cc251802-2f3d-4960-b5de-f44ecfbe5df4,דרגת קודש 11111 -7170-מילוי רגיל -לפי אחת,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,דרגת קודש 11111|דרגת קודש 11111,7170|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+cc67766a-d349-4e43-bd1c-0703a515c8ef,המשיח ב781 משולש,excel_import,archival_raw,multi_method_instruction,1,yes,משולש,רגיל,המשיח ב,781,low,engine_verified_mismatch,yes,no,,
+cc749f67-94a1-427b-a3d3-68014909d13a,אתה נבחרת למשיח בזמן הזה - משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,אתה נבחרת למשיח בזמן הזה,,low,not_applicable,no,no,,
+cd0c9fcf-bc7a-402e-8890-a9dcbe6576f6,396 יגאלנו בשנה הזו - לפני הארי,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+cd53f6b5-3b66-4460-a49a-8673dde8b689,ציון סיבוני משיח בן דוד מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,ציון סיבוני משיח בן דוד,,low,not_applicable,no,no,,
+ceac01b2-08e6-4775-b4db-480ee97ffe05,אתקדש בשמן קדשו מילוי ללא מילה,excel_import,personal_or_restricted,research_instruction,1,no,מילוי,מילוי,אתקדש בשמן קדשו,,low,not_applicable,no,no,,
+cefddfd4-7b85-463f-89e2-fc897f47b8de,....בימינו = 2216 גדול,excel_import,numeric_word_construct,multi_method_instruction,1,yes,גדול,רגיל,בימינו =,2216,low,engine_verified_mismatch,yes,no,,
+cf36f98a-f55d-40a0-a1e2-1e7721ce9d55,הסוף לעבדות בימינו = 781 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לעבדות בימינו =,781,low,engine_verified_match,no,yes,,
+d01b965b-e192-4a82-aaaa-6353837506a2,המשיח 1335 1290-לפני -לפי אחת,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+d118c141-a9bf-465d-9ebe-e204d3d4d0ca,אתה אל מסתתר - רגיל 1537,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|רגיל,מסתתר|רגיל,אתה אל|אתה אל,|1537,low|high,not_applicable|engine_verified_mismatch,yes,no,,
+d149ca32-f7f6-4123-8e14-8976e14a166a,סוד משיחך משולש = 448 = מלך המשיח - מסתתר גדול,excel_import,archival_raw,multi_method_instruction,2,yes,משולש|מסתתר גדול,קדמי|מסתתר גדול,סוד משיחך|= 448 = מלך המשיח,|,low|low,not_applicable|not_applicable,no,no,,
+d225a389-ace2-4c96-b4df-a27f84b6b536,צאצא של אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+d2633ec7-8521-4292-8e8a-2a3db13c0649,עץ יוסף ועץ יהודה יתאחדו מילוי מסתתר 3333,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מילוי|מסתתר,מילוי|מסתתר,עץ יוסף ועץ יהודה יתאחדו|עץ יוסף ועץ יהודה יתאחדו,|3333,low|high,not_applicable|engine_verified_mismatch,yes,no,,
+d2b8f7b1-26da-46d8-81a9-fb7a17f57134,עזר כנגדו 336 מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,עזר כנגדו,336,low,engine_verified_mismatch,yes,no,,
+d2e29b4c-dae5-4df9-a943-4af898b6e07b,ריבוע 444 מילוי 1237לבית האלהים 776,excel_import,numeric_word_construct,multi_method_instruction,2,yes,ריבוע|מילוי,ריבוע|מילוי,444|444,444|1237,high|high,not_verifiable|not_verifiable,no,no,,
+d37bba3c-a1c8-4146-ae41-fa3aeeda20d0,נס גדול היה פה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,נס,,low,not_applicable,no,no,,
+d386e3f7-d438-4c13-858d-b4a07805c557,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים הגאולה -רגיל ואותיות -18200-רגיל ואותיות,excel_import,archival_raw,research_instruction,1,no,רגיל|רגיל,רגיל|רגיל,וַיִּקְרָא יַעֲקֹב אֶל בָּנָיו וַיֹּאמֶר הֵאָסְפוּ וְאַגִּידָה לָכֶם אֵת אֲשֶׁר יִקְרָא אֶתְכֶם בְּאַחֲרִית הַיָּמִים הגאולה|ואותיות -18200,|,low|low,not_applicable|not_applicable,no,no,,
+d3f1de87-5e6f-4822-b4fb-9c159f14e03b,עַבְדְּךָ בֶּן אֲמָתֶךָ צמח מלך - -ריבוע,excel_import,research_vocabulary,research_instruction,1,no,ריבוע,ריבוע,עַבְדְּךָ בֶּן אֲמָתֶךָ צמח מלך,,low,not_applicable,no,no,,
+d43735fe-0d32-4020-8d4d-ce279cbd568f,על פי יהוה - רגיל ומסתתר =333 רגיל לפני אחרי 666,excel_import,archival_raw,multi_method_instruction,2,yes,רגיל|מסתתר|רגיל,רגיל|מסתתר|רגיל,על פי יהוה|ו|=333,||,low|low|low,not_applicable|not_applicable|not_applicable,no,no,,לפני|אחרי
+d459b228-0d02-42be-ae80-6e81b432af62,דויד בן ישי בשבע שבע שש לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+d472dc8a-3194-4467-9e06-931b313f5fbf,477 המשיח -מילוי -2480מילוי ללא,excel_import,thematic_corpus,method_result_claim,1,no,מילוי|מילוי,מילוי|מילוי,477 המשיח|2480,2480|,high|low,not_verifiable|not_applicable,no,no,,
+d54f38aa-5ad6-4c39-9fe3-2fa28c19cede,266 צמח דוד בימינו - פי 5 - גדול ואותיות,excel_import,numeric_word_construct,research_instruction,1,no,גדול,גדול,266 צמח דוד בימינו - פי 5,,low,not_applicable,no,no,,
+d58891fd-6afb-4d52-ad71-a06aa3cd0859,נשמה גבוהה במשיח,excel_import,thematic_corpus,research_instruction,1,no,נשמה,מילוי,,,low,not_applicable,no,no,,
+d5d77bec-4680-40d8-ac90-b26df1d80b95,644 יבנה - לפני,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+d5f14d0e-29ae-431f-af4d-00a7b419a5cf,המלכת משיח בן דוד ב 2212 - משולש - רגיל 3580,excel_import,archival_raw,multi_method_instruction,1,yes,משולש|רגיל,רגיל|רגיל,המלכת משיח בן דוד ב|המלכת משיח בן דוד ב,2212|3580,low|high,engine_verified_mismatch|engine_verified_mismatch,yes,no,,
+d66d18ff-fc32-4a49-a553-774a59df384a,משיח עבודת המקדש בעתה מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,משיח עבודת המקדש בעתה,,low,not_applicable,no,no,,
+d6b121c2-386c-4ea6-8626-805d0281e19a,יהוה מדבר איתו - אתבש - 5337,excel_import,archival_raw,method_result_claim,1,no,אתבש,אתבש,יהוה מדבר איתו,5337,high,not_verifiable,no,no,,
+d6e9fe46-ae35-46cf-a735-5cd399cba75c,מתי יבוא משיח צדק אחרון אתבש 3850 מילוי,excel_import,archival_raw,multi_method_instruction,2,yes,אתבש|מילוי,אתבש|מילוי,מתי יבוא משיח צדק אחרון|3850,3850|,high|low,not_verifiable|not_applicable,no,no,,
+d80a4c8f-5a69-4cf8-a759-7be517c46ef0,המשיח יבוא כי לה המלוכה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+d8224ea2-7eea-42de-ac5b-68a0fcd52f38,644 יגאלנו - מילוי ללא,excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,644 יגאלנו,,low,not_applicable,no,no,,
+d8ab832d-011f-4b31-968a-dd8b5e44c51e,שמשון בן צללפונית 363 - מילוי גדול,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי גדול,רגיל,שמשון בן צללפונית,363,low,engine_verified_mismatch,yes,no,,
+d8dbfaf7-1ee5-4e1a-8d3a-edd58a91bf42,3333 בזמן הזה - מסתתר,excel_import,numeric_word_construct,research_instruction,1,no,מסתתר,מסתתר,3333 בזמן הזה,,low,not_applicable,no,no,,
+d8dd4ce3-2d42-47fa-ba47-a315c001bb9b,מפלת הדולר משולש,excel_import,research_vocabulary,research_instruction,1,no,משולש,קדמי,מפלת הדולר,,low,not_applicable,no,no,,
+d90cc5a1-4fff-45eb-973d-17db30f7af69,הקץ הסופי בימינו - משולש - רגיל 474,excel_import,numeric_word_construct,multi_method_instruction,2,yes,משולש|רגיל,קדמי|רגיל,הקץ הסופי בימינו|הקץ הסופי בימינו,|474,low|high,not_applicable|engine_verified_match,no,yes,,
+d95719d4-5b2e-4a17-9844-8d667c9f72a6,אופיע כמשיח יהוה האחרון בעתה - אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,אופיע כמשיח יהוה האחרון בעתה,,low,not_applicable,no,no,,
+d96b8d93-ab64-4061-88e2-20a9c83ed1bc,צמח דוד 644- רת,excel_import,research_vocabulary,candidate_method,1,no,רת,רגיל,צמח דוד,644,low,engine_verified_mismatch,yes,no,רת,
+d9a7109e-ee85-484c-946d-df26183d4dbb,בשורת הגאולה אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,בשורת הגאולה,,low,not_applicable,no,no,,
+da0cc25b-8b25-4eaa-85a4-9f8a24e3e99d,המשיח יפעל אטבח,excel_import,thematic_corpus,research_instruction,1,no,אטבח,אטבח,המשיח יפעל,,low,not_applicable,no,no,,
+da68b313-147c-45a8-bb36-d815164f7f69,כִּי אֲנִי יְהוָה אֱלֹהֵיכֶם - ריבוע 3333,excel_import,thematic_corpus,method_result_claim,1,no,ריבוע,ריבוע,כִּי אֲנִי יְהוָה אֱלֹהֵיכֶם,3333,high,not_verifiable,no,no,,
+dae0210a-9a24-427f-9fe7-f9280ba22b7b,אורן עברון יעזור למשיח 3630 מילוי,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי,רגיל,אורן עברון יעזור למשיח,3630,low,engine_verified_mismatch,yes,no,,
+daea203c-75a3-41c8-8e7f-e69aaa8472a5,גדול,promoted:raw_docx_v2,research_vocabulary,method_word_as_subject,1,no,גדול,גדול,,,low,not_applicable,no,no,,
+dbb84ea6-5e46-4d02-83d9-5e7ea888ddfa,עומדים בחורב ציה ושממה 1237 אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,עומדים בחורב ציה ושממה,1237,low,engine_verified_mismatch,yes,no,,
+dc24a5c2-c217-43da-8d0f-f06e62083841,אהיה משיח יהוה האחרון ב2015 -אטבח - 3383 איק בכר,excel_import,thematic_corpus,multi_method_instruction,1,yes,אטבח,אטבח,אהיה משיח יהוה האחרון ב,3383,high,not_applicable,no,no,,
+dc2b31a8-7bf9-4f2b-b7f1-65c19f01eeaf,644 המשיח האחרון - לפני,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+dc5b6ecc-220c-4289-9050-62f93b92f59b,בחרתי אותך לגאול את עם ישראל -רת סת,excel_import,research_vocabulary,candidate_method,0,no,רת|סת,CANDIDATE_ROSHEI_TEVOT|CANDIDATE_SOFEI_TEVOT,בחרתי אותך לגאול את עם ישראל|בחרתי אותך לגאול את עם ישראל,|,low|low,not_applicable|not_applicable,no,no,סת|רת,
+dcc68403-2711-4651-9a69-1683e08a726b,אופיע כמשיח - מסתתר - 800 לפני,excel_import,archival_raw,method_result_claim,1,no,מסתתר,מסתתר,אופיע כמשיח,800,high,engine_verified_mismatch,yes,no,,לפני
+dcee597d-d017-444c-9495-2acdabd4356b,גלוי שכינה 800 מילוי,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי,רגיל,גלוי שכינה,800,low,engine_verified_mismatch,yes,no,,
+dd16d9b2-7b8d-410a-992d-bda97ad6e12d,המשיח מסתתר בעתה -רגיל -1940 מסתתר,excel_import,thematic_corpus,multi_method_instruction,2,yes,מסתתר|רגיל|מסתתר,מסתתר|רגיל|מסתתר,המשיח|בעתה|1940,|1940|,low|high|low,not_applicable|engine_verified_mismatch|not_applicable,yes,no,,
+dd3e2e10-f99d-43e9-80c4-09795c1af9ed,"פינחס - אתב""ש - רגיל + ריבוע ומשולש = 1820",excel_import,numeric_word_construct,multi_method_instruction,3,yes,רגיל|ריבוע|משולש,רגיל|ריבוע|קדמי,"פינחס - אתב""ש|+|ו",||,low|low|low,not_applicable|not_applicable|not_applicable,no,no,,
+de17f7e5-63ef-4c73-aa08-0e4f0f959762,אני משיח עבד יהוה לפני-11340- מילוי דה מילוי,excel_import,thematic_corpus,multi_method_instruction,2,yes,מילוי|מילוי,רגיל|מילוי,אני משיח עבד יהוה לפני|דה,11340|,low|low,engine_verified_mismatch|not_applicable,yes,no,,לפני
+de2f6290-e3af-40de-88b7-980a27e7d67b,עת הגאולה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+de3c00a4-e4e4-46a7-97a2-39cfb1c57e42,בהיסח הדעת ביאת 363 396- לפני פליאה,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+de47476a-3192-4bc8-ba6f-a0dd998ba597,סודי יחשף בעתה מילוי-1820 אטבח,excel_import,research_vocabulary,multi_method_instruction,2,yes,מילוי|אטבח,מילוי|אטבח,סודי יחשף בעתה|1820,1820|,high|low,engine_verified_mismatch|not_applicable,yes,no,,
+de8cb79a-84b3-43ba-b366-972d7eebfe09,שם משיחי מסתתר - מילוי - רגיל ואותיות 1820,excel_import,archival_raw,multi_method_instruction,3,yes,מסתתר|מילוי|רגיל,מסתתר|מילוי|רגיל,שם משיחי|שם משיחי|שם משיחי,||,low|low|low,not_applicable|not_applicable|not_applicable,no,no,,
+de912901-d9b4-4dee-958f-8a4a02395a3d,סוד דוד עבדך יתגלה ב776 - מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,סוד דוד עבדך יתגלה ב,776,low,engine_verified_mismatch,yes,no,,
+deb9036c-7338-44bb-b58b-32cd912d5152,11111 דרגת משיח -- אטבח -66 אטבח לפי אחת,excel_import,archival_raw,method_result_claim,1,no,אטבח|אטבח,אטבח|אטבח,11111 דרגת משיח|66,66|,high|low,not_applicable|not_applicable,no,no,,
+df05e119-fee3-4722-8e3d-cbf098b92be5,להחזיר עטרה ליושנה = 3700 משולש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,משולש,רגיל,להחזיר עטרה ליושנה =,3700,low,engine_verified_mismatch,yes,no,,
+df352688-dfff-496e-81b3-3f2e6fd3d015,ה הו הוה הוהי= הכפלה,excel_import,research_vocabulary,research_instruction,1,no,הכפלה,הכפלה,ה הו הוה הוהי=,,low,not_applicable,no,no,,
+dfa445e0-19a2-4604-a1e2-890fab0855ba,יתקע בשופר גדול,excel_import,research_package,research_instruction,1,no,גדול,גדול,יתקע בשופר,,low,not_applicable,no,no,,
+e0681475-da44-4e1d-8864-d80a20409406,פילוגים - אתבש . 424 1641 משולש,excel_import,numeric_word_construct,multi_method_instruction,2,yes,אתבש|משולש,אתבש|קדמי,פילוגים|424 1641,|,low|low,not_applicable|not_applicable,no,no,,
+e07d5b91-d790-4f17-bcaf-e8aca8d98f3a,שורש דויד ב2015 -5520- סת,excel_import,research_vocabulary,candidate_method,1,no,סת,רגיל,שורש דויד ב2015,5520,low,engine_verified_mismatch,yes,no,סת,
+e0b418d2-26e6-42a9-972b-b383b127a15a,צמח דוד מוסתר - מילוי גדול - 3382- מילוי ללא,excel_import,research_vocabulary,multi_method_instruction,2,yes,מילוי גדול|מילוי,מילוי גדול|מילוי,צמח דוד מוסתר|3382,3382|,high|low,not_applicable|not_applicable,no,no,,
+e0c76c71-9dca-472f-853e-31552403284c,396 המשיח האמיתי האחרון - אטבח,excel_import,archival_raw,research_instruction,1,no,אטבח,אטבח,396 המשיח האמיתי האחרון,,low,not_applicable,no,no,,
+e0c87104-6acd-4624-b7d1-c0f4d8119253,גדול הבית,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,,,low,not_applicable,no,no,,
+e1f4c424-f286-49d5-89dd-661fb0e22301,הסוף לנדלן בימינו =1692 מילוי רגיל,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מילוי|רגיל,רגיל|רגיל,הסוף לנדלן בימינו =|הסוף לנדלן בימינו =,1692|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+e222908e-6516-4a84-8f55-5acda253e4df,ירדתי לגני מילוי בלבד 455 717 453 1683,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי בלבד,מילוי בלבד,ירדתי לגני,455,high,not_applicable,no,no,,
+e2fbc3b9-b638-46b5-8de3-a04dfab7b8ad,יהוה חשף סודו הגדול - לפני -1139-ריבוע,excel_import,thematic_corpus,multi_method_instruction,2,yes,גדול|ריבוע,גדול|ריבוע,יהוה חשף סודו ה|לפני -1139,|,low|low,not_applicable|not_applicable,no,no,,לפני
+e328e3b8-345b-4de3-9312-4711c5366e7d,עיבור 1456 - מסתתר 266 - ריבוע 608,excel_import,numeric_word_construct,multi_method_instruction,2,yes,מסתתר|ריבוע,מסתתר|ריבוע,עיבור|266,266|608,high|high,engine_verified_match|not_verifiable,no,yes,,
+e328ec2f-2159-4170-b5b5-8aa00c8f255f,דינים מילוי דמילוי,excel_import,research_vocabulary,research_instruction,1,no,מילוי דמילוי,מילוי דמילוי,דינים,,low,not_applicable,no,no,,
+e35475c6-c207-4769-8fa5-3f8cc35b8861,דויד מלך ישראל (רגיל ישר והפוך),excel_import,research_vocabulary,candidate_method,0,no,רגיל ישר והפוך,CANDIDATE_RAGIL_YASHAR_HAFUCH,דויד מלך ישראל,,low,not_applicable,no,no,רגיל ישר והפוך,
+e37a9cbe-b39f-4587-b373-3019f8ca9868,יצמח משיחך 7170 - משולש 7176 מיקום האות 266,excel_import,archival_raw,multi_method_instruction,1,yes,משולש,קדמי,יצמח משיחך,7176,high,not_verifiable,no,no,,
+e3a367f8-b294-4cc8-8aad-de9411a68931,בן דוד יִבְנֶה-בַּיִת לִשְׁמִי וְכֹנַנְתִּי אֶת-כִּסֵּא מַמְלַכְתּוֹ עַד-עוֹלָם: -לפני -444- מיקום האות,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+e3d8cc72-1504-4e79-8bb0-a00e6f7e70e1,הגאולה האחרונה בעתה מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,הגאולה האחרונה בעתה,,low,not_applicable,no,no,,
+e4772a55-d26f-4049-aae2-31a094c39bcc,הוא האמיתי האחרון לפני,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+e481471a-a338-4621-b62c-55b4307eb28d,396 מלך ישראל האחרון - לפני,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+e4fd15b6-9065-4e44-8623-94890b3c7cfd,אני שורש דויד ב2015 - מילוי -מילוי =פי 5,excel_import,research_vocabulary,multi_method_instruction,2,yes,מילוי|מילוי,רגיל|מילוי,אני שורש דויד ב|אני שורש דויד ב,2015|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+e532c630-0e7b-430c-9728-af85a3dbd34f,בן דוד נסתר - מילוי גדול 4340 - לפני 552,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי גדול,מילוי גדול,בן דוד נסתר,4340,high,not_applicable,no,no,,לפני
+e57da25f-59cd-444b-9697-77e206ceefbc,נשיא ארהב 44 אטבח,excel_import,thematic_corpus,multi_method_instruction,1,yes,אטבח,רגיל,נשיא ארהב,44,low,engine_verified_mismatch,yes,no,,
+e5b31bc7-2a3d-4f7c-99b6-57af01bc843d,גדול הדור,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,,,low,not_applicable,no,no,,
+e5b8db99-cb0e-4e75-a3ba-a1cb325dff04,לי דרגת מלך המשיח ה11111-גדול- אחת,excel_import,personal_or_restricted,multi_method_instruction,1,yes,גדול,רגיל,לי דרגת מלך המשיח ה,11111,low,engine_verified_mismatch,yes,no,,
+e5cfaa2e-b895-4309-a4c3-75c00e45bd79,אתה גואלי האחרון =פי 5 2510-לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+e668a8d5-0d3b-4d00-a339-29074363821b,דעת 337 - לפני - מילוי ללא 1396 (שלוש),excel_import,numeric_word_construct,research_instruction,1,no,מילוי,מילוי,דעת 337 - לפני,,low,not_applicable,no,no,,לפני
+e6b5b9c0-23e2-4b48-bdb3-f2a94183344e,הסוף למחלות ב = 667 רגיל,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף למחלות ב =,667,low,engine_verified_match,no,yes,,
+e71c4bd8-d447-403c-b7a1-388c3316b12b,צמח המשיח ימשח בשמן המשחה לפני,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,לפני
+e75945e0-b0b0-4a39-8e70-a94f267744aa,אעשה שלום עולמי ב2016- לפני -348-מיקום האות,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+e7a7cbe4-1e6c-4614-85ee-4b92a5bbdf5a,סוד 2212 - מסתתר- 434 אות שלישית,excel_import,research_vocabulary,multi_method_instruction,1,yes,מסתתר,מסתתר,סוד,434,high,engine_verified_mismatch,yes,no,,
+e8a755d0-b197-4d67-adf5-106d249d145c,משיח בן יוסף גימטריה מסתתר - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר|מסתתר,מסתתר|מסתתר,משיח בן יוסף גימטריה|משיח בן יוסף גימטריה,|,low|low,not_applicable|not_applicable,no,no,,
+e8c74614-a60d-46af-bca5-07b8ac7a66aa,עם ישראל בצרה גדולה בימינו לפני,excel_import,thematic_corpus,research_instruction,1,no,גדול,גדול,עם ישראל בצרה,,low,not_applicable,no,no,,לפני
+e8d216ff-b3de-4af3-aa4f-cbc0c17acbca,צמח דוד רת,sod1820,public_core,candidate_method,0,no,רת,CANDIDATE_ROSHEI_TEVOT,צמח דוד,,low,not_applicable,no,no,רת,
+e8ea3cc1-434a-482a-81bf-a6a6eb9ac16b,סוד רוח אלהים עלי=לפני -פי 5,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+e9110acc-eeef-48b5-9415-c28cd2fa6255,משולש ברמודה,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,משולש,קדמי,,,low,not_applicable,no,no,,
+e96e6191-cec9-4c1a-8424-bc20e7355acc,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת ביאת הגאל האמיתי - ריבוע,excel_import,research_vocabulary,research_instruction,1,no,ריבוע,ריבוע,מֹעֵד שְׁנַת הַשְּׁמִטָּה--בְּחַג הַסֻּכּוֹת ביאת הגאל האמיתי,,low,not_applicable,no,no,,
+e98ed2d6-fbe2-4023-b91b-d79f62939ab1,הוא משיח יהוה 533 אחרי - 1474 משולש,excel_import,archival_raw,multi_method_instruction,1,yes,משולש,רגיל,הוא משיח יהוה 533 אחרי,1474,low,engine_verified_mismatch,yes,no,,אחרי
+ea0e7c5b-903f-46bd-9797-40252609c0a7,רצון יהוה משיחו = משולש כפול,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,רצון יהוה משיחו =,,low,not_applicable,no,no,,
+ea29904a-e8e8-4ed4-a8ec-f35dd988f43f,גאולת אמת מילוי 1313 ו 3333,excel_import,numeric_word_construct,method_result_claim,1,no,מילוי,מילוי,גאולת אמת,1313,high,engine_verified_match,no,yes,,
+ea8e7af4-69f4-4330-acbd-eadb90c3ee23,מלכות דויד תתחיל ב2016 -פניפ מילה -12000-לפני =פי 5,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+eab7fd69-4722-4ebf-bf95-91a0b9574eab,יהוה יצמיח קרן לדוד ב2015 - לפי אחת - אחרי,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,אחרי
+eb304f76-9d89-41d9-8db7-b7640bb1e7d2,גדול עומד על גביו,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,,,low,not_applicable,no,no,,
+eba35bc3-9fe3-47ef-b332-e56f4f9350fb,ובא לפני יהוה אל פתח אהל מועד ונתנם אל הכהן,sod1820,public_core,lexical_use,0,no,,,,,,,no,no,,לפני
+ec4efad4-839e-4970-9773-f9a058e964dd,הוא יהיה מלך המשיח האמתי = אחרי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+ecba237e-fbad-4453-a771-2adeb6a1955b,נבחרך בזמן הזה 396 - מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,נבחרך בזמן הזה,396,low,engine_verified_match,no,yes,,
+ed4f845f-d8a7-4f68-b843-4cae4441b997,סוף שנת הקורונה = 1394 מסתתר,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר,רגיל,סוף שנת הקורונה =,1394,low,engine_verified_mismatch,yes,no,,
+ed9c2ef0-1554-4270-b044-c4bb1aed7bb4,266-2600 מסתתר -פי 5,excel_import,research_vocabulary,research_instruction,1,no,מסתתר,מסתתר,266-2600,,low,not_applicable,no,no,,
+eda6896a-27a9-47cb-b526-019f8be17a59,עת הישועה מילוי גדול,excel_import,research_vocabulary,research_instruction,1,no,מילוי גדול,מילוי גדול,עת הישועה,,low,not_applicable,no,no,,
+ee03c06c-68a5-40f8-8213-1aee46a6011d,הוא המשיח העתידי מילוי ללא מילה,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,הוא המשיח העתידי,,low,not_applicable,no,no,,
+ee3a0781-b890-40a7-9808-64bd632aa37f,פי יהוה דבר - מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,פי יהוה דבר,,low,not_applicable,no,no,,
+ef5affb5-b0e5-4e07-86ef-7acc538bf193,גואל 396 337 - אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,גואל 396,337,low,engine_verified_mismatch,yes,no,,
+efe48bb2-8a7a-4f7f-a0e0-0d438b3c5b5a,הסוף לראשי מדינות = 1202 רגיל !,excel_import,numeric_word_construct,method_result_claim,1,no,רגיל,רגיל,הסוף לראשי מדינות =,1202,low,engine_verified_match,no,yes,,
+efec393e-8f9b-476e-8b19-193f23c61ba8,תִּצְמַח הַיְשׁוּעָה לְיִשְׂרָאֵל-2480-אחרי,excel_import,thematic_corpus,lexical_use,0,no,,,,,,,no,no,,אחרי
+f0587bcb-fcff-4b1f-9482-27bcadb63e0f,יהוה הושִׁיעָה. הַמֶּלֶךְ יַעֲנֵנוּ בְיום קָרְאֵנוּ: -1202-לפני -2756-מילוי,excel_import,thematic_corpus,multi_method_instruction,1,yes,מילוי,רגיל,יהוה הושִׁיעָה. הַמֶּלֶךְ יַעֲנֵנוּ בְיום קָרְאֵנוּ: -1202-לפני,2756,low,not_verifiable,no,no,,לפני
+f081c44a-ec5c-4a87-ad2d-bb2ca0b7a7d7,יהוה מנסה אותי מסתתר,excel_import,thematic_corpus,research_instruction,1,no,מסתתר,מסתתר,יהוה מנסה אותי,,low,not_applicable,no,no,,
+f0d34383-a5be-4e7f-9c5c-132d23ce9d06,סודי יחשף ב781 - מדבר רבה - 1212 לפני הארי,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,לפני
+f0d4f4c6-1df5-4921-b0c7-613ace4a3de4,644 - פי 5 - - לפני - אות שלישית 1520,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+f1f4ea44-fd6a-4a21-83f5-8f63fa8ea72b,אור נשמה,admin_curated,research_vocabulary,research_instruction,1,no,נשמה,מילוי,אור,,low,not_applicable,no,no,,
+f21c4df9-977d-4b54-a618-caabb96eded2,הוא ילי קאזה בלנקה מרוקו לפני 1335,excel_import,archival_raw,lexical_use,0,no,,,,,,,no,no,,לפני
+f23d00b3-a821-4504-a831-93148a18d6e8,לֹא יִתְיַצֵּב אִישׁ בִּפְנֵיכֶם - רגיל ומסתתר 2510 - גדול ומסתתר גדול 3630,excel_import,thematic_corpus,multi_method_instruction,4,yes,רגיל|מסתתר|גדול|מסתתר גדול,רגיל|מסתתר|גדול|מסתתר גדול,לֹא יִתְיַצֵּב אִישׁ בִּפְנֵיכֶם|ו|2510|ו,|2510||3630,low|high|low|high,not_applicable|engine_verified_mismatch|not_applicable|not_applicable,yes,no,,
+f2bb4f24-096d-4753-8247-2e7e9ff2d3fa,הגואל 396 -רגיל ועוד מילוי - 4340 אטבח,excel_import,thematic_corpus,multi_method_instruction,3,yes,רגיל|מילוי|אטבח,רגיל|מילוי|אטבח,הגואל|ועוד|4340,396|4340|,low|high|low,engine_verified_mismatch|not_verifiable|not_applicable,yes,no,,
+f3199481-71ba-4fb5-a3b3-5cc5d1cd8971,בעל ברוחני אתה 1270 אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,בעל ברוחני אתה,1270,low,engine_verified_mismatch,yes,no,,
+f35a2b2e-6d9c-4d1f-912b-a241c0ef20ae,מות... משולש... 161636 הכפלה.. כמגדל דוד,excel_import,numeric_word_construct,multi_method_instruction,2,yes,משולש|הכפלה,קדמי|הכפלה,מות|161636,|,low|low,not_applicable|not_applicable,no,no,,
+f36e55b6-cddd-4ae8-8c50-668b28ee469f,סוף תיקון עם ישראל = 1394 מסתתר רגיל 1363,excel_import,numeric_word_construct,multi_method_instruction,1,yes,מסתתר|רגיל,רגיל|רגיל,סוף תיקון עם ישראל =|סוף תיקון עם ישראל =,1394|1363,low|high,engine_verified_mismatch|engine_verified_match,yes,yes,,
+f3addb2b-77c5-4fbc-b4c4-e27e6661753c,צאצא מלכות אחרי,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,אחרי
+f42f77d7-9b3b-4201-b15f-e5afa1445983,ערן בן עזרא משולש,excel_import,research_vocabulary,research_instruction,1,no,משולש,קדמי,ערן בן עזרא,,low,not_applicable,no,no,,
+f4a43d95-a26e-400f-b29e-f58e2659de3e,הוא מסתתר - (מסתתר),excel_import,thematic_corpus,research_instruction,1,no,מסתתר|מסתתר,מסתתר|מסתתר,הוא|הוא,|,low|low,not_applicable|not_applicable,no,no,,
+f4a48c8a-8f1e-48d0-ac32-f53f5fa2cfe7,משיח 1331 - מלוי ללא מילה גדול,excel_import,archival_raw,research_instruction,1,no,גדול,גדול,משיח 1331 - מלוי ללא מילה,,low,not_applicable,no,no,,
+f555fb16-54d9-4f59-88df-d881374d281d,255 עזר כנגדו - אתבש,excel_import,numeric_word_construct,research_instruction,1,no,אתבש,אתבש,255 עזר כנגדו,,low,not_applicable,no,no,,
+f5a39ef1-646f-457c-9101-ca1ad5fc5666,"וּבָא לְצִיּוֹן גּוֹאֵל, וּלְשָׁבֵי פֶשַׁע בְּיַעֲקֹב--נְאֻם, יְהוָה בזמן הזה - ריבוע -385 מיקום",excel_import,thematic_corpus,method_result_claim,1,no,ריבוע,ריבוע,"וּבָא לְצִיּוֹן גּוֹאֵל, וּלְשָׁבֵי פֶשַׁע בְּיַעֲקֹב--נְאֻם, יְהוָה בזמן הזה",385,high,not_verifiable,no,no,,
+f613d92f-9e22-4371-8dc4-9613b97ce213,396 יבנה את בית המקדש השלישי -אלבם,excel_import,research_vocabulary,research_instruction,1,no,אלבם,אלבם,396 יבנה את בית המקדש השלישי,,low,not_applicable,no,no,,
+f660c340-f542-4b48-84fe-48047a1336a8,כלל גדול,promoted:raw_docx_v2,research_vocabulary,research_instruction,1,no,גדול,גדול,כלל,,low,not_applicable,no,no,,
+f6637749-4f98-4829-b042-634b16452b60,אתקע בשופר גדול,excel_import,public_core,research_instruction,1,no,גדול,גדול,אתקע בשופר,,low,not_applicable,no,no,,
+f67dfe55-3575-4529-98f0-65d53bd853db,צמח דויד בן ישי אותיות לפני,excel_import,thematic_corpus,research_instruction,1,no,אותיות לפני,אותיות לפני,צמח דויד בן ישי,,low,not_applicable,no,no,,
+f6b70a09-4b8b-4b7d-81dc-2ff7ce8ed4a4,כתובת המשיח באחוזה ששים ושמונה אחרי,excel_import,numeric_word_construct,lexical_use,0,no,,,,,,,no,no,,אחרי
+f6f0d051-b628-4b49-b78f-13a07f76dce7,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי -משולש -,excel_import,archival_raw,research_instruction,1,no,משולש,קדמי,כֹּה אָמַר יְהוָה קְדוֹשׁ יִשְׂרָאֵל וְיֹצְרוֹ הָאֹתִיּוֹת שְׁאָלוּנִי עַל בָּנַי וְעַל פֹּעַל יָדַי תְּצַוֻּנִי,,low,not_applicable,no,no,,
+f7585413-203c-4dc6-b019-d4ff14fc34fa,רָנִּי וְשִׂמְחִי בַּת־צִיוֹן כִּי הִנְנִי־בָא וְשָֽׁכַנְתִּי בְתוֹכֵךְ נְאֻם־יְהוָֽה׃ - ניקוד -- 566 סת,excel_import,thematic_corpus,candidate_method,1,no,סת,רגיל,רָנִּי וְשִׂמְחִי בַּת־צִיוֹן כִּי הִנְנִי־בָא וְשָֽׁכַנְתִּי בְתוֹכֵךְ נְאֻם־יְהוָֽה׃ - ניקוד,566,low,engine_verified_mismatch,yes,no,סת,
+f78e5680-ee06-45cf-8e95-86493c5e7294,חלום יעקב רגיל ו∆ 1551,excel_import,numeric_word_construct,research_instruction,1,no,רגיל,רגיל,חלום יעקב,,low,not_applicable,no,no,,
+f7eb4549-2851-4ae1-9695-8925c943ee57,אתבש,sod1820,public_core,method_word_as_subject,1,no,אתבש,אתבש,,,low,not_applicable,no,no,,
+f82c3779-df44-42cf-ab17-5fe0965ded10,644- לפני -פי 5,excel_import,research_vocabulary,lexical_use,0,no,,,,,,,no,no,,לפני
+f910b434-f3ba-4559-a259-0affbf3478f3,הוא האחרון 1212 אתבש,excel_import,numeric_word_construct,multi_method_instruction,1,yes,אתבש,רגיל,הוא האחרון,1212,low,engine_verified_mismatch,yes,no,,
+f9484bc4-f861-4d8e-8b2b-a330a8cafcd4,סעודת שור הבר והלויתן ) מילוי,excel_import,thematic_corpus,research_instruction,1,no,מילוי,מילוי,סעודת שור הבר והלויתן,,low,not_applicable,no,no,,
+f9cd8416-ef87-4ab9-8565-e1a14c84bbd7,פלא סוד יהוה 1820 - מילוי,excel_import,archival_raw,multi_method_instruction,1,yes,מילוי,רגיל,פלא סוד יהוה,1820,low,engine_verified_mismatch,yes,no,,
+f9d2eaa8-3d43-4e4d-9c30-565861d58d3d,3333 סוד יהוה - רגיל ומילוי,excel_import,archival_raw,multi_method_instruction,2,yes,רגיל|מילוי,רגיל|מילוי,3333 סוד יהוה|ו,|,low|low,not_applicable|not_applicable,no,no,,
+f9dc6c23-caa8-40b8-ac71-3a58f48b0495,266 הנבחר למשיח בימינו - אתבש,excel_import,archival_raw,research_instruction,1,no,אתבש,אתבש,266 הנבחר למשיח בימינו,,low,not_applicable,no,no,,
+fa7e4ee5-62b4-4539-a308-fef5d2f05ff4,"""בְּכוֹר שׁוֹרוֹ הָדָר לוֹ, וְקַרְנֵי רְאֵם קַרְנָיו -אות שניה - 1958 - רגיל",excel_import,thematic_corpus,method_result_claim,1,no,רגיל,רגיל,"בְּכוֹר שׁוֹרוֹ הָדָר לוֹ, וְקַרְנֵי רְאֵם קַרְנָיו -אות שניה",1958,low,engine_verified_mismatch,yes,no,,
+fb8458c2-f53f-4e3c-ab5d-a71f283040d1,הוא משיחכם ב776-רגיל וגם 1776 מדבר רבה - 1644 אתבש,excel_import,thematic_corpus,multi_method_instruction,2,yes,רגיל|אתבש,רגיל|אתבש,הוא משיחכם ב|וגם 1776 מדבר רבה - 1644,776|,low|low,engine_verified_mismatch|not_applicable,yes,no,,
+fbb6ba1b-6de4-4b9b-aea7-26bdecb13b64,יהוה שכינה משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,יהוה שכינה,,low,not_applicable,no,no,,
+fbf1d258-9abc-4973-8b1b-08462885d078,המלחמה תיפתח מדעאש סריה ריבוע,excel_import,thematic_corpus,research_instruction,1,no,ריבוע,ריבוע,המלחמה תיפתח מדעאש סריה,,low,not_applicable,no,no,,
+fc85e04d-6760-47f2-aca6-e4695d0a266e,הוא אלהים משולש,excel_import,research_vocabulary,research_instruction,1,no,משולש,קדמי,הוא אלהים,,low,not_applicable,no,no,,
+fcf63e41-27d7-4ce6-9f0f-510ee8207f12,הוא משיחכם באלפיים חמש עשרה - סת,excel_import,numeric_word_construct,candidate_method,0,no,סת,CANDIDATE_SOFEI_TEVOT,הוא משיחכם באלפיים חמש עשרה,,low,not_applicable,no,no,סת,
+fd499b54-fabc-4c7e-8f04-0464425e427f,מלכות דויד בן ישי תתחיל ב2016 -רגיל ומס,excel_import,research_vocabulary,method_result_claim,1,no,רגיל,רגיל,מלכות דויד בן ישי תתחיל ב,2016,low,engine_verified_mismatch,yes,no,,
+fd4b9b96-165e-4252-8212-8a7c5f693d0c,יהוה בחר אותי למשיחו 1396 אתבש,excel_import,archival_raw,multi_method_instruction,1,yes,אתבש,רגיל,יהוה בחר אותי למשיחו,1396,low,engine_verified_mismatch,yes,no,,
+fe2b5d6b-ecd1-4308-b7fd-fb04e65eebb0,266 266 - אחרי גדול,excel_import,numeric_word_construct,research_instruction,1,no,גדול,גדול,266 266 - אחרי,,low,not_applicable,no,no,,אחרי
+fe719f6f-5e82-4619-8d37-d6df15039da3,סוד יהוה ליראיו משולש,excel_import,thematic_corpus,research_instruction,1,no,משולש,קדמי,סוד יהוה ליראיו,,low,not_applicable,no,no,,
+febbb846-da77-4bf1-83e0-fb2108732f37,אני שקר 360 אלבם,excel_import,personal_or_restricted,multi_method_instruction,1,yes,אלבם,רגיל,אני שקר,360,low,engine_verified_mismatch,yes,no,,
+ff1997ca-56d4-4b12-919e-60d65f33ddf0,266 ו 337 - ריבוע,excel_import,numeric_word_construct,multi_method_instruction,1,yes,ריבוע,רגיל,266 ו,337,low,engine_verified_mismatch,yes,no,,
+ff6f5505-ab33-4009-b487-d8ab93f97eef,המשיח מצפן בסוף ספר דניאל אתבש,excel_import,thematic_corpus,research_instruction,1,no,אתבש,אתבש,המשיח מצפן בסוף ספר דניאל,,low,not_applicable,no,no,,

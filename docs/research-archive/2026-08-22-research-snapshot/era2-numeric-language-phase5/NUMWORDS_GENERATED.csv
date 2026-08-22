@@ -1,0 +1,62 @@
+number,sources,status_flag,digit_read,cardinal_wording
+14,metatron_anchors,,אחד ארבע,ארבע עשרה
+16,metatron_anchors|number_anchors,,אחד שש,שש עשרה
+17,number_anchors,,אחד שבע,שבע עשרה
+26,number_anchors,,שתיים שש,עשרים ושש
+44,metatron_anchors,,ארבע ארבע,ארבעים וארבע
+45,metatron_anchors|number_anchors,,ארבע חמש,ארבעים וחמש
+50,metatron_anchors,,חמש אפס,חמישים
+59,anchor_families|number_anchors,approved_anchor,חמש תשע,חמישים ותשע
+62,anchor_families,approved_anchor,שש שתיים,שישים ושתיים
+73,number_anchors,,שבע שלוש,שבעים ושלוש
+75,calculator_anchors|number_roots,,שבע חמש,שבעים וחמש
+86,number_anchors,,שמונה שש,שמונים ושש
+111,calculator_anchors|metatron_anchors|number_anchors|number_roots,,אחד אחד אחד,מאה ואחת עשרה
+116,anchor_families|number_anchors,approved_anchor,אחד אחד שש,מאה ושש עשרה
+123,metatron_anchors|number_anchors,,אחד שתיים שלוש,מאה עשרים ושלוש
+127,anchor_families,discovered,אחד שתיים שבע,מאה עשרים ושבע
+145,anchor_families,reviewed,אחד ארבע חמש,מאה ארבעים וחמש
+148,anchor_families,approved_anchor,אחד ארבע שמונה,מאה ארבעים ושמונה
+152,metatron_anchors,,אחד חמש שתיים,מאה חמישים ושתיים
+156,number_anchors,,אחד חמש שש,מאה חמישים ושש
+216,calculator_anchors|number_anchors,,שתיים אחד שש,מאתיים ושש עשרה
+222,calculator_anchors|number_roots,,שתיים שתיים שתיים,מאתיים עשרים ושתיים
+223,number_anchors,,שתיים שתיים שלוש,מאתיים עשרים ושלוש
+224,calculator_anchors,,שתיים שתיים ארבע,מאתיים עשרים וארבע
+256,calculator_anchors,,שתיים חמש שש,מאתיים חמישים ושש
+313,calculator_anchors|number_roots,,שלוש אחד שלוש,שלוש מאות ושלוש עשרה
+321,number_anchors,,שלוש שתיים אחד,שלוש מאות עשרים ואחת
+333,calculator_anchors|number_anchors|number_roots,,שלוש שלוש שלוש,שלוש מאות שלושים ושלוש
+358,metatron_anchors|number_anchors,,שלוש חמש שמונה,שלוש מאות חמישים ושמונה
+360,metatron_anchors,,שלוש שש אפס,שלוש מאות ושישים
+370,metatron_anchors,,שלוש שבע אפס,שלוש מאות ושבעים
+414,number_anchors,,ארבע אחד ארבע,ארבע מאות וארבע עשרה
+444,calculator_anchors,,ארבע ארבע ארבע,ארבע מאות ארבעים וארבע
+456,number_anchors,,ארבע חמש שש,ארבע מאות חמישים ושש
+474,number_roots,,ארבע שבע ארבע,ארבע מאות שבעים וארבע
+506,number_anchors,,חמש אפס שש,חמש מאות ושש
+512,calculator_anchors,,חמש אחד שתיים,חמש מאות ושתים עשרה
+555,calculator_anchors,,חמש חמש חמש,חמש מאות חמישים וחמש
+566,anchor_families|number_anchors,featured,חמש שש שש,חמש מאות שישים ושש
+590,number_anchors,,חמש תשע אפס,חמש מאות ותשעים
+611,number_anchors,,שש אחד אחד,שש מאות ואחת עשרה
+665,number_anchors,,שש שש חמש,שש מאות שישים וחמש
+666,calculator_anchors,,שש שש שש,שש מאות שישים ושש
+776,calculator_anchors|number_anchors|number_roots,,שבע שבע שש,שבע מאות שבעים ושש
+777,calculator_anchors,,שבע שבע שבע,שבע מאות שבעים ושבע
+878,calculator_anchors|metatron_anchors|number_anchors|number_roots,,שמונה שבע שמונה,שמונה מאות שבעים ושמונה
+888,calculator_anchors|number_roots,,שמונה שמונה שמונה,שמונה מאות שמונים ושמונה
+974,number_anchors,,תשע שבע ארבע,תשע מאות שבעים וארבע
+999,calculator_anchors|number_roots,,תשע תשע תשע,תשע מאות תשעים ותשע
+1024,calculator_anchors,,אחד אפס שתיים ארבע,אלף עשרים וארבע
+1118,calculator_anchors|number_roots,,אחד אחד אחד שמונה,אלף מאה ושמונה עשרה
+1202,calculator_anchors|number_anchors|number_roots,,אחד שתיים אפס שתיים,אלף מאתיים ושתיים
+1234,calculator_anchors|metatron_anchors|number_anchors|number_roots,,אחד שתיים שלוש ארבע,אלף מאתיים שלושים וארבע
+1237,anchor_families|calculator_anchors|number_anchors|number_roots,rejected,אחד שתיים שלוש שבע,אלף מאתיים שלושים ושבע
+1820,calculator_anchors|gold_entity|number_anchors|number_roots,gold_entity_canonical,אחד שמונה שתיים אפס,אלף שמונה מאות ועשרים
+1948,number_anchors,,אחד תשע ארבע שמונה,אלף תשע מאות ארבעים ושמונה
+2048,calculator_anchors,,שתיים אפס ארבע שמונה,אלפיים ארבעים ושמונה
+2137,number_anchors,,שתיים אחד שלוש שבע,אלפיים מאה שלושים ושבע
+2212,number_anchors,,שתיים שתיים אחד שתיים,אלפיים מאתיים ושתים עשרה
+2216,number_anchors,,שתיים שתיים אחד שש,אלפיים מאתיים ושש עשרה
+2701,number_anchors,,שתיים שבע אפס אחד,אלפיים שבע מאות ואחת
