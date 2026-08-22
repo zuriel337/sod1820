@@ -56,6 +56,8 @@ A contributor with a strong track record (e.g. `vip_source`-tagged researchers, 
 
 **No auto-canonicalization exists or is proposed anywhere in this contract**, for any reason, at any confidence level.
 
+**Cross-reference, added 22.8 (§4 correction pass):** `RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md` §4 (Legacy Baseline · Additive Access · Premium Depth Law) names Verification / Approval / Access as three separate axes — this lifecycle's Stage 3 (Calculation Verification) and Stage 5 (Human Gate / Approval) are that contract's Verification and Approval axes respectively; Access-tier assignment is a further, independent decision made only after Stage 6 (Approved Corpus), never bundled into approval itself. Nothing above changes as a result — this is a pointer, not a revision.
+
 ---
 
 ## 4. `corpus_role` (v3) vs `dna_status` (live) — stay orthogonal through this lifecycle

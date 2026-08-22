@@ -1,7 +1,9 @@
 # SOD1820 — RESEARCH DNA v1 · FOUNDATION CONTRACT
-### Architecture/Contract + Roadmap Alignment · actor=CLAUDE · 2026-08-22
+### Architecture/Contract + Roadmap Alignment · actor=CLAUDE · 2026-08-22 · **§4 corrected 22.8 (fifth, final pass)**
 
-**This is the fourth pass in a chain on the same subject. It is an architecture/contract synthesis — it does not re-research. It closes decisions already reached by:** `MASTER_CLASSIFICATION_V3` (schema profile, persistence mapping, final decision pack), the **Legacy → Research DNA Crosswalk**, the **Research DNA v1 Proof-of-Model** (20 real cases, readiness decision: *architecturally ready*), **Methods Expansion Phase 1**, **Hebrew Identity Phase 2**, **Numeric Language Phase 1–5**, and the **Multilingual Corpus Inventory**. Companions: `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`.
+**This is the fourth pass in a chain on the same subject; §4 was corrected/replaced by a fifth, final pass the same day.** It is an architecture/contract synthesis — it does not re-research. It closes decisions already reached by: `MASTER_CLASSIFICATION_V3` (schema profile, persistence mapping, final decision pack), the **Legacy → Research DNA Crosswalk**, the **Research DNA v1 Proof-of-Model** (20 real cases, readiness decision: *architecturally ready*), **Methods Expansion Phase 1**, **Hebrew Identity Phase 2**, **Numeric Language Phase 1–5**, and the **Multilingual Corpus Inventory**. Companions: `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`.
+
+**§4 correction, 22.8 (this pass):** the fourth pass's §4 ("Legacy Access Preservation + Premium Depth Law") used wording Tzuriel judged too rigid (*"an approved method's raw computed value is never Premium"*, *"Premium controls depth and tooling — not truth"*). §4 below **replaces** that section in full with: a new Legacy Baseline Law (§4.1), an explicit Additive Enrichment Law separating Classification/Provenance-Generation/Approval/Access as four orthogonal axes (§4.3), a corrected World Access Law (§4.4), a corrected Method Access Law (§4.6), a corrected Premium Law slogan (§4.7), and a Future Management View requirement (§4.11). §2's dimension table gained an explicit **Approval** dimension and a **Baseline/Enrichment Provenance** sub-field of Provenance. Everything else in this document (§1, §2's other dimensions, §3, §5's original text, §6, §7) is unchanged in substance from the fourth pass — see the inline "added 22.8" markers for exactly what is new.
 
 **Explicitly NOT performed by this contract:** persistence of the 32 rows, aliases, method activation, schema changes, application build. **0 DB writes** except the single closing `work_log` memo.
 
@@ -51,14 +53,15 @@ Every claim about a phrase's gematria value — anywhere in the system, present 
 | Dimension | Home | Status |
 |---|---|---|
 | **Identity** | `gematria_words.id` + `phrase` (unchanged), optional `node_id` when promoted | LIVE, unchanged |
-| **Provenance** | `source` (100% populated, ACTIVE) + `vip_source` (sparse but ACTIVE-when-present) + `research_objects.contributor`/`owner_person_id` for claim-level provenance | LIVE, reused |
+| **Provenance** | `source` (100% populated, ACTIVE) + `vip_source` (sparse but ACTIVE-when-present) + `research_objects.contributor`/`owner_person_id` for claim-level provenance. **Sub-field, added 22.8:** Baseline/Enrichment Provenance — row-level via `created_at` against a fixed baseline-cutoff (sufficient today); field-level (a fact added onto an already-existing row) is `IMPLEMENTATION DECISION REQUIRED`, per §4.1 | LIVE, reused; baseline/enrichment sub-field partially open (§4.1) |
 | **Verification** | `research_objects.engine_verified`/`engine_detail`, per the Claim/Calculation/Verification Contract (§1 above) | Contract now closed; implementation not started |
+| **Approval** (new dimension, added 22.8) | `research_objects.status` transition off `candidate` / `research_contributions.research_state` reaching `canonical` — Human-Gate only, per `CORPUS_APPROVAL_LIFECYCLE.md` §1 and `METHOD_LIFECYCLE_ALIGNMENT.md` §1. Explicitly a **separate axis from Verification** (engine-tested ≠ Human-Gate-approved) and from Access (§4.4–§4.7) | LIVE mechanism, reused — not a new table |
 | **Semantic** (worlds/themes) | `gematria_words.world` (5 values, live world-source — see §2.2) + edge-to-`nodes type='theme'` for future N-many tags | LIVE for the single-axis case; N-axis is a future, non-blocking scope decision |
 | **Research** (packages/clusters) | The proven `topic_cards → nodes type='convergence'` promotion pipeline (204 approved, count-consistent) | LIVE pipeline, reused — not duplicated |
 | **Method** | `research_objects.engine_detail` (mention/claim/engine-result/historical-claim/candidate-framing as sibling jsonb keys) + `gematria_methods` once a method is `canonical` | Per `METHOD_LIFECYCLE_ALIGNMENT.md` |
 | **Numeric** (Numeric Language) | A generation/parsing **transform-slot** inside the same `engine_detail` convention — see §2.3 | Design confirmed by Zuriel's own recorded constraint; not built |
 | **Temporal** | Edges to existing `nodes type='year'` (12)/`type='event'` (120) — never a new timeline table | LIVE mechanism, data-completeness gap only |
-| **Access** | Reconcile the **three** already-live tier signals (`visibility_tier`, `space`, `nodes.metadata.tier`) — explicitly **not** resolved here (Crosswalk Open-Question #3, still open) | OPEN — carried forward, not decided by this contract |
+| **Access** | Reconcile the **three** already-live tier signals (`visibility_tier`, `space`, `nodes.metadata.tier`) — reconciliation itself explicitly **not** resolved here (Crosswalk Open-Question #3, still open). **Governing law, added 22.8:** whichever mechanism the reconciliation lands on, per-item tier assignment follows §4.4/§4.6 (World Access Law, Method Access Law) and §4.7 (Premium Law) — access is never inherited automatically from a world/method's legacy tier, and Premium never governs mathematical truth or canonical status | OPEN (reconciliation) / LAW SET (assignment principles, §4) — carried forward |
 | **Quality** | `dna_status` (real, well-shaped, code-confirmed currently unread by app code) — reviving it as a read signal is a cheap future option, not decided here | OPEN — recommendation only |
 | **Interpretation** | Extend the existing `tags` `כיוון:*` direction-lens pattern (already renders live on `EntityPage.jsx`) — never a new claim/inference field | LIVE precedent, reused |
 
@@ -103,23 +106,83 @@ This is not a new law invented for this contract — it is the direct extension 
 
 ---
 
-## 4. LEGACY ACCESS PRESERVATION + PREMIUM DEPTH LAW
+## 4. LEGACY BASELINE · ADDITIVE ACCESS · PREMIUM DEPTH LAW
 
-**Added by Tzuriel, 22.8, as a direct corollary of §3 (Preserve & Expand Law) — access-tier scope, not content scope.**
+**§4 corrected/replaced in full, 22.8 — fifth and final pass in this chain.** Tzuriel's 22.8 instruction explicitly names the prior §4 wording ("*an approved method's raw computed value is never Premium*", "*Premium controls depth and tooling — not truth*") as **too rigid** and orders it replaced, not appended to. This section is the sole authority on legacy-baseline/access/premium wording in this contract; nothing in the version this replaces should be quoted or relied on going forward. It remains a direct corollary of §3 (Preserve & Expand Law) — **access-tier and provenance scope, not content scope.**
 
-> כל world / method / DNA capability / convergence / number-page capability שכבר זמינים למשתמשים במערכת החיה נשמרים ברמת הגישה הקיימת שלהם; Research DNA v1 אינו משמש רטרואקטיבית לנעילת יכולות קיימות.
-> Worlds/facets חדשים הנוצרים מתוך Research DNA — כגון emotional/semantic/research-depth dimensions — יכולים להיות מסווגים כ־Premium Research Depth.
-> שיטות חדשות שאושרו נכנסות למנוע האחד; עצם האמת המתמטית אינה "Premium truth", אך ניתן להגביל ל־Premium את עומק המחקר מעליה: multi-method exploration, matrices, comparison, advanced filtering, Cross Engine, graph paths, advanced provenance and Raziel research.
-> Premium controls depth and tooling — not truth.
+### 4.1 LEGACY BASELINE LAW — knowing what "today" is, before enrichment starts
 
-**In plain terms:**
-- **No retroactive lockout.** Every world/method/DNA-capability/convergence/number-page capability a user already has access to *today*, on the live site, keeps that exact access level. Research DNA v1 landing is never itself the trigger that moves something from free to paywalled.
-- **New surfaces born from Research DNA may be Premium from birth.** A new emotional/semantic/research-depth world or facet that did not exist before this contract can be classified as Premium Research Depth at creation — that is not a lockout, because nothing pre-existing is being restricted.
-- **An approved method's raw truth is never Premium.** Once a method clears the Method Lifecycle (`METHOD_LIFECYCLE_ALIGNMENT.md`) and enters the one live engine, its plain computed value is available at whatever tier gematria values are available at today — the same `method_priority`/`method_hierarchy_ragil_foundation` engine output for everyone. What *can* be gated to Premium is the **depth and tooling layered on top**: multi-method exploration, comparison matrices, advanced filtering, the Cross Engine (`WS-CROSS-ENGINE`), graph-path traversal, advanced provenance detail, and Raziel-driven research.
-- **The one-sentence rule:** **Premium controls depth and tooling — not truth.**
-- This is an access-tier constraint on top of §3, not a new content/taxonomy rule — it governs *who sees how much*, never *what the math says*. It composes directly with the existing `platform_tiers_law` (6-tier access model, CLAUDE.md) — this law says how Research DNA-born surfaces slot into that existing tier system, it does not replace it.
+Before Research DNA v1 enriches anything, the system must be able to identify **the baseline** — the state of the live system *right now*: which worlds exist, which methods exist, which number-page capabilities exist, which DNA/convergence capabilities exist, which content/data is already available, and which access levels already apply to each. This is not a proposal to copy the whole system into a new table — it is a requirement that **provenance/metadata be sufficient to later answer, for any item: was this here at baseline, or did it arrive after?**
 
-**Not yet decided by this note (left open, same as §5 below):** the exact tier cutline for each specific future facet/mode (e.g. is Graph-Path traversal tier 3 or tier 4?) — that is a per-feature Human-Gate call when each surface is actually built, not something this contract pre-assigns.
+**Live-schema check performed this pass (verification, not new research):** `gematria_words` and `research_contributions` carry both `created_at` and `updated_at`; `research_objects`, `edges`, and `nodes` carry `created_at` only, no `updated_at`. None of the five tables (`gematria_words`, `research_objects`, `research_contributions`, `edges`, `nodes`) carries a dedicated `is_baseline`/`baseline_cutoff`/`import_batch`/`generation` field. This gives two different levels of answer:
+- **Row-level baseline/enrichment (whole new rows):** sufficient today. A row's own `created_at` (compared against a single fixed baseline-cutoff date, e.g. this PR's merge date) already tells you whether that row is legacy or newly-added — no schema change needed to answer "is this whole `gematria_words` row / `edges` row / `nodes` row baseline or enrichment."
+- **Field-level baseline/enrichment (new facts added onto an *existing*, already-baseline row — e.g. a pre-existing word in a pre-existing world gaining a new DNA-dimension fact, a new tier tag, or a new method result via `research_objects.engine_detail`'s jsonb):** **`IMPLEMENTATION DECISION REQUIRED`.** `research_objects`/`edges`/`nodes` have no `updated_at` at all, so a fact silently added to an existing row's jsonb or an existing node's metadata leaves no live trace of *when* it was added or that it postdates the row's own `created_at`. This contract does not invent a fix (no new column, no audit table) — it names the gap so a future build pass makes the call deliberately (options might include: an `updated_at` column where missing, an append-only provenance/audit row per enrichment event, or a documented convention that jsonb enrichment always carries its own `{added_at}` sibling key inside `engine_detail`/`metadata` — **not decided here**).
+
+### 4.2 PRESERVE & EXPAND — cross-reference, not restated
+
+§3 above already governs this fully: every capability/world/method/DNA-surface/convergence/number-page capability available at baseline stays available; Research DNA is an enrichment layer, never a `Replace → Simplify → Lose` redesign. §4 builds on §3 without repeating it — read §3 for the content-preservation rule; §4 below is the **access**-preservation rule that sits on top of it.
+
+### 4.3 ADDITIVE ENRICHMENT LAW — the central correction of this pass
+
+**A new addition to an existing world/method/surface does not automatically become part of that surface's legacy baseline just because it lands inside a container that already existed.** Concrete example: if World X exists today with 300 items, and Research DNA later adds 200 more items into the same World X, the system must be able to tell the 300 baseline items apart from the 200 later-enrichment items — even though all 500 now share the same `world` value.
+
+This requires holding **four axes as genuinely separate, never-merged concepts** — none of them implies another:
+
+| Axis | Question it answers | Lives on |
+|---|---|---|
+| **Classification** | Which world/category/method/facet does this belong to? | `gematria_words.world`, `edges`/`nodes type='theme'`, `gematria_methods` (per §2 dimension table) |
+| **Provenance-Generation** | Where did it come from, when did it enter, is it legacy-baseline or a later enrichment? | `source`/`vip_source`/`created_at` today; field-level enrichment provenance is the §4.1 `IMPLEMENTATION DECISION REQUIRED` gap |
+| **Approval** | What stage of Human-Gate has it cleared — candidate / engine-tested / Human-Gate-reviewed / approved? | `research_objects.status`, `research_contributions.research_state`, per `CORPUS_APPROVAL_LIFECYCLE.md` §1 and `METHOD_LIFECYCLE_ALIGNMENT.md` §1 |
+| **Access** | Who is allowed to see/use it, at what tier? | `visibility_tier`/`space`/`nodes.metadata.tier` (three-way reconciliation still open, §6 item 1) — governed going forward by §4.4–§4.7 below |
+
+Classification, Provenance-Generation, Approval and Access are **orthogonal**. A row's world-membership never decides its access tier; its baseline/enrichment status never decides its approval stage; its approval stage never decides its access tier. Each is set independently, by the mechanism that actually governs it.
+
+### 4.4 WORLD ACCESS LAW
+
+Existing worlds are preserved (§4.2). But **membership in an existing world does not automatically inherit that world's legacy access level.** Content newly added, in the future, to an already-existing world can receive its own access tier by a fresh Human-Gate decision, independent of what tier the rest of the world carries.
+
+**Worked example (Kabbalah, per Tzuriel's instruction):** the Kabbalah world exists today; everything already in it keeps its baseline access level, unchanged. If Research DNA later discovers 500 new relationships inside the Kabbalah world, the fact that they classify as "Kabbalah" does **not** obligate all 500 to be Free just because pre-existing Kabbalah content is Free. Tzuriel decides — Free / Premium / Research / Private / any other tier already live in the model. **This contract does not invent a new tier** — it only names that the decision is per-addition, not inherited from the container.
+
+### 4.5 NEW WORLDS / FACETS
+
+Worlds/facets that are genuinely new — born from Research DNA itself (emotional families, semantic families, identity families, multilingual relationships, temporal/research facets, or any other future-approved world) — may be assigned an access tier from the moment Human-Gate approves them. A brand-new world is not automatically Premium and not automatically Free by virtue of being new — **Tzuriel decides**, per-world, at creation.
+
+### 4.6 METHOD ACCESS LAW — the corrected wording (replaces "an approved method's raw computed value is never Premium")
+
+That prior sentence was too rigid; it conflated mathematical correctness with access. The corrected law separates them:
+
+- **Mathematical Truth (invariant):** the same approved method, run through the one canonical engine, always returns the same result, regardless of the viewer's access tier. **Premium never changes the mathematics.** This part of the old wording was right and is kept.
+- **Method Access (tier-assignable):** methods already visible at baseline keep their existing baseline access level — no retroactive lockout. But **a method newly approved in the future can be assigned its own access tier by Human-Gate**, and its *results' exposure* can follow that tier — the old blanket claim that a method's raw value is "never Premium" is exactly what this section retracts.
+
+**What Premium can govern**, once a method exists in the engine: exposure of newly-approved methods' results, additional method results beyond a free baseline set, multi-method exploration, method comparison matrices, consensus views, advanced filtering, the Cross Engine (`WS-CROSS-ENGINE`), graph-path traversal, advanced provenance detail, and Raziel-driven research.
+
+**Two governing one-liners, stated for reuse:** **Access tier ≠ mathematical truth.** And: **Method Approved ≠ Free automatically.**
+
+### 4.7 PREMIUM LAW — corrected slogan
+
+The prior one-sentence rule — *"Premium controls depth and tooling — not truth"* — is replaced with the more precise:
+
+> **Premium controls access, depth and tooling — never mathematical truth or canonical status.**
+
+Meaning: Premium can decide *what a user can see and explore* (access to a world/method/facet, depth of tooling, breadth of exploration). Premium can never decide *whether a calculation is correct, whether a source is genuine, whether a claim has been verified, or whether something is canonical* — those are exclusively engine / evidence / governance / Human-Gate questions (§1, §4.9, §4.10 below), untouched by tier.
+
+### 4.8 Composition with `platform_tiers_law`
+
+§4.4–§4.7 govern how Research DNA-born and newly-classified content **slots into** the existing 6-tier access model (`platform_tiers_law`, CLAUDE.md) — they do not replace it, add a tier, or renumber it. `platform_tiers_law`'s tier ladder (guest → registered → temple-student → temple-son → temple-researcher → temple-partner) and its existing gate order (tier≥4 → ELS, tier≥3 → hint upload, tier≥2 → journeys) stay exactly as documented; nothing here is in conflict with it. Every "Human-Gate assigns a tier" decision above assigns one of the tiers already defined there — never an invented one.
+
+### 4.9 CORPUS APPROVAL stays separate — cross-reference only
+
+Unchanged, not re-litigated: `Engine Verified ≠ Corpus Approved`, `Trusted ≠ Canonical`, the six-stage SOURCE→ENGINE-CALC→VERIFICATION→RESEARCH→HUMAN-GATE→APPROVED lifecycle — all per `CORPUS_APPROVAL_LIFECYCLE.md`, untouched by this pass. §4.3's "Approval" axis points here.
+
+### 4.10 METHOD LIFECYCLE stays separate — cross-reference only
+
+Unchanged, not re-litigated: `discovered → candidate → definition/reconstruction tested → engine reproducible → Human-Gate (Zuriel) → approved/active`, per `METHOD_LIFECYCLE_ALIGNMENT.md`, untouched by this pass. **Verification ≠ Approval ≠ Access remain three separate axes** — a method can be engine-reproducible (verification) without yet being Human-Gate-approved (approval), and once approved, its access tier (§4.6) is a further, separate decision — never bundled into the same step.
+
+### 4.11 FUTURE MANAGEMENT VIEW — requirement only, nothing built
+
+A future (not this PR) admin view should let Tzuriel see, per world/method/corpus-addition/DNA-enrichment, a breakdown such as: *World: Kabbalah / Baseline content: X / Added since baseline: Y / Legacy Free: X / New Free: Y / Premium enrichment: Z / Candidate pending Human-Gate: N.* The goal is that it is always answerable: what did we have, what did we add, who approved it, where did it come from, and what access level does it carry. **This is a requirement statement only — no dashboard, no UI, no query is built in PR #166.** It depends on the §4.1 baseline/enrichment provenance decision being made first.
+
+**Not yet decided by this section (left open, same as §5/§6 below):** the exact tier cutline for each specific future facet/mode (e.g. is Graph-Path traversal tier 3 or tier 4?) — that is a per-feature Human-Gate call when each surface is actually built, not something this contract pre-assigns. Nor does this section resolve the three-way `visibility_tier`/`space`/`nodes.metadata.tier` reconciliation (§6, item 1) — Access-axis assignment per §4.3 above composes with whichever mechanism that future reconciliation lands on.
 
 ---
 
@@ -128,6 +191,7 @@ This is not a new law invented for this contract — it is the direct extension 
 - **The existing number page remains the experiential base.** Research DNA v1 is designed to *feed* it (additional facts becoming available to render), never to replace its layout, its existing sections, or its current read path.
 - **Future-possible, not scoped or built here:** exposing **modes** (Reader / Research / DNA / Cross) and **facets** (by world / method / verification-state / source / researcher) as optional lenses over the same entity. This is explicitly named as a future direction per this task's instruction, with no screen map, no component, and no redesign performed in this pass — consistent with `research_workspace_law`'s own hard rule (*"מפה-קודם, מסך-קודם, לא-בונים-מאחור"*) and `command_center_law`'s identical execution-order rule.
 - No `EntityPage.jsx` code was read, modified, or redesigned as part of producing this contract.
+- **Added 22.8, per §4:** the number page's future modes/facets must be able to carry the same four orthogonal axes as everything else in this contract — classification, provenance-generation (baseline vs. enrichment), approval, access — so that "more information + more depth + more control, without more default load" (this section's own principle) can eventually distinguish, per fact shown, whether it was here at baseline or added later, and at what access tier. This is a compatibility note for a future design pass, not a build performed here.
 
 ---
 
@@ -135,6 +199,7 @@ This is not a new law invented for this contract — it is the direct extension 
 
 Carried forward, not decided, not newly opened by this pass:
 
+0. **Field-level baseline/enrichment provenance for facts added onto an already-existing row** (`research_objects`/`edges`/`nodes` have no `updated_at`; no `is_baseline`/`batch`/`generation` field anywhere) — `IMPLEMENTATION DECISION REQUIRED`, named in §4.1, added 22.8. Not a schema change performed by this contract — a decision left for the future build pass.
 1. **Three-way tier reconciliation** (`visibility_tier` / `space` / `nodes.metadata.tier`) — Crosswalk Open-Question #3, still open.
 2. **44 vs. 5 world-vocabulary reconciliation** (`nodes.metadata.world` vs. `gematria_words.world`) — Crosswalk Open-Question #2, still open.
 3. **`landmark_target_flag` meaning / `targets` edge-type** — `NEEDS_HUMAN_DEFINITION`, per §2.5 above.
@@ -150,6 +215,8 @@ None of these block Research DNA v1's readiness as a *contract* — the Proof-of
 
 **NOT YET — same verdict as every prior pass in this chain, reconfirmed, not re-litigated.** Every dimension of Research DNA v1, every stage of the Corpus Approval Lifecycle, and every stage of the Method Lifecycle maps onto a structure that already exists (`gematria_words`, `research_objects`, `research_contributions`, `word_aliases`, `edges`/`nodes`, `gematria_methods`). The one concrete future build item (a `targets` edge-type vocabulary value) is a controlled-vocabulary addition, not a schema change, and is itself gated behind a Zuriel definition that has not yet been given.
 
+**Added 22.8, this pass — one open item, verdict unchanged:** §4.1/§6 item 0 (field-level baseline/enrichment provenance — no `updated_at` on `research_objects`/`edges`/`nodes`, no `is_baseline`/`batch`/`generation` field anywhere) is `IMPLEMENTATION DECISION REQUIRED`, not `SCHEMA CHANGE REQUIRED NOW`. Row-level baseline/enrichment already works today via `created_at` against a fixed cutoff — no schema change needed for that. Whether field-level enrichment eventually needs a new column, an append-only audit row, or a documented jsonb convention is a decision for the future build pass, not this contract. The verdict stays **NOT YET**.
+
 ---
 
-*Governance: docs-only pass. 0 DB writes except the single closing `work_log` memo, which covers this document together with `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`, and the `SOD1820_MASTER_ROADMAP.md` edit.*
+*Governance: docs-only pass. 0 DB writes except the single closing `work_log` memo, which covers this document together with `CORPUS_APPROVAL_LIFECYCLE.md`, `METHOD_LIFECYCLE_ALIGNMENT.md`, and the `SOD1820_MASTER_ROADMAP.md` edit. §4 correction pass, 22.8: fifth and final pass in this chain — closes the Foundation/Access/Premium wording question; no further correction pass on this subject is anticipated before Human-Gate.*

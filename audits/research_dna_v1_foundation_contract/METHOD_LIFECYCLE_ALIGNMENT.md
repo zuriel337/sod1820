@@ -52,6 +52,8 @@ Mapped onto the rule's own vocabulary and the live registry:
 
 **If Zuriel later provides provenance for the 644 anchor** (a source, teacher, or text where "צמח דוד" is traditionally valued at 644), that is new SOURCE_CLAIM evidence that could motivate a fresh, disciplined reconstruction attempt — not something this contract performs preemptively.
 
+**Cross-reference, added 22.8 (§4 correction pass):** `RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md` §4.6 (Method Access Law, corrected) confirms that clearing this lifecycle's Human-Gate stage (§1 above, "approved/active method") does **not** by itself decide the method's access tier — verification (this document), approval (Human-Gate, this document), and access (§4.6/§4.7 of the Foundation Contract) are three separate decisions, in that order, none implied by the others. Nothing in §1–§5 above changes as a result.
+
 ---
 
 ## 4. After approval: what changes, concretely
