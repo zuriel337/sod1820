@@ -140,7 +140,7 @@ test("decision_register: rows are parsed with correct column count and closed-ro
   assert.ok(vm.decision_register.length >= 9);
   const g4Row = vm.decision_register.find((r) => r.gate_ref === "#4");
   assert.ok(g4Row, "Decision Register row for #4 not found");
-  assert.equal(g4Row.closed, false);
+  assert.equal(g4Row.closed, true); // Gate #4 closed 22.8.2026 (ELS Finding Identity)
   const g2Row = vm.decision_register.find((r) => r.gate_ref_raw.includes("#2"));
   assert.ok(g2Row);
   assert.equal(g2Row.closed, true);
