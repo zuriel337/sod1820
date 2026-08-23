@@ -227,7 +227,11 @@ export default function ElsWorkAreaPage() {
     <div className="els-native-modes" style={{ marginBottom: 10 }}>{MODES.map((m) => <button key={m.id} onClick={() => setMode(m.id)} style={{ minHeight: 46, padding: "0 19px", borderRadius: 999, border: `1px solid ${mode === m.id ? "transparent" : P.border}`, background: mode === m.id ? P.accentBtn : P.cardSoft, color: mode === m.id ? P.onAccent : P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 850 }}>{m.icon} {m.title}</button>)}
       <button onClick={() => setShowEngine((v) => !v)} type="button" style={{ marginInlineStart: "auto", minHeight: 46, padding: "0 15px", borderRadius: 999, border: `1px solid ${P.border}`, background: "transparent", color: P.inkSoft }}>{showEngine ? "הסתר מנוע" : "Debug / onboarding"}</button>
     </div>
-    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} /></div>
+    {/* 🌉 hiddenBridge=מפורש (לא הסקה מ-CSS off-screen): כשה-Debug-view סגור, זהו גשר-נסתר/פרוגרמטי —
+        מעביר את הכוונה ל-TzofenEmbed עצמו (loading=eager + ?bridge=hidden) כדי שהמנוע-הנסתר-מהצג
+        באמת ייטען וידלג רק על ההדרכה-החד-פעמית, בלי לעקוף tier/auth/quota. ה-CSS off-screen* נשאר
+        לצורך ההסתרה-החזותית בלבד — אינו עוד מקור-האמת לכוונה. */}
+    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} /></div>
 
     <div className="els-native-layout"><main style={{ minWidth: 0 }}><section style={{ ...card, overflow: "hidden", minHeight: 560 }}>
       <div style={{ padding: "13px 14px", borderBottom: `1px solid ${P.border}`, display: "grid", gap: 10 }}>

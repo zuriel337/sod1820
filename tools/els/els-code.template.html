@@ -1053,6 +1053,10 @@
   //    ומפעיל את שער-ההרשמה (5 חיפושים רגילים חינם · חיפוש-מוצלב לרשומים בלבד). עצמאי = בלי שער.
   let EMBED=false;try{EMBED=/[?&]embed=1\b/.test(location.search);}catch(e){}
   if(EMBED)document.body.classList.add("embed");
+  // 🌉 גשר-נסתר/פרוגרמטי (Surface v2 וכיו״ב) — סימון-מפורש מה-host (TzofenEmbed hiddenBridge=true),
+  //    לא הסקה מ-CSS. משפיע *רק* על ensureOnboarded() למטה (§3921) — דילוג-חד-פעמי-לריצה-הזו על
+  //    חלון-ההדרכה, בלי markOnboarded()/localStorage, בלי לגעת בתור/tier/הרשמה (SubscribeGate).
+  let BRIDGE_HIDDEN=false;try{BRIDGE_HIDDEN=/[?&]bridge=hidden\b/.test(location.search);}catch(e){}
   const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};
   const norm=s=>{let o="";for(const c of s||"")if(c>="א"&&c<="ת")o+=(FIN[c]||c);return o;};
   // 🗜️ פענוח הנתונים הדחוסים (gzip→base64) בעזרת DecompressionStream המובנה — בלי רשת, תואם-CSP.
@@ -3946,7 +3950,9 @@
     const goB=ov.querySelector(".onb-go");if(goB)goB.onclick=function(){markOnboarded();closeOnboard();try{q.focus();}catch(e){}};
     const tryB=ov.querySelector(".onb-try");if(tryB)tryB.onclick=function(){markOnboarded();closeOnboard();try{q.value="אור";}catch(e){}run();};
   }
-  function ensureOnboarded(){if(onboarded())return true;openOnboard();return false;}
+  // ⚠️ BRIDGE_HIDDEN חוסם *רק* את פתיחת חלון-ההדרכה לריצה-הנסתרת-הזו — אינו קורא ל-markOnboarded()
+  //    (לא-נשמר, לא-משפיע על הטמעות-גלויות), ואינו נוגע ב-isAnon()/canCross()/FREE_DEMO למטה.
+  function ensureOnboarded(){if(onboarded()||BRIDGE_HIDDEN)return true;openOnboard();return false;}
 
   // 🧭 מאמן-הקלט — משפט/מילה-ארוכה → מפנה למילה קצרה או לפיצול-והצלבה
   function splitToCross(a,b){
