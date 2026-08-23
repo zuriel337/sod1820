@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -56,6 +56,11 @@ export default function ElsWorkAreaPage() {
   //    FindingID. Two marks can legitimately share a color (colorSets() reuses the palette), so this
   //    is explicitly a "dim everything that isn't this exact color" toggle, not identity resolution.
   const [isolateKey, setIsolateKey] = useState(null);
+  // 📜 Verse/Context Lens — on-demand בלבד, מעל חוזה request-lens/lens הקיים בכלי. verseOn = הפעלה
+  //    ידנית של המשתמש; verseLens = תשובת-הכלי האחרונה. הפעלה/כיבוי אינם נוגעים ב-Finding/search כלל —
+  //    זו קריאה נוספת בלבד סביב עמדות שכבר בתוצאת-החיפוש הנוכחית (occ()/st.words בכלי).
+  const [verseOn, setVerseOn] = useState(false);
+  const [verseLens, setVerseLens] = useState(null);
 
   useEffect(() => {
     applySeo({ title: "ELS Research Studio · סוד 1820", description: "סביבת המחקר החדשה של הצופן התנ״כי", path: "/lab/els" });
@@ -155,6 +160,36 @@ export default function ElsWorkAreaPage() {
   const matrixVersion = matrix?.v || 1;
   const lenses = Array.isArray(matrix?.lenses) ? matrix.lenses : [];
 
+  // 📜 Verse/Context Lens — target = ה-Finding הפעיל: התא הנבחר (אם הוא ממצא-מוצלב, לפי צבעו מול
+  //    findings[] הקיים) אחרת ברירת-המחדל היא הציר הראשי (term ריק → occ() בכלי, hitId מ-axis הקיים).
+  //    אין כאן זיהוי-ממצא חדש — רק שימוש בשדות שכבר משודרים בכל state-tick.
+  const verseTarget = useMemo(() => {
+    if (!ok) return null;
+    const mark = selectedCell?.mark;
+    if (mark?.type === "finding" && mark.color) {
+      const f = findings.find((x) => x.color === mark.color);
+      if (f) return { term: f.t, i: selectedCell.idx };
+    }
+    return { term: "", hitId: axis.hitId || undefined, i: mark?.type === "main" ? selectedCell?.idx : undefined };
+  }, [ok, selectedCell, findings, axis.hitId]);
+  const verseTargetSig = verseTarget ? JSON.stringify(verseTarget) : "";
+  const verseTargetSigRef = useRef(verseTargetSig);
+  useEffect(() => { verseTargetSigRef.current = verseTargetSig; }, [verseTargetSig]);
+  const lensRequest = useMemo(
+    () => (verseOn && verseTarget ? { lens: "verse-context", target: verseTarget } : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [verseOn, verseTargetSig]
+  );
+  // בכל שינוי-בקשה אמיתי (הפעלה/כיבוי/Finding אחר) מנקים את התשובה הקודמת — מונע הצגת פסוק-ישן
+  // רגע לפני שהתשובה הטרייה חוזרת.
+  useEffect(() => { setVerseLens(null); }, [lensRequest]);
+  const onLens = useCallback((d) => {
+    if (d?.lens !== "verse-context") return;
+    const sig = d?.target ? JSON.stringify(d.target) : "";
+    if (sig !== verseTargetSigRef.current) return;   // תשובה מאוחרת ל-target ישן — מתעלמים (race guard)
+    setVerseLens(d);
+  }, []);
+
   const card = { background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 18, boxSizing: "border-box" };
   const soft = { background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13 };
   const title = { color: P.accentText, fontFamily: F.heading, fontWeight: 900, fontSize: 13 };
@@ -169,6 +204,7 @@ export default function ElsWorkAreaPage() {
     setCellSize(30); setFocusMarks(false); setShowGrid(false); setMatrixRtl(true); setSelectedCell(null);
     setTiltX(54); setTiltZ(-7); setDepth(24);
     setPanX(0); setPanY(0); setSceneScale(1); setExplode(1); setPanMode(false); setIsolateKey(null);
+    setVerseOn(false);
   };
 
   const MatrixStage = () => {
@@ -231,13 +267,13 @@ export default function ElsWorkAreaPage() {
         מעביר את הכוונה ל-TzofenEmbed עצמו (loading=eager + ?bridge=hidden) כדי שהמנוע-הנסתר-מהצג
         באמת ייטען וידלג רק על ההדרכה-החד-פעמית, בלי לעקוף tier/auth/quota. ה-CSS off-screen* נשאר
         לצורך ההסתרה-החזותית בלבד — אינו עוד מקור-האמת לכוונה. */}
-    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} /></div>
+    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} /></div>
 
     <div className="els-native-layout"><main style={{ minWidth: 0 }}><section style={{ ...card, overflow: "hidden", minHeight: 560 }}>
       <div style={{ padding: "13px 14px", borderBottom: `1px solid ${P.border}`, display: "grid", gap: 10 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}><div><div style={{ ...title, fontSize: 14 }}>מטריצת המחקר · {viewMode === "2d" ? "מישור" : viewMode === "layers" ? "שכבות עומק" : "מרחב 3D"}</div><div style={{ ...muted, fontSize: 11.5 }}>אותו Finding · אותו Snapshot · Renderer שונה בלבד</div></div>{ok && <span style={{ color: P.accentText, fontFamily: F.heading, fontWeight: 900, fontSize: 12 }}>{n((occ.index ?? 0) + 1)} / {n(occ.count)} · S={n(geo.S)}</span>}</div>
         <div className="els-view-modes">{VIEW_MODES.map((v) => <button key={v.id} onClick={() => setViewMode(v.id)} type="button" style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: viewMode === v.id ? P.accentBtn : P.cardSoft, color: viewMode === v.id ? P.onAccent : P.ink, fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>{v.icon} {v.title}</button>)}
-          <button type="button" disabled style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: P.cardSoft, color: P.inkSoft, opacity: .55 }}>📜 פסוק · החוט בדרך</button>
+          <button type="button" onClick={() => setVerseOn((v) => !v)} style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: verseOn ? P.accentBtn : P.cardSoft, color: verseOn ? P.onAccent : P.ink, fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>📜 פסוק{verseOn ? " · פעיל" : ""}</button>
           <button type="button" disabled style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: P.cardSoft, color: P.inkSoft, opacity: .45 }}>🔥 חום · בהמשך</button>
         </div>
         <div className="els-native-toolbar" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -254,6 +290,21 @@ export default function ElsWorkAreaPage() {
       </div>
       {s?.status === "empty" ? <div style={{ minHeight: 440, display: "grid", placeItems: "center", ...muted }}>לא נמצא דילוג למונח «{s.termRaw || seed}».</div> : <MatrixStage />}
       {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span></div>}
+      {verseOn && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}` }}>
+        <div style={{ ...title, fontSize: 12.5, marginBottom: 7 }}>📜 הקשר־פסוק · Verse Lens</div>
+        {!ok ? <div style={{ ...muted, fontSize: 12 }}>אין Finding פעיל.</div>
+          : !verseLens ? <div style={{ ...muted, fontSize: 12 }}>טוען הקשר…</div>
+          : !verseLens.ok ? <div style={{ ...muted, fontSize: 12 }}>אין הקשר־פסוק זמין ל־Finding הנוכחי.</div>
+          : <div style={{ display: "grid", gap: 6 }}>
+            <div style={{ ...muted, fontSize: 11.5 }}>{verseLens.span?.fromRef}{verseLens.span?.fromRef !== verseLens.span?.toRef ? ` → ${verseLens.span?.toRef}` : ""} · {n(verseLens.span?.count)} פס׳{verseLens.truncated ? " (מקוצר)" : ""}</div>
+            <div style={{ display: "grid", gap: 5, maxHeight: 230, overflow: "auto" }}>
+              {(verseLens.verses || []).map((v) => <div key={v.verseIndex} style={{ ...soft, padding: 8 }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 850 }}>{v.ref}</div>
+                <div style={{ color: P.ink, fontSize: 13, marginTop: 2, lineHeight: 1.6 }}>{v.text || "…"}</div>
+              </div>)}
+            </div>
+          </div>}
+      </div>}
     </section>
 
     {mode === "discover" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🔭 גילוי</div><div style={{ ...muted, fontSize: 12.5, lineHeight: 1.7, marginTop: 6 }}>המנוע מחפש; ה־Lab מצייר. עכשיו אפשר לעבור בין מישור, שכבות ו־3D בלי להריץ חיפוש מחדש.</div>{findings.length > 0 && <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>{findings.map((f, i) => <span key={`${f.t}-${i}`} style={{ ...soft, padding: "6px 9px", color: P.ink, fontSize: 12 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />{f.t}</span>)}</div>}</section>}

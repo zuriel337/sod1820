@@ -1509,6 +1509,49 @@
   let _stateSig="";
   function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}}
 
+  // ── 📜 Verse/Context Lens — on-demand בלבד (`request-lens`/`lens`), אינו חלק מ-emitState() ────────
+  // ⚠️ **אפס חישוב-ELS חדש.** רק primitives קיימים בזיכרון: occ() · st.words · shownHitsOf() · hitKey()
+  //    · verseSpan() · ensureVerseText()/VTEXT/VCUM · refStr(). אין parser חדש, אין DB/schema, אין
+  //    שינוי search/ranking. הפעלה/כיבוי של העדשה הזו אינה נוגעת ב-Finding/index/תוצאת-חיפוש כלל —
+  //    זו רק קריאה (read) של טקסט-פסוקים סביב עמדות שכבר קיימות בתוצאת-החיפוש הנוכחית.
+  // target={term?,hitId?,i?}: term ריק/חסר = ציר-ראשי (occ()); אחרת מילה-מוצלבת קיימת ב-st.words.
+  //    hitId/i (אופציונליים) מדייקים איזה מופע בדיוק מתוך shownHitsOf(w) (הפורמט/השדות כבר משודרים
+  //    בכל state-tick — axis.hitId · matrix.marks[].i — אין מזהה חדש).
+  function findLensHit(target){
+    const r=st.res;if(!r||!r.hits||!r.hits.length)return null;
+    const term=(target&&target.term)||"";
+    const isMain=!term||norm(term)===norm(st.raw||"");
+    let candidates;
+    if(isMain){const h=occ();candidates=h?[h]:[];}
+    else{const w=st.words.find(w=>norm(w.t)===norm(term));candidates=w?shownHitsOf(w):[];}
+    if(!candidates.length)return null;
+    if(target&&typeof target.i==="number"){
+      const byPos=candidates.find(h=>h.positions&&h.positions.indexOf(target.i)>=0);
+      if(byPos)return byPos;
+    }
+    if(target&&target.hitId){
+      const byKey=candidates.find(h=>hitKey(h)===target.hitId);
+      if(byKey)return byKey;
+    }
+    return candidates[0];
+  }
+  const VERSE_LENS_CAP=60;   // 🛡️ תקרת-בטיחות בלבד (דילוגים ענקיים → טווח-פסוקים ענק) — לא הגבלת-פיצ׳ר
+  async function verseContextLens(target){
+    const t=target||{};
+    try{
+      const hit=findLensHit(t);
+      if(!hit){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
+      const vs=verseSpan(hit.positions);
+      if(!vs){postHost({type:"lens",lens:"verse-context",ok:false,target:t});return;}
+      await ensureVerseText();
+      const total=vs.to-vs.from+1,truncated=total>VERSE_LENS_CAP,hi=truncated?vs.from+VERSE_LENS_CAP-1:vs.to;
+      const verses=[];
+      for(let vi=vs.from;vi<=hi;vi++)verses.push({verseIndex:vi,ref:refStr(vi),text:(VTEXT&&VTEXT[vi])||"",from:VCUM[vi],to:VCUM[vi+1]-1});
+      postHost({type:"lens",lens:"verse-context",ok:true,target:t,hitId:hitKey(hit),
+        span:{from:vs.from,to:vs.to,fromRef:vs.fromRef,toRef:vs.toRef,count:vs.count},verses,truncated});
+    }catch(e){postHost({type:"lens",lens:"verse-context",ok:false,target:t});}
+  }
+
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
@@ -1558,7 +1601,9 @@
       try{recomputeWords();}catch(e){}
       try{recolorOnly();}catch(e){}
       try{renderList();}catch(e){}
-    }});
+    }
+    if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
+    });
   // 🤝 לחיצת-יד: במצב מוטמע הכלי «דופק» לעוטף «אני מוכן» עד שמגיעה הדרגה — סוגר את מרוץ-הטעינה
   //    (העוטף עונה בדרגה; בלי זה מנהל/רשום שנטען-לאט היה נשאר anon ונחסם בטעות).
   if(EMBED){st.tier="anon";st.tierKnown=false;

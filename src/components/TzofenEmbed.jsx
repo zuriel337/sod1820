@@ -41,7 +41,10 @@ function rowToItem(m) {
 //    (2) פרמטר ?bridge=hidden ב-src, שהמנוע קורא כדי לדלג *רק* על חלון-ההדרכה החד-פעמית לריצה הזו
 //    (בלי לשמור tzofen_onboarded_v1, בלי להשפיע על הטמעות-גלויות). ⛔ אינו נוגע בשער
 //    tier/auth/quota/הרשמה (SubscribeGate) — אלה נשארים בדיוק כפי-שהם, לרשומים/אנונימי כרגיל.
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false }) {
+// 📜 lensRequest/onLens — חוזה on-demand ל-Verse/Context Lens (וכל עדשה עתידית דומה): לא חלק מ-state.
+//    lensRequest={lens,target} משודר לכלי כ-{type:"request-lens",...}; התשובה חוזרת דרך onLens (הודעת
+//    {type:"lens",...} מהכלי) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking. ⛔ אין Lens בכל state-tick.
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, lensRequest = null, onLens = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -197,12 +200,20 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
         pushSavedMatrices();   // 🖼️ מזרים את מטריצות-הענן לגלריה בכלי
         if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
+        // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
+        //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
+        if (lensRequest) postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
         return;
       }
       if (d.type === "state") {
         // 🛰️ תמונת-מצב מהמנוע (סריאליזציה בלבד — ראה elsState() ב-els-code.template.html).
         //    מועברת כמות-שהיא לצרכן. React לא מחשב ELS ולא נוגע בנתון.
         onState?.(d);
+        return;
+      }
+      if (d.type === "lens") {
+        // 📜 תשובת-Lens on-demand (למשל verse-context) — קריאה בלבד, לא נוגעת ב-state/Finding.
+        onLens?.(d);
         return;
       }
       if (d.type === "search") {
@@ -246,7 +257,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest]);
+
+  // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
+  //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.
+  useEffect(() => {
+    if (!lensRequest) return;
+    postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
+  }, [lensRequest, postToTool]);
 
   // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
