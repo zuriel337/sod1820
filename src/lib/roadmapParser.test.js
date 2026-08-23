@@ -91,29 +91,29 @@ test("group_hint is a naive id-derived hint, not a canonical world", () => {
   assert.equal(cc.group_hint, "CC");
 });
 
-test("Gate #4 and Gate #18 are both OPEN_INTAKE_CRITICAL", () => {
+test("Gate #4 is CLOSED (22.8.2026) and Gate #18 is OPEN_INTAKE_CRITICAL", () => {
   const vm = parseRoadmap(loadRoadmap());
   const gate4 = vm.open_human_gates.find((g) => g.number === 4);
   const gate18 = vm.open_human_gates.find((g) => g.number === 18);
   assert.ok(gate4, "gate #4 not found");
   assert.ok(gate18, "gate #18 not found");
-  assert.equal(gate4.status, "OPEN_INTAKE_CRITICAL");
+  assert.equal(gate4.status, "CLOSED");
   assert.equal(gate4.status_confidence, "high");
   assert.equal(gate18.status, "OPEN_INTAKE_CRITICAL");
   assert.equal(gate18.status_confidence, "high");
-  // both carry the explicit resume-point chain
-  assert.deepEqual(gate4.return_point_chain, [
+  // #18's resume-point chain still names Gate #4 (historical chain text,
+  // provenance verbatim from the Roadmap — not re-derived from #4's own status)
+  assert.deepEqual(gate18.return_point_chain, [
     "Gematria packages organized",
     "Gate #4",
     "Gate #18",
     "Intake build",
   ]);
-  assert.deepEqual(gate18.return_point_chain, gate4.return_point_chain);
 });
 
-test("closed gates (#1, #2, #3) are never misidentified as open", () => {
+test("closed gates (#1, #2, #3, #4) are never misidentified as open", () => {
   const vm = parseRoadmap(loadRoadmap());
-  for (const n of [1, 2, 3]) {
+  for (const n of [1, 2, 3, 4]) {
     const gate = vm.open_human_gates.find((g) => g.number === n);
     assert.ok(gate, `gate #${n} not found`);
     assert.equal(gate.status, "CLOSED", `gate #${n} should be CLOSED`);
@@ -259,8 +259,8 @@ test("summarizeCoverage returns sane counters for the real file", () => {
   assert.equal(cov.workstreams, 24);
   assert.equal(cov.workstreams_with_warnings, 1);
   assert.equal(cov.gates, 20);
-  assert.equal(cov.gates_closed, 3);
-  assert.equal(cov.gates_open, 17);
+  assert.equal(cov.gates_closed, 4); // Gate #4 closed 22.8.2026
+  assert.equal(cov.gates_open, 16);
   assert.ok(cov.dependency_edges > 0);
   assert.ok(cov.decision_register_rows >= 9);
 });

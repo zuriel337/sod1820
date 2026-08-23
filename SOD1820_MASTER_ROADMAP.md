@@ -721,7 +721,7 @@ flowchart TD
 1. ~~Roadmap v4 → קנוני~~ — **✅ נסגר** (`f375327f`, main, אומת מול הבנדל-הפרוס). הועבר ל-History.
 2. ~~ELS FSS → Preview~~ — **✅ נסגר Preview-Verified** (21.8, PR #163 draft, `work_log ba4427e5`). **לא-אומר ש-Research Journey/Matrix/שכבות-ELS-נוספות הושלמו** — הן ממשיכות ב-Preview כמרחב-עבודה. שער-מיזוג-ל-main נפרד, טרם-נפתח. הועבר ל-History.
 3. ~~ELS Step 3 merge + deploy + אימות~~ — **✅ נסגר** (`fc123caa`, main, round-trip חי אומת — `work_log ed5cc880`, 21.8). הועבר ל-History.
-4. **Universal Finding Identity & Multi-Source Provenance** *(עודכן 21.8 — היה "ELS Step 4")* — **OPEN/INTAKE-CRITICAL.** לא-חוסם קנוניזציית-v5; **כן חוסם** בנייה-סופית של שכבת-Identity (ELS Step 4 dedup/UNIQUE + כל identity רב-מקורית עתידית). באג-נקודתי נפרד כבר-תוקן (`save_els_matrix` false-merge על direction/start_index, `work_log 62a36e0c`, 21.8) ואינו-פותר את השער עצמו. נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`.
+4. ~~Universal Finding Identity & Multi-Source Provenance~~ — **✅ נסגר** (22.8.2026, Human-Gate ZURIEL — Identity/Architecture Decision, ELS-scope בלבד: `FindingID={corpus_id,term_norm,dir,skip,start}` מאומץ, ר' Master State §17 + Canonical Gate Map שורה 4). **ELS Identity Implementation** (Step 4 dedup/UNIQUE אם-בכלל + חיווט-observations) ממשיכה כ-workstream-build **נפרד**, `OPEN`, non-blocking — לא-חלק מסטטוס-הסגירה. הועבר ל-History.
 5. **`corpus_id` תנ״ך.**
 6. **`fn_els_search`** שחזור secdef/search_path.
 7. **§17 אנומרציה + Master-State §18** (γ עצמה כבר-נספגה, ר' `WS-GAMMA`).
