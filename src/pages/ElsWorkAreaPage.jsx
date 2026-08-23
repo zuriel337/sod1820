@@ -45,6 +45,17 @@ export default function ElsWorkAreaPage() {
   const [tiltX, setTiltX] = useState(54);
   const [tiltZ, setTiltZ] = useState(-7);
   const [depth, setDepth] = useState(24);
+  // 🖱️ 3D Interaction v2 — camera/explode/isolate state only. Renderer-only: never touches
+  //    engine/search/ranking/DB. z is still derived purely from existing marks+axisSet (depth×explode).
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [sceneScale, setSceneScale] = useState(1);
+  const [explode, setExplode] = useState(1);
+  const [panMode, setPanMode] = useState(false);
+  // 🔍 isolate: visual-only dimming keyed by an existing mark's color/type — NEVER a canonical
+  //    FindingID. Two marks can legitimately share a color (colorSets() reuses the palette), so this
+  //    is explicitly a "dim everything that isn't this exact color" toggle, not identity resolution.
+  const [isolateKey, setIsolateKey] = useState(null);
 
   useEffect(() => {
     applySeo({ title: "ELS Research Studio · סוד 1820", description: "סביבת המחקר החדשה של הצופן התנ״כי", path: "/lab/els" });
@@ -54,6 +65,69 @@ export default function ElsWorkAreaPage() {
     const t = window.setTimeout(() => setFirstRunHint(true), 1800);
     return () => window.clearTimeout(t);
   }, [waiting, runNonce]);
+
+  // 🖱️ 3D Interaction v2 — pointer-drag rotate/pan + wheel/pinch zoom. Pure host-UI camera state;
+  //    never dispatches a search, never touches seed/runNonce, never reloads the engine iframe.
+  //    Mirrors the same drag-threshold pattern already used by the canonical engine's own
+  //    enable3D()/enablePan() (tools/els/els-code.template.html) — same interaction language, no
+  //    new geometry primitive invented.
+  //    ⚠️ Listeners are attached at `document` level, scoped by `.closest(".els-native-stage")` on
+  //    the event target — NOT via `stageRef`/`addEventListener` on the stage element directly.
+  //    MatrixStage is redefined as a new inline component on every render of this page (pre-existing
+  //    in PR #179, not something this slice restructures), so its DOM node is torn down and rebuilt
+  //    on every state change that re-renders the parent — an element-scoped listener silently goes
+  //    stale after the FIRST such re-render. document-level listeners are immune to that churn.
+  useEffect(() => {
+    let down = false, px = 0, py = 0, pinchD0 = 0, pinchS0 = 1, pinching = false;
+    const dist2 = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    const onStage = (e) => e.target?.closest?.(".els-native-stage");
+    const start = (x, y) => { down = true; px = x; py = y; };
+    const move = (x, y) => {
+      if (!down) return;
+      const dx = x - px, dy = y - py; px = x; py = y;
+      if (panMode) { setPanX((v) => v + dx); setPanY((v) => v + dy); }
+      else if (viewMode === "3d") {
+        setTiltZ((v) => Math.max(-24, Math.min(24, v + dx * 0.3)));
+        setTiltX((v) => Math.max(18, Math.min(72, v - dy * 0.3)));
+      }
+    };
+    const end = () => { down = false; };
+    const onMouseDown = (e) => { if (e.button !== 0 || (!panMode && viewMode !== "3d") || !onStage(e)) return; start(e.clientX, e.clientY); };
+    const onMouseMove = (e) => move(e.clientX, e.clientY);
+    const onMouseUp = () => end();
+    const onTouchStart = (e) => {
+      if (!onStage(e)) return;
+      if (e.touches.length === 2) { pinching = true; pinchD0 = dist2(e.touches); pinchS0 = sceneScale; return; }
+      if (e.touches.length === 1 && (panMode || viewMode === "3d")) { const t = e.touches[0]; start(t.clientX, t.clientY); }
+    };
+    const onTouchMove = (e) => {
+      if (pinching && e.touches.length === 2) {
+        e.preventDefault();
+        const z = Math.max(0.5, Math.min(2.5, pinchS0 * (dist2(e.touches) / pinchD0)));
+        setSceneScale(z);
+        return;
+      }
+      if (down && e.touches.length === 1) { e.preventDefault(); const t = e.touches[0]; move(t.clientX, t.clientY); }
+    };
+    const onTouchEnd = (e) => { if (e.touches.length < 2) pinching = false; if (e.touches.length === 0) end(); };
+    const onWheel = (e) => { if (!onStage(e)) return; e.preventDefault(); setSceneScale((v) => Math.max(0.5, Math.min(2.5, v - e.deltaY * 0.001))); };
+    document.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("touchstart", onTouchStart, { passive: false });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    document.addEventListener("touchend", onTouchEnd);
+    document.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("wheel", onWheel);
+    };
+  }, [panMode, viewMode, sceneScale]);
 
   const onState = useCallback((next) => {
     setEngineState(next); setSeen((x) => x + 1); setWaiting(false); setFirstRunHint(false);
@@ -91,7 +165,11 @@ export default function ElsWorkAreaPage() {
   </div>;
   const Next = ({ children }) => <div style={{ ...soft, padding: "10px 12px", color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65 }}><b style={{ color: P.accentDim }}>השלב הבא · </b>{children}</div>;
 
-  const resetView = () => { setCellSize(30); setFocusMarks(false); setShowGrid(false); setMatrixRtl(true); setSelectedCell(null); setTiltX(54); setTiltZ(-7); setDepth(24); };
+  const resetView = () => {
+    setCellSize(30); setFocusMarks(false); setShowGrid(false); setMatrixRtl(true); setSelectedCell(null);
+    setTiltX(54); setTiltZ(-7); setDepth(24);
+    setPanX(0); setPanY(0); setSceneScale(1); setExplode(1); setPanMode(false); setIsolateKey(null);
+  };
 
   const MatrixStage = () => {
     if (!ok) return <div style={{ minHeight: 440, display: "grid", placeItems: "center", textAlign: "center", padding: 24 }}><div>
@@ -103,17 +181,19 @@ export default function ElsWorkAreaPage() {
 
     const r0 = Number(matrix.r0 ?? geo.r0 ?? 0), c0 = Number(matrix.c0 ?? geo.c0 ?? 0), S = Number(matrix.S ?? geo.S ?? 0);
     const isDepth = viewMode !== "2d";
-    const stageTransform = viewMode === "3d" ? `perspective(1250px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? "perspective(1300px) rotateX(34deg)" : "none";
+    const rotatePart = viewMode === "3d" ? ` perspective(1250px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? " perspective(1300px) rotateX(34deg)" : "";
+    const stageTransform = `translate(${panX}px, ${panY}px) scale(${sceneScale})${rotatePart}`;
 
-    return <div className="els-native-stage" style={{ overflow: "auto", padding: viewMode === "3d" ? "72px 30px 110px" : "28px 20px 70px", background: P.cardSoft, minHeight: 470 }}>
+    return <div className="els-native-stage" style={{ overflow: panMode ? "hidden" : "auto", cursor: panMode ? "grab" : viewMode === "3d" ? "grab" : "default", touchAction: panMode || viewMode === "3d" ? "none" : "auto", padding: viewMode === "3d" ? "72px 30px 110px" : "28px 20px 70px", background: P.cardSoft, minHeight: 470 }}>
       <div style={{ width: "max-content", minWidth: "100%", direction: "ltr", fontFamily: F.regal, transform: stageTransform, transformOrigin: "50% 42%", transformStyle: "preserve-3d", transition: "transform .28s ease" }}>
         {matrix.rows.map((row, ri) => {
           const cells = Array.from(row).map((letter, ci) => ({ letter, ci })); if (matrixRtl) cells.reverse();
           return <div key={ri} style={{ display: "flex", justifyContent: "center", lineHeight: 1, transformStyle: "preserve-3d" }}>
             {cells.map(({ letter, ci }) => {
               const idx = (r0 + ri) * S + (c0 + ci), mark = marks.get(idx), isAxis = axisSet.has(idx) || mark?.type === "main", isStart = Boolean(mark?.start);
-              const dim = focusMarks && !mark && !isAxis, active = selectedCell?.idx === idx;
-              const z = !isDepth ? 0 : isAxis ? depth * 1.55 : mark ? depth : 0;
+              const isolatedOut = Boolean(isolateKey) && mark?.type === "finding" && mark.color !== isolateKey;
+              const dim = (focusMarks && !mark && !isAxis) || isolatedOut, active = selectedCell?.idx === idx;
+              const z = !isDepth ? 0 : (isAxis ? depth * 1.55 : mark ? depth : 0) * explode;
               const background = isAxis ? P.accentBtn : mark?.color || "transparent";
               return <button key={idx} type="button" title={`index ${idx}`} onClick={() => setSelectedCell({ idx, letter, row: r0 + ri, col: c0 + ci, mark: mark || null })} style={{
                 width: cellSize, height: cellSize + 3, flex: `0 0 ${cellSize}px`, padding: 0, display: "inline-grid", placeItems: "center",
@@ -161,7 +241,10 @@ export default function ElsWorkAreaPage() {
           <button type="button" onClick={() => setFocusMarks((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: focusMarks ? P.accentBtn : "transparent", color: focusMarks ? P.onAccent : P.ink }}>◎ מיקוד</button>
           <button type="button" onClick={() => setShowGrid((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: showGrid ? P.accentBtn : "transparent", color: showGrid ? P.onAccent : P.ink }}>▦ רשת</button>
           <button type="button" onClick={() => setCellSize((v) => Math.max(18, v - 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>−</button><span style={{ minWidth: 52, textAlign: "center", color: P.accentText, fontFamily: F.heading, fontWeight: 900 }}>{cellSize}px</span><button type="button" onClick={() => setCellSize((v) => Math.min(48, v + 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>＋</button>
-          {viewMode !== "2d" && <><label style={{ ...muted, fontSize: 11 }}>עומק <input type="range" min="8" max="54" value={depth} onChange={(e) => setDepth(Number(e.target.value))} /></label>{viewMode === "3d" && <><label style={{ ...muted, fontSize: 11 }}>X <input type="range" min="18" max="72" value={tiltX} onChange={(e) => setTiltX(Number(e.target.value))} /></label><label style={{ ...muted, fontSize: 11 }}>Z <input type="range" min="-24" max="24" value={tiltZ} onChange={(e) => setTiltZ(Number(e.target.value))} /></label></>}</>}
+          <button type="button" onClick={() => setPanMode((v) => !v)} title="גרירה מזיזה את הבמה (פאן) במקום לסובב" style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: panMode ? P.accentBtn : "transparent", color: panMode ? P.onAccent : P.ink }}>✋ הזזה</button>
+          {sceneScale !== 1 && <span style={{ ...muted, fontSize: 11 }}>זום {Math.round(sceneScale * 100)}%</span>}
+          {viewMode !== "2d" && <><label style={{ ...muted, fontSize: 11 }}>עומק <input type="range" min="8" max="54" value={depth} onChange={(e) => setDepth(Number(e.target.value))} /></label><label style={{ ...muted, fontSize: 11 }}>התפוצצות <input type="range" min="1" max="3" step="0.25" value={explode} onChange={(e) => setExplode(Number(e.target.value))} /></label>{viewMode === "3d" && <><label style={{ ...muted, fontSize: 11 }}>X <input type="range" min="18" max="72" value={tiltX} onChange={(e) => setTiltX(Number(e.target.value))} /></label><label style={{ ...muted, fontSize: 11 }}>Z <input type="range" min="-24" max="24" value={tiltZ} onChange={(e) => setTiltZ(Number(e.target.value))} /></label></>}</>}
+          {isolateKey && <button type="button" onClick={() => setIsolateKey(null)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.accentText }}>✕ נקה בידוד</button>}
           <button type="button" onClick={resetView} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.inkSoft }}>↺ איפוס</button>
         </div>
       </div>
@@ -175,7 +258,11 @@ export default function ElsWorkAreaPage() {
     </main>
 
     <aside className="els-native-inspector" style={{ ...card, padding: 14 }}><div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}><div><div style={title}>Research Inspector</div><div style={{ ...muted, fontSize: 11.5 }}>{ok ? "Finding חי מהמנוע" : "ממתין לחיפוש"}</div></div><span style={{ ...soft, padding: "4px 7px", color: ok ? P.accentText : P.inkSoft, fontSize: 10.5, fontWeight: 900 }}>{s?.status || "idle"}</span></div>
-      {selectedCell && <div style={{ ...soft, padding: 10, marginTop: 10 }}><div style={title}>תא נבחר · {selectedCell.letter}</div><div style={{ ...muted, fontSize: 11.5 }}>index {n(selectedCell.idx)} · row {n(selectedCell.row)} · col {n(selectedCell.col)}</div>{selectedCell.mark && <div style={{ color: P.accentText, fontSize: 11.5, marginTop: 5 }}>{selectedCell.mark.type === "main" ? "ציר ראשי" : "ממצא מצטלב"}{selectedCell.mark.start ? " · START" : ""}</div>}</div>}
+      {selectedCell && <div style={{ ...soft, padding: 10, marginTop: 10 }}><div style={title}>תא נבחר · {selectedCell.letter}</div><div style={{ ...muted, fontSize: 11.5 }}>index {n(selectedCell.idx)} · row {n(selectedCell.row)} · col {n(selectedCell.col)}</div>{selectedCell.mark && <div style={{ color: P.accentText, fontSize: 11.5, marginTop: 5 }}>{selectedCell.mark.type === "main" ? "ציר ראשי" : "ממצא מצטלב"}{selectedCell.mark.start ? " · START" : ""}</div>}
+        {selectedCell.mark?.type === "finding" && <div style={{ marginTop: 7 }}>
+          <button type="button" onClick={() => setIsolateKey((k) => k === selectedCell.mark.color ? null : selectedCell.mark.color)} style={{ minHeight: 38, borderRadius: 10, padding: "0 11px", border: `1px solid ${P.border}`, background: isolateKey === selectedCell.mark.color ? P.accentBtn : "transparent", color: isolateKey === selectedCell.mark.color ? P.onAccent : P.accentText, fontSize: 12 }}>🔍 {isolateKey === selectedCell.mark.color ? "בטל בידוד" : "בודד ממצא זה"}</button>
+          <div style={{ ...muted, fontSize: 10, marginTop: 4, lineHeight: 1.5 }}>בידוד ויזואלי לפי צבע-הממצא הקיים — לא זיהוי-ממצא קנוני. תאים באותו צבע יכולים להשתייך ליותר מ-Finding אחד.</div>
+        </div>}</div>}
       {ok && <div style={{ marginTop: 10 }}><Fact label="מונח" value={`«${s.termRaw || s.term}»`} /><Fact label="מצב חיפוש" value={SEARCH_LABEL[s.search?.mode] || s.search?.mode || "—"} /><Fact label="דילוג / כיוון" value={`${n(axis.skip)} · ${dir(axis.direction)}`} /><Fact label="start / hitId" value={`${n(axis.start)} · ${axis.hitId || "—"}`} mono /><Fact label="מופע" value={`${n((occ.index ?? 0) + 1)} / ${n(occ.count)}`} /><Fact label="Matrix contract" value={`v${matrixVersion} · ${matrix?.rows?.length || 0} rows · ${markedCount} marks`} /><Fact label="Renderer" value={`${viewMode} · ${matrixRtl ? "RTL" : "LTR"}`} /><Fact label="צופן / מחבר" value={[prov.cipherSlug, prov.author].filter(Boolean).join(" · ") || "—"} /></div>}
       <button type="button" onClick={() => setRawOpen((v) => !v)} style={{ width: "100%", minHeight: 40, marginTop: 11, borderRadius: 11, border: `1px solid ${P.border}`, background: "transparent", color: P.accentText }}>{rawOpen ? "הסתר state" : "State גולמי"}</button>{rawOpen && <pre style={{ direction: "ltr", textAlign: "left", whiteSpace: "pre-wrap", maxHeight: 280, overflow: "auto", padding: 9, background: P.cardSoft, color: P.inkSoft, fontSize: 10 }}>{JSON.stringify(s, null, 2)}</pre>}
     </aside></div>
