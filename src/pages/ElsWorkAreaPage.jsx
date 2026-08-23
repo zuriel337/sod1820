@@ -17,6 +17,20 @@ const VIEW_MODES = [
   { id: "layers", icon: "🧱", title: "שכבות" },
   { id: "3d", icon: "🌌", title: "3D" },
 ];
+// 🧩 Layer Controller registry — Verse is the FIRST entry, not a hard special-case. Future layers
+//    (Cross/Heat/Number-DNA/Evidence/Research-Depth — none built yet, none started in this slice)
+//    plug into the SAME {id,icon,title,available} shape + the SAME activeLayers Set below — no
+//    per-layer rewiring of the toggle row or the state model when they arrive.
+const LAYER_TYPES = [
+  { id: "verse", icon: "📜", title: "פסוק", available: true },
+  { id: "heat", icon: "🔥", title: "חום", available: false },
+];
+// 🎨 Verse-context plane tint — a small stable palette keyed by verseIndex, deliberately distinct
+//    from the engine's own finding-colors (mark.color/PALETTE) so the two visual languages never
+//    get confused: mark colors = ELS findings (engine-owned), this palette = verse-membership
+//    (host-only, cosmetic grouping of an already-fetched Verse Lens response).
+const VERSE_PLANE_PALETTE = ["#5b8def", "#e0a541", "#4fb894", "#c96fb0", "#8b7fe0", "#d97a5c"];
+const verseColor = (vi) => VERSE_PLANE_PALETTE[((vi % VERSE_PLANE_PALETTE.length) + VERSE_PLANE_PALETTE.length) % VERSE_PLANE_PALETTE.length];
 const SEARCH_LABEL = {
   regular: "חיפוש רגיל", "cross-simple": "הצלבה פשוטה",
   "cross-free": "התכנסות חופשית", bridge: "גשר דו־מונחי", cross: "הצלבה",
@@ -56,11 +70,21 @@ export default function ElsWorkAreaPage() {
   //    FindingID. Two marks can legitimately share a color (colorSets() reuses the palette), so this
   //    is explicitly a "dim everything that isn't this exact color" toggle, not identity resolution.
   const [isolateKey, setIsolateKey] = useState(null);
-  // 📜 Verse/Context Lens — on-demand בלבד, מעל חוזה request-lens/lens הקיים בכלי. verseOn = הפעלה
-  //    ידנית של המשתמש; verseLens = תשובת-הכלי האחרונה. הפעלה/כיבוי אינם נוגעים ב-Finding/search כלל —
-  //    זו קריאה נוספת בלבד סביב עמדות שכבר בתוצאת-החיפוש הנוכחית (occ()/st.words בכלי).
-  const [verseOn, setVerseOn] = useState(false);
+  // 🧩 Layer Controller state — a generic Set of active layer ids (LAYER_TYPES above), not a
+  //    per-layer boolean. Verse is the first real entry; toggling any id is the same code path
+  //    a future Cross/Heat/Number-DNA layer will reuse.
+  const [activeLayers, setActiveLayers] = useState(() => new Set());
+  const toggleLayer = useCallback((id) => {
+    setActiveLayers((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  }, []);
+  const verseOn = activeLayers.has("verse");
+  // 📜 Verse/Context Lens — on-demand בלבד, מעל חוזה request-lens/lens הקיים בכלי. verseLens = תשובת-
+  //    הכלי האחרונה. activeVerseIndex = הפסוק-הפעיל לצורך הדגשה דו-כיוונית (Reader↔מטריצה) — view-state
+  //    טהור, לא-קיים בחוזה-המנוע. הפעלה/כיבוי אינם נוגעים ב-Finding/search כלל — זו קריאה נוספת בלבד
+  //    סביב עמדות שכבר בתוצאת-החיפוש הנוכחית (occ()/st.words בכלי) והיטלה (projection) חוזרת של אותה
+  //    תשובה על גבי אותם matrix indices — אין fetch נוסף, אין lens/מנוע נוסף.
   const [verseLens, setVerseLens] = useState(null);
+  const [activeVerseIndex, setActiveVerseIndex] = useState(null);
 
   useEffect(() => {
     applySeo({ title: "ELS Research Studio · סוד 1820", description: "סביבת המחקר החדשה של הצופן התנ״כי", path: "/lab/els" });
@@ -180,15 +204,27 @@ export default function ElsWorkAreaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [verseOn, verseTargetSig]
   );
-  // בכל שינוי-בקשה אמיתי (הפעלה/כיבוי/Finding אחר) מנקים את התשובה הקודמת — מונע הצגת פסוק-ישן
-  // רגע לפני שהתשובה הטרייה חוזרת.
-  useEffect(() => { setVerseLens(null); }, [lensRequest]);
+  // בכל שינוי-בקשה אמיתי (הפעלה/כיבוי/Finding אחר) מנקים את התשובה הקודמת + את הפסוק-הפעיל — מונע
+  // הצגת פסוק-ישן, או הדגשה לפי verseIndex ששייך לתשובה קודמת, רגע לפני שהתשובה הטרייה חוזרת.
+  useEffect(() => { setVerseLens(null); setActiveVerseIndex(null); }, [lensRequest]);
   const onLens = useCallback((d) => {
     if (d?.lens !== "verse-context") return;
     const sig = d?.target ? JSON.stringify(d.target) : "";
     if (sig !== verseTargetSigRef.current) return;   // תשובה מאוחרת ל-target ישן — מתעלמים (race guard)
     setVerseLens(d);
   }, []);
+  // 📐 היטלה שנייה (spatial projection) של אותו lens payload — לא fetch נוסף, לא מנגנון-Verse נוסף.
+  //    ממפה idx (אותו index-space כמו matrix.rows/marks[].i) לפסוק המכיל אותו, מתוך verseLens.verses
+  //    שכבר-נטען. שימוש-דו-כיווני: קליק-על-תא → מזהה פסוק (להדגיש ב-Reader); קליק-על-פסוק ב-Reader →
+  //    מדגיש תאים (activeVerseIndex).
+  const verseRanges = useMemo(
+    () => (verseOn && verseLens?.ok && Array.isArray(verseLens.verses) ? verseLens.verses : []),
+    [verseOn, verseLens]
+  );
+  const verseForIdx = useCallback(
+    (idx) => verseRanges.find((v) => idx >= v.from && idx <= v.to) || null,
+    [verseRanges]
+  );
 
   const card = { background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 18, boxSizing: "border-box" };
   const soft = { background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13 };
@@ -204,7 +240,7 @@ export default function ElsWorkAreaPage() {
     setCellSize(30); setFocusMarks(false); setShowGrid(false); setMatrixRtl(true); setSelectedCell(null);
     setTiltX(54); setTiltZ(-7); setDepth(24);
     setPanX(0); setPanY(0); setSceneScale(1); setExplode(1); setPanMode(false); setIsolateKey(null);
-    setVerseOn(false);
+    setActiveLayers(new Set()); setActiveVerseIndex(null);
   };
 
   const MatrixStage = () => {
@@ -220,23 +256,56 @@ export default function ElsWorkAreaPage() {
     const rotatePart = viewMode === "3d" ? ` perspective(1250px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? " perspective(1300px) rotateX(34deg)" : "";
     const stageTransform = `translate(${panX}px, ${panY}px) scale(${sceneScale})${rotatePart}`;
 
+    // 📐 גריד-תאים מחושב פעם-אחת (idx + סדר-RTL כבר-מוחל) — מקור-משותף למישור-הראשי (ללא שינוי) ולמישור-
+    //    ה-Verse-context החדש, כדי ששני המישורים יתיישרו מרחבית בדיוק (אותה שורה/עמודה בדיוק לכל idx).
+    const rowsMeta = matrix.rows.map((row, ri) => {
+      const cells = Array.from(row).map((letter, ci) => ({ letter, ci, idx: (r0 + ri) * S + (c0 + ci) }));
+      if (matrixRtl) cells.reverse();
+      return { ri, cells };
+    });
+    const showVersePlane = verseOn && isDepth && verseLens?.ok;   // 📜 מישור-context רק ב-Layered/3D (ב-2D מדגישים על התאים עצמם)
+
     return <div className="els-native-stage" style={{ overflow: panMode ? "hidden" : "auto", cursor: panMode ? "grab" : viewMode === "3d" ? "grab" : "default", touchAction: panMode || viewMode === "3d" ? "none" : "auto", padding: viewMode === "3d" ? "72px 30px 110px" : "28px 20px 70px", background: P.cardSoft, minHeight: 470 }}>
-      <div style={{ width: "max-content", minWidth: "100%", direction: "ltr", fontFamily: F.regal, transform: stageTransform, transformOrigin: "50% 42%", transformStyle: "preserve-3d", transition: "transform .28s ease" }}>
-        {matrix.rows.map((row, ri) => {
-          const cells = Array.from(row).map((letter, ci) => ({ letter, ci })); if (matrixRtl) cells.reverse();
+      <div style={{ position: "relative", width: "max-content", minWidth: "100%", direction: "ltr", fontFamily: F.regal, transform: stageTransform, transformOrigin: "50% 42%", transformStyle: "preserve-3d", transition: "transform .28s ease" }}>
+        {showVersePlane && <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", transform: `translateZ(${-Math.max(18, Math.round(depth * 1.15 * explode))}px)`, transformStyle: "preserve-3d" }}>
+          {rowsMeta.map(({ ri, cells }) => <div key={"vp-" + ri} style={{ display: "flex", justifyContent: "center", lineHeight: 1 }}>
+            {cells.map(({ ci, idx }) => {
+              const vi = verseForIdx(idx);
+              const on = Boolean(vi), isActive = on && activeVerseIndex != null && vi.verseIndex === activeVerseIndex;
+              return <div key={"vp-" + idx} style={{
+                width: cellSize, height: cellSize + 3, flex: `0 0 ${cellSize}px`, borderRadius: showGrid ? 3 : 6,
+                background: on ? verseColor(vi.verseIndex) : "transparent", opacity: !on ? 0 : isActive ? .8 : .32,
+                transition: "opacity .2s ease",
+              }} />;
+            })}
+          </div>)}
+        </div>}
+        {rowsMeta.map(({ ri, cells }) => {
           return <div key={ri} style={{ display: "flex", justifyContent: "center", lineHeight: 1, transformStyle: "preserve-3d" }}>
-            {cells.map(({ letter, ci }) => {
-              const idx = (r0 + ri) * S + (c0 + ci), mark = marks.get(idx), isAxis = axisSet.has(idx) || mark?.type === "main", isStart = Boolean(mark?.start);
+            {cells.map(({ letter, ci, idx }) => {
+              const mark = marks.get(idx), isAxis = axisSet.has(idx) || mark?.type === "main", isStart = Boolean(mark?.start);
               const isolatedOut = Boolean(isolateKey) && mark?.type === "finding" && mark.color !== isolateKey;
               const dim = (focusMarks && !mark && !isAxis) || isolatedOut, active = selectedCell?.idx === idx;
               const z = !isDepth ? 0 : (isAxis ? depth * 1.55 : mark ? depth : 0) * explode;
               const background = isAxis ? P.accentBtn : mark?.color || "transparent";
-              return <button key={idx} type="button" title={`index ${idx}`} onClick={() => setSelectedCell({ idx, letter, row: r0 + ri, col: c0 + ci, mark: mark || null })} style={{
+              // 📜 גבולות-פסוק עדינים (2D בלבד) — vi.from===idx מסמן תחילת-פסוק חדש בתוך החלון; ההדגשה
+              //    הפעילה (activeVerseIndex) מקבלת טבעת-פנימית נפרדת. שני הסימונים לא נוגעים ב-background/
+              //    border הקיימים (Finding/main/start/selected) — רק boxShadow נוסף מעליהם.
+              const vi = verseOn && !isDepth ? verseForIdx(idx) : null;
+              const verseShadow = [];
+              if (vi && vi.from === idx) verseShadow.push(`inset 0 2px 0 0 ${verseColor(vi.verseIndex)}`);
+              if (vi && activeVerseIndex != null && vi.verseIndex === activeVerseIndex) verseShadow.push(`inset 0 0 0 2px ${P.accentText}`);
+              const depthShadow = z ? `0 ${Math.round(z / 3)}px ${Math.round(z / 2)}px rgba(0,0,0,.28)` : "";
+              const boxShadow = [depthShadow, ...verseShadow].filter(Boolean).join(", ") || "none";
+              return <button key={idx} type="button" title={`index ${idx}`} onClick={() => {
+                setSelectedCell({ idx, letter, row: r0 + ri, col: c0 + ci, mark: mark || null });
+                if (verseOn) { const owner = verseForIdx(idx); setActiveVerseIndex(owner ? owner.verseIndex : null); }
+              }} style={{
                 width: cellSize, height: cellSize + 3, flex: `0 0 ${cellSize}px`, padding: 0, display: "inline-grid", placeItems: "center",
                 borderRadius: showGrid ? 3 : 6, border: isStart ? `2px solid ${P.accentText}` : active ? `1px solid ${P.accentText}` : showGrid ? `1px solid ${P.border}` : "1px solid transparent",
                 outline: isStart ? `1px solid ${P.cardSoft}` : "none", background, color: isAxis ? P.onAccent : P.ink, fontFamily: F.regal,
                 fontWeight: isAxis || mark ? 900 : 500, fontSize: Math.max(15, Math.round(cellSize * .68)), opacity: dim ? .16 : 1, cursor: "pointer",
-                transform: z ? `translateZ(${z}px)` : "translateZ(0)", boxShadow: z ? `0 ${Math.round(z / 3)}px ${Math.round(z / 2)}px rgba(0,0,0,.28)` : "none",
+                transform: z ? `translateZ(${z}px)` : "translateZ(0)", boxShadow,
                 transition: "opacity .15s ease, transform .2s ease, box-shadow .2s ease", transformStyle: "preserve-3d",
               }}>{letter}</button>;
             })}
@@ -273,8 +342,7 @@ export default function ElsWorkAreaPage() {
       <div style={{ padding: "13px 14px", borderBottom: `1px solid ${P.border}`, display: "grid", gap: 10 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}><div><div style={{ ...title, fontSize: 14 }}>מטריצת המחקר · {viewMode === "2d" ? "מישור" : viewMode === "layers" ? "שכבות עומק" : "מרחב 3D"}</div><div style={{ ...muted, fontSize: 11.5 }}>אותו Finding · אותו Snapshot · Renderer שונה בלבד</div></div>{ok && <span style={{ color: P.accentText, fontFamily: F.heading, fontWeight: 900, fontSize: 12 }}>{n((occ.index ?? 0) + 1)} / {n(occ.count)} · S={n(geo.S)}</span>}</div>
         <div className="els-view-modes">{VIEW_MODES.map((v) => <button key={v.id} onClick={() => setViewMode(v.id)} type="button" style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: viewMode === v.id ? P.accentBtn : P.cardSoft, color: viewMode === v.id ? P.onAccent : P.ink, fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>{v.icon} {v.title}</button>)}
-          <button type="button" onClick={() => setVerseOn((v) => !v)} style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: verseOn ? P.accentBtn : P.cardSoft, color: verseOn ? P.onAccent : P.ink, fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>📜 פסוק{verseOn ? " · פעיל" : ""}</button>
-          <button type="button" disabled style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: P.cardSoft, color: P.inkSoft, opacity: .45 }}>🔥 חום · בהמשך</button>
+          {LAYER_TYPES.map((lt) => { const on = activeLayers.has(lt.id); return <button key={lt.id} type="button" disabled={!lt.available} onClick={() => lt.available && toggleLayer(lt.id)} style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: on ? P.accentBtn : P.cardSoft, color: on ? P.onAccent : lt.available ? P.ink : P.inkSoft, fontFamily: F.heading, fontWeight: 900, fontSize: 13, opacity: lt.available ? 1 : .45 }}>{lt.icon} {lt.title}{on ? " · פעיל" : !lt.available ? " · בהמשך" : ""}</button>; })}
         </div>
         <div className="els-native-toolbar" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <button type="button" onClick={() => setMatrixRtl((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: matrixRtl ? P.accentBtn : "transparent", color: matrixRtl ? P.onAccent : P.ink }}>↔ {matrixRtl ? "RTL" : "LTR"}</button>
@@ -289,19 +357,22 @@ export default function ElsWorkAreaPage() {
         </div>
       </div>
       {s?.status === "empty" ? <div style={{ minHeight: 440, display: "grid", placeItems: "center", ...muted }}>לא נמצא דילוג למונח «{s.termRaw || seed}».</div> : <MatrixStage />}
-      {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span></div>}
+      {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span>{verseOn && <span style={{ ...muted, fontSize: 11 }}>📜 Verse layer: {viewMode === "2d" ? "גבולות עדינים על התאים" : "מישור־context מתחת ל-Finding"}</span>}</div>}
       {verseOn && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}` }}>
         <div style={{ ...title, fontSize: 12.5, marginBottom: 7 }}>📜 הקשר־פסוק · Verse Lens</div>
         {!ok ? <div style={{ ...muted, fontSize: 12 }}>אין Finding פעיל.</div>
           : !verseLens ? <div style={{ ...muted, fontSize: 12 }}>טוען הקשר…</div>
           : !verseLens.ok ? <div style={{ ...muted, fontSize: 12 }}>אין הקשר־פסוק זמין ל־Finding הנוכחי.</div>
           : <div style={{ display: "grid", gap: 6 }}>
-            <div style={{ ...muted, fontSize: 11.5 }}>{verseLens.span?.fromRef}{verseLens.span?.fromRef !== verseLens.span?.toRef ? ` → ${verseLens.span?.toRef}` : ""} · {n(verseLens.span?.count)} פס׳{verseLens.truncated ? " (מקוצר)" : ""}</div>
+            <div style={{ ...muted, fontSize: 11.5 }}>{verseLens.span?.fromRef}{verseLens.span?.fromRef !== verseLens.span?.toRef ? ` → ${verseLens.span?.toRef}` : ""} · {n(verseLens.span?.count)} פס׳{verseLens.truncated ? " (מקוצר)" : ""} · <span style={{ color: P.accentDim }}>לחיצה על פסוק מדגישה אותו במטריצה</span></div>
             <div style={{ display: "grid", gap: 5, maxHeight: 230, overflow: "auto" }}>
-              {(verseLens.verses || []).map((v) => <div key={v.verseIndex} style={{ ...soft, padding: 8 }}>
+              {(verseLens.verses || []).map((v) => { const on = activeVerseIndex === v.verseIndex; return <div key={v.verseIndex} role="button" tabIndex={0}
+                onClick={() => setActiveVerseIndex((cur) => cur === v.verseIndex ? null : v.verseIndex)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActiveVerseIndex((cur) => cur === v.verseIndex ? null : v.verseIndex); } }}
+                style={{ ...soft, padding: 8, cursor: "pointer", outline: on ? `2px solid ${verseColor(v.verseIndex)}` : "none", background: on ? P.cardGrad : P.cardSoft }}>
                 <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 850 }}>{v.ref}</div>
                 <div style={{ color: P.ink, fontSize: 13, marginTop: 2, lineHeight: 1.6 }}>{v.text || "…"}</div>
-              </div>)}
+              </div>; })}
             </div>
           </div>}
       </div>}
