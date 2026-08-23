@@ -46,6 +46,7 @@ assert.equal(snap.scope, "torah");
 const promotion = buildJourneyPromotion(state, state.findings[0]);
 assert.equal(promotion.ok, true);
 assert.deepEqual(promotion.loadItem, {
+  journey: true,
   term: "אור",
   skip: 11,
   start: 1333,
@@ -61,6 +62,7 @@ assert.deepEqual(promotion.loadItem, {
 const restore = buildJourneyRestore(snap);
 assert.equal(restore.ok, true);
 assert.deepEqual(restore.loadItem, {
+  journey: true,
   term: "משה",
   skip: 37,
   start: 1200,
