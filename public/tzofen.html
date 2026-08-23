@@ -1447,8 +1447,12 @@
   // ⛔ לא findAll · לא Search Space · לא Ranking · לא geometry חדשה — אותו חלון בדיוק
   //    כמו ש-`geometry` הקיים כבר משדר (b=blockOf(), אותו b שהתקבל מ-elsState()).
   // rows: מחרוזת אחת לכל שורה בחלון (r0..r1) — כל תו הוא T[idx] הקיים, או רווח לתא מחוץ-לתחום (idx<0 || idx>=N).
-  // marks: רק תאים-מסומנים *בתוך* החלון (סינון על colorSets() הקיים) — {i, type:"main"|"finding", color?}.
+  // marks: רק תאים-מסומנים *בתוך* החלון (סינון על colorSets() הקיים) — {i, type:"main"|"finding", color?, start?}.
   //        "main" = ציר-החיפוש הראשי (h.positions). "finding" = מילה-צבועה נוספת (color = הצבע הקיים ב-w.color).
+  //        start:true = האות הראשונה של אותו ממצא — מ-startSet הקיים של colorSets() (אין חישוב חדש).
+  // v/lenses: מעטפת-גרסה של המטריצה עצמה (עצמאית מ-state.v החיצוני) — מכריזה אילו עדשות-אופציונליות
+  //    *נוכחות בפועל* בהודעה הזו. עדשות עתידיות (heat/verse/zones — טרם-מוחלט, טרם-מומש) יתווספו
+  //    כאובייקטים-אחים נפרדים (matrixHeat/matrixVerse/matrixZones), לא כאן — כדי שלא לנפח כל state-tick.
   function matrixSnapshot(b){
     const rows=[];
     for(let r=b.r0;r<=b.r1;r++){
@@ -1459,15 +1463,16 @@
       }
       rows.push(row);
     }
-    const {colorMap}=colorSets(),marks=[];
+    const {colorMap,startSet}=colorSets(),marks=[];
     colorMap.forEach((kind,idx)=>{
       const r=Math.floor(idx/b.S),c=((idx%b.S)+b.S)%b.S;
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;   // רק בתוך החלון המשודר (rows/geometry)
       const m={i:idx,type:kind==="main"?"main":"finding"};
       if(kind!=="main")m.color=kind;
+      if(startSet.has(idx))m.start=true;
       marks.push(m);
     });
-    return {S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,cw:b.cw,rows,marks};
+    return {S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,cw:b.cw,rows,marks,v:1,lenses:["cells","marks"]};
   }
   function elsState(){
     const r=st.res;
