@@ -1,0 +1,58 @@
+name: ELS Journey exact-anchor one-shot
+
+on:
+  push:
+    branches:
+      - gpt/els-research-journey-core-v1
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-rebuild:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gpt/els-research-journey-core-v1
+          fetch-depth: 0
+
+      - name: Patch canonical loadMatrix exact anchor
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('tools/els/els-code.template.html')
+          s = p.read_text()
+          old = '    let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;'
+          new = '''    // 🧭 Research Journey exact-anchor: saved/legacy callers that only provide skip keep the\n    // historical behavior. Journey callers may additionally provide start+dir; then we must select\n    // that exact engine-owned occurrence (hitKey = skip_dir_start), never a different start at the\n    // same skip. This is selection only — findAll/search/ranking are unchanged.\n    let idx=(item.start!=null&&item.dir!=null)\n      ? st.res.hits.findIndex(h=>Math.abs(h.skip)===Math.abs(Number(item.skip))&&h.start===Number(item.start)&&h.dir===Number(item.dir))\n      : item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;'''
+          count = s.count(old)
+          if count != 1:
+              raise SystemExit(f'expected exact loadMatrix needle once, found {count}')
+          p.write_text(s.replace(old, new, 1))
+          PY
+
+      - name: Rebuild generated tzofen artifact
+        run: python3 tools/els/build.py
+
+      - name: Verify Journey contract
+        run: node scripts/verify-els-journey-contract.mjs
+
+      - name: Verify scope
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          changed = subprocess.check_output(['git','diff','--name-only'], text=True).splitlines()
+          expected = {'tools/els/els-code.template.html','public/tzofen.html'}
+          if set(changed) != expected:
+              raise SystemExit(f'unexpected changed files: {changed}')
+          print('scope ok:', changed)
+          PY
+
+      - name: Commit generated patch
+        run: |
+          git config user.name "GPT Research Agent 2"
+          git config user.email "actions@users.noreply.github.com"
+          git add tools/els/els-code.template.html public/tzofen.html
+          git commit -m "feat(els): honor exact start+dir in loadMatrix for Journey [skip ci]"
+          git push origin HEAD:gpt/els-research-journey-core-v1
