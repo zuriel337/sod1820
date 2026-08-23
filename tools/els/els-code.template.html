@@ -2441,8 +2441,16 @@
 
     q.value=item.term;st.raw=item.term;st.res=findAll(item.term,4000);
     if(!st.res.hits.length){updGem();render();return;}
-    let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
-    if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
+    const exactStart=item.start!=null?Number(item.start):null;
+    const exactDir=item.dir===1||item.dir===-1?item.dir:null;
+    const exactRequested=Number.isFinite(exactStart)&&exactDir!=null&&item.skip!=null;
+    let idx=exactRequested
+      ?st.res.hits.findIndex(h=>Math.abs(h.skip)===Math.abs(Number(item.skip))&&h.start===exactStart&&h.dir===exactDir)
+      :(item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1);
+    // Journey exact-anchor requests must never silently jump to another occurrence.
+    // Legacy saved matrices (no start+dir) keep the historical skip-only fallback.
+    if(idx<0&&!exactRequested){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
+    if(idx<0&&exactRequested){toast("לא ניתן לעגן את הממצא המדויק");return;}
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
     st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
     st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
