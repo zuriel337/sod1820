@@ -200,7 +200,7 @@ Entity Hub → Raziel Orchestration
 
 **העיקרון המנחה (כלשונו):** **אין צורך להשלים כל enrichment אפשרי בקורפוס לפני התקדמות.** `MASTER_CLASSIFICATION_v3` מספק בסיס מספיק למעבר לשלב-הבא (Foundation) — לא-נדרש איפוס/שכלול-אינסופי לפני שממשיכים בשרשרת. **הרחבות-קורפוס עתידיות (עוד מקורות, עוד שיטות, עוד שפות) נכנסות דרך אותו Research DNA v1 (שלב 3) ואינן יוצרות schema/engine/tree מקביל** — מתיישר-במלואו עם `unified_graph_law`/γ ועם דרישת-ה-extensibility שכבר נרשמה ל-Research DNA v1 (work_log 22.8: "future corpus expansion, new methods, numeric-language generation, multilingual identity, without schema redesign").
 
-**מה זה קובע בפועל:** סדר-העדיפות בין `WS-GEMATRIA-CORPUS-PACKAGES` (עכשיו, effectively-complete) ← Methods Definition & Engine v1 (**v5.1: מוכן-להתחיל — 11 החלטות Human-Gate A-K כבר קיימות**, ר' Canonical Gate Map) ← Corpus/Number DNA Persistence v1 (מיפוי-תכנון סגור, כתיבה-בפועל עדיין Human-Gate) ← Deep Corpus Calculation/Number Coverage (תלוי-ב-Methods Build) ← Multilingual Foundation v1 (**v5.1: PARALLEL_READY, אינו-תלות-חוסמת ל-Methods**) ← **(Gate #4 `CLOSED` 22.8.2026 — יצא מהשרשרת החוסמת; ELS Identity Implementation ממשיכה במקביל, non-blocking)** ← Gate #18 ← Research Intake ← One Tree/Entity Hub ← `WS-CROSS-ENGINE` ← Raziel — **v5.1: Methods ו-Corpus-Persistence אינם תלויים-זה-בזה טכנית (יכולים-להתקדם-במקביל); Multilingual v1 אינו-מעכב Methods; Entity Hub/Raziel `LIVE`/`PARTIAL` כבר-היום, לא "חסומים"** (ר' Canonical Gate Map לפירוט-הבחנה בין תלות-טכנית-אמיתית לבין סדר-עבודה-מוצהר-של-צוריאל). **לא** משנה את `ACTIVE_NOW` הנוכחי (`WS-GEMATRIA-CORPUS-PACKAGES`) ולא סוגר/פותח שום Gate בפני-עצמו.
+**מה זה קובע בפועל:** סדר-העדיפות בין `WS-GEMATRIA-CORPUS-PACKAGES` (עכשיו, effectively-complete) ← Methods Definition & Engine v1 (**v5.1: מוכן-להתחיל — 11 החלטות Human-Gate A-K כבר קיימות**, ר' Canonical Gate Map) ← Corpus/Number DNA Persistence v1 (מיפוי-תכנון סגור, כתיבה-בפועל עדיין Human-Gate) ← Deep Corpus Calculation/Number Coverage (תלוי-ב-Methods Build) ← Multilingual Foundation v1 (**v5.1: PARALLEL_READY, אינו-תלות-חוסמת ל-Methods**) ← **(Gate #4+Gate #18 שניהם `CLOSED` — 22.8/23.8.2026 — יצאו מהשרשרת החוסמת; ELS Identity Implementation + Unified Judgment Contract build ממשיכות במקביל, non-blocking)** ← INTAKE READINESS ← Research Intake ← One Tree/Entity Hub ← `WS-CROSS-ENGINE` ← Raziel — **v5.1: Methods ו-Corpus-Persistence אינם תלויים-זה-בזה טכנית (יכולים-להתקדם-במקביל); Multilingual v1 אינו-מעכב Methods; Entity Hub/Raziel `LIVE`/`PARTIAL` כבר-היום, לא "חסומים"** (ר' Canonical Gate Map לפירוט-הבחנה בין תלות-טכנית-אמיתית לבין סדר-עבודה-מוצהר-של-צוריאל). **לא** משנה את `ACTIVE_NOW` הנוכחי (`WS-GEMATRIA-CORPUS-PACKAGES`) ולא סוגר/פותח שום Gate בפני-עצמו.
 
 **🌳 חוק שימור-והרחבה (PRESERVE & EXPAND LAW) — נוסף 22.8, חלק מחוזה-היסוד (PR #166):** Research DNA, Corpus Persistence, Worlds ו-Cross Engine **מרחיבים** את חוויית-דף-המספר הקיימת — **אינם מחליפים או מצמצמים אותה.** כל יכולת קיימת בדף המספר נשמרת כמו-שהיא. עומק-מחקר חדש נחשף אך-ורק דרך ranking / facets / modes / progressive disclosure — **לעולם לא** ניקוי/מחיקה/עריכה של תוכן-קיים רק כדי-להתאים לטקסונומיה חדשה (הרחבה ישירה של `Rank, Don't Hide` מ-`command_center_law` ושל `unified_graph_law`, מוחלת-במפורש על משטחי-קורפוס/DNA/worlds/cross). העיקרון: **יותר שליטה, לא יותר עומס** — עומק חדש הוא opt-in (מצב/facet/הרחבה), לא ברירת-מחדל. פירוט מלא: `audits/research_dna_v1_foundation_contract/RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md` §3.
 
@@ -219,9 +219,9 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 ---
 
 ## 🌌 היקום המלא (FULL UNIVERSE) — כלום לא מוסתר
-- **🔵 עכשיו (NOW)** → **`WS-GEMATRIA-CORPUS-PACKAGES`** (21.8, הנחיית-צוריאל מפורשת) — ארגון חומרי-גימטריה (רשימות/חבילות) לכדי corpus מחקרי, לפני חזרה ל-Gate #18. Gate #3+Gate #2+**Gate #4 (22.8)** סגורים (History). **Gate #18 בלבד** נשאר שער ארכיטקטוני פתוח, **Intake-critical למסלול הנוכחי** — לא-חוסם v5.
-- **🟡 הבא (NEXT)** — **עודכן v5.1; Gate #4 נסגר 22.8 (עדכון ממוקד נוסף):** לפי נקודת-החזרה שנקבעה, עם Research DNA v1 Foundation Contract (עכשיו `CLOSED`, main `95005d78`) מוסיף שלושה שלבים-מקבילים-לא-חוסמים לפני חזרה לציר-הישן: **[PARALLEL: Methods Build #1 · Corpus/Number DNA Persistence v1 · Multilingual Foundation v1 · ELS Identity Implementation (Gate #4 build)]** ← ואז **Gate #18 (Unified Judgment & Human-Gate Contract)**. **Gate #4 (ELS Finding Identity & Multi-Source Provenance) `CLOSED`** (22.8.2026, Human-Gate ZURIEL, ELS-scope בלבד) — ה-build שלו ממשיך כפריט-מקביל-לא-חוסם, לא-כשער. שאר-השערים-הפתוחים (ר' Canonical Gate Map): מיזוג-`els-unified-merge`-ל-main · Research-Journey/Matrix/שכבות-ELS-נוספות (Preview) · שחזור `fn_els_search` secdef · Master-State §17-אנומרציה · שאר-שערי-#5-#17,#19-#20 — כולם מתועדים ואינם חוסמים קנוניזציית v5.1 (ר' Critical Path בטבלה — **רק #18 חוסם בפועל**).
-- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳ · **מנוע הצלבות מתקדם (Cross-Research Engine, `WS-CROSS-ENGINE`, נוסף 22.8)**.
+- **🔵 עכשיו (NOW)** → **`WS-GEMATRIA-CORPUS-PACKAGES`** (21.8, הנחיית-צוריאל מפורשת) — ארגון חומרי-גימטריה (רשימות/חבילות) לכדי corpus מחקרי, לפני שלב **INTAKE READINESS**. Gate #3+Gate #2+**Gate #4 (22.8)**+**Gate #18 (23.8)** סגורים (History). **אין-עוד Gate ארכיטקטוני פתוח** — הבא הוא שלב-תלויות (לא-Gate), ר' Parallel/Non-blocking Work.
+- **🟡 הבא (NEXT)** — **עודכן 23.8.2026 (Gate #18 נסגר, עדכון ממוקד נוסף):** לפי נקודת-החזרה שנקבעה, עם Research DNA v1 Foundation Contract (`CLOSED`, main `95005d78`) מוסיף שלב **INTAKE READINESS** (לא-Gate) לפני בניית Research Intake בפועל: **[Security Fix · decision_ledger-wiring · Canonical≠Published-decision · Methods Build #1 · Corpus/Number DNA Persistence v1 · Multilingual Foundation v1 · ELS Identity/Provenance implementation]** — כל אחד לרמת-בשלות מספקת-ל-Intake בלבד, לא "לסיים-הכול". **Gate #18 (Unified Judgment & Human-Gate Contract) `CLOSED`** (23.8.2026, Human-Gate ZURIEL — Contract-over-Consolidation/Option C, ר' Master State §20) — ה-build שלו (חיווט-decision_ledger, View מאוחד) ממשיך כפריט-מקביל-לא-חוסם. שאר-השערים-הפתוחים (ר' Canonical Gate Map): מיזוג-`els-unified-merge`-ל-main · Research-Journey/Matrix/שכבות-ELS-נוספות (Preview) · שחזור `fn_els_search` secdef · Master-State §17-אנומרציה · שאר-שערי-#5-#17,#19-#20 — כולם מתועדים ואינם חוסמים קנוניזציית v5.1 (ר' Critical Path בטבלה — **אין-עוד Gate חוסם**).
+- **🔮 בעתיד (FUTURE)** → מרכז־הניהול + Feature-Control · Meta Growth OS · פלטפורמת־6־דרגות + Credits + Academy · UGC · רב־לשוניות · ELS שלב ב׳ · **מנוע הצלבות מתקדם (Cross-Research Engine, `WS-CROSS-ENGINE`, נוסף 22.8)** · **AGENT COORDINATION HARDENING / LIVE PROJECT SNAPSHOT (נוסף 23.8, FUTURE/PARALLEL·NON-BLOCKING):** Lens/coordination-layer מעל ה-SSOT הקיים (work_log/Roadmap/Master-State) — **לא** SSOT/DB/engine/tree חדש. Scope: automatic Session Bootstrap · structured work_log handoff bus · derived Live Project Snapshot · Drift Sentinel. אינו-חוסם Intake.
 - **⏸️ מושהה (PARKED)** → סליקה/מנויים (Hyp) · Human-Design/Tarot/`digit_language`/`number_series`/`number_products` (schema-בלבד, מכוון-נכון).
 - **🗄️ הוחלף (SUPERSEDED, provenance)** → writer-os · `CommandCenterTab.jsx` (הוחלף ע"י `WarRoomTab`) · §19-old · ELS-2 Item-1 **כענף-עצמאי** (תוכנו נספג בפועל ל-D4, ר' `WS-ELS-FSS`).
 - **🚪 מחוץ־לתחום (OUTSIDE, חדש-v5)** → "מעבדה להבנת משמעות" (`/meaning-lab`, `lab_*` tables) — פרויקט-צד נפרד לגמרי, לא-שייך ל-SOD1820, לא-לגעת.
@@ -255,26 +255,36 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | 15 | 4 שאלות ELS-capability-audit | WS-ELS-CAPABILITY-AUDIT | `OPEN-NONBLOCKING` | בינונית (מקומית) | עדיפויות 2-10 של אותה ביקורת בלבד | WS-ELS-FSS | `docs/els-capability-audit.md`, `work_log fe4a3cef` | צוריאל | ממתין (3+ ימים) |
 | 16 | Number-Language — אימוץ/גניזה | WS-NUMBER-LANGUAGE | `OPEN-NONBLOCKING` | נמוכה | חיווט 7-הטבלאות-הריקות | אין | **v5.1: ארכיטקטורה-הוכרעה** (Foundation Contract §2.3/§20-§22 — transform-slot, לא-8-טבלאות) | צוריאל | 7-הטבלאות-הישנות נשארות `PARKED`; יישום-בפועל דרך Methods-Build-Track |
 | 17 | Name-Lab/Christina/Maftech פורמליזציה | WS-NAMELAB | `OPEN-NONBLOCKING` | נמוכה (תיעודי) | audit-visibility בלבד | אין | 3 כלים חיים, ללא-ייצוג | צוריאל | ממתין |
-| 18 | Unified Judgment & Human-Gate Contract | WS-JUDGE-UNIFICATION | `OPEN-CRITICAL` | **INTAKE-CRITICAL** | CC-2 · Intake build · שכבת-Judgment מאוחדת | ~~Gate #4 (סדר-עבודה-מוצהר)~~ **`CLOSED` 22.8, כבר-לא-תלות** · Gate #9 (**רק** ל-CC-2-בנייה, לא לגוף-ההחלטה — v5.1) | Crosswalk ~30 מנגנונים/6 pipelines (21.8) | צוריאל | ממתין לנקודת-החזרה; **v5.1: עקרונות/אוצר-מילים כבר-סגורים בחוזה, החלטת-canonical-pipeline נשארה-פתוחה** |
+| 18 | Unified Judgment & Human-Gate Contract | WS-JUDGE-UNIFICATION | `CLOSED` | — (היסטורי; Architecture Decision: Contract-over-Consolidation, Option C) | — (ההחלטה עצמה; ה-build ממשיך non-blocking, ר' Parallel/Non-blocking למטה) | Human-Gate ZURIEL 23.8.2026: אין physical consolidation, אין Judgment system חדש; כל pipeline נשאר מקור/מחסנית בתחומו, כפוף ל-Unified Judgment Contract אחד · `decision_ledger`=append-only audit trail (מצביע-בלבד, לא-SoT) · Automation Boundary (deterministic=אוטומטי, AI/Raziel=לחקור/לדרג/להמליץ-בלבד, Canonical=Human-Gate-צוריאל-בלבד) · Raziel=צרכן/orchestrator, אין-לו חוזה-Judgment פרטי · Canonical≠Published/Visible נעול-כעיקרון, `nodes.is_active` פסול-כ-publication-flag (מנגנון-מדויק=Implementation Gate נפרד) · `admin_research_review` נשאר orphan כפי-שהוא · Security Work (3 פונקציות anon-writable + null-bypass) מאושר-לתיקון כנפרד-ודחוף-לפני-Intake-Build, לא-חלק מהחלטת-הארכיטקטורה — ר' Master State §20 | צוריאל (בוצע) | אין — **Implementation** (חיווט decision_ledger, View מאוחד ב-War Room, מנגנון Canonical≠Published, Security Work) נשאר `OPEN`, **אינו-חלק מסטטוס-הסגירה**. מעבר ל-Intake Build **אינו-אוטומטי** — עומד עכשיו שלב **INTAKE READINESS** (לא-Gate): Security Fix · decision_ledger-wiring · Canonical≠Published-decision · Methods Build #1 · Corpus/Number DNA Persistence · Multilingual Foundation v1 · ELS Identity/Provenance implementation — כל אחד לרמת-בשלות מספקת-ל-Intake בלבד, לא "לסיים-הכול" |
 | 19 | `raziel_brain` — לאכלס או להסיר | WS-RAZIEL | `OPEN-NONBLOCKING` | נמוכה | היקף-Raziel-אישי | אין | 1-שורה חיה (`id=1`) | צוריאל | ממתין |
 | 20 | מסגרת Research-Object-Map — לספוג ואיך | WS-RESEARCH-OBJECT-FRAMEWORK | `OPEN-NONBLOCKING` | **v5.1: היקף-צומצם** | ספיגה עתידית ל-Master State | WS-URC (חפיפה-מושגית) | ענפי-GPT, `work_log` 17.8 | צוריאל | **v5.1: השאלה-שנותרה מצומצמת ל-AI-Navigator/Budget/Challenge-Mode בלבד** — שאר-הליבה כבר-נענתה ע"י Foundation Contract §2/§11 |
 
 > **עדכון ממוקד (22.8.2026, מאוחר יותר אותו-יום — Gate #4 ELS Finding Identity Decision, Human-Gate ZURIEL):** שורה 4 עודכנה ל-`CLOSED` (Identity/Architecture Decision, ELS-scope בלבד — ר' Master State §17 המעודכן). **עדכון-המשך (22.8.2026, אותו-יום, reconciliation ממוקד נוסף):** כל האזכורים העליונים של Gate #4 (`🌌 היקום המלא`, `🧭 סדר-היסוד האסטרטגי`, `ACTIVE_NOW`, כרטיסי-Workstream רלוונטיים, Dependency Spine, Session Handoff, Decision Register הישן) עודכנו לעקביות עם הסגירה — Gate #4=`CLOSED`, Gate #18 (עצמו, ללא-שינוי) = ה-`OPEN-CRITICAL` היחיד שנותר, ELS Identity Implementation=עבודת-build נפרדת non-blocking. שורות-היסטוריה מתוארכות (Decision Register #679-681, Change-Log) **לא נערכו** — נשמרות כפי-שהיו לפי `NO-DISAPPEARING-WORK`.
 
-### Critical Path — רק מה שבאמת חוסם את קו-העבודה הראשי
-**Gate #18 בלבד**, החל מ-22.8.2026 (Gate #4 נסגר — ר' עדכון-ממוקד למעלה). זהו כעת השער ה-`INTAKE-CRITICAL` היחיד שחוסם את המעבר לבניית Research Intake. כל שאר-ה-19-השערים (כולל #4, כעת `CLOSED`) הם `CLOSED`/`OPEN-NONBLOCKING`/`BLOCKED`(מקומי)/`DEFERRED` — אינם עוצרים את קו-Research-DNA→Intake הראשי.
+> **עדכון ממוקד (23.8.2026, Gate #18 Unified Judgment Contract Decision, Human-Gate ZURIEL):** שורה 18 עודכנה ל-`CLOSED` (Architecture Decision: Contract-over-Consolidation/Option C — ר' Master State §20). **אין-עוד Gate ממוספר `OPEN-CRITICAL`/`INTAKE-CRITICAL`** — הצעד-הבא אינו-Gate אלא שלב-תלויות בשם **INTAKE READINESS** (ר' Parallel/Non-blocking למטה). reconciliation מלא בוצע גם ב-`🌌 היקום המלא`, `ACTIVE_NOW`, כרטיס `WS-JUDGE-UNIFICATION`, Dependency Spine, Session Handoff, ו-`## 🚪 שערי־צוריאל פתוחים` (פריט 18) — ראה שם.
 
-### Parallel/Non-blocking Work — יכול-להתקדם בלי לעכב את ה-Critical Path
-- **Methods Build #1** (Foundation Contract §8-§17, 11 החלטות A-K כבר קיימות ב-`GEMATRIA_METHODS_HUMAN_GATE.csv`) — `PARALLEL_READY`.
-- **Corpus/Number DNA Persistence v1** (32-שורות + 764-נוספות) — `OPEN-HUMAN-GATE` אך לא-תלוי-טכנית ב-Methods Build.
-- **Multilingual Foundation v1** — `PARALLEL_READY`, אינו-חוסם Methods.
-- **ELS Identity Implementation (Gate #4 build)** — נפרד מסטטוס-הסגירה של Gate #4: אכיפת-DB אם-בכלל (unique-index) + חיווט-כתיבת-observations בפועל — `OPEN`, `PARALLEL_READY`, לא-חוסם דבר.
-- Gates #5, #6, #7, #8, #10 (תלוי-ב-#9), #11 (תלוי-בOD), #12, #13, #14, #15, #16, #17, #19, #20 — כולם עצמאיים-ביחס-לציר Gate#18.
+### Critical Path — רק מה שבאמת חוסם את קו-העבודה הראשי
+**ריק מ-Gates ארכיטקטוניים**, החל מ-23.8.2026 (Gate #18 נסגר). כל 20 השערים הממוספרים הם כעת `CLOSED`/`OPEN-NONBLOCKING`/`BLOCKED`(מקומי)/`DEFERRED` — **אף-אחד אינו `OPEN-CRITICAL`/`INTAKE-CRITICAL` יותר**. **זה אינו מעבר-אוטומטי לבניית Research Intake** — עומד עכשיו שלב נפרד, לא-Gate, בשם **INTAKE READINESS** (ר' Parallel/Non-blocking Work למטה): רשימת-תלויות טכניות שיש-לאמת/לסגור לרמת-בשלות **מספקת-ל-Intake בלבד**, לא "לסיים-הכול", לפני שמתחילים בפועל בבנייה.
+
+### Parallel/Non-blocking Work — יכול-להתקדם בלי לעכב (אין-עוד Critical Path לעכב)
+
+**שלב INTAKE READINESS (לא-Gate) — תלויות-אמיתיות שיש-לסגור לרמת-בשלות מספקת-ל-Intake:**
+- **Security Fix** (3 פונקציות anon-writable + null-bypass ב-`admin_research_review`) — **התלות היחידה שהוכרזה במפורש כחוסמת לפני Intake Build.**
+- **`decision_ledger` wiring** — רק לפייפליינים שה-Intake בפועל יזין מהם (לא-לכל-6-8 ה-pipelines).
+- **Canonical≠Published implementation decision** — החלטת-מנגנון (לא `nodes.is_active`), לא-מימוש-מלא-בכל-הטבלאות.
+- **Methods Build #1** (Foundation Contract §8-§17, 11 החלטות A-K כבר קיימות ב-`GEMATRIA_METHODS_HUMAN_GATE.csv`) — לרמה-הנדרשת-ל-Intake.
+- **Corpus/Number DNA Persistence v1** (32-שורות + 764-נוספות) — לרמה-הנדרשת-ל-Intake.
+- **Multilingual Foundation v1** — לרמה-הנדרשת-ל-Intake.
+- **ELS Identity/Provenance implementation (Gate #4 build)** — לרמה-הנדרשת-ל-Intake (לא-בהכרח unique-constraint מלא).
+
+**Unified Judgment Contract build (Gate #18)** — נפרד מסטטוס-הסגירה: חיווט-`decision_ledger` + View מאוחד ב-War Room (עדשת AUTO-PROCESSED/NEEDS-ZURIEL/RESOLVED, בלי-store-חדש) — `OPEN`, `PARALLEL_READY`, לא-חוסם דבר.
+
+- Gates #5, #6, #7, #8, #10 (תלוי-ב-#9), #11 (תלוי-בOD), #12, #13, #14, #15, #16, #17, #19, #20 — כולם עצמאיים, אין-עוד ציר-Gate שהם תלויים-בו.
 - Entity Hub / Raziel (3 מימושים) — `LIVE`/`PARTIAL` **כבר-היום**, לא ממתינים לשום שלב-קודם.
 
 ### Return Point — מתי חוזרים ל-Research Intake
 `Sources (Researchers/Beit-Midrash/Forum/WhatsApp/ELS) → Intake → Extraction/Classification → Deterministic Verification → Research Objects/One Tree → ZURIEL Human-Gate → Canonical/Publishable surfaces`
-**נקודת-החזרה המדויקת (v5.1, מעודכנת):** `WS-GEMATRIA-CORPUS-PACKAGES (effectively-complete) → [PARALLEL: Methods Build #1 · Corpus Persistence · Multilingual Foundation v1] → Gate #4 → Gate #18 → Research Intake build`. Intake **עצמו לא-נבנה** ב-pass הזה או-בכל-pass-קודם — נשאר מפרט (§13 המקורי, `command_center_law` §11-B) עד ששני-השערים-הקריטיים נסגרים.
+**נקודת-החזרה המדויקת (עודכן 23.8.2026):** `WS-GEMATRIA-CORPUS-PACKAGES (effectively-complete) → INTAKE READINESS [Security Fix · decision_ledger-wiring · Canonical≠Published-decision · Methods Build #1 · Corpus Persistence · Multilingual Foundation v1 · ELS Identity/Provenance] → Research Intake build`. Intake **עצמו לא-נבנה** ב-pass הזה או-בכל-pass-קודם — נשאר מפרט (§13 המקורי, `command_center_law` §11-B). **Gate #4 ו-Gate #18 שניהם `CLOSED`** (22.8/23.8.2026) — אין-עוד Gate-ארכיטקטוני חוסם; INTAKE READINESS הוא שלב-תלויות-טכניות, לא-Human-Gate נוסף.
 
 ### Visual Gate Map — ניווט-בלבד (הטבלה למעלה היא הסמכות על סטטוס)
 ```mermaid
@@ -288,7 +298,7 @@ flowchart TD
     M --> G4
     CP --> G4
     ML --> G4
-    G4 --> G18["Gate #18 — Unified Judgment Contract<br/>OPEN-CRITICAL"]:::critical
+    G4 --> G18["Gate #18 — Unified Judgment Contract<br/>CLOSED (23.8)"]:::closed
     G18 --> INT["Research Intake<br/>DEFERRED — not built"]:::deferred
     INT --> OT["One Tree / Knowledge-Graph"]:::open
     OT --> KX["Knowledge/Entity Hub · Cross Engine<br/>LIVE/PARTIAL today + FUTURE unified gen"]:::open
@@ -304,12 +314,13 @@ flowchart TD
 
 ---
 
-## 🔵 ACTIVE_NOW — **עודכן 21.8: מיקוד עבר לארגון חומרי-גימטריה (לפני חזרה ל-Gate #18); עדכון-ממוקד 22.8: Gate #4 נסגר**
+## 🔵 ACTIVE_NOW — **עודכן 21.8: מיקוד עבר לארגון חומרי-גימטריה (לפני שלב INTAKE READINESS); עדכון-ממוקד 22.8: Gate #4 נסגר · עדכון-ממוקד 23.8: Gate #18 נסגר**
 > **📍 איפה אני:** `WS-GEMATRIA-CORPUS-PACKAGES` — ארגון הרשימות/חבילות-הגדולות של חומרי-גימטריה לכדי corpus מחקרי מסודר, מוכן להזנה עתידית לעץ-האחד. Gate #3 ו-Gate #2 סגורים (ר' History).
 > **✅ מה קרה:** צוריאל החליט (21.8) לא-לפתור את Gate #4/#18 כרגע. שניהם שונו-שם ומוגדרים במפורש **OPEN/INTAKE-CRITICAL** (חוסמים רק בנייה-סופית של שכבת-Identity/Judgment, לא-קנוניזציית-v5), עם נקודת-חזרה מפורשת: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`. Gate #18 עודכן: Contract-מוביל/מועמד קיים, pipelines חיים דורשים התכנסות ל-Unified-Judgment-Contract אחד — טרם-הוכרע אם `research_objects`/`admin_research_review` יהיה ה-canonical implementation; אין-לבנות Judgment system חדש. 2 ממצאי-אבטחה (`wa_word_review`,`project_contribution_to_graph`) הועברו ל-`WS-SEC` כמעקב-נפרד. גם עקרון **Brain Responsibility** (ONE SYSTEM BRAIN + Public/Private Context Boundary) אושר ונכנס ל-v5 כ-Governance (ר' סעיף ייעודי למעלה).
-> **⏭️ מה נפתח כתוצאה:** אחרי ארגון-החומרים — חזרה ל-Gate #18 (Gate #4 נסגר 22.8) — ELS Identity Implementation (ה-build שנותר מ-Gate #4) ממשיכה במקביל, non-blocking.
+> **⏭️ מה נפתח כתוצאה:** אחרי ארגון-החומרים — שלב **INTAKE READINESS** (Gate #4+#18 שניהם נסגרו) — ELS Identity Implementation + Unified Judgment Contract build ממשיכות במקביל, non-blocking.
 > **🕐 מה השתנה מאז הסשן הקודם:** Gate #4/#18 שונו-שם ומוגדרו-במפורש OPEN/INTAKE-CRITICAL עם resume-point, לפי עקרון-עבודה-רוחבית (`work_log af29e88b`) — בלי status חדש. Brain Responsibility נוסף כעקרון מאושר.
-> **🆕 עדכון-ממוקד (22.8.2026, Human-Gate ZURIEL):** Gate #4 (ELS Finding Identity & Multi-Source Provenance, ELS-scope בלבד) `CLOSED` — ר' Canonical Gate Map שורה 4 + Master State §17. Gate #18 נשאר השער ה-`OPEN-CRITICAL` היחיד שממתין לנקודת-החזרה. ELS Identity Implementation (אכיפת-DB אם-בכלל/חיווט-observations) ממשיכה כעבודת-build נפרדת, `OPEN`, non-blocking — אינה חלק מסטטוס-הסגירה.
+> **🆕 עדכון-ממוקד (22.8.2026, Human-Gate ZURIEL):** Gate #4 (ELS Finding Identity & Multi-Source Provenance, ELS-scope בלבד) `CLOSED` — ר' Canonical Gate Map שורה 4 + Master State §17. ELS Identity Implementation (אכיפת-DB אם-בכלל/חיווט-observations) ממשיכה כעבודת-build נפרדת, `OPEN`, non-blocking — אינה חלק מסטטוס-הסגירה.
+> **🆕 עדכון-ממוקד (23.8.2026, Human-Gate ZURIEL):** Gate #18 (Unified Judgment & Human-Gate Contract) `CLOSED` — Contract-over-Consolidation/Option C, ר' Canonical Gate Map שורה 18 + Master State §20. **אין-עוד Gate ארכיטקטוני פתוח.** Unified Judgment Contract build (חיווט-decision_ledger, View מאוחד) ממשיך כעבודת-build נפרדת, `OPEN`, non-blocking. הצעד-הבא: שלב **INTAKE READINESS** (לא-Gate).
 
 ## 🟡 PARALLEL_READY (מגודר; אינו העמדה הפעילה)
 - **`WS-ELS-REGRESSION-FN`** — שחזור `search_path=public` + `security definer` על `fn_els_search` החי.
@@ -330,7 +341,7 @@ flowchart TD
 | השלמת זהות תנ״ך | `corpus_id` תנ״ך פתוח | אין corpus_id תנ״ך קנוני (§17) | הכרעת צוריאל |
 | מיזוג/פריסת `els-unified-merge` (המנוע, לא ה-shell) *(חדש-v5)* | Decision #1 פתור אך שער-אדם עוד לא ניתן | אישור-Human-Gate | צוריאל מאשר Preview |
 | אימוץ Number-Language / Name-Lab-רשמי / איחוד-שופטים *(חדש-v5)* | כולם OPEN-HUMAN-GATE, ר' שערים #16/#17/#18 (Decision Register) | הכרעות-צוריאל נפרדות | ר' שערים 15-19 למטה |
-| מנוע הצלבות מתקדם (`WS-CROSS-ENGINE`) *(חדש, 22.8)* | ספיציפיקציה בלבד, אין One-Tree-Check עדיין | Research DNA v1 טרם-הוכרעה + Gate #18 טרם-הוכרע + קורפוס עדיין-בארגון | Research DNA v1 decision → Gate #18 → One-Tree-Check מלא |
+| מנוע הצלבות מתקדם (`WS-CROSS-ENGINE`) *(חדש, 22.8)* | ספיציפיקציה בלבד, אין One-Tree-Check עדיין | Research DNA v1 טרם-הוכרעה + קורפוס עדיין-בארגון (Gate #18 **`CLOSED` 23.8** — כבר-לא-תלות) | Research DNA v1 decision → One-Tree-Check מלא |
 
 ---
 
@@ -380,7 +391,7 @@ flowchart TD
 - **WHAT_IS_OPEN:** זהות־תנ״ך (`WS-TANAKH`) — בלבד.
 - **WHAT_IS_BLOCKED:** אין (Step 4 עצמה עדיין דורשת שער-בנייה-נפרד — לא `BLOCKED` על Step3 יותר).
 - **HUMAN_GATE:** סגור עבור merge+deploy+אימות Step 3 (בוצע). **Gate #4 (Identity Decision) סגור 22.8** (Human-Gate ZURIEL). Step 4 **build** (dedup/UNIQUE אם-בכלל, חיווט-observations) — workstream נפרד, `OPEN`, non-blocking, לא-שער.
-- **NEXT_ACTION:** אין לגוף-הזהות — נסגר. ממתין לנקודת-החזרה: `Gematria packages organized → Gate #18 → Intake build` (Gate #4 סגור, יצא מהשרשרת החוסמת). ELS Identity Implementation (build) ממשיכה במקביל, non-blocking. הבאג הנקודתי ב-`save_els_matrix` (direction/start_index) כבר-תוקן-בנפרד (`work_log 62a36e0c`).
+- **NEXT_ACTION:** אין לגוף-הזהות — נסגר. ממתין לנקודת-החזרה: `Gematria packages organized → INTAKE READINESS → Intake build` (Gate #4+#18 שניהם סגורים, יצאו מהשרשרת החוסמת). ELS Identity Implementation (build) ממשיכה במקביל, non-blocking. הבאג הנקודתי ב-`save_els_matrix` (direction/start_index) כבר-תוקן-בנפרד (`work_log 62a36e0c`).
 - **DEPENDENCIES:** `WS-ELS-CORPUS` (LIVE); שלמות־תנ״ך על `WS-TANAKH`.
 - **CANONICAL_HOME:** פונקציות live DB + Master State §17 (**עודכן 22.8** — `DECIDED`, ר' §17 המלא).
 - **PROVENANCE:** migrations step1/2/3 (`20260820023525`); client `7045f7b3`→merge `fc123caa`; `work_log ed5cc880` (אימות-מלא, 21.8); Gate #4 closure — `work_log actor=CLAUDE task=GATE4_ELS_FINDING_IDENTITY_CLOSURE` (22.8).
@@ -428,13 +439,13 @@ flowchart TD
 - **STATE:** `OPEN-HUMAN-GATE`.
 
 ### WS-GEMATRIA-CORPUS-PACKAGES — ארגון חומרי-גימטריה לקורפוס-מחקרי — **חדש-v5, נפתח 21.8, עודכן-עובדתית 22.8**
-- **WHERE_WE_ARE:** לפי החלטת-צוריאל (21.8): לפני חזרה ל-Gate #18 (במקור: Gate #4/#18 — **Gate #4 נסגר 22.8**, ר' עדכון-ממוקד), המיקוד-הפעיל יורד לשכבת חומרי-הגימטריה — ארגון הרשימות והחבילות-הגדולות הקיימות (`gematria_words`, ביטויים, מסמכי-מקור) לכדי corpus מחקרי מסודר, מוכן להזנה עתידית לעץ-האחד (`nodes`/`edges`). זו "עבודה-רוחבית" לפי `work_log af29e88b` — לא-סוגרת את Gate #18, רק-קודמת-לו בסדר-העדיפות.
+- **WHERE_WE_ARE:** לפי החלטת-צוריאל (21.8): לפני שלב **INTAKE READINESS** (במקור: Gate #4/#18 — **שניהם נסגרו, 22.8/23.8**, ר' עדכון-ממוקד), המיקוד-הפעיל יורד לשכבת חומרי-הגימטריה — ארגון הרשימות והחבילות-הגדולות הקיימות (`gematria_words`, ביטויים, מסמכי-מקור) לכדי corpus מחקרי מסודר, מוכן להזנה עתידית לעץ-האחד (`nodes`/`edges`). זו "עבודה-רוחבית" לפי `work_log af29e88b`.
 - **WHAT_IS_DONE (עודכן 22.8 — היה שגוי-ומיושן, תוקן עובדתית):** שכבת-הסיווג המלאה בוצעה בפועל אותו-יום: `MASTER_CLASSIFICATION_v3` (15,433/15,433 שורות, 29 עמודות, `closed_awaiting_human_gate`) + Schema-Profile + Persistence-Mapping + Reconciliation + Vocabularies + Final-Persistence-Decision-Pack (`audits/master_classification_v3_persistence_mapping/`) + Multilingual-Corpus-Inventory (47 ממצאים, `audits/multilingual_corpus/`) + Method-Mentions/Methods-Expansion/Hebrew-Identity/Numeric-Language Phases 1-5 (work_log 22.8, era1/era2 בארכיון-המחקר) + Research-DNA-v1 Crosswalk/Proof-of-Model/Foundation-Contract (`audits/research_dna_v1_foundation_contract/`). **סיווג-הקורפוס עצמו effectively-complete — אין-צורך ב-re-audit כללי-נוסף.**
 - **WHAT_IS_OPEN:** לא-עוד "היקף טרם-נסקר" (זה-הושלם) — נשאר: החלטות-Human-Gate ממוקדות (32-שורות `engine_verified`-לשעבר → 31/32 mismatch בבדיקה-חיה, `landmark_target_flag`, יעד `corpus_role`, Hebrew-Identity 14-family candidates, Method-candidates ר"ת/ס"ת) + הכתיבה-בפועל (Corpus Persistence, שורה 2 למעלה) עדיין `OPEN-HUMAN-GATE`.
 - **WHAT_IS_BLOCKED:** אין — עצמאי, לא-תלוי-בגייטים-אחרים.
 - **HUMAN_GATE:** ריכוז-החלטות ממוקד (לא-שער-כללי-אחד) — פריטים בודדים בכל אחד מ-`audits/master_classification_v3_persistence_mapping/` ו-`audits/research_dna_v1_foundation_contract/` ממתינים-לצוריאל; שום-החלטה לא-בוצעה-אוטומטית.
 - **NEXT_ACTION:** אם/כשצוריאל מאשר — הכתיבה-המוצעת-הראשונה (32 שורות ל-`research_objects` כ-candidate, `engine_verified=false`, ר' Final Persistence Decision Pack §6). אין-WRITE-אוטומטי.
-- **DEPENDENCIES:** הזין את Gate #4 (Identity/Provenance, **`CLOSED` 22.8**) ומזין-בעתיד את Gate #18 (Judgment), וכעת גם את Research DNA v1 Foundation Contract (סגור-ארכיטקטונית, `OPEN-HUMAN-GATE` ליישום). נקודת-החזרה: `Gematria packages organized → Corpus Persistence → Research DNA v1 → Gate #18 → Intake build` (Gate #4 יצא מהשרשרת החוסמת — ELS Identity Implementation ממשיכה במקביל, non-blocking).
+- **DEPENDENCIES:** הזין את Gate #4 (Identity/Provenance, **`CLOSED` 22.8**) ואת Gate #18 (Judgment, **`CLOSED` 23.8**), וכעת גם את Research DNA v1 Foundation Contract (סגור-ארכיטקטונית, `OPEN-HUMAN-GATE` ליישום). נקודת-החזרה: `Gematria packages organized → Corpus Persistence → Research DNA v1 → INTAKE READINESS → Intake build` (Gate #4+#18 יצאו מהשרשרת החוסמת — ה-build-ים הנפרדים ממשיכים במקביל, non-blocking).
 - **CANONICAL_HOME:** TBD (חומרי-מקור קיימים ב-Storage/DB; יעד-סופי = `nodes`/`edges`/`research_objects`, ר' Persistence Mapping לפירוט-מדויק-לפי-עמודה).
 - **PROVENANCE:** החלטת-צוריאל, הודעת "v5 CANONIZATION PREP" (21.8.2026) · עדכון-עובדתי 22.8 (`work_log actor=CLAUDE task=RESEARCH_DNA_V1_FOUNDATION_CONTRACT`).
 - **LAST_VERIFIED:** 2026-08-22.
@@ -491,18 +502,18 @@ flowchart TD
 - **LAST_VERIFIED:** 2026-08-19 (לא אומת מחדש).
 - **STATE:** `DESIGN`/`OPEN-HUMAN-GATE`.
 
-### WS-JUDGE-UNIFICATION — Unified Judgment & Human-Gate Contract — **עודכן 21.8: Gate #18 Crosswalk**
+### WS-JUDGE-UNIFICATION — Unified Judgment & Human-Gate Contract — **עודכן 21.8: Gate #18 Crosswalk · עודכן 23.8: Gate #18 (Contract) CLOSED**
 - **WHERE_WE_ARE:** Crosswalk מלא (READ-ONLY, 21.8) מצא **~30 מנגנוני-שיפוט/Promotion בפועל על-פני 6 pipelines** (לא ≥5 כבקודם) — כולל: `admin_research_review`(יתום/מת, אין caller) · `wizard_build_convergence`+`sync_convergence`(חי) · `approve_contribution`+`project_contribution_to_graph`(חי) · `admin_candidate_decide`/`moderate_els_matrix` · `admin_verify_bridge`+`project_language_bridges`(חי) · ועוד. רק **4 פונקציות בפועל כותבות ל-`nodes`/`edges`** מתוך כל-אלה. `CANONICAL≠PUBLISHED` נשאר-חוק, אך בפועל Canonical-effect ו-Publish-effect הם אותה קריאה אטומית בכל pipeline חי שנבדק. AI/Raziel אומת כ-"מציע-בלבד" ללא-סטייה בכל הנתיבים החיים.
 - **WHAT_IS_DONE:** מיפוי-מלא של ~30-המנגנונים/6-ה-pipelines, אימות-קצה-לקצה של סמכות-אדם מול-AI, מיפוי כתיבות node/edge בפועל (21.8, Gate #18 crosswalk).
 - **WHAT_IS_OPEN:** קיים **Contract מוביל/מועמד** (`research_objects`/Universal Research Contract v1.0, §19-A/B/C/D) — נדרשת התכנסות של ה-pipelines החיים אל **Unified Judgment Contract אחד**; **טרם-הוכרע** האם `research_objects`/`admin_research_review` יהיה ה-canonical implementation או-חלופה אחרת. **אין לבנות Judgment system חדש/מקביל** בכל מקרה. האופן המדויק של ההתכנסות — לא-הוכרע (Gate #18 עצמו). **⚠️ אילוץ-קיים לתכנון (§16/R1, Master State, 19.8):** `research_objects` כבר owner/privacy-scoped (`owner_person_id`+`privacy_scope`, ברירת-מחדל `private`) ו-**server-only** (אין GRANT ללקוח) — כל תכנון-התכנסות חייב לכבד זאת, לא להניח מצע-ציבורי/פתוח-לקריאה.
 - **WHAT_IS_BLOCKED:** תלוי בהכרעת-`WS-CC` (CC-1-target, Gate #9) לפני שתיקבע היקף-הבנייה בפועל.
-- **HUMAN_GATE:** צוריאל — Gate #18, **OPEN/INTAKE-CRITICAL**: לא-חוסם קנוניזציית-v5, כן-חוסם בנייה-סופית של שכבת-Judgment מאוחדת.
-- **NEXT_ACTION:** אין — נקודת-חזרה: `Gematria packages organized → Gate #18 → Intake build` (Gate #4 נסגר 22.8, יצא מהשרשרת). שום איחוד/שינוי-pipeline בלי-שער-מפורש.
-- **DEPENDENCIES:** `WS-CC` (הכרעת-CC-1-target חוסמת את היקף-האיחוד) · Gate #4 (Identity) — **`CLOSED` 22.8**, כבר-לא-תלות-חוסמת.
-- **CANONICAL_HOME:** `AdminPage.jsx` (מפוזר, main) · `research_objects`/Universal Research Contract (§19) — Contract-מועמד, לא-עוד-מוכרע-כ-canonical-implementation.
-- **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8) + Absorption-Matrix (21.8) + Gate #18 Crosswalk (21.8, conversational, טרם work_log).
-- **LAST_VERIFIED:** 2026-08-21.
-- **STATE:** `DB-LIVE` (~30 מנגנונים, 6 pipelines) · `OPEN-HUMAN-GATE`/`INTAKE-CRITICAL` (איחוד).
+- **HUMAN_GATE:** צוריאל — **Gate #18 סגור 23.8.2026** (Architecture Decision: Contract-over-Consolidation, Option C — ר' Master State §20). בנייה-בפועל (חיווט `decision_ledger`, View מאוחד ב-War Room) = workstream-build נפרד, `OPEN-HUMAN-GATE`, לא-עוד-שער.
+- **NEXT_ACTION:** אין לגוף-החוזה — נסגר. חיווט-בפועל (decision_ledger, View) ממשיך non-blocking. נקודת-החזרה הכללית: `Gematria packages organized → INTAKE READINESS → Intake build` (Gate #4+#18 שניהם `CLOSED`, יצאו מהשרשרת החוסמת).
+- **DEPENDENCIES:** `WS-CC` (הכרעת-CC-1-target חוסמת **רק** את CC-2-UI-wiring-בפועל, לא-את-החלטת-החוזה שכבר-נסגרה) · Gate #4 (Identity) — **`CLOSED` 22.8**, כבר-לא-תלות-חוסמת.
+- **CANONICAL_HOME:** `AdminPage.jsx` (מפוזר, main) · `research_objects`/Universal Research Contract (§19) — Contract-מועמד. **הוכרע (23.8): אין physical consolidation על `research_objects` — כל pipeline נשאר-מקום שלו, ר' Master State §20.**
+- **PROVENANCE:** נמצא ב-Legacy-Reconciliation (21.8) + Absorption-Matrix (21.8) + Gate #18 Crosswalk (21.8, conversational, טרם work_log) + Human-Gate ZURIEL 23.8.2026 (Gate #18 Closure — ר' Master State §20, work_log actor=CLAUDE task=GATE18_UNIFIED_JUDGMENT_CLOSURE).
+- **LAST_VERIFIED:** 2026-08-23 (Gate #18 closure decision applied).
+- **STATE:** **Contract `CLOSED`** (23.8.2026, Human-Gate ZURIEL) · Implementation: `DB-LIVE` (~30 מנגנונים, 6 pipelines קיימים כפי-שהם, ללא-איחוד-פיזי) · `OPEN-HUMAN-GATE`/`PARALLEL_READY` (חיווט-decision_ledger+View), **לא-חלק מסטטוס-הסגירה**.
 
 ### WS-RAZIEL — תשתית Raziel + L1–L14 — עודכן-v5
 - **WHERE_WE_ARE:** 3 מימושים-LLM/DB-native ידועים + **תשתית-WA-תפעולית רביעית, חדש-v5** (`raziel_unlimited`/`raziel_quota`/`raziel_dm_policy`/`raziel_link_flow` — כולם `DB-LIVE`, נקראים-בפועל ע"י `wa-raziel/index.ts`) + **`raziel_brain` — תוקן-21.8 (DRIFT-CORRECTED, ביקורת-קנוניזציה):** נקרא-חי (`number-researcher/index.ts:218`, שאילתה `raziel_brain?id=eq.1`) — **יש שורה אחת (`id=1`), מ-23.7.2026, מכילה קונפיג-פרסונה/system-prompt מלא (`voice_version=1`, `model=claude-sonnet-5`)** — הקוד **מקבל את השורה בפועל, לא `null`**, בניגוד-למה-שנטען-בטעות ב-v5-הקודמת.
@@ -633,10 +644,10 @@ flowchart TD
   7. **`targets` נפרד מ-`computed_value_of`** — שני-סוגי-קשת/יחס נבדלים בגרף (לאן-מצביע ≠ מה-מחושב-אליו) — טרם-ממופה ל-`edges`/`relates[]` הקיימים.
   8. עובד מעל **Research DNA + One Tree**; **אין מנוע/עץ/טבלה מקבילים** — דרישת-צוריאל מפורשת, מתיישרת עם `unified_graph_law`/γ.
   9. חזון-עתידי: לב של "מצא לי הצלבה" בדף-המספר (`EntityPage`) ובמחקר-העמוק (`ResearchCenter`).
-- **WHAT_IS_BLOCKED:** כל build — עד: (א) Research DNA v1 עצמה תוכרע (derived-view, `work_log` 22.8 — עדיין `Legacy → Research DNA Crosswalk`, `returned_to_zuriel_gpt_for_decision`), (ב) Gate #18 (Fact/Claim/Candidate = שכבת-Judgment המאוחדת) יוכרע, (ג) `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) יסתיים — אין-טעם-להצליב-קורפוס-שעדיין-בארגון.
+- **WHAT_IS_BLOCKED:** כל build — עד: (א) Research DNA v1 עצמה תוכרע (derived-view, `work_log` 22.8 — עדיין `Legacy → Research DNA Crosswalk`, `returned_to_zuriel_gpt_for_decision`), (ב) `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) יסתיים — אין-טעם-להצליב-קורפוס-שעדיין-בארגון. **(Gate #18 `CLOSED` 23.8 — כבר-לא-תנאי-חוסם כאן.)**
 - **HUMAN_GATE:** צוריאל — **מפה-קודם/מסך-קודם** (per `research_workspace_law`/`command_center_law`): נדרש One-Tree-Check מלא (כמו ה-Crosswalk שנעשה ל-Research DNA v1) לפני כל schema/build.
 - **NEXT_ACTION:** אין קוד. הצעד-הבא (כשיאושר): One-Tree-Check — למפות כל 9 הסעיפים למעלה ל-primitive קיים בגרף (`nodes`/`edges`/`relates[]`/`research_objects`/`relation_evidence`) בדיוק כפי-שנעשה ל-Research DNA v1, ולסמן MISSING-מפורש איפה-שאין.
-- **DEPENDENCIES:** Research DNA v1 (הרחבת-`WS-GAMMA`, `work_log` 22.8) · Gate #18 (`WS-JUDGE-UNIFICATION`) · `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) · `WS-URC` (Method-Preserving-Discovery/Research-Finding, סעיפים חופפים).
+- **DEPENDENCIES:** Research DNA v1 (הרחבת-`WS-GAMMA`, `work_log` 22.8) · ~~Gate #18~~ (`WS-JUDGE-UNIFICATION`, **`CLOSED` 23.8**) · `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW) · `WS-URC` (Method-Preserving-Discovery/Research-Finding, סעיפים חופפים).
 - **CANONICAL_HOME:** TBD — מחויב-להתבסס-על `research_objects`/`relation_evidence`/`nodes`/`edges` הקיימים (γ, §19-A), **לא**-טבלה-חדשה, לפי דרישת-צוריאל המפורשת.
 - **PROVENANCE:** הודעת-צוריאל 22.8 ("Cross-Research Engine / מנוע הצלבות מתקדם").
 - **LAST_VERIFIED:** —
@@ -654,7 +665,7 @@ flowchart TD
 | רב־לשוניות | האתר רב־לשוני | `content_translation_law` | `video-transcribe` | §15 | `FUTURE` |
 | ELS `els_records` שלב ב׳ | ELS כמאגר־מחקר | ELS map | Finding Identity LIVE | `CLAUDE.md`/work_log | `FUTURE` |
 | מסגרת Research-Object (GPT) *(חדש-v5)* | North-Star/AI-Navigator/Budget/Challenge | `WS-RESEARCH-OBJECT-FRAMEWORK` | Gate #20 | `gpt/research-object-map` | `FUTURE`/`DESIGN` |
-| מנוע הצלבות מתקדם (Cross-Research Engine) *(חדש, 22.8)* | הצלבה מתמטית מלאה בין שיטות/עולמות/שנים/חוקרים/מקורות + Graph-traversal + Deep-Research-candidate + "מצא לי הצלבה" | `WS-CROSS-ENGINE` | Research DNA v1 · Gate #18 · `WS-GEMATRIA-CORPUS-PACKAGES` | הודעת-צוריאל 22.8 | `FUTURE`/`DESIGN` |
+| מנוע הצלבות מתקדם (Cross-Research Engine) *(חדש, 22.8)* | הצלבה מתמטית מלאה בין שיטות/עולמות/שנים/חוקרים/מקורות + Graph-traversal + Deep-Research-candidate + "מצא לי הצלבה" | `WS-CROSS-ENGINE` | Research DNA v1 · ~~Gate #18~~ (`CLOSED` 23.8) · `WS-GEMATRIA-CORPUS-PACKAGES` | הודעת-צוריאל 22.8 | `FUTURE`/`DESIGN` |
 
 ## ⏸️ מרשם המושהים (PARKED REGISTRY)
 | פריט | למה מושהה | provenance |
@@ -735,7 +746,7 @@ flowchart TD
 15. **4 שאלות ELS-capability-audit** *(חדש-v5)* — merge/גניזת `els-work-area`(נפתר-חלקית ב-v5, ר' #2) · רשימת-78-רשמית-חיצונית? · `SIGNIFICANT`/`DICT` כחוקים-מגורסים? · עמודות-provenance ל-`els_records` (GAP-5).
 16. **Number-Language אימוץ/גניזה** *(חדש-v5)*.
 17. **Name-Lab/Christina/Maftech פורמליזציה** *(חדש-v5)*.
-18. **Unified Judgment & Human-Gate Contract** *(עודכן 21.8 — היה "איחוד-5-מנגנוני-שיפוט", תלוי ב-#9)* — **OPEN/INTAKE-CRITICAL.** Crosswalk מלא (21.8) מצא ~30 מנגנוני-שיפוט על-פני 6 pipelines (לא 5). קיים Contract מוביל/מועמד (`research_objects`); נדרשת התכנסות של ה-pipelines החיים ל-Unified Judgment Contract אחד — **טרם-הוכרע** אם `research_objects`/`admin_research_review` יהיה ה-canonical implementation. אין לבנות Judgment system חדש. לא-חוסם קנוניזציית-v5; **כן חוסם** בנייה-סופית של שכבת-Judgment המאוחדת (CC-2+). נקודת-חזרה: `Gematria packages organized → Gate #4 → Gate #18 → Intake build`. **✅ v5.1 reconciliation מול Research DNA v1 Foundation Contract:** ה-**עקרונות/אוצר-המילים** ש-#18 צריך (Input≠Discovery≠Fact≠Interpretation≠Canonical≠Published · HOT≠TRUE · Claim≠Fact · AI-מציע≠Human-Gate) **כבר נסגרו כחוזה כתוב** — Foundation Contract §1 (Claim/Calculation/Verification Contract) + `CORPUS_APPROVAL_LIFECYCLE.md` (6-שלבים, "Engine Verified ≠ Corpus Approved") + `CANONICAL_RULES_RECONCILIATION.md` (מאמת: העקרונות האלה כבר-`ALREADY_COVERED`/מוצלבים מול `equality_vs_convergence`/`command_center_law`, לא-סותרים). **אבל: זה חוזה מוצלב-ל-שיטות-גימטריה/קורפוס ספציפית, לא איחוד ה-~30 מנגנונים/6-ה-pipelines הכלליים** — ההכרעה **איזה pipeline הוא ה-canonical implementation** (`research_objects`/`admin_research_review` מול `ConvergenceWizard`+`admin_candidate_decide` מול אחר) **נשארת פתוחה-לגמרי**, לא-הוכרעה ע"י ה-Foundation. **מסקנה:** #18 נשאר `OPEN-CRITICAL`, אך "אוצר-המילים/העקרונות" שלו כבר-לא-צריך-להיכתב-מאפס — ניתן-לצטט ישירות מהחוזה הסגור. ר' §11 (Gate #9 dependency) לפירוט-הבחנה בין החלטת-חוזה (לא-תלויה-ב-#9) לבין בניית-UI (CC-2, תלויה-ב-#9).
+18. ~~Unified Judgment & Human-Gate Contract~~ — **✅ נסגר** (23.8.2026, Human-Gate ZURIEL — Architecture Decision: Contract-over-Consolidation/Option C. אין physical consolidation, אין Judgment system חדש; כל pipeline נשאר מקור/מחסנית בתחומו, כפוף ל-Unified Judgment Contract אחד. `decision_ledger`=append-only audit trail, מצביע-בלבד, לא-SoT. Automation Boundary: deterministic=אוטומטי · AI/Raziel=לחקור/לדרג/להמליץ-בלבד · Canonical=Human-Gate-צוריאל-בלבד. Raziel=צרכן/orchestrator, אין-לו חוזה-Judgment פרטי. Canonical≠Published נעול-כעיקרון, `nodes.is_active` פסול-כ-publication-flag — מנגנון-מדויק=Implementation Gate נפרד. `admin_research_review` נשאר orphan כפי-שהוא. Security Work מאושר-לתיקון כנפרד-ודחוף-לפני-Intake-Build. ר' Canonical Gate Map שורה 18 + Master State §20). **Unified Judgment Contract build** (חיווט-decision_ledger, View מאוחד) ממשיך כ-workstream-build **נפרד**, `OPEN`, non-blocking — לא-חלק מסטטוס-הסגירה. מעבר ל-Intake Build אינו-אוטומטי: עומד שלב **INTAKE READINESS** (לא-Gate) — ר' Parallel/Non-blocking Work. הועבר ל-History.
 19. **`raziel_brain` — לאכלס או להסיר-תלות** *(חדש-v5)*.
 20. **מסגרת Research-Object-Map — לספוג ואיך** *(חדש-v5)*. **✅ v5.1 reconciliation:** רוב-הליבה-המושגית ש-#20 שאל עליה (ממדים/axes, lifecycle, provenance-fields, "one projection many lenses") **כבר נענתה** ע"י Research DNA v1 Foundation Contract's 11-הממדים (§2) + Method Profile Contract (§11) — לא-כ"ספיגה-של-מסמכי-GPT", אלא כחוזה-עצמאי-שמכסה-את-אותה-קרקע. **ה-Foundation אינו-מזכיר/סופג את `research-object-map.md`/`els-capability-map.md`/`els-foundation-addendum.md` במפורש** — לכן #20 **אינו** `SUPERSEDED` רשמית (אין provenance-ישיר לכך), אבל **היקפו-מצטמצם**: השאלה שנותרה-פתוחה-באמת היא רק לגבי היסודות-הייחודיים-של-GPT שה-Foundation לא-כיסה — AI-Navigator/Budget/Challenge-Mode (ר' `docs/research-object-map.md`). הוחזר-לצוריאל כשאלה-מצומצמת, לא-כמלוא-4-האופציות-A/B/C-המקוריות.
 
@@ -745,8 +756,8 @@ Research DNA v1 Foundation Contract (CLOSED, main 95005d78) ── מזין ─�
                                                               ── מזין ── Corpus Persistence write (OPEN-HUMAN-GATE, PARALLEL-to-Methods)
                                                               ── מזין ── Multilingual Foundation v1 (PARALLEL_READY, לא-חוסם Methods)
    Methods Build #1 ── מזין ── Deep Corpus Calculation/Number Coverage (תלוי-אמיתי ב-Methods)
-WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW, effectively-complete) ── מזין-עתידית ── Gate #18 ── Intake build   [Gate #4 CLOSED 22.8]
-   (v5.1: התלות Corpus-Packages→Gate#18 היא סדר-עבודה-מוצהר-של-צוריאל, לא-חסימה-טכנית. Gate #4 (ELS Identity) נסגר 22.8 כהחלטת-ארכיטקטורה — ה-build שלו ממשיך כפריט-מקביל, non-blocking, לא-כשער)
+WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW, effectively-complete) ── מזין-עתידית ── INTAKE READINESS ── Intake build   [Gate #4 CLOSED 22.8 · Gate #18 CLOSED 23.8]
+   (v5.1: התלות Corpus-Packages→INTAKE-READINESS היא סדר-עבודה-מוצהר-של-צוריאל, לא-חסימה-טכנית. Gate #4 (ELS Identity) ו-Gate #18 (Unified Judgment) שניהם נסגרו כהחלטות-ארכיטקטורה — ה-build של כל אחד ממשיך כפריט-מקביל, non-blocking, לא-כשער)
 קורפוס (WS-ELS-CORPUS, LIVE) ── מוגן ע״י ── WS-ELS-REGRESSION (LIVE, f5834f44)
    ├── WS-TANAKH corpus_id ............................ OPEN
    └── WS-ELS-IDENTITY  «Gate #3 Verified/Closed, 21.8 · Gate #4 (Identity Decision) CLOSED, 22.8»
@@ -757,14 +768,14 @@ WS-ELS-FSS (Gate #2 Preview-Verified 542c7147, PR #163) ── מיזוג-ל-mai
    └── WS-ELS-CAPABILITY-AUDIT (4 שאלות פתוחות)
 WS-GAMMA (LIVE, main) ── יישום-UX OPEN ── WS-URC (OPEN) ── WS-RESEARCH-OBJECT-FRAMEWORK (Gate #20)
 WS-GAMMA ── Research DNA v1 (derived-view, work_log 22.8, OPEN) ── WS-CROSS-ENGINE (DESIGN/FUTURE, 22.8)
-   └── תלוי-גם-ב ── Gate #18 (Fact/Claim/Candidate) + WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW)
+   └── תלוי-גם-ב ── ~~Gate #18~~ (Fact/Claim/Candidate, **`CLOSED` 23.8**) + WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW)
 WS-SEC (LIVE) ── §18 enumeration OPEN ── 2 ממצאי-אבטחה חדשים (wa_word_review/project_contribution_to_graph) OPEN-נפרד
 WS-RAZIEL (3-variants+WA-infra LIVE, פועלים בתוך Brain-Context-Boundary) ── חיווט-זהות OPEN ── L1–L14 DESIGN ── raziel_brain OPEN
 WS-PERSON: F-1a′ LIVE ── F-1b BLOCKED
 WS-KU3D (BUILDING preview) ── הפעלה BLOCKED
 WS-CC (LIVE ×2 ארטיפקטים) ── CC-1-target OPEN ── WS-FEATURE-CONTROL FUTURE
-WS-CC ── CC-2-בנייה-בלבד (UI-wiring) OPEN ┄┄ WS-JUDGE-UNIFICATION = Gate #18 "Unified Judgment & Human-Gate Contract" OPEN/INTAKE-CRITICAL
-   (v5.1: קו-מקווקע = תלות-UI-בלבד; החלטת-ה-canonical-pipeline של #18 עצמה אינה-תלויה ב-CC-1-target, ר' Gate #9 reconciliation)
+WS-CC ── CC-2-בנייה-בלבד (UI-wiring) OPEN ┄┄ WS-JUDGE-UNIFICATION = Gate #18 "Unified Judgment & Human-Gate Contract" **CLOSED (23.8, Contract-over-Consolidation)**
+   (v5.1: קו-מקווקע = תלות-UI-בלבד; החלטת-ה-canonical-pipeline של #18 עצמה **הוכרעה 23.8** ולא-הייתה-תלויה ב-CC-1-target, ר' Gate #9 reconciliation — CC-2-UI-wiring עצמו ממשיך כ-implementation נפרד)
 WS-NUMBER-LANGUAGE / WS-NAMELAB / WS-TIME-DISAMBIGUATION / WS-READ-COMPOSER — עצמאיים, לא-חוסמים
 מרשם העתיד (INCOMPLETE) · מרשם המושהים · הושלם/היסטוריה · SUPERSEDED (provenance)
 ```
@@ -780,9 +791,11 @@ LAST_RECONCILED: 2026-08-21 (v5 קנוניזציה ל-main, f1503a28)   SYNC: SY
                    (21.8, PR #163 draft, `work_log ba4427e5`) — **לא** production, **לא** Research-Journey-מושלם;
                    v4 קנוני+מתוקן על main; /lab/els shell עלה ל-main (מעטפת-בלבד, אינרטי-מכוון);
                    URC+γ על main במלואם. Gate #16 (Number-Language) הופרד לסשן-ייעודי (`work_log 48856d02`).
-                   **Gate #4 (ELS Finding Identity & Multi-Source Provenance) `CLOSED`** (22.8.2026, Human-Gate ZURIEL —
-                   ר' עדכון-ממוקד). **Gate #18 (Unified Judgment & Human-Gate Contract) לבדו נשאר OPEN/INTAKE-CRITICAL** —
-                   לא-חוסם v5, כן-חוסם בנייה-סופית של Judgment. ELS Identity Implementation (Gate #4 build) ממשיכה במקביל, non-blocking.
+                   **Gate #4 (ELS Finding Identity & Multi-Source Provenance) `CLOSED`** (22.8.2026, Human-Gate ZURIEL).
+                   **Gate #18 (Unified Judgment & Human-Gate Contract) `CLOSED`** (23.8.2026, Human-Gate ZURIEL —
+                   Contract-over-Consolidation/Option C, ר' Master State §20). **אין-עוד Gate ארכיטקטוני פתוח** —
+                   הצעד-הבא הוא שלב **INTAKE READINESS** (לא-Gate). ELS Identity Implementation + Unified Judgment
+                   Contract build ממשיכות במקביל, non-blocking.
                    **Brain Responsibility (ONE SYSTEM BRAIN + Public/Private Context Boundary) אושר כ-Governance.**
                    מיקוד-העבודה-הפעיל עבר ל-`WS-GEMATRIA-CORPUS-PACKAGES` (ארגון חומרי-גימטריה), לפי-הנחיית-צוריאל.
 מה הושלם:          f5834f44(קורפוס) · Step3 DB 20260820023525 · Step3 client 7045f7b3→fc123caa (main, נפרס+אומת) ·
@@ -792,24 +805,26 @@ LAST_RECONCILED: 2026-08-21 (v5 קנוניזציה ל-main, f1503a28)   SYNC: SY
                    all_values trigger+backfill (`20260821022454`, סשן-מקביל).
 מה בבנייה:          Research Journey / Matrix / שכבות-ELS-נוספות ב-`claude/els-unified-merge` — **ממשיכות
                    כעבודה בתוך ה-Preview** (PR #163, "אזור-הנישואים") — לא-הושלמו, לא-נסגרו. GPT 3D preview.
-מה מחכה:           נקודת-החזרה: `Gematria packages organized → Gate #18 → Intake build` (Gate #4 נסגר 22.8) · הכרעה
-                   על-מיזוג `els-unified-merge`→main (**שער חדש**) · 4-שאלות-capability-audit · CC-1-target ·
+מה מחכה:           נקודת-החזרה: `Gematria packages organized → INTAKE READINESS → Intake build` (Gate #4+#18 שניהם סגורים) ·
+                   הכרעה על-מיזוג `els-unified-merge`→main (**שער חדש**) · 4-שאלות-capability-audit · CC-1-target ·
                    Name-Lab/raziel_brain/Research-Object-framework · 2 ממצאי-אבטחה
-                   (`wa_word_review`,`project_contribution_to_graph`, מעקב-נפרד, לא-במסגרת-Gate-#18)
+                   (`wa_word_review`,`project_contribution_to_graph`, מעקב-נפרד) · Security Fix (3 פונקציות
+                   anon-writable, חובה-לפני-Intake) · חיווט-decision_ledger · Canonical≠Published-decision
                    (Number-Language עבר לסשן-ייעודי נפרד — לא-בתור-כאן).
-מה חסום:           KU-3D product · Person F-1b · תוכן-אמיתי ב-/lab/els (עד שיוחלט-על-מיזוג-המנוע). Gate #18
-                   עצמו לא-BLOCKED — רק ממתין-לנקודת-החזרה (אחרי ארגון-חומרי-הגימטריה). Gate #4 סגור (22.8).
-מה הצעד הבא:        `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW, הנחיית-צוריאל 21.8) — ואז Gate #18 (Gate #4 כבר-נסגר 22.8).
+מה חסום:           KU-3D product · Person F-1b · תוכן-אמיתי ב-/lab/els (עד שיוחלט-על-מיזוג-המנוע). **אין-עוד Gate
+                   חסום** — Gate #4+#18 שניהם `CLOSED` (22.8/23.8). שלב-INTAKE-READINESS ממתין-לתלויות-בפועל, לא-BLOCKED-ע"י-שער.
+מה הצעד הבא:        `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW, הנחיית-צוריאל 21.8) — ואז שלב **INTAKE READINESS**
+                   (Gate #4+#18 שניהם כבר-נסגרו).
 למה זה הצעד הבא:    החלטת-צוריאל מפורשת (21.8): לפני חזרה לשני השערים הארכיטקטוניים, להכין corpus מחקרי מסודר
                    מחומרי-הגימטריה להזנה עתידית לעץ-האחד.
-מה אסור לבנות:      **(Gate #4 סגור 22.8 — Step-4-build יצאה מ"אסור-עד-שער"; תזמון-build בפועל לא-הוכרע כאן)** · Judgment system חדש/מקביל (עד Gate #18) · KU-3D product ·
+מה אסור לבנות:      **(Gate #4 סגור 22.8 — Step-4-build יצאה מ"אסור-עד-שער"; תזמון-build בפועל לא-הוכרע כאן)** · Judgment system חדש/מקביל (**איסור-קבוע** — Gate #18 קבע Contract-over-Consolidation, 23.8, לא-רק-"עד-שער") · KU-3D product ·
                    Command-Center-UI-חדש (יש-כבר-2-חיים) · Feature-Control · F-1b · Raziel-wiring/runtime
                    (Brain Responsibility = Governance-בלבד, אין-implementation) · זהות־תנ״ך ·
                    מיזוג-`els-unified-merge`-ל-main (טרם-אושר) · פתרון 2-ממצאי-האבטחה (מעקב-נפרד, לא-כאן) ·
                    שום-קוד-נוסף ב-ELS-engine בלי-שער.
 מה בעתיד:           Command Center+Feature-Control · Meta Growth OS · Platform-tiers+Credits+Academy ·
                    UGC · רב־לשוניות · ELS שלב ב׳ · מסגרת-Research-Object (FUTURE REGISTRY=INCOMPLETE).
-אילו החלטות:        ראה יומן ההחלטות + Decision Register (Gate #4 כעת `CLOSED`, ו-Gate #18 מעודכן).
+אילו החלטות:        ראה יומן ההחלטות + Decision Register (Gate #4 ו-Gate #18 כעת שניהם `CLOSED`).
 provenance:        main fc123caa (היה d245e5eb) · Step3 client 7045f7b3→fc123caa (Gate #3 closed) ·
                    els-unified-merge 542c7147, PR #163 (Gate #2 closed) · capability-audit e0a2247a ·
                    γ/URC 6b8160b4/3a09b8dd · work_log 48856d02(Gate#16 deferral)/ed5cc880(Gate#3)/
@@ -817,9 +832,9 @@ provenance:        main fc123caa (היה d245e5eb) · Step3 client 7045f7b3→fc
                    Gate#4/#18 renames+Brain-Responsibility: הודעות-צוריאל 21.8 ("v5 CANONIZATION PREP" +
                    "HUMAN-GATE DECISION") · v5 קנוניזציה ל-main: merge f1503a28 מ-0249fece,
                    work_log 7614ce69 (actor=CLAUDE).
-ROADMAP:           קנוני על main = v5.1 (Gate #4 closure, 22.8 — ר' Canonical Gate Map). **Gate #4 `CLOSED`**;
-                   Gate #18 לבדו נשאר OPEN/INTAKE-CRITICAL, השער הארכיטקטוני הפתוח היחיד שהוא
-                   Intake-critical למסלול הנוכחי; יתר השערים הפתוחים מתועדים ואינם חוסמים קנוניזציית v5.
+ROADMAP:           קנוני על main = v5.1 (Gate #4+#18 closures, 22-23.8 — ר' Canonical Gate Map). **Gate #4 ו-Gate #18
+                   שניהם `CLOSED`** — אין-עוד Gate ארכיטקטוני פתוח; יתר השערים הפתוחים (`OPEN-NONBLOCKING`) מתועדים
+                   ואינם חוסמים קנוניזציית v5. הצעד-הבא: שלב INTAKE READINESS (לא-Gate).
 ```
 
 ---
@@ -834,7 +849,7 @@ ROADMAP:           קנוני על main = v5.1 (Gate #4 closure, 22.8 — ר' Ca
 | **#15** | 4 שאלות capability-audit (`fe4a3cef`) | ר' פירוט ב-`WS-ELS-CAPABILITY-AUDIT` | חוסמות עדיפויות 2-10 | תלוי-בשאלה |
 | **#16** | Number-Language — לאמץ או לגנוז? | **v5.1: הוכרע-חלקית — לא-A-הישנה, לא-B-הישנה, אלא C=ארכיטקטורה-אומצה/יישום-לא-התחיל** | **תוקן-21.8:** `number_anchors` **אינו** ריק — 35 שורות תוכן-אמיתי כבר-מוצגות על דפי-מספר ספציפיים מ-23.7.2026 (DRIFT-CORRECTED); שאר-7-הטבלאות עדיין ריקות/יתומות. **✅ v5.1 (סשן-ייעודי 22.8, `work_log 48856d02`→הופק כ-era2-numeric-language-phase1-5 + era2-strong-numbers):** שאלת ה"8-טבלאות/schema" **נפתרה ארכיטקטונית ע"י Research DNA v1 Foundation Contract §2.3/§20-§22** — הפתרון **אינו** בניית-שאר-7-הטבלאות ("אימוץ-A" הישן), אלא **transform/generation-slot בתוך `engine_detail` הקיים** (`method:'number_to_word'`\|`'word_to_number'`) — **לא** טבלת-מספרים-שנייה. הממצא-הדגל: 776→"שבע שבע שש" השתחזר-באופן-בלתי-תלוי מטקסט-קורפוס-גולמי (לא-רק-נוצר), התאמה-ביט-לביט לצורת-Phase-1. **מצב-מדויק:** כיוון NUMBER→WORDS אמין; כיוון WORDS→NUMBER רק 46.7% כיסוי על מדגם-570-שורות — Phase-5 verdict מפורש: **`NOT YET`** למודל דו-כיווני-מלא. **מה-זה-אומר בפועל ל-#16:** ה"8-הטבלאות" (`digit_language`/`number_readings`/`number_series`/`number_branches`/`number_sets`/`number_products`) **נשארות `PARKED`** (B הישנה, לא-מוחלפות בטבלאות) — אבל `number_anchors` (35-שורות, כבר-חי) נשאר Legacy-Baseline כפי-שהוא, וה"אימוץ" האמיתי קורה **דרך Research DNA v1 (transform-slot), לא דרך שאר-7-הטבלאות**. Gate #16 עובר מ-"A מול B" ל: **ארכיטקטורה מוכרעת (transform-slot) · יישום `OPEN-NONBLOCKING` (Methods-Build-Track) · 7-הטבלאות-הישנות נשארות `PARKED`** | הישן: A=תוכן+חיווט-מלא-לכולם. B:35-הדפים-הקיימים ממשיכים-כפי-שהם, השאר-נשאר-ריק. **v5.1:** לא-A/לא-B — ר' עמודה שלישית |
 | **#17** | Name-Lab/Christina/Maftech — workstreams רשמיים? | A=כן · B=להשאיר-שקוף | חיים-בלי-ייצוג | A:נראים-לכל-audit. B:ממשיכים-להיעלם |
-| **#18** | Unified Judgment & Human-Gate Contract — קיים Contract-מוביל/מועמד (`research_objects`); נדרשת התכנסות ל-Unified Judgment Contract אחד; **טרם-הוכרע** אם `research_objects`/`admin_research_review` יהיה ה-canonical implementation; אין-לבנות Judgment system חדש | `OPEN`/`INTAKE-CRITICAL`. **v5.1: תלות-ב-#9 מצומצמת ל-CC-2 (בנייה) בלבד — לא לגוף-החלטת-ה-pipeline** (ר' #9 למעלה + Open Human-Gates #18) — אופן-ההתכנסות עצמו עדיין-טרם-הוכרע | ~30 מנגנונים/6 pipelines בפועל (לא 5, תוקן 21.8). **v5.1:** עקרונות/אוצר-מילים כבר-סגורים ע"י Research DNA v1 Foundation Contract §1 + `CORPUS_APPROVAL_LIFECYCLE.md` — לא-עוד-נדרש-לנסח-מאפס | קובע-היקף-CC-2; נקודת-חזרה: `Gematria packages organized → Methods Build/Corpus Persistence/Multilingual v1 → Gate #4 → Gate #18 → Intake build` (עודכן v5.1) |
+| ~~#18~~ | Unified Judgment & Human-Gate Contract — קיים Contract-מוביל/מועמד (`research_objects`); נדרשת התכנסות ל-Unified Judgment Contract אחד; **טרם-הוכרע** אם `research_objects`/`admin_research_review` יהיה ה-canonical implementation; אין-לבנות Judgment system חדש | `OPEN`/`INTAKE-CRITICAL`. **v5.1: תלות-ב-#9 מצומצמת ל-CC-2 (בנייה) בלבד — לא לגוף-החלטת-ה-pipeline** (ר' #9 למעלה + Open Human-Gates #18) — אופן-ההתכנסות עצמו עדיין-טרם-הוכרע | ~30 מנגנונים/6 pipelines בפועל (לא 5, תוקן 21.8). **v5.1:** עקרונות/אוצר-מילים כבר-סגורים ע"י Research DNA v1 Foundation Contract §1 + `CORPUS_APPROVAL_LIFECYCLE.md` — לא-עוד-נדרש-לנסח-מאפס | קובע-היקף-CC-2; נקודת-חזרה (היסטורי, עד 22.8): `Gematria packages organized → Methods Build/Corpus Persistence/Multilingual v1 → Gate #4 → Gate #18 → Intake build` (עודכן v5.1). **עדכון-מאוחר (23.8.2026, Human-Gate ZURIEL): Gate #18 CLOSED — Option C/Contract-over-Consolidation אומץ, ר' Canonical Gate Map שורה 18 + Master State §20. נקודת-החזרה המעודכנת: שלב INTAKE READINESS (לא-Gate).** |
 | **#19** | `raziel_brain` — לאכלס או להסיר-תלות? | A=לאכלס · B=להסיר | **תוקן-21.8:** יש-כבר 1-שורה חיה (`id=1`, persona, מ-23.7.2026) — קוד-הפרודקשן (`number-researcher/index.ts:218`, `id=eq.1`) **מקבל את השורה, לא `null`**, בניגוד-למה-שנטען-קודם. אפשר-שהאופציות A/B יתפרשו-כעת כ"להרחיב" מול "להשאיר-כפי-שהוא" — ההכרעה עצמה נשארת-פתוחה-לצוריאל, לא-שונתה כאן | A:זהות-מרכזית/הרחבה. B:נשאר-כפי-שהוא |
 | **#20** | לספוג את `research-object-map.md` ל-Master-State? | A=מלא(§20) · B=רק-עקרונות(כמו §10.0) · C=לא-עכשיו. **v5.1: היקף-השאלה-מצטמצם** — רוב-הליבה-המושגית (ממדים/lifecycle/provenance) כבר-נענתה ע"י Research DNA v1 Foundation Contract (§2/§11), ללא-אזכור-ישיר של מסמכי-GPT. השאלה-שנותרה: רק AI-Navigator/Budget/Challenge-Mode (יסודות-ייחודיים-ל-GPT שה-Foundation לא-כיסה) | קובע אוצר-מילים-חדש (Research-Object/Axis/Cluster). **v5.1:** רוב-האוצר-כבר-קיים דרך Foundation Contract §2's 11-הממדים — לא-נדרש-אוצר-שני | A:שינוי-גדול. B:תוספת-קטנה. C:נשאר-בענף. **v5.1: B-מצומצם (רק AI-Navigator/Budget/Challenge-Mode) הוא-ההיקף-הריאלי-שנותר** |
 

@@ -91,7 +91,7 @@ test("group_hint is a naive id-derived hint, not a canonical world", () => {
   assert.equal(cc.group_hint, "CC");
 });
 
-test("Gate #4 is CLOSED (22.8.2026) and Gate #18 is OPEN_INTAKE_CRITICAL", () => {
+test("Gate #4 and Gate #18 are both CLOSED (22.8.2026 / 23.8.2026)", () => {
   const vm = parseRoadmap(loadRoadmap());
   const gate4 = vm.open_human_gates.find((g) => g.number === 4);
   const gate18 = vm.open_human_gates.find((g) => g.number === 18);
@@ -99,21 +99,18 @@ test("Gate #4 is CLOSED (22.8.2026) and Gate #18 is OPEN_INTAKE_CRITICAL", () =>
   assert.ok(gate18, "gate #18 not found");
   assert.equal(gate4.status, "CLOSED");
   assert.equal(gate4.status_confidence, "high");
-  assert.equal(gate18.status, "OPEN_INTAKE_CRITICAL");
+  assert.equal(gate18.status, "CLOSED");
   assert.equal(gate18.status_confidence, "high");
-  // #18's resume-point chain still names Gate #4 (historical chain text,
-  // provenance verbatim from the Roadmap — not re-derived from #4's own status)
-  assert.deepEqual(gate18.return_point_chain, [
-    "Gematria packages organized",
-    "Gate #4",
-    "Gate #18",
-    "Intake build",
-  ]);
+  // Both closure entries drop the old forward-looking arrow-chain (there is
+  // nothing left to resume toward as a Gate) — no return_point_chain expected
+  // on either closed entry anymore.
+  assert.equal(gate4.return_point_chain, null);
+  assert.equal(gate18.return_point_chain, null);
 });
 
-test("closed gates (#1, #2, #3, #4) are never misidentified as open", () => {
+test("closed gates (#1, #2, #3, #4, #18) are never misidentified as open", () => {
   const vm = parseRoadmap(loadRoadmap());
-  for (const n of [1, 2, 3, 4]) {
+  for (const n of [1, 2, 3, 4, 18]) {
     const gate = vm.open_human_gates.find((g) => g.number === n);
     assert.ok(gate, `gate #${n} not found`);
     assert.equal(gate.status, "CLOSED", `gate #${n} should be CLOSED`);
@@ -144,6 +141,15 @@ test("decision_register: rows are parsed with correct column count and closed-ro
   const g2Row = vm.decision_register.find((r) => r.gate_ref_raw.includes("#2"));
   assert.ok(g2Row);
   assert.equal(g2Row.closed, true);
+  // Gate #18: only the gate-ref cell (~~#18~~) is struck — per Zuriel's explicit
+  // instruction the row's own historical decision/options/why/changes text stays
+  // verbatim (not rewritten as if it were never OPEN), with a later, clearly-dated
+  // closure sentence appended to the last column instead of replacing anything.
+  const g18Row = vm.decision_register.find((r) => r.gate_ref === "#18");
+  assert.ok(g18Row, "Decision Register row for #18 not found");
+  assert.equal(g18Row.closed, true);
+  assert.match(g18Row.changes, /עדכון-מאוחר.*CLOSED/, "expected an appended, dated closure annotation, not a rewrite");
+  assert.match(g18Row.decision, /טרם-הוכרע/, "expected the original historical decision text to survive verbatim");
 });
 
 test("dependency_edges: only explicit backtick WS-id refs become edges, and all resolve to known ids", () => {
@@ -192,13 +198,17 @@ test("gate_mentions: extracted from HUMAN_GATE/WHAT_IS_OPEN only, as a mention s
   assert.deepEqual(byId["WS-ELS-REGRESSION"].gate_mentions, []);
 });
 
-test("STATE tags: WS-JUDGE-UNIFICATION carries both a known tag and the newer unclassified INTAKE-CRITICAL-style tag correctly bucketed", () => {
+test("STATE tags: WS-JUDGE-UNIFICATION carries its implementation tags; INTAKE-CRITICAL dropped now that Gate #18 (the Contract) is CLOSED", () => {
   const vm = parseRoadmap(loadRoadmap());
   const ws = vm.workstreams.find((w) => w.id === "WS-JUDGE-UNIFICATION");
   assert.ok(ws.fields.STATE);
   assert.ok(ws.fields.STATE.known_tags.includes("DB-LIVE"));
   assert.ok(ws.fields.STATE.known_tags.includes("OPEN-HUMAN-GATE"));
-  assert.ok(ws.fields.STATE.known_tags.includes("INTAKE-CRITICAL"));
+  assert.ok(ws.fields.STATE.known_tags.includes("PARALLEL_READY"));
+  // INTAKE-CRITICAL described the Contract decision itself, which is now CLOSED
+  // (23.8.2026) — only its separate, non-blocking implementation build remains
+  // OPEN-HUMAN-GATE, so the tag correctly no longer appears here.
+  assert.ok(!ws.fields.STATE.known_tags.includes("INTAKE-CRITICAL"));
 });
 
 test("ambiguity: a synthetic malformed card produces a warning, not a guessed value", () => {
@@ -259,8 +269,8 @@ test("summarizeCoverage returns sane counters for the real file", () => {
   assert.equal(cov.workstreams, 24);
   assert.equal(cov.workstreams_with_warnings, 1);
   assert.equal(cov.gates, 20);
-  assert.equal(cov.gates_closed, 4); // Gate #4 closed 22.8.2026
-  assert.equal(cov.gates_open, 16);
+  assert.equal(cov.gates_closed, 5); // Gate #4 closed 22.8.2026, Gate #18 closed 23.8.2026
+  assert.equal(cov.gates_open, 15);
   assert.ok(cov.dependency_edges > 0);
   assert.ok(cov.decision_register_rows >= 9);
 });

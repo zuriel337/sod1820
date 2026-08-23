@@ -632,6 +632,23 @@ Engine מחשב הכל → System שומר הכל → Discovery מוצא מענ�
 
 ---
 
+## §20. Gate #18 — Unified Judgment & Human-Gate Contract — `APPROVED` (Architecture Decision, Human-Gate ZURIEL · 23.8.2026)
+> **מקור-סמכות:** ההחלטה עצמה + הפירוט המלא חיים ב-Roadmap Canonical Gate Map (שורה 18) + כרטיס `WS-JUDGE-UNIFICATION`. הסעיף הזה **מתעד ומפנה**, אינו-כותב-מחדש את תוכן-החוקים הקיימים — לפי עיקרון: Master State = פרשנות-והקשר-ארכיטקטוני, `nodes type='rule'`/Roadmap = מקור-האמת לתוכן.
+
+- **ההחלטה (Option C, Contract-over-Consolidation):** אין physical consolidation של ה-pipelines (research_objects/research_contributions/topic_cards/els_records/language_links/research_candidates/word_review_queue), ואין Judgment system חדש/מקביל. כל pipeline נשאר מקור/מחסנית בתחומו, כפוף ל-**Unified Judgment Contract** מערכתי אחד.
+- **`decision_ledger`** — append-only audit trail משותף להחלטות Human-Gate משמעותיות. מצביע לישות-המקורית (polymorphic `subject_type`/`subject_ref`, מוסכמה זהה ל-`source`/`source_ref` של γ/§19-A) — **אינו מעתיק/מחליף אותה, ואינו Source-of-Truth למחקר עצמו.**
+- **Automation Boundary:** deterministic processing (חישוב-גימטריה, dedup, FindingID-matching, אימות-מנוע-חוזר) יכול-להיות אוטומטי. AI/Raziel רשאים לחקור/לדרג/להמליץ **בלבד**. Canonical judgment נשאר Human-Gate של צוריאל, ללא-יוצא-מהכלל.
+- **Raziel** — אינו-pipeline, אין-לו חוזה-Judgment פרטי. הוא צרכן/orchestrator של החוזים-והמנועים-המערכתיים הקיימים (`raziel_routing_law`, `raziel_response_contract`, `raziel_full_answer_and_route_law` — ר' `nodes type='rule'`). **עיקרון-אילוץ נלווה (Human-Gate ZURIEL, אותה החלטה):** כל חוק-Judgment/AI-Authority שחוצה יותר-מסוכן/מקור אחד (לא-רק-רזיאל) חייב-להיות בבעלות **System Contract כללי**, ורזיאל/מפקדה/וואטסאפ/ELS **צורכים** אותו — לא-בעלים-של-עותק. פועל יוצא: `raziel_full_answer_and_route_law` (Human-Gate `nodes type='rule'`) מכיל היום סעיף חוצה-מערכת (no-auto-publish/approval-queue) שראוי-להיות בבעלות-חוזה-כללי — **refactor בפועל של הרול נדחה ל-implementation/reconciliation נפרד**, ורק לאחר בדיקה שאין כבר rule כללי-מספיק שמכסה זאת (`word_approval_required_law`/`research_contribution_law` מועמדים-לבדיקה ראשונים). לא בוצע כאן.
+- **Canonical ≠ Published/Visible** — נעול-כעיקרון. **`nodes.is_active` פסול-במפורש** כ-publication flag (מיועד-רב-תכליתי, לא-ייעודי). **מנגנון-המימוש המדויק נשאר Implementation Gate נפרד**, אינו-חוסם את סגירת Gate #18 עצמה.
+- **`admin_research_review`** — נשאר orphan/unused כפי-שהוא; אין-מחיקה/החלפה בשער הזה.
+- **Security Work** (3 פונקציות anon-writable + null-bypass ב-`admin_research_review`) — מאושר-לתיקון כ-**נפרד ודחוף לפני Research Intake Build**; אינו-חלק מהחלטת-הארכיטקטורה של Gate #18 עצמה.
+- **מעבר ל-Intake Build אינו-אוטומטי:** עומד שלב **INTAKE READINESS** (לא-Gate, לא-Human-Gate-נוסף) — Security Fix · `decision_ledger`-wiring (רק-לפייפליינים-שה-Intake-יזין) · Canonical≠Published-decision · Methods Build #1 · Corpus/Number DNA Persistence · Multilingual Foundation v1 · ELS Identity/Provenance implementation — כל-אחד לרמת-בשלות **מספקת-ל-Intake בלבד**, לא "לסיים-הכול". פירוט מלא: Roadmap `### Parallel/Non-blocking Work`.
+- **מה נשאר Implementation** (לא-חלק מסטטוס-הסגירה): חיווט `decision_ledger` ל-5 pipelines נוספים · View מאוחד ב-War Room (עדשת AUTO-PROCESSED/NEEDS-ZURIEL/RESOLVED, בלי-store-חדש) · Security Work · עיצוב-מנגנון Canonical≠Published בפועל.
+- **תיעוד `## 🚪 שערי־צוריאל פתוחים`/`## 🎯 Decision Register`:** פריט/שורה 18 עודכנו ב-Roadmap. שורת ה-Decision Register נשמרה כ-provenance היסטורי מלא (טקסט-ה-OPEN המקורי לא-נמחק) עם annotation מאוחר-ומתוארך שמסמן CLOSED — לפי `NO-DISAPPEARING-WORK`.
+- **אימות-מכני (23.8.2026):** `src/lib/roadmapParser.js` (הפרסר-החי שמזין את המפה-התלת-ממדית ב-War Room) + `roadmapParser.test.js` — 16/16 טסטים עוברים, כולל אימות-מפורש ש-Gate #18 מזוהה `CLOSED` (`status_confidence: high`) ואין-עוד `OPEN_INTAKE_CRITICAL` פעיל בקובץ.
+
+---
+
 ## §CL. CHANGE LOG
 > כל שינוי מהותי נרשם כאן: **מה · מתי · למה · מה-הוחלף · סטטוס**. לא מוחקים היסטוריה — החלטה חדשה מסמנת שהחליפה את הישנה; המאוחרת והברורה גוברת.
 
