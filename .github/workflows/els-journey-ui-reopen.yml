@@ -1,0 +1,61 @@
+name: ELS Journey UI reopened launcher
+
+on:
+  pull_request:
+    branches: [main]
+    types: [reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  launch-existing-patch:
+    if: github.event.pull_request.head.ref == 'gpt/els-research-journey-v2'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Extract and run the already-reviewed patch script
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          src = Path('.github/workflows/els-journey-ui-one-shot.yml').read_text(encoding='utf-8').splitlines()
+          start = next(i for i,l in enumerate(src) if "python3 - <<'PY'" in l) + 1
+          end = next(i for i in range(start, len(src)) if src[i].strip() == 'PY')
+          lines = src[start:end]
+          indent = min(len(l)-len(l.lstrip()) for l in lines if l.strip())
+          code = '\n'.join(l[indent:] for l in lines) + '\n'
+          Path('/tmp/els_journey_patch.py').write_text(code, encoding='utf-8')
+          PY
+          python3 /tmp/els_journey_patch.py
+
+      - name: Rebuild canonical ELS artifact
+        run: |
+          cd tools/els
+          python3 build.py
+
+      - name: Verify Journey contract and source invariants
+        run: |
+          node scripts/verify-els-journey-contract.mjs
+          grep -F 'type:"load-error",reason:"exact-anchor-miss"' tools/els/els-code.template.html
+          grep -F 'loadRequest={journeyLoad}' src/pages/ElsWorkAreaPage.jsx
+          grep -F '↑ ציר' src/pages/ElsWorkAreaPage.jsx
+          grep -F 'buildJourneyRestore' src/lib/elsJourney.js
+          git diff --check
+
+      - name: Build app
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit verified Journey slice and clean one-shot scaffolding
+        run: |
+          git config user.name 'GPT Research Agent 2'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm .github/workflows/els-journey-ui-one-shot.yml .github/workflows/els-journey-ui-reopen.yml scratchpad/.els-journey-ui-trigger
+          git add tools/els/els-code.template.html public/tzofen.html src/components/TzofenEmbed.jsx src/pages/ElsWorkAreaPage.jsx
+          git commit -m 'feat(els-lab): wire exact Research Journey navigation'
+          git push origin HEAD:${{ github.head_ref }}
