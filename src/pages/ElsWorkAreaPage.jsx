@@ -1,262 +1,396 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 
-// 🧭 Work Area של הצופן — /lab/els  (Phase 3+4, קריאה-בלבד)
-//
-// ⛔ אין כאן מנוע. אין fork, אין tzofen-lab.html, אין TzofenLabEmbed, אין ELS ב-React.
-//    אותו <TzofenEmbed> בדיוק ואותו /tzofen.html?embed=1 שמשרתים את /code ואת ההיכל.
-//    המסך הזה **רק מציג** את ההודעה `state` שהמנוע משדר אחרי כל render() (ראה elsState()).
-//
-// 🎯 מטרת השלב: acceptance — להוכיח שה-host רואה בדיוק את מה שהמנוע באמת מצא.
-//    «פשוט» ו«עומק» הם **שתי תצוגות של אותו state** — לא שני מנועים, לא שתי שאילתות,
-//    לא שני state stores. יש בדיוק אובייקט-מצב אחד (useState אחד) ושתי דרכים לצייר אותו.
-
-const dirLabel = (d) => (d === "back" ? "↑ אחורה" : "↓ קדימה");
-const MODE_LABEL = {
+// ELS Lab — one canonical engine, many renderers.
+// React NEVER searches/calculates ELS. It only projects elsState().matrix.
+const MODES = [
+  { id: "discover", icon: "🔭", title: "גילוי" },
+  { id: "investigate", icon: "🧬", title: "חקירה" },
+  { id: "judge", icon: "⚖️", title: "שיפוט" },
+];
+const VIEW_MODES = [
+  { id: "2d", icon: "▦", title: "2D" },
+  { id: "layers", icon: "🧱", title: "שכבות" },
+  { id: "3d", icon: "🌌", title: "3D" },
+];
+// 🧩 Layer Controller registry — Verse is the FIRST entry, not a hard special-case. Future layers
+//    (Cross/Heat/Number-DNA/Evidence/Research-Depth — none built yet, none started in this slice)
+//    plug into the SAME {id,icon,title,available} shape + the SAME activeLayers Set below — no
+//    per-layer rewiring of the toggle row or the state model when they arrive.
+const LAYER_TYPES = [
+  { id: "verse", icon: "📜", title: "פסוק", available: true },
+  { id: "heat", icon: "🔥", title: "חום", available: false },
+];
+// 🎨 Verse-context plane tint — a small stable palette keyed by verseIndex, deliberately distinct
+//    from the engine's own finding-colors (mark.color/PALETTE) so the two visual languages never
+//    get confused: mark colors = ELS findings (engine-owned), this palette = verse-membership
+//    (host-only, cosmetic grouping of an already-fetched Verse Lens response).
+const VERSE_PLANE_PALETTE = ["#5b8def", "#e0a541", "#4fb894", "#c96fb0", "#8b7fe0", "#d97a5c"];
+const verseColor = (vi) => VERSE_PLANE_PALETTE[((vi % VERSE_PLANE_PALETTE.length) + VERSE_PLANE_PALETTE.length) % VERSE_PLANE_PALETTE.length];
+const SEARCH_LABEL = {
   regular: "חיפוש רגיל", "cross-simple": "הצלבה פשוטה",
-  "cross-free": "התכנסות חופשית", bridge: "גשר דו-מונחי", cross: "הצלבה",
+  "cross-free": "התכנסות חופשית", bridge: "גשר דו־מונחי", cross: "הצלבה",
 };
+const n = (v) => Number.isFinite(Number(v)) ? Number(v).toLocaleString("he-IL") : "—";
+const dir = (v) => v === "back" ? "אחורה ↑" : "קדימה ↓";
 
 export default function ElsWorkAreaPage() {
   const P = usePalette();
-  const [state, setState] = useState(null);
-  const [deep, setDeep] = useState(false);
-  const [seen, setSeen] = useState(0);   // כמה תמונות-מצב הגיעו — חיווי acceptance ש«החוט חי»
+  const [engineState, setEngineState] = useState(null);
+  const [mode, setMode] = useState("discover");
+  const [viewMode, setViewMode] = useState("2d");
+  const [query, setQuery] = useState("");
+  const [seed, setSeed] = useState("");
+  const [runNonce, setRunNonce] = useState(0);
+  const [seen, setSeen] = useState(0);
+  const [showEngine, setShowEngine] = useState(false);
+  const [rawOpen, setRawOpen] = useState(false);
+  const [cellSize, setCellSize] = useState(30);
+  const [focusMarks, setFocusMarks] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
+  const [matrixRtl, setMatrixRtl] = useState(true);
+  const [selectedCell, setSelectedCell] = useState(null);
+  const [waiting, setWaiting] = useState(false);
+  const [firstRunHint, setFirstRunHint] = useState(false);
+  const [tiltX, setTiltX] = useState(54);
+  const [tiltZ, setTiltZ] = useState(-7);
+  const [depth, setDepth] = useState(24);
+  // 🖱️ 3D Interaction v2 — camera/explode/isolate state only. Renderer-only: never touches
+  //    engine/search/ranking/DB. z is still derived purely from existing marks+axisSet (depth×explode).
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [sceneScale, setSceneScale] = useState(1);
+  const [explode, setExplode] = useState(1);
+  const [panMode, setPanMode] = useState(false);
+  // 🔍 isolate: visual-only dimming keyed by an existing mark's color/type — NEVER a canonical
+  //    FindingID. Two marks can legitimately share a color (colorSets() reuses the palette), so this
+  //    is explicitly a "dim everything that isn't this exact color" toggle, not identity resolution.
+  const [isolateKey, setIsolateKey] = useState(null);
+  // 🧩 Layer Controller state — a generic Set of active layer ids (LAYER_TYPES above), not a
+  //    per-layer boolean. Verse is the first real entry; toggling any id is the same code path
+  //    a future Cross/Heat/Number-DNA layer will reuse.
+  const [activeLayers, setActiveLayers] = useState(() => new Set());
+  const toggleLayer = useCallback((id) => {
+    setActiveLayers((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  }, []);
+  const verseOn = activeLayers.has("verse");
+  // 📜 Verse/Context Lens — on-demand בלבד, מעל חוזה request-lens/lens הקיים בכלי. verseLens = תשובת-
+  //    הכלי האחרונה. activeVerseIndex = הפסוק-הפעיל לצורך הדגשה דו-כיוונית (Reader↔מטריצה) — view-state
+  //    טהור, לא-קיים בחוזה-המנוע. הפעלה/כיבוי אינם נוגעים ב-Finding/search כלל — זו קריאה נוספת בלבד
+  //    סביב עמדות שכבר בתוצאת-החיפוש הנוכחית (occ()/st.words בכלי) והיטלה (projection) חוזרת של אותה
+  //    תשובה על גבי אותם matrix indices — אין fetch נוסף, אין lens/מנוע נוסף.
+  const [verseLens, setVerseLens] = useState(null);
+  const [activeVerseIndex, setActiveVerseIndex] = useState(null);
 
   useEffect(() => {
-    applySeo({ title: "Work Area · הצופן", description: "סביבת עבודה על מנוע הצופן הקנוני", path: "/lab/els" });
+    applySeo({ title: "ELS Research Studio · סוד 1820", description: "סביבת המחקר החדשה של הצופן התנ״כי", path: "/lab/els" });
   }, []);
+  useEffect(() => {
+    if (!waiting) return undefined;
+    const t = window.setTimeout(() => setFirstRunHint(true), 1800);
+    return () => window.clearTimeout(t);
+  }, [waiting, runNonce]);
 
-  // ⚠️ יציב על פני רינדורים — אחרת ה-listener ב-TzofenEmbed היה נרשם מחדש בכל תמונת-מצב.
-  const onState = useCallback((s) => { setState(s); setSeen(n => n + 1); }, []);
+  // 🖱️ 3D Interaction v2 — pointer-drag rotate/pan + wheel/pinch zoom. Pure host-UI camera state;
+  //    never dispatches a search, never touches seed/runNonce, never reloads the engine iframe.
+  //    Mirrors the same drag-threshold pattern already used by the canonical engine's own
+  //    enable3D()/enablePan() (tools/els/els-code.template.html) — same interaction language, no
+  //    new geometry primitive invented.
+  //    ⚠️ Listeners are attached at `document` level, scoped by `.closest(".els-native-stage")` on
+  //    the event target — NOT via `stageRef`/`addEventListener` on the stage element directly.
+  //    MatrixStage is redefined as a new inline component on every render of this page (pre-existing
+  //    in PR #179, not something this slice restructures), so its DOM node is torn down and rebuilt
+  //    on every state change that re-renders the parent — an element-scoped listener silently goes
+  //    stale after the FIRST such re-render. document-level listeners are immune to that churn.
+  useEffect(() => {
+    let down = false, px = 0, py = 0, pinchD0 = 0, pinchS0 = 1, pinching = false;
+    const dist2 = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    const onStage = (e) => e.target?.closest?.(".els-native-stage");
+    const start = (x, y) => { down = true; px = x; py = y; };
+    const move = (x, y) => {
+      if (!down) return;
+      const dx = x - px, dy = y - py; px = x; py = y;
+      if (panMode) { setPanX((v) => v + dx); setPanY((v) => v + dy); }
+      else if (viewMode === "3d") {
+        setTiltZ((v) => Math.max(-24, Math.min(24, v + dx * 0.3)));
+        setTiltX((v) => Math.max(18, Math.min(72, v - dy * 0.3)));
+      }
+    };
+    const end = () => { down = false; };
+    const onMouseDown = (e) => { if (e.button !== 0 || (!panMode && viewMode !== "3d") || !onStage(e)) return; start(e.clientX, e.clientY); };
+    const onMouseMove = (e) => move(e.clientX, e.clientY);
+    const onMouseUp = () => end();
+    const onTouchStart = (e) => {
+      if (!onStage(e)) return;
+      if (e.touches.length === 2) { pinching = true; pinchD0 = dist2(e.touches); pinchS0 = sceneScale; return; }
+      if (e.touches.length === 1 && (panMode || viewMode === "3d")) { const t = e.touches[0]; start(t.clientX, t.clientY); }
+    };
+    const onTouchMove = (e) => {
+      if (pinching && e.touches.length === 2) {
+        e.preventDefault();
+        const z = Math.max(0.5, Math.min(2.5, pinchS0 * (dist2(e.touches) / pinchD0)));
+        setSceneScale(z);
+        return;
+      }
+      if (down && e.touches.length === 1) { e.preventDefault(); const t = e.touches[0]; move(t.clientX, t.clientY); }
+    };
+    const onTouchEnd = (e) => { if (e.touches.length < 2) pinching = false; if (e.touches.length === 0) end(); };
+    const onWheel = (e) => { if (!onStage(e)) return; e.preventDefault(); setSceneScale((v) => Math.max(0.5, Math.min(2.5, v - e.deltaY * 0.001))); };
+    document.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("touchstart", onTouchStart, { passive: false });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    document.addEventListener("touchend", onTouchEnd);
+    document.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("wheel", onWheel);
+    };
+  }, [panMode, viewMode, sceneScale]);
 
-  const card = {
-    background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14,
-    padding: "14px 16px", boxSizing: "border-box",
+  const onState = useCallback((next) => {
+    setEngineState(next); setSeen((x) => x + 1); setWaiting(false); setFirstRunHint(false);
+  }, []);
+  const runSearch = (e) => {
+    e?.preventDefault?.(); const q = query.trim(); if (q.length < 2) return;
+    setEngineState(null); setSelectedCell(null); setSeed(q); setWaiting(true); setFirstRunHint(false); setRunNonce((x) => x + 1);
   };
-  const label = { color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.6 };
-  const value = { color: P.ink, fontFamily: F.body, fontSize: 15, fontWeight: 700, marginTop: 2, wordBreak: "break-word" };
 
-  const Row = ({ k, v }) => (
-    <div style={{ minWidth: 0 }}><div style={label}>{k}</div><div style={value}>{v}</div></div>
+  const s = engineState;
+  const ok = s?.status === "ok";
+  const axis = s?.axis || {}, occ = s?.occurrence || {}, geo = s?.geometry || {}, prov = s?.provenance || {};
+  const findings = Array.isArray(s?.findings) ? s.findings : [];
+  const matrix = s?.matrix || null;
+  const positions = useMemo(() => {
+    if (!ok || !Number.isFinite(axis.start) || !Number.isFinite(axis.skip) || !Number.isFinite(s?.length)) return [];
+    const sign = axis.direction === "back" ? -1 : 1;
+    return Array.from({ length: s.length }, (_, i) => axis.start + sign * axis.skip * i);
+  }, [ok, axis.start, axis.skip, axis.direction, s?.length]);
+  const axisSet = useMemo(() => new Set(positions), [positions]);
+  const marks = useMemo(() => {
+    const map = new Map(); if (Array.isArray(matrix?.marks)) matrix.marks.forEach((m) => map.set(Number(m.i), m)); return map;
+  }, [matrix]);
+  const markedCount = matrix?.marks?.length || 0;
+  const matrixVersion = matrix?.v || 1;
+  const lenses = Array.isArray(matrix?.lenses) ? matrix.lenses : [];
+
+  // 📜 Verse/Context Lens — target = ה-Finding הפעיל: התא הנבחר (אם הוא ממצא-מוצלב, לפי צבעו מול
+  //    findings[] הקיים) אחרת ברירת-המחדל היא הציר הראשי (term ריק → occ() בכלי, hitId מ-axis הקיים).
+  //    אין כאן זיהוי-ממצא חדש — רק שימוש בשדות שכבר משודרים בכל state-tick.
+  const verseTarget = useMemo(() => {
+    if (!ok) return null;
+    const mark = selectedCell?.mark;
+    if (mark?.type === "finding" && mark.color) {
+      const f = findings.find((x) => x.color === mark.color);
+      if (f) return { term: f.t, i: selectedCell.idx };
+    }
+    return { term: "", hitId: axis.hitId || undefined, i: mark?.type === "main" ? selectedCell?.idx : undefined };
+  }, [ok, selectedCell, findings, axis.hitId]);
+  const verseTargetSig = verseTarget ? JSON.stringify(verseTarget) : "";
+  const verseTargetSigRef = useRef(verseTargetSig);
+  useEffect(() => { verseTargetSigRef.current = verseTargetSig; }, [verseTargetSig]);
+  const lensRequest = useMemo(
+    () => (verseOn && verseTarget ? { lens: "verse-context", target: verseTarget } : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [verseOn, verseTargetSig]
   );
-  const Grid = ({ children, min = 132 }) => (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit,minmax(${min}px,1fr))`, gap: 12 }}>{children}</div>
+  // בכל שינוי-בקשה אמיתי (הפעלה/כיבוי/Finding אחר) מנקים את התשובה הקודמת + את הפסוק-הפעיל — מונע
+  // הצגת פסוק-ישן, או הדגשה לפי verseIndex ששייך לתשובה קודמת, רגע לפני שהתשובה הטרייה חוזרת.
+  useEffect(() => { setVerseLens(null); setActiveVerseIndex(null); }, [lensRequest]);
+  const onLens = useCallback((d) => {
+    if (d?.lens !== "verse-context") return;
+    const sig = d?.target ? JSON.stringify(d.target) : "";
+    if (sig !== verseTargetSigRef.current) return;   // תשובה מאוחרת ל-target ישן — מתעלמים (race guard)
+    setVerseLens(d);
+  }, []);
+  // 📐 היטלה שנייה (spatial projection) של אותו lens payload — לא fetch נוסף, לא מנגנון-Verse נוסף.
+  //    ממפה idx (אותו index-space כמו matrix.rows/marks[].i) לפסוק המכיל אותו, מתוך verseLens.verses
+  //    שכבר-נטען. שימוש-דו-כיווני: קליק-על-תא → מזהה פסוק (להדגיש ב-Reader); קליק-על-פסוק ב-Reader →
+  //    מדגיש תאים (activeVerseIndex).
+  const verseRanges = useMemo(
+    () => (verseOn && verseLens?.ok && Array.isArray(verseLens.verses) ? verseLens.verses : []),
+    [verseOn, verseLens]
   );
-  const Sect = ({ title, note, children }) => (
-    <div style={{ ...card, marginBottom: 12 }}>
-      <div style={{ fontFamily: F.heading, fontWeight: 800, fontSize: 13.5, color: P.accentText, marginBottom: 10 }}>
-        {title}{note && <span style={{ color: P.accentDim, fontWeight: 600, fontSize: 11.5 }}> · {note}</span>}
+  const verseForIdx = useCallback(
+    (idx) => verseRanges.find((v) => idx >= v.from && idx <= v.to) || null,
+    [verseRanges]
+  );
+
+  const card = { background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 18, boxSizing: "border-box" };
+  const soft = { background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 13 };
+  const title = { color: P.accentText, fontFamily: F.heading, fontWeight: 900, fontSize: 13 };
+  const muted = { color: P.inkSoft, fontFamily: F.body };
+  const Fact = ({ label, value, mono = false }) => <div style={{ padding: "8px 0", borderBottom: `1px solid ${P.border}` }}>
+    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 850 }}>{label}</div>
+    <div style={{ color: P.ink, fontFamily: mono ? "ui-monospace,monospace" : F.body, fontSize: 13.5, fontWeight: 730, marginTop: 2, overflowWrap: "anywhere" }}>{value ?? "—"}</div>
+  </div>;
+  const Next = ({ children }) => <div style={{ ...soft, padding: "10px 12px", color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65 }}><b style={{ color: P.accentDim }}>השלב הבא · </b>{children}</div>;
+
+  const resetView = () => {
+    setCellSize(30); setFocusMarks(false); setShowGrid(false); setMatrixRtl(true); setSelectedCell(null);
+    setTiltX(54); setTiltZ(-7); setDepth(24);
+    setPanX(0); setPanY(0); setSceneScale(1); setExplode(1); setPanMode(false); setIsolateKey(null);
+    setActiveLayers(new Set()); setActiveVerseIndex(null);
+  };
+
+  const MatrixStage = () => {
+    if (!ok) return <div style={{ minHeight: 440, display: "grid", placeItems: "center", textAlign: "center", padding: 24 }}><div>
+      <div style={{ fontSize: 46 }}>{waiting ? "⌛" : "✦"}</div><div style={{ ...title, fontSize: 19, marginTop: 8 }}>{waiting ? "המנוע מחשב מאחורי הקלעים" : "הבמה מוכנה"}</div>
+      <div style={{ ...muted, marginTop: 7 }}>הקלד מונח. כל אות שתראה כאן מגיעה מה־Snapshot של המנוע הקנוני.</div>
+      {firstRunHint && <button type="button" onClick={() => setShowEngine(true)} style={{ marginTop: 14, minHeight: 44, borderRadius: 999, padding: "0 16px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.accentText, fontFamily: F.heading, fontWeight: 850 }}>כניסה ראשונה? פתח הדרכה חד־פעמית</button>}
+    </div></div>;
+    if (!matrix?.rows?.length) return <div style={{ minHeight: 440, display: "grid", placeItems: "center", ...muted }}>Finding הגיע, אך Matrix Snapshot חסר.</div>;
+
+    const r0 = Number(matrix.r0 ?? geo.r0 ?? 0), c0 = Number(matrix.c0 ?? geo.c0 ?? 0), S = Number(matrix.S ?? geo.S ?? 0);
+    const isDepth = viewMode !== "2d";
+    const rotatePart = viewMode === "3d" ? ` perspective(1250px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? " perspective(1300px) rotateX(34deg)" : "";
+    const stageTransform = `translate(${panX}px, ${panY}px) scale(${sceneScale})${rotatePart}`;
+
+    // 📐 גריד-תאים מחושב פעם-אחת (idx + סדר-RTL כבר-מוחל) — מקור-משותף למישור-הראשי (ללא שינוי) ולמישור-
+    //    ה-Verse-context החדש, כדי ששני המישורים יתיישרו מרחבית בדיוק (אותה שורה/עמודה בדיוק לכל idx).
+    const rowsMeta = matrix.rows.map((row, ri) => {
+      const cells = Array.from(row).map((letter, ci) => ({ letter, ci, idx: (r0 + ri) * S + (c0 + ci) }));
+      if (matrixRtl) cells.reverse();
+      return { ri, cells };
+    });
+    const showVersePlane = verseOn && isDepth && verseLens?.ok;   // 📜 מישור-context רק ב-Layered/3D (ב-2D מדגישים על התאים עצמם)
+
+    return <div className="els-native-stage" style={{ overflow: panMode ? "hidden" : "auto", cursor: panMode ? "grab" : viewMode === "3d" ? "grab" : "default", touchAction: panMode || viewMode === "3d" ? "none" : "auto", padding: viewMode === "3d" ? "72px 30px 110px" : "28px 20px 70px", background: P.cardSoft, minHeight: 470 }}>
+      <div style={{ position: "relative", width: "max-content", minWidth: "100%", direction: "ltr", fontFamily: F.regal, transform: stageTransform, transformOrigin: "50% 42%", transformStyle: "preserve-3d", transition: "transform .28s ease" }}>
+        {showVersePlane && <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", transform: `translateZ(${-Math.max(18, Math.round(depth * 1.15 * explode))}px)`, transformStyle: "preserve-3d" }}>
+          {rowsMeta.map(({ ri, cells }) => <div key={"vp-" + ri} style={{ display: "flex", justifyContent: "center", lineHeight: 1 }}>
+            {cells.map(({ ci, idx }) => {
+              const vi = verseForIdx(idx);
+              const on = Boolean(vi), isActive = on && activeVerseIndex != null && vi.verseIndex === activeVerseIndex;
+              return <div key={"vp-" + idx} style={{
+                width: cellSize, height: cellSize + 3, flex: `0 0 ${cellSize}px`, borderRadius: showGrid ? 3 : 6,
+                background: on ? verseColor(vi.verseIndex) : "transparent", opacity: !on ? 0 : isActive ? .8 : .32,
+                transition: "opacity .2s ease",
+              }} />;
+            })}
+          </div>)}
+        </div>}
+        {rowsMeta.map(({ ri, cells }) => {
+          return <div key={ri} style={{ display: "flex", justifyContent: "center", lineHeight: 1, transformStyle: "preserve-3d" }}>
+            {cells.map(({ letter, ci, idx }) => {
+              const mark = marks.get(idx), isAxis = axisSet.has(idx) || mark?.type === "main", isStart = Boolean(mark?.start);
+              const isolatedOut = Boolean(isolateKey) && mark?.type === "finding" && mark.color !== isolateKey;
+              const dim = (focusMarks && !mark && !isAxis) || isolatedOut, active = selectedCell?.idx === idx;
+              const z = !isDepth ? 0 : (isAxis ? depth * 1.55 : mark ? depth : 0) * explode;
+              const background = isAxis ? P.accentBtn : mark?.color || "transparent";
+              // 📜 גבולות-פסוק עדינים (2D בלבד) — vi.from===idx מסמן תחילת-פסוק חדש בתוך החלון; ההדגשה
+              //    הפעילה (activeVerseIndex) מקבלת טבעת-פנימית נפרדת. שני הסימונים לא נוגעים ב-background/
+              //    border הקיימים (Finding/main/start/selected) — רק boxShadow נוסף מעליהם.
+              const vi = verseOn && !isDepth ? verseForIdx(idx) : null;
+              const verseShadow = [];
+              if (vi && vi.from === idx) verseShadow.push(`inset 0 2px 0 0 ${verseColor(vi.verseIndex)}`);
+              if (vi && activeVerseIndex != null && vi.verseIndex === activeVerseIndex) verseShadow.push(`inset 0 0 0 2px ${P.accentText}`);
+              const depthShadow = z ? `0 ${Math.round(z / 3)}px ${Math.round(z / 2)}px rgba(0,0,0,.28)` : "";
+              const boxShadow = [depthShadow, ...verseShadow].filter(Boolean).join(", ") || "none";
+              return <button key={idx} type="button" title={`index ${idx}`} onClick={() => {
+                setSelectedCell({ idx, letter, row: r0 + ri, col: c0 + ci, mark: mark || null });
+                if (verseOn) { const owner = verseForIdx(idx); setActiveVerseIndex(owner ? owner.verseIndex : null); }
+              }} style={{
+                width: cellSize, height: cellSize + 3, flex: `0 0 ${cellSize}px`, padding: 0, display: "inline-grid", placeItems: "center",
+                borderRadius: showGrid ? 3 : 6, border: isStart ? `2px solid ${P.accentText}` : active ? `1px solid ${P.accentText}` : showGrid ? `1px solid ${P.border}` : "1px solid transparent",
+                outline: isStart ? `1px solid ${P.cardSoft}` : "none", background, color: isAxis ? P.onAccent : P.ink, fontFamily: F.regal,
+                fontWeight: isAxis || mark ? 900 : 500, fontSize: Math.max(15, Math.round(cellSize * .68)), opacity: dim ? .16 : 1, cursor: "pointer",
+                transform: z ? `translateZ(${z}px)` : "translateZ(0)", boxShadow,
+                transition: "opacity .15s ease, transform .2s ease, box-shadow .2s ease", transformStyle: "preserve-3d",
+              }}>{letter}</button>;
+            })}
+          </div>;
+        })}
       </div>
-      {children}
+    </div>;
+  };
+
+  return <div dir="rtl" style={{ position: "relative", zIndex: 1, maxWidth: 1700, margin: "0 auto", padding: "14px 12px 90px" }}>
+    <style>{`.els-native-layout{display:grid;grid-template-columns:minmax(0,1fr) 375px;gap:14px;align-items:start}.els-native-inspector{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}.els-native-modes,.els-view-modes{display:flex;gap:8px;flex-wrap:wrap}.els-native-stage button:hover{filter:brightness(1.08);z-index:3}@media(max-width:980px){.els-native-layout{grid-template-columns:1fr}.els-native-inspector{position:static;max-height:none}}@media(max-width:560px){.els-search-form{grid-template-columns:1fr!important}.els-native-toolbar button{flex:1 1 auto}}`}</style>
+
+    <header style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}><div>
+      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 900, letterSpacing: 1.1 }}>SOD1820 · ELS LAB · MATRIX v{matrixVersion}</div>
+      <h1 style={{ margin: "2px 0 0", color: P.accentText, fontFamily: F.regal, fontSize: "clamp(28px,4vw,45px)", lineHeight: 1.05 }}>הצופן התנ״כי · Research Studio</h1>
+    </div><span style={{ ...soft, padding: "7px 11px", color: seen ? P.accentText : P.inkSoft, fontFamily: F.heading, fontSize: 11, fontWeight: 850 }}>{seen ? `● engine live · ${seen}` : "○ engine bridge"}</span>
+    <Link to="/code" style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textDecoration: "none", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Advanced Engine ←</Link></header>
+
+    <form className="els-search-form" onSubmit={runSearch} style={{ ...card, padding: 11, display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 9, marginBottom: 10 }}>
+      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="מה לחפש בתורה?" style={{ minHeight: 56, borderRadius: 13, border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, padding: "0 16px", fontFamily: F.body, fontSize: 19, outline: "none" }} />
+      <button type="submit" disabled={query.trim().length < 2 || waiting} style={{ minHeight: 56, minWidth: 135, borderRadius: 13, border: 0, background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontSize: 14, fontWeight: 900, opacity: query.trim().length >= 2 && !waiting ? 1 : .55 }}>{waiting ? "מחפש…" : "חפש ✦"}</button>
+    </form>
+
+    <div className="els-native-modes" style={{ marginBottom: 10 }}>{MODES.map((m) => <button key={m.id} onClick={() => setMode(m.id)} style={{ minHeight: 46, padding: "0 19px", borderRadius: 999, border: `1px solid ${mode === m.id ? "transparent" : P.border}`, background: mode === m.id ? P.accentBtn : P.cardSoft, color: mode === m.id ? P.onAccent : P.ink, fontFamily: F.heading, fontSize: 13, fontWeight: 850 }}>{m.icon} {m.title}</button>)}
+      <button onClick={() => setShowEngine((v) => !v)} type="button" style={{ marginInlineStart: "auto", minHeight: 46, padding: "0 15px", borderRadius: 999, border: `1px solid ${P.border}`, background: "transparent", color: P.inkSoft }}>{showEngine ? "הסתר מנוע" : "Debug / onboarding"}</button>
     </div>
-  );
+    {/* 🌉 hiddenBridge=מפורש (לא הסקה מ-CSS off-screen): כשה-Debug-view סגור, זהו גשר-נסתר/פרוגרמטי —
+        מעביר את הכוונה ל-TzofenEmbed עצמו (loading=eager + ?bridge=hidden) כדי שהמנוע-הנסתר-מהצג
+        באמת ייטען וידלג רק על ההדרכה-החד-פעמית, בלי לעקוף tier/auth/quota. ה-CSS off-screen* נשאר
+        לצורך ההסתרה-החזותית בלבד — אינו עוד מקור-האמת לכוונה. */}
+    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} /></div>
 
-  const s = state;
-  const ok = s && s.status === "ok";
-
-  return (
-    <div dir="rtl" style={{ position: "relative", zIndex: 1, maxWidth: 1180, margin: "0 auto", padding: "18px 14px 80px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
-        <h1 style={{ margin: 0, color: P.accentText, fontFamily: F.regal, fontSize: "clamp(20px,4vw,30px)", fontWeight: 800 }}>
-          🧭 Work Area · הצופן
-        </h1>
-        <span style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, border: `1px solid ${P.border}`, borderRadius: 999, padding: "3px 10px" }}>
-          קריאה בלבד
-        </span>
-        <Link to="/code" style={{ marginInlineStart: "auto", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "none", minHeight: 44, display: "inline-flex", alignItems: "center" }}>
-          הצופן המלא ←
-        </Link>
-      </div>
-
-      <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: "0 0 14px", maxWidth: 720 }}>
-        אותו מנוע קנוני בדיוק (<code style={{ fontSize: 12.5 }}>/tzofen.html?embed=1</code>). כל מה שלמטה מגיע מהמנוע עצמו —
-        ה-host אינו מחשב דילוגים. חפשו בכלי, והלוח יתעדכן.
-      </p>
-
-      {/* ── המנוע. אותו רכיב, אותו artifact. ── */}
-      <TzofenEmbed onState={onState} />
-
-      {/* ── שתי תצוגות של אותו state ── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "16px 0 12px", flexWrap: "wrap" }}>
-        {[["פשוט", false], ["עומק", true]].map(([t, v]) => (
-          <button key={t} type="button" onClick={() => setDeep(v)}
-            style={{
-              cursor: "pointer", minHeight: 44, padding: "0 18px", borderRadius: 999,
-              fontFamily: F.heading, fontSize: 14, fontWeight: 800,
-              border: `1px solid ${deep === v ? "transparent" : P.border}`,
-              background: deep === v ? P.accentBtn : "transparent",
-              color: deep === v ? P.onAccent : P.inkSoft,
-            }}>{t}</button>
-        ))}
-        <span style={{ marginInlineStart: "auto", color: P.accentDim, fontFamily: F.body, fontSize: 12 }}>
-          {seen ? `${seen} תמונות-מצב מהמנוע` : "ממתין למנוע…"}
-        </span>
-      </div>
-
-      {!s && (
-        <div style={{ ...card, color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>
-          עדיין לא הגיעה תמונת-מצב. חפשו מונח בכלי שלמעלה — המנוע משדר את מצבו אחרי כל רינדור.
+    <div className="els-native-layout"><main style={{ minWidth: 0 }}><section style={{ ...card, overflow: "hidden", minHeight: 560 }}>
+      <div style={{ padding: "13px 14px", borderBottom: `1px solid ${P.border}`, display: "grid", gap: 10 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}><div><div style={{ ...title, fontSize: 14 }}>מטריצת המחקר · {viewMode === "2d" ? "מישור" : viewMode === "layers" ? "שכבות עומק" : "מרחב 3D"}</div><div style={{ ...muted, fontSize: 11.5 }}>אותו Finding · אותו Snapshot · Renderer שונה בלבד</div></div>{ok && <span style={{ color: P.accentText, fontFamily: F.heading, fontWeight: 900, fontSize: 12 }}>{n((occ.index ?? 0) + 1)} / {n(occ.count)} · S={n(geo.S)}</span>}</div>
+        <div className="els-view-modes">{VIEW_MODES.map((v) => <button key={v.id} onClick={() => setViewMode(v.id)} type="button" style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: viewMode === v.id ? P.accentBtn : P.cardSoft, color: viewMode === v.id ? P.onAccent : P.ink, fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>{v.icon} {v.title}</button>)}
+          {LAYER_TYPES.map((lt) => { const on = activeLayers.has(lt.id); return <button key={lt.id} type="button" disabled={!lt.available} onClick={() => lt.available && toggleLayer(lt.id)} style={{ minHeight: 46, padding: "0 18px", borderRadius: 13, border: `1px solid ${P.border}`, background: on ? P.accentBtn : P.cardSoft, color: on ? P.onAccent : lt.available ? P.ink : P.inkSoft, fontFamily: F.heading, fontWeight: 900, fontSize: 13, opacity: lt.available ? 1 : .45 }}>{lt.icon} {lt.title}{on ? " · פעיל" : !lt.available ? " · בהמשך" : ""}</button>; })}
         </div>
-      )}
-
-      {s && s.status === "empty" && (
-        <Sect title="🔍 לא נמצא" note="המנוע השלים חיפוש ולא מצא דילוג">
-          <Grid>
-            <Row k="מונח" v={`«${s.termRaw || "—"}»`} />
-            <Row k="מנורמל" v={s.term || "—"} />
-            <Row k="היקף" v={s.scope === "tanakh" ? "כל התנ״ך" : "תורה"} />
-            <Row k="אותיות בקורפוס" v={(s.corpusLetters || 0).toLocaleString("he-IL")} />
-          </Grid>
-        </Sect>
-      )}
-
-      {ok && !deep && (
-        <>
-          <Sect title="① הממצא">
-            <Grid>
-              <Row k="מונח" v={`«${s.termRaw}»`} />
-              <Row k="אורך" v={`${s.length} אותיות`} />
-              <Row k="היקף" v={s.scope === "tanakh" ? "כל התנ״ך" : "תורה"} />
-              <Row k="מצב חיפוש" v={MODE_LABEL[s.search?.mode] || s.search?.mode} />
-            </Grid>
-          </Sect>
-          <Sect title="② המטריצה">
-            <Grid>
-              <Row k="דילוג" v={s.axis.skip.toLocaleString("he-IL")} />
-              <Row k="כיוון" v={dirLabel(s.axis.direction)} />
-              <Row k="רוחב שורה" v={s.geometry.S.toLocaleString("he-IL")} />
-              <Row k="מופע" v={`${s.occurrence.index + 1} מתוך ${s.occurrence.count.toLocaleString("he-IL")}${s.occurrence.capped ? "+" : ""}`} />
-            </Grid>
-          </Sect>
-          <Sect title="③ ממצאים במטריצה" note={`${s.findings.length}`}>
-            {s.findings.length === 0
-              ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>אין ממצאים צבועים עדיין.</div>
-              : <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {s.findings.map((w, i) => (
-                  <span key={w.t + i} style={{
-                    display: "inline-flex", alignItems: "center", gap: 7, background: P.cardSoft,
-                    border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 12px",
-                    fontFamily: F.body, fontSize: 13.5, fontWeight: 700, color: P.ink,
-                  }}>
-                    <i style={{ width: 10, height: 10, borderRadius: 3, background: w.color, flex: "none" }} />
-                    {w.t}
-                    <b style={{ color: P.accentDim, fontWeight: 700, fontSize: 12 }}>{w.shown.length}/{w.total}</b>
-                  </span>
-                ))}
-              </div>}
-          </Sect>
-          <Sect title="④ הבסיס" note="מאיפה זה בא">
-            <Grid>
-              <Row k="עמדת התחלה" v={s.axis.start.toLocaleString("he-IL")} />
-              <Row k="מזהה מופע" v={<code style={{ fontSize: 12.5 }}>{s.axis.hitId}</code>} />
-              <Row k="צופן שמור" v={s.provenance.cipherSlug || "—"} />
-              <Row k="מחבר" v={s.provenance.author || "—"} />
-            </Grid>
-          </Sect>
-        </>
-      )}
-
-      {ok && deep && (
-        <>
-          <Sect title="הציר" note="axis">
-            <Grid>
-              <Row k="מונח גולמי" v={`«${s.termRaw}»`} />
-              <Row k="מנורמל (engine input)" v={s.term} />
-              <Row k="אורך" v={s.length} />
-              <Row k="דילוג" v={s.axis.skip.toLocaleString("he-IL")} />
-              <Row k="כיוון" v={dirLabel(s.axis.direction)} />
-              <Row k="start" v={s.axis.start.toLocaleString("he-IL")} />
-              <Row k="hitId" v={<code style={{ fontSize: 12.5 }}>{s.axis.hitId}</code>} />
-              <Row k="אותיות בקורפוס" v={(s.corpusLetters || 0).toLocaleString("he-IL")} />
-            </Grid>
-            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.7 }}>
-              ⛔ המיקומים אינם משודרים — הם נגזרים: <code>p[k] = start {s.axis.direction === "back" ? "−" : "+"} skip·k</code>, ל-k=0…{s.length - 1}.
+        <div className="els-native-toolbar" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <button type="button" onClick={() => setMatrixRtl((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: matrixRtl ? P.accentBtn : "transparent", color: matrixRtl ? P.onAccent : P.ink }}>↔ {matrixRtl ? "RTL" : "LTR"}</button>
+          <button type="button" onClick={() => setFocusMarks((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: focusMarks ? P.accentBtn : "transparent", color: focusMarks ? P.onAccent : P.ink }}>◎ מיקוד</button>
+          <button type="button" onClick={() => setShowGrid((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: showGrid ? P.accentBtn : "transparent", color: showGrid ? P.onAccent : P.ink }}>▦ רשת</button>
+          <button type="button" onClick={() => setCellSize((v) => Math.max(18, v - 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>−</button><span style={{ minWidth: 52, textAlign: "center", color: P.accentText, fontFamily: F.heading, fontWeight: 900 }}>{cellSize}px</span><button type="button" onClick={() => setCellSize((v) => Math.min(48, v + 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>＋</button>
+          <button type="button" onClick={() => setPanMode((v) => !v)} title="גרירה מזיזה את הבמה (פאן) במקום לסובב" style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: panMode ? P.accentBtn : "transparent", color: panMode ? P.onAccent : P.ink }}>✋ הזזה</button>
+          {sceneScale !== 1 && <span style={{ ...muted, fontSize: 11 }}>זום {Math.round(sceneScale * 100)}%</span>}
+          {viewMode !== "2d" && <><label style={{ ...muted, fontSize: 11 }}>עומק <input type="range" min="8" max="54" value={depth} onChange={(e) => setDepth(Number(e.target.value))} /></label><label style={{ ...muted, fontSize: 11 }}>התפוצצות <input type="range" min="1" max="3" step="0.25" value={explode} onChange={(e) => setExplode(Number(e.target.value))} /></label>{viewMode === "3d" && <><label style={{ ...muted, fontSize: 11 }}>X <input type="range" min="18" max="72" value={tiltX} onChange={(e) => setTiltX(Number(e.target.value))} /></label><label style={{ ...muted, fontSize: 11 }}>Z <input type="range" min="-24" max="24" value={tiltZ} onChange={(e) => setTiltZ(Number(e.target.value))} /></label></>}</>}
+          {isolateKey && <button type="button" onClick={() => setIsolateKey(null)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.accentText }}>✕ נקה בידוד</button>}
+          <button type="button" onClick={resetView} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.inkSoft }}>↺ איפוס</button>
+        </div>
+      </div>
+      {s?.status === "empty" ? <div style={{ minHeight: 440, display: "grid", placeItems: "center", ...muted }}>לא נמצא דילוג למונח «{s.termRaw || seed}».</div> : <MatrixStage />}
+      {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span>{verseOn && <span style={{ ...muted, fontSize: 11 }}>📜 Verse layer: {viewMode === "2d" ? "גבולות עדינים על התאים" : "מישור־context מתחת ל-Finding"}</span>}</div>}
+      {verseOn && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}` }}>
+        <div style={{ ...title, fontSize: 12.5, marginBottom: 7 }}>📜 הקשר־פסוק · Verse Lens</div>
+        {!ok ? <div style={{ ...muted, fontSize: 12 }}>אין Finding פעיל.</div>
+          : !verseLens ? <div style={{ ...muted, fontSize: 12 }}>טוען הקשר…</div>
+          : !verseLens.ok ? <div style={{ ...muted, fontSize: 12 }}>אין הקשר־פסוק זמין ל־Finding הנוכחי.</div>
+          : <div style={{ display: "grid", gap: 6 }}>
+            <div style={{ ...muted, fontSize: 11.5 }}>{verseLens.span?.fromRef}{verseLens.span?.fromRef !== verseLens.span?.toRef ? ` → ${verseLens.span?.toRef}` : ""} · {n(verseLens.span?.count)} פס׳{verseLens.truncated ? " (מקוצר)" : ""} · <span style={{ color: P.accentDim }}>לחיצה על פסוק מדגישה אותו במטריצה</span></div>
+            <div style={{ display: "grid", gap: 5, maxHeight: 230, overflow: "auto" }}>
+              {(verseLens.verses || []).map((v) => { const on = activeVerseIndex === v.verseIndex; return <div key={v.verseIndex} role="button" tabIndex={0}
+                onClick={() => setActiveVerseIndex((cur) => cur === v.verseIndex ? null : v.verseIndex)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActiveVerseIndex((cur) => cur === v.verseIndex ? null : v.verseIndex); } }}
+                style={{ ...soft, padding: 8, cursor: "pointer", outline: on ? `2px solid ${verseColor(v.verseIndex)}` : "none", background: on ? P.cardGrad : P.cardSoft }}>
+                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5, fontWeight: 850 }}>{v.ref}</div>
+                <div style={{ color: P.ink, fontSize: 13, marginTop: 2, lineHeight: 1.6 }}>{v.text || "…"}</div>
+              </div>; })}
             </div>
-          </Sect>
-          <Sect title="גאומטריה" note="geometry — חלון הסריקה">
-            <Grid min={110}>
-              <Row k="S (רוחב שורה)" v={s.geometry.S.toLocaleString("he-IL")} />
-              <Row k="עמודת הציר" v={s.geometry.mainCol} />
-              <Row k="c0 / רוחב" v={`${s.geometry.c0} / ${s.geometry.cw}`} />
-              <Row k="שורות r0–r1" v={`${s.geometry.r0.toLocaleString("he-IL")}–${s.geometry.r1.toLocaleString("he-IL")}`} />
-            </Grid>
-          </Sect>
-          <Sect title="מופעים" note="occurrence">
-            <Grid>
-              <Row k="נבחר" v={s.occurrence.index} />
-              <Row k="סה״כ" v={s.occurrence.count.toLocaleString("he-IL")} />
-              <Row k="הגיע לתקרה" v={s.occurrence.capped ? "כן — התוצאות נחתכו" : "לא"} />
-            </Grid>
-          </Sect>
-          <Sect title="ממצאים" note="findings · hitId = skip_dir_start">
-            {s.findings.length === 0
-              ? <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>—</div>
-              : <div style={{ overflowX: "auto" }}>
-                <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 460, fontFamily: F.body, fontSize: 13 }}>
-                  <thead><tr>{["מונח", "מוצג/סה״כ", "בחלון", "מזהי מופעים"].map(h => (
-                    <th key={h} style={{ textAlign: "start", color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, padding: "6px 8px", borderBottom: `1px solid ${P.border}`, whiteSpace: "nowrap" }}>{h}</th>
-                  ))}</tr></thead>
-                  <tbody>{s.findings.map((w, i) => (
-                    <tr key={w.t + i}>
-                      <td style={{ padding: "7px 8px", color: P.ink, fontWeight: 700, whiteSpace: "nowrap" }}>
-                        <i style={{ display: "inline-block", width: 9, height: 9, borderRadius: 2, background: w.color, marginInlineEnd: 7 }} />{w.t}
-                      </td>
-                      <td style={{ padding: "7px 8px", color: P.inkSoft }}>{w.shown.length}/{w.total}</td>
-                      <td style={{ padding: "7px 8px", color: P.inkSoft }}>{w.inWindow}</td>
-                      <td style={{ padding: "7px 8px", color: P.inkSoft }}><code style={{ fontSize: 11.5 }}>{w.shown.join(" · ") || "—"}</code></td>
-                    </tr>
-                  ))}</tbody>
-                </table>
-              </div>}
-          </Sect>
-          <Sect title="פרמטרי חיפוש" note="search">
-            <Grid>
-              <Row k="מצב" v={MODE_LABEL[s.search.mode] || s.search.mode} />
-              <Row k="ציר / מונח שני" v={`${s.search.crossA || "—"} × ${s.search.crossB || "—"}`} />
-              <Row k="מונחי הצלבה" v={s.search.crossTerms.length ? s.search.crossTerms.join(" · ") : "—"} />
-              <Row k="סף טוהר" v={s.search.crossPure} />
-              <Row k="אזורי התכנסות" v={s.search.zones ? `${s.search.zones} (מוצג ${s.search.zoneIndex + 1})` : "—"} />
-            </Grid>
-          </Sect>
-          <Sect title="מצב תצוגה" note="ui — הסמנטיקה הקיימת של המנוע">
-            <Grid min={104}>
-              <Row k="expand" v={s.ui.expand} />
-              <Row k="swOpen" v={s.ui.swOpen} />
-              <Row k="lineFor" v={s.ui.lineFor} />
-              <Row k="תאים נבחרים" v={s.ui.selCells.length} />
-              <Row k="showN" v={s.ui.showN} />
-              <Row k="ctxR" v={s.ui.ctxR} />
-              <Row k="ציר מוסתר" v={s.ui.hideMain ? "כן" : "לא"} />
-              <Row k="קריאת פסוק" v={s.ui.verseRead ? "דלוק" : "כבוי"} />
-            </Grid>
-          </Sect>
-          <Sect title="ייחוס" note="provenance">
-            <Grid>
-              <Row k="editId" v={s.provenance.editId || "—"} />
-              <Row k="slug" v={s.provenance.cipherSlug || "—"} />
-              <Row k="מונח הצופן" v={s.provenance.cipherTerm || "—"} />
-              <Row k="מחבר" v={s.provenance.author || "—"} />
-              <Row k="פוסט מקושר" v={s.provenance.postTitle || s.provenance.postUrl || "—"} />
-              <Row k="איכות" v={s.provenance.quality ? `${s.provenance.quality.stars}★` : "—"} />
-              <Row k="דרגה" v={s.admin ? "אדמין" : s.tier} />
-            </Grid>
-          </Sect>
-          <details style={{ ...card }}>
-            <summary style={{ cursor: "pointer", color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 13, minHeight: 30 }}>
-              המסר הגולמי (state)
-            </summary>
-            <pre dir="ltr" style={{
-              marginTop: 10, overflowX: "auto", background: P.cardSoft, border: `1px solid ${P.border}`,
-              borderRadius: 10, padding: 12, color: P.inkSoft, fontSize: 11.5, lineHeight: 1.6, maxHeight: 420,
-            }}>{JSON.stringify(s, null, 2)}</pre>
-          </details>
-        </>
-      )}
-    </div>
-  );
+          </div>}
+      </div>}
+    </section>
+
+    {mode === "discover" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🔭 גילוי</div><div style={{ ...muted, fontSize: 12.5, lineHeight: 1.7, marginTop: 6 }}>המנוע מחפש; ה־Lab מצייר. עכשיו אפשר לעבור בין מישור, שכבות ו־3D בלי להריץ חיפוש מחדש.</div>{findings.length > 0 && <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>{findings.map((f, i) => <span key={`${f.t}-${i}`} style={{ ...soft, padding: "6px 9px", color: P.ink, fontSize: 12 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />{f.t}</span>)}</div>}</section>}
+    {mode === "investigate" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧬 Finding Workspace</div>{!ok ? <div style={{ ...muted, marginTop: 8 }}>בחר Finding באמצעות חיפוש.</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 8, marginTop: 10 }}><div style={{ ...soft, padding: 11 }}><div style={title}>זהות</div><div style={{ ...muted, fontSize: 12 }}>{s.term} · {dir(axis.direction)} · {n(axis.skip)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>חלון</div><div style={{ ...muted, fontSize: 12 }}>rows {n(geo.r0)}–{n(geo.r1)} · cw {n(geo.cw)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>Renderer</div><div style={{ ...muted, fontSize: 12 }}>{viewMode} · depth {depth}</div></div></div>}<div style={{ marginTop: 9 }}><Next>פסוק/context on-demand יהיה שכבת־המחקר הראשונה שאינה רק renderer.</Next></div></section>}
+    {mode === "judge" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>⚖️ Evidence Pack</div><div style={{ display: "grid", gap: 7, marginTop: 9 }}><div style={{ ...soft, padding: 10, color: P.ink, fontSize: 12.5 }}><b style={{ color: P.accentText }}>FACT · </b>{ok ? `«${s.termRaw || s.term}» נמצא בדילוג ${n(axis.skip)}, ${dir(axis.direction)}, start ${n(axis.start)}.` : "אין Finding פעיל."}</div><div style={{ ...soft, padding: 10, color: P.inkSoft, fontSize: 12.5 }}><b style={{ color: P.accentDim }}>DISPLAY · </b>2D/שכבות/3D הם projections של אותה אמת בלבד.</div><div style={{ ...soft, padding: 10, color: P.inkSoft, fontSize: 12.5 }}><b style={{ color: P.accentDim }}>HUMAN-GATE · </b>Canonical נשאר צוריאל בלבד.</div></div></section>}
+    </main>
+
+    <aside className="els-native-inspector" style={{ ...card, padding: 14 }}><div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}><div><div style={title}>Research Inspector</div><div style={{ ...muted, fontSize: 11.5 }}>{ok ? "Finding חי מהמנוע" : "ממתין לחיפוש"}</div></div><span style={{ ...soft, padding: "4px 7px", color: ok ? P.accentText : P.inkSoft, fontSize: 10.5, fontWeight: 900 }}>{s?.status || "idle"}</span></div>
+      {selectedCell && <div style={{ ...soft, padding: 10, marginTop: 10 }}><div style={title}>תא נבחר · {selectedCell.letter}</div><div style={{ ...muted, fontSize: 11.5 }}>index {n(selectedCell.idx)} · row {n(selectedCell.row)} · col {n(selectedCell.col)}</div>{selectedCell.mark && <div style={{ color: P.accentText, fontSize: 11.5, marginTop: 5 }}>{selectedCell.mark.type === "main" ? "ציר ראשי" : "ממצא מצטלב"}{selectedCell.mark.start ? " · START" : ""}</div>}
+        {selectedCell.mark?.type === "finding" && <div style={{ marginTop: 7 }}>
+          <button type="button" onClick={() => setIsolateKey((k) => k === selectedCell.mark.color ? null : selectedCell.mark.color)} style={{ minHeight: 38, borderRadius: 10, padding: "0 11px", border: `1px solid ${P.border}`, background: isolateKey === selectedCell.mark.color ? P.accentBtn : "transparent", color: isolateKey === selectedCell.mark.color ? P.onAccent : P.accentText, fontSize: 12 }}>🔍 {isolateKey === selectedCell.mark.color ? "בטל בידוד" : "בודד ממצא זה"}</button>
+          <div style={{ ...muted, fontSize: 10, marginTop: 4, lineHeight: 1.5 }}>בידוד ויזואלי לפי צבע-הממצא הקיים — לא זיהוי-ממצא קנוני. תאים באותו צבע יכולים להשתייך ליותר מ-Finding אחד.</div>
+        </div>}</div>}
+      {ok && <div style={{ marginTop: 10 }}><Fact label="מונח" value={`«${s.termRaw || s.term}»`} /><Fact label="מצב חיפוש" value={SEARCH_LABEL[s.search?.mode] || s.search?.mode || "—"} /><Fact label="דילוג / כיוון" value={`${n(axis.skip)} · ${dir(axis.direction)}`} /><Fact label="start / hitId" value={`${n(axis.start)} · ${axis.hitId || "—"}`} mono /><Fact label="מופע" value={`${n((occ.index ?? 0) + 1)} / ${n(occ.count)}`} /><Fact label="Matrix contract" value={`v${matrixVersion} · ${matrix?.rows?.length || 0} rows · ${markedCount} marks`} /><Fact label="Renderer" value={`${viewMode} · ${matrixRtl ? "RTL" : "LTR"}`} /><Fact label="צופן / מחבר" value={[prov.cipherSlug, prov.author].filter(Boolean).join(" · ") || "—"} /></div>}
+      <button type="button" onClick={() => setRawOpen((v) => !v)} style={{ width: "100%", minHeight: 40, marginTop: 11, borderRadius: 11, border: `1px solid ${P.border}`, background: "transparent", color: P.accentText }}>{rawOpen ? "הסתר state" : "State גולמי"}</button>{rawOpen && <pre style={{ direction: "ltr", textAlign: "left", whiteSpace: "pre-wrap", maxHeight: 280, overflow: "auto", padding: 9, background: P.cardSoft, color: P.inkSoft, fontSize: 10 }}>{JSON.stringify(s, null, 2)}</pre>}
+    </aside></div>
+  </div>;
 }
