@@ -40,6 +40,7 @@ export function makeJourneySnapshot(engineState, view = {}) {
   return {
     term: engineState.termRaw || engineState.term || "",
     normalizedTerm: engineState.term || "",
+    scope: engineState.scope === "tanakh" ? "tanakh" : "torah",
     axis: {
       ...axisAnchor,
       length: Number(engineState.axis.length ?? engineState.length ?? 0),
@@ -97,7 +98,31 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
       dir: target.dir,
       hitId: target.hitId,
       words: carry,
-      ...(options.scope ? { scope: options.scope } : {}),
+      scope: options.scope || snapshot.scope,
+    },
+  };
+}
+
+// Breadcrumb restore is an exact engine load too. We reconstruct only from the
+// previously captured engine-owned snapshot; no search result or Finding is invented here.
+export function buildJourneyRestore(snapshot) {
+  if (!snapshot?.term || !snapshot?.axis?.hitId) return { ok: false, reason: "invalid-snapshot" };
+  const target = parseElsHitKey(snapshot.axis.hitId);
+  if (!target) return { ok: false, reason: "invalid-snapshot-anchor" };
+  const words = (Array.isArray(snapshot.findings) ? snapshot.findings : [])
+    .filter((f) => f?.t)
+    .map((f) => ({ t: f.t, color: f.color, sh: Array.isArray(f.shown) ? [...f.shown] : [] }));
+  return {
+    ok: true,
+    target,
+    loadItem: {
+      term: snapshot.term,
+      skip: target.skip,
+      start: target.start,
+      dir: target.dir,
+      hitId: target.hitId,
+      words,
+      scope: snapshot.scope === "tanakh" ? "tanakh" : "torah",
     },
   };
 }
