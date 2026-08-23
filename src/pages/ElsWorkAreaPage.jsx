@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import { buildJourneyPromotion, buildJourneyRestore, journeyAnchorMatches } from "../lib/elsJourney.js";
 
 // ELS Lab — one canonical engine, many renderers.
 // React NEVER searches/calculates ELS. It only projects elsState().matrix.
@@ -85,6 +86,12 @@ export default function ElsWorkAreaPage() {
   //    תשובה על גבי אותם matrix indices — אין fetch נוסף, אין lens/מנוע נוסף.
   const [verseLens, setVerseLens] = useState(null);
   const [activeVerseIndex, setActiveVerseIndex] = useState(null);
+  // 🧭 Research Journey — host navigation only. Every transition is an exact engine-owned hitId load.
+  const [journeyTrail, setJourneyTrail] = useState([]);
+  const [journeyPending, setJourneyPending] = useState(null);
+  const [journeyLoad, setJourneyLoad] = useState(null);
+  const [journeyError, setJourneyError] = useState("");
+  const journeyPendingRef = useRef(null);
 
   useEffect(() => {
     applySeo({ title: "ELS Research Studio · סוד 1820", description: "סביבת המחקר החדשה של הצופן התנ״כי", path: "/lab/els" });
@@ -160,9 +167,33 @@ export default function ElsWorkAreaPage() {
 
   const onState = useCallback((next) => {
     setEngineState(next); setSeen((x) => x + 1); setWaiting(false); setFirstRunHint(false);
+    const pending = journeyPendingRef.current;
+    const nextTerm = next?.termRaw || next?.term || "";
+    if (!pending || next?.status !== "ok" || (nextTerm !== pending.loadItem.term && next?.term !== pending.loadItem.term)) return;
+    if (!journeyAnchorMatches(next, pending.target)) {
+      journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null);
+      setJourneyError("המנוע חזר למופע אחר מהעוגן שביקשנו — המסע לא התקדם."); return;
+    }
+    if (pending.kind === "promote") setJourneyTrail((prev) => [...prev, pending.snapshot]);
+    else if (pending.kind === "restore") {
+      setJourneyTrail(pending.nextTrail || []);
+      const v = pending.restoreView || {};
+      if (v.mode && MODES.some((m) => m.id === v.mode)) setMode(v.mode);
+      if (v.viewMode && VIEW_MODES.some((m) => m.id === v.viewMode)) setViewMode(v.viewMode);
+      if (typeof v.matrixRtl === "boolean") setMatrixRtl(v.matrixRtl);
+      if (Number.isFinite(Number(v.cellSize))) setCellSize(Number(v.cellSize));
+    }
+    setQuery(nextTerm); setSelectedCell(null); setJourneyError("");
+    journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null);
+  }, []);
+  const onLoadError = useCallback((d) => {
+    if (d?.reason !== "exact-anchor-miss") return;
+    journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null); setWaiting(false);
+    setJourneyError("העוגן המדויק כבר לא זמין בתוצאת המנוע. המצב הקודם נשמר ולא הוחלף.");
   }, []);
   const runSearch = (e) => {
     e?.preventDefault?.(); const q = query.trim(); if (q.length < 2) return;
+    journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null); setJourneyTrail([]); setJourneyError("");
     setEngineState(null); setSelectedCell(null); setSeed(q); setWaiting(true); setFirstRunHint(false); setRunNonce((x) => x + 1);
   };
 
@@ -183,6 +214,21 @@ export default function ElsWorkAreaPage() {
   const markedCount = matrix?.marks?.length || 0;
   const matrixVersion = matrix?.v || 1;
   const lenses = Array.isArray(matrix?.lenses) ? matrix.lenses : [];
+
+  const beginJourneyLoad = (pending, item) => {
+    journeyPendingRef.current = pending; setJourneyPending(pending); setJourneyError(""); setWaiting(true); setSelectedCell(null);
+    setJourneyLoad({ id: `${Date.now()}-${Math.random()}`, item });
+  };
+  const promoteFinding = (finding) => {
+    const p = buildJourneyPromotion(s, finding, { scope: s?.scope, view: { mode, viewMode, matrixRtl, cellSize } });
+    if (!p.ok) { setJourneyError("לממצא הזה אין כרגע עוגן מוצג שאפשר להפוך לציר."); return; }
+    beginJourneyLoad({ kind: "promote", target: p.target, snapshot: p.snapshot, loadItem: p.loadItem }, p.loadItem);
+  };
+  const restoreJourney = (snapshot, index) => {
+    const r = buildJourneyRestore(snapshot);
+    if (!r.ok) { setJourneyError("לא ניתן לשחזר את נקודת המחקר הזו."); return; }
+    beginJourneyLoad({ kind: "restore", target: r.target, loadItem: r.loadItem, nextTrail: journeyTrail.slice(0, index), restoreView: snapshot.view }, r.loadItem);
+  };
 
   // 📜 Verse/Context Lens — target = ה-Finding הפעיל: התא הנבחר (אם הוא ממצא-מוצלב, לפי צבעו מול
   //    findings[] הקיים) אחרת ברירת-המחדל היא הציר הראשי (term ריק → occ() בכלי, hitId מ-axis הקיים).
@@ -336,7 +382,15 @@ export default function ElsWorkAreaPage() {
         מעביר את הכוונה ל-TzofenEmbed עצמו (loading=eager + ?bridge=hidden) כדי שהמנוע-הנסתר-מהצג
         באמת ייטען וידלג רק על ההדרכה-החד-פעמית, בלי לעקוף tier/auth/quota. ה-CSS off-screen* נשאר
         לצורך ההסתרה-החזותית בלבד — אינו עוד מקור-האמת לכוונה. */}
-    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} /></div>
+    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} loadRequest={journeyLoad} onLoadError={onLoadError} /></div>
+
+    {(journeyTrail.length > 0 || ok || journeyError) && <div style={{ ...card, padding: "9px 11px", marginBottom: 10, display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+      <span style={{ ...title, fontSize: 11.5 }}>🧭 מסלול מחקר</span>
+      {journeyTrail.map((snap, i) => <React.Fragment key={`${snap.axis?.hitId || snap.term}-${i}`}><button type="button" disabled={Boolean(journeyPending)} onClick={() => restoreJourney(snap, i)} style={{ minHeight: 38, borderRadius: 999, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.accentText, fontFamily: F.heading, fontWeight: 850, cursor: "pointer" }}>↩ {snap.term}</button><span style={{ color: P.inkSoft }}>←</span></React.Fragment>)}
+      {ok && <span style={{ minHeight: 38, display: "inline-flex", alignItems: "center", borderRadius: 999, padding: "0 12px", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontWeight: 900 }}>{s.termRaw || s.term}</span>}
+      {journeyPending && <span style={{ ...muted, fontSize: 11.5 }}>מעגן במנוע…</span>}
+      {journeyError && <span style={{ color: "#b42318", fontFamily: F.body, fontSize: 11.5 }}>{journeyError}</span>}
+    </div>}
 
     <div className="els-native-layout"><main style={{ minWidth: 0 }}><section style={{ ...card, overflow: "hidden", minHeight: 560 }}>
       <div style={{ padding: "13px 14px", borderBottom: `1px solid ${P.border}`, display: "grid", gap: 10 }}>
@@ -378,8 +432,10 @@ export default function ElsWorkAreaPage() {
       </div>}
     </section>
 
+    {ok && findings.length > 0 && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧭 המשך מה־Finding</div><div style={{ ...muted, fontSize: 11.5, marginTop: 4 }}>הפוך ממצא מוצג לציר הבא. המנוע טוען בדיוק את אותו hitId; הציר הקודם נשמר במסלול ובזהב.</div><div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9 }}>{findings.map((f, i) => <button key={`${f.t}-${i}`} type="button" disabled={Boolean(journeyPending) || !Array.isArray(f.shown) || !f.shown.length} onClick={() => promoteFinding(f)} style={{ minHeight: 42, borderRadius: 12, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />↑ ציר · {f.t}</button>)}</div></section>}
+
     {mode === "discover" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🔭 גילוי</div><div style={{ ...muted, fontSize: 12.5, lineHeight: 1.7, marginTop: 6 }}>המנוע מחפש; ה־Lab מצייר. עכשיו אפשר לעבור בין מישור, שכבות ו־3D בלי להריץ חיפוש מחדש.</div>{findings.length > 0 && <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>{findings.map((f, i) => <span key={`${f.t}-${i}`} style={{ ...soft, padding: "6px 9px", color: P.ink, fontSize: 12 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />{f.t}</span>)}</div>}</section>}
-    {mode === "investigate" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧬 Finding Workspace</div>{!ok ? <div style={{ ...muted, marginTop: 8 }}>בחר Finding באמצעות חיפוש.</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 8, marginTop: 10 }}><div style={{ ...soft, padding: 11 }}><div style={title}>זהות</div><div style={{ ...muted, fontSize: 12 }}>{s.term} · {dir(axis.direction)} · {n(axis.skip)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>חלון</div><div style={{ ...muted, fontSize: 12 }}>rows {n(geo.r0)}–{n(geo.r1)} · cw {n(geo.cw)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>Renderer</div><div style={{ ...muted, fontSize: 12 }}>{viewMode} · depth {depth}</div></div></div>}<div style={{ marginTop: 9 }}><Next>פסוק/context on-demand יהיה שכבת־המחקר הראשונה שאינה רק renderer.</Next></div></section>}
+    {mode === "investigate" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧬 Finding Workspace</div>{!ok ? <div style={{ ...muted, marginTop: 8 }}>בחר Finding באמצעות חיפוש.</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 8, marginTop: 10 }}><div style={{ ...soft, padding: 11 }}><div style={title}>זהות</div><div style={{ ...muted, fontSize: 12 }}>{s.term} · {dir(axis.direction)} · {n(axis.skip)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>חלון</div><div style={{ ...muted, fontSize: 12 }}>rows {n(geo.r0)}–{n(geo.r1)} · cw {n(geo.cw)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>Renderer</div><div style={{ ...muted, fontSize: 12 }}>{viewMode} · depth {depth}</div></div></div>}<div style={{ marginTop: 9 }}><Next>בחר ממצא ב־«המשך מה־Finding» כדי להפוך אותו לציר חדש; החזרה נעשית דרך מסלול המחקר למעלה.</Next></div></section>}
     {mode === "judge" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>⚖️ Evidence Pack</div><div style={{ display: "grid", gap: 7, marginTop: 9 }}><div style={{ ...soft, padding: 10, color: P.ink, fontSize: 12.5 }}><b style={{ color: P.accentText }}>FACT · </b>{ok ? `«${s.termRaw || s.term}» נמצא בדילוג ${n(axis.skip)}, ${dir(axis.direction)}, start ${n(axis.start)}.` : "אין Finding פעיל."}</div><div style={{ ...soft, padding: 10, color: P.inkSoft, fontSize: 12.5 }}><b style={{ color: P.accentDim }}>DISPLAY · </b>2D/שכבות/3D הם projections של אותה אמת בלבד.</div><div style={{ ...soft, padding: 10, color: P.inkSoft, fontSize: 12.5 }}><b style={{ color: P.accentDim }}>HUMAN-GATE · </b>Canonical נשאר צוריאל בלבד.</div></div></section>}
     </main>
 
