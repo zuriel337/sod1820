@@ -1432,6 +1432,45 @@
   const freeCount=()=>{try{return parseInt(localStorage.getItem(FREEKEY)||"0")||0;}catch(e){return 0;}};
   const bumpFree=()=>{try{localStorage.setItem(FREEKEY,String(freeCount()+1));}catch(e){}};
   const postHost=m=>{try{if(window.parent&&window.parent!==window)window.parent.postMessage(Object.assign({source:"tzofen"},m),"*");}catch(e){}};
+
+  // ── 🛰️ חוזה-המצב היוצא (`state`) — Work Area · Phase 1 ────────────────────────────────
+  // ⚠️ **סריאליזציה בלבד.** כל שדה כאן כבר קיים בזיכרון (st · occ() · blockOf() · shownHitsOf()).
+  //    אפס חישוב-ELS חדש · אפס findAll · אפס שינוי Search Space · אפס שינוי Ranking.
+  // ⛔ positions **אינן** משודרות — הן נגזרות אצל המקבל מ-start/skip/direction/length.
+  // 🔑 hitId = הפורמט הקיים hitKey() = `skip_dir_start`. אין מזהה חדש ואין selectedHitId מומצא.
+  // 🎯 בחירת-ממצא = הסמנטיקה הקיימת בלבד: st.expand (איזה ממצא פתוח) · st.swOpen (בורר-צבע)
+  //    · st.selCells (תאים שנבחרו ידנית). st.focus אינו בשימוש בקוד — לא ממחזרים אותו.
+  // 📖 פסוקים אינם במסר הבסיסי (on-demand בשלב הבא) — verseSpan דורש VTEXT ופענוח עצל.
+  function elsState(){
+    const r=st.res;
+    const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
+      scope:st.scope,corpusLetters:scopeN(),tier:st.tier,admin:!!st.admin};
+    if(!r||!r.hits.length)return Object.assign(base,{status:"empty"});
+    const h=occ(),b=blockOf(),L=(r.t||"").length;
+    return Object.assign(base,{
+      status:"ok",length:L,
+      axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),length:L},
+      occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
+      geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
+      findings:st.words.map(w=>({t:w.t,color:w.color,total:(w.hits||[]).length,
+        inWindow:w.inwin||0,shown:shownHitsOf(w).map(hitKey)})),
+      ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
+        showN:st.showN,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
+        heat:!!st.heat,selMode:!!st.selMode,verseRead:!!st.verseRead},
+      search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
+        crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
+        crossTerms:(st.crossTerms||[]).slice(),crossPure:st.crossPure,
+        zones:st.crossMeetings?st.crossMeetings.length:0,zoneIndex:st.crossIdx},
+      provenance:{editId:st.editId||null,cipherSlug:st.cipherSlug||"",cipherTerm:st.cipherTerm||"",
+        postUrl:st.postUrl||"",postTitle:st.postTitle||"",desc:st.desc||"",author:st.author||"",
+        quality:st.lastQuality||null}
+    });
+  }
+  // חתימה למניעת-שידור-כפול: render() נקרא הרבה; משדרים רק כשהמצב באמת השתנה.
+  // (משתנה-עזר לסריאליזציה — אינו state של המנוע ואינו משפיע על שום חישוב.)
+  let _stateSig="";
+  function emitState(){try{const s=elsState(),sig=JSON.stringify(s);if(sig===_stateSig)return;_stateSig=sig;postHost(s);}catch(e){}}
+
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
@@ -2838,7 +2877,9 @@
       }
       out.innerHTML='<div class="empty">לא נמצא <b>«'+(r?r.t:"")+'»</b> כדילוג בתורה.<br>'+_extra+'</div>';
       const _b=document.getElementById("emptyTk");if(_b)_b.onclick=()=>{const _tb=document.querySelector('.scopebtn[data-scope="tanakh"]');if(_tb)_tb.click();};   // רשום → מחליף היקף ומחפש · אנונימי → שער-הרשמה (המודל נשמר)
-      try{hideSearchStat();}catch(e){}return;
+      try{hideSearchStat();}catch(e){}
+      emitState();   // 🛰️ גם «לא נמצא» הוא מצב — ה-host צריך לדעת (status:"empty")
+      return;
     }
     recomputeWords();
     const h=occ(),S=Math.abs(h.skip),n=r.hits.length,st0=h.positions[0];
@@ -2937,6 +2978,7 @@
     requestAnimationFrame(()=>{if(st.fit){fitMatrixToScreen();mb.scrollTop=0;mb.scrollLeft=mb.scrollWidth;}else centerMain(mb);});
     refreshLenses();   // 🔬 עדשות פעילות מתעדכנות על התוצאה החדשה
     reapplyVerseWords();   // 📖 שחזור צביעת-קריאת-הפסוק על הרשת החדשה (אם המצב דלוק ופסוק נבחר)
+    emitState();   // 🛰️ המנוע הוא מקור-העובדות: אחרי כל רינדור (חיפוש · מעבר-מופע · טעינת-צופן) — משדר את מצבו
   }
 
   let lastGrid=null,lastBlock=null,lastPX=26,lastCw=26,dragMoved=false,lastHeat=null;
