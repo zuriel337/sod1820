@@ -92,6 +92,7 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
     target,
     snapshot,
     loadItem: {
+      journey: true,
       term: finding.t,
       skip: target.skip,
       start: target.start,
@@ -116,6 +117,7 @@ export function buildJourneyRestore(snapshot) {
     ok: true,
     target,
     loadItem: {
+      journey: true,
       term: snapshot.term,
       skip: target.skip,
       start: target.start,
