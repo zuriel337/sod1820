@@ -131,9 +131,12 @@ const CSS = `
 
 export default function RoadmapCommandCenter() {
   const html = React.useMemo(() => mdToHtml(roadmapMd), []);
+  // 320 (לא 480): צוריאל ביקש לראות את המפה גם בנייד — הסף הקודם חסם 3D (ועם
+  // זה הפך את כפתור "מפה תלת־ממדית" ל-disabled/לא-לחיץ) על רוב הטלפונים
+  // הרגילים (~360-430px רוחב), לא רק על מכשירים שבאמת חסרי-WebGL.
   const [canMap, setCanMap] = useState(true);
   useEffect(() => {
-    setCanMap(webglAvailable() && window.innerWidth >= 480);
+    setCanMap(webglAvailable() && window.innerWidth >= 320);
   }, []);
   const [mode, setMode] = useState("map"); // "map" | "text" — ברירת-מחדל: המפה התלת-ממדית
   const effectiveMode = canMap ? mode : "text";

@@ -148,6 +148,7 @@ function edgesTouchingGroup(vm, layout, groupId) {
 
 function WorkstreamNode({ node, isActiveNow, isSelected, isHovered, opacity, onClick, onHover }) {
   const meshRef = useRef();
+  const downRef = useRef(null);
   const status = classifyWorkstream(node.ws);
   const hasWarning = node.ws.parse_warnings.length > 0;
   const color = isActiveNow ? ACTIVE_NOW_COLOR : status.color;
@@ -181,16 +182,34 @@ function WorkstreamNode({ node, isActiveNow, isSelected, isHovered, opacity, onC
       </mesh>
       {/* יעד-לחיצה מוגדל, שקוף-כמעט-לגמרי — הכדור החזותי (radius~0.4) קטן מדי
           למגע-אצבע/עכבר-לא-מדויק (זוהתה תקלה: "תלת מימד לא לחיץ"). לא נוגע
-          במראה, רק מרחיב את שטח-הפגיעה של ה-raycast. */}
+          במראה, רק מרחיב את שטח-הפגיעה של ה-raycast.
+          תיקון-נייד קריטי: לא סומכים על onClick (event-דפדפן מסונתז מ-click,
+          ש-OrbitControls חוסם לעתים קרובות במגע ע"י preventDefault על תזוזת-
+          מגע — גם תזוזה זעירה שקיימת כמעט בכל הקשה באצבע). במקום זה עוקבים
+          אחרי pointerDown→pointerUp בעצמנו: הקשה אמיתית (תזוזה קטנה, זמן קצר)
+          = בחירה; גרירה-אמיתית (סיבוב-מצלמה) לא מזוהה כלחיצה. עובד זהה בעכבר
+          ובמגע, ולא תלוי אם הדפדפן בחר לסנתז click. */}
       <mesh
-        onClick={(e) => { e.stopPropagation(); onClick(node.ws.id); }}
+        onPointerDown={(e) => { e.stopPropagation(); downRef.current = { x: e.clientX, y: e.clientY, t: Date.now() }; }}
+        onPointerUp={(e) => {
+          e.stopPropagation();
+          const d = downRef.current;
+          downRef.current = null;
+          if (!d) return;
+          const moved = Math.hypot(e.clientX - d.x, e.clientY - d.y);
+          if (moved < 14 && Date.now() - d.t < 700) onClick(node.ws.id);
+        }}
         onPointerOver={(e) => { e.stopPropagation(); onHover(node.ws.id); document.body.style.cursor = "pointer"; }}
         onPointerOut={() => { onHover(null); document.body.style.cursor = "default"; }}
       >
         <sphereGeometry args={[Math.max(radius * 2.4, 0.85), 16, 16]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
-      {(isHovered || isSelected || isActiveNow) && !dimmed && (
+      {/* תווית-הצפה בתוך-הסצנה מיותרת ומפריעה כש-isSelected: זה קורה רק בזום-
+          מסלול-עבודה (הבחירה היחידה שמפעילה אותו), שם הפאנל המלא כבר מציג את
+          ה-id בכותרתו — ובגלל distanceFactor+מרחק-מצלמה-קרוב היא נראית ענקית
+          וחופפת את הפאנל (זוהה במסך-צר, אבל התופעה קיימת בכל גודל-מסך). */}
+      {(isHovered || (isActiveNow && !isSelected)) && !dimmed && (
         <Html center distanceFactor={16} style={{ pointerEvents: "none" }}>
           <div dir="rtl" style={{
             color: isActiveNow ? "#ffe9a8" : "#f3f2ee",
@@ -397,12 +416,49 @@ function EdgeChip({ label, onClick }) {
   );
 }
 
+// boxSizing חובה: כל פאנל כאן משלב width (כולל "min(Xpx, 88vw)") + padding —
+// בלי border-box ה-padding מתווסף מעל ה-width (ברירת-מחדל content-box), אז
+// פאנל עם width:88vw גולש בפועל ~36px מעבר לזה (רוחב-הריפוד) — בדיוק מה
+// שגרם לתוכן להיחתך מעבר לקצה-המסך בטלפון (רוחב-מסך צר, אין לאן "לגלוש").
 const HUD_PANEL_STYLE = {
   background: "rgba(10,7,20,0.94)", border: "1px solid #5b7fd6", borderRadius: 14,
-  color: "#e8e6df", fontFamily: FONT_HE, fontSize: 12,
+  color: "#e8e6df", fontFamily: FONT_HE, fontSize: 12, boxSizing: "border-box",
 };
 
+// מסך-צר: הכותרת (top-left) ונקודת-החזרה (top-right) יחד רחבות מ-360+330px —
+// על טלפון (~360-430px) הן חופפות זו-את-זו לגמרי, וכנ"ל פאנל-השערים
+// (bottom-left, 260px = כ-2/3 מרוחב-מסך-טלפון). לכן במסך-צר: כותרת מצומצמת
+// (בלי שורת-כיסוי/הבהרה), ונקודת-החזרה+שערי-החלטה הופכים לכפתורי-פילה קטנים
+// שנפתחים לפאנל בהקשה — לא תוכן-קבוע שדורס את המסך. דסקטופ ללא-שינוי.
+function useNarrow(bp = 680) {
+  const [n, setN] = useState(() => typeof window !== "undefined" && window.innerWidth < bp);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const f = () => setN(window.innerWidth < bp);
+    f(); window.addEventListener("resize", f);
+    return () => window.removeEventListener("resize", f);
+  }, [bp]);
+  return n;
+}
+
+function HudPill({ label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        ...HUD_PANEL_STYLE, border: "1px solid " + (active ? "#ffe9a8" : "#5b7fd6"),
+        padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+        color: active ? "#ffe9a8" : "#e8e6df", minHeight: 40,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 export default function RoadmapMap3D({ height = "82vh" }) {
+  const narrow = useNarrow();
+  const [openSheet, setOpenSheet] = useState(null); // null | "return" | "gates" — רק במסך-צר
   const vm = useMemo(() => parseRoadmap(roadmapMd), []);
   const coverage = useMemo(() => summarizeCoverage(vm), [vm]);
   const layout = useMemo(() => buildLayout(vm), [vm]);
@@ -446,16 +502,20 @@ export default function RoadmapMap3D({ height = "82vh" }) {
 
   return (
     <div dir="rtl" style={{ position: "relative", width: "100%", height, borderRadius: 14, overflow: "hidden", background: "radial-gradient(circle at 50% 40%, #0d0a1a, #05030a)" }}>
-      {/* כותרת + פירורי-לחם */}
-      <div style={{ position: "absolute", top: 12, insetInlineStart: 12, zIndex: 3, color: "#e8e6df", fontFamily: FONT_HE, fontSize: 13, maxWidth: 360 }}>
-        <div style={{ fontWeight: 700, fontSize: 15, color: "#ffe9a8" }}>🗺️ מפת־העל התלת־ממדית — מרכז הניהול</div>
-        <div style={{ opacity: 0.8, marginTop: 3, fontSize: 12 }}>
-          גרסה {vm.meta.version_label} · {vm.meta.canonical_status === "CANONICAL" ? "קנוני" : vm.meta.canonical_status} · {coverage.workstreams} מסלולי-עבודה · {coverage.dependency_edges} קשרים · {coverage.total_warnings} אזהרות
-        </div>
-        <div style={{ marginTop: 5, fontSize: 10.5, color: "#9a9285", lineHeight: 1.4 }}>
-          🧩 "תחומים" במפה = {CLUSTER_DISCLAIMER_HE}
-        </div>
-        <div style={{ marginTop: 8, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4, fontSize: 13 }}>
+      {/* כותרת + פירורי-לחם — מצומצמת במסך-צר (בלי שורת-כיסוי/הבהרה, כדי לא לחפוף את נקודת-החזרה) */}
+      <div style={{ position: "absolute", top: 12, insetInlineStart: 12, zIndex: 3, color: "#e8e6df", fontFamily: FONT_HE, fontSize: narrow ? 11.5 : 13, maxWidth: narrow ? "calc(100% - 24px)" : 360 }}>
+        <div style={{ fontWeight: 700, fontSize: narrow ? 13 : 15, color: "#ffe9a8" }}>🗺️ מפת־העל התלת־ממדית</div>
+        {!narrow && (
+          <>
+            <div style={{ opacity: 0.8, marginTop: 3, fontSize: 12 }}>
+              גרסה {vm.meta.version_label} · {vm.meta.canonical_status === "CANONICAL" ? "קנוני" : vm.meta.canonical_status} · {coverage.workstreams} מסלולי-עבודה · {coverage.dependency_edges} קשרים · {coverage.total_warnings} אזהרות
+            </div>
+            <div style={{ marginTop: 5, fontSize: 10.5, color: "#9a9285", lineHeight: 1.4 }}>
+              🧩 "תחומים" במפה = {CLUSTER_DISCLAIMER_HE}
+            </div>
+          </>
+        )}
+        <div style={{ marginTop: 8, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4, fontSize: narrow ? 11.5 : 13 }}>
           <span onClick={goHome} style={{ cursor: "pointer", color: zoomLevel === "universe" ? "#ffe9a8" : "#9db4f0", fontWeight: zoomLevel === "universe" ? 700 : 500 }}>🌌 מבט־על</span>
           {selectedGroup && <><span style={{ opacity: 0.5 }}>◀</span>
             <span onClick={() => goToCluster(selectedGroup)} style={{ cursor: "pointer", color: zoomLevel === "cluster" ? "#ffe9a8" : "#9db4f0", fontWeight: zoomLevel === "cluster" ? 700 : 500 }}>
@@ -466,14 +526,15 @@ export default function RoadmapMap3D({ height = "82vh" }) {
         </div>
         {zoomLevel !== "universe" && (
           <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
-            <button onClick={goBack} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 12px", fontFamily: FONT_HE, fontSize: 12, cursor: "pointer" }}>◀ חזרה</button>
-            <button onClick={goHome} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 12px", fontFamily: FONT_HE, fontSize: 12, cursor: "pointer" }}>🌌 מבט־על</button>
+            <button onClick={goBack} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 12px", fontFamily: FONT_HE, fontSize: 12, cursor: "pointer", minHeight: narrow ? 36 : "auto" }}>◀ חזרה</button>
+            <button onClick={goHome} style={{ background: "#1e1a2e", color: "#e8e6df", border: "1px solid #3a4468", borderRadius: 999, padding: "3px 12px", fontFamily: FONT_HE, fontSize: 12, cursor: "pointer", minHeight: narrow ? 36 : "auto" }}>🌌 מבט־על</button>
           </div>
         )}
       </div>
 
-      {/* נקודת החזרה — "עכשיו / הבא / בהמשך" מעל אותה שרשרת מפורשת, באותו סדר. אין nodes מומצאים לשלבים שאינם מסלולי-עבודה. */}
-      {returnChain && (
+      {/* נקודת החזרה — "עכשיו / הבא / בהמשך". דסקטופ: קופסה קבועה בפינה. מסך-צר:
+          כפתור-פילה למטה שנפתח לפאנל בהקשה (קופסת-קבע הייתה חופפת את הכותרת). */}
+      {returnChain && !narrow && (
         <div style={{ position: "absolute", top: 12, insetInlineEnd: 12, zIndex: 3, ...HUD_PANEL_STYLE, padding: "10px 14px", maxWidth: 330 }}>
           <div style={{ color: "#9db4f0", fontSize: 11.5, marginBottom: 5, fontWeight: 700 }}>↩️ נקודת החזרה</div>
           <div style={{ fontSize: 12.5, lineHeight: 1.6 }}>
@@ -484,16 +545,49 @@ export default function RoadmapMap3D({ height = "82vh" }) {
         </div>
       )}
 
-      {/* שערי החלטה */}
-      <div style={{ position: "absolute", bottom: 12, insetInlineStart: 12, zIndex: 3, ...HUD_PANEL_STYLE, border: "1px solid #333", padding: "10px 14px", maxHeight: 210, overflowY: "auto", width: 260 }}>
-        <div style={{ marginBottom: 5, fontWeight: 700, fontSize: 12 }}>🚪 שערי החלטה</div>
-        {vm.open_human_gates.map((g) => (
-          <div key={g.number} style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 11, color: "#c9c7c0", padding: "1.5px 0" }}>
-            <span style={{ fontFamily: FONT_MONO }}>#{g.number}</span>
-            <span style={statusPillStyle(g.status)}>{gateStatusHe(g.status)}</span>
+      {/* שערי החלטה — דסקטופ: קופסה קבועה. מסך-צר: כפתור-פילה (260px = כ-2/3
+          מרוחב-טלפון היה דורס את המסך אם קבוע-תמיד). */}
+      {!narrow && (
+        <div style={{ position: "absolute", bottom: 12, insetInlineStart: 12, zIndex: 3, ...HUD_PANEL_STYLE, border: "1px solid #333", padding: "10px 14px", maxHeight: 210, overflowY: "auto", width: 260 }}>
+          <div style={{ marginBottom: 5, fontWeight: 700, fontSize: 12 }}>🚪 שערי החלטה</div>
+          {vm.open_human_gates.map((g) => (
+            <div key={g.number} style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 11, color: "#c9c7c0", padding: "1.5px 0" }}>
+              <span style={{ fontFamily: FONT_MONO }}>#{g.number}</span>
+              <span style={statusPillStyle(g.status)}>{gateStatusHe(g.status)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {narrow && (
+        <div style={{ position: "absolute", bottom: 12, insetInlineStart: 12, insetInlineEnd: 12, zIndex: 3, display: "flex", gap: 8, justifyContent: "center" }}>
+          {returnChain && <HudPill label="↩️ נקודת החזרה" active={openSheet === "return"} onClick={() => setOpenSheet(s => s === "return" ? null : "return")} />}
+          <HudPill label={`🚪 שערי החלטה (${vm.open_human_gates.length})`} active={openSheet === "gates"} onClick={() => setOpenSheet(s => s === "gates" ? null : "gates")} />
+        </div>
+      )}
+
+      {narrow && openSheet === "return" && returnChain && (
+        <div style={{ position: "absolute", bottom: 60, insetInlineStart: 12, insetInlineEnd: 12, zIndex: 5, ...HUD_PANEL_STYLE, padding: "12px 14px", maxHeight: "40vh", overflowY: "auto" }}>
+          <div style={{ color: "#9db4f0", fontSize: 11.5, marginBottom: 5, fontWeight: 700 }}>↩️ נקודת החזרה</div>
+          <div style={{ fontSize: 12.5, lineHeight: 1.6 }}>
+            <div>🔵 <b>עכשיו:</b> <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{returnChain[0]}</span></div>
+            {returnChain[1] && <div style={{ opacity: 0.85 }}>⏭ <b>הבא:</b> <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{returnChain[1]}</span></div>}
+            {returnChain.length > 2 && <div style={{ opacity: 0.6 }}>… <b>בהמשך:</b> <span style={{ fontFamily: FONT_MONO, fontSize: 11 }}>{returnChain.slice(2).join(" ← ")}</span></div>}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {narrow && openSheet === "gates" && (
+        <div style={{ position: "absolute", bottom: 60, insetInlineStart: 12, insetInlineEnd: 12, zIndex: 5, ...HUD_PANEL_STYLE, border: "1px solid #333", padding: "12px 14px", maxHeight: "40vh", overflowY: "auto" }}>
+          <div style={{ marginBottom: 5, fontWeight: 700, fontSize: 12 }}>🚪 שערי החלטה</div>
+          {vm.open_human_gates.map((g) => (
+            <div key={g.number} style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 11, color: "#c9c7c0", padding: "1.5px 0" }}>
+              <span style={{ fontFamily: FONT_MONO }}>#{g.number}</span>
+              <span style={statusPillStyle(g.status)}>{gateStatusHe(g.status)}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Canvas camera={{ position: [0, 4, 22], fov: 55 }} onPointerMissed={() => { if (zoomLevel === "workstream") goBack(); }}>
         <Suspense fallback={null}>
@@ -516,7 +610,7 @@ export default function RoadmapMap3D({ height = "82vh" }) {
 
       {/* רמה 2 — פאנל תחום/אשכול */}
       {zoomLevel === "cluster" && selectedGroup && (
-        <div style={{ position: "absolute", insetInlineEnd: 12, top: 158, zIndex: 4, width: "min(370px, 88vw)", ...HUD_PANEL_STYLE, padding: "16px 18px", maxHeight: "70vh", overflowY: "auto" }}>
+        <div style={{ position: "absolute", insetInlineEnd: 12, top: narrow ? 68 : 158, zIndex: 4, width: "min(370px, 88vw)", ...HUD_PANEL_STYLE, padding: "16px 18px", maxHeight: "70vh", overflowY: "auto", overflowWrap: "break-word", wordBreak: "break-word" }}>
           <div style={{ fontWeight: 700, fontSize: 15, color: "#ffe9a8" }}>🧩 תחום עבודה</div>
           <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: "#9a9285", marginBottom: 3 }}>{selectedGroup}</div>
           <div style={{ color: "#9a9285", fontSize: 10.5, marginBottom: 10 }}>{CLUSTER_DISCLAIMER_HE}</div>
@@ -547,7 +641,7 @@ export default function RoadmapMap3D({ height = "82vh" }) {
 
       {/* רמה 3 — פירוט תפעולי מלא (Viewer בלבד — לא ניתן לעריכה) */}
       {zoomLevel === "workstream" && selectedWs && (
-        <div style={{ position: "absolute", insetInlineEnd: 12, top: 158, zIndex: 4, width: "min(390px, 88vw)", ...HUD_PANEL_STYLE, padding: "16px 18px", maxHeight: "76vh", overflowY: "auto" }}>
+        <div style={{ position: "absolute", insetInlineEnd: 12, top: narrow ? 68 : 158, zIndex: 4, width: "min(390px, 88vw)", ...HUD_PANEL_STYLE, padding: "16px 18px", maxHeight: "76vh", overflowY: "auto", overflowWrap: "break-word", wordBreak: "break-word" }}>
           <div style={{ fontWeight: 700, fontSize: 15, color: "#ffe9a8", marginBottom: 2 }}>{mdParts(selectedWs.title)}</div>
           <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: "#9a9285", marginBottom: 10 }}>{selectedWs.id}</div>
 
