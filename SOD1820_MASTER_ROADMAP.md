@@ -438,6 +438,30 @@ flowchart TD
 - **LAST_VERIFIED:** 2026-08-21 (קרוא ומאומת בסשן זה).
 - **STATE:** `OPEN-HUMAN-GATE`.
 
+### WS-ELS-RESEARCH-DEPTH — ELS Research Depth: Matrix → Depth → Universe — **חדש, נוסף 23.8, תיעוד-כיוון בלבד** · `FUTURE` / `PRODUCT DIRECTION` / `NON-BLOCKING`
+> ⚠️ **סעיף זה הוא תיעוד-כיוון-מוצר-מאושר בלבד — אינו Critical Path, אינו Gate, אינו Intake-dependency, ואינו-ממומש בסשן זה.** נוסף לפי בקשת-צוריאל המפורשת ("סמן את כל זה FUTURE / PRODUCT DIRECTION / NON-BLOCKING") לצד עבודת-קוד מקבילה וממוקדת (ELS Verse Spatial Layer, ר' `WS-ELS-WORKAREA`/work_log `actor=CLAUDE`, 23.8) — שתי החלטות נפרדות, לא-מעורבבות.
+- **WHERE_WE_ARE:** קרקע-ראשונית כבר-חיה ולא-ממוזגת: Matrix Snapshot contract (`matrix={S,r0,r1,c0,cw,rows,marks,v,lenses}`) + 2D/Layered/3D renderers + Verse/Context Lens on-demand (`request-lens`/`lens`) — כולם ב-`/lab/els` (`ElsWorkAreaPage.jsx`), מעל **אותו מנוע-ELS-קנוני-יחיד** (`tools/els/els-code.template.html`→`public/tzofen.html`, `els_single_engine_law`). PRs #176←#178←#179←#180←#181 (ענפי `gpt/els-*-claude-impl`, שרשרת CLAUDE↔GPT↔צוריאל מתואמת דרך `work_log`) — **כולם פתוחים, לא-ממוזגים ל-main**.
+- **WHAT_IS_DONE:** העקרונות למטה אושרו-בעל-פה ע"י צוריאל (23.8, יומן זה) כ**כיוון-מוצר**, לא כמפרט-בנייה:
+  1. מנוע ELS קנוני אחד (ללא-שינוי מהחוק הקיים).
+  2. Finding אחד + Matrix Snapshot אחד + Renderers/Lenses רבים (הרחבה ישירה של מה-שכבר-קיים ב-Matrix Snapshot contract).
+  3. 3D אינו subsystem — הוא renderer בלבד (עקרון קיים כבר במימוש הנוכחי, viewMode="3d").
+  4. ציר-Z מקבל משמעות עתידית של **Research Depth**, לא רק אפקט-ויזואלי.
+  5. **Depth Dimension** עתידי הניתן-לבחירה: Position / Finding / Skip / Corpus / Time — טרם-מומש, טרם-מתוכנן ברמת-מסך.
+  6. **Research Tracks** — למשל מחקר-מתמשך של skip=1820 לאורך-זמן — כיוון-בלבד.
+  7. **Future capabilities** שהוזכרו: Deep Scan · Depth Cone · Compare Layers · Play/Timeline · Persistence Heat — כותרות-בלבד, אין-ספיציפיקציה.
+  8. **שכבות עתידיות** (מעבר ל-Verse/Context שכבר-בבנייה): Cross Findings · Number DNA/Gematria · Evidence/Provenance · Raziel — כל אחת תשתמש-באותה-תשתית-Layer-Controller (ר' WHAT_IS_OPEN).
+  9. **Universe vs. Depth** — הבחנה מושגית: Universe = zoom-out לקשרים-בעץ (ממשק אחר, מחוץ להיקף הזה); Depth = zoom-in לתוך-הממצא-עצמו (זה ההיקף כאן).
+- **WHAT_IS_OPEN:** הכל. אין Depth Dimension selector, אין Research Tracks, אין אחת מ-5 השכבות-העתידיות (מעבר ל-Verse/Context), אין Deep Scan/Depth Cone/Compare Layers/Play/Persistence Heat. הצעד-הטכני-היחיד שכבר-קיים לקראת-זה: תכנון ה-Layer Controller ב-`/lab/els` כך ש-Verse הוא **layer type ראשון בתוך רישום-כללי** (לא hard-special-case) — כדי שתשתית-זהה תשרת Cross/Heat/Number/Evidence/Research-Depth בעתיד בלי ארכיטקטורה-חדשה (הנחיית-צוריאל המפורשת, מיושמת בעבודת-הקוד המקבילה).
+- **WHAT_IS_BLOCKED:** כל build של הפריטים למעלה — נחסם-בכוונה. אין Human-Gate פתוח על-כך (זה לא-שער — זה כיוון לא-מחייב).
+- **HUMAN_GATE:** אין. **לא Critical Path, לא Gate, לא Intake-dependency** — צוריאל הדגיש זאת מפורשות.
+- **NEXT_ACTION:** אין. כשירצה צוריאל להתקדם על-פריט-ספציפי מכאן — ידרש מפה-קודם/מסך-קודם (`research_workspace_law`/`command_center_law`) לפני קוד, כמו כל workstream אחר.
+- **DEPENDENCIES:** `WS-ELS-WORKAREA` (המנוע/renderer-ים הקיימים שהעקרונות בונים-עליהם); ELS Verse Spatial Layer (עבודת-הקוד-המקבילה, PR נפרד על שרשרת #176-#181).
+- **CANONICAL_HOME:** תיעוד-כיוון בלבד — כאן. אין קוד/schema ייעודי עדיין.
+- **PROVENANCE:** הודעת-צוריאל 23.8 ("ELS Research Depth — Matrix → Depth → Universe", יחד עם handoff ה-ELS Verse Spatial Layer) · `work_log actor=CLAUDE` (23.8).
+- **LAST_VERIFIED:** 2026-08-23 (נוסף בסשן זה; לא נבדק מול main/Master-State כי אין-לו-תוכן-חי לבדוק — תיעוד-כיוון-טהור).
+- **STATE:** `FUTURE` / `DESIGN` / `NON-BLOCKING`.
+- **⚠️ פער-ידוע-לא-פתור (מדווח, לא-מנוחש):** מדור זה תיעד את **כיוון-ההמשך** של PRs #176-#181 (מעל `tools/els/els-code.template.html` הקנוני). לעומת-זאת `WS-ELS-FSS`/`WS-ELS-WORKAREA` למעלה (§v5.1, `LAST_RECONCILED` 22.8) מתעדים תוכנית-Matrix/Research-Journey **נפרדת** על ענף `claude/els-unified-merge`@`542c7147` (PR #163, D4+FORMS+Split-Join). **היחס בין שני-החוטים האלה — האם הם אותו-דבר, מתכנסים, מיותרים-זה-לזה, או שני-מסלולים-אמיתיים-נפרדים — לא-אומת כאן ונשאר UNKNOWN.** לא-הוסק ולא-הוכרע במסגרת העדכון הזה (מחוץ-להיקף המבוקש: Roadmap-בלבד, קוד רק ל-Verse Spatial Layer) — מדווח כפער-פתוח לצוריאל/GPT, לא-מטושטש.
+
 ### WS-GEMATRIA-CORPUS-PACKAGES — ארגון חומרי-גימטריה לקורפוס-מחקרי — **חדש-v5, נפתח 21.8, עודכן-עובדתית 22.8**
 - **WHERE_WE_ARE:** לפי החלטת-צוריאל (21.8): לפני שלב **INTAKE READINESS** (במקור: Gate #4/#18 — **שניהם נסגרו, 22.8/23.8**, ר' עדכון-ממוקד), המיקוד-הפעיל יורד לשכבת חומרי-הגימטריה — ארגון הרשימות והחבילות-הגדולות הקיימות (`gematria_words`, ביטויים, מסמכי-מקור) לכדי corpus מחקרי מסודר, מוכן להזנה עתידית לעץ-האחד (`nodes`/`edges`). זו "עבודה-רוחבית" לפי `work_log af29e88b`.
 - **WHAT_IS_DONE (עודכן 22.8 — היה שגוי-ומיושן, תוקן עובדתית):** שכבת-הסיווג המלאה בוצעה בפועל אותו-יום: `MASTER_CLASSIFICATION_v3` (15,433/15,433 שורות, 29 עמודות, `closed_awaiting_human_gate`) + Schema-Profile + Persistence-Mapping + Reconciliation + Vocabularies + Final-Persistence-Decision-Pack (`audits/master_classification_v3_persistence_mapping/`) + Multilingual-Corpus-Inventory (47 ממצאים, `audits/multilingual_corpus/`) + Method-Mentions/Methods-Expansion/Hebrew-Identity/Numeric-Language Phases 1-5 (work_log 22.8, era1/era2 בארכיון-המחקר) + Research-DNA-v1 Crosswalk/Proof-of-Model/Foundation-Contract (`audits/research_dna_v1_foundation_contract/`). **סיווג-הקורפוס עצמו effectively-complete — אין-צורך ב-re-audit כללי-נוסף.**
@@ -666,6 +690,7 @@ flowchart TD
 | ELS `els_records` שלב ב׳ | ELS כמאגר־מחקר | ELS map | Finding Identity LIVE | `CLAUDE.md`/work_log | `FUTURE` |
 | מסגרת Research-Object (GPT) *(חדש-v5)* | North-Star/AI-Navigator/Budget/Challenge | `WS-RESEARCH-OBJECT-FRAMEWORK` | Gate #20 | `gpt/research-object-map` | `FUTURE`/`DESIGN` |
 | מנוע הצלבות מתקדם (Cross-Research Engine) *(חדש, 22.8)* | הצלבה מתמטית מלאה בין שיטות/עולמות/שנים/חוקרים/מקורות + Graph-traversal + Deep-Research-candidate + "מצא לי הצלבה" | `WS-CROSS-ENGINE` | Research DNA v1 · ~~Gate #18~~ (`CLOSED` 23.8) · `WS-GEMATRIA-CORPUS-PACKAGES` | הודעת-צוריאל 22.8 | `FUTURE`/`DESIGN` |
+| ELS Research Depth — Matrix → Depth → Universe *(חדש, 23.8)* | ציר-Z כ-Research Depth נבחר (Position/Finding/Skip/Corpus/Time) · Research Tracks · Deep Scan/Depth Cone/Compare Layers/Play/Persistence Heat · שכבות-עתידיות (Cross/Heat/Number-DNA/Evidence/Raziel) על תשתית-Layer-Controller אחידה · Universe=zoom-out-לעץ ≠ Depth=zoom-in-לממצא | `WS-ELS-RESEARCH-DEPTH` | `WS-ELS-WORKAREA` · ELS Verse Spatial Layer (PR מקביל) | הודעת-צוריאל 23.8 | `FUTURE`/`DESIGN`/`NON-BLOCKING` |
 
 ## ⏸️ מרשם המושהים (PARKED REGISTRY)
 | פריט | למה מושהה | provenance |
