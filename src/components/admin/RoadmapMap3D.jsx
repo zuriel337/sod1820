@@ -169,12 +169,7 @@ function WorkstreamNode({ node, isActiveNow, isSelected, isHovered, opacity, onC
           <meshBasicMaterial color="#e0563a" transparent opacity={Math.min(0.85, opacity + 0.15)} />
         </mesh>
       )}
-      <mesh
-        ref={meshRef}
-        onClick={(e) => { e.stopPropagation(); onClick(node.ws.id); }}
-        onPointerOver={(e) => { e.stopPropagation(); onHover(node.ws.id); document.body.style.cursor = "pointer"; }}
-        onPointerOut={() => { onHover(null); document.body.style.cursor = "default"; }}
-      >
+      <mesh ref={meshRef}>
         <sphereGeometry args={[radius, 32, 32]} />
         <meshStandardMaterial
           color={color}
@@ -183,6 +178,17 @@ function WorkstreamNode({ node, isActiveNow, isSelected, isHovered, opacity, onC
           transparent
           opacity={opacity}
         />
+      </mesh>
+      {/* יעד-לחיצה מוגדל, שקוף-כמעט-לגמרי — הכדור החזותי (radius~0.4) קטן מדי
+          למגע-אצבע/עכבר-לא-מדויק (זוהתה תקלה: "תלת מימד לא לחיץ"). לא נוגע
+          במראה, רק מרחיב את שטח-הפגיעה של ה-raycast. */}
+      <mesh
+        onClick={(e) => { e.stopPropagation(); onClick(node.ws.id); }}
+        onPointerOver={(e) => { e.stopPropagation(); onHover(node.ws.id); document.body.style.cursor = "pointer"; }}
+        onPointerOut={() => { onHover(null); document.body.style.cursor = "default"; }}
+      >
+        <sphereGeometry args={[Math.max(radius * 2.4, 0.85), 16, 16]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       {(isHovered || isSelected || isActiveNow) && !dimmed && (
         <Html center distanceFactor={16} style={{ pointerEvents: "none" }}>
@@ -210,7 +216,7 @@ function GroupLabel({ groupId, center, onClick, dimmed }) {
       <div
         dir="rtl"
         onClick={(e) => { e.stopPropagation(); onClick(groupId); }}
-        style={{ textAlign: "center", cursor: "pointer", opacity: dimmed ? 0.25 : 1 }}
+        style={{ textAlign: "center", cursor: "pointer", opacity: dimmed ? 0.25 : 1, padding: 14, minWidth: 44, minHeight: 44, display: "flex", flexDirection: "column", justifyContent: "center", touchAction: "manipulation" }}
       >
         <div style={{ color: "#d4af37", fontFamily: FONT_HE, fontWeight: 700, fontSize: 13, textShadow: "0 0 8px #000" }}>🧩 תחום</div>
         <div style={{ color: "#9a9285", fontFamily: FONT_MONO, fontSize: 10, textShadow: "0 0 6px #000", marginTop: 1 }}>{groupId}</div>
