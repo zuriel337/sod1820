@@ -1441,6 +1441,34 @@
   // 🎯 בחירת-ממצא = הסמנטיקה הקיימת בלבד: st.expand (איזה ממצא פתוח) · st.swOpen (בורר-צבע)
   //    · st.selCells (תאים שנבחרו ידנית). st.focus אינו בשימוש בקוד — לא ממחזרים אותו.
   // 📖 פסוקים אינם במסר הבסיסי (on-demand בשלב הבא) — verseSpan דורש VTEXT ופענוח עצל.
+  // 🧩 תמונת-מטריצה (`matrix`) — Surface v2 · תוסף-סריאליזציה בלבד לחוזה-המצב הקיים.
+  // ⚠️ **אפס חישוב-ELS חדש.** כל מה שכאן כבר קיים בזיכרון: T (טקסט-התורה) ו-colorSets()
+  //    (הפונקציה הקיימת שכבר צובעת את המטריצה האינטראקטיבית ב-buildMatrix()).
+  // ⛔ לא findAll · לא Search Space · לא Ranking · לא geometry חדשה — אותו חלון בדיוק
+  //    כמו ש-`geometry` הקיים כבר משדר (b=blockOf(), אותו b שהתקבל מ-elsState()).
+  // rows: מחרוזת אחת לכל שורה בחלון (r0..r1) — כל תו הוא T[idx] הקיים, או רווח לתא מחוץ-לתחום (idx<0 || idx>=N).
+  // marks: רק תאים-מסומנים *בתוך* החלון (סינון על colorSets() הקיים) — {i, type:"main"|"finding", color?}.
+  //        "main" = ציר-החיפוש הראשי (h.positions). "finding" = מילה-צבועה נוספת (color = הצבע הקיים ב-w.color).
+  function matrixSnapshot(b){
+    const rows=[];
+    for(let r=b.r0;r<=b.r1;r++){
+      let row="";
+      for(let c=b.c0;c<b.c0+b.cw;c++){
+        const idx=r*b.S+c;
+        row+=(idx<0||idx>=N)?" ":T[idx];
+      }
+      rows.push(row);
+    }
+    const {colorMap}=colorSets(),marks=[];
+    colorMap.forEach((kind,idx)=>{
+      const r=Math.floor(idx/b.S),c=((idx%b.S)+b.S)%b.S;
+      if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;   // רק בתוך החלון המשודר (rows/geometry)
+      const m={i:idx,type:kind==="main"?"main":"finding"};
+      if(kind!=="main")m.color=kind;
+      marks.push(m);
+    });
+    return {S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,cw:b.cw,rows,marks};
+  }
   function elsState(){
     const r=st.res;
     const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
@@ -1452,6 +1480,7 @@
       axis:{skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",start:h.start,hitId:hitKey(h),length:L},
       occurrence:{index:st.occ,count:r.hits.length,capped:!!r.capped},
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
+      matrix:matrixSnapshot(b),
       findings:st.words.map(w=>({t:w.t,color:w.color,total:(w.hits||[]).length,
         inWindow:w.inwin||0,shown:shownHitsOf(w).map(hitKey)})),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),
