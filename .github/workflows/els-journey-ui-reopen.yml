@@ -26,8 +26,9 @@ jobs:
           start = next(i for i,l in enumerate(src) if "python3 - <<'PY'" in l) + 1
           end = next(i for i in range(start, len(src)) if src[i].strip() == 'PY')
           lines = src[start:end]
-          indent = min(len(l)-len(l.lstrip()) for l in lines if l.strip())
-          code = '\n'.join(l[indent:] for l in lines) + '\n'
+          first = next(l for l in lines if l.strip())
+          indent = len(first) - len(first.lstrip())
+          code = '\n'.join(l[indent:] if len(l)-len(l.lstrip()) >= indent else l for l in lines) + '\n'
           Path('/tmp/els_journey_patch.py').write_text(code, encoding='utf-8')
           PY
           python3 /tmp/els_journey_patch.py
