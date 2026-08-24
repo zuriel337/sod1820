@@ -2084,6 +2084,7 @@
       //    מהמקור. תוקן ואומת (equivalence suite גילה את זה בפועל).
       const dirHits=res.dirHits;
       let capped=res.capped;
+      const wasProbeCapped=!!res.capped;   // fwdProbePair (Worker) כבר פיזר בעצמו כשזה קרה — לא לפזר שוב
       if(!capped&&res.heavyDirs)for(const hd of res.heavyDirs){
         if(capped)break;
         const otherLen=dirHits[1-hd.dirIndex].length;
@@ -2093,6 +2094,15 @@
         const stt={capped:0};
         await fwdParallel(hd.tt,effectiveCap,dirHits[hd.dirIndex],hd.orient,stt,setup,pool,hd.probed);
         if(stt.capped)capped=stt.capped;
+      }
+      // 🩹 scopeRange dispersal — שקילות עם findAll הסינכרוני: fwdProbePair מפזר בעצמו כש-capped
+      // נקבע *בתוך* חלון-ה-probe בלבד (wasProbeCapped). אבל כש-capped נקבע רק אחרי המשך-מקבילי
+      // (fwdParallel/heavyDirs, למעלה) — הפיזור עוד לא רץ. מריצים אותו כאן פעם אחת, על התוצאה
+      // הסופית של שני הכיוונים, בדיוק כמו הענף המקביל ב-findAll — אחרת sync/adaptive מתפצלים
+      // בדיוק במקרה הזה (capped דרך escalation, לא probe-בלבד) — נמצא ואומת ב-equivalence suite.
+      if(capped&&!wasProbeCapped){
+        const suF=fwdSetup(t);if(suF)fwdDisperseTopUp(dirHits[0],[{tt:t,orient:"fwd",setup:suF}]);
+        const suB=fwdSetup(tb);if(suB)fwdDisperseTopUp(dirHits[1],[{tt:tb,orient:"back",setup:suB}]);
       }
       const hits=[...dirHits[0],...dirHits[1]];
       hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
