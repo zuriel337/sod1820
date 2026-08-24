@@ -40,6 +40,7 @@ export const IMPLEMENTED_TOOLS = new Set([
   "number", "gematria", "verse", "midrash", "notarikon",
   "els", "name", "family", "compare", "life", "import", "dates",
   "maftech", // 🔑 שיטת המפתח (lab) — אדמין-בלבד עד אישור כריסטינה; אז מוסיפים ל-READY_TOOLS בשורה אחת.
+  "journey", // 🧬 מסע החיים — יסוד person-ref/F-1b, פרטי-לגמרי. אדמין-בלבד עד אישור צוריאל לפתיחה.
 ]);
 
 // שער-המוכנוּת: פתוח אם ציבורי, אם ELS פתוח לציבור (דגל-המאסטר), או — למנהל — אם הכלי ממומש (לבדיקות).
