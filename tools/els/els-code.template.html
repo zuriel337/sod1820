@@ -1882,11 +1882,99 @@
     const zones=[...seen.values()].sort((a,b)=>b.stars-a.stars||b.tq-a.tq||b.score-a.score).slice(0,24);
     return {zones,resCache,total:Tn.length};
   }
+  // ⚡ גרסה מקבילה של crossFindFree — אותו מנוע בדיוק, לא מנוע שני: קוד ה-Worker נבנה מ-toString()
+  //    של norm/lb/fwd/findAll/gem/bookOf/gridStep/gapF/proxF/lenF/rarF/starsFromTq/searchSpace/
+  //    crossFindMulti/faMemo/rarityOf — אותן פונקציות בדיוק שרצות ב-thread הראשי. crossFindFree
+  //    מריץ n סבבי-ציר בלתי-תלויים ברצף על thread אחד (מדוד: n=4 ≈ 12 שנ׳, n=8 נתקע/לא מסתיים) —
+  //    כאן הם מפוזרים על בריכת-Workers, כל סבב-ציר מוזרע עם תוצאות findAll שכבר חושבו פעם אחת
+  //    (שלב 1, גם הוא מפוזר) כדי לא לחשב את אותו findAll פעמיים. שלב 3 (מיזוג/דירוג) מועתק
+  //    verbatim מ-crossFindFree כדי להבטיח בדיוק אותם ממצאים/דירוג/geometry. נופל-בחזרה ל-
+  //    crossFindFree הסינכרוני בכל כשל (Worker/Blob חסום, שגיאה כלשהי).
+  let _xfWorkers=null;
+  function xfWorkers(){
+    if(_xfWorkers)return _xfWorkers;
+    try{
+      const src="let T=\"\",N=0,SN=0,BOOKS=[];\n"+
+        "const FIN="+JSON.stringify(FIN)+";\nconst GV="+JSON.stringify(GV)+";\n"+
+        "const norm="+norm.toString()+";\nconst gem="+gem.toString()+";\n"+
+        "const st={scope:\"x\"};\nconst FA=new Map();\n"+
+        lb.toString()+"\nfunction scopeN(){return SN;}\n"+
+        fwd.toString()+"\n"+findAll.toString()+"\n"+
+        faMemo.toString()+"\n"+rarityOf.toString()+"\n"+
+        "const bookOf="+bookOf.toString()+";\n"+
+        "const gridStep="+gridStep.toString()+";\nconst gapF="+gapF.toString()+";\n"+
+        "const proxF="+proxF.toString()+";\nconst lenF="+lenF.toString()+";\n"+
+        "const rarF="+rarF.toString()+";\nconst starsFromTq="+starsFromTq.toString()+";\n"+
+        "const _spaceCache=new Map();\n"+searchSpace.toString()+"\n"+crossFindMulti.toString()+"\n"+
+        "onmessage=function(e){var d=e.data;"+
+        "if(d.type===\"init\"){T=d.T;N=d.N;SN=d.SN;BOOKS=d.BOOKS;postMessage({type:\"ready\",reqId:d.reqId});return;}"+
+        "if(d.type===\"findAll\"){var r=findAll(d.w,d.cap);postMessage({type:\"findAllResult\",reqId:d.reqId,hits:r.hits,capped:r.capped,t:r.t});return;}"+
+        "if(d.type===\"cfm\"){for(var k in d.seed)FA.set(k,d.seed[k]);"+
+        "var r2=crossFindMulti(d.axis,d.others,d.pure,d.maxOcc,d.preResAxis);"+
+        "postMessage({type:\"cfmResult\",reqId:d.reqId,meetings:r2.meetings,total:r2.total});return;}"+
+        "};";
+      const url=URL.createObjectURL(new Blob([src],{type:"application/javascript"}));
+      const n=Math.max(1,Math.min(navigator.hardwareConcurrency||4,8));
+      const workers=[];for(let i=0;i<n;i++)workers.push(new Worker(url));
+      _xfWorkers={workers,rr:0};
+    }catch(e){console.error("xfWorkers init failed",e);_xfWorkers=null;}
+    return _xfWorkers;
+  }
+  let _xfReqId=0;
+  function xfCall(pool,msg){
+    return new Promise((resolve,reject)=>{
+      const w=pool.workers[pool.rr%pool.workers.length];pool.rr++;
+      const reqId=msg.reqId;
+      const onMsg=e=>{if(e.data&&e.data.reqId===reqId){w.removeEventListener("message",onMsg);w.removeEventListener("error",onErr);resolve(e.data);}};
+      const onErr=e=>{w.removeEventListener("message",onMsg);w.removeEventListener("error",onErr);reject(e);};
+      w.addEventListener("message",onMsg);w.addEventListener("error",onErr);
+      w.postMessage(msg);
+    });
+  }
+  async function crossFindFreeParallel(terms,pure){
+    const Tn=[...new Set(terms.map(norm).filter(t=>t.length>=2))];
+    if(Tn.length<2)return {zones:[],resCache:{},total:Tn.length};
+    const pool=xfWorkers();if(!pool)return crossFindFree(terms,pure);
+    try{
+      // אתחול טרי בכל קריאה (לא שמור בין קריאות) — כדי לשקף נכון אם ההיקף (תורה/תנ״ך) הוחלף.
+      await Promise.all(pool.workers.map(w=>{const reqId=++_xfReqId;
+        return xfCall({workers:[w],rr:0},{type:"init",reqId,T,N,SN:scopeN(),BOOKS});}));
+      // שלב 1: findAll לכל מונח ייחודי, פעם אחת, מפוזר על הבריכה — בדיוק כמו faMemo אבל מקביל.
+      const hitsByTerm={};
+      await Promise.all(Tn.map(w=>{const reqId=++_xfReqId;
+        return xfCall(pool,{type:"findAll",reqId,w,cap:3000}).then(d=>{hitsByTerm[w]={hits:d.hits,capped:d.capped,t:d.t};});}));
+      // שלב 2: crossFindMulti לכל ציר, מפוזר על הבריכה, מוזרע עם תוצאות שלב-1 (בלי findAll כפול).
+      // ⚠️ Promise.all שומר את סדר-הקלט בתוצאה (לא סדר-סיום) — חובה כדי שסדר ה-push ל-all יהיה
+      //    זהה לסדר Tn המקורי בגרסה הסינכרונית: sort() יציב, ותיקו בין ממצאים שווי-ניקוד נשבר
+      //    לפי סדר-ההכנסה — אם היינו דוחפים לפי סדר-סיום (לא-דטרמיניסטי) הדירוג היה יכול להשתנות.
+      const resCache={},all=[];
+      const cfmResults=await Promise.all(Tn.map(axisN=>{
+        const others=Tn.filter(t=>t!==axisN),seed={};for(const t of others)seed[t+"@x"]=hitsByTerm[t];
+        const reqId=++_xfReqId;
+        return xfCall(pool,{type:"cfm",reqId,axis:axisN,others,pure,maxOcc:150,preResAxis:hitsByTerm[axisN],seed}).then(d=>({axisN,meetings:d.meetings}));
+      }));
+      for(const {axisN,meetings} of cfmResults){
+        resCache[axisN]=hitsByTerm[axisN];
+        meetings.forEach(z=>{z.axis=axisN;all.push(z);});
+      }
+      // שלב 3: מיזוג/דירוג — מועתק verbatim מ-crossFindFree הסינכרוני, לא שונה.
+      const seen=new Map();
+      for(const z of all){
+        const hit=resCache[z.axis].hits[z.occ];if(!hit)continue;
+        const parts=[z.axis,...z.detail.map(d=>d.t)].sort().join(",");
+        const key=parts+"@"+Math.round(hit.positions[0]/500);
+        const prev=seen.get(key);
+        if(!prev||z.score>prev.score)seen.set(key,z);
+      }
+      const zones=[...seen.values()].sort((a,b)=>b.stars-a.stars||b.tq-a.tq||b.score-a.score).slice(0,24);
+      return {zones,resCache,total:Tn.length};
+    }catch(e){console.error("crossFindFreeParallel failed, falling back to sync",e);return crossFindFree(terms,pure);}
+  }
   function runCrossFree(){
     const terms=st.crossTerms.slice(),xr=document.getElementById("xrun");
     goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק כל מונח כציר…";}
-    setTimeout(()=>{
-      const {zones,resCache,total}=crossFindFree(terms,st.crossPure);
+    setTimeout(async ()=>{
+      const {zones,resCache,total}=await crossFindFreeParallel(terms,st.crossPure);
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;updateXrunLabel();}
       if(!zones.length){toast("לא נמצאה התכנסות חופשית בין המונחים. הרפה טוהר או הוסף מונחים.");return;}
       st.crossResCache=resCache;st.crossMeetings=zones;st.crossIdx=0;st.crossTotal=total;st.crossSimple=false;st.crossFree=true;st.crossBridge=false;
