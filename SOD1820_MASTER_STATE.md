@@ -62,8 +62,10 @@ Performance: 2D+Focus/Fit הוא baseline זול; Layered/3D lazy/on-demand; lar
 ### GLOBAL WORKSPACE / STORAGE DECISION
 `src/lib/research/ResearchProvider.jsx` הקיים הוא תשתית-ה-Workspace הקנונית להרחבה. `cart/saved/pinned/history/collections/journeys/mode` ו-cloud path דרך `research_items` נשמרים. חוזה Universal Finding **אינו** מאשר טבלת `findings` או Context/Store מקביל.
 
+**חידוד (actor=CLAUDE, 24.8.2026, לפני מיזוג #187):** האחסון אינו בעיה בינארית — שלושה בתים קיימים, כל אחד עם תפקיד נבדל: (1) מנוע/DB מקור-נטיבי = מקור-האמת לטענה שלו; (2) `research_items` = חברות-ב-Workspace בלבד (cart/save/pin/Journey-reference); (3) `research_objects` (כולל `engine_verified`/`engine_detail` מ-Research DNA v1 §1) = טענת-מחקר-עמידה (evidence/claim/interpretation). ה-Universal Finding הוא מעטפת+refs לשלושת הבתים, **אינו** בעל-בית רביעי — **אסור יצירת שורת `research_objects` אוטומטית לכל Finding**; רק פעולת-workflow מפורשת מקדמת Finding ל-evidence/claim/interpretation. **Research Context אינו בעל-אחסון חדש** — חוזה לוגי (inquiry/scope/Findings-פעילים/Dimensions/Lens/Journey-position) שעשוי להפנות ל-`research_objects`/`person-ref`/מספר/נושא, אך אינו ממופה אוטומטית לאף טבלה. פרטים: `docs/research-universal-finding-contract.md` §1/§18.
+
 ### PRIORITY DECISION
-`ACTIVE_NOW` עובר ברמת-הניווט ל-**Research Studio Foundation**. `WS-GEMATRIA-CORPUS-PACKAGES` אינו מבוטל ואינו SUPERSEDED; הוא נשאר workstream יסודי/תלות ומתחבר כ-Number/Gematria source לתוך Research Studio. סדר הבנייה המאושר: Universal Finding → Global Workspace → ELS Lens integration → Number/Gematria Adapter → Discovery adapters → Findings Workspace UX → Judgment Surface → legacy capability reconciliation → Depth/Research Universe.
+`ACTIVE_NOW` עובר ברמת-הניווט ל-**Research Studio Foundation**. `WS-GEMATRIA-CORPUS-PACKAGES` אינו מבוטל ואינו SUPERSEDED; הוא נשאר workstream יסודי/תלות ומתחבר כ-Number/Gematria source לתוך Research Studio. סדר הבנייה המאושר: Universal Finding → Global Workspace → ELS Lens integration → Number/Gematria Adapter (דף-מספר: H2 היברידי, `NumberDNA`→"🧬 צירי ההתכנסות"/`NumberConvergences`) → **Topic/Convergence Adapter (נפרד מ-ELS, מפנה בלבד ל-`topic_card_id`/convergence `node_id` קיימים)** → Discovery adapters (כולל Person self-scope ו-Name/NameLab — נבדלים זה-מזה, Name Journey ≠ Person/Life Journey) → Findings Workspace UX → Judgment Surface (השלכת Gate #18/§20, לא pipeline שביעי) → legacy capability reconciliation (כולל Name Journey החי) → Depth/Research Universe.
 
 ### IMPLEMENTATION STATE (24.8)
 - PR #185: merged/main — ELS state + Matrix + 2D/Layered/3D + Verse integration.
@@ -80,6 +82,12 @@ Human Preview #188 → verify canonical Number/Gematria callable path → add Nu
 - **למה:** Human-Gate ZURIEL approved the architecture; live state after PR #185 and Drafts #186/#188 made Roadmap v5.1 stale.
 - **מה הוחלף:** navigation-level `ACTIVE_NOW=WS-GEMATRIA-CORPUS-PACKAGES` is superseded by `WS-RESEARCH-STUDIO-FOUNDATION`; the corpus workstream itself is preserved as a dependency/source, not deleted or superseded.
 - **סטטוס:** `APPROVED` architecture/priority decision · `DOCUMENTED` on Draft PR #187 · product code remains `BUILDING` on Drafts #186/#188 · no merge/deploy implied.
+
+### CHANGE LOG ENTRY — 24.8.2026 (actor=CLAUDE, correction pass on Draft #187, pre-merge)
+- **מה השתנה:** תוקנו/הורחבו על Draft #187 בלבד (docs, `main` לא נגעה): (1) אחסון = שלושה-בתים מפורשים, לא בעיה בינארית, ואוסר יצירת `research_objects` אוטומטית לכל Finding; (2) Research Context הוגדר כחוזה לוגי ללא בעל-אחסון; (3) Topic/Convergence קיבל מיפוי-adapter נפרד מ-ELS; (4) H1 (`NumberDNA`→"🧬 צירי ההתכנסות"/`NumberConvergences`) ו-H2 (טופולוגיה היברידית בדף-מספר) שולבו במפורש בטקסט הבנייה; (5) נחקר ואומת "Name Journey" (NameLab/`fn_name_protocol`, חי ב-`/name-lab`) כיכולת אמיתית שלא נכללה קודם — נוסף כמיפוי-adapter נפרד (`kind="name"`), מובחן מ-Person/Life Journey, ללא re-design של הקוד החי.
+- **למה:** צוריאל אישר את ה-reconciliation "עקרונית" וביקש שלושה חידודים לפני patch (storage roles, H1, H2 hybrid), ואז עצר את הביצוע עוד פעם כדי לוודא ש-Name Journey לא נבלע/אבד מול Person/Life Journey.
+- **מה נבדק ולא שונה:** PR #188 לא נגעה; אין קוד מוצר/DB/schema/merge/deploy בפעולה זו.
+- **סטטוס:** `DOCUMENTED` on Draft PR #187 (branch `gpt/research-studio-v1-contract`) · עדיין ממתין למיזוג-Human-Gate ל-`main`.
 
 
 
