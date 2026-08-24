@@ -51,9 +51,12 @@ export default function ElsWorkAreaPage() {
   const [showEngine, setShowEngine] = useState(false);
   const [rawOpen, setRawOpen] = useState(false);
   const [cellSize, setCellSize] = useState(30);
-  const [focusMarks, setFocusMarks] = useState(false);
+  const [focusMarks, setFocusMarks] = useState(true);
   const [showGrid, setShowGrid] = useState(false);
   const [matrixRtl, setMatrixRtl] = useState(true);
+  // Focus/Fit is the default research view: same canonical Snapshot, fewer DOM cells on screen.
+  // Full Matrix is always one click away; this never changes engine/search/Finding truth.
+  const [fitMatrix, setFitMatrix] = useState(true);
   const [selectedCell, setSelectedCell] = useState(null);
   const [waiting, setWaiting] = useState(false);
   const [firstRunHint, setFirstRunHint] = useState(false);
@@ -283,7 +286,7 @@ export default function ElsWorkAreaPage() {
   const Next = ({ children }) => <div style={{ ...soft, padding: "10px 12px", color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65 }}><b style={{ color: P.accentDim }}>השלב הבא · </b>{children}</div>;
 
   const resetView = () => {
-    setCellSize(30); setFocusMarks(false); setShowGrid(false); setMatrixRtl(true); setSelectedCell(null);
+    setCellSize(30); setFocusMarks(true); setShowGrid(false); setMatrixRtl(true); setFitMatrix(true); setSelectedCell(null);
     setTiltX(54); setTiltZ(-7); setDepth(24);
     setPanX(0); setPanY(0); setSceneScale(1); setExplode(1); setPanMode(false); setIsolateKey(null);
     setActiveLayers(new Set()); setActiveVerseIndex(null);
@@ -302,16 +305,39 @@ export default function ElsWorkAreaPage() {
     const rotatePart = viewMode === "3d" ? ` perspective(1250px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? " perspective(1300px) rotateX(34deg)" : "";
     const stageTransform = `translate(${panX}px, ${panY}px) scale(${sceneScale})${rotatePart}`;
 
-    // 📐 גריד-תאים מחושב פעם-אחת (idx + סדר-RTL כבר-מוחל) — מקור-משותף למישור-הראשי (ללא שינוי) ולמישור-
-    //    ה-Verse-context החדש, כדי ששני המישורים יתיישרו מרחבית בדיוק (אותה שורה/עמודה בדיוק לכל idx).
-    const rowsMeta = matrix.rows.map((row, ri) => {
-      const cells = Array.from(row).map((letter, ci) => ({ letter, ci, idx: (r0 + ri) * S + (c0 + ci) }));
+    // 📐 Focus/Fit is a renderer crop over the SAME Snapshot — never a new ELS window/search.
+    //    We bound the visible rows/columns around engine-owned marks with modest context padding.
+    //    Full Matrix simply renders the complete matrix.rows payload again. Absolute idx stays identical.
+    const rowCount = matrix.rows.length;
+    const colCount = matrix.rows.reduce((mx, row) => Math.max(mx, Array.from(row).length), 0);
+    let renderRowStart = 0, renderRowEnd = Math.max(0, rowCount - 1), renderColStart = 0, renderColEnd = Math.max(0, colCount - 1);
+    if (fitMatrix && S > 0 && rowCount > 0 && colCount > 0 && Array.isArray(matrix.marks) && matrix.marks.length) {
+      const coords = matrix.marks.map((m) => {
+        const idx = Number(m.i);
+        if (!Number.isFinite(idx)) return null;
+        return { r: Math.floor(idx / S) - r0, c: (idx % S) - c0 };
+      }).filter((x) => x && x.r >= 0 && x.r < rowCount && x.c >= 0 && x.c < colCount);
+      if (coords.length) {
+        const rows = coords.map((x) => x.r), cols = coords.map((x) => x.c);
+        renderRowStart = Math.max(0, Math.min(...rows) - 2);
+        renderRowEnd = Math.min(rowCount - 1, Math.max(...rows) + 2);
+        renderColStart = Math.max(0, Math.min(...cols) - 6);
+        renderColEnd = Math.min(colCount - 1, Math.max(...cols) + 6);
+      }
+    }
+    // 📐 גריד-תאים מחושב פעם-אחת (idx + סדר-RTL כבר-מוחל) — מקור-משותף למישור-הראשי ול-Verse.
+    const rowsMeta = matrix.rows.slice(renderRowStart, renderRowEnd + 1).map((row, rOffset) => {
+      const ri = renderRowStart + rOffset;
+      const cells = Array.from(row).slice(renderColStart, renderColEnd + 1).map((letter, cOffset) => {
+        const ci = renderColStart + cOffset;
+        return { letter, ci, idx: (r0 + ri) * S + (c0 + ci) };
+      });
       if (matrixRtl) cells.reverse();
       return { ri, cells };
     });
     const showVersePlane = verseOn && isDepth && verseLens?.ok;   // 📜 מישור-context רק ב-Layered/3D (ב-2D מדגישים על התאים עצמם)
 
-    return <div className="els-native-stage" style={{ overflow: panMode ? "hidden" : "auto", cursor: panMode ? "grab" : viewMode === "3d" ? "grab" : "default", touchAction: panMode || viewMode === "3d" ? "none" : "auto", padding: viewMode === "3d" ? "72px 30px 110px" : "28px 20px 70px", background: P.cardSoft, minHeight: 470 }}>
+    return <div className="els-native-stage" style={{ overflow: panMode ? "hidden" : "auto", cursor: panMode ? "grab" : viewMode === "3d" ? "grab" : "default", touchAction: panMode || viewMode === "3d" ? "none" : "auto", padding: viewMode === "3d" ? "72px 30px 110px" : fitMatrix ? "20px 14px 42px" : "28px 20px 70px", background: P.cardSoft, minHeight: fitMatrix ? 360 : 470 }}>
       <div style={{ position: "relative", width: "max-content", minWidth: "100%", direction: "ltr", fontFamily: F.regal, transform: stageTransform, transformOrigin: "50% 42%", transformStyle: "preserve-3d", transition: "transform .28s ease" }}>
         {showVersePlane && <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", transform: `translateZ(${-Math.max(18, Math.round(depth * 1.15 * explode))}px)`, transformStyle: "preserve-3d" }}>
           {rowsMeta.map(({ ri, cells }) => <div key={"vp-" + ri} style={{ display: "flex", justifyContent: "center", lineHeight: 1 }}>
@@ -400,7 +426,8 @@ export default function ElsWorkAreaPage() {
         </div>
         <div className="els-native-toolbar" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <button type="button" onClick={() => setMatrixRtl((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: matrixRtl ? P.accentBtn : "transparent", color: matrixRtl ? P.onAccent : P.ink }}>↔ {matrixRtl ? "RTL" : "LTR"}</button>
-          <button type="button" onClick={() => setFocusMarks((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: focusMarks ? P.accentBtn : "transparent", color: focusMarks ? P.onAccent : P.ink }}>◎ מיקוד</button>
+          <button type="button" onClick={() => setFocusMarks((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: focusMarks ? P.accentBtn : "transparent", color: focusMarks ? P.onAccent : P.ink }}>◎ Focus</button>
+          <button type="button" onClick={() => setFitMatrix((v) => !v)} title={fitMatrix ? "הצג את כל Matrix Snapshot" : "חזור לתצוגה מותאמת סביב הממצאים"} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: fitMatrix ? P.accentBtn : "transparent", color: fitMatrix ? P.onAccent : P.ink }}>{fitMatrix ? "⌖ Fit" : "⛶ Full Matrix"}</button>
           <button type="button" onClick={() => setShowGrid((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: showGrid ? P.accentBtn : "transparent", color: showGrid ? P.onAccent : P.ink }}>▦ רשת</button>
           <button type="button" onClick={() => setCellSize((v) => Math.max(18, v - 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>−</button><span style={{ minWidth: 52, textAlign: "center", color: P.accentText, fontFamily: F.heading, fontWeight: 900 }}>{cellSize}px</span><button type="button" onClick={() => setCellSize((v) => Math.min(48, v + 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>＋</button>
           <button type="button" onClick={() => setPanMode((v) => !v)} title="גרירה מזיזה את הבמה (פאן) במקום לסובב" style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: panMode ? P.accentBtn : "transparent", color: panMode ? P.onAccent : P.ink }}>✋ הזזה</button>
@@ -409,9 +436,16 @@ export default function ElsWorkAreaPage() {
           {isolateKey && <button type="button" onClick={() => setIsolateKey(null)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.accentText }}>✕ נקה בידוד</button>}
           <button type="button" onClick={resetView} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.inkSoft }}>↺ איפוס</button>
         </div>
+        {ok && findings.length > 0 && <div style={{ ...soft, padding: "9px 10px", display: "grid", gap: 7 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <div><span style={{ ...title, fontSize: 11.5 }}>✦ Findings</span><span style={{ ...muted, fontSize: 11.5, marginInlineStart: 7 }}>בחר ממצא כדי להפוך אותו לציר הבא</span></div>
+            <span style={{ ...muted, fontSize: 10.5 }}>{fitMatrix ? "Focus/Fit · רק אזור המחקר הפעיל" : "Full Matrix · כל ה-Snapshot"}</span>
+          </div>
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{findings.map((f, i) => <button key={`top-${f.t}-${i}`} type="button" disabled={Boolean(journeyPending) || !Array.isArray(f.shown) || !f.shown.length} onClick={() => promoteFinding(f)} style={{ minHeight: 42, borderRadius: 12, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />↑ ציר · {f.t}</button>)}</div>
+        </div>}
       </div>
       {s?.status === "empty" ? <div style={{ minHeight: 440, display: "grid", placeItems: "center", ...muted }}>לא נמצא דילוג למונח «{s.termRaw || seed}».</div> : <MatrixStage />}
-      {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span>{verseOn && <span style={{ ...muted, fontSize: 11 }}>📜 Verse layer: {viewMode === "2d" ? "גבולות עדינים על התאים" : "מישור־context מתחת ל-Finding"}</span>}</div>}
+      {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>view: {fitMatrix ? "Focus/Fit" : "Full Matrix"}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span>{verseOn && <span style={{ ...muted, fontSize: 11 }}>📜 Verse layer: {viewMode === "2d" ? "גבולות עדינים על התאים" : "מישור־context מתחת ל-Finding"}</span>}</div>}
       {verseOn && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}` }}>
         <div style={{ ...title, fontSize: 12.5, marginBottom: 7 }}>📜 הקשר־פסוק · Verse Lens</div>
         {!ok ? <div style={{ ...muted, fontSize: 12 }}>אין Finding פעיל.</div>
@@ -431,8 +465,6 @@ export default function ElsWorkAreaPage() {
           </div>}
       </div>}
     </section>
-
-    {ok && findings.length > 0 && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧭 המשך מה־Finding</div><div style={{ ...muted, fontSize: 11.5, marginTop: 4 }}>הפוך ממצא מוצג לציר הבא. המנוע טוען בדיוק את אותו hitId; הציר הקודם נשמר במסלול ובזהב.</div><div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9 }}>{findings.map((f, i) => <button key={`${f.t}-${i}`} type="button" disabled={Boolean(journeyPending) || !Array.isArray(f.shown) || !f.shown.length} onClick={() => promoteFinding(f)} style={{ minHeight: 42, borderRadius: 12, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />↑ ציר · {f.t}</button>)}</div></section>}
 
     {mode === "discover" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🔭 גילוי</div><div style={{ ...muted, fontSize: 12.5, lineHeight: 1.7, marginTop: 6 }}>המנוע מחפש; ה־Lab מצייר. עכשיו אפשר לעבור בין מישור, שכבות ו־3D בלי להריץ חיפוש מחדש.</div>{findings.length > 0 && <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>{findings.map((f, i) => <span key={`${f.t}-${i}`} style={{ ...soft, padding: "6px 9px", color: P.ink, fontSize: 12 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />{f.t}</span>)}</div>}</section>}
     {mode === "investigate" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧬 Finding Workspace</div>{!ok ? <div style={{ ...muted, marginTop: 8 }}>בחר Finding באמצעות חיפוש.</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 8, marginTop: 10 }}><div style={{ ...soft, padding: 11 }}><div style={title}>זהות</div><div style={{ ...muted, fontSize: 12 }}>{s.term} · {dir(axis.direction)} · {n(axis.skip)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>חלון</div><div style={{ ...muted, fontSize: 12 }}>rows {n(geo.r0)}–{n(geo.r1)} · cw {n(geo.cw)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>Renderer</div><div style={{ ...muted, fontSize: 12 }}>{viewMode} · depth {depth}</div></div></div>}<div style={{ marginTop: 9 }}><Next>בחר ממצא ב־«המשך מה־Finding» כדי להפוך אותו לציר חדש; החזרה נעשית דרך מסלול המחקר למעלה.</Next></div></section>}
