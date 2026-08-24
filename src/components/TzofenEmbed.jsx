@@ -9,6 +9,7 @@ import { thumb } from "../lib/img.js";
 import SubscribeGate from "./SubscribeGate.jsx";
 import { useUniversalWorkspace } from "../lib/research/useUniversalWorkspace.js";
 import { elsStateToUniversalFindings } from "../lib/research/universalFinding.js";
+import { makeJourneySnapshot } from "../lib/elsJourney.js";
 
 // 🔠 הצופן התנ״כי — כלי דילוגי-האותיות (ELS) העצמאי, מוטמע כ-iframe מ-public/tzofen.html.
 // דפוס זהה ל-heichal.html. מקור-יחיד: אותו כלי ב-/code (מלא) ובהיכל (/research?tool=els).
@@ -46,7 +47,11 @@ function rowToItem(m) {
 // 📜 lensRequest/onLens — חוזה on-demand ל-Verse/Context Lens (וכל עדשה עתידית דומה): לא חלק מ-state.
 //    lensRequest={lens,target} משודר לכלי כ-{type:"request-lens",...}; התשובה חוזרת דרך onLens (הודעת
 //    {type:"lens",...} מהכלי) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking. ⛔ אין Lens בכל state-tick.
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, lensRequest = null, onLens = null }) {
+// 🧭 journeyLoad/onLoadError — שחזור-מדויק (Pass 2, elsJourney.js): journeyLoad הוא ה-loadItem שמייצר
+//    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
+//    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
+//    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, lensRequest = null, onLens = null, journeyLoad = null, onLoadError = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -69,6 +74,11 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     const findings = elsStateToUniversalFindings(d, { inputRef: d?.axis?.hitId || null });
     const axisFinding = findings.find(f => f.view?.rendererHints?.role === "axis") || findings[0];
     if (!axisFinding) return;
+    // 🧭 Research Journey (Pass 2): מצמיד snapshot מדויק-לשחזור (elsJourney.js makeJourneySnapshot)
+    //    ל-projection של ה-Finding עצמו — לא store נפרד, לא טבלה נפרדת. הצילום עובר עם ה-Finding
+    //    לתוך cart/research_items הקיים (Pass 1), ומאפשר בעתיד "פתח מחדש" מדויק דרך journeyLoad.
+    const snap = makeJourneySnapshot(d, {});
+    if (snap) axisFinding.projection = { ...axisFinding.projection, journeySnapshot: snap };
     workspace.upsertFinding(axisFinding);
     setAddedToast(true);
   }, [workspace]);
@@ -277,11 +287,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "gate") {
         if (!verified) setGate({ reason: d.reason || "limit" });
+      } else if (d.type === "load-error") {
+        // 🧭 Research Journey (Pass 2): loadMatrix בכלי לא מצא את המונח/העוגן-המדויק (hitId/start+dir).
+        onLoadError?.(d);
       }
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest, onLoadError]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
   //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.
@@ -300,6 +313,19 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     lastKeyRef.current = key;
     postToTool({ type: "load-matrix", item: rowToItem(matrix) });
   }, [matrix, postToTool]);
+
+  // 🧭 Research Journey (Pass 2, elsJourney.js): שחזור-מדויק דרך *אותו* מסלול "load-matrix" — לא
+  //    מסלול-טעינה נפרד. journeyLoad הוא loadItem חד-פעמי (buildJourneyPromotion/buildJourneyRestore);
+  //    שולחים בכל אובייקט-loadItem חדש (זהות לפי JSON — לא מזהה יציב כמו matrix.id, כי כל שחזור/קידום
+  //    הוא אירוע-פעולה, לא מצב-נשמר-לאורך-זמן).
+  const journeyKeyRef = useRef(null);
+  useEffect(() => {
+    if (!journeyLoad) { journeyKeyRef.current = null; return; }
+    const key = JSON.stringify(journeyLoad);
+    if (journeyKeyRef.current === key) return;
+    journeyKeyRef.current = key;
+    postToTool({ type: "load-matrix", item: journeyLoad });
+  }, [journeyLoad, postToTool]);
 
   // 🎯 ממצאים עודכנו בפאנל-הניהול (הוסר/נוסף ממצא) — מרעננים את הצביעה בכלי בלי לטעון-מחדש 2.2MB.
   //    דילוג על הטעינה-הראשונה של כל צופן (load-matrix כבר צובע); שולחים רק כשהחתימה משתנה על אותו id.
