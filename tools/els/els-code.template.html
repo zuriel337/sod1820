@@ -1896,14 +1896,14 @@
         "if(d.type===\"hitchunk\"){var ms=[];for(var i=0;i<d.hits.length;i++){var m=crossFindMultiHit(d.hits[i],d.offset+i,d.T2,d.pure,d.rar,d.axisBase);if(m)ms.push(m);}"+
         "postMessage({type:\"hitchunkResult\",reqId:d.reqId,meetings:ms});return;}"+
         "if(d.type===\"findAllAdaptive\"){var dirsArr=[[d.tt,\"fwd\"],[d.ttBack,\"back\"]];"+
-        "var dirHits=[[],[]],total=0,capped2=false,heavyDirs=[];"+
+        "var dirHits=[[],[]],total=0,capped2=0,heavyDirs=[];"+
         "for(var di=0;di<2&&!capped2;di++){var tt2=dirsArr[di][0],orient2=dirsArr[di][1];"+
         "var su2=fwdSetup(tt2);if(!su2)continue;"+
         "var ps2=Math.min(d.probeSize,su2.Pi.length);"+
         "var localHits=[],localStt={capped:0};"+
         "fwdScan(tt2,d.cap-total,localHits,orient2,localStt,su2,0,ps2);"+
         "dirHits[di]=localHits;total+=localHits.length;"+
-        "if(total>=d.cap){capped2=true;}"+
+        "if(total>=d.cap){capped2=1;}"+
         "else if(ps2<su2.Pi.length){heavyDirs.push({dirIndex:di,tt:tt2,orient:orient2,probed:ps2,Pi:su2.Pi,Pj:su2.Pj,i:su2.i,j:su2.j,g:su2.g,mx:su2.mx,L:su2.L,SN:su2.SN});}}"+
         "postMessage({type:\"adaptiveResult\",reqId:d.reqId,dirHits:dirHits,capped:capped2,heavyDirs:heavyDirs});"+
         "return;}"+
@@ -1976,11 +1976,11 @@
         if(capped)break;
         const otherLen=dirHits[1-hd.dirIndex].length;
         const effectiveCap=cap-otherLen;
-        if(effectiveCap<=dirHits[hd.dirIndex].length){capped=true;break;}
+        if(effectiveCap<=dirHits[hd.dirIndex].length){capped=1;break;}
         const setup={SN:hd.SN,L:hd.L,Pi:hd.Pi,Pj:hd.Pj,i:hd.i,j:hd.j,g:hd.g,mx:hd.mx};
         const stt={capped:0};
         await fwdParallel(hd.tt,effectiveCap,dirHits[hd.dirIndex],hd.orient,stt,setup,pool,hd.probed);
-        if(stt.capped)capped=true;
+        if(stt.capped)capped=stt.capped;
       }
       const hits=[...dirHits[0],...dirHits[1]];
       hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
