@@ -1591,6 +1591,14 @@
       toast(d.ok?"🗑 הצופן נמחק מהגלריה":"לא ניתן למחוק כרגע — נסו שוב");
     }
     if(d.type==="contributed"&&!d.ok){toast("שיתוף-הממצא נכשל — נסו שוב");}   // ➕ 1ב — כשל בלבד (הצלחה כבר הודגמה)
+    if(d.type==="add-finding"&&d.term){   // ➕ Host Research Studio: use canonical cross-search, never a parallel finder
+      const term=(d.term||"").trim(),axis=(d.axis||q.value||st.raw||"").trim();
+      if(!canCross()){gate("cross");window.parent.postMessage({source:"tzofen",type:"finding-result",requestId:d.requestId||null,ok:false,reason:"gate",term},location.origin);return;}
+      if(norm(term).length<2||norm(axis).length<2){window.parent.postMessage({source:"tzofen",type:"finding-result",requestId:d.requestId||null,ok:false,reason:"invalid",term},location.origin);return;}
+      if(st.crossTerms.some(x=>norm(x)===norm(term))){window.parent.postMessage({source:"tzofen",type:"finding-result",requestId:d.requestId||null,ok:false,reason:"duplicate",term},location.origin);return;}
+      if(st.crossTerms.length>=8){window.parent.postMessage({source:"tzofen",type:"finding-result",requestId:d.requestId||null,ok:false,reason:"limit",term},location.origin);return;}
+      const prev=st.crossTerms.slice();st.crossTerms.push(term);renderXTerms();q.value=axis;runCross(axis,d.requestId||null,true,prev);return;
+    }
     if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
       // ✏️ קשר-עריכה: צופן קיים נטען → שמירה תעדכן אותו במקום (לא עותק). נמחק בחיפוש-מונח חדש.
       if(!d.item.journey){st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");}
@@ -1777,23 +1785,26 @@
     arr.sort((a,b)=>b.length-a.length || gem(b)-gem(a) || (a<b?-1:1));
     return arr[0]||norm(words[0]||"");
   }
-  function runCross(A){
+  function runCross(A,hostRequestId=null,fixedAxis=false,hostPrevTerms=null){
     const xr=document.getElementById("xrun");
-    // סימטריה: הציר נבחר אוטומטית מבין {הציר שהוקלד + כל המונחים} — הגדולה מכילה את האחרות
-    const parts=[A,...st.crossTerms];const axisN=chooseAxis(parts);
+    // UI legacy keeps symmetric auto-axis selection; host add-finding explicitly preserves the active research axis.
+    const parts=[A,...st.crossTerms];const axisN=fixedAxis?norm(A):chooseAxis(parts);
     const axis=parts.find(w=>norm(w)===axisN)||A;
     const terms=parts.filter(w=>norm(w)!==axisN);
     goBusy("מצליב…");if(xr){xr.disabled=true;xr.textContent="סורק…";}
     setTimeout(()=>{
       const {resA,meetings,total}=crossFindMulti(axis,terms,st.crossPure);
       go.disabled=false;go.textContent="חפש בתורה ◆";if(xr){xr.disabled=false;xr.textContent="🔀 מצא התכנסות";}
-      if(!meetings.length){toast("לא נמצאה התכנסות טהורה של המונחים סביב «"+axis+"». הרפה את הטוהר או נסה מונחים אחרים.");return;}
+      if(!meetings.length){
+        if(hostRequestId){if(Array.isArray(hostPrevTerms)){st.crossTerms=hostPrevTerms;renderXTerms();}window.parent.postMessage({source:"tzofen",type:"finding-result",requestId:hostRequestId,ok:false,reason:"not-found",term:terms[terms.length-1]||""},location.origin);}
+        toast("לא נמצאה התכנסות טהורה של המונחים סביב «"+axis+"». הרפה את הטוהר או נסה מונחים אחרים.");return;}
       st.res=resA;st.crossMeetings=meetings;st.crossIdx=0;st.crossTerms=terms;st.crossTotal=total;st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.crossB=terms.map(norm).join(" · ");st.raw=axis;
       st.crossFilter=null;st.crossScanned=false;st.crossCollapsed=false;st.crossMcRun=false;
       q.value=axis;renderXTerms();
       openZone(0);
       const sw=norm(axis)!==norm(A);
       toast("🔀 "+heb(meetings.length)+" אזורים · הטוב: "+meetings[0].nFound+"/"+total+" · "+meetings[0].stars+"★"+(sw?" · סובב סביב «"+axis+"» (הדילוג הגדול)":""));
+      if(hostRequestId)window.parent.postMessage({source:"tzofen",type:"finding-result",requestId:hostRequestId,ok:true,term:terms[terms.length-1]||"",axis:axis},location.origin);
     },10);
   }
   // 🔀 מצב פשוט — שני מונחים. **סימטרי**: מריץ את שני הכיוונים ובוחר את זה שמוצא (בו השני נכנס למטריצה).

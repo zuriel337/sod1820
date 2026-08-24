@@ -95,6 +95,10 @@ export default function ElsWorkAreaPage() {
   const [journeyLoad, setJourneyLoad] = useState(null);
   const [journeyError, setJourneyError] = useState("");
   const journeyPendingRef = useRef(null);
+  const [findingDraft, setFindingDraft] = useState("");
+  const [findingRequest, setFindingRequest] = useState(null);
+  const [findingPending, setFindingPending] = useState(false);
+  const [findingMessage, setFindingMessage] = useState("");
 
   useEffect(() => {
     applySeo({ title: "ELS Research Studio · סוד 1820", description: "סביבת המחקר החדשה של הצופן התנ״כי", path: "/lab/els" });
@@ -194,9 +198,29 @@ export default function ElsWorkAreaPage() {
     journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null); setWaiting(false);
     setJourneyError("העוגן המדויק כבר לא זמין בתוצאת המנוע. המצב הקודם נשמר ולא הוחלף.");
   }, []);
+  const onFindingResult = useCallback((d) => {
+    if (!findingRequest || d?.requestId !== findingRequest.id) return;
+    setFindingPending(false); setFindingRequest(null);
+    if (d?.ok) { setFindingDraft(""); setFindingMessage(`✓ «${d.term || "הממצא"}» נוסף דרך מנוע ההצלבה`); return; }
+    const msg = d?.reason === "not-found" ? "לא נמצאה כרגע התכנסות של המונח עם הציר הפעיל."
+      : d?.reason === "duplicate" ? "המונח כבר נמצא ברשימת הממצאים."
+      : d?.reason === "limit" ? "הגעת למגבלת 8 המונחים של מנוע ההצלבה."
+      : d?.reason === "gate" ? "הוספת ממצא משתמשת בחיפוש המוצלב ודורשת הרשמה."
+      : "לא ניתן להוסיף את המונח לבדיקה כרגע.";
+    setFindingMessage(msg);
+  }, [findingRequest]);
+  const addFinding = (e) => {
+    e?.preventDefault?.();
+    const term = findingDraft.trim(), axisTerm = (s?.termRaw || s?.term || "").trim();
+    if (!ok || term.length < 2 || axisTerm.length < 2 || findingPending) return;
+    const req = { id: `finding-${Date.now()}-${Math.random()}`, term, axis: axisTerm };
+    setFindingMessage(""); setFindingPending(true); setFindingRequest(req);
+  };
+
   const runSearch = (e) => {
     e?.preventDefault?.(); const q = query.trim(); if (q.length < 2) return;
     journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null); setJourneyTrail([]); setJourneyError("");
+    setFindingDraft(""); setFindingRequest(null); setFindingPending(false); setFindingMessage("");
     setEngineState(null); setSelectedCell(null); setSeed(q); setWaiting(true); setFirstRunHint(false); setRunNonce((x) => x + 1);
   };
 
@@ -408,7 +432,7 @@ export default function ElsWorkAreaPage() {
         מעביר את הכוונה ל-TzofenEmbed עצמו (loading=eager + ?bridge=hidden) כדי שהמנוע-הנסתר-מהצג
         באמת ייטען וידלג רק על ההדרכה-החד-פעמית, בלי לעקוף tier/auth/quota. ה-CSS off-screen* נשאר
         לצורך ההסתרה-החזותית בלבד — אינו עוד מקור-האמת לכוונה. */}
-    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} loadRequest={journeyLoad} onLoadError={onLoadError} /></div>
+    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} loadRequest={journeyLoad} onLoadError={onLoadError} findingRequest={findingRequest} onFindingResult={onFindingResult} /></div>
 
     {(journeyTrail.length > 0 || ok || journeyError) && <div style={{ ...card, padding: "9px 11px", marginBottom: 10, display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
       <span style={{ ...title, fontSize: 11.5 }}>🧭 מסלול מחקר</span>
@@ -436,12 +460,20 @@ export default function ElsWorkAreaPage() {
           {isolateKey && <button type="button" onClick={() => setIsolateKey(null)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.accentText }}>✕ נקה בידוד</button>}
           <button type="button" onClick={resetView} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.inkSoft }}>↺ איפוס</button>
         </div>
-        {ok && findings.length > 0 && <div style={{ ...soft, padding: "9px 10px", display: "grid", gap: 7 }}>
+        {ok && <div style={{ ...soft, padding: "9px 10px", display: "grid", gap: 8 }}>
+          <form onSubmit={addFinding} style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ ...title, fontSize: 11.5 }}>＋ הוסף ממצא לבדיקה</span>
+            <input value={findingDraft} onChange={(e) => setFindingDraft(e.target.value)} placeholder="למשל: תורה" disabled={findingPending} style={{ flex: "1 1 180px", minHeight: 42, borderRadius: 11, border: `1px solid ${P.border}`, background: P.card, color: P.ink, padding: "0 11px", fontFamily: F.body, fontSize: 14 }} />
+            <button type="submit" disabled={findingPending || findingDraft.trim().length < 2} style={{ minHeight: 42, borderRadius: 11, border: 0, padding: "0 14px", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontWeight: 900, opacity: findingPending || findingDraft.trim().length < 2 ? .5 : 1 }}>{findingPending ? "בודק במנוע…" : "בדוק והוסף"}</button>
+            {findingMessage && <span style={{ ...muted, fontSize: 11.5 }}>{findingMessage}</span>}
+          </form>
+          {findings.length > 0 && <>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <div><span style={{ ...title, fontSize: 11.5 }}>✦ Findings</span><span style={{ ...muted, fontSize: 11.5, marginInlineStart: 7 }}>בחר ממצא כדי להפוך אותו לציר הבא</span></div>
             <span style={{ ...muted, fontSize: 10.5 }}>{fitMatrix ? "Focus/Fit · רק אזור המחקר הפעיל" : "Full Matrix · כל ה-Snapshot"}</span>
           </div>
           <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{findings.map((f, i) => <button key={`top-${f.t}-${i}`} type="button" disabled={Boolean(journeyPending) || !Array.isArray(f.shown) || !f.shown.length} onClick={() => promoteFinding(f)} style={{ minHeight: 42, borderRadius: 12, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />↑ ציר · {f.t}</button>)}</div>
+          </>}
         </div>}
       </div>
       {s?.status === "empty" ? <div style={{ minHeight: 440, display: "grid", placeItems: "center", ...muted }}>לא נמצא דילוג למונח «{s.termRaw || seed}».</div> : <MatrixStage />}
