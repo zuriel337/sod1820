@@ -1141,9 +1141,127 @@
     const setup=fwdSetup(tt);if(!setup)return;
     fwdScan(tt,cap,hits,orient,stt,setup,0,setup.Pi.length);
   }
-  function findAll(raw,cap){const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
-    const s={capped:0};fwd(t,cap,hits,"fwd",s);fwd(t.split("").reverse().join(""),cap,hits,"back",s);
-    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));return{hits,capped:s.capped,t};}
+  // 🩹 scopeRange + fwdDisperse (כוונה/חוזה מ-els-unified-merge D4 7f066e23, מותאם למבנה הנוכחי —
+  //    לא הקוד הישן, לא מגע ב-fwdScan/fwdSetup/anchors/pruning): Pi/Pj ממוינים לפי מיקום-בקורפוס
+  //    (נבנים בסריקת T מ-0 עד SN), ולכן סריקה שנעצרת ב-cap (stt.capped) מחזירה תמיד רק "קידומת" —
+  //    המופעים הראשונים בקורפוס — לא מדגם מפוזר. זו "חתימה שקטה" של truncation: capped כבר מדווח
+  //    (UI מציג "+"), אבל התוכן-שמוצג מוטה-קידומת בלי שהמשתמש יודע. scopeRange(setup) מגדיר את מרחב-
+  //    האנקורים המלא [0,Pi.length) של אותו setup (בלי חישוב-אנקורים מחדש); fwdDisperse, כשסריקה כבר
+  //    capped, מוסיפה עד DISPERSE_SEG דגימות-משנה קטנות ופרושות על פני הטווח המלא (כולל מעבר לכל מה
+  //    שכבר נסרק), מדלגת על מופעים קיימים (hitKey), ולעולם לא חורגת מ-cap הכולל. תמיד רק "מוסיפה על"
+  //    תוצאה קיימת — לא ניחוש/משפט משני; מופעל רק כש-capped===true בפועל (לא תוקן/לא נוגע בהיקף
+  //    שלא-capped, כדי לשמור על שקילות-בייט לרוב-המכריע של החיפושים).
+  const DISPERSE_SEG=8;
+  function scopeRange(setup){return [0,setup.Pi.length];}
+  function fwdDisperse(tt,cap,hits,orient,setup){
+    if(!setup||hits.length>=cap)return;
+    const [from,to]=scopeRange(setup),total=to-from;if(total<=0)return;
+    const seen=new Set();for(const h of hits)seen.add(h.start+"_"+h.skip+"_"+h.dir);
+    const segLen=Math.max(1,Math.ceil(total/DISPERSE_SEG));
+    for(let sidx=0;sidx<DISPERSE_SEG&&hits.length<cap;sidx++){
+      const segFrom=from+sidx*segLen,segTo=Math.min(to,segFrom+segLen);
+      if(segFrom>=segTo)continue;
+      const segCap=Math.max(1,Math.ceil((cap-hits.length)/(DISPERSE_SEG-sidx)));
+      const localHits=[],localStt={capped:0};
+      fwdScan(tt,segCap,localHits,orient,localStt,setup,segFrom,segTo);
+      for(const h of localHits){
+        if(hits.length>=cap)break;
+        const k=h.start+"_"+h.skip+"_"+h.dir;if(seen.has(k))continue;seen.add(k);hits.push(h);
+      }
+    }
+  }
+  // 🩹 fwdDisperseTopUp — עוטף fwdDisperse למקרה הנפוץ (הריאלי) שבו הקידומת כבר *ממלאת* את כל ה-cap
+  // (leftover=0, אין "מקום פנוי" להוסיף אליו) — שם fwdDisperse לבדו לא-פעיל (אין headroom). כדי ש-
+  // "no silent cap-induced truncation" יתקיים גם כאן, שומרים RESERVE קטן (עד 5%/200, המינימלי-הכרחי)
+  // מתוך cap: מסירים את RESERVE המופעים *האחרונים לפי סדר-הכנסה* (עדיין מופעים תקפים לגמרי — רק
+  // נדחקים בהעדפת-גיוון, לא נמחקים כי הם שגויים) ומפנים את המקום למדגם-מפוזר אמיתי. מופעל אך ורק על
+  // תוצאה שכבר capped=true (חיפוש לא-capped נשאר זהה-בייט, ללא נגיעה) — dirs=[{tt,orient,setup},...].
+  const DISPERSE_RESERVE_FRAC=0.05,DISPERSE_RESERVE_MAX=200;
+  function fwdDisperseTopUp(hits,dirs){
+    if(!hits.length)return;
+    const target=hits.length;
+    const reserve=Math.max(1,Math.min(DISPERSE_RESERVE_MAX,Math.floor(target*DISPERSE_RESERVE_FRAC)));
+    const trimmed=hits.slice(Math.max(0,target-reserve));   // המופעים התקפים שהוסרו זמנית (לא נמחקים)
+    hits.length=Math.max(0,target-reserve);
+    for(const d of dirs){if(hits.length>=target)break;fwdDisperse(d.tt,target,hits,d.orient,d.setup);}
+    // 🩹 השלמה מובטחת: אם הפיזור לא מצא מספיק מופעים-חדשים (קטע-קורפוס דל, ריבוי-כפילויות מול seen)
+    //    — משיבים בחזרה כמה שצריך מ-trimmed (עדיין תקפים-לגמרי) כדי ש-capped=true תמיד יחזיר בדיוק
+    //    target מופעים, בהתאמה ל-fwdProbePair/findAllAdaptive — לעולם לא פחות, לעולם לא כפילות.
+    if(hits.length<target){
+      const seen2=new Set();for(const h of hits)seen2.add(h.start+"_"+h.skip+"_"+h.dir);
+      for(const h of trimmed){
+        if(hits.length>=target)break;
+        const k=h.start+"_"+h.skip+"_"+h.dir;if(seen2.has(k))continue;seen2.add(k);hits.push(h);
+      }
+    }
+  }
+  // 🩹 גרסת-הבדיקה (probe) של בידוד-כיוונים, שימוש יחיד: ה-Worker handler "findAllAdaptive"
+  //    (מוזרק דרך toString() כמו fwdSetup/fwdScan/fwd/findAll — אותו קוד בדיוק, לא שכפול-יד).
+  //    זהה ללולאה שהייתה קיימת ב-worker (fwd קודם עם cap מלא, back עם היתרה, cap-total), עם תיקון
+  //    יחיד ומבודד: אם fwd לבדו רווה את כל ה-cap בתוך חלון-ה-probe — משריינים ל-back מחצית-cap
+  //    במקום 0 מוחלט (בדיוק כמו findAll הסינכרוני למעלה). בכל מקרה אחר — התוצאה זהה-בייט למקור,
+  //    כולל heavyDirs (שמשמש רק כש-capped===false, ולכן לא רלוונטי לענף המתוקן שתמיד capped=1).
+  function fwdProbePair(t0,t1,cap,probeSize){
+    const su0=fwdSetup(t0),su1=fwdSetup(t1);
+    const ps0=su0?Math.min(probeSize,su0.Pi.length):0;
+    const ps1=su1?Math.min(probeSize,su1.Pi.length):0;
+    let h0=[];const st0={capped:0};
+    if(su0)fwdScan(t0,cap,h0,"fwd",st0,su0,0,ps0);
+    let fwd0Continuable=!!(su0&&ps0<su0.Pi.length),bTo=ps1;
+    if(st0.capped&&h0.length>=cap){
+      // 🩹 שקילות עם findAll הסינכרוני: fwd() שם סורק תמיד את מלוא Pi (בלי חלון-probe). כדי שהענף-
+      //    המתוקן (בידוד-כיוונים) יישאר זהה-בייט בין sync ל-Worker גם כשה-cap אמיתי נמצא רק מעבר
+      //    ל-probeSize, סורקים כאן מ-0 עד su0.Pi.length המלא (לא ps0) — בפועל אין עלות נוספת כי
+      //    fwdScan עוצר ברגע שמגיע ל-capFwd (שכבר ידוע שקורה מהר, בתוך אותו הריצה שזיהתה capped).
+      //    אותו טעם ל-back: bTo=su1.Pi.length (במקום ps1) בענף הזה בלבד.
+      h0=[];const capFwd=Math.ceil(cap/2);st0.capped=0;
+      if(su0)fwdScan(t0,capFwd,h0,"fwd",st0,su0,0,su0.Pi.length);
+      fwd0Continuable=false;bTo=su1?su1.Pi.length:ps1;
+    }
+    const cap1=cap-h0.length,h1=[],st1={capped:0};
+    if(su1)fwdScan(t1,cap1,h1,"back",st1,su1,0,bTo);
+    const total=h0.length+h1.length;
+    const capped=(total>=cap||st0.capped||st1.capped)?1:0;
+    const heavyDirs=[];
+    if(!capped){
+      if(fwd0Continuable)heavyDirs.push({dirIndex:0,tt:t0,orient:"fwd",probed:ps0,Pi:su0.Pi,Pj:su0.Pj,i:su0.i,j:su0.j,g:su0.g,mx:su0.mx,L:su0.L,SN:su0.SN});
+      if(su1&&ps1<su1.Pi.length)heavyDirs.push({dirIndex:1,tt:t1,orient:"back",probed:ps1,Pi:su1.Pi,Pj:su1.Pj,i:su1.i,j:su1.j,g:su1.g,mx:su1.mx,L:su1.L,SN:su1.SN});
+    }else{
+      // scopeRange: capped-within-probe כבר כאן (בלי סבב-Worker נוסף) — פיזור מיד, symmetric לשני
+      // הכיוונים (trim+disperse על כל hK בנפרד כדי לשמר את החלוקה dirHits[0]/dirHits[1] הנפרדת).
+      if(su0)fwdDisperseTopUp(h0,[{tt:t0,orient:"fwd",setup:su0}]);
+      if(su1)fwdDisperseTopUp(h1,[{tt:t1,orient:"back",setup:su1}]);
+    }
+    return {dirHits:[h0,h1],capped,heavyDirs};
+  }
+  function findAll(raw,cap){const t=norm(raw);if(t.length<2)return{hits:[],capped:0,t};
+    const tb=t.split("").reverse().join("");
+    // 🩹 בידוד-כיוונים (direction-isolation fix, els2 fb9c23ea/els-unified-merge fdd94acd, מותאם):
+    //    hitsF/hitsB נפרדים (לא מערך+stt משותפים) — במקור, אם fwd()-קדימה לבדו מילא את כל ה-cap,
+    //    הקריאה הבאה ל-fwd()-אחורה עם stt משותף חוזרת מיידית ומדכאת back לגמרי, גם אם יש לו מופעים
+    //    תקפים. כאן: רק כשזה קורה בפועל (לא ניחוש) — ענף if — מריצים fwd-קדימה מחדש עם חצי-cap
+    //    ומשריינים את היתרה ל-back; בכל מקרה אחר (הרוב המכריע) — ענף else, זהה-בייט למקור (אותה
+    //    רצף-קריאות, רק למערכים נפרדים שמתאחדים ב-concat בסוף, אותו סדר-תיקו).
+    let hitsF=[],sf={capped:0};
+    fwd(t,cap,hitsF,"fwd",sf);
+    let hitsB=[],sb={capped:0},capped;
+    if(sf.capped&&hitsF.length>=cap){
+      hitsF=[];const capFwd=Math.ceil(cap/2);sf={capped:0};
+      fwd(t,capFwd,hitsF,"fwd",sf);
+      fwd(tb,cap-hitsF.length,hitsB,"back",sb);
+      capped=1;
+    }else{
+      fwd(tb,cap-hitsF.length,hitsB,"back",sb);
+      capped=(sf.capped||sb.capped)?1:0;
+    }
+    // 🩹 scopeRange/fwdDisperseTopUp: רק כש-capped===true בפועל (לא נוגע בחיפוש לא-capped).
+    if(capped){
+      const suF=fwdSetup(t);if(suF)fwdDisperseTopUp(hitsF,[{tt:t,orient:"fwd",setup:suF}]);
+      const suB=fwdSetup(tb);if(suB)fwdDisperseTopUp(hitsB,[{tt:tb,orient:"back",setup:suB}]);
+    }
+    const hits=hitsF.concat(hitsB);
+    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
+    return{hits,capped,t};}
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
     const t=norm(raw),L=t.length,out=[];if(L<1)return out;
@@ -1881,7 +1999,10 @@
         "const norm="+norm.toString()+";\nconst gem="+gem.toString()+";\n"+
         "const st={scope:\"x\"};\nconst FA=new Map();\n"+
         lb.toString()+"\nfunction scopeN(){return SN;}\n"+
-        fwdSetup.toString()+"\n"+fwdScan.toString()+"\n"+fwd.toString()+"\n"+findAll.toString()+"\n"+
+        fwdSetup.toString()+"\n"+fwdScan.toString()+"\n"+fwd.toString()+"\n"+
+        "const DISPERSE_SEG="+DISPERSE_SEG+";\nconst DISPERSE_RESERVE_FRAC="+DISPERSE_RESERVE_FRAC+";\nconst DISPERSE_RESERVE_MAX="+DISPERSE_RESERVE_MAX+";\n"+
+        scopeRange.toString()+"\n"+fwdDisperse.toString()+"\n"+fwdDisperseTopUp.toString()+"\n"+
+        fwdProbePair.toString()+"\n"+findAll.toString()+"\n"+
         faMemo.toString()+"\n"+rarityOf.toString()+"\n"+
         "const bookOf="+bookOf.toString()+";\n"+
         "const gridStep="+gridStep.toString()+";\nconst gapF="+gapF.toString()+";\n"+
@@ -1895,17 +2016,8 @@
         "postMessage({type:\"cfmResult\",reqId:d.reqId,meetings:r2.meetings,total:r2.total});return;}"+
         "if(d.type===\"hitchunk\"){var ms=[];for(var i=0;i<d.hits.length;i++){var m=crossFindMultiHit(d.hits[i],d.offset+i,d.T2,d.pure,d.rar,d.axisBase);if(m)ms.push(m);}"+
         "postMessage({type:\"hitchunkResult\",reqId:d.reqId,meetings:ms});return;}"+
-        "if(d.type===\"findAllAdaptive\"){var dirsArr=[[d.tt,\"fwd\"],[d.ttBack,\"back\"]];"+
-        "var dirHits=[[],[]],total=0,capped2=0,heavyDirs=[];"+
-        "for(var di=0;di<2&&!capped2;di++){var tt2=dirsArr[di][0],orient2=dirsArr[di][1];"+
-        "var su2=fwdSetup(tt2);if(!su2)continue;"+
-        "var ps2=Math.min(d.probeSize,su2.Pi.length);"+
-        "var localHits=[],localStt={capped:0};"+
-        "fwdScan(tt2,d.cap-total,localHits,orient2,localStt,su2,0,ps2);"+
-        "dirHits[di]=localHits;total+=localHits.length;"+
-        "if(total>=d.cap){capped2=1;}"+
-        "else if(ps2<su2.Pi.length){heavyDirs.push({dirIndex:di,tt:tt2,orient:orient2,probed:ps2,Pi:su2.Pi,Pj:su2.Pj,i:su2.i,j:su2.j,g:su2.g,mx:su2.mx,L:su2.L,SN:su2.SN});}}"+
-        "postMessage({type:\"adaptiveResult\",reqId:d.reqId,dirHits:dirHits,capped:capped2,heavyDirs:heavyDirs});"+
+        "if(d.type===\"findAllAdaptive\"){var pr=fwdProbePair(d.tt,d.ttBack,d.cap,d.probeSize);"+
+        "postMessage({type:\"adaptiveResult\",reqId:d.reqId,dirHits:pr.dirHits,capped:pr.capped,heavyDirs:pr.heavyDirs});"+
         "return;}"+
         "if(d.type===\"fwdchunk\"){var ch=[],cst={capped:0};"+
         "var csetup={SN:d.SN,L:d.L,i:d.i,j:d.j,g:d.g,Pi:d.Pi,Pj:d.Pj,mx:d.mx};"+
