@@ -40,6 +40,43 @@
 
 ---
 
+## 0-A. RESEARCH STUDIO v1 — ARCHITECTURE DECISION (24.8.2026)
+> **STATUS: APPROVED by ZURIEL Human-Gate · DOCUMENTED on Draft PR #187 · not merged/deployed by this decision alone.**
+> provenance: `docs/research-studio-v1-contract.md`, `docs/research-universal-finding-contract.md`, work_log 24.8 actor=GPT, live verification of `ResearchProvider`/main + PRs #185/#186/#188.
+
+### DECISION
+SOD1820 מחזיק **Research OS אחד**: Reality Graph אחד, Research Workspace גלובלי אחד ו-Human Gate אחד. ELS, Gematria/Numbers, Cross, Verse, Entity/Person/Name, Reality Signals, research/posts ו-AI הם engines/sources/lenses בתוך אותו Research OS — לא מוצרים/עצי-אמת מקבילים.
+
+ה-flow המאושר: **Discovery → Universal Findings → Investigation → Judgment**.
+- `Clean ↔ Pro` הם presentation-depth של אותו state.
+- Journey הוא workflow/history אוטומטי עם exact identity/restore, לא אפליקציה שלישית.
+- Universal Finding שומר source-native identity + provenance; display/view metadata לעולם אינו identity.
+- AI suggestions נכנסות כ-`candidate`; אין קידום אוטומטי ל-Finding/Fact/Canonical/Published.
+- Numbers הם first-class graph entities; תוצאת שיטת-גימטריה וה-Number Entity אינם אותה identity.
+
+### LAYERED / 3D FIRST-CLASS LAW
+2D, Layered ו-3D/Depth הם projections/renderers של **אותו Research/Finding State**. אסור מנוע-3D, Matrix truth או Finding store מקביל. כל adapter חדש צריך לחשוף, כאשר טבעי למקור, stable anchors/relations/dimensions שמאפשרים projection ל-2D/Layered/3D. Depth semantics חייבים להיות מפורשים.
+
+Performance: 2D+Focus/Fit הוא baseline זול; Layered/3D lazy/on-demand; large matrices מיועדות ל-viewport virtualization; חומרה חלשה/מובייל משנה renderer strategy בלבד, לא research truth/canonical data.
+
+### GLOBAL WORKSPACE / STORAGE DECISION
+`src/lib/research/ResearchProvider.jsx` הקיים הוא תשתית-ה-Workspace הקנונית להרחבה. `cart/saved/pinned/history/collections/journeys/mode` ו-cloud path דרך `research_items` נשמרים. חוזה Universal Finding **אינו** מאשר טבלת `findings` או Context/Store מקביל.
+
+### PRIORITY DECISION
+`ACTIVE_NOW` עובר ברמת-הניווט ל-**Research Studio Foundation**. `WS-GEMATRIA-CORPUS-PACKAGES` אינו מבוטל ואינו SUPERSEDED; הוא נשאר workstream יסודי/תלות ומתחבר כ-Number/Gematria source לתוך Research Studio. סדר הבנייה המאושר: Universal Finding → Global Workspace → ELS Lens integration → Number/Gematria Adapter → Discovery adapters → Findings Workspace UX → Judgment Surface → legacy capability reconciliation → Depth/Research Universe.
+
+### IMPLEMENTATION STATE (24.8)
+- PR #185: merged/main — ELS state + Matrix + 2D/Layered/3D + Verse integration.
+- PR #186: BUILDING/DRAFT — exact Journey + Focus/Fit + add-Finding cross bridge.
+- PR #187: DOCS/DRAFT — architecture + Universal Finding contracts.
+- PR #188: BUILDING/DRAFT stacked on #186 — Universal Finding adapter over existing ResearchProvider + explicit `📌 למחקר`.
+- No merge/deploy to main is authorized by this Master-State entry itself.
+
+### NEXT ACTION
+Human Preview #188 → verify canonical Number/Gematria callable path → add Number/Gematria adapter. Do not build a parallel Workspace/Graph/engine and do not calculate gematria from memory.
+
+---
+
 ## 1. רישום השיטות — `gematria_methods`
 - **`EXISTING` · Registry קנוני קיים של 23 רשומות** (base 14 · depth 9). זהו מקור-האמת לשיטות. **לא נבנה Registry מקביל.**
 - **`EXISTING` · אין עמודת `status`/`lifecycle`** בטבלה. עמודות-המצב הקיימות: `in_engine`, `active`, `deterministic`, `function`, `db_column`, `version`, `category`, `sub`, `source_of_truth`, `required_entitlement`.

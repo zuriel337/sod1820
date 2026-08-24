@@ -1,4 +1,4 @@
-# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.1 (קנוני)
+# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.2 (מועמד לקנוניזציה — PR #187)
 
 > **✅ v5.1 קנוני.** Reconciliation ממוקד של v5 בעקבות סגירת **Research DNA v1 Foundation Contract** (PR #166, **`CONTRACT: CLOSED`**, merged ל-`main` בקומיט **`95005d78e6415e52534c535ef9b93940e835cc31`**). **זו אינה v6 — אין ארכיטקטורה חדשה כאן.** v5.1 מתאמת את אותה מפה מול המצב-החי החדש ומוסיפה **Canonical Gate Map** אחד. `LAST_RECONCILED: 2026-08-22` (main SHA `95005d78`, ancestor-מאומת מול `origin/main` — אין drift; provenance: `work_log` `actor=CLAUDE task=SOD1820_MASTER_ROADMAP_V5_1_RECONCILIATION`). כל תוכן v5 (כולל v4 שמתחתיו) שלא צוין כאן במפורש כ-SUPERSEDED/עודכן נשאר בתוקף ללא-שינוי (NO-DISAPPEARING-WORK) — כולל תיקוני-PR-#165 (יעד-Persistence לא-מונח-מראש · Research-DNA-Identity נפרד מ-Gate #4/WS-ELS-IDENTITY · Entity-Hub/Raziel `LIVE`/`PARTIAL`-כבר-היום) ו-Strategic Foundation Order הקיים, המתואם כאן מול ה-Foundation הסגור (ר' §CANONICAL GATE MAP למטה). **`ACTIVE_NOW` אינו-משתנה ב-pass הזה** — עדיין `WS-GEMATRIA-CORPUS-PACKAGES`, ללא-הצדקה-לשינוי.
 >
@@ -9,6 +9,45 @@
 > **סדר־סמכות:** live DB + `main` + `SOD1820_MASTER_STATE.md` (מצב קנוני) > המפה הזאת (ניווט) > זיכרון. המפה **מפנה** אל המצב הקנוני; לעולם אינה אמת מקבילה ואינה בסיס־נתונים.
 >
 > **v5 הוסיפה על v4 (נשמר, provenance):** ספיגת עבודה-היסטורית (ELS/Premium-Research/Legacy-Systems) שנחקרה ב-4 סבבי-READ-ONLY (Architecture Reconstruction · Legacy Reconciliation · GPT-docs cross-check · Absorption Matrix) + פתרון Decision #1 (ELS Full-Search-Space) לפי provenance קיים.
+
+---
+
+## 🧭 RESEARCH STUDIO v1 — RECONCILIATION 24.8.2026
+> **DECISION — ZURIEL Human-Gate, 24.8.2026.** סעיף זה הוא שכבת-הניווט העדכנית של המפה ומחליף, לצורך `ACTIVE_NOW` וסדר-הבנייה, הפניות ישנות יותר ל-`WS-GEMATRIA-CORPUS-PACKAGES` כעמדה-היחידה. ההיסטוריה שמתחת נשמרת כ-provenance ואינה נמחקת. מקור: `docs/research-studio-v1-contract.md` + `docs/research-universal-finding-contract.md` + `work_log` actor=GPT. עד למיזוג PR #187 ל-`main`, זהו **מועמד-קנוני מאושר-Human-Gate**, לא מסמך-main קנוני.
+
+### ACTIVE_NOW החדש — `WS-RESEARCH-STUDIO-FOUNDATION`
+**מטרה:** לחבר את המנועים והישויות הקיימים ל-Research OS אחד, בלי מנוע/Graph/Store מקביל.
+
+**חוזה מוצר:** `Discovery → Universal Findings → Investigation → Judgment`.
+- `Clean ↔ Pro` = עומק-תצוגה על אותו State, לא שתי אפליקציות.
+- Journey = היסטוריית-מחקר אוטומטית עם restore מדויק, לא מוצר שלישי.
+- 2D / Layered / 3D = renderers של אותו Finding/Research State; אין 3D truth נפרד.
+- 2D+Focus/Fit הוא baseline מהיר; שכבות/3D lazy/on-demand; מטריצות גדולות מיועדות ל-virtualization.
+- AI/Raziel מציע Candidates בלבד; Candidate ≠ Finding ≠ Fact ≠ Claim ≠ Interpretation ≠ Canonical ≠ Published.
+
+### סדר-הבנייה המעודכן
+1. **Universal Finding Contract** — חוזה זהות/provenance משותף לכל מקור. `CONTRACT: APPROVED`; מימוש-ראשון קיים ב-Draft #188.
+2. **Global Research Workspace / ResearchProvider** — reuse של `src/lib/research/ResearchProvider.jsx` + `research_items`; אין Store/טבלה מקבילים.
+3. **ELS Lens integration** — #186/#188: ELS exact identity, Journey, Findings, Matrix, Verse, 2D/Layered/3D; ה-ELS הוא Lens ראשון, לא בעל-הבית של ה-Workspace.
+4. **Number/Gematria Adapter + NumberHub** — מחובר רק דרך `gematria_methods` והפונקציות הקנוניות; `WS-GEMATRIA-CORPUS-PACKAGES` נשמר ואינו מבוטל, אך מוזן מעכשיו אל Research Studio במקום לעמוד כ-workstream מבודד.
+5. **Discovery Layer** — Cross Search, Auto Terms, AI Suggestions, EntityHub/Graph, אנשים/ישויות, פסוקים ומחקר קיים כ-Candidates/Findings עם provenance.
+6. **Global Findings Workspace UX** — multi-Finding, compare, pin, dismiss-from-view, restore, source-neutral inspect, adapter-specific promote.
+7. **Judgment Surface** — Evidence / Claim / Interpretation / confidence מוסבר + Human Gate; אין מערכת Judgment מקבילה.
+8. **Legacy Capability Reconciliation** — למפות את inventory הישן (כולל D4/FORMS/Research Journey prior-art) אל הארכיטקטורה החדשה; לספוג רק יכולות חסרות ובעלות-ערך, בלי raw merge.
+9. **Depth Dimensions / Research Universe** — הרחבה על אותם contracts; depth semantics תמיד מפורשים (`verse/source/time/method/research-track/confidence/relation-family`).
+
+### יחס לסדר-היסוד הישן
+`Corpus Classification → Corpus Persistence → Research DNA → Identity/Multilingual/Numeric → Cross/ELS → Entity Hub → Raziel` **נשמר כסדר-תלויות/יסודות** ואינו נמחק. השינוי הוא בניווט-הבנייה: Research Studio Foundation הופך למעטפת המאחדת שמחברת את אותם workstreams. אין צורך "לסיים את כל הקורפוס" לפני חיבור המעטפת, וכל workstream שומר את Gate/STATE האמיתי שלו.
+
+### מצב חי שנקלט ב-reconciliation
+- `main` כולל את PR #185 (`a665a4dc`) — ELS state/Matrix/2D-Layered-3D/hidden bridge/Verse integration.
+- Draft #186 = Research Journey v2 + Focus/Fit + add-Finding cross bridge; לא merged/deployed.
+- Draft #187 = חוזה Research Studio + Universal Finding; docs-only.
+- Draft #188 = Universal Finding adapter מעל ResearchProvider + `📌 למחקר`; stacked על #186, לא merged/deployed.
+- `ResearchProvider` קיים ב-main ומחזיק cart/saved/pinned/history/collections/journeys/mode; reuse חובה.
+
+### NEXT_ACTION
+Human Preview ל-#188 (`📌 למחקר` persistence בלי שינוי ציר) → אימות callable path קנוני של Number/Gematria → Adapter שני. אין עוד הרחבת-UI אד-הוק לפני החיבור הזה.
 
 ---
 
@@ -55,7 +94,7 @@
 
 ## 🕒 טריות המפה (FRESHNESS)
 - **LAST_RECONCILED:** `2026-08-22` (v5.1 reconciliation; `main` HEAD **`95005d78e6415e52534c535ef9b93940e835cc31`** — Research DNA v1 Foundation Contract, PR #166, CLOSED/MERGED. אומת ancestor-של-`origin/main`, אין drift נוסף מעבר לכך בזמן-הכתיבה). v5-הקודמת (`f1503a28`) נשארת provenance-בתוקף.
-- **SYNC STATUS:** `SYNCED` — **v5.1 קנוני, בונה על v5/`f1503a28` + Research DNA v1 Foundation (`95005d78`)**, לא-עוד DRAFT.
+- **SYNC STATUS:** `STALE on main` / **`RECONCILED-CANDIDATE` on PR #187** — v5.2 candidate captures verified work through 24.8.2026; main remains v5.1 until Human-Gate merge.
 - **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס.
 - **אין עדכון־אוטומטי־שקט:** בסוף סשן אסור לשכתב את המפה אוטומטית. יש **לזהות** drift, לסמן `STALE`, **ולהציע** את העדכון דרך חוקי ה־WRITE/Human-Gate — לעולם לא לכתוב קנון בלי שער.
 
