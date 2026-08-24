@@ -1895,12 +1895,17 @@
         "postMessage({type:\"cfmResult\",reqId:d.reqId,meetings:r2.meetings,total:r2.total});return;}"+
         "if(d.type===\"hitchunk\"){var ms=[];for(var i=0;i<d.hits.length;i++){var m=crossFindMultiHit(d.hits[i],d.offset+i,d.T2,d.pure,d.rar,d.axisBase);if(m)ms.push(m);}"+
         "postMessage({type:\"hitchunkResult\",reqId:d.reqId,meetings:ms});return;}"+
-        "if(d.type===\"findAllAdaptive\"){var su=fwdSetup(d.tt);"+
-        "if(!su){postMessage({type:\"adaptiveResult\",reqId:d.reqId,heavy:false,hits:[],capped:0});return;}"+
-        "var ah=[],ast={capped:0};var ps=Math.min(d.probeSize,su.Pi.length);"+
-        "fwdScan(d.tt,d.cap,ah,d.orient,ast,su,0,ps);"+
-        "if(ast.capped||ps>=su.Pi.length){postMessage({type:\"adaptiveResult\",reqId:d.reqId,heavy:false,hits:ah,capped:ast.capped});}"+
-        "else{postMessage({type:\"adaptiveResult\",reqId:d.reqId,heavy:true,probed:ps,hits:ah,Pi:su.Pi,Pj:su.Pj,i:su.i,j:su.j,g:su.g,mx:su.mx,L:su.L,SN:su.SN});}"+
+        "if(d.type===\"findAllAdaptive\"){var dirsArr=[[d.tt,\"fwd\"],[d.ttBack,\"back\"]];"+
+        "var dirHits=[[],[]],total=0,capped2=false,heavyDirs=[];"+
+        "for(var di=0;di<2&&!capped2;di++){var tt2=dirsArr[di][0],orient2=dirsArr[di][1];"+
+        "var su2=fwdSetup(tt2);if(!su2)continue;"+
+        "var ps2=Math.min(d.probeSize,su2.Pi.length);"+
+        "var localHits=[],localStt={capped:0};"+
+        "fwdScan(tt2,d.cap-total,localHits,orient2,localStt,su2,0,ps2);"+
+        "dirHits[di]=localHits;total+=localHits.length;"+
+        "if(total>=d.cap){capped2=true;}"+
+        "else if(ps2<su2.Pi.length){heavyDirs.push({dirIndex:di,tt:tt2,orient:orient2,probed:ps2,Pi:su2.Pi,Pj:su2.Pj,i:su2.i,j:su2.j,g:su2.g,mx:su2.mx,L:su2.L,SN:su2.SN});}}"+
+        "postMessage({type:\"adaptiveResult\",reqId:d.reqId,dirHits:dirHits,capped:capped2,heavyDirs:heavyDirs});"+
         "return;}"+
         "if(d.type===\"fwdchunk\"){var ch=[],cst={capped:0};"+
         "var csetup={SN:d.SN,L:d.L,i:d.i,j:d.j,g:d.g,Pi:d.Pi,Pj:d.Pj,mx:d.mx};"+
@@ -1945,27 +1950,41 @@
   //    או סרק את כל Pi — סיימנו בסיבוב-Worker אחד, בדיוק כמו findAll רגיל, בלי תוספת. רק אם ה-probe
   //    *לא הספיק* (לא capped, ועדיין יש Pi) — זה אישור-בפועל שהמילה כבדה-אמת, ואז מפוצלים להמשך
   //    מקבילי (fwdParallel) מנקודת-העצירה, לא מ-0 — אין עבודה כפולה. תורה לעולם לא עוברת כאן.
-  const XF_PROBE_SIZE=8000;
+  const XF_PROBE_SIZE=12000;
   async function findAllAdaptive(raw,cap){
     const t=norm(raw);
     if(t.length<2)return {hits:[],capped:0,t};
     const pool=await ensureXfInit();
     if(!pool)return findAll(raw,cap);
     try{
-      const hits=[],stt={capped:0};
-      const dirs=[[t,"fwd"],[t.split("").reverse().join(""),"back"]];
-      for(const [tt,orient] of dirs){
-        if(stt.capped)break;   // תואם fwd() המקורי (return מיידי כש-capped) — וגם חוסך סבב-Worker מיותר
-        const reqId=++_xfReqId;
-        const res=await xfCall(pool,{type:"findAllAdaptive",reqId,tt,cap,orient,probeSize:XF_PROBE_SIZE});
-        for(const h of res.hits){if(hits.length>=cap){stt.capped=1;break;}hits.push(h);}
-        if(!stt.capped&&res.heavy){
-          const setup={SN:res.SN,L:res.L,Pi:res.Pi,Pj:res.Pj,i:res.i,j:res.j,g:res.g,mx:res.mx};
-          await fwdParallel(tt,cap,hits,orient,stt,setup,pool,res.probed);
-        }
+      // 🩹 סבב-Worker אחד בלבד (לא אחד-לכל-כיוון): findAll() המקורי מריץ fwd() פעמיים *באותה קריאה*
+      //    (fwd+back), בלי round-trip נפרד — מדדתי שפיצול לשני round-trips מוסיף overhead שמובלע
+      //    ברוב-המקרים (המבוצע) אבל מורגש במילים בינוניות ("בן דוד"/"גאולה": איטי יותר, לא פחות!).
+      //    לכן: הודעה אחת ל-Worker בודקת את *שני* הכיוונים (probe), ומחזירה heavyDirs לכל כיוון
+      //    שבאמת לא הספיק — רק אז יש round-trips נוספים (fwdParallel), ורק לכיוון שבאמת צריך.
+      const tb=t.split("").reverse().join("");
+      const reqId=++_xfReqId;
+      const res=await xfCall(pool,{type:"findAllAdaptive",reqId,tt:t,ttBack:tb,cap,probeSize:XF_PROBE_SIZE});
+      // ⚠️ dirHits[0]=fwd,dirHits[1]=back נשארים נפרדים עד ה-concat הסופי (לא מערך משותף שמצטבר
+      //    לפי סדר-סיום Worker) — כי findAll() המקורי דוחף את *כל* מופעי-fwd לפני *כל* מופעי-back,
+      //    ו-sort() יציב שובר תיקו-סקיפ-זהה לפי אותו סדר; אם fwd דורש המשך-מקבילי בזמן ש-back כבר
+      //    הושלם ב-probe, הוספת ההמשך לסוף מערך-משותף הייתה דוחפת אותו *אחרי* back — תיקו הפוך
+      //    מהמקור. תוקן ואומת (equivalence suite גילה את זה בפועל).
+      const dirHits=res.dirHits;
+      let capped=res.capped;
+      if(!capped&&res.heavyDirs)for(const hd of res.heavyDirs){
+        if(capped)break;
+        const otherLen=dirHits[1-hd.dirIndex].length;
+        const effectiveCap=cap-otherLen;
+        if(effectiveCap<=dirHits[hd.dirIndex].length){capped=true;break;}
+        const setup={SN:hd.SN,L:hd.L,Pi:hd.Pi,Pj:hd.Pj,i:hd.i,j:hd.j,g:hd.g,mx:hd.mx};
+        const stt={capped:0};
+        await fwdParallel(hd.tt,effectiveCap,dirHits[hd.dirIndex],hd.orient,stt,setup,pool,hd.probed);
+        if(stt.capped)capped=true;
       }
+      const hits=[...dirHits[0],...dirHits[1]];
       hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
-      return {hits,capped:stt.capped,t};
+      return {hits,capped,t};
     }catch(e){console.error("findAllAdaptive failed, falling back to sync",e);return findAll(raw,cap);}
   }
   // 🌊 המשך-סריקה מקבילי, גלי (wave), מ-startOffset (איפה שה-probe עצר) עד סוף Pi — לא מ-0.
