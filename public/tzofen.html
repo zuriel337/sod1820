@@ -1145,6 +1145,42 @@
     return out;
   }
 
+  // ⚙️ Worker לחיפוש בהיקף "כל התנ״ך" בלבד (אותו מנוע — לא מנוע שני): התורה (304,805 אותיות)
+  //    כבר מיידית ונשארת סינכרונית כמו שהיא; רק חיפוש-תנ״ך המלא (1.2M אותיות, מוצג כ"איטי מעט
+  //    יותר" ב-UI) עובר ל-thread נפרד כדי שהעמוד יישאר רספונסיבי בזמן הסריקה. קוד ה-Worker נבנה
+  //    מ-toString() של norm/lb/fwd/findAll עצמן — לא עותק-מקביל לתחזק, כל שינוי בפונקציות האלה
+  //    מתעדכן אוטומטית גם ב-Worker. נופל-בחזרה לחיפוש סינכרוני אם Worker/Blob חסום (CSP) או נכשל.
+  let _tkWorker=null,_tkWorkerReady=null,_tkReqId=0;const _tkPending=new Map();
+  function tkWorker(){
+    if(_tkWorker)return _tkWorker;
+    try{
+      const src="let T=\"\";\nconst FIN="+JSON.stringify(FIN)+";\nconst norm="+norm.toString()+";\n"+lb.toString()+"\nfunction scopeN(){return T.length;}\n"+fwd.toString()+"\n"+findAll.toString()+"\nonmessage=function(e){var d=e.data;"+
+        "if(d.type===\"init\"){T=d.T;postMessage({type:\"ready\"});return;}"+
+        "if(d.type===\"find\"){var r=findAll(d.raw,d.cap);postMessage({type:\"result\",reqId:d.reqId,hits:r.hits,capped:r.capped,t:r.t});}};";
+      _tkWorker=new Worker(URL.createObjectURL(new Blob([src],{type:"application/javascript"})));
+      _tkWorker.onmessage=e=>{const d=e.data;
+        if(d&&d.type==="result"){const p=_tkPending.get(d.reqId);if(p){_tkPending.delete(d.reqId);p({hits:d.hits,capped:d.capped,t:d.t});}}};
+      _tkWorker.onerror=()=>{   // 🛟 נפילת Worker בזמן-ריצה → כל הבקשות התלויות נופלות לסינכרוני
+        for(const p of _tkPending.values())p(null);_tkPending.clear();_tkWorker=null;_tkWorkerReady=null;};
+    }catch(e){console.error("tkWorker init failed",e);_tkWorker=null;}
+    return _tkWorker;
+  }
+  function tkInit(){
+    const w=tkWorker();if(!w)return Promise.resolve(false);
+    if(!_tkWorkerReady)_tkWorkerReady=new Promise(res=>{
+      const onReady=e=>{if(e.data&&e.data.type==="ready"){w.removeEventListener("message",onReady);res(true);}};
+      w.addEventListener("message",onReady);w.postMessage({type:"init",T});});
+    return _tkWorkerReady;
+  }
+  async function findAllTanakhAsync(raw,cap){
+    try{
+      const ok=await tkInit();const w=tkWorker();if(!ok||!w)return findAll(raw,cap);
+      const reqId=++_tkReqId;
+      const res=await new Promise(resolve=>{_tkPending.set(reqId,resolve);w.postMessage({type:"find",raw,cap,reqId});});
+      return res||findAll(raw,cap);
+    }catch(e){console.error("findAllTanakhAsync failed",e);return findAll(raw,cap);}
+  }
+
   const PALETTE=["#2f9e5a","#3b82d6","#8b5cf6","#e0851b","#d6336c","#0d9488","#b45309","#4f7a12","#c026d3","#0891b2","#dc2626","#65a30d"];
   // ★ ממצאי-מערכת מובנים — מטריצות מוכנות של הפרויקט (לא ניתנות למחיקה), נפתחות עם ההצטלבויות שלהן
   const SYSTEM_MATRICES=[
@@ -1663,8 +1699,8 @@
     st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
-    setTimeout(()=>{
-      st.res=findAll(w,4000);
+    setTimeout(async ()=>{
+      st.res=_slow?await findAllTanakhAsync(w,4000):findAll(w,4000);   // תנ״ך=Worker (thread נפרד) · תורה=סינכרוני כרגיל
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
