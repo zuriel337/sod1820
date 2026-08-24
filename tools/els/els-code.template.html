@@ -1111,23 +1111,35 @@
 
   // ===== מנוע חיפוש מהיר =====
   function lb(a,x){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<x)lo=m+1;else hi=m;}return lo;}
-  function fwd(tt,cap,hits,orient,stt){
+  // 🧩 fwd() מפוצל ל-setup (בניית pos/בחירת-עוגנים, בדיוק כמו קודם) + scan (הלולאה, כעת עם טווח-Pi
+  //    מפורש) — לא שינוי-אלגוריתם, רק חילוץ (כמו crossFindMultiHit) כדי ש-fwdScan יוכל לרוץ verbatim
+  //    על צ'אנק של Pi ב-Worker כש-findAllAdaptive מזהה (בפועל, לא בהערכה) שמילה לא-capped במהירות.
+  //    fwd() עצמו נשאר ה-fast path/reference — עטיפה דקה, אותה התנהגות בדיוק (מאומת).
+  function fwdSetup(tt){
     const SN=scopeN();
     const L=tt.length,need=new Set(tt),pos=new Map();
     for(const c of need)pos.set(c,[]);
     for(let i=0;i<SN;i++){const a=pos.get(T[i]);if(a)a.push(i);}
-    for(const c of need)if(!pos.get(c).length)return;
+    for(const c of need)if(!pos.get(c).length)return null;
     const ord=[];for(let k=0;k<L;k++)ord.push(k);
     ord.sort((a,b)=>pos.get(tt[a]).length-pos.get(tt[b]).length);
     let i=ord[0],j=ord[1];if(i>j){const t=i;i=j;j=t;}
     const g=j-i,Pi=pos.get(tt[i]),Pj=pos.get(tt[j]),mx=Math.floor((SN-1)/(L-1))||1;
-    for(let a=0;a<Pi.length;a++){if(stt.capped)return;const pi=Pi[a],lo=pi+g,hi=pi+g*mx;
+    return {SN,L,i,j,g,Pi,Pj,mx};
+  }
+  function fwdScan(tt,cap,hits,orient,stt,setup,piFrom,piTo){
+    const SN=setup.SN,L=setup.L,i=setup.i,j=setup.j,g=setup.g,Pi=setup.Pi,Pj=setup.Pj,mx=setup.mx;
+    for(let a=piFrom;a<piTo;a++){if(stt.capped)return;const pi=Pi[a],lo=pi+g,hi=pi+g*mx;
       for(let b=lb(Pj,lo);b<Pj.length;b++){const pj=Pj[b];if(pj>hi)break;const d=pj-pi;if(d%g)continue;
         const s=d/g;if(s<1)continue;const start=pi-i*s,end=start+(L-1)*s;if(start<0||end>=SN)continue;
         let ok=1;for(let k=0;k<L;k++)if(T[start+k*s]!==tt[k]){ok=0;break;}if(!ok)continue;
         if(orient==="back"){const s0=start+(L-1)*s,p=[];for(let k=0;k<L;k++)p.push(s0-k*s);hits.push({skip:s,dir:-1,start:s0,positions:p});}
         else{const p=[];for(let k=0;k<L;k++)p.push(start+k*s);hits.push({skip:s,dir:1,start,positions:p});}
         if(hits.length>=cap){stt.capped=1;return;}}}
+  }
+  function fwd(tt,cap,hits,orient,stt){
+    const setup=fwdSetup(tt);if(!setup)return;
+    fwdScan(tt,cap,hits,orient,stt,setup,0,setup.Pi.length);
   }
   function findAll(raw,cap){const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
     const s={capped:0};fwd(t,cap,hits,"fwd",s);fwd(t.split("").reverse().join(""),cap,hits,"back",s);
@@ -1143,42 +1155,6 @@
         if(ok){const p=[];for(let k=0;k<L;k++)p.push(s0+d*S*k);out.push({skip:S,dir:d,start:s0,positions:p});if(out.length>=cap)return out;}}
     }
     return out;
-  }
-
-  // ⚙️ Worker לחיפוש בהיקף "כל התנ״ך" בלבד (אותו מנוע — לא מנוע שני): התורה (304,805 אותיות)
-  //    כבר מיידית ונשארת סינכרונית כמו שהיא; רק חיפוש-תנ״ך המלא (1.2M אותיות, מוצג כ"איטי מעט
-  //    יותר" ב-UI) עובר ל-thread נפרד כדי שהעמוד יישאר רספונסיבי בזמן הסריקה. קוד ה-Worker נבנה
-  //    מ-toString() של norm/lb/fwd/findAll עצמן — לא עותק-מקביל לתחזק, כל שינוי בפונקציות האלה
-  //    מתעדכן אוטומטית גם ב-Worker. נופל-בחזרה לחיפוש סינכרוני אם Worker/Blob חסום (CSP) או נכשל.
-  let _tkWorker=null,_tkWorkerReady=null,_tkReqId=0;const _tkPending=new Map();
-  function tkWorker(){
-    if(_tkWorker)return _tkWorker;
-    try{
-      const src="let T=\"\";\nconst FIN="+JSON.stringify(FIN)+";\nconst norm="+norm.toString()+";\n"+lb.toString()+"\nfunction scopeN(){return T.length;}\n"+fwd.toString()+"\n"+findAll.toString()+"\nonmessage=function(e){var d=e.data;"+
-        "if(d.type===\"init\"){T=d.T;postMessage({type:\"ready\"});return;}"+
-        "if(d.type===\"find\"){var r=findAll(d.raw,d.cap);postMessage({type:\"result\",reqId:d.reqId,hits:r.hits,capped:r.capped,t:r.t});}};";
-      _tkWorker=new Worker(URL.createObjectURL(new Blob([src],{type:"application/javascript"})));
-      _tkWorker.onmessage=e=>{const d=e.data;
-        if(d&&d.type==="result"){const p=_tkPending.get(d.reqId);if(p){_tkPending.delete(d.reqId);p({hits:d.hits,capped:d.capped,t:d.t});}}};
-      _tkWorker.onerror=()=>{   // 🛟 נפילת Worker בזמן-ריצה → כל הבקשות התלויות נופלות לסינכרוני
-        for(const p of _tkPending.values())p(null);_tkPending.clear();_tkWorker=null;_tkWorkerReady=null;};
-    }catch(e){console.error("tkWorker init failed",e);_tkWorker=null;}
-    return _tkWorker;
-  }
-  function tkInit(){
-    const w=tkWorker();if(!w)return Promise.resolve(false);
-    if(!_tkWorkerReady)_tkWorkerReady=new Promise(res=>{
-      const onReady=e=>{if(e.data&&e.data.type==="ready"){w.removeEventListener("message",onReady);res(true);}};
-      w.addEventListener("message",onReady);w.postMessage({type:"init",T});});
-    return _tkWorkerReady;
-  }
-  async function findAllTanakhAsync(raw,cap){
-    try{
-      const ok=await tkInit();const w=tkWorker();if(!ok||!w)return findAll(raw,cap);
-      const reqId=++_tkReqId;
-      const res=await new Promise(resolve=>{_tkPending.set(reqId,resolve);w.postMessage({type:"find",raw,cap,reqId});});
-      return res||findAll(raw,cap);
-    }catch(e){console.error("findAllTanakhAsync failed",e);return findAll(raw,cap);}
   }
 
   const PALETTE=["#2f9e5a","#3b82d6","#8b5cf6","#e0851b","#d6336c","#0d9488","#b45309","#4f7a12","#c026d3","#0891b2","#dc2626","#65a30d"];
@@ -1700,7 +1676,7 @@
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
     setTimeout(async ()=>{
-      st.res=_slow?await findAllTanakhAsync(w,4000):findAll(w,4000);   // תנ״ך=Worker (thread נפרד) · תורה=סינכרוני כרגיל
+      st.res=_slow?await findAllAdaptive(w,4000):findAll(w,4000);   // תנ״ך=מותאם (probe→ואם צריך parallel) · תורה=סינכרוני כרגיל
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);st.occ=g2>=0?g2:0;
       st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.crossMeetings=null;st.crossB="";
       st.lineMain=false;st.expandMain=false;st.hideMain=false;st.zoneStars=null;st.zoneSig="";
@@ -1905,7 +1881,7 @@
         "const norm="+norm.toString()+";\nconst gem="+gem.toString()+";\n"+
         "const st={scope:\"x\"};\nconst FA=new Map();\n"+
         lb.toString()+"\nfunction scopeN(){return SN;}\n"+
-        fwd.toString()+"\n"+findAll.toString()+"\n"+
+        fwdSetup.toString()+"\n"+fwdScan.toString()+"\n"+fwd.toString()+"\n"+findAll.toString()+"\n"+
         faMemo.toString()+"\n"+rarityOf.toString()+"\n"+
         "const bookOf="+bookOf.toString()+";\n"+
         "const gridStep="+gridStep.toString()+";\nconst gapF="+gapF.toString()+";\n"+
@@ -1914,12 +1890,22 @@
         "const _spaceCache=new Map();\n"+searchSpace.toString()+"\n"+crossFindMultiHit.toString()+"\n"+crossFindMulti.toString()+"\n"+
         "onmessage=function(e){var d=e.data;"+
         "if(d.type===\"init\"){T=d.T;N=d.N;SN=d.SN;BOOKS=d.BOOKS;postMessage({type:\"ready\",reqId:d.reqId});return;}"+
-        "if(d.type===\"findAll\"){var r=findAll(d.w,d.cap);postMessage({type:\"findAllResult\",reqId:d.reqId,hits:r.hits,capped:r.capped,t:r.t});return;}"+
         "if(d.type===\"cfm\"){for(var k in d.seed)FA.set(k,d.seed[k]);"+
         "var r2=crossFindMulti(d.axis,d.others,d.pure,d.maxOcc,d.preResAxis);"+
         "postMessage({type:\"cfmResult\",reqId:d.reqId,meetings:r2.meetings,total:r2.total});return;}"+
         "if(d.type===\"hitchunk\"){var ms=[];for(var i=0;i<d.hits.length;i++){var m=crossFindMultiHit(d.hits[i],d.offset+i,d.T2,d.pure,d.rar,d.axisBase);if(m)ms.push(m);}"+
         "postMessage({type:\"hitchunkResult\",reqId:d.reqId,meetings:ms});return;}"+
+        "if(d.type===\"findAllAdaptive\"){var su=fwdSetup(d.tt);"+
+        "if(!su){postMessage({type:\"adaptiveResult\",reqId:d.reqId,heavy:false,hits:[],capped:0});return;}"+
+        "var ah=[],ast={capped:0};var ps=Math.min(d.probeSize,su.Pi.length);"+
+        "fwdScan(d.tt,d.cap,ah,d.orient,ast,su,0,ps);"+
+        "if(ast.capped||ps>=su.Pi.length){postMessage({type:\"adaptiveResult\",reqId:d.reqId,heavy:false,hits:ah,capped:ast.capped});}"+
+        "else{postMessage({type:\"adaptiveResult\",reqId:d.reqId,heavy:true,probed:ps,hits:ah,Pi:su.Pi,Pj:su.Pj,i:su.i,j:su.j,g:su.g,mx:su.mx,L:su.L,SN:su.SN});}"+
+        "return;}"+
+        "if(d.type===\"fwdchunk\"){var ch=[],cst={capped:0};"+
+        "var csetup={SN:d.SN,L:d.L,i:d.i,j:d.j,g:d.g,Pi:d.Pi,Pj:d.Pj,mx:d.mx};"+
+        "fwdScan(d.tt,d.cap,ch,d.orient,cst,csetup,0,d.Pi.length);"+
+        "postMessage({type:\"fwdchunkResult\",reqId:d.reqId,hits:ch,capped:cst.capped});return;}"+
         "};";
       const url=URL.createObjectURL(new Blob([src],{type:"application/javascript"}));
       const n=Math.max(1,Math.min(navigator.hardwareConcurrency||4,8));
@@ -1939,6 +1925,71 @@
       w.postMessage(msg);
     });
   }
+  // 🔁 init נשלח לבריכה רק כשההיקף (SN) באמת השתנה מאז הפעם האחרונה — לא בכל קריאה (T=1.2M תווים,
+  //    שולחים unicode פעם אחת לכל שינוי-היקף, לא לכל findAllAdaptive/crossFindMultiParallel).
+  let _xfInitedSN=null;
+  async function ensureXfInit(){
+    const pool=xfWorkers();if(!pool)return null;
+    const sn=scopeN();
+    if(_xfInitedSN===sn)return pool;
+    await Promise.all(pool.workers.map(w=>{const reqId=++_xfReqId;
+      return xfCall({workers:[w],rr:0},{type:"init",reqId,T,N,SN:sn,BOOKS});}));
+    _xfInitedSN=sn;
+    return pool;
+  }
+  // 🔬 findAll מותאם (probe→parallel-רק-אם-צריך): לפני מגעים ב-fwd() גילינו (מדוד, לא ניחוש) ש-
+  //    הערכת-עלות מראש (PiLen×PjLen×g) לא מבחינה בין מילה שתיתפס-מהר (מגיעה ל-cap) למילה פתולוגית
+  //    (לעולם לא capped) — שתיהן יכולות לקבל אותה הערכת-worst-case בסדר-גודל דומה, כי ההבדל תלוי
+  //    לגמרי בכמה-מהר נמצא cap, וזה לא ידוע מראש. לכן: Worker תמיד קודם *בודק בפועל* — סורק "probe"
+  //    (עד XF_PROBE_SIZE מ-Pi, נדיב-דיו לתפוס גם מילים בינוניות כמו "בן דוד"). אם ה-probe הגיע ל-cap
+  //    או סרק את כל Pi — סיימנו בסיבוב-Worker אחד, בדיוק כמו findAll רגיל, בלי תוספת. רק אם ה-probe
+  //    *לא הספיק* (לא capped, ועדיין יש Pi) — זה אישור-בפועל שהמילה כבדה-אמת, ואז מפוצלים להמשך
+  //    מקבילי (fwdParallel) מנקודת-העצירה, לא מ-0 — אין עבודה כפולה. תורה לעולם לא עוברת כאן.
+  const XF_PROBE_SIZE=8000;
+  async function findAllAdaptive(raw,cap){
+    const t=norm(raw);
+    if(t.length<2)return {hits:[],capped:0,t};
+    const pool=await ensureXfInit();
+    if(!pool)return findAll(raw,cap);
+    try{
+      const hits=[],stt={capped:0};
+      const dirs=[[t,"fwd"],[t.split("").reverse().join(""),"back"]];
+      for(const [tt,orient] of dirs){
+        if(stt.capped)break;   // תואם fwd() המקורי (return מיידי כש-capped) — וגם חוסך סבב-Worker מיותר
+        const reqId=++_xfReqId;
+        const res=await xfCall(pool,{type:"findAllAdaptive",reqId,tt,cap,orient,probeSize:XF_PROBE_SIZE});
+        for(const h of res.hits){if(hits.length>=cap){stt.capped=1;break;}hits.push(h);}
+        if(!stt.capped&&res.heavy){
+          const setup={SN:res.SN,L:res.L,Pi:res.Pi,Pj:res.Pj,i:res.i,j:res.j,g:res.g,mx:res.mx};
+          await fwdParallel(tt,cap,hits,orient,stt,setup,pool,res.probed);
+        }
+      }
+      hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
+      return {hits,capped:stt.capped,t};
+    }catch(e){console.error("findAllAdaptive failed, falling back to sync",e);return findAll(raw,cap);}
+  }
+  // 🌊 המשך-סריקה מקבילי, גלי (wave), מ-startOffset (איפה שה-probe עצר) עד סוף Pi — לא מ-0.
+  //    כל גל = עד nWorkers צ'אנקים-רצופים-בסדר-Pi, נשלחים במקביל, אבל *מאושרים* (מצטרפים ל-hits)
+  //    רק בסדר-Pi המקורי (לא סדר-סיום Worker) — ברגע ש-cap מתמלא, מפסיקים לחכות/לצרף גלים הבאים
+  //    (עבודה שכבר בתעופה מתבזבזת ברקע, אבל לא נכנסת לתוצאה — "התעלמות", לא termination אמצע-לולאה
+  //    כדי לא לגעת בלולאת-fwdScan עצמה עם בדיקות-ביטול). chunkSize קטן-יחסית (total/(nW*8)) כדי
+  //    שגל ראשון לא "יבזבז" יותר מ-1/8 מ-Pi על מילה שהייתה נתפסת מוקדם יותר בגרסה הסינכרונית.
+  async function fwdParallel(tt,cap,hits,orient,stt,setup,pool,startOffset){
+    const total=setup.Pi.length,nW=pool.workers.length;
+    const chunkSize=Math.max(500,Math.ceil((total-startOffset)/(nW*8)))||1;
+    let off=startOffset;
+    while(off<total&&!stt.capped){
+      const ranges=[];
+      for(let c=0;c<nW&&off<total;c++){const to=Math.min(off+chunkSize,total);ranges.push([off,to]);off=to;}
+      const promises=ranges.map(([from,to])=>{const reqId=++_xfReqId;
+        return xfCall(pool,{type:"fwdchunk",reqId,tt,cap,orient,SN:setup.SN,L:setup.L,i:setup.i,j:setup.j,g:setup.g,mx:setup.mx,Pi:setup.Pi.slice(from,to),Pj:setup.Pj});});
+      for(const p of promises){
+        if(stt.capped)break;
+        const res=await p;
+        for(const h of res.hits){if(hits.length>=cap){stt.capped=1;break;}hits.push(h);}
+      }
+    }
+  }
   // ⚡ גרסה מקבילה של crossFindMulti (מצב-ציר-קבוע, runCross) — אותו מנוע בדיוק (crossFindMultiHit/
   //    findAll מועתקים verbatim דרך toString(), לא מנוע שני), אותה בריכת-Workers כמו crossFindFreeParallel.
   //    פרופיילינג-בדפדפן (לא ניחוש) הראה ששני שלבים בולעים את רוב הזמן ב-crossFindMulti: (1) ה-"prep"
@@ -1950,15 +2001,13 @@
   async function crossFindMultiParallel(A,terms,pure,maxOcc){
     pure=pure||8;maxOcc=maxOcc||150;
     const T2=[...new Set(terms.map(norm).filter(t=>t.length>=2))];
-    const pool=xfWorkers();if(!pool)return crossFindMulti(A,terms,pure,maxOcc);
+    const pool=await ensureXfInit();if(!pool)return crossFindMulti(A,terms,pure,maxOcc);
     try{
-      await Promise.all(pool.workers.map(w=>{const reqId=++_xfReqId;
-        return xfCall({workers:[w],rr:0},{type:"init",reqId,T,N,SN:scopeN(),BOOKS});}));
-      // שלב 1: findAll לציר + לכל מונח, פעם אחת, מפוזר — בדיוק ה-prep שהפרופיילינג זיהה כיקר.
+      // שלב 1: findAll לציר + לכל מונח, פעם אחת, מפוזר — דרך findAllAdaptive (probe→parallel-רק-אם-
+      //    צריך-בפועל) כדי שגם מונח בודד פתולוגי (כמו "ירושלים") לא יבלע לבד Worker שלם.
       const nA=norm(A),words=[...new Set([nA,...T2])];
       const hitsByWord={};
-      await Promise.all(words.map(w=>{const reqId=++_xfReqId;
-        return xfCall(pool,{type:"findAll",reqId,w,cap:3000}).then(d=>{hitsByWord[w]={hits:d.hits,capped:d.capped,t:d.t};});}));
+      await Promise.all(words.map(w=>findAllAdaptive(w,3000).then(r=>{hitsByWord[w]=r;})));
       const resA=hitsByWord[nA];
       if(!resA.hits.length||!T2.length)return {resA,meetings:[],total:0};
       const rar=new Map();T2.forEach(t=>{const r=hitsByWord[t];rar.set(t,r.capped?9999:r.hits.length);});
@@ -1979,15 +2028,12 @@
   async function crossFindFreeParallel(terms,pure){
     const Tn=[...new Set(terms.map(norm).filter(t=>t.length>=2))];
     if(Tn.length<2)return {zones:[],resCache:{},total:Tn.length};
-    const pool=xfWorkers();if(!pool)return crossFindFree(terms,pure);
+    const pool=await ensureXfInit();if(!pool)return crossFindFree(terms,pure);
     try{
-      // אתחול טרי בכל קריאה (לא שמור בין קריאות) — כדי לשקף נכון אם ההיקף (תורה/תנ״ך) הוחלף.
-      await Promise.all(pool.workers.map(w=>{const reqId=++_xfReqId;
-        return xfCall({workers:[w],rr:0},{type:"init",reqId,T,N,SN:scopeN(),BOOKS});}));
-      // שלב 1: findAll לכל מונח ייחודי, פעם אחת, מפוזר על הבריכה — בדיוק כמו faMemo אבל מקביל.
+      // שלב 1: findAll לכל מונח ייחודי, פעם אחת, מפוזר על הבריכה — דרך findAllAdaptive (probe→
+      //    parallel-רק-אם-צריך-בפועל), כדי שמונח פתולוגי בודד לא יבלע Worker שלם לבד.
       const hitsByTerm={};
-      await Promise.all(Tn.map(w=>{const reqId=++_xfReqId;
-        return xfCall(pool,{type:"findAll",reqId,w,cap:3000}).then(d=>{hitsByTerm[w]={hits:d.hits,capped:d.capped,t:d.t};});}));
+      await Promise.all(Tn.map(w=>findAllAdaptive(w,3000).then(r=>{hitsByTerm[w]=r;})));
       // שלב 2: crossFindMulti לכל ציר, מפוזר על הבריכה, מוזרע עם תוצאות שלב-1 (בלי findAll כפול).
       // ⚠️ Promise.all שומר את סדר-הקלט בתוצאה (לא סדר-סיום) — חובה כדי שסדר ה-push ל-all יהיה
       //    זהה לסדר Tn המקורי בגרסה הסינכרונית: sort() יציב, ותיקו בין ממצאים שווי-ניקוד נשבר
