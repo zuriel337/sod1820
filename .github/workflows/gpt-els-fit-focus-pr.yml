@@ -3,18 +3,19 @@ name: GPT ELS Fit Focus PR
 on:
   pull_request:
     branches: [main]
+    types: [reopened]
 
 permissions:
   contents: write
 
 jobs:
   patch-and-verify:
-    if: github.event.pull_request.head.ref == 'gpt/els-research-journey-v2' && github.actor != 'github-actions[bot]'
+    if: github.event.pull_request.head.ref == 'gpt/els-research-journey-v2'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: gpt/els-research-journey-v2
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -30,10 +31,11 @@ jobs:
         run: npm run build
       - name: Diff check
         run: git diff --check
-      - name: Commit target change
+      - name: Commit target change and clean one-shot scaffolding
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name 'GPT Research Agent 2'
+          git config user.email 'actions@users.noreply.github.com'
           git add src/pages/ElsWorkAreaPage.jsx
-          git commit -m "feat(els): default to focus-fit matrix view"
-          git push origin HEAD:gpt/els-research-journey-v2
+          git rm .github/workflows/gpt-els-fit-focus-pr.yml .github/workflows/gpt-els-fit-focus-once.yml scripts/gpt_els_fit_focus_once.py
+          git commit -m 'feat(els): default to focus-fit matrix view'
+          git push origin HEAD:${{ github.head_ref }}
