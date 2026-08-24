@@ -1095,13 +1095,20 @@ export async function getGalleriesOverview({ force = false } = {}) {
 }
 
 // ✦ עוגן-המהות של מספר — «מהות המספר» (עובדה+רמז מאומתים) לדף המספר. null אם אין.
-export async function getNumberAnchor(value) {
-  if (!supabase || value == null) return null;
+// ANCHOR_RESEARCH_DEFERRED_BY_ZURIEL: number_anchors direct client access is frozen
+// (anon/authenticated no longer have SELECT) until Zuriel returns to Anchor Reconciliation.
+// Short-circuited here so the client never attempts a now-blocked read; safe no-op until
+// the freeze lifts, at which point this can be restored to the query below.
+export async function getNumberAnchor(_value) {
+  return null;
+  /* eslint-disable no-unreachable */
+  if (!supabase || _value == null) return null;
   try {
     const { data } = await supabase.from('number_anchors')
-      .select('value,category,fact,hint').eq('value', value).maybeSingle();
+      .select('value,category,fact,hint').eq('value', _value).maybeSingle();
     return data || null;
   } catch { return null; }
+  /* eslint-enable no-unreachable */
 }
 
 // 🧠 אינטליגנציית-המספר — התמונה המלאה מהמנוע האחד (number_dossier_json): כל השיטות מדורגות-משמעות
