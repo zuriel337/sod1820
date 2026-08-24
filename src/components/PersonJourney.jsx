@@ -96,8 +96,8 @@ export default function PersonJourney() {
   };
 
   const nameByRef = (ref) => {
-    if (ref === selfRef) return selfName ? `${selfName} (אני)` : "אני";
     const m = members.find(x => x.source_ref === ref);
+    if (ref === selfRef) return m?.name ? `${m.name} (אני)` : "אני";
     return m?.name || ref;
   };
 
