@@ -87,6 +87,50 @@ export default function ResearchProvider({ children }) {
   }, []);
   const clearHistory = useCallback(() => setHistory([]), []);
 
+  // 🔠 ELS → Workspace bridge. ה-iframe הקנוני כבר פולט postMessage מסוג state דרך TzofenEmbed;
+  // ResearchProvider רק רושם את החיפוש המוצלח בהיסטוריית-המחקר — בלי לחשב ELS, בלי ליצור Finding,
+  // בלי לקדם לקנון ובלי טבלה/Store מקבילים. כך «המשך מהמקום שעצרת» עובד גם בדילוגים.
+  // dedupe לפי תמונת-החיפוש עצמה, כדי state-ticks של אותו צופן לא יציפו את ההיסטוריה.
+  const lastElsHistorySig = useRef(null);
+  useEffect(() => {
+    const onElsState = (e) => {
+      if (e.origin !== window.location.origin) return;
+      const d = e.data;
+      if (!d || d.source !== "tzofen" || d.type !== "state" || d.status !== "ok") return;
+      const term = String(d?.axis?.term || d?.axis?.t || d?.term || d?.query || d?.raw || "").trim();
+      if (!term) return;
+      const scope = d?.provenance?.scope || d?.scope || "torah";
+      const skip = Number(d?.axis?.skip || 0);
+      const hitId = d?.axis?.hitId ?? d?.occurrence?.index ?? 0;
+      const searchKind = d?.provenance?.searchKind || d?.kind || "regular";
+      const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip}`;
+      if (lastElsHistorySig.current === sig) return;
+      lastElsHistorySig.current = sig;
+      logHistory({
+        id: `els:${encodeURIComponent(scope)}:${encodeURIComponent(term)}:${encodeURIComponent(searchKind)}:${hitId}:${skip}`,
+        type: "els",
+        title: `ELS · ${term}`,
+        label: term,
+        term,
+        scope,
+        skip,
+        searchKind,
+        href: `/lab/els?q=${encodeURIComponent(term)}`,
+        metadata: {
+          engine: "tzofen",
+          corpus: scope,
+          hitId,
+          skip,
+          searchKind,
+          findingCount: Array.isArray(d.findings) ? d.findings.length : 0,
+          matrixVersion: d?.matrix?.v || null,
+        },
+      });
+    };
+    window.addEventListener("message", onElsState);
+    return () => window.removeEventListener("message", onElsState);
+  }, [logHistory]);
+
   const addToResearch = useCallback((entity) => {
     setCart(c => (c.some(e => e.id === entity.id) ? c : [...c, entity]));
     logHistory(entity);
