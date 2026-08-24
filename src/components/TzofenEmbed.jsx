@@ -7,6 +7,8 @@ import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 import SubscribeGate from "./SubscribeGate.jsx";
+import { useUniversalWorkspace } from "../lib/research/useUniversalWorkspace.js";
+import { elsStateToUniversalFindings } from "../lib/research/universalFinding.js";
 
 // 🔠 הצופן התנ״כי — כלי דילוגי-האותיות (ELS) העצמאי, מוטמע כ-iframe מ-public/tzofen.html.
 // דפוס זהה ל-heichal.html. מקור-יחיד: אותו כלי ב-/code (מלא) ובהיכל (/research?tool=els).
@@ -52,6 +54,25 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
+
+  // 🔗 Research Bus — מסלול-Finding יחיד (research_bus_reconciliation, Pass 1): ה-iframe פולט elsState()
+  //    בכל render (onMsg d.type==="state", למעלה); כאן רק נשמר ה-tick האחרון (ref, לא state — אין re-render
+  //    על כל תו) לשימוש-בלחיצה בלבד. logHistory (ResearchProvider) ממשיך להיות גשר-היסטוריה/state נפרד —
+  //    הכפתור כאן הוא ה-Finding-route היחיד (ELS-native → universalFinding adapter → addToResearch/cart).
+  const lastStateRef = useRef(null);
+  const [hasAxisFinding, setHasAxisFinding] = useState(false);
+  const [addedToast, setAddedToast] = useState(false);
+  const workspace = useUniversalWorkspace();
+  const addAxisFinding = useCallback(() => {
+    const d = lastStateRef.current;
+    if (!d) return;
+    const findings = elsStateToUniversalFindings(d, { inputRef: d?.axis?.hitId || null });
+    const axisFinding = findings.find(f => f.view?.rendererHints?.role === "axis") || findings[0];
+    if (!axisFinding) return;
+    workspace.upsertFinding(axisFinding);
+    setAddedToast(true);
+  }, [workspace]);
+  useEffect(() => { if (!addedToast) return; const t = setTimeout(() => setAddedToast(false), 3200); return () => clearTimeout(t); }, [addedToast]);
 
   const src =
     "/tzofen.html?embed=1" + (seed ? "&q=" + encodeURIComponent(seed) : "") + (hiddenBridge ? "&bridge=hidden" : "");
@@ -209,6 +230,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         // 🛰️ תמונת-מצב מהמנוע (סריאליזציה בלבד — ראה elsState() ב-els-code.template.html).
         //    מועברת כמות-שהיא לצרכן. React לא מחשב ELS ולא נוגע בנתון.
         onState?.(d);
+        // 🔗 Research Bus: שומרים את ה-tick האחרון לשימוש בכפתור «הוסף למחקר» (ref בלבד — בלי re-render).
+        lastStateRef.current = d;
+        setHasAxisFinding(d?.status === "ok" && !!d?.axis?.hitId);
         return;
       }
       if (d.type === "lens") {
@@ -326,6 +350,29 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           background: "transparent",
         }}
       />
+
+      {/* 🔗 Research Bus — מסלול-Finding יחיד: המופע המדויק המוצג עכשיו → adapter → תיק-המחקר (cart).
+          לא state-tick פסיבי — פעולת-משתמש מפורשת בלבד (research_bus_reconciliation, Pass 1). */}
+      {!hiddenBridge && hasAxisFinding && !gate && (
+        <button
+          type="button"
+          onClick={addAxisFinding}
+          title="הוסף את המופע המדויק המוצג כרגע לתיק המחקר שלך"
+          style={{
+            position: "absolute", top: 10, insetInlineStart: 10, zIndex: 15,
+            background: "rgba(15,24,48,0.88)", color: "#f4c84a", border: "1px solid rgba(244,200,74,0.5)",
+            borderRadius: 999, padding: "7px 12px", fontFamily: "'Frank Ruhl Libre',serif",
+            fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 36,
+          }}
+        >
+          📌 הוסף למחקר
+        </button>
+      )}
+      {addedToast && (
+        <div style={{ position: "absolute", top: 10, insetInlineStart: 10, zIndex: 16, background: "#0f1830", color: "#fff", border: "1px solid #2f6df6", borderRadius: 999, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, boxShadow: "0 8px 22px rgba(0,0,0,0.4)" }}>
+          נוסף לתיק המחקר שלך ✓
+        </div>
+      )}
 
       {gate && !verified && (
         <div
