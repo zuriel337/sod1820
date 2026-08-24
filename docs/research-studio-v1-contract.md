@@ -79,17 +79,19 @@ Journey must preserve exact identity/provenance so the researcher can restore an
 
 **Guided Journeys are presets/templates over the same state — never a new engine, system, or store.** A Guided Journey is a named path/filter over the existing Context→Lens→Finding→Journey model.
 
-**Architectural acceptance test (coverage examples, not five products to build now):** this model must be able to express each of the following *without a special-cased system per case* — if any of them needs one, the model is wrong and needs another pass:
+**Architectural acceptance test (coverage examples, not products to build now):** this model must be able to express each of the following *without a special-cased system per case* — if any of them needs one, the model is wrong and needs another pass:
 - Number Method Journey (same number, across gematria methods)
 - Years-from-Creation Journey (a Time-dimension traversal)
 - Researcher/Source Journey (e.g. material attributed to the Ari — a Researcher/Source-dimension traversal)
 - Person/Life Journey (a `person-ref`-scoped traversal across Findings referencing that person)
 - Name Journey (a Subject-scoped traversal across the multi-engine findings the existing NameLab/`fn_name_protocol` flow already produces for one name-as-word — key/cross/tanach/numbers/letters/notarikon/language/network/els layers)
+- News/Event Research Journey (an Event/Topic-dimension traversal)
 
 **Name Journey ≠ Person/Life Journey.** Name Journey researches a name as a word/string across engines (no `person-ref`, no family linkage — confirmed live in `NameJourney.jsx`/`NameMultiSearch.jsx`). Person/Life Journey researches a specific identified person via `person-ref`. Both are real, distinct Journey instances over the same Context→Lens→Finding→Journey model; they may share one Research Context and connect to each other. A **Person Context may launch/reference a Name Journey** for any of that person's names — that link is a Context-level cross-reference, not a merge: neither Journey absorbs or redesigns the other.
 
 **Name is a first-class Subject/adapter, not a Journey-shaped Finding.** The chain is `Name Subject → Name engines/lenses (key/cross/tanach/numbers/letters/notarikon/language/network/els) → individual Findings (one per engine result) → Name Journey (graph navigation across those Findings)`. Name Journey itself is never modeled as a Finding — it is the traversal, exactly like every other Journey in §4.
-- News/Event Research Journey (an Event/Topic-dimension traversal)
+
+**Person/Life Journey ≠ "ניתוח חיים" (Life Analysis, `LifeProfile.jsx`/`src/lib/research/lifeProfile.js`, live on `main` under `/research`).** Investigated, confirmed live, and genuinely absent from this reconciliation until now — a real gap of the same shape as Name Journey's. Life Analysis computes axis/clusters/pressure-points/transitions/convergences from a person's *already-collected timeline events*; it is not `person-ref`-scoped and carries no family/identity linkage in its code today. Person/Life Journey (the bullet above) is the future `person-ref`-scoped Finding traversal envisioned by OD-F10a — unbuilt (`F-1b` not authorized). The two are complementary, not identical: a future Person/Life Journey may **incorporate or launch a Life Analysis view** over that person's timeline, the same Context-level-reference relationship Person↔Name Journey already has (above) — never a merge, and no redesign of the live Life Analysis engine/UI.
 
 ELS's existing promote-to-axis + breadcrumb behavior (PR #186) is **one instance** of this general model, not the model itself, and must keep working exactly as built.
 

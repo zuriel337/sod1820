@@ -229,6 +229,8 @@ Person Findings are scoped by the existing OD-F10a person-identity concept, abso
 
 **A Person Context may launch/reference a Name Journey** for any of that person's known names (see `research-studio-v1-contract.md` §4) — that is a Context-level cross-reference between a Person subject and a Name subject, not a merge of the two adapters, and not a reason to attach `personRef` to Name Findings (§11 keeps `identity.personRef` absent by default).
 
+**"ניתוח חיים" (Life Analysis, `LifeProfile.jsx`/`src/lib/research/lifeProfile.js`, live on `main` under `/research`) is a separate, already-shipped capability — not the Person adapter above and not a Finding-shaped Journey.** It computes axis/clusters/pressure-points/transitions/convergences from a Context's already-collected timeline events; it carries no `person-ref`/family linkage in its live code. A future Person Finding may reference/launch a Life Analysis view the same way a Person Context may launch a Name Journey (above), but this contract does not model Life Analysis output as Universal Findings and does not redesign its live engine/UI.
+
 ## 11. Name adapter mapping
 Name is a first-class Subject/adapter in its own right, distinct from both Person (§10) and ELS (§7). It maps the already-live NameLab / `fn_name_protocol` flow (`NameJourney.jsx`, `NameMultiSearch.jsx`) into the universal contract **without redesigning it**:
 
