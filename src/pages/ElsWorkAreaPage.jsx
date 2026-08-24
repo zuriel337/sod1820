@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import { buildJourneyPromotion, buildJourneyRestore, journeyAnchorMatches } from "../lib/elsJourney.js";
 
 // ELS Lab — one canonical engine, many renderers.
 // React NEVER searches/calculates ELS. It only projects elsState().matrix.
@@ -50,9 +51,12 @@ export default function ElsWorkAreaPage() {
   const [showEngine, setShowEngine] = useState(false);
   const [rawOpen, setRawOpen] = useState(false);
   const [cellSize, setCellSize] = useState(30);
-  const [focusMarks, setFocusMarks] = useState(false);
+  const [focusMarks, setFocusMarks] = useState(true);
   const [showGrid, setShowGrid] = useState(false);
   const [matrixRtl, setMatrixRtl] = useState(true);
+  // Focus/Fit is the default research view: same canonical Snapshot, fewer DOM cells on screen.
+  // Full Matrix is always one click away; this never changes engine/search/Finding truth.
+  const [fitMatrix, setFitMatrix] = useState(true);
   const [selectedCell, setSelectedCell] = useState(null);
   const [waiting, setWaiting] = useState(false);
   const [firstRunHint, setFirstRunHint] = useState(false);
@@ -85,6 +89,16 @@ export default function ElsWorkAreaPage() {
   //    תשובה על גבי אותם matrix indices — אין fetch נוסף, אין lens/מנוע נוסף.
   const [verseLens, setVerseLens] = useState(null);
   const [activeVerseIndex, setActiveVerseIndex] = useState(null);
+  // 🧭 Research Journey — host navigation only. Every transition is an exact engine-owned hitId load.
+  const [journeyTrail, setJourneyTrail] = useState([]);
+  const [journeyPending, setJourneyPending] = useState(null);
+  const [journeyLoad, setJourneyLoad] = useState(null);
+  const [journeyError, setJourneyError] = useState("");
+  const journeyPendingRef = useRef(null);
+  const [findingDraft, setFindingDraft] = useState("");
+  const [findingRequest, setFindingRequest] = useState(null);
+  const [findingPending, setFindingPending] = useState(false);
+  const [findingMessage, setFindingMessage] = useState("");
 
   useEffect(() => {
     applySeo({ title: "ELS Research Studio · סוד 1820", description: "סביבת המחקר החדשה של הצופן התנ״כי", path: "/lab/els" });
@@ -160,9 +174,53 @@ export default function ElsWorkAreaPage() {
 
   const onState = useCallback((next) => {
     setEngineState(next); setSeen((x) => x + 1); setWaiting(false); setFirstRunHint(false);
+    const pending = journeyPendingRef.current;
+    const nextTerm = next?.termRaw || next?.term || "";
+    if (!pending || next?.status !== "ok" || (nextTerm !== pending.loadItem.term && next?.term !== pending.loadItem.term)) return;
+    if (!journeyAnchorMatches(next, pending.target)) {
+      journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null);
+      setJourneyError("המנוע חזר למופע אחר מהעוגן שביקשנו — המסע לא התקדם."); return;
+    }
+    if (pending.kind === "promote") setJourneyTrail((prev) => [...prev, pending.snapshot]);
+    else if (pending.kind === "restore") {
+      setJourneyTrail(pending.nextTrail || []);
+      const v = pending.restoreView || {};
+      if (v.mode && MODES.some((m) => m.id === v.mode)) setMode(v.mode);
+      if (v.viewMode && VIEW_MODES.some((m) => m.id === v.viewMode)) setViewMode(v.viewMode);
+      if (typeof v.matrixRtl === "boolean") setMatrixRtl(v.matrixRtl);
+      if (Number.isFinite(Number(v.cellSize))) setCellSize(Number(v.cellSize));
+    }
+    setQuery(nextTerm); setSelectedCell(null); setJourneyError("");
+    journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null);
   }, []);
+  const onLoadError = useCallback((d) => {
+    if (d?.reason !== "exact-anchor-miss") return;
+    journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null); setWaiting(false);
+    setJourneyError("העוגן המדויק כבר לא זמין בתוצאת המנוע. המצב הקודם נשמר ולא הוחלף.");
+  }, []);
+  const onFindingResult = useCallback((d) => {
+    if (!findingRequest || d?.requestId !== findingRequest.id) return;
+    setFindingPending(false); setFindingRequest(null);
+    if (d?.ok) { setFindingDraft(""); setFindingMessage(`✓ «${d.term || "הממצא"}» נוסף דרך מנוע ההצלבה`); return; }
+    const msg = d?.reason === "not-found" ? "לא נמצאה כרגע התכנסות של המונח עם הציר הפעיל."
+      : d?.reason === "duplicate" ? "המונח כבר נמצא ברשימת הממצאים."
+      : d?.reason === "limit" ? "הגעת למגבלת 8 המונחים של מנוע ההצלבה."
+      : d?.reason === "gate" ? "הוספת ממצא משתמשת בחיפוש המוצלב ודורשת הרשמה."
+      : "לא ניתן להוסיף את המונח לבדיקה כרגע.";
+    setFindingMessage(msg);
+  }, [findingRequest]);
+  const addFinding = (e) => {
+    e?.preventDefault?.();
+    const term = findingDraft.trim(), axisTerm = (s?.termRaw || s?.term || "").trim();
+    if (!ok || term.length < 2 || axisTerm.length < 2 || findingPending) return;
+    const req = { id: `finding-${Date.now()}-${Math.random()}`, term, axis: axisTerm };
+    setFindingMessage(""); setFindingPending(true); setFindingRequest(req);
+  };
+
   const runSearch = (e) => {
     e?.preventDefault?.(); const q = query.trim(); if (q.length < 2) return;
+    journeyPendingRef.current = null; setJourneyPending(null); setJourneyLoad(null); setJourneyTrail([]); setJourneyError("");
+    setFindingDraft(""); setFindingRequest(null); setFindingPending(false); setFindingMessage("");
     setEngineState(null); setSelectedCell(null); setSeed(q); setWaiting(true); setFirstRunHint(false); setRunNonce((x) => x + 1);
   };
 
@@ -183,6 +241,21 @@ export default function ElsWorkAreaPage() {
   const markedCount = matrix?.marks?.length || 0;
   const matrixVersion = matrix?.v || 1;
   const lenses = Array.isArray(matrix?.lenses) ? matrix.lenses : [];
+
+  const beginJourneyLoad = (pending, item) => {
+    journeyPendingRef.current = pending; setJourneyPending(pending); setJourneyError(""); setWaiting(true); setSelectedCell(null);
+    setJourneyLoad({ id: `${Date.now()}-${Math.random()}`, item });
+  };
+  const promoteFinding = (finding) => {
+    const p = buildJourneyPromotion(s, finding, { scope: s?.scope, view: { mode, viewMode, matrixRtl, cellSize } });
+    if (!p.ok) { setJourneyError("לממצא הזה אין כרגע עוגן מוצג שאפשר להפוך לציר."); return; }
+    beginJourneyLoad({ kind: "promote", target: p.target, snapshot: p.snapshot, loadItem: p.loadItem }, p.loadItem);
+  };
+  const restoreJourney = (snapshot, index) => {
+    const r = buildJourneyRestore(snapshot);
+    if (!r.ok) { setJourneyError("לא ניתן לשחזר את נקודת המחקר הזו."); return; }
+    beginJourneyLoad({ kind: "restore", target: r.target, loadItem: r.loadItem, nextTrail: journeyTrail.slice(0, index), restoreView: snapshot.view }, r.loadItem);
+  };
 
   // 📜 Verse/Context Lens — target = ה-Finding הפעיל: התא הנבחר (אם הוא ממצא-מוצלב, לפי צבעו מול
   //    findings[] הקיים) אחרת ברירת-המחדל היא הציר הראשי (term ריק → occ() בכלי, hitId מ-axis הקיים).
@@ -237,7 +310,7 @@ export default function ElsWorkAreaPage() {
   const Next = ({ children }) => <div style={{ ...soft, padding: "10px 12px", color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.65 }}><b style={{ color: P.accentDim }}>השלב הבא · </b>{children}</div>;
 
   const resetView = () => {
-    setCellSize(30); setFocusMarks(false); setShowGrid(false); setMatrixRtl(true); setSelectedCell(null);
+    setCellSize(30); setFocusMarks(true); setShowGrid(false); setMatrixRtl(true); setFitMatrix(true); setSelectedCell(null);
     setTiltX(54); setTiltZ(-7); setDepth(24);
     setPanX(0); setPanY(0); setSceneScale(1); setExplode(1); setPanMode(false); setIsolateKey(null);
     setActiveLayers(new Set()); setActiveVerseIndex(null);
@@ -256,16 +329,39 @@ export default function ElsWorkAreaPage() {
     const rotatePart = viewMode === "3d" ? ` perspective(1250px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? " perspective(1300px) rotateX(34deg)" : "";
     const stageTransform = `translate(${panX}px, ${panY}px) scale(${sceneScale})${rotatePart}`;
 
-    // 📐 גריד-תאים מחושב פעם-אחת (idx + סדר-RTL כבר-מוחל) — מקור-משותף למישור-הראשי (ללא שינוי) ולמישור-
-    //    ה-Verse-context החדש, כדי ששני המישורים יתיישרו מרחבית בדיוק (אותה שורה/עמודה בדיוק לכל idx).
-    const rowsMeta = matrix.rows.map((row, ri) => {
-      const cells = Array.from(row).map((letter, ci) => ({ letter, ci, idx: (r0 + ri) * S + (c0 + ci) }));
+    // 📐 Focus/Fit is a renderer crop over the SAME Snapshot — never a new ELS window/search.
+    //    We bound the visible rows/columns around engine-owned marks with modest context padding.
+    //    Full Matrix simply renders the complete matrix.rows payload again. Absolute idx stays identical.
+    const rowCount = matrix.rows.length;
+    const colCount = matrix.rows.reduce((mx, row) => Math.max(mx, Array.from(row).length), 0);
+    let renderRowStart = 0, renderRowEnd = Math.max(0, rowCount - 1), renderColStart = 0, renderColEnd = Math.max(0, colCount - 1);
+    if (fitMatrix && S > 0 && rowCount > 0 && colCount > 0 && Array.isArray(matrix.marks) && matrix.marks.length) {
+      const coords = matrix.marks.map((m) => {
+        const idx = Number(m.i);
+        if (!Number.isFinite(idx)) return null;
+        return { r: Math.floor(idx / S) - r0, c: (idx % S) - c0 };
+      }).filter((x) => x && x.r >= 0 && x.r < rowCount && x.c >= 0 && x.c < colCount);
+      if (coords.length) {
+        const rows = coords.map((x) => x.r), cols = coords.map((x) => x.c);
+        renderRowStart = Math.max(0, Math.min(...rows) - 2);
+        renderRowEnd = Math.min(rowCount - 1, Math.max(...rows) + 2);
+        renderColStart = Math.max(0, Math.min(...cols) - 6);
+        renderColEnd = Math.min(colCount - 1, Math.max(...cols) + 6);
+      }
+    }
+    // 📐 גריד-תאים מחושב פעם-אחת (idx + סדר-RTL כבר-מוחל) — מקור-משותף למישור-הראשי ול-Verse.
+    const rowsMeta = matrix.rows.slice(renderRowStart, renderRowEnd + 1).map((row, rOffset) => {
+      const ri = renderRowStart + rOffset;
+      const cells = Array.from(row).slice(renderColStart, renderColEnd + 1).map((letter, cOffset) => {
+        const ci = renderColStart + cOffset;
+        return { letter, ci, idx: (r0 + ri) * S + (c0 + ci) };
+      });
       if (matrixRtl) cells.reverse();
       return { ri, cells };
     });
     const showVersePlane = verseOn && isDepth && verseLens?.ok;   // 📜 מישור-context רק ב-Layered/3D (ב-2D מדגישים על התאים עצמם)
 
-    return <div className="els-native-stage" style={{ overflow: panMode ? "hidden" : "auto", cursor: panMode ? "grab" : viewMode === "3d" ? "grab" : "default", touchAction: panMode || viewMode === "3d" ? "none" : "auto", padding: viewMode === "3d" ? "72px 30px 110px" : "28px 20px 70px", background: P.cardSoft, minHeight: 470 }}>
+    return <div className="els-native-stage" style={{ overflow: panMode ? "hidden" : "auto", cursor: panMode ? "grab" : viewMode === "3d" ? "grab" : "default", touchAction: panMode || viewMode === "3d" ? "none" : "auto", padding: viewMode === "3d" ? "72px 30px 110px" : fitMatrix ? "20px 14px 42px" : "28px 20px 70px", background: P.cardSoft, minHeight: fitMatrix ? 360 : 470 }}>
       <div style={{ position: "relative", width: "max-content", minWidth: "100%", direction: "ltr", fontFamily: F.regal, transform: stageTransform, transformOrigin: "50% 42%", transformStyle: "preserve-3d", transition: "transform .28s ease" }}>
         {showVersePlane && <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", transform: `translateZ(${-Math.max(18, Math.round(depth * 1.15 * explode))}px)`, transformStyle: "preserve-3d" }}>
           {rowsMeta.map(({ ri, cells }) => <div key={"vp-" + ri} style={{ display: "flex", justifyContent: "center", lineHeight: 1 }}>
@@ -336,7 +432,15 @@ export default function ElsWorkAreaPage() {
         מעביר את הכוונה ל-TzofenEmbed עצמו (loading=eager + ?bridge=hidden) כדי שהמנוע-הנסתר-מהצג
         באמת ייטען וידלג רק על ההדרכה-החד-פעמית, בלי לעקוף tier/auth/quota. ה-CSS off-screen* נשאר
         לצורך ההסתרה-החזותית בלבד — אינו עוד מקור-האמת לכוונה. */}
-    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} /></div>
+    <div aria-hidden={!showEngine} style={showEngine ? { ...card, padding: 8, marginBottom: 10 } : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: .001, pointerEvents: "none", insetInlineStart: -10000 }}><TzofenEmbed key={`${seed}-${runNonce}`} seed={seed || undefined} onState={onState} hiddenBridge={!showEngine} lensRequest={lensRequest} onLens={onLens} loadRequest={journeyLoad} onLoadError={onLoadError} findingRequest={findingRequest} onFindingResult={onFindingResult} /></div>
+
+    {(journeyTrail.length > 0 || ok || journeyError) && <div style={{ ...card, padding: "9px 11px", marginBottom: 10, display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+      <span style={{ ...title, fontSize: 11.5 }}>🧭 מסלול מחקר</span>
+      {journeyTrail.map((snap, i) => <React.Fragment key={`${snap.axis?.hitId || snap.term}-${i}`}><button type="button" disabled={Boolean(journeyPending)} onClick={() => restoreJourney(snap, i)} style={{ minHeight: 38, borderRadius: 999, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.accentText, fontFamily: F.heading, fontWeight: 850, cursor: "pointer" }}>↩ {snap.term}</button><span style={{ color: P.inkSoft }}>←</span></React.Fragment>)}
+      {ok && <span style={{ minHeight: 38, display: "inline-flex", alignItems: "center", borderRadius: 999, padding: "0 12px", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontWeight: 900 }}>{s.termRaw || s.term}</span>}
+      {journeyPending && <span style={{ ...muted, fontSize: 11.5 }}>מעגן במנוע…</span>}
+      {journeyError && <span style={{ color: "#b42318", fontFamily: F.body, fontSize: 11.5 }}>{journeyError}</span>}
+    </div>}
 
     <div className="els-native-layout"><main style={{ minWidth: 0 }}><section style={{ ...card, overflow: "hidden", minHeight: 560 }}>
       <div style={{ padding: "13px 14px", borderBottom: `1px solid ${P.border}`, display: "grid", gap: 10 }}>
@@ -346,7 +450,8 @@ export default function ElsWorkAreaPage() {
         </div>
         <div className="els-native-toolbar" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <button type="button" onClick={() => setMatrixRtl((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: matrixRtl ? P.accentBtn : "transparent", color: matrixRtl ? P.onAccent : P.ink }}>↔ {matrixRtl ? "RTL" : "LTR"}</button>
-          <button type="button" onClick={() => setFocusMarks((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: focusMarks ? P.accentBtn : "transparent", color: focusMarks ? P.onAccent : P.ink }}>◎ מיקוד</button>
+          <button type="button" onClick={() => setFocusMarks((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: focusMarks ? P.accentBtn : "transparent", color: focusMarks ? P.onAccent : P.ink }}>◎ Focus</button>
+          <button type="button" onClick={() => setFitMatrix((v) => !v)} title={fitMatrix ? "הצג את כל Matrix Snapshot" : "חזור לתצוגה מותאמת סביב הממצאים"} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: fitMatrix ? P.accentBtn : "transparent", color: fitMatrix ? P.onAccent : P.ink }}>{fitMatrix ? "⌖ Fit" : "⛶ Full Matrix"}</button>
           <button type="button" onClick={() => setShowGrid((v) => !v)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: showGrid ? P.accentBtn : "transparent", color: showGrid ? P.onAccent : P.ink }}>▦ רשת</button>
           <button type="button" onClick={() => setCellSize((v) => Math.max(18, v - 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>−</button><span style={{ minWidth: 52, textAlign: "center", color: P.accentText, fontFamily: F.heading, fontWeight: 900 }}>{cellSize}px</span><button type="button" onClick={() => setCellSize((v) => Math.min(48, v + 3))} style={{ minWidth: 42, minHeight: 42, borderRadius: 12, border: `1px solid ${P.border}`, background: "transparent", color: P.ink }}>＋</button>
           <button type="button" onClick={() => setPanMode((v) => !v)} title="גרירה מזיזה את הבמה (פאן) במקום לסובב" style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: panMode ? P.accentBtn : "transparent", color: panMode ? P.onAccent : P.ink }}>✋ הזזה</button>
@@ -355,9 +460,24 @@ export default function ElsWorkAreaPage() {
           {isolateKey && <button type="button" onClick={() => setIsolateKey(null)} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.accentText }}>✕ נקה בידוד</button>}
           <button type="button" onClick={resetView} style={{ minHeight: 42, borderRadius: 12, padding: "0 13px", border: `1px solid ${P.border}`, background: "transparent", color: P.inkSoft }}>↺ איפוס</button>
         </div>
+        {ok && <div style={{ ...soft, padding: "9px 10px", display: "grid", gap: 8 }}>
+          <form onSubmit={addFinding} style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ ...title, fontSize: 11.5 }}>＋ הוסף ממצא לבדיקה</span>
+            <input value={findingDraft} onChange={(e) => setFindingDraft(e.target.value)} placeholder="למשל: תורה" disabled={findingPending} style={{ flex: "1 1 180px", minHeight: 42, borderRadius: 11, border: `1px solid ${P.border}`, background: P.card, color: P.ink, padding: "0 11px", fontFamily: F.body, fontSize: 14 }} />
+            <button type="submit" disabled={findingPending || findingDraft.trim().length < 2} style={{ minHeight: 42, borderRadius: 11, border: 0, padding: "0 14px", background: P.accentBtn, color: P.onAccent, fontFamily: F.heading, fontWeight: 900, opacity: findingPending || findingDraft.trim().length < 2 ? .5 : 1 }}>{findingPending ? "בודק במנוע…" : "בדוק והוסף"}</button>
+            {findingMessage && <span style={{ ...muted, fontSize: 11.5 }}>{findingMessage}</span>}
+          </form>
+          {findings.length > 0 && <>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <div><span style={{ ...title, fontSize: 11.5 }}>✦ Findings</span><span style={{ ...muted, fontSize: 11.5, marginInlineStart: 7 }}>בחר ממצא כדי להפוך אותו לציר הבא</span></div>
+            <span style={{ ...muted, fontSize: 10.5 }}>{fitMatrix ? "Focus/Fit · רק אזור המחקר הפעיל" : "Full Matrix · כל ה-Snapshot"}</span>
+          </div>
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{findings.map((f, i) => <button key={`top-${f.t}-${i}`} type="button" disabled={Boolean(journeyPending) || !Array.isArray(f.shown) || !f.shown.length} onClick={() => promoteFinding(f)} style={{ minHeight: 42, borderRadius: 12, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />↑ ציר · {f.t}</button>)}</div>
+          </>}
+        </div>}
       </div>
       {s?.status === "empty" ? <div style={{ minHeight: 440, display: "grid", placeItems: "center", ...muted }}>לא נמצא דילוג למונח «{s.termRaw || seed}».</div> : <MatrixStage />}
-      {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span>{verseOn && <span style={{ ...muted, fontSize: 11 }}>📜 Verse layer: {viewMode === "2d" ? "גבולות עדינים על התאים" : "מישור־context מתחת ל-Finding"}</span>}</div>}
+      {ok && matrix?.rows?.length > 0 && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}`, display: "flex", gap: 13, flexWrap: "wrap" }}><span style={{ ...muted, fontSize: 11 }}>● ציר ראשי</span><span style={{ ...muted, fontSize: 11 }}>◉ מסגרת = start</span><span style={{ ...muted, fontSize: 11 }}>✦ {markedCount} marks</span><span style={{ ...muted, fontSize: 11 }}>Renderer: {viewMode}</span><span style={{ ...muted, fontSize: 11 }}>view: {fitMatrix ? "Focus/Fit" : "Full Matrix"}</span><span style={{ ...muted, fontSize: 11 }}>lenses: {lenses.length ? lenses.join(" · ") : "cells · marks"}</span>{verseOn && <span style={{ ...muted, fontSize: 11 }}>📜 Verse layer: {viewMode === "2d" ? "גבולות עדינים על התאים" : "מישור־context מתחת ל-Finding"}</span>}</div>}
       {verseOn && <div style={{ padding: "10px 14px", borderTop: `1px solid ${P.border}` }}>
         <div style={{ ...title, fontSize: 12.5, marginBottom: 7 }}>📜 הקשר־פסוק · Verse Lens</div>
         {!ok ? <div style={{ ...muted, fontSize: 12 }}>אין Finding פעיל.</div>
@@ -379,7 +499,7 @@ export default function ElsWorkAreaPage() {
     </section>
 
     {mode === "discover" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🔭 גילוי</div><div style={{ ...muted, fontSize: 12.5, lineHeight: 1.7, marginTop: 6 }}>המנוע מחפש; ה־Lab מצייר. עכשיו אפשר לעבור בין מישור, שכבות ו־3D בלי להריץ חיפוש מחדש.</div>{findings.length > 0 && <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>{findings.map((f, i) => <span key={`${f.t}-${i}`} style={{ ...soft, padding: "6px 9px", color: P.ink, fontSize: 12 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />{f.t}</span>)}</div>}</section>}
-    {mode === "investigate" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧬 Finding Workspace</div>{!ok ? <div style={{ ...muted, marginTop: 8 }}>בחר Finding באמצעות חיפוש.</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 8, marginTop: 10 }}><div style={{ ...soft, padding: 11 }}><div style={title}>זהות</div><div style={{ ...muted, fontSize: 12 }}>{s.term} · {dir(axis.direction)} · {n(axis.skip)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>חלון</div><div style={{ ...muted, fontSize: 12 }}>rows {n(geo.r0)}–{n(geo.r1)} · cw {n(geo.cw)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>Renderer</div><div style={{ ...muted, fontSize: 12 }}>{viewMode} · depth {depth}</div></div></div>}<div style={{ marginTop: 9 }}><Next>פסוק/context on-demand יהיה שכבת־המחקר הראשונה שאינה רק renderer.</Next></div></section>}
+    {mode === "investigate" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>🧬 Finding Workspace</div>{!ok ? <div style={{ ...muted, marginTop: 8 }}>בחר Finding באמצעות חיפוש.</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 8, marginTop: 10 }}><div style={{ ...soft, padding: 11 }}><div style={title}>זהות</div><div style={{ ...muted, fontSize: 12 }}>{s.term} · {dir(axis.direction)} · {n(axis.skip)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>חלון</div><div style={{ ...muted, fontSize: 12 }}>rows {n(geo.r0)}–{n(geo.r1)} · cw {n(geo.cw)}</div></div><div style={{ ...soft, padding: 11 }}><div style={title}>Renderer</div><div style={{ ...muted, fontSize: 12 }}>{viewMode} · depth {depth}</div></div></div>}<div style={{ marginTop: 9 }}><Next>בחר ממצא ב־«המשך מה־Finding» כדי להפוך אותו לציר חדש; החזרה נעשית דרך מסלול המחקר למעלה.</Next></div></section>}
     {mode === "judge" && <section style={{ ...card, padding: 14, marginTop: 12 }}><div style={title}>⚖️ Evidence Pack</div><div style={{ display: "grid", gap: 7, marginTop: 9 }}><div style={{ ...soft, padding: 10, color: P.ink, fontSize: 12.5 }}><b style={{ color: P.accentText }}>FACT · </b>{ok ? `«${s.termRaw || s.term}» נמצא בדילוג ${n(axis.skip)}, ${dir(axis.direction)}, start ${n(axis.start)}.` : "אין Finding פעיל."}</div><div style={{ ...soft, padding: 10, color: P.inkSoft, fontSize: 12.5 }}><b style={{ color: P.accentDim }}>DISPLAY · </b>2D/שכבות/3D הם projections של אותה אמת בלבד.</div><div style={{ ...soft, padding: 10, color: P.inkSoft, fontSize: 12.5 }}><b style={{ color: P.accentDim }}>HUMAN-GATE · </b>Canonical נשאר צוריאל בלבד.</div></div></section>}
     </main>
 
