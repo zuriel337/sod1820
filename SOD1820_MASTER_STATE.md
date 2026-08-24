@@ -75,6 +75,14 @@ Performance: 2D+Focus/Fit הוא baseline זול; Layered/3D lazy/on-demand; lar
 ### NEXT ACTION
 Human Preview #188 → verify canonical Number/Gematria callable path → add Number/Gematria adapter. Do not build a parallel Workspace/Graph/engine and do not calculate gematria from memory.
 
+### CHANGE LOG ENTRY — 24.8.2026
+- **מה השתנה:** Research Studio v1 + Universal Finding + Layered/3D first-class + ResearchProvider reuse + priority order documented in §0-A and Roadmap v5.2 candidate.
+- **למה:** Human-Gate ZURIEL approved the architecture; live state after PR #185 and Drafts #186/#188 made Roadmap v5.1 stale.
+- **מה הוחלף:** navigation-level `ACTIVE_NOW=WS-GEMATRIA-CORPUS-PACKAGES` is superseded by `WS-RESEARCH-STUDIO-FOUNDATION`; the corpus workstream itself is preserved as a dependency/source, not deleted or superseded.
+- **סטטוס:** `APPROVED` architecture/priority decision · `DOCUMENTED` on Draft PR #187 · product code remains `BUILDING` on Drafts #186/#188 · no merge/deploy implied.
+
+
+
 ---
 
 ## 1. רישום השיטות — `gematria_methods`
