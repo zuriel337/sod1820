@@ -1,0 +1,39 @@
+name: GPT ELS Fit Focus PR
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-verify:
+    if: github.event.pull_request.head.ref == 'gpt/els-research-journey-v2' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gpt/els-research-journey-v2
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Apply target patch
+        run: python scripts/gpt_els_fit_focus_once.py
+      - name: Install
+        run: npm ci
+      - name: Journey contract
+        run: node scripts/verify-els-journey-contract.mjs
+      - name: Build
+        run: npm run build
+      - name: Diff check
+        run: git diff --check
+      - name: Commit target change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/ElsWorkAreaPage.jsx
+          git commit -m "feat(els): default to focus-fit matrix view"
+          git push origin HEAD:gpt/els-research-journey-v2
