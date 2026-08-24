@@ -5,6 +5,8 @@ import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import { buildJourneyPromotion, buildJourneyRestore, journeyAnchorMatches } from "../lib/elsJourney.js";
+import { useUniversalWorkspace } from "../lib/research/useUniversalWorkspace.js";
+import { elsStateToUniversalFindings } from "../lib/research/universalFinding.js";
 
 // ELS Lab — one canonical engine, many renderers.
 // React NEVER searches/calculates ELS. It only projects elsState().matrix.
@@ -41,6 +43,7 @@ const dir = (v) => v === "back" ? "אחורה ↑" : "קדימה ↓";
 
 export default function ElsWorkAreaPage() {
   const P = usePalette();
+  const workspace = useUniversalWorkspace();
   const [engineState, setEngineState] = useState(null);
   const [mode, setMode] = useState("discover");
   const [viewMode, setViewMode] = useState("2d");
@@ -246,6 +249,14 @@ export default function ElsWorkAreaPage() {
     journeyPendingRef.current = pending; setJourneyPending(pending); setJourneyError(""); setWaiting(true); setSelectedCell(null);
     setJourneyLoad({ id: `${Date.now()}-${Math.random()}`, item });
   };
+  const addFindingToWorkspace = (finding) => {
+    const exact = elsStateToUniversalFindings(s, { inputRef: axis.hitId })
+      .filter((uf) => uf.view?.rendererHints?.role === "finding" && uf.subject?.label === finding?.t);
+    if (!exact.length) { setFindingMessage("לממצא הזה אין כרגע מופע מדויק שאפשר להוסיף למחקר."); return; }
+    workspace.upsertFinding(exact[0]);
+    setFindingMessage(`📌 «${finding.t}» נוסף למחקר עם העוגן המדויק שלו.`);
+  };
+
   const promoteFinding = (finding) => {
     const p = buildJourneyPromotion(s, finding, { scope: s?.scope, view: { mode, viewMode, matrixRtl, cellSize } });
     if (!p.ok) { setJourneyError("לממצא הזה אין כרגע עוגן מוצג שאפשר להפוך לציר."); return; }
@@ -472,7 +483,10 @@ export default function ElsWorkAreaPage() {
             <div><span style={{ ...title, fontSize: 11.5 }}>✦ Findings</span><span style={{ ...muted, fontSize: 11.5, marginInlineStart: 7 }}>בחר ממצא כדי להפוך אותו לציר הבא</span></div>
             <span style={{ ...muted, fontSize: 10.5 }}>{fitMatrix ? "Focus/Fit · רק אזור המחקר הפעיל" : "Full Matrix · כל ה-Snapshot"}</span>
           </div>
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{findings.map((f, i) => <button key={`top-${f.t}-${i}`} type="button" disabled={Boolean(journeyPending) || !Array.isArray(f.shown) || !f.shown.length} onClick={() => promoteFinding(f)} style={{ minHeight: 42, borderRadius: 12, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />↑ ציר · {f.t}</button>)}</div>
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{findings.map((f, i) => <div key={`top-${f.t}-${i}`} style={{ display: "inline-flex", gap: 5, alignItems: "center" }}>
+            <button type="button" disabled={Boolean(journeyPending) || !Array.isArray(f.shown) || !f.shown.length} onClick={() => promoteFinding(f)} style={{ minHeight: 42, borderRadius: 12, padding: "0 12px", border: `1px solid ${P.border}`, background: P.cardSoft, color: P.ink, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}><i style={{ display: "inline-block", width: 8, height: 8, borderRadius: 3, background: f.color, marginInlineEnd: 5 }} />↑ ציר · {f.t}</button>
+            <button type="button" disabled={!Array.isArray(f.shown) || !f.shown.length} onClick={() => addFindingToWorkspace(f)} title="שמור את המופע המדויק ב-Workspace הגלובלי" style={{ minHeight: 42, borderRadius: 12, padding: "0 10px", border: `1px solid ${P.border}`, background: "transparent", color: P.accentText, fontFamily: F.heading, fontWeight: 850, opacity: Array.isArray(f.shown) && f.shown.length ? 1 : .45 }}>📌 למחקר</button>
+          </div>)}</div>
           </>}
         </div>}
       </div>
