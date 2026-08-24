@@ -1,6 +1,6 @@
-# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.1 (קנוני)
+# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.2 (מועמד לקנוניזציה — PR #187)
 
-> **✅ v5.1 קנוני.** Reconciliation ממוקד של v5 בעקבות סגירת **Research DNA v1 Foundation Contract** (PR #166, **`CONTRACT: CLOSED`**, merged ל-`main` בקומיט **`95005d78e6415e52534c535ef9b93940e835cc31`**). **זו אינה v6 — אין ארכיטקטורה חדשה כאן.** v5.1 מתאמת את אותה מפה מול המצב-החי החדש ומוסיפה **Canonical Gate Map** אחד. `LAST_RECONCILED: 2026-08-22` (main SHA `95005d78`, ancestor-מאומת מול `origin/main` — אין drift; provenance: `work_log` `actor=CLAUDE task=SOD1820_MASTER_ROADMAP_V5_1_RECONCILIATION`). כל תוכן v5 (כולל v4 שמתחתיו) שלא צוין כאן במפורש כ-SUPERSEDED/עודכן נשאר בתוקף ללא-שינוי (NO-DISAPPEARING-WORK) — כולל תיקוני-PR-#165 (יעד-Persistence לא-מונח-מראש · Research-DNA-Identity נפרד מ-Gate #4/WS-ELS-IDENTITY · Entity-Hub/Raziel `LIVE`/`PARTIAL`-כבר-היום) ו-Strategic Foundation Order הקיים, המתואם כאן מול ה-Foundation הסגור (ר' §CANONICAL GATE MAP למטה). **`ACTIVE_NOW` אינו-משתנה ב-pass הזה** — עדיין `WS-GEMATRIA-CORPUS-PACKAGES`, ללא-הצדקה-לשינוי.
+> **🟡 v5.2 מועמד-קנוני על PR #187; v5.1 נשאר קנוני ב-main עד merge.** Reconciliation 24.8 מוסיף את Research Studio v1 המאושר ואת סדר-העדיפות החדש; ההמשך ההיסטורי של v5.1 נשמר להלן כ-provenance. בסיס v5.1 נוצר בעקבות סגירת **Research DNA v1 Foundation Contract** (PR #166, **`CONTRACT: CLOSED`**, merged ל-`main` בקומיט **`95005d78e6415e52534c535ef9b93940e835cc31`**). **זו אינה v6 — אין ארכיטקטורה חדשה כאן.** v5.1 מתאמת את אותה מפה מול המצב-החי החדש ומוסיפה **Canonical Gate Map** אחד. `LAST_RECONCILED: 2026-08-22` (main SHA `95005d78`, ancestor-מאומת מול `origin/main` — אין drift; provenance: `work_log` `actor=CLAUDE task=SOD1820_MASTER_ROADMAP_V5_1_RECONCILIATION`). כל תוכן v5 (כולל v4 שמתחתיו) שלא צוין כאן במפורש כ-SUPERSEDED/עודכן נשאר בתוקף ללא-שינוי (NO-DISAPPEARING-WORK) — כולל תיקוני-PR-#165 (יעד-Persistence לא-מונח-מראש · Research-DNA-Identity נפרד מ-Gate #4/WS-ELS-IDENTITY · Entity-Hub/Raziel `LIVE`/`PARTIAL`-כבר-היום) ו-Strategic Foundation Order הקיים, המתואם כאן מול ה-Foundation הסגור (ר' §CANONICAL GATE MAP למטה). **הערת-היסטוריה v5.1:** באותו pass `ACTIVE_NOW` נשאר `WS-GEMATRIA-CORPUS-PACKAGES`; **החלטת 24.8 למעלה מחליפה זאת בניווט ל-`WS-RESEARCH-STUDIO-FOUNDATION`**, בלי לבטל את workstream הקורפוס.
 >
 > **מהות v5.1 במשפט אחד:** החוזה-הארכיטקטוני (Research DNA v1) נסגר; **היישום לא**. Methods/Corpus-Persistence/Deep-Scan/Intake/Cross/Raziel-implementation נשארים OPEN/PARTIAL/FUTURE בדיוק כפי-שהיו — סגירת-חוזה ≠ סגירת-בנייה. v5 קודמת (`f1503a28`, מאושרת ע"י צוריאל, "DECISION — Canonize Roadmap v5") נשארת בתוקף כבסיס; v5.1 **מוסיפה** reconciliation ולא-מוחקת דבר ממנה.
 >
@@ -9,6 +9,48 @@
 > **סדר־סמכות:** live DB + `main` + `SOD1820_MASTER_STATE.md` (מצב קנוני) > המפה הזאת (ניווט) > זיכרון. המפה **מפנה** אל המצב הקנוני; לעולם אינה אמת מקבילה ואינה בסיס־נתונים.
 >
 > **v5 הוסיפה על v4 (נשמר, provenance):** ספיגת עבודה-היסטורית (ELS/Premium-Research/Legacy-Systems) שנחקרה ב-4 סבבי-READ-ONLY (Architecture Reconstruction · Legacy Reconciliation · GPT-docs cross-check · Absorption Matrix) + פתרון Decision #1 (ELS Full-Search-Space) לפי provenance קיים.
+
+---
+
+## 🧭 RESEARCH STUDIO v1 — RECONCILIATION 24.8.2026
+> **DECISION — ZURIEL Human-Gate, 24.8.2026.** סעיף זה הוא שכבת-הניווט העדכנית של המפה ומחליף, לצורך `ACTIVE_NOW` וסדר-הבנייה, הפניות ישנות יותר ל-`WS-GEMATRIA-CORPUS-PACKAGES` כעמדה-היחידה. ההיסטוריה שמתחת נשמרת כ-provenance ואינה נמחקת. מקור: `docs/research-studio-v1-contract.md` + `docs/research-universal-finding-contract.md` + `work_log` actor=GPT/CLAUDE. עד למיזוג PR #187 ל-`main`, זהו **מועמד-קנוני מאושר-Human-Gate**, לא מסמך-main קנוני.
+>
+> **חידוד CLAUDE 24.8.2026 (אחרי ה-reconciliation המקורי, לפני מיזוג):** (1) **אחסון = שלושה בתים, לא בעיה בינארית** — מנוע/DB מקור-נטיבי = מקור-אמת; `research_items` = חברות-בסביבת-העבודה בלבד; `research_objects` (כולל `engine_verified`/`engine_detail`) = טענת-מחקר-עמידה; ה-Universal Finding הוא מעטפת+refs, **לא** בעל-בית רביעי — **אסור יצירת `research_objects` אוטומטית לכל Finding**. (2) **Research Context אינו טבלה/בעל-אחסון חדש** — חוזה לוגי בלבד (שאילתה/scope/Findings-פעילים/Dimensions/Lens/Journey-position), עשוי להפנות ל-`research_objects`/`person-ref`/מספר/נושא אך אינו אף אחד מהם אוטומטית. (3) **Topic/Convergence מקבל מיפוי-adapter נפרד משלו**, לא תחת ELS. (4) **H1 מאושר:** `NumberDNA`→"🧬 צירי ההתכנסות" (`NumberConvergences`); "Research DNA" שמור אך-ורק לארכיטקטורה החדשה. (5) **H2 מאושר, טופולוגיה היברידית:** Workspace נשאר גלובלי-קנוני; דף-מספר מקבל השלכת-Research-Surface הקשרית מעל אזור-הממצאים-הנעול הקיים — לא מחליף/מעצב-מחדש אותו. (6) **Name Journey** (NameLab/`fn_name_protocol`, חי) נבדק, אינו נעלם/ננטש, ונבדל במפורש מ-Person/Life Journey — נוסף כמיפוי-adapter נפרד (`kind="name"`), לא Finding בפני עצמו, ולא re-design של הקוד החי. פרטים מלאים: `docs/research-studio-v1-contract.md` §2/§4/§7-§13, `docs/research-universal-finding-contract.md` §1/§5/§10-§12/§18.
+
+### ACTIVE_NOW החדש — `WS-RESEARCH-STUDIO-FOUNDATION`
+**מטרה:** לחבר את המנועים והישויות הקיימים ל-Research OS אחד, בלי מנוע/Graph/Store מקביל.
+
+**חוזה מוצר:** `Discovery → Universal Findings → Investigation → Judgment`.
+- `Clean ↔ Pro` = עומק-תצוגה על אותו State, לא שתי אפליקציות.
+- Journey = היסטוריית-מחקר אוטומטית עם restore מדויק, לא מוצר שלישי.
+- 2D / Layered / 3D = renderers של אותו Finding/Research State; אין 3D truth נפרד.
+- 2D+Focus/Fit הוא baseline מהיר; שכבות/3D lazy/on-demand; מטריצות גדולות מיועדות ל-virtualization.
+- AI/Raziel מציע Candidates בלבד; Candidate ≠ Finding ≠ Fact ≠ Claim ≠ Interpretation ≠ Canonical ≠ Published.
+
+### סדר-הבנייה המעודכן
+1. **Universal Finding Contract** — חוזה זהות/provenance משותף לכל מקור, כולל `verification`/`access`/`identity.personRef`/`identity.topicRef`. `CONTRACT: APPROVED`; מימוש-ראשון קיים ב-Draft #188 (טעון תיקון-drift לפני שהופך לתבנית — ר' §18 שם: מסלול-האחסון בפועל כותב ל-`research_items` בלבד, לא ל-`research_objects.engine_detail`).
+2. **Global Research Workspace / ResearchProvider** — reuse של `src/lib/research/ResearchProvider.jsx` + `research_items` (בית #2 מתוך שלושה — חברות-Workspace בלבד); אין Store/טבלה מקבילים. Research Context (§0-A למטה) אינו נשען על שכבה זו כבעל-אחסון.
+3. **ELS Lens integration** — #186/#188: ELS exact identity, Journey, Findings, Matrix, Verse, 2D/Layered/3D; ה-ELS הוא Lens ראשון, לא בעל-הבית של ה-Workspace.
+4. **Number/Gematria Adapter + NumberHub** — מחובר רק דרך `gematria_methods` והפונקציות הקנוניות; `WS-GEMATRIA-CORPUS-PACKAGES` נשמר ואינו מבוטל, אך מוזן מעכשיו אל Research Studio במקום לעמוד כ-workstream מבודד. דף-המספר עצמו: טופולוגיה היברידית H2 — Workspace גלובלי + השלכת Research Surface הקשרית, ואזור-הממצאים-הקנוני (`NumberDNA`→**"🧬 צירי ההתכנסות"** / `NumberConvergences`) נשאר במקומו, לא מוחלף.
+5. **Topic/Convergence Adapter** — מיפוי-adapter **נפרד** (לא תחת ELS): מפנה אך-ורק ל-`topic_card_id`/convergence `node_id` קיימים + provenance, לעולם לא יוצר/משכפל התכנסות; נושא רק את מחלקת-היחס לפי `equality_vs_convergence` (🔢/🤖/👤).
+6. **Discovery Layer** — Cross Search, Auto Terms, AI Suggestions, EntityHub/Graph, אנשים/ישויות (Person adapter — self-scope בלבד, `F-1b` לא מאושר), שמות (Name adapter — NameLab/`fn_name_protocol` חי, נפרד מ-Person, לא Finding-כ-Journey), פסוקים ומחקר קיים כ-Candidates/Findings עם provenance.
+7. **Global Findings Workspace UX** — multi-Finding, compare, pin, dismiss-from-view, restore, source-neutral inspect, adapter-specific promote.
+8. **Judgment Surface** — Evidence / Claim / Interpretation / confidence מוסבר + Human Gate; זו **השלכה של Gate #18 (Master State §20, Option C: Contract-over-Consolidation)**, לא מערכת-Judgment שביעית/מקבילה. `decision_ledger` נשאר יומן-ביקורת בלבד.
+9. **Legacy Capability Reconciliation** — למפות את inventory הישן (כולל D4/FORMS/Research Journey prior-art, וכן Name Journey החי) אל הארכיטקטורה החדשה; לספוג רק יכולות חסרות ובעלות-ערך, בלי raw merge ובלי re-design של קוד חי.
+10. **Depth Dimensions / Research Universe** — הרחבה על אותם contracts; depth semantics תמיד מפורשים דרך 11 הצירים של Research DNA v1 §2 (`verse/source/time/method/research-track/confidence/relation-family` וכו') — לא סט אד-הוק חדש.
+
+### יחס לסדר-היסוד הישן
+`Corpus Classification → Corpus Persistence → Research DNA → Identity/Multilingual/Numeric → Cross/ELS → Entity Hub → Raziel` **נשמר כסדר-תלויות/יסודות** ואינו נמחק. השינוי הוא בניווט-הבנייה: Research Studio Foundation הופך למעטפת המאחדת שמחברת את אותם workstreams. אין צורך "לסיים את כל הקורפוס" לפני חיבור המעטפת, וכל workstream שומר את Gate/STATE האמיתי שלו.
+
+### מצב חי שנקלט ב-reconciliation
+- `main` כולל את PR #185 (`a665a4dc`) — ELS state/Matrix/2D-Layered-3D/hidden bridge/Verse integration.
+- Draft #186 = Research Journey v2 + Focus/Fit + add-Finding cross bridge; לא merged/deployed.
+- Draft #187 = חוזה Research Studio + Universal Finding; docs-only. **עודכן 24.8.2026 (actor=CLAUDE)** עם חידודי-אחסון-שלושה-בתים, Context-ללא-בעל-אחסון, Convergence-adapter-נפרד, שם-מספר H1/H2, ומיפוי Name/Person — עדיין docs-only, `main` לא נגעה.
+- Draft #188 = Universal Finding adapter מעל ResearchProvider + `📌 למחקר`; stacked על #186, לא merged/deployed. **דגל-drift (טרם תוקן בקוד):** נכתב כרגע ל-`research_items` בלבד; §18 של החוזה המעודכן מצפה שהשלכת-אימות תיכתב ל-`research_objects.engine_detail` כשמאמתים ב-DNA v1 — תיקון-קוד עתידי, לא חלק מ-patch המסמכים הזה.
+- `ResearchProvider` קיים ב-main ומחזיק cart/saved/pinned/history/collections/journeys/mode; reuse חובה.
+
+### NEXT_ACTION
+Human Preview ל-#188 (`📌 למחקר` persistence בלי שינוי ציר) → יישור #188 מול חוק-האחסון-המתוקן (§18: שלושה בתים, לא `research_objects` אוטומטי) → אימות callable path קנוני של Number/Gematria → Adapter שני. אין עוד הרחבת-UI אד-הוק לפני החיבור הזה.
 
 ---
 
@@ -54,8 +96,9 @@
 ---
 
 ## 🕒 טריות המפה (FRESHNESS)
-- **LAST_RECONCILED:** `2026-08-22` (v5.1 reconciliation; `main` HEAD **`95005d78e6415e52534c535ef9b93940e835cc31`** — Research DNA v1 Foundation Contract, PR #166, CLOSED/MERGED. אומת ancestor-של-`origin/main`, אין drift נוסף מעבר לכך בזמן-הכתיבה). v5-הקודמת (`f1503a28`) נשארת provenance-בתוקף.
-- **SYNC STATUS:** `SYNCED` — **v5.1 קנוני, בונה על v5/`f1503a28` + Research DNA v1 Foundation (`95005d78`)**, לא-עוד DRAFT.
+- **LAST_RECONCILED (main canonical):** `2026-08-22` (v5.1 reconciliation; `main` HEAD **`95005d78e6415e52534c535ef9b93940e835cc31`** — Research DNA v1 Foundation Contract, PR #166, CLOSED/MERGED. אומת ancestor-של-`origin/main`, אין drift נוסף מעבר לכך בזמן-הכתיבה). v5-הקודמת (`f1503a28`) נשארת provenance-בתוקף.
+- **LAST_RECONCILED (PR #187 candidate):** `2026-08-24` against main `a665a4dc` + verified work_log/PR state through #188.
+- **SYNC STATUS:** `STALE on main` / **`RECONCILED-CANDIDATE` on PR #187** — v5.2 candidate captures verified work through 24.8.2026; main remains v5.1 until Human-Gate merge.
 - **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס.
 - **אין עדכון־אוטומטי־שקט:** בסוף סשן אסור לשכתב את המפה אוטומטית. יש **לזהות** drift, לסמן `STALE`, **ולהציע** את העדכון דרך חוקי ה־WRITE/Human-Gate — לעולם לא לכתוב קנון בלי שער.
 
