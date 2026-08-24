@@ -3,7 +3,7 @@ import { emit, EVENTS } from "./eventBus.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
-import { signalAiBehavior } from "../supabase.js";
+import { signalAiBehavior, supabase } from "../supabase.js";
 
 // 🧠 ResearchProvider — סביבת המחקר הגלובלית (Local-first). מחזיק את «המחקר הפעיל»
 // (cart) ואת השמורים, שורד מעבר בין דפים, ונשמר ב-localStorage בלי התחברות.
@@ -87,25 +87,27 @@ export default function ResearchProvider({ children }) {
   }, []);
   const clearHistory = useCallback(() => setHistory([]), []);
 
-  // 🔠 ELS → Workspace bridge. ה-iframe הקנוני כבר פולט postMessage מסוג state דרך TzofenEmbed;
-  // ResearchProvider רק רושם את החיפוש המוצלח בהיסטוריית-המחקר — בלי לחשב ELS, בלי ליצור Finding,
-  // בלי לקדם לקנון ובלי טבלה/Store מקבילים. כך «המשך מהמקום שעצרת» עובד גם בדילוגים.
-  // dedupe לפי תמונת-החיפוש עצמה, כדי state-ticks של אותו צופן לא יציפו את ההיסטוריה.
+  // 🔠 ELS → Workspace + Number/Gematria bridge.
+  // ה-iframe הקנוני פולט state דרך TzofenEmbed; כאן לא מחשבים ELS ולא יוצרים Finding חדש.
+  // חיפוש מוצלח נרשם בהיסטוריה, ואז המונח נשלח ל-fn_all_methods הקנונית. אם קיים ערך רגיל,
+  // גם ישות-המספר נרשמת בהיסטוריה עם קישור /number/:value. Computed Match בלבד — לא Canonical.
+  // dedupe לפי תמונת-החיפוש כדי state-ticks של אותו צופן לא יציפו את ההיסטוריה.
   const lastElsHistorySig = useRef(null);
   useEffect(() => {
-    const onElsState = (e) => {
+    const onElsState = async (e) => {
       if (e.origin !== window.location.origin) return;
       const d = e.data;
       if (!d || d.source !== "tzofen" || d.type !== "state" || d.status !== "ok") return;
-      const term = String(d?.axis?.term || d?.axis?.t || d?.term || d?.query || d?.raw || "").trim();
+      const term = String(d?.termRaw || d?.term || d?.axis?.term || d?.axis?.t || "").trim();
       if (!term) return;
-      const scope = d?.provenance?.scope || d?.scope || "torah";
+      const scope = d?.search?.scope || d?.provenance?.scope || d?.scope || "torah";
       const skip = Number(d?.axis?.skip || 0);
       const hitId = d?.axis?.hitId ?? d?.occurrence?.index ?? 0;
-      const searchKind = d?.provenance?.searchKind || d?.kind || "regular";
+      const searchKind = d?.search?.mode || d?.provenance?.searchKind || d?.kind || "regular";
       const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip}`;
       if (lastElsHistorySig.current === sig) return;
       lastElsHistorySig.current = sig;
+
       logHistory({
         id: `els:${encodeURIComponent(scope)}:${encodeURIComponent(term)}:${encodeURIComponent(searchKind)}:${hitId}:${skip}`,
         type: "els",
@@ -115,7 +117,7 @@ export default function ResearchProvider({ children }) {
         scope,
         skip,
         searchKind,
-        href: `/lab/els?q=${encodeURIComponent(term)}`,
+        href: "/lab/els",
         metadata: {
           engine: "tzofen",
           corpus: scope,
@@ -126,6 +128,32 @@ export default function ResearchProvider({ children }) {
           matrixVersion: d?.matrix?.v || null,
         },
       });
+
+      try {
+        const { data, error } = await supabase.rpc("fn_all_methods", { p_word: term });
+        if (error) return;
+        const pack = Array.isArray(data)
+          ? (data[0]?.fn_all_methods || data[0])
+          : (data?.fn_all_methods || data);
+        const value = Number(pack?.["רגיל"]);
+        if (!Number.isFinite(value)) return;
+        logHistory({
+          id: `number:${value}`,
+          type: "number",
+          title: `${value} · ${term}`,
+          label: String(value),
+          value,
+          href: `/number/${value}`,
+          metadata: {
+            source: "els",
+            sourceTerm: term,
+            relation: "ragil_value",
+            method: "רגיל",
+            computed: true,
+            canonical: false,
+          },
+        });
+      } catch { /* ELS history remains valid even if the enrichment RPC fails */ }
     };
     window.addEventListener("message", onElsState);
     return () => window.removeEventListener("message", onElsState);
@@ -182,7 +210,7 @@ export default function ResearchProvider({ children }) {
     setSaved(s => s.map(e => (e.coll === id ? { ...e, coll: undefined } : e)));
   }, []);
   const assignCollection = useCallback((itemId, collId) => {
-    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
+    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e));
   }, []);
 
   // 🧭 «המסעות שלי» — רושם מסע שהושלם. dedupe לפי מספר-השורש (המסע האחרון מנצח), הכי-חדש למעלה, עד 30.
