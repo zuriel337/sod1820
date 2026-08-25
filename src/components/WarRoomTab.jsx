@@ -206,7 +206,7 @@ function PipelineCReview() {
   const filtered = useMemo(() => (rows || []).filter(matchesF), [rows, matchesF]);
 
   return (
-    <div style={box}>
+    <div id="pipeline-c-review" style={box}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>⚖️ Pipeline C · Human Gate</span>
         <span style={{ color: C.faint, fontSize: 11 }}>{rows ? `${pending.length} ממתינים (${filtered.length} מוצגים אחרי-פילטר)` : "טוען…"}</span>
@@ -453,7 +453,7 @@ function normCandidate(r) {
 function normChannel(r, chLabel) {
   const t = String(r.text || "").replace(/<[^>]+>/g, "").trim();
   return {
-    key: "ch:" + r.id, source: "ערוץ · " + (chLabel || r.channel || "—"), srckind: "channel", author: r.credit || "—",
+    key: "ch:" + r.id, cuId: r.id, source: "ערוץ · " + (chLabel || r.channel || "—"), srckind: "channel", author: r.credit || "—",
     ts: r.created_at, raw: t, channel: r.channel, link: r.link_url || null, img: r.image_url || null,
     engineVerified: false, values: [], hasCross: false, value: null,
     inFeed: false, inGraph: false, published: !!r.link_url,
@@ -504,6 +504,8 @@ function ItemCard({ item, onFocus }) {
   return (
     <div style={{ ...box, padding: "11px 13px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 5 }}>
+        {/* PART A · תמונה-מקור ≠ מלל-OCR — thumbnail-זעיר כשקיים image_url (היה נלכד ב-item.img ומעולם לא מרונדר). */}
+        {item.img && <img src={thumb(item.img, 88)} alt="" style={{ width: 34, height: 34, objectFit: "contain", borderRadius: 6, background: "#0002", flexShrink: 0 }} />}
         <span style={pill(C.goldBright)}>{item.source}</span>
         <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>{item.author}</span>
         <span style={{ color: C.faint, fontSize: 11 }}>{fmt(item.ts)}</span>
@@ -1289,6 +1291,49 @@ function WaContext({ item }) {
 }
 
 // מקרא-פעולות ל-DetailPanel (מצב מדויק לכל פעולה).
+// ── PART B/D · «➕ שמור למחקר» — כפתור Human-Gate אחד וברור, נפרד מ«סגור-מהתור» (PART E). ──
+// כרגע רק לפריטי Pipeline C-source=channel (channel_updates, cuId קיים) — Claim-shaped בלבד,
+// דרך ה-RPC היחיד channel_update_save_to_research (אותו דפוס בדיוק כמו image_artifact_route_to_intake).
+function SaveToResearchBox({ item }) {
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState(null);
+  if (item.srckind !== "channel" || !item.cuId) return null;
+  const save = async () => {
+    setBusy(true);
+    const { data, error } = await supabase.rpc("channel_update_save_to_research", { p_channel_update_id: item.cuId });
+    setBusy(false);
+    setRes(error ? { ok: false, error: error.message } : data);
+  };
+  const openPipelineC = (e) => {
+    e.preventDefault();
+    document.getElementById("pipeline-c-review")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: "#4caf7d55", background: "#f2fbf5" }}>
+      <div style={{ color: "#128c4b", fontFamily: F.heading, fontWeight: 900, fontSize: 13, marginBottom: 6 }}>🔬 מחקר · Human Gate</div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={pill(C.muted)}>מועמד — לא עובדה</span>
+        <span style={pill(C.muted)}>≠ «סגור-מהתור» (מצב-עבודה אישי, לא-קנוני)</span>
+      </div>
+      {!res && (
+        <button disabled={busy} onClick={save} style={{ ...chip(true, "#4caf7d"), opacity: busy ? 0.5 : 1 }}>
+          {busy ? "שומר…" : "➕ שמור למחקר"}
+        </button>
+      )}
+      {res && res.ok && (
+        <div style={{ fontSize: 12.5, color: "#128c4b", lineHeight: 1.8 }}>
+          <div style={{ fontWeight: 800 }}>{res.already_existed ? "✓ כבר נמצא במחקר" : "✓ נשמר למחקר"}</div>
+          <div>סטטוס: מועמד &nbsp;·&nbsp; פרטיות: פרטי &nbsp;·&nbsp; מקור: {item.author || "—"}</div>
+          <a href="#pipeline-c-review" onClick={openPipelineC} style={{ color: "#128c4b", fontWeight: 700 }}>↓ פתח ב-Pipeline C · Human Gate</a>
+        </div>
+      )}
+      {res && res.ok === false && (
+        <div style={{ fontSize: 12, color: "#e0563a", marginTop: 4 }}>{res.reason || res.error || "לא נשמר"}</div>
+      )}
+    </div>
+  );
+}
+
 const ACTIONS = [["close", "סגור-מהתור"], ["engine", "בדוק-מנוע"], ["atlas", "→ Atlas"], ["axis", "→ שכבת-הציר"], ["core", "קדם→CORE"], ["notarikon", "נוטריקון (ר״ת/ס״ת)"]];
 // 🗂️ Row Detail/Action Panel חכם — הפעולות משתנות לפי סוג-החומר (לא 20 כפתורים בשורה).
 function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
@@ -1311,6 +1356,15 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
           <span style={{ color: C.faint, fontSize: 11 }}>{fmt(item.ts)}</span>
           <button onClick={onClose} style={{ ...chip(false), marginInlineStart: "auto" }}>✕ סגור</button>
         </div>
+        {/* PART A · תמונה-מקור ≠ מלל-OCR — image_url כבר נלכד ב-normChannel אך מעולם לא רונדר.
+            מוצג לצד הטקסט (לא במקומו) · אין gating לפי retention כאן (אין עמודת-retention ל-channel_updates,
+            ברירת-המחדל היא image_and_text). */}
+        {item.img && (
+          <div style={{ margin: "0 0 10px" }}>
+            <img src={thumb(item.img, 420)} alt="" style={{ maxWidth: "100%", maxHeight: 280, objectFit: "contain", borderRadius: 10, background: "#0002", display: "block" }} />
+            <a href={item.img} target="_blank" rel="noreferrer" style={{ fontSize: 10.5, color: C.faint }}>🔍 פתח תמונה מקורית בגודל-מלא</a>
+          </div>
+        )}
         <div style={{ color: C.goldLight, fontSize: 13.5, lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto", marginBottom: 10 }}>
           {item.raw || <span style={{ color: C.faint }}>(ללא טקסט)</span>}
         </div>
@@ -1335,8 +1389,10 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
           {w && w.state !== "matched" && <span onClick={() => go({ type: "writer", value: "__UNKNOWN__", label: "זהות: לא-מזוהה", color: "#8a8a95" })} style={{ ...pill("#8a8a95"), cursor: "pointer" }}>🔎 כל ה-UNKNOWN</span>}
         </div>
 
+        {/* PART E · «מצב עבודה» (אישי, לא-קנוני) ≠ «מחקר / Human Gate» (למטה) — שני צירים נפרדים בכוונה. */}
+        <div style={{ color: C.faint, fontSize: 10, fontFamily: F.heading, fontWeight: 800, marginTop: 14, marginBottom: 4 }}>📋 מצב עבודה (אישי — לא משפיע על מחקר/אמת)</div>
         {/* סגור-מהתור / בטל-סגירה (marker אישי חוצה-מכשירים · לא נוגע בסטטוס-המקור) */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4, alignItems: "center" }}>
           {item.handled ? (
             <>
               <span style={pill("#8a8a95")}>✅ טופל · {item.handledMeta?.reason || "—"}{item.handledMeta?.at ? ` · ${fmt(item.handledMeta.at)}` : ""}</span>
@@ -1350,6 +1406,9 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
             </>
           )}
         </div>
+
+        {/* PART B/D · «➕ שמור למחקר» — ציר נפרד מ«מצב עבודה» למעלה. Claim-shaped בלבד, דרך Research Intake הקיים. */}
+        <SaveToResearchBox item={item} />
 
         {/* 📱 הקשר-הודעה (WhatsApp/DM) — זהות · הודעה · תשובת-בוט · timeline · provenance · פעולות. READ בלבד. */}
         <WaContext item={item} />
