@@ -119,6 +119,31 @@ test("F. hidden -> visible resumes the SAME accumulator without resetting totals
   assert.equal(s.isFlushed, false, "hidden must never permanently close the page-instance");
 });
 
+// PR #195 pre-merge correction: visible ≠ active. Returning to a visible tab must NOT by itself
+// grant a fresh idle-threshold engaged window — only a genuine activity signal may.
+test("F2. visible ≠ active — resuming visibility after a long hidden gap does NOT refresh the activity window", () => {
+  const clock = makeClock();
+  const s = createEngagementState({ now: clock.now, idleThresholdMs: IDLE_THRESHOLD_MS });
+  // visible 10s, active throughout
+  for (let i = 0; i < 10; i++) { clock.advance(1000); s.recordActivity(); s.tick(); }
+  // hidden 5min
+  s.setVisible(false);
+  clock.advance(5 * 60 * 1000);
+  // visible again, 20s, ZERO interaction
+  s.setVisible(true);
+  for (let i = 0; i < 20; i++) { clock.advance(1000); s.tick(); }
+  let snap = s.snapshot();
+  assert.equal(snap.visible_ms, 30000, "visible_ms must grow during the final 20s (10s + 20s)");
+  assert.equal(snap.engaged_ms, 10000, "engaged_ms must NOT get a fresh 20s window merely from visibility restoration — stays at the pre-hidden 10s");
+
+  // now a real interaction happens
+  s.recordActivity();
+  for (let i = 0; i < 5; i++) { clock.advance(1000); s.tick(); }
+  snap = s.snapshot();
+  assert.equal(snap.visible_ms, 35000);
+  assert.equal(snap.engaged_ms, 15000, "subsequent visible time within the idle threshold after a REAL activity signal must count as engaged");
+});
+
 test("flush() is idempotent — second call on the same state is a no-op", () => {
   const clock = makeClock();
   const s = createEngagementState({ now: clock.now });

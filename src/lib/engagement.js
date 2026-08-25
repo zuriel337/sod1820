@@ -45,7 +45,9 @@ export function createEngagementState({ now = Date.now, idleThresholdMs = IDLE_T
   let visible = true;
   let flushed = false;
   return {
-    setVisible(v) { visible = !!v; if (visible) lastActivityAt = now(); },
+    // ⚠️ visible ≠ active (תיקון-סמנטיקה של צוריאל, PR #195): לעולם לא לרענן lastActivityAt כאן.
+    //    חזרה לטאב אינה אקטיביות-אמיתית — רק recordActivity() (scroll/pointer/מקלדת/touch) מרעננת.
+    setVisible(v) { visible = !!v; },
     recordActivity() { lastActivityAt = now(); },
     recordScroll(pct) { if (Number.isFinite(pct) && pct > maxScrollPct) maxScrollPct = pct; },
     // deltaMs = פרק-הזמן שחלף (בדיקות מזריקות ערך קבוע; בדפדפן זה TICK_MS האמיתי).
