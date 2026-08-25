@@ -24,6 +24,15 @@ function dirOf(tags) {
 // מה כל שיטה עושה (לתצוגה ב"כל השיטות")
 const M_DESC = {};
 [...METHODS, ...DEPTH_METHODS].forEach(m => { M_DESC[m.key] = m.sub || m.soul || ""; });
+// 🧩 תיאורי-תצוגה בלבד (לא חישוב — gematria_engine_law) לשיטות שנוספו אחרי METHODS/DEPTH_METHODS:
+// Composite (Numeric Root Finalization) + אי"ק בכ"ר (Anchor Freeze + AIQ BEKAR). כל ערך כבר-מחושב במנוע.
+const EXTRA_DESC = {
+  "איק בכר": "צופן תשעה-חדרים קלאסי-חיצוני (כמו אתב\"ש/אלב\"ם)",
+  "רגיל+מילוי": "צירוף: סכום הרגיל + סכום המילוי",
+  "רגיל+מסתתר": "צירוף: סכום הרגיל + סכום המסתתר",
+  "רגיל+משולש": "צירוף: סכום הרגיל + סכום הקדמי (משולש)",
+  "משולש מילה+משולש הפוך": "צירוף: משולש-מילה + משולש-הפוך",
+};
 
 // 14 השיטות שקיימות ב-bidim — עם הפונקציה לחישוב ערך הביטוי בכל אחת.
 const BIDIM_KEYS = new Set(["רגיל","מילוי","מסתתר","קדמי","ריבוע","גדול","סידורי","אתבש","אלבם","הכפלה","משולש גדול","מילוי דמילוי","הכפלה גדולה","ריבוע גדול"]);
@@ -88,12 +97,14 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
   const regular = allFams.find(g => g.method === "רגיל");
   const others = allFams.filter(g => g.method !== "רגיל");
 
-  const Word = ({ phrase, world, ragil, method, tags }) => {
+  const Word = ({ phrase, world, ragil, method, tags, componentValues, componentMethods }) => {
     const isG = gold.labels.has(phrase);
     const dir = !isG ? dirOf(tags) : null;   // זהב גובר; אחרת עדשת-כיוון
+    const breakdown = Array.isArray(componentValues) && Array.isArray(componentMethods) && componentValues.length === componentMethods.length
+      ? componentMethods.map((m, i) => `${m}=${componentValues[i]}`).join(" + ") : null;
     return (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-        <Link to={`/number/${encodeURIComponent(phrase)}`} title={dir?.title} style={{
+        <Link to={`/number/${encodeURIComponent(phrase)}`} title={breakdown ? `צירוף: ${breakdown}` : dir?.title} style={{
           textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5,
           color: isG ? P.onAccent : (dir ? dir.tint : P.accentText),
           background: isG ? P.accentBtn : (dir ? dir.bg : P.card),
@@ -103,6 +114,7 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
           {isG ? "✦ " : ""}{dir ? <span aria-hidden style={{ fontSize: 10 }}>{dir.dot} </span> : ""}{phrase}
           {method !== "רגיל" && ragil != null && <span style={{ color: isG ? P.onAccent : P.accentDim, fontFamily: "'Courier New', monospace", fontSize: 11, fontWeight: 700, opacity: isG ? 0.85 : 1 }}>· רגיל {ragil}</span>}
           {world && <span style={{ color: isG ? P.onAccent : worldColor(world), fontWeight: 700, fontSize: 11.5, opacity: isG ? 0.85 : 1 }}>· {world}</span>}
+          {breakdown && <span style={{ color: isG ? P.onAccent : P.accentDim, fontFamily: F.body, fontSize: 10.5, opacity: 0.85 }}>· {breakdown}</span>}
         </Link>
         {/* 🙈 אדמין — הסתר לנצח מכל המאגר */}
         {isAdmin && (
@@ -119,10 +131,16 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
   const Group = ({ g, desc, moreOnClick, phrasesOverride }) => {
     const on = highlight && g.method === highlight;
     const list = phrasesOverride || g.phrases;
+    const description = M_DESC[g.method] || EXTRA_DESC[g.method];
     return (
       <div style={{ borderInlineStart: `3px solid ${on ? P.accent : P.border}`, paddingInlineStart: 9, background: on ? P.cardSoft : "transparent", borderRadius: 8 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginBottom: desc ? 2 : 5 }}>
           <span style={{ color: on ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{on ? "✨ " : ""}{g.method}</span>
+          {g.composite && (
+            <span title="ערך-מורכב: סכום שתי שיטות אטומיות (Composite SUM, ציבורי)" style={{ color: P.accentDim, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 8px", fontFamily: F.body, fontSize: 10.5, fontWeight: 700 }}>
+              🧩 צירוף
+            </span>
+          )}
           {expr && g.value != null && (
             <span style={{ color: P.accentText, fontFamily: "'Courier New', monospace", fontSize: 11.5, fontWeight: 700 }}>
               {term} = {g.value}
@@ -132,9 +150,9 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
             {expr ? (g.count > 0 ? `· עוד ${g.count} מילים` : "· אין מילים נוספות") : `(${g.count} מילים)`}
           </span>
         </div>
-        {desc && M_DESC[g.method] && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginBottom: 6, lineHeight: 1.5 }}>{M_DESC[g.method]}</div>}
+        {desc && description && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, marginBottom: 6, lineHeight: 1.5 }}>{description}</div>}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          {list.filter(p => !hidden.has(p.phrase)).map((p, i) => <Word key={i} {...p} method={g.method} />)}
+          {list.filter(p => !hidden.has(p.phrase)).map((p, i) => <Word key={i} {...p} method={g.method} componentMethods={g.componentMethods} />)}
           {!phrasesOverride && g.count > g.phrases.length && (
             moreOnClick
               ? <button onClick={moreOnClick} style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "5px 13px", alignSelf: "center" }}>+{g.count - g.phrases.length} · פתח הכל ▾</button>

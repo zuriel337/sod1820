@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { NumHrefCtx, useNumHref, useHubHrefs } from "../lib/numHrefCtx.js";
 export { NumHrefCtx };
 import { F, calcGem, KEY_NUMBERS } from "../theme.js";
-import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberDossier, getNumberMap, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior } from "../lib/supabase.js";
+import { supabase, logSearch, logView, getSearchCount, getHarvestedPosts, getImagesByValue, getZeroResonance, getTopicCardsByNumber, getNumberAnchor, getNumberDossier, getNumberMap, getNumberNeighbors, getAiAnalysis, saveResearchLead, getOwnerNote, submitOwnerNoteRequest, getGraphBridges, signalAiBehavior, getValueFamilies, getRelationCandidate } from "../lib/supabase.js";
 import { getCiphersForNumber } from "../lib/elsMatrices.js";
 import { getVisitorId, trackJourneyStep } from "../lib/tracking.js";
 import { analyzeWordDeep, collectionConvergences, convergencesFactLine, getWordCrossFacts, loadAiCache, saveAiCache, persistDiscoveries } from "../lib/deepAnalysis.js";
@@ -541,6 +541,91 @@ function BridgesStrip({ term, value, P }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// 🔬 Number Page Integration v1 — Relation Engine v1 wiring (מועמד-קשר, לעולם לא-קנוני).
+// עדשה תוספתית בלבד: לא נוגעת ב-NumberDNA/EntityConvergence הנעולים (§10.4), לא-כותבת edges/nodes.
+// מוצג רק בדפי-ביטוי (isNumber=false) — משווה בין term לבין ביטוי אחר ששווה לו ברגיל, על-פי בחירת המשתמש.
+function RelationCandidateStrip({ term, value, isNumber, P }) {
+  const numHref = useNumHref();
+  const [candidates, setCandidates] = useState(null);   // ביטויים-פוטנציאליים להשוואה (ברגיל, אותו ערך)
+  const [picked, setPicked] = useState(null);
+  const [result, setResult] = useState(null);           // תוצאת fn_relation_candidate עבור picked
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let alive = true; setCandidates(null); setPicked(null); setResult(null);
+    if (isNumber || !term || !value) return;
+    getValueFamilies(value, 8).then(fams => {
+      if (!alive) return;
+      const reg = fams.find(g => g.method === "רגיל");
+      const list = (reg?.phrases || []).map(p => p.phrase).filter(p => p && p !== term).slice(0, 6);
+      setCandidates(list);
+    }).catch(() => alive && setCandidates([]));
+    return () => { alive = false; };
+  }, [term, value, isNumber]);
+
+  async function check(phrase) {
+    setPicked(phrase); setResult(null); setBusy(true);
+    try { setResult(await getRelationCandidate(term, phrase)); } finally { setBusy(false); }
+  }
+
+  if (isNumber || !term || !candidates || !candidates.length) return null;
+  const IND = result?.independent_evidence;
+  const hasApprovedTopic = (IND?.topic_cards || []).some(t => t.status === "approved");
+  return (
+    <div style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 12, padding: "13px 15px", marginBottom: 16 }}>
+      <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 4 }}>🔬 בדיקת מועמד-קשר (Relation Engine)</div>
+      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.6, marginBottom: 9 }}>
+        המנוע בודק אם יש מספיק ראיות-בלתי-תלויות שהשוויון הוא לא-רק-מקרי. <b>תמיד מועמד למחקר — לא קביעת-אמת.</b>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: result || busy ? 10 : 0 }}>
+        {candidates.map((c, i) => (
+          <button key={i} onClick={() => check(c)} disabled={busy}
+            style={{ cursor: busy ? "default" : "pointer", background: picked === c ? P.accentBtn : P.card,
+              color: picked === c ? P.onAccent : P.accentText, border: `1px solid ${picked === c ? "transparent" : P.borderStrong}`,
+              borderRadius: 999, padding: "5px 12px", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
+            {term} ↔ {c}
+          </button>
+        ))}
+      </div>
+      {busy && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>בודק…</div>}
+      {result && !busy && (
+        <div style={{ border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+            <span style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 9px", color: P.accentDim, fontFamily: F.body, fontSize: 10.5, fontWeight: 800 }}>מועמד</span>
+            <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800 }}>{term} ↔ {picked}</span>
+            {result.research_priority && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>· עדיפות-מחקר: {result.research_priority}</span>}
+            {hasApprovedTopic && <span style={{ color: "#4caf7d", fontFamily: F.body, fontSize: 11, fontWeight: 700 }}>✓ יש התכנסות מאושרת בתחום</span>}
+          </div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, lineHeight: 1.6, marginBottom: (result.engine_evidence?.length || 0) ? 6 : 0 }}>
+            {result.engine_evidence?.length
+              ? `${result.engine_evidence.length} שיטות-מנוע מחברות ביניהם (עוצמת-אות ${Number(result.engine_signal ?? 0).toFixed(1)}).`
+              : "אין ראיות-מנוע משותפות מעבר לרגיל."}
+            {result.noise_flags?.length ? ` דגלי-רעש: ${result.noise_flags.join(", ")}.` : ""}
+          </div>
+          {result.engine_evidence?.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {result.engine_evidence.slice(0, 6).map((e, i) => (
+                <span key={i} style={{ color: P.accentDim, background: P.card, border: `1px solid ${P.border}`, borderRadius: 8, padding: "3px 9px", fontFamily: F.body, fontSize: 11 }}>
+                  {e.method} = {e.value}
+                </span>
+              ))}
+            </div>
+          )}
+          {hasApprovedTopic && (
+            <div style={{ marginTop: 7 }}>
+              {IND.topic_cards.filter(t => t.status === "approved").map((t, i) => (
+                <Link key={i} to={`/topic/${t.slug}`} style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>
+                  🎴 {t.title} →
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1759,6 +1844,9 @@ export default function EntityPage({ embedPhrase } = {}) {
 
         {/* ── 🌉 גשרים חוצי-שפות (מהגרף) — נדיר ומיוחד, לכן גבוה ובולט ── */}
         <BridgesStrip term={term} value={value} P={P} />
+
+        {/* ── 🔬 מועמד-קשר (Relation Engine v1) — תוספתי, לא נוגע ב-NumberDNA הנעול ── */}
+        <RelationCandidateStrip term={term} value={value} isNumber={isNumber} P={P} />
 
         {/* ── 🧬 מד ההתכנסות — ראשון ובולט (ההתכנסות שחיפשת) ── */}
         <Acc id="dna" icon="🧬" title="מד ההתכנסות — איך המספר מתכנס" open={open} onToggle={toggleAcc} P={P}>
