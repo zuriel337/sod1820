@@ -1,6 +1,8 @@
-# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.2 (מועמד לקנוניזציה — PR #187)
+# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.2 (PR #187 — MERGED ל-main 24.8.2026)
 
-> **🟡 v5.2 מועמד-קנוני על PR #187; v5.1 נשאר קנוני ב-main עד merge.** Reconciliation 24.8 מוסיף את Research Studio v1 המאושר ואת סדר-העדיפות החדש; ההמשך ההיסטורי של v5.1 נשמר להלן כ-provenance. בסיס v5.1 נוצר בעקבות סגירת **Research DNA v1 Foundation Contract** (PR #166, **`CONTRACT: CLOSED`**, merged ל-`main` בקומיט **`95005d78e6415e52534c535ef9b93940e835cc31`**). **זו אינה v6 — אין ארכיטקטורה חדשה כאן.** v5.1 מתאמת את אותה מפה מול המצב-החי החדש ומוסיפה **Canonical Gate Map** אחד. `LAST_RECONCILED: 2026-08-22` (main SHA `95005d78`, ancestor-מאומת מול `origin/main` — אין drift; provenance: `work_log` `actor=CLAUDE task=SOD1820_MASTER_ROADMAP_V5_1_RECONCILIATION`). כל תוכן v5 (כולל v4 שמתחתיו) שלא צוין כאן במפורש כ-SUPERSEDED/עודכן נשאר בתוקף ללא-שינוי (NO-DISAPPEARING-WORK) — כולל תיקוני-PR-#165 (יעד-Persistence לא-מונח-מראש · Research-DNA-Identity נפרד מ-Gate #4/WS-ELS-IDENTITY · Entity-Hub/Raziel `LIVE`/`PARTIAL`-כבר-היום) ו-Strategic Foundation Order הקיים, המתואם כאן מול ה-Foundation הסגור (ר' §CANONICAL GATE MAP למטה). **הערת-היסטוריה v5.1:** באותו pass `ACTIVE_NOW` נשאר `WS-GEMATRIA-CORPUS-PACKAGES`; **החלטת 24.8 למעלה מחליפה זאת בניווט ל-`WS-RESEARCH-STUDIO-FOUNDATION`**, בלי לבטל את workstream הקורפוס.
+> **🔵 עדכון 25.8.2026 (SSOT RECONCILIATION, branch `claude/relation-engine-v1`):** PR #187 **מוזג בפועל ל-`main`** — אומת ישירות מול GitHub: `state=closed`, `merged=true`, `merged_at=2026-08-24T05:05:07Z`, `merge_commit`/head `7136a2bd…`→`main` base `a665a4dc`. **v5.2 אינה-עוד "מועמד" — היא קנונית על `main`** (v5.1 נשאר provenance-בתוקף מתחתיה, לא-נמחק). כל אזכור-להלן של "Draft PR #187"/"טרם-מוזג"/"מועמד עד מיזוג" הוא **טקסט-היסטורי-שנשמר כפי-שהוא לפי NO-DISAPPEARING-WORK** — הסטטוס-בפועל מאותו-רגע-ואילך הוא MERGED, ר' סעיף חדש **`🧭 NUMERIC ROOT + RELATION ENGINE v1 — RECONCILIATION 25.8.2026`** למטה לפרטים המלאים (כולל Numeric Root/Relation Engine v1, שנבנו על ענפים נפרדים **אחרי** מיזוג #187 ועדיין-לא-מוזגים בעצמם).
+>
+> **🟡 v5.2 מועמד-קנוני על PR #187 (היסטורי — ר' עדכון-25.8 למעלה: כבר-מוזג בפועל); v5.1 נשאר קנוני ב-main עד merge.** Reconciliation 24.8 מוסיף את Research Studio v1 המאושר ואת סדר-העדיפות החדש; ההמשך ההיסטורי של v5.1 נשמר להלן כ-provenance. בסיס v5.1 נוצר בעקבות סגירת **Research DNA v1 Foundation Contract** (PR #166, **`CONTRACT: CLOSED`**, merged ל-`main` בקומיט **`95005d78e6415e52534c535ef9b93940e835cc31`**). **זו אינה v6 — אין ארכיטקטורה חדשה כאן.** v5.1 מתאמת את אותה מפה מול המצב-החי החדש ומוסיפה **Canonical Gate Map** אחד. `LAST_RECONCILED: 2026-08-22` (main SHA `95005d78`, ancestor-מאומת מול `origin/main` — אין drift; provenance: `work_log` `actor=CLAUDE task=SOD1820_MASTER_ROADMAP_V5_1_RECONCILIATION`). כל תוכן v5 (כולל v4 שמתחתיו) שלא צוין כאן במפורש כ-SUPERSEDED/עודכן נשאר בתוקף ללא-שינוי (NO-DISAPPEARING-WORK) — כולל תיקוני-PR-#165 (יעד-Persistence לא-מונח-מראש · Research-DNA-Identity נפרד מ-Gate #4/WS-ELS-IDENTITY · Entity-Hub/Raziel `LIVE`/`PARTIAL`-כבר-היום) ו-Strategic Foundation Order הקיים, המתואם כאן מול ה-Foundation הסגור (ר' §CANONICAL GATE MAP למטה). **הערת-היסטוריה v5.1:** באותו pass `ACTIVE_NOW` נשאר `WS-GEMATRIA-CORPUS-PACKAGES`; **החלטת 24.8 למעלה מחליפה זאת בניווט ל-`WS-RESEARCH-STUDIO-FOUNDATION`**, בלי לבטל את workstream הקורפוס.
 >
 > **מהות v5.1 במשפט אחד:** החוזה-הארכיטקטוני (Research DNA v1) נסגר; **היישום לא**. Methods/Corpus-Persistence/Deep-Scan/Intake/Cross/Raziel-implementation נשארים OPEN/PARTIAL/FUTURE בדיוק כפי-שהיו — סגירת-חוזה ≠ סגירת-בנייה. v5 קודמת (`f1503a28`, מאושרת ע"י צוריאל, "DECISION — Canonize Roadmap v5") נשארת בתוקף כבסיס; v5.1 **מוסיפה** reconciliation ולא-מוחקת דבר ממנה.
 >
@@ -49,8 +51,41 @@
 - Draft #188 = Universal Finding adapter מעל ResearchProvider + `📌 למחקר`; stacked על #186, לא merged/deployed. **דגל-drift (טרם תוקן בקוד):** נכתב כרגע ל-`research_items` בלבד; §18 של החוזה המעודכן מצפה שהשלכת-אימות תיכתב ל-`research_objects.engine_detail` כשמאמתים ב-DNA v1 — תיקון-קוד עתידי, לא חלק מ-patch המסמכים הזה.
 - `ResearchProvider` קיים ב-main ומחזיק cart/saved/pinned/history/collections/journeys/mode; reuse חובה.
 
-### NEXT_ACTION
+### NEXT_ACTION (היסטורי, 24.8 — נשמר per NO-DISAPPEARING-WORK; ר' NEXT_ACTION מעודכן בסעיף שמיד-למטה)
 Human Preview ל-#188 (`📌 למחקר` persistence בלי שינוי ציר) → יישור #188 מול חוק-האחסון-המתוקן (§18: שלושה בתים, לא `research_objects` אוטומטי) → אימות callable path קנוני של Number/Gematria → Adapter שני. אין עוד הרחבת-UI אד-הוק לפני החיבור הזה.
+
+---
+
+## 🧭 NUMERIC ROOT + RELATION ENGINE v1 — RECONCILIATION 25.8.2026
+> **SSOT RECONCILIATION BEFORE MERGE, ענף `claude/relation-engine-v1`.** docs-only (עדכון SOD1820_MASTER_ROADMAP.md + SOD1820_MASTER_STATE.md בלבד) — **אפס קוד/DB נגעו בפאס-הזה**; כל מה-שמתועד-כאן **כבר-הוכח-חי** בפאסים קודמים על אותו ענף (commits + `work_log`, provenance מפורט למטה). המקור: `git log --oneline origin/main..HEAD` על `claude/relation-engine-v1` (4 commits) + `work_log` (4 זוגות BEFORE/AFTER, 24.8.2026).
+
+### PR #187 — MERGED (תיקון-סטטוס)
+אומת ישירות מול GitHub (`pull_request_read`): `state=closed` · `merged=true` · `merged_by=zuriel337` · `merged_at=2026-08-24T05:05:07Z` · head `gpt/research-studio-v1-contract`@`7136a2bd` → base `main`@`a665a4dc`. **v5.2/§0-A הם-עכשיו קנון-על-main, לא-מועמד.** כל טקסט-היסטורי במפה/ב-Master-State שמתאר #187 כ-"Draft"/"DOCS/DRAFT"/"טרם-מוזג" נשאר **כפי-שהוא** (provenance, NO-DISAPPEARING-WORK) — הסטטוס-החי מ-24.8.2026 05:05 ואילך הוא MERGED.
+
+### Numeric Root — IMPLEMENTED / CLOSED (ברמת-הבנייה; ענף-בלבד, לא-מוזג/לא-פרוס)
+שרשרת-3-פאסים על-גבי `main` (אחרי מיזוג #187), כל אחד מאומת-חי ב-`linswmnnkjxvweumprav` עם regression מלא, שלושתם reconciled לענף אחד:
+1. **Methods Dependency Metadata + Composite/Cross/Lookup** (`claude/numeric-research-root-implement`, `83427b80`, `work_log` BEFORE 12:59/AFTER 13:04) — 11 עמודות-metadata על `gematria_methods` (23/24 שורות) · `fn_dispatch_method`/`fn_composite_calc`/`fn_composite_calc_all_ops` (4 ה-Composite Research Transforms המאושרים, Decision E) · `fn_deep_cross`/`fn_deep_cross_reverse` (§18/§26.2) · `fn_number_lookup` · `fn_method_profile`. 18/18 regression.
+2. **Anchor Freeze + AIQ BEKAR** (`claude/anchor-freeze-aiq-bekar`, `73f2592f`, `work_log` BEFORE 15:52/AFTER 15:56) — ר' סעיפים ייעודיים למטה. 13/13 fixture.
+3. **Numeric Root Finalization** (`claude/numeric-root-finalization`, `7644cbb6`, `work_log` "NUMERIC_ROOT_FINALIZATION — AFTER" 17:37) — reconciles 1+2 (0 conflicts, ELS files untouched). Composite access `premium→public` (4/4 שורות, ה-premium-הקודם נשמר כ-provenance historical ב-`source_of_truth`) · `bidim` materialized SUM-only (+50,368 שורות = 12,592 מילים-מאושרות × 4 composites, exact, 0 duplicates; total 294,119→344,487) · `bidim_sync()` הוחלף בגרסה registry-driven (Decision K, סוף-סוף מומש — `gw_enforce_engine`/14-עמודות-Legacy-Baseline לא-נגעו) · `fn_number_lookup` הורחב (`atomic_or_composite`/`component_methods`/`component_values`/`operator`) — אותו interface, לא-נתיב-שני. 19/19 regression. DRIFT מתועד-לא-תוקן: `gw_enforce_engine` פנימיות (`ragil_calc`,`mistater_calc`,…) משכפלות מתמטית את `fn_ragil`/`fn_misratar`/… תחת שמות-שונים (זהות בכל-דגימה, ניקוי-עתידי מוצע לא-בוצע).
+
+**סטטוס:** `IMPLEMENTED`/`CLOSED` **ברמת-הבנייה** (הפונקציונליות סגורה ומאומתת-חי, "NUMERIC_ROOT_READY_FOR_MERGE — no blocker found" per work_log) — **`BUILDING`🏗️ ברמת-ה-RELEASE PIPELINE** (Branch✅ → Review❌ → Main❌ → Deploy❌ → Live❌ → Verified❌). מיזוג/deploy דורשים אישור-Human-Gate מפורש של צוריאל, לא-בוצע.
+
+### Composite SUM (ציבוריים) + bidim — IMPLEMENTED
+4 ה-Composite Research Transforms המאושרים (Decision E: sum/diff על-בסיס-שיטות-אטומיות-קנוניות בלבד) — `required_entitlement` שונה `premium→public` עבור התוצאה-הבסיסית/דטרמיניסטית (מעשיר דפי-מספר נדירים/גדולים עם-מעט-התאמות-אטומיות); כלים-מתקדמים מעל זה נשארים ENTITLED-capable בנפרד. `SUM` בלבד מוחסן ב-`bidim` (50,368 שורות, exact, 0 כפילויות); `DIFF` נשאר on-demand (`fn_composite_calc_all_ops`) לפי §27.4 (column/index-free כברירת-מחדל עד-שנדרש). מאומת חי: `fn_number_lookup(1820)`=146 atomic+30 composite · `fn_number_lookup(368)` מציג סבל/פחד/דחף/… כ-composite עם provenance-רכיבים מלא, מעורב עם atomic באותה קריאה.
+
+### AIQ BEKAR (אי"ק בכ"ר) — IMPLEMENTED
+שיטה-חיצונית-קלאסית מאומתת (משפחת Nine Chambers, כמו אתב"ש/אלב"ם/אח"ס-בט"ע הפעילים) — כיוון נעוץ ע"י ה-fixture המפורסם (שלום→גשסו→369, משוחזר-מדויק דרך `fn_ragil` הקנוני). `aiq_bekar_transform`/`aiq_bekar_calc` — תחלופה טהורה בלבד, ללא מנוע-שני. שורה **חדשה** ב-`gematria_methods` (לא-הייתה-קיימת קודם — DRIFT מול-הנחת-המשימה-המקורית, תועד) — `category=base`, `active=true`, `required_entitlement=public`, metadata-תלות מלאה. `bidim` אוכלס ל-12,592 שורות (קורפוס-מאושר-מלא). 13/13 fixture.
+
+### Anchor Freeze — IMPLEMENTED
+`number_anchors`: `REVOKE ALL` מ-`anon`/`authenticated` (service_role/postgres נשארו) — 35 שורות, טבלה שלמה, לא-נגעו. הצרכן-האמיתי (`getNumberAnchor()`, `src/lib/supabase.js`, נקרא מ-`EntityPage.jsx`) קוצר-מעגל ל-no-op **לפני** ה-revoke כדי-שלא-ישבר-בשקט (EntityPage כבר null-safe). שחזור-עתידי (כשצוריאל יסיר-את-ההקפאה) = שני-תיקוני-שורה מתועדים inline: re-GRANT + הסרת-ה-early-return.
+
+### Relation Engine v1 — IMPLEMENTED (read-only candidate layer, ענף-בלבד)
+`claude/relation-engine-v1`, `161f9701`, מבוסס `numeric-root-finalization`@`7644cbb6`. **לא-מוזג/לא-פרוס. 0 כתיבה ל-`edges`/`nodes`** (מאומת: ספירת-edges זהה 5099 לפני/אחרי). 5 פונקציות חדשות, כולן `STABLE`/read-only: `fn_relation_dependency_groups` · `fn_relation_noise_flags` (labels-בלבד, לעולם-לא-מוחק — Rank-Don't-Hide) · `fn_relation_independent_evidence` (edges/topic_cards/research_objects קיימים) · `fn_relation_composite_evidence` (4-ה-composites, per-candidate בלבד) · `fn_relation_candidate` (המטען הקנוני: `entity_a/b, relation_kind, engine_evidence[], composite_evidence[], independent_evidence[], noise_flags[], engine_signal, research_priority, confidence, provenance, status='candidate'` — **לעולם לא כותב edges/nodes**). Proof set שוחזר אוטומטית מנתונים-קיימים (ירושלים/שומרים · סבל/פחד=368 · יראה/רוגז=1080 · תיקוני-35-הסט). Performance: ~15ms/candidate, ~15s/1000 candidates (batch/shortlist-first, לא-מיועד-לסריקה-אינטראקטיבית-של-1000-זוגות). `fn_relation_candidate` **מוכן להזין חוזה-Number-Page עתידי; `EntityPage.jsx` עצמו לא-נגעה** — קידום-לגרף-קנוני (כתיבת-edges אמיתיים) נשאר צעד Human-Gate נפרד לכל יחס.
+
+**סטטוס:** `IMPLEMENTED` (build) · `BUILDING`🏗️ ב-RELEASE PIPELINE (Branch✅→Review/Main/Deploy/Live/Verified❌).
+
+### NEXT_ACTION (מעודכן 25.8.2026 — מחליף/ממשיך את ה-NEXT_ACTION ההיסטורי מ-24.8 למעלה)
+**Number Page Integration v1 / Research Studio wiring:** לחבר את `fn_number_lookup` (atomic+composite, כבר-מורחב) ו-`fn_relation_candidate` (Relation Engine v1) כ-**Number/Gematria Adapter** בתוך Research Studio Foundation (סדר-הבנייה §4 למעלה: "מחובר רק דרך `gematria_methods` והפונקציות הקנוניות") — טופולוגיה H2 היברידית בדף-המספר (Workspace גלובלי + השלכת Research Surface הקשרית מעל אזור-הממצאים-הקיים, `NumberDNA`→"🧬 צירי ההתכנסות"). זהו-בדיוק ה-callable-path הקנוני ש-NEXT_ACTION ההיסטורי (24.8) חיפש לאמת — **עכשיו קיים ומאומת-חי**. אין-הרחבת-UI/EntityPage בפועל בלי-שער-נפרד; אין-מיזוג/פריסה של `claude/relation-engine-v1` בלי-אישור-מפורש-של-צוריאל.
 
 ---
 
@@ -98,7 +133,8 @@ Human Preview ל-#188 (`📌 למחקר` persistence בלי שינוי ציר) �
 ## 🕒 טריות המפה (FRESHNESS)
 - **LAST_RECONCILED (main canonical):** `2026-08-22` (v5.1 reconciliation; `main` HEAD **`95005d78e6415e52534c535ef9b93940e835cc31`** — Research DNA v1 Foundation Contract, PR #166, CLOSED/MERGED. אומת ancestor-של-`origin/main`, אין drift נוסף מעבר לכך בזמן-הכתיבה). v5-הקודמת (`f1503a28`) נשארת provenance-בתוקף.
 - **LAST_RECONCILED (PR #187 candidate):** `2026-08-24` against main `a665a4dc` + verified work_log/PR state through #188.
-- **SYNC STATUS:** `STALE on main` / **`RECONCILED-CANDIDATE` on PR #187** — v5.2 candidate captures verified work through 24.8.2026; main remains v5.1 until Human-Gate merge.
+- **SYNC STATUS (היסטורי, לפני-אימות-25.8):** `STALE on main` / **`RECONCILED-CANDIDATE` on PR #187** — v5.2 candidate captures verified work through 24.8.2026; main remains v5.1 until Human-Gate merge.
+- **LAST_RECONCILED (SSOT RECONCILIATION, 25.8.2026, branch `claude/relation-engine-v1`):** אומת ישירות מול GitHub — PR #187 `merged=true`, `merged_at=2026-08-24T05:05:07Z`. **SYNC STATUS מעודכן: `SYNCED on main` (v5.2 = הקנון בפועל על `main`, לא-עוד-מועמד).** בנוסף אומת ונקלט: Numeric Root Finalization + Relation Engine v1 **IMPLEMENTED, ענף-בלבד `claude/relation-engine-v1` (161f9701), לא-מוזג/לא-פרוס** — ר' סעיף ייעודי למטה. docs-only (SOD1820_MASTER_ROADMAP.md + SOD1820_MASTER_STATE.md בלבד) · אפס קוד/DB נגעו בפאס הזה.
 - **כלל הטריות:** אם קיימת **עבודה מאומתת חדשה יותר מ־LAST_RECONCILED** (רשומת `work_log`, commit ב־`main`, או migration חי) → המפה **`STALE` 🟠 מיושנת** ותסומן ככזו — לעולם לא `SYNCED` ללא בסיס.
 - **אין עדכון־אוטומטי־שקט:** בסוף סשן אסור לשכתב את המפה אוטומטית. יש **לזהות** drift, לסמן `STALE`, **ולהציע** את העדכון דרך חוקי ה־WRITE/Human-Gate — לעולם לא לכתוב קנון בלי שער.
 
@@ -315,7 +351,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 - **Security Fix** (3 פונקציות anon-writable + null-bypass ב-`admin_research_review`) — **התלות היחידה שהוכרזה במפורש כחוסמת לפני Intake Build.**
 - **`decision_ledger` wiring** — רק לפייפליינים שה-Intake בפועל יזין מהם (לא-לכל-6-8 ה-pipelines).
 - **Canonical≠Published implementation decision** — החלטת-מנגנון (לא `nodes.is_active`), לא-מימוש-מלא-בכל-הטבלאות.
-- **Methods Build #1** (Foundation Contract §8-§17, 11 החלטות A-K כבר קיימות ב-`GEMATRIA_METHODS_HUMAN_GATE.csv`) — לרמה-הנדרשת-ל-Intake.
+- **Methods Build #1** (Foundation Contract §8-§17, 11 החלטות A-K כבר קיימות ב-`GEMATRIA_METHODS_HUMAN_GATE.csv`) — לרמה-הנדרשת-ל-Intake. **🆕 עדכון 25.8.2026:** `IMPLEMENTED`/`CLOSED` ברמת-הבנייה — ר' `🧭 NUMERIC ROOT + RELATION ENGINE v1 — RECONCILIATION 25.8.2026` למעלה (ענף `claude/relation-engine-v1`, לא-מוזג/לא-פרוס עדיין).
 - **Corpus/Number DNA Persistence v1** (32-שורות + 764-נוספות) — לרמה-הנדרשת-ל-Intake.
 - **Multilingual Foundation v1** — לרמה-הנדרשת-ל-Intake.
 - **ELS Identity/Provenance implementation (Gate #4 build)** — לרמה-הנדרשת-ל-Intake (לא-בהכרח unique-constraint מלא).
