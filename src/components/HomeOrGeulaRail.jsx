@@ -6,6 +6,7 @@ import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
 import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
+import WatchButton from "./WatchButton.jsx";
 import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
 import { ensureVideoThumbs } from "../lib/videoThumb.js";
 
@@ -48,7 +49,11 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
             </span>
           </span>
         </h2>
-        <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 12, flex: "0 0 auto" }}>
+          <WatchButton topic="channel:or-geula" source="or-geula-home" compact
+            label="עקוב" followLabel="עוקב ✓" explainer="" />
+          <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
+        </div>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, scrollSnapType: "x proximity" }}>
         {(rows || Array.from({ length: 6 })).map((r, i) => {

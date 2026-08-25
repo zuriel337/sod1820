@@ -79,6 +79,8 @@ export function topicLabel(topic) {
   if (t.startsWith("author:")) { const v = t.slice(7);  return { icon: "✍️", label: v, link: `/community/researcher/${encodeURIComponent(v)}`, kind: "כתב" }; }
   if (t.startsWith("number:")) { const v = t.slice(7);  return { icon: "🔢", label: v, link: `/number/${v}`, kind: "מספר" }; }
   if (t === "stream:reality")  return { icon: "🌊", label: "זרם המציאות", link: "/archive", kind: "ערוץ" };
+  if (t === "channel:or-geula") return { icon: "🎬", label: "אור הגאולה", link: "/or-geula", kind: "ערוץ" };
+  if (t.startsWith("channel:")) { const v = t.slice(8); return { icon: "📡", label: v, link: "/broadcasts", kind: "ערוץ" }; }
   if (t === "codes:new")       return { icon: "🧩", label: "צפנים חדשים", link: "/codes", kind: "ערוץ" };
   const g = NOTIFICATION_TOPICS.find(x => x.key === t);
   if (g) return { icon: g.emoji, label: g.label, link: null, kind: "נושא" };
