@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
@@ -11,6 +11,7 @@ import { galThumb } from "../lib/img.js";
 import { shareVideoToStory } from "../lib/share.js";
 import ShareActions from "../components/ShareActions.jsx";
 import WatchButton from "../components/WatchButton.jsx";
+import { useHiddenWidget } from "../lib/hiddenWidgets.js";
 import { OR_GEULA_LOGO } from "../components/BrandTicker.jsx";
 
 // 🎬 אור הגאולה — קטלוג-מדיה (ריבועים + סרטונים) מערוץ הוואטסאפ «אור הגאולה».
@@ -22,6 +23,8 @@ export default function OrGeulaPage() {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const [open, setOpen] = useState(null);
+  const [speakerFilter, setSpeakerFilter] = useState(null);   // סינון לפי דובר (רב) — תחת אור הגאולה בלבד
+  const { hidden: ogHidden, restore: ogRestore } = useHiddenWidget("or_geula_story");   // מצב «הוסתר לגמרי» + החזרה
   const [sp, setSp] = useSearchParams();
   const openTimeRef = useRef(0);   // dwell (session_ms) for story_close
 
@@ -58,7 +61,7 @@ export default function OrGeulaPage() {
     track("or-geula");
     let alive = true;
     supabase.from("channel_updates")
-      .select("id,text,image_url,thumb_url,credit,link_url,created_at")
+      .select("id,text,image_url,thumb_url,credit,link_url,created_at,speaker")
       .eq("channel", "or-geula").not("image_url", "is", null)
       .order("created_at", { ascending: false }).limit(200)
       .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
@@ -89,6 +92,17 @@ export default function OrGeulaPage() {
   // ניקוי ה-JSON-LD של הסרטונים ביציאה מהדף (SPA — לא להשאיר שאריות לדף הבא)
   useEffect(() => () => clearOrGeulaVideosJsonLd(), []);
 
+  // 🏷️ רבנים שמתויגים בערוץ (speaker) — סינון פנימי לדף אור-הגאולה בלבד, לא חוצה-ערוצים.
+  const speakers = useMemo(() => {
+    const set = new Set();
+    for (const r of rows || []) if (r.speaker) set.add(r.speaker);
+    return [...set].sort((a, b) => a.localeCompare(b, "he"));
+  }, [rows]);
+  const filteredRows = useMemo(() => {
+    if (!speakerFilter) return rows || [];
+    return (rows || []).filter(r => r.speaker === speakerFilter);
+  }, [rows, speakerFilter]);
+
   const wrap = { background: P.pageBg, minHeight: "100vh", position: "relative", zIndex: 1 };
   const inner = { direction: "rtl", maxWidth: 1160, margin: "0 auto", padding: "40px 16px 72px" };
 
@@ -103,22 +117,47 @@ export default function OrGeulaPage() {
           <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.7, maxWidth: 540, margin: "10px auto 0" }}>
             אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה — תיעוד חי שמתעדכן.
           </p>
-          {rows && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginTop: 10 }}>{rows.length} פריטים · לחיצה פותחת במסך מלא</div>}
-          {/* 🔔 מעקב אחרי אור הגאולה — עדכון כשעולה סרטון/רמז חדש (WatchButton הקנוני) */}
+          {rows && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginTop: 10 }}>{filteredRows.length} פריטים · לחיצה פותחת במסך מלא</div>}
+          {/* 🔔 מעקב אחרי אור הגאולה — עדכון כשעולה סרטון/רמז חדש */}
           <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
-            <WatchButton topic="channel:or-geula" source="or-geula"
-              label="עקוב אחרי אור הגאולה" followLabel="עוקב אחרי אור הגאולה ✓"
-              explainer="נעדכן אותך כשעולה סרטון או רמז חדש בערוץ." />
+            <WatchButton topic="channel:or-geula" source="or-geula" label="עקוב אחרי אור הגאולה"
+              followLabel="עוקב אחרי אור הגאולה ✓" explainer="נעדכן אותך כשעולה סרטון או רמז חדש בערוץ." />
           </div>
+          {/* ↩︎ החזרה — אם המשתמש הסתיר את אור הגאולה «לגמרי», כאן אפשר להחזיר */}
+          {ogHidden && (
+            <div style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center",
+              background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 14px" }}>
+              <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>🙈 אור הגאולה מוסתר מהעדכונים שלך.</span>
+              <button onClick={ogRestore} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 15px" }}>↩︎ החזר לעדכונים</button>
+            </div>
+          )}
         </div>
+
+        {/* 🏷️ סינון לפי רב (speaker) — רק כשיש דוברים מתויגים באוסף */}
+        {speakers.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 22 }}>
+            <button onClick={() => setSpeakerFilter(null)}
+              style={{ cursor: "pointer", border: `1px solid ${!speakerFilter ? P.accentText : P.border}`, borderRadius: 999,
+                background: !speakerFilter ? P.accentText : P.card, color: !speakerFilter ? "#1a0e00" : P.ink,
+                fontFamily: F.heading, fontSize: 12, fontWeight: 800, padding: "6px 14px" }}>הכל</button>
+            {speakers.map(s => (
+              <button key={s} onClick={() => setSpeakerFilter(s === speakerFilter ? null : s)}
+                style={{ cursor: "pointer", border: `1px solid ${speakerFilter === s ? P.accentText : P.border}`, borderRadius: 999,
+                  background: speakerFilter === s ? P.accentText : P.card, color: speakerFilter === s ? "#1a0e00" : P.ink,
+                  fontFamily: F.heading, fontSize: 12, fontWeight: 700, padding: "6px 14px" }}>{s}</button>
+            ))}
+          </div>
+        )}
 
         {rows === null ? (
           <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 40 }}>טוען…</div>
         ) : rows.length === 0 ? (
           <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 40 }}>עדיין אין פריטים באוסף.</div>
+        ) : filteredRows.length === 0 ? (
+          <div style={{ textAlign: "center", color: P.inkSoft, fontFamily: F.body, padding: 40 }}>אין פריטים מתויגים לרב הזה.</div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 14 }}>
-            {rows.map(r => {
+            {filteredRows.map(r => {
               const vid = isVideo(r.image_url);
               const showTxt = r.text && r.text !== "📷 עדכון" && r.text !== "🎬 עדכון וידאו";
               // תמונה-ממוזערת: thumb_url תמיד עדיף; לתמונה בלי thumb → galThumb; לוידאו בלי thumb → placeholder

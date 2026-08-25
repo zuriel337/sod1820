@@ -17,6 +17,7 @@ import { shareVideoToStory } from "../lib/share.js";
 import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
+import { useHiddenWidget } from "../lib/hiddenWidgets.js";
 
 // 🎬 עמודת-סטוריז ממותגת — כל הסרטונים מלמעלה-למטה (דף הצ'אט).
 // עדשה אחת על channel_updates לפי brand.channel — לא רכיב מקביל (canonical_ui_components_law).
@@ -156,6 +157,8 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
   const [oursSeen, setOursSeen] = useState(() => loadSeen(OURS.seenKey));
   const [ogSeen, setOgSeen] = useState(() => loadSeen(OG.seenKey));
   const [viewer, setViewer] = useState(null);        // { items, index, brand, seenKey }
+  // 🙈 «הסר מהעדכונים» — רלוונטי רק לשער אור-הגאולה הטהור (ogOnly); לא מסתיר את «הסרטונים שלנו».
+  const { canRemove, hidden, ready: hideReady, remove } = useHiddenWidget("or_geula_story");
 
   useEffect(() => {
     let alive = true;
@@ -164,6 +167,8 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
     fetchBrandRows(OG, limit).then(r => { if (alive) { setOgRows(r); ensureVideoThumbs(r); } }).catch(() => { if (alive) setOgRows([]); });
     return () => { alive = false; };
   }, [limit, ogOnly]);
+
+  if (ogOnly && (hidden || (canRemove && !hideReady))) return null;
 
   const ready = ogRows !== null && videos !== null;
   // ⛔ לא מסתירים אחרי צפייה (בקשת צוריאל 15.8.2026 — «Rank, Don't Hide»): מציגים את הכל,
@@ -200,7 +205,17 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
       <img src={OG.logo} alt="" width="22" height="22" style={{ width: 22, height: 22, borderRadius: "50%", objectFit: "cover", flex: "0 0 auto" }} />
       <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>אור הגאולה · סטוריז</div>
-      <a href={OG.href} style={{ marginInlineStart: "auto", color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, textDecoration: "none", whiteSpace: "nowrap" }}>כל אור הגאולה ←</a>
+      <div style={{ marginInlineStart: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+        <a href={OG.href} style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, textDecoration: "none", whiteSpace: "nowrap" }}>כל אור הגאולה ←</a>
+        {canRemove && (
+          <button onClick={() => { if (window.confirm("להסתיר את אור הגאולה לגמרי? הרצועה לא תוצג לך יותר באף מקום באתר. אפשר להחזיר בכל עת מדף «אור הגאולה».")) remove(); }}
+            title="אל תציג לי יותר את אור הגאולה" aria-label="הסתר לגמרי את אור הגאולה"
+            style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999,
+              color: P.inkSoft, fontFamily: F.body, fontSize: 10.5, padding: "3px 9px", whiteSpace: "nowrap" }}>
+            🙈 אל תציג לי יותר
+          </button>
+        )}
+      </div>
     </div>
   ) : (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>

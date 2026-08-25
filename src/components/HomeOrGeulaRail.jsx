@@ -6,9 +6,10 @@ import { timeAgoHe } from "../lib/format.js";
 import { galThumb } from "../lib/img.js";
 import StoryViewer from "./StoryViewer.jsx";
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
-import WatchButton from "./WatchButton.jsx";
 import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
 import { ensureVideoThumbs } from "../lib/videoThumb.js";
+import { useHiddenWidget } from "../lib/hiddenWidgets.js";
+import WatchButton from "./WatchButton.jsx";
 
 // 🎬 רצועת «אור הגאולה» לעמוד-הבית — הסרטונים האחרונים שעלו + מתי. מצביע ל-/or-geula.
 // עץ אחד: אותו מקור (channel_updates channel=or-geula) של עמוד-הקטלוג; כאן רק טעימה.
@@ -19,6 +20,8 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
   const P = usePalette();
   const [rows, setRows] = useState(null);
   const [story, setStory] = useState(-1);   // אינדקס הפריט הפתוח כסטורי (-1 = סגור)
+  // 🙈 «הסר מהעדכונים» — למשתמש מחובר בלבד; ברגע שהוסר, נעלם מכל מקום שהסטורי מוצג בו (בענן, לא לוקאלי).
+  const { canRemove, hidden, ready, remove } = useHiddenWidget("or_geula_story");
   useEffect(() => {
     let alive = true;
     supabase.from("channel_updates")
@@ -30,6 +33,7 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
   }, [limit]);
 
   if (rows !== null && rows.length === 0) return null;
+  if (hidden || (canRemove && !ready)) return null;
 
   return (
     <section id="or-geula-home" className="hn-wrap" style={{ padding: "0 18px 40px", scrollMarginTop: 74 }}>
@@ -49,10 +53,18 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
             </span>
           </span>
         </h2>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 12, flex: "0 0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "0 0 auto" }}>
           <WatchButton topic="channel:or-geula" source="or-geula-home" compact
             label="עקוב" followLabel="עוקב ✓" explainer="" />
           <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
+          {canRemove && (
+            <button onClick={() => { if (window.confirm("להסתיר את אור הגאולה לגמרי? הרצועה לא תוצג לך יותר באף מקום באתר. אפשר להחזיר בכל עת מדף «אור הגאולה».")) remove(); }}
+              title="אל תציג לי יותר את אור הגאולה" aria-label="הסתר לגמרי את אור הגאולה"
+              style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999,
+                color: P.inkSoft, fontFamily: F.body, fontSize: 11, padding: "4px 10px", whiteSpace: "nowrap" }}>
+              🙈 אל תציג לי יותר
+            </button>
+          )}
         </div>
       </div>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, scrollSnapType: "x proximity" }}>
