@@ -18,6 +18,25 @@ import { makeJourneySnapshot } from "../lib/elsJourney.js";
 //    רשום/אדמין → ללא הגבלה. הכלי (iframe) אוכף את הספירה ופולט postMessage; העוטף כאן:
 //    (1) מעדכן את דרגת-המשתמש לכלי, (2) רושם כל חיפוש דרך track הקיים (events/visitor_events —
 //    בלי טבלה מקבילה), (3) מציג את SubscribeGate הקיים כשמגיעים לשער.
+// 🧬 GAP-5 reproducibility envelope (Pass 3, els_pass3_engine_detail_population) — תוספתי-בלבד,
+//    אף פעם לא מחליף/דורס את שדות-הזהות הקנוניים (corpus_id/term_norm/scope/direction/skip_distance/
+//    start_index, נגזרים בשרת). בונה מ-lastStateRef.current (elsState() האחרון, כבר-נעקב מ-Pass 1)
+//    + מהודעת-השמירה עצמה (d). form=null: לא ניתן-לגזירה כרגע במעבר מלוח-FORMS לחיפוש-רגיל (פער מתועד).
+const ENGINE_PROFILE_VERSION = "els-tzofen-2026-08-24-pass2";
+function buildEngineDetail(d, s) {
+  if (!s || s.status !== "ok") return null;
+  return {
+    engineVersion: ENGINE_PROFILE_VERSION,
+    corpus: (d.scope || s.scope) === "tanakh" ? "tanakh_letters" : "torah_stream",
+    geometry: s.geometry ? { ...s.geometry, ctxR: s.ui?.ctxR ?? null } : null,
+    occurrence: s.occurrence || null,
+    searchParams: { cap: 4000 },
+    form: null,
+    ranking: s.provenance?.quality ? { quality: s.provenance.quality } : null,
+    sampling: { policy: "scopeRange-dispersal-v1", capped: !!s.occurrence?.capped },
+  };
+}
+
 // ממפה שורת els_records לפריט שהכלי מבין (loadMatrix)
 function rowToItem(m) {
   if (!m) return null;
@@ -175,11 +194,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
 
       // ✏️ עדכון-ממצא במקום (אפס כפילויות): הכלי שולח editId כשעורכים ממצא-קיים, או re-save
       //    בהקשר עמוד-הצופן. update_els_matrix מתיר אדמין *או* בעלים; אם לא-מורשה → נופל לשמירה חדשה.
+      const engineDetail = buildEngineDetail(d, lastStateRef.current);
       const editId = d.editId || (isReSave ? matrix.id : null);
       if (editId) {
         const { error } = await supabase.rpc("update_els_matrix", {
           p_id: editId, p_positions: positions,
           p_image_url: imageUrl || null, p_description: d.desc || null,
+          p_engine_detail: engineDetail,
         });
         if (!error) {
           postToTool({ type: "saved", ok: true, status: "updated" });
@@ -201,6 +222,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         title: d.postTitle || d.term, note: d.desc || null, imageUrl,
         // 🆔 עוגן-הממצא 0-based (occ().start מהמנוע). `!= null` כי start=0 חוקי. corpus_id/term_norm נגזרים בשרת.
         startIndex: d.start != null ? d.start : null,
+        engineDetail,
       };
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
