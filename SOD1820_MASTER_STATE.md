@@ -857,5 +857,24 @@ SOD1820 נמצא-כעת בשלב שבו **השורשים והגזע** (Identity 
 ### 23.4 סטטוס ותחולה
 `APPROVED` (Governance Principle, Human-Gate ZURIEL) · **documentation-only** — אפס-קוד/DB/schema/migration/deploy/merge שונה בעקבות-הצהרה-זו. **אינו-מבטל/סותר** אף-חוזה-קיים (Research Studio v1 §0-A, Research DNA v1 Foundation Contract, γ/§19, Gate #18/§20) — הוא **חידוד-כיוון מעליהם**, עקבי-במלואו עם `unified_graph_law`, `Rank Don't Hide`, ו-Preserve & Expand Law המקורי. **אין** באישור-זה הרשאה לבניית Feature/redesign/migration/Security-Fix/Intake-Build כלשהו — ר' Roadmap `🏁 v5.3 FINAL RETURN POINT`.
 
+### 23.5 FOUNDATION EXPANSION GATE (`Governance Principle`, Human-Gate ZURIEL, 25.8.2026, `V5_3_FINAL_DRIFT_CLOSURE` — הרחבה ישירה של §23.1-§23.2)
+
+> **מהות:** לפני מעבר של **תחום** (domain) מ-`FOUNDATION` אל `PROJECTION`/`EXPERIENCE` (§23.2), חובה Gate קצר שבודק אם ה-Foundation של אותו תחום **רחב-מספיק-לעתיד-הסביר**. **אין-משמעות-ה-Gate "לבנות-את-כל-העתיד-מראש"** — מטרתו-היחידה למנוע redesign/migration/identity-break **צפויים** לפני-שעולים-שכבה, לא-לנחש-את-כל-העתיד. `FOUNDATION → EXPANSION GATE → PROJECTION → EXPERIENCE`.
+
+**12 הצירים שנבדקים בכל Gate:** Identity · Representations/aliases/variants · Relations · Time/Context · Provenance · Truth Lifecycle · Engines/calculations · Extensibility · Human Gate/approval · Multilingual readiness · Cross-domain connections · Privacy/access (כאשר-רלוונטי) — ובנוסף: האם Projection עתידי-סביר ידרוש schema-redesign אם-לא-נטפל-בציר-הזה עכשיו.
+
+**כל ממצא מסווג לאחת-משלוש בלבד:**
+- **`MUST FOUNDATION NOW`** — אם-נדחה, סביר שנידרש בעתיד ל-redesign/migration/identity-break.
+- **`EXTENSION POINT NOW`** — אין-צורך-לבנות-את-היכולת-עכשיו, אך **חובה** להשאיר contract/identity/relation/extension-point שמאפשר להוסיף-אותה-בלי-redesign.
+- **`LATER`** — ניתן-לדחות-בבטחה ל-Projection/Experience בלי-לפגוע-ב-Foundation.
+
+**חוק-נגד-over-engineering:** אין-לבנות יכולת-עתידית רק-משום-שהיא-אפשרית. המטרה **למנוע redesign-צפוי, לא לנחש-את-כל-העתיד.**
+
+**פלט-מחייב לפני המלצה-לעבור-למעלה:** Agent חייב-להחזיר **`FOUNDATION SUFFICIENT`** או **`FOUNDATION NOT SUFFICIENT`**; אם `NOT SUFFICIENT` — **רק** את-פריטי-`MUST FOUNDATION NOW` שחוסמים-בפועל את-העלייה (לא-את-כל-12-הצירים, לא-`EXTENSION POINT`/`LATER`).
+
+**תחולה:** ה-Gate חל-על **כל domain** — Number · Person · Year · Verse · Source · Contributor · ELS · Event · Place · Topic · Finding וכו' — לא-רק-על-אלה-שכבר-נדונו-ב-v5.3.
+
+**גבולות (עקבי-במלואו עם §23.1/§23.4):** אין-ליצור מערכת/טבלה/Engine/Graph חדשה **מעצם-קיום-ה-Gate**. ה-Gate עצמו הוא **פרוצדורת-בדיקה/checklist**, לא-אישור-בנייה, לא-workstream, לא-Human-Gate-נוסף-במספור (`OPEN HUMAN-GATES` הממוספר) — הוא-שכבת-משמעת שחלה **בתוך** כל שער-קיים כשמדובר-במעבר-Foundation→Projection. `APPROVED` (Governance Principle) · **documentation-only** — אפס-קוד/DB/schema/migration בעקבות-ההוספה-הזו.
+
 ---
 *בסיס-עובד v2, מעודכן 25.8.2026 (§19 A/B, §21, §22, §23). נשמר בענף `claude/raziel-capabilities-audit-h5k9ww` (מקור γ) + נכתב לגוף-המסמך על ענף `claude/els-function-inventory-86klre` + `claude/relation-engine-v1` + `claude/live-sync-v5.3-reconciliation` + `claude/sod1820-roadmap-reconciliation-jmbti4` (סשנים; האחרון = `V5_3_FINAL_DRIFT_CLOSURE`, סגירת DRIFT-1/2/3 + §23). שינויי-DB בסשן v5.3 זה (כולל סבב-הסגירה): הוספת `nodes.rule_id='live_state_sync_law'` בלבד (חוק-תפעולי, לא קנון-תוכן) + רשומות `work_log` coordination (BEFORE/AFTER) — **0 שינוי-קנון/schema/migration בסבב-הסגירה עצמו**. שינויי-DB היסטוריים (סשנים קודמים): (1) הקפאת cron job 27 (`metatron-nightly`, הפיך); (2) **H-1** — RPC `fn_persist_discovery` + מועמד-בדיקה-אחד (878=משיח↔דבר-מתוך-דבר, status=`candidate`, ממתין ל-Human-Gate). מלבדם READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence היסטורי לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE + §10 חזון + H-1 front-half + §19 A/B + §21 + §22 + §23 התיעוד-הזה).*
