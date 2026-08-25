@@ -9,6 +9,7 @@ import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
 import { ensureVideoThumbs } from "../lib/videoThumb.js";
 import { useHiddenWidget } from "../lib/hiddenWidgets.js";
+import WatchButton from "./WatchButton.jsx";
 
 // 🎬 רצועת «אור הגאולה» לעמוד-הבית — הסרטונים האחרונים שעלו + מתי. מצביע ל-/or-geula.
 // עץ אחד: אותו מקור (channel_updates channel=or-geula) של עמוד-הקטלוג; כאן רק טעימה.
@@ -53,13 +54,15 @@ export default function HomeOrGeulaRail({ limit = 10, surface = "HOME" }) {
           </span>
         </h2>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "0 0 auto" }}>
+          <WatchButton topic="channel:or-geula" source="or-geula-home" compact
+            label="עקוב" followLabel="עוקב ✓" explainer="" />
           <a href="/or-geula" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>לכל האוסף ←</a>
           {canRemove && (
-            <button onClick={() => { if (window.confirm("להסיר את הסטורי של אור הגאולה מהעדכונים? לא תראה אותו יותר.")) remove(); }}
-              title="הסר מהעדכונים" aria-label="הסר את סטורי אור הגאולה מהעדכונים"
+            <button onClick={() => { if (window.confirm("להסתיר את אור הגאולה לגמרי? הרצועה לא תוצג לך יותר באף מקום באתר. אפשר להחזיר בכל עת מדף «אור הגאולה».")) remove(); }}
+              title="אל תציג לי יותר את אור הגאולה" aria-label="הסתר לגמרי את אור הגאולה"
               style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999,
                 color: P.inkSoft, fontFamily: F.body, fontSize: 11, padding: "4px 10px", whiteSpace: "nowrap" }}>
-              ✕ הסר מהעדכונים
+              🙈 אל תציג לי יותר
             </button>
           )}
         </div>

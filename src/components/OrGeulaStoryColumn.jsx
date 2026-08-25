@@ -208,11 +208,11 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
       <div style={{ marginInlineStart: "auto", display: "flex", alignItems: "center", gap: 8 }}>
         <a href={OG.href} style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, textDecoration: "none", whiteSpace: "nowrap" }}>כל אור הגאולה ←</a>
         {canRemove && (
-          <button onClick={() => { if (window.confirm("להסיר את הסטורי של אור הגאולה מהעדכונים? לא תראה אותו יותר.")) remove(); }}
-            title="הסר מהעדכונים" aria-label="הסר את סטורי אור הגאולה מהעדכונים"
+          <button onClick={() => { if (window.confirm("להסתיר את אור הגאולה לגמרי? הרצועה לא תוצג לך יותר באף מקום באתר. אפשר להחזיר בכל עת מדף «אור הגאולה».")) remove(); }}
+            title="אל תציג לי יותר את אור הגאולה" aria-label="הסתר לגמרי את אור הגאולה"
             style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999,
               color: P.inkSoft, fontFamily: F.body, fontSize: 10.5, padding: "3px 9px", whiteSpace: "nowrap" }}>
-            ✕ הסר מהעדכונים
+            🙈 אל תציג לי יותר
           </button>
         )}
       </div>

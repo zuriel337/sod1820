@@ -7,6 +7,7 @@ import { getNotificationPrefs } from "../lib/supabase.js";
 import { watchToggle } from "../lib/commandCenter.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
+import EmailVerify from "./EmailVerify.jsx";
 
 // 🔔 WatchButton — הרכיב הקנוני היחיד של מנוע-המשפך (subscription_funnel_law).
 // חוקי-ברזל: (1) אותו רכיב בכל מקום, רק ה-topic משתנה · (2) כל Follow שומר source · (3) משפט-הסבר
@@ -22,6 +23,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [justFollowed, setJustFollowed] = useState(false);   // להצגת escalation מיד אחרי Follow
+  const [showReg, setShowReg] = useState(false);             // קריאה-להרשמה למי שעקב ועדיין לא רשום
   const [pushOn, setPushOn] = useState(false);
   const [pushMsg, setPushMsg] = useState("");
   const pushReady = PUSH_CONFIGURED && pushSupported();
@@ -121,6 +123,22 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   );
   const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>{pushMsg}</div>;
 
+  // 🔑 קריאה-להרשמה — למי שעקב ועדיין אינו מחובר. המעקב האנונימי כבר נשמר (visitor_id),
+  //   ובהרשמה הוא עובר אוטומטית לחשבון (claimVisitorPrefs ב-AuthContext) + נפתחות התראות-מייל.
+  const regCta = !user && justFollowed && following && (
+    <div style={{ marginTop: 11, background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 12, padding: "12px 14px", textAlign: gate ? "center" : "start" }}>
+      {!showReg ? (
+        <>
+          <div style={{ color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>הירשם בקליק (מייל בלבד) — כדי שהמעקב יישמר לחשבון שלך ותקבל התראה כשמתפרסם משהו חדש.</div>
+          <button onClick={() => setShowReg(true)} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ הירשם לשמירת המעקב</button>
+        </>
+      ) : (
+        <EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => { setShowReg(false); setJustFollowed(false); }} />
+      )}
+    </div>
+  );
+
   // ── אזור-מעקב קנוני (מובחן משיתוף, Value-First, שפה אחידה בכל האתר) ──
   if (gate) {
     return (
@@ -139,7 +157,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
               <div style={{ marginTop: 8 }}>
                 <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
               </div>
-              {pushOffer}{pushDone}
+              {regCta}{pushOffer}{pushDone}
             </>
           )}
         </div>
@@ -155,7 +173,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
         {icon} {following ? (followLabel || "עוקבים ✓") : label}
       </button>
       {!following && explainer && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
-      {pushOffer}{pushDone}
+      {regCta}{pushOffer}{pushDone}
     </div>
   );
 }

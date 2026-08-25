@@ -33,5 +33,12 @@ export function useHiddenWidget(key) {
     supabase.rpc("set_hidden_widget", { p_key: key, p_hidden: true }).catch(() => {});
   }, [user, key]);
 
-  return { canRemove: !!user, hidden, ready, remove };
+  // ↩︎ החזרה — ביטול ההסתרה (p_hidden=false). כך «הסרה לגמרי» אינה בלתי-הפיכה.
+  const restore = useCallback(() => {
+    if (!user) return;
+    setHidden(false);
+    supabase.rpc("set_hidden_widget", { p_key: key, p_hidden: false }).catch(() => {});
+  }, [user, key]);
+
+  return { canRemove: !!user, hidden, ready, remove, restore };
 }

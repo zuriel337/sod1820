@@ -10,6 +10,8 @@ import { storyOpen, storyEvent } from "../lib/storyTrack.js";
 import { galThumb } from "../lib/img.js";
 import { shareVideoToStory } from "../lib/share.js";
 import ShareActions from "../components/ShareActions.jsx";
+import WatchButton from "../components/WatchButton.jsx";
+import { useHiddenWidget } from "../lib/hiddenWidgets.js";
 import { OR_GEULA_LOGO } from "../components/BrandTicker.jsx";
 
 // 🎬 אור הגאולה — קטלוג-מדיה (ריבועים + סרטונים) מערוץ הוואטסאפ «אור הגאולה».
@@ -22,6 +24,7 @@ export default function OrGeulaPage() {
   const [rows, setRows] = useState(null);
   const [open, setOpen] = useState(null);
   const [speakerFilter, setSpeakerFilter] = useState(null);   // סינון לפי דובר (רב) — תחת אור הגאולה בלבד
+  const { hidden: ogHidden, restore: ogRestore } = useHiddenWidget("or_geula_story");   // מצב «הוסתר לגמרי» + החזרה
   const [sp, setSp] = useSearchParams();
   const openTimeRef = useRef(0);   // dwell (session_ms) for story_close
 
@@ -115,6 +118,19 @@ export default function OrGeulaPage() {
             אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה — תיעוד חי שמתעדכן.
           </p>
           {rows && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginTop: 10 }}>{filteredRows.length} פריטים · לחיצה פותחת במסך מלא</div>}
+          {/* 🔔 מעקב אחרי אור הגאולה — עדכון כשעולה סרטון/רמז חדש */}
+          <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+            <WatchButton topic="channel:or-geula" source="or-geula" label="עקוב אחרי אור הגאולה"
+              followLabel="עוקב אחרי אור הגאולה ✓" explainer="נעדכן אותך כשעולה סרטון או רמז חדש בערוץ." />
+          </div>
+          {/* ↩︎ החזרה — אם המשתמש הסתיר את אור הגאולה «לגמרי», כאן אפשר להחזיר */}
+          {ogHidden && (
+            <div style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center",
+              background: P.card, border: `1px solid ${P.border}`, borderRadius: 12, padding: "10px 14px" }}>
+              <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>🙈 אור הגאולה מוסתר מהעדכונים שלך.</span>
+              <button onClick={ogRestore} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "6px 15px" }}>↩︎ החזר לעדכונים</button>
+            </div>
+          )}
         </div>
 
         {/* 🏷️ סינון לפי רב (speaker) — רק כשיש דוברים מתויגים באוסף */}
