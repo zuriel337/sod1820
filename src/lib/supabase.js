@@ -3142,21 +3142,33 @@ export async function getAllValuePhrases(value, limit = 500) {
   } catch { return []; }
 }
 
-// 🧬 משפחות המילים — לכל ערך, הביטויים השווים לו בכל שיטה (מ-bidim) + העולם של כל ביטוי (מ-nodes).
+// 🧬 משפחות המילים — לכל ערך, הביטויים השווים לו בכל שיטה (מ-bidim, דרך fn_number_lookup) + העולם של כל ביטוי (מ-nodes).
 // המקום היחיד למילים שוות בדף המספר (כולל רגיל). כל פריט: {phrase, world}.
+// 🧩 Number Page Integration v1: המקור עבר מ-select ישיר על bidim ל-fn_number_lookup (אותו מקור-נתונים,
+// אך מורחב — atomic_or_composite/component_methods/component_values) כדי שקבוצות-Composite (רגיל+מילוי וכו')
+// יסומנו ויוסברו במפורש, לא רק יופיעו כמפתח-שיטה גולמי. אין שינוי-חישוב — כל ערך כבר-מחושב במנוע.
 export async function getValueFamilies(value, perMethod = 20) {
   if (!supabase || !value || value < 1) return [];
   try {
-    const { data } = await supabase.from('bidim').select('method,phrase,priority').eq('value', value).limit(2500);
+    const data = await getNumberLookup(value);
     if (!data || !data.length) return [];
+    // סדר-תצוגה בלבד (לא ערך-מחושב) — אותה מיפוי-עדיפות המשמש ב-bidim_sync להצגה קודם של השיטות הליבתיות.
+    const DISPLAY_PRIORITY = { "רגיל": 1, "מסתתר": 1, "קדמי": 1, "מילוי": 2, "אתבש": 3 };
     // קבוצות לפי שיטה — סופרים הכל אבל שומרים רק את ה-top שמוצג (perMethod).
     const groups = {};
     for (const r of data) {
-      const g = (groups[r.method] ||= { method: r.method, priority: r.priority ?? 9, all: new Set(), top: [] });
-      if (!g.all.has(r.phrase)) { g.all.add(r.phrase); if (g.top.length < perMethod) g.top.push(r.phrase); }
+      const g = (groups[r.method] ||= {
+        method: r.method, priority: DISPLAY_PRIORITY[r.method] ?? 4, all: new Set(), top: [],
+        composite: r.atomic_or_composite === 'composite',
+        componentMethods: r.component_methods || null, operator: r.operator || null,
+      });
+      if (!g.all.has(r.phrase)) {
+        g.all.add(r.phrase);
+        if (g.top.length < perMethod) g.top.push({ phrase: r.phrase, componentValues: r.component_values || null });
+      }
     }
-    // ⚡ מעשירים (עולם+ערך-רגיל) רק את הביטויים שמוצגים — לא את כל 2,500 — ובמקביל.
-    const shown = [...new Set(Object.values(groups).flatMap(g => g.top))];
+    // ⚡ מעשירים (עולם+ערך-רגיל) רק את הביטויים שמוצגים — לא את כל הרשימה — ובמקביל.
+    const shown = [...new Set(Object.values(groups).flatMap(g => g.top.map(t => t.phrase)))];
     const worldMap = {}, ragilMap = {}, tagsMap = {};
     const chunks = [];
     for (let i = 0; i < shown.length; i += 300) chunks.push(shown.slice(i, i + 300));
@@ -3173,7 +3185,9 @@ export async function getValueFamilies(value, perMethod = 20) {
     }));
     return Object.values(groups)
       .map(g => ({ method: g.method, priority: g.priority, count: g.all.size,
-        phrases: g.top.map(p => ({ phrase: p, world: worldMap[p] || null, ragil: ragilMap[p] ?? null, tags: tagsMap[p] || null })) }))
+        composite: g.composite, componentMethods: g.componentMethods, operator: g.operator,
+        phrases: g.top.map(t => ({ phrase: t.phrase, world: worldMap[t.phrase] || null, ragil: ragilMap[t.phrase] ?? null,
+          tags: tagsMap[t.phrase] || null, componentValues: t.componentValues })) }))
       .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0) || (a.priority - b.priority) || (b.count - a.count));
   } catch { return []; }
 }
@@ -3498,6 +3512,24 @@ export async function getGraphBridges(word, value) {
   const { data, error } = await supabase.rpc('get_graph_bridges', { p_word: (word || '').trim() || null, p_value: value || null });
   if (error) return [];
   return data || [];
+}
+
+// 🔢🧩 Number Page Integration v1 — עוטף fn_number_lookup (atomic+composite, מורחב, Numeric Root Finalization).
+// שכבת-קריאה דקה בלבד; לא מחשב שום דבר בעצמו (gematria_engine_law) — כל שורה מגיעה כבר-מחושבת מהמנוע.
+export async function getNumberLookup(value) {
+  if (!supabase || value == null) return [];
+  const { data, error } = await supabase.rpc('fn_number_lookup', { p_value: Number(value) });
+  if (error) return [];
+  return data || [];
+}
+
+// 🔗 Relation Engine v1 — עוטף fn_relation_candidate (read-only, status תמיד 'candidate', לעולם לא edges/nodes).
+// מוצג כמועמד-למחקר בלבד; לעולם לא כטענת-אמת/קנוני.
+export async function getRelationCandidate(entityA, entityB) {
+  if (!supabase || !entityA || !entityB) return null;
+  const { data, error } = await supabase.rpc('fn_relation_candidate', { p_a: entityA, p_b: entityB });
+  if (error) return null;
+  return data || null;
 }
 
 // 🗂️ מרשם הגילויים — הצלבה מאוחדת (גשרים + התכנסויות + חידושים) לפי ערך או מילה.
