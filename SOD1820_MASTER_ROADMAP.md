@@ -327,7 +327,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | # | שם קנוני | Workstream | current_status | criticality | blocks_what | dependencies | evidence | Human-Gate owner | next_action |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | Roadmap v4 → קנוני | WS-CC | `CLOSED` | — (היסטורי) | — | — | `f375327f` (main), הועבר ל-History | צוריאל (בוצע) | אין |
-| 2 | ELS FSS → Preview | WS-ELS-FSS | `CLOSED` | — (היסטורי; מיזוג-ל-main נפרד עדיין-פתוח כפריט-לא-ממוספר בכרטיס ה-workstream) | — | PR #163 draft, `work_log ba4427e5` | צוריאל (בוצע) | אין — ההמשך (מיזוג-ל-main) עוקב-דרך `WS-ELS-FSS`, לא-מספר-Gate נפרד |
+| 2 | ELS FSS → Preview | WS-ELS-FSS | `CLOSED` | — (היסטורי; **עודכן 25.8: אין-עוד מיזוג-פתוח — תוכן-הענף אומת מוזג-בפועל ב-main, ר' כרטיס-`WS-ELS-FSS`**) | — | PR #163 draft, `work_log ba4427e5` + `work_log WS_ELS_FSS_UNIFIED_MERGE_RECONCILIATION` (25.8) | צוריאל (בוצע) | אין |
 | 3 | ELS Step 3 merge+deploy+אימות | WS-ELS-IDENTITY | `CLOSED` | — (היסטורי) | — | `fc123caa`, `work_log ed5cc880` | צוריאל (בוצע) | אין |
 | 4 | Universal Finding Identity & Multi-Source Provenance (ELS Step 4) | WS-ELS-IDENTITY | `CLOSED` | — (היסטורי; Identity/Architecture Decision, **ELS-scope בלבד** — לא Research-DNA-Identity/Universal) | — (ההחלטה עצמה; ה-build ממשיך non-blocking, ר' Parallel/Non-blocking למטה) | Steps 1-3 LIVE/Verified (`fc123caa`); Human-Gate ZURIEL 22.8.2026: `FindingID={corpus_id,term_norm,dir,skip,start}` מאומץ · provenance/context (`source`/`source_ref`/`contributor`/`time`/`confidence`/`privacy_scope`/`channel`) מחוץ-לזהות · multi-observation-per-Finding כעיקרון (מנגנון-קישור=implementation) · Visibility/Privacy≠Identity, אין-שינוי-רטרואקטיבי · corpus_id/term_norm server-derived מאומת-חי (`save_els_matrix`/`_anon`) — Master State §17 מעודכן | צוריאל (בוצע) | אין — **Implementation** (אכיפת-DB אם-בכלל, חיווט-כתיבת-observations בפועל) נשאר `OPEN` כ-workstream-build נפרד, **אינו-חלק מסטטוס-הסגירה** |
 | 5 | `corpus_id` תנ״ך | WS-TANAKH | `CLOSED` | — (היסטורי) | — | WS-ELS-CORPUS (LIVE) | Master State §17 (עודכן 25.8) · migration `20260825104425_els_tanakh_corpus_id_gate5.sql` | צוריאל (בוצע, 25.8, "כן תאשר את התנ״ך הזה") | אין |
@@ -428,7 +428,7 @@ flowchart TD
 ## 🟡 PARALLEL_READY (מגודר; אינו העמדה הפעילה)
 - **`WS-ELS-REGRESSION-FN`** — שחזור `search_path=public` + `security definer` על `fn_els_search` החי.
 - **`WS-MASTERSTATE`** — §17 אנומרציה + סנכרון-provenance.
-- **`WS-ELS-FSS`** *(workstream-tag: `PREVIEW`/`OPEN-HUMAN-GATE`)* — **עודכן v5:** לא-עוד "הכרעת D4/Item1" (הוכרע) — אלא שער **מיזוג/פריסה-ל-Preview** של `claude/els-unified-merge`@`542c7147`.
+- **`WS-ELS-FSS`** *(workstream-tag: `SUPERSEDED`)* — **עודכן 25.8:** לא-עוד שער-מיזוג — נבדק בקוד (git diff + code-comment cross-ref) שתוכן `claude/els-unified-merge`@`542c7147` כבר-הועתק-והורחב ב-main דרך Pass1/2 (25.8); הענף עצמו נשאר provenance-בלבד.
 - **`WS-LEDGER-REVIEW`** *(workstream-tag: `DESIGN`/`OPEN-HUMAN-GATE`)* — `admin_research_review` מ־DESIGN לתכנון.
 - **`WS-ELS-CAPABILITY-AUDIT`** *(workstream-tag: `BUILDING`, עודכן Pass 2 24.8)* — מרשם-85 אוחד עם Work Area; רוב-ה-GAPs נסגרו (ר' סעיף מלא למטה); נותר אימות-חי + GAP-4/GAP-8.
 
@@ -442,7 +442,7 @@ flowchart TD
 | Person — הקרנת-גרף-ציבורית (`OD-F8`) *(סופר-סד: השורה ההיסטורית "Person F-1b חסום ב-OD-F9a/F9b/F8" — F-1b עצמו כבר `LIVE`, ר' ZURIEL Human-Gate 24.8.2026 ו-WS-PERSON למטה)* | הקרנה ל-`nodes`/`edges`/ציבורי לא-מאושרת | OD-F8 בלבד | הכרעת-צוריאל נפרדת ל-OD-F8 |
 | חיווט Raziel (`fn_raziel_turn`, `session_state`, L1–L14) | פתוח | אין שער בנייה | שער בנייה של צוריאל |
 | ~~השלמת זהות תנ״ך~~ | **✅ נסגר 25.8** — `corpus_id` תנ״ך = אותו `0b022e8eef6f9c16` (§17) | — | — |
-| מיזוג/פריסת `els-unified-merge` (המנוע, לא ה-shell) *(חדש-v5)* | Decision #1 פתור אך שער-אדם עוד לא ניתן | אישור-Human-Gate | צוריאל מאשר Preview |
+| ~~מיזוג/פריסת `els-unified-merge`~~ | **✅ נפתר 25.8** — נבדק בקוד: תוכנו כבר-מוזג/מותאם ב-main (Pass1/2), אין-מה-למזג | — | — |
 | אימוץ Number-Language / Name-Lab-רשמי / איחוד-שופטים *(חדש-v5)* | כולם OPEN-HUMAN-GATE, ר' שערים #16/#17/#18 (Decision Register) | הכרעות-צוריאל נפרדות | ר' שערים 15-19 למטה |
 | מנוע הצלבות מתקדם (`WS-CROSS-ENGINE`) *(חדש, 22.8)* | ספיציפיקציה בלבד, אין One-Tree-Check עדיין | Research DNA v1 טרם-הוכרעה + קורפוס עדיין-בארגון (Gate #18 **`CLOSED` 23.8** — כבר-לא-תלות) | Research DNA v1 decision → One-Tree-Check מלא |
 
@@ -503,18 +503,18 @@ flowchart TD
 - **STATE:** Steps 1-4-Identity `LIVE`/`DB-LIVE` ✅ (הושלם, לא-עוד `ACTIVE_NOW`) · **Gate #4 (Identity Decision) `CLOSED`** (22.8) · **Gate #5 (`corpus_id` תנ״ך) `CLOSED`** (25.8) · Step-4-הבנייה (dedup/UNIQUE אם-בכלל) = workstream נפרד, `OPEN-HUMAN-GATE`, `PARALLEL_READY`, **לא-חלק מסטטוס-הגייט**, לא-חוסם-קנוניזציה.
 - תת-פריט `WS-TANAKH` — **`CLOSED` 25.8.2026** (Human-Gate ZURIEL, "כן תאשר את התנ״ך הזה"). זהות־תורה וזהות־תנ״ך = אותו `corpus_id 0b022e8eef6f9c16` (אותו קורפוס-אחד, שני scope — ר' §17 ו-`WS-ELS-CORPUS`). לא-המצאה: התיקון רק לימד את `fn_els_corpus_id` להכיר scope שכבר-היה-נכון-מתמטית.
 
-### WS-ELS-FSS — ELS Full Search Space — **Gate #2 Preview-Verified, 21.8**
-- **WHERE_WE_ARE:** D4 נבחר-קנונית (`cfc995ca`, 19.8) ← **Item1 כבר-grafted-לתוכו** (`fdd94acd`, 19.8 22:51, "canonical merge") ← ניקוי-מיגרציה עליו (`542c7147`). **החבילה המאוחדת = `claude/els-unified-merge`@`542c7147`.** Gate #2 (שער-ה-Preview) **נסגר Verified** (21.8) — צוריאל אימת-אישית שה-Preview (PR #163, draft) נפתח ועובד; אימות-קוד מקביל (build.py דטרמיניסטי + diff-review) ב-`work_log ba4427e5`. **⚠️ הבהרה-קריטית (צוריאל, 21.8): סגירת-Gate #2 = אישור-שער-Preview בלבד. היא אינה אומרת ש-Research Journey הושלם. ה-Preview נשאר "אזור-הנישואים"/מעבדת-החיבור שאליה חוזרים לבנות ולחבר את המסע (Journey), ה-Matrix, ושאר שכבות-ה-ELS — עבודה זו לא-נפתחה-כאן ולא-הוכרעה.**
-- **WHAT_IS_DONE:** D4 (`7f066e23`) מתקן cap-prefix-bias + backward-starvation; Item1's fix (בידוד-כיוון-הפוך) הושתל לתוך `findAll` של D4 (`fdd94acd`) בלי-לפגוע ב-`scopeRange`. בדיקת-קבלה ל-D4-בלבד (16.8): 97 `els_records`, 13/13 שדות, 84/84 מטריצות זהות-מופע, 0 הפרות-superset. **Preview חי ואומת (21.8):** PR #163 (draft, DO-NOT-MERGE) → Vercel `Ready`/`DEPLOYED` על `542c7147` בדיוק · צוריאל אימת-אישית פתיחה+עבודה דרך-הערוץ-המאומת-שלו · אימות-קוד מקביל (9/9 סעיפי-NO-WRITE PASS, כולל build.py דטרמיניסטי ביט-לביט) — `work_log ba4427e5`.
-- **WHAT_IS_OPEN:** מיזוג-ל-main (שער-הבא, **לא-נפתח-כאן, לא-הוכרע**) · **Research Journey/Matrix/שכבות-ELS-נוספות — עדיין-לא-הושלמו**, ה-Preview הוא מרחב-העבודה-הממשיך שלהן, לא תוצר-סגור.
+### WS-ELS-FSS — ELS Full Search Space — **`SUPERSEDED` (עודכן 25.8.2026: תוכן-הענף אומת מוזג-בפועל)**
+- **WHERE_WE_ARE:** D4 נבחר-קנונית (`cfc995ca`, 19.8) ← Item1 grafted (`fdd94acd`) ← ניקוי-מיגרציה (`542c7147`) — **החבילה `claude/els-unified-merge`@`542c7147`**, Gate #2 Preview-Verified (21.8, `work_log ba4427e5`). **25.8.2026 — נבדק בפועל (לא-הונח): הענף מעולם-לא-מוזג ישירות, אבל תוכנו-הרלוונטי כבר-הועתק/הותאם ל-main דרך ELS_PASS1/PASS2 (25.8) — לא-פער, ספיגה-שקטה שעכשיו-מתועדת.**
+- **WHAT_IS_DONE (ראיות-קוד, 25.8):** `git diff --stat origin/main origin/claude/els-unified-merge` → הענף **160 קומיטים אחורה מ-main, 69 קדימה**; מיזוג-גולמי-שלו **היה מוחק** 13,865 שורות (62+ מיגרציות ותכונות-לא-קשורות שקיימות רק ב-main: Numeric Root, Relation Engine, Research Intake, Personal Foundation, אבטחה, SEO ועוד). השוואת `tools/els/els-code.template.html` בפועל: **main עשיר-יותר בכל מדד** — Worker-offload (main=1, ענף=0) · Geometry Contract/`researchGeometry` (main=4, ענף=0, **נעדר-לגמרי מהענף**) · Journey (main=1, ענף=0) · יותר `findAll`(49 מול 20)/`crossFindMulti`(26 מול 7). המועמד היחיד ל"עדיין-ייחודי-בענף" — FORMS/Split-Join — **אומת שכבר הועתק**: הערת-קוד ב-main עצמו (`els-code.template.html` ~שורה 2280) כתובה מילולית *"FORMS — פיצול/איחוד (Pass 2, מקור: els-work-area `2dbb658f`, מותאם למבנה הנוכחי — לא raw)"* — `2dbb658f` הוא-בדיוק-הקומיט על `els-unified-merge` (`feat(els): PHASE 5B — FORMS registry + Split/Join`). State Contract (`postHost`/`emitState`, "state" messages) קיים ב-main תחת שמות-אחרים — אותה יכולת.
+- **WHAT_IS_OPEN:** אין. אין-פריט-נותר לבדיקה/מיזוג.
 - **WHAT_IS_BLOCKED:** —
-- **HUMAN_GATE:** Gate #2 (Preview) — **סגור/Verified**. שער-המיזוג-ל-main — נפרד, **טרם-נפתח**.
-- **NEXT_ACTION:** אין — ממתין להנחיית-צוריאל הבאה (מיזוג? המשך-בניית-Journey/Matrix ב-Preview? שער-חדש?). שום קוד/מיזוג/deploy נוסף בלי שער-מפורש.
-- **DEPENDENCIES:** חולק קורפוס+זהות עם `WS-ELS-IDENTITY`; מזין `WS-ELS-WORKAREA` (למטה).
-- **CANONICAL_HOME:** `claude/els-unified-merge`@`542c7147` (ענף, לא-main) · PR #163 (draft, GitHub, לא-ממוזג).
-- **PROVENANCE:** `cfc995ca`(החלטה) · `fdd94acd`(graft) · `542c7147`(תיק-נוכחי) · `fb9c23ea`(Item1 המקורי, superseded-reference-בלבד) · PR #163 · `work_log ba4427e5`(אימות-Preview, Gate #2 סגירה).
-- **LAST_VERIFIED:** 2026-08-21 (Preview חי, אומת ע"י צוריאל + code-review מקביל).
-- **STATE:** Gate #2 `PREVIEW-VERIFIED` ✅ (21.8) · מיזוג-ל-main `OPEN-HUMAN-GATE` (טרם-נפתח) · Journey/Matrix/שכבות-נוספות `OPEN` (לא-הושלמו, ממשיכות ב-Preview כ"אזור-נישואים").
+- **HUMAN_GATE:** אין. שער-המיזוג-ל-main **לא-נדרש-עוד** — אין-מה-למזג, main כבר-מכיל-ומתקדם-מהענף.
+- **NEXT_ACTION:** אין בנייה. הענף עצמו (`claude/els-unified-merge`, וכל-שרשרת `els-6jjt71`/`els2-b45k5h` וכו') **נשאר על-הדיסק כתיעוד-היסטורי בלבד**, לא-נמחק — מחיקה, אם רוצים, היא בקשה נפרדת מפורשת של צוריאל.
+- **DEPENDENCIES:** חולק קורפוס+זהות עם `WS-ELS-IDENTITY`; מזין `WS-ELS-WORKAREA` (למטה) — **דרך main, לא דרך הענף**.
+- **CANONICAL_HOME:** `main` (`tools/els/els-code.template.html` + `src/pages/ElsWorkAreaPage.jsx`). `claude/els-unified-merge`@`542c7147` נשאר provenance-בלבד, לא-קנוני-עוד.
+- **PROVENANCE:** `cfc995ca`·`fdd94acd`·`542c7147`·`fb9c23ea` (הענף, היסטורי) · `work_log ba4427e5` (Gate #2 סגירה, 21.8) · `work_log actor=CLAUDE task=ELS_PASS1/PASS2/PASS3_IMPLEMENTATION` (25.8, ספיגת-התוכן ל-main) · `work_log actor=CLAUDE task=WS_ELS_FSS_UNIFIED_MERGE_RECONCILIATION` (25.8, הבדיקה-הזו).
+- **LAST_VERIFIED:** 2026-08-25 (git diff + code-comment cross-reference, לא-רק "צוריאל אימת Preview").
+- **STATE:** `SUPERSEDED` — Gate #2 Preview-Verified נשאר-בהיסטוריה (21.8) · אין-עוד שער-מיזוג-פתוח · main מכיל-הכל-ומעבר.
 
 ### WS-ELS-WORKAREA — `/lab/els` + State Contract + FORMS — **חדש-v5, מפוצל מ-WS-ELS-FSS**
 - **WHERE_WE_ARE:** **פוצל לשני שכבות שונות בפריסה:** (1) **ה-shell עצמו — `LIVE` על `main`** (`3e77f15a`/`d245e5eb`, 21.8) — `ElsWorkAreaPage.jsx`, ראוט `/lab/els`, מבודד-מאומת (0 קריאות-מנוע, 0 כתיבות `els_records`, `tzofen.html`/template **לא-נגועים**, md5 זהה-ל-main). (2) **State Contract + FORMS/Split-Join — עדיין `BUILDING`🏗️ רק על `claude/els-unified-merge`** — לא-פרוסים, המנוע לא-משדר `type:"state"` עדיין.
@@ -830,7 +830,7 @@ flowchart TD
 |---|---|---|---|---|---|---|---|---|---|
 | `main` | צוריאל | production | `LIVE` 🚀 | 🔀 מוזג | ✅ | 🌐 ✅ | ✅ | `f375327f`→`3e77f15a`→`d245e5eb`→`fc123caa` | — |
 | `claude/els-step3-identity` | CLAUDE | ELS Step 3 client | `LIVE` 🚀 (עודכן 21.8) | 🔀 מוזג | ✅ | 🌐 ✅ | ✅ | `7045f7b3`→`fc123caa` | — (Gate #3 Verified/Closed) |
-| `claude/els-unified-merge` | CLAUDE | **מנוע-ELS-מאוחד (D4+Item1-graft+FORMS+WorkArea+ניקוי)** *(תוקן-v5)* | `PREVIEW-VERIFIED`✅👁️ (21.8) | 🟡 מוכן־למיזוג (עדיין) | ❌ | 👁️ Preview (PR #163) | ✅ Preview | `542c7147` | ממתין להנחיה — מיזוג-ל-main **טרם-מאושר** |
+| `claude/els-unified-merge` | CLAUDE | **מנוע-ELS-מאוחד (D4+Item1-graft+FORMS+WorkArea+ניקוי)** *(עודכן 25.8: `SUPERSEDED`, נבדק בקוד)* | `SUPERSEDED`🗄️ (25.8, היה `PREVIEW-VERIFIED` 21.8) | 🗄️ תוכנו הועתק ל-main | ❌ | 👁️ Preview (PR #163, ישן) | ✅ Preview (ישן) | `542c7147` | אין — main עשיר-ממנו בכל-מדד שנבדק (`work_log WS_ELS_FSS_UNIFIED_MERGE_RECONCILIATION`) |
 | `claude/els-work-area` | CLAUDE | D4 + FORMS + Work-Area (בסיס ל-unified-merge) | `SUPERSEDED`🗄️ *(תוכן, לא ענף)* | 🗄️ הוחלף | ❌ | ❌ | ❌ | `ce148f07` | ר' `els-unified-merge` — **הענף עצמו לא-נמחק/לא-נסגר-בגיט**, כל commits שלו הם אבות-קדמונים מלאים של `els-unified-merge`; ה-`SUPERSEDED` מתייחס לתפקיד-התוכן בלבד |
 | `claude/els2-b45k5h` | CLAUDE | תיקוני-רגרסיה (על-main) + capability-audit + FSS-Item1 (superseded) | חלקי | 🗄️ (רגרסיה נספגה; היתר reference | ✅(חלקי, `f5834f44`) | — | — | `fb9c23ea`,`e0a2247a` | אין — Item1 לא-נמזג-בנפרד |
 | `gpt/research-object-map` | GPT | מפת-מוצר zoom-out + ELS-capability-map | `DESIGN` | 🔨 בעבודה | ❌ | — | — | `7cc48889` | Gate #20 |
@@ -847,7 +847,7 @@ flowchart TD
 
 ## 🚪 שערי־צוריאל פתוחים (OPEN HUMAN-GATES) — ממוספר-מחדש v5
 1. ~~Roadmap v4 → קנוני~~ — **✅ נסגר** (`f375327f`, main, אומת מול הבנדל-הפרוס). הועבר ל-History.
-2. ~~ELS FSS → Preview~~ — **✅ נסגר Preview-Verified** (21.8, PR #163 draft, `work_log ba4427e5`). **לא-אומר ש-Research Journey/Matrix/שכבות-ELS-נוספות הושלמו** — הן ממשיכות ב-Preview כמרחב-עבודה. שער-מיזוג-ל-main נפרד, טרם-נפתח. הועבר ל-History.
+2. ~~ELS FSS → Preview~~ — **✅ נסגר Preview-Verified** (21.8, PR #163 draft, `work_log ba4427e5`). **עודכן 25.8:** Research Journey/Matrix/שכבות-ELS-נוספות **הושלמו בפועל דרך main** (Pass1/2/3, לא דרך ה-Preview) — נבדק בקוד (git diff + code-comment cross-ref, `work_log WS_ELS_FSS_UNIFIED_MERGE_RECONCILIATION`). אין-עוד שער-מיזוג-ל-main פתוח — אין-מה-למזג. הועבר ל-History.
 3. ~~ELS Step 3 merge + deploy + אימות~~ — **✅ נסגר** (`fc123caa`, main, round-trip חי אומת — `work_log ed5cc880`, 21.8). הועבר ל-History.
 4. ~~Universal Finding Identity & Multi-Source Provenance~~ — **✅ נסגר** (22.8.2026, Human-Gate ZURIEL — Identity/Architecture Decision, ELS-scope בלבד: `FindingID={corpus_id,term_norm,dir,skip,start}` מאומץ, ר' Master State §17 + Canonical Gate Map שורה 4). **ELS Identity Implementation** (Step 4 dedup/UNIQUE אם-בכלל + חיווט-observations) ממשיכה כ-workstream-build **נפרד**, `OPEN`, non-blocking — לא-חלק מסטטוס-הסגירה. הועבר ל-History.
 5. ~~`corpus_id` תנ״ך~~ — **✅ נסגר** (25.8.2026, Human-Gate ZURIEL — "כן תאשר את התנ״ך הזה"; `corpus_id 0b022e8eef6f9c16` הוא-בעצם sha256 של קובץ-הקורפוס-המלא, תורה=קידומתו; `fn_els_corpus_id` עודכן ל-`scope IN ('torah','tanakh')`, ר' Master State §17 + `WS-ELS-CORPUS`). הועבר ל-History.
@@ -938,7 +938,7 @@ LAST_RECONCILED: 2026-08-21 (v5 קנוניזציה ל-main, f1503a28)   SYNC: SY
 מה אסור לבנות:      **(Gate #4 סגור 22.8 — Step-4-build יצאה מ"אסור-עד-שער"; תזמון-build בפועל לא-הוכרע כאן)** · Judgment system חדש/מקביל (**איסור-קבוע** — Gate #18 קבע Contract-over-Consolidation, 23.8, לא-רק-"עד-שער") · KU-3D product ·
                    Command-Center-UI-חדש (יש-כבר-2-חיים) · Feature-Control · Person: `RelationConfirmation`/`ShareGrant`/`PublishRequest`/הקרנה-לגרף-ציבורית (`OD-F8`)/Contextual-Numeric-Ranking/466-Test/Personal-Numeric-Field-implementation (F-1b עצמו — Ledger-פרטי — כבר `LIVE` מ-24.8.2026, אינו-אסור-עוד) · Raziel-wiring/runtime
                    (Brain Responsibility = Governance-בלבד, אין-implementation) ·
-                   מיזוג-`els-unified-merge`-ל-main (טרם-אושר) · פתרון 2-ממצאי-האבטחה (מעקב-נפרד, לא-כאן) ·
+                   פתרון 2-ממצאי-האבטחה (מעקב-נפרד, לא-כאן) ·
                    שום-קוד-נוסף ב-ELS-engine בלי-שער.
 מה בעתיד:           Command Center+Feature-Control · Meta Growth OS · Platform-tiers+Credits+Academy ·
                    UGC · רב־לשוניות · ELS שלב ב׳ · מסגרת-Research-Object (FUTURE REGISTRY=INCOMPLETE).
