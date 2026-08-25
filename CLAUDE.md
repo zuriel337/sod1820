@@ -16,6 +16,18 @@
 - רק **אחרי** קביעת ה-Live State ממשיכים לתכנון או להמלצה.
 - **הבהרה (v2) — לא לבלבל:** החוק הזה קובע איך עונים על **שאלת-מצב**. הוא **לא** מחליש את הדרישה הקבועה והנפרדת (`agent_onboarding_law`): **כל WRITE ל-DB** (כולל הוספת/עדכון חוק ב-`nodes`) מחייב **תמיד** אימות סכמה חיה לפני הכתיבה + תיאום ב-`work_log` — גם כשהבקשה עצמה אינה שאלת-מצב. "לא נדרש Production check" ביחס לפעולת-כתיבה מתייחס רק לצורך הספציפי הזה, לא לפוטר מאימות-סכמה-לפני-כתיבה. (החוק המלא: `select description from nodes where rule_id='live_state_resolution_law';`)
 
+## 🔧 חוק סנכרון-מצב-חי (`live_state_sync_law`) — פרוטוקול תפעולי, קרא לפני כל LIVE-READ ברמת git/קוד
+> תיקון-שורש לתקרית 25.8.2026: local git checkout נתפס בטעות כ"קוד חי" בעוד היה 154 קומיטים מאחורי `origin/main` — כל בדיקת-קוד מבוססת-דיסק בסשן ההוא הייתה תקינה כלפי הדיסק אך לא כלפי המציאות. `live_state_resolution_law` קובע *מה* לאמת (Production/Supabase/main); חוק זה קובע *איך*, ברמת git+DB יחד, לפני שמתחילים.
+- **3 Modes, אסור לערבב:** **LIVE-READ** (מה המצב-עכשיו — חובה הרצף המלא למטה) · **FEATURE-BRANCH** (בונים על ענף — הדיסק קנוני *לקבצים-הנערכים*, אך ה-base מאומת מול `origin/main` בתחילה ולפני merge) · **HISTORICAL-PROVENANCE** (קוראים work_log/docs/commits ישנים — מתויג "היסטורי" במפורש, אסור להציג כמצב-נוכחי).
+- **רצף-חובה ל-LIVE-READ, לפני כל מסקנת-קוד:** `git fetch origin --prune` → אימות SHA של `origin/main` → השוואת local HEAD/local main/הענף-הנוכחי מול `origin/main` (ahead/behind) → אימות `dirty state` (`git status --porcelain`) → אימות Supabase project ID קנוני (`linswmnnkjxvweumprav`) → קריאת `work_log`/`rules`/`project_codex` **חיים** (לא מהזיכרון) → קריאת Roadmap/Master **מ-`git show origin/main:<path>`**, לא מהדיסק המקומי.
+- **דיסק מיושן/מלוכלך:** אסור `git reset --hard`/`checkout -- .`/`clean -f` כש-tree לא-נקי. תוכן-חי נקרא דרך `git show origin/main:<path>` (קריאה-בלבד) — זהו ה-canonical fallback המספיק; worktree ייעודי-קבוע ל-main (`git worktree add`) הוא נוחות-אופציונלית בלבד, לא חובה.
+- **LIVE_SYNC_TOKEN** (timestamp·origin_main_sha·branch/base_sha·supabase_project_id·work_log_cutoff·roadmap_version·master_state_ref) — רענון-חובה לפני WRITE/merge/deploy/עריכת-SSOT (Roadmap/Master)/הכרזת-CLOSED/LIVE/DONE.
+- **Drift Matrix (5 סוגים):** Git Drift (local↔origin) · Branch Drift (base-ענף מיושן) · DB Drift (מסמך טוען X, ה-DB אומר Y) · SSOT Drift (Roadmap≠Master, או אי-עקביות פנימית) · **Parallel-Agent Drift** — work_log מראה סוכן-אחר `in_progress` על אותו נושא (`inter_agent_coordination_law`). **הבהרה (ZURIEL, 25.8.2026):** Parallel-Agent Drift **אינו** חוסם READ-ONLY/Challenge/Cross-Verification על אותו נושא — הוא חוסם אך ורק **WRITE חופף** (מימוש-מקביל) עד תיאום-scope מפורש דרך היומן.
+- **Stale Conclusion Rule:** מסקנה מבוססת-דיסק-מיושן מתויגת `[STALE — PENDING REVALIDATION]` inline, **לא נמחקת** (`everything_additive_law`). אחרי אימות-מחדש: `[REVALIDATED <תאריך>: CONFIRMED]` או `[...CORRECTED to <ערך>]`.
+- **Closing Reconciliation:** לפני הכרזת DONE/LIVE/CLOSED — `fetch` נוסף + השוואה סופית מול main/work_log/DB (drift יכול לקרות *תוך-כדי* המשימה עצמה).
+- **אבחון-מהיר:** `scripts/live-sync-check.sh` (diagnostic בלבד, אפס side-effects) מדפיס origin/main SHA / local SHA / ahead-behind / dirty-state / branch / תזכורת-project_id / גרסת-Roadmap.
+- מפרט-מלא (Pre/Post-Write Gates + Acceptance criteria): `select description from nodes where rule_id='live_state_sync_law';`
+
 ## 🗺️ מפת המערכות הפעילות (`active_systems_map`) — קרא ואל תשאל מחדש
 > **לצוריאל כבר יש מערכת שלמה שעובדת. אל תשאל אותו לפתוח חשבונות, אל תבנה מקביל, ואל תגיד «אין X» לפני שבדקת כאן ובפונקציות ה-Edge.** כל מה שכאן **חי ופרוס**. חוסר-ידיעה = לבדוק (`list_edge_functions`, `vault.secrets`, `work_log`), לא לשאול מאפס.
 
