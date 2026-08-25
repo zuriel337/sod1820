@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import {
+  supabase,
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
   getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData, getWaThread, getAiAnalysis,
@@ -71,6 +72,180 @@ const A_CHANNELS = [
   ["or-geula", "אור הגאולה"], ["sfot-vheker", "שפות וחקר מציאות"],
 ];
 const C_SOURCES = ["discovery-engine", "entity-combo", "research-center", "active-panel"];
+
+// ⚖️ Pipeline C · Human Gate (STEP 1B — screen-map approved by Zuriel 25.8.2026).
+// EXTENDS WarRoomTab in place — same file, same tab, no new route/store. Read: research_objects
+// where status='candidate'. Write: the single existing RPC admin_research_review(id,decision) —
+// no new RPC. Does NOT reuse/revive the old ConvergenceJudge (research_candidates, dead code) —
+// different store, per Gate #18 (no physical consolidation).
+const RO_FIELDS = "id,kind,statement,source,source_ref,contributor,value,terms,relates,engine_verified,engine_detail,confidence,privacy_scope,created_at";
+
+// בונה תיאור-תוצאה *מהתשובה-בפועל של ה-RPC בלבד* — אף פעם לא מניח node/edge/ledger שנוצרו.
+// תיקון-Screen-Map #2: ציבורי-בערך-חסר עדיין יוצר insight-node, אבל בלי number-node/edge/ledger.
+function describeOutcome(res) {
+  if (!res || res.ok !== true) return null;
+  if (res.status === "rejected") return { label: "נדחה", color: "#e0563a" };
+  if (res.status === "approved") return { label: "אושר כידע-חי (לא צומת בגרף)", color: "#3ea6ff" };
+  if (res.status === "canonical") {
+    if (res.graph_promoted) {
+      return {
+        label: "קנוני — קודם לגרף הציבורי", color: "#4caf7d",
+        detail: [
+          `insight-node: ${res.insight_node || "—"}`,
+          res.number_node ? `number-node: ${res.number_node}` : "אין number-node (אין value)",
+          res.edge_id ? `edge: ${res.edge_id}` : "אין edge (אין value)",
+          res.decision_ledger_id ? `decision_ledger: ${res.decision_ledger_id}` : "אין decision_ledger (לא נוצר edge)",
+        ].join(" · "),
+      };
+    }
+    // תיקון-Screen-Map #1: הניסוח המדויק שאושר — לא "not visible outside admin" (הבטחת-נראות שלא-הוכחה).
+    return { label: "קנוני פרטי — לא קודם לגרף הציבורי", color: "#c79a2e" };
+  }
+  return null;
+}
+
+const selBox = { padding: "4px 8px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11, background: "#fff", color: C.goldLight };
+
+function PipelineCCard({ c, decided, onDecide, busy }) {
+  const [open, setOpen] = useState(false);
+  const [err, setErr] = useState("");
+  const act = async (decision) => {
+    setErr("");
+    const res = await onDecide(c.id, decision);
+    if (!res) { setErr("קריאת-הרשת נכשלה — נסה שוב."); return; }
+    if (res.ok === false) {
+      setErr(
+        res.error === "invalid_decision" ? "החלטה לא-תקפה — לא בוצע דבר." :
+        res.error === "already_reviewed" ? `המועמד כבר-נשפט (סטטוס: ${res.status}) — לא בוצע דבר נוסף.` :
+        res.error || "שגיאה — לא בוצע דבר."
+      );
+    }
+  };
+  const outcome = decided ? describeOutcome(decided) : null;
+  return (
+    <div style={{ ...box, opacity: decided ? 0.75 : 1, borderColor: outcome ? outcome.color + "55" : C.border }}>
+      <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap", cursor: "pointer" }} onClick={() => setOpen(v => !v)}>
+        <span style={pill("#3ea6ff")}>{c.kind}</span>
+        <span style={{ color: C.goldLight, fontSize: 13, fontWeight: 700, flex: "1 1 auto", minWidth: 0 }}>{c.statement}</span>
+        <span style={{ color: C.faint, fontSize: 10.5 }}>{open ? "▲ הסתר" : "▼ פרטים"}</span>
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+        <span style={pill(C.muted)}>מועמד — לא עובדה</span>
+        {c.engine_verified === true && <span style={pill("#4caf7d")}>✓ מנוע: תואם</span>}
+        {c.engine_verified === false && <span style={pill("#e0563a")}>✗ מנוע: לא-תואם</span>}
+        <span style={pill(C.faint)}>אימות מנוע — אינו אישור קנוני</span>
+        <span style={pill(c.privacy_scope === "public_candidate" ? "#4caf7d" : "#c79a2e")}>{c.privacy_scope}</span>
+        {c.source && <span style={pill(C.faint)}>{c.source}</span>}
+      </div>
+      {open && (
+        <div style={{ marginTop: 10, display: "grid", gap: 5, fontSize: 12, color: C.muted, borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
+          <div><b style={{ color: C.goldLight }}>source_ref:</b> {c.source_ref || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>contributor:</b> {c.contributor || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>value:</b> {c.value ?? "—"} &nbsp;<b style={{ color: C.goldLight }}>terms:</b> {(c.terms || []).join(", ") || "—"} &nbsp;<b style={{ color: C.goldLight }}>relates:</b> {(c.relates || []).join(", ") || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>confidence:</b> {c.confidence ?? "—"}</div>
+          <div><b style={{ color: C.goldLight }}>engine_detail:</b> <span style={{ fontFamily: "monospace", fontSize: 10.5, wordBreak: "break-all" }}>{c.engine_detail ? JSON.stringify(c.engine_detail) : "—"}</span></div>
+          <div><b style={{ color: C.goldLight }}>created_at:</b> {c.created_at ? new Date(c.created_at).toLocaleString("he-IL") : "—"}</div>
+        </div>
+      )}
+      {!decided && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10 }}>
+          <button disabled={busy} onClick={(e) => { e.stopPropagation(); act("approve"); }} style={{ ...chip(true, "#4caf7d"), opacity: busy ? 0.5 : 1 }}>✓ Approve</button>
+          <button disabled={busy} onClick={(e) => { e.stopPropagation(); act("reject"); }} style={{ ...chip(true, "#e0563a"), opacity: busy ? 0.5 : 1 }}>✕ Reject</button>
+          {err && <span style={{ color: "#e0563a", fontSize: 11 }}>{err}</span>}
+        </div>
+      )}
+      {outcome && (
+        <div style={{ marginTop: 8, padding: "6px 8px", borderRadius: 8, background: outcome.color + "18", border: `1px solid ${outcome.color}55` }}>
+          <div style={{ color: outcome.color, fontWeight: 800, fontSize: 12 }}>{outcome.label}</div>
+          {outcome.detail && <div style={{ color: C.muted, fontSize: 10.5, marginTop: 2 }}>{outcome.detail}</div>}
+          <div style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>קנוני ≠ מפורסם</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PipelineCReview() {
+  const [rows, setRows] = useState(null);       // null = טוען
+  const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState(null);
+  const [decidedMap, setDecidedMap] = useState({}); // {id: תשובת-RPC} — כרטיס נשאר גלוי עם תוצאה, יוצא מ«ממתינים»
+  const [f, setF] = useState({ source: "", kind: "", privacy: "", verified: "" });
+
+  const load = useCallback(() => {
+    setError(""); setDecidedMap({});
+    supabase.from("research_objects").select(RO_FIELDS).eq("status", "candidate")
+      .order("created_at", { ascending: false }).limit(200)
+      .then(({ data, error }) => { if (error) { setError(error.message); setRows([]); } else setRows(data || []); });
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const onDecide = async (id, decision) => {
+    setBusyId(id);
+    let out;
+    try {
+      const { data, error } = await supabase.rpc("admin_research_review", { p_id: id, p_decision: decision });
+      out = error ? { ok: false, error: error.message } : data;
+    } catch (e) { out = { ok: false, error: e?.message || "network_error" }; }
+    setBusyId(null);
+    if (out && out.ok === true) setDecidedMap(p => ({ ...p, [id]: out })); // הצלחה → יוצא מ«ממתינים» (לא נמחק מהתצוגה)
+    return out;
+  };
+
+  const pending = useMemo(() => (rows || []).filter(r => !decidedMap[r.id]), [rows, decidedMap]);
+  const sources = useMemo(() => [...new Set(pending.map(r => r.source).filter(Boolean))].sort(), [pending]);
+  const kinds = useMemo(() => [...new Set(pending.map(r => r.kind).filter(Boolean))].sort(), [pending]);
+  const privacies = useMemo(() => [...new Set(pending.map(r => r.privacy_scope).filter(Boolean))].sort(), [pending]);
+  const matchesF = useCallback((r) =>
+    (!f.source || r.source === f.source) &&
+    (!f.kind || r.kind === f.kind) &&
+    (!f.privacy || r.privacy_scope === f.privacy) &&
+    (!f.verified || (f.verified === "true" ? r.engine_verified === true : f.verified === "false" ? r.engine_verified === false : r.engine_verified == null)),
+    [f]);
+  const filtered = useMemo(() => (rows || []).filter(matchesF), [rows, matchesF]);
+
+  return (
+    <div style={box}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>⚖️ Pipeline C · Human Gate</span>
+        <span style={{ color: C.faint, fontSize: 11 }}>{rows ? `${pending.length} ממתינים (${filtered.length} מוצגים אחרי-פילטר)` : "טוען…"}</span>
+        <button onClick={load} style={{ ...chip(false), marginInlineStart: "auto" }}>↻ רענן</button>
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={pill(C.muted)}>מועמד — לא עובדה</span>
+        <span style={pill(C.muted)}>אימות מנוע — אינו אישור קנוני</span>
+        <span style={pill(C.muted)}>קנוני ≠ מפורסם</span>
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        <select style={selBox} value={f.source} onChange={e => setF(p => ({ ...p, source: e.target.value }))}>
+          <option value="">כל המקורות</option>
+          {sources.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select style={selBox} value={f.kind} onChange={e => setF(p => ({ ...p, kind: e.target.value }))}>
+          <option value="">כל הסוגים</option>
+          {kinds.map(k => <option key={k} value={k}>{k}</option>)}
+        </select>
+        <select style={selBox} value={f.privacy} onChange={e => setF(p => ({ ...p, privacy: e.target.value }))}>
+          <option value="">כל ה-privacy_scope</option>
+          {privacies.map(p => <option key={p} value={p}>{p}</option>)}
+        </select>
+        <select style={selBox} value={f.verified} onChange={e => setF(p => ({ ...p, verified: e.target.value }))}>
+          <option value="">אימות-מנוע: הכל</option>
+          <option value="true">✓ מאומת</option>
+          <option value="false">✗ לא-תואם</option>
+          <option value="null">לא-נבדק</option>
+        </select>
+      </div>
+      {error && <div style={{ color: "#e0563a", fontSize: 12, marginBottom: 8 }}>שגיאת-טעינה: {error}</div>}
+      {rows && filtered.length === 0 && (
+        <div style={{ color: C.muted, fontSize: 12 }}>{rows.length ? "אין מועמדים תואמים לפילטר." : "אין מועמדים ממתינים (research_objects, status='candidate')."}</div>
+      )}
+      <div style={{ display: "grid", gap: 8 }}>
+        {filtered.map(c => <PipelineCCard key={c.id} c={c} decided={decidedMap[c.id]} onDecide={onDecide} busy={busyId === c.id} />)}
+      </div>
+    </div>
+  );
+}
 
 const box = { background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", minWidth: 0 };
 const chip = (active, col) => ({
@@ -1406,6 +1581,10 @@ export default function WarRoomTab() {
             ⛔ תצוגה בלבד: אף פריט לא נכתב ל-research_objects · צינור A אינו מחובר למנוע (0 קשרים) · «חדש/קיים/כפול» נקבע מנתונים קיימים בלבד (link_url + טקסט חוזר), לא ממנוע · הרובד = ניווט הנגזר מהסטטוס הקיים (לא משנה verified/candidate/approved/canonical) · זהות = resolver קורא-בלבד, אין בחירה-אוטומטית ואין מיזוג-אליאס.
           </div>
         </div>
+
+        {/* STEP 1B · Pipeline C — Human Gate (screen-map approved 25.8.2026). קופסה נפרדת, לא-מקוננת
+            בתוך «קליטה חיה» — אותה קופסה מצהירה על-עצמה תצוגה-בלבד/בלי-WRITE, ואין לסתור זאת. */}
+        <PipelineCReview />
 
         {/* CC-1.3 ש2 · Bulk Bar — «סגור מהתור» מבוצע; שאר gated */}
         <BulkBar items={selItems} onClear={clearSel} onCloseQueue={(items) => doClose(items, "טופל · Bulk")} />
