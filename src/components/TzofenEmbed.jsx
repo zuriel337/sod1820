@@ -7,6 +7,9 @@ import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
 import SubscribeGate from "./SubscribeGate.jsx";
+import { useUniversalWorkspace } from "../lib/research/useUniversalWorkspace.js";
+import { elsStateToUniversalFindings } from "../lib/research/universalFinding.js";
+import { makeJourneySnapshot } from "../lib/elsJourney.js";
 
 // 🔠 הצופן התנ״כי — כלי דילוגי-האותיות (ELS) העצמאי, מוטמע כ-iframe מ-public/tzofen.html.
 // דפוס זהה ל-heichal.html. מקור-יחיד: אותו כלי ב-/code (מלא) ובהיכל (/research?tool=els).
@@ -15,14 +18,39 @@ import SubscribeGate from "./SubscribeGate.jsx";
 //    רשום/אדמין → ללא הגבלה. הכלי (iframe) אוכף את הספירה ופולט postMessage; העוטף כאן:
 //    (1) מעדכן את דרגת-המשתמש לכלי, (2) רושם כל חיפוש דרך track הקיים (events/visitor_events —
 //    בלי טבלה מקבילה), (3) מציג את SubscribeGate הקיים כשמגיעים לשער.
+// 🧬 GAP-5 reproducibility envelope (Pass 3, els_pass3_engine_detail_population) — תוספתי-בלבד,
+//    אף פעם לא מחליף/דורס את שדות-הזהות הקנוניים (corpus_id/term_norm/scope/direction/skip_distance/
+//    start_index, נגזרים בשרת). בונה מ-lastStateRef.current (elsState() האחרון, כבר-נעקב מ-Pass 1)
+//    + מהודעת-השמירה עצמה (d). form=null: לא ניתן-לגזירה כרגע במעבר מלוח-FORMS לחיפוש-רגיל (פער מתועד).
+const ENGINE_PROFILE_VERSION = "els-tzofen-2026-08-24-pass2";
+function buildEngineDetail(d, s) {
+  if (!s || s.status !== "ok") return null;
+  return {
+    engineVersion: ENGINE_PROFILE_VERSION,
+    corpus: (d.scope || s.scope) === "tanakh" ? "tanakh_letters" : "torah_stream",
+    geometry: s.geometry ? { ...s.geometry, ctxR: s.ui?.ctxR ?? null } : null,
+    occurrence: s.occurrence || null,
+    searchParams: { cap: 4000 },
+    form: null,
+    ranking: s.provenance?.quality ? { quality: s.provenance.quality } : null,
+    sampling: { policy: "scopeRange-dispersal-v1", capped: !!s.occurrence?.capped },
+  };
+}
+
 // ממפה שורת els_records לפריט שהכלי מבין (loadMatrix)
+// 🧭 direction identity (GAP-5 restore fix): m.direction משתמש באותה מילון "fwd"/"back" שהמנוע כותב
+//    (els-code.template.html performSaveToGallery, אחרי התיקון). שורות ישנות שנשמרו לפני התיקון
+//    (direction="down" תמיד, מ-h.skip<0 שהיה ענף-מת) לא מתורגמות ל-dir מומצא — dir נשאר null ו-
+//    loadMatrix() נופל ל-fallback הקיים שלו (item.skip בלבד, ללא שינוי-התנהגות לנתונים-ישנים-ודו-משמעיים).
 function rowToItem(m) {
   if (!m) return null;
+  const dir = m.direction === "back" ? -1 : m.direction === "fwd" ? 1 : null;
   return {
     id: m.id || null,   // 🆔 מזהה-הרשומה — כדי לצרוב חזרה מד-איכות (מונטה-קרלו) שחושב על צופן שמור
     slug: m.slug || "",  // 🔗 1ב — הקשר-צופן: כדי לשתף ממצא מהכלי כתגובת-מחקר על הצופן הזה
     name: m.title || m.search_term, term: m.search_term,
     skip: m.skip_distance || 0, scope: m.scope || "torah",
+    start: m.start_index != null ? m.start_index : null, dir,   // 🆔 עוגן-מדויק ל-loadMatrix() exact-match
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
     hideMain: !!m.positions?.hideMain,   // 📌 ציר מוסתר — הצופן נטען עם הממצאים בלבד, בלי עמוד-השדרה
     postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
@@ -44,7 +72,11 @@ function rowToItem(m) {
 // 📜 lensRequest/onLens — חוזה on-demand ל-Verse/Context Lens (וכל עדשה עתידית דומה): לא חלק מ-state.
 //    lensRequest={lens,target} משודר לכלי כ-{type:"request-lens",...}; התשובה חוזרת דרך onLens (הודעת
 //    {type:"lens",...} מהכלי) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking. ⛔ אין Lens בכל state-tick.
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, lensRequest = null, onLens = null }) {
+// 🧭 journeyLoad/onLoadError — שחזור-מדויק (Pass 2, elsJourney.js): journeyLoad הוא ה-loadItem שמייצר
+//    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
+//    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
+//    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, lensRequest = null, onLens = null, journeyLoad = null, onLoadError = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -52,6 +84,30 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
+
+  // 🔗 Research Bus — מסלול-Finding יחיד (research_bus_reconciliation, Pass 1): ה-iframe פולט elsState()
+  //    בכל render (onMsg d.type==="state", למעלה); כאן רק נשמר ה-tick האחרון (ref, לא state — אין re-render
+  //    על כל תו) לשימוש-בלחיצה בלבד. logHistory (ResearchProvider) ממשיך להיות גשר-היסטוריה/state נפרד —
+  //    הכפתור כאן הוא ה-Finding-route היחיד (ELS-native → universalFinding adapter → addToResearch/cart).
+  const lastStateRef = useRef(null);
+  const [hasAxisFinding, setHasAxisFinding] = useState(false);
+  const [addedToast, setAddedToast] = useState(false);
+  const workspace = useUniversalWorkspace();
+  const addAxisFinding = useCallback(() => {
+    const d = lastStateRef.current;
+    if (!d) return;
+    const findings = elsStateToUniversalFindings(d, { inputRef: d?.axis?.hitId || null });
+    const axisFinding = findings.find(f => f.view?.rendererHints?.role === "axis") || findings[0];
+    if (!axisFinding) return;
+    // 🧭 Research Journey (Pass 2): מצמיד snapshot מדויק-לשחזור (elsJourney.js makeJourneySnapshot)
+    //    ל-projection של ה-Finding עצמו — לא store נפרד, לא טבלה נפרדת. הצילום עובר עם ה-Finding
+    //    לתוך cart/research_items הקיים (Pass 1), ומאפשר בעתיד "פתח מחדש" מדויק דרך journeyLoad.
+    const snap = makeJourneySnapshot(d, {});
+    if (snap) axisFinding.projection = { ...axisFinding.projection, journeySnapshot: snap };
+    workspace.upsertFinding(axisFinding);
+    setAddedToast(true);
+  }, [workspace]);
+  useEffect(() => { if (!addedToast) return; const t = setTimeout(() => setAddedToast(false), 3200); return () => clearTimeout(t); }, [addedToast]);
 
   const src =
     "/tzofen.html?embed=1" + (seed ? "&q=" + encodeURIComponent(seed) : "") + (hiddenBridge ? "&bridge=hidden" : "");
@@ -144,11 +200,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
 
       // ✏️ עדכון-ממצא במקום (אפס כפילויות): הכלי שולח editId כשעורכים ממצא-קיים, או re-save
       //    בהקשר עמוד-הצופן. update_els_matrix מתיר אדמין *או* בעלים; אם לא-מורשה → נופל לשמירה חדשה.
+      const engineDetail = buildEngineDetail(d, lastStateRef.current);
       const editId = d.editId || (isReSave ? matrix.id : null);
       if (editId) {
         const { error } = await supabase.rpc("update_els_matrix", {
           p_id: editId, p_positions: positions,
           p_image_url: imageUrl || null, p_description: d.desc || null,
+          p_engine_detail: engineDetail,
         });
         if (!error) {
           postToTool({ type: "saved", ok: true, status: "updated" });
@@ -170,6 +228,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         title: d.postTitle || d.term, note: d.desc || null, imageUrl,
         // 🆔 עוגן-הממצא 0-based (occ().start מהמנוע). `!= null` כי start=0 חוקי. corpus_id/term_norm נגזרים בשרת.
         startIndex: d.start != null ? d.start : null,
+        engineDetail,
       };
       if (user) {
         await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
@@ -209,6 +268,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         // 🛰️ תמונת-מצב מהמנוע (סריאליזציה בלבד — ראה elsState() ב-els-code.template.html).
         //    מועברת כמות-שהיא לצרכן. React לא מחשב ELS ולא נוגע בנתון.
         onState?.(d);
+        // 🔗 Research Bus: שומרים את ה-tick האחרון לשימוש בכפתור «הוסף למחקר» (ref בלבד — בלי re-render).
+        lastStateRef.current = d;
+        setHasAxisFinding(d?.status === "ok" && !!d?.axis?.hitId);
         return;
       }
       if (d.type === "lens") {
@@ -253,11 +315,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "gate") {
         if (!verified) setGate({ reason: d.reason || "limit" });
+      } else if (d.type === "load-error") {
+        // 🧭 Research Journey (Pass 2): loadMatrix בכלי לא מצא את המונח/העוגן-המדויק (hitId/start+dir).
+        onLoadError?.(d);
       }
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest, onLoadError]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
   //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.
@@ -276,6 +341,19 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     lastKeyRef.current = key;
     postToTool({ type: "load-matrix", item: rowToItem(matrix) });
   }, [matrix, postToTool]);
+
+  // 🧭 Research Journey (Pass 2, elsJourney.js): שחזור-מדויק דרך *אותו* מסלול "load-matrix" — לא
+  //    מסלול-טעינה נפרד. journeyLoad הוא loadItem חד-פעמי (buildJourneyPromotion/buildJourneyRestore);
+  //    שולחים בכל אובייקט-loadItem חדש (זהות לפי JSON — לא מזהה יציב כמו matrix.id, כי כל שחזור/קידום
+  //    הוא אירוע-פעולה, לא מצב-נשמר-לאורך-זמן).
+  const journeyKeyRef = useRef(null);
+  useEffect(() => {
+    if (!journeyLoad) { journeyKeyRef.current = null; return; }
+    const key = JSON.stringify(journeyLoad);
+    if (journeyKeyRef.current === key) return;
+    journeyKeyRef.current = key;
+    postToTool({ type: "load-matrix", item: journeyLoad });
+  }, [journeyLoad, postToTool]);
 
   // 🎯 ממצאים עודכנו בפאנל-הניהול (הוסר/נוסף ממצא) — מרעננים את הצביעה בכלי בלי לטעון-מחדש 2.2MB.
   //    דילוג על הטעינה-הראשונה של כל צופן (load-matrix כבר צובע); שולחים רק כשהחתימה משתנה על אותו id.
@@ -326,6 +404,29 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           background: "transparent",
         }}
       />
+
+      {/* 🔗 Research Bus — מסלול-Finding יחיד: המופע המדויק המוצג עכשיו → adapter → תיק-המחקר (cart).
+          לא state-tick פסיבי — פעולת-משתמש מפורשת בלבד (research_bus_reconciliation, Pass 1). */}
+      {!hiddenBridge && hasAxisFinding && !gate && (
+        <button
+          type="button"
+          onClick={addAxisFinding}
+          title="הוסף את המופע המדויק המוצג כרגע לתיק המחקר שלך"
+          style={{
+            position: "absolute", top: 10, insetInlineStart: 10, zIndex: 15,
+            background: "rgba(15,24,48,0.88)", color: "#f4c84a", border: "1px solid rgba(244,200,74,0.5)",
+            borderRadius: 999, padding: "7px 12px", fontFamily: "'Frank Ruhl Libre',serif",
+            fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 36,
+          }}
+        >
+          📌 הוסף למחקר
+        </button>
+      )}
+      {addedToast && (
+        <div style={{ position: "absolute", top: 10, insetInlineStart: 10, zIndex: 16, background: "#0f1830", color: "#fff", border: "1px solid #2f6df6", borderRadius: 999, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, boxShadow: "0 8px 22px rgba(0,0,0,0.4)" }}>
+          נוסף לתיק המחקר שלך ✓
+        </div>
+      )}
 
       {gate && !verified && (
         <div
