@@ -10,6 +10,12 @@ import { next } from '@vercel/edge';
 // מתעדים כל בקשה (כולל נחסמים) ל-edge_geo_log (country+kind) ול-edge_ua_seen (UA
 // אמיתי) דרך RPC log_edge, fire-and-forget (waitUntil) — בלי השהיה. כך נראה אם
 // בוטים מסתובבים בין מדינות, והאם נפח הדפיקות מ-CN/SG עולה או יורד עם הזמן.
+// 📉 דגימת-דפדפן (EDGE_BOT_LOGGING_IO_PASS1, 25.8.2026, באישור צוריאל): kind='browser'
+// כבר נספר במלואו ובעושר גבוה יותר דרך site_visits/events (כל דפדפן אמיתי מריץ JS
+// ומדווח שם ממילא) — הכתיבה הכפולה ל-log_edge לכל בקשת-דפדפן מיותרת. לכן רק ~1-מ-10
+// בקשות-דפדפן נשלחות ל-log_edge, במשקל (p_weight=10) שמפצה על הדגימה במדויק (ראה
+// EDGE_BOT_LOGGING_IO_AUDIT work_log). goodbot/ai/bot נשארים במלוא-הנאמנות (ה-Crawl
+// Intelligence היחיד לתנועה הזו) — קריאה זהה ל-100% כמו קודם, בלי p_weight.
 
 export const config = {
   // רק ניווטי-דף: לא api/, לא assets/, ולא נתיב עם סיומת קובץ.
@@ -27,6 +33,8 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 // (enabled=false, נשמרו להיסטוריה). FALLBACK ריק: אם ה-DB לא זמין ברירת-המחדל היא
 // לא-לחסום אף מדינה (לא "להחזיר" חסימה בטעות בכישלון-רשת).
 const BLOCKED_COUNTRIES_FALLBACK = new Set();
+// 📉 קצב-דגימה ל-kind='browser' בלבד (ראה הסבר למעלה) — goodbot/ai/bot אינם נוגעים בזה.
+const BROWSER_SAMPLE_RATE = 10;
 let BLOCKED = null, BLOCKED_AT = 0;
 async function blockedCountriesSet() {
   const now = Date.now();
@@ -128,13 +136,21 @@ export default async function middleware(request, context) {
   const kind = classify(uaRaw.toLowerCase());
 
   // מתעדים תמיד (כולל נחסמים) — country+kind+UA אמיתי. כך מזהים רוטציה ומגמה.
-  context.waitUntil(
-    fetch(`${SUPABASE_URL}/rest/v1/rpc/log_edge`, {
-      method: 'POST',
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_country: country, p_kind: kind, p_ua: uaRaw }),
-    }).catch(() => {}),
-  );
+  // kind='browser' בלבד: נדגם ~1-מ-BROWSER_SAMPLE_RATE, במשקל מפצה (p_weight); שאר
+  // הבקשות (goodbot/ai/bot) — 100% נאמנות, בלי p_weight (זהה-בדיוק להתנהגות הקודמת).
+  const isBrowserKind = kind === 'browser';
+  const shouldLogEdge = !isBrowserKind || Math.random() < 1 / BROWSER_SAMPLE_RATE;
+  if (shouldLogEdge) {
+    const logBody = { p_country: country, p_kind: kind, p_ua: uaRaw };
+    if (isBrowserKind) logBody.p_weight = BROWSER_SAMPLE_RATE;
+    context.waitUntil(
+      fetch(`${SUPABASE_URL}/rest/v1/rpc/log_edge`, {
+        method: 'POST',
+        headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+        body: JSON.stringify(logBody),
+      }).catch(() => {}),
+    );
+  }
 
   let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
   const isBot = kind !== 'browser';       // goodbot | ai | bot
