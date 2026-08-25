@@ -253,7 +253,16 @@ export default function ElsWorkAreaPage() {
 
     const r0 = Number(matrix.r0 ?? geo.r0 ?? 0), c0 = Number(matrix.c0 ?? geo.c0 ?? 0), S = Number(matrix.S ?? geo.S ?? 0);
     const isDepth = viewMode !== "2d";
-    const rotatePart = viewMode === "3d" ? ` perspective(1250px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? " perspective(1300px) rotateX(34deg)" : "";
+    // 🔭 Perspective must scale with content height, not stay a fixed 1250px — with a fixed value,
+    //    any matrix taller than a small preview (dozens of rows, e.g. 43 rows × 33px ≈ 1420px) rotates
+    //    its far rows close enough to the camera plane to blow up into extreme/off-screen coordinates
+    //    (empirically reproduced: 3D view renders fully blank for a real 43-row Finding, confirmed not
+    //    a scroll/pan issue — see work_log). ×3.2 keeps the same visual "steepness" the fixed 1250px
+    //    gave for a short matrix while staying proportionally safe as row count grows; floor keeps the
+    //    original feel for genuinely small matrices.
+    const rowCount = matrix.rows.length;
+    const perspective3d = Math.max(1250, Math.round(rowCount * (cellSize + 3) * 3.2));
+    const rotatePart = viewMode === "3d" ? ` perspective(${perspective3d}px) rotateX(${tiltX}deg) rotateZ(${tiltZ}deg)` : viewMode === "layers" ? " perspective(1300px) rotateX(34deg)" : "";
     const stageTransform = `translate(${panX}px, ${panY}px) scale(${sceneScale})${rotatePart}`;
 
     // 📐 גריד-תאים מחושב פעם-אחת (idx + סדר-RTL כבר-מוחל) — מקור-משותף למישור-הראשי (ללא שינוי) ולמישור-
