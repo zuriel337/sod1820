@@ -5,6 +5,7 @@ import { GoldButton } from "./ui.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { ONBOARDING_GATES, gatesToTopics } from "../lib/notifications.js";
 import { getNotificationPrefs, saveNotificationPrefs } from "../lib/supabase.js";
+import { useHiddenWidget } from "../lib/hiddenWidgets.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush, disablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
 
@@ -26,6 +27,8 @@ export default function NotificationCenter() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  // 🙈 וידג'טים שהמשתמש הסתיר «לגמרי» (למשל אור הגאולה) — כאן המקום הקבוע להחזיר אותם.
+  const orGeula = useHiddenWidget("or_geula_story");
 
   const pushReady = PUSH_CONFIGURED && pushSupported();
 
@@ -107,6 +110,20 @@ export default function NotificationCenter() {
       <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, marginTop: 3 }}>
         שולטים בזרם — אילו שערים פתוחים, באיזו עוצמה, ומתי שקט.
       </div>
+
+      {/* 🙈 מוסתרים על ידך — מקום קבוע להחזיר וידג'ט שהוסתר «לגמרי» (אחרת ההחזרה לכודה) */}
+      {orGeula.hidden && (
+        <div style={{ marginTop: 14, background: P.cardSoft, border: `1px solid ${P.borderStrong}`, borderRadius: 12, padding: "12px 14px",
+          display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 20 }}>🙈</span>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <div style={{ color: P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>אור הגאולה מוסתר על ידך</div>
+            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, marginTop: 1 }}>הרצועה לא מוצגת לך באתר. אפשר להחזיר בכל עת.</div>
+          </div>
+          <button onClick={orGeula.restore} style={{ cursor: "pointer", background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "none",
+            borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "7px 16px", whiteSpace: "nowrap" }}>↩︎ החזר לעדכונים</button>
+        </div>
+      )}
 
       {loading ? (
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, marginTop: 16 }}>טוען…</div>
