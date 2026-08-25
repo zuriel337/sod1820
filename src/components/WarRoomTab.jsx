@@ -32,6 +32,7 @@ import {
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
 import { thumb } from "../lib/img.js";
+import { triageSource, collectQueryNeeds } from "../lib/triage.js";
 
 // 🏙️ עור «היכל» בהיר (research_workspace_law + city_background_dual_theme_law) — חדר המפקדה
 // מרונדר בשפה הבהירה-נקייה של סביבת-המחקר (כרטיסים לבנים, אקסנט-כחול, נגיעת-זהב), מעל רקע-העיר.
@@ -1291,6 +1292,144 @@ function WaContext({ item }) {
 }
 
 // מקרא-פעולות ל-DetailPanel (מצב מדויק לכל פעולה).
+// ── RESEARCH TRIAGE BEFORE HUMAN GATE — "🧠 בדיקת מחקר", תמיד מעל «שמור למחקר». ──
+// Orchestration בלבד מעל triage.js (שעצמו עוטף רק analysisFlow.js+gematria.js הקיימים). אפליית
+// dbFirst/existingObjects נשלפת כאן (DB-First מוזרק מהרכיב, אותו דפוס בדיוק כמו FullAnalysis הקיים).
+// אפמרי לחלוטין: הניתוח חי ב-state בלבד, נעלם בסגירה. אין WRITE עד לחיצה מפורשת על פעולה.
+const INTEREST_COLOR = { HIGH: "#4caf7d", MEDIUM: "#3ea6ff", LOW: "#c79a2e", NONE: "#8a8a95" };
+const EXISTING_HE = {
+  new: "חדש", already_exists: "קיים בבנק", duplicate: "כפול-מדויק", strengthens: "מחזק/מצטרף",
+};
+
+function TriageArtifactCard({ art, baseSourceRef, contributor, onDismiss }) {
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState(null);
+  const c = art.candidate;
+  const vBadge = art.verification.engine_verified === true ? { t: "✓ אומת במנוע", col: "#4caf7d" }
+    : art.verification.engine_verified === false ? { t: "✗ המנוע לא-תואם", col: "#e0563a" }
+    : { t: "— אינו-רלוונטי/לא-ניתן-לאימות", col: "#8a8a95" };
+  const eBadge = { t: EXISTING_HE[art.existing.status] || art.existing.status, col: art.existing.status === "new" ? "#4caf7d" : art.existing.status === "duplicate" ? "#8a8a95" : "#3ea6ff" };
+
+  const save = async () => {
+    setBusy(true);
+    const sourceRef = `${baseSourceRef}#a${art.idx}`;
+    const kind = art.routing.artifact_type === "relation" ? "relation" : "observation";
+    const statement = c.text + (c.value != null ? ` = ${c.value}` : "") + (c.method ? ` (${c.method})` : "");
+    const { data, error } = await supabase.rpc("research_artifact_save", {
+      p_source_ref: sourceRef, p_kind: kind, p_statement: statement, p_value: c.value ?? null,
+      p_terms: [c.norm || c.text], p_contributor: contributor || null,
+      p_engine_verified: art.verification.engine_verified === true,
+      p_engine_detail: art.verification.engine_detail || {},
+    });
+    setBusy(false);
+    setRes(error ? { ok: false, error: error.message } : data);
+  };
+
+  return (
+    <div style={{ ...box, padding: "9px 11px", marginBottom: 6 }}>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <span style={pill(c.type === "equation" ? "#8458ff" : "#3ea6ff")}>{c.type}</span>
+        <span style={{ color: C.goldLight, fontWeight: 700, fontSize: 12.5 }}>{c.text}</span>
+        {c.value != null && <b style={{ color: C.goldBright }}>= {c.value}</b>}
+        {c.method && <span style={{ color: C.faint, fontSize: 10.5 }}>({c.method})</span>}
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5 }}>
+        <span style={pill(INTEREST_COLOR[art.interest])}>{art.interest}</span>
+        <span style={pill(vBadge.col)}>{vBadge.t}</span>
+        <span style={pill(eBadge.col)}>{eBadge.t}</span>
+      </div>
+      <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>
+        {art.reasons.join(" · ")}
+      </div>
+      <div style={{ color: C.muted, fontSize: 11, marginTop: 4 }}>
+        <b style={{ color: C.goldLight }}>המלצת-ניתוב:</b> {art.routing.label} — {art.routing.why}
+      </div>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6, flexWrap: "wrap" }}>
+        {art.routing.primary === "A" && !res && (
+          <button disabled={busy} onClick={save} style={{ ...chip(true, "#4caf7d"), opacity: busy ? 0.5 : 1 }}>💾 שמור כמועמד מחקר</button>
+        )}
+        {art.routing.primary === "D" && (
+          <span style={{ color: "#3ea6ff", fontSize: 11 }}>✓ כבר קיים — research_objects:{art.existing.detail.research_object_id}</span>
+        )}
+        {(art.routing.primary === "B" || art.routing.primary === "C") && (
+          <span style={{ color: C.faint, fontSize: 11 }}>ℹ️ נתב ידנית דרך השער הקיים — אין כפתור אוטומטי (Gate #18)</span>
+        )}
+        {art.routing.primary === "F" && !res && (
+          <button onClick={() => onDismiss(art.idx)} style={chip(false)}>🙈 לא למחקר (מקומי בלבד)</button>
+        )}
+        {res && res.ok && <span style={{ color: "#4caf7d", fontSize: 11 }}>{res.already_existed ? "✓ כבר נמצא" : "✓ נשמר"} — research_objects:{res.research_object_id}</span>}
+        {res && res.ok === false && <span style={{ color: "#e0563a", fontSize: 11 }}>{res.error}</span>}
+      </div>
+    </div>
+  );
+}
+
+function TriagePanel({ item }) {
+  const [state, setState] = useState(null); // null=לא-הורץ · "loading" · {result}
+  const [dismissed, setDismissed] = useState(() => new Set());
+  if (item.srckind !== "channel" || !item.cuId) return null;
+  const baseSourceRef = `channel_updates:${item.cuId}`;
+
+  const run = async () => {
+    setState("loading");
+    try {
+      const { phrases, values } = collectQueryNeeds(item);
+      const [dbFirst, hubCounts, existingRes] = await Promise.all([
+        phrases.length ? dbFirstLookup(phrases, null) : Promise.resolve({ known: [] }),
+        values.length ? getHubCounts(values) : Promise.resolve(new Map()),
+        values.length
+          ? supabase.from("research_objects").select("id,value,terms,statement,source_ref").in("value", values)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const result = triageSource(item, {
+        dbFirst: { known: dbFirst.known || [], hubCounts },
+        existingObjects: existingRes.data || [],
+      });
+      setState({ result });
+    } catch (e) {
+      setState({ error: e?.message || "שגיאה בניתוח" });
+    }
+  };
+
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: "#3ea6ff55", background: "#f4f8ff" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+        <span style={{ color: "#1c4bbf", fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>🧠 בדיקת מחקר</span>
+        <span style={{ color: C.faint, fontSize: 10 }}>הצעה בלבד — צוריאל בוחר · לא Canonical · לא פרסום</span>
+        {!state && <button onClick={run} style={{ ...chip(true, "#3ea6ff"), marginInlineStart: "auto" }}>🧠 בדוק מחקר</button>}
+        {state === "loading" && <span style={{ color: C.faint, fontSize: 11, marginInlineStart: "auto" }}>בודק…</span>}
+        {state && state !== "loading" && <button onClick={run} style={{ ...chip(false), marginInlineStart: "auto" }}>↻ בדוק שוב</button>}
+      </div>
+      {state && state !== "loading" && state.error && <div style={{ color: "#e0563a", fontSize: 12 }}>{state.error}</div>}
+      {state && state !== "loading" && state.result && (() => {
+        const { result } = state;
+        const visible = result.artifacts.filter(a => !dismissed.has(a.idx));
+        return (
+          <>
+            <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8 }}>
+              <span style={{ color: C.faint, fontSize: 11 }}>עניין מחקרי כולל:</span>
+              <span style={pill(INTEREST_COLOR[result.overallInterest])}>{result.overallInterest}</span>
+              <span style={{ color: C.faint, fontSize: 10.5 }}>{result.artifacts.length} ממצאים-לניתוב · {result.weakSignals.length} אותות-הקשר</span>
+            </div>
+            {!result.hasAnyResearchValue && (
+              <div style={{ color: C.faint, fontSize: 12 }}>לא נמצאה כאן טענת-ערך לניתוב — נשאר כחומר-ארכיון (E: אין פעולת-מחקר).</div>
+            )}
+            {visible.map(a => (
+              <TriageArtifactCard key={a.idx} art={a} baseSourceRef={baseSourceRef} contributor={item.author}
+                onDismiss={(idx) => setDismissed(p => new Set(p).add(idx))} />
+            ))}
+            {result.weakSignals.length > 0 && (
+              <div style={{ marginTop: 6, fontSize: 10.5, color: C.faint }}>
+                הקשר נוסף (לא נותב): {result.weakSignals.map(w => w.text).join(" · ")}
+              </div>
+            )}
+          </>
+        );
+      })()}
+    </div>
+  );
+}
+
 // ── PART B/D · «➕ שמור למחקר» — כפתור Human-Gate אחד וברור, נפרד מ«סגור-מהתור» (PART E). ──
 // כרגע רק לפריטי Pipeline C-source=channel (channel_updates, cuId קיים) — Claim-shaped בלבד,
 // דרך ה-RPC היחיד channel_update_save_to_research (אותו דפוס בדיוק כמו image_artifact_route_to_intake).
@@ -1406,6 +1545,9 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
             </>
           )}
         </div>
+
+        {/* RESEARCH TRIAGE BEFORE HUMAN GATE — תמיד מעל «שמור למחקר» (הטריאז' מציע, «שמור» מבצע-ידני). */}
+        <TriagePanel item={item} />
 
         {/* PART B/D · «➕ שמור למחקר» — ציר נפרד מ«מצב עבודה» למעלה. Claim-shaped בלבד, דרך Research Intake הקיים. */}
         <SaveToResearchBox item={item} />
