@@ -104,18 +104,21 @@ Deno.serve(async (req: Request) => {
     if (RUN_KEY && req.headers.get("x-run-key") !== RUN_KEY) return json({ error: "unauthorized" }, 401);
     if (!ANTHROPIC_KEY) return json({ error: "missing ANTHROPIC_API_KEY secret" }, 500);
 
-    let limit = 5, retry = false, rescanOld = false;
+    let limit = 5, retry = false, rescanOld = false, ids: string[] = [];
     try {
       const b = await req.json();
       if (b?.limit) limit = Math.min(+b.limit, 50);
       if (b?.retry_errors) retry = true;
       if (b?.rescan_old) rescanOld = true; // סריקה מחדש של פורמט ישן (ללא "תיאור:")
+      // ids: מיקוד-מדויק לפיילוט (למשל צבי) — לא לגעת בשאר התור. כשקיים, גובר על כל פילטר-סטטוס אחר.
+      if (Array.isArray(b?.ids)) ids = b.ids.filter((x: unknown) => typeof x === "string" && x.length > 0).slice(0, 50);
     } catch { /* defaults */ }
 
     let filter = "ocr_status=eq.pending";
     if (retry) filter = "ocr_status=in.(pending,error)";
     if (rescanOld) filter = "ocr_status=eq.done&ocr_text=not.ilike.*תיאור:*";
-    const selUrl = `${SUPABASE_URL}/rest/v1/gallery_images?${filter}&image_url=not.is.null&select=id,image_url&limit=${limit}`;
+    if (ids.length) filter = `id=in.(${ids.join(",")})`;
+    const selUrl = `${SUPABASE_URL}/rest/v1/gallery_images?${filter}&image_url=not.is.null&select=id,image_url&limit=${ids.length || limit}`;
     const sel = await fetch(selUrl, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
     const selBody = await sel.text();
     let rows: any;

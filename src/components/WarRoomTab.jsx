@@ -31,6 +31,7 @@ import {
 } from "../lib/ccwork.js";
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
+import { thumb } from "../lib/img.js";
 
 // 🏙️ עור «היכל» בהיר (research_workspace_law + city_background_dual_theme_law) — חדר המפקדה
 // מרונדר בשפה הבהירה-נקייה של סביבת-המחקר (כרטיסים לבנים, אקסנט-כחול, נגיעת-זהב), מעל רקע-העיר.
@@ -242,6 +243,146 @@ function PipelineCReview() {
       )}
       <div style={{ display: "grid", gap: 8 }}>
         {filtered.map(c => <PipelineCCard key={c.id} c={c} decided={decidedMap[c.id]} onDecide={onDecide} busy={busyId === c.id} />)}
+      </div>
+    </div>
+  );
+}
+
+// ── ZVI IMAGE × OCR × VISUAL EXTRACTION PILOT (25.8.2026, Zuriel explicit authorization) ──
+// Reuse-first: gallery-ocr (already live) does OCR+scene+entities+image_type+gematria in one pass;
+// this panel only surfaces that output + the new image_artifact_classify/route_to_intake RPCs.
+// IMAGE = SOURCE/REPRESENTATION, never itself an artifact — classification runs on EXTRACTED
+// content only (§3 of the task brief). Anchor Numbers untouched — no reference here at all.
+const RETENTION_OPTS = [
+  ["image_and_text", "שמור תמונה + מלל"],
+  ["text_only", "שמור מלל בלבד"],
+  ["image_only", "שמור תמונה בלבד"],
+];
+const ARTIFACT_BADGE = {
+  claim: { label: "טענה — ניתן לניתוב ל-Research Intake", color: "#4caf7d" },
+  hint_candidate: { label: "רמז אפשרי — נתב ידנית דרך מאגר-הרמזים", color: "#b08bd8" },
+  unclear: { label: "לא-ברור — דורש בדיקה אנושית", color: "#8a8a95" },
+  pending_ocr: { label: "ממתין ל-OCR", color: "#c79a2e" },
+  not_found: { label: "לא נמצא", color: "#e0563a" },
+};
+function zviPersonLabel(source) {
+  if (!source) return "—";
+  if (source.startsWith("pilot:zvi:")) return "צבי (OPOC)";
+  return source;
+}
+
+function ImagePilotCard({ row, onRefresh }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [routeResult, setRouteResult] = useState(null);
+  const [retBusy, setRetBusy] = useState(false);
+  const cls = row._classification || { artifact_type: row.ocr_status === "done" ? "unclear" : "pending_ocr", reason: "" };
+  const badge = ARTIFACT_BADGE[cls.artifact_type] || ARTIFACT_BADGE.unclear;
+  const showImage = row.retention !== "text_only";
+  const showText = row.retention !== "image_only";
+
+  const setRetention = async (val) => {
+    setRetBusy(true);
+    await supabase.from("gallery_images").update({ retention: val }).eq("id", row.id);
+    setRetBusy(false);
+    onRefresh();
+  };
+  const route = async () => {
+    setBusy(true);
+    const { data, error } = await supabase.rpc("image_artifact_route_to_intake", { p_gallery_image_id: row.id });
+    setBusy(false);
+    setRouteResult(error ? { ok: false, error: error.message } : data);
+  };
+
+  return (
+    <div style={{ ...box, borderColor: badge.color + "55" }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start", flexWrap: "wrap" }}>
+        {showImage && row.image_url && (
+          <img src={thumb(row.image_url, 140)} alt="" style={{ width: 90, height: 90, objectFit: "contain", borderRadius: 8, background: "#0002", flexShrink: 0 }} />
+        )}
+        <div style={{ flex: "1 1 260px", minWidth: 0 }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ color: C.goldLight, fontWeight: 800, fontSize: 13 }}>{zviPersonLabel(row.source)}</span>
+            <span style={pill(badge.color)}>{badge.label}</span>
+            <span style={pill(row.ocr_status === "done" ? "#4caf7d" : row.ocr_status === "error" ? "#e0563a" : "#c79a2e")}>OCR: {row.ocr_status}</span>
+            <span style={{ color: C.faint, fontSize: 10.5, marginInlineStart: "auto" }} onClick={() => setOpen(v => !v)}>{open ? "▲ הסתר" : "▼ פרטים"}</span>
+          </div>
+          {showText && row.ocr_text && (
+            <div style={{ color: C.muted, fontSize: 11.5, marginTop: 6, whiteSpace: "pre-wrap" }}>{row.ocr_text.slice(0, 220)}{row.ocr_text.length > 220 ? "…" : ""}</div>
+          )}
+          {!showText && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 6 }}>מלל מוסתר (retention=image_only) — לא ינותב למחקר</div>}
+          {!showImage && <div style={{ color: C.faint, fontSize: 10.5, marginTop: 6 }}>תמונה מוסתרת (retention=text_only) — המלל עדיין זמין</div>}
+        </div>
+      </div>
+      {open && (
+        <div style={{ marginTop: 10, display: "grid", gap: 5, fontSize: 12, color: C.muted, borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
+          <div><b style={{ color: C.goldLight }}>source_ref:</b> gallery_images:{row.id}</div>
+          <div><b style={{ color: C.goldLight }}>מקור מקורי (provenance):</b> {row.source || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>numbers:</b> {(row.ocr_numbers || []).join(", ") || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>scene (תיאור-חזותי):</b> {row.ocr_meta?.scene || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>entities (ישויות-חזותיות):</b> {(row.ocr_meta?.entities || []).join(", ") || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>image_type:</b> {row.image_type || "—"}</div>
+          <div><b style={{ color: C.goldLight }}>סיווג-ארטיפקט:</b> {cls.reason || "—"}</div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 4 }}>
+            <b style={{ color: C.goldLight }}>שימור:</b>
+            {RETENTION_OPTS.map(([val, he]) => (
+              <button key={val} disabled={retBusy} onClick={() => setRetention(val)}
+                style={{ ...chip(row.retention === val, row.retention === val ? "#4caf7d" : C.muted), opacity: retBusy ? 0.5 : 1 }}>{he}</button>
+            ))}
+          </div>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10, flexWrap: "wrap" }}>
+        <button disabled={busy || cls.artifact_type !== "claim"} onClick={route}
+          style={{ ...chip(false, "#4caf7d"), opacity: (busy || cls.artifact_type !== "claim") ? 0.4 : 1 }}>
+          ➕ העבר ל-Research Intake
+        </button>
+        <span style={{ color: C.faint, fontSize: 10 }}>מועמד בלבד — לעולם לא קנוני/פומבי אוטומטית</span>
+        {routeResult && (
+          routeResult.ok
+            ? <span style={{ color: "#4caf7d", fontSize: 11 }}>{routeResult.already_existed ? "כבר קיים כמועמד" : "נוצר מועמד"} — research_objects:{routeResult.research_object_id}</span>
+            : <span style={{ color: "#e0563a", fontSize: 11 }}>{routeResult.reason || routeResult.error || "לא נותב"}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ImagePilotPanel() {
+  const [rows, setRows] = useState(null);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    setError("");
+    const { data, error } = await supabase.from("gallery_images")
+      .select("id,image_url,name,source,ocr_status,ocr_text,ocr_numbers,ocr_meta,image_type,retention,created_at")
+      .like("source", "pilot:%").order("created_at", { ascending: false }).limit(100);
+    if (error) { setError(error.message); setRows([]); return; }
+    const withCls = await Promise.all((data || []).map(async (r) => {
+      if (r.ocr_status !== "done") return { ...r, _classification: null };
+      const { data: cls } = await supabase.rpc("image_artifact_classify", { p_gallery_image_id: r.id });
+      return { ...r, _classification: cls };
+    }));
+    setRows(withCls);
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  return (
+    <div style={box}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>🖼️ פיילוט תמונות — צבי (OCR × חילוץ-חזותי)</span>
+        <span style={{ color: C.faint, fontSize: 11 }}>{rows ? `${rows.length} פריטים` : "טוען…"}</span>
+        <button onClick={load} style={{ ...chip(false), marginInlineStart: "auto" }}>↻ רענן</button>
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+        <span style={pill(C.muted)}>תמונה = מקור/ייצוג, לעולם לא רמז/ממצא/עובדה מעצם היותה תמונה</span>
+        <span style={pill(C.muted)}>OCR/חזותי ≠ עובדה</span>
+        <span style={pill(C.muted)}>שער-אנוש נשאר צוריאל</span>
+      </div>
+      {error && <div style={{ color: "#e0563a", fontSize: 12, marginBottom: 8 }}>שגיאת-טעינה: {error}</div>}
+      {rows && rows.length === 0 && <div style={{ color: C.muted, fontSize: 12 }}>אין פריטי-פיילוט (gallery_images, source like 'pilot:%').</div>}
+      <div style={{ display: "grid", gap: 8 }}>
+        {(rows || []).map(r => <ImagePilotCard key={r.id} row={r} onRefresh={load} />)}
       </div>
     </div>
   );
@@ -1585,6 +1726,10 @@ export default function WarRoomTab() {
         {/* STEP 1B · Pipeline C — Human Gate (screen-map approved 25.8.2026). קופסה נפרדת, לא-מקוננת
             בתוך «קליטה חיה» — אותה קופסה מצהירה על-עצמה תצוגה-בלבד/בלי-WRITE, ואין לסתור זאת. */}
         <PipelineCReview />
+
+        {/* ZVI IMAGE × OCR × VISUAL EXTRACTION PILOT (25.8.2026) — כרטיס נפרד, לא מקונן,
+            מרחיב את gallery-ocr הקיים בלבד. אין מנוע-OCR שני, אין מיזוג-פיזי של השערים. */}
+        <ImagePilotPanel />
 
         {/* CC-1.3 ש2 · Bulk Bar — «סגור מהתור» מבוצע; שאר gated */}
         <BulkBar items={selItems} onClear={clearSel} onCloseQueue={(items) => doClose(items, "טופל · Bulk")} />
