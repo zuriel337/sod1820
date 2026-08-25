@@ -33,7 +33,7 @@
 3. **ELS Lens integration** — #186/#188: ELS exact identity, Journey, Findings, Matrix, Verse, 2D/Layered/3D; ה-ELS הוא Lens ראשון, לא בעל-הבית של ה-Workspace.
 4. **Number/Gematria Adapter + NumberHub** — מחובר רק דרך `gematria_methods` והפונקציות הקנוניות; `WS-GEMATRIA-CORPUS-PACKAGES` נשמר ואינו מבוטל, אך מוזן מעכשיו אל Research Studio במקום לעמוד כ-workstream מבודד. דף-המספר עצמו: טופולוגיה היברידית H2 — Workspace גלובלי + השלכת Research Surface הקשרית, ואזור-הממצאים-הקנוני (`NumberDNA`→**"🧬 צירי ההתכנסות"** / `NumberConvergences`) נשאר במקומו, לא מוחלף.
 5. **Topic/Convergence Adapter** — מיפוי-adapter **נפרד** (לא תחת ELS): מפנה אך-ורק ל-`topic_card_id`/convergence `node_id` קיימים + provenance, לעולם לא יוצר/משכפל התכנסות; נושא רק את מחלקת-היחס לפי `equality_vs_convergence` (🔢/🤖/👤).
-6. **Discovery Layer** — Cross Search, Auto Terms, AI Suggestions, EntityHub/Graph, אנשים/ישויות (Person adapter — self-scope בלבד, `F-1b` לא מאושר), שמות (Name adapter — NameLab/`fn_name_protocol` חי, נפרד מ-Person, לא Finding-כ-Journey), פסוקים ומחקר קיים כ-Candidates/Findings עם provenance.
+6. **Discovery Layer** — Cross Search, Auto Terms, AI Suggestions, EntityHub/Graph, אנשים/ישויות (Person adapter — self **וגם** family-scope, `F-1b` **LIVE** — Ledger-פרטי-בלבד, ר' ZURIEL Human-Gate 24.8.2026 למטה; `OD-F8`/הקרנת-גרף-ציבורית עדיין לא-מאושר), שמות (Name adapter — NameLab/`fn_name_protocol` חי, נפרד מ-Person, לא Finding-כ-Journey), פסוקים ומחקר קיים כ-Candidates/Findings עם provenance.
 7. **Global Findings Workspace UX** — multi-Finding, compare, pin, dismiss-from-view, restore, source-neutral inspect, adapter-specific promote.
 8. **Judgment Surface** — Evidence / Claim / Interpretation / confidence מוסבר + Human Gate; זו **השלכה של Gate #18 (Master State §20, Option C: Contract-over-Consolidation)**, לא מערכת-Judgment שביעית/מקבילה. `decision_ledger` נשאר יומן-ביקורת בלבד.
 9. **Legacy Capability Reconciliation** — למפות את inventory הישן (כולל D4/FORMS/Research Journey prior-art, וכן Name Journey החי) אל הארכיטקטורה החדשה; לספוג רק יכולות חסרות ובעלות-ערך, בלי raw merge ובלי re-design של קוד חי.
@@ -291,7 +291,7 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 | 8 | `admin_research_review` → תכנון | WS-LEDGER-REVIEW | `OPEN-NONBLOCKING` | בינונית (מזין #18) | תכנון provenance/decision_ledger | WS-GAMMA | smoke-test PASS (19.8) | צוריאל | שער→תכנון |
 | 9 | Command-Center CC-1-target | WS-CC | `OPEN-NONBLOCKING` | **v5.1: הובהר — לא-חוסם את חוזה-#18, רק את CC-2-בנייה** | §12.0 · WS-FEATURE-CONTROL · CC-2-UI-wiring-של-#18 (**לא** גוף-החלטת-#18) | אין (תלות-נכנסת) | 3 ארטיפקטים חיים (`WarRoomTab`/`RoadmapCommandCenter`/מפרט) | צוריאל | ממתין להכרעה |
 | 10 | WS-FEATURE-CONTROL שער תכנון+בנייה | WS-FEATURE-CONTROL | `DEFERRED` | נמוכה | מימוש נראות-פיצ'רים | Gate #9 | מרשם-העתיד + DO-NOT-BUILD-YET | צוריאל | ממתין ל-#9 |
-| 11 | Person F-1b (בני-משפחה) | WS-PERSON | `BLOCKED` | נמוכה | F-1b build | OD-F9a/F9b/F8 | חוזה `family_identity_contract.md`, F-1a′ LIVE | צוריאל | ממתין ל-3 ההכרעות |
+| 11 | Person F-1b (בני-משפחה, Ledger-פרטי) *(סופר-סד ZURIEL 24.8.2026 — ר' WS-PERSON למטה)* | WS-PERSON | `LIVE` | נמוכה | הקרנת-גרף-ציבורית (`OD-F8`) בלבד | OD-F8 | חוזה `family_identity_contract.md`, F-1a′+F-1b `LIVE`, Claim/Invitation backend `LIVE`, `PersonJourney.jsx` UI `LIVE` | צוריאל | ממתין ל-OD-F8 בלבד (הקרנה לגרף/ציבורי) |
 | 12 | חיווט Raziel (`fn_raziel_turn`,`session_state`,L1-L14) | WS-RAZIEL | `OPEN-NONBLOCKING` | בינונית | Raziel אישי מלא | Brain Responsibility (Governance, מאושר) | STUB קיים, `raziel_brain` מאוכלס-חלקית | צוריאל | ממתין |
 | 13 | יישום-UX Universal Research Contract | WS-URC | `OPEN-NONBLOCKING` | נמוכה-בינונית | UX פר-משטח | מפת-מסך מאושרת (§19-D) | תיעוד מלא על-main | צוריאל | שער-תכנון פר-משטח |
 | 14 | רשומת-זהות OD-F10a שנותרה-בפער | WS-MASTERSTATE | `OPEN-NONBLOCKING` | נמוכה | Master WRITE | — | Change Log #26 | צוריאל | Master WRITE gate נפרד |
@@ -379,7 +379,7 @@ flowchart TD
 | KU-3D / Navigator / ELS-Matrix (כמוצר) | תלוי בזהות חיה | Finding Identity לא LIVE מקצה־לקצה | Step 3 LIVE+Verified |
 | מרכז־הניהול UI (בנייה חדשה) | **עודכן v5:** לא-עוד "v4 טרם קנוני" (זה נפתר) — אלא: 3 ארטיפקטים חיים כבר-קיימים (`WarRoomTab`/`RoadmapCommandCenter`/מפרט-לא-בנוי) בלי הכרעה-איזה-הוא-CC-1 | הכרעת-CC-1-target | Human-Gate ייעודי |
 | מנגנון WS-FEATURE-CONTROL | תכנון בלבד | אין ארכיטקטורת Command Center סגורה | שער design → שער build |
-| Person F-1b (בני־משפחה) | חוזה־זהות לא סגור | OD-F9a / OD-F9b / OD-F8 | הכרעת שלושת ה־OD |
+| Person — הקרנת-גרף-ציבורית (`OD-F8`) *(סופר-סד: השורה ההיסטורית "Person F-1b חסום ב-OD-F9a/F9b/F8" — F-1b עצמו כבר `LIVE`, ר' ZURIEL Human-Gate 24.8.2026 ו-WS-PERSON למטה)* | הקרנה ל-`nodes`/`edges`/ציבורי לא-מאושרת | OD-F8 בלבד | הכרעת-צוריאל נפרדת ל-OD-F8 |
 | חיווט Raziel (`fn_raziel_turn`, `session_state`, L1–L14) | פתוח | אין שער בנייה | שער בנייה של צוריאל |
 | השלמת זהות תנ״ך | `corpus_id` תנ״ך פתוח | אין corpus_id תנ״ך קנוני (§17) | הכרעת צוריאל |
 | מיזוג/פריסת `els-unified-merge` (המנוע, לא ה-shell) *(חדש-v5)* | Decision #1 פתור אך שער-אדם עוד לא ניתן | אישור-Human-Gate | צוריאל מאשר Preview |
@@ -580,18 +580,29 @@ flowchart TD
 - **PROVENANCE:** ר' `WS-GAMMA` (`6b8160b4`,`3a09b8dd`,`c8d3672`) עבור §19; §17-אנומרציה/Change-Log-#26 — UNKNOWN commit-ספציפי, לא-אותר במקור-נפרד.
 - **STATE:** sync `LIVE` · §19 `LIVE`(main) · §17-אנומרציה `OPEN-HUMAN-GATE`.
 
-### WS-PERSON — זהות־אדם (OD-F10a) — ללא-שינוי-עובדתי (שוחזרו-שדות)
-- **WHERE_WE_ARE:** חוזה מאושר (design); self-ledger חי; משפחה חסומה.
-- **WHAT_IS_DONE:** חוזה `docs/planning/family_identity_contract.md`; **F-1a′** `fn_upsert_self_profile` LIVE.
-- **WHAT_IS_OPEN:** F-1b (בני־משפחה + parent_of).
-- **WHAT_IS_BLOCKED:** F-1b — OD-F9a / OD-F9b / OD-F8.
-- **HUMAN_GATE:** צוריאל — OD-F9a/F9b/F8 לפני F-1b.
-- **NEXT_ACTION:** אין עד ההכרעות.
-- **DEPENDENCIES:** `nodes_public_read` (OD-F8), Ledger.
-- **CANONICAL_HOME:** חוזה + `research_objects` (self rows).
-- **PROVENANCE:** F-1a′ live; רשומת־חוזה.
-- **LAST_VERIFIED:** 2026-08 (F-1a′ קודם).
-- **STATE:** חוזה `DESIGN` · F-1a′ `LIVE`/`DB-LIVE` · F-1b `OPEN-HUMAN-GATE`.
+### WS-PERSON — זהות־אדם (OD-F10a) — **סופר-סד 24.8.2026 (ZURIEL Human-Gate, ר' work_log)**
+> **הטקסט ההיסטורי מתחת ("משפחה חסומה"/"F-1b OPEN-HUMAN-GATE") שוחזר-שדות בעבר אך היה שגוי-נכון-לתאריכו — הושאר למטה כ-provenance, לא נמחק. הכרעת-צוריאל 24.8.2026 (`work_log eda016ed`/`2b25632b`, אושרר `24.8.2026` DRIFT-resolution session) supersedes אותו במפורש: OD-F9a ו-OD-F9b אושרו ויושמו עבור Ledger-פרטי; OD-F8 בלבד נשאר חסום.**
+- **WHERE_WE_ARE:** חוזה מאושר (design); self-ledger **וגם** family-ledger (F-1b) חיים ב-DB; Claim/Invitation backend חי; UI-צרכן ראשון (`PersonJourney.jsx`, "🧭 מסע החיים — יסוד") חי תחת `/research` (אדמין-בלבד עד-אישור-פתיחה).
+- **WHAT_IS_DONE:** חוזה `docs/planning/family_identity_contract.md`; **F-1a′** `fn_upsert_self_profile` LIVE; **F-1b** `fn_upsert_family_member`/`fn_upsert_family_relation`/`fn_list_family`/`fn_get_or_create_my_person` LIVE (`docs/planning/sql/fn_family_private_slice.sql`+`fn_get_or_create_my_person.sql`) — Ledger-בלבד, `research_objects`, `privacy_scope='private'`+`status='candidate'` תמיד, **0** כתיבות ל-`nodes`/`edges`; **Claim/Invitation** 7 RPCs LIVE (`fn_create_family_invitation`/`fn_redeem_family_invitation`/`fn_submit_family_claim_request`/`fn_review_family_claim`/`fn_revoke_family_claim`/`fn_reverse_family_claim`/`fn_get_family_claim_status`, `docs/planning/sql/fn_family_claims_phase{1,2}.sql`, טבלת `family_claims` — RLS פעיל, 0 policies, 0 client grants, גישה רק דרך ה-SECURITY DEFINER functions); Claim-approval **אינו** ShareGrant/RelationConfirmation — לא נותן גישה ל-`research_objects` של אדם אחר ולא כותב שום קשר-משפחה; **UI**: `src/components/PersonJourney.jsx` (self+family+relations, אדמין-בלבד, `IMPLEMENTED_TOOLS` לא `READY_TOOLS`) — נבדק חי ע"י צוריאל 24.8.2026, ואומת ישירות מול ה-DB.
+- **WHAT_IS_OPEN:** `RelationConfirmation`/`ShareGrant`/`PublishRequest` (contract objects נפרדים, לא-נבנו); Claim-delivery ל-UI (email/WhatsApp) — ה-RPCs חיים, אין עדיין ממשק-משתמש; פתיחת ה-UI לציבור (עדיין אדמין-בלבד); חיבור ל-Finding-traversal Journey אמיתי (ELS/גימטריה/שמות) — F-1b הוא יסוד-זהות בלבד, לא ניווט-גרף.
+- **WHAT_IS_BLOCKED:** `OD-F8` (הקרנת family data ל-`nodes`/`edges`/גרף-ציבורי) בלבד — **לא** חוסם עוד את F-1b עצמו.
+- **HUMAN_GATE:** צוריאל — OD-F8 נדרש רק להקרנה-לגרף/ציבורית; F-1a′+F-1b (Ledger-פרטי) כבר עברו את השער (24.8.2026).
+- **NEXT_ACTION:** אין עד הכרעת-OD-F8 (אם בכלל תתבקש הקרנה-לגרף). אין לבנות RelationConfirmation/ShareGrant/PublishRequest/Contextual Numeric Ranking/466 Test/Personal Numeric Field ללא שער-הרשאה נפרד.
+- **DEPENDENCIES:** `nodes_public_read` (OD-F8 בלבד, עדיין לא-רלוונטי ל-Ledger-הפרטי), `research_objects` (R1 privacy foundation, LIVE).
+- **CANONICAL_HOME:** חוזה + `research_objects` (self+family rows, `kind IN ('observation','relation')`) + `family_claims` (workflow-בלבד).
+- **PROVENANCE:** F-1a′ live (session קודמת); F-1b+Claim+UI — ענף `claude/person-family-integration-v1` (מ-`claude/f1b-private-family-ledger` `8a815bcb`, `claude/family-claim-invitation-phase1` `665a8040`+`c6b6235a`, `claude/person-life-journey-v1` `7eddfc23`+`df39acbe`), `work_log` BEFORE/AFTER מתועד לכל שלב.
+- **LAST_VERIFIED:** 24.8.2026 (DRIFT-resolution session — נבדק חי מול DB, לא רק מהזיכרון).
+- **STATE:** חוזה `DESIGN` · F-1a′ `LIVE`/`DB-LIVE` · F-1b `LIVE`/`DB-LIVE` (Ledger-פרטי) · Claim/Invitation `LIVE`/`DB-LIVE` · UI `LIVE` (אדמין-בלבד) · OD-F8/הקרנה-לגרף `BLOCKED`/`OPEN-HUMAN-GATE`.
+
+<details><summary>טקסט היסטורי (עד 23.8.2026, superseded — provenance בלבד, לא-נמחק)</summary>
+
+- **WHERE_WE_ARE (היסטורי):** חוזה מאושר (design); self-ledger חי; משפחה חסומה.
+- **WHAT_IS_DONE (היסטורי):** חוזה `docs/planning/family_identity_contract.md`; **F-1a′** `fn_upsert_self_profile` LIVE.
+- **WHAT_IS_OPEN (היסטורי):** F-1b (בני־משפחה + parent_of).
+- **WHAT_IS_BLOCKED (היסטורי):** F-1b — OD-F9a / OD-F9b / OD-F8.
+- **HUMAN_GATE (היסטורי):** צוריאל — OD-F9a/F9b/F8 לפני F-1b.
+- **STATE (היסטורי):** חוזה `DESIGN` · F-1a′ `LIVE`/`DB-LIVE` · F-1b `OPEN-HUMAN-GATE`.
+</details>
 
 ### WS-KU3D — GPT Knowledge Universe 3D preview — ללא-שינוי-עובדתי (שוחזרו-שדות)
 - **WHERE_WE_ARE:** preview חזותי בבניית GPT על ענף; לא נפרס.
@@ -782,7 +793,7 @@ flowchart TD
 8. **admin_research_review** → תכנון.
 9. **Command-Center CC-1-target** (עודכן-v5: 3 ארטיפקטים קיימים, לא "UI לא-התחיל").
 10. **WS-FEATURE-CONTROL** שער תכנון+בנייה.
-11. **Person F-1b** (OD-F9a/F9b/F8).
+11. **Person — OD-F8 בלבד** (הקרנת-גרף-ציבורית; F-1b עצמו `LIVE` מ-24.8.2026, ר' WS-PERSON).
 12. **חיווט Raziel** (`fn_raziel_turn`, `session_state`, L1-L14).
 13. **יישום-UX Universal Research Contract** (עדיין `OPEN` per §19-D).
 14. **רשומת-זהות OD-F10a שנותרה-בפער** (Change Log #26).
@@ -814,7 +825,7 @@ WS-GAMMA ── Research DNA v1 (derived-view, work_log 22.8, OPEN) ── WS-CR
    └── תלוי-גם-ב ── ~~Gate #18~~ (Fact/Claim/Candidate, **`CLOSED` 23.8**) + WS-GEMATRIA-CORPUS-PACKAGES (ACTIVE_NOW)
 WS-SEC (LIVE) ── §18 enumeration OPEN ── 2 ממצאי-אבטחה חדשים (wa_word_review/project_contribution_to_graph) OPEN-נפרד
 WS-RAZIEL (3-variants+WA-infra LIVE, פועלים בתוך Brain-Context-Boundary) ── חיווט-זהות OPEN ── L1–L14 DESIGN ── raziel_brain OPEN
-WS-PERSON: F-1a′ LIVE ── F-1b BLOCKED
+WS-PERSON: F-1a′ LIVE ── F-1b (Ledger-פרטי) LIVE ── Claim/Invitation LIVE ── OD-F8/הקרנה-לגרף BLOCKED
 WS-KU3D (BUILDING preview) ── הפעלה BLOCKED
 WS-CC (LIVE ×2 ארטיפקטים) ── CC-1-target OPEN ── WS-FEATURE-CONTROL FUTURE
 WS-CC ── CC-2-בנייה-בלבד (UI-wiring) OPEN ┄┄ WS-JUDGE-UNIFICATION = Gate #18 "Unified Judgment & Human-Gate Contract" **CLOSED (23.8, Contract-over-Consolidation)**
@@ -854,14 +865,14 @@ LAST_RECONCILED: 2026-08-21 (v5 קנוניזציה ל-main, f1503a28)   SYNC: SY
                    (`wa_word_review`,`project_contribution_to_graph`, מעקב-נפרד) · Security Fix (3 פונקציות
                    anon-writable, חובה-לפני-Intake) · חיווט-decision_ledger · Canonical≠Published-decision
                    (Number-Language עבר לסשן-ייעודי נפרד — לא-בתור-כאן).
-מה חסום:           KU-3D product · Person F-1b · תוכן-אמיתי ב-/lab/els (עד שיוחלט-על-מיזוג-המנוע). **אין-עוד Gate
+מה חסום:           KU-3D product · Person OD-F8 (הקרנת-גרף-ציבורית בלבד — F-1b עצמו LIVE מ-24.8.2026) · תוכן-אמיתי ב-/lab/els (עד שיוחלט-על-מיזוג-המנוע). **אין-עוד Gate
                    חסום** — Gate #4+#18 שניהם `CLOSED` (22.8/23.8). שלב-INTAKE-READINESS ממתין-לתלויות-בפועל, לא-BLOCKED-ע"י-שער.
 מה הצעד הבא:        `WS-GEMATRIA-CORPUS-PACKAGES` (ACTIVE_NOW, הנחיית-צוריאל 21.8) — ואז שלב **INTAKE READINESS**
                    (Gate #4+#18 שניהם כבר-נסגרו).
 למה זה הצעד הבא:    החלטת-צוריאל מפורשת (21.8): לפני חזרה לשני השערים הארכיטקטוניים, להכין corpus מחקרי מסודר
                    מחומרי-הגימטריה להזנה עתידית לעץ-האחד.
 מה אסור לבנות:      **(Gate #4 סגור 22.8 — Step-4-build יצאה מ"אסור-עד-שער"; תזמון-build בפועל לא-הוכרע כאן)** · Judgment system חדש/מקביל (**איסור-קבוע** — Gate #18 קבע Contract-over-Consolidation, 23.8, לא-רק-"עד-שער") · KU-3D product ·
-                   Command-Center-UI-חדש (יש-כבר-2-חיים) · Feature-Control · F-1b · Raziel-wiring/runtime
+                   Command-Center-UI-חדש (יש-כבר-2-חיים) · Feature-Control · Person: `RelationConfirmation`/`ShareGrant`/`PublishRequest`/הקרנה-לגרף-ציבורית (`OD-F8`)/Contextual-Numeric-Ranking/466-Test/Personal-Numeric-Field-implementation (F-1b עצמו — Ledger-פרטי — כבר `LIVE` מ-24.8.2026, אינו-אסור-עוד) · Raziel-wiring/runtime
                    (Brain Responsibility = Governance-בלבד, אין-implementation) · זהות־תנ״ך ·
                    מיזוג-`els-unified-merge`-ל-main (טרם-אושר) · פתרון 2-ממצאי-האבטחה (מעקב-נפרד, לא-כאן) ·
                    שום-קוד-נוסף ב-ELS-engine בלי-שער.
