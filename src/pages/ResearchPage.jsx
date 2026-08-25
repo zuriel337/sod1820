@@ -14,6 +14,7 @@ import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import ElsUpgradePromo from "../components/ElsUpgradePromo.jsx";
 import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
 import LifeProfile from "../components/LifeProfile.jsx";
+import PersonJourney from "../components/PersonJourney.jsx";
 import FileAnalyzer from "../components/FileAnalyzer.jsx";
 import CompareTwo from "../components/CompareTwo.jsx";
 import NumberTool from "../components/NumberTool.jsx";
@@ -264,6 +265,7 @@ export default function ResearchPage() {
             </div>
           ))}
           {tool === "life" && <LifeProfile />}
+          {tool === "journey" && <PersonJourney />}
           {tool === "number" && <NumberTool />}
           {tool === "maftech" && <MaftechShowcase seed={seed} />}
           {tool === "christina" && <ChristinaEngine seed={seed} />}

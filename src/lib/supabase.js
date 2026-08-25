@@ -3837,3 +3837,42 @@ export async function removeTrailMember(id) {
   if (!supabase) return;
   await supabase.from('trail_members').delete().eq('id', id);
 }
+
+// ── Person / Life Journey — F-1a′/F-1b private Ledger (research_objects), self+family only.
+// Nothing here is public; every row is privacy_scope='private' at the DB layer regardless
+// of what the UI does. Family members never get a `persons` row — identity is the
+// person:<owner>:{self|p:<ref>} string embedded in each function's return value.
+export async function getOrCreateMyPersonId() {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('fn_get_or_create_my_person');
+  if (error) throw error;
+  return data;
+}
+
+export async function upsertSelfProfile(ownerId, name, meta = {}) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('fn_upsert_self_profile', { p_owner: ownerId, p_name: name, p_meta: meta });
+  if (error) throw error;
+  return data;
+}
+
+export async function upsertFamilyMember(ownerId, ref, name, meta = {}) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('fn_upsert_family_member', { p_owner: ownerId, p_ref: ref, p_name: name, p_meta: meta });
+  if (error) throw error;
+  return data;
+}
+
+export async function upsertFamilyRelation(ownerId, parentRef, childRef, relationType = 'parent_of', meta = {}) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('fn_upsert_family_relation', { p_owner: ownerId, p_parent_ref: parentRef, p_child_ref: childRef, p_relation_type: relationType, p_meta: meta });
+  if (error) throw error;
+  return data;
+}
+
+export async function listFamily(ownerId) {
+  if (!supabase) return { members: [], relations: [] };
+  const { data, error } = await supabase.rpc('fn_list_family', { p_owner: ownerId });
+  if (error) throw error;
+  return data || { members: [], relations: [] };
+}
