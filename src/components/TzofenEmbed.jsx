@@ -38,13 +38,19 @@ function buildEngineDetail(d, s) {
 }
 
 // ממפה שורת els_records לפריט שהכלי מבין (loadMatrix)
+// 🧭 direction identity (GAP-5 restore fix): m.direction משתמש באותה מילון "fwd"/"back" שהמנוע כותב
+//    (els-code.template.html performSaveToGallery, אחרי התיקון). שורות ישנות שנשמרו לפני התיקון
+//    (direction="down" תמיד, מ-h.skip<0 שהיה ענף-מת) לא מתורגמות ל-dir מומצא — dir נשאר null ו-
+//    loadMatrix() נופל ל-fallback הקיים שלו (item.skip בלבד, ללא שינוי-התנהגות לנתונים-ישנים-ודו-משמעיים).
 function rowToItem(m) {
   if (!m) return null;
+  const dir = m.direction === "back" ? -1 : m.direction === "fwd" ? 1 : null;
   return {
     id: m.id || null,   // 🆔 מזהה-הרשומה — כדי לצרוב חזרה מד-איכות (מונטה-קרלו) שחושב על צופן שמור
     slug: m.slug || "",  // 🔗 1ב — הקשר-צופן: כדי לשתף ממצא מהכלי כתגובת-מחקר על הצופן הזה
     name: m.title || m.search_term, term: m.search_term,
     skip: m.skip_distance || 0, scope: m.scope || "torah",
+    start: m.start_index != null ? m.start_index : null, dir,   // 🆔 עוגן-מדויק ל-loadMatrix() exact-match
     words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
     hideMain: !!m.positions?.hideMain,   // 📌 ציר מוסתר — הצופן נטען עם הממצאים בלבד, בלי עמוד-השדרה
     postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",

@@ -1404,7 +1404,12 @@
       const it=galleryCurrentItem();
       // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
-      postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
+      // 🧭 direction identity (GAP-5 restore fix): h.skip is ALWAYS a positive magnitude (fwdScan
+      //    never pushes a negative skip — see s=d/g, d=pj-pi>0) so `h.skip<0` was a dead branch that
+      //    always saved "down". The real orientation identity is h.dir (±1, same field hitKey()/
+      //    loadMatrix()'s exact-match fallback/the axis-message below already key off) — reusing the
+      //    SAME "fwd"/"back" vocabulary already used for the axis message, not inventing a second one.
+      postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.dir===-1?"back":"fwd"),
         start:h.start,   // 🆔 עוגן-הממצא 0-based (occ().start === positions[0]) → start_index. corpus_id/term_norm נגזרים בשרת.
         findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,desc:st.desc||"",author:st.author||"",
         hideMain:!!st.hideMain,   // 📌 שומרים אם הציר מוסתר (👁) כדי שהצופן ייטען כך בעתיד
