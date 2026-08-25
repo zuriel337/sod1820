@@ -5,6 +5,7 @@ import { ROUTE_META } from "./routes.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
+import { startPageEngagement } from "./lib/engagement.js";
 import { initAppInstallTracking, captureArrivalSource, captureAcquisition } from "./lib/tracking.js";
 import { initInstall } from "./lib/install.js";
 import { captureArrival, captureRef } from "./lib/propagation.js";
@@ -146,6 +147,9 @@ function RouteEffects() {
   }, [pathname]);
   // מד-הכניסות הפנימי — אפקט נפרד על trackPath, כדי שייספר גם מעבר-בין-כלים במעבדה (שינוי ?tool=).
   useEffect(() => { trackVisit(trackPath); }, [trackPath]);
+  // ⏱️ Engagement Time v1 — flush את ה-page-instance הקודם (route_change) ופותח חדש על trackPath.
+  //    pagehide נתפס גלובלית בתוך engagement.js עצמו (לא כאן) — ר' src/lib/engagement.js.
+  useEffect(() => { startPageEngagement(trackPath); }, [trackPath]);
   return null;
 }
 
