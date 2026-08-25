@@ -138,6 +138,21 @@
   .coach .coach-go{flex:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:12.5px;border:none;border-radius:999px;
      padding:8px 16px;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00}
   .coach .coach-go:active{transform:translateY(1px)}
+  /* 🧬 FORMS — פיצול/איחוד (Pass 2, els-work-area 2dbb658f, מותאם). לוח-תוצאה קומפקטי מעל המטריצה. */
+  .formsout{display:none;max-width:760px;margin:10px auto 0;background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:12px 13px;box-sizing:border-box}
+  .formsout .fo-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:9px;font-size:13px;color:var(--ink2)}
+  .formsout .fo-tok{color:var(--goldBright);font-weight:700}
+  .formsout .fo-meta{flex:1 1 100%;font-size:11.5px;color:var(--ink3)}
+  .formsout .fo-rows{display:flex;flex-direction:column;gap:6px}
+  .formsout .fo-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+  .formsout .fo-row.off{opacity:.5}
+  .formsout .fo-w{color:var(--goldBright);font-family:var(--serif)}
+  .formsout .fo-d{flex:1 1 auto;min-width:0;font-size:11px;color:var(--ink3)}
+  .formsout .fo-n{font-size:11.5px;color:var(--ink2)}
+  .formsout .fo-go{flex:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:11.5px;border:none;border-radius:999px;padding:5px 12px;background:linear-gradient(160deg,var(--goldBright),var(--gold));color:#1a0e00}
+  .formsout .fo-foot{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+  .formsout .fo-deep{cursor:pointer;font-family:inherit;font-weight:700;font-size:11.5px;border:1px solid var(--line2);border-radius:999px;padding:6px 12px;background:transparent;color:var(--ink2)}
+  .formsout .fo-note{font-size:11px;color:var(--ink3)}
   /* 💡 טיפ-קבוע — תמיד גלוי מתחת לשורת-החיפוש: מסביר שמילה-ארוכה לא עובדת ומזמין למוצלב.
      (החלטת צוריאל 23.7: «אף אחד לא יודע שצריך לפתוח מוצלב» → תמיד להציע + להסביר.) */
   .alwaystip{margin:2px 0 12px;padding:9px 13px;border-radius:12px;border:1px dashed rgba(232,200,74,.4);
@@ -1141,9 +1156,127 @@
     const setup=fwdSetup(tt);if(!setup)return;
     fwdScan(tt,cap,hits,orient,stt,setup,0,setup.Pi.length);
   }
-  function findAll(raw,cap){const t=norm(raw),hits=[];if(t.length<2)return{hits,capped:0,t};
-    const s={capped:0};fwd(t,cap,hits,"fwd",s);fwd(t.split("").reverse().join(""),cap,hits,"back",s);
-    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));return{hits,capped:s.capped,t};}
+  // 🩹 scopeRange + fwdDisperse (כוונה/חוזה מ-els-unified-merge D4 7f066e23, מותאם למבנה הנוכחי —
+  //    לא הקוד הישן, לא מגע ב-fwdScan/fwdSetup/anchors/pruning): Pi/Pj ממוינים לפי מיקום-בקורפוס
+  //    (נבנים בסריקת T מ-0 עד SN), ולכן סריקה שנעצרת ב-cap (stt.capped) מחזירה תמיד רק "קידומת" —
+  //    המופעים הראשונים בקורפוס — לא מדגם מפוזר. זו "חתימה שקטה" של truncation: capped כבר מדווח
+  //    (UI מציג "+"), אבל התוכן-שמוצג מוטה-קידומת בלי שהמשתמש יודע. scopeRange(setup) מגדיר את מרחב-
+  //    האנקורים המלא [0,Pi.length) של אותו setup (בלי חישוב-אנקורים מחדש); fwdDisperse, כשסריקה כבר
+  //    capped, מוסיפה עד DISPERSE_SEG דגימות-משנה קטנות ופרושות על פני הטווח המלא (כולל מעבר לכל מה
+  //    שכבר נסרק), מדלגת על מופעים קיימים (hitKey), ולעולם לא חורגת מ-cap הכולל. תמיד רק "מוסיפה על"
+  //    תוצאה קיימת — לא ניחוש/משפט משני; מופעל רק כש-capped===true בפועל (לא תוקן/לא נוגע בהיקף
+  //    שלא-capped, כדי לשמור על שקילות-בייט לרוב-המכריע של החיפושים).
+  const DISPERSE_SEG=8;
+  function scopeRange(setup){return [0,setup.Pi.length];}
+  function fwdDisperse(tt,cap,hits,orient,setup){
+    if(!setup||hits.length>=cap)return;
+    const [from,to]=scopeRange(setup),total=to-from;if(total<=0)return;
+    const seen=new Set();for(const h of hits)seen.add(h.start+"_"+h.skip+"_"+h.dir);
+    const segLen=Math.max(1,Math.ceil(total/DISPERSE_SEG));
+    for(let sidx=0;sidx<DISPERSE_SEG&&hits.length<cap;sidx++){
+      const segFrom=from+sidx*segLen,segTo=Math.min(to,segFrom+segLen);
+      if(segFrom>=segTo)continue;
+      const segCap=Math.max(1,Math.ceil((cap-hits.length)/(DISPERSE_SEG-sidx)));
+      const localHits=[],localStt={capped:0};
+      fwdScan(tt,segCap,localHits,orient,localStt,setup,segFrom,segTo);
+      for(const h of localHits){
+        if(hits.length>=cap)break;
+        const k=h.start+"_"+h.skip+"_"+h.dir;if(seen.has(k))continue;seen.add(k);hits.push(h);
+      }
+    }
+  }
+  // 🩹 fwdDisperseTopUp — עוטף fwdDisperse למקרה הנפוץ (הריאלי) שבו הקידומת כבר *ממלאת* את כל ה-cap
+  // (leftover=0, אין "מקום פנוי" להוסיף אליו) — שם fwdDisperse לבדו לא-פעיל (אין headroom). כדי ש-
+  // "no silent cap-induced truncation" יתקיים גם כאן, שומרים RESERVE קטן (עד 5%/200, המינימלי-הכרחי)
+  // מתוך cap: מסירים את RESERVE המופעים *האחרונים לפי סדר-הכנסה* (עדיין מופעים תקפים לגמרי — רק
+  // נדחקים בהעדפת-גיוון, לא נמחקים כי הם שגויים) ומפנים את המקום למדגם-מפוזר אמיתי. מופעל אך ורק על
+  // תוצאה שכבר capped=true (חיפוש לא-capped נשאר זהה-בייט, ללא נגיעה) — dirs=[{tt,orient,setup},...].
+  const DISPERSE_RESERVE_FRAC=0.05,DISPERSE_RESERVE_MAX=200;
+  function fwdDisperseTopUp(hits,dirs){
+    if(!hits.length)return;
+    const target=hits.length;
+    const reserve=Math.max(1,Math.min(DISPERSE_RESERVE_MAX,Math.floor(target*DISPERSE_RESERVE_FRAC)));
+    const trimmed=hits.slice(Math.max(0,target-reserve));   // המופעים התקפים שהוסרו זמנית (לא נמחקים)
+    hits.length=Math.max(0,target-reserve);
+    for(const d of dirs){if(hits.length>=target)break;fwdDisperse(d.tt,target,hits,d.orient,d.setup);}
+    // 🩹 השלמה מובטחת: אם הפיזור לא מצא מספיק מופעים-חדשים (קטע-קורפוס דל, ריבוי-כפילויות מול seen)
+    //    — משיבים בחזרה כמה שצריך מ-trimmed (עדיין תקפים-לגמרי) כדי ש-capped=true תמיד יחזיר בדיוק
+    //    target מופעים, בהתאמה ל-fwdProbePair/findAllAdaptive — לעולם לא פחות, לעולם לא כפילות.
+    if(hits.length<target){
+      const seen2=new Set();for(const h of hits)seen2.add(h.start+"_"+h.skip+"_"+h.dir);
+      for(const h of trimmed){
+        if(hits.length>=target)break;
+        const k=h.start+"_"+h.skip+"_"+h.dir;if(seen2.has(k))continue;seen2.add(k);hits.push(h);
+      }
+    }
+  }
+  // 🩹 גרסת-הבדיקה (probe) של בידוד-כיוונים, שימוש יחיד: ה-Worker handler "findAllAdaptive"
+  //    (מוזרק דרך toString() כמו fwdSetup/fwdScan/fwd/findAll — אותו קוד בדיוק, לא שכפול-יד).
+  //    זהה ללולאה שהייתה קיימת ב-worker (fwd קודם עם cap מלא, back עם היתרה, cap-total), עם תיקון
+  //    יחיד ומבודד: אם fwd לבדו רווה את כל ה-cap בתוך חלון-ה-probe — משריינים ל-back מחצית-cap
+  //    במקום 0 מוחלט (בדיוק כמו findAll הסינכרוני למעלה). בכל מקרה אחר — התוצאה זהה-בייט למקור,
+  //    כולל heavyDirs (שמשמש רק כש-capped===false, ולכן לא רלוונטי לענף המתוקן שתמיד capped=1).
+  function fwdProbePair(t0,t1,cap,probeSize){
+    const su0=fwdSetup(t0),su1=fwdSetup(t1);
+    const ps0=su0?Math.min(probeSize,su0.Pi.length):0;
+    const ps1=su1?Math.min(probeSize,su1.Pi.length):0;
+    let h0=[];const st0={capped:0};
+    if(su0)fwdScan(t0,cap,h0,"fwd",st0,su0,0,ps0);
+    let fwd0Continuable=!!(su0&&ps0<su0.Pi.length),bTo=ps1;
+    if(st0.capped&&h0.length>=cap){
+      // 🩹 שקילות עם findAll הסינכרוני: fwd() שם סורק תמיד את מלוא Pi (בלי חלון-probe). כדי שהענף-
+      //    המתוקן (בידוד-כיוונים) יישאר זהה-בייט בין sync ל-Worker גם כשה-cap אמיתי נמצא רק מעבר
+      //    ל-probeSize, סורקים כאן מ-0 עד su0.Pi.length המלא (לא ps0) — בפועל אין עלות נוספת כי
+      //    fwdScan עוצר ברגע שמגיע ל-capFwd (שכבר ידוע שקורה מהר, בתוך אותו הריצה שזיהתה capped).
+      //    אותו טעם ל-back: bTo=su1.Pi.length (במקום ps1) בענף הזה בלבד.
+      h0=[];const capFwd=Math.ceil(cap/2);st0.capped=0;
+      if(su0)fwdScan(t0,capFwd,h0,"fwd",st0,su0,0,su0.Pi.length);
+      fwd0Continuable=false;bTo=su1?su1.Pi.length:ps1;
+    }
+    const cap1=cap-h0.length,h1=[],st1={capped:0};
+    if(su1)fwdScan(t1,cap1,h1,"back",st1,su1,0,bTo);
+    const total=h0.length+h1.length;
+    const capped=(total>=cap||st0.capped||st1.capped)?1:0;
+    const heavyDirs=[];
+    if(!capped){
+      if(fwd0Continuable)heavyDirs.push({dirIndex:0,tt:t0,orient:"fwd",probed:ps0,Pi:su0.Pi,Pj:su0.Pj,i:su0.i,j:su0.j,g:su0.g,mx:su0.mx,L:su0.L,SN:su0.SN});
+      if(su1&&ps1<su1.Pi.length)heavyDirs.push({dirIndex:1,tt:t1,orient:"back",probed:ps1,Pi:su1.Pi,Pj:su1.Pj,i:su1.i,j:su1.j,g:su1.g,mx:su1.mx,L:su1.L,SN:su1.SN});
+    }else{
+      // scopeRange: capped-within-probe כבר כאן (בלי סבב-Worker נוסף) — פיזור מיד, symmetric לשני
+      // הכיוונים (trim+disperse על כל hK בנפרד כדי לשמר את החלוקה dirHits[0]/dirHits[1] הנפרדת).
+      if(su0)fwdDisperseTopUp(h0,[{tt:t0,orient:"fwd",setup:su0}]);
+      if(su1)fwdDisperseTopUp(h1,[{tt:t1,orient:"back",setup:su1}]);
+    }
+    return {dirHits:[h0,h1],capped,heavyDirs};
+  }
+  function findAll(raw,cap){const t=norm(raw);if(t.length<2)return{hits:[],capped:0,t};
+    const tb=t.split("").reverse().join("");
+    // 🩹 בידוד-כיוונים (direction-isolation fix, els2 fb9c23ea/els-unified-merge fdd94acd, מותאם):
+    //    hitsF/hitsB נפרדים (לא מערך+stt משותפים) — במקור, אם fwd()-קדימה לבדו מילא את כל ה-cap,
+    //    הקריאה הבאה ל-fwd()-אחורה עם stt משותף חוזרת מיידית ומדכאת back לגמרי, גם אם יש לו מופעים
+    //    תקפים. כאן: רק כשזה קורה בפועל (לא ניחוש) — ענף if — מריצים fwd-קדימה מחדש עם חצי-cap
+    //    ומשריינים את היתרה ל-back; בכל מקרה אחר (הרוב המכריע) — ענף else, זהה-בייט למקור (אותה
+    //    רצף-קריאות, רק למערכים נפרדים שמתאחדים ב-concat בסוף, אותו סדר-תיקו).
+    let hitsF=[],sf={capped:0};
+    fwd(t,cap,hitsF,"fwd",sf);
+    let hitsB=[],sb={capped:0},capped;
+    if(sf.capped&&hitsF.length>=cap){
+      hitsF=[];const capFwd=Math.ceil(cap/2);sf={capped:0};
+      fwd(t,capFwd,hitsF,"fwd",sf);
+      fwd(tb,cap-hitsF.length,hitsB,"back",sb);
+      capped=1;
+    }else{
+      fwd(tb,cap-hitsF.length,hitsB,"back",sb);
+      capped=(sf.capped||sb.capped)?1:0;
+    }
+    // 🩹 scopeRange/fwdDisperseTopUp: רק כש-capped===true בפועל (לא נוגע בחיפוש לא-capped).
+    if(capped){
+      const suF=fwdSetup(t);if(suF)fwdDisperseTopUp(hitsF,[{tt:t,orient:"fwd",setup:suF}]);
+      const suB=fwdSetup(tb);if(suB)fwdDisperseTopUp(hitsB,[{tt:tb,orient:"back",setup:suB}]);
+    }
+    const hits=hitsF.concat(hitsB);
+    hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
+    return{hits,capped,t};}
   // חיפוש בדילוגים נתונים בטווח-אותיות
   function findAtSkips(raw,skips,from,to,cap){
     const t=norm(raw),L=t.length,out=[];if(L<1)return out;
@@ -1271,7 +1404,12 @@
       const it=galleryCurrentItem();
       // ✏️ עדכון-במקום: שולחים editId רק אם עורכים ממצא-קיים עם אותו מונח → העוטף יעדכן במקום, לא עותק.
       const editId=(st.editId&&st.editTerm&&norm(it.term||"")===st.editTerm)?st.editId:null;
-      postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.skip<0?"up":"down"),
+      // 🧭 direction identity (GAP-5 restore fix): h.skip is ALWAYS a positive magnitude (fwdScan
+      //    never pushes a negative skip — see s=d/g, d=pj-pi>0) so `h.skip<0` was a dead branch that
+      //    always saved "down". The real orientation identity is h.dir (±1, same field hitKey()/
+      //    loadMatrix()'s exact-match fallback/the axis-message below already key off) — reusing the
+      //    SAME "fwd"/"back" vocabulary already used for the axis message, not inventing a second one.
+      postHost({type:"save",term:it.term,scope:it.scope,skip:it.skip,direction:(h.dir===-1?"back":"fwd"),
         start:h.start,   // 🆔 עוגן-הממצא 0-based (occ().start === positions[0]) → start_index. corpus_id/term_norm נגזרים בשרת.
         findings:it.words,postUrl:it.postUrl,postTitle:it.postTitle,desc:st.desc||"",author:st.author||"",
         hideMain:!!st.hideMain,   // 📌 שומרים אם הציר מוסתר (👁) כדי שהצופן ייטען כך בעתיד
@@ -1672,6 +1810,8 @@
     // חיפוש רגיל — עד 5 חינם לאנונימי
     if(!canRegular()){gate("limit");return;}
     if(isAnon())bumpFree();
+    // 🧬 לוח-הצורות (FORMS) נשאר פתוח כשפותחים צורה מתוכו; חיפוש-מונח לא-קשור סוגר אותו.
+    try{if(!_formsShown.has(t))hideForms();}catch(e){}
     st.raw=w;goBusy("מחפש…");   // 🔄 עיגול-מסתובב מיידי על הכפתור
     const _t0=_now();
     const _slow=st.scope==="tanakh";if(_slow)showSearchLoad();   // ⏳ מד-חיווי רק לתנ״ך (התורה מיידית)
@@ -1752,7 +1892,8 @@
     const S=Math.abs(ah.skip);if(S<2)return null;
     const mainCol=((ah.positions[0]%S)+S)%S;
     const rows=ah.positions.map(p=>Math.floor(p/S)),mr=Math.round((Math.min(...rows)+Math.max(...rows))/2);
-    const RH=30,CW=Math.min(S,80),c0=Math.max(0,Math.min(S-CW,mainCol-40)),r0=Math.max(0,mr-RH),r1=mr+RH;
+    // 🌍 Geometry Contract (Pass 2): מקור-אמת יחיד עם blockOf/zoneMonteCarlo — לא עוד RH=30/c0=-40 מקומי.
+    const _g=researchGeometry(S,mainCol,mr),CW=_g.cw,c0=_g.c0,r0=_g.r0,r1=_g.r1;
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=r0&&r<=r1&&c>=c0&&c<c0+CW;};
     const rc=p=>[Math.floor(p/S),((p%S)+S)%S],anchorCells=ah.positions.map(rc);
     const _geo={S:S,c0:c0,cw:CW,r0:r0,r1:r1};
@@ -1881,7 +2022,10 @@
         "const norm="+norm.toString()+";\nconst gem="+gem.toString()+";\n"+
         "const st={scope:\"x\"};\nconst FA=new Map();\n"+
         lb.toString()+"\nfunction scopeN(){return SN;}\n"+
-        fwdSetup.toString()+"\n"+fwdScan.toString()+"\n"+fwd.toString()+"\n"+findAll.toString()+"\n"+
+        fwdSetup.toString()+"\n"+fwdScan.toString()+"\n"+fwd.toString()+"\n"+
+        "const DISPERSE_SEG="+DISPERSE_SEG+";\nconst DISPERSE_RESERVE_FRAC="+DISPERSE_RESERVE_FRAC+";\nconst DISPERSE_RESERVE_MAX="+DISPERSE_RESERVE_MAX+";\n"+
+        scopeRange.toString()+"\n"+fwdDisperse.toString()+"\n"+fwdDisperseTopUp.toString()+"\n"+
+        fwdProbePair.toString()+"\n"+findAll.toString()+"\n"+
         faMemo.toString()+"\n"+rarityOf.toString()+"\n"+
         "const bookOf="+bookOf.toString()+";\n"+
         "const gridStep="+gridStep.toString()+";\nconst gapF="+gapF.toString()+";\n"+
@@ -1895,17 +2039,8 @@
         "postMessage({type:\"cfmResult\",reqId:d.reqId,meetings:r2.meetings,total:r2.total});return;}"+
         "if(d.type===\"hitchunk\"){var ms=[];for(var i=0;i<d.hits.length;i++){var m=crossFindMultiHit(d.hits[i],d.offset+i,d.T2,d.pure,d.rar,d.axisBase);if(m)ms.push(m);}"+
         "postMessage({type:\"hitchunkResult\",reqId:d.reqId,meetings:ms});return;}"+
-        "if(d.type===\"findAllAdaptive\"){var dirsArr=[[d.tt,\"fwd\"],[d.ttBack,\"back\"]];"+
-        "var dirHits=[[],[]],total=0,capped2=0,heavyDirs=[];"+
-        "for(var di=0;di<2&&!capped2;di++){var tt2=dirsArr[di][0],orient2=dirsArr[di][1];"+
-        "var su2=fwdSetup(tt2);if(!su2)continue;"+
-        "var ps2=Math.min(d.probeSize,su2.Pi.length);"+
-        "var localHits=[],localStt={capped:0};"+
-        "fwdScan(tt2,d.cap-total,localHits,orient2,localStt,su2,0,ps2);"+
-        "dirHits[di]=localHits;total+=localHits.length;"+
-        "if(total>=d.cap){capped2=1;}"+
-        "else if(ps2<su2.Pi.length){heavyDirs.push({dirIndex:di,tt:tt2,orient:orient2,probed:ps2,Pi:su2.Pi,Pj:su2.Pj,i:su2.i,j:su2.j,g:su2.g,mx:su2.mx,L:su2.L,SN:su2.SN});}}"+
-        "postMessage({type:\"adaptiveResult\",reqId:d.reqId,dirHits:dirHits,capped:capped2,heavyDirs:heavyDirs});"+
+        "if(d.type===\"findAllAdaptive\"){var pr=fwdProbePair(d.tt,d.ttBack,d.cap,d.probeSize);"+
+        "postMessage({type:\"adaptiveResult\",reqId:d.reqId,dirHits:pr.dirHits,capped:pr.capped,heavyDirs:pr.heavyDirs});"+
         "return;}"+
         "if(d.type===\"fwdchunk\"){var ch=[],cst={capped:0};"+
         "var csetup={SN:d.SN,L:d.L,i:d.i,j:d.j,g:d.g,Pi:d.Pi,Pj:d.Pj,mx:d.mx};"+
@@ -1972,6 +2107,7 @@
       //    מהמקור. תוקן ואומת (equivalence suite גילה את זה בפועל).
       const dirHits=res.dirHits;
       let capped=res.capped;
+      const wasProbeCapped=!!res.capped;   // fwdProbePair (Worker) כבר פיזר בעצמו כשזה קרה — לא לפזר שוב
       if(!capped&&res.heavyDirs)for(const hd of res.heavyDirs){
         if(capped)break;
         const otherLen=dirHits[1-hd.dirIndex].length;
@@ -1981,6 +2117,15 @@
         const stt={capped:0};
         await fwdParallel(hd.tt,effectiveCap,dirHits[hd.dirIndex],hd.orient,stt,setup,pool,hd.probed);
         if(stt.capped)capped=stt.capped;
+      }
+      // 🩹 scopeRange dispersal — שקילות עם findAll הסינכרוני: fwdProbePair מפזר בעצמו כש-capped
+      // נקבע *בתוך* חלון-ה-probe בלבד (wasProbeCapped). אבל כש-capped נקבע רק אחרי המשך-מקבילי
+      // (fwdParallel/heavyDirs, למעלה) — הפיזור עוד לא רץ. מריצים אותו כאן פעם אחת, על התוצאה
+      // הסופית של שני הכיוונים, בדיוק כמו הענף המקביל ב-findAll — אחרת sync/adaptive מתפצלים
+      // בדיוק במקרה הזה (capped דרך escalation, לא probe-בלבד) — נמצא ואומת ב-equivalence suite.
+      if(capped&&!wasProbeCapped){
+        const suF=fwdSetup(t);if(suF)fwdDisperseTopUp(dirHits[0],[{tt:t,orient:"fwd",setup:suF}]);
+        const suB=fwdSetup(tb);if(suB)fwdDisperseTopUp(dirHits[1],[{tt:tb,orient:"back",setup:suB}]);
       }
       const hits=[...dirHits[0],...dirHits[1]];
       hits.sort((a,b)=>Math.abs(a.skip)-Math.abs(b.skip));
@@ -2132,6 +2277,137 @@
       toast("🔄 "+heb(zones.length)+" אזורים מ־"+heb(forms.length)+" צדדים ("+heb(nS)+" צורות של השם) · הטוב: "+zones[0].stars+"★ · צד: "+zones[0].side);
     },10);
   }
+  // ═══ 🧬 FORMS — פיצול/איחוד (Pass 2, מקור: els-work-area 2dbb658f, מותאם למבנה הנוכחי — לא raw
+  //     merge). {A,reverse(A)} × {B,reverse(B)} × {AB,BA} = עד 8 צורות-מחקר של שני-טוקנים. ⛔ אין
+  //     מנוע חיפוש שני — כל צורה זורמת אל findAll/findAllAdaptive הקנוני (כולל תיקוני Pass 1:
+  //     בידוד-כיוונים + scopeRange). זיווג-היפוך: findAll סורק כיוון+היפוכו בקריאה אחת ⇒ 8 צורות
+  //     = 4 קריאות-מנוע. sidesForms/MIRRORS הקיימים (מראות אתב״ש וכו') לא נגעו בהם — יכולת נפרדת.
+  const _rev=s=>s.split("").reverse().join("");
+  // פיצול-לטוקנים: שתי מילים = A ו-B. שלוש ומעלה → A=הראשונה, B=כל השאר (עקבי עם splitToCross).
+  function _formTokens(input){
+    const parts=String(input||"").trim().split(/\s+/).filter(Boolean);
+    if(parts.length<2)return null;
+    const A=norm(parts[0]),B=norm(parts.slice(1).join(""));
+    return (A&&B)?[A,B]:null;
+  }
+  const FORMS={
+    splitjoin:{
+      id:"splitjoin",label:"פיצול/איחוד (טוקנים · היפוך · סדר)",
+      gen(input){
+        const tk=_formTokens(input);if(!tk)return [];
+        const A=tk[0],B=tk[1],rA=_rev(A),rB=_rev(B),out=[];
+        const xs=[[A,"A"],[rA,"reverse(A)"]],ys=[[B,"B"],[rB,"reverse(B)"]];
+        for(const x of xs)for(const y of ys)for(const ord of [0,1]){
+          const w=ord?(y[0]+x[0]):(x[0]+y[0]);
+          const derivation=ord?(y[1]+" + "+x[1]):(x[1]+" + "+y[1]);
+          if(w.length>=2)out.push({name:derivation,w,derivation,tokens:[A,B],original:input});
+        }
+        return out;
+      }
+    }
+  };
+  // מריץ גנרטור מהמרשם ומסיר כפילויות-engine_input (הצורה הראשונה שנוצרה מנצחת).
+  function formsOf(kind,input){
+    const g=FORMS[kind];if(!g)return [];
+    const out=[],seen=new Set();
+    for(const f of g.gen(input)){if(!f.w||f.w.length<2||seen.has(f.w))continue;seen.add(f.w);out.push(f);}
+    return out;
+  }
+  // 🔗 זיווג-היפוך: כל זוג {צורה,היפוכה} מקבל נציג אחד; ממצאי dir=+1 שייכים לנציג, dir=-1 להיפוכו.
+  function formPairs(forms){
+    const byW=new Map(forms.map(f=>[f.w,f])),pairs=[],done=new Set();
+    for(const f of forms){
+      if(done.has(f.w))continue;
+      const r=_rev(f.w),mate=(r!==f.w&&byW.has(r))?byW.get(r):null;
+      done.add(f.w);if(mate)done.add(mate.w);
+      pairs.push({probe:f,mate});
+    }
+    return pairs;
+  }
+  // ⏳ overlay גנרי-שלבים (נפרד מ-_sl/showSearchLoad הקיים — אין הנחת-מבנה משותפת, אותה מחלקת-CSS
+  //    .searchload בלבד לעקביות ויזואלית). paintThen מבטיח שהשלב-הבא נצבע *לפני* חסימת-הסריקה.
+  let _stageSl=null;
+  function _stageEnsure(){
+    if(!_stageSl){_stageSl=document.createElement("div");_stageSl.className="searchload";
+      _stageSl.innerHTML='<div class="sl-box"><div class="sl-t"></div><div class="sl-s"></div></div>';
+      document.body.appendChild(_stageSl);}
+    return _stageSl;
+  }
+  function showStage(title,sub){
+    const el=_stageEnsure();
+    el.querySelector(".sl-t").textContent=title;el.querySelector(".sl-s").textContent=sub||"";
+    el.classList.add("on");
+  }
+  function hideStage(){if(_stageSl)_stageSl.classList.remove("on");}
+  const paintThen=fn=>{try{requestAnimationFrame(()=>setTimeout(fn,0));}catch(e){setTimeout(fn,16);}};
+
+  // ── 🧬 הרצת צורות-הפיצול דרך המנוע הקנוני ────────────────────────────────────────
+  //  📖 ברירת-המחדל = תורה בלבד (מהיר). Deep=true → כל התנ״ך, ואז דרך findAllAdaptive (Pass 1:
+  //  probe→parallel-רק-אם-צריך) — לא sync, בדיוק כמו כל חיפוש-תנ״ך אחר במנוע. אין findAll חדש.
+  const FORMS_CAP=4000;
+  function formsPanel(){
+    let el=document.getElementById("formsout");
+    if(!el){el=document.createElement("div");el.id="formsout";el.className="formsout";
+      if(out&&out.parentNode)out.parentNode.insertBefore(el,out);}
+    return el;
+  }
+  async function runForms(input,deep){
+    if(!ensureOnboarded())return;
+    const forms=formsOf("splitjoin",input);
+    if(forms.length<2){toast("🧬 פיצול/איחוד דורש שתי מילים — למשל «סוד החשמל»");return;}
+    if(deep&&tanakhLocked()){gate("tanakh");return;}
+    if(!canRegular()){gate("limit");return;}
+    if(isAnon())bumpFree();
+    const scopeName=deep?"כל התנ״ך":"תורה",prevScope=st.scope;st.scope=deep?"tanakh":"torah";
+    const pairs=formPairs(forms),hitsOf=new Map(),t0=_now();
+    showStage("🧬 מכין "+heb(forms.length)+" צורות…","פיצול · היפוך · סדר — ב"+scopeName);
+    for(let i=0;i<pairs.length;i++){
+      const p=pairs[i];
+      showStage("🧬 סורק צורה "+heb(i+1)+" מתוך "+heb(pairs.length)+"…",
+                "«"+p.probe.w+"»"+(p.mate?" ו«"+p.mate.w+"»":"")+" ב"+scopeName);
+      await new Promise(res=>paintThen(res));
+      const r=deep?await findAllAdaptive(p.probe.w,FORMS_CAP):findAll(p.probe.w,FORMS_CAP);
+      hitsOf.set(p.probe.w,r.hits.filter(h=>h.dir===1));
+      if(p.mate)hitsOf.set(p.mate.w,r.hits.filter(h=>h.dir===-1));
+    }
+    st.scope=prevScope;
+    const ms=_now()-t0;
+    renderForms(input,forms,hitsOf,deep,ms,pairs.length);
+    hideStage();logSearch("forms",input);
+  }
+  let _formsShown=new Set();
+  function renderForms(input,forms,hitsOf,deep,ms,calls){
+    const el=formsPanel();
+    const rows=forms.map(f=>{const h=hitsOf.get(f.w)||[];
+      return {f,n:h.length,best:h.length?Math.abs(h[0].skip):null};});
+    // מיון: נמצא קודם · אחר-כך הנדיר יותר · ואז הדילוג הקטן ביותר. (מיון-תצוגה בלבד — לא ranking של המנוע.)
+    rows.sort((a,b)=>(b.n>0)-(a.n>0)||a.n-b.n||(a.best||1e9)-(b.best||1e9));
+    const found=rows.filter(r=>r.n>0).length;
+    const tk=forms[0].tokens||[];
+    let html='<div class="fo-head"><b>🧬 '+heb(forms.length)+' צורות</b> של «'+escH(input)+'»'+
+      (tk.length?' <span class="fo-tok">'+escH(tk[0])+' · '+escH(tk[1])+'</span>':'')+
+      '<span class="fo-meta">'+heb(found)+' נמצאו · '+heb(calls)+' קריאות מנוע · '+
+      (deep?"כל התנ״ך":"תורה")+' · '+(ms/1000).toFixed(2)+' שנ׳</span></div>';
+    html+='<div class="fo-rows">'+rows.map(r=>
+      '<div class="fo-row'+(r.n?"":" off")+'">'+
+        '<b class="fo-w">'+escH(r.f.w)+'</b>'+
+        '<span class="fo-d">'+escH(r.f.derivation)+'</span>'+
+        '<span class="fo-n">'+(r.n?heb(r.n)+' מופעים · דילוג '+heb(r.best):'לא נמצא')+'</span>'+
+        (r.n?'<button class="fo-go" data-w="'+escH(r.f.w)+'">פתח ←</button>':'')+
+      '</div>').join("")+'</div>';
+    if(!deep)html+='<div class="fo-foot"><button class="fo-deep">📜 הרחב לכל התנ״ך (איטי — Deep)</button>'+
+      '<span class="fo-note">ברירת-המחדל היא תורה. סריקת התנ״ך כבדה יותר ולכן נפתחת רק בבחירה מפורשת.</span></div>';
+    el.innerHTML=html;el.style.display="block";   // ⚠️ חייב "block" מפורש — .formsout ברירת-מחדל display:none
+    _formsShown=new Set(forms.map(f=>f.w));
+    el.querySelectorAll(".fo-go").forEach(b=>b.onclick=()=>{
+      q.value=b.dataset.w;
+      const want=deep?"tanakh":"torah";
+      if(st.scope!==want){st.scope=want;updateScopeUI();}
+      run();   // ← המסלול הקנוני: אותו findAll, אותו דירוג, אותה גאומטריה
+    });
+    const db=el.querySelector(".fo-deep");if(db)db.onclick=()=>runForms(input,true);
+  }
+  function hideForms(){const el=document.getElementById("formsout");if(el){el.style.display="none";el.innerHTML="";}_formsShown=new Set();}
   // 🌉 גשר דו-מונחי (הצלבה הפוכה): נותנים שני מונחים → המנוע מוצא **לבד** את מילת-הציר (מהמאגר)
   //    שסביבה **שניהם** מתכנסים הכי צמוד. במקום «איפה הם סביב ציר שנתתי» — «איזה ציר הכי מאחד אותם». עדות, לא ניבוי.
   // מילות-מפתח מגשרות — רשימה אוצרת (נושאים/שמות/מקומות/ספירות) לגשר מהיר וטהור
@@ -2664,7 +2940,7 @@
   }
 
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
-  function loadMatrix(item,filmTimes){
+  async function loadMatrix(item,filmTimes){
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
     st.scope=item.scope==="tanakh"?"tanakh":"torah";updateScopeUI();   // מטריצה שמורה נטענת בהיקף שבו נמצאה
@@ -2673,10 +2949,25 @@
     st.author=item.author||"";   // ✍️ שם-המחבר (לפרֵה-מילוי חלון חובת-ההסבר בשמירה חוזרת)
     st.cipherSlug=item.slug||"";st.cipherTerm=item.term||"";   // 🔗 1ב — הקשר-הצופן: מאפשר «שתף כממצא» כתגובה
 
-    q.value=item.term;st.raw=item.term;st.res=findAll(item.term,4000);
-    if(!st.res.hits.length){updGem();render();return;}
-    let idx=item.skip?st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip):-1;
-    if(idx<0){const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;}
+    q.value=item.term;st.raw=item.term;
+    // 🌍 Performance completion (Pass 2, GAP-6): תנ״ך עובר דרך findAllAdaptive (probe→parallel-רק-
+    //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
+    //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
+    st.res=st.scope==="tanakh"?await findAllAdaptive(item.term,4000):findAll(item.term,4000);
+    if(!st.res.hits.length){postHost({type:"load-error",term:item.term,reason:"not-found"});updGem();render();return;}
+    // 🧭 Research Journey (Pass 2, elsJourney.js buildJourneyRestore/buildJourneyPromotion, מותאם):
+    //    item.hitId (או item.start+item.dir) מזהה מופע *מדויק*, לא רק דילוג — hitKey() הוא הפורמט
+    //    הקנוני הקיים (כבר בשימוש ב-Verse-Lens). נופל לגיבוי הישן (skip בלבד) לצפנים-שמורים ותיקים
+    //    שנשמרו בלי start/dir. חוסר-התאמה על עוגן-מפורש מדווח ל-host (load-error) — לא נבלע בשקט,
+    //    כדי ש-journeyAnchorMatches() בצד ה-React ידע להבחין הצלחה משחזור-קירוב.
+    let idx=-1;
+    if(item.hitId)idx=st.res.hits.findIndex(h=>hitKey(h)===item.hitId);
+    if(idx<0&&item.start!=null&&item.dir!=null)idx=st.res.hits.findIndex(h=>h.start===item.start&&h.dir===item.dir);
+    if(idx<0&&item.skip)idx=st.res.hits.findIndex(h=>Math.abs(h.skip)===item.skip);
+    if(idx<0){
+      if(item.hitId||item.start!=null)postHost({type:"load-error",term:item.term,reason:"anchor-not-found"});
+      const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;
+    }
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
     st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
     st.words=(item.words||[]).map((w,i)=>{const t=norm(typeof w==="string"?w:w.t);return{t,color:(typeof w==="object"&&w.color)||PALETTE[i%PALETTE.length],hits:[],total:0,inwin:0,_savedShown:(w&&typeof w==="object"&&Array.isArray(w.sh))?w.sh:null};});
@@ -3007,18 +3298,44 @@
 
   function occ(){return st.res.hits[st.occ];}
 
+  // 🌍 Geometry Contract (research_geometry_law, Pass 2): מקור-אמת יחיד לחלון-המחקר — render
+  // (blockOf/markedBBox), search (crossFindMultiHit._geo→searchSpace), ו-statistics (runMonteCarlo/
+  // clusterStat/zoneMonteCarlo) כולם גוזרים מכאן, לא כל אחד נוסחה נפרדת. לפני התיקון: blockOf() לבד
+  // קרא את st.ctxR (RH=18+ctxR*5≈33), בעוד crossFindMultiHit/zoneMonteCarlo הקשיחו RH=30,c0=mainCol-40
+  // בלי תלות ב-ctxR (ושבור בנוסף ל-S צר: -40 חצי-קבוע במקום -CW/2) — ±30 במקום אחד, ±33 (נגזרת-ctxR)
+  // במקום אחר, בלי אפשרות לשנות אף אחד מהם באמת (ctxR היה state מת, בלי setter). כעת: GEOMETRY_CTXR
+  // הוא פרמטר-מחקר אמיתי (setCtxR למטה, כפתור בסרגל), CW=min(S,80) נשאר גזור (לא constant מוסתר —
+  // תלוי-S כפי שהיה, רק דרך מקור אחד), וכל שינוי-ctxR משנה בפועל את מרחב-המחקר לכל שלושת הצרכנים.
+  // Zoom/Pan/Fit (st.zoom/st.fit) נשארים camera בלבד — markedBBox() הוא עדיין תת-קבוצה תצוגתית של אותו
+  // חלון-מחקר (לא geometry נפרד), ו-fwdDisperseTopUp (Pass 1) הוא sampling policy לתוצאה capped —
+  // לא Geometry ולא הוכחת-כיסוי-ממצה של מרחב-החיפוש.
+  const GEOMETRY_CTXR_MIN=1,GEOMETRY_CTXR_MAX=8;
+  function researchGeometry(S,mainCol,mr){
+    const totalRows=Math.ceil(N/S);
+    const RH=18+st.ctxR*5,CW=Math.min(S,80);
+    const c0=Math.max(0,Math.min(S-CW,mainCol-Math.floor(CW/2)));
+    const r0=Math.max(0,mr-RH),r1=Math.min(totalRows-1,mr+RH);
+    return {S,mainCol,mr,c0,cw:CW,r0,r1,ctxR:st.ctxR,totalRows};
+  }
+  // 🎛️ setCtxR — היחיד שמשנה geometry-truth בפועל. משנה את st.ctxR, מפנה cache-ים תלויי-geometry
+  //    (clusterStat/Monte-Carlo לציר הראשי — mcSig כולל ctxR; אזורי-הצלבה — _mc/_chain אין להם
+  //    signature כלל, אז מנקים אותם במפורש), ואז מרנדר — render/search/statistics מתעדכנים יחד.
+  function setCtxR(v){
+    const nv=Math.max(GEOMETRY_CTXR_MIN,Math.min(GEOMETRY_CTXR_MAX,Math.round(v)));
+    if(nv===st.ctxR)return;
+    st.ctxR=nv;
+    if(st.crossMeetings)st.crossMeetings.forEach(z=>{delete z._mc;delete z._chain;});
+    render();
+  }
+
   // ── בלוק-המטריצה: רוחב=דילוג, חלון גדול הניתן לגרירה ──
   function blockOf(){
     const h=occ(),S=Math.abs(h.skip);
     const mainCol=((h.positions[0]%S)+S)%S;
     const rows=h.positions.map(p=>Math.floor(p/S));
     const rMin=Math.min(...rows),rMax=Math.max(...rows),mr=Math.round((rMin+rMax)/2);
-    const totalRows=Math.ceil(N/S);
-    const RH=18+st.ctxR*5;                          // חצי-גובה החלון (שורות) — ברירת מחדל ~33
-    const CW=Math.min(S,80);                        // רוחב החלון (עמודות) — רחב מספיק לאלכסונים
-    let c0=Math.max(0,Math.min(S-CW,mainCol-Math.floor(CW/2)));
-    let r0=Math.max(0,mr-RH),r1=Math.min(totalRows-1,mr+RH);
-    return {S,mainCol,c0,cw:CW,r0,r1,rMin,rMax,mr};
+    const g=researchGeometry(S,mainCol,mr);
+    return {S,mainCol,c0:g.c0,cw:g.cw,r0:g.r0,r1:g.r1,rMin,rMax,mr};
   }
   // 🖥️ תיבת-התצוגה המותאמת: מתכווצת לתחום של כל הצופן המסומן (ציר + ממצאים) + שוליים,
   //    כדי שכל הצופן ייכנס למסך (למשל תורה קדשה — לא חלון ענק ריק). תת-קבוצה של חלון-הסריקה.
@@ -3234,7 +3551,10 @@
     if(st3d.on)enable3D(mb);else enablePan(mb);
     const hb=document.createElement("div");hb.className="hintbar";
     hb.innerHTML='<span class="ht">📍 הקש אות למיקום בתורה · '+(st.fit?"מותאם למסך · צבוט/± להגדיל":"גרור · צבוט להגדיל")+'</span>'+
-      '<span class="zoomctl"><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="heatbtn'+(st.heat?" on":"")+'" title="מפת-חום צפיפות">🌡️ חום</button><button class="selbtn'+(st.selMode?" on":"")+'" title="סימון ידני">✏️ סימון</button><button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button></span>';
+      '<span class="zoomctl"><button class="fitbtn'+(st.fit?" on":"")+'" title="התאם את כל הצופן למסך">🖥️ התאם</button><button class="heatbtn'+(st.heat?" on":"")+'" title="מפת-חום צפיפות">🌡️ חום</button><button class="selbtn'+(st.selMode?" on":"")+'" title="סימון ידני">✏️ סימון</button>'+
+      // 🌍 Geometry Contract — פרמטר-מחקר אמיתי (לא camera): משפיע על חלון-החיפוש/תצוגה/סטטיסטיקה יחד.
+      '<button class="ctxrm" title="צמצם רדיוס-הקשר (משפיע על חיפוש+תצוגה+מובהקות)">🔎−</button><span class="ctxrv" title="רדיוס-הקשר הנוכחי">'+st.ctxR+'</span><button class="ctxrp" title="הרחב רדיוס-הקשר (משפיע על חיפוש+תצוגה+מובהקות)">🔎＋</button>'+
+      '<button class="zo" title="הקטן">−</button><button class="zi" title="הגדל">＋</button></span>';
     const selbar=document.createElement("div");selbar.className="selbar";selbar.style.display=st.selMode?"flex":"none";
     const acts=document.createElement("div");acts.className="matacts";
     const isEdit=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים → «עדכן ממצא» במקום «שמור»
@@ -3281,6 +3601,8 @@
     // ⛔ התגובות-הפרימיטיביות (localStorage) הוסרו — המחקר-הקהילתי הקנוני חי בעמוד-הצופן /codes/:slug (Discourse).
     out.innerHTML="";out.appendChild(wrap);
     hb.querySelector(".fitbtn").onclick=()=>{st.fit=!st.fit;st.zoom=1;render();};
+    hb.querySelector(".ctxrm").onclick=()=>setCtxR(st.ctxR-1);
+    hb.querySelector(".ctxrp").onclick=()=>setCtxR(st.ctxR+1);
     hb.querySelector(".zo").onclick=()=>setZoom(st.zoom-0.2);
     hb.querySelector(".zi").onclick=()=>setZoom(st.zoom+0.2);
     hb.querySelector(".heatbtn").onclick=()=>{st.heat=!st.heat;hb.querySelector(".heatbtn").classList.toggle("on",st.heat);recolorOnly();};
@@ -3376,7 +3698,7 @@
     return {sObs,mean:Math.round(sum/TR*10)/10,p,rar,perc,TR,words:words.length,capped:ge===0};
   }
   // חתימת-מצב לתוצאת ה-Monte-Carlo: מתיישנת אוטומטית כשמשנים מופע / קרבה / ממצאים
-  function mcSig(){return st.occ+"|"+st.showN+"|"+(st.hideMain?1:0)+"|"+st.words.map(w=>norm(w.t)).join(",");}
+  function mcSig(){return st.occ+"|"+st.showN+"|"+(st.hideMain?1:0)+"|"+st.ctxR+"|"+st.words.map(w=>norm(w.t)).join(",");}
   function buildMatrix(){
     const h=occ(),b=(st.fit?markedBBox():blockOf()),S=b.S;lastBlock=b;lastCw=b.cw;
     const basePX=Math.max(20,Math.min(30,Math.round(720/Math.min(b.cw,26))));
@@ -3606,8 +3928,9 @@
     const hit=res&&res.hits[z.occ];if(!hit){z._mc=null;return null;}
     const S=Math.abs(hit.skip),mainCol=((hit.positions[0]%S)+S)%S;
     const rows=hit.positions.map(p=>Math.floor(p/S)),mr=Math.round((Math.min(...rows)+Math.max(...rows))/2);
-    const RH=30,CW=Math.min(S,80),c0=Math.max(0,Math.min(S-CW,mainCol-40)),r0=Math.max(0,mr-RH),r1=mr+RH;
-    const words=z.detail.map(d=>d.t),showN=3,totalRows=Math.ceil(N/S),H=r1-r0;
+    // 🌍 Geometry Contract (Pass 2): מקור-אמת יחיד עם blockOf/crossFindMultiHit.
+    const _g=researchGeometry(S,mainCol,mr),CW=_g.cw,c0=_g.c0,r0=_g.r0,r1=_g.r1,totalRows=_g.totalRows;
+    const words=z.detail.map(d=>d.t),showN=3,H=r1-r0;
     const sObs=clusterStat(r0,r1,c0,CW,S,mainCol,words,showN);
     if(sObs<=0){z._mc={rar:1,perc:0,capped:false,TR:200};return z._mc;}
     const TR=200;let ge=0;
@@ -4249,8 +4572,11 @@
     if(words.length>=2){
       const a=words[0],b=words.slice(1).join(" ");
       el.style.display="";
-      el.innerHTML='<div class="coach-t">🧭 שתי מילים? זה בדיוק <b>חיפוש מוצלב</b> — כך מוצאים <b>מפגש</b> בין השתיים (הצורה החזקה).</div><button class="coach-go" type="button">🔀 פצל והצלב</button>';
+      el.innerHTML='<div class="coach-t">🧭 שתי מילים? זה בדיוק <b>חיפוש מוצלב</b> — כך מוצאים <b>מפגש</b> בין השתיים (הצורה החזקה).</div>'+
+        '<button class="coach-go" type="button">🔀 פצל והצלב</button>'+
+        '<button class="coach-go coach-forms" type="button" title="מייצר את כל צורות הפיצול/היפוך/סדר וסורק אותן בתורה">🧬 8 צורות</button>';
       const cb=el.querySelector(".coach-go");if(cb)cb.onclick=function(){splitToCross(a,b);};
+      const fb=el.querySelector(".coach-forms");if(fb)fb.onclick=function(){runForms(w,false);};   // 📖 תורה = ברירת-מחדל
     }else if(t.length>=7){
       el.style.display="";
       el.innerHTML='<div class="coach-t">🧭 «'+escH(w)+'» ארוכה ('+heb(t.length)+' אותיות) — נדירה מאוד כדילוג. נסו <b>מילה קצרה</b> (2־5 אותיות), או פצלו לשתי מילים והצליבו.</div>';
