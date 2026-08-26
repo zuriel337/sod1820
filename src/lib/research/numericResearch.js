@@ -9,7 +9,7 @@ export const DEFAULT_NUMERIC_RESEARCH_BUDGET = Object.freeze({
 });
 
 export const NUMERIC_LENS_STATUS = Object.freeze({ READY: 'READY', ADAPTER_NEEDED: 'ADAPTER_NEEDED' });
-const SEQUENCES = createSequenceRegistry([piSequenceAdapter]);
+export const DEFAULT_SEQUENCE_ADAPTERS = Object.freeze([piSequenceAdapter]);
 
 export const numericLensMap = Object.freeze({
   number_lookup: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_lookup' },
@@ -23,7 +23,7 @@ export const numericLensMap = Object.freeze({
   source_post_context: { status: NUMERIC_LENS_STATUS.ADAPTER_NEEDED, reason: 'no single canonical number-only source/post RPC' },
   els: { status: NUMERIC_LENS_STATUS.ADAPTER_NEEDED, reason: 'ELS native adapter exists for Universal Findings, but no safe number-only dispatch contract' },
   gematria_reverse: { status: NUMERIC_LENS_STATUS.READY, via: 'fn_number_lookup/fn_number_dossier; do not recalculate in router' },
-  pi: { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'pi' },
+  'sequence:pi': { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'pi' },
 });
 
 function normalizeBudget(input = {}) {
@@ -51,11 +51,11 @@ function sequenceUniversalFinding(number, sequenceFinding) {
     kind: 'sequence',
     stage: 'candidate',
     subject: { type: 'number', key: String(number), label: String(number), value: number },
-    source: { engine: 'sequence', adapter: 'sequence-lens-v1', sourceRef: `${sequenceFinding.sequence_id}:${sequenceFinding.sequence_version}`, method: sequenceFinding.operation, corpus: null },
-    identity: { sourceIdentity: `${sequenceFinding.sequence_id}:${sequenceFinding.operation}:${sequenceFinding.query}:${sequenceFinding.result?.first_position ?? 'not-found'}@${sequenceFinding.search_depth}` },
-    evidence: { facts: [{ type: 'sequence-search', sequence_id: sequenceFinding.sequence_id, query: sequenceFinding.query, operation: sequenceFinding.operation, position_convention: sequenceFinding.position_convention, search_depth: sequenceFinding.search_depth, result: sequenceFinding.result, verification: sequenceFinding.verification }] },
+    source: { engine: 'sequence', adapter: 'sequence-lens-v1', sourceRef: `${sequenceFinding.sequence_id}:${sequenceFinding.sequence_version || 'adapter'}`, method: sequenceFinding.operation || null, corpus: null },
+    identity: { sourceIdentity: `${sequenceFinding.sequence_id}:${sequenceFinding.operation || 'operation'}:${sequenceFinding.query ?? number}:${sequenceFinding.result?.first_position ?? 'not-found'}@${sequenceFinding.search_depth ?? 'bounded'}` },
+    evidence: { facts: [{ type: 'sequence-search', sequence_id: sequenceFinding.sequence_id, query: sequenceFinding.query ?? String(number), operation: sequenceFinding.operation || null, position_convention: sequenceFinding.position_convention || null, search_depth: sequenceFinding.search_depth ?? null, result: sequenceFinding.result, verification: sequenceFinding.verification || null }] },
     provenance: { createdBy: 'ENGINE:sequence', createdAt: sequenceFinding.provenance?.generated_at || new Date().toISOString(), inputRef: sequenceFinding.provenance?.input_ref || null },
-    projection: { dimensions: { sequence_id: sequenceFinding.sequence_id, representation_kind: sequenceFinding.representation_kind } },
+    projection: { dimensions: { sequence_id: sequenceFinding.sequence_id, representation_kind: sequenceFinding.representation_kind || null } },
   });
 }
 
@@ -69,7 +69,7 @@ function relationCandidate(number, sequenceFinding, positionContext, universalFi
     to: { type: 'number', value: pos },
     relation: 'occurs_at_sequence_position',
     sequence_id: sequenceFinding.sequence_id,
-    verification: sequenceFinding.verification,
+    verification: sequenceFinding.verification || null,
     evidence: { finding_id: universalFinding?.id || null, sequence_finding: sequenceFinding, position_context: positionContext || null },
     canonical: false,
     published: false,
@@ -91,7 +91,7 @@ export async function researchNumber(numberInput, options = {}) {
   const number = Number(numberInput);
   if (!Number.isSafeInteger(number) || number < 0) throw new Error('number must be a non-negative safe integer');
   const budget = normalizeBudget(options.budget);
-  const requested = (options.lenses?.length ? options.lenses : ['number_lookup', 'number_dossier', 'research_objects', 'pi']).slice(0, budget.maxLenses);
+  const requested = (options.lenses?.length ? options.lenses : ['number_lookup', 'number_dossier', 'research_objects', 'sequence:pi']).slice(0, budget.maxLenses);
   const perLens = {};
   const rpc = options.rpc;
 
@@ -107,22 +107,30 @@ export async function researchNumber(numberInput, options = {}) {
   }
   for (const id of requested.filter(id => numericLensMap[id]?.status === NUMERIC_LENS_STATUS.ADAPTER_NEEDED)) perLens[id] = { status: 'adapter_needed', ...numericLensMap[id] };
 
-  let sequenceFinding = null;
-  if (requested.includes('pi')) {
-    sequenceFinding = await runSequenceLens(SEQUENCES, { sequenceId: 'pi', query: String(number), operation: options.sequenceOperation || SEQUENCE_OPERATION.FIRST, budget: budget.sequence, provenance: options.provenance });
-    perLens.pi = sequenceFinding;
+  const registry = createSequenceRegistry(options.sequenceAdapters?.length ? options.sequenceAdapters : DEFAULT_SEQUENCE_ADAPTERS);
+  const sequenceLensIds = requested.filter(id => id.startsWith('sequence:'));
+  const universalFindings = [];
+  const relationCandidates = [];
+
+  for (const lensId of sequenceLensIds) {
+    const sequenceId = lensId.slice('sequence:'.length);
+    const sequenceFinding = await runSequenceLens(registry, { sequenceId, query: String(number), operation: options.sequenceOperations?.[sequenceId] || options.sequenceOperation || SEQUENCE_OPERATION.FIRST, budget: budget.sequence, provenance: options.provenance });
+    perLens[lensId] = sequenceFinding;
+    const universalFinding = sequenceUniversalFinding(number, sequenceFinding);
+    if (universalFinding) universalFindings.push(universalFinding);
+
+    let positionContext = null;
+    if (budget.depth >= 2 && sequenceFinding?.result?.first_position != null) {
+      positionContext = await rpcCall(rpc, 'fn_number_lookup', { p_value: sequenceFinding.result.first_position });
+      perLens[`${lensId}:position_context`] = positionContext;
+    }
+    const candidate = relationCandidate(number, sequenceFinding, positionContext, universalFinding);
+    if (candidate) relationCandidates.push(candidate);
   }
 
-  let positionContext = null;
-  if (budget.depth >= 2 && sequenceFinding?.result?.first_position != null) {
-    positionContext = await rpcCall(rpc, 'fn_number_lookup', { p_value: sequenceFinding.result.first_position });
-    perLens.pi_position_numeric_context = positionContext;
-  }
   const objects = Array.isArray(perLens.research_objects?.data) ? perLens.research_objects.data : Array.isArray(perLens.research_objects) ? perLens.research_objects : [];
   const dossier = perLens.number_dossier?.data || null;
   const hotContext = perLens.hot_context?.data || null;
-  const universalFinding = sequenceUniversalFinding(number, sequenceFinding);
-  const candidate = relationCandidate(number, sequenceFinding, positionContext, universalFinding);
 
   return {
     v: 1,
@@ -131,8 +139,8 @@ export async function researchNumber(numberInput, options = {}) {
     requested_lenses: requested,
     budget,
     per_lens: perLens,
-    universal_findings: universalFinding ? [universalFinding] : [],
-    relation_candidates: candidate ? [candidate] : [],
+    universal_findings: universalFindings,
+    relation_candidates: relationCandidates,
     priority: deriveNumericResearchPriority({ dossier, researchObjects: objects, hotContext }),
     provenance: { request_source: options.provenance?.requestSource || null, input_ref: options.provenance?.inputRef || null },
     truth_lifecycle: { automatic_canonical_promotion: false, automatic_publication: false, human_gate_required: true },

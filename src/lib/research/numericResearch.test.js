@@ -15,7 +15,7 @@ test('golden 337 occurs first at pi position 230 and remains a candidate', async
   const registry = createSequenceRegistry([piSequenceAdapter]);
   const finding = await runSequenceLens(registry, { sequenceId: 'pi', query: '337', budget: sequenceBudget, provenance: { generatedAt: '2026-08-26T20:00:00.000Z' } });
   assert.equal(finding.result.first_position, 230);
-  const routed = await researchNumber(337, { rpc: fakeRpc, fetchResearchObjects: async () => ({ status: 'ok', data: [] }), lenses: ['number_lookup', 'number_dossier', 'research_objects', 'pi'], provenance: { requestSource: 'golden-test', generatedAt: '2026-08-26T20:00:00.000Z' } });
+  const routed = await researchNumber(337, { rpc: fakeRpc, fetchResearchObjects: async () => ({ status: 'ok', data: [] }), lenses: ['number_lookup', 'number_dossier', 'research_objects', 'sequence:pi'], provenance: { requestSource: 'golden-test', generatedAt: '2026-08-26T20:00:00.000Z' } });
   assert.equal(routed.relation_candidates[0].to.value, 230);
   assert.equal(routed.relation_candidates[0].canonical, false);
   assert.equal(routed.universal_findings[0].stage, 'candidate');
@@ -35,15 +35,19 @@ test('3060 pi result does not replace existing Zvi convergence findings', async 
     { statement: '5 פעמים ברית(612)=3060', value: 3060, engine_verified: true, source: 'zvi_full_corpus_pass' },
     { statement: "180 פעמים טוב(17)=3060", value: 3060, engine_verified: true, source: 'zvi_full_corpus_pass' },
   ];
-  const routed = await researchNumber(3060, { rpc: fakeRpc, fetchResearchObjects: async () => ({ status: 'ok', data: existing }), lenses: ['number_dossier', 'research_objects', 'pi'], budget: { sequence: sequenceBudget } });
-  assert.equal(routed.per_lens.pi.result.first_position, 5679);
+  const routed = await researchNumber(3060, { rpc: fakeRpc, fetchResearchObjects: async () => ({ status: 'ok', data: existing }), lenses: ['number_dossier', 'research_objects', 'sequence:pi'], budget: { sequence: sequenceBudget } });
+  assert.equal(routed.per_lens['sequence:pi'].result.first_position, 5679);
   assert.deepEqual(routed.per_lens.research_objects.data, existing);
   assert.equal(routed.relation_candidates.length, 1);
   assert.equal(routed.truth_lifecycle.automatic_publication, false);
 });
 
-test('term sequences are an extension point without router redesign', () => {
-  const fibonacciAdapter = { sequenceId: 'fibonacci-fixture', representationKind: 'term_sequence', maxSearchDepth: 100, async execute(request) { return { status: 'ok', sequence_id: 'fibonacci-fixture', operation: request.operation, result: { found: false } }; } };
-  const registry = createSequenceRegistry([piSequenceAdapter, fibonacciAdapter]);
-  assert.equal(registry.get('fibonacci-fixture').representationKind, 'term_sequence');
+test('another sequence routes through one adapter without router redesign', async () => {
+  const fibonacciAdapter = {
+    sequenceId: 'fibonacci-fixture', representationKind: 'term_sequence', maxSearchDepth: 100,
+    async execute(request) { return { status: 'ok', sequence_id: 'fibonacci-fixture', sequence_version: 'fixture-v1', representation_kind: 'term_sequence', query: request.query, operation: request.operation, search_depth: 100, result: { found: false, first_position: null }, verification: { verified: true }, provenance: { generated_at: 'fixture' } }; },
+  };
+  const routed = await researchNumber(337, { rpc: fakeRpc, lenses: ['sequence:fibonacci-fixture'], sequenceAdapters: [fibonacciAdapter] });
+  assert.equal(routed.per_lens['sequence:fibonacci-fixture'].sequence_id, 'fibonacci-fixture');
+  assert.equal(routed.per_lens['sequence:fibonacci-fixture'].representation_kind, 'term_sequence');
 });
