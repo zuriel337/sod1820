@@ -8,6 +8,15 @@ export const DEFAULT_NUMERIC_RESEARCH_BUDGET = Object.freeze({
   sequence: Object.freeze({ maxSearchDepth: 25000, maxOccurrences: 25, windowRadius: 12 }),
 });
 
+export const DEFAULT_PRIORITY_WEIGHTS = Object.freeze({
+  convergence: 1,
+  engineVerified: 1,
+  sourceDiversity: 1,
+  relationEvidence: 1,
+  openQuestions: 1,
+  hotContext: 1,
+});
+
 export const NUMERIC_LENS_STATUS = Object.freeze({ READY: 'READY', ADAPTER_NEEDED: 'ADAPTER_NEEDED' });
 export const DEFAULT_SEQUENCE_ADAPTERS = Object.freeze([piSequenceAdapter]);
 
@@ -76,15 +85,29 @@ function relationCandidate(number, sequenceFinding, positionContext, universalFi
   };
 }
 
-export function deriveNumericResearchPriority({ dossier, researchObjects = [], hotContext = null } = {}) {
-  const convergenceCount = dossier?.facts?.convergences?.length || 0;
-  const verifiedCount = researchObjects.filter(x => x?.engine_verified === true).length;
-  const sourceDiversity = new Set(researchObjects.map(x => x?.source).filter(Boolean)).size;
-  const evidenceCount = dossier?.evidence?.length || 0;
-  const openQuestions = researchObjects.filter(x => x?.kind === 'question' && x?.status !== 'dismissed').length;
-  const activitySignal = Number(hotContext?.score || hotContext?.priority || 0) || 0;
-  const score = convergenceCount * 2 + verifiedCount + sourceDiversity * 2 + evidenceCount * 2 + openQuestions + Math.max(0, activitySignal);
-  return { score, rank_basis: { convergence_count: convergenceCount, engine_verified_findings: verifiedCount, source_diversity: sourceDiversity, relation_evidence: evidenceCount, open_questions: openQuestions, hot_context_signal: activitySignal }, truth_status: 'NOT_A_TRUTH_SIGNAL' };
+export function deriveNumericResearchPriority({ dossier, researchObjects = [], hotContext = null, weights = {} } = {}) {
+  const signals = {
+    convergence_count: dossier?.facts?.convergences?.length || 0,
+    engine_verified_findings: researchObjects.filter(x => x?.engine_verified === true).length,
+    source_diversity: new Set(researchObjects.map(x => x?.source).filter(Boolean)).size,
+    relation_evidence: dossier?.evidence?.length || 0,
+    open_questions: researchObjects.filter(x => x?.kind === 'question' && x?.status !== 'dismissed').length,
+    hot_context_signal: Math.max(0, Number(hotContext?.score || hotContext?.priority || 0) || 0),
+  };
+  const w = { ...DEFAULT_PRIORITY_WEIGHTS, ...weights };
+  const score = signals.convergence_count * w.convergence
+    + signals.engine_verified_findings * w.engineVerified
+    + signals.source_diversity * w.sourceDiversity
+    + signals.relation_evidence * w.relationEvidence
+    + signals.open_questions * w.openQuestions
+    + signals.hot_context_signal * w.hotContext;
+  return {
+    score,
+    rank_basis: signals,
+    weights: w,
+    policy: 'router_local_configurable_v1_not_canonical',
+    truth_status: 'NOT_A_TRUTH_SIGNAL',
+  };
 }
 
 export async function researchNumber(numberInput, options = {}) {
@@ -107,7 +130,7 @@ export async function researchNumber(numberInput, options = {}) {
   }
   for (const id of requested.filter(id => numericLensMap[id]?.status === NUMERIC_LENS_STATUS.ADAPTER_NEEDED)) perLens[id] = { status: 'adapter_needed', ...numericLensMap[id] };
 
-  const registry = createSequenceRegistry(options.sequenceAdapters?.length ? options.sequenceAdapters : DEFAULT_SEQUENCE_ADAPTERS);
+  const registry = createSequenceRegistry([...DEFAULT_SEQUENCE_ADAPTERS, ...(options.sequenceAdapters || [])]);
   const sequenceLensIds = requested.filter(id => id.startsWith('sequence:'));
   const universalFindings = [];
   const relationCandidates = [];
@@ -141,7 +164,7 @@ export async function researchNumber(numberInput, options = {}) {
     per_lens: perLens,
     universal_findings: universalFindings,
     relation_candidates: relationCandidates,
-    priority: deriveNumericResearchPriority({ dossier, researchObjects: objects, hotContext }),
+    priority: deriveNumericResearchPriority({ dossier, researchObjects: objects, hotContext, weights: options.priorityWeights }),
     provenance: { request_source: options.provenance?.requestSource || null, input_ref: options.provenance?.inputRef || null },
     truth_lifecycle: { automatic_canonical_promotion: false, automatic_publication: false, human_gate_required: true },
   };
