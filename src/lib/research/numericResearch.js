@@ -87,6 +87,34 @@ function relationCandidate(number, sequenceFinding, positionContext, universalFi
   };
 }
 
+function derivedNumericRoot(number, sequenceFinding, positionContext, universalFinding) {
+  const value = sequenceFinding?.result?.first_position;
+  if (value == null) return null;
+  return {
+    stage: 'candidate',
+    type: 'derived_numeric_root',
+    root: { type: 'number', value },
+    traversable: true,
+    derivation: {
+      from: { type: 'number', value: number },
+      lens: `sequence:${sequenceFinding.sequence_id}`,
+      operation: sequenceFinding.operation || null,
+      relation: 'sequence_position',
+    },
+    verification: sequenceFinding.verification || null,
+    provenance: {
+      finding_id: universalFinding?.id || null,
+      sequence_id: sequenceFinding.sequence_id,
+      sequence_version: sequenceFinding.sequence_version || null,
+      position_convention: sequenceFinding.position_convention || null,
+      search_depth: sequenceFinding.search_depth ?? null,
+    },
+    context: positionContext || null,
+    canonical: false,
+    published: false,
+  };
+}
+
 export function deriveNumericResearchPriority({ dossier, researchObjects = [], hotContext = null, weights = {} } = {}) {
   const signals = {
     convergence_count: dossier?.facts?.convergences?.length || 0,
@@ -136,6 +164,7 @@ export async function researchNumber(numberInput, options = {}) {
   const sequenceLensIds = requested.filter(id => id.startsWith('sequence:'));
   const universalFindings = [];
   const relationCandidates = [];
+  const derivedNumericRoots = [];
 
   for (const lensId of sequenceLensIds) {
     const sequenceId = lensId.slice('sequence:'.length);
@@ -157,6 +186,8 @@ export async function researchNumber(numberInput, options = {}) {
     }
     const candidate = relationCandidate(number, sequenceFinding, positionContext, universalFinding);
     if (candidate) relationCandidates.push(candidate);
+    const derivedRoot = derivedNumericRoot(number, sequenceFinding, positionContext, universalFinding);
+    if (derivedRoot) derivedNumericRoots.push(derivedRoot);
   }
 
   const objects = Array.isArray(perLens.research_objects?.data) ? perLens.research_objects.data : Array.isArray(perLens.research_objects) ? perLens.research_objects : [];
@@ -172,6 +203,7 @@ export async function researchNumber(numberInput, options = {}) {
     per_lens: perLens,
     universal_findings: universalFindings,
     relation_candidates: relationCandidates,
+    derived_numeric_roots: derivedNumericRoots,
     priority: deriveNumericResearchPriority({ dossier, researchObjects: objects, hotContext, weights: options.priorityWeights }),
     provenance: { request_source: options.provenance?.requestSource || null, input_ref: options.provenance?.inputRef || null },
     truth_lifecycle: { automatic_canonical_promotion: false, automatic_publication: false, human_gate_required: true },
