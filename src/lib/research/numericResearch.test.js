@@ -12,7 +12,7 @@ test('pi uses one-based positions after decimal and matches a known prefix', () 
   assert.equal(piDigitsAfterDecimal(50), '14159265358979323846264338327950288419716939937510');
 });
 
-test('golden 337 occurs first at pi position 230 and remains a candidate', async () => {
+test('golden 337 occurs first at pi position 230 and remains a traversable noncanonical candidate', async () => {
   const registry = createSequenceRegistry([piSequenceAdapter]);
   const finding = await runSequenceLens(registry, { sequenceId: 'pi', query: '337', budget: sequenceBudget, provenance: { generatedAt: '2026-08-26T20:00:00.000Z' } });
   assert.equal(finding.result.first_position, 230);
@@ -20,14 +20,20 @@ test('golden 337 occurs first at pi position 230 and remains a candidate', async
   assert.equal(routed.relation_candidates[0].to.value, 230);
   assert.equal(routed.relation_candidates[0].canonical, false);
   assert.equal(routed.universal_findings[0].stage, 'candidate');
+  assert.equal(routed.derived_numeric_roots[0].root.value, 230);
+  assert.equal(routed.derived_numeric_roots[0].traversable, true);
+  assert.equal(routed.derived_numeric_roots[0].context.data.value, 230);
+  assert.equal(routed.derived_numeric_roots[0].canonical, false);
   assert.equal(routed.truth_lifecycle.automatic_canonical_promotion, false);
 });
 
-test('1820 pi result is additive and bounded', async () => {
-  const registry = createSequenceRegistry([piSequenceAdapter]);
-  const finding = await runSequenceLens(registry, { sequenceId: 'pi', query: '1820', budget: sequenceBudget });
-  assert.equal(finding.result.first_position, 24653);
-  assert.equal(finding.search_depth, 25000);
+test('1820 pi result is additive, bounded, and exposes position 24653 as a derived numeric root', async () => {
+  const routed = await researchNumber(1820, { rpc: fakeRpc, lenses: ['sequence:pi'], budget: { sequence: sequenceBudget } });
+  assert.equal(routed.per_lens['sequence:pi'].result.first_position, 24653);
+  assert.equal(routed.per_lens['sequence:pi'].search_depth, 25000);
+  assert.equal(routed.derived_numeric_roots[0].root.value, 24653);
+  assert.equal(routed.derived_numeric_roots[0].derivation.from.value, 1820);
+  assert.equal(routed.derived_numeric_roots[0].derivation.lens, 'sequence:pi');
 });
 
 test('3060 pi result does not replace existing Zvi convergence findings', async () => {
@@ -40,6 +46,7 @@ test('3060 pi result does not replace existing Zvi convergence findings', async 
   assert.equal(routed.per_lens['sequence:pi'].result.first_position, 5679);
   assert.deepEqual(routed.per_lens.research_objects.data, existing);
   assert.equal(routed.relation_candidates.length, 1);
+  assert.equal(routed.derived_numeric_roots[0].root.value, 5679);
   assert.equal(routed.truth_lifecycle.automatic_publication, false);
 });
 
@@ -58,7 +65,7 @@ test('Fibonacci preserves duplicate term identity for 1 under all-occurrences op
   assert.deepEqual(finding.result.occurrences, [1, 2]);
 });
 
-test('Fibonacci routes through the same Router and returns a candidate for term position', async () => {
+test('Fibonacci routes through the same Router and exposes index 13 as a derived numeric root', async () => {
   const routed = await researchNumber(233, { rpc: fakeRpc, lenses: ['sequence:fibonacci'], budget: { sequence: { maxSearchDepth: 50, windowRadius: 3, maxOccurrences: 10 } } });
   assert.equal(routed.per_lens['sequence:fibonacci'].operation, SEQUENCE_OPERATION.TERM_FIRST);
   assert.equal(routed.per_lens['sequence:fibonacci'].result.first_position, 13);
@@ -66,12 +73,16 @@ test('Fibonacci routes through the same Router and returns a candidate for term 
   assert.equal(routed.relation_candidates[0].sequence_id, 'fibonacci');
   assert.equal(routed.relation_candidates[0].to.value, 13);
   assert.equal(routed.relation_candidates[0].canonical, false);
+  assert.equal(routed.derived_numeric_roots[0].root.value, 13);
+  assert.equal(routed.derived_numeric_roots[0].derivation.lens, 'sequence:fibonacci');
+  assert.equal(routed.derived_numeric_roots[0].context.data.value, 13);
 });
 
-test('non-Fibonacci numeric roots remain verified not-found, not fabricated relations', async () => {
+test('non-Fibonacci numeric roots remain verified not-found, not fabricated relations or derived roots', async () => {
   const routed = await researchNumber(337, { rpc: fakeRpc, lenses: ['sequence:fibonacci'], budget: { sequence: { maxSearchDepth: 50 } } });
   assert.equal(routed.per_lens['sequence:fibonacci'].result.found, false);
   assert.equal(routed.relation_candidates.length, 0);
+  assert.equal(routed.derived_numeric_roots.length, 0);
   assert.equal(routed.truth_lifecycle.automatic_canonical_promotion, false);
 });
 
@@ -84,4 +95,5 @@ test('a future term sequence can still be injected without Router source edits',
   const routed = await researchNumber(337, { rpc: fakeRpc, lenses: ['sequence:term-fixture'], sequenceAdapters: [fixture] });
   assert.equal(routed.per_lens['sequence:term-fixture'].operation, SEQUENCE_OPERATION.TERM_FIRST);
   assert.equal(routed.per_lens['sequence:term-fixture'].representation_kind, 'term_sequence');
+  assert.equal(routed.derived_numeric_roots.length, 0);
 });
