@@ -67,6 +67,29 @@ Required adapter behavior when implemented:
 
 Status: **EXISTING CAPABILITY — ADAPTER NEEDED**.
 
+## Existing Powers-of-Two research family — REUSE / ADAPTER CANDIDATE
+
+Live canonical Numeric Root data already recognizes a doubling/powers-of-two family rather than this being a newly invented sequence:
+- `256 = 2^8`, live node description identifies it as `אהרן` and as a root of the doubling sequence.
+- `512 = 2^9`, live node description identifies it as an anchor of the doubling sequence.
+- `1024 = 2^10`, live node description identifies it as the doubling of 512.
+
+The live dossiers also already contain Hebrew/gematria research around these roots. Therefore the Foundation must preserve this as an existing research family and must not create a separate 256/512/1024 engine or truth store.
+
+Preferred adapter family: `powers` / `exponentiation`, with `powers_of_two` as the first evidenced specialization.
+
+Required deterministic directions when implemented:
+- **Number as Target / membership:** `256 -> powers_of_two -> exponent 8 -> Derived Numeric Root 8`; likewise `512 -> 9`, `1024 -> 10`.
+- **Number as Operator / exponent:** `8 -> base 2 exponentiation -> 256 -> Derived Numeric Root 256`; likewise `9 -> 512`, `10 -> 1024`.
+
+Truth discipline:
+- `2^8 = 256`, `2^9 = 512`, `2^10 = 1024` are mathematical calculations.
+- Hebrew/gematria matches such as `אהרן = 256` remain separate gematria findings with their own method/provenance; they are not properties of exponentiation itself.
+- A path such as `X -> Fibonacci -> 8 -> powers_of_two -> 256 -> gematria -> אהרן` is a bounded cross-lens research path, not automatic semantic proof.
+- Powers/exponentiation findings may emit Derived Numeric Roots but may not auto-persist, auto-create canonical edges, or promote interpretation.
+
+Status: **EXISTING RESEARCH FAMILY — ADAPTER/CROSSWALK NEEDED**. No powers adapter is implemented in this pass.
+
 ## Source / Geometry / Representation separation
 
 A source image or post is evidence/input, not a Geometry Engine and not a canonical geometric fact by itself.
@@ -93,6 +116,8 @@ This preserves the same law already demonstrated by the Roadmap 3D prototype and
 - `1820 -> sequence:pi / exact_digit_sequence_first_occurrence -> 24653 -> Numeric Root lookup(24653)`
 - `233 -> sequence:fibonacci / exact_term_first_occurrence -> 13 -> Numeric Root lookup(13)`
 - `337 -> sequence:fibonacci -> NOT FOUND` produces no derived root.
+- Existing powers path: `256 -> powers_of_two membership -> exponent 8 -> Numeric Root lookup(8)`.
+- Existing powers reverse path: `8 -> base-2 exponentiation -> 256 -> Numeric Root lookup(256)`.
 - Existing Spatial Gematria path: `910 -> mathematical structure 70 × 13 -> 910; 910 + 910 -> 1820` remains a structured research path and may later expose 70, 13, 910 and 1820 as traversable numeric subjects under the adapter contract.
 - Existing Spatial Gematria path: `20 faces × 31 -> 620` may later expose 20, 31 and 620 as traversable numeric subjects under the adapter contract.
 - Future image-derived geometry example (contract only, not a verified fact): `identified geometric structure -> verified count X -> Derived Numeric Root X -> bounded Numeric Root lookup(X)`.
@@ -126,12 +151,16 @@ MUST FOUNDATION NOW:
 - Keep numeric outputs traversable through Derived Numeric Roots.
 - Reuse/reconcile existing Spatial Gematria instead of building a parallel Geometry Engine.
 - Preserve its four layers: Text -> Gematria -> Mathematical Structure -> Geometric Form.
+- Preserve/reconcile the existing powers-of-two/doubling research family rather than creating a parallel sequence system.
 - Preserve `fact` != `midrash`/interpretation.
 - Preserve provenance, truth-state separation, bounded traversal and Human Gate.
 - Keep Geometry/mathematical calculation separate from 2D/3D representation and UI projection.
 
 EXISTING CAPABILITY — ADAPTER NEEDED:
 - Spatial Gematria (`src/lib/spatialModels.js` + its existing presentation surfaces) into Universal Finding / Research Router / Derived Subject contracts.
+
+EXISTING RESEARCH FAMILY — ADAPTER/CROSSWALK NEEDED:
+- Powers/exponentiation, with live powers-of-two evidence at 256/512/1024. First crosswalk must determine what is already engine-backed versus stored research description before implementation.
 
 EXTENSION POINT NOW:
 - Source/Image extraction into identified structures.
