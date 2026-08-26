@@ -5,6 +5,20 @@ import { GEM } from "../theme.js";
 
 export const onlyHeb = s => [...(s || "")].filter(c => GEM[c] != null);
 
+// normalizeForCalc — JS mirror of SQL fn_normalize_for_calc (reconciled 2026-08-26 against the
+// live DB definition; live since ~2026-08-22, gw_enforce_engine calls it before all 14 *_calc
+// functions). Removes niqqud/teamim and geresh/gershayim/quotes (no space — they sit attached to
+// a letter); turns approved punctuation into a space (preserves word boundaries for order-dependent
+// methods); collapses whitespace. Never touches Hebrew letters, digits, Latin, "+", "=", or dashes
+// (ambiguous on purpose — see misratar_multi / word-boundary risk found in the "שלום,עולם" parity case).
+// Keep this regex-for-regex identical to fn_normalize_for_calc — see test/normalize-parity.test.mjs.
+export const normalizeForCalc = input => String(input || "")
+  .replace(/[֑-ׇ]/g, "")
+  .replace(/[׳״"'‘’“”]/g, "")
+  .replace(/[,.;:()?!]/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
 const FINAL = { "ך": 500, "ם": 600, "ן": 700, "ף": 800, "ץ": 900 };
 // 🔒 חוק gadol_equals_ragil_when_no_sofiot (נעול ב-DB): ההבדל היחיד בין שיטה «גדולה» לבסיס
 // הוא ערכי הסופיות (ך=500…ץ=900). אם אין אות סופית בביטוי → הגדול שווה לרגיל בדיוק.
@@ -43,8 +57,8 @@ const gadol = w => onlyHeb(w).reduce((s, c) => s + (FINAL[c] || GEM[c] || 0), 0)
 // ריבוע (ribua_definition — נעול): סכום הרגיל של כל הקידומות ההדרגתיות, מילה-מילה.
 // דוד = ד(4)+דו(10)+דוד(14) = 28. ריבוע גדול = אותו דבר בערכי סופיות. מאומת: גג=9, צוריאל=1432.
 const ribuaWord = (word, val) => { let s = 0, run = 0; for (const c of onlyHeb(word)) { run += val(c); s += run; } return s; };
-export const ribua = w => String(w || "").split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => GEM[c] || 0), 0);
-export const ribuaGadol = w => String(w || "").split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => FINAL[c] || GEM[c] || 0), 0);
+export const ribua = w => normalizeForCalc(w).split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => GEM[c] || 0), 0);
+export const ribuaGadol = w => normalizeForCalc(w).split(/\s+/).reduce((t, word) => t + ribuaWord(word, c => FINAL[c] || GEM[c] || 0), 0);
 // משולש מילה / משולש הפוך (נוסף 25.7.2026): בונים את *כל הביטוי* אות-אחר-אות ברצף (מעבר לרווחים)
 // וסוכמים את הרגיל של כל שלב. קדימה = מההתחלה גדל (ש → של → שלו → שלום). הפוך = מוריד אות ראשונה בכל שלב
 // (מלך ישראל → לך ישראל → ך ישראל → …). ⚠️ למילה בודדת «משולש מילה» = ריבוע (ribua_definition);
@@ -63,7 +77,7 @@ export const stairTriangle = w => String(w || "").split(/\s+/).reduce((tot, word
 }, 0);
 // מסתתר (חוק misratar_multi — נעול): כל מילה מחושבת בנפרד; הרווח שובר את הרצף.
 // לעולם לא מחברים אות אחרונה של מילה לאות ראשונה של הבאה. (משיח בן דוד = 552+48+4 = 604)
-export const mistater = w => String(w || "").split(/\s+/).reduce((tot, word) => {
+export const mistater = w => normalizeForCalc(w).split(/\s+/).reduce((tot, word) => {
   const L = onlyHeb(word); let s = 0;
   for (let i = 0; i < L.length - 1; i++) s += Math.abs(GEM[L[i]] - GEM[L[i + 1]]);
   return tot + s;
