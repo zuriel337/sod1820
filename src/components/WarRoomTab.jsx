@@ -11,7 +11,7 @@ import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
   getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData, getWaThread, getAiAnalysis,
-  getContributorConversation,
+  getContributorConversation, getContributorDossierData,
 } from "../lib/supabase.js";
 import { analyzeTime } from "../lib/timeFlow.js";
 import { crossMethodPairs } from "../lib/gematria.js";
@@ -1658,6 +1658,165 @@ function ZviConversationPanel({ contributor }) {
   );
 }
 
+// ── 🗂️ ZVI CONTRIBUTOR RESEARCH DOSSIER (Zvi Full Corpus Pass) ─────────────────────────────────
+// Foundation → Projection → Experience: קורא בלבד מ-research_objects (הפאונדיישן, אחרי ה-batch pass)
+// + research_items(handled) הקיים. אין הרצה-חיה של extractCandidates על 400+ הודעות בכל טעינה — זו
+// רק פרוייקציה על מה שכבר-נשמר. לא Premium, לא Number Page ציבורי — תצוגת-מחקר לצוריאל בלבד.
+const DOSSIER_VERDICT = (o) => {
+  if (o.engine_verified === true) return o.engine_detail?.compound ? "verified_composite" : "verified_direct";
+  if (o.engine_detail?.compound?.status === "METHOD_UNRESOLVED") return "unresolved";
+  if (o.engine_verified === false) return "unverified";
+  return "interpretation";
+};
+const VERDICT_HE = {
+  verified_direct: "✓ אומת ישירות", verified_composite: "✓ אומת (Composite)",
+  unresolved: "◌ שיטה לא-מזוהה", unverified: "🟡 טרם אומת", interpretation: "🟣 פרשנות",
+};
+const VERDICT_COLOR = { verified_direct: "#4caf7d", verified_composite: "#4caf7d", unresolved: "#8a8a95", unverified: "#c79a2e", interpretation: "#a48bff" };
+
+function ZviDossierPanel({ contributor }) {
+  const [data, setData] = useState(null);
+  const [filters, setFilters] = useState({ number: "", verdict: "", q: "" });
+  const isZvi = contributor?.slug === "tzvi-opoc";
+
+  useEffect(() => {
+    if (!isZvi) return;
+    let alive = true;
+    getContributorDossierData({ contributor: "צבי (OPOC)", handledPrefix: "ch:" }).then(d => { if (alive) setData(d); });
+    return () => { alive = false; };
+  }, [isZvi]);
+
+  if (!isZvi) return null;
+  if (!data) return (
+    <div style={{ ...box, marginTop: 12, borderColor: "#e9c84a55" }}>
+      <span style={{ color: "#8a6d1a", fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>🗂️ תיק המחקר של צבי</span>
+      <div style={{ color: C.faint, fontSize: 12, marginTop: 6 }}>טוען…</div>
+    </div>
+  );
+
+  const objects = data.objects.map(o => ({ ...o, verdict: DOSSIER_VERDICT(o) }));
+  const verifiedDirect = objects.filter(o => o.verdict === "verified_direct");
+  const verifiedComposite = objects.filter(o => o.verdict === "verified_composite");
+  const unresolved = objects.filter(o => o.verdict === "unresolved");
+  const unverified = objects.filter(o => o.verdict === "unverified");
+  const interpretations = objects.filter(o => o.verdict === "interpretation");
+
+  // מספרים מרכזיים — קיבוץ לפי value, ממוין לפי כמות
+  const byValue = new Map();
+  for (const o of objects) { if (o.value == null) continue; if (!byValue.has(o.value)) byValue.set(o.value, []); byValue.get(o.value).push(o); }
+  const keyNumbers = [...byValue.entries()].sort((a, b) => b[1].length - a[1].length);
+  // קשרים — ערכים עם ≥2 ביטויים שונים (terms[0] כביטוי-מייצג)
+  const connections = keyNumbers.filter(([, os]) => new Set(os.map(o => (o.terms || [])[0] || o.statement)).size >= 2);
+  // מקורות — פירוק source_ref לבסיס (בלי #batchN/#aN)
+  const bySource = new Map();
+  for (const o of objects) {
+    const base = String(o.source_ref || "").split("#")[0];
+    if (!bySource.has(base)) bySource.set(base, 0);
+    bySource.set(base, bySource.get(base) + 1);
+  }
+
+  const methods = [...new Set(objects.map(o => o.engine_detail?.verification?.method).filter(Boolean))].sort();
+
+  const passFilter = (o) => {
+    if (filters.number && String(o.value) !== filters.number) return false;
+    if (filters.verdict && o.verdict !== filters.verdict) return false;
+    if (filters.q && !((o.statement || "").includes(filters.q))) return false;
+    return true;
+  };
+  const filtered = objects.filter(passFilter);
+  const anyFilterActive = filters.number || filters.verdict || filters.q;
+
+  const handledCount = data.handled?.length || 0;
+
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: "#e9c84a55", background: "#fffaf3" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        <span style={{ color: "#8a6d1a", fontFamily: F.heading, fontWeight: 900, fontSize: 15 }}>🗂️ תיק המחקר של צבי</span>
+        <span style={{ color: C.faint, fontSize: 10 }}>Contributor Research Dossier — פרוייקציה על research_objects, לא Premium, לא דף-מספר ציבורי</span>
+      </div>
+
+      {/* 1. Identity/Provenance */}
+      <CaseSection title="1 · צבי (OPOC) — Identity">
+        <div style={{ fontSize: 11.5, color: C.muted }}>
+          slug: <code>tzvi-opoc</code> · {objects.length} ממצאים שמורים · {handledCount} מקורות סומנו-מטופלים בתור-הבקרה
+        </div>
+      </CaseSection>
+
+      {/* 2. כל החידושים + פילטרים */}
+      <CaseSection title={`2 · כל החידושים (${objects.length})`}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+          <select value={filters.number} onChange={e => setFilters(f => ({ ...f, number: e.target.value }))} style={{ fontSize: 11, padding: "3px 6px", borderRadius: 6, border: `1px solid ${C.border}` }}>
+            <option value="">כל המספרים</option>
+            {keyNumbers.slice(0, 40).map(([v]) => <option key={v} value={v}>{v} ({byValue.get(v).length})</option>)}
+          </select>
+          <select value={filters.verdict} onChange={e => setFilters(f => ({ ...f, verdict: e.target.value }))} style={{ fontSize: 11, padding: "3px 6px", borderRadius: 6, border: `1px solid ${C.border}` }}>
+            <option value="">כל הסטטוסים</option>
+            {Object.entries(VERDICT_HE).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+          </select>
+          <input value={filters.q} onChange={e => setFilters(f => ({ ...f, q: e.target.value }))} placeholder="חיפוש בטקסט…" style={{ fontSize: 11, padding: "3px 6px", borderRadius: 6, border: `1px solid ${C.border}`, minWidth: 120 }} />
+          {anyFilterActive && <button onClick={() => setFilters({ number: "", verdict: "", q: "" })} style={chip(false)}>נקה סינון</button>}
+        </div>
+        <div style={{ maxHeight: 340, overflow: "auto", display: "grid", gap: 4 }}>
+          {filtered.slice(0, 200).map(o => (
+            <div key={o.id} style={{ fontSize: 11.5, padding: "4px 6px", borderRadius: 7, background: "#0000000a" }}>
+              <span style={{ color: VERDICT_COLOR[o.verdict], fontWeight: 700 }}>{VERDICT_HE[o.verdict]}</span>
+              <span style={{ color: C.goldLight }}> — {(o.statement || "").slice(0, 90)}</span>
+              {o.value != null && <b style={{ color: C.goldBright }}> ({o.value})</b>}
+              <div style={{ color: C.faint, fontSize: 9 }}>{o.source_ref}</div>
+            </div>
+          ))}
+          {filtered.length > 200 && <div style={{ color: C.faint, fontSize: 10.5 }}>+{filtered.length - 200} נוספים (סנן כדי לצמצם)</div>}
+          {!filtered.length && <div style={{ color: C.faint, fontSize: 12 }}>אין תוצאות לסינון הנוכחי.</div>}
+        </div>
+      </CaseSection>
+
+      <CaseSection title={`3 · מאומתים במנוע — ישיר (${verifiedDirect.length})`}>
+        <div style={{ color: C.faint, fontSize: 11 }}>{verifiedDirect.slice(0, 10).map(o => `${(o.terms || [])[0] || "—"}=${o.value}`).join(" · ")}{verifiedDirect.length > 10 ? ` · +${verifiedDirect.length - 10}` : ""}</div>
+      </CaseSection>
+
+      <CaseSection title={`4 · Composite/Arithmetic Verified (${verifiedComposite.length})`}>
+        <div style={{ color: C.faint, fontSize: 11 }}>{verifiedComposite.map(o => o.statement).join(" · ") || "—"}</div>
+      </CaseSection>
+
+      <CaseSection title={`5 · טרם אומתו / שיטה לא-מזוהה (${unresolved.length + unverified.length})`}>
+        <div style={{ color: C.faint, fontSize: 11 }}>
+          {unresolved.map(o => `⚠ ${o.statement} (METHOD_UNRESOLVED)`).join(" · ")}
+          {unverified.length > 0 && (unresolved.length ? " · " : "") + `${unverified.length} טענות engine_verified=false — ראה סעיף 2 (Rank, Don't Hide)`}
+        </div>
+      </CaseSection>
+
+      <CaseSection title={`6 · פרשנויות (${interpretations.length})`}>
+        <div style={{ color: C.faint, fontSize: 11 }}>{interpretations.length ? interpretations.slice(0, 10).map(o => o.statement?.slice(0, 60)).join(" · ") : "אין (הפאס הנוכחי לא סיווג relation/hypothesis נפרדים)."}</div>
+      </CaseSection>
+
+      <CaseSection title={`7 · מספרים מרכזיים (${keyNumbers.length})`}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {keyNumbers.slice(0, 24).map(([v, os]) => (
+            <span key={v} onClick={() => setFilters(f => ({ ...f, number: String(v) }))} style={{ ...pill(C.gold), cursor: "pointer" }}>{v} ({os.length})</span>
+          ))}
+        </div>
+      </CaseSection>
+
+      <CaseSection title={`8 · קשרים / Convergences (${connections.length})`}>
+        {connections.slice(0, 15).map(([v, os]) => (
+          <div key={v} style={{ fontSize: 12, marginBottom: 3 }}>
+            🔗 <b style={{ color: C.goldBright }}>{v}</b> ↔ {[...new Set(os.map(o => (o.terms || [])[0] || o.statement))].slice(0, 6).join(" ↔ ")}
+          </div>
+        ))}
+        {!connections.length && <div style={{ color: C.faint, fontSize: 12 }}>—</div>}
+      </CaseSection>
+
+      <CaseSection title={`9 · מקורות (${bySource.size})`}>
+        <div style={{ color: C.faint, fontSize: 11 }}>{bySource.size} מקורות ייחודיים תרמו ל-{objects.length} ממצאים (ממוצע {(objects.length / Math.max(1, bySource.size)).toFixed(1)} ממצאים/מקור).{methods.length > 1 && ` שיטות שנמצאו מעבר ל-רגיל: ${methods.filter(m => m !== "רגיל").join(", ") || "—"}.`}</div>
+      </CaseSection>
+
+      <CaseSection title="10 · Chronology / רצף-שיחה">
+        <div style={{ color: C.faint, fontSize: 11 }}>ראה פאנל «💬 השיחה של צבי» למעלה — אותה פרוייקציה כרונולוגית בדיוק.</div>
+      </CaseSection>
+    </div>
+  );
+}
+
 // ── PART B/D · «➕ שמור למחקר» — כפתור Human-Gate אחד וברור, נפרד מ«סגור-מהתור» (PART E). ──
 // כרגע רק לפריטי Pipeline C-source=channel (channel_updates, cuId קיים) — Claim-shaped בלבד,
 // דרך ה-RPC היחיד channel_update_save_to_research (אותו דפוס בדיוק כמו image_artifact_route_to_intake).
@@ -2252,6 +2411,7 @@ export default function WarRoomTab() {
                 if (!wc) return <div style={{ color: C.muted, fontSize: 13 }}>«{writer}» לא נמצא ב-contributors (אין דף-כתב עדיין).</div>;
                 return <>
                   <WriterOS contributor={wc} writerIndex={writerIdx} />
+                  <ZviDossierPanel contributor={wc} />
                   <ZviConversationPanel contributor={wc} />
                 </>;
               })()}

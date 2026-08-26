@@ -46,6 +46,174 @@ export function matchAnyMethod(phrase, value) {
   return matches;
 }
 
+// ── PART 3 (Zvi Full Corpus Pass) · Compound/Composite Gematria Claims ────────────────────────
+// "quantity × phrase = result" / "phrase(v) × phrase(v) = result" / "phrase+phrase+phrase = num+num+num = result"
+// MUST be parsed as an OPERATION over verified operands — never as one literal phrase run through fn_ragil
+// (the pre-existing bug: "5 פעמים ברית(612)=3060" would compute ragil("5 פעמים ברית")≠3060 and wrongly report
+// ENGINE_MISMATCH for an arithmetically-true claim). New extraction here — NOT a change to analysisFlow.js/
+// gematria.js. Every operand still resolves through the SAME METHODS/DEPTH_METHODS.fn; gematria.js's own
+// onlyHeb() already strips spaces/hyphens/quotes/nikud before summing, so phrases are passed through as-is.
+const NIKUD_G = /[֑-ׇ]/g;
+const stripNikud2 = (s) => String(s || "").replace(NIKUD_G, "");
+const HEB_PHRASE = `[א-ת][א-ת"'׳״\\-\\s]{0,30}[א-ת"'׳״]?`;
+
+// resolveOperand: ערך-כתב מפורש (אם יש) → אימות מול "רגיל" קודם (ברירת-מחדל התוכן), ורק אם לא-תואם →
+// PHASE 5 matchAnyMethod (לא לנחש-שיטה, לבדוק בפועל בכל השיטות הקנוניות). בלי ערך-כתב → "רגיל" הוא הערך.
+function resolveOperand(phraseRaw, explicitValue) {
+  const phrase = stripNikud2(phraseRaw).replace(/["'׳״]/g, "").trim();
+  const ragilFn = METHOD_BY_KEY["רגיל"]?.fn;
+  if (!phrase || !ragilFn) return { phrase: phraseRaw, ok: false, status: "METHOD_UNRESOLVED", reason: "ביטוי ריק" };
+  const ragil = ragilFn(phrase);
+  if (explicitValue == null || ragil === explicitValue) {
+    return { phrase, value: ragil, method: "רגיל", ok: true, status: "verified" };
+  }
+  const matches = matchAnyMethod(phrase, explicitValue);
+  if (matches.length) {
+    return { phrase, value: explicitValue, method: matches[0].method, ok: true, status: "verified", allMatches: matches };
+  }
+  return { phrase, value: explicitValue, method: null, ok: false, status: "METHOD_UNRESOLVED",
+    reason: `אף שיטה קנונית לא משחזרת ${explicitValue} עבור «${phrase}» (רגיל=${ragil})`, ragil };
+}
+
+// ── שלב א · N פעמים/× "phrase"(v)? = result — «5 פעמים "ברית"(612)=3060» · «180 פעמים טו"ב(17)=3060» ──
+function extractQuantityProducts(text) {
+  const re = new RegExp(`(\\d{1,4})\\s*(?:פעמים|[×xX*])\\s*"?(${HEB_PHRASE})"?\\s*(?:\\((\\d{1,6})\\))?\\s*=\\s*(\\d{1,7})`, "g");
+  const out = [];
+  let m;
+  while ((m = re.exec(text))) {
+    const [raw, qtyS, phraseRaw, explicitS, resultS] = m;
+    const qty = Number(qtyS), result = Number(resultS), explicitValue = explicitS != null ? Number(explicitS) : null;
+    const operand = resolveOperand(phraseRaw, explicitValue);
+    const computedTotal = operand.value != null ? qty * operand.value : null;
+    let status;
+    if (!operand.ok) status = "METHOD_UNRESOLVED";
+    else if (computedTotal === result) status = "ENGINE_VERIFIED_COMPOSITE";
+    else status = "ENGINE_MISMATCH";
+    out.push({ kind: "quantity-product", raw, text: raw.trim(), quantity: qty, operand, result, computedTotal, status });
+  }
+  return out;
+}
+
+// ── שלב ב · phrase(vA) × phrase(vB) = result — «א-הי-ה(21) × א-הי-ה(21)=441» ──
+function extractTwoPhraseProducts(text) {
+  const re = new RegExp(`(${HEB_PHRASE})\\((\\d{1,6})\\)\\s*[×xX*]\\s*(${HEB_PHRASE})\\((\\d{1,6})\\)\\s*=\\s*(\\d{1,7})`, "g");
+  const out = [];
+  let m;
+  while ((m = re.exec(text))) {
+    const [raw, pA, vAs, pB, vBs, resultS] = m;
+    const result = Number(resultS);
+    const a = resolveOperand(pA, Number(vAs)), b = resolveOperand(pB, Number(vBs));
+    const computedTotal = a.value != null && b.value != null ? a.value * b.value : null;
+    let status;
+    if (!a.ok || !b.ok) status = "METHOD_UNRESOLVED";
+    else if (computedTotal === result) status = "ENGINE_VERIFIED_COMPOSITE";
+    else status = "ENGINE_MISMATCH";
+    out.push({ kind: "two-phrase-product", raw, text: raw.trim(), operands: [a, b], result, computedTotal, status });
+  }
+  return out;
+}
+
+// ── שלב ג׳ · numA × numB = phrase — «21×21 =אמת» (הכיוון ההפוך של שלב ב׳: מכפלה-של-מספרים מול ביטוי-יעד) ──
+function extractNumberProductEqualsPhrase(text) {
+  const re = new RegExp(`(\\d{1,4})\\s*[×xX*]\\s*(\\d{1,4})\\s*=\\s*"?(${HEB_PHRASE})"?`, "g");
+  const out = [];
+  let m;
+  while ((m = re.exec(text))) {
+    const [raw, aS, bS, phraseRaw] = m;
+    const a = Number(aS), b = Number(bS), computedTotal = a * b;
+    const operand = resolveOperand(phraseRaw, computedTotal); // הכפלה עצמה היא חשבון-טהור; היעד = ערך-הביטוי
+    let status;
+    if (!operand.ok) status = "METHOD_UNRESOLVED";
+    else if (operand.value === computedTotal) status = "ENGINE_VERIFIED_COMPOSITE";
+    else status = "ENGINE_MISMATCH";
+    out.push({ kind: "number-product-equals-phrase", raw, text: raw.trim(), a, b, computedTotal, operand, status });
+  }
+  return out;
+}
+
+// ── שלב ג · phrase+phrase(+phrase...) = num+num(+num...) = result — «ז+זי+זית=7+17+417=441» ──
+// כל איבר-ביטוי מאומת בנפרד מול המספר-המקביל לו (לפי סדר), ואז סכום-המספרים מול result — לא ניחוש.
+function extractPhraseSumChains(text) {
+  const lines = text.split(/\n+/);
+  const out = [];
+  for (const line of lines) {
+    const m = line.match(new RegExp(`^\\s*((?:${HEB_PHRASE}\\s*\\+\\s*)+${HEB_PHRASE})\\s*=\\s*(\\d{1,6}(?:\\s*\\+\\s*\\d{1,6})+)\\s*=\\s*(\\d{1,7})`));
+    if (!m) continue;
+    const phrases = m[1].split("+").map(s => s.trim()).filter(Boolean);
+    const numbers = m[2].split("+").map(s => Number(s.trim()));
+    const result = Number(m[3]);
+    if (phrases.length !== numbers.length) continue; // מבנה לא-תואם — לא לנחש התאמה
+    const operands = phrases.map((p, i) => resolveOperand(p, numbers[i]));
+    const sum = numbers.reduce((s, n) => s + n, 0);
+    let status;
+    if (operands.some(o => !o.ok)) status = "METHOD_UNRESOLVED";
+    else if (sum === result) status = "ENGINE_VERIFIED_COMPOSITE";
+    else status = "ENGINE_MISMATCH";
+    out.push({ kind: "phrase-sum-chain", raw: m[0], text: m[0].trim(), operands, numbers, sum, result, status });
+  }
+  return out;
+}
+
+// ── אורקסטרציה · כל שלושת הצורות, ללא כפילות מול extractCandidates() הרגיל (routing נשאר נפרד) ──
+export function extractCompoundClaims(rawText) {
+  const text = stripNikud2(String(rawText || ""));
+  return [
+    ...extractQuantityProducts(text),
+    ...extractTwoPhraseProducts(text),
+    ...extractNumberProductEqualsPhrase(text),
+    ...extractPhraseSumChains(text),
+  ];
+}
+
+// ── ניתוב+עניין לטענה-מורכבת — נפרד מ-classifyRouting/scoreInterest (סמנטיקה שונה: METHOD_UNRESOLVED
+// אינו "not_applicable" סתמי, ENGINE_MISMATCH כאן הוא תמיד סתירה-אמיתית, לא מגבלת-parser — הפירוק כבר תיקן זאת). ──
+function classifyCompoundRouting(cc, existing) {
+  if (existing.status === "duplicate") {
+    return { artifact_type: "claim", primary: "D", label: "קיים כבר — חבר במקום לשכפל",
+      why: `אותה טענה-מורכבת כבר נשמרה (research_objects:${existing.detail.research_object_id}).` };
+  }
+  if (cc.status === "ENGINE_VERIFIED_COMPOSITE") {
+    return { artifact_type: "claim", primary: "A", label: "טענה-מורכבת — אומתה במלואה (Composite)",
+      why: "כל הרכיבים אומתו במנוע והפעולה החשבונית משחזרת את הערך הנטען." };
+  }
+  if (cc.status === "ENGINE_MISMATCH") {
+    return { artifact_type: "claim", primary: "A", label: "טענה-מורכבת — סתירה אמיתית",
+      why: "הרכיבים אומתו במנוע אך הפעולה החשבונית אינה משחזרת את הערך הנטען — סתירה גלויה, לא להסתיר (לא parser limitation — הפירוק לרכיבים כבר בוצע)." };
+  }
+  return { artifact_type: "claim", primary: "F", label: "שיטה לא-מזוהה — דורש בדיקה ידנית",
+    why: "לפחות רכיב אחד בטענה לא נמצא באף שיטה קנונית — METHOD_UNRESOLVED, לא לנחש." };
+}
+
+function scoreCompoundInterest(cc, existing) {
+  const reasons = [];
+  if (cc.status === "ENGINE_VERIFIED_COMPOSITE") reasons.push("שרשרת-החישוב המלאה אומתה במנוע (כל הרכיבים + הפעולה)");
+  if (cc.status === "ENGINE_MISMATCH") reasons.push("סתירה אמיתית בין הרכיבים המאומתים לתוצאה הנטענת");
+  if (cc.status === "METHOD_UNRESOLVED") reasons.push("שיטת-גימטריה של רכיב אחד לפחות לא זוהתה בשום שיטה קנונית");
+  if (existing.status === "new") reasons.push("לא נמצא קיים — פוטנציאל-חדש");
+  if (existing.status === "strengthens") reasons.push("מצטרף/מחזק התכנסות-ערך קיימת");
+  if (existing.status === "duplicate") reasons.push("כפול-מדויק לרשומת-מועמד קיימת");
+  let interest;
+  if (cc.status === "ENGINE_VERIFIED_COMPOSITE" && existing.status !== "duplicate") interest = "HIGH";
+  else if (cc.status === "ENGINE_MISMATCH") interest = "LOW";
+  else if (cc.status === "METHOD_UNRESOLVED") interest = "MEDIUM";
+  else interest = "LOW";
+  if (!reasons.length) reasons.push("אין אות מספק — הוצג להקשר בלבד");
+  return { interest, reasons };
+}
+
+// ── אורקסטרציה · טענות-מורכבות מתוך מקור אחד, כולל existing-check מול אותו research_objects שהוזרק ──
+export function extractAndVerifyCompound(item, { dbFirst, existingObjects } = {}) {
+  const raw = String(item?.raw || "");
+  const claims = extractCompoundClaims(raw);
+  return claims.map((cc, idx) => {
+    const pseudo = { text: cc.text, norm: cc.text, value: cc.result };
+    const existing = checkExisting(pseudo, { dbFirst, existingObjects });
+    const routing = classifyCompoundRouting(cc, existing);
+    const { interest, reasons } = scoreCompoundInterest(cc, existing);
+    return { idx, compound: cc, existing, routing, interest, reasons };
+  });
+}
+
 // ── שלב 1 · אימות דטרמיניסטי (per candidate) — לעולם לא מחשב מזיכרון, רק METHODS/DEPTH_METHODS.fn ──
 export function verifyCandidate(cand) {
   if (cand.type === "sum-equation" || cand.type === "product-equation" || cand.type === "diff-equation") {

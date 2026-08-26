@@ -3679,6 +3679,24 @@ export async function getContributorConversation({ phone = null, waSenderName = 
   return items;
 }
 
+// 🗂️ CONTRIBUTOR RESEARCH DOSSIER (Zvi Full Corpus Pass) — Foundation → Projection → Experience.
+// קורא בלבד מ-research_objects הקיים (הפאונדיישן — אחרי ה-batch pass, לא לפני-כן) + research_items(handled)
+// הקיים לסטטוס-עיבוד. אין הרצה חיה של extractCandidates על 400+ הודעות בדפדפן בכל טעינה — זו רק פרוייקציה
+// על מה שכבר-נשמר, בדיוק כמו שדף-ישות (EntityPage) קורא מ-nodes ולא מחשב-מחדש. אין WRITE כאן בכלל.
+export async function getContributorDossierData({ contributor, handledPrefix = null } = {}) {
+  if (!supabase) return { objects: [], handledCount: 0 };
+  const [objRes, handledRes] = await Promise.all([
+    supabase.from('research_objects')
+      .select('id,kind,value,statement,terms,source,source_ref,contributor,engine_verified,engine_detail,status,privacy_scope,created_at')
+      .eq('contributor', contributor).order('created_at', { ascending: true }),
+    handledPrefix
+      ? supabase.from('research_items').select('entity_ref,metadata,created_at')
+          .eq('bucket', 'handled').eq('entity_type', 'cc_handled').ilike('entity_ref', `${handledPrefix}%`)
+      : Promise.resolve({ data: [] }),
+  ]);
+  return { objects: objRes.data || [], handled: handledRes.data || [] };
+}
+
 // חומר-פורום (research_contributions — policy rc_public_read) — טענת-גימטריה + provenance.
 export async function getForumMaterial({ author = null, limit = 120 } = {}) {
   if (!supabase) return [];
