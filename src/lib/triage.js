@@ -17,14 +17,18 @@ const VALUE_METHODS = [...METHODS, ...DEPTH_METHODS]; // כל שיטות-הער�
 const METHOD_BY_KEY = Object.fromEntries(VALUE_METHODS.map(m => [m.key, m]));
 
 // ⚠️ מיפוי-שיטה שמרני, בנוי ידנית מול gematria.js עצמו — לא reuse של analysisFlow.js:normMethod().
-// סיבה: normMethod() ממפה "ריבוע|משולש"→"ריבוע" (נורמליזציה גסה לתצוגת gematria_claim.method ישן),
-// בעוד gematria.js:methodLabel מתעד enum מדויק אחר: "קדמי מוצג כ'משולש' (בקשת צוריאל)" — התנגשות-תווית
-// אמיתית בין שני הקבצים (drift, לא תוקן כאן — מתועד). כדי לא "לנחש שיטה" (gematria_engine_law),
-// הבנייה כאן מבוססת רק על methodToken()/splitMethod() של analysisFlow.js (התוויות המדויקות שהחילוץ
-// עצמו מפיק) + התיעוד הפנימי של gematria.js — לא על normMethod().
+// ✅ Foundation Closure (Method Identity, 26.8.2026) — אומת מול לוח gematria_methods **החי**:
+// analysisFlow.js's normMethod() תוקן (הסרת המיזוג השגוי "ריבוע|משולש"→"ריבוע" — ריבוע=fn_ribua ו-משולש
+// הם method_key שונים בלוח החי, לא כינוי-אחד). "קדמי"→"משולש" **כן** מאושר: gematria_methods.display_label
+// של method_key='קדמי' הוא **מילולית** "קדמי · משולש" — זה alias קנוני מתועד, לא ניחוש. אבל "משולש" בפני-
+// עצמו נשאר עמום-קנוני ביודעין: 4 method_key **נוספים** נושאים "משולש" ב-display_label (משולש גדול/מילה/
+// הפוך/מדרגות — שיטות-עומק אמיתיות, שונות מקדמי). לכן: קדמי הוא ברירת-המחדל (alias מאושר), ואם היא לא-
+// תואמת — ה-engine_matches הגנרי (Phase 5, כבר קיים) סורק את *כל* 23 השיטות כולל משפחת-משולש-העומק,
+// ומציג התאמה-חלופית בלי לנחש-במקום-הכתב. STOP מפורש: איזו מ-5 המשמעויות "משולש" בפי הכתב מתכוון —
+// לא ניתן לקבוע מהלוח הקנוני החי לבדו (needs Zuriel disambiguation, ר' דוח Foundation Closure).
 const METHOD_KEY_MAP = {
   "רגיל": "רגיל", "מילוי": "מילוי", "מסתתר": "מסתתר", "קדמי": "קדמי",
-  "משולש": "קדמי", // gematria.js methodLabel(): "קדמי מוצג כ'משולש' (בקשת צוריאל)"
+  "משולש": "קדמי", // gematria_methods LIVE: method_key='קדמי' display_label="קדמי · משולש" — alias מאושר, לא ניחוש
   "ריבוע": "ריבוע", "גדול": "גדול", "סידורי": "סידורי",
   "את\"בש": "אתבש", "אתבש": "אתבש", "אלבם": "אלבם",
   "נוטריקון": null, "מילים ואותיות": null, // structural — לא ניתן לאימות-ערך קליינטי
@@ -220,6 +224,32 @@ function genTokenize(span) {
   return toks;
 }
 
+// ── Foundation Closure · RULE #36 — trailing-prose separation ("543 × 4 גילויים.. = 2172") ─────────
+// מילת-פרוזה שנופלת *אחרי* ערך-שהושלם (NUM/סוגר-סוגריים) ו*לפני* EQ ישיר, בלי אופרטור משני הצדדים —
+// עדות-מבנית ברורה שזו הערת-אגב ולא-אופרנד: אופרנד-אמיתי תמיד מגיע *אחרי* TIMES/PLUS/EQ, לעולם לא צמוד-
+// ישירות ל-NUM בלי אופרטור ביניהם. ⛔ לא חותך ביטוי-יעד לגיטימי מהצורה "N×N=phrase" (שם ה-PHRASE בא
+// ישר אחרי EQ, לא אחרי NUM — prevIsValueEnd=false שם, לא נוגעים). המילה המוסרת נשמרת (`stripped`) — לא
+// נמחקת מהמקור, רק לא-נכנסת לחישוב-ה-AST (Do not destroy source text).
+function stripStrandedTrailingPhrases(toks) {
+  const out = [];
+  const stripped = [];
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i];
+    const prev = out[out.length - 1];
+    const next = toks[i + 1];
+    const prevIsCompletedValue = prev && (prev.t === "NUM" || prev.t === "RP" || prev.t === "RB");
+    // ⛔ דווקא-EQ-ממשי, לא סוף-מחרוזת: PHRASE שיושב *בסוף* הזרם (בלי המשך אחריו) הוא כמעט תמיד היעד-
+    // הסופי-האמיתי של הכתב ("...=850 בגימטריא 'תכלת'" — "תכלת" היא הטענה, לא רעש) — לזהות זאת כ"תקוע"
+    // ולמחוק אותו ייצר שקילות-מדומה-ריקה (850==850, טאוטולוגיה) שמסתירה את טענת-הכתב במקום לבדוק אותה
+    // (נמצא-בפועל בבדיקת-רגרסיה מול קורפוס-צבי האמיתי, לפני התיקון הזה — Foundation Closure 26.8.2026).
+    // רק PHRASE *לפני EQ ממשי* (כמו "543 × 4 גילויים.. = 2172") הוא הערת-אגב-מוכחת; בסוף-הזרם — משאירים.
+    const nextIsRealEq = !!next && next.t === "EQ";
+    if (t.t === "PHRASE" && prevIsCompletedValue && nextIsRealEq) { stripped.push(t.v); continue; }
+    out.push(t);
+  }
+  return { toks: out, stripped };
+}
+
 // פרסר-מצב (מצביע-מיקום פשוט על מערך הטוקנים) — מחזיר null בכשל (לא זורק), כדי לאפשר prefix-skip נקי.
 function genParseChain(toks, startPos) {
   let pos = startPos;
@@ -294,10 +324,15 @@ function genParseChain(toks, startPos) {
 // כבר מצליח ב-skip=0 עם המיזוג-הרב-מילים השלם. אין ניחוש-מילה-ספציפית — זו הסרת-תחילית גנרית בלבד.
 function extractGeneralArithmeticClaims(text) {
   const out = [];
+  // ── Foundation Closure · RULE #36 (span-level half) ─────────────────────────────────────────────
+  // "..“/"…" (2+ נקודות רצופות) = סימן-השהיה/אגב של הכתב, לא פיסוק-סוף-משפט — מכווץ לרווח-בודד *לפני*
+  // חיתוך-הטווח, כדי ש-GEN_SPAN_RE (שלא כולל "." כלל — מגן על "7.10"/"1.11.26") לא ייעצר-בשקט באמצע
+  // תבנית תקינה ("543 × 4 גילויים.. = 2172" → שני טווחים חתוכים בלי המשך). נקודה בודדת (תאריך) לא נוגעים בה.
+  const dotsCollapsed = text.replace(/\.{2,}/g, " ");
   // סורקים שורה-שורה (לא על פני כל הטקסט): מונע מ-GEN_SPAN_RE (ש-\s כולל \n) לגלוש דרך שורות-ריקות
   // אל תוך שורת-קישוט הבאה ("+++++++++++++++++") ולבלוע אותה כאילו היא חלק מהביטוי — כל טענה אצל צבי
   // בפועל יושבת בשורה משלה (אותו דפוס בדיוק כמו extractPhraseSumChains המקורי).
-  const spans = text.split(/\n/).flatMap(line => line.match(GEN_SPAN_RE) || []);
+  const spans = dotsCollapsed.split(/\n/).flatMap(line => line.match(GEN_SPAN_RE) || []);
   for (const rawSpan of spans) {
     const span0 = rawSpan.trim();
     if (!/\d/.test(span0)) continue;
@@ -307,12 +342,20 @@ function extractGeneralArithmeticClaims(text) {
     // אוספים את *כל* ניסיונות ה-skip שמצליחים תחבירית (לא עוצרים בראשון) — כדי לא "לכבוש" בטעות
     // תחילית-פרוזה תמימה (כמו "וגם") לתוך הביטוי הראשון רק כי skip=0 "הצליח מבנית" באקראי.
     const attempts = [];
+    let strippedAnnotations = [];
     for (let skip = 0; skip <= 4 && skip < words.length; skip++) {
       const attemptSpan = words.slice(skip).join(" ");
-      const toks = genTokenize(attemptSpan);
+      const rawToks = genTokenize(attemptSpan);
+      if (rawToks.length < 3) continue;
+      // RULE #36 (token-level half) — מסירים PHRASE-תקוע בין ערך-שהושלם ל-EQ לפני-הפרסור (לא אחריו,
+      // כדי שהפרסור עצמו יתמודד עם רצף-תקין ולא ייכשל על הטוקן-הבלתי-קשור).
+      const { toks, stripped } = stripStrandedTrailingPhrases(rawToks);
       if (toks.length < 3) continue;
       const attempt = genParseChain(toks, 0);
-      if (attempt && attempt.endPos === toks.length && attempt.links.length >= 2) attempts.push({ ...attempt, skip, span: attemptSpan });
+      if (attempt && attempt.endPos === toks.length && attempt.links.length >= 2) {
+        attempts.push({ ...attempt, skip, span: attemptSpan });
+        if (stripped.length) strippedAnnotations = stripped;
+      }
     }
     if (!attempts.length) continue;
     // עדיפות: (1) ניסיון-כלשהו שכל החוליות שלו שוות (התאמה-פנימית עצמאית לכל טוקניזציה — לא ניחוש-ערך,
@@ -335,7 +378,85 @@ function extractGeneralArithmeticClaims(text) {
       // extractCandidates() הישן (שתופס לרוב את הטקסט-המלא-כולל-תחילית) יוכל להתאים נכון (ר' Part 7).
       kind: "general-chain", raw: span, origRaw: span0, text: span, skipUsed, linkCount: links.length,
       linkValues: values, operands: leaves, result, computedTotal: allComputed ? values[0] : null, status,
+      ...(strippedAnnotations.length ? { strippedAnnotations } : {}), // RULE #36 — מילים שהוסרו (לא-אופרנד), פרוונאנס
     });
+  }
+  return out;
+}
+
+// ── Foundation Closure · RULE #35 — vertical/multi-line arithmetic layout ("72\n27\n=\n99") ────────
+// כתבים (בעיקר OCR/וואטסאפ) לפעמים כותבים משוואה אנכית — כל איבר בשורה נפרדת, בלי אופרטור מפורש בין
+// המספרים (הסכימה מרומזת בפריסה עצמה, לא בטקסט). ⛔ לא מדביקים-בעיוורון שורות שכנות: "מבנה" נדרש —
+// ריצה רציפה (שורה-ריקה/לא-עירומה שוברת) של ≥3 שורות "עירומות" (מספר-בלבד/אופרטור-בלבד/ביטוי-עברי-
+// קצר-בלבד, בלי כל פיסוק-פרוזה אחר), עם ≥2 שורות-מספר וסימן "=" אחד לפחות — ריצה כמו "תהלים"→"כז"
+// (ציטוט, לא משוואה, 2 שורות בלבד ואין בה אף שורת-מספר/"=") נדחית כבר במבחן-המבנה. פרוונאנס: כל שורת-
+// מקור נשמרת ב-linesUsed. אופרטור מרומז (שתי שורות-ערך רצופות בלי מפריד) מתועד כ-syntheticPlusCount —
+// לא מוסתר. משתמש-חוזר ב-genTokenize/genParseChain/stripStrandedTrailingPhrases הקיימים — אין דקדוק שני.
+const BARE_SYM_RE = /^[\s0-9+×xX*(){}=]+$/;
+const BARE_PHRASE_RE = /^[א-ת][א-ת\s"'׳״\-]{0,30}$/;
+function classifyBareLine(line) {
+  const t = line.trim();
+  if (!t) return null;
+  if (BARE_SYM_RE.test(t)) return { kind: "sym", text: t, hasDigit: /\d/.test(t), hasEq: /=/.test(t) };
+  if (BARE_PHRASE_RE.test(t)) return { kind: "phrase", text: t, hasDigit: false, hasEq: false };
+  return null;
+}
+
+function extractVerticalArithmetic(text) {
+  const rawLines = String(text || "").split(/\n/);
+  const out = [];
+  let i = 0;
+  while (i < rawLines.length) {
+    let j = i;
+    const runLines = [];
+    while (j < rawLines.length) {
+      const cls = classifyBareLine(rawLines[j]);
+      if (!cls) break;
+      runLines.push({ idx: j, raw: rawLines[j], ...cls });
+      j++;
+    }
+    if (runLines.length >= 3) {
+      const numLines = runLines.filter(l => l.kind === "sym" && l.hasDigit && !l.hasEq);
+      const eqPresent = runLines.some(l => l.hasEq);
+      if (numLines.length >= 2 && eqPresent) {
+        let toks = [];
+        let syntheticPlus = 0;
+        for (const l of runLines) {
+          const lineToks = genTokenize(l.text);
+          if (!lineToks.length) continue;
+          const prevLast = toks[toks.length - 1];
+          const nextFirst = lineToks[0];
+          const prevIsValueEnd = prevLast && (prevLast.t === "NUM" || prevLast.t === "PHRASE" || prevLast.t === "RP" || prevLast.t === "RB");
+          const nextIsValueStart = nextFirst && (nextFirst.t === "NUM" || nextFirst.t === "PHRASE" || nextFirst.t === "LP" || nextFirst.t === "LB");
+          if (prevIsValueEnd && nextIsValueStart) { toks.push({ t: "PLUS" }); syntheticPlus++; }
+          toks.push(...lineToks);
+        }
+        const { toks: cleanToks, stripped } = stripStrandedTrailingPhrases(toks);
+        const attempt = cleanToks.length >= 3 ? genParseChain(cleanToks, 0) : null;
+        if (attempt && attempt.endPos === cleanToks.length && attempt.links.length >= 2) {
+          const { links, leaves } = attempt;
+          const values = links.map(l => l.value);
+          const anyUnresolved = leaves.some(o => !o.ok);
+          const allComputed = values.every(v => v != null);
+          let status;
+          if (anyUnresolved || !allComputed) status = "METHOD_UNRESOLVED";
+          else if (values.every(v => v === values[0])) status = "ENGINE_VERIFIED_COMPOSITE";
+          else status = "ENGINE_MISMATCH";
+          const result = allComputed ? values[values.length - 1] : null;
+          out.push({
+            kind: "vertical-chain",
+            raw: runLines.map(l => l.raw).join(" | "),
+            text: runLines.map(l => l.text).join(" "),
+            linesUsed: runLines.map(l => ({ lineIndex: l.idx, text: l.raw })),
+            syntheticPlusCount: syntheticPlus,
+            linkCount: links.length, linkValues: values, operands: leaves, result,
+            computedTotal: allComputed ? values[0] : null, status,
+            ...(stripped.length ? { strippedAnnotations: stripped } : {}),
+          });
+        }
+      }
+    }
+    i = runLines.length >= 3 ? j : i + 1;
   }
   return out;
 }
@@ -356,7 +477,12 @@ export function extractCompoundClaims(rawText) {
     ...extractPhraseSumChains(text),
   ];
   const general = dedupeGeneralAgainstSpecific(specific, extractGeneralArithmeticClaims(text));
-  return [...specific, ...general];
+  // RULE #35 — safety net נוסף, אחרי general (לא לפני): span-based (specific+general) כבר מכסה כל
+  // תבנית חד-שורתית; vertical תופס רק מה שהם לא יכולים לתפוס מעצם-ההגדרה (ריצה רב-שורתית ללא אופרטור).
+  const verticalSpecificLike = specific.concat(general);
+  const vertical = extractVerticalArithmetic(text).filter(v =>
+    !verticalSpecificLike.some(s => v.raw.includes(s.raw) || s.raw.includes(v.raw)));
+  return [...specific, ...general, ...vertical];
 }
 
 // ── ניתוב+עניין לטענה-מורכבת — נפרד מ-classifyRouting/scoreInterest (סמנטיקה שונה: METHOD_UNRESOLVED
@@ -447,21 +573,12 @@ export function verifyCandidate(cand) {
   if (cand.type !== "explicit-claim" || cand.value == null) {
     return { engine_verified: "not_applicable", engine_detail: { reason: `סוג-מועמד «${cand.type}» אינו טענת-ערך` } };
   }
-  // ⛔ DRIFT מתועד (method_identity_ambiguity) — לא תוקן ב-analysisFlow.js עצמו (מחוץ ל-scope), רק מנוטרל כאן:
-  // extractCandidates() בעצמו מפיק method:"ריבוע" משני מסלולי-חילוץ שונים ובלתי-מסומנים: (א) "relation format"
-  // (שורה 119, `normMethod(pm[2])`) — המנרמל הגס שממזג `/ריבוע|משולש/` לתווית אחת "ריבוע"; (ב) שרשרת-שוויון/
-  // explicit-claim (שורות 134/146, `splitMethod`→`methodToken`) — המדויק ששומר "משולש"≠"ריבוע" בנפרד. אין שדה
-  // מבחין בין שני המסלולים על ה-candidate היוצא, ו-METHOD_KEY_MAP כאן ממפה "משולש"→"קדמי" (per gematria.js
-  // methodLabel) אך "ריבוע"→"ריבוע" (שיטה אמיתית שונה) — כך method:"ריבוע" עלול למעשה להיות "משולש" שנכתב
-  // במקור ועבר דרך (א), מה שיגרום אימות מול הפונקציה הלא-נכונה (ריבוע במקום קדמי) ותוצאת engine_verified שגויה.
-  // אין למפות מחדש (`gematria_engine_law` — אסור לנחש שיטה) — הפתרון היחיד הבטוח: לא לסמוך על "ריבוע" כלל.
-  if (cand.method === "ריבוע") {
-    // PHASE 5 fallback: אין לסמוך על ה-label, אבל אפשר עדיין לבדוק את הביטוי מול *כל* השיטות האמיתיות —
-    // "EXTRACTION קובעת מה לבדוק (ביטוי+ערך), המנוע קובע איזו שיטה משחזרת אותו" — לא ניחוש-label, בדיקה ישירה.
-    return { engine_verified: "not_applicable", engine_detail: {
-      reason: "שיטה «ריבוע» מזוהה משני מסלולי-חילוץ שונים ב-analysisFlow.js שאינם מסומנים — לא ניתן לקבוע בבטחה אם זו שיטת «ריבוע» האמיתית או «משולש» שמוזג אליה (normMethod). נדרש אימות ידני/תיקון-שורש ב-analysisFlow.js.",
-    }, engine_matches: matchAnyMethod(cand.norm || cand.text, cand.value) };
-  }
+  // ✅ Foundation Closure (Method Identity, 26.8.2026): DRIFT הקודם תוקן בשורש ב-analysisFlow.js:normMethod()
+  // (המיזוג "ריבוע|משולש"→"ריבוע" הוסר) — שני מסלולי-החילוץ (relation-format + explicit-claim/chain) מייצרים
+  // כעת method:"ריבוע" **רק** כשהכתב אכן ציין ריבוע, ו-method:"משולש" בעקביות בשני המסלולים. method:"ריבוע"
+  // אמיתי זורם דרך המסלול הגנרי למטה כרגיל (METHOD_KEY_MAP["ריבוע"]="ריבוע"→fn_ribua). "משולש" עצמו נשאר
+  // עמום-קנוני ביודעין (ר׳ הערת METHOD_KEY_MAP למעלה) — קדמי כברירת-מחדל מאושרת + engine_matches הגנרי
+  // (למטה) סורק את משפחת-העומק "משולש" כנפילה-חזרה, בלי לנחש איזו מהן הכתב התכוון.
   const key = METHOD_KEY_MAP[cand.method] ?? (cand.method ? undefined : "רגיל"); // ללא-שיטה מצוינת → רגיל (ברירת-מחדל, כמו identifyMethod)
   if (key === undefined) {
     return { engine_verified: "not_applicable", engine_detail: { reason: `שיטה «${cand.method}» לא מזוהה — נדרש אימות ידני` },
