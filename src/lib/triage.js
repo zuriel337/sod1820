@@ -30,6 +30,22 @@ const METHOD_KEY_MAP = {
   "נוטריקון": null, "מילים ואותיות": null, // structural — לא ניתן לאימות-ערך קליינטי
 };
 
+// ── PHASE 5 · Engine Match — "EXTRACTION קובעת מה לבדוק, המנוע הקנוני קובע איזו שיטה משחזרת אותו". ──
+// לא מנחשים לפי method label שהחילוץ/הכותב ציין — מריצים את הביטוי מול *כל* השיטות האמיתיות
+// הקריאות-מהקליינט (VALUE_METHODS, אותן METHODS+DEPTH_METHODS שכבר מיובאות למעלה — אין רשימה שנייה,
+// אין DB fetch: אומת מול הקוד עצמו שאין ל-client גישה ל-gematria_methods החי מלבד המערכים האלה, ר'
+// method_registry_law). Engine Match ≠ Truth — זה רק סיגנל-דטרמיניסטי-נוסף, לא קביעת-נכונות.
+export function matchAnyMethod(phrase, value) {
+  if (!phrase || value == null) return [];
+  const matches = [];
+  for (const m of VALUE_METHODS) {
+    let computed;
+    try { computed = m.fn(phrase); } catch { continue; }
+    if (computed === value) matches.push({ method: m.key, computed });
+  }
+  return matches;
+}
+
 // ── שלב 1 · אימות דטרמיניסטי (per candidate) — לעולם לא מחשב מזיכרון, רק METHODS/DEPTH_METHODS.fn ──
 export function verifyCandidate(cand) {
   if (cand.type === "sum-equation" || cand.type === "product-equation" || cand.type === "diff-equation") {
@@ -61,23 +77,32 @@ export function verifyCandidate(cand) {
   // במקור ועבר דרך (א), מה שיגרום אימות מול הפונקציה הלא-נכונה (ריבוע במקום קדמי) ותוצאת engine_verified שגויה.
   // אין למפות מחדש (`gematria_engine_law` — אסור לנחש שיטה) — הפתרון היחיד הבטוח: לא לסמוך על "ריבוע" כלל.
   if (cand.method === "ריבוע") {
+    // PHASE 5 fallback: אין לסמוך על ה-label, אבל אפשר עדיין לבדוק את הביטוי מול *כל* השיטות האמיתיות —
+    // "EXTRACTION קובעת מה לבדוק (ביטוי+ערך), המנוע קובע איזו שיטה משחזרת אותו" — לא ניחוש-label, בדיקה ישירה.
     return { engine_verified: "not_applicable", engine_detail: {
       reason: "שיטה «ריבוע» מזוהה משני מסלולי-חילוץ שונים ב-analysisFlow.js שאינם מסומנים — לא ניתן לקבוע בבטחה אם זו שיטת «ריבוע» האמיתית או «משולש» שמוזג אליה (normMethod). נדרש אימות ידני/תיקון-שורש ב-analysisFlow.js.",
-    } };
+    }, engine_matches: matchAnyMethod(cand.norm || cand.text, cand.value) };
   }
   const key = METHOD_KEY_MAP[cand.method] ?? (cand.method ? undefined : "רגיל"); // ללא-שיטה מצוינת → רגיל (ברירת-מחדל, כמו identifyMethod)
   if (key === undefined) {
-    return { engine_verified: "not_applicable", engine_detail: { reason: `שיטה «${cand.method}» לא מזוהה — נדרש אימות ידני` } };
+    return { engine_verified: "not_applicable", engine_detail: { reason: `שיטה «${cand.method}» לא מזוהה — נדרש אימות ידני` },
+      engine_matches: matchAnyMethod(cand.norm || cand.text, cand.value) };
   }
   if (key === null) {
     return { engine_verified: "not_applicable", engine_detail: { reason: `שיטה «${cand.method}» מבנית (לא ערך) — אין אימות-ערך רלוונטי` } };
   }
   const m = METHOD_BY_KEY[key];
   if (!m) return { engine_verified: "not_applicable", engine_detail: { reason: `שיטה «${key}» ללא פונקציית-מנוע קליינטית` } };
-  const computed = m.fn(cand.norm || cand.text);
+  const phrase = cand.norm || cand.text;
+  const computed = m.fn(phrase);
+  const verified = computed === cand.value;
+  // Engine Match (PHASE 5) — סיגנל נוסף, לא מחליף את engine_verified: גם כשה-label שהכתב/החילוץ ציין
+  // לא-תואם, יתכן ששיטה *אחרת* (אמיתית, מהמנוע הקנוני) כן משחזרת את הערך — מוצג בנפרד, "Engine Match ≠ Truth".
+  const engine_matches = verified ? [] : matchAnyMethod(phrase, cand.value).filter(mm => mm.method !== key);
   return {
-    engine_verified: computed === cand.value,
-    engine_detail: { phrase: cand.norm || cand.text, method: key, claimed: cand.value, computed },
+    engine_verified: verified,
+    engine_detail: { phrase, method: key, claimed: cand.value, computed },
+    engine_matches,
   };
 }
 

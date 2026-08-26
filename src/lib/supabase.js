@@ -3587,6 +3587,98 @@ export async function getWaThread({ groupId = null, sender = null, limit = 60 } 
   const { data } = await q;
   return data || [];
 }
+// 💬 ZVI CONVERSATION VIEW (PHASE 1-3) — Thread ≠ Research Case: זו רק projection כרונולוגית של המקור,
+// לא Case/interpretation. ממזגת 3 מקורות אמיתיים בלבד (READ-ONLY, אין טבלת-thread חדשה): channel_updates
+// (לפי credit — הזהות היחידה שיש לה טווח-תאריכים מלא + טקסט אמיתי), wa_bot_log+wa_deep_queue (לפי sender —
+// חלון 3-5.7.2026 בלבד, יש חפיפת-msg_id בין השניים שדורשת dedup). ⛔ בכוונה לא כולל: gallery_images (אין
+// שורות אמיתיות של צבי — כל ה-match הוא "צבי" כמילה בכותרות-חדשות ישנות, לא הכתב), research_contributions
+// (כל 45 השורות חולקות אותו created_at מדויק=זמן-ייבוא-בבאצ׳, לא זמן-כתיבה אמיתי — מיזוגן לרצף כרונולוגי
+// היה מזייף סדר, ר' work_log), wa_msg_ext (777 שורות אך ללא עמודת-טקסט כלל — אינדקס-דדופ ריק-מתוכן).
+// PERSON=identity מוזרקת (phone+credits) ע"י הקורא — לא Person-system חדש. sender/credit הם ה-PERSON,
+// group_id/channel הם ה-CHANNEL, כל שורה היא MESSAGE, thread הוא סדר-כרונולוגי גרידא (ASC, real created_at).
+// ⚠️ waSenderName חובה גם על wa_bot_log, לא רק eq(sender): נמצאו בפועל שורות עם sender=הטלפון-של-צבי אך
+// sender_name="רזיאל (agent)"/action="agent_reply" — תשובת-הבוט-עצמו שנרשמת תחת אותו טלפון בלוג-הפרטי
+// (id 211/220, 4-5.7.2026). בלי הסינון הזה "השיחה של צבי" הייתה מציגה גם את מה שהבוט אמר, לא רק מה שהוא כתב.
+export async function getContributorConversation({ phone = null, waSenderName = null, credits = [], limit = 500 } = {}) {
+  if (!supabase) return [];
+  const waSender = phone ? `${phone}@c.us` : null;
+  const [cuRes, botRes, deepRes] = await Promise.all([
+    credits.length
+      ? supabase.from('channel_updates')
+          .select('id,text,image_url,credit,source,channel,ext_msg_id,created_at')
+          .in('credit', credits).order('created_at', { ascending: true }).limit(limit)
+      : Promise.resolve({ data: [] }),
+    waSender
+      ? (() => {
+          let q = supabase.from('wa_bot_log')
+            .select('id,msg_id,group_id,sender,sender_name,text_in,reply_out,action,created_at')
+            .eq('sender', waSender);
+          if (waSenderName) q = q.eq('sender_name', waSenderName);
+          return q.order('created_at', { ascending: true }).limit(limit);
+        })()
+      : Promise.resolve({ data: [] }),
+    waSender
+      ? (() => {
+          let q = supabase.from('wa_deep_queue')
+            .select('id,msg_id,chat_id,sender,sender_name,raw_text,phrase,created_at')
+            .eq('sender', waSender);
+          if (waSenderName) q = q.eq('sender_name', waSenderName);
+          return q.order('created_at', { ascending: true }).limit(limit);
+        })()
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const items = [];
+  for (const r of cuRes.data || []) {
+    items.push({
+      kind: 'channel_updates', id: r.id, ts: r.created_at, text: r.text || null, img: r.image_url || null,
+      msgId: r.ext_msg_id || null, channel: r.channel || null, credit: r.credit || null,
+      sourceRef: `channel_updates:${r.id}`,
+    });
+  }
+  // wa_bot_log + wa_deep_queue מכסים אותו חלון-זמן (3-5.7.2026) דרך שני pipelines שונים — אותו msg_id
+  // יכול להופיע בשניהם. dedup לפי msg_id, מעדיף wa_deep_queue.raw_text (מלא-יותר, ר' work_log).
+  const byMsgId = new Map();
+  for (const r of botRes.data || []) {
+    const text = r.text_in === '[image]' ? null : (r.text_in || null);
+    byMsgId.set(r.msg_id, {
+      kind: 'wa_bot_log', id: r.id, ts: r.created_at, text, img: null,
+      isImagePlaceholder: r.text_in === '[image]', ocrNotStored: r.action === 'ocr_replied' && !r.reply_out,
+      msgId: r.msg_id, channel: r.group_id || null, credit: r.sender_name || null,
+      sourceRef: `wa_bot_log:${r.id}`,
+    });
+  }
+  for (const r of deepRes.data || []) {
+    const text = r.raw_text || r.phrase || null;
+    const existing = byMsgId.get(r.msg_id);
+    if (existing) {
+      // אותה הודעה נלכדה ע"י שני ה-pipelines — לא שתי שורות, שדרוג-טקסט בלבד + שתי provenance.
+      existing.text = text || existing.text;
+      existing.sourceRef = `${existing.sourceRef}+wa_deep_queue:${r.id}`;
+      continue;
+    }
+    byMsgId.set(r.msg_id, {
+      kind: 'wa_deep_queue', id: r.id, ts: r.created_at, text, img: null,
+      msgId: r.msg_id, channel: r.chat_id || null, credit: r.sender_name || null,
+      sourceRef: `wa_deep_queue:${r.id}`,
+    });
+  }
+  items.push(...byMsgId.values());
+
+  items.sort((a, b) => new Date(a.ts) - new Date(b.ts));
+
+  // ingestion כפולה (לא re-post לגיטימי אחרי ימים) — אותו טקסט מדויק בתוך חלון קצר (≤10 דק') מסומן, לא נעלם.
+  for (let i = 1; i < items.length; i++) {
+    const prev = items[i - 1], cur = items[i];
+    if (cur.text && prev.text && cur.text === prev.text) {
+      const gapMs = new Date(cur.ts) - new Date(prev.ts);
+      if (gapMs >= 0 && gapMs <= 10 * 60 * 1000) cur.duplicateOfSourceRef = prev.sourceRef;
+    }
+  }
+
+  return items;
+}
+
 // חומר-פורום (research_contributions — policy rc_public_read) — טענת-גימטריה + provenance.
 export async function getForumMaterial({ author = null, limit = 120 } = {}) {
   if (!supabase) return [];

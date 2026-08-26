@@ -11,6 +11,7 @@ import {
   getResearchFeed, getWaGroups, getWaLog, getForumMaterial,
   getLanguageLinks, getLanguageStats, getHotNumbers, getPostsFromSupabase,
   getChannelUpdates, getContributorsIndex, dbFirstLookup, getWriterVerifiedClaims, getHubCounts, checkAxisData, getWaThread, getAiAnalysis,
+  getContributorConversation,
 } from "../lib/supabase.js";
 import { analyzeTime } from "../lib/timeFlow.js";
 import { crossMethodPairs } from "../lib/gematria.js";
@@ -1377,16 +1378,20 @@ function CaseSection({ title, children }) {
   );
 }
 
-function ResearchCasePanel({ item }) {
+// forceItem/forceLabel — נקודת-ההרחבה היחידה שנדרשה כדי לתמוך ב"בנה תיק מחקר מהבחירה" (PHASE 4, Zvi Conversation
+// View): כשמוזרק item סינתטי (raw=טקסט-מאוחד מכמה הודעות שנבחרו ידנית + sourceRef=שרשור-provenance אמיתי),
+// הפאנל משתמש בו כ-"effective" source במקום ה-item הרגיל, בלי לשכפל את כל ה-A-H — אותה לוגיקה בדיוק.
+function ResearchCasePanel({ item, forceItem, forceLabel }) {
   const [state, setState] = useState(null); // null=לא-הורץ · "loading" · {kase} · {error}
   const [dismissed, setDismissed] = useState(() => new Set());
-  if (item.srckind !== "channel" || !item.cuId) return null;
-  const baseSourceRef = `channel_updates:${item.cuId}`;
+  if (!forceItem && (item.srckind !== "channel" || !item.cuId)) return null;
+  const effective = forceItem || item;
+  const baseSourceRef = forceItem ? forceItem.sourceRef : `channel_updates:${item.cuId}`;
 
   const run = async () => {
     setState("loading");
     try {
-      const { phrases, values } = collectQueryNeeds(item);
+      const { phrases, values } = collectQueryNeeds(effective);
       const [dbFirst, hubCounts, existingRes] = await Promise.all([
         phrases.length ? dbFirstLookup(phrases, null) : Promise.resolve({ known: [] }),
         values.length ? getHubCounts(values) : Promise.resolve(new Map()),
@@ -1394,7 +1399,7 @@ function ResearchCasePanel({ item }) {
           ? supabase.from("research_objects").select("id,value,terms,statement,source_ref").in("value", values)
           : Promise.resolve({ data: [] }),
       ]);
-      const kase = buildResearchCase(item, {
+      const kase = buildResearchCase(effective, {
         dbFirst: { known: dbFirst.known || [], hubCounts },
         existingObjects: existingRes.data || [],
       });
@@ -1407,7 +1412,7 @@ function ResearchCasePanel({ item }) {
   return (
     <div style={{ ...box, marginTop: 12, borderColor: "#e9c84a55", background: "#fffaf3" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-        <span style={{ color: "#8a6d1a", fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>🗂️ תיק מחקר</span>
+        <span style={{ color: "#8a6d1a", fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>🗂️ תיק מחקר{forceLabel ? ` — ${forceLabel}` : ""}</span>
         <span style={{ color: C.faint, fontSize: 10 }}>מקום אחד לכל מה שהמערכת יודעת על המקור — הצעה בלבד, לא Canonical, לא פרסום</span>
         {!state && <button onClick={run} style={{ ...chip(true, "#e9c84a"), marginInlineStart: "auto" }}>🗂️ בנה תיק</button>}
         {state === "loading" && <span style={{ color: C.faint, fontSize: 11, marginInlineStart: "auto" }}>בונה תיק…</span>}
@@ -1426,10 +1431,10 @@ function ResearchCasePanel({ item }) {
           <div style={{ display: "grid", gap: 12 }}>
             <CaseSection title="A · מקור (Source)">
               <div style={{ fontSize: 11.5, color: C.muted }}>
-                כותב: <b>{item.author || item.rawAuthor || "—"}</b> · ערוץ: {item.source || "—"} · {fmt(item.ts)}
+                כותב: <b>{effective.author || effective.rawAuthor || "—"}</b> · ערוץ: {effective.source || "—"} · {effective.ts ? fmt(effective.ts) : ""}
                 {" · "}provenance: <code style={{ fontSize: 10 }}>{baseSourceRef}</code>
               </div>
-              {item.img && <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>יש תמונה מצורפת למקור (מוצגת למעלה בפאנל).</div>}
+              {effective.img && <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>יש תמונה מצורפת למקור (מוצגת למעלה בפאנל).</div>}
             </CaseSection>
 
             <CaseSection title={`B · ממצאים שחולצו (${visible.length})`}>
@@ -1456,6 +1461,12 @@ function ResearchCasePanel({ item }) {
                     <span style={{ color: C.muted }}> — {a.candidate.text}{a.candidate.value != null ? ` = ${a.candidate.value}` : ""}</span>
                     {v !== true && a.verification.engine_detail?.reason && (
                       <span style={{ color: C.faint, fontSize: 10 }}> ({a.verification.engine_detail.reason})</span>
+                    )}
+                    {a.verification.engine_matches?.length > 0 && (
+                      <div style={{ color: "#3ea6ff", fontSize: 10.5, marginTop: 1 }}>
+                        🔎 Engine Match (PHASE 5 — לא לפי ה-label, נמצא בפועל): {a.verification.engine_matches.map(mm => `${mm.method}`).join(" · ")}
+                        <span style={{ color: C.faint }}> — סיגנל בלבד, Engine Match ≠ Truth.</span>
+                      </div>
                     )}
                   </div>
                 );
@@ -1497,7 +1508,7 @@ function ResearchCasePanel({ item }) {
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 2 }}>
                 <div><span style={pill("#4caf7d")}>FACT</span> {factLike.length} ממצאים אומתו במנוע (engine_verified=true).</div>
                 <div><span style={pill("#c79a2e")}>CLAIM</span> {claimLike.length} ממצאים הם טענת-כותב שלא אומתה/לא-ניתנת-לאימות/נסתרה — נשארים Claim, לא Fact.</div>
-                <div><span style={pill("#a48bff")}>👤 טענת כותב</span> כל תוכן המקור — {item.author || item.rawAuthor || "—"} — לא נקבע כאן קנוני.</div>
+                <div><span style={pill("#a48bff")}>👤 טענת כותב</span> כל תוכן המקור — {effective.author || effective.rawAuthor || "—"} — לא נקבע כאן קנוני.</div>
                 {kase.weakSignals.length > 0 && (
                   <div><span style={pill("#8a8a95")}>🟣 INTERPRETATION</span> {kase.weakSignals.length} אותות-הקשר נוספים (ללא ערך-לניתוב, לא נעלמים): {kase.weakSignals.map(w => w.text).join(" · ")}</div>
                 )}
@@ -1507,7 +1518,7 @@ function ResearchCasePanel({ item }) {
             <CaseSection title={`H · Human Gate (${gateNeeded.length} דורשים החלטה מתוך ${visible.length})`}>
               {!gateNeeded.length && <div style={{ color: C.faint, fontSize: 12 }}>אין כרגע ממצא הדורש החלטת-אדם — לא כל ממצא צריך כפתור.</div>}
               {gateNeeded.map(a => (
-                <TriageArtifactCard key={a.idx} art={a} baseSourceRef={baseSourceRef} contributor={item.author}
+                <TriageArtifactCard key={a.idx} art={a} baseSourceRef={baseSourceRef} contributor={effective.author}
                   onDismiss={(idx) => setDismissed(p => new Set(p).add(idx))} />
               ))}
               {visible.some(a => a.routing.primary === "D") && (
@@ -1519,6 +1530,130 @@ function ResearchCasePanel({ item }) {
           </div>
         );
       })()}
+    </div>
+  );
+}
+
+// ── 💬 ZVI CONVERSATION VIEW (PHASE 1-4) — Thread ≠ Research Case. ──────────────────────────────
+// Thread = פרוייקציה כרונולוגית טהורה על המקור (getContributorConversation, READ-ONLY, אין טבלה חדשה).
+// Case = מה שנבנה מתוך בחירה-אנושית מפורשת של חלק מהרצף (ResearchCasePanel forceItem, ללא WRITE אוטומטי).
+// ⛔ Scoped בכוונה ל-Zvi בלבד (slug='tzvi-opoc') — אין contributors.phone גנרי לכל כתב (ר' work_log), כך
+// שזו לא "מערכת-Person" חדשה אלא זהות מוזרקת במפורש לפי הידע-הקיים (phone+credit variants), בדיוק כמו
+// שה-brief ביקש ("PERSON = מי שלח" מוזרק, לא Person system מקביל).
+// waSenderName="OPOC1 OPOC1" — חובה, לא רק phone: אחרת רשומות "agent_reply" של הבוט-עצמו (sender_name="רזיאל
+// (agent)") שנרשמות תחת אותו טלפון-פרטי נכנסות בטעות ל"שיחה של צבי" (נמצא בפועל, ids 211/220 ב-wa_bot_log).
+const ZVI_IDENTITY = { phone: "972537738295", waSenderName: "OPOC1 OPOC1", credits: ["צבי", "צבי (OPOC)"] };
+const hm = (ts) => ts ? new Date(ts).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "—";
+const dayKey = (ts) => ts ? new Date(ts).toISOString().slice(0, 10) : "—";
+
+function ConvoItem({ it, selected, onToggle, onBuildContext }) {
+  if (it.duplicateOfSourceRef) {
+    return (
+      <div style={{ fontSize: 10.5, color: C.faint, padding: "2px 4px 2px 34px" }}>
+        🔁 טקסט זהה למעלה (ingestion כפול, {hm(it.ts)}) — <code style={{ fontSize: 9 }}>{it.sourceRef}</code>
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: "flex", gap: 8, alignItems: "flex-start", padding: "6px 4px", borderRadius: 8, background: selected ? "#e9c84a18" : "transparent" }}>
+      <input type="checkbox" checked={selected} onChange={onToggle} style={{ marginTop: 4 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", fontSize: 11 }}>
+          <b style={{ color: C.goldLight }}>{hm(it.ts)}</b>
+          <span style={{ color: C.faint }}>— {it.credit || "צבי"}</span>
+          <span style={pill(it.kind === "channel_updates" ? "#3ea6ff" : "#8458ff")}>{it.kind}</span>
+          {it.channel && <span style={{ color: C.faint, fontSize: 9.5 }}>{String(it.channel).replace(/@[gc]\.us$/, "")}</span>}
+          <button onClick={onBuildContext} style={{ ...chip(false), marginInlineStart: "auto", fontSize: 10 }}>🗂️ בדוק כרצף מחקר</button>
+        </div>
+        {it.img && (
+          <div style={{ margin: "4px 0" }}>
+            <img src={thumb(it.img, 240)} alt="" style={{ maxWidth: 220, maxHeight: 160, objectFit: "contain", borderRadius: 8, background: "#0002" }} />
+          </div>
+        )}
+        {it.isImagePlaceholder && !it.img && (
+          <div style={{ fontSize: 11, color: C.faint }}>
+            🖼️ תמונה (WhatsApp) — {it.ocrNotStored ? "OCR נשלח בזמנו אך לא נשמר ב-DB (reply_out ריק)" : "לא נשמרה תמונה/OCR בפועל, רק אינדיקציה"}
+          </div>
+        )}
+        {it.text && <div style={{ fontSize: 12.5, color: C.goldLight, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{it.text}</div>}
+        {!it.text && !it.img && !it.isImagePlaceholder && <div style={{ fontSize: 11, color: C.faint }}>(ללא תוכן נשמר)</div>}
+        <div style={{ fontSize: 9, color: C.faint, marginTop: 2 }}>provenance: <code>{it.sourceRef}</code>{it.msgId ? ` · msg_id:${it.msgId}` : ""}</div>
+      </div>
+    </div>
+  );
+}
+
+function ZviConversationPanel({ contributor }) {
+  const [items, setItems] = useState(null); // null=לא-נטען עדיין
+  const [sel, setSel] = useState(() => new Set());
+  const [showCase, setShowCase] = useState(false);
+  const isZvi = contributor?.slug === "tzvi-opoc";
+
+  useEffect(() => {
+    if (!isZvi) return;
+    let alive = true;
+    getContributorConversation(ZVI_IDENTITY).then(rows => { if (alive) setItems(rows); });
+    return () => { alive = false; };
+  }, [isZvi]);
+
+  if (!isZvi) return null;
+
+  const toggle = (idx) => setSel(p => { const n = new Set(p); if (n.has(idx)) n.delete(idx); else n.add(idx); return n; });
+  // PHASE 4 — ברירת-מחדל: מציעה context (קודם+נבחר+הבא), לא בונה Case אוטומטית. Zuriel מאשר/מתקן ואז לוחץ "בנה".
+  const buildContext = (idx) => {
+    setSel(new Set([idx - 1, idx, idx + 1].filter(i => items && i >= 0 && i < items.length)));
+    setShowCase(false);
+  };
+
+  const groups = useMemo(() => {
+    if (!items) return [];
+    const byDay = new Map();
+    items.forEach((it, idx) => {
+      const k = dayKey(it.ts);
+      if (!byDay.has(k)) byDay.set(k, []);
+      byDay.get(k).push({ ...it, idx });
+    });
+    return [...byDay.entries()];
+  }, [items]);
+
+  const selectedItems = items ? [...sel].sort((a, b) => a - b).map(i => items[i]).filter(Boolean) : [];
+  const forceItem = selectedItems.length ? {
+    raw: selectedItems.map(it => `[${hm(it.ts)}] ${it.text || (it.img ? "(תמונה מצורפת)" : it.isImagePlaceholder ? "(תמונה — ללא OCR שמור)" : "")}`).join("\n"),
+    author: "צבי (OPOC)", source: `💬 השיחה של צבי — בחירה ידנית (${selectedItems.length} פריטים)`,
+    ts: selectedItems[0]?.ts, img: selectedItems.find(it => it.img)?.img || null,
+    sourceRef: selectedItems.map(it => it.sourceRef).join("+"),
+  } : null;
+
+  return (
+    <div style={{ ...box, marginTop: 12, borderColor: "#8458ff44" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ color: "#8458ff", fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>💬 השיחה של צבי</span>
+        <span style={{ color: C.faint, fontSize: 10 }}>רצף כרונולוגי (Thread) — לא Research Case. פרוייקציה READ-ONLY על channel_updates+wa_bot_log+wa_deep_queue.</span>
+      </div>
+      {items === null && <div style={{ color: C.faint, fontSize: 12 }}>טוען רצף…</div>}
+      {items && !items.length && <div style={{ color: C.faint, fontSize: 12 }}>לא נמצא חומר.</div>}
+      {items && items.length > 0 && (
+        <div style={{ maxHeight: 480, overflow: "auto", display: "grid", gap: 2 }}>
+          {groups.map(([day, dayItems]) => (
+            <div key={day}>
+              <div style={{ textAlign: "center", color: C.faint, fontSize: 10, margin: "10px 0 4px", borderBottom: `1px dashed ${C.border}` }}>{fmt(dayItems[0].ts)}</div>
+              {dayItems.map(it => (
+                <ConvoItem key={it.sourceRef} it={it} selected={sel.has(it.idx)} onToggle={() => toggle(it.idx)} onBuildContext={() => buildContext(it.idx)} />
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+      {sel.size > 0 && (
+        <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span style={{ color: C.faint, fontSize: 11 }}>{sel.size} פריטים נבחרו</span>
+          <button onClick={() => setShowCase(true)} style={chip(true, "#e9c84a")}>בנה תיק מחקר מהבחירה</button>
+          <button onClick={() => { setSel(new Set()); setShowCase(false); }} style={chip(false)}>נקה בחירה</button>
+        </div>
+      )}
+      {showCase && forceItem && (
+        <ResearchCasePanel forceItem={forceItem} forceLabel={`רצף נבחר · ${selectedItems.length} פריטים`} />
+      )}
     </div>
   );
 }
@@ -2115,7 +2250,10 @@ export default function WarRoomTab() {
                 const wc = wr?.canonical || wr?.contributor || null;
                 if (!writerIdx) return <div style={{ color: C.muted, fontSize: 12 }}>טוען אינדקס-כתבים…</div>;
                 if (!wc) return <div style={{ color: C.muted, fontSize: 13 }}>«{writer}» לא נמצא ב-contributors (אין דף-כתב עדיין).</div>;
-                return <WriterOS contributor={wc} writerIndex={writerIdx} />;
+                return <>
+                  <WriterOS contributor={wc} writerIndex={writerIdx} />
+                  <ZviConversationPanel contributor={wc} />
+                </>;
               })()}
             </div>
           )}
