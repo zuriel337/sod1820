@@ -316,6 +316,16 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 
 ---
 
+## 🎬 WS-CONTENT-PUBLISHING-FOUNDATION — יסוד תוכן/פרסום  [OPEN-HUMAN-GATE · נוסף 26.8.2026]
+> **provenance:** ZURIEL Human-Gate 26.8.2026 (Content Foundation Canonicalization Pass, `work_log actor=CLAUDE`). **שכבת-ניווט בלבד — לא מחסן-חוקים.** חוקי-הפרסום עצמם חיים ב-`nodes`/`project_codex`; המפה מפנה בלבד (כמו Multilingual Foundation/Methods Build — אינו Human-Gate ממוספר בסכימת-ה-20/21). **אינו חוסם ואינו נחסם ע"י workstream-המחקר (תחום-נפרד, collision=NONE).**
+- **Scope:** Content Identity אחת (`posts` row / `video_transcripts.video_key`) עם projections מרובים · הפרדת 4-צירים: Series (תג «מימד חמש») ≠ Category (`posts.categories`) ≠ Medium (נגזר-מהתוכן) ≠ Representation (קוד-רינדור) · media-binding (medium-resolver ב-`getDimensionFiveVideos`) · multilingual-**video** binding (`video_transcripts`: `is_original`+`lang`+`video_key`).
+- **מקורות-אמת:** `SOD1820_CONTENT_FOUNDATION_CONTRACT.md` + חוקי-פוסט ב-`nodes` (`dim5_upload_law` v2 · `canonical_ui_components_law` v2 · `content_translation_law`/`video_transcription_law` · `post_publish_law` · `ai_gematria_verified_stamp_law`) + `project_codex.publishing_conventions`. **אין להכניס את חוקי-הפרסום לגוף-המפה — הפניה בלבד.**
+- **STATE:** Foundation-Contract `CANONICALIZED` (26.8.2026, ענף-בלבד, לא-מוזג/לא-פרוס). Posts/Content Program build עצמו = `OPEN-HUMAN-GATE` (טרם-התחיל).
+- **OPEN ITEMS:** רב-לשוניות-לפוסט-לא-וידאו (image+audio/text) = EXTENSION POINT · Series-field ייעודי כשיידרש metadata = EXTENSION POINT · content-safety-policy (Video-B breatharian, HELD) = Human-Gate · Post↔Reality-Graph parser (Master State §12.4) = LATER.
+- **NEXT_ACTION:** אחרי review GPT/ZURIEL של החוזה — תכנון Posts/Content Program.
+
+---
+
 ## 🧭 ניווט מרכז־הניהול (בעברית — למימוש עתידי)
 המפה העתידית תציג: 📍 איפה אני · ❓ למה זה הצעד הבא · ⏭️ מה עושים עכשיו · 🚫 מה לא לבנות עדיין · 🕐 מה השתנה · 📜 למה התקבלה ההחלטה.
 

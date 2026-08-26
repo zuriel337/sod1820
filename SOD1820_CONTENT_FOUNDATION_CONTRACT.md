@@ -2,26 +2,27 @@
 
 > **מטרה:** לסגור חוזה-Foundation **מינימלי, מדויק וניתן-להרחבה** למימד-חמש + Content Taxonomy + Media/Representation + Multilingual Video — כך שנוכל להמשיך ל-Posts Program **בלי redesign / migration / identity-break**.
 >
-> **סטטוס:** `DRAFT — FOUNDATION-CLOSED, AWAITING GPT/ZURIEL REVIEW`. ענף-בלבד, **לא-מוזג, לא-פרוס**. שום כלל לא נכתב ל-`nodes`/`project_codex` (אין auto-canonicalization). ה-canonicalization ל-DB יבוצע **אחרי** אישור-review (ר' §8).
+> **סטטוס:** `FOUNDATION CANONICALIZED` (26.8.2026 — approved-in-principle ZURIEL/GPT + תיקון-אחד, ר' §5). ה-canonicalization הוחל **חי** על `nodes`/`project_codex` (§8 — עדכון אדיטיבי, rule_versioning). קבצי-מסמך (חוזה/CLAUDE.md/Roadmap-anchor) על **ענף-בלבד, לא-מוזג, לא-פרוס**.
 >
-> **Human-Gate:** כל 8 ההחלטות למטה = **מאושרות ע"י ZURIEL** (הבקשה שסגרה אותן). החוזה מקבע אותן; אינו ממציא חדשות.
+> **Human-Gate:** כל 8 ההחלטות = **מאושרות ע"י ZURIEL**. תיקון-review יחיד הוחל: מימד-חמש כ-Series מיוצג קנונית ב-`posts.tags` (feed-eligibility); נוכחות ב-`posts.categories` = transitional/legacy-compat בלבד, **ואין כלל המחייב Series להיכתב גם כ-Category** (§5).
 
 ---
 
 ## 0. LIVE_SYNC_TOKEN
 
 ```
-timestamp        = 2026-08-26 (session)
-origin_main_sha  = 3351bac9   (== local HEAD, clean tree)
-branch           = claude/content-foundation-contract  (off origin/main)
+timestamp        = 2026-08-26 (canonicalization pass — fresh sync)
+origin_main_sha  = e8f02f6f   (fetched live; branch rebased onto it, then +1 commit)
+branch           = claude/video-transcription-multilingual-neqwjm  (rebased off origin/main e8f02f6f)
 supabase_project = linswmnnkjxvweumprav  (canonical)
-work_log_cutoff  = collision-check on content/dim5/posts = NONE in-progress
-roadmap_version  = MASTER_ROADMAP v5.3 (25.8.2026)  — no Content/Posts workstream
+collision_check  = content / dim5 / posts = NONE in-progress; research workstream (Shared Expression v1) MERGED+frozen on main → no active roadmap collision
+roadmap_version  = MASTER_ROADMAP v5.3 (Shared Expression v1 reconciled, e8f02f6f) — anchor WS-CONTENT-PUBLISHING-FOUNDATION added
 master_state_ref = §10–12 (posts = corpus/source + publish-target)
-schema_verified  = video_transcripts + posts columns read live (§2)
+schema_verified  = video_transcripts + posts columns read live (§2); NO schema change
+canonicalized    = nodes: dim5_upload_law v2, canonical_ui_components_law v2 (additive) · project_codex.publishing_conventions (additive) · CLAUDE.md line-130 corrected · Roadmap anchor added
 ```
 
-**Parallel-Agent note:** `work_log` האחרון נשלט ע"י workstream-מחקר מקביל (Zvi/Corpus/Shared-Extraction). **תחום נפרד** — אין WRITE חופף על תוכן/dim5/posts (collision-check=NONE). ⚠️ לכן חוזה זה **אינו** נוגע ב-`SOD1820_MASTER_ROADMAP.md` בפועל (אותו workstream עורך אותו כעת) — עוגן-המפה מוצע כאן כ-ready-to-insert בלבד (§9), למניעת SSOT-collision.
+**Parallel-Agent note:** ה-workstream המקביל (Zvi/Shared-Expression-Extraction v1) **מוזג ל-main (e8f02f6f) והוקפא/reconciled** — אין agent `in_progress` על ה-Roadmap כרגע. ⇒ **אין collision פעיל**. לכן הענף רובּס onto e8f02f6f והעוגן היחיד `WS-CONTENT-PUBLISHING-FOUNDATION` נוסף למפה (navigation-only, לא-מחסן-חוקים). ה-canonicalization ל-`nodes`/`project_codex` הוחל **חי** (DB), קבצי-המסמך על ענף-בלבד.
 
 ---
 
@@ -31,7 +32,7 @@ schema_verified  = video_transcripts + posts columns read live (§2)
 
 | ציר | דוגמה | הגדרה | ייצוג חי היום |
 |---|---|---|---|
-| **Series / Content Stream** | «מימד חמש» | סדרת-תוכן חוצת-מדיה. **לא סוג-מדיה.** | טוקן `מימד חמש` ב-`posts.tags` (וגם `categories`) — ר' §5 |
+| **Series / Content Stream** | «מימד חמש» | סדרת-תוכן חוצת-מדיה. **לא סוג-מדיה.** | טוקן `מימד חמש` ב-`posts.tags` (מקור-אמת-לפיד; נוכחות ב-`categories` = transitional/legacy בלבד) — ר' §5 |
 | **Category / Topic** | «רמזים חזקים» · «עלוני גאולה» · «צפונות בתורה» | סיווג-תמטי/עריכתי | `posts.categories[]` |
 | **Medium / Media** | video · image · audio · text | סוג-המדיה בפריט | **נגזר מ-`posts.content`** (יש `<video>`/`<audio>`/`<img>`) — ר' §4 |
 | **Representation / Projection** | DimensionFiveFeed · card · rail · full-page · OG | איך אותה זהות **מוצגת** | קוד-רינדור בלבד (ללא שדה-DB) |
@@ -87,10 +88,10 @@ schema_verified  = video_transcripts + posts columns read live (§2)
 
 ## 5. SERIES REPRESENTATION — הבהרה + Extension-Point
 
-היום «מימד חמש» חי כטוקן ב-`posts.tags` **וגם** `posts.categories`. **זהו מיזוג-שדות** (Series בתוך אותו array של Category) — Decision #5 שולל מיזוג-מושגי, אך:
-- **ייצוג-הביניים מתקבל:** `getDimensionFiveVideos({tag:"מימד חמש"})` משתמש בטוקן-התג כסמן-Series. **representable → אין-צורך בשדה-`series` כעת.**
-- **EXTENSION POINT (לא-בונים עכשיו):** אם/כאשר יידרש Series-אמיתי חוצה-מדיה עם metadata (עונה/סדר/hero) — שדה/טבלת-Series ייעודי. עד אז: **התג הוא ה-Series-marker הקנוני.**
-- **חוק-קבוע:** Series-marker נכתב **גם ב-tags** (מקור-האמת לפיד). Category≠Series — לא להסתמך על נוכחות «מימד חמש» ב-categories כאילו היא category-תמטי.
+**תיקון-review יחיד (ZURIEL/GPT 26.8.2026) — קנוני:** ייצוג-Series קנוני של «מימד חמש» = **הטוקן ב-`posts.tags` בלבד** (מקור-האמת ל-feed eligibility). נוכחותו ב-`posts.categories` היא **transitional/legacy-compatibility בלבד — ואינה חלק מחוזה-Series.** ⛔ **אין לקבוע כלל המחייב Series להיכתב גם כ-Category.**
+- **representable → אין-צורך בשדה-`series` כעת:** `getDimensionFiveVideos({tag:"מימד חמש"})` משתמש בטוקן-התג כסמן-Series.
+- **EXTENSION POINT (לא-בונים עכשיו):** אם/כאשר יידרש Series-אמיתי חוצה-מדיה עם metadata (עונה/סדר/hero) — שדה/טבלת-Series ייעודי. עד אז: **התג ב-`tags` הוא ה-Series-marker הקנוני היחיד.**
+- Category≠Series — לא להסתמך על נוכחות «מימד חמש» ב-`categories` כאילו היא category-תמטי; היא compat-שריד בלבד.
 
 ---
 
@@ -126,29 +127,30 @@ schema_verified  = video_transcripts + posts columns read live (§2)
 
 ---
 
-## 8. CANONICALIZATION PLAN — ready-to-apply (⚠️ לא-בוצע; post-review בלבד)
+## 8. CANONICALIZATION — ✅ APPLIED (26.8.2026, additive · rule_versioning · אפס-מחיקה)
 
-> אין auto-canonicalization. הדלתאות למטה **מוצעות** ל-`nodes`/`project_codex` — יוחלו **רק** אחרי אישור GPT/ZURIEL. כולן **הרחבה-אדיטיבית** (rule_versioning), אפס-מחיקה.
+> הוחל **חי** על `nodes`/`project_codex` בפאס-הקנוניזציה (אישור-עקרוני ZURIEL/GPT + התיקון ב-§5). כל שינוי = הרחבה-אדיטיבית: גרסה-ישנה `is_active=false`, שורה-חדשה `rule_version+1`+`supersedes_version`. אפס-מחיקה.
 
-1. **`dim5_upload_law`** (bump v1→v2, additive): להוסיף — «‹מימד חמש› = **Series** חוצת-מדיה, לא medium; eligibility-לפיד לפי-תג; **אין חובת ‹וידאו›** כשהפריט אינו-וידאו; medium-resolver (video/photo) קובע rendering».
-2. **`content_translation_law`** + **`video_transcription_law`** (הבהרה, ללא-bump-נדרש): לעגן את מיפוי `source_language = is_original`; binding לפי `video_key`; כללי-מקור (§3). **בלי מנגנון מקביל.**
-3. **`canonical_ui_components_law`** (bump, additive): «Category-Icon/Badge = רכיב-תצוגה קנוני, ליד-הכותרת, לחיץ-לקטגוריה, **לא על התמונה**, **אינו Identity**».
-4. **`post_gematria_box_law`** / **`ai_gematria_verified_stamp_law`** (הבהרה): variant «System-Addition על פוסט-כותב-חיצוני» → מובחן + `posts.ai_addition`.
-5. **`project_codex.publishing_conventions`** (עדכון-טקסט): (א) הסרת «רמזים-חזקים = צוריאל-בלבד» → «בחירת-עריכה ברף-גבוה, לא-מוגבלת-כותב, Human-Gate=ZURIEL». (ב) הוספת דפוס «יוצר-חיצוני \| שם» + attribution-למדיה-חיצונית. (ג) הפניה לחוזה זה.
-6. **`project_codex` חדש** (אופציה — אם ה-review יבחר בית-ייעודי): slug `content_foundation_contract` = תקציר §1–§7 (תואם דפוס `person_foundation_contract`/`research_intake_foundation_contract` הקיים).
+1. ✅ **`dim5_upload_law` v1→v2** (nodes, additive): נוסף — «מימד חמש» = **Series** חוצת-מדיה (לא medium); eligibility-לפיד לפי-**תג** (`posts.tags`), נוכחות ב-`categories`=transitional/legacy (⛔ אין חובת dual-write); **אין חובת «וידאו»** כשהפריט אינו-וידאו; medium-resolver (video/photo) קובע rendering; Identity≠Representation.
+2. ⏸️ **`content_translation_law` + `video_transcription_law`** — **NO CHANGE (already-sufficient):** `video_transcription_law` כבר מקודד קנונית את המיפוי (`is_original=true` שורת-מקור · שורה-אחת לכל `(video_key,lang)` · binding=`video_key` · כללי-מקור). לא נדרש bump.
+3. ✅ **`canonical_ui_components_law` v1→v2** (nodes, additive): נוסף — Category-Icon/Badge = רכיב-תצוגה קנוני, ליד-הכותרת/תווית-«פוסט», לחיץ-לקטגוריה, **לא על-התמונה**, **אינו Identity**.
+4. ⏸️ **`post_gematria_box_law` / `ai_gematria_verified_stamp_law`** — **NOT bumped (החלטת-מינימום):** מנגנון-החותמת נשאר כמות-שהוא; קונבנציית System-Addition הכללית (מדיה-אגנוסטית) הושמה בבית-האמת שלה = `publishing_conventions` (פריט 5), לא בחוק-גימטריה. חוסך over-touch.
+5. ✅ **`project_codex.publishing_conventions`** (additive append): (א) `רמזים חזקים` = בחירת-עריכה ברף-גבוה, לא-מוגבלת-כותב, Human-Gate=ZURIEL (גובר על «צוריאל-בלבד»). (ב) דפוס «יוצר-חיצוני \| שם» + attribution-למדיה-חיצונית. (ג) System-Addition → `posts.ai_addition`, מובחן מדברי-הכותב. (ד) 4-צירים + הפניה לחוזה זה.
+6. ✅ **`CLAUDE.md` שורה-130** (additive edit): הנוסח «רמזים חזקים = רק הפוסטים של צוריאל» עודכן ל-«בחירת-עריכה ברף-גבוה, לא-מוגבלת-לפי-כותב» (Decision #6) — למניעת drift מול ה-codex החי.
+7. ⏸️ **`project_codex` slug ייעודי `content_foundation_contract`** — **NOT created** (החלטת-מינימום: «אל תיצור codex/rule חדש אם ניתן להרחיב קיים»). החוזה חי כקובץ-מקור + הפניות מהחוקים הקיימים. ניתן להוסיף אם review עתידי יבחר בכך.
 
 ---
 
-## 9. ROADMAP DELTA — ready-to-insert (⚠️ לא-הוחל על הקובץ)
+## 9. ROADMAP — ✅ APPLIED (עוגן יחיד, navigation-only)
 
-הבוטסטראפ מאשר: **ל-`SOD1820_MASTER_ROADMAP.md` אין עוגן ל-Content/Posts.** מוצע להוסיף **workstream-אחד בלבד** (navigation, לא-מחסן-חוקים) — להכנסה ע"י בעל-המפה (למניעת collision עם workstream-המחקר הפעיל):
+collision-check חי: workstream-המחקר (Shared Expression v1) **מוזג+הוקפא ב-main (e8f02f6f)** — אין collision פעיל. הענף רובּס onto e8f02f6f, ונוסף **עוגן-ניווט יחיד** (לא-מחסן-חוקים) ל-`SOD1820_MASTER_ROADMAP.md`:
 
 ```
-### WS-CONTENT-PUBLISHING-FOUNDATION — יסוד תוכן/פרסום (Foundation)  [OPEN-HUMAN-GATE]
-- Scope: Content Identity · Series/Category/Medium/Representation separation · media binding · multilingual-video binding.
-- מקור-אמת: SOD1820_CONTENT_FOUNDATION_CONTRACT.md + מאגר-חוקי-הפוסט ב-nodes + project_codex.publishing_conventions.
-- אין להכניס את חוקי-הפרסום למפה — הפניה בלבד.
-- Open-threads: image+audio content-type (EXT) · multilingual-non-video (EXT) · content-safety-policy (Human-Gate) · Post↔Reality-Graph parser (LATER, Master State §12.4).
+## 🎬 WS-CONTENT-PUBLISHING-FOUNDATION — יסוד תוכן/פרסום  [OPEN-HUMAN-GATE · 26.8.2026]
+- Scope: Content Identity · Series/Category/Medium/Representation · media binding · multilingual-video binding.
+- מקור-אמת: SOD1820_CONTENT_FOUNDATION_CONTRACT.md + חוקי-פוסט ב-nodes + project_codex.publishing_conventions (הפניה בלבד).
+- STATE: Foundation CANONICALIZED (ענף-בלבד); Posts Program build = OPEN-HUMAN-GATE.
+- Open: image+audio-multilingual (EXT) · series-field (EXT) · content-safety (Human-Gate) · Post↔Reality-Graph parser (LATER §12.4).
 ```
 
 ---
