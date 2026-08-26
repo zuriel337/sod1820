@@ -100,9 +100,12 @@ export default function DimensionFiveFeed() {
   const onTouchStart = (e) => { touch.current = e.touches[0]?.clientY ?? null; };
   const onTouchEnd = (e) => {
     if (touch.current == null) return;
-    const dy = (e.changedTouches[0]?.clientY ?? touch.current) - touch.current;
-    if (Math.abs(dy) > 55) go(dy < 0 ? 1 : -1); // החלקה מעלה=הבא
-    touch.current = null;
+    const start = touch.current; touch.current = null;
+    // 🖼️ פוסט-תמונה: המלל נגלל בעצמו (overflow) — החלקה = גלילת-הטקסט, לא מעבר-פריט.
+    //     מגלילים עד הסוף בחופשיות, ועוברים לפריט הבא רק ביוזמה (כפתור «הבא ↓» / חצים / מקלדת).
+    if (cur.kind === "photo") return;
+    const dy = (e.changedTouches[0]?.clientY ?? start) - start;
+    if (Math.abs(dy) > 55) go(dy < 0 ? 1 : -1); // החלקה מעלה=הבא (וידאו בלבד)
   };
   const doShare = async () => {
     await shareVideoToStory({ url: postUrl, text: stripHtml(cur.title || "") });
