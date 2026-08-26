@@ -66,6 +66,7 @@ export const piSequenceAdapter = Object.freeze({
   representationKind: SOURCE.representation,
   positionConvention: SOURCE.positionConvention,
   maxSearchDepth: SOURCE.maxSearchDepth,
+  defaultOperation: SEQUENCE_OPERATION.FIRST,
   operations: Object.freeze([SEQUENCE_OPERATION.FIRST, SEQUENCE_OPERATION.ALL]),
   async execute(request = {}) {
     const query = String(request.query ?? '').trim();
