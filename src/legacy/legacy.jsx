@@ -241,9 +241,39 @@ function SectionHeader({ eyebrow, title, center = true }) {
 }
 
 function PageBody({ bodyHtml }) {
+  const ref = useRef(null);
+  // 🎵 ניגון-אוטומטי «כמו טיקטוק» עד כמה שהדפדפן מרשה: מנסים לנגן מיד (עובד כשמגיעים בהקשה/SPA),
+  //    ואם נחסם — מתחילים ברגע האינטראקציה הראשונה (מגע/גלילה/הקשה). חל על <audio data-autostart>.
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const audio = root.querySelector("audio[data-autostart]");
+    if (!audio) return;
+    let done = false;
+    const cleanup = () => {
+      done = true;
+      window.removeEventListener("pointerdown", go);
+      window.removeEventListener("touchstart", go);
+      window.removeEventListener("keydown", go);
+      window.removeEventListener("scroll", go);
+    };
+    const go = () => {
+      if (done) return;
+      const p = audio.play();
+      if (p && p.then) p.then(cleanup).catch(() => {});   // הצליח → מנקים; נחסם → מחכים לאינטראקציה הבאה
+      else cleanup();
+    };
+    go();   // ניסיון מיידי
+    window.addEventListener("pointerdown", go, { passive: true });
+    window.addEventListener("touchstart", go, { passive: true });
+    window.addEventListener("keydown", go);
+    window.addEventListener("scroll", go, { passive: true });
+    return cleanup;
+  }, [bodyHtml]);
   if (!bodyHtml) return null;
   return (
     <div
+      ref={ref}
       style={{
         color: C.goldDim,
         fontFamily: F.body,
