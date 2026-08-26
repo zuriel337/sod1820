@@ -4,6 +4,8 @@ export const SEQUENCE_REPRESENTATION = Object.freeze({ DIGIT_STREAM: 'digit_stre
 export const SEQUENCE_OPERATION = Object.freeze({
   FIRST: 'exact_digit_sequence_first_occurrence',
   ALL: 'exact_digit_sequence_all_occurrences',
+  TERM_FIRST: 'exact_term_first_occurrence',
+  TERM_ALL: 'exact_term_all_occurrences',
 });
 
 function positiveInt(value, fallback, max = Number.MAX_SAFE_INTEGER) {
@@ -38,5 +40,6 @@ export async function runSequenceLens(registry, request = {}) {
   const adapter = registry?.get?.(sequenceId);
   if (!adapter) return { status: 'error', error: 'SEQUENCE_ADAPTER_NOT_REGISTERED', sequence_id: sequenceId || null };
   const budget = normalizeSequenceBudget(request.budget, adapter);
-  return adapter.execute({ ...request, budget });
+  const operation = request.operation || adapter.defaultOperation || null;
+  return adapter.execute({ ...request, operation, budget });
 }
