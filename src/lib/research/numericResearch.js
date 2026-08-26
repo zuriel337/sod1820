@@ -1,5 +1,6 @@
-import { createSequenceRegistry, runSequenceLens, SEQUENCE_OPERATION } from './sequenceLens.js';
+import { createSequenceRegistry, runSequenceLens } from './sequenceLens.js';
 import { piSequenceAdapter } from './piSequence.js';
+import { fibonacciSequenceAdapter } from './fibonacciSequence.js';
 import { makeUniversalFinding } from './universalFinding.js';
 
 export const DEFAULT_NUMERIC_RESEARCH_BUDGET = Object.freeze({
@@ -18,7 +19,7 @@ export const DEFAULT_PRIORITY_WEIGHTS = Object.freeze({
 });
 
 export const NUMERIC_LENS_STATUS = Object.freeze({ READY: 'READY', ADAPTER_NEEDED: 'ADAPTER_NEEDED' });
-export const DEFAULT_SEQUENCE_ADAPTERS = Object.freeze([piSequenceAdapter]);
+export const DEFAULT_SEQUENCE_ADAPTERS = Object.freeze([piSequenceAdapter, fibonacciSequenceAdapter]);
 
 export const numericLensMap = Object.freeze({
   number_lookup: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_lookup' },
@@ -33,6 +34,7 @@ export const numericLensMap = Object.freeze({
   els: { status: NUMERIC_LENS_STATUS.ADAPTER_NEEDED, reason: 'ELS native adapter exists for Universal Findings, but no safe number-only dispatch contract' },
   gematria_reverse: { status: NUMERIC_LENS_STATUS.READY, via: 'fn_number_lookup/fn_number_dossier; do not recalculate in router' },
   'sequence:pi': { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'pi' },
+  'sequence:fibonacci': { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'fibonacci' },
 });
 
 function normalizeBudget(input = {}) {
@@ -70,7 +72,7 @@ function sequenceUniversalFinding(number, sequenceFinding) {
 
 function relationCandidate(number, sequenceFinding, positionContext, universalFinding) {
   const pos = sequenceFinding?.result?.first_position;
-  if (!pos) return null;
+  if (pos == null) return null;
   return {
     stage: 'candidate',
     type: 'sequence_position_context',
@@ -137,7 +139,13 @@ export async function researchNumber(numberInput, options = {}) {
 
   for (const lensId of sequenceLensIds) {
     const sequenceId = lensId.slice('sequence:'.length);
-    const sequenceFinding = await runSequenceLens(registry, { sequenceId, query: String(number), operation: options.sequenceOperations?.[sequenceId] || options.sequenceOperation || SEQUENCE_OPERATION.FIRST, budget: budget.sequence, provenance: options.provenance });
+    const sequenceFinding = await runSequenceLens(registry, {
+      sequenceId,
+      query: String(number),
+      operation: options.sequenceOperations?.[sequenceId] || options.sequenceOperation,
+      budget: budget.sequence,
+      provenance: options.provenance,
+    });
     perLens[lensId] = sequenceFinding;
     const universalFinding = sequenceUniversalFinding(number, sequenceFinding);
     if (universalFinding) universalFindings.push(universalFinding);
