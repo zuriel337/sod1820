@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSequenceRegistry, runSequenceLens } from './sequenceLens.js';
+import { createSequenceRegistry, runSequenceLens, SEQUENCE_OPERATION } from './sequenceLens.js';
 import { piSequenceAdapter, piDigitsAfterDecimal } from './piSequence.js';
+import { fibonacciSequenceAdapter } from './fibonacciSequence.js';
 import { researchNumber } from './numericResearch.js';
 
 const sequenceBudget = { maxSearchDepth: 25000, windowRadius: 12, maxOccurrences: 10 };
@@ -42,12 +43,45 @@ test('3060 pi result does not replace existing Zvi convergence findings', async 
   assert.equal(routed.truth_lifecycle.automatic_publication, false);
 });
 
-test('another sequence routes through one adapter without router redesign', async () => {
-  const fibonacciAdapter = {
-    sequenceId: 'fibonacci-fixture', representationKind: 'term_sequence', maxSearchDepth: 100,
-    async execute(request) { return { status: 'ok', sequence_id: 'fibonacci-fixture', sequence_version: 'fixture-v1', representation_kind: 'term_sequence', query: request.query, operation: request.operation, search_depth: 100, result: { found: false, first_position: null }, verification: { verified: true }, provenance: { generated_at: 'fixture' } }; },
+test('Fibonacci adapter owns its term operation and position convention', async () => {
+  const registry = createSequenceRegistry([fibonacciSequenceAdapter]);
+  const finding = await runSequenceLens(registry, { sequenceId: 'fibonacci', query: '233', budget: { maxSearchDepth: 50, maxOccurrences: 10, windowRadius: 3 } });
+  assert.equal(finding.operation, SEQUENCE_OPERATION.TERM_FIRST);
+  assert.equal(finding.position_convention, 'one_based_terms_F1_1_F2_1');
+  assert.equal(finding.result.first_position, 13);
+  assert.deepEqual(finding.result.surrounding_window.terms, ['55', '89', '144', '233', '377', '610', '987']);
+});
+
+test('Fibonacci preserves duplicate term identity for 1 under all-occurrences operation', async () => {
+  const registry = createSequenceRegistry([fibonacciSequenceAdapter]);
+  const finding = await runSequenceLens(registry, { sequenceId: 'fibonacci', query: '1', operation: SEQUENCE_OPERATION.TERM_ALL, budget: { maxSearchDepth: 20, maxOccurrences: 10, windowRadius: 2 } });
+  assert.deepEqual(finding.result.occurrences, [1, 2]);
+});
+
+test('Fibonacci routes through the same Router and returns a candidate for term position', async () => {
+  const routed = await researchNumber(233, { rpc: fakeRpc, lenses: ['sequence:fibonacci'], budget: { sequence: { maxSearchDepth: 50, windowRadius: 3, maxOccurrences: 10 } } });
+  assert.equal(routed.per_lens['sequence:fibonacci'].operation, SEQUENCE_OPERATION.TERM_FIRST);
+  assert.equal(routed.per_lens['sequence:fibonacci'].result.first_position, 13);
+  assert.equal(routed.per_lens['sequence:fibonacci:position_context'].data.value, 13);
+  assert.equal(routed.relation_candidates[0].sequence_id, 'fibonacci');
+  assert.equal(routed.relation_candidates[0].to.value, 13);
+  assert.equal(routed.relation_candidates[0].canonical, false);
+});
+
+test('non-Fibonacci numeric roots remain verified not-found, not fabricated relations', async () => {
+  const routed = await researchNumber(337, { rpc: fakeRpc, lenses: ['sequence:fibonacci'], budget: { sequence: { maxSearchDepth: 50 } } });
+  assert.equal(routed.per_lens['sequence:fibonacci'].result.found, false);
+  assert.equal(routed.relation_candidates.length, 0);
+  assert.equal(routed.truth_lifecycle.automatic_canonical_promotion, false);
+});
+
+test('a future term sequence can still be injected without Router source edits', async () => {
+  const fixture = {
+    sequenceId: 'term-fixture', representationKind: 'term_sequence', maxSearchDepth: 100,
+    defaultOperation: SEQUENCE_OPERATION.TERM_FIRST,
+    async execute(request) { return { status: 'ok', sequence_id: 'term-fixture', sequence_version: 'fixture-v1', representation_kind: 'term_sequence', query: request.query, operation: request.operation, search_depth: 100, result: { found: false, first_position: null }, verification: { verified: true }, provenance: { generated_at: 'fixture' } }; },
   };
-  const routed = await researchNumber(337, { rpc: fakeRpc, lenses: ['sequence:fibonacci-fixture'], sequenceAdapters: [fibonacciAdapter] });
-  assert.equal(routed.per_lens['sequence:fibonacci-fixture'].sequence_id, 'fibonacci-fixture');
-  assert.equal(routed.per_lens['sequence:fibonacci-fixture'].representation_kind, 'term_sequence');
+  const routed = await researchNumber(337, { rpc: fakeRpc, lenses: ['sequence:term-fixture'], sequenceAdapters: [fixture] });
+  assert.equal(routed.per_lens['sequence:term-fixture'].operation, SEQUENCE_OPERATION.TERM_FIRST);
+  assert.equal(routed.per_lens['sequence:term-fixture'].representation_kind, 'term_sequence');
 });
