@@ -2,6 +2,53 @@
 
 Status: Implemented on live Supabase (`linswmnnkjxvweumprav`), pending ZURIEL/GPT Human Gate. No code/schema/UI/merge/deploy — DB functions and RLS only, matching this project's "DB changes are live immediately, independent of deploy" convention. No Roadmap/Master State update yet, per explicit instruction — those follow Human Gate approval.
 
+## CLOSURE PASS 2 (26.8.2026) — the ONE gate wired live
+
+Everything below this line was added in a second live pass, after the first pass (rest of this document) closed the perimeter/`add_entity`/lifecycle-propagation gaps. History preserved — nothing below rewrites what's above.
+
+**ONE GATE, built and wired:** `fn_corpus_admission_gate(phrase, source, source_ref, contributor, claimed_value)` — every writer calls this instead of re-implementing identity/dedup logic. `MATCH`/`SAFE_NORMALIZED_MATCH` → no new `gematria_words` row; if `source_ref` given, a `research_objects` row preserves the new source's independent discovery (`meta.ext.corpus_admission.matched_word_id`, `status='candidate'`, never overwrites canonical truth). `POSSIBLE_VARIANT` → caller must not insert. `NEW` → caller proceeds with its own engine-calc insert (the gate itself never inserts into `gematria_words`, avoiding a second competing insert path).
+
+**Wired:** `enqueue_word_review`, `wa_add_word`, `wa_add_vip_word`, `admin_add_word`, `add_entity`, `admin_add_alias`, `admin_edit_alias` (7 of 22 audited writers — the ones that actually take free-text phrase input and could create a genuinely new row; the rest are UPDATE-only display/moderation functions already covered in the original audit).
+
+**Not yet wired (`EXTENSION POINT NOW`, disclosed, not silently skipped):** `promote_finding_to_dict`, `admin_promote_contrib_card`, `wizard_build_convergence` — all three are `SIDE-EFFECT`/`EXPLICIT ADMIN HUMAN-GATE` paths with their own real, non-trivial insert logic (`wizard_build_convergence` already engine-re-verifies against a target value per phrase inside a loop); wiring them needed more careful per-loop edits than this pass's time budget allowed without risking their existing, working verification logic.
+
+### VIP BEFORE → AFTER
+
+**BEFORE:** `wa_add_vip_word` on a genuinely new phrase inserted directly into `gematria_words` (`is_verified=false`, `visibility_reason='pending_wa'`) — **never created a `word_review_queue` row**, so it never surfaced in the admin review UI and had no formal Human Decision path at all (correction from the first-pass audit: the bypass was never "immediate `is_verified=true`" — it was "created a candidate row nobody would ever formally review").
+
+**AFTER:** calls the gate; on `MATCH`/`SAFE_NORMALIZED_MATCH` updates `vip_source` on the existing row (no duplicate); on `POSSIBLE_VARIANT`/`NEW`, inserts into `word_review_queue` (flags carry `vip_source` for admin-UI priority/order only) — **VIP no longer bypasses the queue.** Empirically tested live: a new VIP phrase now returns `'queued_for_review'`, confirmed present in `word_review_queue` with `status='pending'`, test row deleted after.
+
+### `p_safe_to_auto` BEFORE → AFTER
+
+**BEFORE:** `enqueue_word_review(p_safe_to_auto=true)` with no similar-word hits called `wa_add_word` **directly**, skipping `word_review_queue` entirely — a genuine live bypass (confirmed unused by any current caller in the prior audit, but present in the function).
+
+**AFTER (documented supersession, not silent):** `p_safe_to_auto` no longer triggers a direct-insert branch at all. It now only sets `flags.auto_classified=true` on the queue row it still always creates, for admin-UI triage/priority — same parameter name and signature (backward compatible), redefined meaning. Empirically tested live: `enqueue_word_review(..., p_safe_to_auto:=true)` on a brand-new phrase returns `'queued'`, confirmed present in `word_review_queue`, test row deleted after.
+
+### POSSIBLE_VARIANT noise — root cause and fix
+
+Root cause (both false positives from the first pass): `find_similar_words()`'s prefix-match branch (`gw.phrase like norm.ph || '%' or norm.ph like gw.phrase || '%'`) has no length-ratio floor — a short (1-2 letter) existing row matches as a "prefix" of almost any longer new phrase starting with the same letter(s), and a real multi-word sentence trivially contains an existing short word as a substring-prefix.
+
+**Fix, inside `fn_resolve_word_identity` (not inside `find_similar_words`, which keeps full recall for its other callers):** a candidate only counts toward `POSSIBLE_VARIANT` if `length(candidate.phrase) >= max(2, length(normalized_input) * 0.5)` — an existing-signal threshold (plain string length), not a new opaque score. Re-tested live: both prior false positives (`קסניועברט`, the long sentence) now correctly classify `NEW`; a genuine near-duplicate (`שמחהה`, a plausible typo of the real word `שמחה`) still correctly classifies `POSSIBLE_VARIANT`.
+
+### Lifecycle field mapping (Phase 8) — honest gaps reported, not schema-expanded
+
+| Stage | Field(s) today | Honest? |
+|---|---|---|
+| EXTRACTED | n/a (pre-insertion text) | n/a by design |
+| IDENTITY RESOLVED | not stored — a computation (`fn_resolve_word_identity`) gating whether a row is created at all | Honest as a process step, not a row state |
+| ENGINE VERIFIED/CALCULATED | computed columns (`ragil` etc.), unconditionally recomputed by `gw_enforce_engine` for pure-Hebrew phrases | Honest for pure-Hebrew; **still skipped for punctuation/mixed phrases** (disclosed in the first-pass audit, unchanged) |
+| CORPUS CANDIDATE | `word_review_queue` row, `status='pending'` | Honest, and now reached by every auto-source writer after this pass |
+| HUMAN DECISION | `word_review_queue.decided_by`/`decided_at` (queue path) | Honest for the queue path. **Direct-admin paths (`admin_add_word`, `add_entity`, `wizard_build_convergence`) enforce the admin check but do not persist *which* admin decided on the row itself** — a real, disclosed provenance gap, not fixed this pass (would mean adding `created_by=auth.uid()` to several INSERT column lists) |
+| CORPUS APPROVED | **No single column represents this uniformly.** Queue path: `visibility_reason='approved_by_admin'`. Direct-admin path: `is_verified=true` + a specific `source` value — but `is_verified=true` is *also* true for thousands of historical bulk-imported rows never individually reviewed, so it cannot mean "approved" on its own. | **Not honestly representable by one field today — reported per instruction, not schema-expanded.** Recommend (not built): a single `admission_status` enum, decided by Zuriel. |
+
+### Security regression (this pass, live, empirical unless noted)
+
+`wa_add_word` unaffected by all changes (still `'queued'`/`'exists'` correctly). `add_entity` non-admin still `forbidden`. `admin_add_word` non-admin still `denied`. VIP new phrase → `queued_for_review` (not bypassed). `safe_to_auto` new phrase → `queued` (not bypassed). Rediscovery of `וימאן` via `wa_add_word` and via `admin_add_word` (denied before reaching the gate, but confirmed zero duplicate either way) → `gematria_words` row count stayed at 1 throughout. `anon`/ordinary-`authenticated` INSERT denial: still logical-only (tool cannot hold a real end-user JWT), unchanged from the first pass.
+
+### Remaining bypasses (explicit, not silently left implicit)
+
+`promote_finding_to_dict`, `admin_promote_contrib_card`, `wizard_build_convergence` not yet gate-wired (their own exact-match dedup remains, just not the full 4-level identity contract). No `created_by` provenance on direct-admin inserts. `CORPUS APPROVED` field ambiguity (above). None of these were silently dropped — all three are named in `MUST NOW`/`EXTENSION POINT` classification in the final report.
+
 Index entry: `project_codex.slug='corpus_admission_foundation_v1'`. Active law: `nodes.rule_id='corpus_admission_foundation_v1'`. Supersedes/completes `corpus_admission_lifecycle_law` (prior session — defined the lifecycle in words; this pass implements the missing propagation step).
 
 ## 1. Word Identity Contract
