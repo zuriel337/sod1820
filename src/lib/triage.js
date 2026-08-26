@@ -52,6 +52,19 @@ export function verifyCandidate(cand) {
   if (cand.type !== "explicit-claim" || cand.value == null) {
     return { engine_verified: "not_applicable", engine_detail: { reason: `סוג-מועמד «${cand.type}» אינו טענת-ערך` } };
   }
+  // ⛔ DRIFT מתועד (method_identity_ambiguity) — לא תוקן ב-analysisFlow.js עצמו (מחוץ ל-scope), רק מנוטרל כאן:
+  // extractCandidates() בעצמו מפיק method:"ריבוע" משני מסלולי-חילוץ שונים ובלתי-מסומנים: (א) "relation format"
+  // (שורה 119, `normMethod(pm[2])`) — המנרמל הגס שממזג `/ריבוע|משולש/` לתווית אחת "ריבוע"; (ב) שרשרת-שוויון/
+  // explicit-claim (שורות 134/146, `splitMethod`→`methodToken`) — המדויק ששומר "משולש"≠"ריבוע" בנפרד. אין שדה
+  // מבחין בין שני המסלולים על ה-candidate היוצא, ו-METHOD_KEY_MAP כאן ממפה "משולש"→"קדמי" (per gematria.js
+  // methodLabel) אך "ריבוע"→"ריבוע" (שיטה אמיתית שונה) — כך method:"ריבוע" עלול למעשה להיות "משולש" שנכתב
+  // במקור ועבר דרך (א), מה שיגרום אימות מול הפונקציה הלא-נכונה (ריבוע במקום קדמי) ותוצאת engine_verified שגויה.
+  // אין למפות מחדש (`gematria_engine_law` — אסור לנחש שיטה) — הפתרון היחיד הבטוח: לא לסמוך על "ריבוע" כלל.
+  if (cand.method === "ריבוע") {
+    return { engine_verified: "not_applicable", engine_detail: {
+      reason: "שיטה «ריבוע» מזוהה משני מסלולי-חילוץ שונים ב-analysisFlow.js שאינם מסומנים — לא ניתן לקבוע בבטחה אם זו שיטת «ריבוע» האמיתית או «משולש» שמוזג אליה (normMethod). נדרש אימות ידני/תיקון-שורש ב-analysisFlow.js.",
+    } };
+  }
   const key = METHOD_KEY_MAP[cand.method] ?? (cand.method ? undefined : "רגיל"); // ללא-שיטה מצוינת → רגיל (ברירת-מחדל, כמו identifyMethod)
   if (key === undefined) {
     return { engine_verified: "not_applicable", engine_detail: { reason: `שיטה «${cand.method}» לא מזוהה — נדרש אימות ידני` } };
@@ -178,4 +191,32 @@ export function triageSource(item, { dbFirst, existingObjects } = {}) {
   const overallInterest = !artifacts.length ? "NONE" : anyHigh ? "HIGH" : anyMed ? "MEDIUM" : "LOW";
 
   return { artifacts, weakSignals: weak, overallInterest, hasAnyResearchValue: artifacts.length > 0 };
+}
+
+// ── שלב 6 · קשרים בין-ביטויים (section F של תיק-המחקר) — group-by טהור על ערך משותף בתוך אותו מקור. ──
+// אין מנוע-חדש: רק extractCandidates() הקיים + קיבוץ. קשר = ≥2 ביטויים שונים המצטלבים באותו ערך
+// (למשל 441 ↔ אמת ↔ ארץ זית שמן) — לא נקבע כאן FACT/CLAIM, רק "יש הצטלבות בטקסט", ההפרדה נשארת ב-artifacts.
+export function findConnections(item) {
+  const raw = String(item?.raw || "");
+  const cands = extractCandidates(raw).filter(c => c.value != null);
+  const byValue = new Map();
+  for (const c of cands) {
+    const phrase = c.norm || c.text;
+    if (!byValue.has(c.value)) byValue.set(c.value, new Set());
+    byValue.get(c.value).add(phrase);
+  }
+  const connections = [];
+  for (const [value, phraseSet] of byValue) {
+    if (phraseSet.size >= 2) connections.push({ value, phrases: [...phraseSet] });
+  }
+  return connections.sort((a, b) => b.phrases.length - a.phrases.length);
+}
+
+// ── תיק-המחקר (Research Case) · PROJECTION בלבד — לא Store חדש, לא טבלה חדשה. ──
+// עוטף triageSource()+findConnections() הקיימים לתצוגה מאוחדת-אחת (Foundation נשאר כמו-שהוא, ר' triage_case_law
+// ב-work_log). item יכול לשאת meta (credit/channel/date/cuId/img) שנשמר כאן רק כ-pass-through לתצוגה — לא נקרא.
+export function buildResearchCase(item, ctx = {}) {
+  const triage = triageSource(item, ctx);
+  const connections = findConnections(item);
+  return { ...triage, connections };
 }

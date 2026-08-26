@@ -32,7 +32,7 @@ import {
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
 import { thumb } from "../lib/img.js";
-import { triageSource, collectQueryNeeds } from "../lib/triage.js";
+import { buildResearchCase, collectQueryNeeds } from "../lib/triage.js";
 
 // 🏙️ עור «היכל» בהיר (research_workspace_law + city_background_dual_theme_law) — חדר המפקדה
 // מרונדר בשפה הבהירה-נקייה של סביבת-המחקר (כרטיסים לבנים, אקסנט-כחול, נגיעת-זהב), מעל רקע-העיר.
@@ -1364,8 +1364,21 @@ function TriageArtifactCard({ art, baseSourceRef, contributor, onDismiss }) {
   );
 }
 
-function TriagePanel({ item }) {
-  const [state, setState] = useState(null); // null=לא-הורץ · "loading" · {result}
+// ── RESEARCH CASE / "🗂️ תיק מחקר" — ONE unified projection, not 5 separate places (Gate #18: no new store). ──
+// "ONE PLACE TO UNDERSTAND ≠ ONE TABLE TO STORE. Foundation → Projection → Experience." — buildResearchCase()
+// (triage.js) is the ONLY new logic (pure group-by over the already-reused extractCandidates/triageSource) —
+// this component is pure rendering over it + item's own already-loaded source fields. No new table/RPC/engine.
+function CaseSection({ title, children }) {
+  return (
+    <div>
+      <div style={{ color: "#8a6d1a", fontFamily: F.heading, fontWeight: 800, fontSize: 11.5, marginBottom: 4 }}>{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function ResearchCasePanel({ item }) {
+  const [state, setState] = useState(null); // null=לא-הורץ · "loading" · {kase} · {error}
   const [dismissed, setDismissed] = useState(() => new Set());
   if (item.srckind !== "channel" || !item.cuId) return null;
   const baseSourceRef = `channel_updates:${item.cuId}`;
@@ -1381,49 +1394,129 @@ function TriagePanel({ item }) {
           ? supabase.from("research_objects").select("id,value,terms,statement,source_ref").in("value", values)
           : Promise.resolve({ data: [] }),
       ]);
-      const result = triageSource(item, {
+      const kase = buildResearchCase(item, {
         dbFirst: { known: dbFirst.known || [], hubCounts },
         existingObjects: existingRes.data || [],
       });
-      setState({ result });
+      setState({ kase });
     } catch (e) {
-      setState({ error: e?.message || "שגיאה בניתוח" });
+      setState({ error: e?.message || "שגיאה בהרכבת תיק-המחקר" });
     }
   };
 
   return (
-    <div style={{ ...box, marginTop: 12, borderColor: "#3ea6ff55", background: "#f4f8ff" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
-        <span style={{ color: "#1c4bbf", fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>🧠 בדיקת מחקר</span>
-        <span style={{ color: C.faint, fontSize: 10 }}>הצעה בלבד — צוריאל בוחר · לא Canonical · לא פרסום</span>
-        {!state && <button onClick={run} style={{ ...chip(true, "#3ea6ff"), marginInlineStart: "auto" }}>🧠 בדוק מחקר</button>}
-        {state === "loading" && <span style={{ color: C.faint, fontSize: 11, marginInlineStart: "auto" }}>בודק…</span>}
-        {state && state !== "loading" && <button onClick={run} style={{ ...chip(false), marginInlineStart: "auto" }}>↻ בדוק שוב</button>}
+    <div style={{ ...box, marginTop: 12, borderColor: "#e9c84a55", background: "#fffaf3" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ color: "#8a6d1a", fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>🗂️ תיק מחקר</span>
+        <span style={{ color: C.faint, fontSize: 10 }}>מקום אחד לכל מה שהמערכת יודעת על המקור — הצעה בלבד, לא Canonical, לא פרסום</span>
+        {!state && <button onClick={run} style={{ ...chip(true, "#e9c84a"), marginInlineStart: "auto" }}>🗂️ בנה תיק</button>}
+        {state === "loading" && <span style={{ color: C.faint, fontSize: 11, marginInlineStart: "auto" }}>בונה תיק…</span>}
+        {state && state !== "loading" && <button onClick={run} style={{ ...chip(false), marginInlineStart: "auto" }}>↻ בנה מחדש</button>}
       </div>
       {state && state !== "loading" && state.error && <div style={{ color: "#e0563a", fontSize: 12 }}>{state.error}</div>}
-      {state && state !== "loading" && state.result && (() => {
-        const { result } = state;
-        const visible = result.artifacts.filter(a => !dismissed.has(a.idx));
+      {state && state !== "loading" && state.kase && (() => {
+        const { kase } = state;
+        const visible = kase.artifacts.filter(a => !dismissed.has(a.idx));
+        const newOnes = visible.filter(a => a.existing.status === "new");
+        const factLike = visible.filter(a => a.verification.engine_verified === true);
+        const claimLike = visible.filter(a => a.verification.engine_verified !== true);
+        const gateNeeded = visible.filter(a => a.routing.primary === "A");
+
         return (
-          <>
-            <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8 }}>
-              <span style={{ color: C.faint, fontSize: 11 }}>עניין מחקרי כולל:</span>
-              <span style={pill(INTEREST_COLOR[result.overallInterest])}>{result.overallInterest}</span>
-              <span style={{ color: C.faint, fontSize: 10.5 }}>{result.artifacts.length} ממצאים-לניתוב · {result.weakSignals.length} אותות-הקשר</span>
-            </div>
-            {!result.hasAnyResearchValue && (
-              <div style={{ color: C.faint, fontSize: 12 }}>לא נמצאה כאן טענת-ערך לניתוב — נשאר כחומר-ארכיון (E: אין פעולת-מחקר).</div>
-            )}
-            {visible.map(a => (
-              <TriageArtifactCard key={a.idx} art={a} baseSourceRef={baseSourceRef} contributor={item.author}
-                onDismiss={(idx) => setDismissed(p => new Set(p).add(idx))} />
-            ))}
-            {result.weakSignals.length > 0 && (
-              <div style={{ marginTop: 6, fontSize: 10.5, color: C.faint }}>
-                הקשר נוסף (לא נותב): {result.weakSignals.map(w => w.text).join(" · ")}
+          <div style={{ display: "grid", gap: 12 }}>
+            <CaseSection title="A · מקור (Source)">
+              <div style={{ fontSize: 11.5, color: C.muted }}>
+                כותב: <b>{item.author || item.rawAuthor || "—"}</b> · ערוץ: {item.source || "—"} · {fmt(item.ts)}
+                {" · "}provenance: <code style={{ fontSize: 10 }}>{baseSourceRef}</code>
               </div>
-            )}
-          </>
+              {item.img && <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>יש תמונה מצורפת למקור (מוצגת למעלה בפאנל).</div>}
+            </CaseSection>
+
+            <CaseSection title={`B · ממצאים שחולצו (${visible.length})`}>
+              {!visible.length && <div style={{ color: C.faint, fontSize: 12 }}>לא נמצאה כאן טענת-ערך לניתוב.</div>}
+              {visible.map(a => (
+                <div key={a.idx} style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", fontSize: 12, marginBottom: 3 }}>
+                  <span style={pill(a.candidate.type === "equation" ? "#8458ff" : "#3ea6ff")}>{a.candidate.type}</span>
+                  <span style={{ color: C.goldLight, fontWeight: 700 }}>{a.candidate.text}</span>
+                  {a.candidate.value != null && <b style={{ color: C.goldBright }}>= {a.candidate.value}</b>}
+                  {a.candidate.method && <span style={{ color: C.faint, fontSize: 10 }}>({a.candidate.method})</span>}
+                </div>
+              ))}
+            </CaseSection>
+
+            <CaseSection title="C · אמת מחושבת (Engine Verification)">
+              {!visible.length && <div style={{ color: C.faint, fontSize: 12 }}>—</div>}
+              {visible.map(a => {
+                const v = a.verification.engine_verified;
+                const sym = v === true ? "✓ אומת" : v === false ? "⚠ המנוע לא-תואם" : "— לא-ניתן-לאימות קליינטי";
+                const col = v === true ? "#4caf7d" : v === false ? "#e0563a" : "#8a8a95";
+                return (
+                  <div key={a.idx} style={{ fontSize: 11.5, marginBottom: 2 }}>
+                    <span style={{ color: col, fontWeight: 700 }}>{sym}</span>
+                    <span style={{ color: C.muted }}> — {a.candidate.text}{a.candidate.value != null ? ` = ${a.candidate.value}` : ""}</span>
+                    {v !== true && a.verification.engine_detail?.reason && (
+                      <span style={{ color: C.faint, fontSize: 10 }}> ({a.verification.engine_detail.reason})</span>
+                    )}
+                  </div>
+                );
+              })}
+            </CaseSection>
+
+            <CaseSection title="D · מה כבר קיים במערכת">
+              {!visible.length && <div style={{ color: C.faint, fontSize: 12 }}>—</div>}
+              {visible.map(a => (
+                <div key={a.idx} style={{ fontSize: 11.5, marginBottom: 2 }}>
+                  <span style={{ color: "#3ea6ff", fontWeight: 700 }}>◐ {EXISTING_HE[a.existing.status] || a.existing.status}</span>
+                  <span style={{ color: C.muted }}> — {a.candidate.text}</span>
+                  {a.existing.status === "duplicate" && <span style={{ color: C.faint, fontSize: 10 }}> (research_objects:{a.existing.detail.research_object_id})</span>}
+                </div>
+              ))}
+            </CaseSection>
+
+            <CaseSection title={`E · מה חדש (${newOnes.length})`}>
+              <div style={{ color: C.faint, fontSize: 10.5, marginBottom: 4 }}>⚠ חדש-למערכת ≠ נכון — NEW ≠ TRUE.</div>
+              {!newOnes.length && <div style={{ color: C.faint, fontSize: 12 }}>אין ממצא-חדש כרגע.</div>}
+              {newOnes.map(a => (
+                <div key={a.idx} style={{ fontSize: 11.5, color: "#4caf7d", fontWeight: 700 }}>★ {a.candidate.text}{a.candidate.value != null ? ` = ${a.candidate.value}` : ""}</div>
+              ))}
+            </CaseSection>
+
+            <CaseSection title={`F · קשרים (${kase.connections.length})`}>
+              {!kase.connections.length && <div style={{ color: C.faint, fontSize: 12 }}>לא נמצאה הצטלבות-ערך בתוך מקור זה.</div>}
+              {kase.connections.map(cn => (
+                <div key={cn.value} style={{ fontSize: 12, marginBottom: 3 }}>
+                  🔗 <b style={{ color: C.goldBright }}>{cn.value}</b> ↔ {cn.phrases.map((p, i) => (
+                    <span key={i} style={{ color: C.goldLight }}>{p}{i < cn.phrases.length - 1 ? " ↔ " : ""}</span>
+                  ))}
+                  <div style={{ color: C.faint, fontSize: 10 }}>👤 טענת-כותב בתוך אותו מקור — לא הצלבה מאושרת</div>
+                </div>
+              ))}
+            </CaseSection>
+
+            <CaseSection title="G · פרשנות (הפרדה)">
+              <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 2 }}>
+                <div><span style={pill("#4caf7d")}>FACT</span> {factLike.length} ממצאים אומתו במנוע (engine_verified=true).</div>
+                <div><span style={pill("#c79a2e")}>CLAIM</span> {claimLike.length} ממצאים הם טענת-כותב שלא אומתה/לא-ניתנת-לאימות/נסתרה — נשארים Claim, לא Fact.</div>
+                <div><span style={pill("#a48bff")}>👤 טענת כותב</span> כל תוכן המקור — {item.author || item.rawAuthor || "—"} — לא נקבע כאן קנוני.</div>
+                {kase.weakSignals.length > 0 && (
+                  <div><span style={pill("#8a8a95")}>🟣 INTERPRETATION</span> {kase.weakSignals.length} אותות-הקשר נוספים (ללא ערך-לניתוב, לא נעלמים): {kase.weakSignals.map(w => w.text).join(" · ")}</div>
+                )}
+              </div>
+            </CaseSection>
+
+            <CaseSection title={`H · Human Gate (${gateNeeded.length} דורשים החלטה מתוך ${visible.length})`}>
+              {!gateNeeded.length && <div style={{ color: C.faint, fontSize: 12 }}>אין כרגע ממצא הדורש החלטת-אדם — לא כל ממצא צריך כפתור.</div>}
+              {gateNeeded.map(a => (
+                <TriageArtifactCard key={a.idx} art={a} baseSourceRef={baseSourceRef} contributor={item.author}
+                  onDismiss={(idx) => setDismissed(p => new Set(p).add(idx))} />
+              ))}
+              {visible.some(a => a.routing.primary === "D") && (
+                <div style={{ fontSize: 11, color: "#3ea6ff", marginTop: 4 }}>
+                  {visible.filter(a => a.routing.primary === "D").length} ממצא/ים כבר קיימים — ראה סעיף D, אין צורך בהחלטה נוספת.
+                </div>
+              )}
+            </CaseSection>
+          </div>
         );
       })()}
     </div>
@@ -1546,8 +1639,8 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
           )}
         </div>
 
-        {/* RESEARCH TRIAGE BEFORE HUMAN GATE — תמיד מעל «שמור למחקר» (הטריאז' מציע, «שמור» מבצע-ידני). */}
-        <TriagePanel item={item} />
+        {/* RESEARCH CASE — "🗂️ תיק מחקר", תמיד מעל «שמור למחקר» (התיק מציע/מרכז, «שמור» מבצע-ידני). */}
+        <ResearchCasePanel item={item} />
 
         {/* PART B/D · «➕ שמור למחקר» — ציר נפרד מ«מצב עבודה» למעלה. Claim-shaped בלבד, דרך Research Intake הקיים. */}
         <SaveToResearchBox item={item} />
