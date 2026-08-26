@@ -48,19 +48,31 @@ export async function getDimensionFiveVideos() {
     for (const p of (posts || [])) {
       const c = typeof p.content === "string" ? p.content : "";
       const mp4 = c.match(/https?:\/\/[^"'\s]+\.mp4/i);
-      if (!mp4) continue; // רק פוסטים עם וידאו שלנו
-      const video_url = mp4[0];
-      const poster = (c.match(/poster="([^"]+)"/i) || [])[1] || p.image_url || null;
-      const heM = c.match(/src="([^"]+)"[^>]*srclang="he"/i) || c.match(/srclang="he"[^>]*src="([^"]+)"/i);
-      const enM = c.match(/src="([^"]+)"[^>]*srclang="en"/i) || c.match(/srclang="en"[^>]*src="([^"]+)"/i);
-      items.push({
-        id: p.id, slug: p.slug, title: p.title,
-        video_url,
-        poster,
-        card: p.image_url || poster,
-        he_vtt: (heM && heM[1]) || video_url.replace(/\.mp4$/i, ".he.vtt"),
-        en_vtt: (enM && enM[1]) || video_url.replace(/\.mp4$/i, ".en.vtt"),
-      });
+      if (mp4) {
+        const video_url = mp4[0];
+        const poster = (c.match(/poster="([^"]+)"/i) || [])[1] || p.image_url || null;
+        const heM = c.match(/src="([^"]+)"[^>]*srclang="he"/i) || c.match(/srclang="he"[^>]*src="([^"]+)"/i);
+        const enM = c.match(/src="([^"]+)"[^>]*srclang="en"/i) || c.match(/srclang="en"[^>]*src="([^"]+)"/i);
+        items.push({
+          id: p.id, slug: p.slug, title: p.title, kind: "video",
+          video_url, poster, card: p.image_url || poster,
+          he_vtt: (heM && heM[1]) || video_url.replace(/\.mp4$/i, ".he.vtt"),
+          en_vtt: (enM && enM[1]) || video_url.replace(/\.mp4$/i, ".en.vtt"),
+        });
+        continue;
+      }
+      // 🖼️ פוסט-תמונה בסגנון-טיקטוק — אין וידאו אך יש אודיו (מוזיקה) + תמונה + מלל (למשל «הודעה גלקטית»).
+      //    במציג-הפיד המשתמש כבר מחליק (יש gesture) → המוזיקה מתנגנת אוטומטית, בניגוד לכניסה רגילה לפוסט.
+      const aud = c.match(/https?:\/\/[^"'\s]+\.(?:m4a|mp3|aac|ogg)/i);
+      if (aud) {
+        const img = (c.match(/<img[^>]+src="([^"]+)"/i) || [])[1] || p.image_url || null;
+        items.push({
+          id: p.id, slug: p.slug, title: p.title, kind: "photo",
+          audio_url: aud[0], image: img, card: p.image_url || img,
+          html: c,
+        });
+        continue;
+      }
     }
     return items;
   } catch { return []; }

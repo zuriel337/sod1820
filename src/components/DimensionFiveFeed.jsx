@@ -21,6 +21,7 @@ export default function DimensionFiveFeed() {
   const [idx, setIdx] = useState(0);
   const touch = useRef(null);
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
 
   // טעינת הרשימה פעם אחת (בעצלתיים) + פתיחה לפי אירוע
   useEffect(() => {
@@ -83,6 +84,19 @@ export default function DimensionFiveFeed() {
 
   const total = items.length;
   const postUrl = `${SITE_URL}/${cur.slug}`;
+  // 🖼️ טקסט-קריא לפוסט-תמונה — הופכים את ה-HTML לפסקאות, ומורידים שורות-רעש (מדיה/קרדיט/ניווט).
+  const toText = (html) => String(html || "")
+    .replace(/<\/(p|div|h[1-6]|li|blockquote|section|ul)>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n").replace(/<li[^>]*>/gi, "• ")
+    .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+    .replace(/\n{3,}/g, "\n\n").trim();
+  const photoText = cur.kind === "photo"
+    ? toText(cur.html).split("\n").filter(s => {
+        const t = s.trim();
+        return !/^🎵/.test(t) && !/מקור חזותי/.test(t) && !/^ראו גם/.test(t) && !/עוד מקוד המציאות/.test(t);
+      }).join("\n").replace(/\n{3,}/g, "\n\n").trim()
+    : "";
   const onTouchStart = (e) => { touch.current = e.touches[0]?.clientY ?? null; };
   const onTouchEnd = (e) => {
     if (touch.current == null) return;
@@ -116,16 +130,29 @@ export default function DimensionFiveFeed() {
 
       {/* הנגן */}
       <div style={{ flex: 1, width: "100%", maxWidth: 480, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", minHeight: 0, padding: "0 8px" }}>
-        <video
-          key={cur.id} ref={videoRef}
-          src={cur.video_url} poster={cur.poster || undefined}
-          controls autoPlay playsInline crossOrigin="anonymous"
-          onEnded={() => go(1)}
-          style={{ maxHeight: "100%", maxWidth: "100%", width: "auto", borderRadius: 14, background: "#000", boxShadow: "0 10px 40px rgba(0,0,0,.6)" }}
-        >
-          {cur.he_vtt && <track kind="subtitles" src={cur.he_vtt} srcLang="he" label="עברית" default />}
-          {cur.en_vtt && <track kind="subtitles" src={cur.en_vtt} srcLang="en" label="English" />}
-        </video>
+        {cur.kind === "photo" ? (
+          // 🖼️ פוסט-תמונה בסגנון-טיקטוק: תמונה מלאה כרקע מעומעם + מוזיקה מתנגנת אוטומטית + מלל לקריאה (נגלל).
+          <div key={cur.id} style={{ position: "relative", height: "100%", width: "100%", borderRadius: 14, overflow: "hidden", background: "#000", boxShadow: "0 10px 40px rgba(0,0,0,.6)" }}>
+            {cur.image && <img src={cur.image} alt={stripHtml(cur.title || "")} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "brightness(.5)" }} />}
+            <div style={{ position: "absolute", inset: 0, overflowY: "auto", WebkitOverflowScrolling: "touch",
+              padding: "20px 18px 96px", color: "#f3eefc", fontFamily: F.body, fontSize: 15.5, lineHeight: 1.8, whiteSpace: "pre-wrap", textAlign: "center",
+              background: "linear-gradient(180deg, rgba(6,4,14,.15) 0%, rgba(6,4,14,.45) 35%, rgba(6,4,14,.85) 100%)" }}>
+              {photoText}
+            </div>
+            <audio key={"a" + cur.id} ref={audioRef} src={cur.audio_url} autoPlay loop playsInline />
+          </div>
+        ) : (
+          <video
+            key={cur.id} ref={videoRef}
+            src={cur.video_url} poster={cur.poster || undefined}
+            controls autoPlay playsInline crossOrigin="anonymous"
+            onEnded={() => go(1)}
+            style={{ maxHeight: "100%", maxWidth: "100%", width: "auto", borderRadius: 14, background: "#000", boxShadow: "0 10px 40px rgba(0,0,0,.6)" }}
+          >
+            {cur.he_vtt && <track kind="subtitles" src={cur.he_vtt} srcLang="he" label="עברית" default />}
+            {cur.en_vtt && <track kind="subtitles" src={cur.en_vtt} srcLang="en" label="English" />}
+          </video>
+        )}
 
         {/* חיצים בצד (דסקטופ) */}
         <button onClick={() => go(-1)} aria-label="הקודם" title="הקודם"
@@ -136,7 +163,7 @@ export default function DimensionFiveFeed() {
 
       {/* שורה תחתונה: פעולות */}
       <div style={{ width: "100%", maxWidth: 480, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "12px 14px calc(12px + env(safe-area-inset-bottom))", flex: "0 0 auto" }}>
-        <button onClick={() => go(1)} style={{ background: IND, color: "#fff", border: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontWeight: 800, fontSize: 14, cursor: "pointer" }}>הסרטון הבא ↓</button>
+        <button onClick={() => go(1)} style={{ background: IND, color: "#fff", border: "none", borderRadius: 999, padding: "10px 20px", fontFamily: F.heading, fontWeight: 800, fontSize: 14, cursor: "pointer" }}>{cur.kind === "photo" ? "הבא ↓" : "הסרטון הבא ↓"}</button>
         <button onClick={() => { const s = cur.slug; close(); nav(`/${s}`); }} style={{ background: "rgba(255,255,255,.12)", color: "#fff", border: "none", borderRadius: 999, padding: "10px 16px", fontFamily: F.heading, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>📖 לפוסט המלא</button>
         <button onClick={doShare} aria-label="שיתוף" style={{ width: 42, height: 42, borderRadius: "50%", background: "rgba(255,255,255,.12)", color: "#fff", border: "none", fontSize: 16, cursor: "pointer" }}>🔗</button>
       </div>
