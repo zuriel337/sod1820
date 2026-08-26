@@ -95,6 +95,22 @@ Human Preview ל-#188 (`📌 למחקר` persistence בלי שינוי ציר) �
 
 > **🔵 סגור (25.8.2026, `V5_3_FINAL_DRIFT_CLOSURE`):** ה-NEXT_ACTION שמעל **בוצע בפועל ומוזג**. PR #192 ("Number Page Integration v1") חיווט את `fn_number_lookup`+`fn_relation_candidate` בדיוק לפי-הטופולוגיה-שתוארה: `getValueFamilies()` ב-`src/lib/supabase.js` עבר מ-select-ישיר-על-`bidim` ל-`fn_number_lookup` (עדיין-אותו-מקור-נתונים, מורחב עם provenance-composite); `NumberFamilies.jsx` מקבל badge "🧩 צירוף"+פירוק-רכיבים; רכיב-חדש `RelationCandidateStrip` (בתוך `EntityPage.jsx`, לצד `BridgesStrip` הקיים) מציג-מועמד-קשר תוצף-בלחיצה-בלבד — **תוסף בלבד, לא-נגע ב-`NumberDNA`/מד-ההתכנסות-הנעולים (§10.4)**, לא-כותב `edges`/`nodes`. אושר ומוזג ע"י צוריאל (`merged_by=zuriel337`, `2026-08-25T04:40:17Z`). **NEXT_ACTION החדש:** אין-פריט-פתוח-לשלב-זה — ר' Return Point/INTAKE READINESS למטה לצעד-האסטרטגי-הבא.
 
+### Numeric Research Router v1 — π + Fibonacci Sequence Lens — IMPLEMENTED (branch-only, draft PR #203, **NOT** merged/deployed/live)
+> **תוספת 26.8.2026, `NUMERIC_RESEARCH_ROUTER_V1_PI_FIBONACCI`.** GPT בנה על ענף `gpt/numeric-research-router-v1-pi`, HEAD `f65bb07a94fa5706c3dc9ec81e8af1f322346754` (8 קומיטים מעל `main` שלפני-מיזוג-#200, `06087fca`). Claude אימת-חי (לא-מהזיכרון, לא-מהדיווח): `git diff --stat` מול `main` = **בדיוק 5 קבצים חדשים בלבד תחת `src/lib/research/`** (`sequenceLens.js`/`piSequence.js`/`fibonacciSequence.js`/`numericResearch.js`/`numericResearch.test.js`), 0 קבצים-קיימים-נגעו, 0 DDL, 0 טבלה-חדשה; `grep` על כל `src/` מצא **אפס imports** של הקבצים האלה — קוד רדום, בלי חיווט-UI. **הרצתי בפועל** (לא-שיחזרתי-עצמאית, לא-סמכתי-על-הדיווח) את `piSequence.js`/`fibonacciSequence.js` עם node — 50 הספרות-הראשונות של π תואמות-בדיוק רפרנס-ידוע, וכל המיקומים-הבאים אומתו bit-for-bit.
+> - **מהות:** לא-מנוע/store/graph חדש — **תשתית-מיסוד גנרית** שמשתמשת-חוזרת ב-`Universal Finding` הקיים (`makeUniversalFinding`, `src/lib/research/universalFinding.js`) ובקריאות-RPC קיימות בלבד (`fn_number_lookup`/`fn_number_dossier`/`fn_number_journey`/`number_neighbors`/`fn_hot_context`, כולן דרך `rpc()` שמוזרק מבחוץ — הקוד עצמו לא-מחזיק חיבור-DB). שרשרת: **Numeric Root → Research Router → עדשות-רשומות (registered lenses) → Universal Finding / relation candidate → Human Gate**.
+> - **`sequenceLens.js` — חוזה-גנרי (`SEQUENCE_REPRESENTATION`/`SEQUENCE_OPERATION`, registry+dispatch) — לא-יודע-כלום על π/פיבונאצ'י ספציפית; כל `sequence:<id>` עתידי (ראשוניים/גיאומטריה/…) מתחבר לאותו-שקע בלי Router-redesign.**
+> - **שני stress tests אמיתיים, שניהם עברו דרך אותו חוזה בדיוק — ההוכחה היא לא-רק-π:**
+>   - **π** (`piSequence.js`, `representation_kind='digit_stream'`, Chudnovsky binary-splitting+BigInt integer sqrt, לא-קירוב): מוסכמת-מיקום `position 1 = הספרה-הראשונה-אחרי-הנקודה-העשרונית`. מאומת (Claude, node ריצה-ישירה): `337→230` · `3060→5679` · `1820→24653`.
+>   - **Fibonacci** (`fibonacciSequence.js`, `representation_kind='term_sequence'`, מוסכמה `F1=1,F2=1`, one-based): `233→איבר13` · `1→איבר1` (הופעה-ראשונה; כפילות ב-[1,2] ל-ALL) · `337→NOT FOUND` (מאומת: 337 באמת-אינו-מספר-פיבונאצ'י).
+>   - **Foundation leak שנמצא-ותוקן בפועל (לא-רק-דווח):** בגרסה-הראשונה Router כפה את ה-operation-הספציפי-ל-π כברירת-מחדל. תוקן בפאס-Fibonacci: `defaultOperation` שייך-לכל-adapter (`runSequenceLens` קורא `request.operation || adapter.defaultOperation`), Router-core לא-מקודד-שוב שום-סמנטיקת-רצף-ספציפית.
+> - **חוזה Truth/Admission (Human-Gate, לא-קוד):** `Sequence Finding` (זמני, ephemeral) → **שמירה מפורשת של אדם** → שורת `research_objects` מועמדת (בצורה-הקיימת-כבר: `kind='observation'`, `source='sequence:<id>'`, `engine_verified=true` [חישוב-דטרמיניסטי, לא-LLM], `engine_detail`=ה-payload-כפי-שהוא) → בחירה-מפורשת/מבוקרת של IDs → `fn_composite_convergence_candidate` (הגשר של Claude, **חתימתו החיה דורשת `p_target_value`+`p_research_object_ids`+`p_by` — לעולם לא-אוטומטי**) → `research_candidate` → Human Gate. **אף Sequence Finding לא-נשמר-אוטומטית; ציון ה-`priority` הוא `NOT_A_TRUTH_SIGNAL` ולעולם-לא-סף-קבלה-אוטומטי** (מגן-מפני-מלכודת "כמעט-כל-מספר-מופיע-איפשהו-בפאי").
+> - **שימור מסלולי-צבי (additive בלבד, π לא-נגע בקיים):** 1020×3=3060 · 612×5=3060 · 17×180=3060 — כולם נשארו-חיים ב-`research_objects` ללא-שינוי.
+> - **FOUNDATION VERDICT: SUFFICIENT** — π+Fibonacci (digit_stream+term_sequence) עברו דרך אותו חוזה-בדיוק, לא-רק-π.
+> - **סטטוס-מדויק (חובה-לא-לטשטש):** `IMPLEMENTED ON BRANCH` בלבד. **Draft PR #203** פתוח (`gpt/numeric-research-router-v1-pi`→`main`, `draft=true`, `merged=false`, +514/-0, 5 קבצים) — **לא MERGED, לא DEPLOYED, לא LIVE ב-production.** אין-לכתוב-אחרת.
+> - **NEXT:** `Number Research Dossier v2 — Projection Contract` — להגדיר איך Numeric Root מקבל projection מאוחד (ידע-קיים+ממצאי-מנוע+ממצאי-Sequence+יחסים+convergence+provenance+מחקר-פתוח+מצב-Human-Gate). **עדיין לא-UI build** — חוזה-נתונים-תחילה (צוריאל מוביל את הצד-המחקרי במקביל).
+> - **DO NOT (per instruction מפורש):** לא Prime/Geometry adapter נוסף רק-להוכחה · לא UI · לא טבלה/schema חדשה · לא "מחשבון-פאי" נפרד · לא Divine Symmetry Engine · לא bulk-scan · לא הכנסה-אוטומטית של Sequence Findings ל-`research_objects` · לא merge/deploy.
+> - **Provenance:** `work_log` (26.8.2026): GPT — `NUMERIC_RESEARCH_ROUTER_V1_PI` (20:25) / `..._FIBONACCI_STRESS_TEST` BEFORE+AFTER (20:29/20:32) / `..._INTEGRATION_GATE` (21:35) / `PR200_MERGE_AND_NUMERIC_ROUTER_DOC_SYNC` (21:42); Claude — `COMPOSITE_DERIVATION_CONVERGENCE_BRIDGE_V1` (20:22) / `NUMERIC_RESEARCH_ROUTER_V1_DRIFT_VERIFICATION` (21:29, אימות-עצמאי מלא) / `NUMERIC_ROUTER_DOC_SYNC` (הרשומה-הזו).
+
 ---
 
 ## 🏷️ אוצר־תגיות v5 (משמש בכל טבלת-ספיגה למטה — משלים, לא מחליף, את מודל 5-הצירים)
@@ -799,6 +815,21 @@ Provenance-מלא (כולל ה-git-diffs/live-DB-checks שביססו כל-שור
 - **PROVENANCE:** הודעת-צוריאל 22.8 ("Cross-Research Engine / מנוע הצלבות מתקדם").
 - **LAST_VERIFIED:** —
 - **STATE:** `DESIGN`/`FUTURE` · `OPEN-HUMAN-GATE`.
+
+---
+
+### WS-NUMERIC-ROUTER — Numeric Research Router v1 (π + Fibonacci Sequence Lens) — **חדש, נוסף 26.8.2026**
+- **WHERE_WE_ARE:** קוד קיים ומאומת-חי (ר' פירוט מלא ב-`## 🧭 NUMERIC ROOT + RELATION ENGINE v1` למעלה) — **ענף-בלבד, Draft PR #203, לא-מוזג/לא-פרוס/לא-חי**.
+- **WHAT_IS_DONE:** חוזה `sequenceLens.js` גנרי + 2 adapters אמיתיים (`piSequence.js` digit_stream, `fibonacciSequence.js` term_sequence) + `numericResearch.js` (אורגן, Universal Finding בלבד, אפס-כתיבה) + טסטים. שני stress tests אומתו-חי ע"י Claude (node ריצה-ישירה, לא-רק-דיווח). Foundation leak (Router כפה-operation π-ספציפי) נמצא-ותוקן בעצמו.
+- **WHAT_IS_OPEN:** חוזה Truth/Admission (Sequence Finding→שמירת-אדם→`research_objects`→`fn_composite_convergence_candidate`→Human Gate) הוסכם-כעקרון, לא-מומש-בקוד (במכוון — לא-אוטומטי). מיזוג PR #203 עצמו טרם-אושר.
+- **WHAT_IS_BLOCKED:** אין-Prime/Geometry adapter נוסף, אין-UI, עד-אישור-מפורש נפרד.
+- **HUMAN_GATE:** צוריאל — מיזוג PR #203, ואז החלטה על חוזה-ה-Admission בפועל.
+- **NEXT_ACTION:** `Number Research Dossier v2 — Projection Contract` (חוזה-נתונים לדף-מספר עתידי, לא-UI-build עדיין).
+- **DEPENDENCIES:** Numeric Root v1 + Relation Engine v1 (למעלה, MERGED) · `fn_composite_convergence_candidate` (Claude, MERGED-DB-live, ענף `claude/composite-convergence-bridge-v1`, לא-מוזג-ל-קוד-git עדיין באותה משמעות של PR — הפונקציה עצמה חיה ב-Supabase).
+- **CANONICAL_HOME:** `src/lib/research/` (הקיים) — אין-מנוע/store/graph מקביל.
+- **PROVENANCE:** `work_log` 26.8.2026 (ר' רשימת-provenance המלאה בסעיף הנרטיבי למעלה).
+- **LAST_VERIFIED:** 26.8.2026 (Claude, אימות-עצמאי מלא — קוד+PR+work_log+GitHub).
+- **STATE:** `IMPLEMENTED` (build) · `BRANCH-ONLY` · `DRAFT PR #203` · **לא** `MERGED`/`DEPLOYED`/`LIVE`.
 
 ---
 
