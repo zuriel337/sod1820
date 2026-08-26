@@ -154,15 +154,209 @@ function extractPhraseSumChains(text) {
   return out;
 }
 
-// ── אורקסטרציה · כל שלושת הצורות, ללא כפילות מול extractCandidates() הרגיל (routing נשאר נפרד) ──
+// ── שלב ד · General Arithmetic-Chain Evaluator (Zvi Unresolved Cleanup Pass) ────────────────────
+// המפרט המקורי (4 החלצנים למעלה) מכסה רק תבניות-פורמט קשיחות: "N×phrase=result" / "phrase(v)×phrase(v)=result" /
+// "N×N=phrase" / "phrase+phrase=num+num=result". הניתוח האמיתי-על-הקורפוס (Zvi Unresolved Report) חשף עשרות
+// וריאציות אמיתיות שחומקות: סדר-הפוך (phrase×N), תחילית-מילה לפני שרשרת ("וגם X+X+X"), "כפול" כמילה-נרדפת ל-
+// "פעמים", שרשרת-שוויון ארוכה מ-2 חוליות (phrase=num+num=phrase=result), סוגריים/סוגריים-מסולסלים מקוננים
+// ("י×{ה+ו+ה}"), תבנית-מעורבת product+phrase ("דמעה×6+חסד"), וחשבון-מספרים-טהור בלי גימטריה כלל ("911+909=1820").
+// פתרון-שורש (במקום עוד רג'קסים ייעודיים): פרסר-אמיתי (recursive-descent) על דקדוק כללי אחד:
+//   Chain := Link ('=' Link)*                         — שרשרת-שוויון, כל חוליה חייבת להיות שווה לכולן
+//   Link  := Term (('+') Term)*                        — סכום-איברים
+//   Term  := Factor ((TIMES) Factor)*                  — מכפלה (TIMES = × | x | X | * | פעמים | כפול)
+//   Factor:= NUMBER | PHRASE('(' NUMBER ')')? | '(' Link ')' | '{' Link '}'
+// כל עלה-ביטוי (PHRASE) עובר תמיד דרך resolveOperand הקיים (רגיל קודם; matchAnyMethod רק אם יש ערך-מפורש-
+// בסוגריים שאינו-תואם — *לא* ניחוש-שיטה על עלה בלי ערך-מפורש-נטען, בדיוק לפי `gematria_engine_law`).
+// "prefix-skip": אם השרשרת לא מתפרסת מהתחלת-הטווח (תחילית-פרוזה כמו "וגם"/"ד-"), הפרסר מנסה לדלג טוקן-טוקן
+// מההתחלה (מוגבל ל-4 ניסיונות) — התאוששות תחבירית גנרית, לא ניחוש-מילה-ספציפית. אין המצאת-שיטה: METHOD_UNRESOLVED
+// עולה בדיוק כמו בעלים-רגילים כשעלה-מפורש לא-משוחזר תחת אף שיטה קנונית.
+const GEN_TIMES_WORDS = ["פעמים", "כפול"];
+const GEN_SPAN_RE = /[0-9א-ת+×xX*(){}="'׳״\-\s]{4,220}/g;
+
+function genTokenize(span) {
+  const toks = [];
+  let i = 0;
+  const isHeb = (c) => c >= "א" && c <= "ת";
+  const isDigit = (c) => c >= "0" && c <= "9";
+  while (i < span.length) {
+    const c = span[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (isDigit(c)) { let j = i; while (j < span.length && isDigit(span[j])) j++; toks.push({ t: "NUM", v: Number(span.slice(i, j)) }); i = j; continue; }
+    if (c === "+") { toks.push({ t: "PLUS" }); i++; continue; }
+    if (c === "×" || c === "x" || c === "X" || c === "*") { toks.push({ t: "TIMES" }); i++; continue; }
+    if (c === "=") { toks.push({ t: "EQ" }); i++; continue; }
+    if (c === "(") { toks.push({ t: "LP" }); i++; continue; }
+    if (c === ")") { toks.push({ t: "RP" }); i++; continue; }
+    if (c === "{") { toks.push({ t: "LB" }); i++; continue; }
+    if (c === "}") { toks.push({ t: "RB" }); i++; continue; }
+    if (isHeb(c)) {
+      // ריצה מקסימלית של אותיות עבריות + מרכאות/מקף פנימיים (לא בגבול עם אופרטור/מספר) — כמו HEB_PHRASE.
+      let j = i;
+      while (j < span.length) {
+        const cj = span[j];
+        if (isHeb(cj) || cj === '"' || cj === "'" || cj === "׳" || cj === "״" || cj === "-") { j++; continue; }
+        if (cj === " " && j + 1 < span.length && isHeb(span[j + 1])) { j++; continue; }
+        break;
+      }
+      const runWords = span.slice(i, j).trim().split(/\s+/).filter(Boolean);
+      // ── Zvi Unresolved Cleanup Pass · PART 3+4 ────────────────────────────────────────────────
+      // ריצה רב-מילית ("כפל אמונה", "אלף בגימטריא") לא-נחשבת ביטוי-אחד באטימות: סורקים מילה-מילה —
+      // "כפול"/"פעמים" *בכל מקום* בריצה (לא רק בתחילתה) שובר לטוקן-אופרטור אמיתי (מפריד גורמים, לא
+      // מתמזג לפנים הביטוי — התיקון ל-"כפול טוב(17)" שהתמזג בטעות למחרוזת-ביטוי אחת ולא לאופרטור×גורם);
+      // "גימטריא/גימטריה" (±ב-/ה-) מוסר בשקט (רעש-לוואי, לא אופרטור ולא חלק מהביטוי-לחישוב, PART 4).
+      let acc = [];
+      const flush = () => { if (acc.length) { toks.push({ t: "PHRASE", v: acc.join(" ") }); acc = []; } };
+      for (const w of runWords) {
+        if (GEN_TIMES_WORDS.includes(w)) { flush(); toks.push({ t: "TIMES" }); continue; }
+        if (/^(?:ב|ה)?גימטרי[אה](?:ית)?$/.test(w)) continue; // מוסר, לא שובר צבירה
+        acc.push(w);
+      }
+      flush();
+      i = j;
+      continue;
+    }
+    i++; // תו לא-מזוהה (פיסוק שנפל דרך הרשת) — מדולג, לא עוצר את הפרסר
+  }
+  return toks;
+}
+
+// פרסר-מצב (מצביע-מיקום פשוט על מערך הטוקנים) — מחזיר null בכשל (לא זורק), כדי לאפשר prefix-skip נקי.
+function genParseChain(toks, startPos) {
+  let pos = startPos;
+  const peek = () => toks[pos];
+  const leaves = [];
+  function parseFactor() {
+    const tk = peek();
+    if (!tk) return null;
+    if (tk.t === "NUM") { pos++; return { kind: "num", value: tk.v }; }
+    if (tk.t === "PHRASE") {
+      pos++;
+      let explicitValue = null;
+      if (peek() && peek().t === "LP" && toks[pos + 1] && toks[pos + 1].t === "NUM" && toks[pos + 2] && toks[pos + 2].t === "RP") {
+        explicitValue = toks[pos + 1].v;
+        pos += 3;
+      }
+      const operand = resolveOperand(tk.v, explicitValue);
+      leaves.push(operand);
+      return { kind: "phrase", operand, value: operand.value };
+    }
+    if (tk.t === "LP" || tk.t === "LB") {
+      const closer = tk.t === "LP" ? "RP" : "RB";
+      pos++;
+      const inner = parseLinkNode();
+      if (!inner || !peek() || peek().t !== closer) return null;
+      pos++;
+      return inner;
+    }
+    return null;
+  }
+  function parseTerm() {
+    let node = parseFactor();
+    if (!node) return null;
+    while (peek() && peek().t === "TIMES") {
+      pos++;
+      const rhs = parseFactor();
+      if (!rhs) return null;
+      node = { kind: "mul", value: (node.value == null || rhs.value == null) ? null : node.value * rhs.value, a: node, b: rhs };
+    }
+    return node;
+  }
+  function parseLinkNode() {
+    let node = parseTerm();
+    if (!node) return null;
+    while (peek() && peek().t === "PLUS") {
+      pos++;
+      const rhs = parseTerm();
+      if (!rhs) return null;
+      node = { kind: "add", value: (node.value == null || rhs.value == null) ? null : node.value + rhs.value, a: node, b: rhs };
+    }
+    return node;
+  }
+  const links = [];
+  const first = parseLinkNode();
+  if (!first) return null;
+  links.push(first);
+  while (peek() && peek().t === "EQ") {
+    pos++;
+    const next = parseLinkNode();
+    if (!next) return null;
+    links.push(next);
+  }
+  return { links, leaves, endPos: pos };
+}
+
+// ── חלצן-כללי · שרשרת-שוויון (Chain), עם prefix-skip *ברמת-מילה-במחרוזת* (≤4 ניסיונות) ──────────
+// ⚠️ ה-skip חייב לקרות *לפני* הטוקנייז (לא אחריו): הטוקנייזר ממזג-בתאבון ריצת-מילים-עבריות-רצופה
+// בלי-אופרטור לביטוי-רב-מילים אחד (כדי לתמוך בביטויים כמו "ארך אפים"). אם ה-skip היה פועל על מערך
+// הטוקנים *אחרי* המיזוג, מילת-תחילית ("וגם") הייתה כבר מתמזגת לתוך המילה האמיתית הראשונה ולא ניתנת
+// לניתוק. לכן: מדלגים מילים-שלמות *מהמחרוזת עצמה* ומטוקנייזים-מחדש בכל ניסיון — כך "וגם נצח..." בניסיון
+// skip=1 מטוקנייז מהתחלה טהורה "נצח+נצח+נצח=444" (בלי "וגם" בכלל), בעוד "ארך אפים=352" (בלי תחילית-זרה)
+// כבר מצליח ב-skip=0 עם המיזוג-הרב-מילים השלם. אין ניחוש-מילה-ספציפית — זו הסרת-תחילית גנרית בלבד.
+function extractGeneralArithmeticClaims(text) {
+  const out = [];
+  // סורקים שורה-שורה (לא על פני כל הטקסט): מונע מ-GEN_SPAN_RE (ש-\s כולל \n) לגלוש דרך שורות-ריקות
+  // אל תוך שורת-קישוט הבאה ("+++++++++++++++++") ולבלוע אותה כאילו היא חלק מהביטוי — כל טענה אצל צבי
+  // בפועל יושבת בשורה משלה (אותו דפוס בדיוק כמו extractPhraseSumChains המקורי).
+  const spans = text.split(/\n/).flatMap(line => line.match(GEN_SPAN_RE) || []);
+  for (const rawSpan of spans) {
+    const span0 = rawSpan.trim();
+    if (!/\d/.test(span0)) continue;
+    if (!/=/.test(span0)) continue;
+    if (!(/[+×xX*]/.test(span0) || GEN_TIMES_WORDS.some(w => span0.includes(w)))) continue;
+    const words = span0.split(/\s+/);
+    // אוספים את *כל* ניסיונות ה-skip שמצליחים תחבירית (לא עוצרים בראשון) — כדי לא "לכבוש" בטעות
+    // תחילית-פרוזה תמימה (כמו "וגם") לתוך הביטוי הראשון רק כי skip=0 "הצליח מבנית" באקראי.
+    const attempts = [];
+    for (let skip = 0; skip <= 4 && skip < words.length; skip++) {
+      const attemptSpan = words.slice(skip).join(" ");
+      const toks = genTokenize(attemptSpan);
+      if (toks.length < 3) continue;
+      const attempt = genParseChain(toks, 0);
+      if (attempt && attempt.endPos === toks.length && attempt.links.length >= 2) attempts.push({ ...attempt, skip, span: attemptSpan });
+    }
+    if (!attempts.length) continue;
+    // עדיפות: (1) ניסיון-כלשהו שכל החוליות שלו שוות (התאמה-פנימית עצמאית לכל טוקניזציה — לא ניחוש-ערך,
+    // רק בחירת-הקטע-הנכון מתוך חלוקות-תחביריות אפשריות) → (2) אחרת, ה-skip הקטן-ביותר (השמרני-ביותר).
+    const consistent = attempts.find(a => a.links.every(l => l.value != null) && a.links.every(l => l.value === a.links[0].value));
+    const parsed = consistent || attempts[0];
+    const { skip: skipUsed, span } = parsed;
+    const { links, leaves } = parsed;
+    const values = links.map(l => l.value);
+    const anyUnresolved = leaves.some(o => !o.ok);
+    const allComputed = values.every(v => v != null);
+    let status;
+    if (anyUnresolved) status = "METHOD_UNRESOLVED";
+    else if (!allComputed) status = "METHOD_UNRESOLVED";
+    else if (values.every(v => v === values[0])) status = "ENGINE_VERIFIED_COMPOSITE";
+    else status = "ENGINE_MISMATCH";
+    const result = allComputed ? values[values.length - 1] : null;
+    out.push({
+      // origRaw = הטווח *לפני* prefix-skip (כולל מילת-תחילית כמו "וגם") — נשמר כדי שזיהוי-כפילות מול
+      // extractCandidates() הישן (שתופס לרוב את הטקסט-המלא-כולל-תחילית) יוכל להתאים נכון (ר' Part 7).
+      kind: "general-chain", raw: span, origRaw: span0, text: span, skipUsed, linkCount: links.length,
+      linkValues: values, operands: leaves, result, computedTotal: allComputed ? values[0] : null, status,
+    });
+  }
+  return out;
+}
+
+// ── מונע כפילות מול 4 החלצנים-הייעודיים: אם raw-span של general-chain חופף (substring) לטענה-ייעודית ──
+// מאותו מקור — מדלגים (הייעודי מדויק-יותר לתבנית שלו, ה-general הוא רשת-ביטחון לתבניות שהם לא כיסו).
+function dedupeGeneralAgainstSpecific(specific, general) {
+  return general.filter(g => !specific.some(s => g.raw.includes(s.raw) || s.raw.includes(g.raw)));
+}
+
+// ── אורקסטרציה · כל 4 הצורות הייעודיות + General Chain (רשת-ביטחון), ללא כפילות מול extractCandidates() ──
 export function extractCompoundClaims(rawText) {
   const text = stripNikud2(String(rawText || ""));
-  return [
+  const specific = [
     ...extractQuantityProducts(text),
     ...extractTwoPhraseProducts(text),
     ...extractNumberProductEqualsPhrase(text),
     ...extractPhraseSumChains(text),
   ];
+  const general = dedupeGeneralAgainstSpecific(specific, extractGeneralArithmeticClaims(text));
+  return [...specific, ...general];
 }
 
 // ── ניתוב+עניין לטענה-מורכבת — נפרד מ-classifyRouting/scoreInterest (סמנטיקה שונה: METHOD_UNRESOLVED
@@ -228,9 +422,26 @@ export function verifyCandidate(cand) {
     const [a, b] = cand.parts || [];
     if (!a || !b) return { engine_verified: "not_applicable", engine_detail: { reason: "חסרים שני האיברים" } };
     const va = m.fn(a), vb = m.fn(b);
+    const engine_verified = va === vb;
+    // ── Zvi Unresolved Cleanup Pass · PART 5 ──────────────────────────────────────────────────
+    // תיקון-פער: עד כה equation-type לא נבדק כלל מול שיטות אחרות מלבד רגיל. התיקון: *לא* מחפשים
+    // "איזו שיטה-כלשהי משחזרת שוויון-מקרי" (brute-force אסור — עלול למצוא שוויון מקרי בין שיטה-אחת
+    // בצד A לשיטה-אחרת בצד B). בודקים אך ורק **אותה שיטה עצמה עקבית על שני הצדדים** — "זהות-שיטה"
+    // (method identity), לא ניחוש. תוצאה = מידע-משני בלבד (alt_method_matches), engine_verified
+    // עדיין נקבע רק לפי רגיל — לעולם לא "מאמתים" equation על סמך שיטה חלופית בלי שהכתב ציין אותה.
+    let alt_method_matches = [];
+    if (!engine_verified) {
+      for (const meth of VALUE_METHODS) {
+        if (meth.key === "רגיל" || meth.key === "ריבוע") continue; // ריבוע = drift מתועד למעלה, מדלגים
+        let va2, vb2;
+        try { va2 = meth.fn(a); vb2 = meth.fn(b); } catch { continue; }
+        if (va2 === vb2) alt_method_matches.push({ method: meth.key, value: va2 });
+      }
+    }
     return {
-      engine_verified: va === vb,
+      engine_verified,
       engine_detail: { method: "רגיל", a: { phrase: a, value: va }, b: { phrase: b, value: vb } },
+      ...(alt_method_matches.length ? { alt_method_matches } : {}),
     };
   }
   if (cand.type !== "explicit-claim" || cand.value == null) {
