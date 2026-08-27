@@ -7,7 +7,7 @@ import { thumb } from "../lib/img.js";
 import { stripHtml, formatDateHe, youtubeId, youtubeUrl } from "../lib/format.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { genAvatar } from "../lib/avatar.js";
-import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution, getReplyCounts, getConvergenceSlugs, editContribution, removeContribution } from "../lib/contributions.js";
+import { INTENTS, intentMeta, stateMeta, STATE_META, getForumFeed, pinContribution, getReplyCounts, getLatestReplies, getConvergenceSlugs, editContribution, removeContribution } from "../lib/contributions.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import ResearcherBadge from "./ResearcherBadge.jsx";
 import ReactionBar from "./ReactionBar.jsx";
@@ -356,7 +356,7 @@ const leadEmoji = (c) =>
 // שורת-צ'אט קומפקטית (מצב מכווץ) — אווטאר · שם + מהימן · טקסט · מוצמד/נבחרת · 👍 לייק · 💬 תגובה · זמן.
 // 🆕 לייק + תגובה לחיצים *ישירות על השורה* (בלי לפתוח) לכל הודעה אחרונה — 👍 דרך ReactionBar (variant=row),
 //    💬 פותח את השרשור לתגובה. אזור-הפתיחה הוא הכפתור; הפעולות הן אחים (לא button-בתוך-button).
-function ChatRow({ c, P, onOpen, cutoff }) {
+function ChatRow({ c, P, onOpen, onToggleThread, threadOpen, cutoff }) {
   const who = c.author_display || c.author_name || "חבר הקהילה";
   const text = oneLine(c.kind === "cipher"
     ? (cipherWords(c.description, c.search_term) || c.title || c.search_term || "צופן")
@@ -387,14 +387,16 @@ function ChatRow({ c, P, onOpen, cutoff }) {
         {c.challenge && <span title={`אתגר מחקר · ${(CHALLENGE_STATUS[c.challenge.status] || CHALLENGE_STATUS.open).label}`} style={{ flex: "0 0 auto", fontSize: 12.5 }}>{c.challenge.status === "open" ? "🆘" : "🧩"}</span>}
       </button>
 
-      {/* 🆕 פעולות-שורה — לייק + תגובה לחיצים (רק לתרומות-קהילה, שיש להן contribId) */}
+      {/* 🆕 פעולות-שורה — לייק + תגובה לחיצים (רק לתרומות-קהילה, שיש להן contribId).
+          💬 פותח/סוגר תצוגה-מקדימה+שרשור-מקוצר *מתחת לשורה עצמה* (onToggleThread) — בלי לפתוח
+          את הכרטיס המלא (onOpen נשאר ללחיצה על השם/הטקסט, לעמוד/כרטיס המפורט). */}
       {isContrib && c.contribId && (
         <span className="ff-actions" style={{ display: "inline-flex", alignItems: "center", gap: 6, flex: "0 0 auto" }}>
           {SHOW_FORUM_LIKES && <ReactionBar id={c.contribId} reactions={c.reactions} boosts={c.reaction_boosts} variant="row" />}
-          <button onClick={onOpen} title="תגובה בשרשור" className="ff-cmt"
+          <button onClick={onToggleThread} title="תגובות" className="ff-cmt"
             style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 3, borderRadius: 999, padding: "3px 10px",
-              border: `1px solid ${c.replyCount > 0 ? P.accent : P.border}`, background: c.replyCount > 0 ? "rgba(212,175,55,0.12)" : "transparent",
-              color: c.replyCount > 0 ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1 }}>
+              border: `1px solid ${threadOpen || c.replyCount > 0 ? P.accent : P.border}`, background: threadOpen ? "rgba(212,175,55,0.22)" : c.replyCount > 0 ? "rgba(212,175,55,0.12)" : "transparent",
+              color: threadOpen || c.replyCount > 0 ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1 }}>
             <span style={{ fontSize: 14 }}>💬</span>{c.replyCount > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c.replyCount}</span>}
           </button>
         </span>
@@ -411,9 +413,34 @@ function ChatRow({ c, P, onOpen, cutoff }) {
 }
 
 // פריט-פיד: שורת-צ'אט כברירת-מחדל; בלחיצה נפתח הכרטיס המלא (עם «כווץ» לחזרה לשורה).
+// 💬 תצוגה-מקדימה של התגובה האחרונה + שרשור-מקוצר להגבה — ישירות מתחת לשורה, בלי לפתוח את הכרטיס המלא.
 function FeedItem({ c, P, isAdmin, onChanged, cutoff }) {
   const [open, setOpen] = useState(false);
-  if (!open) return <ChatRow c={c} P={P} onOpen={() => setOpen(true)} cutoff={cutoff} />;
+  const [threadOpen, setThreadOpen] = useState(false);
+  if (!open) {
+    const dTarget = (c.target_type && c.target_id) ? { type: c.target_type, id: c.target_id } : { type: "forum", id: c.contribId };
+    return (
+      <div style={{ display: "grid", gap: 5 }}>
+        <ChatRow c={c} P={P} onOpen={() => setOpen(true)} onToggleThread={() => setThreadOpen(v => !v)} threadOpen={threadOpen} cutoff={cutoff} />
+        {/* ↳ תצוגה מקדימה של התגובה האחרונה — נראית תמיד כשיש תגובה, בלי ללחוץ על כלום */}
+        {c.kind === "contribution" && c.lastReply && !threadOpen && (
+          <button onClick={() => setThreadOpen(true)}
+            style={{ cursor: "pointer", background: "none", border: "none", textAlign: "start", padding: "0 14px 0 44px", display: "block", width: "100%" }}>
+            <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.5 }}>
+              ↳ <b style={{ color: P.accentText, fontWeight: 700 }}>{c.lastReply.author_name || "חבר הקהילה"}:</b> {oneLine(c.lastReply.body, 90)}
+            </span>
+          </button>
+        )}
+        {/* 💬 שרשור מקוצר להגבה — נפתח מתחת לשורה (אותו Discourse קנוני, בלי לפתוח את הכרטיס המלא) */}
+        {c.kind === "contribution" && c.contribId && threadOpen && (
+          <div style={{ marginInlineStart: 34, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 11, padding: "10px 12px 12px" }}>
+            <Discourse target={dTarget} focusId={c.contribId} origin="forum" repliesOnly onActivity={onChanged} />
+            <button onClick={() => setThreadOpen(false)} style={{ marginTop: 8, cursor: "pointer", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: 0 }}>▴ סגור</button>
+          </div>
+        )}
+      </div>
+    );
+  }
   const full = c.kind === "post" ? <PostCard c={c} P={P} />
     : c.kind === "insight" ? <InsightCard c={c} P={P} isAdmin={isAdmin} onChanged={onChanged} />
     : c.kind === "cipher" ? <CipherCard c={c} P={P} />
@@ -458,8 +485,8 @@ export default function ForumFeed({ maxWidth = 780 } = {}) {
     getForumFeed({ type: null, writer: null, limit: 200, includePosts: false }).then(async (feed) => {
       // 💬 מונה-תגובות לכל תרומה — שכל כרטיס יראה «יש תגובה» (עדות-חיים לפורום).
       const ids = (feed || []).filter(it => it.kind === "contribution" && it.contribId).map(it => it.contribId);
-      const [counts, convSlugs, challenges] = await Promise.all([getReplyCounts(ids), getConvergenceSlugs(ids), getChallengesByContribs(ids)]);
-      setAllItems((feed || []).map(it => ({ ...it, replyCount: counts[it.contribId] || 0, convergenceSlug: convSlugs[it.contribId] || null, challenge: challenges[it.contribId] || null })));
+      const [counts, convSlugs, challenges, lastReplies] = await Promise.all([getReplyCounts(ids), getConvergenceSlugs(ids), getChallengesByContribs(ids), getLatestReplies(ids)]);
+      setAllItems((feed || []).map(it => ({ ...it, replyCount: counts[it.contribId] || 0, convergenceSlug: convSlugs[it.contribId] || null, challenge: challenges[it.contribId] || null, lastReply: lastReplies[it.contribId] || null })));
     }).catch(() => setAllItems([]));
   }, []);
   useEffect(() => { load(); }, [load]);

@@ -108,6 +108,20 @@ export async function getReplyCounts(ids = []) {
   } catch { return out; }
 }
 
+// 💬 התגובה האחרונה לכל תרומה ברשימה — תצוגה מקדימה בפיד-הפורום בלי לפתוח את הכרטיס המלא.
+export async function getLatestReplies(ids = []) {
+  const out = {};
+  if (!supabase || !ids.length) return out;
+  try {
+    const { data } = await supabase.from("research_contributions")
+      .select("parent_id,author_name,body,created_at")
+      .in("parent_id", ids).eq("status", "approved")
+      .order("created_at", { ascending: false });
+    for (const r of data || []) { if (r.parent_id && !out[r.parent_id]) out[r.parent_id] = r; }
+    return out;
+  } catch { return out; }
+}
+
 // ⭐ אילו תרומות בפיד הולידו התכנסות (convergence_slug) — לסמל-הכתב «יצר התכנסות»
 export async function getConvergenceSlugs(ids = []) {
   const out = {};
