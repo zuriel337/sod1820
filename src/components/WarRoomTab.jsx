@@ -2320,6 +2320,10 @@ export default function WarRoomTab() {
     setMode("now"); setFilters({ ids: new Set(ids), idsLabel: label });
     setTimeout(() => document.getElementById("cc-ingestion-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
   }, []);
+  // §3.3 · "חדש מהמערכת" — reuse whats_new_law הקנוני (crossesNew.js), מפתח נפרד לחדר-המפקדה.
+  // ⚠️ חייב להיות מוגדר *לפני* signals (למטה) — TDZ: const מוקדם-בזמן-ריצה מ-declaration שלו קורס.
+  const signalsCutoff = useMemo(() => seenCutoff("cc_signals"), []);
+  const markSignalsSeen = useCallback(() => markSeenKey("cc_signals"), []);
   // Pass 1C-Closure §7 · Signals מחושבים פעם אחת כאן (לא בתוך AttentionSignals) כדי ש-drillTo יקבל
   // בדיוק את אותם ids שהמונה מציג — לא חישוב-כפול/מקביל.
   const signals = useMemo(() => computeSignals(poolAll, { newCutoff: signalsCutoff }), [poolAll, signalsCutoff]);
@@ -2330,9 +2334,6 @@ export default function WarRoomTab() {
   const razielDigest = useMemo(() =>
     sel.size > 0 ? buildAttentionDigest(selItems, { mode, filters, hideSelf, scope: "selected", scopeNote: filters.idsLabel ? `בחירה מתוך: ${filters.idsLabel}` : null }) : filteredDigest,
     [sel.size, selItems, filteredDigest, mode, filters, hideSelf]);
-  // §3.3 · "חדש מהמערכת" — reuse whats_new_law הקנוני (crossesNew.js), מפתח נפרד לחדר-המפקדה.
-  const signalsCutoff = useMemo(() => seenCutoff("cc_signals"), []);
-  const markSignalsSeen = useCallback(() => markSeenKey("cc_signals"), []);
   const toggleSel = (k) => setSel(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
   // §8 · הבחנה קריטית: "בחר את המוצגים" (רק מה-שנרנדר בפועל, ה-20 הראשונים) ≠ "בחר הכל לפי הסינון"
   // (כל shown — כל הפריטים התואמים לפילטר, גם אם לא-מוצגים כי הרשימה חתוכה ל-20). שני כפתורים נפרדים.
