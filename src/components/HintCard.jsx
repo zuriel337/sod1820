@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { cleanName } from "../lib/galleryName.js";
 import { stripHtml } from "../lib/format.js";
 import { isNewSince } from "../lib/crossesNew.js";
-import { domNum, hintNums, hintTags, shortDate, streamLabel } from "../lib/reality.js";
+import { domNum, hintNums, hintTags, shortDate, streamLabel, hintPostSlug } from "../lib/reality.js";
 import { trackImageClick } from "../lib/tracking.js";
 
 // Single hint card — CSS classes (rs-card, rs-imgwrap, etc.) must be injected by the parent layout.
@@ -18,6 +18,7 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
   const extraNums = hintNums(h).filter(n => n !== v).slice(0, 3);
   const desc = h.description ? stripHtml(h.description) : null;
   const added = streamLabel(h);   // 🌊 «נוסף לזרם» — מתי התמונה נכנסה לזרם (לא מתי האירוע קרה)
+  const postSlug = hintPostSlug(h);   // 📖 פוסט מקושר (ocr_meta.post_slug) — אם קיים, הרמז מפנה גם לפוסט המלא
 
   return (
     <article className={`rs-card${fresh ? " fresh" : ""}`} style={{ animationDelay: `${Math.min(idx, 14) * 35}ms` }}>
@@ -60,9 +61,11 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
       {(title || desc || shortDate(h) || tags.length > 0 || extraNums.length > 0 || v != null) && (
         <div className="rs-body">
           {shortDate(h) && <div className="rs-date">🗓️ {shortDate(h)}</div>}
-          {title && (v != null
-            ? <Link to={`/number/${v}`} className="rs-title rs-titlelink" title={`לדף המספר ${v}`}>{title}</Link>
-            : <div className="rs-title">{title}</div>)}
+          {title && (postSlug
+            ? <Link to={`/${postSlug}`} className="rs-title rs-titlelink" title="לפוסט המלא">{title}</Link>
+            : v != null
+              ? <Link to={`/number/${v}`} className="rs-title rs-titlelink" title={`לדף המספר ${v}`}>{title}</Link>
+              : <div className="rs-title">{title}</div>)}
           {desc && <div className="rs-title">{desc}</div>}
           {(tags.length > 0 || extraNums.length > 0) && (
             <div className="rs-tags">
@@ -70,7 +73,11 @@ export default function HintCard({ hint: h, idx = 0, cutoff, palette, onPick, on
               {extraNums.map(n => <button key={`n${n}`} className="rs-tag" onClick={() => onPick?.(n)}>#{n}</button>)}
             </div>
           )}
-          {/* קישור ברור לדף המספר הקנוני — כל רמז הוא שער לדף המספר (עץ אחד), לא פוסט */}
+          {/* 📖 קישור לפוסט המלא — כשהרמז מקושר לפוסט (ocr_meta.post_slug). מוצג ראשון, ראשי. */}
+          {postSlug && (
+            <Link to={`/${postSlug}`} className="rs-golink" title="לפוסט המלא">📖 לפוסט המלא ←</Link>
+          )}
+          {/* קישור לדף המספר הקנוני — כל רמז הוא שער לדף המספר (עץ אחד) */}
           {v != null && (
             <Link to={`/number/${v}`} className="rs-golink" title={`לדף המספר ${v}`}>🔢 לדף המספר {v} ←</Link>
           )}

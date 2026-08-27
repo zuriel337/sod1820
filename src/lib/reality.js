@@ -51,6 +51,13 @@ export function hintTags(h) {
   return Array.isArray(e) ? e.filter(Boolean).slice(0, 6) : [];
 }
 
+// 📖 פוסט מקושר לרמז (אם קיים) — הרמז מצביע גם לפוסט המלא, לא רק לדף-המספר.
+// המקור הקנוני הוא ocr_meta.post_slug (convention קיים). מחזיר slug נקי או null.
+export function hintPostSlug(h) {
+  const s = h?.ocr_meta?.post_slug;
+  return typeof s === "string" && s.trim() ? s.trim().replace(/^\//, "") : null;
+}
+
 // ספירה לכל מספר דומיננטי לכל חלון זמן + מגמה (השבוע מול השבוע הקודם)
 export function computePulse(hints = []) {
   const now = Date.now();

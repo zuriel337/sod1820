@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getPostsFromSupabase, getRealityHints } from "../../lib/supabase.js";
+import { getPostsFromSupabase, getRealityHints, getChannelUpdates } from "../../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../../lib/format.js";
 import WhatsNewBadge from "../WhatsNewBadge.jsx";
 
@@ -41,6 +41,19 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
 
+      // 📢 שידורי-טיקר (channel_updates 'main') — כולל רמזי-גימטריה ששודרו (כמו רמז שחר קנדרו).
+      //    מוצג עם קרדיט «מאת»; לחיצה → link_url אם קיים, אחרת מרכז-השידורים /broadcasts.
+      try {
+        const ch = await getChannelUpdates(10, "main");
+        for (const c of (ch || [])) {
+          const raw = stripHtml(c.text || "").replace(/\s+/g, " ").trim();
+          if (!raw) continue;
+          // ההודעה קודם, הקרדיט כסיומת קצרה — כדי שבמובייל (חיתוך) יראו את התוכן, לא רק את השם.
+          const text = raw.slice(0, 110) + (c.credit ? ` — ${c.credit}` : "");
+          items.push({ kind: "news", text, to: c.link_url || "/broadcasts", ts: c.created_at });
+        }
+      } catch { /* ignore */ }
+
       // מיזוג לפי טריות (הכי-חדש שעלה ראשון) — פוסטים ורמזי-מציאות מעורבבים לפי זמן-עלייה
       items.sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0));
       // הסרת כפילויות (לא חוזרות על עצמן) + תקרה
@@ -56,7 +69,7 @@ function useLiveTicker() {
 }
 
 // אייקון לפי סוג הפריט — 📝 פוסט (עדכון-אתר) · 🌊 רמז מזרם המציאות
-const KIND_ICON = { post: "📝", reality: "🌊" };
+const KIND_ICON = { post: "📝", reality: "🌊", news: "📢" };
 
 // 📡 רצועה עליונה — טיקר עדכונים חי, לא-לחיץ, מתחלף הודעה-הודעה (חסין מובייל: בלי גלילה
 // אופקית / max-content / mask — רק החלפה עם דהייה, כך שום דבר לא "נעלם" בפלאפון).
@@ -84,7 +97,7 @@ export default function LiveActivityBar() {
   // קצב רגוע — כל פריט מוצג ~7 שניות ואז מתחלף. עוצר בריחוף (paused) ובטאב מוסתר.
   useEffect(() => {
     if (msgs.length < 2 || paused) return;
-    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, 7000);
+    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, 9000);
     return () => clearTimeout(id);
   }, [i, msgs.length, paused]);
 
@@ -124,6 +137,7 @@ export default function LiveActivityBar() {
           animation: lt-fade .5s ease; }
         .lt-txt { min-width:0; display:inline-flex; align-items:center;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lt-t { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         /* «לפני X» — צ׳יפ זמן-יחסי שתמיד נראה (flex:none), לא נחתך עם הכותרת */
         .lt-time { flex:none; font-size:11px; font-weight:600; opacity:.8; color:${barAccent};
           white-space:nowrap; }
@@ -136,10 +150,15 @@ export default function LiveActivityBar() {
         /* 🌳 «מה חדש» — מיושר לקצה-השמאלי של המיכל (= סוף התפריט), מרוחק מציר-ההתגלות שיושב במרווח שמשמאל */
         .lt-wn { position:absolute; inset-inline-end:6px; top:50%; transform:translateY(-50%); pointer-events:auto; z-index:6; }
         @media (max-width: 640px) {
-          .lt-inner { padding:0 16px 0 78px; }
+          /* 📱 מובייל: הרצועה נותנת לתוכן כמעט את כל הרוחב, וההודעה נשברת עד 2 שורות
+             (במקום חיתוך לשם-הכתב בלבד). «עכשיו באתר» מוסתר; «מה חדש» מוקטן בצד. */
+          .lt-bar { padding:6px 10px; }
+          .lt-inner { padding:0 8px 0 50px; min-height:34px; }
           .lt-badge { display:none; }
-          .lt-msg { font-size:11px; }
-          .lt-wn { inset-inline-end:8px; }
+          .lt-msg { font-size:11.5px; align-items:center; flex-wrap:wrap; justify-content:center; }
+          .lt-txt { white-space:normal; }
+          .lt-t { white-space:normal; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; line-height:1.35; }
+          .lt-wn { inset-inline-end:6px; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
@@ -157,8 +176,8 @@ export default function LiveActivityBar() {
             {cur && (
               <div className="lt-msg" key={idx}>
                 <Link className="lt-txt" to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
-                  <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cur.text}</span>
+                  <span aria-hidden style={{ marginInlineEnd: 6, flex: "none" }}>{KIND_ICON[cur.kind] || "✦"}</span>
+                  <span className="lt-t">{cur.text}</span>
                   <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
                 </Link>
                 {cur.ts && <span className="lt-time" title="מתי עלה לטיקר">· {timeAgoHe(cur.ts)}</span>}
