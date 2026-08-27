@@ -799,18 +799,44 @@ function WhatsAppPanel({ T, goto, setActive }) {
 // 👑 «הדף הפומבי שלי» — הגשר בין הקוקפיט הפרטי (המגירה) לפנים הפומביות (דף-הכתב).
 //    המודל הפשוט: אני → האזור האישי → הדף שלי → צפה / ערוך. «צפה» = תצוגה ציבורית מדויקת
 //    (?view=public, בלי כלי-בעלים); «ערוך» = הדף שלי עם כלי-הבעלים (השער ל-Editor העתידי).
-function PublicPageCard({ T, goto }) {
+function PublicPageCard({ T, goto, setActive }) {
+  const { user } = useAuth();
+  const [dossier, setDossier] = useState(null); // null=טוען, {}=נטען
+  useEffect(() => {
+    let a = true;
+    if (!user?.id) { setDossier({}); return; }
+    supabase.from("contributors").select("display_name,bio,accent,emblem").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => { if (a) setDossier(data || {}); })
+      .catch(() => { if (a) setDossier({}); });
+    return () => { a = false; };
+  }, [user?.id]);
+
   const bBase = { width: "100%", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
     cursor: "pointer", fontFamily: "inherit", fontWeight: 800, fontSize: 14, borderRadius: 11, padding: "13px 16px", minHeight: 48, marginBottom: 10 };
+  // 🆕 נאדג'ים עדינים באתר עצמו (לא רק במייל): דף ריק-לגמרי / שם טכני — מפנים ישר לעורך.
+  const unfinished = dossier && !dossier.bio && !dossier.accent && !dossier.emblem;
+  const genericName = dossier && looksGenericName(dossier.display_name);
   return (
     <div>
+      {unfinished && (
+        <div style={{ background: T.accSoft, border: `1px solid ${T.acc}`, borderRadius: 11, padding: "11px 13px", marginBottom: 12, fontSize: 12.5, color: T.ink, lineHeight: 1.7 }}>
+          ✨ הדף שלך פתוח אבל עדיין ריק — כמה מילות ביו וצבע-נושא הופכים אותו לדף אמיתי.{" "}
+          <button onClick={() => setActive ? setActive("page-editor") : goto("/community/researcher/me")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5, textDecoration: "underline" }}>לעריכה ←</button>
+        </div>
+      )}
+      {!unfinished && genericName && (
+        <div style={{ background: T.goldSoft || T.bg, border: `1px solid ${T.gold || T.line}`, borderRadius: 11, padding: "11px 13px", marginBottom: 12, fontSize: 12.5, color: T.ink, lineHeight: 1.7 }}>
+          💡 השם המוצג בדף שלך (<b>{dossier?.display_name || "—"}</b>) נראה טכני — אפשר לבחור שם ידידותי יותר בעריכה.{" "}
+          <button onClick={() => setActive ? setActive("page-editor") : goto("/community/researcher/me")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5, textDecoration: "underline" }}>לעריכה ←</button>
+        </div>
+      )}
       <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.75, marginBottom: 15 }}>
         המודל פשוט: <b style={{ color: T.ink }}>אני → האזור האישי → הדף שלי → צפה / ערוך</b>.<br />הדף הפומבי הוא בדיוק מה שכל מבקר רואה — לא גרסה מיוחדת.
       </div>
       <button onClick={() => goto("/community/researcher/me?view=public")} style={{ ...bBase, background: T.acc, color: "#fff", border: "none" }}>
         👁 צפה בדף כפי שהציבור רואה
       </button>
-      <button onClick={() => goto("/community/researcher/me")} style={{ ...bBase, background: "transparent", color: T.ink, border: `1px solid ${T.line}` }}>
+      <button onClick={() => setActive ? setActive("page-editor") : goto("/community/researcher/me")} style={{ ...bBase, background: "transparent", color: T.ink, border: `1px solid ${T.line}` }}>
         ✍️ ערוך את הדף שלי
       </button>
       <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4, lineHeight: 1.65 }}>
@@ -818,6 +844,16 @@ function PublicPageCard({ T, goto }) {
       </div>
     </div>
   );
+}
+
+// 👤 שם-תצוגה "טכני" — בלי אות עברית ובלי רווח (username/אימייל גולמי), או ברירת-המחדל הגנרית
+//    "חוקר" (כשלא היה שום שם לזרוע ממנו ביצירת-הדוסייה האוטומטית). משמש לנאדג' עדין, לא לחסימה.
+function looksGenericName(name) {
+  const n = (name || "").trim();
+  if (!n) return true;
+  if (n === "חוקר") return true;
+  const HEBREW_BLOCK = new RegExp("[\\u0590-\\u05FF]");
+  return !HEBREW_BLOCK.test(n) && !/\s/.test(n);
 }
 
 // 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה. כותב/קורא update_my_page_config (RPC חי, allowlist).
@@ -840,6 +876,8 @@ function PageEditor({ T, goto }) {
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [displayName, setDisplayName] = useState("");
+  const [origName, setOrigName] = useState("");
   const [accent, setAccent] = useState("");
   const [emblem, setEmblem] = useState("");
   const [bio, setBio] = useState("");
@@ -850,10 +888,12 @@ function PageEditor({ T, goto }) {
   useEffect(() => {
     let a = true;
     if (!user?.id) { setLoaded(true); return; }
-    supabase.from("contributors").select("page_config,accent,emblem,bio").eq("user_id", user.id).maybeSingle()
+    supabase.from("contributors").select("page_config,accent,emblem,bio,display_name").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => {
         if (!a) return;
         const pc = data?.page_config || {};
+        setDisplayName(data?.display_name || "");
+        setOrigName(data?.display_name || "");
         setAccent(pc.accent || data?.accent || "");
         setEmblem(pc.emblem || data?.emblem || "");
         setBio(pc.bio || data?.bio || "");
@@ -885,8 +925,10 @@ function PageEditor({ T, goto }) {
 
   async function save() {
     setBusy(true); setMsg(null);
+    const nameTrim = displayName.trim();
     const p_config = {
       version: 1,
+      ...(nameTrim && nameTrim !== origName ? { display_name: nameTrim } : {}),
       accent: accent || undefined,
       emblem: emblem || undefined,
       bio: bio?.trim() || undefined,
@@ -898,8 +940,10 @@ function PageEditor({ T, goto }) {
       const { data, error } = await supabase.rpc("update_my_page_config", { p_config });
       if (error || !data?.ok) {
         const e = data?.error || "";
-        setMsg({ kind: "err", text: e === "bio_too_long" ? "הביו ארוך מדי (עד 600 תווים)." : e.startsWith("bad_link") ? "קישור לא תקין — בדקו כותרת (עד 40) וכתובת (https:// או /)." : "שמירה נכשלה. נסו שוב." });
+        const msgs = { bio_too_long: "הביו ארוך מדי (עד 600 תווים).", display_name_required: "השם לא יכול להישאר ריק.", display_name_too_long: "השם ארוך מדי (עד 60 תווים).", display_name_no_email: "השם לא יכול להיות כתובת מייל." };
+        setMsg({ kind: "err", text: msgs[e] || (e.startsWith("bad_link") ? "קישור לא תקין — בדקו כותרת (עד 40) וכתובת (https:// או /)." : "שמירה נכשלה. נסו שוב.") });
       } else {
+        if (nameTrim) setOrigName(nameTrim);
         setMsg({ kind: "ok", text: "נשמר! הדף שלך עודכן ✓" });
       }
     } catch { setMsg({ kind: "err", text: "שגיאת רשת, נסו שוב." }); }
@@ -918,6 +962,16 @@ function PageEditor({ T, goto }) {
         עצב את הדף הפומבי שלך. השינויים נשמרים ומופיעים לכל מבקר.{" "}
         <button onClick={() => goto("/community/researcher/me?view=public")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>👁 תצוגה מקדימה ←</button>
       </div>
+
+      {/* 💡 נאדג' עדין — שם-תצוגה שנראה טכני (username/מייל גולמי, או "חוקר" הגנרי) */}
+      {looksGenericName(origName) && (
+        <div style={{ background: T.goldSoft || T.bg, border: `1px solid ${T.gold || T.line}`, borderRadius: 11, padding: "11px 13px", margin: "4px 0 14px", fontSize: 12.5, color: T.ink, lineHeight: 1.7 }}>
+          💡 השם המוצג בדף שלך כרגע (<b>{origName || "—"}</b>) נראה טכני — כדאי לבחור שם ידידותי יותר שיוצג לכל מבקר, בשדה למטה.
+        </div>
+      )}
+
+      <H>👤 שם התצוגה בדף</H>
+      <input value={displayName} onChange={e => setDisplayName(e.target.value.slice(0, 60))} placeholder="השם שיוצג בראש הדף שלך" style={input} />
 
       <H>🎨 צבע-נושא</H>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -1371,7 +1425,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         </div>
       ) },
     // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). פתוח לכל משתמש מחובר (hasPage=true).
-    { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
+    { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} setActive={setActive} /> },
     // 🎨 עורך-הדף — «ערוך את הדף שלי» (update_my_page_config, יוצר-דוסייה אוטומטית בשמירה ראשונה).
     //    world="me" ולא "create" בכוונה: "create" מוצג רק בתוך מדור «בפיתוח» שרק אדמין יכול לפתוח —
     //    זה היה חוסם את עורך-הדף מכולם חוץ מאדמין גם אחרי ש-hasPage נפתח. פתוח לכל משתמש מחובר.
