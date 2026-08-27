@@ -22,10 +22,12 @@ export async function dmUnreadCount() {
   if (!supabase) return 0;
   try { const { data } = await supabase.rpc("dm_unread_count"); return typeof data === "number" ? data : 0; } catch { return 0; }
 }
-// 🗣 תגובות אליי — תגובות על התרומות שלי (RPC · owner בלבד)
-export async function repliesToMe(limit = 40) {
+// 🗣 תגובות אליי — תגובות על התרומות שלי (RPC · owner בלבד).
+// before (ISO string / Date, אופציונלי) = cursor ל-"טען עוד" (§4, COMMAND_CENTER_ATTENTION_CLOSURE
+// Pass 1) — בלי זה, ה-LIMIT הקבוע היה חוסם תגובות ותיקות מהתצוגה בלי דרך לראות אותן.
+export async function repliesToMe(limit = 40, before = null) {
   if (!supabase) return [];
-  try { const { data } = await supabase.rpc("replies_to_me", { p_limit: limit }); return Array.isArray(data) ? data : []; } catch { return []; }
+  try { const { data } = await supabase.rpc("replies_to_me", { p_limit: limit, p_before: before || null }); return Array.isArray(data) ? data : []; } catch { return []; }
 }
 
 // 🗨️ הפעילות שלי — התרומות והתגובות שאני-עצמי כתבתי (RPC · owner בלבד, כולל הקשר-אב).

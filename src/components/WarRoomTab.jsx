@@ -32,6 +32,9 @@ import {
 } from "../lib/ccwork.js";
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
+import NumberResearcher from "./admin/RazielRoom.jsx";
+import ElsModerationTab from "./ElsModerationTab.jsx";
+import MetatronAttention from "./admin/MetatronAttention.jsx";
 import { thumb } from "../lib/img.js";
 import { buildResearchCase, collectQueryNeeds } from "../lib/triage.js";
 
@@ -660,7 +663,7 @@ function FilterBar({ filters, onClear, onRemove }) {
   );
 }
 // שורת-בקרות הסינון (dropdowns) + מיון + «הצג גם שטופלו».
-function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowHandled, writers, statuses, methods, handledCount }) {
+function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowHandled, hideSelf, setHideSelf, writers, statuses, methods, handledCount }) {
   const set = (k, v) => setFilters((cur) => { const n = { ...cur }; if (!v) delete n[k]; else n[k] = v; return n; });
   const sel = { background: C.surface2, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 8px", fontSize: 12, fontFamily: F.heading };
   return (
@@ -691,6 +694,10 @@ function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowH
         <option value="new">מיון: חדש→ישן</option><option value="old">מיון: ישן→חדש</option><option value="value">מיון: ערך↓</option>
       </select>
       <button onClick={() => setShowHandled((v) => !v)} style={chip(showHandled, "#8a8a95")}>{showHandled ? "🙈 הסתר שטופלו" : `👁 הצג גם שטופלו${handledCount ? ` (${handledCount})` : ""}`}</button>
+      {typeof hideSelf === "boolean" && setHideSelf && (
+        <button onClick={() => setHideSelf((v) => !v)} title="SELF-GENERATED ≠ INCOMING ATTENTION — לא נמחק, רק לא מציף את «עכשיו»"
+          style={chip(hideSelf, "#c9a24a")}>{hideSelf ? "🙈 שלי (ZURIEL) מוסתר" : "👑 מציג גם את שלי (ZURIEL)"}</button>
+      )}
       <button onClick={() => setFilters({})} style={chip(false)}>נקה סינון</button>
       {/* פאסטים-toggle (כבויים כברירת-מחדל — מצמצמים תצוגה, לא מוחקים ולא מסמנים «טופל») */}
       <span style={{ flexBasis: "100%", height: 0 }} />
@@ -2015,6 +2022,10 @@ export default function WarRoomTab() {
   const [sort, setSort] = useState("new");        // CC-1.3 · מיון (new/old/value)
   const [handled, setHandled] = useState(() => new Map()); // marker אישי «handled» (research_items) → Map(key→meta)
   const [showHandled, setShowHandled] = useState(false);   // «הצג גם שטופלו»
+  // 👑 Pass 1 (COMMAND_CENTER_ATTENTION_CLOSURE, §2): SELF-GENERATED ≠ INCOMING ATTENTION.
+  // חומר של צוריאל עצמו מוסתר כברירת-מחדל מ-«עכשיו» (לא נמחק — reuse של isZuriel() הקיים,
+  // toggle גלוי מחזיר אותו). לא נוגע ב-«כל האוצר»/history (שם רואים הכל, כולל ZURIEL, כרגיל).
+  const [hideSelf, setHideSelf] = useState(true);
   const [candExpanded, setCandExpanded] = useState(false); // הרחבת רשימת-המועמדים (לחיצה על המונה)
   // «נכנס עכשיו» = תצוגה-בלבד (פורום/פוסטים/WhatsApp-לוג) — ניתן לקפל, וההעדפה נשמרת (אם סגרת, יישאר סגור).
   const [showIncoming, setShowIncoming] = useState(() => { try { return localStorage.getItem("cc_hide_incoming") !== "1"; } catch { return true; } });
@@ -2135,7 +2146,12 @@ export default function WarRoomTab() {
     const base = it.tier ? it : { ...it, tier };
     return handled.has(it.key) ? { ...base, handled: true, handledMeta: handled.get(it.key) } : base;
   }, [handled]);
-  const pass = useCallback((it) => matchesFilters(it, filters) && (showHandled || !it.handled), [filters, showHandled]);
+  // 👑 hideSelf חל רק על «עכשיו» (Incoming/Attention) — «כל האוצר» (History/Archive, mode==="treasure")
+  // תמיד רואה הכל, וגם ב-«עכשיו» בחירה מפורשת של פילטר-הכתב ZURIEL עוקפת את ההסתרה (Rank-Don't-Hide).
+  const pass = useCallback((it) =>
+    matchesFilters(it, filters) && (showHandled || !it.handled) &&
+    (!hideSelf || mode !== "now" || filters.writer === "__ZURIEL__" || !isZuriel(it)),
+    [filters, showHandled, hideSelf, mode]);
   // CC-1.3 · רשימות מסוננות+ממויינות (Rank-Don't-Hide: פילטר=מיקוד; «שטופל» יוצא רק מתור-העבודה האישי).
   const liveAf = useMemo(() => sortItems((liveA || []).map(withH).filter(pass), sort), [liveA, withH, pass, sort]);
   const candF = useMemo(() => sortItems((candidates || []).map(withH).filter(pass), sort), [candidates, withH, pass, sort]);
@@ -2224,6 +2240,15 @@ export default function WarRoomTab() {
 
       {mode === "now" && (
        <>
+        {/* 💬 חדר רזיאל — Pass 1 (COMMAND_CENTER_ATTENTION_CLOSURE): הרכיב חולץ מ-CommandCenterTab
+            היתום (AdminPage.jsx, שלא מנותב לשום tab-key חי) לקובץ עצמאי (admin/RazielRoom.jsx) ומוצג
+            כאן, בראש «עכשיו», כדי שצוריאל ייכנס לשיחת-מחקר עם רזיאל מיד בפתיחת חדר-המפקדה — בלי לשכפל
+            את שאר CommandCenterTab (מטטרון-תעבורה/המלצות-דמוגרפיה לא מובאים בפאס הזה, ר' §6 בפקודה).
+            שומר במלואו: היסטוריית-שיחה (agent_user_memory) · context_snapshot («על סמך מה ענית») ·
+            בדיקת-מועמדים · פקודות-שיחה קיימות (אשר/דחה/שלח-לשופט — עוברות ב-admin_research_review/
+            decideCandidate הקיימים, אין הרשאת-קנוניזציה חדשה). רזיאל = קורא/מנתח/מסביר/ממליץ בלבד. */}
+        <NumberResearcher />
+
         {/* 📊 מונים — נכנס / ממתין / טופל / לשיפוט · עקביים (נכנסו−טופלו=ממתינים) · לחיצים */}
         <div style={{ ...box, padding: 0, overflow: "hidden" }}>
           <div style={{ display: "flex", flexWrap: "wrap" }}>
@@ -2249,7 +2274,7 @@ export default function WarRoomTab() {
             <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>📡 קליטה חיה (LIVE INGESTION)</span>
             <span style={{ color: C.faint, fontSize: 11 }}>שלושה צינורות · לחיץ · תצוגה-בלבד (לא feeder, לא WRITE) {busy && "…"}</span>
           </div>
-          <WorkFilters filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} showHandled={showHandled} setShowHandled={setShowHandled} writers={writerOptions} statuses={statusOpts} methods={methodOpts} handledCount={handled.size} />
+          <WorkFilters filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} showHandled={showHandled} setShowHandled={setShowHandled} hideSelf={hideSelf} setHideSelf={setHideSelf} writers={writerOptions} statuses={statusOpts} methods={methodOpts} handledCount={handled.size} />
           <FilterBar filters={filters} onClear={() => setFilters({})} onRemove={(k) => setFilters((cur) => { const n = { ...cur }; delete n[k]; return n; })} />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10, marginTop: 8 }}>
             <div onClick={() => setFilter({ type: "tier", value: "RAW", label: "רובד: מקור (RAW)", color: "#8a8a95" })}
@@ -2314,6 +2339,24 @@ export default function WarRoomTab() {
         {/* STEP 1B · Pipeline C — Human Gate (screen-map approved 25.8.2026). קופסה נפרדת, לא-מקוננת
             בתוך «קליטה חיה» — אותה קופסה מצהירה על-עצמה תצוגה-בלבד/בלי-WRITE, ואין לסתור זאת. */}
         <PipelineCReview />
+
+        {/* 🔠 ELS · Human Gate — Pass 1 (COMMAND_CENTER_ATTENTION_CLOSURE, §3): reuse מלא של
+            ElsModerationTab הקיים (בעבר תחת טאב-אדמין נפרד "🔍 הצופן", בלי שינוי בו) — לא זרימת-
+            אישור-ELS שנייה. שער-הענן הזה כבר מסונן-מטבעו ל"דורש-Human-Gate-בלבד" (status='pending'/
+            variants-למיזוג/תרומות-על-צפנים) — צפני-ELS שאושרו/פורסמו לא-מוצגים כאן, הם ממשיכים
+            להיות חומר-מחקר/ארכיון בדף-הצופן הרגיל (/codes/:slug), בלי שינוי. */}
+        <div style={box}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <span style={{ color: "#c9a24a", fontFamily: F.heading, fontWeight: 900, fontSize: 13 }}>🔠 ELS · Human Gate</span>
+            <span style={{ color: C.faint, fontSize: 10.5 }}>reuse מלא של ElsModerationTab (els_records status='pending' + תרומות-צופן + מיזוגים)</span>
+          </div>
+          <ElsModerationTab />
+        </div>
+
+        {/* ⚖️ מטטרון — Pass 1 (COMMAND_CENTER_ATTENTION_CLOSURE, §6): רק פרוסת-ה-Attention מתוך
+            CommandCenterTab היתום (התראות+פערים+תיבת-המלצות-לאישור) — לא traffic/demand-analytics
+            כלליים, לא «מרכז פעילות» (דפדוף-גילויים כללי, לא-attention-פר-הגדרה). ר' דוח-פאס-1. */}
+        <MetatronAttention />
 
         {/* ZVI IMAGE × OCR × VISUAL EXTRACTION PILOT (25.8.2026) — כרטיס נפרד, לא מקונן,
             מרחיב את gallery-ocr הקיים בלבד. אין מנוע-OCR שני, אין מיזוג-פיזי של השערים. */}
