@@ -249,7 +249,7 @@ function Composer({ P, origin, target, replyTo, onDone, anon = false }) {
   const [imgBusy, setImgBusy] = useState(false);
   const fileRef = useRef(null);
   const taRef = useRef(null);
-  const live = anon ? false : intentMeta(intent).live;   // אנונימי → תמיד עובר אישור (לא מיידי)
+  const live = !anon;   // כל משתמש רשום (לא אנונימי) מתפרסם מיידית (add_contribution) — רק אורח עובר אישור
 
   // ⚖️ ערך רגיל מהמנוע הרשמי (gematria_engine_law — לא ידני/זיכרון)
   const ragilFn = METHODS.find(m => m.key === "רגיל")?.fn;
