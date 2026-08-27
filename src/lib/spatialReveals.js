@@ -50,17 +50,33 @@ export const SPATIAL_REVEALS = {
     inner: { label: "הפנים · שש המילים הפנימיות", value: 898 },
     total: 2718,
 
-    crossref: {
-      term: "פנים חדשות",
-      value: 898,
-      note: "התאמה מחקרית מסקרנת — לא הוכחה למשמעות מכוונת.",
-    },
+    // Crossrefs are presentation links to already-verified numeric research.
+    // Interpretation text stays explicitly separate from engine-verified equalities.
+    crossrefs: [
+      {
+        crossref_id: "bk_inner_panim_hadashot_898",
+        display: "פנים חדשות",
+        term: "פנים חדשות",
+        value: 898,
+        drawer_value: 898,
+        note: "הפנים של המבנה שווים 898; לחיצה פותחת את 898 במגירת המספר.",
+      },
+      {
+        crossref_id: "divine_symmetry_tashpu_786",
+        display: "סימטריה אלוהית = 786 · תשפ״ו = 786",
+        term: "סימטריה אלוהית",
+        value: 786,
+        drawer_value: 786,
+        note: "שני הערכים אומתו בגימטריה רגילה. „השנה שהכול מתגלה” — רובד פרשני.",
+      },
+    ],
 
     capabilities: {
       interactiveTiles: true,
       selectionGroups: true,
       nestedRecompose: true,
       numberDrawer: true,
+      interactiveCrossrefs: true,
     },
   },
 };
