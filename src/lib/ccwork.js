@@ -136,7 +136,7 @@ export function sortItems(list, sort) {
 // rawAuthor/author/value/values/tier/ts/raw/title/handled/engineVerified/flag/__isSelf) — בדיוק
 // הצורה שכבר נבנית ב-WarRoomTab (normForum/normWa/normPost/normCandidate/normChannel + withWriter
 // + withH). reuse-first: אין כאן fetch/DB — טהור-קלט→פלט מעל מה שכבר טעון.
-export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample = 40, maxTop = 12, scope = "filtered" } = {}) {
+export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample = 40, maxTop = 12, scope = "filtered", scopeNote = null } = {}) {
   const list = Array.isArray(items) ? items : [];
   const total = list.length;
   const bySource = {}, byTier = {};
@@ -168,7 +168,7 @@ export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample
     dup: it.flag === "dup", handled: !!it.handled,
   }));
   return {
-    total, mode: mode || "now", scope, filters_active: Object.keys(filters || {}), self_hidden: !!hideSelf,
+    total, mode: mode || "now", scope, scope_note: scopeNote, filters_active: Object.keys(filters || {}), self_hidden: !!hideSelf,
     by_source: bySource, by_tier: byTier, top_writers: topWriters, top_values: topValues,
     duplicate_flagged_count: dupCount, sample_count: sample.length, sample,
   };
@@ -178,11 +178,17 @@ export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample
 // item.handled/.handledMeta קיימים). לא query חדש, לא engine, לא ניחוש-יחסים (§3.4/§3.7 = EXTENSION
 // POINT NOW — לא ממציאים כאן קשר/resurfacing, רק מסמנים classification). כל תת-חתך = דוגמית מוגבלת +
 // מונה-מלא (Rank, Don't Hide — שום דבר לא נחתך בשקט, המונה תמיד סופר את כולם).
+// Pass 1C-Closure (§2 COUNT=DRILL-DOWN LAW): כל bucket חושף `ids` — **כל** המפתחות התואמים (לא
+// דוגמית) — כדי שלחיצה על מספר תפתח בדיוק אותם items, לא approximation. `count === ids.length` תמיד.
 export function computeSignals(itemsWithH, { newCutoff, maxSample = 6 } = {}) {
   const list = Array.isArray(itemsWithH) ? itemsWithH : [];
   const fresh = newCutoff ? list.filter((it) => it.ts && it.ts > newCutoff) : [];
-  const freshBySource = {};
-  for (const it of fresh) { const k = it.srckind || it.source || "אחר"; freshBySource[k] = (freshBySource[k] || 0) + 1; }
+  const freshBySource = {}, freshBySourceIds = {};
+  for (const it of fresh) {
+    const k = it.srckind || it.source || "אחר";
+    freshBySource[k] = (freshBySource[k] || 0) + 1;
+    (freshBySourceIds[k] = freshBySourceIds[k] || []).push(it.key);
+  }
   const dup = list.filter((it) => it.flag === "dup");
   const requiresZuriel = list.filter((it) => !it.handled && it.srckind === "finding" && it.status === "candidate");
   const gaps = list.filter((it) => it.engineVerified === false);
@@ -194,15 +200,49 @@ export function computeSignals(itemsWithH, { newCutoff, maxSample = 6 } = {}) {
     const v = itemValue(it);
     if (v == null) continue;
     const k = String(v);
-    if (!valueCounts[k]) valueCounts[k] = { value: k, count: 0, lastAt: it.handledMeta.at };
-    valueCounts[k].count++;
+    if (!valueCounts[k]) valueCounts[k] = { value: k, count: 0, lastAt: it.handledMeta.at, ids: [] };
+    valueCounts[k].count++; valueCounts[k].ids.push(it.key);
   }
   const myFocus = Object.values(valueCounts).sort((a, b) => b.count - a.count || new Date(b.lastAt) - new Date(a.lastAt)).slice(0, maxSample);
+  const mk = (arr) => ({ count: arr.length, ids: arr.map((it) => it.key), sample: arr.slice(0, maxSample) });
   return {
-    fresh: { count: fresh.length, by_source: freshBySource, sample: fresh.slice(0, maxSample) },
-    duplicates: { count: dup.length, sample: dup.slice(0, maxSample) },
-    requiresZuriel: { count: requiresZuriel.length, sample: requiresZuriel.slice(0, maxSample) },
-    gaps: { count: gaps.length, sample: gaps.slice(0, maxSample) },
+    fresh: { ...mk(fresh), by_source: freshBySource, by_source_ids: freshBySourceIds },
+    duplicates: mk(dup),
+    requiresZuriel: mk(requiresZuriel),
+    gaps: mk(gaps),
     myFocus: { count: handledItems.length, topValues: myFocus },
+  };
+}
+
+// Pass 1C-Closure (§1/§6) — "234 חדש מהמערכת" (fresh, מבוסס-זמן, פורש על *כל* הצינורות כולל
+// נכנס-עכשיו-לתצוגה-בלבד) לעומת "195 ממתינים" (waiting, מבוסס-סטטוס, רק liveA∪candidates — תור
+// ה-Human-Gate בפועל) הם **שני concepts שונים על שני צירים אורתוגונליים** (זמן-כניסה מול
+// סטטוס-טיפול) — לא אותו universe, ולכן לעולם לא ייאלצו ליחס-תת-קבוצה מלאכותי. הפונקציה הזו לא
+// "מתקנת" את זה לשוויון — היא בונה Set Equation אמיתי (חיתוך/הפרשים, לפי `key` יציב) שמסביר בדיוק
+// למה הם שונים, וניתן-להוכחה ברמת item-id. שתי זהויות שכן מתקיימות תמיד באופן מדויק:
+//   fresh        = freshInQueue ∪ freshOutsideQueue           (disjoint)
+//   freshInQueue = freshInQueueOpen ∪ freshInQueueHandled      (disjoint)
+//   waiting      = freshInQueueOpen ∪ waitingNotFresh          (disjoint)
+// כל שלושת הפרמטרים = **מזהים-יציבים בלבד** (string[] של item.key) — לא אובייקטים — כדי שהפונקציה
+// תעבוד ישירות מעל `computeSignals(...).fresh.ids` (הרשימה המלאה, לא הדוגמית) בלי לשחזר אובייקטים.
+export function reconcileNewVsAttention(freshIds, queueIds, waitingIds) {
+  const fresh = Array.isArray(freshIds) ? freshIds : [];
+  const queueKeys = new Set(queueIds || []);
+  const waitingKeys = new Set(waitingIds || []);
+  const freshInQueue = fresh.filter((k) => queueKeys.has(k));
+  const freshOutsideQueue = fresh.filter((k) => !queueKeys.has(k));
+  const freshInQueueOpen = freshInQueue.filter((k) => waitingKeys.has(k));
+  const freshInQueueHandled = freshInQueue.filter((k) => !waitingKeys.has(k));
+  const freshKeys = new Set(fresh);
+  const waitingNotFresh = (waitingIds || []).filter((k) => !freshKeys.has(k));
+  return {
+    fresh_total: fresh.length,
+    queue_total: queueIds?.length ?? 0,
+    waiting_total: waitingIds?.length ?? 0,
+    fresh_in_queue: { count: freshInQueue.length, ids: freshInQueue },
+    fresh_outside_queue: { count: freshOutsideQueue.length, ids: freshOutsideQueue },
+    fresh_in_queue_open: { count: freshInQueueOpen.length, ids: freshInQueueOpen },
+    fresh_in_queue_handled: { count: freshInQueueHandled.length, ids: freshInQueueHandled },
+    waiting_not_fresh: { count: waitingNotFresh.length, ids: waitingNotFresh },
   };
 }

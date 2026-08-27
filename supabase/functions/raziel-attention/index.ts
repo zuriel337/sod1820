@@ -108,7 +108,10 @@ function fmtMemory(rctx: any): string {
 
 // 📊 ה-digest מגיע מוכן מהלקוח (בנוי מ-buildAttentionDigest ב-src/lib/ccwork.js, מעל המידע
 // שכבר טעון ב-WarRoomTab — לא שאילתה נוספת פה, לא Inbox Store). כאן רק עיצוב-לטקסט לפרומפט.
+// Pass 1C-Closure §10: אם client שלח scope_note (למשל "54 פריטי channel מתוך 234 חדשים" — תיאור
+// ה-drill-down/subset הנוכחי שנבנה ב-drillTo/WarRoomTab) — זה הבסיס-להסבר, לא ניחוש-כללי.
 function scopeLabel(d: any): string {
+  if (d?.scope_note) return `הקבוצה הנוכחית: ${d.scope_note}. תשתמש בזה כשאתה מתאר "על מה אני מסתכל עכשיו" — לא "כל התור".`;
   if (d?.scope === "selected") return `רק ${d.total ?? 0} הפריטים שצוריאל *בחר-ידנית עכשיו* (SELECTED) — לא כל התור/התור-המסונן. אם הוא שואל "מתוך אלה" / "בבחירה" — זה הבסיס.`;
   if (d?.scope === "filtered" && (d.filters_active || []).length) return `תור-הקשב *אחרי* הפילטרים-הפעילים (FILTERED) — לא כל האוצר. אם הוא שואל "בכלל"/"בלי פילטר" — ציין שיש פילטר פעיל.`;
   return "כל תור-הקשב הנוכחי, ללא סינון/בחירה (ALL).";
@@ -237,7 +240,7 @@ Deno.serve(async (req: Request) => {
       rules_used: (relevantRules || []).map((r: any) => ({ rule_id: r.rule_id, score: r.score })),
       domains_detected: domains,
       digest_total: digest?.total ?? null, digest_sample_count: digest?.sample_count ?? null,
-      digest_scope: digest?.scope ?? null,
+      digest_scope: digest?.scope ?? null, digest_scope_note: digest?.scope_note ?? null,
       model: MODEL,
     };
 
