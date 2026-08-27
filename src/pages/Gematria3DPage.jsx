@@ -77,7 +77,7 @@ function ModelCard({ P, m }) {
           <img src={m.image} alt={m.title} style={{ maxWidth: 380, width: "100%", borderRadius: 14, boxShadow: `0 8px 26px ${P.glow}`, border: `1px solid ${P.border}` }} />
         </figure>
       )}
-      <GematriaCube {...m.cube} />
+      <GematriaCube {...m.cube} spatial={m.spatial} value={m.value} />
 
       {/* רובד פרשני — מופרד במפורש */}
       <div style={{ marginTop: 16, background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "12px 15px" }}>

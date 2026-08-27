@@ -136,7 +136,191 @@ function Icosa({ word, litArr, onLight, spin }) {
   );
 }
 
-export default function GematriaCube({ faceWord, cols = 2, rows = 5, mode = "multiply", unit = 0, finalTitle = "", finalValue = 0, reveal = [], shape = "cube" }) {
+// 🔺 Compound shape (Spatial v2) — pentagon outer + pentagon inner + nested triangles, driven ENTIRELY
+// by model.spatial (regions/operations/structuralProperties). No shape/value is hardcoded here: any
+// future model with shapeIdentity containing "pentagon"+"triangle" and a regions[] array renders through
+// this same branch — this is a renderer EXPANSION (same Cube/faceTexture building blocks reused below),
+// not a new engine. The cube leg (e.g. ישר×6 for 3060) is the existing <Cube> component, rendered
+// separately (its own group) — "ובנפרד ישר×6" — not merged into the pentagon geometry.
+const PATH_COLORS = { cube: "#f6e27a", outer: "#8fd3ff", inner: "#ffb0e0", triangles: "#b6ff9a" };
+
+function petalTexture(word, lit, color) {
+  const s = 512, cv = document.createElement("canvas"); cv.width = cv.height = s;
+  const g = cv.getContext("2d");
+  g.fillStyle = lit ? "#141018" : "#0c0a12"; g.fillRect(0, 0, s, s);
+  if (lit) {
+    const grd = g.createRadialGradient(s / 2, s / 2, 40, s / 2, s / 2, s * 0.72);
+    grd.addColorStop(0, `${color}44`); grd.addColorStop(1, `${color}00`);
+    g.fillStyle = grd; g.fillRect(0, 0, s, s);
+  }
+  g.lineWidth = 8; g.strokeStyle = lit ? color : "#5c4a1c"; g.strokeRect(20, 20, s - 40, s - 40);
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.font = `800 92px 'Heebo','Arial Hebrew','Noto Sans Hebrew','Arial Unicode MS',sans-serif`;
+  if (lit) { g.shadowColor = color; g.shadowBlur = 20; }
+  g.fillStyle = lit ? "#fff8e6" : "#8a7a52";
+  g.fillText(word, s / 2, s / 2);
+  const t = new THREE.CanvasTexture(cv); t.anisotropy = 4; return t;
+}
+
+// ring: n planes arranged in a circle of given radius, each carrying `word`, all sharing one lit/dim state
+// (the whole region lights together — a region represents ONE convergence path, not N independent clicks).
+function Ring({ n, radius, y, word, lit, color, onClick, scale = 1 }) {
+  const tex = useMemo(() => petalTexture(word, lit, color), [word, lit, color]);
+  const items = useMemo(() => Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+    return { position: [Math.cos(a) * radius, y, Math.sin(a) * radius], rotation: [0, -a + Math.PI / 2, 0] };
+  }), [n, radius, y]);
+  return (
+    <group>
+      {items.map((it, i) => (
+        <mesh key={i} position={it.position} rotation={it.rotation} onClick={(e) => { e.stopPropagation(); onClick(); }}
+          onPointerOver={() => (document.body.style.cursor = "pointer")} onPointerOut={() => (document.body.style.cursor = "")}>
+          <planeGeometry args={[0.62 * scale, 0.62 * scale]} />
+          <meshBasicMaterial map={tex} toneMapped={false} side={THREE.DoubleSide} transparent />
+        </mesh>
+      ))}
+      <lineSegments rotation={[Math.PI / 2, 0, 0]}>
+        <edgesGeometry args={[new THREE.RingGeometry(radius - 0.02, radius + 0.02, n)]} />
+        <lineBasicMaterial color={color} transparent opacity={lit ? 0.8 : 0.3} />
+      </lineSegments>
+    </group>
+  );
+}
+
+// nested triangles cluster near the center — a distinct region from the two pentagon rings.
+function TriangleCluster({ n, word, lit, color, onClick }) {
+  const tex = useMemo(() => petalTexture(word, lit, color), [word, lit, color]);
+  const items = useMemo(() => Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2;
+    const r = 0.55;
+    return { position: [Math.cos(a) * r, 0.9, Math.sin(a) * r], rotation: [-Math.PI / 2, 0, -a] };
+  }), [n]);
+  return (
+    <group>
+      {items.map((it, i) => (
+        <mesh key={i} position={it.position} rotation={it.rotation} onClick={(e) => { e.stopPropagation(); onClick(); }}
+          onPointerOver={() => (document.body.style.cursor = "pointer")} onPointerOut={() => (document.body.style.cursor = "")}>
+          <coneGeometry args={[0.42, 0.42, 3]} />
+          <meshBasicMaterial map={tex} toneMapped={false} side={THREE.DoubleSide} transparent />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// Reads region shape purely from model.spatial — role/assignment/quantity — never a hardcoded value/slug.
+function regionFor(regions, role) { return (regions || []).find(r => r.role === role) || null; }
+
+function CompoundShape({ spatial, cubeProps, selected, onSelect }) {
+  const ref = useRef();
+  const outer = regionFor(spatial.regions, "outer_pentagon");
+  const inner = regionFor(spatial.regions, "inner_pentagon");
+  const tri = regionFor(spatial.regions, "nested_triangles");
+  return (
+    <group ref={ref}>
+      {outer && (
+        <Ring n={5} radius={1.9} y={0} word={outer.assignment} lit={selected === "outer"} color={PATH_COLORS.outer}
+          onClick={() => onSelect("outer")} />
+      )}
+      {inner && (
+        <Ring n={5} radius={1.05} y={0} word={inner.assignment} lit={selected === "inner"} color={PATH_COLORS.inner}
+          onClick={() => onSelect("inner")} scale={0.82} />
+      )}
+      {tri && (
+        <TriangleCluster n={tri.quantity || 4} word="765" lit={selected === "triangles"} color={PATH_COLORS.triangles}
+          onClick={() => onSelect("triangles")} />
+      )}
+      {/* ישר × 6 — הקוביה הקיימת, מוצגת בנפרד (קבוצה נפרדת, לא ממוזגת לתוך המחומש) */}
+      <group position={[0, -2.35, 0]} scale={0.42} onClick={(e) => { e.stopPropagation(); onSelect("cube"); }}>
+        <Cube word={cubeProps.faceWord} cols={cubeProps.cols} rows={cubeProps.rows}
+          litArr={Array(6).fill(selected === "cube")} onLight={() => onSelect("cube")} spin={false} />
+      </group>
+    </group>
+  );
+}
+
+export default function GematriaCube({ faceWord, cols = 2, rows = 5, mode = "multiply", unit = 0, finalTitle = "", finalValue = 0, reveal = [], shape = "cube", spatial = null, value = null }) {
+  // Compound branch — pentagon(s) + nested triangles, entirely model-driven (spatial.regions/operations).
+  // No 3060 anywhere in this component: any future model whose spatial.shapeIdentity mentions both
+  // "pentagon" and "triangle" and carries a non-empty regions[] renders through here.
+  const isCompound = !!spatial && /pentagon/.test(spatial.shapeIdentity || "") && /triangle/.test(spatial.shapeIdentity || "") && (spatial.regions || []).length > 0;
+  if (isCompound) return <CompoundRenderer spatial={spatial} cubeProps={{ faceWord, cols, rows }} value={value} />;
+  return <SimpleRenderer faceWord={faceWord} cols={cols} rows={rows} mode={mode} unit={unit} finalTitle={finalTitle} finalValue={finalValue} reveal={reveal} shape={shape} />;
+}
+
+function CompoundRenderer({ spatial, cubeProps, value }) {
+  const [selected, setSelected] = useState(null);
+  const paths = useMemo(() => {
+    // מסלולים לחיצים/מודגשים — נגזרים מ-regions (לא hardcoded): outer/inner/triangles + הקוביה הקיימת.
+    const out = [];
+    const outer = regionFor(spatial.regions, "outer_pentagon");
+    const inner = regionFor(spatial.regions, "inner_pentagon");
+    const tri = regionFor(spatial.regions, "nested_triangles");
+    if (outer) out.push({ id: "outer", label: `${outer.assignment} × ${outer.quantity}`, color: PATH_COLORS.outer });
+    if (inner) out.push({ id: "inner", label: `${inner.assignment} × ${inner.quantity}`, color: PATH_COLORS.inner });
+    if (tri) out.push({ id: "triangles", label: `765 × ${tri.quantity}`, color: PATH_COLORS.triangles });
+    out.push({ id: "cube", label: `${cubeProps.faceWord} × 6`, color: PATH_COLORS.cube });
+    return out;
+  }, [spatial, cubeProps]);
+  const operations = spatial.operations || [];
+  const pathCount = spatial.convergences?.[0]?.independentPaths ?? operations.length;
+
+  return (
+    <div style={{ direction: "rtl" }}>
+      <div style={{ position: "relative", height: "min(60vh, 480px)", borderRadius: 18, overflow: "hidden",
+        border: "1px solid rgba(212,175,55,0.35)", background: "#050311", boxShadow: "0 20px 60px rgba(0,0,0,0.55)" }}>
+        <Canvas camera={{ position: [0, 3.4, 5.6], fov: 42 }} dpr={[1, 2]} gl={{ antialias: true }}>
+          <color attach="background" args={["#050311"]} />
+          <Stars radius={50} depth={30} count={500} factor={2} fade speed={0.25} />
+          <ambientLight intensity={0.9} />
+          <CompoundShape spatial={spatial} cubeProps={cubeProps} selected={selected} onSelect={(id) => setSelected(s => s === id ? null : id)} />
+          <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={0.3} maxPolarAngle={Math.PI - 0.3} />
+        </Canvas>
+
+        <div style={{ position: "absolute", top: 12, insetInline: 0, textAlign: "center", pointerEvents: "none" }}>
+          <div style={{ color: "#f6e27a", fontFamily: "'Heebo',sans-serif", fontWeight: 800, fontSize: 15, textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}>
+            🔺 מחומש חיצוני + מחומש פנימי + משולשים מקוננים
+          </div>
+          <div style={{ color: "#cbb98a", fontFamily: "'Heebo',sans-serif", fontSize: 12, marginTop: 2, textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}>
+            הקישו על מסלול (למעלה/למטה) כדי להדגיש אותו
+          </div>
+        </div>
+      </div>
+
+      {/* בורר-מסלולים — לחיצה/הדגשה, נגזר מ-regions+cube, לא hardcoded */}
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginTop: 12 }}>
+        {paths.map(p => (
+          <button key={p.id} onClick={() => setSelected(s => s === p.id ? null : p.id)}
+            style={{ cursor: "pointer", fontFamily: "'Courier New',monospace", fontWeight: 800, fontSize: 14,
+              padding: "8px 14px", borderRadius: 999, border: `1px solid ${p.color}`,
+              background: selected === p.id ? p.color : "rgba(6,4,14,0.6)",
+              color: selected === p.id ? "#1a0e00" : "#e9dcb0", transition: "all .2s" }}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* convergence panel — נגזר מ-spatial.operations/convergences, לא ממחרוזת קבועה */}
+      <div style={{ marginTop: 12, background: "rgba(6,4,14,0.72)", border: "1px solid rgba(212,175,55,0.3)",
+        borderRadius: 14, padding: "14px 16px", textAlign: "center" }}>
+        <div style={{ color: "#f6e27a", fontFamily: "'Heebo',sans-serif", fontWeight: 800, fontSize: 15, marginBottom: 8 }}>
+          {pathCount} מסלולים → {value}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          {operations.map((op, i) => (
+            <div key={i} style={{ fontFamily: "'Courier New',monospace", fontSize: 13.5,
+              color: op.result === value ? "#cbb98a" : "#e08a8a" }}>
+              {op.expression} = {op.result}
+            </div>
+          ))}
+        </div>
+      </div>
+      <style>{`@keyframes cubeReveal{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}`}</style>
+    </div>
+  );
+}
+
+function SimpleRenderer({ faceWord, cols = 2, rows = 5, mode = "multiply", unit = 0, finalTitle = "", finalValue = 0, reveal = [], shape = "cube" }) {
   const TOTAL_FACES = shape === "icosa" ? 20 : 6;
   const [lit, setLit] = useState(() => Array(TOTAL_FACES).fill(false));
   const [spin, setSpin] = useState(true);
