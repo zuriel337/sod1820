@@ -118,15 +118,42 @@ Live evidence (Amit's "Prime Scan": tokenize a corpus → compute gematria per t
 
 **What was explicitly not done here:** no code in PR #206 was touched; PR #206 was not merged; no data was admitted (0 new `research_objects` rows); Contract Freeze was not closed.
 
+---
+
+## Final Closure (27.8.2026) — Article Corpus Stress Test #3 + Freeze Decision
+
+**Source:** a final, focused Closure Pass — not a new audit, not new construction. §23.13 (previous pass) already established `FOUNDATION SUFFICIENT FOR CONTROLLED ZVI+AMIT ADMISSION`, but left §6.6 (Exhaustion Before Freeze) at 2/N. GPT ran a READ-ONLY Article Corpus Stress Test on `posts.id=145` (`work_log.09ee30cd-86f1-47be-ab6b-f9d7b986afcf`); Claude independently re-verified rather than trusting the handoff.
+
+**Existing-law verification (Part B):** read the full live contract body (26,115 chars at the time) and confirmed all 15 required laws/mechanisms are actually present in the text, not just claimed in prior reports: Contributor Scope Separation (§6.1), Source/Corpus Completeness 3 tiers (§6.2), Representation Collapse (§6.3), Access⟂Truth/Scope (§6.4), No Contributor-Specific Engine (§6.5), Source Authorship≠Analyst Interpretation (§6.7), Research Procedure Extraction (§6.8), Private-Derivation Boundary (§6.9), Mathematical Symbol/Operation Identity (§6.10), Formula Instance≠New Law/`derived_from` (§6.11), per-member convergence verification (Routing Crosswalk), multilingual routing (Routing Crosswalk), Spatial existing-capability routing (Routing Crosswalk), Numeric/Fibonacci/π routing (Routing Crosswalk), and the Research OS/Universal Finding/Intake/Router/Human-Gate ownership boundaries (§6-RECON). Nothing was missing — no STOP was required.
+
+**Article 145 as corpus #3:** independently verified live — `posts.id=145`, `wp_id=31656`, `source='wordpress'`, 50,895 characters, title explicitly referencing the Magen David's geometric structure and the 73/37 hints, matching GPT's description exactly. This is a **materially different** corpus type: a published, publicly-visible editorial article, not a private contributor dossier like Zvi or Amit. Core claims were re-verified directly against the canonical engine (not assumed): Genesis 1:1 = 2701; חכמה = 73; ישראל = 541; ציון = 156; 156+385 = 541; שכינה = 385; גאולה = אדם = 45; הריון = 271; נקודה+קו = 271; אבן in Gadol = 703 (`fn_gadol`); חכמה in Kadmi = 271 (`kadmi_calc`) — all confirmed. The holds were also confirmed correct: מגן דוד = 107 in ragil (not the claimed 108 — an unstated kolel), reproducing GPT's finding exactly.
+
+**Article-derived deltas (Part D), both resolved without a new law:**
+- **Text-Position Provenance** (e.g. "the 787th word in the parsha") — **ALREADY COVERED / CLARIFICATION ONLY**. A minor wording clarification was added to §2: tokenizer/version and counting-convention fall under the *same* existing Source/Book/Edition/Textual-Version Extension Point, not a new category. No tokenizer was built.
+- **Spatial Counting Semantics** (a point-count claim that depends on geometric-model identity, order, region, boundary/interior/center, overlap policy) — **EXTENSION POINT NOW — ADAPTER CONTRACT**, not a second Geometry Engine. Already documented in the Routing Crosswalk and in PR #206's own Spatial reconciliation section; Article 145 is one more concrete instance of an already-named extension point, not a new discovery.
+
+**§6.6 updated 2/N → 3/N:** the three materially-different corpora are (1) Zvi — Track A (WhatsApp/contributor, spatial); (2) Amit — Existing Corpus (media archive, multilingual/writer-method, private); (3) Article 145 (published editorial content). All three produced 0 MUST FOUNDATION NOW.
+
+**Final Future-Capability Challenge, 13 axes:** Identity, Representations, Relations, Time/Context (`OD-TIME-8` remains sole owner, no conflict), Provenance, Truth Lifecycle, Engines, Extensibility (the `meta.ext.<domain>.<key>` mechanism itself, repeatedly proven), Human Gate, Multilingual, Cross-domain, Privacy, Source/Corpus Completeness (3/3). **0 gaps requiring redesign found on any axis.**
+
+**Required qualification (Freeze is not omniscience — not preserved without this caveat):** declaring the contract frozen does **not** claim "every future form of evidence is known." Freeze means: the primitives and extension mechanism (`meta.ext.<domain>.<key>`, `derived_from`, `attribution_type`/`contributor_id`, `privacy_scope`, `verification_state`) are broad enough to begin ingestion **without an expected redesign**. Discovering a new Lens, Adapter, `operation_key`, representation, or source type in the future does not break the freeze, as long as it can be expressed through the existing contracts without an identity break, schema redesign, truth-lifecycle redesign, or a parallel engine/store/graph.
+
+## Verdict: FOUNDATION SUFFICIENT — RESEARCH INTAKE FOUNDATION CONTRACT FROZEN FOR CONTROLLED UNIVERSAL INGESTION
+
+**What this freeze does and does not authorize:** the canonical flow remains `SOURCE → EXTRACTION → CALCULATION/DISCOVERY → RESEARCH OBJECT/CANDIDATE → VERIFICATION → UNIVERSAL FINDING → HUMAN GATE → CANONICAL → (separately) PUBLISHED/VISIBLE/ACCESSIBLE`. Preserved in full: `HOT≠TRUE`, `VIP≠TRUE`, `CLAIM≠FACT`, `ENGINE VERIFIED≠CANONICAL`, `CANONICAL≠PUBLISHED`, `PRIVATE CANONICAL≠PUBLIC`. The freeze does **not** authorize source→canonical promotion or mass ingestion — any further intake stays Controlled and Human-Gated, exactly as already practiced in the Zvi/Amit Admission pass (Master State §23.11–§23.13, work_log `706f24dd`).
+
+**Explicitly not done here:** no mass ingestion; no fourth corpus scanned "just to be safe"; no reopening of decisions already made; no Spatial Adapter built; no Numeric operations built; no Personal Hints built; no touching PR #206's code (read-only, confirmed unchanged); no promotion of any Finding to canonical; no publication. No second Universal Extraction Contract, Article Contract, Zvi Contract, or Amit Contract was created — the same single `research_intake_foundation_contract` was closed.
+
 ## Cross-reference
 - `research_intake_foundation_contract` (§1–§5) — the base contract this section extends.
 - Master State §23.6 — `INTAKE_FOUNDATION_CLOSURE` (base contract closure).
 - `docs/research-studio-v1-contract.md` — One Research OS (reconciled in the Pre-Integration Reconciliation above).
 - `docs/research-universal-finding-contract.md` — the Universal Finding envelope (reconciled above).
 - `audits/research_dna_v1_foundation_contract/` (PR #166, CLOSED) — `verification_state` vocabulary, reused verbatim by both Intake and Universal Finding.
-- Master State §23.13 — this reconciliation.
+- Master State §23.13 — the pre-integration reconciliation.
 - Master State §23.11 — the §6 addition (Contributor Scope & Corpus Completeness).
-- Master State §23.12 — this addition (Closure Delta #2).
-- Zvi Corpus Track A (4 passes) + Amit Existing Corpus (2 passes + GPT Exhaustion Pass v2) — the stress-test evidence base for §6/§6.7–§6.11.
+- Master State §23.12 — the addition (Closure Delta #2).
+- Master State §23.15 — this final closure and freeze decision.
+- Zvi Corpus Track A (4 passes) + Amit Existing Corpus (2 passes + GPT Exhaustion Pass v2) + Article 145 (published editorial content) — the three-corpus stress-test evidence base for the freeze.
 - `unified_graph_law` / `reality_graph_law` — the one graph this contract sits above.
 - `shared_expression_extraction_contract_v1` — the single-expression extraction pipeline that §6.8's procedure steps still route through.
