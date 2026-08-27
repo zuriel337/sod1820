@@ -16,27 +16,34 @@ const CSS = `
 .srs-sub{font-size:clamp(13px,3.6vw,15px);line-height:1.55;opacity:.76;max-width:500px;margin:0 auto 10px}
 .srs-stage{position:relative;max-width:520px;margin:8px auto 6px;min-height:330px;perspective:1000px}
 .srs-main,.srs-inner-plane{transition:transform .7s cubic-bezier(.22,.61,.36,1),opacity .7s ease,filter .7s ease;transform-style:preserve-3d}
-.srs-main{position:relative;padding:22px 8px 16px;z-index:2}.srs[data-stage="inner"] .srs-main,.srs[data-stage="innerDone"] .srs-main,.srs[data-stage="cross"] .srs-main{transform:translateZ(-80px) scale(.91);opacity:.28;filter:blur(.5px)}
+.srs-main{position:relative;padding:22px 8px 16px;z-index:2}
+.srs[data-stage="inner"] .srs-main,.srs[data-stage="innerDone"] .srs-main,.srs[data-stage="cross"] .srs-main{transform:translateZ(-72px) scale(.93);opacity:.46;filter:blur(.25px)}
+.srs[data-stage="cross"] .srs-main{opacity:.38;transform:translateZ(-96px) scale(.9)}
 .srs-row{display:flex;justify-content:center;gap:clamp(5px,2.2vw,12px);margin:3px 0;min-width:0}
 .srs-tile{appearance:none;border:1px solid rgba(232,220,190,.18);background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.025));
   color:var(--text);font:inherit;font-family:Georgia,'Times New Roman',serif;font-size:clamp(14px,4vw,19px);line-height:1.25;border-radius:11px;
   min-height:42px;padding:7px 9px;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.07);transition:transform .25s ease,border-color .25s ease,background .25s ease,opacity .5s ease}
 .srs-tile:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.srs-tile:active{transform:scale(.96)}
 .srs-tile.is-selected{border-color:rgba(104,200,255,.46);background:rgba(104,200,255,.08)}
-.srs[data-stage="inner"] .srs-tile.is-outer,.srs[data-stage="innerDone"] .srs-tile.is-outer,.srs[data-stage="cross"] .srs-tile.is-outer{opacity:.25}
+.srs[data-stage="inner"] .srs-tile.is-outer,.srs[data-stage="innerDone"] .srs-tile.is-outer,.srs[data-stage="cross"] .srs-tile.is-outer{opacity:.34}
 .srs-hull{position:absolute;inset:0;pointer-events:none;z-index:1}.srs-hull polygon{vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
-.srs-hull-outer{fill:rgba(104,200,255,.055);stroke:var(--blue);stroke-width:3;filter:drop-shadow(0 0 7px rgba(104,200,255,.42));opacity:0;transition:opacity .45s ease}
+.srs-hull-outer{fill:rgba(104,200,255,.055);stroke:var(--blue);stroke-width:3;filter:drop-shadow(0 0 7px rgba(104,200,255,.42));opacity:0;transition:opacity .45s ease,stroke-width .45s ease}
 .srs[data-stage="outer"] .srs-hull-outer,.srs[data-stage="outerDone"] .srs-hull-outer{opacity:1}
+.srs[data-stage="inner"] .srs-hull-outer,.srs[data-stage="innerDone"] .srs-hull-outer,.srs[data-stage="cross"] .srs-hull-outer{opacity:.28;stroke-width:2}
 .srs-inner-plane{position:absolute;inset:32px 7% 16px;z-index:4;display:flex;flex-direction:column;justify-content:center;opacity:0;pointer-events:none;transform:translateZ(-30px) scale(.84)}
 .srs[data-stage="inner"] .srs-inner-plane,.srs[data-stage="innerDone"] .srs-inner-plane,.srs[data-stage="cross"] .srs-inner-plane{opacity:1;pointer-events:auto;transform:translateZ(70px) scale(1)}
+.srs[data-stage="cross"] .srs-inner-plane{transform:translateZ(92px) scale(1.025)}
 .srs-inner-shell{margin:auto;max-width:360px;padding:18px 12px 14px;border-radius:22px;border:1px solid rgba(240,201,95,.36);background:radial-gradient(circle at 50% 20%,rgba(240,201,95,.14),rgba(18,13,28,.9) 70%);box-shadow:0 18px 40px rgba(0,0,0,.35)}
 .srs-inner-label{font-size:12px;opacity:.64;margin-bottom:5px}.srs-inner-plane .srs-tile{border-color:rgba(240,201,95,.34);background:rgba(240,201,95,.075)}
 .srs-readouts{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:560px;margin:6px auto 0}.srs-card{border-radius:16px;padding:10px 9px 11px;opacity:.22;transform:translateY(3px);transition:opacity .45s ease,transform .45s ease}
 .srs-card.on{opacity:1;transform:none}.srs-card.outer{border:1px solid rgba(104,200,255,.3);background:rgba(104,200,255,.07)}.srs-card.inner{border:1px solid rgba(240,201,95,.32);background:rgba(240,201,95,.07)}
 .srs-label{font-size:12px;line-height:1.35;opacity:.72}.srs-value{appearance:none;border:0;background:none;color:inherit;font:inherit;font-size:clamp(34px,10vw,48px);font-weight:900;line-height:1.05;padding:2px 8px;cursor:pointer}.srs-card.outer .srs-value{color:var(--blue2)}.srs-card.inner .srs-value{color:var(--gold2)}
-.srs-cross{font-size:14px;line-height:1.55;opacity:0;max-width:520px;margin:11px auto 0;transition:opacity .5s ease}.srs[data-stage="cross"] .srs-cross{opacity:1}.srs-cross b{color:var(--gold2)}.srs-note{font-size:12px;opacity:.58;margin-top:3px}
+.srs-cross{font-size:14px;line-height:1.55;opacity:0;max-width:520px;margin:11px auto 0;transition:opacity .5s ease}.srs[data-stage="cross"] .srs-cross{opacity:1}
+.srs-cross-btn{appearance:none;width:100%;border:1px solid rgba(240,201,95,.22);background:rgba(240,201,95,.055);color:inherit;border-radius:14px;padding:10px 12px;cursor:pointer;font:inherit;line-height:1.55}
+.srs-cross-btn:hover{border-color:rgba(240,201,95,.5);background:rgba(240,201,95,.09)}.srs-cross-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.srs-cross-btn b{color:var(--gold2)}.srs-note{font-size:12px;opacity:.58;margin-top:3px}
+.srs-depth-note{font-size:12px;opacity:.58;margin:7px auto 0;max-width:500px}.srs-depth-note strong{color:var(--blue2)}.srs-depth-note em{color:var(--gold2);font-style:normal}
 .srs-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}.srs-action{appearance:none;border:1px solid rgba(218,185,74,.35);background:rgba(218,185,74,.08);color:#f0d98f;border-radius:999px;padding:8px 15px;min-height:42px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}.srs-action.active{background:rgba(218,185,74,.18);border-color:rgba(240,201,95,.58)}
-@media(max-width:420px){.srs{padding:15px 7px 14px;border-radius:18px}.srs-stage{min-height:300px}.srs-main{padding:16px 2px 12px}.srs-row{gap:4px}.srs-tile{font-size:14px;padding:6px 6px;min-height:40px;border-radius:9px}.srs-inner-plane{inset:20px 4% 8px}.srs-inner-shell{padding:14px 8px 11px}.srs-readouts{gap:7px}.srs-card{padding:9px 6px 10px}.srs-value{font-size:36px}}
+@media(max-width:420px){.srs{padding:15px 7px 14px;border-radius:18px}.srs-stage{min-height:300px}.srs-main{padding:16px 2px 12px}.srs-row{gap:4px}.srs-tile{font-size:14px;padding:6px 6px;min-height:40px;border-radius:9px}.srs-inner-plane{inset:20px 4% 8px}.srs-inner-shell{padding:14px 8px 11px}.srs-readouts{gap:7px}.srs-card{padding:9px 6px 10px}.srs-value{font-size:36px}.srs-cross-btn{padding:9px 8px}}
 @media(max-width:340px){.srs-tile{font-size:13px;padding:5px 4px}.srs-stage{min-height:285px}.srs-value{font-size:33px}.srs-action{padding:7px 12px}}
 @media(prefers-reduced-motion:reduce){.srs-main,.srs-inner-plane,.srs-card,.srs-cross,.srs-tile,.srs-hull-outer{transition:none!important}}
 `;
@@ -114,14 +121,14 @@ export default function SpatialGematriaReveal({spec}){
     const id=requestAnimationFrame(measure);let ro;if("ResizeObserver" in window&&stageRef.current){ro=new ResizeObserver(measure);ro.observe(stageRef.current);}window.addEventListener("resize",measure);return()=>{cancelAnimationFrame(id);ro&&ro.disconnect();window.removeEventListener("resize",measure);};
   },[scene,outer.member_item_ids]);
 
-  const idx=STAGES.indexOf(stage);const outerActive=manual==="outer"||idx>=1;const innerActive=manual==="inner"||idx>=3;
+  const idx=STAGES.indexOf(stage);const outerActive=manual==="outer"||idx>=1;const innerActive=manual==="inner"||manual==="layers"||idx>=3;
   const outerVal=useCountUp(outer.aggregate_value||0,!reduce&&stage==="outer",1150);const innerVal=useCountUp(inner.aggregate_value||0,!reduce&&stage==="inner",900);
-  const showOuter=reduce||manual==="outer"||idx>=2;const showInner=reduce||manual==="inner"||idx>=4;
+  const showOuter=reduce||manual==="outer"||manual==="layers"||idx>=2;const showInner=reduce||manual==="inner"||manual==="layers"||idx>=4;
   const itemsById=useMemo(()=>Object.fromEntries(scene.items.map(x=>[x.item_id,x])),[scene.items]);
   const innerRows=useMemo(()=>{const xs=(inner.member_item_ids||[]).map(id=>itemsById[id]).filter(Boolean).sort((a,b)=>a.row-b.row||a.column-b.column);const map=new Map();xs.forEach(x=>{if(!map.has(x.row))map.set(x.row,[]);map.get(x.row).push(x);});return [...map.values()];},[inner.member_item_ids,itemsById]);
 
   const openGem=(term)=>{try{openNumberDrawer(String(term));}catch{/* delegated data-gem remains fallback */}};
-  const selectGroup=(g)=>{timers.current.forEach(clearTimeout);setManual(g);setStage(g==="outer"?"outerDone":"innerDone");};
+  const selectGroup=(g)=>{timers.current.forEach(clearTimeout);setManual(g);setStage(g==="outer"?"outerDone":g==="inner"?"innerDone":"cross");};
   const replay=()=>{timers.current.forEach(clearTimeout);setRunKey(k=>k+1);};
 
   return <div className="srs spatial-reveal-root" data-stage={stage} ref={rootRef} dir="rtl">
@@ -141,7 +148,8 @@ export default function SpatialGematriaReveal({spec}){
       <div className={`srs-card outer ${showOuter?"on":""}`}><div className="srs-label">{outer.label}</div><button type="button" className="srs-value" data-gem={outer.aggregate_value} onClick={()=>openGem(outer.aggregate_value)}>{showOuter?(stage==="outer"?outerVal:outer.aggregate_value):"—"}</button></div>
       <div className={`srs-card inner ${showInner?"on":""}`}><div className="srs-label">{inner.label}</div><button type="button" className="srs-value" data-gem={inner.aggregate_value} onClick={()=>openGem(inner.aggregate_value)}>{showInner?(stage==="inner"?innerVal:inner.aggregate_value):"—"}</button></div>
     </div>
-    {scene.crossref&&<div className="srs-cross">הצלבה: <b>{scene.crossref.term} = {scene.crossref.value}</b><div className="srs-note">{scene.crossref.note}</div></div>}
-    {!reduce&&<div className="srs-actions"><button type="button" className={`srs-action ${manual==="outer"?"active":""}`} onClick={()=>selectGroup("outer")}>חוץ · {outer.aggregate_value}</button><button type="button" className={`srs-action ${manual==="inner"?"active":""}`} onClick={()=>selectGroup("inner")}>פנים · {inner.aggregate_value}</button><button type="button" className="srs-action" onClick={replay}>הצג שוב ↻</button></div>}
+    {(innerActive||stage==="cross")&&<div className="srs-depth-note"><strong>1820 נשאר כקליפה החיצונית</strong> · <em>898 מתקדם מתוכה כשכבה פנימית</em></div>}
+    {scene.crossref&&<div className="srs-cross"><button type="button" className="srs-cross-btn" data-gem={scene.crossref.value} onClick={()=>openGem(scene.crossref.value)} aria-label={`פתיחת ${scene.crossref.value} במגירת המספר`}>הצלבה: <b>{scene.crossref.term} = {scene.crossref.value}</b><div className="srs-note">{scene.crossref.note} · לחצו לפתיחת {scene.crossref.value}</div></button></div>}
+    {!reduce&&<div className="srs-actions"><button type="button" className={`srs-action ${manual==="outer"?"active":""}`} onClick={()=>selectGroup("outer")}>חוץ · {outer.aggregate_value}</button><button type="button" className={`srs-action ${manual==="inner"?"active":""}`} onClick={()=>selectGroup("inner")}>פנים · {inner.aggregate_value}</button><button type="button" className={`srs-action ${manual==="layers"?"active":""}`} onClick={()=>selectGroup("layers")}>שכבות · יחד</button><button type="button" className="srs-action" onClick={replay}>הצג שוב ↻</button></div>}
   </div>;
 }
