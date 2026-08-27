@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="t d">
+  <title id="t">SOD1820 Research OS — הצצה למערכת המחקר</title>
+  <desc id="d">מסך עתידי כהה עם 1820 במרכז וקשרים למספרים, מילים, פסוקים, אנשים, זמן ומבנים.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="46%" r="72%"><stop stop-color="#19102f"/><stop offset=".55" stop-color="#080b17"/><stop offset="1" stop-color="#03050a"/></radialGradient>
+    <radialGradient id="orb" cx="45%" cy="38%"><stop stop-color="#2d6ba8"/><stop offset=".48" stop-color="#17234c"/><stop offset="1" stop-color="#0b0d1b"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop stop-color="#f9e58a"/><stop offset=".48" stop-color="#d4af37"/><stop offset="1" stop-color="#8d6412"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1200" height="760" rx="34" fill="url(#bg)"/>
+  <rect x="18" y="18" width="1164" height="724" rx="28" fill="none" stroke="#d4af37" stroke-opacity=".32"/>
+  <text x="600" y="72" fill="#ead68b" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" direction="rtl">הצצה למערכת המחקר החדשה של SOD1820</text>
+  <text x="600" y="108" fill="#9e95b8" font-family="Arial, sans-serif" font-size="17" text-anchor="middle" direction="rtl">מספרים · מילים · פסוקים · אנשים · זמן · מבנים — מתחברים לעץ אחד</text>
+  <g stroke="#755be6" stroke-opacity=".42" stroke-width="2">
+    <path d="M600 378L270 230M600 378L930 230M600 378L180 405M600 378L1020 405M600 378L315 580M600 378L885 580"/>
+    <circle cx="600" cy="378" r="245" fill="none" stroke-dasharray="3 10"/>
+    <circle cx="600" cy="378" r="175" fill="none" stroke="#d4af37" stroke-opacity=".18"/>
+  </g>
+  <g fill="#11162b" stroke="#8d7ce9" stroke-opacity=".55">
+    <circle cx="270" cy="230" r="66"/><circle cx="930" cy="230" r="66"/><circle cx="180" cy="405" r="66"/><circle cx="1020" cy="405" r="66"/><circle cx="315" cy="580" r="66"/><circle cx="885" cy="580" r="66"/>
+  </g>
+  <g fill="#f3ecdc" font-family="Arial, sans-serif" font-size="21" text-anchor="middle" direction="rtl">
+    <text x="270" y="224">מספרים</text><text x="930" y="224">מילים</text><text x="180" y="399">פסוקים</text><text x="1020" y="399">אנשים</text><text x="315" y="574">זמן</text><text x="885" y="574">מבנים</text>
+  </g>
+  <g fill="#8fa3c8" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" direction="rtl">
+    <text x="270" y="248">קשרים · שיטות</text><text x="930" y="248">ערכים · זהויות</text><text x="180" y="423">מקורות · הקשר</text><text x="1020" y="423">מסעות · חוקרים</text><text x="315" y="598">תאריכים · סנכרונים</text><text x="885" y="598">שכבות · גיאומטריה</text>
+  </g>
+  <circle cx="600" cy="378" r="128" fill="url(#orb)" stroke="url(#gold)" stroke-width="3" filter="url(#glow)"/>
+  <circle cx="600" cy="378" r="102" fill="none" stroke="#6fd3ff" stroke-opacity=".22"/>
+  <text x="600" y="397" fill="url(#gold)" font-family="Georgia, serif" font-size="76" font-weight="700" text-anchor="middle">1820</text>
+  <text x="600" y="438" fill="#c9bddf" font-family="Arial, sans-serif" font-size="17" text-anchor="middle" direction="rtl">שורש מחקר · Reality Graph</text>
+  <g fill="#070914" stroke="#d4af37" stroke-opacity=".55">
+    <rect x="410" y="642" width="380" height="64" rx="32"/>
+  </g>
+  <text x="600" y="682" fill="#f0d98f" font-family="Arial, sans-serif" font-size="22" font-weight="700" text-anchor="middle" direction="rtl">מה שמתחיל כאן — הוא רק ההתחלה</text>
+</svg>
