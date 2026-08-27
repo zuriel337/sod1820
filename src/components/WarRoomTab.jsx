@@ -1,5 +1,12 @@
-// 🎛️ חדר המפקדה (CC-1) — View קורא-בלבד על כל האוצר (לא רק Discovery).
-// חוקי-ברזל (§13.8): אין WRITE · אין קידום · אין engine · אין שינוי EntityPage/גרף.
+// 🎛️ חדר המפקדה (CC-1, מורחב ב-COMMAND_CENTER_ATTENTION_CLOSURE Pass 1) — View על כל האוצר
+// (לא רק Discovery), שהפך לשער-התפעולי-האנושי (§4 בפקודת-הפאס — תיקון-דיוק-חוזה, לא-שינוי-התנהגות):
+// ⚠️ "אין WRITE" (§13.8 המקורי, 11.8.2026) הפך-לא-מדויק ואינו-עוד-הניסוח-הנכון: החדר קורא ל-Human-Gate
+// RPCs קיימים ומאושרים (admin_research_review/decideCandidate/sendCandidateFromResearcher/
+// reviewRecommendation/moderateMatrix/approveContribution ועוד) — כולם כותבים, אחרי-לחיצה-אנושית-מפורשת.
+// החוזה-המדויק במקום זה: **חדר המפקדה לא-בעל-האמת-המחקרית** · מותר-לו להפעיל פעולות-Human-Gated
+// **קיימות-ומאושרות-מראש בלבד** · אין WRITE ישיר-לטבלה מהחדר עצמו (בלי-RPC-מתווך) · אין קנוניזציה/
+// פרסום-אוטומטי-ע"י-AI · Human-Gate RPCs נשארים מסלול-השיפוט היחיד (§11.20/§20). קטעי-קוד ספציפיים
+// שעדיין קורא-בלבד-בפועל (למשל קליטה-חיה/thread/resolver-זהות) ממשיכים-לתעד-זאת מקומית — זה נשאר נכון.
 // שער=החלטה-לא-ראות (§11.34): חומר שלפני research_objects נראה כאן. HOT≠TRUE · VIP≠TRUE · Claim≠Fact.
 // כל הנתונים מ-helpers קיימים בלבד (reuse-first). מסלול-החומר מראה «איפה נעצר».
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -600,7 +607,10 @@ function IngestRow({ item, onOpen, onFilter, selected, onToggle, onClose, onUncl
 }
 
 // ── CC-1.3 · פאזה 1 — Clickable-everything + Row Action Panel + פילטרים-חיים (READ/navigation בלבד) ──
-// ⛔ אין WRITE: פעולות-עבודה (שיפוט/קידום/למד) = פאזה 3. כאן ניווט + חקירה + פילטר בלבד.
+// הפילטרים/הניווט כאן (matchesFilters/isZuriel/FilterBar/WorkFilters) אכן נשארים read-only גרידא.
+// ⚠️ תיקון-דיוק (Pass 1 §4, לא-שינוי-התנהגות): "שיפוט = פאזה 3" הפך-לא-מדויק — שיפוט כבר-חי במקום
+// אחר בקובץ (Pipeline C/ELS/מטטרון/רזיאל, כולם דרך Human-Gate RPCs קיימים). "למד-זהות"/מיזוג-אליאס
+// אכן עדיין לא-בנוי (פאזה עתידית אמיתית) — ראו ה-header העליון של הקובץ לחוזה-המלא המדויק.
 // CC-1.3 · סינון-עבודה רב-ממדי (כתב · סטטוס · שיטה · יעד · טווח-תאריכים · רובד/סוג/צינור).
 // כל facet אופציונלי; פריט עובר רק אם עומד בכל ה-facets הפעילים (Rank-Don't-Hide: מיקוד, לא מחיקה).
 // 👑 ZURIEL / 1237 — מקור-ראשי/מערכתי, לא כתב חיצוני רגיל. סיווג-תצוגה בלבד (לא בעלות/פרטיות/routing).
