@@ -289,11 +289,23 @@ export async function askNumberResearcher(values, message, history = []) {
 }
 // 🧵 טעינת השיחה המתמשכת השמורה (agent_user_memory, channel='site') — לא נמחקת ברענון/יציאה.
 // מחזיר גם את ה-context_snapshot האחרון כדי ש-«על סמך מה?» יעבוד אחרי כניסה מחדש (Replay).
+// אותה שיחה בדיוק גם עבור askRazielAttention (למטה) — "ONE SYSTEM. ONE RAZIEL." לא thread שני.
 export async function loadResearcherThread() {
   if (!supabase) return { history: [], snapshot: null };
   const { data, error } = await supabase.functions.invoke("number-researcher", { body: { op: "history" } });
   if (error) return { history: [], snapshot: null };
   return { history: Array.isArray(data?.history) ? data.history : [], snapshot: data?.snapshot || null };
+}
+// 🎛️ רזיאל — עוזר-Human-Gate של חדר המפקדה (Pass 1B, COMMAND_CENTER_ATTENTION_CLOSURE).
+// digest = תקציר-דטרמיניסטי-חסום של תור-הקשב הנוכחי (buildAttentionDigest ב-lib/ccwork.js) — לא
+// שולח פריטים גולמיים. Edge raziel-attention: אותו raziel_brain, admin-gated, שולף חוקים-רלוונטיים
+// חיים (fn_raziel_relevant_rules) — לא רשימה-קשיחה. profile כרגע רק 'ZURIEL_RESEARCH' (extension
+// point ל-'USER_ASSISTANT' עתידי, לא-בנוי). קורא/מנתח/ממליץ בלבד — אין RPC-כתיבה בתוך הקריאה הזו.
+export async function askRazielAttention(message, history = [], digest = null, profile = "ZURIEL_RESEARCH") {
+  if (!supabase) return null;
+  const { data, error } = await supabase.functions.invoke("raziel-attention", { body: { message, history, digest, profile } });
+  if (error) throw error;
+  return data || null;
 }
 // ➕ שלח לשופט: יוצר Candidate מלא-trace מה-dossier → השופט הקיים
 export async function sendCandidateFromResearcher(value, note = null, claim = null) {
