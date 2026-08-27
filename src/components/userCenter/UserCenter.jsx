@@ -1187,9 +1187,25 @@ function MessagesHub({ T, goto, initialDm = null }) {
 }
 
 // 🗣 תגובות אליי — תגובות של אחרים על התרומות שלי (RPC replies_to_me). לחיצה → הקשר בגרף.
+// §4, COMMAND_CENTER_ATTENTION_CLOSURE Pass 1: תיקון-נעלמות — LIMIT קבוע (50) בלי pagination
+// היה חוסם כל תגובה מעבר לזה, בלי דרך לראות אותה. עכשיו: "טען עוד" עם cursor (p_before, אותה
+// RPC replies_to_me מורחבת) — סדר חדש→ישן נשמר, שום store חדש.
+const REPLIES_PAGE = 50;
 function RepliesPanel({ T, goto }) {
   const [rows, setRows] = useState(null);
-  useEffect(() => { repliesToMe(50).then(setRows).catch(() => setRows([])); }, []);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [done, setDone] = useState(false);   // עמוד אחרון החזיר פחות מ-REPLIES_PAGE → אין עוד
+  useEffect(() => { repliesToMe(REPLIES_PAGE).then(r => { setRows(r); setDone((r || []).length < REPLIES_PAGE); }).catch(() => { setRows([]); setDone(true); }); }, []);
+  const loadMore = async () => {
+    if (loadingMore || done || !rows?.length) return;
+    setLoadingMore(true);
+    try {
+      const cursor = rows[rows.length - 1]?.created_at;
+      const more = await repliesToMe(REPLIES_PAGE, cursor);
+      setRows(prev => [...(prev || []), ...(more || [])]);
+      if ((more || []).length < REPLIES_PAGE) setDone(true);
+    } finally { setLoadingMore(false); }
+  };
   const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
   const linkFor = r => (r.target_type === "number" && r.target_id) ? `/number/${r.target_id}` : (r.convergence_slug ? `/topic/${r.convergence_slug}` : null);
   if (rows === null) return <div style={{ color: T.sub, fontSize: 13, padding: "8px 0" }}>טוען…</div>;
@@ -1217,6 +1233,12 @@ function RepliesPanel({ T, goto }) {
           ? <button key={r.id} onClick={() => goto(link)} style={style}>{inner}</button>
           : <div key={r.id} style={style}>{inner}</div>;
       })}
+      {!done && (
+        <button onClick={loadMore} disabled={loadingMore}
+          style={{ background: "transparent", border: `1px solid ${T.line}`, color: T.sub, borderRadius: 10, padding: "9px 14px", fontFamily: "inherit", fontSize: 12.5, cursor: loadingMore ? "default" : "pointer", opacity: loadingMore ? 0.6 : 1 }}>
+          {loadingMore ? "טוען…" : "טען תגובות ותיקות יותר ↓"}
+        </button>
+      )}
     </div>
   );
 }
