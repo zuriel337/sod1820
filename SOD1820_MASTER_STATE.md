@@ -1026,6 +1026,26 @@ SOD1820 נמצא-כעת בשלב שבו **השורשים והגזע** (Identity 
 >
 > **STATUS:** `APPLIED`(DB חי, additive: `rule_version` 4→5 · `project_codex` 26,115→32,663+ תווים) · git: ענף `claude/research-intake-final-freeze` (base `origin/main`@`adffd5bf`) — **טרם-merge, טרם-deploy, טרם-ingestion. ממתין ל-Cross-verification של GPT/ZURIEL לפני-כל-המשך.**
 
+### 23.16 NO UNIVERSAL ANCHOR · IDENTITY/REPRESENTATION/CONTEXTUAL-CENTER FOUNDATION CLOSURE (`APPLIED`, Human-Gate ZURIEL, 27.8.2026, `FOUNDATION_SUFFICIENT_APPLIED_REALITY_GRAPH_LAW_V2`)
+
+> **מהות:** יישום שלישי של §23.5 `FOUNDATION EXPANSION GATE` — הפעם **לא על דומיין בודד** (כמו §23.6 Intake, §23.7 Person) אלא **ברמת-ארכיטקטורה**: הצירים Identity/Representations/Relations נבדקו על-פני כל המערכת, בעקבות בקשת-סגירת-חוזה מפורשת של צוריאל ("SOD1820 — NO UNIVERSAL ANCHOR"). READ-ONLY audit מלא (git+DB חי) בוצע לפני כל המלצה.
+>
+> **LIVE-FIRST:** `git fetch` אישר `origin/main` זז `ef7da26e→d7a66ae2` (2 קומיטים לא-חופפים — ענף GPT `command-center-vnext-projection` + `זרם המציאות: כרטיס-רמז מקושר לפוסט`) — הענף-המקומי `fast-forward`-מוזג ל-`d7a66ae2` לפני עריכת-קבצים, 0 חפיפה. אין WRITE מקביל בנושא-זהות/ייצוג ב-`work_log`.
+>
+> **ממצאי-אודיט מרכזיים (חיים, לא מהזיכרון):** `entity_types` **קיימת וחיה עם 13 שורות** (כולל type=`relationship` — קשר-כישות, כבר-קיים) — סנפשוט-ראשוני-שגוי הראה 0, תוקן ע"י `count(*)` ישיר. `nodes.type` מכיל 30 ערכים שונים מול 13 ב-`entity_types` — פער מתועד, לא נסגר. טבלת `convergences` (8,917 שורות) מנותקת-מהגרף — 0 edges ל-`nodes`. אוצר-המילים `same_as`/`alias_of`/`variant_of` (מוגדר כבר ב-`research_intake_foundation_contract_law`) חי אך עם 0 edges בפועל. `metatron_context` אומת כ-RPC (קומפוזיציה בזמן-שאילתה), **לא טבלה** — תקדים-חי לכך שלא-נדרשת טבלת `research_context` חדשה, בדיוק כפי-שהתבקש.
+>
+> **מבחן-לחץ 786 (חי, אומת ב-SQL):** Number 786 = node חי (`20addd29`) עם 2 edges `mentions` בלבד (פוסטים ישנים). Finding-786 = חי אך מקוטע: 4 שורות `convergences` נפרדות (ragil/misratar/miluy/gadol), `status='new'`, לא-מאוחדות, לא-מחוברות ל-node. Post 5087 = חי (רק 786 מוצג, לפי `zuriel_focus_law`). Reality Signal = חי (`gallery_images` 15cfda5c, `primary_value=786`). וידאו-TikTok = חי כקובץ, **MISSING** כ-node. Person דונלד טראמפ ו-Year תשפ״ו = **MISSING** (0 nodes, אומת ישירות ב-SQL). Reality→Post ו-Post/Reality→nodes/edges = GAP מתועד (0 projection pipeline) — הצטלב במדויק מול ממצאי `work_log` מוקדם-יותר-באותו-יום ("SOURCE VIDEO LAW...786...One Tree crosswalk").
+>
+> **פסיקה: `FOUNDATION SUFFICIENT`.** 0 `MUST FOUNDATION NOW`. Identity/Representations/Relations → `EXTENSION POINT NOW`. Contextual Center → `NOT NEEDED` (כבר-חי בפועל דרך `zuriel_focus_law`/`signal_vs_curation` v2 + ניתוב-קיים).
+>
+> **Human-Gate ZURIEL — שתי החלטות:** Q1 = **כן**, להרחיב את `reality_graph_law` בדיוק-כמוצע (לא 3 חוקים-נפרדים). Q2 = **עדיין-לא** — הרחבת `entity_types` (types כגון post/topic/convergence/finding/source) מתועדת כ-`EXTENSION POINT NOW` בלבד; **לא נוספה אף שורה** — ממתין לסבב ontology-crosswalk ייעודי שיקבע אילו types באמת-כשירים.
+>
+> **מה בוצע (DB חי, additive, 0 חוק-מקביל נוצר):** `nodes.rule_id='reality_graph_law'` `rule_version` 1→2 (`supersedes_version=1`) — נוסף: מבחן-כשירות-זהות, חוק-הצמדת-ייצוג (מרחיב את אוצר-המילים הקיים ב-`research_intake_foundation_contract_law`, לא-כפול), חוק-מרכז-הקשרי (query-time, `metatron_context` כתקדים), ודחיית `entity_types` מפורשת. `project_codex.slug='reality_graph_law'` גוף עודכן `2,347→6,979` תווים (אותו תוכן, גרסה-מלאה + מבחן-786). `work_log.3dbd5043` תיעוד-מלא.
+>
+> **מה לא-נעשה כאן (מפורש):** אין `no_universal_anchor_law`/`identity_qualification_law`/`contextual_center_law` נפרדים נוצרו. אין שורות נוספו ל-`entity_types`. אין edges נוצרו בין `convergences`↔`nodes`. אין projection-pipeline נבנה. אין schema/migration/table/engine חדש. אין קוד שונה בסבב-הזה (docs+DB בלבד).
+>
+> **STATUS:** `APPLIED` (DB חי) + docs (Master State §23.16 זה + Roadmap pointer) על ענף `claude/sod1820-foundation-contract-yt6e29` — **טרם-merge, טרם-deploy** (docs-only, אינו-דורש-deploy כשלעצמו, אך merge ל-`main` עדיין ממתין ל"תעלה" מפורש של צוריאל לפי `deploy_on_request`).
+
 ---
 *בסיס-עובד v2. עודכן לאחרונה 25.8.2026 (§19 A/B, §21, §22, §23) — נשמר בענף `claude/raziel-capabilities-audit-h5k9ww` (מקור γ) + נכתב לגוף-המסמך על ענף `claude/els-function-inventory-86klre` + `claude/relation-engine-v1` + `claude/live-sync-v5.3-reconciliation` + `claude/sod1820-roadmap-reconciliation-jmbti4` + `claude/sod1820-personal-journey-research-kr4mcp` (סשנים; האחרון = `PERSONAL_FOUNDATION_CANONICALIZATION`, §23.7). שינויי-DB בסבב-ה-25.8: `project_codex.slug='person_foundation_contract'` + `nodes.rule_id='person_foundation_contract_law'` בלבד (חוזה-תיעודי, לא-קנון-תוכן/לא-schema) + רשומות `work_log` coordination — **0 שינוי-סכמה/migration/history-row בסבב-הסגירה עצמו**. שינויי-DB היסטוריים (סשנים קודמים): (1) הקפאת cron job 27 (`metatron-nightly`, הפיך); (2) **H-1** — RPC `fn_persist_discovery` + מועמד-בדיקה-אחד (878=משיח↔דבר-מתוך-דבר, status=`candidate`, ממתין ל-Human-Gate). מלבדם READ-ONLY. שום `INFERRED` אינו עובדה; שום שיטה לא-הופעלה; שום convergence היסטורי לא-חובר/קודם/נמחק; שום קנון לא-שונה (מלבד §0 governance + §8 FREEZE + §10 חזון + H-1 front-half + §19 A/B + §21 + §22 + §23 התיעוד-הזה).
 
