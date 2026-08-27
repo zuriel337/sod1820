@@ -39,7 +39,7 @@ const CSS = `
 .srs-card.on{opacity:1;transform:none}.srs-card.outer{border:1px solid rgba(104,200,255,.3);background:rgba(104,200,255,.07)}.srs-card.inner{border:1px solid rgba(240,201,95,.32);background:rgba(240,201,95,.07)}
 .srs-label{font-size:12px;line-height:1.35;opacity:.72}.srs-value{appearance:none;border:0;background:none;color:inherit;font:inherit;font-size:clamp(34px,10vw,48px);font-weight:900;line-height:1.05;padding:2px 8px;cursor:pointer}.srs-card.outer .srs-value{color:var(--blue2)}.srs-card.inner .srs-value{color:var(--gold2)}
 .srs-cross{font-size:14px;line-height:1.55;opacity:0;max-width:520px;margin:11px auto 0;transition:opacity .5s ease}.srs[data-stage="cross"] .srs-cross{opacity:1}
-.srs-cross-btn{appearance:none;width:100%;border:1px solid rgba(240,201,95,.22);background:rgba(240,201,95,.055);color:inherit;border-radius:14px;padding:10px 12px;cursor:pointer;font:inherit;line-height:1.55}
+.srs-cross-list{display:grid;gap:8px}.srs-cross-btn{appearance:none;width:100%;border:1px solid rgba(240,201,95,.22);background:rgba(240,201,95,.055);color:inherit;border-radius:14px;padding:10px 12px;cursor:pointer;font:inherit;line-height:1.55}
 .srs-cross-btn:hover{border-color:rgba(240,201,95,.5);background:rgba(240,201,95,.09)}.srs-cross-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.srs-cross-btn b{color:var(--gold2)}.srs-note{font-size:12px;opacity:.58;margin-top:3px}
 .srs-depth-note{font-size:12px;opacity:.58;margin:7px auto 0;max-width:500px}.srs-depth-note strong{color:var(--blue2)}.srs-depth-note em{color:var(--gold2);font-style:normal}
 .srs-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}.srs-action{appearance:none;border:1px solid rgba(218,185,74,.35);background:rgba(218,185,74,.08);color:#f0d98f;border-radius:999px;padding:8px 15px;min-height:42px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}.srs-action.active{background:rgba(218,185,74,.18);border-color:rgba(240,201,95,.58)}
@@ -73,7 +73,8 @@ function normalizeSpec(spec){
   const innerIds=items.filter(x=>innerSet.has(x.item_id)).map(x=>x.item_id);
   return {
     scene_id:spec.scene_id||spec.reveal_id||"spatial_scene",
-    title:spec.title,subtitle:spec.subtitle,crossref:spec.crossref,
+    title:spec.title,subtitle:spec.subtitle,
+    crossrefs:spec.crossrefs||(spec.crossref?[spec.crossref]:[]),
     items:spec.items||items,
     groups:spec.groups||{
       outer:{group_id:"outer",role:"outer",member_item_ids:outerIds,label:spec.outer?.label||"החיצוניות",aggregate_value:spec.outer?.value},
@@ -149,7 +150,7 @@ export default function SpatialGematriaReveal({spec}){
       <div className={`srs-card inner ${showInner?"on":""}`}><div className="srs-label">{inner.label}</div><button type="button" className="srs-value" data-gem={inner.aggregate_value} onClick={()=>openGem(inner.aggregate_value)}>{showInner?(stage==="inner"?innerVal:inner.aggregate_value):"—"}</button></div>
     </div>
     {(innerActive||stage==="cross")&&<div className="srs-depth-note"><strong>1820 נשאר כקליפה החיצונית</strong> · <em>898 מתקדם מתוכה כשכבה פנימית</em></div>}
-    {scene.crossref&&<div className="srs-cross"><button type="button" className="srs-cross-btn" data-gem={scene.crossref.value} onClick={()=>openGem(scene.crossref.value)} aria-label={`פתיחת ${scene.crossref.value} במגירת המספר`}>הצלבה: <b>{scene.crossref.term} = {scene.crossref.value}</b><div className="srs-note">{scene.crossref.note} · לחצו לפתיחת {scene.crossref.value}</div></button></div>}
+    {scene.crossrefs.length>0&&<div className="srs-cross"><div className="srs-cross-list">{scene.crossrefs.map(ref=>{const drawerValue=ref.drawer_value??ref.value;return <button key={ref.crossref_id||`${ref.term}-${drawerValue}`} type="button" className="srs-cross-btn" data-gem={drawerValue} onClick={()=>openGem(drawerValue)} aria-label={`פתיחת ${drawerValue} במגירת המספר`}><b>{ref.display||ref.term}</b>{ref.note&&<div className="srs-note">{ref.note}</div>}</button>;})}</div></div>}
     {!reduce&&<div className="srs-actions"><button type="button" className={`srs-action ${manual==="outer"?"active":""}`} onClick={()=>selectGroup("outer")}>חוץ · {outer.aggregate_value}</button><button type="button" className={`srs-action ${manual==="inner"?"active":""}`} onClick={()=>selectGroup("inner")}>פנים · {inner.aggregate_value}</button><button type="button" className={`srs-action ${manual==="layers"?"active":""}`} onClick={()=>selectGroup("layers")}>שכבות · יחד</button><button type="button" className="srs-action" onClick={replay}>הצג שוב ↻</button></div>}
   </div>;
 }
