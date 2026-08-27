@@ -1346,9 +1346,10 @@ function HomeTiles({ T, center, setActive, dark }) {
 export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, dmUnread = 0, onUnread, goto, setActive, activeParam = null }) {
   const c = center || {};
   const isWriter = !!(c.is_writer || c.is_publisher);
-  // 👑 «הדף הפומבי שלי» מוצג רק למי שיש לו דף-כתב/תורם (has_dossier) או שהוא כותב/חוקר.
-  //    קורא רגיל לא רואה. הופך לכתב/תורם → hasPage=true → הכרטיס חוזר אוטומטית (לא נמחק).
-  const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
+  // 👑 «הדף הפומבי שלי» — פתוח לכל משתמש מחובר (החלטת צוריאל): אין עוד שער is_writer/is_researcher.
+  //    update_my_dossier / update_my_page_config יוצרים contributors אוטומטית בשמירה/צפייה ראשונה
+  //    (r-<uid>) — אין "no_profile" חוסם. מי שכבר יש לו דוסייה ממשיך להציג אותה כרגיל.
+  const hasPage = true;
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים · world = שיוך לאחד מ-5 העולמות ───
     { id: "notifications", world: "me", icon: "🔔", title: "מרכז העדכונים", status: "live", badge: unread || undefined,
@@ -1369,10 +1370,12 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
           </section>
         </div>
       ) },
-    // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). מוצג רק למי שיש לו דף (hasPage).
+    // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). פתוח לכל משתמש מחובר (hasPage=true).
     { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
-    // 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה (כותב update_my_page_config). מוצג רק למי שיש דף.
-    { id: "page-editor", world: "create", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor T={T} goto={goto} /> },
+    // 🎨 עורך-הדף — «ערוך את הדף שלי» (update_my_page_config, יוצר-דוסייה אוטומטית בשמירה ראשונה).
+    //    world="me" ולא "create" בכוונה: "create" מוצג רק בתוך מדור «בפיתוח» שרק אדמין יכול לפתוח —
+    //    זה היה חוסם את עורך-הדף מכולם חוץ מאדמין גם אחרי ש-hasPage נפתח. פתוח לכל משתמש מחובר.
+    { id: "page-editor", world: "me", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor T={T} goto={goto} /> },
     // 👤 הפרופיל שלי = זהות/חשבון בלבד (איחד את «הגדרות» לתוכו):
     //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה.
     //    דרגה/עץ/מספרים גרים במודול אחד «📈 ההתקדמות שלי» — בלי כפילות (איחוד #1).
