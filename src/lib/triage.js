@@ -79,6 +79,47 @@ function resolveOperand(phraseRaw, explicitValue) {
     reason: `אף שיטה קנונית לא משחזרת ${explicitValue} עבור «${phrase}» (רגיל=${ragil})`, ragil };
 }
 
+// ── V6 §7.1 · Semantic Operand / Quantity Provenance Law (research_intake_foundation_contract_law
+// rule_version=6, evidence=ZVI_3060_GOLDEN_RECONSTRUCTION) ─────────────────────────────────────────
+// בעיה מוכחת: "6 × ישר = 3060" משמר quantity=6 ו-operand=ישר, אבל לא את הסיבה ש-6 מופיע (מקור: "6 פאות").
+// זו לא-פרשנות-דומיין (אין "cube_faces" כאן — זה תפקיד Spatial Adapter עתידי, §7.4) — רק שימור-ראיה-
+// טקסטואלית למקור המספר, כשה-source עצמו מספק הקשר מפורש בסביבת הטענה. semanticRole תמיד null כאן.
+const QTY_CONTEXT_WINDOW = 24; // תווים לפני/אחרי המספר, לחיתוך sourceText קריא סביב ההתאמה
+function escapeReLiteral(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+function deriveQuantityProvenance(fullText, value, excludeRaw) {
+  const text = String(fullText || "");
+  const lines = text.split(/\n/);
+  const valLit = escapeReLiteral(String(value));
+  const candidates = [];
+  lines.forEach((line, lineIndex) => {
+    if (excludeRaw && line.includes(excludeRaw)) return; // לא מצביעים בחזרה על הטענה עצמה כ"הקשר"
+    const re = new RegExp(`(?<![0-9])${valLit}(?![0-9])`, "g");
+    let m;
+    while ((m = re.exec(line))) {
+      const start = Math.max(0, m.index - QTY_CONTEXT_WINDOW);
+      const end = Math.min(line.length, m.index + valLit.length + QTY_CONTEXT_WINDOW);
+      candidates.push({ lineIndex, line, matchIndex: m.index, sourceText: line.slice(start, end).trim() });
+    }
+  });
+  if (!candidates.length) {
+    return { value, status: "unresolved", sourceText: null, sourceLineIndex: null, semanticRole: null };
+  }
+  // "source_explicit": מילה עברית קצרה צמודה למספר (לפניו או אחריו) באותה שורה, בלי אופרטור-חשבוני
+  // ביניהם — עדות-הקשר ישירה ("6 פאות" / "פאות 6"). "source_context_candidate": המספר מופיע במקום
+  // אחר בטקסט אך בלי צמידות-מילולית ברורה — אות חלש-יותר, לא נמחק, רק לא-מתחזה לוודאות.
+  const explicit = candidates.find((c) => {
+    const after = c.line.slice(c.matchIndex + valLit.length, c.matchIndex + valLit.length + 12);
+    const before = c.line.slice(Math.max(0, c.matchIndex - 12), c.matchIndex);
+    const afterHeb = /^\s+[א-ת]{2,}/.test(after) && !/^\s*[+×xX*=]/.test(after);
+    const beforeHeb = /[א-ת]{2,}\s+$/.test(before) && !/[+×xX*=]\s*$/.test(before);
+    return afterHeb || beforeHeb;
+  });
+  const chosen = explicit || candidates[0];
+  return { value, status: explicit ? "source_explicit" : "source_context_candidate",
+    sourceText: chosen.sourceText, sourceLineIndex: chosen.lineIndex, semanticRole: null };
+}
+
 // ── שלב א · N פעמים/× "phrase"(v)? = result — «5 פעמים "ברית"(612)=3060» · «180 פעמים טו"ב(17)=3060» ──
 function extractQuantityProducts(text) {
   const re = new RegExp(`(\\d{1,4})\\s*(?:פעמים|[×xX*])\\s*"?(${HEB_PHRASE})"?\\s*(?:\\((\\d{1,6})\\))?\\s*=\\s*(\\d{1,7})`, "g");
@@ -93,7 +134,8 @@ function extractQuantityProducts(text) {
     if (!operand.ok) status = "METHOD_UNRESOLVED";
     else if (computedTotal === result) status = "ENGINE_VERIFIED_COMPOSITE";
     else status = "ENGINE_MISMATCH";
-    out.push({ kind: "quantity-product", raw, text: raw.trim(), quantity: qty, operand, result, computedTotal, status });
+    const quantityProvenance = deriveQuantityProvenance(text, qty, raw); // V6 §7.1 — לא נוגע בסטטוס/ערך קיים
+    out.push({ kind: "quantity-product", raw, text: raw.trim(), quantity: qty, quantityProvenance, operand, result, computedTotal, status });
   }
   return out;
 }
@@ -130,7 +172,9 @@ function extractNumberProductEqualsPhrase(text) {
     if (!operand.ok) status = "METHOD_UNRESOLVED";
     else if (operand.value === computedTotal) status = "ENGINE_VERIFIED_COMPOSITE";
     else status = "ENGINE_MISMATCH";
-    out.push({ kind: "number-product-equals-phrase", raw, text: raw.trim(), a, b, computedTotal, operand, status });
+    // V6 §7.1 — a,b הם שני numeric literals חיצוניים (לא נגזרים מהמנוע), אותו דין כמו quantity ב-quantity-product.
+    const quantityProvenance = [deriveQuantityProvenance(text, a, raw), deriveQuantityProvenance(text, b, raw)];
+    out.push({ kind: "number-product-equals-phrase", raw, text: raw.trim(), a, b, quantityProvenance, computedTotal, operand, status });
   }
   return out;
 }
@@ -373,12 +417,14 @@ function extractGeneralArithmeticClaims(text) {
     else if (values.every(v => v === values[0])) status = "ENGINE_VERIFIED_COMPOSITE";
     else status = "ENGINE_MISMATCH";
     const result = allComputed ? values[values.length - 1] : null;
+    const numericLiterals = numericLiteralsFor(links, text, span); // V6 §7.1 — bare-NUM leaves בעץ, אם יש
     out.push({
       // origRaw = הטווח *לפני* prefix-skip (כולל מילת-תחילית כמו "וגם") — נשמר כדי שזיהוי-כפילות מול
       // extractCandidates() הישן (שתופס לרוב את הטקסט-המלא-כולל-תחילית) יוכל להתאים נכון (ר' Part 7).
       kind: "general-chain", raw: span, origRaw: span0, text: span, skipUsed, linkCount: links.length,
       linkValues: values, operands: leaves, result, computedTotal: allComputed ? values[0] : null, status,
       ...(strippedAnnotations.length ? { strippedAnnotations } : {}), // RULE #36 — מילים שהוסרו (לא-אופרנד), פרוונאנס
+      ...(numericLiterals ? { numericLiterals } : {}),
     });
   }
   return out;
@@ -443,15 +489,18 @@ function extractVerticalArithmetic(text) {
           else if (values.every(v => v === values[0])) status = "ENGINE_VERIFIED_COMPOSITE";
           else status = "ENGINE_MISMATCH";
           const result = allComputed ? values[values.length - 1] : null;
+          const vRaw = runLines.map(l => l.raw).join(" | ");
+          const numericLiterals = numericLiteralsFor(links, text, vRaw); // V6 §7.1
           out.push({
             kind: "vertical-chain",
-            raw: runLines.map(l => l.raw).join(" | "),
+            raw: vRaw,
             text: runLines.map(l => l.text).join(" "),
             linesUsed: runLines.map(l => ({ lineIndex: l.idx, text: l.raw })),
             syntheticPlusCount: syntheticPlus,
             linkCount: links.length, linkValues: values, operands: leaves, result,
             computedTotal: allComputed ? values[0] : null, status,
             ...(stripped.length ? { strippedAnnotations: stripped } : {}),
+            ...(numericLiterals ? { numericLiterals } : {}),
           });
         }
       }
@@ -459,6 +508,22 @@ function extractVerticalArithmetic(text) {
     i = runLines.length >= 3 ? j : i + 1;
   }
   return out;
+}
+
+// ── V6 §7.1 (המשך) · איסוף bare-NUM leaves מתוך AST קיים (genParseChain), ל-general/vertical-chain ──
+// לא פרסר-שני: הליכה-לקריאה-בלבד על העץ שכבר נבנה. מספר-גולמי (kind:"num") שמשתתף בחישוב מקבל
+// אותו טיפול כמו quantity ב-quantity-product — ערכי-ביטוי (kind:"phrase") כבר עוברים resolveOperand
+// ונגזרים-מהמנוע, לא רלוונטיים ל-Law 1 (המפורש: "quantity שאינו נגזר מהמנוע עצמו").
+function collectNumLeaves(node, out = []) {
+  if (!node) return out;
+  if (node.kind === "num") { out.push(node.value); return out; }
+  if (node.kind === "mul" || node.kind === "add") { collectNumLeaves(node.a, out); collectNumLeaves(node.b, out); }
+  return out;
+}
+function numericLiteralsFor(links, fullText, excludeRaw) {
+  const values = [...new Set(links.flatMap((l) => collectNumLeaves(l)))];
+  if (!values.length) return null;
+  return values.map((value) => deriveQuantityProvenance(fullText, value, excludeRaw));
 }
 
 // ── מונע כפילות מול 4 החלצנים-הייעודיים: אם raw-span של general-chain חופף (substring) לטענה-ייעודית ──
@@ -733,11 +798,78 @@ export function findConnections(item) {
   return connections.sort((a, b) => b.phrases.length - a.phrases.length);
 }
 
+// ── V6 §7.2 · Source Media Reference Preservation Law ───────────────────────────────────────────
+// image_url=NULL לעולם לא-נקרא "לא הייתה תמונה" כשה-source עצמו מכיל marker מפורש. שימור-בלבד:
+// אין OCR, אין הורדת-מדיה, אין המצאת-URL. placeholder לא נמחק רק כי אין asset שפתר אותו.
+const MEDIA_BRACKET_RE = /\[(Image|Video|Audio)\s+([^\]\n]+?)\]/gi;
+const MEDIA_MD_RE = /!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+const MEDIA_EXT_KIND = { jpg: "image", jpeg: "image", png: "image", gif: "image", webp: "image", heic: "image",
+  mp4: "video", mov: "video", webm: "video", m4v: "video", mp3: "audio", wav: "audio", m4a: "audio", ogg: "audio" };
+
+function extFromFilename(name) {
+  const m = /\.([a-zA-Z0-9]+)$/.exec(String(name || "").trim());
+  return m ? m[1].toLowerCase() : null;
+}
+
+export function extractSourceMediaRefs(rawText, item = {}) {
+  const text = String(rawText || "");
+  const refs = [];
+  const bracketRe = new RegExp(MEDIA_BRACKET_RE.source, MEDIA_BRACKET_RE.flags);
+  let m;
+  while ((m = bracketRe.exec(text))) {
+    refs.push({ kind: m[1].toLowerCase(), raw: m[0], filename: m[2].trim(), resolvedUrl: null, resolutionStatus: "unresolved" });
+  }
+  const mdRe = new RegExp(MEDIA_MD_RE.source, MEDIA_MD_RE.flags);
+  while ((m = mdRe.exec(text))) {
+    const url = m[1];
+    refs.push({ kind: MEDIA_EXT_KIND[extFromFilename(url)] || "image", raw: m[0], filename: url.split("/").pop() || url, resolvedUrl: url, resolutionStatus: "resolved" });
+  }
+  // caller-supplied resolved fields (item.img / item.image_url) — לא ממציאים URL, רק מציגים מה ש-caller סיפק בפועל.
+  const suppliedUrl = item?.img || item?.image_url || null;
+  if (suppliedUrl) {
+    refs.push({ kind: "image", raw: null, filename: String(suppliedUrl).split("/").pop() || null, resolvedUrl: suppliedUrl, resolutionStatus: "resolved" });
+  }
+  return refs;
+}
+
+// ── V6 §7.3 · Extraction Fidelity Gate ───────────────────────────────────────────────────────────
+// diagnostic/extraction metadata בלבד. אין lifecycle חדש ב-DB. fidelityStatus="partial" *לא* משנה
+// אוטומטית engine_verified/canonical/published/status — טקסונומיית-האמת נשארת נפרדת לגמרי מכאן.
+export function computeExtractionIntegrity(compoundClaims, mediaRefs) {
+  const claims = compoundClaims || [];
+  const media = mediaRefs || [];
+  const arithmeticVerified = claims.length > 0 && claims.every((c) => c.status === "ENGINE_VERIFIED_COMPOSITE");
+
+  const provItems = claims.flatMap((c) => {
+    if (Array.isArray(c.quantityProvenance)) return c.quantityProvenance;
+    if (c.quantityProvenance) return [c.quantityProvenance];
+    if (Array.isArray(c.numericLiterals)) return c.numericLiterals;
+    return [];
+  });
+  let semanticOperandCoverage;
+  if (!provItems.length) semanticOperandCoverage = "not_applicable";
+  else semanticOperandCoverage = provItems.every((p) => p.status !== "unresolved") ? "complete" : "partial";
+
+  let mediaReferenceCoverage;
+  if (!media.length) mediaReferenceCoverage = "not_applicable";
+  else mediaReferenceCoverage = media.every((r) => r.resolutionStatus === "resolved") ? "complete" : "partial";
+
+  const fidelityStatus = (arithmeticVerified && semanticOperandCoverage !== "partial" && mediaReferenceCoverage !== "partial")
+    ? "complete" : "partial";
+  return { arithmeticVerified, semanticOperandCoverage, mediaReferenceCoverage, fidelityStatus };
+}
+
 // ── תיק-המחקר (Research Case) · PROJECTION בלבד — לא Store חדש, לא טבלה חדשה. ──
 // עוטף triageSource()+findConnections() הקיימים לתצוגה מאוחדת-אחת (Foundation נשאר כמו-שהוא, ר' triage_case_law
 // ב-work_log). item יכול לשאת meta (credit/channel/date/cuId/img) שנשמר כאן רק כ-pass-through לתצוגה — לא נקרא.
+// V6: מוסיף compoundClaims/sourceMediaRefs/extractionIntegrity (§7.1-§7.3) — שדות חדשים בלבד, שום שדה קיים
+// לא-שונה/לא-נמחק; triage/connections הקיימים זהים-לגמרי למה שהיו לפני v6.
 export function buildResearchCase(item, ctx = {}) {
   const triage = triageSource(item, ctx);
   const connections = findConnections(item);
-  return { ...triage, connections };
+  const compoundResults = extractAndVerifyCompound(item, ctx);
+  const compoundClaims = compoundResults.map((r) => r.compound);
+  const sourceMediaRefs = extractSourceMediaRefs(item?.raw, item);
+  const extractionIntegrity = computeExtractionIntegrity(compoundClaims, sourceMediaRefs);
+  return { ...triage, connections, compoundClaims: compoundResults, sourceMediaRefs, extractionIntegrity };
 }
