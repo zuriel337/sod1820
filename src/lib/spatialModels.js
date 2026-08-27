@@ -123,10 +123,14 @@ export const SPATIAL_MODELS = [
         { key: "inner_triangles", value: 4, provenance: "source diagram" },
         { key: "patriarch_count", value: 3, provenance: "source semantic quantity" },
       ],
+      // sides = panel-count of the ring itself (a geometric fact about the region's shape — every
+      // pentagon-ring has 5 panels regardless of what value is written on them); quantity = the
+      // arithmetic multiplier for that region's convergence path (5 for outer, but 180 for inner —
+      // the two numbers are NOT the same thing and must not be conflated by the renderer).
       regions: [
-        { id: "outer", role: "outer_pentagon", assignment: "ברית", quantity: 5 },
-        { id: "inner", role: "inner_pentagon", assignment: "טוב", quantity: 180 },
-        { id: "triangles", role: "nested_triangles", assignment: "פסוק=765", quantity: 4 },
+        { id: "outer", role: "outer_pentagon", assignment: "ברית", quantity: 5, sides: 5 },
+        { id: "inner", role: "inner_pentagon", assignment: "טוב", quantity: 180, sides: 5 },
+        { id: "triangles", role: "nested_triangles", assignment: "765", quantity: 4 },
       ],
       operations: [
         { operationKey: "multiply", expression: "510 × 6", result: 3060 },

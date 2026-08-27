@@ -2,6 +2,7 @@ import React, { useRef, useState, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 import * as THREE from "three";
+import { regionFor, sidesOf, cubeFacesOf, deriveCompoundPaths, isCompoundPentagonModel } from "../lib/spatialRenderModel.js";
 
 // ===== גוף גימטרי מוכלל — «גימטריה מרחבית» =====
 // מציג מילה (טוב/אחד/אל/…) על פאות גוף גיאומטרי; המשתמש מסובב ומאיר פאה-אחר-פאה עד ההתגלות.
@@ -208,32 +209,32 @@ function TriangleCluster({ n, word, lit, color, onClick }) {
   );
 }
 
-// Reads region shape purely from model.spatial — role/assignment/quantity — never a hardcoded value/slug.
-function regionFor(regions, role) { return (regions || []).find(r => r.role === role) || null; }
-
+// Region/quantity/side/cube-face derivation is imported from spatialRenderModel.js (pure, framework-
+// free, independently unit-tested) — this file only turns that derived data into Three.js geometry.
 function CompoundShape({ spatial, cubeProps, selected, onSelect }) {
   const ref = useRef();
   const outer = regionFor(spatial.regions, "outer_pentagon");
   const inner = regionFor(spatial.regions, "inner_pentagon");
   const tri = regionFor(spatial.regions, "nested_triangles");
+  const cubeFaces = cubeFacesOf(spatial);
   return (
     <group ref={ref}>
       {outer && (
-        <Ring n={5} radius={1.9} y={0} word={outer.assignment} lit={selected === "outer"} color={PATH_COLORS.outer}
+        <Ring n={sidesOf(outer)} radius={1.9} y={0} word={outer.assignment} lit={selected === "outer"} color={PATH_COLORS.outer}
           onClick={() => onSelect("outer")} />
       )}
       {inner && (
-        <Ring n={5} radius={1.05} y={0} word={inner.assignment} lit={selected === "inner"} color={PATH_COLORS.inner}
+        <Ring n={sidesOf(inner)} radius={1.05} y={0} word={inner.assignment} lit={selected === "inner"} color={PATH_COLORS.inner}
           onClick={() => onSelect("inner")} scale={0.82} />
       )}
       {tri && (
-        <TriangleCluster n={tri.quantity || 4} word="765" lit={selected === "triangles"} color={PATH_COLORS.triangles}
+        <TriangleCluster n={tri.quantity} word={tri.assignment} lit={selected === "triangles"} color={PATH_COLORS.triangles}
           onClick={() => onSelect("triangles")} />
       )}
-      {/* ישר × 6 — הקוביה הקיימת, מוצגת בנפרד (קבוצה נפרדת, לא ממוזגת לתוך המחומש) */}
+      {/* הקוביה הקיימת, מוצגת בנפרד (קבוצה נפרדת, לא ממוזגת לתוך המחומש) — מספר-הפאות נקרא מ-structuralProperties */}
       <group position={[0, -2.35, 0]} scale={0.42} onClick={(e) => { e.stopPropagation(); onSelect("cube"); }}>
         <Cube word={cubeProps.faceWord} cols={cubeProps.cols} rows={cubeProps.rows}
-          litArr={Array(6).fill(selected === "cube")} onLight={() => onSelect("cube")} spin={false} />
+          litArr={Array(cubeFaces).fill(selected === "cube")} onLight={() => onSelect("cube")} spin={false} />
       </group>
     </group>
   );
@@ -241,27 +242,14 @@ function CompoundShape({ spatial, cubeProps, selected, onSelect }) {
 
 export default function GematriaCube({ faceWord, cols = 2, rows = 5, mode = "multiply", unit = 0, finalTitle = "", finalValue = 0, reveal = [], shape = "cube", spatial = null, value = null }) {
   // Compound branch — pentagon(s) + nested triangles, entirely model-driven (spatial.regions/operations).
-  // No 3060 anywhere in this component: any future model whose spatial.shapeIdentity mentions both
-  // "pentagon" and "triangle" and carries a non-empty regions[] renders through here.
-  const isCompound = !!spatial && /pentagon/.test(spatial.shapeIdentity || "") && /triangle/.test(spatial.shapeIdentity || "") && (spatial.regions || []).length > 0;
-  if (isCompound) return <CompoundRenderer spatial={spatial} cubeProps={{ faceWord, cols, rows }} value={value} />;
+  // Any future model whose spatial contract matches this shape family renders through here.
+  if (isCompoundPentagonModel(spatial)) return <CompoundRenderer spatial={spatial} cubeProps={{ faceWord, cols, rows }} value={value} />;
   return <SimpleRenderer faceWord={faceWord} cols={cols} rows={rows} mode={mode} unit={unit} finalTitle={finalTitle} finalValue={finalValue} reveal={reveal} shape={shape} />;
 }
 
 function CompoundRenderer({ spatial, cubeProps, value }) {
   const [selected, setSelected] = useState(null);
-  const paths = useMemo(() => {
-    // מסלולים לחיצים/מודגשים — נגזרים מ-regions (לא hardcoded): outer/inner/triangles + הקוביה הקיימת.
-    const out = [];
-    const outer = regionFor(spatial.regions, "outer_pentagon");
-    const inner = regionFor(spatial.regions, "inner_pentagon");
-    const tri = regionFor(spatial.regions, "nested_triangles");
-    if (outer) out.push({ id: "outer", label: `${outer.assignment} × ${outer.quantity}`, color: PATH_COLORS.outer });
-    if (inner) out.push({ id: "inner", label: `${inner.assignment} × ${inner.quantity}`, color: PATH_COLORS.inner });
-    if (tri) out.push({ id: "triangles", label: `765 × ${tri.quantity}`, color: PATH_COLORS.triangles });
-    out.push({ id: "cube", label: `${cubeProps.faceWord} × 6`, color: PATH_COLORS.cube });
-    return out;
-  }, [spatial, cubeProps]);
+  const paths = useMemo(() => deriveCompoundPaths(spatial, cubeProps, PATH_COLORS), [spatial, cubeProps]);
   const operations = spatial.operations || [];
   const pathCount = spatial.convergences?.[0]?.independentPaths ?? operations.length;
 
