@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase, getPostsFromSupabase, getPostBySlug, adaptPost, getGematriaByPhrases, searchPosts, getDistinctCategoriesAndTags, getGematriaByValue, getCommentsByPostId, getChatMessages, sendChatMessage, subscribeToChatMessages, getPopularPosts, sendContactMessage, getTrafficStats, subscribeEmail, getAdminInbox, markMessageRead, getOldSiteComments, adminUpdatePost, logActivity, getShareCount, incrementShareCount, subscribeShareCount, logView, getViewCount, getContributorByName, contributorHref, getChannelUpdates } from "../lib/supabase.js";
 import UploadFindings from "../components/UploadFindings.jsx";
 import { MergedStoriesRail, LandingDiscoveryStories } from "../components/OrGeulaStoryColumn.jsx";
 import LatestUpdatesPanel from "../components/LatestUpdatesPanel.jsx";
+import { variantFor, enterExperiment, trackExp, POST_SIDEBAR_EXPERIMENT } from "../lib/postExperiment.js";
 import { AiVerifiedDisclaimer, AiAdditionBox } from "../components/AiVerifiedNote.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
@@ -4784,6 +4785,66 @@ function PostPageBySlug({ onNav }) {
     return () => { m.removeEventListener ? m.removeEventListener("change", h) : m.removeListener(h); };
   }, []);
 
+  // ── A/B «סרגל-צד בעמוד-פוסט» (post_sidebar_v1) — ההבדל היחיד בין הקבוצות = נוכחות הסרגל
+  //    השמאלי (סטורי אור-הגאולה + «עדכונים אחרונים»). השיוך יציב-למבקר (hash של sod_id) → אותה
+  //    קבוצה בכל פוסט/ביקור. אין שינוי URL/SEO/canonical/כותרת/תמונה/CTA/סדר-תוכן.
+  const sidebarVariant = useMemo(() => variantFor(POST_SIDEBAR_EXPERIMENT), []);
+  const sidebarOn = sidebarVariant === "sidebar_on";
+
+  // כניסה-לניסוי + אירועי-בסיס משנטען הפוסט (פעם אחת לכל slug). enterExperiment מצמיד את
+  //   הקשר-הניסוי ל-session → כל page/view עתידי נושא variant, ו«מעבר לעמוד שני» נמדד ישירות.
+  const expLoggedRef = useRef(null);
+  useEffect(() => {
+    if (!post?.slug || loading) return;
+    if (expLoggedRef.current === post.slug) return;
+    expLoggedRef.current = post.slug;
+    try {
+      enterExperiment(post.slug, sidebarVariant);
+      trackExp("post_view", post.slug, sidebarVariant);
+      trackExp("layout_present", post.slug, sidebarVariant, { sidebar: sidebarOn });
+    } catch { /* לעולם לא שובר גלישה */ }
+  }, [post?.slug, loading, sidebarVariant, sidebarOn]);
+
+  // scroll_depth — אבני-דרך 25/50/75/90 (כל אחת פעם אחת לכל פוסט).
+  useEffect(() => {
+    if (!post?.slug || loading) return;
+    const slug = post.slug;
+    const fired = new Set();
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - window.innerHeight;
+      if (scrollable <= 40) return;
+      const pct = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+      for (const mstone of [25, 50, 75, 90]) {
+        if (pct >= mstone && !fired.has(mstone)) {
+          fired.add(mstone);
+          try { trackExp("scroll_depth", slug, sidebarVariant, { depth: mstone }); } catch { /* noop */ }
+        }
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [post?.slug, loading, sidebarVariant]);
+
+  // internal_link_click — לחיצה על קישור-פנים בתוך גוף-הפוסט (מדד-משנה: קליקים פנימיים).
+  useEffect(() => {
+    if (!post?.slug || loading) return;
+    const el = contentRef.current;
+    if (!el) return;
+    const slug = post.slug;
+    const onClick = (e) => {
+      const a = e.target?.closest?.("a[href]");
+      if (!a) return;
+      const href = a.getAttribute("href") || "";
+      const internal = href.startsWith("/") || href.includes("sod1820.co.il");
+      if (!internal) return;
+      try { trackExp("internal_link_click", slug, sidebarVariant, { href: href.slice(0, 160) }); } catch { /* noop */ }
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [post?.slug, loading, sidebarVariant]);
+
   return (
     // מצב-התמה נקבע פר-פוסט (postMode): light/dark כופים, auto עוקב אחרי המתג. עצמאי ממתג-האתר.
     <div data-theme={postMode} style={{ direction: "rtl", background: postMode === "dark" ? "transparent" : pc.bg, minHeight: "100vh", color: pc.ink }}>
@@ -4815,7 +4876,7 @@ function PostPageBySlug({ onNav }) {
       <div style={{ position: "relative" }}>
       {/* 📂 שער אור הגאולה — עמודת-צד שמאל (absolute) בשוליים הפנויים, מתחת ל-Hero. רוחב מהשוליים בלבד
           → לעולם לא חופף לתוכן; מוצג ≥1200px. */}
-      {wideSide && post && !loading && (
+      {sidebarOn && wideSide && post && !loading && (
         <aside className="post-og-side" style={{ position: "absolute", top: 0, left: 16, zIndex: 2,
           width: "min(330px, calc((100vw - 800px) / 2 - 28px))", overflowX: "hidden", direction: "rtl" }}>
           <style>{`.side-updates .lur-grid{grid-template-columns:1fr;max-width:none;gap:10px}.side-updates .lur-media{width:60px;flex-basis:60px}`}</style>
@@ -5135,14 +5196,14 @@ function PostPageBySlug({ onNav }) {
       </div>{/* /position:relative wrapper */}
       {/* 📂 שער אור הגאולה — במובייל נערם מתחת לתוכן הפוסט, מעל «עדכונים אחרונים»
           (אותו סדר כמו בעמודת-הצד בדסקטופ). לא לפני הפוסט (בקשת צוריאל). */}
-      {!wideSide && (
+      {sidebarOn && !wideSide && (
         <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px" }}>
           <MergedStoriesRail ogOnly limit={20} surface="POST_PAGE" />
         </div>
       )}
       {/* 📜 «עדכונים אחרונים» — נערם מתחת לתוכן ברוחב צר/מובייל (בדסקטופ רחב הוא בעמודת-הצד).
           אותו source/visibility בדיוק כמו הבית (homeUpdates). */}
-      {!wideSide && (
+      {sidebarOn && !wideSide && (
         <div className="side-updates" style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px 44px", direction: "rtl" }}>
           <LatestUpdatesPanel limit={10} />
         </div>

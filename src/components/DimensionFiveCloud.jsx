@@ -24,6 +24,7 @@ export default function DimensionFiveCloud() {
   const [idx, setIdx] = useState(0);
   const [desktop, setDesktop] = useState(false);
   const [hidden, setHidden] = useState(true);
+  const [atEnd, setAtEnd] = useState(false); // ⬇️ מופיע רק כשמגיעים לסוף העמוד (בקשת צוריאל)
   const paused = useRef(false);
 
   useEffect(() => {
@@ -50,7 +51,22 @@ export default function DimensionFiveCloud() {
     return () => clearInterval(t);
   }, []);
 
-  if (hidden || !desktop || isOpen) return null;
+  // ⬇️ מופיע רק כשהגולש מגיע לתחתית העמוד (בקשת צוריאל). מנעול חד-כיווני: משהגיע — נשאר.
+  useEffect(() => {
+    if (atEnd) return;
+    const NEAR = 220; // פיקסלים מהתחתית = «הגיע לסוף»
+    const check = () => {
+      const doc = document.documentElement;
+      const reached = window.innerHeight + window.scrollY >= (doc.scrollHeight - NEAR);
+      if (reached) setAtEnd(true);
+    };
+    check(); // עמוד קצר שכבר מגיע לתחתית → מציג מיד
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => { window.removeEventListener("scroll", check); window.removeEventListener("resize", check); };
+  }, [atEnd]);
+
+  if (hidden || !desktop || isOpen || !atEnd) return null;
   if (!posts || posts.length === 0) return null;
 
   const p = posts[idx % posts.length];
