@@ -14,6 +14,11 @@ const MESSAGES = [
   "המערכת ממשיכה להתפתח ולהיבנות — תוך כדי תנועה",
   "האתר בדרך לגרסה 2.0 🚀",
 ];
+
+// ⏳ הודעת-הבזק זמנית ל-24 שעות: מתווספת לראש הרוטציה עד TEMP_UNTIL, ואז נושרת לבד
+//   וחוזרים להודעות-הבנייה הרגילות (בקשת צוריאל). בדיקת-תאריך בצד-הלקוח — אפס תחזוקה.
+const TEMP_MSG = "💎 חדש בבנייה: מערכת הגימטריה המרחבית התלת-מימדית — כל רמז וכל ממצא מתחברים לצורה אחת";
+const TEMP_UNTIL = 1787903133000; // ~24 שעות (28.8.2026 ~06:25 UTC)
 const ROTATE_MS = 4600;
 const SLATS = 9; // מספר «שלבי-התריס»
 
@@ -26,7 +31,8 @@ export default function UpgradeTicker() {
     return () => clearInterval(t);
   }, []);
 
-  const cur = MESSAGES[idx % MESSAGES.length];
+  const list = useMemo(() => (Date.now() < TEMP_UNTIL ? [TEMP_MSG, ...MESSAGES] : MESSAGES), []);
+  const cur = list[idx % list.length];
   const slats = useMemo(() => Array.from({ length: SLATS }), []);
 
   // פלטת-צבע תמה-מודעת (זהב-מלכותי; בהיר = ניגודיות גבוהה וקריאה)
@@ -97,9 +103,9 @@ export default function UpgradeTicker() {
 
       {/* נקודות-מצב */}
       <span aria-hidden style={{ position: "absolute", insetInlineStart: 12, bottom: 3, display: "inline-flex", gap: 3 }}>
-        {MESSAGES.map((_, i) => (
-          <span key={i} style={{ width: i === (idx % MESSAGES.length) ? 12 : 5, height: 3, borderRadius: 999,
-            background: i === (idx % MESSAGES.length) ? accent : (isLight ? "rgba(109,78,11,.3)" : "rgba(246,207,106,.3)"),
+        {list.map((_, i) => (
+          <span key={i} style={{ width: i === (idx % list.length) ? 12 : 5, height: 3, borderRadius: 999,
+            background: i === (idx % list.length) ? accent : (isLight ? "rgba(109,78,11,.3)" : "rgba(246,207,106,.3)"),
             transition: "width .25s" }} />
         ))}
       </span>

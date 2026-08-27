@@ -53,12 +53,24 @@ function utm() {
   } catch { return null; }
 }
 
+// הקשר-ניסוי A/B פעיל ל-session (post_sidebar_v1) — נצמד לכל אירוע משעה שהמבקר נכנס
+// לניסוי (ראה פוסט), כדי ש«מעבר לעמוד שני» וכל מדד-משני יסונן לפי variant ישירות.
+// נקרא מ-sessionStorage (בלי import → אפס תלות-מעגלית עם postExperiment.js).
+function expCtx() {
+  try { const s = sessionStorage.getItem("sod_exp_ctx"); return s ? JSON.parse(s) : null; }
+  catch { return null; }
+}
+
 // emit(surface, eventType, opts?) — opts: {path, via, journeyId, depth, props}
 export function emit(surface, eventType, opts = {}) {
   if (!supabase) return;
   try {
     const country = vcCountry();
-    const props = country ? { ...(opts.props || {}), country } : (opts.props ?? null);
+    const ex = expCtx();
+    let props = opts.props ?? null;
+    if (country) props = { ...(props || {}), country };
+    // לא לדרוס אירוע-ניסוי מפורש (surface='post_exp' כבר נושא exp/variant בעצמו)
+    if (ex && surface !== "post_exp") props = { ...(props || {}), exp: ex.exp, variant: ex.variant };
     supabase.rpc("ingest_event", {
       p_sod_id: getSodId(),
       p_surface: surface,
