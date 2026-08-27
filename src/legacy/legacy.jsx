@@ -4972,11 +4972,11 @@ function PostPageBySlug({ onNav }) {
               {/* מרקרי-React בתוך הפוסט (אותו עץ — קישורים/פלטה/NumberDrawer עובדים):
                   • <div data-sod-gallery="N"></div>       → קרוסלת רמזים לפי ערך-ראשי
                   • <div data-sod-gallery-id="N"></div>    → גלריה שלמה לפי wp_gallery_id
-                  • <div data-spatial-reveal="KEY"></div>  → גימטריה מרחבית (SpatialGematriaReveal, spatialReveals.js)
+                  • <div data-spatial-reveal="REVEAL_ID"></div>  → גימטריה מרחבית (SpatialGematriaReveal, spatialReveals.js; המזהה = reveal_id יציב, לא slug)
                   ⛔ הפוסט אינו מכיל את מימוש-האנימציה — רק מרקר/ref. אם אין spec למפתח → המרקר נבלע (fallback רגיל). */}
               {(() => {
                 const src = String(content);
-                const re = /<div data-sod-gallery(-id)?="(\d+)"><\/div>|<div data-spatial-reveal="([a-z0-9-]+)"><\/div>/g;
+                const re = /<div data-sod-gallery(-id)?="(\d+)"><\/div>|<div data-spatial-reveal="([a-z0-9_-]+)"><\/div>/g;
                 const out = []; let last = 0, m, k = 0;
                 while ((m = re.exec(src)) !== null) {
                   const html = src.slice(last, m.index);
