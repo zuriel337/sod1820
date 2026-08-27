@@ -1,20 +1,18 @@
-// ===== גימטריה מרחבית — «הגיאומטריה של העץ» =====
-// ענף מחקר: כל רעיון עובר ארבע שכבות קבועות —
-//   1) הטקסט (פסוק/מאמר/רעיון)  2) הגימטריה (מאומת במנוע)  3) המבנה המתמטי  4) הצורה הגיאומטרית.
-// כל הערכים כאן אומתו מול src/lib/gematria.js (שיטת «רגיל»). fact = ממצא מאומת · midrash = רובד פרשני.
-// כל מודל חדש (כדור/פירמידה/ספירלה) פשוט מצטרף למערך — בלי לגעת בשלד. הכל מתכנס אל 1820 (שורש העץ).
+// ===== גימטריה מרחבית v2 — «הגיאומטריה של העץ» =====
+// Projection בלבד מעל Research OS / Reality Graph האחד.
+// שרשרת אמת: מקור → חילוץ → גימטריה מאומתת → נגזרת מתמטית → ייצוג מרחבי → פרשנות.
+// spatial metadata הוא חוזה v2; ה-renderer הישן ממשיך לצרוך cube/form/text/gematria/structure ללא שבירה.
 
 export const SPATIAL_FRAMEWORK = {
+  version: 2,
   title: "גימטריה מרחבית",
   subtitle: "הגיאומטריה של העץ",
-  intro: "לא רק מספר — מבנה. כאן מספר הופך לצורה, וצורה הופכת למשמעות. כל מודל עובר ארבע שכבות ומתחבר אל שורש אחד.",
-  // עמוד השדרה של המדור
+  intro: "לא רק מספר — מבנה. כל מודל הוא עדשה על אותו עץ מחקרי: מקור, ערכים מאומתים, נגזרת מתמטית, צורה ופרשנות נפרדת.",
   spine: [
-    { icon: "🌳", title: "העץ האחד", text: "מקור הרעיון — כל הישויות והמספרים הם גרף אחד." },
-    { icon: "📐", title: "הנדסה רוחנית", text: "הצורות שבהן הרעיונות מתגלים — קובייה, כדור, פירמידה, ספירלה." },
-    { icon: "⭐", title: "1820", text: "נקודת השורש — לב הסוד שאליו מתכנסים המודלים." },
+    { icon: "🌳", title: "העץ האחד", text: "הישויות והקשרים נשארים ב-Reality Graph האחד; המרחב הוא עדשה." },
+    { icon: "📐", title: "מבנה מאומת", text: "כמויות, אזורים ופעולות נשמרים עם provenance ולא כמספרים סתמיים." },
+    { icon: "⭐", title: "התכנסות", text: "מסלולים עצמאיים יכולים להתכנס לאותו ערך בלי להפוך אוטומטית לעובדה קנונית." },
   ],
-  // ארבע השכבות הקבועות של כל מחקר
   layers: [
     { key: "text",      icon: "📖", title: "הטקסט" },
     { key: "gematria",  icon: "🔢", title: "הגימטריה — מאומת במנוע" },
@@ -23,6 +21,8 @@ export const SPATIAL_FRAMEWORK = {
   ],
 };
 
+const source = (...refs) => ({ contributor: "צבי", refs });
+
 export const SPATIAL_MODELS = [
   {
     slug: "hashgacha-pratit-1020",
@@ -30,29 +30,19 @@ export const SPATIAL_MODELS = [
     title: "קוביית טוב — השגחה פרטית",
     subtitle: "שמירה דרך הטוב",
     value: 1020,
-    // שכבה 1 — הטקסט
-    text: {
-      quote: "וַיַּרְא אֱלֹהִים אֶת הָאוֹר כִּי טוֹב",
-      ref: "בראשית א, ד",
-    },
-    // שכבה 2 — הגימטריה (מאומת במנוע «רגיל»)
+    text: { quote: "וַיַּרְא אֱלֹהִים אֶת הָאוֹר כִּי טוֹב", ref: "בראשית א, ד" },
     gematria: [["טוב", 17], ["אמונה", 102], ["השגחה פרטית", 1020]],
-    // שכבה 3 — המבנה המתמטי
-    structure: [
-      "6 פאות × 10 «טוב» = 60",
-      "60 × 17 = 1020",
-      "1020 = השגחה פרטית = אמונה × 10",
-    ],
-    // שכבה 4 — הצורה (הגדרת הקובייה האינטראקטיבית)
-    cube: {
-      faceWord: "טוב", cols: 2, rows: 5, mode: "multiply", unit: 17,
-      finalTitle: "הַשְׁגָּחָה פְּרָטִית", finalValue: 1020,
-      reveal: [{ k: "60 × 17", big: false }, { k: "1020", big: true }, { k: "השגחה פרטית", label: true }],
+    structure: ["6 פאות × 10 «טוב» = 60", "60 × 17 = 1020", "1020 = השגחה פרטית = אמונה × 10"],
+    spatial: {
+      shapeIdentity: "cube", dimension: "3d",
+      structuralProperties: [{ key: "faces", value: 6, provenance: "cube geometry" }],
+      assignments: [{ target: "each_face", expression: "טוב", repetitionsPerPart: 10, value: 17 }],
+      operations: [{ operationKey: "multiply", expression: "6 × 10 × 17", result: 1020 }],
+      provenance: source("legacy-spatial-model/hashgacha-pratit-1020"),
     },
+    cube: { faceWord: "טוב", cols: 2, rows: 5, mode: "multiply", unit: 17, finalTitle: "הַשְׁגָּחָה פְּרָטִית", finalValue: 1020, reveal: [{ k: "60 × 17", big: false }, { k: "1020", big: true }, { k: "השגחה פרטית", label: true }] },
     midrash: "מעטפת אור המקיפה את האדם מ-6 הכיוונים; השמירה דרך מידת ה«טוב». «אמונה × 10» = האמונה המתפשטת בעשר הספירות.",
-    image: "/hashgacha-pratit-1020-cube.jpg",
-    postSlug: "hashgacha-pratit-1020",
-    to1820: null,
+    image: "/hashgacha-pratit-1020-cube.jpg", postSlug: "hashgacha-pratit-1020", to1820: null,
   },
   {
     slug: "raza-deshabbat-910",
@@ -60,27 +50,19 @@ export const SPATIAL_MODELS = [
     title: "קוביית אחד — רזא דשבת",
     subtitle: "שמירה דרך האחדות",
     value: 910,
-    text: {
-      quote: "אַתָּה אֶחָד וְשִׁמְךָ אֶחָד וּמִי כְּעַמְּךָ גּוֹי אֶחָד",
-      ref: "נוסח מנחת שבת · «שָׂרִית» = ברכת המלאך ליעקב במעבר יבוק, מקור השם «ישראל»",
-    },
+    text: { quote: "אַתָּה אֶחָד וְשִׁמְךָ אֶחָד וּמִי כְּעַמְּךָ גּוֹי אֶחָד", ref: "נוסח מנחת שבת · «שָׂרִית» = ברכת המלאך ליעקב במעבר יבוק" },
     gematria: [["רזא", 208], ["שבת", 702], ["סוד", 70], ["אחד", 13], ["שרית", 910], ["יהוה", 26]],
-    structure: [
-      "רזא (208) + שבת (702) = 910",
-      "סוד (70) × אחד (13) = 910   ← הסכום שווה למכפלה",
-      "910 = שרית (מקור «ישראל»)",
-      "שבת = 54 × אחד = 27 × יהוה (27 הוויות)",
-      "שרית + שרית = 1820 = סוד × יהוה (70 × 26)",
-    ],
-    cube: {
-      faceWord: "אחד", cols: 3, rows: 3, mode: "surround", unit: 13,
-      finalTitle: "שָׂרִית", finalValue: 910,
-      reveal: [{ k: "רזא + שבת = סוד × אחד", big: false }, { k: "910", big: true }, { k: "שרית", label: true }],
+    structure: ["רזא (208) + שבת (702) = 910", "סוד (70) × אחד (13) = 910", "910 = שרית", "שרית + שרית = 1820 = סוד × יהוה (70 × 26)"],
+    spatial: {
+      shapeIdentity: "cube", dimension: "3d",
+      structuralProperties: [{ key: "directions", value: 6, provenance: "cube directions / source interpretation" }],
+      assignments: [{ target: "all_directions", expression: "אחד", value: 13 }],
+      operations: [{ operationKey: "convergence", expression: "רזא+שבת = סוד×אחד", result: 910 }],
+      provenance: source("channel_updates:a6805e30-21e0-4315-8f35-70b1bfdb0d14"),
     },
-    midrash: "מעטפת אחדות המקיפה את עם ישראל מ-6 הכיוונים; מהות השבת — «גוי אחד» כנגד «אתה אחד». «שרית» היא השם ישראל בברכה.",
-    image: "/raza-deshabbat-910-cube.jpg",
-    postSlug: "raza-deshabbat-910",
-    to1820: "שרית + שרית = 1820 = סוד × יהוה",
+    cube: { faceWord: "אחד", cols: 3, rows: 3, mode: "surround", unit: 13, finalTitle: "שָׂרִית", finalValue: 910, reveal: [{ k: "רזא + שבת = סוד × אחד", big: false }, { k: "910", big: true }, { k: "שרית", label: true }] },
+    midrash: "מעטפת אחדות המקיפה את עם ישראל מ-6 הכיוונים; מהות השבת — «גוי אחד» כנגד «אתה אחד».",
+    image: "/raza-deshabbat-910-cube.jpg", postSlug: "raza-deshabbat-910", to1820: "שרית + שרית = 1820 = סוד × יהוה",
   },
   {
     slug: "keter-esrimon-620",
@@ -88,31 +70,100 @@ export const SPATIAL_MODELS = [
     title: "עשרימון הכתר — עשרים «אל»",
     subtitle: "הכתר כצורה מרחבית",
     value: 620,
-    // שכבה 1 — הטקסט (השבת כמעין עולם-הבא, הדרך אל הכתר)
-    text: {
-      quote: "אִלְמָלֵי מְשַׁמְּרִין יִשְׂרָאֵל שְׁתֵּי שַׁבָּתוֹת כְּהִלְכָתָן — מִיָּד נִגְאָלִין",
-      ref: "שבת קיח:",
-    },
-    // שכבה 2 — הגימטריה (כל הערכים אומתו במנוע «רגיל»: fn_ragil)
+    text: { quote: "אִלְמָלֵי מְשַׁמְּרִין יִשְׂרָאֵל שְׁתֵּי שַׁבָּתוֹת כְּהִלְכָתָן — מִיָּד נִגְאָלִין", ref: "שבת קיח:" },
     gematria: [["אל", 31], ["עשרים", 620], ["כתר", 620], ["כרמים", 310], ["כתר עליון", 786], ["הארת פנים", 786]],
-    // שכבה 3 — המבנה המתמטי
-    structure: [
-      "עשרימון משוכלל = 20 פאות",
-      "על כל פאה «אל» = 31",
-      "20 × 31 = 620",
-      "620 = כתר = עשרים",
-      "כרמים (310) × 2 = 620 = כתר",
-      'תשפ"ו (786) = כתר עליון = הארת פנים',
-    ],
-    // שכבה 4 — הצורה (עשרימון אינטראקטיבי: 20 פאות «אל», כל הארה +31 עד 620)
-    cube: {
-      shape: "icosa", faceWord: "אל", cols: 1, rows: 1, mode: "multiply", unit: 31,
-      finalTitle: "כֶּתֶר", finalValue: 620,
-      reveal: [{ k: "20 × 31", big: false }, { k: "620", big: true }, { k: "כתר = עשרים", label: true }],
+    structure: ["עשרימון משוכלל = 20 פאות", "על כל פאה «אל» = 31", "20 × 31 = 620", "620 = כתר = עשרים", "כרמים (310) × 2 = 620 = כתר"],
+    spatial: {
+      shapeIdentity: "icosahedron", dimension: "3d",
+      structuralProperties: [{ key: "faces", value: 20, provenance: "icosahedron geometry" }],
+      assignments: [{ target: "each_face", expression: "אל", value: 31 }],
+      operations: [{ operationKey: "multiply", expression: "20 × 31", result: 620 }],
+      provenance: source("channel_updates:9a2ebafc-592a-4bd3-9ab6-f0edf2b086f5", "channel_updates:beb34cf8-de31-413e-af6e-73efabceda24"),
     },
-    midrash: "העשרימון — מן הגופים הסימטריים ביותר בטבע — נושא על עשרים פאותיו את השם «אל», והכתר מתגלה כצורה. «כרם» (260) הוא שלב ההכנה והצמיחה, ו«כתר» (620) השלמות שאליה שואפים; השבת, «מעין עולם הבא», היא הדרך אל הכתר.",
-    image: null,
-    postSlug: "keter-esrimon-620",
-    to1820: null,
+    cube: { shape: "icosa", faceWord: "אל", cols: 1, rows: 1, mode: "multiply", unit: 31, finalTitle: "כֶּתֶר", finalValue: 620, reveal: [{ k: "20 × 31", big: false }, { k: "620", big: true }, { k: "כתר = עשרים", label: true }] },
+    midrash: "העשרימון נושא על עשרים פאותיו את השם «אל», והכתר מתגלה כצורה; המשמעות הרוחנית נשארת רובד פרשני נפרד.",
+    image: null, postSlug: "keter-esrimon-620", to1820: null,
+  },
+  {
+    slug: "matamim-cube-1254",
+    form: "קובייה",
+    title: "קוביית מטעמים — 6 × 209",
+    subtitle: "כמות גיאומטרית וכמות קורפוס מתכנסות לאותו 6",
+    value: 1254,
+    text: { quote: "הַדַּעַת טוֹב וָרָע לֹא תֹאכַל", ref: "ממצא צבי · מקור WhatsApp, 7.8.2026" },
+    gematria: [["מטעמים", 209], ["הדעת טוב ורע לא תאכל", 1254], ["ושכנתי בתוכם", 1254]],
+    structure: ["קובייה = 6 פאות", "מטעמים = 209", "6 × 209 = 1254", "1254 = הדעת טוב ורע לא תאכל = ושכנתי בתוכם", "SOURCE CLAIM: «מטעמים» מופיעה 6 פעמים בבראשית — corpus-count דורש/נושא provenance עצמאי"],
+    spatial: {
+      shapeIdentity: "cube", dimension: "3d",
+      structuralProperties: [{ key: "faces", value: 6, provenance: "cube geometry" }],
+      assignments: [{ target: "each_face", expression: "מטעמים", value: 209 }],
+      operations: [{ operationKey: "multiply", expression: "6 × 209", result: 1254 }],
+      convergences: [{ value: 1254, paths: ["cube.faces × מטעמים", "הדעת טוב ורע לא תאכל", "ושכנתי בתוכם"] }],
+      provenance: source("channel_updates:71662e56-24dd-4a4a-8dea-b615d636b509", "channel_updates:14d5652b-55b2-4bf7-9184-049b1afb94a0"),
+    },
+    cube: { faceWord: "מטעמים", cols: 1, rows: 1, mode: "multiply", unit: 209, finalTitle: "1254", finalValue: 1254, reveal: [{ k: "6 × 209", big: false }, { k: "1254", big: true }, { k: "מטעמים", label: true }] },
+    midrash: "צבי מפרש את «מטעמים» כתהליך תיקון מול עץ הדעת. זהו רובד פרשני; השוויונות והכפל מוצגים בנפרד כעובדות חישוביות.",
+    image: null, postSlug: null, to1820: null,
+  },
+  {
+    slug: "yesharim-cube-3060",
+    form: "קובייה + מחומש",
+    title: "3060 — קוביית ישר והתכנסות המחומש",
+    subtitle: "Golden specimen של multi-path spatial convergence",
+    value: 3060,
+    text: { quote: "יָשָׁר", ref: "קורפוס צבי · 10–25.8.2026" },
+    gematria: [["ישר", 510], ["ברית", 612], ["טוב", 17], ["השגחה פרטית", 1020]],
+    structure: ["קובייה: ישר (510) × 6 = 3060", "מחומש חיצוני: ברית (612) × 5 = 3060", "מחומש פנימי: טוב (17) × 180 = 3060", "4 משולשים פנימיים: 765 × 4 = 3060", "שלושת האבות: השגחה פרטית (1020) × 3 = 3060"],
+    spatial: {
+      shapeIdentity: "compound: cube + pentagon + nested triangles", dimension: "mixed",
+      structuralProperties: [
+        { key: "cube_faces", value: 6, provenance: "cube geometry" },
+        { key: "pentagon_outer_parts", value: 5, provenance: "source diagram" },
+        { key: "inner_good_units", value: 180, provenance: "source claim/diagram" },
+        { key: "inner_triangles", value: 4, provenance: "source diagram" },
+        { key: "patriarch_count", value: 3, provenance: "source semantic quantity" },
+      ],
+      // sides = panel-count of the ring itself (a geometric fact about the region's shape — every
+      // pentagon-ring has 5 panels regardless of what value is written on them); quantity = the
+      // arithmetic multiplier for that region's convergence path (5 for outer, but 180 for inner —
+      // the two numbers are NOT the same thing and must not be conflated by the renderer).
+      regions: [
+        { id: "outer", role: "outer_pentagon", assignment: "ברית", quantity: 5, sides: 5 },
+        { id: "inner", role: "inner_pentagon", assignment: "טוב", quantity: 180, sides: 5 },
+        { id: "triangles", role: "nested_triangles", assignment: "765", quantity: 4 },
+      ],
+      operations: [
+        { operationKey: "multiply", expression: "510 × 6", result: 3060 },
+        { operationKey: "multiply", expression: "612 × 5", result: 3060 },
+        { operationKey: "multiply", expression: "17 × 180", result: 3060 },
+        { operationKey: "multiply", expression: "765 × 4", result: 3060 },
+        { operationKey: "multiply", expression: "1020 × 3", result: 3060 },
+      ],
+      convergences: [{ value: 3060, independentPaths: 5 }],
+      provenance: source("channel_updates:e68793a9-a7ae-46a5-8023-ca209dd8a65f", "channel_updates:39d0dba8-9fa1-4743-9ebc-4f7d5c155a0b", "channel_updates:64155afc-c205-42a8-8e74-0315ab93cda6", "channel_updates:94be5c72-3042-4c61-8fe7-134ce57b3edc"),
+    },
+    cube: { faceWord: "ישר", cols: 1, rows: 1, mode: "multiply", unit: 510, finalTitle: "3060", finalValue: 3060, reveal: [{ k: "6 × 510", big: false }, { k: "3060", big: true }, { k: "5 מסלולים", label: true }] },
+    midrash: "צבי מפרש את ההתכנסות כמעטפת ברית, חסד וזכות אבות. Spatial v2 שומר את הפרשנות בנפרד מחמשת מסלולי החישוב.",
+    image: null, postSlug: null, to1820: null,
+  },
+  {
+    slug: "emunah-cube-612",
+    form: "קובייה",
+    title: "קוביית אמונה — 6 × 102",
+    subtitle: "אמונה מכל ששת הכיוונים",
+    value: 612,
+    text: { quote: "אֱמוּנָה", ref: "ממצא צבי · 15.8.2026" },
+    gematria: [["אמונה", 102], ["תלמידי חכמים", 612], ["ברית", 612]],
+    structure: ["קובייה = 6 כיוונים/פאות", "אמונה = 102", "6 × 102 = 612", "612 = תלמידי חכמים = ברית"],
+    spatial: {
+      shapeIdentity: "cube", dimension: "3d",
+      structuralProperties: [{ key: "directions", value: 6, labels: ["צפון", "דרום", "מזרח", "מערב", "למעלה", "למטה"], provenance: "source-declared orientation" }],
+      assignments: [{ target: "each_direction", expression: "אמונה", value: 102 }],
+      operations: [{ operationKey: "multiply", expression: "6 × 102", result: 612 }],
+      provenance: source("channel_updates:aa5276b4-6246-4334-8d96-5e8111ccff0c", "channel_updates:710edaf6-440a-4e40-931c-b1626503d744"),
+    },
+    cube: { faceWord: "אמונה", cols: 1, rows: 1, mode: "multiply", unit: 102, finalTitle: "612", finalValue: 612, reveal: [{ k: "6 × 102", big: false }, { k: "612", big: true }, { k: "תלמידי חכמים", label: true }] },
+    midrash: "המקור מפרש את ששת הכיוונים כמעטפת אמונה ושמירה. הכפל והשוויונות מאומתים בנפרד מן הפרשנות.",
+    image: null, postSlug: null, to1820: null,
   },
 ];
