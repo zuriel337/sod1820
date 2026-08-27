@@ -48,8 +48,9 @@ function useLiveTicker() {
         for (const c of (ch || [])) {
           const raw = stripHtml(c.text || "").replace(/\s+/g, " ").trim();
           if (!raw) continue;
-          const text = (c.credit ? `${c.credit}: ` : "") + raw;
-          items.push({ kind: "news", text: text.slice(0, 90), to: c.link_url || "/broadcasts", ts: c.created_at });
+          // ההודעה קודם, הקרדיט כסיומת קצרה — כדי שבמובייל (חיתוך) יראו את התוכן, לא רק את השם.
+          const text = raw.slice(0, 110) + (c.credit ? ` — ${c.credit}` : "");
+          items.push({ kind: "news", text, to: c.link_url || "/broadcasts", ts: c.created_at });
         }
       } catch { /* ignore */ }
 
@@ -136,6 +137,7 @@ export default function LiveActivityBar() {
           animation: lt-fade .5s ease; }
         .lt-txt { min-width:0; display:inline-flex; align-items:center;
           white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lt-t { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         /* «לפני X» — צ׳יפ זמן-יחסי שתמיד נראה (flex:none), לא נחתך עם הכותרת */
         .lt-time { flex:none; font-size:11px; font-weight:600; opacity:.8; color:${barAccent};
           white-space:nowrap; }
@@ -148,10 +150,15 @@ export default function LiveActivityBar() {
         /* 🌳 «מה חדש» — מיושר לקצה-השמאלי של המיכל (= סוף התפריט), מרוחק מציר-ההתגלות שיושב במרווח שמשמאל */
         .lt-wn { position:absolute; inset-inline-end:6px; top:50%; transform:translateY(-50%); pointer-events:auto; z-index:6; }
         @media (max-width: 640px) {
-          .lt-inner { padding:0 16px 0 78px; }
+          /* 📱 מובייל: הרצועה נותנת לתוכן כמעט את כל הרוחב, וההודעה נשברת עד 2 שורות
+             (במקום חיתוך לשם-הכתב בלבד). «עכשיו באתר» מוסתר; «מה חדש» מוקטן בצד. */
+          .lt-bar { padding:6px 10px; }
+          .lt-inner { padding:0 8px 0 50px; min-height:34px; }
           .lt-badge { display:none; }
-          .lt-msg { font-size:11px; }
-          .lt-wn { inset-inline-end:8px; }
+          .lt-msg { font-size:11.5px; align-items:center; flex-wrap:wrap; justify-content:center; }
+          .lt-txt { white-space:normal; }
+          .lt-t { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.3; }
+          .lt-wn { inset-inline-end:6px; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }
       `}</style>
@@ -169,8 +176,8 @@ export default function LiveActivityBar() {
             {cur && (
               <div className="lt-msg" key={idx}>
                 <Link className="lt-txt" to={cur.to || "/"} style={{ textDecoration: "none", color: "inherit" }}>
-                  <span aria-hidden style={{ marginInlineEnd: 6 }}>{KIND_ICON[cur.kind] || "✦"}</span>
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cur.text}</span>
+                  <span aria-hidden style={{ marginInlineEnd: 6, flex: "none" }}>{KIND_ICON[cur.kind] || "✦"}</span>
+                  <span className="lt-t">{cur.text}</span>
                   <b style={{ color: barAccent, marginInlineStart: 6 }}>←</b>
                 </Link>
                 {cur.ts && <span className="lt-time" title="מתי עלה לטיקר">· {timeAgoHe(cur.ts)}</span>}
