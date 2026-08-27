@@ -18,7 +18,6 @@ import { useStream, setStream, STREAMS } from "../../lib/stream.js";
 import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
-import WritersRail from "../WritersRail.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
 
 // 🧩 hook נגיש לתפריטים-נפתחים: נפתח בריחוף (עכבר) *וגם* בקליק (מקלדת/מגע), נסגר
@@ -42,8 +41,6 @@ function useAccessibleMenu() {
   return { open, setOpen, ref, hoverProps };
 }
 
-// 👥 רשימת-הכתבים = רכיב קנוני WritersRail (variant="chrome") — מוצג במגירת-המובייל,
-//    בפאנל-התפריט בדסקטופ, וגם בעמוד «קהילה». מקור-אמת אחד, בלי שכפול.
 
 // 🔍 סמל מותאם לדילוגי-אותיות. המשמעות: שלוש אותיות עבריות (א־ב־ג = הטקסט) + קו-דילוג
 // אלכסוני דק ביניהן (הדילוג) + זכוכית-מגדלת קטנה (מחקר). האותיות ב-currentColor → מקבלות
@@ -76,7 +73,6 @@ const moreItems = [
   { label: "דף הבית", emoji: "🏠", to: "/" },
   ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
   { label: "צ'אט", emoji: "💬", to: "/community/chat" },
-  { label: "הכתבים והחוקרים", emoji: "👥", to: "/community/researchers" },
   { label: "צור קשר", emoji: "✉️", to: "/contact" },
 ];
 
@@ -373,9 +369,6 @@ function MenuPanel({ items, pathname, cc }) {
               </button>
             )}
           </div>
-          {/* 👥 רשימת-הכתבים — זהה למובייל ולעמוד «קהילה» (variant=page → עוקב אחר תמת-הפאנל) */}
-          <div style={{ height: 1, background: pc.tileBorder, margin: "16px 4px 2px" }} />
-          <WritersRail variant="page" wrap onNavigate={() => setOpen(false)} style={{ margin: "10px 2px 2px" }} />
         </div>
       )}
     </div>
@@ -780,8 +773,6 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          {/* 👥 רשימת-הכתבים — רכיב קנוני (זהה לדסקטופ ולעמוד קהילה) */}
-          <WritersRail variant="chrome" onNavigate={() => setDrawer(false)} />
           {/* סגירת התפריט — שורה תחתונה קומפקטית (טקסט, לא אריחים): צור קשר · הורדת האפליקציה */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap", padding: "14px 8px 4px", marginTop: 10, borderTop: `1px solid ${cc.border}` }}>
             <Link to="/contact" onClick={() => setDrawer(false)} style={{

@@ -18,7 +18,6 @@ export const NAV = [
     label: "קהילה", emoji: "💬", to: "/community", children: [
       { label: "🌐 פורום המחקר", to: "/forum" },
       { label: "צ'אט", to: "/community/chat" },
-      { label: "הכתבים והחוקרים", to: "/community/researchers" },
       { label: "מחשבון קהילתי", to: "/community/calculator" },
       { label: "מחשבון מקצועי", to: "/research?tool=gematria" },
       { label: "תגובות", to: "/community/comments" },
