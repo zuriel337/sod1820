@@ -242,6 +242,11 @@ export default function AdminPage() {
           display: "inline-block", marginTop: 14, background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
           padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 800, letterSpacing: 1,
         }}>✍️ פוסט חדש — עורך מתקדם + AI</a>
+        <a href="/research-viewer" style={{
+          display: "inline-block", marginTop: 14, marginRight: 10, background: "transparent", color: C.goldBright,
+          padding: "9px 20px", borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, letterSpacing: 0.5,
+          border: `1px solid ${C.borderGold}`,
+        }}>🔬 Research Viewer v0</a>
       </div>
 
       <PulseBar goto={gotoTab} />

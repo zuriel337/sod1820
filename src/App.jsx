@@ -92,6 +92,7 @@ const GalleryPage = React.lazy(() => import("./pages/GalleryPage.jsx"));
 const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
 const PostEditorPage = React.lazy(() => import("./pages/PostEditorPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
+const ResearchViewerV0Page = React.lazy(() => import("./components/admin/ResearchViewerV0Page.jsx")); // 🔬 Research Viewer v0 — פנימי, לא-מקושר, admin gate ברכיב עצמו
 const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
@@ -275,6 +276,8 @@ export default function App() {
           <Route path="/research" element={<ResearchPage />} />
           {/* 🧪 מעבדה להבנת משמעות — דף פרטי חבוי (מסך נקי, בלי צ'רום). לא מקושר בשום מקום. */}
           <Route path="/meaning-lab" element={<MeaningLabPage />} />
+          {/* 🔬 Research Viewer v0 — Projection בלבד, פנימי לא-מקושר. אדמין-גייט ברכיב עצמו. מחוץ ל-/admin/ (honeypot Vercel תופס /admin/(.*)). */}
+          <Route path="/research-viewer" element={<ResearchViewerV0Page />} />
           <Route path="/מעבדת-משמעות" element={<MeaningLabPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />
