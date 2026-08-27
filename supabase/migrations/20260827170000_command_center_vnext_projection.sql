@@ -28,7 +28,7 @@ set search_path = public
 as $$
   with admin_ok as (
     select exists(select 1 from public.users u where u.id=auth.uid() and u.role='admin') ok
-  ), raw as (
+  ), raw(attention_key,source_type,source_ref,source_group,actor_name,title,body,context_label,context_ref,created_at,status,available_actions,metadata) as (
     select
       'comment:'||c.id::text attention_key,
       'comment'::text source_type, c.id::text source_ref,
