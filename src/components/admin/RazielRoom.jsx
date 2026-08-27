@@ -205,7 +205,7 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
         <div style={{ flex: 1, minWidth: 160 }}>
           <div style={{ color: razielAccent, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>חדר רזיאל — עוזר חדר המפקדה</div>
           <div style={{ color: T.muted, fontFamily: F.body, fontSize: 12 }}>
-            {digestTotal != null ? <>יש כרגע <b style={{ color: T.goldLight }}>{digestTotal}</b> {attentionDigest?.scope === "selected" ? "פריטים נבחרים" : "פריטים בתור"}{filtersActive ? " (מסונן)" : ""} — «סכם לי» / «קבץ לי» / «מצא כפילויות» / «מה קודם?». </> : ""}
+            {digestTotal != null ? <>יש כרגע <b style={{ color: T.goldLight }}>{digestTotal}</b> {attentionDigest?.scope === "selected" ? "פריטים נבחרים" : "פריטים בתור"}{attentionDigest?.scope_note ? ` (${attentionDigest.scope_note})` : filtersActive ? " (מסונן)" : ""} — «סכם לי» / «קבץ לי» / «מצא כפילויות» / «מה קודם?». </> : ""}
             למספר-ספציפי: «חקור לי 321» · «אשר 321» / «דחה 665» / «שלח 424 לשופט».
           </div>
         </div>
@@ -276,7 +276,7 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
             <div style={{ background: tint3, border: `1px solid ${T.border}`, borderRadius: 8, padding: "9px 11px", marginTop: 6, fontFamily: F.body, fontSize: 11.5, color: goldDim, lineHeight: 1.7 }}>
               {snap.mode === "attention" ? (<>
                 <div>🧠 מוח: <b>raziel_brain#1</b> · מצב: עוזר-קשב (profile={snap.profile || "ZURIEL_RESEARCH"})</div>
-                <div>📊 digest: {snap.digest_total ?? "—"} פריטים · scope={snap.digest_scope || "filtered"} · דוגמית {snap.digest_sample_count ?? "—"}</div>
+                <div>📊 digest: {snap.digest_total ?? "—"} פריטים · scope={snap.digest_scope || "filtered"}{snap.digest_scope_note ? ` (${snap.digest_scope_note})` : ""} · דוגמית {snap.digest_sample_count ?? "—"}</div>
                 <div>🎯 תחומים שזוהו: {(snap.domains_detected || []).join(" · ") || "—"}</div>
                 <div>📏 חוקים-חיים-רלוונטיים שנשלפו (nodes, לא-רשימה-קבועה): {(snap.rules_used || []).length ? snap.rules_used.map(r => `${r.rule_id}(${r.score})`).join(" · ") : "—"}</div>
                 <div>⚙️ מודל: {snap.model || "—"}</div>

@@ -36,7 +36,7 @@ import { getHandledMap, markHandled, unmarkHandled } from "../lib/handled.js";
 import {
   CORE_WRITERS, orderWriters, ROUTES, destinations, fallbackTier,
   normStatus, statusOptions, structuralExtract, actionState, ACT_STATE, whatMissing, sortItems,
-  buildAttentionDigest,
+  buildAttentionDigest, computeSignals, reconcileNewVsAttention,
 } from "../lib/ccwork.js";
 import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import AiAnalyze from "./AiAnalyze.jsx";
@@ -635,6 +635,9 @@ const hasImg = (it) => !!it?.img || /https?:\/\/\S+\.(?:jpg|jpeg|png|webp|gif)/i
 
 function matchesFilters(it, f) {
   if (!f) return true;
+  // Pass 1C-Closure §2/§4 · Drill-down כללי לפי מזהים-יציבים (Set<key>) — לא סינון-שדה, אלא
+  // "בדיוק הפריטים האלה שהמונה סופר". מרחיב את matchesFilters הקיים (reuse, לא מקביל).
+  if (f.ids && !f.ids.has(it.key)) return false;
   const w = it.writer;
   const canon = w?.canonical?.display_name || w?.contributor?.display_name;
   if (f.writer) {
@@ -664,9 +667,11 @@ function matchesFilters(it, f) {
 }
 // פאסטים-פעילים כצ'יפים ניתנים-להסרה + ניקוי-כללי.
 function FilterBar({ filters, onClear, onRemove }) {
-  const keys = Object.keys(filters || {}).filter((k) => filters[k] != null && filters[k] !== "");
+  // "ids"/"idsLabel" זוג-שדות (drill-down כללי, §2/§4) — idsLabel לא-מוצג כצ'יפ נפרד, רק כתווית של ids.
+  const keys = Object.keys(filters || {}).filter((k) => k !== "idsLabel" && filters[k] != null && filters[k] !== "");
   if (!keys.length) return null;
   const label = (k, v) => {
+    if (k === "ids") return `🔎 ${filters.idsLabel || `${v.size} פריטים נבחרים`}`;
     if (v === true) return FACET_HE[k] || k;                       // צ'יפ-toggle (מכיל-מספר/נותח/…)
     if (k === "srckind") return SRCKIND_HE[v] || v;
     if (k === "channel") return CHANNEL_HE[v] || v;
@@ -677,7 +682,7 @@ function FilterBar({ filters, onClear, onRemove }) {
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "2px 0" }}>
       <span style={{ color: C.faint, fontSize: 11 }}>🔎 פעיל:</span>
       {keys.map((k) => (
-        <span key={k} onClick={() => onRemove(k)} style={{ ...pill(C.goldBright), cursor: "pointer" }} title="הסר פילטר">{label(k, filters[k])} ✕</span>
+        <span key={k} onClick={() => { onRemove(k); if (k === "ids") onRemove("idsLabel"); }} style={{ ...pill(k === "ids" ? "#3ea6ff" : C.goldBright), cursor: "pointer", fontWeight: k === "ids" ? 900 : 800 }} title={k === "ids" ? "חזרה לכל התור" : "הסר פילטר"}>{label(k, filters[k])} ✕</span>
       ))}
       <button onClick={onClear} style={chip(false)}>נקה הכל</button>
     </div>
@@ -2253,9 +2258,12 @@ export default function WarRoomTab() {
   }, [handled]);
   // 👑 hideSelf חל רק על «עכשיו» (Incoming/Attention) — «כל האוצר» (History/Archive, mode==="treasure")
   // תמיד רואה הכל, וגם ב-«עכשיו» בחירה מפורשת של פילטר-הכתב ZURIEL עוקפת את ההסתרה (Rank-Don't-Hide).
+  // Pass 1C-Closure §2 · כשיש drill-down מפורש (filters.ids) — count=drilldown חייב להיות מדויק:
+  // הצג בדיוק את ה-ids, בלי showHandled/hideSelf לגזור עוד פריטים בשקט (matchesFilters כבר מסנן
+  // ל-ids בלבד ממילא — אלה רק שני תנאים נוספים שהיו עלולים לצמצם מתחת למה שהמונה הבטיח).
   const pass = useCallback((it) =>
-    matchesFilters(it, filters) && (showHandled || !it.handled) &&
-    (!hideSelf || mode !== "now" || filters.writer === "__ZURIEL__" || !isZuriel(it)),
+    matchesFilters(it, filters) && (!!filters.ids || showHandled || !it.handled) &&
+    (!!filters.ids || !hideSelf || mode !== "now" || filters.writer === "__ZURIEL__" || !isZuriel(it)),
     [filters, showHandled, hideSelf, mode]);
   // CC-1.3 · רשימות מסוננות+ממויינות (Rank-Don't-Hide: פילטר=מיקוד; «שטופל» יוצא רק מתור-העבודה האישי).
   const liveAf = useMemo(() => sortItems((liveA || []).map(withH).filter(pass), sort), [liveA, withH, pass, sort]);
@@ -2287,10 +2295,11 @@ export default function WarRoomTab() {
   // 🎛️ Pass 1B §3: digest חסום עבור רזיאל — מעל shown (כבר מכבד hideSelf/filters/showHandled).
   // אין fetch נוסף כאן — רק צבירה/דגימה מעל מה שכבר טעון. Pass 1C §16-17: זו הפרוסה "FILTERED";
   // razielDigest (למטה, אחרי selItems) בוחר בין SELECTED/FILTERED — היטלים (projections) על אותו live set.
-  const filteredDigest = useMemo(() => buildAttentionDigest(shown, { mode, filters, hideSelf }), [shown, mode, filters, hideSelf]);
+  // Pass 1C-Closure §10 · scopeNote = תיאור-הקבוצה-הנוכחית (מ-drillTo, אם פעיל) — כדי שרזיאל ידע
+  // "אני מסתכל כרגע על X מתוך Y" בלי store חדש, רק runtime-context שכבר עובר דרך ה-digest הקיים.
+  const filteredDigest = useMemo(() => buildAttentionDigest(shown, { mode, filters, hideSelf, scopeNote: filters.idsLabel || null }), [shown, mode, filters, hideSelf]);
   // מונה-התור החי: מועמדים שלא-שוטפלו (יורד כשסוגרים פריט מהתור). לא תלוי בפילטר — עומק-התור האמיתי.
   const pendingCand = useMemo(() => (candidates || []).map(withH).filter(c => !c.handled), [candidates, withH]);
-  const openAllCandidates = () => { setMode("now"); setFilters({}); setShowHandled(false); setCandExpanded(true); setTimeout(() => candRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); };
   // 📊 מונים עקביים — נגזרים מהנתונים הטעונים + מפת handled (אין DB, אין schema).
   // נכנס = כל מה שנטען · טופל = כמה מהם handled · ממתין = נכנס − טופל. Rank-Don't-Hide: החומר לא נמחק.
   const countHandled = useCallback((list) => (list || []).reduce((n, i) => n + (handled.has(i.key) ? 1 : 0), 0), [handled]);
@@ -2301,11 +2310,25 @@ export default function WarRoomTab() {
     const entered = aE + cE, handledN = aH + cH;
     return { entered, handledN, waiting: entered - handledN, judging: pendingCand.length, aE, aWait: aE - aH };
   }, [liveA, candidates, countHandled, pendingCand.length]);
+  // Pass 1C-Closure §1/§2/§5 · אותו universe בדיוק שממנו נגזר stats.waiting (raw liveA∪candidates,
+  // ללא filters/hideSelf) — כדי ש"195 ממתינים" יהיה ניתן ל-drill-down מדויק, לא approximation.
+  const queueUniverse = useMemo(() => [...liveA, ...candidates].map(withH), [liveA, candidates, withH]);
+  const attentionItems = useMemo(() => queueUniverse.filter((it) => !it.handled), [queueUniverse]);
+  const handledInQueue = useMemo(() => queueUniverse.filter((it) => it.handled), [queueUniverse]);
+  // Pass 1C-Closure §3-§7 · drill-down כללי: מזהים-יציבים בלבד → filters.ids, לא approximation.
+  const drillTo = useCallback((ids, label) => {
+    setMode("now"); setFilters({ ids: new Set(ids), idsLabel: label });
+    setTimeout(() => document.getElementById("cc-ingestion-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+  }, []);
+  // Pass 1C-Closure §7 · Signals מחושבים פעם אחת כאן (לא בתוך AttentionSignals) כדי ש-drillTo יקבל
+  // בדיוק את אותם ids שהמונה מציג — לא חישוב-כפול/מקביל.
+  const signals = useMemo(() => computeSignals(poolAll, { newCutoff: signalsCutoff }), [poolAll, signalsCutoff]);
+  const reconcile = useMemo(() => reconcileNewVsAttention(signals.fresh.ids, queueUniverse.map((it) => it.key), attentionItems.map((it) => it.key)), [signals, queueUniverse, attentionItems]);
   const selItems = useMemo(() => poolAll.filter(i => sel.has(i.key)), [poolAll, sel]);
   // §16-17 · רזיאל מבין ALL/FILTERED/SELECTED — היטלים על אותו תור-חי, לא 3 stores. יש בחירה פעילה →
   // digest מצומצם לנבחרים בלבד (scope="selected"); אחרת ה-digest המסונן-הרגיל (filteredDigest).
   const razielDigest = useMemo(() =>
-    sel.size > 0 ? buildAttentionDigest(selItems, { mode, filters, hideSelf, scope: "selected" }) : filteredDigest,
+    sel.size > 0 ? buildAttentionDigest(selItems, { mode, filters, hideSelf, scope: "selected", scopeNote: filters.idsLabel ? `בחירה מתוך: ${filters.idsLabel}` : null }) : filteredDigest,
     [sel.size, selItems, filteredDigest, mode, filters, hideSelf]);
   // §3.3 · "חדש מהמערכת" — reuse whats_new_law הקנוני (crossesNew.js), מפתח נפרד לחדר-המפקדה.
   const signalsCutoff = useMemo(() => seenCutoff("cc_signals"), []);
@@ -2354,12 +2377,11 @@ export default function WarRoomTab() {
         <span style={{ color: C.faint, fontSize: 11 }}>· 🟢 הושלם · 🟡 חלקי · ⚪ לא-נבדק · 🔴 נעצר</span>
       </div>
 
-      {/* מטטרון — פס תמונת-על */}
+      {/* מטטרון — פס תמונת-על. §Closure: "👀 חם אצל הקהל" הוסר מכאן — כפילות-תצוגה מול AttentionSignals
+          למטה (עם label נכון + drill-down אמיתי + Link ל-/number). לא שני מקורות לאותו סימן. */}
       <div style={{ ...box, display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
         <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 13 }}>🕸️ מטטרון</span>
-        <span style={{ color: C.muted, fontSize: 12 }}>מועמדים ממתינים: <b onClick={openAllCandidates} title="הצג את כל התור" style={{ color: C.goldBright, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{pendingCand.length}</b></span>
-        <span style={{ color: C.muted, fontSize: 12 }}>👀 חם אצל הקהל: {(hot || []).slice(0, 8).map(h => <b key={h.n} style={{ color: C.goldLight, cursor: "pointer", marginInlineEnd: 6 }} onClick={() => setFocusN(h.n)}>{h.n}</b>)}</span>
-        <span style={{ color: C.faint, fontSize: 11 }} title={`מבוסס צפיות בדפי מספר ב-${HOT_DAYS} הימים האחרונים — אות-קהל, לא המלצת רזיאל`}>(מבוסס צפיות-קהל ב-{HOT_DAYS} ימים — לא המלצת רזיאל)</span>
+        <span style={{ color: C.muted, fontSize: 12 }}>מועמדים ממתינים: <b onClick={() => drillTo(pendingCand.map(it => it.key), `לשיפוט (${pendingCand.length})`)} title="הצג את כל התור — בדיוק אלה" style={{ color: C.goldBright, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{pendingCand.length}</b></span>
       </div>
 
       {mode === "now" && (
@@ -2374,19 +2396,22 @@ export default function WarRoomTab() {
         {/* 📡 אותות-קשב — Pass 1C §3/§5: SIGNALS קודם ל-RAZIEL (FINAL PRODUCT LAW: Signals → Raziel →
             Recommendation → Zuriel). עובדות דטרמיניסטיות בלבד — «מה כדאי לי לעשות» נשאר רק בחדר-רזיאל
             שמתחתיו, כדי לא למזג recommendation לתוך signal (§4/§5). אין fetch חדש — מעל מה שכבר טעון. */}
-        <AttentionSignals theme={C} items={poolAll} hot={hot} hotDays={HOT_DAYS}
-          newCutoff={signalsCutoff} onFocusValue={setFocusN} onMarkSeen={markSignalsSeen} />
+        <AttentionSignals theme={C} signals={signals} reconcile={reconcile} hot={hot} hotDays={HOT_DAYS}
+          onDrill={drillTo} onMarkSeen={markSignalsSeen} />
 
         <NumberResearcher theme={C} attentionDigest={razielDigest} mode={mode} filtersActive={sel.size > 0 ? false : hasFilter} />
 
         {/* 📊 מונים — נכנס / ממתין / טופל / לשיפוט · עקביים (נכנסו−טופלו=ממתינים) · לחיצים */}
         <div style={{ ...box, padding: 0, overflow: "hidden" }}>
           <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {/* Pass 1C-Closure §2/§5: כל 4 המונים כאן מנתבים ל-drill-down מדויק (queueUniverse/
+                attentionItems/handledInQueue/pendingCand — אותם arrays שמהם המספר עצמו נגזר) —
+                לא approximation דרך setFilters/setShowHandled גנרי כמו קודם. */}
             {[
-              { label: "נכנסו", n: stats.entered, c: C.goldBright, on: () => { setFilters({}); setShowHandled(true); }, tip: "כל מה שנטען (חי + מועמדים + נכנס-עכשיו) — לא נמחק לעולם" },
-              { label: "ממתינים", n: stats.waiting, c: "#c79a2e", on: () => { setFilters({}); setShowHandled(false); }, tip: "תור-העבודה הפעיל (לא-טופל)" },
-              { label: "טופלו", n: stats.handledN, c: "#4caf7d", on: () => { setShowHandled(true); setFilters({ status: "handled" }); }, tip: "מה שסגרת — עם הסיבה. «בטל סגירה» מחזיר לתור" },
-              { label: "לשיפוט", n: stats.judging, c: "#3ea6ff", on: openAllCandidates, tip: "מועמדים שממתינים לשיפוט (לא-טופל)" },
+              { label: "נכנסו", n: stats.entered, c: C.goldBright, on: () => drillTo(queueUniverse.map(it => it.key), `נכנסו — כל התור (${stats.entered})`), tip: "כל מה שנטען (ערוץ+מועמדים) — לא נמחק לעולם" },
+              { label: "ממתינים", n: stats.waiting, c: "#c79a2e", on: () => drillTo(attentionItems.map(it => it.key), `ממתינים — התור הפעיל (${stats.waiting})`), tip: "תור-העבודה הפעיל (לא-טופל) — לחיצה = בדיוק אלה" },
+              { label: "טופלו", n: stats.handledN, c: "#4caf7d", on: () => drillTo(handledInQueue.map(it => it.key), `טופלו (${stats.handledN})`), tip: "מה שסגרת — עם הסיבה. «בטל סגירה» מחזיר לתור" },
+              { label: "לשיפוט", n: stats.judging, c: "#3ea6ff", on: () => drillTo(pendingCand.map(it => it.key), `לשיפוט (${stats.judging})`), tip: "מועמדים שממתינים לשיפוט (לא-טופל)" },
             ].map((k, i) => (
               <div key={i} onClick={k.on} title={k.tip}
                 style={{ flex: "1 1 84px", minWidth: 78, cursor: "pointer", padding: "11px 6px", textAlign: "center", borderInlineStart: i ? `1px solid ${C.border}` : "none" }}>
@@ -2398,12 +2423,21 @@ export default function WarRoomTab() {
           <div style={{ borderTop: `1px solid ${C.border}`, color: C.faint, fontSize: 10, textAlign: "center", padding: "4px 6px" }}>נכנסו − טופלו = ממתינים · לחיצה על מספר מסננת אליו · החומר המקורי נשמר</div>
         </div>
 
-        {/* CC-1.1 · קליטה חיה — שלושת הצינורות מופרדים (READ-ONLY, בלי feeder) */}
-        <div style={box}>
+        {/* CC-1.1 · קליטה חיה — שלושת הצינורות מופרדים (READ-ONLY, בלי feeder). id=עוגן-גלילה ל-drillTo. */}
+        <div style={box} id="cc-ingestion-anchor">
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
             <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>📡 קליטה חיה (LIVE INGESTION)</span>
             <span style={{ color: C.faint, fontSize: 11 }}>שלושה צינורות · לחיץ · תצוגה-בלבד (לא feeder, לא WRITE) {busy && "…"}</span>
           </div>
+          {/* Pass 1C-Closure §5/§13 · באנר-drill-down בולט (לא רק צ'יפ קטן) — ברור גם במובייל,
+              עם חזרה-חד-משמעית ל"כל התור". shown.length כאן = בדיוק המספר שממנו הגעת (§2). */}
+          {filters.ids && (
+            <div style={{ ...box, borderColor: "#3ea6ff", background: "#3ea6ff10", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
+              <span style={{ color: "#3ea6ff", fontWeight: 900, fontSize: 13 }}>🔎 מציג כרגע: {filters.idsLabel || `${filters.ids.size} פריטים`}</span>
+              <span style={{ color: C.faint, fontSize: 11 }}>({shown.length} מוצגים כאן — כל כלי-העבודה למטה פועלים על הקבוצה הזו בלבד)</span>
+              <button onClick={() => setFilters((cur) => { const n = { ...cur }; delete n.ids; delete n.idsLabel; return n; })} style={{ ...chip(false, "#3ea6ff"), marginInlineStart: "auto" }}>← חזרה לכל התור</button>
+            </div>
+          )}
           <WorkFilters filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} showHandled={showHandled} setShowHandled={setShowHandled} hideSelf={hideSelf} setHideSelf={setHideSelf} writers={writerOptions} statuses={statusOpts} methods={methodOpts} handledCount={handled.size} waGroups={waGroupOpts} />
           <FilterBar filters={filters} onClear={() => setFilters({})} onRemove={(k) => setFilters((cur) => { const n = { ...cur }; delete n[k]; return n; })} />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10, marginTop: 8 }}>
