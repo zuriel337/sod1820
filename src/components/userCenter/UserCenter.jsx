@@ -192,43 +192,6 @@ export default function UserCenter() {
 
   if (!user) return null;
 
-  // 🚧 האזור האישי בפיתוח — פתוח כרגע רק לחשבונות של צוריאל (allowlist). כל השאר רואים
-  //     הודעת-בנייה במקום המודולים. להסרת הנעילה: למחוק את הבלוק הזה + UC_ALLOWED.
-  const UC_ALLOWED = ["zyz997@gmail.com", "yosiviner7@gmail.com"];
-  const ucAllowed = UC_ALLOWED.includes((user.email || "").trim().toLowerCase());
-  if (!ucAllowed) {
-    return (
-      <>
-        <div onClick={close} style={{
-          position: "fixed", inset: 0, background: "rgba(6,8,14,0.55)", zIndex: 4000,
-          opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? "auto" : "none", transition: "opacity .22s",
-        }} />
-        <aside dir="rtl" style={{
-          position: "fixed", top: 0, bottom: 0, left: 0, zIndex: 4001,
-          width: "min(410px, 92vw)", background: T.bg, color: T.ink,
-          boxShadow: "6px 0 40px rgba(0,0,0,0.4)", display: "flex", flexDirection: "column",
-          transform: isOpen ? "translateX(0)" : "translateX(-104%)", transition: "transform .26s cubic-bezier(.4,0,.2,1)",
-          fontFamily: "'Heebo','Assistant',sans-serif",
-        }}>
-          <div style={{ padding: "18px 18px 14px", borderBottom: `1px solid ${T.line}`, background: T.card, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".07em", color: T.gold }}>🧑 האזור האישי</div>
-            <button onClick={close} aria-label="סגור" style={{ background: "none", border: "none", color: T.sub, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>✕</button>
-          </div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "30px 24px" }}>
-            <div style={{ fontSize: 44, marginBottom: 14 }}>🚧</div>
-            <div style={{ color: T.ink, fontWeight: 800, fontSize: 19, marginBottom: 8 }}>האזור האישי בתהליכי בנייה</div>
-            <div style={{ color: T.sub, fontSize: 14, lineHeight: 1.8, maxWidth: 300, marginBottom: 22 }}>אנחנו משדרגים את האזור האישי — שובו בקרוב 🙏</div>
-            <button onClick={() => { try { signOut(); } catch { /* noop */ } close(); }}
-              style={{ cursor: "pointer", border: `1px solid ${T.line}`, background: T.card, color: T.sub,
-                borderRadius: 999, padding: "10px 22px", fontSize: 13.5, fontWeight: 800, fontFamily: "inherit" }}>
-              ↩ התנתק מהחשבון
-            </button>
-          </div>
-        </aside>
-      </>
-    );
-  }
-
   const goto = (link) => { close(); if (link) nav(link); };
   const MODULES = buildModules({ T, user, profile, isAdmin, center, signOut, unread, dmUnread, onUnread: setUnread, goto, setActive, activeParam });
   const activeMod = MODULES.find(m => m.id === active) || null;
@@ -300,6 +263,11 @@ export default function UserCenter() {
         <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: 14 }}>
           {!activeMod ? (
             <>
+              {/* 🚧 האזור האישי עדיין משתפר — לא חוסם: ההודעות וההתראות פעילות במלואן. */}
+              <div style={{ display: "flex", alignItems: "center", gap: 7, background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 10, padding: "7px 11px", marginBottom: 13, color: T.sub, fontSize: 11.5, lineHeight: 1.6 }}>
+                <span style={{ fontSize: 13 }}>🚧</span>
+                <span>האזור האישי עדיין בבנייה ומשתפר — אבל ההודעות וההתראות כבר פעילות במלואן.</span>
+              </div>
               {/* 🏠 הבית — האריחים החשובים ביותר במקום אחד (מותאם לסוג-המשתמש), ואז «הצעד הבא». */}
               <HomeTiles T={T} center={center} setActive={setActive} dark={dark} />
               <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} myLevel={myLevel} nextActions={nextActions} setActive={setActive} goto={goto} />
@@ -1337,18 +1305,18 @@ const HOME_TILE = {
   "public-page": { icon: "👑", title: "הדף שלי",      sub: "מה שהעולם רואה" },
   research:      { icon: "🧠", title: "המחקר שלי",    sub: "מחקר · שמורים · צפנים" },
   myposts:       { icon: "✍️", title: "היצירה שלי",   sub: "הפוסטים שכתבתי" },
-  messages:      { icon: "📨", title: "ההודעות שלי",  sub: "הודעות ותגובות אליי", soon: true },
+  messages:      { icon: "📨", title: "ההודעות שלי",  sub: "הודעות ותגובות אליי" },
   notifications: { icon: "🔔", title: "התראות",       sub: "מה חדש עבורי" },
   credits:       { icon: "◆",  title: "קרדיטים",      sub: "היתרה שלי" },
   whatsapp:      { icon: "🟢", title: "החיבור לרזיאל", sub: "חיבור החשבון לבוט בוואטסאפ" },
 };
+// 🪗 4-5 האריחים הפופולריים בלבד בבית (בקשת צוריאל: לצמצם) — השאר (וואטסאפ כבר בכותרת;
+//    הצפנים/רמזים/תרומות/יצירה) חיים במדורי-העולמות המקופלים למטה, לא נעלמים.
 function HomeTiles({ T, center, setActive, dark }) {
   const c = center || {};
   const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
-  // רק קיצורים חיים בבית; «היצירה שלי»/«הודעות» (בפיתוח) יורדים למדור «בפיתוח» הסגור.
-  const ids = ["profile"];
+  const ids = ["profile", "messages", "notifications", "research", "credits"];
   if (hasPage) ids.push("public-page");
-  ids.push("research", "notifications", "credits", "whatsapp");
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".05em", color: T.sub, margin: "2px 2px 9px" }}>הדברים שלי</div>
@@ -1378,9 +1346,10 @@ function HomeTiles({ T, center, setActive, dark }) {
 export function buildModules({ T, user, profile, isAdmin, center, signOut, unread = 0, dmUnread = 0, onUnread, goto, setActive, activeParam = null }) {
   const c = center || {};
   const isWriter = !!(c.is_writer || c.is_publisher);
-  // 👑 «הדף הפומבי שלי» מוצג רק למי שיש לו דף-כתב/תורם (has_dossier) או שהוא כותב/חוקר.
-  //    קורא רגיל לא רואה. הופך לכתב/תורם → hasPage=true → הכרטיס חוזר אוטומטית (לא נמחק).
-  const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
+  // 👑 «הדף הפומבי שלי» — פתוח לכל משתמש מחובר (החלטת צוריאל): אין עוד שער is_writer/is_researcher.
+  //    update_my_dossier / update_my_page_config יוצרים contributors אוטומטית בשמירה/צפייה ראשונה
+  //    (r-<uid>) — אין "no_profile" חוסם. מי שכבר יש לו דוסייה ממשיך להציג אותה כרגיל.
+  const hasPage = true;
   return [
     // ─── LIVE — פאנלים אמיתיים עם נתונים · world = שיוך לאחד מ-5 העולמות ───
     { id: "notifications", world: "me", icon: "🔔", title: "מרכז העדכונים", status: "live", badge: unread || undefined,
@@ -1401,10 +1370,12 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
           </section>
         </div>
       ) },
-    // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). מוצג רק למי שיש לו דף (hasPage).
+    // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). פתוח לכל משתמש מחובר (hasPage=true).
     { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} /> },
-    // 🎨 עורך-הדף — «ערוך את הדף שלי» תחת ✍️ היצירה (כותב update_my_page_config). מוצג רק למי שיש דף.
-    { id: "page-editor", world: "create", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor T={T} goto={goto} /> },
+    // 🎨 עורך-הדף — «ערוך את הדף שלי» (update_my_page_config, יוצר-דוסייה אוטומטית בשמירה ראשונה).
+    //    world="me" ולא "create" בכוונה: "create" מוצג רק בתוך מדור «בפיתוח» שרק אדמין יכול לפתוח —
+    //    זה היה חוסם את עורך-הדף מכולם חוץ מאדמין גם אחרי ש-hasPage נפתח. פתוח לכל משתמש מחובר.
+    { id: "page-editor", world: "me", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor T={T} goto={goto} /> },
     // 👤 הפרופיל שלי = זהות/חשבון בלבד (איחד את «הגדרות» לתוכו):
     //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה.
     //    דרגה/עץ/מספרים גרים במודול אחד «📈 ההתקדמות שלי» — בלי כפילות (איחוד #1).
@@ -1431,7 +1402,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <Link to="/research" style={{ display: "inline-block", marginTop: 14, color: T.acc, textDecoration: "none", fontWeight: 700, fontSize: 13 }}>למעבדה המלאה (מסך רחב) ←</Link>
       </div>
     ) },
-    // 📨 הודעות — כניסה אחת עתידית (הודעות-לכתב · DM פרטי · תגובות אליי). placeholder בלבד, לא בנוי.
+    // 📨 הודעות — כניסה אחת מאוחדת (DM פרטי בין חוקרים · תגובות-לכתב אליי). בנוי ופעיל.
     { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} initialDm={activeParam?.dm} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>

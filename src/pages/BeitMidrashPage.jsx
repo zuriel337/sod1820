@@ -402,7 +402,29 @@ function CrossesTab() {
           <span style={{ background: "#fff3d6", border: `1px solid ${L.gold}`, color: L.goldDeep, borderRadius: 999, padding: "4px 12px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>🆕 {newCount} נוספו</span>
         )}
       </div>
-      {items.map(it => <CrossCard key={it.id} item={it} />)}
+      {items.map(it => <CrossCardWithDiscourse key={it.id} item={it} />)}
+    </div>
+  );
+}
+
+// 💬 חידוש-הצלבה + מדור תגובות (Discourse הקנוני, מקופל) — כך גם כאן (ולא רק ב«חידושי הקהילה»)
+// אפשר להגיב ולהגיב-חזרה. עץ אחד: אותו insight.id, אותו target_type="insight" — לא מערכת נפרדת.
+function CrossCardWithDiscourse({ item }) {
+  const [showDisc, setShowDisc] = useState(false);
+  return (
+    <div>
+      <CrossCard item={item} />
+      <div style={{ marginTop: 8, paddingInlineStart: 4 }}>
+        <button onClick={() => setShowDisc(v => !v)} style={{
+          cursor: "pointer", background: "transparent", border: `1px solid ${L.gold}`, color: L.goldDeep,
+          borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, padding: "5px 14px",
+        }}>💬 {showDisc ? "הסתר תגובות" : "תגובות והגב"}</button>
+        {showDisc && (
+          <div style={{ marginTop: 12 }}>
+            <Discourse target={{ type: "insight", id: item.id }} origin="crosses" />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
