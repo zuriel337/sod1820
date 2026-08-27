@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
-import { getPostsFromSupabase, getRealityHints } from "../../lib/supabase.js";
+import { getPostsFromSupabase, getRealityHints, getChannelUpdates } from "../../lib/supabase.js";
 import { stripHtml, timeAgoHe } from "../../lib/format.js";
 import WhatsNewBadge from "../WhatsNewBadge.jsx";
 
@@ -41,6 +41,18 @@ function useLiveTicker() {
         }
       } catch { /* ignore */ }
 
+      // 📢 שידורי-טיקר (channel_updates 'main') — כולל רמזי-גימטריה ששודרו (כמו רמז שחר קנדרו).
+      //    מוצג עם קרדיט «מאת»; לחיצה → link_url אם קיים, אחרת מרכז-השידורים /broadcasts.
+      try {
+        const ch = await getChannelUpdates(10, "main");
+        for (const c of (ch || [])) {
+          const raw = stripHtml(c.text || "").replace(/\s+/g, " ").trim();
+          if (!raw) continue;
+          const text = (c.credit ? `${c.credit}: ` : "") + raw;
+          items.push({ kind: "news", text: text.slice(0, 90), to: c.link_url || "/broadcasts", ts: c.created_at });
+        }
+      } catch { /* ignore */ }
+
       // מיזוג לפי טריות (הכי-חדש שעלה ראשון) — פוסטים ורמזי-מציאות מעורבבים לפי זמן-עלייה
       items.sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0));
       // הסרת כפילויות (לא חוזרות על עצמן) + תקרה
@@ -56,7 +68,7 @@ function useLiveTicker() {
 }
 
 // אייקון לפי סוג הפריט — 📝 פוסט (עדכון-אתר) · 🌊 רמז מזרם המציאות
-const KIND_ICON = { post: "📝", reality: "🌊" };
+const KIND_ICON = { post: "📝", reality: "🌊", news: "📢" };
 
 // 📡 רצועה עליונה — טיקר עדכונים חי, לא-לחיץ, מתחלף הודעה-הודעה (חסין מובייל: בלי גלילה
 // אופקית / max-content / mask — רק החלפה עם דהייה, כך שום דבר לא "נעלם" בפלאפון).
