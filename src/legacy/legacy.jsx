@@ -20,6 +20,8 @@ import Discourse from "../components/Discourse.jsx";
 import CommunityForming from "../components/CommunityForming.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
 import PostImageCarousel from "../components/PostImageCarousel.jsx";
+import SpatialGematriaReveal from "../components/SpatialGematriaReveal.jsx";
+import { getSpatialReveal } from "../lib/spatialReveals.js";
 import PostGalleryLinks from "../components/PostGalleryLinks.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import Lightbox from "../components/Lightbox.jsx";
@@ -4664,7 +4666,7 @@ function PostPageBySlug({ onNav }) {
             //    עטיפת ה-numlink צבעה אותה מחדש בזהב (זהב-על-זהב). משאירים אותה כפי שהיא.
             // ⛔ gematria_word_primary_link_law: המילה היא הקישור העיקרי (data-gem), לא המספר. לכן אין לקשר-אוטומטית
             //    מספרים בתוך קופסאות-גימטריה מעוצבות (.sgx*) או כל אלמנט עם .no-numlink — שם המילה כבר לחיצה למחשבון.
-            if (t === "A" || t === "SCRIPT" || t === "STYLE" || p.hasAttribute("data-gem") || (p.classList && (p.classList.contains("pic-carousel") || p.classList.contains("gb-val") || p.classList.contains("no-numlink") || p.classList.contains("sgx-tile") || p.classList.contains("sgx-out") || p.classList.contains("sgx-big") || p.classList.contains("sgx-step") || p.classList.contains("sgx-lang")))) return NodeFilter.FILTER_REJECT;
+            if (t === "A" || t === "SCRIPT" || t === "STYLE" || p.hasAttribute("data-gem") || (p.classList && (p.classList.contains("pic-carousel") || p.classList.contains("gb-val") || p.classList.contains("no-numlink") || p.classList.contains("sgx-tile") || p.classList.contains("sgx-out") || p.classList.contains("sgx-big") || p.classList.contains("sgx-step") || p.classList.contains("sgx-lang") || p.classList.contains("spatial-reveal-root")))) return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
         },
@@ -4967,23 +4969,30 @@ function PostPageBySlug({ onNav }) {
                 והביטויים המודגשים לחיצים, ההערה מיותרת ומסיחה. (number_click_hint_law — בוטל 3.7.2026.)
                 הלחיצוּת עצמה נשמרת: data-gem + openNumberDrawer עדיין פעילים על כל מספר/ביטוי. */}
             <div className={`sod-post-content${themed ? " themed" : ""}${post?.source === "ai" ? " clean" : ""}`} ref={contentRef}>
-              {/* מרקרי גלריה (קומפוננטת React באותו עץ — קישורים/פלטה עובדים):
-                  • <div data-sod-gallery="N"></div>     → קרוסלת רמזים לפי ערך-ראשי
-                  • <div data-sod-gallery-id="N"></div>  → גלריה שלמה לפי wp_gallery_id (gallery_images העריך) */}
+              {/* מרקרי-React בתוך הפוסט (אותו עץ — קישורים/פלטה/NumberDrawer עובדים):
+                  • <div data-sod-gallery="N"></div>       → קרוסלת רמזים לפי ערך-ראשי
+                  • <div data-sod-gallery-id="N"></div>    → גלריה שלמה לפי wp_gallery_id
+                  • <div data-spatial-reveal="KEY"></div>  → גימטריה מרחבית (SpatialGematriaReveal, spatialReveals.js)
+                  ⛔ הפוסט אינו מכיל את מימוש-האנימציה — רק מרקר/ref. אם אין spec למפתח → המרקר נבלע (fallback רגיל). */}
               {(() => {
-                // הפיצול לוכד 2 קבוצות לכל מרקר: דגל «-id» (או undefined) + המספר.
-                const parts = String(content).split(/<div data-sod-gallery(-id)?="(\d+)"><\/div>/);
-                const out = [];
-                for (let i = 0; i < parts.length; i += 3) {
-                  const html = parts[i];
-                  if (html) out.push(<div key={"html" + i} dangerouslySetInnerHTML={{ __html: html }} />);
-                  const flag = parts[i + 1], num = parts[i + 2];
-                  if (num != null) out.push(
-                    flag === "-id"
-                      ? <PostImageCarousel key={"sodgal" + i} gallery={Number(num)} />
-                      : <PostImageCarousel key={"sodgal" + i} value={Number(num)} />
-                  );
+                const src = String(content);
+                const re = /<div data-sod-gallery(-id)?="(\d+)"><\/div>|<div data-spatial-reveal="([a-z0-9-]+)"><\/div>/g;
+                const out = []; let last = 0, m, k = 0;
+                while ((m = re.exec(src)) !== null) {
+                  const html = src.slice(last, m.index);
+                  if (html) out.push(<div key={"h" + k} dangerouslySetInnerHTML={{ __html: html }} />);
+                  if (m[2] != null) {
+                    out.push(m[1] === "-id"
+                      ? <PostImageCarousel key={"g" + k} gallery={Number(m[2])} />
+                      : <PostImageCarousel key={"g" + k} value={Number(m[2])} />);
+                  } else if (m[3] != null) {
+                    const spec = getSpatialReveal(m[3]);
+                    if (spec) out.push(<SpatialGematriaReveal key={"s" + k} spec={spec} />);
+                  }
+                  last = re.lastIndex; k++;
                 }
+                const tail = src.slice(last);
+                if (tail) out.push(<div key={"h" + k} dangerouslySetInnerHTML={{ __html: tail }} />);
                 return out;
               })()}
             </div>
