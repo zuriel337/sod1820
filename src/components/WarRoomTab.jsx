@@ -36,6 +36,7 @@ import { getHandledMap, markHandled, unmarkHandled } from "../lib/handled.js";
 import {
   CORE_WRITERS, orderWriters, ROUTES, destinations, fallbackTier,
   normStatus, statusOptions, structuralExtract, actionState, ACT_STATE, whatMissing, sortItems,
+  buildAttentionDigest,
 } from "../lib/ccwork.js";
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
@@ -2187,6 +2188,9 @@ export default function WarRoomTab() {
   // CC-1.3 ש2 · רב-בחירה. shown = מאגר-הכתב (אם פעיל) אחרת התור המוצג. בחירת-כתב = כל-החומר (כל הצינורות).
   const shown = useMemo(() => writerPool || [...liveAf, ...candF], [writerPool, liveAf, candF]);
   const hasFilter = Object.keys(filters).length > 0;
+  // 🎛️ Pass 1B §3: digest חסום עבור רזיאל — מעל shown (כבר מכבד hideSelf/filters/showHandled).
+  // אין fetch נוסף כאן — רק צבירה/דגימה מעל מה שכבר טעון.
+  const attentionDigest = useMemo(() => buildAttentionDigest(shown, { mode, filters, hideSelf }), [shown, mode, filters, hideSelf]);
   // מונה-התור החי: מועמדים שלא-שוטפלו (יורד כשסוגרים פריט מהתור). לא תלוי בפילטר — עומק-התור האמיתי.
   const pendingCand = useMemo(() => (candidates || []).map(withH).filter(c => !c.handled), [candidates, withH]);
   const openAllCandidates = () => { setMode("now"); setFilters({}); setShowHandled(false); setCandExpanded(true); setTimeout(() => candRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); };
@@ -2257,7 +2261,7 @@ export default function WarRoomTab() {
             שומר במלואו: היסטוריית-שיחה (agent_user_memory) · context_snapshot («על סמך מה ענית») ·
             בדיקת-מועמדים · פקודות-שיחה קיימות (אשר/דחה/שלח-לשופט — עוברות ב-admin_research_review/
             decideCandidate הקיימים, אין הרשאת-קנוניזציה חדשה). רזיאל = קורא/מנתח/מסביר/ממליץ בלבד. */}
-        <NumberResearcher />
+        <NumberResearcher theme={C} attentionDigest={attentionDigest} mode={mode} filtersActive={hasFilter} />
 
         {/* 📊 מונים — נכנס / ממתין / טופל / לשיפוט · עקביים (נכנסו−טופלו=ממתינים) · לחיצים */}
         <div style={{ ...box, padding: 0, overflow: "hidden" }}>

@@ -128,3 +128,48 @@ export function sortItems(list, sort) {
   else a.sort((x, y) => new Date(y.ts || 0) - new Date(x.ts || 0));
   return a;
 }
+
+// 🎛️ Pass 1B (COMMAND_CENTER_ATTENTION_CLOSURE §3) — digest חסום/דטרמיניסטי של תור-הקשב הנוכחי,
+// לשליחה לרזיאל (askRazielAttention). לא שולח 196 פריטים גולמיים — סופר/מקבץ את כולם (אפס-חיתוך-
+// שקט: by_source/by_tier/top_writers/top_values/duplicate_flagged_count מחושבים על כל items),
+// ורק דוגמית-מוצגת (sample) מוגבלת ל-maxSample. items = מערך אחיד (key/source/srckind/writer/
+// rawAuthor/author/value/values/tier/ts/raw/title/handled/engineVerified/flag/__isSelf) — בדיוק
+// הצורה שכבר נבנית ב-WarRoomTab (normForum/normWa/normPost/normCandidate/normChannel + withWriter
+// + withH). reuse-first: אין כאן fetch/DB — טהור-קלט→פלט מעל מה שכבר טעון.
+export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample = 40, maxTop = 12 } = {}) {
+  const list = Array.isArray(items) ? items : [];
+  const total = list.length;
+  const bySource = {}, byTier = {};
+  const writerCounts = {}, valueCounts = {};
+  let dupCount = 0;
+  const bump = (obj, k) => { if (!k) return; obj[k] = (obj[k] || 0) + 1; };
+  for (const it of list) {
+    bump(bySource, it.srckind || it.source || "אחר");
+    bump(byTier, it?.tier?.he || it?.tier?.key || "—");
+    const writer = it?.writer?.canonical?.display_name || it?.writer?.contributor?.display_name || it.rawAuthor || it.author || "לא-מזוהה";
+    bump(writerCounts, writer);
+    const val = it.value ?? (Array.isArray(it.values) && it.values.length ? it.values[0] : null);
+    if (val != null) {
+      const k = String(val);
+      if (!valueCounts[k]) valueCounts[k] = { count: 0, sample: (it.raw || it.title || "").slice(0, 60) };
+      valueCounts[k].count++;
+    }
+    if (it.flag === "dup") dupCount++;
+  }
+  const topN = (obj, n) => Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n);
+  const topWriters = topN(writerCounts, maxTop).map(([writer, count]) => ({ writer, count }));
+  const topValues = Object.entries(valueCounts).sort((a, b) => b[1].count - a[1].count).slice(0, maxTop)
+    .map(([value, d]) => ({ value, count: d.count, sample: d.sample }));
+  const sample = list.slice(0, maxSample).map(it => ({
+    id: it.key, source: it.srckind || it.source, tier: it?.tier?.he || it?.tier?.key,
+    writer: it?.writer?.canonical?.display_name || it?.writer?.contributor?.display_name || it.rawAuthor || it.author,
+    value: it.value ?? (Array.isArray(it.values) && it.values.length ? it.values[0] : null),
+    title: (it.raw || it.title || "").slice(0, 90),
+    dup: it.flag === "dup", handled: !!it.handled,
+  }));
+  return {
+    total, mode: mode || "now", filters_active: Object.keys(filters || {}), self_hidden: !!hideSelf,
+    by_source: bySource, by_tier: byTier, top_writers: topWriters, top_values: topValues,
+    duplicate_flagged_count: dupCount, sample_count: sample.length, sample,
+  };
+}
