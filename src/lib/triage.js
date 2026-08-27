@@ -11,9 +11,13 @@
 // שום קריאת-רשת לא קורית כאן — טהור לגמרי, ניתן-לבדיקה ב-Node בלי DOM/Supabase.
 
 import { extractCandidates } from "./analysisFlow.js";
-import { METHODS, DEPTH_METHODS } from "./gematria.js";
+import { METHODS, DEPTH_METHODS, RABBATI_METHOD } from "./gematria.js";
 
-const VALUE_METHODS = [...METHODS, ...DEPTH_METHODS]; // כל שיטות-הערך הקריאות-ללקוח (23), עם fn אמיתי.
+// אות רבתי (rabbati_letter_method_law v1) מצטרף כאן ל-VALUE_METHODS — לא ל-METHODS/DEPTH_METHODS
+// עצמם (ר' הערת gematria.js) — כי triage.js הוא בדיוק ה"רק-בהקשר-מפורש" הנכון: matchAnyMethod
+// (למטה) נקרא רק כשכבר יש ערך-מפורש-נטען בכתב שלא-תואם רגיל (resolveOperand), לא סריקה-עיוורת
+// על כל מילה. זה מספיק ל-ZVI 1112 (א(1000)+יבק(112)=1112) בלי לגעת בשום extractor קיים.
+const VALUE_METHODS = [...METHODS, ...DEPTH_METHODS, RABBATI_METHOD]; // כל שיטות-הערך הקריאות-ללקוח (24), עם fn אמיתי.
 const METHOD_BY_KEY = Object.fromEntries(VALUE_METHODS.map(m => [m.key, m]));
 
 // ⚠️ מיפוי-שיטה שמרני, בנוי ידנית מול gematria.js עצמו — לא reuse של analysisFlow.js:normMethod().
@@ -31,6 +35,9 @@ const METHOD_KEY_MAP = {
   "משולש": "קדמי", // gematria_methods LIVE: method_key='קדמי' display_label="קדמי · משולש" — alias מאושר, לא ניחוש
   "ריבוע": "ריבוע", "גדול": "גדול", "סידורי": "סידורי",
   "את\"בש": "אתבש", "אתבש": "אתבש", "אלבם": "אלבם",
+  // rabbati_letter_method_law v1 — הכתב עצמו ציין "אות רבתי" במפורש (explicit-context, בדיוק כנדרש
+  // ע"י activation="explicit_rabbati_context_only"); לא ניחוש — הכתב אמר את זה.
+  "אות רבתי": "אות רבתי",
   "נוטריקון": null, "מילים ואותיות": null, // structural — לא ניתן לאימות-ערך קליינטי
 };
 

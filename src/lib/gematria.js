@@ -105,6 +105,26 @@ export const METHODS = [
 ];
 export const LETTER_COLS = METHODS.filter(m => m.map);
 
+// 👑 אות רבתי (rabbati_letter_method_law v1, DB-live rule_version=1, method_key="אות רבתי",
+// engine_function=fn_rabbati) — JS mirror of the SQL definition: fn_rabbati(p) = fn_ragil(p)*1000.
+// Family: extended letter values, same lineage as גדול/מנצפ״ך but a SEPARATE method identity —
+// does not alter fn_gadol/gadol() above in any way.
+// ⚠️ activation="explicit_rabbati_context_only" (DB law, truth_boundary: "ordinary letter remains
+// ordinary unless source/method context explicitly marks Rabbati") — deliberately NOT spread into
+// METHODS/DEPTH_METHODS: ~15 components (GematriaCalculator3D, CommunityCalculatorPage, MethodAnalyze,
+// NumberDrawer, placeholders.jsx, …) iterate those two arrays unconditionally to show "every method's
+// value" for whatever word is typed. Adding Rabbati there would silently turn every plain א into 1000
+// for any input — exactly what the law forbids. Exported standalone; consumed only where a caller
+// already has an explicit value/context to check against (see triage.js matchAnyMethod).
+export const rabbati = w => sumBy(w, GEM) * 1000;
+export const RABBATI_METHOD = {
+  key: "אות רבתי", tag: "hebrew",
+  sub: "אות המסומנת/מוצהרת כרבתי — הרגיל ×1000",
+  soul: "הגדלת האות לאלפים — הרחבה של משפחת הגדול/מנצפ״ך",
+  fn: rabbati, map: null, col: null,
+  explicitContextOnly: true, // מוסכמה קליינטית: לא לאסוף בלולאת-כל-שיטה סתמית; רק בהקשר-מפורש
+};
+
 // 🔮 שיטות "קריאות" להצלבה בין-שיטתית (תואם bidim + RPC number_cross_resonance): פנים↔נסתר.
 // מדלגים על הכפלה/ריבוע/גדול/מילויים-עמוקים שמנפחים ערכים אקראיים ופחות לגישים לפרשנות.
 export const CROSS_METHODS = ["רגיל", "אתבש", "קדמי", "מילוי", "סידורי", "אלבם", "מסתתר"];
@@ -172,6 +192,8 @@ export function methodLetters(key, word) {
     return { type: "diff", segs };
   }
   if (key === "גדול") return { type: "value", segs: Ls.map(c => ({ ch: c, val: FINAL[c] || GEM[c] || 0 })) };
+  // אות רבתי: כל אות ×1000 מהרגיל שלה (א=1000, ב=2000…) — תואם fn_rabbati (rabbati_letter_method_law v1).
+  if (key === "אות רבתי") return { type: "value", segs: Ls.map(c => ({ ch: c, val: (GEM[c] || 0) * 1000 })) };
   if (key === "מילוי בלבד") return { type: "value", segs: Ls.map(c => ({ ch: c, val: (MILUI[c] || 0) - (GEM[c] || 0) })) };
   if (key === "ריבוע" || key === "ריבוע גדול") {
     const vf = key === "ריבוע גדול" ? (c => FINAL[c] || GEM[c] || 0) : (c => GEM[c] || 0);
