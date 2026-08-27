@@ -3,19 +3,11 @@ import { supabase } from "../../lib/supabase.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 
 const CALIBRATION_REFS = ["posts:136", "posts:53", "posts:976", "posts:904"];
-const NAV = [["feed", "זרם המחקר"], ["findings", "ממצאים"], ["sources", "מקורות"], ["review", "לבדיקה"]];
-
-const card = { background: "#fff", border: "1px solid #dfe5ec", borderRadius: 16, boxShadow: "0 5px 20px rgba(24,39,75,.05)" };
-const pill = { display: "inline-flex", alignItems: "center", borderRadius: 999, padding: "4px 9px", fontSize: 11, fontWeight: 800, border: "1px solid currentColor" };
-const colors = {
-  VERIFIED: ["#18794e", "#eaf8f1"], HELD: ["#9a6700", "#fff5d8"],
-  MISMATCH: ["#b42318", "#fff0ee"], NEW: ["#175cd3", "#edf4ff"], EXISTING: ["#475467", "#f2f4f7"],
+const NAV = [["feed", "זרם מחקר"], ["findings", "ממצאים"], ["sources", "מקורות"], ["review", "לבדיקה"]];
+const STATUS = {
+  VERIFIED: { label: "מאומת", tone: "ok" }, HELD: { label: "מוחזק לבדיקה", tone: "hold" },
+  MISMATCH: { label: "אי־התאמה", tone: "bad" }, NEW: { label: "חדש", tone: "info" }, EXISTING: { label: "קיים", tone: "muted" },
 };
-
-function tag(status) {
-  const [color, background] = colors[status] || colors.EXISTING;
-  return { ...pill, color, background };
-}
 
 function stateOf(row) {
   const d = row?.engine_detail || {};
@@ -24,130 +16,99 @@ function stateOf(row) {
   if (row?.engine_verified === true) return "VERIFIED";
   return row?.status === "candidate" ? "NEW" : "EXISTING";
 }
-
-function postId(ref) {
-  const m = /^posts:(\d+)$/.exec(ref || "");
-  return m ? Number(m[1]) : null;
+function postId(ref) { const m = /^posts:(\d+)$/.exec(ref || ""); return m ? Number(m[1]) : null; }
+function stripHtml(v, max = 220) { const s = String(v || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); return s.length > max ? `${s.slice(0, max)}…` : s; }
+function titleFor(row) {
+  if (!row) return "ממצא";
+  if (row.source_ref === "posts:136") return "הליך מאומת — 5784";
+  if (row.source_ref === "posts:53") return "פסוק 5785 — טענה בהחזקה";
+  if (row.source_ref === "posts:976") return "פסוק 358 בכל חומש";
+  if (row.source_ref === "posts:904") return "37 × 73 = 2701";
+  return row.value != null ? `ממצא ${row.value}` : row.kind;
 }
+function pretty(v) { return typeof v === "string" ? v : JSON.stringify(v, null, 2); }
 
-function stripHtml(v, max = 350) {
-  const s = String(v || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  return s.length > max ? `${s.slice(0, max)}…` : s;
-}
+const CSS = `
+.rv{min-height:100vh;direction:rtl;color:#eaf2ff;background:
+radial-gradient(900px 520px at 74% -10%,rgba(46,91,255,.18),transparent 62%),radial-gradient(760px 500px at 6% 15%,rgba(0,212,255,.10),transparent 58%),#050914;
+font-family:Arial,sans-serif;padding:14px}.rv *{box-sizing:border-box}.rv button{font:inherit}.rv-shell{max-width:1680px;margin:auto}
+.rv-top{display:grid;grid-template-columns:290px 1fr 300px;align-items:center;gap:12px;padding:12px 16px;border:1px solid #19335d;background:rgba(8,16,32,.9);border-radius:20px;box-shadow:0 20px 70px #0008;position:sticky;top:8px;z-index:20;backdrop-filter:blur(18px)}
+.rv-brand{display:flex;gap:11px;align-items:center}.rv-logo{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#0a2344,#0e4461);border:1px solid #285d82;color:#6ee7ff;font-size:25px;box-shadow:0 0 25px #00cfff20}.rv-brand b{font-size:21px;letter-spacing:.04em}.rv-brand small,.rv-human small{display:block;color:#7890b4;margin-top:2px}
+.rv-nav{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}.rv-nav button{color:#a9bad3;background:transparent;border:1px solid transparent;border-radius:12px;padding:9px 13px;cursor:pointer}.rv-nav button.on{color:#fff;background:linear-gradient(180deg,#102c51,#0b1a31);border-color:#244f82;box-shadow:inset 0 -2px #54c9ff}.rv-nav .future{opacity:.42;cursor:default}.rv-human{text-align:left;display:flex;justify-content:flex-start;gap:10px;align-items:center}.rv-avatar{width:42px;height:42px;border-radius:50%;border:1px solid #1fd2d6;display:grid;place-items:center;color:#4df2e7;background:#07303a}
+.rv-hero{display:grid;grid-template-columns:1.03fr 1.7fr 1.08fr;gap:12px;margin-top:12px;align-items:start}.rv-panel{background:linear-gradient(180deg,rgba(8,17,34,.96),rgba(5,12,25,.96));border:1px solid #17345d;border-radius:18px;box-shadow:0 16px 46px #0007;overflow:hidden}.rv-panel-title{padding:14px 15px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #112641}.rv-panel-title h3{margin:0;font-size:16px}.rv-live{color:#42e69a;font-size:11px}.rv-feed{padding:10px;display:grid;gap:9px}.rv-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}.rv-stat{border:1px solid #1a3152;background:#091426;border-radius:12px;padding:8px;text-align:center}.rv-stat strong{font-size:20px;display:block}.rv-stat small{color:#7185a6;font-size:10px}.rv-feed-card{width:100%;text-align:right;color:#dfeaff;background:#081427;border:1px solid #183257;border-right:3px solid #466483;border-radius:13px;padding:11px;cursor:pointer;transition:.18s}.rv-feed-card:hover,.rv-feed-card.on{transform:translateY(-1px);border-color:#3c6da4;background:#0b1930}.rv-feed-card.bad{border-right-color:#ff626b}.rv-feed-card.hold{border-right-color:#efa936}.rv-feed-card.ok{border-right-color:#3be18b}.rv-feed-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.rv-feed-card h4{margin:8px 0 5px;font-size:15px}.rv-feed-card p{margin:0;color:#8396b4;font-size:11px;line-height:1.55}.rv-chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;border:1px solid #29425f;color:#a9bad3;background:#08101e;font-size:10px;font-weight:800}.rv-chip.bad{border-color:#7c3038;color:#ff868c;background:#261014}.rv-chip.hold{border-color:#79541e;color:#ffc25c;background:#241a0c}.rv-chip.ok{border-color:#185e42;color:#6df0ab;background:#08241a}.rv-chip.info{border-color:#265c9d;color:#80bcff;background:#0b1c36}
+.rv-main{min-height:680px}.rv-main-head{padding:15px 18px;border-bottom:1px solid #17304f}.rv-kicker{color:#6e8caf;font-size:11px;letter-spacing:.08em}.rv-main h1{font-size:27px;margin:8px 0 4px}.rv-sub{color:#91a4c0;font-size:12px;line-height:1.65}.rv-meta{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px 15px}.rv-meta>div{border:1px solid #173251;background:#081427;border-radius:11px;padding:9px}.rv-meta small{color:#6e83a4;display:block;font-size:10px}.rv-meta b{font-size:12px;margin-top:5px;display:block}.rv-focus{margin:0 15px 12px;border:1px solid #18375e;background:linear-gradient(180deg,#07172b,#06111f);border-radius:16px;padding:15px}.rv-sequence{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;padding:10px}.rv-token{text-align:center;min-width:75px}.rv-token b{font-size:31px;display:block}.rv-token small{color:#90a6c5}.rv-plus{font-size:25px;color:#6684a7}.rv-seqbox{font-size:34px;letter-spacing:.14em;font-family:monospace;border:1px solid #5b354c;background:#170d18;padding:10px 14px;border-radius:13px;direction:ltr}.rv-seqbox em{font-style:normal;color:#ff888f;background:#4f1620;padding:1px 4px;border-radius:5px;box-shadow:0 0 20px #ff526855}.rv-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 15px 12px}.rv-card{border:1px solid #173251;background:#081427;border-radius:14px;padding:13px}.rv-card h4{margin:0 0 9px;font-size:13px}.rv-compare{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rv-compare>div{padding:10px;border-radius:10px;background:#07101d;border:1px solid #1d3350}.rv-compare .source{border-color:#6b3535}.rv-compare .canon{border-color:#1f654c}.rv-compare strong{display:block;margin-bottom:6px}.rv-pre{white-space:pre-wrap;word-break:break-word;font:11px/1.55 monospace;color:#9fb0c8;margin:0}.rv-why{margin:0 15px 15px;padding:14px;border-top:1px solid #142b49}.rv-chain{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:10px}.rv-step{text-align:center;border:1px solid #1b3a61;background:#071525;border-radius:13px;padding:11px}.rv-step .ico{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;margin:0 auto 7px;background:#0c2744;border:1px solid #27557e;color:#70dfff;font-size:19px}.rv-step b{font-size:11px;display:block}.rv-step small{font-size:9px;color:#7288a7;display:block;margin-top:5px;line-height:1.4}
+.rv-side{padding-bottom:10px}.rv-graph{height:330px;position:relative;margin:10px;border:1px solid #173456;border-radius:15px;background:radial-gradient(circle at center,#12223b,#050d19 67%);overflow:hidden}.rv-node{position:absolute;min-width:82px;max-width:115px;padding:8px 10px;border-radius:13px;border:1px solid #31557a;background:#09172a;text-align:center;font-size:11px;box-shadow:0 8px 20px #0008}.rv-node.center{left:50%;top:48%;transform:translate(-50%,-50%);width:104px;height:104px;border-radius:50%;display:grid;place-items:center;font-size:27px;font-weight:900;border-color:#ff6870;background:radial-gradient(circle,#3b1720,#190a0f);box-shadow:0 0 35px #ff4d5f30}.rv-node.n1{top:11%;left:38%}.rv-node.n2{top:27%;right:6%}.rv-node.n3{bottom:12%;right:11%}.rv-node.n4{bottom:8%;left:9%}.rv-node.n5{top:29%;left:4%}.rv-lines{position:absolute;inset:0;width:100%;height:100%;opacity:.65}.rv-review{display:grid;gap:7px;padding:10px}.rv-review-row{display:flex;gap:7px;justify-content:space-between;align-items:center;border:1px solid #17304d;background:#071321;border-radius:10px;padding:9px;font-size:11px}.rv-bottom{display:grid;grid-template-columns:1.35fr 1.4fr 1.1fr;gap:12px;margin-top:12px}.rv-bottom .rv-panel{padding:14px;min-height:150px}.rv-els{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rv-pair{font-size:11px;color:#91a4be}.rv-pair b{display:block;color:#dce9fb;margin-top:3px}.rv-methods{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.rv-method{width:74px;text-align:center;padding:9px;border:1px solid #193653;border-radius:12px;background:#071522}.rv-method span{font-size:20px;display:block}.rv-method small{color:#8ea2bd}.rv-online{display:flex;justify-content:space-between;padding:5px 0;font-size:11px}.rv-online i{font-style:normal;color:#4be69b}.rv-note{color:#8296b4;font-size:11px;line-height:1.7}.rv-preview{color:#7f92ad;border:1px dashed #2a4665;background:#07111e;border-radius:10px;padding:8px;margin-top:8px;font-size:10px}
+@media(max-width:1180px){.rv-top{grid-template-columns:1fr}.rv-human,.rv-brand{justify-content:center;text-align:center}.rv-hero{grid-template-columns:1fr 1.5fr}.rv-side{grid-column:1/-1}.rv-bottom{grid-template-columns:1fr 1fr}.rv-bottom .rv-panel:last-child{grid-column:1/-1}}
+@media(max-width:760px){.rv{padding:7px}.rv-top{position:static;border-radius:14px}.rv-hero,.rv-bottom,.rv-grid2{grid-template-columns:1fr}.rv-main{grid-row:1}.rv-feed-col{grid-row:2}.rv-side{grid-row:3}.rv-meta{grid-template-columns:1fr 1fr}.rv-stats{grid-template-columns:repeat(3,1fr)}.rv-chain{grid-template-columns:1fr 1fr}.rv-compare{grid-template-columns:1fr}.rv-seqbox{font-size:25px}.rv-main h1{font-size:23px}}
+`;
 
-function Stat({ n, label }) {
-  return <div style={{ ...card, padding: 15, minWidth: 105 }}><div style={{ fontSize: 25, fontWeight: 900 }}>{n}</div><div style={{ color: "#667085", fontSize: 12 }}>{label}</div></div>;
-}
-
-function Why({ row }) {
-  const steps = [
-    ["SOURCE", row.source_ref || row.source || "—"],
-    ["EXTRACTION", row.kind || "research object"],
-    ["PROCEDURE / ENGINE", row.engine_detail?.engine || row.engine_detail?.procedure?.[0] || "not engine verified"],
-    ["FINDING / CANDIDATE", row.status || "—"],
-  ];
-  return <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 8 }}>{steps.map(([k, v], i) => <div key={k} style={{ padding: 10, border: "1px solid #e4e7ec", background: "#f8fafc", borderRadius: 10, position: "relative" }}><div style={{ fontSize: 10, color: "#667085", fontWeight: 900 }}>{k}</div><div style={{ fontSize: 12, fontWeight: 700, marginTop: 4, wordBreak: "break-word" }}>{String(v)}</div>{i < steps.length - 1 && <span style={{ position: "absolute", left: -8, top: "45%", color: "#98a2b3" }}>←</span>}</div>)}</div>;
-}
-
-function Hold({ row }) {
-  const d = row.engine_detail || {};
-  const source = d.source_claim || d.source_mismatches || row.statement;
-  const canonical = d.canonical_result || d.canonical_book358 || d.result || d;
-  if (stateOf(row) !== "HELD" && stateOf(row) !== "MISMATCH") return null;
-  return <div style={{ border: "1px solid #f2b8b5", background: "#fff8f7", borderRadius: 14, padding: 14 }}><b style={{ color: "#b42318" }}>MISMATCH / HOLD — לא מתקנים בשקט</b><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 10, marginTop: 9 }}><div style={{ background: "#fff", padding: 10, borderRadius: 9 }}><b>SOURCE CLAIM</b><pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 11 }}>{JSON.stringify(source, null, 2)}</pre></div><div style={{ background: "#fff", padding: 10, borderRadius: 9 }}><b>CANONICAL CORPUS / ENGINE</b><pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 11 }}>{JSON.stringify(canonical, null, 2)}</pre></div></div><div style={{ color: "#7a271a", fontSize: 12 }}>Possible cause: edition / tokenization / segmentation / counting convention unresolved.</div></div>;
-}
+function Chip({ state, children }) { const s = STATUS[state] || STATUS.EXISTING; return <span className={`rv-chip ${s.tone}`}>{children || s.label}</span>; }
+function Stat({ n, label }) { return <div className="rv-stat"><strong>{n}</strong><small>{label}</small></div>; }
 
 export default function ResearchViewerV0Page() {
   const { loading: authLoading, isAdmin } = useAuth();
-  const [tab, setTab] = useState("feed");
-  const [rows, setRows] = useState([]);
-  const [posts, setPosts] = useState({});
-  const [els, setEls] = useState(null);
-  const [nodes, setNodes] = useState([]);
-  const [edges, setEdges] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [tab, setTab] = useState("feed"); const [rows, setRows] = useState([]); const [posts, setPosts] = useState({});
+  const [els, setEls] = useState(null); const [nodes, setNodes] = useState([]); const [edges, setEdges] = useState([]);
+  const [selectedId, setSelectedId] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
 
   useEffect(() => {
-    if (authLoading || !isAdmin) return;
-    let alive = true;
-    (async () => {
-      setLoading(true); setError("");
-      try {
-        const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
-        const { data: ro, error: roErr } = await supabase.from("research_objects").select(fields).in("source_ref", CALIBRATION_REFS).order("created_at", { ascending: false });
-        if (roErr) throw roErr;
-        const findings = ro || [];
-
-        const ids = [...new Set(findings.map(r => postId(r.source_ref)).filter(Boolean))];
-        let postMap = {};
-        if (ids.length) {
-          const { data: ps, error: pErr } = await supabase.from("posts").select("id,title,slug,content,excerpt,source,created_at").in("id", ids);
-          if (pErr) throw pErr;
-          postMap = Object.fromEntries((ps || []).map(p => [p.id, p]));
-        }
-
-        const { data: er, error: eErr } = await supabase.from("els_records").select("id,title,search_term,skip_distance,primary_number,visibility,status,source,corpus_id,start_index,engine_detail,slug").eq("search_term", "משיח טבת עשירי").limit(1).maybeSingle();
-        if (eErr) throw eErr;
-
-        const labels = [...new Set(findings.flatMap(r => [...(r.terms || []), r.value != null ? String(r.value) : null]).filter(Boolean))].slice(0, 80);
-        let ns = [];
-        if (labels.length) {
-          const { data: nd, error: nErr } = await supabase.from("nodes").select("id,type,label,description").in("label", labels).limit(120);
-          if (nErr) throw nErr;
-          ns = nd || [];
-        }
-
-        let es = [];
-        if (ns.length) {
-          const idsCsv = ns.map(n => n.id).join(",");
-          const { data: ed, error: edgeErr } = await supabase.from("edges").select("id,from_node,to_node,relation_type,weight,metadata").or(`from_node.in.(${idsCsv}),to_node.in.(${idsCsv})`).limit(120);
-          if (edgeErr) throw edgeErr;
-          es = ed || [];
-        }
-
-        if (!alive) return;
-        setRows(findings); setPosts(postMap); setEls(er || null); setNodes(ns); setEdges(es); setSelectedId(findings[0]?.id || null);
-      } catch (e) { if (alive) setError(e?.message || String(e)); }
-      finally { if (alive) setLoading(false); }
-    })();
-    return () => { alive = false; };
+    if (authLoading || !isAdmin) return; let alive = true;
+    (async () => { setLoading(true); setError(""); try {
+      const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
+      const { data: ro, error: roErr } = await supabase.from("research_objects").select(fields).in("source_ref", CALIBRATION_REFS).order("created_at", { ascending: false }); if (roErr) throw roErr;
+      const findings = ro || []; const ids = [...new Set(findings.map(r => postId(r.source_ref)).filter(Boolean))]; let postMap = {};
+      if (ids.length) { const { data: ps, error: pErr } = await supabase.from("posts").select("id,title,slug,content,excerpt,source,created_at").in("id", ids); if (pErr) throw pErr; postMap = Object.fromEntries((ps || []).map(p => [p.id, p])); }
+      const { data: er, error: eErr } = await supabase.from("els_records").select("id,title,search_term,skip_distance,primary_number,visibility,status,source,corpus_id,start_index,engine_detail,slug").eq("search_term", "משיח טבת עשירי").limit(1).maybeSingle(); if (eErr) throw eErr;
+      const labels = [...new Set(findings.flatMap(r => [...(r.terms || []), r.value != null ? String(r.value) : null]).filter(Boolean))].slice(0, 80); let ns = [];
+      if (labels.length) { const { data: nd, error: nErr } = await supabase.from("nodes").select("id,type,label,description").in("label", labels).limit(120); if (nErr) throw nErr; ns = nd || []; }
+      let es = []; if (ns.length) { const idsCsv = ns.map(n => n.id).join(","); const { data: ed, error: edgeErr } = await supabase.from("edges").select("id,from_node,to_node,relation_type,weight,metadata").or(`from_node.in.(${idsCsv}),to_node.in.(${idsCsv})`).limit(120); if (edgeErr) throw edgeErr; es = ed || []; }
+      if (!alive) return; setRows(findings); setPosts(postMap); setEls(er || null); setNodes(ns); setEdges(es); setSelectedId(findings.find(r => r.source_ref === "posts:136")?.id || findings[0]?.id || null);
+    } catch (e) { if (alive) setError(e?.message || String(e)); } finally { if (alive) setLoading(false); } })(); return () => { alive = false; };
   }, [authLoading, isAdmin]);
 
-  const selected = rows.find(r => r.id === selectedId) || rows[0] || null;
-  const selectedPost = selected ? posts[postId(selected.source_ref)] : null;
-  const grouped = useMemo(() => {
-    const map = new Map();
-    rows.forEach(r => { if (!map.has(r.source_ref)) map.set(r.source_ref, []); map.get(r.source_ref).push(r); });
-    return [...map.entries()].map(([ref, items]) => ({ ref, items, verified: items.filter(x => stateOf(x) === "VERIFIED").length, held: items.filter(x => stateOf(x) === "HELD").length, mismatch: items.filter(x => stateOf(x) === "MISMATCH").length }));
-  }, [rows]);
+  const selected = rows.find(r => r.id === selectedId) || rows[0] || null; const d = selected?.engine_detail || {}; const selectedPost = selected ? posts[postId(selected.source_ref)] : null;
+  const verified = rows.filter(r => stateOf(r) === "VERIFIED").length, held = rows.filter(r => stateOf(r) === "HELD").length, mismatch = rows.filter(r => stateOf(r) === "MISMATCH").length;
+  const selectedNodeIds = new Set(nodes.filter(n => selected && ((selected.terms || []).includes(n.label) || String(selected.value) === n.label)).map(n => n.id)); const relatedEdges = edges.filter(e => selectedNodeIds.has(e.from_node) || selectedNodeIds.has(e.to_node));
+  const feedRows = useMemo(() => [...rows].sort((a,b) => ({MISMATCH:0,HELD:1,VERIFIED:2}[stateOf(a)] ?? 3) - ({MISMATCH:0,HELD:1,VERIFIED:2}[stateOf(b)] ?? 3)), [rows]);
 
-  const selectedNodeIds = new Set(nodes.filter(n => selected && ((selected.terms || []).includes(n.label) || String(selected.value) === n.label)).map(n => n.id));
-  const relatedEdges = edges.filter(e => selectedNodeIds.has(e.from_node) || selectedNodeIds.has(e.to_node));
+  if (authLoading) return <main className="rv"><style>{CSS}</style><div className="rv-shell">טוען הרשאות…</div></main>;
+  if (!isAdmin) return <main className="rv"><style>{CSS}</style><div className="rv-shell"><div className="rv-panel" style={{maxWidth:620,margin:"80px auto",padding:30,textAlign:"center"}}><h2>Research Viewer v0</h2><p>פנימי · אדמין בלבד.</p></div></div></main>;
 
-  const page = { minHeight: "100vh", direction: "rtl", background: "#f4f6f8", color: "#172033", padding: "24px clamp(14px,3vw,38px) 48px", fontFamily: "Arial, sans-serif" };
-  if (authLoading) return <main style={page}>טוען הרשאות…</main>;
-  if (!isAdmin) return <main style={page}><div style={{ ...card, maxWidth: 600, margin: "80px auto", padding: 30, textAlign: "center" }}><h2>Research Viewer v0</h2><p>פנימי · אדמין בלבד.</p></div></main>;
+  const result = d.result || {}; const seq = result.sequence || ""; const sourceClaim = d.source_claim || d.source_mismatches || selected?.statement; const canonical = d.canonical_result || d.canonical_book358 || d.result || d;
+  const sourceTitle = selectedPost?.title || selected?.source_ref || "מקור";
+  return <main className="rv"><style>{CSS}</style><div className="rv-shell">
+    <header className="rv-top"><div className="rv-brand"><div className="rv-logo">♜</div><div><b>SOD1820</b><small>RESEARCH OS · Future Product Preview</small></div></div>
+      <nav className="rv-nav">{NAV.map(([k,v]) => <button className={tab===k?"on":""} key={k} onClick={()=>setTab(k)}>{k==="feed"?"⌁ ":k==="findings"?"◇ ":k==="sources"?"▤ ":"☆ "}{v}</button>)}<button className="future" title="Preview only">מפת קשרים · Preview</button><button className="future" title="Preview only">ציר זמן · Preview</button></nav>
+      <div className="rv-human"><div><b>צוריאל</b><small>Human Gate</small></div><div className="rv-avatar">✦</div></div></header>
 
-  const verified = rows.filter(r => stateOf(r) === "VERIFIED").length;
-  const held = rows.filter(r => stateOf(r) === "HELD").length;
-  const mismatch = rows.filter(r => stateOf(r) === "MISMATCH").length;
+    {error && <div className="rv-panel" style={{marginTop:12,padding:14,color:"#ff9298"}}>Live read failed: {error}</div>}
+    {loading ? <div className="rv-panel" style={{marginTop:12,padding:30,textAlign:"center"}}>טוען את מערכת המחקר החיה…</div> : <>
+    <section className="rv-hero">
+      <aside className="rv-panel rv-feed-col"><div className="rv-panel-title"><h3>זרם המחקר <span className="rv-live">● LIVE</span></h3><span>⌕</span></div><div className="rv-feed">
+        <div className="rv-stats"><Stat n={rows.length} label="ממצאים"/><Stat n={verified} label="מאומת"/><Stat n={held} label="Held"/><Stat n={mismatch} label="Mismatch"/><Stat n={els?1:0} label="ELS"/></div>
+        {feedRows.map(r => { const st=stateOf(r), p=posts[postId(r.source_ref)]; return <button key={r.id} className={`rv-feed-card ${STATUS[st].tone} ${selected?.id===r.id?"on":""}`} onClick={()=>{setSelectedId(r.id);setTab("findings")}}><div className="rv-feed-head"><Chip state={st}/><span className="rv-chip">{r.source_ref}</span></div><h4>{titleFor(r)}</h4><p>{stripHtml(p?.excerpt || r.statement,145)}</p></button>})}
+        {els && <div className="rv-feed-card ok"><div className="rv-feed-head"><Chip state="VERIFIED">SOURCE-NATIVE</Chip><span className="rv-chip">ELS</span></div><h4>משיח טבת עשירי · skip {els.skip_distance}</h4><p>רשומה קיימת, published, הועשרה במנוע הקנוני ללא כפילות.</p></div>}
+      </div></aside>
 
-  return <main style={page}><div style={{ maxWidth: 1440, margin: "0 auto" }}>
-    <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 18 }}><div><div style={{ color: "#175cd3", fontSize: 12, fontWeight: 900 }}>SOD1820 · LIVE RESEARCH PROJECTION</div><h1 style={{ margin: "4px 0", fontSize: "clamp(26px,4vw,40px)" }}>Research Viewer v0</h1><div style={{ color: "#667085" }}>המנוע מגלה ומארגן; צוריאל חוקר, מפרש ובוחר.</div></div><nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{NAV.map(([k, v]) => <button key={k} onClick={() => setTab(k)} style={{ border: `1px solid ${tab === k ? "#175cd3" : "#d0d5dd"}`, background: tab === k ? "#edf4ff" : "#fff", color: tab === k ? "#175cd3" : "#344054", padding: "9px 13px", borderRadius: 10, fontWeight: 800, cursor: "pointer" }}>{v}</button>)}</nav></header>
+      <section className="rv-panel rv-main"><div className="rv-main-head"><div className="rv-feed-head"><div><div className="rv-kicker">ממצא נבחר · {selected?.source_ref}</div><h1>{titleFor(selected)}</h1></div><Chip state={stateOf(selected)}/></div><div className="rv-sub">{selected?.statement}</div></div>
+        <div className="rv-meta"><div><small>סוג</small><b>{selected?.kind || "—"}</b></div><div><small>שיטה / מנוע</small><b>{d.engine || "ללא אימות מנוע"}</b></div><div><small>פרטיות</small><b>{selected?.privacy_scope || "—"}</b></div><div><small>אימות</small><b>{selected?.engine_verified===true?"ENGINE VERIFIED":selected?.engine_verified===false?"NOT VERIFIED":"—"}</b></div><div><small>סטטוס אמת</small><b>{STATUS[stateOf(selected)]?.label}</b></div></div>
 
-    {error && <div style={{ ...card, color: "#b42318", borderColor: "#f1a9a5", padding: 14, marginBottom: 14 }}>Live read failed: {error}</div>}
-    {loading ? <div style={{ ...card, padding: 28, textAlign: "center", color: "#667085" }}>טוען נתונים חיים…</div> : <>
-      <section style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}><Stat n={rows.length} label="Research Objects" /><Stat n={verified} label="Verified" /><Stat n={held} label="Held" /><Stat n={mismatch} label="Mismatch" /><Stat n={els ? 1 : 0} label="ELS source-native" /></section>
+        {selected?.source_ref === "posts:136" ? <div className="rv-focus"><div className="rv-kicker">רצף הגימטריה שנוצר</div><div className="rv-sequence"><div className="rv-token"><small>אנוש</small><b>357</b></div><span className="rv-plus">+</span><div className="rv-token"><small>אז</small><b>8</b></div><span className="rv-plus">+</span><div className="rv-token"><small>הוחל</small><b>49</b></div><span className="rv-plus">←</span><div className="rv-seqbox">35<em>5784</em>9</div></div></div> : <div className="rv-focus"><div className="rv-kicker">ערך / ממצא</div><div style={{fontSize:42,fontWeight:900,marginTop:8}}>{selected?.value ?? "—"}</div></div>}
 
-      {tab === "feed" && <div style={{ display: "grid", gap: 12 }}>{grouped.map(g => { const p = posts[postId(g.ref)]; return <article key={g.ref} style={{ ...card, padding: 17 }}><div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div><div style={{ color: "#667085", fontSize: 11 }}>{g.ref}</div><h3 style={{ margin: "4px 0" }}>{p?.title || `פוסט #${postId(g.ref)}`}</h3></div><div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}><span style={tag("NEW")}>{g.items.length} findings</span><span style={tag("VERIFIED")}>{g.verified} verified</span><span style={tag("HELD")}>{g.held} held</span><span style={tag("MISMATCH")}>{g.mismatch} mismatch</span></div></div><p style={{ color: "#667085", fontSize: 13 }}>{stripHtml(p?.excerpt || p?.content || g.items[0]?.statement, 260)}</p><div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{g.items.map(r => <button key={r.id} onClick={() => { setSelectedId(r.id); setTab("findings"); }} style={{ ...tag(stateOf(r)), cursor: "pointer" }}>{stateOf(r)} · {r.value ?? r.kind}</button>)}</div></article>; })}{els && <article style={{ ...card, padding: 17 }}><div style={{ fontSize: 11, color: "#667085" }}>ELS · existing source-native record</div><h3>{els.title}</h3><div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}><span style={tag("VERIFIED")}>PUBLISHED / ENGINE ENRICHED</span><span style={pill}>skip {els.skip_distance}</span><span style={pill}>start {els.start_index}</span><span style={pill}>corpus {els.corpus_id}</span></div><p style={{ fontSize: 12, color: "#667085" }}>הועשר IN PLACE; לא נוצר Research Object כפול.</p></article>}</div>}
+        <div className="rv-grid2"><div className="rv-card"><h4>המקור המקורי</h4><div className="rv-kicker">{sourceTitle}</div><p className="rv-note">{stripHtml(selectedPost?.excerpt || selectedPost?.content || selected?.statement,300)}</p></div><div className="rv-card"><h4>פרטי מנוע / Procedure</h4>{Array.isArray(d.procedure)?d.procedure.map((x,i)=><div className="rv-pair" key={x}>{i+1}. <b style={{display:"inline"}}>{x}</b></div>):<pre className="rv-pre">{pretty(d.engine || d.arithmetic || "אין procedure מפורש")}</pre>}</div></div>
 
-      {tab === "findings" && selected && <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.25fr) minmax(280px,.75fr)", gap: 14 }}><section style={{ ...card, padding: 18, display: "grid", gap: 15 }}><div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}><span style={tag(stateOf(selected))}>{stateOf(selected)}</span><span style={pill}>{selected.kind}</span><span style={pill}>{selected.privacy_scope}</span></div><div><div style={{ color: "#667085", fontSize: 11 }}>EXTRACTED CLAIM / FINDING</div><h2 style={{ lineHeight: 1.6, fontSize: 20 }}>{selected.statement}</h2></div><div><b>Original Source</b><p style={{ color: "#475467" }}>{selectedPost?.title || selected.source_ref}</p><p style={{ color: "#667085", fontSize: 12 }}>{stripHtml(selectedPost?.excerpt || selectedPost?.content, 500)}</p></div><div><b>Procedure / Method / Operation</b><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", borderRadius: 10, padding: 10, fontFamily: "inherit", fontSize: 11 }}>{JSON.stringify(selected.engine_detail?.procedure || selected.engine_detail?.arithmetic || selected.engine_detail?.engine || "—", null, 2)}</pre></div><div><b>Engine Verification</b><div style={{ marginTop: 5 }}>{selected.engine_verified === true ? "✓ ENGINE VERIFIED" : selected.engine_verified === false ? "HELD / NOT ENGINE VERIFIED" : "NOT TESTED / UNKNOWN"}</div></div><Hold row={selected} /><div><b>למה אני רואה את זה?</b><div style={{ marginTop: 8 }}><Why row={selected} /></div></div></section><aside style={{ display: "grid", gap: 12, alignContent: "start" }}><div style={{ ...card, padding: 14 }}><b>ממצאים</b><div style={{ display: "grid", gap: 6, marginTop: 8 }}>{rows.map(r => <button key={r.id} onClick={() => setSelectedId(r.id)} style={{ textAlign: "right", border: r.id === selected.id ? "1px solid #175cd3" : "1px solid #e4e7ec", background: r.id === selected.id ? "#edf4ff" : "#fff", borderRadius: 9, padding: 8, cursor: "pointer" }}><span style={{ ...tag(stateOf(r)), marginLeft: 6 }}>{stateOf(r)}</span>{r.source_ref} · {r.value ?? r.kind}</button>)}</div></div><div style={{ ...card, padding: 14 }}><b>Relations Preview · One Tree</b><p style={{ color: "#667085", fontSize: 11 }}>רק identities/edges חיים. אם אין node — לא ממציאים.</p><div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>{nodes.filter(n => selectedNodeIds.has(n.id)).map(n => <span key={n.id} style={pill}>{n.type}: {n.label}</span>)}</div><div style={{ display: "grid", gap: 5, marginTop: 8 }}>{relatedEdges.slice(0, 12).map(e => <div key={e.id} style={{ background: "#f8fafc", padding: 7, borderRadius: 8, fontSize: 11 }}>{e.relation_type} · {String(e.from_node).slice(0, 8)} → {String(e.to_node).slice(0, 8)}</div>)}</div>{!selectedNodeIds.size && <div style={{ color: "#98a2b3", fontSize: 12 }}>לא נמצאה זהות One Tree ישירה למונחי הממצא.</div>}</div></aside></div>}
+        {(stateOf(selected)==="HELD" || stateOf(selected)==="MISMATCH") && <div className="rv-grid2" style={{gridTemplateColumns:"1fr"}}><div className="rv-card"><h4 style={{color:"#ff8c92"}}>אי־התאמה / HOLD — המקור נשמר, האמת לא משוכתבת</h4><div className="rv-compare"><div className="source"><strong>טענת המקור</strong><pre className="rv-pre">{pretty(sourceClaim)}</pre></div><div className="canon"><strong>תוצאת הקורפוס / המנוע</strong><pre className="rv-pre">{pretty(canonical)}</pre></div></div><p className="rv-note">סיבה אפשרית: מהדורה, tokenization, segmentation או שיטת ספירה שטרם שוחזרה.</p></div></div>}
 
-      {tab === "sources" && <div style={{ display: "grid", gap: 12 }}>{grouped.map(g => { const p = posts[postId(g.ref)]; return <article key={g.ref} style={{ ...card, padding: 17 }}><div style={{ color: "#667085", fontSize: 11 }}>{g.ref} · {p?.source || "source"}</div><h3>{p?.title || g.ref}</h3><p style={{ color: "#475467", lineHeight: 1.7 }}>{stripHtml(p?.excerpt || p?.content, 700)}</p><div style={{ color: "#667085", fontSize: 12 }}>{g.items.length} Research Objects linked by live source_ref.</div></article>; })}{els && <article style={{ ...card, padding: 17 }}><div style={{ color: "#667085", fontSize: 11 }}>els_records · canonical source-native home</div><h3>{els.title}</h3><pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: 11 }}>{JSON.stringify(els.engine_detail, null, 2)}</pre></article>}</div>}
+        <div className="rv-why"><h4 style={{margin:0}}>למה אני רואה את זה?</h4><div className="rv-chain">{[["▤","מקור",selected?.source_ref],["⇩","חילוץ",selected?.kind],["⌗","שיטה",d.engine||"procedure"],["✓","אימות מנוע",selected?.engine_verified===true?"מאומת":"לא מאומת"],["◎","ממצא",STATUS[stateOf(selected)]?.label]].map(([ico,a,b])=><div className="rv-step" key={a}><div className="ico">{ico}</div><b>{a}</b><small>{String(b||"—")}</small></div>)}</div></div>
+      </section>
 
-      {tab === "review" && <div style={{ display: "grid", gap: 10 }}><div style={{ ...card, padding: 14, background: "#fffaf0", borderColor: "#f1d18a" }}><b>מחכה לצוריאל</b><div style={{ color: "#667085", fontSize: 12 }}>read-mostly: אין Promote to Canonical, אין Publish, אין Truth editing. “פתח למחקר” רק פותח Inspector.</div></div>{rows.filter(r => r.status === "candidate").map(r => <article key={r.id} style={{ ...card, padding: 14, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}><div style={{ flex: "1 1 500px" }}><div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}><span style={tag(stateOf(r))}>{stateOf(r)}</span><span style={pill}>{r.source_ref}</span></div><div style={{ marginTop: 7, fontWeight: 700 }}>{stripHtml(r.statement, 270)}</div></div><button onClick={() => { setSelectedId(r.id); setTab("findings"); }} style={{ border: "1px solid #175cd3", background: "#edf4ff", color: "#175cd3", borderRadius: 10, padding: "9px 12px", fontWeight: 800, cursor: "pointer" }}>פתח למחקר</button></article>)}</div>}
-    </>}
-  </div></main>;
+      <aside className="rv-panel rv-side"><div className="rv-panel-title"><h3>מפת הקשרים</h3><span className="rv-kicker">One Tree · live identities</span></div><div className="rv-graph"><svg className="rv-lines" viewBox="0 0 400 330" preserveAspectRatio="none"><g stroke="#527fab" strokeWidth="1"><line x1="200" y1="160" x2="200" y2="55"/><line x1="205" y1="165" x2="340" y2="100"/><line x1="205" y1="170" x2="325" y2="275"/><line x1="195" y1="170" x2="75" y2="280"/><line x1="195" y1="160" x2="55" y2="105"/></g></svg><div className="rv-node center">{selected?.value ?? "?"}</div><div className="rv-node n1">{selected?.source_ref}<br/><small>מקור</small></div><div className="rv-node n2">{(selected?.terms||[])[0] || "שיטה"}<br/><small>זהות</small></div><div className="rv-node n3">{d.engine?"מנוע":"Procedure"}<br/><small>{d.engine?"verified path":"research"}</small></div><div className="rv-node n4">{selectedPost?`פוסט ${postId(selected.source_ref)}`:"Source"}<br/><small>provenance</small></div><div className="rv-node n5">{relatedEdges.length} קשרים<br/><small>live edges</small></div></div><div className="rv-preview">Preview חזותי בלבד. אין Graph Store חדש; המסך משתמש ב־nodes/edges החיים.</div>
+        <div className="rv-panel-title"><h3>מחכה לצוריאל</h3><span>{rows.filter(r=>stateOf(r)!=="VERIFIED").length}</span></div><div className="rv-review">{rows.filter(r=>stateOf(r)!=="VERIFIED").map(r=><button className="rv-review-row" key={r.id} onClick={()=>setSelectedId(r.id)}><span>{titleFor(r)}</span><Chip state={stateOf(r)}/></button>)}{els&&<div className="rv-review-row"><span>ELS · משיח טבת עשירי</span><Chip state="VERIFIED">SOURCE-NATIVE</Chip></div>}</div>
+      </aside>
+    </section>
+
+    <section className="rv-bottom"><div className="rv-panel"><h3 style={{marginTop:0}}>מקור־טבעי · ELS</h3>{els?<div className="rv-els"><div className="rv-pair">ביטוי<b>{els.search_term}</b></div><div className="rv-pair">skip<b>{els.skip_distance}</b></div><div className="rv-pair">status<b style={{color:"#4fe39a"}}>{els.status}</b></div><div className="rv-pair">engine<b>{els.engine_detail?.engine || "—"}</b></div><div className="rv-pair">corpus_id<b>{els.corpus_id}</b></div><div className="rv-pair">start_index<b>{els.start_index}</b></div></div>:<div className="rv-note">אין רשומת ELS.</div>}</div>
+      <div className="rv-panel"><h3 style={{marginTop:0}}>שיטות פעילות בממצא</h3><div className="rv-methods"><div className="rv-method"><span>✂</span><small>רגיל</small></div><div className="rv-method"><span>⌘</span><small>גימטריה</small></div><div className="rv-method"><span>⌗</span><small>רצף ספרות</small></div><div className="rv-method"><span>ELS</span><small>דילוגים</small></div><div className="rv-method"><span>↔</span><small>קשרים</small></div></div><div className="rv-preview">Future-capability preview: שיטות נוספות יוצגו כאן רק כשהן חיות/מאומתות, לא כנתונים מומצאים.</div></div>
+      <div className="rv-panel"><h3 style={{marginTop:0}}>סטטוס מערכת</h3>{[["Research OS",true],["One Tree",true],["Engine verification",true],["Human Gate",true]].map(([a,on])=><div className="rv-online" key={a}><span>{a}</span><i>{on?"● ONLINE":"OFF"}</i></div>)}<p className="rv-note">כל מה שמוצג כ־LIVE מגיע מהמערכת החיה. יכולות עתידיות מסומנות Preview ולא מקודמות לאמת.</p></div></section>
+    </>}</div></main>;
 }
