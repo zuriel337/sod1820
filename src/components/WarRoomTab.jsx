@@ -38,11 +38,13 @@ import {
   normStatus, statusOptions, structuralExtract, actionState, ACT_STATE, whatMissing, sortItems,
   buildAttentionDigest,
 } from "../lib/ccwork.js";
+import { seenCutoff, markSeenKey } from "../lib/crossesNew.js";
 import AiAnalyze from "./AiAnalyze.jsx";
 import WriterOS from "./WriterOS.jsx";
 import NumberResearcher from "./admin/RazielRoom.jsx";
 import ElsModerationTab from "./ElsModerationTab.jsx";
 import MetatronAttention from "./admin/MetatronAttention.jsx";
+import AttentionSignals from "./admin/AttentionSignals.jsx";
 import { thumb } from "../lib/img.js";
 import { buildResearchCase, collectQueryNeeds } from "../lib/triage.js";
 
@@ -75,7 +77,7 @@ function useNarrow(bp = 760) {
 // היררכיית-כתבים (תצוגה בלבד — לא קנוני): מרכזיים ראשונים, שאר-המקורות אחריהם.
 const WRITERS = CORE_WRITERS;
 // תוויות-פאסטים לתצוגה ב-FilterBar (מפתח-סינון → עברית).
-const FACET_HE = { writer: "כתב", status: "סטטוס", method: "שיטה", dest: "יעד", tier: "רובד", flag: "סוג", kind: "סוג-מועמד", src: "צינור", srckind: "סוג-מקור", hasnum: "מכיל מספר", hasgem: "מכיל גימטריה", hasimg: "מכיל תמונה", engine: "נותח", judging: "לשיפוט", from: "מ-", to: "עד" };
+const FACET_HE = { writer: "כתב", status: "סטטוס", method: "שיטה", dest: "יעד", tier: "רובד", flag: "סוג", kind: "סוג-מועמד", src: "צינור", srckind: "סוג-מקור", hasnum: "מכיל מספר", hasgem: "מכיל גימטריה", hasimg: "מכיל תמונה", engine: "נותח", judging: "לשיפוט", from: "מ-", to: "עד", channel: "ערוץ", group: "קבוצת-וואטסאפ" };
 const SRCKIND_HE = { post: "📄 פוסט", comment: "💬 תגובה", channel: "📡 ערוץ", finding: "🔬 ממצא", wa: "🟢 וואטסאפ" };
 
 // ── CC-1.1 · LIVE INGESTION — הפרדת שלושת הצינורות (READ-ONLY, בלי feeder/WRITE) ──
@@ -86,6 +88,10 @@ const A_CHANNELS = [
   ["or-geula", "אור הגאולה"], ["sfot-vheker", "שפות וחקר מציאות"],
 ];
 const C_SOURCES = ["discovery-engine", "entity-combo", "research-center", "active-panel"];
+// 🔥 Pass 1C §2: hot_numbers_live(days,lim) — מקור-אמת יחיד למספר-הימים (אין hardcode כפול בתווית).
+const HOT_DAYS = 30;
+// §7 · תוויות-ערוץ (מ-A_CHANNELS הקיים — לא רשימה שנייה).
+const CHANNEL_HE = Object.fromEntries(A_CHANNELS);
 
 // ⚖️ Pipeline C · Human Gate (STEP 1B — screen-map approved by Zuriel 25.8.2026).
 // EXTENDS WarRoomTab in place — same file, same tab, no new route/store. Read: research_objects
@@ -638,6 +644,9 @@ function matchesFilters(it, f) {
   }
   if (f.tier && it.tier?.key !== f.tier) return false;
   if (f.srckind && it.srckind !== f.srckind) return false;
+  // §7 · פאסט קבוצה/ערוץ — מזהה-יציב אמיתי (channel_updates.channel / wa_bot_log.group_id), לא מחרוזת-תצוגה.
+  if (f.channel && it.channel !== f.channel) return false;
+  if (f.group && it.group !== f.group) return false;
   if (f.flag && it.flag !== f.flag) return false;
   if (f.kind && it.kind !== f.kind) return false;
   if (f.src) { const ok = f.src === "discovery" ? C_SOURCES.includes(it.src) : it.src === f.src; if (!ok) return false; }
@@ -660,6 +669,7 @@ function FilterBar({ filters, onClear, onRemove }) {
   const label = (k, v) => {
     if (v === true) return FACET_HE[k] || k;                       // צ'יפ-toggle (מכיל-מספר/נותח/…)
     if (k === "srckind") return SRCKIND_HE[v] || v;
+    if (k === "channel") return CHANNEL_HE[v] || v;
     const vv = v === "__UNKNOWN__" ? "לא-מזוהה" : v === "__ZURIEL__" ? "👑 ZURIEL/1237" : v === "__STRUCT__" ? "מבנה" : v;
     return `${FACET_HE[k] || k}: ${vv}`;
   };
@@ -674,7 +684,7 @@ function FilterBar({ filters, onClear, onRemove }) {
   );
 }
 // שורת-בקרות הסינון (dropdowns) + מיון + «הצג גם שטופלו».
-function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowHandled, hideSelf, setHideSelf, writers, statuses, methods, handledCount }) {
+function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowHandled, hideSelf, setHideSelf, writers, statuses, methods, handledCount, waGroups }) {
   const set = (k, v) => setFilters((cur) => { const n = { ...cur }; if (!v) delete n[k]; else n[k] = v; return n; });
   const sel = { background: C.surface2, color: C.goldLight, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 8px", fontSize: 12, fontFamily: F.heading };
   return (
@@ -699,6 +709,17 @@ function WorkFilters({ filters, setFilters, sort, setSort, showHandled, setShowH
         <option value="">כל היעדים</option>
         {["VAULT", "CORE", "Atlas", "שכבת-הציר"].map((d) => <option key={d} value={d}>{d}</option>)}
       </select>
+      {/* §7 · פאסט קבוצה/ערוץ — מזהה-יציב אמיתי (channel_updates.channel / wa_bot_log.group_id) */}
+      <select value={filters.channel || ""} onChange={(e) => { set("channel", e.target.value); set("group", ""); }} style={sel}>
+        <option value="">כל הערוצים</option>
+        {A_CHANNELS.map(([slug, he]) => <option key={slug} value={slug}>📡 {he}</option>)}
+      </select>
+      {(waGroups || []).length > 0 && (
+        <select value={filters.group || ""} onChange={(e) => { set("group", e.target.value); set("channel", ""); }} style={sel}>
+          <option value="">כל קבוצות-הוואטסאפ</option>
+          {waGroups.map((g) => <option key={g} value={g}>🟢 {g}</option>)}
+        </select>
+      )}
       <label style={{ color: C.faint, fontSize: 11, display: "inline-flex", gap: 3, alignItems: "center" }}>מ־<input type="date" value={filters.from || ""} onChange={(e) => set("from", e.target.value)} style={sel} /></label>
       <label style={{ color: C.faint, fontSize: 11, display: "inline-flex", gap: 3, alignItems: "center" }}>עד<input type="date" value={filters.to || ""} onChange={(e) => set("to", e.target.value)} style={sel} /></label>
       <select value={sort} onChange={(e) => setSort(e.target.value)} style={sel}>
@@ -2002,20 +2023,76 @@ function DetailPanel({ item, onClose, onFilter, onHandle, onUnhandle }) {
   );
 }
 
-// Bulk Bar — «סגור מהתור» מבוצע בפועל (marker אישי); שאר-הפעולות gated (פאזה 3 · Human-Gate).
-function BulkBar({ items, onClear, onCloseQueue }) {
+// §9-11 · Bulk Action Bar — מטריצת-תאימות-לפי-סוג-ישות, בלי RPC-גנרי-מומצא:
+//   · "✔ סגור מהתור" (Attention בלבד, research_items) — זמין לכל סוג-ישות, תמיד.
+//   · "⚖️ אשר/דחה כמועמדים" (Truth, admin_research_review) — זמין רק כשהבחירה הומוגנית
+//     (כולה srckind='finding' + status='candidate') — בדיוק אותו RPC-קנוני שכבר קיים per-item.
+//   · שאר-הפעולות (בדוק-במנוע/סווג/למד/ניתוב) — אין להן היום נתיב-קנוני-רב-ישויות → disabled + טולטיפ
+//     מדויק (לא "פאזה 3", ניסוח שכבר תוקן כלא-מדויק ב-Pass 1 follow-up), לא alert מטעה.
+const CLOSE_REASONS = ["לא רלוונטי", "כפול", "חלש מדי", "לא מתאים למחקר"];
+function BulkBar({ items, onClear, onCloseQueue, onBulkDecide, busy, narrow }) {
+  const [confirm, setConfirm] = useState(null); // {kind, reason?} — ממתין-לאישור-מפורש
+  const [reason, setReason] = useState("");
+  const [lastResult, setLastResult] = useState(null); // {ok, fail} — תוצאת-Bulk-decide אחרונה
   const n = items.length;
-  if (!n) return null;
-  const gated = (a) => alert(`«${a}» על ${n} פריטים — ממתין לאישור (פאזה 3 · Human-Gate). לא בוצע WRITE.`);
+  if (!n && !lastResult) return null;
+  if (!n && lastResult) {
+    return (
+      <div style={{ ...box, borderColor: lastResult.fail ? "#e0563a" : "#4caf7d", display: "flex", gap: 8, alignItems: "center" }}>
+        <span style={{ color: lastResult.fail ? "#e0563a" : "#4caf7d", fontWeight: 800, fontSize: 12.5 }}>
+          {lastResult.fail ? `⚠️ ${lastResult.ok} הצליחו · ${lastResult.fail} נכשלו` : `✔ בוצע על ${lastResult.ok} פריטים`}
+        </span>
+        <button onClick={() => setLastResult(null)} style={{ ...chip(false), marginInlineStart: "auto" }}>סגור</button>
+      </div>
+    );
+  }
+  const bySrc = {};
+  for (const it of items) bySrc[it.srckind || it.source || "אחר"] = (bySrc[it.srckind || it.source || "אחר"] || 0) + 1;
+  const breakdown = Object.entries(bySrc).map(([k, c]) => `${SRCKIND_HE[k] || k}: ${c}`).join(" · ");
+  const homogeneousCandidates = n > 0 && items.every(it => it.srckind === "finding" && it.status === "candidate" && !it.handled);
+  const doCloseWithReason = (r) => { onCloseQueue(items, r); setConfirm(null); setReason(""); };
   return (
-    <div style={{ ...box, borderColor: C.goldBright, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+    <div style={{ ...box, borderColor: C.goldBright, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", ...(narrow ? { position: "sticky", bottom: 8, zIndex: 5, boxShadow: "0 4px 18px rgba(0,0,0,0.18)" } : {}) }}>
       <b style={{ color: C.goldBright, fontFamily: F.heading }}>נבחרו {n}</b>
-      <button onClick={() => onCloseQueue(items)} style={chip(false, "#4caf7d")}>✔ סגור מהתור ({n})</button>
-      <span style={{ color: C.faint, fontSize: 10 }}>|</span>
-      {["🔬 בדוק במנוע", "🏷️ סווג", "🧠 למד", "📥 → VAULT", "🔗 → Atlas", "🕐 → שכבת-הציר", "⚖️ שיפוט"].map((a) =>
-        <button key={a} onClick={() => gated(a)} style={chip(false)}>{a}</button>)}
-      <button onClick={onClear} style={{ ...chip(false), marginInlineStart: "auto" }}>נקה בחירה</button>
-      <span style={{ color: C.faint, fontSize: 10 }}>«סגור-מהתור» מבוצע · שאר הפעולות פאזה 3 · Rank-Don't-Hide</span>
+      <span style={{ color: C.faint, fontSize: 10.5 }}>{breakdown}</span>
+      {!confirm && (
+        <>
+          <button disabled={busy} onClick={() => setConfirm({ kind: "close" })} style={{ ...chip(false, "#4caf7d"), opacity: busy ? 0.5 : 1 }}>✔ סגור מהתור ({n})</button>
+          {homogeneousCandidates && (
+            <>
+              <button disabled={busy} onClick={() => setConfirm({ kind: "approve" })} style={{ ...chip(false, "#3ea6ff"), opacity: busy ? 0.5 : 1 }}>⚖️ אשר כמועמדים ({n})</button>
+              <button disabled={busy} onClick={() => setConfirm({ kind: "reject" })} style={{ ...chip(false, "#e0563a"), opacity: busy ? 0.5 : 1 }}>✕ דחה כמועמדים ({n})</button>
+            </>
+          )}
+          <span style={{ color: C.faint, fontSize: 10 }}>|</span>
+          {["🔬 בדוק במנוע", "🏷️ סווג", "📥 → VAULT", "🔗 → Atlas", "🕐 → שכבת-הציר"].map((a) =>
+            <button key={a} disabled title={`אין עדיין נתיב-קנוני לפעולה הזו על ${n > 1 ? "כמה סוגי-ישות בבת-אחת" : "סוג-הישות הזה"} — EXTENSION POINT, לא בוצע WRITE`} style={{ ...chip(false), opacity: 0.4, cursor: "not-allowed" }}>{a}</button>)}
+          <button onClick={onClear} style={{ ...chip(false), marginInlineStart: "auto" }}>נקה בחירה</button>
+        </>
+      )}
+      {confirm?.kind === "close" && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", width: "100%" }}>
+          <span style={{ color: C.muted, fontSize: 11.5 }}>סיבת-סגירה (תור-קשב אישי — לא קביעת-אמת מחקרית):</span>
+          {CLOSE_REASONS.map(r => <button key={r} onClick={() => doCloseWithReason(r)} style={chip(false)}>{r}</button>)}
+          <input value={reason} onChange={e => setReason(e.target.value)} placeholder="סיבה אחרת…" style={{ ...selBox, minWidth: 140 }} />
+          <button onClick={() => doCloseWithReason(reason || "טופל · Bulk")} style={chip(false, "#4caf7d")}>אשר סגירה של {n}</button>
+          <button onClick={() => setConfirm(null)} style={chip(false)}>ביטול</button>
+        </div>
+      )}
+      {(confirm?.kind === "approve" || confirm?.kind === "reject") && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", width: "100%" }}>
+          <span style={{ color: confirm.kind === "approve" ? "#3ea6ff" : "#e0563a", fontSize: 12, fontWeight: 800 }}>
+            אתה עומד לבצע «{confirm.kind === "approve" ? "אישור" : "דחייה"}» על {n} מועמדים ({breakdown}) — פעולת-Truth דרך admin_research_review, בלתי-הפיכה (סטטוס משתנה). אשר במפורש:
+          </span>
+          <button disabled={busy} onClick={async () => {
+            const results = await onBulkDecide(items, confirm.kind === "approve" ? "approve" : "reject");
+            const ok = (results || []).filter(r => r.ok).length, fail = (results || []).length - ok;
+            setLastResult({ ok, fail }); setConfirm(null);
+          }} style={{ ...chip(false, confirm.kind === "approve" ? "#3ea6ff" : "#e0563a"), opacity: busy ? 0.5 : 1 }}>{busy ? "מבצע…" : `כן — בצע על ${n}`}</button>
+          <button onClick={() => setConfirm(null)} style={chip(false)}>ביטול</button>
+        </div>
+      )}
+      <span style={{ color: C.faint, fontSize: 10, width: "100%" }}>Rank-Don't-Hide · «סגור-מהתור» = Attention בלבד (research_items) · אישור/דחייה = Truth (decision_ledger) דרך RPC קנוני קיים בלבד</span>
     </div>
   );
 }
@@ -2065,7 +2142,7 @@ export default function WarRoomTab() {
     setBusy(true);
     const [forum, wa, posts, hn, feed, groups, contribs] = await Promise.all([
       getForumMaterial({ limit: 40 }), getWaLog({ limit: 40 }),
-      getPostsFromSupabase({ limit: 12 }), getHotNumbers(30, 12),
+      getPostsFromSupabase({ limit: 12 }), getHotNumbers(HOT_DAYS, 12),
       getResearchFeed({ status: "candidate", limit: 120 }), getWaGroups(),
       getContributorsIndex(),
     ]);
@@ -2148,6 +2225,23 @@ export default function WarRoomTab() {
     try { await unmarkHandled(uid, item); } catch (e) { console.warn("unmarkHandled", e); }
     await reloadHandled();
   }, [uid, reloadHandled]);
+  // §9 · Bulk Human-Gate — נתיב-קנוני אמיתי ויחיד: admin_research_review (בדיוק אותו RPC שכבר
+  // משמש per-item ב-PipelineCReview) — לא RPC-גנרי-מומצא. פועל רק על מועמדי-מנוע (srckind='finding',
+  // status='candidate') — לא על channel_updates/פורום/פוסטים, שאין להם נתיב-קנוני מקביל.
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const bulkDecideCandidates = useCallback(async (items, decision) => {
+    setBulkBusy(true);
+    const results = [];
+    for (const it of items) {
+      const id = String(it.key || "").replace(/^r:/, "");
+      try {
+        const { data, error } = await supabase.rpc("admin_research_review", { p_id: id, p_decision: decision });
+        results.push({ id, ok: !error && data?.ok === true, error: error?.message || data?.error });
+      } catch (e) { results.push({ id, ok: false, error: e?.message || "network_error" }); }
+    }
+    setBulkBusy(false); clearSel(); await loadNow();
+    return results;
+  }, [clearSel, loadNow]);
 
   // צינור C — מועמדי-מנוע בלבד (discovery-engine…), מופרד מ-wa-raziel של צינור B.
   const discoveryC = useMemo(() => (candidates || []).filter(c => C_SOURCES.includes(c.src)), [candidates]);
@@ -2185,12 +2279,15 @@ export default function WarRoomTab() {
   const writerOptions = useMemo(() => orderWriters(poolAll.map(i => i.writer?.canonical?.display_name || i.writer?.contributor?.display_name).filter(Boolean)), [poolAll]);
   const statusOpts = useMemo(() => statusOptions(poolAll), [poolAll]);
   const methodOpts = useMemo(() => [...new Set(poolAll.map(i => i.method).filter(Boolean))], [poolAll]);
+  // §7 · אפשרויות-קבוצת-וואטסאפ — מזהה-יציב אמיתי (group_id), נגזר מהמאגר הטעון (אין fetch נוסף).
+  const waGroupOpts = useMemo(() => [...new Set(poolAll.map(i => i.group).filter(Boolean))], [poolAll]);
   // CC-1.3 ש2 · רב-בחירה. shown = מאגר-הכתב (אם פעיל) אחרת התור המוצג. בחירת-כתב = כל-החומר (כל הצינורות).
   const shown = useMemo(() => writerPool || [...liveAf, ...candF], [writerPool, liveAf, candF]);
   const hasFilter = Object.keys(filters).length > 0;
   // 🎛️ Pass 1B §3: digest חסום עבור רזיאל — מעל shown (כבר מכבד hideSelf/filters/showHandled).
-  // אין fetch נוסף כאן — רק צבירה/דגימה מעל מה שכבר טעון.
-  const attentionDigest = useMemo(() => buildAttentionDigest(shown, { mode, filters, hideSelf }), [shown, mode, filters, hideSelf]);
+  // אין fetch נוסף כאן — רק צבירה/דגימה מעל מה שכבר טעון. Pass 1C §16-17: זו הפרוסה "FILTERED";
+  // razielDigest (למטה, אחרי selItems) בוחר בין SELECTED/FILTERED — היטלים (projections) על אותו live set.
+  const filteredDigest = useMemo(() => buildAttentionDigest(shown, { mode, filters, hideSelf }), [shown, mode, filters, hideSelf]);
   // מונה-התור החי: מועמדים שלא-שוטפלו (יורד כשסוגרים פריט מהתור). לא תלוי בפילטר — עומק-התור האמיתי.
   const pendingCand = useMemo(() => (candidates || []).map(withH).filter(c => !c.handled), [candidates, withH]);
   const openAllCandidates = () => { setMode("now"); setFilters({}); setShowHandled(false); setCandExpanded(true); setTimeout(() => candRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); };
@@ -2205,8 +2302,21 @@ export default function WarRoomTab() {
     return { entered, handledN, waiting: entered - handledN, judging: pendingCand.length, aE, aWait: aE - aH };
   }, [liveA, candidates, countHandled, pendingCand.length]);
   const selItems = useMemo(() => poolAll.filter(i => sel.has(i.key)), [poolAll, sel]);
+  // §16-17 · רזיאל מבין ALL/FILTERED/SELECTED — היטלים על אותו תור-חי, לא 3 stores. יש בחירה פעילה →
+  // digest מצומצם לנבחרים בלבד (scope="selected"); אחרת ה-digest המסונן-הרגיל (filteredDigest).
+  const razielDigest = useMemo(() =>
+    sel.size > 0 ? buildAttentionDigest(selItems, { mode, filters, hideSelf, scope: "selected" }) : filteredDigest,
+    [sel.size, selItems, filteredDigest, mode, filters, hideSelf]);
+  // §3.3 · "חדש מהמערכת" — reuse whats_new_law הקנוני (crossesNew.js), מפתח נפרד לחדר-המפקדה.
+  const signalsCutoff = useMemo(() => seenCutoff("cc_signals"), []);
+  const markSignalsSeen = useCallback(() => markSeenKey("cc_signals"), []);
   const toggleSel = (k) => setSel(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
+  // §8 · הבחנה קריטית: "בחר את המוצגים" (רק מה-שנרנדר בפועל, ה-20 הראשונים) ≠ "בחר הכל לפי הסינון"
+  // (כל shown — כל הפריטים התואמים לפילטר, גם אם לא-מוצגים כי הרשימה חתוכה ל-20). שני כפתורים נפרדים.
+  const VISIBLE_CAP = 20;
+  const selectVisibleShown = () => setSel(new Set(liveAf.slice(0, VISIBLE_CAP).map(i => i.key)));
   const selectAllShown = () => setSel(new Set(shown.map(i => i.key)));
+  const invertSel = () => setSel(s => new Set(shown.filter(i => !s.has(i.key)).map(i => i.key)));
   const selectWriter = (name) => setSel(new Set(poolAll.filter(i => {
     const w = i.writer; const canon = w?.canonical?.display_name || w?.contributor?.display_name;
     return canon === name || i.rawAuthor === name || i.author === name;
@@ -2248,8 +2358,8 @@ export default function WarRoomTab() {
       <div style={{ ...box, display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
         <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 800, fontSize: 13 }}>🕸️ מטטרון</span>
         <span style={{ color: C.muted, fontSize: 12 }}>מועמדים ממתינים: <b onClick={openAllCandidates} title="הצג את כל התור" style={{ color: C.goldBright, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>{pendingCand.length}</b></span>
-        <span style={{ color: C.muted, fontSize: 12 }}>🔥 מתעורר: {(hot || []).slice(0, 8).map(h => <b key={h.n} style={{ color: C.goldLight, cursor: "pointer", marginInlineEnd: 6 }} onClick={() => setFocusN(h.n)}>{h.n}</b>)}</span>
-        <span style={{ color: C.faint, fontSize: 11 }}>(חם = אות, לא אמת)</span>
+        <span style={{ color: C.muted, fontSize: 12 }}>👀 חם אצל הקהל: {(hot || []).slice(0, 8).map(h => <b key={h.n} style={{ color: C.goldLight, cursor: "pointer", marginInlineEnd: 6 }} onClick={() => setFocusN(h.n)}>{h.n}</b>)}</span>
+        <span style={{ color: C.faint, fontSize: 11 }} title={`מבוסס צפיות בדפי מספר ב-${HOT_DAYS} הימים האחרונים — אות-קהל, לא המלצת רזיאל`}>(מבוסס צפיות-קהל ב-{HOT_DAYS} ימים — לא המלצת רזיאל)</span>
       </div>
 
       {mode === "now" && (
@@ -2261,7 +2371,13 @@ export default function WarRoomTab() {
             שומר במלואו: היסטוריית-שיחה (agent_user_memory) · context_snapshot («על סמך מה ענית») ·
             בדיקת-מועמדים · פקודות-שיחה קיימות (אשר/דחה/שלח-לשופט — עוברות ב-admin_research_review/
             decideCandidate הקיימים, אין הרשאת-קנוניזציה חדשה). רזיאל = קורא/מנתח/מסביר/ממליץ בלבד. */}
-        <NumberResearcher theme={C} attentionDigest={attentionDigest} mode={mode} filtersActive={hasFilter} />
+        {/* 📡 אותות-קשב — Pass 1C §3/§5: SIGNALS קודם ל-RAZIEL (FINAL PRODUCT LAW: Signals → Raziel →
+            Recommendation → Zuriel). עובדות דטרמיניסטיות בלבד — «מה כדאי לי לעשות» נשאר רק בחדר-רזיאל
+            שמתחתיו, כדי לא למזג recommendation לתוך signal (§4/§5). אין fetch חדש — מעל מה שכבר טעון. */}
+        <AttentionSignals theme={C} items={poolAll} hot={hot} hotDays={HOT_DAYS}
+          newCutoff={signalsCutoff} onFocusValue={setFocusN} onMarkSeen={markSignalsSeen} />
+
+        <NumberResearcher theme={C} attentionDigest={razielDigest} mode={mode} filtersActive={sel.size > 0 ? false : hasFilter} />
 
         {/* 📊 מונים — נכנס / ממתין / טופל / לשיפוט · עקביים (נכנסו−טופלו=ממתינים) · לחיצים */}
         <div style={{ ...box, padding: 0, overflow: "hidden" }}>
@@ -2288,7 +2404,7 @@ export default function WarRoomTab() {
             <span style={{ color: C.goldBright, fontFamily: F.heading, fontWeight: 900, fontSize: 14 }}>📡 קליטה חיה (LIVE INGESTION)</span>
             <span style={{ color: C.faint, fontSize: 11 }}>שלושה צינורות · לחיץ · תצוגה-בלבד (לא feeder, לא WRITE) {busy && "…"}</span>
           </div>
-          <WorkFilters filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} showHandled={showHandled} setShowHandled={setShowHandled} hideSelf={hideSelf} setHideSelf={setHideSelf} writers={writerOptions} statuses={statusOpts} methods={methodOpts} handledCount={handled.size} />
+          <WorkFilters filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} showHandled={showHandled} setShowHandled={setShowHandled} hideSelf={hideSelf} setHideSelf={setHideSelf} writers={writerOptions} statuses={statusOpts} methods={methodOpts} handledCount={handled.size} waGroups={waGroupOpts} />
           <FilterBar filters={filters} onClear={() => setFilters({})} onRemove={(k) => setFilters((cur) => { const n = { ...cur }; delete n[k]; return n; })} />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10, marginTop: 8 }}>
             <div onClick={() => setFilter({ type: "tier", value: "RAW", label: "רובד: מקור (RAW)", color: "#8a8a95" })}
@@ -2316,10 +2432,14 @@ export default function WarRoomTab() {
           <div style={{ marginTop: 12, display: "grid", gap: 2 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
               <span style={{ color: "#4caf7d", fontFamily: F.heading, fontWeight: 800, fontSize: 12.5 }}>🟢 חומר-A שנכנס (חדש/קיים/כפול):</span>
-              <button onClick={selectAllShown} style={chip(false)}>☐ בחר מוצג</button>
+              {/* §8 · "בחר את המוצגים" (רק ה-20 המוצגים כרגע) ≠ "בחר הכל לפי הסינון" (כל shown, גם לא-מוצגים) */}
+              <button onClick={selectVisibleShown} style={chip(false)} title={`בוחר רק את ${Math.min(VISIBLE_CAP, liveAf.length)} השורות המוצגות`}>☐ בחר את המוצגים ({Math.min(VISIBLE_CAP, liveAf.length)})</button>
+              <button onClick={selectAllShown} style={chip(false, "#3ea6ff")} title="בוחר את כל הפריטים התואמים לסינון הנוכחי, גם אם לא כולם מוצגים">☑ בחר הכל לפי הסינון ({shown.length})</button>
+              {sel.size > 0 && <button onClick={invertSel} style={chip(false)}>⇄ הפוך בחירה</button>}
               {filters.writer && filters.writer !== "__UNKNOWN__" &&
                 <button onClick={() => selectWriter(filters.writer)} style={chip(false, "#b08bd8")}>👤 בחר כל {filters.writer}</button>}
               {sel.size > 0 && <button onClick={clearSel} style={chip(false)}>נקה ({sel.size})</button>}
+              {sel.size > 0 && <span style={{ color: C.faint, fontSize: 10.5 }}>נבחרו {sel.size} מתוך {shown.length} התואמים לסינון</span>}
             </div>
             {liveAf.length ? liveAf.slice(0, 20).map(it => <IngestRow key={it.key} item={it} onOpen={setDetail} onFilter={setFilter} selected={sel.has(it.key)} onToggle={toggleSel} onClose={(x) => doClose(x, "טופל")} onUnclose={doUnclose} />)
               : <div style={{ color: C.muted, fontSize: 12 }}>{busy ? "טוען…" : (hasFilter ? "אין חומר-A תואם לפילטר." : "אין חומר-A חי כרגע (status='live').")}</div>}
@@ -2377,7 +2497,7 @@ export default function WarRoomTab() {
         <ImagePilotPanel />
 
         {/* CC-1.3 ש2 · Bulk Bar — «סגור מהתור» מבוצע; שאר gated */}
-        <BulkBar items={selItems} onClear={clearSel} onCloseQueue={(items) => doClose(items, "טופל · Bulk")} />
+        <BulkBar items={selItems} onClear={clearSel} onCloseQueue={(items, reason) => doClose(items, reason || "טופל · Bulk")} onBulkDecide={bulkDecideCandidates} busy={bulkBusy} narrow={narrow} />
 
         {/* דרישה 8 · כל-החומר-של-הכתב — איחוד כל הצינורות (לא רק חומר-שנותב) */}
         {filters.writer && filters.writer !== "__UNKNOWN__" && (

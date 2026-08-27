@@ -25,7 +25,20 @@ const DARK = {
 const METHOD_HE = { ragil: "רגיל", gadol: "גדול", katan: "קטן", kadmi: "קדמי", misratar: "מסתתר", atbash: "אתבש", siduri: "סידורי", mispar_katan: "מספר קטן", neelam: "נעלם", meshulash: "משולש", perati: "פרטי" };
 const heM = (m) => METHOD_HE[String(m || "").trim()] || m;
 
-const QUICK_ACTIONS = ["סכם לי", "קבץ לי", "מצא כפילויות", "מה קודם?"];
+const QUICK_ACTIONS = ["סכם לי", "קבץ לי", "מצא כפילויות", "מה קודם?", "מה כדאי לי לבדוק עכשיו?"];
+
+// §18 · ניתוב-לפי-כוונה, לא לפי-נוכחות-ספרות. "יש לי 196 ממתינים, תעשה לי סדר" חייב *לא* לנתב
+// למומחה-המספרים (196 = כמות-תור, לא מספר-לחקירה). רק כוונת-מחקר-מספר-מפורשת → NumberResearcher.
+const NUMBER_INTENT_RE = /(חקור|תחקור|מה ידוע על|מה יש ב-?|פתח את|מה מחכה בשופט|תבדוק לי את המספר|תספר לי על)/;
+const WORKLOAD_WORD_RE = /(ממתינ|פריטים|דברים|קבץ|סכם|עדיפות|בחיר|תור|שולחן|כפילוי|קודם|לבדוק עכשיו)/;
+function looksLikeNumberIntent(m, vals) {
+  if (!vals?.length) return false;
+  if (NUMBER_INTENT_RE.test(m)) return true;                 // כוונה מפורשת — תמיד למומחה-המספרים
+  if (WORKLOAD_WORD_RE.test(m)) return false;                 // שפת-עבודת-תור — לא מספר-לחקירה, גם אם יש ספרות
+  // הודעה "חשופה" — כמעט-רק-הספרות (למשל "321" או "321 2212") → עדיין מומחה-המספרים (ברירת-מחדל Pass 1)
+  const stripped = m.replace(/\d{1,6}/g, "").trim();
+  return stripped.length <= 4;
+}
 
 export default function NumberResearcher({ theme, attentionDigest, mode, filtersActive } = {}) {
   const T = theme || DARK;
@@ -56,6 +69,8 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
   const [busyC, setBusyC] = useState(null);
   const [snap, setSnap] = useState(null);          // context_snapshot של התשובה האחרונה
   const [showSnap, setShowSnap] = useState(false);
+  // §19 · שופט-המספרים מקופל-כברירת-מחדל (משני) — נפתח בלחיצה, לא-דומיננטי-ויזואלית בחדר-רזיאל.
+  const [candStripOpen, setCandStripOpen] = useState(false);
 
   const loadCands = () => getConvergenceCandidates(50).then(r => setCands(r?.candidates || [])).catch(() => {});
   useEffect(() => { loadCands(); }, []);
@@ -163,8 +178,8 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
     const hist = msgs.map(x => ({ role: x.role, text: x.text }));
     const vals = values.length ? values : parseVals(m);
     try {
-      if (vals.length) {
-        // 🔢 מומחיות-מספרים (ללא-שינוי מ-Pass 1)
+      if (looksLikeNumberIntent(m, vals)) {
+        // 🔢 מומחיות-מספרים (ללא-שינוי מ-Pass 1) — רק כשהכוונה היא באמת חקירת-מספר (§18)
         if (vals.join() !== values.join()) { setValues(vals); const ds = await Promise.all(vals.map(v => getNumberDossier(v).catch(() => null))); setDossiers(ds); }
         const res = await askNumberResearcher(vals, m, hist);
         if (res?.dossiers) setDossiers(res.dossiers);
@@ -190,7 +205,7 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
         <div style={{ flex: 1, minWidth: 160 }}>
           <div style={{ color: razielAccent, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>חדר רזיאל — עוזר חדר המפקדה</div>
           <div style={{ color: T.muted, fontFamily: F.body, fontSize: 12 }}>
-            {digestTotal != null ? <>יש כרגע <b style={{ color: T.goldLight }}>{digestTotal}</b> פריטים בתור{filtersActive ? " (מסונן)" : ""} — «סכם לי» / «קבץ לי» / «מצא כפילויות» / «מה קודם?». </> : ""}
+            {digestTotal != null ? <>יש כרגע <b style={{ color: T.goldLight }}>{digestTotal}</b> {attentionDigest?.scope === "selected" ? "פריטים נבחרים" : "פריטים בתור"}{filtersActive ? " (מסונן)" : ""} — «סכם לי» / «קבץ לי» / «מצא כפילויות» / «מה קודם?». </> : ""}
             למספר-ספציפי: «חקור לי 321» · «אשר 321» / «דחה 665» / «שלח 424 לשופט».
           </div>
         </div>
@@ -207,8 +222,11 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
       {/* רשימה חיה — מה מחכה לך לאשר בשופט (לחיץ + פקודה) — תת-קבוצה צרה מתור-הקשב הכולל */}
       {cands.length > 0 && (
         <div style={{ background: tint1, border: `1px solid ${T.border}`, borderRadius: 10, padding: "8px 10px", marginBottom: 10 }}>
-          <div style={{ color: T.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>🗂️ ממתינים לך בשופט ({cands.length}) <span style={{ color: T.muted, fontWeight: 400 }}>— לחץ לחקור, או אמור לרזיאל «אשר …»</span></div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxHeight: 96, overflowY: "auto" }}>
+          <div onClick={() => setCandStripOpen(v => !v)} style={{ cursor: "pointer", color: T.goldLight, fontFamily: F.heading, fontSize: 12, fontWeight: 700, marginBottom: candStripOpen ? 6 : 0, display: "flex", alignItems: "center", gap: 6 }}>
+            🔢 שופט המספרים · {cands.length} <span style={{ color: T.muted, fontWeight: 400 }}>— מומחיות משנית, {candStripOpen ? "לחץ לקפל" : "לחץ להרחיב"}</span>
+            <span style={{ marginInlineStart: "auto", color: T.faint }}>{candStripOpen ? "▲" : "▼"}</span>
+          </div>
+          {candStripOpen && <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxHeight: 96, overflowY: "auto" }}>
             {cands.map(c => (
               <span key={c.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: isLight ? "#ffffff" : "rgba(0,0,0,0.25)", border: `1px solid ${recCol[c.recommendation] || T.border}`, borderRadius: 999, padding: "3px 6px 3px 10px", opacity: busyC === c.subject_ref ? 0.5 : 1 }}>
                 <button onClick={() => { setInput(String(c.subject_ref)); setTimeout(start, 0); }} title="חקור" style={{ background: "none", border: "none", color: recCol[c.recommendation] || goldDim, fontFamily: F.mono, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{c.subject_ref}</button>
@@ -216,7 +234,7 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
                 <button onClick={async () => { setBusyC(c.subject_ref); await decideCandidate(c.id, "reject").catch(() => {}); setCands(p => p.filter(x => x.id !== c.id)); push("assistant", `❌ נדחה: ${c.subject_ref} (נשמר כ«חיבור לא-מאושר», לא כנתון-שגוי).`); setBusyC(null); }} title="דחה" style={{ background: "rgba(200,80,80,0.12)", border: "none", color: "#c0392b", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", fontSize: 11 }}>✕</button>
               </span>
             ))}
-          </div>
+          </div>}
         </div>
       )}
 
@@ -258,7 +276,7 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
             <div style={{ background: tint3, border: `1px solid ${T.border}`, borderRadius: 8, padding: "9px 11px", marginTop: 6, fontFamily: F.body, fontSize: 11.5, color: goldDim, lineHeight: 1.7 }}>
               {snap.mode === "attention" ? (<>
                 <div>🧠 מוח: <b>raziel_brain#1</b> · מצב: עוזר-קשב (profile={snap.profile || "ZURIEL_RESEARCH"})</div>
-                <div>📊 digest: {snap.digest_total ?? "—"} פריטים בתור · דוגמית {snap.digest_sample_count ?? "—"}</div>
+                <div>📊 digest: {snap.digest_total ?? "—"} פריטים · scope={snap.digest_scope || "filtered"} · דוגמית {snap.digest_sample_count ?? "—"}</div>
                 <div>🎯 תחומים שזוהו: {(snap.domains_detected || []).join(" · ") || "—"}</div>
                 <div>📏 חוקים-חיים-רלוונטיים שנשלפו (nodes, לא-רשימה-קבועה): {(snap.rules_used || []).length ? snap.rules_used.map(r => `${r.rule_id}(${r.score})`).join(" · ") : "—"}</div>
                 <div>⚙️ מודל: {snap.model || "—"}</div>

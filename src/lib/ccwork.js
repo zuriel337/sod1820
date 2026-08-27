@@ -136,7 +136,7 @@ export function sortItems(list, sort) {
 // rawAuthor/author/value/values/tier/ts/raw/title/handled/engineVerified/flag/__isSelf) — בדיוק
 // הצורה שכבר נבנית ב-WarRoomTab (normForum/normWa/normPost/normCandidate/normChannel + withWriter
 // + withH). reuse-first: אין כאן fetch/DB — טהור-קלט→פלט מעל מה שכבר טעון.
-export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample = 40, maxTop = 12 } = {}) {
+export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample = 40, maxTop = 12, scope = "filtered" } = {}) {
   const list = Array.isArray(items) ? items : [];
   const total = list.length;
   const bySource = {}, byTier = {};
@@ -168,8 +168,41 @@ export function buildAttentionDigest(items, { mode, filters, hideSelf, maxSample
     dup: it.flag === "dup", handled: !!it.handled,
   }));
   return {
-    total, mode: mode || "now", filters_active: Object.keys(filters || {}), self_hidden: !!hideSelf,
+    total, mode: mode || "now", scope, filters_active: Object.keys(filters || {}), self_hidden: !!hideSelf,
     by_source: bySource, by_tier: byTier, top_writers: topWriters, top_values: topValues,
     duplicate_flagged_count: dupCount, sample_count: sample.length, sample,
+  };
+}
+
+// 🎛️ Pass 1C (§3) — "אותות-קשב": חתך-סימנים דטרמיניסטי מעל אותם items שכבר טעונים (withH מוחל —
+// item.handled/.handledMeta קיימים). לא query חדש, לא engine, לא ניחוש-יחסים (§3.4/§3.7 = EXTENSION
+// POINT NOW — לא ממציאים כאן קשר/resurfacing, רק מסמנים classification). כל תת-חתך = דוגמית מוגבלת +
+// מונה-מלא (Rank, Don't Hide — שום דבר לא נחתך בשקט, המונה תמיד סופר את כולם).
+export function computeSignals(itemsWithH, { newCutoff, maxSample = 6 } = {}) {
+  const list = Array.isArray(itemsWithH) ? itemsWithH : [];
+  const fresh = newCutoff ? list.filter((it) => it.ts && it.ts > newCutoff) : [];
+  const freshBySource = {};
+  for (const it of fresh) { const k = it.srckind || it.source || "אחר"; freshBySource[k] = (freshBySource[k] || 0) + 1; }
+  const dup = list.filter((it) => it.flag === "dup");
+  const requiresZuriel = list.filter((it) => !it.handled && it.srckind === "finding" && it.status === "candidate");
+  const gaps = list.filter((it) => it.engineVerified === false);
+  // 🧠 חם-במחקר-שלי — נגזר מ-items שצוריאל כבר סגר-מהתור (handled=marker אישי, לא ניחוש), לפי ערך.
+  const handledItems = list.filter((it) => it.handled && it.handledMeta?.at);
+  handledItems.sort((a, b) => new Date(b.handledMeta.at) - new Date(a.handledMeta.at));
+  const valueCounts = {};
+  for (const it of handledItems) {
+    const v = itemValue(it);
+    if (v == null) continue;
+    const k = String(v);
+    if (!valueCounts[k]) valueCounts[k] = { value: k, count: 0, lastAt: it.handledMeta.at };
+    valueCounts[k].count++;
+  }
+  const myFocus = Object.values(valueCounts).sort((a, b) => b.count - a.count || new Date(b.lastAt) - new Date(a.lastAt)).slice(0, maxSample);
+  return {
+    fresh: { count: fresh.length, by_source: freshBySource, sample: fresh.slice(0, maxSample) },
+    duplicates: { count: dup.length, sample: dup.slice(0, maxSample) },
+    requiresZuriel: { count: requiresZuriel.length, sample: requiresZuriel.slice(0, maxSample) },
+    gaps: { count: gaps.length, sample: gaps.slice(0, maxSample) },
+    myFocus: { count: handledItems.length, topValues: myFocus },
   };
 }
