@@ -97,7 +97,7 @@ export default function LiveActivityBar() {
   // קצב רגוע — כל פריט מוצג ~7 שניות ואז מתחלף. עוצר בריחוף (paused) ובטאב מוסתר.
   useEffect(() => {
     if (msgs.length < 2 || paused) return;
-    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, 7000);
+    const id = setTimeout(() => { if (!document.hidden) setI(x => x + 1); }, 9000);
     return () => clearTimeout(id);
   }, [i, msgs.length, paused]);
 
@@ -157,7 +157,7 @@ export default function LiveActivityBar() {
           .lt-badge { display:none; }
           .lt-msg { font-size:11.5px; align-items:center; flex-wrap:wrap; justify-content:center; }
           .lt-txt { white-space:normal; }
-          .lt-t { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.3; }
+          .lt-t { white-space:normal; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; line-height:1.35; }
           .lt-wn { inset-inline-end:6px; }
         }
         @media (prefers-reduced-motion: reduce) { .lt-msg { animation:none; } .lt-badge i { animation:none; } }

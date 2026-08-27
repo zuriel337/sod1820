@@ -15,10 +15,6 @@ const MESSAGES = [
   "האתר בדרך לגרסה 2.0 🚀",
 ];
 
-// ⏳ הודעת-הבזק זמנית ל-24 שעות: מתווספת לראש הרוטציה עד TEMP_UNTIL, ואז נושרת לבד
-//   וחוזרים להודעות-הבנייה הרגילות (בקשת צוריאל). בדיקת-תאריך בצד-הלקוח — אפס תחזוקה.
-const TEMP_MSG = "💎 חדש בבנייה: מערכת הגימטריה המרחבית התלת-מימדית — כל רמז וכל ממצא מתחברים לצורה אחת";
-const TEMP_UNTIL = 1787903133000; // ~24 שעות (28.8.2026 ~06:25 UTC)
 const ROTATE_MS = 4600;
 const SLATS = 9; // מספר «שלבי-התריס»
 
@@ -31,7 +27,8 @@ export default function UpgradeTicker() {
     return () => clearInterval(t);
   }, []);
 
-  const list = useMemo(() => (Date.now() < TEMP_UNTIL ? [TEMP_MSG, ...MESSAGES] : MESSAGES), []);
+  // הודעת «גימטריה מרחבית» הזמנית הוסרה מטיקר-הבנייה (בקשת צוריאל) — רק הודעות-הבנייה הקבועות.
+  const list = MESSAGES;
   const cur = list[idx % list.length];
   const slats = useMemo(() => Array.from({ length: SLATS }), []);
 
