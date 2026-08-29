@@ -171,6 +171,14 @@ Resolving this needs a Human-Gate decision on one of:
     (its candidates come from `discover_relation_candidates`, i.e. `engine_scan` would be
     *truthful for that caller* — but only the caller can state it, not the generic RPC).
 
+**Precision note on "explicit `p_source` is preserved".** It is preserved on the **INSERT** path.
+On the `ON CONFLICT DO UPDATE` path (a row already exists for the same
+`method + a_phrase + b_phrase`) the `set` clause covers `status`/`note`/`value`/`rejection_reason`/
+`updated_at` only — **`source` is not updated**, so an explicit source sent on a re-decision is
+dropped silently. That is **pre-existing** behaviour, neither introduced nor changed by this pass.
+Fixing it touches the same lines as the STOP above, so it stays open with it for the Human Gate
+rather than being "fixed on the side".
+
 Live state at the time of this patch, unchanged: `relation_evidence` = 132 rows; existing
 `source` vocabulary = `zuriel`(62, historical) · `els_record:*`(36) · `ai_judge:*`(18) ·
 `vip`(6) · `cross_method:*`(5) · `engine_scan`(4) · `cipher_scan:*`(1). No row was written.
