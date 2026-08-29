@@ -3273,7 +3273,9 @@ function TrafficDashboardPage({ onNav }) {
     const inboxEmpty = { messages: [], subscribers: [], unread: 0, subscriber_count: 0 };
     Promise.all([
       getTrafficStats(),
-      getAdminInbox(ADMIN_PASSWORD).catch(() => inboxEmpty),
+      // ⛔ בלי סיסמה משותפת — ההרשאה נאכפת בצד-שרת (auth.uid() מול users.role='admin').
+      // מי שאינו אדמין מחובר יקבל "not authorized" והתיבה תישאר ריקה, כמתוכנן.
+      getAdminInbox().catch(() => inboxEmpty),
       getOldSiteComments().catch(() => []),
     ])
       .then(([d, ib, oc]) => { setData(d); setInbox(ib || inboxEmpty); setOldComments(oc || []); setLoading(false); })
@@ -3284,7 +3286,7 @@ function TrafficDashboardPage({ onNav }) {
 
   async function toggleRead(m) {
     try {
-      await markMessageRead(ADMIN_PASSWORD, m.id, !m.read);
+      await markMessageRead(m.id, !m.read);
       setInbox(prev => ({
         ...prev,
         messages: prev.messages.map(x => x.id === m.id ? { ...x, read: !x.read } : x),

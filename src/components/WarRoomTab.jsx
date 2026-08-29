@@ -105,7 +105,14 @@ const RO_FIELDS = "id,kind,statement,source,source_ref,contributor,value,terms,r
 function describeOutcome(res) {
   if (!res || res.ok !== true) return null;
   if (res.status === "rejected") return { label: "נדחה", color: "#e0563a" };
-  if (res.status === "approved") return { label: "אושר כידע-חי (לא צומת בגרף)", color: "#3ea6ff" };
+  // M1 truth contract (HG-2): approve יוצר «approved» לכל kind — הקידום ל-canonical הוא פעולת
+  // Human-Gate נפרדת ומפורשת (admin_research_review p_decision='canonicalize'), לא תוצר-לוואי של אישור.
+  if (res.status === "approved") {
+    return {
+      label: "אושר כידע-חי (לא צומת בגרף)", color: "#3ea6ff",
+      detail: "approved ≠ canonical — הקידום לקנוני הוא פעולה נפרדת ומפורשת",
+    };
+  }
   if (res.status === "canonical") {
     if (res.graph_promoted) {
       return {
