@@ -137,7 +137,11 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
         <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginBottom: desc ? 2 : 5 }}>
           <span style={{ color: on ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{on ? "✨ " : ""}{g.method}</span>
           {g.composite && (
-            <span title="ערך-מורכב: סכום שתי שיטות אטומיות (Composite SUM, ציבורי)" style={{ color: P.accentDim, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 8px", fontFamily: F.body, fontSize: 10.5, fontWeight: 700 }}>
+            // ⚙️ Engine Governance Foundation (29.8.2026): המרכיבים והאופרטור מגיעים מהרישום הקנוני
+            // (gematria_methods דרך fn_number_lookup) — לא מרשימה קשיחה כאן ולא מהתווית. ערך-מורכב
+            // הוא נגזרת דטרמיניסטית של מרכיביו, ולכן אינו עדות עצמאית נוספת (convergence dependency law).
+            <span title={`ערך-מורכב: ${g.operator === "diff" ? "הפרש" : "סכום"} של ${(g.componentMethods || []).join(" + ") || "שיטות אטומיות"} — נגזרת דטרמיניסטית, לא שיטה עצמאית נוספת`}
+              style={{ color: P.accentDim, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "1px 8px", fontFamily: F.body, fontSize: 10.5, fontWeight: 700 }}>
               🧩 צירוף
             </span>
           )}
