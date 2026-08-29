@@ -112,6 +112,69 @@ unmerged as superseded-in-part, since its useful content now lives here with pro
    lists only `status='candidate'` rows. Deliberately not built here — section I forbids UI
    redesign in this pass.
 
+## M1 FINAL ACCEPTANCE PATCH (GPT cross-verification of PR #236 → ZURIEL Human Gate)
+
+GPT independently verified the M1 core against live `linswmnnkjxvweumprav` and PR #236 and
+**accepted the architecture** (`truth_axes_foundation_law` LIVE · `research_objects` governance
+CHECK LIVE+VALIDATED · `approve → approved` for every kind · `canonicalize` explicit and requiring
+prior `approved` · `canonicalize` neither publishes nor widens privacy · `decision_ledger`
+historical exception preserved NOT VALID). Two acceptance defects were raised. M1 was **not**
+reopened; nothing else in this pass changed.
+
+### Defect 1 — generic `verification_state` default (FIXED)
+
+`normalizeVerification()` resolved a **missing** `verification_state` to `"not_tested"`. That is
+the same class of fabrication the M1 pass removed from the other three axes: the generic envelope
+cannot know that no claim-vs-engine test occurred — it only knows the caller said nothing.
+"Caller said nothing" ≠ "caller declared that nothing was tested".
+
+Fixed in `src/lib/research/universalFinding.js`: missing/empty verification state now stays
+**null** (INVARIANT PR3), exactly like `stage` / `status` / `createdBy` / `access.tier`.
+
+- **HG-3 is not weakened.** `"not_tested"` remains in `VALID_VERIFICATION_STATES` and is still
+  declared **explicitly** by the two adapters that genuinely know it — the ELS adapter (it builds
+  the call itself, so it knows no claim was submitted) and `canonicalGematria.js`. Neither was
+  changed. It is simply no longer *inferred from absence*.
+- **INVARIANT PR2 intact.** An explicitly invalid `verification_state` still throws `TypeError`;
+  it is never coerced.
+- No consumer regressed: `FindingSurface` and `universalFindingToResearchEntity` already read the
+  axis with `?? null` and render `null` as "לא הוצהר" (unknown).
+- Test: `test/universal-finding-truth-contract.test.mjs` (30 checks, pure/offline, no DB).
+
+### Defect 2 — `set_relation_evidence` source fallback (**STOP — reported, not patched**)
+
+Requested: stop defaulting an absent `p_source` to `'human_admin'` and keep `source` NULL/unknown
+"if schema permits", with an explicit instruction to **STOP and report rather than invent another
+placeholder** if the column is NOT NULL or a live caller depends on the default. **Both STOP
+conditions are true**, so the live function was left exactly as it is:
+
+1. **`public.relation_evidence.source` is `text NOT NULL DEFAULT 'engine_scan'`** — verified live
+   (`information_schema.columns`). The constraint predates M1: it comes from
+   `supabase/migrations/20260712_relation_evidence.sql` line 12. The schema therefore does **not**
+   permit an unknown/NULL evidence-source. Omitting the column from the INSERT does not help — it
+   would fall through to the column default `'engine_scan'`, i.e. a *different and worse*
+   fabricated evidence-source (it would assert the evidence came from an engine scan).
+2. **The only live caller never supplies a source.** `src/lib/supabase.js#setRelationEvidence` →
+   `src/components/FindingsTab.jsx#decide` (admin approve/reject) calls with `p_source` omitted;
+   no other DB function calls the RPC (checked `pg_get_functiondef` across `public`/`private`).
+   Making the argument mandatory would break the live Findings tab.
+
+Per the patch spec, no substitute placeholder was invented (`'human_admin'`, `'zuriel'`,
+`'SYSTEM'`, `auth.uid()`, an actor column, or a schema change to drop NOT NULL are all excluded),
+and the missing actor primitive stays **OPEN** as already reported in "Known remaining gaps" §1.
+
+Resolving this needs a Human-Gate decision on one of:
+(a) allow `source` to be nullable (schema change to a live table — Foundation design), or
+(b) admit an explicit `unknown` evidence-source token into the evidence-source vocabulary
+    (still a written value, but an honest one rather than a category claim), or
+(c) require callers to declare an evidence source and update `FindingsTab` to pass one
+    (its candidates come from `discover_relation_candidates`, i.e. `engine_scan` would be
+    *truthful for that caller* — but only the caller can state it, not the generic RPC).
+
+Live state at the time of this patch, unchanged: `relation_evidence` = 132 rows; existing
+`source` vocabulary = `zuriel`(62, historical) · `els_record:*`(36) · `ai_judge:*`(18) ·
+`vip`(6) · `cross_method:*`(5) · `engine_scan`(4) · `cipher_scan:*`(1). No row was written.
+
 ## Explicitly untouched
 
 M2 / the 77 ELS `self_published` rows · ELS publication behaviour · Experience Governance ·
