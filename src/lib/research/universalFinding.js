@@ -46,7 +46,17 @@ export function makeUniversalFinding(input = {}) {
     },
     source: { engine: null, adapter: "universal-finding-v1", sourceRef: null, method: null, corpus: null, ...(input.source || {}) },
     identity: { sourceIdentity: null, occurrence: null, entityRef: null, relationRef: null, ...identity },
+    verification: {
+      claimed_expression: null,
+      claimed_method: null,
+      claimed_value: null,
+      engine_method_tested: null,
+      engine_result: null,
+      verification_state: "not_tested",
+      ...(input.verification || {}),
+    },
     evidence: { refs: [], facts: [], score: null, confidence: null, ...(input.evidence || {}) },
+    access: { tier: null, reason: null, ...(input.access || {}) },
     provenance: {
       createdBy: "SYSTEM",
       createdAt: new Date().toISOString(),
@@ -102,6 +112,14 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
       subject: { type: "phrase", key: axisTerm, label: axisTerm },
       source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null },
       identity: { sourceIdentity: axisHit.hitId, occurrence: axisHit },
+      verification: {
+        claimed_expression: axisTerm,
+        claimed_method: "els",
+        claimed_value: null,
+        engine_method_tested: "els",
+        engine_result: { corpus, ...axisHit },
+        verification_state: "match",
+      },
       evidence: { refs: [axisHit.hitId], facts: [{ type: "els-occurrence", corpus, ...axisHit }] },
       provenance: { createdBy: "ENGINE:els", createdAt, inputRef: options.inputRef || null },
       projection: {
@@ -125,6 +143,14 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
         subject: { type: "word", key: f.t, label: f.t },
         source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null },
         identity: { sourceIdentity: hit.hitId, occurrence: hit },
+        verification: {
+          claimed_expression: f.t,
+          claimed_method: "els",
+          claimed_value: null,
+          engine_method_tested: "els",
+          engine_result: { corpus, ...hit },
+          verification_state: "match",
+        },
         evidence: { refs: [hit.hitId], facts: [{ type: "els-occurrence", corpus, ...hit }] },
         provenance: { createdBy: "ENGINE:els", createdAt, inputRef: options.inputRef || axisHit?.hitId || null },
         projection: { anchors, dimensions: { corpus } },
@@ -137,5 +163,7 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
 }
 
 export function isUniversalFinding(value) {
+  // Legacy v1 findings created before verification/access fields were added remain readable.
+  // New findings from makeUniversalFinding always carry the complete truth-state envelope.
   return Boolean(value && value.v === 1 && value.id && value.subject && value.source && value.identity && value.provenance);
 }
