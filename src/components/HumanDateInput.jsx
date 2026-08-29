@@ -103,8 +103,13 @@ export default function HumanDateInput({
     if (iso) onChange?.(iso);
   }
 
+  // 📱 Mobile Acceptance (320/360/390px, mobile_acceptance_law): כל שדה חייב width:100%+
+  // minWidth:0+boxSizing:border-box כדי שיוכל להצטמצם מתחת לרוחב-התוכן שלו — בלי זה,
+  // flex עם flex-basis קבוע-בפיקסלים (הגרסה הקודמת) לא מתכווץ בכלל במסך צר וגורם ל-overflow
+  // אופקי. הרוחב עצמו נקבע ע"י ה-wrapper החיצוני (flex-basis באחוזים), לא ע"י הרכיב כאן.
   const sel = {
-    padding: "9px 8px", borderRadius: 8, border: `1px solid ${error ? "#c0453c" : "var(--line,#e6e8ec)"}`,
+    width: "100%", minWidth: 0, boxSizing: "border-box",
+    padding: "9px 6px", borderRadius: 8, border: `1px solid ${error ? "#c0453c" : "var(--line,#e6e8ec)"}`,
     background: "var(--card,var(--bg,#fff))", color: "var(--ink,#1b1d22)", fontFamily: "inherit", fontSize: 14.5,
   };
   // רשימת-הימים תמיד כוללת גם את הבחירה-הנוכחית של המשתמש (גם אם היא כרגע מחוץ-לתחום) —
@@ -117,27 +122,38 @@ export default function HumanDateInput({
     return base;
   }, [y, m, d]);
 
+  // כל שדה עטוף ב-div עם minWidth:0 (לא הselect/input עצמם) — זה מה שבפועל מאפשר לתא-flex
+  // להתכווץ מתחת לרוחב-התוכן הטבעי שלו; ה-flex-basis באחוזים (לא פיקסלים) נותן פרופורציה
+  // יציבה שממשיכה לעבוד גם ב-320px, כי flex-shrink:1 (ברירת-המחדל של "1 1 %") מצטמצם ביחד.
+  const field = basis => ({ flex: `1 1 ${basis}`, minWidth: 0 });
+
   return (
-    <div>
-      <div dir="ltr" style={{ display: "flex", gap: 6 }} aria-required={required || undefined} aria-invalid={!!error}>
-        <select aria-label="יום" value={d} onChange={e => pick(y, m, e.target.value)} style={{ ...sel, flex: "0 0 66px" }}>
-          <option value="">יום</option>
-          {days.map(dd => <option key={dd} value={dd}>{dd}</option>)}
-        </select>
-        <select aria-label="חודש" value={m} onChange={e => pick(y, e.target.value, d)} style={{ ...sel, flex: "1 1 100px" }}>
-          <option value="">חודש</option>
-          {MONTHS.map((label, i) => <option key={i + 1} value={i + 1}>{label}</option>)}
-        </select>
+    <div style={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
+      <div dir="ltr" style={{ display: "flex", gap: 6, width: "100%", minWidth: 0, boxSizing: "border-box" }} aria-required={required || undefined} aria-invalid={!!error}>
+        <div style={field("24%")}>
+          <select aria-label="יום" value={d} onChange={e => pick(y, m, e.target.value)} style={sel}>
+            <option value="">יום</option>
+            {days.map(dd => <option key={dd} value={dd}>{dd}</option>)}
+          </select>
+        </div>
+        <div style={field("42%")}>
+          <select aria-label="חודש" value={m} onChange={e => pick(y, e.target.value, d)} style={sel}>
+            <option value="">חודש</option>
+            {MONTHS.map((label, i) => <option key={i + 1} value={i + 1}>{label}</option>)}
+          </select>
+        </div>
         {/* שנה = הקלדה ישירה (type=number) — לא select ענק, לא גלילה. אפשר להקליד "1975" ישר.
             min/max כאן הם רמז-UX בלבד (רק אם caller סיפק) — האימות האמיתי ב-validate() למעלה. */}
-        <input
-          aria-label="שנה" type="number" inputMode="numeric" placeholder="שנה" value={y}
-          {...(minYear != null ? { min: minYear } : {})} {...(maxYear != null ? { max: maxYear } : {})}
-          onChange={e => pick(e.target.value, m, d)}
-          style={{ ...sel, flex: "0 0 82px", textAlign: "center" }}
-        />
+        <div style={field("30%")}>
+          <input
+            aria-label="שנה" type="number" inputMode="numeric" placeholder="שנה" value={y}
+            {...(minYear != null ? { min: minYear } : {})} {...(maxYear != null ? { max: maxYear } : {})}
+            onChange={e => pick(e.target.value, m, d)}
+            style={{ ...sel, textAlign: "center" }}
+          />
+        </div>
       </div>
-      {error && <div style={{ color: "#c0453c", fontSize: 11.5, marginTop: 4 }}>{error}</div>}
+      {error && <div style={{ color: "#c0453c", fontSize: 11.5, marginTop: 4, wordBreak: "break-word" }}>{error}</div>}
     </div>
   );
 }
