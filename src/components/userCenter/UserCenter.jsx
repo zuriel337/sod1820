@@ -1342,7 +1342,12 @@ function InboxAttentionCard({ T, unread, dmUnread, setActive }) {
 
 // 🧠 «המחקר שלי» — שער-סיכום בלבד (user_center_simplification_v0). ResearchProvider הוא סביבת-
 //    המחקר הגלובלית הקנונית ב-/research; כאן רק מונה + CTA, בלי embed ובלי טאבי שמורים/היסטוריה.
-function ResearchGateway({ T, count, goto }) {
+function ResearchGateway({ T, count, goto, setActive }) {
+  const shortcutBtn = {
+    display: "flex", alignItems: "center", gap: 8, width: "100%", boxSizing: "border-box",
+    textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 10,
+    padding: "10px 12px", cursor: "pointer", color: T.ink, fontFamily: "inherit", fontSize: 13, fontWeight: 700,
+  };
   return (
     <div>
       <div style={{ background: T.accSoft, border: `1px solid ${T.line}`, borderRadius: 16, padding: "22px 16px", textAlign: "center" }}>
@@ -1354,6 +1359,18 @@ function ResearchGateway({ T, count, goto }) {
         סביבת המחקר המלאה — שמורים, היסטוריה, השוואות וניתוחי AI — נמצאת במקום אחד.
       </div>
       <button onClick={() => goto("/research")} style={{ display: "block", width: "100%", boxSizing: "border-box", textAlign: "center", background: T.acc, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>לסביבת המחקר המלאה ←</button>
+      {/* 🗝️/💡 Day-1 reachability shortcuts — codes/hints have no replacement home yet, must not go dark */}
+      <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+        <button onClick={() => setActive("codes")} style={shortcutBtn}>
+          <span style={{ fontSize: 16 }}>🗝️</span><span>הצפנים שלי</span>
+        </button>
+        <div>
+          <button onClick={() => setActive("hints")} style={shortcutBtn}>
+            <span style={{ fontSize: 16 }}>💡</span><span>החומר האישי שלי</span>
+          </button>
+          <div style={{ color: T.sub, fontSize: 11, marginTop: 4, padding: "0 2px" }}>החומר האישי הישן — עד למערכת האישית החדשה</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1416,7 +1433,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     // 🧠 user_center_simplification_v0: שער-סיכום בלבד ל-/research — לא embed. ResearchProvider
     //    נשאר סביבת-המחקר הגלובלית הקנונית; ראו ResearchGateway.
     { id: "research", world: "lab", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined,
-      render: () => <ResearchGateway T={T} count={c.research_items} goto={goto} /> },
+      render: () => <ResearchGateway T={T} count={c.research_items} goto={goto} setActive={setActive} /> },
     // 📨 הודעות — כניסה אחת מאוחדת (DM פרטי בין חוקרים · תגובות-לכתב אליי). בנוי ופעיל.
     { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} initialDm={activeParam?.dm} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
