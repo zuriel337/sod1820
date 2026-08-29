@@ -11,6 +11,7 @@ import { useSiteOnline } from "../../lib/presence.js";
 import HintsPanel from "./HintsPanel.jsx";
 import ReportHint from "../ReportHint.jsx";
 import ProfileSettings from "../ProfileSettings.jsx";
+import HumanDateInput from "../HumanDateInput.jsx";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead, topicLabel, FOLLOW_STATES } from "../../lib/notifications.js";
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions, watchToggle } from "../../lib/commandCenter.js";
@@ -972,7 +973,9 @@ function MyInfoPanel({ T }) {
         </div>
         <div>
           <div style={{ color: T.sub, fontSize: 11.5, marginBottom: 4 }}>תאריך לידה</div>
-          <input type="date" value={bdate || ""} onChange={e => setBdate(e.target.value)} style={{ ...input, direction: "ltr" }} />
+          {/* human_date_input_law — יום/חודש/שנה נפרדים, שנה מוקלדת ישירות. לא native
+              date-wheel שמתחיל מהיום ומחייב לגלול עשרות שנים אחורה. */}
+          <HumanDateInput value={bdate || ""} onChange={setBdate} disableFuture />
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <button onClick={save} disabled={busy || !loaded} style={{ background: T.acc, color: "#fff", border: "none", borderRadius: 10, padding: "10px 18px", fontWeight: 800, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit", opacity: (busy || !loaded) ? .6 : 1 }}>{busy ? "שומר…" : "שמור"}</button>
