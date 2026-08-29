@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { emit, EVENTS } from "./eventBus.js";
+import { findingToWorkspaceItem } from "./finding.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
@@ -132,6 +133,7 @@ export default function ResearchProvider({ children }) {
   }, [logHistory]);
 
   const addToResearch = useCallback((entity) => {
+    if (!entity?.id) return;
     setCart(c => (c.some(e => e.id === entity.id) ? c : [...c, entity]));
     logHistory(entity);
     emit(EVENTS.RESEARCH_ADD, entity);
@@ -142,6 +144,7 @@ export default function ResearchProvider({ children }) {
   const clearResearch = useCallback(() => { setCart([]); emit(EVENTS.RESEARCH_CLEAR); }, []);
 
   const saveItem = useCallback((entity) => {
+    if (!entity?.id) return;
     setSaved(s => (s.some(e => e.id === entity.id) ? s : [entity, ...s]));
     logHistory(entity);
     emit(EVENTS.ITEM_SAVE, entity);
@@ -151,6 +154,7 @@ export default function ResearchProvider({ children }) {
 
   // 📌 Pin — ישות שהוצמדה נשארת זמינה בכל המעבדה (Workspace = pin + הוסף-למחקר).
   const togglePin = useCallback((entity) => {
+    if (!entity?.id) return;
     setPinned(p => {
       const on = p.some(e => e.id === entity.id);
       const next = on ? p.filter(e => e.id !== entity.id) : [entity, ...p];
@@ -159,6 +163,28 @@ export default function ResearchProvider({ children }) {
     });
   }, []);
   const isPinned = useCallback((id) => pinned.some(e => e.id === id), [pinned]);
+
+  // 🔬 Universal Finding projection bridge — membership only.
+  // The full source-native envelope is preserved under metadata.finding by findingToWorkspaceItem.
+  // These actions never create research_objects and never promote Canonical/Published state.
+  const addFinding = useCallback((finding, options) => {
+    const item = findingToWorkspaceItem(finding, options);
+    if (!item) return null;
+    addToResearch(item);
+    return item;
+  }, [addToResearch]);
+  const saveFinding = useCallback((finding, options) => {
+    const item = findingToWorkspaceItem(finding, options);
+    if (!item) return null;
+    saveItem(item);
+    return item;
+  }, [saveItem]);
+  const toggleFindingPin = useCallback((finding, options) => {
+    const item = findingToWorkspaceItem(finding, options);
+    if (!item) return null;
+    togglePin(item);
+    return item;
+  }, [togglePin]);
 
   // 📁 אוספי-מחקר פרטיים — קיבוץ שמורים לתיקיות בעלות-שם, עם תיוג-ארגון אופציונלי
   // (topic/world/number/year — research_workspace_law). תוכן-אישי: Lens/Ownership layer
@@ -179,7 +205,7 @@ export default function ResearchProvider({ children }) {
   }, []);
   const removeCollection = useCallback((id) => {
     setCollections(cs => cs.filter(c => c.id !== id));
-    setSaved(s => s.map(e => (e.coll === id ? { ...e, coll: undefined } : e)));
+    setSaved(s => s.map(e => (e.id === id ? { ...e, coll: undefined } : e)));
   }, []);
   const assignCollection = useCallback((itemId, collId) => {
     setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
@@ -203,6 +229,7 @@ export default function ResearchProvider({ children }) {
   const value = {
     cart, saved, pinned, history, collections, journeys,
     addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
+    addFinding, saveFinding, toggleFindingPin,
     logHistory, clearHistory, addCollection, updateCollection, removeCollection, assignCollection,
     addJourney, removeJourney, clearJourneys,
     mode, setMode, enterDiscovery, toggleMode,
