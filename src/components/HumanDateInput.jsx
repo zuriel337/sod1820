@@ -9,10 +9,18 @@ import React, { useMemo, useState, useEffect } from "react";
 // ה-UI לא משנה את מודל-הנתונים: value/onChange הם תמיד "YYYY-MM-DD" קנוני (או null),
 // זהה למה שה-DB/RPC מצפים לו כבר היום — אין schema חדש בשביל UX.
 //
-// ⛔ Validation law: קלט לא-תקין/עתידי → נחסם (onChange(null)), לעולם לא נכתב-מחדש בשקט
-// לערך אחר (כמו "היום") שהמשתמש לא הזין בעצמו. מה שהמשתמש הקליד/בחר נשאר מוצג כפי-שהוא;
-// רק ה-canonical-value המדווח-החוצה נחסם עד שהקלט שלם ותקין. אין הסתמכות על HTML
-// min/max/type=number לאכיפה — אלה רמז-UX בלבד; האימות האמיתי הוא לוגי, כאן.
+// ⛔ Draft ≠ Canonical (חוזה קשיח, לא רק פרט-מימוש): y/m/d הפנימיים הם תמיד draft — כל מה
+// שהמשתמש הקליד/בחר, כולל חלקי/לא-תקין. onChange כלפי-חוץ נורה רק בשני מקרים:
+// (1) draft מרכיב תאריך שלם ותקין → onChange(iso).
+// (2) שלושת השדות התרוקנו לגמרי (ניקוי מפורש) → onChange(null).
+// בכל מצב-ביניים (שנה חלקית כמו "1"/"19"/"197", יום/חודש חסרים, או תאריך שלם-אך-לא-תקין
+// כמו יום-31-בפברואר/תאריך-עתידי) — **אין קריאה ל-onChange בכלל**, לא אפילו עם null.
+// null הוא ערך-נתונים אמיתי (מחיקת-תאריך), לא מצב-הקלדה-זמני — קריאת onChange(null) בזמן
+// הקלדה-חלקית הייתה גורמת ל-parent (למשל setBdate(null)) לשנות את ה-value שחוזר לרכיב,
+// וה-useEffect([value]) היה מאפס את ה-draft בחזרה באמצע ההקלדה (למשל: מקלידים "1" בשנה →
+// מתאפס לפני שמגיעים ל-1975). ולכן: קלט לא-שלם/לא-תקין נשאר מקומי בלבד, מוצג כפי-שהוא
+// (כולל שגיאה כשרלוונטי), ולא נוגע ב-parent state עד שיש ערך-שלם-ותקין-חדש או ניקוי-מפורש.
+// אין הסתמכות על HTML min/max/type=number לאכיפה — אלה רמז-UX בלבד; האימות האמיתי לוגי, כאן.
 //
 // אין ברירת-מחדל ל-minYear/maxYear (אין floor/ceiling שרירותי בלי Human-Gate מפורש) —
 // caller שלא מעביר אותם = אין הגבלת-שנה מלבד disableFuture (אם התבקש).
@@ -81,9 +89,18 @@ export default function HumanDateInput({
   // ⛔ לעולם לא מהדקים/משכתבים y/m/d כאן — רק משקפים בדיוק מה שהמשתמש בחר/הקליד.
   function pick(nextY, nextM, nextD) {
     setY(nextY); setM(nextM); setD(nextD);
+
+    // ניקוי-מפורש: שלושת השדות ריקים בו-זמנית → זו הפעולה היחידה שמייצרת onChange(null).
+    if (nextY === "" && nextM === "" && nextD === "") {
+      setError(null);
+      onChange?.(null);
+      return;
+    }
+
     const { iso, error: err } = validate(nextY, nextM, nextD, { minYear, maxYear, disableFuture });
     setError(err);
-    onChange?.(iso); // null = נחסם/לא-שלם; לעולם לא ערך שהמשתמש לא ביקש (כמו "היום")
+    // draft חלקי/לא-תקין (iso===null, לא all-empty) → נשאר מקומי בלבד, לא נוגע ב-parent.
+    if (iso) onChange?.(iso);
   }
 
   const sel = {
