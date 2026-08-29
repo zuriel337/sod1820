@@ -205,7 +205,7 @@ export default function ResearchProvider({ children }) {
   }, []);
   const removeCollection = useCallback((id) => {
     setCollections(cs => cs.filter(c => c.id !== id));
-    setSaved(s => s.map(e => (e.id === id ? { ...e, coll: undefined } : e)));
+    setSaved(s => s.map(e => (e.coll === id ? { ...e, coll: undefined } : e)));
   }, []);
   const assignCollection = useCallback((itemId, collId) => {
     setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
