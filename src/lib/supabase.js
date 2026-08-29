@@ -2302,18 +2302,20 @@ export async function getShareCounts(wpIds = []) {
   return map;
 }
 
-// ── Admin inbox (הודעות + מנויים) — מאחורי סיסמת ניהול בצד-שרת ──
-export async function getAdminInbox(key) {
+// ── Admin inbox (הודעות + מנויים) — הרשאה בצד-שרת בלבד: auth.uid() מול users.role='admin' ──
+// ⛔ אין סיסמה משותפת. הסוד הישן (ADMIN_PASSWORD) נארז ל-bundle הציבורי ולכן מעולם לא היה הרשאה.
+// p_key נשאר בחתימת ה-RPC לצורך תאימות בלבד ומתעלמים ממנו לחלוטין — שולחים null.
+export async function getAdminInbox() {
   const empty = { messages: [], subscribers: [], unread: 0, subscriber_count: 0 };
   if (!supabase) return empty;
-  const { data, error } = await supabase.rpc('admin_inbox', { p_key: key });
+  const { data, error } = await supabase.rpc('admin_inbox', { p_key: null });
   if (error) throw error;
   return data || empty;
 }
 
-export async function markMessageRead(key, id, read = true) {
+export async function markMessageRead(id, read = true) {
   if (!supabase) return;
-  const { error } = await supabase.rpc('admin_mark_message_read', { p_key: key, p_id: id, p_read: read });
+  const { error } = await supabase.rpc('admin_mark_message_read', { p_key: null, p_id: id, p_read: read });
   if (error) throw error;
 }
 
