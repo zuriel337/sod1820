@@ -21,8 +21,8 @@ export default function DimensionFiveRail({ compact = false, surface = compact ?
   useEffect(() => {
     let alive = true;
     getPostsFromSupabase({ tag: TAG, limit: 16, orderBy: "modified" })
-      // פוסט מוסתר (home_hidden) או טיוטה/פורום לא מופיע ברצועת מימד-חמש (בקשת צוריאל)
-      .then(({ posts: r }) => { if (alive) setPosts((r || []).filter(p => !p.home_hidden && !(p.tags || []).includes("טיוטה") && !(p.tags || []).includes("פורום")).slice(0, 12)); })
+      // רק טיוטה/פורום יורדים מהרצועה. הסתרה בבית (home_hidden) לא מסתירה כאן — הרצועה היא הבית של מימד-חמש (בקשת צוריאל).
+      .then(({ posts: r }) => { if (alive) setPosts((r || []).filter(p => !(p.tags || []).includes("טיוטה") && !(p.tags || []).includes("פורום")).slice(0, 12)); })
       .catch(() => { if (alive) setPosts([]); });
     return () => { alive = false; };
   }, []);
