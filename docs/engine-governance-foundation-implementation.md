@@ -250,3 +250,59 @@ M1 Truth Contract · M2 / ELS publication governance · Experience Governance ·
 cleanup · legacy `bidim` rows beyond additive provenance columns · Master State / Roadmap
 reconciliation · `רגיל+אתבש` registration · the Full Corpus Scan · UI redesign · `main` · production
 · PR #226.
+
+---
+
+# BLOCKER-EG-1 CLOSURE — PUBLIC READ GOVERNANCE (HG-E4)
+
+**Date:** 29.8.2026 · Proof pass that raised it: `work_log 40c7474d-fff1-4001-bdab-394179918276`
+· BEFORE: `work_log 4a092eb3-bcf7-4e2a-b2e4-c0209694ec55`
+
+**HG-E4 (ZURIEL):** RANK, DON'T HIDE. `PUBLIC ACCESS != GOVERNED EVIDENCE`.
+`SCANNABLE=false != INVISIBLE`. `PUBLIC=true != CANONICAL/WEIGHTED EVIDENCE`.
+The Numeric Root decision stands — public-entitled historical results stay discoverable.
+
+## What was broken
+
+The write path was governed; the read path was not. Public eligibility derived from
+"a row exists in `bidim`", never from `gematria_methods`. 16 anon-executable functions
+read `bidim`; none consumed the registry.
+
+## Changed objects
+
+| Object | Change |
+|---|---|
+| `fn_method_evidence_class(text)` | **NEW.** Canonical projection class: `governed` / `historical_public` / `historical_ungoverned` / `historical_unverified` / `historical_unexecutable` / `unregistered`. Derived from existing predicates — not a second authority. |
+| `fn_method_is_governed_evidence(text)` | **NEW.** The named scoring-eligibility contract; delegates to the same predicate that gates writes. |
+| `fn_number_lookup(bigint)` | Appends 7 governance columns. Rows still returned; governed ranked first. |
+| `fn_value_phrase_list(bigint,int)` | **NEW.** Governed projection of the value family, replacing the client's raw unfiltered `bidim` read. |
+| `convergence_meter(integer)` | Scoring re-ordered to DISCOVERABLE → GOVERNANCE ELIGIBILITY → INDEPENDENCE → SCORE; adds an `evidence_governance` transparency block. |
+| `src/lib/supabase.js` | `getMethodStates()` + `isGovernedMethod()` (cached `v_method_states` reader); `getValueFamilies`, `getValuePhraseList`, `getPhraseValueFamilies`, `getMethodFamilies` now carry governance and rank governed-first. |
+| `src/components/NumberFamilies.jsx` | `🕰 היסטורי` badge for non-governed groups. |
+
+## 1820 before → after
+
+| | before | after |
+|---|---|---|
+| `fn_number_lookup` rows | 176 (30 composite, **0 governance state**) | 176 (30 composite, **0 rows without governance state**) |
+| `fn_number_lookup` historical rows | indistinguishable | 50, classed `historical_public` / `historical_ungoverned` / `historical_unexecutable` |
+| phrase list | 138 phrases, 44 silently ungoverned | 138 phrases (**none hidden**), 94 governed / 44 labelled |
+| `convergence_meter` methods | **8** counted (4 ungoverned, incl. 2 inactive composites) | **4** scored; 4 historical displayed-not-scored |
+| entities | 16 scored | 16 displayed / **12 scored** |
+| score | 89 | 89 (no layer flipped for 1820) |
+
+## topic_cards impact — measured, NOT rewritten
+
+254 distinct approved-card numbers evaluated: **170 unchanged, 84 change — all downward
+(0 rises), average −15.5 points.** Of 204 approved cards, **80 contain a changed number and
+78 have a persisted `meter_score` that is now stale.**
+
+**No historical rewrite was performed.** Persisted `quality`/`meter_score` are snapshots and
+were left untouched, per the task's explicit instruction. Recalculation is **deferred to a
+separate controlled pass** requiring a Human-Gate decision (which cards, and whether an
+approved card may lose quality retroactively). No STOP condition was hit — closure did **not**
+require automatic historical rewrite.
+
+## Gates
+
+WRITE **PASS** · PUBLIC READ **PASS** · HISTORICAL PRESERVATION **PASS** · CONVERGENCE DEPENDENCY **PASS**

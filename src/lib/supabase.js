@@ -3163,6 +3163,32 @@ export async function getAllValuePhrases(value, limit = 500) {
   } catch { return []; }
 }
 
+// ⚖️ מצב-ממשל קנוני של השיטות (v_method_states) — מקור-אמת יחיד, לקריאה בלבד, במטמון.
+// BLOCKER-EG-1 / HG-E4: הפרויקציה הציבורית חייבת לרשת את אותו חוק שמגדר את הכתיבות העתידיות.
+// ⛔ לא רשימה קשיחה, לא רישום שני, לא allowlist ב-UI — רק קריאה מהרישום הקנוני.
+let _methodStatesCache = null, _methodStatesAt = 0;
+export async function getMethodStates() {
+  if (_methodStatesCache && Date.now() - _methodStatesAt < 5 * 60 * 1000) return _methodStatesCache;
+  if (!supabase) return {};
+  try {
+    const { data } = await supabase.from('v_method_states')
+      .select('method_key,category,active,scannable,executable,engine_verified');
+    const map = {};
+    (data || []).forEach(r => {
+      map[r.method_key] = {
+        category: r.category, active: r.active, scannable: r.scannable,
+        executable: r.executable, engineVerified: r.engine_verified,
+        // «מושל» = בדיוק אותו חוזה שמגדר כתיבה: scannable ∧ active ∧ executable ∧ engine_verified
+        governed: !!r.scannable,
+      };
+    });
+    _methodStatesCache = map; _methodStatesAt = Date.now();
+    return map;
+  } catch { return _methodStatesCache || {}; }
+}
+// שיטה שאינה מוכרת לרישום נחשבת לא-מושלת (fail-closed לצורך *דירוג*, לא לצורך *הסתרה*).
+export function isGovernedMethod(states, method) { return !!(states && states[method] && states[method].governed); }
+
 // 🧬 משפחות המילים — לכל ערך, הביטויים השווים לו בכל שיטה (מ-bidim, דרך fn_number_lookup) + העולם של כל ביטוי (מ-nodes).
 // המקום היחיד למילים שוות בדף המספר (כולל רגיל). כל פריט: {phrase, world}.
 // 🧩 Number Page Integration v1: המקור עבר מ-select ישיר על bidim ל-fn_number_lookup (אותו מקור-נתונים,
@@ -3182,6 +3208,11 @@ export async function getValueFamilies(value, perMethod = 20) {
         method: r.method, priority: DISPLAY_PRIORITY[r.method] ?? 4, all: new Set(), top: [],
         composite: r.atomic_or_composite === 'composite',
         componentMethods: r.component_methods || null, operator: r.operator || null,
+        // ⚖️ מצב-ממשל מהרישום הקנוני (HG-E4) — התוצאה עדיין מוצגת, אך אינה זהה-סמנטית לתוצאה מושלת.
+        governed: r.method_governed !== false,
+        evidenceClass: r.method_evidence_class || null,
+        methodActive: r.method_active, methodScannable: r.method_scannable,
+        methodExecutable: r.method_executable, methodEngineVerified: r.method_engine_verified,
       });
       if (!g.all.has(r.phrase)) {
         g.all.add(r.phrase);
@@ -3207,9 +3238,14 @@ export async function getValueFamilies(value, perMethod = 20) {
     return Object.values(groups)
       .map(g => ({ method: g.method, priority: g.priority, count: g.all.size,
         composite: g.composite, componentMethods: g.componentMethods, operator: g.operator,
+        governed: g.governed, evidenceClass: g.evidenceClass, methodActive: g.methodActive,
+        methodScannable: g.methodScannable, methodExecutable: g.methodExecutable,
+        methodEngineVerified: g.methodEngineVerified,
         phrases: g.top.map(t => ({ phrase: t.phrase, world: worldMap[t.phrase] || null, ragil: ragilMap[t.phrase] ?? null,
           tags: tagsMap[t.phrase] || null, componentValues: t.componentValues })) }))
-      .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0) || (a.priority - b.priority) || (b.count - a.count));
+      // Rank, Don't Hide (HG-E4): קבוצות מושלות קודם, ההיסטוריות אחריהן — אך כולן מוצגות.
+      .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0)
+        || (Number(b.governed) - Number(a.governed)) || (a.priority - b.priority) || (b.count - a.count));
   } catch { return []; }
 }
 
@@ -3264,16 +3300,37 @@ export async function getPhraseValueFamilies(phrase) {
   const { data: mine } = await supabase.from('bidim').select('value').eq('phrase', phrase);
   const vals = [...new Set((mine || []).map(r => r.value).filter(v => v >= 10))];
   if (!vals.length) return [];
-  const { data: fam } = await supabase.from('bidim').select('value,phrase').in('value', vals).limit(8000);
-  const byVal = {};
-  (fam || []).forEach(r => { (byVal[r.value] ||= new Set()).add(r.phrase); });
-  return vals.map(v => ({ value: v, size: byVal[v] ? byVal[v].size : 0 })).sort((a, b) => b.size - a.size);
+  // ⚖️ HG-E4: גודל-המשפחה מדווח גם כ«מושל» וגם כ«כולל היסטורי» — לא מסתירים שורות היסטוריות,
+  // אבל גם לא מציגים גודל מנופח כאילו כולו עדות מושלת.
+  const [{ data: fam }, states] = await Promise.all([
+    supabase.from('bidim').select('value,phrase,method').in('value', vals).limit(8000),
+    getMethodStates(),
+  ]);
+  const byVal = {}, byValGov = {};
+  (fam || []).forEach(r => {
+    (byVal[r.value] ||= new Set()).add(r.phrase);
+    if (isGovernedMethod(states, r.method)) (byValGov[r.value] ||= new Set()).add(r.phrase);
+  });
+  return vals.map(v => ({
+    value: v,
+    size: byVal[v] ? byVal[v].size : 0,
+    governedSize: byValGov[v] ? byValGov[v].size : 0,
+  })).sort((a, b) => b.governedSize - a.governedSize || b.size - a.size);
 }
 // 🌳 מסע ההתכנסות — רשימת הביטויים ששווים לערך (משפחת-הערך = "בתוך המספר"). + world מ-nodes כשקיים.
 export async function getValuePhraseList(value, limit = 120) {
   if (!supabase || !value) return [];
-  const { data } = await supabase.from('bidim').select('phrase').eq('value', value).limit(limit * 2);
-  const phrases = [...new Set((data || []).map(r => r.phrase).filter(Boolean))].slice(0, limit);
+  // ⚖️ BLOCKER-EG-1 / HG-E4: עבר מ-select גולמי על bidim (בלי שום סינון-שיטה ובלי אות-ממשל)
+  // ל-fn_value_phrase_list — הפרויקציה הקנונית. אף ביטוי לא נעלם; כל ביטוי נושא את מצב-הממשל שלו.
+  const { data } = await supabase.rpc('fn_value_phrase_list', { p_value: value, p_limit: limit * 2 });
+  const rows = (data || []).slice(0, limit);
+  const govBy = {}, classBy = {}, histBy = {};
+  rows.forEach(r => {
+    govBy[r.phrase] = r.governed !== false;
+    classBy[r.phrase] = r.best_evidence_class || null;
+    histBy[r.phrase] = r.historical_methods || null;
+  });
+  const phrases = [...new Set(rows.map(r => r.phrase).filter(Boolean))];
   if (!phrases.length) return [];
   const worldMap = {};
   for (let i = 0; i < phrases.length; i += 300) {
@@ -3281,7 +3338,8 @@ export async function getValuePhraseList(value, limit = 120) {
     const { data: ents } = await supabase.from('nodes').select('label,metadata').eq('type', 'entity').in('label', chunk).limit(1000);
     (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
   }
-  return phrases.map(p => ({ phrase: p, world: worldMap[p] || null }));
+  return phrases.map(p => ({ phrase: p, world: worldMap[p] || null,
+    governed: govBy[p] !== false, evidenceClass: classBy[p] || null, historicalMethods: histBy[p] || null }));
 }
 
 // 🔮 הצלבה בין-שיטתית (number_cross_resonance) — עדשה על bidim לחיפוש-AI העמוק.
@@ -3826,9 +3884,15 @@ export async function getMethodFamilies(pairs, selfTerm = null, perMethod = 20) 
         if (r.phrase !== selfTerm) g.phrases.push({ phrase: r.phrase, world: worldMap[r.phrase] || null, ragil: ragilMap[r.phrase] ?? null });
       }
     }
+    // ⚖️ HG-E4: כל קבוצה נושאת את מצב-הממשל שלה מהרישום הקנוני; מושלות מדורגות ראשונות, אף אחת לא מוסתרת.
+    const states = await getMethodStates();
     return Object.values(groups)
-      .map(g => ({ method: g.method, value: g.value, priority: g.priority, count: g.phrases.length, phrases: g.phrases.slice(0, perMethod) }))
-      .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0) || (a.priority - b.priority) || (b.count - a.count));
+      .map(g => ({ method: g.method, value: g.value, priority: g.priority, count: g.phrases.length,
+        governed: isGovernedMethod(states, g.method),
+        evidenceClass: states[g.method] ? (states[g.method].governed ? 'governed' : 'historical') : 'unregistered',
+        phrases: g.phrases.slice(0, perMethod) }))
+      .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0)
+        || (Number(b.governed) - Number(a.governed)) || (a.priority - b.priority) || (b.count - a.count));
   } catch { return []; }
 }
 
