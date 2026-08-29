@@ -85,3 +85,44 @@ export function computeComposite(compositeKey, word) {
 export function computeAllComposites(word) {
   return COMPOSITE_METHODS.map(c => computeComposite(c.key, word)).filter(Boolean);
 }
+
+// ===== Engine Governance Foundation (29.8.2026) — NON-AUTHORITATIVE MIRROR =====
+// ⛔ COMPOSITE_METHODS above is NO LONGER a definition of anything. Since the Engine
+// Governance Foundation migrations, the composition contract of every composite lives in
+// public.gematria_methods (derived_from + operator + dependency_rules + dependency_versions)
+// and is executed by the registry-driven public.fn_composite_calc. There is exactly one
+// authority (canonical_methods_registry_law v2) and it is the DB, not this file.
+//
+// This module is kept only as an offline/client-side convenience mirror, and it is still not
+// imported by any page or component. Before it is ever wired into a surface it MUST be
+// validated against the live registry with assertCompositeMirrorMatchesRegistry(), so that a
+// silent divergence between this list and the registry can never reach a user.
+//
+// Note also the CONVERGENCE DEPENDENCY LAW: a composite result is deterministically derived
+// from its components, so A, B and A+B are ONE piece of evidence expressed three ways — never
+// three independent methods. The canonical mechanism is public.fn_independent_method_set().
+
+// registryRows: rows from `select method_key, derived_from, operator, category from gematria_methods
+// where category = 'composite'`. Returns [] when the mirror agrees with the registry, otherwise a
+// list of concrete mismatches. Never throws — the caller decides how loudly to fail.
+export function assertCompositeMirrorMatchesRegistry(registryRows) {
+  const problems = [];
+  const byKey = Object.fromEntries((registryRows || []).map(r => [r.method_key, r]));
+
+  for (const c of COMPOSITE_METHODS) {
+    const row = byKey[c.key];
+    if (!row) { problems.push(`${c.key}: present in the client mirror but NOT registered in gematria_methods`); continue; }
+    const registryAtoms = row.derived_from || [];
+    if (registryAtoms.join("|") !== c.atoms.join("|")) {
+      problems.push(`${c.key}: components differ — registry [${registryAtoms.join(", ")}] vs mirror [${c.atoms.join(", ")}]`);
+    }
+    // The mirror only ever computes a sum for its canonical `sum` field.
+    if (row.operator && row.operator !== "sum") {
+      problems.push(`${c.key}: registry operator is "${row.operator}" — the mirror only models sum`);
+    }
+  }
+  for (const key of Object.keys(byKey)) {
+    if (!COMPOSITE_BY_KEY[key]) problems.push(`${key}: registered in gematria_methods but missing from the client mirror`);
+  }
+  return problems;
+}
