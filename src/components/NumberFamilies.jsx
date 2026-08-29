@@ -136,6 +136,14 @@ export default function NumberFamilies({ value, highlight, term, isNumber = true
       <div style={{ borderInlineStart: `3px solid ${on ? P.accent : P.border}`, paddingInlineStart: 9, background: on ? P.cardSoft : "transparent", borderRadius: 8 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginBottom: desc ? 2 : 5 }}>
           <span style={{ color: on ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>{on ? "✨ " : ""}{g.method}</span>
+          {g.governed === false && (
+            // ⚖️ HG-E4 «Rank, Don't Hide»: תוצאה היסטורית נשארת גלויה — אך מסומנת במפורש,
+            // כדי שלא תיקרא כשיטה מושלת/קנונית. מצב-הממשל מגיע מהרישום הקנוני (v_method_states).
+            <span title={`תוצאה היסטורית שנשמרה במאגר. השיטה אינה מושלת כרגע${g.methodActive === false ? " (לא אושרה בשער האנושי)" : ""}${g.methodScannable === false ? " · לא נסרקת" : ""}${g.methodExecutable === false ? " · אין מימוש מנוע" : ""}. מוצגת למחקר ולתיעוד — אינה נספרת כעדות התכנסות עצמאית.`}
+              style={{ color: P.inkSoft, background: "transparent", border: `1px dashed ${P.border}`, borderRadius: 999, padding: "1px 8px", fontFamily: F.body, fontSize: 10.5, fontWeight: 700 }}>
+              🕰 היסטורי
+            </span>
+          )}
           {g.composite && (
             // ⚙️ Engine Governance Foundation (29.8.2026): המרכיבים והאופרטור מגיעים מהרישום הקנוני
             // (gematria_methods דרך fn_number_lookup) — לא מרשימה קשיחה כאן ולא מהתווית. ערך-מורכב
