@@ -552,6 +552,7 @@ export async function getGematriaByValue(value, opts = {}) {
     .from('gematria_words')
     .select('phrase, ragil, misratar, kadmi')
     .eq(col, value)
+    .eq('is_verified', true)   // ✅ verified-only public projection (verified_only_public_gematria_law)
     .order('created_at', { ascending: false, nullsFirst: false })   // ביטוי חדש שהוסף — תמיד למעלה
     .limit(opts.limit || 12);
   return data ?? [];
@@ -564,7 +565,8 @@ export async function getGematriaCountByValue(value, method = 'ragil') {
   const { count } = await supabase
     .from('gematria_words')
     .select('*', { count: 'exact', head: true })
-    .eq(col, value);
+    .eq(col, value)
+    .eq('is_verified', true);   // ✅ verified-only public projection
   return count || 0;
 }
 
@@ -602,6 +604,7 @@ export async function getGematriaByValues(values) {
     .from('gematria_words')
     .select('phrase, ragil')
     .in('ragil', uniq)
+    .eq('is_verified', true)   // ✅ verified-only public projection
     .limit(2000);
   for (const r of data ?? []) {
     if (!out.has(r.ragil)) out.set(r.ragil, []);
@@ -978,6 +981,7 @@ export async function getGiluyTreasures(anchor) {
     .select('phrase, ragil, other_value, other_method, tags')
     .or(`other_value.eq.${anchor},ragil.eq.${anchor}`)
     .overlaps('tags', ['אוצרות הגילוי', 'השלמה לאוצרות'])
+    .eq('is_verified', true)   // ✅ verified-only public projection
     .limit(80);
   const rows = data || [];
   const method = r => r.other_method || (r.ragil === anchor ? 'רגיל' : '');
@@ -1842,6 +1846,7 @@ export async function getEntityBundle({ term, value, isNumber }) {
     value
       ? supabase.from('gematria_words').select('phrase,ragil,is_verified,visibility_tier,lead_rank,tags', { count: 'exact' })
           .eq('ragil', value)
+          .eq('is_verified', true)   // ✅ verified-only public projection (verified_only_public_gematria_law)
           .order('lead_rank', { ascending: true, nullsFirst: false })   // 📌 נעוצים (חזקים) קודם
           .order('is_verified', { ascending: false })
           .order('visibility_tier', { ascending: true, nullsFirst: false })
@@ -3141,6 +3146,7 @@ export async function getAllValuePhrases(value, limit = 500) {
     const { data } = await supabase.from("gematria_words")
       .select("phrase,is_verified,visibility_tier,lead_rank,tags")
       .eq("ragil", Number(value))
+      .eq("is_verified", true)   // ✅ verified-only public projection (verified_only_public_gematria_law)
       // סדר קנוני זהה לדף המספר (getEntityBundle) — lead_rank › מאומת › visibility_tier › recency.
       // כך המחשבון המקצועי וכל צרכן אחר מסונכרנים 1:1 עם מה שצוריאל מסדר בדף המספר.
       .order("lead_rank", { ascending: true, nullsFirst: false })
@@ -3790,7 +3796,9 @@ export async function getMethodFamilies(pairs, selfTerm = null, perMethod = 20) 
     const valByMethod = {}; pairs.forEach(p => { if (p.value > 0) valByMethod[p.method] = p.value; });
     const values = [...new Set(Object.values(valByMethod))];
     if (!values.length) return [];
-    const { data } = await supabase.from('bidim').select('method,phrase,value,priority').in('value', values).limit(4000);
+    const { data } = await supabase.from('bidim').select('method,phrase,value,priority')
+      .in('value', values).eq('is_verified', true)   // ✅ verified-only public projection
+      .limit(4000);
     if (!data || !data.length) return [];
     // משאירים רק שורות שבהן הערך של השורה = הערך של הביטוי באותה שיטה
     const rows = data.filter(r => valByMethod[r.method] === r.value);

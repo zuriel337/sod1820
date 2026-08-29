@@ -45,7 +45,7 @@ export function AiAdditionBox({ html, number }) {
   useEffect(() => {
     if (!number) { setEq([]); return; }
     let live = true;
-    supabase.from("gematria_words").select("phrase").eq("ragil", number).limit(24)
+    supabase.from("gematria_words").select("phrase").eq("ragil", number).eq("is_verified", true).limit(24)
       .then(({ data }) => {
         if (!live) return;
         const words = (data || []).map(r => r.phrase).filter(p => p && !/\s/.test(p) && !/\d/.test(p));

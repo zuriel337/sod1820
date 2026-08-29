@@ -168,7 +168,7 @@ export default function GematriaRevealPage() {
   useEffect(() => {
     let live = true; setImgs([]); setImg(null); setEquals([]);
     if (!data.total) return;
-    supabase.from("gematria_words").select("phrase").eq("ragil", data.total).neq("phrase", word).limit(10)
+    supabase.from("gematria_words").select("phrase").eq("ragil", data.total).eq("is_verified", true).neq("phrase", word).limit(10)
       .then(({ data: d }) => { if (live && d) setEquals(d.map(r => r.phrase)); });
     supabase.from("gallery_images").select("id,name,image_url")
       .or(`primary_value.eq.${data.total},all_values.cs.{${data.total}}`).not("image_url", "is", null).limit(60)

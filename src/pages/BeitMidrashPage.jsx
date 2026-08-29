@@ -562,7 +562,7 @@ function Sod1820Tab() {
       if (ids.length) { try { const im = await getGalleryImagesByIds(ids); if (live) setImgs(im || []); } catch { /* ignore */ } }
     }).catch(() => {});
     // ביטויים ששווים 1820 (רגיל)
-    supabase.from("gematria_words").select("phrase").eq("ragil", 1820).limit(80)
+    supabase.from("gematria_words").select("phrase").eq("ragil", 1820).eq("is_verified", true).limit(80)
       .then(({ data }) => { if (live) setPhrases([...new Set((data || []).map(r => r.phrase).filter(Boolean))]); });
     return () => { live = false; };
   }, []);
