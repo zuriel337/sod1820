@@ -46,7 +46,7 @@ export async function getDimensionFiveVideos() {
     const { posts } = await getPostsFromSupabase({ tag: "מימד חמש", limit: 50, orderBy: "modified" });
     const items = [];
     for (const p of (posts || [])) {
-      if (p.home_hidden) continue;   // פוסט מוסתר לא נכנס לפיד-הרצף של מימד חמש
+      if (p.home_hidden || (p.tags || []).includes("טיוטה") || (p.tags || []).includes("פורום")) continue;   // מוסתר/טיוטה/פורום — לא בפיד-הרצף
       const c = typeof p.content === "string" ? p.content : "";
       const mp4 = c.match(/https?:\/\/[^"'\s]+\.mp4/i);
       if (mp4) {

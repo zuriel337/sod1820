@@ -39,8 +39,8 @@ export default function DimensionFiveCloud() {
   useEffect(() => {
     let alive = true;
     getPostsFromSupabase({ tag: TAG, limit: 16, orderBy: "modified" })
-      // פוסט מוסתר (home_hidden) לא מופיע גם בענן מימד-חמש
-      .then(({ posts: r }) => { if (alive) setPosts((r || []).filter(p => !p.home_hidden).slice(0, 12)); })
+      // פוסט מוסתר (home_hidden) או טיוטה/פורום לא מופיע בענן מימד-חמש
+      .then(({ posts: r }) => { if (alive) setPosts((r || []).filter(p => !p.home_hidden && !(p.tags || []).includes("טיוטה") && !(p.tags || []).includes("פורום")).slice(0, 12)); })
       .catch(() => { if (alive) setPosts([]); });
     return () => { alive = false; };
   }, []);
