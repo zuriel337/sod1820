@@ -224,10 +224,11 @@ export default function UserCenter() {
           <div style={{ display: "flex", gap: 8, marginTop: 13 }}>
             <Stat T={T} label="במחקר" val={center?.research_items ?? "—"} onClick={() => setActive("research")} />
             <Stat T={T} label="שמורים" val={center?.saved ?? "—"}
-              onClick={() => setActive("research")} />
+              onClick={() => { try { localStorage.setItem("rw_left_tab2", "saved"); } catch { /* noop */ } setActive("research"); }} />
             <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} onClick={() => setActive("progress")} />
-            {/* «פוסטים» מוצג רק למי שכתב פוסטים — גולש רגיל לא רואה «אפס פוסטים» */}
-            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("myposts")} />}
+            {/* «פוסטים» מוצג לפי יכולת-כותב (is_writer/is_publisher), לא לפי מספר-פוסטים —
+                כותב עם 0 פוסטים עדיין צריך נתיב ל«היצירה שלי» (myposts). */}
+            {(center?.is_writer || center?.is_publisher) && <Stat T={T} label="פוסטים" val={center?.posts ?? 0} gold onClick={() => setActive("myposts")} />}
           </div>
           {/* 🟢 סטטוס וואטסאפ — גלוי מיד בכותרת; מנותק = CTA לחיבור, מחובר = ניהול */}
           <WaHeaderChip T={T} onOpen={() => setActive("whatsapp")} />
@@ -1427,6 +1428,13 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <LevelPanel T={T} />
         <div style={{ marginTop: 18 }}><MyTreeCard /></div>
         <RecentActivityPanel T={T} />
+        {/* 🤝 התרומות שלי — הפעילות שלי מול הקהילה שייכת סמנטית להתקדמות (כבר חלק מפירוט ה-XP
+            למעלה), ומשמשת entry-point יחיד ל-contrib אחרי הסרת קיבוץ-העולמות. */}
+        <button onClick={() => setActive("contrib")} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", boxSizing: "border-box", textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 10, padding: "10px 12px", cursor: "pointer", color: T.ink, fontFamily: "inherit", fontSize: 13, fontWeight: 700, marginTop: 14 }}>
+          <span style={{ fontSize: 16 }}>🤝</span>
+          <span>התרומות שלי</span>
+          {c.contributions > 0 && <span style={{ marginInlineStart: "auto", background: T.accSoft, color: T.acc, borderRadius: 999, fontSize: 11, fontWeight: 800, padding: "1px 9px" }}>{c.contributions}</span>}
+        </button>
         {isAdmin && <AdminOnlinePanel T={T} />}
       </div>
     ) },
