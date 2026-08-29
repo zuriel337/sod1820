@@ -6,18 +6,30 @@ import React, { useMemo, useState, useEffect } from "react";
 // native <input type="date"> (על מובייל הופך ל-wheel-picker שמתחיל מהיום ולא מאפשר הקלדה —
 // למי שנולד ב-1975 זו גלילה של עשרות "קליקים" בשנים בלבד).
 //
-// ה-UI לא משנה את מודל-הנתונים: value/onChange הם תמיד "YYYY-MM-DD" קנוני (או null/""),
+// ה-UI לא משנה את מודל-הנתונים: value/onChange הם תמיד "YYYY-MM-DD" קנוני (או null),
 // זהה למה שה-DB/RPC מצפים לו כבר היום — אין schema חדש בשביל UX.
+//
+// ⛔ Validation law: קלט לא-תקין/עתידי → נחסם (onChange(null)), לעולם לא נכתב-מחדש בשקט
+// לערך אחר (כמו "היום") שהמשתמש לא הזין בעצמו. מה שהמשתמש הקליד/בחר נשאר מוצג כפי-שהוא;
+// רק ה-canonical-value המדווח-החוצה נחסם עד שהקלט שלם ותקין. אין הסתמכות על HTML
+// min/max/type=number לאכיפה — אלה רמז-UX בלבד; האימות האמיתי הוא לוגי, כאן.
+//
+// אין ברירת-מחדל ל-minYear/maxYear (אין floor/ceiling שרירותי בלי Human-Gate מפורש) —
+// caller שלא מעביר אותם = אין הגבלת-שנה מלבד disableFuture (אם התבקש).
 //
 // EXTENSION POINT NOW (לא מומש): year-only / month+year / approximate-date. מודל-הפנים כאן
 // (day/month/year נפרדים) לא חוסם הרחבה עתידית כזו, אבל היא לא נבנית עכשיו — value/onChange
 // דורשים תאריך מלא כל עוד ה-DB דורש תאריך מלא.
 
+const YEAR_RE = /^\d{4}$/;
+const isCompleteYear = y => YEAR_RE.test(String(y ?? "").trim());
+
 function daysInMonth(year, month) {
-  // month: 1-12. new Date(year, month, 0) = היום האחרון של month-1 → מספר-הימים הנכון,
-  // כולל שנה מעוברת (28/29 בפברואר) בלי טבלת-קפיצה ידנית.
-  if (!year || !month) return 31;
-  return new Date(year, month, 0).getDate();
+  // month: 1-12. שנה לא-שלמה (עדיין מוקלדת) → ברירת-מחדל סלחנית (לא חוסמת יום חוקי
+  // בטעות רק כי המשתמש עוד לא סיים להקליד שנה) — לא מנחשת שנה אמיתית מספרה חלקית.
+  if (!month) return 31;
+  if (!isCompleteYear(year)) return month === 2 ? 29 : [4, 6, 9, 11].includes(month) ? 30 : 31;
+  return new Date(Number(year), month, 0).getDate();
 }
 
 const MONTHS = [
@@ -32,64 +44,83 @@ function parseIso(value) {
 }
 
 function toIso(y, m, d) {
-  if (!y || !m || !d) return null;
-  return `${String(y).padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+// מחזיר { iso, error } — iso=null כש-הקלט חלקי/לא-תקין/עתידי (נחסם, לא מומר בשקט).
+function validate(y, m, d, { minYear, maxYear, disableFuture }) {
+  if (!isCompleteYear(y) || m === "" || d === "") return { iso: null, error: null }; // עדיין באמצע הקלדה — לא שגיאה, סתם לא-שלם עדיין
+  const yy = Number(y), mm = Number(m), dd = Number(d);
+  const bound = daysInMonth(y, mm);
+  if (dd < 1 || dd > bound) return { iso: null, error: "היום שנבחר לא קיים בחודש הזה" };
+  if (minYear != null && yy < minYear) return { iso: null, error: `השנה חייבת להיות ${minYear} ומעלה` };
+  if (maxYear != null && yy > maxYear) return { iso: null, error: `השנה חייבת להיות ${maxYear} ומטה` };
+  if (disableFuture) {
+    const cand = new Date(yy, mm - 1, dd);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (cand > today) return { iso: null, error: "לא ניתן לבחור תאריך עתידי" };
+  }
+  return { iso: toIso(y, m, d), error: null };
 }
 
 export default function HumanDateInput({
-  value, onChange, minYear = 1900, maxYear = new Date().getFullYear(), disableFuture = false, required = false,
+  value, onChange, minYear, maxYear, disableFuture = false, required = false,
 }) {
   const [y, setY] = useState(() => parseIso(value).y);
   const [m, setM] = useState(() => parseIso(value).m);
   const [d, setD] = useState(() => parseIso(value).d);
+  const [error, setError] = useState(null);
 
   // ערך חיצוני חדש (למשל טעינת פרופיל אחרי mount) → עדכן פנימה. לא לרוץ על כל הקלדה פנימית.
   useEffect(() => {
     const p = parseIso(value);
-    setY(p.y); setM(p.m); setD(p.d);
+    setY(p.y); setM(p.m); setD(p.d); setError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const maxD = useMemo(() => daysInMonth(Number(y) || null, Number(m) || null), [y, m]);
-  const today = useMemo(() => new Date(), []);
-  const isFuture = (yy, mm, dd) => {
-    if (!disableFuture || !yy || !mm || !dd) return false;
-    const cand = new Date(Number(yy), Number(mm) - 1, Number(dd));
-    return cand > today;
-  };
-
-  function commit(nextY, nextM, nextD) {
-    // חודש התקצר (לדוגמה מ-31-יולי ל-פברואר) → מהדקים את היום לטווח-החוקי, לא מוחקים בחירה.
-    const bound = daysInMonth(Number(nextY) || null, Number(nextM) || null);
-    let d2 = nextD && Number(nextD) > bound ? String(bound) : nextD;
-    if (isFuture(nextY, nextM, d2)) { nextY = String(today.getFullYear()); nextM = String(today.getMonth() + 1); d2 = String(today.getDate()); }
-    setY(nextY); setM(nextM); setD(d2);
-    onChange?.(toIso(nextY, nextM, d2));
+  // ⛔ לעולם לא מהדקים/משכתבים y/m/d כאן — רק משקפים בדיוק מה שהמשתמש בחר/הקליד.
+  function pick(nextY, nextM, nextD) {
+    setY(nextY); setM(nextM); setD(nextD);
+    const { iso, error: err } = validate(nextY, nextM, nextD, { minYear, maxYear, disableFuture });
+    setError(err);
+    onChange?.(iso); // null = נחסם/לא-שלם; לעולם לא ערך שהמשתמש לא ביקש (כמו "היום")
   }
 
   const sel = {
-    padding: "9px 8px", borderRadius: 8, border: "1px solid var(--line,#e6e8ec)",
+    padding: "9px 8px", borderRadius: 8, border: `1px solid ${error ? "#c0453c" : "var(--line,#e6e8ec)"}`,
     background: "var(--card,var(--bg,#fff))", color: "var(--ink,#1b1d22)", fontFamily: "inherit", fontSize: 14.5,
   };
-  const days = useMemo(() => Array.from({ length: maxD }, (_, i) => i + 1), [maxD]);
+  // רשימת-הימים תמיד כוללת גם את הבחירה-הנוכחית של המשתמש (גם אם היא כרגע מחוץ-לתחום) —
+  // כדי שהתצוגה תישאר "מה שהמשתמש בחר", לא תיעלם/תוחלף בשקט.
+  const days = useMemo(() => {
+    const bound = daysInMonth(y, Number(m) || null);
+    const base = Array.from({ length: bound }, (_, i) => i + 1);
+    const dn = Number(d);
+    if (dn && !base.includes(dn)) base.push(dn);
+    return base;
+  }, [y, m, d]);
 
   return (
-    <div dir="ltr" style={{ display: "flex", gap: 6 }} aria-required={required || undefined}>
-      <select aria-label="יום" value={d} onChange={e => commit(y, m, e.target.value)} style={{ ...sel, flex: "0 0 66px" }}>
-        <option value="">יום</option>
-        {days.map(dd => <option key={dd} value={dd}>{dd}</option>)}
-      </select>
-      <select aria-label="חודש" value={m} onChange={e => commit(y, e.target.value, d)} style={{ ...sel, flex: "1 1 100px" }}>
-        <option value="">חודש</option>
-        {MONTHS.map((label, i) => <option key={i + 1} value={i + 1}>{label}</option>)}
-      </select>
-      {/* שנה = הקלדה ישירה (type=number) — לא select ענק, לא גלילה. אפשר להקליד "1975" ישר. */}
-      <input
-        aria-label="שנה" type="number" inputMode="numeric" placeholder="שנה" value={y}
-        min={minYear} max={maxYear}
-        onChange={e => commit(e.target.value, m, d)}
-        style={{ ...sel, flex: "0 0 82px", textAlign: "center" }}
-      />
+    <div>
+      <div dir="ltr" style={{ display: "flex", gap: 6 }} aria-required={required || undefined} aria-invalid={!!error}>
+        <select aria-label="יום" value={d} onChange={e => pick(y, m, e.target.value)} style={{ ...sel, flex: "0 0 66px" }}>
+          <option value="">יום</option>
+          {days.map(dd => <option key={dd} value={dd}>{dd}</option>)}
+        </select>
+        <select aria-label="חודש" value={m} onChange={e => pick(y, e.target.value, d)} style={{ ...sel, flex: "1 1 100px" }}>
+          <option value="">חודש</option>
+          {MONTHS.map((label, i) => <option key={i + 1} value={i + 1}>{label}</option>)}
+        </select>
+        {/* שנה = הקלדה ישירה (type=number) — לא select ענק, לא גלילה. אפשר להקליד "1975" ישר.
+            min/max כאן הם רמז-UX בלבד (רק אם caller סיפק) — האימות האמיתי ב-validate() למעלה. */}
+        <input
+          aria-label="שנה" type="number" inputMode="numeric" placeholder="שנה" value={y}
+          {...(minYear != null ? { min: minYear } : {})} {...(maxYear != null ? { max: maxYear } : {})}
+          onChange={e => pick(e.target.value, m, d)}
+          style={{ ...sel, flex: "0 0 82px", textAlign: "center" }}
+        />
+      </div>
+      {error && <div style={{ color: "#c0453c", fontSize: 11.5, marginTop: 4 }}>{error}</div>}
     </div>
   );
 }
