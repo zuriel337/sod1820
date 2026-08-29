@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { usePalette } from "../../lib/palette.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
@@ -11,8 +11,6 @@ import { useSiteOnline } from "../../lib/presence.js";
 import HintsPanel from "./HintsPanel.jsx";
 import ReportHint from "../ReportHint.jsx";
 import ProfileSettings from "../ProfileSettings.jsx";
-import ResearchCenter from "../ResearchCenter.jsx";
-import { rwCss, RW_VARS } from "../../lib/research/theme.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead, topicLabel, FOLLOW_STATES } from "../../lib/notifications.js";
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions, watchToggle } from "../../lib/commandCenter.js";
@@ -50,21 +48,9 @@ function WaHeaderChip({ T, onOpen }) {
   );
 }
 
-// 🧠 «המחקר שלי» בתוך האזור האישי — סביבת המחקר המלאה (אותם טאבים) *בפנים*, לא קישור החוצה.
-// החלטת צוריאל (9.7.2026): סביבה אחת — פותחים את האזור האישי ⇒ המחקר בתוכו. אותו מפתח-טאב
-// כמו הלשונית בדף-המספר (rw_hub_tab) ⇒ ההקשר נשמר במעבר (עיקרון «לא מאבדים Context»).
-function DrawerResearch() {
-  const [t, setT] = useState(() => { try { return localStorage.getItem("rw_hub_tab") || "saved"; } catch { return "saved"; } });
-  const pick = x => { setT(x); try { localStorage.setItem("rw_hub_tab", x); } catch { /* noop */ } };
-  return (
-    <div style={RW_VARS}>
-      <style>{rwCss()}</style>
-      <ResearchCenter variant="context" tabbed activeTab={t} onTab={pick} />
-    </div>
-  );
-}
-
 // 🏛️ UserCenter — מרכז השליטה האישי. מגירה שמאלית אחת (overlay), זהה בטלפון ובמחשב.
+// user_center_simplification_v0 (29.8.2026): «המחקר שלי» כאן הוא שער-סיכום בלבד ל-/research
+// (ResearchProvider = סביבת-המחקר הגלובלית הקנונית) — לא שכפול שלה. אין כאן טאבים/embed.
 // registry מודולרי: להוסיף אזור = רשומה במערך MODULES, בלי לגעת בשלד. עיצוב בהיר-מודרני
 // (research_workspace_law) עם וריאנט כהה שנצמד למתג היום/לילה הגלובלי.
 
@@ -72,8 +58,10 @@ function DrawerResearch() {
 const LIGHT = { bg: "#f6f7f9", card: "#ffffff", ink: "#1b1d22", sub: "#5b6472", line: "#e6e8ec", acc: "#2f6df6", accSoft: "#eaf1ff", gold: "#c79a2e", goldSoft: "#faf4e2" };
 const DARK  = { bg: "#12141a", card: "#1b1e26", ink: "#eef0f4", sub: "#9aa2b1", line: "#2a2e38", acc: "#5b8cff", accSoft: "#1c2740", gold: "#d8b75e", goldSoft: "#2a2417" };
 
-// 🌍 5 העולמות (personal_command_center_law) — מסגרת-על מעל אותם מודולים (עץ אחד: קיבוץ, לא שכתוב).
-// כל מודול נושא world; הגריד מרונדר מקובץ לפי סדר זה. עולם ריק לא מוצג. writerOnly מוסתר ללא-כותבים.
+// 🌍 5 העולמות (personal_command_center_law) — מודל-ניווט קודם, נשמר-בקוד אך לא-מרונדר יותר
+// מ-UserCenter Home (user_center_simplification_v0, 29.8.2026: HIDE ≠ DELETE — הרשומה עצמה
+// והמודולים ש-buildModules עדיין מגדיר לא נמחקו, רק אינם מנוונטים מכאן). מיועד למיקום עתידי
+// ב-Research Studio / רזיאל / משטח קנוני רלוונטי.
 const WORLDS = [
   { key: "me",        icon: "🌍", title: "העולם שלי",   sub: "הזהות, ההתקדמות והקרדיטים" },
   { key: "lab",       icon: "🔬", title: "המעבדה שלי",  sub: "מחקר, צפנים ורמזים" },
@@ -147,20 +135,6 @@ export default function UserCenter() {
   const [myProfile, setMyProfile] = useState(null); // 💰 קרדיטים/דרגה (beta)
   const [myLevel, setMyLevel] = useState(null);     // 🌳 דרגת-חוקר (מנוע-הגדילה)
   const [nextActions, setNextActions] = useState(null); // 🧠 «מה כדאי לעשות עכשיו»
-  // 🪗 Progressive Disclosure (research_workspace_law: «פשוט בהתחלה») — עולמות-הליבה פתוחים,
-  //    השאר מקופלים בהקשה (עם מונה + נקודת-פעילות). הבחירה נזכרת בין ביקורים.
-  // 🪗 עולמות מקופלים כברירת-מחדל — «הבית» (HomeTiles) נותן את העיקר; העולמות = «עוד», נפתחים בהקשה.
-  //    (מונע «קיר צ'יפים» למשתמש חדש. משתמש קיים שומר את בחירתו ב-localStorage.)
-  const [openWorlds, setOpenWorlds] = useState(() => {
-    try { const s = localStorage.getItem("uc_worlds_open"); if (s) return new Set(JSON.parse(s)); } catch { /* noop */ }
-    return new Set();
-  });
-  const [devOpen, setDevOpen] = useState(false); // 🚧 מדור «בפיתוח» בתחתית — סגור לכולם, אדמין בלבד פותח
-  const toggleWorld = (key) => setOpenWorlds(prev => {
-    const next = new Set(prev); next.has(key) ? next.delete(key) : next.add(key);
-    try { localStorage.setItem("uc_worlds_open", JSON.stringify([...next])); } catch { /* noop */ }
-    return next;
-  });
 
   useEffect(() => {
     if (!isOpen || !user || !supabase) return;
@@ -250,7 +224,7 @@ export default function UserCenter() {
           <div style={{ display: "flex", gap: 8, marginTop: 13 }}>
             <Stat T={T} label="במחקר" val={center?.research_items ?? "—"} onClick={() => setActive("research")} />
             <Stat T={T} label="שמורים" val={center?.saved ?? "—"}
-              onClick={() => { try { localStorage.setItem("rw_hub_tab", "saved"); } catch { /* noop */ } setActive("research"); }} />
+              onClick={() => setActive("research")} />
             <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} onClick={() => setActive("progress")} />
             {/* «פוסטים» מוצג רק למי שכתב פוסטים — גולש רגיל לא רואה «אפס פוסטים» */}
             {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("myposts")} />}
@@ -263,85 +237,14 @@ export default function UserCenter() {
         <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: 14 }}>
           {!activeMod ? (
             <>
-              {/* 🚧 האזור האישי עדיין משתפר — לא חוסם: ההודעות וההתראות פעילות במלואן. */}
-              <div style={{ display: "flex", alignItems: "center", gap: 7, background: T.goldSoft, border: `1px solid ${T.line}`, borderRadius: 10, padding: "7px 11px", marginBottom: 13, color: T.sub, fontSize: 11.5, lineHeight: 1.6 }}>
-                <span style={{ fontSize: 13 }}>🚧</span>
-                <span>האזור האישי עדיין בבנייה ומשתפר — אבל ההודעות וההתראות כבר פעילות במלואן.</span>
-              </div>
-              {/* 🏠 הבית — האריחים החשובים ביותר במקום אחד (מותאם לסוג-המשתמש), ואז «הצעד הבא». */}
+              {/* 🧭 user_center_simplification_v0 (29.8.2026) — האזור האישי מצומצם למספר-קטן
+                  של בחירות ברורות: החשבון שלי · הדף שלי · המחקר שלי (שער בלבד) · הודעות
+                  ועדכונים · ההתקדמות שלי. שאר היכולות (רמזים/צפנים/צוות-סוכנים/5-העולמות/
+                  Roadmap/ResearchCenter embedded) לא נמחקו — רק לא מנוונטות מכאן יותר
+                  (buildModules עדיין מגדיר אותן; ראה תיעוד ב-work_log). */}
+              <InboxAttentionCard T={T} unread={unread} dmUnread={dmUnread} setActive={setActive} />
               <HomeTiles T={T} center={center} setActive={setActive} dark={dark} />
               <NextActionCard T={T} dark={dark} profile={profile} myProfile={myProfile} myLevel={myLevel} nextActions={nextActions} setActive={setActive} goto={goto} />
-              {/* 🌍 5 העולמות — קיבוץ המודולים. עולם ריק לא מוצג. */}
-              <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".05em", color: T.sub, margin: "6px 2px 9px" }}>עוד באזור האישי</div>
-              {WORLDS.filter(w => w.key !== "create").map(w => {
-                // רק פיצ׳רים חיים למעלה: «בקרוב» (soon), «היצירה שלי» (create) ו-roadmap יורדים למדור «בפיתוח» הסגור בתחתית.
-                const mods = MODULES.filter(m => !m.hidden && m.status !== "soon" && m.id !== "roadmap" && (m.world || "me") === w.key);
-                if (!mods.length) return null;
-                const isOpen = openWorlds.has(w.key);
-                const hasActivity = mods.some(m => m.badge != null);
-                return (
-                  <div key={w.key} style={{ marginBottom: 14 }}>
-                    <button className="uc-whd" onClick={() => toggleWorld(w.key)} style={{ display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "right", background: "none", border: "none", cursor: "pointer", color: T.ink, fontFamily: "inherit", padding: "6px 6px", margin: "0 -4px 7px" }}>
-                      <span style={{ fontSize: 15 }}>{w.icon}</span>
-                      <span style={{ fontWeight: 800, fontSize: 14.5 }}>{w.title}</span>
-                      <span style={{ fontSize: 11, color: T.sub }}>{w.sub}</span>
-                      <span style={{ marginInlineStart: "auto", display: "inline-flex", alignItems: "center", gap: 7 }}>
-                        {!isOpen && hasActivity && <span title="יש פעילות חדשה" style={{ width: 7, height: 7, borderRadius: "50%", background: T.acc }} />}
-                        {!isOpen && <span style={{ fontSize: 11, fontWeight: 800, color: T.sub, background: T.accSoft, borderRadius: 999, padding: "1px 8px" }}>{mods.length}</span>}
-                        <span style={{ fontSize: 12, color: T.sub, width: 12, textAlign: "center" }}>{isOpen ? "▴" : "▾"}</span>
-                      </span>
-                    </button>
-                    {isOpen && (
-                    <div className="uc-wgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                      {mods.map(m => (
-                        <button key={m.id} onClick={() => setActive(m.id)} style={{
-                          textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
-                          padding: "13px 13px", cursor: "pointer", position: "relative", minHeight: 74,
-                          display: "flex", flexDirection: "column", gap: 4, color: T.ink,
-                        }}>
-                          <span style={{ fontSize: 22 }}>{m.icon}</span>
-                          <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.title}</span>
-                          {m.badge != null && <span style={{ position: "absolute", top: 10, left: 10, background: T.accSoft, color: T.acc, borderRadius: 999, fontSize: 11, fontWeight: 800, padding: "1px 8px" }}>{m.badge}</span>}
-                          {m.status === "soon" && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
-                        </button>
-                      ))}
-                    </div>
-                    )}
-                  </div>
-                );
-              })}
-              {/* 🚧 בפיתוח — מדור סגור בתחתית. «היצירה שלי» + «בקרוב» + roadmap. סגור לכולם; רק אדמין פותח. */}
-              {(() => {
-                const devMods = MODULES.filter(m => !m.hidden && (m.status === "soon" || m.id === "roadmap" || (m.world || "me") === "create"));
-                if (!devMods.length) return null;
-                return (
-                  <div style={{ marginTop: 6 }}>
-                    <button className="uc-whd" onClick={() => { if (isAdmin) setDevOpen(o => !o); }}
-                      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "right", background: "none", border: `1px dashed ${T.line}`, borderRadius: 12, padding: "11px 13px", cursor: isAdmin ? "pointer" : "default", color: T.sub, fontFamily: "inherit" }}>
-                      <span style={{ fontSize: 16 }}>🚧</span>
-                      <span style={{ fontWeight: 700, fontSize: 13 }}>בפיתוח</span>
-                      <span style={{ fontSize: 11.5 }}>{isAdmin ? "אזורים שעדיין נבנים — פתוח לך כאדמין" : "בקרוב"}</span>
-                      <span style={{ marginInlineStart: "auto", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        {isAdmin ? <span style={{ fontSize: 12, color: T.sub }}>{devOpen ? "▴" : "▾"}</span> : <span style={{ fontSize: 12 }}>🔒</span>}
-                      </span>
-                    </button>
-                    {isAdmin && devOpen && (
-                      <div className="uc-wgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 9 }}>
-                        {devMods.map(m => (
-                          <button key={m.id} onClick={() => setActive(m.id)} style={{
-                            textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 14,
-                            padding: "13px 13px", cursor: "pointer", position: "relative", minHeight: 74,
-                            display: "flex", flexDirection: "column", gap: 4, color: T.ink }}>
-                            <span style={{ fontSize: 22 }}>{m.icon}</span>
-                            <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.title}</span>
-                            {m.status === "soon" && <span style={{ position: "absolute", top: 10, left: 10, background: dark ? "#2a2e38" : "#eef0f2", color: T.sub, borderRadius: 999, fontSize: 10, fontWeight: 700, padding: "1px 7px" }}>בקרוב</span>}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
             </>
           ) : (
             <div>
@@ -1374,25 +1277,18 @@ function InboxPanel({ T, initialDm = null }) {
   );
 }
 
-// 🏠 «הבית» של המגירה — האריחים החשובים ביותר במקום אחד (5–10 שניות: מי אני · הדף שלי · המחקר
-//    שלי · הודעות · קרדיטים · התראות). לא מסך/עולם חדש — סקשן בראש ה-Home. מותאם לסוג-המשתמש.
+// 🏠 «הבית» של המגירה — user_center_simplification_v0 (29.8.2026): 4 אריחי-זהות קבועים,
+//    בהתאמה למושגי-הליבה (`user_center_simplification_v0`): החשבון שלי · הדף שלי ·
+//    המחקר שלי (שער בלבד) · ההתקדמות שלי. «הודעות ועדכונים» מקבל כרטיס נפרד (InboxAttentionCard)
+//    כי הוא איזור-קשב אחד עם שני יעדים פנימיים נפרדים (הודעות/התראות), לא נדחס למודול אחד.
 const HOME_TILE = {
-  profile:       { icon: "👤", title: "החשבון שלי",   sub: "מי אני והפרטים שלי" },
-  "public-page": { icon: "👑", title: "הדף שלי",      sub: "מה שהעולם רואה" },
-  research:      { icon: "🧠", title: "המחקר שלי",    sub: "מחקר · שמורים · צפנים" },
-  myposts:       { icon: "✍️", title: "היצירה שלי",   sub: "הפוסטים שכתבתי" },
-  messages:      { icon: "📨", title: "ההודעות שלי",  sub: "הודעות ותגובות אליי" },
-  notifications: { icon: "🔔", title: "התראות",       sub: "מה חדש עבורי" },
-  credits:       { icon: "◆",  title: "קרדיטים",      sub: "היתרה שלי" },
-  whatsapp:      { icon: "🟢", title: "החיבור לרזיאל", sub: "חיבור החשבון לבוט בוואטסאפ" },
+  profile:       { icon: "👤", title: "החשבון שלי",     sub: "מי אני והפרטים שלי" },
+  "public-page": { icon: "👑", title: "הדף שלי",        sub: "הדף הפומבי שלי — צפייה ועריכה" },
+  research:      { icon: "🧠", title: "המחקר שלי",      sub: "שער לסביבת המחקר המלאה" },
+  progress:      { icon: "📈", title: "ההתקדמות שלי",   sub: "דרגה, XP ופעילות" },
 };
-// 🪗 4-5 האריחים הפופולריים בלבד בבית (בקשת צוריאל: לצמצם) — השאר (וואטסאפ כבר בכותרת;
-//    הצפנים/רמזים/תרומות/יצירה) חיים במדורי-העולמות המקופלים למטה, לא נעלמים.
 function HomeTiles({ T, center, setActive, dark }) {
-  const c = center || {};
-  const hasPage = !!(c.has_dossier || c.is_writer || c.is_publisher || c.is_researcher);
-  const ids = ["profile", "messages", "notifications", "research", "credits"];
-  if (hasPage) ids.push("public-page");
+  const ids = ["profile", "public-page", "research", "progress"];
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".05em", color: T.sub, margin: "2px 2px 9px" }}>הדברים שלי</div>
@@ -1412,6 +1308,52 @@ function HomeTiles({ T, center, setActive, dark }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// 📨 «הודעות ועדכונים» — איזור-קשב אחד (הודעות + התראות מקובצות ויזואלית, נשארות שני
+//    מודולים נפרדים פנימית — פחות סיכון מאיחוד-אמת של שני מקורות-נתונים). כרטיס רחב.
+function InboxAttentionCard({ T, unread, dmUnread, setActive }) {
+  const total = (unread || 0) + (dmUnread || 0);
+  const rowBtn = {
+    flex: 1, display: "flex", alignItems: "center", gap: 7, textAlign: "right",
+    background: T.accSoft, border: `1px solid ${T.line}`, borderRadius: 10,
+    padding: "9px 11px", cursor: "pointer", color: T.ink, fontFamily: "inherit", fontSize: 12.5, fontWeight: 700,
+  };
+  return (
+    <div style={{ background: T.card, border: `1px solid ${T.line}`, borderRadius: 14, padding: "12px 13px", marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 9 }}>
+        <span style={{ fontSize: 18 }}>📨</span>
+        <span style={{ fontWeight: 800, fontSize: 13.5 }}>הודעות ועדכונים</span>
+        {total > 0 && <span style={{ marginInlineStart: "auto", background: T.accSoft, color: T.acc, borderRadius: 999, fontSize: 11, fontWeight: 800, padding: "1px 9px" }}>{total}</span>}
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={() => setActive("messages")} style={rowBtn}>
+          <span style={{ fontSize: 15 }}>💬</span><span>הודעות{dmUnread ? ` (${dmUnread})` : ""}</span>
+        </button>
+        <button onClick={() => setActive("notifications")} style={rowBtn}>
+          <span style={{ fontSize: 15 }}>🔔</span><span>התראות{unread ? ` (${unread})` : ""}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// 🧠 «המחקר שלי» — שער-סיכום בלבד (user_center_simplification_v0). ResearchProvider הוא סביבת-
+//    המחקר הגלובלית הקנונית ב-/research; כאן רק מונה + CTA, בלי embed ובלי טאבי שמורים/היסטוריה.
+function ResearchGateway({ T, count, goto }) {
+  return (
+    <div>
+      <div style={{ background: T.accSoft, border: `1px solid ${T.line}`, borderRadius: 16, padding: "22px 16px", textAlign: "center" }}>
+        <div style={{ fontSize: 32 }}>🧠</div>
+        <div style={{ fontSize: 28, fontWeight: 800, color: T.acc, marginTop: 4 }}>{count ?? 0}</div>
+        <div style={{ fontSize: 12.5, color: T.sub, marginTop: 2 }}>פריטים בסביבת המחקר שלך</div>
+      </div>
+      <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.7, margin: "14px 2px" }}>
+        סביבת המחקר המלאה — שמורים, היסטוריה, השוואות וניתוחי AI — נמצאת במקום אחד.
+      </div>
+      <button onClick={() => goto("/research")} style={{ display: "block", width: "100%", boxSizing: "border-box", textAlign: "center", background: T.acc, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>לסביבת המחקר המלאה ←</button>
     </div>
   );
 }
@@ -1471,13 +1413,10 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         {isAdmin && <AdminOnlinePanel T={T} />}
       </div>
     ) },
-    { id: "research", world: "lab", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined, render: () => (
-      <div>
-        {/* סביבת המחקר המלאה בתוך האזור האישי — סביבה אחת (החלטת צוריאל 9.7.2026) */}
-        <DrawerResearch />
-        <Link to="/research" style={{ display: "inline-block", marginTop: 14, color: T.acc, textDecoration: "none", fontWeight: 700, fontSize: 13 }}>למעבדה המלאה (מסך רחב) ←</Link>
-      </div>
-    ) },
+    // 🧠 user_center_simplification_v0: שער-סיכום בלבד ל-/research — לא embed. ResearchProvider
+    //    נשאר סביבת-המחקר הגלובלית הקנונית; ראו ResearchGateway.
+    { id: "research", world: "lab", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined,
+      render: () => <ResearchGateway T={T} count={c.research_items} goto={goto} /> },
     // 📨 הודעות — כניסה אחת מאוחדת (DM פרטי בין חוקרים · תגובות-לכתב אליי). בנוי ופעיל.
     { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} initialDm={activeParam?.dm} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
