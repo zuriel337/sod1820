@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { calcGem } from "../theme.js";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
+import HumanDateInput from "./HumanDateInput.jsx";
 
 // 📅 תאריכים עבריים — תאריך לועזי → התאריך העברי המקביל (hebcal) + הגימטריה שלו.
 // עדשה על העץ האחד: הערך מקשר ל-/number/:value (לא משכפל). @hebcal/core נטען דינמית.
@@ -46,7 +47,9 @@ export default function DatesTool() {
         </div>
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-        <input type="date" value={gDate} onChange={e => setGDate(e.target.value)} className="rw-num-in" style={{ maxWidth: 200, textAlign: "center" }} />
+        {/* כלי-המרה כללי (כל תאריך גרגוריאני, כולל עתידי — למשל תאריך-אירוע קדימה) —
+            לא שדה תאריך-לידה, ולכן בלי disableFuture (human_date_input_law: לפי סמנטיקה). */}
+        <HumanDateInput value={gDate} onChange={setGDate} />
         <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 700, color: "var(--ink2,#5b6472)", cursor: "pointer" }}>
           <input type="checkbox" checked={afterSunset} onChange={e => setAfterSunset(e.target.checked)} /> אחרי השקיעה
         </label>

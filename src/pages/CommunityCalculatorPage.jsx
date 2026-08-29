@@ -12,6 +12,7 @@ import { applySeo, SITE_URL } from "../lib/seo.js";
 import { waHref } from "../lib/share.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 import NameMultiSearch from "../components/NameMultiSearch.jsx";
+import HumanDateInput from "../components/HumanDateInput.jsx";
 
 // ===== 🧮 מחשבון גימטריה קהילתי — דף ויראלי, יום/לילה, עם ניתוח-חכם מהגרף =====
 // אחיו המקצועי (20 שיטות מלאות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
@@ -172,7 +173,7 @@ function BabyNameTool({ P }) {
             <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>הקשר (אופציונלי) — לא חובה, מוסיף עומק</div>
             <input style={{ ...fld, fontSize: 16 }} value={family} onChange={e => setFamily(e.target.value)} placeholder="שם משפחה…" dir="rtl" />
             <label style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textAlign: "center", marginTop: 2 }}>📅 תאריך לידה (לועזי) — בחרו מהיומן</label>
-            <input type="date" value={bDate} onChange={e => setBDate(e.target.value)} dir="ltr" style={{ ...fld, fontSize: 15, colorScheme: P.mode === "light" ? "light" : "dark" }} />
+            <HumanDateInput value={bDate} onChange={setBDate} disableFuture />
             {heb && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, textAlign: "center" }}>🗓️ תאריך עברי: <b>{heb.pretty}</b> = <b style={{ fontFamily: F.mono }}>{heb.value}</b></div>}
           </div>
         )}
@@ -548,8 +549,7 @@ export default function CommunityCalculatorPage() {
             בחרו את תאריך הלידה הלועזי — נמיר לתאריך העברי ונחשב את ערכו. ✨
           </div>
           <label style={{ display: "block", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textAlign: "center", marginBottom: 6 }}>📅 תאריך לידה (לועזי) — בחרו מהיומן</label>
-          <input type="date" value={gDate} onChange={e => setGDate(e.target.value)} dir="ltr"
-            style={{ ...inp, fontSize: 17, fontFamily: F.heading, colorScheme: P.mode === "light" ? "light" : "dark" }} />
+          <div style={{ display: "flex", justifyContent: "center" }}><HumanDateInput value={gDate} onChange={setGDate} disableFuture /></div>
           <label style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 13, cursor: "pointer" }}>
             <input type="checkbox" checked={afterSunset} onChange={e => setAfterSunset(e.target.checked)} />
             נולדתי אחרי השקיעה (היום העברי הבא)
