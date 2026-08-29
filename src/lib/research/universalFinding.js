@@ -163,5 +163,7 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
 }
 
 export function isUniversalFinding(value) {
-  return Boolean(value && value.v === 1 && value.id && value.subject && value.source && value.identity && value.verification && value.provenance);
+  // Legacy v1 findings created before verification/access fields were added remain readable.
+  // New findings from makeUniversalFinding always carry the complete truth-state envelope.
+  return Boolean(value && value.v === 1 && value.id && value.subject && value.source && value.identity && value.provenance);
 }
