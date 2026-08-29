@@ -26,6 +26,13 @@
 // verification{} / access{} adopted from PR #226 (gpt/research-studio-canonical-extension-v0,
 // head 502c4b88) so the envelope can finally REPRESENT the verification and access axes.
 // #226's hardcoded verification_state:"match" is NOT adopted — see HG-3 note on the adapters below.
+//
+// ── M1 FINAL ACCEPTANCE PATCH (GPT cross-verification of PR #236) ─────────────────────────
+// One more generic fabrication removed: verification_state -> "not_tested" on MISSING input.
+// PR3 applies to the VERIFICATION axis exactly as it applies to the other three — an absent
+// input is unknown, not a declaration that no test occurred. "not_tested" stays a valid state
+// and is still declared EXPLICITLY by adapters that genuinely know it (ELS below, canonical
+// Gematria). Explicit invalid input is still rejected (PR2).
 
 export const VALID_STAGES = Object.freeze(["candidate", "finding", "evidence", "claim", "interpretation"]);
 const STAGE_SET = new Set(VALID_STAGES);
@@ -65,16 +72,29 @@ function normalizeStage(stage) {
   return stage;
 }
 
+// INVARIANT PR2/PR3, same shape as normalizeStage().
+//
+// M1 FINAL ACCEPTANCE PATCH (GPT cross-verification, ZURIEL Human-Gate): the generic envelope
+// used to resolve a MISSING verification_state to "not_tested". That is itself a fabricated
+// semantic claim — "no claim-vs-engine test occurred" is knowledge the generic envelope does not
+// have. Absence of a verification input means the CALLER SAID NOTHING, which is not the same as
+// the caller stating that nothing was tested. So missing now stays honestly null, exactly like
+// stage/status/createdBy.
+//
+// HG-3 is NOT weakened: "not_tested" remains a valid canonical verification state. It is simply
+// no longer INFERRED from absence — an adapter that genuinely knows no claim-vs-engine test took
+// place (the ELS adapter below, the canonical Gematria adapter) still declares it EXPLICITLY.
+// Explicit invalid values keep throwing.
 function normalizeVerification(verification) {
   const v = verification && typeof verification === "object" ? verification : {};
   const state = v.verification_state;
-  // "not_tested" is the ratified HONEST default (Research DNA v1 §1): it states that no
-  // claim-vs-engine test is on record, which is a true statement rather than a manufactured one.
-  const resolved = state == null || state === "" ? "not_tested" : state;
-  if (!VERIFICATION_SET.has(resolved)) {
+  const resolved = state == null || state === "" ? null : state;
+  if (resolved !== null && !VERIFICATION_SET.has(resolved)) {
     throw new TypeError(
       `universalFinding: invalid verification_state "${state}". ` +
-      `Allowed: ${VALID_VERIFICATION_STATES.join(", ")}.`
+      `Allowed: ${VALID_VERIFICATION_STATES.join(", ")}. ` +
+      `Semantic state is never coerced (truth_axes_foundation_law INVARIANT PR2) — ` +
+      `omit verification_state to leave the verification axis honestly unknown.`
     );
   }
   return {
@@ -114,7 +134,8 @@ export function makeUniversalFinding(input = {}) {
     },
     source: { engine: null, adapter: "universal-finding-v1", sourceRef: null, method: null, corpus: null, ...(input.source || {}) },
     identity: { sourceIdentity: null, occurrence: null, entityRef: null, relationRef: null, ...identity },
-    // VERIFICATION axis (Research DNA v1 §1 shape).
+    // VERIFICATION axis (Research DNA v1 §1 shape). verification_state null = honestly unknown;
+    // it is NEVER read as "not_tested" — only an adapter that knows may declare that.
     verification: normalizeVerification(input.verification),
     evidence: { refs: [], facts: [], score: null, confidence: null, ...(input.evidence || {}) },
     // PUBLICATION/ACCESS axis. null = unknown; it is NEVER read as "public".
@@ -164,6 +185,9 @@ export function universalFindingToResearchEntity(finding) {
 // so the honest state is "not_tested" while the engine's actual output IS recorded in
 // engine_method_tested/engine_result. This is the one place where this file deliberately diverges
 // from PR #226, which hardcoded verification_state:"match" on both ELS adapters.
+// This adapter builds the call itself, so it genuinely KNOWS no claim was submitted — which is
+// why it may state "not_tested" EXPLICITLY. makeUniversalFinding() no longer infers that state
+// from a missing input (M1 final acceptance patch); an adapter that does not know leaves it null.
 // `stage` is deliberately NOT set: the epistemic type of an ELS occurrence is a semantic decision
 // that belongs to the Human Gate, not to a projection adapter (INVARIANT PR1/PR3).
 export function elsStateToUniversalFindings(engineState, options = {}) {
