@@ -226,9 +226,9 @@ export default function UserCenter() {
             <Stat T={T} label="שמורים" val={center?.saved ?? "—"}
               onClick={() => { try { localStorage.setItem("rw_left_tab2", "saved"); } catch { /* noop */ } setActive("research"); }} />
             <Stat T={T} label="חיפושים" val={center?.searched ?? "—"} onClick={() => setActive("progress")} />
-            {/* «פוסטים» מוצג לפי יכולת-כותב (is_writer/is_publisher), לא לפי מספר-פוסטים —
-                כותב עם 0 פוסטים עדיין צריך נתיב ל«היצירה שלי» (myposts). */}
-            {(center?.is_writer || center?.is_publisher) && <Stat T={T} label="פוסטים" val={center?.posts ?? 0} gold onClick={() => setActive("myposts")} />}
+            {/* «פוסטים» מוצג רק כשיש בפועל פוסטים פורסמו (Human-Gate, 29.8.2026) —
+                ה-myposts module עצמו נשאר קיים ולא נמחק. */}
+            {(center?.posts ?? 0) > 0 && <Stat T={T} label="פוסטים" val={center.posts} gold onClick={() => setActive("myposts")} />}
           </div>
           {/* 🟢 סטטוס וואטסאפ — גלוי מיד בכותרת; מנותק = CTA לחיבור, מחובר = ניהול */}
           <WaHeaderChip T={T} onOpen={() => setActive("whatsapp")} />

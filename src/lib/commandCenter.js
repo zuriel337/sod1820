@@ -3,7 +3,6 @@
 // בלי טבלאות/מערכות מקבילות. הכל beta — הקרדיטים בהרצה.
 import { supabase } from "./supabase.js";
 import { getVisitorId } from "./tracking.js";
-import { getForumFeed } from "./contributions.js";
 
 // 💬 הודעות פרטיות (DM) — עדשות-לקוח על direct_messages דרך RPCs (owner-gateway).
 export async function dmInbox() {
@@ -140,17 +139,6 @@ export async function getNextActions({ center, profile } = {}) {
   if ((center?.research_items ?? 0) > 0) {
     out.push({ icon: "🔬", text: `יש לך ${center.research_items} פריטים במחקר הפעיל`, cta: "למחקר שלי", module: "research" });
   }
-
-  // 3) חדש בקהילה — הפריט האחרון בפורום (מצביע, לא משכפל)
-  try {
-    const feed = await getForumFeed({ limit: 1 });
-    const f = feed && feed[0];
-    if (f) {
-      const title = (f.title || (f.body || "").slice(0, 60)).trim();
-      const link = f.kind === "post" ? `/${f.slug}` : "/forum";
-      out.push({ icon: "🆕", text: `חדש בקהילה: ${title.length > 54 ? title.slice(0, 54) + "…" : title}`, cta: "לצפייה", link });
-    }
-  } catch { /* noop */ }
 
   return out.slice(0, 3);
 }
