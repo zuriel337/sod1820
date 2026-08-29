@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useResearch } from "./ResearchProvider.jsx";
 import { universalFindingToResearchEntity, isUniversalFinding } from "./universalFinding.js";
+import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 
 // Thin adapter over the EXISTING canonical ResearchProvider.
 // No second store/context. Universal Findings live in the same cart/pin/history/cloud path
@@ -39,6 +40,15 @@ export function useUniversalWorkspace() {
     return added;
   }, [research.addToResearch]);
 
+  // Canonical Gematria source route. This calls the live gematria_api RPC, converts only
+  // engine-returned method values to Universal Findings, then reuses the SAME Workspace path.
+  // No local calculation and no research_object/canonical/public promotion occurs here.
+  const researchCanonicalGematria = useCallback(async (text) => {
+    const items = await fetchCanonicalGematriaFindings(text);
+    const added = upsertFindings(items);
+    return { findings: items, added };
+  }, [upsertFindings]);
+
   const dismissFinding = useCallback((id) => {
     // "Dismiss" means remove from active cart only. ResearchProvider history/cloud provenance
     // is not deleted, satisfying Rank-Don't-Hide/no provenance loss.
@@ -63,6 +73,7 @@ export function useUniversalWorkspace() {
     pinnedFindings,
     upsertFinding,
     upsertFindings,
+    researchCanonicalGematria,
     dismissFinding,
     pinFinding,
     isFindingPinned,
