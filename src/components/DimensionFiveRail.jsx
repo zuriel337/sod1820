@@ -20,8 +20,9 @@ export default function DimensionFiveRail({ compact = false, surface = compact ?
 
   useEffect(() => {
     let alive = true;
-    getPostsFromSupabase({ tag: TAG, limit: 12, orderBy: "modified" })
-      .then(({ posts: r }) => { if (alive) setPosts(r || []); })
+    getPostsFromSupabase({ tag: TAG, limit: 16, orderBy: "modified" })
+      // פוסט שהוסתר (home_hidden) לא מופיע גם ברצועת מימד-חמש (בקשת צוריאל)
+      .then(({ posts: r }) => { if (alive) setPosts((r || []).filter(p => !p.home_hidden).slice(0, 12)); })
       .catch(() => { if (alive) setPosts([]); });
     return () => { alive = false; };
   }, []);
