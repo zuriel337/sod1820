@@ -3348,9 +3348,13 @@ export async function listRelationEvidence(status = null, limit = 60) {
     const { data } = await q; return data || [];
   } catch { return []; }
 }
-export async function setRelationEvidence(method, a, b, value, status, note = null, reason = null) {
+// `source` = EVIDENCE-SOURCE, not the acting user (live vocabulary: engine_scan, els_record:<id>,
+// ai_judge:<tag>, cross_method:<n>, cipher_scan:<tag>, vip). Leave it null and the RPC records the
+// honest category 'human_admin'. HG-5 / truth_axes_foundation_law INVARIANT H2: the previous
+// hardcoded literal 'zuriel' attributed every admin's evidence to ZURIEL personally and is gone.
+export async function setRelationEvidence(method, a, b, value, status, note = null, reason = null, source = null) {
   if (!supabase) throw new Error('no supabase');
-  const { data, error } = await supabase.rpc('set_relation_evidence', { p_method: method, p_a: a, p_b: b, p_value: value, p_status: status, p_note: note, p_reason: reason });
+  const { data, error } = await supabase.rpc('set_relation_evidence', { p_method: method, p_a: a, p_b: b, p_value: value, p_status: status, p_note: note, p_reason: reason, p_source: source });
   if (error) throw error;
   return data;
 }
