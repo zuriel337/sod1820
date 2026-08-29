@@ -89,7 +89,7 @@ async function razielReply(text: string): Promise<string | null> {
   const matches: string[] = [];
   for (const v of [...new Set(Object.values(vals))].slice(0, 3)) {
     try {
-      const { data } = await sb.from("gematria_words").select("phrase").eq("ragil", v).eq("is_verified", true).limit(5);
+      const { data } = await sb.from("gematria_words").select("phrase").eq("ragil", v).eq("is_verified", true).eq("is_published", true).limit(5);
       const ph = (data || []).map((r: any) => r.phrase).filter((p: string) => !heWords.includes(p));
       if (ph.length) matches.push(`${v} שווה גם: ${ph.slice(0,4).join(", ")}`);
     } catch { /* noop */ }

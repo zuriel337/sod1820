@@ -241,7 +241,7 @@ async function buildFacts(text) {
   const matches = [];
   for (const v of ragilVals) {
     try {
-      const { data } = await sb.from("gematria_words").select("phrase").eq("ragil",v).eq("is_verified",true).eq("space","core").order("lead_rank",{ascending:true,nullsFirst:false}).limit(9);
+      const { data } = await sb.from("gematria_words").select("phrase").eq("ragil",v).eq("is_verified",true).eq("is_published",true).eq("space","core").order("lead_rank",{ascending:true,nullsFirst:false}).limit(9);
       const ph=(data||[]).map((r)=>r.phrase).filter((p)=>p&&!words.includes(p));
       if (ph.length) matches.push(`${v} (רגיל) — במאגר גם: ${ph.slice(0,7).join(", ")}`);
     } catch { /* noop */ }

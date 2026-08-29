@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
         { label: "קדמי", val: kadmi, cross: true },
       ];
       const vals = [...new Set(methods.map((m) => m.val).filter((v) => v > 0))];
-      const { data: hits } = await sb.from("gematria_words").select("phrase,ragil").in("ragil", vals).limit(120);
+      const { data: hits } = await sb.from("gematria_words").select("phrase,ragil").in("ragil", vals).eq("is_verified", true).eq("is_published", true).limit(120);
       const self = clean(phrase);
       const byVal = new Map<number, string[]>();
       for (const h of (hits || [])) {

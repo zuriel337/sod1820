@@ -22,7 +22,7 @@ async function vipInbox(row: Record<string, unknown>) { try { await sb.from("wa_
 
 async function ragil(phrase: string) { const { data, error } = await sb.rpc("fn_ragil", { phrase }); return error ? 0 : (Number(data) || 0); }
 async function convergences(value: number, exclude: string) {
-  const { data } = await sb.from("gematria_words").select("phrase").eq("ragil", value).limit(30);
+  const { data } = await sb.from("gematria_words").select("phrase").eq("ragil", value).eq("is_verified", true).eq("is_published", true).limit(30);
   const seen = new Set([clean(exclude)]); const out: string[] = [];
   for (const r of (data || [])) { const p = (r as { phrase: string }).phrase || "";
     if (!p || SENSITIVE.test(p) || seen.has(clean(p))) continue; seen.add(clean(p)); out.push(p); if (out.length >= 3) break; }

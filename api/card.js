@@ -54,7 +54,7 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 async function topPhrases(n) {
   try {
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/gematria_words?ragil=eq.${n}&is_verified=eq.true&visibility_tier=lte.1&select=phrase&limit=40`,
+      `${SUPABASE_URL}/rest/v1/gematria_words?ragil=eq.${n}&is_verified=eq.true&is_published=eq.true&visibility_tier=lte.1&select=phrase&limit=40`,
       { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } }
     );
     const rows = await r.json();
