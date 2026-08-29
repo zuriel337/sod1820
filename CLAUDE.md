@@ -139,13 +139,18 @@
 - **תווית/אימות AI (`verified` / `ai_touched`):** מפעילים **רק** כשה-AI אימת ידיעה ממקור חדשות מפוקפק/לא אמין — **לא** סימון לכל פוסט שנכתב ב-AI (כתיבה ב-AI = `source='ai'` בלבד, בלי דגל אימות).
 - **`ai_gematria_verified_stamp_law` (חקוק):** פוסט/ריבוע גימטריה שה-AI **יצר או אימת במנוע** → **תמיד** `ai_touched=true` כדי לרנדר את חותמת «🔵 AI · מאומת» (AiVerifiedDisclaimer) בראש — כמו פוסט נסראללה (wp_id=34200). תנאי: כל ערך אומת במנוע הרשמי (`fn_ragil`/`fn_misratar`/`atbash_calc`/`kadmi_calc`…) לפני החותמת. אסור חותמת קטנה/כפולה בתוך התוכן — רק הריבוע הקנוני בראש. החוק המלא: `select description from nodes where rule_id='ai_gematria_verified_stamp_law';`.
 
-## יומן העבודה — מקור האמת
+## יומן העבודה — מקור האמת (`work_log_authority_law`) — CURRENT ≠ SUPERSEDED ≠ ARCHIVED
 כשצוריאל מבקש "לפתוח את היומן" / "יומן" / "רשומות אחרונות" וכו' —
 **המקור הוא טבלת `work_log` ב-Supabase** (project `linswmnnkjxvweumprav`), לא הקובץ `docs/work-journal.md`.
 
-- לפתיחה/קריאה: `select * from work_log order by created_at desc limit N;`
+- **⛔ בוטסטרפ-סוכן / "מה המצב התפעולי עכשיו" — אסור `select * from work_log order by created_at desc` גולמי.** שאילתה גולמית מערבבת הוראות-נוכחיות עם רשומות ישנות/מוחלפות בלי סמן-סמכות. **תמיד** לקרוא דרך ההקרנה הקנונית — מחזירה **רק** `archived=false AND superseded_by_id IS NULL`:
+  - **סוכן (SQL ישיר דרך service-role/postgres, כמו כלי ה-MCP):** `select * from public.work_log_current;` — view רגיל, ללא בדיקת-הרשאה פנימית (postgres/service_role עוקפים RLS ממילא כרגיל).
+  - **קליינט-דפדפן אדמין מחובר (`supabase.rpc(...)`):** `select * from public.get_work_log_current();` — RPC עם בדיקת-הרשאה פנימית מפורשת (`auth.uid()` מול `users.role='admin'`, אותו דפוס כמו `admin_worklog_update`), **לא** גישה חופשית ל-anon/authenticated. ⚠️ קריאה ל-RPC הזה **כ-postgres/service_role בלי JWT נכשלת בכוונה** (`auth.uid()`=null → "not authorized") — זה תקין, זה מיועד לנתיב-הדפדפן-המאומת ולא לבוטסטרפ-סוכן; סוכן תמיד קורא את ה-**view** ישירות, לא את ה-RPC.
+- **סמנטיקה (לא נרדפות!):** CURRENT = `archived=false AND superseded_by_id IS NULL` · SUPERSEDED = `superseded_by_id IS NOT NULL` (הוגדר ידנית ע"י סוכן/אדמין כשרשומה חדשה מחליפה מפורשות רשומה ישנה — **לעולם לא נגזר אוטומטית מגיל**) · ARCHIVED = `archived=true` (דרך `admin_worklog_archive_done`/`admin_worklog_update`, כבר קיים). רשומה יכולה להיות גם archived וגם superseded בו-זמנית.
+- **קריאה היסטורית/audit מפורשת** (לא לבוטסטרפ שוטף) — כל הרשומות כולל archived+superseded: `select * from public.get_work_log()` (RPC קיים, ללא שינוי; **⚠️ מוגבל ל-1000 האחרונות — אינו endpoint של היסטוריה-מלאה!**) או `select * from public.work_log_view` (חושף `archived`+`superseded_by_id` לצפייה אנושית, גם מוגבל בפועל דרך אותו נתיב-RLS). **להיסטוריה מלאה/שחזור-רטרואקטיבי מובטח (ללא הגבלת 1000) — לקרוא ישירות `select * from work_log` דרך נתיב מורשה מפורשות (service-role/postgres), לא דרך get_work_log().**
 - הקובץ `docs/work-journal.md` הוא יומן ישן/רטרוספקטיבי — לא לפתוח אותו כברירת מחדל ולא להתייחס אליו כיומן הפעיל.
 - לרישום רשומת עבודה חדשה: `insert into work_log (session_date, topic, numbers, what_we_did, status, open_threads) ...`
+- לסימון רשומה כמוחלפת ע"י רשומה חדשה: `update work_log set superseded_by_id='<new_id>' where id='<old_id>';` — רק כשיש באמת רשומה חדשה שמחליפה תוכן ישן במפורש, לעולם לא ניחוש/גזירה גורפת מהיסטוריה קיימת (זה מסלול-נפרד, `foundation-only`, ראה `select description from nodes where rule_id='work_log_authority_law';`).
 
 ## חוקי מערכת (nodes type='rule') — לכבד תמיד
 החוקים נשמרים בטבלת `nodes` (`type='rule'`, עם `rule_id`, `rule_version`, `is_active`).
