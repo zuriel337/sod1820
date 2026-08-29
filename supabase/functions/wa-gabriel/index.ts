@@ -77,7 +77,7 @@ async function buildFacts(text: string): Promise<string> {
   const lines: string[] = [], blines: string[] = [];
   for (const w of [...new Set((text.match(/[a-zA-Z]{3,20}/g)||[]))].slice(0,3)) { for (const b of await bridgesFor(w,null)) if (!blines.includes(b)) blines.push(b); }
   for (const n of [...new Set((text.match(/\b\d{2,4}\b/g)||[]).map(Number))].slice(0,2)) {
-    try { const { data } = await sb.from('gematria_words').select('phrase').contains('all_values',[n]).eq('is_verified',true).eq('space','core').limit(5); if (data?.length) lines.push(`${n}=${data.map((r:any)=>r.phrase).join('=')}`) } catch {}
+    try { const { data } = await sb.from('gematria_words').select('phrase').contains('all_values',[n]).eq('is_verified',true).eq('is_published',true).eq('space','core').limit(5); if (data?.length) lines.push(`${n}=${data.map((r:any)=>r.phrase).join('=')}`) } catch {}
     for (const b of await bridgesFor('',n)) if (!blines.includes(b)) blines.push(b);
   }
   return [lines.length?'מאגר:\n'+lines.join('\n'):'', blines.length?'גשרי-שפה:\n'+blines.join('\n'):''].filter(Boolean).join('\n\n');
