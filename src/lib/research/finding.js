@@ -33,18 +33,23 @@ export function findingToWorkspaceItem(finding, { link } = {}) {
   if (!isUniversalFinding(finding)) return null;
   const label = String(finding?.subject?.label ?? finding?.subject?.key ?? finding.id);
   const verificationState = finding?.verification?.verification_state || "not_tested";
+  const sourceEngine = finding?.source?.engine || "source";
+  // v0 projects truth-state into the existing row title until the reusable Finding Card lands.
+  // This is view text only; identity remains finding.id + identity.sourceIdentity.
+  const title = `${label} · ${sourceEngine} · ${finding.stage} · ${verificationState}`;
   return {
     id: finding.id,
     type: finding.kind,
-    title: label,
+    title,
     ref: finding?.subject?.key ?? finding.id,
     link: link ?? findingLink(finding),
     metadata: {
       isUniversalFinding: true,
+      displayLabel: label,
       findingKind: finding.kind,
       stage: finding.stage,
       status: finding.status || "active",
-      sourceEngine: finding?.source?.engine || null,
+      sourceEngine,
       sourceMethod: finding?.source?.method || null,
       sourceRef: finding?.source?.sourceRef || null,
       verificationState,
@@ -122,15 +127,16 @@ export function findingFromElsState(state) {
   };
 }
 
-// Number identity adapter. This represents the Number entity itself, not a Gematria computation.
+// Number identity adapter. Without a canonical entityRef this remains a Candidate, not a verified Finding.
 export function findingFromNumberEntity(number, { sourceRef = null, label = null } = {}) {
   const n = Number(number);
   if (!Number.isFinite(n)) return null;
+  const verified = Boolean(sourceRef);
   return {
     v: 1,
     id: `finding:number:${n}`,
     kind: "number",
-    stage: "finding",
+    stage: verified ? "finding" : "candidate",
     status: "active",
     subject: { type: "number", key: n, label: label || String(n), value: n },
     source: { engine: "graph", adapter: "number-entity-v1", sourceRef, method: null, corpus: null },
@@ -140,8 +146,8 @@ export function findingFromNumberEntity(number, { sourceRef = null, label = null
       claimed_method: null,
       claimed_value: n,
       engine_method_tested: null,
-      engine_result: n,
-      verification_state: sourceRef ? "match" : "not_tested",
+      engine_result: verified ? { entityRef: sourceRef, number: n } : null,
+      verification_state: verified ? "match" : "not_tested",
     },
     evidence: { refs: sourceRef ? [sourceRef] : [], facts: [], score: null, confidence: null },
     access: { tier: null, reason: null },
