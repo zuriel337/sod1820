@@ -450,6 +450,13 @@ Branch(ענף) → Review(בדיקה) → Main(🔀 מוזג) → Deploy(🌐 נ
 > - **⛔ ניסוח מחייב:** **Full Canonical Method Scan — הדרישה החישובית סופקה ע"י ה-governed re-certification.** לא-הורצה סריקה נפרדת, ולא-קיים מנוע/job כזה (נבדק חי). הרצה-חוזרת של אותם 226,656 חישובים **מיותרת** — `NO-REDUNDANT-AUDIT LAW`. אמירות היסטוריות «Full Scan טרם-הורץ» נשארות נכונות-לזמנן ואינן-נמחקות.
 > - **נשאר פתוח בשעריו הנכונים — ואינו הופך לנתיב-קריטי רק משום שהוא פתוח:** אימות-fixtures ל-composites + הפעלה = **שער PRE-ACTIVATION נפרד** · `רגיל+אתבש` תחת אותו שער · **78** ערכי `topic_cards.meter_score` = **שער-אנושי נפרד** לחישוב-מחדש מבוקר · סחיפת-רישום (7 שורות, חפיפה 0 עם ה-18) ותיקון-`מילוי בלבד` = `NON-BLOCKING` · איחוד תלות-שקילות-מותנית · `relation_evidence` actor · `decision_ledger` `NOT VALID`.
 > - **`ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה** — סגירת מסלול-ה-Engine אינה מחייבת שינוי-עדיפות, ולא נמצאה במפה החיה שום הצדקה לשנותה. היקף: docs-only, אין merge/deploy. ענף `claude/engine-corpus-canonical-closure` — **טרם-merge, טרם-deploy**.
+>
+> **⟳ עדכון-ניווט מתוארך (29.8.2026, `COMPOSITE_ACTIVATION_1_TO_3`) — גובר על שרשרת-ה-18 שמעליה, בלי למחוק אותה.** שער-אנושי של צוריאל אישר הפעלת **שלושה** composites (`רגיל+מילוי` · `רגיל+מסתתר` · `רגיל+משולש`) אחרי סגירת CA-1 (זהות) ו-CA-2 (אימות-תלויות). **הבית-הקנוני: Master State §23.19-A — לא-מוכפל-כאן.**
+> - **מסלול-ה-Engine הנוכחי:** **`ENGINE GOVERNANCE → PRE-SCAN FINAL PASS → COMPOSITE PRE-ACTIVATION (CA-1+CA-2) → HUMAN-GATE ACTIVATION (#1-#3) → CURRENT 21-METHOD CANONICAL CORPUS COVERAGE COMPLETE → ENGINE CORPUS CLOSURE`**.
+> - **מצב-חי מאומת:** **21 שיטות SCANNABLE** (18 אטומיות + 3 composites) × **12,594** ביטויים כשירים = **264,474** שורות מושלות. הניסוח הקודם «18-METHOD COVERAGE COMPLETE» נשאר נכון-לזמנו כ-provenance של סגירת-המסלול-האטומי.
+> - **⛔ ללא שינוי:** **Full Canonical Method Scan עדיין לא-הורץ ואינו-נדרש** — הכיסוי ה-composite נעשה בפעולה ממוקדת לשלוש השיטות שאושרו, לא בסריקה-מלאה (`NO-REDUNDANT-AUDIT LAW`).
+> - **נשאר בשעריו:** `משולש מילה+משולש הפוך` (#4) — `active=false`/`scannable=false`/`engine_verified=false`, בשער **PRE-ACTIVATION נפרד** (חסום ב-CA-2 + היפוך-ממשל של מרכיביו) · `רגיל+אתבש` **עדיין לא-רשום** · 78 ערכי `topic_cards.meter_score` · סחיפת-רישום + `מילוי בלבד` (`NON-BLOCKING`).
+> - **`ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה** — הפעלת-composites אינה דחיפת-עדיפות. **מצב-שחרור:** ה-DB של ההפעלה **חי**, קבצי-המיגרציה ב-**PR #240 פתוח וטרם-מוזג**; `origin/main` ללא-שינוי. אין לרשום «PR #240 מוזג».
 
 ### Visual Gate Map — ניווט-בלבד (הטבלה למעלה היא הסמכות על סטטוס)
 ```mermaid
