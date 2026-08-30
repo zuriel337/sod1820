@@ -1,14 +1,22 @@
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
-// 🌳 Single-Mind Trunk Closure (30.8.2026) — persona="raziel" (רזיאל, אתר=וואטסאפ) קורא metatron_context
-//    באופן מנדטורי לפני כל תשובה (כבר לא opt-in) — חוקי-המערכת החיים (ctx.rules) ל-system, הקשר-הגרף
-//    (ctx.canonical) לעובדות. fail-open מלא: כשל/ריק ב-metatron_context → rzSys=persona בדיוק כמו קודם.
-//
-// 🌳 שלב 1b (עץ אחד) — הנתיב הגנרי (number/compare/verse...) נשאר OPT-IN, default OFF (body.metatron:true),
-//    בכוונה: זו החלטת-מוצר/עלות נפרדת (traffic נפח-גבוה בדפי-מספר), ממתינה לאישור-מעבר-דיפולט דרך harness
-//    metatron_eval_* (שלב 3) — לא חלק מסגירת-הגזע של רזיאל. מקור-אמת יחיד: חוק ב-nodes(propagate=true) →
-//    fn_active_method_rules → metatron_context → כאן. fail-open מלא (כשל/ריק = v26). לא נוגע ב-guide/research.
+// 🌳 Single-Mind Trunk Closure — Phase 1 (metatron_rollout_law, metatron_single_mind_law — 30.8.2026):
+//    metatron_context() is now MANDATORY, not opt-in, for every kind in the generic path below
+//    (number/compare/verse/notarikon/daily_verse/discovery/research) AND for persona="raziel". No
+//    body.metatron flag is required or read anymore — cost/traffic is explicitly NOT a valid reason to
+//    gate Phase 1 per metatron_rollout_law (that reasoning belongs to Phase 4, the later product A/B,
+//    not to trunk closure). Source of truth stays single: nodes(propagate=true) → fn_active_method_rules
+//    → metatron_context → here. fail-open, always: a metatron_context failure/empty result leaves sys/facts
+//    unchanged from the pre-1b baseline — no response is ever blocked by this.
+//    EXCLUDED (STOP CONDITION, reported not silently skipped): kind="guide" below runs on a completely
+//    different contract — SYSTEM_GUIDE demands strict JSON-only navigation output from a fixed closed
+//    route list, has no entities/facts concept, and injecting ~6000 chars of unrelated gematria-rules
+//    text risks breaking that strict-format contract for a live, frequently-used onboarding feature.
+//    guide's hardcoded route list is channel/UI operational data (source_truth_vs_context_builder
+//    category C), not research context metatron_context has any capability for — wiring it would need
+//    a new "routes" package inside metatron_context, which is a Foundation extension out of this pass's
+//    scope ("no new router/architecture"). Left as-is; flagged for Foundation-owner decision.
 //
 // 🆕 מנוע נוסף (A/B): body.engine = "claude" (ברירת-מחדל) | "gemini".
 //    אותו SYSTEM + אותו user-prompt לשני המנועים → השוואת פרשנות הוגנת על אותן עובדות מהמנוע.
@@ -441,17 +449,15 @@ Deno.serve(async (req: Request) => {
     const lengthRule = wantLong
       ? "כתוב ניתוח מלא ומעמיק — אין הגבלת אורך. פְּתח במשמעות חמה וישירה, ואז העמק ושזור את ההתכנסויות/ההצלבות כהעשרה; תן לרעיון לנשום. אל תמתח באופן מלאכותי ואל תחזור על עצמך — עומק אמיתי, לא אריכות."
       : (isCollection ? "כתוב סינתזה שמחברת בין פריטי האוסף — עד 6 משפטים." : "2-4 משפטים.");
-    // 🌳 שלב 1b — מטטרון: חוקי-המערכת החיים (→system) + הקשר-הגרף (→עובדות).
-    // ⚠️ OPT-IN בלבד (default OFF): מוזרק אך ורק כשהבקשה שולחת body.metatron===true. בלי הדגל →
-    //    sys=SYSTEM, mtxFacts="" → התנהגות זהה בדיוק ל-v26 (אף משתמש חי לא מושפע). כך אפשר לפרוס
-    //    בבטחה, ולהוכיח «עם מטטרון מול בלי» דרך ה-harness (metatron_eval_*) לפני מעבר-דיפולט (שלב 3),
-    //    ובהמשך לחשוף כ«רזיאל בטא · פתיחה 1/יום» (שלב 4) — אותו דגל, בלי שינוי-קוד. גם fail-open:
-    //    כשל/ריק ב-metatron → v26. לא לאוסף-מחקר (kind=research). שני המנועים מקבלים אותו sys (A/B).
-    const useMetatron = !!body?.metatron && kind !== "research";
+    // 🌳 Single-Mind Trunk Closure — Phase 1 (metatron_rollout_law): מנדטורי לכל kind שמגיע לכאן
+    // (number/compare/verse/notarikon/daily_verse/discovery/research ואחרים) — לא opt-in, בלי body.metatron,
+    // בלי חריג ל-research. מקור-אמת יחיד: nodes(propagate=true) → fn_active_method_rules → metatron_context.
+    // fail-open מלא: כשל/ריק ב-metatron_context → sys=SYSTEM, mtxFacts="" — בדיוק כמו לפני 1b (אף תשובה לא נחסמת).
+    // Phase 2 (ביטול-כפילויות) וPhase 4 (A/B מוצר למשתמשים) נשארים שלבים נפרדים — לא בוצעו כאן.
     let sys = SYSTEM;
     let mtxVersion: unknown = null;
     let mtxFacts = "";
-    if (useMetatron) {
+    {
       const mtx = await fetchMetatronContext(subject, subject || facts.slice(0, 120), body?.fast ? "site-analyze-fast" : "site-analyze");
       if (mtx) {
         sys = SYSTEM + metatronRulesBlock(mtx);
@@ -474,7 +480,7 @@ Deno.serve(async (req: Request) => {
 
     if (out.error) return json({ analysis: null, engine, model, error: out.error, detail: out.detail });
     await logTokens(kind || "analyze", model, out.usage, identity);
-    return json({ analysis: out.text, engine, model, metatron: useMetatron, context_version: mtxVersion });
+    return json({ analysis: out.text, engine, model, metatron: true, context_version: mtxVersion });
   } catch (e) {
     return json({ analysis: null, error: String(e).slice(0, 200) }, 200);
   }

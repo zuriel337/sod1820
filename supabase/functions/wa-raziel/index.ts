@@ -216,6 +216,13 @@ async function retryOutbox() {
   }
 }
 
+// ⚠️ PHASE-2 DUPLICATION CANDIDATE (metatron_rollout_law) — buildFacts()/convergenceInsight() query
+// fn_all_methods/gematria_words/convergences directly, in parallel to metatron_context's own
+// canonical.matches/canonical.convergences. Not removed in this pass (Phase 1 = wire metatron_context
+// everywhere; Phase 2 = remove duplication, separately). Kept for now because they compute fresh
+// multi-word cross-method convergence over arbitrary free text — a capability metatron_context's
+// request shape (pre-identified entities/values) does not currently expose; per source_truth_vs_context_builder
+// these engine/table calls are legitimate direct source-of-truth access, not an invented parallel engine.
 const METHOD_KEYS = ["רגיל","גדול","סידורי","מילוי","אתבש","קדמי"];
 async function allMethods(w) {
   try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && typeof data === "object" && data["רגיל"]) ? data : null; } catch { return null; }
@@ -348,6 +355,9 @@ const TEACH_ADDON =
 
 // 🌳 עץ אחד — RAG על הפוסטים של האתר, אותה פונקציה משותפת שהצ'אט באתר קורא לה (chat_search_facts).
 // שיפור אחד בפונקציה = שני הערוצים. נכשל בחן (מחזיר "") — לא חוסם תשובה.
+// ⚠️ PHASE-2 DUPLICATION CANDIDATE (metatron_rollout_law): richer RAG than metatron_context.canonical.posts
+// (title-ILIKE only today). Not folded in this pass — kept as legitimate specialized retrieval until
+// metatron_context's posts package matches or exceeds this capability.
 async function postFacts(query) {
   try {
     const { data } = await sb.rpc("chat_search_facts", { p_query: (query || "").slice(0, 200), p_limit: 3 });
