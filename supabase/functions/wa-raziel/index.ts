@@ -1,4 +1,7 @@
-// wa-raziel (רזיאל) — v46 — 25.7.2026 — תפריט-מסלולים חכם: רק כשההודעה הראשונה כללית.
+// wa-raziel (רזיאל) — v47 — 30.8.2026 — Single-Mind Trunk Closure: metatron_context לפני כל תשובה רגילה.
+//   v47: razielRespond קורא metatron_context() לפני הקריאה הראשית ל-Claude (לא רק בשומר-הנפילה) —
+//        חוקי-המערכת החיים (nodes propagate=true) מתווספים ל-system בכל תשובה. RAZIEL_SYSTEM/fn_raziel_persona
+//        נשארים כרשת-ביטחון fail-open — לא הוסרו, רק תוספת מעליהם (מוח=מטטרון, פרסונה=עדשה, לא redesign).
 //   v46: isOpenerMsg — פתיח כללי/ברכה → תפריט 6 מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
 //   v45: welcome אנונימי — «מאיפה תרצה להתחיל?» + 6 מסלולים; הוסר «3 שאלות ביום» (after_gate=unlimited).
 //   v44: postFacts()→chat_search_facts — RAG על הפוסטים (עץ אחד, משותף עם האתר).
@@ -213,6 +216,13 @@ async function retryOutbox() {
   }
 }
 
+// ⚠️ PHASE-2 DUPLICATION CANDIDATE (metatron_rollout_law) — buildFacts()/convergenceInsight() query
+// fn_all_methods/gematria_words/convergences directly, in parallel to metatron_context's own
+// canonical.matches/canonical.convergences. Not removed in this pass (Phase 1 = wire metatron_context
+// everywhere; Phase 2 = remove duplication, separately). Kept for now because they compute fresh
+// multi-word cross-method convergence over arbitrary free text — a capability metatron_context's
+// request shape (pre-identified entities/values) does not currently expose; per source_truth_vs_context_builder
+// these engine/table calls are legitimate direct source-of-truth access, not an invented parallel engine.
 const METHOD_KEYS = ["רגיל","גדול","סידורי","מילוי","אתבש","קדמי"];
 async function allMethods(w) {
   try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && typeof data === "object" && data["רגיל"]) ? data : null; } catch { return null; }
@@ -265,22 +275,35 @@ async function convergenceInsight(values) {
   return notes.length ? `\nהתכנסויות במנוע (עובדה): ${notes.join(" · ")}` : "";
 }
 
-async function metatronFallbackText(subject, facts, convNote) {
-  let canonLine = "";
+// 🌳 עץ אחד — מטטרון (metatron_context): שכבת-איחוד קנונית מעל חוקים/עובדות (source_truth_vs_context_builder —
+//    metatron_context עצמו אינו מקור-אמת, רק מרכיב). fail-open תמיד: כשל/ריק → "" / null, בלי לחסום תשובה.
+async function fetchMetatronContext(subject, ask, channel) {
+  const s = (subject || "").slice(0, 120);
   try {
-    const { data } = await sb.rpc("metatron_context", { p_request: { subject: subject.slice(0, 120), entities: [subject.slice(0, 120)], channel: "wa" } });
-    const convs = (data?.canonical?.convergences || [])
-      .map((c) => c?.label || c?.title || (c?.value != null ? String(c.value) : null))
-      .filter(Boolean).slice(0, 3);
-    if (convs.length) canonLine = `\nבמאגר הקנוני מתכנסים בהקשר הזה גם: ${convs.join(" · ")}.`;
-  } catch { /* best-effort */ }
+    const { data } = await sb.rpc("metatron_context", { p_request: { ask: (ask || "").slice(0, 200), subject: s, entities: s ? [s] : [], channel } });
+    return data || null;
+  } catch { return null; }
+}
+// חוקי-המערכת החיים (nodes propagate=true → fn_active_method_rules) → תוספת ל-system. מקור-אמת יחיד —
+// שינוי חוק ב-DB מגיע לכאן אוטומטית, בלי לגעת בקוד (אותו דפוס בדיוק כמו ai-analyze/metatronRulesBlock).
+function metatronRulesBlock(mtx) {
+  const rules = typeof mtx?.rules === "string" ? mtx.rules.trim() : "";
+  if (!rules) return "";
+  return "\n\n== חוקי-המערכת החיים (מטטרון — מקור-אמת יחיד, מחייבים) ==\n" + rules.slice(0, 6000);
+}
+async function metatronFallbackText(subject, facts, convNote, mtx) {
+  const m = mtx || await fetchMetatronContext(subject, subject, "wa");
+  const convs = (m?.canonical?.convergences || [])
+    .map((c) => c?.label || c?.title || (c?.value != null ? String(c.value) : null))
+    .filter(Boolean).slice(0, 3);
+  const canonLine = convs.length ? `\nבמאגר הקנוני מתכנסים בהקשר הזה גם: ${convs.join(" · ")}.` : "";
   const body = (facts && facts.trim())
     ? `מצאתי בנתונים את הקשרים המספריים הבאים, ישירות מהמנוע:\n\n${facts}${convNote || ""}${canonLine}`
     : `עדיין לא זיהיתי כאן ערך-מנוע מפורש לבדיקה. כתוב לי שם או מילה מדויקת — ואחשב ואצליב במנוע.`;
   return `${body}\n\nאלו עובדות מהמנוע. משמעות הקשרים היא נושא למחקר — ואי אפשר להסיק מהם מסקנה על זהותו או ייעודו של אף אדם.\n— רזיאל · סוד 1820`;
 }
-async function sendGuardianFallback(subject, chatId, quotedId, facts, convNote, welcome) {
-  let msg = await metatronFallbackText(subject, facts, convNote);
+async function sendGuardianFallback(subject, chatId, quotedId, facts, convNote, welcome, mtx) {
+  let msg = await metatronFallbackText(subject, facts, convNote, mtx);
   if (welcome) msg = welcome + msg;
   const payload = { chatId, message: msg };
   if (quotedId) payload.quotedMessageId = quotedId;
@@ -332,6 +355,9 @@ const TEACH_ADDON =
 
 // 🌳 עץ אחד — RAG על הפוסטים של האתר, אותה פונקציה משותפת שהצ'אט באתר קורא לה (chat_search_facts).
 // שיפור אחד בפונקציה = שני הערוצים. נכשל בחן (מחזיר "") — לא חוסם תשובה.
+// ⚠️ PHASE-2 DUPLICATION CANDIDATE (metatron_rollout_law): richer RAG than metatron_context.canonical.posts
+// (title-ILIKE only today). Not folded in this pass — kept as legitimate specialized retrieval until
+// metatron_context's posts package matches or exceeds this capability.
 async function postFacts(query) {
   try {
     const { data } = await sb.rpc("chat_search_facts", { p_query: (query || "").slice(0, 200), p_limit: 3 });
@@ -345,14 +371,18 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   const { facts, values } = await buildFacts(cleanText);
   const convNote = await convergenceInsight(values);
   const posts = await postFacts(cleanText);
+  // 🌳 מטטרון לפני כל תשובה רגילה (לא רק בנפילה) — metatron_single_mind_law: רזיאל חושב דרך
+  // metatron_context. fail-open: כשל/ריק → mtx=null → rulesBlock="" → system זהה למצב הקודם.
+  const mtx = await fetchMetatronContext(cleanText, cleanText, "wa-raziel");
+  const rulesBlock = metatronRulesBlock(mtx);
   const ctx = opts.ctx ?? (opts.userRef ? await getContext(opts.userRef, chatId) : null);
   const ctxText = contextToText(ctx);
   const dialogue = await recentDialogue(chatId, 6, quotedId);
   const dialogueBlock = dialogue ? `שיחה קודמת (הקשר — כך תדע למה הכוונה בתמשיך/מה שהצעת, ומה הנושא הפעיל):\n${dialogue}\n\n` : "";
   const wantsLearn = opts.teach && LEARN_INTENT.test(cleanText);
-  const system = RAZIEL_SYSTEM + ((opts.teach) ? TEACH_ADDON : "");
+  const system = RAZIEL_SYSTEM + rulesBlock + ((opts.teach) ? TEACH_ADDON : "");
   const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם מבקשים לבדוק נושא-גימטריה מפורש; אם שיחתי/תודה/תמשיך — התעלם):\n${facts||"(לא זוהו ערכים)"}${convNote}${posts?`\n\nמתוך הפוסטים באתר (הישען על אלה — זה החומר שלנו, וציין מאיפה):\n${posts}`:""}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
-  const guardian = () => sendGuardianFallback(cleanText, chatId, quotedId, facts, convNote, opts.welcome);
+  const guardian = () => sendGuardianFallback(cleanText, chatId, quotedId, facts, convNote, opts.welcome, mtx);
   let resp;
   try {
     resp = await fetch("https://api.anthropic.com/v1/messages",{

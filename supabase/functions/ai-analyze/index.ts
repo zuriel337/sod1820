@@ -1,12 +1,22 @@
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
-// 🌳 שלב 1b (עץ אחד) — OPT-IN, default OFF: כשהבקשה שולחת metatron:true, הנתיב הגנרי
-//    (number/compare/verse...) קורא metatron_context ומזריק את חוקי-המערכת החיים (ctx.rules) ל-system
-//    ואת הקשר-הגרף (ctx.canonical) לעובדות. מקור-אמת יחיד: חוק ב-nodes(propagate=true) →
-//    fn_active_method_rules → metatron_context → כאן. בלי הדגל = התנהגות v26 מדויקת (בדיקה לפני מעבר-
-//    דיפולט: harness metatron_eval_*, שלב 3; ובהמשך «רזיאל בטא 1/יום», שלב 4). fail-open מלא (כשל/ריק
-//    = v26). לא נוגע ב-persona=raziel (מוח משלו) / guide / research.
+// 🌳 Single-Mind Trunk Closure — Phase 1 (metatron_rollout_law, metatron_single_mind_law — 30.8.2026):
+//    metatron_context() is now MANDATORY, not opt-in, for every kind in the generic path below
+//    (number/compare/verse/notarikon/daily_verse/discovery/research) AND for persona="raziel". No
+//    body.metatron flag is required or read anymore — cost/traffic is explicitly NOT a valid reason to
+//    gate Phase 1 per metatron_rollout_law (that reasoning belongs to Phase 4, the later product A/B,
+//    not to trunk closure). Source of truth stays single: nodes(propagate=true) → fn_active_method_rules
+//    → metatron_context → here. fail-open, always: a metatron_context failure/empty result leaves sys/facts
+//    unchanged from the pre-1b baseline — no response is ever blocked by this.
+//    kind="guide" is now wired too, safely: it calls metatron_context with intent="navigation", which
+//    (per the Foundation Expansion Gate migration) skips the gematria rules block entirely and returns
+//    canonical.capabilities from site_services instead. That capability context (title/description only,
+//    no URLs) is folded into guideUser as informational background — SYSTEM_GUIDE's strict JSON contract
+//    and the hardcoded allowed-route whitelist (the actual "to" values the model may output) are both
+//    untouched. Reconciling that whitelist against site_services' route strings (which don't 1:1 match,
+//    e.g. "/numbers" vs guide's working "/number/:n") is a separate product/routing decision — Phase-2 /
+//    EXTENSION POINT, not implemented here. fail-open: guideMtx null → identical to pre-gate behavior.
 //
 // 🆕 מנוע נוסף (A/B): body.engine = "claude" (ברירת-מחדל) | "gemini".
 //    אותו SYSTEM + אותו user-prompt לשני המנועים → השוואת פרשנות הוגנת על אותן עובדות מהמנוע.
@@ -239,14 +249,16 @@ async function checkQuota(identity: string, tier: string, limitOverride: number 
 // הקשר-הגרף (ctx.canonical) ומזריק לפרומפט — במקום SYSTEM קבוע ועיוור. מקור-אמת יחיד: חוק
 // שמוגדר פעם אחת ב-nodes(propagate=true) זורם לכאן דרך fn_active_method_rules→metatron_context.
 // fail-open לחלוטין: כל כשל/ריק → התנהגות זהה ל-v26 (SYSTEM נקי, בלי תוספות).
-async function fetchMetatronContext(subject: string, ask: string, channel: string): Promise<any | null> {
+async function fetchMetatronContext(subject: string, ask: string, channel: string, intent?: string): Promise<any | null> {
   if (!SB_URL || !SB_SVC) return null;
   const s = (subject || "").trim();
   const entities = s ? [{ type: /^\d+$/.test(s) ? "number" : "phrase", value: s }] : [];
+  const p_request: Record<string, unknown> = { ask: (ask || "").slice(0, 200), channel, entities };
+  if (intent) p_request.intent = intent;
   try {
     const r = await fetch(`${SB_URL}/rest/v1/rpc/metatron_context`, {
       method: "POST", headers: svcHeaders(),
-      body: JSON.stringify({ p_request: { ask: (ask || "").slice(0, 200), channel, entities } }),
+      body: JSON.stringify({ p_request }),
     });
     if (r.ok) return await r.json();
   } catch { /* fail-open */ }
@@ -288,6 +300,15 @@ Deno.serve(async (req: Request) => {
 
     // 🧭 kind="guide" — מלווה-כניסה (נתב ניווט). מסלול נפרד לגמרי מנתיב-הגימטריה:
     //    SYSTEM ייעודי, מודל מהיר (Haiku), רשימת-יעדים סגורה, פלט JSON. מכסה קלה (אנטי-לולאה).
+    // 🌳 Foundation Expansion Gate (30.8.2026): קורא metatron_context({intent:"navigation"}) — סוגר את
+    //    ה-STOP CONDITION הקודם בלי לשבור את חוזה-ה-JSON-הקשיח. intent="navigation" מכבה אצל
+    //    metatron_context את חוקי-המערכת (fn_active_method_rules — לא רלוונטיים לניווט ומסוכנים לפורמט
+    //    הקשיח) ומחזיר canonical.capabilities מ-site_services (המרשם הקנוני הקיים, אותו ש-wa-raziel
+    //    servicesText() כבר קורא). ה-capabilities *מוזרקים בפועל* ל-guideUser כרקע-בלבד (כותרת+תיאור,
+    //    בלי URL) — לא רק ל-context_version. SYSTEM_GUIDE ורשימת-היעדים המותרים (routes) לא נגעו —
+    //    ה-"to" עדיין חייב לבוא מ-routes בדיוק. התאמת routes מול site_services (למשל "/numbers" מול
+    //    "/number/:n") היא החלטת-מוצר נפרדת, לא Foundation patch; EXTENSION POINT מדווח, לא מומש כאן.
+    //    fail-open מלא: guideMtx=null → guideCaps=[] → guideCapsContext="" → guideUser זהה למצב הקודם.
     if (kind === "guide") {
       if (engine !== "claude" || !ANTHROPIC_KEY) return json({ analysis: null, error: "not_configured" });
       const ask = String(body?.subject || body?.facts || "").slice(0, 400).trim();
@@ -298,6 +319,15 @@ Deno.serve(async (req: Request) => {
         if (!q.allowed) return json({ analysis: null, error: "quota", surface: "guide", tier: q.tier, used: q.used, limit: q.limit,
           message: "עברת את מכסת המלווה היומית — אבל כל הכלים פתוחים לך למטה." });
       }
+      const guideMtx = await fetchMetatronContext(ask, ask, "site-guide", "navigation");
+      const guideMtxVersion = guideMtx?.context_version ?? null;
+      // הקשר-יכולות מ-metatron_context (site_services, לא ה-routes הקבועים) — מידע-רקע בלבד, לא רשימת-יעד:
+      // כותרת+תיאור בלבד, בלי URL, כדי שהמודל לא יבלבל בין "capability" מ-metatron ל-"to" המותר מלמעלה.
+      const guideCaps = Array.isArray(guideMtx?.canonical?.capabilities) ? guideMtx.canonical.capabilities : [];
+      const guideCapsContext = guideCaps.length
+        ? "\n\nהקשר-יכולות נוסף מהמערכת (רקע-בלבד — לא רשימת-יעדים; ה-\"to\" חייב תמיד להיות מתוך «רשימת היעדים המותרים» למעלה בדיוק):\n" +
+          guideCaps.slice(0, 14).map((c: any) => `• ${c?.title || ""} — ${c?.description || ""}`).filter((l: string) => l.length > 4).join("\n")
+        : "";
       const routes =
         "רשימת היעדים המותרים (to — מתי לבחור):\n" +
         "/number — יש לו מספר / שם / מילה / ביטוי קונקרטי לבדוק (מנוע החיפוש הראשי)\n" +
@@ -312,11 +342,11 @@ Deno.serve(async (req: Request) => {
         "/join — רוצה להצטרף / להירשם / וואטסאפ / קהילה\n" +
         "/members — מנוי מתקדם (בני ההיכל)\n" +
         "/post — לקרוא מאמרים ורמזים";
-      const guideUser = `${routes}\n\nמה שהמבקר כתב: "${ask}"\n\nהחזר JSON בלבד לפי הכללים.`;
+      const guideUser = `${routes}${guideCapsContext}\n\nמה שהמבקר כתב: "${ask}"\n\nהחזר JSON בלבד לפי הכללים.`;
       const out = await runClaude(FAST_MODEL, guideUser, 320, SYSTEM_GUIDE);
       if (out.error) return json({ analysis: null, error: out.error, detail: out.detail });
       await logTokens("guide", FAST_MODEL, out.usage, identity);
-      return json({ analysis: out.text, engine: "claude", model: FAST_MODEL });
+      return json({ analysis: out.text, engine: "claude", model: FAST_MODEL, context_version: guideMtxVersion });
     }
 
     // ===== 🌳 persona="raziel" — המוח-המשותף (רזיאל באתר = רזיאל בוואטסאפ) =====
@@ -368,13 +398,15 @@ Deno.serve(async (req: Request) => {
       ]);
       const ctxText = razielContextText(ctx);
 
-      // 🌳 מטטרון בתוך רזיאל (בטא, opt-in body.metatron): «העץ האחד» — חוקי-המערכת החיים נכנסים
-      //    לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות. fail-open: בלי דגל/כשל → רזיאל כרגיל.
+      // 🌳 מטטרון בתוך רזיאל — Single-Mind Trunk Closure (30.8.2026): מנדטורי, לא opt-in. חוקי-המערכת
+      //    החיים נכנסים לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות, בכל תשובת-רזיאל (אתר=וואטסאפ,
+      //    אותו דפוס). fail-open מלא: כשל/ריק ב-metatron_context → rzSys=persona בדיוק כמו קודם.
       let rzSys = persona;
       let rzMtxFacts = "";
-      if (body?.metatron && rSubject) {
+      let rzMtxVersion: unknown = null;
+      if (rSubject) {
         const mtx = await fetchMetatronContext(rSubject, rSubject, "site-raziel");
-        if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); }
+        if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
 
       const user =
@@ -397,10 +429,10 @@ Deno.serve(async (req: Request) => {
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
         if (contract.continue_wa == null) contract.continue_wa = true;
-        return json({ raziel: contract, engine: "claude", model: MODEL });
+        return json({ raziel: contract, engine: "claude", model: MODEL, context_version: rzMtxVersion });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
-      return json({ analysis: out.text, engine: "claude", model: MODEL });
+      return json({ analysis: out.text, engine: "claude", model: MODEL, context_version: rzMtxVersion });
     }
 
     const isCollection = kind === "research";
@@ -437,17 +469,15 @@ Deno.serve(async (req: Request) => {
     const lengthRule = wantLong
       ? "כתוב ניתוח מלא ומעמיק — אין הגבלת אורך. פְּתח במשמעות חמה וישירה, ואז העמק ושזור את ההתכנסויות/ההצלבות כהעשרה; תן לרעיון לנשום. אל תמתח באופן מלאכותי ואל תחזור על עצמך — עומק אמיתי, לא אריכות."
       : (isCollection ? "כתוב סינתזה שמחברת בין פריטי האוסף — עד 6 משפטים." : "2-4 משפטים.");
-    // 🌳 שלב 1b — מטטרון: חוקי-המערכת החיים (→system) + הקשר-הגרף (→עובדות).
-    // ⚠️ OPT-IN בלבד (default OFF): מוזרק אך ורק כשהבקשה שולחת body.metatron===true. בלי הדגל →
-    //    sys=SYSTEM, mtxFacts="" → התנהגות זהה בדיוק ל-v26 (אף משתמש חי לא מושפע). כך אפשר לפרוס
-    //    בבטחה, ולהוכיח «עם מטטרון מול בלי» דרך ה-harness (metatron_eval_*) לפני מעבר-דיפולט (שלב 3),
-    //    ובהמשך לחשוף כ«רזיאל בטא · פתיחה 1/יום» (שלב 4) — אותו דגל, בלי שינוי-קוד. גם fail-open:
-    //    כשל/ריק ב-metatron → v26. לא לאוסף-מחקר (kind=research). שני המנועים מקבלים אותו sys (A/B).
-    const useMetatron = !!body?.metatron && kind !== "research";
+    // 🌳 Single-Mind Trunk Closure — Phase 1 (metatron_rollout_law): מנדטורי לכל kind שמגיע לכאן
+    // (number/compare/verse/notarikon/daily_verse/discovery/research ואחרים) — לא opt-in, בלי body.metatron,
+    // בלי חריג ל-research. מקור-אמת יחיד: nodes(propagate=true) → fn_active_method_rules → metatron_context.
+    // fail-open מלא: כשל/ריק ב-metatron_context → sys=SYSTEM, mtxFacts="" — בדיוק כמו לפני 1b (אף תשובה לא נחסמת).
+    // Phase 2 (ביטול-כפילויות) וPhase 4 (A/B מוצר למשתמשים) נשארים שלבים נפרדים — לא בוצעו כאן.
     let sys = SYSTEM;
     let mtxVersion: unknown = null;
     let mtxFacts = "";
-    if (useMetatron) {
+    {
       const mtx = await fetchMetatronContext(subject, subject || facts.slice(0, 120), body?.fast ? "site-analyze-fast" : "site-analyze");
       if (mtx) {
         sys = SYSTEM + metatronRulesBlock(mtx);
@@ -470,7 +500,7 @@ Deno.serve(async (req: Request) => {
 
     if (out.error) return json({ analysis: null, engine, model, error: out.error, detail: out.detail });
     await logTokens(kind || "analyze", model, out.usage, identity);
-    return json({ analysis: out.text, engine, model, metatron: useMetatron, context_version: mtxVersion });
+    return json({ analysis: out.text, engine, model, metatron: true, context_version: mtxVersion });
   } catch (e) {
     return json({ analysis: null, error: String(e).slice(0, 200) }, 200);
   }
