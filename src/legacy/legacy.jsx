@@ -10,7 +10,7 @@ import VerifiedBadge from "../components/VerifiedBadge.jsx";
 import { resolveAuthor } from "../lib/authors.js";
 import { publicAuthorName, SYSTEM_BYLINE } from "../lib/publicIdentity.js";
 import PostFollowBox from "../components/PostFollowBox.jsx";
-import { applySeo, cleanDescription, SITE_URL } from "../lib/seo.js";
+import { applySeo, cleanDescription, SITE_URL, setPostVideoJsonLd, clearPostVideoJsonLd } from "../lib/seo.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import StickyAnchorAd from "../components/StickyAnchorAd.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
@@ -4769,7 +4769,16 @@ function PostPageBySlug({ onNav }) {
       tags: post.tags || [],
       section: (post.categories || [])[0] || undefined,
     });
+    // 🎬 VideoObject לדף-צפייה: פוסט video-primary (קטגוריה «וידאו») שיש בו סרטון → הסרטון הוא
+    //    הישות המרכזית של הדף (מתקן «הסרטון לא מופיע בדף צפייה» ב-GSC). incidental → נשאר Article.
+    if ((post.categories || []).includes("וידאו")) {
+      setPostVideoJsonLd({ post, path: "/" + slug, description: desc || undefined });
+    } else {
+      clearPostVideoJsonLd();
+    }
   }, [post, title, image, slug]);
+  // ניקוי VideoObject ביציאה מהדף (SPA — לא להשאיר שאריות לדף הבא)
+  useEffect(() => () => clearPostVideoJsonLd(), []);
 
   // תיעוד צפייה בפוסט — רק למשתמש מחובר (פילוח עתידי)
   useEffect(() => {
