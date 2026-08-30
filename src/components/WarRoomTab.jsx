@@ -46,7 +46,7 @@ import ElsModerationTab from "./ElsModerationTab.jsx";
 import MetatronAttention from "./admin/MetatronAttention.jsx";
 import AttentionSignals from "./admin/AttentionSignals.jsx";
 import { thumb } from "../lib/img.js";
-import { buildResearchCase, collectQueryNeeds } from "../lib/triage.js";
+import { buildResearchCase, buildIntakeMeta, collectQueryNeeds } from "../lib/triage.js";
 
 // 🏙️ עור «היכל» בהיר (research_workspace_law + city_background_dual_theme_law) — חדר המפקדה
 // מרונדר בשפה הבהירה-נקייה של סביבת-המחקר (כרטיסים לבנים, אקסנט-כחול, נגיעת-זהב), מעל רקע-העיר.
@@ -1353,10 +1353,16 @@ const EXISTING_HE = {
   new: "חדש", already_exists: "קיים בבנק", duplicate: "כפול-מדויק", strengthens: "מחזק/מצטרף",
 };
 
-function TriageArtifactCard({ art, baseSourceRef, contributor, onDismiss }) {
+function TriageArtifactCard({ art, baseSourceRef, contributor, kase, onDismiss }) {
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState(null);
   const c = art.candidate;
+  // §7.3 Extraction Fidelity — shown BEFORE saving, so the Human Gate sees extraction quality
+  // separately from engine verification. Truth taxonomy is untouched: this never changes
+  // engine_verified/status, it only reports whether extraction preserved everything material.
+  const intakeMeta = kase ? buildIntakeMeta(kase, art) : {};
+  const ei = intakeMeta?.ext?.extraction_integrity || null;
+  const fid = ei?.fidelity_status || null;
   const vBadge = art.verification.engine_verified === true ? { t: "✓ אומת במנוע", col: "#4caf7d" }
     : art.verification.engine_verified === false ? { t: "✗ המנוע לא-תואם", col: "#e0563a" }
     : { t: "— אינו-רלוונטי/לא-ניתן-לאימות", col: "#8a8a95" };
@@ -1367,11 +1373,16 @@ function TriageArtifactCard({ art, baseSourceRef, contributor, onDismiss }) {
     const sourceRef = `${baseSourceRef}#a${art.idx}`;
     const kind = art.routing.artifact_type === "relation" ? "relation" : "observation";
     const statement = c.text + (c.value != null ? ` = ${c.value}` : "") + (c.method ? ` (${c.method})` : "");
+    // RESEARCH INTAKE v1 — contract v6 §7.1/§7.2/§7.3 provenance travels WITH the claim.
+    // buildIntakeMeta() only reshapes what buildResearchCase() already computed; it invents nothing.
+    // Before this, the semantic operand origin and the source media markers were computed here and
+    // then discarded at the Intake boundary (0 of 579 live rows carried them).
     const { data, error } = await supabase.rpc("research_artifact_save", {
       p_source_ref: sourceRef, p_kind: kind, p_statement: statement, p_value: c.value ?? null,
       p_terms: [c.norm || c.text], p_contributor: contributor || null,
       p_engine_verified: art.verification.engine_verified === true,
       p_engine_detail: art.verification.engine_detail || {},
+      p_meta: buildIntakeMeta(kase, art),
     });
     setBusy(false);
     setRes(error ? { ok: false, error: error.message } : data);
@@ -1389,7 +1400,17 @@ function TriageArtifactCard({ art, baseSourceRef, contributor, onDismiss }) {
         <span style={pill(INTEREST_COLOR[art.interest])}>{art.interest}</span>
         <span style={pill(vBadge.col)}>{vBadge.t}</span>
         <span style={pill(eBadge.col)}>{eBadge.t}</span>
+        {fid === "partial" && <span style={pill("#d98324")}>⚠ חילוץ חלקי</span>}
+        {fid === "complete" && <span style={pill("#4caf7d")}>✓ חילוץ מלא</span>}
       </div>
+      {fid === "partial" && (
+        <div style={{ color: "#a86a12", fontSize: 10.5, marginTop: 3, lineHeight: 1.7 }}>
+          §7.3 — אימות-מנוע של החשבון <b>אינו</b> הוכחה שהחילוץ הצליח.
+          {ei?.semantic_operand_coverage === "partial" && " מקור-הכמות הסמנטי חסר."}
+          {ei?.media_reference_coverage === "partial" && " יש הפניית-מדיה שלא נפתרה."}
+          {" "}הטענה נשמרת עם ה-provenance הזה; קנוניזציה תיחסם עד החלטת-אדם מפורשת.
+        </div>
+      )}
       <div style={{ color: C.faint, fontSize: 10.5, marginTop: 4 }}>
         {art.reasons.join(" · ")}
       </div>
@@ -1569,7 +1590,7 @@ function ResearchCasePanel({ item, forceItem, forceLabel }) {
             <CaseSection title={`H · Human Gate (${gateNeeded.length} דורשים החלטה מתוך ${visible.length})`}>
               {!gateNeeded.length && <div style={{ color: C.faint, fontSize: 12 }}>אין כרגע ממצא הדורש החלטת-אדם — לא כל ממצא צריך כפתור.</div>}
               {gateNeeded.map(a => (
-                <TriageArtifactCard key={a.idx} art={a} baseSourceRef={baseSourceRef} contributor={effective.author}
+                <TriageArtifactCard key={a.idx} art={a} baseSourceRef={baseSourceRef} contributor={effective.author} kase={kase}
                   onDismiss={(idx) => setDismissed(p => new Set(p).add(idx))} />
               ))}
               {visible.some(a => a.routing.primary === "D") && (
