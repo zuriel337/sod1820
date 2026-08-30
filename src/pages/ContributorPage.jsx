@@ -15,7 +15,11 @@ import AskRaziel from "../components/AskRaziel.jsx";
 import { genAvatar } from "../lib/avatar.js";
 import DossierOnboarding from "../components/dossier/DossierOnboarding.jsx";
 import Discourse from "../components/Discourse.jsx";
-import { applySeo } from "../lib/seo.js";
+import { applySeo, setResearcherJsonLd, clearResearcherJsonLd } from "../lib/seo.js";
+
+// 🚦 Search Indexability Contract — פרופיל-אוטומטי (r-<hash>) = אותו אות-הדרה של ה-sitemap.
+// דף כזה → noindex,follow (עדיין נגיש, רק לא מפורסם לסריקה). חוקר אצור → index.
+const AUTO_PROFILE_RE = /^r-[0-9a-f]{16,}$/i;
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { BRANDS, isVideoUrl, UpdateModal } from "../components/BrandTicker.jsx";
 import { getResearcherProfile, intentMeta, getResearcherConvergences, getResearcherStats, getWriterWhatsappMessages, studioVerify } from "../lib/contributions.js";
@@ -704,12 +708,20 @@ export default function ContributorPage() {
   useEffect(() => {
     if (!c) return;
     const firstImg = (Array.isArray(c.media) ? c.media : []).find(e => e.url)?.url;
+    const canonSlug = c.code || c.slug;
+    const path = `/community/researcher/${canonSlug}`;
+    const autoProfile = AUTO_PROFILE_RE.test(String(canonSlug || ""));
     applySeo({
       title: `${c.display_name} — דף חוקר`,
       description: `הגילויים, האוצרות והרמזים של ${c.display_name} · ${c.role || "חוקר"} · סוד 1820`,
-      path: `/community/researcher/${c.code || c.slug}`,
+      path,
       image: firstImg,
+      noindex: autoProfile,   // 🚦 פרופיל-r-hash אוטומטי → noindex (מיושר עם הדרת ה-sitemap)
     });
+    // מובנה-נתונים ProfilePage רק לחוקר אצור (לא לפרופיל-אוטומטי noindex).
+    if (autoProfile) clearResearcherJsonLd();
+    else setResearcherJsonLd({ name: c.display_name, role: c.role || "חוקר", path, image: firstImg, bio: c.bio });
+    return () => clearResearcherJsonLd();
   }, [c]);
 
   // 🧙 כניסה ראשונה של הבעלים לתיק (בלי onboarded) → אשף הכנת-תיק במקום דף ריק

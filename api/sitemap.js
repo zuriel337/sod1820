@@ -19,6 +19,13 @@ import { resolveThumb } from '../src/lib/thumbResolve.js';
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+// 🚦 Search Indexability Contract — פוסטים לא-מפורסמים לפי אות-מחזור-החיים הקיים בלבד
+// (tags∋«טיוטה»/«פורום» — אותו אות שסרגל מימד-חמש כבר משתמש בו). אין אורך-טקסט, אין
+// home_hidden, אין ציון-איכות שרירותי. הפוסטים עדיין נגישים — רק לא מפורסמים לסריקה.
+const POST_DRAFT_TAGS = ['טיוטה', 'פורום'];
+const POST_PUBLISHED_FILTER = POST_DRAFT_TAGS
+  .map(t => `&tags=not.cs.%7B${encodeURIComponent(t)}%7D`).join('');
+
 function urlTag({ loc, lastmod, changefreq, priority }) {
   return [
     '  <url>',
@@ -139,7 +146,7 @@ export default async function handler(req, res) {
   const postVideoUrls = [];
   const videoPrimarySlugs = new Set();
   try {
-    const vposts = await fetchAll(`posts?select=slug,title,content,image_url,date,modified&categories=cs.%7B${encodeURIComponent('וידאו')}%7D&order=date.desc`);
+    const vposts = await fetchAll(`posts?select=slug,title,content,image_url,date,modified&categories=cs.%7B${encodeURIComponent('וידאו')}%7D${POST_PUBLISHED_FILTER}&order=date.desc`);
     for (const p of vposts) {
       const tag = postVideoUrlTag(p);
       if (tag) { postVideoUrls.push(tag); if (p.slug) videoPrimarySlugs.add(p.slug); }
@@ -148,7 +155,7 @@ export default async function handler(req, res) {
 
   // ── פוסטים → /<slug> (מדלגים על video-primary — הם נכנסים עם video:video למטה) ──
   try {
-    const posts = await fetchAll('posts?select=slug,modified,date&order=date.desc');
+    const posts = await fetchAll(`posts?select=slug,modified,date${POST_PUBLISHED_FILTER}&order=date.desc`);
     for (const p of posts) {
       if (!p.slug || videoPrimarySlugs.has(p.slug)) continue;
       const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;

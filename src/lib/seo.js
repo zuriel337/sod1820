@@ -175,6 +175,31 @@ export function setEntityJsonLd({ term, value, isNumber, path, description, imag
 }
 export function clearEntityJsonLd() { removeJsonLd("sod-entity-ld"); }
 
+// ── JSON-LD לדף חוקר/תורם (/community/researcher/:slug) — ProfilePage + Person ──
+// נבנה אך-ורק מנתוני-ה-contributor הקיימים (שם/תפקיד/ביו/אווטאר) — בלי להמציא עובדות.
+// מוצג רק לחוקרים אצורים (לא לפרופילי-r-hash האוטומטיים שהם noindex).
+export function setResearcherJsonLd({ name, role, path, image, bio } = {}) {
+  if (typeof document === "undefined") return;
+  const canonical = SITE_URL + (path || "");
+  setJsonLd("sod-researcher-ld", {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "@id": canonical,
+    url: canonical,
+    inLanguage: "he-IL",
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+    mainEntity: {
+      "@type": "Person",
+      name: name || SITE_NAME,
+      ...(role ? { jobTitle: role } : {}),
+      ...(bio ? { description: String(bio).slice(0, 500) } : {}),
+      ...(image ? { image } : {}),
+      url: canonical,
+    },
+  });
+}
+export function clearResearcherJsonLd() { removeJsonLd("sod-researcher-ld"); }
+
 // ── JSON-LD לפתיל פורום (/forum/:id) — DiscussionForumPosting ──
 // זה המארקאפ שמזין את דוח «פורום דיונים» (Discussion Forum) ב-Search Console.
 // הפתיל = תרומת-מחקר (research_contributions); התגובות = רשומות עם parent_id=הפתיל.

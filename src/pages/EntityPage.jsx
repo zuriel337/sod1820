@@ -187,7 +187,7 @@ function NearbyNumbers({ value, P, numHref, compact = false }) {
 }
 
 import { METHODS, DEPTH_METHODS, methodLabel } from "../lib/gematria.js";
-import { SITE_URL, applySeo, DEFAULT_IMAGE, setEntityJsonLd } from "../lib/seo.js";
+import { SITE_URL, applySeo, DEFAULT_IMAGE, setEntityJsonLd, clearEntityJsonLd } from "../lib/seo.js";
 import { buildNumberCard, shareNumberCard, downloadNumberCard, shareNumberSmart } from "../lib/numberCard.js";
 import { buildMessages, buildStory } from "../lib/numberMessage.js";
 import { resolve, getScore, getBundle } from "../lib/engine.js";
@@ -662,6 +662,18 @@ export default function EntityPage({ embedPhrase } = {}) {
   // (/number/<מספר-אקראי>). כזה עמוד → noindex + לא נרשם ל-page_views. דפי-ביטוי (מילים) לא מושפעים.
   const bigNumberPage = isNumber && Number(value) > 9999;
 
+  // 🔎 Search Indexability Contract (Human-Gate ZURIEL): דף-מספר מאונדקס ⇔ הוא
+  // "יהלום" לפי אותה החלטה קנונית של ה-sitemap. is_number_indexable(n) גוזר ישירות
+  // מ-public.sitemap_numbers() (מקור-אמת יחיד, בלי כפילות-לוגיקה). null=טרם-ידוע.
+  const [searchAdmitted, setSearchAdmitted] = useState(null);
+  // מספר: FAIL-CLOSED — index אך-ורק כש-searchAdmitted===true (יהלום מאומת).
+  // pending/error/null → noindex,follow (כשל-ה-RPC לא מפרסם דף לסריקה).
+  // דפי-ביטוי (isNumber=false) — index כרגיל, לא מושפעים.
+  const numberNoindex = isNumber ? (searchAdmitted !== true) : false;
+  // structured-data eligibility = אותה החלטה: מספר מאונדקס בלבד מקבל DefinedTerm/WebPage;
+  // מספר לא-admitted מנקה אותם. דפי-ביטוי — תמיד עם ה-JSON-LD (התנהגות ללא-שינוי).
+  const showEntityLd = !isNumber || searchAdmitted === true;
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [harvest, setHarvest] = useState([]);
@@ -703,9 +715,8 @@ export default function EntityPage({ embedPhrase } = {}) {
     setCardUrl(buildNumberCard(value, data?.phrases || []).toDataURL("image/png"));
   }
 
+  // ── SEO בסיסי (קל, לא תלוי-רשת) — מגיב גם ל-numberNoindex כשהתשובת-admission מגיעה ──
   useEffect(() => {
-    let alive = true;
-    setLoading(true); setData(null); setHarvest([]); setOpen(o => ({ ...o, words: true }));
     const quickMsg = buildMessages({ term, value, isNumber, phrases: [] })[0]?.text;
     const epPath = `/number/${encodeURIComponent(phrase)}`;
     const epDesc = quickMsg
@@ -716,15 +727,29 @@ export default function EntityPage({ embedPhrase } = {}) {
       description: epDesc,
       path: epPath,
       image: DEFAULT_IMAGE,
-      noindex: bigNumberPage,   // 🤖 מספר מעל 4 ספרות (זבל-בוטים) → noindex
+      noindex: numberNoindex,   // 🔎 admitted(יהלום)→index · לא-admitted→noindex (מקור=sitemap_numbers)
     });
     // נעילת צוריאל #2 — JSON-LD ישות (DefinedTerm+WebPage+BreadcrumbList), לא Article.
-    setEntityJsonLd({ term, value, isNumber, path: epPath, description: epDesc, image: DEFAULT_IMAGE });
+    // structured-data eligibility = אותה החלטה יחידה: רק דף מאונדקס מקבל אותה.
+    if (showEntityLd) setEntityJsonLd({ term, value, isNumber, path: epPath, description: epDesc, image: DEFAULT_IMAGE });
+    else clearEntityJsonLd();
+  }, [term, value, isNumber, phrase, numberNoindex, showEntityLd]); // eslint-disable-line
+
+  // ── טעינת-נתונים + שאילתת-admission + לוגים (כבד; לא רץ-מחדש על שינוי-admission) ──
+  useEffect(() => {
+    let alive = true;
+    setLoading(true); setData(null); setHarvest([]); setSearchAdmitted(null); setOpen(o => ({ ...o, words: true }));
     if (term) logSearch(term, value);
     if (value) {
       // ⛔ לא רושמים ערכי-ענק (בוטים שסורקים /number/<מספר-אקראי>) — מנקה את page_views במקור
       if (!bigNumberPage) { logView("number", value); track("number", String(value)); }
       getSearchCount(value).then(n => alive && setSearched(n)).catch(() => {});
+    }
+    // 🔎 Search gate — האם הערך "יהלום" לפי אותה החלטה קנונית של ה-sitemap (מקור-אמת יחיד).
+    if (isNumber && value != null && supabase) {
+      supabase.rpc("is_number_indexable", { p_value: Number(value) })
+        .then(({ data: ok, error }) => { if (alive && !error) setSearchAdmitted(ok === true); })
+        .catch(() => { /* אי-ודאות → נשאר null → שמירת bigNumberPage הישנה */ });
     }
     Promise.all([
       getBundle({ term, value, isNumber }),
@@ -1225,11 +1250,13 @@ export default function EntityPage({ embedPhrase } = {}) {
   useEffect(() => {
     if (!isNumber || !data || !story.ok) return;
     const p = `/number/${encodeURIComponent(phrase)}`;
-    // מספר-גדול עם תוכן (מילים/פוסטים/גלריות/גילויים) → מאונדקס; מספר-גדול ריק → noindex (בקשת צוריאל)
-    const bigEmpty = bigNumberPage && !((data.phrases?.length || 0) || data.postsCount || data.galleriesCount || data.insightsCount || data.eventsCount);
-    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: bigEmpty });
-    setEntityJsonLd({ term, value, isNumber, path: p, description: story.seoDescription, image: DEFAULT_IMAGE });
-  }, [story.seoDescription, data, term, value, isNumber, phrase]); // eslint-disable-line
+    // 🔎 Search Indexability Contract — מקור-אמת יחיד: admitted(יהלום)→index · אחרת→noindex.
+    // מחליף את שער-ה-bigEmpty הישן; החלטת-הסריקה זהה לזו של ה-sitemap (is_number_indexable).
+    applySeo({ title: `${term} · ${value} — דף המספר`, description: story.seoDescription, path: p, image: DEFAULT_IMAGE, noindex: numberNoindex });
+    // structured-data eligibility = אותה החלטה: רק מספר מאונדקס מקבל DefinedTerm/WebPage.
+    if (showEntityLd) setEntityJsonLd({ term, value, isNumber, path: p, description: story.seoDescription, image: DEFAULT_IMAGE });
+    else clearEntityJsonLd();
+  }, [story.seoDescription, data, term, value, isNumber, phrase, numberNoindex, showEntityLd]); // eslint-disable-line
 
   // 🖼 סיווג הגלריה «תמונות מהמאגר» — «על המספר»+«אזכור משמעותי» = main · «מקרי/תאריך» = incidental.
   // מחושב פעם אחת, משמש גם בשכבה 2 (גלה עוד) וגם בשכבה 3 (היכל הגילוי) — בלי כפילות לוגיקה.
