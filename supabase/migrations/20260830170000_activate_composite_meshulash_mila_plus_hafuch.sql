@@ -1,0 +1,65 @@
+-- HUMAN-GATE ACTIVATION — composite method «משולש מילה+משולש הפוך»
+--
+-- ZURIEL Human-Gate approval, 30.8.2026. This is a REGISTRY DATA change for ONE method.
+-- No schema change. No other method touched. Nothing else inferred.
+--
+-- APPROVED DELTA (exactly two columns):
+--     active                : false -> true
+--     dependency_verified_at: NULL  -> 2026-08-30 16:17:37.819594+00
+--
+-- EXPLICITLY NOT CHANGED (Human-Gate instruction):
+--     scannable (stays false — an independent explicit Human Gate, HG-E1: ACTIVE != SCANNABLE)
+--     in_engine · displayed/published state · required_entitlement · execution_kind
+--     derived_from · operator · version · dependency_version · dependency_versions
+--     function · db_column · sort_order · display_label · registry schema
+--
+-- EXACT BEFORE ROW (captured live immediately before this write):
+--     id=da1c0c29-4de4-440f-9d0d-cf80ad39c2f4 · category=composite · active=FALSE
+--     scannable=FALSE · in_engine=TRUE · execution_kind=composite_engine
+--     derived_from={משולש מילה, משולש הפוך} · operator=sum · version=1
+--     dependency_version=1 · dependency_verified_at=NULL
+--     dependency_versions={"משולש מילה":1,"משולש הפוך":1} · function=NULL
+--     required_entitlement=public · sort_order=28 · deterministic=TRUE · order_sensitive=TRUE
+--     mathematical_family=composite_sum
+--
+-- ADMISSION EVIDENCE (verified live against the canonical engine, never from memory):
+--   · Both components exist, are ACTIVE, non-composite, and dispatch through the canonical
+--     engine: «משולש מילה» -> triangle_word_calc, «משולש הפוך» -> triangle_reverse_calc,
+--     each version=1 with dependency_verified_at=2026-08-24 13:01:14.061899+00.
+--   · dependency_versions {1,1} match both components' live version=1, and this row's
+--     dependency_version=1 equals its version=1 — so the ONLY thing blocking
+--     fn_method_is_engine_verified was the NULL dependency_verified_at.
+--   · operator='sum' is a supported operator.
+--   · Deterministic and repeatable: three consecutive calls returned 1764/1764/1764.
+--   · 19 direct-sum equivalence checks across two phrase sets, ZERO divergence between
+--     fn_composite_calc and fn_dispatch_method(c1)+fn_dispatch_method(c2). Sample:
+--     אמת 483+1281=1764 · שלום 1880 · משיח 1790 · ירושלים 4768 · תורה 3055 ·
+--     «אור הגאולה» 2570 · בראשית 6391 · «א» 2 · empty string 0.
+--   · No bespoke implementation: function IS NULL and zero DB functions hardcode this
+--     method_key — it is computed generically from derived_from + operator.
+--
+-- WHY dependency_verified_at IS SET: leaving it NULL after the dependency has actually been
+-- verified live would be METADATA DRIFT — the registry would keep asserting "unverified"
+-- about a dependency chain that was just proven. Setting it makes
+-- fn_method_is_engine_verified answer TRUE and moves fn_method_evidence_class from
+-- 'historical_unverified' to 'historical_public'. It does NOT open scanning.
+--
+-- WHY A FIXED LITERAL RATHER THAN now(): a data migration must replay deterministically to
+-- the same state (same discipline as the MF-1 fixed cutoff). The literal below is the live
+-- verification moment. It also matches the canonical shape of the comparable ACTIVE+SCANNABLE
+-- composite «רגיל+מילוי», which carries a concrete dependency_verified_at
+-- (2026-08-29 21:04:31.677001+00) rather than a function call.
+--
+-- EXPECTED RESULTING STATE (proven by a rolled-back rehearsal before this migration existed):
+--     fn_method_is_executable      = TRUE   (unchanged)
+--     fn_method_is_engine_verified = TRUE   (was FALSE)
+--     fn_method_is_scannable       = FALSE  (unchanged — scannable column still false)
+--     fn_method_evidence_class     = 'historical_public'  (was 'historical_ungoverned')
+--     fn_composite_calc / fn_method_value / fn_deep_cross now calculate (1764 for 'אמת')
+--
+-- IDEMPOTENT: the WHERE clause pins the single method_key; re-running sets the same values.
+
+update public.gematria_methods
+   set active                 = true,
+       dependency_verified_at = timestamptz '2026-08-30 16:17:37.819594+00'
+ where method_key = 'משולש מילה+משולש הפוך';
