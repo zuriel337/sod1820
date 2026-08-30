@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { askRaziel } from "../lib/supabase.js";
+import { askRaziel, askRazielAdvanced } from "../lib/supabase.js";
+import { track } from "../lib/tracking.js";
 
 const RAZIEL_WA = "972557049261";   // רזיאל — הסוכן בוואטסאפ (agent_identity: raziel · wa_slug wa-christina)
 
@@ -9,7 +10,12 @@ const RAZIEL_WA = "972557049261";   // רזיאל — הסוכן בוואטסא�
 // מונחה-חוזה (raziel_response_contract): המוח מחליט אילו מסלולי-מחקר להציע, ה-UI *רק מרנדר* — אפס רשימה
 // קשיחה. עובד היום עם מחרוזת (fallback {answer}), ומשתדרג אוטומטית כשהמוח מחזיר את החוזה המלא.
 // עובדה-מנוע ≠ פרשנות · קול אחד · מסיים בשאלה מזמינה.
-export default function AskRaziel({ subject, facts, context, greeting, waText, palette, cta = true, title, subtitle, metatron = false }) {
+//
+// 🧭 advanced (RAZIEL_ADVANCED_NUMBER_PAGE_v0, opt-in) — כשמופעל, קורא ל-askRazielAdvanced (persona=raziel
+//    mode="advanced") במקום askRaziel הרגיל, ומעביר surfaceContext (מה שדף-המספר מציג עכשיו — session-context
+//    בלבד, לא עובדה קנונית). ברירת-המחדל advanced=false משאירה את 4 קוראי-הרכיב הקיימים (ContributorPage/
+//    WelcomePage/NameLabPage/DossierExtras) בהתנהגות זהה לגמרי — אפס שינוי-התנהגות.
+export default function AskRaziel({ subject, facts, context, greeting, waText, palette, cta = true, title, subtitle, metatron = false, advanced = false, surface, surfaceContext }) {
   const _P = usePalette();
   const P = palette || _P;
   const [state, setState] = useState("idle");   // idle | busy | done | off
@@ -18,7 +24,12 @@ export default function AskRaziel({ subject, facts, context, greeting, waText, p
   async function run({ path = null, again = false } = {}) {
     if (state === "busy") return;
     setState("busy");
-    const r = await askRaziel({ subject, facts, context, path, again, metatron });
+    // 📊 טלמטריה — מבחין Raziel Advanced (בקשה/מעקב-מחקר) מ-AI Analysis הגנרי, דרך visitor_events
+    // הקיים (לא מנגנון-אנליטיקה חדש). ה-server-side ai_token_log מבחין תשובה-מוצלחת (kind="raziel_advanced…").
+    if (advanced) { try { track("raziel_advanced", surface || "number_page", path || again ? "followup" : "ask", { number: surfaceContext?.number }); } catch { /* noop */ } }
+    const r = advanced
+      ? await askRazielAdvanced({ ask: subject, surface, number: surfaceContext?.number, visibleFacts: surfaceContext?.visibleFacts, visibleMatches: surfaceContext?.visibleMatches, visibleConvergences: surfaceContext?.visibleConvergences, context, path, again })
+      : await askRaziel({ subject, facts, context, path, again, metatron });
     if (r) { setRes(r); setState("done"); } else setState("off");
   }
 
@@ -34,7 +45,10 @@ export default function AskRaziel({ subject, facts, context, greeting, waText, p
       <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 8 }}>
         <span style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#25d366,#1a9e4b)", display: "grid", placeItems: "center", fontSize: 16, flex: "none" }}>🤖</span>
         <div style={{ minWidth: 0 }}>
-          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800 }}>{title || "רזיאל · הסוכן שלך"}</div>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14.5, fontWeight: 800, display: "flex", alignItems: "center", gap: 6 }}>
+            {title || "רזיאל · הסוכן שלך"}
+            {advanced && <span title="RAZIEL_ADVANCED_NUMBER_PAGE_v0" style={{ color: "#1a9e4b", background: "rgba(37,211,102,.14)", border: "1px solid rgba(37,211,102,.35)", borderRadius: 999, fontFamily: F.body, fontSize: 10, fontWeight: 800, padding: "1px 8px" }}>מתקדם</span>}
+          </div>
           <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>{subtitle || "נחקור יחד — עובדה מהמנוע, לא נבואה"}</div>
         </div>
       </div>

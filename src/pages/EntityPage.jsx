@@ -31,6 +31,7 @@ import ReportHint from "../components/ReportHint.jsx";
 import CollectiveBadge from "../components/CollectiveBadge.jsx";
 import AiFeedback from "../components/AiFeedback.jsx";
 import MethodAnalyze from "../components/MethodAnalyze.jsx";
+import AskRaziel from "../components/AskRaziel.jsx";
 import EntityHubRails from "../components/hub/EntityHubRails.jsx";
 import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import LeadOrderEditor from "../components/LeadOrderEditor.jsx";
@@ -1900,6 +1901,32 @@ export default function EntityPage({ embedPhrase } = {}) {
               <EntityConvergence term={term} isNumber={isNumber} ragil={value} />
             </div>
         </Acc>
+
+        {/* 🔮 רזיאל מתקדם (RAZIEL_ADVANCED_NUMBER_PAGE_v0) — עדשה תוספתית בלבד: לא נוגעת ב-MethodAnalyze/
+            AiAnalyze הקיימים (Number Page AI Analysis הגנרי נשאר בדיוק כפי שהוא, בשום מקום אחר בדף). מעביר
+            surface_context = מה שהדף מציג *עכשיו* (session-context, לא עובדה קנונית — העובדות הקנוניות
+            ממילא מגיעות בצד-השרת דרך metatron_context, בדיוק כמו בכל תשובת-רזיאל אחרת). */}
+        {isNumber && value != null && (
+          <Acc id="raziel-advanced" icon="🔮" title="רזיאל מתקדם — מחקר עם הקשר אישי" open={open} onToggle={toggleAcc} P={P}>
+            <AskRaziel
+              advanced
+              surface="number_page"
+              subject={term}
+              title="רזיאל · מחקר מתקדם"
+              subtitle="בונה תשובה מהקשר קנוני + הקשר אישי (אם אתה מחובר) + מה שמוצג כאן בדף"
+              surfaceContext={{
+                number: value,
+                visibleFacts: [
+                  d?.phrases?.length ? `${d.phrases.length} ביטויים שווים ל-${value} במאגר` : null,
+                  d?.postsCount ? `${d.postsCount} פוסטים מחוברים` : null,
+                  d?.galleriesCount ? `${d.galleriesCount} גלריות מחוברות` : null,
+                ].filter(Boolean),
+                visibleMatches: (d?.phrases || []).slice(0, 8).map(p => p?.phrase).filter(Boolean),
+                visibleConvergences: (topics || []).slice(0, 6).map(t => t?.title).filter(Boolean),
+              }}
+            />
+          </Acc>
+        )}
 
         {/* 🧠 אינטליגנציית המספר — אקורדיון (מצב מחקר בלבד · סגור כברירת-מחדל · אחרי מד ההתכנסות). ניסוח ציבורי. */}
         {isNumber && dossier?.methods?.length > 0 && (
