@@ -1319,6 +1319,32 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
   } catch { return null; }
 }
 
+// 🧭 askRazielAdvanced — RAZIEL_ADVANCED_NUMBER_PAGE_v0. Distinct opt-in projection of the same
+//    persona="raziel" trunk (mode:"advanced") — carries explicit surface_context (what the Number
+//    Page currently shows) so the server can distinguish canonical/personal/session context, without
+//    ever changing the plain askRaziel() path above (existing callers: AskRaziel elsewhere, RazielChat).
+//    Runtime contract (server): { ask, channel:"site", surface, user:{ref via auth}, surface_context }.
+//    Server resolves identity from the Authorization header exactly like askRaziel — no client-supplied
+//    "user.ref" is trusted for identity; the client only supplies what the page is showing right now.
+export async function askRazielAdvanced({ ask, surface = "number_page", number, visibleFacts, visibleMatches, visibleConvergences, context = null, path = null, again = false }) {
+  if (!supabase) return null;
+  try {
+    const surface_context = { number, visible_facts: visibleFacts, visible_matches: visibleMatches, visible_convergences: visibleConvergences };
+    const { data, error } = await supabase.functions.invoke('ai-analyze', {
+      body: { kind: 'research', persona: 'raziel', mode: 'advanced', surface, subject: ask, context, path, again, surface_context, visitor_id: aiVisitorId() },
+    });
+    if (error) return null;
+    if (data?.error === 'quota') {
+      try { window.dispatchEvent(new CustomEvent('sod:ai-quota', { detail: { tier: data.tier, used: data.used, limit: data.limit, message: data.message } })); } catch { /* noop */ }
+      return null;
+    }
+    const c = data?.raziel || data?.contract;
+    if (c && typeof c === 'object') return { v: 1, ...c };
+    if (data?.analysis) return { v: 1, answer: data.analysis };
+    return null;
+  } catch { return null; }
+}
+
 // ===== 🧪 מעבדת-הסגנון (ai_style_learning_law) =====
 // העיקרון (החלטת צוריאל 12.7.2026): המנוע מייצר נתונים → המערכת מסכמת מגמות → האדם מחליט.
 // המשוב משנה סגנון והגשה בלבד — לעולם לא עובדות. אין שום למידה אוטומטית שמשנה סגנון.
