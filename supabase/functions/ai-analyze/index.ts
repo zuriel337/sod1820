@@ -1,12 +1,14 @@
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
-// 🌳 שלב 1b (עץ אחד) — OPT-IN, default OFF: כשהבקשה שולחת metatron:true, הנתיב הגנרי
-//    (number/compare/verse...) קורא metatron_context ומזריק את חוקי-המערכת החיים (ctx.rules) ל-system
-//    ואת הקשר-הגרף (ctx.canonical) לעובדות. מקור-אמת יחיד: חוק ב-nodes(propagate=true) →
-//    fn_active_method_rules → metatron_context → כאן. בלי הדגל = התנהגות v26 מדויקת (בדיקה לפני מעבר-
-//    דיפולט: harness metatron_eval_*, שלב 3; ובהמשך «רזיאל בטא 1/יום», שלב 4). fail-open מלא (כשל/ריק
-//    = v26). לא נוגע ב-persona=raziel (מוח משלו) / guide / research.
+// 🌳 Single-Mind Trunk Closure (30.8.2026) — persona="raziel" (רזיאל, אתר=וואטסאפ) קורא metatron_context
+//    באופן מנדטורי לפני כל תשובה (כבר לא opt-in) — חוקי-המערכת החיים (ctx.rules) ל-system, הקשר-הגרף
+//    (ctx.canonical) לעובדות. fail-open מלא: כשל/ריק ב-metatron_context → rzSys=persona בדיוק כמו קודם.
+//
+// 🌳 שלב 1b (עץ אחד) — הנתיב הגנרי (number/compare/verse...) נשאר OPT-IN, default OFF (body.metatron:true),
+//    בכוונה: זו החלטת-מוצר/עלות נפרדת (traffic נפח-גבוה בדפי-מספר), ממתינה לאישור-מעבר-דיפולט דרך harness
+//    metatron_eval_* (שלב 3) — לא חלק מסגירת-הגזע של רזיאל. מקור-אמת יחיד: חוק ב-nodes(propagate=true) →
+//    fn_active_method_rules → metatron_context → כאן. fail-open מלא (כשל/ריק = v26). לא נוגע ב-guide/research.
 //
 // 🆕 מנוע נוסף (A/B): body.engine = "claude" (ברירת-מחדל) | "gemini".
 //    אותו SYSTEM + אותו user-prompt לשני המנועים → השוואת פרשנות הוגנת על אותן עובדות מהמנוע.
@@ -368,13 +370,15 @@ Deno.serve(async (req: Request) => {
       ]);
       const ctxText = razielContextText(ctx);
 
-      // 🌳 מטטרון בתוך רזיאל (בטא, opt-in body.metatron): «העץ האחד» — חוקי-המערכת החיים נכנסים
-      //    לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות. fail-open: בלי דגל/כשל → רזיאל כרגיל.
+      // 🌳 מטטרון בתוך רזיאל — Single-Mind Trunk Closure (30.8.2026): מנדטורי, לא opt-in. חוקי-המערכת
+      //    החיים נכנסים לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות, בכל תשובת-רזיאל (אתר=וואטסאפ,
+      //    אותו דפוס). fail-open מלא: כשל/ריק ב-metatron_context → rzSys=persona בדיוק כמו קודם.
       let rzSys = persona;
       let rzMtxFacts = "";
-      if (body?.metatron && rSubject) {
+      let rzMtxVersion: unknown = null;
+      if (rSubject) {
         const mtx = await fetchMetatronContext(rSubject, rSubject, "site-raziel");
-        if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); }
+        if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
 
       const user =
@@ -397,10 +401,10 @@ Deno.serve(async (req: Request) => {
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
         if (contract.continue_wa == null) contract.continue_wa = true;
-        return json({ raziel: contract, engine: "claude", model: MODEL });
+        return json({ raziel: contract, engine: "claude", model: MODEL, context_version: rzMtxVersion });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
-      return json({ analysis: out.text, engine: "claude", model: MODEL });
+      return json({ analysis: out.text, engine: "claude", model: MODEL, context_version: rzMtxVersion });
     }
 
     const isCollection = kind === "research";
