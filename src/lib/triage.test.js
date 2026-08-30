@@ -16,6 +16,7 @@ import {
   extractSourceMediaRefs,
   computeExtractionIntegrity,
   buildResearchCase,
+  buildIntakeMeta,
 } from "./triage.js";
 
 // ── Golden Specimen A — Cube (ZVI 3060) ──────────────────────────────────────────────────────────
@@ -234,4 +235,69 @@ test("regression: extractAndVerifyCompound wraps routing/interest without alteri
     assert.ok(r.interest);
     assert.equal(typeof r.compound.status, "string");
   }
+});
+
+// ── Research Intake Build v1 — buildIntakeMeta() persistence mapper (V6 §7.1-§7.3) ───────────────
+// The mapper is the bridge that was MISSING: §7.1/§7.2/§7.3 were computed and then discarded at the
+// Intake boundary (0 of 579 live rows carried derivation/media provenance). These tests pin the
+// contract-shaped output that now reaches research_objects.meta.ext.
+
+test("buildIntakeMeta: Golden A preserves the semantic operand origin of the quantity 6 (§7.1)", () => {
+  const kase = buildResearchCase({ raw: SPECIMEN_A });
+  const meta = buildIntakeMeta(kase);
+  const inputs = meta.ext.derivation.inputs;
+  assert.ok(inputs.length >= 1, "at least one derivation input persisted");
+  const six = inputs.find((i) => i.value === 6);
+  assert.ok(six, "the quantity 6 itself is persisted, not only the arithmetic");
+  assert.equal(six.origin_type, "source_declared_quantity");
+  assert.equal(six.status, "source_explicit");
+  assert.match(six.origin_statement, /פאות/, "WHY the 6 is present survives, not just its value");
+  assert.ok(six.origin_ref && Number.isInteger(six.origin_ref.source_line_index));
+});
+
+test("buildIntakeMeta: Golden A preserves the unresolved media marker (§7.2)", () => {
+  const kase = buildResearchCase({ raw: SPECIMEN_A });
+  const meta = buildIntakeMeta(kase);
+  const refs = meta.ext.media_refs;
+  const img = refs.find((r) => r.raw === "[Image 3848.jpg]");
+  assert.ok(img, "the raw marker is preserved verbatim");
+  assert.equal(img.resolution_status, "unresolved");
+  assert.equal(img.resolved_url, null, "no URL is invented");
+  assert.equal(img.filename, "3848.jpg");
+});
+
+test("buildIntakeMeta: Golden A carries fidelity_status=partial to the Human Gate (§7.3)", () => {
+  const kase = buildResearchCase({ raw: SPECIMEN_A });
+  const ei = buildIntakeMeta(kase).ext.extraction_integrity;
+  assert.equal(ei.arithmetic_verified, true, "arithmetic did verify");
+  assert.equal(ei.media_reference_coverage, "partial");
+  assert.equal(ei.fidelity_status, "partial",
+    "ENGINE_VERIFIED arithmetic must NOT be reported as extraction-complete while media is unresolved");
+  assert.equal(ei.contract, "research_intake_foundation_contract §7.1-§7.3");
+});
+
+test("buildIntakeMeta: never invents semantics — role stays null and unresolved stays unresolved (PR1)", () => {
+  const kase = buildResearchCase({ raw: SPECIMEN_A });
+  for (const i of buildIntakeMeta(kase).ext.derivation.inputs) {
+    assert.equal(i.role, null, "no semantic role is fabricated by the projection");
+    assert.ok(["source_declared_quantity", "source_context_candidate", "unresolved"].includes(i.origin_type));
+  }
+});
+
+test("buildIntakeMeta: returns {} for material with nothing to preserve (no meta pollution)", () => {
+  // The §7.3 gate targets COMPLEX sources. computeExtractionIntegrity() legitimately reports
+  // "partial" when there is no claim at all (arithmeticVerified=false), but stamping that on every
+  // trivial observation would be noise AND would wrongly block canonicalization of perfectly sound
+  // simple material. So extraction_integrity is persisted only when a compound claim or a media
+  // reference actually exists.
+  const kase = buildResearchCase({ raw: "שלום וברכה, תודה רבה!" });
+  assert.equal(kase.extractionIntegrity.fidelityStatus, "partial", "computed value is unchanged");
+  assert.deepEqual(buildIntakeMeta(kase), {}, "but nothing is persisted, so the gate cannot misfire");
+});
+
+test("buildIntakeMeta: Golden B pentagon also preserves its media marker unresolved", () => {
+  const kase = buildResearchCase({ raw: SPECIMEN_B });
+  const meta = buildIntakeMeta(kase);
+  assert.ok(meta.ext.media_refs.some((r) => r.raw === "[Image 3850.jpg]" && r.resolution_status === "unresolved"));
+  assert.equal(meta.ext.extraction_integrity.fidelity_status, "partial");
 });

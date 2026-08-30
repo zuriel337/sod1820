@@ -873,3 +873,90 @@ export function buildResearchCase(item, ctx = {}) {
   const extractionIntegrity = computeExtractionIntegrity(compoundClaims, sourceMediaRefs);
   return { ...triage, connections, compoundClaims: compoundResults, sourceMediaRefs, extractionIntegrity };
 }
+
+// ── V6 §7.1-§7.3 · INTAKE PERSISTENCE MAPPER (Research Intake Build v1) ─────────────────────────
+// המרה טהורה בלבד: לוקחת את מה ש-buildResearchCase() כבר חישב, ומעצבת אותו לאוצר-המילים של
+// research_intake_foundation_contract §7 כדי שייכתב ל-`research_objects.meta.ext` הקיים.
+//
+// למה זה נדרש: עד עכשיו §7.1/§7.2/§7.3 חושבו בלקוח ונזרקו בגבול-הקליטה — 0 מתוך 579 שורות נשאו
+// derivation/media provenance, ו-`research_artifact_save` בכלל לא קיבל meta. החוזה קובע במפורש
+// «no schema change» / «no new table required» — ולכן זה נשמר ב-meta.ext הקיים, בלי טבלה/עמודה חדשה.
+//
+// ⛔ מה הפונקציה הזו לא עושה: לא ממציאה סמנטיקה שלא נמדדה (truth_axes_foundation_law INVARIANT PR1 —
+// projection may REPRESENT semantic state; it may NOT INVENT it). origin_type נגזר אך ורק מהסטטוס
+// ש-deriveQuantityProvenance() באמת קבע. סיווגי-דומיין (geometric count / corpus count / temporal)
+// שייכים ל-adapter של אותו דומיין (§7.4) ולא מומצאים כאן.
+// ⛔ לא משנה engine_verified/status/privacy_scope/canonical/published — טקסונומיית-האמת נשארת נפרדת (§7.3).
+
+const ORIGIN_TYPE_BY_STATUS = {
+  source_explicit: "source_declared_quantity",
+  source_context_candidate: "source_context_candidate",
+  unresolved: "unresolved",
+};
+
+function provenanceToInput(p) {
+  if (!p || typeof p !== "object") return null;
+  const status = p.status || "unresolved";
+  return {
+    value: p.value ?? null,
+    role: p.semanticRole ?? null,               // null = לא-נקבע; לא ממציאים תפקיד
+    origin_type: ORIGIN_TYPE_BY_STATUS[status] || "unresolved",
+    origin_statement: p.sourceText ?? null,     // הקטע מהמקור שממנו נלקח המספר
+    origin_ref: p.sourceLineIndex != null ? { source_line_index: p.sourceLineIndex } : null,
+    status,
+  };
+}
+
+function mediaRefToRecord(r) {
+  if (!r || typeof r !== "object") return null;
+  return {
+    kind: r.kind ?? null,
+    raw: r.raw ?? null,                          // ה-marker המקורי, למשל "[Image 3848.jpg]"
+    filename: r.filename ?? null,
+    resolved_url: r.resolvedUrl ?? null,
+    resolution_status: r.resolutionStatus || "unresolved",
+  };
+}
+
+// artifact = פריט בודד מתוך kase.artifacts (אופציונלי — מצמצם את ה-inputs לטענה הנשמרת בלבד);
+// kase     = הפלט של buildResearchCase(). מחזיר {} כשאין מה לשמר, כדי לא לזהם meta בשדות ריקים.
+export function buildIntakeMeta(kase, artifact = null) {
+  if (!kase || typeof kase !== "object") return {};
+  const claims = Array.isArray(kase.compoundClaims)
+    ? kase.compoundClaims.map((c) => (c && c.compound ? c.compound : c))
+    : [];
+
+  const scoped = artifact && artifact.candidate && artifact.candidate.text
+    ? claims.filter((c) => c && typeof c.text === "string" && c.text.includes(artifact.candidate.text))
+    : claims;
+  const useClaims = scoped.length ? scoped : claims;
+
+  const inputs = useClaims.flatMap((c) => {
+    const prov = Array.isArray(c?.quantityProvenance) ? c.quantityProvenance
+      : c?.quantityProvenance ? [c.quantityProvenance] : [];
+    return prov.map(provenanceToInput).filter(Boolean);
+  });
+
+  const mediaRefs = (Array.isArray(kase.sourceMediaRefs) ? kase.sourceMediaRefs : [])
+    .map(mediaRefToRecord).filter(Boolean);
+
+  const ei = kase.extractionIntegrity;
+  const ext = {};
+  if (inputs.length) ext.derivation = { inputs };
+  if (mediaRefs.length) ext.media_refs = mediaRefs;
+  // §7.3 חל על «מקורות מורכבים» בלבד. אם אין בכלל טענה-מורכבת ואין marker-מדיה, אין מה לאמת —
+  // computeExtractionIntegrity() מחזיר "partial" גם כשאין קלט (כי arithmeticVerified=false),
+  // וזו סמנטיקה נכונה-אך-לא-רלוונטית. לכתוב אותה על כל תצפית פשוטה היה מייצר רעש ו-*גם* היה חוסם
+  // קנוניזציה של חומר תקין לגמרי בשער §7.3. לכן: משמרים רק כשיש חומר-בתחום.
+  const gateApplies = useClaims.length > 0 || mediaRefs.length > 0;
+  if (ei && gateApplies) {
+    ext.extraction_integrity = {
+      arithmetic_verified: ei.arithmeticVerified === true,
+      semantic_operand_coverage: ei.semanticOperandCoverage ?? null,
+      media_reference_coverage: ei.mediaReferenceCoverage ?? null,
+      fidelity_status: ei.fidelityStatus ?? null,
+      contract: "research_intake_foundation_contract §7.1-§7.3",
+    };
+  }
+  return Object.keys(ext).length ? { ext } : {};
+}
