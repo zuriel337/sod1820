@@ -195,7 +195,6 @@ export function setResearcherJsonLd({ name, role, path, image, bio } = {}) {
       ...(bio ? { description: String(bio).slice(0, 500) } : {}),
       ...(image ? { image } : {}),
       url: canonical,
-      worksFor: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
     },
   });
 }
