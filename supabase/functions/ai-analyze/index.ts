@@ -9,14 +9,14 @@
 //    not to trunk closure). Source of truth stays single: nodes(propagate=true) → fn_active_method_rules
 //    → metatron_context → here. fail-open, always: a metatron_context failure/empty result leaves sys/facts
 //    unchanged from the pre-1b baseline — no response is ever blocked by this.
-//    EXCLUDED (STOP CONDITION, reported not silently skipped): kind="guide" below runs on a completely
-//    different contract — SYSTEM_GUIDE demands strict JSON-only navigation output from a fixed closed
-//    route list, has no entities/facts concept, and injecting ~6000 chars of unrelated gematria-rules
-//    text risks breaking that strict-format contract for a live, frequently-used onboarding feature.
-//    guide's hardcoded route list is channel/UI operational data (source_truth_vs_context_builder
-//    category C), not research context metatron_context has any capability for — wiring it would need
-//    a new "routes" package inside metatron_context, which is a Foundation extension out of this pass's
-//    scope ("no new router/architecture"). Left as-is; flagged for Foundation-owner decision.
+//    kind="guide" is now wired too, safely: it calls metatron_context with intent="navigation", which
+//    (per the Foundation Expansion Gate migration) skips the gematria rules block entirely and returns
+//    canonical.capabilities from site_services instead. That capability context (title/description only,
+//    no URLs) is folded into guideUser as informational background — SYSTEM_GUIDE's strict JSON contract
+//    and the hardcoded allowed-route whitelist (the actual "to" values the model may output) are both
+//    untouched. Reconciling that whitelist against site_services' route strings (which don't 1:1 match,
+//    e.g. "/numbers" vs guide's working "/number/:n") is a separate product/routing decision — Phase-2 /
+//    EXTENSION POINT, not implemented here. fail-open: guideMtx null → identical to pre-gate behavior.
 //
 // 🆕 מנוע נוסף (A/B): body.engine = "claude" (ברירת-מחדל) | "gemini".
 //    אותו SYSTEM + אותו user-prompt לשני המנועים → השוואת פרשנות הוגנת על אותן עובדות מהמנוע.
@@ -304,9 +304,11 @@ Deno.serve(async (req: Request) => {
     //    ה-STOP CONDITION הקודם בלי לשבור את חוזה-ה-JSON-הקשיח. intent="navigation" מכבה אצל
     //    metatron_context את חוקי-המערכת (fn_active_method_rules — לא רלוונטיים לניווט ומסוכנים לפורמט
     //    הקשיח) ומחזיר canonical.capabilities מ-site_services (המרשם הקנוני הקיים, אותו ש-wa-raziel
-    //    servicesText() כבר קורא). SYSTEM_GUIDE/routes לא נגעו — התאמת רשימת-הניתוב הקבועה מול
-    //    site_services (למשל "/numbers" מול "/number/:n") היא החלטת-מוצר נפרדת, לא Foundation patch;
-    //    EXTENSION POINT מדווח, לא מומש כאן. fail-open מלא: כשל/ריק לא חוסם תשובה.
+    //    servicesText() כבר קורא). ה-capabilities *מוזרקים בפועל* ל-guideUser כרקע-בלבד (כותרת+תיאור,
+    //    בלי URL) — לא רק ל-context_version. SYSTEM_GUIDE ורשימת-היעדים המותרים (routes) לא נגעו —
+    //    ה-"to" עדיין חייב לבוא מ-routes בדיוק. התאמת routes מול site_services (למשל "/numbers" מול
+    //    "/number/:n") היא החלטת-מוצר נפרדת, לא Foundation patch; EXTENSION POINT מדווח, לא מומש כאן.
+    //    fail-open מלא: guideMtx=null → guideCaps=[] → guideCapsContext="" → guideUser זהה למצב הקודם.
     if (kind === "guide") {
       if (engine !== "claude" || !ANTHROPIC_KEY) return json({ analysis: null, error: "not_configured" });
       const ask = String(body?.subject || body?.facts || "").slice(0, 400).trim();
@@ -319,6 +321,13 @@ Deno.serve(async (req: Request) => {
       }
       const guideMtx = await fetchMetatronContext(ask, ask, "site-guide", "navigation");
       const guideMtxVersion = guideMtx?.context_version ?? null;
+      // הקשר-יכולות מ-metatron_context (site_services, לא ה-routes הקבועים) — מידע-רקע בלבד, לא רשימת-יעד:
+      // כותרת+תיאור בלבד, בלי URL, כדי שהמודל לא יבלבל בין "capability" מ-metatron ל-"to" המותר מלמעלה.
+      const guideCaps = Array.isArray(guideMtx?.canonical?.capabilities) ? guideMtx.canonical.capabilities : [];
+      const guideCapsContext = guideCaps.length
+        ? "\n\nהקשר-יכולות נוסף מהמערכת (רקע-בלבד — לא רשימת-יעדים; ה-\"to\" חייב תמיד להיות מתוך «רשימת היעדים המותרים» למעלה בדיוק):\n" +
+          guideCaps.slice(0, 14).map((c: any) => `• ${c?.title || ""} — ${c?.description || ""}`).filter((l: string) => l.length > 4).join("\n")
+        : "";
       const routes =
         "רשימת היעדים המותרים (to — מתי לבחור):\n" +
         "/number — יש לו מספר / שם / מילה / ביטוי קונקרטי לבדוק (מנוע החיפוש הראשי)\n" +
@@ -333,7 +342,7 @@ Deno.serve(async (req: Request) => {
         "/join — רוצה להצטרף / להירשם / וואטסאפ / קהילה\n" +
         "/members — מנוי מתקדם (בני ההיכל)\n" +
         "/post — לקרוא מאמרים ורמזים";
-      const guideUser = `${routes}\n\nמה שהמבקר כתב: "${ask}"\n\nהחזר JSON בלבד לפי הכללים.`;
+      const guideUser = `${routes}${guideCapsContext}\n\nמה שהמבקר כתב: "${ask}"\n\nהחזר JSON בלבד לפי הכללים.`;
       const out = await runClaude(FAST_MODEL, guideUser, 320, SYSTEM_GUIDE);
       if (out.error) return json({ analysis: null, error: out.error, detail: out.detail });
       await logTokens("guide", FAST_MODEL, out.usage, identity);
