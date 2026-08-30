@@ -14,6 +14,9 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SITE = 'https://sod1820.co.il';
 const HEADERS = { apikey: ANON, Authorization: 'Bearer ' + ANON };
 
+// Thumbnail Validity Gate — resolver משותף אחד (זהה ל-src/lib/seo.js): thumbnail=תמונה בלבד, לעולם לא mp4.
+import { resolveThumb } from '../src/lib/thumbResolve.js';
+
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function urlTag({ loc, lastmod, changefreq, priority }) {
@@ -30,22 +33,55 @@ function urlTag({ loc, lastmod, changefreq, priority }) {
 // 🎬 Video Sitemap (video:video) — כל סרטון של אור-הגאולה = תוצאת-וידאו בגוגל.
 const VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 const cleanCap = t => { const s = String(t || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); return (s && s !== '📷 עדכון' && s !== '🎬 עדכון וידאו') ? s : ''; };
-// כרטיס ממותד כרשת-ביטחון ל-thumbnail — רק כשעדיין אין פריים אמיתי (הלכידה מהצד-לקוח תחליף אותו).
-// כך כל סרטון נכנס למפת-הסרטונים מיד, בלי להמתין ללכידה. thumbnail_loc חובה ב-video:video.
-const cardThumb = v => `${SITE}/api/card?w=${encodeURIComponent(cleanCap(v.text).slice(0, 60) || 'אור הגאולה')}&sub=${encodeURIComponent('אור הגאולה · סרטון')}&sig=orgeula`;
 function videoUrlTag(v) {
   const title = cleanCap(v.text).slice(0, 100) || 'אור הגאולה — סרטון';
   const desc = cleanCap(v.text).slice(0, 2048) || title;
-  const thumb = v.thumb_url || cardThumb(v);
+  // Thumbnail Validity Gate: thumb_url רק אם תמונה (לא mp4); אחרת cardThumb ממותד. thumbnail_loc חובה.
+  const thumb = resolveThumb([v.thumb_url], title, 'אור הגאולה · סרטון', 'orgeula');
   let pub; try { pub = v.created_at ? new Date(v.created_at).toISOString() : undefined; } catch { pub = undefined; }
   return [
     '  <url>',
-    `    <loc>${esc(SITE + '/or-geula?v=' + v.id)}</loc>`,
+    // דף-צפייה קנוני עצמאי לכל סרטון (לא ?v= שקורס ל-/or-geula) — Sitemap URL == Canonical Watch URL.
+    `    <loc>${esc(SITE + '/or-geula/video/' + v.id)}</loc>`,
     '    <video:video>',
     `      <video:thumbnail_loc>${esc(thumb)}</video:thumbnail_loc>`,
     `      <video:title>${esc(title)}</video:title>`,
     `      <video:description>${esc(desc)}</video:description>`,
     `      <video:content_loc>${esc(v.image_url)}</video:content_loc>`,
+    pub ? `      <video:publication_date>${pub}</video:publication_date>` : '',
+    '    </video:video>',
+    '  </url>',
+  ].filter(Boolean).join('\n');
+}
+
+// 🎬 פוסט video-primary (קטגוריה «וידאו») → video:video על ה-canonical של הפוסט (/<slug>).
+//    הסרטון הוא הישות המרכזית של הדף (דף-צפייה עצמאי) → thumbnail + content_loc/player_loc.
+const YT_RE = /(?:youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/i;
+const MP4_IN_RE = /<(?:source|video)[^>]+src="([^"]+\.mp4[^"]*)"/i;
+function postVideoUrlTag(p) {
+  if (!p.slug) return '';
+  const c = String(p.content || '');
+  const mp4 = (c.match(MP4_IN_RE) || c.match(/(https?:\/\/[^"'\s<>]+\.mp4)/i) || [])[1];
+  const yt = (c.match(YT_RE) || [])[1];
+  if (!mp4 && !yt) return '';
+  const poster = (c.match(/poster="([^"]+)"/i) || [])[1];
+  // Thumbnail Validity Gate: image_url/poster רק אם תמונה (לא mp4/וידאו); אחרת cardThumb ממותד.
+  const thumb = resolveThumb([p.image_url, poster], cleanCap(p.title).slice(0, 60));
+  const title = cleanCap(p.title).slice(0, 100) || 'סוד1820 — סרטון';
+  const desc = cleanCap(p.title).slice(0, 2048) || title;
+  let pub; try { pub = p.date ? new Date(p.date).toISOString() : undefined; } catch { pub = undefined; }
+  const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;
+  const encodedSlug = p.slug.includes('%') ? p.slug : encodeURI(p.slug);
+  return [
+    '  <url>',
+    `    <loc>${esc(SITE + '/' + encodedSlug)}</loc>`,
+    lastmod ? `    <lastmod>${lastmod}</lastmod>` : '',
+    '    <video:video>',
+    `      <video:thumbnail_loc>${esc(thumb)}</video:thumbnail_loc>`,
+    `      <video:title>${esc(title)}</video:title>`,
+    `      <video:description>${esc(desc)}</video:description>`,
+    mp4 ? `      <video:content_loc>${esc(mp4)}</video:content_loc>` : '',
+    (yt && !mp4) ? `      <video:player_loc>${esc('https://www.youtube-nocookie.com/embed/' + yt)}</video:player_loc>` : '',
     pub ? `      <video:publication_date>${pub}</video:publication_date>` : '',
     '    </video:video>',
     '  </url>',
@@ -98,11 +134,23 @@ async function fetchAll(path) {
 export default async function handler(req, res) {
   const urls = [...STATIC];
 
-  // ── פוסטים → /<slug> ──
+  // ── פוסטים video-primary (קטגוריה «וידאו») → video:video על ה-canonical של הפוסט ──
+  //    נבנים ראשונים כדי לדלג עליהם בלולאת-הפוסטים הרגילה (loc יחיד לכל דף — בלי כפילות).
+  const postVideoUrls = [];
+  const videoPrimarySlugs = new Set();
+  try {
+    const vposts = await fetchAll(`posts?select=slug,title,content,image_url,date,modified&categories=cs.%7B${encodeURIComponent('וידאו')}%7D&order=date.desc`);
+    for (const p of vposts) {
+      const tag = postVideoUrlTag(p);
+      if (tag) { postVideoUrls.push(tag); if (p.slug) videoPrimarySlugs.add(p.slug); }
+    }
+  } catch (e) { /* ממשיכים גם בלי וידאו-פוסטים */ }
+
+  // ── פוסטים → /<slug> (מדלגים על video-primary — הם נכנסים עם video:video למטה) ──
   try {
     const posts = await fetchAll('posts?select=slug,modified,date&order=date.desc');
     for (const p of posts) {
-      if (!p.slug) continue;
+      if (!p.slug || videoPrimarySlugs.has(p.slug)) continue;
       const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;
       // סלאגים מוורדפרס כבר מקודדי-URL (%d7%aa...). encodeURI היה מקודד שוב את ה-%
       // ל-%25 → קידוד-כפול שגוי שלא תואם ל-canonical. לכן מקודדים רק עברית "נקייה".
@@ -184,6 +232,7 @@ export default async function handler(req, res) {
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">',
     urls.map(urlTag).join('\n'),
+    postVideoUrls.join('\n'),
     videoUrls.map(videoUrlTag).join('\n'),
     '</urlset>',
     '',

@@ -1,5 +1,6 @@
 // ניהול SEO צד-לקוח ל-SPA: כותרת, תיאור, canonical, Open Graph ו-Twitter.
 // ה-SPA מוגש כ-index.html יחיד, ולכן כל דף מעדכן את התגיות בעצמו בעת טעינה.
+import { resolveThumb, isVideoUrl } from "./thumbResolve.js"; // Thumbnail Validity Gate — thumbnail=תמונה בלבד
 
 // כתובת האתר הקנונית (דומיין המותג). לשנות כאן אם הדומיין משתנה.
 export const SITE_URL = "https://sod1820.co.il";
@@ -253,7 +254,7 @@ export function setVideoGalleryJsonLd(videos = []) {
       "@type": "VideoObject",
       name: plain(v.title || "", 110) || SITE_NAME,
       description: plain(v.title || "", 300) || SITE_NAME,
-      thumbnailUrl: [v.poster_url || `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`],
+      thumbnailUrl: [resolveThumb([v.poster_url, `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`], plain(v.title || "", 60))],
       uploadDate: videoUploadDate(v.uploaded_at),
       embedUrl: v.yt ? `https://www.youtube-nocookie.com/embed/${v.yt}` : undefined,
       contentUrl: v.video_url || (v.yt ? `https://www.youtube.com/watch?v=${v.yt}` : undefined),
@@ -281,7 +282,7 @@ const OG_VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 export function setOrGeulaVideosJsonLd(rows = []) {
   if (typeof document === "undefined") return;
   const clean = (t) => { const s = plain(t || ""); return (s && s !== "📷 עדכון" && s !== "🎬 עדכון וידאו") ? s : ""; };
-  const vids = (rows || []).filter(r => r && r.image_url && OG_VIDEO_RE.test(r.image_url) && r.thumb_url).slice(0, 50);
+  const vids = (rows || []).filter(r => r && r.image_url && OG_VIDEO_RE.test(r.image_url)).slice(0, 50);
   if (!vids.length) { removeJsonLd("sod-orgeula-vid-ld"); return; }
   const items = vids.map((v, i) => {
     const name = clean(v.text).slice(0, 110) || "אור הגאולה — סרטון";
@@ -292,7 +293,8 @@ export function setOrGeulaVideosJsonLd(rows = []) {
         "@type": "VideoObject",
         name,
         description: clean(v.text).slice(0, 300) || name,
-        thumbnailUrl: [v.thumb_url],
+        // Thumbnail Validity Gate: thumb_url רק אם תמונה; אחרת cardThumb.
+        thumbnailUrl: [resolveThumb([v.thumb_url], name, "אור הגאולה · סרטון", "orgeula")],
         uploadDate: videoUploadDate(v.created_at),
         contentUrl: v.image_url,
         url: `${SITE_URL}/or-geula?v=${v.id}`,
@@ -311,6 +313,89 @@ export function setOrGeulaVideosJsonLd(rows = []) {
   });
 }
 export function clearOrGeulaVideosJsonLd() { removeJsonLd("sod-orgeula-vid-ld"); }
+
+// ── חילוץ ווידאו-ראשי מתוכן-פוסט ──────────────────────────────────────────────
+// מחזיר {contentUrl?, embedUrl?, poster?} מתוך ה-HTML של הפוסט, או null אם אין ווידאו.
+// מקורות: <source>/<video> עם .mp4 מאוחסן-עצמי · יוטיוב (embed/watch/youtu.be). poster= לתמונה.
+const _POST_MP4_RE = /<(?:source|video)[^>]+src="([^"]+\.mp4[^"]*)"/i;
+const _POST_MP4_BARE_RE = /(https?:\/\/[^"'\s<>]+\.mp4)/i;
+const _POST_YT_RE = /(?:youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/i;
+export function extractPostVideo(post = {}) {
+  const c = typeof post.content === "string" ? post.content : "";
+  if (!c) return null;
+  const mp4 = c.match(_POST_MP4_RE) || c.match(_POST_MP4_BARE_RE);
+  const yt = c.match(_POST_YT_RE);
+  const poster = (c.match(/poster="([^"]+)"/i) || [])[1] || null;
+  if (!mp4 && !yt) return null;
+  return {
+    contentUrl: mp4 ? mp4[1] : undefined,
+    embedUrl: yt ? `https://www.youtube-nocookie.com/embed/${yt[1]}` : undefined,
+    poster,
+  };
+}
+
+// ── JSON-LD VideoObject לפוסט שהוא video-primary (הסרטון הוא הישות המרכזית של הדף) ──
+// דרישות גוגל: name · thumbnailUrl · uploadDate · (contentUrl|embedUrl). mainEntityOfPage = ה-canonical
+// של הפוסט (/<slug>) — דף-צפייה קנוני עצמאי → מתקן «הסרטון לא מופיע בדף צפייה». מסיר את ה-Article LD
+// כדי למנוע סתירת-זהות Article↔Video (הישות המרכזית = הסרטון). נכשל-שקט (מחזיר false) אם אין thumbnail
+// אמיתי — אז נשארים עם ה-Article (Rank, Don't Hide — לא ממציאים thumbnail).
+export function setPostVideoJsonLd({ post = {}, path, description } = {}) {
+  if (typeof document === "undefined") return false;
+  const v = extractPostVideo(post);
+  if (!v || (!v.contentUrl && !v.embedUrl)) { removeJsonLd("sod-post-video-ld"); return false; }
+  const canonical = SITE_URL + (path || "");
+  const name = plain(post.title || "", 110) || SITE_NAME;
+  const desc = description || cleanDescription(post.excerpt || post.content || "") || name;
+  // Thumbnail Validity Gate: מועמדי-תמונה (image_url/poster) שאינם קובץ-וידאו; אחרת cardThumb.
+  const thumb = resolveThumb([post.image_url, v && v.poster], name);
+  setJsonLd("sod-post-video-ld", {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "@id": canonical + "#video",
+    name,
+    description: desc,
+    thumbnailUrl: [thumb],
+    uploadDate: videoUploadDate(post.date || post.modified),
+    contentUrl: v.contentUrl || undefined,
+    embedUrl: v.embedUrl || undefined,
+    url: canonical,
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    inLanguage: "he-IL",
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
+  });
+  removeJsonLd("sod-article-ld"); // video-primary → הישות המרכזית היא הסרטון, לא מאמר
+  return true;
+}
+export function clearPostVideoJsonLd() { removeJsonLd("sod-post-video-ld"); }
+
+// ── JSON-LD VideoObject יחיד לדף-הצפייה של סרטון אור-הגאולה (/or-geula/video/:id) ──
+// canonical עצמאי לכל סרטון (מתקן את קריסת-ה-canonical של /or-geula?v=). mainEntityOfPage = ה-watch URL.
+export function setOrGeulaSingleVideoJsonLd(v, path) {
+  if (typeof document === "undefined") return false;
+  const clean = (t) => { const s = plain(t || ""); return (s && s !== "📷 עדכון" && s !== "🎬 עדכון וידאו") ? s : ""; };
+  if (!v || !v.image_url || !OG_VIDEO_RE.test(v.image_url)) { removeJsonLd("sod-orgeula-one-ld"); return false; }
+  const canonical = SITE_URL + (path || `/or-geula/video/${v.id}`);
+  const name = clean(v.text).slice(0, 110) || "אור הגאולה — סרטון";
+  // Thumbnail Validity Gate: thumb_url רק אם תמונה (לא mp4); אחרת cardThumb.
+  const thumb = resolveThumb([v.thumb_url], name, "אור הגאולה · סרטון", "orgeula");
+  setJsonLd("sod-orgeula-one-ld", {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "@id": canonical + "#video",
+    name,
+    description: clean(v.text).slice(0, 300) || name,
+    thumbnailUrl: [thumb],
+    uploadDate: videoUploadDate(v.created_at),
+    contentUrl: v.image_url,
+    url: canonical,
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    inLanguage: "he-IL",
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
+  });
+  removeJsonLd("sod-orgeula-vid-ld"); // בדף-צפייה יחיד אין ItemList — רק ה-VideoObject הזה
+  return true;
+}
+export function clearOrGeulaSingleVideoJsonLd() { removeJsonLd("sod-orgeula-one-ld"); }
 
 // ── עוזרי מטא נוספים ──
 function addMeta(attr, key, content) {

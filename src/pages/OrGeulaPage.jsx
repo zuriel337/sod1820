@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { supabase } from "../lib/supabase.js";
-import { applySeo, SITE_URL, setOrGeulaVideosJsonLd, clearOrGeulaVideosJsonLd } from "../lib/seo.js";
+import { applySeo, SITE_URL, setOrGeulaVideosJsonLd, clearOrGeulaVideosJsonLd, setOrGeulaSingleVideoJsonLd, clearOrGeulaSingleVideoJsonLd } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { storyOpen, storyEvent } from "../lib/storyTrack.js";
 import { galThumb } from "../lib/img.js";
@@ -26,6 +26,8 @@ export default function OrGeulaPage() {
   const [speakerFilter, setSpeakerFilter] = useState(null);   // סינון לפי דובר (רב) — תחת אור הגאולה בלבד
   const { hidden: ogHidden, restore: ogRestore } = useHiddenWidget("or_geula_story");   // מצב «הוסתר לגמרי» + החזרה
   const [sp, setSp] = useSearchParams();
+  const { id: routeVideoId } = useParams();   // /or-geula/video/:id — דף-צפייה קנוני לסרטון יחיד
+  const activeVideoId = routeVideoId || sp.get("v") || null;   // route קנוני, עם תאימות-לאחור ל-?v=
   const openTimeRef = useRef(0);   // dwell (session_ms) for story_close
 
   // מנוע-סטורי קנוני על ה-player הקיים (approved OQ4: play→story_open, בלי refactor ל-StoryViewer).
@@ -68,29 +70,46 @@ export default function OrGeulaPage() {
     return () => { alive = false; };
   }, []);
 
-  // deep-link: אם הגיעו עם ?v=<id> — לפתוח ישר את הפריט הזה (שיתוף מגיע לסרטון הספציפי)
+  // deep-link: הגעה ל-/or-geula/video/:id או עם ?v=<id> — לפתוח ישר את הסרטון הזה (הצגה בולטת בדף-צפייה)
   useEffect(() => {
     if (!rows || !rows.length) return;
-    const v = sp.get("v");
-    if (v) { const it = rows.find(r => String(r.id) === v); if (it && !open) { setOpen(it); beginStory(it, "deeplink"); } }
-  }, [rows]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (activeVideoId) { const it = rows.find(r => String(r.id) === String(activeVideoId)); if (it && !open) { setOpen(it); beginStory(it, "deeplink"); } }
+  }, [rows, activeVideoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // 🖼 תמונת-שיתוף ממותגת (1200×630) — אותו כרטיס /api/card שה-crawler כבר משתמש בו לדף (עקביות
     //    בין גוגל/SPA לבין רשתות; מותג «אור הגאולה» במקום «תמונה ראשונה» אקראית). הכרטיס כבר חי בפרודקשן.
     const shareCard = `${SITE_URL}/api/card?w=${encodeURIComponent("אור הגאולה")}&sub=${encodeURIComponent("סרטונים · ריבועים · רמזי גאולה")}&cap=${encodeURIComponent("אוסף חי שמתעדכן")}`;
-    applySeo({
-      title: "אור הגאולה — אוסף הסרטונים והרמזים",
-      description: "אור הגאולה — אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה. תיעוד חי, מתעדכן, בערוץ אור הגאולה של סוד 1820.",
-      path: "/or-geula",
-      image: shareCard,
-    });
-    // 🎬 structured data עשיר — ItemList של VideoObject מכל סרטוני-הערוץ (תוצאות-וידאו בגוגל)
-    setOrGeulaVideosJsonLd(rows || []);
-  }, [rows]);
+    // 🎬 דף-צפייה קנוני לסרטון יחיד (/or-geula/video/:id — גם ?v= מצהיר עליו כ-canonical, בלי קריסה):
+    //    canonical עצמאי + VideoObject יחיד (mainEntityOfPage) → מתקן «הסרטון לא מופיע בדף צפייה».
+    const one = (activeVideoId && rows) ? rows.find(r => String(r.id) === String(activeVideoId)) : null;
+    if (one && isVideo(one.image_url)) {
+      const watchPath = `/or-geula/video/${one.id}`;
+      const cap = (one.text || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+      const name = (cap && cap !== "📷 עדכון" && cap !== "🎬 עדכון וידאו") ? cap.slice(0, 90) : "אור הגאולה — סרטון";
+      applySeo({
+        title: `${name} — אור הגאולה`,
+        description: (cap && cap.length > 8 ? cap.slice(0, 200) : "סרטון מתוך ערוץ אור הגאולה — רמזי הגאולה של סוד 1820."),
+        path: watchPath,
+        image: one.thumb_url || shareCard,
+      });
+      setOrGeulaSingleVideoJsonLd(one, watchPath);
+      clearOrGeulaVideosJsonLd();   // בדף-צפייה יחיד — בלי ItemList
+    } else {
+      applySeo({
+        title: "אור הגאולה — אוסף הסרטונים והרמזים",
+        description: "אור הגאולה — אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה. תיעוד חי, מתעדכן, בערוץ אור הגאולה של סוד 1820.",
+        path: "/or-geula",
+        image: shareCard,
+      });
+      // 🎬 structured data עשיר — ItemList של VideoObject מכל סרטוני-הערוץ (תוצאות-וידאו בגוגל)
+      setOrGeulaVideosJsonLd(rows || []);
+      clearOrGeulaSingleVideoJsonLd();
+    }
+  }, [rows, activeVideoId]);
 
   // ניקוי ה-JSON-LD של הסרטונים ביציאה מהדף (SPA — לא להשאיר שאריות לדף הבא)
-  useEffect(() => () => clearOrGeulaVideosJsonLd(), []);
+  useEffect(() => () => { clearOrGeulaVideosJsonLd(); clearOrGeulaSingleVideoJsonLd(); }, []);
 
   // 🏷️ רבנים שמתויגים בערוץ (speaker) — סינון פנימי לדף אור-הגאולה בלבד, לא חוצה-ערוצים.
   const speakers = useMemo(() => {
