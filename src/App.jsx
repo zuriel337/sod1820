@@ -351,6 +351,7 @@ export default function App() {
           <Route path="/theme/:slug" element={<ThemePage />} />
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/or-geula" element={<OrGeulaPage />} />
+          <Route path="/or-geula/video/:id" element={<OrGeulaPage />} />
           <Route path="/אור-הגאולה" element={<OrGeulaPage />} />
           <Route path="/forum/:id" element={<ForumThreadPage />} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
