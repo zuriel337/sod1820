@@ -249,14 +249,16 @@ async function checkQuota(identity: string, tier: string, limitOverride: number 
 // הקשר-הגרף (ctx.canonical) ומזריק לפרומפט — במקום SYSTEM קבוע ועיוור. מקור-אמת יחיד: חוק
 // שמוגדר פעם אחת ב-nodes(propagate=true) זורם לכאן דרך fn_active_method_rules→metatron_context.
 // fail-open לחלוטין: כל כשל/ריק → התנהגות זהה ל-v26 (SYSTEM נקי, בלי תוספות).
-async function fetchMetatronContext(subject: string, ask: string, channel: string): Promise<any | null> {
+async function fetchMetatronContext(subject: string, ask: string, channel: string, intent?: string): Promise<any | null> {
   if (!SB_URL || !SB_SVC) return null;
   const s = (subject || "").trim();
   const entities = s ? [{ type: /^\d+$/.test(s) ? "number" : "phrase", value: s }] : [];
+  const p_request: Record<string, unknown> = { ask: (ask || "").slice(0, 200), channel, entities };
+  if (intent) p_request.intent = intent;
   try {
     const r = await fetch(`${SB_URL}/rest/v1/rpc/metatron_context`, {
       method: "POST", headers: svcHeaders(),
-      body: JSON.stringify({ p_request: { ask: (ask || "").slice(0, 200), channel, entities } }),
+      body: JSON.stringify({ p_request }),
     });
     if (r.ok) return await r.json();
   } catch { /* fail-open */ }
@@ -298,6 +300,13 @@ Deno.serve(async (req: Request) => {
 
     // 🧭 kind="guide" — מלווה-כניסה (נתב ניווט). מסלול נפרד לגמרי מנתיב-הגימטריה:
     //    SYSTEM ייעודי, מודל מהיר (Haiku), רשימת-יעדים סגורה, פלט JSON. מכסה קלה (אנטי-לולאה).
+    // 🌳 Foundation Expansion Gate (30.8.2026): קורא metatron_context({intent:"navigation"}) — סוגר את
+    //    ה-STOP CONDITION הקודם בלי לשבור את חוזה-ה-JSON-הקשיח. intent="navigation" מכבה אצל
+    //    metatron_context את חוקי-המערכת (fn_active_method_rules — לא רלוונטיים לניווט ומסוכנים לפורמט
+    //    הקשיח) ומחזיר canonical.capabilities מ-site_services (המרשם הקנוני הקיים, אותו ש-wa-raziel
+    //    servicesText() כבר קורא). SYSTEM_GUIDE/routes לא נגעו — התאמת רשימת-הניתוב הקבועה מול
+    //    site_services (למשל "/numbers" מול "/number/:n") היא החלטת-מוצר נפרדת, לא Foundation patch;
+    //    EXTENSION POINT מדווח, לא מומש כאן. fail-open מלא: כשל/ריק לא חוסם תשובה.
     if (kind === "guide") {
       if (engine !== "claude" || !ANTHROPIC_KEY) return json({ analysis: null, error: "not_configured" });
       const ask = String(body?.subject || body?.facts || "").slice(0, 400).trim();
@@ -308,6 +317,8 @@ Deno.serve(async (req: Request) => {
         if (!q.allowed) return json({ analysis: null, error: "quota", surface: "guide", tier: q.tier, used: q.used, limit: q.limit,
           message: "עברת את מכסת המלווה היומית — אבל כל הכלים פתוחים לך למטה." });
       }
+      const guideMtx = await fetchMetatronContext(ask, ask, "site-guide", "navigation");
+      const guideMtxVersion = guideMtx?.context_version ?? null;
       const routes =
         "רשימת היעדים המותרים (to — מתי לבחור):\n" +
         "/number — יש לו מספר / שם / מילה / ביטוי קונקרטי לבדוק (מנוע החיפוש הראשי)\n" +
@@ -326,7 +337,7 @@ Deno.serve(async (req: Request) => {
       const out = await runClaude(FAST_MODEL, guideUser, 320, SYSTEM_GUIDE);
       if (out.error) return json({ analysis: null, error: out.error, detail: out.detail });
       await logTokens("guide", FAST_MODEL, out.usage, identity);
-      return json({ analysis: out.text, engine: "claude", model: FAST_MODEL });
+      return json({ analysis: out.text, engine: "claude", model: FAST_MODEL, context_version: guideMtxVersion });
     }
 
     // ===== 🌳 persona="raziel" — המוח-המשותף (רזיאל באתר = רזיאל בוואטסאפ) =====
