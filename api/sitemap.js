@@ -14,6 +14,9 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SITE = 'https://sod1820.co.il';
 const HEADERS = { apikey: ANON, Authorization: 'Bearer ' + ANON };
 
+// Thumbnail Validity Gate — resolver משותף אחד (זהה ל-src/lib/seo.js): thumbnail=תמונה בלבד, לעולם לא mp4.
+import { resolveThumb } from '../src/lib/thumbResolve.js';
+
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function urlTag({ loc, lastmod, changefreq, priority }) {
@@ -30,13 +33,11 @@ function urlTag({ loc, lastmod, changefreq, priority }) {
 // 🎬 Video Sitemap (video:video) — כל סרטון של אור-הגאולה = תוצאת-וידאו בגוגל.
 const VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 const cleanCap = t => { const s = String(t || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); return (s && s !== '📷 עדכון' && s !== '🎬 עדכון וידאו') ? s : ''; };
-// כרטיס ממותד כרשת-ביטחון ל-thumbnail — רק כשעדיין אין פריים אמיתי (הלכידה מהצד-לקוח תחליף אותו).
-// כך כל סרטון נכנס למפת-הסרטונים מיד, בלי להמתין ללכידה. thumbnail_loc חובה ב-video:video.
-const cardThumb = v => `${SITE}/api/card?w=${encodeURIComponent(cleanCap(v.text).slice(0, 60) || 'אור הגאולה')}&sub=${encodeURIComponent('אור הגאולה · סרטון')}&sig=orgeula`;
 function videoUrlTag(v) {
   const title = cleanCap(v.text).slice(0, 100) || 'אור הגאולה — סרטון';
   const desc = cleanCap(v.text).slice(0, 2048) || title;
-  const thumb = v.thumb_url || cardThumb(v);
+  // Thumbnail Validity Gate: thumb_url רק אם תמונה (לא mp4); אחרת cardThumb ממותד. thumbnail_loc חובה.
+  const thumb = resolveThumb([v.thumb_url], title, 'אור הגאולה · סרטון', 'orgeula');
   let pub; try { pub = v.created_at ? new Date(v.created_at).toISOString() : undefined; } catch { pub = undefined; }
   return [
     '  <url>',
@@ -64,8 +65,8 @@ function postVideoUrlTag(p) {
   const yt = (c.match(YT_RE) || [])[1];
   if (!mp4 && !yt) return '';
   const poster = (c.match(/poster="([^"]+)"/i) || [])[1];
-  const thumb = p.image_url || poster;
-  if (!thumb) return '';                                   // thumbnail_loc חובה — אין → מדלגים (Rank, Don't Hide)
+  // Thumbnail Validity Gate: image_url/poster רק אם תמונה (לא mp4/וידאו); אחרת cardThumb ממותד.
+  const thumb = resolveThumb([p.image_url, poster], cleanCap(p.title).slice(0, 60));
   const title = cleanCap(p.title).slice(0, 100) || 'סוד1820 — סרטון';
   const desc = cleanCap(p.title).slice(0, 2048) || title;
   let pub; try { pub = p.date ? new Date(p.date).toISOString() : undefined; } catch { pub = undefined; }

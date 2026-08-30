@@ -1,5 +1,6 @@
 // ניהול SEO צד-לקוח ל-SPA: כותרת, תיאור, canonical, Open Graph ו-Twitter.
 // ה-SPA מוגש כ-index.html יחיד, ולכן כל דף מעדכן את התגיות בעצמו בעת טעינה.
+import { resolveThumb, isVideoUrl } from "./thumbResolve.js"; // Thumbnail Validity Gate — thumbnail=תמונה בלבד
 
 // כתובת האתר הקנונית (דומיין המותג). לשנות כאן אם הדומיין משתנה.
 export const SITE_URL = "https://sod1820.co.il";
@@ -253,7 +254,7 @@ export function setVideoGalleryJsonLd(videos = []) {
       "@type": "VideoObject",
       name: plain(v.title || "", 110) || SITE_NAME,
       description: plain(v.title || "", 300) || SITE_NAME,
-      thumbnailUrl: [v.poster_url || `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`],
+      thumbnailUrl: [resolveThumb([v.poster_url, `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg`], plain(v.title || "", 60))],
       uploadDate: videoUploadDate(v.uploaded_at),
       embedUrl: v.yt ? `https://www.youtube-nocookie.com/embed/${v.yt}` : undefined,
       contentUrl: v.video_url || (v.yt ? `https://www.youtube.com/watch?v=${v.yt}` : undefined),
@@ -281,7 +282,7 @@ const OG_VIDEO_RE = /\.(mp4|mov|webm|m4v|avi|mkv)($|\?|#)/i;
 export function setOrGeulaVideosJsonLd(rows = []) {
   if (typeof document === "undefined") return;
   const clean = (t) => { const s = plain(t || ""); return (s && s !== "📷 עדכון" && s !== "🎬 עדכון וידאו") ? s : ""; };
-  const vids = (rows || []).filter(r => r && r.image_url && OG_VIDEO_RE.test(r.image_url) && r.thumb_url).slice(0, 50);
+  const vids = (rows || []).filter(r => r && r.image_url && OG_VIDEO_RE.test(r.image_url)).slice(0, 50);
   if (!vids.length) { removeJsonLd("sod-orgeula-vid-ld"); return; }
   const items = vids.map((v, i) => {
     const name = clean(v.text).slice(0, 110) || "אור הגאולה — סרטון";
@@ -292,7 +293,8 @@ export function setOrGeulaVideosJsonLd(rows = []) {
         "@type": "VideoObject",
         name,
         description: clean(v.text).slice(0, 300) || name,
-        thumbnailUrl: [v.thumb_url],
+        // Thumbnail Validity Gate: thumb_url רק אם תמונה; אחרת cardThumb.
+        thumbnailUrl: [resolveThumb([v.thumb_url], name, "אור הגאולה · סרטון", "orgeula")],
         uploadDate: videoUploadDate(v.created_at),
         contentUrl: v.image_url,
         url: `${SITE_URL}/or-geula?v=${v.id}`,
@@ -340,11 +342,12 @@ export function extractPostVideo(post = {}) {
 export function setPostVideoJsonLd({ post = {}, path, description } = {}) {
   if (typeof document === "undefined") return false;
   const v = extractPostVideo(post);
-  const thumb = post.image_url || (v && v.poster) || null;
-  if (!v || (!v.contentUrl && !v.embedUrl) || !thumb) { removeJsonLd("sod-post-video-ld"); return false; }
+  if (!v || (!v.contentUrl && !v.embedUrl)) { removeJsonLd("sod-post-video-ld"); return false; }
   const canonical = SITE_URL + (path || "");
   const name = plain(post.title || "", 110) || SITE_NAME;
   const desc = description || cleanDescription(post.excerpt || post.content || "") || name;
+  // Thumbnail Validity Gate: מועמדי-תמונה (image_url/poster) שאינם קובץ-וידאו; אחרת cardThumb.
+  const thumb = resolveThumb([post.image_url, v && v.poster], name);
   setJsonLd("sod-post-video-ld", {
     "@context": "https://schema.org",
     "@type": "VideoObject",
@@ -370,10 +373,11 @@ export function clearPostVideoJsonLd() { removeJsonLd("sod-post-video-ld"); }
 export function setOrGeulaSingleVideoJsonLd(v, path) {
   if (typeof document === "undefined") return false;
   const clean = (t) => { const s = plain(t || ""); return (s && s !== "📷 עדכון" && s !== "🎬 עדכון וידאו") ? s : ""; };
-  const thumb = v && v.thumb_url;
-  if (!v || !v.image_url || !OG_VIDEO_RE.test(v.image_url) || !thumb) { removeJsonLd("sod-orgeula-one-ld"); return false; }
+  if (!v || !v.image_url || !OG_VIDEO_RE.test(v.image_url)) { removeJsonLd("sod-orgeula-one-ld"); return false; }
   const canonical = SITE_URL + (path || `/or-geula/video/${v.id}`);
   const name = clean(v.text).slice(0, 110) || "אור הגאולה — סרטון";
+  // Thumbnail Validity Gate: thumb_url רק אם תמונה (לא mp4); אחרת cardThumb.
+  const thumb = resolveThumb([v.thumb_url], name, "אור הגאולה · סרטון", "orgeula");
   setJsonLd("sod-orgeula-one-ld", {
     "@context": "https://schema.org",
     "@type": "VideoObject",
