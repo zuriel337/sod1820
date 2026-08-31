@@ -398,3 +398,95 @@ Ordered by the audit's own prioritization law (existing isolated capability → 
 **WHAT NOT TO DO NOW:** Do not merge PR#218 (Command Center vNext) as-is without a Human-Gate scope decision. Do not merge the stale Research-OS PRs (#226/#215/#188/#213) verbatim — rebase against `main`'s current `universalFinding.js` first, or they will likely reintroduce fabrications already found and removed. Do not expand Raziel/Metatron. Do not build a 3D/Spatial subsystem. Do not seed the orphaned schema-only tables without an explicit disposition decision. Do not brute-force-merge the ~25 ELS branches without a deliberate consolidation pass.
 
 *Foundation → Projection → Experience. Preserve capability, truth and provenance — not necessarily the legacy interface.*
+
+---
+---
+
+# ADDENDUM — MULTILINGUAL / ENGLISH FOUNDATION READINESS
+
+**Added:** same session, same branch, `origin/main` re-verified unchanged at `3d5bc684c7...` (0 drift since the audit above). **Scope:** does the canonical architecture already support Hebrew+English (and beyond) without duplicate entities/graph/Findings, identity break, provenance loss, a second English research system, or a foreseeable schema redesign? **Not in scope:** translating the site now, building any English UX, expanding Raziel/Metatron. READ-ONLY — no code/schema/DB changes made.
+
+Assembled from 5 parallel live research passes (Identity/Representations/Person-Name-Year-Event; Universal Finding/Graph/Topic; Gematria/ELS/Search; Sources-Provenance/Claims/Publication; Routing/Metatron/RTL), each independently grepping the repo and querying live Supabase, plus one pre-existing sibling document found on disk: `docs/planning/he-en-seo-readiness-audit.md` (2026-08-14), which independently corroborates the central finding below.
+
+## The one root cause behind almost every gap
+
+**Four independent research passes converged on the same fact, unprompted, from different angles:** SOD1820's canonical entity identity is keyed by **`(type, label)`**, and `label` is a raw Hebrew-text string — not a stable id with the label as one attached representation.
+
+Live, enforced proof — `supabase/migrations/20260830093000_mfg1_graph_identity_invariant.sql` (applied 2026-08-30):
+```sql
+-- A. image -> source-native identity (gallery_image_id) — CORRECT, label is not identity here.
+CREATE UNIQUE INDEX nodes_identity_image_uidx ON public.nodes ((metadata->>'gallery_image_id')) WHERE type = 'image' ...;
+-- B. rule -> versioned identity (rule_id, rule_version) — CORRECT.
+CREATE UNIQUE INDEX nodes_identity_rule_uidx ON public.nodes (rule_id, rule_version) WHERE type = 'rule' ...;
+-- C. EVERY OTHER TYPE -> label IS the identity.
+CREATE UNIQUE INDEX nodes_identity_canonical_uidx ON public.nodes (type, label) WHERE type NOT IN ('image', 'rule');
+```
+Index C covers `entity` (710 rows), `convergence` (219), `event` (120), `year` (12), `word`/`phrase` — every type that matters for multilingual content. Its own migration already solved the identity/representation split correctly for `image` and `rule`, but never made the same decision for the rest, because at write-time there were zero cross-language label collisions forcing the question.
+
+**This one constraint propagates outward into every other gap found:**
+- **`topic_cards`** has exactly one `title text` column, no `lang`, and is FK'd 1:1 into a `nodes(type='convergence')` row bound by index C — an English title cannot be added without either destroying the Hebrew original or minting a second, duplicate node for "the same" topic.
+- **`universalFinding.js`**'s `subject:{key,label,...}` has no `lang` field, and in 2 of the 3 live producers (ELS, and by pattern likely Gematria) `key` and `label` are set to the *literal same Hebrew string* — `universalFindingId()` hashes `subject.key` into the Finding's own id, so an English-language Finding about the same subject would compute a different id, i.e. a different "identity."
+- **Slug/URL generation** (`toSlug()` in `src/lib/format.js`, and the live SQL function `els_slugify()`) both pass Hebrew characters straight through with no transliteration — `/topic/:slug`, `posts.slug`, and `/codes/:slug` are all literally the Hebrew title itself, so the canonical URL identity is language-dependent too (only `/number/:n` is language-neutral, since numbers are already language-free).
+
+**Everything else in this addendum is either a real-but-secondary gap, or already fine.**
+
+## MULTILINGUAL READINESS MATRIX
+
+| # | Gate | Capability | Status | Classification | Reason |
+|---|---|---|---|---|---|
+| 1 | IDENTITY | Node/entity canonical identity (`nodes_identity_canonical_uidx`) | **NOT READY** | **MUST FOUNDATION NOW** | Live enforced unique index makes Hebrew label the identity for `entity`/`convergence`/`event`/`year`/`word` nodes; every English-labeled node minted today becomes a permanent duplicate, not a representation |
+| 2 | REPRESENTATIONS | `word_aliases` (7 rows: canonical/translation/transliteration typed) | **PARTIAL** | EXTENSION POINT NOW | Schema shape is already correct (`alias`, `alias_norm`, `lang`, `alias_type`, `is_primary`, `verified`) — but `node_id` is **NULL on all 7 rows**; only wired to `gematria_words.word_id`, not to the graph |
+| 2 | REPRESENTATIONS | `language_links` (0 rows, live `/languages` UGC feature) | **PARTIAL** | LATER | Admin UI + approve/reject flow already live; no `node_id` column at all; 0 submissions so far — real but early |
+| 2 | REPRESENTATIONS | `translit_suggestions` (27 rows), `xlang_calibration` (21,263 rows) | N/A | LATER | Confirmed these are input-normalization aids and a gematria cross-language *research* dataset respectively — not identity/representation stores, no action needed |
+| 3 | UNIVERSAL FINDING | `subject:{key,label,value}` envelope | **NOT READY** | **MUST FOUNDATION NOW** | No `lang` field anywhere in the envelope; `key`/`label` are the same literal string in 2 of 3 live producers; `universalFindingId()` hashes `key` — a translated Finding about the same subject gets a different id |
+| 4 | ONE TREE / GRAPH | `nodes`/`edges` identity model | **PARTIAL** (type-dependent) | **MUST FOUNDATION NOW** | `image`/`rule` types already correctly separate identity from label (proven pattern to copy); every other type does not. `edges` themselves are language-agnostic — clean |
+| 5 | TOPIC/CONVERGENCE | `topic_cards` | **NOT READY** | EXTENSION POINT NOW *(blocked on #1/#4 landing first)* | Single `title text`, no `lang`; adding a language needs either destructive overwrite or a duplicate node (per #4). Bounded, human-curated table (212 rows) — cheap to fix once node identity is fixed |
+| 6 | GEMATRIA | Calculation engine (JS `src/lib/gematria.js` + SQL `fn_ragil` etc.) | **READY** | — | Hebrew-only letter maps at 3 independent layers (JS, SQL, `gematria_methods` registry); non-Hebrew input silently reduces to `0`, never miscalculated. Translation/transliteration/operand/display are 4 cleanly separated concepts (`word_aliases`, `src/lib/translit.js`, resolved-Hebrew-only calc calls, `src/lib/englishGematria.js` kept fully separate with its own provenance tags) |
+| 7 | ELS | Canonical engine (`public/tzofen.html`) + `els_records` | **READY** | — | Single Hebrew Torah corpus, zero English/translation code paths found inside the engine; `engine_detail`/positions are built strictly from engine state, never from human-readable `title`/`description` fields — corpus-native identity cannot leak |
+| 8 | SOURCES/PROVENANCE | `content_translation_law` §4 (generic entity-translation table) | **PARTIAL** | EXTENSION POINT NOW | `video_transcripts` is a real, working, correctly-separated implementation (original vs. translated rows, `translated_by`/`model` provenance, never overwrites source) — but this pattern was **never extended to posts or entities**; no `post_translations`/`entity_translations` table exists; `posts` (1279 rows) has zero `lang`/translation columns |
+| 9 | SEARCH/DISCOVERY | `chat_search_facts()` (AI-chat RAG over posts) + 19-file Hebrew-only regex pattern | **PARTIAL** | EXTENSION POINT NOW (flagged as the one "fix before claiming readiness" item) | `fn_en_search()` (gematria-specific) correctly pre-resolves English→Hebrew via `word_aliases` before calculating — the right pattern. But `chat_search_facts()` strips every non-Hebrew character from query tokens before search, so an English query silently returns zero text matches (safe failure mode — no fabricated results — but a real gap); the same `[^א-ת]` stripping recurs in ~19 files repo-wide |
+| 10 | RESEARCH OBJECTS/CLAIMS | `research_objects.parent_id` / `universalFinding.js` `provenance.parentFindingIds` | **NOT READY** | EXTENSION POINT NOW → **becomes MUST FOUNDATION NOW if #8 is built first** | No `lang` column on `research_objects`; `parent_id`/`parentFindingIds` exist and are the right *shape* of hook but carry no typed "translation-of" semantics — an English claim about an existing Hebrew claim would land as an indistinguishable new row today |
+| 11 | PERSON/NAME/YEAR/EVENT | `contributors`, `nodes` types `entity`/`event`/`year` | **NOT READY** | **MUST FOUNDATION NOW** (same root cause as #1) | Single `display_name`/`label` text fields, no `lang` column anywhere; `persons` table is visitor-identity infra with no name field at all (unrelated to this gate despite the name) |
+| 12 | URL/SLUG/ROUTING | `toSlug()` (topics/posts), `els_slugify()` (ciphers) | **NOT READY** for topic/post/cipher · **READY** for `/number/:n` | EXTENSION POINT NOW *(policy decision needed, tightly coupled to #1)* | Slugs are the raw Hebrew string with only whitespace→dash, no transliteration — canonical URL identity is language-dependent for 3 of 4 route families. Only numeric routes are already migration-safe |
+| 13 | PUBLICATION | `posts` verification fields (`verified`, `verify_level`, `convergence_score`, etc.) | **PARTIAL** (architecturally sound, unbuilt/unexercised) | LATER | These fields live as scalar attributes of one `posts` row, not duplicated per language — so canonical truth state is *already* structurally independent of translation-publication state, by construction. Would need zero rework if `post_translations` is FK'd to `posts.id` per the `video_transcripts` template |
+| 14 | AI/METATRON/RAZIEL | `metatron_context()` SQL fn + `ai-analyze` Edge Fn (read-only, no expansion proposed) | **NOT READY** | EXTENSION POINT NOW | Zero `lang`/`locale` field anywhere in input or output; operates purely in Hebrew today. Both are free-form JSON already, so adding an optional `lang` key later is additive, not breaking — no action taken here per scope |
+| 15 | RTL/LTR | Site-wide `dir="rtl"`, CSS `direction:` rules (101 files) | **READY** (correctly scoped) | LATER | Confirmed confined to CSS/display layer and one outbound email template; no DB column stores pre-reversed/pre-wrapped text; `<html lang="he" dir="rtl">` is a one-line static attribute — the only thing a future English mode touches structurally |
+
+## ENGLISH BLOCKERS (must close before starting English implementation)
+
+1. **Decouple canonical node/entity identity from the Hebrew label** — fix `nodes_identity_canonical_uidx` (currently `(type,label)`) to a stable, language-independent key for `entity`/`convergence`/`event`/`year`/`word` types, following the pattern already proven correct for `image` (`gallery_image_id`) and `rule` (`rule_id,rule_version`). Every downstream item depends on this.
+2. **Add a `lang` field to the Universal Finding envelope and stop conflating `subject.key` with `subject.label`** in the 3 live producers (Gematria/ELS/Topic-Convergence) — cheapest to do now, while there are only 3 producers, before more Research-OS UI surfaces (already-open PRs #226/#215/#188) start emitting Findings with the current ambiguous contract.
+3. **Decide and apply a slug/URL policy** consistent with #1 — either the Hebrew slug stays the permanent canonical identity forever (English content displays at the same URL), or identity moves to an id/uuid with the slug becoming a non-identity friendly alias. Must be decided before any English-titled topic/post/cipher is created.
+4. **Fix `chat_search_facts()`'s Hebrew-only query stripping** (and, ideally, standardize the ~19-file pattern) to pre-resolve non-Hebrew query terms via `word_aliases`, the way `fn_en_search()` already correctly does for gematria — otherwise English search silently returns nothing, which will read as "the site doesn't support English" even after content exists.
+5. **Wire `word_aliases.node_id`** (currently NULL on all 7 live rows) to the fixed node identity from #1, so "given this entity, what are its representations" becomes a real, queryable relationship instead of a dangling table.
+
+## ENGLISH PREPARATION PLAN (Foundation-first order)
+
+1. Close Blocker #1 (node identity key) — schema decision + migration + backfill.
+2. Close Blocker #3 (slug/URL policy) in the same pass as #1 — they're one architectural decision, not two.
+3. Close Blocker #2 (Universal Finding `lang` field + `key`≠`label`) — small, contained, do it before more UF-producing surfaces ship.
+4. Close Blocker #5 (wire `word_aliases.node_id`) — now that node identity is stable, this becomes a straightforward backfill + FK.
+5. Build `post_translations`/`entity_translations` on the proven `video_transcripts` template (Gate 8), FK'd to `posts.id`/`nodes.id` — reuse the pattern, don't invent a new one.
+6. Add a typed `translation_of` relation to `research_objects` and document the `parentFindingIds` convention for Universal Finding (Gate 10) — needed as soon as #5 goes live, otherwise translated claims silently duplicate.
+7. Close Blocker #4 (`chat_search_facts` + the 19-file pattern) — can happen in parallel with 5-6, no dependency.
+8. *(Only after 1-7)* Add `lang` to `metatron_context`/`ai-analyze` if/when Raziel multilingual support is explicitly authorized (out of scope here) · begin actual English content/translation work · English-facing RTL/LTR UI polish (already safe, per Gate 15) · decide English route strategy per the policy chosen in step 2.
+
+## DO NOT TRANSLATE YET
+
+- **Do not create English-titled `topic_cards`, `posts`, `els_records`, or `nodes` rows** until Blocker #1 (identity) and #3 (slug policy) land — every one created today mints a permanent duplicate rather than a representation.
+- **Do not bulk-populate `word_aliases`/`language_links`** until Blocker #5 (node_id wiring) lands — new rows would be orphaned exactly like the current 7.
+- **Do not build `post_translations`/`entity_translations`** before the identity/slug policy (Blockers #1/#3) is decided — the FK target needs to be stable first.
+- **Safe to proceed any time, no blocker:** Gematria (Gate 6) and ELS (Gate 7) are already correctly isolated — English display/glossing work on top of them carries no identity risk. RTL/LTR UI polish (Gate 15) is pure CSS, safe today. `metatron_context`/`ai-analyze` can gain a `lang` parameter additively whenever Raziel multilingual support is separately authorized.
+
+## FINAL VERDICT — MULTILINGUAL FOUNDATION
+
+**MULTILINGUAL FOUNDATION: NOT SUFFICIENT** to begin English implementation — but the gap is narrow, well-bounded, and does not require new schema/engine/store philosophy, only a corrected identity-key decision applied consistently.
+
+**Exact MUST FOUNDATION NOW items:** 3 — (1) node/entity canonical identity decoupled from Hebrew label (`nodes_identity_canonical_uidx`), (2) Universal Finding `subject` envelope gains a `lang` field and stops conflating `key`/`label`, (3) the same identity fix applied to `contributors`/other Hebrew-only-labeled entity tables. (Slug/URL policy and `topic_cards` are listed as EXTENSION POINT NOW rather than a 4th independent MUST, because they are the *same* architectural decision as #1 applied to two more surfaces, not a separate design problem.)
+
+**Everything else — representation-layer wiring, search pre-resolution, translation-of claim typing, the generic post-translation table, RTL/LTR, Metatron's `lang` field — is EXTENSION POINT NOW or LATER, and none of it blocks continuing the rest of the Foundation integration program** (§8-9 of the main audit above remain the general priority list; this addendum's 3 MUST items should be sequenced alongside them, ideally before or alongside Blocker-adjacent item §8.5 from the main audit, since both concern `nodes`/graph-identity integrity).
+
+**This confirms, with live evidence, the exact risk the request named up front:** without this fix, the system would eventually build duplicate entities, a duplicate graph (Hebrew-labeled vs. English-labeled nodes for the same real thing), duplicate Findings (different `subject.key` per language), and identity/provenance loss — not because of a missing feature, but because one already-correct pattern (source-native identity, proven for `image`/`rule` nodes) was never extended to the rest of the graph. The fix is a known-good pattern, not a new design.
+
+*ONE RESEARCH OS · ONE TREE · ONE IDENTITY · MANY LANGUAGES · MANY REPRESENTATIONS.*
+*Foundation → Projection → Experience.*
