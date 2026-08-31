@@ -31,9 +31,11 @@ export function track(section, slug = null, eventType = "view", meta = null) {
 
 // שיתוף — מתעד פנימית (visitor_events) עם פילוח מלא: פלטפורמה + מכשיר/OS + מקור,
 // וגם שולח המרת share ל-Meta (Pixel/CAPI). כל כפתור שיתוף באתר קורא לזה.
-export const trackShare = (platform, slug) => {
+export const trackShare = (platform, slug, extraMeta = null) => {
   const m = (() => { try { return appMeta(); } catch { return {}; } })();
-  track("share", slug, "share", { platform, ...m });
+  // extraMeta מאפשר לתעד *מה בדיוק* שותף (למשל image_url + הדף שממנו שותף) — כדי ששיתוף
+  // תמונה יזוהה גם כשאין לה מזהה-מספרי (תיקון «gallery-» ריק).
+  track("share", slug, "share", { platform, ...m, ...(extraMeta || {}) });
   try { trackConversion("share", { platform, source: m.source, device: m.device }); } catch { /* noop */ }
   // ◆ קרדיט על שיתוף למשתמש מחובר (תקרה 3/יום נאכפת בשרת; אנונימי → no-op). fire-and-forget.
   try { supabase?.rpc("award_share_credit"); } catch { /* noop */ }
@@ -41,6 +43,21 @@ export const trackShare = (platform, slug) => {
 
 export const trackImageClick = (imageId, value) =>
   track("reality-stream", null, "image_click", { image_id: imageId, value });
+
+// 🧭 כניסה לזרם המציאות — «מאיפה נכנסו». נקרא מרכזית מ-App בכל כניסה ל-/archive עם הנתיב-הקודם
+// (prev) — בלי להזריק tracking ל-20 קישורים. תיוג מפורש דרך ?from=<tag> בקישור (למשל הטיקר) גובר;
+// אחרת מסווגים מהנתיב-הקודם: null=ישיר/חיצוני · '/'=דף-הבית · /number=דף-מספר · שאר=דף-פנימי.
+export function trackStreamEntry(prev = null) {
+  let explicit = null;
+  try { explicit = new URLSearchParams(window.location.search).get("from"); } catch { /* noop */ }
+  const entry_kind = explicit ? explicit
+    : (prev == null ? "direct/external"
+      : prev === "/" ? "home"
+        : prev.startsWith("/number") ? "number-page"
+          : prev.startsWith("/archive") ? "internal-archive"
+            : "internal-page");
+  track("reality-stream", null, "enter", { entry_kind, from: prev || null, explicit: !!explicit });
+}
 
 // 🤖 שימוש ב-AI — נקרא בכל כפתור/פעולה שמפעילים קריאת-AI (השוואה · נוטריקון · פסוק · פסוק-יומי ·
 // ניתוח-מחקר · מסר-מסע · מסר-עומק). מפולח לפי kind → דשבורד «שימוש ב-AI לפי כפתור».
@@ -71,6 +88,13 @@ export const trackResearch = (action, meta = null) =>
   track("research", null, action, meta || undefined);
 
 export const trackWhatsapp = slug => trackShare("whatsapp", slug);
+
+// 🟢 לחיצה על CTA «הצטרפו לקבוצת וואטסאפ» — handler משותף אחד לכל ה-surfaces (Footer/Join/
+// UpdatesBox/פוסט). קליק=Conversion (event_type='click'), נפרד מ-view ומ-share. surface=מהיכן נלחץ.
+export const trackWhatsappJoin = (surface = null) => {
+  track("join", "whatsapp-group", "click", { surface: surface || null });
+  try { trackConversion("whatsapp_join_click", { surface: surface || null }); } catch { /* noop */ }
+};
 
 // 🔎 חיפוש-נדיר (שכבה 2) — נרשם כשחיפוש חשף התכנסות נדירה אמיתית (זהב / מד-נדירות גבוה),
 // לא סתם "כמה חיפשו". לב-המחקר: אילו חיפושים באמת מגלים משהו. surface='search', event_type='rare'.

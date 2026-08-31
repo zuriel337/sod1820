@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
@@ -6,7 +6,7 @@ import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
-import { initAppInstallTracking, captureArrivalSource, captureAcquisition } from "./lib/tracking.js";
+import { initAppInstallTracking, captureArrivalSource, captureAcquisition, trackStreamEntry } from "./lib/tracking.js";
 import { initInstall } from "./lib/install.js";
 import { captureArrival, captureRef } from "./lib/propagation.js";
 import { initClarity } from "./lib/clarity.js";
@@ -115,6 +115,7 @@ const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
 function RouteEffects() {
   const { pathname, search } = useLocation();
+  const prevPathRef = useRef(null); // הנתיב-הקודם — למעקב «מאיפה נכנסו לזרם»
   // 🔬 פילוח-מעבדה: שומרים את הכלי הפעיל (?tool=) בנתיב הנמדד, כך שכל כלי-מעבדה
   // נספר בנפרד ("/research?tool=midrash" · "…=els" · "…=gematria") ולא קורס ל-"/research" אחד.
   // כך גם כשהכל עובר תחת המעבדה — לא מאבדים את הפילוח לפי כלי.
@@ -144,6 +145,10 @@ function RouteEffects() {
     // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
     // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
     const t = setTimeout(() => { trackPageview(pathname); trackMarketingPageview(); }, 350);
+    // 🌊 כניסה לזרם המציאות — «מאיפה נכנסו» (הנתיב-הקודם), מרכזית לכל הכניסות. prevPathRef
+    // מתעדכן *אחרי* השימוש → deterministic, בלי תלות בסדר-אפקטים של רכיב-הילד.
+    if (pathname === "/archive") { try { trackStreamEntry(prevPathRef.current); } catch { /* noop */ } }
+    prevPathRef.current = pathname;
     return () => clearTimeout(t);
   }, [pathname]);
   // מד-הכניסות הפנימי — אפקט נפרד על trackPath, כדי שייספר גם מעבר-בין-כלים במעבדה (שינוי ?tool=).

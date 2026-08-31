@@ -33,7 +33,7 @@ import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadg
 import { categoryLabel } from "../lib/categoryIcons.js";
 import { POST_FX } from "../lib/postFx.js";
 import { openNumberDrawer } from "../lib/numberDrawer.js";
-import { track, trackWhatsapp } from "../lib/tracking.js";
+import { track, trackWhatsapp, trackWhatsappJoin } from "../lib/tracking.js";
 import { waHref, tgHref, fbHref, canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink } from "../lib/share.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 
@@ -996,7 +996,7 @@ function AboutPage({ onNav, pageContent, adminMode }) {
 
         <div style={{ margin: "26px 0 0" }}><RoyalDivider width={120} /></div>
         <div style={{ textAlign: "center", marginTop: 22 }}>
-          <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer"
+          <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsappJoin("post")}
             style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#1faa55,#128c43)", color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 14, fontWeight: 800, padding: "12px 22px", borderRadius: 999, boxShadow: "0 0 18px rgba(31,170,85,0.4)" }}>
             💬 הצטרפו לקבוצת הגימטריה בוואטסאפ
           </a>
@@ -4525,6 +4525,24 @@ function PostPageBySlug({ onNav }) {
   const [hotWeek, setHotWeek] = useState(false);   // 🔥 חם השבוע — רק דגל (בלי לחשוף כמות צפיות)
   const contentRef = useRef(null);
   const loc = useLocation();
+
+  // 🎬 ניגון-וידאו בתוך פוסט — הנקודה הקנונית לווידאו-בגוף-פוסט (HTML גולמי, בלי רכיב-React).
+  // מאזין ב-capture ('play' לא עולה-בועות), פעם-אחת לכל אלמנט (dataset.sodPlayed) → אין ספירה
+  // כפולה, ואין ספירת render כ-play (רק אירוע play אמיתי מהנגן). VideoGallery/OrGeula מודדים
+  // בנפרד (עץ-React אחר) — אין חפיפה. event_type='play', section='video'.
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el || !post) return;
+    const onPlay = (e) => {
+      const v = e.target;
+      if (!v || v.tagName !== "VIDEO" || v.dataset.sodPlayed) return;
+      v.dataset.sodPlayed = "1";
+      const src = (v.currentSrc || v.querySelector?.("source")?.src || "").slice(0, 300);
+      try { track("video", post.slug || String(post.wp_id || post.id || ""), "play", { src, in_post: true }); } catch { /* noop */ }
+    };
+    el.addEventListener("play", onPlay, true); // capture — play אינו bubbling
+    return () => el.removeEventListener("play", onPlay, true);
+  }, [post]);
   const P = usePalette();
   // פוסט נקי (theme='auto', לא וורדפרס) = תמה-מודע, מתחלף יום/לילה עם המתג.
   // פוסט ישן (legacy-dark / source=wordpress) = נעול כהה — מכבד צבעים צרובים מ-WP.
