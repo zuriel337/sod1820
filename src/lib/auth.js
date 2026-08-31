@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { signupAttribution, visitorId } from './acquisition.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
@@ -50,9 +51,14 @@ export async function updateProfile(userId, fields) {
 
 // ── שער החידושים: אימות OTP במייל (בית המדרש) ──
 export async function requestEmailOtp(email) {
+  // WIRING: מצרפים את תצלום-הייחוס ל-user_metadata כדי ש-handle_new_user (טריגר auth signup)
+  // יוכל לשמור אותו ב-subscribers.acquisition — זה המסלול הדומיננטי (שער-האימות), שאין לו
+  // גישה ל-localStorage בצד-השרת. אם הלכידה נכשלת — ההרשמה ממשיכה כרגיל (data ריק).
+  let data = {};
+  try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    options: { shouldCreateUser: true },
+    options: { shouldCreateUser: true, data },
   });
   if (error) throw error;
   return { ok: true };

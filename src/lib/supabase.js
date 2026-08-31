@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { signupAttribution } from './acquisition.js';
 import { isAnon } from './privacy.js';
 import { isReadable } from './nameMask.js';
 import { AUTHORS } from './authors.js';
@@ -2208,14 +2209,10 @@ export async function getTrafficStats() {
 // ── Subscribers (רשימת תפוצה) ──────────────────────────────
 export async function subscribeEmail({ email, name = null, source = 'site' }) {
   if (!supabase || !email?.trim()) return { ok: false };
-  // מצרפים את פרופיל מקור-ההגעה (מגע-ראשון+אחרון) שנלכד ב-tracking.captureAcquisition.
-  // קוראים ישירות מ-localStorage (מפתחות sod_acq_*) כדי להימנע מ-import מעגלי tracking↔supabase.
+  // תצלום-ייחוס v1 (מגע-ראשון + אחרון + מגע-ההרשמה + visitor_id) — בונה קנוני אחד
+  // (lib/acquisition.js), אותו חוזה-localStorage שנלכד ב-tracking.captureAcquisition. טהור → בלי מעגל-import.
   let acquisition = null;
-  try {
-    const first = JSON.parse(localStorage.getItem('sod_acq_first') || 'null');
-    const last = JSON.parse(localStorage.getItem('sod_acq_last') || 'null') || first;
-    if (first || last) acquisition = { first, last };
-  } catch { /* noop */ }
+  try { acquisition = signupAttribution(); } catch { /* noop */ }
   const row = { email: email.trim(), name: name?.trim() || null, source };
   if (acquisition) row.acquisition = acquisition;
   const { error } = await supabase.from('subscribers').insert([row]);

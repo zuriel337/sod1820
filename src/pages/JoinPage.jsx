@@ -6,6 +6,7 @@ import { applySeo } from "../lib/seo.js";
 import { track } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { SUPABASE_URL, SUPABASE_ANON } from "../lib/supabase.js";
+import { signupAttribution, visitorId } from "../lib/acquisition.js";
 
 // 🤝 /join — דף ההצטרפות המסודר. שלושה שערים במקום אחד: הרשמה במייל · קבוצת וואטסאפ ·
 // הזמנת חברים תמורת קרדיטים (referrals + credit_ledger הקיימים). מחליף את הקישור הסתמי ל-/community.
@@ -48,7 +49,8 @@ export default function JoinPage() {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/newsletter-signup?format=json`, {
         method: "POST",
         headers: { "content-type": "application/json", apikey: SUPABASE_ANON, authorization: `Bearer ${SUPABASE_ANON}` },
-        body: JSON.stringify({ email: v, source: "join", ref, back: "/join" }),
+        // WIRING: תצלום-ייחוס (מגע-ראשון/אחרון/הרשמה) + visitor_id הקנוני → נשמר ב-subscribers.acquisition.
+        body: JSON.stringify({ email: v, source: "join", ref, back: "/join", acquisition: signupAttribution(), visitor_id: visitorId() }),
       });
       const d = await res.json().catch(() => ({ ok: false, status: "error" }));
       setSt(d.status === "new" ? "new" : d.status === "exists" ? "exists" : d.status === "invalid" ? "invalid" : d.ok ? "new" : "error");
