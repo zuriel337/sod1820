@@ -6,6 +6,7 @@ import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 const DEFAULT_LIMIT = 200;
 const DEFAULT_TOPIC_LIMIT = 12;
 const FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
+const JUDGMENT_DECISIONS = new Set(["approve", "reject", "canonicalize"]);
 
 /**
  * Read-mostly Discovery projection for Research Viewer.
@@ -83,6 +84,34 @@ export async function fetchResearchViewerDiscovery({ researchLimit = 300, topicL
  */
 export async function fetchResearchViewerGematria(text) {
   return fetchCanonicalGematriaFindings(text);
+}
+
+/**
+ * Human-Gated Judgment bridge for durable research_objects only.
+ *
+ * This does not implement Judgment semantics locally. It delegates exclusively to the
+ * existing canonical `admin_research_review` RPC, whose live contract owns the legal
+ * transitions candidate -> approved/rejected and approved -> canonical. Canonicalization
+ * remains distinct from publication; the RPC returns `published:false` and never treats
+ * Workspace membership as approval.
+ */
+export async function reviewResearchObjectFinding(
+  finding,
+  { decision, verificationState = null, acknowledgeExtractionIncomplete = false } = {},
+) {
+  if (finding?.kind !== "research-object") throw new Error("Judgment is available only for research-object findings");
+  const researchObjectId = String(finding?.identity?.sourceIdentity?.researchObjectId || "").trim();
+  if (!researchObjectId) throw new Error("Missing research_object source identity");
+  if (!JUDGMENT_DECISIONS.has(decision)) throw new Error("Invalid Judgment decision");
+
+  const { data, error } = await supabase.rpc("admin_research_review", {
+    p_id: researchObjectId,
+    p_decision: decision,
+    p_verification_state: verificationState || null,
+    p_ack_extraction_incomplete: Boolean(acknowledgeExtractionIncomplete),
+  });
+  if (error) throw error;
+  return data || null;
 }
 
 export default fetchResearchViewerDiscovery;
