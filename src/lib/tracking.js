@@ -31,9 +31,11 @@ export function track(section, slug = null, eventType = "view", meta = null) {
 
 // שיתוף — מתעד פנימית (visitor_events) עם פילוח מלא: פלטפורמה + מכשיר/OS + מקור,
 // וגם שולח המרת share ל-Meta (Pixel/CAPI). כל כפתור שיתוף באתר קורא לזה.
-export const trackShare = (platform, slug) => {
+export const trackShare = (platform, slug, extraMeta = null) => {
   const m = (() => { try { return appMeta(); } catch { return {}; } })();
-  track("share", slug, "share", { platform, ...m });
+  // extraMeta מאפשר לתעד *מה בדיוק* שותף (למשל image_url + הדף שממנו שותף) — כדי ששיתוף
+  // תמונה יזוהה גם כשאין לה מזהה-מספרי (תיקון «gallery-» ריק).
+  track("share", slug, "share", { platform, ...m, ...(extraMeta || {}) });
   try { trackConversion("share", { platform, source: m.source, device: m.device }); } catch { /* noop */ }
   // ◆ קרדיט על שיתוף למשתמש מחובר (תקרה 3/יום נאכפת בשרת; אנונימי → no-op). fire-and-forget.
   try { supabase?.rpc("award_share_credit"); } catch { /* noop */ }
