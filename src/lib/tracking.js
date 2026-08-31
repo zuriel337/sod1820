@@ -44,6 +44,21 @@ export const trackShare = (platform, slug, extraMeta = null) => {
 export const trackImageClick = (imageId, value) =>
   track("reality-stream", null, "image_click", { image_id: imageId, value });
 
+// 🧭 כניסה לזרם המציאות — «מאיפה נכנסו». נקרא מרכזית מ-App בכל כניסה ל-/archive עם הנתיב-הקודם
+// (prev) — בלי להזריק tracking ל-20 קישורים. תיוג מפורש דרך ?from=<tag> בקישור (למשל הטיקר) גובר;
+// אחרת מסווגים מהנתיב-הקודם: null=ישיר/חיצוני · '/'=דף-הבית · /number=דף-מספר · שאר=דף-פנימי.
+export function trackStreamEntry(prev = null) {
+  let explicit = null;
+  try { explicit = new URLSearchParams(window.location.search).get("from"); } catch { /* noop */ }
+  const entry_kind = explicit ? explicit
+    : (prev == null ? "direct/external"
+      : prev === "/" ? "home"
+        : prev.startsWith("/number") ? "number-page"
+          : prev.startsWith("/archive") ? "internal-archive"
+            : "internal-page");
+  track("reality-stream", null, "enter", { entry_kind, from: prev || null, explicit: !!explicit });
+}
+
 // 🤖 שימוש ב-AI — נקרא בכל כפתור/פעולה שמפעילים קריאת-AI (השוואה · נוטריקון · פסוק · פסוק-יומי ·
 // ניתוח-מחקר · מסר-מסע · מסר-עומק). מפולח לפי kind → דשבורד «שימוש ב-AI לפי כפתור».
 // where = היכן נלחץ (למשל 'research'/'number'/'journey') לפילוח נוסף.
