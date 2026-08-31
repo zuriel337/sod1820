@@ -310,6 +310,21 @@ function buildRazielPlanV0(opts: { hasSubject: boolean; hasUserRef: boolean; has
 }
 const RAZIEL_PLAN_FALLBACK = { strategy: "number", anchors_needed: [], tools_needed: ["metatron_context"], check_order: ["canonical"], plan_confidence: 0.3 };
 
+// 🚧 Raziel Advanced — closed beta (Zuriel decision, 31.8.2026). mode="advanced" stays live-deployed but
+// gated to two identified accounts while it is being calibrated; every other caller (including anonymous)
+// gets a polite "under construction" contract instead of an actual Claude call — no quota/cost spent on them.
+// Regular (non-advanced) persona="raziel" is completely unaffected — this only gates rMode===true.
+const RAZIEL_ADVANCED_ALLOWLIST = new Set([
+  "02a0d207-0136-4beb-a34d-8ff57d10cd85", // zyz997@gmail.com
+  "b6ce542a-2b07-4749-8aba-532c886f6de7", // yosiviner7@gmail.com
+]);
+const RAZIEL_ADVANCED_GATED_RESPONSE = {
+  raziel: { v: 1, agent: "raziel", context: null, greeting: null,
+    answer: "רזיאל מתקדם עדיין בבנייה ונמצא בבדיקות סגורות — לא פתוח לציבור הרחב כרגע. חוזרים בקרוב 🚧",
+    facts: [], suggested_paths: [], follow_up_question: null, continue_wa: false, under_construction: true },
+  engine: "gated", model: "none",
+};
+
 // surface_context (Number Page state the client says it's currently showing) is SESSION/SURFACE
 // context, never canonical fact — canonical facts already come from metatron_context server-side.
 // Capped + explicitly labeled so the model never confuses "what's on screen" with a verified value.
@@ -439,6 +454,13 @@ Deno.serve(async (req: Request) => {
       }
 
       const userRef = identity.startsWith("u:") ? identity.slice(2) : null;  // זיכרון = למשתמש מזוהה בלבד
+
+      // 🚧 סגור לבדיקות (closed beta) — רק mode="advanced", רק לשני החשבונות באלוולט. שאר הבקשות
+      // (כולל אנונימי) מקבלות תשובת "בבנייה" נעימה בלי לצרוך Claude/מכסה. מסלול-רזיאל הרגיל לא מושפע.
+      if (rMode && !(userRef && RAZIEL_ADVANCED_ALLOWLIST.has(userRef))) {
+        return json(RAZIEL_ADVANCED_GATED_RESPONSE);
+      }
+
       const [persona, ctx] = await Promise.all([
         fetchRazielPersona("site"),
         userRef ? fetchRazielContext(userRef, "site") : Promise.resolve(null),

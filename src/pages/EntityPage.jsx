@@ -1907,13 +1907,13 @@ export default function EntityPage({ embedPhrase } = {}) {
             surface_context = מה שהדף מציג *עכשיו* (session-context, לא עובדה קנונית — העובדות הקנוניות
             ממילא מגיעות בצד-השרת דרך metatron_context, בדיוק כמו בכל תשובת-רזיאל אחרת). */}
         {isNumber && value != null && (
-          <Acc id="raziel-advanced" icon="🔮" title="רזיאל מתקדם — מחקר עם הקשר אישי" open={open} onToggle={toggleAcc} P={P}>
+          <Acc id="raziel-advanced" icon="🔮" title="רזיאל מתקדם 🚧 (בבנייה — בבדיקות סגורות)" open={open} onToggle={toggleAcc} P={P}>
             <AskRaziel
               advanced
               surface="number_page"
               subject={term}
               title="רזיאל · מחקר מתקדם"
-              subtitle="בונה תשובה מהקשר קנוני + הקשר אישי (אם אתה מחובר) + מה שמוצג כאן בדף"
+              subtitle="🚧 בבנייה — כרגע פתוח רק לבדיקות סגורות, בקרוב לכולם"
               surfaceContext={{
                 number: value,
                 visibleFacts: [
