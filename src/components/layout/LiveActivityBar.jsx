@@ -36,7 +36,8 @@ function useLiveTicker() {
         for (const h of (hints || [])) {
           const title = stripHtml(h.name || "").trim() || (h.primary_value ? `רמז חדש מהמציאות · ${h.primary_value}` : "");
           if (!title) continue;
-          const to = h.primary_value ? `/archive?q=${h.primary_value}` : "/archive";
+          // from=ticker → מאפשר להבחין בכניסות שהגיעו מהרצועה החיה (trackStreamEntry)
+          const to = h.primary_value ? `/archive?q=${h.primary_value}&from=ticker` : "/archive?from=ticker";
           items.push({ kind: "reality", text: title.slice(0, 80), to, ts: h.stream_at || h.created_at });
         }
       } catch { /* ignore */ }
