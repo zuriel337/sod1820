@@ -642,3 +642,27 @@ Non-negotiable constraints, honored throughout: **no destructive node recreation
 
 *ONE RESEARCH OS · ONE TREE · ONE IDENTITY · MANY REPRESENTATIONS.*
 *Foundation → Projection → Experience.*
+
+---
+---
+
+# CROSS-VERIFICATION — Multilingual Identity Contract, Pre-Implementation Check
+
+**Same session, same branch. `origin/main` re-verified unchanged (`3d5bc684c7...`, 0 drift). No new audit opened — this checks the contract above, does not expand it.**
+
+**1. LIVE STATE:** No drift. `work_log_current` has no entries newer than the contract's own anchor; no parallel-agent work touching `nodes`/`word_aliases`/identity found.
+
+**2. CHALLENGE RESULTS**
+
+- **Representation Owner — FAIL (as originally proposed).** Fresh live check: `word_aliases.word_id` is `NOT NULL`, `FOREIGN KEY ... REFERENCES gematria_words(id) ON DELETE CASCADE`. The single live writer, `add_word_alias()` (SECURITY DEFINER, called from `wa-process` and client helper `addEnglishAlias()`), does `select id into v_word from gematria_words where phrase=p_phrase; if v_word is null then return null` — it **silently no-ops** for anything not already a `gematria_words` row. Its `alias_type` CHECK constraint enum also doesn't match the contract's proposed 6 categories. Verdict: structurally the **WRONG OWNER** for non-word entities, not merely inconvenient. **This affects only the EXTENSION POINT item in §B (representation layer), not any of the 5 MUST items** — none of them depend on `word_aliases`. Modified recommendation for §B, for Human-Gate: either (a) a new minimal sibling table with `word_aliases`'s proven shape but `node_id NOT NULL`, or (b) a documented `representations[]` convention inside `nodes.metadata` (zero new table) — not decided here.
+- **Identity Key / COALESCE — PASS, with one sequencing correction.** All tested scenarios (rename, Hebrew+English, two entities sharing a label, one entity with multiple labels, source-native ids, number/year, convergence) resolve safely. One real risk found: the coalesce mechanism is only safe if MUST #3 (`sync_convergence` overwrite guard) and MUST #5 (`get_or_create_entity_node` identity_key-awareness) ship **together with** #1/#2, not independently — a label overwritten before #5 lands could strand a legacy label-only lookup and mint a duplicate. (Noted, out of scope: `get_or_create_entity_node` has a pre-existing, unrelated race-condition gap — no `ON CONFLICT` — not introduced or worsened by this contract.)
+- **Universal Finding Language Ownership — PASS.** `subject.lang` stays scoped to `subject.label`, never touches `subject.key`/`identity.entityRef` — Source≠Statement≠Subject≠Display holds structurally. `verification.statement_lang` sits beside the pre-existing `claimed_expression` field it describes, introducing no new mixing beyond what the live envelope already does. No generic `lang` field was added.
+
+**3. FIVE MUSTS, RE-CONFIRMED:** #1 (identity_key + coalesce index) **CONFIRMED** · #2 (mechanical backfill) **CONFIRMED** · #3 (sync_convergence guard) **CONFIRMED**, elevated to a co-requirement of #1/#2's safety · #4 (Universal Finding fields) **CONFIRMED** · #5 (get_or_create_entity_node) **CONFIRMED**, same elevation as #3. None rejected; none modified in substance — only #3/#5's sequencing was sharpened: **ship #1, #2, #3, #5 as one atomic Human-Gate batch**, not staggered.
+
+**4. MIGRATION SAFETY:** NO NODE RECREATION: YES · NO EDGE REWIRING: YES · BACKWARD COMPATIBLE: YES. One writer not in the original crosswalk was found (`add_word_alias`/`wa-process`) — it is a `word_aliases` writer (Challenge 1 scope), not a `nodes`-identity writer, so it does not affect this verdict. A fresh repo-wide grep for additional `INSERT INTO nodes` found only already-classified `type='rule'` migration-era inserts (A1, no risk).
+
+**5. FINAL VERDICT: A — MULTILINGUAL IDENTITY FOUNDATION: CONTRACT CLOSED · READY FOR HUMAN GATE**, conditioned on shipping MUST #1/#2/#3/#5 as one atomic batch, and on the §B representation-layer EXTENSION POINT being corrected (word_aliases is not a safe drop-in owner) before anyone starts implementing it — this correction does not block Human-Gate approval of the 5 MUSTs.
+
+*ONE RESEARCH OS · ONE TREE · ONE IDENTITY · MANY REPRESENTATIONS.*
+*Foundation → Projection → Experience.*
