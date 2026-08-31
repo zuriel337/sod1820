@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { fetchResearchViewerFindings } from "../../lib/research/researchViewerProjection.js";
+import {
+  fetchResearchViewerDiscovery,
+  fetchResearchViewerGematria,
+} from "../../lib/research/researchViewerProjection.js";
 
 const NAV = [["feed", "זרם המחקר"], ["findings", "ממצאים"], ["sources", "מקורות"], ["review", "לבדיקה"]];
 const card = { background: "#fff", border: "1px solid #dfe5ec", borderRadius: 16, boxShadow: "0 5px 20px rgba(24,39,75,.05)" };
@@ -23,7 +26,7 @@ function Stat({ n, label }) {
 }
 
 function sourceLabel(finding) {
-  return finding?.source?.sourceRef || finding?.source?.corpus || "מקור לא מסומן";
+  return finding?.source?.sourceRef || finding?.source?.engine || finding?.source?.corpus || "מקור לא מסומן";
 }
 
 function verificationState(finding) {
@@ -34,6 +37,14 @@ function governanceState(finding) {
   return finding?.status ?? null;
 }
 
+function mergeFindings(base, extra) {
+  const byId = new Map();
+  for (const finding of [...(base || []), ...(extra || [])]) {
+    if (finding?.id) byId.set(finding.id, finding);
+  }
+  return [...byId.values()];
+}
+
 export default function ResearchViewerV0Page() {
   const { loading: authLoading, isAdmin } = useAuth();
   const [tab, setTab] = useState("feed");
@@ -41,6 +52,8 @@ export default function ResearchViewerV0Page() {
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [gematriaInput, setGematriaInput] = useState("");
+  const [gematriaLoading, setGematriaLoading] = useState(false);
 
   useEffect(() => {
     if (authLoading || !isAdmin) return;
@@ -49,7 +62,7 @@ export default function ResearchViewerV0Page() {
       setLoading(true);
       setError("");
       try {
-        const result = await fetchResearchViewerFindings({ limit: 300 });
+        const result = await fetchResearchViewerDiscovery({ researchLimit: 300, topicLimit: 12 });
         if (!alive) return;
         setFindings(result.findings || []);
         setSelectedId(result.findings?.[0]?.id || null);
@@ -62,6 +75,26 @@ export default function ResearchViewerV0Page() {
     return () => { alive = false; };
   }, [authLoading, isAdmin]);
 
+  const runGematria = async (event) => {
+    event?.preventDefault?.();
+    const text = gematriaInput.trim();
+    if (!text || gematriaLoading) return;
+    setGematriaLoading(true);
+    setError("");
+    try {
+      const items = await fetchResearchViewerGematria(text);
+      setFindings(current => mergeFindings(current, items));
+      if (items[0]?.id) {
+        setSelectedId(items[0].id);
+        setTab("findings");
+      }
+    } catch (e) {
+      setError(e?.message || String(e));
+    } finally {
+      setGematriaLoading(false);
+    }
+  };
+
   const selected = findings.find(f => f.id === selectedId) || findings[0] || null;
   const grouped = useMemo(() => {
     const map = new Map();
@@ -72,6 +105,12 @@ export default function ResearchViewerV0Page() {
     }
     return [...map.entries()].map(([source, items]) => ({ source, items }));
   }, [findings]);
+
+  const kindCounts = useMemo(() => findings.reduce((acc, f) => {
+    const key = f?.kind || "other";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {}), [findings]);
 
   const verificationCounts = useMemo(() => {
     const out = { match: 0, mismatch: 0, method_unknown: 0, not_tested: 0, unknown: 0 };
@@ -95,38 +134,45 @@ export default function ResearchViewerV0Page() {
 
   return <main style={page}><div style={{ maxWidth: 1440, margin: "0 auto" }}>
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 18 }}>
-      <div><div style={{ color: "#175cd3", fontSize: 12, fontWeight: 900 }}>SOD1820 · LIVE DISCOVERY PROJECTION</div><h1 style={{ margin: "4px 0", fontSize: "clamp(26px,4vw,40px)" }}>Research Viewer v0</h1><div style={{ color: "#667085" }}>Projection בלבד — מציג state שמגיע מהמקור; לא ממציא אמת, אימות או קנון.</div></div>
+      <div><div style={{ color: "#175cd3", fontSize: 12, fontWeight: 900 }}>SOD1820 · HETEROGENEOUS LIVE DISCOVERY</div><h1 style={{ margin: "4px 0", fontSize: "clamp(26px,4vw,40px)" }}>Research Viewer v0</h1><div style={{ color: "#667085" }}>מקורות שונים · מעטפת Universal Finding אחת · בלי Truth/Store מקביל.</div></div>
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{NAV.map(([k, v]) => <button key={k} onClick={() => setTab(k)} style={{ border: `1px solid ${tab === k ? "#175cd3" : "#d0d5dd"}`, background: tab === k ? "#edf4ff" : "#fff", color: tab === k ? "#175cd3" : "#344054", padding: "9px 13px", borderRadius: 10, fontWeight: 800, cursor: "pointer" }}>{v}</button>)}</nav>
     </header>
+
+    <form onSubmit={runGematria} style={{ ...card, padding: 14, display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+      <input value={gematriaInput} onChange={e => setGematriaInput(e.target.value)} placeholder="בדיקת Gematria לפי קלט חוקר…" style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid #d0d5dd", borderRadius: 10, padding: "10px 12px", fontSize: 14 }} />
+      <button type="submit" disabled={gematriaLoading || !gematriaInput.trim()} style={{ border: 0, borderRadius: 10, background: "#175cd3", color: "#fff", padding: "10px 15px", fontWeight: 900, cursor: "pointer", opacity: gematriaLoading || !gematriaInput.trim() ? .55 : 1 }}>{gematriaLoading ? "בודק במנוע…" : "חשב במנוע הקנוני"}</button>
+      <div style={{ flexBasis: "100%", color: "#667085", fontSize: 11 }}>התוצאה היא CALCULATION מהמנוע; היא לא הופכת ל־match/claim/canonical רק משום שחושבה.</div>
+    </form>
 
     {error && <div style={{ ...card, color: "#b42318", borderColor: "#f1a9a5", padding: 14, marginBottom: 14 }}>Live read failed: {error}</div>}
     {loading ? <div style={{ ...card, padding: 28, textAlign: "center", color: "#667085" }}>טוען Discovery חי…</div> : <>
       <section style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
         <Stat n={findings.length} label="Universal Findings" />
-        <Stat n={grouped.length} label="מקורות" />
-        <Stat n={verificationCounts.match} label="Verification: match" />
+        <Stat n={kindCounts["research-object"] || 0} label="Research Objects" />
+        <Stat n={kindCounts.convergence || 0} label="Convergences" />
+        <Stat n={kindCounts.gematria || 0} label="Gematria on-demand" />
         <Stat n={verificationCounts.mismatch} label="Mismatch" />
         <Stat n={review.length} label="לבדיקה" />
       </section>
 
       {tab === "feed" && <div style={{ display: "grid", gap: 12 }}>{grouped.map(group => <article key={group.source} style={{ ...card, padding: 17 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div><div style={{ color: "#667085", fontSize: 11 }}>SOURCE</div><h3 style={{ margin: "4px 0" }}>{group.source}</h3></div><Chip>{group.items.length} findings</Chip></div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{group.items.slice(0, 24).map(f => <button key={f.id} onClick={() => { setSelectedId(f.id); setTab("findings"); }} style={{ ...pill, ...tone(verificationState(f) || governanceState(f)), cursor: "pointer" }}>{verificationState(f) || "verification: unknown"} · {f.subject?.label || f.kind}</button>)}</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{group.items.slice(0, 24).map(f => <button key={f.id} onClick={() => { setSelectedId(f.id); setTab("findings"); }} style={{ ...pill, ...tone(verificationState(f) || governanceState(f)), cursor: "pointer" }}>{f.kind} · {verificationState(f) || "verification: unknown"} · {f.subject?.label || "—"}</button>)}</div>
       </article>)}</div>}
 
       {tab === "findings" && selected && <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.2fr) minmax(280px,.8fr)", gap: 14 }}>
         <section style={{ ...card, padding: 18, display: "grid", gap: 15 }}>
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}><Chip value={verificationState(selected)}>verification: {verificationState(selected) || "unknown"}</Chip><Chip value={governanceState(selected)}>governance: {governanceState(selected) || "unknown"}</Chip><Chip>access: {selected.access?.tier || "unknown"}</Chip></div>
-          <div><div style={{ color: "#667085", fontSize: 11 }}>SUBJECT</div><h2 style={{ margin: "4px 0" }}>{selected.subject?.label || "—"}</h2></div>
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}><Chip>{selected.kind}</Chip><Chip value={verificationState(selected)}>verification: {verificationState(selected) || "unknown"}</Chip><Chip value={governanceState(selected)}>governance: {governanceState(selected) || "unknown"}</Chip><Chip>access: {selected.access?.tier || "unknown"}</Chip></div>
+          <div><div style={{ color: "#667085", fontSize: 11 }}>SUBJECT</div><h2 style={{ margin: "4px 0" }}>{selected.subject?.label || "—"}</h2>{selected.subject?.value != null && <div style={{ fontSize: 30, fontWeight: 900 }}>{selected.subject.value}</div>}</div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>SOURCE / PROVENANCE</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify({ source: selected.source, identity: selected.identity, provenance: selected.provenance }, null, 2)}</pre></div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>VERIFICATION</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify(selected.verification, null, 2)}</pre></div>
         </section>
-        <aside style={{ ...card, padding: 18 }}><h3 style={{ marginTop: 0 }}>Reality Graph / Projection</h3><pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>{JSON.stringify({ entityRef: selected.identity?.entityRef, relationRef: selected.identity?.relationRef, projection: selected.projection }, null, 2)}</pre></aside>
+        <aside style={{ ...card, padding: 18 }}><h3 style={{ marginTop: 0 }}>Reality Graph / Projection</h3><pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>{JSON.stringify({ entityRef: selected.identity?.entityRef, relationRef: selected.identity?.relationRef, evidence: selected.evidence, projection: selected.projection }, null, 2)}</pre></aside>
       </div>}
 
-      {tab === "sources" && <div style={{ display: "grid", gap: 10 }}>{grouped.map(group => <div key={group.source} style={{ ...card, padding: 16 }}><b>{group.source}</b><div style={{ color: "#667085", marginTop: 6 }}>{group.items.length} Findings · source-native identity preserved</div></div>)}</div>}
+      {tab === "sources" && <div style={{ display: "grid", gap: 10 }}>{grouped.map(group => <div key={group.source} style={{ ...card, padding: 16 }}><b>{group.source}</b><div style={{ color: "#667085", marginTop: 6 }}>{group.items.length} Findings · kinds: {[...new Set(group.items.map(f => f.kind))].join(", ")} · source-native identity preserved</div></div>)}</div>}
 
-      {tab === "review" && <div style={{ display: "grid", gap: 10 }}>{review.length ? review.map(f => <button key={f.id} onClick={() => { setSelectedId(f.id); setTab("findings"); }} style={{ ...card, padding: 15, textAlign: "right", cursor: "pointer" }}><div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 7 }}><Chip value={verificationState(f)}>{verificationState(f) || "verification: unknown"}</Chip><Chip value={governanceState(f)}>{governanceState(f) || "governance: unknown"}</Chip></div><b>{f.subject?.label || f.id}</b><div style={{ color: "#667085", fontSize: 12, marginTop: 5 }}>{sourceLabel(f)}</div></button>) : <div style={{ ...card, padding: 20 }}>אין כרגע פריטים שמסווגים ל־review לפי mismatch / method_unknown / candidate.</div>}</div>}
+      {tab === "review" && <div style={{ display: "grid", gap: 10 }}>{review.length ? review.map(f => <button key={f.id} onClick={() => { setSelectedId(f.id); setTab("findings"); }} style={{ ...card, padding: 15, textAlign: "right", cursor: "pointer" }}><div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 7 }}><Chip>{f.kind}</Chip><Chip value={verificationState(f)}>{verificationState(f) || "verification: unknown"}</Chip><Chip value={governanceState(f)}>{governanceState(f) || "governance: unknown"}</Chip></div><b>{f.subject?.label || f.id}</b><div style={{ color: "#667085", fontSize: 12, marginTop: 5 }}>{sourceLabel(f)}</div></button>) : <div style={{ ...card, padding: 20 }}>אין כרגע פריטים שמסווגים ל־review לפי mismatch / method_unknown / candidate.</div>}</div>}
     </>}
   </div></main>;
 }
