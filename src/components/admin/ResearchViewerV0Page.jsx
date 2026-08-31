@@ -4,6 +4,7 @@ import { useUniversalWorkspace } from "../../lib/research/useUniversalWorkspace.
 import {
   fetchResearchViewerDiscovery,
   fetchResearchViewerGematria,
+  reviewResearchObjectFinding,
 } from "../../lib/research/researchViewerProjection.js";
 
 const NAV = [["feed", "זרם המחקר"], ["findings", "ממצאים"], ["sources", "מקורות"], ["review", "לבדיקה"]];
@@ -38,6 +39,10 @@ function governanceState(finding) {
   return finding?.status ?? null;
 }
 
+function researchObjectId(finding) {
+  return finding?.kind === "research-object" ? finding?.identity?.sourceIdentity?.researchObjectId || null : null;
+}
+
 function mergeFindings(base, extra) {
   const byId = new Map();
   for (const finding of [...(base || []), ...(extra || [])]) {
@@ -56,6 +61,20 @@ export default function ResearchViewerV0Page() {
   const [error, setError] = useState("");
   const [gematriaInput, setGematriaInput] = useState("");
   const [gematriaLoading, setGematriaLoading] = useState(false);
+  const [judgmentLoading, setJudgmentLoading] = useState(false);
+  const [judgmentMessage, setJudgmentMessage] = useState("");
+  const [allowIncompleteExtraction, setAllowIncompleteExtraction] = useState(false);
+
+  const loadDiscovery = async ({ preserveResearchObjectId = null } = {}) => {
+    const result = await fetchResearchViewerDiscovery({ researchLimit: 300, topicLimit: 12 });
+    const next = result.findings || [];
+    setFindings(next);
+    const preserved = preserveResearchObjectId
+      ? next.find(f => researchObjectId(f) === preserveResearchObjectId)
+      : null;
+    setSelectedId(preserved?.id || next[0]?.id || null);
+    return next;
+  };
 
   useEffect(() => {
     if (authLoading || !isAdmin) return;
@@ -101,6 +120,40 @@ export default function ResearchViewerV0Page() {
   const selectedInResearch = Boolean(selected?.id && workspace.cart?.some?.(entity => entity?.id === selected.id));
   const selectedSaved = Boolean(selected && workspace.isFindingSaved?.(selected));
   const selectedPinned = Boolean(selected && workspace.isFindingPinned?.(selected));
+  const selectedResearchObjectId = researchObjectId(selected);
+
+  const runJudgment = async (decision) => {
+    if (!selectedResearchObjectId || judgmentLoading) return;
+    setJudgmentLoading(true);
+    setJudgmentMessage("");
+    setError("");
+    try {
+      const result = await reviewResearchObjectFinding(selected, {
+        decision,
+        verificationState: null,
+        acknowledgeExtractionIncomplete: decision === "canonicalize" && allowIncompleteExtraction,
+      });
+      if (result?.ok === false) {
+        if (result?.error === "extraction_incomplete") {
+          setJudgmentMessage("Canonicalization נחסם: החילוץ מסומן partial. אפשר לתקן את החילוץ, או לסמן אישור מפורש להמשך עם provenance של החריגה.");
+        } else {
+          setJudgmentMessage(`Judgment לא בוצע: ${result?.error || "unknown error"}`);
+        }
+        return;
+      }
+      await loadDiscovery({ preserveResearchObjectId: selectedResearchObjectId });
+      setJudgmentMessage(decision === "approve"
+        ? "אושר למחקר. Approved ≠ Canonical."
+        : decision === "reject"
+          ? "נדחה ב־Human Gate."
+          : "קודם ל־Canonical. Canonical ≠ Published.");
+      setAllowIncompleteExtraction(false);
+    } catch (e) {
+      setError(e?.message || String(e));
+    } finally {
+      setJudgmentLoading(false);
+    }
+  };
 
   const grouped = useMemo(() => {
     const map = new Map();
@@ -118,16 +171,6 @@ export default function ResearchViewerV0Page() {
     return acc;
   }, {}), [findings]);
 
-  const verificationCounts = useMemo(() => {
-    const out = { match: 0, mismatch: 0, method_unknown: 0, not_tested: 0, unknown: 0 };
-    for (const f of findings) {
-      const v = verificationState(f);
-      if (v && Object.prototype.hasOwnProperty.call(out, v)) out[v] += 1;
-      else out.unknown += 1;
-    }
-    return out;
-  }, [findings]);
-
   const review = useMemo(() => findings.filter(f => {
     const v = verificationState(f);
     const g = governanceState(f);
@@ -140,7 +183,7 @@ export default function ResearchViewerV0Page() {
 
   return <main style={page}><div style={{ maxWidth: 1440, margin: "0 auto" }}>
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 18 }}>
-      <div><div style={{ color: "#175cd3", fontSize: 12, fontWeight: 900 }}>SOD1820 · HETEROGENEOUS LIVE DISCOVERY</div><h1 style={{ margin: "4px 0", fontSize: "clamp(26px,4vw,40px)" }}>Research Viewer v0</h1><div style={{ color: "#667085" }}>מקורות שונים · מעטפת Universal Finding אחת · Workspace אחד · בלי Truth/Store מקביל.</div></div>
+      <div><div style={{ color: "#175cd3", fontSize: 12, fontWeight: 900 }}>SOD1820 · DISCOVERY → INVESTIGATION → JUDGMENT</div><h1 style={{ margin: "4px 0", fontSize: "clamp(26px,4vw,40px)" }}>Research Viewer v0</h1><div style={{ color: "#667085" }}>מקורות שונים · Universal Finding אחד · Workspace אחד · Human Gate אחד.</div></div>
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{NAV.map(([k, v]) => <button key={k} onClick={() => setTab(k)} style={{ border: `1px solid ${tab === k ? "#175cd3" : "#d0d5dd"}`, background: tab === k ? "#edf4ff" : "#fff", color: tab === k ? "#175cd3" : "#344054", padding: "9px 13px", borderRadius: 10, fontWeight: 800, cursor: "pointer" }}>{v}</button>)}</nav>
     </header>
 
@@ -150,7 +193,7 @@ export default function ResearchViewerV0Page() {
       <div style={{ flexBasis: "100%", color: "#667085", fontSize: 11 }}>התוצאה היא CALCULATION מהמנוע; היא לא הופכת ל־match/claim/canonical רק משום שחושבה.</div>
     </form>
 
-    {error && <div style={{ ...card, color: "#b42318", borderColor: "#f1a9a5", padding: 14, marginBottom: 14 }}>Live read failed: {error}</div>}
+    {error && <div style={{ ...card, color: "#b42318", borderColor: "#f1a9a5", padding: 14, marginBottom: 14 }}>Live operation failed: {error}</div>}
     {loading ? <div style={{ ...card, padding: 28, textAlign: "center", color: "#667085" }}>טוען Discovery חי…</div> : <>
       <section style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
         <Stat n={findings.length} label="Universal Findings" />
@@ -175,6 +218,20 @@ export default function ResearchViewerV0Page() {
             <button onClick={() => workspace.pinFinding?.(selected)} style={{ ...pill, cursor: "pointer", ...tone(selectedPinned ? "approved" : null) }}>{selectedPinned ? "📌 הסר הצמדה" : "📌 הצמד"}</button>
             <span style={{ color: "#667085", fontSize: 11, alignSelf: "center" }}>Workspace membership בלבד — לא משנה Truth, Canonical או Publication.</span>
           </div>
+
+          {selected.kind === "research-object" && <div style={{ border: "1px solid #d0d5dd", borderRadius: 12, padding: 12, display: "grid", gap: 9 }}>
+            <div><b>Human Gate · Judgment</b><div style={{ color: "#667085", fontSize: 11, marginTop: 3 }}>הפעולות כאן מפעילות רק את `admin_research_review`. Approved ≠ Canonical ≠ Published.</div></div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {selected.status === "candidate" && <button onClick={() => runJudgment("approve")} disabled={judgmentLoading} style={{ ...pill, ...tone("approved"), cursor: "pointer" }}>אשר למחקר</button>}
+              {(selected.status === "candidate" || selected.status === "approved") && <button onClick={() => runJudgment("reject")} disabled={judgmentLoading} style={{ ...pill, ...tone("rejected"), cursor: "pointer" }}>דחה</button>}
+              {selected.status === "approved" && <button onClick={() => runJudgment("canonicalize")} disabled={judgmentLoading} style={{ ...pill, ...tone("canonical"), cursor: "pointer" }}>קדם ל־Canonical</button>}
+              {selected.status === "canonical" && <Chip value="canonical">Canonical · לא Published</Chip>}
+              {selected.status === "rejected" && <Chip value="rejected">Rejected</Chip>}
+            </div>
+            {selected.status === "approved" && <label style={{ display: "flex", gap: 7, alignItems: "flex-start", color: "#667085", fontSize: 11 }}><input type="checkbox" checked={allowIncompleteExtraction} onChange={e => setAllowIncompleteExtraction(e.target.checked)} />אם החילוץ מסומן partial, אני מאשר במפורש canonicalization למרות החסר; האישור יישמר ב־provenance.</label>}
+            {judgmentMessage && <div style={{ background: "#f8fafc", borderRadius: 9, padding: 9, fontSize: 12 }}>{judgmentMessage}</div>}
+          </div>}
+
           <div><div style={{ color: "#667085", fontSize: 11 }}>SUBJECT</div><h2 style={{ margin: "4px 0" }}>{selected.subject?.label || "—"}</h2>{selected.subject?.value != null && <div style={{ fontSize: 30, fontWeight: 900 }}>{selected.subject.value}</div>}</div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>SOURCE / PROVENANCE</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify({ source: selected.source, identity: selected.identity, provenance: selected.provenance }, null, 2)}</pre></div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>VERIFICATION</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify(selected.verification, null, 2)}</pre></div>
