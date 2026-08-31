@@ -1237,3 +1237,38 @@ SOD1820 נמצא-כעת בשלב שבו **השורשים והגזע** (Identity 
 **`WS-CROSS-ENGINE` FOUNDATION: `CLOSED`.** `ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) **לא-שונה** — סגירת-שער-Foundation אינה-דחיפת-עדיפות. לפי שרשרת-התלויות הקיימת (`… ← Research Intake ← One Tree/Entity Hub ← WS-CROSS-ENGINE ← Raziel`), **הצעד-הבא-בשרשרת (זיהוי-בלבד, טרם-הופעל, טרם-נבנה) הוא הפעלת `FOUNDATION EXPANSION GATE` (§23.5) על דומיין `Raziel`** — באותה-מתודולוגיה-בדיוק שהופעלה כאן ועל One Tree/Intake לפניו.
 **⛔ אין בסעיף זה אישור** ל: Cross-Research-Engine Projection/UI בפועל · Number-Page-redesign · Raziel-wiring/runtime · ingestion-המוני · פתיחת-מסלול-Foundation נוסף.
 **Provenance:** `work_log` `c27f1a57` (Gate, READ-ONLY, CLOSING VERDICT) · `1fe84e3b` (PR256_MFX3_MERGE — AFTER) · `ba6e41c5`/`360120e4` (MFX3 implementation, AFTER/BEFORE) · `7609bd3c`/`f109c820` (composite activation, merge+AFTER) · `39937421`/`ff573891` (composite lifecycle, AFTER/BEFORE) · `22e977c5` (MFX2b, READ-ONLY verdict A) · `5a1e8acf`/`5fad403d`/`4e258971` (MFX2, merge/AFTER/BEFORE) · `13cfd6f6`/`9306801a`/`8c2fd983` (MFX1b, merge/AFTER/BEFORE) · `6ada12b3`/`deb04009`/`27102a6b` (MFX1, merge/AFTER/BEFORE) · `d4502d68`/`856c194b`/`aaee10b3` (PR250 merge + design gate + roadmap drift closure). ענפים (כולם מוזגים ל-`main`): `claude/mfx1-convergence-candidate-acl` · `claude/mfx1b-composite-convergence-acl` · `claude/mfx2-dispatch-method-lifecycle` · `claude/composite-lifecycle-active-gate` · `claude/activate-meshulash-composite` · `claude/mfx3-metatron-scan-registry-driven`. Docs-reconciliation (סעיף זה + Roadmap-updates, סעיף-נוכחי): ענף `claude/ws-cross-engine-human-gate-docs-ymhvqy`.
+
+## §23.22 — RAZIEL FOUNDATION EXPANSION GATE CLOSURE + `RAZIEL_ADVANCED_NUMBER_PAGE_v0` SSOT RECONCILIATION (31.8.2026, `RAZIEL_FOUNDATION_EXPANSION_GATE_CLOSURE`, Human-Gate ZURIEL)
+
+> **מעמד:** תיעוד-SSOT **docs-only**, מבוקש-במפורש ע"י ZURIEL, המתאם שני ממצאים שכבר-נצפו/אומתו בסבבים read-only קודמים מול המסמכים הקנוניים: (א) הפעלת **`FOUNDATION EXPANSION GATE` (§23.5)** במלואה על דומיין **`Raziel`** עצמו (audit מלא-דומיין: Identity/Persona-Role/Memory/Research-Lifecycle/Tools-Engines/Provenance-Truth/Human-Gate/Permissions-Privacy-Tiers/Multilingual/Cross-domain, בנוסף ל-12 הצירים הקאנוניים של §23.5) — סוגר את «הצעד-הבא-בשרשרת = הפעלת Foundation Expansion Gate על דומיין Raziel» שנקבע ב-§23.21/Roadmap אחרי סגירת WS-CROSS-ENGINE (30.8.2026); ו-(ב) עדכון-עובדתי-מדויק, ליום-31.8.2026, של סטטוס `RAZIEL_ADVANCED_NUMBER_PAGE_v0`. **סעיף זה אינו-יוצר החלטת-ארכיטקטורה חדשה, ואינו-מאשר-המשך-Projection** — הוא מתעד מה-שכבר-נצפה-חי/הוחלט, וכותב-לראשונה ל-`work_log` את-פסיקת-ה-Gate שנצפתה בסבב-read-only-קודם (שם, במפורש, לא-נכתב-DB).
+
+### A. פסיקת-הסגירה — Raziel Foundation Expansion Gate
+**`FOUNDATION SUFFICIENT`.** כל-הצירים שנבדקו (12 הצירים הקאנוניים של §23.5 + 10 צירי-הרחבה ספציפיים-לדומיין `Raziel`: Identity · Persona/Role · Memory · Research-Lifecycle · Tools/Engines · Provenance/Truth · Human-Gate · Permissions/Privacy/Tiers · Multilingual · Cross-domain) נמצאו `SUFFICIENT`. **`MUST FOUNDATION NOW` = 0.**
+**נקודות-הרחבה שזוהו (`EXTENSION POINT` — נשמרות-כרשומות-בלבד, לא-`MUST`, לא-יושמו בסעיף-זה ולא-אושרה-בנייתן):**
+1. גישור canonical-anchors ↔ `metatron_context()`.
+2. גישור זהות Person-Foundation (`WS-PERSON`/`person_foundation_contract_law`) ↔ זהות Raziel/WA הקיימת (`resolve_person`/`identity_edges`).
+3. Seam לשוני/locale (`content_translation_law`) בתוך זרימת-Raziel.
+4. ניקוי-טקסט SYSTEM/ממשל hardcoded בפרסונת-Raziel.
+כל 4 הפריטים **נדחים-במפורש, לא-אבודים** (`NO-DISAPPEARING-WORK`) — יישארו-פתוחים-לבדיקה-מחדש בכל-סבב-Foundation-Expansion-Gate-עתידי-שנוגע-בהם. **⛔ סעיף זה אינו-מיישם אף-אחד-מהם.**
+
+### B. `RAZIEL_ADVANCED_NUMBER_PAGE_v0` — LIVE-FACT RECONCILIATION
+| שלב | PR | main SHA אחרי-מיזוג | תיאור |
+|---|---|---|---|
+| Probe ראשוני | #259 | `31e1b6367e6fb318fdc35a944231cc71f4b15959` | `persona="raziel"` אופציונלי (`body.mode==="advanced"`) ב-`ai-analyze`/`EntityPage.jsx` — הרחבה-אדיטיבית, opt-in, `verify_jwt=false` נשמר. |
+| Closed-Beta Gate | #260 | `8eecf662` (commit `4690d0a4`) | `mode=advanced` צומצם ל-allowlist מפורש של 2 חשבונות (UUID); כל-קורא-אחר (כולל-אנונימי) מקבל תגובת-שער מנומסת ("רזיאל מתקדם עדיין בבנייה ונמצא בבדיקות סגורות") עם `engine:"gated"`, ללא-קריאה-ל-Claude וללא-עלות-quota; כותרת/תת-כותרת אקורדיון ב-UI עודכנו ל-"רזיאל מתקדם 🚧 (בבנייה — בבדיקות סגורות)". |
+
+**סטטוס מדויק, נכון-ל-31.8.2026: `IMPLEMENTED` · `MERGED` · `DEPLOYED` · `LIVE` (לשני-חשבונות-ה-allowlist בלבד; לכולם-האחרים — gated no-op) · `PARTIALLY VERIFIED`.**
+**פריטי-אימות-שיוריים (נשמרים-פתוחים במפורש, לא-נסגרים-בסעיף-זה):**
+(a) אימות ויזואלי/קונסולה בדפדפן-Production לא-הושלם-עצמאית (מגבלת-sandbox/proxy-tunnel מול `sod1820.co.il`, לא-בעיית-קוד).
+(b) זרימת-Advanced מלאה תחת זהות-משתמש-מזוהה-ומורשית (בתוך ה-allowlist) לא-נבדקה-חי עם זהות-בדיקה-מורשית בפועל (אין credentials זמינים לשני-החשבונות בסבבים-שביצעו-את-המיזוג/הפריסה).
+**Provenance-drift שמור, לא-נמחק ולא-נכתב-מחדש:** מיזוג/פריסת PR #259 התקדמו על-בסיס הודעת-אישור-בתוך-הסשן ולא-אירוע-Human-Gate-מאומת-בנפרד — כבר-תועד במפורש ב-`work_log a16047ff` כ-drift-לתשומת-לב/הידוק-תהליך, **לא-כפגם-ארכיטקטוני/אמת/פרטיות שנמצא בקוד, ולא-בוצע/מומלץ Rollback**.
+
+**סעיף זה מבהיר במפורש: `RAZIEL_ADVANCED_NUMBER_PAGE_v0` הוא `EARLY PROJECTION PROBE` / `TRANSITIONAL SURFACE`. הוא אינו:** ארכיטקטורת Number-Page סופית · אישור לעיצוב-מחדש של Number-Page · אישור להמשך-Projection · הגדרת-Foundation · UX קנוני של Raziel · אישור שכבת-Experience.
+
+### C. Human-Gate
+**ZURIEL ביקש במפורש** את סבב-התיעוד-הזה (31.8.2026) כ-`docs-only reconciliation`, עם write-scope מוגדר-מראש: שני-מסמכי-ה-Master + provenance ב-`work_log` בלבד. **האישור חל אך-ורק על תיעוד-המצב-הקיים** — לא-על קוד/schema/UI/Raziel-runtime/Number-Page/Metatron/זהות/Single-Mind/3D/Experience, שנשארים-מפורשות מחוץ-להיקף.
+
+### D. שחרור-מצב ומה-הבא
+**הפרויקט נשאר `FOUNDATION-FIRST` / `BOTTOM-UP REBUILD`: `Foundation → Projection → Experience`.** קיומו-בפועל והפריסה-החיה (המוגבלת) של `RAZIEL_ADVANCED_NUMBER_PAGE_v0` **אינם** מהווים מעבר-פרויקטלי ל-"Projection" כשלב-פעיל/מאושר, ואינם-דוחפים-סדר-עדיפות. `ACTIVE_NOW` (Roadmap) **לא-שונה**.
+**⛔ אין בסעיף זה אישור** ל: המשך-Projection · חיווט-Raziel נוסף · Number-Page-redesign · יישום-4-נקודות-ההרחבה שב-`A` · ingestion/בנייה-חדשה כלשהי.
+**Provenance:** `work_log` `123a70cc` (BEFORE, docs-reconciliation זו) · `d27f8361` (PR#260 closed-beta gate, AFTER) · `a16047ff` (governance process-drift reconciliation, AFTER) · `8131fc24` (PR#259 human-gate-approved release, AFTER) · `28c467e8` (pre-release verification pass) · `d365f3b7` (implemented, not-yet-merged) · `0a34e12e` (WS-CROSS-ENGINE docs reconciliation — זיהה את Raziel Gate כצעד-הבא, READ-ONLY). ה-Foundation-Expansion-Gate-verdict-עצמו (§A למעלה) נצפה/הופק בסבב read-only נפרד קודם ולא-נכתב-אז-ל-`work_log` (לפי-הוראת-אותו-סבב) — **נכתב-לראשונה כאן** כחלק מ-provenance-הסעיף-הזה. ענף docs-reconciliation: `claude/raziel-foundation-docs-reconciliation` (בסיס `origin/main` `8eecf662`).
