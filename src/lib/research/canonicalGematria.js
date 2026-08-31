@@ -59,13 +59,18 @@ export function gematriaApiResultToFindings(apiResult, { inputText = null, creat
 
     return [makeUniversalFinding({
       kind: "gematria",
-      subject: { type: "phrase", key: normalized, label: expression, value },
+      // gematria_api only ever calculates on Hebrew text (Multilingual Identity Foundation
+      // Closure contract, Gate 6: gematria calc is structurally Hebrew-only) — subject.key
+      // already stayed source-original (normalized Hebrew) distinct from subject.label; lang
+      // is declared explicitly per contract §C rather than left implicit.
+      subject: { type: "phrase", key: normalized, label: expression, value, lang: "he" },
       source: {
         engine: "gematria",
         adapter: "gematria-api-v1",
         sourceRef: null,
         method: methodKey,
         corpus: null,
+        lang: "he",
       },
       identity: {
         sourceIdentity: { methodKey, normalizedSubject: normalized, value },
