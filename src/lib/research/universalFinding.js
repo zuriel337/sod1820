@@ -103,6 +103,10 @@ function normalizeVerification(verification) {
     claimed_value: null,
     engine_method_tested: null,
     engine_result: null,
+    // Language the claimed_expression was written in, when a claim is actually present.
+    // Scoped narrowly to verification — most Findings have no claimed expression at all,
+    // so this stays null far more often than set (contract §C).
+    statement_lang: null,
     ...v,
     verification_state: resolved,
   };
@@ -130,9 +134,16 @@ export function makeUniversalFinding(input = {}) {
       type: subject.type || "entity",
       key: subject.key ?? null,
       label: subject.label || "",
+      // REPRESENTATION axis only: the language subject.label is currently shown in.
+      // Never the identity. subject.key/identity.entityRef must stay stable across languages
+      // (Multilingual Identity Foundation Closure contract, docs/audits/SOD1820_SYSTEM_MASTER_MAP_2026-08-31.md §C).
+      lang: subject.lang ?? null,
       value: subject.value ?? null,
     },
-    source: { engine: null, adapter: "universal-finding-v1", sourceRef: null, method: null, corpus: null, ...(input.source || {}) },
+    // source.lang = language of the underlying evidence/corpus text (never changes for a given
+    // Finding regardless of display language). Distinct from subject.lang (display) and
+    // verification.statement_lang (a claimed expression's language) — see contract §C.
+    source: { engine: null, adapter: "universal-finding-v1", sourceRef: null, method: null, corpus: null, lang: null, ...(input.source || {}) },
     identity: { sourceIdentity: null, occurrence: null, entityRef: null, relationRef: null, ...identity },
     // VERIFICATION axis (Research DNA v1 §1 shape). verification_state null = honestly unknown;
     // it is NEVER read as "not_tested" — only an adapter that knows may declare that.
@@ -209,8 +220,11 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
   if (axisHit && axisTerm) {
     out.push(makeUniversalFinding({
       kind: "els",
-      subject: { type: "phrase", key: axisTerm, label: axisTerm },
-      source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null },
+      // ELS corpus is Hebrew-only (Torah/Tanakh text) — source-original and display language
+      // are the same today, declared explicitly per the Multilingual Identity Foundation
+      // Closure contract §C rather than left implicit.
+      subject: { type: "phrase", key: axisTerm, label: axisTerm, lang: "he" },
+      source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null, lang: "he" },
       identity: { sourceIdentity: axisHit.hitId, occurrence: axisHit },
       verification: {
         claimed_expression: null,
@@ -240,8 +254,8 @@ export function elsStateToUniversalFindings(engineState, options = {}) {
       const anchors = Array.from({ length }, (_, i) => ({ space: "corpus-index", i: hit.start + sign * hit.skip * i }));
       out.push(makeUniversalFinding({
         kind: "els",
-        subject: { type: "word", key: f.t, label: f.t },
-        source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null },
+        subject: { type: "word", key: f.t, label: f.t, lang: "he" },
+        source: { engine: "els", adapter: "els-state-v1", corpus, sourceRef: engineState.provenance?.source || null, lang: "he" },
         identity: { sourceIdentity: hit.hitId, occurrence: hit },
         verification: {
           claimed_expression: null,

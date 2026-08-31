@@ -83,8 +83,15 @@ export function topicConvergenceToUniversalFinding(
     status: null,
     subject: {
       type: "convergence",
+      // Already source-native (slug/nodeId/cardId), never derived from the display label —
+      // stays stable regardless of subject.lang (Multilingual Identity Foundation Closure
+      // contract §C).
       key: slug || nodeId || cardId,
       label,
+      // topic_cards.title is Hebrew-only today (single column, no lang field yet — see
+      // contract Gate 5). Declared explicitly so a future multilingual title does not
+      // silently default this to the wrong language.
+      lang: "he",
       value: null,
     },
     source: {
@@ -93,6 +100,7 @@ export function topicConvergenceToUniversalFinding(
       sourceRef,
       method: null,
       corpus: null,
+      lang: "he",
     },
     identity: {
       sourceIdentity,
