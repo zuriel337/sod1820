@@ -89,6 +89,13 @@ export const trackResearch = (action, meta = null) =>
 
 export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 
+// 🟢 לחיצה על CTA «הצטרפו לקבוצת וואטסאפ» — handler משותף אחד לכל ה-surfaces (Footer/Join/
+// UpdatesBox/פוסט). קליק=Conversion (event_type='click'), נפרד מ-view ומ-share. surface=מהיכן נלחץ.
+export const trackWhatsappJoin = (surface = null) => {
+  track("join", "whatsapp-group", "click", { surface: surface || null });
+  try { trackConversion("whatsapp_join_click", { surface: surface || null }); } catch { /* noop */ }
+};
+
 // 🔎 חיפוש-נדיר (שכבה 2) — נרשם כשחיפוש חשף התכנסות נדירה אמיתית (זהב / מד-נדירות גבוה),
 // לא סתם "כמה חיפשו". לב-המחקר: אילו חיפושים באמת מגלים משהו. surface='search', event_type='rare'.
 // meta: {source, value, score/rarity, indep, resonance…} → דשבורד «חיפושים שחשפו נדירות».

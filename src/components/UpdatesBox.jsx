@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { C, F, LOGO_URL } from "../theme.js";
 import { subscribeEmail, saveNotificationPrefs } from "../lib/supabase.js";
 import { useSubscribed } from "./SubscribeGate.jsx";
-import { getVisitorId } from "../lib/tracking.js";
+import { getVisitorId, trackWhatsappJoin } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { NOTIFICATION_TOPICS } from "../lib/notifications.js";
 import { mergeStoredTopics } from "../lib/feedRanking.js";
@@ -117,7 +117,7 @@ export default function UpdatesBox({
     </div>
   );
   const waButton = (
-    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
+    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsappJoin("updates-box")}
       style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 999, textDecoration: "none", background: "#1f8a4c", color: "#fff", fontFamily: F.heading, fontSize: 14, fontWeight: 700, boxShadow: "0 2px 10px rgba(31,138,76,0.35)" }}>
       📢 הצטרפו לעדכונים בוואטסאפ
     </a>
