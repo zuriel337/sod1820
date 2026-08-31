@@ -160,9 +160,13 @@ export async function fetchCanonicalGraphEntityFindings(nodeId, { relationLimit 
 
   const edgeRows = Array.isArray(edges) ? edges : [];
   const nodeIds = [...new Set(edgeRows.flatMap(edge => [edge.from_node, edge.to_node]).filter(Boolean).map(String))];
-  const relatedRows = nodeIds.length
-    ? (await supabase.from("nodes").select(NODE_FIELDS).in("id", nodeIds)).data || []
-    : [];
+  let relatedRows = [];
+  if (nodeIds.length) {
+    const { data, error } = await supabase.from("nodes").select(NODE_FIELDS).in("id", nodeIds);
+    if (error) throw error;
+    relatedRows = Array.isArray(data) ? data : [];
+  }
+
   const nodesById = new Map(relatedRows.map(row => [String(row.id), row]));
   nodesById.set(String(node.id), node);
 
