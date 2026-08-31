@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { track } from "../lib/tracking.js";
+import { signupAttribution, visitorId } from "../lib/acquisition.js";
 
 // ===== 🎓 משפך «שיעור 1» נודד — ניסוי המרה רב-זרועי =====
 // מוצג בתחתית כל דף פוסט (כולל פוסטי WordPress ישנים — ה-CSS חי ברכיב, לא בתוכן).
@@ -144,6 +145,9 @@ export default function LessonFunnel({ slug, content }) {
             <input type="email" name="email" required placeholder="המייל שלכם" />
             <input type="hidden" name="source" value={`gematria-lesson-1-${variant}-rnd`} />
             <input type="hidden" name="back" value={`/${slug || ""}`} />
+            {/* WIRING: תצלום-ייחוס + visitor_id הקנוני עוברים בטופס ה-POST → subscribers.acquisition */}
+            <input type="hidden" name="acquisition" value={JSON.stringify(signupAttribution())} />
+            <input type="hidden" name="visitor_id" value={visitorId() || ""} />
             <button type="submit">שלחו לי את שיעור 2 🎓</button>
           </form>
           <div className="lfx-note">⚙️ כל הערכים בשיעור אומתו במנוע · בלי ספאם — רק שיעורים.</div>

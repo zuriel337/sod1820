@@ -86,13 +86,24 @@ Deno.serve(async (req) => {
   let back = SITE + DEFAULT_BACK;
   try {
     let email = "", source = "gematria-lesson-1", ref = "";
+    // WIRING: תצלום-ייחוס (acquisition) + visitor_id הקנוני מגיעים מהלקוח (JSON body או שדה-טופס
+    // מוסתר). אובייקט או מחרוזת-JSON — שניהם נתמכים. נשמרים ב-subscribers.acquisition ומקשרים
+    // את הנרשם למסע שהוביל להרשמה. פרסינג-כשל = null (לא מפיל הרשמה).
+    let acquisition: unknown = null, visitorId = "";
+    const parseAcq = (v: unknown) => {
+      if (!v) return null;
+      if (typeof v === "object") return v;
+      try { return JSON.parse(String(v)); } catch { return null; }
+    };
     const ct = req.headers.get("content-type") || "";
     if (ct.includes("json")) {
       const j = await req.json();
       email = String(j.email || ""); source = String(j.source || source); back = safeBack(String(j.back || "")); ref = String(j.ref || "");
+      acquisition = parseAcq(j.acquisition); visitorId = String(j.visitor_id || "");
     } else {
       const fd = await req.formData();
       email = String(fd.get("email") || ""); source = String(fd.get("source") || source); back = safeBack(String(fd.get("back") || "")); ref = String(fd.get("ref") || "");
+      acquisition = parseAcq(fd.get("acquisition")); visitorId = String(fd.get("visitor_id") || "");
     }
     email = email.trim().toLowerCase();
     ref = ref.trim();
@@ -105,9 +116,21 @@ Deno.serve(async (req) => {
     const res = await fetch(`${url}/rest/v1/subscribers`, {
       method: "POST",
       headers: { apikey: key, authorization: `Bearer ${key}`, "content-type": "application/json", prefer: "return=minimal" },
-      body: JSON.stringify({ email, source: source.slice(0, 120) }),
+      // acquisition נכתב רק אם התקבל — אחרת השדה נשאר null (Rank, Don't Hide: לא ממציאים ייחוס).
+      body: JSON.stringify(acquisition ? { email, source: source.slice(0, 120), acquisition } : { email, source: source.slice(0, 120) }),
     });
     if (res.status === 201) {
+      // 🔗 קישור-מבקר בזמן-ההרשמה: אירוע 'signup' עם אותו visitor_id (service-role → עוקף RLS).
+      //    כך אפשר לשחזר Visitor→events→signup בלי להעתיק היסטוריה ל-subscriber. לא-קריטי.
+      if (visitorId) {
+        try {
+          await fetch(`${url}/rest/v1/subscribe_events`, {
+            method: "POST",
+            headers: { apikey: key, authorization: `Bearer ${key}`, "content-type": "application/json", prefer: "return=minimal" },
+            body: JSON.stringify({ visitor_id: visitorId, source: source.slice(0, 120), action: "signup", topic: "newsletter" }),
+          });
+        } catch { /* קישור לא-קריטי */ }
+      }
       // ✉️ אוטומציית מייל-פתיחה — נרשם חדש מקבל מיד את מייל-הפתיחה (לא-קריטי, לא מפיל את ההרשמה)
       try { await sendWelcome(url, key, email); } catch { /* email לא קריטי */ }
       // 🎁 זיכוי-הפניה: מזמין תקין (uuid) → +100 קרדיטים (דדופ לפי מייל-מוזמן ב-RPC)
