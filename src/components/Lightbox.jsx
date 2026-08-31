@@ -21,9 +21,18 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
   async function handleShare(image) {
     const url = image?.image_url || window.location.href;
     const title = cleanName(image?.name) || 'SOD1820';
-    const slug = `gallery-${image?.id ?? domNum(image) ?? ""}`;
+    // מזהה-שיתוף יציב: מזהה-מספרי אם יש; אחרת נגזר משם-קובץ התמונה; אחרת מהדף — לעולם לא ריק
+    // (תיקון «gallery-»). meta מתעד את ה-image_url המדויק ואת הדף שממנו שותף.
+    const page = (() => { try { return window.location.pathname.replace(/^\//, "") || "home"; } catch { return "home"; } })();
+    const fileKey = (() => {
+      const m = String(image?.image_url || "").match(/\/([^/?#]+)\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)/i);
+      return m ? m[1].slice(0, 80) : null;
+    })();
+    const slug = image?.id != null ? `gallery-${image.id}`
+      : (domNum(image) != null ? `gallery-${domNum(image)}`
+        : (fileKey ? `gallery-img-${fileKey}` : `gallery-on-${page}`));
     const via = await shareOrCopy({ title, url });   // לוגיקת-שיתוף קנונית אחת (lib/share.js)
-    trackShare(via === "native" ? "native" : "copy", slug);
+    trackShare(via === "native" ? "native" : "copy", slug, { image_url: url, page });
     if (via === "copy") { setShared(true); setTimeout(() => setShared(false), 2000); }
   }
 
