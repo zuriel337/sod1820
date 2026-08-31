@@ -17,12 +17,22 @@
 -- ⚠️ HELD — do NOT apply without ZURIEL authorization (branch/PR review first).
 
 -- ── The one canonical path: a view every share-count reader sources from ──────
+-- EXPLICIT columns (no SELECT *) — drift-safe: a future column added to visitor_events
+-- is NOT auto-exposed. Only the columns the canonical share readers need.
 create or replace view public.share_events as
-  select * from public.visitor_events
+  select id, visitor_id, section, slug, event_type, meta, created_at
+  from public.visitor_events
   where event_type = 'share' or section = 'share';
 
 comment on view public.share_events is
-  'Canonical share-event membership (event_type=''share'' OR section=''share''). Single source for all true share-count readers. Union, not rewrite: legacy channel rows and out-of-section Dim5 share rows are included as-is.';
+  'Canonical share-event membership (event_type=''share'' OR section=''share''). Single source for all true share-count readers. Explicit columns (no SELECT *). Union, not rewrite: legacy channel rows and out-of-section Dim5 share rows are included as-is. SERVER/INTERNAL-ONLY: no anon/authenticated access — consumed only by SECURITY DEFINER readers running as owner.';
+
+-- 🔒 Privacy: server/internal-only. Strip any Supabase default-privilege grant so the
+-- raw share rows are NOT client-readable. The SECURITY DEFINER readers run as the view
+-- owner and keep access; no client role can SELECT it. (RLS on visitor_events untouched.)
+revoke all on public.share_events from public;
+revoke all on public.share_events from anon;
+revoke all on public.share_events from authenticated;
 
 -- ── community_share_count — baseline 7326 KEPT AS-IS (legacy_baseline_provenance_unknown),
 --    tracked count re-sourced from the canonical predicate. 7326 + 334 = 7660 at authoring time.
