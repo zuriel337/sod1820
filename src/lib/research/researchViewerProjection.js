@@ -1,16 +1,18 @@
 import { supabase } from "../supabase.js";
 import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
+import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
+import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 
 const DEFAULT_LIMIT = 200;
+const DEFAULT_TOPIC_LIMIT = 12;
 const FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
 
 /**
  * Read-mostly Discovery projection for Research Viewer.
  *
- * This function owns NO truth and NO storage. It only reads durable research_objects
- * and projects them through the canonical researchObject -> Universal Finding adapter.
- * It deliberately does not use calibration source refs, does not promote anything,
- * and does not infer stage/verification/publication state.
+ * This module owns NO truth and NO storage. Every source remains source-native and is
+ * immediately projected through its canonical Universal Finding adapter. It never
+ * creates research_objects, graph nodes, publication state, or a parallel workspace.
  */
 export async function fetchResearchViewerFindings({ limit = DEFAULT_LIMIT, sourceRef = null, status = null } = {}) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_LIMIT, 1000));
@@ -33,4 +35,54 @@ export async function fetchResearchViewerFindings({ limit = DEFAULT_LIMIT, sourc
   };
 }
 
-export default fetchResearchViewerFindings;
+/**
+ * Recent approved Topic/Convergence sources. The list query discovers source-native
+ * slugs only; each item is then fetched through the canonical Topic/Convergence adapter
+ * so the Viewer never reconstructs graph truth itself.
+ */
+export async function fetchResearchViewerConvergences({ limit = DEFAULT_TOPIC_LIMIT } = {}) {
+  const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_TOPIC_LIMIT, 50));
+  const { data, error } = await supabase
+    .from("topic_cards")
+    .select("slug,approved_at,created_at")
+    .eq("status", "approved")
+    .not("slug", "is", null)
+    .order("approved_at", { ascending: false, nullsFirst: false })
+    .limit(safeLimit);
+
+  if (error) throw error;
+
+  const slugs = [...new Set((data || []).map(row => String(row?.slug || "").trim()).filter(Boolean))];
+  const findings = await Promise.all(slugs.map(slug => fetchCanonicalTopicConvergenceFinding(slug)));
+  return findings.filter(Boolean);
+}
+
+/**
+ * One heterogeneous read-only Discovery load. Research Objects and Convergences keep
+ * their distinct source identities while sharing the Universal Finding envelope.
+ */
+export async function fetchResearchViewerDiscovery({ researchLimit = 300, topicLimit = DEFAULT_TOPIC_LIMIT } = {}) {
+  const [research, convergences] = await Promise.all([
+    fetchResearchViewerFindings({ limit: researchLimit }),
+    fetchResearchViewerConvergences({ limit: topicLimit }),
+  ]);
+
+  return {
+    findings: [...research.findings, ...convergences],
+    sources: {
+      researchObjects: research.findings.length,
+      convergences: convergences.length,
+    },
+  };
+}
+
+/**
+ * Gematria is request-scoped rather than a passive feed. Explicit researcher input is
+ * sent only to the canonical gematria_api path via its existing adapter. Returned values
+ * are calculations; verification remains `not_tested` unless a real claim was supplied.
+ */
+export async function fetchResearchViewerGematria(text) {
+  return fetchCanonicalGematriaFindings(text);
+}
+
+export default fetchResearchViewerDiscovery;
