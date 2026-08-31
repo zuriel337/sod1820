@@ -1,21 +1,15 @@
 import { supabase } from "./supabase.js";
 import { trackConversion } from "./marketing.js";
 import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events)
+import { getVisitorId } from "./visitorId.js"; // ONE TREE: בעלים יחיד ל-sod_vid (לא יוצרים כאן)
 
 // ===== אנליטיקה פנימית — מעקב מדורים ופעולות =====
 // כל גולש = visitor_id אנונימי ב-localStorage (לא PII).
 // שולח ל-visitor_events ב-Supabase. debounce על view כדי לא לספור scroll.
 
-const KEY = "sod_vid";
-
-export function getVisitorId() {
-  let vid = localStorage.getItem(KEY);
-  if (!vid) {
-    vid = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36);
-    localStorage.setItem(KEY, vid);
-  }
-  return vid;
-}
+// getVisitorId מיוצא-מחדש מהפרימיטיב הקנוני (src/lib/visitorId.js) — צריכה, לא בעלות.
+// כל הקוראים הקיימים (import { getVisitorId } from "./tracking.js") ממשיכים לעבוד ללא שינוי.
+export { getVisitorId };
 
 const pending = new Map(); // debounce per section key
 
