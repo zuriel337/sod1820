@@ -1,5 +1,6 @@
 import { supabase } from "../supabase.js";
 import { makeUniversalFinding } from "./universalFinding.js";
+import { normalizeForCalc } from "../gematria.js";
 
 // Canonical Gematria → Universal Finding adapter.
 // This module never calculates Gematria locally. It accepts only the live canonical
@@ -24,16 +25,36 @@ import { makeUniversalFinding } from "./universalFinding.js";
 // If a caller genuinely HAS a claim to test (a post asserting "אהרן = 256", a contributor's
 // stated value), it should pass claimed_expression/claimed_method/claimed_value together with a
 // real match/mismatch/method_unknown state — that is what this envelope exists to carry.
+//
+// ── LIVE CONTRACT ALIGNMENT (31.8.2026, NUMBER/GEMATRIA ADAPTER FOUNDATION MUST-NOW fix) ──────
+// The shape assumed above (`apiResult.methods` as an ARRAY of {key,value}, plus a top-level
+// `apiResult.normalized` string) never matched the live `gematria_api(p_text)` RPC, verified
+// directly against the canonical Supabase project (linswmnnkjxvweumprav) this session:
+//   { input, value, methods: { ragil, miluy, misratar, kadmi, gadol, siduri, atbash, albam,
+//     kadmi_gadol }, distance_from_1820 }
+// `methods` is an OBJECT keyed by the same technical `db_column` identities already registered
+// in `gematria_methods` (verified: ragil/miluy/misratar/kadmi/gadol/siduri/atbash/albam/
+// kadmi_gadol all match live `db_column` values — no identity is invented here). There is no
+// `normalized` field anywhere in the live response — the API only echoes `input` back verbatim
+// (`coalesce(p_text, '')`, not normalized).
+// Fix: read `methods` as a map (Object.entries — every key the engine actually returned is
+// projected, nothing hardcoded), and derive the subject's normalized identity key with
+// `normalizeForCalc()` (src/lib/gematria.js) — the existing, parity-tested JS mirror of the
+// live `fn_normalize_for_calc` SQL function the engine itself applies before every *_calc call.
+// This is text canonicalization only (whitespace/niqqud/punctuation), never a computed Gematria
+// value, so it does not violate "no local Gematria calculation" — it reuses an already-verified
+// mirror of the engine's own normalization step instead of inventing a new one.
 export function gematriaApiResultToFindings(apiResult, { inputText = null, createdAt = null } = {}) {
-  if (!apiResult || !Array.isArray(apiResult.methods)) return [];
-  const normalized = String(apiResult.normalized || "").trim();
-  const expression = String(inputText ?? apiResult.text ?? "").trim();
-  if (!normalized || !expression) return [];
+  if (!apiResult || typeof apiResult.methods !== "object" || apiResult.methods === null || Array.isArray(apiResult.methods)) return [];
+  const expression = String(inputText ?? apiResult.input ?? "").trim();
+  if (!expression) return [];
+  const normalized = normalizeForCalc(expression);
+  if (!normalized) return [];
 
   const at = createdAt || new Date().toISOString();
-  return apiResult.methods.flatMap((method) => {
-    const methodKey = String(method?.key || "").trim();
-    const value = Number(method?.value);
+  return Object.entries(apiResult.methods).flatMap(([rawKey, rawValue]) => {
+    const methodKey = String(rawKey || "").trim();
+    const value = Number(rawValue);
     if (!methodKey || !Number.isFinite(value)) return [];
 
     return [makeUniversalFinding({
