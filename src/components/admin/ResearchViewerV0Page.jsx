@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { useUniversalWorkspace } from "../../lib/research/useUniversalWorkspace.js";
 import {
   fetchResearchViewerDiscovery,
   fetchResearchViewerGematria,
@@ -47,6 +48,7 @@ function mergeFindings(base, extra) {
 
 export default function ResearchViewerV0Page() {
   const { loading: authLoading, isAdmin } = useAuth();
+  const workspace = useUniversalWorkspace();
   const [tab, setTab] = useState("feed");
   const [findings, setFindings] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -96,6 +98,10 @@ export default function ResearchViewerV0Page() {
   };
 
   const selected = findings.find(f => f.id === selectedId) || findings[0] || null;
+  const selectedInResearch = Boolean(selected?.id && workspace.cart?.some?.(entity => entity?.id === selected.id));
+  const selectedSaved = Boolean(selected && workspace.isFindingSaved?.(selected));
+  const selectedPinned = Boolean(selected && workspace.isFindingPinned?.(selected));
+
   const grouped = useMemo(() => {
     const map = new Map();
     for (const f of findings) {
@@ -134,7 +140,7 @@ export default function ResearchViewerV0Page() {
 
   return <main style={page}><div style={{ maxWidth: 1440, margin: "0 auto" }}>
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 18 }}>
-      <div><div style={{ color: "#175cd3", fontSize: 12, fontWeight: 900 }}>SOD1820 · HETEROGENEOUS LIVE DISCOVERY</div><h1 style={{ margin: "4px 0", fontSize: "clamp(26px,4vw,40px)" }}>Research Viewer v0</h1><div style={{ color: "#667085" }}>מקורות שונים · מעטפת Universal Finding אחת · בלי Truth/Store מקביל.</div></div>
+      <div><div style={{ color: "#175cd3", fontSize: 12, fontWeight: 900 }}>SOD1820 · HETEROGENEOUS LIVE DISCOVERY</div><h1 style={{ margin: "4px 0", fontSize: "clamp(26px,4vw,40px)" }}>Research Viewer v0</h1><div style={{ color: "#667085" }}>מקורות שונים · מעטפת Universal Finding אחת · Workspace אחד · בלי Truth/Store מקביל.</div></div>
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{NAV.map(([k, v]) => <button key={k} onClick={() => setTab(k)} style={{ border: `1px solid ${tab === k ? "#175cd3" : "#d0d5dd"}`, background: tab === k ? "#edf4ff" : "#fff", color: tab === k ? "#175cd3" : "#344054", padding: "9px 13px", borderRadius: 10, fontWeight: 800, cursor: "pointer" }}>{v}</button>)}</nav>
     </header>
 
@@ -151,8 +157,8 @@ export default function ResearchViewerV0Page() {
         <Stat n={kindCounts["research-object"] || 0} label="Research Objects" />
         <Stat n={kindCounts.convergence || 0} label="Convergences" />
         <Stat n={kindCounts.gematria || 0} label="Gematria on-demand" />
-        <Stat n={verificationCounts.mismatch} label="Mismatch" />
-        <Stat n={review.length} label="לבדיקה" />
+        <Stat n={workspace.findings?.length || 0} label="במחקר הפעיל" />
+        <Stat n={workspace.pinnedFindings?.length || 0} label="מוצמדים" />
       </section>
 
       {tab === "feed" && <div style={{ display: "grid", gap: 12 }}>{grouped.map(group => <article key={group.source} style={{ ...card, padding: 17 }}>
@@ -163,6 +169,12 @@ export default function ResearchViewerV0Page() {
       {tab === "findings" && selected && <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.2fr) minmax(280px,.8fr)", gap: 14 }}>
         <section style={{ ...card, padding: 18, display: "grid", gap: 15 }}>
           <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}><Chip>{selected.kind}</Chip><Chip value={verificationState(selected)}>verification: {verificationState(selected) || "unknown"}</Chip><Chip value={governanceState(selected)}>governance: {governanceState(selected) || "unknown"}</Chip><Chip>access: {selected.access?.tier || "unknown"}</Chip></div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: 12, background: "#f8fafc", borderRadius: 12 }}>
+            <button onClick={() => workspace.upsertFinding?.(selected)} disabled={selectedInResearch} style={{ ...pill, cursor: selectedInResearch ? "default" : "pointer", opacity: selectedInResearch ? .65 : 1 }}>{selectedInResearch ? "✓ במחקר הפעיל" : "+ הוסף למחקר"}</button>
+            <button onClick={() => workspace.saveFinding?.(selected)} disabled={selectedSaved} style={{ ...pill, cursor: selectedSaved ? "default" : "pointer", opacity: selectedSaved ? .65 : 1 }}>{selectedSaved ? "✓ שמור" : "שמור"}</button>
+            <button onClick={() => workspace.pinFinding?.(selected)} style={{ ...pill, cursor: "pointer", ...tone(selectedPinned ? "approved" : null) }}>{selectedPinned ? "📌 הסר הצמדה" : "📌 הצמד"}</button>
+            <span style={{ color: "#667085", fontSize: 11, alignSelf: "center" }}>Workspace membership בלבד — לא משנה Truth, Canonical או Publication.</span>
+          </div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>SUBJECT</div><h2 style={{ margin: "4px 0" }}>{selected.subject?.label || "—"}</h2>{selected.subject?.value != null && <div style={{ fontSize: 30, fontWeight: 900 }}>{selected.subject.value}</div>}</div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>SOURCE / PROVENANCE</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify({ source: selected.source, identity: selected.identity, provenance: selected.provenance }, null, 2)}</pre></div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>VERIFICATION</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify(selected.verification, null, 2)}</pre></div>

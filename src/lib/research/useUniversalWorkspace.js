@@ -4,17 +4,22 @@ import { universalFindingToResearchEntity, isUniversalFinding } from "./universa
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 
 // Thin adapter over the EXISTING canonical ResearchProvider.
-// No second store/context. Universal Findings live in the same cart/pin/history/cloud path
+// No second store/context. Universal Findings live in the same cart/save/pin/history/cloud path
 // as every other research entity and retain their full envelope as metadata.
 // Ported verbatim from gpt/research-workspace-v1 (d267e1ac), Pass 1 research_bus_reconciliation.
 export function useUniversalWorkspace() {
   const research = useResearch();
   const cart = Array.isArray(research.cart) ? research.cart : [];
+  const saved = Array.isArray(research.saved) ? research.saved : [];
   const pinned = Array.isArray(research.pinned) ? research.pinned : [];
 
   const findings = useMemo(
     () => cart.map((e) => e?.finding).filter(isUniversalFinding),
     [cart]
+  );
+  const savedFindings = useMemo(
+    () => saved.map((e) => e?.finding).filter(isUniversalFinding),
+    [saved]
   );
   const pinnedFindings = useMemo(
     () => pinned.map((e) => e?.finding).filter(isUniversalFinding),
@@ -57,12 +62,26 @@ export function useUniversalWorkspace() {
     research.removeFromResearch?.(id);
   }, [research.removeFromResearch]);
 
+  const saveFinding = useCallback((finding) => {
+    const entity = universalFindingToResearchEntity(finding);
+    if (!entity) return false;
+    // Save is personal Workspace membership only. It does NOT change the Finding envelope,
+    // research_objects governance, Graph canonicality or publication/access state.
+    research.saveItem?.(entity);
+    return true;
+  }, [research.saveItem]);
+
   const pinFinding = useCallback((finding) => {
     const entity = universalFindingToResearchEntity(finding);
     if (!entity) return false;
     research.togglePin?.(entity);
     return true;
   }, [research.togglePin]);
+
+  const isFindingSaved = useCallback((findingOrId) => {
+    const id = typeof findingOrId === "string" ? findingOrId : findingOrId?.id;
+    return Boolean(id && saved.some((entity) => entity?.id === id));
+  }, [saved]);
 
   const isFindingPinned = useCallback((findingOrId) => {
     const id = typeof findingOrId === "string" ? findingOrId : findingOrId?.id;
@@ -72,12 +91,15 @@ export function useUniversalWorkspace() {
   return {
     ...research,
     findings,
+    savedFindings,
     pinnedFindings,
     upsertFinding,
     upsertFindings,
     researchCanonicalGematria,
     dismissFinding,
+    saveFinding,
     pinFinding,
+    isFindingSaved,
     isFindingPinned,
   };
 }
