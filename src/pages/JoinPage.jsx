@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
-import { track } from "../lib/tracking.js";
+import { track, trackWhatsappJoin } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { SUPABASE_URL, SUPABASE_ANON } from "../lib/supabase.js";
 import { signupAttribution, visitorId } from "../lib/acquisition.js";
@@ -104,7 +104,7 @@ export default function JoinPage() {
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7, marginBottom: 14 }}>
             הצטרפו לקבוצת הגימטריה בוואטסאפ — רמזים חמים, דיונים, וחברי קהילה מכל הארץ.
           </div>
-          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsappJoin("join")}
             style={{ display: "inline-flex", alignItems: "center", gap: 9, background: "#25D366", color: "#083b1a", fontFamily: F.heading, fontSize: 15.5, fontWeight: 800, textDecoration: "none", borderRadius: 999, padding: "13px 28px" }}>
             💬 הצטרפו לקבוצה ←
           </a>

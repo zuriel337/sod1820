@@ -28,7 +28,10 @@ export default function ShareActions({ type = "page", url, title = "", image = n
   const text = title || (typeof document !== "undefined" ? document.title : "SOD1820");
   const canNative = canNativeShare();
 
-  const logShare = useCallback((channel) => { try { track("share", String(type), channel, { url: fullUrl, image: image || undefined }); } catch { /* noop */ } }, [type, fullUrl, image]);
+  // חוזה-שיתוף קנוני: event_type='share' + הערוץ ב-meta.platform (זהה ל-trackShare ולדשבורד
+  // האדמין). לפני-כן נרשם event_type=<channel> → לא נספר במונה השיתופים. אירועים היסטוריים
+  // (event_type=whatsapp/copy/…) נשארים בטבלה וניתנים לספירה דרך section='share'.
+  const logShare = useCallback((channel) => { try { track("share", String(type), "share", { platform: channel, url: fullUrl, image: image || undefined }); } catch { /* noop */ } }, [type, fullUrl, image]);
 
   const native = useCallback(async () => { logShare("native"); await nativeShare({ title: text, url: taggedShareUrl(fullUrl, "native") }); }, [text, fullUrl, logShare]);
 

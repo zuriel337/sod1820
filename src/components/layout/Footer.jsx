@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { trackWhatsappJoin } from "../../lib/tracking.js";
 import ForumActivityDot from "../ForumActivityDot.jsx";
 import { F, LOGO_URL } from "../../theme.js";
 import { useThemeMode } from "../../lib/themeMode.js";
@@ -225,7 +226,7 @@ export default function Footer() {
 
           {/* וואטסאפ — קבוצה (צ'יפ קומפקטי ואחיד) */}
           <div style={{ marginTop: 12 }}>
-            <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer"
+            <a href="https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsappJoin("footer")}
               style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "linear-gradient(135deg,#1faa55,#128c43)",
                 color: "#fff", textDecoration: "none", fontFamily: F.heading, fontSize: 10.5, fontWeight: 700,
                 padding: "5px 11px", borderRadius: 999, boxShadow: "0 0 8px rgba(31,170,85,0.25)" }}>
