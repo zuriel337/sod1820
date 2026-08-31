@@ -490,3 +490,155 @@ Index C covers `entity` (710 rows), `convergence` (219), `event` (120), `year` (
 
 *ONE RESEARCH OS · ONE TREE · ONE IDENTITY · MANY LANGUAGES · MANY REPRESENTATIONS.*
 *Foundation → Projection → Experience.*
+
+---
+---
+
+# CONTRACT — MULTILINGUAL IDENTITY FOUNDATION CLOSURE
+
+**Status: CONTRACT ONLY. NOT IMPLEMENTED.** Same session, same branch, `origin/main` re-verified unchanged at `3d5bc684c7...`. No schema write, no migration, no DB mutation, no branch/PR/merge beyond this document. Assembled from 3 parallel live research passes (full `nodes.type` enumeration with per-type sampling; writer/resolver crosswalk with exact SQL quoted; individual entity-table identity audit), then designed here.
+
+## Reframing that simplifies the whole problem
+
+**`nodes.id` (the UUID primary key) is already a stable, language-independent identity. It never needs to change, and no edge ever needs rewiring.** The actual defect is narrower than "nodes have no identity" — it is that the **write-time dedup key** (the thing `get_or_create_entity_node` and the live unique index `nodes_identity_canonical_uidx` use to decide "does a node for this real-world thing already exist") is `(type, label)` for every type except `image`/`rule`, and `label` is Hebrew display text. This reframing matters because it means the fix is **purely additive** — a new, optional dedup key, not a redesign of the graph's actual identity system.
+
+## A. CANONICAL IDENTITY MATRIX
+
+31 live `nodes.type` values, 5,955 total rows (live enumeration this pass). Grouped by what already exists, not assumed uniform.
+
+### A1 — Already correct (proven patterns, no fix needed)
+
+| Type | Rows | Current dedup key | Identity class |
+|---|---|---|---|
+| `image` | 2029 | `metadata->>'gallery_image_id'` | SOURCE-NATIVE IDENTITY |
+| `rule` | 294 | `(rule_id, rule_version)` | VERSIONED IDENTITY |
+| `spatial_model` | 6 | `slug` + `research_refs[].research_object_id`, with `version`/`version_history`/`canonical_source_status` | SOURCE-NATIVE IDENTITY, **most mature pattern in the graph — a third proven exemplar alongside image/rule, built 3 days before the identity migration and not previously surfaced** |
+| `music_reference` | 7 | `metadata->>'url'` (external, globally unique) | SOURCE-NATIVE IDENTITY |
+| `contribution` | 24 | `metadata->>'contribution_id'` (100% resolve to `research_contributions.id`) | SOURCE-NATIVE IDENTITY |
+| `bot_settings` (5), `bot_behavior` (1) | 6 | `slug`/`sender` (internal machine keys) | SOURCE-NATIVE IDENTITY — config nodes, not content |
+
+### A2 — Has a real anchor already, just not used as the dedup key (cheapest fix — mechanical backfill, no ambiguity)
+
+| Type | Rows | Existing anchor found | Identity class (target) |
+|---|---|---|---|
+| `convergence` | 219 | `topic_cards.node_id` — 100% round-trip confirmed live on sample | SOURCE-NATIVE IDENTITY via `topic_cards.id` |
+| `post` | 306 | `metadata->>'post_wp_id'` — 305/306 (1 gap to check) | SOURCE-NATIVE IDENTITY via `posts.wp_id` |
+| `event` | 120 | `metadata->>'post_wp_id'` — 113/120 (auto-generated from posts); rest need `occurred_at`/`year` as fallback | SOURCE-NATIVE IDENTITY (derived from originating post), **TEMPORAL IDENTITY** as secondary facet where no post origin exists |
+| `entity` | 710 | **505 of 710 (71%) already reachable via `gematria_words.node_id`** (reverse FK, confirmed live — nobody had wired this into the dedup key) | **DERIVED-COMPOSITE IDENTITY** for the 505 anchored rows; the remaining ~205 hand-curated Kabbalah-seed rows need a newly-assigned key (see A3) |
+| `word` | 6 | Text-identical to `gematria_words.phrase` rows but **zero currently wired** (same mechanism as entity's 505, unused) | DERIVED-COMPOSITE IDENTITY via `gematria_words.id`, once wired |
+| `phrase` | 14 | Same situation as `word` | DERIVED-COMPOSITE IDENTITY via `gematria_words.id`, once wired |
+| `language_bridge` | 13 | `metadata->>'link_id'` → `language_links` row | SOURCE-NATIVE IDENTITY — **this type is itself the multilingual-representation layer, see note below** |
+
+### A3 — No anchor exists; needs a human-assigned key (real, but small, and the mechanism is the same for all of them)
+
+| Type | Rows | Note |
+|---|---|---|
+| `entity` (unanchored subset) | ~205 | Hand-curated Kabbalah concepts (e.g. "כתר", "מלכות") — no external source table to anchor to. Needs a human/admin-assigned stable key at write time going forward; existing rows can keep label-fallback dedup until migrated (see §E) |
+| `theme` | 10 | `slug` = label re-typed, same problem as `topic_cards`. **Also: `entity_structure_law` already gives "aboutness" its own axis (`tags`/`topic_cards`) — worth a Human-Gate question of whether `theme` nodes should exist at all, before designing their identity** |
+| `els` | 6 | Label encodes `<phrase>-<value>`, likely derivable from `els_records.id` — not cross-checked this pass, flagged for verification before wiring |
+| `concept` | 6 | Heterogeneous, tiny; one row already informally uses `metadata.lang='en'` — informal precedent, not a convention to build on as-is |
+| `feature` | 8 | Internal site-nav manifest (site "what's new" entries) — `metadata->>'link'` (an internal route) is already a natural, language-neutral key |
+
+### A4 — Language-neutral by nature (no identity fix needed, only a hygiene note)
+
+| Type | Rows | Reasoning |
+|---|---|---|
+| `number` | 2122 | A number displays identically in Hebrew and English ("1820" = "1820"). **2 mistyped rows found** (`research_contribution`-tagged content living under `type='number'`) — a data-quality issue, not an identity-design issue. Hygiene recommendation (LATER): key off parsed `metadata.value` int, not the raw label string, for robustness — not urgent |
+| `year` | 12 | Same as `number` — the year integer is inherently language-neutral | 
+| `number_match` | 1 | Same value-identity shape as `number`, singleton |
+
+### A5 — Internal/engineering nodes, likely out of translation scope entirely (needs one Human-Gate exclusion decision, same shape as the existing `image`/`rule` exclusion)
+
+`spec` (10), `roadmap` (6), `system` (1), `system_map` (1), `system_prompt` (1), `doc` (1) — 20 rows total. None of these are user-facing content under `content_translation_law`'s named scope ("פוסט·סרטון·תמלול·צופן·רמז·כותרת·תיאור"). Recommend explicitly excluding them from the multilingual identity contract (add to the excluded-types list alongside `image`/`rule`) rather than silently including or silently forgetting them.
+
+### A6 — Singletons needing source-table verification before generalizing (defer, LATER)
+
+`insight` (1), `interpretation` (1), `hint` (1) — each looks like a possibly-orphaned single mirror of an otherwise-populated table (`insights` has 315 rows per the base audit; this node type has 1). Do not design an identity policy from a sample of one — verify against the real source table first, in a future pass.
+
+## B. REPRESENTATION CONTRACT
+
+**Principle, following the existing ONE SYSTEM LAW: extend `word_aliases`, do not build a second alias table.**
+
+`word_aliases` already has almost exactly the right shape (confirmed live: `word_id, node_id, alias, alias_norm, lang, alias_type, is_primary, source, method, confidence, verified, layer`; 7 live rows, `alias_type` already using `translation`/`english`). Its only structural defect is that `node_id` is NULL on every row — it has only ever been wired to `gematria_words.word_id`.
+
+**Proposed representation contract (design only):**
+
+1. **`nodes.label` remains the source-original representation** — the text in the language the entity was first authored in (almost always Hebrew today). It is never overwritten by a translation; only edited when correcting the *source-language* text itself (see the `sync_convergence` guard in §D/§F).
+2. **Every other representation is a row in `word_aliases`, keyed by `node_id`** (not just `word_id` — the table's scope needs to broaden conceptually to "representations of any node," which requires confirming `word_id`'s nullability before final implementation; flagged as a verification step, not assumed here).
+3. **`alias_type` formalized to exactly the six kinds named in the request**, as a documented enum (not a new column, reusing the existing text field with a check constraint): `canonical` (source-original, mirrors `nodes.label`, `is_primary=true`) · `localized_label` (a full replacement label in another language, meant for display as if it were the primary label in that language) · `translation` (a faithful rendering of meaning) · `transliteration` (phonetic, explicitly "not a translation" — already the exact framing `src/lib/translit.js` uses) · `historical_spelling` (an older/variant spelling in the *same* language) · `alias` (an informal synonym/nickname, any language).
+4. **Do not assume these are interchangeable** — a caller asking "what should I display in English" wants `localized_label` or `translation` with `lang='en'` and `is_primary=true`; a caller asking "how would this be typed in Latin letters" wants `transliteration`; a caller doing gematria wants only `nodes.label` (the canonical Hebrew), never a representation row (matches Gate 6's finding that this separation is already correctly enforced at the calculation layer — this contract does not touch that).
+5. **`language_bridge`/`foreign_word` (26 live rows) are not a pattern to extend — they are the problem, already happening in miniature** (e.g. a `type='foreign_word'` node `label='conversation'` alongside a separate `type='entity'` node `label='שיחה'`, linked only by matching arrow-notation text). Once `word_aliases.node_id` is wired, these 26 rows should be migrated into representation rows of their Hebrew counterpart node and the `foreign_word`/`language_bridge` node types retired for *new* writes (EXTENSION POINT NOW — cleanup, not urgent, small volume).
+
+## C. UNIVERSAL FINDING LANGUAGE CONTRACT
+
+**Not one generic `lang` field — four distinct concerns, three of them get a home on the envelope, one deliberately does not.**
+
+| Concern | Question it answers | Owner (proposed) | Why here, not elsewhere |
+|---|---|---|---|
+| **Stable subject identity** | "Is this the same subject regardless of display language?" | `identity.entityRef` (already exists — `node:<id>`/`edge:<id>` — use it whenever a graph node exists) → falls back to `subject.key` **derived from the source-original text specifically**, never from whatever language is being displayed | This is the actual fix for the `universalFindingId()` hashing bug found in the multilingual addendum — today `subject.key` is often literally set equal to `subject.label` (Hebrew text) in 2 of 3 live producers; the fix is a discipline change in the 3 producer call sites (`canonicalGematria.js`, `topicConvergence.js`, ELS adapter), not a new field |
+| **Source language** | "What language was the underlying evidence/corpus text in?" | **New: `source.lang`** | Belongs next to `source.sourceRef`/`corpus` — describes the evidence, never changes for a given Finding regardless of how it's later displayed |
+| **Statement/claimed-expression language** | "What language was a *claimed* expression in, before engine-testing?" | **New: `verification.statement_lang`**, only meaningful when `verification.claimed_expression` is set | Scoped narrowly to verification, not global — most Findings (e.g. pure engine output) have no claimed expression at all, so this field is absent far more often than present |
+| **Representation/display language** | "What language is `subject.label` currently showing?" | **New: `subject.lang`**, paired with the existing `subject.label` | Fixes the conflation directly — `subject.label` becomes explicitly "the label as shown, in `subject.lang`," while `subject.key`/`identity.entityRef` stay language-invariant |
+| **Request/render language** | "What language did the viewer ask for / should the UI render in?" | **Deliberately NOT stored on the Finding envelope at all** — passed as a separate runtime parameter to consumers (e.g. a `displayLang` prop on `FindingSurface.jsx`) | This is ephemeral, per-viewer, and not a property of the finding's truth; storing it on the envelope would make `universalFindingId()` (which the code hashes from stored fields) vary per viewer — exactly the identity-break risk this whole contract exists to prevent |
+
+**Explicit verification against the current code** (per the request's requirement to check `subject.key`, `subject.label`, `identity.sourceIdentity`, `identity.entityRef`, `source.sourceRef`): all 5 fields already exist in `src/lib/research/universalFinding.js`'s `makeUniversalFinding()`. None currently carry a language marker. `identity.entityRef` is already the right field to own stable identity when a node exists — it does not need a new field, only consistent population. `source.sourceRef` is unrelated to language (it's a pointer into the origin system) and needs no change.
+
+## D. WRITER/RESOLVER CROSSWALK
+
+Full detail gathered live (exact SQL/code quoted); summarized here as the migration-relevant surface:
+
+| Producer | Assumes label=identity? | Fix needed |
+|---|---|---|
+| `get_or_create_entity_node(text,text,jsonb)` — SQL: `select id into v from nodes where type=p_type and label=p_label` | **YES — the one true dedup point** | Change to prefer a new optional `identity_key` parameter/column when present, fall back to label match only when absent |
+| `upsert_edge(uuid,uuid,text,jsonb)` | No (matches on node ids only) | None |
+| `graph_wire_all()` / `graph_wire_number(int)` | No for entity/event linking (matches by numeric `metadata->>'value'`); numbers use label but numbers are language-neutral (A4) | None urgent |
+| `sync_convergence(uuid)` (`topic_cards` → `nodes(type='convergence')`) | **Matching: NO** (already keyed on `topic_cards.node_id`, the correct FK pattern) — **but the update branch does an unconditional `set label=c.title`** | **Small, standalone fix, worth doing immediately regardless of the broader migration**: guard the overwrite so a non-source-language title write creates/updates a representation row instead of clobbering `nodes.label` |
+| ELS-matrix convergence resolvers (2 migration-era functions) | No — keyed on `topic_cards.slug` | None |
+| `toSlug()` (`src/lib/format.js`), `els_slugify()` (SQL), `posts.slug` generator (`PostEditorPage.jsx`) | **YES, all 3, independently** — Hebrew passes straight through with no transliteration in every case | Needs one converged policy (§E, Human-Gate decision, not decided here) |
+| Read-only consumers (`fn_composite_convergence_candidate`, `fn_number_dossier`, `fn_generate_convergence_candidates`, `content_big_numbers`, `fn_metatron_gaps`, `convergence_meter`) | Read by label/value, not writers | Must be updated in lockstep once the dedup key changes, but carry no independent duplication risk themselves |
+| Live cron `graph-wire-daily` (03:30 daily) | Drives `graph_wire_all()` | No change needed — the function it calls is already safe (A4) |
+
+**One-off, non-live scripts** (`scripts/entities-import*.sql/.mjs`, `scripts/add_entity_pipeline.sql`) likely also assume `(type,label)` but are not cron/trigger-wired — flagged for the eventual migration executor, not a live risk today.
+
+## E. COMPATIBILITY / MIGRATION PLAN (design only — nothing below is executed by this contract)
+
+Non-negotiable constraints, honored throughout: **no destructive node recreation, no edge rewiring, no historical provenance loss.** `nodes.id` never changes at any phase — every phase is purely additive.
+
+1. **Add one new nullable column**, e.g. `nodes.identity_key text` (a dedicated indexed column recommended over a `metadata` jsonb key, for correctness/performance — implementation detail, not decided here). Zero effect on existing rows until populated.
+2. **Mechanical backfill** for rows with an already-existing anchor — zero ambiguity, no human judgment needed: `entity` (505 via `gematria_words.node_id`), `word`/`phrase` (20, same mechanism), `convergence` (219 via `topic_cards.node_id`), `post`/`event` (≈426 via `post_wp_id`). This alone closes the large majority of the ambiguous population.
+3. **Human-Gate assigns `identity_key`** for the remaining unanchored rows (~205 `entity` + small A3 types) — at whatever pace is convenient; rows without a key simply keep today's label-based fallback in the interim (see step 4), so nothing is blocked waiting on this.
+4. **Change the unique index to a coalescing form**: `UNIQUE (type, coalesce(identity_key, label))` — rows *with* a key dedupe safely across languages; rows *without* one keep exactly today's behavior. **This is the one schema change in the whole plan, and it is backward-compatible by construction** (every existing row either has a key now and dedupes correctly, or has no key and behaves identically to today).
+5. **Update `get_or_create_entity_node`** to accept an optional source-native reference and resolve/insert against `identity_key` when supplied, falling back to label exactly as today otherwise.
+6. **Guard `sync_convergence`'s label overwrite** (§D) — small, independent, safe to do first if desired.
+7. **Wire `word_aliases.node_id`** (§B) — becomes straightforward once step 2's backfill exists, since the same `gematria_words.node_id` reverse-FK that seeds `identity_key` also seeds this.
+8. **Slug/URL policy** — present, don't decide here, two real options for Human-Gate: (a) Hebrew slugs stay permanent canonical URLs forever (zero SEO/link disruption, English content displays at the same URL), or (b) new content moves to `identity_key`/id-based canonical URLs with the Hebrew slug preserved as a legacy alias. Either is compatible with this contract; neither requires touching `nodes.id` or edges.
+9. **Migrate the 26 `language_bridge`/`foreign_word` rows** into representation rows once step 7 is live (cleanup, not urgent).
+
+## F. CLASSIFICATION
+
+**MUST FOUNDATION NOW** (5 items — the smallest correct scope; none require new schema philosophy, all are additive):
+1. Add `nodes.identity_key` (nullable) + change `nodes_identity_canonical_uidx` to `UNIQUE(type, coalesce(identity_key,label))`.
+2. Mechanical backfill of `identity_key` for the ≈970 rows with an already-existing anchor (entity/word/phrase via `gematria_words`, convergence via `topic_cards`, post/event via `post_wp_id`).
+3. Guard `sync_convergence`'s unconditional `label` overwrite — independently valuable even before the rest lands, since it's a live small-scale data-loss risk today.
+4. Universal Finding: add `subject.lang`, `source.lang`, `verification.statement_lang`; fix the 3 live producers so `subject.key`/`identity.entityRef` are derived from source-original identity, never from the currently-displayed language.
+5. Update `get_or_create_entity_node` to prefer `identity_key` over label when present.
+
+**EXTENSION POINT NOW** (seam decided, implementation can wait): wire `word_aliases.node_id` as the canonical representation table + formalize the 6-kind `alias_type` enum; Human-Gate decision on slug/URL policy; Human-Gate decision on excluding the 20 internal/engineering node types (A5); Human-Gate decision on whether `theme` nodes should exist at all; verify `els`/singleton types (A3/A6) against their source tables; migrate the 26 `language_bridge`/`foreign_word` rows.
+
+**LATER:** actually populating representations at scale; `number`/`year` hygiene (key off parsed value, not label string); anything touching display/UX/RTL (already covered as safe-and-deferrable in the prior addendum).
+
+## G. FINAL VERDICT
+
+**MULTILINGUAL IDENTITY FOUNDATION: SUFFICIENT FOR IMPLEMENTATION** — as a contract. The design closes every gap the prior audit identified without requiring a second identity migration for any of the future-capability scenarios it must survive:
+
+- **Hebrew + English, or a third/fourth language:** handled uniformly — more `word_aliases` rows with a different `lang`, same `node_id`. No new mechanism per language.
+- **Renaming a Hebrew label:** `nodes.id`/`identity_key` never change; renaming is an edit to the source-original representation (or, if the rename is really a correction in the same language, a plain `label` update) — no graph reference breaks.
+- **Multiple valid translations:** multiple `word_aliases` rows, same `(node_id, lang)`, `is_primary` flag picks the default.
+- **Transliteration vs. translation vs. historical spelling:** three distinct `alias_type` values, never conflated (matches Gate 6's finding that gematria/translation/transliteration are already correctly separated at the calculation layer — this contract extends the same discipline to the identity layer).
+- **Two genuinely different entities sharing a display name:** exactly why identity must not be label-derived — with `identity_key` as the dedup target, two same-labeled-but-unrelated real things get different keys (or no key, correctly falling back to today's label-based behavior, which already treats them as distinct since their `metadata` differs) — never silently merged.
+- **One entity, multiple names:** the representation table's entire purpose — many `word_aliases` rows, one `node_id`.
+
+**Smallest implementation scope for Human-Gate approval** (the 5 MUST FOUNDATION NOW items in §F): add one nullable column + one index change on `nodes`; a mechanical, zero-ambiguity backfill touching no existing data semantics; one small guard on `sync_convergence`; three new optional fields on the Universal Finding envelope plus a producer-side discipline fix (no schema change there — it's a JS/TS object shape); one small change to `get_or_create_entity_node`'s matching logic. **Nothing in this scope deletes, renames, or moves any existing node, edge, or id.**
+
+*ONE RESEARCH OS · ONE TREE · ONE IDENTITY · MANY REPRESENTATIONS.*
+*Foundation → Projection → Experience.*
