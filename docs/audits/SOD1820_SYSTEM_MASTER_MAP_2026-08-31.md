@@ -666,3 +666,53 @@ Non-negotiable constraints, honored throughout: **no destructive node recreation
 
 *ONE RESEARCH OS · ONE TREE · ONE IDENTITY · MANY REPRESENTATIONS.*
 *Foundation → Projection → Experience.*
+
+---
+---
+
+# IMPLEMENTED — Multilingual Identity Foundation Closure (MUST #1–#5)
+
+**Human-Gate APPROVED, implemented same session.** Branch `claude/multilingual-identity-foundation-impl` (fresh off `origin/main` at `3d5bc684c7...`, pushed to origin, commit `201dadf2`). **NOT MERGED to `main`. NOT deployed.** DB migrations are live immediately (per this project's own convention — data/schema changes are independent of app deploy); the Universal Finding JS changes exist only on the unmerged branch.
+
+**Preflight (read-only, before any write):** 4 collision checks — gematria_words/topic_cards multi-pointer, duplicate `post_wp_id` within a node type, full dry-run of the proposed `coalesce(identity_key,label)` key across all 3632 in-scope rows. **0 collisions found in every check.**
+
+**Files:**
+- `supabase/migrations/20260831150000_multilingual_identity_foundation_closure.sql` — MUST #1 (`nodes.identity_key` + coalescing unique index), #2 (mechanical backfill), #3 (`sync_convergence` guard), #5 (`get_or_create_entity_node`, first pass).
+- `supabase/migrations/20260831150500_fix_get_or_create_entity_node_overload.sql` — a same-session correction, caught by this implementation's own verification step: `CREATE OR REPLACE FUNCTION` with an added positional parameter creates a **second overload** in Postgres rather than replacing the function — existing 3-arg callers would have kept hitting the old, identity_key-unaware code path forever. Fixed to a signature-stable design that reads `meta->>'identity_key'` instead of a new parameter — zero signature change, exactly one function.
+- `src/lib/research/universalFinding.js`, `src/lib/research/canonicalGematria.js`, `src/lib/research/topicConvergence.js` — MUST #4.
+
+**5 MUST implementation crosswalk:**
+
+| MUST | Implementation | DB verification |
+|---|---|---|
+| #1 identity_key + coalesce index | `alter table nodes add column identity_key text` (nullable); `nodes_identity_canonical_uidx` → `UNIQUE(type, coalesce(identity_key,label))` | Index live, confirmed via `pg_indexes`; rows without `identity_key` behave byte-identical to before (unchanged label-based dedup) |
+| #2 mechanical backfill | From `gematria_words.node_id`, `topic_cards.node_id`, `nodes.metadata->>'post_wp_id'` — anchors only, zero speculative assignment | 1133 rows backfilled: 505 `gw:`, 210 `tc:`, 418 `wp:` — matches the pre-migration anchor counts exactly (505/210) |
+| #3 sync_convergence guard | Update branch skips `label`/`description` overwrite when incoming `topic_cards.title` contains no Hebrew character (`~ '[א-ת]'`); edges/metadata/is_active/weight/hebrew_date still sync unconditionally | Live rollback-wrapped test: non-Hebrew title → label unchanged; Hebrew title → resync works identically to before |
+| #4 Universal Finding fields | `subject.lang`, `source.lang`, `verification.statement_lang` added (3 distinct fields, no generic `lang`); all 3 producers declare `lang:"he"` explicitly | 641 offline test checks pass (30+20+17+574, 0 failures); empirical id-stability check below |
+| #5 get_or_create_entity_node | Reads optional `meta->>'identity_key'`; prefers it over label match; opportunistic backfill when a label-matched row has no key yet; correctly refuses to merge when a different anchor already owns that label | Live rollback-wrapped test: English-representation label + same identity_key → same node, 0 new rows; different identity_key + same label → distinct node |
+
+**Live DB verification evidence** (rollback-wrapped where mutating — nothing persisted; confirmed by re-querying immediately after):
+1. Same Hebrew label → same node UUID. ✓
+2. English-representation label (`identity_key` unchanged) → **same node id, node count unchanged (5955 before/after)** — no second canonical node minted. ✓
+3. Different `identity_key` sharing the same display label → **genuinely distinct node id** — not silently merged. ✓
+4. `sync_convergence` with a non-Hebrew title → node `label` **unchanged**; with the original Hebrew title → resync **still works identically** to the pre-migration function. ✓
+5. `gematria_words.node_id`, `topic_cards.node_id`, `edges` counts **identical before and after the whole implementation** (505 / 210 / 5137). ✓
+6. Universal Finding `id` empirically confirmed **stable across `subject.label`/`subject.lang`** for the same `subject.key` (`uf1:gematria:%D7%90%D7%94%D7%A8%D7%9F:` identical for a Hebrew-display and an English-display Finding of the same subject). ✓
+
+**Tests/build:** `universal-finding-truth-contract` 30/30 · `topic-convergence-universal-finding` 20/20 · `canonical-gematria-live-shape` 17/17 · `normalize-parity` 574/574 — **641/641, 0 failures**. `npm run build` succeeded (23.47s; only pre-existing >500kB chunk-size warnings, unrelated).
+
+**Parallel-agent drift check (before write):** `origin/main` unchanged at `3d5bc684` throughout; `get_or_create_entity_node`/`sync_convergence` bodies re-pulled live and confirmed byte-identical to what the contract was based on; one unrelated new branch appeared (`claude/fix-image-share-tracking`, does not touch `nodes`/identity); no parallel `work_log` entries in this scope. No drift affecting the contract.
+
+**`work_log`:** BEFORE and AFTER entries written (`actor=CLAUDE task=MULTILINGUAL_IDENTITY_FOUNDATION_IMPLEMENTATION`).
+
+**Remaining EXTENSION POINT, explicitly NOT implemented here:** the Representation Owner correction (§ Cross-Verification, Challenge 1 — `word_aliases` is structurally the wrong owner for general entity representations). No new representation table or `nodes.metadata` convention was created. This must be closed with a separate Human-Gate decision **before** any English content/representation population begins — it does not block anything implemented in this pass.
+
+**STATE (kept separate, never collapsed):**
+- **IMPLEMENTED:** yes
+- **MERGED:** no
+- **DEPLOYED:** no (DB migration is live immediately per project convention; app code is not deployed to production)
+- **LIVE:** DB side yes (identity_key/index/functions are live in `linswmnnkjxvweumprav` now); app side no (Universal Finding JS changes only exist on the unmerged branch)
+- **VERIFIED:** yes — live evidence above, all rollback-wrapped mutations confirmed not to have persisted
+
+*ONE RESEARCH OS · ONE TREE · ONE IDENTITY · MANY REPRESENTATIONS.*
+*Foundation → Projection → Experience.*
