@@ -1884,7 +1884,10 @@ function PopularityTab() {
             rows.filter(r => r.event_type === "image_click").forEach(r => { const v = r.meta?.value; if (v) imgCnt[v] = (imgCnt[v] || 0) + 1; });
             setTopImgs(Object.entries(imgCnt).sort((a,b)=>b[1]-a[1]).slice(0, 10));
             // WhatsApp
-            const waRows = rows.filter(r => r.event_type === "share" && r.meta?.platform === "whatsapp");
+            // חוזה-שיתוף קנוני: אירוע-שיתוף = event_type='share' OR section='share'. ערוץ-WhatsApp
+            // מנורמל — קנוני: meta.platform='whatsapp' · legacy: event_type='whatsapp' (שורות ShareActions ישנות).
+            const isShareEvt = r => r.event_type === "share" || r.section === "share";
+            const waRows = rows.filter(r => isShareEvt(r) && (r.meta?.platform === "whatsapp" || r.event_type === "whatsapp"));
             setTopWa(agg(waRows, "slug").slice(0, 8));
             // גולשים ייחודיים
             setUniq(new Set(rows.map(r => r.visitor_id)).size);
