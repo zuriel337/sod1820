@@ -287,6 +287,48 @@ function metatronFactsBlock(ctx: any): string {
   return ("\n\nהקשר נוסף מהעץ-האחד (מטטרון — עובדות מאומתות, השתמש כתמיכה בלבד, הפרד עובדה מרמז):\n" + parts.join("\n")).slice(0, 1400);
 }
 
+// ===== 🧭 Raziel Advanced — Number Page projection (RAZIEL_ADVANCED_NUMBER_PAGE_v0) =====
+// Opt-in extension of the existing persona="raziel" trunk (no parallel brain/engine/table).
+// Activated ONLY when body.mode==="advanced" — every existing persona="raziel" caller (RazielChat,
+// AskRaziel on other pages, wa-raziel-style callers) is byte-for-byte unaffected because they never
+// send mode/surface/surface_context. Additive only.
+
+// Research Plan v0 — deterministic, in-memory, zero DB writes (research_plans stays untouched/unused).
+// Pure function; wrapped in try/catch at the call site so a thrown error still yields a safe Number fallback.
+function buildRazielPlanV0(opts: { hasSubject: boolean; hasUserRef: boolean; hasPath: boolean }): Record<string, unknown> {
+  const { hasSubject, hasUserRef, hasPath } = opts;
+  const anchors_needed = hasSubject ? ["number"] : [];
+  const tools_needed = ["metatron_context"];
+  if (hasUserRef) tools_needed.push("fn_raziel_context");
+  const check_order = hasUserRef ? ["canonical", "personal", "surface"] : ["canonical", "surface"];
+  let strategy = "number";
+  if (hasUserRef && hasSubject) strategy = "personal+number";
+  else if (hasUserRef) strategy = "personal";
+  else if (hasPath) strategy = "discovery";
+  const plan_confidence = hasSubject ? (hasUserRef ? 0.85 : 0.7) : 0.35;
+  return { strategy, anchors_needed, tools_needed, check_order, plan_confidence };
+}
+const RAZIEL_PLAN_FALLBACK = { strategy: "number", anchors_needed: [], tools_needed: ["metatron_context"], check_order: ["canonical"], plan_confidence: 0.3 };
+
+// surface_context (Number Page state the client says it's currently showing) is SESSION/SURFACE
+// context, never canonical fact — canonical facts already come from metatron_context server-side.
+// Capped + explicitly labeled so the model never confuses "what's on screen" with a verified value.
+function razielSurfaceContextText(sc: any): string {
+  if (!sc || typeof sc !== "object") return "";
+  const parts: string[] = [];
+  const num = sc.number;
+  if (num != null && (typeof num === "number" || /^\d{1,6}$/.test(String(num)))) parts.push(`מספר מוצג בדף: ${num}`);
+  const arr = (v: any, label: string) => {
+    const a = Array.isArray(v) ? v.filter((x) => typeof x === "string" && x.trim()).slice(0, 8) : [];
+    if (a.length) parts.push(`${label}: ${a.map((x) => x.slice(0, 80)).join(" · ")}`);
+  };
+  arr(sc.visible_facts, "עובדות מוצגות כרגע בדף");
+  arr(sc.visible_matches, "התאמות מוצגות כרגע בדף");
+  arr(sc.visible_convergences, "התכנסויות מוצגות כרגע בדף");
+  if (!parts.length) return "";
+  return ("\n\nהקשר-משטח (מה שהמשתמש רואה עכשיו בדף המספר — רקע-מסך בלבד, לא עובדה קנונית ולא תחליף למטטרון):\n" + parts.join("\n")).slice(0, 900);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
@@ -359,6 +401,11 @@ Deno.serve(async (req: Request) => {
       const rPath = String(body?.path || "").slice(0, 40);
       const rCtxHint = String(body?.context || "").slice(0, 600);
       const rAgain = !!body?.again;
+      // 🧭 Advanced-mode gate — opt-in only (RAZIEL_ADVANCED_NUMBER_PAGE_v0). Absent/false → every line
+      // below this block behaves exactly as before (rMode false ⇒ no plan, no surface block, kind="raziel").
+      const rMode = String(body?.mode || "").toLowerCase() === "advanced";
+      const rSurface = String(body?.surface || "").slice(0, 40);
+      const rSurfaceCtx = rMode && body?.surface_context && typeof body.surface_context === "object" ? body.surface_context : null;
       if (!rSubject && !rFacts) return json({ analysis: null, error: "empty" });
 
       // 🧠 5B — deterministic-first (מאחורי flag; test-visitor בלבד עד אישור rollout). fail-open מלא.
@@ -409,10 +456,20 @@ Deno.serve(async (req: Request) => {
         if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
 
+      // 🧭 Research Plan v0 (advanced-only, deterministic, zero DB writes) — FAIL-OPEN: any throw
+      // falls back to a plain Number-strategy plan rather than blocking the response.
+      let rPlan: Record<string, unknown> | null = null;
+      if (rMode) {
+        try { rPlan = buildRazielPlanV0({ hasSubject: !!rSubject, hasUserRef: !!userRef, hasPath: !!rPath }); }
+        catch { rPlan = RAZIEL_PLAN_FALLBACK; }
+      }
+      const surfaceText = rMode ? razielSurfaceContextText(rSurfaceCtx) : "";
+
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
         (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
         rzMtxFacts +
+        surfaceText +
         (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
         (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
@@ -421,7 +478,12 @@ Deno.serve(async (req: Request) => {
 
       const out = await runClaude(MODEL, user, 1600, rzSys);
       if (out.error) return json({ analysis: null, engine: "claude", model: MODEL, error: out.error, detail: out.detail });
-      await logTokens("raziel", MODEL, out.usage, identity);
+      // 📊 Telemetry — Advanced Raziel is distinguishable from the baseline "raziel" kind (and from
+      // generic AI Analysis, logged under kind="number"/etc. elsewhere) using the existing ai_token_log
+      // primitive only — no new analytics table. A path/again request on an advanced call is logged as
+      // a distinct "…_followup" kind so a deeper-research action can be told apart from the first ask.
+      const rzKind = rMode ? (rPath || rAgain ? `raziel_advanced_followup:${rSurface || "number_page"}` : `raziel_advanced:${rSurface || "number_page"}`) : "raziel";
+      await logTokens(rzKind, MODEL, out.usage, identity);
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
       if (userRef && rSubject) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }
 
@@ -429,6 +491,13 @@ Deno.serve(async (req: Request) => {
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
         if (contract.continue_wa == null) contract.continue_wa = true;
+        // Advanced-only additive fields — never present on the baseline persona="raziel" response,
+        // so existing consumers (which don't read them) are unaffected. Debug/telemetry only; the
+        // truth law still holds — plan/context_sources describe HOW the answer was built, not facts.
+        if (rMode) {
+          contract.plan = rPlan;
+          contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
+        }
         return json({ raziel: contract, engine: "claude", model: MODEL, context_version: rzMtxVersion });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
