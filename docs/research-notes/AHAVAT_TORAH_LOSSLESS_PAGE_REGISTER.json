@@ -155,6 +155,170 @@
       "visual_verification_status": "VISUALLY_VERIFIED",
       "research_extraction_status": "PARTIAL",
       "confidence": "VISUALLY_VERIFIED"
+    },
+    {
+      "pdf_page": 6,
+      "printed_page": 1,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "יתברך היוצר וישתבח הבורא אשר נתן לי לדעת",
+      "closing_anchor": "בפ' יתרו ל\"ג...",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS -- dense homiletic/halachic prose paraphrased faithfully with every number, verse citation, and parasha-value transcribed verbatim; not a word-for-word original-Hebrew transcription of every sentence",
+      "content_blocks": [
+        {"block_id": "opening_declaration", "source_ref": "book:hebrewbooks:5635#p6:opening_declaration", "text_note": "Author's opening declaration: cites the Rambam (Hil. Tefillin) that tefillin contain 21 Divine-Name mentions (114+7); cites Megaleh Amukot (Parashat Behar, in the name of the Zohar) that 'all reckonings are nothing except the reckoning of the Name of Hashem'; states this inspired him to count how many times שם יהו\"ה appears in the whole Torah"},
+        {"block_id": "tetragrammaton_total_claim", "source_ref": "book:hebrewbooks:5635#p6:tetragrammaton_total_claim", "text_he_partial": "מן בראשית עד לעיני כל ישראל כי שמונה מאות ועשרים פעמים נזכר שם ידו\"ד יתברך שמו", "text_note": "the headline 1,820 claim, with a gematria/verse mnemonic offered: 1 Chron. 12:33's phrasing about 20,800 warriors of Efraim is proposed as a memory-peg for the total, by splitting the verse's 20,000+800 into a hint at the count (Aleph=1000, ele[f] structure) -- this is the author's own stated mnemonic device, transcribed as an author-claim, not adopted as fact"},
+        {"block_id": "per_parasha_tetragrammaton_table", "source_ref": "book:hebrewbooks:5635#p6:per_parasha_tetragrammaton_table", "table": true, "text_note": "Full per-parasha Tetragrammaton-occurrence list, all 5 books, first time captured at this granularity in this dossier (DS-01 previously had book-subtotals only). RAW VALUES AS PRINTED, some digit-uncertain (marked): Bereshit: בראשית=36(ל\"ו), נח=14(י\"ד), לך=30(ל'), וירא=26(כ\"ו), חיי שרה=UNCERTAIN(\"י\"מ\", glyph ambiguous, candidate 50 or misread), תולדות=14(י\"ד), ויצא=13(י\"ג), וישלח=1, וישב=11(י\"א), מקץ=0, ויגש=0, ויחי=1. Book total (printed) = 165 (קס\"ה) -- MATCHES DS-01 exactly. Shemot: שמות=?(ל\"ג, cut off at column start, candidate value), משפטים=47(מ\"ז), תרומה=1, תצוה=23(כ\"ג), כי תשא=53(נ\"ג), ויקהל=16(ט\"ז), פקודי=27(כ\"ז); book total printed = 398 (שצ\"ח) -- MATCHES DS-01. Vayikra: ויקרא=?(נ\"מ, candidate 90), צו=43(מ\"ג), שמיני=?(כ\"מ, candidate 60), תזריע=3(ג'), מצורע=46(מ\"ו), אחרי=28(כ\"ח), קדושים=27(כ\"ז), אמור=76(ע\"ו), בהר=8(ח'), בחוקותי=22(כ\"ב); book total printed = 311 (שי\"א) -- MATCHES DS-01. Bamidbar: במדבר=?(ב\"ה, candidate 7 or digit-uncertain), נשא=36(ל\"ו), בהעלותך=71(ע\"א), שלח=53(נ\"ג), קרח=48(מ\"ח), חקת=23(כ\"ג), בלק=33(ל\"ג), פנחס=41(מ\"א), מטות=48(מ\"ח), מסעי=18(י\"ח); book total printed = 396 (שצ\"ו) -- MATCHES DS-01. Devarim: דברים=48(מ\"ח), ואתחנן=88(פ\"ח), עקב=93(צ\"ג), ראה=85(פ\"ה), שופטים=55(נ\"ה), תצא=30(ל'), תבא=74(ע\"ד), נצבים=34(ל\"ד), וילך=?(י\"ם, candidate 15 or 50), האזינו=9(ט'), וזאת הברכה=46(מ\"ו); book total printed = 550 (תק\"ן) -- MATCHES DS-01."},
+        {"block_id": "tetragrammaton_grand_total_restated", "source_ref": "book:hebrewbooks:5635#p6:tetragrammaton_grand_total_restated", "text_he": "נמצא בספר בראשית קס\"ה פעמים. בספר שמות שצ\"ח פעמים. בספר ויקרא שי\"א. בספר במדבר שצ\"ו פעמים. בספר דברים תק\"ן פעמים ובכל התורה אלף שמונה מאות ועשרים פעמים שם ידו\"ד יתברך שמו", "text_note": "explicit restatement/summary of all 5 book totals + grand total 1,820 -- CLOSES DS-01's book-subtotal arithmetic exactly: 165+398+311+396+550=1820"}
+      ],
+      "tables": [{"table_id": "per_parasha_tetragrammaton", "ref": "book:hebrewbooks:5635#p6:per_parasha_tetragrammaton_table", "rows": 54, "note": "one row per parasha across 5 books, see content_blocks entry for full values"}],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "רמב\"ם הל' תפלין"},
+        {"cite": "מגלה עמוקות, פרשת בהר, בשם הזוהר"},
+        {"cite": "דברי הימים א' י\"ב:ל\"ג"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-01"],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p6:per_parasha_tetragrammaton_table", "issue": "several individual parasha cells have uncertain digit glyphs (Chayei Sara, Shemot's opening value cut at column break, Vayikra, Shmini, Bamidbar, Vayelech) -- book-level totals all confirmed exact against DS-01, but full per-parasha closure was not attempted this pass (would require a dedicated high-zoom re-read akin to the DS-02 letter-table work); flagged, not forced"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUBSTANTIAL",
+      "confidence": "VISUALLY_VERIFIED (structure, book totals); SOURCE_LOCATED (several per-parasha cells)",
+      "gpt_research_flags": [
+        {"flag_id": "GRF-01", "page": 6, "block_ref": "book:hebrewbooks:5635#p6:per_parasha_tetragrammaton_table", "raw_source_anchor": "per-parasha Tetragrammaton list, p.6", "reason": "This is the first time DS-01's per-parasha breakdown has been captured at all (previously only book subtotals were verified). This may be relevant to any cross-dataset convergence work on the 1,820 figure. No interpretation offered."}
+      ]
+    },
+    {
+      "pdf_page": 7,
+      "printed_page": 2,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "ואמרו חז\"ל על בהבראם שבאות ה' נברא העולם",
+      "closing_anchor": "יעקב רחל ולאה דברו בתורה אלף התת\"ך תיבות...",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "beha_bram_hey_discourse", "source_ref": "book:hebrewbooks:5635#p7:beha_bram_hey_discourse", "text_note": "Chazal's teaching that the world was created with the letter Heh ('behibaram' read as 'beh-hey-baram'); Ramban on Bereshit that wisdom's beginning is a mystical 'Keter'; gematria chain: 'reishit'='chochmah'; 'olah alef tav\"ch' (=1420?) construction; discussion of 'bereishit' spelled out numerically reaching 'alef tat\"ch'"},
+        {"block_id": "man_90_letters_section", "source_ref": "book:hebrewbooks:5635#p7:man_90_letters_section", "text_note": "New section headed 'מן' (drop-cap): from Bereshit to the end of a specified parasha, a claim about a construction reaching 'alef hatam\"tzu' letters (numeral uncertain) tied to a 'world exists with 26 generations before Torah' motif"},
+        {"block_id": "hateivah_section", "source_ref": "book:hebrewbooks:5635#p7:hateivah_section", "text_note": "New section headed 'התיבה' (drop-cap) -- 'the word/ark alef' is the letter-count of the word תת\"ך in the Torah, occurring as Havayah spelled out equals 232 (רל\"ב); continues into a lengthy Kabbalistic discourse (Rambam Moreh Nevuchim style) on the 'sod' of the Ark's dimensions vs. the human body (232 vertebrae/limbs framing), citing Chazal on illness/dropsy proportions, Tefillah's 18 blessings against 18 vertebrae, and R' Chaim Vital-style body/soul correspondences. Concludes with a discussion of the 4 worlds (Beriah/Yetzirah/Asiyah/Atzilut) and their associated Names, referencing Rambam's opening of Sefer HaMada."}
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "רמב\"ם, ריש הלכות יסודי התורה (implied, 4 worlds discussion)"},
+        {"cite": "ליקוטי תורה לר' חיים ויטאל (implied, body/soul correspondence)"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p7:man_90_letters_section", "issue": "several large numeral constructions in this dense Kabbalistic passage were not individually digit-verified this pass (e.g. 'alef hatam\"tzu') -- paraphrased at content level, exact gematria strings not all individually re-decoded"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "VISUALLY_VERIFIED (topic/structure); SOURCE_LOCATED (individual gematria values within the dense passage)"
+    },
+    {
+      "pdf_page": 8,
+      "printed_page": 3,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "את ארם שמונה עשר אלף בי את זה לעומת זה",
+      "closing_anchor": "צירופים אלו על יד גם לי גם לך גם לא",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "aram_pelishtim_census", "source_ref": "book:hebrewbooks:5635#p8:aram_pelishtim_census", "text_note": "Continues from p.7: 2 Samuel 8-related census figures for Aram (18,000) 'measure for measure' against Pelishtim's earlier count; Chazal on David's census sin (counting Israel 'by heads' via a half-shekel token, once directly and once by proxy of 100,000 men each representing others) -- 22,000/24,000 Levite-census framing, tying into the 'Shechinah rests only on 22,000' Talmudic teaching (matches CR-related census numerology theme)"},
+        {"block_id": "shevet_menashe_note", "source_ref": "book:hebrewbooks:5635#p8:shevet_menashe_note", "text_note": "brief aside on the half-tribe of Menashe's 18,000-man count (1 Chron. 12:32) and Samuel's 1,300 chariots/700 horsemen figures, tied into the same 'is a count-of-thousands the same thing as counting the thousands-units' halachic/numerological question raised on p.7"},
+        {"block_id": "chazal_22000_alafim", "source_ref": "book:hebrewbooks:5635#p8:chazal_22000_alafim", "text_he_partial": "כתבו חכז\"ל על אלפי רבבות ישראל שאין השכינה שורה אלא על כ\"ב אלף איש ועל רבבות אלפי שנאן אלפים שאינן אלא עשרה אלף", "text_note": "Chazal's teaching distinguishing 'thousands' (22,000, Shechinah threshold) from 'ten-thousands' (=10,000) in the phrase 'ribvot alfei Yisrael'/'shinan' (Ps. 68), tied back to R' Meir ben Gabbai's teaching that this reflects the sefirot correspondence 'below mirrors above'"},
+        {"block_id": "shem_ad_section", "source_ref": "book:hebrewbooks:5635#p8:shem_ad_section", "text_note": "New section headed 'שם א\"ד' (drop-cap 'שם'): counts the spelled-form 'Elokim'-family names by exact grammatical form across the Torah (Elokecha, Elokeinu, Elokei, Elokim-plain, Elokav, VeHaElokim, LeElokim, etc.) -- this block continues directly into p.10 LEFT's detailed per-form tally table (see p.10 entry). Cites Rambam Hil. Melachim/Kiryat Sefer style enumeration of Divine Names, and Rambam Hil. Korbanot Perek 17 Halacha 8."}
+      ],
+      "tables": [],
+      "editorial_notes": [{"note_id": "p8_asterisk", "source_ref": "book:hebrewbooks:5635#p8:asterisk_note", "text_he": "* גם לי גם לך גם לא", "text_note": "footnote-style aside on the three-way repeated phrase 'gam li gam lecha gam lo' (1 Kings 3:26, Shlomo's judgment) tied to letter-transposition (tziruf) analysis of the Tetragrammaton"}],
+      "citations": [
+        {"cite": "שמואל ב' ח' (Aram census, 18,000)"},
+        {"cite": "דברי הימים א' י\"ב:ל\"ב (Menashe, 18,000)"},
+        {"cite": "תהלים ס\"ח (רבבות אלפי שנאן)"},
+        {"cite": "ר' מאיר בן גבאי (implied, sefirot correspondence)"},
+        {"cite": "רמב\"ם הל' קרבנות/מלכים"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "VISUALLY_VERIFIED",
+      "gpt_research_flags": [
+        {"flag_id": "GRF-02", "page": 8, "block_ref": "book:hebrewbooks:5635#p8:chazal_22000_alafim", "raw_source_anchor": "\"כ\"ב אלף איש\" / \"רבבות אלפי שנאן\" discussion, p.8", "reason": "A distinct 'thousands vs ten-thousands as different counting units' methodological principle is stated explicitly by the author's own cited sources here -- may be relevant to Research DNA / method-family classification for how this book treats large numeral constructions elsewhere (e.g. the DS-02 letter-table 'אלף' scale anomalies already flagged as mechanically unresolved). No interpretation offered, flagged for cross-reference only."}
+      ]
+    },
+    {
+      "pdf_page": 9,
+      "printed_page": 4,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "צירופים מן הי\"ב צירופים של שם הוי\"ה",
+      "closing_anchor": "ובעשרת הדברות השניות יש יו\"ד פעמים שם הוי\"ה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "tzirufim_continuation", "source_ref": "book:hebrewbooks:5635#p9:tzirufim_continuation", "text_note": "concludes the letter-permutation (tziruf) discussion from p.8's asterisk note -- 12 permutations of the Tetragrammaton, hint to future 12 permutations, new hint 'chadash' via gematria"},
+        {"block_id": "vehaadam_yada_section", "source_ref": "book:hebrewbooks:5635#p9:vehaadam_yada_section", "text_he_partial": "והאדם ידע את חוה אשתו התיבה חוה היא התיבה אלף קנ\"ט בתורה", "text_note": "new section (drop-cap 'והאדם'): gematria of the word 'חוה' (Chavah) combined with a Torah-wide occurrence count of the word תיבה (='word/ark', 1,000+159 candidate reading), building toward a unification-of-the-Name argument"},
+        {"block_id": "yaakov_rachel_leah_word_count", "source_ref": "book:hebrewbooks:5635#p9:yaakov_rachel_leah_word_count", "table": true, "text_note": "MAJOR FINDING: new section (drop-cap 'יעקב') gives a full per-parasha WORD-COUNT (not letter-count) of how many words Yaakov, Rachel, and Leah each 'speak' (are recorded as direct/attributed speech) across the Torah. Values as read: Yaakov speaks in Toldot=49(מ\"ט), Vayetzei=?(הי\"צ), Vayishlach=?(שי\"ז), Vayeshev=45(מ\"ה), Miketz=?(קב\"ד), Vayigash=40(מ'), Vayechi=?(הקל\"ב); Yaakov's combined total stated explicitly as 'אלף הקצ\"ז תיבות' (candidate 1,197). Rachel spoke 107(ק\"ז) words. Leah spoke 147(קמ\"ז) words. Combined total explicitly stated: 'יעקב רחל ולאה דברו בתורה אלף התת\"ך תיבות' -- candidate reading ~1,820-1,825, i.e. the SAME headline figure as DS-01's Tetragrammaton total, though this is a WORD-COUNT of attributed speech, a structurally different dataset. This appears to be the first located source-page for GPT's previously-page-unknown LEDGER item (Session 1's coverage map, §6 item 1: 'Yaakov+Rachel+Leah=1,820 spoken words, decomposition ~1,597/107/116' -- the Rachel/Leah figures here (107/147) are close to but not identical to that citation's (107/116), flagged as a real, unresolved digit-level discrepancy, not force-reconciled)."},
+        {"block_id": "aseret_hadibrot_letter_intro", "source_ref": "book:hebrewbooks:5635#p9:aseret_hadibrot_letter_intro", "text_note": "new section (drop-cap 'עשרת') opens a Ten-Commandments letter-count discussion: 'alef' and 'kaf-fey' opening/closing letter tallies for the Dibrot text, transitioning into..."},
+        {"block_id": "bagemara_para_perek", "source_ref": "book:hebrewbooks:5635#p9:bagemara_para_perek", "text_he_partial": "בגמרא (פרק הפרה) שאל ר' חנינא בר עניל", "text_note": "new section (drop-cap 'בגמרא') citing a Talmudic sugya (Perek HaParah, Bava Kama context) about R' Chanina bar Aniel's question to R' Chiya re: why the first Tablets/Luchot are called 'Machberet Rishonot' vs. the second differently, leading into: 'בעשרת הדברות הראשונות יש בו ח' פעמים שם הוי\"ה ובעשרת הדברות השניות יש יו\"ד פעמים שם הוי\"ה' (first Decalogue = 8 occurrences of the Name; second Decalogue = 10 occurrences) -- sets up the letter-Tet discussion that continues onto p.10."}
+      ],
+      "tables": [{"table_id": "yaakov_rachel_leah_words", "ref": "book:hebrewbooks:5635#p9:yaakov_rachel_leah_word_count", "rows": 9, "note": "7 Yaakov per-parasha values + Rachel total + Leah total; see content_blocks entry"}],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "בבלי (פרק הפרה, שם מסכת לא צוין במפורש בקטע שנקרא)"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p9:yaakov_rachel_leah_word_count", "issue": "several per-parasha values for Yaakov's speech-word-count are digit-uncertain (Vayetzei, Vayishlach, Miketz, Vayechi); the combined grand total's exact digits (candidate 1,820-1,825) not independently re-verified at high zoom; Rachel(107)/Leah(147) vs. the previously-cited LEDGER figures (107/116) show a real, unresolved discrepancy in the Leah figure specifically"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUBSTANTIAL",
+      "confidence": "VISUALLY_VERIFIED (structure, topic); SOURCE_LOCATED (individual digit values)",
+      "gpt_research_flags": [
+        {"flag_id": "GRF-03", "page": 9, "block_ref": "book:hebrewbooks:5635#p9:yaakov_rachel_leah_word_count", "raw_source_anchor": "יעקב רחל ולאה דברו בתורה... table, p.9", "reason": "Likely resolves LEDGER §3.4's previously-UNKNOWN page location (Yaakov+Rachel+Leah=1,820 speech-words claim). The Rachel/Leah sub-figures read here (107/147) differ from the figure previously cited in the Coverage-Provenance-Map's citation of LEDGER §3.4 (107/116) -- a real digit-level discrepancy between this direct reading and the previously-recorded citation, not resolved, no interpretation offered. Also: this is a WORD-COUNT-of-attributed-speech dataset, structurally similar in kind to DS-05 (the אוריין תליתאי entity/attribution table) but appearing in a completely different part of the book (front matter, not pp.25-31) -- possible relation to DS-05 worth GPT's attention, not claimed as fact here."}
+      ]
+    },
+    {
+      "pdf_page": 10,
+      "printed_page": 5,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "פעמים היו בתורה אלף תת\"ך אות טי\"ת במכוון",
+      "closing_anchor": "ולא ד' אמה יהיו אלף תת\"ך במכוון",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "tet_letter_claim", "source_ref": "book:hebrewbooks:5635#p10:tet_letter_claim", "text_he_partial": "פעמים היו בתורה אלף תת\"ך אות טי\"ת במכוון אלא שחחסרו מ\"ז אות טי\"ת בהם ובתיב בהן אך בעשרת הדברות השניות ב' פעמים אות ט'", "text_note": "THE WITHDRAWN LETTER-TET CLAIM (per LEDGER §7's own later withdrawal, already known to this dossier). RAW READING THIS PASS: total claimed = 'אלף תת\"ך' (candidate 1,820, same headline figure again); a shortfall/exclusion of 'מ\"ז' (candidate 47) tet-letters is mentioned in connection with the second Decalogue, NOT '16' as Session 3's Full-Book-Inventory (E-04) had summarized. This is a raw-value discrepancy between this direct re-read and the prior session's summary -- flagged explicitly, NEITHER value force-adopted. Continues into a discussion citing Yoma 72b-context on the Ark's staves/protrusions ('bad'), 5 fingers, and the Kodesh Kodashim's 10-cubit-cubed dimension gematria (matching Rambam Hil. Beit HaBechira Perek 4)."},
+        {"block_id": "adonai_shem_forms", "source_ref": "book:hebrewbooks:5635#p10:adonai_shem_forms", "text_note": "continues into Adonai/Kodesh-Kodashim Name discussion, citing Eliyahu Rabbah (Tana D'vei Eliyahu) Perek 1, on the future Beit HaMikdash Moshe Rabbeinu sought to bring Israel into; distinguishes 'Kadosh Kadosh Kadosh Hashem Tzevaot' (Isaiah) gematria=1,820(?) against 'Mikdash Adonai konenu yadecha' (Exodus 15) as two parallel constructions"},
+        {"block_id": "elokim_form_by_form_tally", "source_ref": "book:hebrewbooks:5635#p10:elokim_form_by_form_tally", "table": true, "text_note": "Detailed per-grammatical-form tally of every Elokim-family name form in the Torah (continuing the 'שם א\"ד' section opened on p.8): Elokecha, Elokeinu(x2), Elokei, Elokim(x4 variants), Elokav, VeHaElokim, LeElokim(x2), Elokai, MeElokecha, KeElokim, Elokainu(x3, 'chamishim'=55?), Elokecho, VehaElokim, LaEl, VelAl, LaEl(again), BaEl(x1), Elokay(x3), AHY\"H, Elokim-Nekudot section noting these are the 'nekudot' vocalization-forms among the Ketuvim 'Ad Hoyi\"h Elokim' -- concludes with a citation of Ramban's principle that these Names 'are not judgment (din) without mercy, if not [for] the Master of the World'"},
+        {"block_id": "hayeriot_mishkan_section", "source_ref": "book:hebrewbooks:5635#p10:hayeriot_mishkan_section", "text_note": "new section (drop-cap 'היריעות'): citing Rambam by name (כנ\"ל) -- the Mishkan's curtains (yeriot) were 10, each 28 amot; count of gold hooks (kras) on the curtains =50, tied to a construction reaching 'alef tat\"ch' (1,420 candidate) via the curtains' area/perimeter gematria. Discusses the courtyard hangings (kelaim) 100 amah perimeter."}
+      ],
+      "tables": [{"table_id": "elokim_forms_tally", "ref": "book:hebrewbooks:5635#p10:elokim_form_by_form_tally", "rows": "~25 distinct forms", "note": "per-form occurrence counts, most single/low-digit; not individually re-verified at high zoom this pass"}],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "יומא ע\"ב (Ark staves)"},
+        {"cite": "רמב\"ם הל' בית הבחירה פרק ד'"},
+        {"cite": "תנא דבי אליהו רבה פרק א'"},
+        {"cite": "ישעיהו (קדוש קדוש קדוש)"},
+        {"cite": "שמות ט\"ו (מקדש אדנ\"י כוננו ידיך)"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p10:tet_letter_claim", "issue": "the 'missing tet-letters in second Decalogue' figure reads as מ\"ז(47) this pass vs. Session 3's prior summary of '16' -- a real, unresolved discrepancy between two Claude readings at different sessions, neither force-adopted. Note this entire claim is independently already WITHDRAWN by the source's own later self-correction (LEDGER §7), so the discrepancy is of historical/methodological interest only, not a live open number."},
+        {"block_ref": "book:hebrewbooks:5635#p10:elokim_form_by_form_tally", "issue": "dense ~25-row per-form tally not individually digit-verified this pass"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUBSTANTIAL",
+      "confidence": "VISUALLY_VERIFIED (structure, topic); SOURCE_LOCATED (individual digit values)"
     }
   ]
 }
