@@ -4,6 +4,8 @@ import { useUniversalWorkspace } from "../../lib/research/useUniversalWorkspace.
 import {
   fetchResearchViewerDiscovery,
   fetchResearchViewerGematria,
+  searchResearchViewerGraphEntities,
+  fetchResearchViewerGraphEntity,
   reviewResearchObjectFinding,
 } from "../../lib/research/researchViewerProjection.js";
 
@@ -61,6 +63,9 @@ export default function ResearchViewerV0Page() {
   const [error, setError] = useState("");
   const [gematriaInput, setGematriaInput] = useState("");
   const [gematriaLoading, setGematriaLoading] = useState(false);
+  const [graphInput, setGraphInput] = useState("");
+  const [graphLoading, setGraphLoading] = useState(false);
+  const [graphMatches, setGraphMatches] = useState([]);
   const [judgmentLoading, setJudgmentLoading] = useState(false);
   const [judgmentMessage, setJudgmentMessage] = useState("");
   const [allowIncompleteExtraction, setAllowIncompleteExtraction] = useState(false);
@@ -116,11 +121,58 @@ export default function ResearchViewerV0Page() {
     }
   };
 
+  const openGraphNode = async (node) => {
+    if (!node?.id || graphLoading) return;
+    setGraphLoading(true);
+    setError("");
+    try {
+      const items = await fetchResearchViewerGraphEntity(node.id, { relationLimit: 50 });
+      setFindings(current => mergeFindings(current, items));
+      if (items[0]?.id) {
+        setSelectedId(items[0].id);
+        setTab("findings");
+      }
+    } catch (e) {
+      setError(e?.message || String(e));
+    } finally {
+      setGraphLoading(false);
+    }
+  };
+
+  const runGraphSearch = async (event) => {
+    event?.preventDefault?.();
+    const text = graphInput.trim();
+    if (!text || graphLoading) return;
+    setGraphLoading(true);
+    setError("");
+    try {
+      const rows = await searchResearchViewerGraphEntities(text, { limit: 12 });
+      setGraphMatches(rows);
+      if (rows.length === 1) {
+        const items = await fetchResearchViewerGraphEntity(rows[0].id, { relationLimit: 50 });
+        setFindings(current => mergeFindings(current, items));
+        if (items[0]?.id) {
+          setSelectedId(items[0].id);
+          setTab("findings");
+        }
+      }
+    } catch (e) {
+      setError(e?.message || String(e));
+    } finally {
+      setGraphLoading(false);
+    }
+  };
+
   const selected = findings.find(f => f.id === selectedId) || findings[0] || null;
   const selectedInResearch = Boolean(selected?.id && workspace.cart?.some?.(entity => entity?.id === selected.id));
   const selectedSaved = Boolean(selected && workspace.isFindingSaved?.(selected));
   const selectedPinned = Boolean(selected && workspace.isFindingPinned?.(selected));
   const selectedResearchObjectId = researchObjectId(selected);
+  const selectedGraphRelations = useMemo(() => {
+    if (selected?.kind !== "graph-entity") return [];
+    const refs = new Set((selected.projection?.relations || []).map(r => r?.relationRef).filter(Boolean));
+    return findings.filter(f => f?.kind === "graph-relation" && refs.has(f?.identity?.relationRef));
+  }, [selected, findings]);
 
   const runJudgment = async (decision) => {
     if (!selectedResearchObjectId || judgmentLoading) return;
@@ -187,10 +239,17 @@ export default function ResearchViewerV0Page() {
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{NAV.map(([k, v]) => <button key={k} onClick={() => setTab(k)} style={{ border: `1px solid ${tab === k ? "#175cd3" : "#d0d5dd"}`, background: tab === k ? "#edf4ff" : "#fff", color: tab === k ? "#175cd3" : "#344054", padding: "9px 13px", borderRadius: 10, fontWeight: 800, cursor: "pointer" }}>{v}</button>)}</nav>
     </header>
 
-    <form onSubmit={runGematria} style={{ ...card, padding: 14, display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+    <form onSubmit={runGematria} style={{ ...card, padding: 14, display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
       <input value={gematriaInput} onChange={e => setGematriaInput(e.target.value)} placeholder="בדיקת Gematria לפי קלט חוקר…" style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid #d0d5dd", borderRadius: 10, padding: "10px 12px", fontSize: 14 }} />
       <button type="submit" disabled={gematriaLoading || !gematriaInput.trim()} style={{ border: 0, borderRadius: 10, background: "#175cd3", color: "#fff", padding: "10px 15px", fontWeight: 900, cursor: "pointer", opacity: gematriaLoading || !gematriaInput.trim() ? .55 : 1 }}>{gematriaLoading ? "בודק במנוע…" : "חשב במנוע הקנוני"}</button>
       <div style={{ flexBasis: "100%", color: "#667085", fontSize: 11 }}>התוצאה היא CALCULATION מהמנוע; היא לא הופכת ל־match/claim/canonical רק משום שחושבה.</div>
+    </form>
+
+    <form onSubmit={runGraphSearch} style={{ ...card, padding: 14, display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+      <input value={graphInput} onChange={e => setGraphInput(e.target.value)} placeholder="חקור ישות קיימת ב־Reality Graph — שם או node UUID…" style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid #d0d5dd", borderRadius: 10, padding: "10px 12px", fontSize: 14 }} />
+      <button type="submit" disabled={graphLoading || !graphInput.trim()} style={{ border: 0, borderRadius: 10, background: "#344054", color: "#fff", padding: "10px 15px", fontWeight: 900, cursor: "pointer", opacity: graphLoading || !graphInput.trim() ? .55 : 1 }}>{graphLoading ? "קורא מהגרף…" : "חפש בגרף"}</button>
+      <div style={{ flexBasis: "100%", color: "#667085", fontSize: 11 }}>Entity/Graph Lens הוא Projection read-only של nodes+edges קיימים. קיום בגרף ≠ Verification ≠ Canonical ≠ Published.</div>
+      {graphMatches.length > 0 && <div style={{ flexBasis: "100%", display: "flex", gap: 6, flexWrap: "wrap" }}>{graphMatches.map(node => <button type="button" key={node.id} onClick={() => openGraphNode(node)} disabled={graphLoading} style={{ ...pill, cursor: "pointer" }}>{node.type || "node"} · {node.label || node.id}</button>)}</div>}
     </form>
 
     {error && <div style={{ ...card, color: "#b42318", borderColor: "#f1a9a5", padding: 14, marginBottom: 14 }}>Live operation failed: {error}</div>}
@@ -200,6 +259,8 @@ export default function ResearchViewerV0Page() {
         <Stat n={kindCounts["research-object"] || 0} label="Research Objects" />
         <Stat n={kindCounts.convergence || 0} label="Convergences" />
         <Stat n={kindCounts.gematria || 0} label="Gematria on-demand" />
+        <Stat n={kindCounts["graph-entity"] || 0} label="Graph Entities" />
+        <Stat n={kindCounts["graph-relation"] || 0} label="Graph Relations" />
         <Stat n={workspace.findings?.length || 0} label="במחקר הפעיל" />
         <Stat n={workspace.pinnedFindings?.length || 0} label="מוצמדים" />
       </section>
@@ -230,6 +291,11 @@ export default function ResearchViewerV0Page() {
             </div>
             {selected.status === "approved" && <label style={{ display: "flex", gap: 7, alignItems: "flex-start", color: "#667085", fontSize: 11 }}><input type="checkbox" checked={allowIncompleteExtraction} onChange={e => setAllowIncompleteExtraction(e.target.checked)} />אם החילוץ מסומן partial, אני מאשר במפורש canonicalization למרות החסר; האישור יישמר ב־provenance.</label>}
             {judgmentMessage && <div style={{ background: "#f8fafc", borderRadius: 9, padding: 9, fontSize: 12 }}>{judgmentMessage}</div>}
+          </div>}
+
+          {selected.kind === "graph-entity" && <div style={{ border: "1px solid #d0d5dd", borderRadius: 12, padding: 12, display: "grid", gap: 9 }}>
+            <div><b>Entity/Graph Lens · relations</b><div style={{ color: "#667085", fontSize: 11, marginTop: 3 }}>הקשרים כאן הם edges קיימים מה־Reality Graph. פתיחה שלהם אינה משנה את הגרף או את מצב האמת.</div></div>
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>{selectedGraphRelations.length ? selectedGraphRelations.map(relation => <button key={relation.id} onClick={() => setSelectedId(relation.id)} style={{ ...pill, cursor: "pointer" }}>{relation.subject?.label || relation.identity?.relationRef}</button>) : <span style={{ color: "#667085", fontSize: 12 }}>לא נמצאו edges סמוכים במסגרת ה־limit הנוכחי.</span>}</div>
           </div>}
 
           <div><div style={{ color: "#667085", fontSize: 11 }}>SUBJECT</div><h2 style={{ margin: "4px 0" }}>{selected.subject?.label || "—"}</h2>{selected.subject?.value != null && <div style={{ fontSize: 30, fontWeight: 900 }}>{selected.subject.value}</div>}</div>
