@@ -8,6 +8,11 @@ import {
   fetchResearchViewerGraphEntity,
   reviewResearchObjectFinding,
 } from "../../lib/research/researchViewerProjection.js";
+// Depth Dimension Inspector v0 — read-only formatting of the existing
+// finding.projection.dimensions data via the Research DNA v1 crosswalk registry.
+// Does not compute, verify, or promote anything; a native key with no registry
+// entry stays explicitly UNMAPPED (see researchDnaDimensions.js).
+import { canonicalDimensionsOf } from "../../lib/research/researchDnaDimensions.js";
 
 const NAV = [["feed", "זרם המחקר"], ["findings", "ממצאים"], ["sources", "מקורות"], ["review", "לבדיקה"]];
 const card = { background: "#fff", border: "1px solid #dfe5ec", borderRadius: 16, boxShadow: "0 5px 20px rgba(24,39,75,.05)" };
@@ -173,6 +178,9 @@ export default function ResearchViewerV0Page() {
     const refs = new Set((selected.projection?.relations || []).map(r => r?.relationRef).filter(Boolean));
     return findings.filter(f => f?.kind === "graph-relation" && refs.has(f?.identity?.relationRef));
   }, [selected, findings]);
+  // Depth Dimension Inspector v0: pure lookup over the already-fetched selected.projection.dimensions —
+  // no recomputation, no new source, no truth-state read/write. See researchDnaDimensions.js.
+  const selectedDimensions = useMemo(() => (selected ? canonicalDimensionsOf(selected) : []), [selected]);
 
   const runJudgment = async (decision) => {
     if (!selectedResearchObjectId || judgmentLoading) return;
@@ -302,7 +310,22 @@ export default function ResearchViewerV0Page() {
           <div><div style={{ color: "#667085", fontSize: 11 }}>SOURCE / PROVENANCE</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify({ source: selected.source, identity: selected.identity, provenance: selected.provenance }, null, 2)}</pre></div>
           <div><div style={{ color: "#667085", fontSize: 11 }}>VERIFICATION</div><pre style={{ whiteSpace: "pre-wrap", background: "#f8fafc", padding: 12, borderRadius: 10, fontSize: 12 }}>{JSON.stringify(selected.verification, null, 2)}</pre></div>
         </section>
-        <aside style={{ ...card, padding: 18 }}><h3 style={{ marginTop: 0 }}>Reality Graph / Projection</h3><pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>{JSON.stringify({ entityRef: selected.identity?.entityRef, relationRef: selected.identity?.relationRef, evidence: selected.evidence, projection: selected.projection }, null, 2)}</pre></aside>
+        <aside style={{ ...card, padding: 18 }}>
+          <h3 style={{ marginTop: 0 }}>Reality Graph / Projection</h3>
+          {selectedDimensions.length > 0 && <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
+            <div style={{ color: "#667085", fontSize: 11 }}>DEPTH DIMENSIONS · Research DNA v1 crosswalk (read-only)</div>
+            {selectedDimensions.map(row => <div key={row.nativeKey} style={{ border: "1px solid #e4e7ec", borderRadius: 10, padding: 8, fontSize: 12 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                <span style={pill}>{row.nativeKey}</span>
+                <span style={{ color: "#98a2b3" }}>→</span>
+                <span style={pill}>{row.canonicalDimension || "לא ממופה"}</span>
+                <span style={{ ...pill, color: "#667085" }}>{row.mappingType}</span>
+              </div>
+              {row.notes && <div style={{ color: "#667085", marginTop: 5, fontSize: 11 }}>{row.notes}</div>}
+            </div>)}
+          </div>}
+          <pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>{JSON.stringify({ entityRef: selected.identity?.entityRef, relationRef: selected.identity?.relationRef, evidence: selected.evidence, projection: selected.projection }, null, 2)}</pre>
+        </aside>
       </div>}
 
       {tab === "sources" && <div style={{ display: "grid", gap: 10 }}>{grouped.map(group => <div key={group.source} style={{ ...card, padding: 16 }}><b>{group.source}</b><div style={{ color: "#667085", marginTop: 6 }}>{group.items.length} Findings · kinds: {[...new Set(group.items.map(f => f.kind))].join(", ")} · source-native identity preserved</div></div>)}</div>}
