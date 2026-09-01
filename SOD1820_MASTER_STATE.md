@@ -1319,3 +1319,39 @@ Canonical Share Human-Gate predicate: `event_type='share' OR section='share'` �
 **`ACTIVE_NOW` נשאר `WS-RESEARCH-STUDIO-FOUNDATION`, ללא-שינוי.**
 
 **Provenance:** `work_log` `1fbcff81` (GPT BEFORE) · CLAUDE work_log entries (AFTER, ר' §Change-Log #50-54) · direct git/GitHub/DB verification (PR #262/#265/#267/#274-280/#281, `origin/main`=`9893e9b1`). ענף: `gpt/master-roadmap-reconciliation-20260901`.
+
+---
+
+## §23.24 — ELS 85-CAPABILITY LIVE RECONCILIATION · FOUNDATION CLOSURE (1.9.2026, `ELS_85_CAPABILITY_CANONICAL_CLOSURE`, actor=CLAUDE, Human-Gate ZURIEL)
+
+> **מעמד:** תיעוד-SSOT **docs-only**, additive-בלבד. סוגר את `WS-ELS-CAPABILITY-AUDIT` (Roadmap) ברמת-Foundation. **תיקון-דיוק ל-§23.23-G למעלה** (נכתב לפני-רגע-המיזוג): `claude/els-corpus-identity-d3` (PR #281) **מאומת-כעת MERGED** ל-`main` (`0e286a81`, "Merge PR #281: ELS Corpus Identity Closure") — §23.23-G תיעד "פתוח, לא-מוזג" כתמונת-מצב-נכונה-לרגע-כתיבתה (חלון-תזמון קצר לפני המיזוג בפועל); הטקסט שם **נשאר כלשונו כ-provenance**, התיקון-העובדתי חי כאן.
+
+### A. מקור
+
+`SOD1820 — ELS 85-CAPABILITY LIVE RECONCILIATION` (READ-ONLY audit, actor=CLAUDE, 1.9.2026) — אימות-חי שורה-שורה של כל 85 היכולות מ-`docs/els-capability-audit.md` (המרשם המקורי, 18.8.2026, `claude/els2-b45k5h`/`gpt/els-capability-roadmap-unification`) מול `main`+DB היום. הדוח המלא נספח עכשיו כ-§12 של אותו קובץ, שנוסף-בפועל ל-`main` בסבב-הזה (ר' סעיף C למטה).
+
+### B. תוצאת-הספירה (85/85, אף יכולת לא-נעלמה)
+
+`LIVE/ABSORBED`=73 · `PARTIAL`=3 · `BUILDING`=0 · `PARKED`=7 · `SUPERSEDED`=0 · `NEVER`=1 · `UNKNOWN`=1. לעומת בסיס-18.8 (72 LIVE·2 BRANCH·2 PARTIAL·1 DEAD·7 MISSING·1 NEVER): שינוי-נטו קטן במספרים אך **שינוי-הרכב אמיתי** — B10/B17 (FORMS Split/Join) עברו 🟡BRANCH→✅LIVE (אומת: `FORMS`/`runForms`/`renderForms` קיימים-בפועל על `main` היום, לא-רק-בענף), A17 (סידור-ממצאים ידני) ירד LIVE→UNKNOWN (לא-נמצאה-עדות-קוד היום, בניגוד-ל-18.8), C03 (הוסף-למחקר) עלה MISSING→PARTIAL.
+
+### C. מסמכים קנוניים — נוספו ל-`main` בסבב-הזה
+
+`docs/els-capability-audit.md` (§1-11 = היסטורי-מקורי, verbatim, ללא-שינוי-מילה; §12 חדש = LIVE RECONCILIATION 2026-09-01) + `docs/els-capability-workarea-unification.md` (חוזה-איחוד/אוצר-דיספוזיציות, verbatim). שני-הקבצים היו-קיימים-רק-בענפים עד-עכשיו (`V5_3_FINAL_DRIFT_CLOSURE`, 25.8.2026, Roadmap `WS-ELS-CAPABILITY-AUDIT` §CANONICAL_HOME — נשאר-כלשונו כ-provenance, לא-נמחק) — **הפער נסגר כאן**, בענף `claude/els-85-capability-canonical-closure`, **טרם-מוזג ל-main בלי-אישור-צוריאל**.
+
+### D. GAP-by-GAP (פירוט-מלא ב-`docs/els-capability-audit.md` §12.3)
+
+`GAP-1/GAP-2/GAP-3` (גאומטריית render/search/statistics) **RESOLVED** — `researchGeometry()` מאומת-קוד כמקור-יחיד לשלושתם. `GAP-6` (Worker) **RESOLVED** — pool אמיתי חי. `GAP-9` המקורי (מנוע מפוצל) **RESOLVED** — FORMS/`scopeRange`/State-Contract מאומתים על `main`. `GAP-5` (provenance-columns) **PARTIALLY RESOLVED** — `engine_detail` jsonb קיים+מאוכלס לשמירות-חדשות (7/126), היסטוריות נשארות-לא-משוחזרות במכוון. `GAP-7` (Research Bus) **PARTIALLY RESOLVED** — "📌 הוסף למחקר" מגיע ל-`research_items`, **לא** ל-`research_objects` (0 שורות מאומת-חי). `GAP-4`/`GAP-8` (קוד-מת: `findAtSkips`/`buildComments`/`qualityForMatrix`/`removeFromGallery`) **נשארו-פתוחים-במלואם**, 0 קריאות, ללא-שינוי מ-18.8 — **במפורש לא-מומשים בסבב-הזה, לא-הפעולה-הבאה** (הנחיית Human-Gate מפורשת).
+
+### E. `els_finds` — תיקון-עובדה
+
+**לא 0 שורות.** אומת-חי: שורה אחת (`יום משיח בא`, skip=583, dir=-1, start_pos=239480, `approved=true`, 2026-06-16). `PARKED` — **לא-לסגור/למחוק** בלי-החלטה-נפרדת-על-provenance-השורה-הבודדת.
+
+### F. Foundation Gate (דומיין-ELS-בלבד)
+
+**`ELS FOUNDATION SUFFICIENT`, `MUST FOUNDATION NOW=0` — ל-ELS בלבד.** עומד **לצד** (לא-מחליף/לא-מכליל) את סגירות ה-Foundation-Expansion-Gate הנפרדות של `WS-CROSS-ENGINE`(§23.21)/Raziel(§23.22)/Clean-Traffic(§23.23-E) — כל-סגירת-Gate-בדומיין-בודד **אינה** מהווה מעבר-פרויקטלי-רוחבי ל-Projection. **`ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה.** הנותר-פתוח (C02/C04/C05, Journey-Trail/promote-to-axis/Focus-Fit, `MatrixStack3D`, GAP-4/GAP-8, B12/B13/B14/B18, S18-registry, `els_finds` provenance) הוא כולו Projection/Experience/governance-hygiene — אף-אחד מהם לא-דורש שינוי-schema/זהות/migration כדי-להיפתר-מאוחר-יותר, ולכן אינו Foundation blocker.
+
+### G. לא-מומש בסבב-הזה (במפורש)
+
+אין שינוי-קוד, אין schema, אין migration, אין UI, אין חיווט-`research_objects`, אין מיזוג-ל-`findAtSkips`/Journey-branch/`MatrixStack3D`, אין הסרת-יכולת. סגירה תיעודית ברמת-Foundation בלבד.
+
+**Provenance:** `work_log actor=CLAUDE task=ELS_85_CAPABILITY_LIVE_RECONCILIATION` (READ-ONLY, 1.9.2026) → `task=ELS_85_CAPABILITY_CANONICAL_CLOSURE` (docs-only, 1.9.2026) · `docs/els-capability-audit.md` §12 · Roadmap `WS-ELS-CAPABILITY-AUDIT` (עודכן-מקביל). ענף: `claude/els-85-capability-canonical-closure`. **לא-מוזג ל-`main` בלי-אישור-מפורש-של-צוריאל.**
