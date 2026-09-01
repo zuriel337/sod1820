@@ -319,6 +319,170 @@
       "visual_verification_status": "VISUALLY_VERIFIED",
       "research_extraction_status": "SUBSTANTIAL",
       "confidence": "VISUALLY_VERIFIED (structure, topic); SOURCE_LOCATED (individual digit values)"
+    },
+    {
+      "pdf_page": 11,
+      "printed_page": 6,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "ולא שתו איש עדיו עליו נראה לי בי חוץ התפילין",
+      "closing_anchor": "ותשע\"ה עם מ\"ה עולה אלף תת\"ך ונם האל\"ף",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "sinai_no_intermediary", "source_ref": "book:hebrewbooks:5635#p11:sinai_no_intermediary", "text_note": "continues tefillin letter-count discussion (594 letters candidate reading); argues Sinai revelation was not transmitted via an intermediary angel; cites Chazal on tefillin knot placement and the halachic requirement that the knot not be undone lest it disrupt Divine Presence"},
+        {"block_id": "hakvh_mishkan_loops", "source_ref": "book:hebrewbooks:5635#p11:hakvh_mishkan_loops", "text_note": "new section (drop-cap 'הכב\"ה'): Mishkan curtain-loop counts (5+5 loops matching Divine Name structure), citing a verse on 50 golden clasps (kras) corresponding to Havayah letter-value constructions"},
+        {"block_id": "harani_merkavah", "source_ref": "book:hebrewbooks:5635#p11:harani_merkavah", "text_note": "new section (drop-cap 'הראני'): Maaseh Merkavah discussion -- the 4 Chayot HaMerkavah (Ezekiel's vision), Adam's form as one of the 4 faces, Rashi/Rambam on the Cherubim's faces, gematria linking 'aryeh'(lion)/'shor'(ox)/'nesher'(eagle) forms to Adam via Ezekiel 1; ties Moshe's radiant face (Exodus 34) to Merkavah imagery via Sifrei Devarim citations; discusses the name/title 'Rabbo shel Moshe' and Moshe's humility ('anav mikol adam')"}
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "יחזקאל א' (Merkavah, 4 Chayot)"},
+        {"cite": "רש\"י / רמב\"ם (Cherubim faces, implied)"},
+        {"cite": "ספרי דברים"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p11:hakvh_mishkan_loops", "issue": "several gematria constructions in this dense Merkavah/Mishkan passage not individually digit-verified this pass"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "VISUALLY_VERIFIED (topic/structure); SOURCE_LOCATED (individual gematria values)"
+    },
+    {
+      "pdf_page": 12,
+      "printed_page": 7,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "הוד יסוד ספר דברים מרמז דברים על מלכות",
+      "closing_anchor": "ואמרתי כ\"ה כי כשם שיום החמשים",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "darash_darash_midpoint", "source_ref": "book:hebrewbooks:5635#p12:darash_darash_midpoint", "text_note": "MAJOR: identifies 'דרש דרש' (Vayikra 10:16) as the Torah's true middle repeated-word-pair, per Kiddushin 30a (already cited p.4) -- discusses the repeated-word ('kaful') phenomenon generally, considers and rejects other candidate middle-pairs, concludes דרש דרש is correct. Directly implements the LEDGER §3.8 claim (Coverage-Map p.12 anchor)."},
+        {"block_id": "haggadah_span_table", "source_ref": "book:hebrewbooks:5635#p12:haggadah_span_table", "table": true, "text_note": "MAJOR / new section (drop-cap 'בהגדה'): 'מן הא לחמא עניא עד גאל ישראל יש אלף תת\"ך תיבות' (from 'Ha Lachma Anya' to 'Ga'al Yisrael' = 1,820 words) -- IMPLEMENTS Checkpoint_2/3's Haggadah-bounded-span anchor. Followed by a detailed phrase-by-phrase word-count list through the Haggadah text (Mah Nishtana, Avadim Hayinu, the 4-sons passage, Rabban Gamliel's teaching, closing brachot), citing R' Eliezer, R' Akiva, R' Yehuda, R' Yosi by name for specific textual/word-count opinions, concluding 'ברוך מ\"ג תיבות ביחד אלף תת\"ך' (closing count confirms 1,820)."},
+        {"block_id": "aleinu_word_count", "source_ref": "book:hebrewbooks:5635#p12:aleinu_word_count", "table": true, "text_note": "new section (drop-cap 'תיבות מוסף'): a phrase-by-phrase word-count of the Aleinu prayer (Rosh Hashanah Musaf custom), concluding 'ביחד תיבות אלף תה\"ך' -- ANOTHER independent construction reaching 1,820."},
+        {"block_id": "keter_sefirot_gematria", "source_ref": "book:hebrewbooks:5635#p12:keter_sefirot_gematria", "text_note": "new section (drop-cap 'כתר'): Sefirot names (Keter/Chochmah/Binah/Da'at/Chesed/Gevurah/Rachamim) gematria reaching 'עולה אלף תת\"ך' (1,820) -- transitions toward the Sefirat HaOmer 49-day count (continues onto p.13)."}
+      ],
+      "tables": [
+        {"table_id": "haggadah_phrase_wordcounts", "ref": "book:hebrewbooks:5635#p12:haggadah_span_table", "rows": "~15+ phrases", "note": "per-phrase word counts through the Haggadah text; not individually digit-verified this pass"},
+        {"table_id": "aleinu_phrase_wordcounts", "ref": "book:hebrewbooks:5635#p12:aleinu_word_count", "rows": "~8 phrases", "note": "per-phrase word counts through Aleinu; not individually digit-verified this pass"}
+      ],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "קידושין ל. (דרש דרש, cross-ref to p.4)"},
+        {"cite": "הגדה של פסח (Haggadah text)"},
+        {"cite": "תפילת עלינו לשבח (מוסף ר\"ה)"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUBSTANTIAL",
+      "confidence": "VISUALLY_VERIFIED (structure, topic, headline totals); SOURCE_LOCATED (individual phrase-level digit values)",
+      "gpt_research_flags": [
+        {"flag_id": "GRF-04", "page": 12, "block_ref": "book:hebrewbooks:5635#p12:haggadah_span_table", "raw_source_anchor": "בהגדה... אלף תת\"ך תיבות; תיבות מוסף... אלף תה\"ך; כתר... עולה אלף תת\"ך", "reason": "The figure 1,820 recurs as an independently-reconstructed word/letter/gematria count across at least 4 distinct constructions found in pp.6-15 alone (Tetragrammaton occurrences p.6; Yaakov/Rachel/Leah speech-words p.9; Haggadah word-span p.12; Aleinu word-count p.12; Sefirot gematria p.12) -- this recurring-1,820-across-many-representations pattern is exactly the kind of cross-representation convergence question in GPT's declared scope. No interpretation offered; flagged for GPT's cross-dataset synthesis."}
+      ]
+    },
+    {
+      "pdf_page": 13,
+      "printed_page": 8,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "החמשים אינו מן המנין כן יום כ\"ה",
+      "closing_anchor": "לפי רעתי הפסוק כי ביום הזה יכפר עליכם",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "omer_count_frontmatter", "source_ref": "book:hebrewbooks:5635#p13:omer_count_frontmatter", "text_note": "Sefirat HaOmer discussion: whether day 50 is included in the 49-day count; Levite/Kohen service-age gematria tied to a 'chinuch' citation; Yovel (Jubilee) Shofar-blast reckoning. FIRST of two front-matter instances of Omer-related numerology this dossier tracks (CR-04 relevance -- second instance is the formal Emor/Behar commentary at p.73, relationship between the two still not established, unchanged from prior sessions)."},
+        {"block_id": "hatekiot_shofar", "source_ref": "book:hebrewbooks:5635#p13:hatekiot_shofar", "text_note": "new section (drop-cap 'התקיעות'): Tekiah/Teruah shofar-blast counting on Rosh Hashanah and Yom Kippur, reaching a construction '1,820 including the blasts'; cites Yoma and R' Akiva's teaching 'Ashreichem Yisrael, lifnei mi atem mitaharin' (Yoma 8:9)"},
+        {"block_id": "erechin_shekel_arithmetic", "source_ref": "book:hebrewbooks:5635#p13:erechin_shekel_arithmetic", "text_note": "new section (drop-cap 'ערכין'): Vayikra 27 valuation-vow (erech) shekel amounts by age-band (5/20/15/10 shekalim), reaching 'עולה אלף תת\"ך' (1,820) -- this is the SAME Erechin theme catalogued as CALC-01-adjacent content and cross-referenced at p.74's formal Behar commentary (CR-05, unchanged)"},
+        {"block_id": "kavod_levite_census", "source_ref": "book:hebrewbooks:5635#p13:kavod_levite_census", "text_note": "new section (drop-cap 'כבוד'): Aharon/Levite census discussion -- 22,000 Levites vs. 22,273 firstborn Israelites, the 273-shekel redemption excess (Bamidbar 3); molad/Rosh Chodesh calculation tied to Yaakov's ladder-dream year-count"},
+        {"block_id": "speaker_wordcount_table_start", "source_ref": "book:hebrewbooks:5635#p13:speaker_wordcount_table_start", "table": true, "text_note": "MAJOR FINDING, continues onto p.14: a per-named-speaker Torah-wide WORD-COUNT table begins here -- Moshe, Yehoshua, the Zekeinim (Elders), Aharon, Bnei Yisrael, Miriam, Elazar, Tzippora, Kalev, Bnot Tzelofchad, Reuven/Gad/Menashe tribal leaders, and others, each with an individual word-count of their attributed Torah speech. This is structurally similar in kind to DS-05 (the אוריין תליתאי entity/attribution table, pp.25-31) but located here in the front matter, much earlier in the book -- see GRF-05 below, this is the primary candidate source location for GPT's own 18,200 Moshe-and-students cohort research topic (see p.14 for the table's closing total)."}
+      ],
+      "tables": [{"table_id": "named_speaker_wordcounts", "ref": "book:hebrewbooks:5635#p13:speaker_wordcount_table_start", "rows": "20+ (continues to p.14)", "note": "see p.14 entry for closing total and full list"}],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "יומא ח:ט (ר' עקיבא, אשריכם ישראל)"},
+        {"cite": "ויקרא כ\"ז (ערכין)"},
+        {"cite": "במדבר ג' (פדיון פטרי רחם, 273 excess)"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-05 (candidate structural relation, not confirmed)"],
+      "unresolved_readings": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUBSTANTIAL",
+      "confidence": "VISUALLY_VERIFIED (structure, topic); SOURCE_LOCATED (individual digit values)"
+    },
+    {
+      "pdf_page": 14,
+      "printed_page": 9,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "פרעה אחרי שלקחה לו לכן משה כי מן המים",
+      "closing_anchor": "ונכלל השם יתברך כמנין ישראל ולכן כתיב כאן",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "speaker_wordcount_table_close", "source_ref": "book:hebrewbooks:5635#p14:speaker_wordcount_table_close", "table": true, "text_he_exact": "משיתהו ה' תיבות ביחד ח\"י אלף וכאתים", "text_note": "**CLOSES the p.13 speaker word-count table with an EXPLICIT, VERBATIM total: 18,200 (ח\"י אלף וכאתים = 18,000 + 200) words**, combined across all the named speakers listed (Moshe, Yehoshua, Zekeinim, Aharon, Bnei Yisrael, Miriam, Elazar, Tzippora, Kalev, Bnot Tzelofchad, tribal leaders, and others per p.13). This is a raw, verbatim, exact-value confirmation of the '18,200' figure named in GPT's own current research scope (Checkpoint 8 / 'Moshe Rabbeinu and students cohort'). RAW SOURCE VALUE preserved exactly, transcribed here mechanically; NO interpretation of significance is offered -- see GRF-05."},
+        {"block_id": "pirkei_avot_age_stages", "source_ref": "book:hebrewbooks:5635#p14:pirkei_avot_age_stages", "text_note": "new section (drop-cap 'אמור'): Pirkei Avot 5:21-style age-milestone list (5=mikra, 10=mishnah, 13=mitzvot, 15=talmud, 18=chuppah, 20=redifah [pursuit of livelihood], 30=koach, ...60=ziknah, 70=seivah), tied into a discussion of whether 'day 50' of the Omer count is included, citing Rashi and 'chachamim' by name; concludes with another 'עולה אלף תת\"ך' (1,820) construction from the age-stage numerals"},
+        {"block_id": "reciprocal_love_hate_sifrei", "source_ref": "book:hebrewbooks:5635#p14:reciprocal_love_hate_sifrei", "text_note": "Sifrei/Eduyot (Perek 2, Mishnah 10) citation on reciprocal love/enmity commandments, Amalek remembrance tied in"},
+        {"block_id": "hashem_aharon_miriam_speak", "source_ref": "book:hebrewbooks:5635#p14:hashem_aharon_miriam_speak", "text_note": "new section (drop-cap 'השם'): Bamidbar 12 (Aharon and Miriam speaking against Moshe) -- gematria of the Divine Name 'descending' relative to the Holy of Holies curtain height; Moshe's humility ('anav mikol adam') restated"},
+        {"block_id": "census_two_totals", "source_ref": "book:hebrewbooks:5635#p14:census_two_totals", "text_he_partial": "במדבר היו מנין ישראל שש מאות אלף וחמשים אלף וחמש מאות איש. ובפרשת פנחס היה מנין ישראל שש מאות אלף ואלף שבע מאות ושלשים", "text_note": "new section (drop-cap 'בפרשת'): the two Torah censuses -- Bamidbar (603,550) and Pinchas (601,730) -- cited with Rabbeinu Bechaya (Parashat Eikev) on the ~1,820 shortfall between them, tied to 'shivim nefesh' (the 70 who descended to Egypt) and Havayah=26 gematria correlations"}
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "אבות ה':כ\"א (age-stages)"},
+        {"cite": "ספרי / עדיות פרק ב' משנה י'"},
+        {"cite": "במדבר י\"ב (Aharon/Miriam)"},
+        {"cite": "רבינו בחיי, פרשת עקב"},
+        {"cite": "במדבר א' וכ\"ו (two censuses: 603,550 and 601,730)"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-05 (candidate structural relation, not confirmed)"],
+      "unresolved_readings": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUBSTANTIAL",
+      "confidence": "VISUALLY_VERIFIED (18,200 total is an exact, high-confidence verbatim read, cross-checked on this pass); SOURCE_LOCATED (individual speaker-level sub-values on p.13, not yet individually re-verified at high zoom)",
+      "gpt_research_flags": [
+        {"flag_id": "GRF-05", "page": 14, "block_ref": "book:hebrewbooks:5635#p14:speaker_wordcount_table_close", "raw_source_anchor": "\"משיתהו ה' תיבות ביחד ח\"י אלף וכאתים\" (p.14, top of right column)", "reason": "This appears to be the primary source location for the '18,200 Moshe Rabbeinu and students cohort' figure named in GPT's own current research scope (per the task brief's GPT SCOPE section). The population is a per-named-speaker Torah-wide word-count (Moshe + ~15-20 other named individuals/groups per p.13's list), combining to exactly 18,200. RAW SOURCE VALUE and its immediate context are transcribed mechanically here; the counting contract (who exactly is included, whether this is speech-attribution like DS-05 or a different metric), and any relation to DS-05 or the 79,976 population frame, are explicitly left to GPT -- no interpretation offered."}
+      ]
+    },
+    {
+      "pdf_page": 15,
+      "printed_page": 10,
+      "section": "chelek_1_migdal_oz",
+      "parasha": null,
+      "opening_anchor": "כאן ההנובי להראות שד' עמם ולו אין מעצור",
+      "closing_anchor": "היין אלף תת\"ך הין כמו אלף תת\"ך שמות של",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {"block_id": "serah_bat_asher", "source_ref": "book:hebrewbooks:5635#p15:serah_bat_asher", "text_note": "Serah bat Asher discussion (matches LEDGER §3.11 anchor): the name 'Serah' appears exactly twice in the Torah (Vayigash 46:17 and Pinchas 26:46), tied to Yoma 82b-context aggadah about her longevity; gematria construction on 'achat bat' relating to 1,820-family figures"},
+        {"block_id": "gedolah_letters_vav_dalet", "source_ref": "book:hebrewbooks:5635#p15:gedolah_letters_vav_dalet", "text_note": "brief note (citing a Yalkut/Chullin-context source) on the large-form letters Dalet and Vav in 'Shema' (Devarim 6:4) and their combined significance"},
+        {"block_id": "issaron_korban_measures", "source_ref": "book:hebrewbooks:5635#p15:issaron_korban_measures", "table": true, "text_note": "new section (drop-cap 'עשרונות'): detailed tenth-ephah (issaron) flour-measure counts for the Tamid, Shabbat, Rosh Chodesh, and festival korbanot (Pesach, Shavuot, Rosh Hashanah, Sukkot, Shmini Atzeret), each day/offering-type's issaron-count enumerated, reaching a total explicitly stated as reaching the 'אלף תת\"ך' (1,820) family of constructions"},
+        {"block_id": "nesachim_wine_libation", "source_ref": "book:hebrewbooks:5635#p15:nesachim_wine_libation", "table": true, "text_note": "new section (drop-cap 'לפי'): wine-libation (nesech/nesachim) log-measure calculations per animal-type (lamb/ram/bull) for the annual communal korbanot, extremely dense technical arithmetic reaching another 'אלף תת\"ך'-family total; continues past this page's captured extent"}
+      ],
+      "tables": [
+        {"table_id": "issaron_measures", "ref": "book:hebrewbooks:5635#p15:issaron_korban_measures", "rows": "~10+ offering-types", "note": "per-offering issaron counts; not individually digit-verified this pass"},
+        {"table_id": "nesachim_measures", "ref": "book:hebrewbooks:5635#p15:nesachim_wine_libation", "rows": "multiple animal-types x measures", "note": "dense technical korban arithmetic; not individually digit-verified this pass, content captured at topic level"}
+      ],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "יומא פ\"ב (Serah bat Asher aggadah context)"},
+        {"cite": "דברים ו':ד' (Shema, large letters)"},
+        {"cite": "במדבר כ\"ח-כ\"ט (korban measures, implied)"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p15:nesachim_wine_libation", "issue": "this block's content continues past the captured page extent (into p.16, not yet read this batch); the specific numeric totals within the dense korban-measure arithmetic were not individually digit-verified this pass"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUBSTANTIAL",
+      "confidence": "VISUALLY_VERIFIED (structure, topic); SOURCE_LOCATED (individual digit values)"
     }
   ]
 }
