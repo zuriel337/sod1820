@@ -4787,13 +4787,16 @@ function PostPageBySlug({ onNav }) {
       tags: post.tags || [],
       section: (post.categories || [])[0] || undefined,
     });
-    // 🎬 VideoObject לדף-צפייה: פוסט video-primary (קטגוריה «וידאו») שיש בו סרטון → הסרטון הוא
-    //    הישות המרכזית של הדף (מתקן «הסרטון לא מופיע בדף צפייה» ב-GSC). incidental → נשאר Article.
-    if ((post.categories || []).includes("וידאו")) {
-      setPostVideoJsonLd({ post, path: "/" + slug, description: desc || undefined });
-    } else {
-      clearPostVideoJsonLd();
-    }
+    // 🎬 VideoObject לדף-צפייה: כל פוסט עם סרטון-מוטמע (מאוחסן-עצמי/יוטיוב) מקבל VideoObject —
+    //    לא רק קטגוריה «וידאו». video-primary (קטגוריה «וידאו») → הסרטון הוא הישות המרכזית של הדף
+    //    (מסיר את ה-Article LD). וידאו אגבי בתוך מאמר → VideoObject משלים, Article נשאר הישות המרכזית.
+    //    מתקן «הסרטון לא מופיע בדף צפייה» ב-GSC גם לפוסטים ישנים בלי תיוג-קטגוריה מדויק (1.9.2026).
+    setPostVideoJsonLd({
+      post,
+      path: "/" + slug,
+      description: desc || undefined,
+      primary: (post.categories || []).includes("וידאו"),
+    });
   }, [post, title, image, slug]);
   // ניקוי VideoObject ביציאה מהדף (SPA — לא להשאיר שאריות לדף הבא)
   useEffect(() => () => clearPostVideoJsonLd(), []);

@@ -359,12 +359,17 @@ export function extractPostVideo(post = {}) {
   };
 }
 
-// ── JSON-LD VideoObject לפוסט שהוא video-primary (הסרטון הוא הישות המרכזית של הדף) ──
-// דרישות גוגל: name · thumbnailUrl · uploadDate · (contentUrl|embedUrl). mainEntityOfPage = ה-canonical
-// של הפוסט (/<slug>) — דף-צפייה קנוני עצמאי → מתקן «הסרטון לא מופיע בדף צפייה». מסיר את ה-Article LD
-// כדי למנוע סתירת-זהות Article↔Video (הישות המרכזית = הסרטון). נכשל-שקט (מחזיר false) אם אין thumbnail
-// אמיתי — אז נשארים עם ה-Article (Rank, Don't Hide — לא ממציאים thumbnail).
-export function setPostVideoJsonLd({ post = {}, path, description } = {}) {
+// ── JSON-LD VideoObject לפוסט שיש בו סרטון מוטמע (video-primary או incidental) ──
+// דרישות גוגל: name · thumbnailUrl · uploadDate · (contentUrl|embedUrl). מתקן «הסרטון לא מופיע בדף
+// צפייה» — GSC מזהה סרטון מוטמע בעמוד (crawl/render) בלי JSON-LD תואם ומדווח שהוא "נעלם". לכן
+// מיושם על **כל** פוסט עם וידאו-בתוכן, לא רק category='וידאו' (תיקון 1.9.2026 — פוסטים ישנים עם
+// סרטון-אגבי, כמו "עילוי נשמה"/"מסר חדש", דווחו חסרים כי נגזרו על-ידי בדיקת-קטגוריה בלבד).
+// primary=true (video-primary, category='וידאו'): הסרטון הוא הישות המרכזית → mainEntityOfPage +
+// מסיר את ה-Article LD (מונע סתירת-זהות Article↔Video). primary=false (וידאו אגבי בתוך מאמר):
+// משאירים את ה-Article כישות המרכזית — מוסיפים VideoObject בלי mainEntityOfPage, כתיאור-משלים
+// בלבד (שני סוגי-מבנה יכולים לדור זה-לצד-זה כל עוד רק אחד תובע את "הישות המרכזית של העמוד").
+// נכשל-שקט (מחזיר false) אם אין וידאו בתוכן כלל — אז נשארים עם ה-Article (Rank, Don't Hide).
+export function setPostVideoJsonLd({ post = {}, path, description, primary = true } = {}) {
   if (typeof document === "undefined") return false;
   const v = extractPostVideo(post);
   if (!v || (!v.contentUrl && !v.embedUrl)) { removeJsonLd("sod-post-video-ld"); return false; }
@@ -384,11 +389,11 @@ export function setPostVideoJsonLd({ post = {}, path, description } = {}) {
     contentUrl: v.contentUrl || undefined,
     embedUrl: v.embedUrl || undefined,
     url: canonical,
-    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    mainEntityOfPage: primary ? { "@type": "WebPage", "@id": canonical } : undefined,
     inLanguage: "he-IL",
     publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: SITE_URL + "/logo.png" } },
   });
-  removeJsonLd("sod-article-ld"); // video-primary → הישות המרכזית היא הסרטון, לא מאמר
+  if (primary) removeJsonLd("sod-article-ld"); // video-primary → הישות המרכזית היא הסרטון, לא מאמר
   return true;
 }
 export function clearPostVideoJsonLd() { removeJsonLd("sod-post-video-ld"); }
