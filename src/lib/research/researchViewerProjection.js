@@ -2,11 +2,19 @@ import { supabase } from "../supabase.js";
 import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
+import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 
 const DEFAULT_LIMIT = 200;
 const DEFAULT_TOPIC_LIMIT = 12;
 const FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
+const GRAPH_SEARCH_FIELDS = "id,type,label,identity_key,is_active,created_at,weight";
 const JUDGMENT_DECISIONS = new Set(["approve", "reject", "canonicalize"]);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function clean(value) {
+  if (value == null) return "";
+  return String(value).trim();
+}
 
 /**
  * Read-mostly Discovery projection for Research Viewer.
@@ -84,6 +92,51 @@ export async function fetchResearchViewerDiscovery({ researchLimit = 300, topicL
  */
 export async function fetchResearchViewerGematria(text) {
   return fetchCanonicalGematriaFindings(text);
+}
+
+/**
+ * Entity/Graph Lens discovery. This only resolves existing graph node identities; it does
+ * not reconstruct relations or truth locally. UUID input is exact. Text input is a bounded
+ * label search, with exact label hits sorted before partial matches in-memory.
+ */
+export async function searchResearchViewerGraphEntities(query, { limit = 12 } = {}) {
+  const term = clean(query);
+  if (!term) return [];
+  const safeLimit = Math.max(1, Math.min(Number(limit) || 12, 30));
+
+  if (UUID_RE.test(term)) {
+    const { data, error } = await supabase
+      .from("nodes")
+      .select(GRAPH_SEARCH_FIELDS)
+      .eq("id", term)
+      .limit(1);
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  }
+
+  const labelTerm = term.replace(/[%_]/g, "").trim();
+  if (!labelTerm) return [];
+  const { data, error } = await supabase
+    .from("nodes")
+    .select(GRAPH_SEARCH_FIELDS)
+    .ilike("label", `%${labelTerm}%`)
+    .order("weight", { ascending: false, nullsFirst: false })
+    .limit(safeLimit);
+  if (error) throw error;
+
+  return (Array.isArray(data) ? data : []).sort((a, b) => {
+    const ax = clean(a?.label) === term ? 0 : 1;
+    const bx = clean(b?.label) === term ? 0 : 1;
+    return ax - bx;
+  });
+}
+
+/**
+ * Exact Entity/Graph investigation path. All node+edge projection semantics are delegated
+ * to the canonical adapter merged in PR #275; the Viewer never reads or interprets edges itself.
+ */
+export async function fetchResearchViewerGraphEntity(nodeId, { relationLimit = 50 } = {}) {
+  return fetchCanonicalGraphEntityFindings(nodeId, { relationLimit });
 }
 
 /**
