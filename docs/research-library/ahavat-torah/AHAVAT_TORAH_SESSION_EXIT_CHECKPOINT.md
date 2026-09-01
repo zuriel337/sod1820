@@ -99,6 +99,8 @@ Per Handoff §8: (1) citation-granularity reconciliation (page-only prose citati
 - **SOURCE ARTIFACT: DURABLY STORED** — the storage-location gap above is now closed; a durable, cross-session, canonical-project copy exists.
 - **ACCESS / BYTE IDENTITY: VERIFY SEPARATELY** — existence and metadata (size, mimetype, timestamp) were checked; **byte/content identity against the session-local PDF this dossier's pp.1–15 transcriptions were read from has NOT been verified** (would require downloading and hashing both files) and is explicitly **not claimed**. This is named as its own, still-open, separate verification step.
 
+**BYTE-IDENTITY VERIFIED** *(new, additive — downloaded and hashed both files directly)*: `curl`-fetched the public URL, computed SHA-256, compared against the session-local PDF's own SHA-256. **Result: identical** — `895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b` for both. The durable storage copy is a byte-exact match of the file this entire dossier's transcriptions (pp.1–15 and all prior-session closure passes) were read from. The temporary local download used for this check was deleted immediately after; no copy of the PDF is retained in the repo.
+
 The original "missing to close this gap" upload instructions above are superseded by this update for the storage-location question only; the byte-identity sub-question they never addressed remains open under the new heading.
 
 ## Research Lab readiness state
