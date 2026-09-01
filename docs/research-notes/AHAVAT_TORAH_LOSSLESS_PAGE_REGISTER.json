@@ -1,0 +1,160 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "99/99 STRUCTURALLY_MAPPED (achieved in Session 3) is NOT completion. This register tracks all 5 dimensions independently, per page. Batch 1 (pp.1-5) is the first batch brought to full TRANSCRIBED+VISUALLY_VERIFIED depth with block-level content. Pages not yet in this file remain at their Session-3 status (STRUCTURALLY_MAPPED only, plus whatever VISUALLY_VERIFIED/SOURCE_LOCATED tag Session 3 already assigned at the whole-page level) until a future batch brings them to this file's block-level depth.",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "pages": [
+    {
+      "pdf_page": 1,
+      "printed_page": null,
+      "section": "front_matter",
+      "parasha": null,
+      "opening_anchor": "ספר",
+      "closing_anchor": "Druck von S. L. Deutscher, Podgórze bei Krakau. 1905.",
+      "content_blocks": [
+        {"block_id": "title", "source_ref": "book:hebrewbooks:5635#p1:title", "text_he": "ספר אהבת תורה", "text_note": "main title, ornamental frame page"},
+        {"block_id": "author_line", "source_ref": "book:hebrewbooks:5635#p1:author_line", "text_he": "ממני הצעיר פנחס זלמן סג\"ל איש הורוויץ בן הרב המאור הגדול ר' יחיאל דוד זצ\"ל מורה צדק פה קראקא יצ\"ו."},
+        {"block_id": "hebrewbooks_stamp", "source_ref": "book:hebrewbooks:5635#p1:hebrewbooks_stamp", "text_he": "הועתק והובנס לאינטרנט www.hebrewbooks.org ע\"י חיים תשס\"ז", "text_note": "2007 digitization stamp, not part of the original 1905 print"},
+        {"block_id": "imprint_he", "source_ref": "book:hebrewbooks:5635#p1:imprint_he", "text_he": "פארגורזע אצל קראקא בדפוס של מו\"ה שאול חנני דייטשער נ\"י שנת תרס\"ה לפ\"ק."},
+        {"block_id": "imprint_de", "source_ref": "book:hebrewbooks:5635#p1:imprint_de", "text_other": "AHAWAS TORA. Verlag v. P. S. Horowitz, Krakau Josefsgasse Nr. 5. Druck von S. L. Deutscher, Podgórze bei Krakau. 1905.", "lang": "de/en transliteration"}
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC",
+      "confidence": "VISUALLY_VERIFIED"
+    },
+    {
+      "pdf_page": 2,
+      "printed_page": null,
+      "section": "front_matter",
+      "parasha": null,
+      "opening_anchor": "This Sefer has been made available by:",
+      "closing_anchor": "(718) 436-1165",
+      "content_blocks": [
+        {"block_id": "copy_corner_ad", "source_ref": "book:hebrewbooks:5635#p2:copy_corner_ad", "text_other": "This Sefer has been made available by: COPY CORNER, 5314 13th Avenue, Brooklyn, NY 11219. TEL (718) 972-0777, FAX (718) 972-0178."},
+        {"block_id": "biegeleisen_ad", "source_ref": "book:hebrewbooks:5635#p2:biegeleisen_ad", "text_other": "A deluxe bound copy of this sefer is available at: Biegeleisen Hebrew Book Store, 4409 16th Avenue, Brooklyn, N.Y. 11204. (718) 436-1165."},
+        {"block_id": "goldenberg_credit_he", "source_ref": "book:hebrewbooks:5635#p2:goldenberg_credit_he", "text_he": "הספר הזה צולמה על ידי אחים גאלדענבערג וניתן להשיג ממנו טופס מכורך, במחיר סביר, אצל: בימ\"ס ביגלאייזן, 4409 16th Avenue, (718) 436-1165."}
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC",
+      "confidence": "VISUALLY_VERIFIED",
+      "note": "Entirely modern (post-1983) distributor/reprint advertising matter, not part of the 1905 original."
+    },
+    {
+      "pdf_page": 3,
+      "printed_page": null,
+      "section": "front_matter",
+      "parasha": null,
+      "opening_anchor": "הסכמתי בלבבי שלא ליקח הסכמות מגדולי ישראל",
+      "closing_anchor": "Tel. (718) 436-1165",
+      "content_blocks": [
+        {"block_id": "author_declines_approbations", "source_ref": "book:hebrewbooks:5635#p3:author_declines_approbations", "text_he": "הסכמתי בלבבי שלא ליקח הסכמות מגדולי ישראל ואמרתי לספרי מעשיך ירחקוך ומעשיך יקרבוך.", "text_note": "Author's own statement declining approbations (haskamot) from Torah greats -- confirms D-01 (Session 3): this page is NOT a page of approbations, it is the author explicitly declining them."},
+        {"block_id": "reprint_colophon_1983", "source_ref": "book:hebrewbooks:5635#p3:reprint_colophon_1983", "text_he": "יצא לאור פה ברוקלין נ.י. שנת תשמ\"ג. על ידי אחים גאלדענבערג", "text_note": "1983 Brooklyn reprint colophon, Goldenberg Brothers"},
+        {"block_id": "print_sale_info", "source_ref": "book:hebrewbooks:5635#p3:print_sale_info", "text_he": "נדפס אצל: COPY CORNER, 5314 13th Avenue, Brooklyn NY 11219 ... מכירה הראשית אצל: בימ\"ס ביגלאייזן, 4409 16th Ave., Tel. (718) 436-1165"}
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC",
+      "confidence": "VISUALLY_VERIFIED"
+    },
+    {
+      "pdf_page": 4,
+      "printed_page": null,
+      "section": "front_matter",
+      "parasha": null,
+      "opening_anchor": "אקדמות מלין",
+      "closing_anchor": "וכאן ארחיב קצת את הדבור.",
+      "content_blocks": [
+        {"block_id": "preface_title", "source_ref": "book:hebrewbooks:5635#p4:preface_title", "text_he": "אקדמות מלין", "text_note": "heading of a MODERN (not 1905) editorial preface"},
+        {"block_id": "publication_summary", "source_ref": "book:hebrewbooks:5635#p4:publication_summary", "text_he": "ספר אהבת תורה יצא לאור בפאדגרוזע אצל קראקא, שנת תרס\"ה, בחיי המחבר הרה\"ג רבי פנחס זלמן סג\"ל איש הורויץ ז\"ל. הספר הוא נדיר מאוד וכמעט שאינו נמצא בנמצא בספריות צבוריות ולא בספריות פרטיות, ואשרי שזכינו להחדירו מחדש כדי להגדיל תורה ולהאדירה.", "footnote_ref": "1"},
+        {"block_id": "author_lineage", "source_ref": "book:hebrewbooks:5635#p4:author_lineage", "text_he": "על הרב הרה\"ג כמעט לא ידוע כלום. אביו הרה\"ג רבי יחיאל מיכל דוד סג\"ל הורוויץ ז\"ל כיהן כדומ\"ץ בקראקא. מצד אמו, סבו של המחבר הרה\"ג היה רבי יוקל הורוויץ ז\"ל, מי שהיה נכדו של הרה\"ג רבי יצחק הלוי הורוויץ ז\"ל, המכונה רבי איציקל האמבורגר, אב\"ד אה\"ו ובעל \"משנת הלוי\"", "footnote_ref": "2", "text_note": "genealogy: father R' Yechiel Michel David Segal Horowitz (dayan in Krakow); maternal great-grandfather R' Yitzchak HaLevi Horowitz ('Itzikel Hamburger', author of Mishnat HaLevi)"},
+        {"block_id": "vav_dot_masorah_note", "source_ref": "book:hebrewbooks:5635#p4:vav_dot_masorah_note", "text_he": "רק זה ידענו שהרב המחבר סופר ומונה אותיותיה ותיבותיה של התורה, ומחדש חידושים נפלאים באהבתו לתורה. גם פקח היה שיוצא כפי שיוצא מתוך לשונו בפתיחת הספר:", "text_note": "editor's transition into quoting the author's own opening declaration"},
+        {"block_id": "author_opening_quote", "source_ref": "book:hebrewbooks:5635#p4:author_opening_quote", "text_he": "הסכמתי בלבבי שלא ליקח הסכמות מגדולי ישראל ואמרתי לספרי מעשיך ירחקוך ומעשיך יקרבוך.", "text_note": "verbatim requote of the p.3 declaration, embedded in the modern preface"},
+        {"block_id": "praise_of_hiddushim", "source_ref": "book:hebrewbooks:5635#p4:praise_of_hiddushim", "text_he": "ואכן ראוי ספרו של הרב המחבר לקירבה יתירה ע\"י חובבי תורה, שהרי הוא ספר נפלא אשר כמעט אין כמותו בכל ספרותנו הקדושה. וכדי לעמוד על חידוש אחד מני אלף מספר אהבת תורה נציע לשון חז\"ל בקידושין (ל.):", "footnote_ref": "3"},
+        {"block_id": "kiddushin_30_quote", "source_ref": "book:hebrewbooks:5635#p4:kiddushin_30_quote", "text_he": "לפיכך נקראו ראשונים סופרים שהיו סופרים כל האותיות שבתורה, שהיו אומרים וא\"ו דגחון חציין של אותיות של ס\"ת, דרש דרש חציין של תיבות.", "text_note": "quoted verbatim from Talmud Kiddushin 30a"},
+        {"block_id": "editor_commentary_on_dagesh", "source_ref": "book:hebrewbooks:5635#p4:editor_commentary_on_dagesh", "text_he": "הרבה קולמוסים נשתברו והרבה דיו נשתפך כדי להבין דברים תורה שלנו וא\"ו דגחון אינו חצין של אותיות, ודרש דרש אינם חציין של תיבות."},
+        {"block_id": "bibliography_survey_intro", "source_ref": "book:hebrewbooks:5635#p4:bibliography_survey_intro", "text_he": "על הבעיה של וא\"ו דגחון כבר עמדו בין השאר חן (בדדיטשוב, תקע\"ו; הוצאת ברוקלין, תשמ\"ב, עם' פב), הוצאת אברהם (זיטומיר, תרכ\"ח; הוצאת ברוקלין, תשמ\"ט, עם' יב), משפחת סופרים (ווילנא, תרמ\"ג, עם' יח), תורה תמימה (וילנא, תרס\"ד, לויקרא יא:מב, אות קפח), משנת רבי יעקב (פיעטרקוב, תר\"ע, עם' לה), פסקי אליהו (סאעיני, תרצ\"א, ח\"ג, סימן ח), המקרא והמסורה (ירושלים, תשכ\"ד, עם' מד), בית אהרן (להגאון רבי אהרן ז\"ל, ניו יורק, תשל\"ח, חלק י\"א, עם' רפח), תורה שלמה (ר' מנחם כשר, ירושלים, תשל\"ח, חלק כ\"ח), ושיטתו של ר' יצחק יוסף זילבר, מובאה במאמרו של ר' אברהם קורמן, \"מספר הפסוקים המלים והאותיות שבתנ\"ך\" (שמעתיו י\"ח, תשמ\"א, מספר סה-סו, עמודים 27-26).", "footnote_ref": null, "text_note": "extensive bibliography of works discussing the vav-dechon/darash-darash midpoint claims; several book/page citations may benefit from cross-check by a bibliographic specialist"},
+        {"block_id": "editor_transition_final", "source_ref": "book:hebrewbooks:5635#p4:editor_transition_final", "text_he": "על הבעיה של דרש דרש (עיין במקורות הנזכרים למעלה לגבי וא\"ו דגחון, שרובם עוסקים גם בבעיה זו) עמד מחברנו, וחידש בה חידוש נפלא (עיין בפנים ח\"א, עמוד ד', בסוף ד\"ה יראני נא; וח\"ב, עם' יג; ד\"ה דרש דרש). וכאן ארחיב קצת את הדבור."}
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note_id": "fn1", "source_ref": "book:hebrewbooks:5635#p4:fn1", "text_he": "קטעים חשובים מתוך הספר נדפסו שנית בספר ויעל אליהו (לונדון, תשנ\"א), עמודים קעא-ריח."},
+        {"note_id": "fn2", "source_ref": "book:hebrewbooks:5635#p4:fn2", "text_he": "ר' מאיר וונדר, מאורי גליציה (ירושלים, תשמ\"ב), ח\"ג, עמודים 133 ו-233. על הרה\"ג ר' איציקל האמבורגר, עיין משנת הלוי, בעריכת ר' יצחק רפאל (ירושלים, תשמ\"ה)."},
+        {"note_id": "fn3", "source_ref": "book:hebrewbooks:5635#p4:fn3", "text_he": "עיין מס' סופרים ט:ב (מהדורת היגער, עם' 201), ובמקורות שנרשמו ע\"י היגער, שם, הערה 4."}
+      ],
+      "citations": [
+        {"cite": "בבלי קידושין ל.", "context_ref": "book:hebrewbooks:5635#p4:kiddushin_30_quote"},
+        {"cite": "מס' סופרים ט:ב", "context_ref": "book:hebrewbooks:5635#p4:fn3"},
+        {"cite": "ר' מאיר וונדר, מאורי גליציה, ח\"ג", "context_ref": "book:hebrewbooks:5635#p4:fn2"},
+        {"cite": "ר' אברהם קורמן, שמעתין י\"ח תשמ\"א מספר סה-סו", "context_ref": "book:hebrewbooks:5635#p4:bibliography_survey_intro"}
+      ],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p4:bibliography_survey_intro", "issue": "dense multi-citation bibliography with abbreviated publisher/page references; transcribed as printed, individual citation accuracy not independently verified against the cited works themselves"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "VISUALLY_VERIFIED",
+      "note": "This page is NOT part of the 1905 original -- it is a modern (post-1983, likely early-2000s per p.5's internal date) scholarly editorial preface titled 'Akdamot Milin', discussing the book's rarity, the author's lineage, and the vav-dechon/darash-darash masoretic-midpoint problem this book addresses. Session 3's U-004 already flagged this general content; this pass adds full block-level transcription."
+    },
+    {
+      "pdf_page": 5,
+      "printed_page": null,
+      "section": "front_matter",
+      "parasha": null,
+      "opening_anchor": "בשנת תשל\"ה יצא לאור מאמרו של ר' אברהם קורמן",
+      "closing_anchor": "כ\"ו שבט, תשמ\"ג לפ\"ק",
+      "content_blocks": [
+        {"block_id": "korman_1975_article", "source_ref": "book:hebrewbooks:5635#p5:korman_1975_article", "text_he": "בשנת תשל\"ה יצא לאור מאמרו של ר' אברהם קורמן על \"מספר הפסוקים בתורה\" (שמעתין יב, מספר מ\"ג). שם הזכיר לראשונה את שמו של ר' יצחק יוסף זילבר, מגולי רוסיה שזכה לעלות ארצה עוד בתקופה הקומוניסטית. קורמן שמע מזילבר תירוץ נפלא על בעית דרש דרש, והדפיסו במאמרו הנ\"ל. זילבר סיפר כי מצא את התירוץ אור תורה, קראקא, תרע\"ג. קורמן הוסיף בהערה (עם' 9, הערה 3):"},
+        {"block_id": "korman_footnote_quote", "source_ref": "book:hebrewbooks:5635#p5:korman_footnote_quote", "text_he": "בדקתי ב\"בית עקד ספרים\" לפריידברג ולא מצאתי שם ספר בשם \"אור תורה\" בהוצאת קראקא תרע\"ג. יתכן שהכוונה לספר \"אור תורה\" לר' מנחם ב\"ר יהודה די לונזאנו הדן בסדר הגהת ספר תורה, ור' אליהו ב\"ר עזריאל מוילנא הוסיף למהדורה שניה (האמבורג תצ\"ח) בענין השגיאות שנפלו בספרי התנ\"ך הנדפסים. טרם הצלחתי להשיג את הספר לעיין בו.", "text_note": "quoted as an italic/indented footnote-style block within the running text"},
+        {"block_id": "1980_reprint_note", "source_ref": "book:hebrewbooks:5635#p5:1980_reprint_note", "text_he": "בשנת תשמ\"א חזר והדפיס ר' אברהם קורמן את המאמר הנ\"ל \"בצורה מסודרת ועם כמה הוספות, השלמות, הארות והערות\" (שמעתין יח, מספר נה-נו), וחזר על התירוץ ששמע מר' יצחק יוסף זילבר, וגם על הערתו שבדק שלא מצא ספר בשם אור תורה שיצא לאור בקראקא תרע\"ג."},
+        {"block_id": "1980_book_dedication", "source_ref": "book:hebrewbooks:5635#p5:1980_book_dedication", "text_he": "בשנת תש\"ם יצא לאור ברק בני יעקב דקדוקי תורה לר' יעקב ריינין, ושם (עם' פז) הוא מצטט (בשם ר' אברהם קורמן ור' יצחק יוסף זילבר) ספר אור תורה, קראקא, תרע\"ג, ומודה שלא מצא ספר בשם זה שיצא לאור בקראקא תרע\"ג."},
+        {"block_id": "identification_conclusion", "source_ref": "book:hebrewbooks:5635#p5:identification_conclusion", "text_he": "כמובן, ספר אור תורה, קראקא, תרע\"ג, לא היה ולא נברא. והכוונה לספרנו, אהבת תורה (קראקא, תרס\"ה). והתירוץ שמביא קורמן בשם זילבר הוא הוא התירוץ של הרה\"ג ר' פנחס זלמן סג\"ל איש הורויץ ז\"ל. ובאמת יש לתמוה קצת על ר\"א קורמן ועל ר\"י זילבר שלא תקנו את הטעות שבדבריהם ע\"י עיון בספר תורה שלימה, כרך כ\"ח (ירושלים, תשל\"ח), עם' רפט, ששם כבר נזכר ספרנו בשמו הנכון ובשנת הדפסתו הנכונה. ובכל זאת, תיתי להון לר' אברהם קורמן ולר' יצחק יוסף זילבר שהרחיבו הדיבור על סוגית דרש דרש, והדפיסו רשימה שלימה של כל התיבות הכפולות שבתורה (שם, עם' 25-26)."},
+        {"block_id": "1983_edition_errata_note", "source_ref": "book:hebrewbooks:5635#p5:1983_edition_errata_note", "text_he": "בהוצאה זו תיקן אחי הרב יהושע נ\"י כמה טעויות דפוס שנפלו בהוצאה הראשונה. וכן הוסיף אחי הערות חשובות בסוף הספר (עמוד 54). בחלק השני של הספר, סידר המחבר את חידושיו כפי סדר הפרשיות של התורה, ולאחר כן הוסיף השמטות בסוף הספר. כוכב כזה * על יד שם הפרשה הוסיף המחבר דברים על פרשה זו בהשמטותיו שבסוף הספר.", "text_note": "editorial note explaining both the 1983-edition corrections and the book's own '*' cross-reference convention linking a parasha heading to its addendum in השמטות"},
+        {"block_id": "dedication_paragraph", "source_ref": "book:hebrewbooks:5635#p5:dedication_paragraph", "text_he": "ואני תפילה שספר אהבת תורה שוב יתקבל ויתאהב ע\"י לומדים התורה, ושזכות הלימוד בו תימנה לעלית נשמותיהם של מחברו הגדול, ושל אבינו היקר, המחנך הדגול, הרב ר' יצחק צבי לימן ב\"ר יהושע ליימן ז\"ל. הספר יוצא לאור לרגל יום היארצייט השלישי שלו, נפטר יום כ\"ו שבט, תש\"ס לפ\"ק, תנצב\"ה.", "text_note": "dedication naming the preface-author's late father, R' Yitzchak Tzvi Lyman (son of R' Yehoshua Lyman), 3rd yahrzeit 26 Shevat"},
+        {"block_id": "signature", "source_ref": "book:hebrewbooks:5635#p5:signature", "text_he": "שניאור זלמן בן לא\"א הרב ר' יצחק צבי לימן, כ\"ו שבט, תשמ\"ג לפ\"ק"}
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [
+        {"cite": "ר' אברהם קורמן, שמעתין יב מספר מ\"ג (1975)"},
+        {"cite": "ר' אברהם קורמן, שמעתין יח מספר נה-נו (1981)"},
+        {"cite": "ר' יעקב ריינין, ברק בני יעקב דקדוקי תורה (1980), עם' פז"},
+        {"cite": "תורה שלימה, כרך כ\"ח (ירושלים, תשל\"ח), עם' רפט"}
+      ],
+      "main_passage_addendum_links": [
+        {"note": "block 1983_edition_errata_note explicitly documents the book's own '*' convention linking a main-passage parasha heading to its corresponding addendum entry in השמטות (pp.94-99) -- this is the MAIN PASSAGE <-> ADDENDUM link mechanism the task's Phase 2 asks to preserve, now sourced directly from the book's own front matter rather than inferred"}
+      ],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"block_ref": "book:hebrewbooks:5635#p5:dedication_paragraph", "issue": "internal date tension: the dedication states the honoree's 3rd yahrzeit was 26 Shevat תש\"ס (2000), which would place this preface's composition around 2003 -- yet the signature block immediately below is dated 26 Shevat תשמ\"ג (1983), the same date as the p.3 reprint colophon. Both dates are transcribed exactly as printed; the discrepancy is NOT resolved here (identical-date coincidence vs. a genuine two-stage editorial history vs. a transcription/printing anomaly) -- flagged for GPT's cross-dataset/provenance layer, not mechanically resolvable from the page image alone."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "VISUALLY_VERIFIED"
+    }
+  ]
+}
