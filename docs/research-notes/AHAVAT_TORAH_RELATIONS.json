@@ -1,0 +1,159 @@
+[
+ {
+  "relation_id": "CR-01",
+  "kind": "CANDIDATE_RELATION",
+  "description": "Horowitz applies the same dual 'letters count + words count' method to BOTH the Chumash (pp.36-42) and the Five Megillot (pp.42-43) -- a recurring METHOD FAMILY, not a coincidence of two unrelated tables sharing a title.",
+  "pdf_pages": [
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "CR-02",
+  "kind": "CANDIDATE_RELATION",
+  "description": "Sefer Yetzira is cited at two separate points examined this pass (population-growth philosophy p.46; Korach letter-permutation addendum p.96), suggesting it functions as a recurring conceptual anchor for Horowitz. (A possible third occurrence near p.20 falls inside GPT's parallel-research range, pp.19-24, and is deliberately not claimed here per DO-NOT-TOUCH.)",
+  "pdf_pages": [
+   46,
+   96
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "CR-03",
+  "kind": "CANDIDATE_RELATION",
+  "description": "The two-Decalogues numerology motif (differing letter-counts between the Shemot and Devarim versions of the Ten Commandments) recurs at least 3 times (p.10, withdrawn per LEDGER §7; p.66; p.85) -- a persistent thematic thread across the book, independent of whether any single instance is verified.",
+  "pdf_pages": [
+   10,
+   66,
+   85
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "CR-04",
+  "kind": "DRIFT_CANDIDATE",
+  "description": "Sefirat HaOmer 1..49=1,225 triangular-sum construction appears TWICE: once in the front 'מגדל עוז' section (p.13, per Checkpoint_3 §D) and once again in the formal Emor/Behar parasha commentary (p.73). Competing readings: (a) two independent treatments of the same well-known construction (most likely, given the differing textual context each time); (b) the two passages are secretly the same passage mis-split across sections by this inventory's own page-mapping. NOT adjudicated -- would require close reading of both full passages side by side, which is interpretation-adjacent and left to GPT's deep-dive per this task's own division of labor.",
+  "pdf_pages": [
+   13,
+   73
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED (existence of both passages); UNCERTAIN (relationship between them)"
+ },
+ {
+  "relation_id": "CR-05",
+  "kind": "CANDIDATE_RELATION",
+  "description": "Erechin (Vayikra valuation-vow) arithmetic appears both in the front 'מגדל עוז' section (p.13) and again in the formal Behar parasha commentary (p.74), each with its own level of decomposition -- plausibly the front-section version is a summary/preview and the parasha-commentary version is the fuller halachic treatment, but not confirmed.",
+  "pdf_pages": [
+   13,
+   74
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "CR-06",
+  "kind": "CANDIDATE_RELATION",
+  "description": "Kosher/non-kosher animal-classification content (bird simanim) appears at both p.72 (Shmini/Tazria) and p.84 (Ekev/Re'eh, the Torah's own second kashrut-list parasha) -- consistent with the Torah's own structure (two kashrut passages) rather than a duplication by Horowitz.",
+  "pdf_pages": [
+   72,
+   84
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "CR-07",
+  "kind": "CANDIDATE_RELATION",
+  "description": "The 'two tablets of the Decalogue' numerology motif recurs a THIRD time distinctly from CR-03's letter-count angle, here as a physical/dimensional discussion (p.85, broken-tablets halachic status) -- same broad topic (two Luchot), different specific angle (physical status vs. letter-count) each time.",
+  "pdf_pages": [
+   85
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "CR-08",
+  "kind": "CANDIDATE_RELATION",
+  "description": "Same as CR-02 (Sefer Yetzira recurrence) -- retained as a separate ID because this specific instance (p.96, Korach addendum) is inside the 'השמטות' section rather than the main body, showing the citation habit persists even into the editorial-addenda layer.",
+  "pdf_pages": [
+   96
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "CR-09",
+  "kind": "CANDIDATE_RELATION",
+  "description": "The Torah-wide word-total 79,976 is stated in TWO separately-worded locations: the 'אוריין תליתאי' section (pp.25-31, per LEDGER §3.5/Checkpoint_4 §C) and the 'תיבות התורה' summary table (pp.41-42, this task's Task-2 finding). Two independently-worded passages agreeing digit-for-digit is strong (though not corpus-verified) internal corroboration that 79,976 is a stable, repeatedly-invoked AUTHOR_COUNT for Horowitz, not a one-off slip.",
+  "pdf_pages": [
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   41,
+   42
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED (both anchor totals read directly)"
+ },
+ {
+  "relation_id": "CR-10",
+  "kind": "CANDIDATE_RELATION",
+  "description": "The Torah-wide letter-total ~304,812 (second 'אותיות התורה' summary table, pp.41-42) is the SAME figure LEDGER §3.7 already cited generically for the book -- this task's Task-2 work specifically LOCATES that citation's source page for the first time.",
+  "pdf_pages": [
+   41,
+   42
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "D-01",
+  "kind": "DRIFT_CANDIDATE",
+  "description": "This agent's own earlier coverage-map task (self, not GPT) mislabeled PDF p.3 as 'הסכמות' (approbations from Torah greats). Direct visual reading shows the opposite: Horowitz explicitly declines to seek such approbations, plus a 1983 Brooklyn reprint colophon. Competing readings: none plausible -- direct textual reading is unambiguous; this is a correction, not a live disagreement.",
+  "pdf_pages": [
+   3
+  ],
+  "adjudicated_by_source_itself": true,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "D-02",
+  "kind": "DRIFT_CANDIDATE",
+  "description": "This agent's own earlier coverage-map task placed the 'השמטות' (addenda) section boundary at PDF p.95. Direct visual reading shows the section title and its first two entries (Noach, Chayei Sarah) already begin at the BOTTOM of PDF p.94. Competing readings: (a) coverage-map's page-level granularity simply missed a sub-page boundary (most likely -- matches the pattern already seen at pp.36-43's multiple sub-page boundaries); (b) an alternative explanation was not identified. Not further adjudicated.",
+  "pdf_pages": [
+   94
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "relation_id": "D-03",
+  "kind": "DRIFT_CANDIDATE",
+  "description": "A passage on PDF p.30 -- inside the page range this agent's Task-1 coverage-map classified purely as 'אוריין תליתאי'/'שרשים בתורה' (running-header-based) -- appears to carry the title 'סופר ומונה אותיות התורה' together with what reads as the start of the Aleph/Bet letter-count table, six pages before the running header itself switches to 'אותיות התורה' at p.36 (where this agent's Task-2 reconstruction began). However, p.32 (read in the same visual pass) shows unambiguous root-list content matching the established 'שרשים בתורה' character, and no letter-table continuation was found there. TWO COMPETING READINGS, NOT ADJUDICATED: (a) pp.30-35 contain a SHORT self-contained aside/preview of the letter-counting method embedded within the roots discussion, with the full independent project only properly beginning at p.36 (i.e. Task-2's scope was correct, and p.30's passage is a distinct, smaller unit); (b) letters Aleph/Bet/Gimel and part of Dalet of the SAME detailed table Task-2 reconstructed for pp.36-42 actually begin at p.30, meaning Task-2's dataset is INCOMPLETE at its start and pp.30-35 need re-examination as part of that same table. This is exactly the kind of ambiguity the task's STOP CONDITION anticipates -- flagged for a dedicated, slower re-verification pass rather than resolved by inference.",
+  "pdf_pages": [
+   30,
+   31,
+   32,
+   33,
+   34,
+   35
+  ],
+  "adjudicated_by_source_itself": false,
+  "confidence": "UNCERTAIN (visual read obtained, but the two competing structural interpretations were not adjudicated)"
+ }
+]

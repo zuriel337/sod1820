@@ -1,0 +1,126 @@
+[
+ {
+  "exception_id": "E-01",
+  "kind": "read_as / written_as (kri/ktiv)",
+  "description": "Adonai counting category: of 1,820 Tetragrammaton occurrences, 1,816 are READ as Adonai while 4 are read as Elohim; +14 WRITTEN sacred Adonai occurrences added separately. Explicit written-form vs. read-form distinction.",
+  "pdf_pages": [
+   8
+  ],
+  "source_note": "SOURCE_LOCATED (coverage-map task)",
+  "confidence": "SOURCE_LOCATED"
+ },
+ {
+  "exception_id": "E-02",
+  "kind": "exclude / same_root_or_not",
+  "description": "Letter-samekh raw count 1,833 normalized to 1,830 by excluding 3 occurrences under masoretic/textual exception rules tied to the ויהי בנסוע inverted-nun passage.",
+  "pdf_pages": [
+   8
+  ],
+  "source_note": "SOURCE_LOCATED (coverage-map task)",
+  "confidence": "SOURCE_LOCATED"
+ },
+ {
+  "exception_id": "E-03",
+  "kind": "same_root_or_not (exclusion)",
+  "description": "Repeated-consecutive-word population: Horowitz excludes 'לך לך' and 'שם שם' from the count because, in his terminology, they are 'not from one root' -- this reclassifies דרש דרש as the true midpoint.",
+  "pdf_pages": [
+   12
+  ],
+  "source_note": "SOURCE_LOCATED (coverage-map task)",
+  "confidence": "SOURCE_LOCATED"
+ },
+ {
+  "exception_id": "E-04",
+  "kind": "missing / extra",
+  "description": "Letter Tet: claims 1,820 tet-letters 'by design' with 16 MISSING in the second set of the Ten Commandments (Devarim) versus the first (Shemot) -- explicit missing-letter exception discussion. NOTE: this specific claim was later WITHDRAWN as 'not verified from source' per LEDGER §7.",
+  "pdf_pages": [
+   10
+  ],
+  "source_note": "VISUALLY_VERIFIED (content) + SOURCE_LOCATED (withdrawal, coverage-map §7)",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "exception_id": "E-05",
+  "kind": "before/after, beginning/end",
+  "description": "Bounded-span method throughout the book: spans are explicitly defined by a starting phrase and ending phrase ('from X to Y') before any count is taken -- observed repeatedly (p.13 Erechin, p.18 Levite passage, p.82 refuge-city boundaries).",
+  "pdf_pages": [
+   13,
+   18,
+   82
+  ],
+  "source_note": "VISUALLY_VERIFIED",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "exception_id": "E-06",
+  "kind": "letter-identity ambiguity (transcription-level exception, not source-level)",
+  "description": "The detailed letter-table's ט-נ interval (pp.37-38) could not be reliably parsed into distinct, ordered letter-paragraphs in Task-2's pass -- apparent repeated sightings of letters resembling Yod and Mem. This is a TRANSCRIPTION exception (a limitation of this inventory's reading), not a claimed source-level exception -- flagged separately from E-01 through E-05 which ARE the author's own stated exceptions.",
+  "pdf_pages": [
+   37,
+   38
+  ],
+  "source_note": "UNCERTAIN (this inventory's own limitation, not a source claim)",
+  "confidence": "UNCERTAIN"
+ },
+ {
+  "exception_id": "E-07",
+  "kind": "arithmetic mismatch (component sum vs printed total)",
+  "description": "Levite bounded-span: two sub-spans printed as 212 and 37 words sum to 249, but the printed combined total is 239 -- a 10-unit mismatch. Preserved as-is, not silently corrected.",
+  "pdf_pages": [
+   18
+  ],
+  "source_note": "VISUALLY_VERIFIED (all three source numbers read directly this pass)",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "exception_id": "E-08",
+  "kind": "arithmetic mismatch (component sum vs printed total)",
+  "description": "Letter Heh: the 12 transcribed Bereshit-parasha values sum to 6,574 against a printed Bereshit-cumulative of 6,330 (delta +244) -- from Task-2's reconstruction.",
+  "pdf_pages": [
+   36
+  ],
+  "source_note": "SOURCE_LOCATED (Task-2 finding A-01)",
+  "confidence": "SOURCE_LOCATED"
+ },
+ {
+  "exception_id": "E-09",
+  "kind": "arithmetic mismatch (component sum vs printed total)",
+  "description": "Letter Zayin: Devarim-parasha values plus the prior Bamidbar-cumulative sum to 2,081 against a printed final Torah-total of 2,198 (delta +117) -- from Task-2's reconstruction.",
+  "pdf_pages": [
+   36
+  ],
+  "source_note": "SOURCE_LOCATED (Task-2 finding A-02)",
+  "confidence": "SOURCE_LOCATED"
+ },
+ {
+  "exception_id": "E-10",
+  "kind": "letter-absence-as-meaningful",
+  "description": "The 42-station Masei journey-list passage is noted (per this pass's terse reading) as containing no instance of the letter Zayin, which Horowitz interprets symbolically re: 'כלי זין' (iron weapons) -- an ABSENCE treated as meaningful data, a distinct exception-type from the more common 'missing/extra' letter-count exceptions (E-04).",
+  "pdf_pages": [
+   82
+  ],
+  "source_note": "VISUALLY_VERIFIED (terse pass; full quotation not re-verified)",
+  "confidence": "UNCERTAIN"
+ },
+ {
+  "exception_id": "E-11",
+  "kind": "self-critical / open question (author's own or 1983-editor's)",
+  "description": "The 1983-edition errata (p.99) includes at least one entry that raises an explicit unresolved question ('צ\"ע', tzarich iyun) about an earlier claim (p.42, Shoftim, mizbeach/adama-shmena) rather than asserting a correction -- i.e. the book's own transmission history preserves an acknowledged open question, not just fixes.",
+  "pdf_pages": [
+   97,
+   99
+  ],
+  "source_note": "VISUALLY_VERIFIED",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "exception_id": "E-12",
+  "kind": "kri/ktiv (masoretic dotted letters)",
+  "description": "Chayei Sarah/Vayera: the dotted letters over 'איו' (Gen 18:9, 'Where is Avraham') are treated as a distinct masoretic exception carrying derash significance (Sarah's question to the angels).",
+  "pdf_pages": [
+   48
+  ],
+  "source_note": "VISUALLY_VERIFIED",
+  "confidence": "VISUALLY_VERIFIED"
+ }
+]

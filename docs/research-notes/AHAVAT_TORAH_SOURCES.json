@@ -1,0 +1,296 @@
+[
+ {
+  "source_as_printed": "מגלה עמוקות",
+  "normalized_candidate": "Megaleh Amukot (kabbalistic work, R. Natan Nata Shapiro)",
+  "pdf_pages": [
+   6
+  ],
+  "citation_context": "Opening Tetragrammaton-count invocation",
+  "what_claim_it_supports": "Framing for the divine-Name counting project",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "רמב\"ם ... הלכות יסודי התורה",
+  "normalized_candidate": "Rambam, Mishneh Torah, Hil. Yesodei HaTorah",
+  "pdf_pages": [
+   7
+  ],
+  "citation_context": "Divine unity/first-cause discussion",
+  "what_claim_it_supports": "Philosophical framing of Name-count",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "בית אהרן",
+  "normalized_candidate": "Beit Aharon (R. Aharon [Walkin?], cited generically)",
+  "pdf_pages": [
+   7
+  ],
+  "citation_context": "Adonai-spelling letter-count claim",
+  "what_claim_it_supports": "Adonai-spelling letter-count claim",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ליקוטי תורה לר' חיים ויטאל",
+  "normalized_candidate": "Likkutei Torah, R. Chaim Vital (Arizal's disciple)",
+  "pdf_pages": [
+   7
+  ],
+  "citation_context": "Adonai-spelling letter-count claim",
+  "what_claim_it_supports": "Kabbalistic support for Name-count",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "תנא דבי אליהו חלק א' פרק כ\"ה",
+  "normalized_candidate": "Tana d'vei Eliyahu, part 1 ch.25",
+  "pdf_pages": [
+   9
+  ],
+  "citation_context": "Future Temple discussion",
+  "what_claim_it_supports": "Temple/cornerstone aggadah",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "רבינו בחיי ... בפרשת עקב",
+  "normalized_candidate": "Rabbeinu Bachya on Parashat Eikev",
+  "pdf_pages": [
+   17
+  ],
+  "citation_context": "Tribal-number/creation-order discussion",
+  "what_claim_it_supports": "Heavens/malachim creation-order claim",
+  "quotation_or_paraphrase": "paraphrase (named explicitly)",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "מדרש הנחומא ... ר' שמעון",
+  "normalized_candidate": "Midrash Tanchuma (attributed to R. Shimon)",
+  "pdf_pages": [
+   17
+  ],
+  "citation_context": "Creation-order/Avraham-Yitzchak-Yaakov ages",
+  "what_claim_it_supports": "Age-symbolism claim",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ספר יצירה",
+  "normalized_candidate": "Sefer Yetzira",
+  "pdf_pages": [
+   46,
+   96
+  ],
+  "citation_context": "population-growth philosophy (p.46); Korach letter-permutation addendum (p.96)",
+  "what_claim_it_supports": "Letter-classification/kabbalistic framework; recurs at 2 points examined this pass (CR-02/CR-08); a third possible occurrence at p.20 falls in GPT's parallel-research range (pp.19-24) and is not claimed here",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ילקוט",
+  "normalized_candidate": "Yalkut (Shimoni, unspecified passage)",
+  "pdf_pages": [
+   16
+  ],
+  "citation_context": "Gender/creation philosophy",
+  "what_claim_it_supports": "General midrashic support",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ותרגום אונקלוס",
+  "normalized_candidate": "Targum Onkelos",
+  "pdf_pages": [
+   54
+  ],
+  "citation_context": "Yaakov/Lavan Hebrew-vs-Aramaic speech register",
+  "what_claim_it_supports": "Linguistic-register claim",
+  "quotation_or_paraphrase": "paraphrase, named",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "פירש רש\"י ז\"ל",
+  "normalized_candidate": "Rashi",
+  "pdf_pages": [
+   54,
+   55,
+   62,
+   84,
+   90,
+   99
+  ],
+  "citation_context": "Multiple: Aramaic register; cosmology drash; various",
+  "what_claim_it_supports": "Textual/exegetical support (recurs frequently)",
+  "quotation_or_paraphrase": "paraphrase, named",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "מסכת סוטה",
+  "normalized_candidate": "Talmud Bavli, tractate Sotah",
+  "pdf_pages": [
+   59
+  ],
+  "citation_context": "Yosef's oath re: burial in Canaan",
+  "what_claim_it_supports": "Halachic-linguistic construction claim",
+  "quotation_or_paraphrase": "paraphrase, named tractate",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ברמכ\"ם בהלכות שחיטה פרק ב' הלכה י\"א",
+  "normalized_candidate": "Rambam, Hil. Shechita 2:11",
+  "pdf_pages": [
+   61
+  ],
+  "citation_context": "Moshe/Aharon speech-impediment discussion",
+  "what_claim_it_supports": "Precise halachic citation",
+  "quotation_or_paraphrase": "paraphrase, precise chapter+halacha",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "מסכת פסחים דף פ'",
+  "normalized_candidate": "Talmud Bavli, Pesachim 80",
+  "pdf_pages": [
+   63
+  ],
+  "citation_context": "Korban Pesach timing",
+  "what_claim_it_supports": "Halachic-textual support",
+  "quotation_or_paraphrase": "paraphrase, named daf",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "כמות שמואל כ' י\"ח (implied)",
+  "normalized_candidate": "Shmuel I context (machatzit hashekel census parallel)",
+  "pdf_pages": [
+   68
+  ],
+  "citation_context": "Half-shekel census gematria",
+  "what_claim_it_supports": "Cross-Tanakh census comparison",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "מסנהררין / פרק כהן גרול",
+  "normalized_candidate": "Talmud Bavli, Sanhedrin (perek Kohen Gadol)",
+  "pdf_pages": [
+   78
+  ],
+  "citation_context": "Para Aduma purity-transmission chain (37 generations)",
+  "what_claim_it_supports": "Transmission-chain count (DS-07)",
+  "quotation_or_paraphrase": "paraphrase, named tractate",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "הרמב\"ן (implied)",
+  "normalized_candidate": "Ramban (Nachmanides)",
+  "pdf_pages": [
+   78,
+   92
+  ],
+  "citation_context": "Para Aduma; nations-inheritance theology",
+  "what_claim_it_supports": "Exegetical support",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "עיין ברמב\"ם הלכות מחוסרי כפרה פרק נ' הלכה ו'",
+  "normalized_candidate": "Rambam, Hil. Mechusrei Kappara",
+  "pdf_pages": [
+   95
+  ],
+  "citation_context": "Para Aduma count in addenda",
+  "what_claim_it_supports": "Precise halachic citation",
+  "quotation_or_paraphrase": "paraphrase, precise chapter+halacha",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "מלכים א' י\"ב (implied)",
+  "normalized_candidate": "Melachim I ch.12",
+  "pdf_pages": [
+   96
+  ],
+  "citation_context": "Kehuna/Levite division addendum",
+  "what_claim_it_supports": "Historical-political cross-reference",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ראש השנה ג'",
+  "normalized_candidate": "Talmud Bavli, Rosh Hashana 3",
+  "pdf_pages": [
+   98
+  ],
+  "citation_context": "Dog/'keleb' naming aside in errata-adjacent addendum",
+  "what_claim_it_supports": "Textual-linguistic support",
+  "quotation_or_paraphrase": "paraphrase, named daf",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ישעיהו קפיטל מ' פסוק ב'",
+  "normalized_candidate": "Yeshayahu (Isaiah) 40:2",
+  "pdf_pages": [
+   98
+  ],
+  "citation_context": "Addendum on Yerushalayim consolation theme",
+  "what_claim_it_supports": "Verse citation",
+  "quotation_or_paraphrase": "direct verse+chapter citation",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "מגילה י\"ג",
+  "normalized_candidate": "Talmud Bavli, Megillah 13",
+  "pdf_pages": [
+   99
+  ],
+  "citation_context": "Mordechai's advice to Esther, in the 1983-editor's errata list",
+  "what_claim_it_supports": "Aggadic support",
+  "quotation_or_paraphrase": "paraphrase, named daf",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ילקוט ראובני פרשת וישב סימן מ\"ב",
+  "normalized_candidate": "Yalkut Reuveni (kabbalistic anthology), Vayeshev §42",
+  "pdf_pages": [
+   99
+  ],
+  "citation_context": "1983-editor's erratum on p.10's mazalot discussion",
+  "what_claim_it_supports": "Cross-reference correction",
+  "quotation_or_paraphrase": "paraphrase, named+siman",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ר' אברהם קורמן; ר' יצחק יוסף זילבר; ר' יעקב רייניץ; ר' מאיר וונדר (מאורי גליציה)",
+  "normalized_candidate": "Modern (20th c.) bibliographers/rabbis re: this book's publication history",
+  "pdf_pages": [
+   4,
+   5
+  ],
+  "citation_context": "Editorial preface, tracing miscitation of this book as 'אור תורה'",
+  "what_claim_it_supports": "Publication-history/bibliographic claim",
+  "quotation_or_paraphrase": "paraphrase, all named",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "ר' יחיאל דוד (father); ר' יוקל הורוויץ (grandfather); ר' יצחק הלוי הורוויץ 'בעל משנת הלוי' (great-grandfather)",
+  "normalized_candidate": "Horowitz family lineage (rabbinic)",
+  "pdf_pages": [
+   4
+  ],
+  "citation_context": "Editorial preface genealogy",
+  "what_claim_it_supports": "Author's rabbinic pedigree",
+  "quotation_or_paraphrase": "paraphrase",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "source_as_printed": "משנת אברהם (Zhytomyr, 1868); משפחת סופרים (Vilna, 1904); תורה תמימה (Vilna, 1904); משנת רבי יעקב; פסקי אליהו; המקרא והמסורה; תורה שלמה (ר' מנחם כשר)",
+  "normalized_candidate": "Assorted 19th-20th c. halachic/masoretic reference works",
+  "pdf_pages": [
+   4
+  ],
+  "citation_context": "Vav-dot masoretic footnote (editorial preface)",
+  "what_claim_it_supports": "Masoretic-tradition citation chain for the Vayikra Vav-dot",
+  "quotation_or_paraphrase": "listed as a footnote citation chain",
+  "confidence": "VISUALLY_VERIFIED"
+ }
+]

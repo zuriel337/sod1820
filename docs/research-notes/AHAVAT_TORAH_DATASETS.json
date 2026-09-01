@@ -1,0 +1,288 @@
+[
+ {
+  "dataset_id": "DS-01",
+  "population": "Occurrences of the Tetragrammaton (YHVH)",
+  "dimensions": [
+   "parasha",
+   "book"
+  ],
+  "metric": "occurrence count",
+  "scope": "whole Torah",
+  "rows_description": "one row per parasha, subtotaled per book",
+  "subtotals": "165(Bereshit)/398(Shemot)/311(Vayikra)/396(Bamidbar)/550(Devarim)",
+  "total": "1,820",
+  "ordering_rule": "book order Bereshit->Devarim, parasha order within book",
+  "inclusion_rule": "written Tetragrammaton token",
+  "exclusion_rule": "not stated in this pass",
+  "exceptions": "none found in this pass",
+  "checksum": "book subtotals sum to 1,820 (arithmetic-plausible, not independently re-verified digit-by-digit this pass)",
+  "pdf_pages": [
+   6
+  ],
+  "confidence": "VISUALLY_VERIFIED (structure+total); SOURCE_LOCATED (exact per-parasha cells, from prior coverage-map task)"
+ },
+ {
+  "dataset_id": "DS-02",
+  "population": "Occurrences of each of the 22 Hebrew letters (individually)",
+  "dimensions": [
+   "letter",
+   "parasha",
+   "book"
+  ],
+  "metric": "letter occurrence count",
+  "scope": "whole Torah, one full sub-table per letter",
+  "rows_description": "one row per parasha per letter, cumulative running book-subtotals",
+  "subtotals": "cumulative per book (running, not independent)",
+  "total": "per-letter Torah totals (e.g. Heh~28,055 candidate, Tav~17,950 candidate)",
+  "ordering_rule": "alphabetical (with an unresolved gap ט-נ, see EXCEPTIONS/RELATIONS)",
+  "inclusion_rule": "literal consonant token occurrence",
+  "exclusion_rule": "not stated for this table specifically (contrast: samekh count elsewhere in book DOES state kri/ktiv exceptions)",
+  "exceptions": "letter-identity ambiguity for the ט-נ interval (pp.37-38); see EXCEPTIONS.json E-06",
+  "checksum": "2 explicit mismatches found (letters Heh and Zayin, Task-2 A-01/A-02), most other letters' component sums not independently re-checked",
+  "pdf_pages": [
+   36,
+   37,
+   38,
+   39,
+   40,
+   41
+  ],
+  "confidence": "UNCERTAIN (per-cell); SOURCE_LOCATED/VISUALLY_VERIFIED (structure) -- full detail in AHAVAT_TORAH_LETTER_PARASHA_DATA.json"
+ },
+ {
+  "dataset_id": "DS-03",
+  "population": "Total word count (all words, not one root/letter)",
+  "dimensions": [
+   "parasha",
+   "book"
+  ],
+  "metric": "word count",
+  "scope": "whole Torah",
+  "rows_description": "one row per parasha, cumulative book subtotals",
+  "subtotals": "Exodus book subtotal 16,703 (per Ledger §3.5); other book subtotals not independently re-extracted this pass",
+  "total": "79,976",
+  "ordering_rule": "book order",
+  "inclusion_rule": "literal word token",
+  "exclusion_rule": "not stated",
+  "exceptions": "none found",
+  "checksum": "CROSS-VALIDATED: identical 79,976 total appears in TWO separately-worded book locations (אוריין תליתאי §3.5/CP4§C at pp.25-31, AND the 'תיבות התורה' summary table at pp.41-42) -- see RELATIONS CR-09",
+  "pdf_pages": [
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   41,
+   42
+  ],
+  "confidence": "SOURCE_LOCATED/VISUALLY_VERIFIED for the two Torah-total anchors; UNCERTAIN for individual parasha cells"
+ },
+ {
+  "dataset_id": "DS-04",
+  "population": "Total letter count (all 22 letters combined)",
+  "dimensions": [
+   "parasha",
+   "book"
+  ],
+  "metric": "letter count",
+  "scope": "whole Torah",
+  "rows_description": "one row per parasha, cumulative book subtotals",
+  "subtotals": "not independently extracted this pass",
+  "total": "~304,812 (candidate, last digit uncertain)",
+  "ordering_rule": "book order",
+  "inclusion_rule": "any of the 22 letters",
+  "exclusion_rule": "not stated",
+  "exceptions": "none found",
+  "checksum": "CROSS-VALIDATED against LEDGER §3.7's independently-cited 304,812 figure to within a single plausible glyph misread",
+  "pdf_pages": [
+   41,
+   42
+  ],
+  "confidence": "SOURCE_LOCATED/VISUALLY_VERIFIED for the Torah-total anchor; UNCERTAIN for per-parasha cells"
+ },
+ {
+  "dataset_id": "DS-05",
+  "population": "אוריין תליתאי entity/attribution table (פעמים + תיבות dual metric per named person/group)",
+  "dimensions": [
+   "entity_or_group",
+   "parasha",
+   "book"
+  ],
+  "metric": "two metrics: occurrence-count (פעמים) AND associated-word-count (תיבות)",
+  "scope": "whole Torah",
+  "rows_description": "one row per named individual/group per parasha (e.g. Yaakov, Lavan, Rachel, Leah, Moshe, Aharon, Miriam, Caleb, Bnot Tzlofchad)",
+  "subtotals": "per-book, per-metric",
+  "total": "whole-Torah 79,976 (shared with DS-03, same underlying word-count)",
+  "ordering_rule": "physical/source order (Bereshit->Devarim), composite/group entities included as first-class rows",
+  "inclusion_rule": "any explicitly-attributed speech/mention",
+  "exclusion_rule": "not stated (per Checkpoint_4 §B, 'תיבות' broader than pure speech-attribution)",
+  "exceptions": "already flagged in Checkpoint_4: do not conflate פעמים with תיבות; do not conflate this table's Jacob figures with the separate Jacob-Rachel-Leah=1,820-speech-words claim (LEDGER §3.4)",
+  "checksum": "not independently re-checked this pass",
+  "pdf_pages": [
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31
+  ],
+  "confidence": "SOURCE_LOCATED/VISUALLY_VERIFIED for structure (from Task-1/coverage-map); per-cell values not re-verified"
+ },
+ {
+  "dataset_id": "DS-06",
+  "population": "Phrase/word occurrence-count table spanning MANY parashiot (Trumah through Haazinu observed)",
+  "dimensions": [
+   "parasha"
+  ],
+  "metric": "occurrence count of a specific recurring word/root (context suggests a construction/service-related verb, e.g. עשה/פעמים)",
+  "scope": "large span of the Torah (Shemot through Devarim at minimum)",
+  "rows_description": "one row per parasha with a numeral",
+  "subtotals": "not established this pass",
+  "total": "not established this pass (table not read to its end)",
+  "ordering_rule": "physical/source order",
+  "inclusion_rule": "not established",
+  "exclusion_rule": "not established",
+  "exceptions": "NEWLY DISCOVERED this pass; NOT in any prior task's inventory",
+  "checksum": "not computed -- table not fully transcribed",
+  "pdf_pages": [
+   70,
+   71
+  ],
+  "confidence": "VISUALLY_VERIFIED (existence+partial content); UNCERTAIN (full extent/total)"
+ },
+ {
+  "dataset_id": "DS-07",
+  "population": "Masoretic-purity transmission-chain count (Para Aduma witnesses, 'ל\"ז שורות')",
+  "dimensions": [
+   "generation_row"
+  ],
+  "metric": "count of generations/'rows' of tradition-bearers",
+  "scope": "post-Sinai transmission chain (Sanhedrin-cited)",
+  "rows_description": "37 rows total (single figure, not decomposed further in the observed passage)",
+  "subtotals": "none observed",
+  "total": "37",
+  "ordering_rule": "not applicable (single count)",
+  "inclusion_rule": "not established",
+  "exclusion_rule": "not established",
+  "exceptions": "none found",
+  "checksum": "not applicable (single figure, no internal components to sum)",
+  "pdf_pages": [
+   78
+  ],
+  "confidence": "VISUALLY_VERIFIED (existence); UNCERTAIN (exact scope of what is counted)"
+ },
+ {
+  "dataset_id": "DS-08",
+  "population": "Tochecha (blessings/curses) word-count comparison",
+  "dimensions": [
+   "blessing_vs_curse"
+  ],
+  "metric": "word count",
+  "scope": "Parashat Ki Tavo tochecha passage",
+  "rows_description": "at least 2 rows (blessings total, curses total)",
+  "subtotals": "not fully captured this pass",
+  "total": "not fully captured this pass",
+  "ordering_rule": "not established",
+  "inclusion_rule": "not established",
+  "exclusion_rule": "not established",
+  "exceptions": "none found",
+  "checksum": "not computed",
+  "pdf_pages": [
+   90
+  ],
+  "confidence": "VISUALLY_VERIFIED (existence); UNKNOWN (exact figures)"
+ },
+ {
+  "dataset_id": "DS-09",
+  "population": "Five Megillot letter-count table (אותיות חמש מגילות)",
+  "dimensions": [
+   "megillah"
+  ],
+  "metric": "letter count",
+  "scope": "Esther, Shir HaShirim, Ruth, Eicha, Kohelet",
+  "rows_description": "one row per megillah",
+  "subtotals": "per-megillah totals (not re-extracted precisely this pass)",
+  "total": "not captured (sum of the 5 not read)",
+  "ordering_rule": "canonical Tanakh order (Esther first, per liturgical-cycle convention observed)",
+  "inclusion_rule": "literal letter occurrence",
+  "exclusion_rule": "not stated",
+  "exceptions": "none found",
+  "checksum": "not computed",
+  "pdf_pages": [
+   42,
+   43
+  ],
+  "confidence": "VISUALLY_VERIFIED (existence+structure); UNCERTAIN (values)"
+ },
+ {
+  "dataset_id": "DS-10",
+  "population": "Five Megillot word-count table (חמש מגילות תיבות)",
+  "dimensions": [
+   "megillah"
+  ],
+  "metric": "word count",
+  "scope": "Esther, Shir HaShirim, Ruth, Eicha, Kohelet",
+  "rows_description": "one row per megillah",
+  "subtotals": "not re-extracted precisely this pass",
+  "total": "not captured",
+  "ordering_rule": "same order as DS-09",
+  "inclusion_rule": "literal word token",
+  "exclusion_rule": "not stated",
+  "exceptions": "none found",
+  "checksum": "not computed",
+  "pdf_pages": [
+   43
+  ],
+  "confidence": "VISUALLY_VERIFIED (existence); UNCERTAIN (values)"
+ },
+ {
+  "dataset_id": "DS-11",
+  "population": "Roots-in-Torah list (שרשים בתורה)",
+  "dimensions": [
+   "root_or_lexical_unit"
+  ],
+  "metric": "membership count (1,820 units)",
+  "scope": "whole Torah",
+  "rows_description": "one entry per root/lexical unit, in order of first Torah appearance",
+  "subtotals": "not decomposed by book in observed pages",
+  "total": "1,820 (AUTHOR_COUNT, per LEDGER §3.6)",
+  "ordering_rule": "first-appearance order (NOT alphabetical)",
+  "inclusion_rule": "Horowitz's own identity/normalization rule (not fully recovered)",
+  "exclusion_rule": "not stated",
+  "exceptions": "LEDGER §3.6 explicitly flags: do not equate with modern triliteral-root grammar without recovering Horowitz's own rule",
+  "checksum": "not computed (full list not transcribed)",
+  "pdf_pages": [
+   30,
+   31,
+   32,
+   33,
+   34,
+   35
+  ],
+  "confidence": "SOURCE_LOCATED (from coverage-map); UNCERTAIN (full list content)"
+ },
+ {
+  "dataset_id": "DS-12",
+  "population": "Editorial errata list (1983 edition, R. Yehoshua Lyman)",
+  "dimensions": [
+   "page_and_word_anchor"
+  ],
+  "metric": "not numeric -- textual corrections/questions",
+  "scope": "whole book (front matter through p.99)",
+  "rows_description": "one row per correction, each keyed to a specific earlier page+word ('עמוד X ד\"ה Y')",
+  "subtotals": "not applicable",
+  "total": "not applicable (not a numeric dataset)",
+  "ordering_rule": "page order of the ANCHORS being corrected, not this list's own page order",
+  "inclusion_rule": "any prior-page claim the 1983 editor chose to revisit",
+  "exclusion_rule": "not stated",
+  "exceptions": "at least one row raises an explicit unresolved question ('צ\"ע') rather than asserting a fix",
+  "checksum": "not applicable",
+  "pdf_pages": [
+   99
+  ],
+  "confidence": "VISUALLY_VERIFIED"
+ }
+]

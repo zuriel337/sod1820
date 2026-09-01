@@ -1,0 +1,145 @@
+[
+ {
+  "calculation_id": "CALC-01",
+  "inputs": [
+   "165 (Bereshit)",
+   "398 (Shemot)",
+   "311 (Vayikra)",
+   "396 (Bamidbar)",
+   "550 (Devarim)"
+  ],
+  "operations": [
+   "sum the 5 book subtotals"
+  ],
+  "intermediate_values": [
+   "165+398=563",
+   "563+311=874",
+   "874+396=1270",
+   "1270+550=1820"
+  ],
+  "output": "1,820",
+  "why_exclusion_or_operation_performed": "Straight summation, no exclusion needed (this is the book-total audit trail Horowitz himself gives).",
+  "pdf_pages": [
+   6
+  ],
+  "truth_class": "ARITHMETIC_VERIFIED (the arithmetic itself checks out; the 5 inputs remain AUTHOR_COUNT/SOURCE_CLAIM)",
+  "confidence": "VISUALLY_VERIFIED"
+ },
+ {
+  "calculation_id": "CALC-02",
+  "inputs": [
+   "1,833 (raw samekh count, per coverage-map task's earlier finding)"
+  ],
+  "operations": [
+   "exclude 3 occurrences under a stated masoretic/textual rule (first samekh + inverted-nun-adjacent marks)"
+  ],
+  "intermediate_values": [
+   "1,833 - 3 = 1,830"
+  ],
+  "output": "1,830",
+  "why_exclusion_or_operation_performed": "Horowitz explicitly excludes 3 occurrences citing masoretic tradition (ויהי בנסוע context); reason given in source, independence of the exclusion from the target number NOT established.",
+  "pdf_pages": [
+   8
+  ],
+  "truth_class": "AUTHOR_COUNT for 1,833 and for the exclusion rule; ARITHMETIC_VERIFIED for 1,833-3=1,830; INTERPRETATION for why 1,830 matters",
+  "confidence": "SOURCE_LOCATED (from coverage-map task, not re-verified visually this pass)"
+ },
+ {
+  "calculation_id": "CALC-03",
+  "inputs": [
+   "Levite passage word-count: 'from Take the Levites to the Sanctuary'=212",
+   "'from this to their charge'=37"
+  ],
+  "operations": [
+   "sum the two bounded sub-spans"
+  ],
+  "intermediate_values": [
+   "212+37=249... "
+  ],
+  "output": "239 (as printed; NOTE: 212+37=249, a 10-unit ARITHMETIC MISMATCH against the printed 239)",
+  "why_exclusion_or_operation_performed": "Bounded-span decomposition; Horowitz gives both sub-spans and the combined total explicitly.",
+  "pdf_pages": [
+   18
+  ],
+  "truth_class": "SOURCE_CLAIM for the two sub-span values and for the printed total; the combination itself does NOT arithmetically verify at face value -- flagged as an ANOMALY, not silently corrected (see EXCEPTIONS E-07)",
+  "confidence": "VISUALLY_VERIFIED (all three printed numbers directly read); ARITHMETIC_VERIFIED status explicitly WITHHELD due to the mismatch"
+ },
+ {
+  "calculation_id": "CALC-04",
+  "inputs": [
+   "30 two-letter Masoretic words",
+   "2 letters each"
+  ],
+  "operations": [
+   "multiply 30x2"
+  ],
+  "intermediate_values": [
+   "30*2=60"
+  ],
+  "output": "60",
+  "why_exclusion_or_operation_performed": "Establishes the letter-count of the two-letter-word set as an input to a further construction (60->1..60 sum->1,830, per coverage-map task).",
+  "pdf_pages": [
+   12
+  ],
+  "truth_class": "ARITHMETIC_VERIFIED (trivial multiplication); SOURCE_CLAIM for the underlying 30-word Masoretic set's existence",
+  "confidence": "SOURCE_LOCATED (from coverage-map task)"
+ },
+ {
+  "calculation_id": "CALC-05",
+  "inputs": [
+   "1 through 60 (triangular series)"
+  ],
+  "operations": [
+   "sum the arithmetic series 1+2+...+60"
+  ],
+  "intermediate_values": [
+   "60*61/2=1830"
+  ],
+  "output": "1,830",
+  "why_exclusion_or_operation_performed": "Standard triangular-number construction, connects the 60-letter figure (CALC-04) to 1,830.",
+  "pdf_pages": [
+   12
+  ],
+  "truth_class": "ARITHMETIC_VERIFIED",
+  "confidence": "SOURCE_LOCATED"
+ },
+ {
+  "calculation_id": "CALC-06",
+  "inputs": [
+   "1 through 49 (Omer count)"
+  ],
+  "operations": [
+   "sum the arithmetic series 1+2+...+49"
+  ],
+  "intermediate_values": [
+   "49*50/2=1225"
+  ],
+  "output": "1,225",
+  "why_exclusion_or_operation_performed": "Sefirat HaOmer triangular-number construction; the subsequent day-50 bridge to a larger number is explicitly NOT completed in the source per Checkpoint_3 §D.",
+  "pdf_pages": [
+   13
+  ],
+  "truth_class": "ARITHMETIC_VERIFIED (the 1,225 sum itself); the onward claim toward day-50 remains OPEN/not verified",
+  "confidence": "SOURCE_LOCATED"
+ },
+ {
+  "calculation_id": "CALC-07",
+  "inputs": [
+   "1,816 (Tetragrammaton occurrences read as Adonai)",
+   "14 (written sacred Adonai occurrences)"
+  ],
+  "operations": [
+   "sum"
+  ],
+  "intermediate_values": [
+   "1,816+14=1,830"
+  ],
+  "output": "1,830",
+  "why_exclusion_or_operation_performed": "Distinguishes written form from read-tradition identity before combining.",
+  "pdf_pages": [
+   8
+  ],
+  "truth_class": "ARITHMETIC_VERIFIED (sum); AUTHOR_COUNT for each addend; the underlying kri/ktiv classification is a MASORETIC_RULE, not a raw text count",
+  "confidence": "SOURCE_LOCATED"
+ }
+]
