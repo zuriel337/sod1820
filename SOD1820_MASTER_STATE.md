@@ -806,6 +806,8 @@ Roadmap: `🧭 NUMERIC ROOT + RELATION ENGINE v1 — RECONCILIATION 25.8.2026` (
 | 52 | 1.9.2026 | **`TRACKING_CLOSURE` — Canonical Share Human-Gate predicate נסגר וחי.** PR #267 → `main` (`c2f3b91f`, image-share+/archive-entry+WhatsApp-CTA+video-play+share-contract). Predicate קנוני: `event_type='share' OR section='share'` (מיושם ב-`supabase/migrations/20260901120000_canonical_share_predicate_readers.sql`, כבר על `main`). | Human-Gate ZURIEL | לא-הוחלף שום סעיף. **הבחנה קפואה, לא-לטשטש:** `historical_baseline` (`community_share_count`=7326, provenance **`UNKNOWN`** — לא-משוחזר, לא-נמחק) **≠** `tracked_share_events` (הזרם-הנספר-מהיום, 334 בזמן-הכתיבה). 7326+334=7660 מוצג-כשקיפות-שני-מספרים, לא-כ"אמת-אחת" | `CLOSED`+`LIVE`. **לא-בוצע audit-tracking נוסף בסבב-הזה** (per הוראה מפורשת) |
 | 53 | 1.9.2026 | **`CLEAN_TRAFFIC_CLASSIFICATION_FOUNDATION_V1` — §23.23 חדש: חוזה-סיווג קנוני HUMAN\|BOT\|UNKNOWN מעל Behavioral Bot v3 הקיים.** Human-Gate **ZURIEL, 2026-09-01**, אחרי 3 סבבי-כיול READ-ONLY. PR #280 → `main` (merge commit `9893e9b1`). DB LIVE · Vercel `SUCCESS` על ה-merge-commit. Canonical owner: `nodes.rule_id='traffic_intelligence_law'` **rule_version 3→4** + `project_codex.slug='traffic_intelligence_law'` (מירור מלא, תבנית-קיימת לחוזה-זה). ר' §23.23 למטה לסיכום-Pointer בלבד — **הגוף התפעולי-המלא חי ב-nodes/project_codex, לא כאן** (Canonical-Owner Pointer, §0 סעיף 16). | Human-Gate ZURIEL | לא-הוחלף שום סעיף. `traffic_intelligence_law` v1-v3 (Behavioral Bot v2/v3) **נשמר-כלשונו, לא-נערך** — אומת bytewise (`pg_get_functiondef` hash `1a2e30ce9e4378b975cbf79710fb4cdb`, זהה לפני/אחרי כל שלב) | `IMPLEMENTED`+`MERGED`+`DEPLOYED`(Vercel `SUCCESS`)+`LIVE`+`VERIFIED` (14 מבחני-קבלה, כולל תיקון-זהות-חשבון post-hoc: כל `person_id` בסשן נבדק, לא-רק-אחד) |
 | 54 | 1.9.2026 | **PR #222 (`gpt/traffic-temp-disk-fix`) — סגירה מדויקת: מעולם לא-מוזג; `CLOSED AS SUPERSEDED`.** ה-migration המאומת שלו (temp-disk cache fix) הועבר-בפועל ל-`main` **דרך PR #280** (reproducibility-only port, זהות-hash מאומתת 3 פעמים נפרדות). ה-drift הספציפי שייצג PR #222 (קוד-חי-ב-DB שלא-קיים ב-`main`) **`CLOSED`**. | עובדתי, אין-Human-Gate-נדרש לתיעוד-סגירה | **רשומות `work_log` ההיסטוריות של PR #222 לא-נכתבות-מחדש** (`NO-DISAPPEARING-WORK`) — זו תוספת-provenance בלבד | `CLOSED AS SUPERSEDED` · `NOT MERGED` (עצמו) · תוכנו `LIVE` (via #280) |
+| 55 | 1.9.2026 | **`KNOWLEDGE_GOVERNANCE_FOUNDATION_CLOSURE` — §23.25 חדש: Foundation Expansion Gate הופעל על דומיין Rule/Knowledge Governance.** Human-Gate **ZURIEL, 2026-09-01**, אחרי 12 סבבי READ-ONLY/PRE-WRITE/WRITE. DB LIVE: 4 canonical mirrors + 5 explicit rule→rule edges (`extends_rule`) + מיזוג-כפילות `anagram_not_novel`/`anagram_not_novelty` (v2, propagate=true נשמר). Canonical owner: `nodes(type='rule')` (264 rule_id ייחודיים, 299 שורות כולל היסטוריה) + `edges`. ר' §23.25 למעלה. | Human-Gate ZURIEL | לא-הוחלף שום סעיף. `unified_graph_law`/`reality_graph_law`(v2) נשמרו-כלשונם | `IMPLEMENTED`+`DB LIVE`+`VERIFIED` (docs-only הסעיף; ה-DB-writes עצמם כבר-בוצעו-ואומתו בסבבים קודמים) |
+| 56 | 1.9.2026 | **`RESEARCH_STUDIO_PORTABLE_CONTEXT_SOURCE_STRESS_TEST_CLOSURE` — §23.26 חדש: Portable Research Context (עקרון-שכבר-אושר-Human-Gate ב-`work_log` `2d5bb60b`/`783024e5`, GPT-כתיבה-נעצרה-מ-write-safety) נכתב-בפועל-כעת בכלי-עריכה-אדיטיבי; אהבת תורה מתועד כ-Source Research stress-test (לא Book Foundation).** DRIFT נמצא-ונסגר: GPT (`work_log` `657c5161`, 15:09 UTC) דיווח PDF #5635 כ-session-local-בלבד; אימות-חי-עצמאי בסבב-הזה מצא ש-`storage.objects` `gallery/Book/Hebrewbooks_org_5635.pdf` **כן קיים** (id `b2d752f0`, נוצר 15:14:58 UTC — **אחרי** רגע-הדיווח, אין-סתירה). שקילות-ביט-לביט מדווחת (לא-שוכפלה-עצמאית כאן) מ-commit `004fc421` (סשן-Claude נפרד). Private candidate checkpoints (`research_objects` `7bf36d95`/`2d16a770`) אומתו-קיימים. **אין** bulk ingestion/canonicalization/publication. | Human-Gate ZURIEL | לא-הוחלף שום סעיף. רשומת `657c5161` (GPT, "SOURCE ARTIFACT GAP remains") **נשמרת כלשונה** — נכונה-בזמנה; זו תוספת-מתוארכת-גוברת בלבד (`NO-DISAPPEARING-WORK`) | `IMPLEMENTED`(docs-only) · `CONTRACT LEVEL SUFFICIENT` · `book:hebrewbooks:5635` נשאר `PRIVATE CANDIDATE`, לא-קנוני/לא-מפורסם |
 
 ---
 
@@ -1355,3 +1357,93 @@ Canonical Share Human-Gate predicate: `event_type='share' OR section='share'` �
 אין שינוי-קוד, אין schema, אין migration, אין UI, אין חיווט-`research_objects`, אין מיזוג-ל-`findAtSkips`/Journey-branch/`MatrixStack3D`, אין הסרת-יכולת. סגירה תיעודית ברמת-Foundation בלבד.
 
 **Provenance:** `work_log actor=CLAUDE task=ELS_85_CAPABILITY_LIVE_RECONCILIATION` (READ-ONLY, 1.9.2026) → `task=ELS_85_CAPABILITY_CANONICAL_CLOSURE` (docs-only, 1.9.2026) · `docs/els-capability-audit.md` §12 · Roadmap `WS-ELS-CAPABILITY-AUDIT` (עודכן-מקביל). ענף: `claude/els-85-capability-canonical-closure`. **לא-מוזג ל-`main` בלי-אישור-מפורש-של-צוריאל.**
+
+---
+
+## §23.25 — ONE TREE / KNOWLEDGE GOVERNANCE FOUNDATION EXPANSION GATE CLOSURE (1.9.2026, `KNOWLEDGE_GOVERNANCE_FOUNDATION_CLOSURE`, actor=CLAUDE, Human-Gate ZURIEL)
+
+> **מעמד:** תיעוד-SSOT **docs-only**, additive-בלבד. סוגר את Foundation Expansion Gate שהופעל על דומיין **Rule/Knowledge Governance** (12 סבבי READ-ONLY/PRE-WRITE + Human-Gate-approved writes, 1.9.2026) — עומד **לצד** (לא-מחליף/לא-מכליל) את סגירות-הדומיין הנפרדות של `WS-CROSS-ENGINE`(§23.21)/Raziel(§23.22)/Clean-Traffic(§23.23-E)/ELS(§23.24). כל-סגירת-Gate-בדומיין-בודד **אינה** מהווה מעבר-פרויקטלי-רוחבי ל-Projection.
+
+### A. One Tree — substrate נשאר יחיד
+
+`unified_graph_law`+`reality_graph_law`(v2) אומתו כחוזה-חי-וממומש (nodes/edges קיימים, לא רק מוצהרים). **לא נוצר Rule Tree/Rule Engine/Rule Store מקביל.** תיקון-סיווג (מ-Pass 5-6, מאושר-חי): `reality_graph_law` v1=מועמד-כפול/היסטורי, v2=הרחבה-מהותית (Identity Qualification test) — לא-כפילות. `convergence_law` (`project_codex`, לא ב-`nodes`) נשאר כפי-שהוא — **לא נוצר node/rule שלישי** לאותו רעיון.
+
+### B. Rule Registry — מצב-מאומת-בזמן-הסגירה (לא-קבוע-נצחי)
+
+חוקים קנוניים חיים דרך `nodes(type='rule')` עם `rule_id` יציב + `rule_version`/`is_active`/provenance (`rule_versioning`). ספירה מאומתת-חי **בסבב-כתיבה-זה** (1.9.2026, אחרי Pass 12 anagram-merge): **264 `rule_id` ייחודיים (299 שורות כולל היסטוריה+18 rule_id=NULL)** — תיקון-דיוק על-ספירת-הטיוטה המקורית (298 שורות, שנרשמה לפני Pass 12); ספירת-264-ה-`rule_id`-הייחודיים לא-השתנתה (Pass 12 הוסיף שורת-גרסה נוספת לאותו `rule_id`, לא `rule_id` חדש). **אלה עובדות-שנצפו-ברגע-הסגירה, לא-קבועים-נצחיים.**
+
+### C. Phase-1 Graph Integration
+
+4 canonical governance mirrors נוספו ל-`nodes(type='rule')` (mirrors מוכחים של החלטות-קיימות ב-CLAUDE.md, לא החלטות-סוכן חדשות): `els_single_engine_law`, `social_autonomy_law`, `deploy_on_request`, `platform_tiers_law`. 5 edges מפורשים (`relation_type='extends_rule'`) מומשו **רק** היכן שהטקסט הקנוני של החוק עצמו הצדיק-במפורש את הקשר (ציטוט-ישיר "מרחיב את X", לא-הסקה-נושאית): `entity_structure_law→unified_graph_law` · `graph_privacy_foundation_law→entity_structure_law` · `graph_privacy_foundation_law→unified_graph_law` · `els_research_layer_law→unified_graph_law` · `forum_publish_autonomy_law→research_contribution_law`. **אין-רמז שכל חוק דורש edge** — רוב-מכריע (255+/264) נשארים edge-less-by-design, וזה מצב-תקין.
+
+### D. `depends_on` Contract
+
+`nodes.depends_on` הוא metadata קנוני לגרסון-חוקים/ניתוח-השפעת-שינוי, לא-קשר-תוכני-לגרף. תכליתו-המוצהרת כבר-ממומשת ע"י ה-view החי `rules_dependency_tree`. **`depends_on` אסור-שיעבור bulk-materialization ל-edges** — נמצא (Pass 11) סיכון-dual-source-of-truth אמיתי. זוגות-ספציפיים עשויים-לקבל edge סמנטי **רק** כשמוצדק-עצמאית ע"י הטקסט-הקנוני שלהם.
+
+### E. Rule Traceability
+
+`RULE TRACEABILITY FOUNDATION = SUFFICIENT` (Pass 7, אושר-מחדש Pass 10). התשתית-הקיימת כבר-משמרת rule identity/version דרך מנגנוני-provenance קנוניים (`decision_ledger.rules_snapshot`/`research_candidates.rules_snapshot`/`learned_patterns.rules_env`/`research_objects.meta`). **Invariant שנרשם (`work_log` `d4866325`, Pass 8):** "כשחוק משתתף-מהותית בייצור/הערכה של Research Object/Finding/Candidate/Decision/Pattern — זהות-החוק+גרסתו חייבות-לשרוד דרך מנגנון-ה-provenance-הקנוני-הקיים של האובייקט. לא-כל-אובייקט-מחקרי-דורש-חוק." `Application ≠ Evaluation ≠ Finding ≠ Claim ≠ Fact. Rank ≠ Truth.` **לא נדרש Rule Evaluation Store/Engine/Table חדש.**
+
+### F. Anagram Reconciliation (Human-Gate case #1/3)
+
+`anagram_not_novelty` v2 = זהות-קנונית-פעילה (id `8771c3df-9eda-44c3-a9e7-c59c419f0c25`). `anagram_not_novel` v1 = היסטורי-לא-פעיל (`duplicate_of`+provenance מפורש). `anagram_not_novelty` v1 = גרסה-היסטורית-לא-פעילה. **היסטוריה נשמרה במלואה, 0 מחיקה.** `metadata.propagate=true` נשמר-ואומת דרך הצרכן-החי (`fn_active_method_rules()`→`metatron_context`→תגובות-AI-חיות ב-wa-raziel/ai-analyze). אומת-חי-שוב בסבב-הזה: 1 שורה פעילה בלבד (v2), 2 שורות היסטוריות משומרות (0 מחיקה).
+
+### G. Human-Gate Cases #2-3 — ללא-שינוי
+
+`agents_team_law` נשאר קנוני; `agent_research_team_law` נשאר היסטורי/לא-פעיל עם provenance-supersession-קיים (16.7.2026) — **לא נוצר edge/relation_type חדש.** `number_click_hint_law` ו-`post_autolink_law` נשארים שני חוקים נפרדים.
+
+### H. Open Extension Points (לא-חוסמים)
+
+**Method Identity** — `OPEN FOUNDATION EXTENSION POINT`. אין `nodes(type='method')`, אין FK ל-`gematria_methods`, אין `governs_method` edges. **לא-חוסם את סגירת-Knowledge-Governance.** **Graph-navigation projection של `depends_on`** — `EXTENSION POINT ONLY`. עתידי: Rule Page · Rule Intelligence · Multidimensional Rule Rank · Rule+Method combination analytics · המלצות-רזיאל.
+
+### I. Blocked Governance Candidates — נשארים-חסומים
+
+`active_systems_map` · `command_center_law` · `convergence_law` · `ssot_terminology_routing_law` · `no_repeated_questions_law`. **לא-קודמו-בשקט בסגירה-הזו** — אומת-חי-שוב: 0 שורות בכל חמישתם.
+
+### J. Foundation Verdict
+
+`MUST FOUNDATION NOW = 0 ידועים.` **`KNOWLEDGE GOVERNANCE FOUNDATION — SUFFICIENT.`** `Foundation → Projection → Experience` — משמרים **יכולת, אמת ו-provenance**, לא-בהכרח-את-הממשק-הקיים. **`ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה.**
+
+**Provenance:** `work_log` `d4866325`(Phase-1, Pass 8) · `3da051b1`(edge#4, Pass 9) · `1468eb16`(anagram merge, Pass 12) · 12 סבבי READ-ONLY/PRE-WRITE/WRITE ב-Human-Gate ZURIEL (1.9.2026), אפס schema/table/engine/store חדש.
+
+---
+
+## §23.26 — RESEARCH STUDIO · PORTABLE CONTEXT + SOURCE RESEARCH STRESS-TEST CLOSURE (1.9.2026, actor=CLAUDE, Human-Gate ZURIEL)
+
+> **מעמד:** תיעוד-SSOT **docs-only**, additive-בלבד. סוגר שני-פריטים-קשורים ברמת-Foundation: (1) **Portable Research Context** — עקרון שכבר-אושר-Human-Gate ברמת-חוזה בסבב-קודם (GPT, `work_log` `2d5bb60b`/`783024e5`, 1.9.2026), אך ניסיון-הכתיבה-שלו ל-Master/Roadmap **נעצר בכוונה** (`STOPPED_NO_SAFE_BYTE_PRESERVING_WRITE`) כי כלי-הכתיבה שהיה-זמין-אז היה full-file-replace ולא-patch-אדיטיבי — הכתיבה-בפועל מתבצעת **כאן**, בסבב-הזה, עם כלי-עריכה-אדיטיבי, ומעתיקה-את-ההחלטה-שכבר-אושרה **מילולית**, לא-פותחת-אותה-מחדש. (2) **אהבת תורה כ-stress-test אמיתי-של-מקור** (Source Research) על הארכיטקטורה-הקיימת — **לא Book Foundation חדשה**.
+
+### A. Portable Research Context — ההחלטה שכבר-אושרה (מועתקת-מ-`work_log`, לא-מנוסחת-מחדש)
+
+מקור: `work_log` `2d5bb60b-ecc3-4648-b22b-25ad3abb3c46` (BEFORE, GPT, 09:31 1.9.2026) → `783024e5-8ff1-4494-9468-a4b4420d604d` (STOPPED WRITE-SAFETY, 09:42 1.9.2026). ה-Human-Gate-decision-text המקורי, כלשונו: **"FOUNDATION SUFFICIENT — PORTABLE RESEARCH CONTEXT; MULTI-ENTRY RESEARCH LAB FOUNDATION SUFFICIENT AT CONTRACT LEVEL; MUST FOUNDATION NOW=0 known; no new Research Lab workstream/store/identity; inquiry identity survives while focus/projection may change; ACTIVE_NOW unchanged."** עקרון-הליבה: **"Inquiry identity survives; focus and projection may change."** אין `research_context` table/store חדש. אין Research Lab OS מקביל. Research Context (כפי-שכבר-מוגדר ב-`docs/research-studio-v1-contract.md` §24.8 RECONCILIATION, 24.8.2026 — ר' Roadmap) הוא **חוזה-לוגי בלבד** (שאילתה/scope/Findings-פעילים/Dimensions/Lens/Journey-position), לא-בעל-אחסון-רביעי. התלות שנרשמה בהחלטה המקורית הייתה cross-verify מול `claude/research-studio-depth-crosswalk-4h0m2k` (commit `cf0f1400`). מאז ההחלטה המקורית התלות נסגרה בפועל: `cf0f1400` מאומת כ-ancestor של `origin/main`; Depth Dimension Inspector שמעליו (`8ee255db`) נכנס גם הוא ל-main. האזכור המקורי נשמר כאן כ-provenance של סדר-הפעולות בזמן ההחלטה, לא כסטטוס-שחרור נוכחי.
+
+### B. אהבת תורה — Source Research Stress-Test (לא Book Foundation)
+
+`Source/Book = Source + Provenance ראשית. Source ≠ Finding ≠ Claim ≠ Evidence ≠ Calculation ≠ Interpretation.` `One Research OS · One Portable Research Context · One Reality Graph · One Human Gate.` המקור עצמו (`book:hebrewbooks:5635`, ר׳ פנחס זלמן הלוי סג"ל איש הורוויץ, Podgórze/Kraków תרס״ה) אינו-מייצר-ארכיטקטורה-חדשה — הוא **מוכיח שהחוזה-הקיים** (Research Intake Foundation Contract, §23.6-§23.13) **מחזיק** על corpus שלישי-במהותו (אחרי צבי/עמית): מקור-ספר-סרוק, ריבוי-סוכנים-מקבילים (Claude+GPT, מספר branches נפרדים), ורצף-דפים-ולא-אירועים-בודדים.
+
+**ראיות-שאומתו-חי בסבב-הזה (לא-נלקחו-כנתון):**
+1. **Branch + Commit** — `claude/ahavat-torah-letter-dataset-closure` קיים-חי (`git ls-remote` אומת). commit `b33002bd70214cbf961f149d266353d173a8f3ad` ("session exit checkpoint, corpus verified unaltered") קיים-ומאומת. הענף **המשיך-להתקדם** אחרי-אותו-commit לכדי `004fc421399a2ea67a30be402d1ee54c8a8e0417` (2 commits נוספים, docs-only, additive, 0 deletions) — ר' §C למטה.
+2. **Private candidate Research OS checkpoint(s)** — שתי שורות `research_objects` אומתו-קיימות ב-`linswmnnkjxvweumprav`: `7bf36d95-008b-4f3b-aa3a-2476c29dab34` (protocol v0, 14:40 UTC) ו-`2d16a770-9e6d-403f-b270-f02e08961565` (final session checkpoint, 15:09 UTC) — בדיקת-קיום-בלבד, כנדרש-בהיקף.
+3. **מצב-חזרה-מחקרי מדויק (resume state)** — אומת-מ-`docs/research-library/ahavat-torah/AHAVAT_TORAH_SESSION_EXIT_CHECKPOINT.md` (branch, commit `004fc421`): נקודת-החזרה המדויקת היא **PDF p.16, right column, `nesachim_wine_libation`** — תואם-בדיוק את-מה-שנטען, לא-הומצא.
+4. **אין** bulk ingestion/canonicalization/publication — אומת-חי: אין-שינוי-schema, אין `research_objects` bulk-write (שתי-שורות-בודדות-בלבד, לא batch), אין-דגל-canonical/published על-אף-שורה.
+
+### C. Source Artifact Durability — DRIFT נמצא ונסגר (לא-בשקט)
+
+**DRIFT שנמצא:** רשומת-`work_log` `657c5161` (GPT, 15:09:51 UTC) קבעה-במפורש **"SOURCE ARTIFACT GAP remains: PDF #5635 is only session-local and cannot be uploaded through current connector."** — נכונה-בזמנה. **אימות-חי-עצמאי בסבב-הזה** (`select … from storage.objects where bucket_id='gallery' …`) מצא **שהאובייקט קיים כעת**: `gallery/Book/Hebrewbooks_org_5635.pdf`, id `b2d752f0-e86f-412e-8f47-7609e67d6cea`, 2,078,469 bytes, `application/pdf`, `created_at=2026-09-01 15:14:58 UTC` — **אחרי** רגע-כתיבת-ה-GAP (15:09:51), ולכן **אין-סתירה, יש-רצף-זמנים**: הפער-שדווח ב-15:09 נסגר-בפועל ב-15:14 ע"י סוכן-נפרד. **הרשומה-הישנה נשמרת כלשונה (`NO-DISAPPEARING-WORK`) — לא-נמחקת ולא-נערכת.**
+
+**שקילות-ביט-לביט:** git-side (commit `004fc421`, "byte-identity of durable source artifact confirmed") מתעד ש-Claude session נפרד (session `01Ncn7SQBeVRhFLCvyR8HePi`) הוריד-את-קובץ-ה-Storage וחישב SHA-256, והשווה מול-הקובץ-המקומי-של-הסשן שממנו-נקראו-התמלולים — **תוצאה: זהה** (`895e9a72…e9c8b`, שני-הצדדים). **חשוב-לדייק:** בדיקת-הביט-לביט **לא-בוצעה-על-ידי-הסבב-הזה עצמו** — היא מדווחת-כאן כ-provenance מ-commit-git חיצוני-שאומת-קיומו (`git log`), לא-שוכפלה-עצמאית. ה-`work_log` המקביל לאותה-פעולה **טרם-נכתב** (נבדק-חי, 15:09-15:40 UTC ריק) — נכתב-כעת (ר' רשומת `SOURCE_ARTIFACT_GAP_CLOSED` בהמשך-היומן) כדי שהעובדה-הזו-תהיה-לה provenance-DB, לא-רק-git.
+
+**מה-זה-לא:** קיום-ה-storage-object (וגם אימות-ה-hash, גם-אם-מדווח-נאמנה) **אינו** מקדם את-אף-שורת `research_objects` ל-Canonical/Published/Verified. `book:hebrewbooks:5635` נשאר **private candidate**, לא-קנוני, לא-מפורסם.
+
+### D. Vocabulary — הצהרה-בלבד, לא-schema
+
+`UNSEEN → LOCATED → SCANNED → RECONSTRUCTED → ANALYZED → VERIFIED` — אוצר-מילים **מושגי-בלבד** לתיאור-מצב-כיסוי-של-מקור, כרגע **אינו** DB enum/column/schema מאושר. שימוש-עתידי-בו (אם-ייבנה) דורש-Human-Gate נפרד.
+
+### E. Extension Points (תיעוד-בלבד, לא-יישום)
+
+Source Admission/Edition Identity · page/block/source locators מדויקים · Coverage State (סמנטיקת-התקדמות, ר' §D) · resumable research persistence · source-side Projection · promotion eligibility (נפרד-מ-truth/canonical/publication/access, כבר-מוצהר-כעיקרון ב-checkpoint `657c5161`). אף-אחד-מאלה **לא-נבנה בסבב-הזה**.
+
+### F. Foundation Verdict
+
+`MUST FOUNDATION NOW = 0.` **`PORTABLE RESEARCH CONTEXT + SOURCE RESEARCH (AHAVAT TORAH STRESS-TEST) — FOUNDATION SUFFICIENT AT CONTRACT LEVEL.`** **`ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה.** אין-קוד, אין-schema, אין-UI, אין-canonicalization בסבב-הזה — עדכון-תיעודי + סגירת-provenance-gap בלבד.
+
+**Provenance:** `work_log` `2d5bb60b`/`783024e5` (Portable Context decision+STOPPED-write, GPT) · `4bc9ad43`/`657c5161` (Ahavat Torah final checkpoint, GPT) · `3f2938da` (protocol v0 checkpoint, GPT) · git `claude/ahavat-torah-letter-dataset-closure`@`004fc421` (session `01Ncn7SQBeVRhFLCvyR8HePi`) · `storage.objects` `b2d752f0` (עצמאית-אומת-חי, סבב-זה) · `docs/research-studio-v1-contract.md` (Research Context המקורי, 24.8.2026, ר' Roadmap §🧭 RESEARCH STUDIO v1).
