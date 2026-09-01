@@ -1,0 +1,11 @@
+-- Correction to 20260901140000_clean_traffic_classification_foundation_v1.sql:
+-- CREATE FUNCTION defaulted to granting EXECUTE to PUBLIC (standard Postgres
+-- default for newly created functions), which does NOT match the server-only
+-- posture of sibling functions fn_human_entrances/fn_ti_summary/
+-- fn_ti_surface_activity/fn_ti_entity_demand (all EXECUTE-granted only to
+-- `postgres`, verified live: no anon/authenticated/PUBLIC access). Discovered
+-- during the write-safety RLS/GRANT verification pass required before closing
+-- this implementation. Revoking to match the established server-only pattern
+-- (rls_client_read_protocol) — this is agent/service-role-only data, consistent
+-- with traffic_intelligence_law's fn_ti_* agent-contract convention.
+REVOKE EXECUTE ON FUNCTION public.fn_ti_clean_classification(date, date) FROM PUBLIC;
