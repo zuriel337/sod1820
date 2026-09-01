@@ -14,6 +14,7 @@
 - **Catalog identity:** HebrewBooks item #5635
 - **Extent:** 99 PDF pages (confirmed via `pymupdf`, `doc.page_count == 99`)
 - **Physical structure:** front matter (pp.1–5) → חלק א' / "מגדל עוז" (pp.6–24) → אוריין תליתאי (pp.25–31) → שרשים בתורה (pp.31–35) → סופר ומונה אותיות התורה, detailed letter table (pp.35–41) + תיבות/אותיות summary tables (pp.41–42) → אותיות/תיבות חמש מגילות (pp.42–43) → חלק ב' title (p.44) + blank (p.45) → parasha-ordered chiddushim (pp.46–92) → מגילת אסתר (pp.93–94) → השמטות/addenda (pp.94–99) → 1983-edition errata list (p.99)
+- **Durable source artifact (added by Zuriel, confirmed live this session):** `gallery/Book/Hebrewbooks_org_5635.pdf`, canonical Supabase project `linswmnnkjxvweumprav` — `storage.objects` confirmed read-only: 2,078,469 bytes, `application/pdf`, created 2026-09-01. Public URL: `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf`. **This closes the SOURCE ARTIFACT STORAGE GAP at the storage-location level** (see `AHAVAT_TORAH_SESSION_EXIT_CHECKPOINT.md`). **Byte/content identity against the session-local PDF this dossier's transcriptions were read from has NOT been verified** — existence and metadata only. Treat as a separate, still-open verification step, not assumed.
 
 ## Known artifacts (append new rows here — do not remove existing rows)
 

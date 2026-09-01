@@ -91,6 +91,16 @@ Per Handoff §8: (1) citation-granularity reconciliation (page-only prose citati
 
 **What's missing to close this gap (reported, not built):** someone (Zuriel, or an agent explicitly authorized to write to storage) needs to upload the source PDF to the existing `media` storage bucket (the same bucket already used for HebrewBooks #23518), at a path following that already-established convention (e.g. `uploads/<date>/Hebrewbooks_org_5635-ahavat-tora.pdf`), and then record that storage path against `book:hebrewbooks:5635`'s eventual `nodes(type='source')` anchor row (itself still not built — see Handoff §8/§8.2) or, in the interim, in `DOSSIER_INDEX.md`'s Source facts section. **This closure task does not perform that upload** — it is a live-storage write, out of scope for "STOP and report."
 
+### UPDATE (Source Artifact Update / Session Handoff, additive — does not edit the finding above)
+
+**Zuriel manually uploaded the PDF** to canonical Supabase project `linswmnnkjxvweumprav`, bucket `gallery`, object path `Book/Hebrewbooks_org_5635.pdf`. **Confirmed live, read-only, this update:** `storage.objects` shows this exact object — 2,078,469 bytes, `application/pdf`, created 2026-09-01. Public URL: `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf`.
+
+**Revised state:**
+- **SOURCE ARTIFACT: DURABLY STORED** — the storage-location gap above is now closed; a durable, cross-session, canonical-project copy exists.
+- **ACCESS / BYTE IDENTITY: VERIFY SEPARATELY** — existence and metadata (size, mimetype, timestamp) were checked; **byte/content identity against the session-local PDF this dossier's pp.1–15 transcriptions were read from has NOT been verified** (would require downloading and hashing both files) and is explicitly **not claimed**. This is named as its own, still-open, separate verification step.
+
+The original "missing to close this gap" upload instructions above are superseded by this update for the storage-location question only; the byte-identity sub-question they never addressed remains open under the new heading.
+
 ## Research Lab readiness state
 
 Per Zuriel's explicit dimension-separation instruction: **Research-Lab visibility, canonical status, publication status, Premium accessibility, and promotion eligibility are five separate axes; nothing in this corpus conflates them, and nothing here is canonical, published, or promoted.** The corpus sits at **EXTRACTION**, and in places **RESEARCH OBJECT/CANDIDATE** (per the frozen Intake contract's own chain), several steps before canonical. The projection `ORIGINAL BOOK/PAGE ↔ RESEARCH CONTEXT` described in Zuriel's brief is **representable today** by pairing (once the storage gap above is closed) a page-image reference with this register's `source_ref`-anchored blocks — no new Research Lab store or schema is needed for that pairing; only the storage gap and the 5 convention gaps above stand between this corpus and that projection. **No UI, no schema, no store was built or proposed this closure.**
@@ -107,6 +117,7 @@ Per Zuriel's explicit dimension-separation instruction: **Research-Lab visibilit
 - **SHA-256 / CHECKSUMS:** table above; full 11-corpus-file list also in the Pre-Ingest Handoff §0, cross-checked identical.
 - **GIT DIFF SCOPE (this closure task):** one new file (`AHAVAT_TORAH_SESSION_EXIT_CHECKPOINT.md`) + one additive `DOSSIER_INDEX.md` row. **Zero bytes changed in any of the 12 pre-existing files.**
 - **SOURCE ARTIFACT STATE:** GAP — original PDF exists only as a session-local upload, not in the repo, not in canonical Supabase storage. Reported above, not remediated.
+- **SOURCE ARTIFACT STATE — UPDATE:** **DURABLY STORED** at `gallery/Book/Hebrewbooks_org_5635.pdf` (project `linswmnnkjxvweumprav`), confirmed live (2,078,469 bytes, `application/pdf`, created 2026-09-01). **ACCESS / BYTE IDENTITY: VERIFY SEPARATELY** — not yet checked against the session-local PDF.
 - **SOURCE ANCHOR STATE:** `#pN:block` convention live for pp.1–15 only; a `nodes(type='source')` anchor row for the book identity itself is still not built (named Extension Point since Session 4, unchanged).
 - **EXACT RESUME POINTER:** PDF p.16, right column, continuing block `nesachim_wine_libation`.
 - **UNRESOLVED QUEUE:** the 10 contradictions + 9 unresolved readings + 5 ingestion-convention gaps + 1 source-artifact-storage gap, all enumerated above and in the Pre-Ingest Handoff.
