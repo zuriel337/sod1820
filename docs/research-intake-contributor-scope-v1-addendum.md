@@ -1,8 +1,8 @@
-# Research Intake — Contributor Scope & Corpus Completeness (§6 Addendum)
+# Research Intake — Contributor Scope & Corpus Completeness (§6 Addendum) + §8 Rule Application Provenance
 
-> **ONE-CONTRACT / ONE-SYSTEM NOTICE:** This file is a **historical-provenance git-mirror** of one section of the single canonical contract (`project_codex.slug='research_intake_foundation_contract'`, DB-live, `nodes.rule_id='research_intake_foundation_contract_law'`). It is **not** a parallel SSOT and **not** an Amit-specific or Zvi-specific contract. Zvi, Amit, and future corpora are stress tests of this one contract; a finding is promoted here only when it is judged universal, not corpus-specific.
+> **ONE-CONTRACT / ONE-SYSTEM NOTICE:** This file is a **historical-provenance git-mirror** of sections of the single canonical contract (`project_codex.slug='research_intake_foundation_contract'`, DB-live, `nodes.rule_id='research_intake_foundation_contract_law'`, currently `rule_version=7`). It is **not** a parallel SSOT and **not** an Amit-specific or Zvi-specific contract. Zvi, Amit, and future corpora are stress tests of this one contract; a finding is promoted here only when it is judged universal, not corpus-specific.
 
-**Status:** APPLIED (DB), Human-Gate ZURIEL pending explicit review, 26.8.2026, `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1` (§6) + `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1_DELTA2` (§6.7–§6.11, Closure Delta #2)
+**Status:** APPLIED (DB), Human-Gate ZURIEL pending explicit review, 26.8.2026, `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1` (§6) + `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1_DELTA2` (§6.7–§6.11, Closure Delta #2) + `RULE_APPLICATION_PROVENANCE_V1` (§8, 2.9.2026)
 **Extends:** `research_intake_foundation_contract` (§1–§5, `project_codex.slug='research_intake_foundation_contract'`, Master State §23.6) — this file documents **§6 (incl. §6.7–§6.11) only**. §1–§5 remain the DB-only canonical body, unchanged verbatim; they are not duplicated here.
 **Scope:** documentation/naming-convention only, additive. **0 schema/migration/table/engine/ledger changes.** No historical `research_objects`/`contributors`/`edges` rows touched.
 **Derived from:** two independent corpus stress tests already completed — Zvi Corpus Track A (4 extraction passes: WhatsApp corpus, 3D/spatial-geometry crosswalk) and Amit Existing Corpus (2+1 passes, the third being GPT's "Amit Existing Corpus Exhaustion Pass v2", `work_log.5aa4cb1d-0f6f-4bed-890b-cd24395d7a01`) — run specifically to test whether the §1–§5 contract holds unchanged across a different researcher, corpus structure, and source, without redesign.
@@ -144,6 +144,58 @@ Live evidence (Amit's "Prime Scan": tokenize a corpus → compute gematria per t
 
 **Explicitly not done here:** no mass ingestion; no fourth corpus scanned "just to be safe"; no reopening of decisions already made; no Spatial Adapter built; no Numeric operations built; no Personal Hints built; no touching PR #206's code (read-only, confirmed unchanged); no promotion of any Finding to canonical; no publication. No second Universal Extraction Contract, Article Contract, Zvi Contract, or Amit Contract was created — the same single `research_intake_foundation_contract` was closed.
 
+## §8. Rule / Method Application Provenance (2.9.2026, ZURIEL Human-Gate, `RULE_APPLICATION_PROVENANCE_V1`)
+
+> **Note on this file's scope:** this addendum otherwise mirrors §6 (Contributor Scope & Corpus Completeness). §7 (Extraction Integrity Patch, ZVI 3060, DB `rule_version` 5→6) is live in `project_codex`/`nodes` but does not yet have its own git mirror in this file — that gap predates this pass and is not backfilled here. §8 below is mirrored because it is the deliverable of this pass (DB `rule_version` 6→7).
+
+**Source:** a Foundation gap surfaced by a read-only audit, using the real live pilot case as calibration: `research_objects` C3a (`b4b40fe6-39d8-494b-9608-1c86f83dd6fc`, "ממשלת משיח בן דוד — הרגיל + המילוי = 4530", `engine_verified=true`) and C3b (`b80437d1-6a69-4eef-9168-fb12ce82fa64`, source-claimed 453, direct engine result 4530, `engine_verified=false`, mismatch). The canonical rule `zero_scale_law` (`nodes`, `rule_version=1`) supports 4530→453 as a rule-mediated derived relationship (operation `÷10`) — not a direct engine match. What SOD1820 *found* is already recorded (`research_objects`/`engine_detail`); *how a canonical rule was used to get there* had no dedicated, reconstructable home.
+
+**Identity Law — Rule Definition ≠ Rule Application:** a rule's definition (`nodes type='rule'`, e.g. `zero_scale_law`) remains the single canonical source of truth, unchanged. *Using* that rule on a specific finding is an **occurrence/application** — not a new rule, not a new `research_objects.kind`, not a graph node, not a new engine method. Rule Application lives **only** as provenance/metadata on the existing `research_objects` row it supports — never a parallel store, engine, or graph.
+
+**Canonical location — verified live before choosing (GPT cross-verification correction: do not assume `methodology`):** all 17 existing `research_objects.meta->'ext'` domains were scanned live (`writer_dossier`, `gematria`, `scope`, `stress_test_pass`, `family`, `procedure`, `note`, `text_position`, `derived_from_family`, `privacy_boundary`, `foundation_ref`, `needs_followup`, `foundation_challenge`, `zero_navigation_case`, `operand_provenance`, `golden_slice_786`, `continues_family`) — none covers "use of a canonical rule with rule_id+rule_version+operation+chain+outcome." `operand_provenance` (§7.1, live — e.g. the 911+909=1820 row) is close in spirit but narrower (a flat operand→origin-note map, no rule_id/version/chain/outcome). `procedure` (§6.8, live, 24 rows — including a live `steps[]` array with per-step `operation`+`status`, from the Sefer HaPeli'ah pass) is close in shape but is built for a multi-step procedure extracted from an external source, not for recording a use of SOD1820's own canonical rule on a single finding. **No duplication — a new domain was chosen, not `methodology` (as the instruction explicitly warned against), but `rule_application`, matching exactly the existing `meta.ext.<domain>.<arrayKey>[]` structural pattern already established by `procedure.steps[]`:**
+
+> **`research_objects.meta.ext.rule_application.applications[]`**
+
+Each array entry (field-level shape, no CHECK constraint, flexible jsonb):
+```
+{
+  application_id,        // local uuid — identity of this occurrence, not the rule's identity
+  rule_id,                 // = nodes.rule_id (or gematria_methods.method_key) — free-text reference, same polymorphic pattern as decision_ledger.subject_ref
+  rule_version,             // snapshot of rule_version at time of use — never live-joined later
+  rule_family,              // "numeric_transform" | "gematria_method" | "els_cipher" | ... — which registry rule_id resolves against
+  operation,                 // short canonical text, e.g. "÷10" — the exact idiom already live (zeroScales() in src/lib/supabase.js + edges.metadata.operation)
+  inputs: [{ value, role, origin_type, origin_ref }],    // reuses §7.1's shape verbatim (already MUST FOUNDATION NOW) — not a duplicate
+  outputs: [{ value, role, target_ref }],                  // the symmetric counterpart to inputs
+  application_class,        // closed enum — see below
+  application_outcome,      // closed enum — see below (MUST FOUNDATION NOW)
+  actor,                     // who/what applied it (agent name, or 'human')
+  applied_at,                // timestamptz, distinct from the row's created_at
+  chain_position,            // optional: { step, previous_application_id } — links without merging identity
+  governance_ref,            // optional: decision_ledger.id — a pointer only, never a duplicated decision
+  provenance_note
+}
+```
+
+**`application_class` — closed vocabulary (does not overload the existing `meta.layer`, confirmed live already inconsistent — 19 ad-hoc values found in the corpus — and not structurally intended for classifying rule usage):**
+`DIRECT_CALCULATION` · `TRANSFORM` · `DERIVATION` · `INTERPRETATION` · `RELATION_SUPPORT`
+
+**`application_outcome` — MUST FOUNDATION NOW (checked live before proposing: `verification_state`/Research DNA v1 = direct-engine verification state, not rule usage · `research_objects.status` = the whole Finding's lifecycle, not per-application · `decision_ledger.human_decision` = a governance decision, not a raw mechanical state · `decision_reevaluations.outcome.result` = one observed value, `decision_confirmed_unchanged`, not a closed vocabulary for this axis. None covers "was this specific rule application supported/rejected/superseded" — a small new, closed, non-overlapping vocabulary, 4 values):**
+`APPLIED_SUPPORTED` · `UNSUPPORTED` · `SUPERSEDED` · `REJECTED`
+
+**Binding distinctions (Truth Axes are not overloaded):**
+- `application_outcome` is **completely separate** from `engine_verified` / `research_objects.status` / `decision_ledger.human_decision` / canonical / publication — its own independent axis, like every other axis in this contract.
+- A rule application **never** changes `engine_verified`/`engine_detail` on the row it annotates. (Illustrative only, not written: C3b stays `engine_verified=false`/mismatch against 4530, even after recording that `zero_scale_law v1`, `operation="÷10"` supports 453 as a derivative of C3a's 4530.)
+- No source value is rewritten (453→4530) and no row identities are merged — every Rule Application is additive metadata only; it never replaces or changes the direct value/status of any row.
+- Governance stays **only** in `decision_ledger` — `governance_ref` is a pointer only, never duplicated into a second decision field inside the Rule Application itself.
+
+**Chaining:** `chain_position:{step,previous_application_id}` within the **same** `applications[]` array, or spread across separate `research_objects` rows via `derived_from`/`contains` — exactly the pattern already established in §6.8. Each step keeps its own distinct identity (`application_id`+`rule_id`+`rule_version`+`operation`), with no information loss and no merging. **No workflow engine is built here** — this only guarantees representability, not execution.
+
+**Research DNA — ready for future queries (not implemented in this pass):** `jsonb_array_elements(meta->'ext'->'rule_application'->'applications')` allows, with no additional schema: every use of `zero_scale_law` · usage frequency per rule · rule co-occurrence (same array) · chains (`chain_position`) · supported vs. unsupported/rejected (`application_outcome`) · source/domain distribution (`inputs[].origin_ref` + the row's existing `source_ref`/`contributor_id`). **No analytics/dashboard/index are built here.**
+
+**0 new schema/table/RPC/engine/graph.** Extends §1 (META REGISTRY, `meta.ext.<domain>.<key>`) and §7.1 (Semantic Operand/Quantity Provenance, already MUST-FOUNDATION-NOW) — replaces neither, duplicates nothing. C3a (`b4b40fe6-39d8-494b-9608-1c86f83dd6fc`) / C3b (`b80437d1-6a69-4eef-9168-fb12ce82fa64`) were **not touched** in this pass — the example above is illustrative text only, not a data change.
+
+---
+
 ## Cross-reference
 - `research_intake_foundation_contract` (§1–§5) — the base contract this section extends.
 - Master State §23.6 — `INTAKE_FOUNDATION_CLOSURE` (base contract closure).
@@ -157,3 +209,5 @@ Live evidence (Amit's "Prime Scan": tokenize a corpus → compute gematria per t
 - Zvi Corpus Track A (4 passes) + Amit Existing Corpus (2 passes + GPT Exhaustion Pass v2) + Article 145 (published editorial content) — the three-corpus stress-test evidence base for the freeze.
 - `unified_graph_law` / `reality_graph_law` — the one graph this contract sits above.
 - `shared_expression_extraction_contract_v1` — the single-expression extraction pipeline that §6.8's procedure steps still route through.
+- §7.1 (Semantic Operand/Quantity Provenance Law, DB `rule_version` 5→6, ZVI 3060) — the `inputs[]`/operand-provenance shape §8 reuses verbatim; not re-mirrored in full in this file (see the note at the top of §8).
+- §8 (Rule / Method Application Provenance, DB `rule_version` 6→7, `RULE_APPLICATION_PROVENANCE_V1`, 2.9.2026) — `research_objects.meta.ext.rule_application.applications[]`; calibration case C3a/C3b + `zero_scale_law`.
