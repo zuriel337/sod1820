@@ -32,6 +32,16 @@
 // dependency -- this keeps the packaging tool fully decoupled from package.json/package-lock.json
 // (Vite already carries its own, separately-versioned esbuild internally; this script must not force
 // that shared version to move). npx caches the pinned version after the first run.
+//
+// ── COMMITTED-SOURCE PROVENANCE GUARD (2.9.2026) ──
+// "git_head" in the manifest is meaningless as a provenance claim unless every canonical source
+// actually matches what is committed at that HEAD. Before bundling anything, this script compares
+// each canonical source's WORKING-TREE git blob (`git hash-object <path>`) against the blob actually
+// committed at HEAD (`git rev-parse HEAD:<path>`). Any mismatch -- an uncommitted edit, an untracked
+// file, a source missing from HEAD -- HARD-FAILS packaging (no bundle, no manifest produced). This is
+// not a warning: a deploy artifact must never be produced from source that isn't exactly what git
+// says HEAD is. No second source store is introduced -- the guard only reads git's own object
+// identity for the same file paths the bundle already declares as canonical.
 
 import { writeFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -58,12 +68,60 @@ const CANONICAL_SOURCES = [
   ENTRY,
 ];
 
+function committedSourceGuard() {
+  let git_head;
+  try {
+    git_head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+  } catch (e) {
+    console.error("COMMITTED-SOURCE PROVENANCE GUARD FAILED: not a git checkout (or no HEAD) --", e.message);
+    process.exit(1);
+  }
+
+  const source_git_blobs = {};
+  const failures = [];
+  for (const p of CANONICAL_SOURCES) {
+    let committed;
+    try {
+      committed = execFileSync("git", ["rev-parse", `HEAD:${p}`], { cwd: ROOT, encoding: "utf8" }).trim();
+    } catch {
+      failures.push(`${p}: not found at HEAD (untracked, or missing from the committed tree)`);
+      continue;
+    }
+    let working;
+    try {
+      working = execFileSync("git", ["hash-object", p], { cwd: ROOT, encoding: "utf8" }).trim();
+    } catch {
+      failures.push(`${p}: missing from the working tree`);
+      continue;
+    }
+    if (working !== committed) {
+      failures.push(`${p}: working tree (${working}) != HEAD (${committed}) -- uncommitted change`);
+      continue;
+    }
+    source_git_blobs[p] = committed;
+  }
+
+  if (failures.length) {
+    console.error("COMMITTED-SOURCE PROVENANCE GUARD FAILED -- refusing to package. \"git_head\" in the");
+    console.error("manifest would otherwise not truthfully mean every canonical source matches HEAD:");
+    for (const f of failures) console.error(`  - ${f}`);
+    console.error("Commit or discard the difference, then re-run.");
+    process.exit(1);
+  }
+
+  return { git_head, source_git_blobs };
+}
+
 async function main() {
-  // Fail loudly, before bundling, if any canonical source file is missing -- never silently package
-  // a stale/partial tree.
+  // Fail loudly, before anything else, if any canonical source file is unreadable -- never silently
+  // package a stale/partial tree.
   for (const p of CANONICAL_SOURCES) {
     readFileSync(join(ROOT, p), "utf8");
   }
+
+  // Hard gate: every canonical source must exactly match its committed HEAD blob before a single
+  // byte of bundling happens.
+  const { git_head, source_git_blobs } = committedSourceGuard();
 
   mkdirSync(OUT_DIR, { recursive: true });
   const rawOut = join(OUT_DIR, "_raw.js");
@@ -102,20 +160,10 @@ async function main() {
 
   writeFileSync(join(ROOT, OUT_FILE), content, "utf8");
 
-  // Provenance: the exact git blob hash of every canonical source file that fed this bundle, so the
-  // manifest itself proves (not just claims) which committed content produced it -- cross-checkable
-  // with `git ls-tree HEAD -- <path>` or `git hash-object <path>` by anyone, at any later point.
-  let git_head = null;
-  const source_git_blobs = {};
-  try {
-    git_head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
-    for (const p of CANONICAL_SOURCES) {
-      source_git_blobs[p] = execFileSync("git", ["hash-object", p], { cwd: ROOT, encoding: "utf8" }).trim();
-    }
-  } catch {
-    // Not fatal -- packaging still works outside a git checkout; provenance fields stay null/partial.
-  }
-
+  // Provenance: source_git_blobs/git_head come from committedSourceGuard() above, which already
+  // proved (not just recorded) that every one of these blobs is exactly what's committed at HEAD --
+  // so "git_head" here truthfully means every canonical source used to build this bundle is exactly
+  // the content committed at this HEAD, cross-checkable by anyone via `git rev-parse HEAD:<path>`.
   const manifest = {
     name: "expression-extract",
     entrypoint_path: "index.ts",
