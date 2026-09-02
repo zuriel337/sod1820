@@ -191,6 +191,8 @@ Current ELS work maps cleanly into the universal contract:
 
 The existing exact-anchor Journey behavior remains required. Universalization must not regress Finding Identity/startIndex or replace the canonical ELS engine. **Topic/Convergence Findings are not part of this mapping** — see §12, which is deliberately its own section, not a subsection of ELS.
 
+> **`identity.occurrence` is adapter-typed in general, not ELS-exclusive by contract** (ZURIEL Human-Gate, 2.9.2026 — MEDIA/POSTS/GALLERY/REALITY-STREAM Unified Foundation Closure Delta, `docs/media-posts-gallery-foundation-closure-delta.md`). A future Post-Update adapter would populate it as `{updateDate, updateLabel}` or, for legacy segments, `{contentFingerprint}` per the segment-naming rule in that delta (mirrored canonically in `nodes.rule_id='research_object_identity_invariant_law'` v2) — the same generality already proven by ELS's `{skip,start,dir}` above. Referenced/Subject Time follows the same delta doc's §2: an edge between existing graph Nodes when both sides already have graph identity, otherwise preserved in the Finding/Research-Object's existing metadata/provenance envelope — never a reason by itself to promote a Claim to a Node, and never a new `type='period'` node.
+
 ## 8. Gematria / Number adapter mapping
 Gematria results must be produced only by canonical engine functions/registry.
 
