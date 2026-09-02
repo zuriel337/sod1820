@@ -27,11 +27,12 @@
 //   analysisFlow.js -> ./gematria.js
 //   gematria.js     -> ../theme.js   (only for the GEM letter-value map — theme.js itself has ZERO imports)
 // So a correct deploy must upload exactly: index.ts (this file) + src/lib/triage.js +
-// src/lib/analysisFlow.js + src/lib/gematria.js + src/theme.js. Omitting any one of these four dependency
-// files is expected to fail LOUDLY (a boot/import error on this function specifically — it has no other
-// responsibility to silently keep working), never silently drop evidence the way a lazy in-bot import did.
-// This is the one thing that could not be proven without an actual deploy — verifying that a real deploy
-// with this exact file set boots and answers is the required first step before ANY caller (wa-raziel
+// src/lib/analysisFlow.js + src/lib/gematria.js + src/theme.js, with `verify_jwt: true` (see AUTH below —
+// no secret to configure, no env var to set). Omitting any one of the four dependency files is expected to
+// fail LOUDLY (a boot/import error on this function specifically — it has no other responsibility to
+// silently keep working), never silently drop evidence the way a lazy in-bot import did. This is the one
+// thing that could not be proven without an actual deploy — verifying that a real deploy with this exact
+// file set + verify_jwt:true boots and answers is the required first step before ANY caller (wa-raziel
 // included) is wired to depend on this function. Not done in this pass (explicit no-deploy instruction).
 //
 // ── WHAT THIS IS NOT ──
@@ -44,10 +45,24 @@
 // WhatsApp/wa_bot_log/phone numbers/any channel — callers own that; this only ever sees `text` in, JSON
 // out. Not a router: it does not decide whether to run — the caller (having already consulted
 // fn_raziel_route) decides that; this always runs when called, unconditionally.
+//
+// ── AUTH — the platform's own mechanism, not a second one ──
+// This function carries NO secret/API-key constant and does NO auth check in code. It has no natural
+// external/browser caller (unlike gematria-api, which is deliberately public) and no natural unauthenticated-
+// webhook caller (unlike wa-webhook/wa-raziel's own `?s=` pattern, which exists only because WhatsApp/cron
+// hit those functions directly with no Supabase session at all). Every real caller of THIS function is other
+// trusted server-side code that already holds a Supabase-issued credential — so the correct, already-canonical
+// mechanism is Supabase's own platform-level `verify_jwt` gate (the Edge Functions default — the deploy
+// tooling itself: "You SHOULD ALWAYS enable this... ONLY disable if... the function body implements custom
+// authentication"). Deploy this function with `verify_jwt: true` (not false). The gateway rejects a request
+// with a missing/invalid JWT BEFORE this file's code ever runs — no committed secret, no second auth system,
+// no code to keep in sync with wa-raziel's separate webhook-secret pattern. A caller passes
+// `Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY or a valid user/session JWT>`, exactly like any other
+// authenticated `supabase.functions.invoke(...)`/`fetch` call already made elsewhere in this codebase (e.g.
+// gematria-api's own `svcHeaders()` pattern for its internal RPC calls, reused here at the platform level
+// instead of re-implemented in-function).
 import { extractCompoundClaims } from "../../../src/lib/triage.js";
 import { extractCandidates } from "../../../src/lib/analysisFlow.js";
-
-const SECRET = "s0d1820wahook_7yq2c9"; // same internal-function secret already shared by wa-raziel/research-extract
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
@@ -64,8 +79,8 @@ const VERIFICATION_STATE_MAP: Record<string, string> = {
 };
 
 Deno.serve(async (req) => {
-  const u = new URL(req.url);
-  if (u.searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
+  // No manual auth check here — see AUTH above. Unauthorized requests never reach this line
+  // (the platform's verify_jwt gate, enabled at deploy time, rejects them first with 401).
   if (req.method !== "POST") return json({ status: "error", error: "method_not_allowed" }, 405);
 
   let text = "";
