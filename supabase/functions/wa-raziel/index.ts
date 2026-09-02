@@ -1,35 +1,44 @@
-// wa-raziel (רזיאל) — v48 — 2.9.2026 — Universal Question → Research Execution wiring (raziel_routing_law + shared_expression_extraction_contract_v1 §6, decide-only).
-//   v48: route→extraction→canonical-tool→evidence→synthesis, using ONLY existing primitives — no new engine/store/schema:
-//        (a) routeQuestion() calls the already-live fn_raziel_route() (raziel_routing_law, wiring_status was "decide_only,
-//            no caller" — this is that caller) and logs the decision to trace only (never exposed to the end-user —
-//            raziel_voice_law: internal agent names never leak to the user; this is observability, not a behavior gate).
-//        (b) buildCompoundClaims() dynamically imports extractCompoundClaims() from src/lib/triage.js (the Shared
-//            Expression Extraction v1 contract's own pipeline — R01-R36) — realizes §6 "Raziel Extension Contract
-//            (named, NOT wired)" verbatim: SOURCE → SHARED EXPRESSION EXTRACTION → AST/CLAIM → CANONICAL ENGINE →
-//            VERIFICATION → RAZIEL. Zero duplication — same module, same pure function, same gematria.js engine
-//            underneath (parity-verified against fn_normalize_for_calc). Verified Node-side (triage.js/analysisFlow.js/
-//            gematria.js are pure ESM, zero network/DOM/Node deps — triage.js's own header: "ניתן-לבדיקה ב-Node בלי
-//            DOM/Supabase"); NOT verified against the Supabase Edge Function bundler this session (no deploy done —
-//            explicit instruction). Uses `await import(...)` inside a lazy, cached, try/catch loader — never a
-//            top-level import — specifically so a resolution failure at deploy time degrades this one feature
-//            (empty evidence block) instead of crashing Deno.serve() boot for the whole bot. First deploy MUST
-//            confirm the import resolves (see report's VERIFICATION section) before this is trusted as live.
-//        (c) crossCandidateArithmeticCheck() is a small wa-raziel-local downstream check over extractCandidates()'s
-//            already-extracted number-anchor candidates (plain a*b===c / a+b===c on numbers already in the message) —
-//            NOT a new extraction rule/engine (no gematria math, no new phrase-grammar). Empirically, real messages
-//            phrased as prose ("X הוא כפולה של Y ב-Z") are NOT caught by the symbolic R20-R26 grammar (verified against
-//            live wa_bot_log:924) — promoting a real prose-arithmetic rule into the shared registry needs the Contract
-//            Change Law process (§9, full 378-message regression rerun) and is explicitly NOT done here.
-//        (d) dateEntitiesFromText() reuses the ALREADY-EXISTING HE_DATE_RE/heNumeral/hebrewToGregorian (this file, used
-//            until now only for self-declared personal facts) to feed plain day/month/year NUMBERS into metatron_context's
-//            existing `values` array — CLOCK/DATE-AS-NUMBER only (person_foundation_contract §5-A), never book/chapter/
-//            verse auto-selection. metatron_context's own SQL body is untouched — this only uses its pre-existing
-//            `values` ingestion more completely than before. New GREG_DATE_RE (DD/MM/YYYY) verified working. ⚠️ HONEST
-//            GAP, found not fixed: HE_DATE_RE (pre-existing, unchanged here on purpose — it's also load-bearing for
-//            savePersonalData's own birthday capture) does NOT match a month/day with the natural ב-/ה- prefix
-//            ("בטו בתשרי" — verified empirically, wa_bot_log:926) — only a bare, unprefixed form matches. So the
-//            Hebrew-date regression case is NOT solved by this pass; see report for the scoped, separate follow-up
-//            this needs (a regex fix shared with savePersonalData, requiring its own review, not bundled here).
+// wa-raziel (רזיאל) — v49 — 2.9.2026 — PRE-MERGE CORRECTION PASS on v48 (raziel_routing_law, decide-only).
+//   v49 corrects v48 against One-System Law + unverified-import risk. Two v48 pieces were REMOVED, not kept:
+//        (a) REMOVED buildCompoundClaims()/loadSharedExtraction() (dynamic import of src/lib/triage.js).
+//            No other supabase/functions/*/index.ts imports from src/lib/ (grepped — zero precedent) and
+//            supabase/functions/research-extract/index.ts is a DIFFERENT system (LLM-driven candidate
+//            extraction into research_objects, not the deterministic R01-R36 grammar) — so there is no
+//            proven/supported server-callable boundary for Shared Expression Extraction from the Edge
+//            runtime today. Silently keeping an unverified relative import (even lazy/fail-open) risks
+//            evidence quietly vanishing at deploy time with no signal. STOP-reported instead of guessed:
+//            the minimal gap is a real shared-callable boundary (an Edge Function or RPC wrapper directly
+//            exposing triage.js's extractCompoundClaims — §6's own words: "ported to a shared server-
+//            callable form, not duplicated") — not built this pass, needs its own review+deploy test.
+//        (b) REMOVED crossCandidateArithmeticCheck() entirely. It was a second, WA-local, canonical-shaped
+//            arithmetic-verification capability living outside the Shared Expression Extraction registry —
+//            exactly what shared_expression_extraction_contract_v1 §2 (One-System Law) forbids ("There must
+//            not be a ... Raziel parser ... as competing semantic systems"), even though the check itself
+//            was tiny (a*b===c). Checked analysisFlow.js's detectArithmetic/R15 and detectDependencies/R16 —
+//            neither does a cross-candidate scan over independently-extracted number-anchors from prose (they
+//            both require an explicit operator+"=" already in the text). No shared home exists for this today.
+//            Consequence: the 2172 prose case ("X הוא כפולה של Y ב-Z") is OPEN again, honestly, not silently
+//            patched by local logic. A real fix is a new rule in the shared registry via Contract Change Law
+//            §9 (full 378-message regression rerun) — out of scope here.
+//   v49 KEPT + fixed:
+//        (c) routeQuestion() unchanged — fn_raziel_route is decide/trace-only (STABLE SQL, no side effect,
+//            no execution control). Nothing in this file gates which evidence gets gathered on its output —
+//            that would be the next real step, and it is NOT built here (see PR report for the minimal
+//            Research-OS-only wiring that would close route→execution, without inventing new capability fns).
+//        (d) dateEntitiesFromText()/GREG_DATE_RE unchanged — pure intake/entity-extraction feeding
+//            metatron_context's existing `values` array (CLOCK/DATE-AS-NUMBER only, no book/chapter/verse
+//            auto-selection, no Date Engine).
+//        (e) HE_DATE_RE — the ONE genuine fix in this pass, applied at its single shared definition (used
+//            by BOTH savePersonalData's personal-fact capture and dateEntitiesFromText's research intake —
+//            one regex, two consumers, fixed once). Two narrow, additive, backward-compatible tolerances:
+//            an optional "ב" prefix on the day-token (ONLY via a lookahead requiring a 2-3 letter COMPOUND
+//            numeral after it, e.g. "בטו" — never touches a bare single-letter day like "ב'"=2, which stays
+//            exactly as ambiguous/untouched as before); an optional "ב" prefix directly on the month word
+//            (zero ambiguity — matched against the existing closed, literal month-name list, not a free
+//            numeral); and an optional comma between month and year ("תשרי, התשנה"). Verified: "בטו בתשרי,
+//            התשנה" (wa_bot_log:926) now parses to day=15/month=תשרי/year=התשנה; both previously-working
+//            bare forms (with and without geresh) are byte-identical; the no-date control still doesn't match.
+//            No Date Engine — still only feeds plain numbers, same as before.
 //   v47: razielRespond קורא metatron_context() לפני הקריאה הראשית ל-Claude (לא רק בשומר-הנפילה) —
 //        חוקי-המערכת החיים (nodes propagate=true) מתווספים ל-system בכל תשובה. RAZIEL_SYSTEM/fn_raziel_persona
 //        נשארים כרשת-ביטחון fail-open — לא הוסרו, רק תוספת מעליהם (מוח=מטטרון, פרסונה=עדשה, לא redesign).
@@ -92,7 +101,11 @@ const HE_VAL = { "א":1,"ב":2,"ג":3,"ד":4,"ה":5,"ו":6,"ז":7,"ח":8,"ט":9,
 function heNumeral(s) { let n = 0; for (const ch of (s || "").replace(/[^א-ת]/g, "")) n += HE_VAL[ch] || 0; return n; }
 const HEBCAL_MONTH = { "תשרי":"Tishrei","חשון":"Cheshvan","חשוון":"Cheshvan","מרחשון":"Cheshvan","מרחשוון":"Cheshvan","כסלו":"Kislev","כסליו":"Kislev","טבת":"Tevet","שבט":"Sh'vat","אדר":"Adar","אדר א":"Adar I","אדר ב":"Adar II","ניסן":"Nisan","אייר":"Iyyar","סיון":"Sivan","סיוון":"Sivan","תמוז":"Tamuz","אב":"Av","אלול":"Elul" };
 const MON_HE = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
-const HE_DATE_RE = new RegExp("([א-ת]{1,3})['׳\"״]?\\s+(תשרי|מרחשוון|מרחשון|חשוון|חשון|כסליו|כסלו|טבת|שבט|אדר(?:\\s+[אב])?|ניסן|אייר|סיוון|סיון|תמוז|אב|אלול)\\s+(ה?['׳]?ת[א-ת\"״'׳]{2,6})");
+// v49 FIX 4 — shared once, consumed by both extractProfileFacts (personal-fact capture) and
+// dateEntitiesFromText (research intake). Two additive, backward-compatible tolerances (see header):
+// optional ב-prefix on a COMPOUND day-token only (lookahead-gated — never touches a bare single-letter
+// day), optional ב-prefix on the (closed-list) month word, optional comma before the year. No Date Engine.
+const HE_DATE_RE = new RegExp("(?:ב(?=[א-ת]{2,3}\\s))?([א-ת]{1,3})['׳\"״]?\\s+(?:ב)?(תשרי|מרחשוון|מרחשון|חשוון|חשון|כסליו|כסלו|טבת|שבט|אדר(?:\\s+[אב])?|ניסן|אייר|סיוון|סיון|תמוז|אב|אלול),?\\s+(ה?['׳]?ת[א-ת\"״'׳]{2,6})");
 // תאריך לועזי מספרי (DD/MM/YYYY או DD.MM.YYYY) — לזיהוי-בלבד, לא מומר/מפורש (dateEntitiesFromText מזין
 // רק את המספרים הגולמיים ל-metatron_context; אין Date Engine חדש, אין בחירת-ספר/פרק/פסוק אוטומטית).
 const GREG_DATE_RE = /\b(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})\b/;
@@ -319,66 +332,12 @@ async function routeQuestion(text, contextType, userRef) {
   } catch { return null; }
 }
 
-// Lazy, cached, fail-open loader for src/lib's pure extraction modules — dynamic import (not top-level)
-// so a bundle-resolution failure degrades only these two evidence-blocks, never the whole function's boot.
-let _sharedExtractionMod = null, _sharedExtractionFailed = false;
-async function loadSharedExtraction() {
-  if (_sharedExtractionMod) return _sharedExtractionMod;
-  if (_sharedExtractionFailed) return null;
-  try {
-    const [triage, analysisFlow] = await Promise.all([
-      import("../../../src/lib/triage.js"),
-      import("../../../src/lib/analysisFlow.js"),
-    ]);
-    _sharedExtractionMod = { extractCompoundClaims: triage.extractCompoundClaims, extractCandidates: analysisFlow.extractCandidates };
-    return _sharedExtractionMod;
-  } catch (e) { _sharedExtractionFailed = true; trace.push({ step: "shared_extraction_import_failed", e: String(e) }); return null; }
-}
-
-// Shared Expression Extraction v1 §1/§6 — הרצת ה-pipeline הקנוני (import דינמי, לא שכפול) על ההודעה הגולמית.
-// מחזיר רק טענות שכבר עברו CANONICAL METHOD ENGINE+ARITHMETIC VERIFICATION בתוך triage.js עצמו
-// (ENGINE_VERIFIED_COMPOSITE/ENGINE_MISMATCH/METHOD_UNRESOLVED — לעולם לא Claim=Fact). fail-open.
-async function buildCompoundClaims(text) {
-  try {
-    const mod = await loadSharedExtraction();
-    if (!mod) return "";
-    const claims = mod.extractCompoundClaims(text) || [];
-    if (!claims.length) return "";
-    const lines = claims.slice(0, 6).map((c) => {
-      if (c.status === "ENGINE_VERIFIED_COMPOSITE") return `✅ אומת במנוע: ${c.text} = ${c.result}`;
-      if (c.status === "ENGINE_MISMATCH") return `⚠️ סתירה מול המנוע: ${c.text} (הרכיבים אומתו, החישוב לא משחזר ${c.result})`;
-      if (c.status === "METHOD_UNRESOLVED") return `❓ רכיב לא-מזוהה בשיטה קנונית: ${c.text}`;
-      return null;
-    }).filter(Boolean);
-    return lines.length ? `טענות-חשבון/גימטריה מורכבות שחולצו והועברו למנוע הקנוני (Shared Expression Extraction):\n${lines.join("\n")}` : "";
-  } catch { return ""; }
-}
-
-// בדיקת-חשבון גנרית, downstream בלבד, מעל number-anchor שכבר חולצו ע"י extractCandidates() הקיים
-// (R01-R19, משותף) — אין כאן כלל-חילוץ חדש, רק a*b===c / a+b===c על מספרים שכבר בטקסט. לא מקודם
-// לרישום-הכללים המשותף (§9 Contract Change Law) — אם יתגלה כשימושי-כללי, זה צעד נפרד, לא כאן.
-async function crossCandidateArithmeticCheck(text) {
-  try {
-    const mod = await loadSharedExtraction();
-    if (!mod) return "";
-    const nums = [...new Set((mod.extractCandidates(text) || [])
-      .filter((c) => c.type === "number-anchor" && Number.isFinite(c.value))
-      .map((c) => c.value))].slice(0, 8);
-    if (nums.length < 3) return "";
-    const hits = [];
-    for (let i = 0; i < nums.length && hits.length < 4; i++) {
-      for (let j = i; j < nums.length && hits.length < 4; j++) {
-        const [a, b] = [nums[i], nums[j]];
-        for (const c of nums) {
-          if (c === a || c === b) continue;
-          if (a * b === c) hits.push(`✅ אומת חשבונית: ${a} × ${b} = ${c}`);
-          else if (a + b === c) hits.push(`✅ אומת חשבונית: ${a} + ${b} = ${c}`);
-        }
-      }
-    }
-    return hits.length ? hits.join("\n") : "";
-  } catch { return ""; }
-}
+// v49: buildCompoundClaims()/loadSharedExtraction()/crossCandidateArithmeticCheck() REMOVED here —
+// see file header (a)+(b). No shared-callable boundary exists yet for Shared Expression Extraction from
+// the Edge runtime (checked: zero other supabase/functions/*/index.ts import src/lib/; research-extract
+// is a different, LLM-driven system), and the arithmetic cross-check had no shared registry home — keeping
+// either would violate One-System Law or silently risk evidence vanishing at deploy time. STOP-reported
+// in the PR report instead, not guessed around.
 
 // person_foundation_contract §5-A (Time → Tanach Lens, CLOCK/DATE-AS-NUMBER בלבד — אסור בחירת-ספר/פרק/
 // פסוק אוטומטית משעה/תאריך). מזין רק מספרים גולמיים (יום/חודש/שנה, ולעברי גם המקבילה הלועזית שכבר
@@ -418,20 +377,19 @@ function metatronRulesBlock(mtx) {
   if (!rules) return "";
   return "\n\n== חוקי-המערכת החיים (מטטרון — מקור-אמת יחיד, מחייבים) ==\n" + rules.slice(0, 6000);
 }
-async function metatronFallbackText(subject, facts, convNote, mtx, extraEvidence) {
+async function metatronFallbackText(subject, facts, convNote, mtx) {
   const m = mtx || await fetchMetatronContext(subject, subject, "wa");
   const convs = (m?.canonical?.convergences || [])
     .map((c) => c?.label || c?.title || (c?.value != null ? String(c.value) : null))
     .filter(Boolean).slice(0, 3);
   const canonLine = convs.length ? `\nבמאגר הקנוני מתכנסים בהקשר הזה גם: ${convs.join(" · ")}.` : "";
-  const allFacts = [facts, extraEvidence].filter((x) => x && x.trim()).join("\n\n");
-  const body = allFacts
-    ? `מצאתי בנתונים את הקשרים המספריים הבאים, ישירות מהמנוע:\n\n${allFacts}${convNote || ""}${canonLine}`
+  const body = (facts && facts.trim())
+    ? `מצאתי בנתונים את הקשרים המספריים הבאים, ישירות מהמנוע:\n\n${facts}${convNote || ""}${canonLine}`
     : `עדיין לא זיהיתי כאן ערך-מנוע מפורש לבדיקה. כתוב לי שם או מילה מדויקת — ואחשב ואצליב במנוע.`;
   return `${body}\n\nאלו עובדות מהמנוע. משמעות הקשרים היא נושא למחקר — ואי אפשר להסיק מהם מסקנה על זהותו או ייעודו של אף אדם.\n— רזיאל · סוד 1820`;
 }
-async function sendGuardianFallback(subject, chatId, quotedId, facts, convNote, welcome, mtx, extraEvidence) {
-  let msg = await metatronFallbackText(subject, facts, convNote, mtx, extraEvidence);
+async function sendGuardianFallback(subject, chatId, quotedId, facts, convNote, welcome, mtx) {
+  let msg = await metatronFallbackText(subject, facts, convNote, mtx);
   if (welcome) msg = welcome + msg;
   const payload = { chatId, message: msg };
   if (quotedId) payload.quotedMessageId = quotedId;
@@ -499,13 +457,10 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   const { facts, values } = await buildFacts(cleanText);
   const convNote = await convergenceInsight(values);
   const posts = await postFacts(cleanText);
-  // v48 — route→extraction→canonical-tool evidence (see file header). Each call is independently fail-open;
-  // a throw/empty result from any one of these degrades silently to the pre-v48 behavior for that piece.
+  // v49 — route is decide/trace-only (see file header (c)): observability, not an execution gate.
+  // Nothing below branches on `route` — it is logged for admin/debug visibility (wa_bot_log/debug=1) only.
   const route = await routeQuestion(cleanText, "whatsapp_user", opts.userRef || null);
   trace.push({ step: "raziel_route", intent: route?.intent, expert: (route?.expert_selected || []).map((e) => e.expert) });
-  const compoundBlock = await buildCompoundClaims(cleanText);
-  const arithBlock = await crossCandidateArithmeticCheck(cleanText);
-  const evidenceBlock = [compoundBlock, arithBlock].filter(Boolean).join("\n\n");
   const dateVals = await dateEntitiesFromText(cleanText);
   // 🌳 מטטרון לפני כל תשובה רגילה (לא רק בנפילה) — metatron_single_mind_law: רזיאל חושב דרך
   // metatron_context. fail-open: כשל/ריק → mtx=null → rulesBlock="" → system זהה למצב הקודם.
@@ -517,8 +472,8 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   const dialogueBlock = dialogue ? `שיחה קודמת (הקשר — כך תדע למה הכוונה בתמשיך/מה שהצעת, ומה הנושא הפעיל):\n${dialogue}\n\n` : "";
   const wantsLearn = opts.teach && LEARN_INTENT.test(cleanText);
   const system = RAZIEL_SYSTEM + rulesBlock + ((opts.teach) ? TEACH_ADDON : "");
-  const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם מבקשים לבדוק נושא-גימטריה מפורש; אם שיחתי/תודה/תמשיך — התעלם):\n${facts||"(לא זוהו ערכים)"}${convNote}${evidenceBlock?`\n\n${evidenceBlock}`:""}${posts?`\n\nמתוך הפוסטים באתר (הישען על אלה — זה החומר שלנו, וציין מאיפה):\n${posts}`:""}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
-  const guardian = () => sendGuardianFallback(cleanText, chatId, quotedId, facts, convNote, opts.welcome, mtx, evidenceBlock);
+  const user = `${dialogueBlock}ההודעה הנוכחית:\n"""\n${cleanText.slice(0,4000)}\n"""\n\nערכי-מנוע אפשריים למילות ההודעה (intent_before_compute_law — רלוונטי רק אם מבקשים לבדוק נושא-גימטריה מפורש; אם שיחתי/תודה/תמשיך — התעלם):\n${facts||"(לא זוהו ערכים)"}${convNote}${posts?`\n\nמתוך הפוסטים באתר (הישען על אלה — זה החומר שלנו, וציין מאיפה):\n${posts}`:""}${ctxText}${opts.extra||""}${wantsLearn?"\n\nהמשתמש רוצה ללמוד.":""}\n\nכתוב מענה לפי חוקי הברזל — קודם הבן כוונה (חוק 10), ורק אז אולי גימטריה.`;
+  const guardian = () => sendGuardianFallback(cleanText, chatId, quotedId, facts, convNote, opts.welcome, mtx);
   let resp;
   try {
     resp = await fetch("https://api.anthropic.com/v1/messages",{
