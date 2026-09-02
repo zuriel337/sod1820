@@ -47,86 +47,16 @@ function StatusPill({ children, tone = "neutral" }) {
   return <span style={{ color, background, border: `1px solid ${color}55`, borderRadius: 999, padding: "3px 9px", fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, whiteSpace: "nowrap" }}>{children}</span>;
 }
 
-async function count(table, apply) {
-  let q = supabase.from(table).select("*", { count: "exact", head: true });
-  if (apply) q = apply(q);
-  const { count: total, error } = await q;
-  if (error) throw new Error(`${table}: ${error.message}`);
-  return total || 0;
-}
-
 async function loadSnapshot() {
   if (!supabase) throw new Error("Supabase client unavailable");
-
-  const [
-    chiddushim,
-    contributions,
-    researchObjects,
-    topicCards,
-    convergences,
-    relationEvidence,
-    nodes,
-    edges,
-    topicMapped,
-    topicUnmapped,
-    convergenceNodes,
-    convergenceEdges,
-    candidateRO,
-    approvedRO,
-    canonicalRO,
-  ] = await Promise.all([
-    count("chiddush_submissions"),
-    count("research_contributions"),
-    count("research_objects"),
-    count("topic_cards"),
-    count("convergences"),
-    count("relation_evidence"),
-    count("nodes", q => q.eq("is_active", true)),
-    count("edges"),
-    count("topic_cards", q => q.not("node_id", "is", null)),
-    count("topic_cards", q => q.is("node_id", null)),
-    count("nodes", q => q.eq("type", "convergence").eq("is_active", true)),
-    count("edges", q => q.eq("relation_type", "converges_on")),
-    count("research_objects", q => q.eq("status", "candidate")),
-    count("research_objects", q => q.eq("status", "approved")),
-    count("research_objects", q => q.eq("status", "canonical")),
-  ]);
-
-  const [{ data: convEdges, error: edgeErr }, { data: recentRO, error: roErr }, { data: recentTopics, error: topicErr }] = await Promise.all([
-    supabase.from("edges").select("id,from_node,to_node,relation_type,metadata,created_at").eq("relation_type", "converges_on").order("created_at", { ascending: false }).limit(500),
-    supabase.from("research_objects").select("id,kind,status,statement,source,privacy_scope,engine_verified,promoted_node_id,created_at").order("created_at", { ascending: false }).limit(12),
-    supabase.from("topic_cards").select("id,title,status,node_id,created_by,created_at").order("created_at", { ascending: false }).limit(12),
-  ]);
-  if (edgeErr) throw new Error(`edges: ${edgeErr.message}`);
-  if (roErr) throw new Error(`research_objects: ${roErr.message}`);
-  if (topicErr) throw new Error(`topic_cards: ${topicErr.message}`);
-
-  let relationWithDecision = 0;
-  let relationWithResearchObject = 0;
-  let relationWithSource = 0;
-  for (const e of convEdges || []) {
-    if (e?.metadata?.decision_ledger_id) relationWithDecision += 1;
-    if (e?.metadata?.research_object_id) relationWithResearchObject += 1;
-    if (e?.metadata?.source) relationWithSource += 1;
-  }
-
+  const { data, error } = await supabase.rpc("admin_knowledge_control_snapshot");
+  if (error) throw new Error(`admin snapshot: ${error.message}`);
+  if (!data || typeof data !== "object") throw new Error("admin snapshot: empty response");
   return {
-    totals: { chiddush_submissions: chiddushim, research_contributions: contributions, research_objects: researchObjects, topic_cards: topicCards, convergences, relation_evidence: relationEvidence, nodes, edges },
-    reconciliation: {
-      topicMapped,
-      topicUnmapped,
-      convergenceNodes,
-      convergenceEdges,
-      relationWithDecision,
-      relationWithResearchObject,
-      relationWithSource,
-      legacyRelationEdges: Math.max(0, convergenceEdges - relationWithDecision),
-      candidateRO,
-      approvedRO,
-      canonicalRO,
-    },
-    recentRO: recentRO || [],
-    recentTopics: recentTopics || [],
+    totals: data.totals || {},
+    reconciliation: data.reconciliation || {},
+    recentRO: data.recentRO || [],
+    recentTopics: data.recentTopics || [],
   };
 }
 
