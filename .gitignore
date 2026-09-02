@@ -15,3 +15,4 @@ orphan-preview.html
 /_*.mjs
 scripts/.card-preview/
 supabase/functions/expression-extract/.build/
+supabase/.temp/
