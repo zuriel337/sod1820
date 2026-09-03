@@ -95,6 +95,7 @@ const PostEditorPage = React.lazy(() => import("./pages/PostEditorPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
 const ResearchViewerV0Page = React.lazy(() => import("./components/admin/ResearchViewerV0Page.jsx")); // 🔬 Research Viewer v0 — פנימי, לא-מקושר, admin gate ברכיב עצמו
 const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
+const GematriaResearchCalculatorPage = React.lazy(() => import("./pages/GematriaResearchCalculatorPage.jsx")); // 🧮 /gematria-research — Trace-driven projection על gematria_method_trace
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
 const HeichalPage = React.lazy(() => import("./pages/HeichalPage.jsx"));
@@ -379,6 +380,7 @@ export default function App() {
           <Route path="/lab" element={<LabIndex />} />
           {/* 🧭 Work Area של הצופן — אותו TzofenEmbed ואותו /tzofen.html?embed=1. קריאה-בלבד. */}
           <Route path="/lab/els" element={<ElsWorkAreaPage />} />
+          <Route path="/gematria-research" element={<GematriaResearchCalculatorPage />} />
           <Route path="/sulamot" element={<LaddersDemo />} />
           <Route path="/sulamot2" element={<ConvergenceGalaxy level={2} />} />
           <Route path="/sulamot3" element={<ConvergenceGalaxy level={3} />} />
