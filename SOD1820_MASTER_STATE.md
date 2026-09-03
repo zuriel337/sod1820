@@ -1447,3 +1447,21 @@ Source Admission/Edition Identity · page/block/source locators מדויקים �
 `MUST FOUNDATION NOW = 0.` **`PORTABLE RESEARCH CONTEXT + SOURCE RESEARCH (AHAVAT TORAH STRESS-TEST) — FOUNDATION SUFFICIENT AT CONTRACT LEVEL.`** **`ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה.** אין-קוד, אין-schema, אין-UI, אין-canonicalization בסבב-הזה — עדכון-תיעודי + סגירת-provenance-gap בלבד.
 
 **Provenance:** `work_log` `2d5bb60b`/`783024e5` (Portable Context decision+STOPPED-write, GPT) · `4bc9ad43`/`657c5161` (Ahavat Torah final checkpoint, GPT) · `3f2938da` (protocol v0 checkpoint, GPT) · git `claude/ahavat-torah-letter-dataset-closure`@`004fc421` (session `01Ncn7SQBeVRhFLCvyR8HePi`) · `storage.objects` `b2d752f0` (עצמאית-אומת-חי, סבב-זה) · `docs/research-studio-v1-contract.md` (Research Context המקורי, 24.8.2026, ר' Roadmap §🧭 RESEARCH STUDIO v1).
+
+---
+
+## §23.27 — UNIVERSAL SOURCE DEEP RESEARCH ORCHESTRATION — §9 FOUNDATION CLOSURE (3.9.2026, `SOURCE_DEEP_RESEARCH_ORCHESTRATION_V1`, actor=CLAUDE, Human-Gate ZURIEL)
+
+> **מעמד:** pointer/closure בלבד — **אין שכפול-גוף של §9 כאן**. הטקסט המלא חי ב-`project_codex.slug='research_intake_foundation_contract'` §9 (DB-live) ומראה ב-`docs/research-intake-contributor-scope-v1-addendum.md` §9 (git-mirror, היסטורי-provenance).
+
+**מקור:** המשך-ישיר ל-§23.26 (Ahavat Torah כ-Source Research stress-test) — סבב-stress-test נוסף, מרובה-סבבים ומרובה-סוכנים-מקבילים (GPT+Claude, לפי `inter_agent_coordination_law` v3), על **ספר הפליאה** (HebrewBooks 6355), שבדק אם `research_intake_foundation_contract` (§1-§8) מחזיק גם על corpus-קבלי-סרוק עם family-taxonomy עשירה (22-אלפא-ביתות, ריבוע-מקור, נעלם-רקורסיבי, correspondence רב-צירי) בלי redesign.
+
+**תוצאה:** נכתב §9 UNIVERSAL SOURCE DEEP RESEARCH ORCHESTRATION (10 סעיפים, §9.1–§9.10) — indexing/cross-reference בלבד, לא-מכפיל לוגיקה. קובע: 7 דרגות-זהות נבדלות (Source Work≠Book≠Edition≠Textual Version≠Witness≠Digital Object≠Page/Span/Region, §9.2); Witness identity≠authority; source-of-record כ-provenance שאלה-אחר-שאלה, לא-governance-כברירת-מחדל (§9.3); שלושה מושגי-כיסוי נפרדים — Research Map/Grammar Coverage ≠ Exact-Witness Coverage ≠ §6.2 Source/Corpus Exhaustion הקיים, ללא-שינוי (§9.5); אוצר-מילים VERIFIED EXACT/CORRECTED/STILL AMBIGUOUS עם שימור-סיבה חובה למצב-לא-פתור (§9.9); סדר-crosswalk Foundation-primitives-קודם — Projection/Lens adapters לעולם לא-קובעים סמנטיקת-Foundation (§9.7); מפנה-בלבד (0 שכפול) ל-`inter_agent_coordination_law` v3 (§9.8) ול-Research DNA v1 §18/`reality_graph_law`, ומתעד ש-`WS-CROSS-ENGINE` (§23.21) כבר-סגור ברמת-חוזה (§9.10).
+
+**Foundation Gate — clause-by-clause, לא תווית-אחת:** MUST FOUNDATION NOW = §9.1–9.5,9.7,9.8, מחצית-סמנטית 9.9, מחצית-pointer 9.10. EXTENSION POINT NOW = עיקרון 9.6, מחצית-storage-path 9.9. LATER = ניקוד/dashboard אוטומטי (9.6), פרויקציה-מתקדמת-עתידית (9.10). **0 MUST FOUNDATION NOW חסום.**
+
+**DB write (מאומת-חי בפאס-הזה):** `project_codex` §9 נוסף אדיטיבית (45,515→50,086 תווים, §1-§8 ללא-שינוי) · `nodes.rule_id='research_intake_foundation_contract_law'` `rule_version` 7→8 אדיטיבית (metadata v2-v7 נשמרו-כולם, נוסף `v8_source_deep_research_orchestration_2026_09_03`; description נוסח v6/v7/ZVI-3060 נשמר, נוסף v8-paragraph). git mirror: `docs/research-intake-contributor-scope-v1-addendum.md` §9 נוסף, branch `claude/source-deep-research-orchestration-sec9` מ-`origin/main`, **לא-ממוזג ל-main**.
+
+**מה לא-נעשה:** אין schema/table/RPC/engine/store/graph/`research_objects` חדשים. אין canonicalization/publication. `ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה. Roadmap לא-נגע.
+
+**Provenance:** `work_log` `358b6515` (BEFORE) · PDF Adjudication Batch A (`work_log` `28606ab0`, CLOSED) + Batch B (`work_log` `2631163d-b641-4577-a18f-9ae8b0789ddf`, `CLOSED_PARTIAL_EXACT_WITNESS_DEBTS_NO_FAMILY_SEMANTIC_CONTRADICTION`) · `PELIAH_MALIKH_OT_MULTI_AXIS_CORRESPONDENCE_FAMILY` (`work_log` `4028e40d`, `CLOSED_NEW_FAMILY_CONFIRMED`) · `PELIAH_HIDDEN_VISIBLE_FAMILY_CLOSURE` (`work_log` `795f7fe9`) · `inter_agent_coordination_law` v3 (10)-(21) — המנגנון-האורגני שכל §9.8 מפנה-אליו · `research_intake_foundation_contract` §1-§8 (DB-live, הבסיס ש-§9 מתרחב-מעליו).
