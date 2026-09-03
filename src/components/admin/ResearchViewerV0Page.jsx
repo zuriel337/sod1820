@@ -16,8 +16,8 @@ export default function ResearchViewerV0Page() {
     <div style={{ maxWidth: 520, margin: "0 auto", background: "#fff", border: "1px solid #d0d5dd", borderRadius: 20, padding: "30px 26px", boxShadow: "0 18px 55px rgba(16,24,40,.08)" }}>
       <div style={{ fontSize: 34, marginBottom: 8 }}>⚖️</div>
       <h2 style={{ margin: 0, fontSize: 25 }}>שולחן צוריאל</h2>
-      <p style={{ color: "#667085", lineHeight: 1.8, margin: "10px 0 0" }}>המסך פנימי ומוגן. היכנס עם חשבון האדמין הרגיל של SOD1820, ואז חזור אוטומטית למסך הזה.</p>
-      <Link to="/login?return=/research-viewer" style={loginButton}>🔑 כניסה לשולחן</Link>
+      <p style={{ color: "#667085", lineHeight: 1.8, margin: "10px 0 0" }}>המסך פנימי ומוגן. היכנס עם חשבון האדמין הרגיל של SOD1820. אחרי ההתחברות פתח שוב את שולחן צוריאל.</p>
+      <Link to="/login" style={loginButton}>🔑 כניסה לשולחן</Link>
       <div style={{ color: "#98a2b3", fontSize: 12, marginTop: 12 }}>לא נפתחים נתוני אדמין ב־Preview ללא התחברות.</div>
     </div>
   </main>;
