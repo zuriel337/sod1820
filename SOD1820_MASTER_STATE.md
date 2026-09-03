@@ -808,6 +808,7 @@ Roadmap: `🧭 NUMERIC ROOT + RELATION ENGINE v1 — RECONCILIATION 25.8.2026` (
 | 54 | 1.9.2026 | **PR #222 (`gpt/traffic-temp-disk-fix`) — סגירה מדויקת: מעולם לא-מוזג; `CLOSED AS SUPERSEDED`.** ה-migration המאומת שלו (temp-disk cache fix) הועבר-בפועל ל-`main` **דרך PR #280** (reproducibility-only port, זהות-hash מאומתת 3 פעמים נפרדות). ה-drift הספציפי שייצג PR #222 (קוד-חי-ב-DB שלא-קיים ב-`main`) **`CLOSED`**. | עובדתי, אין-Human-Gate-נדרש לתיעוד-סגירה | **רשומות `work_log` ההיסטוריות של PR #222 לא-נכתבות-מחדש** (`NO-DISAPPEARING-WORK`) — זו תוספת-provenance בלבד | `CLOSED AS SUPERSEDED` · `NOT MERGED` (עצמו) · תוכנו `LIVE` (via #280) |
 | 55 | 1.9.2026 | **`KNOWLEDGE_GOVERNANCE_FOUNDATION_CLOSURE` — §23.25 חדש: Foundation Expansion Gate הופעל על דומיין Rule/Knowledge Governance.** Human-Gate **ZURIEL, 2026-09-01**, אחרי 12 סבבי READ-ONLY/PRE-WRITE/WRITE. DB LIVE: 4 canonical mirrors + 5 explicit rule→rule edges (`extends_rule`) + מיזוג-כפילות `anagram_not_novel`/`anagram_not_novelty` (v2, propagate=true נשמר). Canonical owner: `nodes(type='rule')` (264 rule_id ייחודיים, 299 שורות כולל היסטוריה) + `edges`. ר' §23.25 למעלה. | Human-Gate ZURIEL | לא-הוחלף שום סעיף. `unified_graph_law`/`reality_graph_law`(v2) נשמרו-כלשונם | `IMPLEMENTED`+`DB LIVE`+`VERIFIED` (docs-only הסעיף; ה-DB-writes עצמם כבר-בוצעו-ואומתו בסבבים קודמים) |
 | 56 | 1.9.2026 | **`RESEARCH_STUDIO_PORTABLE_CONTEXT_SOURCE_STRESS_TEST_CLOSURE` — §23.26 חדש: Portable Research Context (עקרון-שכבר-אושר-Human-Gate ב-`work_log` `2d5bb60b`/`783024e5`, GPT-כתיבה-נעצרה-מ-write-safety) נכתב-בפועל-כעת בכלי-עריכה-אדיטיבי; אהבת תורה מתועד כ-Source Research stress-test (לא Book Foundation).** DRIFT נמצא-ונסגר: GPT (`work_log` `657c5161`, 15:09 UTC) דיווח PDF #5635 כ-session-local-בלבד; אימות-חי-עצמאי בסבב-הזה מצא ש-`storage.objects` `gallery/Book/Hebrewbooks_org_5635.pdf` **כן קיים** (id `b2d752f0`, נוצר 15:14:58 UTC — **אחרי** רגע-הדיווח, אין-סתירה). שקילות-ביט-לביט מדווחת (לא-שוכפלה-עצמאית כאן) מ-commit `004fc421` (סשן-Claude נפרד). Private candidate checkpoints (`research_objects` `7bf36d95`/`2d16a770`) אומתו-קיימים. **אין** bulk ingestion/canonicalization/publication. | Human-Gate ZURIEL | לא-הוחלף שום סעיף. רשומת `657c5161` (GPT, "SOURCE ARTIFACT GAP remains") **נשמרת כלשונה** — נכונה-בזמנה; זו תוספת-מתוארכת-גוברת בלבד (`NO-DISAPPEARING-WORK`) | `IMPLEMENTED`(docs-only) · `CONTRACT LEVEL SUFFICIENT` · `book:hebrewbooks:5635` נשאר `PRIVATE CANDIDATE`, לא-קנוני/לא-מפורסם |
+| 57 | 3.9.2026 | **`MASTER_ROADMAP_3SEP_CORPUS_SOURCE_RESEARCH_RECONCILIATION` — §23.28 חדש: מתאם PRE-ELS Corpus Closure (Posts+Galleries) + מסגור-מאוחד ל-Source Research (Ahavat Torah+PELIAH) + מעמד ממצאי-עומק-מספרים.** handoff מ-GPT/ZURIEL (`work_log` `cc1993f8`) בוצע ע"י CLAUDE. Posts 1,283/1,283 + Galleries 2,558/2,558 חשבונאים (`be204939`/`e51e13cb`, כל-אחד `ACCOUNTED_NOT_SEMANTICALLY_SUFFICIENT` כ-verdict-סוויפ-עצמו); פסיקת-`SUFFICIENT` לצורך PRE-ELS ניתנה בנפרד ע"י קוארדינטור-הסינתזה-הסופי (`13434460`, `PRE_ELS_READY`/`ELS_HOLD_RELEASE`). ר' §23.28 למעלה לפירוט המלא. | Human-Gate ZURIEL (handoff GPT/ZURIEL) | לא-הוחלף שום סעיף. §23.26/§23.27 נשמרים כלשונם — §23.28 מוסיף-בלבד סיכום-מתאם | `IMPLEMENTED`(docs-only) · `NOT MERGED` · Roadmap עודכן-מקביל (באנר 3.9.2026) |
 
 ---
 
@@ -1465,3 +1466,39 @@ Source Admission/Edition Identity · page/block/source locators מדויקים �
 **מה לא-נעשה:** אין schema/table/RPC/engine/store/graph/`research_objects` חדשים. אין canonicalization/publication. `ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) לא-שונה. Roadmap לא-נגע.
 
 **Provenance:** `work_log` `358b6515` (BEFORE) · PDF Adjudication Batch A (`work_log` `28606ab0`, CLOSED) + Batch B (`work_log` `2631163d-b641-4577-a18f-9ae8b0789ddf`, `CLOSED_PARTIAL_EXACT_WITNESS_DEBTS_NO_FAMILY_SEMANTIC_CONTRADICTION`) · `PELIAH_MALIKH_OT_MULTI_AXIS_CORRESPONDENCE_FAMILY` (`work_log` `4028e40d`, `CLOSED_NEW_FAMILY_CONFIRMED`) · `PELIAH_HIDDEN_VISIBLE_FAMILY_CLOSURE` (`work_log` `795f7fe9`) · `inter_agent_coordination_law` v3 (10)-(21) — המנגנון-האורגני שכל §9.8 מפנה-אליו · `research_intake_foundation_contract` §1-§8 (DB-live, הבסיס ש-§9 מתרחב-מעליו).
+
+---
+
+## §23.28 — PRE-ELS CORPUS CLOSURE + UNIVERSAL SOURCE RESEARCH RECONCILIATION (3.9.2026, `MASTER_ROADMAP_3SEP_CORPUS_SOURCE_RESEARCH_RECONCILIATION`, actor=CLAUDE, handoff מ-GPT/ZURIEL `work_log cc1993f8-c130-4e9d-b802-3f603407ac4d`, Human-Gate ZURIEL)
+
+> **מעמד:** תיעוד-SSOT **docs-only**, additive-בלבד — §23.26/§23.27 שלמעלה נשארים כלשונם, ללא עריכה/מחיקה. מתאם שלושה-נושאים שכבר-קרו-בפועל (עובדה, לא-החלטה-חדשה) שלא-שוקפו-עדיין ב-Master State: **(A)** סגירת-Human-Gate-סופית של Posts+Galleries whole-corpus לצורך PRE-ELS, **(B)** המסגור-המאוחד של Ahavat Torah+PELIAH כ-Source Research stress-tests על ONE Research OS (לא Book Foundation), **(C)** מעמד ממצאי-עומק/מרחב שמקורם-בספרים ביחס לשכבת ה-Depth/Research Universe הקיימת.
+
+### A. POSTS + GALLERIES — PRE-ELS FINITE CLOSURE
+
+Posts whole-corpus: **1,283/1,283** חשבונאים (`work_log` `be204939-3feb-4bfa-9959-00c70b6931c3`, `CLOSED_READ_ONLY_WHOLE_CORPUS_ACCOUNTED_NOT_SEMANTICALLY_SUFFICIENT` — הסוויפ-עצמו). Galleries whole-corpus: **2,558/2,558** חשבונאים (`work_log` `e51e13cb-ad97-4a50-9314-1ac8828143de`, אותו-ניסוח-סטטוס). **דיוק-הכרחי, לא-לטשטש:** שני-הסוויפים-עצמם נסגרו כ-"ACCOUNTED, NOT SEMANTICALLY SUFFICIENT" — verdict-חשבונאי-בלבד, לא-פסיקת-מספיקות-סמנטית. פסיקת-**SUFFICIENT** ל-Posts+Galleries **לצורך PRE-ELS הספציפי** ניתנה **בנפרד**, ע"י ה-Human-Gate של קוארדינטור-הסינתזה-הסופי: `work_log` `13434460-31d5-493b-b459-ad1fdc24d189` (`CLOSED_PRE_ELS_READY_POSTS_SUFFICIENT_GALLERIES_SUFFICIENT_ELS_HOLD_RELEASE`). **`PRE-ELS FINITE CLOSURE = READY`, `ELS HOLD = RELEASE`.** סריקה-רחבה-נוספת **אינה** צעד-ברירת-מחדל-הבא — נפתחת-מחדש רק לפי-ראיה-חדשה-שיכולה-לשנות-החלטה (per `NO-REDUNDANT-AUDIT LAW`, §23.19 למעלה). ZURIEL-deferrals (משפחת-Katan · source-specific Before/After variants) נשארים **NON-BLOCKING**, לא-מוחזרים בסבב-הזה.
+
+### B. אהבת תורה + PELIAH — Source Research אחד, לא Book Lab
+
+מאשר-מחדש (לא-פותח-מחדש) את §23.26 ו-§23.27: אהבת תורה (§23.26) ו-PELIAH (§23.27) הם **שני stress-tests על אותו** Research Intake/Research OS (`research_intake_foundation_contract` §1-§9) — **לא** Book Lab/Book OS/Book Graph/Book Context store נפרד. §9 Universal Source Deep Research Orchestration (§23.27) נשאר **הפרוטוקול-הניתן-לשימוש-חוזר** לספרים/מקורות עתידיים. live PELIAH/BOOK `research_objects`: **42 שורות, כולן candidate/private** — provenance-מחקרי, **לא** מעמד-קנוני/פרסום.
+
+### C. ממצאי-עומק/מרחב שמקורם-בספרים — קלט לשכבה קיימת, לא מנוע חדש
+
+ממצאי depth/spatial/glyph/representation/procedure שמקורם-בחקר-ספרים (אהבת תורה/PELIAH) נשמרים כ-Research Objects/Dimensions/relations/provenance **קיימים**, ו**יוזנו-בהמשך** לשכבת ה-Depth / Research Universe / Spatial Projection **הקיימת** (Depth Dimension Inspector כבר-על `main`). **אין** כאן אישור-בנייה למנוע/store "מימד-ספר" מקביל, ו**אין** בכך-עצמו טענת-אמת-קנונית/מפורסמת.
+
+### D. ניווט — Foundation → Projection → Experience
+
+Foundation נשאר `SUFFICIENT` / `MUST FOUNDATION NOW=0` ידוע לצורך-הרכנה-זו. הצעד-התפעולי-הבא הוא ה-handoff הקיים **`RESEARCH_STUDIO_ELS_LENS_INTEGRATION_V0`** (`work_log` `9a640c82-5eb1-4c72-b64a-6a5643e12684`, `IMPLEMENTATION_READY_EXISTING_PRIMITIVES_ONLY_NO_MERGE`), ולאחריו סדר-Research-Studio הקיים (§0-A למעלה) — **לא** workstream-סריקה-מחדש-של-הקורפוס. הסבב-הזה **אינו** מיישם ELS.
+
+### E. צירי-אמת — ללא-שינוי
+
+`source-supported / exact-witness / engine-verified / interpretation / canonical / published` נשארים נפרדים, כפי-שכבר-נקבע ב-§9 (§23.27) ו-§23.26.
+
+### F. `ACTIVE_NOW`
+
+`ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) **לא-שונה** בסבב-זה — אין רשומת-Human-Gate חדשה שקבעה-אחרת.
+
+### G. לא-נעשה בסבב-הזה
+
+אין קוד, אין schema/migration, אין `research_objects` writes, אין method-registry writes, אין graph/`project_codex`/`nodes` writes, אין ELS implementation, אין corpus-scan, אין פתיחה-מחדש של Katan/source-specific Before-After (נשארים deferred, per ZURIEL — לא-מוחזרים).
+
+**Provenance:** handoff `work_log` `cc1993f8-c130-4e9d-b802-3f603407ac4d` (GPT/ZURIEL→CLAUDE) · `13434460`/`be204939`/`e51e13cb` (PRE-ELS coordinator+שני-הסוויפים) · `9a640c82` (ELS Lens handoff, הצעד-הבא) · §23.26/§23.27 למעלה (ללא-שינוי) · `research_intake_foundation_contract` §9 (DB-live).
