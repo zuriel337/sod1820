@@ -829,7 +829,7 @@ export default function ContributorPage() {
   // 🔬 ריק רק כשאין באמת שום אות-מחקר — כולל waUpdates (חומר-גלם/ממצאים מקושרים), כדי לא להסתיר תוכן.
   const researchEmpty = matrices.length === 0 && convergences.length === 0 && posts.length === 0 && taggedFeatured.length === 0 && !hasMedia && forumMsgs.length === 0 && waUpdates.length === 0;
   const timelineEmpty = axisEvents.length === 0 && matrices.length === 0 && posts.length === 0;
-  const featuredEmpty = highlights.length === 0 && topGold.length === 0 && !(c.feature_media && galleryUpdates.length > 0);
+  const featuredEmpty = highlights.length === 0 && topGold.length === 0;
   // «על הכותב» עלה למעלה; כאן נותר current_focus + הסטודיו (contributor_content מפורסם). ריק=לא מוצג (לא עמוס).
   const studioPublicCount = studioBlocks.filter(b => b.is_public && !b.is_personal).length;
   const voiceEmpty = !effIsOwner && !studioCodeOwner && !settings.current_focus && studioPublicCount === 0;
@@ -906,6 +906,54 @@ export default function ContributorPage() {
           </a>
         </div>
       </div>
+
+      {/* ⭐ כתב עם feature_media (ציון) — התמונות שלו מודגשות בראש הדף, לפני כל שאר המקטעים (contributor_featured_media_law v1).
+          HERO = העדכון החדש ביותר (גדול, פוסטר שלם ללא חיתוך), ואחריו שאר עדכוני-התמונה בשורה גוללת. */}
+      {c.feature_media && galleryUpdates.length > 0 && (() => {
+        const hero = galleryUpdates[0];
+        const rest = galleryUpdates.slice(1);
+        const heroTxt = hero.text && hero.text !== "📷 עדכון" && hero.text !== "🎬 עדכון וידאו";
+        return (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
+              <span style={{ background: "linear-gradient(135deg,#f6e27a,#d4af37)", color: "#3a2c00", borderRadius: 999, padding: "3px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 900 }}>
+                🆕 חדש · מהלך מחקרי
+              </span>
+            </div>
+            <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 18, overflow: "hidden", boxShadow: `0 8px 30px ${P.glow}` }}>
+              <div onClick={() => setWaLb(hero)} title="לחצו לפתיחה במסך מלא"
+                style={{ cursor: "pointer", background: "#0a0710", display: "flex", justifyContent: "center" }}>
+                <img src={galThumb(hero, 900)} alt="" loading="lazy"
+                  style={{ width: "100%", maxHeight: 520, objectFit: "contain", display: "block" }} />
+              </div>
+              {(heroTxt || hero.link_url) && (
+                <div style={{ padding: "14px 18px 18px" }}>
+                  {heroTxt && <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{hero.text}</div>}
+                  {hero.link_url && (
+                    <a href={hero.link_url} target={hero.link_url.startsWith("/") ? undefined : "_blank"} rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, color: P.onAccent, background: P.accentBtn, borderRadius: 999, textDecoration: "none", fontFamily: F.heading, fontSize: 13, fontWeight: 800, padding: "10px 20px", minHeight: 42 }}>
+                      🔗 לפרטים נוספים ←
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+            {rest.length > 0 && (
+              <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "minmax(180px,220px)", gap: 10, overflowX: "auto", paddingTop: 14 }}>
+                {rest.map(u => {
+                  const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
+                  return (
+                    <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה" style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                      <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ width: "100%", height: 200, objectFit: "contain", background: "#0a0710", display: "block" }} />
+                      {showTxt && <div style={{ padding: "8px 10px", color: P.ink, fontFamily: F.body, fontSize: 12, lineHeight: 1.55, whiteSpace: "pre-wrap", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* 🧑 על הכותב — למעלה אצל כולם (בקשת צוריאל): אינטרו קצר + גימטריית-השם, מיד אחרי הכותרת. */}
       <AboutResearcher P={P} name={c.display_name} about={about} isOwner={effIsOwner} onSave={t => saveSettings({ about: t })} />
@@ -1270,34 +1318,17 @@ export default function ContributorPage() {
         <ResearchJournal P={P} name={c.display_name} level={level} matrices={matrices} joinedAt={joinedAt} />
       </WriterSlot>
 
-      {/* ═══ סלוט 8 · ⭐ מובחרים ═══ (הפניות + הזהב שנקבע) */}
+      {/* ═══ סלוט 8 · ⭐ מובחרים ═══ (הפניות + הזהב שנקבע; תמונות feature_media עברו לראש הדף — בלי כפילות) */}
       <WriterSlot P={P} emoji="⭐" title="מובחרים" empty={featuredEmpty} emptyText="אין מובחרים כרגע.">
         {topGold.length > 0 && (
-          <div style={{ marginBottom: galleryUpdates.length ? 20 : 0 }}>
-            <div style={{ columns: "2 300px", columnGap: 12 }}>
-              {topGold.map((e, i) => (
-                <div key={e.f || i} style={{ position: "relative", breakInside: "avoid" }}>
-                  <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: P.accentBtn, color: P.onAccent, borderRadius: 999, fontFamily: F.mono, fontSize: 12, fontWeight: 900, padding: "3px 9px", boxShadow: `0 2px 10px ${P.glow}` }}>#{e.top_rank}</span>
-                  <Card e={{ ...e, title: e.top_caption || e.title }} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
-                    onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); }} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {c.feature_media && galleryUpdates.length > 0 && (
-          <div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 12 }}>
-              {galleryUpdates.map(u => {
-                const showTxt = u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו";
-                return (
-                  <div key={u.id} onClick={() => setWaLb(u)} title="לחצו לפתיחה" style={{ cursor: "pointer", background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                    <img src={galThumb(u, 460)} alt="" loading="lazy" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block", background: "#0a0710" }} />
-                    {showTxt && <div style={{ padding: "10px 12px", color: P.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, whiteSpace: "pre-wrap", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.text}</div>}
-                  </div>
-                );
-              })}
-            </div>
+          <div style={{ columns: "2 300px", columnGap: 12 }}>
+            {topGold.map((e, i) => (
+              <div key={e.f || i} style={{ position: "relative", breakInside: "avoid" }}>
+                <span style={{ position: "absolute", top: 8, insetInlineStart: 8, zIndex: 2, background: P.accentBtn, color: P.onAccent, borderRadius: 999, fontFamily: F.mono, fontSize: 12, fontWeight: 900, padding: "3px 9px", boxShadow: `0 2px 10px ${P.glow}` }}>#{e.top_rank}</span>
+                <Card e={{ ...e, title: e.top_caption || e.title }} P={P} slug={slug} user={user} isAdmin={effIsAdmin} onHide={hide} onPromote={onPromote}
+                  onNumClick={(n) => { setQ(String(n)); setCat("all"); setLimit(48); }} />
+              </div>
+            ))}
           </div>
         )}
       </WriterSlot>

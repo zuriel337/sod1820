@@ -6,7 +6,10 @@ import { timeAgoHe } from "../lib/format.js";
 import { genAvatar } from "../lib/avatar.js";
 
 // 👥 רצועת «הכתבים האחרונים שהתעדכנו» לעמוד-הבית — לוגו/אווטאר + סמל-החתימה (emblem) + התמחות
-// + מתי התעדכנו לאחרונה. מקור-הרעננות: אחרון מבין research_contributions ו-els_records לכל כתב.
+// + מתי התעדכנו לאחרונה. מקור-הרעננות: אחרון מבין research_contributions · els_records · channel_updates
+// (כל עדכון בדף-הכתב שלו — כולל שידורי-וואטסאפ ועדכוני page_only, לא רק תרומות-פורום/צפנים) לכל כתב.
+// ⚠️ page_only נכלל כאן רק כ*חותמת-זמן* (מתי התעדכן) — הכרטיס עצמו לא מציג תמונה/טקסט מה-update,
+// רק אווטאר+שם+התמחות מ-contributors, כך שאין דליפת-תוכן page_only לפיד הגלובלי (broadcast_channels_law).
 // עץ אחד: מצביע לדף-הכתב הקנוני; לא משכפל חומר.
 export default function HomeWritersRail({ limit = 10 }) {
   const P = usePalette();
@@ -15,17 +18,20 @@ export default function HomeWritersRail({ limit = 10 }) {
   useEffect(() => {
     let alive = true;
     (async () => {
-      // רעננות לפי פעילות אחרונה — תרומות + צפנים
-      const [contribs, ciphers] = await Promise.all([
+      // רעננות לפי פעילות אחרונה — תרומות + צפנים + כל עדכון-שידור (וואטסאפ, כולל page_only — ראה הערה למעלה)
+      const [contribs, ciphers, updates] = await Promise.all([
         supabase.from("research_contributions").select("author_name,created_at")
           .in("status", ["approved", "published"]).not("author_name", "is", null)
           .order("created_at", { ascending: false }).limit(120),
         supabase.from("els_records").select("author_name,created_at")
           .eq("status", "published").not("author_name", "is", null)
           .order("created_at", { ascending: false }).limit(60),
+        supabase.from("channel_updates").select("credit,created_at")
+          .eq("status", "live").not("credit", "is", null)
+          .order("created_at", { ascending: false }).limit(120),
       ]);
       const latest = {};
-      for (const r of [...(contribs.data || []), ...(ciphers.data || [])]) {
+      for (const r of [...(contribs.data || []), ...(ciphers.data || []), ...(updates.data || []).map(u => ({ author_name: u.credit, created_at: u.created_at }))]) {
         const n = r.author_name, t = r.created_at;
         if (!n || !t) continue;
         if (!latest[n] || t > latest[n]) latest[n] = t;
