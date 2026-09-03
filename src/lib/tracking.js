@@ -199,6 +199,9 @@ export function captureArrivalSource() {
   const tag = campaignTag();
   const source = sourceInfo();
   const landing = window.location.pathname.replace(/^\//, "") || "home";
+  // 🎯 CLEAN_AB_MEASUREMENT_V1: מטמון-session קטן (landing+source של הכניסה-הנוכחית-בפועל)
+  // לצריכת postExperiment.js.landingPath() — ראה שם למה זה תיקן באג-attribution אמיתי.
+  try { sessionStorage.setItem("sod_land", JSON.stringify({ landing, source })); } catch { /* noop */ }
   track("arrival", null, "source", { source, tag: tag || null, tagged: !!tag, landing });
 }
 

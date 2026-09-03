@@ -69,8 +69,13 @@ export function emit(surface, eventType, opts = {}) {
     const ex = expCtx();
     let props = opts.props ?? null;
     if (country) props = { ...(props || {}), country };
-    // לא לדרוס אירוע-ניסוי מפורש (surface='post_exp' כבר נושא exp/variant בעצמו)
-    if (ex && surface !== "post_exp") props = { ...(props || {}), exp: ex.exp, variant: ex.variant };
+    // לא לדרוס אירוע-ניסוי מפורש (surface='post_exp' כבר נושא experiment/variant בעצמו).
+    // ⚠️ מפתח מיושר ל-'experiment' (לא 'exp') — לפני התיקון (CLEAN_AB_MEASUREMENT_V1) שני
+    // הנתיבים כתבו שני שמות-שדה שונים לאותו דבר (trackExp כתב 'experiment', כאן נכתב 'exp'),
+    // מה שהיה שובר כל שאילתה ישירה לפי props->>'experiment' על אירועים כלליים (search/
+    // compute/share/story_*). דוח הניסוי לא תלוי בזה (הוא משייך לפי session_id-projection
+    // מול אירוע-הכניסה, לא לפי הקריאה הזו) — אבל התיקון נשאר נכון בפני עצמו.
+    if (ex && surface !== "post_exp") props = { ...(props || {}), experiment: ex.exp, variant: ex.variant };
     supabase.rpc("ingest_event", {
       p_sod_id: getSodId(),
       p_surface: surface,

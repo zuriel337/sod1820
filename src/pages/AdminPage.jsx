@@ -26,7 +26,7 @@ import {
   getImageConnections, findGalleryImages, createTopicCardDraft,
   searchGalleryForCuration, setImageCuration, getRealityHints,
   getWallPrivate, getLabInsights, getJourneyFunnel, getAiTokenUsage, getAiCostMetrics,
-  getJourneyExperiments, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney, getPulse, getRetention,
+  getJourneyExperiments, getPostSidebarExperimentReport, getPostSidebarRawCounts, getRealTraffic, getRealtimeNow, getLiveVisitors, getUsersOverview, getUserJourney, getPulse, getRetention,
   getWaCandidates, adminLinkWa, adminUnlinkWa,
   supabase,
 } from "../lib/supabase.js";
@@ -103,6 +103,7 @@ const TABS = [
   { key: "users",    label: "👤 משתמשים" },
   { key: "walink",   label: "🟢 חיבור וואטסאפ" },
   { key: "jexp",     label: "🧪 ניסויי מסע" },
+  { key: "sidebarexp", label: "📐 A/B סרגל-פוסט" },
   { key: "journeys", label: "🧭 מסעות (ישן)" },
   { key: "heatmap",  label: "🔥 מפת חום" },
   { key: "popularity", label: "📈 פופולריות" },
@@ -295,6 +296,7 @@ export default function AdminPage() {
       {tab === "users" && <UsersTab />}
       {tab === "walink" && <WhatsAppLinkTab />}
       {tab === "jexp" && <JourneyExperimentsTab />}
+      {tab === "sidebarexp" && <PostSidebarExperimentTab />}
       {tab === "journeys" && <JourneysTab />}
       {tab === "heatmap" && <HeatmapTab />}
       {tab === "popularity" && <PopularityTab />}
@@ -3171,6 +3173,267 @@ function JourneyExperimentsTab() {
       {renderCells()}
       <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, padding: "0 4px" }}>
         התצוגה המפורטת הישנה (משפך, שמירות, טוקנים) עברה לטאב «🧭 מסעות (ישן)».
+      </div>
+    </div>
+  );
+}
+
+// 📐 CLEAN_AB_MEASUREMENT_V1 — post_sidebar_v1: דוח-אמת מבוסס Clean Traffic Classification
+// (fn_ti_clean_classification, ללא שינוי). HUMAN|UNKNOWN|BOT לכל session; ההכרעה הסטטיסטית
+// (second_page_rate) רק על CLEAN HUMAN, ומוצגת רק אחרי Human-Gate (500 CLEAN HUMAN/variant).
+const PCT = (n) => `${Math.round((Number(n) || 0) * 1000) / 10}%`;
+function PostSidebarExperimentTab() {
+  const [hours, setHours] = useState(48);
+  const [report, setReport] = useState(null);
+  const [raw, setRaw] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    let live = true; setErr("");
+    getPostSidebarExperimentReport(hours, 500).then(d => { if (!live) return; if (!d) setErr("אין הרשאה או שאין נתונים"); setReport(d || null); });
+    getPostSidebarRawCounts(hours).then(d => live && setRaw(d || null));
+    return () => { live = false; };
+  }, [hours]);
+
+  const VARIANT_LABEL = { sidebar_on: "🟢 sidebar_on (עם הסרגל)", sidebar_off: "⚪ sidebar_off (בלי הסרגל)" };
+  const gate = report?.human_gate || {};
+  const gateReady = !!report?.decision_ready;
+  const vs = Object.fromEntries((report?.variant_summary || []).map(r => [r.variant, r]));
+  const hm = Object.fromEntries((report?.human_metrics || []).map(r => [r.variant, r]));
+  const lb = Object.fromEntries((report?.landing_breakdown || []).map(r => [r.variant, r]));
+  const stat = report?.stat_test;
+  const idbg = report?.ingestion_dropped_debug?.by_variant || {};
+  const sed = report?.story_events_diagnostic;
+  const sedByVariant = sed?.by_variant || {};
+
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      <div style={card}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+          <div>
+            <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 22, margin: 0 }}>📐 A/B סרגל-צד בעמוד-פוסט · post_sidebar_v1</h3>
+            <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginTop: 4, lineHeight: 1.7 }}>
+              מקור-אמת: <b style={{ color: C.goldBright }}>events</b> (session_id על כל שורה) + <b style={{ color: C.goldBright }}>fn_ti_clean_classification</b> (Clean Traffic Classification הקנוני, ללא שינוי) — לא מנוע-בוט חדש.
+              ההכרעה רק על <b style={{ color: C.goldBright }}>CLEAN HUMAN</b>; UNKNOWN מוצג בנפרד; BOT לא נכנס למדדים.
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[[24, "24 שעות"], [48, "48 שעות"], [168, "7 ימים"]].map(([h, lbl]) => (
+              <button key={h} onClick={() => setHours(h)} style={{ cursor: "pointer", border: `1px solid ${hours === h ? C.gold : C.border}`, background: hours === h ? "rgba(212,175,55,0.18)" : "transparent", color: hours === h ? C.goldBright : C.muted, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12, fontWeight: 700 }}>{lbl}</button>
+            ))}
+          </div>
+        </div>
+        {err && <div style={{ color: "#e0796f", fontFamily: F.body, fontSize: 13, marginTop: 8 }}>⚠️ {err}</div>}
+      </div>
+
+      {/* Human Gate */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>🚧 Human Gate — 500 CLEAN HUMAN לכל variant</h3>
+        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}>
+          {["sidebar_on", "sidebar_off"].map(v => {
+            const g = gate[v] || { human_sessions: 0, threshold: 500, ready: false };
+            const pct = Math.min(100, Math.round((g.human_sessions / (g.threshold || 500)) * 100));
+            return (
+              <div key={v} style={{ border: `1px solid ${g.ready ? "#7fd18a" : C.border}`, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", color: C.goldLight, fontFamily: F.heading, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
+                  <span>{VARIANT_LABEL[v] || v}</span>
+                  <span style={{ color: g.ready ? "#7fd18a" : C.goldDim }}>{g.human_sessions}/{g.threshold}</span>
+                </div>
+                <div style={{ height: 9, background: "rgba(212,175,55,0.1)", borderRadius: 999, overflow: "hidden" }}>
+                  <div style={{ width: `${pct}%`, height: "100%", background: g.ready ? "#7fd18a" : C.gold, borderRadius: 999 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 12, fontFamily: F.heading, fontWeight: 800, fontSize: 14 }}>
+          {gateReady
+            ? <span style={{ color: "#7fd18a" }}>✅ READY — מספיק CLEAN HUMAN בשני ה-variants, ההכרעה למטה תקפה.</span>
+            : <span style={{ color: "#e0b24a" }}>⏳ COLLECTING — עדיין לא הגיע לסף. המדדים למטה מוצגים כתצפית-ביניים, לא כהכרעה.</span>}
+        </div>
+      </div>
+
+      {/* HUMAN | UNKNOWN | BOT */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>👤 HUMAN · ❓ UNKNOWN · 🤖 BOT (לכל session, מ-Clean Traffic Classification)</h3>
+        <div style={{ display: "grid", gap: 8 }}>
+          {["sidebar_on", "sidebar_off"].map(v => {
+            const r = vs[v] || { raw_sessions: 0, human_sessions: 0, unknown_sessions: 0, bot_sessions: 0 };
+            return (
+              <div key={v} style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 13, minWidth: 190 }}>{VARIANT_LABEL[v] || v}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>נכנסו ל-events: <b style={{ color: C.goldBright }}>{r.raw_sessions}</b></span>
+                <span style={{ color: "#7fd18a", fontFamily: F.body, fontSize: 12 }}>👤 HUMAN: <b>{r.human_sessions}</b></span>
+                <span style={{ color: "#e0b24a", fontFamily: F.body, fontSize: 12 }}>❓ UNKNOWN: <b>{r.unknown_sessions}</b></span>
+                <span style={{ color: "#e0796f", fontFamily: F.body, fontSize: 12 }}>🤖 BOT: <b>{r.bot_sessions}</b></span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginTop: 10, lineHeight: 1.6, fontStyle: "italic" }}>
+          🩺 BOT כאן תמיד יוצא 0 — לא מוסתר, זה מבנה-הצנרת: ingest_event() כבר מסנן אירועי-בוט (לפי ה-cookie vb מה-middleware) לפני שהם מגיעים ל-events, אז fn_ti_clean_classification לעולם לא רואה אותם. הבדיקה האמיתית של «כמה נפסלו כ-BOT» היא ה-ingestion בהמשך.
+        </div>
+      </div>
+
+      {/* Ingestion-dropped (real bot rejection) */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>🛡️ בדיקת-זיהום — כמה sessions גולמיים נפסלו כ-BOT (ingestion)</h3>
+        <div style={{ display: "grid", gap: 8 }}>
+          {["sidebar_on", "sidebar_off"].map(v => {
+            const d = idbg[v] || { raw_sessions_unfiltered: 0, dropped_at_ingestion: 0 };
+            const pct = d.raw_sessions_unfiltered ? Math.round((d.dropped_at_ingestion / d.raw_sessions_unfiltered) * 100) : 0;
+            return (
+              <div key={v} style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 13, minWidth: 190 }}>{VARIANT_LABEL[v] || v}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>גולמי (visitor_events, ללא סינון): <b style={{ color: C.goldBright }}>{d.raw_sessions_unfiltered}</b></span>
+                <span style={{ color: "#e0796f", fontFamily: F.body, fontSize: 12 }}>🤖 נפסלו כ-BOT ב-ingestion: <b>{d.dropped_at_ingestion}</b> ({pct}%)</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Decision metrics — clean human only */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>📊 מדדי-הכרעה (CLEAN HUMAN בלבד)</h3>
+        {!gateReady && <div style={{ color: "#e0b24a", fontFamily: F.body, fontSize: 12.5, marginBottom: 10 }}>⏳ תצפית-ביניים בלבד — עוד לא עברנו את ה-Human Gate.</div>}
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: F.body, fontSize: 12.5 }}>
+            <thead>
+              <tr style={{ color: C.goldDim, textAlign: "start" }}>
+                <th style={{ padding: "4px 8px" }}>מדד</th>
+                <th style={{ padding: "4px 8px" }}>sidebar_on</th>
+                <th style={{ padding: "4px 8px" }}>sidebar_off</th>
+              </tr>
+            </thead>
+            <tbody style={{ color: C.goldLight }}>
+              {[
+                ["n (clean-human sessions)", h => h?.n ?? 0, false],
+                ["Second-page rate", h => PCT(h?.second_page_rate), true],
+                ["Views/session", h => (h?.views_per_session ?? 0), false],
+                ["Scroll 75%", h => PCT(h?.scroll75_rate), true],
+                ["Scroll 90%", h => PCT(h?.scroll90_rate), true],
+                ["Internal clicks (avg/session)", h => (h?.internal_clicks_avg ?? 0), false],
+                ["Search+cross_search (avg/session)", h => (h?.search_avg ?? 0), false],
+                ["Compute (avg/session)", h => (h?.compute_avg ?? 0), false],
+                ["Share (avg/session)", h => (h?.share_avg ?? 0), false],
+                ["Story open rate ⚠️ diagnostic", h => PCT(h?.story_open_rate), true, true],
+                ["Story view rate ⚠️ diagnostic", h => PCT(h?.story_view_rate), true, true],
+                ["Exit-after-post rate", h => PCT(h?.exit_after_post_rate), true],
+              ].map(([label, fn, , degraded]) => (
+                <tr key={label} style={{ borderTop: `1px solid ${C.border}`, background: degraded ? "rgba(224,178,74,0.08)" : "transparent" }}>
+                  <td style={{ padding: "6px 8px", color: degraded ? "#e0b24a" : C.goldDim }}>{label}</td>
+                  <td style={{ padding: "6px 8px", fontFamily: F.mono }}>{fn(hm.sidebar_on)}</td>
+                  <td style={{ padding: "6px 8px", fontFamily: F.mono }}>{fn(hm.sidebar_off)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div style={{ color: "#e0b24a", fontFamily: F.body, fontSize: 11, marginTop: 8, fontStyle: "italic" }}>⚠️ שורות ה-Story מסומנות diagnostic — ראו הפירוט למטה למה הן לא decision-grade עדיין.</div>
+        {stat && (
+          <div style={{ marginTop: 12, padding: "10px 12px", border: `1px solid ${stat.available ? (gateReady ? C.gold : C.border) : C.border}`, borderRadius: 10, fontFamily: F.body, fontSize: 12.5, color: C.goldDim }}>
+            {stat.available
+              ? <>מבחן-סטטיסטי (second_page_rate, z-test דו-פרופורציוני): z={stat.z?.toFixed?.(2)} — {stat.significant_95 ? <b style={{ color: "#7fd18a" }}>הבדל מובהק (95%)</b> : <span>אין הבדל מובהק (95%) {gateReady ? "" : "— ובכל מקרה עוד לא עברנו את ה-Human Gate"}</span>}.</>
+              : "אין מספיק נתונים למבחן-סטטיסטי עדיין."}
+          </div>
+        )}
+      </div>
+
+      {/* Story events — explicitly diagnostic/degraded, not assumed symmetric */}
+      <div style={card}>
+        <h3 style={{ color: "#e0b24a", fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>⚠️ story_open/story_view — Diagnostic (לא Decision-Grade)</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 10, lineHeight: 1.7 }}>{sed?.reason}</div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {["sidebar_on", "sidebar_off"].map(v => {
+            const d = sedByVariant[v] || {};
+            return (
+              <div key={v} style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 13, minWidth: 190 }}>{VARIANT_LABEL[v] || v}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>events story_open: <b style={{ color: C.goldBright }}>{d.events_story_open ?? 0}</b> · story_view: <b style={{ color: C.goldBright }}>{d.events_story_view ?? 0}</b></span>
+                <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>visitor_events (proxy, approx): open <b>{d.visitor_events_story_open_approx ?? 0}</b> · view <b>{d.visitor_events_story_view_approx ?? 0}</b></span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 10, padding: "8px 12px", border: `1px solid #e0b24a`, borderRadius: 10, color: "#e0b24a", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
+          {report?.story_events_diagnostic?.symmetry_verdict}
+        </div>
+      </div>
+
+      {/* Landing: external vs internal + channels */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>🌍 External landing מול Internal navigation (CLEAN HUMAN)</h3>
+        <div style={{ display: "grid", gap: 10 }}>
+          {["sidebar_on", "sidebar_off"].map(v => {
+            const l = lb[v] || { external_n: 0, internal_n: 0, ch_google: 0, ch_facebook: 0, ch_whatsapp: 0, ch_direct: 0, ch_other: 0 };
+            return (
+              <div key={v} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                <div style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 13, marginBottom: 6 }}>{VARIANT_LABEL[v] || v}</div>
+                <div style={{ display: "flex", gap: 14, flexWrap: "wrap", color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>
+                  <span>🌐 External: <b style={{ color: C.goldBright }}>{l.external_n}</b></span>
+                  <span>🔗 Internal: <b style={{ color: C.goldBright }}>{l.internal_n}</b></span>
+                  <span style={{ opacity: 0.5 }}>|</span>
+                  <span>Google: <b style={{ color: C.goldBright }}>{l.ch_google}</b></span>
+                  <span>Facebook: <b style={{ color: C.goldBright }}>{l.ch_facebook}</b></span>
+                  <span>WhatsApp: <b style={{ color: C.goldBright }}>{l.ch_whatsapp}</b></span>
+                  <span>Direct: <b style={{ color: C.goldBright }}>{l.ch_direct}</b></span>
+                  <span>Other: <b style={{ color: C.goldBright }}>{l.ch_other}</b></span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Contamination debug: bot/unknown by country/device */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>🔍 בדיקת-זיהום — פירוט BOT/UNKNOWN לפי country/device (אבחון בלבד)</h3>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8, fontStyle: "italic" }}>country/device הם ממד-ראייה בלבד — לעולם לא חוסמים session ולא משפיעים על ההכרעה.</div>
+        <div style={{ overflowX: "auto", maxHeight: 260, overflowY: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: F.body, fontSize: 12 }}>
+            <thead>
+              <tr style={{ color: C.goldDim, textAlign: "start", position: "sticky", top: 0, background: "#140d06" }}>
+                <th style={{ padding: "4px 8px" }}>variant</th>
+                <th style={{ padding: "4px 8px" }}>סיווג</th>
+                <th style={{ padding: "4px 8px" }}>country</th>
+                <th style={{ padding: "4px 8px" }}>device</th>
+                <th style={{ padding: "4px 8px" }}>n</th>
+              </tr>
+            </thead>
+            <tbody style={{ color: C.goldLight }}>
+              {(report?.contamination_debug || []).map((c, i) => (
+                <tr key={i} style={{ borderTop: `1px solid ${C.border}` }}>
+                  <td style={{ padding: "4px 8px" }}>{c.variant}</td>
+                  <td style={{ padding: "4px 8px", color: c.classification === "bot" ? "#e0796f" : "#e0b24a" }}>{c.classification}</td>
+                  <td style={{ padding: "4px 8px" }}>{c.country}</td>
+                  <td style={{ padding: "4px 8px" }}>{c.device}</td>
+                  <td style={{ padding: "4px 8px", fontFamily: F.mono }}>{c.n}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Raw cross-check: visitor_events vs events */}
+      <div style={card}>
+        <h3 style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>🧮 צלב-בדיקה גולמי — visitor_events מול events (אבחון בלבד, לא בסיס להכרעה)</h3>
+        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 11, marginBottom: 8, fontStyle: "italic" }}>{raw?.canonical_source_note || "events = מקור-אמת לדוח; visitor_events חסר session_id ולא ניתן לשיוך-session לרוב סוגי-האירועים כאן."}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          {["visitor_events", "events"].map(key => (
+            <div key={key}>
+              <div style={{ color: C.goldDim, fontFamily: F.heading, fontWeight: 700, fontSize: 12, marginBottom: 6 }}>{key}</div>
+              <div style={{ display: "grid", gap: 3, maxHeight: 260, overflowY: "auto" }}>
+                {(raw?.[key] || []).map((r, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", fontFamily: F.body, fontSize: 11.5, color: C.goldLight, borderBottom: `1px dashed ${C.border}`, padding: "2px 0" }}>
+                    <span>{r.bucket} · {r.event_type}</span>
+                    <span style={{ fontFamily: F.mono }}>{r.n}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
