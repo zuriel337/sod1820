@@ -11,7 +11,7 @@
 // מדידה נקייה: משעה שהמבקר נכנס לניסוי (ראה פוסט), הקשר-הניסוי (exp+variant) נצמד
 // לכל אירוע ב-session דרך events.js → «מעבר לעמוד שני» מחושב ישירות מ-page/view.
 import { getSodId, sessionId } from "./identity.js";
-import { appMeta, getAcquisition } from "./tracking.js";
+import { appMeta } from "./tracking.js";
 import { supabase } from "./supabase.js";
 import { emit } from "./events.js";
 
@@ -39,14 +39,26 @@ export function variantFor(experiment = POST_SIDEBAR_EXPERIMENT) {
   return VARIANTS[bucket];
 }
 
-// דף-הנחיתה של ה-session (הכניסה הראשונה). נשמר פעם אחת; ליפול ל-acquisition.first.
+// דף-הנחיתה של ה-session **הנוכחי** (הכניסה הראשונה של ה-session הזה, לא «הפעם
+// הראשונה אי-פעם»). נשמר פעם אחת ב-sessionStorage.
+// ⚠️ תוקן (CLEAN_AB_MEASUREMENT_V1, 2026-09-03): הגרסה הקודמת נפלה ל-
+// getAcquisition()?.first?.landing — ערך **לכל-החיים** (sod_acq_first, "נשמר פעם אחת,
+// לא נדרס לעולם", tracking.js) שנועד לייחוס-מקור ארוך-טווח, לא לנחיתת ה-session הנוכחי.
+// לכל מבקר-חוזר (הרוב) זה דיווח את דף-הנחיתה ההיסטורי שלו (למשל "home" מלפני חודשים)
+// גם כשה-session הנוכחי נחת ישירות על הפוסט — מה שהפך «נחיתה חיצונית» אמיתית ל-«ניווט
+// פנימי» שגוי בדוח החדש (External landing vs Internal navigation). אומת מול חיים,
+// 2026-09-03: post_slug (לוור-קייס) מול landing_path הראה אי-התאמה עקבית בדיוק מהסיבה הזו.
+// המקור הנכון: sod_land, שנכתב פעם אחת ב-tracking.js captureArrivalSource() בדיוק ברגע
+// שה-session הנוכחי נכנס לאתר (עדשה על אותו נתון-כניסה, לא מקור-כפול). נופלים ל-
+// location.pathname רק אם captureArrivalSource עוד לא הספיק לרוץ (למשל טעינת-הפוסט
+// קדמה ל-effect של App באותו commit) — שם location.pathname הוא-עצמו דף-הנחיתה הנכון.
 function landingPath() {
   try {
     const s = sessionStorage.getItem(LAND_KEY);
     if (s) return s;
   } catch { /* noop */ }
   let land = null;
-  try { land = getAcquisition()?.first?.landing || null; } catch { /* noop */ }
+  try { land = JSON.parse(sessionStorage.getItem("sod_land") || "null")?.landing || null; } catch { /* noop */ }
   if (!land) { try { land = location.pathname.replace(/^\//, "") || "home"; } catch { /* noop */ } }
   try { sessionStorage.setItem(LAND_KEY, land); } catch { /* noop */ }
   return land;

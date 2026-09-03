@@ -1241,6 +1241,29 @@ export async function getJourneyExperiments(days = 14) {
   } catch { return null; }
 }
 
+// 📐 CLEAN_AB_MEASUREMENT_V1 — post_sidebar_v1: HUMAN|UNKNOWN|BOT (Clean Traffic
+// Classification, ללא שינוי) + Human-Gate (500 CLEAN HUMAN/variant) + External/Internal
+// landing + Google/Facebook/WhatsApp/Direct. hours→p_from/p_to. null בכשל (כולל לא-אדמין).
+export async function getPostSidebarExperimentReport(hours = 48, humanGate = 500) {
+  if (!supabase) return null;
+  try {
+    const p_from = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+    const { data, error } = await supabase.rpc('admin_post_sidebar_experiment_report', { p_from, p_human_gate: humanGate });
+    if (error) throw error;
+    return data || null;
+  } catch { return null; }
+}
+// 🩺 מונים גולמיים (visitor_events מול events) — אבחון/צלב-בדיקה בלבד, לא בסיס להכרעה.
+export async function getPostSidebarRawCounts(hours = 48) {
+  if (!supabase) return null;
+  try {
+    const p_from = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+    const { data, error } = await supabase.rpc('admin_post_sidebar_raw_counts', { p_from });
+    if (error) throw error;
+    return data || null;
+  } catch { return null; }
+}
+
 export async function logJourneyAb(lens, event, depth = 0, kind = null) {
   if (!supabase) return;
   try {
