@@ -1,9 +1,9 @@
-# Research Intake — Contributor Scope & Corpus Completeness (§6 Addendum) + §8 Rule Application Provenance
+# Research Intake — Contributor Scope & Corpus Completeness (§6 Addendum) + §8 Rule Application Provenance + §9 Source Deep Research Orchestration
 
-> **ONE-CONTRACT / ONE-SYSTEM NOTICE:** This file is a **historical-provenance git-mirror** of sections of the single canonical contract (`project_codex.slug='research_intake_foundation_contract'`, DB-live, `nodes.rule_id='research_intake_foundation_contract_law'`, currently `rule_version=7`). It is **not** a parallel SSOT and **not** an Amit-specific or Zvi-specific contract. Zvi, Amit, and future corpora are stress tests of this one contract; a finding is promoted here only when it is judged universal, not corpus-specific.
+> **ONE-CONTRACT / ONE-SYSTEM NOTICE:** This file is a **historical-provenance git-mirror** of sections of the single canonical contract (`project_codex.slug='research_intake_foundation_contract'`, DB-live, `nodes.rule_id='research_intake_foundation_contract_law'`, currently `rule_version=8`). It is **not** a parallel SSOT and **not** an Amit-specific, Zvi-specific, or Peli'ah-specific contract. Zvi, Amit, and future corpora (including ספר הפליאה, HebrewBooks 6355) are stress tests of this one contract; a finding is promoted here only when it is judged universal, not corpus-specific.
 
-**Status:** APPLIED (DB), Human-Gate ZURIEL pending explicit review, 26.8.2026, `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1` (§6) + `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1_DELTA2` (§6.7–§6.11, Closure Delta #2) + `RULE_APPLICATION_PROVENANCE_V1` (§8, 2.9.2026)
-**Extends:** `research_intake_foundation_contract` (§1–§5, `project_codex.slug='research_intake_foundation_contract'`, Master State §23.6) — this file documents **§6 (incl. §6.7–§6.11) and §8 only**. §1–§5 remain the DB-only canonical body; they are not duplicated here — read the live row for the current text, not this file.
+**Status:** APPLIED (DB), Human-Gate ZURIEL pending explicit review, 26.8.2026, `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1` (§6) + `RESEARCH_INTAKE_CONTRIBUTOR_SCOPE_V1_DELTA2` (§6.7–§6.11, Closure Delta #2) + `RULE_APPLICATION_PROVENANCE_V1` (§8, 2.9.2026) + `SOURCE_DEEP_RESEARCH_ORCHESTRATION_V1` (§9, 3.9.2026, ZURIEL Human-Gate approved)
+**Extends:** `research_intake_foundation_contract` (§1–§5, `project_codex.slug='research_intake_foundation_contract'`, Master State §23.6) — this file documents **§6 (incl. §6.7–§6.11), §8, and §9 only**. §1–§5 remain the DB-only canonical body; they are not duplicated here — read the live row for the current text, not this file.
 
 > **Drift-resolution pointer (2.9.2026, ZURIEL Human-Gate, additive):** §1's `source_refs` bullet previously read "reserved read-only-legacy... new writes must not write here", directly contradicting §2's own "canonical representation from here forward" for the same field. ZURIEL resolved it: **§2 governs new writes** — `source_ref` = primary/first *technical* citation anchor (never a truthfulness/authority/publication ranking), `meta.source_refs[]` = additional citations that independently support the *same* semantic Claim/Finding. Disagreeing sources are never merged into `meta.source_refs[]` — they stay separate Claim/Finding rows linked via `relates`/`parent_id`/`derived_from`. Full text lives in the live `project_codex` row, section `## 1-CORRECTION. §1↔§2 DRIFT RESOLUTION`. `research_intake_foundation_contract_law` (`nodes`, currently v7) never duplicated the contradictory text and needed no synchronization.
 **Scope:** documentation/naming-convention only, additive. **0 schema/migration/table/engine/ledger changes.** No historical `research_objects`/`contributors`/`edges` rows touched.
@@ -213,3 +213,53 @@ Each array entry (field-level shape, no CHECK constraint, flexible jsonb):
 - `shared_expression_extraction_contract_v1` — the single-expression extraction pipeline that §6.8's procedure steps still route through.
 - §7.1 (Semantic Operand/Quantity Provenance Law, DB `rule_version` 5→6, ZVI 3060) — the `inputs[]`/operand-provenance shape §8 reuses verbatim; not re-mirrored in full in this file (see the note at the top of §8).
 - §8 (Rule / Method Application Provenance, DB `rule_version` 6→7, `RULE_APPLICATION_PROVENANCE_V1`, 2.9.2026) — `research_objects.meta.ext.rule_application.applications[]`; calibration case C3a/C3b + `zero_scale_law`.
+- §9 (Universal Source Deep Research Orchestration, DB `rule_version` 7→8, `SOURCE_DEEP_RESEARCH_ORCHESTRATION_V1`, 3.9.2026) — cross-reference index only; see below.
+
+---
+
+## 9. UNIVERSAL SOURCE DEEP RESEARCH ORCHESTRATION — CROSS-REFERENCE INDEX (3.9.2026, ZURIEL Human-Gate, `SOURCE_DEEP_RESEARCH_ORCHESTRATION_V1`)
+
+**Source:** derived from a multi-round stress-test on ספר הפליאה (Sefer HaPeliah, HebrewBooks 6355), coordinated across parallel GPT/Claude sessions per `inter_agent_coordination_law` v3 — **not a new Book Foundation, not a Peli'ah Engine**. This whole section is a cross-reference/pointer index; it duplicates no existing logic. All 10 clauses are phrased over existing primitives only (`gematria_methods`, `research_objects`, `edges`/`nodes`, `meta.ext.<domain>.<key>`, `decision_ledger`).
+
+### 9.1 New Source Family / Operator Admission Law
+`NEW SOURCE FAMILY → crosswalk to existing primitives first → extend representation/relation semantics only if needed → no new engine/store by default.` Targeted Witness Adjudication (§9.9, Witness Adjudication + Non-Resolution Provenance) is an orthogonal, Decision-Gated evidence step — never a prerequisite for Research Object/candidate persistence. The existing Intake flow (§1–§8) is unchanged and unblocked by adjudication status.
+
+### 9.2 Identity Tiers ≠ Authority
+**Source Work ≠ Book ≠ Edition ≠ Textual Version ≠ Witness ≠ Digital Object ≠ Page/Span/Region** — seven distinct identity tiers, never collapsed into one. A Witness is a provenance-bearing manifestation of a source (a specific PDF/scan/transcription/edition-copy) — identity only. **Witness identity ≠ authority.** **Digital Object/storage URL ≠ Witness authority** — a stored file reference (e.g. a Storage URL) identifies where a copy lives, never that it is authoritative. **Page/Span/Region = locator, not identity** of Source/Book/Edition/Witness — a position within, never a substitute for any tier above.
+
+### 9.3 Source-of-Record Assignment
+Authority is assigned question-by-question, as research provenance/role, scoped to the specific claim — **not** persisted via `decision_ledger` by default. `decision_ledger` is invoked **only** when ZURIEL/Human-Gate makes an explicit governance decision about that authority. **Governance ≠ Provenance.**
+
+### 9.4 Digital Discovery-Aid ≠ Authoritative Witness
+A digital transcription may locate/reconstruct a candidate reading; it never substitutes for §9.2/§9.3 determination.
+
+### 9.5 Coverage Semantics — three separately-owned concepts
+- **Research Map / Research Grammar Coverage** — how much of the source's operator/procedure-grammar space has been identified and family-classified.
+- **Exact-Witness Coverage** — how much has been adjudicated against an authoritative witness (§9.2/§9.3).
+- **§6.2 Source/Corpus Exhaustion** — the existing 3-tier law, unchanged, not redefined here.
+Digital/OCR/transcription sweep coverage is an operational discovery metric only — it is not the Research Map axis and must never be reported as such.
+
+### 9.6 Research-Density Prioritization
+Universal principle only: rank unreviewed source regions by expected decision-changing research density, using whatever source/extraction/research evidence is available. No scoring engine, store, or view is authorized by this clause.
+
+### 9.7 Foundation-Primitives-First Crosswalk Order
+Every new family/operator crosswalks against Foundation primitives first. Projection/Lens adapters are downstream reuse only — they never dictate Foundation semantics.
+
+### 9.8 Multi-Session Orchestration
+Points only to `inter_agent_coordination_law` v3 (10)–(21). Zero restatement.
+
+### 9.9 Witness Adjudication + Non-Resolution Provenance
+Every targeted witness-adjudication pass classifies each target as **VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS**. Semantic requirement — **MUST FOUNDATION NOW**: a `STILL AMBIGUOUS` (or any unresolved) state must preserve **why**. Guidance vocabulary (not a DB enum/schema): `witness_unavailable` · `illegible` · `insufficiently_localized` · `conflicting_witnesses` · `genuinely_ambiguous`. Storage representation — **EXTENSION POINT NOW**: not mandatory schema/path, not a DB enum; the requirement is that the reason is preserved somewhere provenance-bearing, not which field holds it.
+
+### 9.10 Cross-Source / Cross-Book Projection
+Points to Research DNA v1 §18 and `reality_graph_law`. **`WS-CROSS-ENGINE` Foundation closure is already closed** (contract-level). Future advanced implementation/projection is downstream reuse and is not a §9 dependency.
+
+### Foundation Gate (§9)
+**MUST FOUNDATION NOW:** §9.1 · §9.2 · §9.3 · §9.4 · §9.5 · §9.7 · §9.8 · §9.9 (semantic half) · §9.10 (pointer/closure-record half).
+**EXTENSION POINT NOW:** §9.6 (principle) · §9.9 (storage-path half).
+**LATER:** §9.6 (automated scoring/dashboard/UI) · §9.10 (future advanced projection).
+
+### Provenance (§9)
+ספר הפליאה (HebrewBooks 6355) is **stress-test provenance** for §9 — it does not become universal contract semantics. Source-specific research (checkpoints, page loci, family closures) remains in Research OS (`research_objects`) and `work_log` handoffs; `work_log` is not SSOT (see `work_log_authority_law`). Full detail: `nodes.rule_id='research_intake_foundation_contract_law'` metadata key `v8_source_deep_research_orchestration_2026_09_03`.
+
+**0 new schema/table/RPC/engine/store/graph/`research_objects` were created in this pass.**
