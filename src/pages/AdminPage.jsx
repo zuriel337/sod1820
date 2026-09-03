@@ -3202,6 +3202,8 @@ function PostSidebarExperimentTab() {
   const lb = Object.fromEntries((report?.landing_breakdown || []).map(r => [r.variant, r]));
   const stat = report?.stat_test;
   const idbg = report?.ingestion_dropped_debug?.by_variant || {};
+  const sed = report?.story_events_diagnostic;
+  const sedByVariant = sed?.by_variant || {};
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
@@ -3314,12 +3316,12 @@ function PostSidebarExperimentTab() {
                 ["Search+cross_search (avg/session)", h => (h?.search_avg ?? 0), false],
                 ["Compute (avg/session)", h => (h?.compute_avg ?? 0), false],
                 ["Share (avg/session)", h => (h?.share_avg ?? 0), false],
-                ["Story open rate", h => PCT(h?.story_open_rate), true],
-                ["Story view rate", h => PCT(h?.story_view_rate), true],
+                ["Story open rate ⚠️ diagnostic", h => PCT(h?.story_open_rate), true, true],
+                ["Story view rate ⚠️ diagnostic", h => PCT(h?.story_view_rate), true, true],
                 ["Exit-after-post rate", h => PCT(h?.exit_after_post_rate), true],
-              ].map(([label, fn]) => (
-                <tr key={label} style={{ borderTop: `1px solid ${C.border}` }}>
-                  <td style={{ padding: "6px 8px", color: C.goldDim }}>{label}</td>
+              ].map(([label, fn, , degraded]) => (
+                <tr key={label} style={{ borderTop: `1px solid ${C.border}`, background: degraded ? "rgba(224,178,74,0.08)" : "transparent" }}>
+                  <td style={{ padding: "6px 8px", color: degraded ? "#e0b24a" : C.goldDim }}>{label}</td>
                   <td style={{ padding: "6px 8px", fontFamily: F.mono }}>{fn(hm.sidebar_on)}</td>
                   <td style={{ padding: "6px 8px", fontFamily: F.mono }}>{fn(hm.sidebar_off)}</td>
                 </tr>
@@ -3327,6 +3329,7 @@ function PostSidebarExperimentTab() {
             </tbody>
           </table>
         </div>
+        <div style={{ color: "#e0b24a", fontFamily: F.body, fontSize: 11, marginTop: 8, fontStyle: "italic" }}>⚠️ שורות ה-Story מסומנות diagnostic — ראו הפירוט למטה למה הן לא decision-grade עדיין.</div>
         {stat && (
           <div style={{ marginTop: 12, padding: "10px 12px", border: `1px solid ${stat.available ? (gateReady ? C.gold : C.border) : C.border}`, borderRadius: 10, fontFamily: F.body, fontSize: 12.5, color: C.goldDim }}>
             {stat.available
@@ -3334,6 +3337,27 @@ function PostSidebarExperimentTab() {
               : "אין מספיק נתונים למבחן-סטטיסטי עדיין."}
           </div>
         )}
+      </div>
+
+      {/* Story events — explicitly diagnostic/degraded, not assumed symmetric */}
+      <div style={card}>
+        <h3 style={{ color: "#e0b24a", fontFamily: F.regal, fontSize: 18, margin: "0 0 10px" }}>⚠️ story_open/story_view — Diagnostic (לא Decision-Grade)</h3>
+        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12, marginBottom: 10, lineHeight: 1.7 }}>{sed?.reason}</div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {["sidebar_on", "sidebar_off"].map(v => {
+            const d = sedByVariant[v] || {};
+            return (
+              <div key={v} style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px" }}>
+                <span style={{ color: C.goldLight, fontFamily: F.heading, fontWeight: 700, fontSize: 13, minWidth: 190 }}>{VARIANT_LABEL[v] || v}</span>
+                <span style={{ color: C.goldDim, fontFamily: F.body, fontSize: 12 }}>events story_open: <b style={{ color: C.goldBright }}>{d.events_story_open ?? 0}</b> · story_view: <b style={{ color: C.goldBright }}>{d.events_story_view ?? 0}</b></span>
+                <span style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>visitor_events (proxy, approx): open <b>{d.visitor_events_story_open_approx ?? 0}</b> · view <b>{d.visitor_events_story_view_approx ?? 0}</b></span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 10, padding: "8px 12px", border: `1px solid #e0b24a`, borderRadius: 10, color: "#e0b24a", fontFamily: F.body, fontSize: 12.5, fontWeight: 700 }}>
+          {report?.story_events_diagnostic?.symmetry_verdict}
+        </div>
       </div>
 
       {/* Landing: external vs internal + channels */}
