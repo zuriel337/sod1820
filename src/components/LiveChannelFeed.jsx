@@ -10,6 +10,7 @@ import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
 import ReporterLink, { ReporterAvatar } from "./ReporterLink.jsx";
 import { BRANDS } from "./BrandTicker.jsx";
+import { useSiteFlag } from "./MaintenanceLock.jsx";
 
 // 📡💬 «העדכונים החיים» — פיד חי בעיצוב וואטסאפ אמיתי (אותם צבעים/בועות/זנבות).
 // דסקטופ: עמודה קבועה תמיד-פתוחה בצד ימין (מתחת לנאבבר). מובייל: כפתור פותח → גיליון תחתון.
@@ -98,7 +99,10 @@ function applyCaps(list) {
 
 export default function LiveChannelFeed() {
   const P = usePalette();
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_forum: הפורום בבנייה — אירועי-פורום נעלמים מהפיד החי הזה (גם לרשומים) כשהדגל פעיל.
+  const { lock: fLock } = useSiteFlag("lock_forum");
+  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
   const [hidden, setHidden] = useState(() => new Set());   // 🙈 אדמין: פריטי-ערוץ שהוסתרו מיד (אופטימי)
   // רק פריט-ערוץ אמיתי (channel_updates) ניתן להסתרה — לא אירועי-פורום/זרם (id סינתטי fev_/rev_)
   const canHideItem = (u) => CHANNEL_KEYS.includes(u.ch) && u.id && !/^(fev_|rev_)/.test(String(u.id));
@@ -142,7 +146,7 @@ export default function LiveChannelFeed() {
         // ערוצי-הוואטסאפ + «הדברים החדשים» מכל האתר (פורום · פעילות/זרם-המציאות), במקביל
         const [chanArr, forum, hints] = await Promise.all([
           Promise.all(CHANNEL_KEYS.map(k => getChannelUpdates(12, k, true).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
-          getForumFeed({ limit: 15, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
+          forumBlocked ? Promise.resolve([]) : getForumFeed({ limit: 15, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
           getRealityHints(10).catch(() => []),
         ]);
         if (!live) return;
@@ -156,7 +160,7 @@ export default function LiveChannelFeed() {
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
-  }, []);
+  }, [forumBlocked]);
 
   const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch] && !hidden.has(u.id))).slice(-60), [raw, active, hidden]);
   // שורת-העדכון האחרון לגלולה הצפה (מובייל) — מתחלפת בין ה-6 החדשים

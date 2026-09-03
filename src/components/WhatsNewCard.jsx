@@ -4,6 +4,8 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { getWhatsNewCounts } from "../lib/whatsNew.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag } from "./MaintenanceLock.jsx";
 
 // 🔔 כרטיס «מה חדש בקהילה מאז ביקורך» — פורום-בלבד (החלטת צוריאל).
 // שאר הזרמים כבר חיים בבית: «עדכונים אחרונים» = פעילות · טיקר תחתון = ערוצים · טיקר עליון = פיתוח.
@@ -11,16 +13,21 @@ import { getWhatsNewCounts } from "../lib/whatsNew.js";
 // חוק-ברזל (לא-עמוס): מופיע רק כשיש חדש בפורום מאז הביקור; אין חדש → לא מרונדר כלל.
 export default function WhatsNewCard() {
   const P = usePalette();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_forum: הפורום בבנייה — הכרטיס (מציג תוכן-פורום) נעלם מהבית כשהדגל פעיל (גם לרשומים).
+  const { loading: fLoading, lock: fLock } = useSiteFlag("lock_forum");
+  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
   const [counts, setCounts] = useState(null);
 
   useEffect(() => {
+    if (fLoading || forumBlocked) return;
     let live = true;
     getWhatsNewCounts().then(c => { if (live) setCounts(c); }).catch(() => {});
     return () => { live = false; };
-  }, []);
+  }, [fLoading, forumBlocked]);
 
-  // אין חדש בפורום → לא מציגים כלום (אפס עומס).
-  if (!counts || !counts.forum) return null;
+  // הפורום נעול, או אין חדש בפורום → לא מציגים כלום (אפס עומס).
+  if (forumBlocked || !counts || !counts.forum) return null;
   const m = counts.forumLatest;
   const text = m ? (stripHtml(m.text || "").slice(0, 72) || m.label) : "";
   const more = counts.forum - 1;   // כמה חדשים נוספים מעבר לאחרון שמוצג

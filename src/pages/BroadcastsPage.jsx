@@ -15,6 +15,8 @@ import ReporterLink, { ReporterAvatar } from "../components/ReporterLink.jsx";
 import ForumFeed from "../components/ForumFeed.jsx";
 import SiteUpdatesFeed from "../components/SiteUpdatesFeed.jsx";
 import { getSystemCiphers } from "../lib/elsMatrices.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag, MaintenanceLock } from "../components/MaintenanceLock.jsx";
 
 // 📡 «מרכז השידורים» — בית אחד, 4 טאבים (עץ אחד). כל טאב = עדשה על מקור-אמת אחד שכבר חי:
 //   💬 פורום       — getForumFeed (חידושים · דיונים · תגובות · צפני-גולשים · הודעות גולשים)
@@ -62,9 +64,15 @@ function sysCipherRow(c) {
 
 export default function BroadcastsPage() {
   const P = usePalette();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_forum: הפורום בבנייה — טאב «פורום» נעלם ממרכז השידורים כשהדגל פעיל (גם לרשומים).
+  const { lock: fLock } = useSiteFlag("lock_forum");
+  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
+  const visibleTabs = useMemo(() => forumBlocked ? TABS.filter(t => t.key !== "forum") : TABS, [forumBlocked]);
   const [params, setParams] = useSearchParams();
   const focusId = params.get("u");
-  const initTab = TABS.some(t => t.key === params.get("tab")) ? params.get("tab") : (params.get("c") ? "channels" : "forum");
+  const requestedTab = TABS.some(t => t.key === params.get("tab")) ? params.get("tab") : (params.get("c") ? "channels" : "forum");
+  const initTab = (forumBlocked && requestedTab === "forum") ? "channels" : requestedTab;
   const [tab, setTab] = useState(initTab);
   const [data, setData] = useState(null);
   const [chanFilter, setChanFilter] = useState(params.get("c") || "all");
@@ -83,7 +91,7 @@ export default function BroadcastsPage() {
     let live = true;
     (async () => {
       const [forum, hints, postsRes, sysCiphers, chanArrays, dev] = await Promise.all([
-        getForumFeed({ limit: 60, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
+        forumBlocked ? Promise.resolve([]) : getForumFeed({ limit: 60, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
         getRealityHints(40).catch(() => []),
         getPostsFromSupabase({ limit: 20, orderBy: "modified" }).then(r => r?.posts || []).catch(() => []),  // כל הפוסטים (כולל מערכת)
         getSystemCiphers(20).catch(() => []),   // 🔠 צפני-מערכת → זרם הפעילות
@@ -94,7 +102,7 @@ export default function BroadcastsPage() {
       setData({ forum: forum || [], hints: hints || [], posts: postsRes || [], sysCiphers: sysCiphers || [], channels: (chanArrays || []).flat(), dev: (dev || []).map(u => ({ ...u, ch: DEV_CHANNEL })) });
     })();
     return () => { live = false; };
-  }, []);
+  }, [forumBlocked]);
 
   // מסמנים את הטאב הפעיל כ«נראה» (מאפס את המונה שלו לביקור הבא) — לא נוגע בצילום-הקבוע של הסשן
   useEffect(() => { if (data) markSeenKey("bc-" + tab); }, [tab, data]);
@@ -185,7 +193,7 @@ export default function BroadcastsPage() {
 
       {/* טאבים + מונה «חדש מאז ביקורך» */}
       <nav className="hub-tabs">
-        {TABS.map(t => (
+        {visibleTabs.map(t => (
           <button key={t.key} className={"hub-tab" + (tab === t.key ? " on" : "")}
             style={tab === t.key ? { background: t.acc } : { "--acc": t.acc }} onClick={() => goTab(t.key)}>
             <span>{t.emoji} {t.title}</span>
@@ -200,8 +208,8 @@ export default function BroadcastsPage() {
       ) : tab === "channels" ? (
         <ChannelsView P={P} items={channelItems} all={data.channels} chanCounts={chanCounts} filter={chanFilter} setFilter={setChanFilter} focusId={focusId} onOpen={setLb} />
       ) : tab === "forum" ? (
-        // 🌳 עץ אחד: אותו פורום ממש כמו /forum — אותו רכיב משותף, לא גרסה מוקטנת
-        <ForumFeed maxWidth={760} />
+        // 🔒 lock_forum: הפורום בבנייה — גם בגישה ישירה ל-?tab=forum (הטאב עצמו כבר מוסתר מהניווט)
+        forumBlocked ? <MaintenanceLock message={fLock.message} /> : <ForumFeed maxWidth={760} />
       ) : tab === "dev" ? (
         // 🌳 עץ אחד: אותו «מה חדש באתר» כמו /whats-new — אותו רכיב משותף
         <SiteUpdatesFeed />
