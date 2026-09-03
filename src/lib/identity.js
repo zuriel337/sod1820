@@ -2,6 +2,8 @@
 // מזהה יחיד ל-cookie ראשוני + localStorage, עם אימוץ מפתחות-ישנים כ-seed (המשכיות).
 // שכבת-תאימות: לא נוגע במפתחות/בטבלאות הישנים — רק ממפה אותם ל-sod_id דרך identity_edges.
 import { supabase } from "./supabase.js";
+// visitorId.js הוא מודול טהור (בלי import אפליקטיבי) — יבוא חד-כיווני, בלי מעגל.
+import { getVisitorId } from "./visitorId.js";
 
 const SOD_KEY = "sod_id";
 const COOKIE = "sod_id";
@@ -86,6 +88,58 @@ export function sessionId() {
     localStorage.setItem(SID_KEY, sid); localStorage.setItem(SIDT_KEY, String(now));
     return sid;
   } catch { return null; }
+}
+
+// ===== IDENTITY_UNIFICATION_V1 — ensureIdentity() ("Central Bootstrap") =====
+// המודל הקנוני נשאר כמות שהוא — sod_vid = Browser Visitor, sod_id = Identity Spine,
+// Person/Account = זהות-אדם/חשבון. שתי שכבות סמנטיות שונות במכוון (ראה
+// audits/identity_unification_v1/IDENTITY_UNIFICATION_DESIGN_GATE.md) — הפונקציה הזו
+// לא ממזגת ביניהן, רק מוודאת שהגשר הדטרמיניסטי-אידמפוטנטי הקיים (identity_edges,
+// kind='legacy_seed', דרך link_identity הקיים) נכתב בפועל.
+//
+// למה זה קיים: seedLegacyOnce (למעלה) תלוי-סדר-טעינה — הוא בודק מפתחות-ישנים *פעם
+// אחת בדיוק*, ברגע ש-getSodId() עולה לראשונה בדפדפן הזה. אם sod_vid נוצר *אחרי* אותו
+// רגע (למשל רכיב אחר טוען את visitorId.js מאוחר יותר), החלון להתאמה אבד לצמיתות.
+// ensureIdentity() מוחלפת בגישה אחרת: נקראת פעם אחת מ-App.jsx (עליית-האפליקציה, ליד
+// captureArrivalSource/captureAcquisition), ומנסה לגשר sod_vid→sod_id **בכל
+// tab-session** (לא פעם-אחת-לתמיד) — כך שגם מבקרים קיימים מתרפאים בהדרגה, בלי תלות
+// בתזמון-טעינה של אף מודול אחר.
+//
+// הגנת-DB: identity_edges_legacy_seed_unique (partial unique index על legacy_id,
+// kind='legacy_seed') מבטיח ש-legacy id אחד לא יוכל להיקשר ליותר מ-Identity Spine
+// (sod_id) אחד. התנגשות (23505) לא נבלעת בשקט: מתועדת דרך התשתית הקיימת (events,
+// surface='identity', event_type='legacy_identity_conflict') ל-Human/diagnostic
+// investigation — לא מתקנים אוטומטית, לא משנים sod_id קיים, לא ממזגים Persons.
+// כשל-רשת/Supabase לעולם לא חוסם טעינת-אתר (fire-and-forget מלא, try/catch בכל שכבה).
+const BRIDGE_KEY = "sod_identity_bridged";
+export function ensureIdentity() {
+  try {
+    if (!supabase) return;
+    const sodId = getSodId();
+    let sodVid = null;
+    try { sodVid = getVisitorId(); } catch { /* noop — אין localStorage (מצב-פרטי) */ }
+    if (!sodId || !sodVid || sodId === sodVid) return; // אין מה לגשר, או שכבר זהים (אימוץ קודם)
+    try { if (sessionStorage.getItem(BRIDGE_KEY) === sodVid) return; } catch { /* ממשיכים בלי ה-guard */ }
+    let sid = null; try { sid = sessionId(); } catch { /* noop */ }
+    supabase.rpc("link_identity", { p_sod_id: sodId, p_kind: "legacy_seed", p_legacy_id: sodVid })
+      .then(({ error }) => {
+        try { sessionStorage.setItem(BRIDGE_KEY, sodVid); } catch { /* noop */ }
+        if (!error) return;
+        if (error.code === "23505") {
+          // sod_vid הזה כבר מקושר ל-sod_id אחר — קונפליקט אמיתי, לא שגיאת-רשת.
+          // מתועד, לא נפתר אוטומטית. logJourneyAb-style: fire-and-forget, בלי לחסום.
+          try {
+            supabase.rpc("ingest_event", {
+              p_sod_id: sodId, p_surface: "identity", p_event_type: "legacy_identity_conflict",
+              p_session_id: sid,
+              p_props: { legacy_id: sodVid, kind: "legacy_seed", source: "ensureIdentity_runtime" },
+              p_is_bot: false,
+            }).then(() => {}).catch(() => {});
+          } catch { /* noop */ }
+        }
+      })
+      .catch(() => { /* כשל-רשת/Supabase — לא חוסם, ינסה שוב ב-tab-session הבא */ });
+  } catch { /* לעולם לא שובר גלישה */ }
 }
 
 // תפירת זהות — מוכן לחיווט בהתחברות / מנוי-פוש (יופעל ב-M2/M3, לא שובר כלום כשלא נקרא)

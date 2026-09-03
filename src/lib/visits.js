@@ -3,19 +3,15 @@
 // פרטיות: בלי IP / בלי PII. מזהה-גולש = מחרוזת אקראית ב-localStorage (לספירת ייחודיים בלבד).
 import { supabase } from "./supabase.js";
 import { emit, isBot } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
-
-const VKEY = "sod_visitor";
-
-function visitorId() {
-  try {
-    let v = localStorage.getItem(VKEY);
-    if (!v) {
-      v = (crypto?.randomUUID?.() || (Date.now().toString(36) + Math.random().toString(36).slice(2)));
-      localStorage.setItem(VKEY, v);
-    }
-    return v;
-  } catch { return null; }
-}
+// IDENTITY_UNIFICATION_V1: מפסיקים ליצור מזהה-מבקר נפרד ("sod_visitor") — זה היה
+// שכפול-בטעות של שכבת ה-Browser Visitor, ש-visitorId.js כבר "בעלים יחיד" שלה לפי
+// החוזה שלו (ONE TREE). לא מוחקים את המפתח הישן (מבקרים קיימים עם sod_visitor
+// ב-localStorage פשוט מפסיקים להיכתב אליו — ההיסטוריה הקיימת ב-site_visits נשארת
+// כמות שהיא, בלי rewrite). אומת מול כל צרכני site_visits (track_visit/
+// visits_two_meter/traffic_composition/visits_stats/visits_detail_for) שאף אחד לא
+// תלוי בפורמט/namespace הישן — כולם מתייחסים ל-visitor כמחרוזת אטומה (count distinct
+// בלבד), ואורך UUID זהה בשני המקורות (36 תווים, בתוך המגבלה left(...,64) ב-track_visit).
+import { getVisitorId as visitorId } from "./visitorId.js";
 
 function deviceType() {
   if (typeof navigator === "undefined") return null;
