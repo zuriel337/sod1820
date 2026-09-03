@@ -107,7 +107,7 @@ const RESEARCH_RULES =
   "9. בלי נבואות/תאריכים עתידיים/טענות על אנשים חיים. עברית בלבד.\n" +
   "10. ⚠ פלט: השב **טקסט עברי רצוף בלבד** — בלי JSON, בלי מעטפה, בלי שדות כמו value/label/greeting/answer. רק מה שצוריאל קורא.";
 
-const FALLBACK_PERSONA = "אתה רזיאל — חוקר-המספרים של סוד1820, עֶדְשָׁה מעל עץ-הידע.";
+const FALLBACK_PERSONA = "אתה רזיאל — חוקר-המספרים של סוד 1820, עֶדְשָׁה מעל עץ-הידע.";
 
 function fmtMemory(rctx: any): string {
   const uc = rctx?.user_context; if (!uc) return "";

@@ -4796,7 +4796,7 @@ function CommandCenterTab({ gotoTab }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
           <span style={{ fontSize: 24 }}>🧠</span>
           <div style={{ flex: 1, minWidth: 160 }}>
-            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>מפקדה — מרכז המוח של סוד1820</div>
+            <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 17, fontWeight: 700 }}>מפקדה — מרכז המוח של סוד 1820</div>
             <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12 }}>מה התגלה · מה דורש החלטה · מה עלה בביקוש · מה מטטרון מציע</div>
           </div>
           <button onClick={load} style={segBtn(false)}>↻ רענן</button>

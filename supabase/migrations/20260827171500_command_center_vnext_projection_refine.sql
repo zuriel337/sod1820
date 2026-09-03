@@ -78,7 +78,7 @@ with admin_ok as (
     jsonb_build_object('channel',c.channel,'source',c.source,'speaker',c.speaker,'credit',c.credit,'link_url',c.link_url,'ext_msg_id',c.ext_msg_id)
   from public.channel_updates c,admin_ok a
   where a.ok and coalesce(c.source,'') not in ('system','admin','ai')
-    and lower(coalesce(c.credit,'')) not in ('sod1820','סוד1820','סוד 1820','המערכת','רזיאל · ai')
+    and lower(coalesce(c.credit,'')) not in ('sod1820','סוד 1820','סוד 1820','המערכת','רזיאל · ai')
     and coalesce(c.credit,'') not like '%1237%'
 
   union all

@@ -74,7 +74,7 @@ function postVideoUrlTag(p) {
   const poster = (c.match(/poster="([^"]+)"/i) || [])[1];
   // Thumbnail Validity Gate: image_url/poster רק אם תמונה (לא mp4/וידאו); אחרת cardThumb ממותד.
   const thumb = resolveThumb([p.image_url, poster], cleanCap(p.title).slice(0, 60));
-  const title = cleanCap(p.title).slice(0, 100) || 'סוד1820 — סרטון';
+  const title = cleanCap(p.title).slice(0, 100) || 'סוד 1820 — סרטון';
   const desc = cleanCap(p.title).slice(0, 2048) || title;
   let pub; try { pub = p.date ? new Date(p.date).toISOString() : undefined; } catch { pub = undefined; }
   const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;

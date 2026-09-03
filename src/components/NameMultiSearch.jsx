@@ -461,7 +461,7 @@ export default function NameMultiSearch({ name, onResolve, hideInput = false }) 
       if (!blob) return;
       const file = new File([blob], `sod1820-${full}.png`, { type: "image/png" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: full, text: `${full} · מעבדת השם · סוד1820` });
+        await navigator.share({ files: [file], title: full, text: `${full} · מעבדת השם · סוד 1820` });
       } else {
         const url = URL.createObjectURL(blob); const a = document.createElement("a");
         a.href = url; a.download = `sod1820-${full}.png`; a.click(); URL.revokeObjectURL(url);

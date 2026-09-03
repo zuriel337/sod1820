@@ -165,7 +165,7 @@ export default function ContributorStudio({ c, P }) {
       {/* שיתוף הסטודיו (רכיב-שיתוף קנוני) */}
       {publicCount > 0 && (
         <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-          <ShareActions type="studio" title={`הסטודיו של ${c.display_name} · סוד1820`} url={`https://sod1820.co.il/${slug}`} compact force />
+          <ShareActions type="studio" title={`הסטודיו של ${c.display_name} · סוד 1820`} url={`https://sod1820.co.il/${slug}`} compact force />
         </div>
       )}
       <div style={{ borderBottom: `1px dashed ${P.border}`, margin: "18px 0 2px" }} />

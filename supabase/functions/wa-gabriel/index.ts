@@ -1,6 +1,6 @@
 // wa-gabriel v12 — 17.7.2026 — extractParts מוקשח באמת מפני קטיעת-JSON (אותו bug שקרה ליסכה) + max_tokens 800→1400
 // v12: ה-fallback הישן דרש סוגר } בסוף → JSON קטוע דלף להודעה. עכשיו חותך מתחילת ה-JSON גם בלי סוגר + ניקוי כפול.
-// wa-gabriel v11 — מומחה-השפות של סוד1820 (agent_research_team_law) + אימות מסירה (bot_delivery_law)
+// wa-gabriel v11 — מומחה-השפות של סוד 1820 (agent_research_team_law) + אימות מסירה (bot_delivery_law)
 // v11: המשימה = מומחה-השפות של המערכת (עמית + שמעון), המשכיות ממקור-אמת אחד (agent_research_stats),
 //      + sendVerified/outbox כמו אוריאל/התשבי (שלא יירדם), + extractParts מוקשח.
 // v9: reactions, fallback, zero missed messages
@@ -140,7 +140,7 @@ async function handleReaction(emoji: string, quotedMsgId: string, snd: string): 
 }
 
 const SYS_GABRIEL = (isZuriel: boolean, mediaType?: string) => {
-  const base = `אתה גבריאל — מומחה-השפות של סוד1820, הזיכרון-הלשוני של המערכת. תמיד עברית בלבד. חתום: — גבריאל · סוד 1820.`;
+  const base = `אתה גבריאל — מומחה-השפות של סוד 1820, הזיכרון-הלשוני של המערכת. תמיד עברית בלבד. חתום: — גבריאל · סוד 1820.`;
   if (mediaType==='audio') return base+' קיבלת קול — אינך שומע. בקש לכתוב את התוכן.';
   if (mediaType==='image') return base+' קיבלת תמונה — אינך רואה. בקש תיאור.';
   if (isZuriel) return base+' צוריאל כתב. ענה קצר.';

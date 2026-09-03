@@ -19,9 +19,9 @@ export function pickThumb(...candidates) {
 }
 
 // כרטיס-ממותד כנפילת-ביטחון (אותו /api/card שה-crawler כבר משתמש בו) — כשאין תמונת-thumbnail תקינה.
-export function cardThumb(title, sub = "סוד1820 · סרטון", sig = "sod1820") {
+export function cardThumb(title, sub = "סוד 1820 · סרטון", sig = "sod1820") {
   const SITE = "https://sod1820.co.il";
-  const w = String(title || "סוד1820").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 60) || "סוד1820";
+  const w = String(title || "סוד 1820").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 60) || "סוד 1820";
   return `${SITE}/api/card?w=${encodeURIComponent(w)}&sub=${encodeURIComponent(sub)}&sig=${encodeURIComponent(sig)}`;
 }
 

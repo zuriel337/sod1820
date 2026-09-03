@@ -75,7 +75,7 @@ async function saveExchange(uid: string, userMsg: string, reply: string, snapsho
   } catch { /* לא שובר את התשובה */ }
 }
 
-const FALLBACK_PERSONA = "אתה רזיאל — עוזר-המחקר וה-Human-Gate של סוד1820.";
+const FALLBACK_PERSONA = "אתה רזיאל — עוזר-המחקר וה-Human-Gate של סוד 1820.";
 
 // 🎯 זיהוי-domain גס מתוך הודעת-המשתמש → תגיות ל-fn_raziel_relevant_rules (לא קובע תוכן,
 // רק עוזר לצמצם/למקד את השאילתה החיה; ה-query החופשי (ההודעה עצמה) תמיד גם-הוא נשלח).

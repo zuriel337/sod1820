@@ -266,7 +266,7 @@ function videoUploadDate(raw) {
 
 // ── JSON-LD לגלריית הסרטים (דף הבית) — ItemList של VideoObject ──
 // מזין את דוח «וידאו» ב-Search Console → הסרטונים מופיעים כתוצאות-וידאו עשירות בגוגל
-// (thumbnail + כותרת), כדי שמי שמחפש את הסרטונים של סוד1820 יגיע אליהם ראשון.
+// (thumbnail + כותרת), כדי שמי שמחפש את הסרטונים של סוד 1820 יגיע אליהם ראשון.
 // דרישות גוגל ל-VideoObject: name · thumbnailUrl · uploadDate · embedUrl/contentUrl.
 export function setVideoGalleryJsonLd(videos = []) {
   if (typeof document === "undefined") return;

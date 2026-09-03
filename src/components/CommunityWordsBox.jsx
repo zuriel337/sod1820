@@ -18,10 +18,10 @@ function attribution(r) {
   let src;
   if (/^וואטסאפ/.test(s)) src = s;                                     // "וואטסאפ הגילוי היומי"
   else if (s.startsWith("auto:")) src = s.slice(5).replace(/\s*wp\d+\s*$/i, "").trim() || "תיעוד אירועים";
-  else if (/^גלריי?ת/.test(s)) src = "גלריית סוד1820";
+  else if (/^גלריי?ת/.test(s)) src = "גלריית סוד 1820";
   else src = ({
     excel_import: "מאגר היסוד",
-    sod1820: "סוד1820",
+    sod1820: "סוד 1820",
     admin_curated: "נבחר ע״י המערכת",
     community: "מהקהילה",
     manual: "הזנה ידנית",

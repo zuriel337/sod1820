@@ -42,9 +42,9 @@ function forumRow(x) {
   // contribution (חידוש/דיון/הודעת-גולש)
   return { id: x.id, ico: x.intent === "דיון" ? "🗨️" : "💬", title: x.title || snip(x.body), who: x.author_display || x.author_name, time: x.ts, href: `/forum/${x.contribId}`, tag: x.intent || "חידוש" };
 }
-// פוסט מ-getPostsFromSupabase (כל הפוסטים, כולל «המערכת»). author ריק → «סוד1820».
+// פוסט מ-getPostsFromSupabase (כל הפוסטים, כולל «המערכת»). author ריק → «סוד 1820».
 function postRow(p) {
-  const who = (p.author && String(p.author).trim()) ? String(p.author).trim() : "סוד1820";
+  const who = (p.author && String(p.author).trim()) ? String(p.author).trim() : "סוד 1820";
   return { id: "p_" + (p.id || p.slug), ico: "📜", title: stripHtml(p.title || "") || "פוסט",
     who, time: p.modified || p.date, href: `/${p.slug || ""}`, image: p.image_url, tag: "עדכון אחרון" };
 }
@@ -56,7 +56,7 @@ function hintRow(h) {
 }
 // 🔠 צופן-מערכת (admin published) → זרם-הפעילות הקנוני. צפני-קהילה נשארים בפורום.
 function sysCipherRow(c) {
-  return { id: "sc_" + c.id, ico: "🔠", title: c.title || c.search_term || "צופן", who: c.author_name || "סוד1820",
+  return { id: "sc_" + c.id, ico: "🔠", title: c.title || c.search_term || "צופן", who: c.author_name || "סוד 1820",
     time: c.created_at, href: `/codes/${encodeURIComponent(c.slug || c.id)}`, image: c.image_url, tag: "צופן חדש" };
 }
 
