@@ -354,11 +354,12 @@ export default function App() {
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
-          <Route path="/forum" element={<ForumPage />} />
+          {/* 🔒 lock_forum: הפורום בבנייה — נעול לכולם חוץ מאדמין עד להשקה (mode='all') */}
+          <Route path="/forum" element={<Locked flag="lock_forum"><ForumPage /></Locked>} />
           <Route path="/or-geula" element={<OrGeulaPage />} />
           <Route path="/or-geula/video/:id" element={<OrGeulaPage />} />
           <Route path="/אור-הגאולה" element={<OrGeulaPage />} />
-          <Route path="/forum/:id" element={<ForumThreadPage />} />
+          <Route path="/forum/:id" element={<Locked flag="lock_forum"><ForumThreadPage /></Locked>} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
           <Route path="/gematria" element={<GematriaToLab />} />
           <Route path="/גימטריה" element={<GematriaToLab />} />

@@ -6,6 +6,8 @@ import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { resolveAuthor } from "../lib/authors.js";
 import { stripHtml } from "../lib/format.js";
 import ForumActivityDot from "./ForumActivityDot.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag } from "./MaintenanceLock.jsx";
 
 // 📋 עדכונים אחרונים מהפורום — רכיב קנוני קטן (עדשה על getForumFeed, החדשים למעלה).
 // מצביע: פוסט → /<slug> · תרומה → /forum. לא משכפל תוכן. ניתן להצבה בכל מקום (צ'אט, סייד-רייל…).
@@ -21,10 +23,17 @@ function ago(ts) {
 
 export default function ForumUpdatesBox({ limit = 6, style }) {
   const P = usePalette();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_forum: הפורום בבנייה — התיבה נעלמת בכל מקום שהיא מוצבת בו כשהדגל פעיל (גם לרשומים).
+  const { loading: fLoading, lock: fLock } = useSiteFlag("lock_forum");
+  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
   const [items, setItems] = useState(null);
-  useEffect(() => { getForumFeed({ limit }).then(setItems).catch(() => setItems([])); }, [limit]);
+  useEffect(() => {
+    if (fLoading || forumBlocked) return;
+    getForumFeed({ limit }).then(setItems).catch(() => setItems([]));
+  }, [limit, fLoading, forumBlocked]);
 
-  if (items && !items.length) return null;
+  if (forumBlocked || (items && !items.length)) return null;
 
   return (
     <div dir="rtl" style={{ background: P.cardGrad, border: `1px solid ${P.border}`, borderRadius: 14, padding: "14px 15px", ...style }}>

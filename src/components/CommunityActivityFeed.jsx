@@ -4,6 +4,8 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag } from "./MaintenanceLock.jsx";
 
 // 🔴 «פעילות אחרונה בקהילה» — עדשה קומפקטית על getForumFeed (מקור-אמת יחיד עם הפורום
 // ורצועת-הפוטר «מהפורום»). הפיד ממזג פוסטים · חידושי-פורום · צפני-גולשים · עדכוני-ערוץ.
@@ -11,13 +13,18 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 // תמה-מודע (usePalette) → קריא ביום ובלילה. אין נתונים → לא מרנדר כלום (בלי קופסה-ריקה).
 export default function CommunityActivityFeed({ limit = 8, frame = true, style }) {
   const P = usePalette();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_forum: הפורום בבנייה — הפיד נעלם מדף הקהילה כשהדגל פעיל (גם לרשומים).
+  const { loading: fLoading, lock: fLock } = useSiteFlag("lock_forum");
+  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
   const [rows, setRows] = useState(null);
   useEffect(() => {
+    if (fLoading || forumBlocked) return;
     let a = true;
     getForumFeed({ limit }).then(f => a && setRows(Array.isArray(f) ? f : [])).catch(() => a && setRows([]));
     return () => { a = false; };
-  }, [limit]);
-  if (rows === null || !rows.length) return null;
+  }, [limit, fLoading, forumBlocked]);
+  if (forumBlocked || rows === null || !rows.length) return null;
 
   const frameStyle = frame ? { background: P.card, border: `1px solid ${P.border}`, borderRadius: 16, padding: "6px 8px 4px" } : null;
   return (

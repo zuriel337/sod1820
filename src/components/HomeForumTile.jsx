@@ -5,6 +5,8 @@ import { usePalette } from "../lib/palette.js";
 import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag } from "./MaintenanceLock.jsx";
 
 // 📊 מדידת «כניסה לפורום מעמוד-הבית» — כל קישור-פורום בכרטיס פולט event אחיד (home_cta_click),
 // כדי להשוות מול צ'יפ-הסטורי (מי מושך יותר מהבית).
@@ -14,12 +16,19 @@ const trackForumFromHome = (where) => { try { track("forum", "home", "home_cta_c
 // מציג 3 (לא 1) כדי לא לחפוף לכרטיס «מה חדש» שמצביע על הפריט האחרון בלבד. מקור-אמת: getForumFeed(3) + forumItemMeta.
 export default function HomeForumTile() {
   const P = usePalette();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_forum: הפורום בבנייה — האריח נעלם מעמוד הבית כשהדגל פעיל (גם לרשומים).
+  const { loading: fLoading, lock: fLock } = useSiteFlag("lock_forum");
+  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
   const [items, setItems] = useState([]);
   useEffect(() => {
+    if (fLoading || forumBlocked) return;
     let alive = true;
     getForumFeed({ limit: 3 }).then(f => { if (alive) setItems(Array.isArray(f) ? f.slice(0, 3) : []); }).catch(() => {});
     return () => { alive = false; };
-  }, []);
+  }, [fLoading, forumBlocked]);
+
+  if (forumBlocked) return null;
 
   return (
     <div style={{

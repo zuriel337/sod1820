@@ -5,6 +5,8 @@ import { useThemeMode } from "../lib/themeMode.js";
 import { chromeColors } from "../lib/chromeTheme.js";
 import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { stripHtml, timeAgoHe } from "../lib/format.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { useSiteFlag } from "./MaintenanceLock.jsx";
 
 // 🌐 «פעולה אחרונה מהפורום» — רצועה גלובלית דקה בראש הפוטר, על כל דף.
 // מקור-אמת יחיד: getForumFeed(limit:1). התצוגה דרך forumItemMeta הקנוני (contributions.js),
@@ -13,15 +15,20 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 export default function ForumLastStrip() {
   const cc = chromeColors(useThemeMode());
   const { pathname } = useLocation();
+  const { user, isAdmin } = useAuth();
+  // 🔒 lock_forum: הפורום בבנייה — הרצועה הגלובלית נעלמת כשהדגל פעיל (גם לרשומים).
+  const { loading: fLoading, lock: fLock } = useSiteFlag("lock_forum");
+  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
   const [it, setIt] = useState(null);
   useEffect(() => {
+    if (fLoading || forumBlocked) return;
     let alive = true;
     getForumFeed({ limit: 1 }).then(f => { if (alive) setIt((f && f[0]) || null); }).catch(() => {});
     return () => { alive = false; };
-  }, []);
+  }, [fLoading, forumBlocked]);
 
-  // מוסתר בעמוד הפורום עצמו (כפילות) ובצ'אט (טיקר משלו)
-  if (!it || pathname.startsWith("/forum") || pathname.startsWith("/community/chat")) return null;
+  // מוסתר בעמוד הפורום עצמו (כפילות), בצ'אט (טיקר משלו), ובזמן שהפורום נעול
+  if (forumBlocked || !it || pathname.startsWith("/forum") || pathname.startsWith("/community/chat")) return null;
 
   const m = forumItemMeta(it);
   const when = timeAgoHe(m.when);
