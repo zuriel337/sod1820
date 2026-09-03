@@ -13,8 +13,14 @@ import {
 // Does not compute, verify, or promote anything; a native key with no registry
 // entry stays explicitly UNMAPPED (see researchDnaDimensions.js).
 import { canonicalDimensionsOf } from "../../lib/research/researchDnaDimensions.js";
+// ELS Lens v0 (RESEARCH_STUDIO_ELS_LENS_INTEGRATION_V0): the canonical single ELS engine/state
+// bridge (els_single_engine_law) plus the canonical ELS-native-result -> Universal Finding
+// adapter. No second ELS engine/API/store/workspace/graph/dimension system is introduced here —
+// this tab only hosts the existing iframe and projects its existing onState output.
+import TzofenEmbed from "../TzofenEmbed.jsx";
+import { elsStateToUniversalFindings } from "../../lib/research/universalFinding.js";
 
-const NAV = [["feed", "זרם המחקר"], ["findings", "ממצאים"], ["sources", "מקורות"], ["review", "לבדיקה"]];
+const NAV = [["feed", "זרם המחקר"], ["findings", "ממצאים"], ["sources", "מקורות"], ["review", "לבדיקה"], ["els", "🔎 שכבת ELS"]];
 const card = { background: "#fff", border: "1px solid #dfe5ec", borderRadius: 16, boxShadow: "0 5px 20px rgba(24,39,75,.05)" };
 const pill = { display: "inline-flex", alignItems: "center", borderRadius: 999, padding: "4px 9px", fontSize: 11, fontWeight: 800, border: "1px solid #d0d5dd", background: "#fff" };
 
@@ -74,6 +80,11 @@ export default function ResearchViewerV0Page() {
   const [judgmentLoading, setJudgmentLoading] = useState(false);
   const [judgmentMessage, setJudgmentMessage] = useState("");
   const [allowIncompleteExtraction, setAllowIncompleteExtraction] = useState(false);
+  // ELS Lens v0: the last state tick TzofenEmbed's existing onState bridge emitted. Ref-free
+  // (unlike TzofenEmbed's own lastStateRef) because this tab needs a re-render to enable/disable
+  // the import button — it is only mounted while tab==="els", so this does not add a background
+  // re-render cost to the rest of the Viewer.
+  const [elsEngineState, setElsEngineState] = useState(null);
 
   const loadDiscovery = async ({ preserveResearchObjectId = null } = {}) => {
     const result = await fetchResearchViewerDiscovery({ researchLimit: 300, topicLimit: 12 });
@@ -166,6 +177,19 @@ export default function ResearchViewerV0Page() {
     } finally {
       setGraphLoading(false);
     }
+  };
+
+  // ELS Lens v0: same explicit-action shape as runGematria/runGraphSearch above — a state tick
+  // alone never mutates `findings` (matches the "not a passive tick" Research Bus principle
+  // TzofenEmbed already documents). Projects the current engine state through the existing
+  // elsStateToUniversalFindings adapter only; no ELS math/recompute happens here.
+  const importElsFindings = () => {
+    if (!elsEngineState || elsEngineState.status !== "ok") return;
+    const items = elsStateToUniversalFindings(elsEngineState, {});
+    if (!items.length) return;
+    setFindings(current => mergeFindings(current, items));
+    setSelectedId(items[0].id);
+    setTab("findings");
   };
 
   const selected = findings.find(f => f.id === selectedId) || findings[0] || null;
@@ -269,6 +293,7 @@ export default function ResearchViewerV0Page() {
         <Stat n={kindCounts.gematria || 0} label="Gematria on-demand" />
         <Stat n={kindCounts["graph-entity"] || 0} label="Graph Entities" />
         <Stat n={kindCounts["graph-relation"] || 0} label="Graph Relations" />
+        <Stat n={kindCounts.els || 0} label="ELS (מיובאים)" />
         <Stat n={workspace.findings?.length || 0} label="במחקר הפעיל" />
         <Stat n={workspace.pinnedFindings?.length || 0} label="מוצמדים" />
       </section>
@@ -331,6 +356,29 @@ export default function ResearchViewerV0Page() {
       {tab === "sources" && <div style={{ display: "grid", gap: 10 }}>{grouped.map(group => <div key={group.source} style={{ ...card, padding: 16 }}><b>{group.source}</b><div style={{ color: "#667085", marginTop: 6 }}>{group.items.length} Findings · kinds: {[...new Set(group.items.map(f => f.kind))].join(", ")} · source-native identity preserved</div></div>)}</div>}
 
       {tab === "review" && <div style={{ display: "grid", gap: 10 }}>{review.length ? review.map(f => <button key={f.id} onClick={() => { setSelectedId(f.id); setTab("findings"); }} style={{ ...card, padding: 15, textAlign: "right", cursor: "pointer" }}><div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 7 }}><Chip>{f.kind}</Chip><Chip value={verificationState(f)}>{verificationState(f) || "verification: unknown"}</Chip><Chip value={governanceState(f)}>{governanceState(f) || "governance: unknown"}</Chip></div><b>{f.subject?.label || f.id}</b><div style={{ color: "#667085", fontSize: 12, marginTop: 5 }}>{sourceLabel(f)}</div></button>) : <div style={{ ...card, padding: 20 }}>אין כרגע פריטים שמסווגים ל־review לפי mismatch / method_unknown / candidate.</div>}</div>}
+
+      {tab === "els" && <div style={{ display: "grid", gap: 12 }}>
+        <div style={{ ...card, padding: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ color: "#667085", fontSize: 11 }}>ELS LENS · read-only projection</div>
+              <h3 style={{ margin: "4px 0" }}>הצופן התנ״כי (ELS) — אותו מנוע קנוני</h3>
+            </div>
+            <button type="button" onClick={importElsFindings} disabled={!elsEngineState || elsEngineState.status !== "ok"}
+              style={{ border: 0, borderRadius: 10, background: "#175cd3", color: "#fff", padding: "10px 15px", fontWeight: 900, cursor: "pointer", opacity: (!elsEngineState || elsEngineState.status !== "ok") ? .55 : 1 }}>
+              📥 ייבא ממצא ELS נוכחי לרשימה
+            </button>
+          </div>
+          <div style={{ color: "#667085", fontSize: 11, marginTop: 8 }}>
+            זהו ה-iframe הקנוני היחיד (tzofen.html/TzofenEmbed, els_single_engine_law) — אין מנוע ELS שני. חיפוש/צפייה כאן אינם כותבים ל-DB;
+            רק «ייבוא» מפעיל את ה-adapter הקיים (elsStateToUniversalFindings) ומוסיף Universal Findings לרשימה כאן דרך אותו mergeFindings שמשמש את Gematria/Graph למעלה.
+            verification_state נשאר not_tested — זו תוצאת-מנוע מדויקת, לא claim שנבדק. הוספה לתיק המחקר עצמו נשארת דרך אותו Workspace קיים (למטה בכרטיס «ממצאים», או הכפתור «📌 הוסף למחקר» בתוך הכלי עצמו).
+          </div>
+        </div>
+        <div style={{ ...card, padding: 10 }}>
+          <TzofenEmbed onState={setElsEngineState} />
+        </div>
+      </div>}
     </>}
   </div></main>;
 }
