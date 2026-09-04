@@ -57,14 +57,14 @@ const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/pub
 // 🏗️ מפת-בנייה ציבורית — נגזרת מה-Roadmap הקנוני, בלי להציג אחוז-הנדסי מזויף.
 // כל מסלול מוצג כשלב מתוך 4: יסודות → חיבור → בנייה → חוויה.
 const PUBLIC_BUILD_TRACKS = [
-  { icon:"🧱", label:"יסודות המערכת", stage:4, status:"מתקדם מאוד" },
-  { icon:"🧠", label:"מערכת המחקר", stage:3, status:"בבנייה" },
-  { icon:"🔢", label:"מספרים וגימטריה", stage:3, status:"בבנייה" },
-  { icon:"🔠", label:"הצופן התנ״כי", stage:3, status:"בבנייה" },
-  { icon:"📚", label:"ספרים ומקורות", stage:2, status:"מתחבר למערכת" },
-  { icon:"🌳", label:"עץ הידע ורזיאל", stage:2, status:"מתחבר למערכת" },
-  { icon:"🌍", label:"שפות ועדשות", stage:2, status:"תשתית קיימת" },
-  { icon:"🏛️", label:"היכל וחוויית האתר", stage:2, status:"בשיפוץ" },
+  { icon:"🧱", label:"יסודות המערכת", stage:4, status:"מתקדם מאוד", details:["זהות מבקר אחידה ומסעות אמינים","מדידה נקייה מבוטים ותנועה חשודה","תשתית שמחברת מחקר, משתמשים ומקורות"] },
+  { icon:"🧠", label:"מערכת המחקר", stage:3, status:"בבנייה", details:["סביבת מחקר אחת לממצאים, מקורות והצלבות","שמירת ממצאים והמשך חקירה מאותה נקודה","חיבור בין מספר, פסוק, אדם, אירוע ומקור"] },
+  { icon:"🔢", label:"מספרים וגימטריה", stage:3, status:"בבנייה", details:["שיטות חישוב רבות באותו מנוע","דפי מספר חיים שמרכזים את כל מה שקשור למספר","הצלבות אוטומטיות בין מילים, מספרים ומחקרים"] },
+  { icon:"🔠", label:"צפנים בתורה", stage:3, status:"בבנייה", details:["מנוע דילוגי אותיות מתקדם וכלי חיפוש מוצלבים","עשרות יכולות מחקר שנאספות למערכת אחת","שמירת צפנים, השוואתם וחיבורם לשאר גוף הידע"] },
+  { icon:"📚", label:"ספרים ומקורות", stage:2, status:"מתחבר למערכת", details:["ספרים כמו אהבת תורה וספר הפליאה נכנסים למחקר","כל מקור נשמר עם ייחוס וניתן לחיפוש והצלבה","הרחבה הדרגתית של הקורפוס למקורות נוספים"] },
+  { icon:"🌳", label:"עץ הידע ורזיאל", stage:2, status:"מתחבר למערכת", details:["עץ הידע מחבר ישויות וממצאים במקום להשאירם כאיים","רזיאל היא שכבת הבנה שמציעה קשרים ומסבירה למה","קשרים עוברים דירוג ובקרה לפני שהם הופכים לידע קנוני"] },
+  { icon:"🌍", label:"שפות ועדשות", stage:2, status:"תשתית קיימת", details:["אותו גוף ידע יוכל להיפתח לשפות נוספות","שתי עדשות: כי לה׳ המלוכה וקוד המציאות","התוכן והניווט יתאימו לעדשה בלי לשכפל את גוף הידע"] },
+  { icon:"🏛️", label:"היכל וחוויית האתר", stage:2, status:"בשיפוץ", details:["בית חדש ונקי יותר לכל כלי המחקר","מסעות גילוי שמובילים בין תוכן, מספרים וצפנים","חוויית מובייל ודסקטופ אחידה ומהירה יותר"] },
 ];
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
 // כך: כרגע רק «יום משיח בא» (הישנים לפניו לא), וכל צופן חדש שיועלה מהיום מופיע ונשאר שם תמיד.
@@ -457,13 +457,20 @@ export default function HomeNewPage() {
         .hn-build-sub{color:${P.inkSoft};font-family:${F.body};font-size:12.5px;line-height:1.7;margin:4px 0 14px}
         .hn-build-row{padding:10px 0;border-top:1px solid ${P.border}}
         .hn-build-row:first-of-type{border-top:0}
-        .hn-build-row-head{display:flex;justify-content:space-between;gap:10px;align-items:center;font-family:${F.heading};font-size:12px}
+        .hn-build-row-head{display:flex;justify-content:space-between;gap:10px;align-items:center;font-family:${F.ui};font-size:12px}
         .hn-build-row-head b{color:${P.ink}}
         .hn-build-status{color:${P.accentText};font-size:10.5px;font-weight:800;white-space:nowrap}
         .hn-stage-track{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}
         .hn-stage-track i{height:7px;border-radius:999px;background:${P.cardSoft};border:1px solid ${P.border}}
         .hn-stage-track i.on{background:linear-gradient(90deg,#8f6fd6,#d4af37);border-color:transparent}
-        .hn-stage-label{margin-top:5px;color:${P.muted};font-family:${F.heading};font-size:9.5px}
+        .hn-stage-label{margin-top:5px;color:${P.muted};font-family:${F.ui};font-size:10.5px}
+        .hn-build-details{margin-top:8px;font-family:${F.ui};font-size:12px;color:${P.inkSoft}}
+        .hn-build-details summary{cursor:pointer;color:${P.accentText};font-weight:800;list-style:none}
+        .hn-build-details summary::-webkit-details-marker{display:none}
+        .hn-build-details summary:after{content:" +";font-weight:900}
+        .hn-build-details[open] summary:after{content:" −"}
+        .hn-build-details ul{margin:8px 16px 0 0;padding:0;display:grid;gap:5px;line-height:1.6}
+        .hn-build-details li{padding-inline-start:2px}
         @media(max-width:900px){.hn-home-top{grid-template-columns:1fr}.hn-build-card{position:static;order:0}.hn-updates-col{order:1}}
         @media(max-width:640px){.hn-home-top{gap:14px;margin-top:16px}.hn-build-card{padding:16px 14px}}
         @media (max-width:520px){ .hn-thumb-img{ height:118px; } }
@@ -517,7 +524,7 @@ export default function HomeNewPage() {
             <LatestUpdatesRail homeCompact ownOnly heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
           </div>
           <aside className="hn-build-card" aria-label="מצב הבנייה של SOD1820">
-            <div className="hn-build-title">🏗️ SOD1820 נבנה מחדש</div>
+            <div className="hn-build-title">🏗️ אתר כי לה׳ המלוכה נבנה מחדש</div>
             <div className="hn-build-sub">לא מד אחוזים שרירותי — כל תחום מוצג לפי השלב האמיתי שלו במפת-העל: יסודות → חיבור → בנייה → חוויה.</div>
             {PUBLIC_BUILD_TRACKS.map(t => (
               <div key={t.label} className="hn-build-row">
@@ -529,6 +536,10 @@ export default function HomeNewPage() {
                   {[1,2,3,4].map(n => <i key={n} className={n <= t.stage ? "on" : ""} />)}
                 </div>
                 <div className="hn-stage-label">1 יסודות · 2 חיבור · 3 בנייה · 4 חוויה</div>
+                <details className="hn-build-details">
+                  <summary>מה הולך להיות כאן?</summary>
+                  <ul>{t.details.map((d,i) => <li key={i}>{d}</li>)}</ul>
+                </details>
               </div>
             ))}
             <div style={{ marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, textAlign: "center" }}>
