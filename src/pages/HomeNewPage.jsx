@@ -56,6 +56,7 @@ import { useStream, STREAMS } from "../lib/stream.js";
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
 // 🏗️ מפת-בנייה ציבורית — נגזרת מה-Roadmap הקנוני, בלי להציג אחוז-הנדסי מזויף.
 // כל מסלול מוצג כשלב מתוך 4: יסודות → חיבור → בנייה → חוויה.
+const PUBLIC_BUILD_PROGRESS = 66;
 const PUBLIC_BUILD_TRACKS = [
   { icon:"🧱", label:"התשתית שמתחת לאתר", stage:4, status:"מתקדמת מאוד", details:[
     "האתר לומד לזהות מסע אחד רציף של אותו מבקר, במקום לפצל אותו בין כמה מזהים.",
@@ -520,7 +521,7 @@ export default function HomeNewPage() {
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
           {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
               מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
-          <div className="hn-emblem">אתר כי לה׳ המלוכה</div>
+          <div className="hn-emblem">sod1820.co.il</div>
           <h2 className="hn-compact-brand">אתר כי לה׳ המלוכה נבנה מחדש מבפנים</h2>
           <p className="hn-compact-sub">אנחנו בונים מחדש את האתר כולו — לא רק את העיצוב. מאחורי הקלעים מתחברים מנועי הגימטריה, הצפנים בתורה, הספרים, עץ הידע, המחקר ורזיאל לבסיס אחד שילווה אתכם מחיפוש ראשון ועד מחקר עמוק.</p>
           <div className="hn-hero-actions">
@@ -558,8 +559,8 @@ export default function HomeNewPage() {
           <div className="hn-updates-col">
             <LatestUpdatesRail homeCompact ownOnly heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
           </div>
-          <aside className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
-            <div className="hn-build-title">🏗️ אתר כי לה׳ המלוכה נבנה מחדש</div>
+          <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
+            <div className="hn-build-title">🏗️ אתר כי לה׳ המלוכה נבנה מחדש <span style={{ marginInlineStart: 8, fontFamily: F.numeric, fontSize: 15, color: P.accentText }}>{PUBLIC_BUILD_PROGRESS}%</span></div>
             <div className="hn-build-sub">לא מד אחוזים שרירותי — כל תחום מוצג לפי השלב האמיתי שלו במפת-העל: יסודות → חיבור → בנייה → חוויה.</div>
             {PUBLIC_BUILD_TRACKS.map(t => (
               <div key={t.label} className="hn-build-row">
