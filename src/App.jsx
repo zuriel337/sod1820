@@ -78,6 +78,10 @@ const BeitMidrashPage = React.lazy(() => import("./pages/BeitMidrashPage.jsx"));
 const HomeReality = React.lazy(() => import("./pages/HomeReality.jsx"));
 const StreamGate = React.lazy(() => import("./pages/StreamGate.jsx"));
 const ThemePreviewPage = React.lazy(() => import("./pages/ThemePreviewPage.jsx"));
+// Number/Entity Spatial Golden Scene — Slice 1 (dev/admin only, read-only live data, work_log
+// d73bf108 BEFORE / frozen Slice-0 contract 50533e56+27c9ad23). Not linked from any nav; not
+// production UI; independent of PR #314 / Entity Hub 1237 scope.
+const NumberEntityScenePage = React.lazy(() => import("./pages/dev/NumberEntityScenePage.jsx"));
 const TimelinePage = React.lazy(() => import("./pages/TimelinePage.jsx"));
 const NumberSearchPage = React.lazy(() => import("./pages/NumberSearchPage.jsx"));
 const NamePage = React.lazy(() => import("./pages/NamePage.jsx"));
@@ -356,6 +360,7 @@ export default function App() {
           <Route path="/traffic" element={<TrafficRoute />} />
           <Route path="/numbers-report" element={<NumbersReportRoute />} />
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
+          <Route path="/dev/number-entity-scene" element={<NumberEntityScenePage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
           <Route path="/number" element={<NumberSearchPage />} />
