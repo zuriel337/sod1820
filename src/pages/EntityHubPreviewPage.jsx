@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useAuth } from "../lib/AuthContext.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 
 const page = {
@@ -48,19 +47,17 @@ function statusTone(status) {
 }
 
 export default function EntityHubPreviewPage() {
-  const { loading: authLoading, isAdmin } = useAuth();
   const { type = "number", key = "1237" } = useParams();
   const [state, setState] = useState({ loading: true, data: null, error: null });
 
   useEffect(() => {
-    if (authLoading || !isAdmin) return;
     let alive = true;
     setState({ loading: true, data: null, error: null });
     fetchEntityHubProjection({ type, key, relationLimit: 120, researchLimit: 60, topicLimit: 16 })
       .then(data => alive && setState({ loading: false, data, error: data ? null : new Error("הישות לא נמצאה") }))
       .catch(error => alive && setState({ loading: false, data: null, error }));
     return () => { alive = false; };
-  }, [authLoading, isAdmin, type, key]);
+  }, [type, key]);
 
   const relationGroups = useMemo(() => {
     const out = new Map();
@@ -72,14 +69,13 @@ export default function EntityHubPreviewPage() {
     return [...out.entries()].sort((a, b) => b[1].length - a[1].length);
   }, [state.data]);
 
-  if (authLoading) return <main style={page}><div style={shell}>טוען הרשאות…</div></main>;
-  if (!isAdmin) return <main style={page}><div style={shell}><h1>תצוגת מחקר פנימית</h1><p>ה־Golden Case פתוח כרגע לאדמין בלבד.</p></div></main>;
   if (state.loading) return <main style={page}><div style={shell}>טוען Entity Hub…</div></main>;
   if (state.error || !state.data) return <main style={page}><div style={shell}><h1>לא ניתן לטעון את הישות</h1><pre style={{ whiteSpace: "pre-wrap" }}>{state.error?.message}</pre></div></main>;
 
   const data = state.data;
   const identity = data.identity;
   const hg = data.research?.humanGate || { total: 0, status: {}, access: {} };
+  const researchAvailable = data.research?.access?.available !== false;
   const journey = data.journeys?.numberKnowledgeJourney;
   const declaredLenses = data.lenses?.declared || [];
   const isNumber = identity.type === "number";
@@ -89,11 +85,12 @@ export default function EntityHubPreviewPage() {
       <header style={{ ...card, padding: 24 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
           <div>
-            <div style={{ ...muted, fontWeight: 800 }}>SOD1820 · UNIVERSAL ENTITY HUB · GOLDEN CASE v1</div>
+            <div style={{ ...muted, fontWeight: 800 }}>SOD1820 · UNIVERSAL ENTITY HUB · PUBLIC PREVIEW v1</div>
             <h1 style={{ margin: "6px 0 4px", fontSize: 44, lineHeight: 1 }}>{identity.label}</h1>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
               <span style={chip()}>{identity.definition?.icon || "🔹"} {identity.definition?.label || identity.type}</span>
               <span style={chip()}>node:{identity.nodeId.slice(0, 8)}…</span>
+              <span style={chip("ok")}>Public preview</span>
               <span style={chip("ok")}>Projection read-only</span>
               <span style={chip("warn")}>Human Gate נשמר</span>
             </div>
@@ -103,24 +100,24 @@ export default function EntityHubPreviewPage() {
           </div>
         </div>
         <p style={{ margin: "18px 0 0", maxWidth: 820, lineHeight: 1.7 }}>
-          השאלה של ה־Hub: <strong>מה SOD1820 יודע על הישות הזאת?</strong> המידע כאן מורכב מה־Reality Graph, Research Objects, Topics ומסע־המספר הקיים — בלי ליצור אמת או Store חדשים.
+          השאלה של ה־Hub: <strong>מה SOD1820 יודע על הישות הזאת?</strong> התצוגה מרכיבה את שכבות ה־Reality Graph, Topics, מקורות ומסע־המספר הקיים בלי ליצור אמת או Store חדשים. שכבת מחקר שאינה ציבורית נשארת חסומה על ידי ה־DB ולא נפתחת לצורך ה־Preview.
         </p>
         {declaredLenses.length ? <div style={{ marginTop: 14, display: "flex", gap: 7, flexWrap: "wrap" }}>{declaredLenses.map(lens => <span key={lens} style={chip()}>{lens}</span>)}</div> : null}
       </header>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
         <Stat label="קשרי Graph" value={data.graph?.relations?.length || 0} />
-        <Stat label="Research Objects" value={hg.total || 0} />
+        <Stat label="Research Objects" value={researchAvailable ? (hg.total || 0) : "—"} />
         <Stat label="Topics מאושרים" value={data.topics?.findings?.length || 0} />
         <Stat label="מקורות מזוהים" value={data.sources?.length || 0} />
         <Stat label="אירועי Timeline" value={data.timeline?.length || 0} />
       </div>
 
       <Section title="Human Gate · מצב המחקר" subtitle="סטטוס מחקר ו־privacy הם שני צירים נפרדים. תצוגה אינה קנוניזציה ואינה פרסום.">
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {researchAvailable ? <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {Object.entries(hg.status || {}).map(([name, count]) => <span key={name} style={chip(statusTone(name))}>{name}: {count}</span>)}
           {Object.entries(hg.access || {}).map(([name, count]) => count ? <span key={name} style={chip(name === "private" ? "private" : "neutral")}>{name}: {count}</span> : null)}
-        </div>
+        </div> : <Empty>שכבת Research Objects אינה ציבורית בהרשאה הנוכחית. ה־Preview אינו עוקף את ה־RLS/GRANT כדי להציג אותה.</Empty>}
       </Section>
 
       <Section title="Reality Graph" subtitle="הקשרים הקנוניים הקיימים בעץ. עצם קיום edge אינו ממציא verification או publication.">
@@ -134,7 +131,7 @@ export default function EntityHubPreviewPage() {
       </Section>
 
       <Section title="Research" subtitle="ממצאים וטענות נשארים ב־Research OS עם הסטטוס, הגישה וה־provenance שלהם.">
-        {data.research?.findings?.length ? <div style={{ display: "grid", gap: 10 }}>
+        {!researchAvailable ? <Empty>שכבת המחקר המלאה נשארת סגורה בהרשאה הזאת. זו הגנת נתונים, לא חסימת Preview.</Empty> : data.research?.findings?.length ? <div style={{ display: "grid", gap: 10 }}>
           {data.research.findings.map((f, index) => {
             const row = data.research.rows?.find(r => String(r.id) === String(f.identity?.sourceIdentity?.researchObjectId));
             return <article key={f.id} style={{ border: "1px solid #ece4d5", borderRadius: 14, padding: 14 }}>
@@ -180,16 +177,16 @@ export default function EntityHubPreviewPage() {
             <pre style={{ margin: "10px 0 0", fontSize: 12, overflowX: "auto", direction: "ltr", textAlign: "left" }}>{JSON.stringify(journey.liveComputedMap, null, 2)}</pre>
           </div> : null}
         </> : <Empty>אין Number Knowledge Journey זמין כרגע לישות הזאת.</Empty>}
-        <div style={{ marginTop: 12, ...muted }}>Research/Discovery Path אוניברסלי נשאר במפורש לא פתור — ה־Hub אינו ממציא את 112→358→676→1120→1237→2137 כ־Journey.</div>
+        <div style={{ marginTop: 12, ...muted }}>Research/Discovery Path עתידי יורכב כ־traversal/snapshot על אותו Research Context — ה־Hub אינו יוצר Store או אמת מקבילים.</div>
       </Section> : null}
 
-      <Section title="Sources" subtitle="References שמגיעים מהמחקר ומהמסע הקיים. מקור אינו Claim ואינו Canonical status.">
+      <Section title="Sources" subtitle="References שמגיעים מהשכבות הזמינות ומהמסע הקיים. מקור אינו Claim ואינו Canonical status.">
         {data.sources?.length ? <ul style={{ margin: 0, paddingInlineStart: 22 }}>
           {data.sources.map((source, i) => <li key={`${source.type}-${source.ref || source.label}-${i}`} style={{ margin: "7px 0" }}>{source.label}</li>)}
         </ul> : <Empty />}
       </Section>
 
-      <Section title="Timeline · activity lens v0" subtitle="כרגע: זמן יצירת Graph/Research records בלבד. אינו מתיימר עדיין להיות הכרונולוגיה ההיסטורית המלאה של פוסטים/רמזים/אירועים.">
+      <Section title="Timeline · activity lens v0" subtitle="כרגע: זמן יצירת Graph/Research records הזמינים בהרשאה הנוכחית בלבד. אינו מתיימר עדיין להיות הכרונולוגיה ההיסטורית המלאה.">
         {data.timeline?.length ? <div style={{ display: "grid", gap: 7 }}>
           {data.timeline.slice(-30).map(item => <div key={`${item.id}-${item.at}`} style={{ display: "grid", gridTemplateColumns: "170px 120px 1fr", gap: 10, borderBottom: "1px solid #eee6d9", paddingBottom: 7 }}>
             <span style={muted}>{new Date(item.at).toLocaleString("he-IL")}</span>
