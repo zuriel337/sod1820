@@ -1,5 +1,14 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+> ## 🧭 PUBLIC BUILD MAP SYNC 4.9.2026 — Home ↔ System Map
+> **החלטת צוריאל:** דף-הבית ומפת-המערכת מציגים אותו מצב-בנייה מאותו מקור; המפה היא הגרסה העמוקה יותר עם מדדים, אחוזים והקשר ציבורי.
+> **SSOT ציבורי ל-progress:** `src/lib/knowledgeMap.js::BUILD_TRACKS` מזין גם את מד-הבנייה בדף-הבית וגם את `/map`. `BUILD_PROGRESS` נגזר מאותו מערך — אין אחוז ידני שני.
+> **תיקוני-דיוק:** 304,805 = אותיות בחמשת חומשי התורה (לא "רשומות טקסט"); תנ״ך = 24 ספרים / 23,204 פסוקים. ספרים/מקורות מציגים לציבור את מחקרי-המקור שכבר במסלול: אהבת תורה + ספר הפליאה, בלי להמציא מונה "ספרים סרוקים".
+> **שפות:** שכבת language-links חיה אך אינה שקולה לאתר מתורגם. המפה מציגה 12 גשרים מאומתים (11 אנגלית, 1 רוסית) ומסמנת את האתר הרב-לשוני כ-BUILDING/Hebrew-first.
+> **עץ/רזיאל:** נוסף עולם ציבורי שמסביר את הקשר מספר↔מילה↔פסוק↔ספר↔צופן↔אדם↔אירוע, עם 5,967 nodes / 5,174 edges; רזיאל מוצג כמלווה-AI עתידי מעל אותו גוף-ידע.
+> **UX:** `/map` מציג קודם את כל שמונת מסלולי-הבנייה באותו אחוז/שלב כמו הבית, ואז את עולמות-הידע עם פירוט ציבורי עמוק יותר. טקסטים פנימיים כמו route names / canonical-owner notes אינם שפת-הקהל.
+>
+
 > ## 🗺️ SYSTEM MAP RECONCILIATION 4.9.2026 — Canonical Navigation Gate
 > **מטרה:** מפת-המערכת הציבורית היא Projection בלבד של ה-SSOT הקיים — `project_codex` + live DB + `main` routes/components. אין להמציא יעד, תיקייה או סטטוס מתוך UI בלבד.
 > **בוצע:** Audit מול `project_codex` (כולל `convergence_law` / `reality_graph_law`) + `src/App.jsx` + owners חיים. תוקנו יעדים: ELS tool=`/code` · ספריית-צפנים קנונית=`/codes` · צופן יחיד=`/codes/:slug` · תיקיית-מחקר ELS=`/codes/מחקר` (public/unlisted) · ELS Work Area=`/lab/els` · גלריות=`/gallery` · חוקרים=`/community/researchers` · ציר-ההתגלות=`/timeline` · עץ-המספרים=`/numbers` · פסוקים=`/verse-gematria` · קשרי-שפות=`/languages`.
