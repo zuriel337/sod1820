@@ -593,6 +593,36 @@ function GridIcon() {
   );
 }
 
+function BuildProgressBadge({ cc }) {
+  const nav = useNavigate();
+  const go = () => {
+    if (window.location.pathname === "/" || window.location.pathname === "/home-new" || window.location.pathname === "/בית-חדש") {
+      document.getElementById("build-progress")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    nav("/#build-progress");
+    setTimeout(() => document.getElementById("build-progress")?.scrollIntoView({ behavior: "smooth", block: "start" }), 180);
+  };
+  return (
+    <button type="button" onClick={go} className="sod-nav-build" aria-label="מצב בניית האתר — 66 אחוז"
+      title="האתר בבנייה — לחצו למפת הבנייה" style={{
+        position:"relative", display:"inline-flex", alignItems:"center", gap:7, flex:"none",
+        border:`1px solid ${cc.borderGold}`, background:"rgba(212,175,55,.08)", color:cc.goldBright,
+        borderRadius:999, padding:"6px 11px", cursor:"pointer", fontFamily:F.ui, fontWeight:800,
+        fontSize:12.5, whiteSpace:"nowrap", overflow:"hidden"
+      }}>
+      <style>{`
+        @keyframes navBuildPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.15)}50%{box-shadow:0 0 0 5px rgba(212,175,55,.08)}}
+        .sod-nav-build{animation:navBuildPulse 2.4s ease-in-out infinite}
+        .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:66%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
+        @media(prefers-reduced-motion:reduce){.sod-nav-build{animation:none}}
+        @media(max-width:720px){.sod-nav-build .nb-label{display:none}}
+      `}</style>
+      <span aria-hidden>🏗️</span><span className="nb-label">בבנייה</span><span style={{fontFamily:F.numeric}}>66%</span>
+    </button>
+  );
+}
+
 export default function Navbar() {
   const cc = chromeColors(useThemeMode());
   const { pathname } = useLocation();
@@ -632,28 +662,16 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1800, margin: "0 auto" }}>
         <Brand />
 
-        {/* 🚀 «כאן מתחילים» — הוחזר לחזית הדסקטופ (הבנייה הושלמה, בקשת צוריאל). דסקטופ בלבד;
-            במובייל קיים באנר ייעודי בראש המגירה. */}
-        <Link to="/start" className="sod-nav-desktop" style={{
-          display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none",
-          background: "linear-gradient(135deg, #e9c84a, #b8901f)", color: "#1a0e00",
-          fontFamily: F.royal, fontWeight: 800, fontSize: 13.5, borderRadius: 999, padding: "7px 15px",
-          whiteSpace: "nowrap", boxShadow: "0 2px 10px rgba(212,175,55,0.35)", flex: "none",
-        }}>🚀 כאן מתחילים</Link>
-
         {/* אופציה א׳ — קבוצת «היכל»: העוגן הזהוב מצביע (▸) על שלושת הכלים שלו, עטופים כיחידה אחת. */}
         <div className="sod-nav-desktop sod-heichal-group">
           <LabMenu />
-          <span className="sod-heichal-arrow" aria-hidden>▸</span>
-          {productItems.map(item => item.locked
-            ? <LockedNavItem key={item.to} item={item} />
-            : <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
-        </div>
 
-        {/* חיפוש + הפתעה + כניסה + תפריט-רשת ⊞ (כל השאר במקום אחד — לא סרגל שני) */}
+        </div>
+        <BuildProgressBadge cc={cc} />
+
+        {/* חיפוש + כניסה + תפריט-רשת ⊞ — סרגל עליון מצומצם */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 8, marginInlineStart: "auto" }}>
           <UniversalSearch />
-          <SurpriseButton />
           {user && <NotificationBell />}
           {user ? (
             <UserMenu user={user} profile={profile} cc={cc} />
@@ -673,9 +691,6 @@ export default function Navbar() {
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
         <span className="sod-nav-mobile-only"><SurpriseButton /></span>
         {/* 🔔 במובייל ההתראות יורדות לאזור-האישי (בקשת צוריאל) — לא תופסות מקום בסרגל */}
-
-        {/* מתג עדשת הזרם — מגודר לאדמין בלבד (מוסתר לציבור). במובייל ירד לתוך המגירה (LensSwitchRow). */}
-        <span className="sod-nav-desktop" style={{ display: "inline-flex", alignItems: "center" }}><StreamSwitch /></span>
 
         {/* מתג תמה גלובלי — גלוי בכל מסך */}
         <NavThemeToggle />
