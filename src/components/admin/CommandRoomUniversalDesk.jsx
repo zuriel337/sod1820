@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getChannelUpdates, getAiAnalysis, supabase } from "../../lib/supabase.js";
+import { getChannelUpdates, supabase } from "../../lib/supabase.js";
 import { analyzeFull } from "../../lib/analysisFlow.js";
 import { analyzeTime } from "../../lib/timeFlow.js";
 import { fetchCanonicalGematriaFindings } from "../../lib/research/canonicalGematria.js";
@@ -8,6 +8,10 @@ import {
   buildUniversalDecomposition,
   collectSubjectCandidates,
 } from "../../lib/research/universalDecomposer.js";
+import {
+  getAiDepthProfile,
+  runRoutedAiAnalysis,
+} from "../../lib/research/aiDepthRouter.js";
 import "./CommandRoomUniversalDesk.css";
 
 const CHANNELS = [
@@ -138,9 +142,15 @@ function factsForAi({ item, preliminary, methodLabels }) {
   const rel = (preliminary.claims?.sourceRelations || []).slice(0, 12).map((r) =>
     `${r.left} ↔ ${r.right} [טענת מקור; ${r.cue}]`
   );
-  const refs = (preliminary.extracted?.sourceReferences || []).slice(0, 8).map((r) => `${r.raw} [מראה-מקום מהמקור; לא אומת כאן]`);
-  const graph = (preliminary.identityResolution?.graphMatches || []).slice(0, 12).map((g) => `${g.term} → node:${g.nodeType}:${g.label}`);
-  const prior = (preliminary.identityResolution?.existingResearchObjects || []).slice(0, 8).map((r) => `${r.statement} [Research Object קיים · ${r.status}]`);
+  const refs = (preliminary.extracted?.sourceReferences || []).slice(0, 8).map((r) =>
+    `${r.raw} [מראה-מקום מהמקור; לא אומת כאן]`
+  );
+  const graph = (preliminary.identityResolution?.graphMatches || []).slice(0, 12).map((g) =>
+    `${g.term} → node:${g.nodeType}:${g.label}`
+  );
+  const prior = (preliminary.identityResolution?.existingResearchObjects || []).slice(0, 8).map((r) =>
+    `${r.statement} [Research Object קיים · ${r.status}]`
+  );
   return [
     `SOURCE ARTIFACT — ${item.channelLabel}, מאת ${item.contributor}: ${item.text.slice(0, 3200)}`,
     calc.length ? `CALCULATIONS FROM CANONICAL ENGINE ONLY: ${calc.join(" · ")}` : "CALCULATIONS: none supplied.",
@@ -152,7 +162,7 @@ function factsForAi({ item, preliminary, methodLabels }) {
   ].join("\n");
 }
 
-async function runUniversalAnalysis(item) {
+async function runDeterministicAnalysis(item) {
   const text = item.text || "";
   const analysis = analyzeFull(text, { writerName: item.contributor });
   const time = analyzeTime(text, { sourceDate: item.occurredAt });
@@ -175,7 +185,7 @@ async function runUniversalAnalysis(item) {
     channel: item.channel,
   };
 
-  const preliminary = buildUniversalDecomposition({
+  const rebuildArgs = {
     source,
     text,
     analysis,
@@ -184,36 +194,37 @@ async function runUniversalAnalysis(item) {
     graphMatches,
     researchMatches,
     time,
-  });
+  };
 
-  let aiInterpretation = null;
-  try {
-    aiInterpretation = await getAiAnalysis({
-      kind: "research",
-      subject: source.title,
-      facts: factsForAi({ item, preliminary, methodLabels }),
-      fast: false,
-      ref: item.id,
-      ref_name: item.channelLabel,
-      operation: "universal_decomposition",
-    });
-  } catch {
-    aiInterpretation = null;
-  }
-
-  const decomposition = buildUniversalDecomposition({
-    source,
-    text,
-    analysis,
+  return {
+    decomposition: buildUniversalDecomposition(rebuildArgs),
+    methodLabels,
     expressionBoundary,
-    canonicalGematriaFindings,
-    graphMatches,
-    researchMatches,
-    time,
-    aiInterpretation,
+    rebuildArgs,
+    aiProfile: getAiDepthProfile("none"),
+  };
+}
+
+async function addAiInterpretation(item, current, depth) {
+  if (!current?.decomposition || !current?.rebuildArgs) return current;
+  const routed = await runRoutedAiAnalysis({
+    depth,
+    kind: "research",
+    subject: current.rebuildArgs.source.title,
+    facts: factsForAi({ item, preliminary: current.decomposition, methodLabels: current.methodLabels || {} }),
+    ref: item.id,
+    ref_name: item.channelLabel,
+    operation: "universal_decomposition",
   });
 
-  return { decomposition, methodLabels, expressionBoundary };
+  return {
+    ...current,
+    aiProfile: routed.profile,
+    aiError: routed.skipped || routed.analysis ? null : "לא התקבל ניתוח AI",
+    decomposition: routed.analysis
+      ? buildUniversalDecomposition({ ...current.rebuildArgs, aiInterpretation: routed.analysis })
+      : current.decomposition,
+  };
 }
 
 function Tag({ children, type = "" }) {
@@ -270,6 +281,7 @@ function DecompositionView({ result }) {
   const sourceCount = relations.length + refs.length + compound.length;
   const knownCount = graph.length + existing.length;
   const decisionCount = relations.length + unresolved.length;
+  const aiProfile = result.aiProfile || getAiDepthProfile("none");
 
   return (
     <div className="cud-result">
@@ -284,6 +296,7 @@ function DecompositionView({ result }) {
           <Tag type="fact">{counts.calculations || 0} תוצאות מנוע</Tag>
           <Tag type="identity">{knownCount} התאמות קיימות</Tag>
           <Tag type="open">{decisionCount} דורשים הכרעה/בדיקה</Tag>
+          <Tag type={aiProfile.key === "none" ? "identity" : "claim"}>AI: {aiProfile.label}</Tag>
         </div>
       </div>
 
@@ -421,10 +434,14 @@ function DecompositionView({ result }) {
             </div>
           </Card>
 
-          {d.interpretation?.text && (
-            <Card icon="🤖" title="מבט מחקרי של AI — פרשנות בלבד" wide>
+          {d.interpretation?.text ? (
+            <Card icon="🤖" title={`מבט AI — ${aiProfile.label}`} wide>
               <div className="cud-ai">{d.interpretation.text}</div>
-              <div className="cud-row-meta"><Tag type="claim">INTERPRETATION</Tag><Tag type="open">לא Canonical</Tag></div>
+              <div className="cud-row-meta"><Tag type="claim">INTERPRETATION</Tag><Tag type="open">לא Canonical</Tag><Tag>{aiProfile.description}</Tag></div>
+            </Card>
+          ) : (
+            <Card icon="⚙️" title="AI חיצוני לא הופעל" wide>
+              <p className="cud-muted">כל המפה שמעל נבנתה מהמנועים, ה־DB וה־Identity Resolution. אפשר לבקש סיכום זול או מחקר עמוק רק אם צריך.</p>
             </Card>
           )}
         </div>
@@ -441,7 +458,7 @@ export default function CommandRoomUniversalDesk({ onOpenGate, onOpenAdvanced })
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [result, setResult] = useState(null);
-  const [running, setRunning] = useState(false);
+  const [runningStage, setRunningStage] = useState("");
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -474,26 +491,47 @@ export default function CommandRoomUniversalDesk({ onOpenGate, onOpenAdvanced })
   }, [filtered, selectedId]);
 
   const selected = state.rows.find((r) => r.id === selectedId) || filtered[0] || null;
+  const busy = !!runningStage;
 
   const choose = (item) => {
     setSelectedId(item.id);
     setResult(null);
+    setRunningStage("");
     setError("");
   };
 
-  const run = useCallback(async () => {
-    if (!selected || running) return;
-    setRunning(true);
+  const runDeterministic = useCallback(async () => {
+    if (!selected || busy) return;
+    setRunningStage("deterministic");
     setError("");
     setResult(null);
     try {
-      setResult(await runUniversalAnalysis(selected));
+      setResult(await runDeterministicAnalysis(selected));
     } catch (e) {
-      setError(e?.message || "הניתוח נכשל");
+      setError(e?.message || "הפירוק נכשל");
     } finally {
-      setRunning(false);
+      setRunningStage("");
     }
-  }, [selected, running]);
+  }, [selected, busy]);
+
+  const runAi = useCallback(async (depth) => {
+    if (!selected || !result || busy) return;
+    setRunningStage(depth);
+    setError("");
+    try {
+      setResult(await addAiInterpretation(selected, result, depth));
+    } catch (e) {
+      setError(e?.message || "ניתוח ה־AI נכשל");
+    } finally {
+      setRunningStage("");
+    }
+  }, [selected, result, busy]);
+
+  const stageCopy = runningStage === "quick"
+    ? "Gemini Flash מסכם את מה שכבר נאסף — בלי לחשב מחדש."
+    : runningStage === "deep"
+      ? "Claude Sonnet מבצע מחקר עמוק על Evidence Pack שכבר נבנה."
+      : "Shared Expression Extraction → canonical Gematria → Identity Resolution → Existing Research. בלי AI חיצוני.";
 
   return (
     <div className="cud" dir="rtl">
@@ -508,7 +546,9 @@ export default function CommandRoomUniversalDesk({ onOpenGate, onOpenAdvanced })
         <aside className="cud-list">
           <div className="cud-list-head">
             <button className={`cud-channel${channel === "all" ? " active" : ""}`} onClick={() => setChannel("all")}>הכול</button>
-            {CHANNELS.map(([key, label, icon]) => <button key={key} className={`cud-channel${channel === key ? " active" : ""}`} onClick={() => setChannel(key)}>{icon} {label}</button>)}
+            {CHANNELS.map(([key, label, icon]) => (
+              <button key={key} className={`cud-channel${channel === key ? " active" : ""}`} onClick={() => setChannel(key)}>{icon} {label}</button>
+            ))}
           </div>
           <div className="cud-items">
             {state.loading && <div className="cud-loading"><span className="cud-dot" />טוען קליטה חיה…</div>}
@@ -531,15 +571,19 @@ export default function CommandRoomUniversalDesk({ onOpenGate, onOpenAdvanced })
                 <div className="cud-source-text">{selected.text}</div>
               </div>
               <div>
-                <button className="cud-run" onClick={run} disabled={running}>{running ? "מפרק ומצליב…" : "🧩 הרץ ניתוח מלא"}</button>
+                <button className="cud-run" onClick={runDeterministic} disabled={busy}>{runningStage === "deterministic" ? "מפרק ומצליב…" : "⚙️ נתח מקור · בלי AI"}</button>
+                <div className="cud-actions">
+                  <button className="cud-secondary" onClick={() => runAi("quick")} disabled={!result || busy}>✨ סכם בזול · Gemini</button>
+                  <button className="cud-secondary" onClick={() => runAi("deep")} disabled={!result || busy}>🧠 מחקר עמוק · Sonnet</button>
+                </div>
                 <div className="cud-actions"><button className="cud-secondary" onClick={onOpenGate}>שלח לשולחן</button><button className="cud-secondary" onClick={onOpenAdvanced}>פתח מתקדם</button></div>
               </div>
             </section>
 
-            {running && <div className="cud-empty"><i>⌁</i><h3>בונה מפת פירוק</h3><p>Shared Expression Extraction → canonical Gematria → Identity Resolution → Existing Research → AI interpretation. אין שום WRITE.</p><div className="cud-loading" style={{ justifyContent: "center" }}><span className="cud-dot" />בודק את המקור מול המערכת החיה…</div></div>}
-            {!running && !result && <div className="cud-empty"><i>🧩</i><h3>המקור מוכן לפירוק</h3><p>הכפתור לא הופך הודעה ל־Node. הוא מפרק אותה למילים, חישובים, טענות, קשרים, מראי־מקום וזהויות קיימות — ואז מסמן לך מה כבר ידוע ומה עדיין מחכה לשער שלך.</p><button className="cud-run" onClick={run}>🧩 הרץ ניתוח מלא</button></div>}
+            {busy && <div className="cud-empty"><i>{runningStage === "deep" ? "🧠" : runningStage === "quick" ? "✨" : "⚙️"}</i><h3>{runningStage === "deep" ? "מחקר עמוק" : runningStage === "quick" ? "סיכום מהיר" : "בונה מפת פירוק"}</h3><p>{stageCopy}</p><div className="cud-loading" style={{ justifyContent: "center" }}><span className="cud-dot" />עובד על המקור…</div></div>}
+            {!busy && !result && <div className="cud-empty"><i>⚙️</i><h3>המקור מוכן לפירוק</h3><p>השלב הראשון משתמש במנועים וב־DB שלנו בלבד — בלי קריאת AI חיצונית. אחרי הפירוק אפשר לבחור סיכום זול או מחקר עמוק.</p><button className="cud-run" onClick={runDeterministic}>⚙️ נתח מקור · בלי AI</button></div>}
             {error && <div className="cud-error">{error}</div>}
-            {!running && result && <DecompositionView result={result} />}
+            {result && <DecompositionView result={result} />}
           </>}
         </main>
       </div>
