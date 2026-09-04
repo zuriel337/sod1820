@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -77,6 +77,8 @@ export default function VideoGallery() {
   const navigate = useNavigate();
   const [playing, setPlaying] = useState(null);
   const [rows, setRows] = useState(null); // null = טרם נטען → משתמשים בברירת-מחדל
+  const cipherRailRef = useRef(null);
+  const generalRailRef = useRef(null);
 
   // 📊 מעקב הפעלת-סרטון — מזין events/visitor_events (נכס קהל-צופי-וידאו, Meta Growth OS)
   const handlePlay = (v) => {
@@ -110,6 +112,19 @@ export default function VideoGallery() {
     }).catch(() => {});
     return () => { alive = false; };
   }, []);
+
+  // 🎬 תמיד פותחים את שתי הרצועות בקצה של הפריטים החדשים.
+  // בדפדפני RTL scrollLeft=0 הוא קצה-ההתחלה; האיפוס גם מבטל scroll-restoration
+  // שעלול להחזיר את הרצועה לאמצע אחרי ניווט/רענון.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      for (const ref of [cipherRailRef, generalRailRef]) {
+        const el = ref.current;
+        if (el) el.scrollLeft = 0;
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [rows]);
 
   // 🔍 JSON-LD (VideoObject) — כדי שגוגל יציג את הסרטונים כתוצאות-וידאו עשירות
   useEffect(() => {
@@ -165,7 +180,7 @@ export default function VideoGallery() {
       }}>
         <HomeHeader title="🔠 הצפנים האחרונים בתורה"
           action={{ label: "לכל הצפנים →", to: "/codes" }} />
-        <div className="vg-row">
+        <div ref={cipherRailRef} className="vg-row">
           {cipherList.length
             ? cipherList.map((v, i) => <VideoCard key={vkey(v) || "c"+i} v={v} onPlay={handlePlay} />)
             : <div style={{ color:P.inkSoft, fontFamily:F.body, padding:"8px 0 18px" }}>צפנים חדשים יופיעו כאן.</div>}
@@ -174,7 +189,7 @@ export default function VideoGallery() {
         <div style={{ height:1, background:P.border, margin:"20px 0 18px" }} />
         <HomeHeader title="🎬 הסרטים האחרונים"
           action={{ label: "לכל הסרטים והפוסטים →", to: "/category/וידאו" }} />
-        <div className="vg-row">
+        <div ref={generalRailRef} className="vg-row">
           {generalList.length
             ? generalList.map((v, i) => <VideoCard key={vkey(v) || "g"+i} v={v} onPlay={handlePlay} />)
             : <div style={{ color:P.inkSoft, fontFamily:F.body, padding:"8px 0 18px" }}>סרטונים חדשים יופיעו כאן.</div>}
