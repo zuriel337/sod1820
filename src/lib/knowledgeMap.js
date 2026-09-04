@@ -58,7 +58,7 @@ export const KNOWLEDGE_WORLDS = [
     items: [
       { label: "לפי שנים", emoji: "🕰️", to: "/post", note: "2013–2026" },
       { label: "לפי קטגוריות", emoji: "▦", to: "/post", note: "מפת התוכן הקיימת" },
-      { label: "לפי נושאים", emoji: "✦", locked: true, state: "בפיתוח", note: "נושא → תוכן → קשרים · אינדקס ציבורי ייעודי טרם נבנה" },
+      { label: "לפי נושאים", emoji: "✦", locked: true, state: "בבנייה", note: "נושא → תוכן → קשרים · אינדקס ציבורי ייעודי טרם נבנה" },
       { label: "לפי אנשים ושמות", emoji: "👤", locked: true, state: "בפיתוח", note: "כל מה שהאתר יודע על אדם" },
       { label: "לפי מספרים", emoji: "🔢", to: "/number", note: "כניסה לארכיון דרך מספר" },
       { label: "לפי פסוקים וצפנים", emoji: "⌘", locked: true, state: "בקרוב", note: "מקור → צופן → מחקר" },
@@ -69,7 +69,7 @@ export const KNOWLEDGE_WORLDS = [
     kicker: "מה קורה עכשיו ומה ייפתח בהמשך",
     stat: "1,876 עדכונים · 30 תורמים",
     items: [
-      { label: "הצ׳אט", emoji: "💬", to: "/community/chat", note: "השיחה החיה באתר" },
+      { label: "הצ׳אט ההיסטורי", emoji: "💬", to: "/community/chat", note: "ארכיון השיחות ההיסטורי של הקהילה" },
       { label: "חוקרים ותורמים", emoji: "👥", to: "/community", note: "אנשים סביב גוף הידע" },
       { label: "התכנסויות", emoji: "◉", locked: true, state: "בקרוב", note: "מפגשים סביב נושא או מחקר" },
       { label: "התכנסויות חיות", emoji: "●", locked: true, state: "בקרוב", note: "מרחב חי בזמן אמת" },
