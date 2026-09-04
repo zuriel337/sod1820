@@ -665,7 +665,8 @@ export default function Navbar() {
         {/* אופציה א׳ — קבוצת «היכל»: העוגן הזהוב מצביע (▸) על שלושת הכלים שלו, עטופים כיחידה אחת. */}
         <div className="sod-nav-desktop sod-heichal-group">
           <LabMenu />
-
+          <span className="sod-heichal-arrow" aria-hidden>▸</span>
+          <NavLinkItem item={{ label: "דף המספר", emoji: "🔢", to: "/number" }} pathname={pathname} />
         </div>
         <BuildProgressBadge cc={cc} />
 
