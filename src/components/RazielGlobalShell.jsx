@@ -26,6 +26,7 @@ export default function RazielGlobalShell() {
   const [q, setQ] = useState("");
   const [answer, setAnswer] = useState("");
   const [busy, setBusy] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const ctx = useMemo(() => pageContext(pathname, search), [pathname, search]);
   const buildProgress = 66;
 
@@ -51,9 +52,12 @@ export default function RazielGlobalShell() {
   const items = [
     { id:"raziel", icon:"✨", label:"רזיאל", live:isAdmin },
     { id:"pulse", icon:"◉", label:"עכשיו", live:true },
-    { id:"journey", icon:"🧭", label:"המסע שלי", live:false },
-    { id:"saved", icon:"🔖", label:"שמורים", live:false },
-    { id:"build", icon:"🏗️", label:`${buildProgress}%`, live:true },
+    { id:"journey", icon:"🧭", label:"המחקר שלי", live:false },
+    { id:"tray", icon:"＋", label:"לחקירה", live:false },
+    { id:"saved", icon:"🔖", label:"האוסף שלי", live:false },
+    { id:"links", icon:"🔗", label:"קשרים", live:false },
+    { id:"recent", icon:"🕘", label:"המשך", live:false },
+    { id:"build", icon:"🏗️", label:`V2 · ${buildProgress}%`, live:true },
   ];
 
   function activate(id) {
@@ -67,6 +71,8 @@ export default function RazielGlobalShell() {
     }
     setPanel(p => p === id ? null : id);
   }
+
+  const locationLabel = ctx.title?.replace(/\\s*[|–—-]\\s*SOD1820.*$/i,"").slice(0,46) || ctx.pathname;
 
   return <div dir="rtl">
     {panel && <div style={{
@@ -93,9 +99,9 @@ export default function RazielGlobalShell() {
         <p style={{lineHeight:1.7}}>כאן ירוכזו העדכונים החיים של האתר — מחקרים, כתבים, צפנים, סרטים ועדכונים שמגיעים מהמערכת ומהוואטסאפ.</p>
         <div style={{padding:"10px 12px",borderRadius:12,background:"rgba(255,255,255,.05)",fontSize:13}}>תצוגת הבקרה קיימת. חיבור זרם העדכונים המלא נמצא בבנייה.</div>
       </>}
-      {(panel === "journey" || panel === "saved") && <>
-        <div style={{fontSize:21,fontWeight:900,color:"#f1d77c"}}>{panel==="journey"?"🧭 המסע שלי":"🔖 שמורים"}</div>
-        <p style={{lineHeight:1.7}}>{panel==="journey"?"כאן תוכלו לראות את הדרך שעברתם באתר ולחזור לממצאים ולמחקרים שפתחתם.":"כאן יישמרו מספרים, פסוקים, צפנים, מקורות וממצאים שתרצו לקחת איתכם להמשך המחקר."}</p>
+      {(panel === "journey" || panel === "saved" || panel === "tray" || panel === "links" || panel === "recent") && <>
+        <div style={{fontSize:21,fontWeight:900,color:"#f1d77c"}}>{panel==="journey"?"🧭 המחקר שלי":panel==="saved"?"🔖 האוסף שלי":panel==="tray"?"＋ מגש החקירה":panel==="links"?"🔗 קשרים":"🕘 המשך מאיפה שהפסקתי"}</div>
+        <p style={{lineHeight:1.7}}>{panel==="journey"?"כאן יתחברו המחקרים שכבר שמרתם, מסעות החקירה והדרך שעברתם באתר — במקום ליצור מערכת שמורים נוספת.":panel==="saved"?"האוסף האישי יאחד את research_items והשמירות הקיימות: מספרים, פסוקים, צפנים, מקורות וממצאים.":panel==="tray"?"אספו לכאן כמה פריטים מכל רחבי האתר, השוו ביניהם ובקשו מרזיאל לחקור אותם יחד.":panel==="links"?"הקשרים של הדבר שאתם רואים עכשיו — מספרים, פסוקים, צפנים, מקורות ואנשים — יופיעו כאן בלי לעזוב את העמוד.":"חזרה חכמה לעמודים, מחקרים וממצאים אחרונים, בדיוק מהנקודה שבה הפסקתם."}</p>
         <strong style={{color:"#d9bd67"}}>🏗️ בבנייה</strong>
       </>}
     </div>}
@@ -111,23 +117,32 @@ export default function RazielGlobalShell() {
       <span style={{opacity:.42, marginInlineStart:8}}>✦</span>
     </div>
 
-    <nav aria-label="שורת הבקרה של SOD1820" style={{
-      position:"fixed", left:10, right:10, bottom:8, margin:"0 auto", width:"min(720px,calc(100vw - 20px))",
-      zIndex:1200, display:"grid", gridTemplateColumns:"repeat(5,1fr)", alignItems:"stretch",
-      background:"rgba(12,8,24,.94)", backdropFilter:"blur(16px)", border:"1px solid rgba(218,180,86,.34)",
-      borderRadius:16, boxShadow:"0 10px 36px rgba(0,0,0,.34)", overflow:"hidden"
+    {!collapsed ? <nav aria-label="שורת הבקרה של SOD1820" style={{
+      position:"fixed", left:8, right:8, bottom:7, margin:"0 auto", width:"min(1180px,calc(100vw - 16px))",
+      zIndex:1200, display:"grid", gridTemplateColumns:"minmax(135px,1.25fr) repeat(8,minmax(62px,.72fr)) 34px",
+      alignItems:"stretch", background:"rgba(9,7,19,.96)", backdropFilter:"blur(18px)",
+      border:"1px solid rgba(218,180,86,.28)", borderRadius:13, boxShadow:"0 10px 38px rgba(0,0,0,.38)", overflow:"hidden"
     }}>
+      <div title={ctx.pathname} style={{minWidth:0,padding:"7px 11px",borderInlineEnd:"1px solid rgba(255,255,255,.07)",display:"flex",flexDirection:"column",justifyContent:"center"}}>
+        <span style={{fontSize:8.5,color:"#9f93b4",fontWeight:800,letterSpacing:.5}}>אתה נמצא כאן</span>
+        <span style={{fontSize:11.5,color:"#eee5cf",fontWeight:800,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>⌖ {locationLabel}</span>
+      </div>
       {items.map(it => <button key={it.id} onClick={()=>activate(it.id)} style={{
-        position:"relative", minWidth:0, border:0, borderInlineStart:"1px solid rgba(255,255,255,.06)",
-        background:panel===it.id?"rgba(218,180,86,.11)":"transparent", color:it.live?"#f2df9b":"#aaa0ba",
-        padding:"8px 4px 9px", cursor:"pointer", fontSize:11, fontWeight:800
+        position:"relative",minWidth:0,border:0,borderInlineEnd:"1px solid rgba(255,255,255,.055)",
+        background:panel===it.id?"rgba(218,180,86,.11)":"transparent",color:it.live?"#f2df9b":"#aaa0ba",
+        padding:"6px 3px 7px",cursor:"pointer",fontSize:9.5,fontWeight:800
       }}>
-        <span style={{display:"block",fontSize:17,lineHeight:1.1}}>{it.icon}</span>
-        <span style={{display:"block",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",marginTop:3}}>{it.label}</span>
-        {!it.live && <span style={{position:"absolute",top:4,right:5,fontSize:7}}>🏗️</span>}
-        {it.id==="pulse" && <span style={{position:"absolute",top:6,left:"50%",marginLeft:11,width:5,height:5,borderRadius:"50%",background:"#d9bd67",boxShadow:"0 0 8px #d9bd67"}} />}
+        <span style={{fontSize:14,marginInlineEnd:4}}>{it.icon}</span>
+        <span style={{whiteSpace:"nowrap"}}>{it.label}</span>
+        {!it.live && <span style={{position:"absolute",top:2,right:3,fontSize:6.5}}>🏗️</span>}
+        {it.id==="pulse" && <span style={{position:"absolute",top:5,left:6,width:4,height:4,borderRadius:"50%",background:"#d9bd67",boxShadow:"0 0 7px #d9bd67"}} />}
         {it.id==="build" && <span style={{position:"absolute",bottom:0,right:0,height:2,width:`${buildProgress}%`,background:"linear-gradient(90deg,#8f6fd6,#d4af37)"}} />}
       </button>)}
-    </nav>
+      <button onClick={()=>setCollapsed(true)} title="מזער" style={{border:0,background:"transparent",color:"#9f93b4",cursor:"pointer",fontSize:15}}>⌄</button>
+    </nav> : <button onClick={()=>setCollapsed(false)} style={{
+      position:"fixed",bottom:9,left:"50%",transform:"translateX(-50%)",zIndex:1200,border:"1px solid rgba(218,180,86,.35)",
+      borderRadius:999,background:"rgba(9,7,19,.96)",color:"#f2df9b",padding:"7px 14px",fontSize:10.5,fontWeight:800,cursor:"pointer",
+      boxShadow:"0 8px 28px rgba(0,0,0,.32)"
+    }}>✨ SOD · ◉ עכשיו · ⌃</button>}
   </div>;
 }
