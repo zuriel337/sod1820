@@ -18,15 +18,15 @@ export default function HomeHeader({ title, sub, action, badge, dark = false }) 
     <div style={{ textAlign: "center", marginBottom: 20, direction: "rtl" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14, maxWidth: 640, margin: "0 auto 6px" }}>
         <span aria-hidden style={hairline} />
-        <h2 style={{ color: gold, fontFamily: F.regal, fontSize: "clamp(21px,3.4vw,29px)", fontWeight: 800, margin: 0, textShadow: glow, whiteSpace: "nowrap" }}>
+        <h2 style={{ color: gold, fontFamily: F.ui, fontSize: "clamp(21px,3.4vw,29px)", fontWeight: 800, margin: 0, textShadow: glow, whiteSpace: "nowrap" }}>
           {title}
           {badge && <span style={{ verticalAlign: "middle", marginInlineStart: 10 }}>{badge}</span>}
         </h2>
         <span aria-hidden style={hairline} />
       </div>
-      {sub && <div style={{ color: subColor, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7 }}>{sub}</div>}
+      {sub && <div style={{ color: subColor, fontFamily: F.ui, fontSize: 13.5, lineHeight: 1.7 }}>{sub}</div>}
       {action && (
-        <Link to={action.to} style={{ display: "inline-block", marginTop: 6, color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "none" }}>
+        <Link to={action.to} style={{ display: "inline-block", marginTop: 6, color: gold, fontFamily: F.ui, fontSize: 13.5, fontWeight: 700, textDecoration: "none" }}>
           {action.label}
         </Link>
       )}
