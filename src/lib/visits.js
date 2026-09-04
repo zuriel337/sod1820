@@ -336,6 +336,18 @@ export async function getGaInsights(days = 28) {
   return r.json();
 }
 
+// ── Vercel Web Analytics — מקור משלים, read-only, דרך endpoint אדמין בצד-שרת ──
+// לא מחליף GA4 ולא את מדידת SOD1820; מיועד להשוואת אמת בין שלושת המקורות.
+export async function getVercelInsights(days = 30) {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) return null;
+  const r = await fetch(`/api/vercel-insights?days=${days}`, { headers: { Authorization: "Bearer " + token } });
+  if (!r.ok) throw new Error("vercel-insights " + r.status);
+  return r.json();
+}
+
 // ── סנכרון Google Analytics → traffic_history (source='ga') דרך api/ga-sync ──
 export async function syncGoogleAnalytics(days = 540) {
   if (!supabase) return null;

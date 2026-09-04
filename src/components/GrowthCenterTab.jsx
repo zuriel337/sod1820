@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { F } from "../theme.js";
 import { timeAgoHe } from "../lib/format.js";
-import { getGrowthCenter, getGaInsights, getAmbassadors } from "../lib/visits.js";
+import { getGrowthCenter, getGaInsights, getVercelInsights, getAmbassadors } from "../lib/visits.js";
 import { CLARITY_CONFIGURED, clarityUrl } from "../lib/clarity.js";
 
 // 📈 מרכז הצמיחה — דשבורד-על אחד (Meta Growth OS) על events + subscribers + email_events.
@@ -51,7 +51,7 @@ function Bars({ data, color = L.blue, fmt = x => x, height = 78 }) {
 
 // רשימת-פילוח קומפקטית ל-GA4 ({key, users|value})
 function GaMini({ title, items }) {
-  const rows = (items || []).slice(0, 6).map(it => ({ k: it.key ?? it.name ?? "?", v: it.users ?? it.value ?? it.sessions ?? 0 }));
+  const rows = (items || []).slice(0, 6).map(it => ({ k: it.key ?? it.name ?? "?", v: it.users ?? it.value ?? it.sessions ?? it.pageviews ?? it.visitors ?? 0 }));
   const max = Math.max(1, ...rows.map(r => r.v));
   if (rows.length === 0) return null;
   return (
@@ -113,6 +113,7 @@ function CmpRow({ icon, label, n, note, color, big }) {
 export default function GrowthCenterTab() {
   const [d, setD] = useState(null);
   const [ga, setGa] = useState(undefined); // undefined=טוען · null=לא זמין · object=נתונים
+  const [vc, setVc] = useState(undefined); // Vercel Web Analytics — מקור משלים להשוואה
   const [amb, setAmb] = useState(undefined); // טבלת-שגרירים — עצמאי
   const [days, setDays] = useState(7);
   const [err, setErr] = useState(null); // null=אין · 'forbidden' · 'error'
@@ -130,6 +131,11 @@ export default function GrowthCenterTab() {
     getGaInsights(days)
       .then(res => { if (live) setGa(res && res.configured !== false && !res.error ? res : null); })
       .catch(() => { if (live) setGa(null); });
+    // ▲ Vercel Web Analytics — עצמאי; אם חסר token מציגים מצב חיבור במקום לשבור את הטאב
+    setVc(undefined);
+    getVercelInsights(days)
+      .then(res => { if (live) setVc(res || null); })
+      .catch(() => { if (live) setVc(null); });
     // 🚀 שגרירים — עצמאי; כישלון לא שובר את הטאב
     setAmb(undefined);
     getAmbassadors(days)
@@ -197,8 +203,8 @@ export default function GrowthCenterTab() {
       {/* 🎯 מדידה כנה — יישור המקורות */}
       {meas && (() => {
         const ev = meas.events || {}, sv = meas.site_visits || {};
-        const humanPeople = sv.visitors_human, gaUsers = ga?.totals?.users;
-        const people = [gaUsers, humanPeople].filter(x => x != null); // טווח «אנשים» — אותה יחידה בלבד
+        const humanPeople = sv.visitors_human, gaUsers = ga?.totals?.users, vcUsers = vc?.configured && !vc?.error ? vc?.totals?.visitors : null;
+        const people = [gaUsers, humanPeople, vcUsers].filter(x => x != null); // טווח «אנשים» — אותה יחידה בלבד
         const lo = people.length ? Math.min(...people) : null;
         const hi = people.length ? Math.max(...people) : null;
         return (
@@ -219,12 +225,19 @@ export default function GrowthCenterTab() {
                 ? <CmpRow icon="🔵" label="GA4 · משתמשים" n={ga.totals?.users} color={L.blue} big
                     note="ספירת גוגל (מסננת בוטים) · שמרנית — חוסמי-פרסומות לא נספרים" />
                 : <CmpRow icon="🔵" label="GA4 · משתמשים" n={null} color={L.sub} note={ga === undefined ? "טוען מ-Google Analytics…" : "GA4 לא מחובר / לא זמין כרגע"} />}
+              {vc?.configured && !vc?.error
+                ? <CmpRow icon="▲" label="Vercel · מבקרים" n={vc.totals?.visitors} color={L.ink} big
+                    note={`Web Analytics של Vercel · ${vc.totals?.visitorsChangePct == null ? "אין בסיס להשוואה" : (vc.totals.visitorsChangePct >= 0 ? "▲ " : "▼ ") + Math.abs(vc.totals.visitorsChangePct) + "% מול התקופה הקודמת"}`} />
+                : <CmpRow icon="▲" label="Vercel · מבקרים" n={null} color={L.sub}
+                    note={vc === undefined ? "טוען מ-Vercel…" : vc?.configured === false ? "המחבר מוכן · חסר VERCEL_API_TOKEN בצד השרת" : "Vercel Analytics לא זמין כרגע"} />}
               <CmpRow icon="🔄" label="סשנים אנושיים (פנימי)" n={ev.sessions_human} color={L.purple}
                 note="ביקור בודד · אדם אחד = כמה סשנים לאורך התקופה" />
               <CmpRow icon="🔵" label="GA4 · הפעלות" n={ga?.totals?.sessions} color={L.blue} note="הפעלות לפי גוגל" />
               <CmpRow icon="📄" label="צפיות-עמוד אנושיות" n={ev.views_human} color={L.ink}
                 note="כמה עמודים נצפו בפועל (אדם אחד גולש כמה עמודים)" />
               <CmpRow icon="🔵" label="GA4 · צפיות בדפים" n={ga?.totals?.views} color={L.blue} note="צפיות לפי גוגל" />
+              <CmpRow icon="▲" label="Vercel · צפיות בדפים" n={vc?.configured && !vc?.error ? vc.totals?.pageviews : null} color={L.ink}
+                note={vc?.configured && !vc?.error ? `${vc.totals?.viewsPerVisitor ?? "—"} צפיות למבקר · ${vc.totals?.pageviewsChangePct == null ? "ללא בסיס השוואה" : (vc.totals.pageviewsChangePct >= 0 ? "▲ " : "▼ ") + Math.abs(vc.totals.pageviewsChangePct) + "% מול התקופה הקודמת"}` : "מקור Vercel משלים"} />
               <CmpRow icon="🤖" label="בוטים שסוננו" n={ev.bots} color={L.red}
                 note={`${ev.bot_pct}% מהתנועה הגולמית = בוטים/סורקים · לא נספרים כאנשים`} />
               <CmpRow icon="📊" label="הכל כולל בוטים" n={ev.total} color={L.sub}
@@ -243,6 +256,37 @@ export default function GrowthCenterTab() {
           </Panel>
         );
       })()}
+
+      {/* ▲ Vercel Web Analytics — זווית שלישית, מאותו טווח זמן */}
+      {vc?.configured && !vc?.error && (
+        <Panel title={`▲ Vercel Web Analytics — ${vc.days} ימים`}
+          right={<span style={{ color: vc.totals?.visitorsChangePct >= 0 ? L.green : L.red, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800 }}>
+            {vc.totals?.visitorsChangePct == null ? "תקופה ראשונה" : `${vc.totals.visitorsChangePct >= 0 ? "▲" : "▼"} ${Math.abs(vc.totals.visitorsChangePct)}% מבקרים`}
+          </span>}>
+          <div style={{ display:"flex", gap:9, flexWrap:"wrap", marginBottom:15 }}>
+            <Stat n={vc.totals?.visitors} label="מבקרים" color={L.ink} />
+            <Stat n={vc.totals?.pageviews} label="Page Views" color={L.gold} />
+            <Stat n={vc.totals?.viewsPerVisitor} label="צפיות למבקר" color={L.purple} />
+            <Stat n={vc.previous?.visitors} label="מבקרים · תקופה קודמת" color={L.sub} />
+          </div>
+          <div style={{ color:L.sub, fontFamily:F.body, fontSize:12.5, lineHeight:1.65, marginBottom:13 }}>
+            Vercel מוצג כאן <b style={{color:L.ink}}>לצד</b> GA4 והמדידה הפנימית — לא במקום אף אחד מהם. אם שלושת המקורות נעים לאותו כיוון, זו אינדיקציה חזקה למגמה אמיתית.
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))", gap:16 }}>
+            <GaMini title="📄 דפים מובילים · Vercel" items={vc.pages} />
+            <GaMini title="↗ מקורות מפנים · Vercel" items={vc.referrers} />
+            <GaMini title="📱 מכשירים · Vercel" items={vc.devices} />
+            <GaMini title="🌍 מדינות · Vercel" items={vc.countries} />
+          </div>
+        </Panel>
+      )}
+      {vc?.configured === false && (
+        <Panel title="▲ Vercel Web Analytics — המחבר מוכן">
+          <div style={{color:L.sub,fontFamily:F.body,fontSize:13,lineHeight:1.7}}>
+            הקוד כבר מחובר למרכז הצמיחה. להפעלה חיה חסר רק secret שרת בשם <code>VERCEL_API_TOKEN</code> בפרויקט Vercel. הטוקן נשאר בצד השרת ולעולם לא נשלח לדפדפן.
+          </div>
+        </Panel>
+      )}
 
       {/* 🔵 GA4 — פילוח משלים */}
       {ga && (
