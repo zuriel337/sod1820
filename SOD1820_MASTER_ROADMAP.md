@@ -1,5 +1,14 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+
+> ## 🔄 CROSS-AGENT SYNC PROTOCOL v1 — 4.9.2026
+> **קנוני:** `AGENT_HANDOFF.md` הוא משטח-ההעברה הקצר בין GPT / Claude / agents עתידיים. הוא אינו SSOT חדש ואינו מחליף אימות חי.
+> כל agent חייב לבצע bootstrap מול `main` + Supabase חי + work-log/decision provenance + Master State/Roadmap + חוזה הדומיין לפני הכרזה על "חסר/כפול/אבוד/מערכת מקבילה".
+> ריקונסיליאציית 4.9.2026 תיקנה false-positive מרכזי: זרימת GPT+ZURIEL סביב Research Objects / Human Gate / Truth Axes / PR היא **המימוש התפעולי של Research OS הקיים**, לא OS מקביל.
+> **Branch rule:** unmerged ≠ missing; אחרי rewrite-היסטוריה 1.9.2026 recovery דורש provenance+payload+equivalent-main check.
+> **Guardrail:** Documentation lag מסומן `STALE DOCUMENTATION`, לא מתפרש אוטומטית כארכיטקטורה זרה.
+>
+
 > ## 🔒 RESEARCH OS CANONICAL LOCK v1 — 4.9.2026
 > **LOCKED:** `docs/research-os-canonical-lock-v1.md` הוא חוזה המעבר מהשמורים/היסטוריה הקיימים להיכל העתידי.
 > עיקרון: **One Tree · One Research OS · Many Lenses**. אין לבנות מערכת שמורים/History/Workspace מקבילה.
