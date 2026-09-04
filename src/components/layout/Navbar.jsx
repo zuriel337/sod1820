@@ -65,7 +65,7 @@ const productItems = [
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
-const MORE_HIDE = ["/start", "/members", "/lab"];
+const MORE_HIDE = ["/start", "/members", "/lab", "/forum", "/community", "/broadcasts", "/numbers", "/timeline", "/archive?tab=reality"];
 // «קהילה» ב-NAV נושאת ילדים (צ'אט · פורום · חוקרים…) שנאבדים כשמרנדרים אותה כאריח-בודד
 // בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
 // ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
@@ -83,21 +83,15 @@ const moreItems = [
 // fav = שלושת הפייבוריטים (מודגשים). locked = בבנייה + מנעול, לא-לחיץ בכל המקומות.
 const MOBILE_TILES = [
   { e: "🏠", l: "דף הבית", to: "/" },
-  { e: "🚀", l: "כאן מתחילים", to: "/start" },
   { e: "🔢", l: "דף המספר", to: "/number", fav: true },
   { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, icon: "dilugim" },
   { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
   { e: "🏛️", l: "ההיכל", to: "/research" },
   { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
   { e: "🧊", l: "גימטריה מרחבית", to: "/spatial-gematria" },
-  { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
-  { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
-  { e: "🌐", l: "פורום המחקר", to: "/forum" },
   { e: "💬", l: "הצ'אט", to: "/community/chat" },
   { e: "📜", l: "פוסטים", to: "/post" },
   { e: "🖼️", l: "גלריות", to: "/archive" },
-  { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
-  { e: "🗺️", l: "מרכז הניווט", to: "/map" },
 ];
 
 // יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
@@ -166,11 +160,12 @@ function UniversalSearch({ onDone, full, autoFocus }) {
   // 💬 חיפוש "צאט"/"צ'אט"/chat → קיצור דרך לצ'אט האתר
   const isChatQuery = v.replace(/['"׳״\s]/g, "").includes("צאט") || /chat/i.test(v);
   const cats = [
-    { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
-  { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
-    { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
+    { e: "🔢", l: "דף המספר", to: "/number" },
+    { e: "🔠", l: "דילוגי אותיות", to: "/code" },
+    { e: "📖", l: "בית המדרש", to: "/beit-midrash" },
     { e: "🏛️", l: "היכל", to: "/research" },
-    { e: "🖼️", l: "גלריות", to: "/archive" },
+    { e: "📜", l: "פוסטים", to: "/post" },
+    { e: "🖼️", l: "גלריות", to: "/archive?tab=galleries" },
   ];
 
   return (
