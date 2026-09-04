@@ -95,6 +95,7 @@ const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
 const PostEditorPage = React.lazy(() => import("./pages/PostEditorPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
 const ResearchViewerV0Page = React.lazy(() => import("./components/admin/ResearchViewerV0Page.jsx")); // 🔬 Research Viewer v0 — פנימי, לא-מקושר, admin gate ברכיב עצמו
+const EntityHubPreviewPage = React.lazy(() => import("./pages/EntityHubPreviewPage.jsx")); // 🌳 Universal Entity Hub Golden Case — פנימי, admin-only, read-only
 const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
@@ -294,6 +295,9 @@ export default function App() {
           <Route path="/meaning-lab" element={<MeaningLabPage />} />
           {/* 🔬 Research Viewer v0 — Projection בלבד, פנימי לא-מקושר. אדמין-גייט ברכיב עצמו. מחוץ ל-/admin/ (honeypot Vercel תופס /admin/(.*)). */}
           <Route path="/research-viewer" element={<ResearchViewerV0Page />} />
+          {/* 🌳 Universal Entity Hub Golden Case — פנימי, לא מקושר, read-only, admin gate ברכיב. */}
+          <Route path="/entity-hub-preview" element={<Navigate to="/entity-hub-preview/number/1237" replace />} />
+          <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
           <Route path="/מעבדת-משמעות" element={<MeaningLabPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />
