@@ -8,14 +8,14 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
 import { streamDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
-import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
+import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל = 🏛️ (כמו בנאב).
 import { postHasVideo } from "./VideoBadge.jsx";
 import { postHasStrongHint } from "./StrongHintBadge.jsx";
 import { primaryIconedCategory } from "../lib/categoryIcons.js";
 import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכונים אחרונים» הקנוני — זהה בבית/צד/מובייל
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
-//   פוסט · זרם המציאות (🌊) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
+//   פוסט · זרם המציאות (🌊) · היכל (לוגו הגילוי — התכנסות מבית המדרש).
 //   מציג «עודכן לפני X» ותג «AI» היכן שרלוונטי. תמונת זרם-מציאות → גלילה ל-#reality-home (מפנה, לא משכפל).
 //   ⛔ קשרי-שפות (cross-language) לא מוצגים כאן — מקומם הקנוני הוא דף «קשרי-שפות» (/languages).
 
@@ -149,13 +149,13 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         </Link>
       );
     }
-    // conv → היכל הגילוי · בית המדרש · התכנסות. סמל 🏛️ (זהה ל«היכל הגילוי» בנאב/למעלה).
+    // conv → היכל · בית המדרש · התכנסות. סמל 🏛️ (זהה ל«היכל» בנאב/למעלה).
     // לחיצה גוללת ל«● LIVE · חדשות בית המדרש» (#conv-home — ארבע ההתכנסויות האחרונות), לא לקונסטלציה ולא לצפנים.
     const num = (d.highlight_numbers || [])[0];
     return (
       <button key={"v" + (d.slug || d.id || d.title)} type="button" onClick={() => scrollTo("conv-home")} className="lur-card" style={{ "--acc": cGilui }}>
         <div className="lur-media">{num != null ? <span className="lur-num">{num}</span> : <span className="lur-em">🏛️</span>}</div>
-        <div className="lur-body"><Tag acc={cGilui} logo={<span className="lur-lem">🏛️</span>}>היכל הגילוי · בית המדרש · התכנסות</Tag>
+        <div className="lur-body"><Tag acc={cGilui} logo={<span className="lur-lem">🏛️</span>}>היכל · בית המדרש · התכנסות</Tag>
           <h3 className="lur-title">{d.title}</h3>
           <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cGilui }}>↓ בהתכנסויות</span></div></div>
       </button>
