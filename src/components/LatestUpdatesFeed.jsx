@@ -9,7 +9,7 @@ import { effDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
 
 // 📜 «עדכונים אחרונים» — פיד מאוחד בסדר עדיפות (עץ אחד):
-//   ① היכל הגילוי (התכנסויות מבית המדרש + צפנים מהצופן)  ② כי לה' המלוכה (רמזי זרם המציאות)
+//   ① היכל (התכנסויות מבית המדרש + צפנים מהצופן)  ② כי לה' המלוכה (רמזי זרם המציאות)
 //   ③ כתבים  ④ ערוצים (סוד החשמל 2:1, «תריס נופל»)  ⑤ תפילות ותכנים — למטה.
 // חתימת מערכת = «כי לה' המלוכה». כל טאב = כל האחרונים של אותו סוג.
 // רמז זרם-המציאות = תמונה → לחיצה גוללת לסקשן «🌊 זרם המציאות» (#reality-home) — מפנה, לא משכפל.
@@ -105,7 +105,7 @@ export default function LatestUpdatesFeed({ posts = [], convergences = [], hints
   };
   const TABS = [
     { key: "all", em: "🗞", label: "הכל", c: P.accent, a: P.accentText },
-    { key: "gilui", logo: true, label: "היכל הגילוי", c: cGilui, a: cGilui },
+    { key: "gilui", logo: true, label: "היכל", c: cGilui, a: cGilui },
     { key: "malchut", em: "👑", label: SIGN, c: P.accent, a: P.accentText },
     { key: "writers", em: "✍️", label: "כתבים", c: cWriter, a: cWriter },
     { key: "channels", em: "📡", label: "ערוצים", c: cSod, a: cSod },
@@ -136,13 +136,13 @@ export default function LatestUpdatesFeed({ posts = [], convergences = [], hints
   const convCard = (o, i) => (
     <Link key={"cv" + (o.slug || i)} to={o.slug ? `/topic/${encodeURIComponent(o.slug)}` : "/beit-midrash"} className="luf-card" style={{ "--acc": cGilui }}>
       <div className="luf-media">{o.num != null ? <span className="luf-num">{o.num}</span> : <GiluiLogo s={26} />}</div>
-      <div className="luf-body">{chip(cGilui, <><GiluiLogo s={12} /> היכל הגילוי · 🔢 התכנסות</>)}<h3 className="luf-title">{o.t}</h3><Meta acc={cGilui} by={SIGN} when={o.when} /></div>
+      <div className="luf-body">{chip(cGilui, <><GiluiLogo s={12} /> היכל · 🔢 התכנסות</>)}<h3 className="luf-title">{o.t}</h3><Meta acc={cGilui} by={SIGN} when={o.when} /></div>
     </Link>
   );
   const cipherCard = (o, i) => (
     <Link key={"cp" + i} to={o.num != null ? `/number/${o.num}` : "/beit-midrash"} className="luf-card" style={{ "--acc": cGilui }}>
       <div className="luf-media">{o.num != null ? <span className="luf-num">{o.num}</span> : <GiluiLogo s={26} />}</div>
-      <div className="luf-body">{chip(cGilui, <><GiluiLogo s={12} /> היכל הגילוי · ✦ צופן</>)}<h3 className="luf-title">{o.t}</h3><Meta acc={cGilui} by={SIGN} when={o.when} /></div>
+      <div className="luf-body">{chip(cGilui, <><GiluiLogo s={12} /> היכל · ✦ צופן</>)}<h3 className="luf-title">{o.t}</h3><Meta acc={cGilui} by={SIGN} when={o.when} /></div>
     </Link>
   );
   const realityCard = (o, i) => (
@@ -241,7 +241,7 @@ export default function LatestUpdatesFeed({ posts = [], convergences = [], hints
 
       {tab === "all" && (
         <div>
-          <Section sc={cGilui} label={<><GiluiLogo s={17} /> היכל הגילוי</>} pri="עדיפות 1">
+          <Section sc={cGilui} label={<><GiluiLogo s={17} /> היכל</>} pri="עדיפות 1">
             {[...conv.slice(0, 1).map(convCard), ...ciphers.slice(0, 1).map(cipherCard)].length ? [...conv.slice(0, 1).map(convCard), ...ciphers.slice(0, 1).map(cipherCard)] : emptyMsg}
           </Section>
           {reality.length > 0 && <Section sc={P.accent} label={<>👑 {SIGN}</>} pri="עדיפות 2">{reality.slice(0, 2).map(realityCard)}</Section>}
