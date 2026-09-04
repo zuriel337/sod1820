@@ -176,6 +176,80 @@ export function buildOccurrences(seed = 1820) {
   return { occurrences, rowStrings, sourceWitnessIndex };
 }
 
+// ---- DIAGNOSTIC-ONLY content bisect (10K Glyph Content/Font Bisect v1) ----
+// Not used by the default prototype. Produces the exact same {occurrences, rowStrings} shape as
+// buildOccurrences() but with fully controlled, uniform, or swapped content, to test whether the
+// deterministic row-2 stall follows row POSITION/count or specific glyph CONTENT. See AFTER report.
+const BISECT_PATTERNS = {
+  row0: FINAL_FORM_VARIANTS["כ"],       // known "row 0" pattern (alternating base/final)
+  kaffinalkaf: FINAL_FORM_VARIANTS["כ"], // control, identical to row0
+  memfinalmem: FINAL_FORM_VARIANTS["מ"], // control, known "row 1" pattern
+  nunfinalnun: FINAL_FORM_VARIANTS["נ"], // the first-suspect pair (row 2 in the default layout)
+  nun: { base: "נ", final: "נ" },         // TEST 3A: נ repeated only, no final form at all
+  finalnun: { base: "ן", final: "ן" },    // TEST 3B: ן repeated only, no base form at all
+};
+
+function fillRowWithPattern(chars, pattern) {
+  for (let col = 0; col < COLS; col++) {
+    chars[col] = col % 2 === 1 ? pattern.final : pattern.base;
+  }
+}
+
+// content: 'uniform:<patternKey>' — every row identical (TEST 1, TEST 3, and TEST 5 when rows=1).
+// content: 'swap2-20:<patternKey>' — normal buildOccurrences() layout, but rows 2 and 20 content
+//   swapped (TEST 2): row 2 gets whatever row 20 normally has (plain rotating Hebrew), row 20 gets
+//   the original row-2 נ/ן pattern. Tests whether the stall follows the content or the position.
+export function buildBisectOccurrences(content, seed = 1820) {
+  const [kind, patternKey] = content.split(":");
+  if (kind === "uniform") {
+    // TEST 4-adjacent control: digits are confirmed-covered by the original prototype font
+    // (verified via direct cmap inspection, see AFTER report) — separates "uniform/duplicate
+    // content across many blocks" from "missing glyph" as the cause of the uniform-mode failure.
+    const isDigitControl = patternKey === "digit";
+    const pattern = BISECT_PATTERNS[patternKey] || BISECT_PATTERNS.row0;
+    const occurrences = new Array(TOTAL_OCCURRENCES);
+    const rowStrings = new Array(ROWS);
+    for (let row = 0; row < ROWS; row++) {
+      const chars = new Array(COLS);
+      if (isDigitControl) {
+        for (let col = 0; col < COLS; col++) chars[col] = DIGITS[col % DIGITS.length];
+      } else {
+      fillRowWithPattern(chars, pattern);
+      }
+      for (let col = 0; col < COLS; col++) {
+        const index = row * COLS + col;
+        const isFinalSlot = col % 2 === 1;
+        occurrences[index] = {
+          index, row, col,
+          family: patternKey || "row0",
+          char: chars[col],
+          variant: isFinalSlot ? "final" : "base",
+          sourceWitness: null,
+        };
+      }
+      rowStrings[row] = chars.join("");
+    }
+    return { occurrences, rowStrings, sourceWitnessIndex: -1 };
+  }
+  if (kind === "swap2-20") {
+    const base = buildOccurrences(seed);
+    const row2 = 2, row20 = 20;
+    const tmp = base.rowStrings[row2];
+    base.rowStrings[row2] = base.rowStrings[row20];
+    base.rowStrings[row20] = tmp;
+    for (let col = 0; col < COLS; col++) {
+      const i2 = row2 * COLS + col, i20 = row20 * COLS + col;
+      const o2 = base.occurrences[i2], o20 = base.occurrences[i20];
+      const swapped2 = { ...o20, index: i2, row: row2, col };
+      const swapped20 = { ...o2, index: i20, row: row20, col };
+      base.occurrences[i2] = swapped2;
+      base.occurrences[i20] = swapped20;
+    }
+    return base;
+  }
+  return buildOccurrences(seed);
+}
+
 // A synthetic ELS-result-SHAPED trajectory (positions/skip/direction) — NOT a real ELS search,
 // just data shaped like one, to test highlight-update cost without touching the ELS engine.
 export function buildSyntheticElsPath(occurrences, { count = 64, skip = 17, startIndex = 1234, direction = 1 } = {}) {

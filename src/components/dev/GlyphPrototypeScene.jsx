@@ -13,7 +13,7 @@ import { Text, OrbitControls } from "@react-three/drei";
 import { getCaretAtPoint, configureTextBuilder } from "troika-three-text";
 import {
   ROWS, COLS, TOTAL_OCCURRENCES, GOLDEN_SET,
-  buildOccurrences, buildSyntheticElsPath,
+  buildOccurrences, buildBisectOccurrences, buildSyntheticElsPath,
 } from "../../lib/dev/glyphPrototypeData.js";
 import { HEEBO_LATIN_HEBREW_WOFF1_DATA_URI } from "../../lib/dev/heeboFontDataUri.js";
 
@@ -26,6 +26,7 @@ const _params = typeof window !== "undefined" ? new URLSearchParams(window.locat
 const DIAG_MODE = _params?.get("mode") === "single" ? "single" : "rows";
 const DIAG_GPU_SDF = _params?.get("gpuSDF") === "0" ? false : true; // Troika default: true
 const DIAG_USE_WORKER = _params?.get("worker") === "0" ? false : true; // Troika default: true
+const DIAG_CONTENT = _params?.get("content") || null; // e.g. 'uniform:nun', 'swap2-20' — see glyphPrototypeData.js
 if (_params?.get("worker") === "0") {
   // Must be called before the first font/typesetting request — diagnostic only, see AFTER report.
   configureTextBuilder({ useWorker: false });
@@ -164,7 +165,7 @@ function LodTracker({ onChange }) {
 }
 
 export default function GlyphPrototypeScene() {
-  const dataRef = useRef(buildOccurrences(1820));
+  const dataRef = useRef(DIAG_CONTENT ? buildBisectOccurrences(DIAG_CONTENT, 1820) : buildOccurrences(1820));
   const { occurrences, rowStrings, sourceWitnessIndex } = dataRef.current;
 
   const [mode, setMode] = useState(DIAG_MODE); // 'rows' | 'single'
