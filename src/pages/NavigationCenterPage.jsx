@@ -57,36 +57,59 @@ function NumbersDepthPreview() {
   );
 }
 
+function BuildTrackCard({ t, featured = false }) {
+  const P = usePalette();
+  const pct = stagePercent(t.stage);
+  return (
+    <article style={{
+      border:`1px solid ${featured?P.borderStrong:P.border}`,borderRadius:featured?20:16,
+      padding:featured?"18px 18px 16px":14,background:featured?P.cardGrad:P.card,
+      boxShadow:featured?`0 14px 38px rgba(0,0,0,.07)`:"none"
+    }}>
+      <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",flexWrap:"wrap"}}>
+        <b style={{color:P.ink,fontFamily:F.heading,fontSize:featured?17:14}}>{t.icon} {t.label}</b>
+        <span style={{color:P.accentText,fontFamily:F.numeric,fontWeight:900,fontSize:featured?17:12}}>{pct}%</span>
+      </div>
+      <div style={{height:featured?8:6,borderRadius:999,background:P.cardSoft,overflow:"hidden",margin:"10px 0 8px"}}>
+        <i style={{display:"block",height:"100%",width:`${pct}%`,background:P.accent,borderRadius:999}} />
+      </div>
+      <div style={{color:P.accentDim,fontFamily:F.heading,fontSize:10.5,fontWeight:800}}>שלב {t.stage}/4 · {t.status}</div>
+      <p style={{color:P.inkSoft,fontFamily:F.body,fontSize:featured?14:12.5,lineHeight:1.7,margin:"8px 0 10px"}}>{t.summary}</p>
+      <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+        {(t.metrics||[]).map(m => <span key={m} style={{border:`1px solid ${P.border}`,borderRadius:999,padding:featured?"4px 9px":"3px 7px",color:P.inkSoft,fontFamily:F.body,fontSize:featured?11.5:10.5}}>{m}</span>)}
+      </div>
+    </article>
+  );
+}
+
 function BuildStatusDeep() {
   const P = usePalette();
+  const [leadTrack, ...otherTracks] = BUILD_TRACKS;
   return (
     <section style={{maxWidth:1120,margin:"0 auto 28px",background:P.cardGrad,border:`1px solid ${P.borderStrong}`,borderRadius:22,padding:"20px 18px"}}>
       <div style={{display:"flex",justifyContent:"space-between",gap:14,alignItems:"end",flexWrap:"wrap",marginBottom:14}}>
         <div>
           <div style={{color:P.accentDim,fontFamily:F.heading,fontSize:11,fontWeight:900,letterSpacing:1.5}}>אותו מד שמופיע בדף הבית · כאן בעומק מלא</div>
-          <h2 style={{margin:"5px 0 0",color:P.accentText,fontFamily:F.regal,fontSize:25,fontWeight:900}}>🏗️ מצב הבנייה של SOD1820</h2>
+          <h2 style={{margin:"5px 0 0",color:P.ink,fontFamily:F.regal,fontSize:25,fontWeight:900}}>🏗️ מצב הבנייה של SOD1820</h2>
         </div>
         <div style={{fontFamily:F.numeric,color:P.accentText,fontSize:26,fontWeight:900}}>{BUILD_PROGRESS}%</div>
       </div>
+
+      {leadTrack && <BuildTrackCard t={leadTrack} featured />}
+
+      <section style={{maxWidth:900,margin:"14px auto 18px",padding:"20px 18px",border:`1px solid ${P.border}`,borderRadius:18,background:P.cardSoft}}>
+        <StayUpdatedCTA
+          source="system-map-openings"
+          title="🔔 רוצים לדעת כשחלק חדש במפה נפתח?"
+          description="השאירו מייל ונעדכן כשעולמות, כלי מחקר, ספרים, שכבות שפה, מסעות ורכיבים חדשים עוברים מ״בבנייה״ לפתיחה באתר."
+        />
+      </section>
+
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(250px,1fr))",gap:12}}>
-        {BUILD_TRACKS.map(t => {
-          const pct=stagePercent(t.stage);
-          return <article key={t.id} style={{border:`1px solid ${P.border}`,borderRadius:16,padding:14,background:P.card}}>
-            <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"center"}}>
-              <b style={{color:P.ink,fontFamily:F.heading,fontSize:14}}>{t.icon} {t.label}</b>
-              <span style={{color:P.accentText,fontFamily:F.numeric,fontWeight:900,fontSize:12}}>{pct}%</span>
-            </div>
-            <div style={{height:6,borderRadius:999,background:P.cardSoft,overflow:"hidden",margin:"9px 0 8px"}}><i style={{display:"block",height:"100%",width:`${pct}%`,background:P.accent}} /></div>
-            <div style={{color:P.accentDim,fontFamily:F.heading,fontSize:10.5,fontWeight:800}}>שלב {t.stage}/4 · {t.status}</div>
-            <p style={{color:P.inkSoft,fontFamily:F.body,fontSize:12.5,lineHeight:1.65,margin:"8px 0 9px"}}>{t.summary}</p>
-            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-              {(t.metrics||[]).map(m => <span key={m} style={{border:`1px solid ${P.border}`,borderRadius:999,padding:"3px 7px",color:P.inkSoft,fontFamily:F.body,fontSize:10.5}}>{m}</span>)}
-            </div>
-          </article>
-        })}
+        {otherTracks.map(t => <BuildTrackCard key={t.id} t={t} />)}
       </div>
       <p style={{margin:"14px auto 0",maxWidth:820,textAlign:"center",color:P.inkSoft,fontFamily:F.body,fontSize:12.5,lineHeight:1.7}}>
-        האחוז הכללי והשלבים כאן נגזרים מאותו מקור שמזין את דף הבית. המפה מוסיפה פירוט, מדדים והקשר — לא גרסה שנייה של מצב הבנייה.
+        האחוזים הם מד התקדמות ציבורי שמרני, לא הכרזה על השלמה. השלבים מתארים בשלות יחסית; רק יכולת שהושלמה ונפתחה בפועל תיחשב 100%.
       </p>
     </section>
   );
@@ -107,7 +130,7 @@ function WorldCard({ world, q }) {
     }}>
       <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:14,flexWrap:"wrap"}}>
         <div>
-          <h2 style={{margin:0,color:P.accentText,fontFamily:F.regal,fontSize:23,fontWeight:900}}>{world.title}</h2>
+          <h2 style={{margin:0,color:P.ink,fontFamily:F.regal,fontSize:23,fontWeight:900}}>{world.title}</h2>
           <div style={{color:P.inkSoft,fontFamily:F.body,fontSize:13.5,lineHeight:1.6,marginTop:5}}>{world.kicker}</div>
           {world.publicCopy && <div style={{color:P.inkSoft,fontFamily:F.body,fontSize:12.5,lineHeight:1.7,marginTop:8,maxWidth:620}}>{world.publicCopy}</div>}
         </div>
@@ -145,27 +168,23 @@ export default function NavigationCenterPage() {
     <div dir="rtl" style={{maxWidth:1280,margin:"0 auto",padding:"46px 18px 110px",position:"relative",zIndex:1}}>
       <section style={{textAlign:"center",marginBottom:26}}>
         <div style={{color:P.accentDim,fontFamily:F.heading,fontSize:11,fontWeight:900,letterSpacing:2.4}}>SOD1820 · SYSTEM MAP</div>
-        <h1 style={{margin:"8px 0 10px",color:P.accentText,fontFamily:F.regal,fontSize:"clamp(30px,5vw,52px)",fontWeight:900}}>🗺️ מפת המערכת</h1>
+        <h1 style={{margin:"8px 0 10px",color:P.ink,fontFamily:F.regal,fontSize:"clamp(30px,5vw,52px)",fontWeight:900}}>🗺️ מפת המערכת</h1>
         <p style={{maxWidth:760,margin:"0 auto",color:P.inkSoft,fontFamily:F.body,fontSize:16,lineHeight:1.9}}>
           כאן רואים את כל SOD1820 במבט אחד — מה כבר חי, מה נמצא בבנייה, ואילו דלתות ייפתחו בהמשך.
           זו לא רשימת עמודים, אלא מפת הידע והמערכת שנבנית סביבם.
         </p>
         <div style={{display:"inline-flex",alignItems:"center",gap:10,marginTop:18,padding:"9px 13px",border:`1px solid ${P.borderStrong}`,borderRadius:999,background:P.card}}>
-          <span style={{fontFamily:F.heading,fontSize:11,fontWeight:900,color:P.accentText}}>🏗️ SOD1820 V2</span>
+          <span style={{fontFamily:F.heading,fontSize:11,fontWeight:900,color:P.ink}}>🏗️ SOD1820 V2</span>
           <span style={{fontFamily:F.numeric,fontSize:14,fontWeight:900,color:P.accentText}}>{BUILD_PROGRESS}%</span>
           <span style={{width:120,height:4,borderRadius:999,background:P.border,overflow:"hidden"}}><i style={{display:"block",width:`${BUILD_PROGRESS}%`,height:"100%",background:P.accent}} /></span>
         </div>
       </section>
 
-\n\n      <section style={{maxWidth:900,margin:"0 auto 28px",padding:"22px 18px",border:`1px solid ${P.borderStrong}`,borderRadius:22,background:P.cardGrad,boxShadow:"0 14px 44px rgba(0,0,0,.08)"}}>
-        <StayUpdatedCTA
-          source="system-map-openings"
-          title="🔔 רוצים לדעת כשחלק חדש במפה נפתח?"
-          description="השאירו מייל ונעדכן כשעולמות, כלי מחקר, ספרים, שכבות שפה, מסעות ורכיבים חדשים עוברים מ״בבנייה״ לפתיחה באתר."
-        />
-      </section>
+      <BuildStatusDeep />
 
-      <BuildStatusDeep />\n\n      <NumbersDepthPreview />\n\n      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
+      <NumbersDepthPreview />
+
+      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
         <input value={q} onChange={e=>setQ(e.target.value)} placeholder="חפשו עולם, כלי, יכולת או משהו שבדרך…"
           style={{width:"100%",boxSizing:"border-box",background:P.card,border:`1px solid ${P.borderStrong}`,borderRadius:999,color:P.ink,fontFamily:F.body,fontSize:15,padding:"12px 18px",outline:"none",textAlign:"center"}} />
       </div>
@@ -175,7 +194,7 @@ export default function NavigationCenterPage() {
       </div>
 
       <section style={{marginTop:24,border:`1px solid ${P.borderStrong}`,borderRadius:18,padding:"22px",background:P.cardSoft,textAlign:"center"}}>
-        <div style={{color:P.accentText,fontFamily:F.regal,fontSize:20,fontWeight:900}}>🏛️ ההיכל יהיה הדרך המרחבית להיכנס לכל המפה הזאת</div>
+        <div style={{color:P.ink,fontFamily:F.regal,fontSize:20,fontWeight:900}}>🏛️ ההיכל יהיה הדרך המרחבית להיכנס לכל המפה הזאת</div>
         <p style={{maxWidth:760,margin:"8px auto 0",color:P.inkSoft,fontFamily:F.body,fontSize:14,lineHeight:1.8}}>
           הניווט מביא אתכם מהר. ההיכל יאפשר לשוטט בין מספרים, צפנים, ספרים, אנשים וקשרים במרחב אחד.
           רזיאל יהיה שכבת ה-AI שתלווה את אותו גוף ידע מכל עמוד.
