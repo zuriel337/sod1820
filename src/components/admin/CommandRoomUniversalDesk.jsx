@@ -12,6 +12,7 @@ import {
   getAiDepthProfile,
   runRoutedAiAnalysis,
 } from "../../lib/research/aiDepthRouter.js";
+import { buildSourceReferenceMap } from "../../lib/research/sourceReferenceMap.js";
 import "./CommandRoomUniversalDesk.css";
 
 const CHANNELS = [
@@ -135,16 +136,30 @@ async function fetchCanonicalGematriaForSubjects(subjects) {
   return batches.flat();
 }
 
-function factsForAi({ item, preliminary, methodLabels }) {
+async function lookupTanachVerse({ book, chapter, verse }) {
+  const { data, error } = await supabase
+    .from("tanach_verses")
+    .select("book,chapter,verse,text")
+    .eq("book", book)
+    .eq("chapter", chapter)
+    .eq("verse", verse)
+    .limit(2);
+  if (error) throw error;
+  return Array.isArray(data) && data.length === 1 ? data[0] : null;
+}
+
+function factsForAi({ item, preliminary, methodLabels, sourceMap }) {
   const calc = (preliminary.calculations || []).slice(0, 28).map((c) =>
     `${c.subject} = ${c.value} (${methodLabels[c.method] || c.method})`
   );
   const rel = (preliminary.claims?.sourceRelations || []).slice(0, 12).map((r) =>
     `${r.left} ↔ ${r.right} [טענת מקור; ${r.cue}]`
   );
-  const refs = (preliminary.extracted?.sourceReferences || []).slice(0, 8).map((r) =>
-    `${r.raw} [מראה-מקום מהמקור; לא אומת כאן]`
-  );
+  const refs = (sourceMap?.references || preliminary.extracted?.sourceReferences || []).slice(0, 8).map((r) => {
+    const state = r.verificationState || "not_tested";
+    const witness = r.witness?.text ? `; witness=${r.witness.text}` : "";
+    return `${r.raw} [${state}${witness}]`;
+  });
   const graph = (preliminary.identityResolution?.graphMatches || []).slice(0, 12).map((g) =>
     `${g.term} → node:${g.nodeType}:${g.label}`
   );
@@ -153,11 +168,12 @@ function factsForAi({ item, preliminary, methodLabels }) {
   );
   return [
     `SOURCE ARTIFACT — ${item.channelLabel}, מאת ${item.contributor}: ${item.text.slice(0, 3200)}`,
+    refs.length ? `SOURCE MAP / VERIFIED REFERENCES: ${refs.join(" · ")}` : "SOURCE REFERENCES: none extracted.",
     calc.length ? `CALCULATIONS FROM CANONICAL ENGINE ONLY: ${calc.join(" · ")}` : "CALCULATIONS: none supplied.",
     rel.length ? `SOURCE CLAIM RELATIONS (not facts): ${rel.join(" · ")}` : "SOURCE CLAIM RELATIONS: none extracted.",
-    refs.length ? `SOURCE REFERENCES: ${refs.join(" · ")}` : "SOURCE REFERENCES: none extracted.",
     graph.length ? `EXISTING GRAPH IDENTITIES: ${graph.join(" · ")}` : "EXISTING GRAPH IDENTITIES: none resolved.",
     prior.length ? `EXISTING RESEARCH OBJECTS: ${prior.join(" · ")}` : "EXISTING RESEARCH OBJECTS: none matched.",
+    "במחקר עמוק סדר את המקורות במפורש: PRIMARY SOURCE → VERIFIED REFERENCES/WITNESSES → SUPPORTING SOURCES → CONTRADICTORY SOURCES → UNRESOLVED. אמור מה כל מקור תומך בו. אל תמציא מקור, ואל תהפוך טענת מקור לעובדה רק מפני שמראה-המקום אומת.",
     "הפרד במפורש בין מה שהמקור טוען, מה שהמנוע אימת, מה שכבר קיים במערכת, ומה שהוא פרשנות/השערה. אל תחשב ערכים חדשים ואל תמציא מקורות.",
   ].join("\n");
 }
@@ -196,8 +212,18 @@ async function runDeterministicAnalysis(item) {
     time,
   };
 
+  const decomposition = buildUniversalDecomposition(rebuildArgs);
+  const sourceMap = await buildSourceReferenceMap({
+    source,
+    text,
+    references: decomposition.extracted?.sourceReferences || [],
+    quotedSegments: decomposition.sourceArtifact?.representations || [],
+    lookupVerse: lookupTanachVerse,
+  });
+
   return {
-    decomposition: buildUniversalDecomposition(rebuildArgs),
+    decomposition,
+    sourceMap,
     methodLabels,
     expressionBoundary,
     rebuildArgs,
@@ -211,7 +237,12 @@ async function addAiInterpretation(item, current, depth) {
     depth,
     kind: "research",
     subject: current.rebuildArgs.source.title,
-    facts: factsForAi({ item, preliminary: current.decomposition, methodLabels: current.methodLabels || {} }),
+    facts: factsForAi({
+      item,
+      preliminary: current.decomposition,
+      methodLabels: current.methodLabels || {},
+      sourceMap: current.sourceMap || null,
+    }),
     ref: item.id,
     ref_name: item.channelLabel,
     operation: "universal_decomposition",
@@ -265,22 +296,39 @@ function groupCalculations(rows) {
   return [...map.entries()];
 }
 
+function sourceReferenceTone(reference) {
+  if (reference?.verificationState === "VERIFIED_EXACT") return "fact";
+  if (reference?.verificationState === "REFERENCE_VERIFIED") return reference?.unresolvedReason ? "open" : "identity";
+  return "open";
+}
+
+function sourceReferenceLabel(reference) {
+  if (reference?.verificationState === "VERIFIED_EXACT") return "✓ VERIFIED EXACT";
+  if (reference?.verificationState === "REFERENCE_VERIFIED") return "✓ מראה־מקום נמצא";
+  return "OPEN";
+}
+
 function DecompositionView({ result }) {
   const d = result?.decomposition;
   if (!d) return null;
   const labels = result.methodLabels || {};
+  const sourceMap = result.sourceMap || null;
   const counts = d.counts || {};
   const calculationGroups = groupCalculations(d.calculations);
   const subjects = d.extracted?.subjects || [];
   const relations = d.claims?.sourceRelations || [];
   const refs = d.extracted?.sourceReferences || [];
+  const sourceRefs = sourceMap?.references?.length ? sourceMap.references : refs;
   const existing = d.identityResolution?.existingResearchObjects || [];
   const graph = d.identityResolution?.graphMatches || [];
   const unresolved = d.unresolved || [];
+  // Witness/reference verification is system research, not a Zuriel decision.
+  // Keep it visible in the Source Map, but never count it as Human-Gate work.
+  const humanUnresolved = unresolved.filter((u) => u.kind !== "source_witness_verification");
   const compound = d.claims?.compoundClaims || [];
   const sourceCount = relations.length + refs.length + compound.length;
   const knownCount = graph.length + existing.length;
-  const decisionCount = relations.length + unresolved.length;
+  const decisionCount = relations.length + humanUnresolved.length;
   const aiProfile = result.aiProfile || getAiDepthProfile("none");
 
   return (
@@ -293,6 +341,7 @@ function DecompositionView({ result }) {
         </div>
         <div className="cud-readout-badges">
           <Tag type="claim">{sourceCount} פריטי מקור</Tag>
+          <Tag type="fact">{sourceMap?.counts?.verifiedExact || 0} מקורות VERIFIED EXACT</Tag>
           <Tag type="fact">{counts.calculations || 0} תוצאות מנוע</Tag>
           <Tag type="identity">{knownCount} התאמות קיימות</Tag>
           <Tag type="open">{decisionCount} דורשים הכרעה/בדיקה</Tag>
@@ -303,17 +352,28 @@ function DecompositionView({ result }) {
       <div className="cud-answers">
         <QuestionPanel
           number="1"
-          icon="📜"
-          title="מה צבי אומר?"
-          subtitle="טענות, מראי־מקום וקשרים שנכתבו במקור — עדיין לא אמת קנונית."
+          icon="📚"
+          title="מה המקור אומר — ואילו מראי־מקום אומתו?"
+          subtitle="המקור נשמר פעם אחת; מראי־מקום נבדקים אוטומטית מול העד הקנוני ככל שניתן. אימות מקור אינו מאשר את הפרשנות."
           tone="source"
           count={sourceCount}
-          footer="SOURCE CLAIM ≠ FACT · מראה־מקום שנמצא בטקסט ≠ exact-witness verified"
+          footer="SOURCE CLAIM ≠ FACT · VERIFIED REFERENCE ≠ INTERPRETATION VERIFIED · מקור/פסוק הוא Evidence/Provenance, לא Node אוטומטי"
         >
-          {refs.slice(0, 6).map((r) => (
+          {sourceMap?.sourceArtifact?.sourceRef && (
+            <div className="cud-row">
+              <div className="cud-row-main"><b>מקור ראשי</b><strong>{sourceMap.sourceArtifact.sourceRef}</strong></div>
+              <div className="cud-row-meta"><Tag type="identity">SOURCE ARTIFACT</Tag><Tag>{sourceMap.sourceArtifact.contributor || "—"}</Tag></div>
+            </div>
+          )}
+          {sourceRefs.slice(0, 8).map((r) => (
             <div className="cud-row" key={`ref-${r.raw}`}>
-              <div className="cud-row-main"><b>{r.raw}</b></div>
-              <div className="cud-row-meta"><Tag>מראה מקום</Tag><Tag type="open">טרם אומת מול העד בשכבה הזו</Tag></div>
+              <div className="cud-row-main"><b>{r.raw}</b>{r.witness?.text && <strong>{short(r.witness.text, 135)}</strong>}</div>
+              <div className="cud-row-meta">
+                <Tag>מראה מקום</Tag>
+                <Tag type={sourceReferenceTone(r)}>{sourceReferenceLabel(r)}</Tag>
+                {r.exactTextMatch && <Tag type="fact">הציטוט תואם לעד</Tag>}
+                {r.unresolvedReason && <Tag type="open">{r.unresolvedReason}</Tag>}
+              </div>
             </div>
           ))}
           {relations.slice(0, 8).map((r, i) => (
@@ -384,7 +444,7 @@ function DecompositionView({ result }) {
           number="4"
           icon="⚖️"
           title="מה מחכה להחלטה שלך?"
-          subtitle="קשרים וזהויות שעדיין אינם מוכנים לעץ. כאן המערכת עוצרת ולא מחליטה במקומך."
+          subtitle="רק קשרים/זהויות שעוד לא נסגרו. אימות מראה־מקום עצמו מטופל על ידי המערכת ואינו החלטת Human Gate."
           tone="decision"
           count={decisionCount}
           footer="אין כאן פעולה אוטומטית · פעולות Human Gate יתחברו רק אחרי write-path audit"
@@ -392,10 +452,10 @@ function DecompositionView({ result }) {
           {relations.slice(0, 8).map((r, i) => (
             <div className="cud-row" key={`decision-rel-${r.left}-${r.right}-${i}`}>
               <div className="cud-row-main"><b>{r.left} ↔ {r.right}</b></div>
-              <div className="cud-row-meta"><Tag type="claim">RELATION CANDIDATE</Tag><Tag type="open">דורש Human Gate</Tag></div>
+              <div className="cud-row-meta"><Tag type="claim">RELATION CANDIDATE</Tag><Tag type="open">מחקר/שער לפני עץ</Tag></div>
             </div>
           ))}
-          {unresolved.slice(0, 10).map((u, i) => (
+          {humanUnresolved.slice(0, 10).map((u, i) => (
             <div className="cud-row" key={`unresolved-${u.kind}-${i}`}>
               <div className="cud-row-main"><b>{u.label}</b></div>
               <div className="cud-row-meta"><Tag type="open">OPEN</Tag><Tag>{u.kind}</Tag></div>
@@ -409,6 +469,16 @@ function DecompositionView({ result }) {
       <details className="cud-details">
         <summary>🔬 פתח פירוט מחקרי מלא</summary>
         <div className="cud-grid cud-detail-grid">
+          <Card icon="📚" title="מפת מקורות" count={sourceMap?.counts?.references || refs.length}>
+            {(sourceMap?.references || []).slice(0, 10).map((r) => (
+              <div className="cud-row" key={`source-map-${r.raw}`}>
+                <div className="cud-row-main"><b>{r.raw}</b>{r.witness?.text && <strong>{short(r.witness.text, 115)}</strong>}</div>
+                <div className="cud-row-meta"><Tag type={sourceReferenceTone(r)}>{sourceReferenceLabel(r)}</Tag>{r.unresolvedReason && <Tag type="open">{r.unresolvedReason}</Tag>}</div>
+              </div>
+            ))}
+            {!sourceMap?.counts?.references && <p className="cud-muted">לא זוהו מראי־מקום מובנים במקור הזה.</p>}
+          </Card>
+
           <Card icon="🔤" title="כל המילים, הביטויים והזהויות" count={subjects.length}>
             {subjects.slice(0, 18).map((s) => (
               <div className="cud-row" key={s.text}>
@@ -423,14 +493,15 @@ function DecompositionView({ result }) {
             ))}
           </Card>
 
-          <Card icon="🧭" title="תמונת מצב" count={6}>
+          <Card icon="🧭" title="תמונת מצב" count={7}>
             <div className="cud-summary cud-summary-inside">
               <div className="cud-stat gold"><b>{counts.subjects || 0}</b><small>נושאים</small></div>
               <div className="cud-stat green"><b>{counts.calculations || 0}</b><small>תוצאות מנוע</small></div>
               <div className="cud-stat orange"><b>{counts.sourceClaims || 0}</b><small>טענות מקור</small></div>
               <div className="cud-stat"><b>{counts.sourceReferences || 0}</b><small>מראי מקום</small></div>
+              <div className="cud-stat green"><b>{sourceMap?.counts?.verifiedExact || 0}</b><small>VERIFIED EXACT</small></div>
               <div className="cud-stat"><b>{counts.graphMatches || 0}</b><small>זהויות בעץ</small></div>
-              <div className="cud-stat"><b>{counts.unresolved || 0}</b><small>פתוח</small></div>
+              <div className="cud-stat"><b>{decisionCount}</b><small>פתוח לשער/מחקר</small></div>
             </div>
           </Card>
 
@@ -531,12 +602,12 @@ export default function CommandRoomUniversalDesk({ onOpenGate, onOpenAdvanced })
     ? "Gemini Flash מסכם את מה שכבר נאסף — בלי לחשב מחדש."
     : runningStage === "deep"
       ? "Claude Sonnet מבצע מחקר עמוק על Evidence Pack שכבר נבנה."
-      : "Shared Expression Extraction → canonical Gematria → Identity Resolution → Existing Research. בלי AI חיצוני.";
+      : "Shared Expression Extraction → canonical Gematria → Source Map → Identity Resolution → Existing Research. בלי AI חיצוני.";
 
   return (
     <div className="cud" dir="rtl">
       <header className="cud-top">
-        <div className="cud-brand"><b>🎛️ חדר המפקדה</b><small>מקור אחד → פירוק → מחקר → Human Gate → עץ</small></div>
+        <div className="cud-brand"><b>🎛️ חדר המפקדה</b><small>מקור אחד → פירוק → ראיות → מחקר → Human Gate → עץ</small></div>
         <label className="cud-search">⌕<input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חפש בהודעות…" /></label>
         <button className="cud-pill" onClick={onOpenGate}>⚖️ שולחן צוריאל</button>
         <button className="cud-pill" onClick={onOpenAdvanced}>🧰 מתקדם</button>
