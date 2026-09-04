@@ -5,7 +5,7 @@ export const KNOWLEDGE_WORLDS = [
     stat: "1,283 פוסטים · 2013–2026",
     items: [
       { label: "כל הפוסטים", emoji: "📜", to: "/post", note: "ארכיון הידע החי" },
-      { label: "גלריות ומדיה", emoji: "🖼️", to: "/archive?tab=galleries", note: "2,558 פריטי גלריה" },
+      { label: "גלריות ומדיה", emoji: "🖼️", to: "/gallery", note: "2,558 פריטי גלריה" },
       { label: "התכנסויות / נושאי מחקר", emoji: "✦", locked: true, state: "בפיתוח", note: "206 מאושרות · העמוד המרכזי לרשימה עדיין בבנייה" },
       { label: "מסעות גילוי", emoji: "🧭", locked: true, state: "בקרוב", note: "מסע מודרך בין קשרים" },
       { label: "מסעות תלת־ממדיים", emoji: "◈", locked: true, state: "בקרוב", note: "להיכנס אל תוך הידע" },
