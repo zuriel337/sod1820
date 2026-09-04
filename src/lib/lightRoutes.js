@@ -23,6 +23,7 @@ export const LIGHT_ROUTES = [
   /^\/cross$/, /^\/topic(\/|$)/,
   /^\/post$/, /^\/community\/chat$/,
   /^\/verified$/, /^\/code(\/|$)/, /^\/code-archive$/, /^\/map$/, /^\/start$/,
+  /^\/admin$/,        // 🎛️ מרכז הניהול — תמה מלאה יום/לילה; מעטפת אדמין אחת, בלי island בהיר בתוך shell כהה
   /^\/community$/,   // 🫂 עמוד הקהילה
   /^\/codes(\/|$)/,   // 🔠 ספריית הצפנים + דף-צופן (/codes/:slug) + מחקר — «צופן»
   /^\/forum(\/|$)/,   // 🌐 פורום המחקר + שרשור

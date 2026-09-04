@@ -1,0 +1,46 @@
+/*
+ * ADMIN / COMMAND TRANSITION BRIDGE v2
+ *
+ * IMPORTANT:
+ * - This file does NOT own the admin palette.
+ * - The canonical admin compatibility variables (--adm-*) already live in AdminPage.jsx.
+ * - /admin enters the canonical route-aware day/night flow through lightRoutes.js.
+ * - This file only adapts the legacy light-only literals inside Command Room while that tab
+ *   is being migrated. New admin UI must use the existing semantic/admin theme primitives.
+ */
+
+/*
+ * WarRoomTab predates the forward Design Contract and still contains a small set of literal
+ * PALETTES.lab values. In dark mode, remap only those literals under the live AdminPage subtree.
+ * The Research Viewer link is a stable marker rendered by AdminPage today; no dir attribute is
+ * assumed because RTL is currently applied via CSS rather than div[dir="rtl"].
+ */
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#f6f7f9"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(246, 247, 249)"] {
+  background: var(--adm-bg) !important;
+}
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#ffffff"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(255, 255, 255)"] {
+  background-color: var(--adm-surface) !important;
+}
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#1b1d22"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(27, 29, 34)"] {
+  color: var(--adm-goldLight) !important;
+}
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#5b6472"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(91, 100, 114)"] {
+  color: var(--adm-muted) !important;
+}
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#8a93a3"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(138, 147, 163)"] {
+  color: var(--adm-goldDim) !important;
+}
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#dbe1ea"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(219, 225, 234)"] {
+  border-color: var(--adm-border) !important;
+}
