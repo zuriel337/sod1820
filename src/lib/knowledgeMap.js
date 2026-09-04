@@ -61,7 +61,8 @@ export const KNOWLEDGE_WORLDS = [
       { label: "לפי נושאים", emoji: "✦", locked: true, state: "בבנייה", note: "נושא → תוכן → קשרים · אינדקס ציבורי ייעודי טרם נבנה" },
       { label: "לפי אנשים ושמות", emoji: "👤", locked: true, state: "בפיתוח", note: "כל מה שהאתר יודע על אדם" },
       { label: "לפי מספרים", emoji: "🔢", to: "/number", note: "כניסה לארכיון דרך מספר" },
-      { label: "לפי פסוקים וצפנים", emoji: "⌘", locked: true, state: "בקרוב", note: "מקור → צופן → מחקר" },
+      { label: "לפי פסוקים", emoji: "⌘", to: "/verse-gematria", note: "חיפוש וחישוב בתוך פסוקי התנ״ך" },
+      { label: "לפי צפנים", emoji: "🔠", to: "/codes", note: "הספרייה הקנונית של צפני ELS שפורסמו" },
     ],
   },
   {
@@ -70,7 +71,7 @@ export const KNOWLEDGE_WORLDS = [
     stat: "1,876 עדכונים · 30 תורמים",
     items: [
       { label: "הצ׳אט ההיסטורי", emoji: "💬", to: "/community/chat", note: "ארכיון השיחות ההיסטורי של הקהילה" },
-      { label: "חוקרים ותורמים", emoji: "👥", to: "/community", note: "אנשים סביב גוף הידע" },
+      { label: "חוקרים ותורמים", emoji: "👥", to: "/community/researchers", note: "אינדקס החוקרים והתורמים" },
       { label: "התכנסויות", emoji: "◉", locked: true, state: "בקרוב", note: "מפגשים סביב נושא או מחקר" },
       { label: "התכנסויות חיות", emoji: "●", locked: true, state: "בקרוב", note: "מרחב חי בזמן אמת" },
       { label: "מחקר משותף", emoji: "⌁", locked: true, state: "בקרוב", note: "כמה חוקרים, גוף ידע אחד" },
@@ -82,6 +83,7 @@ export const KNOWLEDGE_WORLDS = [
 export const QUICK_NAV_GROUPS = [
   { title: "🔬 לחקור", items: [
     { label:"דף המספר", emoji:"🔢", to:"/number" },
+    { label:"עולם המספרים", emoji:"✺", to:"/numbers" },
     { label:"בית המדרש", emoji:"📖", to:"/beit-midrash" },
     { label:"דילוגי אותיות", emoji:"🔠", to:"/code", icon:"dilugim" },
     { label:"ספריית צפנים", emoji:"▦", to:"/codes" },
@@ -89,11 +91,12 @@ export const QUICK_NAV_GROUPS = [
   ]},
   { title: "✨ לגלות", items: [
     { label:"פוסטים", emoji:"📜", to:"/post" },
-    { label:"גלריות", emoji:"🖼️", to:"/archive?tab=galleries" },
+    { label:"ציר ההתגלות", emoji:"🕰️", to:"/timeline" },
+    { label:"גלריות", emoji:"🖼️", to:"/gallery" },
     { label:"מפת המערכת", emoji:"🗺️", to:"/map" },
   ]},
   { title: "💬 קהילה", items: [
-    { label:"הצ׳אט", emoji:"💬", to:"/community/chat" },
+    { label:"הצ׳אט ההיסטורי", emoji:"💬", to:"/community/chat" },
     { label:"קהילה", emoji:"👥", to:"/community" },
   ]},
 ];
