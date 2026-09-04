@@ -6,7 +6,6 @@ import { effectiveMode, POST_SLUG_RE } from "../../lib/lightRoutes.js";
 import { useThemeMode } from "../../lib/themeMode.js";
 import { useStream } from "../../lib/stream.js";
 import SpaceBackground from "./SpaceBackground.jsx";
-import VerseBackground from "./VerseBackground.jsx"; // 📜 «כתובת החומה» — זכריה יג,ט חקוק ברקע (כל עמוד חוץ מהבית)
 import RandomTopBanner from "./RandomTopBanner.jsx"; // 🎲 רצועה אקראית (טיזר או צופן/אלול) — פוסטים+צ'אט
 import Navbar from "./Navbar.jsx";
 import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על קוסמי עם פסוק (מתחת לתפריט)
@@ -26,26 +25,17 @@ import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף 
 
 export default function Layout() {
   const { pathname, search } = useLocation();
-  const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
-  const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
-  // 📡 בדף הבית ובצ'אט: מוסתרת בועת מגירת-המספר, ובמקומה «פותח העדכונים» החי (LiveChannelFeed).
-  //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
+  const globalMode = useThemeMode();
+  const stream = useStream();
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
-  // 📡 טיקר-החדשות הזז (LiveActivityBar) מוסתר בדף הבית (בקשת צוריאל 30.7.2026) — נשאר בשאר האתר.
   const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
-  // 🏛️ אזור ההיכל (מחקר/דילוגים) — שם מעולם לא היה באנר, ולא מציגים אותו (בקשת צוריאל).
   const isHeichal = [/^\/research/, /^\/beit-midrash/, /^\/code/, /^\/heichal/].some(re => re.test(pathname));
-  // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
   const showBanner = /^\/post$/.test(pathname) || /^\/community\/chat$/.test(pathname) || POST_SLUG_RE.test(pathname);
-  // 🌅 ציר ההתגלות (הפס הקבוע בצד) — מוצג בעמוד הציר עצמו (/timeline) ובעמודי-פוסט (בקשת צוריאל).
-  //    בעמוד-פוסט הרכיב עצמו מחליט אם זה «פוסט של הציר» (מאומת-AI) ואחרת מחזיר null.
   const showAxis = /^\/timeline$/.test(pathname) || POST_SLUG_RE.test(pathname);
-  // 🌗 המצב האפקטיבי — מקור-אמת אחד עם usePalette (lightRoutes.effectiveMode) → אין חצי-בהיר-חצי-כהה.
   const mode = effectiveMode(pathname, globalMode);
   const P = PALETTES[mode];
   const dark = mode === "dark";
 
-  // רקע ה-body (אזורי overscroll/גלילה) לפי המצב האפקטיבי
   useEffect(() => {
     try { document.body.style.background = dark ? "#0C0818" : "#f6f1e6"; } catch { /* ignore */ }
   }, [dark]);
@@ -53,10 +43,8 @@ export default function Layout() {
   return (
     <div data-theme={mode} data-stream={stream || "none"} style={{ background: dark ? C.bg : P.pageBg, minHeight: "100vh", color: dark ? "#ede4d3" : P.ink, fontFamily: F.body, fontSize: 16, position: "relative" }}>
       <style>{GLOBAL_CSS}</style>
-      {/* הקוסמוס הגלובלי — רק במצב כהה (במצב בהיר הרקע הוא קלף קרם נקי) */}
+      {/* רקע קנוני: הקוסמוס/עיר נשארים. שכבת פסוק/אותיות דקורטיבית הוסרה במפורש — רקע ≠ תוכן. */}
       {dark && <SpaceBackground />}
-      {/* 📜 «כתובת החומה» — הפסוק זכריה יג,ט חקוק ברקע בכל עמוד חוץ מהבית (שומר על זהות המלכות של הבית) */}
-      {!isHome && <VerseBackground dark={dark} />}
       {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
@@ -66,16 +54,10 @@ export default function Layout() {
             🌍 English (רק לדוברי-אנגלית, בסבב). מחליף את כל הטיקרים הישנים —
             EnglishSoonBar + YearTicker + CelestialPinnedBar + CipherElulBanner (מושבתים). */}
         {/* 🚫 באנר הצופן/אלול הוסר מהכרום הגלובלי. הצפנים והסרטונים שלהם חיים בדף הבית/אזורי התוכן הייעודיים. */}
-        {/* 🌌 שורה נעוצה גלובלית — הושבתה לטובת טיקר-הפרומו (בקשת צוריאל 15.8.2026). להחזרה: הסר את false. */}
         {false && <CelestialPinnedBar />}
-        {/* 🌌 באנר-העל הקוסמי הישן (פסוק + נגן-רקע) — הוחלף בבאנר המתחלף (המלך בשדה ↔ צופן).
-            להחזרה: הסר את false. */}
         {false && showBanner && <CosmicVerseBanner mode={mode} />}
-        {/* 📡 טיקר-החדשות «עכשיו באתר» — מוסתר כרגע (בקשת צוריאל 4.8.2026). להחזרה: הסר את false. */}
         {false && !isHome && <LiveActivityBar />}
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
-        {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
-            מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
         {/* באנר הצופן/אלול משולב עכשיו בתוך RotatingTopBanner למעלה (מתחלף עם הטיזר) — לא מוצג כאן בנפרד. */}
         <main>
           <ErrorBoundary routeKey={pathname}>
@@ -87,15 +69,11 @@ export default function Layout() {
             </React.Suspense>
           </ErrorBoundary>
         </main>
-        {/* 🔠 בדף הדילוגים הכלי ממלא מסך-מלא (iframe) — בלי פוטר, כדי שלא ייווצר פס-גלילה שני בדף */}
         {pathname !== "/code" && <Footer />}
       </div>
-      {/* מגירת המספר: הבועה הצפה מוסתרת בבית ובצ'אט (שם «פותח העדכונים» תופס את הפינה); המגירה עצמה עדיין נפתחת בהקשה על מספר. */}
-      {/* 🔠 מגירת-המספר מוסתרת בדף הצופן (בקשת צוריאל) — /code + היכל?tool=els */}
       <NumberDrawer hideLauncher={liveChrome || /^\/code/.test(pathname) || (pathname === "/research" && /tool=els/.test(search))} />
       {liveChrome && <LiveChannelFeed />}
       <JoinCelebration />
-      {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
       <DimensionFiveFeed />
     </div>
   );
