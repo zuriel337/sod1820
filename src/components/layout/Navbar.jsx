@@ -19,7 +19,7 @@ import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
-import { KNOWLEDGE_WORLDS, QUICK_NAV_GROUPS } from "../../lib/knowledgeMap.js";
+import { QUICK_NAV_GROUPS, BUILD_PROGRESS } from "../../lib/knowledgeMap.js";
 
 // 🧩 hook נגיש לתפריטים-נפתחים: נפתח בריחוף (עכבר) *וגם* בקליק (מקלדת/מגע), נסגר
 // בקליק-בחוץ ובמקש Escape. פותר את הבעיה שכל ה-dropdowns היו hover-only (לא נגישים
@@ -571,7 +571,7 @@ function BuildProgressBadge({ cc }) {
     setTimeout(() => document.getElementById("build-progress")?.scrollIntoView({ behavior: "smooth", block: "start" }), 180);
   };
   return (
-    <button type="button" onClick={go} className="sod-nav-build" aria-label="מצב בניית האתר — 66 אחוז"
+    <button type="button" onClick={go} className="sod-nav-build" aria-label={`מצב בניית האתר — ${BUILD_PROGRESS} אחוז`}
       title="האתר בבנייה — לחצו למפת הבנייה" style={{
         position:"relative", display:"inline-flex", alignItems:"center", gap:7, flex:"none",
         border:`1px solid ${cc.borderGold}`, background:"rgba(212,175,55,.08)", color:cc.goldBright,
@@ -581,11 +581,11 @@ function BuildProgressBadge({ cc }) {
       <style>{`
         @keyframes navBuildPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.15)}50%{box-shadow:0 0 0 5px rgba(212,175,55,.08)}}
         .sod-nav-build{animation:navBuildPulse 2.4s ease-in-out infinite}
-        .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:66%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
+        .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:${BUILD_PROGRESS}%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
         @media(prefers-reduced-motion:reduce){.sod-nav-build{animation:none}}
         @media(max-width:720px){.sod-nav-build .nb-label{display:none}}
       `}</style>
-      <span aria-hidden>🏗️</span><span className="nb-label">בבנייה</span><span style={{fontFamily:F.numeric}}>66%</span>
+      <span aria-hidden>🏗️</span><span className="nb-label">בבנייה</span><span style={{fontFamily:F.numeric}}>{BUILD_PROGRESS}%</span>
     </button>
   );
 }
