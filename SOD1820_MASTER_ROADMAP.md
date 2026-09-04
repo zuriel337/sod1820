@@ -1,5 +1,14 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+> ## 🔒 RESEARCH OS CANONICAL LOCK v1 — 4.9.2026
+> **LOCKED:** `docs/research-os-canonical-lock-v1.md` הוא חוזה המעבר מהשמורים/היסטוריה הקיימים להיכל העתידי.
+> עיקרון: **One Tree · One Research OS · Many Lenses**. אין לבנות מערכת שמורים/History/Workspace מקבילה.
+> `research_items` נשאר מאגר חברות ה-Workspace; `user_research.history/collections/journeys` נשמר ומקבל adapter קדימה; `journey_saves` משמש רציפות מסע; `research_objects` מיועד לטענות מחקר durable בלבד.
+> כל כלי/עולם מתכנס ל-`➕ למחקר` עם זהות ישות יציבה: number/phrase/verse/post/person/name/book/source/code/ELS/image/date/topic/convergence/insight/relation.
+> Funnel היעד: **DISCOVER → SAVE → REOPEN → EXPLORE → DISCOVER-NEXT → RETURN**. חוסר מרכזי: coverage אחיד לכל סוגי התוכן + exact reopen telemetry + ELS bridge + History adapter + Collections/Journeys UX + Raziel continuity.
+> **אסור migration הרסני של נתוני משתמש קיימים. Adapter-first.**
+>
+
 > ## 📊 VERCEL ANALYTICS CONNECTOR V1 — 4.9.2026
 > **החלטה:** Vercel אינו מערכת אנליטיקה מקבילה אלא מקור-אמת משלים בתוך מרכז-הצמיחה הקיים. Growth Center מציג יחד: first-party SOD1820 + GA4 + Vercel Web Analytics + Clarity.
 > **מימוש:** endpoint אדמין read-only `/api/vercel-insights` קורא את Web Analytics API הרשמי של Vercel באמצעות secret שרת `VERCEL_API_TOKEN`; הטוקן לעולם אינו נשלח לדפדפן. `getVercelInsights(days)` מחבר אותו ל-`GrowthCenterTab`.
