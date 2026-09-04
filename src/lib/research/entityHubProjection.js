@@ -18,6 +18,10 @@ function safeLimit(value, fallback, max) {
   return Math.max(1, Math.min(Number(value) || fallback, max));
 }
 
+function isAccessDenied(error) {
+  return error?.code === "42501" || /permission denied/i.test(String(error?.message || ""));
+}
+
 function dedupeRows(rows) {
   const byId = new Map();
   for (const row of rows.flat()) {
@@ -82,7 +86,7 @@ async function runResearchQuery(builder, limit) {
 }
 
 export async function fetchResearchObjectsForEntity(node, { limit = 40 } = {}) {
-  if (!node?.id) return { rows: [], findings: [] };
+  if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 40, 120);
   const label = clean(node.label);
   const identityKey = clean(node.identity_key);
@@ -101,9 +105,21 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40 } = {}) {
     queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [term]), cap));
   }
 
-  if (!queries.length) return { rows: [], findings: [] };
-  const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
-  return { rows, findings: researchObjectsToUniversalFindings(rows) };
+  if (!queries.length) return { rows: [], findings: [], access: { available: true, reason: null } };
+
+  try {
+    const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
+    return { rows, findings: researchObjectsToUniversalFindings(rows), access: { available: true, reason: null } };
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return {
+        rows: [],
+        findings: [],
+        access: { available: false, reason: "research_objects_not_readable_for_current_session" },
+      };
+    }
+    throw error;
+  }
 }
 
 async function fetchTopicFindingsForNumber(number, { limit = 12 } = {}) {
@@ -280,6 +296,7 @@ export async function fetchEntityHubProjection({
       rows: research.rows,
       findings: research.findings,
       humanGate: humanGateSummary(research.rows),
+      access: research.access,
     },
     topics,
     journeys: {
