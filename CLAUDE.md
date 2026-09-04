@@ -1,8 +1,17 @@
 # SOD1820 — הנחיות פרויקט
 
+## 🔄 Agent Handoff — חובה לפני עבודה משמעותית
+> **קרא `AGENT_HANDOFF.md` מיד אחרי הקובץ הזה ולפני מסקנות ארכיטקטוניות.** Claude/GPT/כל agent עתידי אינם רשאים להסיק שיכולת "חסרה", "כפולה", "נטושה" או "מערכת מקבילה" רק משום שאינה מתועדת כאן.
+- Bootstrap מחייב: `origin/main` → Supabase חי → work-log אחרון → decision records רלוונטיים → rules/project_codex → Master State → Roadmap → חוזה הדומיין.
+- **Documentation lag ≠ parallel architecture.** אם implementation/work-log חדש יותר מהמסמך, מסמנים `STALE DOCUMENTATION` ומבצעים reconciliation.
+- **Unmerged branch ≠ lost work.** אחרי rewrite-היסטוריית git של 1.9.2026 חובה לבדוק provenance + payload + equivalent work on main לפני recovery/merge.
+- ריקונסיליאציית 4.9.2026 קבעה שהזרימה GPT+ZURIEL סביב Research Objects / Human Gate / Truth Axes היא **אותו Research OS**, לא מערכת-הפעלה מקבילה.
+- כלל סיום: **Reconciliation before construction · Provenance before recovery · Evidence before interpretation.**
+
+
 ## 📍 ניתוב-מינוח למסמכי-על (`ssot_terminology_routing_law`) — קרא ראשון, לפני חיפוש קבצים
 > כדי למנוע בלבול בין קובץ קנוני לקובץ היסטורי עם שם דומה (תקרית: `docs/site-structure.md` הישן נתפס בטעות כ"מפת האתר"):
-- **"המפה" / "מפת האתר" / "Roadmap" / "התוכנית"** → תמיד `SOD1820_MASTER_ROADMAP.md` (v4, קנוני; מקור-הניווט התפעולי היחיד).
+- **"המפה" / "מפת האתר" / "Roadmap" / "התוכנית"** → תמיד `SOD1820_MASTER_ROADMAP.md` (v5.3, קנוני; מקור-הניווט התפעולי היחיד).
 - **"מצב המערכת" / "מצב הקוד"** → תמיד `SOD1820_MASTER_STATE.md` (בסיס-העובד הקנוני, מאומת מול ה-DB החי).
 - כל קובץ אחר תחת `docs/` עם שם דומה ("site-structure", "site-map", "master-plan" וכו') הוא **עזר/היסטורי בלבד**, לא מקור-אמת — אלא אם הוא עצמו מסומן במפורש כ-CANONICAL.
 
