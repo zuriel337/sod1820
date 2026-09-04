@@ -561,32 +561,35 @@ function GridIcon() {
 }
 
 function BuildProgressBadge({ cc }) {
-  const nav = useNavigate();
-  const go = () => {
-    if (window.location.pathname === "/" || window.location.pathname === "/home-new" || window.location.pathname === "/בית-חדש") {
-      document.getElementById("build-progress")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-    nav("/#build-progress");
-    setTimeout(() => document.getElementById("build-progress")?.scrollIntoView({ behavior: "smooth", block: "start" }), 180);
-  };
   return (
-    <button type="button" onClick={go} className="sod-nav-build" aria-label={`מצב בניית האתר — ${BUILD_PROGRESS} אחוז`}
-      title="האתר בבנייה — לחצו למפת הבנייה" style={{
+    <Link to="/map" className="sod-nav-build" aria-label={`מפת המערכת — האתר בבנייה ${BUILD_PROGRESS} אחוז`}
+      title="מפת המערכת · מצב הבנייה" style={{
         position:"relative", display:"inline-flex", alignItems:"center", gap:7, flex:"none",
         border:`1px solid ${cc.borderGold}`, background:"rgba(212,175,55,.08)", color:cc.goldBright,
         borderRadius:999, padding:"6px 11px", cursor:"pointer", fontFamily:F.ui, fontWeight:800,
-        fontSize:12.5, whiteSpace:"nowrap", overflow:"hidden"
+        fontSize:12.5, whiteSpace:"nowrap", overflow:"hidden", textDecoration:"none"
       }}>
       <style>{`
         @keyframes navBuildPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.15)}50%{box-shadow:0 0 0 5px rgba(212,175,55,.08)}}
         .sod-nav-build{animation:navBuildPulse 2.4s ease-in-out infinite}
         .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:${BUILD_PROGRESS}%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
+        .sod-nav-build .nb-mobile{display:none}
+        @media(max-width:1040px){
+          .sod-nav-build{padding:5px 8px;gap:4px;font-size:11.5px;min-width:0}
+          .sod-nav-build .nb-desktop{display:none}
+          .sod-nav-build .nb-mobile{display:inline}
+        }
+        @media(max-width:420px){
+          .sod-nav-build{padding:5px 7px}
+          .sod-nav-build .nb-mobile-label{display:none}
+        }
         @media(prefers-reduced-motion:reduce){.sod-nav-build{animation:none}}
-        @media(max-width:720px){.sod-nav-build .nb-label{display:none}}
       `}</style>
-      <span aria-hidden>🏗️</span><span className="nb-label">בבנייה</span><span style={{fontFamily:F.numeric}}>{BUILD_PROGRESS}%</span>
-    </button>
+      <span aria-hidden>🗺️</span>
+      <span className="nb-desktop">מפת המערכת · בבנייה</span>
+      <span className="nb-mobile"><span className="nb-mobile-label">בבנייה · </span><span style={{fontFamily:F.numeric}}>{BUILD_PROGRESS}%</span></span>
+      <span className="nb-desktop" style={{fontFamily:F.numeric}}>{BUILD_PROGRESS}%</span>
+    </Link>
   );
 }
 
@@ -637,7 +640,6 @@ export default function Navbar() {
 
         {/* חיפוש + כניסה + תפריט-רשת ⊞ — סרגל עליון מצומצם */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 8, marginInlineStart: "auto" }}>
-          <Link to="/map" className="sod-map-entry" style={{display:"inline-flex",alignItems:"center",gap:8,textDecoration:"none",border:`1px solid ${cc.borderGold}`,background:"rgba(212,175,55,.08)",color:cc.goldBright,borderRadius:999,padding:"7px 12px",fontFamily:F.ui,fontSize:12.5,fontWeight:900,whiteSpace:"nowrap"}}><span aria-hidden>🗺️</span><span>מפת המערכת</span><small style={{color:cc.muted,fontSize:9.5,fontWeight:800}}>V2 · בבנייה</small></Link>
           {user && <NotificationBell />}
           {user ? (
             <UserMenu user={user} profile={profile} cc={cc} />
