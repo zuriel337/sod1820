@@ -7,8 +7,6 @@ import { searchResearchViewerGraphEntities } from "../../lib/research/researchVi
 import {
   buildUniversalDecomposition,
   collectSubjectCandidates,
-  extractSourceReferences,
-  extractSourceRelations,
 } from "../../lib/research/universalDecomposer.js";
 import "./CommandRoomUniversalDesk.css";
 
@@ -231,6 +229,21 @@ function Card({ icon, title, count, wide = false, children }) {
   );
 }
 
+function QuestionPanel({ number, icon, title, subtitle, tone, count, children, footer }) {
+  return (
+    <section className={`cud-answer ${tone || ""}`}>
+      <div className="cud-answer-head">
+        <span className="cud-answer-number">{number}</span>
+        <span className="cud-answer-icon">{icon}</span>
+        <div><h4>{title}</h4><p>{subtitle}</p></div>
+        {count != null && <b className="cud-answer-count">{count}</b>}
+      </div>
+      <div className="cud-answer-body">{children}</div>
+      {footer && <div className="cud-answer-foot">{footer}</div>}
+    </section>
+  );
+}
+
 function groupCalculations(rows) {
   const map = new Map();
   for (const row of rows || []) {
@@ -254,78 +267,91 @@ function DecompositionView({ result }) {
   const graph = d.identityResolution?.graphMatches || [];
   const unresolved = d.unresolved || [];
   const compound = d.claims?.compoundClaims || [];
+  const sourceCount = relations.length + refs.length + compound.length;
+  const knownCount = graph.length + existing.length;
+  const decisionCount = relations.length + unresolved.length;
 
   return (
     <div className="cud-result">
-      <div className="cud-summary">
-        <div className="cud-stat gold"><b>{counts.subjects || 0}</b><small>מילים / נושאים</small></div>
-        <div className="cud-stat green"><b>{counts.calculations || 0}</b><small>תוצאות מנוע</small></div>
-        <div className="cud-stat orange"><b>{counts.sourceClaims || 0}</b><small>טענות מקור</small></div>
-        <div className="cud-stat"><b>{counts.sourceReferences || 0}</b><small>מראי מקום</small></div>
-        <div className="cud-stat"><b>{counts.graphMatches || 0}</b><small>זהויות בעץ</small></div>
-        <div className="cud-stat"><b>{counts.unresolved || 0}</b><small>פתוח להכרעה</small></div>
+      <div className="cud-readout">
+        <div>
+          <span className="cud-eyebrow">תשובת המערכת</span>
+          <h3>המקור פורק. עכשיו צריך להבין מה הוא אומר, מה אומת, מה כבר קיים — ומה נשאר אצלך.</h3>
+          <p>המסך הזה הוא מפת עבודה בלבד. הוא לא יוצר Node, לא מאשר קשר ולא משנה אמת.</p>
+        </div>
+        <div className="cud-readout-badges">
+          <Tag type="claim">{sourceCount} פריטי מקור</Tag>
+          <Tag type="fact">{counts.calculations || 0} תוצאות מנוע</Tag>
+          <Tag type="identity">{knownCount} התאמות קיימות</Tag>
+          <Tag type="open">{decisionCount} דורשים הכרעה/בדיקה</Tag>
+        </div>
       </div>
 
-      <div className="cud-map-title">
-        <h3>🧩 מפת הפירוק המחקרית</h3>
-        <small>אותו Research Intake · אין קידום אוטומטי</small>
-      </div>
-
-      <div className="cud-grid">
-        <Card icon="🔤" title="מילים, ביטויים וזהויות" count={subjects.length}>
-          {subjects.slice(0, 14).map((s) => (
-            <div className="cud-row" key={s.text}>
-              <div className="cud-row-main"><b>{s.text}</b></div>
-              <div className="cud-row-meta">
-                {s.origins.map((o) => <Tag key={o}>{o}</Tag>)}
-                {s.existingGraphIdentity && <Tag type="identity">✓ קיים בעץ</Tag>}
-                {s.existingResearchObject && <Tag type="identity">✓ קיים במחקר</Tag>}
-                {!s.existingGraphIdentity && <Tag type="open">resolve identity</Tag>}
-              </div>
+      <div className="cud-answers">
+        <QuestionPanel
+          number="1"
+          icon="📜"
+          title="מה צבי אומר?"
+          subtitle="טענות, מראי־מקום וקשרים שנכתבו במקור — עדיין לא אמת קנונית."
+          tone="source"
+          count={sourceCount}
+          footer="SOURCE CLAIM ≠ FACT · מראה־מקום שנמצא בטקסט ≠ exact-witness verified"
+        >
+          {refs.slice(0, 6).map((r) => (
+            <div className="cud-row" key={`ref-${r.raw}`}>
+              <div className="cud-row-main"><b>{r.raw}</b></div>
+              <div className="cud-row-meta"><Tag>מראה מקום</Tag><Tag type="open">טרם אומת מול העד בשכבה הזו</Tag></div>
             </div>
           ))}
-        </Card>
+          {relations.slice(0, 8).map((r, i) => (
+            <div className="cud-row" key={`source-rel-${r.left}-${r.right}-${i}`}>
+              <div className="cud-row-main"><b>{r.left} ↔ {r.right}</b></div>
+              <div className="cud-row-meta"><Tag type="claim">טענת מקור</Tag><Tag>{r.cue}</Tag></div>
+            </div>
+          ))}
+          {compound.slice(0, 4).map((c, i) => (
+            <div className="cud-row" key={`source-compound-${i}`}>
+              <div className="cud-row-main"><b>{c.raw || c.text || c.expression || "ביטוי מורכב"}</b>{c.result != null && <strong>{c.result}</strong>}</div>
+              <div className="cud-row-meta"><Tag type="claim">{c.status || "candidate"}</Tag></div>
+            </div>
+          ))}
+          {!sourceCount && <p className="cud-muted">לא חולצה כרגע טענה או אסמכתה מפורשת מהמקור.</p>}
+        </QuestionPanel>
 
-        <Card icon="🔢" title="חישובים מהמנוע הקנוני" count={calculationGroups.length}>
+        <QuestionPanel
+          number="2"
+          icon="🔢"
+          title="מה המנועים החזירו?"
+          subtitle="תוצאות חישוביות מהמסלול הקנוני. תוצאת מנוע אינה מאשרת אוטומטית את הפרשנות של המקור."
+          tone="engine"
+          count={calculationGroups.length}
+          footer="ENGINE RESULT ≠ SOURCE CLAIM VERIFIED · MATCH מוצג רק כאשר באמת קיים claim שנבדק"
+        >
           {calculationGroups.slice(0, 10).map(([subject, rows]) => (
-            <div className="cud-row" key={subject}>
+            <div className="cud-row" key={`calc-${subject}`}>
               <div className="cud-row-main"><b>{subject}</b><strong>{rows.find((r) => r.method === "ragil")?.value ?? rows[0]?.value}</strong></div>
               <div className="cud-row-meta">
-                {rows.slice(0, 5).map((r) => <Tag type="fact" key={`${r.method}-${r.value}`}>{labels[r.method] || r.method}={r.value}</Tag>)}
+                {rows.slice(0, 5).map((r) => (
+                  <Tag type="fact" key={`${r.method}-${r.value}`}>
+                    {labels[r.method] || r.method}={r.value} · {r.verificationState === "match" ? "MATCH" : "ENGINE RESULT"}
+                  </Tag>
+                ))}
                 {rows.length > 5 && <Tag>+{rows.length - 5} שיטות</Tag>}
               </div>
             </div>
           ))}
           {!calculationGroups.length && <p className="cud-muted">לא נמצאו כרגע ביטויים כשירים למסלול גימטריה קנוני.</p>}
-        </Card>
+        </QuestionPanel>
 
-        <Card icon="🔗" title="טענות קשר שהמקור עצמו עושה" count={relations.length + compound.length}>
-          {relations.map((r, i) => (
-            <div className="cud-row" key={`${r.left}-${r.right}-${i}`}>
-              <div className="cud-row-main"><b>{r.left} ↔ {r.right}</b></div>
-              <div className="cud-row-meta"><Tag type="claim">CLAIM</Tag><Tag>{r.cue}</Tag><Tag type="open">Human Gate</Tag></div>
-            </div>
-          ))}
-          {compound.slice(0, 6).map((c, i) => (
-            <div className="cud-row" key={`compound-${i}`}>
-              <div className="cud-row-main"><b>{c.raw || c.text || c.expression || "ביטוי מורכב"}</b>{c.result != null && <strong>{c.result}</strong>}</div>
-              <div className="cud-row-meta"><Tag type={String(c.status || "").includes("VERIFIED") ? "fact" : "claim"}>{c.status || "candidate"}</Tag></div>
-            </div>
-          ))}
-          {!relations.length && !compound.length && <p className="cud-muted">לא חולצה טענת-קשר מפורשת. אין בכך קביעה שאין קשר מחקרי.</p>}
-        </Card>
-
-        <Card icon="📖" title="מראי מקום וראיות מקור" count={refs.length}>
-          {refs.map((r) => (
-            <div className="cud-row" key={r.raw}>
-              <div className="cud-row-main"><b>{r.raw}</b></div>
-              <div className="cud-row-meta"><Tag>source reference</Tag><Tag type="open">exact witness לא נבדק כאן</Tag></div>
-            </div>
-          ))}
-          {!refs.length && <p className="cud-muted">לא זוהה מראה-מקום מובנה בטקסט.</p>}
-        </Card>
-
-        <Card icon="🌳" title="מה כבר קיים במערכת" count={graph.length + existing.length}>
+        <QuestionPanel
+          number="3"
+          icon="🌳"
+          title="מה כבר קיים אצלנו?"
+          subtitle="זהויות גרף ו־Research Objects שנמצאו מחדש — המטרה היא לחבר לקיים, לא לשכפל."
+          tone="known"
+          count={knownCount}
+          footer="EXISTING IDENTITY → LINK, DON'T DUPLICATE · Research Object ≠ Node"
+        >
           {graph.slice(0, 10).map((g, i) => (
             <div className="cud-row" key={`g-${g.nodeId}-${i}`}>
               <div className="cud-row-main"><b>{g.term}</b><strong>{g.label}</strong></div>
@@ -338,27 +364,71 @@ function DecompositionView({ result }) {
               <div className="cud-row-meta"><Tag type="identity">Research Object</Tag><Tag>{r.status}</Tag>{r.engineVerified && <Tag type="fact">engine verified</Tag>}</div>
             </div>
           ))}
-          {!graph.length && !existing.length && <p className="cud-muted">לא נמצאה כרגע חפיפה ישירה לזהות קיימת.</p>}
-        </Card>
+          {!knownCount && <p className="cud-muted">לא נמצאה כרגע חפיפה ישירה לזהות או ממצא קיים.</p>}
+        </QuestionPanel>
 
-        <Card icon="🚧" title="מה עדיין אסור לנו להפוך לעץ" count={unresolved.length}>
-          {unresolved.slice(0, 14).map((u, i) => (
-            <div className="cud-row" key={`${u.kind}-${i}`}>
+        <QuestionPanel
+          number="4"
+          icon="⚖️"
+          title="מה מחכה להחלטה שלך?"
+          subtitle="קשרים וזהויות שעדיין אינם מוכנים לעץ. כאן המערכת עוצרת ולא מחליטה במקומך."
+          tone="decision"
+          count={decisionCount}
+          footer="אין כאן פעולה אוטומטית · פעולות Human Gate יתחברו רק אחרי write-path audit"
+        >
+          {relations.slice(0, 8).map((r, i) => (
+            <div className="cud-row" key={`decision-rel-${r.left}-${r.right}-${i}`}>
+              <div className="cud-row-main"><b>{r.left} ↔ {r.right}</b></div>
+              <div className="cud-row-meta"><Tag type="claim">RELATION CANDIDATE</Tag><Tag type="open">דורש Human Gate</Tag></div>
+            </div>
+          ))}
+          {unresolved.slice(0, 10).map((u, i) => (
+            <div className="cud-row" key={`unresolved-${u.kind}-${i}`}>
               <div className="cud-row-main"><b>{u.label}</b></div>
               <div className="cud-row-meta"><Tag type="open">OPEN</Tag><Tag>{u.kind}</Tag></div>
               <p className="cud-muted">{u.reason}</p>
             </div>
           ))}
-          {!unresolved.length && <p className="cud-muted">לא זוהה כרגע blocker של identity/witness בשכבת הפירוק.</p>}
-        </Card>
-
-        {d.interpretation?.text && (
-          <Card icon="🤖" title="מבט מחקרי של AI — פרשנות בלבד" wide>
-            <div className="cud-ai">{d.interpretation.text}</div>
-            <div className="cud-row-meta"><Tag type="claim">INTERPRETATION</Tag><Tag type="open">לא Canonical</Tag></div>
-          </Card>
-        )}
+          {!decisionCount && <p className="cud-muted">לא זוהתה כרגע החלטת זהות/יחס שמחכה לשער שלך.</p>}
+        </QuestionPanel>
       </div>
+
+      <details className="cud-details">
+        <summary>🔬 פתח פירוט מחקרי מלא</summary>
+        <div className="cud-grid cud-detail-grid">
+          <Card icon="🔤" title="כל המילים, הביטויים והזהויות" count={subjects.length}>
+            {subjects.slice(0, 18).map((s) => (
+              <div className="cud-row" key={s.text}>
+                <div className="cud-row-main"><b>{s.text}</b></div>
+                <div className="cud-row-meta">
+                  {s.origins.map((o) => <Tag key={o}>{o}</Tag>)}
+                  {s.existingGraphIdentity && <Tag type="identity">✓ קיים בעץ</Tag>}
+                  {s.existingResearchObject && <Tag type="identity">✓ קיים במחקר</Tag>}
+                  {!s.existingGraphIdentity && <Tag type="open">identity unresolved</Tag>}
+                </div>
+              </div>
+            ))}
+          </Card>
+
+          <Card icon="🧭" title="תמונת מצב" count={6}>
+            <div className="cud-summary cud-summary-inside">
+              <div className="cud-stat gold"><b>{counts.subjects || 0}</b><small>נושאים</small></div>
+              <div className="cud-stat green"><b>{counts.calculations || 0}</b><small>תוצאות מנוע</small></div>
+              <div className="cud-stat orange"><b>{counts.sourceClaims || 0}</b><small>טענות מקור</small></div>
+              <div className="cud-stat"><b>{counts.sourceReferences || 0}</b><small>מראי מקום</small></div>
+              <div className="cud-stat"><b>{counts.graphMatches || 0}</b><small>זהויות בעץ</small></div>
+              <div className="cud-stat"><b>{counts.unresolved || 0}</b><small>פתוח</small></div>
+            </div>
+          </Card>
+
+          {d.interpretation?.text && (
+            <Card icon="🤖" title="מבט מחקרי של AI — פרשנות בלבד" wide>
+              <div className="cud-ai">{d.interpretation.text}</div>
+              <div className="cud-row-meta"><Tag type="claim">INTERPRETATION</Tag><Tag type="open">לא Canonical</Tag></div>
+            </Card>
+          )}
+        </div>
+      </details>
 
       <div className="cud-truthbar">INPUT ≠ EXTRACTION ≠ CALCULATION ≠ CLAIM ≠ EVIDENCE ≠ FACT ≠ INTERPRETATION ≠ CANONICAL ≠ PUBLISHED · המנוע מגלה ומארגן; צוריאל חוקר, מפרש ובוחר.</div>
     </div>
