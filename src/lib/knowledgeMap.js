@@ -81,7 +81,10 @@ export const BUILD_TRACKS = [
   }
 ];
 
-export const stagePercent = stage => Math.max(0, Math.min(100, Number(stage || 0) * 25));
+// Public progress is deliberately conservative. Stage is a maturity band, not a completion percentage.
+// 100% is reserved for a capability that is actually complete and publicly open.
+const STAGE_PROGRESS = { 1:18, 2:36, 3:58, 4:68 };
+export const stagePercent = stage => STAGE_PROGRESS[Number(stage || 0)] || 0;
 export const BUILD_PROGRESS = Math.round(
   BUILD_TRACKS.reduce((sum, t) => sum + stagePercent(t.stage), 0) / BUILD_TRACKS.length
 );

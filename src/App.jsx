@@ -19,6 +19,7 @@ import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 import SitePromoPopup from "./components/SitePromoPopup.jsx";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -252,6 +253,7 @@ export default function App() {
         <LegacyRedirect />
         <OnboardingGate />
         <Analytics />
+        <SpeedInsights />
         <GlobalChrome>
           <UpdateBanner />
           <SitePromoPopup />

@@ -1,5 +1,22 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+> ## 🔒 RESEARCH OS CANONICAL LOCK v1 — 4.9.2026
+> **LOCKED:** `docs/research-os-canonical-lock-v1.md` הוא חוזה המעבר מהשמורים/היסטוריה הקיימים להיכל העתידי.
+> עיקרון: **One Tree · One Research OS · Many Lenses**. אין לבנות מערכת שמורים/History/Workspace מקבילה.
+> `research_items` נשאר מאגר חברות ה-Workspace; `user_research.history/collections/journeys` נשמר ומקבל adapter קדימה; `journey_saves` משמש רציפות מסע; `research_objects` מיועד לטענות מחקר durable בלבד.
+> כל כלי/עולם מתכנס ל-`➕ למחקר` עם זהות ישות יציבה: number/phrase/verse/post/person/name/book/source/code/ELS/image/date/topic/convergence/insight/relation.
+> Funnel היעד: **DISCOVER → SAVE → REOPEN → EXPLORE → DISCOVER-NEXT → RETURN**. חוסר מרכזי: coverage אחיד לכל סוגי התוכן + exact reopen telemetry + ELS bridge + History adapter + Collections/Journeys UX + Raziel continuity.
+> **אסור migration הרסני של נתוני משתמש קיימים. Adapter-first.**
+>
+
+> ## 📊 VERCEL ANALYTICS CONNECTOR V1 — 4.9.2026
+> **החלטה:** Vercel אינו מערכת אנליטיקה מקבילה אלא מקור-אמת משלים בתוך מרכז-הצמיחה הקיים. Growth Center מציג יחד: first-party SOD1820 + GA4 + Vercel Web Analytics + Clarity.
+> **מימוש:** endpoint אדמין read-only `/api/vercel-insights` קורא את Web Analytics API הרשמי של Vercel באמצעות secret שרת `VERCEL_API_TOKEN`; הטוקן לעולם אינו נשלח לדפדפן. `getVercelInsights(days)` מחבר אותו ל-`GrowthCenterTab`.
+> **נתונים:** visitors · pageviews · views/visitor · שינוי מול תקופה קודמת · top pages · referrers · devices · countries · browsers. אותם טווחים 1/7/30/90 ימים כמו GA4/המערכת הפנימית.
+> **Truth rule:** אין "מספר מנצח" יחיד. המערכת מציגה את שלושת המקורות זה לצד זה; התאמה בכיוון בין המקורות = confidence גבוה יותר במגמה. Bot/Firewall request metrics נשארים שכבת-תשתית נפרדת ולא מתערבבים עם Web Analytics visitors.
+> **מצב הפעלה:** הקוד מלא; אם `VERCEL_API_TOKEN` חסר, ה-UI מציג "המחבר מוכן" בלי לשבור את הטאב. אין schema חדש, אין טבלת אנליטיקה חדשה, אין token בצד-לקוח.
+>
+
 > ## 🧭 PUBLIC BUILD MAP SYNC 4.9.2026 — Home ↔ System Map
 > **החלטת צוריאל:** דף-הבית ומפת-המערכת מציגים אותו מצב-בנייה מאותו מקור; המפה היא הגרסה העמוקה יותר עם מדדים, אחוזים והקשר ציבורי.
 > **SSOT ציבורי ל-progress:** `src/lib/knowledgeMap.js::BUILD_TRACKS` מזין גם את מד-הבנייה בדף-הבית וגם את `/map`. `BUILD_PROGRESS` נגזר מאותו מערך — אין אחוז ידני שני.
