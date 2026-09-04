@@ -6,7 +6,8 @@ export const KNOWLEDGE_WORLDS = [
     items: [
       { label: "כל הפוסטים", emoji: "📜", to: "/post", note: "ארכיון הידע החי" },
       { label: "גלריות ומדיה", emoji: "🖼️", to: "/gallery", note: "2,558 פריטי גלריה" },
-      { label: "התכנסויות / נושאי מחקר", emoji: "✦", locked: true, state: "בפיתוח", note: "206 מאושרות · העמוד המרכזי לרשימה עדיין בבנייה" },
+      { label: "ציר ההתגלות", emoji: "🌅", to: "/timeline", note: "אירועים והתכנסויות על ציר אחד" },
+      { label: "התכנסויות / נושאי מחקר", emoji: "✦", locked: true, state: "בבנייה", note: "206 מאושרות · עמודי /topic/:slug חיים, אינדקס מרכזי עדיין חסר" },
       { label: "מסעות גילוי", emoji: "🧭", locked: true, state: "בקרוב", note: "מסע מודרך בין קשרים" },
       { label: "מסעות תלת־ממדיים", emoji: "◈", locked: true, state: "בקרוב", note: "להיכנס אל תוך הידע" },
       { label: "גלקסיות גילוי", emoji: "✺", locked: true, state: "בקרוב", note: "עולמות ידע מחוברים" },
@@ -19,7 +20,8 @@ export const KNOWLEDGE_WORLDS = [
     items: [
       { label: "דף המספר", emoji: "🔢", to: "/number", note: "מספר → ביטויים → קשרים" },
       { label: "מחשבון מקצועי", emoji: "🧮", to: "/research?tool=gematria", note: "חישוב והשוואת שיטות" },
-      { label: "גימטריה מרחבית", emoji: "🧊", locked: true, state: "בבנייה", note: "תשתית מחקר קיימת · עדיין לא פתוח כמוצר פעיל" },
+      { label: "עץ המספרים", emoji: "🌳", to: "/numbers", note: "Convergence Galaxy · עדשה חיה על קשרי המספרים" },
+      { label: "גימטריה מרחבית", emoji: "🧊", locked: true, state: "בבנייה", note: "עמוד ותשתית קיימים · נשאר סגור כמוצר עד להשלמת החוויה" },
       { label: "השוואה רב־ממדית", emoji: "⇄", locked: true, state: "בפיתוח", note: "שיטות כשכבות של אותו אובייקט" },
       { label: "Gematria 3D", emoji: "◫", locked: true, state: "בקרוב", note: "לנוע בין שכבות החישוב" },
       { label: "מחקר מספר עם רזיאל", emoji: "AI", locked: true, state: "בקרוב", note: "מספר → אדם → פסוק → צופן" },
@@ -31,7 +33,8 @@ export const KNOWLEDGE_WORLDS = [
     stat: "129 רשומות ELS",
     items: [
       { label: "דילוגי אותיות", emoji: "🔠", to: "/code", icon: "dilugim", note: "חיפוש ומטריצות" },
-      { label: "ספריית צפנים", emoji: "▦", to: "/archive", note: "מחקרים וממצאים קיימים" },
+      { label: "ספריית צפנים", emoji: "▦", to: "/codes", note: "הספרייה הקנונית של הצפנים והמטריצות שפורסמו" },
+      { label: "עמודי צופן קנוניים", emoji: "⌘", to: "/codes", note: "כל צופן מפורסם נפתח ב-/codes/:slug" },
       { label: "חיפוש שמות ואנשים", emoji: "👤", locked: true, state: "בפיתוח", note: "שם כחלק מחיפוש רחב" },
       { label: "מטריצות רב־שכבתיות", emoji: "≋", locked: true, state: "בקרוב", note: "שכבות מעל ומתחת" },
       { label: "ELS 3D", emoji: "◈", locked: true, state: "בקרוב", note: "מסע מרחבי בתוך הצופן" },
@@ -44,7 +47,9 @@ export const KNOWLEDGE_WORLDS = [
     stat: "23,204 פסוקים · 304,805 רשומות טקסט",
     items: [
       { label: "בית המדרש", emoji: "📖", to: "/beit-midrash", note: "טקסט, פסוק ושיטות" },
-      { label: "מקורות וטקסטים", emoji: "▤", to: "/beit-midrash", note: "חיפוש ולימוד במקורות" },
+      { label: "חיפוש פסוקים וגימטריה", emoji: "📜", to: "/verse-gematria", note: "עדשה חיה על קורפוס הפסוקים" },
+      { label: "קשרי שפות", emoji: "🌍", to: "/languages", note: "עדשת שפות קיימת" },
+      { label: "מקורות וטקסטים", emoji: "▤", locked: true, state: "בבנייה", note: "אינדקס מקורות ייעודי ייפתח רק לאחר חיבור למקור הקנוני" },
       { label: "ספרים סרוקים", emoji: "📚", locked: true, state: "מדידה בהכנה", note: "מונה ספרים יופיע רק ממקור קנוני" },
       { label: "ניתוח ספר עם רזיאל", emoji: "AI", locked: true, state: "בקרוב", note: "שמות, מספרים, פסוקים וקשרים" },
       { label: "השוואה בין ספרים", emoji: "⇄", locked: true, state: "בקרוב", note: "רעיונות ומקורות בין תקופות" },
@@ -56,12 +61,13 @@ export const KNOWLEDGE_WORLDS = [
     kicker: "אותו ידע — הרבה דרכי כניסה",
     stat: "14 שנות תוכן · 1,177 פוסטים היסטוריים",
     items: [
-      { label: "לפי שנים", emoji: "🕰️", to: "/post", note: "2013–2026" },
-      { label: "לפי קטגוריות", emoji: "▦", to: "/post", note: "מפת התוכן הקיימת" },
+      { label: "כל ארכיון הפוסטים", emoji: "🕰️", to: "/post", note: "2013–2026" },
+      { label: "לפי קטגוריות", emoji: "▦", locked: true, state: "בבנייה", note: "עמודי /category/:slug קיימים, אינדקס קטגוריות מרכזי טרם נבנה" },
       { label: "לפי נושאים", emoji: "✦", locked: true, state: "בבנייה", note: "נושא → תוכן → קשרים · אינדקס ציבורי ייעודי טרם נבנה" },
       { label: "לפי אנשים ושמות", emoji: "👤", locked: true, state: "בפיתוח", note: "כל מה שהאתר יודע על אדם" },
       { label: "לפי מספרים", emoji: "🔢", to: "/number", note: "כניסה לארכיון דרך מספר" },
-      { label: "לפי פסוקים וצפנים", emoji: "⌘", locked: true, state: "בקרוב", note: "מקור → צופן → מחקר" },
+      { label: "לפי פסוקים", emoji: "⌘", to: "/verse-gematria", note: "חיפוש וחישוב בתוך פסוקי התנ״ך" },
+      { label: "לפי צפנים", emoji: "🔠", to: "/codes", note: "הספרייה הקנונית של צפני ELS שפורסמו" },
     ],
   },
   {
@@ -70,7 +76,7 @@ export const KNOWLEDGE_WORLDS = [
     stat: "1,876 עדכונים · 30 תורמים",
     items: [
       { label: "הצ׳אט ההיסטורי", emoji: "💬", to: "/community/chat", note: "ארכיון השיחות ההיסטורי של הקהילה" },
-      { label: "חוקרים ותורמים", emoji: "👥", to: "/community", note: "אנשים סביב גוף הידע" },
+      { label: "חוקרים ותורמים", emoji: "👥", to: "/community/researchers", note: "אינדקס החוקרים והתורמים" },
       { label: "התכנסויות", emoji: "◉", locked: true, state: "בקרוב", note: "מפגשים סביב נושא או מחקר" },
       { label: "התכנסויות חיות", emoji: "●", locked: true, state: "בקרוב", note: "מרחב חי בזמן אמת" },
       { label: "מחקר משותף", emoji: "⌁", locked: true, state: "בקרוב", note: "כמה חוקרים, גוף ידע אחד" },
@@ -82,18 +88,21 @@ export const KNOWLEDGE_WORLDS = [
 export const QUICK_NAV_GROUPS = [
   { title: "🔬 לחקור", items: [
     { label:"דף המספר", emoji:"🔢", to:"/number" },
+    { label:"עולם המספרים", emoji:"✺", to:"/numbers" },
     { label:"בית המדרש", emoji:"📖", to:"/beit-midrash" },
     { label:"דילוגי אותיות", emoji:"🔠", to:"/code", icon:"dilugim" },
+    { label:"ספריית צפנים", emoji:"▦", to:"/codes" },
     { label:"מחשבון מקצועי", emoji:"🧮", to:"/research?tool=gematria" },
   ]},
   { title: "✨ לגלות", items: [
     { label:"פוסטים", emoji:"📜", to:"/post" },
-    { label:"גלריות", emoji:"🖼️", to:"/archive?tab=galleries" },
+    { label:"ציר ההתגלות", emoji:"🕰️", to:"/timeline" },
+    { label:"גלריות", emoji:"🖼️", to:"/gallery" },
     { label:"מפת המערכת", emoji:"🗺️", to:"/map" },
   ]},
   { title: "💬 קהילה", items: [
-    { label:"הצ׳אט", emoji:"💬", to:"/community/chat" },
-    { label:"קהילה", emoji:"👥", to:"/community" },
+    { label:"הצ׳אט ההיסטורי", emoji:"💬", to:"/community/chat" },
+    { label:"חוקרים ותורמים", emoji:"👥", to:"/community/researchers" },
   ]},
 ];
 

@@ -1,5 +1,14 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+> ## 🗺️ SYSTEM MAP RECONCILIATION 4.9.2026 — Canonical Navigation Gate
+> **מטרה:** מפת-המערכת הציבורית היא Projection בלבד של ה-SSOT הקיים — `project_codex` + live DB + `main` routes/components. אין להמציא יעד, תיקייה או סטטוס מתוך UI בלבד.
+> **בוצע:** Audit מול `project_codex` (כולל `convergence_law` / `reality_graph_law`) + `src/App.jsx` + owners חיים. תוקנו יעדים: ELS tool=`/code` · ספריית-צפנים קנונית=`/codes` · צופן יחיד=`/codes/:slug` · תיקיית-מחקר ELS=`/codes/מחקר` (public/unlisted) · ELS Work Area=`/lab/els` · גלריות=`/gallery` · חוקרים=`/community/researchers` · ציר-ההתגלות=`/timeline` · עץ-המספרים=`/numbers` · פסוקים=`/verse-gematria` · קשרי-שפות=`/languages`.
+> **מצבים שלא מזייפים יעד:** `מקורות וטקסטים` נשאר **בבנייה** עד אינדקס קנוני ייעודי; `התכנסויות/נושאים` — עמודי `/topic/:slug` חיים אבל אינדקס-מרכזי בבנייה; `לפי קטגוריות` — `/category/:slug` חי אבל אינדקס קטגוריות מרכזי בבנייה; גימטריה-מרחבית — implementation קיים אך המפה מציגה **בבנייה** לפי החלטת צוריאל עד השלמת חוויית-המוצר.
+> **UX:** נוסף ל-`/map` מבנה “יקום SOD1820” pseudo-3D קל: גוף-ידע אחד במרכז + עולמות מסביב + קווי-קשר; אינו Graph truth חדש ואינו Three.js כבד. הכרטיסים המפורטים מתחת נשארים שכבת-הניווט המדויקת.
+> **Guardrail חדש:** `docs/system-map-gate.md` — לפני כל שינוי ניווט/מפת-מערכת/סטטוס ציבורי חובה: Codex → DB owner → route → implementation → LIVE/BUILT_NOT_PUBLIC/FUTURE. UI absence לעולם לא מוכיח capability absence.
+> **קבצים:** `src/lib/knowledgeMap.js` · `src/pages/NavigationCenterPage.jsx` · `docs/system-map-gate.md`. **אין schema/DB/engine חדש.** המפה אינה SSOT; היא עדשה על ה-SSOT.
+>
+
 > ## 🏁 RECONCILIATION 3.9.2026 (`MASTER_ROADMAP_3SEP_CORPUS_SOURCE_RESEARCH_RECONCILIATION`, handoff GPT/ZURIEL `work_log cc1993f8` → actor=CLAUDE) — עדכון-מתוארך גובר, כל-הבאנרים שמתחת **נשמרים-כלשונם, לא-נמחקים**
 > **PRE-ELS CORPUS CLOSURE:** Posts `1,283/1,283` ו-Galleries `2,558/2,558` — חשבונאים במלואם וסגורים ברמת Human-Gate סופית לצורך PRE-ELS; **`PRE-ELS FINITE CLOSURE = READY`, `ELS HOLD = RELEASE`.** Pointer: `work_log 13434460-31d5-493b-b459-ad1fdc24d189` (קוארדינטור-סינתזה-סופי) · Posts-sweep `be204939` · Galleries-sweep `e51e13cb`. **אין** סריקת-קורפוס-רחבה נוספת כברירת-מחדל — פותחים-מחדש רק לפי-ראיה-חדשה-שיכולה-לשנות-החלטה. פירוט מלא + הבחנה בין verdict-הסוויפ (ACCOUNTED) לפסיקת-ה-SUFFICIENT (הקוארדינטור): Master State §23.28.
 > **SOURCE RESEARCH:** אהבת תורה → Master State §23.26; ספר הפליאה → Master State §23.27 + `research_intake_foundation_contract` §9 (DB-live). **מנגנון-Source-Research אוניברסלי אחד** — אין Book Lab/Book OS/Book Graph/Book Context store נפרד.
