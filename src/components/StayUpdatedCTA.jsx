@@ -10,7 +10,7 @@ import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 // "הישאר מעודכן" — מייל הוא הקריאה הראשית והישירה (שדה גלוי, בלי מודאל).
 // Push = אופציה משנית קטנה מתחת (רק אם מוגדר VAPID). בלי popup אוטומטי.
 // variant: "home" (קריאה ראשית) | "footer" (עדין). source נשמר ל-subscribers.
-export default function StayUpdatedCTA({ variant = "home" }) {
+export default function StayUpdatedCTA({ variant = "home", source: sourceOverride = null, title = null, description = null }) {
   const cc = chromeColors(useThemeMode());
   const { user } = useAuth();
   const [email, setEmail] = useState("");
@@ -18,7 +18,7 @@ export default function StayUpdatedCTA({ variant = "home" }) {
   const [done, setDone] = useState("");   // "" | "email" | "push"
   const [err, setErr] = useState("");
 
-  const source = variant === "footer" ? "footer-stay" : "home-stay";
+  const source = sourceOverride || (variant === "footer" ? "footer-stay" : "home-stay");
   const pushReady = PUSH_CONFIGURED && pushSupported();
 
   async function submitEmail(e) {
@@ -103,10 +103,10 @@ export default function StayUpdatedCTA({ variant = "home" }) {
   return (
     <div style={{ textAlign: "center", direction: "rtl" }}>
       <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,27px)", fontWeight: 800, marginBottom: 10 }}>
-        אל תפספסו את מה שנכנס למערכת
+        {title || "אל תפספסו את מה שנכנס למערכת"}
       </div>
       <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 480, margin: "0 auto 18px" }}>
-        בכל שבוע מתווספים תכנים חדשים, חיפושי גימטריה, תגליות ועדכונים. השאירו מייל — ותהיו תמיד מעודכנים.
+        {description || "בכל שבוע מתווספים תכנים חדשים, חיפושי גימטריה, תגליות ועדכונים. השאירו מייל — ותהיו תמיד מעודכנים."}
       </p>
 
       {done ? (
