@@ -47,6 +47,7 @@ import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 import { fetchHomePosts } from "../lib/homeUpdates.js";
+import { useStream, STREAMS } from "../lib/stream.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -102,6 +103,8 @@ const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div ke
 export default function HomeNewPage() {
   const P = usePalette();
   const nav = useNavigate();
+  const stream = useStream() || "kingdom";
+  const lens = STREAMS[stream] || STREAMS.kingdom;
   const { isAdmin } = useAuth();
   const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה (לא דף מספר — זמני עד שזרם המציאות יושק)
   const [gateImg, setGateImg] = useState(null); // 🖼️ תמונת-שער (שבילי שפה / כאן מתחילים) — נגיעה מגדילה
@@ -457,9 +460,9 @@ export default function HomeNewPage() {
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
           {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
               מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
-          <div className="hn-emblem">SOD1820 · קוד המציאות</div>
-          <h2 className="hn-compact-brand">האתר נבנה מחדש מבפנים</h2>
-          <p className="hn-compact-sub">המחקר, המספרים והחיבורים ממשיכים לעבוד — ובמקביל אנחנו בונים את הדור הבא של היכל הגילוי.</p>
+          <div className="hn-emblem">SOD1820 · {lens.label}</div>
+          <h2 className="hn-compact-brand">SOD1820 נבנה מחדש מבפנים</h2>
+          <p className="hn-compact-sub">המחקר, המספרים והחיבורים ממשיכים לעבוד — ובמקביל אנחנו בונים מחדש את האתר כולו, שכבה אחרי שכבה.</p>
           <div className="hn-hero-actions">
             <form onSubmit={go} className="hn-search">
               <span className="hn-mag" aria-hidden="true">🔍</span>
@@ -505,7 +508,7 @@ export default function HomeNewPage() {
           <div className="hn-build-steps">
             <span>✅ זהות ואנליטיקה</span>
             <span>✅ מנועי מספר ומחקר</span>
-            <span>🏗️ היכל הגילוי</span>
+            <span>🏗️ ההיכל</span>
             <span>⏳ רזיאל והחיבורים</span>
           </div>
           <div style={{ textAlign: "center", marginTop: 13, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>
