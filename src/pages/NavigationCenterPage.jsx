@@ -4,6 +4,58 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { KNOWLEDGE_WORLDS, BUILD_PROGRESS } from "../lib/knowledgeMap.js";
 
+function NumbersDepthPreview() {
+  const P = usePalette();
+  const nums = ["1820","506","358","424","67","337","683","1234","207","661","756","785","891","218","456","386","101","72","26","18","144","2701","730","58","85","314","999","42"];
+  const words = ["אור","בינה","בראשית","מלכות","חכמה"];
+  return (
+    <section className="ndp" aria-label="המחשה חזותית של עומק מערכת המספרים" style={{
+      position:"relative",height:"clamp(300px,42vw,430px)",maxWidth:920,margin:"10px auto 30px",
+      overflow:"hidden",borderRadius:26,border:`1px solid ${P.borderStrong}`,
+      background:"radial-gradient(circle at 50% 48%,rgba(79,58,120,.32),rgba(9,11,18,.96) 58%,#050609 100%)",
+      boxShadow:"inset 0 0 100px rgba(0,0,0,.7),0 20px 60px rgba(0,0,0,.18)",perspective:"850px"
+    }}>
+      <div className="ndp-stars" aria-hidden />
+      <div className="ndp-space" aria-hidden>
+        {nums.map((n,i)=>{
+          const x=(i*37+13)%94+3, y=(i*61+17)%82+8, z=((i*47)%520)-260;
+          const s=.68+((i*29)%70)/100, o=.28+((i*17)%62)/100;
+          return <span key={n+"-"+i} className={"ndp-num "+(n==="1820"?"anchor":"")} style={{
+            left:`${x}%`,top:`${y}%`,opacity:o,fontSize:`${s}rem`,
+            transform:`translate(-50%,-50%) translateZ(${z}px)`
+          }}>{n}</span>
+        })}
+        {words.map((w,i)=><span key={w} className="ndp-word" style={{left:`${12+i*19}%`,top:`${25+(i%3)*23}%`,transform:`translateZ(${-150+i*55}px)`}}>{w}</span>)}
+        <svg className="ndp-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {Array.from({length:18},(_,i)=><line key={i} x1={(i*37+16)%94} y1={(i*61+22)%86} x2={(i*53+43)%94} y2={(i*31+38)%86} />)}
+        </svg>
+      </div>
+      <div className="ndp-copy">
+        <strong>הצצה לעומק המערכת</strong>
+        <span>מספרים · ביטויים · טקסטים · קשרים · שכבות</span>
+      </div>
+      <div className="ndp-note">המחשה חזותית של המרחב העתידי · אינה מפת הנתונים בפועל</div>
+      <style>{`
+        .ndp-space{position:absolute;inset:0;transform-style:preserve-3d;animation:ndpDrift 18s ease-in-out infinite alternate}
+        .ndp-num,.ndp-word{position:absolute;white-space:nowrap;transform-style:preserve-3d;user-select:none}
+        .ndp-num{font-family:${F.numeric};font-weight:800;color:#f2d77c;text-shadow:0 0 18px rgba(242,215,124,.42)}
+        .ndp-num.anchor{font-size:clamp(2.1rem,6vw,4.5rem)!important;opacity:.96!important;left:50%!important;top:48%!important;transform:translate(-50%,-50%) translateZ(150px)!important;color:#fff0a8;text-shadow:0 0 14px rgba(255,224,120,.8),0 0 50px rgba(139,92,246,.48)}
+        .ndp-word{font-family:${F.regal};font-size:clamp(.8rem,2vw,1.25rem);color:rgba(211,197,235,.25);letter-spacing:.08em}
+        .ndp-lines{position:absolute;inset:0;width:100%;height:100%;opacity:.22}
+        .ndp-lines line{stroke:#cdb9ff;stroke-width:.18}
+        .ndp-stars{position:absolute;inset:-30%;background-image:radial-gradient(circle,rgba(255,255,255,.55) 0 1px,transparent 1.5px);background-size:43px 43px;opacity:.18;transform:rotate(11deg)}
+        .ndp-copy{position:absolute;z-index:5;top:18px;right:20px;display:grid;gap:3px;text-align:right;pointer-events:none}
+        .ndp-copy strong{font-family:${F.regal};font-size:clamp(18px,3vw,27px);color:#f5df91}
+        .ndp-copy span,.ndp-note{font-family:${F.body};color:rgba(235,229,244,.66);font-size:11px}
+        .ndp-note{position:absolute;z-index:5;bottom:12px;left:16px;right:16px;text-align:center}
+        @keyframes ndpDrift{0%{transform:rotateX(2deg) rotateY(-4deg) translateZ(-20px) scale(1.03)}100%{transform:rotateX(-3deg) rotateY(5deg) translateZ(35px) scale(1.08)}}
+        @media(max-width:620px){.ndp{height:330px!important}.ndp-copy{right:14px;top:14px}.ndp-word{opacity:.7}}
+        @media(prefers-reduced-motion:reduce){.ndp-space{animation:none}}
+      `}</style>
+    </section>
+  );
+}
+
 function WorldCard({ world, q }) {
   const P = usePalette();
   const items = useMemo(() => {
@@ -68,7 +120,7 @@ export default function NavigationCenterPage() {
         </div>
       </section>
 
-\n\n      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
+\n\n      <NumbersDepthPreview />\n\n      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
         <input value={q} onChange={e=>setQ(e.target.value)} placeholder="חפשו עולם, כלי, יכולת או משהו שבדרך…"
           style={{width:"100%",boxSizing:"border-box",background:P.card,border:`1px solid ${P.borderStrong}`,borderRadius:999,color:P.ink,fontFamily:F.body,fontSize:15,padding:"12px 18px",outline:"none",textAlign:"center"}} />
       </div>
