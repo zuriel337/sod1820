@@ -69,30 +69,39 @@ const MORE_HIDE = ["/start", "/members", "/lab", "/forum", "/community", "/broad
 // «קהילה» ב-NAV נושאת ילדים (צ'אט · פורום · חוקרים…) שנאבדים כשמרנדרים אותה כאריח-בודד
 // בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
 // ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
-const moreItems = [
-  { label: "דף הבית", emoji: "🏠", to: "/" },
-  ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
-  { label: "צ'אט", emoji: "💬", to: "/community/chat" },
-  { label: "צור קשר", emoji: "✉️", to: "/contact" },
+const MENU_GROUPS = [
+  {
+    title: "🔬 לחקור",
+    items: [
+      { label: "דף המספר", emoji: "🔢", to: "/number" },
+      { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
+      { label: "דילוגי אותיות", emoji: "🔠", to: "/code", icon: "dilugim" },
+      { label: "מחשבון מקצועי", emoji: "🧮", to: "/research?tool=gematria" },
+      { label: "גימטריה מרחבית", emoji: "🧊", to: "/spatial-gematria" },
+    ],
+  },
+  {
+    title: "✨ לגלות",
+    items: [
+      { label: "פוסטים", emoji: "📜", to: "/post" },
+      { label: "גלריות", emoji: "🖼️", to: "/archive?tab=galleries" },
+      { label: "מסעות גילוי", emoji: "🧭", locked: true },
+      { label: "עץ הידע", emoji: "🌳", locked: true },
+    ],
+  },
+  {
+    title: "💬 קהילה",
+    items: [
+      { label: "הצ׳אט", emoji: "💬", to: "/community/chat" },
+      { label: "מרחב מחקר משותף", emoji: "👥", locked: true },
+      { label: "פורום חדש", emoji: "🌐", locked: true },
+    ],
+  },
 ];
 
-// תפריט מובייל בסגנון-אפליקציה — אריחי המדורים הראשיים (פעילים) + "בקרוב" מעומעם
-// הסמלים זהים לאלה שבתוך החלונות עצמם (מחשבון=🧮 כמו בבית המדרש · מנוע המספרים=🔢 כמו בדף המספר)
-// מסודר לפי קבוצות: מחקר (מחשבון · מספרים · היכל) → תוכן (פוסטים · גלריות · ציר) → קהילה → ניווט.
-// מקור-אמת יחיד לאריחי התפריט (מובייל + פאנל-דסקטופ) — סמלים ונוסחים מתואמים בכל המקומות.
-// fav = שלושת הפייבוריטים (מודגשים). locked = בבנייה + מנעול, לא-לחיץ בכל המקומות.
-const MOBILE_TILES = [
-  { e: "🏠", l: "דף הבית", to: "/" },
-  { e: "🔢", l: "דף המספר", to: "/number", fav: true },
-  { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, icon: "dilugim" },
-  { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
-  { e: "🏛️", l: "ההיכל", to: "/research" },
-  { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
-  { e: "🧊", l: "גימטריה מרחבית", to: "/spatial-gematria" },
-  { e: "💬", l: "הצ'אט", to: "/community/chat" },
-  { e: "📜", l: "פוסטים", to: "/post" },
-  { e: "🖼️", l: "גלריות", to: "/archive" },
-];
+const MOBILE_TILES = MENU_GROUPS.flatMap(g => g.items.map(it => ({
+  e: it.emoji, l: it.label, to: it.to, locked: it.locked, icon: it.icon,
+})));
 
 // יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
 const SURPRISE_NUMS = [
@@ -289,7 +298,7 @@ function LockedNavItem({ item }) {
 
 // אופציה ב׳ — כפתור «תפריט» שפותח חלון-אריחים ויזואלי (אותה שפה של אריחי-המובייל).
 // מחזיק את «כל השאר» (קהילה · זרם · שידורים · גלריות · ציר · עץ · פוסטים · צור קשר) במקום אחד.
-function MenuPanel({ items, pathname, cc }) {
+function MenuPanel({ groups, pathname, cc }) {
   const mode = useThemeMode();
   const light = mode === "light";
   const [open, setOpen] = useState(false);
@@ -334,35 +343,29 @@ function MenuPanel({ items, pathname, cc }) {
           boxShadow: pc.shadow,
         }}>
           {/* «כאן מתחילים» כבר קיים כפיל-זהב בשורת-הנאב עצמה — לא כופלים אותו כאן (dedupe). */}
-          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
-            {items.map(it => {
-              const active = isActive(pathname, it.to);
-              return (
-                <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
-                  background: pc.tileBg, border: `1px solid ${active ? pc.tileActive : pc.tileBorder}`,
-                  borderRadius: 14, padding: "16px 6px", textDecoration: "none",
-                  transition: "transform 0.15s, border-color 0.15s, background 0.15s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = active ? pc.tileActive : pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
-                  <span style={{ fontSize: 26, lineHeight: 1 }}>{it.emoji}</span>
-                  <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{it.label}</span>
-                </Link>
-              );
-            })}
-            {!isStandalone() && (
-              <button onClick={async () => { setOpen(false); if (canInstall()) { await promptInstall(); } else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»"); else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»"); }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
-                  background: pc.tileBg, border: `1px solid ${pc.tileBorder}`, borderRadius: 14, padding: "16px 6px", cursor: "pointer",
-                  transition: "transform 0.15s, border-color 0.15s, background 0.15s" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
-                <span style={{ fontSize: 26, lineHeight: 1 }}>📲</span>
-                <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>הורדת האפליקציה</span>
-              </button>
-            )}
+          <div style={{ color: pc.heading, fontFamily: F.ui, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 10px" }}>האתר החדש נבנה סביב שלושה מרחבים</div>
+          <div style={{ display:"grid", gap:14 }}>
+            {groups.map(group => (
+              <section key={group.title}>
+                <div style={{ color:pc.heading, fontFamily:F.ui, fontSize:14, fontWeight:800, padding:"2px 4px 7px" }}>{group.title}</div>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:9 }}>
+                  {group.items.map(it => {
+                    const active = it.to ? isActive(pathname, it.to) : false;
+                    const inner = <>
+                      <span style={{ fontSize:24, lineHeight:1 }}>{it.emoji}</span>
+                      <span style={{ color:it.locked ? pc.bannerSub : pc.tileText, fontFamily:F.ui, fontSize:13, fontWeight:700, textAlign:"center" }}>{it.label}</span>
+                      {it.locked && <span style={{fontSize:9.5,fontWeight:800,color:pc.bannerSub}}>🏗️ בבנייה</span>}
+                    </>;
+                    const style={ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6,
+                      background:pc.tileBg, border:`1px ${it.locked ? "dashed" : "solid"} ${active ? pc.tileActive : pc.tileBorder}`,
+                      borderRadius:14, padding:"13px 6px", textDecoration:"none", opacity:it.locked ? .58 : 1 };
+                    return it.locked
+                      ? <div key={it.label} aria-disabled="true" title="בבנייה" style={{...style,cursor:"not-allowed"}}>{inner}</div>
+                      : <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={style}>{inner}</Link>;
+                  })}
+                </div>
+              </section>
+            ))}
           </div>
         </div>
       )}
@@ -676,7 +679,7 @@ export default function Navbar() {
               🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
-          <MenuPanel items={moreItems} pathname={pathname} cc={cc} />
+          <MenuPanel groups={MENU_GROUPS} pathname={pathname} cc={cc} />
         </div>
 
         {/* 🔎 חיפוש במובייל — הפעולה #1 של אתר-מחקר לא צריכה להיות חבויה במגירה.
