@@ -12,7 +12,7 @@ export const C = {
   goldDeep:     "#1a0e00",
   crimson:      "#7a1320",
   crimsonLight: "#a01f2e",
-  royal:        "#3d1f5c",
+  royal:   "'Assistant', Arial, sans-serif",
   royalLight:   "#6b3fa0",
   surface:      "#0d0a0e",
   surface2:     "#140f0c",
@@ -28,12 +28,21 @@ export const C = {
 export const GALLERY_BG = "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.07), transparent 60%), linear-gradient(180deg, #16110c, #0d0a07 78%)";
 export const GALLERY_BG_BASE = "#0d0a07";
 
+// ===== DESIGN CONTRACT V1 · TYPOGRAPHY =====
+// חוק: רכיב חדש לא בוחר font-family בעצמו. משתמשים רק בתפקידים הסמנטיים כאן.
+// ui = ממשק/כותרות מערכת נקיות; body = קריאה; display = כותרת מותג נדירה; numeric = מספרים.
+// aliases הישנים נשמרים זמנית ל-backward compatibility עד audit מלא.
 export const F = {
-  royal:   "'Heebo', sans-serif",
-  regal:   "'Heebo', sans-serif",
-  cinzel:  "'Heebo', sans-serif",
-  heading: "'Heebo', sans-serif",
-  body:    "'Heebo', sans-serif",
+  ui:      "'Assistant', Arial, sans-serif",
+  body:    "'Assistant', Arial, sans-serif",
+  display: "'Assistant', Arial, sans-serif",
+  numeric: "'Courier New', monospace",
+
+  // legacy aliases — לא להשתמש בקוד חדש.
+  royal:   "Arial, 'Noto Sans Hebrew', sans-serif",
+  regal:   "'Assistant', Arial, sans-serif",
+  cinzel:  "'Assistant', Arial, sans-serif",
+  heading: "'Assistant', Arial, sans-serif",
   mono:    "'Courier New', monospace",
 };
 

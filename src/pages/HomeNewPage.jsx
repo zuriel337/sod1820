@@ -47,12 +47,25 @@ import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 import { fetchHomePosts } from "../lib/homeUpdates.js";
+import { useStream, STREAMS } from "../lib/stream.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
+// 🏗️ מפת-בנייה ציבורית — נגזרת מה-Roadmap הקנוני, בלי להציג אחוז-הנדסי מזויף.
+// כל מסלול מוצג כשלב מתוך 4: יסודות → חיבור → בנייה → חוויה.
+const PUBLIC_BUILD_TRACKS = [
+  { icon:"🧱", label:"יסודות המערכת", stage:4, status:"מתקדם מאוד", details:["זהות מבקר אחידה ומסעות אמינים","מדידה נקייה מבוטים ותנועה חשודה","תשתית שמחברת מחקר, משתמשים ומקורות"] },
+  { icon:"🧠", label:"מערכת המחקר", stage:3, status:"בבנייה", details:["סביבת מחקר אחת לממצאים, מקורות והצלבות","שמירת ממצאים והמשך חקירה מאותה נקודה","חיבור בין מספר, פסוק, אדם, אירוע ומקור"] },
+  { icon:"🔢", label:"מספרים וגימטריה", stage:3, status:"בבנייה", details:["שיטות חישוב רבות באותו מנוע","דפי מספר חיים שמרכזים את כל מה שקשור למספר","הצלבות אוטומטיות בין מילים, מספרים ומחקרים"] },
+  { icon:"🔠", label:"צפנים בתורה", stage:3, status:"בבנייה", details:["מנוע דילוגי אותיות מתקדם וכלי חיפוש מוצלבים","עשרות יכולות מחקר שנאספות למערכת אחת","שמירת צפנים, השוואתם וחיבורם לשאר גוף הידע"] },
+  { icon:"📚", label:"ספרים ומקורות", stage:2, status:"מתחבר למערכת", details:["ספרים כמו אהבת תורה וספר הפליאה נכנסים למחקר","כל מקור נשמר עם ייחוס וניתן לחיפוש והצלבה","הרחבה הדרגתית של הקורפוס למקורות נוספים"] },
+  { icon:"🌳", label:"עץ הידע ורזיאל", stage:2, status:"מתחבר למערכת", details:["עץ הידע מחבר ישויות וממצאים במקום להשאירם כאיים","רזיאל היא שכבת הבנה שמציעה קשרים ומסבירה למה","קשרים עוברים דירוג ובקרה לפני שהם הופכים לידע קנוני"] },
+  { icon:"🌍", label:"שפות ועדשות", stage:2, status:"תשתית קיימת", details:["אותו גוף ידע יוכל להיפתח לשפות נוספות","שתי עדשות: כי לה׳ המלוכה וקוד המציאות","התוכן והניווט יתאימו לעדשה בלי לשכפל את גוף הידע"] },
+  { icon:"🏛️", label:"היכל וחוויית האתר", stage:2, status:"בשיפוץ", details:["בית חדש ונקי יותר לכל כלי המחקר","מסעות גילוי שמובילים בין תוכן, מספרים וצפנים","חוויית מובייל ודסקטופ אחידה ומהירה יותר"] },
+];
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
 // כך: כרגע רק «יום משיח בא» (הישנים לפניו לא), וכל צופן חדש שיועלה מהיום מופיע ונשאר שם תמיד.
 const CIPHER_FEED_SINCE = new Date("2026-07-21T12:30:00Z").getTime();
@@ -100,6 +113,8 @@ const Skeletons = ({ n = 4 }) => Array.from({ length: n }).map((_, i) => <div ke
 export default function HomeNewPage() {
   const P = usePalette();
   const nav = useNavigate();
+  const stream = useStream() || "kingdom";
+  const lens = STREAMS[stream] || STREAMS.kingdom;
   const { isAdmin } = useAuth();
   const [lbImg, setLbImg] = useState(null);   // רמז שנפתח כתמונה מלאה (לא דף מספר — זמני עד שזרם המציאות יושק)
   const [gateImg, setGateImg] = useState(null); // 🖼️ תמונת-שער (שבילי שפה / כאן מתחילים) — נגיעה מגדילה
@@ -359,15 +374,15 @@ export default function HomeNewPage() {
            שכבת-כיסוי כהה (scrim) שומרת על קריאוּת הפסוק/החיפוש שמעליה; הכתר+1820 נשארים גלויים במרכז. */
         .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
           background:
-            linear-gradient(180deg, rgba(9,8,15,.34) 0%, rgba(9,8,15,.05) 30%, rgba(9,8,15,.05) 62%, rgba(9,8,15,.40) 100%),
-            url(${HERO_IMG}) center/cover no-repeat;
+            radial-gradient(80% 130% at 50% 0%, rgba(123,76,176,.28), transparent 68%),
+            linear-gradient(180deg,#0c0913 0%,#09080f 100%);
           border-bottom:1px solid rgba(212,175,55,.30); }
         /* וינייטה עדינה בקצוות בלבד — כדי שהפסוק/החיפוש (מימין) והקלפים (משמאל) יישבו על רקע מעט כהה, בלי להחשיך את מרכז התמונה */
         .hn-mx-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; background:
           radial-gradient(120% 100% at 50% 50%, transparent 42%, rgba(9,8,15,.34) 100%); }
-        .hn-gate-inner { position:relative; z-index:2; max-width:680px; margin:0 auto;
-          min-height:min(74vh,540px); padding:0 18px calc(30px + env(safe-area-inset-bottom));
-          display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:16px; }
+        .hn-gate-inner { position:relative; z-index:2; max-width:760px; margin:0 auto;
+          min-height:310px; padding:46px 18px 38px;
+          display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
         /* פעולות-השער (חיפוש + שערים) יושבות בתחתית תמונת-ההירו */
         .hn-hero-actions { width:100%; max-width:540px; display:flex; flex-direction:column; align-items:center; gap:14px; }
         .hn-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
@@ -429,10 +444,35 @@ export default function HomeNewPage() {
         /* 🖥️ שער דסקטופ — שתי עמודות שממלאות את הרוחב (במקום עמודה צרה בתוך ריק שחור).
            ימין (RTL) = זהות: קלף-הפסוק + חיפוש · שמאל = שני שערי-הכניסה כקלפים גדולים. */
         @media (min-width:900px){
-          .hn-livegate{ min-height:min(82vh,660px); display:flex; align-items:stretch; }
-          .hn-gate-inner{ width:100%; max-width:1200px; min-height:min(82vh,660px); padding:0 44px 52px; }
+          .hn-livegate{ min-height:330px; display:flex; align-items:center; }
+          .hn-gate-inner{ width:100%; max-width:820px; min-height:330px; padding:48px 44px 42px; }
           .hn-hero-actions{ max-width:620px; }
         }
+        .hn-compact-brand{color:#f0d879;font-family:${F.regal};font-size:clamp(25px,4vw,38px);font-weight:800;margin:0;text-shadow:0 2px 20px rgba(0,0,0,.45)}
+        .hn-compact-sub{color:#cfc3a5;font-family:${F.body};font-size:14.5px;line-height:1.8;margin:0 0 2px;max-width:620px}
+        .hn-home-top{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start;max-width:1120px;margin:22px auto 6px}
+        .hn-updates-col{min-width:0}
+        .hn-build-card{position:sticky;top:86px;padding:18px 16px;border:1px solid rgba(212,175,55,.38);border-radius:18px;background:linear-gradient(145deg,rgba(212,175,55,.10),rgba(123,76,176,.08));box-shadow:0 12px 34px rgba(0,0,0,.18)}
+        .hn-build-title{font-family:${F.regal};font-size:18px;font-weight:800;color:${P.accentText}}
+        .hn-build-sub{color:${P.inkSoft};font-family:${F.body};font-size:12.5px;line-height:1.7;margin:4px 0 14px}
+        .hn-build-row{padding:10px 0;border-top:1px solid ${P.border}}
+        .hn-build-row:first-of-type{border-top:0}
+        .hn-build-row-head{display:flex;justify-content:space-between;gap:10px;align-items:center;font-family:${F.ui};font-size:12px}
+        .hn-build-row-head b{color:${P.ink}}
+        .hn-build-status{color:${P.accentText};font-size:10.5px;font-weight:800;white-space:nowrap}
+        .hn-stage-track{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}
+        .hn-stage-track i{height:7px;border-radius:999px;background:${P.cardSoft};border:1px solid ${P.border}}
+        .hn-stage-track i.on{background:linear-gradient(90deg,#8f6fd6,#d4af37);border-color:transparent}
+        .hn-stage-label{margin-top:5px;color:${P.muted};font-family:${F.ui};font-size:10.5px}
+        .hn-build-details{margin-top:8px;font-family:${F.ui};font-size:12px;color:${P.inkSoft}}
+        .hn-build-details summary{cursor:pointer;color:${P.accentText};font-weight:800;list-style:none}
+        .hn-build-details summary::-webkit-details-marker{display:none}
+        .hn-build-details summary:after{content:" +";font-weight:900}
+        .hn-build-details[open] summary:after{content:" −"}
+        .hn-build-details ul{margin:8px 16px 0 0;padding:0;display:grid;gap:5px;line-height:1.6}
+        .hn-build-details li{padding-inline-start:2px}
+        @media(max-width:900px){.hn-home-top{grid-template-columns:1fr}.hn-build-card{position:static;order:0}.hn-updates-col{order:1}}
+        @media(max-width:640px){.hn-home-top{gap:14px;margin-top:16px}.hn-build-card{padding:16px 14px}}
         @media (max-width:520px){ .hn-thumb-img{ height:118px; } }
         @media (prefers-reduced-motion:reduce){ .hn-matrix,.hn-livedot{ animation:none } }
       `}</style>
@@ -445,6 +485,9 @@ export default function HomeNewPage() {
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
           {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
               מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
+          <div className="hn-emblem">אתר כי לה׳ המלוכה</div>
+          <h2 className="hn-compact-brand">אתר כי לה׳ המלוכה נבנה מחדש מבפנים</h2>
+          <p className="hn-compact-sub">המחקר, המספרים והחיבורים ממשיכים לעבוד — ובמקביל אנחנו בונים מחדש את האתר כולו, שכבה אחרי שכבה.</p>
           <div className="hn-hero-actions">
             <form onSubmit={go} className="hn-search">
               <span className="hn-mag" aria-hidden="true">🔍</span>
@@ -474,13 +517,36 @@ export default function HomeNewPage() {
       {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
           ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
 
-      {/* ===== עדכונים אחרונים — 8 עדכונים ממוזגים, כל אחד עם לוגו + מילה קטנה:
-          פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
-      <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
-        {/* 👑 מיתוג «עדכונים אחרונים» — עכשיו מתוך LatestUpdatesRail (heading) כדי שיהיה זהה בבית/פוסט/צ'אט/מובייל */}
-        {/* ⛔ הקפצת התכנסויות ל«עדכונים אחרונים» מושבתת עד הודעה חדשה (בקשת צוריאל) — ההתכנסויות
-            נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
-        <LatestUpdatesRail heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+      {/* ===== 🏗️ בנייה + עדכונים — בדסקטופ מד-הבנייה בצד שמאל, עדכונים בטור יחיד ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 36px" }}>
+        <div className="hn-home-top">
+          <div className="hn-updates-col">
+            <LatestUpdatesRail homeCompact ownOnly heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+          </div>
+          <aside className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
+            <div className="hn-build-title">🏗️ אתר כי לה׳ המלוכה נבנה מחדש</div>
+            <div className="hn-build-sub">לא מד אחוזים שרירותי — כל תחום מוצג לפי השלב האמיתי שלו במפת-העל: יסודות → חיבור → בנייה → חוויה.</div>
+            {PUBLIC_BUILD_TRACKS.map(t => (
+              <div key={t.label} className="hn-build-row">
+                <div className="hn-build-row-head">
+                  <b>{t.icon} {t.label}</b>
+                  <span className="hn-build-status">שלב {t.stage}/4 · {t.status}</span>
+                </div>
+                <div className="hn-stage-track" aria-label={`${t.label}: שלב ${t.stage} מתוך 4`}>
+                  {[1,2,3,4].map(n => <i key={n} className={n <= t.stage ? "on" : ""} />)}
+                </div>
+                <div className="hn-stage-label">1 יסודות · 2 חיבור · 3 בנייה · 4 חוויה</div>
+                <details className="hn-build-details">
+                  <summary>מה הולך להיות כאן?</summary>
+                  <ul>{t.details.map((d,i) => <li key={i}>{d}</li>)}</ul>
+                </details>
+              </div>
+            ))}
+            <div style={{ marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, textAlign: "center" }}>
+              חלקים נפתחים בהדרגה — יש למה לחכות.
+            </div>
+          </aside>
+        </div>
       </section>
 
       {/* ===== 🔔 מה חדש בפורום מאז ביקורך — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 10.8.2026) ===== */}
@@ -488,7 +554,7 @@ export default function HomeNewPage() {
         <WhatsNewCard />
       </div>
 
-      {/* ===== 🎬 גלריית הסרטים — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 8.8.2026) ===== */}
+      {/* ===== 🎬 וידאו — שתי רצועות: צפנים בתורה + כללי ===== */}
       <section style={{ padding: "0 0 36px" }}>
         <VideoGallery />
       </section>

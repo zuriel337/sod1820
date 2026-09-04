@@ -15,7 +15,7 @@ const COLUMNS = [
   {
     title: "ההיכל",
     links: [
-      { label: "היכל הגילוי", to: "/research" },
+      { label: "היכל", to: "/research" },
       { label: "בית המדרש", to: "/beit-midrash" },
       { label: "מחשבון הגימטריה", to: "/beit-midrash?tab=calc" },
       { label: "עץ ההתכנסויות", to: "/numbers" },

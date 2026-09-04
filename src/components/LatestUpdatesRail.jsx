@@ -8,14 +8,14 @@ import { stripHtml, timeAgoHe } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
 import { streamDate, domNum } from "../lib/reality.js";
 import { cleanName } from "../lib/galleryName.js";
-import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל הגילוי = 🏛️ (כמו בנאב).
+import { RealityLogo } from "./SectionLogos.jsx";   // 🎗 יורש מהסמל המקורי של זרם המציאות (🌊). היכל = 🏛️ (כמו בנאב).
 import { postHasVideo } from "./VideoBadge.jsx";
 import { postHasStrongHint } from "./StrongHintBadge.jsx";
 import { primaryIconedCategory } from "../lib/categoryIcons.js";
 import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכונים אחרונים» הקנוני — זהה בבית/צד/מובייל
 
 // 📜 «עדכונים אחרונים» — 8 עדכונים אחרונים ממוזגים, כל אחד עם לוגו + מילה קטנה שמסבירה מה זה:
-//   פוסט · זרם המציאות (🌊) · היכל הגילוי (לוגו הגילוי — התכנסות מבית המדרש).
+//   פוסט · זרם המציאות (🌊) · היכל (לוגו הגילוי — התכנסות מבית המדרש).
 //   מציג «עודכן לפני X» ותג «AI» היכן שרלוונטי. תמונת זרם-מציאות → גלילה ל-#reality-home (מפנה, לא משכפל).
 //   ⛔ קשרי-שפות (cross-language) לא מוצגים כאן — מקומם הקנוני הוא דף «קשרי-שפות» (/languages).
 
@@ -23,7 +23,7 @@ const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/
 // 📌 פוסט «נעוץ» = tree_priority גבוה (מוצמד ידנית ע"י אדמין). מוצג ראשון + תג «נעוץ».
 const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 
-export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false }) {
+export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false, homeCompact = false, ownOnly = false }) {
   const P = usePalette();
   const [expanded, setExpanded] = useState(false);   // «פתח עוד» — פותח מ-limit לכל הפריטים (רק כשמועבר limit)
   const light = P.mode === "light";
@@ -39,7 +39,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (convergences || []).forEach(c => out.push({ type: "conv", when: +new Date(c.created_at || 0), data: c }));
     // 🌊 «עודכן לפני X» לרמז = מתי נוסף לזרם (stream_at→created_at), לא תאריך-האירוע (occurred_at, חצות → «לפני 12 שעות» מוטעה)
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: streamDate(h), data: h }));
-    (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
+    if (!ownOnly) (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
     (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
     // 📌 פוסטים נעוצים תמיד ראשונים (sticky), ואז לפי זמן-עדכון
     return out.sort((a, b) => {
@@ -48,7 +48,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       if (pa !== pb) return pb - pa;
       return b.when - a.when;
     }).slice(0, 20);
-  }, [posts, convergences, hints, researchers, ciphers]);
+  }, [posts, convergences, hints, researchers, ciphers, ownOnly]);
 
   // 🙈 אדמין — הסתרת פריט מ«עדכונים אחרונים» (פוסט→home_hidden · רמז-זרם→curator_hidden). אופטימי + נשמר ב-DB.
   const { isAdmin } = useAuth();
@@ -149,26 +149,29 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         </Link>
       );
     }
-    // conv → היכל הגילוי · בית המדרש · התכנסות. סמל 🏛️ (זהה ל«היכל הגילוי» בנאב/למעלה).
+    // conv → היכל · בית המדרש · התכנסות. סמל 🏛️ (זהה ל«היכל» בנאב/למעלה).
     // לחיצה גוללת ל«● LIVE · חדשות בית המדרש» (#conv-home — ארבע ההתכנסויות האחרונות), לא לקונסטלציה ולא לצפנים.
     const num = (d.highlight_numbers || [])[0];
     return (
       <button key={"v" + (d.slug || d.id || d.title)} type="button" onClick={() => scrollTo("conv-home")} className="lur-card" style={{ "--acc": cGilui }}>
         <div className="lur-media">{num != null ? <span className="lur-num">{num}</span> : <span className="lur-em">🏛️</span>}</div>
-        <div className="lur-body"><Tag acc={cGilui} logo={<span className="lur-lem">🏛️</span>}>היכל הגילוי · בית המדרש · התכנסות</Tag>
+        <div className="lur-body"><Tag acc={cGilui} logo={<span className="lur-lem">🏛️</span>}>היכל · בית המדרש · התכנסות</Tag>
           <h3 className="lur-title">{d.title}</h3>
           <div className="lur-meta"><span>עודכן {timeAgoHe(it.when)}</span><span className="lur-more" style={{ color: cGilui }}>↓ בהתכנסויות</span></div></div>
       </button>
     );
   };
 
-  if (!items.length) return <div style={{ color: P.inkSoft, fontFamily: F.body, textAlign: "center", padding: 24 }}>אין עדכונים כרגע — בקרוב.</div>;
+  if (!items.length) return <div style={{ color: P.inkSoft, fontFamily: F.ui, textAlign: "center", padding: 24 }}>אין עדכונים כרגע — בקרוב.</div>;
 
   return (
     <>
       {heading && <HomeHeader title="📜 עדכונים אחרונים" />}
       <style>{`
         .lur-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;max-width:1120px;margin:0 auto}
+        .lur-grid.home-compact{max-width:820px}
+        @media(min-width:760px){.lur-grid.home-compact{grid-template-columns:1fr;max-width:760px}}
+        @media(max-width:759px){.lur-grid.home-compact{grid-template-columns:1fr;max-width:100%}}
         .lur-card{position:relative;display:flex;flex-direction:row;width:100%;text-align:start;font:inherit;background:${P.card};border:1px solid ${P.border};
           border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
         .lur-card:hover{transform:translateY(-2px);border-color:var(--acc);box-shadow:0 12px 26px rgba(0,0,0,${light ? ".14" : ".3"})}
@@ -179,12 +182,12 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-num{font-family:${F.mono};font-size:26px;font-weight:800;color:var(--acc);text-shadow:0 2px 14px color-mix(in srgb,var(--acc) 45%,transparent)}
         .lur-em{font-size:26px}.lur-lem{font-size:12px}
         .lur-body{padding:9px 12px;display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
-        .lur-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-family:${F.heading};font-size:10px;font-weight:800;
+        .lur-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-family:${F.ui};font-size:10px;font-weight:800;
           padding:2px 8px;border-radius:999px;white-space:nowrap;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent)}
         .lur-tagrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-        .lur-pin{display:inline-flex;align-items:center;gap:3px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;
+        .lur-pin{display:inline-flex;align-items:center;gap:3px;font-family:${F.ui};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;
           color:${light ? "#8a6d10" : "#f0d879"};background:${light ? "rgba(212,175,55,.16)" : "rgba(212,175,55,.14)"};border:1px solid rgba(212,175,55,.5)}
-        .lur-badge{display:inline-flex;align-items:center;gap:4px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:filter .12s,transform .12s}
+        .lur-badge{display:inline-flex;align-items:center;gap:4px;font-family:${F.ui};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:filter .12s,transform .12s}
         .lur-badge:hover{filter:brightness(1.06);transform:translateY(-1px)}
         .lur-badge:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
         .lur-badge.diamond{color:#2a1c00;background:linear-gradient(135deg,#f7e08a,#d4af37 55%,#b8891f);box-shadow:0 0 0 1px rgba(255,230,150,.5)}
@@ -193,8 +196,8 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-badge.cat{color:${light ? "#8a5a10" : "#e8c15a"};background:color-mix(in srgb,${cPost} ${light ? "13%" : "17%"},transparent);border-color:color-mix(in srgb,${cPost} 45%,transparent)}
         .lur-card.pinned{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.35)}
         .lur-card.pinned::before{width:4px;background:linear-gradient(180deg,#f0d879,#c8a83a)}
-        .lur-title{font-family:${F.regal};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-        .lur-meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:10.5px;color:${P.muted};font-family:${F.heading};flex-wrap:wrap}
+        .lur-title{font-family:${F.ui};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .lur-meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:10.5px;color:${P.muted};font-family:${F.ui};flex-wrap:wrap}
         .lur-ai{color:#3ea6ff;font-weight:800;background:rgba(62,166,255,.13);border:1px solid rgba(62,166,255,.4);border-radius:999px;padding:1px 7px}
         .lur-more{font-weight:800}
         .lur-cell{position:relative}
@@ -203,7 +206,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-hide:hover{opacity:1;background:#c8102e;transform:scale(1.06)}
         @media(max-width:640px){.lur-media{width:74px;flex-basis:74px}}
       `}</style>
-      <div className="lur-grid">{shownList.map(it => (
+      <div className={"lur-grid" + (homeCompact ? " home-compact" : "")}>{shownList.map(it => (
         <div key={keyOf(it)} className="lur-cell">
           {card(it)}
           {isAdmin && canHide(it) && (
@@ -216,14 +219,14 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         <div style={{ textAlign: "center", marginTop: 14 }}>
           <button type="button" onClick={() => setExpanded(true)}
             style={{ background: "none", border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 999, cursor: "pointer",
-              color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 13, padding: "8px 20px" }}>
+              color: P.accentText, fontFamily: F.ui, fontWeight: 800, fontSize: 13, padding: "8px 20px" }}>
             פתח עוד ({visible.length - limit}) ↓
           </button>
         </div>
       )}
       <div style={{ textAlign: "center", marginTop: 16, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
-        <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>
+        <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.ui, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
+        <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.ui, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>
       </div>
     </>
   );
