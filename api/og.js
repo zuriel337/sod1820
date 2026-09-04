@@ -178,9 +178,9 @@ export default async function handler(req, res) {
         image = `${SITE}/api/card?w=${encodeURIComponent('שיטת המפתח')}&sub=${encodeURIComponent('פירוק אותיות · כל מילה נפתחת לשכבותיה')}&cap=${encodeURIComponent('סוד 1820')}&sig=gem`;
       }
     } else {
-      title = 'היכל הגילוי — סביבת המחקר · ' + SITE_NAME;
+      title = 'היכל — סביבת המחקר · ' + SITE_NAME;
       desc = 'כל כלי המחקר של סוד 1820 במקום אחד — גימטריה, דילוגי אותיות, דף המספר, פסוקים ועוד.';
-      image = `${SITE}/api/card?w=${encodeURIComponent('היכל הגילוי')}&sub=${encodeURIComponent('סביבת המחקר של סוד 1820')}&sig=gem`;
+      image = `${SITE}/api/card?w=${encodeURIComponent('היכל')}&sub=${encodeURIComponent('סביבת המחקר של סוד 1820')}&sig=gem`;
     }
   } else if (key === '/gematria-3d' || key === '/spatial-gematria' || key === '/גימטריה-מרחבית' || key === '/גימטריה-תלת-ממדית') {
     // 🧊 גימטריה מרחבית — ענף-מחקר: מספר → צורה → משמעות. כרטיס ממותג (מקביל ל-applySeo בעמוד).
