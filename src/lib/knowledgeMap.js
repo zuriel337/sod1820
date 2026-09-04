@@ -6,7 +6,7 @@ export const KNOWLEDGE_WORLDS = [
     items: [
       { label: "כל הפוסטים", emoji: "📜", to: "/post", note: "ארכיון הידע החי" },
       { label: "גלריות ומדיה", emoji: "🖼️", to: "/archive?tab=galleries", note: "2,558 פריטי גלריה" },
-      { label: "נושאים", emoji: "✦", to: "/archive", note: "212 כרטיסי נושא" },
+      { label: "התכנסויות / נושאי מחקר", emoji: "✦", locked: true, state: "בפיתוח", note: "206 מאושרות · העמוד המרכזי לרשימה עדיין בבנייה" },
       { label: "מסעות גילוי", emoji: "🧭", locked: true, state: "בקרוב", note: "מסע מודרך בין קשרים" },
       { label: "מסעות תלת־ממדיים", emoji: "◈", locked: true, state: "בקרוב", note: "להיכנס אל תוך הידע" },
       { label: "גלקסיות גילוי", emoji: "✺", locked: true, state: "בקרוב", note: "עולמות ידע מחוברים" },
@@ -19,7 +19,7 @@ export const KNOWLEDGE_WORLDS = [
     items: [
       { label: "דף המספר", emoji: "🔢", to: "/number", note: "מספר → ביטויים → קשרים" },
       { label: "מחשבון מקצועי", emoji: "🧮", to: "/research?tool=gematria", note: "חישוב והשוואת שיטות" },
-      { label: "גימטריה מרחבית", emoji: "🧊", to: "/spatial-gematria", note: "המספר כמבנה" },
+      { label: "גימטריה מרחבית", emoji: "🧊", locked: true, state: "בבנייה", note: "תשתית מחקר קיימת · עדיין לא פתוח כמוצר פעיל" },
       { label: "השוואה רב־ממדית", emoji: "⇄", locked: true, state: "בפיתוח", note: "שיטות כשכבות של אותו אובייקט" },
       { label: "Gematria 3D", emoji: "◫", locked: true, state: "בקרוב", note: "לנוע בין שכבות החישוב" },
       { label: "מחקר מספר עם רזיאל", emoji: "AI", locked: true, state: "בקרוב", note: "מספר → אדם → פסוק → צופן" },
@@ -58,7 +58,7 @@ export const KNOWLEDGE_WORLDS = [
     items: [
       { label: "לפי שנים", emoji: "🕰️", to: "/post", note: "2013–2026" },
       { label: "לפי קטגוריות", emoji: "▦", to: "/post", note: "מפת התוכן הקיימת" },
-      { label: "לפי נושאים", emoji: "✦", to: "/archive", note: "נושא → תוכן → קשרים" },
+      { label: "לפי נושאים", emoji: "✦", locked: true, state: "בפיתוח", note: "נושא → תוכן → קשרים · אינדקס ציבורי ייעודי טרם נבנה" },
       { label: "לפי אנשים ושמות", emoji: "👤", locked: true, state: "בפיתוח", note: "כל מה שהאתר יודע על אדם" },
       { label: "לפי מספרים", emoji: "🔢", to: "/number", note: "כניסה לארכיון דרך מספר" },
       { label: "לפי פסוקים וצפנים", emoji: "⌘", locked: true, state: "בקרוב", note: "מקור → צופן → מחקר" },
