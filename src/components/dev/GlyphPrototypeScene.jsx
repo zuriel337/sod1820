@@ -10,12 +10,26 @@
 import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Text, OrbitControls } from "@react-three/drei";
-import { getCaretAtPoint } from "troika-three-text";
+import { getCaretAtPoint, configureTextBuilder } from "troika-three-text";
 import {
   ROWS, COLS, TOTAL_OCCURRENCES, GOLDEN_SET,
   buildOccurrences, buildSyntheticElsPath,
 } from "../../lib/dev/glyphPrototypeData.js";
 import { HEEBO_LATIN_HEBREW_WOFF1_DATA_URI } from "../../lib/dev/heeboFontDataUri.js";
+
+// ---- DIAGNOSTIC-ONLY config hooks (10K Glyph Runtime Diagnostic Delta v1) ----
+// URL-param driven so the exact same build can be re-run under different Troika configurations
+// without a rebuild, per the discriminating test matrix (row-2 sync-stall investigation). NOT
+// production configuration — every value here defaults to Troika's own normal default when the
+// param is absent, so a plain visit to /dev/glyph-prototype behaves exactly as before this delta.
+const _params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+const DIAG_MODE = _params?.get("mode") === "single" ? "single" : "rows";
+const DIAG_GPU_SDF = _params?.get("gpuSDF") === "0" ? false : true; // Troika default: true
+const DIAG_USE_WORKER = _params?.get("worker") === "0" ? false : true; // Troika default: true
+if (_params?.get("worker") === "0") {
+  // Must be called before the first font/typesetting request — diagnostic only, see AFTER report.
+  configureTextBuilder({ useWorker: false });
+}
 
 // Explicit Hebrew-capable font, reused from the site's own already-licensed choice (Heebo, OFL,
 // already loaded site-wide via index.html's Google Fonts <link>) — same font, now also given
@@ -51,6 +65,7 @@ const RowText = React.memo(function RowText({ row, text, colorRanges, onSynced, 
       position={rowOrigin(row)}
       fontSize={CELL * 0.82}
       font={HEBREW_FONT_URL}
+      gpuAccelerateSDF={DIAG_GPU_SDF}
       color={BASE_COLOR}
       colorRanges={colorRanges}
       anchorX="left"
@@ -72,6 +87,7 @@ const SingleBlockText = React.memo(function SingleBlockText({ text, colorRanges,
       position={[-GRID_W / 2, GRID_H / 2, 0]}
       fontSize={CELL * 0.82}
       font={HEBREW_FONT_URL}
+      gpuAccelerateSDF={DIAG_GPU_SDF}
       color={BASE_COLOR}
       colorRanges={colorRanges}
       anchorX="left"
@@ -151,7 +167,7 @@ export default function GlyphPrototypeScene() {
   const dataRef = useRef(buildOccurrences(1820));
   const { occurrences, rowStrings, sourceWitnessIndex } = dataRef.current;
 
-  const [mode, setMode] = useState("rows"); // 'rows' | 'single'
+  const [mode, setMode] = useState(DIAG_MODE); // 'rows' | 'single'
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [highlighted, setHighlighted] = useState(() => new Set());
   const [lod, setLod] = useState("far");
