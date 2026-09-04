@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { stripHtml, formatDateHe } from "../lib/format.js";
-import { getRealityVideos } from "../lib/supabase.js";
+import { getRealityVideos, getCategoryVideos } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { setVideoGalleryJsonLd, clearVideoGalleryJsonLd } from "../lib/seo.js";
 import ShareActions from "./ShareActions.jsx";
@@ -92,7 +92,22 @@ export default function VideoGallery() {
 
   useEffect(() => {
     let alive = true;
-    getRealityVideos({ limit: 40 }).then(data => { if (alive) setRows(data); }).catch(() => {});
+    Promise.all([
+      getRealityVideos({ limit: 40 }),
+      getCategoryVideos("וידאו", { limit: 80 }),
+    ]).then(([curated, allVideoPosts]) => {
+      if (!alive) return;
+      const seen = new Set();
+      const merged = [];
+      for (const v of [...(curated || []), ...(allVideoPosts || [])]) {
+        const k = v.slug || v.yt || v.video_url || v.id;
+        if (!k || seen.has(k)) continue;
+        seen.add(k);
+        merged.push(v);
+      }
+      merged.sort((a, b) => +new Date(b.uploaded_at || b.modified || b.date || b.created_at || 0) - +new Date(a.uploaded_at || a.modified || a.date || a.created_at || 0));
+      setRows(merged);
+    }).catch(() => {});
     return () => { alive = false; };
   }, []);
 
