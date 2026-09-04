@@ -1,4 +1,4 @@
-import { supabase } from "../supabase.js";
+import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
@@ -7,7 +7,8 @@ import { researchNumber } from "./numericResearch.js";
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
-const TOPIC_FIELDS = "slug,status,quality,meter_score,approved_at,created_at";
+const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
+const METHOD_FIELDS = "method_key,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 
 function clean(value) {
   if (value == null) return "";
@@ -140,6 +141,31 @@ async function fetchTopicFindingsForNumber(number, { limit = 12 } = {}) {
   return { rows, findings };
 }
 
+async function fetchMethodRegistry(methodKeys = []) {
+  const keys = [...new Set((methodKeys || []).map(clean).filter(Boolean))];
+  if (!keys.length) return [];
+  const { data, error } = await supabase
+    .from("gematria_methods")
+    .select(METHOD_FIELDS)
+    .in("method_key", keys)
+    .order("sort_order", { ascending: true, nullsFirst: false });
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
+function enrichGematriaFamilies(families, registryRows) {
+  const registry = new Map((registryRows || []).map(row => [row.method_key, row]));
+  return (families || []).map(group => ({
+    ...group,
+    registry: registry.get(group.method) || null,
+  })).sort((a, b) => {
+    const ao = a.registry?.sort_order ?? 999;
+    const bo = b.registry?.sort_order ?? 999;
+    if (ao !== bo) return ao - bo;
+    return (b.count || 0) - (a.count || 0);
+  });
+}
+
 function humanGateSummary(rows) {
   const status = { candidate: 0, approved: 0, canonical: 0, rejected: 0, other: 0 };
   const access = { private: 0, family_shared: 0, public_candidate: 0, other: 0 };
@@ -261,10 +287,13 @@ export async function fetchEntityHubProjection({
   let topics = { rows: [], findings: [] };
   let numberResearch = null;
   let numberJourney = null;
+  let publicSurface = null;
+  let gematriaFamilies = [];
+  let methodRegistry = [];
 
   if (node.type === "number" && Number.isSafeInteger(Number(node.label))) {
     const number = Number(node.label);
-    [topics, numberResearch] = await Promise.all([
+    [topics, numberResearch, publicSurface, gematriaFamilies] = await Promise.all([
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
       researchNumber(number, {
         lenses: ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
@@ -272,14 +301,18 @@ export async function fetchEntityHubProjection({
         rpc: (name, args) => supabase.rpc(name, args),
         fetchResearchObjects: async () => ({ data: research.rows }),
         researchObjectLimit: researchLimit,
-        provenance: { requestSource: "entity-hub-projection-v1", inputRef: `node:${node.id}` },
+        provenance: { requestSource: "entity-hub-projection-v2", inputRef: `node:${node.id}` },
       }),
+      getEntityBundle({ term: String(number), value: number, isNumber: true }),
+      getValueFamilies(number, 12),
     ]);
+    methodRegistry = await fetchMethodRegistry(gematriaFamilies.map(group => group.method));
+    gematriaFamilies = enrichGematriaFamilies(gematriaFamilies, methodRegistry);
     numberJourney = projectNumberJourney(numberResearch);
   }
 
   return {
-    v: 1,
+    v: 2,
     identity: {
       nodeId: String(node.id),
       type: node.type,
@@ -299,6 +332,13 @@ export async function fetchEntityHubProjection({
       access: research.access,
     },
     topics,
+    surface: publicSurface,
+    gematria: {
+      families: gematriaFamilies,
+      registry: methodRegistry,
+      interactionDecision: "OPEN_HUMAN_GATE",
+      note: "Method identity and engine result are live; method-click/decomposition UX is intentionally undecided in this preview.",
+    },
     journeys: {
       numberKnowledgeJourney: numberJourney,
       researchPaths: [],
