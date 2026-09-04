@@ -28,6 +28,12 @@ assert.match(projection, /scope:\s*"seed\/editorial-content-only"/);
 assert.match(projection, /scope:\s*"live-computed"/);
 assert.match(projection, /never inherit the journey seed approval state/);
 
+// Live fn_number_journey currently returns sources as { count, value, verses[] }.
+// Preserve those verse witnesses rather than assuming sources is already a flat array.
+assert.match(projection, /raw\.sources\?\.verses/);
+assert.match(projection, /type:\s*"verse"/);
+assert.match(projection, /sourceSummary/);
+
 // Golden Case stays hidden/admin-only and additive; legacy /number remains untouched.
 assert.match(page, /useAuth/);
 assert.match(page, /!isAdmin/);
