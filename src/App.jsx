@@ -34,6 +34,7 @@ import { UserCenterProvider } from "./lib/userCenter/UserCenterContext.jsx";
 import UserCenter from "./components/userCenter/UserCenter.jsx";
 import AiQuotaToast from "./components/AiQuotaToast.jsx";
 import ProfileNudge from "./components/ProfileNudge.jsx";
+import RazielGlobalShell from "./components/RazielGlobalShell.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
@@ -408,6 +409,7 @@ export default function App() {
         <UserCenter />
         <AiQuotaToast />
         <ProfileNudge />
+        <RazielGlobalShell />
         </UserCenterProvider>
         </ResearchProvider>
     </BrowserRouter>
