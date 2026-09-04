@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { C, F } from "../theme.js";
+import { F } from "../theme.js";
 import { useThemeMode } from "../lib/themeMode.js";
 import { chromeColors } from "../lib/chromeTheme.js";
+import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { subscribeEmail } from "../lib/supabase.js";
 import { trackSubscribe, trackConversion } from "../lib/marketing.js";
@@ -10,8 +11,10 @@ import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 // "הישאר מעודכן" — מייל הוא הקריאה הראשית והישירה (שדה גלוי, בלי מודאל).
 // Push = אופציה משנית קטנה מתחת (רק אם מוגדר VAPID). בלי popup אוטומטי.
 // variant: "home" (קריאה ראשית) | "footer" (עדין). source נשמר ל-subscribers.
+// non-footer variants use the semantic page palette, so light surfaces do not inherit legacy gold chrome.
 export default function StayUpdatedCTA({ variant = "home", source: sourceOverride = null, title = null, description = null }) {
   const cc = chromeColors(useThemeMode());
+  const P = usePalette();
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -99,33 +102,33 @@ export default function StayUpdatedCTA({ variant = "home", source: sourceOverrid
     );
   }
 
-  // ===== עמוד הבית — מייל כקריאה ראשית ישירה =====
+  // ===== עמודים/משטחים — semantic palette, מתאים אוטומטית לבהיר/כהה =====
   return (
     <div style={{ textAlign: "center", direction: "rtl" }}>
-      <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: "clamp(20px,3vw,27px)", fontWeight: 800, marginBottom: 10 }}>
+      <div style={{ color: P.ink, fontFamily: F.regal, fontSize: "clamp(20px,3vw,27px)", fontWeight: 800, marginBottom: 10 }}>
         {title || "אל תפספסו את מה שנכנס למערכת"}
       </div>
-      <p style={{ color: C.goldDim, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 480, margin: "0 auto 18px" }}>
+      <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, maxWidth: 520, margin: "0 auto 18px" }}>
         {description || "בכל שבוע מתווספים תכנים חדשים, חיפושי גימטריה, תגליות ועדכונים. השאירו מייל — ותהיו תמיד מעודכנים."}
       </p>
 
       {done ? (
-        <div style={{ color: C.goldBright, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>✦ {successMsg}</div>
+        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>✦ {successMsg}</div>
       ) : (
         <>
-          <form onSubmit={submitEmail} style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", maxWidth: 460, margin: "0 auto" }}>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="האימייל שלכם" dir="ltr"
-              style={{ flex: "1 1 240px", minWidth: 200, padding: "13px 16px", borderRadius: 12, background: C.surface, border: `1px solid ${C.border}`, color: C.goldLight, fontFamily: F.body, fontSize: 16, textAlign: "center", outline: "none" }} />
+          <form onSubmit={submitEmail} style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", maxWidth: 480, margin: "0 auto" }}>
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="האימייל שלכם" dir="ltr"
+              style={{ flex: "1 1 240px", minWidth: 200, padding: "13px 16px", borderRadius: 12, background: P.card, border: `1px solid ${P.borderStrong}`, color: P.ink, fontFamily: F.body, fontSize: 16, textAlign: "center", outline: "none", boxShadow: `0 0 0 3px transparent` }} />
             <button type="submit" disabled={busy} style={{
-              cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 12, padding: "13px 34px",
-              background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
-              fontFamily: F.heading, fontWeight: 800, fontSize: 16, whiteSpace: "nowrap", boxShadow: "0 6px 26px rgba(212,175,55,0.4)",
+              cursor: busy ? "wait" : "pointer", border: `1px solid ${P.borderStrong}`, borderRadius: 12, padding: "13px 34px",
+              background: P.accentBtn, color: P.onAccent,
+              fontFamily: F.heading, fontWeight: 800, fontSize: 16, whiteSpace: "nowrap", boxShadow: `0 8px 24px ${P.glow}`,
             }}>{busy ? "רושם…" : "עדכנו אותי"}</button>
           </form>
-          {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 12 }}>{err}</div>}
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 12 }}>חינם · אימות חד-פעמי · אפשר לבטל בכל רגע</div>
+          {err && <div style={{ color: "#c65349", fontFamily: F.body, fontSize: 13, marginTop: 12 }}>{err}</div>}
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 12 }}>חינם · אימות חד-פעמי · אפשר לבטל בכל רגע</div>
           {pushReady && (
-            <button onClick={choosePush} disabled={busy} style={{ marginTop: 16, cursor: "pointer", background: "none", border: "none", color: C.goldDim, fontFamily: F.heading, fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>
+            <button onClick={choosePush} disabled={busy} style={{ marginTop: 16, cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>
               🔔 או קבלו התראות מיידיות בדפדפן
             </button>
           )}
