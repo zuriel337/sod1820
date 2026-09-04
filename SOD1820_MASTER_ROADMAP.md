@@ -1,5 +1,13 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+> ## 📊 VERCEL ANALYTICS CONNECTOR V1 — 4.9.2026
+> **החלטה:** Vercel אינו מערכת אנליטיקה מקבילה אלא מקור-אמת משלים בתוך מרכז-הצמיחה הקיים. Growth Center מציג יחד: first-party SOD1820 + GA4 + Vercel Web Analytics + Clarity.
+> **מימוש:** endpoint אדמין read-only `/api/vercel-insights` קורא את Web Analytics API הרשמי של Vercel באמצעות secret שרת `VERCEL_API_TOKEN`; הטוקן לעולם אינו נשלח לדפדפן. `getVercelInsights(days)` מחבר אותו ל-`GrowthCenterTab`.
+> **נתונים:** visitors · pageviews · views/visitor · שינוי מול תקופה קודמת · top pages · referrers · devices · countries · browsers. אותם טווחים 1/7/30/90 ימים כמו GA4/המערכת הפנימית.
+> **Truth rule:** אין "מספר מנצח" יחיד. המערכת מציגה את שלושת המקורות זה לצד זה; התאמה בכיוון בין המקורות = confidence גבוה יותר במגמה. Bot/Firewall request metrics נשארים שכבת-תשתית נפרדת ולא מתערבבים עם Web Analytics visitors.
+> **מצב הפעלה:** הקוד מלא; אם `VERCEL_API_TOKEN` חסר, ה-UI מציג "המחבר מוכן" בלי לשבור את הטאב. אין schema חדש, אין טבלת אנליטיקה חדשה, אין token בצד-לקוח.
+>
+
 > ## 🧭 PUBLIC BUILD MAP SYNC 4.9.2026 — Home ↔ System Map
 > **החלטת צוריאל:** דף-הבית ומפת-המערכת מציגים אותו מצב-בנייה מאותו מקור; המפה היא הגרסה העמוקה יותר עם מדדים, אחוזים והקשר ציבורי.
 > **SSOT ציבורי ל-progress:** `src/lib/knowledgeMap.js::BUILD_TRACKS` מזין גם את מד-הבנייה בדף-הבית וגם את `/map`. `BUILD_PROGRESS` נגזר מאותו מערך — אין אחוז ידני שני.
