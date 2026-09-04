@@ -23,7 +23,7 @@ const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/
 // 📌 פוסט «נעוץ» = tree_priority גבוה (מוצמד ידנית ע"י אדמין). מוצג ראשון + תג «נעוץ».
 const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 
-export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false }) {
+export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false, homeCompact = false }) {
   const P = usePalette();
   const [expanded, setExpanded] = useState(false);   // «פתח עוד» — פותח מ-limit לכל הפריטים (רק כשמועבר limit)
   const light = P.mode === "light";
@@ -169,6 +169,9 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       {heading && <HomeHeader title="📜 עדכונים אחרונים" />}
       <style>{`
         .lur-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;max-width:1120px;margin:0 auto}
+        .lur-grid.home-compact{max-width:820px}
+        @media(min-width:760px){.lur-grid.home-compact{grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media(max-width:759px){.lur-grid.home-compact{grid-template-columns:1fr;max-width:100%}}
         .lur-card{position:relative;display:flex;flex-direction:row;width:100%;text-align:start;font:inherit;background:${P.card};border:1px solid ${P.border};
           border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
         .lur-card:hover{transform:translateY(-2px);border-color:var(--acc);box-shadow:0 12px 26px rgba(0,0,0,${light ? ".14" : ".3"})}
@@ -203,7 +206,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-hide:hover{opacity:1;background:#c8102e;transform:scale(1.06)}
         @media(max-width:640px){.lur-media{width:74px;flex-basis:74px}}
       `}</style>
-      <div className="lur-grid">{shownList.map(it => (
+      <div className={"lur-grid" + (homeCompact ? " home-compact" : "")}>{shownList.map(it => (
         <div key={keyOf(it)} className="lur-cell">
           {card(it)}
           {isAdmin && canHide(it) && (
