@@ -100,6 +100,17 @@ export default function RazielGlobalShell() {
       </>}
     </div>}
 
+    <div aria-hidden="true" style={{
+      position:"fixed", left:10, right:10, bottom:67, margin:"0 auto", width:"min(720px,calc(100vw - 20px))",
+      zIndex:1199, textAlign:"center", pointerEvents:"none", padding:"5px 12px",
+      color:"rgba(244,223,154,.88)", fontFamily:"serif", fontSize:"clamp(10px,2.6vw,13px)",
+      letterSpacing:".35px", textShadow:"0 0 10px rgba(218,180,86,.34), 0 0 24px rgba(143,111,214,.2)"
+    }}>
+      <span style={{opacity:.42, marginInlineEnd:8}}>✦</span>
+      וידע כל פעול כי אתה פעלתו · ויבין כל יצור כי אתה יצרתו
+      <span style={{opacity:.42, marginInlineStart:8}}>✦</span>
+    </div>
+
     <nav aria-label="שורת הבקרה של SOD1820" style={{
       position:"fixed", left:10, right:10, bottom:8, margin:"0 auto", width:"min(720px,calc(100vw - 20px))",
       zIndex:1200, display:"grid", gridTemplateColumns:"repeat(5,1fr)", alignItems:"stretch",
