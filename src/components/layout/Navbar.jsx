@@ -19,6 +19,7 @@ import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
+import { QUICK_NAV_GROUPS, BUILD_PROGRESS } from "../../lib/knowledgeMap.js";
 
 // 🧩 hook נגיש לתפריטים-נפתחים: נפתח בריחוף (עכבר) *וגם* בקליק (מקלדת/מגע), נסגר
 // בקליק-בחוץ ובמקש Escape. פותר את הבעיה שכל ה-dropdowns היו hover-only (לא נגישים
@@ -65,40 +66,15 @@ const productItems = [
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
-const MORE_HIDE = ["/start", "/members", "/lab"];
+const MORE_HIDE = ["/start", "/members", "/lab", "/forum", "/community", "/broadcasts", "/numbers", "/timeline", "/archive?tab=reality"];
 // «קהילה» ב-NAV נושאת ילדים (צ'אט · פורום · חוקרים…) שנאבדים כשמרנדרים אותה כאריח-בודד
 // בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
 // ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
-const moreItems = [
-  { label: "דף הבית", emoji: "🏠", to: "/" },
-  ...NAV.filter(i => !GRID_EXCLUDE.includes(i.to) && !MORE_HIDE.includes(i.to)),
-  { label: "צ'אט", emoji: "💬", to: "/community/chat" },
-  { label: "צור קשר", emoji: "✉️", to: "/contact" },
-];
+const MENU_GROUPS = QUICK_NAV_GROUPS;
 
-// תפריט מובייל בסגנון-אפליקציה — אריחי המדורים הראשיים (פעילים) + "בקרוב" מעומעם
-// הסמלים זהים לאלה שבתוך החלונות עצמם (מחשבון=🧮 כמו בבית המדרש · מנוע המספרים=🔢 כמו בדף המספר)
-// מסודר לפי קבוצות: מחקר (מחשבון · מספרים · היכל) → תוכן (פוסטים · גלריות · ציר) → קהילה → ניווט.
-// מקור-אמת יחיד לאריחי התפריט (מובייל + פאנל-דסקטופ) — סמלים ונוסחים מתואמים בכל המקומות.
-// fav = שלושת הפייבוריטים (מודגשים). locked = בבנייה + מנעול, לא-לחיץ בכל המקומות.
-const MOBILE_TILES = [
-  { e: "🏠", l: "דף הבית", to: "/" },
-  { e: "🚀", l: "כאן מתחילים", to: "/start" },
-  { e: "🔢", l: "דף המספר", to: "/number", fav: true },
-  { e: "🔠", l: "דילוגי אותיות", to: "/code", fav: true, icon: "dilugim" },
-  { e: "📖", l: "בית המדרש", to: "/beit-midrash", fav: true },
-  { e: "🏛️", l: "ההיכל", to: "/research" },
-  { e: "🔬", l: "מחשבון מקצועי", to: "/research?tool=gematria" },
-  { e: "🧊", l: "גימטריה מרחבית", to: "/spatial-gematria" },
-  { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
-  { e: "🌅", l: "ציר ההתגלות", to: "/timeline" },
-  { e: "🌐", l: "פורום המחקר", to: "/forum" },
-  { e: "💬", l: "הצ'אט", to: "/community/chat" },
-  { e: "📜", l: "פוסטים", to: "/post" },
-  { e: "🖼️", l: "גלריות", to: "/archive" },
-  { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
-  { e: "🗺️", l: "מרכז הניווט", to: "/map" },
-];
+const MOBILE_TILES = MENU_GROUPS.flatMap(g => g.items.map(it => ({
+  e: it.emoji, l: it.label, to: it.to, locked: it.locked, icon: it.icon,
+})));
 
 // יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
 const SURPRISE_NUMS = [
@@ -166,11 +142,12 @@ function UniversalSearch({ onDone, full, autoFocus }) {
   // 💬 חיפוש "צאט"/"צ'אט"/chat → קיצור דרך לצ'אט האתר
   const isChatQuery = v.replace(/['"׳״\s]/g, "").includes("צאט") || /chat/i.test(v);
   const cats = [
-    { e: "🌊", l: "זרם המציאות", to: "/archive?tab=reality" },
-  { e: "📡", l: "מרכז השידורים", to: "/broadcasts" },
-    { e: "🌳", l: "עץ ההתכנסויות", to: "/numbers" },
+    { e: "🔢", l: "דף המספר", to: "/number" },
+    { e: "🔠", l: "דילוגי אותיות", to: "/code" },
+    { e: "📖", l: "בית המדרש", to: "/beit-midrash" },
     { e: "🏛️", l: "היכל", to: "/research" },
-    { e: "🖼️", l: "גלריות", to: "/archive" },
+    { e: "📜", l: "פוסטים", to: "/post" },
+    { e: "🖼️", l: "גלריות", to: "/archive?tab=galleries" },
   ];
 
   return (
@@ -294,7 +271,7 @@ function LockedNavItem({ item }) {
 
 // אופציה ב׳ — כפתור «תפריט» שפותח חלון-אריחים ויזואלי (אותה שפה של אריחי-המובייל).
 // מחזיק את «כל השאר» (קהילה · זרם · שידורים · גלריות · ציר · עץ · פוסטים · צור קשר) במקום אחד.
-function MenuPanel({ items, pathname, cc }) {
+function MenuPanel({ groups, pathname, cc }) {
   const mode = useThemeMode();
   const light = mode === "light";
   const [open, setOpen] = useState(false);
@@ -333,42 +310,32 @@ function MenuPanel({ items, pathname, cc }) {
       </button>
       {open && (
         <div style={{
-          position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(720px, 88vw)",
+          position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(620px, 88vw)",
           background: pc.panelBg, backdropFilter: light ? "none" : "blur(16px)",
           border: `1px solid ${pc.panelBorder}`, borderRadius: 18, padding: 14, zIndex: 250,
           boxShadow: pc.shadow,
         }}>
-          {/* «כאן מתחילים» כבר קיים כפיל-זהב בשורת-הנאב עצמה — לא כופלים אותו כאן (dedupe). */}
-          <div style={{ color: pc.heading, fontFamily: F.heading, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 12px" }}>כל המדורים</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9 }}>
-            {items.map(it => {
-              const active = isActive(pathname, it.to);
-              return (
-                <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
-                  background: pc.tileBg, border: `1px solid ${active ? pc.tileActive : pc.tileBorder}`,
-                  borderRadius: 14, padding: "16px 6px", textDecoration: "none",
-                  transition: "transform 0.15s, border-color 0.15s, background 0.15s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = active ? pc.tileActive : pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
-                  <span style={{ fontSize: 26, lineHeight: 1 }}>{it.emoji}</span>
-                  <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>{it.label}</span>
-                </Link>
-              );
-            })}
-            {!isStandalone() && (
-              <button onClick={async () => { setOpen(false); if (canInstall()) { await promptInstall(); } else if (isIOS()) alert("להתקנה באייפון: לחצו על כפתור השיתוף (□↑) בספארי ואז «הוסף למסך הבית»"); else alert("להתקנה: פתחו את תפריט הדפדפן (⋮) ובחרו «הוסף למסך הבית / התקן אפליקציה»"); }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7,
-                  background: pc.tileBg, border: `1px solid ${pc.tileBorder}`, borderRadius: 14, padding: "16px 6px", cursor: "pointer",
-                  transition: "transform 0.15s, border-color 0.15s, background 0.15s" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = pc.tileActive; e.currentTarget.style.background = pc.tileHoverBg; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = pc.tileBorder; e.currentTarget.style.background = pc.tileBg; }}>
-                <span style={{ fontSize: 26, lineHeight: 1 }}>📲</span>
-                <span style={{ color: pc.tileText, fontFamily: F.royal, fontSize: 13.5, fontWeight: 700, textAlign: "center" }}>הורדת האפליקציה</span>
-              </button>
-            )}
+          <div style={{color:pc.heading,fontFamily:F.ui,fontSize:11,fontWeight:800,letterSpacing:1.2,padding:"2px 5px 10px"}}>ניווט מהיר</div>
+          <div style={{display:"grid",gap:12}}>
+            {groups.map(group => (
+              <section key={group.title}>
+                <div style={{color:pc.bannerTitle,fontFamily:F.ui,fontSize:13.5,fontWeight:900,marginBottom:7}}>{group.title}</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:8}}>
+                  {group.items.map(it => (
+                    <Link key={it.to+it.label} to={it.to} onClick={()=>setOpen(false)} style={{
+                      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,
+                      minHeight:74,background:pc.tileBg,border:`1px solid ${pc.tileBorder}`,borderRadius:12,
+                      textDecoration:"none",color:pc.tileText,fontFamily:F.ui,fontSize:11.5,fontWeight:800,textAlign:"center"
+                    }}><span style={{fontSize:21}}>{it.icon==="dilugim"?<DilugimIcon size={22}/>:it.emoji}</span>{it.label}</Link>
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
+          <Link to="/map" onClick={()=>setOpen(false)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginTop:14,padding:"12px 13px",borderRadius:13,border:`1px solid ${pc.bannerBorder}`,background:pc.bannerBg,textDecoration:"none"}}>
+            <span><b style={{display:"block",color:pc.bannerTitle,fontFamily:F.ui,fontSize:13.5}}>🗺️ מפת המערכת המלאה</b><small style={{color:pc.bannerSub,fontFamily:F.ui,fontSize:10.5}}>כל העולמות, מה חי ומה בדרך</small></span>
+            <span style={{color:pc.arrow,fontSize:18}}>←</span>
+          </Link>
         </div>
       )}
     </div>
@@ -604,7 +571,7 @@ function BuildProgressBadge({ cc }) {
     setTimeout(() => document.getElementById("build-progress")?.scrollIntoView({ behavior: "smooth", block: "start" }), 180);
   };
   return (
-    <button type="button" onClick={go} className="sod-nav-build" aria-label="מצב בניית האתר — 66 אחוז"
+    <button type="button" onClick={go} className="sod-nav-build" aria-label={`מצב בניית האתר — ${BUILD_PROGRESS} אחוז`}
       title="האתר בבנייה — לחצו למפת הבנייה" style={{
         position:"relative", display:"inline-flex", alignItems:"center", gap:7, flex:"none",
         border:`1px solid ${cc.borderGold}`, background:"rgba(212,175,55,.08)", color:cc.goldBright,
@@ -614,11 +581,11 @@ function BuildProgressBadge({ cc }) {
       <style>{`
         @keyframes navBuildPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.15)}50%{box-shadow:0 0 0 5px rgba(212,175,55,.08)}}
         .sod-nav-build{animation:navBuildPulse 2.4s ease-in-out infinite}
-        .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:66%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
+        .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:${BUILD_PROGRESS}%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
         @media(prefers-reduced-motion:reduce){.sod-nav-build{animation:none}}
         @media(max-width:720px){.sod-nav-build .nb-label{display:none}}
       `}</style>
-      <span aria-hidden>🏗️</span><span className="nb-label">בבנייה</span><span style={{fontFamily:F.numeric}}>66%</span>
+      <span aria-hidden>🏗️</span><span className="nb-label">בבנייה</span><span style={{fontFamily:F.numeric}}>{BUILD_PROGRESS}%</span>
     </button>
   );
 }
@@ -630,7 +597,6 @@ export default function Navbar() {
   const { open: openCenter, isOpen: centerOpen } = useUserCenter();
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
-  const [searchFocus, setSearchFocus] = useState(false);   // 🔎 נפתח מכפתור-החיפוש במובייל → מיקוד אוטומטי על תיבת-החיפוש
   const [unread, setUnread] = useState(0);   // 🔔 להתראות במובייל — נקודה על כפתור האזור-האישי
 
   useEffect(() => {
@@ -639,7 +605,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", h);
   }, []);
   useEffect(() => { setDrawer(false); }, [pathname]);
-  useEffect(() => { if (!drawer) setSearchFocus(false); }, [drawer]);   // איפוס כוונת-החיפוש בסגירת המגירה
   // ספירת התראות שלא-נקראו (למחוברים) — לבאדג׳ במובייל; מתרענן בפוקוס ובסגירת מרכז-השליטה
   useEffect(() => {
     if (!user) { setUnread(0); return; }
@@ -665,13 +630,14 @@ export default function Navbar() {
         {/* אופציה א׳ — קבוצת «היכל»: העוגן הזהוב מצביע (▸) על שלושת הכלים שלו, עטופים כיחידה אחת. */}
         <div className="sod-nav-desktop sod-heichal-group">
           <LabMenu />
-
+          <span className="sod-heichal-arrow" aria-hidden>▸</span>
+          <NavLinkItem item={{ label: "דף המספר", emoji: "🔢", to: "/number" }} pathname={pathname} />
         </div>
         <BuildProgressBadge cc={cc} />
 
         {/* חיפוש + כניסה + תפריט-רשת ⊞ — סרגל עליון מצומצם */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 8, marginInlineStart: "auto" }}>
-          <UniversalSearch />
+          <Link to="/map" className="sod-map-entry" style={{display:"inline-flex",alignItems:"center",gap:8,textDecoration:"none",border:`1px solid ${cc.borderGold}`,background:"rgba(212,175,55,.08)",color:cc.goldBright,borderRadius:999,padding:"7px 12px",fontFamily:F.ui,fontSize:12.5,fontWeight:900,whiteSpace:"nowrap"}}><span aria-hidden>🗺️</span><span>מפת המערכת</span><small style={{color:cc.muted,fontSize:9.5,fontWeight:800}}>V2 · בבנייה</small></Link>
           {user && <NotificationBell />}
           {user ? (
             <UserMenu user={user} profile={profile} cc={cc} />
@@ -680,14 +646,9 @@ export default function Navbar() {
               🔑 כניסה · הרשמה חינם
             </GoldButton>
           )}
-          <MenuPanel items={moreItems} pathname={pathname} cc={cc} />
+          <MenuPanel groups={MENU_GROUPS} pathname={pathname} cc={cc} />
         </div>
 
-        {/* 🔎 חיפוש במובייל — הפעולה #1 של אתר-מחקר לא צריכה להיות חבויה במגירה.
-            כפתור בסרגל פותח את המגירה עם מיקוד אוטומטי על תיבת-החיפוש. */}
-        <button className="sod-nav-mobile-only nav-msearch" aria-label="חיפוש באתר"
-          onClick={() => { setDrawer(true); setSearchFocus(true); }}
-          style={{ marginInlineStart: "auto" }}>🔎</button>
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
         <span className="sod-nav-mobile-only"><SurpriseButton /></span>
         {/* 🔔 במובייל ההתראות יורדות לאזור-האישי (בקשת צוריאל) — לא תופסות מקום בסרגל */}
@@ -715,11 +676,6 @@ export default function Navbar() {
 
       {drawer && (
         <div className="sod-nav-drawer" style={{ borderTop: `1px solid ${cc.border}`, padding: "12px 8px 20px", maxHeight: "80vh", overflowY: "auto" }}>
-          {/* הקוביה הוסרה מהמגירה — היא כבר קיימת בסרגל המובייל העליון (בקשת צוריאל) */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "4px 6px 12px" }}>
-            <UniversalSearch full autoFocus={searchFocus} onDone={() => setDrawer(false)} />
-          </div>
-
           {/* 🚀 «כאן מתחילים» ירד מבאנר-ענק לאריח-ריבוע רגיל בתוך «כל המדורים» (בקשת צוריאל 4.8.2026)
               — קטן כמו «דף הבית», לא תופס שורה שלמה בראש המגירה. */}
           {user ? (
@@ -894,13 +850,6 @@ export default function Navbar() {
         /* 🌗 בראוט כפוי-כהה — המתג מעומעם (עדיין לחיץ, אך מסמן שאין אפקט בדף הזה) */
         .nav-theme.nav-theme-dim { opacity: 0.4; }
         .nav-theme.nav-theme-dim:hover { transform: none; box-shadow: none; background: ${cc.chipBg}; }
-
-        /* 🔎 כפתור-חיפוש במובייל — אותה שפה ויזואלית של הקובייה/המתג */
-        .nav-msearch { width: 38px; height: 38px; flex-shrink: 0; cursor: pointer; font-size: 17px; line-height: 1;
-          background: ${cc.chipBg}; border: 1px solid ${cc.borderGold}; border-radius: 10px; color: ${cc.goldBright};
-          display: inline-flex; align-items: center; justify-content: center;
-          transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
-        .nav-msearch:hover { transform: scale(1.06); box-shadow: 0 0 14px rgba(212,175,55,0.28); background: ${cc.surface}; }
 
         /* 🖥️ צפיפות דסקטופ צר (1041–1200px): שלושת תוויות-המוצרים שלצד «ההיכל» מוסתרות,
            נשארים רק האייקונים (עם tooltip=title) → החיפוש לא נדחק ואין גלישה. */

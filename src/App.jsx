@@ -117,7 +117,7 @@ function ResearchEntryRoute() {
   const { search } = useLocation();
   const tool = new URLSearchParams(search).get("tool");
   if (tool) return <ResearchPage />;
-  return <MaintenanceLock message="🏗️ ההיכל — בבנייה" />;
+  return <MaintenanceLock message="🏗️ ההיכל — בבנייה" alternatives />;
 }
 
 // ניהול SEO + גלילה לראש בכל מעבר route.

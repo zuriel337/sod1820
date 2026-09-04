@@ -48,60 +48,16 @@ import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 import { fetchHomePosts } from "../lib/homeUpdates.js";
 import { useStream, STREAMS } from "../lib/stream.js";
+import { BUILD_PROGRESS, BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
-// 🏗️ מפת-בנייה ציבורית — נגזרת מה-Roadmap הקנוני, בלי להציג אחוז-הנדסי מזויף.
-// כל מסלול מוצג כשלב מתוך 4: יסודות → חיבור → בנייה → חוויה.
-const PUBLIC_BUILD_PROGRESS = 66;
-const PUBLIC_BUILD_TRACKS = [
-  { icon:"🧱", label:"התשתית שמתחת לאתר", stage:4, status:"מתקדמת מאוד", details:[
-    "האתר לומד לזהות מסע אחד רציף של אותו מבקר, במקום לפצל אותו בין כמה מזהים.",
-    "מערכת המדידה מפרידה בין בני אדם, בוטים ותנועה לא-מוכרת כדי שנדע מה באמת קורה באתר.",
-    "כל שכבת המחקר נבנית מעל תשתית אחידה של מקורות, זהות, היסטוריה והרשאות."
-  ] },
-  { icon:"🧠", label:"סביבת מחקר אחת לכל האתר", stage:3, status:"בבנייה", details:[
-    "במקום שכל כלי יחיה לבד, כל ממצא יוכל לעבור איתכם ממספר לפסוק, מספר, אדם, אירוע או מקור.",
-    "תוכלו לשמור ממצאים, לחזור אליהם, להשוות ביניהם ולהמשיך מאותה נקודה גם אחרי זמן.",
-    "המערכת תדע להראות מה מוכח, מה הצעה, מה פרשנות ומה עדיין מחכה לבדיקה."
-  ] },
-  { icon:"🔢", label:"מספרים וגימטריה", stage:3, status:"בבנייה", details:[
-    "מחשבון הגימטריה מתרחב למנוע מחקר מלא: שיטות רבות, השוואות, קשרים ודפי-מספר עשירים.",
-    "כל מספר יקבל מרכז משלו עם ביטויים, פסוקים, אנשים, אירועים, חיבורים וצירי-התכנסות.",
-    "חיפוש אחד יוכל לגלות קשרים בין שיטות שונות בלי לעבור ידנית מכלי לכלי."
-  ] },
-  { icon:"🔠", label:"הצפנים בתורה · ELS", stage:3, status:"בבנייה", details:[
-    "ELS הוא מנוע חיפוש בדילוגי אותיות בתורה ובתנ״ך. הוא נבנה מחדש ככלי מחקר אחד, לא כאוסף מסכים נפרדים.",
-    "העבודה כוללת עשרות יכולות: חיפוש מוצלב, מרחקים, צורות, שכבות, השוואות, שמירה ושחזור של מחקר.",
-    "הצפנים יוצגו לא רק כרשימת תוצאות אלא גם במבט דו-ממדי, שכבות ותצוגות תלת-ממד שמאפשרות לראות מבנים וקשרים במרחב.",
-    "תוכלו לקחת צופן שמצאתם ולחבר אותו ישירות למספר, מקור, אירוע או מחקר אחר."
-  ] },
-  { icon:"📚", label:"ספרים ומקורות", stage:2, status:"מתחבר למערכת", details:[
-    "לא מדובר רק בספר אחד או שניים: אנחנו בונים שכבת מקורות שבה ספרים, מאמרים, כתבי-יד וחומרי מחקר יכולים להיכנס לאותה מערכת.",
-    "אהבת תורה וספר הפליאה הם דוגמאות ראשונות למקורות שעוברים התאמה למבנה המחקר החדש.",
-    "כל מקור יקבל ייחוס ברור, מיקום, הקשר וקישור לממצאים שנגזרו ממנו — כדי שאפשר יהיה לבדוק ולחזור למקור.",
-    "בהמשך תוכלו לחפש רעיון אחד לרוחב כמה ספרים ומקורות, במקום לקרוא כל מקור בנפרד."
-  ] },
-  { icon:"🌳", label:"עץ הידע + רזיאל", stage:2, status:"מתחבר למערכת", details:[
-    "עץ הידע מחבר בין כל הדברים שהיום מפוזרים באתר: מספרים, שמות, פסוקים, אנשים, שנים, צפנים, ספרים ואירועים.",
-    "רזיאל הוא הבוט-החוקר שיילך איתכם בתוך האתר: תשאלו שאלה, והוא יידע באילו מנועים לחפש ואיזה מקורות לפתוח.",
-    "הוא יציע קשרים, יסביר למה הם מעניינים, ויוכל להוביל אתכם לצעד הבא במחקר — אבל לא יהפוך הצעה לעובדה בלי בדיקה.",
-    "המטרה היא שמבקר לא יצטרך לדעת מראש איפה כל כלי נמצא; רזיאל יעזור לנווט בתוך כל גוף הידע."
-  ] },
-  { icon:"🌍", label:"שפות ועדשות", stage:2, status:"תשתית קיימת", details:[
-    "אותו גוף ידע נבנה כך שיוכל להיפתח לעברית, אנגלית ושפות נוספות בלי לשכפל את המחקר.",
-    "האתר ימשיך לפעול בשתי עדשות: «כי לה׳ המלוכה» ו«קוד המציאות» — שתי דרכי הצגה לאותו בסיס ידע.",
-    "מילים, שמות וקשרים בין שפות יוכלו להישמר ולהתחבר למחקר המספרי והטקסטואלי."
-  ] },
-  { icon:"🏛️", label:"היכל וחוויית האתר החדשה", stage:2, status:"בשיפוץ", details:[
-    "ההיכל יהפוך לשער מסודר לכלי המחקר במקום אוסף כניסות שקשה להבין.",
-    "הניווט, דפי המספר, המסעות, המובייל והדסקטופ יעברו עיצוב מחדש מעל התשתית שכבר נבנית.",
-    "חלקים ייפתחו בהדרגה, כדי שהאתר יישאר שימושי בזמן שהדור החדש נבנה מאחוריו."
-  ] },
-];
+// 🏗️ מפת-הבנייה הציבורית נגזרת ממקור-אמת אחד: lib/knowledgeMap.js.
+const PUBLIC_BUILD_PROGRESS = BUILD_PROGRESS;
+const PUBLIC_BUILD_TRACKS = BUILD_TRACKS;
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
 // כך: כרגע רק «יום משיח בא» (הישנים לפניו לא), וכל צופן חדש שיועלה מהיום מופיע ונשאר שם תמיד.
 const CIPHER_FEED_SINCE = new Date("2026-07-21T12:30:00Z").getTime();
@@ -557,7 +513,7 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 36px" }}>
         <div className="hn-home-top">
           <div className="hn-updates-col">
-            <LatestUpdatesRail homeCompact ownOnly heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+            <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
             <div className="hn-build-title">🏗️ אתר כי לה׳ המלוכה נבנה מחדש <span style={{ marginInlineStart: 8, fontFamily: F.numeric, fontSize: 15, color: P.accentText }}>{PUBLIC_BUILD_PROGRESS}%</span></div>
@@ -566,14 +522,14 @@ export default function HomeNewPage() {
               <div key={t.label} className="hn-build-row">
                 <div className="hn-build-row-head">
                   <b>{t.icon} {t.label}</b>
-                  <span className="hn-build-status">שלב {t.stage}/4 · {t.status}</span>
+                  <span className="hn-build-status">{stagePercent(t.stage)}% · שלב {t.stage}/4 · {t.status}</span>
                 </div>
                 <div className="hn-stage-track" aria-label={`${t.label}: שלב ${t.stage} מתוך 4`}>
                   {[1,2,3,4].map(n => <i key={n} className={n <= t.stage ? "on" : ""} />)}
                 </div>
                 <div className="hn-stage-label">1 יסודות · 2 חיבור · 3 בנייה · 4 חוויה</div>
                 <details className="hn-build-details">
-                  <summary>מה הולך להיות כאן?</summary>
+                  <summary>מה תוכלו לעשות כאן?</summary>
                   <ul>{t.details.map((d,i) => <li key={i}>{d}</li>)}</ul>
                 </details>
               </div>
@@ -581,6 +537,14 @@ export default function HomeNewPage() {
             <div style={{ marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, textAlign: "center" }}>
               חלקים נפתחים בהדרגה — יש למה לחכות.
             </div>
+            <Link to="/map" style={{
+              marginTop:12,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,
+              border:`1px solid ${P.borderStrong}`,borderRadius:13,padding:"11px 13px",textDecoration:"none",
+              background:P.card,color:P.accentText,fontFamily:F.heading,fontSize:13,fontWeight:900
+            }}>
+              <span>🗺️ פתחו את מפת המערכת · מה כבר חי ומה בדרך</span>
+              <span aria-hidden>←</span>
+            </Link>
           </aside>
         </div>
       </section>
