@@ -162,7 +162,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     );
   };
 
-  if (!items.length) return <div style={{ color: P.inkSoft, fontFamily: F.body, textAlign: "center", padding: 24 }}>אין עדכונים כרגע — בקרוב.</div>;
+  if (!items.length) return <div style={{ color: P.inkSoft, fontFamily: F.ui, textAlign: "center", padding: 24 }}>אין עדכונים כרגע — בקרוב.</div>;
 
   return (
     <>
@@ -182,12 +182,12 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-num{font-family:${F.mono};font-size:26px;font-weight:800;color:var(--acc);text-shadow:0 2px 14px color-mix(in srgb,var(--acc) 45%,transparent)}
         .lur-em{font-size:26px}.lur-lem{font-size:12px}
         .lur-body{padding:9px 12px;display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
-        .lur-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-family:${F.heading};font-size:10px;font-weight:800;
+        .lur-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-family:${F.ui};font-size:10px;font-weight:800;
           padding:2px 8px;border-radius:999px;white-space:nowrap;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent)}
         .lur-tagrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-        .lur-pin{display:inline-flex;align-items:center;gap:3px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;
+        .lur-pin{display:inline-flex;align-items:center;gap:3px;font-family:${F.ui};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;
           color:${light ? "#8a6d10" : "#f0d879"};background:${light ? "rgba(212,175,55,.16)" : "rgba(212,175,55,.14)"};border:1px solid rgba(212,175,55,.5)}
-        .lur-badge{display:inline-flex;align-items:center;gap:4px;font-family:${F.heading};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:filter .12s,transform .12s}
+        .lur-badge{display:inline-flex;align-items:center;gap:4px;font-family:${F.ui};font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:filter .12s,transform .12s}
         .lur-badge:hover{filter:brightness(1.06);transform:translateY(-1px)}
         .lur-badge:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
         .lur-badge.diamond{color:#2a1c00;background:linear-gradient(135deg,#f7e08a,#d4af37 55%,#b8891f);box-shadow:0 0 0 1px rgba(255,230,150,.5)}
@@ -196,8 +196,8 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-badge.cat{color:${light ? "#8a5a10" : "#e8c15a"};background:color-mix(in srgb,${cPost} ${light ? "13%" : "17%"},transparent);border-color:color-mix(in srgb,${cPost} 45%,transparent)}
         .lur-card.pinned{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.35)}
         .lur-card.pinned::before{width:4px;background:linear-gradient(180deg,#f0d879,#c8a83a)}
-        .lur-title{font-family:${F.regal};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-        .lur-meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:10.5px;color:${P.muted};font-family:${F.heading};flex-wrap:wrap}
+        .lur-title{font-family:${F.ui};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .lur-meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:10.5px;color:${P.muted};font-family:${F.ui};flex-wrap:wrap}
         .lur-ai{color:#3ea6ff;font-weight:800;background:rgba(62,166,255,.13);border:1px solid rgba(62,166,255,.4);border-radius:999px;padding:1px 7px}
         .lur-more{font-weight:800}
         .lur-cell{position:relative}
@@ -219,14 +219,14 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         <div style={{ textAlign: "center", marginTop: 14 }}>
           <button type="button" onClick={() => setExpanded(true)}
             style={{ background: "none", border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 999, cursor: "pointer",
-              color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 13, padding: "8px 20px" }}>
+              color: P.accentText, fontFamily: F.ui, fontWeight: 800, fontSize: 13, padding: "8px 20px" }}>
             פתח עוד ({visible.length - limit}) ↓
           </button>
         </div>
       )}
       <div style={{ textAlign: "center", marginTop: 16, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
-        <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.heading, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>
+        <Link to="/post" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.ui, fontWeight: 700, fontSize: 14 }}>אל כל הפוסטים →</Link>
+        <Link to="/broadcasts" style={{ color: P.accentText, textDecoration: "none", fontFamily: F.ui, fontWeight: 700, fontSize: 14 }}>📡 מרכז השידורים →</Link>
       </div>
     </>
   );
