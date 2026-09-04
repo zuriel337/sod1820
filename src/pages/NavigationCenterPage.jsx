@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { KNOWLEDGE_WORLDS, BUILD_TRACKS, BUILD_PROGRESS, stagePercent } from "../lib/knowledgeMap.js";
+import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 
 function NumbersDepthPreview() {
   const P = usePalette();
@@ -156,7 +157,15 @@ export default function NavigationCenterPage() {
         </div>
       </section>
 
-\n\n      <BuildStatusDeep />\n\n      <NumbersDepthPreview />\n\n      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
+\n\n      <section style={{maxWidth:900,margin:"0 auto 28px",padding:"22px 18px",border:`1px solid ${P.borderStrong}`,borderRadius:22,background:P.cardGrad,boxShadow:"0 14px 44px rgba(0,0,0,.08)"}}>
+        <StayUpdatedCTA
+          source="system-map-openings"
+          title="🔔 רוצים לדעת כשחלק חדש במפה נפתח?"
+          description="השאירו מייל ונעדכן כשעולמות, כלי מחקר, ספרים, שכבות שפה, מסעות ורכיבים חדשים עוברים מ״בבנייה״ לפתיחה באתר."
+        />
+      </section>
+
+      <BuildStatusDeep />\n\n      <NumbersDepthPreview />\n\n      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
         <input value={q} onChange={e=>setQ(e.target.value)} placeholder="חפשו עולם, כלי, יכולת או משהו שבדרך…"
           style={{width:"100%",boxSizing:"border-box",background:P.card,border:`1px solid ${P.borderStrong}`,borderRadius:999,color:P.ink,fontFamily:F.body,fontSize:15,padding:"12px 18px",outline:"none",textAlign:"center"}} />
       </div>
