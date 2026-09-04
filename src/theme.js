@@ -34,7 +34,7 @@ export const GALLERY_BG_BASE = "#0d0a07";
 // aliases הישנים נשמרים זמנית ל-backward compatibility עד audit מלא.
 export const F = {
   ui:      "Arial, 'Noto Sans Hebrew', sans-serif",
-  body:    "'Heebo', Arial, sans-serif",
+  body:    "Arial, 'Noto Sans Hebrew', sans-serif",
   display: "Arial, 'Noto Sans Hebrew', sans-serif",
   numeric: "'Courier New', monospace",
 
