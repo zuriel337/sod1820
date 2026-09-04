@@ -1,0 +1,21 @@
+-- RESEARCH_TIME_REVISION_REPLAY_FOUNDATION_V1 -- GRANT FIX (GPT crosscheck check 13)
+-- Bug found during live RLS verification: research_object_revisions had RLS
+-- enabled and an admin-only SELECT policy (ro_revisions_admin_read), but no
+-- table-level GRANT SELECT to `authenticated` was ever executed -- only a
+-- comment claiming the shape would be "mirrored automatically". Postgres
+-- grants do not propagate between tables; each table needs its own explicit
+-- GRANT. Without it, PostgREST/any authenticated client gets a hard
+-- "permission denied for table" error at the privilege-check layer,
+-- before RLS is even evaluated -- exactly the silently-blocked-read failure
+-- mode `rls_client_read_protocol` warns about, reproduced here by omission.
+--
+-- Fix: post_revisions (the direct precedent for this table's shape) uses a
+-- plain table-level `GRANT SELECT ... TO authenticated`, relying entirely on
+-- its RLS policy to restrict rows to admins. research_object_revisions has
+-- no per-contributor/per-column visibility nuance (unlike research_objects'
+-- column-level grant, which exists because some columns are admin-only even
+-- for the row itself) -- every column here is uniformly admin-only, so the
+-- simpler post_revisions pattern is the correct one to copy exactly.
+-- anon gets no SELECT grant, matching both precedents.
+
+grant select on public.research_object_revisions to authenticated;
