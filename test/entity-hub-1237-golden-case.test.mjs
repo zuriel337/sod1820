@@ -5,14 +5,17 @@ const projection = fs.readFileSync(new URL("../src/lib/research/entityHubProject
 const page = fs.readFileSync(new URL("../src/pages/EntityHubPreviewPage.jsx", import.meta.url), "utf8");
 const app = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 
-// One-system composition: consume existing owners rather than inventing a Number truth layer.
+// One-system composition: consume existing owners rather than inventing Number/media/method truth layers.
 assert.match(projection, /fetchCanonicalGraphEntityFindings/);
 assert.match(projection, /researchObjectsToUniversalFindings/);
 assert.match(projection, /fetchCanonicalTopicConvergenceFinding/);
 assert.match(projection, /researchNumber/);
+assert.match(projection, /getEntityBundle/);
+assert.match(projection, /getValueFamilies/);
 assert.match(projection, /from\("entity_types"\)/);
+assert.match(projection, /from\("gematria_methods"\)/);
 
-// Read-only boundary: the projection must not write truth, status, journeys or graph state.
+// Read-only boundary: the projection must not write truth, status, journeys, graph, gallery or method state.
 for (const forbidden of [/\.insert\(/, /\.update\(/, /\.upsert\(/, /\.delete\(/, /admin_research_review/]) {
   assert.doesNotMatch(projection, forbidden);
 }
@@ -25,6 +28,28 @@ assert.doesNotMatch(page, /useAuth/);
 assert.doesNotMatch(page, /!isAdmin/);
 assert.match(page, /Public preview/);
 assert.match(page, /אינו עוקף את ה־RLS\/GRANT/);
+
+// Rich visual preview is composed from existing public owners.
+assert.match(projection, /surface:\s*publicSurface/);
+assert.match(page, /VISUAL EVIDENCE/);
+assert.match(page, /גלריה חיה/);
+assert.match(page, /CONNECTED CONTENT/);
+assert.match(page, /CURATED CONVERGENCES/);
+assert.match(page, /surface\.galleries/);
+
+// Method identity is exposed, but the non-ragil interaction architecture remains a Human-Gate decision.
+assert.match(projection, /interactionDecision:\s*"OPEN_HUMAN_GATE"/);
+assert.match(projection, /display_label/);
+assert.match(projection, /required_entitlement/);
+assert.match(page, /GEMATRIA LENS/);
+assert.match(page, /METHOD INSPECTOR/);
+assert.match(page, /החלטה ארכיטקטונית עדיין פתוחה/);
+assert.match(page, /עוד לא החלטנו/);
+
+// Phrase remains the primary gematria navigation target; method click is only a temporary inspector in this preview.
+assert.match(page, /to={`\/number\/\$\{encodeURIComponent\(phrase\)\}`}/);
+assert.match(page, /setMethodFocus/);
+assert.doesNotMatch(projection, /method_lab|method_store|method_engine/i);
 
 // Research/Discovery Path is not a second truth store and is not fabricated here.
 assert.match(projection, /researchPaths:\s*\[\]/);
@@ -48,4 +73,4 @@ assert.match(app, /EntityHubPreviewPage/);
 assert.match(app, /\/entity-hub-preview\/:type\/:key/);
 assert.match(app, /\/number\/:phrase/);
 
-console.log("entity-hub-1237-golden-case: public preview contract OK");
+console.log("entity-hub-1237-golden-case: rich public preview contract OK");
