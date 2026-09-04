@@ -388,36 +388,50 @@ function MenuPanel({ groups, pathname, cc }) {
       </button>
       {open && (
         <div style={{
-          position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(720px, 88vw)",
+          position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(980px, 92vw)",
           background: pc.panelBg, backdropFilter: light ? "none" : "blur(16px)",
           border: `1px solid ${pc.panelBorder}`, borderRadius: 18, padding: 14, zIndex: 250,
           boxShadow: pc.shadow,
         }}>
-          {/* «כאן מתחילים» כבר קיים כפיל-זהב בשורת-הנאב עצמה — לא כופלים אותו כאן (dedupe). */}
-          <div style={{ color: pc.heading, fontFamily: F.ui, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, padding: "2px 6px 10px" }}>האתר החדש נבנה סביב שלושה מרחבים</div>
-          <div style={{ display:"grid", gap:14 }}>
+          <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",gap:16,padding:"3px 5px 14px",borderBottom:`1px solid ${pc.tileBorder}`,marginBottom:14}}>
+            <div>
+              <div style={{color:pc.bannerTitle,fontFamily:F.heading,fontSize:20,fontWeight:900}}>מפת הידע של SOD1820</div>
+              <div style={{color:pc.bannerSub,fontFamily:F.ui,fontSize:11.5,marginTop:4}}>מה כבר חי · מה נבנה · ולאן המערכת מתפתחת</div>
+            </div>
+            <div style={{color:pc.heading,fontFamily:F.numeric,fontSize:11,whiteSpace:"nowrap"}}>36 שיטות · 23,204 פסוקים · 14 שנות ידע</div>
+          </div>
+          <div className="sod-mega-worlds" style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:12,maxHeight:"min(68vh,690px)",overflowY:"auto",paddingInlineEnd:3}}>
             {groups.map(group => (
-              <section key={group.title}>
-                <div style={{ color:pc.heading, fontFamily:F.ui, fontSize:14, fontWeight:800, padding:"2px 4px 7px" }}>{group.title}</div>
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:9 }}>
+              <section key={group.title} style={{background:pc.tileBg,border:`1px solid ${pc.tileBorder}`,borderRadius:16,padding:13,minWidth:0}}>
+                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10,marginBottom:4}}>
+                  <div style={{color:pc.bannerTitle,fontFamily:F.heading,fontSize:16,fontWeight:900}}>{group.title}</div>
+                  {group.stat && <span style={{color:pc.heading,fontFamily:F.numeric,fontSize:9.5,fontWeight:800,textAlign:"left",lineHeight:1.35}}>{group.stat}</span>}
+                </div>
+                {group.kicker && <div style={{color:pc.bannerSub,fontFamily:F.ui,fontSize:10.5,lineHeight:1.45,marginBottom:10}}>{group.kicker}</div>}
+                <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:7}}>
                   {group.items.map(it => {
                     const active = it.to ? isActive(pathname, it.to) : false;
+                    const state = it.state || (it.locked ? "בקרוב" : "פעיל");
                     const inner = <>
-                      <span style={{ fontSize:24, lineHeight:1 }}>{it.emoji}</span>
-                      <span style={{ color:it.locked ? pc.bannerSub : pc.tileText, fontFamily:F.ui, fontSize:13, fontWeight:700, textAlign:"center" }}>{it.label}</span>
-                      {it.locked && <span style={{fontSize:9.5,fontWeight:800,color:pc.bannerSub}}>🏗️ בבנייה</span>}
+                      <span style={{fontSize:18,lineHeight:1,flex:"none"}}>{it.icon === "dilugim" ? <DilugimIcon size={19}/> : it.emoji}</span>
+                      <span style={{minWidth:0,flex:1}}>
+                        <span style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+                          <b style={{color:it.locked ? pc.bannerSub : pc.tileText,fontFamily:F.ui,fontSize:11.5}}>{it.label}</b>
+                          <small style={{fontFamily:F.ui,fontSize:8,fontWeight:900,padding:"1px 5px",borderRadius:999,border:`1px solid ${it.locked ? pc.tileBorder : pc.favBorder}`,color:it.locked ? pc.bannerSub : pc.heading}}>{state}</small>
+                        </span>
+                        {it.note && <span style={{display:"block",color:pc.bannerSub,fontFamily:F.ui,fontSize:9.2,lineHeight:1.35,marginTop:2}}>{it.note}</span>}
+                      </span>
                     </>;
-                    const style={ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6,
-                      background:pc.tileBg, border:`1px ${it.locked ? "dashed" : "solid"} ${active ? pc.tileActive : pc.tileBorder}`,
-                      borderRadius:14, padding:"13px 6px", textDecoration:"none", opacity:it.locked ? .58 : 1 };
+                    const style={display:"flex",alignItems:"flex-start",gap:8,background:active?pc.favBg:"transparent",border:`1px ${it.locked?"dashed":"solid"} ${active?pc.tileActive:pc.tileBorder}`,borderRadius:11,padding:"9px",textDecoration:"none",opacity:it.locked?.72:1,textAlign:"right"};
                     return it.locked
-                      ? <div key={it.label} aria-disabled="true" title="בבנייה" style={{...style,cursor:"not-allowed"}}>{inner}</div>
-                      : <Link key={it.to} to={it.to} onClick={() => setOpen(false)} style={style}>{inner}</Link>;
+                      ? <div key={it.label} aria-disabled="true" title={state} style={{...style,cursor:"default"}}>{inner}</div>
+                      : <Link key={it.to+it.label} to={it.to} onClick={()=>setOpen(false)} style={style}>{inner}</Link>;
                   })}
                 </div>
               </section>
             ))}
           </div>
+          <style>{`@media(max-width:760px){.sod-mega-worlds{grid-template-columns:1fr!important}}`}</style>
         </div>
       )}
     </div>
