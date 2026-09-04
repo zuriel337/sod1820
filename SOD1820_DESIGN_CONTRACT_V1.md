@@ -46,6 +46,16 @@ This contract is forward-looking: it governs new surfaces and surfaces that ente
 - Global banners/tickers are exceptional; construction status belongs in the home build-map.
 - New visual primitives should be added to the theme/design system before being copied across pages.
 
+## Admin / Command theme law
+- `/admin` is one internal product surface, not a dark-gold shell containing unrelated light islands.
+- The whole admin surface must support the same explicit light/dark theme switch as other theme-aware routes.
+- Admin chrome — KPI tiles, group tabs, subtabs, control cards and Command Room shell — must derive from semantic tokens: background, surface, ink, muted, accent, border, success, warning and danger.
+- Legacy variable names such as `--adm-gold*` may remain temporarily as compatibility aliases, but their names do not authorize gold as the default color for every control.
+- Blue/indigo is the normal interaction/system accent in the research/admin workspace; gold is a restrained brand accent, not a truth or importance signal.
+- Green = success/approved, red = error/rejected/danger, amber = waiting/attention. Metric categories may use a distinct color only when the color carries stable meaning.
+- Visual prominence never changes truth/governance rank. HOT/important/selected UI must not look “truer” merely because it is brighter.
+- New admin components must consume semantic palette/theme primitives directly. Transitional CSS bridges are allowed only to migrate legacy inline colors without creating a second palette.
+
 ## Reference surfaces
 Reference surfaces are examples for **new work**, not commands to restyle every legacy page immediately.
 
@@ -53,6 +63,7 @@ Reference surfaces are examples for **new work**, not commands to restyle every 
 | --- | --- | --- | --- | --- | --- |
 | Home | Reference Surface #1 | canonical city/cosmic environment, no decorative letter wallpaper | `F.ui` + `F.body` roles | public entry + build map | establishes the forward visual direction |
 | `/codes` | Reference Surface #2 | canonical environment; ELS letters only when they are meaningful content | `F.ui` + `F.body` roles | gateway to discover / search / research in the ELS world | published, community and personal-unverified lenses remain truth-distinct |
+| `/admin` | Internal Reference Surface | theme-aware research/admin environment | semantic admin/research roles | human command + operations | one coherent light/dark shell; no random gold/light islands |
 | `/codes/:slug` | Next reference candidate | TBD in its redesign pass | forward roles | single research-object / cipher surface | do not redesign implicitly as part of the library page |
 | Legacy surfaces | Transitional | existing behavior until their workstream reaches redesign | existing | preserved capability | no blind migration |
 
