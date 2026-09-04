@@ -1,106 +1,46 @@
 /*
- * ADMIN / COMMAND THEME BRIDGE v1
- * Scope: /admin only, detected by the canonical Research Viewer link rendered in AdminPage.
- * Purpose: normalize the legacy admin color aliases onto one semantic dual-theme language
- * without creating a parallel design system or rewriting every legacy admin tab at once.
+ * ADMIN / COMMAND TRANSITION BRIDGE v2
  *
- * Legacy variable names (--adm-gold*) are kept for compatibility only; their values are now
- * semantic (accent / ink / muted / border), not a promise that every admin surface is gold.
+ * IMPORTANT:
+ * - This file does NOT own the admin palette.
+ * - The canonical admin compatibility variables (--adm-*) already live in AdminPage.jsx.
+ * - /admin enters the canonical route-aware day/night flow through lightRoutes.js.
+ * - This file only adapts the legacy light-only literals inside Command Room while that tab
+ *   is being migrated. New admin UI must use the existing semantic/admin theme primitives.
  */
-
-:root {
-  --adm-bg: #11131b !important;
-  --adm-bgGlow: #191d2a !important;
-  --adm-gold: #6f93ff !important;
-  --adm-goldLight: #f3f6fc !important;
-  --adm-goldBright: #91adff !important;
-  --adm-goldDim: #99a3b5 !important;
-  --adm-goldDark: #26365f !important;
-  --adm-goldDeep: #0c1220 !important;
-  --adm-crimson: #a83d4f !important;
-  --adm-crimsonLight: #d45a69 !important;
-  --adm-royal: #5954c7 !important;
-  --adm-royalLight: #8c88f5 !important;
-  --adm-surface: #181b25 !important;
-  --adm-surface2: #202431 !important;
-  --adm-border: rgba(145, 173, 255, 0.16) !important;
-  --adm-borderGold: rgba(145, 173, 255, 0.34) !important;
-  --adm-muted: #b7c0cf !important;
-  --adm-faint: #2a3040 !important;
-  --adm-danger: #d45a69 !important;
-  --adm-tile: linear-gradient(145deg, rgba(111,147,255,.08), rgba(24,27,37,.92)) !important;
-  --adm-active: linear-gradient(145deg, rgba(111,147,255,.22), rgba(32,36,49,.92)) !important;
-  --adm-active-soft: rgba(111,147,255,.13) !important;
-}
-
-:root[data-theme="light"] {
-  --adm-bg: #f6f7f9 !important;
-  --adm-bgGlow: #eef2f8 !important;
-  --adm-gold: #2f6df6 !important;
-  --adm-goldLight: #1b1d22 !important;
-  --adm-goldBright: #1c4bbf !important;
-  --adm-goldDim: #667085 !important;
-  --adm-goldDark: #d9e3fb !important;
-  --adm-goldDeep: #ffffff !important;
-  --adm-crimson: #b42318 !important;
-  --adm-crimsonLight: #d92d20 !important;
-  --adm-royal: #6941c6 !important;
-  --adm-royalLight: #7f56d9 !important;
-  --adm-surface: #ffffff !important;
-  --adm-surface2: #f8fafc !important;
-  --adm-border: #e4e7ec !important;
-  --adm-borderGold: #cdd6e4 !important;
-  --adm-muted: #5b6472 !important;
-  --adm-faint: #eef2f8 !important;
-  --adm-danger: #b42318 !important;
-  --adm-tile: linear-gradient(145deg, #ffffff, #f4f7fb) !important;
-  --adm-active: linear-gradient(145deg, rgba(47,109,246,.14), #ffffff) !important;
-  --adm-active-soft: rgba(47,109,246,.09) !important;
-}
-
-/* Admin shell: keep the dashboard chrome coherent with the route theme. */
-#root div[dir="rtl"]:has(a[href="/research-viewer"]) {
-  color-scheme: dark;
-}
-:root[data-theme="light"] #root div[dir="rtl"]:has(a[href="/research-viewer"]) {
-  color-scheme: light;
-}
-
-/* KPI / tab chrome uses one restrained interaction language; semantic status colors may still differ. */
-#root div[dir="rtl"]:has(a[href="/research-viewer"]) button[style*="var(--adm-tile)"],
-#root div[dir="rtl"]:has(a[href="/research-viewer"]) button[style*="var(--adm-active)"],
-#root div[dir="rtl"]:has(a[href="/research-viewer"]) button[style*="var(--adm-active-soft)"] {
-  box-shadow: none !important;
-}
 
 /*
- * Transitional Command Room bridge.
  * WarRoomTab predates the forward Design Contract and still contains a small set of literal
- * PALETTES.lab colors. In dark mode we remap those legacy literals inside /admin only, so the
- * user does not get a white island inside a dark dashboard. This is a migration bridge, not a
- * second palette; newly redesigned admin components must use semantic tokens directly.
+ * PALETTES.lab values. In dark mode, remap only those literals under the live AdminPage subtree.
+ * The Research Viewer link is a stable marker rendered by AdminPage today; no dir attribute is
+ * assumed because RTL is currently applied via CSS rather than div[dir="rtl"].
  */
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="#f6f7f9"],
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="rgb(246, 247, 249)"] {
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#f6f7f9"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(246, 247, 249)"] {
   background: var(--adm-bg) !important;
 }
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="#ffffff"],
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="rgb(255, 255, 255)"] {
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#ffffff"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(255, 255, 255)"] {
   background-color: var(--adm-surface) !important;
 }
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="#1b1d22"],
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="rgb(27, 29, 34)"] {
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#1b1d22"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(27, 29, 34)"] {
   color: var(--adm-goldLight) !important;
 }
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="#5b6472"],
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="rgb(91, 100, 114)"] {
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#5b6472"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(91, 100, 114)"] {
   color: var(--adm-muted) !important;
 }
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="#8a93a3"],
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="rgb(138, 147, 163)"] {
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#8a93a3"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(138, 147, 163)"] {
   color: var(--adm-goldDim) !important;
 }
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="#dbe1ea"],
-:root:not([data-theme="light"]) #root div[dir="rtl"]:has(a[href="/research-viewer"]) [style*="rgb(219, 225, 234)"] {
+
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="#dbe1ea"],
+:root:not([data-theme="light"]) #root div:has(a[href="/research-viewer"]) [style*="rgb(219, 225, 234)"] {
   border-color: var(--adm-border) !important;
 }
