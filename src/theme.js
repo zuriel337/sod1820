@@ -12,7 +12,7 @@ export const C = {
   goldDeep:     "#1a0e00",
   crimson:      "#7a1320",
   crimsonLight: "#a01f2e",
-  royal:        "#3d1f5c",
+  royal:   "'Assistant', Arial, sans-serif",
   royalLight:   "#6b3fa0",
   surface:      "#0d0a0e",
   surface2:     "#140f0c",
@@ -33,16 +33,16 @@ export const GALLERY_BG_BASE = "#0d0a07";
 // ui = ממשק/כותרות מערכת נקיות; body = קריאה; display = כותרת מותג נדירה; numeric = מספרים.
 // aliases הישנים נשמרים זמנית ל-backward compatibility עד audit מלא.
 export const F = {
-  ui:      "Arial, 'Noto Sans Hebrew', sans-serif",
-  body:    "Arial, 'Noto Sans Hebrew', sans-serif",
-  display: "Arial, 'Noto Sans Hebrew', sans-serif",
+  ui:      "'Assistant', Arial, sans-serif",
+  body:    "'Assistant', Arial, sans-serif",
+  display: "'Assistant', Arial, sans-serif",
   numeric: "'Courier New', monospace",
 
   // legacy aliases — לא להשתמש בקוד חדש.
   royal:   "Arial, 'Noto Sans Hebrew', sans-serif",
-  regal:   "Arial, 'Noto Sans Hebrew', sans-serif",
-  cinzel:  "Arial, 'Noto Sans Hebrew', sans-serif",
-  heading: "Arial, 'Noto Sans Hebrew', sans-serif",
+  regal:   "'Assistant', Arial, sans-serif",
+  cinzel:  "'Assistant', Arial, sans-serif",
+  heading: "'Assistant', Arial, sans-serif",
   mono:    "'Courier New', monospace",
 };
 
