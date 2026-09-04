@@ -30,6 +30,7 @@ export default function RazielGlobalShell() {
   const [collapsed, setCollapsed] = useState(false);
   const ctx = useMemo(() => pageContext(pathname, search), [pathname, search]);
   const buildProgress = BUILD_PROGRESS;
+  if (!isAdmin) return null;
 
   async function ask() {
     const question = q.trim();
