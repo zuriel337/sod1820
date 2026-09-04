@@ -71,7 +71,7 @@ export default function CiphersLibraryPage() {
     track("codes-library");
     applySeo({
       title: "ספריית הצפנים — דילוגי אותיות (ELS) בתורה ובתנ״ך",
-      description: "ספריית הצפנים של סוד 1820: צפנים שפורסמו בספרייה, חומר קהילתי וחומר אישי שמסומן בבירור כטרם אומת. מכל צופן ממשיכים לעמוד הקנוני שלו. עדות — לא ניבוי.",
+      description: "ספריית הצפנים של סוד 1820: צפנים שפורסמו בספרייה, חומר קהילתי וממצאים מתיקים אישיים שמסומנים בבירור כטרם אומתו. מכל צופן ממשיכים לעמוד הקנוני שלו. עדות — לא ניבוי.",
       path: "/codes",
       image: "https://sod1820.co.il/api/card?w=" + encodeURIComponent("ספריית הצפנים") + "&sub=" + encodeURIComponent("דילוגי אותיות · ELS") + "&cap=" + encodeURIComponent("לגלות · לחפש · להמשיך למחקר"),
     });
@@ -80,12 +80,11 @@ export default function CiphersLibraryPage() {
   useEffect(() => {
     getSavedMatrices(200).then(setItems).catch(() => setItems([]));
 
-    // 👤 חומר אישי לא-מפורסם: משתמשים באותה טבלה/אותו RLS, לא ב-store חדש.
-    // שכבת הספרייה מוסיפה guard של visibility=public כדי לא להגדיל discoverability של שורות שמסומנות private
-    // עד להכרעה נפרדת בדריפט self_published↔visibility.
+    // 👤 תיק אישי: self_published=true הוא פעולה מפורשת של המשתמש — «הצג בתיק שלי».
+    // legacy visibility אינו משמש כאן כציר פרסום; אימות/פרסום קנוני נשארים צירים נפרדים.
     getDraftMatrices(500)
       .then(rows => setPersonalItems((rows || []).filter(
-        m => m.self_published === true && m.status !== "published" && m.visibility === "public"
+        m => m.self_published === true && m.status !== "published"
       )))
       .catch(() => setPersonalItems([]));
   }, []);
@@ -187,7 +186,7 @@ export default function CiphersLibraryPage() {
           <span style={{ position: "absolute", insetInlineStart: 9, top: 9, display: "flex", gap: 6, flexWrap: "wrap" }}>
             {isPersonal
               ? <>
-                  {chip("rgba(104,78,145,.92)", "#fff", "👤 דף אישי")}
+                  {chip("rgba(104,78,145,.92)", "#fff", "👤 תיק אישי")}
                   {chip("rgba(36,32,43,.90)", "#f2dba1", "טרם אומת")}
                 </>
               : isCommunity
@@ -214,7 +213,7 @@ export default function CiphersLibraryPage() {
 
           {isPersonal && (
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.55 }}>
-              חומר שהחוקר בחר להציג בתיק האישי. אינו נושא חותמת אימות של סוד 1820.
+              ממצא שהחוקר בחר להציג בתיק האישי שלו. טרם אומת על־ידי סוד 1820.
             </div>
           )}
 
@@ -273,7 +272,7 @@ export default function CiphersLibraryPage() {
     { k: "all", label: "הכל שפורסם", n: list.length },
     { k: "system", label: "מערכת", n: systemC.length },
     { k: "community", label: "קהילה", n: community.length },
-    { k: "personal", label: "מהדפים האישיים", n: personal.length },
+    { k: "personal", label: "תיקים אישיים", n: personal.length },
   ];
 
   return (
@@ -290,7 +289,7 @@ export default function CiphersLibraryPage() {
           }}>ספריית הצפנים</h1>
           <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 16, lineHeight: 1.75, maxWidth: 700, margin: "0 auto 16px" }}>
             לגלות מה כבר נמצא, לפתוח צופן לעומק, או לצאת לחיפוש חדש בכלי הדילוגים.
-            חומר אישי מוצג בנפרד ומסומן בבירור כאשר הוא טרם אומת.
+            ממצאים מתיקים אישיים מוצגים בנפרד ומסומנים בבירור כאשר הם טרם אומתו.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
             <ElsPulseChip />
@@ -311,7 +310,7 @@ export default function CiphersLibraryPage() {
           <div style={gatewayCard(P, false)}>
             <span style={gatewayIcon}>⌘</span>
             <strong style={gatewayTitle(P)}>גלה מה כבר נמצא</strong>
-            <span style={gatewayText(P)}>צפני מערכת, קהילה וחומר אישי מסומן</span>
+            <span style={gatewayText(P)}>צפני מערכת, קהילה וממצאים מתיקים אישיים מסומנים</span>
             <span style={{ ...gatewayAction(P), opacity: 0.75 }}>אתה כאן</span>
           </div>
 
@@ -375,7 +374,7 @@ export default function CiphersLibraryPage() {
             background: P.cardSoft, border: `1px solid ${P.border}`, color: P.inkSoft,
             fontFamily: F.body, fontSize: 13.5, lineHeight: 1.7, textAlign: "center",
           }}>
-            צפנים שחברי הקהילה בחרו להציג בתיק האישי שלהם. הם מוצגים כחומר למחקר ולדיון,
+            ממצאים שחברי הקהילה בחרו להציג בתיק האישי שלהם. הם מוצגים כחומר למחקר ולדיון,
             <b style={{ color: P.ink }}> טרם אומתו על־ידי סוד 1820</b> ואינם מקבלים חותמת אימות או דירוג “צופן בולט”.
           </div>
         )}
@@ -483,7 +482,7 @@ export default function CiphersLibraryPage() {
             <section>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", flexWrap: "wrap", marginBottom: 12 }}>
                 <h2 style={{ color: P.ink, fontFamily: F.ui, fontSize: 20, fontWeight: 700, margin: 0 }}>
-                  {filter === "personal" ? "מהדפים האישיים" : filter === "system" ? "צפני מערכת" : filter === "community" ? "צפני הקהילה" : "כל מה שפורסם"}
+                  {filter === "personal" ? "תיקים אישיים" : filter === "system" ? "צפני מערכת" : filter === "community" ? "צפני הקהילה" : "כל מה שפורסם"}
                 </h2>
                 <span style={{ color: P.inkSoft, fontFamily: F.ui, fontSize: 12.5 }}>
                   {shown.length} תוצאות
