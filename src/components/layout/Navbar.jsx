@@ -455,12 +455,23 @@ const LAB_MENU = [
 ];
 // מזהה-כלי מתוך ה-to (…?tool=xxx) — לאיחוד הנעילה מול isToolReady (מקור-אמת אחד).
 const labToolId = to => (to.match(/tool=([a-z]+)/) || [])[1] || null;
+const HEICHAL_UNDER_CONSTRUCTION = true;
 function LabMenu() {
   const { open, setOpen, ref, hoverProps } = useAccessibleMenu();
   const { isAdmin } = useAuth();
   const cc = chromeColors(useThemeMode());
   // 🔓 נעילה מאוחדת: כלי פתוח אם isToolReady (READY_TOOLS) — מקור-אמת אחד עם המעבדה. אדמין רואה הכל.
   const isLabOpen = it => { const id = labToolId(it.to); return id ? isToolReady(id, isAdmin) : true; };
+  if (HEICHAL_UNDER_CONSTRUCTION) {
+    return (
+      <Link to="/research" className="sod-nav-desktop" aria-label="ההיכל — בבנייה" style={{
+        display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", textDecoration: "none",
+        background: "rgba(212,175,55,0.08)", color: cc.goldBright,
+        border: `1.5px dashed ${cc.borderGold}`, fontFamily: F.heading, fontWeight: 800, fontSize: 14.5,
+        padding: "8px 18px", borderRadius: 12, whiteSpace: "nowrap", opacity: 0.82,
+      }}>🏗️ ההיכל <span style={{ fontSize: 10, fontWeight: 900 }}>בבנייה</span></Link>
+    );
+  }
   return (
     <div ref={ref} className="sod-nav-desktop" style={{ position: "relative" }} {...hoverProps}>
       {/* הצ'יפ עצמו מנווט ל-/research; ה-▾ (כפתור נפרד) פותח/סוגר את הרשימה — נגיש למקלדת/מגע. */}
@@ -736,7 +747,7 @@ export default function Navbar() {
               position: "absolute", top: -12, insetInlineStart: 12, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
               background: cc.bgScrolled, border: `1px solid ${cc.borderGold}`, borderRadius: 999, padding: "3px 12px", textDecoration: "none" }}>
               <span style={{ width: 18, height: 18, borderRadius: "50%", background: "linear-gradient(135deg,#e6cf86,#c9a84a)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🏛️</span>
-              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12.5, fontWeight: 800 }}>ההיכל</span>
+              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12.5, fontWeight: 800 }}>ההיכל · בבנייה</span>
             </Link>
             <span style={{ position: "absolute", top: -10, insetInlineEnd: 12, background: cc.bgScrolled, border: `1px solid ${cc.border}`, borderRadius: 999, padding: "2px 8px", color: cc.muted, fontFamily: F.heading, fontSize: 9, fontWeight: 700, whiteSpace: "nowrap" }}>💻 חוויה מלאה במחשב</span>
             <div className="sod-tiles" style={{ padding: 0 }}>
