@@ -15,7 +15,13 @@ import {
   ROWS, COLS, TOTAL_OCCURRENCES, GOLDEN_SET,
   buildOccurrences, buildBisectOccurrences, buildSyntheticElsPath,
 } from "../../lib/dev/glyphPrototypeData.js";
-import { HEEBO_LATIN_HEBREW_WOFF1_DATA_URI } from "../../lib/dev/heeboFontDataUri.js";
+// Existing repo font asset, referenced directly (Vite ?url import — bundled from the ONE source
+// file, no second maintained/embedded copy). Same file api/card.js already uses server-side for
+// OG-card text rendering. Verified via direct fontTools cmap inspection (see AFTER report) to
+// fully cover Hebrew base letters (22/22), final forms (5/5), niqqud samples (5/5), digits, and
+// Latin. Verified NOT to cover te'amim (cantillation marks) or Arabic — both reported explicitly,
+// neither invented/downloaded to patch this gap per instruction.
+import HEEBO_800_TTF_URL from "../../../api/_assets/heebo-800.ttf?url";
 
 // ---- DIAGNOSTIC-ONLY config hooks (10K Glyph Runtime Diagnostic Delta v1) ----
 // URL-param driven so the exact same build can be re-run under different Troika configurations
@@ -39,7 +45,7 @@ if (_params?.get("worker") === "0") {
 // @font-face the rest of the site uses, and is not reachable in every environment (see AFTER
 // report, Golden Set / Technology Decision sections). No coverage claim for niqqud/te'amim/Arabic —
 // tested explicitly below (Golden Set rows 5/6/10) and reported honestly, not assumed.
-const HEBREW_FONT_URL = HEEBO_LATIN_HEBREW_WOFF1_DATA_URI;
+const HEBREW_FONT_URL = HEEBO_800_TTF_URL;
 
 const CELL = 0.34;
 const GRID_W = COLS * CELL;
@@ -259,6 +265,8 @@ export default function GlyphPrototypeScene() {
       getStats: () => statsRef.current,
       getTimings: () => timingsRef.current,
       getSyncedCount: () => syncedRows.current.size,
+      getSyncedRows: () => Array.from(syncedRows.current),
+      getUnsyncedRows: () => Array.from({ length: ROWS }, (_, r) => r).filter((r) => !syncedRows.current.has(r)),
       totalOccurrences: TOTAL_OCCURRENCES,
     };
     return () => { delete window.__glyphProtoApi; };
