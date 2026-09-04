@@ -4,42 +4,53 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { KNOWLEDGE_WORLDS, BUILD_PROGRESS } from "../lib/knowledgeMap.js";
 
-function KnowledgeUniverse() {
+function NumbersDepthPreview() {
   const P = usePalette();
-  const worlds = [
-    {k:"numbers",label:"מספרים",icon:"🔢",to:"/number",x:50,y:12,z:2},
-    {k:"codes",label:"צפנים · ELS",icon:"🔠",to:"/codes",x:82,y:31,z:1},
-    {k:"books",label:"ספרים ומקורות",icon:"📚",to:"/beit-midrash",x:78,y:72,z:0},
-    {k:"community",label:"קהילה",icon:"💬",to:"/community",x:50,y:88,z:1},
-    {k:"archive",label:"ארכיון הידע",icon:"🗃️",to:"/post",x:20,y:72,z:0},
-    {k:"discover",label:"לגלות",icon:"✨",to:"/post",x:17,y:31,z:1},
-  ];
+  const nums = ["1820","506","358","424","67","337","683","1234","207","661","756","785","891","218","456","386","101","72","26","18","144","2701","730","58","85","314","999","42"];
+  const words = ["אור","בינה","בראשית","מלכות","חכמה"];
   return (
-    <section className="sod-universe" aria-label="מפת עולמות SOD1820" style={{
-      position:"relative",height:"clamp(330px,46vw,500px)",maxWidth:900,margin:"8px auto 28px",
-      borderRadius:30,overflow:"hidden",border:`1px solid ${P.borderStrong}`,
-      background:`radial-gradient(circle at 50% 48%, ${P.card} 0, ${P.cardSoft} 34%, transparent 72%)`,
-      boxShadow:"inset 0 0 80px rgba(0,0,0,.08),0 24px 70px rgba(0,0,0,.10)",perspective:"900px"
+    <section className="ndp" aria-label="המחשה חזותית של עומק מערכת המספרים" style={{
+      position:"relative",height:"clamp(300px,42vw,430px)",maxWidth:920,margin:"10px auto 30px",
+      overflow:"hidden",borderRadius:26,border:`1px solid ${P.borderStrong}`,
+      background:"radial-gradient(circle at 50% 48%,rgba(79,58,120,.32),rgba(9,11,18,.96) 58%,#050609 100%)",
+      boxShadow:"inset 0 0 100px rgba(0,0,0,.7),0 20px 60px rgba(0,0,0,.18)",perspective:"850px"
     }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden style={{position:"absolute",inset:"7%",width:"86%",height:"86%",opacity:.55}}>
-        <ellipse cx="50" cy="50" rx="39" ry="31" fill="none" stroke={P.borderStrong} strokeWidth=".35" strokeDasharray="2 2"/>
-        {worlds.map(w=><line key={w.k} x1="50" y1="50" x2={w.x} y2={w.y} stroke={P.borderStrong} strokeWidth=".3"/>)}
-      </svg>
-      <div style={{position:"absolute",left:"50%",top:"50%",transform:"translate(-50%,-50%) translateZ(55px)",width:"clamp(112px,18vw,160px)",aspectRatio:"1",borderRadius:"50%",display:"grid",placeItems:"center",textAlign:"center",background:P.cardGrad,border:`1px solid ${P.borderStrong}`,boxShadow:"0 0 45px rgba(212,175,55,.16)",zIndex:4}}>
-        <div><div style={{fontSize:26}}>🌳</div><b style={{display:"block",color:P.accentText,fontFamily:F.regal,fontSize:18}}>SOD1820</b><small style={{color:P.inkSoft,fontFamily:F.body}}>גוף ידע אחד</small></div>
+      <div className="ndp-stars" aria-hidden />
+      <div className="ndp-space" aria-hidden>
+        {nums.map((n,i)=>{
+          const x=(i*37+13)%94+3, y=(i*61+17)%82+8, z=((i*47)%520)-260;
+          const s=.68+((i*29)%70)/100, o=.28+((i*17)%62)/100;
+          return <span key={n+"-"+i} className={"ndp-num "+(n==="1820"?"anchor":"")} style={{
+            left:`${x}%`,top:`${y}%`,opacity:o,fontSize:`${s}rem`,
+            transform:`translate(-50%,-50%) translateZ(${z}px)`
+          }}>{n}</span>
+        })}
+        {words.map((w,i)=><span key={w} className="ndp-word" style={{left:`${12+i*19}%`,top:`${25+(i%3)*23}%`,transform:`translateZ(${-150+i*55}px)`}}>{w}</span>)}
+        <svg className="ndp-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {Array.from({length:18},(_,i)=><line key={i} x1={(i*37+16)%94} y1={(i*61+22)%86} x2={(i*53+43)%94} y2={(i*31+38)%86} />)}
+        </svg>
       </div>
-      {worlds.map(w=><Link key={w.k} to={w.to} className="sod-universe-node" style={{
-        position:"absolute",left:`${w.x}%`,top:`${w.y}%`,transform:`translate(-50%,-50%) translateZ(${w.z*18}px)`,
-        width:"clamp(86px,14vw,132px)",minHeight:"clamp(70px,10vw,96px)",padding:"9px",boxSizing:"border-box",
-        display:"grid",placeItems:"center",alignContent:"center",gap:4,textAlign:"center",textDecoration:"none",
-        borderRadius:"50%",background:P.card,border:`1px solid ${P.border}`,boxShadow:"0 10px 30px rgba(0,0,0,.10)",zIndex:3
-      }}><span style={{fontSize:"clamp(20px,3vw,28px)"}}>{w.icon}</span><b style={{color:P.ink,fontFamily:F.heading,fontSize:"clamp(10px,1.5vw,13px)"}}>{w.label}</b></Link>)}
-      <div style={{position:"absolute",bottom:14,left:0,right:0,textAlign:"center",color:P.inkSoft,fontFamily:F.body,fontSize:11}}>כל נקודה היא דלת · כל קו הוא קשר</div>
+      <div className="ndp-copy">
+        <strong>הצצה לעומק המערכת</strong>
+        <span>מספרים · ביטויים · טקסטים · קשרים · שכבות</span>
+      </div>
+      <div className="ndp-note">המחשה חזותית של המרחב העתידי · אינה מפת הנתונים בפועל</div>
       <style>{`
-        .sod-universe-node{transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease}
-        .sod-universe-node:hover{transform:translate(-50%,-50%) translateZ(75px) scale(1.07)!important;box-shadow:0 16px 42px rgba(0,0,0,.16)!important}
-        @media(max-width:620px){.sod-universe{height:390px!important}.sod-universe-node{width:88px!important;min-height:72px!important}}
-        @media(prefers-reduced-motion:no-preference){.sod-universe-node{animation:sodFloat 6s ease-in-out infinite alternate}.sod-universe-node:nth-of-type(even){animation-delay:-2.5s}@keyframes sodFloat{to{margin-top:-5px}}}
+        .ndp-space{position:absolute;inset:0;transform-style:preserve-3d;animation:ndpDrift 18s ease-in-out infinite alternate}
+        .ndp-num,.ndp-word{position:absolute;white-space:nowrap;transform-style:preserve-3d;user-select:none}
+        .ndp-num{font-family:${F.numeric};font-weight:800;color:#f2d77c;text-shadow:0 0 18px rgba(242,215,124,.42)}
+        .ndp-num.anchor{font-size:clamp(2.1rem,6vw,4.5rem)!important;opacity:.96!important;left:50%!important;top:48%!important;transform:translate(-50%,-50%) translateZ(150px)!important;color:#fff0a8;text-shadow:0 0 14px rgba(255,224,120,.8),0 0 50px rgba(139,92,246,.48)}
+        .ndp-word{font-family:${F.regal};font-size:clamp(.8rem,2vw,1.25rem);color:rgba(211,197,235,.25);letter-spacing:.08em}
+        .ndp-lines{position:absolute;inset:0;width:100%;height:100%;opacity:.22}
+        .ndp-lines line{stroke:#cdb9ff;stroke-width:.18}
+        .ndp-stars{position:absolute;inset:-30%;background-image:radial-gradient(circle,rgba(255,255,255,.55) 0 1px,transparent 1.5px);background-size:43px 43px;opacity:.18;transform:rotate(11deg)}
+        .ndp-copy{position:absolute;z-index:5;top:18px;right:20px;display:grid;gap:3px;text-align:right;pointer-events:none}
+        .ndp-copy strong{font-family:${F.regal};font-size:clamp(18px,3vw,27px);color:#f5df91}
+        .ndp-copy span,.ndp-note{font-family:${F.body};color:rgba(235,229,244,.66);font-size:11px}
+        .ndp-note{position:absolute;z-index:5;bottom:12px;left:16px;right:16px;text-align:center}
+        @keyframes ndpDrift{0%{transform:rotateX(2deg) rotateY(-4deg) translateZ(-20px) scale(1.03)}100%{transform:rotateX(-3deg) rotateY(5deg) translateZ(35px) scale(1.08)}}
+        @media(max-width:620px){.ndp{height:330px!important}.ndp-copy{right:14px;top:14px}.ndp-word{opacity:.7}}
+        @media(prefers-reduced-motion:reduce){.ndp-space{animation:none}}
       `}</style>
     </section>
   );
@@ -109,7 +120,7 @@ export default function NavigationCenterPage() {
         </div>
       </section>
 
-      <KnowledgeUniverse />\n\n      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
+\n\n      <NumbersDepthPreview />\n\n      <div style={{maxWidth:560,margin:"0 auto 24px"}}>
         <input value={q} onChange={e=>setQ(e.target.value)} placeholder="חפשו עולם, כלי, יכולת או משהו שבדרך…"
           style={{width:"100%",boxSizing:"border-box",background:P.card,border:`1px solid ${P.borderStrong}`,borderRadius:999,color:P.ink,fontFamily:F.body,fontSize:15,padding:"12px 18px",outline:"none",textAlign:"center"}} />
       </div>

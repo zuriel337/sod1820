@@ -463,7 +463,7 @@ export default function HomeNewPage() {
         .hn-build-details[open] summary:after{content:" −"}
         .hn-build-details ul{margin:8px 16px 0 0;padding:0;display:grid;gap:5px;line-height:1.6}
         .hn-build-details li{padding-inline-start:2px}
-        @media(max-width:900px){.hn-home-top{grid-template-columns:1fr}.hn-build-card{position:static;order:0}.hn-updates-col{order:1}}
+        @media(max-width:900px){.hn-home-top{grid-template-columns:1fr}.hn-updates-col{order:0}.hn-build-card{position:static;order:1}}
         @media(max-width:640px){.hn-home-top{gap:14px;margin-top:16px}.hn-build-card{padding:16px 14px}}
         @media (max-width:520px){ .hn-thumb-img{ height:118px; } }
         @media (prefers-reduced-motion:reduce){ .hn-matrix,.hn-livedot{ animation:none } }
