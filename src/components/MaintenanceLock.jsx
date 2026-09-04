@@ -12,7 +12,7 @@ import { LOGO_URL } from "../theme.js";
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
 
-export function MaintenanceLock({ message, showLogin = false }) {
+export function MaintenanceLock({ message, showLogin = false, alternatives = false }) {
   return (
     <div className="mlock" role="status" aria-live="polite">
       <style>{`
@@ -51,6 +51,12 @@ export function MaintenanceLock({ message, showLogin = false }) {
         </>
       ) : (
         <p>אנחנו משדרגים את המערכת כדי לשרת אתכם טוב יותר. האזור הזה יחזור לפעול בקרוב — תודה על הסבלנות.</p>
+      )}
+      {alternatives && !showLogin && (
+        <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:20}}>
+          <Link className="mlock-cta" to="/beit-midrash">📖 למחשבון בבית המדרש</Link>
+          <Link className="mlock-cta" to="/code">🔠 לדילוגי אותיות</Link>
+        </div>
       )}
       <div className="sub"><Link to="/">← לעמוד הבית</Link></div>
     </div>
