@@ -24,7 +24,7 @@ import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import { useStream } from "./lib/stream.js";
 import UpdateBanner from "./components/UpdateBanner.jsx";
-import Locked from "./components/MaintenanceLock.jsx";
+import Locked, { MaintenanceLock } from "./components/MaintenanceLock.jsx";
 const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.jsx"));
 
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
@@ -111,6 +111,14 @@ const ResearchersIndexPage = React.lazy(() => import("./pages/ResearchersIndexPa
 const WaInboxPage = React.lazy(() => import("./pages/WaInboxPage.jsx"));
 // 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
 const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
+
+// 🏗️ היכל-הגילוי בשיפוץ: סוגרים רק את שער-האב /research. כלי מחקר ישירים עם ?tool= נשארים זמינים.
+function ResearchEntryRoute() {
+  const { search } = useLocation();
+  const tool = new URLSearchParams(search).get("tool");
+  if (tool) return <ResearchPage />;
+  return <MaintenanceLock message="🏗️ היכל הגילוי — בבנייה" />;
+}
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
 // דפי תוכן דינמיים (פוסט/קטגוריה/תגית/מספר) מגדירים SEO משלהם בעת טעינה.
@@ -279,7 +287,7 @@ export default function App() {
           <Route path="/galaxy" element={<GalaxyRoom />} />
           <Route path="/galaxy/:slug" element={<GalaxyPage />} />
           {/* 🔬 סביבת המחקר — שלד חדש (שלב 1), מחוץ ל-Layout הקיים (סביבה בהירה נקייה) */}
-          <Route path="/research" element={<ResearchPage />} />
+          <Route path="/research" element={<ResearchEntryRoute />} />
           {/* 🧪 מעבדה להבנת משמעות — דף פרטי חבוי (מסך נקי, בלי צ'רום). לא מקושר בשום מקום. */}
           <Route path="/meaning-lab" element={<MeaningLabPage />} />
           {/* 🔬 Research Viewer v0 — Projection בלבד, פנימי לא-מקושר. אדמין-גייט ברכיב עצמו. מחוץ ל-/admin/ (honeypot Vercel תופס /admin/(.*)). */}
