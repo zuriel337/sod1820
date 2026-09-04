@@ -485,8 +485,8 @@ export default function HomeNewPage() {
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
           {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
               מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
-          <div className="hn-emblem">SOD1820 · {lens.label}</div>
-          <h2 className="hn-compact-brand">SOD1820 נבנה מחדש מבפנים</h2>
+          <div className="hn-emblem">אתר כי לה׳ המלוכה</div>
+          <h2 className="hn-compact-brand">אתר כי לה׳ המלוכה נבנה מחדש מבפנים</h2>
           <p className="hn-compact-sub">המחקר, המספרים והחיבורים ממשיכים לעבוד — ובמקביל אנחנו בונים מחדש את האתר כולו, שכבה אחרי שכבה.</p>
           <div className="hn-hero-actions">
             <form onSubmit={go} className="hn-search">
@@ -523,7 +523,7 @@ export default function HomeNewPage() {
           <div className="hn-updates-col">
             <LatestUpdatesRail homeCompact ownOnly heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
           </div>
-          <aside className="hn-build-card" aria-label="מצב הבנייה של SOD1820">
+          <aside className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
             <div className="hn-build-title">🏗️ אתר כי לה׳ המלוכה נבנה מחדש</div>
             <div className="hn-build-sub">לא מד אחוזים שרירותי — כל תחום מוצג לפי השלב האמיתי שלו במפת-העל: יסודות → חיבור → בנייה → חוויה.</div>
             {PUBLIC_BUILD_TRACKS.map(t => (
