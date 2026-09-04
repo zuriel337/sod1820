@@ -23,7 +23,7 @@ const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/
 // 📌 פוסט «נעוץ» = tree_priority גבוה (מוצמד ידנית ע"י אדמין). מוצג ראשון + תג «נעוץ».
 const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 
-export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false, homeCompact = false }) {
+export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false, homeCompact = false, ownOnly = false }) {
   const P = usePalette();
   const [expanded, setExpanded] = useState(false);   // «פתח עוד» — פותח מ-limit לכל הפריטים (רק כשמועבר limit)
   const light = P.mode === "light";
@@ -39,7 +39,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     (convergences || []).forEach(c => out.push({ type: "conv", when: +new Date(c.created_at || 0), data: c }));
     // 🌊 «עודכן לפני X» לרמז = מתי נוסף לזרם (stream_at→created_at), לא תאריך-האירוע (occurred_at, חצות → «לפני 12 שעות» מוטעה)
     (hints || []).filter(h => h.image_url).forEach(h => out.push({ type: "reality", when: streamDate(h), data: h }));
-    (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
+    if (!ownOnly) (researchers || []).forEach(r => out.push({ type: "researcher", when: +new Date(r.latest_at || 0), data: r }));
     (ciphers || []).forEach(c => out.push({ type: "cipher", when: +new Date(c.created_at || 0), data: c }));
     // 📌 פוסטים נעוצים תמיד ראשונים (sticky), ואז לפי זמן-עדכון
     return out.sort((a, b) => {
@@ -48,7 +48,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       if (pa !== pb) return pb - pa;
       return b.when - a.when;
     }).slice(0, 20);
-  }, [posts, convergences, hints, researchers, ciphers]);
+  }, [posts, convergences, hints, researchers, ciphers, ownOnly]);
 
   // 🙈 אדמין — הסתרת פריט מ«עדכונים אחרונים» (פוסט→home_hidden · רמז-זרם→curator_hidden). אופטימי + נשמר ב-DB.
   const { isAdmin } = useAuth();
@@ -170,7 +170,7 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
       <style>{`
         .lur-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;max-width:1120px;margin:0 auto}
         .lur-grid.home-compact{max-width:820px}
-        @media(min-width:760px){.lur-grid.home-compact{grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media(min-width:760px){.lur-grid.home-compact{grid-template-columns:1fr;max-width:760px}}
         @media(max-width:759px){.lur-grid.home-compact{grid-template-columns:1fr;max-width:100%}}
         .lur-card{position:relative;display:flex;flex-direction:row;width:100%;text-align:start;font:inherit;background:${P.card};border:1px solid ${P.border};
           border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
