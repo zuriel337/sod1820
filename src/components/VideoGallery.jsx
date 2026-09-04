@@ -117,6 +117,8 @@ export default function VideoGallery() {
   // הוא אקסנט שאי-אפשר לדלג עליו — לא מפריע לסדר-הזמן. מקור יחיד = החומר שלנו בלבד (בלי הצפת חיזוק).
   const vkey = (v) => v.slug || v.yt || v.video_url || null;
   const list = (rows && rows.length) ? rows : VIDEOS;
+  const cipherList = list.filter(isCipherVid);
+  const generalList = list.filter(v => !isCipherVid(v));
 
   return (
     <section style={{ maxWidth: 1360, margin: "0 auto", padding: "8px 18px", direction: "rtl" }}>
@@ -146,12 +148,21 @@ export default function VideoGallery() {
         border: `1px solid ${P.borderStrong}`, borderRadius: 18, padding: "26px 22px",
         boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
       }}>
-        <HomeHeader title="🎬 גלריית הסרטים"
-          action={{ label: "לכל הסרטים והפוסטים →", to: "/category/וידאו" }} />
-
-        {/* שורה אחת (גלילה אופקית) — סרטוני «הצופן התנכי» ראשונים עם כוכב מהבהב, ואז השאר */}
+        <HomeHeader title="🔠 הצפנים האחרונים בתורה"
+          action={{ label: "לכל הצפנים →", to: "/codes" }} />
         <div className="vg-row">
-          {list.map((v, i) => <VideoCard key={vkey(v) || i} v={v} onPlay={handlePlay} />)}
+          {cipherList.length
+            ? cipherList.map((v, i) => <VideoCard key={vkey(v) || "c"+i} v={v} onPlay={handlePlay} />)
+            : <div style={{ color:P.inkSoft, fontFamily:F.body, padding:"8px 0 18px" }}>צפנים חדשים יופיעו כאן.</div>}
+        </div>
+
+        <div style={{ height:1, background:P.border, margin:"20px 0 18px" }} />
+        <HomeHeader title="🎬 הסרטים האחרונים"
+          action={{ label: "לכל הסרטים והפוסטים →", to: "/category/וידאו" }} />
+        <div className="vg-row">
+          {generalList.length
+            ? generalList.map((v, i) => <VideoCard key={vkey(v) || "g"+i} v={v} onPlay={handlePlay} />)
+            : <div style={{ color:P.inkSoft, fontFamily:F.body, padding:"8px 0 18px" }}>סרטונים חדשים יופיעו כאן.</div>}
         </div>
       </div>
 
