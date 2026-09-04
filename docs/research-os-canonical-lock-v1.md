@@ -125,8 +125,49 @@ The Hall is not “ready” merely because its page renders. Public release requ
 - analytics can distinguish save and exact reopen;
 - no source-native research truth is silently replaced by UI metadata.
 
-## 10. Non-negotiable principle
+## 10. Universal Lens / Journey Projection Direction — ZURIEL clarification, 2026-09-04
+
+The Research OS must support **one entity/research state viewed through many lenses**, not one product per page type.
+
+Approved direction:
+
+- Number, Topic/Convergence, Time/Chronology, Journey/Path, Source/Book, Person/Name, Verse, Event, ELS, Language/Representation and Depth are **entry points / projections** over the same Reality Graph and Research OS.
+- A Number Hub is the first rich Golden Case, not a separate Number Research OS.
+- Topic scale may grow to thousands; browse/search/filter/rank/pagination must extend existing topic/graph primitives rather than create a second Topic truth store.
+- Chronology is a projection. Event/occurrence time, source/publication time, research/discovery time and Human-Gate decision time must remain distinguishable when known.
+- A durable Journey/Research Path, if it has valid identity and governance, must be re-enterable from participating entities, Topics, Search, Workspace, Sources and future ELS lenses **without copying its truth into each surface**.
+- Subscription/depth controls access, tools and presentation only. **Premium ≠ truth; Private ≠ Paid; Canonical ≠ Published; Depth ≠ Truth.**
+- Search should resolve into the same entity/topic/path identities rather than become a parallel flat-results truth system.
+
+### Journey terminology must remain disambiguated
+
+At least three existing/future concepts must not be merged merely because they are called a journey:
+
+1. **Number Knowledge Journey** — existing number-root/branch journey projection, e.g. `fn_number_journey(1237)`.
+2. **User / Workspace Journey** — personal research continuity/history stored through the existing Research Workspace/user state.
+3. **Research / Discovery Path** — an ordered or branchable path through entities/findings/relations/topics/sources that may later become independently addressable.
+
+The exact identity/governance contract for #3 is **not declared closed by this clarification**. It is under the dedicated Universal Entity · Topic · Journey Foundation/Projection challenge. No new Journey table/store/system is authorized unless existing primitives are proven insufficient and ZURIEL approves the resulting Foundation decision.
+
+### 1237 Golden Case direction
+
+Number 1237 is the first intended stress test because it already contains both legacy/live graph knowledge and newer Research OS material, including an existing approved Number Journey and new Research Objects.
+
+The candidate sequence:
+
+`112 → 358 → 676 → 1120 → 1237 → 2137`
+
+is a **research stress test only**. This lock does not make it a canonical/published Journey. If it later receives valid Journey identity and Human-Gate approval, it should be discoverable/re-enterable from all participating entities and relevant Topics without duplicating truth.
+
+The detailed additive direction and guardrails are recorded in:
+`docs/universal-lenses-projection-direction-v1.md`.
+
+**Build direction, subject to the current Foundation challenge:** Universal Entity Projection contract → 1237 Golden Case → Topic mini-case (`התגלות`) → Journey/Path identity only if needed → faceted search/tree/chronology → richer Experience/depth/premium/spatial projections.
+
+## 11. Non-negotiable principle
 
 **One Tree · One Research OS · Many Lenses.**
 
 The Hall does not own the knowledge. It lets a person move through the same knowledge graph, collect references, resume trails, and discover relationships across tools.
+
+**Foundation → Projection → Experience.**
