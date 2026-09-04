@@ -53,6 +53,8 @@ import { fetchHomePosts } from "../lib/homeUpdates.js";
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
+// 🏗️ מד-בנייה ציבורי — הערכה ידנית ממקור יחיד. לעדכן כאן בלבד כשנסגר שלב משמעותי.
+const PUBLIC_BUILD_PROGRESS = 68;
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
 // כך: כרגע רק «יום משיח בא» (הישנים לפניו לא), וכל צופן חדש שיועלה מהיום מופיע ונשאר שם תמיד.
 const CIPHER_FEED_SINCE = new Date("2026-07-21T12:30:00Z").getTime();
@@ -359,15 +361,15 @@ export default function HomeNewPage() {
            שכבת-כיסוי כהה (scrim) שומרת על קריאוּת הפסוק/החיפוש שמעליה; הכתר+1820 נשארים גלויים במרכז. */
         .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
           background:
-            linear-gradient(180deg, rgba(9,8,15,.34) 0%, rgba(9,8,15,.05) 30%, rgba(9,8,15,.05) 62%, rgba(9,8,15,.40) 100%),
-            url(${HERO_IMG}) center/cover no-repeat;
+            radial-gradient(80% 130% at 50% 0%, rgba(123,76,176,.28), transparent 68%),
+            linear-gradient(180deg,#0c0913 0%,#09080f 100%);
           border-bottom:1px solid rgba(212,175,55,.30); }
         /* וינייטה עדינה בקצוות בלבד — כדי שהפסוק/החיפוש (מימין) והקלפים (משמאל) יישבו על רקע מעט כהה, בלי להחשיך את מרכז התמונה */
         .hn-mx-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; background:
           radial-gradient(120% 100% at 50% 50%, transparent 42%, rgba(9,8,15,.34) 100%); }
-        .hn-gate-inner { position:relative; z-index:2; max-width:680px; margin:0 auto;
-          min-height:min(74vh,540px); padding:0 18px calc(30px + env(safe-area-inset-bottom));
-          display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:16px; }
+        .hn-gate-inner { position:relative; z-index:2; max-width:760px; margin:0 auto;
+          min-height:310px; padding:46px 18px 38px;
+          display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
         /* פעולות-השער (חיפוש + שערים) יושבות בתחתית תמונת-ההירו */
         .hn-hero-actions { width:100%; max-width:540px; display:flex; flex-direction:column; align-items:center; gap:14px; }
         .hn-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
@@ -429,10 +431,20 @@ export default function HomeNewPage() {
         /* 🖥️ שער דסקטופ — שתי עמודות שממלאות את הרוחב (במקום עמודה צרה בתוך ריק שחור).
            ימין (RTL) = זהות: קלף-הפסוק + חיפוש · שמאל = שני שערי-הכניסה כקלפים גדולים. */
         @media (min-width:900px){
-          .hn-livegate{ min-height:min(82vh,660px); display:flex; align-items:stretch; }
-          .hn-gate-inner{ width:100%; max-width:1200px; min-height:min(82vh,660px); padding:0 44px 52px; }
+          .hn-livegate{ min-height:330px; display:flex; align-items:center; }
+          .hn-gate-inner{ width:100%; max-width:820px; min-height:330px; padding:48px 44px 42px; }
           .hn-hero-actions{ max-width:620px; }
         }
+        .hn-compact-brand{color:#f0d879;font-family:${F.regal};font-size:clamp(25px,4vw,38px);font-weight:800;margin:0;text-shadow:0 2px 20px rgba(0,0,0,.45)}
+        .hn-compact-sub{color:#cfc3a5;font-family:${F.body};font-size:14.5px;line-height:1.8;margin:0 0 2px;max-width:620px}
+        .hn-build-card{max-width:820px;margin:22px auto 4px;padding:20px 22px;border:1px solid rgba(212,175,55,.38);border-radius:18px;background:linear-gradient(145deg,rgba(212,175,55,.10),rgba(123,76,176,.08));box-shadow:0 12px 34px rgba(0,0,0,.18)}
+        .hn-build-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+        .hn-build-title{font-family:${F.regal};font-size:18px;font-weight:800;color:${P.accentText}}
+        .hn-build-pct{font-family:${F.mono};font-size:22px;font-weight:900;color:${P.accentText}}
+        .hn-build-track{height:10px;border-radius:999px;background:${P.cardSoft};border:1px solid ${P.border};overflow:hidden;margin:13px 0 12px}
+        .hn-build-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
+        .hn-build-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-family:${F.heading};font-size:11.5px;color:${P.inkSoft};text-align:center}
+        @media(max-width:640px){.hn-build-steps{grid-template-columns:1fr 1fr}.hn-build-card{margin-top:16px;padding:17px 15px}}
         @media (max-width:520px){ .hn-thumb-img{ height:118px; } }
         @media (prefers-reduced-motion:reduce){ .hn-matrix,.hn-livedot{ animation:none } }
       `}</style>
@@ -445,6 +457,9 @@ export default function HomeNewPage() {
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
           {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
               מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
+          <div className="hn-emblem">SOD1820 · קוד המציאות</div>
+          <h2 className="hn-compact-brand">האתר נבנה מחדש מבפנים</h2>
+          <p className="hn-compact-sub">המחקר, המספרים והחיבורים ממשיכים לעבוד — ובמקביל אנחנו בונים את הדור הבא של היכל הגילוי.</p>
           <div className="hn-hero-actions">
             <form onSubmit={go} className="hn-search">
               <span className="hn-mag" aria-hidden="true">🔍</span>
@@ -474,13 +489,38 @@ export default function HomeNewPage() {
       {/* ===== הרדאר העליון (התכנסות + רמז זרם המציאות) הוסר — כפול עם הפיד החדש (בקשת צוריאל):
           ההתכנסויות ב«היכל הגילוי», ורמזי זרם המציאות ב«כי לה' המלוכה» בתוך «עדכונים אחרונים». ===== */}
 
+      {/* ===== 🏗️ מצב הבנייה — סיבה לחזור ולחכות למה שנפתח בהמשך ===== */}
+      <section className="hn-wrap" style={{ padding: "18px 18px 4px" }}>
+        <div className="hn-build-card">
+          <div className="hn-build-head">
+            <div>
+              <div className="hn-build-title">🏗️ SOD1820 2.0 — הבנייה בעיצומה</div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginTop: 4 }}>מד התקדמות ציבורי · הערכה שמתעדכנת כשנסגר שלב משמעותי</div>
+            </div>
+            <div className="hn-build-pct">{PUBLIC_BUILD_PROGRESS}%</div>
+          </div>
+          <div className="hn-build-track" role="progressbar" aria-valuenow={PUBLIC_BUILD_PROGRESS} aria-valuemin="0" aria-valuemax="100">
+            <div className="hn-build-fill" style={{ width: `${PUBLIC_BUILD_PROGRESS}%` }} />
+          </div>
+          <div className="hn-build-steps">
+            <span>✅ זהות ואנליטיקה</span>
+            <span>✅ מנועי מספר ומחקר</span>
+            <span>🏗️ היכל הגילוי</span>
+            <span>⏳ רזיאל והחיבורים</span>
+          </div>
+          <div style={{ textAlign: "center", marginTop: 13, color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>
+            חלקים ייפתחו בהדרגה — יש למה לחכות.
+          </div>
+        </div>
+      </section>
+
       {/* ===== עדכונים אחרונים — 8 עדכונים ממוזגים, כל אחד עם לוגו + מילה קטנה:
           פוסט · זרם המציאות (לוגו הגל) · היכל הגילוי (לוגו הגילוי — התכנסות/צופן) · «עודכן לפני X» + תג AI. ===== */}
       <section className="hn-wrap" style={{ padding: "18px 18px 40px" }}>
         {/* 👑 מיתוג «עדכונים אחרונים» — עכשיו מתוך LatestUpdatesRail (heading) כדי שיהיה זהה בבית/פוסט/צ'אט/מובייל */}
         {/* ⛔ הקפצת התכנסויות ל«עדכונים אחרונים» מושבתת עד הודעה חדשה (בקשת צוריאל) — ההתכנסויות
             נשארות חיות בעץ ההתכנסויות ובבית-המדרש, רק לא קופצות לפיד הבית. להחזרה: convergences={cards.filter(c => !HOME_FEED_HIDE_CONV.has(c.slug))} */}
-        <LatestUpdatesRail heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
+        <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
       </section>
 
       {/* ===== 🔔 מה חדש בפורום מאז ביקורך — מתחת ל«עדכונים אחרונים» (בקשת צוריאל 10.8.2026) ===== */}
