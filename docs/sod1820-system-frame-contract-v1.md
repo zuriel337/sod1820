@@ -112,3 +112,72 @@ Spiritual system inscription:
 V1 visual frame first: navigation groups, context rail, full-width bottom console, collapse, בקרוב previews.
 Then wire existing live sources: Now feed, canonical saved/research, contextual page adapters.
 Then activate future modules one by one behind explicit gates.
+
+
+## Knowledge Navigation Vision - retained product direction
+
+The navigation must communicate not only current routes but the scale of the knowledge machine being built.
+
+### Ancient books become explorable knowledge spaces
+Public promise: users will not only read old books; they will be able to enter them through new lenses and see how their contents connect to the rest of SOD1820.
+
+Navigation family: ספרים ומקורות
+- Live/current: scanned books, texts, sources, reading, search where available.
+- Connected research lenses: numbers, names/people, verses/sources, topics, codes, related research.
+- Future: AI/Raziel analysis, automatic knowledge-tree linking, cross-book comparison, guided journeys inside a book, multilayer views, spatial/3D book exploration.
+- Copy direction: "לא רק לקרוא ספר עתיק — להיכנס לתוכו."
+
+The system must eventually expose real live counters from canonical data: books scanned, text units/pages ingested, units analysis-ready, links/entities produced. Never invent these counts.
+
+### Numbers are a research engine, not only a calculator
+The UI must represent the real breadth of the gematria/method system (roughly 30 methods according to current project direction; exact production count must be audited before public display).
+Lenses include: method, value, expression, person/name, verse, code, topic, source and relationships.
+Future spatial model: one numerical object viewed through multiple calculation layers, comparison and 3D/multidimensional navigation.
+
+### ELS / codes are a world, not a single search form
+Navigation should expose current matrices/library/research and future scale:
+- word/expression search
+- multiple terms and cross-search
+- names/people
+- numbers
+- biblical scope/book/chapter
+- layered matrices
+- relationships between layers
+- multilayer and 3D ELS exploration
+- guided journeys through a code
+- Raziel-assisted relationship analysis
+Exact capabilities must be marked Live / In development / Coming soon from the canonical system map.
+
+### Historical content is first-class knowledge
+Old posts and media are not legacy clutter. They become an archive navigable through multiple lenses:
+- year
+- category
+- topic/tag
+- person/name
+- number
+- verse/source
+- code
+- media/research type
+The same canonical item may appear through many lenses; never duplicate the content merely to support navigation.
+
+### Multi-entry knowledge principle
+A user may enter from a number, name/person, verse, code, book, post or topic and should be able to converge on the same connected body of knowledge.
+Human menus = explicit navigation.
+Raziel = conversational/contextual navigation.
+Heichal = spatial/immersive navigation.
+Knowledge graph/tree = shared underlying relationship structure.
+
+### Progress and scale indicators
+Every major world may display a real progress/scale module, sourced from one canonical system map:
+- current inventory/coverage
+- Live
+- In development
+- Coming soon
+- progress percentage only when backed by defined milestones
+Home build map, mega-menu progress and bottom V2 indicator must read from the same source rather than hard-coded competing numbers.
+
+### Future registration/value hook - reserved, not designed yet
+The frame must leave a future place to explain why joining today creates value tomorrow (early access, saved research continuity, future benefits, etc.), but no benefit promise or signup mechanic is defined by this contract yet.
+
+### Product experience goal
+Opening a mega menu should make the visitor understand the scale of SOD1820: existing knowledge plus visible future capability. "Coming soon" belongs beside the live material it extends, rather than in a disconnected roadmap page.
