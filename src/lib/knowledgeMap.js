@@ -31,7 +31,7 @@ export const KNOWLEDGE_WORLDS = [
     stat: "129 רשומות ELS",
     items: [
       { label: "דילוגי אותיות", emoji: "🔠", to: "/code", icon: "dilugim", note: "חיפוש ומטריצות" },
-      { label: "ספריית צפנים", emoji: "▦", to: "/archive", note: "מחקרים וממצאים קיימים" },
+      { label: "ספריית צפנים", emoji: "▦", to: "/codes", note: "הספרייה הקנונית של הצפנים והמטריצות שפורסמו" },
       { label: "חיפוש שמות ואנשים", emoji: "👤", locked: true, state: "בפיתוח", note: "שם כחלק מחיפוש רחב" },
       { label: "מטריצות רב־שכבתיות", emoji: "≋", locked: true, state: "בקרוב", note: "שכבות מעל ומתחת" },
       { label: "ELS 3D", emoji: "◈", locked: true, state: "בקרוב", note: "מסע מרחבי בתוך הצופן" },
@@ -44,7 +44,7 @@ export const KNOWLEDGE_WORLDS = [
     stat: "23,204 פסוקים · 304,805 רשומות טקסט",
     items: [
       { label: "בית המדרש", emoji: "📖", to: "/beit-midrash", note: "טקסט, פסוק ושיטות" },
-      { label: "מקורות וטקסטים", emoji: "▤", to: "/beit-midrash", note: "חיפוש ולימוד במקורות" },
+      { label: "מקורות וטקסטים", emoji: "▤", locked: true, state: "בבנייה", note: "אינדקס מקורות ייעודי ייפתח רק לאחר חיבור למקור הקנוני" },
       { label: "ספרים סרוקים", emoji: "📚", locked: true, state: "מדידה בהכנה", note: "מונה ספרים יופיע רק ממקור קנוני" },
       { label: "ניתוח ספר עם רזיאל", emoji: "AI", locked: true, state: "בקרוב", note: "שמות, מספרים, פסוקים וקשרים" },
       { label: "השוואה בין ספרים", emoji: "⇄", locked: true, state: "בקרוב", note: "רעיונות ומקורות בין תקופות" },
@@ -84,6 +84,7 @@ export const QUICK_NAV_GROUPS = [
     { label:"דף המספר", emoji:"🔢", to:"/number" },
     { label:"בית המדרש", emoji:"📖", to:"/beit-midrash" },
     { label:"דילוגי אותיות", emoji:"🔠", to:"/code", icon:"dilugim" },
+    { label:"ספריית צפנים", emoji:"▦", to:"/codes" },
     { label:"מחשבון מקצועי", emoji:"🧮", to:"/research?tool=gematria" },
   ]},
   { title: "✨ לגלות", items: [
