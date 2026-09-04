@@ -28,12 +28,21 @@ export const C = {
 export const GALLERY_BG = "radial-gradient(70% 45% at 50% 0%, rgba(212,175,55,0.07), transparent 60%), linear-gradient(180deg, #16110c, #0d0a07 78%)";
 export const GALLERY_BG_BASE = "#0d0a07";
 
+// ===== DESIGN CONTRACT V1 · TYPOGRAPHY =====
+// חוק: רכיב חדש לא בוחר font-family בעצמו. משתמשים רק בתפקידים הסמנטיים כאן.
+// ui = ממשק/כותרות מערכת נקיות; body = קריאה; display = כותרת מותג נדירה; numeric = מספרים.
+// aliases הישנים נשמרים זמנית ל-backward compatibility עד audit מלא.
 export const F = {
-  royal:   "'Heebo', sans-serif",
-  regal:   "'Heebo', sans-serif",
-  cinzel:  "'Heebo', sans-serif",
-  heading: "'Heebo', sans-serif",
-  body:    "'Heebo', sans-serif",
+  ui:      "Arial, 'Noto Sans Hebrew', sans-serif",
+  body:    "'Heebo', Arial, sans-serif",
+  display: "Arial, 'Noto Sans Hebrew', sans-serif",
+  numeric: "'Courier New', monospace",
+
+  // legacy aliases — לא להשתמש בקוד חדש.
+  royal:   "Arial, 'Noto Sans Hebrew', sans-serif",
+  regal:   "Arial, 'Noto Sans Hebrew', sans-serif",
+  cinzel:  "Arial, 'Noto Sans Hebrew', sans-serif",
+  heading: "Arial, 'Noto Sans Hebrew', sans-serif",
   mono:    "'Courier New', monospace",
 };
 
