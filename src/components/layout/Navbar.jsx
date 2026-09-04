@@ -19,6 +19,7 @@ import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
+import { KNOWLEDGE_WORLDS, QUICK_NAV_GROUPS } from "../../lib/knowledgeMap.js";
 
 // 🧩 hook נגיש לתפריטים-נפתחים: נפתח בריחוף (עכבר) *וגם* בקליק (מקלדת/מגע), נסגר
 // בקליק-בחוץ ובמקש Escape. פותר את הבעיה שכל ה-dropdowns היו hover-only (לא נגישים
@@ -69,86 +70,7 @@ const MORE_HIDE = ["/start", "/members", "/lab", "/forum", "/community", "/broad
 // «קהילה» ב-NAV נושאת ילדים (צ'אט · פורום · חוקרים…) שנאבדים כשמרנדרים אותה כאריח-בודד
 // בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
 // ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
-const MENU_GROUPS = [
-  {
-    title: "✨ לגלות",
-    kicker: "ידע קיים + הדלתות שנפתחות",
-    stat: "1,283 פוסטים · 2013–2026",
-    items: [
-      { label: "כל הפוסטים", emoji: "📜", to: "/post", note: "ארכיון הידע החי" },
-      { label: "גלריות ומדיה", emoji: "🖼️", to: "/archive?tab=galleries", note: "2,558 פריטי גלריה" },
-      { label: "נושאים", emoji: "✦", to: "/archive", note: "212 כרטיסי נושא" },
-      { label: "מסעות גילוי", emoji: "🧭", locked: true, state: "בקרוב", note: "מסע מודרך בין קשרים" },
-      { label: "מסעות תלת־ממדיים", emoji: "◈", locked: true, state: "בקרוב", note: "להיכנס אל תוך הידע" },
-      { label: "גלקסיות גילוי", emoji: "✺", locked: true, state: "בקרוב", note: "עולמות ידע מחוברים" },
-    ],
-  },
-  {
-    title: "🔢 מספרים",
-    kicker: "מנוע מחקר רב־שכבתי",
-    stat: "36 שיטות · 15,474 ביטויים · 8,917 התכנסויות",
-    items: [
-      { label: "דף המספר", emoji: "🔢", to: "/number", note: "מספר → ביטויים → קשרים" },
-      { label: "מחשבון מקצועי", emoji: "🧮", to: "/research?tool=gematria", note: "חישוב והשוואת שיטות" },
-      { label: "גימטריה מרחבית", emoji: "🧊", to: "/spatial-gematria", note: "המספר כמבנה" },
-      { label: "השוואה רב־ממדית", emoji: "⇄", locked: true, state: "בפיתוח", note: "שיטות כשכבות של אותו אובייקט" },
-      { label: "Gematria 3D", emoji: "◫", locked: true, state: "בקרוב", note: "לנוע בין שכבות החישוב" },
-      { label: "מחקר מספר עם רזיאל", emoji: "AI", locked: true, state: "בקרוב", note: "מספר → אדם → פסוק → צופן" },
-    ],
-  },
-  {
-    title: "🔠 צפנים · ELS",
-    kicker: "מהמטריצה אל מערכת קשרים",
-    stat: "129 רשומות ELS",
-    items: [
-      { label: "דילוגי אותיות", emoji: "🔠", to: "/code", icon: "dilugim", note: "חיפוש ומטריצות" },
-      { label: "ספריית צפנים", emoji: "▦", to: "/archive", note: "מחקרים וממצאים קיימים" },
-      { label: "חיפוש שמות ואנשים", emoji: "👤", locked: true, state: "בפיתוח", note: "שם כחלק מחיפוש רחב" },
-      { label: "מטריצות רב־שכבתיות", emoji: "≋", locked: true, state: "בקרוב", note: "שכבות מעל ומתחת" },
-      { label: "ELS 3D", emoji: "◈", locked: true, state: "בקרוב", note: "מסע מרחבי בתוך הצופן" },
-      { label: "רזיאל מנתח קשרים", emoji: "AI", locked: true, state: "בקרוב", note: "ניתוח קשרים בין שכבות" },
-    ],
-  },
-  {
-    title: "📚 ספרים ומקורות",
-    kicker: "לא רק לקרוא ספר עתיק — להיכנס לתוכו",
-    stat: "23,204 פסוקים · 304,805 רשומות טקסט",
-    items: [
-      { label: "בית המדרש", emoji: "📖", to: "/beit-midrash", note: "טקסט, פסוק ושיטות" },
-      { label: "מקורות וטקסטים", emoji: "▤", to: "/beit-midrash", note: "חיפוש ולימוד במקורות" },
-      { label: "ספרים סרוקים", emoji: "📚", locked: true, state: "מדידה בהכנה", note: "מונה ספרים יופיע רק ממקור קנוני" },
-      { label: "ניתוח ספר עם רזיאל", emoji: "AI", locked: true, state: "בקרוב", note: "שמות, מספרים, פסוקים וקשרים" },
-      { label: "השוואה בין ספרים", emoji: "⇄", locked: true, state: "בקרוב", note: "רעיונות ומקורות בין תקופות" },
-      { label: "ספר בתלת־ממד", emoji: "◈", locked: true, state: "בקרוב", note: "ספר כיקום ידע" },
-    ],
-  },
-  {
-    title: "🗃️ ארכיון הידע",
-    kicker: "אותו ידע — הרבה דרכי כניסה",
-    stat: "14 שנות תוכן · 1,177 פוסטים היסטוריים",
-    items: [
-      { label: "לפי שנים", emoji: "🕰️", to: "/post", note: "2013–2026" },
-      { label: "לפי קטגוריות", emoji: "▦", to: "/post", note: "מפת התוכן הקיימת" },
-      { label: "לפי נושאים", emoji: "✦", to: "/archive", note: "נושא → תוכן → קשרים" },
-      { label: "לפי אנשים ושמות", emoji: "👤", locked: true, state: "בפיתוח", note: "כל מה שהאתר יודע על אדם" },
-      { label: "לפי מספרים", emoji: "🔢", to: "/number", note: "כניסה לארכיון דרך מספר" },
-      { label: "לפי פסוקים וצפנים", emoji: "⌘", locked: true, state: "בקרוב", note: "מקור → צופן → מחקר" },
-    ],
-  },
-  {
-    title: "💬 קהילה",
-    kicker: "מה קורה עכשיו ומה ייפתח בהמשך",
-    stat: "1,876 עדכונים · 30 תורמים",
-    items: [
-      { label: "הצ׳אט", emoji: "💬", to: "/community/chat", note: "השיחה החיה באתר" },
-      { label: "חוקרים ותורמים", emoji: "👥", to: "/community", note: "אנשים סביב גוף הידע" },
-      { label: "התכנסויות", emoji: "◉", locked: true, state: "בקרוב", note: "מפגשים סביב נושא או מחקר" },
-      { label: "התכנסויות חיות", emoji: "●", locked: true, state: "בקרוב", note: "מרחב חי בזמן אמת" },
-      { label: "מחקר משותף", emoji: "⌁", locked: true, state: "בקרוב", note: "כמה חוקרים, גוף ידע אחד" },
-      { label: "פורום חדש", emoji: "🌐", locked: true, state: "בקרוב", note: "קהילה מחוברת למחקר" },
-    ],
-  },
-];
+const MENU_GROUPS = QUICK_NAV_GROUPS;
 
 const MOBILE_TILES = MENU_GROUPS.flatMap(g => g.items.map(it => ({
   e: it.emoji, l: it.label, to: it.to, locked: it.locked, icon: it.icon,
@@ -388,50 +310,32 @@ function MenuPanel({ groups, pathname, cc }) {
       </button>
       {open && (
         <div style={{
-          position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(980px, 92vw)",
+          position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(620px, 88vw)",
           background: pc.panelBg, backdropFilter: light ? "none" : "blur(16px)",
           border: `1px solid ${pc.panelBorder}`, borderRadius: 18, padding: 14, zIndex: 250,
           boxShadow: pc.shadow,
         }}>
-          <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",gap:16,padding:"3px 5px 14px",borderBottom:`1px solid ${pc.tileBorder}`,marginBottom:14}}>
-            <div>
-              <div style={{color:pc.bannerTitle,fontFamily:F.heading,fontSize:20,fontWeight:900}}>מפת הידע של SOD1820</div>
-              <div style={{color:pc.bannerSub,fontFamily:F.ui,fontSize:11.5,marginTop:4}}>מה כבר חי · מה נבנה · ולאן המערכת מתפתחת</div>
-            </div>
-            <div style={{color:pc.heading,fontFamily:F.numeric,fontSize:11,whiteSpace:"nowrap"}}>36 שיטות · 23,204 פסוקים · 14 שנות ידע</div>
-          </div>
-          <div className="sod-mega-worlds" style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:12,maxHeight:"min(68vh,690px)",overflowY:"auto",paddingInlineEnd:3}}>
+          <div style={{color:pc.heading,fontFamily:F.ui,fontSize:11,fontWeight:800,letterSpacing:1.2,padding:"2px 5px 10px"}}>ניווט מהיר</div>
+          <div style={{display:"grid",gap:12}}>
             {groups.map(group => (
-              <section key={group.title} style={{background:pc.tileBg,border:`1px solid ${pc.tileBorder}`,borderRadius:16,padding:13,minWidth:0}}>
-                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10,marginBottom:4}}>
-                  <div style={{color:pc.bannerTitle,fontFamily:F.heading,fontSize:16,fontWeight:900}}>{group.title}</div>
-                  {group.stat && <span style={{color:pc.heading,fontFamily:F.numeric,fontSize:9.5,fontWeight:800,textAlign:"left",lineHeight:1.35}}>{group.stat}</span>}
-                </div>
-                {group.kicker && <div style={{color:pc.bannerSub,fontFamily:F.ui,fontSize:10.5,lineHeight:1.45,marginBottom:10}}>{group.kicker}</div>}
-                <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:7}}>
-                  {group.items.map(it => {
-                    const active = it.to ? isActive(pathname, it.to) : false;
-                    const state = it.state || (it.locked ? "בקרוב" : "פעיל");
-                    const inner = <>
-                      <span style={{fontSize:18,lineHeight:1,flex:"none"}}>{it.icon === "dilugim" ? <DilugimIcon size={19}/> : it.emoji}</span>
-                      <span style={{minWidth:0,flex:1}}>
-                        <span style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
-                          <b style={{color:it.locked ? pc.bannerSub : pc.tileText,fontFamily:F.ui,fontSize:11.5}}>{it.label}</b>
-                          <small style={{fontFamily:F.ui,fontSize:8,fontWeight:900,padding:"1px 5px",borderRadius:999,border:`1px solid ${it.locked ? pc.tileBorder : pc.favBorder}`,color:it.locked ? pc.bannerSub : pc.heading}}>{state}</small>
-                        </span>
-                        {it.note && <span style={{display:"block",color:pc.bannerSub,fontFamily:F.ui,fontSize:9.2,lineHeight:1.35,marginTop:2}}>{it.note}</span>}
-                      </span>
-                    </>;
-                    const style={display:"flex",alignItems:"flex-start",gap:8,background:active?pc.favBg:"transparent",border:`1px ${it.locked?"dashed":"solid"} ${active?pc.tileActive:pc.tileBorder}`,borderRadius:11,padding:"9px",textDecoration:"none",opacity:it.locked?.72:1,textAlign:"right"};
-                    return it.locked
-                      ? <div key={it.label} aria-disabled="true" title={state} style={{...style,cursor:"default"}}>{inner}</div>
-                      : <Link key={it.to+it.label} to={it.to} onClick={()=>setOpen(false)} style={style}>{inner}</Link>;
-                  })}
+              <section key={group.title}>
+                <div style={{color:pc.bannerTitle,fontFamily:F.ui,fontSize:13.5,fontWeight:900,marginBottom:7}}>{group.title}</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:8}}>
+                  {group.items.map(it => (
+                    <Link key={it.to+it.label} to={it.to} onClick={()=>setOpen(false)} style={{
+                      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,
+                      minHeight:74,background:pc.tileBg,border:`1px solid ${pc.tileBorder}`,borderRadius:12,
+                      textDecoration:"none",color:pc.tileText,fontFamily:F.ui,fontSize:11.5,fontWeight:800,textAlign:"center"
+                    }}><span style={{fontSize:21}}>{it.icon==="dilugim"?<DilugimIcon size={22}/>:it.emoji}</span>{it.label}</Link>
+                  ))}
                 </div>
               </section>
             ))}
           </div>
-          <style>{`@media(max-width:760px){.sod-mega-worlds{grid-template-columns:1fr!important}}`}</style>
+          <Link to="/map" onClick={()=>setOpen(false)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginTop:14,padding:"12px 13px",borderRadius:13,border:`1px solid ${pc.bannerBorder}`,background:pc.bannerBg,textDecoration:"none"}}>
+            <span><b style={{display:"block",color:pc.bannerTitle,fontFamily:F.ui,fontSize:13.5}}>🗺️ מפת המערכת המלאה</b><small style={{color:pc.bannerSub,fontFamily:F.ui,fontSize:10.5}}>כל העולמות, מה חי ומה בדרך</small></span>
+            <span style={{color:pc.arrow,fontSize:18}}>←</span>
+          </Link>
         </div>
       )}
     </div>
@@ -733,7 +637,7 @@ export default function Navbar() {
 
         {/* חיפוש + כניסה + תפריט-רשת ⊞ — סרגל עליון מצומצם */}
         <div className="sod-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 8, marginInlineStart: "auto" }}>
-          <UniversalSearch />
+          <Link to="/map" className="sod-map-entry" style={{display:"inline-flex",alignItems:"center",gap:8,textDecoration:"none",border:`1px solid ${cc.borderGold}`,background:"rgba(212,175,55,.08)",color:cc.goldBright,borderRadius:999,padding:"7px 12px",fontFamily:F.ui,fontSize:12.5,fontWeight:900,whiteSpace:"nowrap"}}><span aria-hidden>🗺️</span><span>מפת המערכת</span><small style={{color:cc.muted,fontSize:9.5,fontWeight:800}}>V2 · בבנייה</small></Link>
           {user && <NotificationBell />}
           {user ? (
             <UserMenu user={user} profile={profile} cc={cc} />
