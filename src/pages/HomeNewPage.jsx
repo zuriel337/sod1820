@@ -582,6 +582,14 @@ export default function HomeNewPage() {
             <div style={{ marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.75, textAlign: "center" }}>
               חלקים נפתחים בהדרגה — יש למה לחכות.
             </div>
+            <Link to="/map" style={{
+              marginTop:12,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,
+              border:`1px solid ${P.borderStrong}`,borderRadius:13,padding:"11px 13px",textDecoration:"none",
+              background:P.card,color:P.accentText,fontFamily:F.heading,fontSize:13,fontWeight:900
+            }}>
+              <span>🗺️ פתחו את מפת המערכת · מה כבר חי ומה בדרך</span>
+              <span aria-hidden>←</span>
+            </Link>
           </aside>
         </div>
       </section>
