@@ -1,13 +1,76 @@
 /*
- * ADMIN / COMMAND TRANSITION BRIDGE v2
+ * ADMIN / COMMAND TRANSITION BRIDGE v3
  *
  * IMPORTANT:
- * - This file does NOT own the admin palette.
- * - The canonical admin compatibility variables (--adm-*) already live in AdminPage.jsx.
+ * - This file does NOT own a second admin palette.
+ * - The canonical admin compatibility variables (--adm-*) live in AdminPage.jsx.
  * - /admin enters the canonical route-aware day/night flow through lightRoutes.js.
- * - This file only adapts the legacy light-only literals inside Command Room while that tab
- *   is being migrated. New admin UI must use the existing semantic/admin theme primitives.
+ * - This file is a transitional Experience adapter: it remaps the existing legacy-named
+ *   --adm-* aliases toward the approved Command Room visual reference while older admin
+ *   components are migrated gradually. New admin UI must consume semantic theme primitives.
  */
+
+/*
+ * INTERNAL REFERENCE SURFACE — Command Room light-blue.
+ * Human Gate: ZURIEL 2026-09-05.
+ *
+ * The old variable names are kept only for compatibility. Their semantics are now:
+ * interaction/system accent = blue; brand gold is NOT the default admin control color.
+ * Status colors stay semantic (danger stays red; success/warning remain owned by their callers).
+ *
+ * !important is intentional here because AdminPage currently injects its historical variable
+ * declarations later in the DOM. This bridge is temporary and scoped to unique --adm-* names;
+ * it does not introduce a second component/theme API.
+ */
+:root {
+  --adm-bg:#0C0818 !important;
+  --adm-bgGlow:#111b35 !important;
+  --adm-gold:#6ea8ff !important;
+  --adm-goldLight:#e7edf7 !important;
+  --adm-goldBright:#9cc2ff !important;
+  --adm-goldDim:#8290a6 !important;
+  --adm-goldDark:#1c3a67 !important;
+  --adm-goldDeep:#0b1630 !important;
+  --adm-crimson:#8f2d3a !important;
+  --adm-crimsonLight:#c94a58 !important;
+  --adm-royal:#4a4fa3 !important;
+  --adm-royalLight:#747ce8 !important;
+  --adm-surface:#0e1320 !important;
+  --adm-surface2:#141b2c !important;
+  --adm-border:rgba(110,168,255,0.18) !important;
+  --adm-borderGold:rgba(110,168,255,0.38) !important;
+  --adm-muted:#aab5c8 !important;
+  --adm-faint:#17223a !important;
+  --adm-danger:#d95b64 !important;
+  --adm-tile:linear-gradient(135deg, rgba(110,168,255,0.08), rgba(14,19,32,0.92)) !important;
+  --adm-active:linear-gradient(135deg, rgba(110,168,255,0.24), rgba(20,27,44,0.82)) !important;
+  --adm-active-soft:rgba(110,168,255,0.14) !important;
+}
+
+:root[data-theme="light"] {
+  --adm-bg:#f6f7f9 !important;
+  --adm-bgGlow:#eef3fb !important;
+  --adm-gold:#2f6df6 !important;
+  --adm-goldLight:#1b1d22 !important;
+  --adm-goldBright:#1c4bbf !important;
+  --adm-goldDim:#8a93a3 !important;
+  --adm-goldDark:#d7e5ff !important;
+  --adm-goldDeep:#10234f !important;
+  --adm-crimson:#b63a43 !important;
+  --adm-crimsonLight:#d34f58 !important;
+  --adm-royal:#5158b8 !important;
+  --adm-royalLight:#6f78d9 !important;
+  --adm-surface:#ffffff !important;
+  --adm-surface2:#f8fafc !important;
+  --adm-border:rgba(47,109,246,0.16) !important;
+  --adm-borderGold:rgba(47,109,246,0.30) !important;
+  --adm-muted:#5b6472 !important;
+  --adm-faint:#eef3fb !important;
+  --adm-danger:#c63f48 !important;
+  --adm-tile:linear-gradient(135deg, rgba(47,109,246,0.07), rgba(255,255,255,0.96)) !important;
+  --adm-active:linear-gradient(135deg, rgba(47,109,246,0.18), rgba(238,243,251,0.92)) !important;
+  --adm-active-soft:rgba(47,109,246,0.10) !important;
+}
 
 /*
  * WarRoomTab predates the forward Design Contract and still contains a small set of literal
