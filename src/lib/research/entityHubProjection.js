@@ -143,8 +143,14 @@ function sourceProjection(researchFindings, numberJourney) {
     if (sourceRef) refs.set(sourceRef, { type: "research-source", ref: sourceRef, label: sourceRef });
   }
   for (const source of Array.isArray(numberJourney?.sources) ? numberJourney.sources : []) {
-    const label = clean(source);
-    if (label) refs.set(`journey:${label}`, { type: "number-journey-source", ref: null, label });
+    const sourceObject = source && typeof source === "object" ? source : null;
+    const label = clean(sourceObject?.label ?? source);
+    const ref = clean(sourceObject?.ref) || null;
+    if (label) refs.set(`journey:${ref || label}`, {
+      type: sourceObject?.type || "number-journey-source",
+      ref,
+      label,
+    });
   }
   return [...refs.values()];
 }
@@ -168,6 +174,19 @@ function projectNumberJourney(numberResearch) {
   if (lens?.status !== "ok" || !lens?.data) return null;
   const raw = lens.data;
   const seed = raw.seed || null;
+  const sources = Array.isArray(raw.sources)
+    ? raw.sources
+    : Array.isArray(raw.sources?.verses)
+      ? raw.sources.verses.map((verse) => {
+        const ref = clean(verse?.ref);
+        const text = clean(verse?.text);
+        return {
+          type: "verse",
+          ref: ref || null,
+          label: [ref, text].filter(Boolean).join(" — "),
+        };
+      }).filter(source => source.label)
+      : [];
   return {
     source: "fn_number_journey",
     seed: seed ? {
@@ -181,7 +200,11 @@ function projectNumberJourney(numberResearch) {
     } : null,
     root: raw.root || null,
     branches: Array.isArray(raw.branches) ? raw.branches : [],
-    sources: Array.isArray(raw.sources) ? raw.sources : [],
+    sources,
+    sourceSummary: raw.sources && !Array.isArray(raw.sources) ? {
+      count: raw.sources.count ?? sources.length,
+      value: raw.sources.value ?? null,
+    } : null,
     liveComputedMap: raw.map ? {
       ...raw.map,
       governance: {
