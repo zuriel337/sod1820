@@ -628,7 +628,6 @@ export default function Navbar() {
   const { open: openCenter, isOpen: centerOpen } = useUserCenter();
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
-  const [searchFocus, setSearchFocus] = useState(false);   // 🔎 נפתח מכפתור-החיפוש במובייל → מיקוד אוטומטי על תיבת-החיפוש
   const [unread, setUnread] = useState(0);   // 🔔 להתראות במובייל — נקודה על כפתור האזור-האישי
 
   useEffect(() => {
@@ -637,7 +636,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", h);
   }, []);
   useEffect(() => { setDrawer(false); }, [pathname]);
-  useEffect(() => { if (!drawer) setSearchFocus(false); }, [drawer]);   // איפוס כוונת-החיפוש בסגירת המגירה
   // ספירת התראות שלא-נקראו (למחוברים) — לבאדג׳ במובייל; מתרענן בפוקוס ובסגירת מרכז-השליטה
   useEffect(() => {
     if (!user) { setUnread(0); return; }
@@ -682,11 +680,6 @@ export default function Navbar() {
           <MenuPanel groups={MENU_GROUPS} pathname={pathname} cc={cc} />
         </div>
 
-        {/* 🔎 חיפוש במובייל — הפעולה #1 של אתר-מחקר לא צריכה להיות חבויה במגירה.
-            כפתור בסרגל פותח את המגירה עם מיקוד אוטומטי על תיבת-החיפוש. */}
-        <button className="sod-nav-mobile-only nav-msearch" aria-label="חיפוש באתר"
-          onClick={() => { setDrawer(true); setSearchFocus(true); }}
-          style={{ marginInlineStart: "auto" }}>🔎</button>
         {/* קובייה במובייל — נראית בכניסה, מתגלגלת מדי פעם */}
         <span className="sod-nav-mobile-only"><SurpriseButton /></span>
         {/* 🔔 במובייל ההתראות יורדות לאזור-האישי (בקשת צוריאל) — לא תופסות מקום בסרגל */}
@@ -714,11 +707,6 @@ export default function Navbar() {
 
       {drawer && (
         <div className="sod-nav-drawer" style={{ borderTop: `1px solid ${cc.border}`, padding: "12px 8px 20px", maxHeight: "80vh", overflowY: "auto" }}>
-          {/* הקוביה הוסרה מהמגירה — היא כבר קיימת בסרגל המובייל העליון (בקשת צוריאל) */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "4px 6px 12px" }}>
-            <UniversalSearch full autoFocus={searchFocus} onDone={() => setDrawer(false)} />
-          </div>
-
           {/* 🚀 «כאן מתחילים» ירד מבאנר-ענק לאריח-ריבוע רגיל בתוך «כל המדורים» (בקשת צוריאל 4.8.2026)
               — קטן כמו «דף הבית», לא תופס שורה שלמה בראש המגירה. */}
           {user ? (
@@ -893,13 +881,6 @@ export default function Navbar() {
         /* 🌗 בראוט כפוי-כהה — המתג מעומעם (עדיין לחיץ, אך מסמן שאין אפקט בדף הזה) */
         .nav-theme.nav-theme-dim { opacity: 0.4; }
         .nav-theme.nav-theme-dim:hover { transform: none; box-shadow: none; background: ${cc.chipBg}; }
-
-        /* 🔎 כפתור-חיפוש במובייל — אותה שפה ויזואלית של הקובייה/המתג */
-        .nav-msearch { width: 38px; height: 38px; flex-shrink: 0; cursor: pointer; font-size: 17px; line-height: 1;
-          background: ${cc.chipBg}; border: 1px solid ${cc.borderGold}; border-radius: 10px; color: ${cc.goldBright};
-          display: inline-flex; align-items: center; justify-content: center;
-          transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
-        .nav-msearch:hover { transform: scale(1.06); box-shadow: 0 0 14px rgba(212,175,55,0.28); background: ${cc.surface}; }
 
         /* 🖥️ צפיפות דסקטופ צר (1041–1200px): שלושת תוויות-המוצרים שלצד «ההיכל» מוסתרות,
            נשארים רק האייקונים (עם tooltip=title) → החיפוש לא נדחק ואין גלישה. */
