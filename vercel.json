@@ -38,6 +38,14 @@
   ],
   "rewrites": [
     {
+      "source": "/book",
+      "destination": "/book.html"
+    },
+    {
+      "source": "/book/(.*)",
+      "destination": "/book.html"
+    },
+    {
       "source": "/favicon.ico",
       "destination": "/logo.png"
     },
