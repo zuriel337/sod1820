@@ -10,6 +10,15 @@
 - **Higher-level Book entity referenced in the coordination memo:** `book:ahavat-torah` — **does not exist as a canonical or `nodes` row anywhere today.** It is the memo's own proposed higher-level identity for a future Library-entry → Book → Source-Dossier composition. Naming/building it is INTEGRATION_OWNER/GPT/ZURIEL's decision, not asserted here.
 - No historical `source_ref` string is renamed in this manifest for UI convenience, per the memo's explicit instruction.
 
+### ERRATUM (additive, does not edit the Identity paragraph above) — live-fact drift surfaced by GPT crosswalk `work_log 9343b19f-59ba-4e10-b2ae-41b573b1f844`, independently re-verified this correction
+
+**The paragraph above is WRONG as a current-state claim.** Independently re-verified live, this correction, direct SQL against `linswmnnkjxvweumprav`:
+
+- `public.nodes` **does** contain a `type='book'` row for this source: `id=18fdaa95-86cd-4100-82ad-59ee8c690b9a`, `identity_key='book:ahavat-torah'`, `metadata.route='/book/ahavat-torah'`, with populated `identity_tiers` (book/edition/locator/witness/digital_object pointing at `gallery/Book/Hebrewbooks_org_5635.pdf`) and `source_ref_prefixes=['book:hebrewbooks:5635','hebrewbooks:5635']`.
+- A second, unrelated book node also exists: `id=395a158e-3bb4-4fc7-86d7-aba99e174b46`, `identity_key='book:sefer-hapliah'` (HebrewBooks #6355) — out of this manifest's scope, named only so it is not silently missing.
+- **My original grep-based check (Blocker #6 below) was scoped too narrowly** (`src/` + `posts`/`gallery_images` only) and missed both the `nodes` table and `public/book.html`. Independently re-verified this correction: `public/book.html` **exists on `origin/main` itself** (not merely a branch) and **does embed/display the PDF** — it links `/book/ahavat-torah`, constructs `pdf:base+'Hebrewbooks_org_5635.pdf'` against the exact live storage base, and shows the same two book cards (Ahavat Torah, Sefer HaPliah) with `chip: מועמד · לא קנוני` labeling.
+- **Neither of these existence facts implies any research claim in this dossier is canonical, published, or promoted** — `nodes(type='book')` is an identity/routing anchor, not a Universal Finding. This does not change the Foundation Expansion Gate verdict (still FOUNDATION SUFFICIENT) and does not authorize creating a second book node, a second display system, or a second source-index root.
+
 ## A. This PR (#285) — `claude/ahavat-torah-letter-dataset-closure`, head `004fc421399a2ea67a30be402d1ee54c8a8e0417`
 
 Live-reverified this pickup: `origin/main` = `bae282da2c8f910b1b50ca8a597f87e832b92f16`; this branch is 13 commits ahead / 187 behind; diff vs `main` is 13 files, +2,330/−0, all under `docs/`; working tree clean.
@@ -89,6 +98,8 @@ Carried unchanged from the register/handoff: pp.1–5 are block-by-block verbati
 6. **Source-artifact display gap** (distinct from storage): the PDF is durably stored and byte-verified (`gallery/Book/Hebrewbooks_org_5635.pdf`, confirmed this branch at `004fc421`), but **no code or DB row anywhere currently links, embeds, or displays it** — confirmed this pickup via `grep -ri "5635\|hebrewbooks" src/` (0 matches) and a live `posts`/`gallery_images` query (0 matches referencing this book). A "source beside research" projection has nothing on the display side to attach to yet beyond the raw storage URL.
 7. **`nodes(type='source')` anchor row:** still not built (named Extension Point since Session 4) — Foundation Expansion Gate verdict remains **FOUNDATION SUFFICIENT**, this is an Extension Point, not a MUST-FOUNDATION-NOW gap.
 8. **Provenance-drift (§A above):** DOSSIER_INDEX row 9's recorded branch name for the Foundation doc does not resolve live; the file's real current location is this PR's branch, commit `ce241864`.
+
+**CORRECTION to item 6 above (additive, does not edit item 6's text)**, per the ERRATUM in the Identity section: item 6 is **WRONG as a current-state claim**. `public/book.html` on `origin/main` itself embeds and displays this PDF (`/book/ahavat-torah`, storage-base-constructed URL), and a `nodes(type='book', identity_key='book:ahavat-torah')` row exists live with populated identity tiers. The source projection is **PARTIAL/TRANSITIONAL, not absent**. What remains genuinely missing: this dossier's own `#pN:block`-level register (pp.1–15) is **not** what `public/book.html` reads from — that static page reads a separately generated `public/book-data/*.tables.json` (per the INTEGRATION_OWNER branch `claude/ahavat-torah-closure-matrix-lf161n`, not reviewed in depth here — external to this manifest's read scope). The real, still-open gap is *which* dossier artifact is the display's source of truth, not *whether* a display exists.
 
 None of the above blocks a **bounded, honest** projection of what is already known (per-artifact status/coverage as tabulated above) — they are gaps in convention/completeness, not contradictions that make the existing dossier unusable.
 
