@@ -1502,3 +1502,16 @@ Foundation נשאר `SUFFICIENT` / `MUST FOUNDATION NOW=0` ידוע לצורך-�
 אין קוד, אין schema/migration, אין `research_objects` writes, אין method-registry writes, אין graph/`project_codex`/`nodes` writes, אין ELS implementation, אין corpus-scan, אין פתיחה-מחדש של Katan/source-specific Before-After (נשארים deferred, per ZURIEL — לא-מוחזרים).
 
 **Provenance:** handoff `work_log` `cc1993f8-c130-4e9d-b802-3f603407ac4d` (GPT/ZURIEL→CLAUDE) · `13434460`/`be204939`/`e51e13cb` (PRE-ELS coordinator+שני-הסוויפים) · `9a640c82` (ELS Lens handoff, הצעד-הבא) · §23.26/§23.27 למעלה (ללא-שינוי) · `research_intake_foundation_contract` §9 (DB-live).
+## 23.29 — UNIVERSAL RESEARCH REALITY TARGET PROJECTION + GEMATRIA REGISTRY FRESHNESS — 5.9.2026
+**DECISION / HUMAN GATE (ZURIEL):** approved an additive architecture clarification after GPT live crosswalk + Claude specialist cross-check (`work_log 06806bc9...` → AFTER `6657bda5...`). No new truth/store/engine/schema is introduced.
+
+**Canonical reconciliation:** the already-ratified Research Studio model remains authoritative: Context → Lens → Dimension → Finding → Journey. **Method is classified as a Dimension.** A Method Inspector/Trace is a projection of that Dimension and may use the existing canonical trace path; it is not a Method Lab or new calculation authority.
+
+**New explicit Projection target:** Universal Faceted Explorer/Search over the same One Reality Graph / One Research OS, combining existing dimensions/facets (entity/topic/number/source/time/person/method/engine/verification/governance/publication/privacy/depth/language/provenance/relation-family/journey) without duplicating truth. Universal Entity Hub and Topic/Convergence remain entry/projection surfaces over the same system; Journeys remain traversals/snapshots over Research Context; multilingual/SEO and Spatial/3D remain projections.
+
+**Priority consequence:** Entity Hub Golden Case remains first; non-number portability mini-case follows; the unified Faceted Explorer/Search contract is elevated ahead of broad Legacy redesign and full 3D polish. Method Inspector is embedded in that projection order, not a separate workstream.
+
+**Gematria registry factual correction (live DB, 5.9.2026):** `gematria_methods` = **36 registered · 32 active · 33 in_engine · 28 scannable**. Any older fixed method-count statement below is historical provenance, not current state. Future current-state documentation should query the live Registry and keep these four categories distinct.
+
+**Release/state:** docs-only branch `gpt/advanced-system-roadmap-universal-explorer-v1`; NOT merged / NOT deployed by this entry. No DB/schema/engine/UI truth write.
+
