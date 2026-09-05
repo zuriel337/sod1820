@@ -26,9 +26,9 @@ function useAxisData() {
     let alive = true;
     (async () => {
       // צירי התכנסות מאושרים עם תאריך — נשזרים בציר לפי כרונולוגיה
-      const { data: convs } = await supabase.from("topic_cards")
+      const { data: convs } = await supabase.from("topic_cards_public")
         .select("slug,title,subtitle,occurred_at,highlight_numbers,quality,meter_score")
-        .eq("status", "approved").not("occurred_at", "is", null);
+        .not("occurred_at", "is", null);
       const convergences = (convs || []).map(c => ({ ...c, __conv: true }));
 
       const { data: events } = await supabase.from("nodes")

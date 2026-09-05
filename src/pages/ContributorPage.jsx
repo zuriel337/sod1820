@@ -688,8 +688,8 @@ export default function ContributorPage() {
     Promise.all([
       getResearcherConvergences(name),
       tags.length
-        ? supabase.from("topic_cards").select("slug,title,subtitle,highlight_numbers")
-            .eq("status", "approved").overlaps("search_terms", tags).limit(24)
+        ? supabase.from("topic_cards_public").select("slug,title,subtitle,highlight_numbers")
+            .overlaps("search_terms", tags).limit(24)
             .then(({ data }) => data || []).catch(() => [])
         : Promise.resolve([]),
     ]).then(([authored, byTag]) => {

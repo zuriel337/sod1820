@@ -124,9 +124,10 @@ export async function getConvergenceSlugs(ids = []) {
 export async function getResearcherConvergences(name) {
   if (!supabase || !name) return [];
   try {
-    const { data } = await supabase.from("topic_cards")
+    // מודל-הקריאה הציבורי (approved, בלי מפתחות-פנימיים) — work_log bf236317
+    const { data } = await supabase.from("topic_cards_public")
       .select("slug,title,subtitle,highlight_numbers,meter_score,status")
-      .eq("created_by", name).eq("status", "approved")
+      .eq("created_by", name)
       .order("meter_score", { ascending: false, nullsFirst: false });
     return data || [];
   } catch { return []; }

@@ -109,9 +109,8 @@ async function main() {
   // צירי התכנסות (/topic/<slug>) — רק כרטיסים מאושרים
   try {
     const { data, error } = await supabase
-      .from('topic_cards')
-      .select('slug, approved_at, created_at')
-      .eq('status', 'approved');
+      .from('topic_cards_public')
+      .select('slug, approved_at, created_at');
     if (error) { console.error('Supabase error (topics):', error.message); }
     else for (const t of data || []) {
       if (!t.slug) continue;

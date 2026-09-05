@@ -2609,12 +2609,22 @@ export async function runOcrBatch({ limit = 50, retry = false, runKey = '' } = {
 }
 
 // ===== כרטיסי נושא (topic_cards) — חיבורים/הצטלבויות שה-AI מכין והאדמין מאשר =====
+// 🔐 מודל-קריאה ציבורי אחד (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1, work_log bf236317):
+// כל קורא ציבורי/משתמש-רגיל קורא את ה-VIEW `topic_cards_public` (שורות approved שאינן מסומנות
+// _do_not_publish, ומפתחות-פנימיים `_…` של findings מוסרים בצד-השרת). גישה מלאה לשורות הגולמיות
+// (כל הסטטוסים + findings גולמי) = מנהל בלבד דרך ה-RPC `admin_topic_cards_full` (SECURITY DEFINER,
+// בדיקת users.role='admin'). אין סינון-React ואין חריג-לכרטיס.
+export const TOPIC_CARDS_PUBLIC = 'topic_cards_public';
 export async function getTopicCards({ approvedOnly = false } = {}) {
   if (!supabase) return [];
-  let q = supabase.from('topic_cards').select('*')
-    .order('quality', { ascending: false }).order('created_at', { ascending: false });
-  if (approvedOnly) q = q.eq('status', 'approved');
-  const { data } = await q;
+  if (approvedOnly) {
+    const { data } = await supabase.from(TOPIC_CARDS_PUBLIC).select('*')
+      .order('quality', { ascending: false }).order('created_at', { ascending: false });
+    return data || [];
+  }
+  // מנהל: כל הסטטוסים, שורה קנונית מלאה (ממוין בתוך ה-RPC: quality↓, created_at↓)
+  const { data, error } = await supabase.rpc('admin_topic_cards_full');
+  if (error) throw error;
   return data || [];
 }
 // 🔡 צפנים — ממצאי «הצופן» (nodes type=convergence, חוצי-שפה/שיטה): 86=אלהים=הטבע, בן=son=sun…
@@ -2647,8 +2657,18 @@ export async function getAxisEvents(limit = 24) {
 }
 export async function getTopicCardBySlug(slug) {
   if (!supabase || !slug) return null;
-  const { data } = await supabase.from('topic_cards').select('*').eq('slug', slug).maybeSingle();
-  return data || null;
+  // ציבורי: דרך מודל-הקריאה הבטוח בלבד
+  const { data } = await supabase.from(TOPIC_CARDS_PUBLIC).select('*').eq('slug', slug).maybeSingle();
+  if (data) return data;
+  // לא-ציבורי (טיוטה/דחוי/ממוזג/מסומן _do_not_publish): תצוגה-מקדימה למנהל בלבד — ה-RPC מסרב לכל
+  // מי שאינו admin, ולכן מנוסה רק כשיש session. משתמש רגיל/אנונימי → null (כמו «לא נמצא»).
+  try {
+    const { data: { session } = {} } = await supabase.auth.getSession();
+    if (!session) return null;
+    const { data: rows, error } = await supabase.rpc('admin_topic_cards_full', { p_slug: slug });
+    if (error) return null;
+    return (rows && rows[0]) || null;
+  } catch { return null; }
 }
 // ישויות (זהב/חתימות) המחוברות לציר ההתכנסות בגרף — דרך edges related מה-node של הכרטיס
 export async function getConvergenceEntities(nodeId) {
@@ -2767,15 +2787,18 @@ export async function getGalleryImageFull(id) {
 export async function setTopicCardStatus(id, status) {  if (!supabase) throw new Error('no supabase');
   const patch = { status };
   if (status === 'approved') patch.approved_at = new Date().toISOString();
+  // RETURNING ללא findings: אחרי Phase B ל-authenticated אין SELECT על עמודת findings הגולמית
+  // (הקריאה המלאה למנהל = admin_topic_cards_full).
   const { data, error } = await supabase.from('topic_cards')
-    .update(patch).eq('id', id).select().maybeSingle();
+    .update(patch).eq('id', id).select(TOPIC_CARD_RETURNING).maybeSingle();
   if (error) throw error;
   return data;
 }
+const TOPIC_CARD_RETURNING = 'id,slug,title,subtitle,status,quality,approved_at,created_at,created_by,node_id';
 export async function updateTopicCard(id, patch) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.from('topic_cards')
-    .update(patch).eq('id', id).select().maybeSingle();
+    .update(patch).eq('id', id).select(TOPIC_CARD_RETURNING).maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -2783,7 +2806,9 @@ export async function updateTopicCard(id, patch) {
 export async function mergeTopicCards(keepId, mergeIds = []) {
   if (!supabase || !keepId || !mergeIds.length) throw new Error('bad args');
   const ids = [keepId, ...mergeIds];
-  const { data: cards } = await supabase.from('topic_cards').select('*').in('id', ids);
+  // שורות מלאות (כולל findings גולמי, כל סטטוס) — נתיב-מנהל מפורש
+  const { data: cards, error: eRead } = await supabase.rpc('admin_topic_cards_full', { p_ids: ids });
+  if (eRead) throw eRead;
   const keep = (cards || []).find(c => c.id === keepId);
   const others = (cards || []).filter(c => c.id !== keepId);
   if (!keep) throw new Error('keep not found');
@@ -2933,7 +2958,7 @@ export async function getGalleryPage({ type = null, page = 0, limit = 60, search
 export async function createTopicCardDraft(card) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.from('topic_cards')
-    .insert({ ...card, status: 'draft', created_by: 'admin-hunt' }).select().maybeSingle();
+    .insert({ ...card, status: 'draft', created_by: 'admin-hunt' }).select(TOPIC_CARD_RETURNING).maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -3326,7 +3351,7 @@ export async function getZeroResonance(value) {
   // התכנסויות מאושרות שמכילות אחת הסקאלות — שאילתה אחת
   const topicsBy = {};
   try {
-    const { data } = await supabase.from('topic_cards').select('slug,title,numbers').eq('status', 'approved').overlaps('numbers', vals).limit(200);
+    const { data } = await supabase.from(TOPIC_CARDS_PUBLIC).select('slug,title,numbers').overlaps('numbers', vals).limit(200);
     (data || []).forEach(t => (t.numbers || []).forEach(n => { if (vals.includes(n)) (topicsBy[n] ||= []).push({ slug: t.slug, title: t.title }); }));
   } catch { /* ignore */ }
   // גלריות — לכל סקאלה (תמונות שהערך מופיע בהן)
@@ -3972,9 +3997,8 @@ export async function getHarvestedPosts(value, lim = 6) {
 export async function getTopicCardsByNumber(value, limit = 6) {
   if (!supabase || !value) return [];
   try {
-    const { data } = await supabase.from('topic_cards')
+    const { data } = await supabase.from(TOPIC_CARDS_PUBLIC)
       .select('slug, title, subtitle, numbers, quality')
-      .eq('status', 'approved')
       .contains('numbers', [value])
       .order('quality', { ascending: false })
       .limit(limit);
