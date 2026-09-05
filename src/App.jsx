@@ -14,6 +14,7 @@ import { ensureIdentity } from "./lib/identity.js";
 import { startPresence, updatePresence } from "./lib/presence.js";
 import { useAuth } from "./lib/AuthContext.jsx";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
+import RoyalContextBar from "./components/navigation/RoyalContextBar.jsx";
 import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
@@ -262,6 +263,7 @@ export default function App() {
           <UpdateBanner />
           <SitePromoPopup />
           <RoyalShareWidget />
+          <RoyalContextBar />
           {/* הוסר זמנית לבקשת צוריאל — נחזיר כשיחליט. <LabDock /> */}
           <InstallPrompt />
           {/* הוסר לבקשת צוריאל — בלי פוש «התראות דפדפן / הירשם לעדכונים» (בועת ימין בדסקטופ) */}
