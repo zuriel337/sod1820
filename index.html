@@ -81,6 +81,9 @@
       ::-webkit-scrollbar-thumb { background: #3a2a00; border-radius: 3px; }
       ::-webkit-scrollbar-thumb:hover { background: #B8860B; }
       ::selection { background: #3a2a00; color: #E8C84A; }
+      /* 🏗️ סמל-הבנייה הגלובלי: Navbar נשאר בעל-הבית של המד וה-pulse; כאן רק הסמל אחיד בכל route. */
+      .sod-nav-build > span[aria-hidden] { font-size: 0; }
+      .sod-nav-build > span[aria-hidden]::before { content: "🏗️"; font-size: 14px; line-height: 1; }
       @keyframes logo-float {
         0%, 100% { transform: translateY(0px); }
         50%       { transform: translateY(-5px); }
