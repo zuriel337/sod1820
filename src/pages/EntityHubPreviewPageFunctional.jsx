@@ -163,8 +163,22 @@ function MethodTracePanel({ methodKey, phrase }) {
     {state.loading ? <div style={{ ...muted, marginTop: 6 }}>טוען את מסלול החישוב הקנוני…</div> : null}
     {state.error ? <div style={{ ...muted, marginTop: 6, color: C.red }}>Trace לא זמין: {String(state.error?.message || state.error)}</div> : null}
     {!state.loading && !state.error && !state.finding ? <div style={{ ...muted, marginTop: 6 }}>המנוע לא החזיר trace לשיטה הזו.</div> : null}
+    {trace ? <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+      {trace.trace_kind ? <span style={chipStyle("neutral")}>{trace.trace_kind}</span> : null}
+      {state.finding?.evidence?.facts?.[0]?.mathematical_family ? <span style={chipStyle("neutral")}>{state.finding.evidence.facts[0].mathematical_family}</span> : null}
+      {trace.verification?.parity != null ? <span style={chipStyle(trace.verification.parity ? "ok" : "red")}>{trace.verification.parity ? `parity ✓ · קנוני ${trace.verification.canonical_value}` : "parity ✗"}</span> : null}
+    </div> : null}
     {steps.length ? <ol style={{ margin: "8px 0 0", paddingInlineStart: 20, lineHeight: 1.7, fontSize: 13 }}>
-      {steps.slice(0, 40).map((s, i) => <li key={i}>{typeof s === "string" ? s : [s.step || s.label || s.op, s.input != null ? `${s.input}` : null, s.value != null ? `→ ${s.value}` : (s.result != null ? `→ ${s.result}` : null)].filter(Boolean).join(" ")}</li>)}
+      {steps.slice(0, 40).map((s, i) => {
+        if (typeof s === "string") return <li key={i}>{s}</li>;
+        if (s && s.word != null) {
+          const letters = Array.isArray(s.letter_values) ? s.letter_values.join(" · ") : null;
+          const pairs = Array.isArray(s.pairs) ? s.pairs.map(p => `|${p.left_value}−${p.right_value}|=${p.difference}`).join("  ") : null;
+          return <li key={i}><b>{s.word}</b>{letters ? <span style={muted}> · אותיות: {letters}</span> : null}{pairs ? <div style={{ ...muted, fontFamily: "monospace", direction: "ltr", textAlign: "right" }}>{pairs}</div> : null}{s.word_subtotal != null ? <div>תת־סכום: <b>{s.word_subtotal}</b></div> : null}</li>;
+        }
+        const label = [s.step || s.label || s.op, s.input != null ? `${s.input}` : null, s.value != null ? `→ ${s.value}` : (s.result != null ? `→ ${s.result}` : null)].filter(Boolean).join(" ");
+        return <li key={i}>{label || <code style={{ fontSize: 11.5 }}>{JSON.stringify(s).slice(0, 220)}</code>}</li>;
+      })}
     </ol> : (trace ? <pre style={{ margin: "8px 0 0", whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.5 }}>{JSON.stringify(trace, null, 1).slice(0, 1800)}</pre> : null)}
     <div style={{ ...muted, fontSize: 11.5, marginTop: 8 }}>Trace = הסבר חישוב של המנוע · אינו Finding, אינו טענה, אינו קידום לקנון.</div>
   </div>;
@@ -257,8 +271,10 @@ export default function EntityHubPreviewPage() {
     const selection = { entityId: d.identity.nodeId, entityType: d.identity.type };
     const lens = d.identity.type === "number" ? "number" : "graph";
     const ctx = research?.context;
+    // returnTo is deliberately NOT cleared on arrival — it is the exact reopen point the previous
+    // surface recorded (↩), and only a new leave overwrites it.
     if (!ctx?.subject) research?.setResearchContext?.({ subject, selection, lens });
-    else research?.updateResearchContext?.({ selection, lens, returnTo: null });
+    else research?.updateResearchContext?.({ selection, lens });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.data]);
   const leaveHub = useCallback((lens, selection) => {
@@ -332,7 +348,7 @@ export default function EntityHubPreviewPage() {
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
         <Stat label="תמונות גלריה" value={surface.galleriesCount ?? galleries.length} note="עדויות ציבוריות סביב הישות" />
         <Stat label="ביטויים" value={surface.phrasesCount ?? surface.phrases?.length ?? 0} note="מהמאגר הציבורי" />
-        <Stat label="שיטות שפוגשות כאן" value={families.length} note="Registry + engine" />
+        <Stat label="שיטות שפוגשות כאן" value={isNumber ? families.length : bridgeRows.length} note="Registry + engine" />
         <Stat label="Topics מאושרים" value={topics.length} note="אוצרות Human Gate" />
         <Stat label="קשרי Graph" value={data.graph?.relations?.length || 0} note="אותו Reality Graph" />
         <Stat label="פוסטים" value={surface.postsCount ?? posts.length} note="תוכן מחובר" />
@@ -345,7 +361,12 @@ export default function EntityHubPreviewPage() {
           Nothing is hardcoded to a phrase or a method; verification is honest (match/mismatch only when a
           stored canonical value exists). ── */}
       {!isNumber && (bridgeRows.length || gematriaIdentity) ? <Section eyebrow="GEMATRIA LENS · METHOD RESULTS" title={`${identity.label} בכל שיטה — ומאיפה זה מגיע`} subtitle={data.methodBridge?.note}
-        action={gematriaIdentity ? <span style={chipStyle("gold")} title={`gematria_words:${gematriaIdentity.gematriaWordId}`}>מקור: gematria_words · מנוע: gematria_api · Registry</span> : null}>
+        action={gematriaIdentity ? <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <span style={chipStyle("gold")} title={`gematria_words:${gematriaIdentity.gematriaWordId}`}>🔢 זהות גימטרית קנונית</span>
+          <span style={chipStyle(gematriaIdentity.verified ? "ok" : "warn")}>{gematriaIdentity.verified ? "מאומת במנוע" : "לא מאומת"}</span>
+          <span style={chipStyle(gematriaIdentity.published ? "ok" : "warn")}>{gematriaIdentity.published ? "מפורסם" : "לא מפורסם"}</span>
+          <span style={chipStyle("neutral")}>מנוע: gematria_api · Registry</span>
+        </div> : null}>
         {bridgeRows.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 12 }} data-testid="method-bridge">
           {bridgeRows.map(row => <article key={row.dbColumn} style={{ border: `1px solid ${row.numberNode ? C.gold2 : C.line}`, background: C.panel, borderRadius: 15, padding: 14 }} data-method={row.dbColumn}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
