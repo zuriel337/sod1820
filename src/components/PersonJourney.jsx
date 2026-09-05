@@ -32,6 +32,8 @@ export default function PersonJourney() {
   const [busy, setBusy] = useState(false);
 
   const selfRef = personId ? `person:${personId}:self` : null;
+  const persistedSelf = selfRef ? members.find(m => m.source_ref === selfRef) : null;
+  const persistedSelfName = String(persistedSelf?.name || "").trim();
 
   const refresh = useCallback(async (pid) => {
     const data = await listFamily(pid);
@@ -65,12 +67,13 @@ export default function PersonJourney() {
 
   // 🧭 Universal Research Context — Person/Life Journey remains a traversal/context over person-ref,
   // not a new Person store and not a Finding of its own. Existing research root is preserved if present.
+  // The display label comes only from the persisted Person ledger, never from unsaved input keystrokes.
   useEffect(() => {
     if (!selfRef || !user) return;
     const personSubject = {
       id: selfRef,
       type: "person",
-      label: selfName.trim() || "מסע החיים שלי",
+      label: persistedSelfName || "מסע החיים שלי",
       href: "/research?tool=journey",
     };
     const selection = { entityId: selfRef, entityType: "person" };
@@ -81,7 +84,7 @@ export default function PersonJourney() {
     }
     // Context is navigation state only; privacy remains enforced by the existing Person foundation/RLS.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selfRef, selfName, user]);
+  }, [selfRef, persistedSelfName, user]);
 
   const saveSelf = async () => {
     if (!personId || !selfName.trim()) return;
