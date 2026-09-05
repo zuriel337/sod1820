@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useLegacyNav } from "../lib/legacyNav.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { getPostBySlug } from "../lib/supabase.js";
 import {
   BlogPage, PostPageBySlug, CategoryPage, TagPage, GematriaPhrasePage,
   AboutPage, LoginPage, ContactPage, ChatPage, SpotimChatPage,
@@ -16,6 +19,33 @@ export function PostsRoute() {
 
 export function PostBySlugRoute() {
   const nav = useLegacyNav();
+  const { slug } = useParams();
+  const research = useResearch();
+
+  // 🧭 Universal Research Context — reuse the real posts row identity; never promote slug text itself to canonical identity.
+  // The legacy renderer keeps its own read for now; this wrapper read is an adapter-only duplication until Post projection is composed.
+  useEffect(() => {
+    if (!slug) return;
+    let alive = true;
+    getPostBySlug(slug).then(post => {
+      if (!alive || !post) return;
+      const stableId = post.id ?? post.wp_id ?? null;
+      if (stableId == null) return;
+      const id = String(stableId);
+      const title = typeof post.title === "string" ? post.title : (post.title?.rendered || post.slug || slug);
+      const subject = { id, type: "post", label: title, href: `/${post.slug || slug}` };
+      const selection = { entityId: id, entityType: "post", locator: `/${post.slug || slug}` };
+      if (!research.context?.subject) {
+        research.setResearchContext?.({ subject, selection, lens: "post" });
+      } else {
+        research.updateResearchContext?.({ selection, lens: "post" });
+      }
+    }).catch(() => { /* renderer owns user-facing post errors */ });
+    return () => { alive = false; };
+    // Entering a new slug is the event. Context mutations are intentionally not dependencies.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
+
   return <PostPageBySlug onNav={nav} />;
 }
 
