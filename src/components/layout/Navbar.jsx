@@ -313,7 +313,7 @@ function MenuPanel({ groups, pathname, cc }) {
           position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(620px, 88vw)",
           background: pc.panelBg, backdropFilter: light ? "none" : "blur(16px)",
           border: `1px solid ${pc.panelBorder}`, borderRadius: 18, padding: 14, zIndex: 250,
-          boxShadow: pc.shadow,
+          boxShadow: pc.shadow, maxHeight: "min(72vh,680px)", overflowY: "auto", overscrollBehavior: "contain",
         }}>
           <div style={{color:pc.heading,fontFamily:F.ui,fontSize:11,fontWeight:800,letterSpacing:1.2,padding:"2px 5px 10px"}}>ניווט מהיר</div>
           <div style={{display:"grid",gap:12}}>
