@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { stripHtml } from "../lib/format.js";
+import EntityHubGoldenControls from "../components/entity/EntityHubGoldenControls.jsx";
 
 const C = {
   page: "#f4efe4",
@@ -244,6 +245,8 @@ export default function EntityHubPreviewPage() {
         <Stat label="קשרי Graph" value={data.graph?.relations?.length || 0} note="אותו Reality Graph" />
         <Stat label="פוסטים" value={surface.postsCount ?? posts.length} note="תוכן מחובר" />
       </div>
+
+      {isNumber ? <EntityHubGoldenControls data={data} relationGroups={relationGroups} /> : null}
 
       {isNumber ? <Section eyebrow="GEMATRIA LENS" title={`איך  ${identity.label}  מופיע בגימטריה`} subtitle="כאן רואים את ההבדל שחשוב לנו להחליט עליו: הביטוי הוא הישות הלחיצה הראשית; השיטה היא עדשה נפרדת עם Identity והגדרה משלה. כרגע לחיצה על שם השיטה פותחת Inspector זמני רק כדי שנוכל להחליט יחד — זו עדיין לא התנהגות קנונית.">
         {families.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))", gap: 12 }}>
