@@ -1,22 +1,27 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { F, calcGem } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities, getElsForNumbers, setImageCuration } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
-import { cleanName } from "../lib/galleryName.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { topicConvergenceToUniversalFinding, topicConvergenceContentSections } from "../lib/research/topicConvergence.js";
 import { useSiteFlag } from "../components/MaintenanceLock.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import RealityStream from "../components/RealityStream.jsx";
 import DocActions from "../components/DocActions.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import { track } from "../lib/tracking.js";
 import { withRid } from "../lib/propagation.js";
 
 // ===== מרכז ההתכנסות — עמוד כרטיס נושא (/topic/:slug) =====
 // כאן נפגשים כל החוטים: מספרים, תמונות, חיבורים ורמזים — שער לעולם שלם של קשרים.
+// 📜 גוף הכרטיס (findings) לא מרונדר כאן ישירות: הוא עובר דרך המתאם הקנוני
+// Topic/Convergence → Universal Finding (topicConvergence.js) ומוצג ע״י הרנדרר המשותף
+// TopicConvergenceContent — אותו read-model שה-Entity Hub / Research Viewer צורכים.
+// (LEGACY_CONTENT_TO_ONE_RESEARCH_OS_BRIDGE_V1 · work_log 1af998d5). הדף הזה = משטח-תאימות.
 function stars(q) {
   const n = Math.max(0, Math.min(5, Math.round((q || 0) / 2)));
   return "★".repeat(n) + "☆".repeat(5 - n);
@@ -31,7 +36,6 @@ export default function TopicPage() {
   const [imgs, setImgs] = useState([]);
   const [ents, setEnts] = useState([]); // ישויות/חתימות מחוברות בגרף (דרך edges)
   const [ciphers, setCiphers] = useState([]); // 🔠 צפנים (ELS) שמתלכדים על מספרי ההתכנסות (round-trip)
-  const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
   const { isAdmin } = useAuth();        // עריכת תמונה בדף ההתכנסויות — מנהל בלבד
   const research = useResearch();
   const crossLock = useSiteFlag("lock_cross");  // כפתורי «הצלבה» מובילים ל-/cross — מוסתרים כשהוא נעול
@@ -95,10 +99,14 @@ export default function TopicPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card, slug]);
 
+  // 📜 הקרנה קנונית של הכרטיס (כולל findings) ל-Universal Finding — טהור, בלי שאילתה נוספת.
+  // הגרף (node/edges) מוצג כאן דרך getConvergenceEntities הקיים; ה-Hub משתמש ב-fetchCanonicalTopicConvergenceFinding.
+  const finding = useMemo(() => (card ? topicConvergenceToUniversalFinding({ card }) : null), [card]);
+  const content = useMemo(() => topicConvergenceContentSections(finding), [finding]);
+
   if (card === undefined) return <Center>טוען…</Center>;
   if (!card) return <Center>הכרטיס לא נמצא. <Link to="/" style={{ color: P.accentText }}>חזרה →</Link></Center>;
 
-  const f = card.findings || {};
   const hot = new Set(card.highlight_numbers || []);
   const nums = card.numbers || [];
   const crossHidden = crossLock.lock?.enabled && !isAdmin;   // /cross נעול → לא להראות כפתורי-הצלבה מתים
@@ -113,12 +121,14 @@ export default function TopicPage() {
 
   // convergence_evidence_law: עוצמת ההתכנסות = מספר השיטות/הראיות העצמאיות המתלכדות בעוגן.
   // הכוכבים נגזרים מהעוצמה האמיתית לפי העץ — לא מ-quality שהוזן ידנית.
-  const evRows = Array.isArray(f) ? f : (f.rows || []);
+  // מוזן מאותה הקרנה משותפת (שורות-הכרטיס + טענות-המספר של root-array) — אותה סמנטיקה כמו קודם:
+  // תווית-השיטה של הכותב כלשונה (rows.note / element.method), לא שיטה שנפתרה מהמנוע.
+  const evRows = content ? [...content.sections.rows, ...content.sections.numericClaims] : [];
   const evMethods = new Set();
   let evCount = 0;
   evRows.forEach(r => {
-    if (r && (r.n != null || r.v != null)) evCount++;
-    const m = r && (r.method || r.note);
+    if (r.valueRaw != null) evCount++;
+    const m = r.methodLabel || r.note;
     if (m) String(m).split(/[·/]/).forEach(x => { const t = x.trim(); if (t && t !== "—") evMethods.add(t); });
   });
   ents.forEach(e => { if (e.edgeMethod) evMethods.add(e.edgeMethod); });
@@ -230,108 +240,12 @@ export default function TopicPage() {
         )}
       </div>
 
-      {/* רמז משלים */}
-      {f.hint && (
-        <div style={{ ...box, borderColor: "rgba(99,102,241,0.4)", background: "rgba(99,102,241,0.07)", marginBottom: 20, display: "flex", gap: 10 }}>
-          <span style={{ fontSize: 20 }}>🔮</span>
-          <div style={{ color: P.ink, fontFamily: F.body, fontSize: 15, lineHeight: 1.85 }}><b>רמז משלים: </b>{f.hint}</div>
-        </div>
-      )}
+      {/* 📜 גוף הכרטיס דרך ההקרנה המשותפת: רמז · ממצאים/שורות · ביטויים · חיבורים · מועמדים · הפניות · פוסטים.
+          (ההסתייגות ושדות-לא-נתמכים מוצגים אחרי הגלריה — אותו סדר-עמוד כמו קודם.) */}
+      <TopicConvergenceContent finding={finding} palette={P} imgs={imgs} onLeave={leaveTopic} showWithheld={isAdmin}
+        exclude={["caveat", "unsupported"]} />
 
-      {/* ממצאים */}
-      {(f.headline || Array.isArray(f.bullets)) && (
-        <div style={{ ...box, marginBottom: 20 }}>
-          {f.headline && <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 19, fontWeight: 700, marginBottom: 10 }}>{f.headline}</div>}
-          {Array.isArray(f.bullets) && (
-            <ul style={{ margin: 0, paddingInlineStart: 22, color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.95 }}>
-              {f.bullets.map((b, i) => {
-                const text = typeof b === "string" ? b : (b?.t || "");
-                const imgId = (typeof b === "object" && b) ? b.img : null;
-                // תמונה מקושרת מפורשת, ואחרת — אוטומטית לפי מיקום השורה (כל שורה לחיצה)
-                const img = (imgId ? imgs.find(x => x.id === imgId) : null) || imgs[i] || null;
-                const open = openBullet === i;
-                return (
-                  <li key={i} style={{ marginBottom: img ? 4 : 0 }}>
-                    <span onClick={img ? () => setOpenBullet(open ? null : i) : undefined}
-                      style={{ cursor: img ? "pointer" : "default", borderBottom: img ? `1px dashed ${P.borderStrong}` : "none", color: img && open ? P.accentText : "inherit" }}>
-                      {text}{img && <span style={{ color: P.accentDim, fontSize: 12, marginInlineStart: 6 }}>{open ? "▾" : "🖼"}</span>}
-                    </span>
-                    {img && open && (
-                      <div style={{ margin: "8px 0 4px", maxWidth: 420 }}>
-                        <img src={img.image_url} alt={cleanName(img.name) || text} loading="lazy"
-                          style={{ width: "100%", borderRadius: 10, border: `1px solid ${P.borderStrong}`, display: "block" }} />
-                        {(img.description || cleanName(img.name)) && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginTop: 5 }}>{img.description || cleanName(img.name)}</div>}
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      )}
-
-      {/* התכנסות — כל שורה: ביטוי + הערך שלו מימין (convergence_display_law) */}
-      {Array.isArray(f.rows) && f.rows.length > 0 && (
-        <div style={{ ...box, marginBottom: 20 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 12 }}>🔢 ההתכנסות — כל ביטוי והערך שלו</div>
-          <div style={{ display: "grid", gap: 8 }}>
-            {f.rows.map((r, i) => {
-              const v = typeof r === "object" && r ? r.v : null;
-              const p = typeof r === "object" && r ? r.p : String(r);
-              const note = typeof r === "object" && r ? r.note : null;
-              return (
-                <div key={i} style={{ display: "flex", gap: 10, alignItems: "baseline", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 12px" }}>
-                  <Link to={`/number/${v}`} onClick={() => leaveTopic("number", { entityId: String(v), entityType: "number" })}
-                    style={{ flex: "0 0 auto", minWidth: 56, textAlign: "center", fontFamily: F.mono, fontWeight: 800, color: "#241a02", background: "linear-gradient(135deg,#ffd86b,#d8b34a)", borderRadius: 8, padding: "2px 9px", textDecoration: "none", fontVariantNumeric: "tabular-nums" }}>{v}</Link>
-                  <span style={{ flex: "1 1 auto", minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.55 }}>
-                    <Link to={`/number/${encodeURIComponent(p)}`} onClick={() => leaveTopic("number", { entityId: String(p), entityType: "phrase" })}
-                      style={{ color: "inherit", textDecoration: "none", borderBottom: `1px dotted ${P.borderStrong}` }}>{p}</Link>
-                    {note && <span style={{ color: P.inkSoft, fontSize: 12.5 }}> · {note}</span>}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* חיבורים */}
-      {Array.isArray(f.connections) && f.connections.length > 0 && (
-        <div style={{ ...box, marginBottom: 20 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700, marginBottom: 10 }}>🔗 מסלולי קשר</div>
-          <div style={{ display: "grid", gap: 8 }}>
-            {f.connections.map((cn, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "8px 12px" }}>
-                <Link to={`/number/${cn.number}`} onClick={() => leaveTopic("number", { entityId: String(cn.number), entityType: "number" })}
-                  style={{ fontFamily: F.mono, fontWeight: 800, color: P.accentText, fontSize: 15, textDecoration: "none" }}>{cn.number}</Link>
-                <span style={{ color: P.accentDim }}>↔</span>
-                {(cn.links || []).map(l => <span key={l} style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5 }}>{l}</span>)}
-                {cn.note && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>· {cn.note}</span>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* הפוסט/ים המלאים — חיבור הכרטיס לפוסט/ים המקור */}
-      {(() => {
-        const posts = Array.isArray(f.posts) ? f.posts.filter(p => p && p.slug) : (f.post && f.post.slug ? [f.post] : []);
-        if (!posts.length) return null;
-        return (
-          <div style={{ ...box, marginBottom: 20, display: "grid", gap: 8 }}>
-            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 1 }}>📖 הפוסטים המלאים</div>
-            {posts.map((p, i) => (
-              <Link key={i} to={`/${p.slug}`} onClick={() => leaveTopic("post", { entityType: "post", locator: `/${p.slug}` })}
-                style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 13px" }}>
-                <span style={{ fontSize: 20 }}>📖</span>
-                <span style={{ flex: 1, minWidth: 0, color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, lineHeight: 1.4 }}>{p.title || "קראו את הפוסט המלא"}</span>
-                <span style={{ color: P.accentText, fontFamily: F.heading, fontWeight: 800, flexShrink: 0 }}>←</span>
-              </Link>
-            ))}
-          </div>
-        );
-      })()}
+      {/* ✦ (הוסר בלוק-בלוק: hint/headline+bullets/rows/connections/posts — עכשיו מרונדרים מהמתאם, בלי כפילות) */}
 
       {/* ממצאים בגלריות — masonry, מספרים לינקים, תאריכים, lightbox מובנה */}
       {imgs.length > 0 && (
@@ -361,10 +275,9 @@ export default function TopicPage() {
         />
       )}
 
-      {/* הסתייגות מחקרית */}
-      {f.caveat && (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, lineHeight: 1.8, padding: "0 4px", borderInlineStart: `2px solid ${P.border}`, paddingInlineStart: 12, marginBottom: 20 }}>⚠️ {f.caveat}</div>
-      )}
+      {/* הסתייגות מחקרית + שדות-מקור שאינם נתמכים לתצוגה (נספרים בשם) — מאותה הקרנה */}
+      <TopicConvergenceContent finding={finding} palette={P} onLeave={leaveTopic} showWithheld={isAdmin}
+        only={["caveat", "unsupported"]} />
 
       {/* משפט הסיום — מפת הידע החיה */}
       <div style={{ textAlign: "center", color: P.accentDim, fontFamily: F.body, fontSize: 14, lineHeight: 1.9, maxWidth: 620, margin: "0 auto", fontStyle: "italic" }}>
