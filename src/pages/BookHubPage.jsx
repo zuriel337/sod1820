@@ -9,6 +9,7 @@ import {
   fetchBookEntities, fetchBookEntityBySlug, fetchBookResearch,
   bookToWorkspaceItem, researchRowToWorkspaceItem, pageFromSourceRef,
   researchRowToBookRepresentation, deriveBookConnections, bookContextPatch,
+  hasUnresolvedBookSeeds,
 } from "../lib/research/bookResearchProjection.js";
 import {
   selectionToWorkspaceItem, selectionRef, bookEntityRef, dossierSelectionSourceRef,
@@ -174,7 +175,7 @@ function dossierLabel(row, idKey) {
 
 // 📖 Book Projection Experience Contract: semantic typography/palette only.
 function style(P) { return `
-  .bk{max-width:1440px;margin:auto;padding:24px 18px 90px;direction:rtl;color:${P.inkSoft};font-family:${F.body}}.bk a{color:inherit}.bk-hero{padding:34px 0 22px;border-bottom:1px solid ${P.border}}.bk-eye{font-family:${F.ui};font-size:11px;letter-spacing:2px;color:${P.accent};font-weight:900}.bk h1{font-family:${F.display};color:${P.ink};font-size:clamp(42px,7vw,76px);line-height:1;margin:9px 0 12px}.bk-lead{color:${P.inkSoft};font-family:${F.body};line-height:1.8;max-width:950px}.bk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.bk-btn{font-family:${F.ui};border:1px solid ${P.border};background:${P.cardSoft};color:${P.accentText};border-radius:12px;padding:9px 13px;cursor:pointer;text-decoration:none;font-weight:700;font-size:13px}.bk-btn.on{background:${P.glow}}.bk-btn:disabled{opacity:.55;cursor:not-allowed}.bk-tabs{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:4;padding:10px 0;background:linear-gradient(${P.cardSoft} 72%,transparent)}.bk-tab{font-family:${F.ui};border:1px solid ${P.border};background:${P.card};color:${P.inkSoft};border-radius:999px;padding:7px 12px;cursor:pointer}.bk-tab.on{color:${P.accentText};border-color:${P.borderStrong};background:${P.glow}}.bk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.bk-card{border:1px solid ${P.border};border-radius:17px;background:${P.cardGrad};padding:16px}.bk-card b.big{font-family:${F.numeric};display:block;font-size:30px;color:${P.heroNum}}.bk-muted{color:${P.inkSoft};font-family:${F.body};font-size:12px}.bk-two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:14px}.bk-panel{border:1px solid ${P.border};border-radius:18px;background:${P.card};overflow:hidden}.bk-ph{font-family:${F.ui};padding:14px 16px;border-bottom:1px solid ${P.border};font-weight:900;color:${P.ink}}.bk-pb{padding:16px}.bk-row{padding:12px 0;border-bottom:1px solid ${P.border};line-height:1.6}.bk-row:last-child{border:0}.bk-pill{font-family:${F.ui};display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(139,92,246,.14);color:#a78bfa;font-size:10px;font-weight:800;margin:2px}.bk-ok{color:#4fae74}.bk-warn{color:${P.accentDim}}.bk-pdf{height:min(78vh,900px);background:${P.card}}.bk-pdf iframe{width:100%;height:100%;border:0;background:white}.bk-data{display:grid;grid-template-columns:90px 1.3fr 90px 110px 2fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid ${P.border};font-size:12px;font-family:${F.body}}.bk-data strong{font-family:${F.numeric};color:${P.accentText}}.bk-find{padding:13px;border:1px solid ${P.border};border-radius:14px;margin-bottom:9px;background:${P.cardSoft}}.bk-find.active{border-color:${P.borderStrong};box-shadow:0 0 0 1px ${P.borderStrong}}.bk-find h4{font-family:${F.ui};margin:0 0 7px;font-size:14px;color:${P.ink}}.bk-find-meta{display:flex;gap:5px;flex-wrap:wrap;color:${P.inkSoft};font-family:${F.ui};font-size:10px}.bk-rep{margin-top:10px;padding:10px;border:1px dashed ${P.border};border-radius:12px;overflow:auto}.bk-matrix{display:grid;gap:4px;min-width:max-content}.bk-matrix-row{display:flex;gap:4px}.bk-matrix-cell{min-width:42px;padding:5px 7px;border:1px solid ${P.border};border-radius:7px;text-align:center}.bk-rep ol,.bk-rep ul{margin:6px 0;padding-inline-start:22px}.bk-layer{display:grid;grid-template-columns:150px 38px 1fr;align-items:center;margin:6px 0}.bk-layer-key{font-family:${F.ui};font-weight:900;color:${P.accentText}}.bk-arrow{text-align:center;color:${P.accentDim};font-size:20px}.bk-layer-box{border:1px solid ${P.border};border-radius:13px;padding:12px;background:${P.card};color:${P.inkSoft};font-family:${F.body};line-height:1.55}.bk-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}.bk-book{display:block;text-decoration:none;min-height:270px;padding:22px;border:1px solid ${P.border};border-radius:22px;background:${P.cardGrad}}.bk-book h2{font-family:${F.display};color:${P.ink};font-size:34px;margin:8px 0}.bk-empty{text-align:center;padding:60px 20px;color:${P.inkSoft};font-family:${F.body}}.bk-section-title{font-family:${F.ui};color:${P.ink};font-size:28px;margin:26px 0 12px}.bk-notice{font-family:${F.body};border:1px dashed ${P.border};background:${P.cardSoft};padding:13px;border-radius:14px;color:${P.inkSoft};line-height:1.65}.bk-open li{margin:7px 0;color:${P.inkSoft};font-family:${F.body}}.bk-idgrid{display:grid;grid-template-columns:150px 1fr;gap:0;font-family:${F.body}}.bk-idgrid>div{padding:10px;border-bottom:1px solid ${P.border}}.bk-idgrid>div:nth-child(odd){color:${P.accentText};font-weight:800}.bk-code{direction:ltr;text-align:left;font-family:${F.numeric};font-size:11px;color:${P.inkSoft};overflow-wrap:anywhere}@media(max-width:900px){.bk-grid{grid-template-columns:repeat(2,1fr)}.bk-two,.bk-index{grid-template-columns:1fr}.bk-data{grid-template-columns:70px 1fr}.bk-data>*:nth-child(n+3){grid-column:2}.bk-layer{grid-template-columns:1fr}.bk-arrow{transform:rotate(90deg)}.bk-pdf{height:68vh}}` }
+  .bk{max-width:1440px;margin:auto;padding:24px 18px 90px;direction:rtl;color:${P.inkSoft};font-family:${F.body}}.bk a{color:inherit}.bk-hero{padding:34px 0 22px;border-bottom:1px solid ${P.border}}.bk-eye{font-family:${F.ui};font-size:11px;letter-spacing:2px;color:${P.accent};font-weight:900}.bk h1{font-family:${F.display};color:${P.ink};font-size:clamp(42px,7vw,76px);line-height:1;margin:9px 0 12px}.bk-lead{color:${P.inkSoft};font-family:${F.body};line-height:1.8;max-width:950px}.bk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.bk-btn{font-family:${F.ui};border:1px solid ${P.border};background:${P.cardSoft};color:${P.accentText};border-radius:12px;padding:9px 13px;cursor:pointer;text-decoration:none;font-weight:700;font-size:13px}.bk-btn.on{background:${P.glow}}.bk-btn:disabled{opacity:.55;cursor:not-allowed}.bk-tabs{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:4;padding:10px 0;background:linear-gradient(${P.cardSoft} 72%,transparent)}.bk-tab{font-family:${F.ui};border:1px solid ${P.border};background:${P.card};color:${P.inkSoft};border-radius:999px;padding:7px 12px;cursor:pointer}.bk-tab.on{color:${P.accentText};border-color:${P.borderStrong};background:${P.glow}}.bk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.bk-card{border:1px solid ${P.border};border-radius:17px;background:${P.cardGrad};padding:16px}.bk-card b.big{font-family:${F.numeric};display:block;font-size:30px;color:${P.heroNum}}.bk-muted{color:${P.inkSoft};font-family:${F.body};font-size:12px}.bk-two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:14px}.bk-panel{border:1px solid ${P.border};border-radius:18px;background:${P.card};overflow:hidden}.bk-ph{font-family:${F.ui};padding:14px 16px;border-bottom:1px solid ${P.border};font-weight:900;color:${P.ink}}.bk-pb{padding:16px}.bk-row{padding:12px 0;border-bottom:1px solid ${P.border};line-height:1.6}.bk-row:last-child{border:0}.bk-pill{font-family:${F.ui};display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(139,92,246,.14);color:#a78bfa;font-size:10px;font-weight:800;margin:2px}.bk-ok{color:#4fae74}.bk-warn{color:${P.accentDim}}.bk-pdf{height:min(78vh,900px);background:${P.card}}.bk-pdf iframe{width:100%;height:100%;border:0;background:white}.bk-data{display:grid;grid-template-columns:90px 1.3fr 90px 110px 2fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid ${P.border};font-size:12px;font-family:${F.body}}.bk-data strong{font-family:${F.numeric};color:${P.accentText}}.bk-find{padding:13px;border:1px solid ${P.border};border-radius:14px;margin-bottom:9px;background:${P.cardSoft}}.bk-find.active{border-color:${P.borderStrong};box-shadow:0 0 0 1px ${P.borderStrong}}.bk-find h4{font-family:${F.ui};margin:0 0 7px;font-size:14px;color:${P.ink}}.bk-find-meta{display:flex;gap:5px;flex-wrap:wrap;color:${P.inkSoft};font-family:${F.ui};font-size:10px}.bk-rep{margin-top:10px;padding:10px;border:1px dashed ${P.border};border-radius:12px;overflow:auto}.bk-matrix{display:grid;gap:4px;min-width:max-content}.bk-matrix-row{display:flex;gap:4px}.bk-matrix-cell{min-width:42px;padding:5px 7px;border:1px solid ${P.border};border-radius:7px;text-align:center}.bk-rep ol,.bk-rep ul{margin:6px 0;padding-inline-start:22px}.bk-layer{display:grid;grid-template-columns:150px 38px 1fr;align-items:center;margin:6px 0}.bk-layer-key{font-family:${F.ui};font-weight:900;color:${P.accentText}}.bk-arrow{text-align:center;color:${P.accentDim};font-size:20px}.bk-layer-box{border:1px solid ${P.border};border-radius:13px;padding:12px;background:${P.card};color:${P.inkSoft};font-family:${F.body};line-height:1.55}.bk-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}.bk-book{display:block;text-decoration:none;min-height:270px;padding:22px;border:1px solid ${P.border};border-radius:22px;background:${P.cardGrad}}.bk-book h2{font-family:${F.display};color:${P.ink};font-size:34px;margin:8px 0}.bk-empty{text-align:center;padding:60px 20px;color:${P.inkSoft};font-family:${F.body}}.bk-section-title{font-family:${F.ui};color:${P.ink};font-size:28px;margin:26px 0 12px}.bk-notice{font-family:${F.body};border:1px dashed ${P.border};background:${P.cardSoft};padding:13px;border-radius:14px;color:${P.inkSoft};line-height:1.65}.bk-open li{margin:7px 0;color:${P.inkSoft};font-family:${F.body}}.bk-idgrid{display:grid;grid-template-columns:150px 1fr;gap:0;font-family:${F.body}}.bk-idgrid>div{padding:10px;border-bottom:1px solid ${P.border}}.bk-idgrid>div:nth-child(odd){color:${P.accentText};font-weight:800}.bk-code{direction:ltr;text-align:left;font-family:${F.numeric};font-size:11px;color:${P.inkSoft};overflow-wrap:anywhere}.bk-disclosure{border:1px solid ${P.border};border-radius:18px;background:${P.card};margin:18px 0}.bk-disclosure>summary{list-style:none;cursor:pointer;padding:14px 16px;font-family:${F.ui};font-weight:900;color:${P.ink};display:flex;align-items:center;gap:8px}.bk-disclosure>summary::-webkit-details-marker{display:none}.bk-disclosure>summary::before{content:'▸';color:${P.accentText};display:inline-block;transition:transform .15s}.bk-disclosure[open]>summary::before{transform:rotate(90deg)}.bk-disclosure-body{padding:2px 16px 16px}@media(max-width:900px){.bk-grid{grid-template-columns:repeat(2,1fr)}.bk-two,.bk-index{grid-template-columns:1fr}.bk-data{grid-template-columns:70px 1fr}.bk-data>*:nth-child(n+3){grid-column:2}.bk-layer{grid-template-columns:1fr}.bk-arrow{transform:rotate(90deg)}.bk-pdf{height:68vh}}` }
 
 function TruthPills({ row, representation }) {
   const status = String(row?.status || "candidate").toUpperCase();
@@ -247,6 +248,25 @@ export default function BookHubPage() {
   // Exact-reopen focus id: a deep link (?research=<id>) must resolve even when that row
   // has aged outside the default bounded batch — see fetchBookResearch({ focusId }).
   const focusResearchId = activeResearchId;
+  // Exact dossier/source-selection reopen: the dossier bundle is a small, public, already-
+  // fetched snapshot (not the private live corpus), so resolving `?selection=<ref>` back to
+  // its row is a plain bounded lookup — same identity math the row list already does to
+  // decide which row is "active", just run once for whichever ref is in the URL.
+  const focusDossierSelection = useMemo(() => {
+    if (!dossier || !activeSelectionRef || !book) return null;
+    const bookRef = bookEntityRef(book);
+    for (const [sectionKey] of DOSSIER_SECTIONS) {
+      const rows = Array.isArray(dossier[sectionKey]) ? dossier[sectionKey] : [];
+      for (const row of rows) {
+        const idKey = dossierIdKey(sectionKey, row);
+        const sourceRef = dossierSelectionSourceRef(book, row, idKey);
+        if (!sourceRef) continue;
+        const ref = selectionRef({ bookIdentityKey: bookRef, sourceRef });
+        if (ref === activeSelectionRef) return { sourceRef, locator: ref };
+      }
+    }
+    return null;
+  }, [dossier, activeSelectionRef, book]);
 
   useEffect(() => { setTab(qs.get("tab") || (slug ? "overview" : "index")); }, [slug, qs]);
   useEffect(() => {
@@ -271,15 +291,21 @@ export default function BookHubPage() {
 
   // Research Context bridge (Golden Cases A/B/C): entering a Book never invents/overwrites
   // an existing research root — it only establishes one when none exists yet, and always
-  // keeps the current selection pointed at this Book (or the exact research row in view).
+  // keeps the current selection pointed at this Book (or the exact research row / dossier
+  // selection in view). A research-object focus takes precedence when a URL somehow carries
+  // both — otherwise whichever exact thing is in view narrows the selection; a plain Book
+  // page (neither) keeps the generic book-level selection.
   useEffect(() => {
     if (!book) return;
     const focusRow = activeResearchId ? (research?.rows || []).find(r => String(r.id) === activeResearchId) : null;
-    const patch = bookContextPatch({ book, slug, hasRoot: Boolean(researchContext?.subject), focusRow });
+    const focusSelection = focusRow
+      ? { sourceRef: focusRow.source_ref ?? null, locator: `research-object:${focusRow.id}` }
+      : focusDossierSelection;
+    const patch = bookContextPatch({ book, slug, hasRoot: Boolean(researchContext?.subject), focusSelection });
     if (patch) updateResearchContext?.(patch);
     // researchContext intentionally excluded: this bridge reacts to Book/selection identity
     // changing, not to every Context update (including its own), which would loop.
-  }, [book?.id, slug, activeResearchId, research]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [book?.id, slug, activeResearchId, research, focusDossierSelection]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const title = slug && book ? `${book.label} — ספר ומחקר` : "ספרים ומקורות";
@@ -291,6 +317,10 @@ export default function BookHubPage() {
   // derived only from this Book's own already-curated seeds; every link resolves to the
   // existing universal /number/:n route. See deriveBookConnections.
   const connections = useMemo(() => deriveBookConnections(snap), [snap]);
+  // Honest state when a Book has internal exploration seeds that haven't resolved to an
+  // external canonical entity yet — say so plainly instead of rendering nothing or inventing
+  // a relation. See hasUnresolvedBookSeeds.
+  const hasUnresolvedConnections = useMemo(() => hasUnresolvedBookSeeds(snap), [snap]);
   const pinned = workspaceItem ? Boolean(isPinned?.(workspaceItem.id)) : false;
   const goTab = t => { setTab(t); const n=new URLSearchParams(qs); n.set("tab",t); setQs(n,{replace:true}); };
   const goPage = p => { const n=new URLSearchParams(qs); n.set("page",String(p)); n.set("tab","source"); setQs(n); setTab("source"); };
@@ -330,6 +360,13 @@ export default function BookHubPage() {
     if (!item) return;
     addToResearch(item);
     setSavedSelections(s => new Set(s).add(item.ref));
+    // Context selection gap fix: saving a dossier/source selection must be reflected in the
+    // Research Context immediately (same session), not only on a later ?selection=<ref>
+    // reload. Root is never included here, so an existing root (Number/whatever) stays put.
+    updateResearchContext?.({
+      selection: { entityId: book.identity_key, entityType: "book", sourceRef, locator: item.ref },
+      lens: "book",
+    });
   };
 
   if (!slug) return <div className="bk"><style>{style(P)}</style>{error ? <div className="bk-empty">{error}</div> : <IndexView books={books} loading={loading}/>}</div>;
@@ -351,14 +388,14 @@ export default function BookHubPage() {
     <div className="bk-tabs">{TABS.map(([k,l]) => <button className={`bk-tab ${tab===k?'on':''}`} key={k} onClick={() => goTab(k)}>{l}</button>)}</div>
 
     {tab === "overview" && <>
-      <div className="bk-grid">{snap.metrics.map(([v,l,n]) => <div className="bk-card" key={l}><b className="big">{v}</b><div>{l}</div><div className="bk-muted">{n}</div></div>)}</div>
-      <div className="bk-two">
-        <section className="bk-panel"><div className="bk-ph">מפת Coverage — לא אחוז מזויף אחד</div><div className="bk-pb">{snap.coverage.map(x => <div className="bk-row" key={x.label}><b>{x.label} · <span className="bk-warn">{x.value}</span></b><div className="bk-muted">{x.note}</div></div>)}</div></section>
-        <section className="bk-panel"><div className="bk-ph">Research OS · live</div><div className="bk-pb"><div className="bk-row"><b>Book node</b><div className="bk-code">{book.id}</div></div><div className="bk-row"><b>Research Objects loaded now</b><span className="bk-ok">{summary.total || 0}</span>{research?.restricted && <div className="bk-muted">השכבה המלאה מוגנת ב־RLS; הציבור לא מקבל private research.</div>}{research?.truncated && <div className="bk-muted">תצוגה מוגבלת במכוון; ה־Book Hub אינו מוריד את כל קורפוס המחקר ללקוח.</div>}</div><div className="bk-row"><b>עמודים בבאצ׳ הקריא הנוכחי</b><div>{livePages.length ? livePages.join(' · ') : '—'}</div></div><div className="bk-row"><b>3D contract</b><div>אותו Research State · canonical_coordinates=false</div></div></div></section>
+      <h2 className="bk-section-title">מה מגלים בספר הזה</h2>
+      <div className="bk-grid">{snap.families.map(f => <div className="bk-card" key={f.title}><b>{f.title}</b><div className="bk-muted" style={{marginTop:7,lineHeight:1.65}}>{f.text}</div></div>)}</div>
+      <div className="bk-actions" style={{margin:'4px 0 22px'}}>
+        <button className="bk-btn" onClick={() => goTab('source')}>📖 קריאה במקור המקורי</button>
+        <button className="bk-btn" onClick={() => goTab('research')}>🔍 המחקר החי על הספר</button>
+        <button className="bk-btn" onClick={() => goTab('dossier')}>📚 הדוסייה המתועדת</button>
       </div>
-      <h2 className="bk-section-title">זהות המקור — שבע שכבות שאינן מתמזגות</h2>
-      <div className="bk-panel"><div className="bk-pb bk-idgrid"><div>Book</div><div className="bk-code">{book.identity_key}</div><div>Edition</div><div>{tiers.edition?.status || 'not specified'}</div><div>Witness</div><div className="bk-code">{tiers.witness?.identity || '—'} · {tiers.witness?.provider} {tiers.witness?.native_id}</div><div>Digital Object</div><div className="bk-code">{tiers.digital_object?.bucket}/{tiers.digital_object?.path}</div><div>Page/Region Locator</div><div className="bk-code">{tiers.locator?.pattern}</div><div>Authority</div><div>מוקצה question-by-question דרך provenance; Witness identity ≠ authority.</div></div></div>
-      <h2 className="bk-section-title">משפחות מחקר מרכזיות</h2><div className="bk-grid">{snap.families.map(f => <div className="bk-card" key={f.title}><b>{f.title}</b><div className="bk-muted" style={{marginTop:7,lineHeight:1.65}}>{f.text}</div></div>)}</div>
+
       {connections.length > 0 && <>
         <h2 className="bk-section-title">קשור במחקר הספר</h2>
         <div className="bk-panel"><div className="bk-pb">
@@ -366,7 +403,21 @@ export default function BookHubPage() {
           {connections.map(c => <button className="bk-pill" key={c.value} style={{border:0,cursor:'pointer',margin:'2px 4px 2px 0'}} onClick={() => navigateToConnection(c.href)}>{c.label}</button>)}
         </div></div>
       </>}
-      <h2 className="bk-section-title">פתוח כרגע</h2><div className="bk-panel"><div className="bk-pb"><ul className="bk-open">{snap.open.map(x => <li key={x}>{x}</li>)}</ul></div></div>
+      {connections.length === 0 && hasUnresolvedConnections && <div className="bk-notice" style={{marginBottom:22}}>קשרים חיצוניים (למספרים/ישויות קנוניות) לספר הזה עדיין ממתינים לפתרון קנוני/Human-Gate. משפחות המחקר הפנימיות של הספר מוצגות למעלה — לא הומצא קשר-גרף כדי למלא את המקום הריק.</div>}
+
+      <details className="bk-disclosure">
+        <summary>🔬 פרטים טכניים ומדדי מחקר</summary>
+        <div className="bk-disclosure-body">
+          <div className="bk-grid">{snap.metrics.map(([v,l,n]) => <div className="bk-card" key={l}><b className="big">{v}</b><div>{l}</div><div className="bk-muted">{n}</div></div>)}</div>
+          <div className="bk-two">
+            <section className="bk-panel"><div className="bk-ph">מפת Coverage — לא אחוז מזויף אחד</div><div className="bk-pb">{snap.coverage.map(x => <div className="bk-row" key={x.label}><b>{x.label} · <span className="bk-warn">{x.value}</span></b><div className="bk-muted">{x.note}</div></div>)}</div></section>
+            <section className="bk-panel"><div className="bk-ph">Research OS · live</div><div className="bk-pb"><div className="bk-row"><b>Book node</b><div className="bk-code">{book.id}</div></div><div className="bk-row"><b>Research Objects loaded now</b><span className="bk-ok">{summary.total || 0}</span>{research?.restricted && <div className="bk-muted">השכבה המלאה מוגנת ב־RLS; הציבור לא מקבל private research.</div>}{research?.truncated && <div className="bk-muted">תצוגה מוגבלת במכוון; ה־Book Hub אינו מוריד את כל קורפוס המחקר ללקוח.</div>}</div><div className="bk-row"><b>עמודים בבאצ׳ הקריא הנוכחי</b><div>{livePages.length ? livePages.join(' · ') : '—'}</div></div><div className="bk-row"><b>3D contract</b><div>אותו Research State · canonical_coordinates=false</div></div></div></section>
+          </div>
+          <h2 className="bk-section-title">זהות המקור — שבע שכבות שאינן מתמזגות</h2>
+          <div className="bk-panel"><div className="bk-pb bk-idgrid"><div>Book</div><div className="bk-code">{book.identity_key}</div><div>Edition</div><div>{tiers.edition?.status || 'not specified'}</div><div>Witness</div><div className="bk-code">{tiers.witness?.identity || '—'} · {tiers.witness?.provider} {tiers.witness?.native_id}</div><div>Digital Object</div><div className="bk-code">{tiers.digital_object?.bucket}/{tiers.digital_object?.path}</div><div>Page/Region Locator</div><div className="bk-code">{tiers.locator?.pattern}</div><div>Authority</div><div>מוקצה question-by-question דרך provenance; Witness identity ≠ authority.</div></div></div>
+          <h2 className="bk-section-title">פתוח כרגע</h2><div className="bk-panel"><div className="bk-pb"><ul className="bk-open">{snap.open.map(x => <li key={x}>{x}</li>)}</ul></div></div>
+        </div>
+      </details>
     </>}
 
     {tab === "source" && <div className="bk-two">

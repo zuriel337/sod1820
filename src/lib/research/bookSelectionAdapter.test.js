@@ -22,6 +22,7 @@ import {
   applyFocusRow,
   deriveBookConnections,
   bookContextPatch,
+  hasUnresolvedBookSeeds,
 } from "./bookResearchProjection.js";
 
 // Public Book identity metadata only — no research content.
@@ -336,7 +337,7 @@ test("connection projection is empty (not fabricated) when a Book has no curated
 });
 
 test("Research Context Golden Case A: fresh entry with no active root establishes the Book as subject and selection", () => {
-  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: false, focusRow: null });
+  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: false, focusSelection: null });
   assert.equal(patch.subject.id, "book:sefer-hapliah");
   assert.equal(patch.subject.type, "book");
   assert.equal(patch.subject.href, "/book/sefer-hapliah");
@@ -345,20 +346,46 @@ test("Research Context Golden Case A: fresh entry with no active root establishe
 });
 
 test("Research Context Golden Case C: an existing root stays sticky — the Book patch never carries a subject", () => {
-  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: true, focusRow: null });
+  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: true, focusSelection: null });
   assert.equal(patch.subject, undefined, "must not include subject at all, so merging the patch preserves whatever root already exists");
   assert.equal(patch.selection.entityId, "book:sefer-hapliah");
   assert.equal(patch.lens, "book");
 });
 
 test("Research Context Golden Case B: an exact research row in view narrows selection to that row while the Book identity anchors it", () => {
-  const focusRow = { id: SYNTHETIC_PRIVATE_ROW.id, source_ref: SYNTHETIC_PRIVATE_ROW.source_ref };
-  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: true, focusRow });
+  const focusSelection = { sourceRef: SYNTHETIC_PRIVATE_ROW.source_ref, locator: `research-object:${SYNTHETIC_PRIVATE_ROW.id}` };
+  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: true, focusSelection });
   assert.equal(patch.selection.entityId, "book:sefer-hapliah");
   assert.equal(patch.selection.sourceRef, SYNTHETIC_PRIVATE_ROW.source_ref);
   assert.equal(patch.selection.locator, `research-object:${SYNTHETIC_PRIVATE_ROW.id}`);
 });
 
+test("Research Context Golden Case B (dossier variant): an exact dossier/source selection narrows selection the same way a research row does", () => {
+  const focusSelection = { sourceRef: "book:hebrewbooks:5635#p6:1820", locator: "book-selection:book:ahavat-torah:book:hebrewbooks:5635#p6:1820:v1" };
+  const patch = bookContextPatch({ book: AHAVAT_TORAH_BOOK, slug: "ahavat-torah", hasRoot: true, focusSelection });
+  assert.equal(patch.selection.entityId, "book:ahavat-torah");
+  assert.equal(patch.selection.sourceRef, focusSelection.sourceRef);
+  assert.equal(patch.selection.locator, focusSelection.locator);
+  assert.equal(patch.subject, undefined, "root still stays sticky for a dossier-selection focus, same as a research-row focus");
+});
+
 test("bookContextPatch is a no-op without a resolved Book (never writes Context for a book that doesn't exist)", () => {
-  assert.equal(bookContextPatch({ book: null, slug: "sefer-hapliah", hasRoot: false, focusRow: null }), null);
+  assert.equal(bookContextPatch({ book: null, slug: "sefer-hapliah", hasRoot: false, focusSelection: null }), null);
+});
+
+// ── honest connection state (PELIAH connection UX fix) ────────────────────────────────
+test("hasUnresolvedBookSeeds is true when a Book has internal exploration seeds beyond number-family", () => {
+  const snap = { seeds: [{ key: "grammar", label: "Research Grammar", family: "procedure", status: "supported" }] };
+  assert.equal(hasUnresolvedBookSeeds(snap), true);
+});
+
+test("hasUnresolvedBookSeeds is false when every seed already resolves as a number-family connection", () => {
+  const snap = { seeds: [{ key: "1820", label: "משפחת 1820", family: "number-family", status: "documented" }] };
+  assert.equal(hasUnresolvedBookSeeds(snap), false);
+});
+
+test("hasUnresolvedBookSeeds is false (not fabricated true) for a Book with no seeds at all", () => {
+  assert.equal(hasUnresolvedBookSeeds({ seeds: [] }), false);
+  assert.equal(hasUnresolvedBookSeeds(null), false);
+  assert.equal(hasUnresolvedBookSeeds(undefined), false);
 });

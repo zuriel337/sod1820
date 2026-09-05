@@ -281,16 +281,30 @@ export function deriveBookConnections(snap) {
   return out;
 }
 
+// Honest-state signal for the connection panel: does this Book have internal exploration
+// seeds (procedure/representation/operator/... families) that simply haven't resolved to
+// an external canonical entity yet? This is NOT "no connections exist" — it's "connections
+// beyond this Book are pending canonical/Human-Gate resolution", which must be said plainly
+// instead of silently rendering nothing (and never by inventing a graph edge to fill the gap).
+export function hasUnresolvedBookSeeds(snap) {
+  const seeds = Array.isArray(snap?.seeds) ? snap.seeds : [];
+  return seeds.some(seed => clean(seed?.family) && seed.family !== "number-family");
+}
+
 // Research Context bridge — pure decision, no side effects. Encodes the three Golden Cases:
 // (A) fresh entry with no active root: establish the Book as subject+selection.
 // (B/C) a root already exists (Number/Entity/whatever the visitor was already researching):
 // the root is sticky and must never be silently replaced by entering a Book — only the
 // current selection/lens move to reflect "the visitor is now looking at this Book/row".
-export function bookContextPatch({ book, slug, hasRoot, focusRow }) {
+// `focusSelection` is a generic { sourceRef, locator } pair — the caller derives it from
+// whichever exact thing is in view (a live research_object row, a dossier/source
+// selection, ...); this function does not care which, so adding a third focus kind later
+// never requires touching this contract.
+export function bookContextPatch({ book, slug, hasRoot, focusSelection }) {
   if (!book) return null;
   const bookSubject = { id: book.identity_key, type: "book", label: book.label, href: `/book/${slug}` };
-  const bookSelection = focusRow
-    ? { entityId: book.identity_key, entityType: "book", sourceRef: focusRow.source_ref ?? null, locator: `research-object:${focusRow.id}` }
+  const bookSelection = focusSelection
+    ? { entityId: book.identity_key, entityType: "book", sourceRef: focusSelection.sourceRef ?? null, locator: focusSelection.locator ?? null }
     : { entityId: book.identity_key, entityType: "book" };
   return hasRoot
     ? { selection: bookSelection, lens: "book" }
