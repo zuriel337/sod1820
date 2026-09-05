@@ -37,6 +37,10 @@ import AiQuotaToast from "./components/AiQuotaToast.jsx";
 import ProfileNudge from "./components/ProfileNudge.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
+// Torah Occurrence -> Spatial Runtime Adapter (dev/admin only) — work_log task
+// TORAH_OCCURRENCE_SPATIAL_ADAPTER_V1, frozen Spatial Slice-0 contract, builds on the Spatial
+// Gematria Golden Slice's Semantic Scene Compiler pattern (work_log 7f0d8ac8).
+const TorahOccurrenceScenePage = React.lazy(() => import("./pages/dev/TorahOccurrenceScenePage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
 import PostsPage from "./pages/PostsPage.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
@@ -350,6 +354,7 @@ export default function App() {
           <Route path="/credits" element={<CreditsBuyPage />} />
           <Route path="/buy" element={<CreditsBuyPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/dev/torah-occurrence-scene" element={<TorahOccurrenceScenePage />} />
           {/* ⛔ העורך מחוץ ל-/admin/ — vercel.json honeypot תופס /admin/(.*) ומחזיר 403. */}
           <Route path="/editor" element={<PostEditorPage />} />
           <Route path="/editor/:slug" element={<PostEditorPage />} />
