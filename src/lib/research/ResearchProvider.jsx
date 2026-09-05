@@ -242,14 +242,14 @@ export default function ResearchProvider({ children }) {
     return id;
   }, []);
   const updateCollection = useCallback((id, patch) => {
-    setCollections(cs => cs.map(c => (c.id === id ? { ...c, ...patch } : c));
+    setCollections(cs => cs.map(c => (c.id === id ? { ...c, ...patch } : c)));
   }, []);
   const removeCollection = useCallback((id) => {
     setCollections(cs => cs.filter(c => c.id !== id));
     setSaved(s => s.map(e => (e.coll === id ? { ...e, coll: undefined } : e)));
   }, []);
   const assignCollection = useCallback((itemId, collId) => {
-    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e));
+    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
   }, []);
 
   // 🧭 «המסעות שלי» — רושם מסע שהושלם. dedupe לפי מספר-השורש (המסע האחרון מנצח), הכי-חדש למעלה, עד 30.
