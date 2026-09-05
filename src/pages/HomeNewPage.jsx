@@ -378,7 +378,7 @@ export default function HomeNewPage() {
           min-height:310px; padding:46px 18px 38px;
           display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
         /* פעולות-השער (חיפוש + שערים) יושבות בתחתית תמונת-ההירו */
-        .hn-hero-actions { width:100%; max-width:540px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+        .hn-hero-actions { width:min(88%,440px); max-width:440px; display:flex; flex-direction:column; align-items:center; gap:14px; }
         .hn-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
         .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
           font-size:clamp(24px,4.6vw,40px); line-height:1.16; margin:0; text-wrap:balance;
