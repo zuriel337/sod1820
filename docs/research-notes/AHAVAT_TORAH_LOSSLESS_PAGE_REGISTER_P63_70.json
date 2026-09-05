@@ -1,0 +1,388 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "pp.63-70 ONLY, per work_log ACK c9e9ad91-77df-4be6-acc0-cb7621b63bd9 (task AHAVAT_TORAH_P63_70_CONTINUATION, role=SOURCE_OWNER). p.62 read for boundary context only, NOT registered here (zero writes to pp.1-62). p.70 contains the already-catalogued DS-06/DS-13 zone -- CONFIRMED PRESENT, NOT re-extracted, per explicit instruction not to redo closed work.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "Separate file from the shared pp.1-15 register and from AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P58_62.json, per the ACK's output-file scope. Same schema, same #pN:block convention, same truth vocabulary -- no new enum.",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "render": "pymupdf, 3x zoom, full-page (both columns); p.62 boundary context + pp.63-70 target"
+  },
+  "structural_placement": "pp.63-70 continue the 'parasha-ordered chiddushim' section (pp.46-92): closing of Bo, all of Beshalach, Yitro, Mishpatim, Terumah, Tetzaveh(implicit)/Ki Tisa, Vayakhel, Pekudei, into the already-catalogued DS-06/DS-13 zone at p.70 and the opening of Vayikra. Numeric/gematria density is UNEVEN across this range: mostly narrative/halachic parshanut with occasional dense numeric passages tied to Torah's own accounting passages (half-shekel census, Pekudei silver/gold/copper totals) -- these are the SOURCE'S OWN well-known scriptural numbers being expounded, not novel gematria claims invented by this book, and are recorded as such.",
+  "pages": [
+    {
+      "pdf_page": 63,
+      "printed_page": "18",
+      "section": "parasha_chiddushim",
+      "parasha": "בא (closing) -> בשלח (opening)",
+      "opening_anchor": "על כל מעשיו הוא רחום",
+      "closing_anchor": "וכרנוגע כרנע אחת וכבו העברה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "bo_closing_makkot_bechorot",
+          "source_ref": "book:hebrewbooks:5635#p63:bo_closing_makkot_bechorot",
+          "text_note": "Right column: closing chiddush of Bo -- Pharaoh's leniency toward Moshe read as measure-for-measure against the plague of the firstborn; general Chazal-cited discussion of God's mercy alongside justice."
+        },
+        {
+          "block_id": "beshalach_opening",
+          "source_ref": "book:hebrewbooks:5635#p63:beshalach_opening",
+          "text_note": "Right column continues into Parashat Beshalach's opening (Ex 13:17-18, God not leading Israel by the Philistine road) -- standard parshanut, RaSH\"I-adjacent."
+        },
+        {
+          "block_id": "vinatzlu_egypt_40_years",
+          "source_ref": "book:hebrewbooks:5635#p63:vinatzlu_egypt_40_years",
+          "text_note": "Left column: 'וינצלו את מצרים' (Ex 12:36, stripping Egypt of wealth), tied to a 40-year motif (garments not wearing out) -- standard Torah reference, not a novel gematria claim.",
+          "verbatim_numbers": ["הארבעים שנה (40)"]
+        },
+        {
+          "block_id": "gematria_adonai_milui_siman",
+          "source_ref": "book:hebrewbooks:5635#p63:gematria_adonai_milui_siman",
+          "text_note": "A gematria/name-siman construction under the heading 'רומזים': a letter/word-count figure described as 'וקנ\"ו תיכות' (156) tied to the spelled-out form (מילוי) of the Name Adonai, timed to Rosh Chodesh. This is the SAME METHOD FAMILY as p.58's Osnat name-siman (letter-count-based siman construction) -- flagged as a 2nd sighting, no interpretation offered. Exact construction not fully disambiguated at this zoom.",
+          "verbatim_numbers": ["קנ\"ו (156)"]
+        },
+        {
+          "block_id": "rosh_chodesh_first_mitzvah",
+          "source_ref": "book:hebrewbooks:5635#p63:rosh_chodesh_first_mitzvah",
+          "text_note": "'טרם' / 'החדש' sections: the well-known fact that Rosh Chodesh (Ex 12:2) is the first commandment given to Israel, with a Rabbi Elazar-cited teaching on the lunar/solar calendar hint. Well-known structural fact, not a novel finding of this book."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רבי אלעזר (cited teaching, exact Masechet not confidently identified)"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P63-U1", "text": "'וקנ\"ו תיכות' (156) construction and its exact relationship to מילוי שם אדנ\"י not fully disambiguated at 3x zoom.", "status": "UNCERTAIN"},
+        {"id": "P63-U2", "text": "Exact Masechet/daf for the Rabbi Elazar calendar-hint teaching not confidently identified.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-07", "page": 63, "block_ref": "book:hebrewbooks:5635#p63:gematria_adonai_milui_siman", "raw_source_anchor": "רומזים ... וקנ\"ו תיכות ... מילוי שם אדנ'", "reason": "2nd sighting of the letter-count-based name-siman method family (1st sighting: p.58 Osnat/אנוסה construction). No interpretation offered; exact value UNCERTAIN (P63-U1)."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 64,
+      "printed_page": "10",
+      "section": "parasha_chiddushim",
+      "parasha": "בשלח",
+      "opening_anchor": "\"על כל \"מעשיו הוא עכו\"ם ואמרו חכז\"ל",
+      "closing_anchor": "כמו ששית מן האיפה כרכתיב בשנה שבע",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "rov_druv_pharaoh_heart_change",
+          "source_ref": "book:hebrewbooks:5635#p64:rov_druv_pharaoh_heart_change",
+          "text_note": "Right column: discussion of the 'majority of Israel/Egypt' framing, Pharaoh's change of heart pursuing Israel, and Israel's/Egypt's mutual awareness after the Exodus."
+        },
+        {
+          "block_id": "yosef_bones_daf_citation",
+          "source_ref": "book:hebrewbooks:5635#p64:yosef_bones_daf_citation",
+          "text_note": "Right column: 'פקד יפקד' (Gen 50:25/Ex 13:19, Yosef's bones), citing a Talmud daf 'י\"ג ע\"ב' (13b) for the teaching on why Yosef is called 'עצמות בחייו' (bones in his lifetime).",
+          "verbatim_citations": ["דף י\"ג ע\"ב"]
+        },
+        {
+          "block_id": "man_double_naming",
+          "source_ref": "book:hebrewbooks:5635#p64:man_double_naming",
+          "text_note": "Left column: the manna's naming ('ויקראו את שמו מן') is noted as stated twice ('פעמים ב'), with discussion of why the double naming was needed."
+        },
+        {
+          "block_id": "omer_issaron_shiur",
+          "source_ref": "book:hebrewbooks:5635#p64:omer_issaron_shiur",
+          "text_note": "Left column: a halachic measure (שיעור) discussion for the omer/issaron in terms of a sixth (ש\"ת) of an eifah and barley-grain units, continuing onto p.65. Numbers present are HALACHIC MEASURE UNITS (source-native), not asserted as part of the corpus's 1,820/1,830 families.",
+          "verbatim_numbers": ["ששית (a sixth)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["דף י\"ג ע\"ב"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 65,
+      "printed_page": "20",
+      "section": "parasha_chiddushim",
+      "parasha": "בשלח (closing) -> יתרו (opening)",
+      "opening_anchor": "כמו ששית מן האיפה כרכתיב בשנה שבע תחת השביעית",
+      "closing_anchor": "ונשאר לו כדמר משרתה משה מתוך האוהל",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "issaron_boaz_ruth_continued",
+          "source_ref": "book:hebrewbooks:5635#p65:issaron_boaz_ruth_continued",
+          "text_note": "Right column top: continues the omer/issaron shiur discussion from p.64 -- a sixth of an eifah tied to Boaz giving Ruth food for a day (Ruth 3), a well-known halachic-measure cross-reference, not a novel gematria construction."
+        },
+        {
+          "block_id": "yitro_meeting_reason",
+          "source_ref": "book:hebrewbooks:5635#p65:yitro_meeting_reason",
+          "text_note": "Right column: transition into Parashat Yitro -- discussion of why Yitro's arrival is placed here, citing Chazal on the timing relative to the giving of the Torah (מתן תורה)."
+        },
+        {
+          "block_id": "food_water_shortage_motif",
+          "source_ref": "book:hebrewbooks:5635#p65:food_water_shortage_motif",
+          "text_note": "Left column: the episode of Israel lacking food/water shortly after the Exodus, and the war readiness (וחמושים) reference in Beshalach."
+        },
+        {
+          "block_id": "amalek_war_yehoshua",
+          "source_ref": "book:hebrewbooks:5635#p65:amalek_war_yehoshua",
+          "text_note": "Left column: the war against Amalek, Yehoshua's command role, and Moshe's raised hands -- standard narrative parshanut, no isolated numeric claim found on this page."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 66,
+      "printed_page": "יא",
+      "section": "parasha_chiddushim",
+      "parasha": "יתרו (closing) -> משפטים (opening)",
+      "opening_anchor": "גדול מכל האלקים וכן כננחמיה כי ידעת",
+      "closing_anchor": "דהיינו בראשונים כתיב וכל המונה כתיב ובאחרונות",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "yitro_closing_three_crowns",
+          "source_ref": "book:hebrewbooks:5635#p66:yitro_closing_three_crowns",
+          "text_note": "Right column: closes Yitro with the Ten Commandments (עשרת הדברות), invoking the classic three-crowns framework (כתר תורה/כהונה/מלכות) -- well-known Mishnaic concept (Avot 4:13), not a novel finding.",
+          "verbatim_numbers": ["עשרת (10, well-known)"]
+        },
+        {
+          "block_id": "cosmology_6000_years_hint",
+          "source_ref": "book:hebrewbooks:5635#p66:cosmology_6000_years_hint",
+          "text_note": "A cosmological aside: reconciling 'שיתא אלפי שנין' (the six thousand years of the world, a known Aggadic/Kabbalistic figure) with 'אלף דור' (a thousand generations, Ps. 105:8/1 Chr 16:15) via a day-for-a-year equivalence discussion. Both figures are WELL-KNOWN, already-canonical Torah/Aggadic numbers, not novel to this book -- recorded as narrative context.",
+          "verbatim_numbers": ["שיתא אלפי שנין (6,000)", "אלף דור (1,000 generations)"]
+        },
+        {
+          "block_id": "mishpatim_opening_eved_ivri",
+          "source_ref": "book:hebrewbooks:5635#p66:mishpatim_opening_eved_ivri",
+          "text_note": "Left column: Parashat Mishpatim opens with the Hebrew-servant (עבד עברי) laws, standard halachic parshanut."
+        },
+        {
+          "block_id": "two_dibrot_versions_differences",
+          "source_ref": "book:hebrewbooks:5635#p66:two_dibrot_versions_differences",
+          "text_note": "Left column bottom: a claim that there are 3 (ג') textual differences between the first (Exodus) and second (Devarim) versions of the Ten Commandments -- a genuine, specific count claim, quoted as the source states it, not independently verified against the two texts in this pass.",
+          "verbatim_numbers": ["ג' שינויים (3 differences)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P66-U1", "text": "The '3 differences' claim between the two versions of the Ten Commandments not independently checked against the two Torah texts this pass -- recorded as the source's own claim only.", "status": "SOURCE CLAIM, NOT ENGINE/TEXT VERIFIED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 67,
+      "printed_page": "22",
+      "section": "parasha_chiddushim",
+      "parasha": "משפטים (closing) -> תרומה (opening)",
+      "opening_anchor": "מקלל אביו ואמו וכפ' כי תצא נסמך",
+      "closing_anchor": "ברום חמש על חמש שלש עי\"ה עולה כמנין כהן",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishpatim_closing_theft_damages",
+          "source_ref": "book:hebrewbooks:5635#p67:mishpatim_closing_theft_damages",
+          "text_note": "Right column: closes Mishpatim's theft/damages laws (גניבה, נזק, false witnesses), standard halachic parshanut."
+        },
+        {
+          "block_id": "teruma_ark_dimensions",
+          "source_ref": "book:hebrewbooks:5635#p67:teruma_ark_dimensions",
+          "text_he": "ויעשו את הארון אמתים וחצי ארכו ואמה וחצי רחבו ואמה וחצי קומתו",
+          "text_note": "Left column: Parashat Teruma opens with the Ark's dimensions (Ex 25:10, well-known: 2.5 x 1.5 x 1.5 amot), followed by the classic Chazal teaching that the Ark's cubits were 'broken' (a Torah scholar's heart should be broken/humble) -- a well-known Aggadic teaching, not a novel finding.",
+          "verbatim_numbers": ["אמתים וחצי (2.5)", "אמה וחצי (1.5) x2"]
+        },
+        {
+          "block_id": "teruma_altar_dims_kohen_count",
+          "source_ref": "book:hebrewbooks:5635#p67:teruma_altar_dims_kohen_count",
+          "text_note": "Left column bottom: continues into the incense/gold-altar dimensions discussion (5x5x3 amot region), closing with a count matching 'כמנין כהן' (the gematria of כהן) -- a specific closing gematria pointer, not independently recomputed in this pass.",
+          "verbatim_numbers": ["חמש על חמש שלש (5x5x3, altar dimensions)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P67-U1", "text": "'כמנין כהן' closing gematria pointer not independently recomputed against the engine this pass.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 68,
+      "printed_page": "יב",
+      "section": "parasha_chiddushim",
+      "parasha": "כי תשא",
+      "opening_anchor": "זה יתנו הראה לו כמין מטבע של אש ומשקלו",
+      "closing_anchor": "ביחר כי אם ארהרון בלבדו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "machatzit_hashekel_census_method",
+          "source_ref": "book:hebrewbooks:5635#p68:machatzit_hashekel_census_method",
+          "text_note": "Right column: Parashat Ki Tisa opens with the half-shekel commandment (מחצית השקל) for counting Israel, contrasted with a per-head census method, citing 2 Samuel 24:9 ('אלף אלפים', a thousand-thousands figure from a Biblical census) as a comparison point.",
+          "verbatim_citations": ["שמואל ב' כ\"ד ט'"],
+          "verbatim_numbers": ["אלף אלפים (thousand-thousands, per the 2 Sam 24:9 citation)"]
+        },
+        {
+          "block_id": "shlomo_ten_menorahs_ner_maaravi",
+          "source_ref": "book:hebrewbooks:5635#p68:shlomo_ten_menorahs_ner_maaravi",
+          "text_note": "Right column: discussion citing Masechet Menachot (Rabbi Yehuda in the name of Rav Assi) that King Solomon made ten (עשרה) menorahs, and the miracle that the western lamp (נר המערבי) continued burning -- a well-known Talmudic teaching (Menachot/Shabbat), not novel to this book.",
+          "verbatim_numbers": ["עשרה מנורות (10 menorahs)"]
+        },
+        {
+          "block_id": "ketoret_chelbena_teshuva",
+          "source_ref": "book:hebrewbooks:5635#p68:ketoret_chelbena_teshuva",
+          "text_note": "Left column: the incense (ketoret) ingredient chelbena (חלבנה), traditionally read as representing the wicked among the congregation, tied to a teshuva (repentance) discussion -- well-known Aggadic reading, not novel."
+        },
+        {
+          "block_id": "letter_chet_oath_discussion",
+          "source_ref": "book:hebrewbooks:5635#p68:letter_chet_oath_discussion",
+          "text_note": "Left column bottom: a letter-focused discussion of the letter Chet (ח') in the context of an oath (שבועה) formula -- gematria-adjacent, exact construction and target value not confidently identified at this zoom.",
+          "verbatim_citations": []
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["שמואל ב' כ\"ד ט'", "מסכת מנחות (Rabbi Yehuda b'shem Rav Assi)"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P68-U1", "text": "Letter-Chet oath-formula discussion (left column bottom) -- exact gematria construction/target value not confidently identified at 3x zoom.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 69,
+      "printed_page": "24",
+      "section": "parasha_chiddushim",
+      "parasha": "כי תשא (closing) -> ויקהל (opening) -> פקודי (title)",
+      "opening_anchor": "ומשרתו יהושע בן נון לא ימיש מתוך האוהל",
+      "closing_anchor": "ואני מצאתי רנ\"ד עשין עיין שם בפרשת",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "yehoshua_intro_ki_tisa_close",
+          "source_ref": "book:hebrewbooks:5635#p69:yehoshua_intro_ki_tisa_close",
+          "text_note": "Right column: Yehoshua ben Nun introduced as Moshe's attendant who does not leave the Tent, closing chiddushim of Ki Tisa (golden calf aftermath, the second tablets)."
+        },
+        {
+          "block_id": "pekudei_metals_accounting",
+          "source_ref": "book:hebrewbooks:5635#p69:pekudei_metals_accounting",
+          "text_note": "Left column: the Torah's own Pekudei accounting of the Mishkan's donated metals (Ex 38:24-29 -- silver from the half-shekel census, gold, and copper totals), being expounded by the author with specific talent/shekel figures. This is the SOURCE'S OWN scriptural accounting being interpreted, not a novel construction of this book. Exact individual talent/shekel digit readings are NOT independently re-verified against the printed Masoretic text in this pass -- recorded as a paraphrase of a known accounting passage, numbers flagged UNCERTAIN rather than asserted precisely.",
+          "verbatim_numbers": ["talent/shekel figures for silver, gold and copper -- exact digits UNCERTAIN this pass, see P69-U1"]
+        },
+        {
+          "block_id": "vayakhel_shabbat_melacha_fire",
+          "source_ref": "book:hebrewbooks:5635#p69:vayakhel_shabbat_melacha_fire",
+          "text_note": "Left column: Parashat Vayakhel's Shabbat/melacha (work) prohibition, noting fire-kindling (הבערת אש) is singled out among the 39 melachot categories -- standard halachic framing, 39 itself not restated as a number on this specific page."
+        },
+        {
+          "block_id": "pekudei_248_positive_mitzvot",
+          "source_ref": "book:hebrewbooks:5635#p69:pekudei_248_positive_mitzvot",
+          "text_he_partial": "עשה רמ\"ח עשין כנגד רמ\"ח מצות עשה חוץ מי\"ד עשין שבפ' העגל",
+          "text_note": "Citing Rabbeinu Bachya: the Mishkan-construction section (from 'ועשו לי מקדש' through the end of Pekudei) contains 248 (רמ\"ח) positive-commandment-equivalents corresponding to the 248 positive commandments (matching the traditional 248 limbs), except 14 (י\"ד) that belong to the Golden Calf section instead; a further reference to 'ר\"ן ד' עשין' elsewhere. A genuine specific structural/count claim, quoted as the source states it.",
+          "verbatim_numbers": ["רמ\"ח (248)", "י\"ד (14)"],
+          "verbatim_citations": ["רבינו בחיי"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רבינו בחיי"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P69-U1", "text": "Pekudei metals-accounting exact talent/shekel digits (silver/gold/copper) not independently re-verified against the printed Masoretic text at this zoom -- the passage is read and paraphrased, but individual numerals are not asserted with confidence.", "status": "UNCERTAIN"},
+        {"id": "P69-U2", "text": "Whether this page's census/accounting discussion is the same textual locus as the existing dossier's 'two Torah censuses (603,550 and 601,730)' finding (p.14, per CROSSWALK.md) is PLAUSIBLE but not confirmed cross-reference this pass -- flagged as a possible SUPPORTS relationship, not asserted.", "status": "UNCERTAIN — possible cross-reference to existing p.14 finding"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 70,
+      "printed_page": "יג",
+      "section": "parasha_chiddushim",
+      "parasha": "פקודי (closing, DS-06/DS-13 zone) -> ויקרא (opening)",
+      "opening_anchor": "בפרשת תרומה מ\"ב פעם בפ' תצוה מ\"ח פעם",
+      "closing_anchor": "ויאמר ... אליו אליו מאהל מועד",
+      "transcription_depth": "STRUCTURAL_CONFIRMATION_ONLY_NOT_REEXTRACTED",
+      "content_blocks": [
+        {
+          "block_id": "ds06_ds13_zone_confirmed",
+          "source_ref": "book:hebrewbooks:5635#p70:ds06_ds13_zone_confirmed",
+          "text_note": "This page visually MATCHES the already-catalogued DS-06 (Moshe-occurrence table) and DS-13 (עשה-verb occurrence table) location, per AHAVAT_TORAH_DS06_MOSHE_OCCURRENCE_TABLE.md/.json and AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md §5. Per this batch's explicit contract, this content is NOT re-transcribed or re-extracted here -- doing so would duplicate already-closed work and risk overwriting existing provenance. Relationship recorded as SUPPORTS (visual re-confirmation of location and general structure only; no new digit reading performed, no existing value re-verified or contradicted).",
+          "dataset_refs": ["DS-06", "DS-13"]
+        },
+        {
+          "block_id": "vayikra_title_opens",
+          "source_ref": "book:hebrewbooks:5635#p70:vayikra_title_opens",
+          "text_note": "Bottom of page: the section title/opening of Parashat Vayikra appears, marking the Chumash boundary (Shemot -> Vayikra) within the book's continuous 'parasha-ordered chiddushim' section. Content of Vayikra itself is OUT OF SCOPE for this batch (stops at p.70) and is not reconstructed here."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-06", "DS-13"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED (location/structure only, not re-extracted)",
+      "research_extraction_status": "N/A_ALREADY_CLOSED_ELSEWHERE",
+      "confidence": "N/A — deliberately not re-adjudicated, see DS-06/DS-13's own existing confidence fields"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [63, 64, 65, 66, 67, 68, 69, 70],
+    "pages_read_boundary_only_not_registered": [62],
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family or 1,830-family construction was found in pp.63-70. Several well-known, already-canonical Torah/Aggadic numbers appear (10 tribes' commandments framing, 6,000 years, 248 positive mitzvot, half-shekel census, Pekudei metal totals) -- none are treated as novel findings of this book, and none are forced into the 1,820/1,830 families.",
+    "gpt_research_flags_this_batch": ["GRF-07"],
+    "unresolved_readings_this_batch": 6,
+    "ds06_ds13_handling": "p.70's DS-06/DS-13 zone confirmed present at its known location, deliberately NOT re-extracted, per explicit instruction not to redo closed counting-contract work. Relationship recorded as SUPPORTS only.",
+    "possible_cross_reference_flagged_not_asserted": "p.69's Pekudei metals accounting may be the same textual locus as the existing p.14 'two Torah censuses' finding -- flagged PLAUSIBLE, not confirmed (P69-U2).",
+    "ingestion_contract_stress_test": "PASS -- the #pN:block/source_ref contract held across halachic parshanut, two gematria/name-siman sightings, a known-scripture accounting passage, and one deliberate non-re-extraction (p.70), with no identity or data-loss problem encountered.",
+    "density_observation": "Numeric/gematria density in pp.63-70 remains uneven and generally lower than pp.6-15, consistent with the pp.58-62 batch's own observation about the parasha-chiddushim section -- reported honestly, not smoothed over."
+  }
+}
