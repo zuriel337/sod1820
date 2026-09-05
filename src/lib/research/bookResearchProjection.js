@@ -10,8 +10,13 @@ const BOOK_FIELDS = "id,type,label,description,identity_key,metadata,is_active,c
 function clean(v) { return v == null ? "" : String(v).trim(); }
 
 export function pageFromSourceRef(sourceRef) {
-  const m = clean(sourceRef).match(/#p(\d+)/i);
-  return m ? Number(m[1]) : null;
+  const ref = clean(sourceRef);
+  const direct = ref.match(/#p(\d+)/i);
+  if (direct) return Number(direct[1]);
+  // Peli'ah historical Research Objects often use #pdf:24 / #pdf:15,31,... locators.
+  // Preserve those rows; adapt the projection instead of rewriting provenance.
+  const pdf = ref.match(/#pdf:(\d+)/i);
+  return pdf ? Number(pdf[1]) : null;
 }
 
 export async function fetchBookEntities() {
