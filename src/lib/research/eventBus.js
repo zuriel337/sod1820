@@ -18,6 +18,7 @@ export function emit(event, payload) {
 export const EVENTS = {
   RESEARCH_ADD: "research:add",
   RESEARCH_CLEAR: "research:clear",
+  RESEARCH_CONTEXT_CHANGE: "research:context-change", // logical navigation state only; never truth/canonical state
   ITEM_SAVE: "item:save",
   ITEM_SHARE: "item:share",
   ITEM_COPY: "item:copy",
