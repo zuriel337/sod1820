@@ -246,7 +246,8 @@ export default async function handler(req, res) {
     let slug = key.slice('/topic/'.length);
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
     try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/topic_cards?slug=eq.${encodeURIComponent(slug)}&select=title,subtitle,image_ids,highlight_numbers&limit=1`, { headers: ogHeaders });
+      // מודל-הקריאה הציבורי (approved בלבד, בלי מפתחות-פנימיים) — work_log bf236317
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/topic_cards_public?slug=eq.${encodeURIComponent(slug)}&select=title,subtitle,image_ids,highlight_numbers&limit=1`, { headers: ogHeaders });
       const rows = await r.json();
       const c = Array.isArray(rows) && rows[0];
       if (c) {

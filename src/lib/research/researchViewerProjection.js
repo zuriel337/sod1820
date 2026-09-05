@@ -52,9 +52,8 @@ export async function fetchResearchViewerFindings({ limit = DEFAULT_LIMIT, sourc
 export async function fetchResearchViewerConvergences({ limit = DEFAULT_TOPIC_LIMIT } = {}) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_TOPIC_LIMIT, 50));
   const { data, error } = await supabase
-    .from("topic_cards")
+    .from("topic_cards_public")
     .select("slug,approved_at,created_at")
-    .eq("status", "approved")
     .not("slug", "is", null)
     .order("approved_at", { ascending: false, nullsFirst: false })
     .limit(safeLimit);

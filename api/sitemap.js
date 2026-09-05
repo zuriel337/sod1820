@@ -185,7 +185,7 @@ export default async function handler(req, res) {
 
   // ── צירי התכנסות מאושרים → /topic/:slug ──
   try {
-    const topics = await fetchAll('topic_cards?select=slug,approved_at,created_at&status=eq.approved');
+    const topics = await fetchAll('topic_cards_public?select=slug,approved_at,created_at');
     for (const t of topics) {
       if (!t.slug) continue;
       const lastmod = (t.approved_at || t.created_at || '').slice(0, 10) || undefined;

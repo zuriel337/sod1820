@@ -457,11 +457,13 @@ export async function fetchCanonicalTopicConvergenceFinding(slug) {
   const cleanSlug = nonEmpty(slug);
   if (!cleanSlug) return null;
 
+  // Public read model (view topic_cards_public: approved & not _do_not_publish, internal keys
+  // stripped server-side — TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1, work_log bf236317).
+  // The projection semantics below are unchanged; only the source surface moved.
   const { data: card, error: cardError } = await supabase
-    .from("topic_cards")
+    .from("topic_cards_public")
     .select(TOPIC_CARD_SELECT_FIELDS)
     .eq("slug", cleanSlug)
-    .eq("status", "approved")
     .maybeSingle();
   if (cardError) throw cardError;
   if (!card) return null;
