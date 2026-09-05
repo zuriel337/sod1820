@@ -1,17 +1,9 @@
-// 📖 Book Phase B — source-selection Workspace adapter (book-local, additive).
+// 📖 Book source-selection Workspace adapter (book-local, additive).
 //
-// Fixes a concrete, live-verified identity bug (BOOK_ONE_TREE_APPROVED_EXECUTION_20260905,
-// work_log 81611e63): saving a Book Entity ("this book") and saving one exact source
-// selection ("this row of DS-06") must never share the same ref. research_items carries
-// UNIQUE(user_id,bucket,entity_type,entity_ref) with metadata NOT part of the key, and
-// ResearchProvider's own cart/saved/pinned state + auth.js's saveCloudResearch both
-// de-dupe by the same ref/id — verified live in this session by reading both files.
-// Reusing the book's own entity_ref for every row would silently collapse distinct
-// saved selections into one.
-//
-// This module does not create a new entity_type family ("book" stays the only one),
-// a new store, or a new engine — it only derives a stable, distinct ref per exact
-// selection from data that already exists (book identity + source_ref locator).
+// A Book Entity and an exact source/research selection must never share identity.
+// This adapter derives deterministic selection refs from the existing Book identity +
+// source locator and carries truth/access axes without merging them. It creates no new
+// entity family, store, graph, engine, Workspace, or Research Context.
 
 import { pageFromSourceRef } from "./bookResearchProjection.js";
 
@@ -19,18 +11,67 @@ function clean(v) {
   return v == null ? "" : String(v).trim();
 }
 
-// The book itself — one identity, saved at most once. Mirrors bookResearchProjection.js's
-// own bookToWorkspaceItem() intentionally (not re-imported, to keep this module import-order
-// independent) — same ref shape, so a book-level save from either code path collides
-// correctly WITH ITSELF (idempotent), not with a selection.
+function triBool(v) {
+  return v === true ? true : v === false ? false : null;
+}
+
+// The book itself — one identity, saved at most once.
 export function bookEntityRef(book) {
   return clean(book?.identity_key) || null;
 }
 
+// Pick an existing source-ref namespace from Book identity metadata. Prefer a
+// book-qualified prefix when one exists; never hardcode a particular witness id.
+// If metadata is incomplete, fall back to the locator contract and finally to the
+// already-known witness identity. Missing identity fails closed (null).
+export function bookSourceRefPrefix(book) {
+  const prefixes = Array.isArray(book?.metadata?.source_ref_prefixes)
+    ? book.metadata.source_ref_prefixes.map(clean).filter(Boolean)
+    : [];
+  const bookQualified = prefixes.find(x => x.toLowerCase().startsWith("book:"));
+  if (bookQualified) return bookQualified;
+  if (prefixes[0]) return prefixes[0];
+
+  const locatorPattern = clean(book?.metadata?.identity_tiers?.locator?.pattern);
+  if (locatorPattern.includes("#")) {
+    const prefix = clean(locatorPattern.split("#")[0]);
+    if (prefix) return prefix.toLowerCase().startsWith("book:") ? prefix : `book:${prefix}`;
+  }
+
+  const witness = book?.metadata?.identity_tiers?.witness || {};
+  const provider = clean(witness.provider).toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
+  const nativeId = clean(witness.native_id);
+  return provider && nativeId ? `book:${provider}:${nativeId}` : null;
+}
+
+function firstPdfPage(row) {
+  const raw = Array.isArray(row?.pdf_pages) ? row.pdf_pages[0]
+    : row?.pdf_pages ?? row?.pdf_page ?? row?.page;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function rowIdentity(row, idKey) {
+  if (idKey && row?.[idKey] != null) return clean(row[idKey]);
+  for (const key of ["dataset_id", "representation_id", "procedure_id", "matrix_id", "id", "n", "key", "slug"]) {
+    const value = clean(row?.[key]);
+    if (value) return value;
+  }
+  return "";
+}
+
+// Generic documented-snapshot locator. For Ahavat Torah this remains
+// book:hebrewbooks:5635#p…; for Sefer HaPeli'ah it derives 6355 from the Book node.
+// No Book-specific switch and no source content is copied here.
+export function dossierSelectionSourceRef(book, row, idKey) {
+  const prefix = bookSourceRefPrefix(book);
+  const rowId = rowIdentity(row, idKey);
+  if (!prefix || !rowId) return null;
+  const page = firstPdfPage(row);
+  return `${prefix}#p${page ?? 0}:${rowId}`;
+}
+
 // One exact, reproducible ref per (book, source_ref locator, snapshot version).
-// Deterministic: identical inputs always produce the identical ref — this is what
-// makes "save the same selection twice" an idempotent upsert instead of a duplicate,
-// and what makes "save two different rows" produce two distinct, both-persisted refs.
 export function selectionRef({ bookIdentityKey, sourceRef, snapshotVersion }) {
   const book = clean(bookIdentityKey);
   const ref = clean(sourceRef);
@@ -39,9 +80,9 @@ export function selectionRef({ bookIdentityKey, sourceRef, snapshotVersion }) {
   return `book-selection:${book}:${ref}:${v}`;
 }
 
-// selection: any row from the documented-snapshot bundle (a dataset row, an
-// occurrence-table row, a content_block, or a live research_objects row) —
-// shape varies by source; only source_ref (or sourceRef) is required.
+// selection: any row from a documented snapshot or an authorized live reader.
+// Shape varies; only a real source_ref/sourceRef is required. Truth axes are carried
+// independently and never inferred from one another.
 export function selectionToWorkspaceItem(book, selection, opts = {}) {
   if (!selection) return null;
   const bookRef = bookEntityRef(book);
@@ -52,35 +93,43 @@ export function selectionToWorkspaceItem(book, selection, opts = {}) {
   const page = pageFromSourceRef(sourceRef);
   const title = clean(selection.title) || clean(selection.statement) || clean(selection.text_he) || clean(book?.label) || "בחירת-מקור";
   const route = clean(book?.metadata?.route) || "/book";
+  const params = new URLSearchParams();
+  params.set("tab", clean(opts.tab) || "dossier");
+  params.set("selection", ref);
+  if (page) params.set("page", String(page));
   return {
     id: ref,
     ref,
     type: "book",
     title,
-    link: `${route}${page ? `?page=${page}` : ""}#selection=${encodeURIComponent(ref)}`,
+    link: `${route}?${params.toString()}#selection`,
     metadata: {
       bookIdentityKey: bookRef,
       sourceRef,
       page,
       snapshotVersion,
       witness: selection.witness ?? book?.metadata?.identity_tiers?.witness ?? null,
+      // GOVERNANCE — independent from engine verification and publication/access.
       status: selection.status ?? null,
+      // VERIFICATION — tri-state: true/false/unknown, never inferred from status.
+      engineVerified: triBool(selection.engine_verified ?? selection.engineVerified),
+      engineVerificationState: selection.engine_detail?.verification_state ?? selection.engineVerificationState ?? null,
+      // WITNESS / SOURCE ADJUDICATION — separate from engine and governance.
+      witnessState: selection.witness_state ?? selection.exact_witness_state ?? selection.witnessState ?? null,
+      // PUBLICATION / ACCESS — carried only when explicitly owned by the source row.
+      privacyScope: selection.privacy_scope ?? selection.privacyScope ?? null,
+      publicationState: selection.publication_state ?? selection.publicationState ?? null,
       confidence: selection.confidence ?? null,
       truthClass: selection.truth_class ?? selection.truthClass ?? null,
-      // Append-only: a later re-read of the same locator under a NEW snapshot version
-      // gets its own ref (different snapshotVersion -> different selectionRef), so the
-      // prior saved evidence is never overwritten in place — see selectionRef above.
+      representationShape: selection.representation_shape ?? selection.representationShape ?? null,
+      // Append-only: a new snapshot version gets a new ref, preserving history.
       corrections: Array.isArray(selection.corrections) ? selection.corrections : [],
     },
   };
 }
 
 // STRICT / fail-closed: only a row explicitly tagged privacy_scope==='public' passes.
-// Anything private, anything with no privacy_scope field at all (e.g. today's
-// git-corpus documented-snapshot rows, which never had a privacy axis to begin with),
-// and anything else is excluded by default. A caller that wants to include known-safe
-// legacy content must tag it privacy_scope:'public' explicitly when building the row —
-// this module never infers "public" from silence.
+// Private, absent, candidate-only, engine-verified-only, or any other state is excluded.
 export function isPublicRow(row) {
   return clean(row?.privacy_scope) === "public";
 }
