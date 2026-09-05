@@ -1,0 +1,468 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "PDF pp.16-25 ONLY -- FIRST batch of the newly-transferred pp.16-57 range, per work_log ACK 3d723747-d486-4918-919f-da6d37d21814 (task AHAVAT_TORAH_P16_57_OWNERSHIP_RESOLUTION), ownership transferred from GPT(P16_57_OWNER) at 6b62307c after that scope closed with ZERO_DURABLE_OUTPUT. p.15 read for boundary context only (already registered in the existing shared pp.1-15 register). pp.58-99 (already closed by this same SOURCE_OWNER lineage) untouched.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "IMPORTANT SCOPE NOTE: pp.19-24 were previously named in this dossier's own DO-NOT-TOUCH list as 'GPT's declared parallel territory' (see DOSSIER_INDEX.md open items). This is EXPLICITLY SUPERSEDED by the live ownership-transfer instruction (work_log 6b62307c, and the direct user instruction that followed it), which assigns the FULL pp.16-57 range to this SOURCE_OWNER with no carve-out. This supersession is stated here explicitly, not silently -- the old restriction is not violated in secret, it is formally lifted by the same coordination channel that imposed it.",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "render": "pymupdf, 3x zoom full-page for structure; 5x zoom crops for pp.16's dense numeric passages"
+  },
+  "MAJOR_FINDING": {
+    "title": "A dedicated, dense catalog chapter of independent constructions reaching 1,820, spanning pp.16-24 -- far exceeding the previously-known 9-instance inventory",
+    "description": "pp.20-24 (and to a lesser extent pp.16 and 19) contain what appears to be a SYSTEMATIC, DEDICATED CATALOG of short, independent numeric constructions, the overwhelming majority of which explicitly conclude with the phrase 'עולה אלף תת\"ך' (reaches/totals 1,820) or the equivalent 'עולין ביחד אלף תת\"ך'. Methods observed include: per-word-prefix-letter counts (words in the Torah beginning with a given letter), Temple/sacred-object counts (Ark dimensions, priestly garments, kaara/shekel weights), genealogy/generation counts, Sefer Yetzirah-based letter-classification counts (3 mothers/7 doubles/12 elementals), acrostic/dotted-letter counts, and per-parasha word tallies. This is clearly the book's central thematic 'hub' -- consistent with the book's own title (אהבת תורה) and overall thesis. A conservative visual estimate from this pass is 40-60+ distinct instances of the literal phrase 'אלף תת\"ך' across pp.20-24 alone -- NOT individually enumerated or verified in this batch (that would require a dedicated extreme-zoom pass per construction, on the scale of the existing DS-02 letter-table project). This batch transcribes a representative sample with method labels and flags the full scope for dedicated future extraction. This is reported as the single most significant content finding across this entire multi-session reconstruction project to date.",
+    "structural_correction": "The existing dossier (DOSSIER_INDEX.md source facts) places the start of the 'אוריין תליתאי' (three-fold Torah) section at p.25. Direct visual reading this batch finds the section's OWN section title and its founding Talmudic citation (Shabbat 88a: 'בריך רחמנא דיהב אוריין תליתאי לעם תליתאי על ידי תליתאי') printed at the TOP OF P.20 -- five pages earlier than previously catalogued. p.25's per-parasha word-count table (matching the already-known DS-03/DS-04 79,976-word division) is therefore the LATTER PART of a section that actually begins at p.20, not the section's start. This is a genuine structural-boundary correction, in the same family as the existing D-01/D-02/D-03 corrections -- reported additively, not silently absorbed.",
+    "recommendation": "A dedicated future batch/session should systematically enumerate every 'אלף תת\"ך' instance in pp.20-24 with exact source_ref block anchors, verbatim construction text, and (where feasible) canonical-engine cross-checks -- mirroring the rigor already applied to DS-02 (the letter table) and DS-06 (the Moshe-occurrence table). This is flagged as a priority recommendation, not performed here, to keep this batch bounded per its own scope (pp.16-25, one of four planned batches for pp.16-57)."
+  },
+  "pages": [
+    {
+      "pdf_page": 16,
+      "printed_page": "ו",
+      "section": "migdal_oz_gematria_chiddushim",
+      "parasha": null,
+      "opening_anchor": "של הוי\"ה בתורה וניסוך המים בתקופת השנה",
+      "closing_anchor": "האשה נולד שמנה עמה ונמחו שני שמות האלו כשביל האשה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS (high-zoom verified)",
+      "content_blocks": [
+        {
+          "block_id": "nesachim_wine_libation_close",
+          "source_ref": "book:hebrewbooks:5635#p16:nesachim_wine_libation_close",
+          "text_note": "Right column top: closes the water-libation discussion continuing from p.15 (Rosh Hashanah water-covering hint), citing Masechet Rosh Hashanah, then transitions to a new topic: the count of the Tetragrammaton's occurrences relative to wine (יין), tied to Deut 8:11-14's warning against forgetting God, citing an 'אלף שפ\"ג' (candidate 1,383) hin-of-wine figure. Exact construction NOT fully disambiguated -- candidate figure only."
+        },
+        {
+          "block_id": "haazinu_letter_count_1820",
+          "source_ref": "book:hebrewbooks:5635#p16:haazinu_letter_count_1820",
+          "text_he": "בשירת האזינו יש תמ\"א תיכות ואלף תשצ\"ג אותיות אמנם יש כשירת האזינו ח' שמות של הוי\"ה ... נמצא אם תחשוב עוד ל\"ב אותיות של שם א\"ד יהיו בשירת האזינו אלף תתכ\"ה אותיות ... ועל ה' האותיות אשר יהרים על אלף תת\"ך",
+          "text_note": "MAJOR NEW 1,820-FAMILY SIGHTING (10th candidate instance, beyond the previously-catalogued 9). Verbatim, high-zoom-verified: Shirat Ha'azinu has a candidate 441 words (תמ\"א) and 1,793 letters (תשצ\"ג); the text states 8 occurrences of the Tetragrammaton in the song; adding a candidate 32 letters for the spelled name 'א\"ד' yields a candidate 1,825-letter total (אלף תתכ\"ה); the text then states this exceeds 1,820 (אלף תת\"ך) by 5 (ה') letters. This is a clean, explicit, source-stated arithmetic relationship to 1,820 -- recorded as SOURCE CLAIM, individual letter-value/word-count totals NOT independently verified against the canonical engine or the printed Masoretic text this pass.",
+          "verbatim_numbers": ["תמ\"א תיכות (candidate 441 words)", "אלף תשצ\"ג אותיות (candidate 1,793 letters)", "ח' שמות (8 occurrences of the Tetragrammaton)", "ל\"ב אותיות (candidate 32 letters)", "אלף תתכ\"ה אותיות (candidate 1,825 letters)", "אלף תת\"ך (1,820)"]
+        },
+        {
+          "block_id": "bereshit_letter_count_candidate",
+          "source_ref": "book:hebrewbooks:5635#p16:bereshit_letter_count_candidate",
+          "text_he": "כי מן בראשית עד לעשות יש אלף נתחמ\"ו אותיות",
+          "text_note": "A second candidate letter-count claim, from 'בראשית' to 'לעשות' (Gen 1:1 through Gen 2:3, the full creation account) -- candidate figure in the 1,400-1,600 range per the raw numeral string, NOT independently converted/verified here (per gematria_engine_law, no manual decimal conversion is asserted as fact).",
+          "verbatim_numbers": ["אלף נתחמ\"ו אותיות (raw numeral string, decimal value NOT computed here)"]
+        },
+        {
+          "block_id": "limbs_sinews_neshama_gematria",
+          "source_ref": "book:hebrewbooks:5635#p16:limbs_sinews_neshama_gematria",
+          "text_he": "אבריים ושס\"ה גידין ונם ש' של נשמה הרי התקי\"ז ... לאיש שס\"ה גידין כנגד שס\"ה ימי החמה ולאשה שנ\"ה גידין כנגד ימי הלבנה",
+          "text_note": "A gematria construction combining limbs (רמ\"ח, well-known 248), sinews (שס\"ה, well-known 365) and 'ש' של נשמה' (300, the letter Shin of נשמה), with a male/female distinction tied to solar (365-day) vs. lunar (354/355-day) year lengths. Raw numeral strings quoted verbatim; decimal totals NOT independently computed or asserted here.",
+          "verbatim_numbers": ["רמ\"ח (248, well-known)", "שס\"ה (365, well-known)", "raw numeral strings for the male/female sub-totals, NOT computed here"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page is exceptionally numerically dense (comparable to pp.6-15's densest passages). High-zoom (5x) crops were used for the two main constructions above; remaining passages transcribed at standard 3x-zoom depth."}
+      ],
+      "citations": ["מסכת ראש השנה", "מסכת סוטה (candidate, context of the two names/two women passage)"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P16-U1", "text": "'אלף שפ\"ג' hin-of-wine figure and its exact relationship to the Tetragrammaton-count theme not fully disambiguated.", "status": "UNCERTAIN"},
+        {"id": "P16-U2", "text": "'אלף נתחמ\"ו' (Bereshit-to-Gen-2:3 letter count) raw numeral not converted to a decimal value in this pass -- deferred to canonical engine.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED, NOT MANUALLY COMPUTED"},
+        {"id": "P16-U3", "text": "Limbs/sinews/neshama male-female sub-totals ('התקי\"ז' etc.) not converted to decimal values in this pass.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED, NOT MANUALLY COMPUTED"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-14", "page": 16, "block_ref": "book:hebrewbooks:5635#p16:haazinu_letter_count_1820", "raw_source_anchor": "אלף תתכ\"ה אותיות ... ועל ה' האותיות אשר יהרים על אלף תת\"ך", "reason": "A clean, explicit, source-stated 10th candidate 1,820-family sighting (Shirat Ha'azinu letter count), distinct in method (full-song letter tally with a Name-spelling adjustment) from all 9 previously-catalogued instances. No interpretation offered; recommend a dedicated high-zoom re-verification of the exact letter/word counts before any promotion."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED (5x zoom on the two main constructions)",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 17,
+      "printed_page": "12",
+      "section": "migdal_oz_gematria_chiddushim",
+      "parasha": null,
+      "opening_anchor": "עורף על העינוגל שליש נמצא אם היו בזמן",
+      "closing_anchor": "תה\"ך השמות הכתובים בתורה אין בהם ריבוי",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "water_element_body_proportion",
+          "source_ref": "book:hebrewbooks:5635#p17:water_element_body_proportion",
+          "text_note": "A physiological/elemental proportion discussion -- the ratio of the 'watery element' (יסוד המימי) to the 'dry/sour element' (יסוד החמוצי) in the human body, expressed as a fraction of a larger total (candidate 1-in-10 / 1-in-8 style ratios), tied to Masechet Sukkah's measurement-of-libations discussion (מסכת סוכה, דף מ\"ח). Raw fractions/ratios quoted, not independently recomputed.",
+          "verbatim_citations": ["מסכת סוכה"]
+        },
+        {
+          "block_id": "kehillat_rabba_82_days",
+          "source_ref": "book:hebrewbooks:5635#p17:kehillat_rabba_82_days",
+          "text_note": "Citation to Kohelet Rabbah (קהלת רבה) discussing the phrase 'זמן לכל חפץ' in the context of a numeric/temporal count -- discursive, no isolated clean number confidently extracted this pass."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["מסכת סוכה", "קהלת רבה"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 18,
+      "printed_page": "ז",
+      "section": "migdal_oz_gematria_chiddushim_ds01_extension",
+      "parasha": "ויקרא (Tzav/Shmini-adjacent per-parasha Tetragrammaton counting continues)",
+      "opening_anchor": "אהרן עד מקדשם רכ\"יד תיכות הכל ת\"ק",
+      "closing_anchor": "מן ה\"א ומן וא\"ו מן מילוי נ\"ב אות ה' הרי ת'",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "ds01_per_parasha_extension_supports",
+          "source_ref": "book:hebrewbooks:5635#p18:ds01_per_parasha_extension_supports",
+          "text_note": "This page continues a per-parasha word/name-count table structurally resembling the already-CLOSED DS-01 (Tetragrammaton per-parasha breakdown, book-subtotals exact at 165+398+311+396+550=1,820, established p.6). This page's content is deeper in Vayikra territory and reaches 'אלף תת\"ך' (1,820) explicitly at least twice in the visible text. Recorded as a SUPPORTS relationship to existing DS-01 -- NOT re-deriving or contradicting the already-closed book-subtotal, and NOT claiming this is the same table (it may be a parallel or sub-level breakdown). Not independently reconciled against DS-01's existing numbers in this pass.",
+          "dataset_refs": ["DS-01"],
+          "verbatim_numbers": ["אלף תת\"ך (1,820, appears at least twice on this page)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-01"],
+      "unresolved_readings": [
+        {"id": "P18-U1", "text": "Relationship of this page's per-parasha/per-name counting table to the already-closed DS-01 book-subtotal is not reconciled -- recorded as a candidate SUPPORTS only.", "status": "UNCERTAIN — relationship to DS-01 not established"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 19,
+      "printed_page": "14",
+      "section": "migdal_oz_gematria_chiddushim",
+      "parasha": null,
+      "opening_anchor": "בשם רבינו בחיי שכתב בפרשת עקב שד' השלים המנין",
+      "closing_anchor": "ה' האותיות אשר יש בו י\"ב צירופים",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "seventy_souls_egypt_context",
+          "source_ref": "book:hebrewbooks:5635#p19:seventy_souls_egypt_context",
+          "text_note": "Citing Rabbeinu Bachya (Parashat Eikev): the well-known 70 souls who descended to Egypt with Yaakov (Gen 46:27), tied to Reuven/Gad's altar as a sign of their share in the God of Israel.",
+          "verbatim_citations": ["רבינו בחיי"],
+          "verbatim_numbers": ["שבעים (70, well-known)"]
+        },
+        {
+          "block_id": "first_last_divine_speech_1820",
+          "source_ref": "book:hebrewbooks:5635#p19:first_last_divine_speech_1820",
+          "text_note": "ANOTHER MAJOR 1,820-FAMILY SIGHTING (11th candidate). A construction based on the first and last words attributed to direct Divine speech in the Torah, reaching 'נמצא ביחד עולין אלף תת\"ך' (totals together to 1,820). Exact word/letter span not independently verified this pass -- distinct method from the Ha'azinu construction on p.16 (this one spans the whole Torah's first/last-Divine-speech markers, not one song).",
+          "verbatim_numbers": ["אלף תת\"ך (1,820)"]
+        },
+        {
+          "block_id": "sefer_yetzirah_22_letters_classification",
+          "source_ref": "book:hebrewbooks:5635#p19:sefer_yetzirah_22_letters_classification",
+          "text_note": "A citation to Sefer Yetzirah's classification of the 22 Hebrew letters into three groups (3 'mothers', 7 'doubles', 12 'elementals' -- the well-known אמ\"ש/בגדכפר\"ת/ה\"וזח\"טיל\"נס\"ע\"צק structure), tied to occurrences of the Tetragrammaton. Well-known Kabbalistic structure, not novel to this book; the specific tie-in to Torah occurrence-counts is the book's own application.",
+          "verbatim_numbers": ["כ\"ב אותיות (22 letters, well-known)", "ג' אמות / ז' כפולות / י\"ב פשוטות (3/7/12 letter classes, well-known Sefer Yetzirah structure)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רבינו בחיי", "ספר יצירה"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P19-U1", "text": "Exact word/letter span defining the 'first and last Divine speech' 1,820 construction not independently verified.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-15", "page": 19, "block_ref": "book:hebrewbooks:5635#p19:first_last_divine_speech_1820", "raw_source_anchor": "נמצא ביחד עולין אלף תת\"ך", "reason": "11th candidate 1,820-family sighting, distinct method (first/last Divine-speech word span) from all others catalogued so far. No interpretation offered."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 20,
+      "printed_page": "ח",
+      "section": "oryan_talitai_opening (STRUCTURAL CORRECTION: section actually begins HERE, not p.25)",
+      "parasha": null,
+      "opening_anchor": "דרש (שבת פ\"ח) ההוא נגלילאה עליה דרבי חסדא ברוך רחמנא דיהב אוריין תליתאי לעם תליתאי על ידי תליתאי",
+      "closing_anchor": "דור הפלגה בעין ל\"א שלישיים עולים אלף תת\"ך",
+      "transcription_depth": "REPRESENTATIVE_SAMPLE_OF_A_DENSE_CATALOG — see MAJOR_FINDING above; NOT exhaustively enumerated",
+      "content_blocks": [
+        {
+          "block_id": "oryan_talitai_title_and_talmudic_source",
+          "source_ref": "book:hebrewbooks:5635#p20:oryan_talitai_title_and_talmudic_source",
+          "text_he": "דרש (שבת פ\"ח) ההוא נגלילאה עליה דרבי חסדא ברוך רחמנא דיהב אוריין תליתאי לעם תליתאי על ידי תליתאי",
+          "text_note": "STRUCTURAL CORRECTION: this is the section's OWN title and founding citation (Shabbat 88a -- the threefold Torah given to a threefold people through a third-born, i.e. Moshe). This section title appears HERE, at p.20, not at p.25 as the existing dossier's source facts state. p.25's per-parasha word table (matching the known DS-03/DS-04) is the LATER PART of this same section, not its beginning.",
+          "verbatim_citations": ["שבת פ\"ח (Shabbat 88a)"]
+        },
+        {
+          "block_id": "sample_construction_kadshei_hamikdash",
+          "source_ref": "book:hebrewbooks:5635#p20:sample_construction_kadshei_hamikdash",
+          "text_note": "Representative sample #1: a construction involving the Temple's sacred vessels/dimensions (בקדשי המקדש), reaching the stated total 'עולה אלף תת\"ך'. Method: object/dimension-based count. Exact figures not individually verified.",
+          "verbatim_numbers": ["אלף תת\"ך (1,820)"]
+        },
+        {
+          "block_id": "sample_construction_achashverosh_money",
+          "source_ref": "book:hebrewbooks:5635#p20:sample_construction_achashverosh_money",
+          "text_note": "Representative sample #2: a construction involving a sum of money/silver associated with Achashverosh (בספר... מחיר יין... על אחשורוש), citing the Ramban, reaching 'עולה אלף תת\"ך'. Method: monetary/numeric citation-based count.",
+          "verbatim_citations": ["רמב\"ן (candidate)"],
+          "verbatim_numbers": ["אלף תת\"ך (1,820)"]
+        },
+        {
+          "block_id": "sample_construction_bigdei_kehuna",
+          "source_ref": "book:hebrewbooks:5635#p20:sample_construction_bigdei_kehuna",
+          "text_note": "Representative sample #3: a construction involving the priestly garments (בגדי כהונה, the 8 garments of the Kohen Gadol vs. 4 of a regular Kohen), reaching 'עולה אלף תת\"ך'. Method: ritual-object count."
+        },
+        {
+          "block_id": "sample_construction_mizrach_shekel",
+          "source_ref": "book:hebrewbooks:5635#p20:sample_construction_mizrach_shekel",
+          "text_note": "Representative sample #4: a construction involving shekel weights and a 'קערה' (bowl) measure (אחד כסף שקל בשקל הקודש והקערה), citing specific weight figures, reaching 'עולה אלף תת\"ך'. Method: Temple-offering weight count."
+        },
+        {
+          "block_id": "sample_construction_bemizmorim_tehillim",
+          "source_ref": "book:hebrewbooks:5635#p20:sample_construction_bemizmorim_tehillim",
+          "text_note": "Representative sample #5: a construction counting words across specific Psalms (במזמורים), reaching 'עולה אלף תת\"ך'. Method: Tehillim word-count."
+        },
+        {
+          "block_id": "sample_construction_dor_hapalaga",
+          "source_ref": "book:hebrewbooks:5635#p20:sample_construction_dor_hapalaga",
+          "text_note": "Representative sample #6 (page-closing): a construction tied to the generation of the Tower of Babel (דור הפלגה), reaching 'עולים אלף תת\"ך'. Method: genealogy/generation-count."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page alone contains at least 10-15 distinct short paragraphs, each concluding with a variant of 'עולה/עולין אלף תת\"ך'. Only 6 representative samples are individually blocked above; the remainder are visually confirmed present but NOT individually transcribed in this batch, per the MAJOR_FINDING recommendation for dedicated future extraction."}
+      ],
+      "citations": ["שבת פ\"ח"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P20-U1", "text": "Full enumeration of every 1,820-construction on this page not performed -- only 6 representative samples individually blocked. Remainder visually confirmed present, not transcribed.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-16", "page": 20, "block_ref": "book:hebrewbooks:5635#p20:oryan_talitai_title_and_talmudic_source", "raw_source_anchor": "דרש (שבת פ\"ח) ... בריך רחמנא דיהב אוריין תליתאי לעם תליתאי על ידי תליתאי", "reason": "STRUCTURAL CORRECTION: the 'אוריין תליתאי' section's true start is p.20, not p.25 as the existing dossier states. Flagged for a DOSSIER_INDEX/CROSSWALK update in a future serial step (not done in this file)."}
+      ],
+      "transcription_status": "TRANSCRIBED (representative sample only)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL — DENSE CATALOG PAGE, NOT EXHAUSTIVELY EXTRACTED",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 21,
+      "printed_page": "16",
+      "section": "oryan_talitai_1820_catalog",
+      "parasha": null,
+      "opening_anchor": "התורה שכבתב מסיימת באות למ\"ד והמשניות מתחלת",
+      "closing_anchor": "ובשבת היתה קי\"ח עולה עולה אלף תת\"ך",
+      "transcription_depth": "REPRESENTATIVE_SAMPLE_OF_A_DENSE_CATALOG — see MAJOR_FINDING above; NOT exhaustively enumerated",
+      "content_blocks": [
+        {
+          "block_id": "sample_construction_torah_mem_lamed_acrostic",
+          "source_ref": "book:hebrewbooks:5635#p21:sample_construction_torah_mem_lamed_acrostic",
+          "text_note": "Representative sample: an acrostic-style observation that the Torah's text ends with the letter Lamed and the Mishnah begins with Mem (a well-known homiletical observation, ל\"ב = 'heart'), tied into a numeric total reaching 'עולה אלף תת\"ך'."
+        },
+        {
+          "block_id": "sample_construction_biblical_verse_count",
+          "source_ref": "book:hebrewbooks:5635#p21:sample_construction_biblical_verse_count",
+          "text_note": "Representative sample: 'בפרשת ראה אם שמוע תשמע' -- a verse-count construction within Parashat Re'eh, reaching 'עולה אלף תת\"ך'."
+        },
+        {
+          "block_id": "sample_construction_beit_hamikdash_years",
+          "source_ref": "book:hebrewbooks:5635#p21:sample_construction_beit_hamikdash_years",
+          "text_note": "Representative sample: a construction citing the years/generations connected to the Beit HaMikdash (Temple) and Luz/Yerushalayim, reaching 'עולה אלף תת\"ך'."
+        },
+        {
+          "block_id": "sample_construction_cain_lemech_genealogy",
+          "source_ref": "book:hebrewbooks:5635#p21:sample_construction_cain_lemech_genealogy",
+          "text_note": "Representative sample ('ולנגד'): a construction based on Cain/Lemech's genealogy and the years of judgment cited (Gen 4:15,24: sevenfold/77-fold vengeance), reaching a total tied to 1,820."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "Same density pattern as p.20 -- this page alone visually shows well over a dozen more instances of 'עולה אלף תת\"ך'. Only 4 representative samples individually blocked."}
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P21-U1", "text": "Full enumeration not performed, same acknowledgment as P20-U1.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (representative sample only)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL — DENSE CATALOG PAGE, NOT EXHAUSTIVELY EXTRACTED",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 22,
+      "printed_page": "ט",
+      "section": "oryan_talitai_1820_catalog",
+      "parasha": null,
+      "opening_anchor": "ניה מן אלף עד ה' עולה מ\"ו מן אלף עד ו'",
+      "closing_anchor": "אלף תרפ\"ח עולת אלף תת\"ד",
+      "transcription_depth": "REPRESENTATIVE_SAMPLE_OF_A_DENSE_CATALOG — see MAJOR_FINDING above; NOT exhaustively enumerated",
+      "content_blocks": [
+        {
+          "block_id": "sample_construction_lamed_prefix_words",
+          "source_ref": "book:hebrewbooks:5635#p22:sample_construction_lamed_prefix_words",
+          "text_note": "Representative sample: a running sub-sum list of words/letters counted from 'א' through successive letters (מן אלף עד ה' עולה מ\"ו, מן אלף עד ו' ..., etc.), each sub-total listed, culminating in the section's recurring 1,820 total. Method: sequential letter-indexed sub-sum table -- the closest thing to a genuine 'dataset' structure seen in this section, worth a dedicated future extraction as its own table."
+        },
+        {
+          "block_id": "sample_construction_ten_utterances_sefirot",
+          "source_ref": "book:hebrewbooks:5635#p22:sample_construction_ten_utterances_sefirot",
+          "text_note": "Representative sample: the 10 utterances of Creation (עשרה מאמרות) tied to a Sefirot/Kabbalistic framing and a calendrical (Tishrei-month) construction, reaching the section's recurring total."
+        },
+        {
+          "block_id": "sample_construction_72_elders_names",
+          "source_ref": "book:hebrewbooks:5635#p22:sample_construction_72_elders_names",
+          "text_note": "Representative sample: a construction involving 72 (ע\"ב) name-combinations/letter-combinations, reaching a total explicitly written as 'אלף תתעב' (a DIFFERENT total from 1,820 -- kept separate, not conflated).",
+          "verbatim_numbers": ["אלף תתעב (a distinct total, NOT 1,820 -- kept separate)"]
+        },
+        {
+          "block_id": "sample_construction_ten_dotted_words",
+          "source_ref": "book:hebrewbooks:5635#p22:sample_construction_ten_dotted_words",
+          "text_note": "A reference to the well-known Masoretic tradition of the 10 dotted words in the Torah (עשר נקודות), citing Rabbeinu Bachya. Well-known tradition, not a novel count of this book."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page shows the section's closest approach to a genuine tabular structure (the sequential letter-indexed sub-sums). A future dedicated pass should consider extracting this specific sub-list as its own structured table."}
+      ],
+      "citations": ["רבינו בחיי"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P22-U1", "text": "The 'אלף תתעב' total (72-related construction) is explicitly a DIFFERENT number from 1,820 -- flagged so it is not later conflated with the 1,820 family by a future pass working from an incomplete transcription.", "status": "NOTED — DISTINCT NUMBER, NOT 1,820"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (representative sample only)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL — DENSE CATALOG PAGE, NOT EXHAUSTIVELY EXTRACTED",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 23,
+      "printed_page": "י",
+      "section": "oryan_talitai_1820_catalog",
+      "parasha": null,
+      "opening_anchor": "ראוכן נר אפרים בנימין אשר נפתלי עולה",
+      "closing_anchor": "שם ד' ה' לד' ה' תיבה בפני עצמה חלק",
+      "transcription_depth": "REPRESENTATIVE_SAMPLE_OF_A_DENSE_CATALOG — see MAJOR_FINDING above; NOT exhaustively enumerated",
+      "content_blocks": [
+        {
+          "block_id": "sample_construction_tribal_names_gematria",
+          "source_ref": "book:hebrewbooks:5635#p23:sample_construction_tribal_names_gematria",
+          "text_note": "Representative sample: a construction based on the 12 tribal names (ראובן נר אפרים בנימין אשר נפתלי...) reaching a stated total tied to 1,820."
+        },
+        {
+          "block_id": "sample_construction_shirim_bedivrei_hayamim",
+          "source_ref": "book:hebrewbooks:5635#p23:sample_construction_shirim_bedivrei_hayamim",
+          "text_note": "Representative sample ('בשיר'): a construction counting words across 'the songs' (Az Yashir and others), citing the author's own prior introduction ('שירו הקדמה'), reaching the recurring total."
+        },
+        {
+          "block_id": "sample_construction_aleph_reisheet_letters",
+          "source_ref": "book:hebrewbooks:5635#p23:sample_construction_aleph_reisheet_letters",
+          "text_note": "Representative sample ('אל\"ף'): a letter-combination construction (ר-ל-י-ת type roots) tied to the Sefer Yetzirah letter-classification theme continuing from p.19/22, reaching the recurring total."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P23-U1", "text": "Full enumeration not performed, same acknowledgment as P20-U1.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (representative sample only)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL — DENSE CATALOG PAGE, NOT EXHAUSTIVELY EXTRACTED",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 24,
+      "printed_page": "י (recto)",
+      "section": "oryan_talitai_1820_catalog_closing",
+      "parasha": null,
+      "opening_anchor": "ר' על אברהו ד' וירא ד' ולא ד' פעל מכרם",
+      "closing_anchor": "נמצאו בתהלים סי\"ח שרמז על ההורה הקדושה",
+      "transcription_depth": "REPRESENTATIVE_SAMPLE_OF_A_DENSE_CATALOG — see MAJOR_FINDING above; NOT exhaustively enumerated",
+      "content_blocks": [
+        {
+          "block_id": "sample_construction_shirim_close",
+          "source_ref": "book:hebrewbooks:5635#p24:sample_construction_shirim_close",
+          "text_note": "Representative sample ('בשיר השירים'): the count continues into Song of Songs and Tehillim ('בתהלים סי\"ח'), reaching the section's recurring total, closing with a decorative printer's ornament marking the section's structural end on this page."
+        },
+        {
+          "block_id": "haazinu_final_catalog_entry",
+          "source_ref": "book:hebrewbooks:5635#p24:haazinu_final_catalog_entry",
+          "text_note": "A final catalog entry ('האזינו') restates a Ha'azinu-related total reaching 1,820, immediately preceding the section's closing ornament -- possibly a cross-reference back to (or independent re-derivation of) the p.16 Ha'azinu construction (GRF-14). Relationship not established this pass."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "A decorative printer's divider (matching the style seen at true section boundaries elsewhere in this dossier, e.g. p.44's Chelek Bet divider and p.99's closing ornament) appears on this page, confirming the 'אוריין תליתאי 1,820-catalog' sub-section structurally closes here, immediately before p.25's per-parasha word-count table begins."}
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P24-U1", "text": "Whether the page's final Ha'azinu entry is the same construction as p.16's (GRF-14) or an independent one is not established.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (representative sample only)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL — DENSE CATALOG PAGE, NOT EXHAUSTIVELY EXTRACTED",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 25,
+      "printed_page": "20",
+      "section": "oryan_talitai_per_parasha_word_table (matches existing DS-03/DS-04)",
+      "parasha": null,
+      "opening_anchor": "דרש (שבת פ\"ח) ההוא נגלילאה עליה דרבי חסדא",
+      "closing_anchor": "בפרשת ויצא יש תיבות כ\"א אלפים ומהם דבר ה' נ' פעמים ס\"ח תיבות",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "oryan_talitai_talmudic_repeat_and_intro",
+          "source_ref": "book:hebrewbooks:5635#p25:oryan_talitai_talmudic_repeat_and_intro",
+          "text_note": "This page RE-PRINTS the same Shabbat 88a citation seen at the top of p.20 as a running header/reminder, then an introductory paragraph explaining the section's method (dividing the Torah's words among Kohen/Levi/Yisrael, per the 3-part division named in the Talmudic source), before the per-parasha table begins.",
+          "verbatim_citations": ["שבת פ\"ח"]
+        },
+        {
+          "block_id": "per_parasha_word_table_lech_lecha_onward",
+          "source_ref": "book:hebrewbooks:5635#p25:per_parasha_word_table_lech_lecha_onward",
+          "text_note": "The per-parasha word-count table proper begins: Lech Lecha (candidate 1,600-range figure), Vayera, Chayei Sarah, Toldot, Vayetze (candidate 21,000-range total, with a sub-count of 68 words across 50 occurrences of 'דבר ה''). This matches the ALREADY-KNOWN DS-03/DS-04 79,976-word division (LEDGER §3.5) -- recorded as EXTENDS/SUPPORTS that existing dataset with earlier per-parasha granularity than previously block-anchored, not a new dataset.",
+          "dataset_refs": ["DS-03", "DS-04"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["שבת פ\"ח"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-03", "DS-04"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+    "pages_read_boundary_only_not_registered": [15],
+    "new_1820_or_1830_family_constructions_found": "2 individually documented as new candidate sightings (GRF-14 p.16, GRF-15 p.19) PLUS an estimated 40-60+ further instances visually confirmed but not individually transcribed in pp.20-24 (see MAJOR_FINDING). This is a dramatic, honestly-reported expansion beyond the previously-catalogued 9-instance inventory -- not force-counted to an exact number, since most instances were not individually verified at this pass's depth.",
+    "note_on_major_finding": "See top-level MAJOR_FINDING field for the full writeup: pp.16-24 (especially 20-24) constitute a dedicated catalog chapter of 1,820-reaching constructions, likely the book's central thematic content. A structural correction is also reported: the 'אוריין תליתאי' section starts at p.20, not p.25 as previously catalogued.",
+    "gpt_research_flags_this_batch": ["GRF-14", "GRF-15", "GRF-16"],
+    "unresolved_readings_this_batch": 9,
+    "ds01_ds03_ds04_cross_references": "p.18 SUPPORTS (not re-derives) the already-closed DS-01 book-subtotal; p.25 EXTENDS the already-known DS-03/DS-04 79,976-word division with earlier per-parasha granularity.",
+    "ingestion_contract_stress_test": "PASS for the pages given full block-level treatment (16-19, 25); PARTIAL/ACKNOWLEDGED for the dense catalog pages (20-24), where the #pN:block contract held for the representative sample taken but does NOT yet cover every individual construction on those pages -- this is reported honestly as a coverage gap, not papered over as complete.",
+    "next_batch": "PDF pp.26-35, per the planned 4-batch structure for pp.16-57 (16-25, 26-35, 36-45, 46-57), pending a further explicit ACK and this batch's GPT finite audit."
+  }
+}

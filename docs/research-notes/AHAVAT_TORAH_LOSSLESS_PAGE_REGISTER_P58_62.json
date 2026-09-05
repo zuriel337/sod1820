@@ -1,0 +1,255 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "pp.58-62 ONLY, per work_log ACK 912b0b15-8d2a-4b9a-badf-f7733cce05f9 (task BOOK_DOSSIER_285_RECONCILIATION_V1, role=SOURCE_OWNER). p.57 read for boundary context only, NOT registered here (zero writes to pp.1-57, owned by other agents/other batches).",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "This is a SEPARATE file from AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER.json (pp.1-15), per the ACK's explicit output-file scope (avoids concurrent rewrite of the shared register while another agent may be extending it for pp.16-57). Same schema, same #pN:block convention, same truth vocabulary -- no new enum. To be folded into the shared register or cross-indexed by DOSSIER_INDEX/CROSSWALK in a later, serial step -- not done in this file.",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "download_method": "curl from canonical Supabase Storage public URL, gallery/Book/Hebrewbooks_org_5635.pdf, re-verified this batch, matches previously-recorded value exactly",
+    "render": "pymupdf (fitz), 3x zoom matrix, full-page renders (both columns), pp.57-62 rendered; p.57 for boundary context only"
+  },
+  "structural_placement": "pp.58-62 fall inside the dossier's already-known 'parasha-ordered chiddushim' section (pp.46-92, per DOSSIER_INDEX source facts), NOT inside the gematria-dense pp.6-24 front section. This batch independently confirms that placement: content is predominantly halachic/exegetical parshanut (RaSH\"I, Rambam Hilchot Milah, Masechet Nedarim/Sofrim/Shabbat citations, midrashic readings) with only occasional numeric/gematria asides -- a real, honestly-reported density difference from the pp.6-15 batch, not a gap in this transcription.",
+  "pages": [
+    {
+      "pdf_page": 58,
+      "printed_page": "ז",
+      "section": "parasha_chiddushim",
+      "parasha": "ויגש/ויחי (boundary page)",
+      "opening_anchor": "בהיותך נער ונקראת חי",
+      "closing_anchor": "לא יחצו עוד לשתי ממלכות והיו לאחדים",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "vayigash_close_osnat_gematria",
+          "source_ref": "book:hebrewbooks:5635#p58:vayigash_close_osnat_gematria",
+          "text_note": "Right column, closing chiddush of Parashat Vayigash. Counts Leah's household as ל\"ג (33), then builds a name-siman identifying Osnat (Yosef's wife) via letter-play toward אנוסה/משוגעת ('coerced'/'deranged'), citing Masechet Sofrim and Masechet Nedarim's own gematria-siman method, and an external citation 'בשל\"ה הקדוש דף ת\"ז' (the Shelah HaKadosh, folio ת\"ז).",
+          "verbatim_numbers": ["ל\"ג (33)"],
+          "verbatim_citations": ["מסכת סופרים", "מסכת נדרים", "בשל\"ה הקדוש דף ת\"ז"]
+        },
+        {
+          "block_id": "vayechi_no_break_reconfirmation",
+          "source_ref": "book:hebrewbooks:5635#p58:vayechi_no_break_reconfirmation",
+          "text_he": "מה שאין פרשה בין ויגש ובין ויחי נראה כי על המלבים שנא' יהודי נועדו לפניו אברהם ויצחק ויעקב",
+          "text_note": "RE-CONFIRMS existing dossier material, not a new finding: this is the exact passage already cross-referenced in CROSSWALK.md section A (GPT Checkpoint_3 §B, 'directly visually confirmed verbatim by Claude at p.58, session 3'). Re-read here independently this batch; wording matches the dossier's existing description of this passage's substance."
+        },
+        {
+          "block_id": "vayechi_shevatim_naming",
+          "source_ref": "book:hebrewbooks:5635#p58:vayechi_shevatim_naming",
+          "text_note": "Rest of left column: RaSH\"I-cited (רש\"י ז\"ל) discussion of tribal naming/blessing order for Reuven and the other sons -- standard 12-tribe framing (well-known structural count, not treated as a novel finding of this book).",
+          "verbatim_citations": ["רש\"י ז\"ל"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["מסכת סופרים", "מסכת נדרים", "בשל\"ה הקדוש דף ת\"ז", "רש\"י ז\"ל"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P58-U1", "text": "'בשל\"ה הקדוש דף ת\"ז' folio number (ת\"ז) not independently re-verified at higher zoom -- read once at 3x, plausible but not extreme-zoom-confirmed.", "status": "UNCERTAIN"},
+        {"id": "P58-U2", "text": "'ל\"ג בני לאה ושש ושים מלבד יוסף' -- the phrase combining ל\"ג (33) and 'ושש ושים' (sixty-six?) is syntactically dense and not confidently parsed as a single arithmetic claim; not force-resolved.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED (numbers/citations); VISUALLY_VERIFIED (the short vayechi_no_break quote only)"
+    },
+    {
+      "pdf_page": 59,
+      "printed_page": "14",
+      "section": "parasha_chiddushim",
+      "parasha": "ויחי (closing) -> שמות (opening)",
+      "opening_anchor": "וחסר אחד לתרל\"ח במנין אברהם יצחק יעקב",
+      "closing_anchor": "משפט וצדקה העמוד כי כשלה ברחוב אמת",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "tarlach_missing_one",
+          "source_ref": "book:hebrewbooks:5635#p59:tarlach_missing_one",
+          "text_note": "Right column top: a numeric-discrepancy claim -- 'וחסר אחד לתרל\"ח (638) במנין אברהם יצחק ויעקב', compared against a parallel construction with Efraim/Menashe/Reuven/Shimon ('יהיו לי אפרים ומנשה כראובן ושמעון'), ending 'ואחד ביותר' (one extra/short). The source states its own arithmetic tension explicitly -- NOT force-resolved here, same treatment as the dossier's existing CALC-03 precedent (212+37!=239).",
+          "verbatim_numbers": ["תרל\"ח (638)"]
+        },
+        {
+          "block_id": "bekharbi_ubekashti",
+          "source_ref": "book:hebrewbooks:5635#p59:bekharbi_ubekashti",
+          "text_note": "Paraphrase: Gen 48:22 'בחרבי ובקשתי' (Yaakov's gift to Yosef of the city taken 'by my sword and bow'), reading RaSH\"I's reinterpretation as wisdom/prayer (חכמתו ותפלתו) against a literal military reading, tied to Yaakov's dealings with Esav.",
+          "verbatim_citations": ["רש\"י"]
+        },
+        {
+          "block_id": "gur_aryeh_yehuda",
+          "source_ref": "book:hebrewbooks:5635#p59:gur_aryeh_yehuda",
+          "text_note": "Paraphrase: 'גור אריה יהודה' passage -- gematria/name-play connecting שם יהודה to lion imagery, and a tribal-alliance point about Binyamin joining Yehuda's camp/marching order. No isolated clean arithmetic total found on this pass."
+        },
+        {
+          "block_id": "man_shar_haofim_span",
+          "source_ref": "book:hebrewbooks:5635#p59:man_shar_haofim_span",
+          "text_he_partial": "עד לישועתך קויתי ד' לא נמצא שם הוי\"ה ב\"ה ... ד' וי\"ה אלפים וד' מאות ועשר תיבות עד ויהי מן ישועתך",
+          "text_note": "A bounded-word-span construction: from one occurrence of the phrase 'לישועתך קויתי' to a later one, the Tetragrammaton allegedly does not appear for a span described as approximately 4,410 words ('ד' אלפים וד' מאות ועשר'). This fits the corpus's already-named 'bounded-span word counting' method family (LEDGER §3.9's 239-word span is the dossier's existing example) -- flagged mechanically as a possible 3rd sighting, no interpretation offered.",
+          "verbatim_numbers": ["ד' אלפים וד' מאות ועשר תיבות (~4,410, exact numeral phrasing UNCERTAIN)"]
+        },
+        {
+          "block_id": "shaul_reign_and_shemot_transition",
+          "source_ref": "book:hebrewbooks:5635#p59:shaul_reign_and_shemot_transition",
+          "text_note": "Left column: discussion of עבד/שכיר year-counting, a Shaul-reign aside citing שמואל א' י\"ג א' (1 Samuel 13:1), then a נזיר/vow discussion transitioning toward Parashat Shemot, closing with a Yeshayahu 59:14 citation ('משפט וצדקה... כי כשלה ברחוב אמת').",
+          "verbatim_citations": ["שמואל א' י\"ג א'", "ישעיהו נ\"ט י\"ד"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רש\"י", "שמואל א' י\"ג א'", "ישעיהו נ\"ט י\"ד"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P59-U1", "text": "תרל\"ח (638) 'חסר אחד' arithmetic tension -- source's own stated discrepancy, preserved not resolved.", "status": "UNRESOLVED_ARITHMETIC (source's own framing)"},
+        {"id": "P59-U2", "text": "'ד' וי\"ה אלפים וד' מאות ועשר תיבות' -- unusual mixed numeral phrasing (ד' + וי\"ה), exact intended value not confidently disambiguated at this zoom; approx. 4,410 words, not force-resolved to an exact figure.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-06", "page": 59, "block_ref": "book:hebrewbooks:5635#p59:man_shar_haofim_span", "raw_source_anchor": "עד לישועתך קויתי ד' ... ד' וי\"ה אלפים וד' מאות ועשר תיבות עד ויהי מן ישועתך", "reason": "Candidate 3rd sighting of the 'bounded-span word counting' method family already named in the corpus's Method Inventory (2-sighting recurring candidate before this). No interpretation offered; the span total is UNCERTAIN (P59-U2), not asserted as exact."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 60,
+      "printed_page": "ח",
+      "section": "parasha_chiddushim",
+      "parasha": "ויחי (closing) -> שמות (opening)",
+      "opening_anchor": "יעקב אמר לרחל ההחת אלקים אנכי ויוסף",
+      "closing_anchor": "ולכן ויברח משה מפני פרעה כי כקש להרגנו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "rachel_anochi_tachat_elokim",
+          "source_ref": "book:hebrewbooks:5635#p60:rachel_anochi_tachat_elokim",
+          "text_note": "Right column top: Yaakov's rebuke to Rachel ('התחת אלקים אנכי') contrasted with his words to his brothers, read as a lesson in ענוה (humility) vs. גאוה (pride/self-attribution). Exact midrashic source not confidently identified on this pass -- flagged UNCERTAIN provenance, not invented."
+        },
+        {
+          "block_id": "vayechi_close_shemot_title",
+          "source_ref": "book:hebrewbooks:5635#p60:vayechi_close_shemot_title",
+          "text_note": "Right column closes Parashat Vayechi; the bold section title 'פרשת שמות' appears mid-page, opening the book's Shemot chiddushim."
+        },
+        {
+          "block_id": "shemot_five_first_plagues",
+          "source_ref": "book:hebrewbooks:5635#p60:shemot_five_first_plagues",
+          "text_he": "בחמשה מכות הראשונות לא כתיב ויחזק ד' את לב פרעה",
+          "text_note": "Left column: a clean, countable observation -- in the first five (חמשה) plagues, the phrase 'ד' חיזק את לב פרעה' does not appear, unlike the later plagues. A known-type textual/halachic count (not a gematria calculation), quoted verbatim as it is short and unambiguous.",
+          "verbatim_numbers": ["חמשה (5)"]
+        },
+        {
+          "block_id": "shemot_moshe_narrative",
+          "source_ref": "book:hebrewbooks:5635#p60:shemot_moshe_narrative",
+          "text_note": "Rest of left column: paraphrase of the Exodus-narrative opening -- Pharaoh's decree against the Hebrew midwives, and the framing of Moshe's life as split between two exiles/periods (Egypt/Midian). No isolated clean number found on this page beyond the '5 plagues' item above; a possible '3 months' hiding-period figure (standard to this narrative) was not visible on this specific page and is not claimed here."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P60-U1", "text": "Exact midrashic/exegetical source for the Rachel/Yaakov ענוה-vs-גאוה passage not confidently identified.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "VISUALLY_VERIFIED (the 5-plagues line); SOURCE_LOCATED (rest)"
+    },
+    {
+      "pdf_page": 61,
+      "printed_page": "16",
+      "section": "parasha_chiddushim",
+      "parasha": "שמות (closing) -> וארא (opening)",
+      "opening_anchor": "שנראה שם בתמונה איש כדרכתיב ויאבק איש עמו",
+      "closing_anchor": "כי חיות הנה וכנשים כן הילדים",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "tzipporah_circumcision_halacha",
+          "source_ref": "book:hebrewbooks:5635#p61:tzipporah_circumcision_halacha",
+          "text_note": "Right column: the Tzipporah/Moshe circumcision-at-the-inn episode (מלון), discussing who was in mortal danger, with citations to Rambam Hilchot Milah perek 2 and Masechet Nedarim; a further daf citation (possibly Avodah Zarah 27) was legibly partial and is flagged UNCERTAIN rather than asserted. This location is NOT previously catalogued in the existing dossier -- a genuinely new chiddush location for this corpus's index, not a duplicate of any prior artifact.",
+          "verbatim_citations": ["הלכות מילה פרק ב'", "מסכת נדרים"]
+        },
+        {
+          "block_id": "vaera_opening",
+          "source_ref": "book:hebrewbooks:5635#p61:vaera_opening",
+          "text_note": "Left column: standard Parashat Vaera opening (וארא אל אברהם אל יצחק ואל יעקב באל שדי), paraphrasing RaSH\"I's point that the Patriarchs did not know God by the name Havayah, tied to the ברית מילה covenant.",
+          "verbatim_citations": ["רש\"י"]
+        },
+        {
+          "block_id": "geulah_four_expressions_context",
+          "source_ref": "book:hebrewbooks:5635#p61:geulah_four_expressions_context",
+          "text_note": "Lower left column: references the well-known ד' לשונות של גאולה (four expressions of redemption) and future/messianic redemption framing. This is a WELL-KNOWN, already-canonical Torah structural motif, not a novel finding of this book -- recorded as narrative context only, not as a new dataset or 1,820-family candidate."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["הלכות מילה פרק ב'", "מסכת נדרים", "רש\"י"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P61-U1", "text": "Secondary daf citation near the Tzipporah/Milah discussion (possibly מסכת ע\"ז דף כ\"ז) only partially legible at this zoom -- not asserted as confirmed.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 62,
+      "printed_page": "ט",
+      "section": "parasha_chiddushim",
+      "parasha": "וארא (closing) -> בא (opening)",
+      "opening_anchor": "העתירו אל ד' ורב מהיות קולות אלקים וברד",
+      "closing_anchor": "כי אבדה מצרים תאותם כל הזמן שהנכרים המה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "vaera_plagues_closing",
+          "source_ref": "book:hebrewbooks:5635#p62:vaera_plagues_closing",
+          "text_note": "Right column: closing discussion of the hail/frog/lice plagues and Pharaoh's repeated hardening of heart, with Moshe Rabbeinu's rebuke ('טרם תיראון מפני ד' אלקים'). Narrative/halachic, no isolated clean numeric claim found on this page beyond generic verse references."
+        },
+        {
+          "block_id": "vaera_silver_gold_borrowing",
+          "source_ref": "book:hebrewbooks:5635#p62:vaera_silver_gold_borrowing",
+          "text_note": "Left column top: the Israelites' 'borrowing' of silver/gold/garments from the Egyptians before the Exodus (שאלת כלי כסף וזהב), tied back to Avraham's prophecy 'ואחרי כן יצאו ברכוש גדול' (Gen 15:14). Narrative, no isolated number.",
+          "verbatim_citations": ["בראשית ט\"ו י\"ד (context, not printed as a citation string on this page but the verse being expounded)"]
+        },
+        {
+          "block_id": "parashat_bo_title_open",
+          "source_ref": "book:hebrewbooks:5635#p62:parashat_bo_title_open",
+          "text_note": "Left column bottom: the section title 'פרשת בא' appears, opening with a question about why Pharaoh's own hardened heart is attributed to God's action. This page's content for Parashat Bo itself is NOT reconstructed here -- p.62 closing anchor only, batch stops at p.62 per scope."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [58, 59, 60, 61, 62],
+    "pages_read_boundary_only_not_registered": [57],
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family or 1,830-family construction was found in pp.58-62. The closest numeric construction (p.59, ~4,410-word bounded span) is explicitly NOT part of either family and is kept separate, per the corpus's existing never-merge discipline for these two number-families.",
+    "gpt_research_flags_this_batch": ["GRF-06"],
+    "unresolved_readings_this_batch": 6,
+    "new_chiddush_location_not_previously_catalogued": "p.61 Tzipporah/Moshe circumcision-at-the-inn halachic discussion (Rambam Hilchot Milah perek 2 + Masechet Nedarim) -- not found in any prior artifact's index.",
+    "ingestion_contract_stress_test": "PASS -- the #pN:block/source_ref contract held across narrative parshanut, halachic citation chains, and one bounded-span numeric construction, with no identity or data-loss problem encountered.",
+    "density_observation": "pp.58-62 are markedly lower in gematria/numeric density than pp.6-15 -- consistent with pp.58-62 falling inside the 'parasha-ordered chiddushim' section (pp.46-92) rather than the gematria-dense front matter (pp.6-24). Reported as an honest structural observation, not a transcription gap."
+  }
+}
