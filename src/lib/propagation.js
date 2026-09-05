@@ -5,6 +5,21 @@ import { getVisitorId, track } from "./tracking.js";
 // 'arrival' עם ה-rid → כך יודעים אילו שיתופים *באמת הביאו אנשים* (לא רק קליקים),
 // ומי השגרירים. כל הנתונים ב-visitor_events (אין סכמה חדשה).
 
+// 🔑 נרמול-נחיתה קנוני (Sharing Foundation repair, Human-Gate 2026-09-05) — משמש גם בצד-השולח
+// (מה נשמר כ"יעד" בשיתוף) וגם בצד-הנחיתה (captureArrival). שני הצדדים *חייבים* להשתמש באותה
+// פונקציה — אחרת ה-join בין share.slug ל-arrival.meta.landing נשבר (זה בדיוק הבאג שתוקן).
+// decodeURIComponent חובה: producers שגוזרים נתיב-יעד דרך new URL(...).pathname (למשל
+// ShareActions/crossCard) מקבלים אחוזי-קידוד (%D7%90…) לכל תו לא-ASCII (נתיבים בעברית!),
+// בעוד window.location.pathname בדפדפן עשוי להחזיר עברית גולמית — בלי הפענוח כאן, נתיב
+// עברי משותף ונחיתה עברית נופלים ל-slug שונה ולא נמצאים לעולם ע״י ה-join (נבדק/אומת ידנית).
+export function landingKey(pathname = "") {
+  try {
+    let p = (pathname || "").replace(/^\//, "") || "home";
+    try { p = decodeURIComponent(p); } catch { /* אחוזי-קידוד פגומים — משתמשים כפי-שהוא */ }
+    return p || "home";
+  } catch { return "home"; }
+}
+
 // מוסיף rid לקישור לשיתוף (דורס rid קודם — מייחס למשתף הנוכחי).
 export function withRid(url) {
   try {
@@ -54,6 +69,6 @@ export function captureArrival() {
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, "1");
   } catch { /* אם אין sessionStorage — נרשום בכל זאת */ }
-  const landing = window.location.pathname.replace(/^\//, "") || "home";
+  const landing = landingKey(window.location.pathname);
   track("propagation", landing, "arrival", { rid, landing });
 }

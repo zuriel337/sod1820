@@ -3,9 +3,9 @@ import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { supabase, getAiAnalysis } from "../lib/supabase.js";
 import { useNumHref } from "../lib/numHrefCtx.js";
-import { trackAi } from "../lib/tracking.js";
+import { trackAi, track } from "../lib/tracking.js";
 import { shareOrCopy } from "../lib/share.js";
-import { withRid } from "../lib/propagation.js";
+import { withRid, landingKey } from "../lib/propagation.js";
 import QuickActions from "./QuickActions.jsx";
 import { entityFromPhrase } from "../lib/research/entity.js";
 
@@ -137,9 +137,14 @@ export default function MaftechShowcase({ seed = "" }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 🔗 שיתוף המילה — URL קנוני עם &w= (OG מזריק כרטיס-תמונה ל-api/og), עם rid למדידת ויראליות.
+  // 🔑 Sharing Foundation repair (Human-Gate 2026-09-05, נמצא תוך-כדי תיקון QuickActions — אותה
+  // מחלקת-באג): לא נרשם שום track()/trackShare() כאן, אז השיתוף היה בלתי-נראה בכל דוח.
+  // ⚠️ track() ולא trackShare() בכוונה — לא מוסיפים קריאת-קרדיט חדשה (Human-Gate נפרד, לא-נגעו).
   const shareWord = () => {
     const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
-    const url = withRid(`${origin}/research?tool=maftech&w=${encodeURIComponent(active.word)}`);
+    const path = `/research?tool=maftech&w=${encodeURIComponent(active.word)}`;
+    const url = withRid(`${origin}${path}`);
+    try { track("share", landingKey(path.split("?")[0]), "share", { platform: "copy", content_type: "maftech", content_id: active.word }); } catch { /* noop */ }
     shareOrCopy({ title: `«${active.word}» בשיטת המפתח · סוד 1820`, url });
   };
 

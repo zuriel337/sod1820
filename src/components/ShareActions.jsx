@@ -4,7 +4,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { track } from "../lib/tracking.js";
 import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
-import { taggedShareUrl } from "../lib/propagation.js";
+import { taggedShareUrl, landingKey } from "../lib/propagation.js";
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
 // כל מסך (מספר/צופן/פוסט/גלריה/כל ישות) מעביר פרמטרים בלבד — לא משכפל קוד שיתוף.
@@ -28,10 +28,25 @@ export default function ShareActions({ type = "page", url, title = "", image = n
   const text = title || (typeof document !== "undefined" ? document.title : "SOD1820");
   const canNative = canNativeShare();
 
+  // 🔑 Sharing Foundation repair (Human-Gate 2026-09-05): תוכן≠יעד. עד כה נשמר כאן type
+  // ("topic"/"code"/"video"…) כ-slug — קטגוריה, לא נתיב — ולכן viral_report() (שמחבר
+  // share.slug ל-arrival.meta.landing) מעולם לא מצא התאמה. עכשיו slug=יעד-אמיתי (landingKey,
+  // אותו נירמול בדיוק כמו captureArrival), וזהות-התוכן (type) עוברת ל-meta.content_type —
+  // בלי לאבד אותה. יעד חיצוני (לא sod1820) → נשאר type כ-slug (אין נחיתה-באתר למדוד).
+  const destSlug = useCallback(() => {
+    try {
+      const u = new URL(fullUrl, typeof window !== "undefined" ? window.location.origin : SITE);
+      const site = new URL(SITE);
+      if (u.hostname !== site.hostname) return String(type);
+      return landingKey(u.pathname);
+    } catch { return String(type); }
+  }, [fullUrl, type]);
+
   // חוזה-שיתוף קנוני: event_type='share' + הערוץ ב-meta.platform (זהה ל-trackShare ולדשבורד
   // האדמין). לפני-כן נרשם event_type=<channel> → לא נספר במונה השיתופים. אירועים היסטוריים
   // (event_type=whatsapp/copy/…) נשארים בטבלה וניתנים לספירה דרך section='share'.
-  const logShare = useCallback((channel) => { try { track("share", String(type), "share", { platform: channel, url: fullUrl, image: image || undefined }); } catch { /* noop */ } }, [type, fullUrl, image]);
+  // ⚠️ נשאר track() ולא trackShare() בכוונה — לא מוסיפים קריאת-קרדיט חדשה (Human-Gate נפרד, לא-נגעו).
+  const logShare = useCallback((channel) => { try { track("share", destSlug(), "share", { platform: channel, content_type: type, url: fullUrl, image: image || undefined }); } catch { /* noop */ } }, [type, destSlug, fullUrl, image]);
 
   const native = useCallback(async () => { logShare("native"); await nativeShare({ title: text, url: taggedShareUrl(fullUrl, "native") }); }, [text, fullUrl, logShare]);
 

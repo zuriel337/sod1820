@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
-import { withRid } from "../lib/propagation.js";
+import { taggedShareUrl, landingKey } from "../lib/propagation.js";
 import { shareOrCopy } from "../lib/share.js";
+import { track } from "../lib/tracking.js";
 
 // ⚡ Quick Actions — פס-הפעולות האחיד ליד כל ישות (Reality Graph Law · Zero-Duplicate).
 // היררכיה (לא ערימה): ➕ הוסף למחקר = ראשי מלא · ⭐ שמור · 🔗 שתף = משניים · ⋯ = תפריט-גלישה
@@ -21,11 +22,19 @@ export default function QuickActions({ entity, onShare, onAnalyze, extra, style,
   if (!entity) return null;
   const pinned = isPinned?.(entity.id);
   // onShare = שיתוף עשיר ספציפי-לסוג (למשל תמונת-מספר בדף המספר) → מונע כפילות שיתוף.
-  // 🔗 שיתוף חייב לכלול URL — משתפים את הקישור הקנוני של העמוד עם rid למדידת ויראליות. בלי navigator.share — copy.
+  // 🔗 שיתוף חייב לכלול URL — משתפים את הקישור הקנוני של העמוד עם rid+src למדידת ויראליות
+  // (taggedShareUrl, אותה לוגיקת-תיוג קנונית כמו ShareActions/RoyalShareWidget).
+  // 🔑 Sharing Foundation repair (Human-Gate 2026-09-05): הנתיב הזה לא רשם שום track()/trackShare()
+  // — הוא היה בלתי-נראה בכל דוח. עכשיו track() ישיר (⚠️ לא trackShare — לא מוסיפים קריאת-קרדיט
+  // חדשה, Human-Gate נפרד לא-נגעו) עם slug=נירמול-יעד קנוני (זהה ל-captureArrival) וזהות-התוכן ב-meta.
   const share = () => {
     emit(EVENTS.ITEM_SHARE, entity);
     if (onShare) return onShare();
-    const url = typeof window !== "undefined" ? withRid(window.location.href) : "https://sod1820.co.il";
+    const url = typeof window !== "undefined" ? taggedShareUrl(window.location.href, "copy") : "https://sod1820.co.il";
+    try {
+      const slug = typeof window !== "undefined" ? landingKey(window.location.pathname) : null;
+      track("share", slug, "share", { platform: "copy", content_type: entity.type || entity.kind || null, content_id: entity.id ?? null });
+    } catch { /* noop */ }
     shareOrCopy({ title: entity.title || "סוד 1820", url });
   };
   const copy = () => { emit(EVENTS.ITEM_COPY, entity); try { navigator.clipboard?.writeText(entity.title); } catch { /* noop */ } };

@@ -32,7 +32,10 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
       : (domNum(image) != null ? `gallery-${domNum(image)}`
         : (fileKey ? `gallery-img-${fileKey}` : `gallery-on-${page}`));
     const via = await shareOrCopy({ title, url });   // לוגיקת-שיתוף קנונית אחת (lib/share.js)
-    trackShare(via === "native" ? "native" : "copy", slug, { image_url: url, page });
+    // 🔑 Sharing Foundation repair: זה שיתוף-קובץ-גולמי (image_url מהאחסון), לא קישור-לאתר —
+    // אין דף-נחיתה במובן ה-website כלל, אז captureArrival מבנה לא-יכול-לקרות. מסמנים זאת
+    // במפורש (arrival_possible=false) כדי שדוחות לא יטעו את זה ל"שיתוף שנכשל" (0 כניסות אמיתי).
+    trackShare(via === "native" ? "native" : "copy", slug, { image_url: url, page, arrival_possible: false });
     if (via === "copy") { setShared(true); setTimeout(() => setShared(false), 2000); }
   }
 

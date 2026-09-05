@@ -2,6 +2,7 @@
 // canvas צד-לקוח, 1080×1080, מתאים לוואטסאפ/אינסטגרם. שיתוף מקורי במובייל, וואטסאפ בדסקטופ.
 
 import { trackShare } from "./tracking.js";
+import { taggedShareUrl, landingKey } from "./propagation.js";
 import { waHref, canShareFile, shareImageFile } from "./share.js";
 
 const POETIC = [
@@ -136,29 +137,39 @@ export function buildCrossCard(item) {
 async function ensureFonts() { try { if (document.fonts?.ready) await document.fonts.ready; } catch { /* ignore */ } }
 
 const fileName = item => `sod1820-cross-${(item.id || "x").slice(0, 8)}.png`;
-function shareText(item) {
+// 🔑 Sharing Foundation repair: taggedShareUrl מוסיף rid+src (הקישור הקודם לא נשא rid כלל —
+// captureArrival לא יכול היה לרוץ). channel מועבר כדי שה-src יתאים לערוץ בפועל (native/whatsapp).
+function shareText(item, channel = "native") {
   const { p1, p2 } = crossParts(item);
   const head = (p1 && p2) ? `🤯 ${p1} = ${p2}` : `🤯 ${item.title || "הצלבת גימטריה"}`;
-  return `${head}\nהצלבת גימטריה נדירה — תראו איך:\n${crossLink(item)}`;
+  return `${head}\nהצלבת גימטריה נדירה — תראו איך:\n${taggedShareUrl(crossLink(item), channel)}`;
+}
+
+// יעד-הנחיתה האמיתי (לנרמול-slug תואם captureArrival) — נכשל בשקט לפורמט הישן (תוכן≠יעד עדיין
+// עדיף על קריסה). זהות-ההצלבה (item.id) עוברת ל-meta.content_id ולא הולכת לאיבוד.
+function crossDestSlug(item) {
+  try { return landingKey(new URL(crossLink(item)).pathname); } catch { return `cross/${item.id || ""}`; }
 }
 
 // שיתוף חכם — תמונה במובייל, וואטסאפ בדסקטופ. מחזיר 'image' | 'link' | 'cancel'.
 export async function shareCross(item) {
   await ensureFonts();
+  const destSlug = crossDestSlug(item);
+  const crossMeta = { content_type: "cross", content_id: item.id || null };
   try {
     const cv = buildCrossCard(item);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], fileName(item), { type: "image/png" });
     if (canShareFile(file)) {
-      trackShare("native", `cross/${item.id || ""}`);
-      await shareImageFile(file, { title: "הצלבת גימטריה · סוד 1820", text: shareText(item) });
+      trackShare("native", destSlug, crossMeta);
+      await shareImageFile(file, { title: "הצלבת גימטריה · סוד 1820", text: shareText(item, "native") });
       return "image";
     }
   } catch (e) {
     if (e && e.name === "AbortError") return "cancel";
   }
-  trackShare("whatsapp", `cross/${item.id || ""}`);
-  window.open(waHref("", shareText(item)), "_blank", "noopener,noreferrer");
+  trackShare("whatsapp", destSlug, crossMeta);
+  window.open(waHref("", shareText(item, "whatsapp")), "_blank", "noopener,noreferrer");
   return "link";
 }
 
