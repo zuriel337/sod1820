@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { emit, EVENTS } from "./eventBus.js";
 import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
 import { useAuth } from "../AuthContext.jsx";
@@ -33,7 +34,23 @@ function initialMode(init) {
   return init.mode === "discovery" ? "discovery" : "reader";
 }
 
+function numberRouteSelection(pathname) {
+  const match = String(pathname || "").match(/^\/number\/([^/?#]+)/);
+  if (!match) return null;
+  let key = match[1];
+  try { key = decodeURIComponent(key); } catch { /* keep raw key */ }
+  key = String(key || "").trim();
+  if (!key) return null;
+  const numeric = /^\d+$/.test(key) && Number.isSafeInteger(Number(key));
+  const id = numeric ? String(Number(key)) : key;
+  return {
+    subject: { id, type: numeric ? "number" : "phrase", label: id, href: `/number/${encodeURIComponent(id)}` },
+    selection: { entityId: id, entityType: numeric ? "number" : "phrase" },
+  };
+}
+
 export default function ResearchProvider({ children }) {
+  const { pathname } = useLocation();
   const init = load();
   const [cart, setCart] = useState(() => init.cart || []);     // המחקר הפעיל
   const [saved, setSaved] = useState(() => init.saved || []);  // שמורים (מקומי)
@@ -43,6 +60,8 @@ export default function ResearchProvider({ children }) {
   const [journeys, setJourneys] = useState(() => init.journeys || []); // 🧭 «המסעות שלי» — מסעות שהושלמו
   // 🧭 Research Context — logical/personal navigation state בלבד. לא Finding/Truth/Graph store.
   const [context, setContextState] = useState(() => normalizeResearchContext(init.context));
+  // Used only to re-apply the current route after asynchronous cloud hydration.
+  const [cloudHydrationRevision, setCloudHydrationRevision] = useState(0);
   // 🔬 מצב עבודה גלובלי — reader (ברירת מחדל, מעטפת ציבורית נקייה) | discovery (היכל הגילוי, הכל פתוח).
   // גלגול 7.2026: רק מבקר חוזר עובר למצב מחקר פעם אחת דרך initialMode; מבקר חדש נשאר על הנקי. נשמר מקומית.
   const [mode, setModeState] = useState(() => initialMode(init));
@@ -74,7 +93,11 @@ export default function ResearchProvider({ children }) {
         saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys, context }).catch(() => {});
       }
       pulled.current = true;
-    }).catch(() => { pulled.current = true; });
+      setCloudHydrationRevision(v => v + 1);
+    }).catch(() => {
+      pulled.current = true;
+      if (alive) setCloudHydrationRevision(v => v + 1);
+    });
     return () => { alive = false; };
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
   // שינוי מצב + מחובר + אחרי המשיכה → דחיפה לענן (debounce)
@@ -111,6 +134,25 @@ export default function ResearchProvider({ children }) {
     setContextState(null);
     emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
   }, []);
+
+  // 🔢 Current production Number route adapter. The route gives identity/navigation only — no method/truth inference.
+  // If an inquiry already exists (for example a Topic or Person journey), keep that root and move only selection+lens.
+  useEffect(() => {
+    const route = numberRouteSelection(pathname);
+    if (!route) return;
+    setContextState((prev) => {
+      const current = normalizeResearchContext(prev);
+      const sameSelection = current?.selection?.entityId === route.selection.entityId
+        && current?.selection?.entityType === route.selection.entityType
+        && current?.lens === "number";
+      if (current?.subject && sameSelection) return prev;
+      const next = current?.subject
+        ? mergeResearchContext(current, { selection: route.selection, lens: "number" })
+        : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number" });
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
+      return next;
+    });
+  }, [pathname, cloudHydrationRevision]);
 
   // 🔠 ELS → Workspace bridge. ה-iframe הקנוני כבר פולט postMessage מסוג state דרך TzofenEmbed;
   // ResearchProvider רק רושם את החיפוש המוצלח בהיסטוריית-המחקר — בלי לחשב ELS, בלי ליצור Finding,
@@ -200,14 +242,14 @@ export default function ResearchProvider({ children }) {
     return id;
   }, []);
   const updateCollection = useCallback((id, patch) => {
-    setCollections(cs => cs.map(c => (c.id === id ? { ...c, ...patch } : c)));
+    setCollections(cs => cs.map(c => (c.id === id ? { ...c, ...patch } : c));
   }, []);
   const removeCollection = useCallback((id) => {
     setCollections(cs => cs.filter(c => c.id !== id));
     setSaved(s => s.map(e => (e.coll === id ? { ...e, coll: undefined } : e)));
   }, []);
   const assignCollection = useCallback((itemId, collId) => {
-    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
+    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e));
   }, []);
 
   // 🧭 «המסעות שלי» — רושם מסע שהושלם. dedupe לפי מספר-השורש (המסע האחרון מנצח), הכי-חדש למעלה, עד 30.
