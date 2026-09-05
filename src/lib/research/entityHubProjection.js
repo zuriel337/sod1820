@@ -166,6 +166,45 @@ function enrichGematriaFamilies(families, registryRows) {
   });
 }
 
+
+async function fetchNumberWorlds(number) {
+  const { data, error } = await supabase
+    .from("nodes")
+    .select("id,type,label,description,metadata,identity_key")
+    .eq("is_active", true)
+    .eq("metadata->>value", String(number))
+    .not("metadata->>world", "is", null)
+    .limit(120);
+  if (error) throw error;
+  const rows = Array.isArray(data) ? data : [];
+  const groups = new Map();
+  for (const row of rows) {
+    const world = clean(row?.metadata?.world) || "לא מסווג";
+    if (!groups.has(world)) groups.set(world, []);
+    groups.get(world).push(row);
+  }
+  return [...groups.entries()].map(([world, items]) => ({ world, count: items.length, items }));
+}
+
+async function fetchNumberSignatures(number) {
+  const { data, error } = await supabase
+    .from("nodes")
+    .select("id,type,label,description,metadata,identity_key")
+    .eq("type", "entity")
+    .eq("is_active", true)
+    .eq("metadata->>role", "signature")
+    .eq("metadata->>value", String(number))
+    .limit(40);
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
+async function fetchZeroScale(number) {
+  const { data, error } = await supabase.rpc("fn_zero_scale", { p_value: number });
+  if (error) throw error;
+  return data || null;
+}
+
 function humanGateSummary(rows) {
   const status = { candidate: 0, approved: 0, canonical: 0, rejected: 0, other: 0 };
   const access = { private: 0, family_shared: 0, public_candidate: 0, other: 0 };
@@ -290,10 +329,13 @@ export async function fetchEntityHubProjection({
   let publicSurface = null;
   let gematriaFamilies = [];
   let methodRegistry = [];
+  let worlds = [];
+  let signatures = [];
+  let zeroScale = null;
 
   if (node.type === "number" && Number.isSafeInteger(Number(node.label))) {
     const number = Number(node.label);
-    [topics, numberResearch, publicSurface, gematriaFamilies] = await Promise.all([
+    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale] = await Promise.all([
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
       researchNumber(number, {
         lenses: ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
@@ -305,6 +347,9 @@ export async function fetchEntityHubProjection({
       }),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
       getValueFamilies(number, 12),
+      fetchNumberWorlds(number),
+      fetchNumberSignatures(number),
+      fetchZeroScale(number),
     ]);
     methodRegistry = await fetchMethodRegistry(gematriaFamilies.map(group => group.method));
     gematriaFamilies = enrichGematriaFamilies(gematriaFamilies, methodRegistry);
@@ -339,6 +384,9 @@ export async function fetchEntityHubProjection({
       interactionDecision: "OPEN_HUMAN_GATE",
       note: "Method identity and engine result are live; method-click/decomposition UX is intentionally undecided in this preview.",
     },
+    numberWorlds: worlds,
+    signatures,
+    zeroScale,
     journeys: {
       numberKnowledgeJourney: numberJourney,
       researchPaths: [],
