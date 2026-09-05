@@ -37,6 +37,9 @@ import AiQuotaToast from "./components/AiQuotaToast.jsx";
 import ProfileNudge from "./components/ProfileNudge.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
+// Spatial Gematria Golden Slice (Slice 2, dev/admin only) — work_log task SPATIAL_GEMATRIA_GOLDEN_SLICE_V1,
+// frozen Spatial Slice-0 contract (50533e56+27c9ad23), builds on Number/Entity Golden Scene pattern (8b5b5b41).
+const SpatialGematriaScenePage = React.lazy(() => import("./pages/dev/SpatialGematriaScenePage.jsx"));
 import TopicPage from "./pages/TopicPage.jsx";
 import PostsPage from "./pages/PostsPage.jsx";
 import { TagPage, CategoryPage } from "./pages/TaxonomyPage.jsx";
@@ -350,6 +353,7 @@ export default function App() {
           <Route path="/credits" element={<CreditsBuyPage />} />
           <Route path="/buy" element={<CreditsBuyPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/dev/spatial-gematria-scene" element={<SpatialGematriaScenePage />} />
           {/* ⛔ העורך מחוץ ל-/admin/ — vercel.json honeypot תופס /admin/(.*) ומחזיר 403. */}
           <Route path="/editor" element={<PostEditorPage />} />
           <Route path="/editor/:slug" element={<PostEditorPage />} />
