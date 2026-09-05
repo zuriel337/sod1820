@@ -1,0 +1,403 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "pp.71-80 ONLY, per work_log ACK ae9d712a-a361-43ec-8554-00033e110db8 (task AHAVAT_TORAH_P71_80_CONTINUATION, role=SOURCE_OWNER), continuing from AFTER 6e57b9de and GPT finite audit 6f56a82d-2d1d-4d8c-92ae-ffbb6658c7a8. p.70 read for boundary context only (already registered structurally in the P63-70 file), NOT re-registered here. DS-06/DS-13 NOT re-extracted anywhere in this file.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "Separate file from the shared pp.1-15 register, the P58-62 batch, and the P63-70 batch, per output-file scope. Same schema, same #pN:block convention, same truth vocabulary -- no new enum. DS-06/DS-13 status corrected per audit 6f56a82d: PARTIAL overall with specific CLOSED sublayers, not globally CLOSED (see AHAVAT_TORAH_LOSSLESS_RECONSTRUCTION_BATCH_P63_70.md's STATUS CORRECTION section).",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "render": "pymupdf, 3x zoom, full-page (both columns); p.70 boundary context + pp.71-80 target"
+  },
+  "structural_placement": "pp.71-80 continue the 'parasha-ordered chiddushim' section (pp.46-92): Tzav, Shmini, Tazria, Metzora, Achrei Mot, Kedoshim, Emor, Behar, Bechukotai, Bamidbar, Naso, Beha'alotcha, Shelach, Korach, Chukat, into the opening of Balak. Density remains uneven; several notable specific numeric/textual-count claims found this batch (see below), alongside two cross-references to already-open relations (CR-04, CR-05) and one genuinely new candidate method family (verse-level word-repetition counting, p.75).",
+  "pages": [
+    {
+      "pdf_page": 71,
+      "printed_page": "26",
+      "section": "parasha_chiddushim",
+      "parasha": "צו (closing) -> שמיני (opening)",
+      "opening_anchor": "שקורין שבת שלפני הפסח שבת הגדול",
+      "closing_anchor": "הוא מן ויהי כיום השמיני תחלת הפרשה תכית שעיו כמנין שלום",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "shabbat_hagadol_naming",
+          "source_ref": "book:hebrewbooks:5635#p71:shabbat_hagadol_naming",
+          "text_note": "Right column: Parashat Tzav opens with why the Shabbat before Pesach is called 'Shabbat HaGadol' (citing RaSH\"I, the Nile turning to blood before Pesach). Standard, well-known reason, not novel."
+        },
+        {
+          "block_id": "todah_nazir_offerings",
+          "source_ref": "book:hebrewbooks:5635#p71:todah_nazir_offerings",
+          "text_note": "Right column: Todah (thanksgiving) and Nazir offerings discussion, transitioning toward a Chanukah-miracle aside (need for 8 days/oil) -- well-known motif, recorded as context."
+        },
+        {
+          "block_id": "shmini_opening_aharon_sons",
+          "source_ref": "book:hebrewbooks:5635#p71:shmini_opening_aharon_sons",
+          "text_note": "Left column: Parashat Shmini opens with Aharon's sons (Nadav/Avihu-adjacent context) and a discussion citing RaSH\"I on the 8th-day dedication."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רש\"י"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 72,
+      "printed_page": "יד",
+      "section": "parasha_chiddushim",
+      "parasha": "שמיני -> תזריע -> קדושים",
+      "opening_anchor": "עם השמונים ניום ז' חדש",
+      "closing_anchor": "ראה כוונו כזה אבדיל אתכם מן העמים",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "shmini_kosher_signs",
+          "source_ref": "book:hebrewbooks:5635#p72:shmini_kosher_signs",
+          "text_note": "Right column: closing Shmini's kosher/non-kosher animal signs discussion."
+        },
+        {
+          "block_id": "tazria_purity_days",
+          "source_ref": "book:hebrewbooks:5635#p72:tazria_purity_days",
+          "text_note": "Right column into left: Parashat Tazria's well-known purity-day counts (Lev 12) -- 7+33 days for a male child, 14+66 for a female. Standard scriptural numbers, not novel to this book.",
+          "verbatim_numbers": ["ז' ול\"ג (7+33)", "י\"ד וס\"ו (14+66)"]
+        },
+        {
+          "block_id": "metzora_kedoshim_transition",
+          "source_ref": "book:hebrewbooks:5635#p72:metzora_kedoshim_transition",
+          "text_note": "Left column: transitions through Metzora into Parashat Kedoshim, opening with the holiness/parents-reverence and adultery laws."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 73,
+      "printed_page": "28",
+      "section": "parasha_chiddushim",
+      "parasha": "קדושים -> אמור (closing) -> בהר (opening)",
+      "opening_anchor": "מערב עד ערב תשבתו שבתכם",
+      "closing_anchor": "היא בשפלות מתגאה מתגבה ומגביה שפלים",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "emor_closing_yom_kippur_sukkot",
+          "source_ref": "book:hebrewbooks:5635#p73:emor_closing_yom_kippur_sukkot",
+          "text_note": "Right column: closes Emor with Yom Kippur ('מערב עד ערב') and Sukkot's 7-day dwelling (well-known verses)."
+        },
+        {
+          "block_id": "behar_yovel_omer_calendrical_construction",
+          "source_ref": "book:hebrewbooks:5635#p73:behar_yovel_omer_calendrical_construction",
+          "text_note": "Left column, Parashat Behar opens: a dense calendrical/numeric construction relating the 50-year Yovel (Jubilee) cycle to Yom Kippur, working through 7 shmita-cycles (7x7=49) plus 1, and a further breakdown into specific day/year totals. THIS IS THE SAME GENERAL CONSTRUCTION-FAMILY as the already-known 'Omer 1..49=1,225' relation (CR-04, previously located at pp.13 and 73 per CROSSWALK.md/Full Source Map, with the p.73 half never block-anchored before this pass). This batch VISUALLY CONFIRMS the p.73 location and general shape of that construction -- recorded as a SUPPORTS cross-reference to existing CR-04, NOT a full re-derivation. Individual digit values in the passage (candidates read: ת\"ק/500, ש\"מ/340, and others) are NOT confidently disambiguated at this zoom and are NOT asserted as exact.",
+          "dataset_refs": ["CR-04"],
+          "verbatim_numbers": ["מ' שנה (candidate reading, part of the jubilee/shmita count, UNCERTAIN)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["CR-04"],
+      "unresolved_readings": [
+        {"id": "P73-U1", "text": "The Yovel/Shmita calendrical construction's individual digit values (candidates ת\"ק/500, ש\"מ/340, and several others in the same dense passage) are not confidently disambiguated at 3x zoom. This is flagged as the located p.73 half of CR-04, not as a newly resolved calculation.", "status": "UNCERTAIN — CR-04 location confirmed, values not verified"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-08", "page": 73, "block_ref": "book:hebrewbooks:5635#p73:behar_yovel_omer_calendrical_construction", "raw_source_anchor": "להבין קצת שייכות היובל ליום הכפורים ... נ' שנה", "reason": "Visually locates and block-anchors the p.73 half of the already-open CR-04 relation ('relationship between the two Omer 1..49=1,225 constructions, p.13 and p.73, not established') for the first time at this granularity. No interpretation offered; CR-04 itself remains open."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 74,
+      "printed_page": "מו",
+      "section": "parasha_chiddushim",
+      "parasha": "בהר (closing) -> בחקתי (opening) -> במדבר (title)",
+      "opening_anchor": "בגלות גם הקב\"ה גולה עמם",
+      "closing_anchor": "כי היא הזהרו חכז\"ל ואמרו כבני מרון",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "bechukotai_exile_shechina",
+          "source_ref": "book:hebrewbooks:5635#p74:bechukotai_exile_shechina",
+          "text_note": "Right column: Bechukotai-adjacent exile theme -- the Shechina accompanies Israel into exile. Thematically related to the book's Tochecha territory (Lev 26) but NO numeric table matching DS-08's description was found on this page -- DS-08's location remains as previously narrowed (pp.88-89/91), not reopened here."
+        },
+        {
+          "block_id": "bechorot_erechin_written_twice",
+          "source_ref": "book:hebrewbooks:5635#p74:bechorot_erechin_written_twice",
+          "text_note": "Right column: a specific textual-count claim about the word 'ערכך' (Erechin, Lev 27) being written twice (שני פעמים) at certain points in the valuation passage but not at others, tied to age-bracket monetary values (5/20/60-year brackets, matching the well-known Lev 27:1-8 table). This is a candidate cross-reference to the corpus's existing CR-05 ('Erechin valuation-arithmetic', previously located at p.13) -- recorded as a possible SUPPORTS, not confirmed identical construction.",
+          "dataset_refs": ["CR-05"],
+          "verbatim_numbers": ["שני פעמים (2 times)"]
+        },
+        {
+          "block_id": "bamidbar_title_genealogy_opens",
+          "source_ref": "book:hebrewbooks:5635#p74:bamidbar_title_genealogy_opens",
+          "text_note": "Left column: Parashat Bamidbar's title and opening genealogy ('ויתילדו על משפחתם') -- the per-household census framing begins."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["CR-05"],
+      "unresolved_readings": [
+        {"id": "P74-U1", "text": "Whether the 'ערכך written twice' observation is the same construction as the existing CR-05 Erechin relation is PLAUSIBLE but not confirmed this pass.", "status": "UNCERTAIN — possible cross-reference"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 75,
+      "printed_page": "30",
+      "section": "parasha_chiddushim",
+      "parasha": "במדבר (closing) -> נשא (opening) -> בהעלותך (opening)",
+      "opening_anchor": "ענים שמהם תצא הורה אמנם אמם הבכורים",
+      "closing_anchor": "והם יאמרו וד' יכפר להם לכל כצרכו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "naso_sotah_birkat_kohanim",
+          "source_ref": "book:hebrewbooks:5635#p75:naso_sotah_birkat_kohanim",
+          "text_note": "Right column: Parashat Naso -- Sotah law, then the Priestly Blessing (Birkat Kohanim), standard halachic/exegetical content."
+        },
+        {
+          "block_id": "behaalotcha_verse_repetition_count",
+          "source_ref": "book:hebrewbooks:5635#p75:behaalotcha_verse_repetition_count",
+          "text_note": "Left column, Parashat Beha'alotcha: a SPECIFIC, NOTABLE numeric claim -- the source states that in this parasha there is a verse containing the word 'ישראל' five (ה') times, and a separate verse containing a Name-of-God-adjacent term four (ד') times, explicitly noting this configuration is NOT found anywhere else in the whole Torah ('מה שלא מצינו כן בכל התורה'). This is a CANDIDATE NEW METHOD FAMILY not previously named in this corpus's Method Inventory: verse-level word-repetition counting (distinct from the established bounded-span word-counting and letter-count name-siman families). Flagged mechanically, no interpretation offered.",
+          "verbatim_numbers": ["ה' פעמים (5 times, 'ישראל' in one verse)", "ד' פעמים (4 times, a Name-adjacent term in one verse)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P75-U1", "text": "The exact identity of the 'four-times' term (read as a Name-adjacent phrase, possibly a specific Divine-Name spelling) is not confidently identified at this zoom, and the exact verses have not been independently cross-checked against the printed Torah text this pass.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-09", "page": 75, "block_ref": "book:hebrewbooks:5635#p75:behaalotcha_verse_repetition_count", "raw_source_anchor": "מצינו כפ' זו ה' פעמים תיכת ישראל בפסוק אחד ... ד' פעמים שם ... בפסוק אחד מה שלא מצינו כן בכל התורה", "reason": "Candidate new method family: verse-level word-repetition counting, explicitly claimed by the source as unique in the whole Torah. Not previously named in the corpus's 18-method inventory. No interpretation offered; exact term identity UNCERTAIN (P75-U1)."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 76,
+      "printed_page": "טז",
+      "section": "parasha_chiddushim",
+      "parasha": "בהעלותך (closing) -> שלח (opening context)",
+      "opening_anchor": "זכרנו את הדגה אשר נאכל במצרים חנם",
+      "closing_anchor": "כי אם אחיה חשש אולי יבואו ח\"ז לידי הרהור",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "quail_month_count",
+          "source_ref": "book:hebrewbooks:5635#p76:quail_month_count",
+          "text_note": "Right column: the well-known 'quail for a month' passage (Num 11:19-20 -- not one day, not two, not five, not ten, not twenty, but a full month). All numbers here are the SOURCE SCRIPTURE'S OWN, not a novel construction of this book.",
+          "verbatim_numbers": ["יום אחד (1)", "חמשה ימים (5)", "עשרים יום (20)", "חדש ימים (a month, ~30)"]
+        },
+        {
+          "block_id": "miriam_sin_shelach_transition",
+          "source_ref": "book:hebrewbooks:5635#p76:miriam_sin_shelach_transition",
+          "text_note": "Left column: Miriam's sin discussion (compared to the Golden Calf), transitioning toward Parashat Shelach (spies) via an analogy."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 77,
+      "printed_page": "32",
+      "section": "parasha_chiddushim",
+      "parasha": "שלח (closing) -> קרח (opening)",
+      "opening_anchor": "שלח לך אנשים רש\"י ז\"ל לרעתך",
+      "closing_anchor": "קאי מהם על דתן ואבירם",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "spies_40_days_years",
+          "source_ref": "book:hebrewbooks:5635#p77:spies_40_days_years",
+          "text_note": "Right column: the well-known day-for-a-year reading (Num 14:34) -- 40 days of spying corresponding to 40 years of wandering. Standard scriptural number, not novel.",
+          "verbatim_numbers": ["ארבעים יום/שנה (40)"]
+        },
+        {
+          "block_id": "yehoshua_naming_moshe_defense",
+          "source_ref": "book:hebrewbooks:5635#p77:yehoshua_naming_moshe_defense",
+          "text_note": "Right/left columns: Moshe renaming Hoshea to Yehoshua (prayer against the spies' plan), then Moshe's self-defense before the Korach rebellion ('לא חמור אחד נשאתי מהם', Num 16:15)."
+        },
+        {
+          "block_id": "korach_opening",
+          "source_ref": "book:hebrewbooks:5635#p77:korach_opening",
+          "text_note": "Left column: Parashat Korach opens with the rebellion's genealogy and the Dathan/Aviram accusation."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 78,
+      "printed_page": "יז",
+      "section": "parasha_chiddushim",
+      "parasha": "קרח (closing) -> חקת (opening)",
+      "opening_anchor": "את מחתת החטאים האלה בנפשותם כי הקריבם",
+      "closing_anchor": "תכל תלונותם עלי ולא ימותו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "korach_bnei_nun_sanhedrin_citation",
+          "source_ref": "book:hebrewbooks:5635#p78:korach_bnei_nun_sanhedrin_citation",
+          "text_note": "Right column: discusses why Yehoshua is called 'בן נון' (son of Nun) despite the teaching implying a spiritual fathering by Moshe, citing a Masechet Sanhedrin teaching that one who teaches Torah to another's son is considered as having fathered him (Sanhedrin 19b-type teaching, 'כאלו ילדו'). GPT's finite-audit pre-mapped target for this page described a '37-generation Sanhedrin/transmission chain' -- THAT SPECIFIC CONSTRUCTION (a numbered 37-generation chain) WAS NOT LOCATED on pp.77-78 in this reading. This is reported as a genuine non-finding, not forced to match the pre-mapped expectation, per the explicit instruction to remain open to whatever is actually on the page rather than only targeting known items.",
+          "verbatim_citations": ["מסכת סנהדרין (teacher-as-father teaching)"]
+        },
+        {
+          "block_id": "chukat_red_heifer_opening",
+          "source_ref": "book:hebrewbooks:5635#p78:chukat_red_heifer_opening",
+          "text_note": "Left column: Parashat Chukat opens with the red heifer law and the death-in-a-tent (אדם כי ימות באהל) teaching, plus the recurring three-crowns motif (כתר תורה/כהונה/מלכות)."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["מסכת סנהדרין"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P78-U1", "text": "GPT's pre-mapped '37-generation Sanhedrin/transmission chain' target was not located on pp.77-78 as a numbered chain construction. Reported as a negative result for this specific pre-mapped item, not as a general absence of Sanhedrin-related content (the teacher-as-father citation IS present).", "status": "NEGATIVE RESULT for pre-mapped target, not force-matched"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 79,
+      "printed_page": "יח",
+      "section": "parasha_chiddushim",
+      "parasha": "חקת (closing) -> בלק (opening)",
+      "opening_anchor": "את מחתת החטאים האלה נפשותם כי הקריבם",
+      "closing_anchor": "ויחר העם לזנות אל בנות מואב",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "chukat_closing_serpent_edom_sichon",
+          "source_ref": "book:hebrewbooks:5635#p79:chukat_closing_serpent_edom_sichon",
+          "text_note": "Right column: closes Chukat -- Miriam/Aharon's deaths, Edom's refusal, the brass serpent, the wars against Sichon and Og."
+        },
+        {
+          "block_id": "balak_bilaam_world_midpoint_chronology",
+          "source_ref": "book:hebrewbooks:5635#p79:balak_bilaam_world_midpoint_chronology",
+          "text_note": "Left column, Parashat Balak opens: a SIGNIFICANT chronological/gematria construction citing a Rambam-attributed tradition that the timing of redemption was hinted from Creation, and dating Bilaam's prophecy to a specific point via a compound numeral (candidate reading 'ב' אלפים...תת\"ל', i.e. a figure in the low-thousands range from Creation -- EXACT VALUE NOT CONFIDENTLY DISAMBIGUATED at this zoom), concluding with a citation (Ein Yaakov, R' Chanina) that this wicked one (Bilaam) stood 'בחצי ימי עולם' -- at the numerical MIDPOINT of the world's days. This midpoint-of-world-history framing is a DISTINCT construction type from anything previously catalogued in this corpus -- flagged as a new candidate, no interpretation offered, exact chronological figure UNCERTAIN.",
+          "verbatim_citations": ["הרמב\"ם ז\"ל (attributed tradition)", "עין יעקב, ר' חנינא"],
+          "verbatim_numbers": ["ב' אלפים...תת\"ל (compound figure, EXACT VALUE UNCERTAIN)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["הרמב\"ם ז\"ל", "עין יעקב, ר' חנינא"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P79-U1", "text": "The compound numeral in the Bilaam-chronology passage ('ב' אלפים...תת\"ל'-type reading) is not confidently disambiguated at 3x zoom -- a candidate low-thousands-from-Creation figure, not asserted precisely.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-10", "page": 79, "block_ref": "book:hebrewbooks:5635#p79:balak_bilaam_world_midpoint_chronology", "raw_source_anchor": "כעת יאמר ליעקב ולישראל מה פעל אל ... בחצי ימי עולם היה אותו רשע עומד", "reason": "New candidate construction type: dating a Biblical event to the numerical midpoint of world history, tied to a Rambam-attributed Creation-based timing tradition. Not previously catalogued in this corpus. No interpretation offered; exact chronological figure UNCERTAIN (P79-U1)."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 80,
+      "printed_page": "יח (recto)",
+      "section": "parasha_chiddushim",
+      "parasha": "בלק",
+      "opening_anchor": "תיבות נם יהחייתי נם קשה מאד",
+      "closing_anchor": "ולא נתקיים בו כח נחלגל זמרי בר' עקבא בורואי עשה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "bilaam_donkey_angel_third_time",
+          "source_ref": "book:hebrewbooks:5635#p80:bilaam_donkey_angel_third_time",
+          "text_note": "Right column: continues the Bilaam narrative -- the donkey/angel confrontation, the well-known 'third time' motif (Num 22:28), Balak's sacrifices. Standard scriptural narrative number (3), not novel."
+        },
+        {
+          "block_id": "moabite_seduction_advice",
+          "source_ref": "book:hebrewbooks:5635#p80:moabite_seduction_advice",
+          "text_note": "Left column: extensive discussion of the Moabite/Midianite women's seduction plan against Israel, Bilaam's advice, narrative/aggadic content, no isolated clean numeric claim found beyond narrative counts already well-known to the parasha."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [71, 72, 73, 74, 75, 76, 77, 78, 79, 80],
+    "pages_read_boundary_only_not_registered": [70],
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family or 1,830-family construction was found in pp.71-80. Several well-known already-canonical Torah numbers appear (Tazria's 7+33/14+66 purity days, the quail-month sequence, spies' 40 days/years, Bilaam's 'third time'), none novel and none forced into either family. The GPT-pre-mapped 'p.78 37-generation Sanhedrin chain' target was NOT located as such -- reported as a genuine non-finding.",
+    "gpt_research_flags_this_batch": ["GRF-08", "GRF-09", "GRF-10"],
+    "unresolved_readings_this_batch": 5,
+    "cross_references_to_existing_open_relations": {
+      "CR-04": "p.73 -- visually locates and block-anchors the previously page-only-cited p.73 half of the Omer/Yovel 1,225-adjacent construction for the first time. CR-04 itself remains open (relationship between the p.13 and p.73 halves not established).",
+      "CR-05": "p.74 -- possible (not confirmed) cross-reference to the existing Erechin valuation-arithmetic relation via a 'written twice' textual observation."
+    },
+    "new_candidate_method_families_this_batch": [
+      "GRF-09 (p.75): verse-level word-repetition counting, explicitly claimed unique in the whole Torah by the source itself.",
+      "GRF-10 (p.79): dating a Biblical event to the numerical midpoint of world history, tied to a Rambam-attributed Creation-timing tradition."
+    ],
+    "ds06_ds13_handling": "Not touched in this batch -- p.70 (their location) was read for boundary context only and already registered structurally in the P63-70 file; not re-registered or re-extracted here.",
+    "ingestion_contract_stress_test": "PASS -- the #pN:block/source_ref contract held across halachic parshanut, two cross-references to existing open relations, two new candidate method-family sightings, and one deliberate non-match of a pre-mapped target, with no identity or data-loss problem encountered.",
+    "density_observation": "Numeric/gematria density in pp.71-80 remains uneven, similar to pp.58-70, but this batch surfaced more genuinely distinctive candidate constructions (GRF-08/09/10) than the prior two batches combined -- reported as an observation, not a claim of increasing significance."
+  }
+}
