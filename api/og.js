@@ -87,6 +87,9 @@ const STATIC = {
     card: { w: 'קשרי שפות', sub: 'שורשים · גימטריה · משמעות', cap: 'מה מקשר בין השפות?', sig: 'gem' } },
   '/קשרי-שפות': { title: "קשרי שפות · " + SITE_NAME, desc: "הקשרים הנסתרים בין השפות — שורשים, גימטריה ומשמעות. עדות — לא ניבוי.",
     card: { w: 'קשרי שפות', sub: 'שורשים · גימטריה · משמעות', cap: 'מה מקשר בין השפות?', sig: 'gem' } },
+  // 📖 ספרים ומקורות — אינדקס (Book Hub, research_clean). /book/:slug בודד מטופל למטה דינמית.
+  '/book': { title: "ספרים ומקורות · " + SITE_NAME, desc: "כל ספר הוא ישות בעץ האחד — המקור, המחקר והקשרים שלו במקום אחד.",
+    card: { w: 'ספרים ומקורות', sub: 'מקור · מחקר · קשרים', cap: 'להיכנס לתוך הספר' } },
 };
 
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -303,6 +306,26 @@ export default async function handler(req, res) {
           : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}&sig=els`;
       }
     } catch { /* fallback to defaults */ }
+  } else if (key.startsWith('/book/')) {
+    // 📖 Book Hub — ספר בודד (nodes.type='book'). שדות ציבוריים-בלבד: label/description/metadata
+    // (זהות-ספר, לא research_objects) — תואם ל-BOOK PROJECTION EXPERIENCE CONTRACT §11/§16:
+    // כותרת/תיאור מגיעים מפרויקציה-ציבורית-מאושרת בלבד, לעולם לא מ-payload מחקר-פרטי.
+    let slug = key.slice('/book/'.length);
+    try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    if (slug) {
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/nodes?type=eq.book&is_active=eq.true&metadata-%3E%3Eslug=eq.${encodeURIComponent(slug)}&select=label,description,metadata&limit=1`, { headers: ogHeaders });
+        const rows = await r.json();
+        const c = Array.isArray(rows) && rows[0];
+        if (c && c.label) {
+          const nm = stripHtml(c.label);
+          title = `${nm} — ספר ומחקר · ${SITE_NAME}`;
+          desc = cleanDesc(c.description || `מקור → עמוד/בלוק → מחקר → קשרים. ${nm} בתוך עץ המקורות של סוד 1820.`, 180) || DEFAULT_DESC;
+          type = 'article';
+          image = cardUrl({ w: nm, sub: 'ספר ומקור · סוד 1820', cap: 'להיכנס לתוך הספר' });
+        }
+      } catch { /* fallback to defaults */ }
+    }
   } else if (key.startsWith('/community/researcher/')) {
     // 👤 דף חוקר קנוני (contributors) — כרטיס-שיתוף ממותג עם שם החוקר ותפקידו.
     // המשטח הציבורי/SEO של האדם (canonical_ui_components_law — כל URL קנוני = ענף OG).

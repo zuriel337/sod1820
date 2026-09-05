@@ -37,7 +37,10 @@ export const CHANNELS = {
 // כלל-על: יש ווידג׳ט צף → אין בלוק אינליין. אין צף → שורת-שיתוף אחת. תמיד, בכל דף, אוטומטי.
 // הצף (RoyalShareWidget) מוסתר בדפים שיש להם שיתוף עשיר משלהם; ShareActions עושה את ההיפך —
 // מרנדר רק היכן שהצף נעדר → אף פעם אין כפילות, ואף דף חדש לא צריך להגדיר כלום.
-const FLOATING_HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number|code)/;
+// 📖 /book: Book Hub הצהיר על Surface Mode=research_clean (Cross-Surface Experience Contract
+// Delta, PR#332) — אין ווידג׳ט-שיתוף צף אוטומטי. שיתוף נשאר זמין רק כפעולה-קונטקסטואלית
+// מפורשת (ShareActions{force:true} ברמת-הספר), לא כ-chrome גלובלי.
+const FLOATING_HIDE = /^\/(admin|login|profile|traffic|numbers-report|theme-preview|enter|stream|heichal|היכל|galaxy|number|code|book)/;
 export const floatingShareShown = (pathname = "") => !FLOATING_HIDE.test(pathname || "");
 
 export function canNativeShare() {

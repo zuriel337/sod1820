@@ -85,11 +85,13 @@ export default function Layout() {
           </ErrorBoundary>
         </main>
         {/* 🔠 בדף הדילוגים הכלי ממלא מסך-מלא (iframe) — בלי פוטר, כדי שלא ייווצר פס-גלילה שני בדף */}
-        {pathname !== "/code" && <Footer />}
+        {/* 📖 Book Hub (research_clean, Cross-Surface Experience Contract) — בלי Footer, אותו מנגנון בדיוק כמו /code */}
+        {pathname !== "/code" && !/^\/book(\/|$)/.test(pathname) && <Footer />}
       </div>
       {/* מגירת המספר: הבועה הצפה מוסתרת בבית ובצ'אט (שם «פותח העדכונים» תופס את הפינה); המגירה עצמה עדיין נפתחת בהקשה על מספר. */}
       {/* 🔠 מגירת-המספר מוסתרת בדף הצופן (בקשת צוריאל) — /code + היכל?tool=els */}
-      <NumberDrawer hideLauncher={liveChrome || /^\/code/.test(pathname) || (pathname === "/research" && /tool=els/.test(search))} />
+      {/* 📖 Book Hub (research_clean) — NumberDrawer הוא capability/lens קונטקסטואלי, לא chrome גלובלי-אוטומטי של הספר; אותו מנגנון hideLauncher קיים, בלי redesign */}
+      <NumberDrawer hideLauncher={liveChrome || /^\/code/.test(pathname) || /^\/book(\/|$)/.test(pathname) || (pathname === "/research" && /tool=els/.test(search))} />
       {liveChrome && <LiveChannelFeed />}
       <JoinCelebration />
       {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
