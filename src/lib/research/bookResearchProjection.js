@@ -3,11 +3,19 @@ import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 
 // Must stay aligned to the existing column-scoped authenticated GRANT from
 // 20260825143000_research_intake_step1b_research_objects_admin_read_grant.sql.
-// Do not widen ACL merely for this projection.
-const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
+// Do not widen ACL merely for this projection. `meta` is already SELECT-granted;
+// RLS remains the authority for whether a row is readable at all.
+const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const BOOK_FIELDS = "id,type,label,description,identity_key,metadata,is_active,created_at";
 
+// Scale guardrail: Book Hub is a projection, not a client-side research dump.
+// The default view is intentionally bounded; a future explorer can paginate/rank
+// server-side without changing Book identity or the research_object contract.
+export const DEFAULT_BOOK_RESEARCH_LIMIT = 24;
+export const MAX_BOOK_RESEARCH_LIMIT = 100;
+
 function clean(v) { return v == null ? "" : String(v).trim(); }
+function triBool(v) { return v === true ? true : v === false ? false : null; }
 
 export function pageFromSourceRef(sourceRef) {
   const ref = clean(sourceRef);
@@ -51,13 +59,13 @@ function permissionLike(error) {
   return code === "42501" || code === "PGRST301" || msg.includes("permission") || msg.includes("row-level security");
 }
 
-export async function fetchBookResearch(book, { limit = 500 } = {}) {
+export async function fetchBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LIMIT } = {}) {
   const prefixes = Array.isArray(book?.metadata?.source_ref_prefixes)
     ? book.metadata.source_ref_prefixes.map(clean).filter(Boolean)
     : [];
-  if (!prefixes.length) return { rows: [], findings: [], restricted: false, summary: summarizeBookResearch([]) };
+  if (!prefixes.length) return { rows: [], findings: [], restricted: false, truncated: false, summary: summarizeBookResearch([]) };
 
-  const safeLimit = Math.max(1, Math.min(Number(limit) || 500, 1000));
+  const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_BOOK_RESEARCH_LIMIT, MAX_BOOK_RESEARCH_LIMIT));
   const attempts = await Promise.all(prefixes.map(async prefix => {
     const { data, error } = await supabase
       .from("research_objects")
@@ -71,18 +79,21 @@ export async function fetchBookResearch(book, { limit = 500 } = {}) {
   const errors = attempts.map(x => x.error).filter(Boolean);
   const readable = attempts.filter(x => !x.error);
   if (!readable.length && errors.length && errors.every(permissionLike)) {
-    return { rows: [], findings: [], restricted: true, summary: summarizeBookResearch([]) };
+    return { rows: [], findings: [], restricted: true, truncated: false, summary: summarizeBookResearch([]) };
   }
   const fatal = errors.find(e => !permissionLike(e));
   if (fatal) throw fatal;
 
   const byId = new Map();
   readable.forEach(({ data }) => (data || []).forEach(row => byId.set(row.id, row)));
-  const rows = [...byId.values()].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  const allRows = [...byId.values()].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  const rows = allRows.slice(0, safeLimit);
+  const truncated = allRows.length > rows.length || readable.some(({ data }) => (data || []).length >= safeLimit);
   return {
     rows,
     findings: researchObjectsToUniversalFindings(rows),
     restricted: false,
+    truncated,
     summary: summarizeBookResearch(rows),
   };
 }
@@ -110,6 +121,52 @@ export function summarizeBookResearch(rows) {
   return { total: list.length, byKind, byStatus, pages: [...pages].sort((a,b) => a-b), engineVerified, contradictions, unresolved };
 }
 
+// Generic renderer adapter over the SAME Book/research_object contract.
+// It does not promote a representation into a new entity/store and does not infer
+// truth from shape. Structured fields are optional: missing state stays null/empty.
+// Synthetic tests exercise matrix/procedure/composition shapes without copying any
+// private Peli'ah row into source control.
+export function researchRowToBookRepresentation(row) {
+  const procedure = row?.meta?.ext?.procedure && typeof row.meta.ext.procedure === "object"
+    ? row.meta.ext.procedure
+    : {};
+  const matrix = Array.isArray(row?.matrix)
+    ? row.matrix
+    : Array.isArray(procedure?.matrix)
+      ? procedure.matrix
+      : [];
+  const steps = Array.isArray(row?.steps)
+    ? row.steps
+    : Array.isArray(procedure?.steps)
+      ? procedure.steps
+      : [];
+  const generated = Array.isArray(row?.generated)
+    ? row.generated
+    : Array.isArray(procedure?.generated)
+      ? procedure.generated
+      : [];
+  const explicitShape = clean(row?.representation_shape || procedure?.representation_shape || procedure?.shape).toLowerCase();
+  const shape = matrix.length ? "matrix"
+    : steps.length ? "procedure"
+      : generated.length ? "composition"
+        : explicitShape || (Array.isArray(row?.terms) && row.terms.length ? "terms" : "narrative");
+  return {
+    shape,
+    title: clean(row?.title || row?.statement || row?.kind) || "Research Object",
+    sourceRef: row?.source_ref ?? null,
+    kind: row?.kind ?? null,
+    status: row?.status ?? null,
+    privacyScope: row?.privacy_scope ?? null,
+    engineVerified: triBool(row?.engine_verified),
+    engineVerificationState: row?.engine_detail?.verification_state ?? null,
+    witnessState: row?.witness_state ?? row?.exact_witness_state ?? procedure?.witness_state ?? null,
+    terms: Array.isArray(row?.terms) ? row.terms : [],
+    matrix,
+    steps,
+    generated,
+  };
+}
+
 export function bookToWorkspaceItem(book) {
   if (!book) return null;
   const slug = clean(book?.metadata?.slug);
@@ -131,20 +188,28 @@ export function bookToWorkspaceItem(book) {
 
 export function researchRowToWorkspaceItem(row, book) {
   const p = pageFromSourceRef(row?.source_ref);
+  const route = clean(book?.metadata?.route) || "/book";
+  const params = new URLSearchParams();
+  if (p) params.set("page", String(p));
+  params.set("tab", "research");
+  if (row?.id) params.set("research", String(row.id));
+  const query = params.toString();
   return {
     id: `research-object:${row.id}`,
     type: "research",
     title: row.statement || `${book?.label || "ספר"} · ממצא מחקר`,
     label: row.statement || "ממצא מחקר",
-    link: `${book?.metadata?.route || "/book"}${p ? `?page=${p}` : ""}#research`,
+    link: `${route}${query ? `?${query}` : ""}#research-selection`,
     metadata: {
       researchObjectId: row.id,
       bookIdentity: book?.identity_key || null,
       page: p,
       sourceRef: row.source_ref,
-      status: row.status,
-      kind: row.kind,
-      engineVerified: row.engine_verified === true,
+      status: row.status ?? null,
+      kind: row.kind ?? null,
+      engineVerified: triBool(row?.engine_verified),
+      engineVerificationState: row?.engine_detail?.verification_state ?? null,
+      privacyScope: row?.privacy_scope ?? null,
     },
   };
 }
