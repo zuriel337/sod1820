@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import ShareActions from "../components/ShareActions.jsx";
 import {
   fetchBookEntities, fetchBookEntityBySlug, fetchBookResearch,
   bookToWorkspaceItem, researchRowToWorkspaceItem, pageFromSourceRef,
@@ -22,18 +25,23 @@ const SNAPSHOTS = {
       ["13", "datasets במפה", "documented snapshot"], ["18", "methods/procedures", "documented snapshot"],
       ["10", "סתירות", "preserved"], ["9", "קריאות לא פתורות", "preserved"],
     ],
+    // 🔴 Coverage-axis verdicts kept separate per Intake §9 — this is the whole-book RECONCILIATION
+    // gate result (work_log a39cb97a, AHAVAT_TORAH_WHOLE_BOOK_RECONCILIATION_20260905), quoted
+    // here as a dated finding, NOT re-derived or upgraded. This is NOT a claim of 100% research
+    // completeness — 4 of 5 axes below explicitly say PARTIAL/NOT ESTABLISHED.
     coverage: [
-      { label: "מיפוי מבני", value: "99/99", note: "קיום/מבנה/אזור. אינו Research completeness." },
-      { label: "רישום block רציף", value: "pp.1–15", note: "page/block/source_ref convention המקורי; עומק משתנה בתוך הטווח." },
-      { label: "batch reconstruction נוספת", value: "pp.58–90", note: "קבצי-register נפרדים-לכל-batch (PR#285, מתעדכן — pp.58-62/63-70/71-80/81-90 הושלמו נכון-ל-5.9.2026 אחרי מסמך זה; לא באותה סכימה כמו pp.1-15)." },
-      { label: "עדיין לא בטיפול", value: "pp.16–57 (writer אחר, בתהליך) · pp.91–99", note: "אין כאן טענת שחזור-מלא לספר." },
-      { label: "איים עמוקים", value: "25–31 · 35–43 · 70 +", note: "מחקר נקודתי סביב datasets; לא רצף מלא." },
-      { label: "Exact Witness", value: "חלקי", note: "VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS נשמרים בנפרד." },
+      { label: "Structural Page Accounting", value: "99/99", note: "כל עמודי ה-PDF קיימים/ממופים-מבנית. אינו Research completeness." },
+      { label: "Research Map / Grammar Coverage", value: "SUFFICIENT FOR PROJECTION", note: "מספיק כדי להציג Book Projection; אינו טענת שחזור-מלא." },
+      { label: "Exact-Witness Coverage", value: "PARTIAL", note: "VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS נשמרים בנפרד; חלק מהעמודים בלבד עברו אדג'ודיקציית-עדות מדויקת." },
+      { label: "Source Exhaustion", value: "NOT ESTABLISHED", note: "לא נטען שכל-מה-שיש-במקור מוצה." },
+      { label: "Known-Corpus Exhaustion", value: "PARTIAL", note: "batch reconstruction (pp.16-99, כל הענפים) הושלמה; פערי-עדות/סתירות ספציפיים עדיין פתוחים (ר' Datasets למטה)." },
     ],
     // ⚠️ Documented snapshot, editorially curated — NOT a live read of PR#285/the source
-    // manifest. Verified stale at least once already (work_log 59642c0d): source research
-    // continues independently of this UI and can outrun it. For current status, see
-    // docs/research-library/ahavat-torah/AHAVAT_TORAH_SOURCE_MANIFEST_285.md on PR#285.
+    // manifest, and not itself an authority: the 5 coverage-axis verdicts above are quoted
+    // from the live whole-book gate (work_log a39cb97a) as of 5.9.2026, not computed here.
+    // Individual dataset rows below can still be stale relative to ongoing source work.
+    // For current status, see docs/research-library/ahavat-torah/AHAVAT_TORAH_SOURCE_MANIFEST_285.md
+    // on PR#285, and work_log a39cb97a for the full gate reasoning + open evidence list.
     datasets: [
       ["DS-01", "שם ה׳ · 1820", "p6", "CLOSED", "165+398+311+396+550=1820; arithmetic verified"],
       ["DS-02", "22 אותיות × פרשה/ספר", "pp35–41", "PARTIAL", "187+ rows; Aleph/Bet/Zayin anomalies preserved"],
@@ -55,7 +63,7 @@ const SNAPSHOTS = {
       { title: "79,976", text: "סך תיבות התורה נתמך ביותר ממסלול אחד; גבול attribution/counting האוניברסלי עדיין דורש דיוק." },
       { title: "18,200", text: "טבלת named-speaker ב־pp13–14 מגיעה ל־18,200; population/checksum/cohort semantics עדיין פתוחים." },
     ],
-    open: ["Lossless reconstruction מעבר ל־p15 עדיין בתהליך", "DS-02/07/08/09/10/11/13 דורשים closure ברמות שונות", "Exact-witness adjudication אינו שווה למיפוי מבני", "Gematria claims אינם Engine Verified בלי המנוע הקנוני", "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"],
+    open: ["5 פערי-עדות סופיים מ-Checkpoint5 (ל/ה, doubled-word subcorpus, 5-שנים/365/יום-כיפור, קטגוריות-זמן קהלת, בחירת-אסימון-סוף ברכת-כהנים)", "DS-03: סך-מקור נקרא חזותית 110,976 וסותר קריאה קודמת 79,976 — לא-נפתר", "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה", "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת", "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר", "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)", "Exact-witness adjudication אינו שווה למיפוי מבני", "Gematria claims אינם Engine Verified בלי המנוע הקנוני", "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"],
     seeds: [
       { key: "1820", label: "משפחת 1820", page: 6, family: "number-family", status: "documented" },
       { key: "1830", label: "משפחת 1830", page: 13, family: "number-family", status: "documented" },
@@ -142,12 +150,15 @@ function useBookDossier(slug) {
   return bundle;
 }
 
-function style() { return `
-  .bk{max-width:1440px;margin:auto;padding:24px 18px 90px;direction:rtl;color:#eee7da}.bk a{color:inherit}.bk-hero{padding:34px 0 22px;border-bottom:1px solid rgba(212,175,55,.22)}.bk-eye{font-size:11px;letter-spacing:2px;color:#d4af37;font-weight:900}.bk h1{font-family:'Frank Ruhl Libre',serif;font-size:clamp(42px,7vw,76px);line-height:1;margin:9px 0 12px}.bk-lead{color:#bdb5aa;line-height:1.8;max-width:950px}.bk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.bk-btn{border:1px solid rgba(212,175,55,.3);background:rgba(212,175,55,.08);color:#e9cf78;border-radius:12px;padding:9px 13px;cursor:pointer;text-decoration:none;font:700 13px Heebo}.bk-btn.on{background:rgba(212,175,55,.22)}.bk-tabs{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:4;padding:10px 0;background:linear-gradient(#09070c 72%,transparent)}.bk-tab{border:1px solid rgba(255,255,255,.09);background:#121016;color:#aaa2af;border-radius:999px;padding:7px 12px;cursor:pointer}.bk-tab.on{color:#f6e27a;border-color:rgba(212,175,55,.45);background:rgba(212,175,55,.12)}.bk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.bk-card{border:1px solid rgba(212,175,55,.16);border-radius:17px;background:linear-gradient(160deg,rgba(212,175,55,.055),rgba(18,16,23,.96));padding:16px}.bk-card b.big{display:block;font-size:30px;color:#f6e27a}.bk-muted{color:#918a94;font-size:12px}.bk-two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:14px}.bk-panel{border:1px solid rgba(212,175,55,.18);border-radius:18px;background:#111016;overflow:hidden}.bk-ph{padding:14px 16px;border-bottom:1px solid rgba(212,175,55,.16);font-weight:900;color:#e6d5a4}.bk-pb{padding:16px}.bk-row{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.055);line-height:1.6}.bk-row:last-child{border:0}.bk-pill{display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(179,140,255,.11);color:#c7aafa;font-size:10px;font-weight:800;margin:2px}.bk-ok{color:#73d18d}.bk-warn{color:#e1ad59}.bk-pdf{height:min(78vh,900px);background:#222}.bk-pdf iframe{width:100%;height:100%;border:0;background:white}.bk-data{display:grid;grid-template-columns:90px 1.3fr 90px 110px 2fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.055);font-size:12px}.bk-data strong{color:#f0d98e}.bk-find{padding:13px;border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:9px;background:rgba(255,255,255,.025)}.bk-find h4{margin:0 0 7px;font-size:14px}.bk-find-meta{display:flex;gap:5px;flex-wrap:wrap;color:#98919d;font-size:10px}.bk-layer{display:grid;grid-template-columns:150px 38px 1fr;align-items:center;margin:6px 0}.bk-layer-key{font-weight:900;color:#e7cc78}.bk-arrow{text-align:center;color:#755d26;font-size:20px}.bk-layer-box{border:1px solid rgba(212,175,55,.17);border-radius:13px;padding:12px;background:#141119;color:#c7c0b5;line-height:1.55}.bk-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}.bk-book{display:block;text-decoration:none;min-height:270px;padding:22px;border:1px solid rgba(212,175,55,.2);border-radius:22px;background:linear-gradient(145deg,rgba(212,175,55,.08),#111016 50%)}.bk-book h2{font-family:'Frank Ruhl Libre',serif;font-size:34px;margin:8px 0}.bk-empty{text-align:center;padding:60px 20px;color:#9c949f}.bk-section-title{font-family:'Frank Ruhl Libre',serif;font-size:28px;margin:26px 0 12px}.bk-notice{border:1px dashed rgba(212,175,55,.32);background:rgba(212,175,55,.05);padding:13px;border-radius:14px;color:#cabb95;line-height:1.65}.bk-open li{margin:7px 0;color:#c0b8ae}.bk-idgrid{display:grid;grid-template-columns:150px 1fr;gap:0}.bk-idgrid>div{padding:10px;border-bottom:1px solid rgba(255,255,255,.055)}.bk-idgrid>div:nth-child(odd){color:#d8c47d;font-weight:800}.bk-code{direction:ltr;text-align:left;font:11px monospace;color:#a99d84;overflow-wrap:anywhere}@media(max-width:900px){.bk-grid{grid-template-columns:repeat(2,1fr)}.bk-two,.bk-index{grid-template-columns:1fr}.bk-data{grid-template-columns:70px 1fr}.bk-data>*:nth-child(n+3){grid-column:2}.bk-layer{grid-template-columns:1fr}.bk-arrow{transform:rotate(90deg)}.bk-pdf{height:68vh}}` }
+// 📖 Book Projection Experience Contract (work_log 49e92bf6/56ae06a7, PR#332 §8): typography
+// via semantic F roles only (no literal font-family), colors via usePalette() tokens only
+// (no agent-local palette) — both light and dark, theme-aware (research_clean surface mode).
+function style(P) { return `
+  .bk{max-width:1440px;margin:auto;padding:24px 18px 90px;direction:rtl;color:${P.inkSoft};font-family:${F.body}}.bk a{color:inherit}.bk-hero{padding:34px 0 22px;border-bottom:1px solid ${P.border}}.bk-eye{font-family:${F.ui};font-size:11px;letter-spacing:2px;color:${P.accent};font-weight:900}.bk h1{font-family:${F.display};color:${P.ink};font-size:clamp(42px,7vw,76px);line-height:1;margin:9px 0 12px}.bk-lead{color:${P.inkSoft};font-family:${F.body};line-height:1.8;max-width:950px}.bk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.bk-btn{font-family:${F.ui};border:1px solid ${P.border};background:${P.cardSoft};color:${P.accentText};border-radius:12px;padding:9px 13px;cursor:pointer;text-decoration:none;font-weight:700;font-size:13px}.bk-btn.on{background:${P.glow}}.bk-tabs{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:4;padding:10px 0;background:linear-gradient(${P.cardSoft} 72%,transparent)}.bk-tab{font-family:${F.ui};border:1px solid ${P.border};background:${P.card};color:${P.inkSoft};border-radius:999px;padding:7px 12px;cursor:pointer}.bk-tab.on{color:${P.accentText};border-color:${P.borderStrong};background:${P.glow}}.bk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.bk-card{border:1px solid ${P.border};border-radius:17px;background:${P.cardGrad};padding:16px}.bk-card b.big{font-family:${F.numeric};display:block;font-size:30px;color:${P.heroNum}}.bk-muted{color:${P.inkSoft};font-family:${F.body};font-size:12px}.bk-two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:14px}.bk-panel{border:1px solid ${P.border};border-radius:18px;background:${P.card};overflow:hidden}.bk-ph{font-family:${F.ui};padding:14px 16px;border-bottom:1px solid ${P.border};font-weight:900;color:${P.ink}}.bk-pb{padding:16px}.bk-row{padding:12px 0;border-bottom:1px solid ${P.border};line-height:1.6}.bk-row:last-child{border:0}.bk-pill{font-family:${F.ui};display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(139,92,246,.14);color:#a78bfa;font-size:10px;font-weight:800;margin:2px}.bk-ok{color:#4fae74}.bk-warn{color:${P.accentDim}}.bk-pdf{height:min(78vh,900px);background:${P.card}}.bk-pdf iframe{width:100%;height:100%;border:0;background:white}.bk-data{display:grid;grid-template-columns:90px 1.3fr 90px 110px 2fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid ${P.border};font-size:12px;font-family:${F.body}}.bk-data strong{font-family:${F.numeric};color:${P.accentText}}.bk-find{padding:13px;border:1px solid ${P.border};border-radius:14px;margin-bottom:9px;background:${P.cardSoft}}.bk-find h4{font-family:${F.ui};margin:0 0 7px;font-size:14px;color:${P.ink}}.bk-find-meta{display:flex;gap:5px;flex-wrap:wrap;color:${P.inkSoft};font-family:${F.ui};font-size:10px}.bk-layer{display:grid;grid-template-columns:150px 38px 1fr;align-items:center;margin:6px 0}.bk-layer-key{font-family:${F.ui};font-weight:900;color:${P.accentText}}.bk-arrow{text-align:center;color:${P.accentDim};font-size:20px}.bk-layer-box{border:1px solid ${P.border};border-radius:13px;padding:12px;background:${P.card};color:${P.inkSoft};font-family:${F.body};line-height:1.55}.bk-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}.bk-book{display:block;text-decoration:none;min-height:270px;padding:22px;border:1px solid ${P.border};border-radius:22px;background:${P.cardGrad}}.bk-book h2{font-family:${F.display};color:${P.ink};font-size:34px;margin:8px 0}.bk-empty{text-align:center;padding:60px 20px;color:${P.inkSoft};font-family:${F.body}}.bk-section-title{font-family:${F.ui};color:${P.ink};font-size:28px;margin:26px 0 12px}.bk-notice{font-family:${F.body};border:1px dashed ${P.border};background:${P.cardSoft};padding:13px;border-radius:14px;color:${P.inkSoft};line-height:1.65}.bk-open li{margin:7px 0;color:${P.inkSoft};font-family:${F.body}}.bk-idgrid{display:grid;grid-template-columns:150px 1fr;gap:0;font-family:${F.body}}.bk-idgrid>div{padding:10px;border-bottom:1px solid ${P.border}}.bk-idgrid>div:nth-child(odd){color:${P.accentText};font-weight:800}.bk-code{direction:ltr;text-align:left;font-family:${F.numeric};font-size:11px;color:${P.inkSoft};overflow-wrap:anywhere}@media(max-width:900px){.bk-grid{grid-template-columns:repeat(2,1fr)}.bk-two,.bk-index{grid-template-columns:1fr}.bk-data{grid-template-columns:70px 1fr}.bk-data>*:nth-child(n+3){grid-column:2}.bk-layer{grid-template-columns:1fr}.bk-arrow{transform:rotate(90deg)}.bk-pdf{height:68vh}}` }
 
 function TruthPill({ row }) {
   const txt = row?.engine_verified ? "ENGINE VERIFIED" : (row?.status || "candidate").toUpperCase();
-  return <span className="bk-pill" style={row?.engine_verified ? { color:'#73d18d',background:'rgba(92,199,120,.11)' } : null}>{txt}</span>;
+  return <span className="bk-pill" style={row?.engine_verified ? { color:'#4fae74',background:'rgba(79,174,116,.14)' } : null}>{txt}</span>;
 }
 
 function IndexView({ books, loading }) {
@@ -159,6 +170,7 @@ function IndexView({ books, loading }) {
 }
 
 export default function BookHubPage() {
+  const P = usePalette();
   const { slug } = useParams();
   const [qs, setQs] = useSearchParams();
   const [books,setBooks] = useState([]); const [book,setBook] = useState(null); const [research,setResearch] = useState(null); const [loading,setLoading] = useState(true); const [error,setError] = useState("");
@@ -218,19 +230,24 @@ export default function BookHubPage() {
     setSavedSelections(s => new Set(s).add(item.ref));
   };
 
-  if (!slug) return <div className="bk"><style>{style()}</style>{error ? <div className="bk-empty">{error}</div> : <IndexView books={books} loading={loading}/>}</div>;
-  if (loading && !book) return <div className="bk"><style>{style()}</style><div className="bk-empty">טוען Book Context…</div></div>;
-  if (!book || !snap) return <div className="bk"><style>{style()}</style><div className="bk-empty">הספר לא נמצא בעץ הקנוני. <Link to="/book">חזרה לספרים</Link></div></div>;
+  if (!slug) return <div className="bk"><style>{style(P)}</style>{error ? <div className="bk-empty">{error}</div> : <IndexView books={books} loading={loading}/>}</div>;
+  if (loading && !book) return <div className="bk"><style>{style(P)}</style><div className="bk-empty">טוען Book Context…</div></div>;
+  if (!book || !snap) return <div className="bk"><style>{style(P)}</style><div className="bk-empty">הספר לא נמצא בעץ הקנוני. <Link to="/book">חזרה לספרים</Link></div></div>;
 
   const tiers = book?.metadata?.identity_tiers || {};
   const liveRows = research?.rows || [];
   const summary = research?.summary || { total:0,pages:[] };
   const livePages = summary.pages || [];
-  return <div className="bk"><style>{style()}</style>
+  return <div className="bk"><style>{style(P)}</style>
     <div className="bk-hero">
       <Link to="/book" className="bk-eye" style={{textDecoration:'none'}}>← ספרים ומקורות</Link>
       <div className="bk-eye" style={{marginTop:10}}>{snap.eyebrow}</div><h1>{book.label}</h1><div className="bk-lead">{snap.subtitle}<br/>{snap.promise}</div>
-      <div className="bk-actions"><button className="bk-btn" onClick={addBook}>➕ למחקר</button><button className={`bk-btn ${pinned?'on':''}`} onClick={() => workspaceItem && togglePin(workspaceItem)}>{pinned?'📌 מוצמד':'📌 הצמד'}</button><a className="bk-btn" href={snap.pdf} target="_blank" rel="noreferrer">פתח PDF ↗</a><span className="bk-btn" style={{cursor:'default'}}>🧭 {book.identity_key}</span></div>
+      <div className="bk-actions"><button className="bk-btn" onClick={addBook}>➕ למחקר</button><button className={`bk-btn ${pinned?'on':''}`} onClick={() => workspaceItem && togglePin(workspaceItem)}>{pinned?'📌 מוצמד':'📌 הצמד'}</button><a className="bk-btn" href={snap.pdf} target="_blank" rel="noreferrer">פתח PDF ↗</a><span className="bk-btn" style={{cursor:'default'}}>🧭 {book.identity_key}</span>
+        {/* 🔗 שיתוף קונטקסטואלי-מפורש-בלבד (research_clean — אין chrome אוטומטי): הכפתור הזה,
+            לא מנגנון-אוטומטי, הוא הדרך היחידה לשתף מ-Book Hub. יעד ברירת-מחדל = כתובת-הדף
+            הנוכחית = /book/:slug הקנוני. force=true כי הווידג'ט-הצף מוסתר כאן (share.js). */}
+        <ShareActions type="book" title={book.label} compact force style={{ display: "inline-flex" }} />
+      </div>
     </div>
     <div className="bk-tabs">{TABS.map(([k,l]) => <button className={`bk-tab ${tab===k?'on':''}`} key={k} onClick={() => goTab(k)}>{l}</button>)}</div>
 
