@@ -1,25 +1,41 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { stripHtml } from "../lib/format.js";
 import EntityHubGoldenControls from "../components/entity/EntityHubGoldenControls.jsx";
 
+// 🎨 Palette = CSS variables from EntityHubObservatory.css (.eh-func) — light AND dark
+// (city_background_dual_theme_law). No light-only island inside the observatory shell.
 const C = {
-  page: "#f4efe4",
-  panel: "#fffdf8",
-  ink: "#211c13",
-  soft: "#6e6558",
-  line: "#e6dcc8",
-  gold: "#9a7617",
-  gold2: "#c4a044",
-  goldBg: "#fbf2d8",
-  green: "#27633a",
-  greenBg: "#e9f5eb",
-  violet: "#60378b",
-  violetBg: "#f1e8fa",
-  warn: "#865600",
-  warnBg: "#fff1d6",
+  page: "var(--eh-page)",
+  panel: "var(--eh-panel)",
+  softBg: "var(--eh-soft)",
+  ink: "var(--eh-ink)",
+  soft: "var(--eh-muted)",
+  line: "var(--eh-line)",
+  gold: "var(--eh-gold)",
+  gold2: "var(--eh-gold2)",
+  goldBg: "var(--eh-goldbg)",
+  green: "var(--eh-green)",
+  greenBg: "var(--eh-greenbg)",
+  violet: "var(--eh-violet)",
+  violetBg: "var(--eh-violetbg)",
+  warn: "var(--eh-warn)",
+  warnBg: "var(--eh-warnbg)",
+  red: "var(--eh-red)",
+  redBg: "var(--eh-redbg)",
+  onGold: "#1a1305",
 };
+
+const VERIFICATION_TXT = {
+  match: "תואם לערך הקנוני השמור",
+  mismatch: "סותר את הערך הקנוני השמור",
+  method_unknown: "שיטה לא מזוהה במנוע",
+  not_tested: "אין ערך שמור — לא נבדקה טענה",
+};
+const verificationTone = (state) => (state === "match" ? "ok" : state === "mismatch" ? "red" : "neutral");
 
 const page = {
   minHeight: "100vh",
@@ -32,7 +48,7 @@ const page = {
   zIndex: 1,
 };
 const shell = { maxWidth: 1240, margin: "0 auto" };
-const card = { background: C.panel, border: `1px solid ${C.line}`, borderRadius: 20, boxShadow: "0 10px 34px rgba(62,46,19,.06)" };
+const card = { background: C.panel, border: `1px solid ${C.line}`, borderRadius: 20, boxShadow: "0 10px 34px var(--eh-shadow)" };
 const muted = { color: C.soft, fontSize: 13.5, lineHeight: 1.65 };
 const buttonReset = { border: 0, font: "inherit" };
 
@@ -40,9 +56,10 @@ function chipStyle(tone = "neutral") {
   const map = {
     ok: [C.greenBg, C.green],
     warn: [C.warnBg, C.warn],
+    red: [C.redBg, C.red],
     private: [C.violetBg, C.violet],
     gold: [C.goldBg, C.gold],
-    neutral: ["#f1eee7", "#5d5548"],
+    neutral: [C.softBg, C.soft],
   };
   const [background, color] = map[tone] || map.neutral;
   return { display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 800, background, color };
@@ -121,9 +138,45 @@ function ImageModal({ item, onClose }) {
   </div>;
 }
 
-function MethodModal({ group, onClose }) {
+// Method Inspector = Registry semantics (identity) + canonical Trace (existing gematria_method_trace
+// path via fetchGematriaMethodTrace). Method is a DIMENSION; the Inspector renders it. Trace ≠ Finding ≠ Claim.
+function MethodTracePanel({ methodKey, phrase }) {
+  const [state, setState] = useState({ loading: true, finding: null, error: null });
+  useEffect(() => {
+    let alive = true;
+    setState({ loading: true, finding: null, error: null });
+    if (!methodKey || !phrase) { setState({ loading: false, finding: null, error: null }); return undefined; }
+    fetchGematriaMethodTrace(methodKey, phrase)
+      .then(finding => alive && setState({ loading: false, finding, error: null }))
+      .catch(error => alive && setState({ loading: false, finding: null, error }));
+    return () => { alive = false; };
+  }, [methodKey, phrase]);
+  if (!methodKey || !phrase) return null;
+  const trace = state.finding?.projection?.dimensions?.trace || null;
+  const steps = Array.isArray(trace?.steps) ? trace.steps : [];
+  return <div style={{ marginTop: 16, border: `1px solid ${C.line}`, borderRadius: 13, padding: 12, background: C.softBg }} data-testid="method-trace">
+    <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap" }}>
+      <b>🔍 Trace · {phrase}</b>
+      <span style={chipStyle("gold")}>gematria_method_trace</span>
+      {state.finding?.subject?.value != null ? <span style={chipStyle("ok")}>= {state.finding.subject.value}</span> : null}
+    </div>
+    {state.loading ? <div style={{ ...muted, marginTop: 6 }}>טוען את מסלול החישוב הקנוני…</div> : null}
+    {state.error ? <div style={{ ...muted, marginTop: 6, color: C.red }}>Trace לא זמין: {String(state.error?.message || state.error)}</div> : null}
+    {!state.loading && !state.error && !state.finding ? <div style={{ ...muted, marginTop: 6 }}>המנוע לא החזיר trace לשיטה הזו.</div> : null}
+    {steps.length ? <ol style={{ margin: "8px 0 0", paddingInlineStart: 20, lineHeight: 1.7, fontSize: 13 }}>
+      {steps.slice(0, 40).map((s, i) => <li key={i}>{typeof s === "string" ? s : [s.step || s.label || s.op, s.input != null ? `${s.input}` : null, s.value != null ? `→ ${s.value}` : (s.result != null ? `→ ${s.result}` : null)].filter(Boolean).join(" ")}</li>)}
+    </ol> : (trace ? <pre style={{ margin: "8px 0 0", whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.5 }}>{JSON.stringify(trace, null, 1).slice(0, 1800)}</pre> : null)}
+    <div style={{ ...muted, fontSize: 11.5, marginTop: 8 }}>Trace = הסבר חישוב של המנוע · אינו Finding, אינו טענה, אינו קידום לקנון.</div>
+  </div>;
+}
+
+function MethodModal({ group, onClose, onLeave }) {
+  const [tracePhrase, setTracePhrase] = useState(null);
+  useEffect(() => { setTracePhrase(group?.phrase || null); }, [group]);
   if (!group) return null;
   const r = group.registry || {};
+  const methodKey = r.method_key || group.method;
+  const entityLinks = group.phraseEntities || {};
   return <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 510, background: "rgba(29,22,10,.62)", display: "flex", justifyContent: "flex-start", direction: "rtl" }}>
     <aside onClick={e => e.stopPropagation()} style={{ width: "min(430px,94vw)", height: "100%", overflowY: "auto", background: C.panel, borderInlineEnd: `1px solid ${C.line}`, boxShadow: "18px 0 60px rgba(0,0,0,.22)", padding: 22 }}>
       <button onClick={onClose} style={{ cursor: "pointer", float: "left", width: 38, height: 38, borderRadius: 10, border: `1px solid ${C.line}`, background: "transparent", fontSize: 21 }}>×</button>
@@ -139,16 +192,27 @@ function MethodModal({ group, onClose }) {
       </div>
       {Array.isArray(r.derived_from) && r.derived_from.length ? <div style={{ marginTop: 14, border: `1px solid ${C.line}`, borderRadius: 13, padding: 12 }}><b>מורכב מ:</b> {r.derived_from.join(" + ")}{r.operator ? ` · ${r.operator}` : ""}</div> : null}
       <div style={{ marginTop: 18, padding: 14, borderRadius: 14, border: `1px dashed ${C.gold2}`, background: C.goldBg }}>
-        <div style={{ fontWeight: 900, color: C.gold }}>החלטה ארכיטקטונית עדיין פתוחה</div>
-        <div style={{ ...muted, color: "#655321", marginTop: 5 }}>ה־Preview הזה רק מוכיח שלשיטה יש Identity והסבר קנוני. עוד לא החלטנו האם לחיצה עליה תפתח פירוק בתוך הכרטיס, מגירת־שיטה בצד, או מעבר למעבדת־עומק.</div>
+        <div style={{ fontWeight: 900, color: C.gold }}>Method = Dimension · Inspector = Registry + Trace</div>
+        <div style={{ ...muted, marginTop: 5 }}>ה־Inspector מציג את זהות השיטה מה־Registry הקנוני ואת מסלול החישוב מה־trace הקנוני. פירוק/מעבדה מעבר לכך נשארים החלטת Human-Gate.</div>
       </div>
-      <h3 style={{ margin: "22px 0 9px" }}>דוגמאות ב־{group.value ?? "המספר"}</h3>
-      <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-        {(group.phrases || []).slice(0, 18).map((item, i) => {
-          const phrase = phraseOf(item);
-          return phrase ? <Link key={`${phrase}-${i}`} to={`/number/${encodeURIComponent(phrase)}`} style={{ textDecoration: "none", border: `1px solid ${C.line}`, background: "#f8f4ea", color: C.ink, borderRadius: 999, padding: "6px 10px", fontSize: 13 }}>{phrase}</Link> : null;
-        })}
-      </div>
+      {group.phrase ? <MethodTracePanel methodKey={methodKey} phrase={tracePhrase || group.phrase} /> : null}
+      {(group.phrases || []).length ? <>
+        <h3 style={{ margin: "22px 0 9px" }}>דוגמאות ב־{group.value ?? "המספר"} <span style={{ ...muted, fontSize: 12 }}>· לחיצה על 🔍 פותחת trace לביטוי</span></h3>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          {(group.phrases || []).slice(0, 18).map((item, i) => {
+            const phrase = phraseOf(item);
+            if (!phrase) return null;
+            const ent = entityLinks[phrase] || null;
+            const to = ent ? ent.href : `/number/${encodeURIComponent(phrase)}`;
+            return <span key={`${phrase}-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+              <Link to={to} onClick={() => onLeave?.(ent ? "entity" : "number", { entityId: ent ? ent.nodeId : phrase, entityType: ent ? "entity" : "phrase" })}
+                style={{ textDecoration: "none", border: `1px solid ${ent ? C.gold2 : C.line}`, background: C.softBg, color: C.ink, borderRadius: 999, padding: "6px 10px", fontSize: 13 }}>{ent ? "🔹 " : ""}{phrase}</Link>
+              <button type="button" onClick={() => setTracePhrase(phrase)} title={`trace · ${phrase}`} style={{ ...buttonReset, cursor: "pointer", background: "transparent", color: C.gold, padding: "4px 5px" }}>🔍</button>
+            </span>;
+          })}
+        </div>
+        {tracePhrase && !group.phrase ? <MethodTracePanel methodKey={methodKey} phrase={tracePhrase} /> : null}
+      </> : null}
     </aside>
   </div>;
 }
@@ -171,6 +235,7 @@ export default function EntityHubPreviewPage() {
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [zoom, setZoom] = useState(null);
   const [methodFocus, setMethodFocus] = useState(null);
+  const research = useResearch();
 
   useEffect(() => {
     let alive = true;
@@ -180,6 +245,29 @@ export default function EntityHubPreviewPage() {
       .catch(error => alive && setState({ loading: false, data: null, error }));
     return () => { alive = false; };
   }, [type, key]);
+
+  // 🧠 Universal Research Context — same contract as TopicPage/EntityPage: the ROOT stays sticky
+  // (never overwritten by a hub visit), the current selection/lens follow the hub entity, and a
+  // link out of the hub records an exact return point. No new store: ResearchProvider only.
+  const hubHref = `/entity-hub-preview/${encodeURIComponent(type)}/${encodeURIComponent(key)}`;
+  useEffect(() => {
+    const d = state.data;
+    if (!d?.identity?.nodeId) return;
+    const subject = { id: d.identity.nodeId, type: d.identity.type, label: String(d.identity.label || key), href: hubHref };
+    const selection = { entityId: d.identity.nodeId, entityType: d.identity.type };
+    const lens = d.identity.type === "number" ? "number" : "graph";
+    const ctx = research?.context;
+    if (!ctx?.subject) research?.setResearchContext?.({ subject, selection, lens });
+    else research?.updateResearchContext?.({ selection, lens, returnTo: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.data]);
+  const leaveHub = useCallback((lens, selection) => {
+    const d = state.data;
+    if (!d?.identity?.nodeId) return;
+    const subject = { id: d.identity.nodeId, type: d.identity.type, label: String(d.identity.label || key), href: hubHref };
+    research?.updateResearchContext?.({ lens, selection, returnTo: { href: hubHref, label: subject.label, subject } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.data, hubHref]);
 
   const relationGroups = useMemo(() => {
     const out = new Map();
@@ -207,10 +295,13 @@ export default function EntityHubPreviewPage() {
   const insights = Array.isArray(surface.insights) ? surface.insights : [];
   const topics = Array.isArray(data.topics?.rows) ? data.topics.rows : [];
   const families = Array.isArray(data.gematria?.families) ? data.gematria.families : [];
+  const phraseEntities = data.gematria?.phraseEntities || {};
+  const bridgeRows = Array.isArray(data.methodBridge?.results) ? data.methodBridge.results : [];
+  const gematriaIdentity = data.identity?.gematria || null;
   const heroImages = galleries.slice(0, 3);
   const imageMap = new Map(galleries.map(item => [String(item.id), item]));
 
-  return <main style={page}>
+  return <main className="eh-func" style={page}>
     <div style={shell}>
       <header style={{ ...card, padding: 22, overflow: "hidden", position: "relative" }}>
         <div className="eh-hero-grid" style={{ display: "grid", gridTemplateColumns: heroImages.length ? "minmax(0,1.05fr) minmax(360px,.95fr)" : "1fr", gap: 22, alignItems: "stretch" }}>
@@ -223,10 +314,11 @@ export default function EntityHubPreviewPage() {
               <span style={chipStyle("ok")}>Public preview</span>
               <span style={chipStyle("ok")}>Projection read-only</span>
               <span style={chipStyle("warn")}>Human Gate נשמר</span>
+              {gematriaIdentity ? <span style={chipStyle("gold")} title={`gematria_words:${gematriaIdentity.gematriaWordId}`}>🔢 זהות גימטרית קנונית{gematriaIdentity.verified ? " · מאומת" : ""}{gematriaIdentity.published ? " · מפורסם" : ""}</span> : null}
             </div>
             {declaredLenses.length ? <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>{declaredLenses.slice(0, 10).map(lens => <span key={lens} style={chipStyle()}>{lens}</span>)}</div> : null}
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 18 }}>
-              {isNumber ? <Link to={`/number/${encodeURIComponent(identity.label)}`} style={{ textDecoration: "none", background: C.gold, color: "#fff", padding: "10px 16px", borderRadius: 999, fontWeight: 900 }}>הדף הקיים ←</Link> : null}
+              {isNumber ? <Link to={`/number/${encodeURIComponent(identity.label)}`} style={{ textDecoration: "none", background: C.gold, color: C.onGold, padding: "10px 16px", borderRadius: 999, fontWeight: 900 }}>הדף הקיים ←</Link> : null}
               <Link to="/beit-midrash" style={{ textDecoration: "none", border: `1px solid ${C.gold2}`, color: C.gold, padding: "10px 16px", borderRadius: 999, fontWeight: 850 }}>בית המדרש ←</Link>
             </div>
           </div>
@@ -246,17 +338,43 @@ export default function EntityHubPreviewPage() {
         <Stat label="פוסטים" value={surface.postsCount ?? posts.length} note="תוכן מחובר" />
       </div>
 
-      {isNumber ? <EntityHubGoldenControls data={data} relationGroups={relationGroups} /> : null}
+      {isNumber ? <EntityHubGoldenControls data={data} relationGroups={relationGroups} onLeave={leaveHub} /> : null}
 
-      {isNumber ? <Section eyebrow="GEMATRIA LENS" title={`איך  ${identity.label}  מופיע בגימטריה`} subtitle="כאן רואים את ההבדל שחשוב לנו להחליט עליו: הביטוי הוא הישות הלחיצה הראשית; השיטה היא עדשה נפרדת עם Identity והגדרה משלה. כרגע לחיצה על שם השיטה פותחת Inspector זמני רק כדי שנוכל להחליט יחד — זו עדיין לא התנהגות קנונית.">
+      {/* ── ENTITY → NUMBER: generic method-result bridge (P1/P2 portability). One row per method the
+          canonical engine returned; each engine value links to the EXISTING number node (hub + legacy page).
+          Nothing is hardcoded to a phrase or a method; verification is honest (match/mismatch only when a
+          stored canonical value exists). ── */}
+      {!isNumber && (bridgeRows.length || gematriaIdentity) ? <Section eyebrow="GEMATRIA LENS · METHOD RESULTS" title={`${identity.label} בכל שיטה — ומאיפה זה מגיע`} subtitle={data.methodBridge?.note}
+        action={gematriaIdentity ? <span style={chipStyle("gold")} title={`gematria_words:${gematriaIdentity.gematriaWordId}`}>מקור: gematria_words · מנוע: gematria_api · Registry</span> : null}>
+        {bridgeRows.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 12 }} data-testid="method-bridge">
+          {bridgeRows.map(row => <article key={row.dbColumn} style={{ border: `1px solid ${row.numberNode ? C.gold2 : C.line}`, background: C.panel, borderRadius: 15, padding: 14 }} data-method={row.dbColumn}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <button onClick={() => setMethodFocus({ method: row.methodKey, registry: row.registry, phrase: identity.label, value: row.engineValue, phrases: [] })} style={{ ...buttonReset, cursor: "pointer", background: "none", padding: 0, color: C.ink, textAlign: "right", flex: 1 }}>
+                <div style={{ fontWeight: 950, fontSize: 17 }}>{row.displayLabel} <span style={{ color: C.gold, fontSize: 12 }}>↗ trace</span></div>
+                <div style={{ ...muted, marginTop: 3 }}>{row.registry?.sub || (row.registry ? "שיטה רשומה" : "שיטה שהמנוע החזיר ואינה ב־Registry")}</div>
+              </button>
+              {row.hrefs ? <Link to={row.hrefs.hub} onClick={() => leaveHub("number", { entityId: String(row.engineValue), entityType: "number" })}
+                style={{ textDecoration: "none", fontWeight: 950, fontSize: 24, color: C.onGold, background: "linear-gradient(135deg,#ffd86b,#d8b34a)", borderRadius: 12, padding: "4px 12px", lineHeight: 1.3 }} title={`מרכז המספר ${row.engineValue}`}>{row.engineValue}</Link>
+                : <span style={{ fontWeight: 950, fontSize: 24, color: C.ink, border: `1px dashed ${C.line}`, borderRadius: 12, padding: "4px 12px", lineHeight: 1.3 }} title="אין עדיין node מספר לערך הזה">{row.engineValue}</span>}
+            </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
+              <span style={chipStyle(verificationTone(row.verificationState))} title="VERIFICATION axis">{VERIFICATION_TXT[row.verificationState] || row.verificationState}</span>
+              <span style={chipStyle(row.governed ? "ok" : "warn")}>{row.governed ? "governed evidence" : "לא governed"}</span>
+              {row.hrefs ? <Link to={row.hrefs.number} onClick={() => leaveHub("number", { entityId: String(row.engineValue), entityType: "number" })} style={{ ...chipStyle("neutral"), textDecoration: "none" }}>דף המספר ←</Link> : <span style={chipStyle("neutral")}>ללא node מספר</span>}
+            </div>
+          </article>)}
+        </div> : <Empty>למנוע אין תוצאות לביטוי הזה.</Empty>}
+      </Section> : null}
+
+      {isNumber ? <Section eyebrow="GEMATRIA LENS" title={`איך  ${identity.label}  מופיע בגימטריה`} subtitle="הביטוי הוא הישות הלחיצה הראשית (🔹 = יש לו מרכז ישות קנוני משלו); השיטה היא עדשה נפרדת עם Identity והגדרה משלה. לחיצה על שם השיטה פותחת Inspector (Registry + trace).">
         {families.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))", gap: 12 }}>
           {families.map(group => {
             const r = group.registry || {};
             const list = (group.phrases || []).slice(0, 7);
             const regular = group.method === "רגיל";
-            return <article key={group.method} style={{ border: `1px solid ${regular ? C.gold2 : C.line}`, background: regular ? "linear-gradient(180deg,#fffdf7,#fbf3dd)" : "#fff", borderRadius: 15, padding: 14 }}>
+            return <article key={group.method} style={{ border: `1px solid ${regular ? C.gold2 : C.line}`, background: regular ? C.goldBg : C.panel, borderRadius: 15, padding: 14 }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <button onClick={() => setMethodFocus({ ...group, value: identity.label })} style={{ ...buttonReset, cursor: "pointer", background: "none", padding: 0, color: C.ink, textAlign: "right", flex: 1 }}>
+                <button onClick={() => setMethodFocus({ ...group, value: identity.label, phraseEntities })} style={{ ...buttonReset, cursor: "pointer", background: "none", padding: 0, color: C.ink, textAlign: "right", flex: 1 }}>
                   <div style={{ fontWeight: 950, fontSize: 17 }}>{r.display_label || group.method} <span style={{ color: C.gold, fontSize: 12 }}>↗</span></div>
                   <div style={{ ...muted, marginTop: 3 }}>{r.sub || "שיטת גימטריה רשומה"}</div>
                 </button>
@@ -265,7 +383,13 @@ export default function EntityHubPreviewPage() {
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
                 {list.map((item, i) => {
                   const phrase = phraseOf(item);
-                  return phrase ? <Link key={`${group.method}-${phrase}-${i}`} to={`/number/${encodeURIComponent(phrase)}`} style={{ color: C.ink, textDecoration: "none", background: "#f7f4ed", border: `1px solid ${C.line}`, borderRadius: 999, padding: "5px 9px", fontSize: 12.5 }}>{phrase} <b style={{ color: C.gold }}>= {identity.label}</b></Link> : null;
+                  if (!phrase) return null;
+                  const ent = phraseEntities[phrase] || null;
+                  // NUMBER → ENTITY: a phrase with a canonical entity node opens its own hub (data-derived, not hardcoded).
+                  return <Link key={`${group.method}-${phrase}-${i}`} to={ent ? ent.href : `/number/${encodeURIComponent(phrase)}`}
+                    onClick={() => leaveHub(ent ? "entity" : "number", { entityId: ent ? ent.nodeId : phrase, entityType: ent ? "entity" : "phrase" })}
+                    data-entity-node={ent ? ent.nodeId : undefined}
+                    style={{ color: C.ink, textDecoration: "none", background: C.softBg, border: `1px solid ${ent ? C.gold2 : C.line}`, borderRadius: 999, padding: "5px 9px", fontSize: 12.5 }}>{ent ? "🔹 " : ""}{phrase} <b style={{ color: C.gold }}>· {r.display_label || group.method} = {identity.label}</b></Link>;
                 })}
               </div>
             </article>;
@@ -289,35 +413,35 @@ export default function EntityHubPreviewPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(290px,1fr))", gap: 14 }}>
           <div>
             <h3 style={{ margin: "0 0 9px" }}>📖 פוסטים</h3>
-            {posts.length ? <div style={{ display: "grid", gap: 7 }}>{posts.slice(0, 8).map(p => <Link key={p.wp_id || p.id || p.slug} to={`/${p.slug}`} style={{ color: C.ink, textDecoration: "none", border: `1px solid ${C.line}`, background: "#fff", borderRadius: 12, padding: "10px 12px", fontWeight: 750 }}>{cleanText(typeof p.title === "string" ? p.title : p.title?.rendered || p.slug, 120)}</Link>)}</div> : <Empty />}
+            {posts.length ? <div style={{ display: "grid", gap: 7 }}>{posts.slice(0, 8).map(p => <Link key={p.wp_id || p.id || p.slug} to={`/${p.slug}`} style={{ color: C.ink, textDecoration: "none", border: `1px solid ${C.line}`, background: C.panel, borderRadius: 12, padding: "10px 12px", fontWeight: 750 }}>{cleanText(typeof p.title === "string" ? p.title : p.title?.rendered || p.slug, 120)}</Link>)}</div> : <Empty />}
           </div>
           <div>
             <h3 style={{ margin: "0 0 9px" }}>✨ חידושים</h3>
-            {insights.length ? <div style={{ display: "grid", gap: 7 }}>{insights.slice(0, 6).map(it => <div key={it.id} style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 12, padding: "10px 12px" }}><div style={{ fontWeight: 850 }}>{cleanText(it.title || "חידוש", 100)}</div>{it.body ? <div style={{ ...muted, marginTop: 4 }}>{cleanText(it.body, 170)}</div> : null}</div>)}</div> : <Empty />}
+            {insights.length ? <div style={{ display: "grid", gap: 7 }}>{insights.slice(0, 6).map(it => <div key={it.id} style={{ border: `1px solid ${C.line}`, background: C.panel, borderRadius: 12, padding: "10px 12px" }}><div style={{ fontWeight: 850 }}>{cleanText(it.title || "חידוש", 100)}</div>{it.body ? <div style={{ ...muted, marginTop: 4 }}>{cleanText(it.body, 170)}</div> : null}</div>)}</div> : <Empty />}
           </div>
         </div>
       </Section>
 
       <Section eyebrow="ONE REALITY GRAPH" title="הקשרים בעץ" subtitle="ה־Hub לא יוצר קשרים. הוא רק מקבץ את ה־edges שכבר חיים ב־Reality Graph.">
-        {relationGroups.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 11 }}>{relationGroups.map(([relation, findings]) => <div key={relation} style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 14, padding: 12 }}><div style={{ fontWeight: 950, color: C.gold }}>{relation} · {findings.length}</div>{findings.slice(0, 7).map(f => <div key={f.id} style={{ ...muted, borderTop: "1px solid #f0eadf", paddingTop: 6, marginTop: 6 }}>{f.subject?.label}</div>)}</div>)}</div> : <Empty />}
+        {relationGroups.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 11 }}>{relationGroups.map(([relation, findings]) => <div key={relation} style={{ border: `1px solid ${C.line}`, background: C.panel, borderRadius: 14, padding: 12 }}><div style={{ fontWeight: 950, color: C.gold }}>{relation} · {findings.length}</div>{findings.slice(0, 7).map(f => <div key={f.id} style={{ ...muted, borderTop: `1px solid ${C.line}`, paddingTop: 6, marginTop: 6 }}>{f.subject?.label}</div>)}</div>)}</div> : <Empty />}
       </Section>
 
       {isNumber ? <Section eyebrow="JOURNEY" title="Number Knowledge Journey" subtitle="המסע הקיים נשאר traversal/snapshot של אותו מחקר; ה־Hub אינו ממציא Path Store נוסף.">
         {journey ? <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(260px,.55fr)", gap: 13 }} className="eh-journey-grid">
-          <div style={{ border: `1px solid ${C.line}`, borderRadius: 15, padding: 14, background: "#fff" }}>
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 15, padding: 14, background: C.panel }}>
             <div style={{ fontSize: 19, fontWeight: 950 }}>{journey.seed?.title || `מסע ${identity.label}`}</div>
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}><span style={chipStyle(statusTone(journey.seed?.governance?.status))}>seed: {journey.seed?.governance?.status || "unknown"}</span><span style={chipStyle()}>branches: {journey.branches?.length || 0}</span></div>
             {journey.branches?.length ? <div style={{ display: "grid", gap: 7, marginTop: 12 }}>{journey.branches.slice(0, 8).map((branch, i) => <div key={branch.id || i} style={{ border: `1px solid ${C.line}`, borderRadius: 11, padding: "9px 10px" }}><b>{branch.branch_name || branch.name || `ענף ${i + 1}`}</b>{branch.description ? <div style={{ ...muted, marginTop: 3 }}>{cleanText(branch.description, 170)}</div> : null}</div>)}</div> : null}
           </div>
-          <div style={{ border: `1px dashed ${C.gold2}`, borderRadius: 15, padding: 14, background: C.goldBg }}><div style={{ fontWeight: 950, color: C.gold }}>Live map ≠ Approved</div><div style={{ ...muted, color: "#655321", marginTop: 5 }}>חישובים חיים אינם יורשים את האישור של ה־seed. זו בדיוק ההפרדה בין Projection לבין Human Gate.</div></div>
+          <div style={{ border: `1px dashed ${C.gold2}`, borderRadius: 15, padding: 14, background: C.goldBg }}><div style={{ fontWeight: 950, color: C.gold }}>Live map ≠ Approved</div><div style={{ ...muted, color: C.warn, marginTop: 5 }}>חישובים חיים אינם יורשים את האישור של ה־seed. זו בדיוק ההפרדה בין Projection לבין Human Gate.</div></div>
         </div> : <Empty>אין מסע זמין כרגע.</Empty>}
       </Section> : null}
 
       <Section eyebrow="GOVERNANCE / PROVENANCE" title="מה נשאר מאחורי הקלעים" subtitle="Preview ציבורי אינו עוקף את ה־RLS/GRANT. שכבה פרטית נשארת פרטית; אנחנו מציגים את החוויה בלי להחליש את האמת או את ההרשאות.">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 12 }}>
-          <div style={{ border: `1px solid ${C.line}`, borderRadius: 14, padding: 13, background: "#fff" }}><b>Human Gate</b><div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 9 }}>{researchAvailable ? Object.entries(hg.status || {}).filter(([, count]) => count).map(([name, count]) => <span key={name} style={chipStyle(statusTone(name))}>{name}: {count}</span>) : <span style={chipStyle("private")}>Research layer protected</span>}</div></div>
-          <div style={{ border: `1px solid ${C.line}`, borderRadius: 14, padding: 13, background: "#fff" }}><b>Sources</b>{data.sources?.length ? <div style={{ ...muted, marginTop: 7 }}>{data.sources.slice(0, 7).map((source, i) => <div key={`${source.ref || source.label}-${i}`}>• {cleanText(source.label, 120)}</div>)}</div> : <Empty />}</div>
-          <div style={{ border: `1px solid ${C.line}`, borderRadius: 14, padding: 13, background: "#fff" }}><b>Activity timeline v0</b>{data.timeline?.length ? <div style={{ ...muted, marginTop: 7 }}>{data.timeline.slice(-6).map(item => <div key={`${item.id}-${item.at}`}>{new Date(item.at).toLocaleDateString("he-IL")} · {cleanText(item.label, 90)}</div>)}</div> : <Empty />}</div>
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 14, padding: 13, background: C.panel }}><b>Human Gate</b><div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 9 }}>{researchAvailable ? Object.entries(hg.status || {}).filter(([, count]) => count).map(([name, count]) => <span key={name} style={chipStyle(statusTone(name))}>{name}: {count}</span>) : <span style={chipStyle("private")}>Research layer protected</span>}</div></div>
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 14, padding: 13, background: C.panel }}><b>Sources</b>{data.sources?.length ? <div style={{ ...muted, marginTop: 7 }}>{data.sources.slice(0, 7).map((source, i) => <div key={`${source.ref || source.label}-${i}`}>• {cleanText(source.label, 120)}</div>)}</div> : <Empty />}</div>
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 14, padding: 13, background: C.panel }}><b>Activity timeline v0</b>{data.timeline?.length ? <div style={{ ...muted, marginTop: 7 }}>{data.timeline.slice(-6).map(item => <div key={`${item.id}-${item.at}`}>{new Date(item.at).toLocaleDateString("he-IL")} · {cleanText(item.label, 90)}</div>)}</div> : <Empty />}</div>
         </div>
       </Section>
 
@@ -325,7 +449,7 @@ export default function EntityHubPreviewPage() {
     </div>
 
     <ImageModal item={zoom} onClose={() => setZoom(null)} />
-    <MethodModal group={methodFocus} onClose={() => setMethodFocus(null)} />
+    <MethodModal group={methodFocus} onClose={() => setMethodFocus(null)} onLeave={leaveHub} />
 
     <style>{`
       .eh-mosaic button img { transition: transform .3s ease, opacity .3s ease; }

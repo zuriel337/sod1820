@@ -3,12 +3,20 @@ import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { researchNumber } from "./numericResearch.js";
+import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
+import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
-const METHOD_FIELDS = "method_key,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
+// db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
+const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
+// Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
+// internal keys stripped server-side. Never the raw table from a public projection.
+const TOPIC_SOURCE = "topic_cards_public";
+const GW_IDENTITY_PREFIX = "gw:";
+const HUB_ROUTE = "/entity-hub-preview";
 
 function clean(value) {
   if (value == null) return "";
@@ -123,22 +131,39 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40 } = {}) {
   }
 }
 
-async function fetchTopicFindingsForNumber(number, { limit = 12 } = {}) {
-  const cap = safeLimit(limit, 12, 40);
-  const { data, error } = await supabase
-    .from("topic_cards")
-    .select(TOPIC_FIELDS)
-    .eq("status", "approved")
-    .contains("numbers", [number])
-    .order("quality", { ascending: false, nullsFirst: false })
-    .limit(cap);
-  if (error) throw error;
-
-  const rows = Array.isArray(data) ? data : [];
+async function topicRowsToFindings(rows) {
   const findings = (await Promise.all(
     rows.map(row => row?.slug ? fetchCanonicalTopicConvergenceFinding(row.slug) : null)
   )).filter(Boolean);
   return { rows, findings };
+}
+
+async function fetchTopicFindingsForNumber(number, { limit = 12 } = {}) {
+  const cap = safeLimit(limit, 12, 40);
+  const { data, error } = await supabase
+    .from(TOPIC_SOURCE)
+    .select(TOPIC_FIELDS)
+    .contains("numbers", [number])
+    .order("quality", { ascending: false, nullsFirst: false })
+    .limit(cap);
+  if (error) throw error;
+  return topicRowsToFindings(Array.isArray(data) ? data : []);
+}
+
+// Non-number entities: approved Topic/Convergence cards that list the entity label among their
+// search_terms. Bounded, public read model only, no fuzzy matching (no fabricated topic identity).
+async function fetchTopicFindingsForTerm(term, { limit = 12 } = {}) {
+  const label = clean(term);
+  if (!label) return { rows: [], findings: [] };
+  const cap = safeLimit(limit, 12, 40);
+  const { data, error } = await supabase
+    .from(TOPIC_SOURCE)
+    .select(TOPIC_FIELDS)
+    .overlaps("search_terms", [label])
+    .order("quality", { ascending: false, nullsFirst: false })
+    .limit(cap);
+  if (error) throw error;
+  return topicRowsToFindings(Array.isArray(data) ? data : []);
 }
 
 async function fetchMethodRegistry(methodKeys = []) {
@@ -151,6 +176,187 @@ async function fetchMethodRegistry(methodKeys = []) {
     .order("sort_order", { ascending: true, nullsFirst: false });
   if (error) throw error;
   return Array.isArray(data) ? data : [];
+}
+
+// ── GENERIC METHOD-RESULT BRIDGE (P1_1237_HITGALUT_METHOD_BRIDGE_RECONCILIATION_V1, work_log 14d66a0e) ──
+// Number → Entity and Entity → Number portability without a new relation type, store or edge:
+//   • an entity's canonical gematria identity = its public gematria_words row (identity_key gw:<uuid>,
+//     or the verified+published row whose phrase equals the label) — RLS-filtered, read-only;
+//   • the canonical engine (gematria_api via the existing canonicalGematria adapter) produces one
+//     Universal Finding per method it actually returned — nothing hardcoded per method;
+//   • the Registry (gematria_methods, joined on db_column) supplies identity/semantics/governance;
+//   • each engine value is linked to the EXISTING number node of that value when one exists.
+// The stored gematria_words value is a real prior CLAIM for that method, so the envelope may carry
+// an honest match/mismatch; a method with no stored value stays not_tested (HG-3, never fabricated).
+// A bridge row is a PROJECTION LINK (Trace ≠ Finding ≠ Claim ≠ Edge) — it never writes anything.
+
+async function fetchGematriaIdentity(node) {
+  const identityKey = clean(node?.identity_key);
+  const label = clean(node?.label);
+  let q = supabase.from("gematria_words").select("*");
+  if (identityKey.startsWith(GW_IDENTITY_PREFIX)) q = q.eq("id", identityKey.slice(GW_IDENTITY_PREFIX.length));
+  else if (label) q = q.eq("phrase", label).order("is_verified", { ascending: false }).limit(1);
+  else return null;
+  const { data, error } = await q.maybeSingle();
+  if (error) {
+    if (isAccessDenied(error)) return null;
+    throw error;
+  }
+  return data || null;
+}
+
+async function fetchRegistryByDbColumns(dbColumns = []) {
+  const cols = [...new Set((dbColumns || []).map(clean).filter(Boolean))];
+  if (!cols.length) return [];
+  const { data, error } = await supabase
+    .from("gematria_methods")
+    .select(METHOD_FIELDS)
+    .in("db_column", cols)
+    .order("sort_order", { ascending: true, nullsFirst: false });
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
+// Bounded label lookup. PostgREST filters travel in the URL (~8 KB limit), and Hebrew labels
+// URL-encode to ~9 bytes per letter, so the list is capped and chunked (never one giant .in()).
+const LABEL_LOOKUP_CAP = 160;
+const LABEL_LOOKUP_CHUNK = 32;
+async function fetchNodesByLabels(type, labels = [], { limit = LABEL_LOOKUP_CAP } = {}) {
+  const list = [...new Set((labels || []).map(clean).filter(Boolean))].slice(0, safeLimit(limit, LABEL_LOOKUP_CAP, 400));
+  if (!list.length) return [];
+  const chunks = [];
+  for (let i = 0; i < list.length; i += LABEL_LOOKUP_CHUNK) chunks.push(list.slice(i, i + LABEL_LOOKUP_CHUNK));
+  const results = await Promise.all(chunks.map(async chunk => {
+    const { data, error } = await supabase
+      .from("nodes")
+      .select("id,type,label,identity_key,metadata")
+      .eq("type", type)
+      .eq("is_active", true)
+      .in("label", chunk)
+      .limit(chunk.length);
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  }));
+  return results.flat();
+}
+// Phrases a renderer actually shows per family (page cards show 7, controls/modal up to 18).
+const SHOWN_PHRASES_PER_FAMILY = 18;
+
+const hubHref = (type, key) => `${HUB_ROUTE}/${encodeURIComponent(type)}/${encodeURIComponent(key)}`;
+
+/**
+ * Pure. Joins canonical engine findings (kind="gematria") with the public gematria_words row, the
+ * Registry (by db_column) and existing number nodes into typed projection links. Never computes a
+ * value, never invents a method, never mutates its inputs.
+ */
+export function buildMethodResultBridge({ subjectLabel, subjectNodeId = null, gwRow = null, engineFindings = [], registryRows = [], numberNodes = [] } = {}) {
+  const label = clean(subjectLabel);
+  const registryByColumn = new Map((registryRows || []).filter(r => r?.db_column).map(r => [String(r.db_column), r]));
+  const nodeByLabel = new Map((numberNodes || []).filter(n => n?.id && n?.label != null).map(n => [String(n.label), n]));
+  const createdAt = new Date().toISOString();
+
+  const rows = (engineFindings || [])
+    .filter(f => f?.kind === "gematria" && f?.source?.method && Number.isFinite(Number(f?.subject?.value)))
+    .map(f => {
+      const dbColumn = String(f.source.method);
+      const engineValue = Number(f.subject.value);
+      const registry = registryByColumn.get(dbColumn) || null;
+      const methodKey = registry?.method_key || dbColumn;
+      const storedRaw = gwRow && Object.prototype.hasOwnProperty.call(gwRow, dbColumn) ? gwRow[dbColumn] : null;
+      const storedValue = storedRaw == null || storedRaw === "" ? null : Number(storedRaw);
+      const hasStoredClaim = storedValue != null && Number.isFinite(storedValue);
+      const verificationState = hasStoredClaim ? (storedValue === engineValue ? "match" : "mismatch") : "not_tested";
+      const numberNode = nodeByLabel.get(String(engineValue)) || null;
+      const governed = Boolean(registry && registry.active && registry.in_engine);
+
+      const finding = makeUniversalFinding({
+        kind: "gematria",
+        subject: { type: "phrase", key: f.subject.key, label: f.subject.label || label, value: engineValue, lang: "he" },
+        source: { engine: "gematria", adapter: "entity-hub-method-bridge-v1", method: methodKey, sourceRef: gwRow?.id ? `gematria_words:${gwRow.id}` : null, lang: "he" },
+        identity: {
+          sourceIdentity: { methodKey, dbColumn, normalizedSubject: f.subject.key, value: engineValue },
+          entityRef: subjectNodeId ? String(subjectNodeId) : null,
+          relationRef: numberNode ? `projection:method-result:${dbColumn}→nodes:${numberNode.id}` : null,
+        },
+        verification: {
+          claimed_expression: hasStoredClaim ? label : null,
+          claimed_method: hasStoredClaim ? methodKey : null,
+          claimed_value: hasStoredClaim ? storedValue : null,
+          engine_method_tested: dbColumn,
+          engine_result: engineValue,
+          statement_lang: hasStoredClaim ? "he" : null,
+          verification_state: VALID_VERIFICATION_STATES.includes(verificationState) ? verificationState : null,
+        },
+        evidence: {
+          refs: [...(gwRow?.id ? [`gematria_words:${gwRow.id}`] : []), ...(numberNode ? [`nodes:${numberNode.id}`] : [])],
+          facts: [{ type: "gematria-method-value", methodKey, dbColumn, normalizedSubject: f.subject.key, value: engineValue, storedValue: hasStoredClaim ? storedValue : null }],
+        },
+        provenance: { createdBy: "ENGINE:gematria", createdAt, inputRef: subjectNodeId ? `node:${subjectNodeId}` : null },
+        projection: {
+          relations: numberNode ? [{ type: "method-result-link", methodKey, dbColumn, value: engineValue, toNodeId: String(numberNode.id), toType: "number" }] : [],
+          dimensions: { numeric: { methodKey: dbColumn, value: engineValue } },
+        },
+        view: { rendererHints: { role: "method-result" } },
+      });
+
+      return {
+        methodKey,
+        dbColumn,
+        displayLabel: registry?.display_label || methodKey,
+        registry,
+        governed,
+        engineValue,
+        storedValue: hasStoredClaim ? storedValue : null,
+        verificationState,
+        numberNode: numberNode ? { id: String(numberNode.id), label: String(numberNode.label), identityKey: numberNode.identity_key || null } : null,
+        hrefs: numberNode ? { number: `/number/${engineValue}`, hub: hubHref("number", String(engineValue)) } : null,
+        sortOrder: registry?.sort_order ?? null,
+        finding,
+      };
+    });
+
+  return rows.sort((a, b) => {
+    const ao = a.sortOrder ?? 999, bo = b.sortOrder ?? 999;
+    if (ao !== bo) return ao - bo;
+    return a.methodKey.localeCompare(b.methodKey);
+  });
+}
+
+// Pure. Maps the phrases shown in a number's gematria families to EXISTING entity nodes so a phrase
+// chip can open the canonical entity hub instead of a label-only search. No node is ever created.
+export function buildPhraseEntityLinks(entityNodes = []) {
+  const out = {};
+  for (const n of entityNodes || []) {
+    const label = clean(n?.label);
+    if (!label || !n?.id || out[label]) continue;
+    out[label] = { nodeId: String(n.id), identityKey: n.identity_key || null, href: hubHref("entity", label) };
+  }
+  return out;
+}
+
+async function fetchMethodResultBridge(node) {
+  const gwRow = await fetchGematriaIdentity(node);
+  const label = clean(gwRow?.phrase) || clean(node?.label);
+  if (!label) return { identity: null, results: [], engineFindings: [] };
+  const engineFindings = await fetchCanonicalGematriaFindings(label);
+  const columns = engineFindings.map(f => f?.source?.method).filter(Boolean);
+  const [registryRows, numberNodes] = await Promise.all([
+    fetchRegistryByDbColumns(columns),
+    fetchNodesByLabels("number", engineFindings.map(f => f?.subject?.value)),
+  ]);
+  const results = buildMethodResultBridge({ subjectLabel: label, subjectNodeId: node?.id, gwRow, engineFindings, registryRows, numberNodes });
+  return {
+    identity: gwRow ? {
+      gematriaWordId: String(gwRow.id),
+      phrase: gwRow.phrase,
+      verified: gwRow.is_verified === true,
+      published: gwRow.is_published === true,
+      nodeId: gwRow.node_id ? String(gwRow.node_id) : null,
+      source: "gematria_words (public RLS: verified+published)",
+    } : null,
+    results,
+    engineFindings,
+  };
 }
 
 function enrichGematriaFamilies(families, registryRows) {
@@ -332,8 +538,19 @@ export async function fetchEntityHubProjection({
   let worlds = [];
   let signatures = [];
   let zeroScale = null;
+  let phraseEntities = {};
+  let methodBridge = { identity: null, results: [], engineFindings: [] };
 
-  if (node.type === "number" && Number.isSafeInteger(Number(node.label))) {
+  const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
+  if (!isNumberNode) {
+    // Entity → Number bridge (generic: any node with a canonical gematria identity).
+    [methodBridge, topics] = await Promise.all([
+      fetchMethodResultBridge(node),
+      fetchTopicFindingsForTerm(node.label, { limit: topicLimit }),
+    ]);
+  }
+
+  if (isNumberNode) {
     const number = Number(node.label);
     [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale] = await Promise.all([
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
@@ -351,13 +568,22 @@ export async function fetchEntityHubProjection({
       fetchNumberSignatures(number),
       fetchZeroScale(number),
     ]);
-    methodRegistry = await fetchMethodRegistry(gematriaFamilies.map(group => group.method));
+    // Number → Entity bridge: phrases already shown in the families resolve to EXISTING entity nodes
+    // (bounded to the shown phrases; nothing is created). This is what makes
+    // "<phrase> · <method> = <number>" clickable into the canonical entity hub.
+    const shownPhrases = gematriaFamilies.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
+    const [registryRows, entityNodes] = await Promise.all([
+      fetchMethodRegistry(gematriaFamilies.map(group => group.method)),
+      fetchNodesByLabels("entity", shownPhrases),
+    ]);
+    methodRegistry = registryRows;
     gematriaFamilies = enrichGematriaFamilies(gematriaFamilies, methodRegistry);
+    phraseEntities = buildPhraseEntityLinks(entityNodes);
     numberJourney = projectNumberJourney(numberResearch);
   }
 
   return {
-    v: 2,
+    v: 3,
     identity: {
       nodeId: String(node.id),
       type: node.type,
@@ -365,6 +591,15 @@ export async function fetchEntityHubProjection({
       label: node.label,
       definition,
       finding: entityFinding,
+      hubHref: hubHref(node.type, node.identity_key && node.type !== "number" ? node.label : node.label),
+      // Canonical gematria identity of a non-number entity (null when the node has none / not public).
+      gematria: methodBridge.identity,
+    },
+    // Entity → Number typed projection links (one per engine method); empty for number nodes.
+    methodBridge: {
+      results: methodBridge.results,
+      engineFindings: methodBridge.engineFindings,
+      note: "Projection links derived from canonical gematria identity + engine + Registry. Not graph edges, not claims; match/mismatch only where a stored canonical value exists.",
     },
     graph: {
       entity: entityFinding,
@@ -381,8 +616,10 @@ export async function fetchEntityHubProjection({
     gematria: {
       families: gematriaFamilies,
       registry: methodRegistry,
+      // Number → Entity: shown phrase → existing canonical entity node (hub href). Missing = no node yet.
+      phraseEntities,
       interactionDecision: "OPEN_HUMAN_GATE",
-      note: "Method identity and engine result are live; method-click/decomposition UX is intentionally undecided in this preview.",
+      note: "Method identity and engine result are live; the Method Inspector renders Registry semantics + the canonical trace (Method = Dimension). Decomposition UX beyond that remains a Human-Gate decision.",
     },
     numberWorlds: worlds,
     signatures,
