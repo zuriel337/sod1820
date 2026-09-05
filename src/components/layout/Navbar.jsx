@@ -70,7 +70,10 @@ const MORE_HIDE = ["/start", "/members", "/lab", "/forum", "/community", "/broad
 // «קהילה» ב-NAV נושאת ילדים (צ'אט · פורום · חוקרים…) שנאבדים כשמרנדרים אותה כאריח-בודד
 // בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
 // ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
-const MENU_GROUPS = QUICK_NAV_GROUPS;
+const CHAT_MENU_ITEM = { emoji: "💬", label: "צ׳אט", to: "/community/chat" };
+const MENU_GROUPS = QUICK_NAV_GROUPS.some(g => g.items?.some(it => it.to === CHAT_MENU_ITEM.to))
+  ? QUICK_NAV_GROUPS
+  : [...QUICK_NAV_GROUPS, { title: "קהילה", items: [CHAT_MENU_ITEM] }];
 
 const MOBILE_TILES = MENU_GROUPS.flatMap(g => g.items.map(it => ({
   e: it.emoji, l: it.label, to: it.to, locked: it.locked, icon: it.icon,
@@ -313,7 +316,7 @@ function MenuPanel({ groups, pathname, cc }) {
           position: "absolute", top: "calc(100% + 10px)", left: 0, width: "min(620px, 88vw)",
           background: pc.panelBg, backdropFilter: light ? "none" : "blur(16px)",
           border: `1px solid ${pc.panelBorder}`, borderRadius: 18, padding: 14, zIndex: 250,
-          boxShadow: pc.shadow,
+          boxShadow: pc.shadow, maxHeight: "min(72vh,680px)", overflowY: "auto", overscrollBehavior: "contain",
         }}>
           <div style={{color:pc.heading,fontFamily:F.ui,fontSize:11,fontWeight:800,letterSpacing:1.2,padding:"2px 5px 10px"}}>ניווט מהיר</div>
           <div style={{display:"grid",gap:12}}>
