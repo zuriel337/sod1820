@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { emit, EVENTS } from "./eventBus.js";
+import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
@@ -40,13 +41,15 @@ export default function ResearchProvider({ children }) {
   const [history, setHistory] = useState(() => init.history || []); // 🕘 היסטוריית מחקר (אחרונים)
   const [collections, setCollections] = useState(() => init.collections || []); // 📁 אוספים
   const [journeys, setJourneys] = useState(() => init.journeys || []); // 🧭 «המסעות שלי» — מסעות שהושלמו
+  // 🧭 Research Context — logical/personal navigation state בלבד. לא Finding/Truth/Graph store.
+  const [context, setContextState] = useState(() => normalizeResearchContext(init.context));
   // 🔬 מצב עבודה גלובלי — reader (ברירת מחדל, מעטפת ציבורית נקייה) | discovery (היכל הגילוי, הכל פתוח).
   // גלגול 7.2026: רק מבקר חוזר עובר למצב מחקר פעם אחת דרך initialMode; מבקר חדש נשאר על הנקי. נשמר מקומית.
   const [mode, setModeState] = useState(() => initialMode(init));
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, journeys, mode })); } catch { /* noop */ }
-  }, [cart, saved, pinned, history, collections, journeys, mode]);
+    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, journeys, context, mode })); } catch { /* noop */ }
+  }, [cart, saved, pinned, history, collections, journeys, context, mode]);
 
   // ☁️ סנכרון-ענן למשתמש מחובר — כל «עולם המשתמש» עובר בין מכשירים.
   const { user } = useAuth();
@@ -58,7 +61,7 @@ export default function ResearchProvider({ children }) {
     let alive = true;
     getCloudResearch(user.id).then(d => {
       if (!alive) return;
-      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length) || (d.journeys && d.journeys.length));
+      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length) || (d.journeys && d.journeys.length) || d.context);
       if (has) {
         if (Array.isArray(d.cart)) setCart(d.cart);
         if (Array.isArray(d.saved)) setSaved(d.saved);
@@ -66,8 +69,9 @@ export default function ResearchProvider({ children }) {
         if (Array.isArray(d.history)) setHistory(d.history);
         if (Array.isArray(d.collections)) setCollections(d.collections);
         if (Array.isArray(d.journeys)) setJourneys(d.journeys);
+        if (d.context) setContextState(normalizeResearchContext(d.context));
       } else {
-        saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys }).catch(() => {});
+        saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys, context }).catch(() => {});
       }
       pulled.current = true;
     }).catch(() => { pulled.current = true; });
@@ -76,9 +80,9 @@ export default function ResearchProvider({ children }) {
   // שינוי מצב + מחובר + אחרי המשיכה → דחיפה לענן (debounce)
   useEffect(() => {
     if (!user || !pulled.current) return;
-    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys }).catch(() => {}); }, 700);
+    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys, context }).catch(() => {}); }, 700);
     return () => clearTimeout(t);
-  }, [user, cart, saved, pinned, history, collections, journeys]);
+  }, [user, cart, saved, pinned, history, collections, journeys, context]);
 
   // 🕘 לוג-היסטוריה — «המשך מהמקום שעצרת». הכי-חדש למעלה, ללא כפילויות, מוגבל ל-50.
   const logHistory = useCallback((entity) => {
@@ -86,6 +90,27 @@ export default function ResearchProvider({ children }) {
     setHistory(h => [{ ...entity, t: Date.now() }, ...h.filter(e => e.id !== entity.id)].slice(0, 50));
   }, []);
   const clearHistory = useCallback(() => setHistory([]), []);
+
+  // 🧭 Context setters — projection/navigation state only. Never mutates Findings, truth or graph state.
+  const setResearchContext = useCallback((next) => {
+    setContextState((prev) => {
+      const value = typeof next === "function" ? next(prev) : next;
+      const normalized = value == null ? null : mergeResearchContext(null, value);
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
+      return normalized;
+    });
+  }, []);
+  const updateResearchContext = useCallback((patch) => {
+    setContextState((prev) => {
+      const normalized = mergeResearchContext(prev, patch);
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
+      return normalized;
+    });
+  }, []);
+  const clearResearchContext = useCallback(() => {
+    setContextState(null);
+    emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
+  }, []);
 
   // 🔠 ELS → Workspace bridge. ה-iframe הקנוני כבר פולט postMessage מסוג state דרך TzofenEmbed;
   // ResearchProvider רק רושם את החיפוש המוצלח בהיסטוריית-המחקר — בלי לחשב ELS, בלי ליצור Finding,
@@ -201,10 +226,11 @@ export default function ResearchProvider({ children }) {
   const toggleMode = useCallback(() => setModeState(m => (m === "discovery" ? "reader" : "discovery")), []);
 
   const value = {
-    cart, saved, pinned, history, collections, journeys,
+    cart, saved, pinned, history, collections, journeys, context,
     addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
     logHistory, clearHistory, addCollection, updateCollection, removeCollection, assignCollection,
     addJourney, removeJourney, clearJourneys,
+    setResearchContext, updateResearchContext, clearResearchContext,
     mode, setMode, enterDiscovery, toggleMode,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
