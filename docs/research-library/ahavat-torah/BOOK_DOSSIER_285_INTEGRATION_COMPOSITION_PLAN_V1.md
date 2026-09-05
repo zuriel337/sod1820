@@ -104,6 +104,26 @@
 
 ---
 
+## 5. תוספת (additive, לא-שינוי-הגוף למעלה) — התאמה לחוזי-מסגרת קיימים, per GPT crosswalk `work_log 9343b19f`
+
+לאחר כתיבת §1-§4, התקבל crosswalk מ-GPT (`work_log 9343b19f-59ba-4e10-b2ae-41b573b1f844`) שהפנה לשני חוזים קיימים שהתוכנית-למעלה לא-ציטטה במפורש. הסעיף הזה **מוסיף** התאמה, לא-מוחק/לא-כותב-מחדש דבר מ-§1-§4 (שנשארים תקפים כלשונם).
+
+### 5.1 `docs/sod1820-system-frame-contract-v1.md` — שלוש שכבות-על גלובליות
+
+האתר כבר-מחזיק חוזה: **Top Navigator** (לגלות/לחקור/היכל/קהילה/ארכיון) + **Context Rail** + **Bottom Control Layer**. תוכנית-המסך ב-§2 (טאבי מבט-על/המקור/הדוסייה/המחקר/שכבות/3D) היא **ניווט-פנימי-לעמוד-ספר בלבד** — היא **אינה** שכבת-על רביעית, ולא מתחרה ב-Top Navigator/Context Rail הקיימים. זה תואם את החוזה כפי-שהוא (BookHubPage וה-tab-bar הפנימי שלה כבר-בנויים כך). **נקודה-פתוחה, מוסכמת עם GPT:** "ספרים" עדיין-לא מופיע כסעיף מפורש תחת "לגלות" ב-Top Navigator — ר' §23.30/הפניה זו כ-EXTENSION POINT-עתידי (לא-מיושם כאן), לא-Gate חדש.
+
+### 5.2 `docs/research-os-canonical-lock-v1.md` — Research OS אחד, Universal Research Bus אחד
+
+**מגבלה מחייבת שלא-הוזכרה מפורש ב-§1-§4:** `➕ הוסף למחקר` על כל ישות בדף-הספר (כולל שורה בודדת בטבלת-DS-02/DS-06 שב"הדוסייה המתועדת") **חייב** לפלוט Universal Finding לתוך ה-Workspace הקיים (`research_items`/`user_research`/`research_objects`) עם envelope מינימלי (`entity_type`,`entity_ref`,title,link,source,timestamp,metadata) — **`book` כבר-רשום** ברשימת-המשפחות-הקנוניות; שורת-dataset/occurrence-table בודדת **אינה** משפחה קנונית נפרדת. **המלצה:** קליק-➕ על שורה-בודדת מהדוסייה המתועדת פולט Finding עם `entity_type='book'`, `entity_ref=book:hebrewbooks:5635`, ו-`metadata` הנושא את ה-`source_ref`/`block_id`/page המדויקים (לא ישות-חדשה `dataset_row`). זה שומר על **אחד** Research OS, לא-ממציא bucket-שמור-חדש.
+
+### 5.3 מה זה משנה בפועל ל-KEEP/ADAPT/PARK (§1)
+
+שום שינוי-שורה — ה-KEEP/ADAPT/PARK נשאר כלשונו. זו **הבהרת-ציטוט** בלבד, שמראה שהתוכנית כבר-תואמת שני-החוזים-הקיימים בפועל (רק לא-ציטטה אותם בשמם בפאס-הראשון).
+
+**Provenance נוסף:** `work_log 9343b19f` (GPT crosswalk) · `work_log bd0c2ea3` (SOURCE_OWNER manifest, `docs/research-library/ahavat-torah/AHAVAT_TORAH_SOURCE_MANIFEST_285.md`, commit `074013d6`) · `docs/sod1820-system-frame-contract-v1.md` · `docs/research-os-canonical-lock-v1.md` — כל הארבעה נקראו-חי לפני כתיבת-סעיף-זה.
+
+---
+
 ## Provenance
 
-actor=CLAUDE role=INTEGRATION_OWNER · פקודת-מקור: `work_log 807d439f-085d-4956-8f63-4af21ddd3907` · ACK: `work_log` (ר' רשומת-ACK, אותו session) · נבדק-חי: origin/main, PR#285, ענף-הטבלאות (PR#331), ענף GPT (`gpt/book-research-context-spatial-v1`), טבלאות `nodes`/`entity_types`/`research_objects` (ספירה-חיה). לא-נקרא: מניפסט SOURCE_OWNER הרשמי (טרם-קיים).
+actor=CLAUDE role=INTEGRATION_OWNER · פקודת-מקור: `work_log 807d439f-085d-4956-8f63-4af21ddd3907` · ACK: `work_log 214348c3` · נבדק-חי: origin/main, PR#285, ענף-הטבלאות (PR#331), ענף GPT (`gpt/book-research-context-spatial-v1`), טבלאות `nodes`/`entity_types`/`research_objects` (ספירה-חיה). **עדכון (§5):** מניפסט SOURCE_OWNER **נמסר** אחרי כתיבת-הפאס-הראשון — `work_log bd0c2ea3`, `docs/research-library/ahavat-torah/AHAVAT_TORAH_SOURCE_MANIFEST_285.md` — נצוטט ב-§5.2/§5.3, לא-הוטמע-בחזרה ל-§1-§4 (נשארים כלשונם, additive-בלבד).
