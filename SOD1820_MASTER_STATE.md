@@ -1502,3 +1502,29 @@ Foundation נשאר `SUFFICIENT` / `MUST FOUNDATION NOW=0` ידוע לצורך-�
 אין קוד, אין schema/migration, אין `research_objects` writes, אין method-registry writes, אין graph/`project_codex`/`nodes` writes, אין ELS implementation, אין corpus-scan, אין פתיחה-מחדש של Katan/source-specific Before-After (נשארים deferred, per ZURIEL — לא-מוחזרים).
 
 **Provenance:** handoff `work_log` `cc1993f8-c130-4e9d-b802-3f603407ac4d` (GPT/ZURIEL→CLAUDE) · `13434460`/`be204939`/`e51e13cb` (PRE-ELS coordinator+שני-הסוויפים) · `9a640c82` (ELS Lens handoff, הצעד-הבא) · §23.26/§23.27 למעלה (ללא-שינוי) · `research_intake_foundation_contract` §9 (DB-live).
+
+
+---
+
+## EXPERIENCE / DESIGN CONTRACT POINTER — 5.9.2026
+> **STATUS: APPROVED by ZURIEL Human-Gate · IMPLEMENTED / MERGED / DEPLOYED for the current Admin/Command theme slice.**
+> **Canonical contract owner:** `SOD1820_DESIGN_CONTRACT_V1.md` on `origin/main`.
+> **Operational rule owner:** active Supabase rule `admin_command_theme_law` v2 in canonical project `linswmnnkjxvweumprav`.
+
+### CURRENT DECISION
+- The Design Contract is **forward-looking**: it governs new surfaces and surfaces entering an explicit redesign pass; it does **not** authorize repo-wide restyling of legacy UI.
+- Existing cross-surface Experience capabilities must be discovered and reused before building replacements. Canonical/scoped-canonical owners include the existing theme-mode store, route-aware light/dark resolver, semantic palettes, shared Navbar/Footer chrome theme, sharing primitives, Research actions/context, NumberDrawer, VerifiedBadge, the single ELS engine, SEO/OG helpers and maintenance/site-flag path. Exact owner pointers live in the Design Contract.
+- `/admin` is an **Internal Reference Surface**. The Command Room light-blue/blue language is the forward interaction/system reference accent for redesigned admin/research UI; gold is a restrained brand accent, not a truth/importance signal.
+- `AdminPage` remains owner of legacy `--adm-*` compatibility variables; `lightRoutes.js` connects `/admin` to the canonical day/night flow. Transitional adapters may consume existing variables but must not create a second Admin theme/palette.
+- Truth-safe visual semantics remain mandatory: visual prominence does not promote material to verified/canonical/published status.
+
+### RELEASE / PROVENANCE
+- Admin theme normalization: PR #313 — merged/deployed before this entry; active rule reconciled to v2.
+- Command-room blue shell slice: PR #315 — merged to `main`, merge commit `1faf4aea535727b65533bb012946066b9b49cff3`, production build verified READY.
+- This Master entry is a **pointer/status record only**. It does not duplicate the full Design Contract or operational rule body, per §0 CANONICAL-OWNER POINTER CLARIFICATION.
+
+### CHANGE LOG ENTRY — 5.9.2026
+- **מה השתנה:** Master State now indexes the approved Design Contract / Admin Command theme decision and its canonical owners.
+- **למה:** close the documentation chain so future agents can discover the live Experience/theme capability before rebuilding it.
+- **מה הוחלף:** no historical text deleted; this is additive only.
+- **סטטוס:** `APPROVED` + current implementation `MERGED/DEPLOYED` for the documented Admin/Command slice; legacy surfaces remain transitional until their own redesign pass.
