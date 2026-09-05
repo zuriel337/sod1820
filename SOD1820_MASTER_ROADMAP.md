@@ -1,5 +1,8 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+> ## 📚 BOOK DOSSIER #285 RECONCILIATION — INTEGRATION PLAN, PROPOSED — 5.9.2026 (`BOOK_DOSSIER_285_RECONCILIATION_V1`, actor=CLAUDE role=INTEGRATION_OWNER)
+> **תוכנית-חיבור בלבד, לא-Gate חדש, לא-שינוי `ACTIVE_NOW`/סדר-עדיפויות.** מזהה שלושה מסכי-ספר מתחרים על `/book` (סטטי-חי, תוספת-טבלאות Claude PR#331, React Book Hub GPT) ומציע מסלול-אחד מאוחד + מטריצת KEEP/ADAPT/PARK. הגוף המלא: `docs/research-library/ahavat-torah/BOOK_DOSSIER_285_INTEGRATION_COMPOSITION_PLAN_V1.md`; פרטים: Master State §23.30. ממתין למניפסט role=SOURCE_OWNER (טרם-נכתב) + ביקורת ZURIEL לפני-הטמעה. אין merge/deploy/schema/DB write בסבב-זה.
+
 > ## 🌌 UNIVERSAL RESEARCH REALITY · TARGET PROJECTION ARCHITECTURE — 5.9.2026
 > **ZURIEL HUMAN-GATE — APPROVED, additive navigation/architecture clarification.** This section unifies already-ratified contracts; it does **not** authorize a new store, graph, engine, truth lifecycle or Method Lab.
 >
