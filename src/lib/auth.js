@@ -103,8 +103,8 @@ export async function saveCloudNotes(userId, content) {
 
 // ── עולם-המשתמש בענן (עץ אחד) ──
 // פריטים (cart/saved/pinned) = research_items (שורה-לפריט, מחובר-לגרף, קנוני).
-// collections/journeys/history = user_research (בלוב מצב-משתמש). ה-interface נשאר זהה
-// {cart,saved,pinned,history,collections,journeys} → ResearchProvider לא משתנה.
+// collections/journeys/history/context = user_research (בלוב מצב-משתמש). ה-interface נשאר זהה
+// {cart,saved,pinned,history,collections,journeys,context} → ResearchProvider לא יוצר Store חדש.
 const RI_BUCKET = { cart: 'cart', saved: 'library', pinned: 'pinned' };
 
 export async function getCloudResearch(userId) {
@@ -122,15 +122,30 @@ export async function getCloudResearch(userId) {
     out[key].push(r.metadata || { type: r.entity_type, ref: r.entity_ref, id: r.entity_ref, title: r.title, link: r.link });
   }
   const b = blobRes.data?.data || {};
-  return { ...out, history: b.history || [], collections: b.collections || [], journeys: b.journeys || [] };
+  return {
+    ...out,
+    history: b.history || [],
+    collections: b.collections || [],
+    journeys: b.journeys || [],
+    context: b.context || null,
+  };
 }
 
 export async function saveCloudResearch(userId, data) {
   if (!userId) return;
   const d = data || {};
-  // 1) מצב לא-פריטים → בלוב (user_research)
+  // 1) מצב לא-פריטים → בלוב (user_research). context הוא מצב-ניווט/מחקר אישי, לא Truth Store.
   await supabase.from('user_research').upsert(
-    { user_id: userId, data: { history: d.history || [], collections: d.collections || [], journeys: d.journeys || [] }, updated_at: new Date().toISOString() },
+    {
+      user_id: userId,
+      data: {
+        history: d.history || [],
+        collections: d.collections || [],
+        journeys: d.journeys || [],
+        context: d.context || null,
+      },
+      updated_at: new Date().toISOString(),
+    },
     { onConflict: 'user_id' }
   );
   // 2) פריטים → research_items — **לא-הרסני** (תיקון באג-ניגוב-שמורים):
