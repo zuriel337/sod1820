@@ -48,6 +48,7 @@ export default function StayUpdatedCTA({ variant = "home", source: sourceOverrid
   const successMsg = done === "push" ? "מעולה! תקבלו התראות כשיֵצא חדש 🔔" : "אתם בפנים! נעדכן אתכם כשיֵצא חדש 🙏";
 
   // ===== פוטר — דסקטופ: פרוס על הרוחב (טקסט מימין, טופס משמאל) · נייד: ממורכז =====
+  // חשוב: הפוטר אינו רשאי לעצב מחדש global navbar chrome. BuildProgressBadge חי רק ב-Navbar.
   if (variant === "footer") {
     return (
       <div className="sucta-foot">
@@ -60,15 +61,6 @@ export default function StayUpdatedCTA({ variant = "home", source: sourceOverrid
           .sucta-input { width: 190px; padding: 8px 12px; border-radius: 9px; font-size: 13.5px; text-align: center; outline: none; }
           .sucta-btn { padding: 8px 20px; border-radius: 9px; font-weight: 800; font-size: 13.5px; white-space: nowrap; border: none; }
           .sucta-note { color: ${cc.muted}; font-family: ${F.body}; font-size: 10.5px; white-space: nowrap; }
-
-          /* Global chrome override: the navbar build control is intentionally just construction + the single BUILD_PROGRESS value. */
-          .sod-nav-build { gap: 6px !important; padding: 6px 10px !important; animation: none !important;
-            box-shadow: none !important; border-color: ${cc.border} !important; background: ${cc.surface || "rgba(255,255,255,.04)"} !important; }
-          .sod-nav-build::before { content: "🏗️"; font-size: 14px; line-height: 1; }
-          .sod-nav-build::after { display: none !important; }
-          .sod-nav-build > span[aria-hidden] { display: none !important; }
-          .sod-nav-build > .nb-desktop:first-of-type { display: none !important; }
-          .sod-nav-build .nb-mobile-label { display: none !important; }
 
           @media (max-width: 760px) {
             .sucta-foot { flex-direction: column; text-align: center; gap: 9px; padding: 12px 16px 22px; flex-wrap: wrap; }
