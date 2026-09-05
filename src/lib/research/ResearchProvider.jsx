@@ -154,10 +154,9 @@ export default function ResearchProvider({ children }) {
     });
   }, [pathname, cloudHydrationRevision]);
 
-  // 🔠 ELS → Workspace bridge. ה-iframe הקנוני כבר פולט postMessage מסוג state דרך TzofenEmbed;
-  // ResearchProvider רק רושם את החיפוש המוצלח בהיסטוריית-המחקר — בלי לחשב ELS, בלי ליצור Finding,
-  // בלי לקדם לקנון ובלי טבלה/Store מקבילים. כך «המשך מהמקום שעצרת» עובד גם בדילוגים.
-  // dedupe לפי תמונת-החיפוש עצמה, כדי state-ticks של אותו צופן לא יציפו את ההיסטוריה.
+  // 🔠 ELS → Workspace/Context bridge. ה-iframe הקנוני כבר פולט postMessage מסוג state דרך TzofenEmbed;
+  // ResearchProvider לא מחשב ELS ולא מעתיק Matrix snapshot: הוא רק מצביע על מצב-החיפוש הפעיל וממשיך את ההקשר.
+  // dedupe לפי תמונת-החיפוש עצמה, כדי state-ticks של אותו צופן לא יציפו context/history.
   const lastElsHistorySig = useRef(null);
   useEffect(() => {
     const onElsState = (e) => {
@@ -173,6 +172,28 @@ export default function ResearchProvider({ children }) {
       const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip}`;
       if (lastElsHistorySig.current === sig) return;
       lastElsHistorySig.current = sig;
+
+      const locator = `els:${scope}:${term}:${searchKind}:${hitId}:${skip}`;
+      const elsSelection = { entityType: "els", locator };
+      setContextState((prev) => {
+        const current = normalizeResearchContext(prev);
+        const sameSelection = current?.selection?.entityType === "els"
+          && current?.selection?.locator === locator
+          && current?.lens === "els";
+        if (current?.subject && sameSelection) return prev;
+        const directSubject = {
+          id: term,
+          type: "phrase",
+          label: term,
+          href: `/research?tool=els&q=${encodeURIComponent(term)}`,
+        };
+        const next = current?.subject
+          ? mergeResearchContext(current, { selection: elsSelection, lens: "els" })
+          : mergeResearchContext(null, { subject: directSubject, selection: elsSelection, lens: "els" });
+        emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
+        return next;
+      });
+
       logHistory({
         id: `els:${encodeURIComponent(scope)}:${encodeURIComponent(term)}:${encodeURIComponent(searchKind)}:${hitId}:${skip}`,
         type: "els",
