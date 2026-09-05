@@ -262,6 +262,41 @@ export function bookToWorkspaceItem(book) {
   };
 }
 
+// Connection projection — NO GRAPH EDGES. Both live Book nodes currently have 0 edges;
+// this reads only the Book's own already-curated `seeds` (number-family entries editorially
+// placed in SNAPSHOTS), and resolves each to the existing universal /number/:n route — the
+// same route every number on the site already has. It never claims a canonical relation and
+// never invents an entity: an unresolved/non-numeric seed is simply omitted, not linked.
+export function deriveBookConnections(snap) {
+  const seeds = Array.isArray(snap?.seeds) ? snap.seeds : [];
+  const seen = new Set();
+  const out = [];
+  for (const seed of seeds) {
+    if (seed?.family !== "number-family") continue;
+    const value = clean(seed?.key);
+    if (!value || !/^\d+$/.test(value) || seen.has(value)) continue;
+    seen.add(value);
+    out.push({ value, label: clean(seed?.label) || value, href: `/number/${value}` });
+  }
+  return out;
+}
+
+// Research Context bridge — pure decision, no side effects. Encodes the three Golden Cases:
+// (A) fresh entry with no active root: establish the Book as subject+selection.
+// (B/C) a root already exists (Number/Entity/whatever the visitor was already researching):
+// the root is sticky and must never be silently replaced by entering a Book — only the
+// current selection/lens move to reflect "the visitor is now looking at this Book/row".
+export function bookContextPatch({ book, slug, hasRoot, focusRow }) {
+  if (!book) return null;
+  const bookSubject = { id: book.identity_key, type: "book", label: book.label, href: `/book/${slug}` };
+  const bookSelection = focusRow
+    ? { entityId: book.identity_key, entityType: "book", sourceRef: focusRow.source_ref ?? null, locator: `research-object:${focusRow.id}` }
+    : { entityId: book.identity_key, entityType: "book" };
+  return hasRoot
+    ? { selection: bookSelection, lens: "book" }
+    : { subject: bookSubject, selection: bookSelection, lens: "book" };
+}
+
 export function researchRowToWorkspaceItem(row, book) {
   const p = pageFromSourceRef(row?.source_ref);
   const route = clean(book?.metadata?.route) || "/book";

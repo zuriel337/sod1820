@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
@@ -8,7 +8,7 @@ import ShareActions from "../components/ShareActions.jsx";
 import {
   fetchBookEntities, fetchBookEntityBySlug, fetchBookResearch,
   bookToWorkspaceItem, researchRowToWorkspaceItem, pageFromSourceRef,
-  researchRowToBookRepresentation,
+  researchRowToBookRepresentation, deriveBookConnections, bookContextPatch,
 } from "../lib/research/bookResearchProjection.js";
 import {
   selectionToWorkspaceItem, selectionRef, bookEntityRef, dossierSelectionSourceRef,
@@ -232,12 +232,13 @@ function IndexView({ books, loading }) {
 export default function BookHubPage() {
   const P = usePalette();
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [qs, setQs] = useSearchParams();
   const [books,setBooks] = useState([]); const [book,setBook] = useState(null); const [research,setResearch] = useState(null); const [loading,setLoading] = useState(true); const [error,setError] = useState("");
   const [tab,setTab] = useState(qs.get("tab") || (slug ? "overview" : "index"));
   const [dossierSection, setDossierSection] = useState("datasets");
   const [savedSelections, setSavedSelections] = useState(() => new Set());
-  const { addToResearch, togglePin, isPinned, enterDiscovery } = useResearch();
+  const { addToResearch, togglePin, isPinned, enterDiscovery, context: researchContext, updateResearchContext } = useResearch();
   const snap = slug ? SNAPSHOTS[slug] : null;
   const page = Number(qs.get("page") || 1) || 1;
   const activeSelectionRef = qs.get("selection") || "";
@@ -268,16 +269,46 @@ export default function BookHubPage() {
     return () => { alive=false; };
   }, [slug, focusResearchId]);
 
+  // Research Context bridge (Golden Cases A/B/C): entering a Book never invents/overwrites
+  // an existing research root — it only establishes one when none exists yet, and always
+  // keeps the current selection pointed at this Book (or the exact research row in view).
+  useEffect(() => {
+    if (!book) return;
+    const focusRow = activeResearchId ? (research?.rows || []).find(r => String(r.id) === activeResearchId) : null;
+    const patch = bookContextPatch({ book, slug, hasRoot: Boolean(researchContext?.subject), focusRow });
+    if (patch) updateResearchContext?.(patch);
+    // researchContext intentionally excluded: this bridge reacts to Book/selection identity
+    // changing, not to every Context update (including its own), which would loop.
+  }, [book?.id, slug, activeResearchId, research]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const title = slug && book ? `${book.label} — ספר ומחקר` : "ספרים ומקורות";
     applySeo({ title: `${title} · סוד 1820`, description: snap?.promise || "ספרים ומקורות בתוך Research OS האחד", path: slug ? `/book/${slug}` : "/book" });
   }, [slug, book, snap]);
 
   const workspaceItem = useMemo(() => bookToWorkspaceItem(book), [book]);
+  // Connection projection — NOT graph edges (both Book nodes have 0 live edges). Bounded,
+  // derived only from this Book's own already-curated seeds; every link resolves to the
+  // existing universal /number/:n route. See deriveBookConnections.
+  const connections = useMemo(() => deriveBookConnections(snap), [snap]);
   const pinned = workspaceItem ? Boolean(isPinned?.(workspaceItem.id)) : false;
   const goTab = t => { setTab(t); const n=new URLSearchParams(qs); n.set("tab",t); setQs(n,{replace:true}); };
   const goPage = p => { const n=new URLSearchParams(qs); n.set("page",String(p)); n.set("tab","source"); setQs(n); setTab("source"); };
   const addBook = () => { if(workspaceItem){ addToResearch(workspaceItem); enterDiscovery?.(); } };
+  // Golden Case B: leaving the Book via a resolved connection (e.g. a number page) must
+  // come back to the exact same Book/selection, not just "back" in browser history — set
+  // returnTo to the current Book URL (tab/page/research all still in qs) before navigating.
+  const navigateToConnection = (href) => {
+    if (!book) { navigate(href); return; }
+    updateResearchContext?.({
+      returnTo: {
+        href: `${window.location.pathname}${window.location.search}`,
+        label: book.label,
+        subject: { id: book.identity_key, type: "book", label: book.label, href: `/book/${slug}` },
+      },
+    });
+    navigate(href);
+  };
   const addSelection = (row, idKey) => {
     if (!book || !row) return;
     const sourceRef = dossierSelectionSourceRef(book, row, idKey);
@@ -328,6 +359,13 @@ export default function BookHubPage() {
       <h2 className="bk-section-title">זהות המקור — שבע שכבות שאינן מתמזגות</h2>
       <div className="bk-panel"><div className="bk-pb bk-idgrid"><div>Book</div><div className="bk-code">{book.identity_key}</div><div>Edition</div><div>{tiers.edition?.status || 'not specified'}</div><div>Witness</div><div className="bk-code">{tiers.witness?.identity || '—'} · {tiers.witness?.provider} {tiers.witness?.native_id}</div><div>Digital Object</div><div className="bk-code">{tiers.digital_object?.bucket}/{tiers.digital_object?.path}</div><div>Page/Region Locator</div><div className="bk-code">{tiers.locator?.pattern}</div><div>Authority</div><div>מוקצה question-by-question דרך provenance; Witness identity ≠ authority.</div></div></div>
       <h2 className="bk-section-title">משפחות מחקר מרכזיות</h2><div className="bk-grid">{snap.families.map(f => <div className="bk-card" key={f.title}><b>{f.title}</b><div className="bk-muted" style={{marginTop:7,lineHeight:1.65}}>{f.text}</div></div>)}</div>
+      {connections.length > 0 && <>
+        <h2 className="bk-section-title">קשור במחקר הספר</h2>
+        <div className="bk-panel"><div className="bk-pb">
+          <div className="bk-muted" style={{marginBottom:8}}>קישורי-ניווט לעדשה הקיימת של כל מספר — לא קשר-גרף חדש ולא מסקנה סמנטית.</div>
+          {connections.map(c => <button className="bk-pill" key={c.value} style={{border:0,cursor:'pointer',margin:'2px 4px 2px 0'}} onClick={() => navigateToConnection(c.href)}>{c.label}</button>)}
+        </div></div>
+      </>}
       <h2 className="bk-section-title">פתוח כרגע</h2><div className="bk-panel"><div className="bk-pb"><ul className="bk-open">{snap.open.map(x => <li key={x}>{x}</li>)}</ul></div></div>
     </>}
 

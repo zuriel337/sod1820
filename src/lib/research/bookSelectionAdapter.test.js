@@ -20,6 +20,8 @@ import {
   researchRowToBookRepresentation,
   researchRowToWorkspaceItem,
   applyFocusRow,
+  deriveBookConnections,
+  bookContextPatch,
 } from "./bookResearchProjection.js";
 
 // Public Book identity metadata only — no research content.
@@ -307,4 +309,56 @@ test("exact reopen fold-in is a no-op with no focusId", () => {
   const result = applyFocusRow(rows, new Map(), "", ["hebrewbooks:6355"], null);
   assert.equal(result.focusIncluded, false);
   assert.equal(result.rows, rows);
+});
+
+// ── Book Experience + Research Context bridge (Book Experience v1) ───────────────────
+
+test("connection projection: only curated number-family seeds resolve to /number/:n, never arbitrary text", () => {
+  const snap = {
+    seeds: [
+      { key: "1820", label: "משפחת 1820", family: "number-family", status: "documented" },
+      { key: "1830", label: "משפחת 1830", family: "number-family", status: "documented" },
+      { key: "ds02", label: "DS-02 · אותיות × פרשה", family: "dataset", status: "partial" },
+      { key: "klal", label: "כלל / קדמי / ריבוע", family: "operator", status: "partial" },
+    ],
+  };
+  const connections = deriveBookConnections(snap);
+  assert.equal(connections.length, 2, "only the two number-family seeds resolve — dataset/operator seeds are not numeric routes");
+  assert.deepEqual(connections.map(c => c.href), ["/number/1820", "/number/1830"]);
+  assert.ok(connections.every(c => /^\/number\/\d+$/.test(c.href)), "every connection must resolve to the existing universal /number/:n route, never a fabricated one");
+});
+
+test("connection projection is empty (not fabricated) when a Book has no curated number-family seeds", () => {
+  const snap = { seeds: [{ key: "grammar", label: "Research Grammar", family: "procedure", status: "supported" }] };
+  assert.deepEqual(deriveBookConnections(snap), []);
+  assert.deepEqual(deriveBookConnections(null), []);
+  assert.deepEqual(deriveBookConnections(undefined), []);
+});
+
+test("Research Context Golden Case A: fresh entry with no active root establishes the Book as subject and selection", () => {
+  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: false, focusRow: null });
+  assert.equal(patch.subject.id, "book:sefer-hapliah");
+  assert.equal(patch.subject.type, "book");
+  assert.equal(patch.subject.href, "/book/sefer-hapliah");
+  assert.equal(patch.selection.entityId, "book:sefer-hapliah");
+  assert.equal(patch.lens, "book");
+});
+
+test("Research Context Golden Case C: an existing root stays sticky — the Book patch never carries a subject", () => {
+  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: true, focusRow: null });
+  assert.equal(patch.subject, undefined, "must not include subject at all, so merging the patch preserves whatever root already exists");
+  assert.equal(patch.selection.entityId, "book:sefer-hapliah");
+  assert.equal(patch.lens, "book");
+});
+
+test("Research Context Golden Case B: an exact research row in view narrows selection to that row while the Book identity anchors it", () => {
+  const focusRow = { id: SYNTHETIC_PRIVATE_ROW.id, source_ref: SYNTHETIC_PRIVATE_ROW.source_ref };
+  const patch = bookContextPatch({ book: SECOND_BOOK, slug: "sefer-hapliah", hasRoot: true, focusRow });
+  assert.equal(patch.selection.entityId, "book:sefer-hapliah");
+  assert.equal(patch.selection.sourceRef, SYNTHETIC_PRIVATE_ROW.source_ref);
+  assert.equal(patch.selection.locator, `research-object:${SYNTHETIC_PRIVATE_ROW.id}`);
+});
+
+test("bookContextPatch is a no-op without a resolved Book (never writes Context for a book that doesn't exist)", () => {
+  assert.equal(bookContextPatch({ book: null, slug: "sefer-hapliah", hasRoot: false, focusRow: null }), null);
 });
