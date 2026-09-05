@@ -119,6 +119,7 @@ const STATIC = [
   { loc: '/community/calculator', priority: '0.8', changefreq: 'monthly' },
   { loc: '/cross',        priority: '0.7', changefreq: 'monthly' },
   { loc: '/contact',      priority: '0.4', changefreq: 'yearly'  },
+  { loc: '/book',         priority: '0.7', changefreq: 'weekly'  },
 ];
 
 // משיכה בעימוד דרך REST (limit/offset), עד שהדף האחרון קצר מ-PAGE.
@@ -212,6 +213,19 @@ export default async function handler(req, res) {
       urls.push({ loc: '/codes/' + encodeURIComponent(c.slug), lastmod, changefreq: 'monthly', priority: '0.7' });
     }
   } catch (e) { /* ממשיכים גם בלי צפנים */ }
+
+  // ── ספרים משוחררים → /book/:slug (nodes.type='book', is_active=true — אותו שער-שחרור
+  //    שה-Book Hub עצמו כבר משתמש בו לרשימת-הספרים הציבורית; רק metadata/label ציבוריים,
+  //    לא research_objects, exactly-once per book) ──
+  try {
+    const books = await fetchAll('nodes?select=metadata,created_at&type=eq.book&is_active=eq.true');
+    for (const b of books) {
+      const slug = b?.metadata?.slug;
+      if (!slug) continue;
+      const lastmod = (b.created_at || '').slice(0, 10) || undefined;
+      urls.push({ loc: '/book/' + encodeURIComponent(slug), lastmod, changefreq: 'weekly', priority: '0.7' });
+    }
+  } catch (e) { /* ממשיכים גם בלי ספרים */ }
 
   // ── דפי הכתבים → /community/researcher/:slug (contributors עם slug/code) ──
   // המשטח הציבורי/SEO של כל חוקר — קיר-ההצלבות, האוצרות והרמזים שלו. אותו slug שה-OG מזהה (code||slug).
