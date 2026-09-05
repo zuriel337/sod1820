@@ -1,7 +1,10 @@
 import { supabase } from "../supabase.js";
 import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 
-const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,promoted_node_id,meta";
+// Must stay aligned to the existing column-scoped authenticated GRANT from
+// 20260825143000_research_intake_step1b_research_objects_admin_read_grant.sql.
+// Do not widen ACL merely for this projection.
+const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
 const BOOK_FIELDS = "id,type,label,description,identity_key,metadata,is_active,created_at";
 
 function clean(v) { return v == null ? "" : String(v).trim(); }
@@ -95,7 +98,7 @@ export function summarizeBookResearch(rows) {
     const p = pageFromSourceRef(row?.source_ref);
     if (p) pages.add(p);
     if (row?.engine_verified === true) engineVerified++;
-    const text = `${row?.kind || ""} ${row?.statement || ""} ${JSON.stringify(row?.meta || {})}`.toLowerCase();
+    const text = `${row?.kind || ""} ${row?.statement || ""}`.toLowerCase();
     if (text.includes("contradiction") || text.includes("סתיר")) contradictions++;
     if (text.includes("unresolved") || text.includes("ambiguous") || text.includes("לא פתור")) unresolved++;
   });
