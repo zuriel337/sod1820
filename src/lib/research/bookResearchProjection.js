@@ -16,13 +16,14 @@ export const MAX_BOOK_RESEARCH_LIMIT = 100;
 
 function clean(v) { return v == null ? "" : String(v).trim(); }
 function triBool(v) { return v === true ? true : v === false ? false : null; }
+function firstArray(...values) { return values.find(Array.isArray) || []; }
 
 export function pageFromSourceRef(sourceRef) {
   const ref = clean(sourceRef);
   const direct = ref.match(/#p(\d+)/i);
   if (direct) return Number(direct[1]);
-  // Peli'ah historical Research Objects often use #pdf:24 / #pdf:15,31,... locators.
-  // Preserve those rows; adapt the projection instead of rewriting provenance.
+  // Historical source locators may use #pdf:24 / #pdf:15,31,... . Preserve provenance;
+  // adapt the projection instead of rewriting stored source_ref values.
   const pdf = ref.match(/#pdf:(\d+)/i);
   return pdf ? Number(pdf[1]) : null;
 }
@@ -122,34 +123,52 @@ export function summarizeBookResearch(rows) {
 }
 
 // Generic renderer adapter over the SAME Book/research_object contract.
-// It does not promote a representation into a new entity/store and does not infer
-// truth from shape. Structured fields are optional: missing state stays null/empty.
-// Synthetic tests exercise matrix/procedure/composition shapes without copying any
-// private Peli'ah row into source control.
+// A live structural-only audit of the second book showed reusable shape keys such as
+// steps/procedure_chain, row arrays, groups/generator_candidate and dimensions. We adapt
+// those shapes without copying private values into source control and without turning a
+// source-local procedure into a new engine/entity/schema.
 export function researchRowToBookRepresentation(row) {
   const procedure = row?.meta?.ext?.procedure && typeof row.meta.ext.procedure === "object"
     ? row.meta.ext.procedure
     : {};
-  const matrix = Array.isArray(row?.matrix)
-    ? row.matrix
-    : Array.isArray(procedure?.matrix)
-      ? procedure.matrix
-      : [];
-  const steps = Array.isArray(row?.steps)
-    ? row.steps
-    : Array.isArray(procedure?.steps)
-      ? procedure.steps
-      : [];
-  const generated = Array.isArray(row?.generated)
-    ? row.generated
-    : Array.isArray(procedure?.generated)
-      ? procedure.generated
-      : [];
+
+  let matrix = firstArray(
+    row?.matrix,
+    procedure?.matrix,
+    procedure?.rows,
+    procedure?.summary_rows,
+    procedure?.chapter_164_summary_rows,
+  );
+  if (!matrix.length && Array.isArray(procedure?.comparative_standard_row)) {
+    matrix = [procedure.comparative_standard_row];
+  }
+
+  const steps = firstArray(
+    row?.steps,
+    procedure?.steps,
+    procedure?.procedure_chain,
+    procedure?.concrete_procedure,
+  );
+  const generated = firstArray(row?.generated, procedure?.generated, procedure?.outputs);
+  const composition = firstArray(row?.composition, procedure?.composition, procedure?.groups);
+  const dimensions = firstArray(row?.dimensions, procedure?.dimensions);
+  const grammar = procedure?.grammar_mapping ?? procedure?.grammar ?? null;
+  const generatorCandidate = procedure?.generator_candidate ?? null;
+
   const explicitShape = clean(row?.representation_shape || procedure?.representation_shape || procedure?.shape).toLowerCase();
   const shape = matrix.length ? "matrix"
     : steps.length ? "procedure"
-      : generated.length ? "composition"
-        : explicitShape || (Array.isArray(row?.terms) && row.terms.length ? "terms" : "narrative");
+      : (generated.length || composition.length || generatorCandidate) ? "composition"
+        : dimensions.length ? "spatial"
+          : grammar ? "grammar"
+            : explicitShape || (Array.isArray(row?.terms) && row.terms.length ? "terms" : "narrative");
+
+  const procedureWitness = procedure?.pdf_exact_witness_status
+    ?? procedure?.witness_state
+    ?? (typeof procedure?.witness === "string" ? procedure.witness : procedure?.witness?.status)
+    ?? procedure?.pdf_adjudication?.status
+    ?? null;
+
   return {
     shape,
     title: clean(row?.title || row?.statement || row?.kind) || "Research Object",
@@ -159,11 +178,15 @@ export function researchRowToBookRepresentation(row) {
     privacyScope: row?.privacy_scope ?? null,
     engineVerified: triBool(row?.engine_verified),
     engineVerificationState: row?.engine_detail?.verification_state ?? null,
-    witnessState: row?.witness_state ?? row?.exact_witness_state ?? procedure?.witness_state ?? null,
+    witnessState: row?.witness_state ?? row?.exact_witness_state ?? procedureWitness,
     terms: Array.isArray(row?.terms) ? row.terms : [],
     matrix,
     steps,
     generated,
+    composition,
+    dimensions,
+    grammar,
+    generatorCandidate,
   };
 }
 
