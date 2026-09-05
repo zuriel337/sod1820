@@ -585,10 +585,9 @@ function BuildProgressBadge({ cc }) {
         }
         @media(prefers-reduced-motion:reduce){.sod-nav-build{animation:none}}
       `}</style>
-      <span aria-hidden>🗺️</span>
-      <span className="nb-desktop">מפת המערכת · בבנייה</span>
-      <span className="nb-mobile"><span className="nb-mobile-label">בבנייה · </span><span style={{fontFamily:F.numeric}}>{BUILD_PROGRESS}%</span></span>
-      <span className="nb-desktop" style={{fontFamily:F.numeric}}>{BUILD_PROGRESS}%</span>
+      <span aria-hidden>◈</span>
+      <span className="nb-desktop">העולם החדש נבנה</span>
+      <span className="nb-mobile">בבנייה</span>
     </Link>
   );
 }

@@ -48,7 +48,7 @@ import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import { getSavedMatrices, getSystemCiphers } from "../lib/elsMatrices.js";
 import { fetchHomePosts } from "../lib/homeUpdates.js";
 import { useStream, STREAMS } from "../lib/stream.js";
-import { BUILD_PROGRESS, BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.js";
+import { BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.js";
 
 // ===== דף הבית החדש (תצוגה מקדימה) — /בית-חדש · /home-new =====
 // מגיב למתג התמה הגלובלי (יום/לילה) דרך usePalette() — צבעים סמנטיים, לא קבועים.
@@ -57,8 +57,7 @@ import { BUILD_PROGRESS, BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
 // 🖼️ רקע-השער החי (5.9.2026, בקשת צוריאל) — שער-הזהב 888. רק תיבת-חיפוש + שני שערי-הכניסה מעליו, בלי טקסט נוסף.
 const HOME_HERO_BG = "/home-hero-gate-888.png";
-// 🏗️ מפת-הבנייה הציבורית נגזרת ממקור-אמת אחד: lib/knowledgeMap.js.
-const PUBLIC_BUILD_PROGRESS = BUILD_PROGRESS;
+// 🏗️ מפת-הבנייה הציבורית נגזרת ממקור-אמת אחד: lib/knowledgeMap.js — ללא אחוז-על שרירותי.
 const PUBLIC_BUILD_TRACKS = BUILD_TRACKS;
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
 // כך: כרגע רק «יום משיח בא» (הישנים לפניו לא), וכל צופן חדש שיועלה מהיום מופיע ונשאר שם תמיד.
@@ -379,7 +378,7 @@ export default function HomeNewPage() {
           min-height:310px; padding:46px 18px 38px;
           display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
         /* פעולות-השער (חיפוש + שערים) יושבות בתחתית תמונת-ההירו */
-        .hn-hero-actions { width:100%; max-width:540px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+        .hn-hero-actions { width:min(88%,440px); max-width:440px; display:flex; flex-direction:column; align-items:center; gap:14px; }
         .hn-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
         .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
           font-size:clamp(24px,4.6vw,40px); line-height:1.16; margin:0; text-wrap:balance;
@@ -512,8 +511,8 @@ export default function HomeNewPage() {
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
-            <div className="hn-build-title">🏗️ אתר כי לה׳ המלוכה נבנה מחדש <span style={{ marginInlineStart: 8, fontFamily: F.numeric, fontSize: 15, color: P.accentText }}>{PUBLIC_BUILD_PROGRESS}%</span></div>
-            <div className="hn-build-sub">לא מד אחוזים שרירותי — כל תחום מוצג לפי השלב האמיתי שלו במפת-העל: יסודות → חיבור → בנייה → חוויה.</div>
+            <div className="hn-build-title">🏗️ SOD1820 נבנה מחדש מבפנים</div>
+            <div className="hn-build-sub">עולם המחקר החדש הולך ומתחבר — מספרים, צפנים, מקורות, מסעות ורזיאל נפגשים בהדרגה למערכת אחת.</div>
             {PUBLIC_BUILD_TRACKS.map(t => (
               <div key={t.label} className="hn-build-row">
                 <div className="hn-build-row-head">
