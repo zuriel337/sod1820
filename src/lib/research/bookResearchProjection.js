@@ -60,11 +60,52 @@ function permissionLike(error) {
   return code === "42501" || code === "PGRST301" || msg.includes("permission") || msg.includes("row-level security");
 }
 
-export async function fetchBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LIMIT } = {}) {
+// Targeted authorized fetch-by-id: resolves ONE specific research_object row for exact
+// deep-link reopen (?research=<id>) even when it has aged outside the default bounded
+// batch. This is a single-row lookup under the same RLS as the bulk reader — never a
+// corpus dump, never a pagination/offset scan, and never a widened grant.
+export async function fetchBookResearchById(id) {
+  const safeId = clean(id);
+  if (!safeId) return null;
+  const { data, error } = await supabase
+    .from("research_objects")
+    .select(RESEARCH_FIELDS)
+    .eq("id", safeId)
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    if (permissionLike(error)) return null;
+    throw error;
+  }
+  return data || null;
+}
+
+// Pure merge step for exact-reopen, factored out of the network fetch so the privacy
+// boundary (a focus id may only fold in if it belongs to THIS Book's witness prefixes)
+// is unit-testable without a live Supabase call. `focusRow` is whatever
+// fetchBookResearchById(focusId) already returned (or null if not found/authorized).
+export function applyFocusRow(rows, byId, focusId, prefixes, focusRow) {
+  const list = Array.isArray(rows) ? rows : [];
+  const safeFocusId = clean(focusId);
+  if (!safeFocusId) return { rows: list, focusIncluded: false };
+
+  const already = byId?.get?.(safeFocusId) || list.find(r => String(r.id) === safeFocusId);
+  if (already) {
+    const nextRows = list.some(r => String(r.id) === safeFocusId) ? list : [already, ...list];
+    return { rows: nextRows, focusIncluded: true };
+  }
+  const safePrefixes = Array.isArray(prefixes) ? prefixes : [];
+  if (focusRow && safePrefixes.some(p => clean(focusRow.source_ref).startsWith(p))) {
+    return { rows: [focusRow, ...list], focusIncluded: true };
+  }
+  return { rows: list, focusIncluded: false };
+}
+
+export async function fetchBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LIMIT, focusId } = {}) {
   const prefixes = Array.isArray(book?.metadata?.source_ref_prefixes)
     ? book.metadata.source_ref_prefixes.map(clean).filter(Boolean)
     : [];
-  if (!prefixes.length) return { rows: [], findings: [], restricted: false, truncated: false, summary: summarizeBookResearch([]) };
+  if (!prefixes.length) return { rows: [], findings: [], restricted: false, truncated: false, focusIncluded: false, summary: summarizeBookResearch([]) };
 
   const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_BOOK_RESEARCH_LIMIT, MAX_BOOK_RESEARCH_LIMIT));
   const attempts = await Promise.all(prefixes.map(async prefix => {
@@ -80,7 +121,7 @@ export async function fetchBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LI
   const errors = attempts.map(x => x.error).filter(Boolean);
   const readable = attempts.filter(x => !x.error);
   if (!readable.length && errors.length && errors.every(permissionLike)) {
-    return { rows: [], findings: [], restricted: true, truncated: false, summary: summarizeBookResearch([]) };
+    return { rows: [], findings: [], restricted: true, truncated: false, focusIncluded: false, summary: summarizeBookResearch([]) };
   }
   const fatal = errors.find(e => !permissionLike(e));
   if (fatal) throw fatal;
@@ -88,13 +129,25 @@ export async function fetchBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LI
   const byId = new Map();
   readable.forEach(({ data }) => (data || []).forEach(row => byId.set(row.id, row)));
   const allRows = [...byId.values()].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-  const rows = allRows.slice(0, safeLimit);
+  let rows = allRows.slice(0, safeLimit);
   const truncated = allRows.length > rows.length || readable.some(({ data }) => (data || []).length >= safeLimit);
+
+  // Exact-reopen: if the URL points at a row outside the current bounded batch, fetch
+  // that one row by id and fold it in — the row still has to belong to this Book's
+  // witness prefixes, so this can never surface a foreign/unrelated private row.
+  const safeFocusId = clean(focusId);
+  const needsFocusFetch = safeFocusId && !byId.has(safeFocusId) && !rows.some(r => String(r.id) === safeFocusId);
+  const focusRow = needsFocusFetch ? await fetchBookResearchById(safeFocusId) : null;
+  const folded = applyFocusRow(rows, byId, safeFocusId, prefixes, focusRow);
+  rows = folded.rows;
+  const focusIncluded = folded.focusIncluded;
+
   return {
     rows,
     findings: researchObjectsToUniversalFindings(rows),
     restricted: false,
     truncated,
+    focusIncluded,
     summary: summarizeBookResearch(rows),
   };
 }

@@ -19,6 +19,7 @@ import {
   DEFAULT_BOOK_RESEARCH_LIMIT,
   researchRowToBookRepresentation,
   researchRowToWorkspaceItem,
+  applyFocusRow,
 } from "./bookResearchProjection.js";
 
 // Public Book identity metadata only — no research content.
@@ -268,4 +269,42 @@ test("live research Workspace link addresses exact research selection, not only 
 test("default Book research projection is bounded below the current 42-row Peli'ah corpus", () => {
   assert.equal(DEFAULT_BOOK_RESEARCH_LIMIT, 24);
   assert.ok(DEFAULT_BOOK_RESEARCH_LIMIT < 42, "default Book page must not client-dump the entire 42-row private research corpus");
+});
+
+// ── exact reopen fold-in (finite fix for the FAIL_EXACT_REOPEN_STOP release blocker) ──
+test("exact reopen: a focus row already inside the current bounded batch is recognized in place, not duplicated", () => {
+  const inBatch = { id: "row-in-batch", source_ref: "hebrewbooks:6355#p1" };
+  const rows = [inBatch, { id: "row-other", source_ref: "hebrewbooks:6355#p2" }];
+  const byId = new Map(rows.map(r => [r.id, r]));
+  const result = applyFocusRow(rows, byId, "row-in-batch", ["hebrewbooks:6355"], null);
+  assert.equal(result.focusIncluded, true);
+  assert.equal(result.rows.length, 2, "must not duplicate a row that is already in the batch");
+});
+
+test("exact reopen: a row aged outside the default batch is folded in via targeted fetch-by-id", () => {
+  const rows = [{ id: "row-recent", source_ref: "hebrewbooks:6355#p1" }];
+  const byId = new Map(rows.map(r => [r.id, r]));
+  const agedFocusRow = { id: "row-aged-out", source_ref: "hebrewbooks:6355#p99" };
+  const result = applyFocusRow(rows, byId, "row-aged-out", ["hebrewbooks:6355"], agedFocusRow);
+  assert.equal(result.focusIncluded, true);
+  assert.equal(result.rows.length, 2);
+  assert.equal(result.rows[0].id, "row-aged-out", "the exact-reopened row must render, not just the default page");
+});
+
+test("exact reopen fold-in fails closed: a fetched row that does not belong to this Book's witness prefixes is never folded in", () => {
+  const rows = [{ id: "row-recent", source_ref: "hebrewbooks:6355#p1" }];
+  const byId = new Map(rows.map(r => [r.id, r]));
+  // Simulates an id belonging to a DIFFERENT book (e.g. Ahavat Torah, 5635) or any
+  // unrelated row — must not leak across Book boundaries just because a URL guessed an id.
+  const foreignRow = { id: "row-foreign", source_ref: "book:hebrewbooks:5635#p6" };
+  const result = applyFocusRow(rows, byId, "row-foreign", ["hebrewbooks:6355"], foreignRow);
+  assert.equal(result.focusIncluded, false);
+  assert.equal(result.rows.length, 1, "a foreign-prefix row must never be folded into this Book's rendered rows");
+});
+
+test("exact reopen fold-in is a no-op with no focusId", () => {
+  const rows = [{ id: "row-a", source_ref: "hebrewbooks:6355#p1" }];
+  const result = applyFocusRow(rows, new Map(), "", ["hebrewbooks:6355"], null);
+  assert.equal(result.focusIncluded, false);
+  assert.equal(result.rows, rows);
 });

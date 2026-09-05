@@ -243,6 +243,9 @@ export default function BookHubPage() {
   const activeSelectionRef = qs.get("selection") || "";
   const activeResearchId = qs.get("research") || "";
   const dossier = useBookDossier(slug);
+  // Exact-reopen focus id: a deep link (?research=<id>) must resolve even when that row
+  // has aged outside the default bounded batch — see fetchBookResearch({ focusId }).
+  const focusResearchId = activeResearchId;
 
   useEffect(() => { setTab(qs.get("tab") || (slug ? "overview" : "index")); }, [slug, qs]);
   useEffect(() => {
@@ -259,11 +262,11 @@ export default function BookHubPage() {
     fetchBookEntityBySlug(slug).then(async b => {
       if (!alive) return; setBook(b);
       if (!b) return;
-      const r = await fetchBookResearch(b).catch(e => ({ rows:[],findings:[],restricted:true,truncated:false,summary:{total:0,pages:[]},error:e }));
+      const r = await fetchBookResearch(b, { focusId: focusResearchId }).catch(e => ({ rows:[],findings:[],restricted:true,truncated:false,focusIncluded:false,summary:{total:0,pages:[]},error:e }));
       if (alive) setResearch(r);
     }).catch(e => { if(alive) setError(e.message); }).finally(() => { if(alive) setLoading(false); });
     return () => { alive=false; };
-  }, [slug]);
+  }, [slug, focusResearchId]);
 
   useEffect(() => {
     const title = slug && book ? `${book.label} — ספר ומחקר` : "ספרים ומקורות";
