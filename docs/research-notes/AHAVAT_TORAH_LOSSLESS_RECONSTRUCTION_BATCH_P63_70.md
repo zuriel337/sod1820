@@ -62,3 +62,14 @@ No gematria value in this batch was verified against the canonical engine — ev
 - **STATUS:** bounded batch complete, real committed coverage, access proven not assumed.
 
 **STOP at p.70 exactly. GPT's finite audit over pp.58–70 is the next step, not this session's to perform.**
+
+---
+
+## STATUS CORRECTION (additive, does not edit the "WHAT MUST NOT BE REDONE" line above) — per GPT's finite audit `work_log 6f56a82d-2d1d-4d8c-92ae-ffbb6658c7a8`
+
+**"both already fully extracted/closed" (above) is too strong and is corrected here, not edited in place.** Re-reading the actual source artifacts directly, per the audit:
+
+- **DS-06** (`AHAVAT_TORAH_DS06_COUNTING_CONTRACT_CLOSURE.md`): population definition, prefix-form breakdown, and book-subtotal→Torah-total aggregation are CLOSED (exact closures). **The parasha-row→book-subtotal aggregation layer remains OPEN/unresolved** — this was never closed and is not claimed closed by this correction.
+- **DS-13** (`AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md` §5): population, method, and most raw values are extracted. **The 248-total reconciliation and the exclusion-rule parsing of specific disputed cells remain OPEN** — not fully closed.
+
+**Corrected operational meaning:** DS-06 and DS-13 are **PARTIAL overall, with specific named sublayers CLOSED** — not globally CLOSED. "Do not redo" means: do not re-extract the already-extracted tables wholesale. It does **not** mean their open subquestions are settled — a future targeted pass may still adjudicate those specific open items when decision-relevant, without wholesale re-scanning. This correction applies to this file's own line above and to the equivalent wording in `AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P63_70.json`'s `batch_summary.ds06_ds13_handling` field — neither is edited in place, per `everything_additive_law`.
