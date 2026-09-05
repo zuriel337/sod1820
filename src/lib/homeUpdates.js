@@ -15,24 +15,31 @@ export const hiddenAtHome = (p) =>
   (p.tags || []).some((t) => /ינוק/.test(t)) ||
   /ינוק/.test(p.title || "");
 
-const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
+// 📌 סמנטיקת-נעיצה אחת לכל משטחי הפוסטים. tree_priority נשאר מקור-האמת; אין flag/feed מקביל.
+export const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
 const postWhen = (p) => Math.max(+new Date(p?.modified || 0), +new Date(p?.date || 0));
-const postKey = (p) => String(p?.id ?? p?.slug ?? "");
+const postKey = (p) => String(p?.id ?? p?.wp_id ?? p?.slug ?? "");
 
-// 📌 נעוצים אינם תלויים בחלון «האחרונים»: פוסט שנעוץ חייב להישאר גלוי בכל משטח
-// Latest Updates גם אם הוא ישן מכדי להיכלל ב-32 הרשומות האחרונות. זו אותה posts table,
-// אותם חוקי visibility, ורק projection נוסף של tree_priority — לא feed/store חדש.
-async function fetchPinnedHomePosts() {
+// 📌 שליפה משותפת של כל הפוסטים הנעוצים, עם אותם facets בסיסיים של /post.
+// נעוץ = דירוג/הצגה, לא עקיפה של פילטר: בקטגוריה/תגית/שנה/כותב נציג רק נעוצים ששייכים לאותו חתך.
+// draft/forum נשארים מחוץ לפיד הציבורי בדיוק כמו getPostsFromSupabase כאשר אין tag מפורש.
+export async function fetchPinnedPosts({ category = null, tag = null, year = null, author = null, limit = 50 } = {}) {
   if (!supabase) return [];
-  const { data, error } = await supabase
+  let q = supabase
     .from("posts")
     .select("*")
     .gte("tree_priority", 50)
-    .not("tags", "cs", "{טיוטה}")
-    .not("tags", "cs", "{פורום}")
     .order("tree_priority", { ascending: false, nullsFirst: false })
     .order("modified", { ascending: false, nullsFirst: false })
-    .limit(50);
+    .limit(limit);
+
+  if (category) q = q.contains("categories", [category]);
+  if (tag) q = q.contains("tags", [tag]);
+  else q = q.not("tags", "cs", "{טיוטה}").not("tags", "cs", "{פורום}");
+  if (author) q = q.eq("author", author);
+  if (year) q = q.gte("date", `${year}-01-01`).lte("date", `${year}-12-31T23:59:59`);
+
+  const { data, error } = await q;
   if (error) throw error;
   return data || [];
 }
@@ -42,7 +49,7 @@ async function fetchPinnedHomePosts() {
 export async function fetchHomePosts() {
   const [{ posts: recent }, pinned] = await Promise.all([
     getPostsFromSupabase({ limit: 32, orderBy: "modified" }),
-    fetchPinnedHomePosts(),
+    fetchPinnedPosts(),
   ]);
 
   const visiblePinned = (pinned || []).filter((p) => isPinnedPost(p) && !hiddenAtHome(p));
