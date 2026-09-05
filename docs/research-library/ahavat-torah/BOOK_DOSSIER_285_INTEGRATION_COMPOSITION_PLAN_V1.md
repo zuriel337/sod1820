@@ -176,13 +176,15 @@
 ## 7. תוספת (additive, לא-שינוי-הגוף למעלה) — Pointer ל-Cross-Surface Experience Contract Delta V1
 
 > per `work_log 7f371048` (CROSS_SURFACE_EXPERIENCE_CONTRACT_V1, Human-Gate `decision_ledger=1499bf8f-c584-4400-8711-2aafc33ef5b8`). זהו **מצביע בלבד** — הגוף המלא נכתב תחת `## Cross-Surface Experience Contract Delta V1 (additive — 5.9.2026)` ב-`SOD1820_DESIGN_CONTRACT_V1.md`, לא-מוכפל כאן. §1-§6 למעלה נשארים כלשונם.
+>
+> **עודכן (per `work_log c7a608bc`, GPT dual-audit, 5.9.2026) — שתי תיקוני-דיוק:** (A) ה-Share Placement tri-state (`floating|inline|none`) הוא **כיוון מאושר, לא-חוק-חי** — `share_placement_law` היום עדיין binary v1; המעבר בפועל דורש שלב-נפרד (עדכון-חוק+קוד). (B) ה-`bookSelectionAdapter.js` fail-closed helper עובר את הטסטים-שלו-עצמו — זו **לא** הוכחה שה-bundle/OG/sitemap/share הציבורי-בפועל אכן מנותב-דרכו; טסט-קבלה על הארטיפקט-האמיתי נדרש **לפני** שחרור, לא-בוצע-כאן.
 
 **מה זה קובע ל-Book Hub, לפני שממשיכים ל-Phase B (visual preview):**
 
 - **Surface Mode = `research_clean`.** Book Hub (`/book`, `/book/:slug`) חייב להצהיר במפורש על מצב-שטח `research_clean` כשההטמעה-הוויזואלית תתחיל: **בלי** Footer, **בלי** ווידג'ט-שיתוף צף/אינליין אוטומטי ברמת-העמוד (ר' תקדים הפוך של Share Placement Law בחוזה), **בלי** שער-Follow גלובלי. שיתוף/מעקב נשארים זמינים **רק** כפעולה-מפורשת-קונטקסטואלית על ישות-נבחרת אמיתית (למשל: "שתף את הבחירה-המדויקת-הזו"), לא כ-chrome אוטומטי.
 - **Book Follow = EXTENSION POINT, לא MUST-NOW.** אין להמציא יעד-מעקב `book:<slug>` — זה בדיוק התבנית-שכבר-פורקה ב-`subscription_funnel_law` v10 (`post:`/`thread:` בודדים). אם/כשיהיה ל-Book מפיק-אירוע אמיתי (עדכון-דוסייה/סריקה-חדשה) — היעד ייקבע דרך `subscription_funnel_law`'s decision-log עצמו, לא ad-hoc כאן.
 - **התוסף §6.2(1)'s `entity_ref` נבדל לבחירת-מקור (Book Entity ≠ Source Selection) כבר-תואם במדויק** את ה-Universal Finding envelope שה-Delta מצטט (`docs/research-os-canonical-lock-v1.md` §2) — אין-סתירה, אין-שינוי-נדרש ל-§6.2(1) בעקבות ה-Delta.
-- **פרטיות:** תבנית ה-fail-closed שכבר-ממומשת ב-`bookSelectionAdapter.js` (`isPublicRow`/`buildPublicBundle`, ר' §6.2(4)/(5) למעלה) היא **בדיוק** מה שה-Delta's "Privacy" section דורש באופן-כללי — אין-פער.
+- **פרטיות (מתוקן, ר' תיבת-הציון למעלה — correction B):** תבנית ה-fail-closed שכבר-ממומשת ב-`bookSelectionAdapter.js` (`isPublicRow`/`buildPublicBundle`, ר' §6.2(4)/(5) למעלה) עוברת את הטסטים-שלה-עצמה (פיקסטורות סינתטיות) — זה **הכרחי אך לא-מספיק**. זו **אינה** הוכחה שה-bundle הסטטי-הציבורי-בפועל (`/book-data/<slug>.tables.json` או יורשו), תשובת `api/card.js`/`api/og.js`, ורשומת `api/sitemap.js` אכן **נבנים דרך** ה-helper הזה ולא-עוקפים-אותו. **טסט-קבלה נדרש לפני-שחרור** (לא-בוצע כאן): לבדוק את הארטיפקט-המיוצר-בפועל מול שורה עם `privacy_scope` מוגבל ולוודא-היעדרות, לא-רק לבדוק את ה-helper בבידוד.
 - **SEO/sitemap:** "הדוסייה המתועדת" (JSON סטטי, §2/§83 למעלה) אינה-נכנסת ל-`api/sitemap.js`/`api/card.js` באופן-אוטומטי מעצם-קיומה — רק דרך נתיב-ציבורי-אמיתי-קיים (`/book/:slug`), תואם ל-Delta's "SEO / OG / sitemap boundary".
 
 **אין שינוי-קוד/עיצוב מוטמע כאן או ב-Delta עצמו** — שני המסמכים דוקומנטציה/חוזה בלבד. Phase B (visual preview של Book Hub) ממתין לאישור-GPT/ZURIEL על ה-Delta לפני שמתחיל להטמיע `research_clean` בפועל.
