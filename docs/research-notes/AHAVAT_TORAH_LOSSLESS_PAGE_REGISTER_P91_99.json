@@ -1,0 +1,370 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "PDF pp.91-99 ONLY -- FINAL late-range source batch for this SOURCE_OWNER lineage, per work_log ACK 3a3e24dd-1bb5-4a42-92ae-322dee825b3b (task AHAVAT_TORAH_P91_99_FINAL_CONTINUATION), continuing from AFTER fcc32074 and GPT finite audit 04eb1a87-0df8-4e51-86bd-90b331459c13. p.90 read for boundary context only, NOT re-registered here. p.99 is the LAST page of the PDF (page_count=99 reconfirmed live this batch).",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "Separate file from all prior batch/register files, per output-file scope. Same schema, same #pN:block convention, same truth vocabulary. This is the FINAL source batch of this lineage -- it does NOT itself constitute a whole-book-closed claim; that determination belongs to GPT's whole-book reconciliation, per this batch's own instruction.",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "render": "pymupdf, 3x zoom, full-page (both columns); p.90 boundary context + pp.91-99 target; p.99 independently confirmed as the PDF's last page"
+  },
+  "structural_placement": "pp.91-92 close the parasha-ordered chiddushim (Nitzavim, Vayelech, Ha'azinu, VeZot HaBerakha). p.93-94 (top) are Megillat Esther chiddushim, matching the dossier's known structure. p.94 (from mid-page) through p.99 (top) are 'השמטות' (Hashmatot / Addenda) -- a distinct final section that revisits EARLIER parshiot (from Noach through Va'etchanan) with additional short notes, NOT new sequential content. p.99 (bottom half) is a separate, later-added formal ERRATA LIST ('הערות שהעיר ר' יהושע בר\"י צ' לימן נ\"י') -- a numbered set of corrections tied to specific page/ד\"ה locations, evidently from the 1983 Brooklyn reprint, distinct in authorship/date from both the 1905 main text and the Hashmatot.",
+  "pages": [
+    {
+      "pdf_page": 91,
+      "printed_page": "46",
+      "section": "parasha_chiddushim",
+      "parasha": "נצבים (closing) -> וילך (opening)",
+      "opening_anchor": "את פניך רק אבקש כי אף שהוא שר הצבא",
+      "closing_anchor": "כי אעתיר לצדריך אשכיר חצי מרם ער פרעות אויב",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "nitzavim_closing_shirah",
+          "source_ref": "book:hebrewbooks:5635#p91:nitzavim_closing_shirah",
+          "text_note": "Right column: closing Nitzavim, noting the Torah is called 'שירה' (song) twice, and discussing why all future generations' repentance/prophecy were rooted at Sinai."
+        },
+        {
+          "block_id": "vayelech_moshe_age_120",
+          "source_ref": "book:hebrewbooks:5635#p91:vayelech_moshe_age_120",
+          "text_note": "Right/left columns: Vayelech opens with Moshe's declared age at death (well-known, 120 years) and the mitzvah of Hakhel (gathering every 7 years).",
+          "verbatim_numbers": ["בן מאה ועשרים שנה (120, well-known)"]
+        },
+        {
+          "block_id": "vayelech_haazinu_transition",
+          "source_ref": "book:hebrewbooks:5635#p91:vayelech_haazinu_transition",
+          "text_note": "Left column: continues Vayelech (Torah entrusted to the Levites, national/individual sin discussion), transitioning toward Ha'azinu."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 92,
+      "printed_page": "כד",
+      "section": "parasha_chiddushim",
+      "parasha": "וילך (closing) -> האזינו (opening) -> וזאת הברכה (opening)",
+      "opening_anchor": "וכפר אדמתו עמו על פ' ברכה שנקבר משה",
+      "closing_anchor": "פרשת חצא. אחר נפש חמש המאות מן האדם ומן הבקר ומן הצאן",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "haazinu_all_parshiot_hinted",
+          "source_ref": "book:hebrewbooks:5635#p92:haazinu_all_parshiot_hinted",
+          "text_note": "Right column: a methodological aside claiming Ha'azinu hints at all the Torah's parshiot (a cross-referencing list by name) -- a structural/interpretive claim, not a numeric count."
+        },
+        {
+          "block_id": "vezot_haberakha_10_makot_confession",
+          "source_ref": "book:hebrewbooks:5635#p92:vezot_haberakha_10_makot_confession",
+          "text_note": "Left column: Parashat VeZot HaBerakha opens with Moshe's blessing to the tribes, including a repeated structural phrase pattern ('י' היכות ...') appearing several times in the discussion -- candidate repeated-count structure, not confidently parsed as a single coherent construction at this zoom.",
+          "verbatim_numbers": ["י' (10, repeated structural phrase, UNCERTAIN construction)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P92-U1", "text": "The repeated 'י' היכות...' phrase pattern in the VeZot HaBerakha discussion is not confidently parsed as one coherent numeric construction at this zoom -- recorded as a candidate only.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 93,
+      "printed_page": "48",
+      "section": "megillat_esther_chiddushim",
+      "parasha": "מגילת אסתר",
+      "opening_anchor": "ויאמר המלך לחכמים יודעי העתים",
+      "closing_anchor": "אמרו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "esther_opening_chiddushim",
+          "source_ref": "book:hebrewbooks:5635#p93:esther_opening_chiddushim",
+          "text_note": "Right/left columns: opening chiddushim on Megillat Esther -- the king's advisors, Vashti's downfall, the gathering of maidens, Mordechai's genealogy, Haman's plot. Standard narrative/aggadic exposition, matching the dossier's known 'Megillat Esther pp.93-94' structural placement."
+        },
+        {
+          "block_id": "esther_purim_lots_74_days",
+          "source_ref": "book:hebrewbooks:5635#p93:esther_purim_lots_74_days",
+          "text_note": "Left column: discussion of the casting of lots (הגורל) for Purim's timing, and the extended battle days for the Jews (13th of Adar plus an extra day in Shushan) -- standard Megillah chronology, not novel."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 94,
+      "printed_page": "כה",
+      "section": "megillat_esther_chiddushim_then_hashmatot",
+      "parasha": "מגילת אסתר (closing) -> השמטות (title, addenda begin)",
+      "opening_anchor": "אמרו חכז\"ל חייב אדם לבסומי בפוריא עד",
+      "closing_anchor": "כרכתיב עוד מד' יצא הדבר",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "esther_closing_amalek_lineage",
+          "source_ref": "book:hebrewbooks:5635#p94:esther_closing_amalek_lineage",
+          "text_note": "Right column: closes Megillat Esther -- Haman's Amalekite lineage, Mordechai's decree, the naming of Esther ('הדסה'/'אסתר', citing Rabbi Akiva's students' view on her hidden nature)."
+        },
+        {
+          "block_id": "hashmatot_title_and_noach_chronology",
+          "source_ref": "book:hebrewbooks:5635#p94:hashmatot_title_and_noach_chronology",
+          "text_note": "A major section title 'השמטות' (Omissions/Addenda) appears, opening a final section that revisits EARLIER parshiot with short additional notes rather than continuing sequentially. First entries: Parashat Noach -- a chronological calculation about the generations from Adam to Noach (candidate figure in the low-thousands range, exact numeral not confidently disambiguated), and Parashat Chayei Sarah.",
+          "verbatim_numbers": ["candidate chronology figure re: dor-count to Noach, UNCERTAIN"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page marks a structural boundary: from here through p.99 (top), content is organized as ADDENDA keyed to earlier parshiot, not new sequential narrative. Each Hashmatot entry is its own short note; they are NOT block-decomposed individually below at the same depth as the main narrative pages, given their brevity and citation-heavy character -- recorded per-parasha-group instead, per this batch's own judgment call, not a corpus-wide policy change."}
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P94-U1", "text": "Noach-era chronology figure (generations/years from Adam to Noach) not confidently disambiguated at this zoom.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 95,
+      "printed_page": "50",
+      "section": "hashmatot",
+      "parasha": "תזריע, קדושים, בחקתי, נשא (addenda)",
+      "opening_anchor": "עמנו ונפלנו אני ועמך בלשון פחות במדרנה",
+      "closing_anchor": "נשא כלל אכל כבני נרשון כתיב נשא נם להם",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "hashmatot_kedoshim_love_neighbor_twice",
+          "source_ref": "book:hebrewbooks:5635#p95:hashmatot_kedoshim_love_neighbor_twice",
+          "text_note": "A textual-count observation: the phrase about loving one's neighbor / the convert appears written twice in proximity (Kedoshim), the addendum discussing why the repetition was needed (once for love of the righteous, once for love that precedes fear).",
+          "verbatim_numbers": ["פעמיים (2, textual repetition, well-attested phrasing)"]
+        },
+        {
+          "block_id": "hashmatot_bechukotai_5_100_ratio",
+          "source_ref": "book:hebrewbooks:5635#p95:hashmatot_bechukotai_5_100_ratio",
+          "text_he": "ורדפו מכם חמשה מאה ומכם מאה רבבה ירדפו",
+          "text_note": "Bechukotai's blessing-ratio verse (Lev 26:8: 5 chase 100, 100 chase 10,000) -- the addendum notes the disproportionate acceleration (5->100 is x20, but 100->10,000 is x100), citing Ramban's own comment on this. WELL-KNOWN, not a novel construction of this book.",
+          "verbatim_numbers": ["חמשה (5)", "מאה (100)", "רבבה (10,000)"],
+          "verbatim_citations": ["רמב\"ן ז\"ל"]
+        },
+        {
+          "block_id": "hashmatot_nasa_levite_order",
+          "source_ref": "book:hebrewbooks:5635#p95:hashmatot_nasa_levite_order",
+          "text_note": "Parashat Nasa addendum: the birth-order of Levi's sons (Gershon/Kehat/Merari) versus their service/counting order in the census -- structural note, no isolated new number."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רמב\"ן ז\"ל"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 96,
+      "printed_page": "כו",
+      "section": "hashmatot",
+      "parasha": "בהעלותך, חקת, בלק, שלח, קרח (addenda)",
+      "opening_anchor": "ואכלתם אותו בכל מקום כי שכר הוא לכם חלף",
+      "closing_anchor": "חוזה עם המות עיין שם",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "hashmatot_chukat_miriam_aharon_juxtaposition",
+          "source_ref": "book:hebrewbooks:5635#p96:hashmatot_chukat_miriam_aharon_juxtaposition",
+          "text_note": "Parashat Chukat addendum: the deliberate juxtaposition of Miriam's death and Aharon's death with the Red Heifer law -- thematic, not numeric."
+        },
+        {
+          "block_id": "hashmatot_korach_letters_dispute",
+          "source_ref": "book:hebrewbooks:5635#p96:hashmatot_korach_letters_dispute",
+          "text_note": "Parashat Korach addendum: a claim connecting Korach's dispute to a letter-count tradition associated with Sefer Yetzirah (candidate figure in the low hundreds, exact numeral NOT confidently disambiguated -- possibly a count of the 22 letters' combinatorics, not independently resolved here).",
+          "verbatim_numbers": ["candidate letter-count figure re: Sefer Yetzirah tradition, UNCERTAIN"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P96-U1", "text": "Korach/Sefer-Yetzirah letter-count figure not confidently disambiguated at this zoom.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 97,
+      "printed_page": "כז",
+      "section": "hashmatot",
+      "parasha": "ראה, שופטים, ואתחנן (addenda)",
+      "opening_anchor": "ישעיהו קפיטל נ' פסוק נ' שכהב כי שרי",
+      "closing_anchor": "לפי זה שכתוב כאן כי שרי העשרות היו השוטרים",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "hashmatot_shoftim_officer_hierarchy",
+          "source_ref": "book:hebrewbooks:5635#p97:hashmatot_shoftim_officer_hierarchy",
+          "text_note": "Addendum discussing Deut 1:15's officer hierarchy (שרי אלפים / שרי מאות / שרי חמשים / שרי עשרות -- officers of thousands/hundreds/fifties/tens), cross-referenced to Isaiah, with a note that officers of tens are not counted among 'השרים' proper. WELL-KNOWN structural hierarchy, not novel.",
+          "verbatim_numbers": ["אלפים / מאות / חמשים / עשרות (well-known Deut 1:15 hierarchy)"],
+          "verbatim_citations": ["ישעיהו"]
+        },
+        {
+          "block_id": "hashmatot_vaetchanan_3_cities_refuge",
+          "source_ref": "book:hebrewbooks:5635#p97:hashmatot_vaetchanan_3_cities_refuge",
+          "text_note": "Va'etchanan addendum: Moshe separates 3 cities of refuge east of the Jordan -- well-known count."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["ישעיהו"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 98,
+      "printed_page": "כז (recto)",
+      "section": "hashmatot",
+      "parasha": "ואתחנן (addenda continued) -- Tochecha discussed thematically, still no numeric table",
+      "opening_anchor": "הפסיק התורה הקדושה בענין התוכחה בזה הענין",
+      "closing_anchor": "ודפח\"ת",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "hashmatot_tochecha_interruption_theme",
+          "source_ref": "book:hebrewbooks:5635#p98:hashmatot_tochecha_interruption_theme",
+          "text_note": "DS-08/TOCHECHA SEARCH, CONTINUED FROM PRIOR BATCH: this addendum explicitly USES THE WORD 'התוכחה' (the Tochecha), discussing why the Torah 'interrupts' its discussion of the Tochecha with the cities-of-refuge law -- i.e., a thematic/structural observation about WHY two topics are juxtaposed, not a count of the curses themselves. This is the first EXPLICIT use of the word 'תוכחה' encountered across the entire pp.58-99 search (prior sightings were the Deut 27/Har Eival curses, a DIFFERENT unit, never explicitly labeled 'תוכחה' in the text itself). Still NO numeric table or bounded count of blessing/curse words or verses is present here either -- this remains discursive commentary. DS-08 REMAINS NOT FOUND even at this, the most topically relevant sighting of the word 'תוכחה' in the entire search range."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-08"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [
+        {"id": "GRF-12", "page": 98, "block_ref": "book:hebrewbooks:5635#p98:hashmatot_tochecha_interruption_theme", "raw_source_anchor": "הפסיק התורה הקדושה בענין התוכחה בזה הענין", "reason": "First explicit use of the word 'תוכחה' found in the entire pp.58-99 search -- flagged so GPT's whole-book reconciliation has the exact locus of the corpus's only direct textual reference to the search term, even though it is not DS-08 itself (no count/table present)."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL — DS-08 SEARCH NEGATIVE, MOST RELEVANT TEXTUAL SIGHTING NOTED",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 99,
+      "printed_page": "כח / final page",
+      "section": "hashmatot_closing_then_1983_errata_list",
+      "parasha": "בהר (closing addendum), then a separate formal errata list",
+      "opening_anchor": "לפי זה שכהוב בסוף הפרשה ונם בלק הלך",
+      "closing_anchor": "עצת מדרכי היא כמפורש במם' מגילה י\"ג",
+      "transcription_depth": "TRANSCRIBED_VERBATIM_TABLE (errata list) + SUBSTANTIAL_PARAPHRASE (closing addendum)",
+      "content_blocks": [
+        {
+          "block_id": "hashmatot_behar_closing",
+          "source_ref": "book:hebrewbooks:5635#p99:hashmatot_behar_closing",
+          "text_note": "Right column top: the final Hashmatot entry (Parashat Behar-adjacent), closing the addenda section with a decorative printer's ornament marking the end of the main body of the book."
+        },
+        {
+          "block_id": "errata_list_title_and_provenance",
+          "source_ref": "book:hebrewbooks:5635#p99:errata_list_title_and_provenance",
+          "text_he": "הערות שהעיר ר' יהושע בר\"י צ' לימן נ\"י",
+          "text_note": "A SEPARATE, FORMALLY TITLED ERRATA LIST attributed to R' Yehoshua bar Y. Tzvi Lyman -- distinct in authorship from the main 1905 text and from the anonymous Hashmatot above it. This matches the dossier's known source fact of a '1983-edition errata list' (per DOSSIER_INDEX source facts). CORRECTION PROVENANCE PRESERVED EXACTLY, per this batch's explicit instruction -- correction != deletion; nothing in the main text is altered by these notes, they are printed as a separate appended list.",
+          "table_id": "ERRATA-1983-LYMAN"
+        }
+      ],
+      "tables": [
+        {
+          "table_id": "ERRATA-1983-LYMAN",
+          "source_ref": "book:hebrewbooks:5635#p99:errata_list_title_and_provenance",
+          "description": "9-entry formal errata list, each keyed to (parasha, page-in-this-edition, ד\"ה [opening words of the passage being corrected]), transcribed in reading order. This is a NEW extraction -- not previously catalogued in this dossier.",
+          "rows": [
+            {"n": 1, "locus": "מגדל עוז, עמוד ה' (page 5), last line", "note": "Proposed correction: read 'וח\"' in place of 'וט\"ו'.", "status": "PROPOSED_CORRECTION"},
+            {"n": 2, "locus": "פרשת תולדות, עמוד 6, ד\"ה מן ויהי", "note": "If counting the closed/final Mem as 600 (סתומה 600): explains this follows the כמנפ\"ץ letter order, not the standard מנצפ\"ך order.", "status": "METHODOLOGICAL_CLARIFICATION"},
+            {"n": 3, "locus": "פרשת וישב, עמוד 10, ד\"ה ואביו, 11 lines from column end", "note": "Re: 'ואנו חושבים י\"ב מזלות' (we count 12 constellations) -- see Yalkut Reuveni, Parashat Vayeshev, siman 42.", "status": "REFERENCE_NOTE"},
+            {"n": 4, "locus": "פרשת ראה, עמוד 42, ד\"ה ובשבועות, at the end", "note": "Clarifying note on why one sends gifts to the poor so they too can rejoice on the festival.", "status": "CLARIFICATION"},
+            {"n": 5, "locus": "פרשת שופטים, עמוד 42, ד\"ה לא תטע (re: the altar / fat-enriched soil)", "note": "EXPLICITLY MARKED 'צ\"ע' (requires further study) BY THE EDITOR HIMSELF -- the Temple courtyard floor was stone, so 'enriched by sacrificial blood/fat' and 'planting' both seem inapplicable there; the editor leaves this genuinely open, not resolved.", "status": "UNRESOLVED — EDITOR'S OWN צ\"ע, PRESERVED EXACTLY"},
+            {"n": 6, "locus": "same page, ד\"ה אשימה", "note": "A note distinguishing eras/generations regarding kingship-like dealings with other nations (citing Divrei HaYamim-style reasoning), re: the difference between a Nasi and an Av Beit Din in the Second Temple period.", "status": "CLARIFICATION"},
+            {"n": 7, "locus": "פרשת כי תצא, end of עמוד 44, ד\"ה יהיה", "note": "Textual note: Scripture calls her 'כלב' and likewise 'השגל' -- see Rosh Hashanah [daf/perek not fully legible].", "status": "REFERENCE_NOTE"},
+            {"n": 8, "locus": "פרשת כי תבא, middle of עמוד 44, ד\"ה וראו (2nd occurrence)", "note": "The editor states he could not find a specific letterform for the Shin referenced; notes that Russian has a letter shaped exactly like a Shin.", "status": "EDITOR_COMMENT, UNRESOLVED IDENTIFICATION"},
+            {"n": 9, "locus": "מגילת אסתר, עמוד 48, ד\"ה ובהקבץ", "note": "Mordechai's advice/strategy is explained as per Masechet Megillah 13[a].", "status": "REFERENCE_NOTE"}
+          ]
+        }
+      ],
+      "editorial_notes": [
+        {"note": "Entry #5 above is a genuine, source-native, editor-authored unresolved question (צ\"ע) preserved exactly as printed -- not smoothed over, not resolved by this transcription, and not treated as a contradiction to force-close."}
+      ],
+      "citations": ["ילקוט ראובני", "מסכת ראש השנה", "מסכת מגילה"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P99-U1", "text": "Errata entry #7's exact Rosh Hashanah daf/perek citation not fully legible at 3x zoom.", "status": "UNCERTAIN"},
+        {"id": "P99-U2", "text": "Errata entry #5's צ\"ע is the SOURCE'S OWN unresolved question -- explicitly preserved as unresolved, not to be closed by any future pass without new textual evidence.", "status": "SOURCE'S OWN צ\"ע — PRESERVE AS OPEN"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-13", "page": 99, "block_ref": "book:hebrewbooks:5635#p99:errata_list_title_and_provenance", "raw_source_anchor": "פרשת תולדות (עמוד 6) ד\"ה מן ויהי - אם תחשוב המ\"ם סתומה 600 - פי' שתחשוב לפי סדר כמנפ\"ץ במקום מנצפ\"ך", "reason": "POTENTIALLY HIGH-VALUE FOR GPT: this 1983-editor's note about counting final letters (Mem sofit etc.) via the כמנפ\"ץ order rather than the standard מנצפ\"ך order may be directly relevant to the corpus's own long-standing UNRESOLVED DS-02 checksum anomalies (Aleph-Vayikra 47,585 and Bet-Bereshit 200,332, both logically impossible under standard reading, per the Mechanical Closure Pass). If final-letter (sofit) values were counted under a different convention than assumed, that could explain an order-of-magnitude discrepancy. NOT investigated or applied here -- flagged mechanically for GPT's cross-dataset synthesis, no recalculation performed, no claim that this resolves DS-02."}
+      ],
+      "transcription_status": "TRANSCRIBED (errata table verbatim; closing addendum paraphrased)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "RESEARCH_EXTRACTED (new errata table, not previously catalogued)",
+      "confidence": "VISUALLY_VERIFIED (errata table); SOURCE_LOCATED (closing addendum)"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [91, 92, 93, 94, 95, 96, 97, 98, 99],
+    "pages_read_boundary_only_not_registered": [90],
+    "is_final_page_of_pdf": true,
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family or 1,830-family construction was found in pp.91-99.",
+    "ds08_final_result_pp81_99": "DS-08 (a bounded Tochecha blessing/curse count table) was NOT FOUND anywhere in PDF pp.81-99, across both the pp.81-90 batch (plus its deep-search supplement) and this pp.91-99 batch. p.98's Hashmatot entry is the ONE place in the entire pp.58-99 search range where the word 'תוכחה' itself is used explicitly (GRF-12) -- still discursive commentary about why two topics are juxtaposed, not a count. Combined with the already-known negative result for pp.1-57 (per the existing dossier), DS-08's location is UNRESOLVED across the searched portion of the whole book. This is reported as a genuine, thorough, final negative result for this SOURCE_OWNER's search range -- not force-fitted anywhere.",
+    "gpt_research_flags_this_batch": ["GRF-12", "GRF-13"],
+    "unresolved_readings_this_batch": 6,
+    "new_extraction_not_previously_catalogued": "The 9-entry 1983-edition errata list (ERRATA-1983-LYMAN, p.99) -- a formally structured correction-provenance table, transcribed in full for the first time in this dossier, including the editor's own explicitly preserved unresolved question (צ\"ע) at entry #5.",
+    "potentially_high_value_cross_dataset_flag": "GRF-13: the errata list's note about counting final letters (Mem sofit etc.) via a כמנפ\"ץ vs מנצפ\"ך order distinction may bear on the long-open DS-02 checksum anomalies (Aleph-Vayikra, Bet-Bereshit) -- flagged for GPT, not investigated or applied here.",
+    "ingestion_contract_stress_test": "PASS -- the #pN:block/source_ref contract held across parasha-chiddushim closing content, Megillat Esther narrative, a distinct addenda section spanning many earlier parshiot, a continued DS-08 search to its most relevant sighting yet, and a formally structured, verbatim-transcribed errata table with a preserved editor's צ\"ע, with no identity or data-loss problem encountered.",
+    "whole_pdf_coverage_note": "This batch closes out PDF page 99 of 99 for THIS SOURCE_OWNER's session-9-lineage search (pp.58-99, in 4 batches + 1 supplement). This does NOT by itself constitute a whole-book-closed claim: pp.1-15 were covered at full block-level depth in an earlier session; pp.16-57 are separately owned (work_log ce978932) and their status is not asserted here. Whole-book reconciliation across all owners/sessions is explicitly GPT's next step, not this batch's to declare."
+  }
+}
