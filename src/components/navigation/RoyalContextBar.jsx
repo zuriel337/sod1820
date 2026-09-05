@@ -70,13 +70,18 @@ export default function RoyalContextBar() {
   const currentType = selection?.entityType || null;
   const rootDiffers = Boolean(root?.href && root.href !== pathname && rootLabel && rootLabel !== ctx.label);
 
+  // 🔧 Provenance fix (work_log 7aac1708, per GPT disposition ca76f1e2 on AFTER ae7f3dce):
+  // when rootDiffers, the root is a stale, unrelated earlier subject (the UI itself already
+  // shows this via the "↩ חזרה לשורש" affordance above) — it must never be written onto a
+  // freshly-saved entity as if it were that entity's subject. Omit it (null), don't invent a
+  // new metadata field; when the root still matches where we are, behavior is unchanged.
   const currentEntity = currentType && currentRef ? makeEntity({
     type: currentType,
     title: ctx.label,
     ref: currentRef,
     link: `${pathname}${search || ""}`,
     metadata: {
-      research_subject: root ? { id: root.id, type: root.type, label: rootLabel } : null,
+      research_subject: (root && !rootDiffers) ? { id: root.id, type: root.type, label: rootLabel } : null,
       lens: activeLens,
     },
   }) : null;
