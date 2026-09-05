@@ -102,6 +102,12 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
   const signatures=Array.isArray(data?.signatures)?data.signatures:[];
   const zero=data?.zeroScale||null;
   const zeroChain=Array.isArray(zero?.scale_chain)?zero.scale_chain:[];
+  const nextSteps=[
+    topics[0]?.slug ? {icon:"◎",text:`פתח התכנסות חזקה: ${topics[0].title||topics[0].slug}`,href:`/topic/${encodeURIComponent(topics[0].slug)}`} : null,
+    zero?.applicable ? {icon:"0",text:`חקור את סדרת האפס של ${identity.label}`,action:()=>setDna("expressions")} : null,
+    worlds[0] ? {icon:"◈",text:`בדוק את עולם ${worlds[0].world} סביב ${identity.label}`,action:()=>setDna("worlds")} : null,
+    sources[0] ? {icon:"📚",text:"פתח מקור מחקרי מחובר",href:"/research"} : null,
+  ].filter(Boolean).slice(0,3);
 
   return <div style={{marginTop:18}}>
     <section style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18,boxShadow:"0 8px 28px rgba(0,0,0,.05)"}}>
@@ -218,7 +224,10 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
     <section style={{marginTop:18,display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:12}}>
       <div style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:18,padding:16}}><div style={{fontWeight:900,fontSize:17}}>🔮 התכנסויות חזקות <Help title="התכנסויות">המספר אינו הסיפור היחיד; ה-Hub צריך להראות מה נפגש, באיזו שיטה, ובאיזה מעמד אמת.</Help></div><div style={{fontSize:30,fontWeight:950,marginTop:8}}>{topics.length}</div><div style={{color:C.muted,fontSize:12.5}}>Topics מאושרים מחוברים כרגע ל-{identity.label}. בדף הבא כל כרטיס יציג את המילים בגדול ואת השיטה ליד הערך.</div></div>
       <div style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:18,padding:16}}><div style={{fontWeight:900,fontSize:17}}>🧭 מסעות <Help title="מסע">מסע הוא traversal של אותו Research Context, לא עותק של ידע. כשהמספר חלק ממסע הוא צריך לבלוט.</Help></div><div style={{fontSize:30,fontWeight:950,marginTop:8}}>{journey?1:0}</div><div style={{color:C.muted,fontSize:12.5}}>{journey?"יש Number Knowledge Journey זמין ב-Projection.":"אין מסע קנוני זמין כרגע; לא ניצור אחד מלאכותית."}</div></div>
-      <div style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:18,padding:16}}><div style={{fontWeight:900,fontSize:17}}>✦ רזיאל · המשך מחקר <Help title="רזיאל">הסיכום הקצר בדף, הניתוח העמוק והליווי המתמשך בהיכל הם שלושה תפקידים שונים. AI לא מקדם לקנוני ולא מפרסם.</Help></div><div style={{color:C.muted,fontSize:12.5,marginTop:8}}>{research.length} Research Objects זמינים · {sources.length} מקורות projected. ההמשך צריך להיות 1–3 פעולות קונקרטיות, לא עוד פסקת AI כפולה.</div><Link to="/research" style={{display:"inline-block",marginTop:10,textDecoration:"none",background:C.blue,color:"#fff",borderRadius:999,padding:"8px 12px",fontWeight:850}}>פתח בהיכל</Link></div>
+      <div style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:18,padding:16}}><div style={{fontWeight:900,fontSize:17}}>✦ רזיאל · המשך מחקר <Help title="רזיאל">הסיכום הקצר בדף, הניתוח העמוק והליווי המתמשך בהיכל הם שלושה תפקידים שונים. כאן ההמלצות מתחילות מנתונים קיימים ורק אחר כך AI.</Help></div>
+        <div style={{color:C.muted,fontSize:12.5,marginTop:8}}>{research.length} Research Objects · {sources.length} מקורות. הצעות ההמשך כאן נגזרות קודם מה-Graph/Engine כדי לחסוך AI ולהישאר ניתנות להסבר.</div>
+        <div style={{display:"grid",gap:7,marginTop:10}}>{nextSteps.map((s,i)=>s.href?<Link key={i} to={s.href} style={{textDecoration:"none",color:C.ink,border:`1px solid ${C.line}`,borderRadius:11,padding:"9px 10px",background:C.soft}}><b>{s.icon}</b> {s.text}</Link>:<button key={i} onClick={s.action} style={{textAlign:"right",cursor:"pointer",color:C.ink,border:`1px solid ${C.line}`,borderRadius:11,padding:"9px 10px",background:C.soft,font:"inherit"}}><b>{s.icon}</b> {s.text}</button>)}</div>
+        <Link to="/research" style={{display:"inline-block",marginTop:10,textDecoration:"none",background:C.blue,color:"#fff",borderRadius:999,padding:"8px 12px",fontWeight:850}}>פתח בהיכל</Link></div>
     </section>
 
     <section style={{marginTop:18,background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18}}>
