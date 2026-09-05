@@ -169,8 +169,8 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
 
       <div style={{marginTop:14}}>
         <div style={{fontWeight:900,marginBottom:8}}>Method Rail · כל השיטות הזמינות ב-Projection <Help title="סרגל שיטות">הסדר מגיע מ-sort_order של Registry קנוני, לא מרשימה ידנית חדשה. בהמשך סדר הניהול הקיים ייבדק ויישמר.</Help></div>
-        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=><button key={g.method} onClick={()=>setMethodTrace(g.method)} style={{cursor:"pointer",whiteSpace:"nowrap",border:`1px solid ${methodTrace===g.method?C.blue:C.line}`,background:methodTrace===g.method?C.blue2:"#fff",color:C.ink,borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{g.registry?.display_label||g.method} · {g.count||g.phrases?.length||0} ⓘ</button>)}</div>
-        {methodTrace?<MethodTrace method={methodTrace} phrase={identity.label} onClose={()=>setMethodTrace(null)} />:null}
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=>{const sample=typeof g.phrases?.[0]==="string"?g.phrases[0]:(g.phrases?.[0]?.phrase||g.phrases?.[0]?.label||""); const active=methodTrace?.method===g.method; return <button key={g.method} onClick={()=>sample&&setMethodTrace({method:g.method,phrase:sample})} disabled={!sample} style={{cursor:sample?"pointer":"default",opacity:sample?1:.5,whiteSpace:"nowrap",border:`1px solid ${active?C.blue:C.line}`,background:active?C.blue2:"#fff",color:C.ink,borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{g.registry?.display_label||g.method} · {g.count||g.phrases?.length||0} ⓘ</button>})}</div>
+        {methodTrace?<MethodTrace method={methodTrace.method} phrase={methodTrace.phrase} onClose={()=>setMethodTrace(null)} />:null}
       </div>
     </section>
 
