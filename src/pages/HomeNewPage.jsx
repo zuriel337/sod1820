@@ -394,7 +394,7 @@ export default function HomeNewPage() {
         .hn-verse::after { inset-inline-start:0; background:linear-gradient(transparent,#d4af37); }
         .hn-verse b { color:#f0d879; }
         .hn-vsrc { color:#9a8a63; font-family:${F.heading}; font-size:12.5px; margin-top:8px; letter-spacing:.5px; }
-        .hn-search { display:flex; align-items:center; gap:8px; width:100%; max-width:540px;
+        .hn-search { display:flex; align-items:center; gap:8px; width:100%; max-width:440px;
           background:rgba(9,7,14,.72); border:1px solid rgba(212,175,55,.55); border-radius:16px;
           padding:5px 8px 5px 16px; box-shadow:0 12px 34px rgba(0,0,0,.5); backdrop-filter:blur(3px); }
         .hn-search:focus-within { border-color:#d4af37; }
