@@ -11,6 +11,8 @@ import {
   getDistinctCategoriesAndTags, getGematriaByValue,
   getTagCounts, getGalleryNumberTags, getGalleryUpdates, setImageCuration,
 } from "../lib/supabase.js";
+import { fetchPinnedPosts, isPinnedPost } from "../lib/homeUpdates.js";
+import { primaryIconedCategory } from "../lib/categoryIcons.js";
 import { stripHtml, formatDateHe, timeAgoHe } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
 import { getContributorByName, contributorHref } from "../lib/supabase.js";
@@ -64,6 +66,30 @@ const isHebrew = s => /[א-ת]/.test(s);
 const isNumeric = s => /^\d+$/.test(s.trim());
 const shortDate = d => { try { return new Date(d).toLocaleDateString("he-IL"); } catch { return ""; } };
 
+// 📌 /post ו«עדכונים אחרונים» משתמשים באותה סמנטיקת נעיצה. adaptPost הוא renderer adapter
+// ולכן שומרים עליו את tree_priority מה-row הקנוני במקום ליצור flag נוסף.
+const adaptFeedPost = row => ({ ...adaptPost(row), tree_priority: row?.tree_priority ?? null });
+const postIdentity = p => String(p?.id ?? p?.slug ?? "");
+const mergePinnedFirst = (pinned = [], rows = []) => {
+  const out = [], seen = new Set();
+  for (const p of [...pinned, ...rows]) {
+    const key = postIdentity(p);
+    if (!key || seen.has(key)) continue;
+    seen.add(key); out.push(p);
+  }
+  return out;
+};
+const appendUniquePosts = (prev = [], rows = []) => {
+  const seen = new Set(prev.map(postIdentity));
+  const next = [...prev];
+  for (const p of rows) {
+    const key = postIdentity(p);
+    if (!key || seen.has(key)) continue;
+    seen.add(key); next.push(p);
+  }
+  return next;
+};
+
 function PostCard({ p, i, view, hot, isAdmin }) {
   const P = usePalette();
   const image = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
@@ -73,9 +99,11 @@ function PostCard({ p, i, view, hot, isAdmin }) {
   const updated = timeAgoHe(p.modified || p.date);
   const wasUpdated = p.modified && p.modified !== p.date;
   const gem = calcGem(title);
+  const pinned = isPinnedPost(p);
+  const primaryCat = primaryIconedCategory(p.categories || []);
   return (
     <div style={{ position: "relative" }} className="pp-card-wrap">
-      <Link to={`/${p.slug}`} className={`pp-card pp-card-${view}`} style={{ animationDelay: `${(i % PER) * 45}ms` }}>
+      <Link to={`/${p.slug}`} className={`pp-card pp-card-${view}${pinned ? " pp-card-pinned" : ""}`} style={{ animationDelay: `${(i % PER) * 45}ms` }}>
         <div className="pp-thumb" style={{
           background: image ? `center/cover no-repeat url(${image})` : P.cardGrad,
         }}>
@@ -85,10 +113,12 @@ function PostCard({ p, i, view, hot, isAdmin }) {
           {isWarmNumber(gem) && <span className="pp-gem" title={`מספר חם: ${gem}`}>ג׳ {gem}</span>}
         </div>
         <div className="pp-body">
-          {(postHasStrongHint(p) || postHasVideo(p)) && (
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 5 }}>
+          {(pinned || postHasStrongHint(p) || postHasVideo(p) || primaryCat) && (
+            <div className="pp-badges">
+              {pinned && <span className="pp-badge pp-pin">📌 נעוץ</span>}
               {postHasStrongHint(p) && <StrongHintBadge variant="chip" />}
               {postHasVideo(p) && <VideoBadge variant="chip" />}
+              {primaryCat && <span className="pp-badge pp-cat">{primaryCat.icon} {primaryCat.name}</span>}
             </div>
           )}
           <div className="pp-name">{title}</div>
@@ -178,15 +208,21 @@ export default function PostsPage() {
     return () => window.removeEventListener("keydown", h);
   }, []);
 
-  // טעינת עמוד (גלישה רגילה — לא בחיפוש)
+  // טעינת עמוד (גלישה רגילה — לא בחיפוש). page 1 מקבל גם את כל הנעוצים ששייכים לאותו facet.
   const loadBrowse = useCallback((p) => {
     setLoading(true); setError("");
-    getPostsFromSupabase({
-      limit: PER, page: p, orderBy: sortDef.orderBy, ascending: sortDef.ascending,
-      category: filterCat, tag: filterTag, year: filterYear, author: filterAuthor,
-    })
-      .then(({ posts: rows, total }) => {
-        setPosts(prev => p === 1 ? rows.map(adaptPost) : [...prev, ...rows.map(adaptPost)]);
+    const filters = { category: filterCat, tag: filterTag, year: filterYear, author: filterAuthor };
+    Promise.all([
+      getPostsFromSupabase({
+        limit: PER, page: p, orderBy: sortDef.orderBy, ascending: sortDef.ascending,
+        ...filters,
+      }),
+      p === 1 ? fetchPinnedPosts(filters) : Promise.resolve([]),
+    ])
+      .then(([{ posts: rows, total }, pinnedRows]) => {
+        const adaptedRows = (rows || []).map(adaptFeedPost);
+        const adaptedPinned = (pinnedRows || []).map(adaptFeedPost);
+        setPosts(prev => p === 1 ? mergePinnedFirst(adaptedPinned, adaptedRows) : appendUniquePosts(prev, adaptedRows));
         setTotal(total); setLoading(false);
       })
       .catch(err => { setError(err.message || "שגיאה בטעינה"); setLoading(false); });
@@ -242,10 +278,15 @@ export default function PostsPage() {
           searchPosts(term, { category: filterCat, tag: filterTag, year: filterYear, limit: 48 }),
           gemValue != null ? getGematriaByValue(gemValue) : Promise.resolve([]),
         ]);
-        let list = rows.map(adaptPost);
-        // מיון צד-לקוח לתוצאות חיפוש (לפי תאריך)
-        if (sort === "date_asc") list = [...list].sort((a, b) => new Date(a.date) - new Date(b.date));
-        else if (sort === "date_desc") list = [...list].sort((a, b) => new Date(b.date) - new Date(a.date));
+        let list = rows.map(adaptFeedPost);
+        // חיפוש שומר את אותה סמנטיקת sticky pin אם פוסט נעוץ נמצא בתוצאות עצמן.
+        list = [...list].sort((a, b) => {
+          const pa = isPinnedPost(a) ? 1 : 0, pb = isPinnedPost(b) ? 1 : 0;
+          if (pa !== pb) return pb - pa;
+          return sort === "date_asc"
+            ? new Date(a.date) - new Date(b.date)
+            : new Date(b.date) - new Date(a.date);
+        });
         setPosts(list); setTotal(list.length); setGemWords(words || []); setLoading(false);
       } catch (err) { setError(err.message || "שגיאה בחיפוש"); setLoading(false); }
     }, 320);
@@ -262,7 +303,8 @@ export default function PostsPage() {
   function toggleYear(y) { setFilterYear(prev => prev === y ? null : y); }
 
   const hasFilter = q || filterCat || filterTag || filterYear;
-  const hasMore = !searching && !realityMode && posts.length < total;
+  // מספר הפוסטים המוצגים כולל sticky pins, לכן pagination נמדד לפי דפי-המקור ולא לפי posts.length.
+  const hasMore = !searching && !realityMode && page * PER < total;
   // תגית-מספר פעילה? (למשל "16" או "14 = דוד") — גשר אל הגלריה/מגירת המספר
   const tagNum = filterTag && /^\d+/.test(filterTag) ? parseInt(filterTag.match(/^\d+/)[0], 10) : null;
   const tagGallery = tagNum != null ? galleryNums.find(g => g.n === tagNum) : null;
@@ -474,12 +516,12 @@ export default function PostsPage() {
       ) : (
         <>
           <div className={view === "grid" ? "pp-grid" : "pp-listcol"}>
-            {posts.map((p, i) => <PostCard key={`${p.slug}-${i}`} p={p} i={i} view={view} hot={hotSlugs.has(p.slug)} isAdmin={isAdmin} />)}
+            {posts.map((p, i) => <PostCard key={p.id || p.slug} p={p} i={i} view={view} hot={hotSlugs.has(p.slug)} isAdmin={isAdmin} />)}
           </div>
           {hasMore && (
             <div style={{ textAlign: "center", marginTop: 36 }}>
               <button onClick={() => setPage(pp => pp + 1)} disabled={loading} className="pp-loadmore">
-                {loading ? "טוען…" : `טען עוד · נותרו ${(total - posts.length).toLocaleString()}`}
+                {loading ? "טוען…" : `טען עוד · נותרו ${Math.max(0, total - Math.min(total, page * PER)).toLocaleString()}`}
               </button>
             </div>
           )}
@@ -577,6 +619,12 @@ export default function PostsPage() {
           transition: border-color .18s, transform .18s, box-shadow .18s; animation: pp-in .5s ease both; }
         .pp-card:hover { border-color: ${P.accent}; transform: translateY(-3px);
           box-shadow: 0 14px 38px rgba(0,0,0,0.5), 0 0 22px ${P.glow}; }
+        .pp-card-pinned { border-color: ${P.borderStrong}; box-shadow: inset 0 0 0 1px ${P.glow}; }
+        .pp-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 5px; }
+        .pp-badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 3px 8px;
+          font-family: ${F.heading}; font-size: 10.5px; font-weight: 800; line-height: 1.2; border: 1px solid ${P.border}; }
+        .pp-pin { color: ${P.accentText}; background: ${P.glow}; border-color: ${P.borderStrong}; }
+        .pp-cat { color: ${P.ink}; background: ${P.cardSoft}; }
         .pp-card-wrap { position: relative; }
         .pp-admin-fb { opacity: 0; transition: opacity .15s; }
         .pp-card-wrap:hover .pp-admin-fb { opacity: 1; }
