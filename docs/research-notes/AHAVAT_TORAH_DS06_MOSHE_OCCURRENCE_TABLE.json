@@ -1,0 +1,123 @@
+{
+  "dataset_id": "DS-06",
+  "title": "Occurrence count of the name משה (Moshe) per parasha, Torah-wide",
+  "status": "FULL_EXTRACTION_CLOSED_WITH_OPEN_CHECKSUMS",
+  "supersedes_scope_of": "AHAVAT_TORAH_DATASETS.json#DS-06 (Session 3: pages [70,71], partial)",
+  "corrected_page_range": [70],
+  "correction_note": "Session 3 scoped DS-06 to pdf pages 70-71. Full re-read this session (Claude Session 5) confirms the table is contained entirely within page 70 (both columns); page 71 (real pages 26/כה, Parashat Tzav -> Shmini) contains only discursive commentary, no table content. This is an additive correction, not an edit to the Session-3 file.",
+  "opening_anchor": "PDF p.70 right column, bold header '* פרשת ויקרא.' followed by 'ויאמר ר' אליו רש\"י ז\"ל...'",
+  "closing_anchor": "PDF p.70 left column, colon-terminated line 'כמשה תרי\"ד פעמים משה חוץ כשנם וחוץ משה וחוץ משה:'",
+  "cited_authorities": ["רש\"י (Rashi, via citation)", "מגלה עמוקות (Megaleh Amukot, on Parashat Haazinu)"],
+  "disputed_prior_counts": [
+    {"source": "מגלה עמוקות", "claim": "תקצ\"ה", "decimal": 795, "note": "claimed equal to occurrences of ישראל in Torah"},
+    {"source": "unnamed challengers", "claim": "תרמ\"ב", "decimal": 642}
+  ],
+  "author_grand_total": {"printed": "תרמ\"ז", "decimal": 647, "confidence": "VISUALLY_VERIFIED", "note": "cross-confirmed at 2 independent zoom passes"},
+  "books": [
+    {
+      "sefer": "שמות",
+      "rows": [
+        {"parasha": "שמות", "printed": "ל\"ז", "decimal": 37},
+        {"parasha": "וארא", "printed": "מ\"ז", "decimal": 47},
+        {"parasha": "בא", "printed": "כ\"ו", "decimal": 26},
+        {"parasha": "בשלח", "printed": "מ\"ב", "decimal": 42},
+        {"parasha": "יתרו", "printed": "ל\"ח", "decimal": 38},
+        {"parasha": "משפטים", "printed": "י\"ד", "decimal": 14},
+        {"parasha": "תרומה", "printed": "פעם אחת", "decimal": 1},
+        {"parasha": "תצוה", "printed": null, "decimal": 0, "confidence": "UNCERTAIN", "note": "not listed in source; plausibly 0 (Tetzaveh famously omits Moshe's name), not confirmed"},
+        {"parasha": "כי תשא", "printed": "מ\"ם", "decimal": 40, "confidence": "UNCERTAIN", "note": "unusual doubled-mem spelling"},
+        {"parasha": "ויקהל", "printed": "מ'", "decimal": 40},
+        {"parasha": "פקודי", "printed": "כ\"ז", "decimal": 27}
+      ],
+      "sum_of_rows": 312,
+      "claimed_total": {"printed": "ר\"ץ", "decimal": 290},
+      "delta": 22,
+      "confidence": "VISUALLY_VERIFIED",
+      "checksum_verdict": "UNRESOLVED"
+    },
+    {
+      "sefer": "ויקרא",
+      "rows": [
+        {"parasha": "ויקרא", "printed": "ד'", "decimal": 4},
+        {"parasha": "צו", "printed": "ל\"א", "decimal": 31},
+        {"parasha": "שמיני", "printed": "י\"ח", "decimal": 18},
+        {"parasha": "תזריע", "printed": "ב'", "decimal": 2},
+        {"parasha": "מצורע", "printed": "נ'", "decimal": 50, "confidence": "UNCERTAIN", "note": "part of a recurring suspicious-round-50 pattern, see findings"},
+        {"parasha": "אחרי", "printed": "ה'", "decimal": 5},
+        {"parasha": "קדושים", "printed": "כ'", "decimal": 20},
+        {"parasha": "אמור", "printed": "י\"ז", "decimal": 17},
+        {"parasha": "בהר", "printed": "פעם אחד", "decimal": 1},
+        {"parasha": "בחקתי", "printed": "נ'", "decimal": 50, "confidence": "UNCERTAIN", "note": "part of a recurring suspicious-round-50 pattern, see findings"}
+      ],
+      "sum_of_rows": 198,
+      "claimed_total": {"printed": "פ\"ו (or פ\"ז)", "decimal": [86, 87], "confidence": "UNCERTAIN", "note": "vav/zayin glyph ambiguity"},
+      "delta": [111, 112],
+      "confidence": "SOURCE_LOCATED",
+      "checksum_verdict": "UNRESOLVED"
+    },
+    {
+      "sefer": "במדבר",
+      "rows": [
+        {"parasha": "במדבר", "printed": "כ\"ה", "decimal": 25},
+        {"parasha": "נשא", "printed": "כ\"א", "decimal": 21},
+        {"parasha": "בהעלתך", "printed": "מ\"ג", "decimal": 43},
+        {"parasha": "שלח", "printed": "כ\"ד", "decimal": 24},
+        {"parasha": "קרח", "printed": "שלשים", "decimal": 30},
+        {"parasha": "חקת", "printed": "כ\"ב", "decimal": 22},
+        {"parasha": "בלק", "printed": "נ'", "decimal": 50, "confidence": "UNCERTAIN", "note": "part of a recurring suspicious-round-50 pattern, see findings"},
+        {"parasha": "פנחס", "printed": "כ\"ב", "decimal": 22},
+        {"parasha": "מטות", "printed": "ל\"א", "decimal": 31},
+        {"parasha": "מסעי", "printed": "י\"ב", "decimal": 12}
+      ],
+      "sum_of_rows": 280,
+      "claimed_total": {"printed": "רל\"ג", "decimal": 233},
+      "delta": 47,
+      "confidence": "SOURCE_LOCATED",
+      "checksum_verdict": "UNRESOLVED"
+    },
+    {
+      "sefer": "דברים",
+      "rows": [
+        {"parasha": "דברים", "printed": "נ'", "decimal": 50, "confidence": "UNCERTAIN", "note": "part of a recurring suspicious-round-50 pattern, see findings"},
+        {"parasha": "ואתחנן", "printed": "ה'", "decimal": 5},
+        {"parasha": "כי תבוא", "printed": "ה'", "decimal": 5, "confidence": "UNCERTAIN", "note": "abbreviation 'תבא' in source; parasha identity assumed"},
+        {"parasha": "וילך", "printed": "י\"א", "decimal": 11},
+        {"parasha": "האזינו", "printed": "נ'", "decimal": 50, "confidence": "UNCERTAIN", "note": "part of a recurring suspicious-round-50 pattern, see findings"},
+        {"parasha": "וזאת הברכה", "printed": "י\"א", "decimal": 11, "confidence": "UNCERTAIN", "note": "source abbreviation 'בדרכה' resolved as וזאת הברכה"}
+      ],
+      "rows_not_listed_in_source": ["עקב", "ראה", "שופטים", "כי תצא"],
+      "sum_of_rows_listed": 132,
+      "claimed_total": {"printed": "ל\"ח", "decimal": 38},
+      "delta": 94,
+      "confidence": "SOURCE_LOCATED",
+      "checksum_verdict": "UNRESOLVED",
+      "note": "list is visibly non-exhaustive in the source itself, not a transcription gap"
+    }
+  ],
+  "composite_form_breakdown": {
+    "printed": "ומהם י\"ג פעמים למשה · י\"ג פעמים ומשה · ר' פעמים במשה · ובמשה פעם אחד · כמשה תרי\"ד פעמים",
+    "parsed": [
+      {"form": "למשה", "decimal": 13},
+      {"form": "ומשה", "decimal": 13},
+      {"form": "במשה", "decimal": 200, "confidence": "UNCERTAIN", "note": "arithmetically impossible as a sub-component of 647 alongside the other listed forms"},
+      {"form": "ובמשה", "decimal": 1},
+      {"form": "כמשה", "decimal": 614, "confidence": "UNCERTAIN", "note": "arithmetically impossible as a sub-component of 647; likely refers to a different/wider count not yet understood"}
+    ],
+    "status": "HANDOFF_TO_GPT",
+    "reason": "exceeds mechanical transcription/reconciliation; requires interpretation of what corpus/scope 'כמשה'/'במשה' are actually being counted over"
+  },
+  "findings": [
+    {"id": "F-DS06-01", "type": "checksum_gap_pattern", "summary": "all 4 book-level checksums show unforced positive deltas (+22, +111/112, +47, +94); root cause UNRESOLVED, not scale-dependent like the letter-table", "status": "OPEN"},
+    {"id": "F-DS06-02", "type": "suspicious_pattern", "summary": "5 independent parshiot across 3 books each read as exactly 'נ' (50)'", "status": "OPEN", "handoff": "GPT"},
+    {"id": "F-DS06-03", "type": "source_structure", "summary": "Devarim list names only 6 of 11 parshiot; not a transcription gap, source itself omits the rest", "status": "OPEN"},
+    {"id": "F-DS06-04", "type": "thematic_consistency", "summary": "Tetzaveh entirely absent from Shemot list, consistent with known fact that Tetzaveh never names Moshe", "status": "PLAUSIBLE, not confirmed"},
+    {"id": "F-DS06-05", "type": "new_dataset_candidate", "summary": "adjacent, only partially-visible table on p.70 top-right column: occurrence count of verb-root עשה across Terumah-Pekudei, concluding gematria=248=רמ\"ח מצוות עשה. Tentatively DS-13. Not registered, not investigated beyond its visible tail.", "status": "OPEN", "handoff": "GPT + future session"},
+    {"id": "F-DS06-06", "type": "method_family_observation", "summary": "DS-06 and candidate DS-13 together suggest a distinct 'named-word occurrence count' method family, separate from letter-counting and word-counting tables already catalogued", "status": "OPEN", "handoff": "GPT"}
+  ],
+  "provenance": {
+    "actor": "Claude",
+    "session": "Session 5 (branch claude/ahavat-torah-letter-dataset-closure)",
+    "method": "pymupdf/fitz direct visual rendering, 9x-11x zoom, clean crops",
+    "images": ["DS06_p70_RIGHT.png", "DS06_p70_LEFT.png", "DS06_p71_RIGHT.png", "DS06_p71_LEFT.png", "ADV_p70_R_shemottotals.png", "ADV_p70_R_shemotlist2.png", "ADV_p70_L_top.png", "ADV_p70_L_mid.png"]
+  }
+}

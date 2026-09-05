@@ -1,0 +1,370 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "pp.81-90 ONLY, per work_log ACK 0fa64bcd-41b1-4893-87e0-53cd52ad6074 (task AHAVAT_TORAH_P81_90_CONTINUATION, role=SOURCE_OWNER), continuing from AFTER 97acf359 and GPT finite audit 8a18ba3a-1145-4e45-81c1-3535d0d3d2cd. p.80 read for boundary context only (already registered in the P71-80 file), NOT re-registered here.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "Separate file from all prior batch/register files, per output-file scope. Same schema, same #pN:block convention, same truth vocabulary -- no new enum. Two specific challenge items were verified directly against the source this batch, not assumed from any prior map: (1) the p.82 Zayin-absent-from-Masei claim, CONFIRMED PRESENT with exact wording; (2) the DS-08/Tochecha location in pp.88-90, CONFIRMED NOT FOUND as a numeric table, independently reconfirming the prior visual-verification finding.",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "render": "pymupdf, 3x zoom, full-page (both columns); p.80 boundary context + pp.81-90 target"
+  },
+  "structural_placement": "pp.81-90 continue the 'parasha-ordered chiddushim' section: closing Balak, Pinchas, Matot, Masei, into Devarim (Devarim, Va'etchanan, Eikev, Re'eh, Shoftim), through the Deuteronomy Tochecha's expected location without finding a numeric table there.",
+  "pages": [
+    {
+      "pdf_page": 81,
+      "printed_page": "36",
+      "section": "parasha_chiddushim",
+      "parasha": "בלק (closing) -> פנחס (opening) -> מטות -> מסעי (title)",
+      "opening_anchor": "בלעם הרשע דיבר בהורה תקב\"ג תיבות במו",
+      "closing_anchor": "ואלה מסעיהם למוצאיהם לא רחוק בעיני",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "balak_closing_bilaam_star_prophecy",
+          "source_ref": "book:hebrewbooks:5635#p81:balak_closing_bilaam_star_prophecy",
+          "text_note": "Right column: closes Balak with Bilaam's star/scepter prophecy (Num 24:17), tied to Avraham's own priority/merit ('קדמו אבינו'). Opens Parashat Pinchas ('צרור את המדינים')."
+        },
+        {
+          "block_id": "matot_nedarim_masei_title",
+          "source_ref": "book:hebrewbooks:5635#p81:matot_nedarim_masei_title",
+          "text_note": "Left column: Parashat Matot opens with vow (נדר) laws, transitioning into the Masei title and the opening verse listing the stations of the journey ('ויכתוב משה את מוצאיהם למסעיהם')."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 82,
+      "printed_page": "יט",
+      "section": "parasha_chiddushim",
+      "parasha": "מסעי",
+      "opening_anchor": "לעיני לפרש מה שהשיגם כמו אשר מצאתם",
+      "closing_anchor": "ער בר ולא ילדו וגם לא ילד ולא צריך לכתוב עד עולם",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "masei_arei_miklat_kohen_gadol_death",
+          "source_ref": "book:hebrewbooks:5635#p82:masei_arei_miklat_kohen_gadol_death",
+          "text_note": "Right column: cities of refuge (ערי מקלט) law, the death of the Kohen Gadol as the boundary marking return from exile, referencing Aharon's death timing (Rosh Chodesh Av)."
+        },
+        {
+          "block_id": "masei_zayin_absent_claim",
+          "source_ref": "book:hebrewbooks:5635#p82:masei_zayin_absent_claim",
+          "text_he": "בכל פרשת המסעות לא כתיב אות ז' נראה שרומז שרוממנו מעל כלי זין",
+          "text_note": "Left column, top: CHALLENGE ITEM VERIFIED THIS BATCH (per GPT audit 8a18ba3a, not assumed from any prior map). The source explicitly claims the letter Zayin (ז) does not appear anywhere in the entire Parashat HaMasa'ot (the stations/travels list, Numbers 33), reading this as a hint that Israel is elevated above 'כלי זין' (weapons -- the word זין itself contains the letter Zayin). Exact wording located and quoted. This is recorded as the SOURCE'S OWN CLAIM about the text -- it has NOT been independently verified this pass whether the letter Zayin truly never occurs in Numbers 33 (that would require a full letter-by-letter scan of the chapter via the canonical engine, not done here, per gematria_engine_law and the instruction not to infer from memory).",
+          "verbatim_citations": []
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P82-U1", "text": "The claim that the letter Zayin never appears in Numbers 33 (Parashat HaMasa'ot) is recorded as SOURCE CLAIM only -- not independently engine-verified this pass. A future engine-verification pass could confirm or refute this specific, falsifiable claim.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-11", "page": 82, "block_ref": "book:hebrewbooks:5635#p82:masei_zayin_absent_claim", "raw_source_anchor": "בכל פרשת המסעות לא כתיב אות ז' נראה שרומז שרוממנו מעל כלי זין", "reason": "The GPT-audit-flagged Zayin-absence claim, located and quoted exactly. A falsifiable letter-absence claim, well-suited to a future canonical-engine verification pass. No interpretation offered; not independently verified here."}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED (claim itself); NOT ENGINE VERIFIED (claim's truth)"
+    },
+    {
+      "pdf_page": 83,
+      "printed_page": "38",
+      "section": "parasha_chiddushim",
+      "parasha": "מסעי (closing) -> דברים (opening) -> ואתחנן (title)",
+      "opening_anchor": "ואין אדם אשר יעשה טוב ולא יחטא ועם",
+      "closing_anchor": "פרשתי כה שאמר בעל המניד והיא שעמדה לאבותינו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "masei_closing_kohen_gadol_shortening",
+          "source_ref": "book:hebrewbooks:5635#p83:masei_closing_kohen_gadol_shortening",
+          "text_note": "Right column: closes Masei's laws on the Kohen Gadol's culpability for shortening exile via lack of prayer."
+        },
+        {
+          "block_id": "devarim_stations_as_veiled_rebuke",
+          "source_ref": "book:hebrewbooks:5635#p83:devarim_stations_as_veiled_rebuke",
+          "text_note": "Left column: Parashat Devarim opens, reading the list of place-names (Deut 1:1) as veiled rebukes for specific sins -- standard RaSH\"I-cited approach."
+        },
+        {
+          "block_id": "kochavim_star_census_reference",
+          "source_ref": "book:hebrewbooks:5635#p83:kochavim_star_census_reference",
+          "text_note": "Left column: 'ככוכבי השמים לרוב' (Deut 1:10, as numerous as the stars) tied to a half-shekel census reference -- cross-referencing the already-discussed census method (p.68), not re-derived here."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 84,
+      "printed_page": "כ",
+      "section": "parasha_chiddushim",
+      "parasha": "ואתחנן (closing) -> עקב (opening)",
+      "opening_anchor": "לאבותינו ולנו מעת יציאת מצרים החל",
+      "closing_anchor": "ולביא כקשה ולבתאים קטנים שירבו בגוף האדם",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "vaetchanan_closing_houses_filled",
+          "source_ref": "book:hebrewbooks:5635#p84:vaetchanan_closing_houses_filled",
+          "text_note": "Right column: closes Va'etchanan with 'בתים מלאים כל טוב' (Deut 6:11, houses filled with goodness) and the warning against forgetting God after prosperity."
+        },
+        {
+          "block_id": "eikev_heel_gematria_context",
+          "source_ref": "book:hebrewbooks:5635#p84:eikev_heel_gematria_context",
+          "text_note": "Left column: Parashat Eikev opens, reading 'עקב' (heel) as connected to Esav's heel-grasping at birth (Yaakov/Esav), standard name-play, not a novel isolated numeric claim on this page."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 85,
+      "printed_page": "40",
+      "section": "parasha_chiddushim",
+      "parasha": "עקב",
+      "opening_anchor": "ולביא כקשה ולכרואים קטנים שירבו בגוף האדם",
+      "closing_anchor": "כי אם שיוריד ראש פרה ולענה כשמעו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "eikev_second_tablets_40_days",
+          "source_ref": "book:hebrewbooks:5635#p85:eikev_second_tablets_40_days",
+          "text_note": "Right column: continues Eikev -- the broken first tablets, the second tablets, and the 40-day period on Mount Sinai (well-known, recurring scriptural number, not novel).",
+          "verbatim_numbers": ["מ' יום (40 days, well-known)"]
+        },
+        {
+          "block_id": "eikev_land_praise_seven_species",
+          "source_ref": "book:hebrewbooks:5635#p85:eikev_land_praise_seven_species",
+          "text_note": "Left column: praise of the Land of Israel, referencing the seven species (Deut 8:8, well-known) and the warning against forgetting God after eating and being satisfied."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 86,
+      "printed_page": "כא",
+      "section": "parasha_chiddushim",
+      "parasha": "עקב (closing) -> ראה (opening)",
+      "opening_anchor": "הטעם כי ההורה נצחית ואם היה כתוב בתורה",
+      "closing_anchor": "לאעריים ומאין ענו העניים ויבואו אצלו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "eikev_closing_love_fear",
+          "source_ref": "book:hebrewbooks:5635#p86:eikev_closing_love_fear",
+          "text_note": "Right column: closes Eikev with the love/fear-of-God discussion tied to mitzvah reward."
+        },
+        {
+          "block_id": "reeh_blessing_curse_12_stones",
+          "source_ref": "book:hebrewbooks:5635#p86:reeh_blessing_curse_12_stones",
+          "text_note": "Left column: Parashat Re'eh opens with the blessing/curse choice (Har Grizim/Har Eival, Deut 27) -- a structural discussion of the 12 stones bearing the 12 curses (Deut 27:14-26, well-known, 12 well-known count), including a citation attributed to Rabbeinu Saadia Gaon about the curses possibly being written in 70 languages on the stones, and a specific claim that only the count/number of mitzvot (not the whole Torah text) was inscribed. This is well-known structural material (the 12-curse Har Eival ceremony), not the later Ki Tavo Tochecha (curses list) which was the actual target of this batch's DS-08 search (see pp.88-90 below) -- the two are related but textually distinct passages, not conflated here.",
+          "verbatim_numbers": ["שנים עשר (12 stones/curses, well-known)"],
+          "verbatim_citations": ["רבינו סעדיה גאון"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רבינו סעדיה גאון"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 87,
+      "printed_page": "42",
+      "section": "parasha_chiddushim",
+      "parasha": "ראה (closing) -> שופטים (opening)",
+      "opening_anchor": "אמר להם מעשה ירי מוכעים כים ואתם רוצים",
+      "closing_anchor": "כרם מדבר מי האיש אשר נטע כרם ולא חנכו ילך וישב לביתו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "reeh_closing_pesach_word_count",
+          "source_ref": "book:hebrewbooks:5635#p87:reeh_closing_pesach_word_count",
+          "text_note": "Right column: closes Re'eh's Pesach/firstborn laws with a candidate word-count claim in the vicinity of Parashat Shoftim -- a compound numeral (candidate reading 'אלף הקכ\"ב תיבות', roughly 1,122 words) tied to a section of Shoftim. NOT confidently disambiguated at this zoom; recorded as a candidate, not an asserted value.",
+          "verbatim_numbers": ["אלף הקכ\"ב תיבות (candidate ~1,122 words, UNCERTAIN)"]
+        },
+        {
+          "block_id": "shoftim_cities_of_refuge_courts",
+          "source_ref": "book:hebrewbooks:5635#p87:shoftim_cities_of_refuge_courts",
+          "text_note": "Right/left columns: Parashat Shoftim opens with courts (שופטים ושוטרים), the 3+3=6 cities of refuge (well-known structural count), and the king's laws (not multiplying horses/wives/silver-gold)."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P87-U1", "text": "'אלף הקכ\"ב תיבות' candidate word-count reading not confidently disambiguated at 3x zoom -- recorded as a candidate figure only, not asserted.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 88,
+      "printed_page": "כב",
+      "section": "parasha_chiddushim",
+      "parasha": "שופטים (closing) -> כי תצא (opening)",
+      "opening_anchor": "מדבר ושומר משמיע מי היה ירא הלב",
+      "closing_anchor": "מה שקנה עבד קנה רבו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "kiteitzei_hated_wife_ben_sorer",
+          "source_ref": "book:hebrewbooks:5635#p88:kiteitzei_hated_wife_ben_sorer",
+          "text_note": "Right/left columns: Parashat Ki Teitzei -- the hated-wife's firstborn law, the rebellious son (בן סורר ומורה), and related halachic discussions. DS-08/TOCHECHA SEARCH: this page is Ki Teitzei, not Ki Tavo -- NO Tochecha (blessing/curse list) content is expected or found here. Checked as part of this batch's pp.88-90 DS-08 inspection; negative for this page specifically."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 89,
+      "printed_page": "44",
+      "section": "parasha_chiddushim",
+      "parasha": "כי תצא (closing) -> כי תבוא (opening)",
+      "opening_anchor": "תחלת שבלת ומהפלא שבלשונות העמים שאני",
+      "closing_anchor": "בעולם הזה את עונותיהם ברי שלא יאבדו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "kiteitzei_closing_shibolet",
+          "source_ref": "book:hebrewbooks:5635#p89:kiteitzei_closing_shibolet",
+          "text_note": "Right column: closes Ki Teitzei with a dialectal-word discussion (שיבולת/סיבולת), amulets/Names discussion."
+        },
+        {
+          "block_id": "kitavo_opening_blessing_verse",
+          "source_ref": "book:hebrewbooks:5635#p89:kitavo_opening_blessing_verse",
+          "text_note": "Right column continues into Parashat Ki Tavo's opening blessing content ('וראו כל עמי הארץ כי שם ה' נקרא עליך', Deut 28:10), citing the tefillin-Shin teaching. This is a BLESSING verse (Deut 28:1-14 zone), preceding the Tochecha curses (Deut 28:15-68). DS-08 SEARCH: no numeric blessing/curse-count table found on this page; the blessing text itself is discursive commentary, not a count."
+        },
+        {
+          "block_id": "kitavo_bikkurim_declaration",
+          "source_ref": "book:hebrewbooks:5635#p89:kitavo_bikkurim_declaration",
+          "text_note": "Left column: Ki Tavo's first-fruits (ביכורים) declaration discussion."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 90,
+      "printed_page": "כג",
+      "section": "parasha_chiddushim",
+      "parasha": "כי תבוא (Tochecha zone) -> נצבים -> וילך",
+      "opening_anchor": "בעולם הזה את עונותיהם ברי שלא יאבדו",
+      "closing_anchor": "אנכי כרת עמכם היום גם עם שאיננו כניכם העמידים",
+      "transcription_depth": "STRUCTURAL_CONFIRMATION_PLUS_PARAPHRASE",
+      "content_blocks": [
+        {
+          "block_id": "ds08_tochecha_search_negative_result",
+          "source_ref": "book:hebrewbooks:5635#p90:ds08_tochecha_search_negative_result",
+          "text_note": "DS-08/TOCHECHA SEARCH RESULT FOR THIS BATCH (pp.88-90): this page (right column top) contains the book's commentary framing the Ki Tavo curses (הקללות, Deut 28:15-68) as bracketed by their own opening and closing verses, discussing why the curses are read as concealed blessings (root נש\"ן, citing Iyov 24) and citing Rabbeinu Bachya on the phrase 'ואין קונה'. THIS IS DISCURSIVE COMMENTARY ABOUT THE CURSES, NOT A NUMERIC TABLE OR COUNT OF THEM -- independently confirming, via direct re-read this batch, the prior Mechanical Closure Pass's finding that p.90 contains 'discursive commentary only, no numeric table.' DS-08 (a bounded-span or blessing-vs-curse count matching the style of the corpus's other datasets) was NOT FOUND anywhere in pp.88-90 in this pass. Per the audit's explicit instruction, this is reported as NOT FOUND IN 81-90, not forced onto this or any other page; p.91 (Nitzavim/Vayelech territory per the printed header) is left open for a future scope.",
+          "dataset_refs": ["DS-08"]
+        },
+        {
+          "block_id": "vayelech_transition",
+          "source_ref": "book:hebrewbooks:5635#p90:vayelech_transition",
+          "text_note": "Left column: transitions through the end of Ki Tavo's curses-commentary into the opening of Parashat Nitzavim ('אתם נצבים היום כלכם') and toward Vayelech, per the page header. Content of Nitzavim/Vayelech themselves is OUT OF SCOPE for this batch (stops at p.90)."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רבינו בחיי"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-08"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL — DS-08 SEARCH NEGATIVE, INDEPENDENTLY RECONFIRMED",
+      "confidence": "SOURCE_LOCATED"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [81, 82, 83, 84, 85, 86, 87, 88, 89, 90],
+    "pages_read_boundary_only_not_registered": [80],
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family or 1,830-family construction was found in pp.81-90. Several well-known already-canonical Torah numbers appear (40 days on Sinai, 7 species, 12 curses on Har Eival, 3+3 cities of refuge), none novel and none forced into either family.",
+    "challenge_items_verified_this_batch": {
+      "zayin_absent_from_masei": "CONFIRMED PRESENT, exact wording located at p.82 (GRF-11). Recorded as SOURCE CLAIM, NOT independently engine-verified whether the letter Zayin truly never occurs in Numbers 33.",
+      "ds08_tochecha_location": "CONFIRMED NOT FOUND in pp.88-90 as a numeric table -- independently reconfirms the prior Mechanical Closure Pass finding via direct re-read, not merely trusted from the old note. True location remains UNKNOWN, now also excluded from pp.88-90 in addition to p.90 alone."
+    },
+    "gpt_research_flags_this_batch": ["GRF-11"],
+    "unresolved_readings_this_batch": 2,
+    "ds06_ds13_handling": "Not touched in this batch (their location, p.70, is outside this batch's pp.81-90 range).",
+    "ingestion_contract_stress_test": "PASS -- the #pN:block/source_ref contract held across halachic parshanut, one verified challenge-item claim, and one independently-reconfirmed negative search result, with no identity or data-loss problem encountered.",
+    "density_observation": "Numeric/gematria density in pp.81-90 remains uneven, similar to prior batches; the most significant finding is the verified, falsifiable Zayin-absence claim (GRF-11), well-suited to a future canonical-engine check."
+  }
+}

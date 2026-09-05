@@ -1,0 +1,662 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "PDF pp.46-57 ONLY, per work_log ACK 1096ac7c-e234-44fe-9f02-84d3a91f73fb (task AHAVAT_TORAH_P46_57_PARALLEL_SOURCE_BATCH, role=SOURCE_OWNER(P46_57)), itself per QUEUED memo 47284dbb-3cd4-4cf6-b327-f60b0e1a13c2 and coordination partition ac493139-86d8-46eb-bee4-fa7eedf61da5 (disjoint-writer split of the pp.16-57 range into 16-25/26-35(existing SOURCE_OWNER)/36-45(separate Claude session)/46-57(this file)). p.45 read for boundary context only (confirmed BLANK -- matches DOSSIER_INDEX source-facts structural note 'חלק ב׳ title (p.44) + blank (p.45)'), not registered as content. p.58 read for boundary/continuation context only, NOT re-registered here -- it is already closed by the separate pp.58-99 SOURCE_OWNER lineage (file AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P58_62.json). pp.1-45 and pp.58-99 untouched by this file.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "This is a SEPARATE file from the shared/older registers (pp.1-15, pp.16-25), per this batch's own disjoint-writer ACK (one semantic/file scope = one writer, per ac493139). Same schema, same #pN:block convention, same truth vocabulary -- no new enum introduced. To be folded into a unified register or cross-indexed by DOSSIER_INDEX/CROSSWALK in a later, separate, serial step -- explicitly NOT done in this file (out of this batch's scope).",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "download_method": "curl from canonical Supabase Storage public URL, gallery/Book/Hebrewbooks_org_5635.pdf, matches every prior batch's recorded value exactly (byte-identical)",
+    "render": "pymupdf, 3x zoom matrix, full-page renders (both columns), pp.45-58 rendered (45 and 58 for boundary context only); additional 5x zoom crops used to disambiguate two visually similar page headers (pp.55-56) before transcription"
+  },
+  "structural_placement": "pp.46-57 fall at the START of the dossier's already-known 'parasha-ordered chiddushim' section (pp.46-92, per DOSSIER_INDEX source facts) -- this is the opening of חלק ב' (Part Two) proper, immediately after the p.44 חלק ב' title page and the blank p.45. p.46 opens Parashat Bereshit with its own running header ('אהבת / בראשית / תורה') and restarts a page-numbering track (printed 'א'/'1'). Content in this range is predominantly parasha-sequential exegesis/derash (Bereshit through the opening of Vayigash) -- citation-and-homily-dense, not the dense independent 1,820-construction catalog seen in Part One (pp.16-24). This independently confirms and extends the density/character observation already recorded for pp.58-62 (also inside this same pp.46-92 section).",
+  "pages": [
+    {
+      "pdf_page": 46,
+      "printed_page": "א / 1",
+      "section": "chelek_bet_opening_parashat_bereshit",
+      "parasha": "בראשית",
+      "opening_anchor": "בפרשת בראשית כתיב ג' פעמים דהיינו",
+      "closing_anchor": "כמהרה היאך היו יכולין לזווג בכשבת חולין",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "chelek_bet_title_and_creation_light",
+          "source_ref": "book:hebrewbooks:5635#p46:chelek_bet_title_and_creation_light",
+          "text_note": "Page opens חלק ב' proper with its own running header ('אהבת תורה / פרשת בראשית'), restarting a page-numbering track (printed א/1). Right column opens 'פרשית בראשית' with a discussion of 'יום אחד' vs 'יום ראשון' (Gen 1:5), tying the day-naming convention to Rosh Hashanah / the primordial light (אור הגנוז) being hidden for the righteous in the World to Come -- a well-known Midrashic motif, not presented as a novel count of this book."
+        },
+        {
+          "block_id": "sefer_yetzirah_seder_haaleph_citation",
+          "source_ref": "book:hebrewbooks:5635#p46:sefer_yetzirah_seder_haaleph_citation",
+          "text_note": "A citation to Sefer Yetzirah's 'סדר האל״ף בית' construction, tied to the light/darkness and the 'לא ירבו ולא יגרעו' (fixed count) formula applied to the order of creation -- discursive Kabbalistic framing, no isolated clean numeric total extracted this pass.",
+          "verbatim_citations": ["ספר יצירה"]
+        },
+        {
+          "block_id": "good_evil_choice_and_epicurus_polemic",
+          "source_ref": "book:hebrewbooks:5635#p46:good_evil_choice_and_epicurus_polemic",
+          "text_note": "Left column: the Tree of Knowledge / free-will discussion (עץ הדעת טוב ורע), framed as a polemic against 'אפיקורסות' (Epicurean/heretical denial of consequence for sin), citing the classic Devarim 30 formulation ('ראה נתתי לפניך את החיים ואת הטוב') and the Kohelet Rabbah-style contrast of 'רע לטוב' vs 'רע למוב' readings.",
+          "verbatim_citations": ["דברים ל' (context, ראה נתתי לפניך)"]
+        },
+        {
+          "block_id": "closing_meat_dairy_timing_custom",
+          "source_ref": "book:hebrewbooks:5635#p46:closing_meat_dairy_timing_custom",
+          "text_note": "Page closes with a halachic/custom aside on the timing of pairing/mating animals and a Masechet Chullin-style discussion of what could/could not be done on Shabbat in this connection -- discursive, no isolated number found.",
+          "verbatim_citations": ["מסכת חולין (context)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page is the true structural start of חלק ב' body content (the p.44 title page and blank p.45 precede it) -- consistent with DOSSIER_INDEX's existing source-facts placement, independently confirmed by direct visual reading this batch."}
+      ],
+      "citations": ["ספר יצירה", "דברים ל׳", "מסכת חולין"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P46-U1", "text": "Several discursive Kabbalistic/philosophical passages (creation-light motif, Sefer Yetzirah alphabet order) are paraphrased at section-topic level only; not word-for-word transcribed at this pass's zoom/time budget.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 47,
+      "printed_page": "2",
+      "section": "parashat_bereshit_closing_to_noach_opening",
+      "parasha": "בראשית -> נח",
+      "opening_anchor": "המשא ואם לא והכעום לפתח חטאת רובץ כיון",
+      "closing_anchor": "נם כן פירושו כן וכתיב זנות יין ותירוש יקח לב",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "sin_reward_accounting_close",
+          "source_ref": "book:hebrewbooks:5635#p47:sin_reward_accounting_close",
+          "text_note": "Right column top: closes a discussion of mitzvah-vs-aveira accounting ('אם עושה מצוה שכח השם... ואם עושה עבירה צריך לחשוב שבעצמו עושה הגנון חושב'), tied to 'חטאת רובץ' (Gen 4:7) and free-will framing -- continues directly from p.46's Tree-of-Knowledge discussion, not a new topic."
+        },
+        {
+          "block_id": "noach_dor_hamabul_transition",
+          "source_ref": "book:hebrewbooks:5635#p47:noach_dor_hamabul_transition",
+          "text_note": "Transitions to Parashat Noach via a 'מסיים בשם ד׳' construction (a section ending on the divine Name), tying שופטים-parsha and הר-parsha references to a Ge'ulah/redemption framing ('רומז על הגאולה חדש ימינו'). Section header '* פרשת נח' appears mid-page."
+        },
+        {
+          "block_id": "mabul_kedushat_hakodesh_and_ger_toshav",
+          "source_ref": "book:hebrewbooks:5635#p47:mabul_kedushat_hakodesh_and_ger_toshav",
+          "text_note": "Discusses the Flood-era heat/kindling of the Divine judgment on the nations, the permissibility of eating kosher meat vs. the restriction for Bnei Noach, and the ger toshav (resident-alien) halachic category -- citing Rashi's own commentary explicitly (רש\"י ז\"ל) on 'זאת בכל רמז האורח'.",
+          "verbatim_citations": ["רש\"י ז\"ל"]
+        },
+        {
+          "block_id": "mikveh_mayim_four_day_recession",
+          "source_ref": "book:hebrewbooks:5635#p47:mikveh_mayim_four_day_recession",
+          "text_he": "לפי החשבון שנחסרו המים בד' יום אמה אחת",
+          "text_note": "A calendrical/measurement construction citing Rashi's own reckoning that the floodwaters receded at a rate of one amah (cubit) per four days, tied to the mountaintops becoming visible on the 1st of the 10th month (Gen 8:5) -- cites a Ramban-adjacent alternative and Masechet Rosh Hashanah's own dating discussion. Raw figures (amah/4-day rate) quoted as the source's own reckoning, not independently recomputed here.",
+          "verbatim_numbers": ["ד' יום אמה אחת (rate: 1 amah per 4 days, source's own reckoning)"],
+          "verbatim_citations": ["רש\"י ז\"ל", "רמב\"ן (candidate)"]
+        },
+        {
+          "block_id": "vayachel_noach_wine_etymology",
+          "source_ref": "book:hebrewbooks:5635#p47:vayachel_noach_wine_etymology",
+          "text_note": "Closes the page with Noach's vineyard/wine episode ('ויחל נח איש האדמה'), an etymological discussion of the three-fold sound of the word יין (wine) tied to drunkenness escalating in stages, and a closing citation on 'זנות יין ותירוש יקח לב' (Hosea 4:11-style formula, matching the citation later restated explicitly on p.48)."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רש\"י ז\"ל", "מסכת ראש השנה (context)"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P47-U1", "text": "The exact halachic source distinguishing the ger-toshav meat permission from the 'אסור' framing stated for a different party is paraphrased at topic level -- not word-for-word verified.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 48,
+      "printed_page": "ב",
+      "section": "noach_closing_to_lech_lecha_opening",
+      "parasha": "נח -> לך לך",
+      "opening_anchor": "לכ (הושע ד' י\"א) ועל זה אמרו חכז\"ל אין",
+      "closing_anchor": "רצה הקב\"ה וירצה שיתרחק מבית אביו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "hoshea_4_11_wine_sin_citation",
+          "source_ref": "book:hebrewbooks:5635#p48:hoshea_4_11_wine_sin_citation",
+          "text_he": "לכ (הושע ד' י\"א) ועל זה אמרו חכז\"ל אין אדם חוטא אלא אם כן נכנס בו רוח שטות",
+          "text_note": "Explicit citation to Hosea 4:11 ('זנות יין ותירוש יקח לב'), restating Chazal's own teaching that a person only sins when a 'spirit of folly' enters him -- ties directly back to p.47's closing wine/drunkenness discussion.",
+          "verbatim_citations": ["הושע ד' י\"א"]
+        },
+        {
+          "block_id": "migdal_bavel_and_migdal_david_future",
+          "source_ref": "book:hebrewbooks:5635#p48:migdal_bavel_and_migdal_david_future",
+          "text_note": "Citing the Shelah HaKadosh: the generation of the Dispersion's tower (מגדל דור ההפלגה) is contrasted with a future 'מגדל דוד', tied to a vision of the world's ultimate purpose being one shared language and one God ('שפה אחת וד' אחד'). Discursive eschatological framing, no isolated number found.",
+          "verbatim_citations": ["של\"ה הקדוש"]
+        },
+        {
+          "block_id": "lech_lecha_opening_title",
+          "source_ref": "book:hebrewbooks:5635#p48:lech_lecha_opening_title",
+          "text_note": "Section header 'פרשת לך לך' appears; opens with the standard Avram-departure narrative (לך לך מארצך וממולדתך ומבית אביך), paraphrasing that the command's threefold structure (land/birthplace/father's house) escalates in emotional difficulty."
+        },
+        {
+          "block_id": "400_vs_430_years_egypt_discrepancy",
+          "source_ref": "book:hebrewbooks:5635#p48:400_vs_430_years_egypt_discrepancy",
+          "text_he": "ועננו אותם ארבע מאות שנה להבין הארבע מאות ושלשים שנה שכתוב כאן וארבע מאות שנה שאמרו חכז\"ל ולהשוות הכל",
+          "text_note": "The classic exegetical tension between the Torah's two stated durations for the Egyptian sojourn/servitude -- 400 years (Gen 15:13, 'וְעִנּוּ אֹתָם אַרְבַּע מֵאוֹת שָׁנָה') vs. 430 years (Exodus 12:40) -- addressed here as a harmonization question, not this book's own novel construction (a well-known classical Rabbinic sugya, cited as background, not claimed as an original finding of this book).",
+          "verbatim_numbers": ["ארבע מאות שנה (400)", "ארבע מאות ושלשים שנה (430)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["הושע ד' י\"א", "של\"ה הקדוש"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P48-U1", "text": "The harmonization resolution offered by the text for the 400-vs-430 discrepancy is paraphrased at topic level; the source's own exact proposed resolution not word-for-word transcribed this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 49,
+      "printed_page": "4",
+      "section": "lech_lecha_closing_to_vayera_and_chayei_sarah_opening",
+      "parasha": "לך לך -> וירא -> חיי שרה",
+      "opening_anchor": "מה שכתבו הספרים הקדושים שמקודם שנתוספה",
+      "closing_anchor": "ולכן תובלי לעמוד נוכח שום כל בלי שם יראה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "sarah_hei_letter_addition",
+          "source_ref": "book:hebrewbooks:5635#p49:sarah_hei_letter_addition",
+          "text_note": "Citing 'the holy books': before the letter Hei was added to Sarah's name (Sarai -> Sarah, Gen 17:15), she was in a 'masculine' spiritual aspect; the added Hei is tied to a Sanhedrin-cited teaching on the letter's own significance."
+        },
+        {
+          "block_id": "verse_440_position_gematria",
+          "source_ref": "book:hebrewbooks:5635#p49:verse_440_position_gematria",
+          "text_note": "A construction citing the verse 'ותכחש שרה' as being verse (posuk) number 440 (ת\"מ) in the Torah, hinting at something written in 'the holy books' about Sarah's denial -- the specific hinted concept is not fully disambiguated at this pass's zoom.",
+          "verbatim_numbers": ["ת\"מ (440th verse of the Torah, source's own claim)"]
+        },
+        {
+          "block_id": "akeidah_sarah_death_317_words",
+          "source_ref": "book:hebrewbooks:5635#p49:akeidah_sarah_death_317_words",
+          "text_he": "בפרשית עקידה יש ש\"ז תיכות",
+          "text_note": "A word-count construction: the Akeidah passage (Gen 22) is stated to contain 317 (ש\"ז) words, tied by the text to a 'zechut ha-akeidah' (merit of the binding) hint toward Rivka's birth and future match with Yitzchak (the Akeidah and Rivka's birth notice appear adjacent in the Torah's own text, Gen 22:20-23) -- the exact gematria/numerological linkage claimed is not independently verified here.",
+          "verbatim_numbers": ["ש\"ז (317 words, source's own count of the Akeidah passage)"]
+        },
+        {
+          "block_id": "vayera_to_bnei_ammon_1000_words",
+          "source_ref": "book:hebrewbooks:5635#p49:vayera_to_bnei_ammon_1000_words",
+          "text_he": "ובכפרשה זו יש אלף תיכות בצמצום",
+          "text_note": "A bounded-span word-count construction: from Parashat Vayera through a reference to Bnei Ammon there is stated to be exactly 1,000 (אלף) words, tied to the 'a day of Hashem is 1,000 years' motif (Tehillim 90:4-style), and further linked in the text to Yehoshafat's war against Ammon/Moav (2 Kings 3, 'ואין פליטה'), Eliyahu and Elisha, and a specific dating 'שנת מ\"ג לאלף הרביעי' (year 43 of the fourth millennium) for Eliyahu's ascent. This is a DISTINCT total (1,000, אלף) from the corpus's known 1,820-family (אלף תת\"ך) constructions -- kept separate, not conflated, per the corpus's existing never-merge discipline.",
+          "verbatim_numbers": ["אלף (1,000 words, source's own count)", "מ\"ג לאלף הרביעי (year 43 of the 4th millennium, source's own dating)"],
+          "verbatim_citations": ["מלכים ב' ג' (context, Yehoshafat/Ammon-Moav war)"]
+        },
+        {
+          "block_id": "nesuin_918_words_three_kinyanim",
+          "source_ref": "book:hebrewbooks:5635#p49:nesuin_918_words_three_kinyanim",
+          "text_he": "בפרשית הנשואין תתקי\"ח תיכות ג' פעם אשה",
+          "text_note": "A word-count construction on the marriage passage: 918 (תתקי\"ח) words, with the word 'אשה' appearing 3 times, tied to the halachic teaching that a woman is acquired in one of three ways -- money/document/intercourse (כסף, שטר, ביאה) -- all three said to be alluded to here (gold, a document/דייתיקי, and the entering-the-tent act). A DISTINCT total from both the 1,000-word and 1,820-family constructions -- kept separate.",
+          "verbatim_numbers": ["תתקי\"ח (918 words, source's own count)", "ג' (3 occurrences of 'אשה')"]
+        },
+        {
+          "block_id": "rivka_gifts_gold_weight_hint",
+          "source_ref": "book:hebrewbooks:5635#p49:rivka_gifts_gold_weight_hint",
+          "text_note": "Citing Rashi (per Bereishit Rabbah 60:5-style reading) on the nose-ring and bracelets given to Rivka (Gen 24:22): the nose-ring's half-shekel weight (בקע משקלם) and the bracelets' ten-gold-shekel weight (עשרה זהב משקלם) are read as hints toward the half-shekel Temple tax and the Ten Tribes, tied to a 'חמשה מכם ירדפו מאה' (Vayikra 26:8-style) proportional-multiplication motif.",
+          "verbatim_numbers": ["בקע (half-shekel, source's own reading of the nose-ring's weight)", "עשרה זהב (ten gold [shekels], the bracelets' weight)"],
+          "verbatim_citations": ["רש\"י ז\"ל (context)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page carries the highest numeric-construction density of the batch (4 distinct word/verse-count constructions on one page: 440th-verse, 317-word, 1,000-word, 918-word) -- none belong to the 1,820-family, all kept explicitly separate per the corpus's never-merge discipline."}
+      ],
+      "citations": ["מלכים ב' ג'", "רש\"י ז\"ל"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P49-U1", "text": "The exact hinted concept tied to the Torah's 440th verse ('ותכחש שרה') is not fully disambiguated at this pass's zoom.", "status": "UNCERTAIN"},
+        {"id": "P49-U2", "text": "None of the four word-count totals on this page (440th verse, 317, 1,000, 918) were independently recomputed against the canonical engine or a Masoretic word-count reference this pass -- recorded as SOURCE CLAIM only, per gematria_engine_law.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED, NOT MANUALLY COMPUTED"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-P46-01", "page": 49, "block_ref": "book:hebrewbooks:5635#p49:vayera_to_bnei_ammon_1000_words", "raw_source_anchor": "ובכפרשה זו יש אלף תיכות בצמצום", "reason": "A clean, source-stated 1,000-word (אלף) bounded-span construction, explicitly a DIFFERENT total from the corpus's recurring 1,820-family (אלף תת\"ך) -- flagged so it is not later conflated, no interpretation offered."},
+        {"id": "GRF-P46-02", "page": 49, "block_ref": "book:hebrewbooks:5635#p49:nesuin_918_words_three_kinyanim", "raw_source_anchor": "בפרשית הנשואין תתקי\"ח תיכות ג' פעם אשה", "reason": "A clean, source-stated 918-word (תתקי\"ח) construction tied to the three-kinyanim halachic teaching -- also distinct from the 1,820-family, flagged for GPT's method-inventory attention only."}
+      ],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase, numbers/citations verbatim)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 50,
+      "printed_page": "ג",
+      "section": "chayei_sarah_to_toldot_opening",
+      "parasha": "חיי שרה -> תולדות",
+      "opening_anchor": "קכ\"ז שנה שחיתה שרה אמנו ולא נזכר בכל",
+      "closing_anchor": "ותאמר",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "sarah_127_years_unique_in_tanach",
+          "source_ref": "book:hebrewbooks:5635#p50:sarah_127_years_unique_in_tanach",
+          "text_he": "קכ\"ז שנה שחיתה שרה אמנו ולא נזכר בכל תנ\"ך עוד ימי אשה",
+          "text_note": "Opens with Sarah's age at death, 127 (קכ\"ז), explicitly noted by the text as the only place in the entire Tanach where a woman's lifespan is stated; contrasts Avraham living 100 years childless, Yaakov's age (147, per the printed Torah figure) and the deaths of the Patriarchs, tied to a Midrashic exposition on the phrase's own three-part structure (שנה/שנים/שני חיי שרה).",
+          "verbatim_numbers": ["קכ\"ז (127, Sarah's age at death)", "מאה שנה (100, Avraham's age when childless, context)"]
+        },
+        {
+          "block_id": "eliyahu_and_daat_zekunim_43_years",
+          "source_ref": "book:hebrewbooks:5635#p50:eliyahu_and_daat_zekunim_43_years",
+          "text_note": "Continues into a Midrash Rabbah-style citation ('חיי שרה') on the years of the Patriarchs relative to Eliyahu's ascent and the dating convention used elsewhere in the book (מ\"ג לאלף הרביעי, cross-referencing p.49's dating), plus a note on Yaakov's declaration to Pharaoh (Gen 47:9) about his own 'few and evil' years compared to his fathers'."
+        },
+        {
+          "block_id": "efron_field_purchase_no_haggling",
+          "source_ref": "book:hebrewbooks:5635#p50:efron_field_purchase_no_haggling",
+          "text_note": "'בתחילה' block: Avraham originally sought only to purchase the cave itself (מערת המכפלה) at the edge of Efron's field, not the whole field; Efron insists Avraham take the field as a gift but ultimately accepts payment ('וישקל אברהם... כסף עובר לסוחר', Gen 23:16) -- the Torah's own stated purchase price (400 shekel silver) is referenced by context but not independently re-quoted/re-verified as a standalone numeral in this pass's crop.",
+          "verbatim_citations": ["בראשית כ\"ג (context, Efron/Machpelah purchase)"]
+        },
+        {
+          "block_id": "eliezer_oath_refuses_to_eat",
+          "source_ref": "book:hebrewbooks:5635#p50:eliezer_oath_refuses_to_eat",
+          "text_he": "לא אוכל עד אם דברתי דברי",
+          "text_note": "Eliezer's refusal to eat before stating his mission (Gen 24:33) is read alongside the Shevuot/Nedarim-style discussion of an oath's binding force ('נדר ושבועה'), tied to the classical teaching that a person should not act rashly and that his word must stand ('לא ישקוט האיש עד אם כלה הדבר')."
+        },
+        {
+          "block_id": "parashat_toldot_opening",
+          "source_ref": "book:hebrewbooks:5635#p50:parashat_toldot_opening",
+          "text_note": "Section header 'פרשת תולדות' opens: Avraham begets Yitzchak (per Chazal's own teaching that scoffers said Sarah conceived from Avimelech, so Yitzchak's face was made identical to Avraham's own to refute them); Yitzchak was 40 years old when he married Rivka."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["בראשית כ\"ג"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P50-U1", "text": "The Torah's own stated 400-shekel purchase price for the Machpelah field is referenced by narrative context on this page but not independently re-confirmed as an explicit standalone numeral in this pass's crop -- not asserted as a source claim of this specific page.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 51,
+      "printed_page": "6",
+      "section": "toldot",
+      "parasha": "תולדות",
+      "opening_anchor": "ראה ריח בני כלשון ראה אצל חוש הריח",
+      "closing_anchor": "לא יכלה לשמוע כזאת",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "five_senses_yitzchak_yaakov",
+          "source_ref": "book:hebrewbooks:5635#p51:five_senses_yitzchak_yaakov",
+          "text_note": "Opens with Yitzchak smelling Yaakov's garments ('ראה ריח בני', Gen 27:27), built into a full five-senses construction (touch/smell/taste/sight/hearing) applied across the Yaakov-disguised-as-Esav episode, citing Chazal on the Kohanim's own sensory disqualifications (מומין) by extension."
+        },
+        {
+          "block_id": "esav_yoke_and_yitzchak_avimelech_oath",
+          "source_ref": "book:hebrewbooks:5635#p51:esav_yoke_and_yitzchak_avimelech_oath",
+          "text_note": "'והיה כאשר תריד' (Gen 27:40, Esav's yoke to be removed in the future) is read alongside the earlier Yitzchak-Avimelech oath narrative and a 'time to weep, time to embrace' (Kohelet-style) framing of the brothers' relationship."
+        },
+        {
+          "block_id": "rivka_advice_lavan_and_sisters",
+          "source_ref": "book:hebrewbooks:5635#p51:rivka_advice_lavan_and_sisters",
+          "text_note": "Rivka's advice for Yaakov to flee to Lavan is tied to the later prohibition against marrying two sisters simultaneously (אחות על אחותה, Vayikra 18:18), read as a foreshadowing/contrast with Yaakov's own eventual marriage to both Leah and Rachel, plus Ketura/Yishmael's daughter as Esav's additional wife."
+        },
+        {
+          "block_id": "vayehi_ki_zaken_yitzchak_raw_numeral",
+          "source_ref": "book:hebrewbooks:5635#p51:vayehi_ki_zaken_yitzchak_raw_numeral",
+          "text_he": "עד סוף הפרשה תש\"ע תיכות ותיבת צידה בה' יתירה ... יש בתורה עמ\"ש אלף התקע\"ו תיכות",
+          "text_note": "A word-count construction from 'ויהי כי זקן יצחק' to the end of the parasha, and a note that the word 'צידה' (Gen 27:3-4) carries an extra letter Hei. Raw numeral strings quoted verbatim exactly as printed; NOT independently converted/verified against the canonical engine or a reference word-count, per gematria_engine_law -- both figures are transcribed as-is, not asserted as exact decimal values here.",
+          "verbatim_numbers": ["תש\"ע תיכות (raw numeral string, decimal value NOT independently computed here)", "אלף התקע\"ו תיכות (raw numeral string, decimal value NOT independently computed here)"]
+        },
+        {
+          "block_id": "yaakov_blessing_dew_and_oil",
+          "source_ref": "book:hebrewbooks:5635#p51:yaakov_blessing_dew_and_oil",
+          "text_note": "Closes with Yaakov's blessing 'מטל השמים ומשמני הארץ' (Gen 27:28), read against Esav's own later, deliberately-inverted blessing (Gen 27:39), tied to a future-redemption framing for all nations sharing in the World to Come's blessing."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["ויקרא י\"ח (context, two sisters)"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P51-U1", "text": "'תש\"ע תיכות' and 'אלף התקע\"ו תיכות' -- two raw numeral strings on this page, decimal values NOT converted or verified this pass, deferred to the canonical engine per explicit instruction not to compute gematria by hand.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED, NOT MANUALLY COMPUTED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 52,
+      "printed_page": "ד",
+      "section": "toldot_closing_to_vayetze_opening",
+      "parasha": "תולדות -> ויצא",
+      "opening_anchor": "נתן אלקים שכרי אשר נתתי שפחתי לאישי",
+      "closing_anchor": "פרחים אותם לסימן ההביעה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "yissachar_double_shin_naming",
+          "source_ref": "book:hebrewbooks:5635#p52:yissachar_double_shin_naming",
+          "text_note": "Leah's naming of Yissachar ('נתן אלקים שכרי', Gen 30:18) is read as encoding two occurrences of the letter Shin (from 'שכר' + 'שפחתי'), a well-known orthographic/homiletical observation about the name's double-Shin spelling, not presented as a novel gematria total."
+        },
+        {
+          "block_id": "vateamod_miledet_and_dan_naming",
+          "source_ref": "book:hebrewbooks:5635#p52:vateamod_miledet_and_dan_naming",
+          "text_note": "'ותעמד מלדת' (Leah stops bearing, Gen 29:35) is tied to Rachel's jealousy and the naming of Dan/Naftali via Bilhah, read as a measure-for-measure structural echo of the Yissachar/Zevulun naming pattern earlier on the page."
+        },
+        {
+          "block_id": "yaakov_rods_maaser_construction",
+          "source_ref": "book:hebrewbooks:5635#p52:yaakov_rods_maaser_construction",
+          "text_note": "'בענין המקלות' -- Yaakov's peeled-rod device before the flocks (Gen 30:37-39) is explicitly read through the lens of the ma'aser behemah (animal tithe) law ('כל אשר יעבור תחת השבט העשירי', Vayikra 27:32), with the streaked/speckled offspring pattern likened to the tithe-counting procedure; the text also raises and does not force-resolve a tension over whether Yaakov's device pre-dated or post-dated an agreed division of the existing flock.",
+          "verbatim_citations": ["ויקרא כ\"ז (context, ma'aser behemah)"]
+        },
+        {
+          "block_id": "youth_wedding_incense_custom",
+          "source_ref": "book:hebrewbooks:5635#p52:youth_wedding_incense_custom",
+          "text_note": "'כתבתי' block: a customs note on Jewish youths burning aromatic branches ('פרחי קוצים') on Wednesday evenings before weddings, tied to the Mishnah/Gemara convention (Ketubot) that a virgin is married specifically on a Wednesday so that a grievance could be brought before Beit Din the next morning (Thursday court day); notes a further custom of not shaving grooms during a defined interval before the wedding.",
+          "verbatim_citations": ["כתובות (context, Wednesday-wedding convention)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["ויקרא כ\"ז", "כתובות"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P52-U1", "text": "The exact halachic timeline the text proposes for the rods/tithe-division tension (before vs. after the flock split) is not fully disambiguated at this pass's zoom.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 53,
+      "printed_page": "8",
+      "section": "vayetze_closing_to_vayishlach_opening",
+      "parasha": "ויצא -> וישלח",
+      "opening_anchor": "לישראל כנודע וגם השם כ\"ה הולך לקראתך",
+      "closing_anchor": "וכן גרתי הייתי גר לעשו ותרי\"ג",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "yaakov_esav_reunion_malachim",
+          "source_ref": "book:hebrewbooks:5635#p53:yaakov_esav_reunion_malachim",
+          "text_note": "Opens with Yaakov sending messengers/angels (מלאכים) ahead to Esav (Gen 32:4), reading the double-camp (מחניים) naming and Yaakov's own preparation (gift/prayer/war) as a threefold strategic template, cross-referenced to a future-redemption motif citing 'מושיעים בהר ציון' (Ovadia 1:21-style formula) for the eventual reckoning with 'Har Esav'.",
+          "verbatim_citations": ["עבדיה (candidate, מושיעים בהר ציון)"]
+        },
+        {
+          "block_id": "koh_tomrun_ladoni_targum_discussion",
+          "source_ref": "book:hebrewbooks:5635#p53:koh_tomrun_ladoni_targum_discussion",
+          "text_note": "'כה תאמרון לאדני לעשו' (Gen 32:5) is discussed via Onkelos's Aramaic rendering and Ibn Ezra's own commentary, on why Yaakov's messengers are called מלאכים -- discursive linguistic/exegetical point, no isolated clean number extracted this pass."
+        },
+        {
+          "block_id": "garti_613_mitzvot_candidate",
+          "source_ref": "book:hebrewbooks:5635#p53:garti_613_mitzvot_candidate",
+          "text_he": "וכן גרתי הייתי גר לעשו ותרי\"ג",
+          "text_note": "CANDIDATE sighting of the well-known classical teaching that 'גרתי' (Gen 32:5) is numerically read as an allusion to the 613 (תרי\"ג) mitzvot ('I sojourned with Lavan but kept all 613 commandments') -- this specific well-known gematria (not novel to this book) is only PARTIALLY legible at this pass's zoom (the תרי\"ג string is visible at the line's edge but the full sentence construction around it is not confidently parsed); flagged as UNCERTAIN rather than asserted as a confirmed reading of this exact page.",
+          "verbatim_numbers": ["תרי\"ג (613, candidate reading, NOT confidently confirmed at this zoom)"]
+        },
+        {
+          "block_id": "parashat_vayishlach_title",
+          "source_ref": "book:hebrewbooks:5635#p53:parashat_vayishlach_title",
+          "text_note": "Section header 'פרשת וישלח' appears, re-opening with the same 'כה תאמרון לאדני לעשו' verse discussed via Ibn Ezra -- the book restates/continues the Vayishlach opening across the section boundary rather than starting a wholly new topic."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "P53-U1 (below) is flagged rather than force-read because the classical 'גרתי=613' gematria is extremely well-known and it would be easy to unintentionally 'fill in' the expected reading rather than what is actually legible on the page at this pass's zoom -- recorded honestly as uncertain, per the corpus's own discipline against inventing confirmations."}
+      ],
+      "citations": ["עבדיה"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P53-U1", "text": "'גרתי'/613 (תרי\"ג) construction only partially legible at this pass's zoom -- not confidently confirmed as this page's own explicit statement versus a plausible but unverified reading.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 54,
+      "printed_page": "ה",
+      "section": "vayishlach_closing_to_vayeshev_opening",
+      "parasha": "וישלח -> וישב",
+      "opening_anchor": "התורה הקדושה לרמז שאף שיש פרשה שאף",
+      "closing_anchor": "יעקב אבינו שנא לארמית ולא היינו שהיה",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "rivka_death_unstated_devora_hint",
+          "source_ref": "book:hebrewbooks:5635#p54:rivka_death_unstated_devora_hint",
+          "text_note": "Notes that Rivka's own death is never explicitly stated in the Torah's text (only her nurse Devorah's death and burial 'under Alon Bachut', Gen 35:8, is recorded), read as a deliberate concealment tied to shame over Rivka's earlier deception, per the Midrash cited."
+        },
+        {
+          "block_id": "binyamin_birth_no_vatahar_verb",
+          "source_ref": "book:hebrewbooks:5635#p54:binyamin_birth_no_vatahar_verb",
+          "text_note": "Observes that, uniquely among Rachel/Leah's children's birth narratives, Binyamin's birth account (Gen 35:16-18) does not use the verb 'ותהר' (she conceived) -- citing Rashi's own comment on the difficulty of this specific labor and the midwife's reassurance 'אל תיראי כי גם זה לך בן'.",
+          "verbatim_citations": ["רש\"י (context)"]
+        },
+        {
+          "block_id": "structural_span_vayishma_to_bnei_yaakov_12",
+          "source_ref": "book:hebrewbooks:5635#p54:structural_span_vayishma_to_bnei_yaakov_12",
+          "text_note": "A structural observation: the span from 'וישמע ישראל' to 'ויהיו בני יעקב שנים עשר' (Gen 35:22-23) is said to constitute 'one parasha' whose midpoint verse is claimed to align with the midpoint of Parashat Pinchas (a candidate 'Torah-structural-center' motif, in the same family as the corpus's already-known middle-of-Torah observations elsewhere) -- the exact verse-count basis for this claim is not independently verified this pass, and it is NOT claimed here to be the same construction as any already-closed dataset in this corpus."
+        },
+        {
+          "block_id": "beit_el_double_naming_and_shem_kept",
+          "source_ref": "book:hebrewbooks:5635#p54:beit_el_double_naming_and_shem_kept",
+          "text_note": "Yaakov's return to Beit-El and the place being named 'a second time' (Gen 35:15) is discussed alongside the earlier Luz/Beit-El naming (Gen 28:19), tied to a 'this time the name will stand forever' framing."
+        },
+        {
+          "block_id": "vayeshev_title_and_targum_aramaic",
+          "source_ref": "book:hebrewbooks:5635#p54:vayeshev_title_and_targum_aramaic",
+          "text_note": "Section header 'פרשת וישב' opens with Yosef's evil report of his brothers to their father (Gen 37:2); discusses why Onkelos renders parts of the Yosef narrative in Aramaic phrasing distinct from the Torah's own Hebrew (לשון ארמית), tying this to the brothers having grown accustomed to Aramaic-speaking company in Lavan's house."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": ["רש\"י"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P54-U1", "text": "The claimed Pinchas-midpoint structural parallel (Gen 35:22-23 span) is recorded as the source's own stated claim; not independently verified against a canonical verse/word count this pass.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED, NOT MANUALLY COMPUTED"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-P46-03", "page": 54, "block_ref": "book:hebrewbooks:5635#p54:structural_span_vayishma_to_bnei_yaakov_12", "raw_source_anchor": "יש פרשה אחת... באמצע הפסוק... ובין ויאמר ד' שאו", "reason": "Candidate 'Torah/parasha midpoint' structural motif, distinct from any 1,820-family or already-catalogued dataset in this corpus. No interpretation offered; flagged only so it is not silently lost."}
+      ],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 55,
+      "printed_page": "10",
+      "section": "vayeshev",
+      "parasha": "וישב",
+      "opening_anchor": "שנתלנלו למצרים וכזה נפרש המדרש וישלח",
+      "closing_anchor": "מדבר מוזב ונפן כעת מעשו",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "bnei_yisrael_egypt_descent_midrash",
+          "source_ref": "book:hebrewbooks:5635#p55:bnei_yisrael_egypt_descent_midrash",
+          "text_note": "Opens with a Midrashic discussion of Bnei Yisrael's descent to Egypt ('שנתלנלו למצרים'), then explicitly cross-references how the same Midrash separately explains a detail in Parashat Vayishlach, tying the two sections together as one continuous exegetical thread rather than two independent comments."
+        },
+        {
+          "block_id": "binyamin_ben_oni_aramaic_hebrew_naming",
+          "source_ref": "book:hebrewbooks:5635#p55:binyamin_ben_oni_aramaic_hebrew_naming",
+          "text_he": "שכתב כי רחל קראה לבנימין בר צערי בלשון ארמית ולכן החליף אביו את שמו ללשון הקורש",
+          "text_note": "Rachel names her dying son 'Ben-Oni' in what this text reads as Aramaic phrasing ('בר צערי', son of my sorrow), while Yaakov renames him 'Binyamin' in Lashon HaKodesh (Gen 35:18) -- read as a deliberate Hebrew/Aramaic linguistic contrast, not merely a synonym-swap."
+        },
+        {
+          "block_id": "vayitnaklu_gavriel_and_midah_keneged_midah",
+          "source_ref": "book:hebrewbooks:5635#p55:vayitnaklu_gavriel_and_midah_keneged_midah",
+          "text_note": "'ויתנכלו אתו להמיתו' (Gen 37:18) is discussed via Rashi's own comment; the text elaborates a Midrashic tradition that the angel Gavriel was sent by the Holy Spirit to guide Yosef to his brothers, and frames the brothers' subsequent punishments/consequences through a 'midah keneged midah' (measure for measure) lens, discussing whether they had the 'right' (בחירה) to kill vs. merely leave him.",
+          "verbatim_citations": ["רש\"י (context)"]
+        },
+        {
+          "block_id": "cosmology_mazalot_yosef_dreams_intro",
+          "source_ref": "book:hebrewbooks:5635#p55:cosmology_mazalot_yosef_dreams_intro",
+          "text_note": "An extended Kabbalistic-cosmological digression begins: the sun/moon relationship (the moon's light as 'borrowed', tied to the 'הלבנה' motif elsewhere in this corpus), the fixed cycle of the twelve constellations (י\"ב מזלות) and the stars, building toward Yosef's dream of eleven stars/sun/moon (Gen 37:9) -- introduced here, continued onto p.56."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page's cosmology/mazalot digression continues across the p.55/p.56 page break; readers should treat the two pages' cosmology blocks as one continuous discussion, not two independent topics (confirmed by direct comparison of both pages' text at high zoom after an initial page-identification error was caught and corrected during this batch's own transcription pass -- see this file's batch_summary for the correction note)."}
+      ],
+      "citations": ["רש\"י"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P55-U1", "text": "The brothers' exact halachic liability framing (בחירה/measure-for-measure) is paraphrased at topic level; the source's precise legal reasoning not word-for-word transcribed this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 56,
+      "printed_page": "ו",
+      "section": "vayeshev",
+      "parasha": "וישב",
+      "opening_anchor": "בספר במדבר תל\"ח ובספר דברים תל\"ה פעם",
+      "closing_anchor": "ולא דבר שקר",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "bamidbar_devarim_word_count_construction",
+          "source_ref": "book:hebrewbooks:5635#p56:bamidbar_devarim_word_count_construction",
+          "text_he": "בספר במדבר תל\"ח ובספר דברים תל\"ה פעם ביחד כ\"ו מאות וי\"ג פעם תיבת [ ] בתורה",
+          "text_note": "A cross-book word-occurrence construction: a specific word (the word itself is the line immediately above this page's top crop and is NOT confidently identified from this batch's render -- flagged as unresolved) is stated to occur 438 (תל\"ח) times in Bamidbar and 435 (תל\"ה) times in Devarim, summing together with the other books to 2,600-and-13 (כ\"ו מאות וי\"ג) occurrences across the whole Torah. This is a DISTINCT total from the 1,820-family and from every other numeral on this batch's pages -- kept separate, not conflated. The identity of the counted word itself is the open item, not the arithmetic.",
+          "verbatim_numbers": ["תל\"ח (438, Bamidbar)", "תל\"ה (435, Devarim)", "כ\"ו מאות וי\"ג (2,613, stated Torah-wide total)"]
+        },
+        {
+          "block_id": "potifar_identity_harmonization",
+          "source_ref": "book:hebrewbooks:5635#p56:potifar_identity_harmonization",
+          "text_note": "Discusses whether Potifar (Gen 37:36, 39:1) held two distinct titles -- 'שר הטבחים' (chief of the executioners/butchers) and 'שר בית הסוהר' (prison warden) -- and harmonizes this as one and the same person holding both roles, tied to a discussion of whether Yosef was purchased as a slave (עבד) or as an attendant (משרת), closing with Potifar's wife's plan for Yosef to be married to Osnat."
+        },
+        {
+          "block_id": "sar_hamashkim_forgets_yosef_two_extra_years",
+          "source_ref": "book:hebrewbooks:5635#p56:sar_hamashkim_forgets_yosef_two_extra_years",
+          "text_he": "וישכחהו שר המשקים",
+          "text_note": "'וישכחהו' (Gen 40:23, the chief butler forgets Yosef) is read via the Midrashic teaching that Yosef's two extra years of imprisonment (per the corpus's own later 'kept 12 years total' framing, see p.57) were a direct punishment for placing his trust in a human intermediary rather than solely in God, citing the Tehillim-style formula 'אשרי הגבר אשר שם ד' מבטחו ולא פנה אל רהבים' (Tehillim 40:5)."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "CORRECTION recorded during this batch's own transcription (not a prior-session error): an initial fast read of pp.55-56 momentarily attributed p.56's top-right numeral construction to p.55 as well, before a targeted high-zoom crop comparison of both pages' true top-right text confirmed they are distinct pages with distinct content (p.55 = Bnei-Yisrael-Egypt-descent/Binyamin-naming/cosmology-intro; p.56 = the Bamidbar/Devarim word-count construction + Potifar/butler narrative). Reported here per this batch's own honesty discipline -- caught and corrected before being committed, not left silently wrong."}
+      ],
+      "citations": ["תהלים מ' (context)"],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P56-U1", "text": "The exact word being counted in the 438/435/2,613 cross-book construction is not identified in this batch's render (the word itself sits in the line above the render's top crop boundary or in small type not confidently legible at this pass's zoom) -- flagged for a future higher-zoom pass, not guessed.", "status": "UNCERTAIN"},
+        {"id": "P56-U2", "text": "None of the three numerals in the word-count construction (438/435/2,613) were independently recomputed against the canonical engine or a reference concordance this pass.", "status": "SOURCE CLAIM, NOT ENGINE VERIFIED, NOT MANUALLY COMPUTED"}
+      ],
+      "gpt_research_flags": [
+        {"id": "GRF-P46-04", "page": 56, "block_ref": "book:hebrewbooks:5635#p56:bamidbar_devarim_word_count_construction", "raw_source_anchor": "בספר במדבר תל\"ח ובספר דברים תל\"ה פעם ביחד כ\"ו מאות וי\"ג פעם תיבת בתורה", "reason": "A clean cross-book word-occurrence construction (438+435 contributing to a stated 2,613 Torah-wide total) with the counted word's identity still open -- flagged as a concrete, bounded future-verification target, distinct from the 1,820-family."}
+      ],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase, numbers verbatim)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 57,
+      "printed_page": "12",
+      "section": "miketz_closing_to_vayigash_opening",
+      "parasha": "מקץ -> ויגש",
+      "opening_anchor": "וידי מקץ שנתים ימים נראה שבאו שבעה",
+      "closing_anchor": "כמו שראיתיך בהיותך",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "miketz_shnatayim_yamim_opening",
+          "source_ref": "book:hebrewbooks:5635#p57:miketz_shnatayim_yamim_opening",
+          "text_he": "וידי מקץ שנתים ימים נראה שבאו שבעה שני המשק",
+          "text_note": "Right column opens Parashat Miketz proper ('ויהי מקץ שנתים ימים', Gen 41:1) discussing Pharaoh's dreams (7 fat/lean cows, 7 full/thin ears) reaching the house of the imprisoned baker/butler and from there to Yosef; ties the timing to a prior construction (cross-referenced from p.56) that Yosef's imprisonment totaled a specific span, with the extra 2 years explicitly framed as punishment (see p.56's Sar HaMashkim block).",
+          "verbatim_numbers": ["שנתים (2 years, the added imprisonment span, Torah's own figure)", "שבעה (7, cows/ears of grain, Torah's own figure)"]
+        },
+        {
+          "block_id": "lama_titrau_ibn_ezra_dispute",
+          "source_ref": "book:hebrewbooks:5635#p57:lama_titrau_ibn_ezra_dispute",
+          "text_note": "'למה תתראו' (Gen 42:1) is discussed via a cited dispute between Ibn Ezra and 'ha-Ra'avan' (interpreted here as a Rabbeinu/Riva-style early commentator) over the verse's own peshat, cross-referenced to a Talmudic teaching (cited generally, exact tractate not confidently isolated this pass) about a fixed sustenance/parnassah principle ('כל מה שיש לו פרנסה')."
+        },
+        {
+          "block_id": "reuven_rebuke_and_two_portions",
+          "source_ref": "book:hebrewbooks:5635#p57:reuven_rebuke_and_two_portions",
+          "text_note": "'הלוא אמרתי אליכם' (Reuven's rebuke, Gen 42:22) is tied to the blood-guilt reckoning for Yosef's sale ('דמו הנה נדרש') and a structural note that Reuven, as firstborn, is owed a double portion (פי שנים) among the brothers -- discussed alongside the brothers' fear once they realize their bundled money has been returned."
+        },
+        {
+          "block_id": "vayigash_title_and_yehuda_plea",
+          "source_ref": "book:hebrewbooks:5635#p57:vayigash_title_and_yehuda_plea",
+          "text_note": "Section header 'פרשת ויגש' opens with Yehuda's approach to Yosef ('כי כמוך כפרעה', Gen 44:18), discussing Yehuda's readiness for confrontation (war/appeasement/prayer, a threefold template echoing the earlier Yaakov-Esav preparation on p.53), and Yosef's inability to restrain himself further, revealing himself to his brothers."
+        },
+        {
+          "block_id": "yosef_reveals_seventeen_more_years_boundary",
+          "source_ref": "book:hebrewbooks:5635#p57:yosef_reveals_seventeen_more_years_boundary",
+          "text_he": "עוד י\"ז שנים והיינו שאמר... אחרי ראותי את פניך עוד הפעם ז' שנים כמו שראיתיך בהיותך",
+          "text_note": "Discusses Yaakov being told he will yet live 17 (י\"ז) more years after being reunited with Yosef (a well-known figure from Gen 47:28, cited here in its derash context rather than as a novel count of this book), and closes the page mid-sentence at 'כמו שראיתיך בהיותך' ('...as I saw you when you were [a lad]') -- this is the EXACT page-break point. **CONTINUATION POINTER, PER THIS BATCH'S OWN SCOPE BOUNDARY:** the already-closed pp.58-99 register (file AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P58_62.json) opens its own p.58 transcription with the block 'vayigash_close_osnat_gematria', whose registered text begins 'בהיותך נער ונקראת חי' -- i.e. the SAME word 'בהיותך' that closes this batch's p.57 render is the word that opens the already-registered p.58 content. This is recorded here as an exact continuation match, NOT as new content registered by this file (p.58 itself is explicitly out of this batch's write-scope and is not re-transcribed or re-registered here).",
+          "verbatim_numbers": ["י\"ז שנים (17 years, Yaakov's remaining lifespan after reunion, Torah's own figure, Gen 47:28 context)"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page is the batch's own designated STOP point (pp.46-57 scope). The right column carries the tail of Parashat Miketz and the left column opens Parashat Vayigash -- both columns are registered here since both fall within pdf_page 57 itself; p.58 (which continues the left-column Vayigash material) is read for continuation-pointer verification ONLY and is not registered, per this batch's explicit scope boundary and the pre-existing pp.58-99 SOURCE_OWNER lineage's prior claim on that page."}
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [
+        {"id": "P57-U1", "text": "The exact tractate/source for the 'כל מה שיש לו פרנסה' fixed-sustenance principle cited alongside the Ibn Ezra/Ra'avan dispute is not confidently isolated at this pass's zoom.", "status": "UNCERTAIN"}
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED (substantial paraphrase, numbers verbatim, exact p.57->p.58 continuation word confirmed)",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL",
+      "confidence": "SOURCE_LOCATED; VISUALLY_VERIFIED (the p.57/p.58 continuation word 'בהיותך')"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+    "pages_read_boundary_only_not_registered": [45, 58],
+    "p45_status": "CONFIRMED BLANK on direct visual read -- matches DOSSIER_INDEX's existing structural note ('חלק ב׳ title (p.44) + blank (p.45)'). No content to register.",
+    "p58_status": "Read for continuation-pointer verification only. Already closed by the separate pp.58-99 lineage (AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P58_62.json) -- NOT re-transcribed or re-registered here. Exact continuation word confirmed: p.57 (this batch) closes mid-sentence at 'בהיותך'; the existing p.58 register's own opening_anchor for block 'vayigash_close_osnat_gematria' begins with the identical word 'בהיותך נער ונקראת חי'. This is an exact, word-level p.57->p.58 continuation match, independently confirmed by this batch (not assumed).",
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family (אלף תת\"ך) or 1,830-family construction was found anywhere in pp.46-57. This is a genuine, honestly-reported negative result, not a coverage gap: pp.46-57 fall inside the dossier's already-known 'parasha-ordered chiddushim' section (pp.46-92), which is structurally and thematically distinct from Part One's dense 1,820-catalog chapter (pp.16-24). This independently confirms and extends the same density/character observation already recorded for pp.58-62 in the sibling batch file.",
+    "distinct_non_1820_numeric_constructions_found_this_batch": [
+      "p.49: Torah verse #440 (ת\"מ) position claim (ותכחש שרה)",
+      "p.49: Akeidah passage = 317 words (ש\"ז)",
+      "p.49: Vayera-to-Bnei-Ammon span = 1,000 words (אלף) exactly",
+      "p.49: Marriage/nesuin passage = 918 words (תתקי\"ח), 3x 'אשה'",
+      "p.51: two raw, NOT-independently-computed numeral strings (תש\"ע and אלף התקע\"ו) tied to the Vayehi-ki-zaken-Yitzchak span and the extra-Hei 'צידה' spelling",
+      "p.56: cross-book word-occurrence construction, 438 (Bamidbar) + 435 (Devarim) contributing to a stated Torah-wide total of 2,613 (כ\"ו מאות וי\"ג) -- counted word's identity still unresolved (P56-U1)"
+    ],
+    "gpt_research_flags_this_batch": ["GRF-P46-01", "GRF-P46-02", "GRF-P46-03", "GRF-P46-04"],
+    "unresolved_readings_this_batch": 13,
+    "self_correction_this_batch": "One transcription mix-up between pp.55 and pp.56 was caught and corrected DURING this batch's own pass (before commit): a fast initial read momentarily attributed p.56's word-count construction to p.55 as well. A targeted 5x-zoom crop comparison of both pages' true top-right text (see p.56's editorial_notes) confirmed the two pages are distinct and re-assigned the content correctly. No content was lost; this is reported for full transparency per the corpus's own honesty discipline, not concealed.",
+    "ingestion_contract_stress_test": "PASS -- the #pN:block/source_ref contract held across parasha-transition narrative, halachic/customs asides, cosmological digression, and six distinct bounded numeric constructions, with no identity or data-loss problem encountered. The one internal mix-up (pp.55/56) was a transcription-sequencing error caught by this batch's own verification step, not a contract failure -- the block/source_ref structure itself is what made the error detectable and correctable.",
+    "density_observation": "pp.46-57 are markedly lower in gematria/numeric density than Part One's pp.16-24 catalog chapter, but noticeably HIGHER in bounded word-count constructions than the pp.58-62 sample (6 distinct constructions across 12 pages here, vs. 0 new constructions found in the 5-page pp.58-62 batch) -- reported as an honest structural observation for GPT's method-inventory attention, not a claim about the whole pp.46-92 section's average density.",
+    "next_batch": "NONE planned by this writer -- this batch's own scope is bounded to pp.46-57 exactly, per the coordination partition (ac493139-86d8-46eb-bee4-fa7eedf61da5). pp.36-45 is a separate, disjoint Claude session's scope; pp.26-35 is the existing SOURCE_OWNER's scope; pp.58-99 is already closed by a separate lineage. STOP at p.57 exactly, per this batch's own ACK."
+  }
+}

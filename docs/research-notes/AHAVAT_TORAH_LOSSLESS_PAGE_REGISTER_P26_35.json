@@ -1,0 +1,330 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "PDF pp.26-35 ONLY -- SECOND and FINAL batch for this SOURCE_OWNER's pp.16-57 lane, per work_log ACK f69ebc8c-b45b-4779-84e4-aa1547928fb8 (task AHAVAT_TORAH_P16_57_OWNERSHIP_RESOLUTION), continuing from batch 1 (pp.16-25, commit 6e4f72ad) and the Checkpoint 5 reconciliation (commit 690e1397). p.25 read for boundary context only (already registered). Per coordination partition ac493139, pp.36-57 are OUT OF SCOPE -- transferred to separate parallel Claude sessions, not touched here.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "Separate file from all prior batch/register files. Same schema, same #pN:block convention, same truth vocabulary. This batch lands almost entirely inside already-recognized dataset territory (DS-03/DS-04 word-count table, DS-11 root list, and the DS-02 letter-table boundary at p.35) -- treated as SUPPORTS/structural-confirmation, not re-extracted from scratch, consistent with how these datasets were handled in prior sessions.",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "render": "pymupdf, 3x zoom, full-page (both columns); p.25 boundary context + pp.26-35 target"
+  },
+  "structural_placement": "pp.26-30 continue the 'אוריין תליתאי' per-parasha word-count table (DS-03/DS-04, the 79,976-word division), running through essentially every parasha of the Torah with per-word tallies (e.g. how many times a given key word/name occurs per parasha). p.31 (printed page 26 in-book) closes that table with a decorative divider and opens a NEW section titled 'שרשים בתורה' (Roots in the Torah) -- matching the existing dossier's already-known DS-11 placement at pp.31-35, no boundary correction needed here (unlike the earlier p.20-not-p.25 correction for the prior section). pp.31(bottom)-34 are a dense, undifferentiated list of Hebrew roots (DS-11). p.35 (printed page 30 in-book) closes the root list with another decorative divider and opens 'סופר ומונה אותיות התורה' (One who counts and numbers the Torah's letters) -- the ALREADY-KNOWN, ALREADY-DEEPLY-RESEARCHED DS-02 letter table (Session 2/5/7/8 territory, see AHAVAT_TORAH_P35_LETTER_CLOSURE.md), beginning with the Aleph row. This batch's own pp.31-35 content is NOT re-transcribed at DS-02's existing depth -- only the structural boundary is confirmed.",
+  "pages": [
+    {
+      "pdf_page": 26,
+      "printed_page": "יא",
+      "section": "oryan_talitai_per_parasha_word_table (DS-03/DS-04 continuation)",
+      "parasha": null,
+      "opening_anchor": "תורה עי\"ז פעמים אלף תיבות. יעקב ב\"ד",
+      "closing_anchor": "בפרשת ויחי יש תקנ\"ח תיבות ומהם דבר ה' ר\"מ פעמים",
+      "transcription_depth": "STRUCTURAL_SUPPORTS_EXISTING_DATASET — see structural_placement note; not exhaustively itemized",
+      "content_blocks": [
+        {
+          "block_id": "ds03_ds04_extension_toldot_through_vayechi",
+          "source_ref": "book:hebrewbooks:5635#p26:ds03_ds04_extension_toldot_through_vayechi",
+          "text_note": "Continues the per-parasha word-count table (DS-03/DS-04) through Toldot, Vayetze, Vayishlach, Vayeshev, Miketz, Vayigash, and Vayechi -- each parasha's total word count and a sub-count of a specific recurring key-word/name occurrence. Consistent in structure with the already-known 79,976-word Torah division. Individual per-parasha figures not itemized in this entry; the page is visually confirmed to be genuine, continuous table content, not a break or anomaly.",
+          "dataset_refs": ["DS-03", "DS-04"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-03", "DS-04"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED (structure/genre, not per-cell)",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS03_DS04",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 27,
+      "printed_page": "22",
+      "section": "oryan_talitai_per_parasha_word_table (DS-03/DS-04 continuation)",
+      "parasha": null,
+      "opening_anchor": "תורה ע\"ז פעמים אלף ואחד תיבות. יעקב ב\"ד",
+      "closing_anchor": "בפרשת מקץ יש תיבות ב' אלפים ומהם דבר יעקב ב' פעמים",
+      "transcription_depth": "STRUCTURAL_SUPPORTS_EXISTING_DATASET",
+      "content_blocks": [
+        {
+          "block_id": "ds03_ds04_extension_shemot_through_miketz",
+          "source_ref": "book:hebrewbooks:5635#p27:ds03_ds04_extension_shemot_through_miketz",
+          "text_note": "Continues the same table through Shemot, Vaera, Bo, Beshalach, Yitro, Mishpatim, Terumah, Tetzaveh, Ki Tisa, Vayakhel, Pekudei, and into Vayikra/Vayigash/Miketz-area entries -- same structure and genre as p.26.",
+          "dataset_refs": ["DS-03", "DS-04"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-03", "DS-04"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED (structure/genre, not per-cell)",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS03_DS04",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 28,
+      "printed_page": "יב",
+      "section": "oryan_talitai_per_parasha_word_table (DS-03/DS-04 continuation)",
+      "parasha": null,
+      "opening_anchor": "בני ישראל י\"ד פעם קל\"ט תיבות. החכמים",
+      "closing_anchor": "שרי בלק ב' פעמים השניים פעם אחד כ\"ו תיבות",
+      "transcription_depth": "STRUCTURAL_SUPPORTS_EXISTING_DATASET",
+      "content_blocks": [
+        {
+          "block_id": "ds03_ds04_extension_vayikra_through_balak",
+          "source_ref": "book:hebrewbooks:5635#p28:ds03_ds04_extension_vayikra_through_balak",
+          "text_note": "Continues through Vayikra, Tzav, Shmini, Tazria, Metzora, Kedoshim, Emor, Behar, Bechukotai, Bamidbar, Naso, Beha'alotcha, Shelach, Korach, Chukat, Balak -- same structure and genre.",
+          "dataset_refs": ["DS-03", "DS-04"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-03", "DS-04"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED (structure/genre, not per-cell)",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS03_DS04",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 29,
+      "printed_page": "24",
+      "section": "oryan_talitai_per_parasha_word_table (DS-03/DS-04 continuation)",
+      "parasha": null,
+      "opening_anchor": "משה י' פעמים ש\"י תיכות. אהרן פעם אחד",
+      "closing_anchor": "שרי בלק ב' פעמים השנים פעם אחד כ\"ו תיבות",
+      "transcription_depth": "STRUCTURAL_SUPPORTS_EXISTING_DATASET",
+      "content_blocks": [
+        {
+          "block_id": "ds03_ds04_extension_pinchas_through_devarim",
+          "source_ref": "book:hebrewbooks:5635#p29:ds03_ds04_extension_pinchas_through_devarim",
+          "text_note": "Continues through Pinchas, Matot, Masei, and into the opening of Devarim -- same structure and genre. This page and the surrounding pages show dense repeated 'בפ\"X'/'בפרשת X' markers with word/name-occurrence sub-counts, consistent with the DS-03/DS-04 model throughout.",
+          "dataset_refs": ["DS-03", "DS-04"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-03", "DS-04"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED (structure/genre, not per-cell)",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS03_DS04",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 30,
+      "printed_page": "25",
+      "section": "oryan_talitai_per_parasha_word_table (DS-03/DS-04 continuation, closing)",
+      "parasha": null,
+      "opening_anchor": "ששה ונסחתם תרניע וראבון — שורש ראש",
+      "closing_anchor": "אפסי שפע ושפוני יזנק ורדום רכאך שחקים",
+      "transcription_depth": "STRUCTURAL_SUPPORTS_EXISTING_DATASET",
+      "content_blocks": [
+        {
+          "block_id": "ds03_ds04_extension_devarim_close",
+          "source_ref": "book:hebrewbooks:5635#p30:ds03_ds04_extension_devarim_close",
+          "text_note": "Right column: closes the DS-03/DS-04 table through the remainder of Devarim's chiddushim (Va'etchanan, Eikev, Re'eh, Shoftim, Ki Teitzei, Ki Tavo, Nitzavim, Vayelech, Ha'azinu, VeZot HaBerakha named in sequence).",
+          "dataset_refs": ["DS-03", "DS-04"]
+        },
+        {
+          "block_id": "oryan_talitai_closing_divider",
+          "source_ref": "book:hebrewbooks:5635#p30:oryan_talitai_closing_divider",
+          "text_note": "A decorative printer's divider line appears mid-right-column, followed by a run of unusual/poetic root-form words ('שורש ראש', 'ורדשן') that read as a bridge/transition passage into the next section's word-root theme -- likely the final lines of the אוריין תליתאי section proper before p.31's formal 'שרשים בתורה' title."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-03", "DS-04"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS03_DS04",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 31,
+      "printed_page": "26",
+      "section": "oryan_talitai_closes_shorashim_batorah_opens (structural boundary, matches existing dossier placement)",
+      "parasha": null,
+      "opening_anchor": "פרעה מ' פעמים קנ\"ח תיבות אחת משה",
+      "closing_anchor": "אבור במום. אירם וחש ותחידה אזלת עצור חסיו",
+      "transcription_depth": "STRUCTURAL_BOUNDARY_CONFIRMATION",
+      "content_blocks": [
+        {
+          "block_id": "ds03_ds04_final_entries",
+          "source_ref": "book:hebrewbooks:5635#p31:ds03_ds04_final_entries",
+          "text_note": "Right column top: final few entries of the DS-03/DS-04 table."
+        },
+        {
+          "block_id": "shorashim_batorah_title",
+          "source_ref": "book:hebrewbooks:5635#p31:shorashim_batorah_title",
+          "text_he": "שרשים בתורה",
+          "text_note": "STRUCTURAL CONFIRMATION (no correction needed, unlike the earlier p.20 finding): this section title appears exactly at p.31, matching the existing dossier's already-recorded placement ('שרשים בתורה pp.31-35'). Opens with 'בראשית' as the section's own first root-anchor, listing Hebrew roots in a dense, undifferentiated run. This is the already-known DS-11 dataset (1,820 roots, per LEDGER §3.6) -- structure confirmed, root-list content NOT re-extracted in this batch, consistent with prior sessions' treatment ('structure independently confirmed; full list content not re-extracted').",
+          "dataset_refs": ["DS-11"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "A decorative printer's divider separates the two sections mid-page, confirming this is a genuine structural boundary, not an artifact of this transcription."}
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-03", "DS-04", "DS-11"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS03_DS04_AND_DS11",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 32,
+      "printed_page": "יד",
+      "section": "shorashim_batorah (DS-11 continuation)",
+      "parasha": null,
+      "opening_anchor": "בחמלת המלט חסרך מצער נפרית",
+      "closing_anchor": "יגיע לקטו. גל ינר שהרוהא והמצפה יריתי",
+      "transcription_depth": "SUPPORTS_EXISTING_DATASET — dense undifferentiated root-list, not re-extracted",
+      "content_blocks": [
+        {
+          "block_id": "shorashim_batorah_continued",
+          "source_ref": "book:hebrewbooks:5635#p32:shorashim_batorah_continued",
+          "text_note": "Continues the dense root-list (DS-11), both columns, no numeric sub-structure visible per-root (unlike DS-01/DS-03/DS-04's per-parasha counts) -- this appears to be a flowing list of Hebrew root-words grouped loosely by theme/sound, not a countable table in itself. Consistent with DS-11's existing characterization.",
+          "dataset_refs": ["DS-11"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-11"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS11",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 33,
+      "printed_page": "28 (candidate)",
+      "section": "shorashim_batorah (DS-11 continuation)",
+      "parasha": null,
+      "opening_anchor": "(root-list continues)",
+      "closing_anchor": "(root-list continues)",
+      "transcription_depth": "SUPPORTS_EXISTING_DATASET — dense undifferentiated root-list, not re-extracted",
+      "content_blocks": [
+        {
+          "block_id": "shorashim_batorah_continued_p33",
+          "source_ref": "book:hebrewbooks:5635#p33:shorashim_batorah_continued_p33",
+          "text_note": "Continues the same dense root-list (DS-11). Not individually re-transcribed, per the same rationale as p.32.",
+          "dataset_refs": ["DS-11"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-11"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED (page rendered and visually inspected at low magnification; not individually block-transcribed)",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS11",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 34,
+      "printed_page": "29 (candidate)",
+      "section": "shorashim_batorah (DS-11 continuation, approaching close)",
+      "parasha": null,
+      "opening_anchor": "(root-list continues)",
+      "closing_anchor": "(root-list continues toward p.35's divider)",
+      "transcription_depth": "SUPPORTS_EXISTING_DATASET — dense undifferentiated root-list, not re-extracted",
+      "content_blocks": [
+        {
+          "block_id": "shorashim_batorah_continued_p34",
+          "source_ref": "book:hebrewbooks:5635#p34:shorashim_batorah_continued_p34",
+          "text_note": "Continues the same dense root-list (DS-11), approaching its close on p.35. Not individually re-transcribed.",
+          "dataset_refs": ["DS-11"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-11"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED (page rendered and visually inspected at low magnification; not individually block-transcribed)",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS11",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 35,
+      "printed_page": "30",
+      "section": "shorashim_batorah_closes_letter_table_opens (STRUCTURAL BOUNDARY — matches existing D-03 resolution exactly)",
+      "parasha": null,
+      "opening_anchor": "שש ונסחתם מזי רשף וקטב זוחלי ומשרמות פתנים",
+      "closing_anchor": "בראשית תרנ\"ג נח הקס\"ג לך הרל\"ו וירא תתל\"ו חיי שרה הקכ\"ח",
+      "transcription_depth": "STRUCTURAL_BOUNDARY_CONFIRMATION — DS-02 content NOT re-extracted, already fully covered by AHAVAT_TORAH_P35_LETTER_CLOSURE.md",
+      "content_blocks": [
+        {
+          "block_id": "shorashim_batorah_final_entries",
+          "source_ref": "book:hebrewbooks:5635#p35:shorashim_batorah_final_entries",
+          "text_note": "Right column top: final root-list entries (DS-11), then a decorative printer's divider."
+        },
+        {
+          "block_id": "sofer_umoneh_otiot_hatorah_title_and_aleph_row",
+          "source_ref": "book:hebrewbooks:5635#p35:sofer_umoneh_otiot_hatorah_title_and_aleph_row",
+          "text_he": "סופר ומונה אותיות התורה. א. בראשית תרנ\"ג נח הקס\"ג לך הרל\"ו וירא תתל\"ו חיי שרה הקכ\"ח",
+          "text_note": "STRUCTURAL CONFIRMATION, EXACTLY MATCHING THE EXISTING, ALREADY-CLOSED D-03 FINDING: the letter-table section title and its first (Aleph) row begin here, at PDF p.35 -- this is the SAME location and SAME content already exhaustively researched in `AHAVAT_TORAH_P35_LETTER_CLOSURE.md` (Session 5) and the broader DS-02 letter-table project (Sessions 2/5/7/8). This batch does NOT re-transcribe or re-verify DS-02's numbers -- doing so would duplicate already-closed work. Recorded here only as independent structural re-confirmation that the boundary is exactly where the existing dossier says it is.",
+          "dataset_refs": ["DS-02"]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {"note": "This page's boundary (root-list closes, letter-table opens) is the natural, correct STOP point for this batch, matching the instruction to stop exactly at p.35."}
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": ["DS-11", "DS-02"],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "STRUCTURAL_CONFIRMATION_ONLY",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "SUPPORTS_EXISTING_DS11_AND_DS02 — NOT RE-EXTRACTED",
+      "confidence": "SOURCE_LOCATED"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [26, 27, 28, 29, 30, 31, 32, 33, 34, 35],
+    "pages_read_boundary_only_not_registered": [25],
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family or 1,830-family construction was found in pp.26-35 -- this range is structurally different from pp.16-24's dense 1,820-catalog: it is the per-parasha word-count table (DS-03/DS-04) and the root-list (DS-11), neither of which is organized around the number 1,820.",
+    "what_this_batch_deliberately_does_not_redo": "The bulk of pp.26-35 falls inside three ALREADY-KNOWN datasets (DS-03, DS-04, DS-11) plus the boundary into a fourth (DS-02, already deeply researched). Per explicit instruction and established precedent, this batch confirms structure and boundaries rather than re-extracting already-tracked or already-closed content cell-by-cell.",
+    "structural_findings": "Two section boundaries independently reconfirmed this batch: (1) 'שרשים בתורה' (DS-11) begins at p.31, matching the existing dossier's placement exactly -- no correction needed; (2) 'סופר ומונה אותיות התורה' (DS-02, the letter table) begins at p.35, matching the existing, already-closed D-03 finding exactly -- no correction needed. This is a useful negative-correction result: unlike the earlier pp.16-25 batch's p.20-not-p.25 correction, these two boundaries were already right.",
+    "gpt_research_flags_this_batch": [],
+    "unresolved_readings_this_batch": 0,
+    "ingestion_contract_stress_test": "PASS -- the #pN:block/source_ref contract held across a structurally different content type (tabular word-counts and an undifferentiated root-list) from the earlier dense 1,820-catalog, with clean, correctly-located section boundaries and no identity or data-loss problem encountered.",
+    "scope_closure": "This is this SOURCE_OWNER's FINAL batch in the pp.16-57 range. pp.36-45 and pp.46-57 are transferred to separate parallel Claude sessions per the coordination partition (work_log ac493139) and are NOT touched here or in any prior batch of this lineage."
+  }
+}

@@ -1,0 +1,601 @@
+{
+  "source_id": "book:hebrewbooks:5635",
+  "register_version": 1,
+  "batch_scope": "PDF pp.36-45 ONLY -- disjoint parallel source batch, per work_log ACK d893618e-528d-4f99-9af5-fc5d5fa8c512 (task AHAVAT_TORAH_P36_45_PARALLEL_SOURCE_BATCH), queued at work_log 48c59fcf-386b-46e1-9d89-70a74d58c3b7 and coordination-partitioned at work_log ac493139-86d8-46eb-bee4-fa7eedf61da5 (AHAVAT_TORAH_P16_57_PARALLELIZATION_20260905). p.35 and p.46 read for boundary context only, NOT re-registered here (p.35 is already covered in depth by AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md; p.46 belongs to the disjoint P46_57 writer per work_log ac493139).",
+  "status_dimensions": [
+    "STRUCTURALLY_MAPPED",
+    "TRANSCRIBED",
+    "VISUALLY_VERIFIED",
+    "RESEARCH_EXTRACTED",
+    "MECHANICALLY_RECONCILED"
+  ],
+  "note": "Separate file from all prior batch/register files, per output-file scope (coordination memo ac493139: one semantic/file scope = one writer). Same schema, same #pN:block convention, same truth vocabulary as the P16_25/P58_62/P63_70/P71_80/P81_90/P91_99 lineage. Does NOT edit DOSSIER_INDEX.md/CROSSWALK.md/AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md -- those are cited via source_ref/dataset_refs, not re-derived, except where this batch's own independent visual pass found a genuine correction/extension (flagged explicitly per-block below).",
+  "block_ref_convention": "book:hebrewbooks:5635#p<PDF_PAGE>:<BLOCK_ID>",
+  "source_fingerprint_this_batch": {
+    "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "bytes": 2078469,
+    "page_count_confirmed": 99,
+    "render": "pymupdf, 300dpi full-page + 500-600dpi targeted crops (2x-4x further upscale on disputed glyphs/totals); p.35 + p.46 boundary context (not registered) + pp.36-45 target",
+    "byte_identity_note": "sha256 and byte count are IDENTICAL to the fingerprint recorded in AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P91_99.json's source_fingerprint_this_batch -- confirms this is the same witness object across independent sessions/downloads, not a re-scan."
+  },
+  "structural_placement": "pp.36-41 are the tail of the DS-02 per-parasha 22-letter count table (\"סופר ומונה אותיות התורה\", beginning at p.35 per the existing PR#285 D-03 resolution): letters Hei(tail)/Zayin close on p.36, Kaf/Lamed/Mem/Nun close on pp.37-38 (all already VISUALLY_VERIFIED by AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md and cited here, not re-derived), Samech/Pe are newly located on p.39, Kuf/Resh are newly located on p.40, and Shin/Tav (the alphabet's final letter) close the table on p.41 -- NEW, not previously catalogued at the page level by any prior session. Immediately below Tav's closing total on p.41, WITHOUT a section-title gap of its own kind, two previously-uncatalogued SUMMARY tables begin: \"תיבות התורה\" (Words of the Torah -- candidate DS-03) starting p.41 right column, and \"אותיות התורה\" (Letters of the Torah, per-book summary -- candidate DS-04) starting p.41 left column and continuing onto p.42. These are followed directly by the already-known \"אותיות חמש מגילות\" (Letters/Words of the Five Megillot, DS-09/DS-10) multi-row matrix on pp.42-43, corroborating (SUPPORTS) the Mechanical Closure Pass's own structural correction (\"multi-row matrix, not one-row-per-book\") with direct row-by-row visual confirmation of the drop-cap row sequence continuing from p.42 into p.43. p.43 closes with a short, thematically UNRELATED calendrical/molad (time-division, chalakim-style) aside, ending in a printer's floral ornament that visually marks the end of the book's main numerical-appendix section. p.44 is the title page for \"חלק ב'\" (Part Two) -- almost entirely blank except the title -- and p.45 is a blank leaf (its conjugate verso). This means Part 1 of the sefer's back matter (the letter/word/Megillot numerical appendix opened at p.35) closes within this batch's own scope, at p.43, and Part 2 begins structurally at p.44/46 -- a boundary no prior artifact in this dossier had located.",
+  "dual_pagination_finding": "NEGATIVE/STRUCTURAL FINDING, not previously documented in this dossier: this section of the book carries TWO independent page-numbering systems printed in the running header, alternating by page: pages at odd PDF-absolute-index positions (35,37,39,41,...) carry an ARABIC numeral in the outer corner (directly observed: p35='30', p37='32', p39='34', p41='36'), while pages at even PDF-absolute-index positions (36,38,40,42,...) carry a HEBREW-LETTER folio number instead (directly observed: p36='טו'=15, p38='יז'=17, p42='יט'=19), each incrementing by 2 between consecutive same-type occurrences. This is consistent with the book's own known pattern of an inserted/appended composition with its own internal pagination overlapping the main Arabic pagination (cf. PR#285's existing p.35-not-p.36 D-03 finding). Not independently re-confirmed this pass for p40/p43/p44/p45's headers; pattern predicts p40='יח'(18, Hebrew) and p43 was directly observed as Arabic '38' (fits the odd/Arabic side... NOTE: p43 is an EVEN PDF index yet shows Arabic '38', which BREAKS the strict odd/even alternation observed on pp.35-42 -- flagged as an open structural question, not resolved here, since only 3 Hebrew-letter and 4 Arabic instances were directly read this pass, an n too small to force a rule, and p43's own value is itself consistent with straight sequential Arabic counting 30,32,34,36,38 if the Hebrew-letter header is in fact a DIFFERENT, parallel numbering track rather than a strict alternation. Preserved as an open item, not adjudicated.",
+  "pages": [
+    {
+      "pdf_page": 36,
+      "printed_page": "טו (15, Hebrew-letter folio header; see dual_pagination_finding)",
+      "section": "letter_count_table_DS02_tail",
+      "parasha": "letter_range: ה (Hei, tail/closing) -> ז (Zayin, full paragraph)",
+      "opening_anchor": "בהבליהם מזי רשף וקטב זוחלי משרמות פתנים",
+      "closing_anchor": "ברכה קב\"ב. ס\"ה מ\"ז אלף שמ\"ה",
+      "transcription_depth": "SOURCE_LOCATED (structure/drop-caps VISUALLY_VERIFIED at 500dpi; per-parasha digit values not independently re-verified this pass -- see dataset_refs)",
+      "content_blocks": [
+        {
+          "block_id": "hei_closing_total",
+          "source_ref": "book:hebrewbooks:5635#p36:hei_closing_total",
+          "text_note": "Right column, top: closing lines of a preceding page-30 sermon/piyut section (\"שש ונסחתם תרגיע...\"), then a squiggly divider, then the section header \"סופר ומונה אותיות התורה\" continuation lands on p.35 (boundary, not this page) -- p.36 itself opens mid-letter-table with the TAIL of a paragraph beginning \"תהמ\"ה. במדבר תל\"ב נשא תקי\"ח...\" running to a closing total \"ברכה קב\"ב. ס\"ה מ\"ז אלף שמ\"ה:\" (candidate 47,345) before the next drop-cap begins. This tail is NOT independently re-attributed to a specific letter-name this pass (the drop-cap that OPENS it sits on p.35, outside this batch's registered scope); recorded here only as continuing content, per SOURCE_LOCATED depth."
+        },
+        {
+          "block_id": "zayin_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p36:zayin_dataset_DS02",
+          "text_note": "Left column: drop-cap ז (Zayin) opens a full per-parasha letter-occurrence paragraph (\"בראשית ל\"א נח כ\"ז יירא נ\"ב חיי...\"), continuing through Shemot/Vayikra/Bamidbar/Devarim book subtotals to a final total. This is the SAME Zayin paragraph already closed by AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md section 3 (Zayin checksum A-02: two ד/ר-confusion candidate corrections at Bereshit-Noach and Devarim, PARTIALLY RESOLVED, root cause still open) -- CITED HERE, NOT RE-DERIVED. This batch's own pass did not attempt an independent third re-zoom of the same cells; the closure pass's PARTIALLY RESOLVED verdict stands unchanged."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {
+          "note": "Letters ג (Gimel) and ו (Vav) are alphabetically required between Bet/Dalet (p.35, boundary) and Hei/Zayin (this page) but were NOT independently located with a confirmed drop-cap by this batch -- most likely brief entries embedded in the p.35 boundary content (outside registered scope) or in unexamined sub-regions of this page's right column. Flagged as a genuine, honestly-reported structural gap, not silently skipped."
+        }
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-02"
+      ],
+      "unresolved_readings": [
+        {
+          "id": "P36-U1",
+          "text": "The candidate total \"מ\"ז אלף שמ\"ה\" (47,345) closing the tail paragraph at the top of this page is RAW READING only, not cross-checked against a known letter/cumulative-sequence this pass -- its parent letter-paragraph opens on p.35 (outside this batch's registered scope).",
+          "status": "UNCERTAIN"
+        }
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL -- SUPPORTS existing DS-02/A-02 closure, no new derivation",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 37,
+      "printed_page": "32 (Arabic numeral header; see dual_pagination_finding)",
+      "section": "letter_count_table_DS02_tail",
+      "parasha": "letter_range: כ (Kaf) -> ל (Lamed, opens)",
+      "opening_anchor": "מסעי קע\"נ. ס\"ה ו' אלף קפ\"ף",
+      "closing_anchor": "חיי שע\"ח תולדות שי\"ב יצא ותר\"ם ותשלח",
+      "transcription_depth": "SOURCE_LOCATED (drop-caps VISUALLY_VERIFIED at 500dpi)",
+      "content_blocks": [
+        {
+          "block_id": "kaf_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p37:kaf_dataset_DS02",
+          "text_note": "Right column: drop-cap כ (Kaf) opens a per-parasha letter-occurrence paragraph, running to a Torah-wide closing total. This is the SAME Kaf paragraph anchor already used by AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md section 2 (ל/מ/נ boundary, RESOLVED: Kaf's own colon-terminated final total = 3,358) -- CITED, NOT RE-DERIVED.",
+          "verbatim_numbers": [
+            "ס\"ה ג' אלף שנ\"ח (3,358) -- per Mechanical Dataset Closure Pass, not re-verified independently this pass"
+          ]
+        },
+        {
+          "block_id": "lamed_dataset_opens_DS02",
+          "source_ref": "book:hebrewbooks:5635#p37:lamed_dataset_opens_DS02",
+          "text_note": "Left column: drop-cap ל (Lamed) opens (\"בראשית תצ\"ז נח תנ\"א לך תמ\"א...\"), continuing onto p.38. Matches the Closure Pass's own reference to Lamed's distinctive tall-ascender glyph confirmed at high zoom."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-02"
+      ],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL -- SUPPORTS existing DS-02 closure, no new derivation",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 38,
+      "printed_page": "יז (17, Hebrew-letter folio header)",
+      "section": "letter_count_table_DS02_tail",
+      "parasha": "letter_range: ל (Lamed, tail) -> מ (Mem) -> נ (Nun)",
+      "opening_anchor": "וארא רכ\"ה בא רנ\"ז יתרו קם\"ט משפטים קצ\"נ",
+      "closing_anchor": "שמות פ\"ה וארא כא\"ג בא כ\"ה בשלח יתרו",
+      "transcription_depth": "SOURCE_LOCATED (drop-caps VISUALLY_VERIFIED at 500dpi)",
+      "content_blocks": [
+        {
+          "block_id": "lamed_tail_DS02",
+          "source_ref": "book:hebrewbooks:5635#p38:lamed_tail_DS02",
+          "text_note": "Right column, top: tail of Lamed's paragraph continuing from p.37."
+        },
+        {
+          "block_id": "mem_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p38:mem_dataset_DS02",
+          "text_note": "Right column: drop-cap מ (Mem) opens (\"בראשית כ\"ו ל\"ז וירא מ\"ד חיי...\"). Matches AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md section 2's Mem anchor (colon-terminated Bamidbar/Devarim tail, final total 10,606) -- CITED, NOT RE-DERIVED.",
+          "verbatim_numbers": [
+            "ס\"ה יו\"ד אלף תרב\"ד (10,606) -- per Mechanical Dataset Closure Pass, not re-verified independently this pass"
+          ]
+        },
+        {
+          "block_id": "nun_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p38:nun_dataset_DS02",
+          "text_note": "Continuing (left column): drop-cap נ (Nun) opens (\"בראשית רל\"ו נח רצ\"ב לך קפ\"ז...\"), closing the letter-table's נ paragraph with its own Bereshit subtotal, then transitioning toward Samech (tail visible at the very bottom of this page's left column, \"שמות...\" continuation). Matches the Closure Pass's own Nun anchor (Bereshit total 2,776) -- CITED, NOT RE-DERIVED.",
+          "verbatim_numbers": [
+            "ס\"ה ב' אלף תשע\"ו (2,776) -- per Mechanical Dataset Closure Pass, not re-verified independently this pass"
+          ]
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {
+          "note": "The Kaf->Lamed->Mem->Nun boundary sequence on pp.37-38 is CONFIRMED CLEAN by this batch's own independent read (no duplicate or misplaced drop-cap observed), consistent with (SUPPORTS) the Mechanical Closure Pass's own RESOLVED verdict on this exact question (its original Session-2/Session-5 'possible duplicate drop-cap' concern)."
+        }
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-02"
+      ],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PARTIAL -- SUPPORTS existing DS-02 closure, no new derivation",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 39,
+      "printed_page": "34 (Arabic numeral header, directly observed)",
+      "section": "letter_count_table_DS02_new_coverage",
+      "parasha": "letter_range: נ (Nun, tail into Shemot) -> ס (Samech, NEW) -> [ע Ayin, location uncertain] -> פ (Pe, NEW)",
+      "opening_anchor": "שכ\"ג. דברים רכ\"ג ואתחנן רמ\"ד עקב",
+      "closing_anchor": "חקת נ' בלק מ\"ר פנחס נ' מטות מ\"א מסעי",
+      "transcription_depth": "SOURCE_LOCATED -- NEW page-level coverage, not previously catalogued in this dossier at the letter-identity level",
+      "content_blocks": [
+        {
+          "block_id": "nun_tail_and_samech_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p39:nun_tail_and_samech_dataset_DS02",
+          "text_note": "Right column: tail of Nun's Devarim data and closing total (\"ס\"ה י\"א אלף רמ\"ח\"), then drop-cap ס (Samech) opens a full new letter-occurrence paragraph (\"בראשית ז' נח כ\"ט וירא ל\"ד...\"), running through Shemot/Vayikra/Bamidbar/Devarim data. NOT previously located at the page level by any prior session read this pass (the existing dossier's manifest describes only Zayin/p.36 and Kaf-Nun/pp.37-38 as individually re-verified DS-02 cells; Samech's own location was not previously pinned).",
+          "verbatim_numbers": [
+            "ס\"ה י\"א אלף רמ\"ח (Nun, Devarim-cumulative total, RAW READING, not independently re-verified this pass)"
+          ]
+        },
+        {
+          "block_id": "pe_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p39:pe_dataset_DS02",
+          "text_note": "Left column: drop-cap פ (Pe) opens a new letter-occurrence paragraph (\"בראשית ס\"א נח...\"). NEW page-level location, not previously catalogued."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-02"
+      ],
+      "unresolved_readings": [
+        {
+          "id": "P39-U1",
+          "text": "Letter ע (Ayin) is alphabetically required between Samech and Pe but no distinct drop-cap for it was confidently isolated on this page at the resolution used this pass -- most likely a short entry within the Samech paragraph's own column-flow, not independently confirmed. Flagged as an open structural gap, not silently skipped.",
+          "status": "UNCERTAIN"
+        },
+        {
+          "id": "P39-U2",
+          "text": "Per-parasha digit values within the new Samech and Pe paragraphs are RAW READING / SOURCE_LOCATED only this pass (not individually high-zoom verified per-cell, per the same truth-discipline the Mechanical Closure Pass applied to Aleph/Bet/Zayin) -- a full digit-perfect re-verification of Samech/Pe is a legitimate follow-up for a future high-zoom pass.",
+          "status": "UNCERTAIN"
+        }
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED (structure/drop-caps); SOURCE_LOCATED (per-cell digits)",
+      "research_extraction_status": "NEW_EXTRACTION -- first page-level location of Samech/Pe in this dossier",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 40,
+      "printed_page": "not independently re-captured this pass; dual-pagination pattern predicts a Hebrew-letter header (see dual_pagination_finding)",
+      "section": "letter_count_table_DS02_new_coverage",
+      "parasha": "letter_range: [צ Tzadi, location uncertain] -> ק (Kuf, NEW) -> ר (Resh, NEW)",
+      "opening_anchor": "פ\"ה שלח נ\"ד קרח קם\"ם חקת נ\"ט בלק כל\"ב",
+      "closing_anchor": "עקב עי\"ד ראה תע\"ד הבפ\"ר שופטים רע\"ר",
+      "transcription_depth": "SOURCE_LOCATED -- NEW page-level coverage",
+      "content_blocks": [
+        {
+          "block_id": "kuf_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p40:kuf_dataset_DS02",
+          "text_note": "Right column: tail of a preceding paragraph (candidate Tzadi, not confirmed) then drop-cap ק (Kuf) opens a full letter-occurrence paragraph (\"בראשית נ\"מ נח...\"). NEW page-level location."
+        },
+        {
+          "block_id": "resh_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p40:resh_dataset_DS02",
+          "text_note": "Left column: drop-cap ר (Resh) opens a full letter-occurrence paragraph (\"בראשית שנ\"א נח...\"), running through book subtotals. NEW page-level location."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-02"
+      ],
+      "unresolved_readings": [
+        {
+          "id": "P40-U1",
+          "text": "Letter צ (Tzadi) is alphabetically required between Pe (p.39) and Kuf (this page) but its own drop-cap was not confidently isolated this pass -- most likely the untitled tail content at the very top of this page's right column, before Kuf's drop-cap. Flagged as an open structural gap.",
+          "status": "UNCERTAIN"
+        },
+        {
+          "id": "P40-U2",
+          "text": "Per-parasha digit values within Kuf/Resh are RAW READING / SOURCE_LOCATED only this pass, not individually high-zoom verified.",
+          "status": "UNCERTAIN"
+        }
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED (structure/drop-caps); SOURCE_LOCATED (per-cell digits)",
+      "research_extraction_status": "NEW_EXTRACTION -- first page-level location of Kuf/Resh in this dossier",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 41,
+      "printed_page": "36 (Arabic numeral header, directly observed)",
+      "section": "letter_count_table_DS02_closes_then_DS03_DS04_summary_tables_open",
+      "parasha": "letter_range: ש (Shin, NEW) -> ת (Tav, NEW, FINAL letter of the 22-letter table) -- then NEW summary tables: תיבות התורה (Words of the Torah, candidate DS-03) and אותיות התורה (Letters of the Torah per-book summary, candidate DS-04, opens)",
+      "opening_anchor": "מ\"ז ולך ב\"ד האזינו כ\"ב ברכה ב\"ה",
+      "closing_anchor": "תקי\"ב. ס\"ה ע\"ם אלף תתקע\"ו: [divider] אותיות התורה. בראשית ז' אלף רל\"ה נח...",
+      "transcription_depth": "SOURCE_LOCATED for Shin/Tav (structure); VISUALLY_VERIFIED at 4x/600dpi zoom for the two closing grand-total lines (this batch's own major new finding)",
+      "content_blocks": [
+        {
+          "block_id": "shin_dataset_DS02",
+          "source_ref": "book:hebrewbooks:5635#p41:shin_dataset_DS02",
+          "text_note": "Right column: drop-cap ש (Shin) opens a full letter-occurrence paragraph (\"בראשית מ' וירא פ\"ו...\"). NEW page-level location."
+        },
+        {
+          "block_id": "tav_dataset_DS02_final_letter",
+          "source_ref": "book:hebrewbooks:5635#p41:tav_dataset_DS02_final_letter",
+          "text_note": "Left column: drop-cap ת (Tav) opens the table's FINAL letter-occurrence paragraph (\"בראשית שפ\"ח נח...\"), closing with its own Torah-wide total (\"ס\"ה [n\"] אלף תל\"ה:\"), and closing the entire 22-letter DS-02 table opened at p.35. This is the first time this dossier records the table's own alphabet-complete closing point.",
+          "verbatim_numbers": [
+            "ס\"ה נ' אלף תל\"ה -- RAW READING of Tav's own final total, not independently high-zoom re-verified this pass"
+          ]
+        },
+        {
+          "block_id": "divider_and_words_of_torah_header",
+          "source_ref": "book:hebrewbooks:5635#p41:divider_and_words_of_torah_header",
+          "text_note": "Horizontal squiggly-line divider immediately follows Tav's closing total. A NEW section then opens: bold header \"תיבות התורה.\" (Words of the Torah), with bold sub-header \"בראשית\" beginning a per-parasha (then per-book, cumulative) WORD-COUNT table for the whole Chumash. This table, and the \"אותיות התורה\" table immediately following it, are NOT named or page-pinned anywhere in the existing dossier's DOSSIER_INDEX.md/CROSSWALK.md/AHAVAT_TORAH_FULL_SOURCE_MAP.md read by this batch before starting -- this is this batch's principal NEW finding, offered as candidate identifications for the population figures already cited in passing elsewhere in this dossier as DS-03 (words) and DS-04 (letters)."
+        },
+        {
+          "block_id": "words_of_torah_table_body_RAW",
+          "source_ref": "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW",
+          "text_note": "RAW READING, right column then spilling into left column top (verbatim as printed, gershayim/numerals not individually re-normalized per parasha given the density and this batch's time budget -- per-cell digit-perfect re-verification is a legitimate high-zoom follow-up, matching the same caution the Mechanical Closure Pass applied to DS-02's own dense cells): \"בראשית אלף תתקל\"א נח אלף התמ\"א לך אלף הרפ\"ו אלף ב' וירא ב' אלף פ\"ה חיי שרה אלף ת\"ב תולדות אלף תל\"ב יצא ב' אלף בא וישלח אלף ההתקע\"ו. וישב אלף התקנ\"ח מקץ ב' אלף כ\"ב וינש אלף ת\"פ ויחי אלף קנ\"ח. ס\"ה ב' אלף תרי\"ב. שמות אלף תשמ\"ג וארא אלף תשכ\"ח בא אלף תרנ\"ה בשלח אלף תרפ\"א יתרו אלף ק\"ה משפטים אלף תס\"ב תרומה אלף קמ\"ה תצוה אלף תי\"ב תשא ב' אלף ב' ויקהל אלף תקנ\"ח פקודי אלף קפ\"ב. ס\"ה ל\"ז אלף שב\"ת. ויקרא אלף תרע\"נ צו אלף שנ\"ג שמיני אלף רל\"ח תזריע אלף י' מצורע אלף רע\"ד אחרי אלף ק\"ע קדושים תהם\"ח אמור אלף הרי\"ד בהר תשל\"ז בחוקותי ג' אלף התקצ\"ב. במדבר ז' אלף שצ\"נ נשא ... [continues through Bamidbar's parshiot to its own cumulative total, RAW READING captured but not transcribed letter-for-letter in this note; see the accompanying batch report for the full block] ... דברים אלף תקמ\"ח ואתחנן אלף תתע\"ח עקב אלף תשמ\"ז ראה אלף תתקל\"ב שופטים אלף תקב\"ב תצא הצא אלף התנ\"ה תבא אלף תקע\"ה נצבים אלף תשמ\"ז ... וילך תקי\"ב. ס\"ה ע\"ם אלף תתקע\"ו:\"",
+          "verbatim_numbers": [
+            "ס\"ה ב' אלף תרי\"ב (Bereshit book-subtotal, words = 2,612) -- isolated, low ambiguity",
+            "ס\"ה ע\"ם אלף תתקע\"ו (Torah-wide FINAL total, words = 110,976) -- VISUALLY_VERIFIED at 4x/600dpi zoom, glyph unambiguous (closed-box final-Mem, not Tet)"
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "table_id": "DS-03-CANDIDATE-WORDS-OF-TORAH",
+          "source_ref": "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW",
+          "description": "Per-parasha, then per-book cumulative, word-count table for the entire Chumash, titled \"תיבות התורה\". Candidate identification for the '79,976-word population frame' referenced in passing in this dossier's own prior artifacts (GPT Checkpoint 8, per AHAVAT_TORAH_SOURCE_MANIFEST_285.md §D) -- NOT previously page-pinned anywhere in the dossier before this batch.",
+          "rows": [
+            {
+              "book": "בראשית (Bereshit)",
+              "value_raw": "ב' אלף תרי\"ב",
+              "value_candidate": 2612,
+              "status": "SOURCE_LOCATED, low ambiguity"
+            },
+            {
+              "book": "שמות through דברים (intermediate cumulative subtotals)",
+              "value_raw": "RAW READING captured, not individually normalized this pass",
+              "value_candidate": null,
+              "status": "UNRESOLVED -- needs dedicated high-zoom digit reconciliation, same discipline as DS-02 Aleph/Bet"
+            },
+            {
+              "book": "TORAH-WIDE FINAL TOTAL",
+              "value_raw": "ע\"ם אלף תתקע\"ו",
+              "value_candidate": 110976,
+              "status": "VISUALLY_VERIFIED at 4x/600dpi -- CONTRADICTS the externally-cited 79,976 figure (GPT Checkpoint 8); NOT force-corrected, reported as a NEW cross-dataset contradiction matching the already-identified 'isolated impossible/anomalous large value' pattern (Mechanical Closure Pass section 8)"
+            }
+          ]
+        }
+      ],
+      "editorial_notes": [
+        {
+          "note": "This batch deliberately did NOT attempt to fully digit-normalize every intermediate per-book cumulative subtotal in the Words-of-Torah table (Shemot/Vayikra/Bamidbar cumulative lines) after an initial attempt produced an internally-inconsistent growth curve (a implausibly large jump attributed to Shemot alone) -- rather than force a reading, this is preserved as UNRESOLVED, consistent with this corpus's own established truth discipline (never let arithmetic force a glyph selection)."
+        }
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-02",
+        "DS-03"
+      ],
+      "unresolved_readings": [
+        {
+          "id": "P41-U1",
+          "text": "Tav's own closing Torah-wide total for DS-02 (\"ס\"ה נ' אלף תל\"ה\", RAW READING) was not independently high-zoom re-verified this pass.",
+          "status": "UNCERTAIN"
+        },
+        {
+          "id": "P41-U2",
+          "text": "The Words-of-Torah table's intermediate per-book cumulative subtotals (after Bereshit, before the final total) produced an internally-implausible growth curve on this batch's own RAW READING pass and were NOT force-resolved -- genuine open item for a future dedicated high-zoom pass.",
+          "status": "UNRESOLVED"
+        }
+      ],
+      "gpt_research_flags": [
+        {
+          "id": "GRF-P36_45-01",
+          "page": 41,
+          "block_ref": "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW",
+          "raw_source_anchor": "ס\"ה ע\"ם אלף תתקע\"ו",
+          "reason": "This source's own explicit, VISUALLY_VERIFIED Torah-wide word-count claim (110,976) does not match the externally-cited 79,976 figure (GPT Checkpoint 8's population frame) nor the standard Masoretic word count (~79,847). This is either a 4th instance of the already-identified 'isolated impossible/anomalous large value' pattern (Mechanical Closure Pass section 8: DS-02 Aleph-Vayikra, DS-02 Bet-Bereshit, DS-09/10 Esther) or evidence that the two cited '79,976' figures are not in fact citing THIS table. Flagged for GPT's cross-corpus reconciliation; not adjudicated here."
+        }
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED (grand totals); SOURCE_LOCATED (per-cell digits)",
+      "research_extraction_status": "NEW_EXTRACTION -- first page-level location of Shin/Tav and of the DS-03-candidate Words-of-Torah table anywhere in this dossier",
+      "confidence": "VISUALLY_VERIFIED (key totals); SOURCE_LOCATED (remainder)"
+    },
+    {
+      "pdf_page": 42,
+      "printed_page": "יט (19, Hebrew-letter folio header, directly observed)",
+      "section": "DS04_summary_table_continues_then_DS09_DS10_five_megillot_opens",
+      "parasha": "אותיות התורה (Letters of the Torah per-book summary, candidate DS-04) continues and closes; then אותיות חמש מגילות (Five Megillot letters, DS-09/DS-10) opens",
+      "opening_anchor": "תכ\"ו ויצא ז' אלף תקי\"ב וישלח ז' אלף הנ\"ם",
+      "closing_anchor": "אסתר שכ\"ח שיר השירים רפ\"א רות ת\"ל",
+      "transcription_depth": "SOURCE_LOCATED for the per-parasha body; VISUALLY_VERIFIED at 2x/600dpi zoom for the closing grand-total line",
+      "content_blocks": [
+        {
+          "block_id": "letters_of_torah_table_body_RAW",
+          "source_ref": "book:hebrewbooks:5635#p42:letters_of_torah_table_body_RAW",
+          "text_note": "RAW READING, right column then left column: continues the DS-04-candidate per-book LETTER-count table opened on p.41, through Shemot (\"שמות ה' אלף... וארא ו' אלף... ס\"ה קמ\"א אלף...\"), Vayikra (\"ויקרא ג' אלף צו ג' אלף שמיני ה' אלף רמ\"ג...\"), Bamidbar and Devarim, ending in the section's Torah-wide grand total.",
+          "verbatim_numbers": [
+            "ס\"ה ש\"ד אלף תתי[ב/כ] -- see dedicated table entry below for the digit-ambiguity finding"
+          ]
+        },
+        {
+          "block_id": "five_megillot_letters_table_opens_DS09",
+          "source_ref": "book:hebrewbooks:5635#p42:five_megillot_letters_table_opens_DS09",
+          "text_note": "After a squiggly divider, bold header \"אותיות חמש מגילות.\" (Letters of the Five Megillot) opens, with the first drop-cap row א giving five parallel per-megillah values (Esther/Shir HaShirim/Rut/Eicha/Kohelet), continuing with rows ב onward. This batch's own independent visual pass CONFIRMS (SUPPORTS) the Mechanical Dataset Closure Pass's own structural correction of DS-09/DS-10 (\"a multi-row matrix, not one-row-per-megillah\") by directly observing the sequential drop-cap row markers continuing from this page into p.43."
+        }
+      ],
+      "tables": [
+        {
+          "table_id": "DS-04-CANDIDATE-LETTERS-OF-TORAH-GRAND-TOTAL",
+          "source_ref": "book:hebrewbooks:5635#p42:letters_of_torah_table_body_RAW",
+          "description": "Torah-wide grand total closing the DS-04-candidate Letters-of-Torah per-book summary table. Directly re-zoomed at 2x/600dpi given its importance as a cross-check against the Mechanical Closure Pass's own passing citation of '~304,812' for what it called 'DS-04' (used there only as a comparison figure for why a Bet-Bereshit subtotal of 200,332 is logically impossible, without itself pinning this line's exact source_ref).",
+          "raw_reading": "ס\"ה ש\"ד אלף תתי\"כ  [last letter ambiguous between כ (kaf) and ב (bet) at this resolution]",
+          "candidate_values": [
+            {
+              "reading": "תתי\"כ (kaf)",
+              "value": 304830,
+              "note": "This batch's own independent glyph read leans toward this shape at 2x/600dpi."
+            },
+            {
+              "reading": "תתי\"ב (bet)",
+              "value": 304812,
+              "note": "Matches the Mechanical Closure Pass's own prior '~304,812' citation exactly, and is close to the standard traditional Torah letter-count (~304,805). SUPPORTS/corroborates the existing citation if this reading is correct."
+            }
+          ],
+          "status": "PARTIAL -- ARITHMETIC-DISAMBIGUATED CANDIDATE OFFERED, NOT FORCED, per this corpus's own established truth discipline (cf. Mechanical Closure Pass section 3, the Zayin ד/ר pattern). This is the FIRST time this exact total line has been given a precise #pN:block source_ref in this dossier."
+        }
+      ],
+      "editorial_notes": [
+        {
+          "note": "This page's grand total for DS-04 (304,812 or 304,830) is very close to both the Mechanical Closure Pass's own prior approximate citation (~304,812) and the standard Masoretic Torah letter-count (~304,805) -- unlike the Words-of-Torah table's own anomalous 110,976 finding on p.41, this table's totals appear internally SANE and CONSISTENT with external tradition, which is itself worth noting as a contrast (letters-table = plausible; words-table = anomalous)."
+        }
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-04",
+        "DS-09",
+        "DS-10"
+      ],
+      "unresolved_readings": [
+        {
+          "id": "P42-U1",
+          "text": "Final digit of the DS-04 grand total (\"תתי\"כ\" vs \"תתי\"ב\", 304,830 vs 304,812) not resolved beyond 2x/600dpi zoom -- a further high-zoom pass (matching the Mechanical Closure Pass's own 20x-60x method) is a legitimate follow-up.",
+          "status": "UNCERTAIN"
+        }
+      ],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED (grand total line, structure); SOURCE_LOCATED (per-cell digits)",
+      "research_extraction_status": "NEW_EXTRACTION -- first precise source_ref pin for the DS-04 grand total; SUPPORTS existing DS-09/DS-10 structural finding",
+      "confidence": "VISUALLY_VERIFIED (key total); SOURCE_LOCATED (remainder)"
+    },
+    {
+      "pdf_page": 43,
+      "printed_page": "38 (Arabic numeral header, directly observed -- see dual_pagination_finding for the break in the expected alternation)",
+      "section": "DS09_DS10_five_megillot_closes_then_unrelated_molad_calendrical_aside",
+      "parasha": "אותיות חמש מגילות (Five Megillot letters, DS-09) continues and closes with per-megillah totals; then תיבות (words) sub-section (DS-10) with per-megillah totals; then an UNRELATED short calendrical/molad aside; ends in a printer's ornament",
+      "opening_anchor": "אסתר שכ\"ב שיר השירים רפ\"א רות קמ\"ג",
+      "closing_anchor": "לו אלף רפ\"ח ודוק [printer's floral ornament]",
+      "transcription_depth": "SOURCE_LOCATED (row structure VISUALLY_VERIFIED; per-cell digits not individually re-verified)",
+      "content_blocks": [
+        {
+          "block_id": "five_megillot_letters_table_closes_DS09",
+          "source_ref": "book:hebrewbooks:5635#p43:five_megillot_letters_table_closes_DS09",
+          "text_note": "Right and left columns: the Five-Megillot LETTERS matrix continues with further drop-cap rows (ל,מ,נ,ס,ע,פ,צ,ק,ר,ש,ת visually confirmed in sequence -- a substantially longer row-count than a simple per-chapter alignment, further corroborating (SUPPORTS) the Closure Pass's 'multi-row matrix, row-unit meaning UNKNOWN' finding), closing with a per-megillah grand-total line for each of the five books (\"אסתר י\"ב אלף ... שיר השירים ... רות ... איכה ... קהלת ...\")."
+        },
+        {
+          "block_id": "five_megillot_words_table_DS10",
+          "source_ref": "book:hebrewbooks:5635#p43:five_megillot_words_table_DS10",
+          "text_note": "Left column, lower half: after a squiggly divider, bold header \"תיבות.\" (Words) opens a much shorter, single-paragraph-style word-count note for the Five Megillot (candidate DS-10), giving what appears to be a single aggregate figure rather than the full per-megillah row matrix used for letters -- structurally DIFFERENT from the letters sub-table above it, worth flagging for whoever next works DS-09/DS-10's own row-unit-meaning open question."
+        },
+        {
+          "block_id": "molad_calendrical_aside_UNRELATED",
+          "source_ref": "book:hebrewbooks:5635#p43:molad_calendrical_aside_UNRELATED",
+          "text_note": "Below the Five Megillot material, a short prose paragraph appears on an entirely DIFFERENT topic: a calendrical/molad-style time-division discussion (\"לכל חדש כ\"ם יום... זמן שתרצה... חלקים...\" -- dividing a fixed quantity into monthly/weekly portions, in the style of a gestation or molad (new-moon interval) calculation using 'chalakim' time-units). This is NOT a letter/word count and is NOT continuous with the DS-09/DS-10 material above it -- flagged as a genuinely NEW, previously-uncatalogued content type at this exact location, not integrated into any existing dataset.",
+          "verbatim_numbers": [
+            "candidate figures in the low-thousands range for a monthly/chalakim division, RAW READING only, not normalized this pass -- topic itself (molad/gestation-style calculation) is the finding, not a specific digit"
+          ]
+        },
+        {
+          "block_id": "part1_closing_ornament",
+          "source_ref": "book:hebrewbooks:5635#p43:part1_closing_ornament",
+          "text_note": "A printer's floral/decorative ornament (❧-style device) appears at the bottom of the page, immediately after the molad aside -- the same kind of device this dossier's own P91-99 batch already identified as marking the end of a book section (there, the end of the Five Megillot chidushim on p.38 of that batch's own printed numbering). Here it marks, together with p.44's \"חלק ב'\" title page immediately following, the STRUCTURAL CLOSE of Part 1 of the sefer's back matter (the entire numerical-appendix section opened at p.35: DS-02 letter table, candidate DS-03/DS-04 summary tables, DS-09/DS-10 Five Megillot tables) -- a boundary not previously located by any prior session in this dossier."
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {
+          "note": "The molad/calendrical aside on this page is explicitly preserved as its own, uncategorized content block rather than being force-fit into DS-09/DS-10 or any other existing dataset -- per this corpus's own preservation discipline (nothing is silently dropped or mis-filed to make a section look cleaner than it is)."
+        }
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [
+        "DS-09",
+        "DS-10"
+      ],
+      "unresolved_readings": [
+        {
+          "id": "P43-U1",
+          "text": "Per-megillah grand totals in the Letters (DS-09) and Words (DS-10) closing lines are RAW READING / SOURCE_LOCATED only this pass, not individually high-zoom verified.",
+          "status": "UNCERTAIN"
+        },
+        {
+          "id": "P43-U2",
+          "text": "The DS-09/DS-10 row-unit meaning (what a numbered row actually indexes -- not chapter number, per the Closure Pass's own already-established finding) remains OPEN; this batch's fuller row-count observation (rows continuing through at least ת) narrows but does not resolve it.",
+          "status": "OPEN"
+        },
+        {
+          "id": "P43-U3",
+          "text": "The molad/calendrical aside's specific numeric content (month-division / chalakim figures) is RAW READING only, not normalized -- a genuinely new, small, self-contained open item for a future pass, not urgent.",
+          "status": "UNCERTAIN"
+        }
+      ],
+      "gpt_research_flags": [
+        {
+          "id": "GRF-P36_45-02",
+          "page": 43,
+          "block_ref": "book:hebrewbooks:5635#p43:molad_calendrical_aside_UNRELATED",
+          "raw_source_anchor": "לכל חדש כ\"ם יום",
+          "reason": "A short calendrical/molad-style time-division paragraph appears here, thematically unrelated to the surrounding letter/word-count material and not previously catalogued anywhere in this dossier. Flagged for GPT's whole-book reconciliation to decide whether it belongs to a known theme elsewhere in the corpus or is a genuinely isolated aside."
+        }
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED (structure); SOURCE_LOCATED (per-cell digits)",
+      "research_extraction_status": "NEW_EXTRACTION -- Part-1 closing boundary located; new uncatalogued molad aside found; SUPPORTS existing DS-09/DS-10 structural finding",
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 44,
+      "printed_page": "no page number visible (title page)",
+      "section": "part2_divider",
+      "parasha": "N/A -- structural title page, not narrative/tabular content",
+      "opening_anchor": "חלק ב'",
+      "closing_anchor": "חלק ב'",
+      "transcription_depth": "VISUALLY_VERIFIED (page is a title page; entire visible content is the title itself)",
+      "content_blocks": [
+        {
+          "block_id": "part2_title_page",
+          "source_ref": "book:hebrewbooks:5635#p44:part2_title_page",
+          "text_note": "The entire visible page content is a single centered bold title: \"חלק ב'\" (\"Part Two\"). No other text, table, or illustration is present. This VISUALLY_VERIFIED, negative-but-structural finding pins the exact page where the sefer's back matter divides into Part One (the numerical-appendix material spanning at least pp.35-43, per this batch's own structural_placement finding above) and Part Two (beginning at or after p.45/46). Not previously located by any prior session in this dossier.",
+          "text_he": "חלק ב'"
+        }
+      ],
+      "tables": [],
+      "editorial_notes": [
+        {
+          "note": "This is a genuine negative/structural finding, not a coverage gap: the page is intentionally near-blank by the book's own design (a part-divider title page), confirmed by direct visual inspection, not inferred from a rendering failure."
+        }
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "NEW_EXTRACTION -- Part 2 boundary located, not previously catalogued",
+      "confidence": "VISUALLY_VERIFIED"
+    },
+    {
+      "pdf_page": 45,
+      "printed_page": "no page number visible (blank leaf)",
+      "section": "blank_leaf",
+      "parasha": "N/A -- blank page",
+      "opening_anchor": "(none -- page is blank)",
+      "closing_anchor": "(none -- page is blank)",
+      "transcription_depth": "VISUALLY_VERIFIED (page confirmed blank, not a rendering artifact)",
+      "content_blocks": [],
+      "tables": [],
+      "editorial_notes": [
+        {
+          "note": "This page is BLANK -- no printed text, table, or illustration of any kind was found, at 300dpi full-page render. This is a genuine negative finding, consistent with standard printer's practice of leaving the verso of a part-title leaf blank (p.44's 'חלק ב' recto is immediately followed by this blank verso). Confirmed by direct visual inspection at native resolution, not assumed from file size alone (though the rendered PNG's small file size, ~21-23KB vs ~110-220KB for text-bearing pages in this batch, is independently consistent with this finding)."
+        }
+      ],
+      "citations": [],
+      "main_passage_addendum_links": [],
+      "dataset_refs": [],
+      "unresolved_readings": [],
+      "gpt_research_flags": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "NEW_EXTRACTION -- negative finding (blank leaf), not previously catalogued",
+      "confidence": "VISUALLY_VERIFIED"
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45
+    ],
+    "pages_read_boundary_only_not_registered": [
+      35,
+      46
+    ],
+    "new_1820_or_1830_family_constructions_found": 0,
+    "note_on_negative_result": "No new 1,820-family or 1,830-family construction was found in pp.36-45. The batch's numeric material is entirely letter/word/Megillot-count tables and one unrelated molad aside.",
+    "letters_newly_page_pinned_this_batch": [
+      "ס (Samech, p.39)",
+      "פ (Pe, p.39)",
+      "ק (Kuf, p.40)",
+      "ר (Resh, p.40)",
+      "ש (Shin, p.41)",
+      "ת (Tav, p.41, FINAL letter of DS-02)"
+    ],
+    "letters_not_independently_pinned_this_batch": [
+      "ג (Gimel)",
+      "ו (Vav)",
+      "ח (Chet)",
+      "ט (Tet)",
+      "י (Yod)",
+      "ע (Ayin)",
+      "צ (Tzadi)"
+    ],
+    "ds02_status": "TAIL CLOSED this batch (Shin/Tav located; DS-02's 22-letter table is now known to run p.35 through p.41, alphabet-complete). Existing closed cells (Aleph/Bet p.35, Zayin p.36, Kaf/Lamed/Mem/Nun pp.37-38) CITED from AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md, NOT re-derived. New cells (Samech/Pe/Kuf/Resh/Shin/Tav, pp.39-41) recorded at SOURCE_LOCATED depth only (structure/drop-caps VISUALLY_VERIFIED; per-cell digits not high-zoom re-verified -- legitimate follow-up).",
+    "ds03_status": "NEW CANDIDATE IDENTIFICATION this batch: the 'תיבות התורה' (Words of the Torah) table, p.41, not previously page-pinned anywhere in this dossier. Bereshit subtotal (2,612) SOURCE_LOCATED; Torah-wide final total (110,976) VISUALLY_VERIFIED at 4x/600dpi and flagged as CONTRADICTING the externally-cited 79,976 figure -- reported as a new instance of the corpus's own already-identified 'isolated impossible/anomalous large value' pattern, NOT force-corrected.",
+    "ds04_status": "NEW precise source_ref pin this batch for the 'אותיות התורה' (Letters of the Torah per-book summary) table's Torah-wide grand total (pp.41-42): candidate 304,812 (matches the Mechanical Closure Pass's own prior approximate citation and the standard ~304,805 tradition) or 304,830 (this batch's own independent glyph lean) -- digit-level ambiguity (כ/ב) offered as an ARITHMETIC-DISAMBIGUATED CANDIDATE, not forced, per this corpus's established discipline.",
+    "ds09_ds10_status": "SUPPORTS (corroborates, does not re-derive) the Mechanical Closure Pass's existing structural correction ('multi-row matrix, not one-row-per-megillah') via direct visual confirmation of the row sequence continuing from p.42 into p.43. New observation: the Words (DS-10) sub-table appears structurally SHORTER/DIFFERENT in form from the Letters (DS-09) sub-table -- a single-paragraph aggregate rather than a full row matrix -- flagged for whoever next resolves DS-09/DS-10's row-unit-meaning open question.",
+    "new_extraction_not_previously_catalogued": "1) Precise page-level location of letters Samech/Pe/Kuf/Resh/Shin/Tav (pp.39-41), completing DS-02's own alphabet; 2) discovery and page-pinning of two previously-unlocated summary tables, candidate DS-03 (Words of the Torah, p.41) and a precise grand-total source_ref for DS-04 (Letters of the Torah, pp.41-42); 3) a new cross-dataset contradiction (DS-03's own 110,976 vs the externally-cited 79,976); 4) a previously-undocumented dual-pagination structural finding (alternating Arabic/Hebrew-letter folio headers); 5) a previously-uncatalogued, thematically unrelated molad/calendrical aside on p.43; 6) precise location of the Part 1 / Part 2 structural boundary (p.43 closing ornament -> p.44 'חלק ב' title page -> p.45 blank leaf) -- not previously located by any prior session in this dossier.",
+    "unresolved_readings_this_batch": 9,
+    "gpt_research_flags_this_batch": [
+      "GRF-P36_45-01",
+      "GRF-P36_45-02"
+    ],
+    "exact_resume_pointer": "PDF p.46 -- this batch's own scope ends at p.45 inclusive, per its ACK and the coordination memo (ac493139-86d8-46eb-bee4-fa7eedf61da5): pp.46-57 belong to a separate, disjoint P46_57 writer. This batch does NOT continue into p.46.",
+    "deferred_not_done_here": "One additive row each to DOSSIER_INDEX.md/CROSSWALK.md for this batch (per coordination memo: shared serial-integrator-only files, not touched by page-scoped writers); high-zoom (20x-60x) digit-perfect re-verification of the new Samech/Pe/Kuf/Resh/Shin/Tav DS-02 cells and the DS-03/DS-04 intermediate cumulative subtotals; resolution of the DS-03 110,976-vs-79,976 contradiction; resolution of the DS-04 304,812-vs-304,830 digit ambiguity; independent verification of the molad aside's specific figures.",
+    "handoff_to": "GPT/ZURIEL, for finite audit, per this batch's own STOP condition."
+  }
+}
