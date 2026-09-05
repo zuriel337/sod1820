@@ -8,8 +8,11 @@ import ShareActions from "../components/ShareActions.jsx";
 import {
   fetchBookEntities, fetchBookEntityBySlug, fetchBookResearch,
   bookToWorkspaceItem, researchRowToWorkspaceItem, pageFromSourceRef,
+  researchRowToBookRepresentation,
 } from "../lib/research/bookResearchProjection.js";
-import { selectionToWorkspaceItem, selectionRef, bookEntityRef } from "../lib/research/bookSelectionAdapter.js";
+import {
+  selectionToWorkspaceItem, selectionRef, bookEntityRef, dossierSelectionSourceRef,
+} from "../lib/research/bookSelectionAdapter.js";
 
 const STORAGE = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/";
 
@@ -127,13 +130,15 @@ const TABS = [
   // see BookSpatialView.jsx on gpt/book-research-context-spatial-v1, not carried onto this branch.
 ];
 
-// 📖 Book Phase B (work_log 88043a72) — generic documented-snapshot reader.
-// Fetches public/book-data/<slug>.tables.json (book-agnostic schema; a book with no
-// bundle yet returns 404 and the tab shows an honest empty-state, not an error).
+// Generic documented-snapshot reader. Public bundle remains an explicitly released
+// projection; private live research never backfills this path implicitly.
 const DOSSIER_SECTIONS = [
   ["datasets", "Datasets (DS)"],
   ["contradictions", "סתירות"],
   ["number_families", "משפחות מספרים"],
+  ["representations", "ייצוגים"],
+  ["procedures", "פרוצדורות"],
+  ["matrices", "מטריצות"],
 ];
 function useBookDossier(slug) {
   const [bundle, setBundle] = useState(null);
@@ -150,15 +155,70 @@ function useBookDossier(slug) {
   return bundle;
 }
 
-// 📖 Book Projection Experience Contract (work_log 49e92bf6/56ae06a7, PR#332 §8): typography
-// via semantic F roles only (no literal font-family), colors via usePalette() tokens only
-// (no agent-local palette) — both light and dark, theme-aware (research_clean surface mode).
-function style(P) { return `
-  .bk{max-width:1440px;margin:auto;padding:24px 18px 90px;direction:rtl;color:${P.inkSoft};font-family:${F.body}}.bk a{color:inherit}.bk-hero{padding:34px 0 22px;border-bottom:1px solid ${P.border}}.bk-eye{font-family:${F.ui};font-size:11px;letter-spacing:2px;color:${P.accent};font-weight:900}.bk h1{font-family:${F.display};color:${P.ink};font-size:clamp(42px,7vw,76px);line-height:1;margin:9px 0 12px}.bk-lead{color:${P.inkSoft};font-family:${F.body};line-height:1.8;max-width:950px}.bk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.bk-btn{font-family:${F.ui};border:1px solid ${P.border};background:${P.cardSoft};color:${P.accentText};border-radius:12px;padding:9px 13px;cursor:pointer;text-decoration:none;font-weight:700;font-size:13px}.bk-btn.on{background:${P.glow}}.bk-tabs{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:4;padding:10px 0;background:linear-gradient(${P.cardSoft} 72%,transparent)}.bk-tab{font-family:${F.ui};border:1px solid ${P.border};background:${P.card};color:${P.inkSoft};border-radius:999px;padding:7px 12px;cursor:pointer}.bk-tab.on{color:${P.accentText};border-color:${P.borderStrong};background:${P.glow}}.bk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.bk-card{border:1px solid ${P.border};border-radius:17px;background:${P.cardGrad};padding:16px}.bk-card b.big{font-family:${F.numeric};display:block;font-size:30px;color:${P.heroNum}}.bk-muted{color:${P.inkSoft};font-family:${F.body};font-size:12px}.bk-two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:14px}.bk-panel{border:1px solid ${P.border};border-radius:18px;background:${P.card};overflow:hidden}.bk-ph{font-family:${F.ui};padding:14px 16px;border-bottom:1px solid ${P.border};font-weight:900;color:${P.ink}}.bk-pb{padding:16px}.bk-row{padding:12px 0;border-bottom:1px solid ${P.border};line-height:1.6}.bk-row:last-child{border:0}.bk-pill{font-family:${F.ui};display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(139,92,246,.14);color:#a78bfa;font-size:10px;font-weight:800;margin:2px}.bk-ok{color:#4fae74}.bk-warn{color:${P.accentDim}}.bk-pdf{height:min(78vh,900px);background:${P.card}}.bk-pdf iframe{width:100%;height:100%;border:0;background:white}.bk-data{display:grid;grid-template-columns:90px 1.3fr 90px 110px 2fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid ${P.border};font-size:12px;font-family:${F.body}}.bk-data strong{font-family:${F.numeric};color:${P.accentText}}.bk-find{padding:13px;border:1px solid ${P.border};border-radius:14px;margin-bottom:9px;background:${P.cardSoft}}.bk-find h4{font-family:${F.ui};margin:0 0 7px;font-size:14px;color:${P.ink}}.bk-find-meta{display:flex;gap:5px;flex-wrap:wrap;color:${P.inkSoft};font-family:${F.ui};font-size:10px}.bk-layer{display:grid;grid-template-columns:150px 38px 1fr;align-items:center;margin:6px 0}.bk-layer-key{font-family:${F.ui};font-weight:900;color:${P.accentText}}.bk-arrow{text-align:center;color:${P.accentDim};font-size:20px}.bk-layer-box{border:1px solid ${P.border};border-radius:13px;padding:12px;background:${P.card};color:${P.inkSoft};font-family:${F.body};line-height:1.55}.bk-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}.bk-book{display:block;text-decoration:none;min-height:270px;padding:22px;border:1px solid ${P.border};border-radius:22px;background:${P.cardGrad}}.bk-book h2{font-family:${F.display};color:${P.ink};font-size:34px;margin:8px 0}.bk-empty{text-align:center;padding:60px 20px;color:${P.inkSoft};font-family:${F.body}}.bk-section-title{font-family:${F.ui};color:${P.ink};font-size:28px;margin:26px 0 12px}.bk-notice{font-family:${F.body};border:1px dashed ${P.border};background:${P.cardSoft};padding:13px;border-radius:14px;color:${P.inkSoft};line-height:1.65}.bk-open li{margin:7px 0;color:${P.inkSoft};font-family:${F.body}}.bk-idgrid{display:grid;grid-template-columns:150px 1fr;gap:0;font-family:${F.body}}.bk-idgrid>div{padding:10px;border-bottom:1px solid ${P.border}}.bk-idgrid>div:nth-child(odd){color:${P.accentText};font-weight:800}.bk-code{direction:ltr;text-align:left;font-family:${F.numeric};font-size:11px;color:${P.inkSoft};overflow-wrap:anywhere}@media(max-width:900px){.bk-grid{grid-template-columns:repeat(2,1fr)}.bk-two,.bk-index{grid-template-columns:1fr}.bk-data{grid-template-columns:70px 1fr}.bk-data>*:nth-child(n+3){grid-column:2}.bk-layer{grid-template-columns:1fr}.bk-arrow{transform:rotate(90deg)}.bk-pdf{height:68vh}}` }
+function dossierIdKey(section, row) {
+  const preferred = {
+    datasets: "dataset_id",
+    contradictions: "id",
+    number_families: "n",
+    representations: "representation_id",
+    procedures: "procedure_id",
+    matrices: "matrix_id",
+  }[section];
+  if (preferred && row?.[preferred] != null) return preferred;
+  return ["dataset_id", "representation_id", "procedure_id", "matrix_id", "id", "n", "key", "slug"].find(k => row?.[k] != null) || null;
+}
 
-function TruthPill({ row }) {
-  const txt = row?.engine_verified ? "ENGINE VERIFIED" : (row?.status || "candidate").toUpperCase();
-  return <span className="bk-pill" style={row?.engine_verified ? { color:'#4fae74',background:'rgba(79,174,116,.14)' } : null}>{txt}</span>;
+function dossierLabel(row, idKey) {
+  return row?.population || row?.conflict || row?.construction || row?.title || row?.label || (idKey ? String(row?.[idKey]) : "בחירה");
+}
+
+// 📖 Book Projection Experience Contract: semantic typography/palette only.
+function style(P) { return `
+  .bk{max-width:1440px;margin:auto;padding:24px 18px 90px;direction:rtl;color:${P.inkSoft};font-family:${F.body}}.bk a{color:inherit}.bk-hero{padding:34px 0 22px;border-bottom:1px solid ${P.border}}.bk-eye{font-family:${F.ui};font-size:11px;letter-spacing:2px;color:${P.accent};font-weight:900}.bk h1{font-family:${F.display};color:${P.ink};font-size:clamp(42px,7vw,76px);line-height:1;margin:9px 0 12px}.bk-lead{color:${P.inkSoft};font-family:${F.body};line-height:1.8;max-width:950px}.bk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.bk-btn{font-family:${F.ui};border:1px solid ${P.border};background:${P.cardSoft};color:${P.accentText};border-radius:12px;padding:9px 13px;cursor:pointer;text-decoration:none;font-weight:700;font-size:13px}.bk-btn.on{background:${P.glow}}.bk-btn:disabled{opacity:.55;cursor:not-allowed}.bk-tabs{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:4;padding:10px 0;background:linear-gradient(${P.cardSoft} 72%,transparent)}.bk-tab{font-family:${F.ui};border:1px solid ${P.border};background:${P.card};color:${P.inkSoft};border-radius:999px;padding:7px 12px;cursor:pointer}.bk-tab.on{color:${P.accentText};border-color:${P.borderStrong};background:${P.glow}}.bk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.bk-card{border:1px solid ${P.border};border-radius:17px;background:${P.cardGrad};padding:16px}.bk-card b.big{font-family:${F.numeric};display:block;font-size:30px;color:${P.heroNum}}.bk-muted{color:${P.inkSoft};font-family:${F.body};font-size:12px}.bk-two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:14px}.bk-panel{border:1px solid ${P.border};border-radius:18px;background:${P.card};overflow:hidden}.bk-ph{font-family:${F.ui};padding:14px 16px;border-bottom:1px solid ${P.border};font-weight:900;color:${P.ink}}.bk-pb{padding:16px}.bk-row{padding:12px 0;border-bottom:1px solid ${P.border};line-height:1.6}.bk-row:last-child{border:0}.bk-pill{font-family:${F.ui};display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(139,92,246,.14);color:#a78bfa;font-size:10px;font-weight:800;margin:2px}.bk-ok{color:#4fae74}.bk-warn{color:${P.accentDim}}.bk-pdf{height:min(78vh,900px);background:${P.card}}.bk-pdf iframe{width:100%;height:100%;border:0;background:white}.bk-data{display:grid;grid-template-columns:90px 1.3fr 90px 110px 2fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid ${P.border};font-size:12px;font-family:${F.body}}.bk-data strong{font-family:${F.numeric};color:${P.accentText}}.bk-find{padding:13px;border:1px solid ${P.border};border-radius:14px;margin-bottom:9px;background:${P.cardSoft}}.bk-find.active{border-color:${P.borderStrong};box-shadow:0 0 0 1px ${P.borderStrong}}.bk-find h4{font-family:${F.ui};margin:0 0 7px;font-size:14px;color:${P.ink}}.bk-find-meta{display:flex;gap:5px;flex-wrap:wrap;color:${P.inkSoft};font-family:${F.ui};font-size:10px}.bk-rep{margin-top:10px;padding:10px;border:1px dashed ${P.border};border-radius:12px;overflow:auto}.bk-matrix{display:grid;gap:4px;min-width:max-content}.bk-matrix-row{display:flex;gap:4px}.bk-matrix-cell{min-width:42px;padding:5px 7px;border:1px solid ${P.border};border-radius:7px;text-align:center}.bk-rep ol,.bk-rep ul{margin:6px 0;padding-inline-start:22px}.bk-layer{display:grid;grid-template-columns:150px 38px 1fr;align-items:center;margin:6px 0}.bk-layer-key{font-family:${F.ui};font-weight:900;color:${P.accentText}}.bk-arrow{text-align:center;color:${P.accentDim};font-size:20px}.bk-layer-box{border:1px solid ${P.border};border-radius:13px;padding:12px;background:${P.card};color:${P.inkSoft};font-family:${F.body};line-height:1.55}.bk-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}.bk-book{display:block;text-decoration:none;min-height:270px;padding:22px;border:1px solid ${P.border};border-radius:22px;background:${P.cardGrad}}.bk-book h2{font-family:${F.display};color:${P.ink};font-size:34px;margin:8px 0}.bk-empty{text-align:center;padding:60px 20px;color:${P.inkSoft};font-family:${F.body}}.bk-section-title{font-family:${F.ui};color:${P.ink};font-size:28px;margin:26px 0 12px}.bk-notice{font-family:${F.body};border:1px dashed ${P.border};background:${P.cardSoft};padding:13px;border-radius:14px;color:${P.inkSoft};line-height:1.65}.bk-open li{margin:7px 0;color:${P.inkSoft};font-family:${F.body}}.bk-idgrid{display:grid;grid-template-columns:150px 1fr;gap:0;font-family:${F.body}}.bk-idgrid>div{padding:10px;border-bottom:1px solid ${P.border}}.bk-idgrid>div:nth-child(odd){color:${P.accentText};font-weight:800}.bk-code{direction:ltr;text-align:left;font-family:${F.numeric};font-size:11px;color:${P.inkSoft};overflow-wrap:anywhere}@media(max-width:900px){.bk-grid{grid-template-columns:repeat(2,1fr)}.bk-two,.bk-index{grid-template-columns:1fr}.bk-data{grid-template-columns:70px 1fr}.bk-data>*:nth-child(n+3){grid-column:2}.bk-layer{grid-template-columns:1fr}.bk-arrow{transform:rotate(90deg)}.bk-pdf{height:68vh}}` }
+
+function TruthPills({ row, representation }) {
+  const status = String(row?.status || "candidate").toUpperCase();
+  return <>
+    <span className="bk-pill">GOV · {status}</span>
+    {row?.engine_verified === true && <span className="bk-pill">ENGINE · VERIFIED</span>}
+    {row?.engine_verified === false && <span className="bk-pill">ENGINE · NOT VERIFIED</span>}
+    {representation?.engineVerificationState && <span className="bk-pill">ENGINE STATE · {String(representation.engineVerificationState)}</span>}
+    {representation?.witnessState && <span className="bk-pill">WITNESS · {String(representation.witnessState)}</span>}
+    {row?.privacy_scope && <span className="bk-pill">ACCESS · {String(row.privacy_scope).toUpperCase()}</span>}
+  </>;
+}
+
+function shortPiece(value) {
+  if (value == null) return "—";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+  try { return JSON.stringify(value); } catch { return String(value); }
+}
+
+function RepresentationPreview({ representation }) {
+  if (!representation) return null;
+  if (representation.shape === "matrix" && representation.matrix.length) {
+    return <div className="bk-rep"><div className="bk-muted">MATRIX · bounded preview</div><div className="bk-matrix">{representation.matrix.slice(0,8).map((r,i) => <div className="bk-matrix-row" key={i}>{(Array.isArray(r)?r:[r]).slice(0,12).map((cell,j) => <div className="bk-matrix-cell" key={j}>{shortPiece(cell)}</div>)}</div>)}</div></div>;
+  }
+  if (representation.shape === "procedure" && representation.steps.length) {
+    return <div className="bk-rep"><div className="bk-muted">PROCEDURE · bounded preview</div><ol>{representation.steps.slice(0,8).map((step,i) => <li key={i}>{shortPiece(step)}</li>)}</ol></div>;
+  }
+  if (representation.shape === "composition") {
+    const items = representation.generated.length ? representation.generated
+      : representation.composition.length ? representation.composition
+        : representation.generatorCandidate ? [representation.generatorCandidate] : [];
+    if (items.length) return <div className="bk-rep"><div className="bk-muted">COMPOSITION / GENERATION · bounded preview</div><ul>{items.slice(0,12).map((x,i) => <li key={i}>{shortPiece(x)}</li>)}</ul></div>;
+  }
+  if (representation.shape === "spatial" && representation.dimensions.length) {
+    return <div className="bk-rep"><div className="bk-muted">SPATIAL / DIMENSIONS · bounded preview</div>{representation.dimensions.slice(0,12).map((x,i) => <span className="bk-pill" key={i}>{shortPiece(x)}</span>)}</div>;
+  }
+  if (representation.shape === "grammar" && representation.grammar) {
+    const grammar = Array.isArray(representation.grammar) ? representation.grammar : [representation.grammar];
+    return <div className="bk-rep"><div className="bk-muted">RESEARCH GRAMMAR · bounded preview</div><ul>{grammar.slice(0,8).map((x,i) => <li key={i}>{shortPiece(x)}</li>)}</ul></div>;
+  }
+  if (representation.shape === "terms" && representation.terms.length) {
+    return <div className="bk-rep"><div className="bk-muted">TERMS / REPRESENTATION</div>{representation.terms.slice(0,12).map((x,i) => <span className="bk-pill" key={i}>{shortPiece(x)}</span>)}</div>;
+  }
+  return null;
 }
 
 function IndexView({ books, loading }) {
@@ -180,9 +240,19 @@ export default function BookHubPage() {
   const { addToResearch, togglePin, isPinned, enterDiscovery } = useResearch();
   const snap = slug ? SNAPSHOTS[slug] : null;
   const page = Number(qs.get("page") || 1) || 1;
+  const activeSelectionRef = qs.get("selection") || "";
+  const activeResearchId = qs.get("research") || "";
   const dossier = useBookDossier(slug);
+  // Exact-reopen focus id: a deep link (?research=<id>) must resolve even when that row
+  // has aged outside the default bounded batch — see fetchBookResearch({ focusId }).
+  const focusResearchId = activeResearchId;
 
   useEffect(() => { setTab(qs.get("tab") || (slug ? "overview" : "index")); }, [slug, qs]);
+  useEffect(() => {
+    if (!dossier) return;
+    const available = DOSSIER_SECTIONS.filter(([k]) => Array.isArray(dossier[k]) && dossier[k].length).map(([k]) => k);
+    if (available.length && !available.includes(dossierSection)) setDossierSection(available[0]);
+  }, [dossier, dossierSection]);
   useEffect(() => {
     let alive=true; setLoading(true); setError("");
     if (!slug) {
@@ -192,11 +262,11 @@ export default function BookHubPage() {
     fetchBookEntityBySlug(slug).then(async b => {
       if (!alive) return; setBook(b);
       if (!b) return;
-      const r = await fetchBookResearch(b).catch(e => ({ rows:[],findings:[],restricted:true,summary:{total:0,pages:[]},error:e }));
+      const r = await fetchBookResearch(b, { focusId: focusResearchId }).catch(e => ({ rows:[],findings:[],restricted:true,truncated:false,focusIncluded:false,summary:{total:0,pages:[]},error:e }));
       if (alive) setResearch(r);
     }).catch(e => { if(alive) setError(e.message); }).finally(() => { if(alive) setLoading(false); });
     return () => { alive=false; };
-  }, [slug]);
+  }, [slug, focusResearchId]);
 
   useEffect(() => {
     const title = slug && book ? `${book.label} — ספר ומחקר` : "ספרים ומקורות";
@@ -208,21 +278,22 @@ export default function BookHubPage() {
   const goTab = t => { setTab(t); const n=new URLSearchParams(qs); n.set("tab",t); setQs(n,{replace:true}); };
   const goPage = p => { const n=new URLSearchParams(qs); n.set("page",String(p)); n.set("tab","source"); setQs(n); setTab("source"); };
   const addBook = () => { if(workspaceItem){ addToResearch(workspaceItem); enterDiscovery?.(); } };
-  // 📖 Phase B: one exact dossier row -> a distinct, reproducible Workspace selection
-  // (never the book's own ref — see bookSelectionAdapter.js). Row shapes vary per
-  // section (datasets/contradictions/number_families all differ) so we normalize a
-  // stable id + source_ref-style locator here before handing off to the adapter.
   const addSelection = (row, idKey) => {
     if (!book || !row) return;
-    const rowId = String(row[idKey] ?? "");
-    const pdfPage = Array.isArray(row.pdf_pages) ? row.pdf_pages[0] : row.pdf_pages;
-    const sourceRef = `book:hebrewbooks:5635#p${pdfPage ?? "0"}:${rowId}`;
+    const sourceRef = dossierSelectionSourceRef(book, row, idKey);
+    if (!sourceRef) return;
     const selection = {
       source_ref: sourceRef,
-      title: row.population || row.conflict || row.construction || rowId,
-      status: row.status || null,
+      title: dossierLabel(row, idKey),
+      status: row.status ?? null,
       confidence: row.confidence ?? null,
       truth_class: row.truth_class ?? null,
+      engine_verified: row.engine_verified,
+      engine_detail: row.engine_detail,
+      privacy_scope: row.privacy_scope ?? null,
+      publication_state: row.publication_state ?? null,
+      witness_state: row.witness_state ?? row.exact_witness_state ?? null,
+      representation_shape: row.representation_shape ?? null,
     };
     const item = selectionToWorkspaceItem(book, selection);
     if (!item) return;
@@ -243,10 +314,7 @@ export default function BookHubPage() {
       <Link to="/book" className="bk-eye" style={{textDecoration:'none'}}>← ספרים ומקורות</Link>
       <div className="bk-eye" style={{marginTop:10}}>{snap.eyebrow}</div><h1>{book.label}</h1><div className="bk-lead">{snap.subtitle}<br/>{snap.promise}</div>
       <div className="bk-actions"><button className="bk-btn" onClick={addBook}>➕ למחקר</button><button className={`bk-btn ${pinned?'on':''}`} onClick={() => workspaceItem && togglePin(workspaceItem)}>{pinned?'📌 מוצמד':'📌 הצמד'}</button><a className="bk-btn" href={snap.pdf} target="_blank" rel="noreferrer">פתח PDF ↗</a><span className="bk-btn" style={{cursor:'default'}}>🧭 {book.identity_key}</span>
-        {/* 🔗 שיתוף קונטקסטואלי-מפורש-בלבד (research_clean — אין chrome אוטומטי): הכפתור הזה,
-            לא מנגנון-אוטומטי, הוא הדרך היחידה לשתף מ-Book Hub. יעד ברירת-מחדל = כתובת-הדף
-            הנוכחית = /book/:slug הקנוני. force=true כי הווידג'ט-הצף מוסתר כאן (share.js). */}
-        <ShareActions type="book" title={book.label} compact force style={{ display: "inline-flex" }} />
+        <ShareActions type="book" url={`/book/${slug}`} title={book.label} compact force style={{ display: "inline-flex" }} />
       </div>
     </div>
     <div className="bk-tabs">{TABS.map(([k,l]) => <button className={`bk-tab ${tab===k?'on':''}`} key={k} onClick={() => goTab(k)}>{l}</button>)}</div>
@@ -255,7 +323,7 @@ export default function BookHubPage() {
       <div className="bk-grid">{snap.metrics.map(([v,l,n]) => <div className="bk-card" key={l}><b className="big">{v}</b><div>{l}</div><div className="bk-muted">{n}</div></div>)}</div>
       <div className="bk-two">
         <section className="bk-panel"><div className="bk-ph">מפת Coverage — לא אחוז מזויף אחד</div><div className="bk-pb">{snap.coverage.map(x => <div className="bk-row" key={x.label}><b>{x.label} · <span className="bk-warn">{x.value}</span></b><div className="bk-muted">{x.note}</div></div>)}</div></section>
-        <section className="bk-panel"><div className="bk-ph">Research OS · live</div><div className="bk-pb"><div className="bk-row"><b>Book node</b><div className="bk-code">{book.id}</div></div><div className="bk-row"><b>Research Objects readable now</b><span className="bk-ok">{summary.total || 0}</span>{research?.restricted && <div className="bk-muted">השכבה המלאה מוגנת ב־RLS; הציבור לא מקבל private research.</div>}</div><div className="bk-row"><b>עמודים עם research_object קריא</b><div>{livePages.length ? livePages.join(' · ') : '—'}</div></div><div className="bk-row"><b>3D contract</b><div>אותו Research State · canonical_coordinates=false</div></div></div></section>
+        <section className="bk-panel"><div className="bk-ph">Research OS · live</div><div className="bk-pb"><div className="bk-row"><b>Book node</b><div className="bk-code">{book.id}</div></div><div className="bk-row"><b>Research Objects loaded now</b><span className="bk-ok">{summary.total || 0}</span>{research?.restricted && <div className="bk-muted">השכבה המלאה מוגנת ב־RLS; הציבור לא מקבל private research.</div>}{research?.truncated && <div className="bk-muted">תצוגה מוגבלת במכוון; ה־Book Hub אינו מוריד את כל קורפוס המחקר ללקוח.</div>}</div><div className="bk-row"><b>עמודים בבאצ׳ הקריא הנוכחי</b><div>{livePages.length ? livePages.join(' · ') : '—'}</div></div><div className="bk-row"><b>3D contract</b><div>אותו Research State · canonical_coordinates=false</div></div></div></section>
       </div>
       <h2 className="bk-section-title">זהות המקור — שבע שכבות שאינן מתמזגות</h2>
       <div className="bk-panel"><div className="bk-pb bk-idgrid"><div>Book</div><div className="bk-code">{book.identity_key}</div><div>Edition</div><div>{tiers.edition?.status || 'not specified'}</div><div>Witness</div><div className="bk-code">{tiers.witness?.identity || '—'} · {tiers.witness?.provider} {tiers.witness?.native_id}</div><div>Digital Object</div><div className="bk-code">{tiers.digital_object?.bucket}/{tiers.digital_object?.path}</div><div>Page/Region Locator</div><div className="bk-code">{tiers.locator?.pattern}</div><div>Authority</div><div>מוקצה question-by-question דרך provenance; Witness identity ≠ authority.</div></div></div>
@@ -268,10 +336,23 @@ export default function BookHubPage() {
       <aside className="bk-panel"><div className="bk-ph">עמודים מתוך המחקר החי</div><div className="bk-pb">{livePages.length ? livePages.map(p => <button className="bk-btn" key={p} onClick={() => goPage(p)} style={{margin:3}}>{p}</button>) : <div className="bk-notice">למשתמש הנוכחי אין שכבת research_objects קריאה או שעדיין אין rows עם page locator. ה־PDF עצמו נשאר זמין.</div>}<div className="bk-row"><b>Locator contract</b><div className="bk-code">{tiers.locator?.pattern}</div></div><div className="bk-row"><b>Digital Object ≠ Book</b><div className="bk-muted">הקובץ הוא עד/אובייקט דיגיטלי. זהות הספר נשארת {book.identity_key}.</div></div></div></aside>
     </div>}
 
-    {tab === "research" && <section id="research" className="bk-panel"><div className="bk-ph">Research Objects לפי source_ref · {summary.total || 0}</div><div className="bk-pb">
-      {research?.restricted && <div className="bk-notice">המחקר המלא מוגן: `research_objects` אינו public feed. אם אתה מחובר כאדמין, ה־RLS הקיים מאפשר את השכבה; לציבור נשארת רק Projection מאושרת/מסוכמת.</div>}
+    {tab === "research" && <section id="research" className="bk-panel"><div className="bk-ph">Research Objects · תצוגה מוגבלת לפי source_ref · {summary.total || 0}</div><div className="bk-pb">
+      {research?.restricted && <div className="bk-notice">המחקר המלא מוגן: `research_objects` אינו public feed. reader קיים + RLS קיים קובעים מה מותר לקרוא; אין fallback ל־public JSON.</div>}
+      {research?.truncated && <div className="bk-notice">יש עוד חומר מורשה מעבר לבאצ׳ הנוכחי. הוא לא יורד כולו ללקוח; הרחבה עתידית תהיה pagination/ranking על אותו contract.</div>}
       {!research?.restricted && !liveRows.length && <div className="bk-empty">אין Research Objects קריאים עבור source_ref של הספר.</div>}
-      {liveRows.map(row => { const p=pageFromSourceRef(row.source_ref); const item=researchRowToWorkspaceItem(row,book); return <div className="bk-find" key={row.id}><h4>{row.statement || row.kind || 'Research Object'}</h4><div className="bk-find-meta"><TruthPill row={row}/>{row.kind && <span className="bk-pill">{row.kind}</span>}{p && <button className="bk-pill" onClick={() => goPage(p)} style={{border:0,cursor:'pointer'}}>p{p}</button>}{row.value != null && <span className="bk-pill">value {row.value}</span>}{row.confidence != null && <span className="bk-pill">confidence {row.confidence}</span>}</div><div className="bk-code" style={{marginTop:7}}>{row.source_ref}</div><div className="bk-actions"><button className="bk-btn" onClick={() => addToResearch(item)}>➕ למחקר</button>{p && <button className="bk-btn" onClick={() => goPage(p)}>פתח מקור בעמוד {p}</button>}</div></div> })}
+      {liveRows.map(row => {
+        const p=pageFromSourceRef(row.source_ref);
+        const item=researchRowToWorkspaceItem(row,book);
+        const representation=researchRowToBookRepresentation(row);
+        const active=String(row.id)===activeResearchId;
+        return <div className={`bk-find ${active?'active':''}`} id={active?'research-selection':undefined} key={row.id}>
+          <h4>{row.statement || row.kind || 'Research Object'}</h4>
+          <div className="bk-find-meta"><TruthPills row={row} representation={representation}/>{row.kind && <span className="bk-pill">{row.kind}</span>}<span className="bk-pill">SHAPE · {representation.shape}</span>{p && <button className="bk-pill" onClick={() => goPage(p)} style={{border:0,cursor:'pointer'}}>p{p}</button>}{row.value != null && <span className="bk-pill">value {row.value}</span>}{row.confidence != null && <span className="bk-pill">confidence {row.confidence}</span>}</div>
+          <div className="bk-code" style={{marginTop:7}}>{row.source_ref}</div>
+          <RepresentationPreview representation={representation}/>
+          <div className="bk-actions"><button className="bk-btn" onClick={() => addToResearch(item)}>➕ למחקר</button>{p && <button className="bk-btn" onClick={() => goPage(p)}>פתח מקור בעמוד {p}</button>}</div>
+        </div>;
+      })}
     </div></section>}
 
     {tab === "structure" && <>
@@ -280,20 +361,23 @@ export default function BookHubPage() {
     </>}
 
     {tab === "dossier" && <>
-      <div className="bk-notice">קורא את `public/book-data/{slug}.tables.json` — הדוסייה-המתועדת מ-git (documented snapshot, ר' Master State §23.30 — עשוי לפגר אחרי מחקר-המקור החי, ר' PR#285/AHAVAT_TORAH_SOURCE_MANIFEST_285.md למצב-עדכני). נפרד מ-`research_objects` החי בטאב "המחקר". שמירת-שורה יוצרת בחירת-מקור נבדלת, לא-דורסת את שמירת-הספר-עצמו.</div>
-      {dossier === null && <div className="bk-empty">אין עדיין דוסייה-מתועדת לספר הזה — התבנית מוכנה, ממתינה לנתונים (ר' ספר-הפליאה).</div>}
+      <div className="bk-notice">קורא רק `public/book-data/{slug}.tables.json` אם קיים bundle ציבורי מפורש. זה snapshot מתועד ונפרד מה־reader המוגן של `research_objects`; private/candidate research לעולם אינו ממלא את ה־bundle הזה אוטומטית. שמירת שורה נגזרת מזהות ה־Book/Witness בפועל — לא ממספר ספר קשיח.</div>
+      {dossier === null && <div className="bk-empty">אין לספר הזה דוסייה ציבורית/מתועדת ששוחררה. זה מצב תקין: מחקר פרטי נשאר פרטי ולא מיוצא כדי למלא את המסך.</div>}
       {dossier && <>
         <div className="bk-tabs" style={{position:'static',marginTop:14}}>{DOSSIER_SECTIONS.filter(([k]) => Array.isArray(dossier[k]) && dossier[k].length).map(([k,l]) => <button className={`bk-tab ${dossierSection===k?'on':''}`} key={k} onClick={() => setDossierSection(k)}>{l}</button>)}</div>
         <div className="bk-panel" style={{marginTop:14}}><div className="bk-ph">{DOSSIER_SECTIONS.find(([k]) => k===dossierSection)?.[1] || dossierSection} · {(dossier[dossierSection] || []).length}</div>
           <div className="bk-pb">{(dossier[dossierSection] || []).map((row, i) => {
-            const idKey = dossierSection === "datasets" ? "dataset_id" : dossierSection === "contradictions" ? "id" : "n";
-            const label = row.population || row.conflict || row.construction || String(row[idKey]);
-            const pending = (() => { const p=Array.isArray(row.pdf_pages)?row.pdf_pages[0]:row.pdf_pages; return selectionRef({ bookIdentityKey: bookEntityRef(book), sourceRef: `book:hebrewbooks:5635#p${p??"0"}:${row[idKey]}` }); })();
-            const already = savedSelections.has(pending);
-            return <div className="bk-find" key={row[idKey] ?? i}>
-              <h4>{String(row[idKey])} · {label}</h4>
-              <div className="bk-find-meta">{row.status && <span className="bk-pill">{row.status}</span>}{row.confidence != null && <span className="bk-pill">confidence {row.confidence}</span>}{row.delta && <span className="bk-pill">Δ {row.delta}</span>}</div>
-              <div className="bk-actions"><button className="bk-btn" onClick={() => addSelection(row, idKey)}>{already ? "✓ נשמר לבחירה" : "➕ שמור בחירה זו"}</button></div>
+            const idKey = dossierIdKey(dossierSection, row);
+            const sourceRef = dossierSelectionSourceRef(book, row, idKey);
+            const pending = sourceRef ? selectionRef({ bookIdentityKey: bookEntityRef(book), sourceRef }) : null;
+            const already = pending ? savedSelections.has(pending) : false;
+            const active = pending && pending === activeSelectionRef;
+            const label = dossierLabel(row, idKey);
+            return <div className={`bk-find ${active?'active':''}`} id={active?'selection':undefined} key={idKey ? row[idKey] : i}>
+              <h4>{idKey ? String(row[idKey]) : '—'} · {label}</h4>
+              <div className="bk-find-meta">{row.status && <span className="bk-pill">GOV · {row.status}</span>}{row.engine_verified === true && <span className="bk-pill">ENGINE · VERIFIED</span>}{(row.witness_state || row.exact_witness_state) && <span className="bk-pill">WITNESS · {row.witness_state || row.exact_witness_state}</span>}{row.privacy_scope && <span className="bk-pill">ACCESS · {row.privacy_scope}</span>}{row.confidence != null && <span className="bk-pill">confidence {row.confidence}</span>}{row.delta && <span className="bk-pill">Δ {row.delta}</span>}</div>
+              {sourceRef && <div className="bk-code" style={{marginTop:7}}>{sourceRef}</div>}
+              <div className="bk-actions"><button className="bk-btn" disabled={!sourceRef} onClick={() => addSelection(row, idKey)}>{!sourceRef ? "אין locator יציב" : already ? "✓ נשמר לבחירה" : "➕ שמור בחירה זו"}</button></div>
             </div>;
           })}</div>
         </div>
@@ -308,7 +392,7 @@ export default function BookHubPage() {
         ["DIGITAL OBJECT",`${tiers.digital_object?.bucket || ''}/${tiers.digital_object?.path || ''}`,"PDF/קובץ שממנו ניתן לאתר קריאות."],
         ["PAGE / BLOCK",tiers.locator?.pattern || 'structured locator',"Locator — אינו זהות הספר."],
         ["RESEARCH UNIT",`${snap.datasets.length} mapped families in current projection`,"Dataset / procedure / research unit עם population ו־rules."],
-        ["FINDING",`${summary.total || 0} research_objects readable in current session`,"Finding/Claim/Calculation נשמרים עם truth state נפרד."],
+        ["FINDING",`${summary.total || 0} research_objects loaded in current bounded view`,"Finding/Claim/Calculation נשמרים עם truth state נפרד."],
         ["RELATIONS",`Reality Graph · ${book.id}`,"קשרים למספרים, אנשים, פסוקים, topics, ELS וספרים אחרים; לא graph מקביל."],
         ["WORKSPACE","ResearchProvider / ResearchCenter","➕ למחקר, pinned, history, collections, journeys — אותה סביבת עבודה קיימת."],
         ["SPATIAL / 3D","PARK — not in this slice","עתידי; ZURIEL PARK/LATER decision. אינו נבנה כאן."],
