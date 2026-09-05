@@ -1,5 +1,46 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
+> ## 🌌 UNIVERSAL RESEARCH REALITY · TARGET PROJECTION ARCHITECTURE — 5.9.2026
+> **ZURIEL HUMAN-GATE — APPROVED, additive navigation/architecture clarification.** This section unifies already-ratified contracts; it does **not** authorize a new store, graph, engine, truth lifecycle or Method Lab.
+>
+> **TARGET SHAPE:** **One Reality Graph · One Research OS · Universal Entity Hub · Topic/Convergence Universe · Journeys/Research Paths · Universal Faceted Explorer/Search · Many Lenses/Dimensions · Progressive Depth/Access · Multilingual/SEO projections · Spatial/3D later.**
+>
+> **Universal Entity Hub:** every stable entity (number/phrase/verse/person/name/book/source/code/ELS/image/date/topic/convergence/insight/relation and future canonical entity types) is an entry point into the same Research Reality. The Hub owns no truth; it composes canonical identity, Universal Findings, graph relations, sources, journeys and available projections.
+>
+> **Topic/Convergence Universe:** Topics/Convergences are browsable/rankable projections over the same knowledge body, not a second graph or truth store. Detail surfaces may remain SEO-addressable while the explorer is dynamic.
+>
+> **Universal Faceted Explorer/Search — NEW EXPLICIT PROJECTION TARGET:** one explorer must be able to enter/filter/rank the same Reality by existing Dimensions/facets such as entity type, topic, number, source, time, person, Method, engine, verification, research/governance status, publication, privacy/access, depth, language, provenance, relation-family and journey membership. **Rank, Don't Hide.** Facets do not create new truth or duplicate content.
+>
+> **Method terminology reconciliation:** per the ratified `docs/research-studio-v1-contract.md`, **Method is a Dimension, not a competing Lens/System.** A UI may expose a **Method Inspector/Trace** as the renderer for that Dimension. Example: if a phrase reaches 1237 by `מסתתר` or `מילוי`, the method label may open the canonical method semantics + exact calculation trace (existing `gematria_method_trace` path) while preserving **Trace ≠ Finding ≠ Claim**. No Method Lab/store/engine is authorized.
+>
+> **Journeys:** Journey/Research Path remains traversal/snapshot over the same Research Context and graph; it may be entered from any entity/topic/facet without copying the path or its claims.
+>
+> **Addressable Explorer State — EXTENSION POINT NOW:** entity identity remains the stable canonical address; active facets/lens/focus/journey-position are Research Context state that must be exactly reopenable/shareable (deep-link where appropriate) without becoming a new truth/store. This extends the existing “never lose Context” + exact-reopen laws and protects SEO/share/history continuity.
+>
+> **Scale / ranking contract — EXTENSION POINT NOW:** “thousands of topics/findings” must use bounded server-side ranked queries, pagination/virtualization and progressive disclosure. Never dump the whole graph/table into one client render; ranking changes visibility/order, never truth.
+>
+> **Raziel/AI:** conversational navigation is another controller over the same Entity/Explorer/Research Context. It may suggest facet/lens changes and next entities, but must not own a parallel search index, graph, claim store or hidden truth lifecycle.
+>
+> **Depth / access:** higher tiers may expose more projections, comparison, provenance depth and research tools, but **Access tier ≠ mathematical truth** and Premium never changes the calculation.
+>
+> **Multilingual + SEO:** language is a projection over stable identity; canonical SEO-addressable entity/topic/content surfaces remain available even when discovery/navigation becomes explorer-first. No URL migration is implied by this clarification.
+>
+> **Spatial/3D:** remains a later renderer of the same Research State. No canonical x/y/z and no second 3D truth system.
+>
+> **Gematria registry freshness:** public/docs copy must not freeze a single method count as architecture. Live registry is authoritative and separates `registered / active / in_engine / scannable`. At this decision point live = **36 / 32 / 33 / 28** respectively; older fixed counts below remain historical provenance and are superseded for current-state claims.
+>
+> **PRIORITY IMPLICATION — approved direction, execution still release-gated:**  
+> **P1** finish/reconcile the Universal Entity Hub Golden Case (1237) on current main, preserving public one-click preview and real galleries/sources.  
+> **P2** prove non-number portability with the existing `התגלות` Entity/Topic mini-case.  
+> **P3** specify and build the **Universal Faceted Explorer/Search composition** over existing identities, Dimensions and bounded readers — before broad Legacy page redesign or full 3D experience work.  
+> **P4** integrate Method Inspector/Trace as a Dimension renderer inside Hub/Explorer; **not** a separate workstream.  
+> **P5** entity-aware Search/SEO routing + ranked topic browsing/pagination.  
+> **P6** Experience refinement: multilingual presentation, premium/depth presentation, mobile/polish, then richer Spatial/3D journeys.  
+> **DO NOT NOW:** reopen Foundation, create a parallel Topic/Journey/Method system, redesign schema to match legacy UI, or make full 3D/Legacy polish outrank the universal explorer contract.
+>
+> **Foundation → Projection → Experience. Preserve capability, truth and provenance — not necessarily the legacy interface.**
+>
+
 
 > ## 🔄 CROSS-AGENT SYNC PROTOCOL v1 — 4.9.2026
 > **קנוני:** `AGENT_HANDOFF.md` הוא משטח-ההעברה הקצר בין GPT / Claude / agents עתידיים. הוא אינו SSOT חדש ואינו מחליף אימות חי.
