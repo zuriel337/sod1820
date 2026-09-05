@@ -15,6 +15,12 @@
 >
 > **Journeys:** Journey/Research Path remains traversal/snapshot over the same Research Context and graph; it may be entered from any entity/topic/facet without copying the path or its claims.
 >
+> **Addressable Explorer State — EXTENSION POINT NOW:** entity identity remains the stable canonical address; active facets/lens/focus/journey-position are Research Context state that must be exactly reopenable/shareable (deep-link where appropriate) without becoming a new truth/store. This extends the existing “never lose Context” + exact-reopen laws and protects SEO/share/history continuity.
+>
+> **Scale / ranking contract — EXTENSION POINT NOW:** “thousands of topics/findings” must use bounded server-side ranked queries, pagination/virtualization and progressive disclosure. Never dump the whole graph/table into one client render; ranking changes visibility/order, never truth.
+>
+> **Raziel/AI:** conversational navigation is another controller over the same Entity/Explorer/Research Context. It may suggest facet/lens changes and next entities, but must not own a parallel search index, graph, claim store or hidden truth lifecycle.
+>
 > **Depth / access:** higher tiers may expose more projections, comparison, provenance depth and research tools, but **Access tier ≠ mathematical truth** and Premium never changes the calculation.
 >
 > **Multilingual + SEO:** language is a projection over stable identity; canonical SEO-addressable entity/topic/content surfaces remain available even when discovery/navigation becomes explorer-first. No URL migration is implied by this clarification.
