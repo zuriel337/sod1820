@@ -1,7 +1,7 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.3 (Foundation Delta v2 + Live Sync Foundation, 25.8.2026)
 
-> ## 📚 BOOK DOSSIER #285 RECONCILIATION — INTEGRATION PLAN, PROPOSED — 5.9.2026 (`BOOK_DOSSIER_285_RECONCILIATION_V1`, actor=CLAUDE role=INTEGRATION_OWNER)
-> **תוכנית-חיבור בלבד, לא-Gate חדש, לא-שינוי `ACTIVE_NOW`/סדר-עדיפויות.** מזהה שלושה מסכי-ספר מתחרים על `/book` (סטטי-חי, תוספת-טבלאות Claude PR#331, React Book Hub GPT) ומציע מסלול-אחד מאוחד + מטריצת KEEP/ADAPT/PARK. הגוף המלא: `docs/research-library/ahavat-torah/BOOK_DOSSIER_285_INTEGRATION_COMPOSITION_PLAN_V1.md`; פרטים: Master State §23.30. ממתין למניפסט role=SOURCE_OWNER (טרם-נכתב) + ביקורת ZURIEL לפני-הטמעה. אין merge/deploy/schema/DB write בסבב-זה.
+> ## 📚 BOOK DOSSIER #285 RECONCILIATION — INTEGRATION PLAN, Phase A APPLIED — 5.9.2026 (`BOOK_ONE_TREE_APPROVED_EXECUTION_20260905`, actor=CLAUDE role=INTEGRATION_OWNER, Human-Gate ZURIEL)
+> **תוכנית-חיבור בלבד, לא-Gate חדש, לא-שינוי `ACTIVE_NOW`/סדר-עדיפויות.** ZURIEL אישר-כיוון: מחקר-ספרים ממשיך במקביל ל-P1 (המספר), לא-ממתין להשלמתו. מזהה שלושה מסכי-ספר מתחרים על `/book` ומציע מסלול-אחד מאוחד + מטריצת KEEP/ADAPT/PARK + מטריצת-יכולות 14-שורות. מניפסט role=SOURCE_OWNER **נמסר** ונוסף-בציטוט (`bd0c2ea3`). 6 תיקוני-GPT-review יושמו (הכי-חשוב: זהות Book≠source-selection ב-Workspace, אומת מול `research_items` UNIQUE constraint חי). הגוף המלא: `docs/research-library/ahavat-torah/BOOK_DOSSIER_285_INTEGRATION_COMPOSITION_PLAN_V1.md`; פרטים: Master State §23.30. **Phase B (vertical-slice) ממתין לענף-מוצר נפרד + טסטים — טרם-החל.** אין merge/deploy/schema/DB write בסבב-זה.
 
 > ## 🌌 UNIVERSAL RESEARCH REALITY · TARGET PROJECTION ARCHITECTURE — 5.9.2026
 > **ZURIEL HUMAN-GATE — APPROVED, additive navigation/architecture clarification.** This section unifies already-ratified contracts; it does **not** authorize a new store, graph, engine, truth lifecycle or Method Lab.

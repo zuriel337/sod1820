@@ -124,6 +124,55 @@
 
 ---
 
+## 6. פאס-אישור (Phase A) — תיקונים מחייבים + מטריצת-יכולות, per Human-Gate ZURIEL + GPT review (`work_log 81611e63`)
+
+> **מעמד:** ZURIEL אישר-כיוון ("אני מקבל את התוכנית... נעשה את החיבורים ונשים במפה... עץ אחד מלמטה למעלה") — אישור-כיוון + תיעוד-מוגבל + עבודת-חיבור מבוקרת, **לא** merge/deploy/publication/canonicalization/ingestion המוני. הסעיף הזה **מוסיף** תיקונים ל-§1-§5 (שנשארים כלשונם) לפני שהתוכנית נחשבת ACCEPTED/READY.
+
+### 6.1 פסק-תלות (Dependency Verdict) — עץ-אחד ≠ עמוד-אחד/סוכן-אחד-בכל-רגע
+
+חוזי Intake/זהות/Research-OS הקיימים כבר-מתירים שחזור-מקור, datasets, witness-research ו-docs **במקביל** ל-P1 (המספר). **השלמת דף-המספר, ווידג'טים אופציונליים, פתיחת-היכל ציבורית ו-3D מלא אינם תנאי-מקדים** למחקר-ספרים/שימור-מקור. Roadmap P1 (1237) נשאר Golden Case משותף; P2/P3 נשארים בסדרם. Book **אינו** הופך ל-P1 מתחרה ולא מחליף P2 בשקט. **FOUNDATION SUFFICIENT AT EXISTING CONTRACT LEVEL; ADAPTER/INTEGRATION NOT YET VERIFIED** — לא נפתח audit-Foundation גורף מחדש.
+
+### 6.2 תיקונים מחייבים (6, כל אחד סוגר-פער קונקרטי ב-§1-§5)
+
+**(1) זהות-Book ≠ זהות-בחירת-מקור — תוקן:** §5.2 (הפאס-הקודם) המליץ על אותו `entity_ref` ברמת-הספר לשורות-דאטהסט שונות. **אומת-חי:** `research_items` נושא `UNIQUE(user_id,bucket,entity_type,entity_ref)` — ה-`metadata` **אינו** חלק מהמפתח, ו-`ResearchProvider.jsx`'s `addToResearch`/`saveItem` מבצעים dedupe לפי `entity.id` בלקוח. שתי שורות-דאטהסט שונות עם אותו `entity_ref` **יתנגשו** (לא יישמרו כשתי-בחירות נפרדות). **תיקון:** Book Entity (`entity_type='book'`, `entity_ref='book:ahavat-torah'` — זהות-הספר, נשמר פעם-אחת) **נבדל** מ-Source Selection (`entity_type='book'` עדיין — לא-משפחה-חדשה — אך `entity_ref` הוא ה-locator הספציפי-והיציב של הבחירה עצמה, לדוגמה `book:hebrewbooks:5635#p36:letter_dalet_row_12`, תוך-שימוש באותה מוסכמת source_ref שכבר-קיימת ב-`pageFromSourceRef`/הדוסייה). **טסט-נדרש (לא-הורץ, לביצוע ב-Phase B):** שמירת 2 שורות-שונות → שתיהן שורדות רענון/reload-ופתיחה-חוזרת של הבחירה-המדויקת-שלהן; שמירה-חוזרת של אותה בחירה = אידמפוטנטית; קריאה-מתוקנת לאותו locator תחת מדיניות-snapshot נבחרת לא-דורסת-בשקט ראיה-שמורה-קודם.
+
+**(2) הוסף-למחקר ≠ קידום-אוטומטי ל-`research_objects` — תוקן:** ➕ הוא חברות/הפניה ב-Workspace הקיים (`research_items`) בלבד. `Universal Finding/reference != research_object != canonical/public`. טבלאות-מקור גולמיות עשויות-להיות נגישות במצב-מחקר-מורשה **לפני** שקיימת כלל טענה (`claim`).
+
+**(3) אין "מנצח-אמת" בין שני ה-snapshots — תוקן:** לא `SNAPSHOTS.datasets` הידני של GPT ולא `tables.json` שלי הוא סמכות-יחידה. **המקור:** קבצי-git + ראיית-תיקון/supersession מפורשת + מניפסט-ראש-קבוע (`AHAVAT_TORAH_SOURCE_MANIFEST_285.md`) — מספקים **קריאת-פרויקציה-אחת ניתנת-לשחזור**. ה-JSON יכול-להיות **ארטיפקט-מסירה מיוצר** (עם גרסאות-קלט+פרובננס), **לא** סמכות-שנייה-ידנית-מקבילה. חובה-לשמר: תיקון-p35, הבחנת DS-06 ברמת-ספר-מול-שורה, ציטוט-מילולי-מול-פרפרזה, קריאות-לא-פתורות והיסטוריה — **אסור** לתייג טקסט כ-verbatim/lossless כשרשומת-המקור עצמה אומרת פרפרזה (כפי-שכבר-מתועד ב-Pre-Ingest-Handoff: pp.6-15 הן `SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS`, לא transcription מלאה).
+
+**(4) PDF ציבורי ≠ רישיון-לפרסם ניתוח/דוסייה/bundles פרטיים — הודגש-מחדש:** הסתרת-טאב ב-UI **אינה** בקרת-גישה על JSON ציבורי (כבר-נאמר ב-§2). **תוספת:** אם הפרימיטיבים-הקיימים לא-יכולים-להבטיח-זאת-בבטחון לסוג-תוכן עתידי — **עוצרים** לכריע-גישה/אחסון מפורש, לא-פותרים-כאן. אין הרפיית-ACL/RPC-חדש בהיקף-הזה.
+
+**(5) חוסר-enum-אחיד/`promotion_eligible`/טבלת-סתירות אינו MUST-FOUNDATION-חדש — תוקן:** נשמרים-צירים-נפרדים + relations/provenance קיימים. מצב-ריק בספר-שני **אינו** הוכחה-לתאימות-מלאה של ספר-שני-מאוכלס — לבדיקה אמיתית יש-להשתמש בנתוני-פליאה הקיימים-והמורשים כצורה-שנייה-חסומה, לא rescan/שורות-מומצאות.
+
+**(6) מניפסט SOURCE_OWNER נמסר — הוסר `DEPENDENCY_PENDING`:** ר' §5 למעלה — `bd0c2ea3`/`AHAVAT_TORAH_SOURCE_MANIFEST_285.md` נקרא ונוסף-בציטוט. **סגירה = מניפסט-נקרא-ומותאם, לא כל-שאלת-מקור-נפתרה.** הטקסט-ההיסטורי (§1-§5, כולל "DEPENDENCY_PENDING" בפאס-הקודם) **אינו-נמחק** — זו תוספת-מתקנת-בלבד, לא rewrite.
+
+### 6.3 מטריצת-יכולות מקוצרת (owner → מקור → מצב-נוכחי → תלות → owner-הבא → פעולה-הבאה → אימות)
+
+| # | יכולת | מקור/owner קנוני | מצב-נוכחי | תלות | owner-הבא | פעולה-הבאה | אימות |
+|---|---|---|---|---|---|---|---|
+| a | חוזה-סריקת-מקור אוניברסלי + pinning-גרסה | `research_intake_foundation_contract` §9 (DB-live, v8) | קיים, ללא-שינוי | — | SOURCE_OWNER | להמשיך-להשתמש, לא-לשכתב | פרוטוקול נקרא-חי בכל BEFORE |
+| b | scopes/בעלות-מיזוג רב-סוכנים | `inter_agent_coordination_law` v4 | קיים, יושם-בפועל בסבב-הזה | — | הכל | להמשיך-כפי-שהוא | ACK/AFTER מלא לפני WRITE |
+| c | דוסייה קיימת + טווחים-נותרים (אהבת תורה) | PR#285 + מניפסט `074013d6` | pp.1-15 register-depth; pp.16-57 owner=`ce978932` (בתהליך); pp.58-99 = BLOCKED/no reconstruction (`712c2f08`,`6abd5b89`) | SOURCE_OWNER batch הבא (pp.58-62, queued) | SOURCE_OWNER | ACK עם branch/base/fingerprint לפני batch | witness/image-access מוכח לפני claim |
+| d | ספר הפליאה — מחקר קיים + פיילוט-ספר-חדש עתידי | `research_objects` (42 שורות live) | קיים, לא-נוגעים | — | SOURCE_OWNER (עתידי) | להשתמש כ-bounded-second-shape ל-parity-test, לא rescan | ללא-שינוי בסבב-הזה |
+| e | טבלאות/מטריצות/חישובים/סתירות source-native | `tables.json`(Claude, generated) + `SOURCE_MANIFEST_285.md` | שני-מקורות, טרם-אוחדו (ר' 6.2.3) | מניפסט SOURCE_OWNER | INTEGRATION_OWNER | לאחד-למקור-generated-אחד ב-Phase B | טסט p35/DS-06/paraphrase (6.2.3) |
+| f | זהות Book/Edition/Witness/source-selection | `nodes.type=book` (live) + §9.2 | Book-level חי; source-selection-level טרם-מיושם | תיקון (1) לעיל | INTEGRATION_OWNER | לממש entity_ref נבדל לבחירה | טסט 2-שורות-נשמרות (6.2.1) |
+| g | קשרי מספר/פסוק/אדם/נושא/מקור | Reality Graph הקיים (`edges`) | לא-מיושם לספרים עדיין | (f) | INTEGRATION_OWNER (עתידי) | לא בסבב-הזה | — |
+| h | Explorer/facets/time/method dimensions | Roadmap 5.9 (§23.29) | לא-מיושם לספרים | — | (עתידי, אחרי P1/P2) | לא בסבב-הזה | — |
+| i | Top Navigator/Context Rail/Bottom Control + כניסת-"ספרים" מפורשת | `sod1820-system-frame-contract-v1.md` | טאבי-ספר פנימיים=תואם; כניסה-גלובלית ב-"לגלות"=חסרה | — | INTEGRATION_OWNER (עתידי) | EXTENSION POINT, לא Gate | — |
+| j | Add/Save/Reopen/Continue/History/Journeys | `research-os-canonical-lock-v1.md` (`research_items`/`user_research`) | חוזה-קיים; יישום-ספר תלוי-ב-(1) | (f) | INTEGRATION_OWNER | Phase B | טסט 6.2.1 |
+| k | היכל כפרויקציית-גילוי | `HeichalPage.jsx` הקיים | קיים, נפרד; לא-store-חדש | — | — | לא-נוגעים | — |
+| l | הרשאות/פרסום/אימות | RLS fail-closed קיים (`permissionLike`) | תקין ל-`research_objects`; JSON-ציבורי-סטטי דורש-בדיקה-נפרדת ל-privacy_scope עתידי | תיקון (4) | INTEGRATION_OWNER | לוודא-לפני-כל bundle-עתידי | אין דליפת-privacy_scope |
+| m | אירועי-מעקב/עדכון-מקור | לא-קיים עדיין | לא-מיושם | — | (עתידי) | לא-לטעון-כ"עובד" | — |
+| n | Layered/3D עתידי | `BookSpatialView.jsx` (GPT, ניסיוני) | PARK (ר' §1) | — | (עתידי) | לא-להמציא-גיאומטריה-סמנטית | — |
+
+### 6.4 מה-לא-נעשה עדיין (Phase B ממתין)
+
+השלב-הבא (Phase B: vertical-slice מוגבל Book source/dataset→locator→Workspace) **ממתין** לטסטי (6.2.1)+(4) ומתבצע על **ענף-מוצר נפרד** מ-`main` — לא בענף-התיעוד-הזה. אין merge/deploy/schema/RLS/RPC/canonicalization בסבב-הזה. אין נגיעה בקבצי P1/Number/nav משותפים — כל שינוי-שם עובר דרך owner-בקשה ב-work_log, לא-writer-שני.
+
+**Provenance נוסף:** `work_log 81611e63` (Human-Gate ZURIEL + GPT review/corrections) · `research_items` schema (אומת-חי: `UNIQUE(user_id,bucket,entity_type,entity_ref)`, `metadata jsonb` לא-חלק-מהמפתח) · `src/lib/research/ResearchProvider.jsx` (`addToResearch`/`saveItem`, dedupe לפי `entity.id`).
+
+---
+
 ## Provenance
 
 actor=CLAUDE role=INTEGRATION_OWNER · פקודת-מקור: `work_log 807d439f-085d-4956-8f63-4af21ddd3907` · ACK: `work_log 214348c3` · נבדק-חי: origin/main, PR#285, ענף-הטבלאות (PR#331), ענף GPT (`gpt/book-research-context-spatial-v1`), טבלאות `nodes`/`entity_types`/`research_objects` (ספירה-חיה). **עדכון (§5):** מניפסט SOURCE_OWNER **נמסר** אחרי כתיבת-הפאס-הראשון — `work_log bd0c2ea3`, `docs/research-library/ahavat-torah/AHAVAT_TORAH_SOURCE_MANIFEST_285.md` — נצוטט ב-§5.2/§5.3, לא-הוטמע-בחזרה ל-§1-§4 (נשארים כלשונם, additive-בלבד).
