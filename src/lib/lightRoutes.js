@@ -5,7 +5,7 @@
 
 // 🔒 חקוק: נתיבי-מערכת בעלי-מקטע-אחד שנשארים כהים (לא מוגרו). כל השאר (/:slug) = פוסט → תומך בבהיר.
 const RESERVED_ROUTES = [
-  "about", "admin", "archive", "beit-midrash", "broadcasts", "chat", "code", "community", "contact",
+  "about", "admin", "archive", "beit-midrash", "book", "broadcasts", "chat", "code", "community", "contact",
   "cross", "enter", "experience", "galaxy", "gallery", "gallery-updates", "gematria", "heichal",
   "home-classic", "home-new", "journey", "lab", "languages", "login", "map", "members", "name", "number", "numbers",
   "numbers-report", "post", "profile", "reality", "research", "reveal", "start", "stream", "sulamot",
@@ -20,6 +20,7 @@ export const POST_SLUG_RE = new RegExp(`^\\/(?!(?:${RESERVED_ROUTES}|sulamot\\d+
 export const LIGHT_ROUTES = [
   /^\/$/, /^\/home-new$/, /^\/בית-חדש$/,
   /^\/number(\/|$)/, /^\/name$/, /^\/שם$/,
+  /^\/book(\/|$)/,   // 📖 Book Hub — Surface Mode=research_clean, תמה מלאה יום/לילה (Cross-Surface Experience Contract, PR#332)
   /^\/cross$/, /^\/topic(\/|$)/,
   /^\/post$/, /^\/community\/chat$/,
   /^\/verified$/, /^\/code(\/|$)/, /^\/code-archive$/, /^\/map$/, /^\/start$/,
