@@ -6,6 +6,7 @@ import { getTopicCardBySlug, getGalleryImagesByIds, getConvergenceEntities, getE
 import { applySeo } from "../lib/seo.js";
 import { cleanName } from "../lib/galleryName.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useSiteFlag } from "../components/MaintenanceLock.jsx";
 import ImageEditModal from "../components/ImageEditModal.jsx";
 import RealityStream from "../components/RealityStream.jsx";
@@ -32,6 +33,7 @@ export default function TopicPage() {
   const [ciphers, setCiphers] = useState([]); // 🔠 צפנים (ELS) שמתלכדים על מספרי ההתכנסות (round-trip)
   const [openBullet, setOpenBullet] = useState(null); // שורת ממצא פתוחה (תמונה מתחתיה)
   const { isAdmin } = useAuth();        // עריכת תמונה בדף ההתכנסויות — מנהל בלבד
+  const research = useResearch();
   const crossLock = useSiteFlag("lock_cross");  // כפתורי «הצלבה» מובילים ל-/cross — מוסתרים כשהוא נעול
   const [editImg, setEditImg] = useState(null);
 
@@ -77,6 +79,22 @@ export default function TopicPage() {
     return () => { live = false; };
   }, [slug]);
 
+  // 🧭 Universal Research Context — Topic is a surface, not a new store.
+  // If no inquiry exists, this Topic becomes the root subject. If one already exists (e.g. Number 1237),
+  // preserve that root and only move the current selection/lens to this Topic.
+  useEffect(() => {
+    if (!card || !slug) return;
+    const topicSubject = { id: String(slug), type: "topic", label: card.title, href: `/topic/${slug}` };
+    const selection = { entityId: String(slug), entityType: "topic" };
+    if (!research.context?.subject) {
+      research.setResearchContext?.({ subject: topicSubject, selection, lens: "topic" });
+    } else {
+      research.updateResearchContext?.({ selection, lens: "topic" });
+    }
+    // Context changes are intentionally not a dependency: this effect represents entering a new topic route.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [card, slug]);
+
   if (card === undefined) return <Center>טוען…</Center>;
   if (!card) return <Center>הכרטיס לא נמצא. <Link to="/" style={{ color: P.accentText }}>חזרה →</Link></Center>;
 
@@ -84,6 +102,14 @@ export default function TopicPage() {
   const hot = new Set(card.highlight_numbers || []);
   const nums = card.numbers || [];
   const crossHidden = crossLock.lock?.enabled && !isAdmin;   // /cross נעול → לא להראות כפתורי-הצלבה מתים
+  const topicSubject = { id: String(slug), type: "topic", label: card.title, href: `/topic/${slug}` };
+  const leaveTopic = (lens, selection = null) => {
+    research.updateResearchContext?.({
+      lens,
+      selection,
+      returnTo: { href: `/topic/${slug}`, label: card.title, subject: topicSubject },
+    });
+  };
 
   // convergence_evidence_law: עוצמת ההתכנסות = מספר השיטות/הראיות העצמאיות המתלכדות בעוגן.
   // הכוכבים נגזרים מהעוצמה האמיתית לפי העץ — לא מ-quality שהוזן ידנית.
@@ -124,7 +150,8 @@ export default function TopicPage() {
         {/* מספרים → עמוד מספר */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
           {nums.map(n => (
-            <Link key={n} to={`/number/${n}`} style={{ textDecoration: "none", fontFamily: F.mono, fontWeight: 800,
+            <Link key={n} to={`/number/${n}`} onClick={() => leaveTopic("number", { entityId: String(n), entityType: "number" })}
+              style={{ textDecoration: "none", fontFamily: F.mono, fontWeight: 800,
               fontSize: hot.has(n) ? 16 : 13, padding: hot.has(n) ? "5px 14px" : "3px 10px", borderRadius: 999,
               border: `1px solid ${hot.has(n) ? P.accent : P.border}`, background: hot.has(n) ? P.glow : "transparent",
               color: hot.has(n) ? P.accentText : P.accentDim }}>{n}</Link>
@@ -159,8 +186,9 @@ export default function TopicPage() {
               // תווית שיטה: מה-edge, אחרת «רגיל» כשהערך המוצג שווה לרגיל — לעולם לא מספר בלי שיטה
               const method = e.edgeMethod || (val != null && val === rag ? "רגיל" : null);
               return (
-                <Link key={e.label} to={`/number/${encodeURIComponent(val ?? e.label)}`} style={{ textDecoration: "none",
-                  display: "block", padding: "10px 13px", borderRadius: 10,
+                <Link key={e.label} to={`/number/${encodeURIComponent(val ?? e.label)}`}
+                  onClick={() => leaveTopic("number", { entityId: String(val ?? e.label), entityType: val != null ? "number" : "phrase" })}
+                  style={{ textDecoration: "none", display: "block", padding: "10px 13px", borderRadius: 10,
                   background: gold ? P.cardGrad : P.cardSoft,
                   border: `1px solid ${gold ? P.accent : P.border}` }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -181,6 +209,7 @@ export default function TopicPage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: ciphers.length ? 10 : 6 }}>
           <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 700 }}>🔠 צפנים · ראיות בתורה</div>
           <Link to={`/research?tool=els${hot.size ? `&skip=${[...hot][0]}` : ""}&from=topic:${encodeURIComponent(slug)}`}
+            onClick={() => leaveTopic("els", { entityId: String(slug), entityType: "topic" })}
             style={{ textDecoration: "none", border: `1px solid ${P.accent}`, borderRadius: 999, background: P.glow, color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 13, padding: "7px 16px" }}>🔠 צור צופן →</Link>
         </div>
         {ciphers.length === 0 ? (
@@ -188,7 +217,9 @@ export default function TopicPage() {
         ) : (
           <div style={{ display: "grid", gap: 8 }}>
             {ciphers.map(c => (
-              <Link key={c.slug} to={`/codes/${encodeURIComponent(c.slug)}`} style={{ textDecoration: "none", display: "block", padding: "10px 13px", borderRadius: 10, background: P.cardSoft, border: `1px solid ${P.border}` }}>
+              <Link key={c.slug} to={`/codes/${encodeURIComponent(c.slug)}`}
+                onClick={() => leaveTopic("els", { entityId: String(c.slug), entityType: "code" })}
+                style={{ textDecoration: "none", display: "block", padding: "10px 13px", borderRadius: 10, background: P.cardSoft, border: `1px solid ${P.border}` }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>«{c.search_term || c.title}»</span>
                   <span style={{ color: P.accentDim, fontFamily: F.mono, fontSize: 13 }}>= {c.skip_distance} (דילוג ELS)</span>
@@ -251,9 +282,11 @@ export default function TopicPage() {
               const note = typeof r === "object" && r ? r.note : null;
               return (
                 <div key={i} style={{ display: "flex", gap: 10, alignItems: "baseline", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 12px" }}>
-                  <Link to={`/number/${v}`} style={{ flex: "0 0 auto", minWidth: 56, textAlign: "center", fontFamily: F.mono, fontWeight: 800, color: "#241a02", background: "linear-gradient(135deg,#ffd86b,#d8b34a)", borderRadius: 8, padding: "2px 9px", textDecoration: "none", fontVariantNumeric: "tabular-nums" }}>{v}</Link>
+                  <Link to={`/number/${v}`} onClick={() => leaveTopic("number", { entityId: String(v), entityType: "number" })}
+                    style={{ flex: "0 0 auto", minWidth: 56, textAlign: "center", fontFamily: F.mono, fontWeight: 800, color: "#241a02", background: "linear-gradient(135deg,#ffd86b,#d8b34a)", borderRadius: 8, padding: "2px 9px", textDecoration: "none", fontVariantNumeric: "tabular-nums" }}>{v}</Link>
                   <span style={{ flex: "1 1 auto", minWidth: 0, color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.55 }}>
-                    <Link to={`/number/${encodeURIComponent(p)}`} style={{ color: "inherit", textDecoration: "none", borderBottom: `1px dotted ${P.borderStrong}` }}>{p}</Link>
+                    <Link to={`/number/${encodeURIComponent(p)}`} onClick={() => leaveTopic("number", { entityId: String(p), entityType: "phrase" })}
+                      style={{ color: "inherit", textDecoration: "none", borderBottom: `1px dotted ${P.borderStrong}` }}>{p}</Link>
                     {note && <span style={{ color: P.inkSoft, fontSize: 12.5 }}> · {note}</span>}
                   </span>
                 </div>
@@ -270,7 +303,8 @@ export default function TopicPage() {
           <div style={{ display: "grid", gap: 8 }}>
             {f.connections.map((cn, i) => (
               <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "8px 12px" }}>
-                <Link to={`/number/${cn.number}`} style={{ fontFamily: F.mono, fontWeight: 800, color: P.accentText, fontSize: 15, textDecoration: "none" }}>{cn.number}</Link>
+                <Link to={`/number/${cn.number}`} onClick={() => leaveTopic("number", { entityId: String(cn.number), entityType: "number" })}
+                  style={{ fontFamily: F.mono, fontWeight: 800, color: P.accentText, fontSize: 15, textDecoration: "none" }}>{cn.number}</Link>
                 <span style={{ color: P.accentDim }}>↔</span>
                 {(cn.links || []).map(l => <span key={l} style={{ color: P.ink, fontFamily: F.body, fontSize: 13.5 }}>{l}</span>)}
                 {cn.note && <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5 }}>· {cn.note}</span>}
@@ -288,7 +322,8 @@ export default function TopicPage() {
           <div style={{ ...box, marginBottom: 20, display: "grid", gap: 8 }}>
             <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, letterSpacing: 1 }}>📖 הפוסטים המלאים</div>
             {posts.map((p, i) => (
-              <Link key={i} to={`/${p.slug}`} style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 13px" }}>
+              <Link key={i} to={`/${p.slug}`} onClick={() => leaveTopic("post", { entityType: "post", locator: `/${p.slug}` })}
+                style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 13px" }}>
                 <span style={{ fontSize: 20 }}>📖</span>
                 <span style={{ flex: 1, minWidth: 0, color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 700, lineHeight: 1.4 }}>{p.title || "קראו את הפוסט המלא"}</span>
                 <span style={{ color: P.accentText, fontFamily: F.heading, fontWeight: 800, flexShrink: 0 }}>←</span>

@@ -1,17 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { emit, EVENTS } from "./eventBus.js";
+import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
 import { useAuth } from "../AuthContext.jsx";
 import { getCloudResearch, saveCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
 import { signalAiBehavior } from "../supabase.js";
 
-// 🧠 ResearchProvider — סביבת המחקר הגלובלית (Local-first). מחזיק את «המחקר הפעיל»
-// (cart) ואת השמורים, שורד מעבר בין דפים, ונשמר ב-localStorage בלי התחברות.
-// (סנכרון-ענן למחוברים — שלב מאוחר.) כל פעולה פולטת Event ל-Bus → הפאנלים מאזינים.
 const KEY = "sod_research_v1";
-// 🔬 גלגול «מצב מחקר למבקרים חוזרים» (החלטת צוריאל 7.2026) —
-// רק מי שכבר ביקר (יש לו קאש שמור) עובר למצב מחקר פעם אחת. **מבקר חדש נשאר על הנקי (reader).**
-// דגל חד-פעמי; אחרי הגלגול — בחירה מפורשת של המשתמש נשמרת ולא נדרסת שוב.
+const CONTEXT_SESSION_KEY = "sod_research_context_session_v1";
 const MODE_ROLLOUT_KEY = "sod_mode_rollout_v1";
 const Ctx = createContext(null);
 export const useResearch = () => useContext(Ctx) || {};
@@ -20,45 +17,89 @@ function load() {
   try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
 }
 
-// מצב-הפתיחה: גלגול חד-פעמי → discovery רק לחוזרים; מבקר חדש וכל השאר → reader אלא אם נשמר discovery.
+function loadSessionContext() {
+  try { return normalizeResearchContext(JSON.parse(sessionStorage.getItem(CONTEXT_SESSION_KEY) || "null")); }
+  catch { return null; }
+}
+
+function persistSessionContext(context) {
+  try {
+    if (context) sessionStorage.setItem(CONTEXT_SESSION_KEY, JSON.stringify(context));
+    else sessionStorage.removeItem(CONTEXT_SESSION_KEY);
+  } catch { /* noop */ }
+}
+
 function initialMode(init) {
   try {
     if (localStorage.getItem(MODE_ROLLOUT_KEY) !== "1") {
-      const returning = localStorage.getItem(KEY) != null;   // כבר ביקר בעבר = יש קאש שמור
+      const returning = localStorage.getItem(KEY) != null;
       localStorage.setItem(MODE_ROLLOUT_KEY, "1");
-      if (returning) return "discovery";   // רק מבקר חוזר עובר למצב מחקר פעם אחת (מבקר חדש נופל ל-reader)
+      if (returning) return "discovery";
     }
   } catch { /* noop */ }
   return init.mode === "discovery" ? "discovery" : "reader";
 }
 
+function numberRouteSelection(pathname) {
+  const match = String(pathname || "").match(/^\/number\/([^/?#]+)/);
+  if (!match) return null;
+  let key = match[1];
+  try { key = decodeURIComponent(key); } catch { /* keep raw key */ }
+  key = String(key || "").trim();
+  if (!key) return null;
+  const numeric = /^\d+$/.test(key) && Number.isSafeInteger(Number(key));
+  const id = numeric ? String(Number(key)) : key;
+  return {
+    subject: { id, type: numeric ? "number" : "phrase", label: id, href: `/number/${encodeURIComponent(id)}` },
+    selection: { entityId: id, entityType: numeric ? "number" : "phrase" },
+  };
+}
+
 export default function ResearchProvider({ children }) {
+  const { pathname } = useLocation();
   const init = load();
-  const [cart, setCart] = useState(() => init.cart || []);     // המחקר הפעיל
-  const [saved, setSaved] = useState(() => init.saved || []);  // שמורים (מקומי)
-  const [pinned, setPinned] = useState(() => init.pinned || []); // 📌 מוצמדים — נשארים זמינים בכל Hub
-  const [history, setHistory] = useState(() => init.history || []); // 🕘 היסטוריית מחקר (אחרונים)
-  const [collections, setCollections] = useState(() => init.collections || []); // 📁 אוספים
-  const [journeys, setJourneys] = useState(() => init.journeys || []); // 🧭 «המסעות שלי» — מסעות שהושלמו
-  // 🔬 מצב עבודה גלובלי — reader (ברירת מחדל, מעטפת ציבורית נקייה) | discovery (היכל הגילוי, הכל פתוח).
-  // גלגול 7.2026: רק מבקר חוזר עובר למצב מחקר פעם אחת דרך initialMode; מבקר חדש נשאר על הנקי. נשמר מקומית.
+  const [cart, setCart] = useState(() => init.cart || []);
+  const [saved, setSaved] = useState(() => init.saved || []);
+  const [pinned, setPinned] = useState(() => init.pinned || []);
+  const [history, setHistory] = useState(() => init.history || []);
+  const [collections, setCollections] = useState(() => init.collections || []);
+  const [journeys, setJourneys] = useState(() => init.journeys || []);
+  // Active Research Context is tab/session navigation state. Local/cloud context remains only a durable last snapshot.
+  const [context, setContextState] = useState(loadSessionContext);
+  const [cloudHydrationRevision, setCloudHydrationRevision] = useState(0);
   const [mode, setModeState] = useState(() => initialMode(init));
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, journeys, mode })); } catch { /* noop */ }
-  }, [cart, saved, pinned, history, collections, journeys, mode]);
+    try { localStorage.setItem(KEY, JSON.stringify({ cart, saved, pinned, history, collections, journeys, context, mode })); } catch { /* noop */ }
+  }, [cart, saved, pinned, history, collections, journeys, context, mode]);
 
-  // ☁️ סנכרון-ענן למשתמש מחובר — כל «עולם המשתמש» עובר בין מכשירים.
+  useEffect(() => { persistSessionContext(context); }, [context]);
+
   const { user } = useAuth();
   const pulled = useRef(false);
-  // התחברות → משיכת המצב מהענן (ענן מנצח אם יש בו תוכן; אחרת דוחפים את המקומי למעלה)
+  const previousUserId = useRef(user?.id || null);
+
+  // Logout/account switch ends only the active Context. Saved/workspace state is untouched.
+  useEffect(() => {
+    const prev = previousUserId.current;
+    const next = user?.id || null;
+    if (prev && prev !== next) {
+      setContextState(null);
+      persistSessionContext(null);
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
+    }
+    previousUserId.current = next;
+  }, [user?.id]);
+
+  // Cloud owns durable user state, but may never overwrite the active tab's Research Context.
+  // d.context is intentionally treated as a last-session snapshot for future explicit resume, not auto-activation.
   useEffect(() => {
     pulled.current = false;
     if (!user) return;
     let alive = true;
     getCloudResearch(user.id).then(d => {
       if (!alive) return;
-      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length) || (d.journeys && d.journeys.length));
+      const has = d && ((d.cart && d.cart.length) || (d.saved && d.saved.length) || (d.pinned && d.pinned.length) || (d.history && d.history.length) || (d.collections && d.collections.length) || (d.journeys && d.journeys.length) || d.context);
       if (has) {
         if (Array.isArray(d.cart)) setCart(d.cart);
         if (Array.isArray(d.saved)) setSaved(d.saved);
@@ -67,30 +108,67 @@ export default function ResearchProvider({ children }) {
         if (Array.isArray(d.collections)) setCollections(d.collections);
         if (Array.isArray(d.journeys)) setJourneys(d.journeys);
       } else {
-        saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys }).catch(() => {});
+        saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys, context }).catch(() => {});
       }
       pulled.current = true;
-    }).catch(() => { pulled.current = true; });
+      setCloudHydrationRevision(v => v + 1);
+    }).catch(() => {
+      pulled.current = true;
+      if (alive) setCloudHydrationRevision(v => v + 1);
+    });
     return () => { alive = false; };
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
-  // שינוי מצב + מחובר + אחרי המשיכה → דחיפה לענן (debounce)
+
   useEffect(() => {
     if (!user || !pulled.current) return;
-    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys }).catch(() => {}); }, 700);
+    const t = setTimeout(() => { saveCloudResearch(user.id, { cart, saved, pinned, history, collections, journeys, context }).catch(() => {}); }, 700);
     return () => clearTimeout(t);
-  }, [user, cart, saved, pinned, history, collections, journeys]);
+  }, [user, cart, saved, pinned, history, collections, journeys, context]);
 
-  // 🕘 לוג-היסטוריה — «המשך מהמקום שעצרת». הכי-חדש למעלה, ללא כפילויות, מוגבל ל-50.
   const logHistory = useCallback((entity) => {
     if (!entity || !entity.id) return;
     setHistory(h => [{ ...entity, t: Date.now() }, ...h.filter(e => e.id !== entity.id)].slice(0, 50));
   }, []);
   const clearHistory = useCallback(() => setHistory([]), []);
 
-  // 🔠 ELS → Workspace bridge. ה-iframe הקנוני כבר פולט postMessage מסוג state דרך TzofenEmbed;
-  // ResearchProvider רק רושם את החיפוש המוצלח בהיסטוריית-המחקר — בלי לחשב ELS, בלי ליצור Finding,
-  // בלי לקדם לקנון ובלי טבלה/Store מקבילים. כך «המשך מהמקום שעצרת» עובד גם בדילוגים.
-  // dedupe לפי תמונת-החיפוש עצמה, כדי state-ticks של אותו צופן לא יציפו את ההיסטוריה.
+  const setResearchContext = useCallback((next) => {
+    setContextState((prev) => {
+      const value = typeof next === "function" ? next(prev) : next;
+      const normalized = value == null ? null : mergeResearchContext(null, value);
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
+      return normalized;
+    });
+  }, []);
+  const updateResearchContext = useCallback((patch) => {
+    setContextState((prev) => {
+      const normalized = mergeResearchContext(prev, patch);
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
+      return normalized;
+    });
+  }, []);
+  const clearResearchContext = useCallback(() => {
+    persistSessionContext(null);
+    setContextState(null);
+    emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
+  }, []);
+
+  useEffect(() => {
+    const route = numberRouteSelection(pathname);
+    if (!route) return;
+    setContextState((prev) => {
+      const current = normalizeResearchContext(prev);
+      const sameSelection = current?.selection?.entityId === route.selection.entityId
+        && current?.selection?.entityType === route.selection.entityType
+        && current?.lens === "number";
+      if (current?.subject && sameSelection) return prev;
+      const next = current?.subject
+        ? mergeResearchContext(current, { selection: route.selection, lens: "number" })
+        : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number" });
+      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
+      return next;
+    });
+  }, [pathname, cloudHydrationRevision]);
+
   const lastElsHistorySig = useRef(null);
   useEffect(() => {
     const onElsState = (e) => {
@@ -106,6 +184,28 @@ export default function ResearchProvider({ children }) {
       const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip}`;
       if (lastElsHistorySig.current === sig) return;
       lastElsHistorySig.current = sig;
+
+      const locator = `els:${scope}:${term}:${searchKind}:${hitId}:${skip}`;
+      const elsSelection = { entityType: "els", locator };
+      setContextState((prev) => {
+        const current = normalizeResearchContext(prev);
+        const sameSelection = current?.selection?.entityType === "els"
+          && current?.selection?.locator === locator
+          && current?.lens === "els";
+        if (current?.subject && sameSelection) return prev;
+        const directSubject = {
+          id: term,
+          type: "phrase",
+          label: term,
+          href: `/research?tool=els&q=${encodeURIComponent(term)}`,
+        };
+        const next = current?.subject
+          ? mergeResearchContext(current, { selection: elsSelection, lens: "els" })
+          : mergeResearchContext(null, { subject: directSubject, selection: elsSelection, lens: "els" });
+        emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
+        return next;
+      });
+
       logHistory({
         id: `els:${encodeURIComponent(scope)}:${encodeURIComponent(term)}:${encodeURIComponent(searchKind)}:${hitId}:${skip}`,
         type: "els",
@@ -136,7 +236,7 @@ export default function ResearchProvider({ children }) {
     logHistory(entity);
     emit(EVENTS.RESEARCH_ADD, entity);
     trackResearch("add", { type: entity.type });
-    signalAiBehavior("research");   // 🧪 ai_style_learning_law — "האם המשכת לחקור?" אחרי ניתוח טרי
+    signalAiBehavior("research");
   }, [logHistory]);
   const removeFromResearch = useCallback((id) => setCart(c => c.filter(e => e.id !== id)), []);
   const clearResearch = useCallback(() => { setCart([]); emit(EVENTS.RESEARCH_CLEAR); }, []);
@@ -149,7 +249,6 @@ export default function ResearchProvider({ children }) {
   }, [logHistory]);
   const removeSaved = useCallback((id) => setSaved(s => s.filter(e => e.id !== id)), []);
 
-  // 📌 Pin — ישות שהוצמדה נשארת זמינה בכל המעבדה (Workspace = pin + הוסף-למחקר).
   const togglePin = useCallback((entity) => {
     setPinned(p => {
       const on = p.some(e => e.id === entity.id);
@@ -160,9 +259,6 @@ export default function ResearchProvider({ children }) {
   }, []);
   const isPinned = useCallback((id) => pinned.some(e => e.id === id), [pinned]);
 
-  // 📁 אוספי-מחקר פרטיים — קיבוץ שמורים לתיקיות בעלות-שם, עם תיוג-ארגון אופציונלי
-  // (topic/world/number/year — research_workspace_law). תוכן-אישי: Lens/Ownership layer
-  // בלבד, Local-first + סנכרון-ענן ל-user_research (בלוב, per-user) — לא Canonical, לא Public.
   const addCollection = useCallback((name, meta) => {
     const id = "c" + Date.now();
     const { topic, world, number, year } = meta || {};
@@ -185,7 +281,6 @@ export default function ResearchProvider({ children }) {
     setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
   }, []);
 
-  // 🧭 «המסעות שלי» — רושם מסע שהושלם. dedupe לפי מספר-השורש (המסע האחרון מנצח), הכי-חדש למעלה, עד 30.
   const addJourney = useCallback((j) => {
     if (!j || j.root == null) return;
     const rec = { id: "j" + j.root, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
@@ -195,16 +290,16 @@ export default function ResearchProvider({ children }) {
   const removeJourney = useCallback((id) => setJourneys(js => js.filter(j => j.id !== id)), []);
   const clearJourneys = useCallback(() => setJourneys([]), []);
 
-  // 🔬 מצב עבודה — setMode/enterDiscovery/toggleMode. enterDiscovery = "נכנסת להיכל הגילוי" (מהמעבדה).
   const setMode = useCallback((m) => setModeState(m === "discovery" ? "discovery" : "reader"), []);
   const enterDiscovery = useCallback(() => setModeState("discovery"), []);
   const toggleMode = useCallback(() => setModeState(m => (m === "discovery" ? "reader" : "discovery")), []);
 
   const value = {
-    cart, saved, pinned, history, collections, journeys,
+    cart, saved, pinned, history, collections, journeys, context,
     addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
     logHistory, clearHistory, addCollection, updateCollection, removeCollection, assignCollection,
     addJourney, removeJourney, clearJourneys,
+    setResearchContext, updateResearchContext, clearResearchContext,
     mode, setMode, enterDiscovery, toggleMode,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
