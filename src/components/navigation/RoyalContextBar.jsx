@@ -1,5 +1,5 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import "./RoyalContextBar.css";
 
@@ -17,28 +17,33 @@ function contextFromPath(pathname) {
 export default function RoyalContextBar() {
   const { isAdmin, loading } = useAuth();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const [razielOpen, setRazielOpen] = useState(false);
   if (loading || !isAdmin) return null;
   if (/^\/(admin|login|profile|credits|buy)(\/|$)/.test(pathname)) return null;
-
   const ctx = contextFromPath(pathname);
+
   return (
-    <aside className="rcb-shell" dir="rtl" aria-label="סרגל הקשר — תצוגת מנהל">
-      <div className="rcb-glow" />
-      <div className="rcb-context">
-        <span className="rcb-kicker">{ctx.kind}</span>
-        <strong title={ctx.label}>{ctx.label}</strong>
-        <span className="rcb-trail">הקשר נוכחי</span>
-      </div>
-      <button className="rcb-command" type="button" onClick={() => navigate("/number")} aria-label="חיפוש וניווט">
-        <span className="rcb-command-icon">⌘</span>
-        <span>חפש או עבור אל...</span>
-        <kbd>/</kbd>
-      </button>
-      <div className="rcb-actions">
-        <button type="button" className="rcb-lenses"><span>◇</span><span>עדשות</span></button>
-        <button type="button" aria-label="שמירה" title="שמירה — אבטיפוס">☆</button>
-        <button type="button" aria-label="אפשרויות נוספות" title="אפשרויות — אבטיפוס">•••</button>
+    <aside className="rcb-wrap" dir="rtl" aria-label="סרגל הקשר — תצוגת מנהל">
+      {razielOpen && (
+        <section className="rcb-raziel-panel" aria-label="רזיאל — אבטיפוס">
+          <div className="rcb-raziel-head"><span className="rcb-spark">✦</span><strong>רזיאל</strong><button onClick={() => setRazielOpen(false)} aria-label="סגור">×</button></div>
+          <p>אני איתך ב־<b>{ctx.label}</b>.</p>
+          <p className="rcb-muted">כאן יחיה ההקשר המחקרי המתמשך — בלי לשכפל את המידע שכבר מוצג בעמוד.</p>
+          <button className="rcb-ask" type="button">שאל את רזיאל…</button>
+        </section>
+      )}
+      <div className="rcb-islands">
+        <button className="rcb-island rcb-context" type="button" title="Research Trail — אבטיפוס">
+          <span className="rcb-kicker">{ctx.kind}</span><strong>{ctx.label}</strong><span className="rcb-chevron">‹</span>
+        </button>
+        <div className="rcb-island rcb-tools">
+          <button type="button"><span>◇</span><span>עדשות</span></button>
+          <button type="button"><span>◌</span><span>מסע</span></button>
+          <button type="button" aria-label="עומק" title="עומק — אבטיפוס"><span>◎</span><span>עומק</span></button>
+        </div>
+        <button className={"rcb-island rcb-raziel" + (razielOpen ? " is-open" : "")} type="button" onClick={() => setRazielOpen(v => !v)}>
+          <span className="rcb-spark">✦</span><span>רזיאל</span><i />
+        </button>
       </div>
       <span className="rcb-admin-mark">ADMIN PREVIEW</span>
     </aside>
