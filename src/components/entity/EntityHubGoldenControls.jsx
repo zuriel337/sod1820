@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import QuickActions from "../QuickActions.jsx";
 import WatchButton from "../WatchButton.jsx";
-import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { supabase } from "../../lib/supabase.js";
 
 // 🎨 Palette = CSS variables (.eh-func in EntityHubObservatory.css) — light AND dark.
-const C={ink:"var(--eh-ink)",muted:"var(--eh-muted)",line:"var(--eh-line)",paper:"var(--eh-panel)",soft:"var(--eh-soft)",blue:"var(--eh-blue)",blue2:"var(--eh-bluebg)",onBlue:"var(--eh-onblue)",gold:"var(--eh-gold)",gold2:"var(--eh-goldbg)",dark:"#0b0d12"};
+// Midnight Gold prototype: blue remains a research/navigation accent; gold carries the single primary action.
+const C={ink:"var(--eh-ink)",muted:"var(--eh-muted)",line:"var(--eh-line)",paper:"var(--eh-panel)",soft:"var(--eh-soft)",blue:"var(--eh-blue)",blue2:"var(--eh-bluebg)",onBlue:"var(--eh-onblue)",gold:"var(--eh-gold)",gold2:"var(--eh-goldbg)",onGold:"#1a1305",dark:"#0b0d12"};
 
 function Help({title,children}){
   const [open,setOpen]=useState(false);
@@ -20,7 +20,7 @@ function Help({title,children}){
 }
 
 function RailButton({active,onClick,children}){
-  return <button onClick={onClick} style={{border:`1px solid ${active?C.blue:C.line}`,background:active?C.blue:"#fff",color:active?"#fff":C.ink,borderRadius:999,padding:"8px 13px",fontWeight:850,cursor:"pointer",whiteSpace:"nowrap"}}>{children}</button>
+  return <button onClick={onClick} style={{border:`1px solid ${active?C.gold:C.line}`,background:active?C.gold2:C.soft,color:active?C.gold:C.ink,borderRadius:999,padding:"8px 13px",fontWeight:850,cursor:"pointer",whiteSpace:"nowrap",boxShadow:active?"0 4px 14px rgba(154,118,23,.10)":"none"}}>{children}</button>
 }
 
 function SequenceShell({kind,label,seed}){
@@ -40,7 +40,7 @@ function SequenceShell({kind,label,seed}){
     <div style={{padding:"12px 14px",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
       <input value={focus} onChange={e=>setFocus(e.target.value.replace(/\D/g,"").slice(0,12))} inputMode="numeric" aria-label="רצף לחקירה"
         style={{width:130,border:"1px solid #2b3446",background:"#0f1420",color:C.onBlue,borderRadius:10,padding:"8px 10px",fontFamily:"inherit"}} />
-      <button onClick={()=>setNote("◇ לשולחן — יחובר ל-Research Context הקיים, בלי ליצור Store חדש.")} style={{border:"1px solid #31405c",background:"#151d2c",color:"#dce7ff",borderRadius:999,padding:"7px 11px",cursor:"pointer"}}>◇ לשולחן</button>
+      <button onClick={()=>setNote("◇ פתיחה בהיכל תחבר את הקטע ל-Research Context הקיים, בלי ליצור Store חדש.")} style={{border:"1px solid #31405c",background:"#151d2c",color:"#dce7ff",borderRadius:999,padding:"7px 11px",cursor:"pointer"}}>◇ פתח בהיכל</button>
       <button onClick={()=>setNote("◎ הצלבה — תשתמש במנועי הקשר הקיימים; אין חישוב מזויף מתוך ה-UI.")} style={{border:"1px solid #31405c",background:"#151d2c",color:"#dce7ff",borderRadius:999,padding:"7px 11px",cursor:"pointer"}}>◎ הצלבה</button>
       <button onClick={()=>setNote("✦ רזיאל יקבל את הקטע כ-Research Context מפורש.")} style={{border:"1px solid #31405c",background:"#151d2c",color:"#dce7ff",borderRadius:999,padding:"7px 11px",cursor:"pointer"}}>✦ רזיאל</button>
       {note&&<span style={{fontSize:11.5,color:"#9fb0ca"}}>{note}</span>}
@@ -81,7 +81,6 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
   const journey=data?.journeys?.numberKnowledgeJourney;
   const research=Array.isArray(data?.research?.rows)?data.research.rows:[];
   const sources=Array.isArray(data?.sources)?data.sources:[];
-  const {addToResearch}=useResearch();
   const [dna,setDna]=useState("expressions");
   const [crossOpen,setCrossOpen]=useState(false);
   const [seq,setSeq]=useState("pi");
@@ -116,17 +115,16 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
     <section style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18,boxShadow:"0 8px 28px rgba(0,0,0,.05)"}}>
       <div style={{display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}>
         <div>
-          <div style={{fontSize:11,fontWeight:900,letterSpacing:1.5,color:C.gold}}>ENTITY ACTIONS · {identity.label}</div>
-          <div style={{fontSize:14,color:C.muted,marginTop:3}}>אותו מספר, פעולות אחידות: מחקר, שולחן, מעקב, הצלבה, שיתוף ורזיאל.</div>
+          <div style={{fontSize:11,fontWeight:900,letterSpacing:1.5,color:C.gold}}>פעולות · {identity.label}</div>
+          <div style={{fontSize:14,color:C.muted,marginTop:3}}>פעולה ראשית אחת: הוסף למחקר. שמור ושתף משניים; מעקב מקבל סטטוס; נעיצה נשארת בתוך ההיכל.</div>
         </div>
         <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
-          <button onClick={()=>setCrossOpen(v=>!v)} style={{border:0,background:C.blue,color:C.onBlue,borderRadius:999,padding:"10px 16px",fontWeight:900,cursor:"pointer"}}>◎ מצא הצלבה</button>
-          <button onClick={()=>addToResearch?.(entity)} style={{border:`1px solid ${C.line}`,background:C.paper,color:C.ink,borderRadius:999,padding:"10px 14px",fontWeight:850,cursor:"pointer"}}>◇ שים על השולחן</button>
-          <WatchButton topic={`number:${identity.label}`} source="entity_hub_1237" compact ghost label={`עקוב אחרי ${identity.label}`} explainer="המעקב נשמר במנוע המעקב הקיים. notify_topic תומך בכל topic; חיבור אירועי חידוש למספר ייעשה דרך אותו fan-out, בלי מערכת Follow חדשה." />
-          <button onClick={()=>setFollowDetail(v=>!v)} style={{border:`1px solid ${C.line}`,background:C.paper,color:C.muted,borderRadius:999,padding:"10px 13px",fontWeight:800,cursor:"pointer"}}>🔔 סוגי חידושים</button>
+          <button onClick={()=>setCrossOpen(v=>!v)} style={{border:`1px solid ${crossOpen?C.gold:C.line}`,background:crossOpen?C.gold2:C.soft,color:crossOpen?C.gold:C.ink,borderRadius:999,padding:"9px 14px",fontWeight:850,cursor:"pointer"}}>◎ מצא הצלבה</button>
+          <WatchButton topic={`number:${identity.label}`} source="entity_hub_number" compact ghost label={`עקוב אחרי ${identity.label}`} explainer="מעקב = חידושים עתידיים על הישות; הוא אינו שמירה ואינו הוספה למחקר." />
+          <button onClick={()=>setFollowDetail(v=>!v)} style={{border:`1px solid ${C.line}`,background:C.soft,color:C.muted,borderRadius:999,padding:"9px 12px",fontWeight:750,cursor:"pointer"}}>סוגי מעקב</button>
         </div>
       </div>
-      <QuickActions entity={entity} hideAnalyze style={{"--acc":C.blue,"--onAcc":C.onBlue,"--line":C.line,"--card":C.paper,"--ink":C.ink,"--ink2":C.muted}} />
+      <QuickActions entity={entity} hideAnalyze hidePin style={{"--acc":C.gold,"--onAcc":C.onGold,"--accS":C.gold2,"--line":C.line,"--card":C.soft,"--chip":C.gold2,"--ink":C.ink,"--ink2":C.muted}} />
       {followDetail&&<div style={{marginTop:14,borderTop:`1px solid ${C.line}`,paddingTop:14}}>
         <div style={{fontWeight:900}}>🔔 על מה לעקוב ב-{identity.label} <Help title="מעקב ישות">כל בחירה משתמשת באותו WatchButton ובאותו notification_prefs. אלה העדפות מעקב; fan-out יישלח רק מאירועים מחוברים ומאומתים.</Help></div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:8,marginTop:10}}>
@@ -138,16 +136,15 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
             ["ELS / צפנים",`number:${identity.label}:els`,"🔠"],
             ["מסעות",`number:${identity.label}:journey`,"🧭"],
             ["מקורות / ספרים",`number:${identity.label}:source`,"📚"],
-          ].map(([label,topic,icon])=><WatchButton key={topic} topic={topic} source="entity_hub_1237_facets" checkbox noPush icon={icon} label={label} explainer="" />)}
+          ].map(([label,topic,icon])=><WatchButton key={topic} topic={topic} source="entity_hub_number_facets" checkbox noPush icon={icon} label={label} explainer="" />)}
         </div>
         <div style={{fontSize:11.5,color:C.muted,marginTop:8}}>העדפה נשמרת כבר עכשיו. שליחת חידוש מחייבת אירוע קנוני שקורא ל-notify_topic; לא נשלח דבר מומצא.</div>
       </div>}
       {crossOpen&&<div style={{marginTop:14,borderTop:`1px solid ${C.line}`,paddingTop:14}}>
         <div style={{fontWeight:900}}>◎ הצלבה סביב {identity.label} <Help title="מצא הצלבה">הצלבה מחפשת חיבור בין ישויות/ביטויים דרך שיטות וראיות קיימות. תוצאה היא מועמד למחקר או עובדה מנועית לפי מקורה — לא אמת קנונית אוטומטית.</Help></div>
-        <div style={{color:C.muted,fontSize:13,lineHeight:1.7,marginTop:5}}>בשלב הזה ה-Hub לא ממציא Orchestrator חדש. הפעולה מפנה למנוע ההצלבות הקיים, וה-Projection הבא יחזיר את התוצאה לתוך ה-Inspector כאן.</div>
+        <div style={{color:C.muted,fontSize:13,lineHeight:1.7,marginTop:5}}>זהו כלי מחקר, לא פעולת שמירה. ה-Hub מפנה למנוע ההצלבות הקיים ולא יוצר Orchestrator חדש.</div>
         <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
-          <Link to="/cross" style={{textDecoration:"none",background:C.blue,color:C.onBlue,borderRadius:999,padding:"9px 14px",fontWeight:850}}>פתח מנוע הצלבות</Link>
-          <button onClick={()=>addToResearch?.(entity)} style={{border:`1px solid ${C.line}`,background:C.paper,borderRadius:999,padding:"9px 14px",fontWeight:800,cursor:"pointer"}}>＋ הכנס את {identity.label} למחקר</button>
+          <Link to="/cross" style={{textDecoration:"none",background:C.blue2,color:C.ink,border:`1px solid ${C.blue}`,borderRadius:999,padding:"9px 14px",fontWeight:850}}>פתח מנוע הצלבות</Link>
         </div>
       </div>}
     </section>
@@ -195,7 +192,7 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
 
       <div style={{marginTop:14}}>
         <div style={{fontWeight:900,marginBottom:8}}>Method Rail · כל השיטות הזמינות ב-Projection <Help title="סרגל שיטות">הסדר מגיע מ-sort_order של Registry קנוני, לא מרשימה ידנית חדשה. בהמשך סדר הניהול הקיים ייבדק ויישמר.</Help></div>
-        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=>{const sample=typeof g.phrases?.[0]==="string"?g.phrases[0]:(g.phrases?.[0]?.phrase||g.phrases?.[0]?.label||""); const active=methodTrace?.method===g.method; return <button key={g.method} onClick={()=>sample&&setMethodTrace({method:g.method,phrase:sample})} disabled={!sample} style={{cursor:sample?"pointer":"default",opacity:sample?1:.5,whiteSpace:"nowrap",border:`1px solid ${active?C.blue:C.line}`,background:active?C.blue2:"#fff",color:C.ink,borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{g.registry?.display_label||g.method} · {g.count||g.phrases?.length||0} ⓘ</button>})}</div>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=>{const sample=typeof g.phrases?.[0]==="string"?g.phrases[0]:(g.phrases?.[0]?.phrase||g.phrases?.[0]?.label||""); const active=methodTrace?.method===g.method; return <button key={g.method} onClick={()=>sample&&setMethodTrace({method:g.method,phrase:sample})} disabled={!sample} style={{cursor:sample?"pointer":"default",opacity:sample?1:.5,whiteSpace:"nowrap",border:`1px solid ${active?C.gold:C.line}`,background:active?C.gold2:C.soft,color:active?C.gold:C.ink,borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{g.registry?.display_label||g.method} · {g.count||g.phrases?.length||0} ⓘ</button>})}</div>
         {methodTrace?<MethodTrace method={methodTrace.method} phrase={methodTrace.phrase} onClose={()=>setMethodTrace(null)} />:null}
       </div>
     </section>
@@ -204,7 +201,7 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
       <div style={{fontSize:11,fontWeight:900,letterSpacing:1.4,color:C.gold}}>ZERO SERIES</div>
       <h2 style={{margin:"4px 0 0",fontSize:23}}>סדרת האפס <Help title="סדרת האפס">ה-owner החי הוא fn_zero_scale. הסדרה שומרת את שורש הספרות ומקרינה סקאלות ×10; זו עובדת מנוע, והפרשנות נשארת נפרדת.</Help></h2>
       {zero?.applicable?<div style={{marginTop:13}}>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>{zeroChain.map((n,i)=><Link key={n} to={`/number/${n}`} style={{textDecoration:"none",background:i===0?C.blue2:"#fff",border:`1px solid ${i===0?C.blue:C.line}`,borderRadius:12,padding:"10px 12px",color:C.ink,fontWeight:900}}>{n}</Link>)}</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>{zeroChain.map((n,i)=><Link key={n} to={`/number/${n}`} style={{textDecoration:"none",background:i===0?C.gold2:C.soft,border:`1px solid ${i===0?C.gold:C.line}`,borderRadius:12,padding:"10px 12px",color:i===0?C.gold:C.ink,fontWeight:900}}>{n}</Link>)}</div>
         <div style={{fontSize:12,color:C.muted,marginTop:8}}>שורש: <b>{zero.core_root}</b> · source: {zero.source_of_truth}</div>
       </div>:<div style={{color:C.muted,marginTop:10}}>סדרת האפס אינה ישימה לערך הזה לפי המנוע.</div>}
     </section>
@@ -218,9 +215,9 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
       <div style={{fontSize:11,fontWeight:900,letterSpacing:1.4,color:C.gold}}>RESEARCH TRAIL</div>
       <h2 style={{margin:"4px 0 10px",fontSize:21}}>מסלול מחקר חי <Help title="מסלול מחקר">המסלול שומר Context ומאפשר Exact Reopen. הוא אינו Breadcrumb בלבד ואינו יוצר Graph חדש.</Help></h2>
       <div style={{display:"flex",gap:7,alignItems:"center",overflowX:"auto",paddingBottom:4}}>
-        <span style={{whiteSpace:"nowrap",background:C.blue,color:C.onBlue,borderRadius:999,padding:"8px 12px",fontWeight:900}}>{identity.label}</span>
-        {journey?.root?.value?<><span style={{color:C.muted}}>←</span><span style={{whiteSpace:"nowrap",background:C.paper,border:`1px solid ${C.line}`,borderRadius:999,padding:"8px 12px"}}>שורש {journey.root.value}</span></>:null}
-        {(journey?.branches||[]).slice(0,5).map((b,i)=><React.Fragment key={i}><span style={{color:C.muted}}>←</span><span style={{whiteSpace:"nowrap",background:C.paper,border:`1px solid ${C.line}`,borderRadius:999,padding:"8px 12px"}}>{b.label||b.value||b.kind||"תחנה"}</span></React.Fragment>)}
+        <span style={{whiteSpace:"nowrap",background:C.gold2,color:C.gold,border:`1px solid ${C.gold}`,borderRadius:999,padding:"8px 12px",fontWeight:900}}>{identity.label}</span>
+        {journey?.root?.value?<><span style={{color:C.muted}}>←</span><span style={{whiteSpace:"nowrap",background:C.soft,border:`1px solid ${C.line}`,borderRadius:999,padding:"8px 12px"}}>שורש {journey.root.value}</span></>:null}
+        {(journey?.branches||[]).slice(0,5).map((b,i)=><React.Fragment key={i}><span style={{color:C.muted}}>←</span><span style={{whiteSpace:"nowrap",background:C.soft,border:`1px solid ${C.line}`,borderRadius:999,padding:"8px 12px"}}>{b.label||b.value||b.kind||"תחנה"}</span></React.Fragment>)}
       </div>
     </section>
 
@@ -240,7 +237,7 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
       <div style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:18,padding:16}}><div style={{fontWeight:900,fontSize:17}}>✦ רזיאל · המשך מחקר <Help title="רזיאל">הסיכום הקצר בדף, הניתוח העמוק והליווי המתמשך בהיכל הם שלושה תפקידים שונים. כאן ההמלצות מתחילות מנתונים קיימים ורק אחר כך AI.</Help></div>
         <div style={{color:C.muted,fontSize:12.5,marginTop:8}}>{research.length} Research Objects · {sources.length} מקורות. הצעות ההמשך כאן נגזרות קודם מה-Graph/Engine כדי לחסוך AI ולהישאר ניתנות להסבר.</div>
         <div style={{display:"grid",gap:7,marginTop:10}}>{nextSteps.map((s,i)=>s.href?<Link key={i} to={s.href} style={{textDecoration:"none",color:C.ink,border:`1px solid ${C.line}`,borderRadius:11,padding:"9px 10px",background:C.soft}}><b>{s.icon}</b> {s.text}</Link>:<button key={i} onClick={s.action} style={{textAlign:"right",cursor:"pointer",color:C.ink,border:`1px solid ${C.line}`,borderRadius:11,padding:"9px 10px",background:C.soft,font:"inherit"}}><b>{s.icon}</b> {s.text}</button>)}</div>
-        <Link to="/research" style={{display:"inline-block",marginTop:10,textDecoration:"none",background:C.blue,color:C.onBlue,borderRadius:999,padding:"8px 12px",fontWeight:850}}>פתח בהיכל</Link></div>
+        <Link to="/research" style={{display:"inline-block",marginTop:10,textDecoration:"none",background:C.gold2,color:C.gold,border:`1px solid ${C.gold}`,borderRadius:999,padding:"8px 12px",fontWeight:850}}>פתח בהיכל</Link></div>
     </section>
 
     <section style={{marginTop:18,background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18}}>
