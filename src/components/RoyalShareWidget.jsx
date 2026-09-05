@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { trackShare } from "../lib/tracking.js";
-import { taggedShareUrl } from "../lib/propagation.js";
+import { taggedShareUrl, landingKey } from "../lib/propagation.js";
 import { supabase } from "../lib/supabase.js";
 import { shareNumberSmart } from "../lib/numberCard.js";
 import { canNativeShare, nativeShare as sNativeShare, copyLink as sCopyLink, floatingShareShown, CHANNELS } from "../lib/share.js";
@@ -54,7 +54,7 @@ export default function RoyalShareWidget() {
   const rawTitle = typeof document !== "undefined" ? document.title : "סוד 1820";
   const title = (rawTitle.split(/[|·–—-]/)[0] || "סוד 1820").trim();
   const text = `${title} 👑`;
-  const slug = pathname.replace(/^\//, "") || "home";
+  const slug = landingKey(pathname); // 🔑 נרמול קנוני משותף עם captureArrival (Sharing Foundation)
   // מונה השיתופים הקהילתי מוצג רק בדף הבית — לא על פוסטים/דפים אחרים
   // (אחרת אותו מספר site-wide נראה כאילו הוא של הפוסט הנוכחי).
   const isHome = pathname === "/" || pathname === "/home-new" || pathname === "/בית-חדש";

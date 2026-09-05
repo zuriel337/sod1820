@@ -4,6 +4,7 @@ import { F } from "../theme.js";
 import { getChannelUpdates, getPostsFromSupabase } from "../lib/supabase.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { trackShare } from "../lib/tracking.js";
+import { taggedShareUrl, landingKey } from "../lib/propagation.js";
 import { waHref, nativeShare as sNativeShare } from "../lib/share.js";
 import ReporterLink from "./ReporterLink.jsx";
 
@@ -16,11 +17,17 @@ export const isConvergenceUpdate = u => /^\/topic\//.test(u?.link_url || "");
 
 // ↗ שיתוף עדכון ישירות מהאתר: Web Share (מובייל) → נפילה לוואטסאפ. נמדד ב-share tracking.
 // הקישור ויראלי-עמוק: ?u=<id> מנחית את המקבל בדיוק על אותו עדכון בדף השידורים.
+// 🔑 Sharing Foundation repair (Human-Gate 2026-09-05): taggedShareUrl מוסיף rid (הקישור הקודם
+// לא נשא rid כלל — captureArrival לא יכול היה לרוץ) + src="broadcast". slug=נירמול-היעד האמיתי
+// (landingKey, זהה ל-captureArrival) במקום "bc-<id>" הישן שלא תאם אף landing — הזהות (u.id)
+// עוברת ל-meta.content_id ולא הולכת לאיבוד.
 export async function shareUpdate(u, brandTitle) {
   // קישור ויראלי-עמוק: ?u=<id> מנחית בדיוק על השידור הזה (או על הכתב דרך ReporterLink בעמוד).
-  const url = `https://sod1820.co.il/broadcasts?u=${u.id}&src=share`;
+  const rawUrl = `https://sod1820.co.il/broadcasts?u=${u.id}`;
+  const url = taggedShareUrl(rawUrl, "broadcast");
   const text = `📡 ${brandTitle} · סוד 1820\n\n${u.text}${u.credit ? `\n✍️ מאת ${u.credit}` : ""}`;
-  try { trackShare("broadcast", "bc-" + u.id); } catch { /* ignore */ }
+  const destSlug = landingKey("/broadcasts");
+  try { trackShare("broadcast", destSlug, { content_type: "broadcast", content_id: u.id }); } catch { /* ignore */ }
   if (await sNativeShare({ text: `${text}\n\n🔗 ${url}`, url })) return;   // לוגיקת-שיתוף קנונית
   window.open(waHref(url, text), "_blank", "noopener");
 }

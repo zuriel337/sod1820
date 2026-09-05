@@ -2,6 +2,7 @@ import { C, calcGem } from "../theme.js";
 import { waHref, canShareFile, shareImageFile } from "./share.js";
 import { KEY_NUMBERS } from "../theme.js";
 import { trackShare } from "./tracking.js";
+import { taggedShareUrl } from "./propagation.js";
 import { signalAiBehavior } from "./supabase.js";
 
 // ===== מחולל "תמונת מספר" — מייצר תמונה ממותגת לכל מספר עם טקסט ויראלי בתוכה =====
@@ -153,7 +154,10 @@ export async function downloadNumberCard(value, phrases) {
   });
 }
 
-const shareText = value => `🤯 תראו מה מסתתר במספר ${value} — מה הוא יודע עליכם?\nhttps://sod1820.co.il/number/${value}`;
+// 🔑 Sharing Foundation repair (Human-Gate 2026-09-05): הקישור המשוטח כאן היה חסר rid לגמרי →
+// captureArrival() (דורש rid) לא יכול היה לרוץ אף פעם, לא משנה כמה ה-slug תקין. taggedShareUrl
+// מוסיף rid+src לפי הערוץ (channel) בפועל — אותה לוגיקת-תיוג קנונית כמו RoyalShareWidget/ShareActions.
+const shareText = (value, channel = "native") => `🤯 תראו מה מסתתר במספר ${value} — מה הוא יודע עליכם?\n${taggedShareUrl(`https://sod1820.co.il/number/${value}`, channel)}`;
 
 // שיתוף תמונת המספר — שיתוף מקורי במובייל, הורדה בדסקטופ. מחזיר true בהצלחה.
 export async function shareNumberCard(value, phrases) {
@@ -164,7 +168,7 @@ export async function shareNumberCard(value, phrases) {
     const file = new File([blob], cardFileName(value), { type: "image/png" });
     if (canShareFile(file)) {
       trackShare("native", `number/${value}`);
-      await shareImageFile(file, { title: `המספר ${value} · סוד 1820`, text: shareText(value) });
+      await shareImageFile(file, { title: `המספר ${value} · סוד 1820`, text: shareText(value, "native") });
       return true;
     }
     const url = URL.createObjectURL(blob);
@@ -190,7 +194,7 @@ export async function shareNumberSmart(value, phrases) {
     const file = new File([blob], cardFileName(value), { type: "image/png" });
     if (canShareFile(file)) {
       trackShare("native", `number/${value}`);
-      await shareImageFile(file, { title: `המספר ${value} · סוד 1820`, text: shareText(value) });
+      await shareImageFile(file, { title: `המספר ${value} · סוד 1820`, text: shareText(value, "native") });
       return "image";
     }
   } catch (e) {
@@ -198,32 +202,34 @@ export async function shareNumberSmart(value, phrases) {
   }
   // דסקטופ / אין שיתוף קבצים → וואטסאפ עם הקישור (תצוגת ה-OG מציגה תמונה)
   trackShare("whatsapp", `number/${value}`);
-  window.open(waHref("", shareText(value)), "_blank", "noopener,noreferrer");
+  window.open(waHref("", shareText(value, "whatsapp")), "_blank", "noopener,noreferrer");
   return "link";
 }
 
 // ✨ שיתוף מסע — כיתוב ממותג שמספר על ההתכנסות (כל התחנות → מספר אחד). מזמין את הצופה
-// לגלות את המספר שלו. תיוג ?src=journey למדידה (מי הגיע דרך שיתוף-מסע). מתעד slug=journey/<root>
-// כדי שדשבורד הניהול יראה «מי שיתף מסע». התמונה = כרטיס-המספר הקיים (כרטיס-מסע מעוצב = בהמשך).
-const journeyShareText = (root, meaning) =>
-  `✨ יצאתי למסע בעץ המספרים של סוד 1820.\nעברתי בין ביטויים שנראים שונים לגמרי — וכולם התכנסו אל מספר אחד: ${root}${meaning ? ` · ${meaning}` : ""}.\nגם לכם יש מספר שמחכה. גלו את שלכם 👇\nhttps://sod1820.co.il/number/${root}?src=journey`;
+// לגלות את המספר שלו. מתעד slug=journey/<root> (נשאר ללא-שינוי — admin_journey_shares
+// תלוי במפורש ב-slug like 'journey/%', ראה supabase/migrations/20260901120000_...sql:114).
+// התמונה = כרטיס-המספר הקיים (כרטיס-מסע מעוצב = בהמשך).
+// 🔑 Sharing Foundation repair: taggedShareUrl מוסיף rid+src (במקום ה-?src=journey הידני
+// הקודם, שבלאו-הכי לא נצרך בשום קורא חי) — כך captureArrival סוף-סוף יכול לרוץ בקישור הזה.
+const journeyShareText = (root, meaning, channel = "native") =>
+  `✨ יצאתי למסע בעץ המספרים של סוד 1820.\nעברתי בין ביטויים שנראים שונים לגמרי — וכולם התכנסו אל מספר אחד: ${root}${meaning ? ` · ${meaning}` : ""}.\nגם לכם יש מספר שמחכה. גלו את שלכם 👇\n${taggedShareUrl(`https://sod1820.co.il/number/${root}`, channel)}`;
 
 export async function shareJourney(root, phrases, meaning) {
   await ensureFonts();
-  const text = journeyShareText(root, meaning);
   try {
     const cv = buildNumberCard(root, phrases);
     const blob = await new Promise(res => cv.toBlob(res, "image/png"));
     const file = new File([blob], cardFileName(root), { type: "image/png" });
     if (canShareFile(file)) {
       trackShare("native", `journey/${root}`);
-      await shareImageFile(file, { title: `המסע אל ${root} · סוד 1820`, text });
+      await shareImageFile(file, { title: `המסע אל ${root} · סוד 1820`, text: journeyShareText(root, meaning, "native") });
       return "image";
     }
   } catch (e) {
     if (e && e.name === "AbortError") return "cancel";
   }
   trackShare("whatsapp", `journey/${root}`);
-  window.open(waHref("", text), "_blank", "noopener,noreferrer");
+  window.open(waHref("", journeyShareText(root, meaning, "whatsapp")), "_blank", "noopener,noreferrer");
   return "link";
 }
