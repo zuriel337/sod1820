@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import QuickActions from "../QuickActions.jsx";
 import WatchButton from "../WatchButton.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { supabase } from "../../lib/supabase.js";
 
 const C={ink:"#151515",muted:"#6d6a63",line:"#e8e4dc",paper:"#fffdfa",soft:"#f7f4ee",blue:"#2f6df6",blue2:"#eaf0ff",gold:"#9a7617",gold2:"#f6ecd0",dark:"#0b0d12"};
 
@@ -46,6 +47,29 @@ function SequenceShell({kind,label}){
   </article>
 }
 
+
+function MethodTrace({method, phrase, onClose}){
+  const [state,setState]=useState({loading:true,data:null,error:null});
+  useEffect(()=>{
+    let alive=true;
+    setState({loading:true,data:null,error:null});
+    supabase.rpc("gematria_method_trace",{p_method_key:method,p_phrase:phrase})
+      .then(({data,error})=>{if(!alive)return; setState({loading:false,data,error:error||null});})
+      .catch(error=>alive&&setState({loading:false,data:null,error}));
+    return()=>{alive=false};
+  },[method,phrase]);
+  const trace=state.data;
+  return <div style={{marginTop:12,border:`1px solid ${C.line}`,borderRadius:15,background:"#fff",padding:14}}>
+    <div style={{display:"flex",gap:10,justifyContent:"space-between",alignItems:"center"}}>
+      <div><b>{method}</b> · Trace <Help title="Trace שיטה">Trace הוא פירוט חישוב של המנוע הקנוני. הוא אינו Finding, Claim או פרשנות.</Help></div>
+      <button onClick={onClose} style={{border:0,background:"transparent",fontSize:20,cursor:"pointer"}}>×</button>
+    </div>
+    {state.loading?<div style={{color:C.muted,marginTop:8}}>טוען פירוט מהמנוע…</div>
+      :state.error?<div style={{color:"#8b3a2b",marginTop:8}}>לא ניתן לטעון Trace כרגע.</div>
+      :<pre dir="ltr" style={{whiteSpace:"pre-wrap",wordBreak:"break-word",background:"#f7f7f5",borderRadius:11,padding:11,fontSize:11.5,lineHeight:1.6,margin:"10px 0 0"}}>{JSON.stringify(trace,null,2)}</pre>}
+  </div>
+}
+
 export default function EntityHubGoldenControls({data,relationGroups=[]}){
   const identity=data?.identity||{};
   const surface=data?.surface||{};
@@ -54,10 +78,11 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
   const journey=data?.journeys?.numberKnowledgeJourney;
   const research=Array.isArray(data?.research?.rows)?data.research.rows:[];
   const sources=Array.isArray(data?.sources)?data.sources:[];
-  const {togglePin,isPinned,addToResearch}=useResearch();
+  const {addToResearch}=useResearch();
   const [dna,setDna]=useState("expressions");
   const [crossOpen,setCrossOpen]=useState(false);
   const [seq,setSeq]=useState("pi");
+  const [methodTrace,setMethodTrace]=useState(null);
 
   const entity=useMemo(()=>({
     id:`entity:${identity.type}:${identity.key||identity.label}`,
@@ -68,11 +93,14 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
     metadata:{source:"entity-hub-golden",node_id:identity.nodeId||null}
   }),[identity]);
 
-  const pinned=isPinned?.(entity.id);
   const regular=families.find(x=>x.method==="רגיל")||families[0]||null;
   const expressions=(regular?.phrases||[]).slice(0,18);
   const multi=families.filter(x=>(x.count||x.phrases?.length||0)>1).slice(0,12);
   const relationTotal=relationGroups.reduce((n,[,rows])=>n+rows.length,0);
+  const worlds=Array.isArray(data?.numberWorlds)?data.numberWorlds:[];
+  const signatures=Array.isArray(data?.signatures)?data.signatures:[];
+  const zero=data?.zeroScale||null;
+  const zeroChain=Array.isArray(zero?.scale_chain)?zero.scale_chain:[];
 
   return <div style={{marginTop:18}}>
     <section style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18,boxShadow:"0 8px 28px rgba(0,0,0,.05)"}}>
@@ -83,8 +111,8 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
         </div>
         <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
           <button onClick={()=>setCrossOpen(v=>!v)} style={{border:0,background:C.blue,color:"#fff",borderRadius:999,padding:"10px 16px",fontWeight:900,cursor:"pointer"}}>◎ מצא הצלבה</button>
-          <button onClick={()=>togglePin?.(entity)} style={{border:`1px solid ${pinned?C.blue:C.line}`,background:pinned?C.blue2:"#fff",color:pinned?C.blue:C.ink,borderRadius:999,padding:"10px 14px",fontWeight:850,cursor:"pointer"}}>{pinned?"◇ על השולחן ✓":"◇ שים על השולחן"}</button>
-          <WatchButton topic={`number:${identity.label}`} source="entity_hub_1237" compact ghost label={`עקוב אחרי ${identity.label}`} explainer="המעקב נשמר במנוע המעקב הקיים; חיבור fan-out של עדכוני ישות יושלם בלי מערכת Follow חדשה." />
+          <button onClick={()=>addToResearch?.(entity)} style={{border:`1px solid ${C.line}`,background:"#fff",color:C.ink,borderRadius:999,padding:"10px 14px",fontWeight:850,cursor:"pointer"}}>◇ שים על השולחן</button>
+          <WatchButton topic={`number:${identity.label}`} source="entity_hub_1237" compact ghost label={`עקוב אחרי ${identity.label}`} explainer="המעקב נשמר במנוע המעקב הקיים. notify_topic תומך בכל topic; חיבור אירועי חידוש למספר ייעשה דרך אותו fan-out, בלי מערכת Follow חדשה." />
         </div>
       </div>
       <QuickActions entity={entity} hideAnalyze style={{"--acc":C.blue,"--onAcc":"#fff","--line":C.line,"--card":"#fff","--ink":C.ink,"--ink2":C.muted}} />
@@ -120,8 +148,13 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:9,marginTop:10}}>{multi.length?multi.map(g=><div key={g.method} style={{background:"#fff",border:`1px solid ${C.line}`,borderRadius:13,padding:11}}><b>{g.registry?.display_label||g.method}</b><div style={{fontSize:12,color:C.muted,marginTop:3}}>{g.count||g.phrases?.length||0} ביטויים</div></div>):<span style={{color:C.muted}}>אין כרגע קבוצות רב־שיטתיות זמינות.</span>}</div>
         </div>}
         {dna==="worlds"&&<div>
-          <b>עולמות <Help title="עולמות">עולם הוא Dimension סמנטי, לא עוד טבלת אמת. ה-Crosswalk החי מצא world metadata קיים, אך PR #328 עדיין אינו מקרין אותו — לכן לא נזייף נתונים.</Help></b>
-          <div style={{marginTop:10,padding:14,border:"1px dashed #c9b886",borderRadius:13,background:"#fffaf0",color:"#665a3c"}}>נקודת החיבור נשמרה. לפני Public promotion נחבר את world metadata הקיים ל-Projection ונציג כאן Method Rail שמחליף תצוגה בלי לעזוב את 1237.</div>
+          <b>עולמות <Help title="עולמות">עולם הוא Dimension סמנטי שמגיע מ-nodes.metadata.world הקיים. אין כאן טבלת אמת חדשה.</Help></b>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:9,marginTop:10}}>
+            {worlds.length?worlds.map(g=><article key={g.world} style={{background:"#fff",border:`1px solid ${C.line}`,borderRadius:13,padding:12}}>
+              <div style={{display:"flex",justifyContent:"space-between",gap:8}}><b>{g.world}</b><span style={{color:C.gold,fontWeight:900}}>{g.count}</span></div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>{(g.items||[]).slice(0,5).map(x=><Link key={x.id} to={`/number/${encodeURIComponent(x.label)}`} style={{fontSize:11.5,textDecoration:"none",color:C.ink,border:`1px solid ${C.line}`,borderRadius:999,padding:"4px 7px"}}>{x.label}</Link>)}</div>
+            </article>):<span style={{color:C.muted}}>אין World metadata חי לישות הזו.</span>}
+          </div>
         </div>}
         {dna==="links"&&<div>
           <b>קשרים <Help title="קשרים">קשרים מגיעים מאותו Reality Graph. הם אינם נוצרים בגלל שהכרטיס מוצג כאן.</Help></b>
@@ -129,20 +162,40 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
           <div style={{fontSize:12,color:C.muted,marginTop:8}}>סה״כ {relationTotal} קשרי Graph נטענו ב-Golden Case.</div>
         </div>}
         {dna==="signatures"&&<div>
-          <b>חתימות <Help title="חתימות">חתימות קיימות בדף הישן כיכולת זהותית. ה-Hub החדש חייב לשמר אותן, אך לא יסיק חתימה מ-Graph relation כללי בלי owner קנוני.</Help></b>
-          <div style={{marginTop:10,color:C.muted}}>Capability locked for preservation. חיבור owner קנוני ייעשה לפני החלפת דף המספר הציבורי.</div>
+          <b>חתימות <Help title="חתימות">חתימות נקראות מה-owner הקיים: nodes.type=entity עם metadata.role=signature ו-value של המספר.</Help></b>
+          <div style={{display:"grid",gap:8,marginTop:10}}>{signatures.length?signatures.map(s=><article key={s.id} style={{background:"#fff",border:`1px solid ${C.line}`,borderRadius:12,padding:11}}><b>{s.metadata?.signature_title||s.label}</b>{s.description?<div style={{fontSize:12,color:C.muted,marginTop:4}}>{s.description}</div>:null}</article>):<span style={{color:C.muted}}>אין חתימה קנונית פעילה ל-{identity.label} כרגע.</span>}</div>
         </div>}
       </div>
 
       <div style={{marginTop:14}}>
         <div style={{fontWeight:900,marginBottom:8}}>Method Rail · כל השיטות הזמינות ב-Projection <Help title="סרגל שיטות">הסדר מגיע מ-sort_order של Registry קנוני, לא מרשימה ידנית חדשה. בהמשך סדר הניהול הקיים ייבדק ויישמר.</Help></div>
-        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=><span key={g.method} style={{whiteSpace:"nowrap",border:`1px solid ${C.line}`,background:"#fff",borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{g.registry?.display_label||g.method} · {g.count||g.phrases?.length||0}</span>)}</div>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>{families.map(g=><button key={g.method} onClick={()=>setMethodTrace(g.method)} style={{cursor:"pointer",whiteSpace:"nowrap",border:`1px solid ${methodTrace===g.method?C.blue:C.line}`,background:methodTrace===g.method?C.blue2:"#fff",color:C.ink,borderRadius:999,padding:"7px 11px",fontSize:12,fontWeight:800}}>{g.registry?.display_label||g.method} · {g.count||g.phrases?.length||0} ⓘ</button>)}</div>
+        {methodTrace?<MethodTrace method={methodTrace} phrase={identity.label} onClose={()=>setMethodTrace(null)} />:null}
       </div>
+    </section>
+
+    <section style={{marginTop:18,background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18}}>
+      <div style={{fontSize:11,fontWeight:900,letterSpacing:1.4,color:C.gold}}>ZERO SERIES</div>
+      <h2 style={{margin:"4px 0 0",fontSize:23}}>סדרת האפס <Help title="סדרת האפס">ה-owner החי הוא fn_zero_scale. הסדרה שומרת את שורש הספרות ומקרינה סקאלות ×10; זו עובדת מנוע, והפרשנות נשארת נפרדת.</Help></h2>
+      {zero?.applicable?<div style={{marginTop:13}}>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>{zeroChain.map((n,i)=><Link key={n} to={`/number/${n}`} style={{textDecoration:"none",background:i===0?C.blue2:"#fff",border:`1px solid ${i===0?C.blue:C.line}`,borderRadius:12,padding:"10px 12px",color:C.ink,fontWeight:900}}>{n}</Link>)}</div>
+        <div style={{fontSize:12,color:C.muted,marginTop:8}}>שורש: <b>{zero.core_root}</b> · source: {zero.source_of_truth}</div>
+      </div>:<div style={{color:C.muted,marginTop:10}}>סדרת האפס אינה ישימה לערך הזה לפי המנוע.</div>}
     </section>
 
     <section style={{marginTop:18,background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18}}>
       <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",flexWrap:"wrap"}}><div><div style={{fontSize:11,fontWeight:900,letterSpacing:1.4,color:C.gold}}>SEQUENCES</div><h2 style={{margin:"4px 0 0",fontSize:23}}>רצפים דיגיטליים <Help title="רצפים דיגיטליים">π ופיבונאצ׳י יהיו מכשירי חקירה חיים: לפני/אחרי, מיקום, סימון קטע ופעולות Context — בלי לעבור דף.</Help></h2></div><div style={{display:"flex",gap:7}}><RailButton active={seq==="pi"} onClick={()=>setSeq("pi")}>π</RailButton><RailButton active={seq==="fib"} onClick={()=>setSeq("fib")}>Fibonacci</RailButton></div></div>
       <div style={{marginTop:12}}>{seq==="pi"?<SequenceShell kind="π" label="π · Digital Scrubber"/>:<SequenceShell kind="Fibonacci" label="Fibonacci · Sequence Explorer"/>}</div>
+    </section>
+
+    <section style={{marginTop:18,background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18}}>
+      <div style={{fontSize:11,fontWeight:900,letterSpacing:1.4,color:C.gold}}>RESEARCH TRAIL</div>
+      <h2 style={{margin:"4px 0 10px",fontSize:21}}>מסלול מחקר חי <Help title="מסלול מחקר">המסלול שומר Context ומאפשר Exact Reopen. הוא אינו Breadcrumb בלבד ואינו יוצר Graph חדש.</Help></h2>
+      <div style={{display:"flex",gap:7,alignItems:"center",overflowX:"auto",paddingBottom:4}}>
+        <span style={{whiteSpace:"nowrap",background:C.blue,color:"#fff",borderRadius:999,padding:"8px 12px",fontWeight:900}}>{identity.label}</span>
+        {journey?.root?.value?<><span style={{color:C.muted}}>←</span><span style={{whiteSpace:"nowrap",background:"#fff",border:`1px solid ${C.line}`,borderRadius:999,padding:"8px 12px"}}>שורש {journey.root.value}</span></>:null}
+        {(journey?.branches||[]).slice(0,5).map((b,i)=><React.Fragment key={i}><span style={{color:C.muted}}>←</span><span style={{whiteSpace:"nowrap",background:"#fff",border:`1px solid ${C.line}`,borderRadius:999,padding:"8px 12px"}}>{b.label||b.value||b.kind||"תחנה"}</span></React.Fragment>)}
+      </div>
     </section>
 
     <section style={{marginTop:18,display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:12}}>
@@ -157,9 +210,9 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
         {[
           ["גלריות",surface.galleriesCount??surface.galleries?.length??0,"LIVE"],
           ["פוסטים",surface.postsCount??surface.posts?.length??0,"LIVE"],
-          ["סדרת האפס","✓","PRESERVE · owner wiring pending"],
+          ["סדרת האפס",zeroChain.length||"—",zero?.applicable?"LIVE · fn_zero_scale":"NOT APPLICABLE"],
           ["מצא הצלבה","✓","LIVE ENGINE ENTRY"],
-          ["ניתוחי שיטות","✓","PRESERVE / METHOD INSPECTOR"],
+          ["ניתוחי שיטות","✓","LIVE TRACE · gematria_method_trace"],
           ["ELS / צפנים","✓","PRESERVE / lens"],
           ["מסעות",journey?"✓":"—","PROJECTED"],
           ["מקורות",sources.length,"PROJECTED"],
