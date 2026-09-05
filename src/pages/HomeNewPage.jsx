@@ -55,6 +55,8 @@ import { BUILD_PROGRESS, BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
+// 🖼️ רקע-השער החי (5.9.2026, בקשת צוריאל) — שער-הזהב 888. רק תיבת-חיפוש + שני שערי-הכניסה מעליו, בלי טקסט נוסף.
+const HOME_HERO_BG = "/home-hero-gate-888.png";
 // 🏗️ מפת-הבנייה הציבורית נגזרת ממקור-אמת אחד: lib/knowledgeMap.js.
 const PUBLIC_BUILD_PROGRESS = BUILD_PROGRESS;
 const PUBLIC_BUILD_TRACKS = BUILD_TRACKS;
@@ -366,8 +368,9 @@ export default function HomeNewPage() {
            שכבת-כיסוי כהה (scrim) שומרת על קריאוּת הפסוק/החיפוש שמעליה; הכתר+1820 נשארים גלויים במרכז. */
         .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
           background:
-            radial-gradient(80% 130% at 50% 0%, rgba(123,76,176,.28), transparent 68%),
-            linear-gradient(180deg,#0c0913 0%,#09080f 100%);
+            radial-gradient(80% 130% at 50% 0%, rgba(123,76,176,.22), transparent 68%),
+            linear-gradient(180deg, rgba(9,8,15,.32) 0%, rgba(9,8,15,.62) 100%),
+            center/cover no-repeat url(${HOME_HERO_BG});
           border-bottom:1px solid rgba(212,175,55,.30); }
         /* וינייטה עדינה בקצוות בלבד — כדי שהפסוק/החיפוש (מימין) והקלפים (משמאל) יישבו על רקע מעט כהה, בלי להחשיך את מרכז התמונה */
         .hn-mx-scrim { position:absolute; inset:0; z-index:1; pointer-events:none; background:
@@ -378,8 +381,6 @@ export default function HomeNewPage() {
         /* פעולות-השער (חיפוש + שערים) יושבות בתחתית תמונת-ההירו */
         .hn-hero-actions { width:100%; max-width:540px; display:flex; flex-direction:column; align-items:center; gap:14px; }
         .hn-hero-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-        .hn-emblem { color:#d4af37; font-family:${F.regal}; font-size:12px; letter-spacing:4px;
-          text-transform:uppercase; opacity:.92; }
         .hn-gate-title { color:#f0d879; font-family:${F.regal}; font-weight:800;
           font-size:clamp(24px,4.6vw,40px); line-height:1.16; margin:0; text-wrap:balance;
           text-shadow:0 2px 24px rgba(0,0,0,.5); }
@@ -440,8 +441,6 @@ export default function HomeNewPage() {
           .hn-gate-inner{ width:100%; max-width:820px; min-height:330px; padding:48px 44px 42px; }
           .hn-hero-actions{ max-width:620px; }
         }
-        .hn-compact-brand{color:#f0d879;font-family:${F.regal};font-size:clamp(25px,4vw,38px);font-weight:800;margin:0;text-shadow:0 2px 20px rgba(0,0,0,.45)}
-        .hn-compact-sub{color:#cfc3a5;font-family:${F.body};font-size:14.5px;line-height:1.8;margin:0 0 2px;max-width:620px}
         .hn-home-top{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start;max-width:1120px;margin:22px auto 6px}
         .hn-updates-col{min-width:0}
         .hn-build-card{position:sticky;top:86px;padding:18px 16px;border:1px solid rgba(212,175,55,.38);border-radius:18px;background:linear-gradient(145deg,rgba(212,175,55,.10),rgba(123,76,176,.08));box-shadow:0 12px 34px rgba(0,0,0,.18)}
@@ -477,9 +476,6 @@ export default function HomeNewPage() {
           <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
           {/* 🖼️ תמונת-ההירו (באנר 1820) היא הכוכב — פרוסה על כל הרוחב כרקע-השער.
               מעליה, בתחתית, רק הפעולה: חיפוש + שני שערי-כניסה. הפסוק כבר מופיע בתוך התמונה. */}
-          <div className="hn-emblem">sod1820.co.il</div>
-          <h2 className="hn-compact-brand">אתר כי לה׳ המלוכה נבנה מחדש מבפנים</h2>
-          <p className="hn-compact-sub">אנחנו בונים מחדש את האתר כולו — לא רק את העיצוב. מאחורי הקלעים מתחברים מנועי הגימטריה, הצפנים בתורה, הספרים, עץ הידע, המחקר ורזיאל לבסיס אחד שילווה אתכם מחיפוש ראשון ועד מחקר עמוק.</p>
           <div className="hn-hero-actions">
             <form onSubmit={go} className="hn-search">
               <span className="hn-mag" aria-hidden="true">🔍</span>
