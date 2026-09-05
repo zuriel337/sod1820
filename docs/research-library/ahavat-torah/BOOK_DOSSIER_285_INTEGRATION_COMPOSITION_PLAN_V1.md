@@ -187,7 +187,44 @@
 - **פרטיות (מתוקן, ר' תיבת-הציון למעלה — correction B):** תבנית ה-fail-closed שכבר-ממומשת ב-`bookSelectionAdapter.js` (`isPublicRow`/`buildPublicBundle`, ר' §6.2(4)/(5) למעלה) עוברת את הטסטים-שלה-עצמה (פיקסטורות סינתטיות) — זה **הכרחי אך לא-מספיק**. זו **אינה** הוכחה שה-bundle הסטטי-הציבורי-בפועל (`/book-data/<slug>.tables.json` או יורשו), תשובת `api/card.js`/`api/og.js`, ורשומת `api/sitemap.js` אכן **נבנים דרך** ה-helper הזה ולא-עוקפים-אותו. **טסט-קבלה נדרש לפני-שחרור** (לא-בוצע כאן): לבדוק את הארטיפקט-המיוצר-בפועל מול שורה עם `privacy_scope` מוגבל ולוודא-היעדרות, לא-רק לבדוק את ה-helper בבידוד.
 - **SEO/sitemap:** "הדוסייה המתועדת" (JSON סטטי, §2/§83 למעלה) אינה-נכנסת ל-`api/sitemap.js`/`api/card.js` באופן-אוטומטי מעצם-קיומה — רק דרך נתיב-ציבורי-אמיתי-קיים (`/book/:slug`), תואם ל-Delta's "SEO / OG / sitemap boundary".
 
-**אין שינוי-קוד/עיצוב מוטמע כאן או ב-Delta עצמו** — שני המסמכים דוקומנטציה/חוזה בלבד. Phase B (visual preview של Book Hub) ממתין לאישור-GPT/ZURIEL על ה-Delta לפני שמתחיל להטמיע `research_clean` בפועל.
+**אין שינוי-קוד/עיצוב מוטמע כאן או ב-Delta עצמו** — שני המסמכים דוקומנטציה/חוזה בלבד. Phase B (visual preview של Book Hub) ממתין לאישור-GPT/ZURIEל על ה-Delta לפני שמתחיל להטמיע `research_clean` בפועל.
+
+---
+
+## 8. תוספת (additive) — BOOK PROJECTION EXPERIENCE CONTRACT (typography deprecation + SEO/Share release extension)
+
+> per `work_log 49e92bf6` (BOOK_PROJECTION_EXPERIENCE_CONTRACT_V1 — APPROVED ADDENDUM / TYPOGRAPHY DEPRECATION) ו-`work_log 56ae06a7` (SEO_SHARE_RELEASE_EXTENSION), שניהם Human-Gate ZURIEL/GPT, 5.9.2026. חוזה תמציתי-אחד המחייב את יישום ה-Book Hub לצרוך owners קיימים — **אינו** Design System/Book OS/rule family/store/roadmap workstream חדש. §1-§7 למעלה נשארים כלשונם; זו תוספת מקבילה, לא-שינוי.
+
+### 8.1 עקרונות מחייבים (מ-49e92bf6, ממוספר כלשונו)
+
+1. **SEMANTICS OWNER** = `research_intake_foundation_contract` §9. UI לעולם לא משדרג source claim/truth/canonical/public state.
+2. **COMPOSITION OWNER** = תוכנית-החיבור הזו (§2): Book → Source → Research/Data → exact Selection → Connections → Workspace.
+3. **GLOBAL CHROME OWNER** = System Frame (`docs/sod1820-system-frame-contract-v1.md`) — Book אינו יוצר nav/control shell מתחרה.
+4. **VISUAL OWNER** = טוקנים סמנטיים קיימים בלבד (`theme.js`+`palette.js`+`themeMode.js`). אין פלטה מקומית-לסוכן.
+5. **TYPOGRAPHY OWNER** = תפקידי-F סמנטיים בלבד (`F.ui`/`F.body`/`F.display`/`F.numeric`). אין `font-family` ישיר חדש בקוד-הספר. **גופנים סריפיים/דקורטיביים ישנים (כולל טיפול-Frank-Ruhl/David-style שקיים כרגע ב-Book UI) DEPRECATED ON TOUCH** — מוסרים מהפרויקציה-השורדת, לא מועתקים-הלאה. אין להחזיר טיפוגרפיה ישנה בגלל שהנושא ספר-עתיק.
+6. **LEGACY LETTER ORNAMENT DEPRECATION** = הסרת גליפי-אלפבית דקורטיביים-צפים מה-chrome/hero/background של הספר בעת-נגיעה. **גבול-scope חשוב:** אותיות/טבלאות/דיאגרמות/גליפי-PDF **מקור-מסמך** הן CONTENT/EVIDENCE וחייבות-להישמר. אותיות-UI-דקורטיביות ≠ אותיות-מקור.
+7. **BOOK PERSONALITY** = דקורטיבי-בלבד: כריכה/טקסטורה/תמונת-מקור/אקסנט-עדין יכולים-להשתנות לפי-ספר. אקסנט-ספר לעולם לא-מקודד truth/verification/privacy/canonical state.
+8. **COMPONENT OWNERSHIP** = שימוש-חוזר ברכיבים-קנוניים תחילה; רכיב-מקומי מותר רק כשהוא Book-local אמיתי, מקודם-לקנוני רק אחרי צורך-חוזר/משטח-שני.
+9. **3D/SPATIAL** = PARKED ל-Golden Case הזה; אינו חלק מהקבלה-הנוכחית. Heichal בעל הפרויקציה-האימרסיבית-העתידית.
+10. **ACCEPTANCE** = כהה + בהיר + דסקטופ + 320/360/390 + exact source reopen + שתי בחירות-שונות נשמרות + שמירה-חוזרת-אידמפוטנטית + privacy fail-closed + אין stale manual snapshot דורס ארטיפקטים-חיים.
+
+### 8.2 SEO / Share / Release extension (מ-56ae06a7, ממוספר בהמשך 11-17)
+
+11. **CANONICAL URL / SEO OWNER** — כתובת-ציבורית-יציבה `/book/:slug`. שימוש ב-`src/lib/seo.js::applySeo` הקיים; אין מנוע-SEO-נפרד-לספר. זהות-קנונית ≠ שפה ≠ תווית-תצוגה. כותרת/תיאור/מטא-מקור מגיעים מפרויקציה-ציבורית-מאושרת, לעולם לא מ-payload מחקר-פרטי.
+12. **CRAWLER OG OWNER** — כל URL-ספר-קנוני-משוחרר עובר דרך `api/og.js`+`/api/card` הקיימים (`canonical_ui_components_law`). אין מחולל-OG-מקביל-לספר. טקסט-מחקר פרטי/מועמד לעולם לא-נכנס ל-OG/מטא רק כי הוא קיים ב-`research_objects`.
+13. **SHARE OWNER** — שימוש-חוזר ב-`<ShareActions/>` הקנוני + `share_placement_law`; אין משפחת-כפתורי-שיתוף מקומית. `floatingShareShown()` נשאר סמכות-המיקום. יעד-שיתוף לספר-שלם = `/book/:slug` הקנוני. שיתוף-בחירה-מדויקת מותר רק כשהתוכן-הנבחר ציבורי-עצמאי ובר-שיתוף וניתן-לפתיחה-חוזרת-מדויקת; אחרת משתפים את הקשר-הציבורי, לא מחקר-פרטי. שיתוף ≠ שמירה ≠ מעקב.
+14. **SITEMAP / INDEXABILITY** — נתיבי-ספר-ציבוריים-משוחררים בלבד נכנסים ל-sitemap הדינמי הקיים. מחקר/אדמין/בחירות-פרטיות לעולם לא-הופכים לרשומת-sitemap. אין אינדוקס state-חולף (טאב/פילטר/hash/query) כעמודים-כפולים.
+15. **STRUCTURED DATA / SEARCH PRESENTATION** — שימוש-חוזר בתשתית-SEO/JSON-LD קיימת היכן-שתואם; ייצוג-נאמן-ושמרני. אם ה-helpers-הקיימים לא-יכולים-לייצג שדה-ספר-נדרש בלי-להמציא-סמנטיקה — לדווח-פער-סופי, לא-לבנות מחסנית-SEO-שנייה.
+16. **SEO + PRIVACY INVARIANT** — זמינות-PDF-ציבורית ≠ רישיון-לחשוף-ניתוח-פרטי. title/description/OG/JSON-LD/sitemap/share payloads כפופים לאותו שער-פרטיות/פרסום כמו ה-UI-הנראה.
+17. **MULTILINGUAL EXTENSION** — UI-עברי-קודם נשאר. hreflang/תוויות-מתורגמות עתידיים הם Extension Point תחת Localization/Representation Governance הקיים (`content_translation_law`). זהות-ספר-יציבה חייבת-לשרוד פרויקציות-שפה; אין לקודד זהות בתווית-תצוגה-מתורגמת.
+
+### 8.3 יישום בפועל בפאס-הזה (Golden Preview 2D, `work_log 8fa42ac4`)
+
+- הפריט (5)/(6) יושמו-בפועל: `BookHubPage.jsx` הוסר-לגמרי מ-`'Frank Ruhl Libre',serif`/`Heebo` literal, עבר ל-`F.ui`/`F.body`/`F.display`/`F.numeric` בלבד. אין ולא-היו אותיות-דקורטיביות-צפות ב-chrome (מאומת — הענף הנקי כבר-הוסיר 3D/דקורציה קודם).
+- הפריט (4) יושם: כל צבע עובר ל-`usePalette()` (dark/light tokens קיימים), אין hex מקומי-חדש.
+- הפריט (9) נשמר PARK — אין טאב/רכיב 3D בענף הזה.
+- הפריטים (11)-(16) — **אינם MUST להיטמע בפאס-התצוגה-המקדימה הזה** (אין release/publication בפאס זה, כפי-שגם ה-gate `work_log a39cb97a` וגם 56ae06a7 עצמו קבעו כ-"MUST BEFORE PUBLIC BOOK RELEASE", לא כחסם-preview). `applySeo` הקיים נשאר-בשימוש (11, חלקית). אין `api/og.js`/`api/card.js`/`api/sitemap.js` נוגעים בפאס-הזה — לא-נבנה מנגנון-מקביל, ולא-מדווח-כ"הושלם" מה-שלא-בוצע. אלה נשארים שער-מפורש-לפני-שחרור-ציבורי, per `work_log a39cb97a`'s open_threads.
+- הפריט (13) — כפתור-שיתוף-קונטקסטואלי-אחד-בלבד (לא-אוטומטי) נוסף ברמת-הספר, קורא ל-`<ShareActions/>` הקנוני עצמו; אין widget-שיתוף מקומי חדש.
 
 ---
 
