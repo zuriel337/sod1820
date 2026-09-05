@@ -82,6 +82,7 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
   const [dna,setDna]=useState("expressions");
   const [crossOpen,setCrossOpen]=useState(false);
   const [seq,setSeq]=useState("pi");
+  const [followDetail,setFollowDetail]=useState(false);
   const [methodTrace,setMethodTrace]=useState(null);
 
   const entity=useMemo(()=>({
@@ -113,9 +114,25 @@ export default function EntityHubGoldenControls({data,relationGroups=[]}){
           <button onClick={()=>setCrossOpen(v=>!v)} style={{border:0,background:C.blue,color:"#fff",borderRadius:999,padding:"10px 16px",fontWeight:900,cursor:"pointer"}}>◎ מצא הצלבה</button>
           <button onClick={()=>addToResearch?.(entity)} style={{border:`1px solid ${C.line}`,background:"#fff",color:C.ink,borderRadius:999,padding:"10px 14px",fontWeight:850,cursor:"pointer"}}>◇ שים על השולחן</button>
           <WatchButton topic={`number:${identity.label}`} source="entity_hub_1237" compact ghost label={`עקוב אחרי ${identity.label}`} explainer="המעקב נשמר במנוע המעקב הקיים. notify_topic תומך בכל topic; חיבור אירועי חידוש למספר ייעשה דרך אותו fan-out, בלי מערכת Follow חדשה." />
+          <button onClick={()=>setFollowDetail(v=>!v)} style={{border:`1px solid ${C.line}`,background:"#fff",color:C.muted,borderRadius:999,padding:"10px 13px",fontWeight:800,cursor:"pointer"}}>🔔 סוגי חידושים</button>
         </div>
       </div>
       <QuickActions entity={entity} hideAnalyze style={{"--acc":C.blue,"--onAcc":"#fff","--line":C.line,"--card":"#fff","--ink":C.ink,"--ink2":C.muted}} />
+      {followDetail&&<div style={{marginTop:14,borderTop:`1px solid ${C.line}`,paddingTop:14}}>
+        <div style={{fontWeight:900}}>🔔 על מה לעקוב ב-{identity.label} <Help title="מעקב ישות">כל בחירה משתמשת באותו WatchButton ובאותו notification_prefs. אלה העדפות מעקב; fan-out יישלח רק מאירועים מחוברים ומאומתים.</Help></div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:8,marginTop:10}}>
+          {[
+            ["הכול",`number:${identity.label}`,"🌐"],
+            ["גימטריות",`number:${identity.label}:gematria`,"🔢"],
+            ["התכנסויות",`number:${identity.label}:convergence`,"◎"],
+            ["סדרת האפס",`number:${identity.label}:zero`,"0"],
+            ["ELS / צפנים",`number:${identity.label}:els`,"🔠"],
+            ["מסעות",`number:${identity.label}:journey`,"🧭"],
+            ["מקורות / ספרים",`number:${identity.label}:source`,"📚"],
+          ].map(([label,topic,icon])=><WatchButton key={topic} topic={topic} source="entity_hub_1237_facets" checkbox noPush icon={icon} label={label} explainer="" />)}
+        </div>
+        <div style={{fontSize:11.5,color:C.muted,marginTop:8}}>העדפה נשמרת כבר עכשיו. שליחת חידוש מחייבת אירוע קנוני שקורא ל-notify_topic; לא נשלח דבר מומצא.</div>
+      </div>}
       {crossOpen&&<div style={{marginTop:14,borderTop:`1px solid ${C.line}`,paddingTop:14}}>
         <div style={{fontWeight:900}}>◎ הצלבה סביב {identity.label} <Help title="מצא הצלבה">הצלבה מחפשת חיבור בין ישויות/ביטויים דרך שיטות וראיות קיימות. תוצאה היא מועמד למחקר או עובדה מנועית לפי מקורה — לא אמת קנונית אוטומטית.</Help></div>
         <div style={{color:C.muted,fontSize:13,lineHeight:1.7,marginTop:5}}>בשלב הזה ה-Hub לא ממציא Orchestrator חדש. הפעולה מפנה למנוע ההצלבות הקיים, וה-Projection הבא יחזיר את התוצאה לתוך ה-Inspector כאן.</div>
