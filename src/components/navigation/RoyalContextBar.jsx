@@ -109,9 +109,24 @@ export default function RoyalContextBar() {
     research.addToResearch?.(currentEntity);
   };
 
+  const startNewResearchHere = () => {
+    if (currentType && currentRef) {
+      research.setResearchContext?.({
+        subject: { id: String(currentRef), type: currentType, label: ctx.label, href: `${pathname}${search || ""}` },
+        selection: { entityId: selection?.entityId || null, entityType: currentType, locator: selection?.locator || null },
+        lens: activeLens || lensForSubject({ type: currentType }),
+        returnTo: null,
+      });
+    } else {
+      research.clearResearchContext?.();
+    }
+    setRazielOpen(false);
+    setPulseOpen(false);
+  };
+
   return <aside className="rcb-wrap" dir="rtl" aria-label="סרגל הקשר — תצוגת מנהל" style={{ fontFamily: F.ui }}>
     {pulseOpen && <section className="rcb-pulse-panel"><div className="rcb-raziel-head"><span className="rcb-pulse-dot">●</span><strong>דופק האתר</strong><button onClick={() => setPulseOpen(false)}>×</button></div><p>מה חדש עכשיו במערכת — גימטריות, התכנסויות, מחקר ומסעות.</p><p className="rcb-muted">בשלב הבא הדופק יתחבר למקור העדכונים הקיים; כרגע זו מעטפת הניווט החדשה.</p></section>}
-    {razielOpen && <section className="rcb-raziel-panel"><div className="rcb-raziel-head"><span className="rcb-spark">✦</span><strong>רזיאל</strong><button onClick={() => setRazielOpen(false)}>×</button></div><p>אני איתך ב־<b>{ctx.label}</b>.</p>{rootLabel && <p className="rcb-muted">שורש המחקר: <b>{rootLabel}</b> · עדשה פעילה: {lensLabel(activeLens)}</p>}<p className="rcb-muted">רזיאל יקבל את אותו Research Context — לא צ׳אט מנותק ולא אמת מקבילה.</p><button className="rcb-ask">שאל את רזיאל…</button></section>}
+    {razielOpen && <section className="rcb-raziel-panel"><div className="rcb-raziel-head"><span className="rcb-spark">✦</span><strong>רזיאל</strong><button onClick={() => setRazielOpen(false)}>×</button></div><p>אני איתך ב־<b>{ctx.label}</b>.</p>{rootLabel && <p className="rcb-muted">שורש המחקר: <b>{rootLabel}</b> · עדשה פעילה: {lensLabel(activeLens)}</p>}<p className="rcb-muted">רזיאל יקבל את אותו Research Context — לא צ׳אט מנותק ולא אמת מקבילה.</p><button className="rcb-ask">שאל את רזיאל…</button><button className="rcb-ask" onClick={startNewResearchHere} style={{ marginTop: 8 }}>＋ התחל מכאן מחקר חדש</button></section>}
     <div className="rcb-islands">
       <button className="rcb-island rcb-context" onClick={root?.href ? goRoot : undefined} title={rootDiffers ? `חזרה לשורש המחקר: ${rootLabel}` : "ההקשר הנוכחי"}>
         <span className="rcb-kicker">{rootDiffers ? `מחקר · ${shortLabel(rootLabel)}` : ctx.kind}</span><strong>{ctx.label}</strong><span className="rcb-chevron">{rootDiffers ? "↩" : "‹"}</span>
