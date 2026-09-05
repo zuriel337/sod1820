@@ -96,6 +96,7 @@ const JourneyPage = React.lazy(() => import("./pages/JourneyPage.jsx"));
 const JourneyPageV2 = React.lazy(() => import("./pages/JourneyPageV2.jsx")); // 🧪 גרסה-2 ניסיונית (נגן-אוטומטי/שם-ראשון/דופק) — /journey-beta, מגן-קרדיט פעיל
 const LaddersDemo = React.lazy(() => import("./pages/LaddersDemo.jsx"));
 const GalleryPage = React.lazy(() => import("./pages/GalleryPage.jsx"));
+const BookHubPage = React.lazy(() => import("./pages/BookHubPage.jsx"));
 const AdminPage = React.lazy(() => import("./pages/AdminPage.jsx"));
 const PostEditorPage = React.lazy(() => import("./pages/PostEditorPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
@@ -321,6 +322,8 @@ export default function App() {
           <Route path="/גימטריה-מרחבית" element={<Gematria3DPage />} />
           <Route path="/gematria-3d" element={<Gematria3DPage />} />
           <Route path="/גימטריה-תלת-ממדית" element={<Gematria3DPage />} />
+          <Route path="/book" element={<BookHubPage />} />
+          <Route path="/book/:slug" element={<BookHubPage />} />
           <Route path="/code" element={<CodePage />} />
           {/* הפרדה: /code = הכלי · /codes = ספרייה · /codes/:slug = עמוד קנוני לצופן (SEO, בלי התנגשות, מקום לגדול) */}
           <Route path="/codes" element={<CiphersLibraryPage />} />
