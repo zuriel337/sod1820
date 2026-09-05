@@ -202,8 +202,18 @@ function RepresentationPreview({ representation }) {
   if (representation.shape === "procedure" && representation.steps.length) {
     return <div className="bk-rep"><div className="bk-muted">PROCEDURE · bounded preview</div><ol>{representation.steps.slice(0,8).map((step,i) => <li key={i}>{shortPiece(step)}</li>)}</ol></div>;
   }
-  if (representation.shape === "composition" && representation.generated.length) {
-    return <div className="bk-rep"><div className="bk-muted">COMPOSITION / GENERATION · bounded preview</div><ul>{representation.generated.slice(0,12).map((x,i) => <li key={i}>{shortPiece(x)}</li>)}</ul></div>;
+  if (representation.shape === "composition") {
+    const items = representation.generated.length ? representation.generated
+      : representation.composition.length ? representation.composition
+        : representation.generatorCandidate ? [representation.generatorCandidate] : [];
+    if (items.length) return <div className="bk-rep"><div className="bk-muted">COMPOSITION / GENERATION · bounded preview</div><ul>{items.slice(0,12).map((x,i) => <li key={i}>{shortPiece(x)}</li>)}</ul></div>;
+  }
+  if (representation.shape === "spatial" && representation.dimensions.length) {
+    return <div className="bk-rep"><div className="bk-muted">SPATIAL / DIMENSIONS · bounded preview</div>{representation.dimensions.slice(0,12).map((x,i) => <span className="bk-pill" key={i}>{shortPiece(x)}</span>)}</div>;
+  }
+  if (representation.shape === "grammar" && representation.grammar) {
+    const grammar = Array.isArray(representation.grammar) ? representation.grammar : [representation.grammar];
+    return <div className="bk-rep"><div className="bk-muted">RESEARCH GRAMMAR · bounded preview</div><ul>{grammar.slice(0,8).map((x,i) => <li key={i}>{shortPiece(x)}</li>)}</ul></div>;
   }
   if (representation.shape === "terms" && representation.terms.length) {
     return <div className="bk-rep"><div className="bk-muted">TERMS / REPRESENTATION</div>{representation.terms.slice(0,12).map((x,i) => <span className="bk-pill" key={i}>{shortPiece(x)}</span>)}</div>;
@@ -301,7 +311,7 @@ export default function BookHubPage() {
       <Link to="/book" className="bk-eye" style={{textDecoration:'none'}}>← ספרים ומקורות</Link>
       <div className="bk-eye" style={{marginTop:10}}>{snap.eyebrow}</div><h1>{book.label}</h1><div className="bk-lead">{snap.subtitle}<br/>{snap.promise}</div>
       <div className="bk-actions"><button className="bk-btn" onClick={addBook}>➕ למחקר</button><button className={`bk-btn ${pinned?'on':''}`} onClick={() => workspaceItem && togglePin(workspaceItem)}>{pinned?'📌 מוצמד':'📌 הצמד'}</button><a className="bk-btn" href={snap.pdf} target="_blank" rel="noreferrer">פתח PDF ↗</a><span className="bk-btn" style={{cursor:'default'}}>🧭 {book.identity_key}</span>
-        <ShareActions type="book" title={book.label} compact force style={{ display: "inline-flex" }} />
+        <ShareActions type="book" url={`/book/${slug}`} title={book.label} compact force style={{ display: "inline-flex" }} />
       </div>
     </div>
     <div className="bk-tabs">{TABS.map(([k,l]) => <button className={`bk-tab ${tab===k?'on':''}`} key={k} onClick={() => goTab(k)}>{l}</button>)}</div>
