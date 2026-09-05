@@ -70,10 +70,7 @@ const MORE_HIDE = ["/start", "/members", "/lab", "/forum", "/community", "/broad
 // «קהילה» ב-NAV נושאת ילדים (צ'אט · פורום · חוקרים…) שנאבדים כשמרנדרים אותה כאריח-בודד
 // בפאנל. לכן מוציאים את היעדים המרכזיים כאריחים עצמאיים (צ'אט + חוקרים) כדי שיהיו נגישים
 // ישירות מהתפריט, ולא רק דרך עמוד-הביניים /community.
-const CHAT_MENU_ITEM = { emoji: "💬", label: "צ׳אט", to: "/community/chat" };
-const MENU_GROUPS = QUICK_NAV_GROUPS.some(g => g.items?.some(it => it.to === CHAT_MENU_ITEM.to))
-  ? QUICK_NAV_GROUPS
-  : [...QUICK_NAV_GROUPS, { title: "קהילה", items: [CHAT_MENU_ITEM] }];
+const MENU_GROUPS = QUICK_NAV_GROUPS;
 
 const MOBILE_TILES = MENU_GROUPS.flatMap(g => g.items.map(it => ({
   e: it.emoji, l: it.label, to: it.to, locked: it.locked, icon: it.icon,
