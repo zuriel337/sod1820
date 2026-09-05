@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { getOrCreateMyPersonId, upsertSelfProfile, upsertFamilyMember, upsertFamilyRelation, listFamily } from "../lib/supabase.js";
 
 // 🧭 מסע החיים — יסוד (v1). person-ref-scoped, גיבוי ב-Ledger הפרטי (research_objects,
@@ -18,6 +19,7 @@ const RELATIONS = [
 
 export default function PersonJourney() {
   const { user, loading: authLoading } = useAuth();
+  const research = useResearch();
   const [personId, setPersonId] = useState(null);
   const [selfName, setSelfName] = useState("");
   const [members, setMembers] = useState([]);
@@ -60,6 +62,26 @@ export default function PersonJourney() {
     })();
     return () => { alive = false; };
   }, [user, authLoading, refresh]);
+
+  // 🧭 Universal Research Context — Person/Life Journey remains a traversal/context over person-ref,
+  // not a new Person store and not a Finding of its own. Existing research root is preserved if present.
+  useEffect(() => {
+    if (!selfRef || !user) return;
+    const personSubject = {
+      id: selfRef,
+      type: "person",
+      label: selfName.trim() || "מסע החיים שלי",
+      href: "/research?tool=journey",
+    };
+    const selection = { entityId: selfRef, entityType: "person" };
+    if (!research.context?.subject) {
+      research.setResearchContext?.({ subject: personSubject, selection, lens: "person" });
+    } else {
+      research.updateResearchContext?.({ selection, lens: "person" });
+    }
+    // Context is navigation state only; privacy remains enforced by the existing Person foundation/RLS.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selfRef, selfName, user]);
 
   const saveSelf = async () => {
     if (!personId || !selfName.trim()) return;
