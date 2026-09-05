@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { F } from "../../theme.js";
 import "./RoyalContextBar.css";
 
 function contextFromPath(pathname) {
@@ -17,14 +18,14 @@ export default function RoyalContextBar() {
   const { isAdmin, loading } = useAuth(); const { pathname } = useLocation(); const [razielOpen,setRazielOpen]=useState(false); const [pulseOpen,setPulseOpen]=useState(false);
   if (loading || !isAdmin || /^\/(admin|login|profile|credits|buy)(\/|$)/.test(pathname)) return null;
   const ctx=contextFromPath(pathname);
-  return <aside className="rcb-wrap" dir="rtl" aria-label="סרגל הקשר — תצוגת מנהל">
+  return <aside className="rcb-wrap" dir="rtl" aria-label="סרגל הקשר — תצוגת מנהל" style={{fontFamily:F.ui}}>
     {pulseOpen&&<section className="rcb-pulse-panel"><div className="rcb-raziel-head"><span className="rcb-pulse-dot">●</span><strong>דופק האתר</strong><button onClick={()=>setPulseOpen(false)}>×</button></div><p>מה חדש עכשיו במערכת — גימטריות, התכנסויות, מחקר ומסעות.</p><p className="rcb-muted">בשלב הבא הדופק יתחבר למקור העדכונים הקיים; כרגע זו מעטפת הניווט החדשה.</p></section>}
     {razielOpen&&<section className="rcb-raziel-panel"><div className="rcb-raziel-head"><span className="rcb-spark">✦</span><strong>רזיאל</strong><button onClick={()=>setRazielOpen(false)}>×</button></div><p>אני איתך ב־<b>{ctx.label}</b>.</p><p className="rcb-muted">כאן יחיה ההקשר המחקרי המתמשך — בלי לשכפל את מה שכבר מוצג בעמוד.</p><button className="rcb-ask">שאל את רזיאל…</button></section>}
     <div className="rcb-islands">
       <button className="rcb-island rcb-context"><span className="rcb-kicker">{ctx.kind}</span><strong>{ctx.label}</strong><span className="rcb-chevron">‹</span></button>
-      <div className="rcb-island rcb-tools"><button><span>◇</span><span>עדשות</span></button><button><span>◌</span><span>מסע</span></button></div>
+      <div className="rcb-island rcb-tools"><button><span>◇</span><span>עדשות</span></button><button><span>＋</span><span>לחקירה</span></button></div>
       <button className={"rcb-island rcb-pulse"+(pulseOpen?" is-open":"")} onClick={()=>{setPulseOpen(v=>!v);setRazielOpen(false)}}><span className="rcb-pulse-dot">●</span><span>דופק</span></button>
       <button className={"rcb-island rcb-raziel"+(razielOpen?" is-open":"")} onClick={()=>{setRazielOpen(v=>!v);setPulseOpen(false)}}><span className="rcb-spark">✦</span><span>רזיאל</span><i/></button>
-    </div><span className="rcb-admin-mark">ADMIN PREVIEW</span>
+    </div>
   </aside>;
 }
