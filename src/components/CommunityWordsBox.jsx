@@ -45,7 +45,11 @@ export default function CommunityWordsBox({ light, max = 4, moreMax = 24, expand
 
   if (!rows.length) return null;
 
-  const L = { panel: pal.card, ink: pal.ink, sub: pal.inkSoft, gold: pal.accentText, line: pal.border, chip: pal.cardSoft, badge: pal.glow, dim: pal.accentDim };\n  const research = variant === "research";\n  const writerTag = r => (r.tags || []).find(t => String(t).startsWith("writer:"))?.slice(7) || null;\n  const yearTags = r => (r.tags || []).filter(t => String(t).startsWith("year:")).map(t => String(t).slice(5));\n  const methodChips = r => [["רגיל", r.ragil], ["מסתתר", r.misratar], ["גדול", r.gadol], ["מילוי", r.miluy], ["משולש", r.kadmi], ["ריבוע", r.ribua]].filter(([, v]) => Number.isFinite(Number(v)) && Number(v) > 0);
+  const L = { panel: pal.card, ink: pal.ink, sub: pal.inkSoft, gold: pal.accentText, line: pal.border, chip: pal.cardSoft, badge: pal.glow, dim: pal.accentDim };
+  const research = variant === "research";
+  const writerTag = r => (r.tags || []).find(t => String(t).startsWith("writer:"))?.slice(7) || null;
+  const yearTags = r => (r.tags || []).filter(t => String(t).startsWith("year:")).map(t => String(t).slice(5));
+  const methodChips = r => [["רגיל", r.ragil], ["מסתתר", r.misratar], ["גדול", r.gadol], ["מילוי", r.miluy], ["משולש", r.kadmi], ["ריבוע", r.ribua]].filter(([, v]) => Number.isFinite(Number(v)) && Number(v) > 0);
 
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "13px 16px", direction: "rtl" }}>
