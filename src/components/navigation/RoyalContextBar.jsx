@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -45,6 +45,11 @@ function lensForSubject(subject) {
   return subject.type || null;
 }
 
+function shortLabel(value, max = 16) {
+  const s = String(value || "");
+  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+}
+
 export default function RoyalContextBar() {
   const { isAdmin, loading } = useAuth();
   const { pathname, search } = useLocation();
@@ -65,19 +70,16 @@ export default function RoyalContextBar() {
   const currentType = selection?.entityType || null;
   const rootDiffers = Boolean(root?.href && root.href !== pathname && rootLabel && rootLabel !== ctx.label);
 
-  const currentEntity = useMemo(() => {
-    if (!currentType || !currentRef) return null;
-    return makeEntity({
-      type: currentType,
-      title: ctx.label,
-      ref: currentRef,
-      link: `${pathname}${search || ""}`,
-      metadata: {
-        research_subject: root ? { id: root.id, type: root.type, label: rootLabel } : null,
-        lens: activeLens,
-      },
-    });
-  }, [activeLens, ctx.label, currentRef, currentType, pathname, root?.id, root?.type, rootLabel, search]);
+  const currentEntity = currentType && currentRef ? makeEntity({
+    type: currentType,
+    title: ctx.label,
+    ref: currentRef,
+    link: `${pathname}${search || ""}`,
+    metadata: {
+      research_subject: root ? { id: root.id, type: root.type, label: rootLabel } : null,
+      lens: activeLens,
+    },
+  }) : null;
 
   const alreadyInResearch = Boolean(currentEntity && (research.cart || []).some(item => item?.id === currentEntity.id));
 
@@ -112,12 +114,12 @@ export default function RoyalContextBar() {
     {razielOpen && <section className="rcb-raziel-panel"><div className="rcb-raziel-head"><span className="rcb-spark">✦</span><strong>רזיאל</strong><button onClick={() => setRazielOpen(false)}>×</button></div><p>אני איתך ב־<b>{ctx.label}</b>.</p>{rootLabel && <p className="rcb-muted">שורש המחקר: <b>{rootLabel}</b> · עדשה פעילה: {lensLabel(activeLens)}</p>}<p className="rcb-muted">רזיאל יקבל את אותו Research Context — לא צ׳אט מנותק ולא אמת מקבילה.</p><button className="rcb-ask">שאל את רזיאל…</button></section>}
     <div className="rcb-islands">
       <button className="rcb-island rcb-context" onClick={root?.href ? goRoot : undefined} title={rootDiffers ? `חזרה לשורש המחקר: ${rootLabel}` : "ההקשר הנוכחי"}>
-        <span className="rcb-kicker">{rootDiffers ? `מחקר · ${rootLabel}` : ctx.kind}</span><strong>{ctx.label}</strong><span className="rcb-chevron">{rootDiffers ? "↩" : "‹"}</span>
+        <span className="rcb-kicker">{rootDiffers ? `מחקר · ${shortLabel(rootLabel)}` : ctx.kind}</span><strong>{ctx.label}</strong><span className="rcb-chevron">{rootDiffers ? "↩" : "‹"}</span>
       </button>
       <div className="rcb-island rcb-tools">
         <button title={`עדשה פעילה: ${lensLabel(activeLens)}`}><span>◇</span><span>{lensLabel(activeLens)}</span></button>
         <button onClick={addCurrent} disabled={!currentEntity || alreadyInResearch} title={alreadyInResearch ? "כבר נמצא במחקר הפעיל" : "הוסף את המשטח הנוכחי למחקר הפעיל"}><span>{alreadyInResearch ? "✓" : "＋"}</span><span>{alreadyInResearch ? "במחקר" : "לחקירה"}</span></button>
-        {returnTo?.href && <button onClick={goReturn} title={`חזרה ל־${returnTo.label || "המקום הקודם"}`}><span>↩</span><span>{returnTo.label ? `חזרה · ${returnTo.label}` : "חזרה"}</span></button>}
+        {returnTo?.href && <button onClick={goReturn} title={`חזרה ל־${returnTo.label || "המקום הקודם"}`}><span>↩</span><span>חזרה</span></button>}
       </div>
       <button className={"rcb-island rcb-pulse" + (pulseOpen ? " is-open" : "")} onClick={() => { setPulseOpen(v => !v); setRazielOpen(false); }}><span className="rcb-pulse-dot">●</span><span>דופק</span></button>
       <button className={"rcb-island rcb-raziel" + (razielOpen ? " is-open" : "")} onClick={() => { setRazielOpen(v => !v); setPulseOpen(false); }}><span className="rcb-spark">✦</span><span>רזיאל</span><i /></button>
