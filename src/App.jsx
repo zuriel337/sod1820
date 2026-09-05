@@ -114,6 +114,7 @@ const HintRoomPage = React.lazy(() => import("./pages/HintRoomPage.jsx"));
 const LanguagesPage = React.lazy(() => import("./pages/LanguagesPage.jsx"));
 const ContributorPage = React.lazy(() => import("./pages/ContributorPage.jsx"));
 const ResearchersIndexPage = React.lazy(() => import("./pages/ResearchersIndexPage.jsx"));
+const BookHubPage = React.lazy(() => import("./pages/BookHubPage.jsx")); // 📖 ספרים ומקורות — research_clean (Cross-Surface Experience Contract, PR#332)
 const WaInboxPage = React.lazy(() => import("./pages/WaInboxPage.jsx"));
 // 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
 const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
@@ -369,6 +370,8 @@ export default function App() {
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
           <Route path="/number/:phrase" element={<EntityPage />} />
+          <Route path="/book" element={<BookHubPage />} />
+          <Route path="/book/:slug" element={<BookHubPage />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
