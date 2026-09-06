@@ -88,6 +88,40 @@ const nodeOnly = topicConvergenceToUniversalFinding({
 check("B1 node-only convergence still has source-native graph identity", nodeOnly?.identity?.sourceIdentity?.owner === "nodes" && nodeOnly?.identity?.sourceIdentity?.id === "77777777-7777-4777-8777-777777777777");
 check("B2 node-only sourceRef points to nodes owner", nodeOnly?.source?.sourceRef === "nodes:77777777-7777-4777-8777-777777777777");
 check("B3 node-only truth axes stay unset", nodeOnly?.stage === null && nodeOnly?.status === null && nodeOnly?.verification?.verification_state === null);
+check("B4 node-only metadata.numbers (array shape) still projects its anchor", nodeOnly?.projection?.anchors?.length === 1 && nodeOnly.projection.anchors[0].value === 42);
+
+// FOUNDATION_CLOSURE_BEFORE_WORLD_V1 (work_log 77ba98ae): 173/219 live convergence nodes store the
+// value as scalar metadata.value instead of metadata.numbers — the node-only fallback must honor
+// both real shapes, invent neither, and leave the card-backed path (which always wins) untouched.
+const nodeOnlyScalar = topicConvergenceToUniversalFinding({
+  node: { id: "88888888-8888-4888-8888-888888888888", type: "convergence", label: "Scalar node", metadata: { value: 1111 }, is_active: true },
+  edges: [], targets: [],
+});
+check("B5 node-only metadata.value (scalar shape) projects the same anchor contract", nodeOnlyScalar?.projection?.anchors?.length === 1 && nodeOnlyScalar.projection.anchors[0].value === 1111 && nodeOnlyScalar.projection.anchors[0].type === "number");
+
+const nodeOnlyNeither = topicConvergenceToUniversalFinding({
+  node: { id: "99999999-9999-4999-8999-999999999999", type: "convergence", label: "No numeric metadata", metadata: {}, is_active: true },
+  edges: [], targets: [],
+});
+check("B6 node-only with neither shape invents no anchor (honest empty, not fabricated)", Array.isArray(nodeOnlyNeither?.projection?.anchors) && nodeOnlyNeither.projection.anchors.length === 0);
+
+const nodeOnlyBothShapes = topicConvergenceToUniversalFinding({
+  node: { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", type: "convergence", label: "Array wins over scalar", metadata: { numbers: [7, 8], value: 999 }, is_active: true },
+  edges: [], targets: [],
+});
+check("B7 when both keys are present the array shape (real invariant today) wins, scalar is not additionally invented", nodeOnlyBothShapes?.projection?.anchors?.map(a => a.value).join(",") === "7,8");
+
+const cardPriorityFinding = topicConvergenceToUniversalFinding({
+  card: { ...card },
+  node: { ...node, metadata: { slug: "1820", value: 999999 } },
+  edges, targets,
+});
+check("B8 card-backed path is unaffected by node.metadata.value — card.numbers always wins", cardPriorityFinding?.projection?.anchors?.map(a => a.value).join(",") === "1820,91");
+
+const determinismInput = { node: { id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", type: "convergence", label: "Determinism check", metadata: { value: 2026 }, is_active: true }, edges: [], targets: [] };
+const det1 = topicConvergenceToUniversalFinding(determinismInput);
+const det2 = topicConvergenceToUniversalFinding(determinismInput);
+check("B9 projection.anchors is deterministic/pure: identical input called twice yields deepEqual anchors", JSON.stringify(det1?.projection?.anchors) === JSON.stringify(det2?.projection?.anchors) && det1?.projection?.anchors?.[0]?.value === 2026);
 
 check("C1 unrelated node type is rejected", topicConvergenceToUniversalFinding({ node: { id: "x", type: "number", label: "1820" } }) === null);
 check("C2 identity-less payload is rejected", topicConvergenceToUniversalFinding({ card: { title: "No id" } }) === null);
