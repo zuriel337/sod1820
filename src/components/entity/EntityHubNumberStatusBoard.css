@@ -1,0 +1,120 @@
+/* Research Command Tile — EntityHubNumberStatusBoard. Presentation only; reads the same
+   --eh-*/--obs-* tokens the rest of the Entity Hub already uses (dual-theme via .eh-func /
+   html[data-theme]). No new data, no new truth — see EntityHubNumberStatusBoard.jsx. */
+
+.rct {
+  position: relative;
+  background: linear-gradient(180deg, var(--eh-panel), var(--eh-soft));
+  border: 1px solid var(--eh-line);
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 20px 50px rgba(0,0,0,.28);
+}
+
+/* ---- Top strip: Pulse core + identity + primary signals ---- */
+.rct-top { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 16px; align-items: center; }
+
+.rct-pulse { position: relative; width: 96px; height: 96px; }
+.rct-pulse svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.rct-pulse-track { fill: none; stroke: var(--eh-line); stroke-width: 6; }
+.rct-pulse-arc { fill: none; stroke: var(--eh-gold); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s cubic-bezier(.4,0,.2,1); }
+.rct-pulse-core { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.rct-pulse-score { font-size: 26px; font-weight: 950; color: var(--eh-gold); line-height: 1; }
+.rct-pulse-label { font-size: 8.5px; color: var(--eh-muted); margin-top: 2px; letter-spacing: .4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .rct-pulse-glow { animation: rct-breathe 3.6s ease-in-out infinite; }
+}
+@keyframes rct-breathe {
+  0%, 100% { box-shadow: 0 0 0 rgba(212,175,55,0); }
+  50% { box-shadow: 0 0 22px rgba(212,175,55,.22); }
+}
+.rct-pulse-glow { border-radius: 50%; }
+
+.rct-identity-eyebrow { font-size: 10px; font-weight: 900; letter-spacing: 1.5px; color: var(--eh-gold); }
+.rct-identity-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-top: 3px; }
+.rct-identity-row h2 { margin: 0; font-size: 30px; line-height: 1; }
+.rct-anchor { font-size: 11px; color: var(--eh-muted); margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.rct-primary-stats { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.rct-primary-stat { min-width: 84px; }
+.rct-primary-stat b { display: block; font-size: 21px; font-weight: 900; color: var(--eh-ink); line-height: 1.1; }
+.rct-primary-stat span { font-size: 10.5px; color: var(--eh-muted); font-weight: 700; }
+.rct-quiet-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; opacity: .85; }
+
+/* ---- Signal layer (hidden crossing) ---- */
+.rct-signal { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.rct-signal-chip {
+  display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 5px 10px;
+  font-size: 10.5px; font-weight: 800; color: var(--eh-violet); background: var(--eh-violetbg);
+  border: 1px solid rgba(96,55,139,.28);
+}
+
+/* ---- DNA strip ---- */
+.rct-dna { margin-top: 12px; }
+.rct-dna-title { font-size: 9.5px; font-weight: 900; letter-spacing: 1px; color: var(--eh-muted); margin-bottom: 6px; }
+.rct-dna-row { display: flex; gap: 8px; }
+.rct-dna-seg { flex: 1; min-width: 0; }
+.rct-dna-bar { height: 5px; border-radius: 999px; background: var(--eh-line); overflow: hidden; }
+.rct-dna-fill { height: 100%; background: linear-gradient(90deg, var(--eh-blue), var(--eh-gold)); border-radius: 999px; }
+.rct-dna-meta { display: flex; justify-content: space-between; margin-top: 3px; font-size: 9px; color: var(--eh-muted); }
+.rct-dna-meta b { color: var(--eh-ink); font-size: 10px; }
+
+/* ---- Tiered facet grids ---- */
+.rct-tier-label { font-size: 9px; font-weight: 900; letter-spacing: 1px; color: var(--eh-muted); margin: 14px 0 6px; }
+.rct-tier2 { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 8px; }
+.rct-tier3 { display: grid; grid-template-columns: repeat(auto-fit,minmax(108px,1fr)); gap: 6px; }
+
+.rct-facet {
+  cursor: pointer; min-width: 0; text-align: start; font: inherit; color: var(--eh-ink);
+  border: 1px solid var(--eh-line); background: var(--eh-soft); border-radius: 13px;
+  padding: 10px 11px; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.rct-facet.tier3 { padding: 7px 9px; }
+.rct-facet:hover { transform: translateY(-1px); border-color: var(--eh-gold2); }
+.rct-facet:focus-visible { outline: 2px solid var(--eh-blue); outline-offset: 2px; }
+.rct-facet.active {
+  border-color: var(--eh-gold); background: var(--eh-goldbg);
+  box-shadow: 0 6px 20px rgba(154,118,23,.14), inset 0 0 0 1px rgba(231,199,107,.25);
+}
+.rct-facet-row { display: flex; gap: 7px; align-items: center; justify-content: space-between; }
+.rct-facet-label { font-size: 12.5px; font-weight: 850; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rct-facet.tier3 .rct-facet-label { font-size: 11px; }
+.rct-facet-value { font-size: 16px; font-weight: 900; white-space: nowrap; }
+.rct-facet.tier3 .rct-facet-value { font-size: 13px; }
+.rct-facet.active .rct-facet-value { color: var(--eh-gold); }
+.rct-facet-sub { font-size: 9.4px; color: var(--eh-muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- Method squares ---- */
+.rct-methods { display: grid; grid-template-columns: repeat(auto-fill,minmax(96px,1fr)); gap: 7px; }
+.rct-method-sq {
+  border: 1px solid var(--eh-line); background: var(--eh-soft); border-radius: 12px; padding: 9px 8px;
+  text-align: center; transition: transform .12s ease, border-color .12s ease;
+}
+.rct-method-sq:hover { transform: translateY(-1px); border-color: var(--eh-gold2); }
+.rct-method-sq b { display: block; font-size: 13px; font-weight: 900; }
+.rct-method-sq .n { font-size: 15px; font-weight: 950; color: var(--eh-gold); margin-top: 2px; }
+.rct-method-sq .g { font-size: 8px; color: var(--eh-muted); margin-top: 2px; }
+.rct-method-sq.governed { border-color: rgba(231,199,107,.35); }
+
+/* ---- Detail panel, connected to the active facet ---- */
+.rct-detail {
+  margin-top: 10px; border: 1px solid var(--eh-line); border-inline-start: 3px solid var(--eh-gold);
+  background: var(--eh-soft); border-radius: 14px; padding: 11px 12px; min-height: 48px;
+  transition: border-color .2s ease;
+}
+.rct-detail-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 7px; }
+.rct-detail-title { font-size: 11.5px; font-weight: 900; }
+.rct-detail-reset { border: 0; background: transparent; color: var(--eh-gold); font: inherit; font-size: 10.5px; font-weight: 850; cursor: pointer; }
+.rct-detail-reset:focus-visible { outline: 2px solid var(--eh-blue); outline-offset: 2px; }
+
+.rct-chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 5px 8px; font-size: 10.5px; }
+.rct-chip.gold { border: 1px solid var(--eh-gold); background: var(--eh-goldbg); color: var(--eh-gold); }
+.rct-chip.plain { border: 1px solid var(--eh-line); background: var(--eh-panel); color: var(--eh-ink); }
+
+.rct-footnote { font-size: 9.2px; color: var(--eh-muted); margin-top: 10px; line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .rct-tier3 { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: minmax(96px,1fr); overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .rct-primary-stats { gap: 10px; }
+  .rct-dna-row { overflow-x: auto; padding-bottom: 2px; }
+}
