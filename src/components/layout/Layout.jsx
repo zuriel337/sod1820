@@ -19,17 +19,21 @@ import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import JoinCelebration from "../JoinCelebration.jsx";
 import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
+import BottomBar from "./BottomBar.jsx"; // 🧭 Bottom Bar — Experience Shell קבוע (כאן·מספר·עכשיו·רזיאל·עוד)
+import { isBottomBarRoute, BOTTOM_BAR_CLEARANCE } from "../../lib/bottomBar.js";
 
 // 🌗 רשימת הראוטים התומכים בבהיר עברה ל-src/lib/lightRoutes.js (מקור-אמת יחיד),
 // כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
 
 export default function Layout() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
   const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
-  // 📡 בדף הבית ובצ'אט: מוסתרת בועת מגירת-המספר, ובמקומה «פותח העדכונים» החי (LiveChannelFeed).
+  // 📡 בדף הבית ובצ'אט: LiveChannelFeed (חלון העדכונים) ממופה בפועל; הכפתור-הפותח אותו עבר ל-Bottom Bar.
   //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
+  // 🧭 Bottom Bar — מוצג בכל מסלולי ה-Layout חוץ מדף-הספר (חוויית-קריאה נקייה, ר' lib/bottomBar.js).
+  const showBottomBar = isBottomBarRoute(pathname);
   // 📡 טיקר-החדשות הזז (LiveActivityBar) מוסתר בדף הבית (בקשת צוריאל 30.7.2026) — נשאר בשאר האתר.
   const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
   // 🏛️ אזור ההיכל (מחקר/דילוגים) — שם מעולם לא היה באנר, ולא מציגים אותו (בקשת צוריאל).
@@ -55,7 +59,7 @@ export default function Layout() {
       {/* רקע קנוני: הקוסמוס/עיר נשארים. שכבת פסוק/אותיות דקורטיבית הוסרה במפורש — רקע ≠ תוכן. */}
       {dark && <SpaceBackground />}
       {showAxis && <RevelationAxis />}
-      <div style={{ position: "relative", zIndex: 1 }}>
+      <div style={{ position: "relative", zIndex: 1, paddingBottom: showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined }}>
         <Navbar />
         {/* 🎗️ טיקר יחיד מתחלף «בקרוב» — סרגל אחד גלובלי שמחליף כל 7ש׳ בין הפרומואים:
             🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי ·
@@ -88,14 +92,16 @@ export default function Layout() {
         {/* 📖 Book Hub (research_clean, Cross-Surface Experience Contract) — בלי Footer, אותו מנגנון בדיוק כמו /code */}
         {pathname !== "/code" && !/^\/book(\/|$)/.test(pathname) && <Footer />}
       </div>
-      {/* מגירת המספר: הבועה הצפה מוסתרת בבית ובצ'אט (שם «פותח העדכונים» תופס את הפינה); המגירה עצמה עדיין נפתחת בהקשה על מספר. */}
-      {/* 🔠 מגירת-המספר מוסתרת בדף הצופן (בקשת צוריאל) — /code + היכל?tool=els */}
-      {/* 📖 Book Hub (research_clean) — NumberDrawer הוא capability/lens קונטקסטואלי, לא chrome גלובלי-אוטומטי של הספר; אותו מנגנון hideLauncher קיים, בלי redesign */}
-      <NumberDrawer hideLauncher={liveChrome || /^\/code/.test(pathname) || /^\/book(\/|$)/.test(pathname) || (pathname === "/research" && /tool=els/.test(search))} />
-      {liveChrome && <LiveChannelFeed />}
+      {/* 🧭 מגירת-המספר: הבועה הצפה הישנה תמיד מוסתרת — הפעולה שלה עברה ל-Bottom Bar (כפתור «123 מספר»).
+          המגירה עצמה (ה-panel) לא השתנתה — עדיין נפתחת/נסגרת דרך lib/numberDrawer.js מכל מקום באתר. */}
+      <NumberDrawer hideLauncher />
+      {/* 🧭 חלון-העדכונים: ה-fab הצף הישן מוסתר — הפעולה עברה ל-Bottom Bar (כפתור «◉ עכשיו»),
+          כשה-Bottom Bar מוצג. הפאנל/הנתונים לא השתנו — רק מקור-הפתיחה (lib/siteUpdates.js). */}
+      {liveChrome && <LiveChannelFeed hideFab={showBottomBar} />}
       <JoinCelebration />
       {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
       <DimensionFiveFeed />
+      {showBottomBar && <BottomBar />}
     </div>
   );
 }
