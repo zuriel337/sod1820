@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SOD1820 · Universal Hub Actions Preview</title>
+<style>
+:root{
+  --bg:#08111f;--bg2:#0c1830;--panel:#0f1a2a;--panel2:#111f33;--line:rgba(157,181,211,.16);
+  --ink:#eef4fb;--muted:#9aadc2;--gold:#d6b251;--gold2:#f0d781;--goldInk:#1c1608;
+  --research:#c9a542;--researchHover:#e2c466;--investigate:#18365f;--investigateBorder:#335d90;
+  --utility:#101c2d;--utilityBorder:#2c4059;--follow:#d6b251;--followBg:rgba(214,178,81,.10);
+  --tab:#101b2b;--tabActive:#172a43;--tabBorder:#2b405b;--success:#80c69a;
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 50% 0%,rgba(64,124,194,.18),transparent 36%),linear-gradient(180deg,var(--bg2),var(--bg));color:var(--ink);font-family:Arial,"Assistant",sans-serif;min-height:100vh}
+.wrap{width:min(1160px,calc(100% - 28px));margin:0 auto;padding:26px 0 70px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.brand{font-weight:900;letter-spacing:.08em}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.badge{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.025)}
+.hero{border:1px solid var(--line);border-radius:26px;background:linear-gradient(145deg,rgba(15,30,54,.96),rgba(8,17,31,.98));padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.eyebrow{color:var(--gold2);font-size:11px;font-weight:900;letter-spacing:.13em}.title{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}.num{font-size:clamp(66px,11vw,128px);line-height:.9;font-weight:950;background:linear-gradient(180deg,#fff4bd,var(--gold) 60%,#8c6d20);-webkit-background-clip:text;color:transparent}.desc{max-width:590px;color:var(--muted);line-height:1.7;margin:6px 0 0}
+.palettebar{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.palettebar button{cursor:pointer;border:1px solid var(--utilityBorder);background:var(--utility);color:var(--ink);border-radius:999px;padding:8px 12px;font-weight:800}.palettebar button.active{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);color:var(--gold2)}
+.section{margin-top:16px;border:1px solid var(--line);border-radius:20px;background:rgba(10,19,33,.76);padding:18px}.section h2{margin:0;font-size:20px}.sub{color:var(--muted);font-size:13px;line-height:1.7;margin-top:5px}
+.action-stack{margin-top:16px;display:grid;gap:12px}.investigate-row,.utility-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{border-radius:999px;min-height:43px;padding:9px 15px;font-weight:850;font-size:13.5px;cursor:pointer;transition:.15s;border:1px solid transparent;color:var(--ink)}.btn:active{transform:scale(.98)}
+.primary{background:linear-gradient(180deg,var(--researchHover),var(--research));color:var(--goldInk);box-shadow:0 8px 24px rgba(214,178,81,.13)}.primary:hover{filter:brightness(1.04)}
+.investigate{background:var(--investigate);border-color:var(--investigateBorder);color:#dcecff}.investigate:hover{filter:brightness(1.08)}
+.utility{background:var(--utility);border-color:var(--utilityBorder);color:#d7e0ea}.utility:hover{border-color:#526984}.follow{background:transparent;border-color:var(--follow);color:var(--gold2)}.follow.on{background:var(--followBg);box-shadow:inset 0 0 0 1px rgba(214,178,81,.12)}
+.helper{font-size:11.5px;color:var(--muted);margin-inline-start:2px}.toast{display:none;margin-top:10px;color:var(--success);font-size:12.5px;font-weight:800}.toast.show{display:block}
+.rule{border-top:1px solid var(--line);padding-top:14px;margin-top:4px;color:var(--muted);font-size:12px;line-height:1.7}
+.tabs{display:flex;gap:7px;overflow:auto;margin-top:14px;padding-bottom:3px}.tab{white-space:nowrap;border:1px solid var(--tabBorder);background:var(--tab);color:#aebdcd;border-radius:999px;padding:8px 13px;font-weight:800}.tab.active{background:var(--tabActive);border-color:var(--gold);color:var(--gold2);box-shadow:inset 0 -2px 0 var(--gold)}
+.workspace{margin-top:14px;border:1px dashed rgba(214,178,81,.38);border-radius:16px;background:rgba(214,178,81,.045);padding:14px}.workspace-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.workspace strong{color:var(--gold2)}.pin{border:1px solid var(--utilityBorder);background:var(--utility);color:#d8e2ec;border-radius:999px;padding:8px 12px;font-weight:800}.pin.on{border-color:var(--gold);color:var(--gold2);background:var(--followBg)}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}.map article{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px}.map b{display:block;margin-bottom:4px}.map small{color:var(--muted);line-height:1.55}.place{margin-top:7px;color:var(--gold2);font-size:11px;font-weight:800}
+.legend{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.dot{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:11.5px}.dot i{width:9px;height:9px;border-radius:50%;display:inline-block}.d1{background:var(--research)}.d2{background:#315c91}.d3{background:#546477}.d4{background:var(--gold)}
+.note{margin-top:16px;border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:14px;padding:13px;color:var(--muted);line-height:1.7;font-size:12.5px}.note b{color:var(--ink)}
+@media(max-width:760px){.hero{padding:18px}.section{padding:15px}.map{grid-template-columns:1fr}.utility-row .btn,.investigate-row .btn{flex:1 1 auto}.title{align-items:flex-start}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">SOD1820<small>UNIVERSAL HUB · ACTION LANGUAGE PREVIEW</small></div><div class="badge">Prototype only · לא Production</div></div>
+
+  <section class="hero">
+    <div class="eyebrow">MIDNIGHT GOLD · ACTION HIERARCHY</div>
+    <div class="title"><div><div class="num">1237</div><p class="desc">הרקע הכחול נשאר. השינוי הוא במשקל ובמשמעות של הפעולות: צבע חזק אחד לפעולה הראשית, כלי חקירה בנפרד, ושאר הפעולות רגועות.</p></div></div>
+    <div class="palettebar" aria-label="בחירת פלטה">
+      <button class="active" data-pal="a">A · Midnight Gold</button>
+      <button data-pal="b">B · Deep Sapphire</button>
+      <button data-pal="c">C · Obsidian Teal</button>
+      <button data-pal="d">D · Mostly Neutral</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>פעולות על הישות</h2>
+    <div class="sub">אין יותר “שים על השולחן”. הפעולה האוניברסלית היא <b>הוסף למחקר</b> — והיא שולחת את הישות ל־Workspace של ההיכל.</div>
+    <div class="action-stack">
+      <div class="investigate-row">
+        <button class="btn investigate">◎ מצא הצלבה</button>
+        <span class="helper">כלי חקירה · לא פעולת שמירה</span>
+      </div>
+      <div class="utility-row">
+        <button id="research" class="btn primary">＋ הוסף למחקר</button>
+        <button id="save" class="btn utility">☆ שמור</button>
+        <button id="follow" class="btn follow">🔔 עקוב</button>
+        <button class="btn utility">↗ שתף</button>
+        <button class="btn utility">⋯</button>
+      </div>
+      <div id="toast" class="toast">✓ נוסף למחקר — יופיע בהיכל</div>
+      <div class="rule">“סוגי חידושים” לא צריך להיות כפתור ראשי נוסף. הוא נפתח מתוך <b>עקוב</b> אחרי שהמשתמש בוחר לעקוב. “הצמד” אינו כאן בכלל — הוא שייך לארגון העבודה בתוך ההיכל.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>DNA · 1237</h2>
+    <div class="sub">הטאבים הלא־פעילים הם משטח כהה רגוע. רק המצב הפעיל מקבל הדגשת זהב/אקסנט — אין קפסולות לבנות שקופצות מהרקע.</div>
+    <div class="tabs">
+      <button class="tab active">ביטויים</button><button class="tab">רב־שיטתי</button><button class="tab">עולמות</button><button class="tab">קשרים</button><button class="tab">חתימות</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="workspace-head"><div><h2 style="margin:0">🏛️ ההיכל · Workspace</h2><div class="sub">כאן כן יש משמעות ל־“הצמד”: לסמן פריט שכבר נמצא במחקר כחשוב/נגיש.</div></div><button id="pin" class="pin">📌 הצמד</button></div>
+    <div class="workspace"><strong>1237</strong> · נמצא במחקר הפעיל <span style="color:var(--muted)">· ניתן לארגן, להצמיד, להכניס לאוסף או למסע.</span></div>
+  </section>
+
+  <section class="section">
+    <h2>מילון פעולות מוצע</h2>
+    <div class="map">
+      <article><b>＋ הוסף למחקר</b><small>מכניס ל־Research Workspace הפעיל. זו הפעולה הראשית על ישות.</small><div class="place">בדף הישות + בהיכל</div></article>
+      <article><b>☆ שמור</b><small>Bookmark לאחר כך. לא אומר שהפריט נמצא בחקירה פעילה.</small><div class="place">בכל דף תוכן/ישות</div></article>
+      <article><b>📌 הצמד</b><small>עדיפות/נגישות בתוך Workspace שכבר מכיל את הפריט. לא “שמירה” נוספת.</small><div class="place">בהיכל / Workspace</div></article>
+      <article><b>🔔 עקוב</b><small>בקשה לקבל חידושים בנושא/ישות. נפרד לחלוטין מ־Save/Research.</small><div class="place">בישות ובמשטחי Follow</div></article>
+      <article><b>◎ מצא הצלבה</b><small>מעביר לעדשת חקירה ומחפש קשרים. לא משנה מצב שמירה.</small><div class="place">כלי חקירה</div></article>
+      <article><b>↗ שתף</b><small>הפצה של הכתובת/הישות. Utility רגוע.</small><div class="place">בכל דף בר־שיתוף</div></article>
+    </div>
+    <div class="legend"><span class="dot"><i class="d1"></i>Primary research</span><span class="dot"><i class="d2"></i>Investigation</span><span class="dot"><i class="d3"></i>Utility</span><span class="dot"><i class="d4"></i>Active/follow/pin state</span></div>
+  </section>
+
+  <div class="note"><b>עיקרון:</b> צבע אינו קטגוריית תוכן — הוא אומר מה הפעולה עושה. פעולה ראשית אחת חזקה; כלי חקירה מקבל אופי משלו; Save/Share הם utilities; Follow/Pin מקבלים זהב בעיקר כשהם במצב פעיל.</div>
+</div>
+<script>
+const R=document.documentElement;
+const palettes={
+ a:{research:'#c9a542',researchHover:'#e2c466',investigate:'#18365f',investigateBorder:'#335d90',follow:'#d6b251',tabActive:'#172a43'},
+ b:{research:'#255b99',researchHover:'#3577bf',investigate:'#102747',investigateBorder:'#3b6fa8',follow:'#d6b251',tabActive:'#163354'},
+ c:{research:'#2a9a8a',researchHover:'#43b5a4',investigate:'#102d31',investigateBorder:'#28756f',follow:'#d6b251',tabActive:'#133238'},
+ d:{research:'#c6a44a',researchHover:'#d9be72',investigate:'#151f2d',investigateBorder:'#34465c',follow:'#aeb8c4',tabActive:'#151f2d'}
+};
+document.querySelectorAll('[data-pal]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-pal]').forEach(x=>x.classList.remove('active'));b.classList.add('active');const p=palettes[b.dataset.pal];Object.entries(p).forEach(([k,v])=>R.style.setProperty('--'+k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase()),v));});
+const toast=document.getElementById('toast');document.getElementById('research').onclick=()=>{toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200)};
+const save=document.getElementById('save');save.onclick=()=>{save.textContent=save.textContent.includes('נשמר')?'☆ שמור':'★ נשמר';};
+const follow=document.getElementById('follow');follow.onclick=()=>{follow.classList.toggle('on');follow.textContent=follow.classList.contains('on')?'✓ עוקב':'🔔 עקוב';};
+const pin=document.getElementById('pin');pin.onclick=()=>{pin.classList.toggle('on');pin.textContent=pin.classList.contains('on')?'📌 מוצמד':'📌 הצמד';};
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active')});
+</script>
+</body>
+</html>
