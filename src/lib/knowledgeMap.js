@@ -196,14 +196,16 @@ export const KNOWLEDGE_WORLDS = [
   }
 ];
 
+// fav:true = כלי-ליבה עובד (RESTORE_CORE_TOOL_REACHABILITY, 6.9.2026) — מוצג באריח המועדף
+// בהיכל-הנייד (Navbar MOBILE_TILES) כדי שלא ייעלם מהתפריט בזמן שההיכל מסומן "בבנייה".
 export const QUICK_NAV_GROUPS = [
   {title:"🔬 לחקור",items:[
-    {label:"דף המספר",emoji:"🔢",to:"/number"},
+    {label:"דף המספר",emoji:"🔢",to:"/number",fav:true},
     {label:"עולם המספרים",emoji:"✺",to:"/numbers"},
-    {label:"בית המדרש",emoji:"📖",to:"/beit-midrash"},
-    {label:"דילוגי אותיות",emoji:"🔠",to:"/code",icon:"dilugim"},
+    {label:"בית המדרש",emoji:"📖",to:"/beit-midrash",fav:true},
+    {label:"דילוגי אותיות",emoji:"🔠",to:"/code",icon:"dilugim",fav:true},
     {label:"ספריית צפנים",emoji:"▦",to:"/codes"},
-    {label:"מחשבון מקצועי",emoji:"🧮",to:"/research?tool=gematria"}
+    {label:"מחשבון מקצועי",emoji:"🧮",to:"/research?tool=gematria",fav:true}
   ]},
   {title:"✨ לגלות",items:[
     {label:"פוסטים",emoji:"📜",to:"/post"},
