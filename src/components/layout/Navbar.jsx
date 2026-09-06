@@ -59,10 +59,13 @@ function DilugimIcon({ size = 24 }) {
 // קהילה = השער החברתי. השאר (תוכן, ציר, זרם, שידורים, גלריות, עץ) → «עוד ▾».
 // אופציה א׳: «היכל» = העוגן הזהוב, ושלושת הכלים שלו יושבים לצידו כיחידה אחת.
 // הלוגו מוביל הביתה — לכן «בית» אינו קישור נפרד. סדר (RTL): היכל ▸ דף המספר · בית המדרש · דילוגים.
+// RESTORE_CORE_TOOL_REACHABILITY (6.9.2026): מחשבון-גימטריה נוסף כאן כארבעת-הכלי — כל הכלים
+// שכבר READY (ready.js) חייבים דרך-כניסה ישירה בדסקטופ, בלי תלות ב-HEICHAL_UNDER_CONSTRUCTION.
 const productItems = [
   { label: "דף המספר", emoji: "🔢", to: "/number" },
-  { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
+  { label: "מחשבון גימטריה", emoji: "🧮", to: "/research?tool=gematria" },
   { label: "דילוגי אותיות", emoji: "🔠", to: "/code", icon: "dilugim" },
+  { label: "בית המדרש", emoji: "📖", to: "/beit-midrash" },
 ];
 // כל השאר (תוכן · קהילה · ציר · זרם · שידורים · גלריות · עץ) חי בתפריט-הרשת ⊞ — מקום אחד, לא סרגל שני.
 const GRID_EXCLUDE = ["/", "/number", "/code", "/beit-midrash"];
@@ -73,7 +76,7 @@ const MORE_HIDE = ["/start", "/members", "/lab", "/forum", "/community", "/broad
 const MENU_GROUPS = QUICK_NAV_GROUPS;
 
 const MOBILE_TILES = MENU_GROUPS.flatMap(g => g.items.map(it => ({
-  e: it.emoji, l: it.label, to: it.to, locked: it.locked, icon: it.icon,
+  e: it.emoji, l: it.label, to: it.to, locked: it.locked, icon: it.icon, fav: it.fav,
 })));
 
 // יעדים ל"הפתיע אותי" — דפי ישות בלבד (מספרים וביטויים משמעותיים)
@@ -422,7 +425,10 @@ const LAB_MENU = [
 ];
 // מזהה-כלי מתוך ה-to (…?tool=xxx) — לאיחוד הנעילה מול isToolReady (מקור-אמת אחד).
 const labToolId = to => (to.match(/tool=([a-z]+)/) || [])[1] || null;
-const HEICHAL_UNDER_CONSTRUCTION = true;
+// הוסר תג "בבנייה" מההיכל (בקשת צוריאל, 6.9.2026) — ה-BUILD STATUS הישן היה מסתיר בטעות
+// גם את ה-TOOL REACHABILITY של הכלים העובדים. הדגל נשאר (false) כדי לשמר את הענף המת ל-fallback
+// עתידי בלי להמציא מקור-אמת שני; isToolReady/ready.js נשארים השער היחיד לנעילת-כלי בפועל.
+const HEICHAL_UNDER_CONSTRUCTION = false;
 function LabMenu() {
   const { open, setOpen, ref, hoverProps } = useAccessibleMenu();
   const { isAdmin } = useAuth();
@@ -629,11 +635,12 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, height: 64, maxWidth: 1800, margin: "0 auto" }}>
         <Brand />
 
-        {/* אופציה א׳ — קבוצת «היכל»: העוגן הזהוב מצביע (▸) על שלושת הכלים שלו, עטופים כיחידה אחת. */}
+        {/* אופציה א׳ — קבוצת «היכל»: העוגן הזהוב (LabMenu, ▾ עם כלי-מעבדה נוספים) מצביע (▸)
+            על כלי-הליבה שלו (productItems) שנשארים נגישים ישירות, כל עוד הם READY לפי ready.js. */}
         <div className="sod-nav-desktop sod-heichal-group">
           <LabMenu />
           <span className="sod-heichal-arrow" aria-hidden>▸</span>
-          <NavLinkItem item={{ label: "דף המספר", emoji: "🔢", to: "/number" }} pathname={pathname} />
+          {productItems.map(item => <NavLinkItem key={item.to} item={item} pathname={pathname} />)}
         </div>
         <BuildProgressBadge cc={cc} />
 
@@ -719,7 +726,7 @@ export default function Navbar() {
               position: "absolute", top: -12, insetInlineStart: 12, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
               background: cc.bgScrolled, border: `1px solid ${cc.borderGold}`, borderRadius: 999, padding: "3px 12px", textDecoration: "none" }}>
               <span style={{ width: 18, height: 18, borderRadius: "50%", background: "linear-gradient(135deg,#e6cf86,#c9a84a)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🏛️</span>
-              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12.5, fontWeight: 800 }}>ההיכל · בבנייה</span>
+              <span style={{ color: cc.goldBright, fontFamily: F.royal, fontSize: 12.5, fontWeight: 800 }}>ההיכל</span>
             </Link>
             <span style={{ position: "absolute", top: -10, insetInlineEnd: 12, background: cc.bgScrolled, border: `1px solid ${cc.border}`, borderRadius: 999, padding: "2px 8px", color: cc.muted, fontFamily: F.heading, fontSize: 9, fontWeight: 700, whiteSpace: "nowrap" }}>💻 חוויה מלאה במחשב</span>
             <div className="sod-tiles" style={{ padding: 0 }}>
