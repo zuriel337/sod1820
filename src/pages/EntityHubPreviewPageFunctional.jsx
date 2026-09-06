@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { projectUniversalConvergence } from "../lib/research/universalConvergenceProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { usePalette } from "../lib/palette.js";
 import { stripHtml } from "../lib/format.js";
 import EntityHubGoldenControls from "../components/entity/EntityHubGoldenControls.jsx";
+import EqualityMethodSection from "../components/research/EqualityMethodSection.jsx";
+import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 
 // 🎨 Palette = CSS variables from EntityHubObservatory.css (.eh-func) — light AND dark
 // (city_background_dual_theme_law). No light-only island inside the observatory shell.
@@ -250,6 +254,7 @@ export default function EntityHubPreviewPage() {
   const [zoom, setZoom] = useState(null);
   const [methodFocus, setMethodFocus] = useState(null);
   const research = useResearch();
+  const palette = usePalette();
 
   useEffect(() => {
     let alive = true;
@@ -293,6 +298,14 @@ export default function EntityHubPreviewPage() {
       out.get(relation).push(finding);
     }
     return [...out.entries()].sort((a, b) => b[1].length - a[1].length);
+  }, [state.data]);
+
+  // 🌐 UNIVERSAL_CONVERGENCE_PROJECTION_1111_V1 — pure, zero-network reshape of the projection
+  // this page already fetched (topics/equality/graph), so the composition is explicit without a
+  // second round-trip. See src/lib/research/universalConvergenceProjection.js.
+  const ucp = useMemo(() => {
+    if (state.data?.identity?.type !== "number") return null;
+    return projectUniversalConvergence(state.data, Number(state.data.identity.label));
   }, [state.data]);
 
   if (state.loading) return <main style={page}><div style={shell}>טוען את היקום של הישות…</div></main>;
@@ -387,36 +400,15 @@ export default function EntityHubPreviewPage() {
         </div> : <Empty>למנוע אין תוצאות לביטוי הזה.</Empty>}
       </Section> : null}
 
-      {isNumber ? <Section eyebrow="GEMATRIA LENS" title={`איך  ${identity.label}  מופיע בגימטריה`} subtitle="הביטוי הוא הישות הלחיצה הראשית (🔹 = יש לו מרכז ישות קנוני משלו); השיטה היא עדשה נפרדת עם Identity והגדרה משלה. לחיצה על שם השיטה פותחת Inspector (Registry + trace).">
-        {families.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))", gap: 12 }}>
-          {families.map(group => {
-            const r = group.registry || {};
-            const list = (group.phrases || []).slice(0, 7);
-            const regular = group.method === "רגיל";
-            return <article key={group.method} style={{ border: `1px solid ${regular ? C.gold2 : C.line}`, background: regular ? C.goldBg : C.panel, borderRadius: 15, padding: 14 }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <button onClick={() => setMethodFocus({ ...group, value: identity.label, phraseEntities })} style={{ ...buttonReset, cursor: "pointer", background: "none", padding: 0, color: C.ink, textAlign: "right", flex: 1 }}>
-                  <div style={{ fontWeight: 950, fontSize: 17 }}>{r.display_label || group.method} <span style={{ color: C.gold, fontSize: 12 }}>↗</span></div>
-                  <div style={{ ...muted, marginTop: 3 }}>{r.sub || "שיטת גימטריה רשומה"}</div>
-                </button>
-                <span style={chipStyle(regular ? "gold" : "neutral")}>{group.count ?? group.phrases?.length ?? 0}</span>
-              </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
-                {list.map((item, i) => {
-                  const phrase = phraseOf(item);
-                  if (!phrase) return null;
-                  const ent = phraseEntities[phrase] || null;
-                  // NUMBER → ENTITY: a phrase with a canonical entity node opens its own hub (data-derived, not hardcoded).
-                  return <Link key={`${group.method}-${phrase}-${i}`} to={ent ? ent.href : `/number/${encodeURIComponent(phrase)}`}
-                    onClick={() => leaveHub(ent ? "entity" : "number", { entityId: ent ? ent.nodeId : phrase, entityType: ent ? "entity" : "phrase" })}
-                    data-entity-node={ent ? ent.nodeId : undefined}
-                    style={{ color: C.ink, textDecoration: "none", background: C.softBg, border: `1px solid ${ent ? C.gold2 : C.line}`, borderRadius: 999, padding: "5px 9px", fontSize: 12.5 }}>{ent ? "🔹 " : ""}{phrase} <b style={{ color: C.gold }}>· {r.display_label || group.method} = {identity.label}</b></Link>;
-                })}
-              </div>
-            </article>;
-          })}
-        </div> : <Empty />}
-      </Section> : null}
+      {isNumber ? <section style={{ ...card, marginTop: 18, padding: 20 }}>
+        <EqualityMethodSection
+          subjectLabel={identity.label}
+          families={families}
+          phraseEntities={phraseEntities}
+          onOpenMethod={(group) => setMethodFocus(group)}
+          onLeave={leaveHub}
+        />
+      </section> : null}
 
       <Section eyebrow="VISUAL EVIDENCE" title={`גלריה חיה סביב ${identity.label}`} subtitle="אלו תמונות אמיתיות שכבר נמצאות במערכת ומקושרות למספר. זו לא גלריה חדשה — רק Projection של אותו מאגר גלריות קיים." action={<Link to="/gallery" style={{ color: C.gold, textDecoration: "none", fontWeight: 850 }}>לכל הגלריות ←</Link>}>
         {galleries.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(210px,1fr))", gap: 12 }}>{galleries.slice(0, 12).map(item => <GalleryCard key={item.id} item={item} onOpen={setZoom} />)}</div> : <Empty />}
@@ -429,6 +421,13 @@ export default function EntityHubPreviewPage() {
           return <TopicCard key={item.id || item.slug} item={item} image={firstImage} onImage={setZoom} />;
         })}</div> : <Empty />}
       </Section>
+
+      {ucp && ucp.topics.findings.length ? <Section eyebrow="UNIVERSAL CONVERGENCE PROJECTION" title="ההתכנסות המלאה — מקור מחבר + שוויון מנוע + גרף, במקום אחד"
+        subtitle="לא מערכת חדשה: אותו אימוץ-מחבר (topicConvergenceToUniversalFinding) שכבר מרונדר ב-/topic, אותה שכבת שוויון-Registry שלמעלה (GEMATRIA LENS), ואותו Reality Graph שלמטה (ONE REALITY GRAPH) — מוצגים כאן יחד לכל התכנסות מאושרת. אישור-עריכה ≠ אימות-מנוע ≠ קנוני.">
+        {ucp.topics.findings.map(finding => <div key={finding.id} style={{ borderTop: `1px solid ${C.line}`, paddingTop: 14, marginTop: 14 }}>
+          <TopicConvergenceContent finding={finding} palette={palette} onLeave={leaveHub} exclude={["caveat", "unsupported"]} />
+        </div>)}
+      </Section> : null}
 
       <Section eyebrow="CONNECTED CONTENT" title="פוסטים וחידושים שמתחברים לישות" subtitle="תוכן מוצג כעדשה נוספת על הישות — לא כחנות אמת נפרדת.">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(290px,1fr))", gap: 14 }}>
