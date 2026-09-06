@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import QuickActions from "../QuickActions.jsx";
 import WatchButton from "../WatchButton.jsx";
+import EntityHubNumberStatusBoard from "./EntityHubNumberStatusBoard.jsx";
 import { supabase } from "../../lib/supabase.js";
 
 // 🎨 Palette = CSS variables (.eh-func in EntityHubObservatory.css) — light AND dark.
@@ -112,7 +113,9 @@ export default function EntityHubGoldenControls({data,relationGroups=[],onLeave}
   ].filter(Boolean).slice(0,3);
 
   return <div style={{marginTop:18}}>
-    <section style={{background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18,boxShadow:"0 8px 28px rgba(0,0,0,.05)"}}>
+    <EntityHubNumberStatusBoard data={data} relationGroups={relationGroups} onFacet={setDna} />
+
+    <section style={{marginTop:18,background:C.paper,border:`1px solid ${C.line}`,borderRadius:20,padding:18,boxShadow:"0 8px 28px rgba(0,0,0,.05)"}}>
       <div style={{display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}>
         <div>
           <div style={{fontSize:11,fontWeight:900,letterSpacing:1.5,color:C.gold}}>פעולות · {identity.label}</div>
