@@ -19,6 +19,7 @@ import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import JoinCelebration from "../JoinCelebration.jsx";
 import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
+import ProductExperimentProbe from "../ProductExperimentProbe.jsx";
 
 // 🌗 רשימת הראוטים התומכים בבהיר עברה ל-src/lib/lightRoutes.js (מקור-אמת יחיד),
 // כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
@@ -52,6 +53,7 @@ export default function Layout() {
   return (
     <div data-theme={mode} data-stream={stream || "none"} style={{ background: dark ? C.bg : P.pageBg, minHeight: "100vh", color: dark ? "#ede4d3" : P.ink, fontFamily: F.body, fontSize: 16, position: "relative" }}>
       <style>{GLOBAL_CSS}</style>
+      <ProductExperimentProbe />
       {/* רקע קנוני: הקוסמוס/עיר נשארים. שכבת פסוק/אותיות דקורטיבית הוסרה במפורש — רקע ≠ תוכן. */}
       {dark && <SpaceBackground />}
       {showAxis && <RevelationAxis />}
