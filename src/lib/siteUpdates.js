@@ -1,23 +1,18 @@
 import { useSyncExternalStore } from "react";
 
-// 📣 חנות גלובלית קטנה ל"חלון העדכונים" (LiveChannelFeed — עדכוני-אתר/וואטסאפ) —
-// אותו דפוס בדיוק כמו src/lib/numberDrawer.js, כדי שגם ה-Bottom Bar (ובעתיד כל מקום אחר)
-// יוכל לפתוח/לסגור את אותו חלון קיים בלי ליצור state/panel/מערכת-עדכונים מקבילה.
-let state = { open: false };
+// 📣 Shared owner for the existing LiveChannelFeed launcher state + its ambient unseen signal.
+// This does not fetch or calculate updates; LiveChannelFeed remains the producer of unseen truth.
+let state = { open: false, unseen: 0 };
 const subs = new Set();
 const emit = () => subs.forEach(f => f());
+const patch = next => { state = { ...state, ...next }; emit(); };
 
-export function openSiteUpdates() {
-  state = { open: true };
-  emit();
-}
-export function closeSiteUpdates() {
-  state = { open: false };
-  emit();
-}
-export function toggleSiteUpdates() {
-  state = { open: !state.open };
-  emit();
+export function openSiteUpdates() { patch({ open: true }); }
+export function closeSiteUpdates() { patch({ open: false }); }
+export function toggleSiteUpdates() { patch({ open: !state.open }); }
+export function setSiteUpdatesUnseen(unseen = 0) {
+  const n = Math.max(0, Number(unseen) || 0);
+  if (n !== state.unseen) patch({ unseen: n });
 }
 export function useSiteUpdates() {
   return useSyncExternalStore(
@@ -26,8 +21,6 @@ export function useSiteUpdates() {
   );
 }
 
-// 📍 מקור-אמת יחיד למסלולים שבהם LiveChannelFeed (חלון העדכונים) ממופה בפועל (Layout.jsx) —
-// כדי שה-Bottom Bar ידע איפה יש כפתור אמיתי בלי לשכפל את הרג'קס liveChrome.
 const SITE_UPDATES_ROUTES = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/];
 export function isSiteUpdatesRoute(pathname) {
   return SITE_UPDATES_ROUTES.some(re => re.test(pathname));
