@@ -36,11 +36,11 @@ A filename, search match, old conversation, branch, roadmap line, or inactive ru
 | Agent coordination / owner creation / parallel write safety | `inter_agent_coordination_law` | versioned rule | **v5 ACTIVE** | `nodes(type='rule')`; `work_log` is coordination channel |
 | Work-log CURRENT/SUPERSEDED/ARCHIVED semantics | `work_log_authority_law` | versioned rule | **v2 ACTIVE** | `work_log` / current-view governance |
 | Live-state verification discipline | `live_state_sync_law` | versioned rule | **v1 ACTIVE** | canonical Supabase + `origin/main` verification |
-| Traffic / analytics measurement truth | `traffic_intelligence_law` | versioned rule + codex | **v4 ACTIVE** | `project_codex.traffic_intelligence_law`; canonical `fn_ti_*` / traffic read paths |
+| Traffic / analytics measurement truth + arrival attribution semantics | `traffic_intelligence_law` | versioned rule + codex | **v5 ACTIVE** | canonical `fn_ti_*` / traffic read paths; forward-only attribution vocabulary (`tagged_attributable`, `referrer_attributable`, `true_direct_candidate`, `unknown_origin`); Clean classifier unchanged |
 | Experience governance ownership/lifecycle | `experience_governance_foundation_v1_law` | versioned rule + codex/audit | **v1 ACTIVE** | `project_codex.experience_governance_foundation_v1`; `audits/experience_governance_foundation_v1/...` |
 | Product visual language / typography / public product naming for redesigned surfaces | `SOD1820_DESIGN_CONTRACT_V1.md` | long-form contract on main | **CURRENT MAIN OWNER** | design contract + theme/palette owners it references |
 | Global navigation / context rail / bottom-control responsibilities | `docs/sod1820-system-frame-contract-v1.md` | long-form contract on main | **CURRENT MAIN OWNER** | global frame/nav/context/control composition; implementation verified separately in code |
-| Canonical reusable UI primitives | `canonical_ui_components_law` | versioned rule | **v2 ACTIVE** | canonical components named by the rule; live mount path still determines implementation |
+| Canonical reusable UI primitives / Share family | `canonical_ui_components_law` | versioned rule | **v3 ACTIVE** | canonical components named by the rule; Share family includes `share` + `share_story` as distinct subtypes |
 | Method identity / registry | `canonical_methods_registry_law` | versioned rule | **v3 ACTIVE** | `gematria_methods` canonical Registry |
 | Method research lifecycle | `method_lifecycle` | versioned rule | **v2 ACTIVE** | SOURCE_ATTESTED → REGISTERED_UNRESOLVED → RECONSTRUCTED → VERIFIED; operational gates remain separate |
 | Method execution/scanning governance | `engine_governance_registry_authority_law` | versioned rule | **v1 ACTIVE** | `gematria_methods`, `v_method_states`, canonical execution/verification/scanning functions |
@@ -48,7 +48,7 @@ A filename, search match, old conversation, branch, roadmap line, or inactive ru
 | Person foundation / identity+roles+personal-data processing | `person_foundation_contract_law` | versioned rule + codex | **v2 ACTIVE** | `project_codex.person_foundation_contract` |
 | Foundation closure protocol | `foundation_closure_protocol_law` | versioned rule + codex | **v1 ACTIVE** | `project_codex.foundation_closure_protocol_v1` |
 | Content translation / language representation rules | `content_translation_law` | versioned rule | **v1 ACTIVE** | identity remains language-independent; projection/localization extends existing owner |
-| Follow / notifications / subscription funnel | `subscription_funnel_law` | versioned rule | **v16 ACTIVE** | `WatchButton` + canonical notification/follow infrastructure; no second follow engine |
+| Follow / notifications / subscription funnel / newsletter delivery | `subscription_funnel_law` | versioned rule | **v17 ACTIVE** | `WatchButton` + canonical notification/follow infrastructure + existing `newsletter_campaigns`/`newsletter_sends`/`email_events`/`subscribers`; legacy MailPoet re-engagement uses the same pipeline |
 
 ## Explicitly not an owner map entry yet
 

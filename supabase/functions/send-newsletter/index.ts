@@ -3,9 +3,11 @@
 // מצבים:
 //   dry_run=true   → מחזיר { count } (ספירת נמענים בפילוח) בלי לשלוח — לתצוגה מקדימה.
 //   test_email=... → שולח עותק בודד לכתובת (בדיקה) עם הקידומת [בדיקה].
-//   אחרת           → שולח לכל הפילוח, מתעד ל-newsletter_campaigns.
-// כל מייל מקבל פוטר עם לינק הסרה (HMAC) + כותרות List-Unsubscribe (deliverability).
-// בלי RESEND_API_KEY → מחזיר not_configured (הפונקציה מוכנה, מחכה למפתח).
+//   אחרת           → שולח עד 45 נמענים בכל הרצה, מתעד aggregate ב-newsletter_campaigns
+//                     + per-recipient ב-newsletter_sends (sent/open/click).
+// PRODUCT_TRAFFIC_FORWARD_ATTRIBUTION_CLOSURE_V1 (Human-Gate ZURIEL 2026-09-07):
+// future broadcasts מקבלים per-send token אישי, src=nl+nlid על קישורי SOD1820,
+// ו-tracking דרך ה-endpoint הקנוני הקיים nl-track. אין endpoint/store חדש ואין backfill.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -21,6 +23,8 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM = Deno.env.get("NEWSLETTER_FROM") ?? "סוד 1820 <news@sod1820.co.il>";
 const SECRET = Deno.env.get("NEWSLETTER_SECRET") ?? SERVICE_KEY;
+const SITE = "https://sod1820.co.il";
+const MAX_PER_RUN = 45;
 
 const b64url = (s: string) => btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 async function hmac(email: string) {
@@ -28,19 +32,31 @@ async function hmac(email: string) {
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(email));
   return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-// לינק-הסרה למכונה (List-Unsubscribe header / one-click) — פונקציית ה-Edge.
 async function unsubUrl(email: string) {
   return `${SUPABASE_URL}/functions/v1/newsletter-unsubscribe?e=${b64url(email)}&t=${await hmac(email)}`;
 }
-// לינק-הסרה לאדם (בפוטר המייל) — עמוד באתר (Vercel) שמרנדר HTML תקין בעברית.
-// (Supabase דורס HTML מפונקציות ל-text/plain, לכן הלינק האנושי לא מצביע לפונקציה.)
 async function siteUnsubUrl(email: string) {
-  return `https://sod1820.co.il/unsubscribe?e=${b64url(email)}&t=${await hmac(email)}`;
+  return `${SITE}/unsubscribe?e=${b64url(email)}&t=${await hmac(email)}`;
 }
-// 📧 תבנית-דיוור קבועה (השלד לכל גיליון) — כותרת ממותגת עם הלוגו + פס-זהב, אזור-תוכן,
-// ופוטר עם הסרה. האדמין ממלא רק את התוכן (${html}); המעטפת מוזרקת אוטומטית לכל מייל.
-// email-safe: table-based, inline styles, לוגו כ-URL מוחלט (logo_integrity_law — לא לחתוך).
-function wrap(html: string, unsub: string) {
+
+function trackedBodyHtml(html: string, token: string, campaign: string) {
+  return html.replace(/href=(['"])(.*?)\1/gi, (full, quote, rawHref) => {
+    try {
+      if (!rawHref || rawHref.startsWith("mailto:") || rawHref.startsWith("tel:") || rawHref.startsWith("#")) return full;
+      const target = new URL(rawHref, SITE);
+      const host = target.hostname.toLowerCase();
+      if (host !== "sod1820.co.il" && host !== "www.sod1820.co.il") return full;
+      target.searchParams.set("src", "nl");
+      target.searchParams.set("nlid", token);
+      const click = `${SUPABASE_URL}/functions/v1/nl-track?m=click&t=${encodeURIComponent(token)}&c=${encodeURIComponent(campaign)}&u=${encodeURIComponent(target.toString())}`;
+      return `href=${quote}${click}${quote}`;
+    } catch {
+      return full;
+    }
+  });
+}
+
+function wrap(html: string, unsub: string, openPixel: string) {
   return `<div style="margin:0;padding:0;background:#f4f1ea;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea;padding:24px 12px;border-collapse:collapse;">
 <tr><td align="center">
@@ -50,9 +66,7 @@ function wrap(html: string, unsub: string) {
     <div dir="rtl" style="color:#e7c96b;font-family:Georgia,'Times New Roman',serif;font-size:12.5px;letter-spacing:5px;">ס ו ד · <span dir="ltr" style="unicode-bidi:isolate;">1820</span></div>
   </td></tr>
   <tr><td style="height:4px;background:linear-gradient(90deg,#8a6d1f,#e7c96b,#8a6d1f);font-size:0;line-height:0;">&nbsp;</td></tr>
-  <tr><td dir="rtl" style="padding:30px 32px 8px;font-family:Georgia,'Times New Roman',serif;color:#1b1420;line-height:1.9;font-size:16px;text-align:right;">
-${html}
-  </td></tr>
+  <tr><td dir="rtl" style="padding:30px 32px 8px;font-family:Georgia,'Times New Roman',serif;color:#1b1420;line-height:1.9;font-size:16px;text-align:right;">${html}</td></tr>
   <tr><td style="padding:8px 32px 28px;">
     <div style="border-top:1px solid #ece7dc;margin:18px 0 14px;font-size:0;line-height:0;">&nbsp;</div>
     <div dir="rtl" style="font-family:Georgia,serif;font-size:12.5px;color:#8a8580;text-align:center;line-height:1.9;">
@@ -64,28 +78,35 @@ ${html}
 </table>
 </td></tr>
 </table>
+<img src="${openPixel}" width="1" height="1" alt="" style="display:none!important;width:1px;height:1px;border:0;" />
 </div>`;
 }
-async function sendOne(to: string, subject: string, html: string) {
-  const unsub = await unsubUrl(to);          // מכונה (header one-click) — Edge function
-  const unsubSite = await siteUnsubUrl(to);  // אדם (פוטר) — עמוד האתר
+
+async function sendOne(to: string, subject: string, html: string, token: string | null, campaign: string | null) {
+  const unsub = await unsubUrl(to);
+  const unsubSite = await siteUnsubUrl(to);
+  const bodyHtml = token && campaign ? trackedBodyHtml(html, token, campaign) : html;
+  const openPixel = token && campaign
+    ? `${SUPABASE_URL}/functions/v1/nl-track?e=open&t=${encodeURIComponent(token)}&c=${encodeURIComponent(campaign)}`
+    : `${SUPABASE_URL}/functions/v1/email-open?c=newsletter&e=${b64url(to)}`;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: FROM, to, subject, html: wrap(html, unsubSite),
+      from: FROM, to, subject, html: wrap(bodyHtml, unsubSite, openPixel),
       headers: { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     }),
   });
-  return r.ok;
+  if (r.ok) return { ok: true, error: null };
+  let err = `resend_${r.status}`;
+  try { err = `${err}:${(await r.text()).slice(0, 160)}`; } catch { /* noop */ }
+  return { ok: false, error: err };
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
-
-    // אימות אדמין: מזהה מה-JWT → role='admin' ב-users
     const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "");
     const { data: ures } = await admin.auth.getUser(token);
     const uid = ures?.user?.id;
@@ -96,36 +117,58 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const subject = String(body.subject || "").slice(0, 200);
     const html = String(body.html || "");
-    const source = body.source ? String(body.source).slice(0, 60) : null;   // null = כל הפעילים
+    const source = body.source ? String(body.source).slice(0, 60) : null;
     const testEmail = body.test_email ? String(body.test_email).trim().toLowerCase() : null;
     const dryRun = !!body.dry_run;
 
-    // פילוח: תמיד active=true, מקור אופציונלי
     let q = admin.from("subscribers").select("email").eq("active", true);
     if (source) q = q.eq("source", source);
     const { data: subs } = await q;
-    const emails = [...new Set((subs || []).map((r: { email: string }) => (r.email || "").trim().toLowerCase()).filter(Boolean))];
+    const allEmails = [...new Set((subs || []).map((r: { email: string }) => (r.email || "").trim().toLowerCase()).filter(Boolean))];
 
-    if (dryRun) return json({ count: emails.length });
+    if (dryRun) return json({ count: allEmails.length, max_per_run: MAX_PER_RUN });
     if (!subject || !html) return json({ error: "missing_subject_or_body" }, 400);
-    if (!RESEND_KEY) return json({ error: "not_configured", hint: "חסר RESEND_API_KEY — הוסיפו אותו ב-Secrets" });
+    if (!RESEND_KEY) return json({ error: "not_configured" });
 
-    // מצב בדיקה — רק לכתובת אחת
     if (testEmail) {
-      const ok = await sendOne(testEmail, `[בדיקה] ${subject}`, html);
-      return json({ test: true, ok });
+      const result = await sendOne(testEmail, `[בדיקה] ${subject}`, html, null, null);
+      return json({ test: true, ok: result.ok, error: result.error });
     }
 
-    // שליחה אמיתית (רציף; ל-Batch גדול נשדרג בעתיד)
+    const emails = allEmails.slice(0, MAX_PER_RUN);
+    const remaining = Math.max(0, allEmails.length - emails.length);
+    const { data: campaign, error: campaignErr } = await admin.from("newsletter_campaigns").insert({
+      subject, segment_source: source, recipients: emails.length, sent: 0, failed: 0,
+      status: "sending", sent_by: uid,
+    }).select("id").single();
+    if (campaignErr || !campaign?.id) return json({ error: "campaign_log_failed" }, 500);
+    const campaignKey = String(campaign.id);
+
     let sent = 0, failed = 0;
     for (const e of emails) {
-      try { (await sendOne(e, subject, html)) ? sent++ : failed++; } catch { failed++; }
+      const perToken = crypto.randomUUID();
+      const { data: sendRow, error: rowErr } = await admin.from("newsletter_sends").insert({
+        campaign: campaignKey, email: e, source, token: perToken, status: "queued",
+      }).select("id").single();
+      if (rowErr || !sendRow?.id) { failed++; continue; }
+
+      try {
+        const result = await sendOne(e, subject, html, perToken, campaignKey);
+        if (result.ok) {
+          sent++;
+          await admin.from("newsletter_sends").update({ status: "sent", sent_at: new Date().toISOString(), error: null }).eq("id", sendRow.id);
+        } else {
+          failed++;
+          await admin.from("newsletter_sends").update({ status: "failed", failed_at: new Date().toISOString(), error: result.error }).eq("id", sendRow.id);
+        }
+      } catch (err) {
+        failed++;
+        await admin.from("newsletter_sends").update({ status: "failed", failed_at: new Date().toISOString(), error: String(err).slice(0, 200) }).eq("id", sendRow.id);
+      }
     }
-    await admin.from("newsletter_campaigns").insert({
-      subject, segment_source: source, recipients: emails.length, sent, failed,
-      status: failed && !sent ? "failed" : "sent", sent_by: uid,
-    });
-    return json({ sent, failed, recipients: emails.length });
+
+    await admin.from("newsletter_campaigns").update({ sent, failed, status: failed && !sent ? "failed" : "sent" }).eq("id", campaign.id);
+    return json({ campaign_id: campaign.id, sent, failed, recipients: emails.length, remaining, max_per_run: MAX_PER_RUN, per_recipient_tracking: true });
   } catch (e) {
     return json({ error: String(e).slice(0, 200) }, 500);
   }
