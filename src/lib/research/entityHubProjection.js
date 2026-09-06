@@ -643,4 +643,53 @@ export async function fetchEntityHubProjection({
   };
 }
 
+// ── UNIVERSAL_EXPLORER_V1_SLICE1_GENERIC_LIST_MODE (work_log dispatch e3097bb5) ──
+// Bounded, paginated, deterministically-ordered list over node-backed entity_types (number,
+// entity, event, year, word, phrase, foreign_word, language_bridge — anything that lives
+// directly in `nodes`). Read-only, no truth recomputation, no per-row batch enrichment (that
+// is detail-composition work for a later slice — a caller wanting the full projection for one
+// item still goes through fetchEntityHubProjection). Callers are responsible for never listing
+// a type with zero real nodes (verse/name/person/place/object/research/fieldmap/relationship as
+// of this audit) as a facet — per the standing empty-facet rule (reality_graph_law v4), this
+// function does not fabricate placeholders for such a type; it honestly returns empty rows.
+const LIST_MODE_DEFAULT_LIMIT = 24;
+const LIST_MODE_MAX_LIMIT = 100;
+
+/**
+ * Pure. Builds the exact, deterministic query shape for a bounded node-type list — no network,
+ * so bounds-clamping, the stable compound ordering, and type pass-through/isolation are all
+ * unit-testable without mocking Supabase. rangeEnd deliberately requests one extra row (limit+1)
+ * so the caller can detect hasMore without a second COUNT query.
+ */
+export function buildEntityListQuery({ type, limit = LIST_MODE_DEFAULT_LIMIT, offset = 0, activeOnly = true } = {}) {
+  const safeType = clean(type);
+  // Not safeLimit()/`||` — 0 is a falsy-but-valid clamp input (Number(0) || fallback would
+  // silently return the fallback instead of clamping 0 up to 1).
+  const numericLimit = Number(limit);
+  const cap = Math.max(1, Math.min(Number.isFinite(numericLimit) ? numericLimit : LIST_MODE_DEFAULT_LIMIT, LIST_MODE_MAX_LIMIT));
+  const safeOffset = Math.max(0, Number(offset) || 0);
+  return {
+    type: safeType,
+    activeOnly: Boolean(activeOnly),
+    // [column, ascending] — created_at desc (newest first) with id asc as a stable tiebreaker,
+    // so two rows sharing a timestamp never swap order or get skipped/duplicated across pages.
+    order: [["created_at", false], ["id", true]],
+    rangeStart: safeOffset,
+    rangeEnd: safeOffset + cap,
+    limit: cap,
+  };
+}
+
+export async function fetchEntityListByType(params = {}) {
+  const q = buildEntityListQuery(params);
+  if (!q.type) return { rows: [], hasMore: false };
+  let query = supabase.from("nodes").select(NODE_FIELDS).eq("type", q.type);
+  if (q.activeOnly) query = query.eq("is_active", true);
+  for (const [col, ascending] of q.order) query = query.order(col, { ascending });
+  const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
+  if (error) throw error;
+  const rows = Array.isArray(data) ? data : [];
+  return { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };
+}
+
 export default fetchEntityHubProjection;
