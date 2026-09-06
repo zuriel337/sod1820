@@ -58,6 +58,8 @@
 
 > **סטטוס:** `BRANCH-ONLY POINTER` — גם הפוינטר הזה וגם `SOD1820_MASTER_OWNER_INDEX.md` עצמו קיימים כרגע רק על branch נפרד; לא מוזגו ל-`main`, לא פרוסים, לא live. אין לצטט את האינדקס כאילו הוא כבר קנוני-חי עד שיאושר וימוזג.
 
+> **UPDATE 7.9.2026 (actor=CLAUDE, docs-only, additive — supersedes the status line above; the historical BRANCH-ONLY text is preserved as provenance):** `SOD1820_MASTER_OWNER_INDEX.md` **מוזג ל-`main`** — PR #345 (`d9401650ccaf32b2fd244223e67987963e846e8b`, Human-Gate ZURIEL «תעלה אותו», work_log `e7e2d588`) + תיקון-עובדות PR #346 (`bfcce5213173b22d6d7655da3ab19d41b3ebf6ca`). הפוינטר הזה קנוני-חי; מותר לצטט את האינדקס. **בעלים נוכחיים אחרי PR #350** (`afd0be100c4fc52448a1dfbd6308b00a58f951d4`, release AFTER work_log `f0f2554d`): `traffic_intelligence_law` **v5 ACTIVE** (מחליף v4; forward-only attribution vocabulary, Clean classifier ללא שינוי) · `subscription_funnel_law` **v17 ACTIVE** (מחליף v16; newsletter per-recipient דרך `newsletter_sends`, אין מערכת-מייל שנייה) · `canonical_ui_components_law` **v3 ACTIVE** (מחליף v2; Share family כולל `share_story`) · `reality_graph_law` **v4 ACTIVE** (תוקן ב-#346). כל הגרסאות אומתו חיות מול `nodes(type='rule', is_active)` ב-`linswmnnkjxvweumprav` ב-7.9.2026. Roadmap **ללא שינוי בכוונה**. גוף האינדקס לא שונה כאן — עדכון-מצביע/סטטוס בלבד (NO-DISAPPEARING-WORK).
+
 ---
 
 ## 0-A. RESEARCH STUDIO v1 — ARCHITECTURE DECISION (24.8.2026)
