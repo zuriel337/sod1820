@@ -85,6 +85,13 @@
 > **קבצים:** `src/lib/knowledgeMap.js` · `src/pages/NavigationCenterPage.jsx` · `docs/system-map-gate.md`. **אין schema/DB/engine חדש.** המפה אינה SSOT; היא עדשה על ה-SSOT.
 >
 
+> ## 🏁 SEFER YETZIRAH RELEASE CLOSURE 6.9.2026 (`SEFER_YETZIRAH_POST_RELEASE_SSOT_RECONCILIATION_V1`, handoff GPT/ZURIEL `work_log 06442135` → actor=CLAUDE) — עדכון-מתוארך גובר על הבאנר-שמתחת (`d7512582`) בשתי-עובדות-בלבד; שאר-הבאנר-שמתחת (Foundation/Extension-Points/NEXT) **נשאר-כלשונו, לא-נמחק**
+> **מה-נסגר:** `claude/book-projection-finite-closure` → `claude/sefer-yetzirah-full-release-closure` → **PR #342 → מוזג ל-`main`** (merge commit `7a162256`) → **נפרס לפרודקשן** (Vercel `dpl_5pZiLPrTPRebWy9Q68adAf11pL8p`, `READY`/`production`, SHA תואם) — אומת-חי: `/book/sefer-yetzirah` מחזיר 200, `/book-data/sefer-yetzirah.tables.json` מחזיר 200 עם `hero`.
+> **Book `is_active`:** `false`→**`true`** (UPDATE שורה-יחידה, אחרי-אימות-פריסה). **`Book Foundation + Universal Book Projection` הופכים מ-`BRANCH-ONLY` ל-`CLOSED / LIVE / VERIFIED`** — מחליף אך-ורק שתי השורות "`UNIVERSAL BOOK PROJECTION: BRANCH-ONLY`" ו-"ספר יצירה — מצב חי: `is_active=false`" בבאנר-שמתחת; שאר-הבאנר תקף-כפי-שהוא.
+> **מה-לא-השתנה (נבדק-מחדש):** `edges=0` על כל node מסוג `book`; `research_objects` של ספר יצירה עדיין `9` שורות `canonical/private` (+1 `approved/private`), `promoted_node_id=0` בכולן — **0 Graph Promotion**. Research→Graph Promotion Safety Patch (`decision_ledger 40cb64c7`) חי; הפעלת ה-Book היא **נראות-פרויקציה בלבד**, לא-קידום-מחקר ולא-פרסום-טענה.
+> **הבא:** `One Tree Relations` ו-`Layered/2D/3D` נשארים כפי-שנקבע בבאנר-שמתחת (NEXT/LATER, ללא-שינוי) — אין workstream Book חדש נפתח כאן. פירוט מלא: Master State §23.31 (מוסיף על §23.30, לא-מוחק).
+>
+
 > ## 🏁 RECONCILIATION 6.9.2026 (`UNIVERSAL_BOOK_DOCS_RECONCILIATION_V1`, handoff GPT/ZURIEL `work_log d7512582` → actor=CLAUDE) — עדכון-מתוארך גובר, כל-הבאנרים שמתחת **נשמרים-כלשונם, לא-נמחקים**
 > **BOOK FOUNDATION:** Foundation Audit פורמלי (`work_log cee3f668`) קבע **`Book Foundation = SUFFICIENT`** — 3 ספרי stress-test (אהבת תורה · ספר הפליאה · ספר יצירה), הפרדת 7 דרגות-זהות (Book/Edition/Textual-Version/Witness/Digital-Object/Locator), **אין** Book Engine/Store/Tree מקביל ל-One Research OS / One Reality Graph הקיימים. אינו-סותר את §23.26-§23.28 למטה (Source Research stress-tests) — הבשלה-נוספת מעליהם, לא-מחיקה.
 > **UNIVERSAL BOOK PROJECTION:** `IMPLEMENTED, BRANCH-ONLY` (`claude/book-projection-minimal-delta`@`2c4e5bfe` → `claude/book-projection-finite-closure`@`30ffb498`) — `dossier.hero` universal projection ל-3/3 הספרים + rich locator (page→zone→work/commentator→sublocator) מחובר ל-Book Research הקיים. **`NOT MERGED / NOT DEPLOYED / NOT LIVE`.**
