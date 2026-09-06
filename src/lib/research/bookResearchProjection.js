@@ -28,13 +28,44 @@ export function pageFromSourceRef(sourceRef) {
   return pdf ? Number(pdf[1]) : null;
 }
 
-export async function fetchBookEntities() {
+// Rich locator parser — additive superset of pageFromSourceRef. Some Books' locator
+// conventions carry more than a bare page after "#pN" (e.g. Sefer Yetzirah's
+// book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:olam_shana_nefesh),
+// while others carry a single block id (Ahavat Torah's #p1:title) or none at all
+// (#pdf:24). This never changes a stored source_ref and never breaks a caller that
+// only wants the page — pageFromSourceRef's own return contract (number|null) is
+// unchanged and this function is built on top of it, not instead of it.
+export function parseSourceRefLocator(sourceRef) {
+  const page = pageFromSourceRef(sourceRef);
+  const ref = clean(sourceRef);
+  const afterPage = ref.match(/#p\d+:(.+)$/i);
+  const segments = afterPage ? afterPage[1].split(":").map(clean).filter(Boolean) : [];
+  return {
+    page,
+    segments,
+    zone: segments[0] ?? null,
+    work: segments[1] ?? null,
+    sublocator: segments.length > 2 ? segments.slice(2).join(":") : null,
+  };
+}
+
+// Scale guardrail, same discipline as DEFAULT/MAX_BOOK_RESEARCH_LIMIT above: the Book
+// index is a projection, not a client-side dump of every Book node ever admitted.
+// Backward compatible — fetchBookEntities() with no args returns exactly what it always
+// did (current 3-book count is far below the default), existing callers are unaffected.
+export const DEFAULT_BOOK_INDEX_LIMIT = 48;
+export const MAX_BOOK_INDEX_LIMIT = 200;
+
+export async function fetchBookEntities({ limit = DEFAULT_BOOK_INDEX_LIMIT, offset = 0 } = {}) {
+  const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_BOOK_INDEX_LIMIT, MAX_BOOK_INDEX_LIMIT));
+  const safeOffset = Math.max(0, Number(offset) || 0);
   const { data, error } = await supabase
     .from("nodes")
     .select(BOOK_FIELDS)
     .eq("type", "book")
     .eq("is_active", true)
-    .order("label", { ascending: true });
+    .order("label", { ascending: true })
+    .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
   return Array.isArray(data) ? data : [];
 }

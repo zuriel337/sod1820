@@ -240,11 +240,18 @@ export default function BookHubPage() {
   const [dossierSection, setDossierSection] = useState("datasets");
   const [savedSelections, setSavedSelections] = useState(() => new Set());
   const { addToResearch, togglePin, isPinned, enterDiscovery, context: researchContext, updateResearchContext } = useResearch();
-  const snap = slug ? SNAPSHOTS[slug] : null;
   const page = Number(qs.get("page") || 1) || 1;
   const activeSelectionRef = qs.get("selection") || "";
   const activeResearchId = qs.get("research") || "";
   const dossier = useBookDossier(slug);
+  // Hero-content preference (Book Projection minimal delta): the same public,
+  // book-agnostic dossier bundle useBookDossier already fetches may optionally carry a
+  // `hero` object shaped exactly like a SNAPSHOTS[slug] entry (eyebrow/subtitle/pdf/
+  // promise/metrics/coverage/families/open/seeds). When present it is preferred over
+  // the hand-authored SNAPSHOTS entry; SNAPSHOTS remains the fallback for any Book that
+  // has not (yet) published a dossier.hero — nothing is deleted, nothing is required to
+  // migrate, and a Book with neither still renders the same "not found" state as before.
+  const snap = slug ? (dossier?.hero || SNAPSHOTS[slug] || null) : null;
   // Exact-reopen focus id: a deep link (?research=<id>) must resolve even when that row
   // has aged outside the default bounded batch — see fetchBookResearch({ focusId }).
   const focusResearchId = activeResearchId;

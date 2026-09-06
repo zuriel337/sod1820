@@ -3,6 +3,275 @@
  "source_identity": "book:hebrewbooks:5635",
  "generated_at": "2026-09-05",
  "schema_version": 1,
+ "hero": {
+  "eyebrow": "AHAVAT TORAH · HEBREWBOOKS 5635",
+  "subtitle": "ר׳ פנחס זלמן הלוי סג״ל איש הורוויץ · תרס״ה / 1905",
+  "pdf": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf",
+  "promise": "מקור → עמוד/בלוק → Dataset/Research Unit → Finding → קשרים. המחקר ממשיך להתעשר בלי לשנות את זהות הספר.",
+  "metrics": [
+   [
+    "99",
+    "עמודי PDF",
+    "Digital Object"
+   ],
+   [
+    "15",
+    "עמודים ברישום block רציף",
+    "documented snapshot"
+   ],
+   [
+    "70",
+    "blocks שמורים",
+    "documented snapshot"
+   ],
+   [
+    "8",
+    "טבלאות",
+    "documented snapshot"
+   ],
+   [
+    "13",
+    "datasets במפה",
+    "documented snapshot"
+   ],
+   [
+    "18",
+    "methods/procedures",
+    "documented snapshot"
+   ],
+   [
+    "10",
+    "סתירות",
+    "preserved"
+   ],
+   [
+    "9",
+    "קריאות לא פתורות",
+    "preserved"
+   ]
+  ],
+  "coverage": [
+   {
+    "label": "Structural Page Accounting",
+    "value": "99/99",
+    "note": "כל עמודי ה-PDF קיימים/ממופים-מבנית. אינו Research completeness."
+   },
+   {
+    "label": "Research Map / Grammar Coverage",
+    "value": "SUFFICIENT FOR PROJECTION",
+    "note": "מספיק כדי להציג Book Projection; אינו טענת שחזור-מלא."
+   },
+   {
+    "label": "Exact-Witness Coverage",
+    "value": "PARTIAL",
+    "note": "VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS נשמרים בנפרד; חלק מהעמודים בלבד עברו אדג'ודיקציית-עדות מדויקת."
+   },
+   {
+    "label": "Source Exhaustion",
+    "value": "NOT ESTABLISHED",
+    "note": "לא נטען שכל-מה-שיש-במקור מוצה."
+   },
+   {
+    "label": "Known-Corpus Exhaustion",
+    "value": "PARTIAL",
+    "note": "batch reconstruction (pp.16-99, כל הענפים) הושלמה; פערי-עדות/סתירות ספציפיים עדיין פתוחים (ר' Datasets למטה)."
+   }
+  ],
+  "datasets": [
+   [
+    "DS-01",
+    "שם ה׳ · 1820",
+    "p6",
+    "CLOSED",
+    "165+398+311+396+550=1820; arithmetic verified"
+   ],
+   [
+    "DS-02",
+    "22 אותיות × פרשה/ספר",
+    "pp35–41",
+    "PARTIAL",
+    "187+ rows; Aleph/Bet/Zayin anomalies preserved"
+   ],
+   [
+    "DS-03",
+    "תיבות לפי פרשה/ספר",
+    "pp41–43",
+    "PARTIAL",
+    "Torah total 79,976 supported; per-parasha closure incomplete"
+   ],
+   [
+    "DS-04",
+    "סך אותיות",
+    "p43±",
+    "PARTIAL",
+    "~304,812 historical source reading; final digit/reading unresolved"
+   ],
+   [
+    "DS-05",
+    "אוריין תליתאי / attribution",
+    "pp25–31",
+    "OPEN",
+    "person/group × parasha; פעמים ≠ תיבות"
+   ],
+   [
+    "DS-06",
+    "משה",
+    "p70",
+    "PARTIAL",
+    "647 closes at book/Torah level (sublayers CLOSED); parasha-row level remains open — corrected 5.9.2026, was previously mislabeled CLOSED/ANOMALY here"
+   ],
+   [
+    "DS-07",
+    "שרשרת סנהדרין",
+    "locator unconfirmed",
+    "OPEN",
+    "37 generations/links; the pp.71-80 exact-pass did NOT locate the previously-estimated p78 chain — page pending re-confirmation, not asserted here"
+   ],
+   [
+    "DS-08",
+    "תוכחה",
+    "pp88–91",
+    "OPEN",
+    "existence/estimate challenged; exact figures not fully extracted"
+   ],
+   [
+    "DS-09",
+    "חמש מגילות · אותיות",
+    "pp42–43",
+    "OPEN",
+    "multi-row matrix; unit semantics unknown"
+   ],
+   [
+    "DS-10",
+    "חמש מגילות · תיבות",
+    "p43",
+    "OPEN",
+    "source located; exact values not fully verified"
+   ],
+   [
+    "DS-11",
+    "שורשים",
+    "pp31–35",
+    "OPEN",
+    "author claims 1820 roots; list/rule not fully reconstructed"
+   ],
+   [
+    "DS-12",
+    "לוח תיקונים",
+    "p99",
+    "CLOSED",
+    "1983 errata/corrections including צ״ע"
+   ],
+   [
+    "DS-13",
+    "עשה / 248",
+    "pp69–70",
+    "PARTIAL",
+    "author conclusion 248; specific sublayers closed, dual breakdown not fully closed overall — corrected 5.9.2026, was previously mislabeled OPEN here"
+   ]
+  ],
+  "families": [
+   {
+    "title": "משפחת 1820",
+    "text": "מספר מופיע במספר populations/procedures נפרדים: שם ה׳, דיבור יעקב/רחל/לאה, הגדה, עלינו, ספירות, ערכין, תקיעות, עשרון ועוד. Same result ≠ same dataset."
+   },
+   {
+    "title": "משפחת 1830",
+    "text": "נשמרת כמשפחה נפרדת: 1833−3, 1816+14, וסכום משולש 1..60. אין למזג ל־1820."
+   },
+   {
+    "title": "79,976",
+    "text": "סך תיבות התורה נתמך ביותר ממסלול אחד; גבול attribution/counting האוניברסלי עדיין דורש דיוק."
+   },
+   {
+    "title": "18,200",
+    "text": "טבלת named-speaker ב־pp13–14 מגיעה ל־18,200; population/checksum/cohort semantics עדיין פתוחים."
+   }
+  ],
+  "open": [
+   "5 פערי-עדות סופיים מ-Checkpoint5 (ל/ה, doubled-word subcorpus, 5-שנים/365/יום-כיפור, קטגוריות-זמן קהלת, בחירת-אסימון-סוף ברכת-כהנים)",
+   "DS-03: סך-מקור נקרא חזותית 110,976 וסותר קריאה קודמת 79,976 — לא-נפתר",
+   "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה",
+   "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",
+   "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
+   "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
+   "Exact-witness adjudication אינו שווה למיפוי מבני",
+   "Gematria claims אינם Engine Verified בלי המנוע הקנוני",
+   "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"
+  ],
+  "seeds": [
+   {
+    "key": "1820",
+    "label": "משפחת 1820",
+    "page": 6,
+    "family": "number-family",
+    "status": "documented"
+   },
+   {
+    "key": "1830",
+    "label": "משפחת 1830",
+    "page": 13,
+    "family": "number-family",
+    "status": "documented"
+   },
+   {
+    "key": "ds02",
+    "label": "DS-02 · אותיות × פרשה",
+    "page": 35,
+    "family": "dataset",
+    "status": "partial"
+   },
+   {
+    "key": "ds03",
+    "label": "DS-03 · 79,976",
+    "page": 41,
+    "family": "dataset",
+    "status": "partial"
+   },
+   {
+    "key": "ds05",
+    "label": "DS-05 · אוריין תליתאי",
+    "page": 25,
+    "family": "dataset",
+    "status": "open"
+   },
+   {
+    "key": "ds06",
+    "label": "DS-06 · משה 647",
+    "page": 70,
+    "family": "dataset",
+    "status": "partial"
+   },
+   {
+    "key": "ds07",
+    "label": "DS-07 · סנהדרין",
+    "page": null,
+    "family": "dataset",
+    "status": "open"
+   },
+   {
+    "key": "ds08",
+    "label": "DS-08 · תוכחה",
+    "page": 90,
+    "family": "dataset",
+    "status": "open"
+   },
+   {
+    "key": "ds11",
+    "label": "DS-11 · 1820 שורשים",
+    "page": 31,
+    "family": "dataset",
+    "status": "open"
+   },
+   {
+    "key": "ds13",
+    "label": "DS-13 · עשה 248",
+    "page": 69,
+    "family": "dataset",
+    "status": "open"
+   }
+  ]
+ },
  "datasets": [
   {
    "dataset_id": "DS-01",
