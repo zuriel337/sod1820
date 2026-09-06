@@ -41,6 +41,25 @@
 
 ---
 
+## 0-B. CANONICAL OWNER INDEX v1 — POINTER (`routing-only`, Human-Gate ZURIEL, 6.9.2026, מרחיב את §0 סעיף 16)
+> **מהות:** אינדקס-ניתוב בלבד — domain → canonical owner → active/current version/status → implementation pointer. **אינו** Registry/Contract/Rule/Governance system חדש, ואינו משכפל גוף (עקבי עם §0 סעיף 16 — Operational Laws (`nodes type='rule'`) ו-`project_codex`/`audits/` נשארים הבעלים הקנוני של הגוף עצמו; האינדקס רק מצביע).
+> **גוף קנוני:** `SOD1820_MASTER_OWNER_INDEX.md` — branch `gpt/master-canonical-owner-index-v1`, commit `3e39666b83332549daae1b3717faba1c679063e4`. **טרם מוזג ל-`main`** (הפוינטר הזה עצמו הוא branch-only, ר' סטטוס למטה).
+
+**Agent bootstrap מול האינדקס (סדר מומלץ):**
+1. identify domain
+2. resolve canonical owner
+3. read current/active owner first
+4. open historical versions only for drift/provenance/supersession
+5. verify live implementation against canonical Supabase (`linswmnnkjxvweumprav`) + `origin/main`
+6. work_log = coordination/provenance, not product SSOT
+7. Roadmap = navigation/priority, not law body
+
+**הבהרה:** שורות `active` היסטוריות ללא `rule_id` **אינן** נחשבות בעלים-קנוניים עד שסבב-ריכוך נפרד יסווג אותן. אין שינוי בסדר-הסמכות הקיים (§0 סעיף 16 ממשיך לחול במלואו: live DB + `origin/main` + Master State זה מעל Roadmap מעל זיכרון-שיחה/סשן).
+
+> **סטטוס:** `BRANCH-ONLY POINTER` — גם הפוינטר הזה וגם `SOD1820_MASTER_OWNER_INDEX.md` עצמו קיימים כרגע רק על branch נפרד; לא מוזגו ל-`main`, לא פרוסים, לא live. אין לצטט את האינדקס כאילו הוא כבר קנוני-חי עד שיאושר וימוזג.
+
+---
+
 ## 0-A. RESEARCH STUDIO v1 — ARCHITECTURE DECISION (24.8.2026)
 > **STATUS: APPROVED by ZURIEL Human-Gate · MERGED to main via PR #187 (2026-08-24T05:05:07Z).**
 > **🔵 עדכון 25.8.2026 (SSOT RECONCILIATION, branch `claude/relation-engine-v1`):** אומת ישירות מול GitHub — PR #187 `state=closed`, `merged=true`, `merged_by=zuriel337`. הסטטוס ההיסטורי "DOCUMENTED on Draft PR #187 · not merged" למטה נשמר כ-provenance (NO-DISAPPEARING-WORK); הסטטוס-החי הוא MERGED מ-24.8.2026 05:05 ואילך.
