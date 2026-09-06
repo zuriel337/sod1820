@@ -12,7 +12,11 @@ import { Link } from "react-router-dom";
 // Truth discipline: this component NEVER computes a gematria value and NEVER invents a method.
 // It only renders whatever registry-enriched `families` the host already fetched (typically via
 // getValueFamilies()/enrichGematriaFamilies() in entityHubProjection.js, itself backed by the
-// canonical fn_number_lookup + v_method_states — i.e. ALL governed methods, not a hardcoded list).
+// canonical fn_number_lookup + v_method_states — the FULL method set, not a hardcoded list, but
+// NOT a blanket "engine-verified" set either: fn_number_lookup deliberately keeps historical and
+// ungoverned methods alongside governed ones (Rank, Don't Hide), each family carrying its own
+// governed / methodEngineVerified / methodActive / methodScannable flags. This renderer displays
+// those flags as given; it does not collapse them into a single verification claim.
 //
 // Props:
 //   subjectLabel   the value common to every row (e.g. "1111")

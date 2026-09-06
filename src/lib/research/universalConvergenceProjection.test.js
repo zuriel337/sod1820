@@ -37,7 +37,14 @@ test("reshapes the three facets (topics/equality/graph) without inventing or dro
   assert.deepEqual(out.graph, fakeEntityHubProjection.graph, "graph connections pass through unchanged");
   assert.equal(out.surface, fakeEntityHubProjection.surface);
   assert.equal(out.source, "fetchEntityHubProjection");
-  assert.equal(typeof out.generatedAt, "string");
+});
+
+test("is a pure reshape: same input twice yields deepEqual output (no clock/random read — GPT challenge finding #2)", () => {
+  const fakeEntityHubProjection = { identity: { nodeId: "n", type: "number", label: "1111" } };
+  const a = projectUniversalConvergence(fakeEntityHubProjection, 1111);
+  const b = projectUniversalConvergence(fakeEntityHubProjection, 1111);
+  assert.deepEqual(a, b);
+  assert.ok(!("generatedAt" in a), "generatedAt is stamped by the async fetch wrapper, never inside the pure reshape");
 });
 
 test("missing gematria/topics/graph facets fall back to empty shapes, never throw", () => {
