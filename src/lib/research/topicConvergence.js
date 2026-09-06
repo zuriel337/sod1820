@@ -525,6 +525,21 @@ const TOPIC_LIST_FIELDS = "id,slug,title,subtitle,numbers,highlight_numbers,qual
 const TOPIC_LIST_DEFAULT_LIMIT = 24;
 const TOPIC_LIST_MAX_LIMIT = 100;
 
+// GPT challenge 165a9e59 correction (2): finite, non-negative, INTEGER normalization — the prior
+// `Math.max(0, Number(offset) || 0)` let Infinity and fractional values reach .range() unchanged
+// (Infinity is truthy and passes `|| 0`; a fractional value like 2.7 was never truncated).
+function normalizeNonNegativeInt(value, fallback = 0) {
+  const n = Number(value);
+  const finite = Number.isFinite(n) ? n : fallback;
+  return Math.max(0, Math.trunc(finite));
+}
+function normalizeLimit(value, fallback, max) {
+  // normalizeNonNegativeInt() already substitutes `fallback` for non-finite input — no `||`
+  // here, since a legitimately-normalized 0 must stay 0 going into the max(1, ...) clamp below,
+  // not get silently replaced by the fallback again (0 is falsy in JS).
+  return Math.max(1, Math.min(normalizeNonNegativeInt(value, fallback), max));
+}
+
 /**
  * Pure. Builds the exact, deterministic query shape for a bounded Topic/Convergence list — no
  * network, so bounds-clamping and the stable compound ordering are unit-testable in isolation.
@@ -532,11 +547,8 @@ const TOPIC_LIST_MAX_LIMIT = 100;
  * without a second COUNT query.
  */
 export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0 } = {}) {
-  // Not `||` — 0 is a falsy-but-valid clamp input (Number(0) || fallback would silently return
-  // the fallback instead of clamping 0 up to 1).
-  const numericLimit = Number(limit);
-  const cap = Math.max(1, Math.min(Number.isFinite(numericLimit) ? numericLimit : TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT));
-  const safeOffset = Math.max(0, Number(offset) || 0);
+  const cap = normalizeLimit(limit, TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT);
+  const safeOffset = normalizeNonNegativeInt(offset, 0);
   return {
     // [column, ascending] — most-recently-approved first, id asc as a stable tiebreaker.
     order: [["approved_at", false], ["id", true]],
