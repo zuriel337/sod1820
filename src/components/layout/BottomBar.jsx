@@ -8,8 +8,8 @@ import { makeEntity } from "../../lib/research/entity.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
 import { dmUnreadCount } from "../../lib/commandCenter.js";
-import { useNumberDrawer, toggleNumberDrawer } from "../../lib/numberDrawer.js";
-import { useSiteUpdates, toggleSiteUpdates, isSiteUpdatesRoute } from "../../lib/siteUpdates.js";
+import { useNumberDrawer, toggleNumberDrawer, closeNumberDrawer } from "../../lib/numberDrawer.js";
+import { useSiteUpdates, toggleSiteUpdates, closeSiteUpdates, isSiteUpdatesRoute } from "../../lib/siteUpdates.js";
 import { isBottomBarRoute } from "../../lib/bottomBar.js";
 
 // 🧭 Bottom Bar — Experience Shell קבוע (SOD1820 BOTTOM BAR — FINAL RECONCILIATION V1).
@@ -122,7 +122,10 @@ export default function BottomBar() {
     closePanels();
   };
 
-  const openNow = () => { closePanels(); if (updatesMounted) toggleSiteUpdates(); else navigate("/broadcasts"); };
+  // 🧭 NumberDrawer ו-LiveChannelFeed הם overlay מלא-גובה זה-לצד-זה במובייל — מוצגים כ-mutually
+  // exclusive דרך ה-owners הקיימים עצמם (close/toggle), בלי Overlay Manager חדש.
+  const openNumber = () => { closePanels(); if (!numberOpen) closeSiteUpdates(); toggleNumberDrawer(); };
+  const openNow = () => { closePanels(); if (updatesMounted) { if (!updatesOpen) closeNumberDrawer(); toggleSiteUpdates(); } else navigate("/broadcasts"); };
   // ✦ רזיאל — אין כאן קריאת-AI חדשה: מנווטים ל-/research הציבורי, שם RazielChat כבר חי ועובד
   // (ResearchCenter.jsx דרך ResearchShell.jsx), עם ה-Research Context המלא שכבר קיים שם.
   const openRaziel = () => { closePanels(); navigate("/research"); };
@@ -135,7 +138,7 @@ export default function BottomBar() {
 
   const items = [
     { id: "context", icon: "⌖", label: "כאן", active: panel === "context", signal: contextActive, onClick: () => setPanel(v => v === "context" ? null : "context") },
-    { id: "number", icon: "123", label: "מספר", numeric: true, active: numberOpen, onClick: () => { closePanels(); toggleNumberDrawer(); } },
+    { id: "number", icon: "123", label: "מספר", numeric: true, active: numberOpen, onClick: openNumber },
     { id: "now", icon: "◉", label: "עכשיו", active: updatesOpen, badge: unseen || 0, onClick: openNow },
     { id: "raziel", icon: "✦", label: "רזיאל", active: panel === "raziel", onClick: () => setPanel(v => v === "raziel" ? null : "raziel") },
     { id: "more", icon: "⋯", label: "עוד", active: panel === "more", badge: personalUnread, onClick: () => setPanel(v => v === "more" ? null : "more") },

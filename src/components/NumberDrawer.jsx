@@ -19,7 +19,7 @@ const MINI = METHODS.filter(m => ["רגיל", "מסתתר", "מילוי", "גד�
 
 const PW = () => Math.min(380, (typeof window !== "undefined" ? window.innerWidth : 380) * 0.92);
 
-export default function NumberDrawer({ hideLauncher = false } = {}) {
+export default function NumberDrawer({ hideLauncher = false, bottomClearance } = {}) {
   const P = usePalette();
   const dark = P.mode === "dark";
   // הפאנל הצף — אטום מספיק לרחף מעל התוכן. כהה = הזהב-על-שחור המקורי; בהיר = קלף נקי.
@@ -162,7 +162,7 @@ export default function NumberDrawer({ hideLauncher = false } = {}) {
 
       {/* הפאנל הצף */}
       <aside ref={asideRef} style={{
-        position: "fixed", top: 72, bottom: 16, right: 16, width: "min(380px, 92vw)", zIndex: 150,
+        position: "fixed", top: 72, bottom: bottomClearance || 16, right: 16, width: "min(380px, 92vw)", zIndex: 150,
         background: panelBg, backdropFilter: "blur(10px)",
         border: `1px solid ${P.borderStrong}`, borderRadius: 18, boxShadow: `0 18px 60px rgba(0,0,0,0.7), 0 0 30px ${P.glow}`,
         direction: "rtl", display: "flex", flexDirection: "column", overflow: "hidden",

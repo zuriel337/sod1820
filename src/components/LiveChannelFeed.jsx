@@ -98,7 +98,7 @@ function applyCaps(list) {
   return out.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0)); // עולה (וואטסאפ: חדש למטה)
 }
 
-export default function LiveChannelFeed({ hideFab = false }) {
+export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   // 🔒 lock_forum: הפורום בבנייה — אירועי-פורום נעלמים מהפיד החי הזה (גם לרשומים) כשהדגל פעיל.
@@ -269,7 +269,7 @@ export default function LiveChannelFeed({ hideFab = false }) {
         .lcf-meta{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:2px;font-size:10px;color:${WA.time}}
         .lcf-ck{color:#53bdeb;font-size:11px;letter-spacing:-2px}
         .lcf-empty{margin:auto;text-align:center;font-family:${F.body};font-size:13px;color:${WA.time};background:${dark ? "rgba(0,0,0,.3)" : "rgba(255,255,255,.6)"};padding:8px 14px;border-radius:8px}
-        @media (max-width:899.98px){ .lcf-panel{inset-inline:0;inset-block-start:auto;height:82vh;border-radius:14px 14px 0 0;border-inline-end:none;animation:lcf-up .3s cubic-bezier(.3,.8,.3,1)} }
+        @media (max-width:899.98px){ .lcf-panel{inset-inline:0;inset-block-start:auto;inset-block-end:${bottomClearance || 0};height:82vh;border-radius:14px 14px 0 0;border-inline-end:none;animation:lcf-up .3s cubic-bezier(.3,.8,.3,1)} }
         @keyframes lcf-up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
         @media (prefers-reduced-motion:reduce){.lcf-fab .live,.lcf-b,.lcf-panel{animation:none}}
       `}</style>

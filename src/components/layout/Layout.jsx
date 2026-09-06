@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../../lib/AuthContext.jsx";
 import { C, F, GLOBAL_CSS } from "../../theme.js";
 import { PALETTES } from "../../lib/palette.js";
 import { effectiveMode, POST_SLUG_RE } from "../../lib/lightRoutes.js";
@@ -26,14 +27,22 @@ import { isBottomBarRoute, BOTTOM_BAR_CLEARANCE } from "../../lib/bottomBar.js";
 // כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
 
 export default function Layout() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
   const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
-  // 📡 בדף הבית ובצ'אט: LiveChannelFeed (חלון העדכונים) ממופה בפועל; הכפתור-הפותח אותו עבר ל-Bottom Bar.
+  // 🧭 ADMIN-ONLY PRODUCTION PILOT (BOTTOM_DOCK_ADMIN_PILOT_V1): ה-Dock מוצג רק ל-ZURIEL/admin.
+  // ציבור-רגיל ממשיך לקבל בדיוק את ה-legacy launchers (NumberDrawer bubble + LiveChannelFeed fab)
+  // כפי שהם ב-production היום — role-aware migration, לא gate גורף שמסתיר יכולת מכולם.
+  const { isAdmin, loading: authLoading } = useAuth();
+  // 📡 בדף הבית ובצ'אט: LiveChannelFeed (חלון העדכונים) ממופה בפועל; אצל admin הכפתור-הפותח עבר ל-Bottom Bar.
   //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
-  // 🧭 Bottom Bar — מוצג בכל מסלולי ה-Layout חוץ מדף-הספר (חוויית-קריאה נקייה, ר' lib/bottomBar.js).
-  const showBottomBar = isBottomBarRoute(pathname);
+  // 🧭 Bottom Bar — מוצג רק ל-admin, בכל מסלולי ה-Layout חוץ מדף-הספר (חוויית-קריאה נקייה, ר' lib/bottomBar.js).
+  // authLoading→false כברירת-מחדל בטוחה (אף פעם לא "מהבהב" Dock למשתמש שעדיין לא אומת כ-admin).
+  const showBottomBar = isBottomBarRoute(pathname) && !authLoading && isAdmin;
+  // 🔒 ה-legacy hide-condition המקורי של בועת-מגירת-המספר (מלפני ה-Dock) — נשמר בדיוק כפי שהיה,
+  // כדי שציבור-רגיל (בלי Dock) ימשיך לקבל את אותה התנהגות-production בדיוק.
+  const legacyHideNumberLauncher = liveChrome || /^\/code/.test(pathname) || /^\/book(\/|$)/.test(pathname) || (pathname === "/research" && /tool=els/.test(search));
   // 📡 טיקר-החדשות הזז (LiveActivityBar) מוסתר בדף הבית (בקשת צוריאל 30.7.2026) — נשאר בשאר האתר.
   const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
   // 🏛️ אזור ההיכל (מחקר/דילוגים) — שם מעולם לא היה באנר, ולא מציגים אותו (בקשת צוריאל).
@@ -92,12 +101,13 @@ export default function Layout() {
         {/* 📖 Book Hub (research_clean, Cross-Surface Experience Contract) — בלי Footer, אותו מנגנון בדיוק כמו /code */}
         {pathname !== "/code" && !/^\/book(\/|$)/.test(pathname) && <Footer />}
       </div>
-      {/* 🧭 מגירת-המספר: הבועה הצפה הישנה תמיד מוסתרת — הפעולה שלה עברה ל-Bottom Bar (כפתור «123 מספר»).
-          המגירה עצמה (ה-panel) לא השתנתה — עדיין נפתחת/נסגרת דרך lib/numberDrawer.js מכל מקום באתר. */}
-      <NumberDrawer hideLauncher />
-      {/* 🧭 חלון-העדכונים: ה-fab הצף הישן מוסתר — הפעולה עברה ל-Bottom Bar (כפתור «◉ עכשיו»),
-          כשה-Bottom Bar מוצג. הפאנל/הנתונים לא השתנו — רק מקור-הפתיחה (lib/siteUpdates.js). */}
-      {liveChrome && <LiveChannelFeed hideFab={showBottomBar} />}
+      {/* 🧭 מגירת-המספר: ל-admin (Dock מוצג) הבועה הצפה תמיד מוסתרת — הפעולה עברה ל-Bottom Bar
+          (כפתור «123 מספר»), והפאנל מקבל bottomClearance כדי שה-Dock לא יכסה/יחתוך אותו.
+          לציבור-רגיל (בלי Dock) — בדיוק אותו legacy hide-condition כמו לפני ה-Dock, בלי שינוי. */}
+      <NumberDrawer hideLauncher={showBottomBar || legacyHideNumberLauncher} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />
+      {/* 🧭 חלון-העדכונים: ל-admin ה-fab הצף מוסתר — הפעולה עברה ל-Bottom Bar (כפתור «◉ עכשיו»),
+          והפאנל-הנייד מקבל bottomClearance כנ"ל. לציבור-רגיל — בדיוק אותו legacy fab, בלי שינוי. */}
+      {liveChrome && <LiveChannelFeed hideFab={showBottomBar} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />}
       <JoinCelebration />
       {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
       <DimensionFiveFeed />
