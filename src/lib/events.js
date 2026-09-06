@@ -32,9 +32,13 @@ export function isBot() {
   try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; } catch { return false; }
 }
 
-// via — מאיפה הגיע: תיוג מפורש (via=) → rid → utm_source → referrer → direct
+// via — מאיפה הגיע: via מפורש → src קנוני של הפצה/שיתוף → rid → utm_source → referrer → direct.
+// PRODUCT_TRAFFIC_FORWARD_ATTRIBUTION_CLOSURE_V1 (Human-Gate ZURIEL 7.9.2026):
+// src חייב להיקרא כאן, אחרת visitor_events מזהה wa/nl/fb בעוד events/TI מסווגים אותה נחיתה כ-direct.
+// Forward-only: לא משכתבים היסטוריה ולא מנחשים מקור שלא נשמר.
 function via() {
   const p = param("via"); if (p) return p;
+  const src = param("src"); if (src) return src;
   if (param("rid")) return "share";
   const s = param("utm_source"); if (s) return s;
   const rh = refHost();
@@ -48,7 +52,7 @@ function via() {
 function utm() {
   try {
     const q = new URLSearchParams(location.search); const o = {};
-    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "rid", "sid"].forEach(k => { const v = q.get(k); if (v) o[k] = v; });
+    ["src", "utm_source", "utm_medium", "utm_campaign", "utm_content", "rid", "sid", "nlid"].forEach(k => { const v = q.get(k); if (v) o[k] = v; });
     return Object.keys(o).length ? o : null;
   } catch { return null; }
 }
