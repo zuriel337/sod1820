@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { F } from "../../theme.js";
 import { usePalette } from "../../lib/palette.js";
@@ -6,6 +6,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import { useUserCenter } from "../../lib/userCenter/UserCenterContext.jsx";
+import { getUnreadCount } from "../../lib/notifications.js";
 import { useNumberDrawer, toggleNumberDrawer } from "../../lib/numberDrawer.js";
 import { useSiteUpdates, toggleSiteUpdates, isSiteUpdatesRoute } from "../../lib/siteUpdates.js";
 import { isBottomBarRoute } from "../../lib/bottomBar.js";
@@ -37,17 +38,27 @@ export default function BottomBar() {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const P = usePalette();
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const research = useResearch();
-  const { isOpen: userCenterOpen } = useUserCenter();
+  const { isOpen: userCenterOpen, open: openUserCenter } = useUserCenter();
   const { open: numberOpen } = useNumberDrawer();
-  const { open: updatesOpen } = useSiteUpdates();
-  const [contextOpen, setContextOpen] = useState(false);
+  const { open: updatesOpen, unseen } = useSiteUpdates();
+  const [panel, setPanel] = useState(null);
+  const [personalUnread, setPersonalUnread] = useState(0);
+
+  useEffect(() => {
+    if (!user) { setPersonalUnread(0); return; }
+    let alive = true;
+    const load = () => getUnreadCount().then(n => { if (alive) setPersonalUnread(Math.max(0, Number(n) || 0)); }).catch(() => {});
+    load();
+    const id = setInterval(load, 60000);
+    return () => { alive = false; clearInterval(id); };
+  }, [user?.id]);
 
   if (!isBottomBarRoute(pathname)) return null;
 
   const dark = P.mode !== "light";
-  const showUpdates = isSiteUpdatesRoute(pathname);
+  const updatesMounted = isSiteUpdatesRoute(pathname);
   const ctx = contextFromLocation(pathname, search);
   const root = research.context?.subject || null;
   const activeLens = research.context?.lens || null;
@@ -57,77 +68,35 @@ export default function BottomBar() {
   const currentType = selection?.entityType || null;
   const rootLabel = root?.label || root?.id || null;
   const rootDiffers = Boolean(root?.href && root.href !== pathname && rootLabel && rootLabel !== ctx.label);
-  const currentEntity = currentType && currentRef ? makeEntity({
-    type: currentType,
-    title: ctx.label,
-    ref: currentRef,
-    link: `${pathname}${search || ""}`,
-    metadata: {
-      research_subject: (root && !rootDiffers) ? { id: root.id, type: root.type, label: rootLabel } : null,
-      lens: activeLens,
-    },
-  }) : null;
+  const contextActive = Boolean(root || selection || activeLens || returnTo);
+  const currentEntity = currentType && currentRef ? makeEntity({ type: currentType, title: ctx.label, ref: currentRef, link: `${pathname}${search || ""}`, metadata: { research_subject: (root && !rootDiffers) ? { id: root.id, type: root.type, label: rootLabel } : null, lens: activeLens } }) : null;
   const alreadyInResearch = Boolean(currentEntity && (research.cart || []).some(item => item?.id === currentEntity.id));
 
-  const addCurrent = () => {
-    if (!currentEntity || alreadyInResearch) return;
-    research.addToResearch?.(currentEntity);
-  };
-  const goRoot = () => {
-    if (!root?.href) return;
-    research.updateResearchContext?.({ selection: { entityId: root.id, entityType: root.type }, lens: lensForSubject(root), returnTo: null });
-    setContextOpen(false);
-    navigate(root.href);
-  };
-  const goReturn = () => {
-    if (!returnTo?.href) return;
-    const target = returnTo.subject || null;
-    research.updateResearchContext?.({ selection: target ? { entityId: target.id, entityType: target.type } : null, lens: target ? lensForSubject(target) : activeLens, returnTo: null });
-    setContextOpen(false);
-    navigate(returnTo.href);
-  };
+  const closePanels = () => setPanel(null);
+  const addCurrent = () => { if (currentEntity && !alreadyInResearch) research.addToResearch?.(currentEntity); };
+  const goRoot = () => { if (!root?.href) return; research.updateResearchContext?.({ selection: { entityId: root.id, entityType: root.type }, lens: lensForSubject(root), returnTo: null }); closePanels(); navigate(root.href); };
+  const goReturn = () => { if (!returnTo?.href) return; const target = returnTo.subject || null; research.updateResearchContext?.({ selection: target ? { entityId: target.id, entityType: target.type } : null, lens: target ? lensForSubject(target) : activeLens, returnTo: null }); closePanels(); navigate(returnTo.href); };
+  const openNow = () => { closePanels(); if (updatesMounted) toggleSiteUpdates(); else navigate("/broadcasts"); };
+  const openMore = () => { closePanels(); openUserCenter(); };
 
   const items = [
-    isAdmin && { id: "context", icon: "⌖", label: "כאן", active: contextOpen, onClick: () => setContextOpen(v => !v) },
-    { id: "number", icon: "123", label: "מספר", active: numberOpen, onClick: () => toggleNumberDrawer() },
-    showUpdates && { id: "updates", icon: "●", label: "עדכונים", active: updatesOpen, onClick: () => toggleSiteUpdates() },
-  ].filter(Boolean);
+    { id: "context", icon: "⌖", label: "כאן", active: panel === "context", signal: contextActive, onClick: () => setPanel(v => v === "context" ? null : "context") },
+    { id: "number", icon: "123", label: "מספר", active: numberOpen, onClick: () => { closePanels(); toggleNumberDrawer(); } },
+    { id: "now", icon: "●", label: "עכשיו", active: updatesOpen, signal: updatesMounted, badge: unseen || 0, onClick: openNow },
+    { id: "raziel", icon: "✦", label: "רזיאל", active: panel === "raziel", gated: !isAdmin, onClick: () => setPanel(v => v === "raziel" ? null : "raziel") },
+    { id: "more", icon: "•••", label: "עוד", active: userCenterOpen, badge: personalUnread, onClick: openMore },
+  ];
 
-  return (
-    <>
-      {isAdmin && contextOpen && !userCenterOpen && (
-        <section className="sbb-context-panel" dir="rtl" aria-label="פעולות על ההקשר הנוכחי">
-          <div className="sbb-context-head"><span>⌖</span><div><small>{ctx.kind}</small><strong>{ctx.label}</strong></div><button type="button" onClick={() => setContextOpen(false)}>×</button></div>
-          <div className="sbb-context-actions">
-            <button type="button" onClick={addCurrent} disabled={!currentEntity || alreadyInResearch}><b>{alreadyInResearch ? "✓" : "＋"}</b><span>{alreadyInResearch ? "במחקר" : "הוסף למחקר"}</span></button>
-            {rootDiffers && <button type="button" onClick={goRoot}><b>↩</b><span>שורש המחקר</span></button>}
-            {returnTo?.href && <button type="button" onClick={goReturn}><b>↩</b><span>חזרה</span></button>}
-            <button type="button" disabled title="קשרים — יתחבר ליכולת הקנונית, לא נבנה כאן graph חדש"><b>◇</b><span>קשרים</span></button>
-          </div>
-        </section>
-      )}
-      <nav className="sod-bottombar" aria-label="סרגל תחתון" dir="rtl" style={{ opacity: userCenterOpen ? 0 : 1, pointerEvents: userCenterOpen ? "none" : "auto" }}>
-        <style>{CSS(dark)}</style>
-        {items.map(it => (
-          <button key={it.id} type="button" className={"sbb-item" + (it.active ? " on" : "")} aria-pressed={!!it.active} onClick={it.onClick}>
-            <span className={"sbb-i" + (it.id === "number" ? " numeric" : "")} aria-hidden>{it.icon}</span>
-            <span className="sbb-l">{it.label}</span>
-          </button>
-        ))}
-      </nav>
-    </>
-  );
+  return <>
+    {!userCenterOpen && panel === "context" && <section className="sbb-sheet" dir="rtl"><div className="sbb-head"><span>⌖</span><div><small>{ctx.kind}</small><strong>{ctx.label}</strong></div><button onClick={closePanels}>×</button></div><div className="sbb-actions"><button onClick={addCurrent} disabled={!currentEntity || alreadyInResearch}><b>{alreadyInResearch ? "✓" : "＋"}</b><span>{alreadyInResearch ? "במחקר" : "הוסף למחקר"}</span></button><button disabled><b>◇</b><span>קשרים</span></button>{rootDiffers && <button onClick={goRoot}><b>↩</b><span>שורש המחקר</span></button>}{returnTo?.href && <button onClick={goReturn}><b>↩</b><span>חזרה</span></button>}</div></section>}
+    {isAdmin && !userCenterOpen && panel === "raziel" && <section className="sbb-sheet" dir="rtl"><div className="sbb-head"><span>✦</span><div><small>AI · רזיאל</small><strong>איתך ב־{ctx.label}</strong></div><button onClick={closePanels}>×</button></div><p className="sbb-note">רזיאל יחובר לאותו Research Context — בלי שכבת אמת מקבילה.</p></section>}
+    <nav className="sod-bottombar" aria-label="סרגל תחתון" dir="rtl" style={{ opacity: userCenterOpen ? 0 : 1, pointerEvents: userCenterOpen ? "none" : "auto" }}><style>{CSS(dark)}</style>{items.map(it => <button key={it.id} type="button" disabled={it.gated} className={`sbb-item sbb-${it.id}${it.active ? " on" : ""}${it.gated ? " gated" : ""}`} aria-pressed={!!it.active} onClick={it.gated ? undefined : it.onClick}><span className={`sbb-i${it.id === "number" ? " numeric" : ""}`}>{it.icon}</span><span className="sbb-l">{it.label}</span>{it.signal && !it.badge && <i className="sbb-signal" />}{it.badge > 0 && <em className="sbb-badge">{it.badge > 99 ? "99+" : it.badge}</em>}</button>)}</nav>
+  </>;
 }
 
-const CSS = (dark) => `
-.sod-bottombar{position:fixed;z-index:500;left:50%;transform:translateX(-50%);bottom:calc(4px + env(safe-area-inset-bottom,0px));width:min(520px,calc(100vw - 12px));display:flex;justify-content:center;gap:4px;padding:4px 6px;background:${dark ? "rgba(5,11,22,.94)" : "rgba(255,255,255,.96)"};border:1px solid ${dark ? "rgba(207,169,92,.25)" : "rgba(120,90,20,.16)"};border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,${dark ? ".36" : ".12"});backdrop-filter:blur(18px);transition:opacity .18s ease}
-.sbb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1 1 92px;min-width:64px;min-height:44px;padding:5px 10px;border:none;border-radius:11px;background:transparent;cursor:pointer;font-family:${F.ui};color:${dark ? "#aab7c9" : "#5b4a12"};transition:background .15s,color .15s}
-.sbb-item:hover{background:${dark ? "rgba(218,180,86,.08)" : "rgba(154,120,24,.08)"}}
-.sbb-item.on{background:${dark ? "rgba(218,180,86,.12)" : "rgba(154,120,24,.14)"};color:${dark ? "#f3dfa2" : "#3a2a00"}}
-.sbb-i{font-size:18px;line-height:1;color:${dark ? "#d4b36a" : "#6b5314"}}.sbb-i.numeric{font-family:${F.numeric};font-size:13px;font-weight:800;letter-spacing:-.03em}.sbb-l{font-size:10.5px;font-weight:700}
-.sbb-context-panel{position:fixed;z-index:501;left:50%;transform:translateX(-50%);bottom:calc(62px + env(safe-area-inset-bottom,0px));width:min(430px,calc(100vw - 16px));padding:12px;border:1px solid ${dark ? "rgba(207,169,92,.28)" : "rgba(120,90,20,.18)"};border-radius:16px;background:${dark ? "rgba(7,15,29,.985)" : "rgba(255,255,255,.985)"};color:${dark ? "#f5efe3" : "#2d2618"};box-shadow:0 18px 55px rgba(0,0,0,.34);backdrop-filter:blur(20px);font-family:${F.ui}}
-.sbb-context-head{display:flex;align-items:center;gap:8px;padding:2px 2px 10px}.sbb-context-head>span{color:#d4b36a;font-size:18px}.sbb-context-head div{display:flex;flex-direction:column;min-width:0}.sbb-context-head small{font-size:9px;color:${dark ? "#c9a65c" : "#7a621f"}}.sbb-context-head strong{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sbb-context-head>button{margin-inline-start:auto;border:0;background:transparent;color:${dark ? "#7e8da3" : "#6b6254"};font-size:20px;cursor:pointer}
-.sbb-context-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.sbb-context-actions button{min-height:48px;border:1px solid ${dark ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.07)"};border-radius:10px;background:${dark ? "rgba(255,255,255,.035)" : "rgba(0,0,0,.025)"};color:${dark ? "#aab7c9" : "#4d4538"};font-family:${F.ui};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}.sbb-context-actions button:disabled{opacity:.42;cursor:default}.sbb-context-actions b{color:#d4b36a;font-size:15px}.sbb-context-actions span{font-size:9.5px}
-@media(max-width:380px){.sbb-item{min-width:0;padding-inline:5px}.sbb-context-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(prefers-reduced-motion:reduce){.sod-bottombar{transition:none}}
+const CSS = dark => `
+.sod-bottombar{position:fixed;z-index:500;left:50%;transform:translateX(-50%);bottom:calc(5px + env(safe-area-inset-bottom,0px));width:min(540px,calc(100vw - 12px));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:4px 5px;background:${dark ? "rgba(5,11,22,.96)" : "rgba(255,255,255,.97)"};border:1px solid ${dark ? "rgba(207,169,92,.25)" : "rgba(120,90,20,.16)"};border-radius:17px;box-shadow:0 10px 34px rgba(0,0,0,${dark ? ".42" : ".14"});backdrop-filter:blur(20px)}
+.sbb-item{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:48px;padding:5px 3px;border:0;border-radius:12px;background:transparent;cursor:pointer;font-family:${F.ui};color:${dark ? "#93a2b7" : "#5b5142"}}.sbb-item.on{background:${dark ? "rgba(212,179,106,.12)" : "rgba(154,120,24,.11)"};color:${dark ? "#f2dfa7" : "#342800"}}.sbb-item.gated{opacity:.38}.sbb-i{font-size:18px;line-height:1;color:${dark ? "#d4b36a" : "#6b5314"}}.sbb-i.numeric{font-family:${F.numeric};font-size:13px;font-weight:800}.sbb-now .sbb-i{font-size:9px;color:#78a9d8}.sbb-l{font-size:10px;font-weight:750}.sbb-signal{position:absolute;top:5px;inset-inline-end:12px;width:5px;height:5px;border-radius:50%;background:${dark ? "#d4b36a" : "#8a6d1c"};box-shadow:0 0 7px currentColor}.sbb-now .sbb-signal{background:#78a9d8}.sbb-badge{position:absolute;top:2px;inset-inline-end:7px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#c8102e;color:#fff;font:700 9px/16px ${F.ui};font-style:normal;text-align:center}
+.sbb-sheet{position:fixed;z-index:501;left:50%;transform:translateX(-50%);bottom:calc(66px + env(safe-area-inset-bottom,0px));width:min(440px,calc(100vw - 16px));padding:13px;border:1px solid ${dark ? "rgba(207,169,92,.26)" : "rgba(120,90,20,.18)"};border-radius:18px;background:${dark ? "rgba(7,15,29,.99)" : "rgba(255,255,255,.99)"};color:${dark ? "#f5efe3" : "#2d2618"};box-shadow:0 20px 60px rgba(0,0,0,.38);font-family:${F.ui}}.sbb-head{display:flex;align-items:center;gap:9px}.sbb-head>span{color:#d4b36a;font-size:18px}.sbb-head div{display:flex;flex-direction:column}.sbb-head small{font-size:9px;color:${dark ? "#bda46d" : "#7a621f"}}.sbb-head strong{font-size:13px}.sbb-head>button{margin-inline-start:auto;border:0;background:transparent;color:inherit;font-size:20px}.sbb-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}.sbb-actions button{min-height:50px;border:1px solid ${dark ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.07)"};border-radius:11px;background:transparent;color:inherit;font-family:${F.ui};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}.sbb-actions b{color:#d4b36a}.sbb-actions span{font-size:9.5px}.sbb-note{font-size:12px;line-height:1.6;color:${dark ? "#aab7c9" : "#5b5142"}}
+@media(max-width:380px){.sbb-item{padding-inline:2px}.sbb-actions{grid-template-columns:repeat(2,1fr)}}
 `;
