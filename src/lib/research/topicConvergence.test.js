@@ -27,6 +27,7 @@ import {
   AUTHORED_CLAIM,
   AUTHORED_SECTION_ORDER,
   TOPIC_CARD_SELECT_FIELDS,
+  buildTopicListQuery,
 } from "./topicConvergence.js";
 import { isUniversalFinding } from "./universalFinding.js";
 
@@ -265,4 +266,35 @@ test("canonical SELECT now includes findings + attribution columns (P1/Research 
   for (const col of ["findings", "created_by", "image_ids", "search_terms", "occurred_at", "id", "slug", "title", "node_id", "status"]) {
     assert.ok(TOPIC_CARD_SELECT_FIELDS.split(",").includes(col), `missing column ${col}`);
   }
+});
+
+// ── UNIVERSAL_EXPLORER_V1_SLICE1_GENERIC_LIST_MODE (work_log e3097bb5) ─────────────────────────
+// buildTopicListQuery is the pure, network-free query-shape builder for the bounded Topic/
+// Convergence list-mode reader — proves bounds clamping and deterministic compound ordering
+// without mocking Supabase (no such convention exists in this codebase; the fetch stays thin).
+
+test("buildTopicListQuery: default limit/offset applied when omitted", () => {
+  const q = buildTopicListQuery();
+  assert.equal(q.limit, 24);
+  assert.equal(q.rangeStart, 0);
+  assert.equal(q.rangeEnd, 24, "rangeEnd = rangeStart + limit, so range() fetches limit+1 rows for hasMore detection");
+});
+
+test("buildTopicListQuery: limit is clamped to [1, 100], never trusts caller-supplied extremes", () => {
+  assert.equal(buildTopicListQuery({ limit: 0 }).limit, 1);
+  assert.equal(buildTopicListQuery({ limit: -5 }).limit, 1);
+  assert.equal(buildTopicListQuery({ limit: 99999 }).limit, 100);
+  assert.equal(buildTopicListQuery({ limit: "not-a-number" }).limit, 24, "non-numeric falls back to the default, never NaN/unbounded");
+});
+
+test("buildTopicListQuery: offset never goes negative", () => {
+  assert.equal(buildTopicListQuery({ offset: -10 }).rangeStart, 0);
+  assert.equal(buildTopicListQuery({ offset: 50 }).rangeStart, 50);
+});
+
+test("buildTopicListQuery: ordering is a fixed, deterministic compound key regardless of input (stable pagination)", () => {
+  const a = buildTopicListQuery();
+  const b = buildTopicListQuery({ limit: 5, offset: 100 });
+  assert.deepEqual(a.order, [["approved_at", false], ["id", true]]);
+  assert.deepEqual(a.order, b.order, "the compound order never varies by limit/offset — no caller can destabilize pagination");
 });

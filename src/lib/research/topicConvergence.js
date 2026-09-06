@@ -513,3 +513,45 @@ export async function fetchCanonicalTopicConvergenceFinding(slug) {
 
   return topicConvergenceToUniversalFinding({ card, node, edges, targets });
 }
+
+// ── UNIVERSAL_EXPLORER_V1_SLICE1_GENERIC_LIST_MODE (work_log dispatch e3097bb5) ──
+// Bounded, paginated, deterministically-ordered list of approved Topic/Convergence cards for a
+// facet list view. Deliberately narrower than TOPIC_CARD_SELECT_FIELDS: no `findings` body, no
+// per-row graph/node/edge composition — a list card needs identity + ranking signals only. Full
+// authored-content + graph composition (topicConvergenceToUniversalFinding) stays a per-item,
+// on-open concern for a later slice, so this never does the N+1 a naive "Finding per row" list
+// would cause. topic_cards_public already filters to approved & not-_do_not_publish server-side.
+const TOPIC_LIST_FIELDS = "id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,approved_at,occurred_at";
+const TOPIC_LIST_DEFAULT_LIMIT = 24;
+const TOPIC_LIST_MAX_LIMIT = 100;
+
+/**
+ * Pure. Builds the exact, deterministic query shape for a bounded Topic/Convergence list — no
+ * network, so bounds-clamping and the stable compound ordering are unit-testable in isolation.
+ * rangeEnd deliberately requests one extra row (limit+1) so the caller can detect hasMore
+ * without a second COUNT query.
+ */
+export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0 } = {}) {
+  // Not `||` — 0 is a falsy-but-valid clamp input (Number(0) || fallback would silently return
+  // the fallback instead of clamping 0 up to 1).
+  const numericLimit = Number(limit);
+  const cap = Math.max(1, Math.min(Number.isFinite(numericLimit) ? numericLimit : TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT));
+  const safeOffset = Math.max(0, Number(offset) || 0);
+  return {
+    // [column, ascending] — most-recently-approved first, id asc as a stable tiebreaker.
+    order: [["approved_at", false], ["id", true]],
+    rangeStart: safeOffset,
+    rangeEnd: safeOffset + cap,
+    limit: cap,
+  };
+}
+
+export async function fetchTopicCardList(params = {}) {
+  const q = buildTopicListQuery(params);
+  let query = supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
+  for (const [col, ascending] of q.order) query = query.order(col, { ascending, nullsFirst: false });
+  const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
+  if (error) throw error;
+  const rows = Array.isArray(data) ? data : [];
+  return { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };
+}
