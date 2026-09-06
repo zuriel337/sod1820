@@ -1515,3 +1515,39 @@ Foundation נשאר `SUFFICIENT` / `MUST FOUNDATION NOW=0` ידוע לצורך-�
 
 **Release/state:** docs-only branch `gpt/advanced-system-roadmap-universal-explorer-v1`; NOT merged / NOT deployed by this entry. No DB/schema/engine/UI truth write.
 
+---
+
+## §23.30 — UNIVERSAL BOOK FOUNDATION = SUFFICIENT + UNIVERSAL BOOK PROJECTION (BRANCH-ONLY) — 6.9.2026 (`UNIVERSAL_BOOK_DOCS_RECONCILIATION_V1`, actor=CLAUDE, handoff מ-GPT/ZURIEL `work_log d7512582-8be1-4e13-a98e-838f9568157e`, Human-Gate ZURIEL)
+
+> **מעמד:** תיעוד-SSOT **docs-only**, additive-בלבד — §23.26/§23.27/§23.28 שלמעלה נשארים כלשונם, ללא עריכה/מחיקה. הן-לא-נסתרות: "אהבת תורה+PELIAH = Source Research, לא Book Lab" (§23.28.B) עדיין נכון במובן **"אין מנוע/store/עץ-ספרים מקביל"** — מה-שהתחדש-מאז הוא ש-Foundation Audit פורמלי (6.9.2026) קבע-במפורש verdict **Book Foundation = SUFFICIENT** (רמה מעל ה-stress-tests הבודדים), ושמעליו נבנתה בפועל (branch-only) Universal Book Projection ראשונה. זו הבשלה, לא-סתירה.
+
+### A. Foundation Verdict — פורמלי, לא-רק Stress-Test
+
+`work_log cee3f668-db49-4410-adbc-b9dad9830484` (`UNIVERSAL_BOOK_FOUNDATION_LIVE_PROJECTION_AND_ONE_TREE_GATE_V1`, READ-ONLY audit, actor=CLAUDE(BOOK_FOUNDATION_AUDITOR), Human-Gate ZURIEL) קבע verdict מפורש: **`FOUNDATION SUFFICIENT`**. אומת-חי בסבב-הזה (עצמאית, לא-נלקח-כנתון): `nodes(type='book')` = בדיוק 3 שורות — `book:ahavat-torah` (active), `book:sefer-hapliah` (active), `book:sefer-yetzirah` (inactive, id `0f65caa9-e5e9-45c1-837a-a7aa414ebe31`). שלושתן חולקות **אותה** צורת `metadata.identity_tiers` — **הפרדת 7 דרגות-זהות**: Book / Edition / Textual-Version / Witness / Digital-Object / Locator (textual_version נוסף רק היכן-שהמקור-דורש, כגון ספר יצירה) — מוכיח דפוס-שכבר-מוכח על-פני 3 ספרים בלתי-תלויים, לא-המצאה-חדשה. `entity_types` כבר מכיל `type=book, route_pattern=/book/:slug, is_active=true` — קדם-קיים. `nodes_identity_canonical_uidx` (DB-level unique index) מונע-מבנית התנגשויות-זהות.
+
+### B. שלושת ספרי-ה-Stress-Test
+
+**אהבת תורה** (§23.26) · **ספר הפליאה** (§23.27, §9 Universal Source Deep Research Orchestration) · **ספר יצירה** — שלושתם ביחד מוכיחים ש-`research_intake_foundation_contract` (§1-§9) מחזיק על 3 corpora בלתי-תלויים בלי redesign. `One Research OS · One Reality Graph · One Human Gate` — **אין Book Engine/Store/Tree מקביל**; חיבור Book↔תוכן עובד דרך שני-מנגנונים-קיימים בלבד: `metadata.source_ref_prefixes` + `research_objects`, **לא** edges (מאומת-חי: 0 edges נוגעים בכל node מסוג book, גם-עכשיו).
+
+### C. ספר יצירה — מצב-DB חי (אומת-עצמאית בסבב-הזה)
+
+Node `book:sefer-yetzirah` (id `0f65caa9`): **`is_active=false`**. `edges` הנוגעים ב-node זה: **0**. `research_objects` עם `privacy_scope='private'` ו-`status='canonical'` השייכים לספר יצירה: **9** (מאומת-חי דרך `work_log 0f1316dc-fb13-442d-bd35-f6d0d842b1a3`, "9 current canonical-private claims", ומאומת-עצמאית שוב כאן ישירות מול הטבלה). כל התביעות **private**, אף-אחת לא-מקודמת ל-graph ציבורי (`graph_promoted=false`, `promoted_node_id=null` בכולן). `PRIVATE CANONICAL ≠ PUBLIC` (הרחבת §20) — קנוניזציה-פרטית אינה-פרסום ואינה-מפעילה את ה-Book.
+
+### D. Universal Book Projection — dossier.hero + Rich Locator (BRANCH-ONLY, NOT MERGED/DEPLOYED/LIVE)
+
+שרשרת-בנייה על-בסיס ה-Foundation Audit, כל-שלב branch-only ולא-מוזג ל-`main`: `claude/book-projection-minimal-delta`@`2c4e5bfe` (`work_log 31fa0b4c`) → `claude/book-projection-finite-closure`@`30ffb498` (`work_log 89503be0`). **dossier.hero universal projection:** `BookHubPage.jsx` מחשב `snap = dossier?.hero || SNAPSHOTS[slug] || null` (היה `SNAPSHOTS[slug]` בלבד) — `dossier = useBookDossier(slug)`, אותו hook קיים שקורא `/book-data/<slug>.tables.json` (**אין** store/file-family חדש). `SNAPSHOTS` **נשמר** כ-fallback-תאימות, לא-נמחק. כיסוי 3/3: Ahavat Torah, Sefer HaPeliah (הושלם ב-`30ffb498`, שהוסיף `public/book-data/sefer-hapliah.tables.json` עם hero מועתק-מילולית מ-`SNAPSHOTS["sefer-hapliah"]` הקיים), Sefer Yetzirah. **Rich locator page→zone→work/commentator→sublocator:** ה-`parseSourceRefLocator()` הקיים חובר ל-Book Research projection/navigation הקיים — Locator אופציונלי (page/zone/work-commentator/sublocator) מוצג/נישא בבחירת-שורה/workspace **בלי** לשנות `source_ref` מאוחסן ובלי ליצור graph edges חדשים.
+
+### E. One Research OS / One Reality Graph — ללא שינוי
+
+מאשר-מחדש (לא-פותח-מחדש) את §23.28.B: **אין** Book Lab / Book OS / Book Graph / Book Context store נפרד. ה-Projection שב-§D הוא רכיב-תצוגה בלבד מעל נתונים-קיימים (`nodes`, `research_objects`, `metadata.source_ref_prefixes`) — לא-מודל-נתונים-מקביל. Book Foundation ה-`SUFFICIENT` (§A) הוא verdict-Foundation, לא-שחרור-ל-production ולא-הפעלת-Book (`is_active` נשאר `false` לספר יצירה).
+
+### F. Extension Points (תיעוד-בלבד, לא-יישום בסבב-הזה)
+
+Multi-Witness (מספר עדי-נוסח לאותו Textual Version) · Multilingual (הרחבת `content_translation_law` לשכבת-הספר) · Convergence (חיבור ממצאי-ספר ל-Topic/Convergence הקיים) · Diagram/Image evidence (עמודי-סריקה/דיאגרמות כ-Digital-Object נלווה ל-Locator). ארבעתם **אינם-נבנים כאן** — נקודות-הרחבה מתועדות בלבד, ממתינות ל-Human-Gate נפרד לפי-צורך.
+
+### G. Foundation Verdict (סיכום)
+
+`MUST FOUNDATION NOW = 0.` **`UNIVERSAL BOOK FOUNDATION = SUFFICIENT.`** **`UNIVERSAL BOOK PROJECTION = IMPLEMENTED, BRANCH-ONLY, NOT MERGED, NOT DEPLOYED, NOT LIVE.`** `ACTIVE_NOW` (`WS-RESEARCH-STUDIO-FOUNDATION`) **לא-שונה**. אין schema/RPC/DB-content/edges/Book-activation writes בסבב-הזה (סבב זה הוא docs-only; ה-DB-reads למעלה הם קריאה-בלבד לאימות-עובדות).
+
+**Provenance:** `work_log c25adfdd`→`cee3f668` (Foundation Audit, READ-ONLY) · `work_log 30c264b8`→`31fa0b4c` (Minimal Delta, branch `claude/book-projection-minimal-delta`@`2c4e5bfe`) · `work_log 3655b1d9`→`89503be0` (Finite Closure, branch `claude/book-projection-finite-closure`@`30ffb498`) · `work_log 0f1316dc` (Sefer Yetzirah 9 canonical-private claims, corrected p140 identity) · `work_log c7245781`/`2efc0a21`/`7b1e15ea` (Sefer Yetzirah Canonical Gate rounds) · `work_log d7512582` (this reconciliation's dispatch) · §23.26/§23.27/§23.28 למעלה (ללא-שינוי).
+
