@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
+import { track } from "../lib/tracking.js";
+import { experimentMeta } from "../lib/productIntelligence.js";
 import { LOGO_URL } from "../theme.js";
 
 // ===== שער-נעילה זמני (תחזוקה/שדרוגים) — מבוסס-דגל DB =====
@@ -12,7 +14,27 @@ import { LOGO_URL } from "../theme.js";
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
 
-export function MaintenanceLock({ message, showLogin = false, alternatives = false }) {
+function useLockExposureTelemetry({ variant, flag = null, mode = null, showLogin = false, experiment = null }) {
+  const { pathname, search } = useLocation();
+  const experimentId = typeof experiment === "string" ? experiment : (experiment?.id || null);
+
+  useEffect(() => {
+    const base = {
+      lock_variant: variant,
+      lock_flag: flag || null,
+      lock_mode: mode || null,
+      show_login: !!showLogin,
+      path: `${pathname}${search || ""}`,
+    };
+    const meta = experimentId
+      ? { ...(experimentMeta(experiment, { experiment_phase: "blocked", access_state: "blocked" }) || {}), ...base }
+      : base;
+    track("maintenance-lock", flag || variant, "exposure", meta);
+  }, [variant, flag, mode, showLogin, pathname, search, experimentId]); // experiment config is stable per lock mount
+}
+
+export function MaintenanceLock({ message, showLogin = false, alternatives = false, flag = null, mode = null, experiment = null }) {
+  useLockExposureTelemetry({ variant: "full", flag, mode, showLogin, experiment });
   return (
     <div className="mlock" role="status" aria-live="polite">
       <style>{`
@@ -65,7 +87,8 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
 
 // 🔒 טיזר-נעילה קומפקטי — לסקציות מוטמעות (עמוד הבית וכד'), לא מסך שלם.
 // מציג את הודעת-הנעילה + CTA הרשמה (כשהנעילה היא לרשומים). עובד על רקעים כהים ובהירים.
-export function LockTeaser({ message, showLogin = false }) {
+export function LockTeaser({ message, showLogin = false, flag = null, mode = null, experiment = null }) {
+  useLockExposureTelemetry({ variant: "teaser", flag, mode, showLogin, experiment });
   return (
     <div dir="rtl" style={{
       maxWidth: 560, margin: "18px auto", textAlign: "center",
@@ -109,6 +132,6 @@ export default function Locked({ flag, children }) {
   const { loading, lock } = useSiteFlag(flag);
   if (loading) return null;                            // הבהוב קצר עד שהדגל נטען
   const blocked = lock?.enabled && !isAdmin && !(lock.mode === "anon" && user);
-  if (blocked) return <MaintenanceLock message={lock.message} showLogin={lock.mode === "anon"} />;
+  if (blocked) return <MaintenanceLock message={lock.message} showLogin={lock.mode === "anon"} flag={flag} mode={lock.mode} />;
   return children;
 }
