@@ -151,6 +151,37 @@ function HeroSection({ data, entity, statusData }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// 2b. Zero — visible semantic block (correction pass): the ⓞ Hero popover stays for interaction,
+// but the same data.zeroScale must also exist as plain, crawlable DOM content — not only behind a
+// click. Uses ONLY zero.scale_chain (existing fn_zero_scale reader); no relative is invented, and
+// nothing here changes sitemap/indexability — Route ≠ Indexable is left to the existing rules.
+// ---------------------------------------------------------------------------
+function ZeroSemanticSection({ zero, number }) {
+  const chain = Array.isArray(zero?.scale_chain) ? zero.scale_chain : [];
+  return (
+    <section style={{ marginTop: 22 }}>
+      <h2 style={{ fontSize: 15, margin: "0 0 8px", color: "var(--obs-gold)", letterSpacing: 0.4 }}>זיקת האפס · Zero Relation</h2>
+      {zero?.applicable && chain.length ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 16 }}>
+          {chain.map((v, i) => (
+            <React.Fragment key={v}>
+              {i > 0 && <span aria-hidden style={{ color: "var(--obs-muted)" }}>·</span>}
+              <Link to={`/number/${v}`} style={{
+                textDecoration: "none", fontWeight: 900,
+                color: Number(v) === number ? "var(--obs-gold)" : "var(--obs-blue)",
+              }}>{v}</Link>
+            </React.Fragment>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 12.5, color: "var(--obs-muted)" }}>אין סדרת-אפס ישימה למספר {number} לפי fn_zero_scale.</div>
+      )}
+      <div style={{ fontSize: 9.5, color: "var(--obs-muted)", marginTop: 6 }}>מקור: fn_zero_scale (canonical) · שורש {zero?.core_root ?? "—"}</div>
+    </section>
+  );
+}
+
 function groupRelations(relations) {
   const groups = {};
   for (const r of relations || []) {
@@ -341,7 +372,7 @@ function MathDimensionsSection({ math, number }) {
 // ---------------------------------------------------------------------------
 // 6. Reality / Gallery images — full frame, never cropped; hint vs ordinary
 // ---------------------------------------------------------------------------
-function GalleryTile({ img, isHint, onOpen }) {
+function GalleryTile({ img, isHint, deepLink, onOpen }) {
   const src = img.image_url || img.thumb_url;
   if (!src) return null;
   const content = (
@@ -360,25 +391,33 @@ function GalleryTile({ img, isHint, onOpen }) {
     </div>
   );
   return isHint
-    ? <Link to="/archive" title="פתח בזרם המציאות (הקשר מקורי)" style={{ textDecoration: "none" }}>{content}</Link>
+    ? <Link to={deepLink} title="פתח בזרם המציאות — מסונן לאותו מספר (הקשר מקורי)" style={{ textDecoration: "none" }}>{content}</Link>
     : <button type="button" onClick={onOpen} style={{ border: 0, background: "transparent", padding: 0, cursor: "zoom-in" }}>{content}</button>;
 }
 
-function RealityGallerySection({ surface, hintIds }) {
+function RealityGallerySection({ surface, hintIds, number }) {
   const [lightbox, setLightbox] = useState(null);
   const images = (surface?.galleries || []).slice(0, 12);
   const total = surface?.galleriesCount ?? images.length;
+  // Existing deep-link contract audited in ArchivePage.jsx: it reads ?tab=pool&nums=<value> and
+  // filters the Reality Stream pool to exactly that number's evidence (numDeepLinked effect).
+  // There is NO per-single-image-id deep link in that page today (confirmed: tab/q/gal/nums/num/set
+  // are the full set of query params it reads) — "gal" opens a whole gallery *group* by
+  // wp_gallery_id, not one image. So this is the most precise EXISTING contract available; a bare
+  // /archive fallback would be honest but strictly worse than this already-real, already-built
+  // number-filtered view. True single-image deep-linking remains a gap — see report, not invented here.
+  const hintDeepLink = Number.isFinite(number) ? `/archive?tab=pool&nums=${encodeURIComponent(number)}` : "/archive";
   return (
     <section style={{ marginTop: 26 }}>
       <h2 style={{ fontSize: 19, margin: "0 0 4px" }}>מציאות · תמונות מחוברות</h2>
       <p style={{ fontSize: 11.5, color: "var(--obs-muted)", margin: "0 0 12px" }}>
-        התמונה המלאה תמיד נשמרת (object-fit: contain) — אין חיתוך ראיה. תמונות-רמז מפנות לזרם המציאות (ההקשר המקורי נשאר שם).
+        התמונה המלאה תמיד נשמרת (object-fit: contain) — אין חיתוך ראיה. תמונות-רמז מפנות לזרם המציאות, מסונן לאותו מספר (ההקשר המקורי נשאר שם).
       </p>
       {images.length ? (
         <>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 10 }}>
             {images.map((img) => (
-              <GalleryTile key={img.id} img={img} isHint={hintIds?.has(img.id)} onOpen={() => setLightbox(img)} />
+              <GalleryTile key={img.id} img={img} isHint={hintIds?.has(img.id)} deepLink={hintDeepLink} onOpen={() => setLightbox(img)} />
             ))}
           </div>
           {total > images.length && <div style={{ fontSize: 11, color: "var(--obs-muted)", marginTop: 8 }}>זהו חלון ראשון מתוך {fmt(total)} תמונות מחוברות.</div>}
@@ -528,10 +567,11 @@ export default function NumberGoldenCase1237Page() {
     <div className="entity-hub-observatory">
       <div className="obs-shell eh-func" style={{ paddingBottom: 60 }}>
         <HeroSection data={data} entity={entity} statusData={statusStatus} />
+        <ZeroSemanticSection zero={data.zeroScale} number={number} />
         <RegularGematriaSection families={data.gematria.families} phraseEntities={data.gematria.phraseEntities} label={data.identity.label} />
         <MethodPanel families={data.gematria.families} />
         <MathDimensionsSection math={math} number={number} />
-        <RealityGallerySection surface={data.surface} hintIds={hintIds} />
+        <RealityGallerySection surface={data.surface} hintIds={hintIds} number={number} />
         <UniversalLensesSection data={data} statusStatus={statusStatus} />
         <SpatialExtensionSection />
       </div>
