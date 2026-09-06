@@ -5,7 +5,7 @@
 // source locator and carries truth/access axes without merging them. It creates no new
 // entity family, store, graph, engine, Workspace, or Research Context.
 
-import { pageFromSourceRef } from "./bookResearchProjection.js";
+import { pageFromSourceRef, parseSourceRefLocator } from "./bookResearchProjection.js";
 
 function clean(v) {
   return v == null ? "" : String(v).trim();
@@ -107,6 +107,11 @@ export function selectionToWorkspaceItem(book, selection, opts = {}) {
       bookIdentityKey: bookRef,
       sourceRef,
       page,
+      // Optional rich locator context, additive alongside `page` — see parseSourceRefLocator.
+      // Never touches the sibling `ref` field above (the stable selection identity) or the
+      // `locator` ref-id field selectionToWorkspaceItem's callers thread through the Research
+      // Context bridge (bookContextPatch / RoyalContextBar) — those keep meaning "an id".
+      sourceLocator: parseSourceRefLocator(sourceRef),
       snapshotVersion,
       witness: selection.witness ?? book?.metadata?.identity_tiers?.witness ?? null,
       // GOVERNANCE — independent from engine verification and publication/access.

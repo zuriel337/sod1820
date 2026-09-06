@@ -257,6 +257,10 @@ export function researchRowToBookRepresentation(row) {
     shape,
     title: clean(row?.title || row?.statement || row?.kind) || "Research Object",
     sourceRef: row?.source_ref ?? null,
+    // Optional rich locator context (zone/work/sublocator beyond the bare page) — additive,
+    // never required. Fails closed to all-null fields when the source_ref carries no more
+    // than a page (or no page at all); see parseSourceRefLocator.
+    sourceLocator: parseSourceRefLocator(row?.source_ref),
     kind: row?.kind ?? null,
     status: row?.status ?? null,
     privacyScope: row?.privacy_scope ?? null,
@@ -361,6 +365,10 @@ export function researchRowToWorkspaceItem(row, book) {
       bookIdentity: book?.identity_key || null,
       page: p,
       sourceRef: row.source_ref,
+      // Optional rich locator context, additive alongside `page` — never replaces it and
+      // never touches the existing `selection.locator` ref-id field used elsewhere in the
+      // Research Context bridge (see bookContextPatch / RoyalContextBar).
+      sourceLocator: parseSourceRefLocator(row.source_ref),
       status: row.status ?? null,
       kind: row.kind ?? null,
       engineVerified: triBool(row?.engine_verified),
