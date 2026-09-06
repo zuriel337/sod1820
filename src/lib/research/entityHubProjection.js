@@ -662,7 +662,9 @@ const LIST_MODE_MAX_LIMIT = 100;
 // audit 77d82836 (node-backed, non-empty entity_types); it is enforced only in the fetch
 // function below, not in the pure builder, which stays generic (buildEntityListQuery is also
 // used directly by unit tests that intentionally probe out-of-allowlist/empty type inputs).
-const EXPLORER_LIST_MODE_TYPES = Object.freeze([
+// Exported (Slice 2, work_log dispatch 0b70e0f9) so the Explorer facet registry imports this
+// SAME array rather than hand-duplicating it — the two can then never drift out of sync.
+export const EXPLORER_LIST_MODE_TYPES = Object.freeze([
   "number", "entity", "event", "year", "word", "phrase", "foreign_word", "language_bridge",
 ]);
 
