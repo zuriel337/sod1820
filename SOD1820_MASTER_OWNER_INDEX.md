@@ -1,6 +1,6 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v1
 
-> **STATUS:** BRANCH-ONLY CANDIDATE · not merged · not deployed · not a new SSOT.
+> **STATUS:** MERGED TO `main` via PR #345 (`d9401650ccaf32b2fd244223e67987963e846e8b`) · docs-only · no product deploy required · not a new SSOT.
 > **Purpose:** routing/index only. This file does not duplicate contract bodies, create a registry, or redefine authority. It is the finite owner map intended to be pointed to from `SOD1820_MASTER_STATE.md` under the already-approved Canonical-Owner Pointer Clarification.
 > **Authority remains:** live canonical DB + `origin/main` + Master State > Roadmap > conversation/memory/search.
 
@@ -29,7 +29,7 @@ A filename, search match, old conversation, branch, roadmap line, or inactive ru
 
 | Domain / responsibility | Canonical owner | Owner type | Active/current state at verification | Canonical body / implementation pointer |
 |---|---|---|---|---|
-| One Reality Graph / One Tree identity + relations | `reality_graph_law` | versioned rule + codex | **v3 ACTIVE** | `nodes/edges`; `project_codex.reality_graph_law`; current `origin/main` consumers |
+| One Reality Graph / One Tree identity + relations | `reality_graph_law` | versioned rule + codex | **v4 ACTIVE** | `nodes/edges`; `project_codex.reality_graph_law`; current `origin/main` consumers |
 | Research OS / Research Context / Journey composition | `docs/research-studio-v1-contract.md` | long-form contract on main | **APPROVED / MERGED** | `ResearchProvider` + existing Research OS readers/stores; no parallel Context store |
 | Research Intake / source research orchestration | `research_intake_foundation_contract_law` | versioned rule + codex | **v8 ACTIVE** | `project_codex.research_intake_foundation_contract` |
 | Truth semantics: epistemic / verification / governance / publication-access | `truth_axes_foundation_law` | versioned rule + codex | **v1 ACTIVE** | `project_codex.truth_axes_foundation_v1` |
@@ -84,6 +84,6 @@ Governance cleanup is **routing + supersession**, not deletion of history.
 
 The additive Master State pointer should state only:
 
-> `CANONICAL OWNER INDEX v1` — routing-only index for domain → canonical owner → active/current version/status → implementation pointer. Read current owner first; history only on drift/provenance. Legacy active rows without `rule_id` are excluded from ownership until reconciled. Canonical body: `SOD1820_MASTER_OWNER_INDEX.md` once merged to `main`. No authority-order change; no new registry/store/system.
+> `CANONICAL OWNER INDEX v1` — routing-only index for domain → canonical owner → active/current version/status → implementation pointer. Read current owner first; history only on drift/provenance. Legacy active rows without `rule_id` are excluded from ownership until reconciled. Canonical body: `SOD1820_MASTER_OWNER_INDEX.md` on `main` (PR #345). No authority-order change; no new registry/store/system.
 
 No Roadmap priority change is implied by this index.
