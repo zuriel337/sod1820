@@ -101,6 +101,7 @@ const PostEditorPage = React.lazy(() => import("./pages/PostEditorPage.jsx"));
 const LabIndex = React.lazy(() => import("./pages/LabIndex.jsx"));
 const ResearchViewerV0Page = React.lazy(() => import("./components/admin/ResearchViewerV0Page.jsx"));
 const EntityHubPreviewPage = React.lazy(() => import("./pages/EntityHubPreviewPage.jsx")); // 🌳 Universal Entity Hub golden-case preview // 🔬 Research Viewer v0 — פנימי, לא-מקושר, admin gate ברכיב עצמו
+const NumberGoldenCase1237Page = React.lazy(() => import("./pages/NumberGoldenCase1237Page.jsx")); // 🔭 UNIVERSAL_NUMBER_HUB_1237_GOLDEN_CASE_VISUAL_BUILD_V1 — preview-only, branch-only
 const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
@@ -305,6 +306,9 @@ export default function App() {
           {/* 🌳 Universal Entity Hub — internal golden-case projection, no public-nav replacement yet. */}
           <Route path="/entity-hub-preview" element={<Navigate to="/entity-hub-preview/number/1237" replace />} />
           <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
+          {/* UNIVERSAL_NUMBER_HUB_1237_GOLDEN_CASE_VISUAL_BUILD_V1 — branch/preview only, does not replace /number/:phrase */}
+          <Route path="/entity-hub-preview/golden-case" element={<Navigate to="/entity-hub-preview/golden-case/1237" replace />} />
+          <Route path="/entity-hub-preview/golden-case/:value" element={<NumberGoldenCase1237Page />} />
           <Route path="/מעבדת-משמעות" element={<MeaningLabPage />} />
           <Route element={<Layout />}>
           <Route path="/" element={<HomeRoute />} />
