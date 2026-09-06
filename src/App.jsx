@@ -26,7 +26,7 @@ import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import { useStream } from "./lib/stream.js";
 import UpdateBanner from "./components/UpdateBanner.jsx";
-import Locked, { MaintenanceLock } from "./components/MaintenanceLock.jsx";
+import Locked from "./components/MaintenanceLock.jsx";
 const OnboardingRitual = React.lazy(() => import("./components/OnboardingRitual.jsx"));
 
 // ── דפים שנטענים מיד (landing + עמודי תוכן שאליהם מגיעים מגוגל = LCP חשוב) ──
@@ -120,12 +120,10 @@ const WaInboxPage = React.lazy(() => import("./pages/WaInboxPage.jsx"));
 // 🧪 מעבדה להבנת משמעות — דף עצמאי חבוי (מחוץ ל-Layout, לא בתפריט, לא מאונדקס). שכבה מבודדת lab_*.
 const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
 
-// 🏗️ היכל-הגילוי בשיפוץ: סוגרים רק את שער-האב /research. כלי מחקר ישירים עם ?tool= נשארים זמינים.
+// 🏛️ ההיכל פתוח לכולם (בקשת צוריאל, 6.9.2026) — הסרת שער-החסימה משער-האב /research.
+// תג «בבנייה» נשאר ויזואלית בנאב (HEICHAL_UNDER_CONSTRUCTION ב-Navbar.jsx) בלי לחסום כניסה בפועל.
 function ResearchEntryRoute() {
-  const { search } = useLocation();
-  const tool = new URLSearchParams(search).get("tool");
-  if (tool) return <ResearchPage />;
-  return <MaintenanceLock message="🏗️ ההיכל — בבנייה" alternatives />;
+  return <ResearchPage />;
 }
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
