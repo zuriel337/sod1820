@@ -22,6 +22,10 @@ import HomeHeader from "./HomeHeader.jsx";           // 👑 מיתוג «עדכ
 const aiRe = /מאומת על ידי ai|רזיאל|בינה מלאכות|\bai\b/i;
 // 📌 פוסט «נעוץ» = tree_priority גבוה (מוצמד ידנית ע"י אדמין). מוצג ראשון + תג «נעוץ».
 const isPinnedPost = (p) => !!p && (p.tree_priority ?? 0) >= 50;
+// 💎⚡ «רמז חזק» שפורסם/עודכן ב-48 השעות האחרונות — מהבהב לכולם (חלון גלובלי-מוחלט לפי זמן-פרסום,
+// לא per-visitor כמו whats_new_law: זה סימון-דחיפות לתוכן-הדגל עצמו, לא "חדש-לי", ולכן חוק נפרד ומכוון).
+const STRONG_HINT_BLINK_MS = 48 * 3600 * 1000;
+const isFreshStrongHint = (d, when) => postHasStrongHint(d) && (Date.now() - when) < STRONG_HINT_BLINK_MS;
 
 export default function LatestUpdatesRail({ posts = [], convergences = [], hints = [], researchers = [], ciphers = [], limit = null, heading = false, homeCompact = false, ownOnly = false }) {
   const P = usePalette();
@@ -102,11 +106,12 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     if (it.type === "post") {
       const ai = d.ai_touched || aiRe.test(d.content || "");
       const pinned = isPinnedPost(d);
+      const freshStrong = isFreshStrongHint(d, it.when);
       return (
-        <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className={"lur-card" + (pinned ? " pinned" : "")} style={{ "--acc": cPost }}>
+        <Link key={"p" + (d.id || d.slug)} to={`/${d.slug}`} className={"lur-card" + (pinned ? " pinned" : "") + (freshStrong ? " strong-fresh" : "")} style={{ "--acc": cPost }}>
           <div className="lur-media">{d.image_url ? <span className="lur-img" style={{ backgroundImage: `url(${galThumb(d, 200)})` }} /> : <span className="lur-em">📜</span>}</div>
           <div className="lur-body">
-            <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{postHasStrongHint(d) && <CatBadge cat="רמזים חזקים" cls="diamond">💎 רמז חזק</CatBadge>}{postHasVideo(d) && <CatBadge cat="וידאו" cls="video">🎬 וידאו</CatBadge>}{(() => { const pc = primaryIconedCategory(d.categories); return pc ? <CatBadge cat={pc.name} cls="cat">{`${pc.icon} ${pc.name}`}</CatBadge> : null; })()}{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
+            <div className="lur-tagrow"><Tag acc={cPost} logo={<span className="lur-lem">📄</span>}>פוסט</Tag>{postHasStrongHint(d) && <span className={freshStrong ? "lur-diamond-pulse" : undefined}><CatBadge cat="רמזים חזקים" cls="diamond">💎 רמז חזק{freshStrong ? " · חדש" : ""}</CatBadge></span>}{postHasVideo(d) && <CatBadge cat="וידאו" cls="video">🎬 וידאו</CatBadge>}{(() => { const pc = primaryIconedCategory(d.categories); return pc ? <CatBadge cat={pc.name} cls="cat">{`${pc.icon} ${pc.name}`}</CatBadge> : null; })()}{pinned && <span className="lur-pin">📌 נעוץ</span>}</div>
             <h3 className="lur-title">{stripHtml(d.title || "")}</h3><Meta when={it.when} ai={ai} /></div>
         </Link>
       );
@@ -196,6 +201,15 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
         .lur-badge.cat{color:${light ? "#8a5a10" : "#e8c15a"};background:color-mix(in srgb,${cPost} ${light ? "13%" : "17%"},transparent);border-color:color-mix(in srgb,${cPost} 45%,transparent)}
         .lur-card.pinned{border-color:rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.35)}
         .lur-card.pinned::before{width:4px;background:linear-gradient(180deg,#f0d879,#c8a83a)}
+        .lur-card.strong-fresh{animation:lur-strong-glow 1.8s ease-in-out infinite}
+        .lur-card.strong-fresh::before{width:4px;background:linear-gradient(180deg,#f7e08a,#d4af37 55%,#b8891f)}
+        @keyframes lur-strong-glow{0%,100%{box-shadow:0 0 0 1px rgba(212,175,55,.35),0 0 0 0 rgba(212,175,55,.45)}50%{box-shadow:0 0 0 1px rgba(212,175,55,.7),0 0 16px 3px rgba(212,175,55,.5)}}
+        .lur-diamond-pulse{display:inline-flex;animation:lur-diamond-pulse 1.8s ease-in-out infinite}
+        @keyframes lur-diamond-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+        @media(prefers-reduced-motion:reduce){
+          .lur-card.strong-fresh{animation:none;box-shadow:0 0 0 2px rgba(212,175,55,.6)}
+          .lur-diamond-pulse{animation:none}
+        }
         .lur-title{font-family:${F.ui};font-size:14px;line-height:1.4;font-weight:700;color:${P.ink};margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
         .lur-meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:10.5px;color:${P.muted};font-family:${F.ui};flex-wrap:wrap}
         .lur-ai{color:#3ea6ff;font-weight:800;background:rgba(62,166,255,.13);border:1px solid rgba(62,166,255,.4);border-radius:999px;padding:1px 7px}
