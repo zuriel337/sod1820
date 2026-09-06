@@ -14,7 +14,6 @@ import { ensureIdentity } from "./lib/identity.js";
 import { startPresence, updatePresence } from "./lib/presence.js";
 import { useAuth } from "./lib/AuthContext.jsx";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
-import RoyalContextBar from "./components/navigation/RoyalContextBar.jsx";
 import LabDock from "./components/hub/LabDock.jsx";
 import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
@@ -263,7 +262,12 @@ export default function App() {
           <UpdateBanner />
           <SitePromoPopup />
           <RoyalShareWidget />
-          <RoyalContextBar />
+          {/* 🧭 RoyalContextBar (הסרגל השחור, admin-only) הוסר — כל היכולות שלו (הקשר/עדשה/הוסף-למחקר/
+              שורש/חזרה/מחקר-חדש-מכאן) עברו ל-Bottom Bar (components/layout/BottomBar.jsx, slot «⌖ כאן»),
+              עכשיו זמינות לכולם ולא רק לאדמין. «דופק» ו-«רזיאל» היו placeholder-ים לא-מחוברים שם
+              (ר' capability-parity audit, work_log task=BOTTOM_BAR_FINAL_RECONCILIATION_V1) — הוחלפו
+              ב-slots אמיתיים («◉ עכשיו» מ-LiveChannelFeed הקיים, «✦ רזיאל» שמנווט ל-/research הציבורי
+              שבו RazielChat כבר חי). הקובץ עצמו נשמר בהיסטוריית git, לא נמחק מהעולם. */}
           {/* הוסר זמנית לבקשת צוריאל — נחזיר כשיחליט. <LabDock /> */}
           <InstallPrompt />
           {/* הוסר לבקשת צוריאל — בלי פוש «התראות דפדפן / הירשם לעדכונים» (בועת ימין בדסקטופ) */}

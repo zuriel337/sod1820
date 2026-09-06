@@ -40,10 +40,11 @@ export default function StickyAnchorAd({ slot }) {
 
   return (
     <>
-      {/* מרים את כפתורי השיתוף הצפים מעל הרצועה (PostShareFab / PrayerSharePopup) */}
+      {/* מרים את כפתורי השיתוף הצפים ואת ה-Bottom Bar מעל הרצועה (PostShareFab / PrayerSharePopup / BottomBar) */}
       <style>{`
         body.sod-anchor-on .psf-wrap,
         body.sod-anchor-on .psp-fab-wrap { bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
+        body.sod-anchor-on .sod-bottombar { bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important; }
       `}</style>
       <div
         role="complementary" aria-label="מודעה"
