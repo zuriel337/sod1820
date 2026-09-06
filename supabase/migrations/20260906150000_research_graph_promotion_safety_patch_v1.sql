@@ -60,11 +60,18 @@
 --   * promoted_node_id is left completely untouched in the UPDATE (no `coalesce(v_ins,
 --     promoted_node_id)` -- v_ins no longer exists -- so any pre-existing value is
 --     preserved exactly as-is, simply by not naming that column in the SET list).
--- v_graph is still computed and returned (renamed graph_eligible in the payload) purely
--- as READ-ONLY, informational provenance -- "would this row have qualified for graph
--- materialization under the retired automatic rule" -- so a human can later find
--- candidates for the still-to-be-built separate Graph Promotion action. It never gates
--- any DML in this function.
+--
+-- GPT REVIEW CORRECTION (work_log af08725b-3a95-47f1-a1bf-25c4954eeed8, 6.9.2026): the
+-- first version of this patch kept a `v_graph`/`graph_eligible` signal computed as
+-- kind in ('fact','relation') AND privacy_scope='public_candidate' — the exact predicate
+-- from the RETIRED automatic rule. GPT correctly flagged this as semantically too strong
+-- and not Human-Gate-approved: public_candidate was never proven to be Graph-Promotion
+-- eligibility, and future eligibility must also resolve representation/identity/
+-- provenance/explicit Human Gate/space. Keeping it risked re-collapsing Truth/Access/
+-- Graph axes into a de-facto contract carried over from the retired unsafe rule, just
+-- relocated from a DML gate to a read-only field. It has been REMOVED ENTIRELY — no
+-- v_graph variable, no graph_eligible key, no replacement eligibility signal of any kind
+-- in this patch. Only 'graph_promoted': false and the plain 'graph_note' below remain.
 --
 -- Return payload changes: 'graph_promoted' is now unconditionally false for canonicalize
 -- (there is no longer any DML path that could make it true). 'insight_node', 'number_node',
@@ -91,7 +98,6 @@ declare
   v_detail  jsonb;
   v_vstate  text;
   v_prev    text;
-  v_graph   boolean;
   v_fid     text;
 begin
   select (role='admin') into v_admin from public.users where id = auth.uid();
@@ -186,14 +192,11 @@ begin
         'engine_verified_snapshot', r.engine_verified));
   end if;
 
-  -- READ-ONLY provenance signal only (Decision 1: this no longer gates any DML below).
-  -- "Would this row have qualified for automatic graph materialization under the retired
-  -- rule?" — kept so a human can find Graph Promotion candidates once that separate,
-  -- explicit action exists. It creates nothing by itself.
-  v_graph := (r.kind in ('fact','relation')
-              and coalesce(r.privacy_scope,'private') = 'public_candidate');
-
   -- ── GRAPH MATERIALIZATION REMOVED (Human-Gate decision_ledger 40cb64c7, Decision 1) ───────────
+  -- No eligibility signal is computed here either (GPT review af08725b): the retired
+  -- rule's predicate (kind in fact/relation AND privacy_scope=public_candidate) is not a
+  -- Human-Gate-approved definition of Graph Promotion eligibility and must not be carried
+  -- forward in any form, including as a read-only field.
   -- No public.nodes / public.edges / public.decision_ledger writes happen here anymore.
   -- Canonicalization is a governance transition only. Reality Graph materialization is a
   -- separate, explicit, not-yet-built Human-Gate action — see decision_ledger 40cb64c7 and
@@ -224,7 +227,6 @@ begin
     'extraction_fidelity', v_fid,
     'extraction_incomplete_acknowledged', (v_fid = 'partial' and coalesce(p_ack_extraction_incomplete,false)),
     'graph_promoted', false,
-    'graph_eligible', v_graph,
     'graph_note', 'graph materialization is a separate, not-yet-built, explicit Human-Gate action (decision_ledger 40cb64c7) — canonicalize no longer creates nodes/edges',
     'insight_node', null, 'number_node', null,
     'promoted_node_id', r.promoted_node_id,
