@@ -1,0 +1,182 @@
+{
+ "book_slug": "sefer-hapliah",
+ "source_identity": "book:hebrewbooks:6355",
+ "generated_at": "2026-09-06",
+ "schema_version": 1,
+ "hero": {
+  "eyebrow": "SEFER HAPLIAH · HEBREWBOOKS 6355",
+  "subtitle": "ספר הפליאה · מקור עתיק שנבחן כ־stress-test ל־Universal Source Deep Research",
+  "pdf": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf",
+  "promise": "לא רק לקרוא ספר עתיק — להיכנס לתוכו: source, procedures, representations, operations, witness state וקשרים לעץ האחד.",
+  "metrics": [
+   [
+    "327",
+    "עמודי PDF",
+    "Digital Object"
+   ],
+   [
+    "42",
+    "Research Objects",
+    "documented live family snapshot"
+   ],
+   [
+    "§9",
+    "Universal Source Protocol",
+    "stress-test provenance"
+   ],
+   [
+    "7",
+    "Identity tiers",
+    "Book ≠ Witness ≠ Digital Object"
+   ]
+  ],
+  "coverage": [
+   {
+    "label": "Research Map",
+    "value": "whole-book stress test",
+    "note": "משפחות operator/representation נבדקו לאורך הספר; אינו exact-witness transcription של כל עמוד."
+   },
+   {
+    "label": "Research Objects",
+    "value": "42",
+    "note": "durable candidates/procedures; Candidate ≠ Canonical ≠ Published."
+   },
+   {
+    "label": "Witness",
+    "value": "HebrewBooks 6355",
+    "note": "Digital object הוא עד/אובייקט דיגיטלי, לא authority אוטומטית."
+   },
+   {
+    "label": "Protocol contribution",
+    "value": "§9",
+    "note": "הספר חשף/אימת את orchestration האוניברסלי בלי ליצור Peli'ah system נפרד."
+   }
+  ],
+  "datasets": [
+   [
+    "REP-01",
+    "מטריצות אלפבית",
+    "multi-locus",
+    "SUPPORTED",
+    "alphabet arrangements / positional representations"
+   ],
+   [
+    "REP-02",
+    "מילוי וחילוץ",
+    "multi-locus",
+    "SUPPORTED",
+    "milui/extraction patterns remain representation/procedure, not automatic new engine"
+   ],
+   [
+    "REP-03",
+    "ראשי/סופי תיבות",
+    "multi-locus",
+    "SUPPORTED",
+    "initial/final-letter operations with source-local semantics"
+   ],
+   [
+    "REP-04",
+    "כלל / קדמי / ריבוע",
+    "multi-locus",
+    "SUPPORTED/PARTIAL",
+    "operator identity crosswalk required before engine claims"
+   ],
+   [
+    "REP-05",
+    "עומק / אורך / רוחב",
+    "multi-locus",
+    "SUPPORTED",
+    "spatial-language family; representation vs interpretation kept separate"
+   ],
+   [
+    "REP-06",
+    "קרי / כתיב",
+    "multi-locus",
+    "SUPPORTED",
+    "textual-version/witness semantics matter"
+   ],
+   [
+    "REP-07",
+    "צורות אות",
+    "multi-locus",
+    "SUPPORTED",
+    "visual/letter-form representation family"
+   ]
+  ],
+  "families": [
+   {
+    "title": "Research Grammar",
+    "text": "TARGET/TEXT → REPRESENTATION → TRANSFORM → COMPOSE/GENERATE → ARRANGE/PROJECT → MEASURE → AGGREGATE → RELATE → INTERPRET."
+   },
+   {
+    "title": "Procedure Extraction",
+    "text": "מונח בספר אינו method חדש אוטומטית. קודם crosswalk ל־Foundation primitives, ורק semantic difference אמיתי נשמר."
+   },
+   {
+    "title": "Witness Discipline",
+    "text": "VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS + reason. Digital transcription יכול להיות discovery aid בלבד."
+   },
+   {
+    "title": "Universal Impact",
+    "text": "ספר הפליאה שימש stress-test שהוביל ל־§9 orchestration: identity tiers, source-of-record, coverage distinctions, witness adjudication ו־multi-session coordination."
+   }
+  ],
+  "open": [
+   "Exact-witness coverage אינו זהה ל־Research Map coverage",
+   "Source term ≠ canonical Method identity",
+   "Cross-book projection נשאר downstream על אותו Reality Graph",
+   "Advanced 3D הוא renderer של אותו Research State ולא מערכת אמת חדשה"
+  ],
+  "seeds": [
+   {
+    "key": "grammar",
+    "label": "Research Grammar",
+    "family": "procedure",
+    "status": "supported"
+   },
+   {
+    "key": "alphabet",
+    "label": "מטריצות אלפבית",
+    "family": "representation",
+    "status": "supported"
+   },
+   {
+    "key": "milui",
+    "label": "מילוי וחילוץ",
+    "family": "representation",
+    "status": "supported"
+   },
+   {
+    "key": "initials",
+    "label": "ראשי / סופי תיבות",
+    "family": "procedure",
+    "status": "supported"
+   },
+   {
+    "key": "klal",
+    "label": "כלל / קדמי / ריבוע",
+    "family": "operator",
+    "status": "partial"
+   },
+   {
+    "key": "depth",
+    "label": "עומק / אורך / רוחב",
+    "family": "spatial-language",
+    "status": "supported"
+   },
+   {
+    "key": "kriktiv",
+    "label": "קרי / כתיב",
+    "family": "textual-version",
+    "status": "supported"
+   },
+   {
+    "key": "forms",
+    "label": "צורות אות",
+    "family": "representation",
+    "status": "supported"
+   }
+  ]
+ },
+ "_note": "hero-only dossier v1 (Book Projection finite closure, work_log 3655b1d9, parent 30c264b8/cee3f668). Mirrors SNAPSHOTS[\"sefer-hapliah\"] in src/pages/BookHubPage.jsx verbatim -- no new Peli'ah research performed, no rescan. This file only adds the hero-preference path (dossier.hero) for the 3rd stress-test Book; it does not add datasets/content_blocks/etc. sections the way ahavat-torah.tables.json has -- those remain future/optional per this dispatch's finite-closure scope."
+}

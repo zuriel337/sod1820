@@ -9,7 +9,7 @@ import {
   fetchBookEntities, fetchBookEntityBySlug, fetchBookResearch,
   bookToWorkspaceItem, researchRowToWorkspaceItem, pageFromSourceRef,
   researchRowToBookRepresentation, deriveBookConnections, bookContextPatch,
-  hasUnresolvedBookSeeds,
+  hasUnresolvedBookSeeds, parseSourceRefLocator,
 } from "../lib/research/bookResearchProjection.js";
 import {
   selectionToWorkspaceItem, selectionRef, bookEntityRef, dossierSelectionSourceRef,
@@ -187,6 +187,21 @@ function TruthPills({ row, representation }) {
     {representation?.witnessState && <span className="bk-pill">WITNESS · {String(representation.witnessState)}</span>}
     {row?.privacy_scope && <span className="bk-pill">ACCESS · {String(row.privacy_scope).toUpperCase()}</span>}
   </>;
+}
+
+// Compact, neutral breadcrumb for a rich locator (zone › work › sublocator) beyond the bare
+// page — additive UI only, reads the SAME source_ref already shown in the bk-code line above
+// it, never a new fetch/route/store. Fails closed to nothing when the locator carries no
+// segments (legacy #pN / #pdf:N refs, or no ref at all) — see parseSourceRefLocator. Segment
+// text is rendered exactly as stored (raw slug), never translated/interpreted into a factual
+// Hebrew label — that would require a source/mapping this component does not have.
+function LocatorBreadcrumb({ locator }) {
+  const segments = Array.isArray(locator?.segments) ? locator.segments : [];
+  if (!segments.length) return null;
+  return <div className="bk-find-meta" style={{ marginTop: 4 }}>
+    <span className="bk-pill" style={{ opacity: 0.8 }}>locator</span>
+    {segments.map((seg, i) => <React.Fragment key={i}>{i > 0 && <span className="bk-muted">›</span>}<span className="bk-pill">{seg}</span></React.Fragment>)}
+  </div>;
 }
 
 function shortPiece(value) {
@@ -445,6 +460,7 @@ export default function BookHubPage() {
           <h4>{row.statement || row.kind || 'Research Object'}</h4>
           <div className="bk-find-meta"><TruthPills row={row} representation={representation}/>{row.kind && <span className="bk-pill">{row.kind}</span>}<span className="bk-pill">SHAPE · {representation.shape}</span>{p && <button className="bk-pill" onClick={() => goPage(p)} style={{border:0,cursor:'pointer'}}>p{p}</button>}{row.value != null && <span className="bk-pill">value {row.value}</span>}{row.confidence != null && <span className="bk-pill">confidence {row.confidence}</span>}</div>
           <div className="bk-code" style={{marginTop:7}}>{row.source_ref}</div>
+          <LocatorBreadcrumb locator={representation.sourceLocator}/>
           <RepresentationPreview representation={representation}/>
           <div className="bk-actions"><button className="bk-btn" onClick={() => addToResearch(item)}>➕ למחקר</button>{p && <button className="bk-btn" onClick={() => goPage(p)}>פתח מקור בעמוד {p}</button>}</div>
         </div>;
@@ -473,6 +489,7 @@ export default function BookHubPage() {
               <h4>{idKey ? String(row[idKey]) : '—'} · {label}</h4>
               <div className="bk-find-meta">{row.status && <span className="bk-pill">GOV · {row.status}</span>}{row.engine_verified === true && <span className="bk-pill">ENGINE · VERIFIED</span>}{(row.witness_state || row.exact_witness_state) && <span className="bk-pill">WITNESS · {row.witness_state || row.exact_witness_state}</span>}{row.privacy_scope && <span className="bk-pill">ACCESS · {row.privacy_scope}</span>}{row.confidence != null && <span className="bk-pill">confidence {row.confidence}</span>}{row.delta && <span className="bk-pill">Δ {row.delta}</span>}</div>
               {sourceRef && <div className="bk-code" style={{marginTop:7}}>{sourceRef}</div>}
+              {sourceRef && <LocatorBreadcrumb locator={parseSourceRefLocator(sourceRef)}/>}
               <div className="bk-actions"><button className="bk-btn" disabled={!sourceRef} onClick={() => addSelection(row, idKey)}>{!sourceRef ? "אין locator יציב" : already ? "✓ נשמר לבחירה" : "➕ שמור בחירה זו"}</button></div>
             </div>;
           })}</div>

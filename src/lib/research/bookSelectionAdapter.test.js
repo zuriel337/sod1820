@@ -171,6 +171,42 @@ test("selection URL exactly reopens tab, source page and stable selection identi
   assert.equal(url.hash, "#selection");
 });
 
+// ── rich locator consumption through the actual adapter path (not parser-only) ─────────────
+// selectionToWorkspaceItem already derives metadata.page from source_ref via
+// pageFromSourceRef; it now also derives metadata.sourceLocator via parseSourceRefLocator,
+// additively, alongside page — never replacing it, never touching `ref`/`link`/`id` identity.
+test("selectionToWorkspaceItem: rich multi-segment source_ref (Sefer Yetzirah shape) carries sourceLocator alongside page", () => {
+  const item = selectionToWorkspaceItem(SECOND_BOOK, {
+    source_ref: "book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:olam_shana_nefesh",
+    title: "synthetic rich locator",
+  });
+  assert.equal(item.metadata.page, 140);
+  assert.equal(item.metadata.sourceLocator.zone, "chachmoni_treatise");
+  assert.equal(item.metadata.sourceLocator.work, "part2");
+  assert.equal(item.metadata.sourceLocator.sublocator, "ch3:olam_shana_nefesh");
+});
+
+test("selectionToWorkspaceItem: legacy single-segment source_ref (Ahavat Torah shape) still resolves, no sublocator", () => {
+  const item = selectionToWorkspaceItem(AHAVAT_TORAH_BOOK, ROW_A);
+  assert.equal(item.metadata.page, 36);
+  assert.equal(item.metadata.sourceLocator.zone, "synthetic-row-a");
+  assert.equal(item.metadata.sourceLocator.work, null);
+  assert.equal(item.metadata.sourceLocator.sublocator, null);
+});
+
+test("selectionToWorkspaceItem: sourceLocator never overrides the pre-existing ref-id `locator` meaning used by the Research Context bridge", () => {
+  // selectionRef({..}) itself is unrelated to sourceLocator's segments — this guards against
+  // a future edit accidentally aliasing the two fields, since RoyalContextBar.jsx reads
+  // `selection.locator` as a plain ref-id string, not this rich {page,zone,work,sublocator} shape.
+  const item = selectionToWorkspaceItem(SECOND_BOOK, {
+    source_ref: "book:hebrewbooks:6355#p168:synthetic-depth",
+    title: "synthetic exact reopen",
+  });
+  assert.equal(typeof item.ref, "string");
+  assert.equal(typeof item.metadata.sourceLocator, "object");
+  assert.notEqual(item.ref, item.metadata.sourceLocator);
+});
+
 // ── truth-axis independence ────────────────────────────────────────────────
 test("witness, governance, engine, access and publication axes remain independent", () => {
   const item = selectionToWorkspaceItem(SECOND_BOOK, {
