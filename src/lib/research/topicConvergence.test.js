@@ -298,3 +298,23 @@ test("buildTopicListQuery: ordering is a fixed, deterministic compound key regar
   assert.deepEqual(a.order, [["approved_at", false], ["id", true]]);
   assert.deepEqual(a.order, b.order, "the compound order never varies by limit/offset — no caller can destabilize pagination");
 });
+
+// GPT challenge 165a9e59 correction (2): finite, non-negative, integer normalization — Infinity
+// and fractional inputs must never reach .range() unchanged.
+
+test("buildTopicListQuery: Infinity/NaN limit and offset fall back to the default/zero, never pass through", () => {
+  const q = buildTopicListQuery({ limit: Infinity, offset: Infinity });
+  assert.equal(q.limit, 24);
+  assert.equal(q.rangeStart, 0);
+  assert.equal(buildTopicListQuery({ limit: NaN }).limit, 24);
+  assert.equal(buildTopicListQuery({ limit: -Infinity }).limit, 24);
+});
+
+test("buildTopicListQuery: fractional limit/offset are truncated to integers", () => {
+  const q = buildTopicListQuery({ limit: 2.7, offset: 5.9 });
+  assert.equal(q.limit, 2);
+  assert.equal(q.rangeStart, 5);
+  assert.equal(Number.isInteger(q.limit), true);
+  assert.equal(Number.isInteger(q.rangeStart), true);
+  assert.equal(Number.isInteger(q.rangeEnd), true);
+});
