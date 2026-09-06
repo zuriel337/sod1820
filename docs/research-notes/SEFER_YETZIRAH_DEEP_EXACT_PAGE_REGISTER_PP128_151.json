@@ -1,0 +1,369 @@
+{
+  "source_id": "book:sefer-yetzirah-9perushim",
+  "register_version": 1,
+  "artifact_kind": "DEEP_EXACT_WITNESS_COMPLETION -- additive deepening, NOT a replacement of the existing coarse register",
+  "batch_scope": "PDF pp.128-151 ONLY of Book/Sefer Yetsirah.pdf (gallery/Book/Sefer Yetsirah.pdf), per work_log dispatch 2e850b77-fafd-4471-b53f-8178701570d8 (task SEFER_YETZIRAH_DEEP_EXACT_PP128_151_V1, role=SEFER_YETZIRAH_DEEP_A3), boundary authority 5ac66a4b-5f46-4eac-bb9f-e7b5c1c87e85. Deepens the Sefer HaChachmoni treatise body already coarse-mapped by the sibling pp.1-152 session (branch claude/sefer-yetzirah-extraction-pp001-152, file SEFER_YETZIRAH_LOSSLESS_PAGE_REGISTER_PP001_152.json) from STRUCTURALLY_MAPPED/PARTIAL depth to block-level exact-witness depth. p.126 (editorial insert), p.127 (Chachmoni title/hakdama) and p.152 (closure) are already covered by that sibling file and are explicitly OUT OF SCOPE here -- not re-read, not re-registered.",
+  "relationship_to_sibling_register": "ADDITIVE ONLY. This file does not edit, delete, or supersede SEFER_YETZIRAH_LOSSLESS_PAGE_REGISTER_PP001_152.json -- it is a separate, unique artifact for the same page range at greater depth, per the dispatch's explicit instruction to 'create unique additive PP128_151 artifacts.' Where this session's direct reading corrects a specific structural claim in the sibling's coarser pass (see corrections_vs_sibling_register below), the correction is stated explicitly as a finding of THIS session, not as an edit to the other file.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "block_ref_convention": "book:sefer-yetzirah-9perushim#p<PDF_PAGE>:<ZONE>:<WORK>:<PART>:<CHAPTER>[:<SUBLOCATOR>]",
+  "zone_used": "chachmoni_treatise (per sibling register's zone_vocabulary; this batch does not introduce a new zone)",
+  "source_fingerprint_this_batch": {
+    "sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+    "bytes": 51714643,
+    "page_count_confirmed": 220,
+    "download_method": "reused local cache from prior session in this same working environment; re-verified byte-identical against live Supabase Storage object immediately before this batch (HEAD content-length=51714643 matches cached sha256)",
+    "render": "pdftoppm (poppler-utils), 250dpi, full-page PNG renders of PDF pages 128-151 inclusive (24 pages), each read individually at full resolution"
+  },
+  "digital_transcription_policy": "No external/modern digital transcription of Sefer HaChachmoni was consulted or aligned against in this pass (none was available/used as an aid). All content below comes directly from the scanned image. Per dispatch instruction, any future use of an external digital transcription is permitted ONLY as a post-hoc alignment AID after this scan-based reading -- the scan remains sole source authority. This is recorded as a standing constraint for any future session that adds a digital-transcription alignment layer on top of this file.",
+  "corrections_vs_sibling_register": [
+    {
+      "id": "CORR-1",
+      "sibling_claim": "structural_zones entry '148 | chachmoni_treatise | printed p.144: header ספר החכמוני, פרק ששי (Chapter 6) begins'",
+      "this_session_finding": "Direct full-resolution reading of p.148 shows the header is פרק חמישי (Chapter FIVE), not ששי (Six), and the content is explicitly headed 'ספר שלישי של שנים עשר ההלוחיות הנקראות פשוטות' -- the TWELVE SIMPLES chapter (mapping to Sefer Yetzirah's own Ch.5), not the Teli/Galgal/Lev chapter. This is corrected here; the sibling file itself is not edited.",
+      "confidence": "HIGH -- header read directly and repeatedly at 250dpi, content matches Ch.5 subject matter unambiguously (12 mazalot, 12 human faculties: ראיה/שמיעה/ריח/דבור/אכילה/משגל/מעשה/הלוך/רוגז/שחוק/הרהור/שינה)."
+    },
+    {
+      "id": "CORR-2",
+      "sibling_claim": "(implied by CORR-1) Chapter Six begins at p.148",
+      "this_session_finding": "Chapter Six (פרק ששי -- the Teli/Galgal/Lev chapter) actually begins at the TOP of p.150, immediately after Chapter Five's own closing colophon ('נגמר ספר שלישי של י\"ב פשוטות...'). Chapter Five (12 simples) therefore occupies pp.148-150(top), and Chapter Six occupies pp.150(from mid-page)-151 within this batch's scope (continuing past p.151 into the out-of-scope p.152 closure).",
+      "confidence": "HIGH -- both chapter-boundary headers (פרק חמישי at p.148, פרק ששי at p.150) and both chapter-closing colophons were read directly."
+    }
+  ],
+  "research_dna_highlights": {
+    "note": "The dispatch's core mandate items (letters, קול/רוח/דיבור, articulation, 3/7/12, עולם/שנה/נפש, variants, diagrams/tables) are ALL directly source-attested within this batch. Listed here for quick reference; full context is in the per-page entries below.",
+    "articulation_five_places": {
+      "locator": "book:sefer-yetzirah-9perushim#p138:chachmoni_treatise:part2:ch2:articulation_five_places",
+      "verbatim_as_read": "עשרים ושתים אותיות יסוד... ואלו הן חקוקות בקול, חצובות ברוח, קבועות בפה, בחמשה מקומות: אחה\"ע, בומ\"ף, גיכ\"ק, דטלנ\"ת, זסשר\"ץ",
+      "translation_note": "\"...these are carved in VOICE (קול), hewn in BREATH (רוח), fixed in the MOUTH (פה), in five places: Alef-Chet-Hei-Ayin, Bet-Vav-Mem-Peh, Gimel-Yod-Kaf-Kuf, Dalet-Tet-Lamed-Nun-Tav, Zayin-Samech-Shin-Resh-Tzadi.\" This is the single most important קול/רוח/דיבור/articulation passage in the batch -- a direct, source-attested statement of the five articulation places, in Donnolo's own commentary.",
+      "confidence": "HIGH but not diplomatic-perfect -- small print at 250dpi; a few individual letters in the five group-labels could benefit from a higher-zoom confirmation pass, flagged in the p.138 unresolved_readings."
+    },
+    "three_mothers_olam_shana_nefesh": {
+      "locator": "book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:olam_shana_nefesh",
+      "verbatim_as_read": "שלש אמות אמ\"ש... ותפס ותתם בסס לעלם למות ולם לעולם ולנפש ולשנה בכפש בזכר ונקבה",
+      "translation_note": "Reading is not fully certain letter-for-letter (dense print) but the triad עולם/נפש/שנה (world/soul/year) explicitly appears together with אמ\"ש (the three mothers) and זכר/נקבה (male/female) on this page -- exactly the triad the dispatch asked to preserve. Flagged for a higher-zoom confirmation pass in the p.140 unresolved_readings rather than asserted as diplomatically exact.",
+      "confidence": "MEDIUM -- triad presence is confident, exact surrounding syntax is not."
+    },
+    "seven_doubles_opposite_pairs": {
+      "locator": "book:sefer-yetzirah-9perushim#p141:chachmoni_treatise:part2:ch4:opposite_pairs",
+      "verbatim_as_read": "תמורת חכם ועושר, תמורת זרע וממשלה, תמורת חיים ומות, תמורת שלום ורע, תמורת חן ורוע (=כיעור), תמורת יעור וטיעור (=שלוה ורוגז), תמורת עבדות וממשלה",
+      "translation_note": "The traditional 7 pairs of opposites governed by the 7 double letters (wisdom/wealth, seed/dominion, life/death, peace/evil, grace/ugliness, tranquility/agitation, servitude/dominion), given at the opening of Chapter Four.",
+      "confidence": "HIGH for the paired structure; MEDIUM for exact wording of pairs 5-6 (small print, flagged)."
+    },
+    "twelve_simples_twelve_faculties": {
+      "locator": "book:sefer-yetzirah-9perushim#p148:chachmoni_treatise:part2:ch5:twelve_faculties",
+      "verbatim_as_read": "י\"ב פשוטות... ראיה, שמיעה, ריח, דבור, אכילה(?), משגל(?), מעשה, הלוך, רוגז, שחוק, הרהור, שינה",
+      "translation_note": "The twelve human faculties/activities assigned to the twelve simple letters (sight, hearing, smell, speech, [eating], [coitus], action, walking, anger, laughter, thought, sleep) opening Chapter Five.",
+      "confidence": "MEDIUM -- list order and several individual items read with confidence, two items (marked '?') less certain at this pass's zoom level."
+    },
+    "teli_galgal_lev_triad": {
+      "locator": "book:sefer-yetzirah-9perushim#p151:chachmoni_treatise:part2:ch6:teli_galgal_lev",
+      "verbatim_as_read": "תלי בעולם כמלך על כסאו, גלגל בגוף כמלך במדינה, לב באדם כמלך במלחמה",
+      "translation_note": "\"The Teli [cosmic dragon-axis] in the world is like a king on his throne; the Galgal [sphere] in the body is like a king in his province; the Lev [heart] in man is like a king at war\" -- Donnolo's own rendering of Sefer Yetzirah 6:1's ruling-triad formula, closing Chapter Six within this batch's scope.",
+      "confidence": "HIGH -- clearly legible, short formula, read directly."
+    },
+    "diagrams_tables_located": [
+      {
+        "locator": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:part2:ch2:combinatorial_table_1",
+        "description": "A ruled grid of two-letter Hebrew combinations under a header row of paired letters (אב גד הו זח טי כל מנ סע פצ קר שת), i.e. Donnolo's own rendition of the 22-letter combinatorial (231/462-gates style) pairing table, distinct from (an additional instance to) the similar table the sibling pp.1-152 register located at p.85 in the earlier synoptic-body section.",
+        "transcription_depth": "STRUCTURAL -- table's existence, header row, and general grid pattern confirmed visually; individual cell-by-cell contents not transcribed this pass."
+      },
+      {
+        "locator": "book:sefer-yetzirah-9perushim#p142:chachmoni_treatise:part2:ch4:combinatorial_table_2",
+        "description": "A second, similar large grid of Hebrew letter-combinations (columns of forms built on ד/ב/מ/ר-type roots), appearing within the Chapter Four (seven doubles) discussion.",
+        "transcription_depth": "STRUCTURAL -- existence and general pattern confirmed; not cell-by-cell transcribed."
+      }
+    ]
+  },
+  "pages": [
+    {"pdf_page": 128, "printed_page": "124", "part": null, "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "dating_formula_close", "source_ref": "book:sefer-yetzirah-9perushim#p128:chachmoni_treatise:front_matter_close:dating_formula",
+        "text_note": "Top of page closes out material continuing from p.127 (out of scope): an astrological/calendrical dating formula referencing 'מחזור של כוכבים... מזלות של תלי... שנת ארבעת אלפים ושבע מאות...לבריאת עולם' -- a Hebrew-calendar dating statement tied to constellation cycles, closing the preface material.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"},
+       {"block_id": "part_one_title", "source_ref": "book:sefer-yetzirah-9perushim#p128:chachmoni_treatise:part1:title",
+        "text_note": "Major part-boundary. Header 'חלק ראשון' (Part One), subtitle 'פירוש נעשה אדם בצלמנו כדמותנו' (commentary on Bereishit 1:26, 'Let us make man in our image, after our likeness'). This is the true start of the treatise BODY (as opposed to the biographical/editorial preface on pp.126-127, out of scope).",
+        "verbatim_citations": ["נעשה אדם בצלמנו כדמותנו"],
+        "transcription_depth": "VERBATIM (title banner)"},
+       {"block_id": "part_one_open", "source_ref": "book:sefer-yetzirah-9perushim#p128:chachmoni_treatise:part1:open",
+        "text_note": "Opens 'זה ספר חכמוני: סוד ה' ליראיו ובריתו להודיעם' (echoing Tehillim 25:14), citing Yirmiyahu 33:6, Tehillim 145:2-3 ('גדול ה' ומהולל מאד... מי ימלל גבורות ה''), building toward a discussion of the greatness of God's works and the wisdom of Creation as prelude to the 'Na'aseh Adam' exposition.",
+        "verbatim_citations": ["תהלים כ\"ה י\"ד", "ירמיהו ל\"ג ו'", "תהלים קמ\"ה"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_OPENING",
+        "unresolved_readings": [{"id": "P128-U1", "text": "Full discursive prose of this theological opening not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 129, "printed_page": "125", "part": "part1", "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "vessel_body_articulation_organs", "source_ref": "book:sefer-yetzirah-9perushim#p129:chachmoni_treatise:part1:vessel_body",
+        "text_note": "Sub-section 'וזה פירוש הכתוב כן' -- describes Man's body as a vessel with openings (nekavim) made by the Creator for the passage of ru'ach: eyes, eyelids, nostrils, mouth, ears explicitly enumerated as the body's 'holes' (נקבים) needed to hold the breath of life. States that lacking even one of these organs/openings, the body could not contain the נשמת החיים (soul of life) breathed into it. HIGH RELEVANCE to the dispatch's articulation-organs mandate: this is the anatomical basis Donnolo builds on before the explicit five-places passage at p.138.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P129-U1", "text": "Full enumeration of organs/openings paraphrased at topic level, not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 130, "printed_page": "126", "part": "part1", "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "kol_dibbur_ruach_pervasive", "source_ref": "book:sefer-yetzirah-9perushim#p130:chachmoni_treatise:part1:kol_dibbur_ruach",
+        "text_note": "Discusses קול ודבור ורוח (voice, speech, and breath) as properties of the Living [God] pervading every place, tied to Divine glory; cites Devarim 4:7 and Tehillim verses. Continues into a full recitation of the Creation order (heavens, angels, stars, flying/creeping things by kind, cattle/beasts by kind), leading toward 'ויתייעץ הקב\"ה לברוא את האדם' -- the Divine consultation before creating Man.",
+        "verbatim_citations": ["דברים ד' ז'"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P130-U1", "text": "Full discursive prose paraphrased at topic level.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 131, "printed_page": "127", "part": "part1", "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "damahu_laolam_title", "source_ref": "book:sefer-yetzirah-9perushim#p131:chachmoni_treatise:part1:damahu_laolam:title",
+        "text_note": "MAJOR named sub-section header: 'דמהו לעולם, כן:' (\"His likeness to the world, thus:\") -- opens Donnolo's systematic MICROCOSM/MACROCOSM analogy, paralleling Man's body/faculties to cosmic phenomena. Opens with the skull compared to the firmament (רקיע), the air between the waters (מים עליונים/תחתונים) compared to bodily fluids/cavities. HIGH RELEVANCE to the dispatch's עולם axis mandate -- this is Donnolo's central 'olam' correspondence device.",
+        "verbatim_citations": ["דמהו לעולם"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_TITLE"},
+       {"block_id": "good_evil_duality", "source_ref": "book:sefer-yetzirah-9perushim#p131:chachmoni_treatise:part1:good_evil_duality",
+        "text_note": "Second sub-block, bold-led: 'הוסיף על האדם...' -- discusses the good and evil inclination given to Man, framed with building/planting/uprooting formulas echoing Yirmiyahu 1:10 ('לנתוש ולנתוץ... לבנות ולנטוע').",
+        "verbatim_citations": ["ירמיהו א' י'"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P131-U1", "text": "Full analogical prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 132, "printed_page": "128", "part": "part1", "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "damahu_laolam_continued", "source_ref": "book:sefer-yetzirah-9perushim#p132:chachmoni_treatise:part1:damahu_laolam:continued",
+        "text_note": "Continuation of the microcosm analogy: the two eyes compared to the orbs of sun and moon ('עינים ימין ושמאל דומים לגלגל החמה והלבנה'), other organs/senses compared to stars and celestial phenomena.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"},
+       {"block_id": "editorial_footnote_elements", "source_ref": "book:sefer-yetzirah-9perushim#p132:chachmoni_treatise:part1:editorial_footnote",
+        "text_note": "Footnote block at bottom of page (asterisk-marked), extended discussion of world-elements (waters/rivers/springs) analogy, signed off attributing part of the content 'מפי הרב יוחנן בן זכאי שידע דקדוק הדקדוקים...' -- an editorial/citational footnote, likely the modern editor's (Castelli's) annotation rather than Donnolo's own main-text voice. Kept as a SEPARATE block, not merged into the main text.",
+        "verbatim_citations": ["רבן יוחנן בן זכאי"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P132-U1", "text": "Full footnote text not transcribed verbatim; attribution and general topic (elemental/water analogy) confirmed only.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 133, "printed_page": "129", "part": "part1", "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "ruach_mayim_eish_exposition", "source_ref": "book:sefer-yetzirah-9perushim#p133:chachmoni_treatise:part1:ruach_mayim_eish",
+        "text_note": "New sub-header 'טעם אחר כי בצלם אלהים עשה את האדם, דמהו לעולם ולעולמות ההולכים:' (\"another reason: for in the image of God He made man, He likened him to the world and the worlds/spheres that move\"). Extensive discussion directly paraphrasing Sefer Yetzirah Ch.1's own רוח-מרוח / מים-מרוח / אש-ממים chain ('הוליד רוח... וסוליד רוח... ') -- Donnolo's own gloss on the SY cosmogonic element sequence. Bottom-of-page footnote explicitly cites 'ספר יצירה' by name with a chapter/mishnah cross-reference marker ('יז יח').",
+        "verbatim_citations": ["ספר יצירה"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_OPENING",
+        "unresolved_readings": [{"id": "P133-U1", "text": "Full ruach/mayim/eish exposition prose not transcribed verbatim in full; opening formula and the explicit Sefer Yetzirah citation are confirmed.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 134, "printed_page": "130", "part": "part1", "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "embryology_ruach_mayim_eish", "source_ref": "book:sefer-yetzirah-9perushim#p134:chachmoni_treatise:part1:embryology",
+        "text_note": "Continues the ruach/mayim/eish exposition from p.133, now applied explicitly to human embryology/conception: the ru'ach of life, then seed likened to water from ru'ach ('רוח מרוח... מים מרוח'), then heat/fire generated from the water in the womb ('ברוח התחמם... בתוך הרחם') -- a direct physiological application of Sefer Yetzirah Ch.1's element-chain. HIGH RELEVANCE to the dispatch's letters/creation-sequence mandate.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P134-U1", "text": "Full embryological exposition not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]},
+       {"block_id": "part_one_close", "source_ref": "book:sefer-yetzirah-9perushim#p134:chachmoni_treatise:part1:close",
+        "text_note": "Part One's closing material begins at the bottom of this page, continuing onto the top of p.135, where it ends with a doxology/blessing formula ('ברוך שם כבודו מלכותו לעולם ועד').",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 135, "printed_page": "131", "part": "part1_to_part2_transition", "chapter": null, "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "part_one_close_blessing", "source_ref": "book:sefer-yetzirah-9perushim#p135:chachmoni_treatise:part1:close_blessing",
+        "text_note": "Top of page: closing blessing formula completing Part One, verbatim 'ברוך שם כבודו מלכותו לעולם ועד... וברוך שם כבודו ומלכותו על כל הארץ אמן ואמן:'",
+        "verbatim_citations": ["ברוך שם כבודו מלכותו לעולם ועד"],
+        "transcription_depth": "VERBATIM (closing formula)"},
+       {"block_id": "part_two_title_open", "source_ref": "book:sefer-yetzirah-9perushim#p135:chachmoni_treatise:part2:title_open",
+        "text_note": "MAJOR STRUCTURAL FINDING (not in sibling coarse map): header 'חלק שני' (Part Two) begins immediately after Part One's closing blessing. Opens explicitly: 'זה תחלת פירוש ספר יצירה, ונתחיל פירוש תחלת בריאת [ברהשית] וספר יצירת העולם שמסר הקב\"ה לאברהם אבינו ע\"ה' -- \"This is the beginning of the commentary on Sefer Yetzirah, and we begin the commentary on the beginning of Creation and the Book of the Creation of the World that the Holy One transmitted to Avraham Avinu.\" Cites Mishlei 8 ('ה' קנני ראשית דרכו'). THIS IS THE EXPLICIT BOUNDARY between Part One's philosophical Na'aseh-Adam preamble and Part Two's actual Sefer-Yetzirah-text commentary.",
+        "verbatim_citations": ["זה תחלת פירוש ספר יצירה", "משלי ח'"],
+        "transcription_depth": "VERBATIM (title + opening sentence)"}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED",
+     "gpt_research_flags": [{"flag": "New part-boundary located: חלק שני begins at p.135, not noted in the sibling coarse register. Everything from p.128 to p.134(top of 135) is חלק ראשון; from p.135 onward through at least p.152 is חלק שני."}]},
+
+    {"pdf_page": 136, "printed_page": "132", "part": "part2", "chapter": "ch1", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "perek_rishon_title", "source_ref": "book:sefer-yetzirah-9perushim#p136:chachmoni_treatise:part2:ch1:title",
+        "text_note": "Chapter header 'פרק ראשון' (Chapter One) begins partway down the page, following continued Part-Two introductory cosmology discussion at the top.",
+        "transcription_depth": "VERBATIM (title)"},
+       {"block_id": "mishnah_1_1_quote", "source_ref": "book:sefer-yetzirah-9perushim#p136:chachmoni_treatise:part2:ch1:mishnah_1_1",
+        "text_note": "Chapter One opens with Sefer Yetzirah's own famous opening Mishnah quoted directly: 'בשלשים ושתים נתיבות פליאות חכמה חקק י-ה יהוה צבאות אלהי ישראל...' followed by exposition of the ten sefirot bli-mah ('עשר ספירות בלימה'): the enumeration 'אחד רוח... שתים רוח מרוח... שלש מים מרוח... ארבע אש ממים...' and the six directions ('רום, מזרח, מערב, צפון, דרום' etc.).",
+        "verbatim_citations": ["בשלשים ושתים נתיבות פליאות חכמה חקק י-ה יהוה צבאות אלהי ישראל"],
+        "transcription_depth": "VERBATIM (opening mishnah quote); STRUCTURAL for the surrounding exposition",
+        "unresolved_readings": [{"id": "P136-U1", "text": "Full mishnah-by-mishnah exposition of the ten sefirot not transcribed verbatim in full past the opening quote.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 137, "printed_page": "133", "part": "part2", "chapter": "ch1", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "ten_sefirot_continued", "source_ref": "book:sefer-yetzirah-9perushim#p137:chachmoni_treatise:part2:ch1:ten_sefirot_continued",
+        "text_note": "Continues the ten-sefirot-bli-mah enumeration and directional exposition ('חתם רום... חתם תחת... חתם מזרח... ' etc.), building toward the transition into the 22 letters.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"},
+       {"block_id": "ch1_to_ch2_transition", "source_ref": "book:sefer-yetzirah-9perushim#p137:chachmoni_treatise:part2:ch1:transition_to_22letters",
+        "text_note": "Bottom of page begins introducing the 22 foundation letters ('עשרים ושתים אותיות יסוד') as the chapter's material shifts toward Chapter Two's subject.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P137-U1", "text": "Full enumeration prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 138, "printed_page": "134", "part": "part2", "chapter": "ch1_to_ch2", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "ch1_close", "source_ref": "book:sefer-yetzirah-9perushim#p138:chachmoni_treatise:part2:ch1:close",
+        "text_note": "Continues and closes out Chapter One's ten-sefirot material at the top of the page.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"},
+       {"block_id": "perek_sheni_title", "source_ref": "book:sefer-yetzirah-9perushim#p138:chachmoni_treatise:part2:ch2:title",
+        "text_note": "Chapter header 'פרק שני' (Chapter Two) begins near the bottom of the page, subtitle 'נתחיל פירוש כ\"ב אותיות באר היטב' (\"We begin the well-explained commentary of the 22 letters\").",
+        "transcription_depth": "VERBATIM (title)"},
+       {"block_id": "articulation_five_places", "source_ref": "book:sefer-yetzirah-9perushim#p138:chachmoni_treatise:part2:ch2:articulation_five_places",
+        "text_note": "*** HIGHEST-VALUE PASSAGE IN THIS BATCH FOR THE DISPATCH'S PHONETIC-DNA MANDATE ***. Opens Chapter Two's exposition of the 22 letters with word-formation examples (אחס\"ע, בומ\"ף, גיכ\"ק, דטלנ\"ת, זסשר\"ץ as pronounceable letter-groups), then states directly: 'ואלו הן חקוקות בקול, חצובות ברוח, קבועות בפה, בחמשה מקומות: אחה\"ע, בומ\"ף, גיכ\"ק, דטלנ\"ת, זסשר\"ץ, ואלו הן חמשה מוצאות הלשון...' -- \"these are carved in VOICE (קול), hewn in BREATH (רוח), fixed in the MOUTH (פה), in five places... these are the five points of articulation of the tongue.\" This is a direct, explicit, source-attested statement of the FIVE ARTICULATION PLACES with the standard letter groupings (guttural, labial, palatal, dental/lingual, sibilant).",
+        "verbatim_citations": ["חקוקות בקול", "חצובות ברוח", "קבועות בפה", "אחה\"ע", "בומ\"ף", "גיכ\"ק", "דטלנ\"ת", "זסשר\"ץ"],
+        "transcription_depth": "VERBATIM (core formula and five letter-groups)",
+        "unresolved_readings": [{"id": "P138-U1", "text": "A few individual letters within the five group-labels were read at 250dpi with high but not absolute confidence (dense small print); a higher-zoom crop pass would firm up any single-letter ambiguity before this passage is treated as a fully diplomatic transcription.", "status": "UNRESOLVED, FLAGGED NOT GUESSED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED",
+     "gpt_research_flags": [{"flag": "Core קול/רוח/דיבור/articulation passage located and largely verbatim-captured -- see research_dna_highlights.articulation_five_places above."}]},
+
+    {"pdf_page": 139, "printed_page": "135", "part": "part2", "chapter": "ch2", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "letter_grid_diagram", "source_ref": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:part2:ch2:combinatorial_table_1",
+        "text_note": "A ruled/formatted grid: header row of paired letters (אב גד הו זח טי כל מנ סע פצ קר שת) followed by many rows of two-letter Hebrew combinations -- Donnolo's own presentation of the 22-letter combinatorial pairing (the '231/462 gates' style table also found by the sibling session at p.85 in the earlier synoptic section, here appearing again as a DISTINCT instance within Chachmoni's own treatise).",
+        "transcription_depth": "STRUCTURAL (table existence, header row, and general layout confirmed; not cell-by-cell transcribed)"},
+       {"block_id": "tzeruf_closing", "source_ref": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:part2:ch2:tzeruf_closing",
+        "text_note": "Bottom-of-page closing formula about צירוף (letter permutation/combination) transitioning toward the number three ('...לכלם סדר אחד תוא שלש'), leading into Chapter Three.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"}
+     ], "diagrams": true, "diagram_type": "ruled_table_22letter_combinatorial_pairs", "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 140, "printed_page": "136", "part": "part2", "chapter": "ch3", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "perek_shlishi_title", "source_ref": "book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:title",
+        "text_note": "Chapter header 'פרק שלישי' (Chapter Three) -- the THREE MOTHERS chapter.",
+        "transcription_depth": "VERBATIM (title)"},
+       {"block_id": "three_mothers_amash_open", "source_ref": "book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:amash_open",
+        "text_note": "Opens: 'שלש אמות אמ\"ש, סוד גדול ומופלא הוא זה הדבור וחתום בשם...' -- links the three mothers Alef-Mem-Shin to מים/רוח[/אש] and to division into male/female (זכר/נקבה): 'ומהם יולדים מים ורוח, ומתחלקין לזכר ולנקבה, כי כל דבר שנברא בעולם בין כוכבים בין מזלות...לפי כח בריות הזכרים וכן הנקבות לפי כח בריות הנקבות'.",
+        "verbatim_citations": ["שלש אמות אמ\"ש", "זכר ולנקבה"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_OPENING"},
+       {"block_id": "olam_shana_nefesh", "source_ref": "book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:olam_shana_nefesh",
+        "text_note": "*** HIGH-VALUE PASSAGE for the dispatch's עולם/שנה/נפש mandate ***. In the same three-mothers discussion, the triad עולם (world) / נפש (soul) / שנה (year) appears explicitly together with אמ\"ש and זכר/נקבה: reading as best legible, '...ותפס ותתם בסס לעלם [לעולם] ... ולנפש ולשנה בכפש [בנפש] בזכר ונקבה...'. The exact surrounding syntax is NOT fully certain at this pass's zoom level, but the co-occurrence of all three terms (עולם, נפש, שנה) on this page, tied to the three mothers, is confident.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_PARTIAL_VERBATIM",
+        "unresolved_readings": [{"id": "P140-U1", "text": "Exact diplomatic wording of the olam/shana/nefesh sentence is uncertain at 250dpi (small, dense print, possible letter-transposition in my reading of 'בכפש' vs 'בנפש'). A higher-zoom crop pass is recommended before quoting this sentence as verbatim in any downstream synthesis.", "status": "UNRESOLVED, FLAGGED NOT GUESSED"}]},
+       {"block_id": "sound_qualities_alef_mem_shin", "source_ref": "book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:sound_qualities",
+        "text_note": "Right column: describes the acoustic/phonetic QUALITY of each of the three mother-letters -- Samekh-like description for Mem ('נסמך דוממת בדממה' -- Mem is silent/still in silence), Shin as hissing/sibilant ('שריקה'), and Alef as neither silent nor hissing but MEDIATING between them ('לא בדממה ולא בשריקה כי אם מתווכת ביניהם'), explicitly compared to ru'ach mediating between water and fire. Another direct קול/articulation-quality passage, distinct from the five-places passage on p.138 (this one is specifically about the three mothers' individual acoustic character, not the 22-letter five-place grouping).",
+        "verbatim_citations": ["דוממת בדממה", "שריקה", "מתווכת ביניהם"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_KEY_PHRASES",
+        "unresolved_readings": [{"id": "P140-U2", "text": "Surrounding discursive prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED",
+     "gpt_research_flags": [{"flag": "This page carries TWO distinct dispatch-priority items: the olam/shana/nefesh triad AND a second, distinct sound-quality/articulation passage specific to the three mothers (separate from the five-places passage at p.138). Both flagged for a future higher-zoom verbatim pass given their importance."}]},
+
+    {"pdf_page": 141, "printed_page": "137", "part": "part2", "chapter": "ch3_to_ch4", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "ch3_close_colophon", "source_ref": "book:sefer-yetzirah-9perushim#p141:chachmoni_treatise:part2:ch3:close_colophon",
+        "text_note": "Chapter Three closes with the colophon (confirms/matches the sibling coarse register's finding at this same page): 'נגמר הספר האחד והוא אט\"ש והוא שלש אמות:' (\"The one book is completed, namely AT\"Sh/the three mothers.\")",
+        "verbatim_citations": ["נגמר הספר האחד והוא אט\"ש והוא שלש אמות"],
+        "transcription_depth": "VERBATIM (colophon)"},
+       {"block_id": "perek_revii_title_and_open", "source_ref": "book:sefer-yetzirah-9perushim#p141:chachmoni_treatise:part2:ch4:title_open",
+        "text_note": "Chapter header 'פרק רביעי' (Chapter Four) -- the SEVEN DOUBLES chapter. Opens: 'הספר השני של שבע כפולות בשתי לשונות... ב\"כ ג\"ד כ\"פ ר\"ת כנגד...' then lists the traditional seven pairs of opposites governed by the seven double letters (see research_dna_highlights.seven_doubles_opposite_pairs above for the full list as read).",
+        "verbatim_citations": ["שבע כפולות", "בג\"ד כפר\"ת"],
+        "transcription_depth": "VERBATIM (title); STRUCTURAL_WITH_VERBATIM_LIST for the opposite-pairs enumeration",
+        "unresolved_readings": [{"id": "P141-U1", "text": "Exact wording of opposite-pairs #5-6 (chen/ro'a and the shalva/rogez-or-similar pair) not fully certain at this pass's zoom level.", "status": "UNRESOLVED, FLAGGED NOT GUESSED"}]},
+       {"block_id": "seven_doubles_planets_open", "source_ref": "book:sefer-yetzirah-9perushim#p141:chachmoni_treatise:part2:ch4:planets_open",
+        "text_note": "Right column begins mapping the seven doubles to the seven classical planets ('נחקקין בי\"ת... יסוד מקום מוכן לסבוד עבדות...'), opening the astronomical/astrological excursus that dominates the rest of Chapter Four (pp.142-147).",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 142, "printed_page": "138", "part": "part2", "chapter": "ch4", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "letter_grid_diagram_2", "source_ref": "book:sefer-yetzirah-9perushim#p142:chachmoni_treatise:part2:ch4:combinatorial_table_2",
+        "text_note": "A second large ruled grid of Hebrew letter-combinations (columns built on ד/ב/מ/ר-type roots), presented within the seven-doubles discussion -- a distinct diagram from the p.139 table.",
+        "transcription_depth": "STRUCTURAL (existence and general grid pattern confirmed; not cell-by-cell transcribed)"},
+       {"block_id": "doubles_planets_discourse", "source_ref": "book:sefer-yetzirah-9perushim#p142:chachmoni_treatise:part2:ch4:planets_discourse",
+        "text_note": "Surrounding discursive prose continuing the seven-doubles/seven-planets correspondence.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P142-U1", "text": "Full discursive prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": true, "diagram_type": "ruled_table_letter_combinations_variant_2", "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 143, "printed_page": "139", "part": "part2", "chapter": "ch4", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "doubles_recap_and_astrology", "source_ref": "book:sefer-yetzirah-9perushim#p143:chachmoni_treatise:part2:ch4:recap_astrology",
+        "text_note": "Continuation of the combinatorial-letter material (top) then a fresh recap paragraph 'שבע כפולות בג\"ד כפר\"ת' with citations, moving into the seven-planets/seven-days astronomical-astrological excursus proper.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P143-U1", "text": "Full discursive prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 144, "printed_page": "140", "part": "part2", "chapter": "ch4", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "seven_planets_days_correspondence", "source_ref": "book:sefer-yetzirah-9perushim#p144:chachmoni_treatise:part2:ch4:planets_days",
+        "text_note": "Continues the seven-planets/seven-days-of-week correspondence and their assigned qualities (heat/cold, moist/dry pairs tied to planetary astrological qualities), part of Chapter Four's extended astronomical excursus on the seven doubles.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P144-U1", "text": "Full discursive prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 145, "printed_page": "141", "part": "part2", "chapter": "ch4", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "astronomy_excursus_continued", "source_ref": "book:sefer-yetzirah-9perushim#p145:chachmoni_treatise:part2:ch4:astronomy_continued",
+        "text_note": "Extensive continuation of the astronomical/cosmological excursus (spheres, firmament, constellations) tied to the seven doubles' planetary correspondences.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P145-U1", "text": "Full discursive prose not transcribed verbatim in full -- this and the surrounding pages (142-147) are the least letter/sound-specific portion of the batch (general astronomy), so were read for structural placement rather than word-level depth.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 146, "printed_page": "142", "part": "part2", "chapter": "ch4", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "seven_planets_dominion_summary", "source_ref": "book:sefer-yetzirah-9perushim#p146:chachmoni_treatise:part2:ch4:dominion_summary",
+        "text_note": "Sub-header 'הנה למדת כחם של שבעה כוכבים וכח ממשלחם לפי שבעת ימי השבוע' (\"Now you have learned the power of the seven planets and their dominion according to the seven days of the week\") -- summarizing the seven-planets/seven-days correspondence, citing Mishlei 3:19.",
+        "verbatim_citations": ["משלי ג' י\"ט"],
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_SUBHEADING",
+        "unresolved_readings": [{"id": "P146-U1", "text": "Full discursive prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 147, "printed_page": "143", "part": "part2", "chapter": "ch4", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "day_night_length_seasonal", "source_ref": "book:sefer-yetzirah-9perushim#p147:chachmoni_treatise:part2:ch4:daylength_seasonal",
+        "text_note": "Discussion of day/night length variation by season, culminating in a summary of the 12-hour day/night structure -- closing material of Chapter Four's astronomical excursus, transitioning toward Chapter Five.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P147-U1", "text": "Full discursive prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 148, "printed_page": "144", "part": "part2", "chapter": "ch4_to_ch5", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "ch4_close_colophon", "source_ref": "book:sefer-yetzirah-9perushim#p148:chachmoni_treatise:part2:ch4:close",
+        "text_note": "Chapter Four closes at the top of the page with a short colophon-like closing ('...נגמר הספר').",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES"},
+       {"block_id": "perek_chamishi_title_CORRECTION", "source_ref": "book:sefer-yetzirah-9perushim#p148:chachmoni_treatise:part2:ch5:title",
+        "text_note": "CORRECTS the sibling coarse register (see corrections_vs_sibling_register/CORR-1 above). Chapter header reads 'פרק חמישי' (Chapter FIVE), NOT 'פרק ששי' (Six) as the sibling pp.1-152 file states. Opens: 'ספר שלישי של שנים עשר ההלוחיות הנקראות פשוטות' -- the TWELVE SIMPLES chapter.",
+        "verbatim_citations": ["פרק חמישי", "שנים עשר... פשוטות"],
+        "transcription_depth": "VERBATIM (title + opening line)"},
+       {"block_id": "twelve_faculties_list", "source_ref": "book:sefer-yetzirah-9perushim#p148:chachmoni_treatise:part2:ch5:twelve_faculties",
+        "text_note": "*** HIGH-VALUE PASSAGE for the dispatch's 12 mandate ***. Lists the twelve human faculties/activities assigned to the twelve simple letters: ראיה (sight), שמיעה (hearing), ריח (smell), דבור (speech), and continuing through activities including eating, action/deed, walking, anger, laughter, thought, and sleep (מעשה, הלוך, רוגז, שחוק, הרהור, שינה clearly read; two mid-list items read with less certainty, flagged below), tied to the twelve mazalot/constellations.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_PARTIAL_VERBATIM_LIST",
+        "unresolved_readings": [{"id": "P148-U1", "text": "Two items in the twelve-faculties list (the items corresponding to eating/אכילה and coitus/משגל in the standard Sefer Yetzirah tradition) were read with only medium confidence at this pass's zoom level -- flagged rather than asserted.", "status": "UNRESOLVED, FLAGGED NOT GUESSED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED",
+     "gpt_research_flags": [{"flag": "CORRECTION: this page is Chapter Five (12 simples), not Chapter Six as the sibling pp.1-152 register states. See corrections_vs_sibling_register."}]},
+
+    {"pdf_page": 149, "printed_page": "145", "part": "part2", "chapter": "ch5", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "twelve_mazalot_limbs", "source_ref": "book:sefer-yetzirah-9perushim#p149:chachmoni_treatise:part2:ch5:mazalot_limbs",
+        "text_note": "Continues Chapter Five: extensive discussion of the twelve constellations (mazalot) and their correspondence to bodily limbs/directions, building the standard Sefer Yetzirah Ch.5 correspondence table (12 simples <-> 12 mazalot <-> 12 months <-> 12 limbs) in discursive prose form.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+        "unresolved_readings": [{"id": "P149-U1", "text": "Full discursive prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED"},
+
+    {"pdf_page": 150, "printed_page": "146", "part": "part2", "chapter": "ch5_to_ch6", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "ch5_close_colophon", "source_ref": "book:sefer-yetzirah-9perushim#p150:chachmoni_treatise:part2:ch5:close",
+        "text_note": "Chapter Five closes at the top of the page with the colophon: 'נגמר ספר שלישי של י\"ב פשוטות, וילידתן ותמורתן... ונגמר כל פעולתן וסימנן וסודן:' (\"The third book of the twelve simples is completed, their births and their exchanges... and all their actions, signs and secrets are completed.\")",
+        "verbatim_citations": ["נגמר ספר שלישי של י\"ב פשוטות"],
+        "transcription_depth": "VERBATIM (colophon)"},
+       {"block_id": "perek_shishi_title_CORRECTION", "source_ref": "book:sefer-yetzirah-9perushim#p150:chachmoni_treatise:part2:ch6:title",
+        "text_note": "CORRECTS the sibling coarse register's chapter placement (see corrections_vs_sibling_register/CORR-2). Chapter header 'פרק ששי' (Chapter Six) actually begins HERE, at p.150, not at p.148. This is the TELI/GALGAL/LEV chapter. Opens: 'כסדר כ\"ב אותיות יסודן וצירופן וגלגולן ותמורתן... וכולן לדוקות בתלי וגלגל ובלב. ומי הוא כ\"ב התלי, כשברה הגלגים... ברא [ה'] את התלי ממים ומחם...' -- introduces the cosmic dragon-axis (Teli), describing it formed from water and heat, tied to the recap of the 22 letters' role in creation.",
+        "verbatim_citations": ["פרק ששי", "התלי", "הגלגל", "הלב"],
+        "transcription_depth": "VERBATIM (title + opening formula)"}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED",
+     "gpt_research_flags": [{"flag": "CORRECTION: Chapter Six (Teli/Galgal/Lev) begins at p.150, not p.148. See corrections_vs_sibling_register."}]},
+
+    {"pdf_page": 151, "printed_page": "147", "part": "part2", "chapter": "ch6", "zone": "chachmoni_treatise",
+     "content_blocks": [
+       {"block_id": "twelve_six_three_synthesis", "source_ref": "book:sefer-yetzirah-9perushim#p151:chachmoni_treatise:part2:ch6:synthesis_3_6_12",
+        "text_note": "Left column: 'י\"ב (וי\"ב) למעלה שמים ומזרחים, ו' הם הדונים עליהם, וג' הם עדוים על הו', ומן הג' יסד...' -- a capstone passage synthesizing the 12 (constellations above), 6 (directions/rulers), and 3 (mothers/patriarchs) into a single unified cosmological structure, tying together the whole 3/7/12=22-letters framework Donnolo has built across Chapters 3-6.",
+        "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_KEY_PHRASES",
+        "unresolved_readings": [{"id": "P151-U1", "text": "Full surrounding prose not transcribed verbatim in full.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]},
+       {"block_id": "teli_galgal_lev_triad", "source_ref": "book:sefer-yetzirah-9perushim#p151:chachmoni_treatise:part2:ch6:teli_galgal_lev",
+        "text_note": "*** HIGH-VALUE PASSAGE for the dispatch's structural-triad mandate ***. Clear, legible formula: 'תלי בעולם כמלך על כסאו, גלגל בגוף כמלך במדינה, לב באדם כמלך במלחמה' -- \"The Teli in the world is like a king on his throne; the Galgal in the body is like a king in his province; the Lev in man is like a king at war.\" Donnolo's rendering of Sefer Yetzirah 6:1's ruling-triad formula.",
+        "verbatim_citations": ["תלי בעולם כמלך על כסאו", "גלגל בגוף כמלך במדינה", "לב באדם כמלך במלחמה"],
+        "transcription_depth": "VERBATIM"},
+       {"block_id": "concluding_mishnah_citation", "source_ref": "book:sefer-yetzirah-9perushim#p151:chachmoni_treatise:part2:ch6:concluding_citation",
+        "text_note": "Right column, bottom: quotes Sefer Yetzirah's own concluding-mishnah material with the Yeshayahu citation: 'יסוד שבעה חקק ים ה' צבאות אלהי ישראל... כי כה אמר רם ונשא שוכן עד וקדוש שמו (ישעיה נ\"ז ט\"ו)'. This is close to the book's overall conclusion; the final colophon line itself falls on p.152, out of this batch's scope (already covered by the sibling register).",
+        "verbatim_citations": ["ישעיהו נ\"ז ט\"ו", "רם ונשא שוכן עד וקדוש שמו"],
+        "transcription_depth": "VERBATIM (citation)"}
+     ], "diagrams": false, "confidence": "SOURCE_LOCATED",
+     "gpt_research_flags": [{"flag": "This batch's last in-scope page (151) ends just short of the book's final colophon (p.152, sibling-owned, not re-touched here). Chapter Six's core Teli/Galgal/Lev content and the 3/6/12 synthesis both fall cleanly within this batch's scope."}]}
+  ],
+  "verification_summary": {
+    "pages_accounted_for": "128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151 -- all 24 pages in scope directly read at 250dpi, none skipped.",
+    "out_of_scope_respected": "p.126, p.127 and p.152 NOT opened or re-read this session (already covered by the sibling pp.1-152 register).",
+    "chapter_part_map_established": "חלק ראשון (Part One, Na'aseh-Adam preamble incl. the 'דמהו לעולם' microcosm section): pp.128-134(top of 135). חלק שני (Part Two, actual SY commentary) begins p.135. Within Part Two: פרק ראשון (Ch.1, ten sefirot) pp.136-138(top); פרק שני (Ch.2, 22 letters + five articulation places + 231-gates table) pp.138(bottom)-139; פרק שלישי (Ch.3, three mothers + olam/shana/nefesh) pp.140-141(top); פרק רביעי (Ch.4, seven doubles + planetary/astronomical excursus) pp.141(bottom)-148(top); פרק חמישי (Ch.5, twelve simples/faculties/mazalot) pp.148-150(top) [CORRECTED from sibling's 'Ch.6' label]; פרק ששי (Ch.6, Teli/Galgal/Lev) pp.150(bottom)-151+ [CORRECTED from sibling's p.148 placement], continuing past this batch's end into the out-of-scope p.152 closure.",
+    "dispatch_mandate_items_located": "Letters: yes (22-letter, 3-mother, 7-double, 12-simple enumerations throughout). קול/רוח/דיבור/articulation: yes, two distinct passages (p.138 five-places; p.140 three-mothers sound-quality). 3/7/12: yes, all three chapters located and their opening formulas verbatim-captured. עולם/שנה/נפש: yes, at p.140 (flagged for a future higher-zoom confirmation of exact wording). Variants: none additional to what the sibling Witness/Textual-Version audits already flagged; this batch is single-witness (Sefer Yetsirah.pdf only), no cross-witness variant comparison performed. Diagrams/tables: two combinatorial letter-grids located (p.139, p.142), both flagged STRUCTURAL depth only (not cell-by-cell transcribed). Unresolved readings: consistently flagged per-block rather than guessed, per protocol.",
+    "digital_transcription_used": "NONE. This register is scan-only; no external digital transcription was consulted or aligned against.",
+    "writes_performed": "This JSON file and its companion .md batch report are the ONLY files written by this session. No DB content/schema/RPC/RLS write, no Book node, no research_objects/topic_cards/nodes/edges, no Roadmap/Master edit, no merge, no deploy."
+  }
+}

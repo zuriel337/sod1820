@@ -28,13 +28,44 @@ export function pageFromSourceRef(sourceRef) {
   return pdf ? Number(pdf[1]) : null;
 }
 
-export async function fetchBookEntities() {
+// Rich locator parser — additive superset of pageFromSourceRef. Some Books' locator
+// conventions carry more than a bare page after "#pN" (e.g. Sefer Yetzirah's
+// book:sefer-yetzirah-9perushim#p140:chachmoni_treatise:part2:ch3:olam_shana_nefesh),
+// while others carry a single block id (Ahavat Torah's #p1:title) or none at all
+// (#pdf:24). This never changes a stored source_ref and never breaks a caller that
+// only wants the page — pageFromSourceRef's own return contract (number|null) is
+// unchanged and this function is built on top of it, not instead of it.
+export function parseSourceRefLocator(sourceRef) {
+  const page = pageFromSourceRef(sourceRef);
+  const ref = clean(sourceRef);
+  const afterPage = ref.match(/#p\d+:(.+)$/i);
+  const segments = afterPage ? afterPage[1].split(":").map(clean).filter(Boolean) : [];
+  return {
+    page,
+    segments,
+    zone: segments[0] ?? null,
+    work: segments[1] ?? null,
+    sublocator: segments.length > 2 ? segments.slice(2).join(":") : null,
+  };
+}
+
+// Scale guardrail, same discipline as DEFAULT/MAX_BOOK_RESEARCH_LIMIT above: the Book
+// index is a projection, not a client-side dump of every Book node ever admitted.
+// Backward compatible — fetchBookEntities() with no args returns exactly what it always
+// did (current 3-book count is far below the default), existing callers are unaffected.
+export const DEFAULT_BOOK_INDEX_LIMIT = 48;
+export const MAX_BOOK_INDEX_LIMIT = 200;
+
+export async function fetchBookEntities({ limit = DEFAULT_BOOK_INDEX_LIMIT, offset = 0 } = {}) {
+  const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_BOOK_INDEX_LIMIT, MAX_BOOK_INDEX_LIMIT));
+  const safeOffset = Math.max(0, Number(offset) || 0);
   const { data, error } = await supabase
     .from("nodes")
     .select(BOOK_FIELDS)
     .eq("type", "book")
     .eq("is_active", true)
-    .order("label", { ascending: true });
+    .order("label", { ascending: true })
+    .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
   return Array.isArray(data) ? data : [];
 }
@@ -226,6 +257,10 @@ export function researchRowToBookRepresentation(row) {
     shape,
     title: clean(row?.title || row?.statement || row?.kind) || "Research Object",
     sourceRef: row?.source_ref ?? null,
+    // Optional rich locator context (zone/work/sublocator beyond the bare page) — additive,
+    // never required. Fails closed to all-null fields when the source_ref carries no more
+    // than a page (or no page at all); see parseSourceRefLocator.
+    sourceLocator: parseSourceRefLocator(row?.source_ref),
     kind: row?.kind ?? null,
     status: row?.status ?? null,
     privacyScope: row?.privacy_scope ?? null,
@@ -330,6 +365,10 @@ export function researchRowToWorkspaceItem(row, book) {
       bookIdentity: book?.identity_key || null,
       page: p,
       sourceRef: row.source_ref,
+      // Optional rich locator context, additive alongside `page` — never replaces it and
+      // never touches the existing `selection.locator` ref-id field used elsewhere in the
+      // Research Context bridge (see bookContextPatch / RoyalContextBar).
+      sourceLocator: parseSourceRefLocator(row.source_ref),
       status: row.status ?? null,
       kind: row.kind ?? null,
       engineVerified: triBool(row?.engine_verified),

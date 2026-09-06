@@ -1,0 +1,196 @@
+{
+ "book_slug": "sefer-yetzirah",
+ "source_identity": "book:sefer-yetzirah-9perushim",
+ "generated_at": "2026-09-06",
+ "schema_version": 1,
+ "hero": {
+  "eyebrow": "SEFER YETZIRAH · 9 PERUSHIM · WARSAW",
+  "subtitle": "ספר יצירה המיוחס לאברהם אבינו ע״ה · מהדורת ווארשא, לעווין־עפשטיין (שנת דפוס לא-סופית)",
+  "pdf": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf",
+  "promise": "כרך אחד המאגד כמה חיבורים נפרדים — הגוף הסינופטי (ט׳ פירושים), ספר החכמוני, פירוש הגר״א/פרי יצחק ונוסחה ישנה — כל שכבה נשמרת בנפרד, בלי להשטיח לחיבור אחד.",
+  "metrics": [
+   [
+    "220",
+    "עמודי PDF",
+    "Digital Object"
+   ],
+   [
+    "6",
+    "ענפי-מקור אינטגרליים",
+    "source-integration branches"
+   ],
+   [
+    "12",
+    "קבצי-מקור נשמרים",
+    "docs/research-notes"
+   ],
+   [
+    "~40%",
+    "עמודים ברמת exact-witness",
+    "documented snapshot"
+   ]
+  ],
+  "coverage": [
+   {
+    "label": "Structural Coverage",
+    "value": "220/220 COMPLETE",
+    "note": "לכל עמוד קיים לפחות זיהוי-אזור/פרק/מפרש. אינו research completeness."
+   },
+   {
+    "label": "Research Map / Grammar",
+    "value": "SUFFICIENT",
+    "note": "grammar/locator אחיד לאורך כל הכרך; מספיק כדי להציג Book Projection."
+   },
+   {
+    "label": "Exact-Witness Coverage",
+    "value": "PARTIAL",
+    "note": "תמלול block-level מדויק קיים רק לעמודים בעלי-ערך-גבוה (גבולות פרק/משנה, טבלאות, דיאגרמות, הזנב); שאר העמודים ברמת structural בלבד."
+   },
+   {
+    "label": "Source Exhaustion",
+    "value": "NOT ESTABLISHED",
+    "note": "לא נטען שכל-מה-שיש-במקור מוצה — קריאות לא-פתורות רבות עדיין פתוחות (ר' דוסייה)."
+   }
+  ],
+  "datasets": [
+   [
+    "RD-01",
+    "ג׳ אמות / ז׳ כפולות / י״ב פשוטות",
+    "pp65,76,91,99,113",
+    "SOURCE-QUOTED",
+    "22 האותיות + שלש-אמות/שבע-כפולות/שתים-עשרה-פשוטות, כנוסח מדויק במספר מקומות בכרך"
+   ],
+   [
+    "RD-02",
+    "קול / רוח / דיבור · ה׳ מוצאות הפה",
+    "pp80,138",
+    "SOURCE-QUOTED",
+    "\"חקוקות בקול חצובות ברוח קבועות בפה בחמשה מקומות\" — שתי הופעות עצמאיות, כולל הערת-נוסח מנטובה מודפסת ב-p80"
+   ],
+   [
+    "RD-03",
+    "רל״א שערים",
+    "p203 (מפורש) · p85 (נעדר-בשם)",
+    "SOURCE-QUOTED",
+    "הביטוי המילולי \"רל״א שערים\" מאומת ב-p203 בלבד; באותה סוגיה עצמה ב-p85 (הגוף הסינופטי) הביטוי נעדר, אף שההליך הקומבינטורי מופיע"
+   ],
+   [
+    "RD-04",
+    "צרף / שקל / המיר",
+    "p85",
+    "SOURCE-QUOTED",
+    "משנה ב׳:ה׳ — \"כיצד שקלן והמירן אל״ף עם כלם וכלם עם אל״ף...\" verbatim + טבלת צירופי-אלפבית בת 22 שורות"
+   ],
+   [
+    "RD-05",
+    "עולם / שנה / נפש",
+    "p140",
+    "SOURCE-QUOTED",
+    "בהקשר ג׳ האמות, בפירוש ספר החכמוני"
+   ],
+   [
+    "RD-06",
+    "דיאגרמות וטבלאות",
+    "pp40,42,44,85,102,139,142,204-206",
+    "STRUCTURAL",
+    "טבלת מזלות/שמות-מלאך, גלגל תמורות-שם, טבלת אלפבית, דיאגרמות מעגליות, טבלאות רל״א שערים לפי פרי יצחק"
+   ],
+   [
+    "RD-07",
+    "נוסחה ישנה · ייחוס מנטובה 1562",
+    "pp214-216",
+    "SOURCE-QUOTED",
+    "כרזת-עורך מודפסת המצטטת את דפוס מנטובה (שכ״ב) כמקור הנוסחה המצורפת — עדות-מקור מודפסת, לא אימות קודיקולוגי עצמאי"
+   ]
+  ],
+  "families": [
+   {
+    "title": "שכבות-מקור נפרדות, לעולם לא משוטחות",
+    "text": "הגוף הסינופטי (ט׳ פירושים, pp.5-124) ← ספר החכמוני (pp.125-152) ← פירוש הגר״א/פרי יצחק (pp.153-207) ← מיעוטי-חיבורים + נוסחה ישנה (pp.208-220). כל שכבה נשמרת בנפרד עם locator משלה."
+   },
+   {
+    "title": "וריאנט מספור: הגוף הסינופטי מול הנוסח המקובל",
+    "text": "פרק א׳ של הגוף הסינופטי נמשך לפחות עד משנה י״ג (בניגוד לנוסח הקצר המקובל, 6 משניות) — נוסחה חוזרת פעמיים על שלש-אמות/שבע-כפולות/שתים-עשרה-פשוטות (p65, p76)."
+   },
+   {
+    "title": "תיקוני-גבול תיעודיים",
+    "text": "שלוש ענפי-אינטגרציה תיקנו הערכות-גבול קודמות בעדות-עמוד ישירה: סגירת הגוף הסינופטי ב-p124 (לא ~p126), תיוג פרק ה׳/ו׳ הנכון ב-p148/150 בספר החכמוני, ותחילת הנוסחה הישנה ב-p214 (לא p216). כל תיקון מתועד בדוסייה, בלי לערוך את הקובץ המקורי."
+   }
+  ],
+  "open": [
+   "רוב עמודי-הפרשנות המשניים (רמב״ן, רס״ג-מיוחס, ראב״ד-לא-בגבולות-גבוהי-ערך, ר״א מגרמיזא, אוצר ה׳, בוטריל) עדיין ברמת structural בלבד — לא תומללו verbatim",
+   "טבלת 22 השורות ב-p85 (אלפא־ביתא) — ודאות תא-בתא מלאה לא הושגה",
+   "כמה טבלאות קטנות (pp.106,110,123) ודיאגרמת-p102 — נוכחות מאושרת, תוכן מדויק לא תומלל",
+   "השאלה אם טבלאות רל״א-השערים של פרי יצחק (pp.204-206) ממשיכות מעבר לדעת — לא נקבעה",
+   "Source Exhaustion לא נקבע — ר׳ Open items בדוסייה המלאה"
+  ],
+  "seeds": [
+   {
+    "key": "22",
+    "label": "כ״ב אותיות יסוד",
+    "family": "number-family",
+    "status": "source-quoted"
+   },
+   {
+    "key": "3",
+    "label": "שלש אמות",
+    "family": "number-family",
+    "status": "source-quoted"
+   },
+   {
+    "key": "7",
+    "label": "שבע כפולות",
+    "family": "number-family",
+    "status": "source-quoted"
+   },
+   {
+    "key": "12",
+    "label": "שתים עשרה פשוטות",
+    "family": "number-family",
+    "status": "source-quoted"
+   },
+   {
+    "key": "231",
+    "label": "רל״א שערים",
+    "family": "number-family",
+    "status": "source-quoted"
+   },
+   {
+    "key": "rd01",
+    "label": "RD-01 · ג׳/ז׳/י״ב",
+    "page": 76,
+    "family": "dataset",
+    "status": "source-quoted"
+   },
+   {
+    "key": "rd02",
+    "label": "RD-02 · קול/רוח/דיבור",
+    "page": 80,
+    "family": "dataset",
+    "status": "source-quoted"
+   },
+   {
+    "key": "rd03",
+    "label": "RD-03 · רל״א שערים",
+    "page": 203,
+    "family": "dataset",
+    "status": "source-quoted"
+   },
+   {
+    "key": "rd04",
+    "label": "RD-04 · צרף/שקל/המיר",
+    "page": 85,
+    "family": "dataset",
+    "status": "source-quoted"
+   },
+   {
+    "key": "rd07",
+    "label": "RD-07 · נוסחה ישנה / מנטובה",
+    "page": 214,
+    "family": "dataset",
+    "status": "source-quoted"
+   }
+  ]
+ },
+ "_note": "hero-only dossier v1 (Book Projection minimal delta, work_log 30c264b8). Mirrors the SNAPSHOTS[\"sefer-yetzirah\"] editorial content authored on branch claude/sefer-yetzirah-book-admission-phase-b (commit d576c1e2), itself quoting the reconciled integration dossier (branch claude/sefer-yetzirah-source-integration, commit e4984bb4). This file is presentation-only; the Book node (0f65caa9-e5e9-45c1-837a-a7aa414ebe31) remains is_active=false, so no live route resolves it. No new research performed here."
+}
