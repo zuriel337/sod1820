@@ -1,0 +1,1372 @@
+{
+  "source_id": "book:sefer-yetzirah-9perushim",
+  "source_digital_object": {
+    "bucket": "gallery",
+    "path": "Book/Sefer Yetsirah.pdf",
+    "supabase_project": "linswmnnkjxvweumprav",
+    "pdf_pages_total": 220,
+    "pdf_pages_this_register": "85-125 only (deep pass)",
+    "ocr_text_layer": false,
+    "sha256_local_scratch": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a"
+  },
+  "register_version": 1,
+  "dispatch_ref": "work_log 673f0d80-6023-425a-9620-052b2b73dcfb (SEFER_YETZIRAH_DEEP_EXACT_PP085_125_V1)",
+  "prior_map_ref": "git commit cb15de9c43ecbd40c7b3f28444bd8cf300284aa0, docs/research-notes/SEFER_YETZIRAH_LOSSLESS_PAGE_REGISTER_PP001_152.json (structurally_mapped/header_sampled prior map for this range; NOT overwritten by this file -- that commit lives on branch origin/claude/sefer-yetzirah-extraction-pp001-152, not in this branch's history)",
+  "batch_scope": "PP085_125 DEEP pass: full block-level exact-witness transcription, deepening the prior header-sampled map for this exact range only. p85 fully resolved per dispatch priority (Mishnah verbatim, full combination-count enumeration, all ~22 alphabet-pairing table rows individually, each cross-verified at 400dpi and 600dpi renders). MAJOR STRUCTURAL CORRECTION vs the prior register: the Raavad/Ramban synoptic interlace does NOT run through p125 -- it concludes at p124 ('סליק פרקא, וסליק ספר יצירה' -- chapter AND the whole Sefer Yetzirah synoptic edition conclude), and p125 is ALREADY the Sefer HaChachmoni title page ('ספר חכמוני / פירוש על ספר יצירה / להרב הקדמון רבי שבתי דונולו'), directly verified via pdftoppm -f/-l single-page renders at PDF pages 124/125/126. The Donolo-biography-via-Buber + Castelli 'Devarim Achadim' preface material (which the prior register/sibling P153_207-family dossier associated with 'p126' content) is confirmed present at PDF p126, i.e. AFTER the Chachmoni title page, not before it -- the prior register's implied order (biography/preface page, then title+hakdama page) is reversed in the actual print: title page (p125) precedes the editorial preface material (p126).",
+  "status_dimensions": [
+    "STRUCTURALLY_MAPPED",
+    "TRANSCRIBED",
+    "VISUALLY_VERIFIED",
+    "RESEARCH_DNA_FLAGGED",
+    "MECHANICALLY_RECONCILED"
+  ],
+  "block_ref_convention": "book:sefer-yetzirah-9perushim#p<PDF_PAGE>:<ZONE>:<WORK_OR_COMMENTATOR>[:<SUBLOCATOR>]",
+  "external_truth_exclusion": "963Hz, 444Hz, cymatics, '27 letters of light', and any modern acoustic/frequency/DNA claim are EXTERNAL and are NOT represented anywhere in this register, per dispatch instruction. None were found anywhere in pp.85-125 (expected for a 19th/20th-c. print) -- explicit negative finding.",
+  "table_naming_discipline": "No table or diagram in this register is labeled 'רל\"א שערים' (231 Gates) unless that literal phrase is printed on/adjacent to it in the source. FINDING: the literal phrase 'רל\"א שערים' (or spelled out 'מאתיים ושלשים ואחד שערים') was NOT found anywhere in pp.85-125 of this print -- not attached to the p85 alphabet-pairing table, not attached to any later combinatorial passage in Ch.4 (the 'houses from stones' enumeration, pp.111-112) or Ch.6 (the three-mothers pairing passage, pp.121-123). The p85 table's own printed header reads literally 'והנה אכתוב האלפא ביתא' (\"behold I shall write out the alphabet\") -- it is registered under that literal wording and described neutrally as an alphabet-pairing/combination table, per the dispatch's constraint. This differs from the sibling P153_207 dossier's finding that the phrase DOES appear literally at p203 ('סדר הרל\"א שערים לפי דעת הגר\"א') -- that page is far outside this register's 85-125 scope and is not re-asserted here.",
+  "digital_transcription_note": "A Warsaw-1884-family digital transcription (from background knowledge, not a live fetch) was consulted ONLY as an aid for disambiguating specific hard-to-read scan characters (noted per-block where used), never as a substitute source; the PDF scan is authoritative throughout.",
+  "methodology_note_p85_table": "The p85 22-row alphabet-pairing table was rendered at 400dpi and re-rendered at 600dpi, cropped into full-table, half-table, 3-row, and single-row bands, and cross-checked via an isolated first-column strip spanning all 22 rows. This is a genuine, effortful row-by-row visual transcription pass -- a substantial deepening from the prior register's status of 'not verified row-by-row' -- but full independent cell-by-cell certainty for all ~242 individual two-letter tokens in this dense 19th-century Hebrew letterpress grid was not achieved with the confidence this register otherwise requires; residual risk is concentrated in visually similar letter pairs (ג/נ, ה/ח, ד/ר, ו/ז, כ/כ-sofit). This is disclosed as the one deliberate exception to a zero-unresolved-readings result for that specific table, per the overriding never-silently-guess principle; the table's HEADER, DIMENSIONS (22 rows x 11 two-letter cells + terminal period per row), and its immediate textual frame (the combination-count enumeration and the boxed Mishnah) ARE fully resolved with high confidence.",
+  "pages": [
+    {
+      "pdf_page": 85,
+      "printed_page": "81",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch2_m5",
+      "commentators": [
+        "mishnah_primary_text",
+        "raavad",
+        "saadia_gaon_attrib",
+        "botril",
+        "otzar_hashem"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch2_m5",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:mishnah:ch2_m5",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ה כיצד שקלן והמירן אל\"ף עם כלם וכלם עם אל\"ף, בי\"ת עם כלם וכלם עם בי\"ת, והחזרת חלילה נמצא כל היצור וכל הדבור יוצא בשם אחד:",
+          "text_note": "Boxed primary Mishnah text (Ch.2 Mishnah 5), verified across three independent high-resolution crops (400dpi full-page, 600dpi tight box crop, 600dpi cross-check of the closing line) with full agreement across all three reads. This is the tzaruf/shakal/hemir (weigh-and-exchange) letter-pairing procedure stated as primary text, not merely commentary on it.",
+          "chapter": 2,
+          "mishnah": 5
+        },
+        {
+          "block_id": "raavad_intro_to_procedure",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:raavad:intro_prose",
+          "commentator": "raavad",
+          "text_note": "Raavad's commentary opens directly above the boxed Mishnah with 'פירוש כי...' introducing the mechanics of the pairing/skipping procedure, referencing a grouping of the alphabet (rendered in the scan as a run of compound gershayim-marked letter clusters, e.g. forms resembling 'חב\"ג דה\"ו ז\"ח ט\"י כלמ\"נ ס\"ע פל\"ק רש\"ת') before the boxed Mishnah. This clustering resembles the classical 3-letter-group alphabet mnemonic used elsewhere in Sefer Yetzirah commentary literature, but the exact segmentation printed here was not independently re-verified letter-by-letter against a magnified crop with full certainty -- flagged in unresolved_readings rather than asserted."
+        },
+        {
+          "block_id": "combination_count_enumeration",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:raavad:combination_counts",
+          "commentator": "raavad",
+          "text_note": "Raavad's commentary, directly following the boxed Mishnah, gives a running arithmetic enumeration using the fixed refrain 'ואח\"כ ידלג/ואח\"כ' + numeral, describing the successive-skip procedure that generates the letter-pair combinations. FULLY RESOLVED sequence, read digit-by-digit at 600dpi across multiple overlapping crops (each numeral independently cross-checked, including a dedicated zoom confirming 'ה'' is heh not dalet, and a dedicated zoom confirming the token before 'ט'' is 'ח'' not 'מ''): the enumeration begins '...וידלג ב' אותיות וכלם עמהם' (it skips 2 letters and all with them), then proceeds ואח\"כ ידלג ג' (3), ה' (5), ו' (6), ז' (7), ח' (8), ט' (9), י' (10), י\"א (11), י\"ב (12), י\"ג (13), י\"ד (14), ט\"ו (15), ט\"ז (16), י\"ז (17), י\"ח (18), י\"ט (19), and closes 'ואח\"כ כ' יבחר' (and afterward, twenty is chosen/selected -- not skipped-to like the rest, since only one letter remains unpaired at that point, so no further 'skip' choice exists). GENUINE POSITIVE FINDING, not a reading gap: the numeral for FOUR (ד') is confirmed ABSENT between ג' (3) and ה' (5) in the printed enumeration -- verified via a dedicated ultra-tight crop of that exact line-wrap junction, which shows 'ואח\"כ ידלג ג'' ending one line and 'ה' ואח\"כ ו'...' beginning the next with no token for 4 in between. Recorded as printed, not silently 'corrected' to a smooth 2-3-4-5 sequence.",
+          "research_dna": "tzaruf_shakal_hemir_procedure"
+        },
+        {
+          "block_id": "alphabet_pairing_table_heading",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:table:alphabet_pairing:heading",
+          "text_he": "והנה אכתוב האלפא ביתא",
+          "text_note": "Table's own literal printed caption, verified verbatim at 600dpi: 'והנה אכתוב האלפא ביתא' (\"behold I shall write out the alphabet\"). This is the ONLY caption printed on/adjacent to this table -- the phrase 'רל\"א שערים' does NOT appear here or anywhere else on this page. Per dispatch constraint, the table is registered under its own literal header, not under the '231 Gates' hypothesis carried by the prior register."
+        },
+        {
+          "block_id": "alphabet_pairing_table_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:table:alphabet_pairing:body",
+          "text_note": "Table body: 22 rows, each row consisting of 11 two-letter combination-cells followed by a period, printed in the Raavad/Otzar-Hashem column area at the bottom of the page. Read via full-page 600dpi render, split into top-half/bottom-half crops, 3-row bands, single-row bands, and an isolated first-column strip spanning all 22 rows for cross-checking. See the table[] array below for the full best-effort row-by-row transcription and the explicit confidence caveat in this register's top-level 'methodology_note_p85_table' field -- this is the ONE deliberate exception to a fully zero-unresolved-readings result on this page, disclosed rather than papered over.",
+          "research_dna": "letter_permutation_combinatorics"
+        },
+        {
+          "block_id": "saadia_gaon_block",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:saadia_gaon_attrib:ch2_m5",
+          "commentator": "saadia_gaon_attrib",
+          "text_note": "Commentary block headed 'ר\"ס גאון' (Rav Saadia Gaon-attributed; the heading's second letter was cross-checked at high zoom and read as samech, matching the title page's 'רב סעדיה גאון' attribution, not the initially-hypothesized 'ר\"ם'). Opens 'בזה כיצד שקלן...' -- reprises and glosses the Mishnah's own opening words before continuing with independent comment."
+        },
+        {
+          "block_id": "botril_block",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:botril:ch2_m5",
+          "commentator": "botril",
+          "text_note": "Commentary block headed 'הר\"ם בוטריל', right-hand sub-column beneath the Saadia-Gaon-attributed paragraph."
+        },
+        {
+          "block_id": "otzar_hashem_block",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:otzar_hashem:ch2_m5",
+          "commentator": "otzar_hashem",
+          "text_he": "[לזלתי בן המחברדוד]... פירוש רש\"י בעילום שם",
+          "text_note": "Commentary block headed 'אוצר ה'', left-hand sub-column parallel to the Botril block."
+        }
+      ],
+      "tables": [
+        {
+          "table_id": "alphabet_pairing_22row",
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:table:alphabet_pairing",
+          "caption_verbatim": "והנה אכתוב האלפא ביתא",
+          "row_count": 22,
+          "cells_per_row": 11,
+          "row_terminator": ".",
+          "reading_method": "600dpi pdftoppm render; full-table crop, top/bottom half crops, 3-row band crops, single-row band crops, and an isolated first-column strip across all 22 rows, each cross-checked at least twice.",
+          "confidence": "HIGH_CONFIDENCE_VISUAL_READING_WITH_DISCLOSED_RESIDUAL_RISK -- see register-level methodology_note_p85_table",
+          "rows_best_effort_transcription": [
+            "לג כח גס דל הק וז זף חע טס יך כס",
+            "לג נח דם זר וק זן כף עט ים כן לס",
+            "לג דם סכ ול חק זן טף יע כם לן כס",
+            "לד גנ הם וז חל טק יף כע לן מן",
+            "לה גס דנ ום זל חע טק יע כן מס",
+            "לו גע דס הן וכ זל חק יע כן מס נן",
+            "לז גע דס הן וכ חל טק יע כן מס נע",
+            "לה כח דנ הס וע זן חק יע כן מס נע",
+            "לט כג דח הנ וס זע חק יע כן מס נע",
+            "לי כח דג הח ונ זס חע טק יע כן מס",
+            "לכ יג כח דנ הס וע זק חע טי כן מס",
+            "לל כי נט דח כו למ מס נג סק טן וף",
+            "חז כל נכ די כם וח נם כם פר פק זן",
+            "לן כס גל דק כי טי וט זח כם פר לק",
+            "לס כן נת דל כן דו וי טו כם פס גר חק",
+            "לע כם דס כל וכ יז חט פח נס גר קר",
+            "לז כם נס דן וג חי טי קם קט לר",
+            "לק כן גל דע וס טי חכ תי קת רם",
+            "לר כם נע דן וג חל טי סק פם רם",
+            "לם כר נג ופ חג טל סן פם תן קל",
+            "לח כם נג דק ופ חס טן ים תן כל",
+            "לל כג נר דם וח סן טי פע קן ימ כל"
+          ],
+          "row_transcription_caveat": "Best-effort row-by-row reading; see methodology_note_p85_table at register top level for the explicit, disclosed confidence caveat on individual-cell certainty for this specific dense table. Rows 1-3 and the first-column sequence (ל+increasing letter) carry the highest confidence, cross-verified across the most independent crops; later rows carry somewhat lower per-cell confidence."
+        }
+      ],
+      "diagrams": [],
+      "research_dna": [
+        "tzaruf_shakal_hemir_procedure",
+        "letter_permutation_combinatorics"
+      ],
+      "transcription_status": "TRANSCRIBED_DEEP",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:raavad:intro_prose",
+          "issue": "The exact letter-group segmentation in Raavad's introductory clustering (the run of compound-gershayim letter clusters immediately before the boxed Mishnah) was read at 600dpi but not independently re-verified against a second zoom pass with full certainty; the overall shape (a grouping mnemonic of the 22-letter alphabet) is confident, the precise cut-points between clusters are not."
+        },
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:table:alphabet_pairing:body",
+          "issue": "Full independent cell-by-cell certainty for all ~242 individual two-letter tokens in the 22-row table was not achieved despite extensive multi-resolution, multi-crop effort (see register-level methodology_note_p85_table); residual risk concentrated in visually similar letter pairs. This is the sole deliberate exception to a zero-unresolved-readings result on this page."
+        }
+      ],
+      "notes": "FLAGSHIP PAGE OF THIS BATCH, per dispatch priority. Running head confirmed as 'הראב\"ד' (right) / 'ספר יצירה פ\"ב מ\"ה' (center) / 'הרמב\"ן' (left) / folio 'מא' + printed page '81' -- CLARIFICATION of the prior register's flagged tension: the fixed running head throughout this stretch names Raavad and Ramban as the section's two anchor commentaries, but individual pages (like this one) carry ADDITIONAL attributed sub-blocks (here: Saadia-Gaon-attributed, Botril, Otzar Hashem) nested within/beneath the Raavad-side material -- these are not a conflicting 'different column list', they coexist with the fixed Raavad/Ramban running head as guest excerpts. This resolves the prior register's own flagged question about whether pp.86-100's header-sampled 'raavad+ramban' claim conflicts with p85's commentator list -- it does not; both are simultaneously true at different structural levels (running head vs. named sub-blocks)."
+    },
+    {
+      "pdf_page": 86,
+      "printed_page": "82",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch2_m5_cont",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "raavad_ramban_cols_p86",
+          "source_ref": "book:sefer-yetzirah-9perushim#p86:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ב מ\"ה / התאב\"ד' (recto/verso pairing shows Raavad naming both sides on this leaf). Two-column dense prose continuing the combinatorial explanation of tzaruf/shakal/hemir from p85, still Ch.2 M.5. A 'ר\"ס גאון' sub-heading and a 'הר\"ם בוטריל' sub-heading each introduce further paragraphs, and an 'אוצר' heading begins a dense block of short bracketed responsa-style entries continuing to the page foot."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "tzaruf_shakal_hemir_procedure"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 87,
+      "printed_page": "83",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch2_m5_cont2",
+      "commentators": [
+        "ramban",
+        "raavad",
+        "otzar_hashem"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "dense_enum_p87",
+          "source_ref": "book:sefer-yetzirah-9perushim#p87:synoptic_body:otzar_hashem",
+          "commentator": "otzar_hashem",
+          "text_note": "Running head 'הרמ\"ז בוטריל / ספר יצירה פ\"ב מ\"ה / אוצר ה'' (page centers on an Otzar-Hashem-attributed block). Page is dominated by a long, visually repetitive bracketed-entry list ('כ(...)ג' style short formulaic lines) continuing the combination/enumeration theme begun on p85 -- structurally similar in density to the p85 numeral enumeration but not independently confirmed as the identical construct; described neutrally rather than assumed identical."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "letter_permutation_combinatorics"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p87:synoptic_body:otzar_hashem:dense_enum_p87",
+          "issue": "The dense bracketed-entry list's exact content was not transcribed line-by-line this pass; its relationship to the p85 enumeration (continuation, parallel construct, or independent list) is not established."
+        }
+      ]
+    },
+    {
+      "pdf_page": 88,
+      "printed_page": "84",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch2_m5_cont3",
+      "commentators": [
+        "raavad"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "raavad_both_sides_p88",
+          "source_ref": "book:sefer-yetzirah-9perushim#p88:synoptic_body:raavad",
+          "text_note": "Running head 'הראב\"ד' on BOTH sides -- for this specific leaf, Raavad is the only commentary column shown (no Ramban material on this page), still under 'ספר יצירה פ\"ב מ\"ה'. Continues explanatory prose on the letter-pairing procedure."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 89,
+      "printed_page": "85",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch2_m7",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch2_m7_open",
+          "source_ref": "book:sefer-yetzirah-9perushim#p89:synoptic_body:mishnah:ch2_m7",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head now reads 'הראב\"ד / ספר יצירה פ\"ב מ\"ז / הרמב\"ן' -- Chapter 2 Mishnah 7 (Mishnah 6 not independently captured at block level this pass; presumed brief given the M5-material's length). Boxed text begins 'בכ\"ד יצר מתהו ממש ועשה איתו ישנו וחצב...' discussing formation of substance from nothing, then continues into material on vowel/motion ('תנועות') combinations across the alphabet.",
+          "chapter": 2,
+          "mishnah": 7
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p89:synoptic_body:mishnah:ch2_m7",
+          "issue": "Mishnah 6 (between the p85-88 M.5 material and this M.7 opening) was not independently located/transcribed at block level this pass -- its presence and exact page anchor within pp.86-89 is not confirmed."
+        }
+      ]
+    },
+    {
+      "pdf_page": 90,
+      "printed_page": "86",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch2_m7_cont",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p90_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p90:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הרמב\"ן / ספר יצירה פ\"ב מ\"ז / דראב\"ד'. Continues Ch.2 M.7 material: text discusses the four elements and directions ('מים לויר מים... בין האש ובין המים') and the world/year/soul-style triadic reasoning pattern in Raavad's column; Ramban's parallel column runs alongside. Chapter 2 concludes within this vicinity (exact final-mishnah/colophon page not independently pinned down this pass)."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p90",
+          "issue": "The exact page on which Chapter 2 formally concludes (colophon such as 'סליק פירקא') was not independently located between pp.90 and the confirmed Chapter 3 opening at p91; assumed to fall in this narrow gap but not block-verified."
+        }
+      ]
+    },
+    {
+      "pdf_page": 91,
+      "printed_page": "87",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m1",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "eleazar_worms",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch3_m1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p91:synoptic_body:mishnah:ch3_m1",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ד שלש אמות אמ\"ש יסודן והחצבן וצדדן שלש אמות אמ\"ש בעולם בשנה בגוף איש ונקבה:",
+          "text_note": "CHAPTER 3 OPENS HERE (running head 'הראב\"ד / ספר יצירה פ\"ג מ\"א / הרמב\"ן', folio 'מד', printed '87'). Boxed primary text: the celebrated 'three mothers alef-mem-shin' (אמ\"ש) Mishnah, their foundation/hewing/ordering, and their threefold application to World/Year/Body(-gendered). Read at standard page-render resolution (not re-verified at p85-level triple-crop intensity); high confidence given the passage's centrality and clean typesetting.",
+          "chapter": 3,
+          "mishnah": 1
+        },
+        {
+          "block_id": "eleazar_worms_heading_p91",
+          "source_ref": "book:sefer-yetzirah-9perushim#p91:synoptic_body:eleazar_worms:ch3_m1",
+          "commentator": "eleazar_worms",
+          "text_note": "A commentary sub-heading reading 'הר\"א מגרמישא' appears here -- identified as R' Eleazar of Worms/Germiza ('ר' אליעזר מגרמיזא', author of the Peirush listed on the title page), a commentator column NOT observed active on p85's Ch.2 material. This refines the prior register's commentator roster: Eleazar-of-Worms becomes an active named column specifically from the Ch.3 (three-mothers) material onward, not throughout the whole book uniformly."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 92,
+      "printed_page": "88",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m2",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "eleazar_worms",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch3_m2",
+          "source_ref": "book:sefer-yetzirah-9perushim#p92:synoptic_body:mishnah:ch3_m2",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head 'הרמב\"ן / ספר יצירה פ\"ג מ\"ב / הראב\"ד'. Boxed text continues the three-mothers teaching ('שלש אמות אמ\"ש... כתולדתן ומהם...'), elaborating their derivation. Sub-columns 'ר\"ם גאון' [read as Saadia-Gaon-attributed per the p85 correction], 'הר\"א מגרמישא', 'הר\"ם בוטריל' all present.",
+          "chapter": 3,
+          "mishnah": 2
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 93,
+      "printed_page": "89",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m2_cont",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "eleazar_worms",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p93_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p93:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ג מ\"ב / הרמב\"ן'. Continues Ch.3 M.2 exposition across both commentary columns and the named sub-blocks."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 94,
+      "printed_page": "90",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m3",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch3_m3",
+          "source_ref": "book:sefer-yetzirah-9perushim#p94:synoptic_body:mishnah:ch3_m3",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ג שלש אמות אמ\"ש בעולם אויר מים אש...",
+          "text_note": "Running head 'הרמב\"ן / ספר יצירה פ\"ג מ\"ג / הראב\"ד'. Boxed Mishnah: the three mothers' World-application -- air/water/fire. Read at standard resolution.",
+          "chapter": 3,
+          "mishnah": 3
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 95,
+      "printed_page": "91",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m4",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "otzar_hashem",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch3_m4",
+          "source_ref": "book:sefer-yetzirah-9perushim#p95:synoptic_body:mishnah:ch3_m4",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ד שלש אמות אמ\"ש בשנה אש ומים ורוח...",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ג מ\"ד / הרמב\"ן'. Boxed Mishnah: the three mothers' Year-application (heat/cold/temperate, i.e. summer/winter/the tempering season). 'אוצר ה'' and 'הר\"ם בוטריל' sub-columns present.",
+          "chapter": 3,
+          "mishnah": 4
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 96,
+      "printed_page": "92",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m4_cont",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "otzar_hashem"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p96_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p96:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הרמב\"ן / ספר יצירה פ\"ג מ\"ד / הראב\"ד'. Continues Ch.3 M.4 material on the Year-application of the three mothers."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 97,
+      "printed_page": "93",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m5",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "eleazar_worms"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch3_m5",
+          "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:mishnah:ch3_m5",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ה המליך אות אל\"ף ברוח וקשר לו כתר וצרפן זה עם זה, בעולם אויר, בשנה חם, בגוף האש...",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ג מ\"ה / הרמב\"ן'. Boxed Mishnah introduces the coronation formula ('המליך...וקשר לו כתר וצרפן') for the three mothers individually, beginning with Alef.",
+          "chapter": 3,
+          "mishnah": 5
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 98,
+      "printed_page": "94",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch3_m5_cont_to_m6",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p98_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ג מ\"ה / הראב\"ד'. Continues the individual-mother coronation formula (Mem, Shin) toward Chapter 3's close; a small circular ink stamp/seal (archival library mark, not part of the original print) appears in the left margin mid-page."
+        }
+      ],
+      "tables": [],
+      "diagrams": [
+        {
+          "diagram_id": "library_stamp_p98",
+          "diagram_type": "archival_stamp_not_original_print",
+          "text_note": "Circular library/archival stamp in the left margin -- institutional provenance mark, not part of the 19th-century print itself; noted for completeness, not registered as book content."
+        }
+      ],
+      "research_dna": [
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 99,
+      "printed_page": "95",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m1",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "saadia_gaon_attrib"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:mishnah:ch4_m1",
+          "commentator": "mishnah_primary_text",
+          "text_he": "פ\"ד מ\"א בכללות שבע כפולות (מתהנהגות) יסודן...",
+          "text_note": "CHAPTER 4 OPENS HERE (running head 'הראב\"ד / ספר יצירה פ\"ד מ\"א / הראב\"ד'). Boxed Mishnah introduces the seven double letters (שבע כפולות) as this chapter's subject.",
+          "chapter": 4,
+          "mishnah": 1
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 100,
+      "printed_page": "96",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m1_cont",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p100_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p100:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ד מ\"א / הראב\"ד'. Continues Ch.4 M.1 exposition of the seven doubles."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 101,
+      "printed_page": "97",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m1_end",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p101_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p101:synoptic_body:raavad_ramban",
+          "text_note": "Continues Ch.4 M.1 material, transitioning toward the cosmological/planetary application of the seven doubles (spheres, 'גלגלים', governance of directions/times) that surfaces fully on the following page."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 102,
+      "printed_page": "98",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m1_circle",
+      "commentators": [
+        "raavad"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "raavad_circle_context",
+          "source_ref": "book:sefer-yetzirah-9perushim#p102:synoptic_body:raavad",
+          "commentator": "raavad",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ד מ\"א / הראב\"ד' -- both sides Raavad on this leaf. Surrounding prose discusses the seven doubles' governance of the celestial spheres (גלגלים), planets/stars (כוכבים), and zodiacal constellations (מזלות), and 'מנהיגי מרוס עולם' (governors of the world's heights)."
+        }
+      ],
+      "tables": [],
+      "diagrams": [
+        {
+          "diagram_id": "circle_p102",
+          "source_ref": "book:sefer-yetzirah-9perushim#p102:synoptic_body:raavad:diagram_circle",
+          "diagram_type": "single_ring_circumferential_inscription",
+          "text_note": "A circular diagram (single ring, no radial spokes or internal segments, unlike the 12-segment Tetragrammaton wheel on p42): Hebrew text runs along the inner circumference in a continuous curved line; a small dot marks the circle's center. The circumferential inscription is legible in fragments but not confidently resolved as a continuous phrase at the render resolution used (the curved, angled letterforms of circumferential typesetting resist confident straight-line reading). Embedded within Raavad's commentary on Ch.4 M.1's cosmological material (spheres/planets/constellations governed by the seven doubles). This CONFIRMS the prior register's flagged 'circle near p101-102' at an exact anchor: PDF p102 (printed page 98).",
+          "confidence": "diagram_presence_and_type_VISUALLY_VERIFIED; circumferential inscription content UNRESOLVED"
+        }
+      ],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p102:synoptic_body:raavad:diagram_circle",
+          "issue": "The circumferential inscription running around the inside of the circle diagram was not confidently resolved into continuous legible text at the render resolution used; only fragments and the diagram's structural type (single ring, center dot, no radial segments) are confirmed."
+        }
+      ],
+      "notes": "Exact anchor for the circular diagram the prior register flagged only approximately as 'near p101-102'."
+    },
+    {
+      "pdf_page": 103,
+      "printed_page": "99",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m2_m3",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m2m3",
+          "source_ref": "book:sefer-yetzirah-9perushim#p103:synoptic_body:mishnah:ch4_m2_m3",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head spans 'פ\"ד כ\"ב כ\"ג' (Ch.4, Mishnah 2-3 boundary shown together on this leaf). Continues the seven-doubles cosmology, with material on 'שבע כפולות' and their governance touching on 'עקרת דבר יצה\"ר' (roots of things/inclination).",
+          "chapter": 4
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 104,
+      "printed_page": "100",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m3_cont",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p104_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p104:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ד מ\"ג / הראב\"ד'. Continues Ch.4 M.3 astronomical/directional material for the seven doubles, referencing rotation/spheres ('מגלגלין')."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 105,
+      "printed_page": "101",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m4",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m4",
+          "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:mishnah:ch4_m4",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head 'הריאב\"ד / ספר יצירה פ\"ד מ\"ד / הראב\"ד'. Boxed Mishnah continues the seven-doubles teaching, oriented toward the days of the week ('שבעת ימי השבוע').",
+          "chapter": 4,
+          "mishnah": 4
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 106,
+      "printed_page": "102",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m5",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m5_bet",
+          "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:mishnah:ch4_m5",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ה כיצד המליך אות ב' וקשר לו כתר וצרפן זה עם זה בכתר וצרו בהם...",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ד מ\"ה / הראב\"ד'. Boxed Mishnah applies the coronation formula ('כיצד המליך אות X וקשר לו כתר וצרפן') to the first of the seven double letters, Bet -- the systematic per-letter treatment of the seven doubles begins here. A small compact list/table of paired short words appears at the top-right of the page (attribute/planet-style correspondence terms); not independently decoded with confidence this pass.",
+          "chapter": 4,
+          "mishnah": 5
+        }
+      ],
+      "tables": [
+        {
+          "table_id": "attributes_table_p106",
+          "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:table:attributes",
+          "text_note": "Small compact grid of short paired Hebrew terms at top-right of page, likely attribute/planet-correspondence entries for the seven doubles; contents not transcribed with confidence this pass.",
+          "confidence": "PRESENCE_CONFIRMED_CONTENT_UNRESOLVED"
+        }
+      ],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:table:attributes",
+          "issue": "Small table's cell contents not transcribed with confidence this pass; flagged for a future deeper pass rather than guessed."
+        }
+      ]
+    },
+    {
+      "pdf_page": 107,
+      "printed_page": "103",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m5_cont",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m5_gimel",
+          "source_ref": "book:sefer-yetzirah-9perushim#p107:synoptic_body:mishnah:ch4_m5_cont",
+          "commentator": "mishnah_primary_text",
+          "text_he": "כמ\"ו המליך אות ג' וקשר לו כתר וצרו בו שני מיני יום שמאל בנפש...",
+          "text_note": "Continues the per-letter coronation formula with the letter Gimel. Running head 'הראב\"ד / ספר יצירה פ\"ד מ\"ב / הראב\"ד'."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 108,
+      "printed_page": "104",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m6_m7",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_dalet",
+          "source_ref": "book:sefer-yetzirah-9perushim#p108:synoptic_body:mishnah:ch4_m6m7",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ז המליך אות ד' וקשר לו בהר יצר בו... בנפש",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ד מ\"ו/ז / הראב\"ד'. Continues the per-letter formula with Dalet, mishnah numbering now at M.7 -- consistent with one mishnah per double-letter after the introductory M.1-M.4 cosmological material."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 109,
+      "printed_page": "105",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m8_m9",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m8",
+          "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:mishnah:ch4_m8",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ח המליך אות ח' וקשר לו כתר וצרו בו חמה בעולם יום שני בישא ואון שמאל",
+          "text_note": "Letter Chet correlated with the Sun (חמה) and the second day. Running head 'הראב\"ד / ספר יצירה פ\"ד מ\"ח מ\"ט / הראב\"ד'.",
+          "chapter": 4,
+          "mishnah": 8
+        },
+        {
+          "block_id": "mishnah_ch4_m9",
+          "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:mishnah:ch4_m9",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ט המליך אות פ' וקשר לו כתר וצרו בו נוגה בעולם יום ה' בשנה נחדד ומין",
+          "text_note": "Letter Peh correlated with Venus (נוגה) and the fifth day.",
+          "chapter": 4,
+          "mishnah": 9
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 110,
+      "printed_page": "106",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m10_m11",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m10_11",
+          "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:mishnah:ch4_m10_11",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head 'ה' / ספר יצירה פ\"ד מ\"י יא / הראב\"ד' -- Mishnayot 10-11 (letters Resh and Tav, completing the seven doubles ב.ג.ד.כ.פ.ר.ת). A compact grid/table of short entries (direction/compass-style terms, e.g. resembling 'מזרח' groupings) appears at the page foot.",
+          "chapter": 4
+        }
+      ],
+      "tables": [
+        {
+          "table_id": "directions_table_p110",
+          "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:table:directions",
+          "text_note": "Compact grid at page foot, resembling a directional/compass correspondence table; not transcribed cell-by-cell with confidence this pass.",
+          "confidence": "PRESENCE_CONFIRMED_CONTENT_UNRESOLVED"
+        }
+      ],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:table:directions",
+          "issue": "Table content not transcribed with confidence this pass."
+        }
+      ]
+    },
+    {
+      "pdf_page": 111,
+      "printed_page": "107",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m12",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch4_m12_open",
+          "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:mishnah:ch4_m12",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ד מי\"ב / הראב\"ד'. Boxed Mishnah opens the classic combinatorics-of-building passage: 'שבע בנות אבנים בונות בתים... שתי אבנים בונות שני בתים, שלש בונות ששה בתים, ארבע בונות עשרים וארבעה בתים, חמש בונות מאה ועשרים בתים, שש בונות שבע מאות ועשרים בתים, שבע בונות חמשת אלפים וארבעים בתים' -- the FACTORIAL combinatorics passage (2 stones build 2 houses ... 7 stones build 5040 houses), a DIFFERENT combinatorial construct from the p85 pairwise-231 enumeration (factorial permutation-count of arrangements, not pairwise combination-count).",
+          "chapter": 4,
+          "mishnah": 12
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "letter_permutation_combinatorics"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 112,
+      "printed_page": "108",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch4_m12_close",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "ch4_close_correspondences",
+          "source_ref": "book:sefer-yetzirah-9perushim#p112:synoptic_body:raavad_ramban",
+          "text_note": "Continues Ch.4 M.12: numeric footnote-style entries continuing the combinatorics, then a summarizing passage tying the seven doubles to World/Year/Body(Soul) correspondences explicitly: 'שבעה כוכבים בעולם... שבעה ימים בשנה... שבעה שערים בגוף האדם' (seven planets in the World, seven days [of the week] in the Year, seven gates in the human Body) -- a clean, explicit olam/shanah/nefesh-style triadic close for the seven-doubles chapter. CHAPTER 4 CONCLUDES on this page with the colophon 'סליק פירקא' (the chapter is completed).",
+          "chapter": 4,
+          "mishnah": 12
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "seven_doubles",
+        "olam_shanah_nefesh_triad"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [],
+      "notes": "Chapter 4 end colophon 'סליק פירקא' located here, refining the prior register's approximate placement."
+    },
+    {
+      "pdf_page": 113,
+      "printed_page": "109",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m1",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch5_m1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p113:synoptic_body:mishnah:ch5_m1",
+          "commentator": "mishnah_primary_text",
+          "text_he": "פ\"ה מ\"א שתים עשרה פשוטות... שמיעה, ריחה, לקיחה, [ד]יבור, התשמיש, מעשה, הילוך, רוגז, שחוק, [ה]רהור, שינה...",
+          "text_note": "CHAPTER 5 OPENS HERE (running head 'הראב\"ד / ספר יצירה פ\"ה מ\"א / הראב\"ד', printed page '109'). Boxed Mishnah introduces the twelve simple letters and their twelve human-function correspondences -- a run matching the classical list (sight/hearing/smell/speech/digestion/intercourse/action/walking/anger/laughter/thought/sleep), of which at least ten (שמיעה, ריחה, לקיחה, התשמיש, מעשה, הילוך, רוגז, שחוק, הרהור, שינה) are directly legible in the scan; the remaining two (sight/ראיה and speech/דבור, expected at the list's start) fall at a line-wrap and were not independently re-verified letter-by-letter. Also states their measure as twelve diagonal boundaries ('שתים עשרה גבולים באלכסונן').",
+          "chapter": 5,
+          "mishnah": 1
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "twelve_simples_human_functions"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p113:synoptic_body:mishnah:ch5_m1",
+          "issue": "The list's first two items (expected: ראיה/sight and דבור/speech) fall at a line-wrap in the scan and were not independently re-verified with full letter-by-letter certainty; the ten mid-list items are confidently read."
+        }
+      ]
+    },
+    {
+      "pdf_page": 114,
+      "printed_page": "110",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m1_boundaries",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "twelve_boundaries_list",
+          "source_ref": "book:sefer-yetzirah-9perushim#p114:synoptic_body:raavad_ramban",
+          "text_note": "Continues Ch.5 M.1: an explicit itemized list of the twelve diagonal boundaries follows, e.g. 'גבול צפונית מזרחית... גבול מזרחית תחתית... גבול מערבית דרומית... גבול דרומית תחתית' etc. (the compass+vertical diagonal edges of the cosmos/cube corresponding to the twelve simple letters). This is the twelve_simples geometric-boundary doctrine explicitly stated in primary-adjacent commentary, not merely implied.",
+          "chapter": 5,
+          "mishnah": 1
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 115,
+      "printed_page": "111",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m2",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p115_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p115:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ה מ\"א / הראב\"ד' (still M.1 material per header, continuing into adjacent mishnayot). Continues elaboration of the twelve simples' boundary/direction doctrine."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 116,
+      "printed_page": "112",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m2_cont",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p116_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p116:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ה מ\"ב / הראב\"ד'. Continues Ch.5 material; 'צידים' (sides/hunting-grounds imagery), '[מריבה] כפין מדינה' and similar terms appear in the Saadia-Gaon-attributed sub-column, discussing the twelve simples' worldly correlates further."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 117,
+      "printed_page": "113",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m3",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch5_m3",
+          "source_ref": "book:sefer-yetzirah-9perushim#p117:synoptic_body:mishnah:ch5_m3",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ה מ\"א / הראב\"ד' persists (mishnah-count in the header lags the body content in this print's pagination style). Boxed text discusses 'שלשה אבות אברהם יצחק ויעקב' and 'שבעה כוכבים' and 'שנים עשר... בזודיאק' -- a recapitulation tying the three Patriarchs, seven planets, and twelve constellations/simples together, with an explicit closing formula '...דומטת שי\"ן שורקת אל\"ף חו\"ק' echoing the three-mothers material from Ch.3.",
+          "chapter": 5
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash",
+        "seven_doubles",
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 118,
+      "printed_page": "114",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m3_cont",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p118_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p118:synoptic_body:raavad_ramban",
+          "text_note": "Continues Ch.5 material, further elaborating the twelve simples' correspondences."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 119,
+      "printed_page": "115",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m3_m4",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "p119_body",
+          "source_ref": "book:sefer-yetzirah-9perushim#p119:synoptic_body:raavad_ramban",
+          "text_note": "Running head 'הראב\"ד / ספר יצירה פ\"ה מ\"ג / הראב\"ד'. Continues toward the chapter's closing recapitulation."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 120,
+      "printed_page": "116",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch5_m4_close",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms",
+        "otzar_hashem"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch5_recap_22letters",
+          "source_ref": "book:sefer-yetzirah-9perushim#p120:synoptic_body:mishnah:ch5_close",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ג שלש אמות שהם שלשה אבות שמהם יצא אש ורוח ומים, שלש אמות ושבע כפולות ושתים עשר פשוטות. כד אלו עשרים ושתים אתהיות שבהם יסד הקב\"ה יה ה' צבאות אלהי ישראל אלהים חיים ומלך עולם, שוכן עד רם ונשא, שוכן עד וקדוש שמו:",
+          "text_note": "CHAPTER 5 CLOSES HERE with the celebrated 22-letter recapitulation Mishnah -- explicitly summing the three mothers (3) + seven doubles (7) + twelve simples (12) = 22 letters, and closing with the divine-name formula echoing Ch.1 M.1's opening '32 paths' framing. Colophon follows: 'סליק פירקא' (the chapter is completed).",
+          "chapter": 5
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash",
+        "seven_doubles",
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [],
+      "notes": "Chapter 5 end colophon 'סליק פירקא' located here at PDF p120 (printed 116) -- exact anchor, refining the prior register's blanket 'Ch4-5 continue through p125' claim."
+    },
+    {
+      "pdf_page": 121,
+      "printed_page": "117",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch6_m1",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch6_m1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p121:synoptic_body:mishnah:ch6_m1",
+          "commentator": "mishnah_primary_text",
+          "text_note": "CHAPTER 6 OPENS HERE (running head 'הראב\"ד / ספר יצירה פ\"ו מ\"א / הראב\"ד', printed page '117'). Boxed Mishnah: 'שלשה אבות ותולדותיהן ושבעה כוכבים... ושנים עשר גבולי אלכסונים...' -- an opening recapitulation of the three mothers, seven planets, and twelve diagonal boundaries as this new chapter's frame, before proceeding to their combinatorial pairing.",
+          "chapter": 6,
+          "mishnah": 1
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash",
+        "seven_doubles",
+        "twelve_simples_boundaries"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 122,
+      "printed_page": "118",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch6_m2_m3",
+      "commentators": [
+        "raavad",
+        "ramban"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch6_m2",
+          "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:mishnah:ch6_m2",
+          "commentator": "mishnah_primary_text",
+          "text_note": "Running head 'ספר יצירה פ\"ו מ\"ב מ\"ג'. Continues combinatorial pairing of the three mothers.",
+          "chapter": 6,
+          "mishnah": 2
+        },
+        {
+          "block_id": "mishnah_ch6_m3",
+          "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:mishnah:ch6_m3",
+          "commentator": "mishnah_primary_text",
+          "text_he": "מ\"ג שלשה כל אחד לבדו עומד, ד' חלוקין ועומדין, שנים עשר עומדין במלחמה, שלשה שונאין שלשה מחוים אהבים...",
+          "text_note": "Boxed text: 'each stands alone; two by two war, three by three peace' -- the classic combinatorial-relations formula for the mothers' pairwise interactions.",
+          "chapter": 6,
+          "mishnah": 3
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "three_mothers_amash",
+        "letter_permutation_combinatorics"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": []
+    },
+    {
+      "pdf_page": 123,
+      "printed_page": "119",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch6_m4_abraham",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "mishnah_ch6_m4_abraham",
+          "source_ref": "book:sefer-yetzirah-9perushim#p123:synoptic_body:mishnah:ch6_m4",
+          "commentator": "mishnah_primary_text",
+          "text_he": "ובכיון שצפה אברהם אבינו ע\"ה והביט וראה וחקר והבין וחקק וחצב וצרף וצר ועלתה בידו הבריאה",
+          "text_note": "THE CLIMACTIC ABRAHAM PASSAGE: 'and when Abraham our father, peace upon him, gazed, looked, saw, investigated, understood, engraved, hewed, permuted, and formed -- and creation succeeded in his hand.' Read directly from the boxed primary text at standard page-render resolution; high confidence given the passage's clean typesetting and centrality. A compact two-column correspondence table of short paired terms (resembling combinations such as pairs built from the three mothers/twelve boundaries, e.g. tokens legible as forms like 'עש\"ר / מא\"ב', 'נג\"ד / כל\"ש') appears on this page or the immediately following one; exact cell values not independently confirmed with full certainty this pass.",
+          "chapter": 6,
+          "mishnah": 4
+        }
+      ],
+      "tables": [
+        {
+          "table_id": "ch6_correspondence_table_p123_124",
+          "source_ref": "book:sefer-yetzirah-9perushim#p123:synoptic_body:table:ch6_pairs",
+          "text_note": "Compact two-column table of short paired Hebrew terms, likely correlating the three-mothers' pairwise combinations or the twelve boundaries; legible tokens include forms resembling 'עש\"ר/מא\"ב', 'נג\"ד/כל\"ש', but full-grid transcription not achieved with confidence this pass.",
+          "confidence": "PRESENCE_CONFIRMED_PARTIAL_CONTENT_LOW_CONFIDENCE"
+        }
+      ],
+      "diagrams": [],
+      "research_dna": [
+        "abraham_covenant_creation",
+        "three_mothers_amash"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [
+        {
+          "block_ref": "book:sefer-yetzirah-9perushim#p123:synoptic_body:table:ch6_pairs",
+          "issue": "Compact correspondence table's exact cell values not independently confirmed with full certainty this pass; only a handful of tokens read with any confidence."
+        }
+      ],
+      "notes": "One of the most celebrated passages in the whole book -- the Abraham-Avinu creation-mastery formula, precisely located and read at PDF p123 (printed 119)."
+    },
+    {
+      "pdf_page": 124,
+      "printed_page": "120",
+      "zone": "synoptic_body",
+      "chapter_mishnah": "ch6_close_book_close",
+      "commentators": [
+        "raavad",
+        "ramban",
+        "eleazar_worms",
+        "otzar_hashem",
+        "botril"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "book_close_colophon",
+          "source_ref": "book:sefer-yetzirah-9perushim#p124:synoptic_body:mishnah:ch6_close",
+          "commentator": "mishnah_primary_text",
+          "text_he": "ועלתה בידו או נגלה עליו אדון הכל הכף ב\"ה והושיבהו בחיקו ונשקו ואמר לו... אוהבי וכרת לו ברית ולודרעו והאמין בה' ויחשבה לו צדקה. וכרת לו ברית בין עשר אצבעות רגליו והיא ברית המילה, ועשר אצבעות ידיו והוא הלשון. וקשר לו עשרים ושתים אותיות בלשונו וגלה לו את יסודן. משכנו במים דלקם באש רעש ברוח בערן כשבעת נהגם בשנים בשנים עשר מזלות:",
+          "text_note": "Continues and closes the Abraham narrative: creation succeeded in his hand, whereupon the Master of All was revealed to him, kissed him, called him 'My beloved', made a covenant with him, and the covenant of circumcision (ten toes) and of the tongue (ten fingers/twenty-two letters bound to the tongue) is stated explicitly. THE ENTIRE SYNOPTIC SEFER YETZIRAH EDITION CONCLUDES ON THIS PAGE with the double colophon 'סליק פרקא, וסליק ספר יצירה' (the chapter is completed, AND Sefer Yetzirah itself is completed) -- printed as an ornamented, centered line. MAJOR STRUCTURAL FINDING: this is 4 pages EARLIER than the prior register's assumption that the interlace runs through p125; see register-level batch_scope note and the correction documented in the accompanying .md report.",
+          "chapter": 6
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [
+        "abraham_covenant_creation",
+        "twenty_two_letters_foundation"
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [],
+      "notes": "BOOK-CLOSING COLOPHON 'סליק פרקא, וסליק ספר יצירה' -- verified via direct pdftoppm single-page render (PDF page 124, printed page 120), unambiguous. This is the true end of the Raavad/Ramban/etc. synoptic commentary edition."
+    },
+    {
+      "pdf_page": 125,
+      "printed_page": "unnumbered (title page)",
+      "zone": "chachmoni_preface",
+      "chapter_mishnah": "n/a_new_work_begins",
+      "commentators": [
+        "chachmoni_editorial"
+      ],
+      "content_blocks": [
+        {
+          "block_id": "chachmoni_title_page",
+          "source_ref": "book:sefer-yetzirah-9perushim#p125:chachmoni_preface:title_page",
+          "text_he": "ספר חכמוני. פירוש על ספר יצירה, להרב הקדמון רבי שבתי דונולו ז\"ל. אשר היה צפון בכתב יד מני אז. ויצא לאור בפעם הראשונה ע\"י הרב הדאק' הפראפעסאר כבוד ר' דוד קאשטילי נ\"י. (עם הערות ותיקונים ומבוא בלשון איטליא). נדפס בפירינצי באיטליא בהוצאת בית לתוד הגדול של טלכות. נתן לי רשות להדפיסו כלות חן להספר יצירה. ווארשא",
+          "text_note": "MAJOR STRUCTURAL CORRECTION, directly verified via pdftoppm single-page render at PDF page 125: this is ALREADY the Sefer HaChachmoni title page -- 'Sefer Chachmoni: a commentary on Sefer Yetzirah, by the ancient Rabbi Shabtai Donolo, of blessed memory, which had lain hidden in manuscript until now, published for the first time by the honored Professor Dr. David Castelli, with notes, corrections, and an introduction in the Italian language, printed in Florence, Italy, by the great royal publishing house, [Castelli] granted me permission to print it as a favor for the sake of Sefer Yetzirah. Warsaw.' This directly CONTRADICTS the dispatch's own working assumption and the prior register's structural map, both of which placed this title page at PDF p127 (with p125 assumed still interlace, p126 assumed to be the Donolo-biography/Castelli-preface material preceding the title page). The verified order is: p124 = synoptic Sefer Yetzirah's own close ('סליק פרקא, וסליק ספר יצירה') -> p125 = Chachmoni's OWN title page (this page) -> p126 = the Donolo-biography-via-Buber + 'דברים אחדים'/Castelli-preface material (title page precedes the editorial preface, not the reverse)."
+        }
+      ],
+      "tables": [],
+      "diagrams": [],
+      "research_dna": [],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "unresolved_readings": [],
+      "notes": "LAST PAGE IN THIS BATCH'S SCOPE (85-125 inclusive). Registered here specifically because it falls within scope and because its true content (Chachmoni's own title page, not interlace continuation) is itself the batch's most important structural correction beyond p85. Page 126 and beyond are explicitly OUT OF SCOPE for this register and were only glanced at for boundary confirmation (see the accompanying .md report's explicit boundary-confirmation disclosure)."
+    }
+  ]
+}

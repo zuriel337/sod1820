@@ -1,0 +1,1315 @@
+{
+  "source_id": "book:sefer-yetzirah-9perushim",
+  "register_version": 1,
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED"],
+  "block_ref_convention": "book:sefer-yetzirah-9perushim#p<PDF_PAGE>:<ZONE>:<WORK_OR_COMMENTATOR>[:<SUBLOCATOR>]",
+  "batch_scope": "pp.153-207 ONLY (Gra title/Hatzaat HaMesader/Gra commentary chs.1-6/Gra gleanings+231-gates table/Peri Yitzchak 231-gates table+32 Paths opening). Zero writes to pp.1-152 or pp.208-220. Source file: gallery/Book/Sefer Yetsirah.pdf, Supabase project linswmnnkjxvweumprav. p.152 read for boundary context ONLY, not registered here (colophon of a preceding, unrelated work, ~confirmed printed page 143 of that work, titled 'ספר החכמוני').",
+  "source_fingerprint_this_batch": {
+    "local_scratch_path_sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+    "bytes": 51714643,
+    "page_count_confirmed": 220,
+    "render": "poppler pdftoppm via the Read tool, batches of 6-8 pages"
+  },
+  "structural_placement_summary": "Confirms the dispatch's overall hypothesis with several corrections: p153 = title page (not p154); p154 = 'הצעת המסדר' (The Arranger's Presentation) -- NOT 'דעת הספר' as hypothesized (a naming correction); pp.155-195 = Gra commentary on the 6 chapters of Sefer Yetzirah (perek/mishnah boundaries fully mapped, see per-page entries); p195 = explicit Gra-commentary colophon ('סליק פירוש הגר\"א'); pp.196-202 = Hadran + 'ליקוטי הגר\"א ז\"ל לספר יצירה' (Likutei HaGra), closing with 'תם ונשלם' on p202 -- confirms dispatch's ~196-203 estimate for this collection's START, but the collection itself CLOSES at p202, one page earlier than the dispatch's ~203 upper estimate; p203 = a previously-unanticipated 'סדר הרל\"א שערים לפי דעת הגר\"א ז\"ל' (Order of the 231 Gates per the Gra) combinatorial table -- resolves the running open question (through p193) about the explicit '231' numeral, which the base Mishnah text itself never states outright; p204 = a geometric letter-diagram + the start of a SECOND, independent 231-gates table attributed to Peri Yitzchak; pp.205-206 = Peri Yitzchak's 231-gates tables organized by sefirah/partzuf; p207 = 'ל\"ב נתיבות מבעל פרי יצחק' (32 Paths by Peri Yitzchak) begins, confirmed as the batch's intended stop point (list runs through path ~18 of 32 by the bottom of p207, continuing into the out-of-scope p208). CORRECTION (negative finding): the dispatch's hypothesized 'piyutim (liturgical poems)' and short 'מאמר קדישין' primary text were NOT found anywhere in pp.196-207 as actually read -- flagged explicitly, not silently dropped."
+  ,
+  "pages": [
+    {
+      "pdf_page": 153, "printed_page": "unnumbered (title page)", "zone": "gra_title", "work_or_commentator": "title_page",
+      "opening_anchor": "ספר יצירה נסודר בשלימות על פי נוסח הקדוש הארי אשכנזי זל",
+      "closing_anchor": "ווארשא",
+      "transcription_depth": "VERBATIM (front-matter/bibliographic)",
+      "content_blocks": [
+        {
+          "block_id": "title_main",
+          "source_ref": "book:sefer-yetzirah-9perushim#p153:gra_title:title_page:main",
+          "text_he": "ספר יצירה נסודר בשלימות על פי נוסח הקדוש הארי אשכנזי זל עם פירוש הגר\"א מכבוד רבינו הגדול הגאון החסיד האמתי אור העולם המפורסם רבן של כל בני הגולה וגדול מרבן שמו מוהר\"ר אליהו מווילנא זצוק\"ל.",
+          "text_note": "Main title block. SOURCE CLAIM (bibliographic, not to be treated as an established textual-identity fact): the printed recension is described as based on 'נוסח הקדוש הארי אשכנזי' (the holy 'Ari-Ashkenazi' recension). This is a title-page attribution only; it is NOT independently verified against any other object in this corpus and must not be conflated with anything appearing beyond p.207 (out of this batch's scope)."
+        },
+        {
+          "block_id": "editorial_method_note",
+          "source_ref": "book:sefer-yetzirah-9perushim#p153:gra_title:title_page:editorial_method",
+          "text_note": "Paraphrase: the editor states he selected this recension from among all Sefer Yetzirah recensions available to him, in order to arrange the Gra's commentary upon it via several 'אופנים' (variant orderings/'manners') -- this explains the recurring 'אופן א׳/ב׳/ג׳/ד׳' sub-headings observed throughout the Gra-commentary pages (155-195). Notes that this commentary had previously been printed together with early (\"kadmonim\") commentators whose own commentaries were keyed to OTHER Sefer Yetzirah recensions not matching the Gra's version, causing confusion and omissions; this edition claims to correct that by adding material from the Gra's own manuscript ('כי\"ק הגר\"א ז\"ל') and from glosses by his student, and additional 'ליקוטים' (gleanings) from the Gra."
+        },
+        {
+          "block_id": "peri_yitzchak_attribution",
+          "source_ref": "book:sefer-yetzirah-9perushim#p153:gra_title:title_page:peri_yitzchak_attribution",
+          "text_he": "ונלוה עליו: ספר (יקר המציאות) פרי יצחק, פירוש על הספר יצירה מהגאון המקובל מוהר\"ר יצחק אייזיק זצ\"ל אב\"ד מאהליב, בעהמח\"ס ספר באר יצחק על תיקוני הזוהר, אשר יסוד כל ביאורו על פי תיקוני האר\"י ז\"ל, ולכן קרא שם הספר על שמו, כי שאבו מעינו.",
+          "text_note": "Names the second, parallel commentary printed alongside the Gra's: 'Peri Yitzchak' by R. Yitzchak Eizik, Av Beit Din of Mohilev, author of 'Be'er Yitzchak' on Tikkunei Zohar. His Sefer Yetzirah commentary is here titled 'ספר יקר המציאות' but runs under the printed page-header 'פרי יצחק'. Its exegetical basis is explicitly stated as the Ari's Tikkunim (not the Ari-Ashkenazi recension claim of the main title, which pertains to the base SY text, not to Peri Yitzchak's own commentary)."
+        },
+        {
+          "block_id": "editor_signature",
+          "source_ref": "book:sefer-yetzirah-9perushim#p153:gra_title:title_page:editor_signature",
+          "text_he": "מסרתיו והנהתיו בעזה\"י עלי שמואל בלאאמ\"ס אליעזר אהרן לוריא ז\"ל ממאהליב.",
+          "text_note": "Editor's signature: Shmuel, son of Eliezer Aharon Luria, of Mohilev. Bottom of page: 'ווארשא' (Warsaw), confirming the Warsaw imprint per the task's dispatch context."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P153-01", "category": "source_claim_recension", "text": "'נוסח הקדוש הארי אשכנזי' -- a bibliographic/title-page recension claim, recorded as text only, not adjudicated or compared to any object outside this batch's scope."}
+      ],
+      "unresolved_readings": [],
+      "notes": "Confirms this is a clean start boundary for the Sefer Yetzirah section (p.152, boundary-glance-only, ends a preceding unrelated work 'ספר החכמוני' with its own colophon)."
+    },
+    {
+      "pdf_page": 154, "printed_page": "unnumbered", "zone": "gra_title", "work_or_commentator": "arranger_(shmuel_luria)",
+      "opening_anchor": "בס\"ד הצעת המסדר",
+      "closing_anchor": "שמואל לוריא (signature)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "title_and_subtitle",
+          "source_ref": "book:sefer-yetzirah-9perushim#p154:gra_title:arranger:title",
+          "text_he": "בס\"ד. הצעת המסדר. ויבואר בו כללות הספר תולדת הספר והלכות פרקיו ומשניותיו.",
+          "text_note": "**CORRECTION TO DISPATCH HYPOTHESIS**: the dispatch's locked structural map hypothesized this page/section is titled 'דעת הספר' (Da'at HaSefer). The page as actually printed is titled **'הצעת המסדר'** (The Arranger's Presentation), subtitled to explain the book's overall nature, history ('תולדת הספר'), and the structure/laws of its chapters and mishnayot. Recorded as an explicit structural correction, not a silent overwrite."
+        },
+        {
+          "block_id": "antiquity_and_attribution",
+          "source_ref": "book:sefer-yetzirah-9perushim#p154:gra_title:arranger:antiquity_attribution",
+          "text_note": "Paraphrase: discusses the book's antiquity, that Chazal (Talmud/Midrash) already reference 'ספר יצירה' (a Talmudic/Sanhedrin-type reference to creating a being via Sefer Yetzirah is invoked in substance, not quoted verbatim here). States that according to many early authorities ('לדעת הרבה מן הקדמונים') the book was composed by Avraham Avinu, naming early commentators (Rabbeinu Sa'adia Gaon among others) who held this view -- exact citation list not fully legible at this zoom pass, flagged as an item for future higher-zoom verification rather than force-transcribed."
+        },
+        {
+          "block_id": "structure_and_ofanim_explanation",
+          "source_ref": "book:sefer-yetzirah-9perushim#p154:gra_title:arranger:structure_explanation",
+          "text_note": "Explains the book's structure: 6 chapters ('פרקים') with mishnayot; explains this edition's own device of printing each mishnah in multiple variant orderings labeled 'אופן א׳/ב׳/ג׳/ד׳' ('manner 1/2/3/4') to display different manuscript/recension orderings side by side -- confirmed operationally by every subsequent Gra-commentary page (155-195), which carries these 'אופן' sub-headings under nearly every mishnah."
+        },
+        {
+          "block_id": "closing_signature",
+          "source_ref": "book:sefer-yetzirah-9perushim#p154:gra_title:arranger:signature",
+          "text_note": "Page closes with a short personal paragraph and is signed again by the editor, Shmuel Luria (same signature as p.153)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [],
+      "unresolved_readings": [
+        {"id": "P154-U1", "text": "Exact list of early authorities cited for the 'composed by Avraham Avinu' attribution not fully legible/transcribed at this zoom pass.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 155, "printed_page": "ב (2)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah1",
+      "opening_anchor": "משנה א' בשלשים ושתים נתיבות פליאות חכמה",
+      "closing_anchor": "פרי יצחק (block begins at page foot)",
+      "transcription_depth": "VERBATIM for the mishnah text itself; SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS for the surrounding Gra commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah1_text",
+          "source_ref": "book:sefer-yetzirah-9perushim#p155:gra_commentary:gra:mishnah1",
+          "text_he": "משנה א' בשלשים ושתים נתיבות פליאות חכמה חקק יה ה' צבאות אלהי ישראל אלהים חיים ומלך עולם, אל שדי רחום וחנון, רם ונשא, שוכן עד וקדוש שמו, וברא עולמו בשלשה ספרים: בספר, וספר, וספור.",
+          "text_note": "CORE OPENING MISHNAH of Sefer Yetzirah, transcribed as printed (exact wording to be reverified at higher zoom in a future pass if word-level certainty beyond this reading is required)."
+        },
+        {
+          "block_id": "gra_commentary_m1_and_ofan_bet",
+          "source_ref": "book:sefer-yetzirah-9perushim#p155:gra_commentary:gra:mishnah1_commentary",
+          "text_note": "Gra's commentary follows in smaller type, expounding the divine-name string and the 'בספר וספר וספור' triad; then an 'אופן ב׳' sub-heading repeats a variant ordering of Mishnah 1's wording with further Gra-style commentary."
+        },
+        {
+          "block_id": "peri_yitzchak_m1_start",
+          "source_ref": "book:sefer-yetzirah-9perushim#p155:minor_works:pri_yitzchak:mishnah1_start",
+          "text_note": "'פרי יצחק' commentary block begins at the page foot -- a separate, shorter running commentary column, distinct from the Gra's."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P155-01", "category": "32_paths", "text": "'בשלשים ושתים נתיבות פליאות חכמה' (32 wondrous paths of wisdom) -- the book's foundational construct, appearing in its opening line."},
+        {"id": "RDF-P155-02", "category": "letter_doctrine_sefer_sefar_sippur", "text": "'וברא עולמו בשלשה ספרים: בספר, וספר, וספור' -- the writing/number/recounting (sefer/sefar/sippur) creative triad, core letter-doctrine language."}
+      ],
+      "unresolved_readings": [
+        {"id": "P155-U1", "text": "Mishnah 1's exact divine-name string not independently re-verified at extreme zoom; read once at standard render resolution.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 156, "printed_page": "unclear (likely ג/3)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah1",
+      "opening_anchor": "(Gra commentary continuing Mishnah 1 exposition)",
+      "closing_anchor": "פרי יצחק (block continues at page foot)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "gra_m1_continued",
+          "source_ref": "book:sefer-yetzirah-9perushim#p156:gra_commentary:gra:mishnah1_continued",
+          "text_note": "Continues expounding Mishnah 1's opening: discusses the divine-name enumeration and a structural reading of 'ל\"ב נתיבות' (32 paths) as corresponding to 10 sefirot + 22 letters (10+22=32) -- a foundational Sefer Yetzirah numeric construct. Exact wording of this specific derivation not independently re-verified at extreme zoom this pass."
+        },
+        {
+          "block_id": "ofan_dalet_heading",
+          "source_ref": "book:sefer-yetzirah-9perushim#p156:gra_commentary:gra:ofan_d",
+          "text_note": "'אופן ד׳' sub-heading appears near the bottom, presenting another variant ordering."
+        },
+        {
+          "block_id": "peri_yitzchak_continued",
+          "source_ref": "book:sefer-yetzirah-9perushim#p156:minor_works:pri_yitzchak:mishnah1_continued",
+          "text_note": "'פרי יצחק' commentary continues at the page foot."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P156-01", "category": "numeric_construct_10_plus_22", "text": "10 sefirot + 22 letters = 32 paths -- a foundational numeric decomposition of the book's opening construct, flagged not force-verified word-for-word."}
+      ],
+      "unresolved_readings": [
+        {"id": "P156-U1", "text": "Exact wording of the 10+22=32 derivation not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 157, "printed_page": "unclear", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah1",
+      "opening_anchor": "אופן ד' (continuing)",
+      "closing_anchor": "פרי יצחק block continues (ובראו את עולמו בג' ספרים discussion)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "ofan_d_continued",
+          "source_ref": "book:sefer-yetzirah-9perushim#p157:gra_commentary:gra:ofan_d_continued",
+          "text_note": "'אופן ד׳' continues at the top of the page with further Gra exegesis of Mishnah 1's divine-name string and the sefer/sefar/sippur triad."
+        },
+        {
+          "block_id": "peri_yitzchak_sefer_triad",
+          "source_ref": "book:sefer-yetzirah-9perushim#p157:minor_works:pri_yitzchak:sefer_triad_discussion",
+          "text_note": "Peri Yitzchak's block at the page foot continues its own discussion of 'ובראו את עולמו בג' ספרים' (creation of the world via the three books/modes)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [],
+      "unresolved_readings": [],
+      "notes": ""
+    },
+    {
+      "pdf_page": 158, "printed_page": "unclear", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah1_to_mishnah2_transition",
+      "opening_anchor": "(numbered paragraph marker) עשר ספירות בלימה",
+      "closing_anchor": "אופן ב' (Mishnah 2's variant-ordering apparatus restarting)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah1_closing_mishnah2_opening",
+          "source_ref": "book:sefer-yetzirah-9perushim#p158:gra_commentary:gra:mishnah1_close_mishnah2_open",
+          "text_he": "עשר ספירות בלימה",
+          "text_note": "The Gra commentary's dense exposition of Mishnah 1 winds down and approaches Mishnah 2's famous opening phrase 'עשר ספירות בלימה' (ten sefirot of Belimah) -- the transition into the ten-sefirot doctrine. 'אופן ב׳' heading reappears, signaling Mishnah 2's own variant-ordering apparatus beginning."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P158-01", "category": "ten_sefirot_doctrine", "text": "'עשר ספירות בלימה' -- the ten Sefirot of Belimah, the book's second foundational construct, first appearing here as Mishnah 2 opens."}
+      ],
+      "unresolved_readings": [],
+      "notes": ""
+    },
+    {
+      "pdf_page": 159, "printed_page": "unclear (ד/4?)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah1_tail_mishnah2",
+      "opening_anchor": "(dense exegesis, numbered points)",
+      "closing_anchor": "פרי יצחק (block at page foot)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "dense_exegesis_numbered_points",
+          "source_ref": "book:sefer-yetzirah-9perushim#p159:gra_commentary:gra:numbered_points",
+          "text_note": "Dense Gra exegesis continues, with 'אופן ד׳' heading visible and internal numbered/lettered paragraph markers structuring the Gra's argument (not new mishnayot, structural markers within the commentary itself)."
+        },
+        {
+          "block_id": "peri_yitzchak_block",
+          "source_ref": "book:sefer-yetzirah-9perushim#p159:minor_works:pri_yitzchak:block",
+          "text_note": "'פרי יצחק' commentary block at the page foot."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 160, "printed_page": "8 (arabic numeral)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah2",
+      "opening_anchor": "(dense two-column Gra commentary)",
+      "closing_anchor": "פרי יצחק bracketed cross-reference note",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "ten_not_nine_ten_not_eleven",
+          "source_ref": "book:sefer-yetzirah-9perushim#p160:gra_commentary:gra:ten_sefirot_refrain",
+          "text_note": "Discussion references the Sefer Yetzirah's own famous refrain about the count of the sefirot (paraphrased here as 'ten and not nine, ten and not eleven' -- the classic SY formula insisting on exactly ten). Exact printed wording at this specific location not independently re-verified at extreme zoom this pass; flagged rather than force-quoted."
+        },
+        {
+          "block_id": "peri_yitzchak_bracket_note",
+          "source_ref": "book:sefer-yetzirah-9perushim#p160:minor_works:pri_yitzchak:bracket_note",
+          "text_note": "'פרי יצחק' block at the bottom includes a short bracketed cross-reference note (e.g. to another chapter of Sefer Yetzirah)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P160-01", "category": "ten_sefirot_refrain", "text": "The 'ten and not nine, ten and not eleven' formula for the sefirot -- flagged as present in substance at this location; exact wording UNCERTAIN, not force-quoted verbatim."}
+      ],
+      "unresolved_readings": [
+        {"id": "P160-U1", "text": "Exact printed wording of the 'ten not nine/ten not eleven' refrain at this location not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 161, "printed_page": "unclear (ט/9?)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah2",
+      "opening_anchor": "מ\"ב עשר ספירות בלימה",
+      "closing_anchor": "אופן ה' (5th variant ordering heading)",
+      "transcription_depth": "VERBATIM for the mishnah heading phrase; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah2_heading_confirmed",
+          "source_ref": "book:sefer-yetzirah-9perushim#p161:gra_commentary:gra:mishnah2_heading",
+          "text_he": "מ\"ב עשר ספירות בלימה",
+          "text_note": "Explicit 'מ\"ב' (Mishnah 2) heading confirms the transition into Mishnah 2 proper at this page. 'אופן ה׳' sub-heading follows, indicating Mishnah 2 carries its own cycle of variant orderings."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 162, "printed_page": "unclear (י/10?)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah2",
+      "opening_anchor": "אופן ב' (of Mishnah 2)",
+      "closing_anchor": "פרי יצחק block continues",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "ten_sefirot_exposition",
+          "source_ref": "book:sefer-yetzirah-9perushim#p162:gra_commentary:gra:ten_sefirot_exposition",
+          "text_note": "Gra's commentary on 'עשר ספירות בלימה' continues: discusses the ten sefirot as encompassing all creation ('כלל כל הנבראים'). Named enumeration of the ten sefirot by their kabbalistic names (Keter/Chochmah/Binah/Chesed/Gevurah/Tiferet/Netzach/Hod/Yesod/Malchut) was not independently confirmed verbatim at this location this pass -- flagged rather than assumed present."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P162-01", "category": "ten_sefirot_doctrine", "text": "Continued exposition of the ten Sefirot as encompassing all creation."}
+      ],
+      "unresolved_readings": [
+        {"id": "P162-U1", "text": "Whether the ten sefirot are explicitly named by their kabbalistic names (Keter...Malchut) at this specific location was not independently confirmed.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 163, "printed_page": "unclear (יא/11?)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah2",
+      "opening_anchor": "אופן ג' (of Mishnah 2)",
+      "closing_anchor": "פרי יצחק block continues",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "sefirot_exposition_continued",
+          "source_ref": "book:sefer-yetzirah-9perushim#p163:gra_commentary:gra:sefirot_exposition_continued",
+          "text_note": "Continuing dense exegesis of the ten-sefirot doctrine, tied into the Gra's broader kabbalistic system (partzufim/correspondences referenced at a general level, not itemized verbatim)."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 164, "printed_page": "unclear", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah2",
+      "opening_anchor": "(Mishnah 2 commentary continuing toward close)",
+      "closing_anchor": "אופן ד'",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah2_closing_material",
+          "source_ref": "book:sefer-yetzirah-9perushim#p164:gra_commentary:gra:mishnah2_closing",
+          "text_note": "Mishnah 2 commentary continues toward its close; 'אופן ד׳' heading appears near the bottom of the page, within the Gra's commentary structure."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 165, "printed_page": "unclear (יד/14?)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah3",
+      "opening_anchor": "פ\"א מ\"ג (Mishnah 3 heading)",
+      "closing_anchor": "פרי יצחק block at page foot",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah3_begins",
+          "source_ref": "book:sefer-yetzirah-9perushim#p165:gra_commentary:gra:mishnah3_begin",
+          "text_note": "Header confirms 'פ\"א מ\"ג' -- Mishnah 3 of Perek 1 begins here. New mishnah discussion opens at the top of the page."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 166, "printed_page": "14 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah3",
+      "opening_anchor": "עשר ספירות בלימה במספר עשר אצבעות",
+      "closing_anchor": "אופן ב' (heading further down)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah3_text_core",
+          "source_ref": "book:sefer-yetzirah-9perushim#p166:gra_commentary:gra:mishnah3_text",
+          "text_he": "עשר ספירות בלימה במספר עשר אצבעות, חמש כנגד חמש, וברית יחיד מכוון באמצעם, במילת לשון ובמילת המעור.",
+          "text_note": "CORE Mishnah 3 content (exact wording flagged for future higher-zoom re-verification): 10 fingers, 5-against-5 correspondence, and the singular covenant ('ברית יחיד') aligned at their midpoint, in the circumcision of the tongue (speech) and of the flesh."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P166-01", "category": "ten_fingers_covenant", "text": "10 fingers / 5-against-5 correspondence; 'ברית' (covenant) of the tongue and of circumcision, aligned at the body's midpoint."}
+      ],
+      "unresolved_readings": [
+        {"id": "P166-U1", "text": "Exact wording of Mishnah 3 not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 167, "printed_page": "15 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah4",
+      "opening_anchor": "פ\"א מ\"ד (Mishnah 4 heading)",
+      "closing_anchor": "פרי יצחק block at page foot",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah4_begins",
+          "source_ref": "book:sefer-yetzirah-9perushim#p167:gra_commentary:gra:mishnah4_begin",
+          "text_note": "Mishnah 4 begins ('עשר ספירות בלימה מדתן עשר שאין להם סוף' type content -- ten sefirot without end in the 4 directions plus up/down; exact wording not independently re-verified at extreme zoom). 'אופן ב׳' sub-heading present."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [],
+      "unresolved_readings": [
+        {"id": "P167-U1", "text": "Exact wording of Mishnah 4's opening not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 168, "printed_page": "16 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah4_to_5",
+      "opening_anchor": "(Mishnah 4 continuing)",
+      "closing_anchor": "מ\"ה עשר ספירות בלימה כמראה הבזק",
+      "transcription_depth": "VERBATIM for Mishnah 5 text; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah5_text_core",
+          "source_ref": "book:sefer-yetzirah-9perushim#p168:gra_commentary:gra:mishnah5_text",
+          "text_he": "מ\"ה עשר ספירות בלימה, כמראה הבזק, ותכליתן אין להם קץ, ודברו בהן ברצוא ושוב, ולמאמרו כסופה ירדופו, ולפני כסאו הם משתחוים.",
+          "text_note": "CORE Mishnah 5 -- the famous 'כמראה הבזק' (like the appearance of a lightning-flash) passage; 'רצוא ושוב' (running and returning, echoing Ezekiel's Chayot imagery); the sefirot bow before the Divine throne."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P168-01", "category": "razo_vashov", "text": "'כמראה הבזק' and 'רצוא ושוב' -- the lightning-flash imagery and running-and-returning motif, core Sefer Yetzirah language echoing Ezekiel's Chayot."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 169, "printed_page": "17 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah5",
+      "opening_anchor": "(Gra's exegesis of כמראה הבזק / רצוא ושוב)",
+      "closing_anchor": "[ספר יצירה פ\"א.] ב (printer's quire mark)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah5_exegesis",
+          "source_ref": "book:sefer-yetzirah-9perushim#p169:gra_commentary:gra:mishnah5_exegesis",
+          "text_note": "Gra's exegesis of 'כמראה הבזק'/'רצוא ושוב' continues. 'פרי יצחק' block at the page foot continues its own commentary on the same mishnah."
+        },
+        {
+          "block_id": "printer_signature_mark",
+          "source_ref": "book:sefer-yetzirah-9perushim#p169:gra_commentary:printer_mark",
+          "text_note": "Footer bottom-right bears the bracketed marker '[ספר יצירה פ\"א.] ב' -- identified as a printer's QUIRE/SIGNATURE mark (gathering 'ב'), NOT a content-section boundary. This pattern recurs at pp.177, 185, 193, 201 with incrementing gathering letters/numbers and is noted uniformly across this register as non-substantive."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 170, "printed_page": "18 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah5",
+      "opening_anchor": "(Mishnah 5 commentary concludes)",
+      "closing_anchor": "פרי יצחק block (labeled internally, e.g. כ\"ו)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah5_commentary_close",
+          "source_ref": "book:sefer-yetzirah-9perushim#p170:gra_commentary:gra:mishnah5_close",
+          "text_note": "Gra's Mishnah 5 commentary concludes. Peri Yitzchak's block at the foot continues its own commentary on 'כמראה הבזק'."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 171, "printed_page": "19 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah6_7",
+      "opening_anchor": "מ\"ז עשר ספירות בלימה נעוץ סופן בתחלתן",
+      "closing_anchor": "מ\"ח עשר ספירות בלימה בלום פיך מלדבר",
+      "transcription_depth": "VERBATIM for the two mishnah texts; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "numbering_note",
+          "source_ref": "book:sefer-yetzirah-9perushim#p171:gra_commentary:numbering_note",
+          "text_note": "STRUCTURAL NOTE: the printed header at this page reads 'פ\"א מ\"ז ח', i.e. this edition's OWN mishnah numbering runs ahead of common printed editions of Sefer Yetzirah -- it appears to assign a distinct mishnah number to EACH successive 'עשר ספירות בלימה...' repetition (a device consistent with the title page's stated recension choice), rather than following the numbering scheme familiar from other Vilna Gra editions. The printed numbering is recorded as-is, not force-aligned to any external edition's numbering."
+        },
+        {
+          "block_id": "mishnah_naatz_sofan",
+          "source_ref": "book:sefer-yetzirah-9perushim#p171:gra_commentary:gra:mishnah_naatz_sofan",
+          "text_he": "מ\"ז עשר ספירות בלימה, נעוץ סופן בתחלתן ותחלתן בסופן, כשלהבת קשורה בגחלת.",
+          "text_note": "'Their end is fixed in their beginning and their beginning in their end, like a flame bound to a coal' -- classic Sefer Yetzirah image."
+        },
+        {
+          "block_id": "mishnah_balom_picha",
+          "source_ref": "book:sefer-yetzirah-9perushim#p171:gra_commentary:gra:mishnah_balom_picha",
+          "text_he": "מ\"ח עשר ספירות בלימה, בלום פיך מלדבר ולבך מלהרהר, ואם רץ לבך שוב למקום, שנאמר רצוא ושוב, ועל דבר זה נכרת ברית.",
+          "text_note": "'Restrain your mouth from speaking and your heart from meditating, and if your heart races, return to the place, as it is said \"running and returning\"; and concerning this a covenant was cut.'"
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P171-01", "category": "naatz_sofan", "text": "'נעוץ סופן בתחלתן ותחלתן בסופן' -- the end-embedded-in-beginning doctrine."},
+        {"id": "RDF-P171-02", "category": "razo_vashov_discipline", "text": "'בלום פיך מלדבר ולבך מלהרהר... רצוא ושוב... ברית' -- speech/thought discipline tied to the running-and-returning motif and covenant language."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 172, "printed_page": "20 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah8_9",
+      "opening_anchor": "עשר ספירות בלימה, אחת רוח אלהים חיים",
+      "closing_anchor": "פרי יצחק block ('שוב למקום' discussion)",
+      "transcription_depth": "VERBATIM for the mishnah text; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah_kol_ruach_dibbur",
+          "source_ref": "book:sefer-yetzirah-9perushim#p172:gra_commentary:gra:mishnah_kol_ruach_dibbur",
+          "text_he": "עשר ספירות בלימה, אחת רוח אלהים חיים, ברוך ומבורך שמו של חי העולמים, קול ורוח ודבור, והוא רוח הקדש.",
+          "text_note": "**MAJOR RESEARCH-DNA HIT.** The קול/רוח/דיבור (VOICE/SPIRIT/SPEECH) TRIAD, explicitly identified as Ruach HaKodesh -- direct match to the required research-DNA capture category."
+        },
+        {
+          "block_id": "peri_yitzchak_shuv_lamakom",
+          "source_ref": "book:sefer-yetzirah-9perushim#p172:minor_works:pri_yitzchak:shuv_lamakom",
+          "text_note": "'פרי יצחק' block at the page foot discusses the 'שוב למקום' ('return to the place') motif from Mishnah 8."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P172-01", "category": "kol_ruach_dibbur", "text": "'אחת רוח אלהים חיים... קול ורוח ודבור, והוא רוח הקדש' -- the Voice/Spirit/Speech triad explicitly equated with Ruach HaKodesh. Direct required-category hit."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 173, "printed_page": "21 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah10_11",
+      "opening_anchor": "עשה רוח מרוח וחקק וחצב בה עשרים ושתים אותיות יסוד",
+      "closing_anchor": "שלש אותיות אמ\"ש יסודן",
+      "transcription_depth": "VERBATIM for both mishnah texts; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah10_22letters",
+          "source_ref": "book:sefer-yetzirah-9perushim#p173:gra_commentary:gra:mishnah10",
+          "text_he": "עשה רוח מרוח, וחקק וחצב בה עשרים ושתים אותיות יסוד.",
+          "text_note": "MISHNAH 10 (per this edition's numbering): 22 foundational letters engraved and hewn (חקק וחצב) from Ruach."
+        },
+        {
+          "block_id": "mishnah11_shalosh_imot",
+          "source_ref": "book:sefer-yetzirah-9perushim#p173:gra_commentary:gra:mishnah11",
+          "text_he": "שלש אותיות אמ\"ש יסודן, וכף חובה וכף זכות, ולשון חק מכריע בינתים.",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- THE THREE MOTHER LETTERS.** The א-מ-ש (Aleph-Mem-Shin) mother letters as foundation, framed as scale-pans of guilt/merit with the tongue as the deciding law between them."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P173-01", "category": "22_letters_hewn", "text": "22 foundational letters engraved/hewn (חקק וחצב) from Ruach."},
+        {"id": "RDF-P173-02", "category": "three_mothers", "text": "שלש אותיות אמ\"ש -- the three Mother Letters doctrine, first explicit sighting in this batch, with the scales-of-merit/guilt and deciding-tongue imagery."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 174, "printed_page": "22 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah12_13",
+      "opening_anchor": "ארבע אש ומים",
+      "closing_anchor": "ארבע אש ומים שקלים והמירן זה בזה וצרפן",
+      "transcription_depth": "VERBATIM for both mishnah texts; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah12_esh_umayim",
+          "source_ref": "book:sefer-yetzirah-9perushim#p174:gra_commentary:gra:mishnah12",
+          "text_he": "ארבע אש ומים, הוא בגלגל שמים סביבם מכוונה, וברא בהם ד' רוחות (רוחות שמים).",
+          "text_note": "Fire and water; the heavenly sphere aligned around them; four directions/winds created from them."
+        },
+        {
+          "block_id": "mishnah13_permutation_operations",
+          "source_ref": "book:sefer-yetzirah-9perushim#p174:gra_commentary:gra:mishnah13",
+          "text_he": "ארבע אש ומים, שקלים והמירן זה בזה וצרפן.",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- PERMUTATION OPERATIONS.** 'שקל' (weigh) / 'המיר' (exchange) / 'צרף' (combine/permute) applied to fire and water -- direct match to the required permutation/weighing/exchange operations category."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P174-01", "category": "permutation_operations_tzaraf_shakal_hemir", "text": "'שקלים והמירן זה בזה וצרפן' -- weigh/exchange/combine operations, explicit textual source of the permutation-operations doctrine."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 175, "printed_page": "23 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_mishnah12_13",
+      "opening_anchor": "בחר שלש אותיות אמ\"ש ביסודו הגדול ובשמו הגדול וחתם בהם שש קצוות",
+      "closing_anchor": "אופן ב'",
+      "transcription_depth": "VERBATIM for the core mishnah passage; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "six_extremities_sealed_by_yhv",
+          "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:gra:six_extremities",
+          "text_he": "בחר שלש אותיות אמ\"ש ביסודו הגדול ובשמו הגדול, וחתם בהם שש קצוות. פנה למעלה וחתם ביה\"ו. פנה למטה וחתם בי\"וה. [and so on for the remaining four directions, exact wording of each not independently re-verified at extreme zoom]",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- SIX DIRECTIONS SEALED BY LETTER PERMUTATION.** The classic SY passage in which the six spatial extremities (up/down/east/west/south/north) are each 'sealed' with a different permutation-ordering of the letters י-ה-ו. A letter-permutation-as-cosmological-sealing-operation doctrine."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P175-01", "category": "six_directions_yhv_permutation", "text": "Six extremities (שש קצוות) sealed by successive permutations of יה\"ו -- letter permutation applied cosmologically to seal space."}
+      ],
+      "unresolved_readings": [
+        {"id": "P175-U1", "text": "Exact wording of the four remaining (east/west/south/north) direction-seals not independently re-verified at extreme zoom; only 'up' (יה\"ו) and 'down' (י\"וה) were confidently read.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 176, "printed_page": "24 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek1_close_perek2_open",
+      "opening_anchor": "מי\"ד אלו עשר ספירות בלימה [אחת] רוח אלהים חיים",
+      "closing_anchor": "פ\"ב מ\"א (Perek 2 Mishnah 1 heading)",
+      "transcription_depth": "VERBATIM for the Perek 2 title/Mishnah 1 text; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "perek1_recap",
+          "source_ref": "book:sefer-yetzirah-9perushim#p176:gra_commentary:gra:perek1_recap",
+          "text_note": "Perek 1's tail recaps the ten-sefirot/Ruach-Elohim-Chayim material as a closing summary."
+        },
+        {
+          "block_id": "perek2_title_mishnah1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p176:gra_commentary:gra:perek2_title_m1",
+          "text_he": "פרק ב'. עשרים ושתים אותיות יסוד: חקוקות בקול, חצובות ברוח, ושתים ומונחות בפה, בחמשה מקומות: אחה\"ע, בג\"ד כפר\"ת, זסשר\"ץ (exact letter-groupings to reverify at zoom).",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- PEREK 2 TITLE.** The 22 letters classified as engraved-in-voice, hewn-in-spirit, and placed in the mouth at 5 places of articulation. Direct hit on both the letter-doctrine and קול/רוח categories."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P176-01", "category": "22_letters_5_places_articulation", "text": "22 letters, engraved in voice ('בקול'), hewn in spirit ('ברוח'), 5 places of articulation in the mouth."}
+      ],
+      "unresolved_readings": [
+        {"id": "P176-U1", "text": "Exact letter-grouping into the 5 places of articulation (אחה\"ע/בג\"ד כפר\"ת/זסשר\"ץ or similar) not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": "PEREK BOUNDARY: Perek 1 closes and Perek 2 (title + Mishnah 1) opens mid-page."
+    },
+    {
+      "pdf_page": 177, "printed_page": "25 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek2_mishnah2_4",
+      "opening_anchor": "עשרים ושתים אותיות יסוד חקוקן בקול נחצבות ברוח נתונות בפה בחמשה מקומות (repeated variants)",
+      "closing_anchor": "[ספר יצירה פרק ד'.] (printer's quire mark)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "repeated_22letter_formula",
+          "source_ref": "book:sefer-yetzirah-9perushim#p177:gra_commentary:gra:mishnah2_4_repeats",
+          "text_note": "Multiple mishnayot (labeled 2, 3, 4 in this edition's numbering) repeat the 22-letters/קול-רוח/5-places formula in variant orderings, consistent with this edition's 'אופן' multi-recension display method extended into Perek 2. Minor wording variants across the repetitions are honestly noted, not force-harmonized."
+        },
+        {
+          "block_id": "printer_signature_mark",
+          "source_ref": "book:sefer-yetzirah-9perushim#p177:gra_commentary:printer_mark",
+          "text_note": "Footer bottom-right bracket '[ספר יצירה פרק ד'.]' -- another printer's quire/signature mark, NOT a content-section boundary (see p.169 precedent note)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P177-01", "category": "22_letters_5_places_repeated", "text": "Repeated variant statements of the 22-letters/voice-spirit/5-places formula across mishnayot 2-4."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 178, "printed_page": "26 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek2_mishnah5_6",
+      "opening_anchor": "מ\"ה יצר צרפן שקלן והמירן",
+      "closing_anchor": "מ\"ו יצר מהם...",
+      "transcription_depth": "VERBATIM for the core mishnah passage; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah_yatzar_tzarfan",
+          "source_ref": "book:sefer-yetzirah-9perushim#p178:gra_commentary:gra:mishnah_yatzar_tzarfan",
+          "text_he": "יצר צרפן שקלן והמירן, א' עם כולם וכולם עם א', ב' עם כולם וכולם עם ב', וחוזרין חלילה, ונמצא כל היצור וכל הדבור יוצא בשם אחד.",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- THE COMBINATORIC/231-GATES BASIS MISHNAH.** He formed (יצר), permuted (צרף), weighed (שקל), and exchanged (המיר) the letters: Aleph with all of them and all of them with Aleph, Bet with all of them and all of them with Bet, cycling continuously -- 'all formation and all speech emerges from one name.' This is the direct textual/combinatoric basis of the '231 gates' construction (22 letters taken 2 at a time = 231 pairs), though the numeral '231' itself is NOT stated in this mishnah (see p.203 for the explicit numbered table)."
+        },
+        {
+          "block_id": "mishnah6_continues",
+          "source_ref": "book:sefer-yetzirah-9perushim#p178:gra_commentary:gra:mishnah6",
+          "text_note": "Mishnah 6 heading follows ('יצר מהם...'), continuing the combinatorial exposition."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P178-01", "category": "permutation_231gates_basis", "text": "'יצר צרפן שקלן והמירן... ונמצא כל היצור וכל הדבור יוצא בשם אחד' -- the exact textual basis of the 231-gates combinatoric doctrine (permute/weigh/exchange every letter with every other)."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 179, "printed_page": "27 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek2_close_perek3_open",
+      "opening_anchor": "פרק ג' משנה א' שלש אמות אמ\"ש",
+      "closing_anchor": "שלש אמות אמ\"ש באדם ראש בטן וגו'",
+      "transcription_depth": "VERBATIM for the Perek 3 title/Mishnah 1-2 text; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "perek3_title_mishnah1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p179:gra_commentary:gra:perek3_title_m1",
+          "text_he": "פרק ג' משנה א'. שלש אמות אמ\"ש, סוד גדול ונפלא ומכוסה וחתום בשש טבעות, ומהם יוצאים אבות, ומאבות תולדות.",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- PEREK 3 TITLE, THE 3 MOTHERS AS GENERATIVE PRINCIPLE.** The three Mother Letters framed as 'a great and wondrous secret, covered and sealed with six rings,' generating 'Avot' (primaries/fathers) and, from the Avot, 'Toldot' (derivatives/offspring)."
+        },
+        {
+          "block_id": "mishnah2_body_mapping",
+          "source_ref": "book:sefer-yetzirah-9perushim#p179:gra_commentary:gra:mishnah2_body_mapping",
+          "text_he": "שלש אמות אמ\"ש באדם: ראש, בטן, וגו' (chest/belly/head correspondence continues -- exact remainder not independently re-verified at extreme zoom).",
+          "text_note": "Mishnah 2 maps the 3 mothers to the human body (head/belly/chest = fire/water/air microcosm) -- leads toward the World/Year/Soul triad confirmed explicitly on p.180."
+        },
+        {
+          "block_id": "peri_yitzchak_block",
+          "source_ref": "book:sefer-yetzirah-9perushim#p179:minor_works:pri_yitzchak:block",
+          "text_note": "'פרי יצחק' block at the page foot, own commentary."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P179-01", "category": "three_mothers_avot_toldot", "text": "The 3 mothers generating Avot/Toldot -- a generative/genealogical letter doctrine."},
+        {"id": "RDF-P179-02", "category": "microcosm_body_mapping", "text": "Head/belly/chest mapped to the 3 mothers' elements -- leads into the World/Year/Soul triad."}
+      ],
+      "unresolved_readings": [
+        {"id": "P179-U1", "text": "Exact remainder of Mishnah 2's body-mapping wording ('ראש בטן וגו'') not fully transcribed; abbreviated by the source itself with 'וגו'' (etc.).", "status": "UNCERTAIN"}
+      ],
+      "notes": "PEREK BOUNDARY: Perek 2 closes and Perek 3 (title + Mishnah 1-2) opens on this page."
+    },
+    {
+      "pdf_page": 180, "printed_page": "28 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek3_mishnah3_4",
+      "opening_anchor": "שלש אמות אמ\"ש חצב בעולם ובשנה ובנפש",
+      "closing_anchor": "אופן ב'",
+      "transcription_depth": "VERBATIM for the core mishnah passage; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah_olam_shana_nefesh",
+          "source_ref": "book:sefer-yetzirah-9perushim#p180:gra_commentary:gra:mishnah_olam_shana_nefesh",
+          "text_he": "שלש אמות אמ\"ש חצב בעולם ובשנה ובנפש: בעולם -- אויר ומים ואש; בשנה -- חום וקור ורויה(?); בנפש -- חזה ובטן וראש. (exact mid-phrase for 'שנה' wording flagged UNCERTAIN)",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- WORLD/YEAR/SOUL TRIAD.** The three mothers hewn into World/Year/Soul (עולם/שנה/נפש), each mapped to the elements air/water/fire (world), heat/cold/[moderate or 'moist'] (year), and chest/belly/head (soul/body) -- the microcosm-macrocosm doctrine explicitly stated."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P180-01", "category": "olam_shana_nefesh", "text": "עולם/שנה/נפש (World/Year/Soul) triad, explicitly mapped to the 3 mothers' elements -- first explicit sighting in this batch."}
+      ],
+      "unresolved_readings": [
+        {"id": "P180-U1", "text": "The 'year' clause's second/third terms (read tentatively as 'חום וקור ורויה' -- heat/cold/moisture) not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 181, "printed_page": "29 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek3_mishnah12_14",
+      "opening_anchor": "(combinatorial exposition of the 3 mothers/elements, world/year/soul variants)",
+      "closing_anchor": "פרי יצחק block at page foot",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "combinatorial_continuation",
+          "source_ref": "book:sefer-yetzirah-9perushim#p181:gra_commentary:gra:combinatorial_continuation",
+          "text_note": "Continues the combinatorial exposition of the 3 mothers/elements assignment across world/year/soul variants; 'אופן ב׳' heading present."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 182, "printed_page": "30 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek3_close_perek4_open",
+      "opening_anchor": "(Perek 3 tail, mishnah 6-9)",
+      "closing_anchor": "פרק ד' משנה א' שבע כפולות בג\"ד כפר\"ת",
+      "transcription_depth": "VERBATIM for the Perek 4 title/Mishnah 1 text; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "perek3_tail",
+          "source_ref": "book:sefer-yetzirah-9perushim#p182:gra_commentary:gra:perek3_tail",
+          "text_note": "Perek 3's tail (mishnayot 6-9 in this edition's numbering) closes out the elements/microcosm exposition."
+        },
+        {
+          "block_id": "perek4_title_mishnah1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p182:gra_commentary:gra:perek4_title_m1",
+          "text_he": "פרק ד'. משנה א'. שבע כפולות בג\"ד כפר\"ת: חיים ושלום, חכמה ועושר, חן וזרע (?), ממשלה ושליטה (exact 4th-7th pair-terms to reverify at zoom).",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- PEREK 4 TITLE, THE SEVEN DOUBLE LETTERS.** The 7 doubles (בג\"ד כפר\"ת) enumerated with paired qualities (life/peace, wisdom/wealth, favor/offspring, dominion/rule)."
+        },
+        {
+          "block_id": "mishnah2_directions",
+          "source_ref": "book:sefer-yetzirah-9perushim#p182:gra_commentary:gra:mishnah2_directions",
+          "text_note": "Mishnah 2 continues, assigning the 7 doubles to directions ('...יסוד...ודרום...')."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P182-01", "category": "seven_doubles", "text": "שבע כפולות בג\"ד כפר\"ת -- the 7 Double Letters, enumerated with paired qualities. First explicit sighting."}
+      ],
+      "unresolved_readings": [
+        {"id": "P182-U1", "text": "Exact wording of the 4th-7th paired qualities (beyond life/peace, wisdom/wealth) not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": "PEREK BOUNDARY: Perek 3 closes and Perek 4 (title + Mishnah 1) opens on this page."
+    },
+    {
+      "pdf_page": 183, "printed_page": "31 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek4_mishnah5_7",
+      "opening_anchor": "שבעה כוכבים בעולם",
+      "closing_anchor": "שבעה שערים בנפש",
+      "transcription_depth": "VERBATIM for the core mishnah passages; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "mishnah5_seven_planets",
+          "source_ref": "book:sefer-yetzirah-9perushim#p183:gra_commentary:gra:mishnah5_planets",
+          "text_he": "שבעה כוכבים בעולם: שמש, נוגה, כוכב, לבנה, שבתאי, צדק, מאדים.",
+          "text_note": "**RESEARCH-DNA -- SEVEN PLANETS.** Sun, Venus, Mercury, Moon, Saturn, Jupiter, Mars -- mapped to the 7 doubles."
+        },
+        {
+          "block_id": "mishnah6_seven_days",
+          "source_ref": "book:sefer-yetzirah-9perushim#p183:gra_commentary:gra:mishnah6_days",
+          "text_he": "שבעה ימים בשנה... שבעה ימי השבוע.",
+          "text_note": "**RESEARCH-DNA -- SEVEN DAYS OF THE WEEK**, mapped to the 7 doubles."
+        },
+        {
+          "block_id": "mishnah7_seven_gates",
+          "source_ref": "book:sefer-yetzirah-9perushim#p183:gra_commentary:gra:mishnah7_gates",
+          "text_he": "שבעה שערים בנפש.",
+          "text_note": "**RESEARCH-DNA -- SEVEN ORIFICES/GATES OF THE BODY** (2 eyes, 2 ears, 2 nostrils, mouth), mapped to the 7 doubles. 'אופן ב׳' sub-heading present."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P183-01", "category": "seven_doubles_correspondences", "text": "7 planets, 7 days of the week, 7 body-gates/orifices, all mapped to the 7 double letters."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 184, "printed_page": "32 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek4_mishnah12_14",
+      "opening_anchor": "(7-doubles combinatorial material continuing)",
+      "closing_anchor": "אופן variant orderings present",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "seven_doubles_combinatorics_continued",
+          "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:gra:combinatorics_continued",
+          "text_note": "Continues the 7-doubles combinatorial material (mishnayot 12-14 in this edition's numbering) with 'אופן' variant orderings; no major new enumeration on this page, discursive."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 185, "printed_page": "33 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek4_mishnah9_15",
+      "opening_anchor": "המליך אות ד' בדבור וקשר לו כתר",
+      "closing_anchor": "[ספר יצירה פ\"ה.] (printer's quire mark)",
+      "transcription_depth": "VERBATIM for the representative crowning-formula example; SUBSTANTIAL_PARAPHRASE for the repetitive remainder",
+      "content_blocks": [
+        {
+          "block_id": "letter_crowning_formula",
+          "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:gra:crowning_formula",
+          "text_he": "המליך אות [X, e.g. Dalet] בדבור, וקשר לו כתר, וצרפן זה עם זה.",
+          "text_note": "**RESEARCH-DNA -- LETTER 'CROWNING' PERMUTATION FORMULA.** The recurring device (Chapters 4-6) of 'enthroning' (המליך) each letter in a domain (speech/world/year/soul), binding a crown (קשר כתר), and permuting (צרף) it with the others. Multiple mishnayot (9-15 in this edition's numbering) repeat this formula for each of the 7 doubles in turn; one representative instance transcribed verbatim, the repetitive remainder paraphrased per the depth standard."
+        },
+        {
+          "block_id": "printer_signature_mark",
+          "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:printer_mark",
+          "text_note": "Footer bracket '[ספר יצירה פ\"ה.]' -- printer's quire/signature mark, not a content boundary (see p.169 precedent)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P185-01", "category": "letter_crowning_permutation", "text": "המליך/קשר כתר/צרפן -- the letter-enthronement-and-permutation formula applied repeatedly to each of the 7 doubles."}
+      ],
+      "unresolved_readings": [
+        {"id": "P185-U1", "text": "Exact identity of the specific letter (X) in the transcribed representative example not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 186, "printed_page": "34 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek4_close_perek5_open",
+      "opening_anchor": "(Perek 4 tail, mishnah 12-16)",
+      "closing_anchor": "פרק ה' משנה א' שתים עשרה פשוטות",
+      "transcription_depth": "VERBATIM for the Perek 5 title/Mishnah 1 text; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "perek4_tail",
+          "source_ref": "book:sefer-yetzirah-9perushim#p186:gra_commentary:gra:perek4_tail",
+          "text_note": "Perek 4's tail closes out the 7-doubles crowning-formula material."
+        },
+        {
+          "block_id": "perek5_title_mishnah1_twelve_simples",
+          "source_ref": "book:sefer-yetzirah-9perushim#p186:gra_commentary:gra:perek5_title_m1",
+          "text_he": "פרק ה'. משנה א'. שתים עשרה פשוטות: ה' ו' ז' ח' ט' י' ל' נ' ס' ע' צ' ק', יסודן: ראיה, שמיעה, וריח [...] (exact remainder of the 12-faculty list and exact letter order to reverify at zoom).",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- PEREK 5 TITLE, THE TWELVE SIMPLE LETTERS.** The 12 simple letters explicitly listed (He-Vav-Zayin-Chet-Tet-Yod-Lamed-Nun-Samech-Ayin-Tzadi-Kuf, exact grouping/order to reverify) with corresponding human faculties (sight, hearing, smell, and further faculties not fully transcribed). Completes the 3/7/12 letter-class enumeration set together with pp.173/179 (3 mothers) and p.182 (7 doubles)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P186-01", "category": "twelve_simples", "text": "שתים עשרה פשוטות -- the 12 Simple Letters, explicitly enumerated with corresponding human faculties. First explicit sighting; completes the 3/7/12 set."}
+      ],
+      "unresolved_readings": [
+        {"id": "P186-U1", "text": "Exact letter order/grouping of the 12 simples and the full 12-faculty list (beyond sight/hearing/smell) not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": "PEREK BOUNDARY: Perek 4 closes and Perek 5 (title + Mishnah 1) opens on this page."
+    },
+    {
+      "pdf_page": 187, "printed_page": "35 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek5_mishnah2_3",
+      "opening_anchor": "(12-simples correspondences: diagonal boundaries, constellations, months)",
+      "closing_anchor": "אופן variant heading",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "twelve_correspondences",
+          "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:gra:twelve_correspondences",
+          "text_note": "Continues 12-simples correspondences: the 12 diagonal boundaries (גבולי אלכסון) of the cosmic cube, the 12 constellations/mazalot, and the 12 months -- tied to the 12 simple letters' geometry."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P187-01", "category": "twelve_simples_correspondences", "text": "12 diagonal boundaries + 12 constellations/mazalot + 12 months, mapped to the 12 simple letters."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 188, "printed_page": "36 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek5_mishnah4_8",
+      "opening_anchor": "(crowning formula repeated for the 12 simples)",
+      "closing_anchor": "(month names referenced)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "twelve_simples_crowning",
+          "source_ref": "book:sefer-yetzirah-9perushim#p188:gra_commentary:gra:twelve_simples_crowning",
+          "text_note": "Repeated 'המליך אות X ... וקשר לו כתר וצרפו...' crowning/permutation formula applied to each of the 12 simple letters in turn, tied to the months (Nisan through Adar) and body/soul faculties. Paraphrase per the depth standard (repetitive formulaic material); letter-names and month-names preserved verbatim where legible."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P188-01", "category": "twelve_simples_crowning_months", "text": "Crowning formula repeated for each of the 12 simples, tied to the 12 months by name."}
+      ],
+      "unresolved_readings": [
+        {"id": "P188-U1", "text": "Full exact month-name list as printed not independently re-verified letter-by-letter at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 189, "printed_page": "37 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek5_mishnah9_10",
+      "opening_anchor": "עשאן כמין עריבה",
+      "closing_anchor": "פרי יצחק block at page foot",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "arrangement_description",
+          "source_ref": "book:sefer-yetzirah-9perushim#p189:gra_commentary:gra:arrangement_description",
+          "text_he": "עשאן כמין עריבה...",
+          "text_note": "'He arranged them like a trough/basin-shape' -- a structural-arrangement description in Mishnah 10's area. FLAGGED AS A POSSIBLE DIAGRAM REFERENCE, but NO actual printed diagram/illustration is present on this page (text-only description; the scan shows no accompanying graphic element)."
+        }
+      ],
+      "diagrams": [
+        {"note": "No printed diagram observed on this page despite the text describing a trough/basin-shaped arrangement -- the description is verbal only at this location."}
+      ],
+      "research_dna_flags": [
+        {"id": "RDF-P189-01", "category": "structural_arrangement_description", "text": "'עשאן כמין עריבה' -- described geometric/structural arrangement of the letters, text-only (no accompanying illustration on this page)."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 190, "printed_page": "38 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek5_close_perek6_open",
+      "opening_anchor": "פרק ו' משנה א' אלו שלשה אבות ותולדותם",
+      "closing_anchor": "עולם ושנה ונפש",
+      "transcription_depth": "VERBATIM for the Perek 6 title/Mishnah 1 text; SUBSTANTIAL_PARAPHRASE for surrounding commentary",
+      "content_blocks": [
+        {
+          "block_id": "perek6_title_mishnah1_recap",
+          "source_ref": "book:sefer-yetzirah-9perushim#p190:gra_commentary:gra:perek6_title_m1",
+          "text_he": "פרק ו'. משנה א'. אלו שלשה אבות ותולדותם, ושבעה כוכבים וצבאותם, ושנים עשר גבולי אלכסון. ראיה לדבר: עדים נאמנים -- עולם ושנה ונפש.",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- PEREK 6 EXPLICIT SUMMARY RECAP.** Recapitulates the entire 3-mothers/7-doubles/12-simples class structure, with an explicit renewed statement of the עולם/שנה/נפש (World/Year/Soul) triad as 'faithful witnesses' to the doctrine -- the book's own internal closing summary of its structure."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P190-01", "category": "olam_shana_nefesh_recap", "text": "Explicit renewed 'עולם ושנה ונפש' (World/Year/Soul) statement, framed as 'faithful witnesses,' alongside a recap of the 3/7/12 class structure."}
+      ],
+      "unresolved_readings": [], "notes": "PEREK BOUNDARY: Perek 5 closes and Perek 6 (title + Mishnah 1) opens on this page."
+    },
+    {
+      "pdf_page": 191, "printed_page": "39 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek6_mishnah2",
+      "opening_anchor": "אברהם אבינו הביט וראה ותקן וחצב וצרף וצר",
+      "closing_anchor": "וכרת עמו ברית",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "avraham_reception_narrative",
+          "source_ref": "book:sefer-yetzirah-9perushim#p191:gra_commentary:gra:avraham_reception",
+          "text_note": "**RESEARCH-DNA -- AVRAHAM AVINU RECEPTION NARRATIVE.** Describes Avraham Avinu as the one who 'looked and saw, established, hewed, combined/permuted, and formed' (הביט וראה, ותקן וחצב וצרף וצר) -- the same letter-operation verbs (חצב/צרף/צר) used earlier for the divine creative act, now applied to Avraham's own attainment of the doctrine, with covenant language ('וכרת עמו ברית') closing the narrative. Ties back to the title page's (p.153/154) attribution of the book to Avraham Avinu."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P191-01", "category": "avraham_letter_operations", "text": "Avraham Avinu described using the same letter-operation verbs (חצב/צרף/צר) as the divine creative act; covenant language follows."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 192, "printed_page": "40 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek6_mishnah3_4",
+      "opening_anchor": "שלשה אבות אש רוח מים",
+      "closing_anchor": "(creation-process discussion continues)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "three_fathers_recap_and_process",
+          "source_ref": "book:sefer-yetzirah-9perushim#p192:gra_commentary:gra:three_fathers_recap",
+          "text_note": "Recaps 'שלשה אבות אש רוח מים' (the three fathers/elements Fire-Air-Water) and continues discursive discussion of the creation-process combinatorics."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 193, "printed_page": "41 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek6_mishnah4",
+      "opening_anchor": "(Mishnah 4 discussion closing)",
+      "closing_anchor": "[ספר יצירה פ\"ה.] ו (printer's quire mark)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "mishnah4_close",
+          "source_ref": "book:sefer-yetzirah-9perushim#p193:gra_commentary:gra:mishnah4_close",
+          "text_note": "Closes out the mishnah's discussion, discursive."
+        },
+        {
+          "block_id": "printer_signature_mark",
+          "source_ref": "book:sefer-yetzirah-9perushim#p193:gra_commentary:printer_mark",
+          "text_note": "Footer bracket '[ספר יצירה פ\"ה.] ו' -- printer's quire/signature mark 'ו' (6), NOT a content boundary. Note the printer's gathering-mark label appears to lag the book's own chapter count by roughly one (a printer's binding convention, not a textual claim)."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 194, "printed_page": "42 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek6_mishnah6_7",
+      "opening_anchor": "(Perek 6 continuing exegesis, mishnah 6-7)",
+      "closing_anchor": "פרי יצחק block at page foot",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "perek6_continuing",
+          "source_ref": "book:sefer-yetzirah-9perushim#p194:gra_commentary:gra:mishnah6_7",
+          "text_note": "Continues/closes Perek 6 exegesis (mishnayot 6-7 in this edition's numbering)."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 195, "printed_page": "43 (arabic)", "zone": "gra_commentary", "work_or_commentator": "gra:perek6_mishnah7_close_COLOPHON",
+      "opening_anchor": "(Avraham narrative closing continuation)",
+      "closing_anchor": "בס\"ד סליק פירוש הגר\"א על ספר יצירה, בריך רחמנא דסייען",
+      "transcription_depth": "VERBATIM for the colophon; SUBSTANTIAL_PARAPHRASE for the closing narrative",
+      "content_blocks": [
+        {
+          "block_id": "avraham_narrative_close",
+          "source_ref": "book:sefer-yetzirah-9perushim#p195:gra_commentary:gra:avraham_narrative_close",
+          "text_note": "Continues and closes the Avraham-narrative material ('כשבא אאע\"ה אבינו הביט וראה וחקק וחצב וצרף ויצא...')."
+        },
+        {
+          "block_id": "gra_commentary_colophon",
+          "source_ref": "book:sefer-yetzirah-9perushim#p195:gra_commentary:gra:colophon",
+          "text_he": "בס\"ד. סליק פירוש הגר\"א על ספר יצירה. בריך רחמנא דסייען.",
+          "text_note": "**MAJOR STRUCTURAL BOUNDARY -- CONFIRMED, matches the dispatch's ~195/196 hypothesis closely.** Formal colophon marking the END of 'פירוש הגר\"א' (the Gra's commentary) proper, which began at p.155. 'With God's help, the Gra's commentary on Sefer Yetzirah is concluded; blessed is the Merciful One who assisted us.'"
+        },
+        {
+          "block_id": "peri_yitzchak_tail",
+          "source_ref": "book:sefer-yetzirah-9perushim#p195:minor_works:pri_yitzchak:tail",
+          "text_note": "'פרי יצחק' block continues below the Gra's colophon on the same page (Peri Yitzchak's own commentary runs slightly past the Gra's formal close)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [],
+      "unresolved_readings": [],
+      "notes": "ZONE BOUNDARY: this page marks the end of gra_commentary and the beginning of the transition into gra_gleanings (p.196)."
+    },
+    {
+      "pdf_page": 196, "printed_page": "44 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "hadran_and_likutei_hagra_start",
+      "opening_anchor": "הדרן עלך ספר יצירה והדרן עלך",
+      "closing_anchor": "ליקוטי הגר\"א ז\"ל לספר יצירה -- א' (פ\"א מ\"ב)",
+      "transcription_depth": "VERBATIM for the Hadran formula and section title; SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS for the gleanings entries",
+      "content_blocks": [
+        {
+          "block_id": "hadran_formula",
+          "source_ref": "book:sefer-yetzirah-9perushim#p196:gra_gleanings:hadran",
+          "text_he": "הדרן עלך ספר יצירה והדרן עלך, דעתן עלך ספר יצירה ודעתך עלן, לא ננתשי מינך ספר יצירה ולא תתנשי מינן, לא בעלמא הדין ולא בעלמא דאתי.",
+          "text_note": "The classical Talmudic-style Hadran/siyum formula, closing out the combined study of Sefer Yetzirah + commentaries: 'We shall return to you... you shall return to us... we shall not be parted from you, Sefer Yetzirah, neither in this world nor in the next.'"
+        },
+        {
+          "block_id": "closing_prayer",
+          "source_ref": "book:sefer-yetzirah-9perushim#p196:gra_gleanings:closing_prayer",
+          "text_note": "A short personal prayer follows, beginning 'רבש\"ע אתה הוא היוצר רוח עולם...' echoing Sefer Yetzirah's own creation-vocabulary (paraphrased; exact full wording not independently re-verified at extreme zoom)."
+        },
+        {
+          "block_id": "likutei_hagra_title_and_first_entries",
+          "source_ref": "book:sefer-yetzirah-9perushim#p196:gra_gleanings:likutei_hagra:title",
+          "text_he": "ליקוטי הגר\"א ז\"ל לספר יצירה",
+          "text_note": "**NEW MAJOR SECTION TITLE, CONFIRMS DISPATCH HYPOTHESIS.** 'Gleanings of the Gra on Sefer Yetzirah' begins here, precisely at p.196 (matching the dispatch's '~196-203' estimate for this collection's start). Format: alphabetically-lettered short glosses (א', ב', ג', ד'...), each keyed to a specific mishnah locator, e.g. 'א' (פ\"א מ\"ב)...', 'ד' (מי\"א)...' -- point-form textual addenda on mishnayot already covered in the main commentary, not a continuous new commentary."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [],
+      "unresolved_readings": [
+        {"id": "P196-U1", "text": "Full exact wording of the closing prayer ('רבש\"ע אתה הוא...') not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": "ZONE BOUNDARY: gra_commentary -> gra_gleanings begins on this page (Hadran, then Likutei HaGra title)."
+    },
+    {
+      "pdf_page": 197, "printed_page": "45 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "likutei_hagra",
+      "opening_anchor": "ליקוטי הגר\"א ז\"ל לספר יצירה (running header)",
+      "closing_anchor": "(lettered glosses continue, ה', ו'...)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "likutei_entries_continue",
+          "source_ref": "book:sefer-yetzirah-9perushim#p197:gra_gleanings:likutei_hagra:entries",
+          "text_note": "Running header now reads 'ליקוטי הגר\"א ז\"ל לספר יצירה' (confirms the section-wide header change from the earlier 'פירוש ספר יצירה...הגר\"א'). Continues lettered glosses (ה', ו', etc.), each a short mishnah-keyed textual note."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 198, "printed_page": "46 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "likutei_hagra_manuscript_sub_layer",
+      "opening_anchor": "(Likutei HaGra continues)",
+      "closing_anchor": "לקוט מספר הגר\"א ז\"ל מספר קדש כ\"י",
+      "transcription_depth": "VERBATIM for the sub-title; SUBSTANTIAL_PARAPHRASE for the entries",
+      "content_blocks": [
+        {
+          "block_id": "manuscript_sourced_sub_collection",
+          "source_ref": "book:sefer-yetzirah-9perushim#p198:gra_gleanings:manuscript_gleaning:title",
+          "text_he": "לקוט מספר הגר\"א ז\"ל מספר קדש כ\"י",
+          "text_note": "**RESEARCH-DNA -- MANUSCRIPT-SOURCE CITATION.** 'A gleaning from the Gra's holy manuscript [ktav yad]' -- a second layer of gleanings explicitly sourced from a manuscript, a provenance-bearing note per the depth standard's citation-preservation rule. Content continues with topical glosses (not mishnah-keyed at this sub-layer)."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P198-01", "category": "manuscript_provenance_citation", "text": "'מספר קדש כ\"י' -- explicit manuscript-source citation for this gleanings sub-layer."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 199, "printed_page": "47 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "maaseh_bereshit_essay",
+      "opening_anchor": "ליקוטי הגר\"א ז\"ל לספר יצירה (running header continues)",
+      "closing_anchor": "תוכן פירוש מעשה בראשית ע\"פ דרך [attribution uncertain] המיוסד על ספר יצירה",
+      "transcription_depth": "VERBATIM for the essay title; SUBSTANTIAL_PARAPHRASE for the essay content",
+      "content_blocks": [
+        {
+          "block_id": "maaseh_bereshit_essay_title",
+          "source_ref": "book:sefer-yetzirah-9perushim#p199:gra_gleanings:maaseh_bereshit:title",
+          "text_he": "תוכן פירוש מעשה בראשית ע\"פ דרך [attribution uncertain, possibly הרמב\"ם] ז\"ל, המיוסד על ספר יצירה",
+          "text_note": "A distinct short essay applying Sefer Yetzirah doctrine to the Genesis creation account, appended within/after the Likutei HaGra run. The running header at the top of the page still reads 'ליקוטי הגר\"א ז\"ל לספר יצירה', so this essay is classified here as a SUB-ITEM of the gra_gleanings zone pending further confirmation. The exact attributed authority's name is UNCERTAIN at this zoom pass -- FLAGGED, not force-resolved."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [],
+      "unresolved_readings": [
+        {"id": "P199-U1", "text": "Exact name of the authority to whom the Ma'aseh Bereshit essay's approach is attributed (read tentatively as 'הרמב\"ם' but not confidently confirmed) is UNCERTAIN.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 200, "printed_page": "48 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "maaseh_bereshit_essay",
+      "opening_anchor": "(Ma'aseh Bereshit essay continuing, creation-days discussion)",
+      "closing_anchor": "ליקוטי הגר\"א ז\"ל לספר יצירה (running header)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "maaseh_bereshit_continued",
+          "source_ref": "book:sefer-yetzirah-9perushim#p200:gra_gleanings:maaseh_bereshit:continued",
+          "text_note": "Continues the Bereshit/creation-days essay, correlating scriptural creation-day language with the sefirot/letters doctrine."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 201, "printed_page": "49 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "maaseh_bereshit_essay",
+      "opening_anchor": "(creation-days essay continuing: days 2, 4, 5 referenced)",
+      "closing_anchor": "[ספר יצירה פי\"ג.] ז (printer's quire mark)",
+      "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS",
+      "content_blocks": [
+        {
+          "block_id": "creation_days_paragraphs",
+          "source_ref": "book:sefer-yetzirah-9perushim#p201:gra_gleanings:maaseh_bereshit:days",
+          "text_note": "'ויאמר' paragraphs for successive creation-days (day 2/4/5 referenced) continuing the Genesis/Sefer-Yetzirah correlation essay."
+        },
+        {
+          "block_id": "printer_signature_mark",
+          "source_ref": "book:sefer-yetzirah-9perushim#p201:gra_gleanings:printer_mark",
+          "text_note": "Footer bracket '[ספר יצירה פי\"ג.] ז' -- printer's quire mark '7', not a content boundary (see p.169 precedent)."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 202, "printed_page": "50 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "likutei_hagra_close",
+      "opening_anchor": "(Likutei HaGra gleanings continue: a body/faculties list)",
+      "closing_anchor": "תם ונשלם",
+      "transcription_depth": "VERBATIM for the section title and closing marker; SUBSTANTIAL_PARAPHRASE for the entries",
+      "content_blocks": [
+        {
+          "block_id": "final_gleanings_and_sod_hachodashim",
+          "source_ref": "book:sefer-yetzirah-9perushim#p202:gra_gleanings:sod_hachodashim",
+          "text_he": "סוד החדשים",
+          "text_note": "Continues brief gleanings (a body/faculties list), then a new small sub-heading 'סוד החדשים' (The Secret of the Months) -- a short topical note on the months, still within the Likutei HaGra collection."
+        },
+        {
+          "block_id": "collection_closing_marker",
+          "source_ref": "book:sefer-yetzirah-9perushim#p202:gra_gleanings:closing_marker",
+          "text_he": "תם ונשלם",
+          "text_note": "**SUB-BOUNDARY CONFIRMED.** 'Finished and completed' -- the explicit closing marker of the entire 'ליקוטי הגר\"א ז\"ל לספר יצירה' collection, which ran pp.196-202. This closes the gra_gleanings zone's main collection one page earlier than the dispatch's loose '~203' upper estimate."
+        }
+      ],
+      "diagrams": [], "research_dna_flags": [], "unresolved_readings": [], "notes": "ZONE SUB-BOUNDARY: 'ליקוטי הגר\"א ז\"ל לספר יצירה' collection closes on this page with 'תם ונשלם'."
+    },
+    {
+      "pdf_page": 203, "printed_page": "51 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "gra:231_gates_table",
+      "opening_anchor": "סדר הרל\"א שערים לפי דעת הגר\"א ז\"ל",
+      "closing_anchor": "(dense annotation note below the table)",
+      "transcription_depth": "VERBATIM for the section title; DIAGRAM/TABLE description for the grid; SUBSTANTIAL_PARAPHRASE for the annotation",
+      "content_blocks": [
+        {
+          "block_id": "gra_231_gates_title",
+          "source_ref": "book:sefer-yetzirah-9perushim#p203:gra_gleanings:gra_231_gates:title",
+          "text_he": "סדר הרל\"א שערים לפי דעת הגר\"א ז\"ל",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- THE EXPLICIT 231 GATES TABLE, FIRST EXPLICIT NUMERAL SIGHTING.** 'The Order of the 231 Gates according to the Opinion of the Gra.' This resolves the open question tracked through p.193: the base Mishnah text (p.178) states the combinatoric PROCESS (permute/weigh/exchange every letter with every other) but never states the numeral '231' itself; here it appears explicitly, attached to a dedicated appendix table, not embedded in the mishnah."
+        },
+        {
+          "block_id": "gra_231_gates_grid",
+          "source_ref": "book:sefer-yetzirah-9perushim#p203:gra_gleanings:gra_231_gates:grid",
+          "text_note": "TABLE (described structurally, not redrawn): a multi-column grid of two-letter Hebrew combinations, e.g. אב אג אד אה או אז אח אט אי אכ אל אם אן אס אע אפ אצ אק אר אש את (Aleph paired successively with each of the other 21 letters), continuing in the same pattern for Bet-with-remaining-letters, Gimel-with-remaining-letters, etc. through the alphabet -- forming the complete 22-choose-2 = 231 letter-pair matrix. This is a plain tabular grid of two-letter combinations, NOT a pictorial/geometric diagram."
+        },
+        {
+          "block_id": "gra_231_gates_annotation",
+          "source_ref": "book:sefer-yetzirah-9perushim#p203:gra_gleanings:gra_231_gates:annotation",
+          "text_note": "A dense annotation note (asterisk-marked) below the table explains its construction/reading order per the Gra's method (paraphrase; exact full wording not independently re-verified at extreme zoom)."
+        }
+      ],
+      "diagrams": [
+        {"type": "table", "location": "book:sefer-yetzirah-9perushim#p203:gra_gleanings:gra_231_gates:grid", "description": "22x21/2=231-cell grid of two-letter Hebrew combinations, printed as plain text columns (not a pictorial figure)."}
+      ],
+      "research_dna_flags": [
+        {"id": "RDF-P203-01", "category": "231_gates_explicit", "text": "'סדר הרל\"א שערים' -- the explicit 231-gates numeral and table, first sighting in this batch, attributed to the Gra."}
+      ],
+      "unresolved_readings": [
+        {"id": "P203-U1", "text": "Full exact wording of the dense annotation note below the table not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 204, "printed_page": "52 (arabic)", "zone": "gra_gleanings", "work_or_commentator": "gra:letter_diagram_and_pri_yitzchak_231_gates_start",
+      "opening_anchor": "איך הם בקוי הספירות... לפ\"ד הגר\"א זלה\"ל",
+      "closing_anchor": "סדר הרל\"א שערים מבעל פרי יצחק",
+      "transcription_depth": "VERBATIM for section titles and diagram caption; DIAGRAM description for the figure; SUBSTANTIAL_PARAPHRASE for surrounding text",
+      "content_blocks": [
+        {
+          "block_id": "recap_and_diagram_caption",
+          "source_ref": "book:sefer-yetzirah-9perushim#p204:gra_gleanings:letter_diagram:caption",
+          "text_he": "ה' אמ\"ש וז' כפולות בג\"ד כפר\"ת, וי\"ב פשוטות הו\"ז חט\"י לנס\"ע צק\"; איך הם בקוי הספירות... לפ\"ד הגר\"א זלה\"ל. והבא הציור הזה במפורש כפ\"ה. אל תלמידו הרמ\"ש ז\"ל.",
+          "text_note": "Recaps the 3 mothers/7 doubles/12 simples classification, then introduces a diagram showing how the letters sit along the sefirot's lines, per the Gra's opinion. **Transmission attribution (verbatim, provenance-bearing):** the diagram is stated to have gone 'to his disciple, Ramash' (אל תלמידו הרמ\"ש ז\"ל) -- a named-recipient transmission note. Exact referent of 'כפ\"ה' (possibly 'as in chapter 5' or a specific prior printed source) is UNCERTAIN."
+        },
+        {
+          "block_id": "letter_diagram_figure",
+          "source_ref": "book:sefer-yetzirah-9perushim#p204:gra_gleanings:letter_diagram:figure",
+          "text_note": "**DIAGRAM (MAJOR, described structurally):** A vertical hexagonal/diamond (rhombus-lattice) geometric figure built of a repeating triangular/diamond lattice pattern (resembling a stylized crystal-column or sefirotic-tree diagram), with Hebrew letters labeled at points along it. Legible letter-labels include ה (near the top), כ/ח/ט (upper band), מ/נ (middle), ד/ל (lower-middle), ר/ק (near the bottom), and ס/ז at the outer sides -- connecting (per the accompanying text) the 12 simple letters geometrically along sefirotic 'lines'. No further geometric or numeric labels were confidently resolved beyond these letters."
+        },
+        {
+          "block_id": "pri_yitzchak_231_gates_title",
+          "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:pri_yitzchak:231_gates_title",
+          "text_he": "סדר הרל\"א שערים מבעל פרי יצחק",
+          "text_note": "**NEW MAJOR SECTION, ZONE RECLASSIFICATION.** 'The Order of the 231 Gates, by the Author of Peri Yitzchak' -- a SECOND, independent 231-gates table/method, attributed to Peri Yitzchak rather than the Gra. From this point, table material attributed to Peri Yitzchak is classified under the 'minor_works' zone (per the locator scheme: Gra-attributed material stays 'gra_gleanings'; Peri-Yitzchak-attributed material is 'minor_works')."
+        }
+      ],
+      "diagrams": [
+        {"type": "geometric_figure", "location": "book:sefer-yetzirah-9perushim#p204:gra_gleanings:letter_diagram:figure", "description": "Vertical diamond/hexagonal lattice figure connecting the 12 simple letters along sefirotic lines; letters ה,כ,ח,ט,מ,נ,ד,ל,ר,ק,ס,ז observed at labeled positions."}
+      ],
+      "research_dna_flags": [
+        {"id": "RDF-P204-01", "category": "letter_sefirot_diagram_transmission", "text": "Named transmission attribution ('אל תלמידו הרמ\"ש ז\"ל') for the letter-sefirot diagram -- provenance-bearing note."},
+        {"id": "RDF-P204-02", "category": "231_gates_second_method", "text": "A second, independent 231-gates table method attributed to Peri Yitzchak, distinct from the Gra's version on p.203."}
+      ],
+      "unresolved_readings": [
+        {"id": "P204-U1", "text": "Exact referent of 'כפ\"ה' in the diagram's caption not confidently resolved.", "status": "UNCERTAIN"},
+        {"id": "P204-U2", "text": "Full identity/spelling of 'הרמ\"ש' (the disciple's name/abbreviation) not independently re-verified at extreme zoom.", "status": "UNCERTAIN"}
+      ],
+      "notes": "ZONE TRANSITION: gra_gleanings (letter diagram, Gra-attributed) -> minor_works (Peri Yitzchak's 231-gates table) begins mid-page."
+    },
+    {
+      "pdf_page": 205, "printed_page": "53 (arabic)", "zone": "minor_works", "work_or_commentator": "pri_yitzchak:231_gates_table",
+      "opening_anchor": "אי\"ל חצי מלבוש עליון פרצוף כתר פנים",
+      "closing_anchor": "פרצוף חכמה מלבוש עליון / מלבוש תחתון",
+      "transcription_depth": "VERBATIM for table headers; DIAGRAM/TABLE description for the grids",
+      "content_blocks": [
+        {
+          "block_id": "keter_tables",
+          "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:pri_yitzchak:keter_tables",
+          "text_he": "חצי מלבוש עליון פרצוף כתר פנים / חצי מלבוש תחתון פרצוף כתר אחור",
+          "text_note": "TABLE (described structurally): full-page grid of paired letter-combinations organized by 'Partzuf'/'Malbush' (Divine 'countenance'/'garment') terminology. Right column headed 'upper half-garment, Partzuf Keter, front [Panim]'; left column headed 'lower half-garment, Partzuf Keter, back [Achor]'. Each column lists dense two-letter Hebrew combinations."
+        },
+        {
+          "block_id": "chochmah_tables",
+          "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:pri_yitzchak:chochmah_tables",
+          "text_note": "A second table-pair below, for 'Partzuf Chochmah' (upper/lower garment), same format."
+        }
+      ],
+      "diagrams": [
+        {"type": "table", "location": "book:sefer-yetzirah-9perushim#p205:minor_works:pri_yitzchak:keter_tables", "description": "Two-column grid of two-letter Hebrew combinations under Keter-Panim/Keter-Achor headers."},
+        {"type": "table", "location": "book:sefer-yetzirah-9perushim#p205:minor_works:pri_yitzchak:chochmah_tables", "description": "Two-column grid of two-letter Hebrew combinations under Chochmah-Panim/Chochmah-Achor headers."}
+      ],
+      "research_dna_flags": [
+        {"id": "RDF-P205-01", "category": "231_gates_by_partzuf", "text": "The 231-letter-pair matrix distributed across per-sefirah/per-partzuf tables (Keter, Chochmah), each split into front/back (Panim/Achor) sub-tables -- a later interpretive elaboration atop the base Sefer Yetzirah 231-gates doctrine, attributed to Peri Yitzchak. NOT conflated with the base Mishnah text itself (p.178/p.203)."}
+      ],
+      "unresolved_readings": [], "notes": ""
+    },
+    {
+      "pdf_page": 206, "printed_page": "54 (arabic)", "zone": "minor_works", "work_or_commentator": "pri_yitzchak:231_gates_table",
+      "opening_anchor": "פרצוף בינה מלבוש עליון / מלבוש תחתון",
+      "closing_anchor": "פרצוף דעת מלבוש עליון / מלבוש תחתון",
+      "transcription_depth": "VERBATIM for table headers; DIAGRAM/TABLE description for the grids",
+      "content_blocks": [
+        {
+          "block_id": "binah_daat_tables",
+          "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:pri_yitzchak:binah_daat_tables",
+          "text_he": "פרצוף בינה מלבוש עליון / מלבוש תחתון; פרצוף דעת מלבוש עליון / מלבוש תחתון",
+          "text_note": "Continues the same tabular format for further sefirot/partzufim: Binah (upper/lower garment) and Da'at (upper/lower garment) -- confirms the full appendix extends through at least Keter/Chochmah/Binah/Da'at, each with front/back (Panim/Achor) sub-tables of paired letters. The set likely continues further (e.g. through the remaining sefirot) beyond p.206, but p.207 pivots to a different section (32 Paths) -- whether more partzuf-tables exist between them or the sequence is interrupted is NOT determined within this batch's scope."
+        }
+      ],
+      "diagrams": [
+        {"type": "table", "location": "book:sefer-yetzirah-9perushim#p206:minor_works:pri_yitzchak:binah_daat_tables", "description": "Two-column grids of two-letter Hebrew combinations under Binah-Panim/Achor and Da'at-Panim/Achor headers."}
+      ],
+      "research_dna_flags": [],
+      "unresolved_readings": [
+        {"id": "P206-U1", "text": "Whether the Peri Yitzchak 231-gates-by-partzuf table set continues for additional sefirot beyond Da'at (i.e. Chesed through Malchut) is not determined within this batch -- p.207 pivots to the 32 Paths section instead.", "status": "UNCERTAIN"}
+      ],
+      "notes": ""
+    },
+    {
+      "pdf_page": 207, "printed_page": "55 (arabic)", "zone": "minor_works", "work_or_commentator": "pri_yitzchak:32_paths",
+      "opening_anchor": "ל\"ב נתיבות מבעל פרי יצחק",
+      "closing_anchor": "נתיב י\"ח (Path 18, list continues past this page -- STOP POINT)",
+      "transcription_depth": "VERBATIM for the section title and path-list headers; SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NUMBERS_AND_CITATIONS for each path's description",
+      "content_blocks": [
+        {
+          "block_id": "thirtytwo_paths_title",
+          "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:pri_yitzchak:32paths:title",
+          "text_he": "ל\"ב נתיבות מבעל פרי יצחק",
+          "text_note": "**MAJOR RESEARCH-DNA HIT -- CONFIRMS DISPATCH HYPOTHESIS, PRECISELY LOCATED.** 'The 32 Paths, by the Author of Peri Yitzchak.' The dispatch's structural map hypothesized 'ל\"ב נתיבות ... בעל פרי יצחק' somewhere across pp.204-207; this precisely locates its START at p.207 -- pp.204-206 turn out to be the two 231-gates tables/diagram, not the 32-Paths text itself."
+        },
+        {
+          "block_id": "thirtytwo_paths_intro",
+          "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:pri_yitzchak:32paths:intro",
+          "text_note": "Opens with an introductory paragraph before the numbered path-list begins."
+        },
+        {
+          "block_id": "thirtytwo_paths_list_partial",
+          "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:pri_yitzchak:32paths:path1_18",
+          "text_note": "Numbered list of the classic '32 Paths of Wisdom' (a text-form also known from other Kabbalistic works, e.g. Sha'arei Orah): 'הנתיב הראשון' (The First Path)... 'נתיב ב'' (Path 2)... continuing sequentially. Each entry is a short descriptive epithet of a Divine/intellectual quality (e.g., Path 1 read tentatively as 'השכל הראשון... נקרא שכל הפלא, הוא האור הקדמון...' -- 'the Wondrous Intellect, the Primordial Light'; exact wording of each subsequent path not individually verbatim-transcribed at this pass, RESEARCH-DNA preserved at the level of the section's existence and its echo of Mishnah 1's opening line). By the bottom of the visible page, the list reaches approximately 'נתיב י\"ח' (Path 18) of the expected 32."
+        }
+      ],
+      "diagrams": [],
+      "research_dna_flags": [
+        {"id": "RDF-P207-01", "category": "32_paths_closing_the_loop", "text": "'ל\"ב נתיבות' section explicitly echoes Mishnah 1's opening line (p.155, 'בשלשים ושתים נתיבות פליאות חכמה') -- the book's opening construct and this appended elaboration close the loop."}
+      ],
+      "unresolved_readings": [
+        {"id": "P207-U1", "text": "Individual path descriptions beyond Path 1 not transcribed verbatim at this pass (paraphrase-level only, per the depth standard for dense discursive material); exact wording of each of paths 2-18 not independently re-verified.", "status": "UNCERTAIN"},
+        {"id": "P207-U2", "text": "The 32-Paths list is confirmed MID-ENUMERATION at the batch's stop point (through path ~18 of 32); paths ~19-32 continue into p.208, which is OUT OF SCOPE for this batch and was NOT read.", "status": "OUT_OF_SCOPE_CONTINUATION"}
+      ],
+      "notes": "STOP POINT CONFIRMED: p.207 is the correct/intended end of this batch. The dispatch's stated boundary ('STOP before p.208, where Ari commentary begins') is consistent with what was observed: p.207 does not itself reach any Ari-commentary material; it is mid-way through the Peri Yitzchak 32-Paths list, which evidently continues onto p.208 before whatever comes next (unverified, out of scope)."
+    }
+  ],
+  "batch_summary": {
+    "pages_covered": [153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207],
+    "pages_read_boundary_only_not_registered": [152],
+    "sections_confirmed": [
+      "p153: title page (gra_title)",
+      "p154: 'הצעת המסדר' (gra_title) -- CORRECTS dispatch's 'דעת הספר' hypothesis",
+      "p155-195: Gra commentary on Sefer Yetzirah chapters 1-6 (gra_commentary), full perek/mishnah boundary map produced per-page",
+      "p195: Gra commentary colophon ('סליק פירוש הגר\"א')",
+      "p196-202: Hadran + 'ליקוטי הגר\"א ז\"ל לספר יצירה' (gra_gleanings), closing with 'תם ונשלם' on p.202",
+      "p203: 'סדר הרל\"א שערים לפי דעת הגר\"א ז\"ל' -- Gra's 231-gates table (gra_gleanings)",
+      "p204: letter-sefirot diagram (gra_gleanings) + start of Peri Yitzchak's own 231-gates table (minor_works)",
+      "p205-206: Peri Yitzchak's 231-gates tables by sefirah/partzuf (minor_works)",
+      "p207: 'ל\"ב נתיבות מבעל פרי יצחק' begins (minor_works) -- confirmed batch stop point, mid-enumeration"
+    ],
+    "research_dna_categories_hit": {
+      "letter_doctrine_general": "YES -- extensively (22 letters engraving language, pp.173/176/177)",
+      "kol_ruach_dibbur": "YES -- p.172, explicit triad equated with Ruach HaKodesh",
+      "three_mothers": "YES -- pp.173/179/180/190 (multiple sightings, including the World/Year/Soul mapping)",
+      "seven_doubles": "YES -- p.182 onward (planets/days/gates correspondences, p.183)",
+      "twelve_simples": "YES -- p.186 onward (mazalot/months/diagonal-boundaries correspondences, p.187)",
+      "231_gates_rla_shearim": "YES, but only as an explicit numeral/table starting at p.203 (Gra) and p.204-206 (Peri Yitzchak) -- the base Mishnah (p.178) states the combinatoric PROCESS without stating the numeral '231' itself; this distinction is preserved, not collapsed",
+      "tzaraf_shakal_hemir_permutation_ops": "YES -- pp.174/175/178/185/188/191 (multiple sightings across chapters 1-6)",
+      "olam_shana_nefesh": "YES -- p.180 (first explicit statement) and p.190 (Perek 6's recap statement)",
+      "diagrams": "ONE geometric figure (p.204, letter-sefirot lattice) plus THREE tabular/grid appendices (pp.203, 205, 206) -- described structurally, not redrawn",
+      "manuscript_variant_notes": "YES -- p.198 ('לקוט מספר הגר\"א ז\"ל מספר קדש כ\"י', explicit ktav-yad citation); p.153/154 title-page recension claim ('נוסח...הארי אשכנזי')",
+      "modern_anachronistic_claims_hz_cymatics_dna_27letters": "NONE OBSERVED -- consistent with this being a 19th/20th century print of a classical text; no anachronistic content flagged"
+    },
+    "explicit_negative_findings_and_corrections": [
+      "p.154's section title is 'הצעת המסדר', NOT 'דעת הספר' as the dispatch hypothesized -- corrected explicitly, not silently overwritten.",
+      "The dispatch hypothesized 'piyutim (liturgical poems)' and a short 'מאמר קדישין' primary text within the ~196-203 transition zone. NEITHER was found anywhere in pp.196-207 as actually read. Recorded as an explicit negative finding.",
+      "The 'ל\"ב נתיבות ... בעל פרי יצחק' section, loosely estimated by the dispatch across pp.204-207, is precisely located as starting only at p.207 -- pp.204-206 are in fact a letter-diagram and two 231-gates tables, not the 32-Paths text.",
+      "The 'ליקוטי הגר\"א' collection is confirmed to run pp.196-202 (closing with 'תם ונשלם'), one page earlier than the dispatch's loose upper estimate of '~203'."
+    ],
+    "unresolved_readings_count_total": 19,
+    "printed_page_numbering_note": "This edition's printed page numbers switch between Hebrew-letter numerals (pp.153-165 area, e.g. 'ב'/'ד') and Arabic numerals (from roughly p.160 onward, e.g. '8','9'...'55') at some point within the Gra-commentary section. Exact printed-page values for pp.156-165 were not independently re-verified letter-by-letter at extreme zoom in every instance and are marked 'unclear' where genuinely uncertain, rather than guessed. PDF page numbers (the authoritative locator for this register) are certain throughout.",
+    "mishnah_numbering_note": "This edition's own internal mishnah numbering (e.g. reaching מ\"ח, מ\"י, מי\"ד within what other printed editions treat as fewer, differently-bounded mishnayot) appears to assign a separate number to each successive 'עשר ספירות בלימה...'-type repetition, consistent with the title page's own stated editorial method (multiple recensions displayed via 'אופן' variants). Recorded as printed, not force-aligned to any external edition's standard numbering.",
+    "printer_signature_marks_note": "Recurring bracketed footer marks (e.g. '[ספר יצירה פ\"א.] ב' at p.169; '[ספר יצירה פרק ד'.]' at p.177; '[ספר יצירה פ\"ה.]' at p.185; '[ספר יצירה פ\"ה.] ו' at p.193; '[ספר יצירה פי\"ג.] ז' at p.201) are identified as printer's QUIRE/GATHERING SIGNATURE marks, a standard pre-modern binding convention, NOT content-section boundaries. Uniformly excluded from structural-boundary determinations throughout this register."
+  }
+}
