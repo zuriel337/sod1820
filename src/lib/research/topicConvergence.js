@@ -20,6 +20,17 @@ import { makeUniversalFinding } from "./universalFinding.js";
 
 const nonEmpty = (v) => String(v ?? "").trim();
 
+// FOUNDATION_CLOSURE_BEFORE_WORLD_V1 (work_log dispatch 77ba98ae, audit 77d82836): a convergence
+// node's numeric identity is stored either as metadata.numbers (array) OR metadata.value (scalar) —
+// both are real, live shapes (verified: 39/219 vs 173/219 of today's convergence nodes, 0 with
+// both). Neither shape is invented here; an absent/invalid value on both keys stays an honest [].
+function nodeMetadataNumbers(node) {
+  const arr = node?.metadata?.numbers;
+  if (Array.isArray(arr)) return arr.filter(Number.isFinite);
+  const scalar = node?.metadata?.value;
+  return Number.isFinite(scalar) ? [scalar] : [];
+}
+
 // ── AUTHORED CONTENT BRIDGE (LEGACY_CONTENT_TO_ONE_RESEARCH_OS_BRIDGE_V1, work_log 1af998d5) ──
 // topic_cards.findings is the editor/contributor-authored body of a convergence card. Until this
 // pass the shared projection fetched card metadata only, so the authored content never reached
@@ -330,9 +341,7 @@ export function topicConvergenceToUniversalFinding(
 
   const numbers = Array.isArray(card?.numbers)
     ? card.numbers.filter(Number.isFinite)
-    : Array.isArray(node?.metadata?.numbers)
-      ? node.metadata.numbers.filter(Number.isFinite)
-      : [];
+    : nodeMetadataNumbers(node);
 
   // Authored content bridge — only when the card row actually carries `findings`. A card fetched
   // without that column (older callers) projects exactly as before: no summary, no content facts.
