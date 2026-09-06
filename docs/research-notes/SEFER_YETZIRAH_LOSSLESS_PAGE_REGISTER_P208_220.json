@@ -1,0 +1,375 @@
+{
+  "source_id": "book:sefer-yetzirah-9perushim",
+  "register_version": 1,
+  "batch_scope": "PDF pp.208-220 ONLY of Book/Sefer Yetsirah.pdf (Storage: gallery/Book/Sefer Yetsirah.pdf), per work_log dispatch df4c4fd4-599a-4c9b-8ad2-a3f88fa9637c (task SEFER_YETZIRAH_LOSSLESS_EXTRACTION_PP208_220_V1, role=SEFER_YETZIRAH_EXTRACTION_C), itself per the locked 3-session partition in boundary-adjudication AFTER 5ac66a4b-5f46-4eac-bb9f-e7b5c1c87e85 (parent fa330b35-ed9c-4dfb-996f-d7a40e6e1cd2). Sibling sessions own pp.1-152 (SEFER_YETZIRAH_EXTRACTION_A, dispatch f616f647-7970-43a8-92be-2ed2ea86897a) and pp.153-207 (SEFER_YETZIRAH_EXTRACTION_B, dispatch b80761eb-5f52-45d2-a2eb-f5c90c1fa268), NOT touched by this file. p.207 and below explicitly NOT read or registered here per dispatch instruction. Wrong PDF 'A' (Book/Hebrewbooks_org_33050.pdf, Ma'amar Esther) is excluded entirely and was not reopened.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "MECHANICALLY_RECONCILED"],
+  "note": "This file follows the same schema/conventions as the existing AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P*.json files (one semantic/page-range scope = one writer, per the disjoint-writer pattern established there). No shared cross-book index is created or modified. The locator grammar used here (ZONE + WORK_OR_COMMENTATOR dimensions) is the PROPOSAL locked by the prior boundary-adjudication session (5ac66a4b) -- NOT implemented as a DB schema, NOT written to nodes/research_objects/edges. This file is the only artifact this session wrote.",
+  "block_ref_convention": "book:sefer-yetzirah-9perushim#p<PDF_PAGE>:<ZONE>:<WORK_OR_COMMENTATOR>[:<SUBLOCATOR>]",
+  "source_fingerprint_this_batch": {
+    "sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+    "bytes": 51714643,
+    "page_count_confirmed": 220,
+    "download_method": "curl from canonical Supabase Storage public URL, gallery/Book/Sefer Yetsirah.pdf; re-verified byte-identical against live storage object via HEAD request (content-length=51714643, etag matches) immediately before this batch, so no re-download was needed",
+    "render": "pdftoppm (poppler-utils), 250dpi, full-page PNG renders of PDF pages 208-220 inclusive (13 pages), each read at full resolution"
+  },
+  "structural_placement": "This batch closes the tail of the book. It contains, in order: (1) the last page of the Pri Yitzchak '32 Paths' work (tail only, p.208 top -- the work itself began before p.208, out of this batch's scope); (2) a short 'Perush meha-Ari ha-Kadosh' commentary block (pp.208 bottom-211); (3) an untitled/half-titled insert page 'Kelil Tochnit' introducing 'Maamar Kadishin' and embedding a first instance each of Sefer Amash and Sefer Bagad Kafrat plus a 12-simple-letters path list (p.212); (4) the primary 'Maamar Kadishin le-ha-Ari z\"l' text with R' Yaakov Tamarlish's extended explanation, plus a SECOND, textually distinct instance each of Sefer Amash and Sefer Bagad Kafrat (p.213); (5) the OLD RECENSION of Sefer Yetzirah itself ('Sefer Yetzirah Nusach Yeshana') -- CORRECTING the prior boundary-adjudication's placement of this text on p.216 alone -- this batch's direct reading establishes it actually SPANS pp.214-216, opening on p.214 with the editor's own printed attribution to the Mantua (5322/1562) printing, running the full compressed 6-chapter old-recension text across pp.214-215-216, and closing on p.216 with the text's own colophon followed immediately by the volume's overall printer colophon (Gershon HaLevi of Vilna); (6) blank rear flyleaves (pp.217-219); (7) photographed back cover (p.220).",
+  "critical_rule_applied": "Every distinct named work/recension/commentator block below is registered as its OWN work_id under its own locator and is NEVER merged into a neighboring block's text stream, even where two instances of the same-titled work (Sefer Amash, Sefer Bagad Kafrat) sit only one page apart with materially different content -- both instances are preserved as textually distinct objects (sefer_amash_v1 vs sefer_amash_v2; sefer_bagad_kafrat_v1 vs sefer_bagad_kafrat_v2).",
+  "pages": [
+    {
+      "pdf_page": 208,
+      "printed_page": "56",
+      "zone": "minor_works",
+      "works_on_page": ["pri_yitzchak_32_paths_tail", "ari_commentary"],
+      "content_blocks": [
+        {
+          "block_id": "pri_yitzchak_32_paths_tail",
+          "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:pri_yitzchak_32_paths:tail",
+          "work_title_as_printed": "ל\"ב נתיבות מבעל פרי יצחק",
+          "text_note": "Top half of the page only -- the tail end of the '32 Paths' (Netivot) work attributed to the Pri Yitzchak commentator, which began before p.208 (out of this batch's scope, owned by the pp.153-207 sibling session). Visible entries run from netiv כ' through the final netiv ל\"ב, each in the fixed formula 'נתיב X שכל X, נגד מלכות של X, ועתה לפרש סדר X ונבודים בגבורות ואנבודות על דפרי החכמה' (mishpat/gevurah/chochmah rulership formulas per path). Closes with a short unsigned discursive paragraph beginning ותעת נבחר להם עינים... and ending מחשבת המלך, then a decorative horizontal printer's rule marks the end of the work.",
+          "opening_anchor_on_page": "נתיב ל\"א שכל כמל נטבד, יסוד מלכות חכמה",
+          "closing_anchor": "ודוק וקבין וכ\"ש",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P208-U1", "text": "Individual netiv entries (each ~2-3 lines, small justified two-column print) transcribed at anchor/formula level only, not full letter-perfect per-entry text this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        },
+        {
+          "block_id": "ari_commentary_open",
+          "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:ari_commentary:ch1_m1",
+          "work_title_as_printed": "פירוש מהאר\"י הקדוש זצ\"ל",
+          "text_note": "Bottom half of the page, below the printer's rule that closes the 32-Paths work. Opens a new short commentary explicitly headed 'Perush me-ha-Ari ha-Kadosh zatza\"l' (a commentary attributed to the Ari). First entry: 'פ\"א מ\"א עשר ספירות בלי מה' -- opens with an exposition of the ten sefirot / belimah of Sefer Yetzirah Chapter 1 Mishnah 1, discussing 'עשר ולא תשע עשרה ולא אחד עשר' and the sefirot-as-kavod-nivra framing.",
+          "opening_anchor": "פ\"א מ\"א עשר ספירות בלי מה. פירוש י' ספירות...",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P208-U2", "text": "Full discursive prose of this exposition not transcribed verbatim this pass -- topic-level only (ten sefirot, kavod nivra, world/soul framing).", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        }
+      ],
+      "printer_marks": [],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 209,
+      "printed_page": "57",
+      "zone": "minor_works",
+      "works_on_page": ["ari_commentary"],
+      "content_blocks": [
+        {
+          "block_id": "ari_commentary_body_1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p209:minor_works:ari_commentary",
+          "work_title_as_printed": "פירוש מהאר\"י ז\"ל",
+          "text_note": "Continuation of the Ari-attributed commentary from p.208, running head 'פירוש מהארי\"י ז\"ל' at top. Continuous discursive prose (no new mishnah header visible on this page), discussing 'הנה העולם הזה מן קדמות...' and related sefirot/olam framing. Bottom of page carries a small printer's gathering/signature mark reading '[ספר יצירה] ח' / '8' -- this is a compositor's quire-signature mark, NOT a chapter or section boundary.",
+          "opening_anchor": "כתר ד\"ו ז\"ל בסוד בשיווייס במלת ואמר שהוא פתוח...",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P209-U1", "text": "Continuous prose paraphrased at topic level only.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        }
+      ],
+      "printer_marks": [{"note": "quire/signature mark '[ספר יצירה] ח' / '8' at bottom of page, compositor convention only"}],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 210,
+      "printed_page": "58",
+      "zone": "minor_works",
+      "works_on_page": ["ari_commentary"],
+      "content_blocks": [
+        {
+          "block_id": "ari_commentary_body_2",
+          "source_ref": "book:sefer-yetzirah-9perushim#p210:minor_works:ari_commentary",
+          "work_title_as_printed": "פירוש מהאר\"י ז\"ל",
+          "text_note": "Continuation, running head unchanged. Discusses the 'עשרה ולא תשעה עשרה ולא אחד עשר' enumeration formula and gevul/sefirah relationships in continuous prose.",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P210-U1", "text": "Continuous prose paraphrased at topic level only.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        }
+      ],
+      "printer_marks": [],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 211,
+      "printed_page": "59",
+      "zone": "minor_works",
+      "works_on_page": ["ari_commentary"],
+      "content_blocks": [
+        {
+          "block_id": "ari_commentary_close",
+          "source_ref": "book:sefer-yetzirah-9perushim#p211:minor_works:ari_commentary:end",
+          "work_title_as_printed": "פירוש מהאר\"י ז\"ל",
+          "text_note": "Final page of the Ari-attributed commentary. Text runs to the bottom of the right column and ends with the closing phrase '...ונדע כי כד סליק בעשרות מברי' עולם שלו וי\"י מעשה הקדמונים', followed by a decorative printer's ornament rule spanning the page width -- this rule marks the definite END of the Ari-commentary section. CORRECTION to the prior boundary-adjudication estimate: that session's AFTER (5ac66a4b) described the Ari block as 'pp.208-212'; direct reading this batch shows the Ari commentary text itself ends here at p.211 (with its closing ornament), and p.212 is a SEPARATE title/insert page (Kelil Tochnit), not a continuation of the Ari commentary.",
+          "closing_anchor": "עולם שלו וי\"י מעשה הקדמונים",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P211-U1", "text": "Continuous prose paraphrased at topic level only.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        }
+      ],
+      "printer_marks": [{"note": "decorative end-of-section ornament rule at bottom of page, after the closing anchor"}],
+      "citations": [],
+      "gpt_research_flags": [{"flag": "Boundary correction vs prior audit: Ari commentary = pp.208(bottom)-211, not pp.208-212 as previously estimated from header-sampling alone."}],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 212,
+      "printed_page": "unnumbered (insert/half-title page)",
+      "zone": "minor_works",
+      "works_on_page": ["kelil_tochnit_title", "twelve_simples_list_p212", "sefer_amash_v1", "sefer_bagad_kafrat_v1"],
+      "content_blocks": [
+        {
+          "block_id": "kelil_tochnit_title",
+          "source_ref": "book:sefer-yetzirah-9perushim#p212:minor_works:kelil_tochnit_title",
+          "work_title_as_printed": "כליל תכנית",
+          "text_note": "New, unpaginated insert/half-title page (same physical pattern as the p.28 Botril hakdama insert noted by the prior boundary audit). Banner title 'כליל תכנית' with a printed subtitle stating: 'הוא מאמר קדישין מהרב הקדוש האר\"י ז\"ל, כולל כל שרשי ספר יצירה' (\"This is Ma'amar Kadishin from the holy Rav the Ari z\"l, containing all the roots of Sefer Yetzirah\"). This title page is the umbrella under which the rest of this page's two columns sit.",
+          "verbatim_citations": ["מאמר קדישין", "האר\"י ז\"ל"],
+          "transcription_depth": "VERBATIM (banner + subtitle only)"
+        },
+        {
+          "block_id": "twelve_simples_list_p212",
+          "source_ref": "book:sefer-yetzirah-9perushim#p212:minor_works:twelve_simples_list_p212",
+          "work_title_as_printed": "ספר הי\"ו זח\"ט ל\"ג ס\"ע צ\"ק (as printed at top of left column; exact reading of this abbreviated title uncertain, see unresolved reading)",
+          "text_note": "Left column. A structured list keyed to Hebrew letters running roughly ה, ו, ז, ח, ט, י, ל, נ, ס, ע, צ, ק (consistent in count and letter-set with Sefer Yetzirah's 12 'simple' letters), each entry in a formula resembling 'ביד ימין ב... פרק פלוני... והוליך כנגד/כלפוף מכתר X למלוך Y ומיוחד ל-Z בעולם... ורגל ימין בכף...' -- i.e. a 12-simples 'path' enumeration in the Sefer-HaTemunah-adjacent literary style, distinct in wording from the Pri Yitzchak 32-Paths work on p.208. Followed by a short paragraph headed 'תמונת' and a closing reference 'וע\"פ מאמר הכהר\"י...'.",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [
+            {"id": "P212-U1", "text": "The exact printed title-abbreviation at the head of this list ('ספר הי\"ו זח\"ט ל\"ג ס\"ע צ\"ק' or similar letter-pair notation) was read from a 250dpi render and is NOT fully certain letter-for-letter; a higher-zoom crop pass is needed to confirm it exactly before this work is given a permanent canonical name.", "status": "UNRESOLVED, FLAGGED NOT GUESSED"},
+            {"id": "P212-U2", "text": "Per-letter entries (12 of them) transcribed at formula level only, not full verbatim text.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+          ]
+        },
+        {
+          "block_id": "sefer_amash_v1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p212:minor_works:sefer_amash_v1",
+          "work_title_as_printed": "ספר אמ\"ש",
+          "text_note": "Right column, upper-middle section, headed 'ספר אמ\"ש' (a short mini-work keyed to the three 'mother' letters Alef-Mem-Shin). Entries formatted 'בגודל ימין בקרק פנימי והולך לגבורה ומולך לאברהם...' style (rulership/direction formula per letter). THIS IS A DISTINCT TEXTUAL INSTANCE from the 'ספר אמ\"ש' that reappears on p.213 (see sefer_amash_v2) -- do not merge; content and wording differ between the two.",
+          "opening_anchor": "בגודל ימין בקרק פנימי והולך לגבורה, ומולך לאברהם...",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P212-U3", "text": "Full per-letter (Alef/Mem/Shin) entries not transcribed verbatim this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        },
+        {
+          "block_id": "sefer_bagad_kafrat_v1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p212:minor_works:sefer_bagad_kafrat_v1",
+          "work_title_as_printed": "ספר בנג\"ד כפר\"ת (note: this page prints the spelling 'בנג\"ד', distinct from the 'בג\"ד' spelling on p.213 -- both spellings preserved verbatim, not normalized)",
+          "text_note": "Right column, lower section, immediately below sefer_amash_v1 on the same page. Keyed to the seven 'double' letters (Bet-Gimel-Dalet-Kaf-Peh-Resh-Tav). Entries formatted 'בגודל ימין בקבע בקימי פנימי והולך מבחמד מוצר ומולך לאברהם ניחן בחכמה...' style. THIS IS A DISTINCT TEXTUAL INSTANCE from the work of the same title-family that reappears on p.213 (see sefer_bagad_kafrat_v2) -- do not merge.",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P212-U4", "text": "Full per-letter (7 doubles) entries not transcribed verbatim this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        }
+      ],
+      "printer_marks": [],
+      "citations": ["מאמר קדישין", "ספר אמ\"ש", "ספר בנג\"ד כפר\"ת"],
+      "gpt_research_flags": [{"flag": "This unpaginated insert page was NOT distinguished from p.213 in the prior boundary audit (which described the bound minor-works only at p.213). Direct reading establishes p.212 as its OWN page carrying a title banner plus a first, textually distinct instance of Sefer Amash and Sefer Bagad Kafrat, separate from the second instances on p.213."}],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 213,
+      "printed_page": "unnumbered (insert page, continues from p.212's Kelil Tochnit umbrella)",
+      "zone": "minor_works",
+      "works_on_page": ["maamar_kadishin_ari", "beur_tamarlish", "sefer_amash_v2", "sefer_bagad_kafrat_v2"],
+      "content_blocks": [
+        {
+          "block_id": "maamar_kadishin_ari",
+          "source_ref": "book:sefer-yetzirah-9perushim#p213:minor_works:maamar_kadishin_ari",
+          "work_title_as_printed": "מאמר קדישין להאר\"י ז\"ל",
+          "text_note": "Top of page, two short columns under the explicit header 'Ma'amar Kadishin le-ha-Ari z\"l'. This is the primary short mnemonic text itself (distinct from its own explanatory commentary immediately below it). Right column opens 'ביושבת ולא יוכל להרלחות בידיו יהורה שנקראה עמרז\"ל...' Left column opens 'כמ\"ש הפרי\"ל שכה' לחבטות שכה' בגי' שכה' בגי' שמות בג' שמות בני ה' ספר...'.",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P213-U1", "text": "This short mnemonic text's exact wording read from a 250dpi render is only moderately confident (dense small print, two narrow columns); a higher-zoom pass is recommended before treating any single word as verbatim-certain.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        },
+        {
+          "block_id": "beur_tamarlish",
+          "source_ref": "book:sefer-yetzirah-9perushim#p213:minor_works:beur_tamarlish",
+          "work_title_as_printed": "ביאור המאמר מהקדוש החסיד מוהר\"ר יעקב תמרליש ולה\"ה",
+          "text_note": "Immediately below maamar_kadishin_ari, explicitly headed as an explanation ('ביאור') of that mnemonic text, attributed to 'the holy chassid Moharar Yaakov Tamarlish z\"lh\"h'. Two-column discursive prose following, then a subheading 'וזה סדרן' ('and this is their order') introducing the enumeration that follows.",
+          "opening_anchor": "פירוש מלכ\"ה לתוקים מסלגורות ומעניני החלוקה מ\"ש למוד וכ...",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P213-U2", "text": "Discursive explanation prose paraphrased at topic level only.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        },
+        {
+          "block_id": "sefer_amash_v2",
+          "source_ref": "book:sefer-yetzirah-9perushim#p213:minor_works:sefer_amash_v2",
+          "work_title_as_printed": "ספר אמ\"ש",
+          "text_note": "Right column, lower section, headed 'ספר אמ\"ש' a SECOND time on this batch's pages. Format differs materially from sefer_amash_v1 (p.212): shorter entries of the pattern 'א' הוא בקו ישר לאמצעי מתגלגני יסוד מסה בגבורה...' (starting from Alef). THIS IS TEXTUALLY DISTINCT FROM sefer_amash_v1 -- preserved as its own object per the never-merge rule.",
+          "opening_anchor": "א' הוא בקו ישר לאמצעי...",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P213-U3", "text": "Full text not transcribed verbatim this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        },
+        {
+          "block_id": "sefer_bagad_kafrat_v2",
+          "source_ref": "book:sefer-yetzirah-9perushim#p213:minor_works:sefer_bagad_kafrat_v2",
+          "work_title_as_printed": "ספר בנג\"ד כפר\"ת",
+          "text_note": "Immediately below sefer_amash_v2 on the same page/column. Format differs materially from sefer_bagad_kafrat_v1 (p.212): entries of the pattern 'מלך הרלגאון היושר מלמעלה למטה, היור מקום..., מלך הכבורה...' (rulership-direction descriptions per double letter, shorter than the p.212 instance). THIS IS TEXTUALLY DISTINCT FROM sefer_bagad_kafrat_v1 -- preserved as its own object.",
+          "opening_anchor": "מלך הרלגאון היושר מלמעלה למטה...",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [{"id": "P213-U4", "text": "Full text not transcribed verbatim this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        }
+      ],
+      "printer_marks": [{"note": "decorative divider rule between maamar_kadishin_ari and beur_tamarlish"}],
+      "citations": ["מאמר קדישין", "ספר אמ\"ש", "ספר בנג\"ד כפר\"ת", "ר' יעקב תמרליש"],
+      "gpt_research_flags": [{"flag": "TWO textually distinct instances each of 'Sefer Amash' and 'Sefer Bagad Kafrat' exist across pp.212 and 213 (v1 on p.212 under the Kelil Tochnit banner, v2 on p.213 under Beur Tamarlish). This is a genuine textual-variant finding for the sibling Textual-Version audit's attention, not a duplication artifact -- both must stay separately locatored."}],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 214,
+      "printed_page": "63 (as read; see unresolved reading on pagination overlap with p.215)",
+      "zone": "old_recension",
+      "works_on_page": ["editor_mantua_1562_note", "old_recension_text"],
+      "content_blocks": [
+        {
+          "block_id": "editor_mantua_1562_note",
+          "source_ref": "book:sefer-yetzirah-9perushim#p214:old_recension:editor_mantua_1562_note",
+          "text_note": "CRITICAL, HIGH-CONFIDENCE FINDING. A large decorative banner spanning the full page width, printed BEFORE the old-recension text begins, reading (transcribed in full, verbatim, directly confirmed at 250dpi): 'לשלמות המלאכה והדפסתי גם נוסח הספר יצירה כפי שהוא מסודר בדפוס מנטובה (שנת שכ\"ב) בסופו, אשר עליו קבעו המפרשים הראשונים פירושיהם: ה\"ה ר' שבתי דונולו, הראב\"ד, רס\"ג, ור\"א מגרמיזא, ועוד:' (\"For the completeness of the work I have also printed, at the end [of this volume], the recension of Sefer Yetzirah as it is arranged in the Mantua printing [year 5322/1562], upon which the first commentators based their commentaries: namely R' Shabtai Donolo, the Raavad, Rav Saadia Gaon, and R' Eliezer of Worms/Garmiza, and others\"). THIS IS THE EXPLICIT, SOURCE-PRINTED BASIS for the 'Mantua 1562' identification of the text that follows -- it is a printed editorial claim IN THIS BOOK, not an external bibliographic inference. Per the dispatch's explicit instruction NOT to assert Mantua/1562=p.216 as fact without printed evidence: this note is that printed evidence, but it is evidence of WHAT THE EDITOR CLAIMS/PRINTS, not independent external verification that the following text is byte-for-byte identical to an actual 1562 Mantua exemplar (no such external verification was performed or is in scope here).",
+          "transcription_depth": "VERBATIM (full banner transcribed)",
+          "verbatim_citations": ["דפוס מנטובה", "שנת שכ\"ב", "שבתי דונולו", "הראב\"ד", "רס\"ג", "ר\"א מגרמיזא"]
+        },
+        {
+          "block_id": "old_recension_text_ch1_ch2",
+          "source_ref": "book:sefer-yetzirah-9perushim#p214:old_recension:old_recension_text:ch1_ch2",
+          "text_note": "CORRECTS the prior boundary-adjudication's placement. The old-recension text of Sefer Yetzirah itself begins HERE, on p.214, immediately below the editor's Mantua banner (via a horizontal rule divider) -- NOT on p.216 as previously estimated from header-sampling. Two-column layout begins with the famous opening mishnah of Sefer Yetzirah Chapter 1 (right column): 'פ\"א מ\"א בשלשים ושתים נתיבות פליאות חכמה חקק י-ה יהוה צבאות אלהי ישראל...' and continues into Chapter 2 (left column): 'פ\"ב מ\"א עשרים ושתים אותיות יסוד ושתים אמות...' -- i.e. this page alone already compresses Ch.1-2 of the entire book into two dense columns, confirming this is indeed a materially SHORTER/more compressed recension than the main synoptic body (pp.29-129, owned by sibling session A).",
+          "opening_anchor": "פ\"א מ\"א בשלשים ושתים נתיבות פליאות חכמה חקק י-ה יהוה צבאות אלהי ישראל...",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_OPENING",
+          "unresolved_readings": [{"id": "P214-U1", "text": "Full mishnah-by-mishnah text of Ch.1-2 on this page not transcribed verbatim in full this pass -- opening lines verbatim, remainder at structural/topic level.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        }
+      ],
+      "printer_marks": [{"note": "horizontal rule dividing the editor's banner note from the old-recension text proper"}],
+      "citations": ["דפוס מנטובה שכ\"ב"],
+      "gpt_research_flags": [{"flag": "MAJOR CORRECTION to prior boundary map: the Nusach Yeshana / old-recension zone begins on p.214 (with its own explicit Mantua-1562 printed attribution), not p.216. It spans pp.214-216 as ONE continuous text, not a single-page object. The pp.214-215 'UNKNOWN' pocket flagged by the boundary audit and by ZURIEL's dispatch is hereby RESOLVED: it is the continuation of this same old-recension text, Chapters 2 through ~5."}],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 215,
+      "printed_page": "63 (as printed on this page; near-duplicate of p.214's read printed number, flagged not resolved -- see unresolved reading)",
+      "zone": "old_recension",
+      "works_on_page": ["old_recension_text"],
+      "content_blocks": [
+        {
+          "block_id": "old_recension_text_ch3_ch5",
+          "source_ref": "book:sefer-yetzirah-9perushim#p215:old_recension:old_recension_text:ch3_ch5",
+          "work_title_as_printed": "ספר יצירה נוסחא ישנה (running head explicit on this page)",
+          "text_note": "Continuation of the same old-recension text from p.214, running head now explicitly reads 'ספר יצירה נוסחא ישנה' at the top of the page (confirming the work's own printed title). Continues through further chapters, including a Ch.5-associated block enumerating the twelve simple letters/months/limbs formula ('פ\"ה מ\"א שנים עשר... יסודן שמיעה וריח ודבור... ומנהיגם').",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_ANCHOR_PHRASES",
+          "unresolved_readings": [
+            {"id": "P215-U1", "text": "Printed page-number digits on pp.214 and 215 were both read as similar/identical small numerals at 250dpi; this may be a mis-read of one of the two (e.g. 62 vs 63) rather than a genuine duplicate pagination in the source. NOT resolved this pass -- flagged for a higher-zoom crop check, not guessed.", "status": "UNRESOLVED, FLAGGED NOT GUESSED"},
+            {"id": "P215-U2", "text": "Full mishnah-by-mishnah text of Ch.3-5 on this page not transcribed verbatim in full this pass.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}
+          ]
+        }
+      ],
+      "printer_marks": [],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 216,
+      "printed_page": "64",
+      "zone": "old_recension",
+      "works_on_page": ["old_recension_text", "printer_colophon_gershon_halevi"],
+      "content_blocks": [
+        {
+          "block_id": "old_recension_text_ch6_close",
+          "source_ref": "book:sefer-yetzirah-9perushim#p216:old_recension:old_recension_text:ch6_close",
+          "work_title_as_printed": "ספר יצירה נוסחא ישנה",
+          "text_note": "Final page of the old-recension text, running head 'ספר יצירה נוסחא ישנה' continues. Content concludes Chapter 6 material (a י\"ב-פשוטות-style summary list of the 12 simple letters and their assigned limbs/directions/months, entries such as 'ה טלה נקש עין ימין... ו שור אייר פרת... ' etc.), then the text closes with its own formal colophon, transcribed verbatim: 'סליק ספר יצירה הקדוש, בעזר שמו יתברך ויתעלה:' (\"Sefer Yetzirah HaKadosh concludes, with the help of His blessed and exalted Name\").",
+          "closing_anchor_verbatim": "סליק ספר יצירה הקדוש, בעזר שמו יתברך ויתעלה:",
+          "transcription_depth": "STRUCTURAL_HEADER_LEVEL_WITH_VERBATIM_COLOPHON",
+          "unresolved_readings": [{"id": "P216-U1", "text": "Full mishnah-by-mishnah text of the Ch.6 close on this page not transcribed verbatim in full this pass; the closing colophon itself IS verbatim.", "status": "PARTIAL COVERAGE, ACKNOWLEDGED"}]
+        },
+        {
+          "block_id": "printer_colophon_gershon_halevi",
+          "source_ref": "book:sefer-yetzirah-9perushim#p216:old_recension:printer_colophon",
+          "text_note": "Immediately below old_recension_text_ch6_close, after a decorative printer's rule, a SEPARATE closing colophon for the WHOLE PRINTED VOLUME (not specific to the old recension alone), crediting the typesetter/compositor: transcribed in substantial part -- 'רוב ברכות ישא האיש הישר... אשר יגיעו ועוסק במלאכת הקודש באמונה בסדור אותיות וסדור המפרשים... כבוד ר' גרשון הלוי מוויכאליסקי מווילנא... ולפי דעת... נמצא בשלמות והדור, בספרים אשר יסדר... הרמב\"ם, ספר המצות להרמב\"ם, הליכות עולם, והספר הקדוש הזה. ...אלהי אברהם יהיה בעזרו: המדפיס'. This is the printer's/compositor's own signed credit line for the edition as a whole.",
+          "verbatim_citations": ["ר' גרשון הלוי מוויכאליסקי מווילנא", "המדפיס"],
+          "transcription_depth": "SUBSTANTIAL_PARAPHRASE_WITH_VERBATIM_NAMES"
+        }
+      ],
+      "printer_marks": [{"note": "two decorative rules: one after the old-recension's own colophon, one implicit before the printer colophon block"}],
+      "citations": [],
+      "gpt_research_flags": [{"flag": "This page is the definitive END of the old-recension text AND the end of the entire printed volume's content (everything after is blank flyleaf + cover). Confirms the dispatch's own framing that p.216 closes 'on the same page with Sefer Yetzirah/printer colophon' -- correct for p.216 as the CLOSING page, even though the recension's OPENING is on p.214, not p.216."}],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 217,
+      "printed_page": "unnumbered",
+      "zone": "back_matter",
+      "works_on_page": ["blank_flyleaf"],
+      "content_blocks": [
+        {
+          "block_id": "blank_flyleaf_1",
+          "source_ref": "book:sefer-yetzirah-9perushim#p217:back_matter:blank_flyleaf",
+          "text_note": "Blank rear flyleaf, photographic scan, matches the front-matter flyleaf pattern (pp.1-4). No printed content.",
+          "transcription_depth": "N/A_BLANK_CONFIRMED_VISUALLY"
+        }
+      ],
+      "printer_marks": [],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 218,
+      "printed_page": "unnumbered",
+      "zone": "back_matter",
+      "works_on_page": ["blank_flyleaf"],
+      "content_blocks": [
+        {
+          "block_id": "blank_flyleaf_2",
+          "source_ref": "book:sefer-yetzirah-9perushim#p218:back_matter:blank_flyleaf",
+          "text_note": "Blank rear flyleaf, photographic scan. No printed content.",
+          "transcription_depth": "N/A_BLANK_CONFIRMED_VISUALLY"
+        }
+      ],
+      "printer_marks": [],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 219,
+      "printed_page": "unnumbered",
+      "zone": "back_matter",
+      "works_on_page": ["blank_flyleaf"],
+      "content_blocks": [
+        {
+          "block_id": "blank_flyleaf_3",
+          "source_ref": "book:sefer-yetzirah-9perushim#p219:back_matter:blank_flyleaf",
+          "text_note": "Blank rear flyleaf, photographic scan; blue endpaper/board edge visible at the binding margin (matches the physical binding's inner board covering). No printed content.",
+          "transcription_depth": "N/A_BLANK_CONFIRMED_VISUALLY"
+        }
+      ],
+      "printer_marks": [],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    },
+    {
+      "pdf_page": 220,
+      "printed_page": "N/A (back cover)",
+      "zone": "back_matter",
+      "works_on_page": ["back_cover"],
+      "content_blocks": [
+        {
+          "block_id": "back_cover",
+          "source_ref": "book:sefer-yetzirah-9perushim#p220:back_matter:back_cover",
+          "text_note": "Photographed back cover: dark maroon embossed leather binding with a decorative rectangular border and corner motifs, matching the front cover's (p.1) style exactly. No text/title stamped on the back cover (unlike the front cover, which stamps 'ספר יצירה' -- confirmed by the earlier scan-plan session).",
+          "transcription_depth": "N/A_COVER_CONFIRMED_VISUALLY"
+        }
+      ],
+      "printer_marks": [],
+      "citations": [],
+      "gpt_research_flags": [],
+      "confidence": "SOURCE_LOCATED"
+    }
+  ],
+  "phonetic_acoustic_research_dna_candidates": {
+    "note": "Representation only, per dispatch RESEARCH-DNA CAPTURE instruction. No computation performed, no engine invoked. Source-supported letter/sound/direction/rulership structures ARE present on pp.208, 212-216 (12-simples path formulas, 3-mothers Sefer Amash, 7-doubles Sefer Bagad Kafrat, and the old recension's own 3/7/12 enumerations) -- all recorded above as source_wording/opening_anchor fields under their own source_ref locators. No Hz/F0/formant/cymatics claims appear anywhere in this page range; none were introduced.",
+    "letter_group_structures_located": [
+      "3 mothers (Alef-Mem-Shin): sefer_amash_v1 (p212), sefer_amash_v2 (p213), old_recension_text (pp.214-216, per its own Ch.1-2 mishnayot)",
+      "7 doubles (Bet-Gimel-Dalet-Kaf-Peh-Resh-Tav): sefer_bagad_kafrat_v1 (p212), sefer_bagad_kafrat_v2 (p213), old_recension_text (per its own mishnayot)",
+      "12 simples: twelve_simples_list_p212 (p212), old_recension_text_ch6_close (p216, direction/month/limb summary list)"
+    ],
+    "external_experiment_fields": "NONE present in this page range; field reserved empty per the strict-separation rule, not populated."
+  },
+  "verification_summary": {
+    "pages_accounted_for": "208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220 -- all 13 pages in scope directly read, none skipped.",
+    "distinct_works_identified": ["pri_yitzchak_32_paths (tail only)", "ari_commentary", "kelil_tochnit_title", "twelve_simples_list_p212", "sefer_amash_v1", "sefer_bagad_kafrat_v1", "maamar_kadishin_ari", "beur_tamarlish", "sefer_amash_v2", "sefer_bagad_kafrat_v2", "old_recension_text (Nusach Yeshana)", "printer_colophon_gershon_halevi", "blank_flyleaf (x3)", "back_cover"],
+    "pp214_215_resolution": "RESOLVED. pp.214-215 are NOT a separate unknown block -- they are the opening two-thirds of the old-recension (Nusach Yeshana) text, which begins on p.214 immediately after the editor's own printed Mantua-1562 attribution banner, and concludes on p.216. This corrects the prior boundary-adjudication's placement of the old recension as a single page (p.216 only).",
+    "p216_mantua_1562_treatment": "The dispatch instruction NOT to assert Mantua-1562=p.216 as FACT without printed evidence is respected: p.214 carries the editor's own printed statement naming the Mantua/5322(1562) printing as the basis for this recension. This is recorded as a SOURCE-PRINTED CLAIM (fact about what the book itself says), not as independently-verified external bibliographic fact about an actual surviving 1562 Mantua exemplar -- that stronger claim remains outside this session's evidence and is NOT made.",
+    "blanks_covers": "pp.217-219 confirmed blank flyleaves by direct visual read; p.220 confirmed back cover by direct visual read.",
+    "extraction_outside_scope": "CONFIRMED NONE. p.207 and below were not opened, rendered, or read at any point in this session. Wrong PDF 'A' (Ma'amar Esther) was not reopened.",
+    "writes_performed": "This JSON file and its companion .md batch report are the ONLY files written by this session. No DB content/schema/RPC/RLS write, no Book node, no research_objects/topic_cards/nodes/edges, no Roadmap/Master edit, no merge, no deploy."
+  }
+}

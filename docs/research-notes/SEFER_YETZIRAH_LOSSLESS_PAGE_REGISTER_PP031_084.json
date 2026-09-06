@@ -1,0 +1,117 @@
+{
+  "source_id": "book:sefer-yetzirah-9perushim",
+  "source_digital_object": {
+    "bucket": "gallery",
+    "path": "Book/Sefer Yetsirah.pdf",
+    "supabase_project": "linswmnnkjxvweumprav",
+    "pdf_pages_total": 220,
+    "pdf_pages_this_register": "31-84 only",
+    "ocr_text_layer": false,
+    "note": "Book/Hebrewbooks_org_33050.pdf (Ma'amar Esther) was never opened. Pages outside 31-84 were not touched by this dispatch."
+  },
+  "register_version": 1,
+  "dispatch_ref": "work_log 048d8238-d38e-45fd-9731-626854bd0071 (SEFER_YETZIRAH_DEEP_EXACT_PP031_084_V1)",
+  "prior_map_consumed": "branch claude/sefer-yetzirah-extraction-pp001-152, commit cb15de9c43ecbd40c7b3f28444bd8cf300284aa0 (docs/research-notes/SEFER_YETZIRAH_LOSSLESS_PAGE_REGISTER_PP001_152.json) -- NOT overwritten, consumed read-only as the prior STRUCTURALLY_MAPPED baseline for this range.",
+  "batch_scope": "PP031_084, deepening from STRUCTURALLY_MAPPED/header-sampled (prior batch) to block-level exact-witness reconstruction, per dispatch instruction. The PDF image is authority; a Sefaria.org digital transcription of Sefer Yetzirah + Ra'avad/Ramban commentary was consulted ONLY as a post-hoc alignment/identification aid (to recognize which mishnah a given boxed primary-text block corresponds to, and to cross-check wording) -- every content_blocks[] entry below was read from the PDF image directly; where the Sefaria aid text differs from the PDF's printed wording, the PDF reading is recorded as authoritative and the difference is noted in unresolved_readings or discrepancy_notes.",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_DNA_FLAGGED", "MECHANICALLY_RECONCILED"],
+  "note": "Honest, dimension-separated completeness, same convention as PP001_152 and the AHAVAT_TORAH precedent. This batch substantially deepens the primary-Mishnah-text layer and the Research-DNA layer across pp.31-84 (every named target concept in the dispatch was located and page-anchored: 3 mothers/7 doubles/12 simples, letter permutation, the five places of articulation, the 231 gates, and diagrams). It does NOT achieve full verbatim transcription of every commentary column on every page in this 54-page range -- that remains partially STRUCTURALLY_MAPPED ONLY (carried forward from the prior batch, unchanged), disclosed explicitly below, not claimed as complete.",
+  "block_ref_convention": "book:sefer-yetzirah-9perushim#p<PDF_PAGE>:<ZONE>:<WORK_OR_COMMENTATOR>[:<SUBLOCATOR>]",
+  "external_truth_exclusion": "963Hz, 444Hz, cymatics, '27 letters of light', and any modern acoustic/frequency/DNA claim are EXTERNAL and are NOT represented anywhere in this register.",
+
+  "alignment_aid_source": {
+    "provider": "Sefaria.org API (https://www.sefaria.org/api/texts/Sefer_Yetzirah.1 and .2)",
+    "use": "identification aid only -- recognizing which mishnah number a PDF-printed box corresponds to by content match, and cross-checking wording after independent PDF reading",
+    "caveat": "Sefaria's mishnah numbering (Ch.1 = 6 mishnayot, Ch.2 = 6 mishnayot) does NOT match this print edition's own numbering (this edition's Chapter 1 runs to at least Mishnah 13 before 'סליק פרקא'). This is treated as a genuine textual/versification variant of this print's recension, not an error -- the PDF's own printed mishnah numbers are recorded as authoritative in every block below, with the Sefaria-equivalent content noted separately where useful."
+  },
+
+  "structural_zone_updates": [
+    {"pdf_pages": "31-39", "zone": "synoptic_body", "chapter_mishnah": "ch1, extended mishnayot (10 sefirot depths)", "commentators": ["raavad", "ramban"], "depth_this_batch": "spot-checked (p.40 read in full at the range boundary); pp.31-39 interior not individually re-read this batch beyond the prior header-sampling pass", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "40", "zone": "synoptic_body", "chapter_mishnah": "ch1 m12 area", "diagrams": true, "depth_this_batch": "FULL (from prior batch, re-confirmed): zodiac/angel-name ruled table", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "41", "zone": "synoptic_body", "diagrams": true, "depth_this_batch": "not re-read this batch; remains HEADER_SAMPLED (small circle, detail pending)", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "42", "zone": "synoptic_body", "diagrams": true, "depth_this_batch": "FULL (from prior batch, re-confirmed): 12-permutation Tetragrammaton wheel", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "43", "zone": "synoptic_body", "depth_this_batch": "not re-read this batch", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "44", "zone": "synoptic_body", "diagrams": true, "depth_this_batch": "PARTIAL (from prior batch): companion ruled grid, cell-by-cell detail still pending", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "45-49", "zone": "synoptic_body", "depth_this_batch": "not read this batch, zone carried forward from prior header sampling", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "50", "zone": "synoptic_body", "chapter_mishnah": "ch1 m4 area (printed p.46)", "commentators": ["raavad", "ramban"], "depth_this_batch": "read in full this batch: dense philosophical prose (wisdom/sefirot), no new mishnah box, no diagram on this specific page -- commentary body NOT transcribed verbatim, only confirmed as continuing prose in the same two-commentary format", "confidence": "VISUALLY_VERIFIED_STRUCTURE_ONLY"},
+    {"pdf_pages": "51-59", "zone": "synoptic_body", "depth_this_batch": "not read this batch", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "60", "zone": "synoptic_body", "depth_this_batch": "rendered this batch but not read in this pass (time-bounded); zone carried forward", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "61-64", "zone": "synoptic_body", "depth_this_batch": "not read this batch", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "65", "zone": "synoptic_body", "chapter_mishnah": "ch1 m10 (printed p.61)", "depth_this_batch": "read in full this batch -- primary Mishnah box located and transcribed (see pages[] below)", "confidence": "VISUALLY_VERIFIED", "research_dna": "three_mothers_seven_doubles_twelve_simples_restated_in_ch1"},
+    {"pdf_pages": "66-73", "zone": "synoptic_body", "chapter_mishnah": "ch1 late mishnayot (up to m13)", "depth_this_batch": "not individually re-read this batch beyond prior header sampling", "confidence": "HEADER_SAMPLED_CARRIED_FORWARD"},
+    {"pdf_pages": "74-75", "zone": "synoptic_body", "chapter_mishnah": "ch1 m13 (printed pp.70-71)", "depth_this_batch": "read in full this batch: dense Raavad/Ramban prose on the final chapter-1 mishnah; commentary body not transcribed verbatim, structure and chapter/mishnah label confirmed", "confidence": "VISUALLY_VERIFIED_STRUCTURE_ONLY"},
+    {"pdf_pages": "76", "zone": "synoptic_body", "chapter_mishnah": "ch1/ch2 boundary + ch2 m1 (printed p.72)", "depth_this_batch": "FULL -- chapter-1 closing colophon (סליק פרקא) and Chapter 2 Mishnah 1 primary text box both transcribed", "confidence": "VISUALLY_VERIFIED", "research_dna": "twenty_two_letters_three_mothers_seven_doubles_twelve_simples"},
+    {"pdf_pages": "77", "zone": "synoptic_body", "chapter_mishnah": "ch2 m1 commentary", "depth_this_batch": "read in full this batch; commentary prose on M1 confirmed, not transcribed verbatim", "confidence": "VISUALLY_VERIFIED_STRUCTURE_ONLY"},
+    {"pdf_pages": "78", "zone": "synoptic_body", "chapter_mishnah": "ch2 m3 commentary (printed p.74)", "depth_this_batch": "read in full; extensive Raavad commentary on M3 confirmed, not transcribed verbatim in full", "confidence": "VISUALLY_VERIFIED_STRUCTURE_ONLY"},
+    {"pdf_pages": "79", "zone": "synoptic_body", "chapter_mishnah": "ch2 m2 (printed p.75)", "depth_this_batch": "FULL -- Mishnah 2 primary text box transcribed", "confidence": "VISUALLY_VERIFIED", "research_dna": "letter_carving_permutation_procedure"},
+    {"pdf_pages": "80", "zone": "synoptic_body", "chapter_mishnah": "ch2 m3 + m4 (printed p.76)", "depth_this_batch": "FULL -- both Mishnah 3 (five places of articulation) and Mishnah 4 (231 gates) primary text boxes transcribed, PLUS the printed footnote citing the Mantua-edition textual variant for Mishnah 3, transcribed in full", "confidence": "VISUALLY_VERIFIED", "research_dna": "five_places_of_articulation_AND_two_hundred_thirty_one_gates_AND_mantua_variant"},
+    {"pdf_pages": "81-84", "zone": "synoptic_body", "chapter_mishnah": "ch2 m3-m4 commentary continuing", "depth_this_batch": "pp.81-82 read in full this batch (Raavad/Botril/Otzar-HaShem commentary on M3-M4 confirmed continuing); pp.83-84 rendered but not read in this pass", "confidence": "VISUALLY_VERIFIED_STRUCTURE_ONLY (81-82) / HEADER_SAMPLED_CARRIED_FORWARD (83-84)"}
+  ],
+
+  "pages": [
+    {
+      "pdf_page": 65,
+      "printed_page": "61",
+      "section": "synoptic_body",
+      "content_blocks": [
+        {"block_id": "mishnah_ch1_m10", "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:mishnah:ch1_m10", "commentator": "mishnah_primary_text", "text_he": "ושתים אותיות יסוד שלש אמות שבע כפולות ושתים עשרה פשוטות", "text_note": "boxed primary-text formula restating the 22-letters/3-mothers/7-doubles/12-simples classification, positioned within this edition's own extended Chapter 1 (its 10th mishnah), i.e. BEFORE the edition reaches its own 'Chapter 2' at p.76. Sefaria-equivalent content: closest to Sefer Yetzirah 1:2 / 2:1 in the standard short-recension numbering.", "chapter": 1, "mishnah": 10, "research_dna": "three_mothers_seven_doubles_twelve_simples"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED_HIGH_VALUE",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:mishnah:ch1_m10", "issue": "the boxed formula's exact surrounding words (a line or two before/after the quoted core) were not independently re-verified beyond the core clause quoted; the immediate commentary columns on this page were not transcribed verbatim."}
+      ],
+      "discrepancy_notes": [
+        {"vs": "Sefaria Sefer_Yetzirah.1.2 / 2.1", "issue": "this edition restates the 3-mothers/7-doubles/12-simples formula as its OWN Chapter 1 Mishnah 10, in addition to a further restatement as Chapter 2 Mishnah 1 (p.76) -- a genuine structural/versification variant of this print's recension versus Sefaria's numbering, not a transcription error."}
+      ]
+    },
+    {
+      "pdf_page": 76,
+      "printed_page": "72",
+      "section": "synoptic_body",
+      "content_blocks": [
+        {"block_id": "ch1_closing_colophon", "source_ref": "book:sefer-yetzirah-9perushim#p76:synoptic_body:boundary:ch1_close", "text_he": "סליק פרקא", "text_note": "chapter-1 closing formula (\"the chapter is concluded\"), printed centered between the end of Chapter 1's commentary and the start of Chapter 2 Mishnah 1's box"},
+        {"block_id": "mishnah_ch2_m1", "source_ref": "book:sefer-yetzirah-9perushim#p76:synoptic_body:mishnah:ch2_m1", "commentator": "mishnah_primary_text", "text_he": "עשרים ושתים אותיות יסוד שלש אמות שבע כפולות ושתים עשרה פשוטות. שלש אמות אמ\"ש יסודן כף זכות וכף חובה ולשון חק מכריע ביניהם", "text_note": "boxed primary Mishnah text opening this edition's own Chapter 2. Near-identical to Sefaria's Sefer_Yetzirah.2.1 (Sefaria reads 'ביניהם' as 'בינתים' -- minor variant, both legible readings, PDF reading recorded as authoritative)", "chapter": 2, "mishnah": 1, "research_dna": "twenty_two_letters_three_mothers_seven_doubles_twelve_simples"},
+        {"block_id": "eleazar_worms_block_m1", "source_ref": "book:sefer-yetzirah-9perushim#p76:synoptic_body:eleazar_worms:ch2_m1", "commentator": "eleazar_worms", "text_note": "commentary block headed הר\"א מגרמישא (R' Eleazar of Germiza/Worms), right column"},
+        {"block_id": "saadia_gaon_block_m1", "source_ref": "book:sefer-yetzirah-9perushim#p76:synoptic_body:saadia_gaon_attrib:ch2_m1", "commentator": "saadia_gaon_attrib", "text_note": "commentary block headed ר\"ם גאון, left column"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED_HIGH_VALUE",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p76:synoptic_body:mishnah:ch2_m1", "issue": "a second boxed formula appears lower on the same page (partially legible, tentatively read as beginning 'אלו עשר ספירות בלימה אחת רוח אלהים חיים...') whose exact mishnah-number label and relationship to M1 was NOT confidently resolved this batch -- recorded as UNRESOLVED rather than guessed. Possible explanations left open: a continuation of this edition's Chapter 1 numbering appearing out of visual sequence due to column layout, or a distinctly labeled mishnah; not adjudicated."}
+      ]
+    },
+    {
+      "pdf_page": 79,
+      "printed_page": "75",
+      "section": "synoptic_body",
+      "content_blocks": [
+        {"block_id": "mishnah_ch2_m2", "source_ref": "book:sefer-yetzirah-9perushim#p79:synoptic_body:mishnah:ch2_m2", "commentator": "mishnah_primary_text", "text_he": "עשרים ושתים אותיות ושתים כפולות ... שקלן והמירן צרפן וצר בהם נפש כל היצור ונפש כל העתיד לצור", "text_note": "boxed primary Mishnah text; the ellipsis marks a short medial phrase read with lower confidence at this resolution (flagged below), the opening and closing clauses are high-confidence. Close to Sefaria's Sefer_Yetzirah.2.2 ('עשרים ושתים אותיות חקקן חצבן שקלן והמירן צרפן וצר בהם נפש כל כל היצור ונפש כל העתיד לצור') -- PDF appears to include 'ושתים כפולות' where Sefaria has 'חקקן חצבן'; flagged as a discrepancy, not silently reconciled.", "chapter": 2, "mishnah": 2, "research_dna": "letter_carving_permutation_procedure"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED_HIGH_VALUE",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p79:synoptic_body:mishnah:ch2_m2", "issue": "the medial phrase of the Mishnah 2 box was read at page-overview confidence only; a magnified re-crop was not performed this batch. The discrepancy against the Sefaria comparison text (חקקן חצבן vs the PDF's apparent ושתים כפולות) is flagged, not resolved -- could be a genuine variant, a column-layout artifact merging with the tail of Mishnah 1, or a misreading at this resolution."}
+      ]
+    },
+    {
+      "pdf_page": 80,
+      "printed_page": "76",
+      "section": "synoptic_body",
+      "content_blocks": [
+        {"block_id": "mishnah_ch2_m3", "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:mishnah:ch2_m3", "commentator": "mishnah_primary_text", "text_he": "עשרים ושתים אותיות יסוד חקוקות בקול חצובות ברוח קבועות בפה בחמשה מקומות אחה\"ע בומ\"ף גיכ\"ק דטלנ\"ת זסשר\"ץ", "text_note": "boxed primary Mishnah text: the 22 letters engraved in voice (קול), hewn in breath/spirit (רוח), fixed in the mouth (פה) in five places, grouped אחה\"ע / בומ\"ף / גיכ\"ק / דטלנ\"ת / זסשר\"ץ. Matches Sefaria's Sefer_Yetzirah.2.3 core text closely.", "chapter": 2, "mishnah": 3, "research_dna": "kol_ruach_peh_five_places_of_articulation"},
+        {"block_id": "mishnah_ch2_m3_mantua_footnote", "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:footnote:mantua_variant_m3", "text_he": "כדפוס מנטובה נוסף במשנה זו: קשורות בלשון כשלהבת בגחלת, אחה\"ע משמשת בסוף הלשון ובבית הבליעה, בומ\"ף בין השפתים ובראש הלשון, גיכ\"ק על שלישית של לשון נכרתת, דטלנ\"ת ... [ב]ראש הלשון משמשת עם הקול, וזסצר\"ש בין השינים ולשון שכובה ושטוחה. וע\"ז קאי פי' סרמ\"ב", "text_note": "printed footnote (marked with an asterisk against the Mishnah 3 box), explicitly citing the MANTUA PRINTING as the source of an added clause to this Mishnah. Transcribed from a magnified crop of the page-bottom footnote line. This wording is near-identical to the Mantua-variant text Sefaria's digital edition also carries in brackets for Sefer_Yetzirah.2.3 -- independent cross-confirmation that this Warsaw edition's own editor reproduced the same known Mantua variant, sourced directly from this PDF's own printed page, not from Sefaria.", "research_dna": "mantua_print_textual_variant_documented_in_source"},
+        {"block_id": "mishnah_ch2_m4", "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:mishnah:ch2_m4", "commentator": "mishnah_primary_text", "text_he": "עשרים ושתים אותיות יסוד קבועות בגלגל ברל\"א שערים והחוזר הגלגל בזה ובזה פנים ואחור וזהו סימן לדבר אין בטובה למעלה מענג ואין ברעה למטה ממנגע", "text_note": "boxed primary Mishnah text: the 22 letters fixed in the wheel (גלגל) IN 231 GATES (רל\"א שערים), the wheel turning forward and back. Matches Sefaria's Sefer_Yetzirah.2.4 closely.", "chapter": 2, "mishnah": 4, "research_dna": "two_hundred_thirty_one_gates_primary_mishnah_text"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED_HIGHEST_VALUE",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:footnote:mantua_variant_m3", "issue": "one short medial phrase in the footnote (around 'דטלנ\"ת') was only partly legible even at 3x magnification of a 190dpi render; bracketed [ב] marks a reconstructed letter not independently confirmed pixel-by-pixel."}
+      ],
+      "note": "SINGLE HIGHEST-VALUE PAGE THIS BATCH: contains both of the dispatch's two most specific named targets (five places of articulation; 231 gates) as primary Mishnah text, plus a printed, source-confirmed Mantua-edition variant note."
+    }
+  ]
+}

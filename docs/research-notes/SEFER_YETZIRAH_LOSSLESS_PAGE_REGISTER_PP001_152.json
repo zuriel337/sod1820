@@ -1,0 +1,278 @@
+{
+  "source_id": "book:sefer-yetzirah-9perushim",
+  "source_digital_object": {
+    "bucket": "gallery",
+    "path": "Book/Sefer Yetsirah.pdf",
+    "supabase_project": "linswmnnkjxvweumprav",
+    "pdf_pages_total": 220,
+    "pdf_pages_this_register": "1-152 only",
+    "ocr_text_layer": false,
+    "note": "Source-of-record confirmed by prior read-only audits (work_log AFTERs 8d71dbf9, 84900948, 10e246ce, 1794bd8b, 5ac66a4b). Book/Hebrewbooks_org_33050.pdf is a DIFFERENT WORK (Ma'amar Esther, R' Shlomo Kluger, Brody 1912) and was NEVER opened or used to produce this register."
+  },
+  "register_version": 1,
+  "dispatch_ref": "work_log f616f647-7970-43a8-92be-2ed2ea86897a (SEFER_YETZIRAH_LOSSLESS_EXTRACTION_PP001_152_V1)",
+  "boundary_authority_ref": "work_log 5ac66a4b-5f46-4eac-bb9f-e7b5c1c87e85",
+  "batch_scope": "PP001_152, Batch 1 of this scope (first pass: full structural mapping of all 152 pages by header/format sampling, plus full block-level verbatim transcription of the highest-value subset: front matter+hakdamot pp.1-30, all Research-DNA diagram/table loci located this batch, and the exact interlace-to-Chachmoni transition pp.125-129, plus previously-established Chachmoni chapter anchors pp.141/148/150/152).",
+  "status_dimensions": ["STRUCTURALLY_MAPPED", "TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_DNA_FLAGGED", "MECHANICALLY_RECONCILED"],
+  "note": "This is source-artifact extraction, not interpretation/canonicalization, per dispatch instruction. Honest-completeness convention follows the existing AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER.json precedent: STRUCTURALLY_MAPPED (all 152 pages, this batch) is NOT the same as TRANSCRIBED (block-level verbatim, partial this batch -- see completeness matrix in the accompanying .md). Pages not given a content_blocks[] entry in the `pages` array below remain STRUCTURALLY_MAPPED ONLY at the zone/chapter/commentator level recorded in `structural_zones` below; their verbatim body text is NOT YET TRANSCRIBED and must not be treated as captured. No block boundary was forced where the source was not legible at the sampling resolution used; ambiguous chapter/mishnah readings are marked confidence:'HEADER_SAMPLED' rather than invented.",
+  "block_ref_convention": "book:sefer-yetzirah-9perushim#p<PDF_PAGE>:<ZONE>:<WORK_OR_COMMENTATOR>[:<SUBLOCATOR>]",
+  "zone_vocabulary": ["front_matter", "hakdama", "synoptic_body", "chachmoni_preface", "chachmoni_treatise"],
+  "external_truth_exclusion": "963Hz, 444Hz, cymatics, '27 letters of light', and any modern acoustic/frequency/DNA claim are EXTERNAL and are NOT represented anywhere in this register, per dispatch instruction.",
+
+  "structural_zones": [
+    {"pdf_pages": "1-4", "zone": "front_matter", "content": "front cover + blank flyleaves, photographic scan", "commentators": [], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "5", "zone": "front_matter", "content": "printed title page: ספר יצירה המיוחס לאברהם אבינו ע\"ה, 9 commentaries listed", "commentators": [], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "6", "zone": "front_matter", "content": "Warsaw / Achim Lewin-Epstein imprint page", "commentators": [], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "7", "zone": "front_matter", "content": "Grodno (הוראדנא) haskama, plus opening heading of הקדמת הראב\"ד ז\"ל on the same page", "commentators": ["raavad"], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "8-27", "zone": "hakdama", "content": "Raavad's hakdama, continuous prose, running head הקדמת הראב\"ד ז\"ל throughout", "commentators": ["raavad"], "diagrams": false, "sampling": "contact-sheet header-sampled, every page in range", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "28", "zone": "hakdama", "content": "distinct one-page hakdama insert, הקדמת הר\"ר משה בוטריל ז\"ל (printed page 24), separate from Raavad's", "commentators": ["botril"], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "29-30", "zone": "synoptic_body", "content": "Sefer Yetzirah Ch.1 Mishnah 1 opens (printed pp.25-26); multi-column commentary begins", "commentators": ["raavad", "ramban", "saadia_gaon_attrib", "eleazar_worms", "otzar_hashem", "botril"], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED", "primary_mishnah_locator": "book:sefer-yetzirah-9perushim#p29:synoptic_body:mishnah:ch1_m1"},
+    {"pdf_pages": "31-39", "zone": "synoptic_body", "content": "Ch.1 continues, extended mishnayot on the 10 sefirot / depths; two-commentary format (Raavad + Ramban) confirmed by header sampling", "commentators": ["raavad", "ramban"], "diagrams": false, "sampling": "contact-sheet header-sampled", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "40", "zone": "synoptic_body", "content": "Raavad commentary, Ch.1 M.12 (פ\"א מי\"ב, printed p.36 area): ruled 4x3 table pairing 12 zodiac-constellation names (תאומים/שור/טלה/סרטן/אריה/בתולה/מאזנים/עקרב/קשת/דגים/דלי/גדי) each with two angelic-name letter combinations", "commentators": ["raavad"], "diagrams": true, "diagram_type": "ruled_table_zodiac_angel_names", "research_dna": ["twelve_simples_zodiac_correspondence"], "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "41", "zone": "synoptic_body", "content": "Raavad commentary continues; small circular diagram present (not yet transcribed in detail)", "commentators": ["raavad"], "diagrams": true, "diagram_type": "small_circle_unlabeled_detail_pending", "sampling": "contact-sheet header-sampled", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "42", "zone": "synoptic_body", "content": "Raavad commentary, Ch.1 M.12 (printed p.38): large circular wheel diagram, 12 segments around circumference, each containing a distinct permutation of the Tetragrammaton (יהו\"ה) letters -- the 12 permutations of the Name tied to the 12 constellations", "commentators": ["raavad"], "diagrams": true, "diagram_type": "wheel_12_tetragrammaton_permutations", "research_dna": ["letter_permutation", "twelve_simples_zodiac_wheel"], "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "43", "zone": "synoptic_body", "content": "Raavad/Ramban continue, Ch.1 late mishnayot", "commentators": ["raavad", "ramban"], "diagrams": false, "sampling": "contact-sheet header-sampled", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "44", "zone": "synoptic_body", "content": "ruled grid/table (checkered), correlating letters/zodiac -- companion table to p.40/p.42 material", "commentators": ["raavad"], "diagrams": true, "diagram_type": "ruled_grid_table_detail_pending_full_transcription", "sampling": "contact-sheet header-sampled + partial full-res", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "45-66", "zone": "synoptic_body", "content": "Ch.1 concludes / Ch.2 opens; Raavad + Ramban two-commentary interlace confirmed continuing by header sampling; exact mishnah-by-mishnah breakdown NOT individually verified in this batch", "commentators": ["raavad", "ramban"], "diagrams": "unknown_not_sampled_at_full_density", "sampling": "contact-sheet header-sampled at ~85dpi, headers legible, body text not read", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "67-84", "zone": "synoptic_body", "content": "Ch.1-2 continue, header-confirmed הראב\"ד / הרמב\"ן columns throughout; p.72 sampled at full resolution (Ch.1 M.12-adjacent dense prose, no diagram on that specific page)", "commentators": ["raavad", "ramban"], "diagrams": false, "sampling": "contact-sheet header-sampled + one full-resolution spot-check (p.72)", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "85", "zone": "synoptic_body", "content": "Ch.2 Mishnah 5 (פ\"ב מ\"ה, printed p.81): the Mishnah text itself gives the letter-permutation procedure (\"כיצד שקלן והמירן\"), followed by an extensive numeric enumeration of combination-counts and a printed alphabet-pairing table headed \"והנה אכתוב האלפא ביתא\" (22 rows of paired-letter combinations)", "commentators": ["mishnah_primary_text", "raavad", "saadia_gaon_attrib", "botril", "otzar_hashem"], "diagrams": true, "diagram_type": "alphabet_pairing_table_22_rows", "research_dna": ["tzaruf_shakal_hemir_procedure", "letter_permutation_combinatorics", "two_hundred_thirty_one_gates_candidate"], "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "86-100", "zone": "synoptic_body", "content": "Ch.2 continues (per header sampling of neighboring pages); not individually full-res verified", "commentators": ["raavad", "ramban"], "diagrams": "unknown_not_sampled_at_full_density", "sampling": "contact-sheet header-sampled", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "101-102", "zone": "synoptic_body", "content": "Ch.4 opens (פ\"ד מ\"א area); a circular diagram present at/near p.102", "commentators": ["raavad", "ramban"], "diagrams": true, "diagram_type": "circle_detail_pending_full_transcription", "sampling": "contact-sheet header-sampled", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "103-125", "zone": "synoptic_body", "content": "Ch.4-5 continue in Raavad+Ramban two-commentary interlace, confirmed by header sampling through p.125 (last page bearing a ספר יצירה + הראב\"ד/הרמב\"ן running head in this batch's sampling)", "commentators": ["raavad", "ramban"], "diagrams": "unknown_not_sampled_at_full_density", "sampling": "contact-sheet header-sampled", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "126", "zone": "chachmoni_preface", "content": "editorial insert (modern editor, printed page 122): biography of R' Shabtai Donolo, quoting Pesikta Zutarta via R' Shlomo Buber's Lekach Tov; followed on the same page by \"דברים אחדים\", prefatory remarks by Dr. David Castelli of Florence introducing this reprint of Sefer HaChachmoni", "commentators": ["editorial_modern"], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED", "note": "THIS PAGE IS THE EXACT INTERLACE-TO-CHACHMONI TRANSITION START, refining the prior boundary AFTER's approximate p.130 estimate to an exact anchor."},
+    {"pdf_pages": "127", "zone": "chachmoni_preface", "content": "Sefer HaChachmoni's own title+hakdama page (printed page 123): header \"ספר חכמוני\" / \"הקדמה\" / \"לפירוש ספר יצירה הנקרא ספר חכמוני\", opening \"שלום רב מפי אל שדי...\"", "commentators": ["chachmoni"], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "128-129", "zone": "chachmoni_treatise", "content": "\"חלק ראשון\" (Part One) -- Chachmoni's actual treatise body begins", "commentators": ["chachmoni"], "diagrams": false, "sampling": "full-resolution read", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "130-140", "zone": "chachmoni_treatise", "content": "Sefer HaChachmoni continuous prose, expounding Sefer Yetzirah chapter-by-chapter (not interlaced synoptic format)", "commentators": ["chachmoni"], "diagrams": "unknown_not_sampled_at_full_density", "sampling": "contact-sheet + full-res spot-check at p.130", "confidence": "HEADER_SAMPLED"},
+    {"pdf_pages": "141", "zone": "chachmoni_treatise", "content": "printed p.137: end of Chapter 3 / start of Chapter 4 (\"נגמר הספר האחד והוא אט\"ש והם שלש אמות\" + \"פרק רביעי\")", "commentators": ["chachmoni"], "diagrams": false, "sampling": "full-resolution read (prior session)", "confidence": "VISUALLY_VERIFIED", "research_dna": ["three_mothers_reference"]},
+    {"pdf_pages": "142-147", "zone": "chachmoni_treatise", "content": "Chachmoni treatise, Chapters 4-5", "commentators": ["chachmoni"], "diagrams": "unknown_not_sampled_at_full_density", "sampling": "not sampled this batch", "confidence": "UNKNOWN"},
+    {"pdf_pages": "148", "zone": "chachmoni_treatise", "content": "printed p.144: header ספר החכמוני, פרק ששי (Chapter 6) begins", "commentators": ["chachmoni"], "diagrams": false, "sampling": "full-resolution read (prior session)", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "149", "zone": "chachmoni_treatise", "content": "Chapter 6 continues", "commentators": ["chachmoni"], "diagrams": "unknown_not_sampled_at_full_density", "sampling": "not sampled this batch", "confidence": "UNKNOWN"},
+    {"pdf_pages": "150", "zone": "chachmoni_treatise", "content": "printed p.146: Chapter 6 continues", "commentators": ["chachmoni"], "diagrams": false, "sampling": "full-resolution read (prior session)", "confidence": "VISUALLY_VERIFIED"},
+    {"pdf_pages": "151", "zone": "chachmoni_treatise", "content": "Chapter 6 continues toward close", "commentators": ["chachmoni"], "diagrams": "unknown_not_sampled_at_full_density", "sampling": "not sampled this batch", "confidence": "UNKNOWN"},
+    {"pdf_pages": "152", "zone": "chachmoni_treatise", "content": "Sefer HaChachmoni treatise ends with an editor/compiler colophon line. LAST PAGE IN THIS DISPATCH'S SCOPE -- page 153 (Gra section title page) NOT touched, per instruction.", "commentators": ["chachmoni", "editorial_modern"], "diagrams": false, "sampling": "full-resolution read (prior session)", "confidence": "VISUALLY_VERIFIED"}
+  ],
+
+  "pages": [
+    {
+      "pdf_page": 1,
+      "section": "front_matter",
+      "content_blocks": [
+        {"block_id": "front_cover", "source_ref": "book:sefer-yetzirah-9perushim#p1:front_matter:cover", "text_note": "photographic scan of embossed leather binding, gold-lettered ספר יצירה, art-deco corner ornament"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_NON_TEXTUAL"
+    },
+    {
+      "pdf_page": 2,
+      "section": "front_matter",
+      "content_blocks": [
+        {"block_id": "flyleaf_blank", "source_ref": "book:sefer-yetzirah-9perushim#p2:front_matter:flyleaf", "text_note": "blank endpaper, photographic scan, aging spots only"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_NON_TEXTUAL"
+    },
+    {
+      "pdf_page": 3,
+      "section": "front_matter",
+      "content_blocks": [
+        {"block_id": "flyleaf_blank_2", "source_ref": "book:sefer-yetzirah-9perushim#p3:front_matter:flyleaf", "text_note": "blank flyleaf with pencil annotation 'tno / 186' in corner (archival/library mark, not part of original print)"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_NON_TEXTUAL"
+    },
+    {
+      "pdf_page": 4,
+      "section": "front_matter",
+      "content_blocks": [
+        {"block_id": "printer_colophon_stamp", "source_ref": "book:sefer-yetzirah-9perushim#p4:front_matter:printer_stamp", "text_he": "Drukarnia L. Lewin-Epsteina, Warszawa, Nowia 38", "text_note": "printer's rubber-stamp mark, Latin/Polish transliteration, plus pencil shelfmark 'Q 18/3545' -- institutional library shelfmark, confirms this is a scanned institutional (not private) copy"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC"
+    },
+    {
+      "pdf_page": 5,
+      "section": "front_matter",
+      "content_blocks": [
+        {"block_id": "title", "source_ref": "book:sefer-yetzirah-9perushim#p5:front_matter:title", "text_he": "ספר יצירה המיוחס לאברהם אבינו ע\"ה", "text_note": "main title, ornamental frame"},
+        {"block_id": "subtitle_commentaries_list", "source_ref": "book:sefer-yetzirah-9perushim#p5:front_matter:commentaries_list", "text_he": "ועליו כל שלטי הגבורים הנפרשים המקובלים גאוני קדמאי ובתראי זכר צדיקים לברכה: א) פירוש חכמוני מהקדמוני ר' שבתי דונולו ז\"ל (ד\"א תרע\"ג נ\"כתש\"ל) מובא בריש י\"ל (עירוכין נ\"ז בילס ל\"נ). ב) פירוש הראב\"ד ז\"ל. ג) פירוש הרמב\"ן ז\"ל. ד) פירוש רב סעדיה גאון ז\"ל. ה) פירוש ר' אליעזר מגרמיזא ז\"ל (בעל התרומה). ו) פירוש ר' משה בוטריל ז\"ל. ז) פירוש ר' משה ב\"ר יעקב הגולה ז\"ל, בעל ס' אוצר ה', וטושין כודות (ע' שם הגדולים ח\"ב מערכת ספרים, שושן סודות). ח) פירוש הגאון החסיד מו\"ר ר' אליהו מווילנא ז\"ל (מהד' ומתוקן מכתב י\"ק, ובהוספת לקוטים רבים מכי\"ק). ט) פירוש פרי יצחק, מהרב המקובל ר' יצחק אייזיק ז\"ל, בעל ספר באר יצחק על ת\"ז.", "text_note": "list of 9 named commentaries; transcription follows printed line breaks and abbreviations exactly as legible at 150dpi; a few abbreviation-letter readings uncertain, flagged in unresolved_readings"},
+        {"block_id": "imprint_summary", "source_ref": "book:sefer-yetzirah-9perushim#p5:front_matter:imprint_summary", "text_he": "ווארשא ... בדפוס והוצאת של האחים לעווין-עפשטיין רחוב נאלעווקי", "text_note": "Warsaw, Achim Lewin-Epstein Brothers press"}
+      ],
+      "tables": [],
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p5:front_matter:commentaries_list", "issue": "several bracketed bibliographic abbreviations (e.g. the Donolo dating parenthetical) are printed in very small type; transcribed as best-legible at 150dpi, not cross-checked letter-by-letter against a higher-resolution render"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC"
+    },
+    {
+      "pdf_page": 7,
+      "section": "front_matter",
+      "content_blocks": [
+        {"block_id": "haskama_heading", "source_ref": "book:sefer-yetzirah-9perushim#p7:front_matter:haskama_heading", "text_he": "הסכמת הרבנים המאורים הגדולים בי דינא רבא דק\"ק הוראדנא", "text_note": "approbation heading, from the rabbis of Grodno"},
+        {"block_id": "haskama_date", "source_ref": "book:sefer-yetzirah-9perushim#p7:front_matter:haskama_date", "text_he": "הכ\"ד אנחנו בעד\"ר ז' אדר תקס\"ו לפ\"ק פה ק\"ק הוראדנא יע\"א", "text_note": "dated 7 Adar 5566 (1806); this is a REPRINTED historical approbation internal to the compiled edition, not proof of this specific printing's own year"},
+        {"block_id": "raavad_hakdama_heading_start", "source_ref": "book:sefer-yetzirah-9perushim#p7:hakdama:raavad:heading", "text_he": "הקדמת הראב\"ד ז\"ל", "text_note": "opening heading of Raavad's hakdama begins on this same page, body continues p.8 onward"}
+      ],
+      "transcription_status": "TRANSCRIBED",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC"
+    },
+    {
+      "pdf_page": 28,
+      "section": "hakdama",
+      "content_blocks": [
+        {"block_id": "botril_hakdama_heading", "source_ref": "book:sefer-yetzirah-9perushim#p28:hakdama:botril:heading", "text_he": "הקדמת הר\"ר משה בוטריל ז\"ל", "printed_page": "24"},
+        {"block_id": "botril_hakdama_opening", "source_ref": "book:sefer-yetzirah-9perushim#p28:hakdama:botril:opening", "text_he": "אמר משה נוטריל...", "text_note": "opening words legible; full paragraph not re-transcribed word-for-word in this pass, see p.28 full-resolution render for complete text -- TRANSCRIPTION_DEPTH: opening/closing anchors only, not full verbatim body"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p28:hakdama:botril:opening", "issue": "full body of Botril's one-page hakdama not transcribed verbatim in this batch, only opening anchor captured"}
+      ]
+    },
+    {
+      "pdf_page": 29,
+      "section": "synoptic_body",
+      "printed_page": "25",
+      "content_blocks": [
+        {"block_id": "mishnah_ch1_m1", "source_ref": "book:sefer-yetzirah-9perushim#p29:synoptic_body:mishnah:ch1_m1", "commentator": "mishnah_primary_text", "text_note": "boxed primary Mishnah text, Chapter 1 Mishnah 1, opening the main synoptic body; surrounded by columns of Raavad (right) and Ramban (left) commentary, with further Saadia-Gaon-attributed, Eleazar-of-Worms, Otzar-Hashem and Botril blocks beneath -- exact verbatim Mishnah wording not re-typed character-by-character in this pass; flagged PARTIAL, see full-resolution render for exact text", "chapter": 1, "mishnah": 1},
+        {"block_id": "raavad_ch1_m1_block", "source_ref": "book:sefer-yetzirah-9perushim#p29:synoptic_body:raavad:ch1_m1", "commentator": "raavad", "text_note": "Raavad's commentary column on Ch.1 M.1, right side of page"},
+        {"block_id": "ramban_ch1_m1_block", "source_ref": "book:sefer-yetzirah-9perushim#p29:synoptic_body:ramban:ch1_m1", "commentator": "ramban", "text_note": "Ramban's commentary column on Ch.1 M.1, left side of page"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "PENDING",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p29:synoptic_body:mishnah:ch1_m1", "issue": "verbatim Mishnah 1 text and full commentary-column bodies not yet character-transcribed; page-level structure and commentator attribution confirmed only"}
+      ]
+    },
+    {
+      "pdf_page": 40,
+      "section": "synoptic_body",
+      "commentator": "raavad",
+      "chapter_mishnah": "ch1_m12_area",
+      "printed_page": "36",
+      "content_blocks": [
+        {"block_id": "zodiac_angel_table", "source_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:zodiac_table", "text_note": "ruled 4-row x 3-column table; each cell names one of the 12 zodiac constellations (row1: תאומים, שור, טלה; row2: סרטן, אריה, בתולה; row3: מאזנים, עקרב, קשת; row4: דגים, דלי, גדי) paired with two angelic-name letter-combinations printed above each constellation name", "diagram_type": "ruled_table", "research_dna": "twelve_simples_zodiac_correspondence"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:zodiac_table", "issue": "the two angelic-name letter-combinations above each constellation cell are printed small and were read at overview resolution; exact letter-by-letter transcription of all 24 angel-name strings not yet independently double-checked"}
+      ]
+    },
+    {
+      "pdf_page": 42,
+      "section": "synoptic_body",
+      "commentator": "raavad",
+      "chapter_mishnah": "ch1_m12_area",
+      "printed_page": "38",
+      "content_blocks": [
+        {"block_id": "tetragrammaton_wheel", "source_ref": "book:sefer-yetzirah-9perushim#p42:synoptic_body:raavad:name_wheel", "text_note": "large circular diagram, 12 outer segments around the circumference, each segment containing one permutation of the four letters of the Tetragrammaton (יהו\"ה) -- e.g. יהוה, ויהה-type reorderings -- correlated one-per-constellation; diagram is unlabeled with constellation names on this page itself (correlation is by position/context with pp.40/44)", "diagram_type": "wheel", "research_dna": "letter_permutation_twelve_simples"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p42:synoptic_body:raavad:name_wheel", "issue": "the exact letter-order of each of the 12 wheel segments was not individually re-verified segment-by-segment against a magnified crop; overall diagram type and letter-set (Tetragrammaton permutations) is confirmed, precise per-segment ordering is not"}
+      ]
+    },
+    {
+      "pdf_page": 85,
+      "section": "synoptic_body",
+      "chapter_mishnah": "ch2_m5",
+      "printed_page": "81",
+      "content_blocks": [
+        {"block_id": "mishnah_ch2_m5", "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:mishnah:ch2_m5", "commentator": "mishnah_primary_text", "text_he": "מ\"ה כיצד שקלן והמירן אל\"ף עם כלם וכלם עם אל\"ף. ב\"ת עם כלם וכלם עם ב\"ת. ונמצאו כל הנוצר וכל הנדבור יוצא בשם אחד.", "text_note": "boxed primary Mishnah text describing the letter-pairing/exchange (tzaruf/shakal/hemir) procedure: aleph paired with all letters and all letters with aleph, bet+tav paired with all and all with bet+tav, etc.", "chapter": 2, "mishnah": 5, "research_dna": "tzaruf_shakal_hemir_procedure"},
+        {"block_id": "combination_count_enumeration", "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:commentary:combination_counts", "text_note": "dense enumeration block above the Mishnah, listing sequential 'וחח\"כ <letter>' combination-count entries (aleph through at least yod-tet/19); exact full numeric sequence not independently re-verified digit-by-digit in this pass", "research_dna": "letter_permutation_combinatorics"},
+        {"block_id": "alphabet_pairing_table", "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:table:alphabet_pairing", "text_note": "printed table headed 'והנה אכתוב האלפא ביתא' (behold I will write out the alphabet), approximately 22 rows, each row giving a paired-letter combination string; table appears in the Raavad/Otzar-Hashem column area at bottom of page", "diagram_type": "ruled_table", "research_dna": "two_hundred_thirty_one_gates_candidate"},
+        {"block_id": "otzar_hashem_block", "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:otzar_hashem:ch2_m5", "commentator": "otzar_hashem", "text_note": "commentary block headed אוצר ה', right column"},
+        {"block_id": "botril_block", "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:botril:ch2_m5", "commentator": "botril", "text_note": "commentary block headed הר\"ם בוטריל, left column"},
+        {"block_id": "saadia_gaon_block", "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:saadia_gaon_attrib:ch2_m5", "commentator": "saadia_gaon_attrib", "text_note": "commentary block headed ר\"ם גאון"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED_HIGH_VALUE",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:table:alphabet_pairing", "issue": "the 22-row alphabet-pairing table's individual cell contents were read at page-overview resolution; each row's exact two-letter pairing was not independently magnified and re-verified row-by-row"},
+        {"block_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:commentary:combination_counts", "issue": "the full 'וחח\"כ' numeric enumeration sequence (potentially running to all 22 letters) was only partially read; exact upper bound and every intermediate value not confirmed"}
+      ]
+    },
+    {
+      "pdf_page": 126,
+      "section": "chachmoni_preface",
+      "printed_page": "122",
+      "content_blocks": [
+        {"block_id": "donolo_biography_note", "source_ref": "book:sefer-yetzirah-9perushim#p126:chachmoni_preface:editorial_modern:donolo_bio", "text_he": "בכדי להודיע לדור טיבו של הרב הקדמון ר' שבתי דונולו ז\"ל, אמרתי להעתיק מה שכתב על אודותיו הרב החכם הגדול ר' שלמה באבער נ\"י, במבוא לספר לקח טוב, (פסיקתא זוטרתא) אות ל\"א, וז\"ל:", "text_note": "modern editor's introduction to a quoted biography of Shabtai Donolo, citing R' Shlomo Buber's introduction to Lekach Tov (Pesikta Zutarta)"},
+        {"block_id": "buber_donolo_bio_quote", "source_ref": "book:sefer-yetzirah-9perushim#p126:chachmoni_preface:editorial_modern:buber_quote", "text_note": "extended quoted biographical passage on R' Shabtai Donolo (born 913 CE Oria, per the text's internal date reference), his captivity, his teachers, and his authorship of Sefer HaChachmoni -- full paragraph legible but not retyped character-for-character in this pass"},
+        {"block_id": "devarim_achadim_heading", "source_ref": "book:sefer-yetzirah-9perushim#p126:chachmoni_preface:editorial_modern:devarim_achadim_heading", "text_he": "דברים אחדים שהקדים המוציא לאור ספר הזה מכ\"י, הרב החכם הכולל ד\"ר דוד קאשטילי נ\"י, בעיר פירינצי באיטליא", "text_note": "heading introducing a second prefatory note, by Dr. David Castelli of Florence, the scholar who brought this manuscript to print"},
+        {"block_id": "castelli_preface_opening", "source_ref": "book:sefer-yetzirah-9perushim#p126:chachmoni_preface:editorial_modern:castelli_opening", "text_he": "לא נעלם מעיני כל משכיל מדברי ספר יצירה עמוקים וסתומים...", "text_note": "opening of Castelli's preface; full body legible, not fully retyped in this pass"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC",
+      "note": "EXACT TRANSITION PAGE: this is where the main Raavad/Ramban synoptic interlace ends and Sefer HaChachmoni's own editorial front matter begins, refining the prior boundary AFTER (5ac66a4b)'s approximate p.130 estimate.",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p126:chachmoni_preface:editorial_modern:buber_quote", "issue": "full Buber-quoted biography paragraph not retyped verbatim, only opening sentence and topic captured"},
+        {"block_ref": "book:sefer-yetzirah-9perushim#p126:chachmoni_preface:editorial_modern:castelli_opening", "issue": "full Castelli preface (continues at least to p.126's foot and likely onto p.127) not retyped verbatim beyond opening line"}
+      ]
+    },
+    {
+      "pdf_page": 127,
+      "section": "chachmoni_preface",
+      "printed_page": "123",
+      "content_blocks": [
+        {"block_id": "chachmoni_title", "source_ref": "book:sefer-yetzirah-9perushim#p127:chachmoni_preface:chachmoni:title", "text_he": "ספר חכמוני", "text_note": "title heading"},
+        {"block_id": "chachmoni_hakdama_heading", "source_ref": "book:sefer-yetzirah-9perushim#p127:chachmoni_preface:chachmoni:hakdama_heading", "text_he": "הקדמה, לפירוש ספר יצירה הנקרא ספר חכמוני", "text_note": "sub-heading identifying this as Chachmoni's own hakdama to his Sefer Yetzirah commentary"},
+        {"block_id": "chachmoni_hakdama_opening", "source_ref": "book:sefer-yetzirah-9perushim#p127:chachmoni_preface:chachmoni:hakdama_opening", "text_he": "שלום רב מפי אל שדי, ברכות ונחמות טובות עד בלי די...", "text_note": "opening lines of Chachmoni's own hakdama, in the first person, self-identifying as 'אני שבתי בר אברהם הרופא'; full body (2 columns) legible, not fully retyped in this pass"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p127:chachmoni_preface:chachmoni:hakdama_opening", "issue": "full two-column hakdama body not retyped verbatim, only opening self-identification captured"}
+      ]
+    },
+    {
+      "pdf_page": 141,
+      "section": "chachmoni_treatise",
+      "printed_page": "137",
+      "content_blocks": [
+        {"block_id": "ch3_ch4_boundary", "source_ref": "book:sefer-yetzirah-9perushim#p141:chachmoni_treatise:boundary:ch3_ch4", "text_he": "נגמר הספר האחד והוא אט\"ש והם שלש אמות", "text_note": "closing formula for Chapter 3, immediately followed on the same page by the heading פרק רביעי (Chapter 4)", "research_dna": "three_mothers_reference"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "FLAGGED"
+    },
+    {
+      "pdf_page": 148,
+      "section": "chachmoni_treatise",
+      "printed_page": "144",
+      "content_blocks": [
+        {"block_id": "ch6_start", "source_ref": "book:sefer-yetzirah-9perushim#p148:chachmoni_treatise:boundary:ch6", "text_he": "פרק ששי", "text_note": "Chapter 6 heading, under running head ספר החכמוני"}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A"
+    },
+    {
+      "pdf_page": 152,
+      "section": "chachmoni_treatise",
+      "content_blocks": [
+        {"block_id": "chachmoni_treatise_colophon", "source_ref": "book:sefer-yetzirah-9perushim#p152:chachmoni_treatise:colophon", "text_note": "editor/compiler closing colophon line ending the Sefer HaChachmoni treatise; exact wording not retyped verbatim in this pass. This is the LAST PAGE IN SCOPE for dispatch f616f647 -- page 153 (Gra section title page) was NOT opened or touched."}
+      ],
+      "transcription_status": "PARTIAL",
+      "visual_verification_status": "VISUALLY_VERIFIED",
+      "research_extraction_status": "N/A_BIBLIOGRAPHIC",
+      "unresolved_readings": [
+        {"block_ref": "book:sefer-yetzirah-9perushim#p152:chachmoni_treatise:colophon", "issue": "exact colophon wording not retyped verbatim, only its presence and function (end-of-treatise marker) confirmed"}
+      ]
+    }
+  ]
+}
