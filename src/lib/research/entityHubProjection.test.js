@@ -13,7 +13,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildMethodResultBridge, buildPhraseEntityLinks, buildEntityListQuery } from "./entityHubProjection.js";
+import { buildMethodResultBridge, buildPhraseEntityLinks, buildEntityListQuery, resolveExplorerListParams } from "./entityHubProjection.js";
 import { gematriaApiResultToFindings } from "./canonicalGematria.js";
 import { isUniversalFinding } from "./universalFinding.js";
 
@@ -134,7 +134,61 @@ test("buildEntityListQuery: type isolation — the requested type passes through
   assert.equal(buildEntityListQuery({}).type, "", "missing type stays empty — the fetch wrapper short-circuits on this rather than querying all types");
 });
 
-test("buildEntityListQuery: activeOnly defaults true and respects an explicit false", () => {
+test("buildEntityListQuery: activeOnly defaults true and respects an explicit false (the pure builder stays generic — allowlist/force-true enforcement lives in resolveExplorerListParams, tested below)", () => {
   assert.equal(buildEntityListQuery({ type: "number" }).activeOnly, true);
   assert.equal(buildEntityListQuery({ type: "number", activeOnly: false }).activeOnly, false);
+});
+
+// GPT challenge 165a9e59 correction (2): finite, non-negative, integer normalization — Infinity
+// and fractional inputs must never reach .range() unchanged.
+
+test("buildEntityListQuery: Infinity limit/offset fall back to the default/zero, never pass through", () => {
+  const q = buildEntityListQuery({ type: "number", limit: Infinity, offset: Infinity });
+  assert.equal(q.limit, 24, "Infinity is not a finite limit — falls back to the default");
+  assert.equal(q.rangeStart, 0, "Infinity is not a finite offset — falls back to 0");
+});
+
+test("buildEntityListQuery: -Infinity and NaN also fall back cleanly", () => {
+  assert.equal(buildEntityListQuery({ type: "number", limit: -Infinity }).limit, 24);
+  assert.equal(buildEntityListQuery({ type: "number", limit: NaN }).limit, 24);
+  assert.equal(buildEntityListQuery({ type: "number", offset: NaN }).rangeStart, 0);
+});
+
+test("buildEntityListQuery: fractional limit/offset are truncated to integers, not passed through fractional", () => {
+  const q = buildEntityListQuery({ type: "number", limit: 2.7, offset: 5.9 });
+  assert.equal(q.limit, 2, "Math.trunc(2.7) = 2, never rounded up or left fractional");
+  assert.equal(q.rangeStart, 5, "Math.trunc(5.9) = 5");
+  assert.equal(Number.isInteger(q.limit), true);
+  assert.equal(Number.isInteger(q.rangeStart), true);
+  assert.equal(Number.isInteger(q.rangeEnd), true);
+});
+
+// GPT challenge 165a9e59 correction (1): the v1 populated-facet allowlist + forced activeOnly.
+// resolveExplorerListParams is pure and fully covers this without any network mock.
+
+test("resolveExplorerListParams: allowlisted types resolve, always with activeOnly forced true", () => {
+  for (const type of ["number", "entity", "event", "year", "word", "phrase", "foreign_word", "language_bridge"]) {
+    const resolved = resolveExplorerListParams({ type, activeOnly: false });
+    assert.ok(resolved, `${type} should be allowlisted`);
+    assert.equal(resolved.type, type);
+    assert.equal(resolved.activeOnly, true, "activeOnly:false from the caller must be overridden, never honored");
+  }
+});
+
+test("resolveExplorerListParams: non-facet node families are rejected, never silently broadened to (e.g. rule/post/image are real, populated node types that must not leak in as an Explorer facet)", () => {
+  for (const type of ["rule", "post", "image", "contribution", "convergence"]) {
+    assert.equal(resolveExplorerListParams({ type }), null, `${type} must not resolve — it is not a v1 Explorer facet`);
+  }
+});
+
+test("resolveExplorerListParams: entity_types with zero real nodes are rejected too, not silently allowed through as an empty facet", () => {
+  for (const type of ["verse", "name", "person", "place", "object", "research", "fieldmap", "relationship"]) {
+    assert.equal(resolveExplorerListParams({ type }), null, `${type} must not resolve — zero real nodes per the empty-facet rule`);
+  }
+});
+
+test("resolveExplorerListParams: missing/empty type rejects deterministically", () => {
+  assert.equal(resolveExplorerListParams({}), null);
+  assert.equal(resolveExplorerListParams({ type: "" }), null);
+  assert.equal(resolveExplorerListParams({ type: "   " }), null);
 });

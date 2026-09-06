@@ -655,19 +655,44 @@ export async function fetchEntityHubProjection({
 const LIST_MODE_DEFAULT_LIMIT = 24;
 const LIST_MODE_MAX_LIMIT = 100;
 
+// GPT challenge 165a9e59 correction (1): the public Explorer-facing fetch path must not let an
+// arbitrary type value through — `nodes` also holds non-facet families (rule=311, post=306,
+// image=2476, contribution=24, ...) that a stray/future caller must never be able to list as if
+// they were Explorer content. This allowlist is the v1 populated-facet set confirmed live in
+// audit 77d82836 (node-backed, non-empty entity_types); it is enforced only in the fetch
+// function below, not in the pure builder, which stays generic (buildEntityListQuery is also
+// used directly by unit tests that intentionally probe out-of-allowlist/empty type inputs).
+const EXPLORER_LIST_MODE_TYPES = Object.freeze([
+  "number", "entity", "event", "year", "word", "phrase", "foreign_word", "language_bridge",
+]);
+
+// GPT challenge 165a9e59 correction (2): finite, non-negative, INTEGER normalization — the prior
+// `Math.max(0, Number(offset) || 0)` let Infinity and fractional values reach .range() unchanged
+// (Infinity is truthy and passes `|| 0`; a fractional value like 2.7 was never truncated).
+function normalizeNonNegativeInt(value, fallback = 0) {
+  const n = Number(value);
+  const finite = Number.isFinite(n) ? n : fallback;
+  return Math.max(0, Math.trunc(finite));
+}
+function normalizeLimit(value, fallback, max) {
+  // normalizeNonNegativeInt() already substitutes `fallback` for non-finite input — no `||`
+  // here, since a legitimately-normalized 0 must stay 0 going into the max(1, ...) clamp below,
+  // not get silently replaced by the fallback again (0 is falsy in JS).
+  return Math.max(1, Math.min(normalizeNonNegativeInt(value, fallback), max));
+}
+
 /**
  * Pure. Builds the exact, deterministic query shape for a bounded node-type list — no network,
  * so bounds-clamping, the stable compound ordering, and type pass-through/isolation are all
  * unit-testable without mocking Supabase. rangeEnd deliberately requests one extra row (limit+1)
- * so the caller can detect hasMore without a second COUNT query.
+ * so the caller can detect hasMore without a second COUNT query. Intentionally generic (any
+ * type string, activeOnly togglable) — the v1 populated-facet allowlist + forced activeOnly=true
+ * live in fetchEntityListByType below, the actual public read path, not here.
  */
 export function buildEntityListQuery({ type, limit = LIST_MODE_DEFAULT_LIMIT, offset = 0, activeOnly = true } = {}) {
   const safeType = clean(type);
-  // Not safeLimit()/`||` — 0 is a falsy-but-valid clamp input (Number(0) || fallback would
-  // silently return the fallback instead of clamping 0 up to 1).
-  const numericLimit = Number(limit);
-  const cap = Math.max(1, Math.min(Number.isFinite(numericLimit) ? numericLimit : LIST_MODE_DEFAULT_LIMIT, LIST_MODE_MAX_LIMIT));
-  const safeOffset = Math.max(0, Number(offset) || 0);
+  const cap = normalizeLimit(limit, LIST_MODE_DEFAULT_LIMIT, LIST_MODE_MAX_LIMIT);
+  const safeOffset = normalizeNonNegativeInt(offset, 0);
   return {
     type: safeType,
     activeOnly: Boolean(activeOnly),
@@ -680,11 +705,30 @@ export function buildEntityListQuery({ type, limit = LIST_MODE_DEFAULT_LIMIT, of
   };
 }
 
+/**
+ * Pure. Resolves the Explorer-facing list params: enforces the v1 populated-facet allowlist and
+ * forces activeOnly=true unconditionally regardless of caller input. Returns null for a
+ * disallowed/unsupported/empty type — fetchEntityListByType short-circuits to an empty result
+ * for such a type without ever touching the network, and this decision is unit-testable in
+ * isolation from that network call.
+ */
+export function resolveExplorerListParams(params = {}) {
+  const requestedType = clean(params?.type);
+  if (!EXPLORER_LIST_MODE_TYPES.includes(requestedType)) return null;
+  return { ...params, type: requestedType, activeOnly: true };
+}
+
+/**
+ * Public Explorer-facing list reader. Enforces the v1 populated-facet allowlist and forces
+ * activeOnly=true unconditionally — a caller-supplied type outside the allowlist, or an
+ * unsupported/empty type, returns an empty result deterministically; it never silently
+ * broadens to another node family or leaks inactive nodes.
+ */
 export async function fetchEntityListByType(params = {}) {
-  const q = buildEntityListQuery(params);
-  if (!q.type) return { rows: [], hasMore: false };
-  let query = supabase.from("nodes").select(NODE_FIELDS).eq("type", q.type);
-  if (q.activeOnly) query = query.eq("is_active", true);
+  const resolved = resolveExplorerListParams(params);
+  if (!resolved) return { rows: [], hasMore: false };
+  const q = buildEntityListQuery(resolved);
+  let query = supabase.from("nodes").select(NODE_FIELDS).eq("type", q.type).eq("is_active", true);
   for (const [col, ascending] of q.order) query = query.order(col, { ascending });
   const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
   if (error) throw error;
