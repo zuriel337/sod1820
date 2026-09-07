@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import QuickActions from "./QuickActions.jsx";
 import { entityFromVerse } from "../lib/research/entity.js";
 import { METHODS, methodLabel } from "../lib/gematria.js";
+import { verseIdentityForEngineRow } from "../lib/research/tanakhVerseResultAdapter.js";
 
 // 📖 חיפוש בפסוקים — עדשה על כל חמשת חומשי התורה (5,846 פסוקים, נטענים לפי דרישה).
 // טקסט = תת-מחרוזת (מדגיש כל מופע). גימטריה דרך המנוע הרשמי (METHODS) בכל שיטה:
@@ -121,6 +122,14 @@ export default function VerseSearch({ seed }) {
   }, [data, wordIndex, term, mode, gmode, target, book, rangeLo, rangeHi]);
 
   const refOf = r => `${data.books[r[0]]} ${r[1]}:${r[2]}`;
+  // Tanakh engine adoption: additive canonical-verse-identity metadata only — entity.ref/title/text
+  // (the existing Research-Bus entity identity) stay exactly as entityFromVerse already builds them.
+  const entityFromRow = (ref, r) => {
+    const base = entityFromVerse(ref, r[3]);
+    const identity = verseIdentityForEngineRow({ bookIdx: r[0], chapter: r[1], verse: r[2] });
+    if (!identity) return base;
+    return { ...base, metadata: { ...base.metadata, verseIdentity: identity.verseIdentity, canonicalBookIdentity: identity.canonicalBookIdentity, corpusBookKey: identity.corpusBookKey } };
+  };
   const MARK = { background: "var(--accS)", color: "inherit", borderRadius: 4, padding: "0 2px" };
 
   // סימון: טקסט = כל מופעי המחרוזת · גימטריה = המילים שב-span
@@ -264,7 +273,7 @@ export default function VerseSearch({ seed }) {
                 <Link to={`/number/${total}?from=verse`} title={`סך הפסוק · ${methodLabel(method)}`} style={{ fontSize: 12.5, fontWeight: 800, color: "var(--acc)", background: "var(--accS)", borderRadius: 999, padding: "2px 10px", textDecoration: "none" }}>הפסוק = {heb(total)}</Link>
               </div>
               <div style={{ fontSize: 17, lineHeight: 1.9, marginTop: 6, fontWeight: 600 }}>{hl(res)}</div>
-              <QuickActions entity={entityFromVerse(ref, r[3])} />
+              <QuickActions entity={entityFromRow(ref, r)} />
               {/* ⛔ ניתוח-AI לפסוק הוסר (בקשת צוריאל) — נשאר בהשוואה/נוטריקון/מחקר-אישי בלבד */}
             </div>
           );

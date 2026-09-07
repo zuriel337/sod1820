@@ -4,6 +4,7 @@ import { getNameMulti, getAiAnalysis, logNameResearch } from "../lib/supabase.js
 import { aggregateFindings } from "../lib/nameNormalize.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { shareOrCopy } from "../lib/share.js";
+import { enrichTanakhVerseResult } from "../lib/research/tanakhVerseResultAdapter.js";
 
 // 🔎 חיפוש-שם רב-מסלולי (NameLab «חובה») — «לא נמצא» ≠ «אין מחקר».
 // שם + שם-משפחה + תאריך-לידה + שאלה → מסלולי-מחקר, כל אחד עם מקור. שמות-פנים לא נחשפים.
@@ -378,7 +379,10 @@ export default function NameMultiSearch({ name, onResolve, hideInput = false }) 
       // שם מלא בתיבה אחת — הפונקציה מפרקת לטוקנים (שם/משפחה) לבד. בלי שדות נפרדים.
       const d = await getNameMulti(w);
       if (!d) { setPhase("err"); return; }
-      setRes(d); setPhase("done");
+      // Tanakh engine adoption: additive canonical-verse-identity enrichment only; every legacy
+      // field/ref (sample.ref, name_verse.verses[].ref, transforms[].verses, …) stays intact —
+      // logging below still uses the original, unenriched document.
+      setRes(enrichTanakhVerseResult(d)); setPhase("done");
       logNameResearch(d.graded ? d.combo : d, Date.now() - t0); // 📊 לוח-איכות (fire-and-forget)
     } catch { setPhase("err"); }
   }, [nm, onResolve]);

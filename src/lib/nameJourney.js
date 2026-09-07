@@ -1,3 +1,5 @@
+import { enrichTanakhVerseResult } from "./research/tanakhVerseResultAdapter.js";
+
 // 🧭 מסע-המחקר של השם — שכבת-המיפוי היציבה (גל 3.1)
 // הופכת את מסמך fn_name_protocol למבנה שה-UI צורך, בלי לחשוף שמות-סוכנים:
 //   buildJourney(doc) → { header, steps, layers, raw }
@@ -72,6 +74,8 @@ function countFindings(f) {
 
 export function buildJourney(doc) {
   if (!doc || doc.error) return { error: doc?.error || "no_doc", header: null, steps: [], layers: [] };
+  // Tanakh engine adoption: additive identity enrichment only; raw RPC fields remain intact.
+  doc = enrichTanakhVerseResult(doc);
   const f = doc.findings || {};
   const prov = doc.provenance || {};
   const p = (key) => prov[key] || null; // {agent,fn,stage}
