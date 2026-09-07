@@ -79,7 +79,7 @@ while ((m = routeRe.exec(appSrc))) {
 // Admin/dev/internal prefixes explicitly out of scope for the public SEO gate
 // (mirrors the audit's own "classified separately, not mixed into the public matrix" rule).
 const OUT_OF_SCOPE = [
-  "/admin", "/research-viewer", "/entity-hub-preview", "/meaning-lab", "/מעבדת-משמעות",
+  "/admin", "/research-viewer", "/entity-hub-preview", "/explorer-preview", "/meaning-lab", "/מעבדת-משמעות",
   "/dev/", "/traffic", "/numbers-report", "/editor", "/lab", "/theme-preview",
 ];
 const isOutOfScope = (p) => OUT_OF_SCOPE.some(prefix => p === prefix || p.startsWith(prefix));
