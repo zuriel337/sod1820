@@ -4,3 +4,29 @@
 .eh-func{--eh-page:#f4efe4;--eh-panel:#fffdf8;--eh-soft:#f7f4ed;--eh-ink:#211c13;--eh-muted:#6e6558;--eh-line:#e6dcc8;--eh-gold:#9a7617;--eh-gold2:#c4a044;--eh-goldbg:#fbf2d8;--eh-green:#27633a;--eh-greenbg:#e9f5eb;--eh-violet:#60378b;--eh-violetbg:#f1e8fa;--eh-warn:#865600;--eh-warnbg:#fff1d6;--eh-blue:#2f6df6;--eh-bluebg:#eaf0ff;--eh-onblue:#ffffff;--eh-red:#8b3a2b;--eh-redbg:#fbe9e5;--eh-shadow:rgba(62,46,19,.06)}
 html[data-theme="dark"] .eh-func{--eh-page:transparent;--eh-panel:#0f1a2b;--eh-soft:#0b1424;--eh-ink:#edf3fb;--eh-muted:#9fb0c6;--eh-line:rgba(117,183,255,.2);--eh-gold:#e7c76b;--eh-gold2:#c9a94f;--eh-goldbg:rgba(231,199,107,.14);--eh-green:#8fd9a3;--eh-greenbg:rgba(39,99,58,.4);--eh-violet:#c9a8f0;--eh-violetbg:rgba(96,55,139,.4);--eh-warn:#f2c76b;--eh-warnbg:rgba(134,86,0,.35);--eh-blue:#69c6ff;--eh-bluebg:rgba(47,109,246,.24);--eh-onblue:#04111f;--eh-red:#ffb3a3;--eh-redbg:rgba(139,58,43,.35);--eh-shadow:rgba(0,0,0,.35)}
 .eh-func a{color:inherit}
+
+/* ── NUMBER DASHBOARD PLUS · 1237 preview ──
+   Keep the dense V1 dashboard language. Add depth, polish and stronger hierarchy without turning
+   the Number Hub into a portal/orbit experience. Presentation-only; no data ownership changes. */
+.entity-hub-observatory .obs-hero{background:
+  linear-gradient(180deg,rgba(3,8,18,.2),rgba(3,8,18,.84)),
+  radial-gradient(circle at 72% 20%,rgba(40,105,170,.34),transparent 31%),
+  radial-gradient(circle at 20% 78%,rgba(231,199,107,.18),transparent 25%),
+  linear-gradient(135deg,#07111f 0%,#0a1d34 48%,#040911 100%);border-color:rgba(231,199,107,.16);box-shadow:0 34px 100px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.035)}
+.entity-hub-observatory .obs-hero:before{inset:0;background:
+  linear-gradient(115deg,transparent 0 58%,rgba(105,198,255,.05) 58% 59%,transparent 59% 100%),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.012) 0 1px,transparent 1px 48px),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.01) 0 1px,transparent 1px 48px);opacity:.8}
+.entity-hub-observatory .obs-orbits{opacity:.34;filter:blur(.1px)}
+.entity-hub-observatory .obs-number{filter:drop-shadow(0 15px 34px rgba(231,199,107,.12));font-variant-numeric:tabular-nums}
+.entity-hub-observatory .obs-hero-content>div[style*="min(760px"]{width:min(1040px,96%)!important;margin-top:26px!important;padding:8px;border:1px solid rgba(105,198,255,.12);border-radius:24px;background:linear-gradient(180deg,rgba(6,17,31,.72),rgba(9,20,36,.9));box-shadow:0 20px 70px rgba(0,0,0,.28);backdrop-filter:blur(16px)}
+.entity-hub-observatory .obs-hero-content>div[style*="min(760px"]>*{border-radius:18px}
+.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero){position:relative;margin-top:18px!important;padding:18px;border:1px solid rgba(117,183,255,.12);border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.018));box-shadow:0 16px 44px rgba(0,0,0,.12)}
+.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero):before{content:"";position:absolute;inset-inline-start:0;top:22px;width:3px;height:30px;border-radius:3px;background:linear-gradient(180deg,var(--obs-gold),var(--obs-blue));opacity:.75}
+.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero) h2{letter-spacing:.01em}
+.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero) button,.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero) a{transition:transform .18s ease,border-color .18s ease,background .18s ease}
+@media(hover:hover){.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero) button:hover,.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero) a:hover{transform:translateY(-1px)}}
+html[data-theme="light"] .entity-hub-observatory .obs-hero{background:radial-gradient(circle at 72% 20%,rgba(43,112,166,.13),transparent 31%),radial-gradient(circle at 20% 78%,rgba(183,145,45,.1),transparent 25%),linear-gradient(135deg,#fbfdff,#eef5fa 48%,#e8f0f6);border-color:rgba(154,118,23,.18);box-shadow:0 28px 80px rgba(44,70,94,.16)}
+html[data-theme="light"] .entity-hub-observatory .obs-hero-content>div[style*="min(760px"]{background:rgba(255,255,255,.78);border-color:rgba(23,109,169,.13);box-shadow:0 18px 54px rgba(44,70,94,.1)}
+html[data-theme="light"] .entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero){background:rgba(255,255,255,.72);border-color:rgba(27,85,135,.12);box-shadow:0 14px 36px rgba(44,70,94,.07)}
+@media(max-width:620px){.entity-hub-observatory .obs-hero-content>div[style*="min(760px"]{width:100%!important;padding:5px}.entity-hub-observatory .obs-shell.eh-func>section:not(.obs-hero){padding:14px;border-radius:16px}}
