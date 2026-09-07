@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   cleanup:
-    if: github.event.head_commit.message != 'Remove stale fixed Gematria method counts'
+    if: github.event.head_commit.message != 'Polish Gematria fixed-count cleanup'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,65 +20,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Apply projection-only cleanup
+      - name: Polish wording
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const files = {
-            community: 'src/pages/CommunityCalculatorPage.jsx',
-            legacy: 'src/components/GematriaCalculatorLegacy.jsx',
-            midrash: 'src/pages/BeitMidrashPage.jsx',
-            engine: 'src/lib/gematria.js',
-            ai: 'supabase/functions/ai-analyze/index.ts',
-          };
-          const read = k => fs.readFileSync(files[k], 'utf8');
-          const write = (k,s) => fs.writeFileSync(files[k], s);
-
-          let s = read('community');
-          s = s.replace('import { onlyHeb, METHODS, DEPTH_METHODS } from "../lib/gematria.js";', 'import { onlyHeb, METHODS } from "../lib/gematria.js";');
-          s = s.replace(/^const ALL_METHODS = .*\n/m, '');
-          s = s.replaceAll('20 שיטות מלאות', 'שיטות מתקדמות והצלבות');
-          s = s.replaceAll('מ-19 השיטות', 'מהשיטות הזמינות');
-          s = s.replaceAll('מ-20 השיטות', 'מהשיטות הזמינות');
-          s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
-          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
-          s = s.replaceAll('כל 19', 'כל השיטות הזמינות');
-          s = s.replaceAll('כל 20', 'כל השיטות הזמינות');
-          write('community', s);
-
-          s = read('legacy');
-          s = s.replaceAll('כל 19 השיטות', 'כל השיטות הזמינות');
-          s = s.replaceAll('כל 20 השיטות', 'כל השיטות הזמינות');
-          s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
-          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
-          write('legacy', s);
-
-          s = read('midrash');
-          s = s.replaceAll('כל 20 שיטות החישוב', 'כל שיטות החישוב הזמינות');
-          s = s.replaceAll('כל 19 השיטות', 'כל השיטות הזמינות');
-          s = s.replaceAll('כל 20 השיטות', 'כל השיטות הזמינות');
-          s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
-          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
-          write('midrash', s);
-
-          s = read('engine');
-          s = s.replace(/^\/\/ ===== ליבת הגימטריה — 20 שיטות .* =====$/m, '// ===== ליבת החישוב בצד-הלקוח — definitions קיימים; method identity/lifecycle נקראים מה-Registry הקנוני =====');
-          write('engine', s);
-
-          s = read('ai');
-          s = s.replaceAll('באחת מ-19 השיטות', 'באחת מהשיטות הזמינות');
-          s = s.replaceAll('0 מתוך 19', 'ללא מפגש בשיטות הזמינות');
-          s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
-          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
-          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
-          write('ai', s);
+          const p = 'src/pages/BeitMidrashPage.jsx';
+          let s = fs.readFileSync(p, 'utf8');
+          s = s.replaceAll('מ-השיטות הזמינות', 'מהשיטות הזמינות');
+          fs.writeFileSync(p, s);
           NODE
       - name: Install dependencies
         run: npm install
@@ -89,10 +38,10 @@ jobs:
       - name: Fixed-count scan
         run: |
           ! grep -RIn -E '19 שיטות|20 שיטות|19 השיטות|20 השיטות|מתוך 19|מ-19 השיטות|מ-20 השיטות' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
-      - name: Commit cleanup branch-only
+      - name: Commit polish branch-only
         run: |
           git config user.name "zuriel337"
           git config user.email "128194013+zuriel337@users.noreply.github.com"
-          git add src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
-          git diff --cached --quiet || git commit -m "Remove stale fixed Gematria method counts"
+          git add src/pages/BeitMidrashPage.jsx
+          git diff --cached --quiet || git commit -m "Polish Gematria fixed-count cleanup"
           git push origin HEAD:gpt/gematria-legacy-drift-cleanup-v1
