@@ -10,17 +10,19 @@ import {
   explorerReopenWindow,
   explorerCardSelection,
 } from "../lib/research/explorerFacets.js";
+import { resolveExplorerDepth } from "../lib/research/explorerAccess.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { usePalette } from "../lib/palette.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 
 // 🧪 Universal Explorer — INTERNAL PREVIEW, Slice 2 (UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_
 // FACET_COMPOSITION, work_log dispatch 0b70e0f9) + Slice 3 (UNIVERSAL_EXPLORER_V1_SLICE3_
 // RESEARCH_CONTEXT_REOPEN, work_log dispatch ff9c3f2a). Thin shell: a facet switcher + a
 // paginated card grid over the Slice-1 list-mode readers (src/lib/research/explorerFacets.js).
-// No access tiers, no SEO, no Raziel hook. Naming here is intentionally provisional/internal —
-// this is NOT canonical product copy and NOT "Heichal"; it stays unlinked from any public nav
-// until a naming Human-Gate decision (checkpoint 0fa2f0e8) and further Explorer slices land.
+// No SEO, no Raziel hook. Naming here is intentionally provisional/internal — this is NOT
+// canonical product copy and NOT "Heichal"; it stays unlinked from any public nav until a naming
+// Human-Gate decision (checkpoint 0fa2f0e8) and further Explorer slices land.
 //
 // Slice 3 adds exact reopen/return, reusing the SAME Research Context contract as TopicPage /
 // EntityHubPreviewPageFunctional verbatim (root subject sticky-if-absent; selection+lens follow
@@ -57,6 +59,13 @@ import TopicConvergenceContent from "../components/research/TopicConvergenceCont
 // corrected per independent audit AFTER 6050377d / dispatch 764b3b9b). Every facet without a safe
 // list-level signal stays rank-neutral and preserves its existing deterministic reader order.
 // Rank never changes truth, verification, publication, canonical state, or access.
+//
+// Slice 6 (UNIVERSAL_EXPLORER_V1_SLICE6_PROGRESSIVE_DEPTH_ACCESS) adds only a transparent
+// presentation projection over the EXISTING AuthContext owners. Anonymous/registered/member/admin
+// identity can be named, but the complete Slice-5 public surface remains available at every level.
+// No new permission store, no new reader, no RLS/security change, no truth/ranking mutation.
+// Premium/admin-specific Explorer depth remains explicitly disabled until an already-owned,
+// live capability can be reused safely. Access ≠ Truth; stronger identity ≠ stronger truth.
 
 const PAGE_SIZE = 24;
 
@@ -131,6 +140,18 @@ function RankNote({ rank }) {
   );
 }
 
+function AccessNote({ access }) {
+  return (
+    <div style={{ ...card, padding: "10px 14px", marginTop: 8, fontSize: 12.5, color: C.soft }}>
+      <div style={{ color: C.gold, fontWeight: 900 }}>עומק / גישה · {access.label}</div>
+      <div style={{ marginTop: 4, opacity: 0.86 }}>
+        גישה אינה אמת: הרשימות, הנתיבים ופרטי ההתכנסות הציבוריים נשארים פתוחים בדיוק כמו קודם.
+        אין ב־Slice 6 נעילת תוכן חדשה, ואין הרחבת Premium/Admin בלי capability חי של owner קיים.
+      </div>
+    </div>
+  );
+}
+
 // The navigable title/subtitle stays a <Link> (unchanged click-through + onLeave/returnTo
 // behavior from Slice 3). "expandable" adds a SIBLING button — not nested inside the anchor, so
 // expand/collapse never triggers navigation — shown only for a facet with a real detail adapter
@@ -186,6 +207,11 @@ export default function ExplorerPreviewPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const research = useResearch();
   const palette = usePalette();
+  const { verified, isMember, isAdmin } = useAuth();
+  const access = useMemo(
+    () => resolveExplorerDepth({ verified, isMember, isAdmin }),
+    [verified, isMember, isAdmin],
+  );
   const urlState = useMemo(() => parseExplorerUrlState(searchParams, DEFAULT_FACET_KEY), [searchParams]);
   const activeKey = urlState.facet || DEFAULT_FACET_KEY;
   const [state, setState] = useState({ loading: true, cards: [], hasMore: false, error: null, offset: 0 });
@@ -263,8 +289,9 @@ export default function ExplorerPreviewPage() {
   const onLeaveCard = (item) => recordReturnTo(activeFacet?.key, explorerCardSelection(item));
 
   // Slice 4: expand/collapse ONE card's detail at a time — a second click on the same card
-  // collapses it; switching cards re-fetches for the new one. Only called when facetHasDetail is
-  // true (topic today), so this never fires for a facet with no real detail adapter.
+  // collapses it; switching cards re-fetches for the new one. Slice 6 preserves the existing
+  // public Topic detail for every identity depth; access.publicTopicDetailVisible is deliberately
+  // true for all tiers and exists here only to make that invariant explicit at the composition edge.
   const toggleDetail = (item) => {
     if (detail.key === item.id) { setDetail(EMPTY_DETAIL); return; }
     setDetail({ key: item.id, loading: true, finding: null, error: null });
@@ -277,7 +304,7 @@ export default function ExplorerPreviewPage() {
     <main style={page}>
       <div style={shell}>
         <div style={{ color: C.gold, fontSize: 10.5, letterSpacing: 1.8, fontWeight: 900 }}>
-          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 5)
+          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 6)
         </div>
         <h1 style={{ margin: "8px 0 4px", fontSize: "clamp(28px,5vw,42px)", color: C.ink }}>
           {activeFacet?.label || "עדשה"}
@@ -285,6 +312,7 @@ export default function ExplorerPreviewPage() {
         <div style={{ ...card, padding: "10px 14px", marginTop: 4, fontSize: 12.5, color: C.soft }}>
           דירוג הוא סדר תצוגה בלבד — לא אמת ולא קנון. התכנסויות מדורגות לפי meter_score הציבורי; עדשות שאין להן אות רשימתי בטוח נשארות ניטרליות ובסדר הקורא הקיים. אין שימוש ב־cross_method_strength.
         </div>
+        <AccessNote access={access} />
 
         <FacetSwitcher facets={EXPLORER_FACETS} activeKey={activeKey} onSelect={selectFacet} />
 
@@ -307,7 +335,7 @@ export default function ExplorerPreviewPage() {
               key={`${item.facet}:${item.id}`}
               item={item}
               onLeave={onLeaveCard}
-              expandable={facetHasDetail(activeKey)}
+              expandable={access.publicTopicDetailVisible && facetHasDetail(activeKey)}
               expanded={detail.key === item.id}
               onToggleDetail={toggleDetail}
             />
