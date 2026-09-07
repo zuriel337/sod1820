@@ -1,0 +1,101 @@
+{
+  "source_id": "book:sefer-habahir-1883",
+  "register_version": 1,
+  "dispatch_ref": "work_log 74bcf49b-abb4-47ca-b5df-5142527a760d",
+  "batch_scope": "PDF pages 1-24 ONLY of gallery/Book/Sefer_HaBahir_1883.pdf. N=48; M=floor(N/2)=24. Pages 25-48 are explicitly out of scope and were not registered as content by this writer.",
+  "status": "STOPPED_BY_DISPATCH_SOURCE_READABILITY_CONDITION",
+  "status_dimensions": ["SOURCE_LOCATED", "PAGE_TREE_VERIFIED", "STRUCTURALLY_MAPPED"],
+  "not_claimed": ["TRANSCRIBED", "VISUALLY_VERIFIED", "RESEARCH_EXTRACTED", "FINDINGS_PROMOTED", "CLAIMS_PROMOTED"],
+  "truth_separation": {
+    "input": "canonical Supabase Storage PDF gallery/Book/Sefer_HaBahir_1883.pdf",
+    "extraction": "NO RELIABLE PAGE TEXT EXTRACTION COMMITTED: embedded OCR exists but is carried in Flate-compressed hidden text streams; page imagery is JBIG2. Current tool path did not provide a reliable page renderer for visual verification.",
+    "finding": "NONE promoted from this batch",
+    "claim": "NONE promoted from this batch"
+  },
+  "source_fingerprint": {
+    "storage_project_id": "linswmnnkjxvweumprav",
+    "storage_path": "gallery/Book/Sefer_HaBahir_1883.pdf",
+    "bytes": 4362696,
+    "content_type": "application/pdf",
+    "etag_observed": "a90a846f0ed9dd60bad330345b85ff81-1",
+    "last_modified_observed_gmt": "2026-09-07 07:43:41 GMT",
+    "pdf_page_tree_root_object": 412,
+    "pdf_page_tree_count": 48,
+    "pdf_page_tree_kids": "356 0 R through 403 0 R, 48 page objects",
+    "outline_count_observed_separately": 7,
+    "page_count_resolution": "VERIFIED: /Count 48 belongs to /Type /Pages; /Count 7 belongs to Outlines and is not a page count."
+  },
+  "boundary": {
+    "N": 48,
+    "M": 24,
+    "owned_pdf_pages": "1..24",
+    "owned_page_objects": "356..379",
+    "forbidden_pdf_pages": "25..48",
+    "forbidden_page_objects": "380..403"
+  },
+  "locator_convention": "book:sefer-habahir-1883#p<PDF_PAGE>:<BLOCK_ID>",
+  "page_map": [
+    {"pdf_page":1,"page_object":356,"ocr_content_object":10,"source_ref":"book:sefer-habahir-1883#p1:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":2,"page_object":357,"ocr_content_object":20,"source_ref":"book:sefer-habahir-1883#p2:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":3,"page_object":358,"ocr_content_object":27,"source_ref":"book:sefer-habahir-1883#p3:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":4,"page_object":359,"ocr_content_object":34,"source_ref":"book:sefer-habahir-1883#p4:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":5,"page_object":360,"ocr_content_object":41,"source_ref":"book:sefer-habahir-1883#p5:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":6,"page_object":361,"ocr_content_object":48,"source_ref":"book:sefer-habahir-1883#p6:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":7,"page_object":362,"ocr_content_object":55,"source_ref":"book:sefer-habahir-1883#p7:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":8,"page_object":363,"ocr_content_object":62,"source_ref":"book:sefer-habahir-1883#p8:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":9,"page_object":364,"ocr_content_object":69,"source_ref":"book:sefer-habahir-1883#p9:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":10,"page_object":365,"ocr_content_object":76,"source_ref":"book:sefer-habahir-1883#p10:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":11,"page_object":366,"ocr_content_object":83,"source_ref":"book:sefer-habahir-1883#p11:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":12,"page_object":367,"ocr_content_object":90,"source_ref":"book:sefer-habahir-1883#p12:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":13,"page_object":368,"ocr_content_object":97,"source_ref":"book:sefer-habahir-1883#p13:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":14,"page_object":369,"ocr_content_object":104,"source_ref":"book:sefer-habahir-1883#p14:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":15,"page_object":370,"ocr_content_object":111,"source_ref":"book:sefer-habahir-1883#p15:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":16,"page_object":371,"ocr_content_object":118,"source_ref":"book:sefer-habahir-1883#p16:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":17,"page_object":372,"ocr_content_object":126,"source_ref":"book:sefer-habahir-1883#p17:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":18,"page_object":373,"ocr_content_object":133,"source_ref":"book:sefer-habahir-1883#p18:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":19,"page_object":374,"ocr_content_object":140,"source_ref":"book:sefer-habahir-1883#p19:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":20,"page_object":375,"ocr_content_object":147,"source_ref":"book:sefer-habahir-1883#p20:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":21,"page_object":376,"ocr_content_object":154,"source_ref":"book:sefer-habahir-1883#p21:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":22,"page_object":377,"ocr_content_object":161,"source_ref":"book:sefer-habahir-1883#p22:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":23,"page_object":378,"ocr_content_object":168,"source_ref":"book:sefer-habahir-1883#p23:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"},
+    {"pdf_page":24,"page_object":379,"ocr_content_object":175,"source_ref":"book:sefer-habahir-1883#p24:page","status":"SOURCE_LOCATED_TEXT_UNRESOLVED"}
+  ],
+  "coverage_counts": {
+    "pdf_pages_in_owned_range": 24,
+    "pages_structurally_mapped": 24,
+    "pages_transcribed_reliably": 0,
+    "pages_visually_verified": 0,
+    "content_blocks_transcribed": 0,
+    "research_extractions_promoted": 0,
+    "findings_promoted": 0,
+    "claims_promoted": 0,
+    "candidate_relations_written": 0,
+    "canonical_edges_written": 0,
+    "research_objects_written": 0
+  },
+  "unresolved": [
+    {
+      "id": "BAHIR-A-U1",
+      "scope": "PDF pages 1-24",
+      "status": "BLOCKING",
+      "issue": "Reliable human-readable reconstruction cannot be certified from the available tool path. The PDF contains per-page hidden OCR streams, but they are Flate-compressed; the visible page image layer is JBIG2. Without a faithful renderer/decoded stream plus visual cross-check, exact headings, section marks, citations, numbers, letters, divine names, kabbalistic terms, symbols, procedures, contradictions and variant readings cannot be attributed page-by-page without fabrication."
+    },
+    {
+      "id": "BAHIR-A-U2",
+      "scope": "cross-witness usage",
+      "status": "GUARDRAIL",
+      "issue": "A modern Wikisource/Sefaria-like Bahir text is available as a comparison witness, but it is NOT the canonical 1883 PDF witness and therefore was not substituted for page-level source reconstruction or used to manufacture page/block provenance."
+    }
+  ],
+  "prohibited_actions_verified": {
+    "new_book_node": false,
+    "canonical_edges": false,
+    "research_object_auto_promotion": false,
+    "schema_rpc_ui_change": false,
+    "second_half_touched_as_content": false,
+    "merge": false,
+    "deploy": false
+  },
+  "resume_condition": "Resume this writer scope only when the exact canonical PDF can be rendered/read page-by-page (or its embedded OCR streams can be decoded) with visual verification. Then replace SOURCE_LOCATED_TEXT_UNRESOLVED statuses with page/block transcriptions and research extraction; do not infer from secondary witnesses.",
+  "release_state": "BRANCH_ONLY_NOT_MERGED_NOT_DEPLOYED_NOT_LIVE"
+}
