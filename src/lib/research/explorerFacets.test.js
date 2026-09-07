@@ -13,9 +13,8 @@ import {
   normalizePageResult,
   parseExplorerUrlState,
   explorerUrlSearch,
-  replayLimitFor,
+  explorerReopenWindow,
   explorerCardSelection,
-  EXPLORER_REPLAY_MAX_LIMIT,
 } from "./explorerFacets.js";
 import { EXPLORER_LIST_MODE_TYPES } from "./entityHubProjection.js";
 
@@ -109,24 +108,26 @@ test("normalizePageResult: null/undefined input never throws, returns an empty p
   assert.deepEqual(normalizePageResult(undefined, 24), { rows: [], hasMore: false });
 });
 
-// ── Slice 3: card refId — the stable cross-surface reference a Research Context selection needs
-// (never the row's own DB id, which for node rows is not stable/shareable across surfaces) ──────
+// ── Slice 3: card refId — the reference a Research Context selection carries forward. The final
+// DB-id fallback (when a node has neither identity_key nor label) is a last-resort TECHNICAL
+// address only — not a claim that a bare DB id is a stable/canonical cross-surface identity
+// (wording corrected per GPT challenge 8fc2d310, dispatch 3d04a64b) ────────────────────────────
 
 test("refId: number card uses its label (the canonical /number/:value key), same as its href", () => {
   const card = getExplorerFacet("number").toCard({ id: "n1", label: "1111" });
   assert.equal(card.refId, "1111");
 });
 
-test("refId: other node cards prefer identity_key, fall back to label, then the DB id — never fabricated", () => {
+test("refId: other node cards prefer identity_key, fall back to label, then the DB id as a last-resort technical address", () => {
   const withIdentity = getExplorerFacet("entity").toCard({ id: "e1", label: "שם", identity_key: "gw:abc" });
   assert.equal(withIdentity.refId, "gw:abc");
   const withoutIdentity = getExplorerFacet("event").toCard({ id: "ev1", label: "אירוע" });
   assert.equal(withoutIdentity.refId, "אירוע");
   const withNeither = getExplorerFacet("event").toCard({ id: "ev2" });
-  assert.equal(withNeither.refId, "ev2");
+  assert.equal(withNeither.refId, "ev2", "DB id used only because nothing else exists — not claimed as a stable identity");
 });
 
-test("refId: topic uses its slug, book uses its slug when present else the DB id", () => {
+test("refId: topic uses its slug, book uses its slug when present else the DB id as a last-resort technical address", () => {
   const topic = getExplorerFacet("topic").toCard({ id: "t1", slug: "tzvi-conv-1111", title: "1111" });
   assert.equal(topic.refId, "tzvi-conv-1111");
   const bookWithSlug = getExplorerFacet("book").toCard({ id: "b1", label: "ספר א", metadata: { slug: "sefer-a" } });
@@ -183,25 +184,33 @@ test("URL round-trip: parseExplorerUrlState(explorerUrlSearch(x)) reconstructs t
   }
 });
 
-// ── Slice 3: replayLimitFor — one bounded request to reconstruct a deep-linked position ─────────
+// ── Slice 3 CORRECTION (dispatch 3d04a64b, GPT challenge 8fc2d310): explorerReopenWindow ────────
+// The prior replayLimitFor() capped a "replay from position 0" at 100 rows (the reader's own
+// per-request hard cap) — so a URL/returnTo past offset≈76 silently reconstructed a TRUNCATED
+// list while the URL still claimed the larger offset. explorerReopenWindow replaces it with
+// PAGE-WINDOW semantics: reopening always fetches exactly ONE page's worth of rows starting at
+// `offset`, so it is exact for ANY offset (including well past the old 100-row cap) with no hard
+// cap needed at all — proven below at 120, 240 and 1000.
 
-test("replayLimitFor: offset 0 replays exactly one page", () => {
-  assert.equal(replayLimitFor(0, 24), 24);
-  assert.equal(replayLimitFor(0), 24, "default pageSize is 24");
+test("explorerReopenWindow: offset 0 is the first page window", () => {
+  assert.deepEqual(explorerReopenWindow(0, 24), { offset: 0, limit: 24 });
+  assert.deepEqual(explorerReopenWindow(0), { offset: 0, limit: 24 }, "default pageSize is 24");
 });
 
-test("replayLimitFor: offset+pageSize is the replay size, up to the reader's own hard cap", () => {
-  assert.equal(replayLimitFor(48, 24), 72);
-  assert.equal(replayLimitFor(96, 24), EXPLORER_REPLAY_MAX_LIMIT, "clamped at 100 — never an unbounded read from a deep link");
-  assert.equal(replayLimitFor(1000, 24), EXPLORER_REPLAY_MAX_LIMIT);
+test("explorerReopenWindow: the window is always exactly {offset,pageSize} — never larger, never accumulated from 0 — for offsets well past the old 100-row cap", () => {
+  assert.deepEqual(explorerReopenWindow(48, 24), { offset: 48, limit: 24 });
+  assert.deepEqual(explorerReopenWindow(120, 24), { offset: 120, limit: 24 }, "past the old cap: still one exact bounded page, not truncated");
+  assert.deepEqual(explorerReopenWindow(240, 24), { offset: 240, limit: 24 }, "same for a much larger offset — one bounded request either way");
+  assert.deepEqual(explorerReopenWindow(1000, 24), { offset: 1000, limit: 24 }, "no hard cap: the request size never grows with offset");
 });
 
-test("replayLimitFor: negative/fractional/non-finite offset or pageSize never inflates the request", () => {
-  assert.equal(replayLimitFor(-5, 24), 24, "negative offset is not finite-positive, treated as 0");
-  assert.equal(replayLimitFor(Infinity, 24), 24, "non-finite offset treated as 0, not an unbounded request");
-  assert.equal(replayLimitFor(NaN, 24), 24);
-  assert.equal(replayLimitFor(12.9, 24), 36, "fractional offset floors before adding");
-  assert.equal(replayLimitFor(24, 0), 48, "non-positive pageSize falls back to the default 24, added to offset");
+test("explorerReopenWindow: negative/fractional/non-finite offset or pageSize normalizes, never throws or inflates the request", () => {
+  assert.deepEqual(explorerReopenWindow(-5, 24), { offset: 0, limit: 24 }, "negative offset is not finite-positive, treated as 0");
+  assert.deepEqual(explorerReopenWindow(Infinity, 24), { offset: 0, limit: 24 }, "non-finite offset treated as 0, not an unbounded window");
+  assert.deepEqual(explorerReopenWindow(NaN, 24), { offset: 0, limit: 24 });
+  assert.deepEqual(explorerReopenWindow(12.9, 24), { offset: 12, limit: 24 }, "fractional offset floors");
+  assert.deepEqual(explorerReopenWindow(240, 0), { offset: 240, limit: 24 }, "non-positive pageSize falls back to the default 24");
+  assert.deepEqual(explorerReopenWindow(240, Infinity), { offset: 240, limit: 24 }, "non-finite pageSize falls back to the default 24 — window size never inflates");
 });
 
 // ── Slice 3: explorerCardSelection — the Research Context selection a card resolves to ──────────

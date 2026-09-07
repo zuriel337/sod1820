@@ -5,7 +5,7 @@ import {
   fetchExplorerFacetPage,
   parseExplorerUrlState,
   explorerUrlSearch,
-  replayLimitFor,
+  explorerReopenWindow,
   explorerCardSelection,
 } from "../lib/research/explorerFacets.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -22,11 +22,19 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 // Slice 3 adds exact reopen/return, reusing the SAME Research Context contract as TopicPage /
 // EntityHubPreviewPageFunctional verbatim (root subject sticky-if-absent; selection+lens follow
 // the active facet; a card click records returnTo before navigating away) — no new store. The
-// facet+offset themselves live in the URL (?facet=&offset=), which is what makes a deep link or a
-// browser-back exactly reopenable; Research Context's own `dimensions.explorerFacet`/
-// `explorerOffset` mirror the same two values so BottomBar's "כאן" sheet can see them too, without
-// BottomBar.jsx itself being touched (its /explorer-preview label falls through to a generic
-// "פוסט" — a known, accepted, out-of-scope cosmetic gap for this slice only).
+// facet+offset themselves live in the URL (?facet=&offset=); Research Context's own
+// `dimensions.explorerFacet`/`explorerOffset` mirror the same two values so BottomBar's "כאן"
+// sheet can see them too, without BottomBar.jsx itself being touched (its /explorer-preview label
+// falls through to a generic "פוסט" — a known, accepted, out-of-scope cosmetic gap for this slice).
+//
+// PAGE-WINDOW reopen (corrected per GPT challenge 8fc2d310 / dispatch 3d04a64b): a mount/reopen
+// with a nonzero ?offset= fetches EXACTLY that one page window (explorerReopenWindow — one bounded
+// request of PAGE_SIZE rows starting at offset, for ANY offset, no hard cap needed) rather than
+// replaying every row from position 0. This restores the exact position a returnTo/deep-link
+// points at truthfully, for any offset — it does not also replay everything seen before it in the
+// original browsing session (that was the prior, incorrect "replay" contract, which silently
+// truncated past ~76 accumulated rows). Clicking "עוד ←" afterwards keeps accumulating forward
+// from that window exactly as during live browsing.
 
 const PAGE_SIZE = 24;
 
@@ -112,28 +120,33 @@ export default function ExplorerPreviewPage() {
   const activeKey = urlState.facet || DEFAULT_FACET_KEY;
   const [state, setState] = useState({ loading: true, cards: [], hasMore: false, error: null, offset: 0 });
 
+  // replace=true always fetches exactly the ONE bounded window {offset,limit} and replaces the
+  // grid with it (used for both a fresh facet switch — offset 0 — and a page-window reopen — any
+  // offset); replace=false appends the next page onto what's already on screen ("עוד ←").
   const loadPage = useCallback((facetKey, offset, replace, limit = PAGE_SIZE) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    fetchExplorerFacetPage(facetKey, { limit, offset: replace ? 0 : offset })
+    fetchExplorerFacetPage(facetKey, { limit, offset })
       .then((page) => {
         if (!page) { setState({ loading: false, cards: [], hasMore: false, error: new Error("פאספט לא ידוע"), offset: 0 }); return; }
         setState((prev) => ({
           loading: false,
           error: null,
           hasMore: page.hasMore,
-          offset: replace ? Math.max(0, limit - PAGE_SIZE) : offset,
+          offset,
           cards: replace ? page.cards : [...prev.cards, ...page.cards],
         }));
       })
       .catch((error) => setState((prev) => ({ ...prev, loading: false, error })));
   }, []);
 
-  // Deep-link reopen: a nonzero ?offset= replays the same accumulated cards in ONE bounded
-  // request (capped at the reader's own 100-row max — never unbounded), so the page a user shared
-  // or returned to looks exactly as they left it. Re-runs only when the facet or the URL's own
-  // offset changes, not on every "עוד ←" click (those advance state.offset locally, not the URL).
+  // Reopen: a nonzero ?offset= fetches EXACTLY that one page window in one bounded request
+  // (explorerReopenWindow — always PAGE_SIZE rows, for any offset, no hard cap needed) — the
+  // truthful, corrected contract from GPT challenge 8fc2d310 (the prior "replay from 0" contract
+  // silently truncated past ~76 rows). Re-runs only when the facet or the URL's own offset
+  // changes, not on every "עוד ←" click (those advance state.offset locally, not the URL).
   useEffect(() => {
-    loadPage(activeKey, 0, true, replayLimitFor(urlState.offset, PAGE_SIZE));
+    const win = explorerReopenWindow(urlState.offset, PAGE_SIZE);
+    loadPage(activeKey, win.offset, true, win.limit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeKey, urlState.offset]);
 

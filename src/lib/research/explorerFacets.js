@@ -52,9 +52,12 @@ function nodeRowToCard(type) {
     label: row.label || "",
     sub: truncate(row.description),
     href: nodeCardHref(type, row),
-    // refId: the identity a Research Context selection can carry forward (number → its value,
-    // as nodeCardHref already routes on; anything else → identity_key, falling back to label —
-    // the same precedence nodeCardHref itself uses for the hub link).
+    // refId: the reference a Research Context selection carries forward (number → its value, the
+    // same key nodeCardHref already routes on; anything else → identity_key, falling back to
+    // label). The final fallback to the row's own DB id is a last-resort TECHNICAL address only —
+    // used solely so a card with neither identity_key nor label still has *some* refId — never a
+    // claim that a bare DB id is a stable/canonical cross-surface identity (corrected per GPT
+    // challenge 8fc2d310, UNIVERSAL_EXPLORER_V1_SLICE3_EXACT_REOPEN_CORRECTION, dispatch 3d04a64b).
     refId: type === "number" ? row.label : (row.identity_key || row.label || String(row.id)),
   });
 }
@@ -66,7 +69,7 @@ function topicRowToCard(row) {
     label: row.title || row.slug || "",
     sub: truncate(row.subtitle),
     href: `/topic/${encodeURIComponent(row.slug)}`,
-    refId: row.slug || String(row.id),
+    refId: row.slug || String(row.id), // DB-id fallback: last-resort technical address, not a claimed stable identity
   };
 }
 
@@ -78,7 +81,7 @@ function bookRowToCard(row) {
     label: row.label || "",
     sub: truncate(row.description),
     href: slug ? `/book/${encodeURIComponent(slug)}` : "/book",
-    refId: slug || String(row.id),
+    refId: slug || String(row.id), // DB-id fallback: last-resort technical address, not a claimed stable identity
   };
 }
 
@@ -144,14 +147,12 @@ export async function fetchExplorerFacetPage(facetKey, { limit = 24, offset = 0 
 }
 
 // ── UNIVERSAL_EXPLORER_V1_SLICE3_RESEARCH_CONTEXT_REOPEN (work_log dispatch ff9c3f2a) ──
-// Pure helpers only: URL ⇄ {facet,offset} round-trip, a bounded single-request "replay" limit for
-// reopening a deep link past page 1, and the Research Context selection a facet/card resolves to.
-// No new store, no network here — these just make the existing page-size accumulation exactly
-// reconstructible from a URL, and exactly resumable from Research Context's flat dimensions bag
-// (researchContext.js normalizeDimensions accepts only scalars/primitive-arrays per key — nested
-// objects are silently dropped, so Explorer state lives as two flat keys, not one nested one).
-
-export const EXPLORER_REPLAY_MAX_LIMIT = 100; // matches each reader's own hard cap (Slice 1)
+// Pure helpers only: URL ⇄ {facet,offset} round-trip and the Research Context selection a
+// facet/card resolves to. No new store, no network here — these just make the existing
+// page-size browsing exactly resumable from a URL, and mirrored into Research Context's flat
+// dimensions bag (researchContext.js normalizeDimensions accepts only scalars/primitive-arrays
+// per key — nested objects are silently dropped, so Explorer state lives as two flat keys, not
+// one nested one).
 
 /** Reads ?facet=&offset= from a URLSearchParams (or plain object). Unknown/invalid facet falls
  * back to fallbackFacet; offset is clamped to a non-negative integer, invalid → 0. Never throws. */
@@ -176,14 +177,33 @@ export function explorerUrlSearch({ facet, offset = 0 } = {}) {
   return qs ? `?${qs}` : "";
 }
 
-/** How many rows to request in ONE bounded call to reconstruct the same accumulated card list a
- * user had reached at `offset` (i.e. offset+pageSize rows from position 0) — capped at the
- * reader's own hard limit so a deep link can never force an unbounded read. Non-finite/negative/
- * fractional input is treated as 0 (page 1). */
-export function replayLimitFor(offset, pageSize = 24) {
+// ── UNIVERSAL_EXPLORER_V1_SLICE3_EXACT_REOPEN_CORRECTION (work_log dispatch 3d04a64b) ──
+// GPT challenge 8fc2d310 on the first Slice 3 pass: the original replayLimitFor() capped a
+// "replay from position 0" at 100 rows (the reader's own per-request hard cap) — so a deep link
+// or returnTo past ~76 accumulated rows (offset+pageSize > 100) silently rendered a TRUNCATED
+// list while the URL still claimed that exact offset. That is not "exact reopen", it is a
+// plausible-looking lie past one page-and-a-bit.
+//
+// Corrected contract — PAGE-WINDOW semantics, not accumulate-and-replay (chosen per the
+// challenge's own preference: "prefer page-window semantics if it preserves UX and simplifies
+// exactness"): reopening a URL/returnTo restores the user to looking at the EXACT page window
+// {offset, pageSize} they left from — one bounded request, always ≤ pageSize rows, regardless of
+// how large `offset` is (offset=240 and offset=240000 are both a single bounded fetch of exactly
+// `pageSize` rows starting at that offset — never a chain of requests, never a growing read). This
+// does not replay every row from position 0 (a returnTo does not restore full prior scroll
+// history, only the exact position) — but it is truthfully exact about the position it does
+// restore, for any offset, with no hard cap needed because no accumulation happens on reopen.
+// Continuing to browse forward from a reopened window (the existing "עוד ←" / loadMore path) is
+// unaffected — it already does one bounded page fetch per click, appended to what's on screen.
+
+/** The bounded single-page request that exactly reconstructs the window a URL/returnTo offset
+ * points at — {offset, limit}, always one page's worth, never more. Non-finite/negative/
+ * fractional offset or pageSize is normalized (offset→0, pageSize→24), so this is safe for any
+ * input including an arbitrarily large or hand-edited offset. */
+export function explorerReopenWindow(offset, pageSize = 24) {
   const safeOffset = Number.isFinite(Number(offset)) && Number(offset) > 0 ? Math.floor(Number(offset)) : 0;
   const safePageSize = Number.isFinite(Number(pageSize)) && Number(pageSize) > 0 ? Math.floor(Number(pageSize)) : 24;
-  return Math.min(EXPLORER_REPLAY_MAX_LIMIT, safeOffset + safePageSize);
+  return { offset: safeOffset, limit: safePageSize };
 }
 
 /** The Research Context `selection` a facet card resolves to when the user leaves the Explorer
