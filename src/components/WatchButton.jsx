@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -7,173 +8,178 @@ import { getNotificationPrefs } from "../lib/supabase.js";
 import { watchToggle } from "../lib/commandCenter.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
+import { normalizeFollowTopic, watchContinuation, assertWatchResult, requireVerifiedEmailSession } from "../lib/watchContinuation.js";
 import EmailVerify from "./EmailVerify.jsx";
 
-// 🔔 WatchButton — הרכיב הקנוני היחיד של מנוע-המשפך (subscription_funnel_law).
-// חוקי-ברזל: (1) אותו רכיב בכל מקום, רק ה-topic משתנה · (2) כל Follow שומר source · (3) משפט-הסבר
-// «מה מקבלים» · (4) Follow קודם, ערוץ אח"כ (escalation: אחרי Follow → הצעת Push, לא לפני) ·
-// (7) מצב gate לתחתית-תוכן. אין רכיב-מעקב אחר.
-//   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
-//   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
-//   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null }) {
+// subscription_funnel_law v18: one component, one continuation, every variant.
+// This UI does NOT repair identity claims or authorize an email delivery channel.
+// Those server-side release gates are tracked under SHARED_FOLLOW_SIGNUP_COMPLETION_V1.
+function RegistrationDialog({ onClose, onVerified, source, P }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    const previousFocus = document.activeElement;
+    dialog?.showModal();
+    return () => { dialog?.close(); previousFocus?.focus?.(); };
+  }, []);
+  if (typeof document === "undefined") return null;
+  return createPortal(
+    <dialog ref={ref} aria-label="אימות מייל להמשך המעקב"
+      onCancel={e => { e.preventDefault(); onClose(); }}
+      onKeyDown={e => { e.stopPropagation(); if (e.key === "Escape") { e.preventDefault(); onClose(); } }}
+      onClick={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}
+      style={{ direction: "rtl", width: "min(440px, calc(100vw - 24px))", boxSizing: "border-box",
+        maxHeight: "85vh", overflowY: "auto", padding: 20, borderRadius: 16,
+        border: `1px solid ${P.border}`, background: P.card, color: P.ink }}>
+      <button type="button" onClick={onClose} aria-label="סגירת האימות"
+        style={{ float: "left", padding: 8, border: "none", background: "transparent", color: P.ink, cursor: "pointer" }}>✕</button>
+      <h2 style={{ fontFamily: F.heading, fontSize: 18, margin: "0 0 12px" }}>להמשך שמירת המעקב</h2>
+      <p style={{ fontFamily: F.body, fontSize: 13, lineHeight: 1.7 }}>מאמתים את המייל לחשבון. בחירת ערוץ עדכונים היא פעולה נפרדת.</p>
+      <EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={onVerified} />
+    </dialog>, document.body
+  );
+}
+
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null,
+  heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false,
+  checkbox = false, noPush = false, variant = null }) {
   const auto = usePalette();
-  const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
-  const { user } = useAuth();
+  const P = PALETTES[paletteMode || (variant === "mini" ? "dark" : "")] || auto;
+  const { user, loading: authLoading } = useAuth();
+  const canonicalTopic = normalizeFollowTopic(topic);
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [justFollowed, setJustFollowed] = useState(false);   // להצגת escalation מיד אחרי Follow
-  const [showReg, setShowReg] = useState(false);             // קריאה-להרשמה למי שעקב ועדיין לא רשום
+  const [loadingPrefs, setLoadingPrefs] = useState(true);
+  const [justFollowed, setJustFollowed] = useState(false);
+  const [showReg, setShowReg] = useState(false);
   const [pushOn, setPushOn] = useState(false);
-  const [pushMsg, setPushMsg] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const pending = useRef(false);
+  const scope = useRef(0);
   const pushReady = PUSH_CONFIGURED && pushSupported();
-  const idObj = user?.id ? { userId: user.id } : { visitorId: getVisitorId() };
 
-  const load = useCallback(() => {
-    if (!topic) return;
-    getNotificationPrefs(idObj)
-      .then(p => { setFollowing(!!p?.topics?.includes(topic)); setPushOn(!!p?.channels?.includes("push")); })
-      .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic, user?.id]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const current = ++scope.current;
+    let alive = true;
+    setFollowing(false); setLoadingPrefs(true); setJustFollowed(false); setMessage(""); setError("");
+    if (authLoading || !canonicalTopic) { setLoadingPrefs(false); return () => { alive = false; }; }
+    const identity = user?.id ? { userId: user.id } : { visitorId: getVisitorId() };
+    getNotificationPrefs(identity).then(p => {
+      if (!alive || current !== scope.current) return;
+      setFollowing(!!p?.topics?.includes(canonicalTopic));
+      setPushOn(!!p?.channels?.includes("push"));
+    }).catch(() => { if (alive) setError("לא הצלחנו לטעון את המעקב כרגע"); })
+      .finally(() => { if (alive) setLoadingPrefs(false); });
+    return () => { alive = false; };
+  }, [canonicalTopic, user?.id, authLoading]);
+
+  // A different subject must not inherit an open registration dialog.
+  useEffect(() => { setShowReg(false); }, [canonicalTopic]);
 
   async function toggle() {
-    if (!topic || busy) return;
-    setBusy(true);
+    if (!canonicalTopic || pending.current || loadingPrefs || authLoading) return;
+    pending.current = true; setBusy(true); setError(""); setMessage("");
+    const current = scope.current;
     const next = !following;
-    setFollowing(next);   // אופטימי
     try {
-      await watchToggle(topic, source, next, user?.id ? null : getVisitorId());
-      if (next) { setJustFollowed(true); try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
-      else setJustFollowed(false);
-    } catch { setFollowing(!next); }   // כשל → חזרה
-    finally { setBusy(false); }
+      const result = await watchToggle(canonicalTopic, source, next, user?.id ? null : getVisitorId());
+      assertWatchResult(result, canonicalTopic, next); // helper currently swallows RPC errors: never show false success
+      if (current !== scope.current) return;
+      setFollowing(next); setJustFollowed(next);
+      if (!next) setShowReg(false);
+      try { trackConversion(next ? "follow" : "unfollow", { source, topic: canonicalTopic }); } catch { /* analytics cannot block persistence */ }
+    } catch {
+      if (current === scope.current) setError("המעקב לא נשמר כרגע — אפשר לנסות שוב");
+    } finally { pending.current = false; setBusy(false); }
   }
 
   async function turnOnPush() {
-    if (!pushReady) return;
-    setPushMsg("");
-    const r = await enablePush({ userId: user?.id || null, topics: [] });
-    if (r?.ok) { setPushOn(true); setPushMsg("✓ ההתראות המיידיות הופעלו"); try { trackConversion("push_enabled", { source }); } catch { /* noop */ } }
-    else setPushMsg(r?.reason === "denied" ? "הדפדפן חסם התראות" : "לא ניתן להפעיל כרגע");
+    if (!user?.id || !pushReady || pending.current) return;
+    pending.current = true; setBusy(true); setMessage(""); setError("");
+    try {
+      const result = await enablePush({ userId: user.id, topics: [] });
+      if (!result?.ok) throw new Error("push not enabled");
+      setPushOn(true); setMessage("✓ הרשמת הדפדפן להתראות נשמרה");
+      try { trackConversion("push_enabled", { source, topic: canonicalTopic }); } catch { /* noop */ }
+    } catch { setError("לא ניתן להפעיל התראות בדפדפן כרגע"); }
+    finally { pending.current = false; setBusy(false); }
   }
 
-  if (!topic) return null;
-
-  // ✓ וריאנט mini — «וי קטן» עדין למשטחי-מדיה כהים (למשל בתוך נגן-הShorts). כמעט-שקוף כשלא-עוקב,
-  //   מתמלא בסגול כשעוקב. אותו מנוע-מעקב קנוני (watchToggle/getNotificationPrefs), רק תצוגה זעירה.
-  if (variant === "mini") {
-    return (
-      <button onClick={toggle} disabled={busy} aria-pressed={following}
-        title={following ? "עוקב — לחצו לביטול" : (explainer || "עקבו אחרי מימד חמש")}
-        style={{
-          display: "inline-flex", alignItems: "center", gap: 5, cursor: busy ? "wait" : "pointer",
-          background: following ? "rgba(132,88,255,.9)" : "rgba(255,255,255,.10)",
-          border: `1px solid ${following ? "rgba(190,165,255,.8)" : "rgba(255,255,255,.28)"}`,
-          color: "#fff", borderRadius: 999, padding: "4px 10px",
-          fontFamily: F.heading, fontWeight: 800, fontSize: 11, lineHeight: 1,
-          opacity: following ? 1 : 0.5, transition: "opacity .2s, background .2s",
-        }}>
-        <span aria-hidden style={{ fontSize: 11 }}>✓</span>
-        <span>{following ? (followLabel || "עוקב") : (label || "מעקב")}</span>
-      </button>
-    );
+  async function confirmRegistration(data) {
+    requireVerifiedEmailSession(data);
+    // Readback only. Never bypass RLS or take a guest row using an exposed visitor ID.
+    // Keep the verified form open with retry if the canonical identity bridge did not complete.
+    const prefs = await getNotificationPrefs({ userId: data.user.id });
+    if (!prefs?.topics?.includes(canonicalTopic)) throw new Error("Follow identity link not confirmed");
+    setFollowing(true); setJustFollowed(false); setShowReg(false);
+    setMessage("✓ המעקב נמצא בחשבון. ערוץ העדכונים נבחר בנפרד.");
   }
 
+  const nextStep = watchContinuation({ following, userId: user?.id, authLoading,
+    justFollowed, noPush, pushReady, pushOn });
+  if (!canonicalTopic) return null;
   const gold = P.accentText, soft = P.glow || "rgba(212,175,55,0.15)";
+  const disabled = busy || loadingPrefs || authLoading;
+  const outline = following || ghost;
+  const btn = { cursor: disabled ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
+    minHeight: 40, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999, fontFamily: F.heading,
+    fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap", border: `1px solid ${outline ? P.accent : "transparent"}`,
+    background: following ? soft : (ghost ? "transparent" : P.accentBtn), color: outline ? gold : (P.onAccent || "#1a0e00") };
 
-  const outline = following || ghost;   // מתאר: תמיד כשעוקבים, וגם ghost כברירת-מחדל (פעולה משנית סמוכה)
-  const btn = {
-    cursor: busy ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-    minHeight: 40, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
-    fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap",
-    border: `1px solid ${outline ? P.accent : "transparent"}`,
-    background: following ? soft : (ghost ? "transparent" : P.accentBtn),
-    color: outline ? gold : (P.onAccent || "#1a0e00"),
-  };
-
-  // ☑️ וריאנט צ'קבוקס — «דשבורד מעקב» קטן: שורה עם וי לכל נושא (קטגוריה/כתב), בלי פוש.
-  // אותו מנוע-מעקב קנוני (getNotificationPrefs/watchToggle), רק תצוגה כצ'קבוקס.
-  if (checkbox) {
-    return (
-      <button onClick={toggle} disabled={busy} role="checkbox" aria-checked={following}
-        title={following ? "בטל מעקב" : explainer || label}
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", cursor: busy ? "wait" : "pointer",
-          background: following ? soft : "transparent", border: `1px solid ${following ? P.accent : P.border}`,
-          borderRadius: 10, padding: "9px 13px", textAlign: "start", direction: "rtl", minHeight: 44 }}>
-        <span aria-hidden style={{ flex: "0 0 auto", width: 21, height: 21, borderRadius: 6,
-          border: `2px solid ${following ? P.accent : P.border}`, background: following ? P.accent : "transparent",
-          color: following ? (P.onAccent || "#1a0e00") : "transparent", display: "grid", placeItems: "center",
-          fontSize: 13, fontWeight: 900, transition: "all .15s ease" }}>✓</span>
-        <span style={{ flex: 1, minWidth: 0, color: following ? gold : P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {icon} {label}
-        </span>
-        {following && <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>עוקב</span>}
-      </button>
-    );
+  // All visual variants select a control, then render the SAME continuation below.
+  let control;
+  if (variant === "mini") {
+    control = <button type="button" onClick={toggle} disabled={disabled} aria-pressed={following}
+      title={following ? "עוקב — לחצו לביטול" : (explainer || label)}
+      style={{ display: "inline-flex", alignItems: "center", gap: 5, cursor: disabled ? "wait" : "pointer",
+        background: following ? "rgba(132,88,255,.9)" : "rgba(255,255,255,.10)",
+        border: `1px solid ${following ? "rgba(190,165,255,.8)" : "rgba(255,255,255,.28)"}`,
+        color: "#fff", borderRadius: 999, padding: "4px 10px", fontFamily: F.heading, fontWeight: 800,
+        fontSize: 11, lineHeight: 1, opacity: following ? 1 : 0.5, transition: "opacity .2s, background .2s" }}>
+      <span aria-hidden="true">✓</span><span>{following ? (followLabel || "עוקב") : label}</span>
+    </button>;
+  } else if (checkbox) {
+    control = <button type="button" onClick={toggle} disabled={disabled} role="checkbox" aria-checked={following}
+      title={following ? "בטל מעקב" : explainer || label}
+      style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", cursor: disabled ? "wait" : "pointer",
+        background: following ? soft : "transparent", border: `1px solid ${following ? P.accent : P.border}`,
+        borderRadius: 10, padding: "9px 13px", textAlign: "start", direction: "rtl", minHeight: 44 }}>
+      <span aria-hidden="true" style={{ color: following ? gold : P.inkSoft }}>{following ? "☑" : "☐"}</span>
+      <span style={{ flex: 1, minWidth: 0, color: following ? gold : P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>{icon} {label}</span>
+      {following && <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>עוקב</span>}
+    </button>;
+  } else if (gate) {
+    control = <>
+      <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 6 }}>{following ? "✓ הנושא במעקב" : `🔔 ${heading}`}</div>
+      {!following && explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
+      <button type="button" onClick={toggle} disabled={disabled} aria-pressed={following} style={btn}>{following ? "ביטול מעקב" : `${icon} ${label}`}</button>
+    </>;
+  } else {
+    control = <>
+      <button type="button" onClick={toggle} disabled={disabled} aria-pressed={following}
+        title={following ? "לחצו לביטול" : explainer || label} style={btn}>{icon} {following ? (followLabel || "עוקבים ✓") : label}</button>
+      {!following && explainer && <span style={{ display: "block", color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</span>}
+    </>;
   }
 
-  // הצעת-Push אחרי Follow (חוק #4: הפעולה הבאה בלבד) — רק אם הופעל עכשיו, יש תמיכה, ועוד לא פעיל
-  const pushOffer = !noPush && justFollowed && following && pushReady && !pushOn && (
-    <div style={{ marginTop: 9, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: gate ? "center" : "flex-start" }}>
-      <span style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5 }}>📱 רוצה גם התראה מיידית?</span>
-      <button onClick={turnOnPush} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${P.accent}`, color: gold, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>הפעל התראות</button>
-    </div>
-  );
-  const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>{pushMsg}</div>;
-
-  // 🔑 קריאה-להרשמה — למי שעקב ועדיין אינו מחובר. המעקב האנונימי כבר נשמר (visitor_id),
-  //   ובהרשמה הוא עובר אוטומטית לחשבון (claimVisitorPrefs ב-AuthContext) + נפתחות התראות-מייל.
-  const regCta = !user && justFollowed && following && (
-    <div style={{ marginTop: 11, background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 12, padding: "12px 14px", textAlign: gate ? "center" : "start" }}>
-      {!showReg ? (
-        <>
-          <div style={{ color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>הירשם בקליק (מייל בלבד) — כדי שהמעקב יישמר לחשבון שלך ותקבל התראה כשמתפרסם משהו חדש.</div>
-          <button onClick={() => setShowReg(true)} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ הירשם לשמירת המעקב</button>
-        </>
-      ) : (
-        <EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => { setShowReg(false); setJustFollowed(false); }} />
-      )}
-    </div>
-  );
-
-  // ── אזור-מעקב קנוני (מובחן משיתוף, Value-First, שפה אחידה בכל האתר) ──
-  if (gate) {
-    return (
-      <div style={{ marginTop: 30, paddingTop: 22, borderTop: `1px solid ${P.border}`, textAlign: "center", direction: "rtl" }}>
-        <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "18px 18px", maxWidth: 460, margin: "0 auto" }}>
-          {!following ? (
-            <>
-              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
-              {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
-              <button onClick={toggle} disabled={busy} style={btn}>{icon} {label}</button>
-            </>
-          ) : (
-            <>
-              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>✓ אתה במעקב</div>
-              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>{explainer || "נעדכן אותך כשמתפרסם משהו חדש."}</div>
-              <div style={{ marginTop: 8 }}>
-                <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
-              </div>
-              {regCta}{pushOffer}{pushDone}
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // ── מצב כפתור אינליין ──
-  return (
-    <div style={{ direction: "rtl" }}>
-      <button onClick={toggle} disabled={busy} aria-pressed={following}
-        title={following ? "לחצו לביטול" : explainer || label} style={btn}>
-        {icon} {following ? (followLabel || "עוקבים ✓") : label}
-      </button>
-      {!following && explainer && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
-      {regCta}{pushOffer}{pushDone}
-    </div>
-  );
+  const continuation = <>
+    {nextStep === "register" && <span style={{ display: "block", marginTop: 7 }}>
+      {variant !== "mini" && <span style={{ display: "block", color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginBottom: 4 }}>הנושא נשמר למבקר הזה; עדכונים במייל עדיין לא הופעלו.</span>}
+      <button type="button" onClick={() => setShowReg(true)} aria-haspopup="dialog"
+        style={{ cursor: "pointer", background: "transparent", border: "none", padding: "4px 0", color: gold,
+          fontFamily: F.heading, fontSize: variant === "mini" ? 11 : 13, fontWeight: 800, textDecoration: "underline" }}>להמשך שמירת המעקב</button>
+    </span>}
+    {nextStep === "push" && <span style={{ display: "block", marginTop: 7 }}>
+      <button type="button" disabled={busy} onClick={turnOnPush} style={btn}>הפעל התראות דפדפן</button>
+    </span>}
+    {message && <span role="status" style={{ display: "block", color: P.inkSoft, fontFamily: F.body, fontSize: 12, marginTop: 7 }}>{message}</span>}
+    {error && <span role="alert" style={{ display: "block", color: P.ink, fontFamily: F.body, fontSize: 12, marginTop: 7 }}>{error}</span>}
+    {/* Keep mounted through auth-state changes, until verified readback succeeds or the user closes it. */}
+    {showReg && <RegistrationDialog source={source} onClose={() => setShowReg(false)} onVerified={confirmRegistration} P={P} />}
+  </>;
+  return <span dir="rtl" data-follow-variant={variant || (checkbox ? "checkbox" : gate ? "gate" : "inline")}
+    style={{ display: "block", ...(gate ? { marginTop: 30, padding: 18, textAlign: "center", border: `1px solid ${P.border}`, borderRadius: 14, background: P.card } : {}) }}>
+    {control}{continuation}
+  </span>;
 }
