@@ -1,18 +1,23 @@
-// 🔵 CORE CALCULATION ENGINE — מקור-אמת יחיד (Single Source of Truth).
-// כאן ורק כאן מחושבות כל השיטות, דרך המנוע הרשמי הנעול (gematria.js — gematria_engine_law).
-// מנועי AI/שדה רק *קוראים* את הפלט ומפרשים — לעולם לא מחשבים. «אין שני מקורות אמת למספרים».
-import { METHODS, DEPTH_METHODS } from "../gematria.js";
+// 🔵 CORE RESEARCH CONSUMER — calculation truth comes from the canonical Gematria contract.
+// Existing callers stay synchronous; Registry state can be supplied by callers that already have it.
+// No formulas, method identity, or execution semantics live here.
+import { CLIENT_GEMATRIA_METHODS, calculateGematriaEnvelope } from "./gematriaCalculationContract.js";
 
-const ALL = [...METHODS, ...DEPTH_METHODS];
-export const METHOD_KEYS = ALL.map(m => m.key);
+export const METHOD_KEYS = CLIENT_GEMATRIA_METHODS.map(m => m.key);
 export const PRIMARY = "רגיל";
 
-// computeEntity(text) → ערכי כל השיטות לישות אחת. זה ה-API הסגור.
-export function computeEntity(text) {
+// computeEntity(text, methodStates?) → backward-compatible research projection over the canonical envelope.
+export function computeEntity(text, methodStates = null) {
   const t = String(text || "").trim();
+  const calculation = calculateGematriaEnvelope(t, methodStates);
   const values = {};
-  for (const m of ALL) values[m.key] = m.fn(t) || 0;
-  return { text: t, primary: values[PRIMARY] || 0, values };
+  for (const result of calculation.results) values[result.methodKey] = result.value || 0;
+  return {
+    text: t,
+    primary: values[PRIMARY] || 0,
+    values,
+    calculation,
+  };
 }
 
 // connectToAxis(axis, ent) → כל הדרכים שבהן ישות מתחברת לציר הראשי (השם):
