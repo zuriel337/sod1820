@@ -1,0 +1,97 @@
+{
+  "pdf_page": 32,
+  "source_ref_page": "book:sefer-habahir-1883#p32",
+  "printed_page_label": "28 (Arabic page number, verso of leaf יד/14)",
+  "page_type": "bahir_text_and_commentary",
+  "correction_of": "research/sefer-habahir-1883/scan-b/pages/p32.json (branch claude/sefer-habahir-second-half-0lbg2i, commit 9b215c66) -- flagged unreliable by witness-structure-audit (work_log b6cc2d66): old p32.json was a verbatim duplicate of PDF page 36's real content.",
+  "correction_method": "Isolated pdftoppm -f 32 -l 32 render at 220dpi (full page) plus four 400dpi PIL crops covering the full page top-to-bottom, read independently before any comparison to the old artifact.",
+  "layout": ["header", "body_right_col", "body_left_col", "body_full_width_discourse", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p32-b1", "region": "header", "text_he": "ספר הבהיר ... 28", "confidence": "high"},
+      {
+        "block_id": "p32-b2",
+        "region": "body_right_col",
+        "text_he": "יהי אור ויהי אור: אמר ר' יוחנן שני אורים גדולים היו, שנאמר [שניהם] אור, ויהי אור, ]ועל[ אחד חזר, אע\"פ אא\"כ הבנים בו כי טוב, ולקח הקב\"ה וגנז לצדיקים לעתיד לבא, והיינו דכתיב מה רב טובך אשר צפנת ליראיך. מלמד שאור הראשון גנוז, ]ש[אין כל בריה יכולה להסתכל בו, שנאמר כי טוב, וכתיב וירא אלהים את האור כי טוב, וכתיב וירא אלהים את כל אשר עשה, והנה טוב מאד. ראה הקב\"ה את כל אשר עשה, וראה טוב ]מזהיר ו[בהיר, ולקח מאותו טוב, וכלל בו ל\"ב נתיבות החכמה, ונתנו זעוה\"ז, והיינו דכתיב כי לקח טוב נתתי לכם וגו', הוי אומר זו אוצרה של תורה )שבע\"פ( ואמר הקב\"ה אם ישמרו זאת התורה",
+        "confidence": "medium",
+        "notes": "This is the genuinely correct opening of PDF page 32: R. Yochanan's teaching on the 'two great lights' of Genesis 1:16, the primordial light (or ha-ganuz) hidden away for the righteous, and its distillation into the 32 Paths of Wisdom given as Torah. This is a well-known, structurally distinctive Bahir unit, clearly NOT the healing/Exodus-15:26 material that was wrongly filed here in the original (faulty) Scan B."
+      },
+      {
+        "block_id": "p32-b3",
+        "region": "body_left_col",
+        "text_he": "נא ואמר רבי רחומאי: מאי דכתיב ודרך חיים תוכחת מוסר? מלמד שכל הרגיל במעשה בראשית ובמעשה מרכבה אי אפשר שלא יכשל, שנאמר והמכשלה הזאת תחת ידך -- דברים שאין אדם יכול לעמוד בהן אלא אם כן נכשל בהן, והתורה אומרת תוכחת מוסר, אבל באמת זוכה לדרך חיים. לפיכך מי שרוצה לזכות לדרך חיים יסבול תוכחות מוסר, בדרך חיים יסבול תוכחות מוסר, ד\"א חיים זו תורה (שבע\"פ), ואמר הקב\"ה אם ישמרו זאת התורה בעוה\"ז ]יזכו לעוה\"ב[. ואמר הקב\"ה שזאת המדה נחשבת בכלל העוה\"ז, והוא תורה שבע\"פ, ואמר שבזאת המדה יזכו לעוה\"ב, ואמר שהוא הטוב הגנוז, ומאי ניהו? עוזו של הקב\"ה, שהדכתיב ]ו[עזה שנלקח מן האור הראשון, עתיד תהיה כאור להיות התורה אם יקיימו בנים כאור מן ]ה[ראשון, שנאמר בני והתורות אשר כתבתי להורותם, דכתיב שמע בני מוסר אביך ואל תטוש תורת אמך. הקב\"ה חייב לומר על הכל: צדיק מידו לו, ושם חביון עוזו. מאי חביון עוזו? אלא אותו האור שהחביא והגנז, שנאמר וכסהו כפים -- והלא אמרת זה כתרו של ]הקב\"ה[! אלא אמרת עבדו לטריך, ומה שנשאר פעלת החוסים בך בעוה\"ז אלא צפנת אשר ]ה[חביא ]ל[יריאיך שנאמר כסאו והוא אמרת כסאו של כתרו של הקב\"ה, ]ד[אמרינן בג' כתרים נכתרו ישראל, כהונה ומלכות וכתר תורה על גביהם.",
+        "confidence": "medium-low",
+        "notes": "New discourse (section marker 'נא'), on Proverbs 6:23 ('derech chayim tochachat musar') applied to the dangers of studying ma'aseh bereshit/merkavah, transitioning into the theme of the hidden/stored-away primordial light as 'Chevyon Uzo' (Habakkuk 3:4) and the crown/three-crowns (kehunah/malchut/Torah) teaching (mAvot 4:13-adjacent). Several short spans uncertain."
+      },
+      {
+        "block_id": "p32-b4",
+        "region": "body_full_width_discourse",
+        "text_he": "]נב[ אמר רבי רחומאי: מלמד שהיה של אורה שהיה מאד, לפעמים משאילו לבנו לשבת עמו, ולפעמים ישראל נטלו בזרועו -- והכתיב כי נר מצוה ותורה אור, היינו תפילין שבזרועו. ולפעמים נטלו בראשו -- ואמרינן נר זה מצוה, ומצוה זו תורה שבראש, והיינו תפילין שבראש. ולפעמים פה, ואור זו תורה שבכתב, אלא תורה נקרא נר, שבנר שמן שבנר כקמיע, כעין כסאו מתקיים האור, קרי ליה אור. משל לחדר צנוע ]מלא[ אור. ומאי שביעית? הוא ערבות שנקרא שביעית, הוא ערבות, שנקרא ]כן ע\"ש[ ערבות שמים.",
+        "confidence": "low-medium",
+        "notes": "Continues into a discourse on the 'ner'/'or' (candle/light) as Torah, tefillin-of-the-arm vs. tefillin-of-the-head vs. Written Torah, tied to Proverbs 6:23's own second half ('ki ner mitzvah ve-torah or'), closing with a brief note on 'Arvot', the seventh heaven. Section-marker digit only partially legible, read as 'נב' by continuity from 'נא' in the preceding block; not fully certain."
+      },
+      {"block_id": "p32-b_torah_or", "region": "torah_or_line", "text_he": "תורה אור א תהלים לא : ב נראשית א : נ שם וסס : ד ישעיה נ : ה חבקוק ג : ו מ\"א ח : ז חנקוק ג : ח משלי ד : ...", "confidence": "low", "notes": "Compact abbreviated verse-index line; several abbreviations only partially resolved."},
+      {"block_id": "p32-b_hagahot_r", "region": "hagahot_right_col", "text_he": "התכוללת מלשון כליל, פי' כתר כי גם הוא נקרא ]אהי\"ה[ הראשון: על ]הב'[ לבינה הנקראת לו ]היי\"ה[ כ\"ע חכר עדיה: היות בית העה\"ם פי' התח\"ם הוא מקבל מהבינה שהוא עת\"ם ]ב[וי\"ת: ]גל\"ה[ יוחנן ב' חורים היו: וכל שניהם שמן ]מלשון[ מדליק פי' מדליק ומזהיר ומחזיר: ולהה מוב מחד' פי' ב' [לחות] הטוב: לקח מחותו הטוב, פי' מקצת פי' כדפרשינן לעיל: וכלול נו ל\"ב נתיבות פליאות חכמה: ונתנו ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense, several words uncertain even at 400dpi."},
+      {"block_id": "p32-b_hagahot_l", "region": "hagahot_left_col", "text_he": "הגנוז: שהוא בית העה\"ם פי' של ]יבחתי[ פי' ת\"ת: כי הח\"ם נעלס ]מהביבה[ מהקבל עליונה שהיא נקבל ]ע\"ה[יב תה\"ב: ומקומו נחמר כי טוב מולשון מדליק נהעטש נהעטיש ]את[ הכנטת שפי' לשון הדלקה והזהרה ותחיר: ]ולהה[ מוב מחד' פי' מקנת ]הטוב[ לקח מהותו ]הטוב[: לחח הלור שאלקחתי מן הארוים שנקרהו טוב הלקח מוב הלוקח נחתי לכם: תורלה של ]תורה[ שבכתב, שהוה משכן של תורה שבכתב, שהוה מ\"ת: ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense, several words uncertain even at 400dpi."}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["נא (discourse marker, left column)", "נב (discourse marker, full-width block, digit uncertain)"],
+    "verse_citations_candidates": [
+      {"raw": "וירא אלהים את האור כי טוב", "likely_source": "Genesis 1:4", "block_id": "p32-b2", "confidence": "candidate"},
+      {"raw": "וירא אלהים את כל אשר עשה והנה טוב מאד", "likely_source": "Genesis 1:31", "block_id": "p32-b2", "confidence": "candidate"},
+      {"raw": "מה רב טובך אשר צפנת ליראיך", "likely_source": "Psalms 31:20", "block_id": "p32-b2", "confidence": "candidate"},
+      {"raw": "כי לקח טוב נתתי לכם", "likely_source": "Proverbs 4:2", "block_id": "p32-b2", "confidence": "candidate"},
+      {"raw": "ודרך חיים תוכחת מוסר", "likely_source": "Proverbs 6:23", "block_id": "p32-b3", "confidence": "candidate"},
+      {"raw": "והמכשלה הזאת תחת ידך", "likely_source": "Isaiah 3:6", "block_id": "p32-b3", "confidence": "candidate"},
+      {"raw": "שמע בני מוסר אביך ואל תטוש תורת אמך", "likely_source": "Proverbs 1:8", "block_id": "p32-b3", "confidence": "candidate"},
+      {"raw": "וכסה כפים על אור... שם חביון עוזו", "likely_source": "Habakkuk 3:4", "block_id": "p32-b3", "confidence": "candidate"},
+      {"raw": "כי נר מצוה ותורה אור", "likely_source": "Proverbs 6:23 (second half)", "block_id": "p32-b4", "confidence": "candidate"}
+    ],
+    "numbers": ["ל\"ב נתיבות החכמה (32 paths of wisdom)", "ג' כתרים (3 crowns: kehunah/malchut/Torah)", "שביעית (seventh -- Arvot, the seventh heaven)"],
+    "letters": [],
+    "divine_names": ["הקב\"ה", "אלהים"],
+    "sefirot_terms": [
+      "אור הגנוז (the hidden/stored primordial light) as a proto-sefirotic emanation source",
+      "עוזו/חביון עוזו (His stored-away strength) glossed as the hidden light itself",
+      "כתר (crown) -- '3 crowns' teaching (kehunah/malchut/Torah), and the marginal gloss explicitly glosses 'the first light' as identified with 'כתר' (Keter)"
+    ],
+    "symbols_metaphors": [
+      "שני אורים גדולים -- אחד חזר (the two great lights of Genesis 1:16, one of which was withdrawn/hidden)",
+      "נר / אור כתפילין (candle/light as a figure for tefillin-of-the-arm, tefillin-of-the-head, and the Written Torah)",
+      "ערבות / שביעית (the seventh heaven, Aravot)"
+    ],
+    "sefer_yetzirah_refs": [
+      {"text": "ל\"ב נתיבות (החכמה)", "note": "Second explicit occurrence of the '32 paths of Wisdom' formula in this corrective batch (also see the original Scan B p27 finding) -- Sefer Yetzirah 1:1's opening formula, again without an explicit 'ספר יצירה' citation.", "block_id": "p32-b2", "confidence": "candidate"}
+    ],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "CORRECTION IMPACT (major): the prior (faulty) p32.json was a verbatim duplicate of PDF page 36's real content (the Exodus 15:26 healing discourse). This page's TRUE content -- R. Yochanan's 'two great lights' teaching, the hidden primordial light (or ha-ganuz), and its distillation into the 32 Paths of Wisdom -- is a completely different, well-known, and structurally distinctive unit that was entirely absent from the original Scan B corpus.",
+      "This page's marginal gloss explicitly identifies the 'first light' with 'כתר' (Keter) -- a direct, quotable proto-sefirotic identification, notable for the required sefirot/kabbalistic-terms extraction.",
+      "The three-crowns teaching (kehunah/malchut/Torah) closely parallels Mishnah Avot 4:13 ('three crowns... and the crown of a good name'), though this page's version speaks of Torah as the crown 'above' the other two rather than a fourth crown -- worth flagging as a candidate rabbinic-intertext relation, not a verbatim quotation."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Genesis 1:4/1:31, Psalms 31:20, Proverbs 4:2/6:23/1:8, Isaiah 3:6, and Habakkuk 3:4 all explicitly quoted on this page.", "confidence": "candidate"},
+      {"type": "sefer_yetzirah", "description": "32 Paths of Wisdom formula.", "confidence": "candidate"},
+      {"type": "rabbinic_intertext", "description": "Three-crowns teaching parallels Mishnah Avot 4:13.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p32-b3", "description": "Several short bracketed spans uncertain, particularly around the 'chevyon uzo' / crown discussion; MEDIUM-LOW confidence overall."},
+      {"block_id": "p32-b4", "description": "Section-marker digit ('נב') not fully certain; the 'ner/tefillin' passage's right-vs-left column boundary was difficult to pin down with full confidence and is presented as a single full-width reading; flagged rather than forced into an artificial two-column split that might misorder the text."},
+      {"block_id": "p32-b_torah_or", "description": "Citation-index line abbreviations only partially resolved."},
+      {"block_id": "p32-b_hagahot_r", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."},
+      {"block_id": "p32-b_hagahot_l", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi (full page) + 400dpi (targeted PIL crops) for this corrective pass",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יד (14); Arabic '28' = 14*2. Re-verified live against Supabase Storage (sha256 b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067) before this corrective session began."
+  }
+}

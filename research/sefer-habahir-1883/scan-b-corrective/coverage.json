@@ -1,0 +1,50 @@
+[
+  {
+    "pdf_page": 30,
+    "printed_page_label": "26 (Arabic page number, verso of leaf יג/13)",
+    "block_count": 7,
+    "char_count_input": 3150,
+    "unresolved_count": 4,
+    "candidate_relations_count": 1
+  },
+  {
+    "pdf_page": 31,
+    "printed_page_label": "יד (Hebrew foliation, leaf 14, recto)",
+    "block_count": 7,
+    "char_count_input": 3477,
+    "unresolved_count": 6,
+    "candidate_relations_count": 2
+  },
+  {
+    "pdf_page": 32,
+    "printed_page_label": "28 (Arabic page number, verso of leaf יד/14)",
+    "block_count": 7,
+    "char_count_input": 2906,
+    "unresolved_count": 5,
+    "candidate_relations_count": 3
+  },
+  {
+    "pdf_page": 34,
+    "printed_page_label": "30 (Arabic page number, verso of leaf טו/15)",
+    "block_count": 6,
+    "char_count_input": 2014,
+    "unresolved_count": 5,
+    "candidate_relations_count": 2
+  },
+  {
+    "pdf_page": 35,
+    "printed_page_label": "טז (Hebrew foliation, leaf 16, recto)",
+    "block_count": 7,
+    "char_count_input": 3029,
+    "unresolved_count": 5,
+    "candidate_relations_count": 2
+  },
+  {
+    "pdf_page": 38,
+    "printed_page_label": "34 (Arabic page number, verso of leaf יז/17)",
+    "block_count": 6,
+    "char_count_input": 2065,
+    "unresolved_count": 5,
+    "candidate_relations_count": 1
+  }
+]

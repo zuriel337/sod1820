@@ -1,0 +1,82 @@
+{
+  "pdf_page": 34,
+  "source_ref_page": "book:sefer-habahir-1883#p34",
+  "printed_page_label": "30 (Arabic page number, verso of leaf טו/15)",
+  "page_type": "bahir_text_and_commentary",
+  "correction_of": "research/sefer-habahir-1883/scan-b/pages/p34.json (branch claude/sefer-habahir-second-half-0lbg2i, commit 9b215c66) -- flagged unreliable by witness-structure-audit (work_log b6cc2d66): old p34.json actually contained PDF page 38's real content (the direction-diagram page).",
+  "correction_method": "Isolated pdftoppm -f 34 -l 34 render at 220dpi (full page) plus four 400dpi PIL crops covering the full page top-to-bottom, read independently before any comparison to the old artifact.",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p34-b1", "region": "header", "text_he": "ספר הבהיר ... 30", "confidence": "high"},
+      {
+        "block_id": "p34-b2",
+        "region": "body_right_col",
+        "text_he": "ושואבים והוא משקה את השבעה, והכתיב ]א[ ממזרח אביא זרעך, ]והוי[ חד מנהון ומשקה לי'? אלא אימא הוא משקה את כולם )רחמים נצח הוא יסוד ע' חסד, דין ע' וחוץ, נעוץ סופה בתחלה ותחלה באמצע, בתחלה כו'(: נב יישב ר' ברכיה ודרש: מאי היינו דאמרינן )כל יומא( העולם הבא ולא ידעינן מאי קאמרינן? מתרגמינן עלמא דאתי. מאי דאתי עלמא ]ד[אתי? אלא ]מלמד[ דאתי מעלמא שקודם שנברא העולם, עלה במחשבה אור שאין גדול ]ממנו[, ונברא אור שאין כל בריה יכולה לסובלו ולשלוט בו, וצפה הקב\"ה שאין כל בריה יכולה לסובלו, לקח שביעי משם לגדולים...",
+        "confidence": "medium",
+        "notes": "This is the genuine content of PDF page 34: a brief Sefer-Yetzirah-adjacent cosmological aside on rachamim/netzach/yesod/chesed/din (parenthetical, possibly a marginal insertion) followed by section marker 'נב' and R. Berechiah's discourse on 'Olam Ha-Ba' (the World to Come) as a primordial, unbearably-great light of which only a portion ('sh'vi'i', a seventh) was retained. This matches -- confirms, via independent re-reading -- what the original (mislabeled) Scan B session had filed under p30.json."
+      },
+      {
+        "block_id": "p34-b3",
+        "region": "body_left_col",
+        "text_he": "וילונו העם על משה לאמר מה נשתה. ועוד קטרג על משה, מאי? ]ו[יצעק אל ה' ]ו[יורהו ה' עץ -- מלמד שעץ החיים היה סביב המים, ובא השטן ונטלו משם, וכתב לאביהם שבשמים, והיה אומר: עתה נבזם ולהחטיאם. כאן הסר לנו המים, ומה נשתה במדבר? בא השטן ]והצטער[ דבריהם אל משה, ומיד כשראה כשראה כי מיד להחטיאם משה השטן, ]ו[יצעק אל ה' ]ו[יורהו עץ, ]את[ עץ החיים שהסיר השטן, וישלך אל המים וימתקו המים. שם שם לו חק ומשפט הקב\"ה לישטן, ושם נסהו לישראל, ובא הקב\"ה והזהיר לישראל שאם שמוע תשמעו לקול ה' וגו'. משל למלך שהיתה לו בת נאה ואחרים מתאוים לה. ידע המלך בדבר, ולא היה יכול להתקוטט עם המוציאים ]דבה[ בתו לתרבות רעה, והזהיר את תה תחושי לדברי אלה המזיקים, כי לא יוכלו לך: ואל תצאי לפתח הבית במלאכתך, ואל תשבי בטלה אפילו שעה אחת, ולא יוכלו להזיק לך, כי יש בהם מדה אחת מתרחקים מכל דרך טוב ובוהרים בכל דרך רע, ובשרואין איש מדריך עצמו בדרך טובה והולך בה, שונאים אותו, ומאן ניהו השטן שיש בהם שיש...",
+        "confidence": "medium-high",
+        "notes": "This is likewise the genuine content of PDF page 34: the Marah episode (Exodus 15:23-25, the bitter waters sweetened by a tree) framed as Satan's provocation, followed by the king's-daughter parable (Israel guarded from the yetzer hara), continuing into p35's territory. This matches -- and independently confirms -- what the original Scan B session had (correctly in substance, if mislabeled) filed under p30.json."
+      },
+      {"block_id": "p34-b_torah_or", "region": "torah_or_line", "text_he": "תורה אור א ישעיה מג : ב שמות טו : נ שמות טו : ד שמות טו : ה שמות טו : ו שמות טו : ז שמות טו : ח שמות טו : ...", "confidence": "low", "notes": "Compact abbreviated verse-index line, dominated by successive Exodus 15 citations (Marah/Elim narrative), consistent with the body text; several abbreviations only partially resolved."},
+      {"block_id": "p34-b_hagahot_r", "region": "hagahot_right_col", "text_he": "מתנדבים: וכוח מעה מן העולם, ]אלא[ שאר הספירות כדמפרש וחזיל: והלא כתיב מתחזק את זרעך זכות הזיו: יהיו מהם על חותם הזה: אלא לימתא הוא מעקה את הלב, פי' ת\"ת והטעם: הנקראים לב, כדפרשית לעיל: נב דאתא: שאר הספירות בהגב: פי' שאר הספירות בכינוי: ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense, several words uncertain even at 400dpi."},
+      {"block_id": "p34-b_hagahot_l", "region": "hagahot_left_col", "text_he": "פי' כח הבינה: ז' פי' חלק הז' מתנו ושם להם במקומו: פי' במקום אור נגדול הזה כדפרשינן בז' מיני אורות הן נבי עין טוב: וי\"ת לקח שביעי פי' יסוד עולם כי נס עולם כי היא נקראת שבת: עולם הבא, פי' בינה: נג אלא זכו לדוגמתם, פי' י\"ב טינות מתגלגלים בהם עי' תמורים כנגד עי' צדיקים הנדפרשינן לעיל, ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense, several words uncertain even at 400dpi."}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["נב (discourse marker, right column: 'יישב ר' ברכיה ודרש')"],
+    "verse_citations_candidates": [
+      {"raw": "ממזרח אביא זרעך", "likely_source": "Isaiah 43:5", "block_id": "p34-b2", "confidence": "candidate"},
+      {"raw": "וילנו העם על משה לאמר מה נשתה", "likely_source": "Exodus 15:24", "block_id": "p34-b3", "confidence": "candidate"},
+      {"raw": "ויצעק אל ה' ויורהו ה' עץ וישלך אל המים וימתקו המים שם שם לו חק ומשפט ושם נסהו", "likely_source": "Exodus 15:25", "block_id": "p34-b3", "confidence": "candidate"},
+      {"raw": "אם שמוע תשמע לקול ה' אלהיך", "likely_source": "Exodus 15:26", "block_id": "p34-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["שביעי (seventh, of the primordial light retained)"],
+    "letters": [],
+    "divine_names": ["הקב\"ה", "ה'"],
+    "sefirot_terms": [
+      "רחמים/נצח/יסוד/חסד/דין (parenthetical list of attribute-names, structurally close to a sefirot enumeration, though presented tersely and possibly as an inserted marginal note rather than running text)",
+      "עלמא דאתי / עולם הבא (the World to Come) as a name for the primordial hidden light"
+    ],
+    "symbols_metaphors": [
+      "אור שאין גדול ממנו / שביעי (a light greater than any other, of which only 'a seventh' was retained) -- thematically continuous with p32's 'or ha-ganuz' discourse",
+      "עץ החיים סביב המים (the Tree of Life surrounding the waters at Marah), Satan removing it to embitter the water",
+      "משל למלך שהיתה לו בת נאה (the king's-daughter parable, guarding Israel from the yetzer hara) -- continues onto p35"
+    ],
+    "sefer_yetzirah_refs": [
+      {"text": "נעוץ סופה בתחלה ותחלה באמצע", "note": "This exact phrase ('its end is embedded in its beginning and its beginning in its end') is a direct, well-known formula from Sefer Yetzirah 1:7 ('נעוץ סופן בתחלתן ותחלתן בסופן'); this page's version ('ותחלה באמצע') varies slightly from the standard Yetzirah wording and is presented in a compressed parenthetical alongside a sefirot-name list -- flagged as a strong but not verbatim-identical candidate citation.", "block_id": "p34-b2", "confidence": "candidate"}
+    ],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "CORRECTION IMPACT: this page's true content matches, in substance, what the original (mislabeled) Scan B session had filed under p30.json -- i.e., the earlier session DID read this page's actual content correctly at some point, but wrote it into the wrong file (p30.json) instead of p34.json, while p30.json's own true content (the princess/garden parables, now correctly placed in this batch's p30.json) went uncaptured. This corrective pass confirms that specific cross-file mislabeling directly (independently re-read, not merely inferred).",
+      "This page contains the clearest Sefer Yetzirah-adjacent formula found so far in the corrective batch: 'נעוץ סופה בתחלה ותחלה באמצע' -- closely paralleling Sefer Yetzirah 1:7's 'nadar their end is embedded in their beginning' formula, appearing in a compressed parenthetical alongside sefirot-attribute names (rachamim/netzach/yesod/chesed/din)."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Isaiah 43:5 and a dense run of Exodus 15:24-26 (Marah narrative) citations.", "confidence": "candidate"},
+      {"type": "sefer_yetzirah", "description": "'נעוץ סופה בתחלה' formula closely parallels Sefer Yetzirah 1:7, with minor wording variance ('ותחלה באמצע' vs. the standard 'ותחלתן בסופן').", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p34-b2", "description": "The parenthetical sefirot-name list ('רחמים נצח הוא יסוד ע' חסד דין ע' וחוץ') is compressed and its exact grammatical structure/attribution is uncertain -- transcribed as read, not smoothed into a cleaner list."},
+      {"block_id": "p34-b3", "description": "A few short clauses (e.g. 'ומיד כשראה כשראה כי מיד') show possible dittography either in the source or in this reading; flagged rather than silently corrected."},
+      {"block_id": "p34-b_torah_or", "description": "Citation-index line abbreviations only partially resolved."},
+      {"block_id": "p34-b_hagahot_r", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."},
+      {"block_id": "p34-b_hagahot_l", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi (full page) + 400dpi (targeted PIL crops) for this corrective pass",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf טו (15); Arabic '30' = 15*2. Re-verified live against Supabase Storage (sha256 b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067) before this corrective session began."
+  }
+}
