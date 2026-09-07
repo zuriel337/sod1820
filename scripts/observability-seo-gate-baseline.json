@@ -1,0 +1,18 @@
+{
+  "_readme": "SOD1820_OBSERVABILITY_SEO_BUILD_GATE_CI_BASELINE_RECONCILIATION (2026-09-07). Consumed by scripts/check-observability-seo-gate.mjs. Each entry is an EXACT (path, component) pair — no wildcards, no prefixes, no regex. A route matching an entry here is a known, already-reviewed debt and does not fail CI. Any gap NOT listed here fails CI. When a route below gets a ROUTE_META entry or its own applySeo() call, the checker will report it as RESOLVED (informational, does not fail) — remove its entry here at that point, so a future regression on that route is caught as a NEW gap again, not silently re-allowed.",
+  "routes": [
+    { "path": "/ניסיון", "component": "ExperiencePage", "since": "2026-09-07" },
+    { "path": "/experience", "component": "ExperiencePage", "since": "2026-09-07" },
+    { "path": "/חישוב", "component": "GematriaRevealPage", "since": "2026-09-07" },
+    { "path": "/reveal", "component": "GematriaRevealPage", "since": "2026-09-07" },
+    { "path": "/sulamot5", "component": "RoomsExperience", "since": "2026-09-07" },
+    { "path": "/sulamot6", "component": "RoomsExperience", "since": "2026-09-07" },
+    { "path": "/sulamot7", "component": "RoomsExperience", "since": "2026-09-07" },
+    { "path": "/sulamot8", "component": "RoomsExperience", "since": "2026-09-07" },
+    { "path": "/sulamot9", "component": "RoomsExperience", "since": "2026-09-07" },
+    { "path": "/sulamot10", "component": "RoomsExperience", "since": "2026-09-07" },
+    { "path": "/sulamot11", "component": "RoomEnter", "since": "2026-09-07" },
+    { "path": "/cheder/:n", "component": "HintRoomPage", "since": "2026-09-07" },
+    { "path": "/home-classic", "component": "HomePage", "since": "2026-09-07" }
+  ]
+}
