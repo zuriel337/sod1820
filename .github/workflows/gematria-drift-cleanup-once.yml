@@ -24,59 +24,60 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          function patch(path, replacements) {
-            let s = fs.readFileSync(path, 'utf8');
-            for (const [a,b,label] of replacements) {
-              if (!s.includes(a)) throw new Error(`${path}: missing ${label}`);
-              s = s.replaceAll(a,b);
-            }
-            fs.writeFileSync(path,s);
-          }
+          const files = {
+            community: 'src/pages/CommunityCalculatorPage.jsx',
+            legacy: 'src/components/GematriaCalculatorLegacy.jsx',
+            midrash: 'src/pages/BeitMidrashPage.jsx',
+            engine: 'src/lib/gematria.js',
+            ai: 'supabase/functions/ai-analyze/index.ts',
+          };
+          const read = k => fs.readFileSync(files[k], 'utf8');
+          const write = (k,s) => fs.writeFileSync(files[k], s);
 
-          patch('src/pages/CommunityCalculatorPage.jsx', [
-            ['import { onlyHeb, METHODS, DEPTH_METHODS } from "../lib/gematria.js";', 'import { onlyHeb, METHODS } from "../lib/gematria.js";', 'unused DEPTH_METHODS import'],
-            ['const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];                       // 20 שיטות (14 ליבה + 6 עומק)\n', '', 'unused ALL_METHODS'],
-            ['// אחיו המקצועי (20 שיטות מלאות) חי במעבדת-המחקר', '// אחיו המקצועי (שיטות מתקדמות והצלבות) חי במעבדת-המחקר', 'professional count comment'],
-            ['אין להם ערך שווה באף שיטה מ-19 השיטות.', 'אין להם ערך שווה באף אחת מהשיטות הזמינות במחשבון.', 'AI facts count'],
-            ['// ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מ-19 השיטות', '// ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מהשיטות הזמינות', 'geula count comment'],
-            ['// 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מ-20 השיטות מתכנסות לאותו ערך.', '// 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מהשיטות הזמינות מתכנסות לאותו ערך.', 'compat count comment'],
-            ['// הרגיל שווה = מפגש בלב השיטה. עובדה, לא הבטחה (gematria_engine_law).', '// הרגיל שווה = מפגש בלב השיטה. עובדה, לא הבטחה (gematria_engine_law).', 'compat law comment'],
-            ['const shown = r.all;                                          // כל 19 — לתצוגת ההרחבה', 'const shown = r.all;                                          // כל השיטות הזמינות — לתצוגת ההרחבה', 'reveal count comment'],
-            ['// 3 שיטות הליבה — עם ההסבר (גוף · נשמה · נסתר). הרחבה = כל 20.', '// 3 שיטות הליבה — עם ההסבר (גוף · נשמה · נסתר). הרחבה = כל השיטות הזמינות.', 'reveal expansion comment'],
-            ['+ כל 20 השיטות', '+ כל השיטות הזמינות', 'show all label'],
-            ['🔢 כל 19 השיטות לתאריך שלי', '🔢 כל השיטות לתאריך שלי', 'date label'],
-            ['{/* 💞 התאמה גימטרית — ציון מדיד (כמה מ-19 השיטות נפגשות), לא אחוז מומצא */}', '{/* 💞 התאמה גימטרית — ציון מדיד (כמה מהשיטות הזמינות נפגשות), לא אחוז מומצא */}', 'compat jsx comment'],
-          ]);
+          let s = read('community');
+          s = s.replace('import { onlyHeb, METHODS, DEPTH_METHODS } from "../lib/gematria.js";', 'import { onlyHeb, METHODS } from "../lib/gematria.js";');
+          s = s.replace(/^const ALL_METHODS = .*\n/m, '');
+          s = s.replaceAll('20 שיטות מלאות', 'שיטות מתקדמות והצלבות');
+          s = s.replaceAll('מ-19 השיטות', 'מהשיטות הזמינות');
+          s = s.replaceAll('מ-20 השיטות', 'מהשיטות הזמינות');
+          s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
+          s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
+          s = s.replaceAll('כל 19', 'כל השיטות הזמינות');
+          s = s.replaceAll('כל 20', 'כל השיטות הזמינות');
+          write('community', s);
 
-          patch('src/components/GematriaCalculatorLegacy.jsx', [
-            ['כל 19 השיטות', 'כל השיטות הזמינות', '19 live copy'],
-            ['צופה 19 השיטות', 'צופה כל השיטות הזמינות', 'viewer count'],
-            ['(20 שיטות)…', '(כל השיטות)…', 'placeholder count'],
-            ['חישוב 19 השיטות', 'חישוב כל השיטות', 'advanced action count'],
-            ['כל 19 השיטות מחושבות עליה', 'כל השיטות הזמינות מחושבות עליה', 'advanced help count'],
-            ['20 השיטות', 'השיטות הזמינות', 'method analysis comment'],
-          ]);
+          s = read('legacy');
+          s = s.replaceAll('כל 19 השיטות', 'כל השיטות הזמינות');
+          s = s.replaceAll('כל 20 השיטות', 'כל השיטות הזמינות');
+          s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
+          s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
+          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
+          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
+          write('legacy', s);
 
-          patch('src/pages/BeitMidrashPage.jsx', [
-            ['כל 20 שיטות החישוב', 'כל שיטות החישוב הזמינות', 'methods intro count'],
-            ['19 שיטות', 'שיטות זמינות', 'calculator copy count'],
-          ]);
+          s = read('midrash');
+          s = s.replaceAll('כל 20 שיטות החישוב', 'כל שיטות החישוב הזמינות');
+          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
+          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
+          write('midrash', s);
 
-          patch('src/lib/gematria.js', [
-            ['// ===== ליבת הגימטריה — 20 שיטות (14 ליבה + 6 עומק), מקור אמת יחיד (מאומת מול bidim) =====', '// ===== ליבת החישוב בצד-הלקוח — definitions קיימים; method identity/lifecycle נקראים מה-Registry הקנוני =====', 'engine header fixed count'],
-          ]);
+          s = read('engine');
+          s = s.replace(/^\/\/ ===== ליבת הגימטריה — 20 שיטות .* =====$/m, '// ===== ליבת החישוב בצד-הלקוח — definitions קיימים; method identity/lifecycle נקראים מה-Registry הקנוני =====');
+          write('engine', s);
 
-          patch('supabase/functions/ai-analyze/index.ts', [
-            ['אם הם מתכנסים (ערך שווה באחת מ-19 השיטות)', 'אם הם מתכנסים (ערך שווה באחת מהשיטות הזמינות)', 'AI compare count'],
-            ['אם אין ביניהם מפגש כלל (0 מתוך 19)', 'אם אין ביניהם מפגש כלל בשיטות הזמינות', 'AI zero count'],
-          ]);
+          s = read('ai');
+          s = s.replaceAll('באחת מ-19 השיטות', 'באחת מהשיטות הזמינות');
+          s = s.replaceAll('0 מתוך 19', 'ללא מפגש בשיטות הזמינות');
+          s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
+          s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
+          write('ai', s);
           NODE
       - name: Verify
         run: |
           npm install
           node --test src/lib/research/gematriaCalculationContract.test.js
           npm run build
-          ! grep -RIn --include='*.jsx' --include='*.js' --include='*.ts' -E '19 שיטות|20 שיטות|מתוך 19|מ-19 השיטות|מ-20 השיטות' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
+          ! grep -RIn -E '(19|20)[^\n]{0,30}שיטות|שיטות[^\n]{0,30}(19|20)' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
       - name: Commit cleanup
         run: |
           git config user.name "zuriel337"
