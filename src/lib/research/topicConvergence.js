@@ -513,3 +513,69 @@ export async function fetchCanonicalTopicConvergenceFinding(slug) {
 
   return topicConvergenceToUniversalFinding({ card, node, edges, targets });
 }
+
+// ── UNIVERSAL_EXPLORER_V1_SLICE1_GENERIC_LIST_MODE (work_log dispatch e3097bb5) ──
+// Bounded, paginated, deterministically-ordered list of approved Topic/Convergence cards for a
+// facet list view. Deliberately narrower than TOPIC_CARD_SELECT_FIELDS: no `findings` body, no
+// per-row graph/node/edge composition — a list card needs identity + ranking signals only. Full
+// authored-content + graph composition (topicConvergenceToUniversalFinding) stays a per-item,
+// on-open concern for a later slice, so this never does the N+1 a naive "Finding per row" list
+// would cause. topic_cards_public already filters to approved & not-_do_not_publish server-side.
+const TOPIC_LIST_FIELDS = "id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,approved_at,occurred_at";
+const TOPIC_LIST_DEFAULT_LIMIT = 24;
+const TOPIC_LIST_MAX_LIMIT = 100;
+
+// GPT challenge 165a9e59 correction (2): finite, non-negative, INTEGER normalization — the prior
+// `Math.max(0, Number(offset) || 0)` let Infinity and fractional values reach .range() unchanged
+// (Infinity is truthy and passes `|| 0`; a fractional value like 2.7 was never truncated).
+function normalizeNonNegativeInt(value, fallback = 0) {
+  const n = Number(value);
+  const finite = Number.isFinite(n) ? n : fallback;
+  return Math.max(0, Math.trunc(finite));
+}
+function normalizeLimit(value, fallback, max) {
+  // normalizeNonNegativeInt() already substitutes `fallback` for non-finite input — no `||`
+  // here, since a legitimately-normalized 0 must stay 0 going into the max(1, ...) clamp below,
+  // not get silently replaced by the fallback again (0 is falsy in JS).
+  return Math.max(1, Math.min(normalizeNonNegativeInt(value, fallback), max));
+}
+
+/**
+ * Pure. Builds the exact, deterministic query shape for a bounded Topic/Convergence list — no
+ * network, so bounds-clamping and the stable compound ordering are unit-testable in isolation.
+ * rangeEnd deliberately requests one extra row (limit+1) so the caller can detect hasMore
+ * without a second COUNT query.
+ *
+ * rankByMeterScore (UNIVERSAL_EXPLORER_V1_SLICE5_RANKING_V1, work_log dispatch correction
+ * 764b3b9b): default false preserves this function's original Slice-1 order exactly, unchanged,
+ * for any existing caller. When true, prepends the existing public-safe meter_score DESC signal
+ * ahead of the SAME proven approved_at DESC + id ASC tiebreak — display-order only, never a second
+ * reader. This is the single canonical topic-list query shape; the Explorer's ranked topic facet
+ * calls this function (via fetchTopicCardList) with rankByMeterScore:true rather than forking a
+ * parallel reader (the fork was corrected out per independent audit AFTER 6050377d).
+ */
+export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false } = {}) {
+  const cap = normalizeLimit(limit, TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT);
+  const safeOffset = normalizeNonNegativeInt(offset, 0);
+  const order = rankByMeterScore
+    ? [["meter_score", false], ["approved_at", false], ["id", true]]
+    : [["approved_at", false], ["id", true]];
+  return {
+    // [column, ascending] — most-recently-approved first, id asc as a stable tiebreaker
+    // (meter_score DESC prepended when rankByMeterScore is requested).
+    order,
+    rangeStart: safeOffset,
+    rangeEnd: safeOffset + cap,
+    limit: cap,
+  };
+}
+
+export async function fetchTopicCardList(params = {}) {
+  const q = buildTopicListQuery(params);
+  let query = supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
+  for (const [col, ascending] of q.order) query = query.order(col, { ascending, nullsFirst: false });
+  const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
+  if (error) throw error;
+  const rows = Array.isArray(data) ? data : [];
+  return { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };
+}

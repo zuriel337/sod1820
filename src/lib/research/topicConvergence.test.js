@@ -27,6 +27,7 @@ import {
   AUTHORED_CLAIM,
   AUTHORED_SECTION_ORDER,
   TOPIC_CARD_SELECT_FIELDS,
+  buildTopicListQuery,
 } from "./topicConvergence.js";
 import { isUniversalFinding } from "./universalFinding.js";
 
@@ -265,4 +266,80 @@ test("canonical SELECT now includes findings + attribution columns (P1/Research 
   for (const col of ["findings", "created_by", "image_ids", "search_terms", "occurred_at", "id", "slug", "title", "node_id", "status"]) {
     assert.ok(TOPIC_CARD_SELECT_FIELDS.split(",").includes(col), `missing column ${col}`);
   }
+});
+
+// ── UNIVERSAL_EXPLORER_V1_SLICE1_GENERIC_LIST_MODE (work_log e3097bb5) ─────────────────────────
+// buildTopicListQuery is the pure, network-free query-shape builder for the bounded Topic/
+// Convergence list-mode reader — proves bounds clamping and deterministic compound ordering
+// without mocking Supabase (no such convention exists in this codebase; the fetch stays thin).
+
+test("buildTopicListQuery: default limit/offset applied when omitted", () => {
+  const q = buildTopicListQuery();
+  assert.equal(q.limit, 24);
+  assert.equal(q.rangeStart, 0);
+  assert.equal(q.rangeEnd, 24, "rangeEnd = rangeStart + limit, so range() fetches limit+1 rows for hasMore detection");
+});
+
+test("buildTopicListQuery: limit is clamped to [1, 100], never trusts caller-supplied extremes", () => {
+  assert.equal(buildTopicListQuery({ limit: 0 }).limit, 1);
+  assert.equal(buildTopicListQuery({ limit: -5 }).limit, 1);
+  assert.equal(buildTopicListQuery({ limit: 99999 }).limit, 100);
+  assert.equal(buildTopicListQuery({ limit: "not-a-number" }).limit, 24, "non-numeric falls back to the default, never NaN/unbounded");
+});
+
+test("buildTopicListQuery: offset never goes negative", () => {
+  assert.equal(buildTopicListQuery({ offset: -10 }).rangeStart, 0);
+  assert.equal(buildTopicListQuery({ offset: 50 }).rangeStart, 50);
+});
+
+test("buildTopicListQuery: ordering is a fixed, deterministic compound key regardless of input (stable pagination)", () => {
+  const a = buildTopicListQuery();
+  const b = buildTopicListQuery({ limit: 5, offset: 100 });
+  assert.deepEqual(a.order, [["approved_at", false], ["id", true]]);
+  assert.deepEqual(a.order, b.order, "the compound order never varies by limit/offset — no caller can destabilize pagination");
+});
+
+// GPT challenge 165a9e59 correction (2): finite, non-negative, integer normalization — Infinity
+// and fractional inputs must never reach .range() unchanged.
+
+test("buildTopicListQuery: Infinity/NaN limit and offset fall back to the default/zero, never pass through", () => {
+  const q = buildTopicListQuery({ limit: Infinity, offset: Infinity });
+  assert.equal(q.limit, 24);
+  assert.equal(q.rangeStart, 0);
+  assert.equal(buildTopicListQuery({ limit: NaN }).limit, 24);
+  assert.equal(buildTopicListQuery({ limit: -Infinity }).limit, 24);
+});
+
+test("buildTopicListQuery: fractional limit/offset are truncated to integers", () => {
+  const q = buildTopicListQuery({ limit: 2.7, offset: 5.9 });
+  assert.equal(q.limit, 2);
+  assert.equal(q.rangeStart, 5);
+  assert.equal(Number.isInteger(q.limit), true);
+  assert.equal(Number.isInteger(q.rangeStart), true);
+  assert.equal(Number.isInteger(q.rangeEnd), true);
+});
+
+// ── UNIVERSAL_EXPLORER_V1_SLICE5_RANKING_V1 correction (work_log dispatch 764b3b9b, independent
+// audit AFTER 6050377d): rankByMeterScore is the ONE canonical topic-list reader's own ranking
+// mode — replacing a forked duplicate reader that used to live in explorerRanking.js. Default
+// (omitted/false) must stay byte-identical to every existing caller's order, proven above; these
+// tests cover the new opt-in branch only. ──────────────────────────────────────────────────────
+
+test("buildTopicListQuery: rankByMeterScore:true prepends meter_score DESC ahead of the SAME proven approved_at+id tiebreak", () => {
+  const ranked = buildTopicListQuery({ rankByMeterScore: true });
+  assert.deepEqual(ranked.order, [["meter_score", false], ["approved_at", false], ["id", true]]);
+});
+
+test("buildTopicListQuery: rankByMeterScore defaults to false — every existing caller's order is byte-unchanged", () => {
+  assert.deepEqual(buildTopicListQuery().order, [["approved_at", false], ["id", true]]);
+  assert.deepEqual(buildTopicListQuery({ limit: 5, offset: 100 }).order, [["approved_at", false], ["id", true]]);
+  assert.deepEqual(buildTopicListQuery({ rankByMeterScore: false }).order, [["approved_at", false], ["id", true]]);
+});
+
+test("buildTopicListQuery: rankByMeterScore never affects bounds — same limit/offset clamping either way", () => {
+  const a = buildTopicListQuery({ limit: 5, offset: 100 });
+  const b = buildTopicListQuery({ limit: 5, offset: 100, rankByMeterScore: true });
+  assert.equal(a.limit, b.limit);
+  assert.equal(a.rangeStart, b.rangeStart);
+  assert.equal(a.rangeEnd, b.rangeEnd);
 });
