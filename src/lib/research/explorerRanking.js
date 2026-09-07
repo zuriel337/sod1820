@@ -47,8 +47,9 @@ export async function fetchExplorerRankedTopicPage(params = {}) {
 }
 
 export function topicRankMeta(row) {
-  const raw = Number(row?.meter_score);
-  const hasSignal = Number.isFinite(raw);
+  const value = row?.meter_score;
+  const raw = Number(value);
+  const hasSignal = value !== null && value !== undefined && value !== "" && Number.isFinite(raw);
   const score = hasSignal ? raw : 0;
   return {
     score,
