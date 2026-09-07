@@ -1,8 +1,10 @@
 // Tests for the Explorer v1 facet registry — run with:
 //   node --test src/lib/research/explorerFacets.test.js
 // Pure functions only (no supabase/network) — EXPLORER_FACETS, its per-facet toCard mappers, and
-// normalizePageResult are all plain data/pure logic; fetchExplorerFacetPage's network call is not
-// exercised here, matching this codebase's existing pure/thin-wrapper testing convention.
+// normalizePageResult are all plain data/pure logic. fetchExplorerFacetPage's real network path
+// (a known facet + a reader call) is NOT exercised here, matching this codebase's existing
+// pure/thin-wrapper testing convention — only its fail-closed unknown-facet short-circuit is
+// (Slice 7), which never reaches the network.
 // UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_FACET_COMPOSITION (work_log dispatch 0b70e0f9).
 
 import { test } from "node:test";
@@ -17,6 +19,7 @@ import {
   explorerCardSelection,
   facetHasDetail,
   fetchExplorerFacetDetail,
+  fetchExplorerFacetPage,
 } from "./explorerFacets.js";
 import { EXPLORER_LIST_MODE_TYPES } from "./entityHubProjection.js";
 
@@ -143,13 +146,13 @@ test("refId: topic uses its slug, book uses its slug when present else the DB id
 
 test("parseExplorerUrlState: reads a known facet + a positive integer offset from URLSearchParams", () => {
   const state = parseExplorerUrlState(new URLSearchParams("facet=topic&offset=48"), "number");
-  assert.deepEqual(state, { facet: "topic", offset: 48 });
+  assert.deepEqual(state, { facet: "topic", offset: 48, q: null });
 });
 
 test("parseExplorerUrlState: unknown/missing facet falls back to fallbackFacet; never throws", () => {
-  assert.deepEqual(parseExplorerUrlState(new URLSearchParams("facet=rule&offset=10"), "number"), { facet: "number", offset: 10 });
-  assert.deepEqual(parseExplorerUrlState(new URLSearchParams(""), "book"), { facet: "book", offset: 0 });
-  assert.deepEqual(parseExplorerUrlState(undefined, "number"), { facet: "number", offset: 0 });
+  assert.deepEqual(parseExplorerUrlState(new URLSearchParams("facet=rule&offset=10"), "number"), { facet: "number", offset: 10, q: null });
+  assert.deepEqual(parseExplorerUrlState(new URLSearchParams(""), "book"), { facet: "book", offset: 0, q: null });
+  assert.deepEqual(parseExplorerUrlState(undefined, "number"), { facet: "number", offset: 0, q: null });
 });
 
 test("parseExplorerUrlState: negative/fractional/non-numeric offset clamps to 0, never NaN or negative", () => {
@@ -160,7 +163,17 @@ test("parseExplorerUrlState: negative/fractional/non-numeric offset clamps to 0,
 });
 
 test("parseExplorerUrlState: also accepts a plain object (not just URLSearchParams)", () => {
-  assert.deepEqual(parseExplorerUrlState({ facet: "word", offset: "24" }, "number"), { facet: "word", offset: 24 });
+  assert.deepEqual(parseExplorerUrlState({ facet: "word", offset: "24" }, "number"), { facet: "word", offset: 24, q: null });
+});
+
+// ── Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463): `q` as
+// a first-class URL-state field, same trim/round-trip discipline as facet/offset ─────────────────
+
+test("parseExplorerUrlState: reads q, trimmed; absent/whitespace-only q normalizes to null", () => {
+  assert.equal(parseExplorerUrlState(new URLSearchParams("facet=number&q=%20%D7%94%D7%AA%D7%92%D7%9C%D7%95%D7%AA%20"), "number").q, "התגלות");
+  assert.equal(parseExplorerUrlState(new URLSearchParams("facet=number"), "number").q, null);
+  assert.equal(parseExplorerUrlState(new URLSearchParams("facet=number&q=%20%20"), "number").q, null);
+  assert.equal(parseExplorerUrlState(new URLSearchParams("facet=number&q=1237"), "number").q, "1237");
 });
 
 test("explorerUrlSearch: page 1 (offset 0) omits offset entirely — clean root URL per facet", () => {
@@ -178,12 +191,32 @@ test("explorerUrlSearch: negative/fractional offset clamps to a non-negative int
   assert.equal(explorerUrlSearch({ facet: "book", offset: 12.9 }), "?facet=book&offset=12");
 });
 
+test("explorerUrlSearch: q is included when non-empty; empty/whitespace/null q omits it entirely", () => {
+  const qs = explorerUrlSearch({ facet: "topic", offset: 24, q: "התגלות" });
+  assert.equal(new URLSearchParams(qs).get("q"), "התגלות");
+  assert.equal(explorerUrlSearch({ facet: "number", q: "" }), "?facet=number");
+  assert.equal(explorerUrlSearch({ facet: "number", q: "   " }), "?facet=number");
+  assert.equal(explorerUrlSearch({ facet: "number", q: null }), "?facet=number");
+});
+
 test("URL round-trip: parseExplorerUrlState(explorerUrlSearch(x)) reconstructs the same state", () => {
-  for (const input of [{ facet: "number", offset: 0 }, { facet: "topic", offset: 48 }, { facet: "book", offset: 96 }]) {
+  for (const input of [
+    { facet: "number", offset: 0, q: null },
+    { facet: "topic", offset: 48, q: null },
+    { facet: "book", offset: 96, q: null },
+    { facet: "number", offset: 0, q: "1237" },
+    { facet: "topic", offset: 24, q: "התגלות" },
+  ]) {
     const qs = explorerUrlSearch(input);
     const parsed = parseExplorerUrlState(new URLSearchParams(qs), "number");
     assert.deepEqual(parsed, input);
   }
+});
+
+test("explorerUrlSearch: changing q alongside offset:0 is exactly reopenable together with facet", () => {
+  const qs = explorerUrlSearch({ facet: "word", offset: 0, q: "אור" });
+  assert.equal(qs, "?facet=word&q=%D7%90%D7%95%D7%A8");
+  assert.deepEqual(parseExplorerUrlState(new URLSearchParams(qs), "number"), { facet: "word", offset: 0, q: "אור" });
 });
 
 // ── Slice 3 CORRECTION (dispatch 3d04a64b, GPT challenge 8fc2d310): explorerReopenWindow ────────
@@ -260,4 +293,15 @@ test("fetchExplorerFacetDetail: resolves to null for a real facet with no fetchD
   assert.equal(await fetchExplorerFacetDetail("number", { refId: "1111" }), null);
   assert.equal(await fetchExplorerFacetDetail("book", { refId: "sefer-a" }), null);
   assert.equal(await fetchExplorerFacetDetail("entity", { refId: "gw:abc" }), null);
+});
+
+// ── Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463):
+// fetchExplorerFacetPage stays fail-closed for an unsupported facet key even with a `q` present —
+// getExplorerFacet(facetKey) short-circuits to null BEFORE any reader/network call is made, so
+// this is exercisable with no supabase mock, same as the existing null-facet tests above ────────
+
+test("fetchExplorerFacetPage: resolves to null for an unknown/empty facet key even with q set — never throws, no network, no silent fallback to another facet", async () => {
+  assert.equal(await fetchExplorerFacetPage("verse", { q: "התגלות", limit: 24, offset: 0 }), null);
+  assert.equal(await fetchExplorerFacetPage("rule", { q: "1237" }), null);
+  assert.equal(await fetchExplorerFacetPage("", { q: "x" }), null);
 });

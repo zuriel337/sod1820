@@ -683,6 +683,15 @@ function normalizeLimit(value, fallback, max) {
   return Math.max(1, Math.min(normalizeNonNegativeInt(value, fallback), max));
 }
 
+// UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION: strips Postgres LIKE wildcard/control chars
+// (%,_) so free-text `q` can never be interpreted as a wildcard/operator injection when wrapped
+// in our own `%term%` — same discipline as researchViewerProjection.searchResearchViewerGraphEntities's
+// existing bounded label search, which this reuses rather than forking a second search reader.
+function normalizeSearchTerm(value) {
+  const cleaned = clean(value).replace(/[%_]/g, "").trim();
+  return cleaned || null;
+}
+
 /**
  * Pure. Builds the exact, deterministic query shape for a bounded node-type list — no network,
  * so bounds-clamping, the stable compound ordering, and type pass-through/isolation are all
@@ -690,14 +699,19 @@ function normalizeLimit(value, fallback, max) {
  * so the caller can detect hasMore without a second COUNT query. Intentionally generic (any
  * type string, activeOnly togglable) — the v1 populated-facet allowlist + forced activeOnly=true
  * live in fetchEntityListByType below, the actual public read path, not here.
+ *
+ * `search` (Slice 7): a normalized, trimmed, wildcard-stripped label term, or null when `q` is
+ * empty/whitespace-only — an absent search never changes the query shape below, so the no-query
+ * read path stays byte-identical to pre-Slice-7 behavior.
  */
-export function buildEntityListQuery({ type, limit = LIST_MODE_DEFAULT_LIMIT, offset = 0, activeOnly = true } = {}) {
+export function buildEntityListQuery({ type, limit = LIST_MODE_DEFAULT_LIMIT, offset = 0, activeOnly = true, q = null } = {}) {
   const safeType = clean(type);
   const cap = normalizeLimit(limit, LIST_MODE_DEFAULT_LIMIT, LIST_MODE_MAX_LIMIT);
   const safeOffset = normalizeNonNegativeInt(offset, 0);
   return {
     type: safeType,
     activeOnly: Boolean(activeOnly),
+    search: normalizeSearchTerm(q),
     // [column, ascending] — created_at desc (newest first) with id asc as a stable tiebreaker,
     // so two rows sharing a timestamp never swap order or get skipped/duplicated across pages.
     order: [["created_at", false], ["id", true]],
@@ -725,12 +739,18 @@ export function resolveExplorerListParams(params = {}) {
  * activeOnly=true unconditionally — a caller-supplied type outside the allowlist, or an
  * unsupported/empty type, returns an empty result deterministically; it never silently
  * broadens to another node family or leaks inactive nodes.
+ *
+ * Slice 7: `q` (optional) narrows the SAME bounded query with a source-side `.ilike("label")`
+ * BEFORE `.range()` — search always constrains the candidate set at the reader, never a
+ * whole-page-then-client-filter. Empty/whitespace `q` leaves the query byte-identical to
+ * pre-Slice-7 behavior (no extra filter is ever attached).
  */
 export async function fetchEntityListByType(params = {}) {
   const resolved = resolveExplorerListParams(params);
   if (!resolved) return { rows: [], hasMore: false };
   const q = buildEntityListQuery(resolved);
   let query = supabase.from("nodes").select(NODE_FIELDS).eq("type", q.type).eq("is_active", true);
+  if (q.search) query = query.ilike("label", `%${q.search}%`);
   for (const [col, ascending] of q.order) query = query.order(col, { ascending });
   const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
   if (error) throw error;

@@ -13,6 +13,7 @@ import {
   researchRowToBookRepresentation,
   DEFAULT_BOOK_INDEX_LIMIT,
   MAX_BOOK_INDEX_LIMIT,
+  buildBookListQuery,
 } from "./bookResearchProjection.js";
 
 // Synthetic Book identity fixtures only — no real Book/private content.
@@ -141,6 +142,37 @@ test("fetchBookEntities clamp: over-large limit is capped at MAX_BOOK_INDEX_LIMI
 
 test("fetchBookEntities clamp: small positive limit passes through unchanged", () => {
   assert.equal(clampLimit(5), 5);
+});
+
+// ── Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463):
+// buildBookListQuery — the same pure/testable seam as buildEntityListQuery/buildTopicListQuery,
+// added so fetchBookEntities' new `q` support (bounded `.ilike("label")`, same Book identity
+// field used everywhere else) is unit-testable without mocking Supabase, and so the no-query
+// path is provably byte-identical to the existing clamp math above ─────────────────────────────
+
+test("buildBookListQuery: matches the existing clamp math exactly when q is absent", () => {
+  const q = buildBookListQuery({ limit: 999999 });
+  assert.equal(q.limit, clampLimit(999999));
+  assert.equal(q.limit, MAX_BOOK_INDEX_LIMIT);
+  const def = buildBookListQuery({});
+  assert.equal(def.limit, DEFAULT_BOOK_INDEX_LIMIT);
+});
+
+test("buildBookListQuery: rangeStart/rangeEnd are an inclusive [offset, offset+limit-1] window, unaffected by q", () => {
+  const q = buildBookListQuery({ limit: 10, offset: 20 });
+  assert.equal(q.rangeStart, 20);
+  assert.equal(q.rangeEnd, 29);
+});
+
+test("buildBookListQuery: no q (or empty/whitespace q) yields search:null — byte-identical to pre-Slice-7 shape", () => {
+  assert.equal(buildBookListQuery({}).search, null);
+  assert.equal(buildBookListQuery({ q: "" }).search, null);
+  assert.equal(buildBookListQuery({ q: "   " }).search, null);
+});
+
+test("buildBookListQuery: q is trimmed and wildcard-stripped, same discipline as the node-facet reader", () => {
+  assert.equal(buildBookListQuery({ q: "  ספר יצירה  " }).search, "ספר יצירה");
+  assert.equal(buildBookListQuery({ q: "%_" }).search, null);
 });
 
 // --- Rich locator consumption through the actual adapter path (not parser-only) ---

@@ -144,29 +144,42 @@ export function normalizePageResult(raw, limit) {
  * Fetches one page of one facet and normalizes it to the common card shape. Ranking is supplied
  * by the facet's reader/card adapter: topic is globally server-ranked; neutral facets preserve
  * their deterministic reader order. No client-side per-page resorting, so pagination cannot lie.
+ *
+ * `q` (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463): passed
+ * straight through to the facet's own `fetchPage`, which already forwards its params verbatim
+ * into the facet's canonical reader (fetchEntityListByType / fetchTopicCardList /
+ * fetchBookEntities — see EXPLORER_FACETS above). This coordinator never inspects `q` itself,
+ * never knows table names, and never filters a fetched page client-side — each reader decides
+ * how (or whether) `q` narrows its own bounded source-side query, BEFORE pagination.
  */
-export async function fetchExplorerFacetPage(facetKey, { limit = 24, offset = 0 } = {}) {
+export async function fetchExplorerFacetPage(facetKey, { q = null, limit = 24, offset = 0 } = {}) {
   const facet = getExplorerFacet(facetKey);
   if (!facet) return null;
-  const raw = await facet.fetchPage({ limit, offset });
+  const raw = await facet.fetchPage({ q, limit, offset });
   const { rows, hasMore } = normalizePageResult(raw, limit);
   return { cards: rows.map(facet.toCard), hasMore };
 }
 
 // ── UNIVERSAL_EXPLORER_V1_SLICE3_RESEARCH_CONTEXT_REOPEN ──
+// Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463) adds `q`
+// as a THIRD first-class URL-state field, trimmed and normalized to null when empty — exactly
+// reopenable/round-trippable through explorerUrlSearch below, same contract as facet/offset.
 export function parseExplorerUrlState(searchParams, fallbackFacet) {
   const get = (key) => (typeof searchParams?.get === "function" ? searchParams.get(key) : searchParams?.[key]);
   const rawFacet = clean(get("facet"));
   const facet = getExplorerFacet(rawFacet) ? rawFacet : (fallbackFacet ?? null);
   const rawOffset = Number(get("offset"));
   const offset = Number.isFinite(rawOffset) && rawOffset > 0 ? Math.floor(rawOffset) : 0;
-  return { facet, offset };
+  const q = clean(get("q")) || null;
+  return { facet, offset, q };
 }
 
-export function explorerUrlSearch({ facet, offset = 0 } = {}) {
+export function explorerUrlSearch({ facet, offset = 0, q = null } = {}) {
   const params = new URLSearchParams();
   const safeFacet = clean(facet);
   if (safeFacet) params.set("facet", safeFacet);
+  const safeQ = clean(q);
+  if (safeQ) params.set("q", safeQ);
   const safeOffset = Number.isFinite(Number(offset)) ? Math.max(0, Math.floor(Number(offset))) : 0;
   if (safeOffset > 0) params.set("offset", String(safeOffset));
   const qs = params.toString();

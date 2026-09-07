@@ -540,6 +540,17 @@ function normalizeLimit(value, fallback, max) {
   return Math.max(1, Math.min(normalizeNonNegativeInt(value, fallback), max));
 }
 
+// UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION: strips Postgres LIKE wildcard chars (%,_) so
+// `q` can never be interpreted as a wildcard when wrapped in our own `%term%` — same discipline
+// as entityHubProjection.js's normalizeSearchTerm. This reader's fetch wraps the term in a
+// multi-column `.or(...)` filter (PostgREST syntax uses `,` to separate conditions and `()` to
+// group them), so `,()` are ALSO stripped here — unlike the single-column `.ilike()` case, a raw
+// comma/paren here could otherwise break out of the intended filter into a second condition.
+function normalizeSearchTerm(value) {
+  const cleaned = nonEmpty(value).replace(/[%_,()]/g, "").trim();
+  return cleaned || null;
+}
+
 /**
  * Pure. Builds the exact, deterministic query shape for a bounded Topic/Convergence list — no
  * network, so bounds-clamping and the stable compound ordering are unit-testable in isolation.
@@ -553,8 +564,13 @@ function normalizeLimit(value, fallback, max) {
  * reader. This is the single canonical topic-list query shape; the Explorer's ranked topic facet
  * calls this function (via fetchTopicCardList) with rankByMeterScore:true rather than forking a
  * parallel reader (the fork was corrected out per independent audit AFTER 6050377d).
+ *
+ * `search` (Slice 7, work_log dispatch c0612463): a normalized, trimmed, wildcard-stripped term,
+ * or null when `q` is empty/whitespace-only. Constrains the candidate set only — ranking above
+ * still orders whatever matches, so search never changes the meter_score DESC → approved_at DESC
+ * → id ASC contract, only which rows are eligible for it.
  */
-export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false } = {}) {
+export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false, q = null } = {}) {
   const cap = normalizeLimit(limit, TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT);
   const safeOffset = normalizeNonNegativeInt(offset, 0);
   const order = rankByMeterScore
@@ -564,15 +580,26 @@ export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset =
     // [column, ascending] — most-recently-approved first, id asc as a stable tiebreaker
     // (meter_score DESC prepended when rankByMeterScore is requested).
     order,
+    search: normalizeSearchTerm(q),
     rangeStart: safeOffset,
     rangeEnd: safeOffset + cap,
     limit: cap,
   };
 }
 
+/**
+ * Slice 7: `q` narrows the SAME canonical topic-list read with a source-side search over the
+ * public-safe title/subtitle fields (topic_cards_public) BEFORE `.range()` — never a second
+ * reader, never a whole-list-then-client-filter. `search_terms` is deliberately NOT searched
+ * here: its live semantics (exact array-overlap vs. free text) were not reconciled in this
+ * slice per the task's own caution against faking fuzzy behavior on an unverified contract —
+ * left as an EXTENSION POINT, not implemented speculatively. Empty/whitespace `q` leaves the
+ * query byte-identical to pre-Slice-7 behavior.
+ */
 export async function fetchTopicCardList(params = {}) {
   const q = buildTopicListQuery(params);
   let query = supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
+  if (q.search) query = query.or(`title.ilike.%${q.search}%,subtitle.ilike.%${q.search}%`);
   for (const [col, ascending] of q.order) query = query.order(col, { ascending, nullsFirst: false });
   const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
   if (error) throw error;

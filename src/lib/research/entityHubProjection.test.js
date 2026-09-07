@@ -192,3 +192,31 @@ test("resolveExplorerListParams: missing/empty type rejects deterministically", 
   assert.equal(resolveExplorerListParams({ type: "" }), null);
   assert.equal(resolveExplorerListParams({ type: "   " }), null);
 });
+
+// ── Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463):
+// buildEntityListQuery's new `search` field — proves the search term itself is normalized
+// (trimmed, wildcard-stripped) BEFORE fetchEntityListByType ever builds a query, and that an
+// absent/empty q leaves the shape byte-identical to every pre-Slice-7 assertion above (no `q`
+// key was passed to buildEntityListQuery in any test above this point, and search is still null
+// there) ─────────────────────────────────────────────────────────────────────────────────────
+
+test("buildEntityListQuery: no q (or empty/whitespace q) yields search:null — byte-identical to pre-Slice-7 shape", () => {
+  assert.equal(buildEntityListQuery({ type: "number" }).search, null);
+  assert.equal(buildEntityListQuery({ type: "number", q: "" }).search, null);
+  assert.equal(buildEntityListQuery({ type: "number", q: "   " }).search, null);
+  assert.equal(buildEntityListQuery({ type: "number", q: null }).search, null);
+});
+
+test("buildEntityListQuery: q is trimmed and passed through as the search term", () => {
+  assert.equal(buildEntityListQuery({ type: "number", q: "  1237  " }).search, "1237");
+  assert.equal(buildEntityListQuery({ type: "word", q: "  התגלות  " }).search, "התגלות");
+});
+
+test("buildEntityListQuery: q strips Postgres LIKE wildcard chars so it can never be interpreted as a wildcard", () => {
+  assert.equal(buildEntityListQuery({ type: "number", q: "%25off_" }).search, "25off");
+  assert.equal(buildEntityListQuery({ type: "number", q: "%_" }).search, null, "a query of pure wildcard chars normalizes to no search at all");
+});
+
+test("buildEntityListQuery: search is independent of type/limit/offset — same normalization regardless", () => {
+  assert.equal(buildEntityListQuery({ type: "book", limit: 5, offset: 100, q: " אור " }).search, "אור");
+});

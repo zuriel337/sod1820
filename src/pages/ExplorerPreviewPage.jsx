@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   EXPLORER_FACETS,
@@ -66,6 +66,15 @@ import TopicConvergenceContent from "../components/research/TopicConvergenceCont
 // No new permission store, no new reader, no RLS/security change, no truth/ranking mutation.
 // Premium/admin-specific Explorer depth remains explicitly disabled until an already-owned,
 // live capability can be reused safely. Access ≠ Truth; stronger identity ≠ stronger truth.
+//
+// Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463) adds `q`
+// as a first-class Explorer state field alongside facet+offset — one input, debounced into the
+// URL (?q=), reset offset to 0 on change, preserved across facet switches/pagination/reopen, and
+// mirrored into the SAME Research Context `dimensions` bag as explorerFacet/explorerOffset
+// (dimensions.explorerQuery — no new Context store). Search itself executes source-side inside
+// each facet's existing canonical reader (see explorerFacets.js / entityHubProjection.js /
+// topicConvergence.js / bookResearchProjection.js) BEFORE pagination — this component never
+// filters an already-fetched page. Access ≠ Truth still holds: search never depends on identity.
 
 const PAGE_SIZE = 24;
 
@@ -119,6 +128,58 @@ function FacetSwitcher({ facets, activeKey, onSelect }) {
         );
       })}
     </div>
+  );
+}
+
+// Slice 7: ONE input, debounced into the URL. Local `text` state exists only so typing feels
+// instant; the URL (via onCommit ⇒ commitQuery ⇒ setSearchParams) remains the single source of
+// truth for `q` — a back/forward navigation or an external urlState.q change (facet switch
+// preserving q, a returnTo reopen) re-syncs `text`, never fighting the user mid-keystroke.
+function SearchBox({ value, onCommit }) {
+  const [text, setText] = useState(value || "");
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    setText(value || "");
+  }, [value]);
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
+  const handleChange = (e) => {
+    const next = e.target.value;
+    setText(next);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => onCommit(next), 400);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (timerRef.current) clearTimeout(timerRef.current);
+    onCommit(text);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ marginTop: 12 }} role="search">
+      <input
+        type="search"
+        inputMode="search"
+        value={text}
+        onChange={handleChange}
+        placeholder="חיפוש בעדשה הזו…"
+        aria-label="חיפוש בעדשה"
+        style={{
+          width: "100%",
+          minHeight: 44,
+          padding: "10px 14px",
+          borderRadius: 12,
+          border: `1px solid ${C.line}`,
+          background: "rgba(0,0,0,0.25)",
+          color: C.ink,
+          fontSize: 15,
+          boxSizing: "border-box",
+        }}
+      />
+    </form>
   );
 }
 
@@ -219,10 +280,12 @@ export default function ExplorerPreviewPage() {
 
   // replace=true always fetches exactly the ONE bounded window {offset,limit} and replaces the
   // grid with it (used for both a fresh facet switch — offset 0 — and a page-window reopen — any
-  // offset); replace=false appends the next page onto what's already on screen ("עוד ←").
-  const loadPage = useCallback((facetKey, offset, replace, limit = PAGE_SIZE) => {
+  // offset); replace=false appends the next page onto what's already on screen ("עוד ←"). `q`
+  // (Slice 7) is passed straight to fetchExplorerFacetPage, which forwards it into the active
+  // facet's own canonical reader — this component never filters cards itself.
+  const loadPage = useCallback((facetKey, offset, replace, limit = PAGE_SIZE, q = null) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    fetchExplorerFacetPage(facetKey, { limit, offset })
+    fetchExplorerFacetPage(facetKey, { q, limit, offset })
       .then((pageResult) => {
         if (!pageResult) {
           setState({ loading: false, cards: [], hasMore: false, error: new Error("פאספט לא ידוע"), offset: 0 });
@@ -242,47 +305,56 @@ export default function ExplorerPreviewPage() {
   // Reopen: a nonzero ?offset= fetches EXACTLY that one page window in one bounded request
   // (explorerReopenWindow — always PAGE_SIZE rows, for any offset, no hard cap needed) — the
   // truthful, corrected contract from GPT challenge 8fc2d310 (the prior "replay from 0" contract
-  // silently truncated past ~76 rows). Re-runs only when the facet or the URL's own offset
-  // changes, not on every "עוד ←" click (those advance state.offset locally, not the URL).
+  // silently truncated past ~76 rows). Re-runs when the facet, the URL's own offset, OR the URL's
+  // own `q` changes (Slice 7) — not on every "עוד ←" click (those advance state.offset locally,
+  // not the URL). A `q` change alone (offset already 0) still needs this to re-fire, hence `q` in
+  // the dependency array below even though explorerReopenWindow itself only reads offset/pageSize.
   useEffect(() => {
     const win = explorerReopenWindow(urlState.offset, PAGE_SIZE);
-    loadPage(activeKey, win.offset, true, win.limit);
+    loadPage(activeKey, win.offset, true, win.limit, urlState.q);
     setDetail(EMPTY_DETAIL); // a stale expanded detail from a prior facet/page has no meaning here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeKey, urlState.offset]);
+  }, [activeKey, urlState.offset, urlState.q]);
 
   const activeFacet = useMemo(() => EXPLORER_FACETS.find((f) => f.key === activeKey) || null, [activeKey]);
 
   // 🧭 Universal Research Context — same contract as TopicPage/EntityHubPreviewPageFunctional: the
   // root subject stays sticky (never overwritten by browsing the Explorer), current selection/lens
-  // follow the active facet, and facet+offset also mirror into `dimensions` as two flat scalar
+  // follow the active facet, and facet+offset+q (Slice 7) mirror into `dimensions` as flat scalar
   // keys (nested objects are dropped by normalizeDimensions — see explorerFacets.js Slice 3 note).
+  // `q` is navigation/research state, not truth — same status as facet/offset already have here.
   useEffect(() => {
     if (!activeFacet) return;
-    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset })}`;
+    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset, q: urlState.q })}`;
     const subject = { id: activeKey, type: "explorer-facet", label: activeFacet.label, href: explorerHref };
     const selection = { entityId: activeKey, entityType: "explorer-facet" };
-    const dimensions = { explorerFacet: activeKey, explorerOffset: state.offset };
+    const dimensions = { explorerFacet: activeKey, explorerOffset: state.offset, explorerQuery: urlState.q };
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "explorer", dimensions });
     else research.updateResearchContext?.({ selection, lens: "explorer", dimensions });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFacet, activeKey, state.offset]);
+  }, [activeFacet, activeKey, state.offset, urlState.q]);
 
-  const selectFacet = (key) => setSearchParams(explorerUrlSearch({ facet: key, offset: 0 }).replace(/^\?/, ""));
+  // Switching facet keeps `q` (task contract: "switching facet keeps q unless there is a strong
+  // existing contract reason not to" — none exists here) and always resets offset to 0.
+  const selectFacet = (key) => setSearchParams(explorerUrlSearch({ facet: key, offset: 0, q: urlState.q }).replace(/^\?/, ""));
 
   const loadMore = () => {
     const nextOffset = state.offset + PAGE_SIZE;
-    setSearchParams(explorerUrlSearch({ facet: activeKey, offset: nextOffset }).replace(/^\?/, ""));
-    loadPage(activeKey, nextOffset, false);
+    setSearchParams(explorerUrlSearch({ facet: activeKey, offset: nextOffset, q: urlState.q }).replace(/^\?/, ""));
+    loadPage(activeKey, nextOffset, false, PAGE_SIZE, urlState.q);
   };
+
+  // Committing a NEW query always resets offset to 0 (task contract). Clearing the box (q="")
+  // removes ?q= entirely and restores plain Slice-6 browse order for the active facet.
+  const commitQuery = (nextQ) => setSearchParams(explorerUrlSearch({ facet: activeKey, offset: 0, q: nextQ }).replace(/^\?/, ""));
 
   // Shared by both ways of leaving the Explorer — a card click (which navigates to the entity's
   // own page) and a link followed from inside an expanded detail panel (TopicConvergenceContent's
-  // own onLeave hook, e.g. a number chip inside the topic body) — records the exact facet+offset
+  // own onLeave hook, e.g. a number chip inside the topic body) — records the exact facet+offset+q
   // as returnTo so BottomBar's existing "חזרה" reopens this same page, mirroring leaveHub/leaveTopic.
   const recordReturnTo = (lens, selection) => {
     if (!activeFacet) return;
-    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset })}`;
+    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset, q: urlState.q })}`;
     const subject = { id: activeKey, type: "explorer-facet", label: activeFacet.label, href: explorerHref };
     research.updateResearchContext?.({ lens, selection, returnTo: { href: explorerHref, label: activeFacet.label, subject } });
   };
@@ -304,17 +376,18 @@ export default function ExplorerPreviewPage() {
     <main style={page}>
       <div style={shell}>
         <div style={{ color: C.gold, fontSize: 10.5, letterSpacing: 1.8, fontWeight: 900 }}>
-          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 6)
+          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 7)
         </div>
         <h1 style={{ margin: "8px 0 4px", fontSize: "clamp(28px,5vw,42px)", color: C.ink }}>
           {activeFacet?.label || "עדשה"}
         </h1>
         <div style={{ ...card, padding: "10px 14px", marginTop: 4, fontSize: 12.5, color: C.soft }}>
-          דירוג הוא סדר תצוגה בלבד — לא אמת ולא קנון. התכנסויות מדורגות לפי meter_score הציבורי; עדשות שאין להן אות רשימתי בטוח נשארות ניטרליות ובסדר הקורא הקיים. אין שימוש ב־cross_method_strength.
+          דירוג הוא סדר תצוגה בלבד — לא אמת ולא קנון. התכנסויות מדורגות לפי meter_score הציבורי; עדשות שאין להן אות רשימתי בטוח נשארות ניטרליות ובסדר הקורא הקיים. אין שימוש ב־cross_method_strength. חיפוש מצמצם את קבוצת המועמדים לפני העימוד — לא שינוי דירוג/אמת/קנוניות.
         </div>
         <AccessNote access={access} />
 
         <FacetSwitcher facets={EXPLORER_FACETS} activeKey={activeKey} onSelect={selectFacet} />
+        <SearchBox value={urlState.q} onCommit={commitQuery} />
 
         {state.error ? (
           <div style={{ ...card, padding: 16, marginTop: 16, color: "#f28b82" }}>
@@ -323,7 +396,9 @@ export default function ExplorerPreviewPage() {
         ) : null}
 
         {!state.error && !state.loading && state.cards.length === 0 ? (
-          <div style={{ ...card, padding: 16, marginTop: 16 }}>אין פריטים בעדשה הזו כרגע.</div>
+          <div style={{ ...card, padding: 16, marginTop: 16 }}>
+            {urlState.q ? `אין תוצאות עבור "${urlState.q}" בעדשה הזו.` : "אין פריטים בעדשה הזו כרגע."}
+          </div>
         ) : null}
 
         <div

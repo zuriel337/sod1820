@@ -343,3 +343,36 @@ test("buildTopicListQuery: rankByMeterScore never affects bounds — same limit/
   assert.equal(a.rangeStart, b.rangeStart);
   assert.equal(a.rangeEnd, b.rangeEnd);
 });
+
+// ── Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463):
+// buildTopicListQuery's new `search` field. Every existing test above this point never passed
+// `q`, so `search` was implicitly null there too — proving the no-query shape is byte-identical
+// to pre-Slice-7 behavior; these tests make that explicit and cover the search-specific cases ──
+
+test("buildTopicListQuery: no q (or empty/whitespace q) yields search:null — byte-identical to pre-Slice-7 shape", () => {
+  assert.equal(buildTopicListQuery().search, null);
+  assert.equal(buildTopicListQuery({ q: "" }).search, null);
+  assert.equal(buildTopicListQuery({ q: "   " }).search, null);
+});
+
+test("buildTopicListQuery: q is trimmed", () => {
+  assert.equal(buildTopicListQuery({ q: "  התגלות  " }).search, "התגלות");
+  assert.equal(buildTopicListQuery({ q: " 1237 " }).search, "1237");
+});
+
+test("buildTopicListQuery: q strips LIKE-wildcard AND .or()-filter control chars (%,_,(,)) — a raw comma/paren in free text can never break out of the multi-column .or() filter fetchTopicCardList builds from it", () => {
+  assert.equal(buildTopicListQuery({ q: "a,b" }).search, "ab");
+  assert.equal(buildTopicListQuery({ q: "x(y)" }).search, "xy");
+  assert.equal(buildTopicListQuery({ q: "%_" }).search, null);
+});
+
+test("buildTopicListQuery: search never changes the ranking order contract — meter_score DESC → approved_at DESC → id ASC (or the unranked order) is identical with or without a search term", () => {
+  assert.deepEqual(
+    buildTopicListQuery({ rankByMeterScore: true, q: "התגלות" }).order,
+    [["meter_score", false], ["approved_at", false], ["id", true]],
+  );
+  assert.deepEqual(
+    buildTopicListQuery({ q: "התגלות" }).order,
+    [["approved_at", false], ["id", true]],
+  );
+});

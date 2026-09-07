@@ -18,6 +18,15 @@ function clean(v) { return v == null ? "" : String(v).trim(); }
 function triBool(v) { return v === true ? true : v === false ? false : null; }
 function firstArray(...values) { return values.find(Array.isArray) || []; }
 
+// UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION: strips Postgres LIKE wildcard chars (%,_) so
+// free-text `q` can never be interpreted as a wildcard when wrapped in our own `%term%` — same
+// discipline as entityHubProjection.js's normalizeSearchTerm (single-column `.ilike()`, no
+// `.or()` here, so no comma/paren stripping is needed).
+function normalizeBookSearchTerm(value) {
+  const cleaned = clean(value).replace(/[%_]/g, "").trim();
+  return cleaned || null;
+}
+
 export function pageFromSourceRef(sourceRef) {
   const ref = clean(sourceRef);
   const direct = ref.match(/#p(\d+)/i);
@@ -56,16 +65,38 @@ export function parseSourceRefLocator(sourceRef) {
 export const DEFAULT_BOOK_INDEX_LIMIT = 48;
 export const MAX_BOOK_INDEX_LIMIT = 200;
 
-export async function fetchBookEntities({ limit = DEFAULT_BOOK_INDEX_LIMIT, offset = 0 } = {}) {
+/**
+ * Pure. Same seam as entityHubProjection.buildEntityListQuery / topicConvergence.buildTopicListQuery
+ * — network-free bounds-clamping + search normalization for fetchBookEntities, added in
+ * UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION (work_log dispatch c0612463) purely so the
+ * clamp/search math stays unit-testable without mocking Supabase, matching this file's sibling
+ * readers. Does not change fetchBookEntities' existing bare-array return contract.
+ */
+export function buildBookListQuery({ limit = DEFAULT_BOOK_INDEX_LIMIT, offset = 0, q = null } = {}) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_BOOK_INDEX_LIMIT, MAX_BOOK_INDEX_LIMIT));
   const safeOffset = Math.max(0, Number(offset) || 0);
-  const { data, error } = await supabase
-    .from("nodes")
-    .select(BOOK_FIELDS)
-    .eq("type", "book")
-    .eq("is_active", true)
+  return {
+    limit: safeLimit,
+    rangeStart: safeOffset,
+    rangeEnd: safeOffset + safeLimit - 1,
+    search: normalizeBookSearchTerm(q),
+  };
+}
+
+/**
+ * Slice 7: `q` narrows this SAME reader with a source-side `.ilike("label")` over the existing
+ * Book identity field, BEFORE `.range()` — no second Books search system. Book has no separate
+ * canonical detail table beyond `nodes`, so label is the only safe public-identity field
+ * searched (same choice as node-backed facets). Empty/whitespace `q` leaves the query
+ * byte-identical to pre-Slice-7 behavior.
+ */
+export async function fetchBookEntities({ limit = DEFAULT_BOOK_INDEX_LIMIT, offset = 0, q = null } = {}) {
+  const built = buildBookListQuery({ limit, offset, q });
+  let query = supabase.from("nodes").select(BOOK_FIELDS).eq("type", "book").eq("is_active", true);
+  if (built.search) query = query.ilike("label", `%${built.search}%`);
+  const { data, error } = await query
     .order("label", { ascending: true })
-    .range(safeOffset, safeOffset + safeLimit - 1);
+    .range(built.rangeStart, built.rangeEnd);
   if (error) throw error;
   return Array.isArray(data) ? data : [];
 }
