@@ -51,6 +51,25 @@ These tiers describe **rendering cost and visual depth**, not product truth, acc
 
 **Default rule:** use the lowest tier that fully delivers the intended experience. Visual ambition is mandatory; expensive rendering is not.
 
+## RTL alignment / navigation law
+- Hebrew/RTL text groups, navigation lists, menu groups and link stacks align to the logical start (`text-align:start`; in RTL this is the right edge).
+- A grid or group of columns may be centered as a composition, but the text inside each Hebrew column remains start-aligned for scanability.
+- Hero statements, brand marks, numeric focal points and intentionally symmetric visual moments may be centered.
+- Do not center ordinary Hebrew link lists merely for decoration.
+- On narrow mobile widths, prefer fewer columns or stacked start-aligned groups over squeezed multi-column navigation.
+- Use logical CSS properties (`inset-inline-*`, `margin-inline-*`, `text-align:start/end`) rather than duplicating left/right rules when possible.
+
+## Site chrome / pinned-header origin law
+- The sticky global Navbar is part of the product viewport. It is the visual origin of page content, not an accidental layer floating above unrelated coordinates.
+- Any sticky/fixed page control, drawer edge, gallery/lightbox toolbar, modal close control, anchor target or floating panel that must remain visible near the top must consume one canonical site-header offset/token; it must not guess `top: 20/66/70/72/74/...` locally.
+- Normal in-flow page content continues below the sticky Navbar naturally. Additional top padding must not be added blindly just because the Navbar is sticky.
+- Body-portaled overlays must make an explicit choice:
+  - **chrome-aware overlay**: begins below the site header / keeps all close and primary controls below the canonical header offset;
+  - **true immersive overlay**: may cover the header only when it intentionally owns the whole viewport, has a higher stacking layer, and keeps close/escape controls inside safe-area + chrome-safe bounds.
+- Gallery/lightbox close controls are never allowed under the Navbar, browser safe area, or another global launcher.
+- Anchor scrolling must respect the same canonical header offset via `scroll-margin-top`/`scroll-padding-top` where relevant.
+- Header height/offset is one shared layout metric owned by the global layout/chrome layer; changing Navbar height requires updating the shared metric, not dozens of page-local constants.
+
 ## Typography law
 - `F.ui`: navigation, controls, section titles, labels and system headings.
 - `F.body`: paragraphs, explanations and long-form reading.
