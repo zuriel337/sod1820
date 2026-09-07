@@ -75,4 +75,4 @@ comment on table public.research_paths is
 comment on table public.research_path_revisions is
   'Versioned ordered Research Path content. Governance and publication/access remain orthogonal; steps reference existing identities via contract, not a second entity system.';
 comment on column public.research_path_revisions.steps is
-  'Ordered step envelopes. v1 contract expects step_index/entity_type,entity_ref,locator,label_key where available; enforcement beyond array-shape belongs to a later bounded writer/validator slice.';
+  'Ordered step envelopes. v1 contract expects step_index/entity_type/entity_ref/locator/label_key where available; enforcement beyond array-shape belongs to a later bounded writer/validator slice.';
