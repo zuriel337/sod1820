@@ -1,0 +1,54 @@
+{
+ "book_slug": "sefer-habahir",
+ "source_identity": "book:sefer-habahir-1883",
+ "generated_at": "2026-09-07",
+ "schema_version": 1,
+ "hero": {
+  "eyebrow": "SEFER HABAHIR · VILNA WITNESS · NLI S 23 A 11927",
+  "subtitle": "ספר הבהיר להתנא רבי נחוניא בן הקנה, עם פירוש אור הגנוז · דפוס ווילנא (ראם) · עורך: שמואל לוריא · שנת דפוס לא-סגורה (תרמ״א / 1880-81, או תרמ״ג / 1883)",
+  "pdf": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf",
+  "promise": "מקור → עמוד/בלוק → Extraction/Finding/Claim → קשרים. Scan A (עמ׳ 1-24) ו-Scan B (עמ׳ 25-48) מוזגו לתמונה מבנית אחת של 48/48 עמודים; 6 עמודים שאובחנו כשגויים תוקנו בנפרד, עמוד-עמוד, ללא batching, וה-artifacts המקוריים נשמרים כהיסטוריה — לא נמחקו.",
+  "metrics": [
+   ["48", "עמודי PDF", "Digital Object"],
+   ["212", "blocks פעילים", "active corpus"],
+   ["115", "קריאות לא-פתורות (109 טקסטואלי · 4 מבני · 2 ביבליוגרפי)", "preserved, לא מוסתר"],
+   ["4", "ענפי-מקור אינטגרליים (Scan A · Scan B · אודיט-עדות · תיקון)", "source-integration branches"]
+  ],
+  "coverage": [
+   { "label": "Structural Page Accounting", "value": "48/48 COMPLETE", "note": "כל עמודי ה-PDF ממופים-מבנית לאחר סופרסזציה. אינו Research completeness." },
+   { "label": "Research Map / Grammar Coverage", "value": "SUFFICIENT", "note": "מספיק כדי להציג Book Projection; אינו טענת שחזור-מלא." },
+   { "label": "Exact-Witness Coverage", "value": "PARTIAL", "note": "רוב הגוף הראשי תומלל ברמת-ודאות בינונית-גבוהה; הגהות-השוליים הדחוסות (אור הגנוז) נותרות ברמת-ודאות נמוכה ברוב העמודים." },
+   { "label": "Source Exhaustion", "value": "NOT ESTABLISHED", "note": "לא נטען שכל-מה-שיש-במקור מוצה — 115 קריאות לא-פתורות עדיין פתוחות." }
+  ],
+  "datasets": [
+   ["RD-01", "אור הגנוז — פירוש נלווה", "pp25-43", "SOURCE-INTEGRATED", "כל עמוד ראשי בטווח כולל את פירוש 'אור הגנוז' (הגהות שוליים בכתב זעיר) + שורת ציטוטי 'תורה אור'; הפירוש נשמר כ-representation בתוך העד/המהדורה, לא כזהות Book נפרדת"],
+   ["RD-02", "תיקון תוכן מאומת — 6 עמודים", "pp30,31,32,34,35,38", "CORRECTED", "אודיט-עדות מצא אי-התאמה בין תוכן-שנרשם לעמוד-PDF בפועל (חלקו שכפול-מקרי מעמוד שכן, חלקו תוכן-עמוד-אחר במיקום שגוי); תוקן ואומת עצמאית, עמוד-אחר-עמוד, בלי batching; הגרסה המקורית השגויה נשמרת כהיסטוריה בלבד"],
+   ["RD-03", "תבנית עימוד כפולה", "pp25-43", "STRUCTURAL", "כל דף (leaf) נושא מספור-אותיות עברי במהדורה (recto) ומספור ערבי כפול-פי-שתיים (verso) — נגזר ואומת ישירות מהתמונות, לא הונח מראש"],
+   ["RD-04", "קולופון וזהות מהדורה", "pp43,44,47", "SOURCE-QUOTED", "עמ׳ 43: קולופון-סיום + שרשרת מסירה קבלית (ריה״ש אבן שועיב ← שלמה מברצלונה ← רמב״ן ← יצחק סגי נהור ← אליהו); עמ׳ 44: מאמר עורך 'דבר אל הקורא' בחתימת שמואל לוריא, מזכיר את בית-הדפוס ראם; עמ׳ 47: תווית הספריה הלאומית, מספר-קריאה S 23 A 11927, ברקוד 1805775-30"],
+   ["RD-05", "שנת דפוס — לא-סגורה", "pp43,44", "UNRESOLVED", "כרונוגרמה בעמ׳ 44 נקראת (ודאות בינונית) 'תרמ״א' (1880/81); שורת-הדפסה בעמ׳ 43 נקראת (ודאות נמוכה) בצורה לא-תקנית; מקור ביבליוגרפי חיצוני תומך ב-1883/תרמ״ג, אך האות המדויקת בקולופון לא אומתה מחדש — נשאר print_year_status=unresolved"]
+  ],
+  "families": [
+   { "title": "שכבות-מקור נפרדות, לא ממוזגות בשקט", "text": "Scan A (GPT, עמ׳ 1-24) ← Scan B (Claude, עמ׳ 25-48) ← אודיט זהות/עדות/מבנה ← תיקון-נקודתי (6 עמודים). כל שכבה נשמרת עם provenance משלה; העמודים המתוקנים מסמנים במפורש את מה שהם מחליפים." },
+   { "title": "תיקון עצמאי מתועד", "text": "כל אחד מ-6 העמודים המתוקנים נקרא מחדש מהתמונה בלבד (רינדור בודד 220dpi + חיתוכי 400dpi לפי צורך), לפני השוואה כלשהי לגרסה הישנה — כדי לא 'לתקן לפי הזיכרון של הטעות'." },
+   { "title": "הפרדת זהות: Book ≠ Edition ≠ Textual Version ≠ Witness ≠ Digital Object ≠ Locator", "text": "ספר הבהיר = Book. מהדורת ווילנא (ראם, שמואל לוריא) = Edition. הנוסח המסודר של לוריא = Textual Version. העותק הפיזי בספריה הלאומית (S 23 A 11927) = Witness. קובץ ה-PDF הספציפי הזה (sha256 מתועד) = Digital Object. book:sefer-habahir-1883#p<עמוד>:<בלוק> = Locator בלבד — לא זהות." }
+  ],
+  "open": [
+   "שנת הדפוס עדיין לא נקבעה כעובדה סגורה — תרמ״א/1880-81 מול תרמ״ג/1883 (2 פריטים ביבליוגרפיים לא-פתורים, לא נאכפת קביעה סופית)",
+   "109 קריאות טקסטואליות לא-פתורות — ברובן הגהות-שוליים דחוסות בכתב זעיר (פירוש אור הגנוז)",
+   "4 שאלות מבניות פתוחות (מיקום דיאגרמת-כיוונים/section markers, שרידי-שאלת סדר-עמודים מהמחקר הקודם)",
+   "Source Exhaustion לא נקבע — לא נטען שכל מה שיש במקור מוצה",
+   "זהות מדויקת של מחבר פירוש 'אור הגנוז' לא הותאמה במלואה: מקור חיצוני מזהה את ר׳ מאיר אבן סהולה, בעוד הקולופון המודפס (כפי שנקרא) מזכיר את ר׳ יהושע אבן שועיב בשרשרת המסירה — לא הוכרע כאן"
+  ],
+  "seeds": [
+   { "key": "32", "label": "ל״ב נתיבות החכמה", "family": "number-family", "status": "candidate" },
+   { "key": "70", "label": "שבעים תמרים / שבעים קומות", "family": "number-family", "status": "candidate" },
+   { "key": "12", "label": "י״ב עינות מים / י״ב אצבעות", "family": "number-family", "status": "candidate" },
+   { "key": "10", "label": "עשרה מדות / י׳ מאמרות", "family": "number-family", "status": "candidate" },
+   { "key": "rd01", "label": "RD-01 · אור הגנוז", "page": 25, "family": "dataset", "status": "source-integrated" },
+   { "key": "rd02", "label": "RD-02 · תיקון 6 עמודים", "page": 30, "family": "dataset", "status": "corrected" },
+   { "key": "rd04", "label": "RD-04 · קולופון וזהות מהדורה", "page": 43, "family": "dataset", "status": "source-quoted" },
+   { "key": "rd05", "label": "RD-05 · שנת דפוס לא-סגורה", "page": 44, "family": "dataset", "status": "unresolved" }
+  ]
+ },
+ "_note": "hero-only dossier v1 (Book Projection minimal delta — same pattern as public/book-data/sefer-yetzirah.tables.json's 'hero-only dossier v1'). Facts here are a direct projection of already-completed research, not new research: page/block/unresolved counts from research/sefer-habahir-1883/FULL_CORPUS_COVERAGE.json and FULL_CORPUS_UNRESOLVED_CLASSIFICATION.md (integration branch claude/sefer-habahir-1883-full-corpus-integration, commit d0b3b0283633f287aa7f571f1b8c95b5e4abfa82, merged to main in commit 3bc9f4d37417812b7749c42b1f5bcae3fe22bf3c, work_log AFTER 8f87339c-bfee-48b7-a48f-4a386d8cfcce and release AFTER 863ec71e-2fa7-47a9-979c-46d8471b53b7); edition/witness/print-year facts from research/sefer-habahir-1883/witness-structure-audit/ADJUDICATION_REPORT.md (work_log AFTER b6cc2d66-dd69-4dcf-8615-7ee329301607); corrective-page facts from research/sefer-habahir-1883/scan-b-corrective/DISCREPANCY_REPORT.md (work_log AFTER 2a97a5db-855d-475c-a6ae-49007b8706bc). The Book node (id=0c6f50da-6fc1-490f-809d-4cb48e755c16, work_log AFTER 9dc66a77-cbeb-4203-8280-e7d9e942c02d) is is_active=false at the time this file is added — /book/sefer-habahir will show 'not found' until a separate, future Human Gate activates it; adding this bundle does not itself activate anything, create edges, or promote Research Objects. print_year_status remains 'unresolved' exactly as recorded on the live Book row; nothing here overrides or closes it."
+}
