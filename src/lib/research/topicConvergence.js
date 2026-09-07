@@ -551,6 +551,48 @@ function normalizeSearchTerm(value) {
   return cleaned || null;
 }
 
+// UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS (work_log dispatch 0302a83d):
+// number-membership filter over the EXISTING public `numbers` int4[] column (already selected in
+// TOPIC_LIST_FIELDS, already the field every Topic card displays its numbers from — no new
+// column/semantics invented). Absent/empty input → no filter (byte-identical to pre-Slice-8).
+// A present-but-unparseable value fails CLOSED (`invalid:true`, see buildTopicListQuery below) —
+// it is never silently dropped (which would look like "no filter" while quietly returning the
+// full unfiltered list) and never passed through to a `.contains()` call that could misbehave on
+// a non-integer. Only a real finite integer is accepted; the column type itself (int4[]) is the
+// authority on what a "number" is here, not an invented range.
+function normalizeNumberFilter(value) {
+  const raw = nonEmpty(value);
+  if (!raw) return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || !Number.isInteger(n)) return { invalid: true };
+  return { value: n };
+}
+
+// occurred_at (date) range filter — the SAME field reality_stream_law already treats as "the
+// event's real-world date" and TOPIC_LIST_FIELDS already selects; live-reconciled before this
+// slice (10/205 current rows carry it — sparse but unambiguous: every populated value is a real
+// historical event date, e.g. meron=2021-04-30, trump=2016-11-09). A sparse column is a normal,
+// honest range filter (unpopulated rows simply don't match), not an ambiguous one, so no STOP was
+// needed here. Strict YYYY-MM-DD only (no lenient Date-parsing of e.g. "2025-13-45" which JS would
+// otherwise silently roll over to a different real date) — anything else fails CLOSED, as does a
+// `from` after `to`.
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+function normalizeDateFilterValue(value) {
+  const raw = nonEmpty(value);
+  if (!raw) return { present: false };
+  if (!ISO_DATE_RE.test(raw)) return { present: true, invalid: true };
+  const d = new Date(`${raw}T00:00:00Z`);
+  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== raw) return { present: true, invalid: true };
+  return { present: true, value: raw };
+}
+function normalizeDateRangeFilter(fromRaw, toRaw) {
+  const from = normalizeDateFilterValue(fromRaw);
+  const to = normalizeDateFilterValue(toRaw);
+  if (from.invalid || to.invalid) return { invalid: true };
+  if (from.present && to.present && from.value > to.value) return { invalid: true }; // from after to — unsatisfiable range
+  return { from: from.present ? from.value : null, to: to.present ? to.value : null };
+}
+
 /**
  * Pure. Builds the exact, deterministic query shape for a bounded Topic/Convergence list — no
  * network, so bounds-clamping and the stable compound ordering are unit-testable in isolation.
@@ -569,18 +611,33 @@ function normalizeSearchTerm(value) {
  * or null when `q` is empty/whitespace-only. Constrains the candidate set only — ranking above
  * still orders whatever matches, so search never changes the meter_score DESC → approved_at DESC
  * → id ASC contract, only which rows are eligible for it.
+ *
+ * `number`/`dateFrom`/`dateTo`/`invalid` (Slice 8, work_log dispatch 0302a83d): combinable with
+ * `search` and with each other — every active filter narrows the SAME candidate set, all still
+ * BEFORE ordering/range, never changing the order contract above. `invalid` is true when a
+ * present `number`/`from`/`to` value failed validation; fetchTopicCardList below reads it and
+ * short-circuits to an empty result WITHOUT ever reaching the network — fail-closed, not
+ * fail-open (a broken filter must never silently degrade into "no filter, show everything").
  */
-export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false, q = null } = {}) {
+export function buildTopicListQuery({
+  limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false, q = null, number = null, from = null, to = null,
+} = {}) {
   const cap = normalizeLimit(limit, TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT);
   const safeOffset = normalizeNonNegativeInt(offset, 0);
   const order = rankByMeterScore
     ? [["meter_score", false], ["approved_at", false], ["id", true]]
     : [["approved_at", false], ["id", true]];
+  const numberFilter = normalizeNumberFilter(number);
+  const dateFilter = normalizeDateRangeFilter(from, to);
   return {
     // [column, ascending] — most-recently-approved first, id asc as a stable tiebreaker
     // (meter_score DESC prepended when rankByMeterScore is requested).
     order,
     search: normalizeSearchTerm(q),
+    number: numberFilter?.value ?? null,
+    dateFrom: dateFilter?.from ?? null,
+    dateTo: dateFilter?.to ?? null,
+    invalid: Boolean(numberFilter?.invalid || dateFilter?.invalid),
     rangeStart: safeOffset,
     rangeEnd: safeOffset + cap,
     limit: cap,
@@ -595,11 +652,23 @@ export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset =
  * slice per the task's own caution against faking fuzzy behavior on an unverified contract —
  * left as an EXTENSION POINT, not implemented speculatively. Empty/whitespace `q` leaves the
  * query byte-identical to pre-Slice-7 behavior.
+ *
+ * Slice 8 (work_log dispatch 0302a83d): `number` (`.contains("numbers", [n])`, exact membership
+ * in the existing public numbers int4[] column) and `dateFrom`/`dateTo` (`.gte`/`.lte` on the
+ * existing public occurred_at date column) are ADDITIONAL filters on this SAME query, combined
+ * with `search` and each other by plain filter chaining (PostgREST ANDs every `.eq`/`.contains`/
+ * `.gte`/`.lte`/`.or` call in a chain) — one bounded source-side query, still entirely before
+ * `.range()`, never a second Topic reader. An `invalid` filter (unparseable number/date, or
+ * from>to) short-circuits to an empty result BEFORE any network call — fail-closed.
  */
 export async function fetchTopicCardList(params = {}) {
   const q = buildTopicListQuery(params);
+  if (q.invalid) return { rows: [], hasMore: false };
   let query = supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
   if (q.search) query = query.or(`title.ilike.%${q.search}%,subtitle.ilike.%${q.search}%`);
+  if (q.number != null) query = query.contains("numbers", [q.number]);
+  if (q.dateFrom) query = query.gte("occurred_at", q.dateFrom);
+  if (q.dateTo) query = query.lte("occurred_at", q.dateTo);
   for (const [col, ascending] of q.order) query = query.order(col, { ascending, nullsFirst: false });
   const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
   if (error) throw error;

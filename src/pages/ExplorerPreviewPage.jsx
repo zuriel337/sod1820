@@ -5,6 +5,7 @@ import {
   fetchExplorerFacetPage,
   fetchExplorerFacetDetail,
   facetHasDetail,
+  facetSupportsDimension,
   parseExplorerUrlState,
   explorerUrlSearch,
   explorerReopenWindow,
@@ -75,6 +76,13 @@ import TopicConvergenceContent from "../components/research/TopicConvergenceCont
 // each facet's existing canonical reader (see explorerFacets.js / entityHubProjection.js /
 // topicConvergence.js / bookResearchProjection.js) BEFORE pagination — this component never
 // filters an already-fetched page. Access ≠ Truth still holds: search never depends on identity.
+//
+// Slice 8 (UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS, work_log dispatch
+// 0302a83d) adds `number`/`from`/`to` as three MORE first-class URL/Context fields, combinable
+// with `q` and each other — same reset-offset-on-change / preserve-on-pagination-and-reopen
+// contract. They render only when facetSupportsDimension(activeKey, …) says the active facet's
+// reader actually understands them (today: topic only, via topicConvergence's numbers/occurred_at
+// filters) — this component never guesses at a filter a reader would silently ignore.
 
 const PAGE_SIZE = 24;
 
@@ -183,6 +191,68 @@ function SearchBox({ value, onCommit }) {
   );
 }
 
+// Slice 8: combinable dimension filters — a number input + a from/to date range, shown ONLY when
+// facetSupportsDimension says the active facet's reader understands them (today: topic only).
+// Unlike SearchBox's free-text debounce, these are discrete native inputs (number/date pickers)
+// that commit immediately on change — no debounce needed, and no local shadow state either: the
+// inputs are directly controlled by the URL-derived value, since a native date/number picker
+// commit is already a deliberate, discrete user action, not a keystroke to smooth over.
+function DimensionFilters({ showNumber, showTime, number, from, to, onChangeNumber, onChangeFrom, onChangeTo }) {
+  if (!showNumber && !showTime) return null;
+  const fieldStyle = {
+    minHeight: 44,
+    padding: "8px 12px",
+    borderRadius: 10,
+    border: `1px solid ${C.line}`,
+    background: "rgba(0,0,0,0.25)",
+    color: C.ink,
+    fontSize: 14,
+    boxSizing: "border-box",
+  };
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10, alignItems: "center" }}>
+      {showNumber ? (
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, color: C.soft }}>
+          מספר בהתכנסות
+          <input
+            type="number"
+            inputMode="numeric"
+            value={number || ""}
+            onChange={(e) => onChangeNumber(e.target.value)}
+            placeholder="לדוגמה 1820"
+            aria-label="סינון לפי מספר"
+            style={{ ...fieldStyle, width: 140 }}
+          />
+        </label>
+      ) : null}
+      {showTime ? (
+        <>
+          <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, color: C.soft }}>
+            מתאריך
+            <input
+              type="date"
+              value={from || ""}
+              onChange={(e) => onChangeFrom(e.target.value)}
+              aria-label="סינון מתאריך אירוע"
+              style={fieldStyle}
+            />
+          </label>
+          <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, color: C.soft }}>
+            עד תאריך
+            <input
+              type="date"
+              value={to || ""}
+              onChange={(e) => onChangeTo(e.target.value)}
+              aria-label="סינון עד תאריך אירוע"
+              style={fieldStyle}
+            />
+          </label>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 function RankNote({ rank }) {
   if (!rank) return null;
   if (rank.neutral) {
@@ -275,17 +345,23 @@ export default function ExplorerPreviewPage() {
   );
   const urlState = useMemo(() => parseExplorerUrlState(searchParams, DEFAULT_FACET_KEY), [searchParams]);
   const activeKey = urlState.facet || DEFAULT_FACET_KEY;
+  // Slice 8: the four combinable filter fields, read together wherever a URL/fetch/Context call
+  // needs "everything active right now" — avoids repeating {q,number,from,to} at every call site.
+  const filters = useMemo(
+    () => ({ q: urlState.q, number: urlState.number, from: urlState.from, to: urlState.to }),
+    [urlState.q, urlState.number, urlState.from, urlState.to],
+  );
   const [state, setState] = useState({ loading: true, cards: [], hasMore: false, error: null, offset: 0 });
   const [detail, setDetail] = useState(EMPTY_DETAIL);
 
   // replace=true always fetches exactly the ONE bounded window {offset,limit} and replaces the
   // grid with it (used for both a fresh facet switch — offset 0 — and a page-window reopen — any
-  // offset); replace=false appends the next page onto what's already on screen ("עוד ←"). `q`
-  // (Slice 7) is passed straight to fetchExplorerFacetPage, which forwards it into the active
-  // facet's own canonical reader — this component never filters cards itself.
-  const loadPage = useCallback((facetKey, offset, replace, limit = PAGE_SIZE, q = null) => {
+  // offset); replace=false appends the next page onto what's already on screen ("עוד ←"). `filters`
+  // (q + Slice 8's number/from/to) are passed straight to fetchExplorerFacetPage, which forwards
+  // them into the active facet's own canonical reader — this component never filters cards itself.
+  const loadPage = useCallback((facetKey, offset, replace, limit = PAGE_SIZE, activeFilters = {}) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    fetchExplorerFacetPage(facetKey, { q, limit, offset })
+    fetchExplorerFacetPage(facetKey, { ...activeFilters, limit, offset })
       .then((pageResult) => {
         if (!pageResult) {
           setState({ loading: false, cards: [], hasMore: false, error: new Error("פאספט לא ידוע"), offset: 0 });
@@ -305,56 +381,71 @@ export default function ExplorerPreviewPage() {
   // Reopen: a nonzero ?offset= fetches EXACTLY that one page window in one bounded request
   // (explorerReopenWindow — always PAGE_SIZE rows, for any offset, no hard cap needed) — the
   // truthful, corrected contract from GPT challenge 8fc2d310 (the prior "replay from 0" contract
-  // silently truncated past ~76 rows). Re-runs when the facet, the URL's own offset, OR the URL's
-  // own `q` changes (Slice 7) — not on every "עוד ←" click (those advance state.offset locally,
-  // not the URL). A `q` change alone (offset already 0) still needs this to re-fire, hence `q` in
-  // the dependency array below even though explorerReopenWindow itself only reads offset/pageSize.
+  // silently truncated past ~76 rows). Re-runs when the facet, the URL's own offset, OR ANY active
+  // filter changes (Slice 7 q; Slice 8 number/from/to) — not on every "עוד ←" click (those advance
+  // state.offset locally, not the URL). A filter change alone (offset already 0) still needs this
+  // to re-fire, hence `filters` in the dependency array even though explorerReopenWindow itself
+  // only reads offset/pageSize.
   useEffect(() => {
     const win = explorerReopenWindow(urlState.offset, PAGE_SIZE);
-    loadPage(activeKey, win.offset, true, win.limit, urlState.q);
+    loadPage(activeKey, win.offset, true, win.limit, filters);
     setDetail(EMPTY_DETAIL); // a stale expanded detail from a prior facet/page has no meaning here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeKey, urlState.offset, urlState.q]);
+  }, [activeKey, urlState.offset, filters]);
 
   const activeFacet = useMemo(() => EXPLORER_FACETS.find((f) => f.key === activeKey) || null, [activeKey]);
 
   // 🧭 Universal Research Context — same contract as TopicPage/EntityHubPreviewPageFunctional: the
   // root subject stays sticky (never overwritten by browsing the Explorer), current selection/lens
-  // follow the active facet, and facet+offset+q (Slice 7) mirror into `dimensions` as flat scalar
-  // keys (nested objects are dropped by normalizeDimensions — see explorerFacets.js Slice 3 note).
-  // `q` is navigation/research state, not truth — same status as facet/offset already have here.
+  // follow the active facet, and facet+offset+q+number+from+to mirror into `dimensions` as flat
+  // scalar keys (nested objects are dropped by normalizeDimensions — see explorerFacets.js Slice 3
+  // note). All of these are navigation/research state, not truth — same status facet/offset/q
+  // already have here.
   useEffect(() => {
     if (!activeFacet) return;
-    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset, q: urlState.q })}`;
+    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset, ...filters })}`;
     const subject = { id: activeKey, type: "explorer-facet", label: activeFacet.label, href: explorerHref };
     const selection = { entityId: activeKey, entityType: "explorer-facet" };
-    const dimensions = { explorerFacet: activeKey, explorerOffset: state.offset, explorerQuery: urlState.q };
+    const dimensions = {
+      explorerFacet: activeKey, explorerOffset: state.offset, explorerQuery: filters.q,
+      explorerNumber: filters.number, explorerFrom: filters.from, explorerTo: filters.to,
+    };
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "explorer", dimensions });
     else research.updateResearchContext?.({ selection, lens: "explorer", dimensions });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFacet, activeKey, state.offset, urlState.q]);
+  }, [activeFacet, activeKey, state.offset, filters]);
 
-  // Switching facet keeps `q` (task contract: "switching facet keeps q unless there is a strong
-  // existing contract reason not to" — none exists here) and always resets offset to 0.
-  const selectFacet = (key) => setSearchParams(explorerUrlSearch({ facet: key, offset: 0, q: urlState.q }).replace(/^\?/, ""));
+  // Switching facet keeps every active filter (task contract for `q`, extended the same way to
+  // number/from/to — "switching facet keeps q unless there is a strong existing contract reason
+  // not to"; none exists here either, and it lets a user switch back to topic without retyping)
+  // and always resets offset to 0.
+  const selectFacet = (key) => setSearchParams(explorerUrlSearch({ facet: key, offset: 0, ...filters }).replace(/^\?/, ""));
 
   const loadMore = () => {
     const nextOffset = state.offset + PAGE_SIZE;
-    setSearchParams(explorerUrlSearch({ facet: activeKey, offset: nextOffset, q: urlState.q }).replace(/^\?/, ""));
-    loadPage(activeKey, nextOffset, false, PAGE_SIZE, urlState.q);
+    setSearchParams(explorerUrlSearch({ facet: activeKey, offset: nextOffset, ...filters }).replace(/^\?/, ""));
+    loadPage(activeKey, nextOffset, false, PAGE_SIZE, filters);
   };
 
-  // Committing a NEW query always resets offset to 0 (task contract). Clearing the box (q="")
-  // removes ?q= entirely and restores plain Slice-6 browse order for the active facet.
-  const commitQuery = (nextQ) => setSearchParams(explorerUrlSearch({ facet: activeKey, offset: 0, q: nextQ }).replace(/^\?/, ""));
+  // Committing a NEW value for any one filter always resets offset to 0 (task contract) while
+  // preserving every OTHER active filter — one shared committer for q/number/from/to rather than
+  // four near-identical handlers. Clearing a field (empty string) removes just that URL key.
+  const commitFilter = (key, value) => setSearchParams(
+    explorerUrlSearch({ facet: activeKey, offset: 0, ...filters, [key]: value }).replace(/^\?/, ""),
+  );
+  const commitQuery = (nextQ) => commitFilter("q", nextQ);
+  const commitNumber = (nextNumber) => commitFilter("number", nextNumber);
+  const commitFrom = (nextFrom) => commitFilter("from", nextFrom);
+  const commitTo = (nextTo) => commitFilter("to", nextTo);
 
   // Shared by both ways of leaving the Explorer — a card click (which navigates to the entity's
   // own page) and a link followed from inside an expanded detail panel (TopicConvergenceContent's
-  // own onLeave hook, e.g. a number chip inside the topic body) — records the exact facet+offset+q
-  // as returnTo so BottomBar's existing "חזרה" reopens this same page, mirroring leaveHub/leaveTopic.
+  // own onLeave hook, e.g. a number chip inside the topic body) — records the exact facet+offset+
+  // filters as returnTo so BottomBar's existing "חזרה" reopens this same page, mirroring
+  // leaveHub/leaveTopic.
   const recordReturnTo = (lens, selection) => {
     if (!activeFacet) return;
-    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset, q: urlState.q })}`;
+    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset, ...filters })}`;
     const subject = { id: activeKey, type: "explorer-facet", label: activeFacet.label, href: explorerHref };
     research.updateResearchContext?.({ lens, selection, returnTo: { href: explorerHref, label: activeFacet.label, subject } });
   };
@@ -376,18 +467,28 @@ export default function ExplorerPreviewPage() {
     <main style={page}>
       <div style={shell}>
         <div style={{ color: C.gold, fontSize: 10.5, letterSpacing: 1.8, fontWeight: 900 }}>
-          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 7)
+          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 8)
         </div>
         <h1 style={{ margin: "8px 0 4px", fontSize: "clamp(28px,5vw,42px)", color: C.ink }}>
           {activeFacet?.label || "עדשה"}
         </h1>
         <div style={{ ...card, padding: "10px 14px", marginTop: 4, fontSize: 12.5, color: C.soft }}>
-          דירוג הוא סדר תצוגה בלבד — לא אמת ולא קנון. התכנסויות מדורגות לפי meter_score הציבורי; עדשות שאין להן אות רשימתי בטוח נשארות ניטרליות ובסדר הקורא הקיים. אין שימוש ב־cross_method_strength. חיפוש מצמצם את קבוצת המועמדים לפני העימוד — לא שינוי דירוג/אמת/קנוניות.
+          דירוג הוא סדר תצוגה בלבד — לא אמת ולא קנון. התכנסויות מדורגות לפי meter_score הציבורי; עדשות שאין להן אות רשימתי בטוח נשארות ניטרליות ובסדר הקורא הקיים. אין שימוש ב־cross_method_strength. חיפוש וסינון מצמצמים את קבוצת המועמדים לפני העימוד — לא שינוי דירוג/אמת/קנוניות.
         </div>
         <AccessNote access={access} />
 
         <FacetSwitcher facets={EXPLORER_FACETS} activeKey={activeKey} onSelect={selectFacet} />
         <SearchBox value={urlState.q} onCommit={commitQuery} />
+        <DimensionFilters
+          showNumber={facetSupportsDimension(activeKey, "number")}
+          showTime={facetSupportsDimension(activeKey, "time")}
+          number={urlState.number}
+          from={urlState.from}
+          to={urlState.to}
+          onChangeNumber={commitNumber}
+          onChangeFrom={commitFrom}
+          onChangeTo={commitTo}
+        />
 
         {state.error ? (
           <div style={{ ...card, padding: 16, marginTop: 16, color: "#f28b82" }}>
@@ -397,7 +498,9 @@ export default function ExplorerPreviewPage() {
 
         {!state.error && !state.loading && state.cards.length === 0 ? (
           <div style={{ ...card, padding: 16, marginTop: 16 }}>
-            {urlState.q ? `אין תוצאות עבור "${urlState.q}" בעדשה הזו.` : "אין פריטים בעדשה הזו כרגע."}
+            {urlState.q || urlState.number || urlState.from || urlState.to
+              ? "אין תוצאות עבור החיפוש/הסינון הנוכחי בעדשה הזו."
+              : "אין פריטים בעדשה הזו כרגע."}
           </div>
         ) : null}
 

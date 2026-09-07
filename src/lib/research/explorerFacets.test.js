@@ -18,6 +18,7 @@ import {
   explorerReopenWindow,
   explorerCardSelection,
   facetHasDetail,
+  facetSupportsDimension,
   fetchExplorerFacetDetail,
   fetchExplorerFacetPage,
 } from "./explorerFacets.js";
@@ -146,13 +147,13 @@ test("refId: topic uses its slug, book uses its slug when present else the DB id
 
 test("parseExplorerUrlState: reads a known facet + a positive integer offset from URLSearchParams", () => {
   const state = parseExplorerUrlState(new URLSearchParams("facet=topic&offset=48"), "number");
-  assert.deepEqual(state, { facet: "topic", offset: 48, q: null });
+  assert.deepEqual(state, { facet: "topic", offset: 48, q: null, number: null, from: null, to: null });
 });
 
 test("parseExplorerUrlState: unknown/missing facet falls back to fallbackFacet; never throws", () => {
-  assert.deepEqual(parseExplorerUrlState(new URLSearchParams("facet=rule&offset=10"), "number"), { facet: "number", offset: 10, q: null });
-  assert.deepEqual(parseExplorerUrlState(new URLSearchParams(""), "book"), { facet: "book", offset: 0, q: null });
-  assert.deepEqual(parseExplorerUrlState(undefined, "number"), { facet: "number", offset: 0, q: null });
+  assert.deepEqual(parseExplorerUrlState(new URLSearchParams("facet=rule&offset=10"), "number"), { facet: "number", offset: 10, q: null, number: null, from: null, to: null });
+  assert.deepEqual(parseExplorerUrlState(new URLSearchParams(""), "book"), { facet: "book", offset: 0, q: null, number: null, from: null, to: null });
+  assert.deepEqual(parseExplorerUrlState(undefined, "number"), { facet: "number", offset: 0, q: null, number: null, from: null, to: null });
 });
 
 test("parseExplorerUrlState: negative/fractional/non-numeric offset clamps to 0, never NaN or negative", () => {
@@ -163,7 +164,7 @@ test("parseExplorerUrlState: negative/fractional/non-numeric offset clamps to 0,
 });
 
 test("parseExplorerUrlState: also accepts a plain object (not just URLSearchParams)", () => {
-  assert.deepEqual(parseExplorerUrlState({ facet: "word", offset: "24" }, "number"), { facet: "word", offset: 24, q: null });
+  assert.deepEqual(parseExplorerUrlState({ facet: "word", offset: "24" }, "number"), { facet: "word", offset: 24, q: null, number: null, from: null, to: null });
 });
 
 // ── Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463): `q` as
@@ -199,13 +200,40 @@ test("explorerUrlSearch: q is included when non-empty; empty/whitespace/null q o
   assert.equal(explorerUrlSearch({ facet: "number", q: null }), "?facet=number");
 });
 
+// ── Slice 8 (UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS, work_log dispatch
+// 0302a83d): number/from/to as three MORE URL-state fields, same discipline as q ─────────────────
+
+test("parseExplorerUrlState: reads number/from/to, trimmed; absent normalizes to null", () => {
+  const state = parseExplorerUrlState(new URLSearchParams("facet=topic&number=1820&from=2020-01-01&to=2021-12-31"), "number");
+  assert.equal(state.number, "1820");
+  assert.equal(state.from, "2020-01-01");
+  assert.equal(state.to, "2021-12-31");
+  const empty = parseExplorerUrlState(new URLSearchParams("facet=topic"), "number");
+  assert.equal(empty.number, null);
+  assert.equal(empty.from, null);
+  assert.equal(empty.to, null);
+});
+
+test("explorerUrlSearch: number/from/to are included when non-empty; empty/null omits each independently", () => {
+  const qs = explorerUrlSearch({ facet: "topic", number: 1820, from: "2020-01-01", to: "2021-12-31" });
+  assert.equal(qs, "?facet=topic&number=1820&from=2020-01-01&to=2021-12-31");
+  assert.equal(explorerUrlSearch({ facet: "topic", number: "" }), "?facet=topic");
+  assert.equal(explorerUrlSearch({ facet: "topic", from: null, to: undefined }), "?facet=topic");
+  // Combinable: q + number + from all present together, to omitted
+  const combined = explorerUrlSearch({ facet: "topic", q: "אור", number: 45, from: "2021-01-01" });
+  assert.equal(combined, "?facet=topic&q=%D7%90%D7%95%D7%A8&number=45&from=2021-01-01");
+});
+
 test("URL round-trip: parseExplorerUrlState(explorerUrlSearch(x)) reconstructs the same state", () => {
   for (const input of [
-    { facet: "number", offset: 0, q: null },
-    { facet: "topic", offset: 48, q: null },
-    { facet: "book", offset: 96, q: null },
-    { facet: "number", offset: 0, q: "1237" },
-    { facet: "topic", offset: 24, q: "התגלות" },
+    { facet: "number", offset: 0, q: null, number: null, from: null, to: null },
+    { facet: "topic", offset: 48, q: null, number: null, from: null, to: null },
+    { facet: "book", offset: 96, q: null, number: null, from: null, to: null },
+    { facet: "number", offset: 0, q: "1237", number: null, from: null, to: null },
+    { facet: "topic", offset: 24, q: "התגלות", number: null, from: null, to: null },
+    { facet: "topic", offset: 0, q: null, number: "1820", from: null, to: null },
+    { facet: "topic", offset: 0, q: null, number: null, from: "2020-01-01", to: "2021-12-31" },
+    { facet: "topic", offset: 0, q: "אור", number: "45", from: "2016-01-01", to: "2022-01-01" },
   ]) {
     const qs = explorerUrlSearch(input);
     const parsed = parseExplorerUrlState(new URLSearchParams(qs), "number");
@@ -216,7 +244,7 @@ test("URL round-trip: parseExplorerUrlState(explorerUrlSearch(x)) reconstructs t
 test("explorerUrlSearch: changing q alongside offset:0 is exactly reopenable together with facet", () => {
   const qs = explorerUrlSearch({ facet: "word", offset: 0, q: "אור" });
   assert.equal(qs, "?facet=word&q=%D7%90%D7%95%D7%A8");
-  assert.deepEqual(parseExplorerUrlState(new URLSearchParams(qs), "number"), { facet: "word", offset: 0, q: "אור" });
+  assert.deepEqual(parseExplorerUrlState(new URLSearchParams(qs), "number"), { facet: "word", offset: 0, q: "אור", number: null, from: null, to: null });
 });
 
 // ── Slice 3 CORRECTION (dispatch 3d04a64b, GPT challenge 8fc2d310): explorerReopenWindow ────────
@@ -295,6 +323,25 @@ test("fetchExplorerFacetDetail: resolves to null for a real facet with no fetchD
   assert.equal(await fetchExplorerFacetDetail("entity", { refId: "gw:abc" }), null);
 });
 
+// ── Slice 8 (UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS, work_log dispatch
+// 0302a83d): facetSupportsDimension — mirrors facetHasDetail's "only topic, never fabricated"
+// shape exactly, proving the UI can only ever offer a filter a reader truly understands ─────────
+
+test("facetSupportsDimension: true only for topic's number/time — no other facet declares support it doesn't have", () => {
+  const withNumber = EXPLORER_FACETS.filter(f => facetSupportsDimension(f.key, "number")).map(f => f.key);
+  const withTime = EXPLORER_FACETS.filter(f => facetSupportsDimension(f.key, "time")).map(f => f.key);
+  assert.deepEqual(withNumber, ["topic"]);
+  assert.deepEqual(withTime, ["topic"]);
+});
+
+test("facetSupportsDimension: false for an unsupported dimension name, an unknown facet, or empty input — never throws", () => {
+  assert.equal(facetSupportsDimension("topic", "method"), false, "topic never claimed a dimension it doesn't implement");
+  assert.equal(facetSupportsDimension("number", "number"), false, "the node-backed 'number' FACET is not the same thing as the Slice-8 number DIMENSION filter");
+  assert.equal(facetSupportsDimension("verse", "number"), false);
+  assert.equal(facetSupportsDimension("", "number"), false);
+  assert.equal(facetSupportsDimension(), false);
+});
+
 // ── Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463):
 // fetchExplorerFacetPage stays fail-closed for an unsupported facet key even with a `q` present —
 // getExplorerFacet(facetKey) short-circuits to null BEFORE any reader/network call is made, so
@@ -304,4 +351,8 @@ test("fetchExplorerFacetPage: resolves to null for an unknown/empty facet key ev
   assert.equal(await fetchExplorerFacetPage("verse", { q: "התגלות", limit: 24, offset: 0 }), null);
   assert.equal(await fetchExplorerFacetPage("rule", { q: "1237" }), null);
   assert.equal(await fetchExplorerFacetPage("", { q: "x" }), null);
+});
+
+test("fetchExplorerFacetPage: same fail-closed short-circuit holds with Slice-8 number/from/to set too — no network", async () => {
+  assert.equal(await fetchExplorerFacetPage("verse", { number: "1820", from: "2020-01-01", to: "2021-01-01" }), null);
 });

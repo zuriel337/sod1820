@@ -28,6 +28,7 @@ import {
   AUTHORED_SECTION_ORDER,
   TOPIC_CARD_SELECT_FIELDS,
   buildTopicListQuery,
+  fetchTopicCardList,
 } from "./topicConvergence.js";
 import { isUniversalFinding } from "./universalFinding.js";
 
@@ -375,4 +376,84 @@ test("buildTopicListQuery: search never changes the ranking order contract — m
     buildTopicListQuery({ q: "התגלות" }).order,
     [["approved_at", false], ["id", true]],
   );
+});
+
+// ── Slice 8 (UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS, work_log dispatch
+// 0302a83d): buildTopicListQuery's new `number`/`dateFrom`/`dateTo`/`invalid` fields — the SAME
+// pure/testable seam Slice 7's `search` field already established. Every test above this point
+// never passed number/from/to, so those fields were implicitly null/false there too — proving the
+// no-filter shape is byte-identical to pre-Slice-8 behavior; these tests make that explicit and
+// cover the filter-specific cases ──────────────────────────────────────────────────────────────
+
+test("buildTopicListQuery: no number/from/to yields number:null, dateFrom:null, dateTo:null, invalid:false — byte-identical to pre-Slice-8 shape", () => {
+  const q = buildTopicListQuery({});
+  assert.equal(q.number, null);
+  assert.equal(q.dateFrom, null);
+  assert.equal(q.dateTo, null);
+  assert.equal(q.invalid, false);
+});
+
+test("buildTopicListQuery: a valid integer number filter passes through as a real integer", () => {
+  assert.equal(buildTopicListQuery({ number: 1820 }).number, 1820);
+  assert.equal(buildTopicListQuery({ number: "1820" }).number, 1820, "a numeric string from the URL layer is accepted");
+  assert.equal(buildTopicListQuery({ number: "  45  " }).number, 45, "surrounding whitespace is tolerated");
+});
+
+test("buildTopicListQuery: an unparseable/non-integer number FAILS CLOSED (invalid:true) rather than being silently dropped as 'no filter'", () => {
+  assert.equal(buildTopicListQuery({ number: "abc" }).invalid, true);
+  assert.equal(buildTopicListQuery({ number: "18.5" }).invalid, true, "fractional is not a real gematria-value integer");
+  assert.equal(buildTopicListQuery({ number: "Infinity" }).invalid, true);
+  assert.equal(buildTopicListQuery({ number: "" }).invalid, false, "an EMPTY number is absent, not invalid — no filter at all");
+});
+
+test("buildTopicListQuery: a valid from/to date range passes through as YYYY-MM-DD strings", () => {
+  const q = buildTopicListQuery({ from: "2020-01-01", to: "2021-12-31" });
+  assert.equal(q.dateFrom, "2020-01-01");
+  assert.equal(q.dateTo, "2021-12-31");
+  assert.equal(q.invalid, false);
+  assert.equal(buildTopicListQuery({ from: "2021-04-30" }).dateFrom, "2021-04-30", "from alone (no to) is a valid open-ended range");
+  assert.equal(buildTopicListQuery({ to: "2021-04-30" }).dateTo, "2021-04-30", "to alone (no from) is a valid open-ended range");
+});
+
+test("buildTopicListQuery: malformed or impossible dates FAIL CLOSED — never silently coerced by JS's lenient Date parsing", () => {
+  assert.equal(buildTopicListQuery({ from: "2020/01/01" }).invalid, true, "wrong separator");
+  assert.equal(buildTopicListQuery({ from: "01-01-2020" }).invalid, true, "wrong field order");
+  assert.equal(buildTopicListQuery({ from: "not-a-date" }).invalid, true);
+  assert.equal(buildTopicListQuery({ from: "2025-13-45" }).invalid, true, "impossible month/day — JS Date would otherwise silently roll this over to a different real date");
+  assert.equal(buildTopicListQuery({ from: "2025-02-30" }).invalid, true, "February never has 30 days in any year — JS Date would otherwise roll this to March 2");
+});
+
+test("buildTopicListQuery: from-after-to is an unsatisfiable range and FAILS CLOSED", () => {
+  assert.equal(buildTopicListQuery({ from: "2022-01-01", to: "2020-01-01" }).invalid, true);
+  assert.equal(buildTopicListQuery({ from: "2020-01-01", to: "2020-01-01" }).invalid, false, "from == to is a valid single-day range");
+});
+
+test("buildTopicListQuery: number, date-range, and text search are all COMBINABLE in the same built query — none overrides another", () => {
+  const q = buildTopicListQuery({ q: "אור", number: "45", from: "2016-01-01", to: "2022-01-01" });
+  assert.equal(q.search, "אור");
+  assert.equal(q.number, 45);
+  assert.equal(q.dateFrom, "2016-01-01");
+  assert.equal(q.dateTo, "2022-01-01");
+  assert.equal(q.invalid, false);
+});
+
+test("buildTopicListQuery: filters never change the ranking order contract — same order with or without number/date filters, ranked or not", () => {
+  assert.deepEqual(
+    buildTopicListQuery({ rankByMeterScore: true, number: "45", from: "2016-01-01", to: "2022-01-01" }).order,
+    [["meter_score", false], ["approved_at", false], ["id", true]],
+  );
+  assert.deepEqual(
+    buildTopicListQuery({ number: "45" }).order,
+    [["approved_at", false], ["id", true]],
+  );
+});
+
+test("fetchTopicCardList: an invalid filter short-circuits to an empty result WITHOUT reaching the network — fail-closed, not fail-open", async () => {
+  const result = await fetchTopicCardList({ number: "not-a-number" });
+  assert.deepEqual(result, { rows: [], hasMore: false });
+});
+
+test("fetchTopicCardList: an invalid date range also short-circuits to an empty result with no network call", async () => {
+  const result = await fetchTopicCardList({ from: "2099-01-01", to: "2000-01-01" });
+  assert.deepEqual(result, { rows: [], hasMore: false });
 });
