@@ -6,7 +6,7 @@ import { fetchGematriaMethodStates } from "../lib/research/gematriaMethodRegistr
 // Thin projection adapter over the existing professional calculator.
 // It does not own calculations or UI; it enriches the calculator's settled result with the
 // canonical method/representation/provenance envelope for Research Context and future consumers.
-export default function CanonicalGematriaCalculator({ onResult, ...props }) {
+export default function CanonicalGematriaCalculator({ onResult, onCalculation, ...props }) {
   const [methodStates, setMethodStates] = useState(null);
   const [lastWord, setLastWord] = useState("");
 
@@ -23,16 +23,18 @@ export default function CanonicalGematriaCalculator({ onResult, ...props }) {
     [lastWord, methodStates],
   );
 
+  // Canonical consumers get a fresh envelope whenever Registry state arrives/changes.
+  // Legacy onResult is NOT replayed, so existing telemetry/save/parent behavior is unchanged.
+  useEffect(() => {
+    if (calculation) onCalculation?.(calculation);
+  }, [calculation, onCalculation]);
+
   const handleResult = useCallback((legacyResult) => {
     const word = String(legacyResult?.word || "").trim();
     setLastWord(word);
     const envelope = word ? calculateGematriaEnvelope(word, methodStates) : null;
     onResult?.({ ...legacyResult, calculation: envelope });
   }, [methodStates, onResult]);
-
-  // `calculation` is intentionally computed even when no parent callback exists: this component
-  // is the first projection consumer of the shared contract. No UI/number changes in v1.
-  void calculation;
 
   return <GematriaCalculatorLegacy {...props} onResult={handleResult} />;
 }
