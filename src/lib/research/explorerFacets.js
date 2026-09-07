@@ -111,6 +111,13 @@ export const EXPLORER_FACETS = Object.freeze([
     fetchPage: (params) => fetchTopicCardList({ ...params, rankByMeterScore: true }),
     toCard: topicRowToCard,
     fetchDetail: (card) => fetchCanonicalTopicConvergenceFinding(card?.refId),
+    // Slice 8 (UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS, work_log dispatch
+    // 0302a83d): declares which combinable dimension filters THIS facet's reader actually
+    // understands — the same optional-capability pattern fetchDetail already established above
+    // (facetHasDetail), not a new global filter registry/store. Only topic owns `numbers` +
+    // `occurred_at` today; every other facet has neither key here, so facetSupportsDimension
+    // stays false for them and the UI never offers a filter a reader would silently ignore.
+    dimensions: Object.freeze({ number: true, time: true }),
   }),
   Object.freeze({
     key: "book",
@@ -129,6 +136,13 @@ export function facetHasDetail(key) {
   return typeof getExplorerFacet(key)?.fetchDetail === "function";
 }
 
+// Slice 8: mirrors facetHasDetail's shape exactly — a facet without a `dimensions` descriptor,
+// or without this specific key set true on it, simply doesn't support that filter. No facet is
+// ever assumed to support a dimension; absence is the safe default.
+export function facetSupportsDimension(key, dimension) {
+  return Boolean(getExplorerFacet(key)?.dimensions?.[dimension]);
+}
+
 export async function fetchExplorerFacetDetail(facetKey, card) {
   const facet = getExplorerFacet(facetKey);
   if (!facet || typeof facet.fetchDetail !== "function") return null;
@@ -145,17 +159,22 @@ export function normalizePageResult(raw, limit) {
  * by the facet's reader/card adapter: topic is globally server-ranked; neutral facets preserve
  * their deterministic reader order. No client-side per-page resorting, so pagination cannot lie.
  *
- * `q` (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463): passed
- * straight through to the facet's own `fetchPage`, which already forwards its params verbatim
- * into the facet's canonical reader (fetchEntityListByType / fetchTopicCardList /
- * fetchBookEntities — see EXPLORER_FACETS above). This coordinator never inspects `q` itself,
- * never knows table names, and never filters a fetched page client-side — each reader decides
- * how (or whether) `q` narrows its own bounded source-side query, BEFORE pagination.
+ * `q` (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463) and
+ * `number`/`from`/`to` (UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS, work_log
+ * dispatch 0302a83d) are all passed straight through to the facet's own `fetchPage`, which
+ * already forwards its params verbatim into the facet's canonical reader (fetchEntityListByType /
+ * fetchTopicCardList / fetchBookEntities — see EXPLORER_FACETS above). This coordinator never
+ * inspects any of them, never knows table names, and never filters a fetched page client-side —
+ * each reader decides how (or whether) each param narrows its own bounded source-side query,
+ * BEFORE pagination. A facet whose reader doesn't destructure `number`/`from`/`to` (every facet
+ * but topic today) simply ignores them — harmless, no behavior change, no new coordinator logic
+ * needed per-facet (facetSupportsDimension above is what keeps the UI honest about this, not this
+ * function).
  */
-export async function fetchExplorerFacetPage(facetKey, { q = null, limit = 24, offset = 0 } = {}) {
+export async function fetchExplorerFacetPage(facetKey, { q = null, number = null, from = null, to = null, limit = 24, offset = 0 } = {}) {
   const facet = getExplorerFacet(facetKey);
   if (!facet) return null;
-  const raw = await facet.fetchPage({ q, limit, offset });
+  const raw = await facet.fetchPage({ q, number, from, to, limit, offset });
   const { rows, hasMore } = normalizePageResult(raw, limit);
   return { cards: rows.map(facet.toCard), hasMore };
 }
@@ -164,6 +183,12 @@ export async function fetchExplorerFacetPage(facetKey, { q = null, limit = 24, o
 // Slice 7 (UNIVERSAL_EXPLORER_V1_SLICE7_SEARCH_COMPOSITION, work_log dispatch c0612463) adds `q`
 // as a THIRD first-class URL-state field, trimmed and normalized to null when empty — exactly
 // reopenable/round-trippable through explorerUrlSearch below, same contract as facet/offset.
+// Slice 8 (UNIVERSAL_EXPLORER_V1_SLICE8_COMBINABLE_DIMENSION_FILTERS, work_log dispatch
+// 0302a83d) adds `number`/`from`/`to` the SAME way — explicit, stable, human-readable URL keys
+// (not opaque JSON), trimmed strings only. This layer stays deliberately dumb: it does NOT
+// validate a number is really numeric or a date is really a real date — that fail-closed
+// validation lives at the single source of truth (topicConvergence.buildTopicListQuery), exactly
+// where `q`'s own wildcard-stripping already lives, not duplicated here.
 export function parseExplorerUrlState(searchParams, fallbackFacet) {
   const get = (key) => (typeof searchParams?.get === "function" ? searchParams.get(key) : searchParams?.[key]);
   const rawFacet = clean(get("facet"));
@@ -171,15 +196,24 @@ export function parseExplorerUrlState(searchParams, fallbackFacet) {
   const rawOffset = Number(get("offset"));
   const offset = Number.isFinite(rawOffset) && rawOffset > 0 ? Math.floor(rawOffset) : 0;
   const q = clean(get("q")) || null;
-  return { facet, offset, q };
+  const number = clean(get("number")) || null;
+  const from = clean(get("from")) || null;
+  const to = clean(get("to")) || null;
+  return { facet, offset, q, number, from, to };
 }
 
-export function explorerUrlSearch({ facet, offset = 0, q = null } = {}) {
+export function explorerUrlSearch({ facet, offset = 0, q = null, number = null, from = null, to = null } = {}) {
   const params = new URLSearchParams();
   const safeFacet = clean(facet);
   if (safeFacet) params.set("facet", safeFacet);
   const safeQ = clean(q);
   if (safeQ) params.set("q", safeQ);
+  const safeNumber = clean(number);
+  if (safeNumber) params.set("number", safeNumber);
+  const safeFrom = clean(from);
+  if (safeFrom) params.set("from", safeFrom);
+  const safeTo = clean(to);
+  if (safeTo) params.set("to", safeTo);
   const safeOffset = Number.isFinite(Number(offset)) ? Math.max(0, Math.floor(Number(offset))) : 0;
   if (safeOffset > 0) params.set("offset", String(safeOffset));
   const qs = params.toString();
