@@ -5,6 +5,71 @@ One canonical visual language for the whole product. New UI must reuse tokens in
 
 This contract is forward-looking: it governs new surfaces and surfaces that enter an explicit redesign pass. It does **not** authorize a repository-wide visual migration of legacy pages.
 
+## Immersive quality floor — minimum standard for redesigned public surfaces
+SOD1820 is not a flat utility site. New or explicitly redesigned public surfaces must feel authored, spatial and alive while remaining fast, readable and truth-safe.
+
+**Minimum visual bar (default target for redesigned public UI):**
+- clear visual hierarchy: brand/context → primary purpose → action → secondary navigation;
+- layered depth rather than a flat card dump: environment/background, content plane, accents, and interaction states must read as distinct layers;
+- restrained motion that carries atmosphere or state (glow, orbit, fade, pulse, parallax-light), never motion for its own sake;
+- meaningful gold/cosmic visual identity for public SOD1820 surfaces, using canonical theme tokens rather than page-local hex palettes;
+- one intentional focal moment per major surface (hero, research object, build state, discovery axis, etc.), not ten competing bright elements;
+- responsive composition must be designed for mobile first-class use, not merely stacked desktop cards;
+- decorative effects must degrade gracefully under `prefers-reduced-motion`, low-power/mobile contexts and narrow viewports;
+- visual richness must never imply epistemic truth, verification or importance unless an existing semantic badge/owner says so.
+
+**What this floor forbids:**
+- plain unstyled grids as the final redesigned state;
+- repeated generic rectangles with equal visual weight everywhere;
+- neon/brand-breaking CTAs that overpower the site palette unless their semantic role explicitly requires that color;
+- generated background imagery used as a substitute for real responsive layout;
+- local one-off animation systems when a shared primitive can serve the same role;
+- WebGL/3D simply to make a surface look “advanced”.
+
+### Rendering / richness tiers
+These tiers describe **rendering cost and visual depth**, not product truth, access tier or feature importance.
+
+**Tier A — Canonical Rich UI (default minimum for redesigned public surfaces)**
+- HTML/CSS/SVG + theme tokens + restrained CSS motion.
+- Suitable for most pages, cards, hubs, footers, navigation, onboarding and account/public surfaces.
+- Target: premium, immersive feel with negligible runtime cost beyond normal DOM/CSS.
+
+**Tier B — Dynamic Canvas / lightweight spatial layer**
+- Canvas 2D / OffscreenCanvas where justified, optional low-density particles/orbits/field visualizations, still DOM-first for readable UI.
+- Use when many decorative or semantic moving elements would be inefficient as DOM/SVG nodes.
+- Must pause when offscreen/hidden and provide a static/reduced fallback.
+
+**Tier C — WebGL / WebGPU spatial experience**
+- GPU-rendered scenes, dense graphs/glyphs, spatial research, 3D journeys and visualizations.
+- Reserved for surfaces where spatial interaction or data density is itself the product capability.
+- Never required for ordinary content, settings, forms, lists, standard hubs, newsletter/follow UI, or a footer.
+- Must be lazy-loaded, route-scoped, bounded, lifecycle-cleaned, and have a non-WebGL fallback for unsupported/low-power contexts.
+
+**Tier D — XR / AR / VR**
+- Future experience renderer over the same Research Reality; never a second truth or graph.
+- Only after Tier C semantics/performance are proven on the target capability.
+
+**Default rule:** use the lowest tier that fully delivers the intended experience. Visual ambition is mandatory; expensive rendering is not.
+
+## RTL alignment / navigation law
+- Hebrew/RTL text groups, navigation lists, menu groups and link stacks align to the logical start (`text-align:start`; in RTL this is the right edge).
+- A grid or group of columns may be centered as a composition, but the text inside each Hebrew column remains start-aligned for scanability.
+- Hero statements, brand marks, numeric focal points and intentionally symmetric visual moments may be centered.
+- Do not center ordinary Hebrew link lists merely for decoration.
+- On narrow mobile widths, prefer fewer columns or stacked start-aligned groups over squeezed multi-column navigation.
+- Use logical CSS properties (`inset-inline-*`, `margin-inline-*`, `text-align:start/end`) rather than duplicating left/right rules when possible.
+
+## Site chrome / pinned-header origin law
+- The sticky global Navbar is part of the product viewport. It is the visual origin of page content, not an accidental layer floating above unrelated coordinates.
+- Any sticky/fixed page control, drawer edge, gallery/lightbox toolbar, modal close control, anchor target or floating panel that must remain visible near the top must consume one canonical site-header offset/token; it must not guess `top: 20/66/70/72/74/...` locally.
+- Normal in-flow page content continues below the sticky Navbar naturally. Additional top padding must not be added blindly just because the Navbar is sticky.
+- Body-portaled overlays must make an explicit choice:
+  - **chrome-aware overlay**: begins below the site header / keeps all close and primary controls below the canonical header offset;
+  - **true immersive overlay**: may cover the header only when it intentionally owns the whole viewport, has a higher stacking layer, and keeps close/escape controls inside safe-area + chrome-safe bounds.
+- Gallery/lightbox close controls are never allowed under the Navbar, browser safe area, or another global launcher.
+- Anchor scrolling must respect the same canonical header offset via `scroll-margin-top`/`scroll-padding-top` where relevant.
+- Header height/offset is one shared layout metric owned by the global layout/chrome layer; changing Navbar height requires updating the shared metric, not dozens of page-local constants.
+
 ## Typography law
 - `F.ui`: navigation, controls, section titles, labels and system headings.
 - `F.body`: paragraphs, explanations and long-form reading.
@@ -46,6 +111,7 @@ This contract is forward-looking: it governs new surfaces and surfaces that ente
 - Desktop/mobile behavior must be explicit.
 - Global banners/tickers are exceptional; construction status belongs in the home build-map.
 - New visual primitives should be added to the theme/design system before being copied across pages.
+- Any Tier B/C visual primitive intended for reuse across more than one surface must have one shared owner/component and one lifecycle/performance policy; do not duplicate animation/render loops per page.
 
 ## Existing-capability discovery law
 Before adding a new cross-surface Experience capability, verify whether a canonical or scoped-canonical primitive already exists and extend it instead of rebuilding it.
