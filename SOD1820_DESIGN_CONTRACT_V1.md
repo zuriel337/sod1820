@@ -92,6 +92,15 @@ These tiers describe **rendering cost and visual depth**, not product truth, acc
 - Each track must explain in ordinary Hebrew what the visitor will actually receive.
 - Internal names such as Raziel or One Tree must always be accompanied by a plain-language explanation.
 
+## Home / internal-footer ownership law
+- **Home owns the primary Cosmic Gateway and the full-strength construction/future story.** The home experience may combine brand, current build state, “what is being built now”, and future gateways such as Family Tree and future spatial/3D journeys.
+- **Internal pages own the compact Royal-Cosmic System Signature footer.** It reminds the visitor that the current page belongs to a larger living system, but it must not repeat the Home hero at full strength.
+- Do not duplicate the same large build percentage / future-roadmap / cosmic hero narrative at both the top of Home and the bottom of Home. Home may use a reduced footer containing navigation, social/WhatsApp, community/about/privacy and other compact meta links.
+- Internal-page Footer is Tier A by default. Home Cosmic Gateway is Tier B by default and may use a **bounded Tier C progressive enhancement** only when the spatial scene itself adds product meaning and has a Tier A/B fallback.
+- Home is a gateway into the same Research Reality, not a decorative fake universe. If it previews real entities/relations, keep the initial semantic payload deliberately small and read-only; never load the full graph into the hero.
+- Future labels such as `עץ המשפחה`, `מסעות בתוך הצופן · תלת־ממד`, and `מסעות בתוך הרמזים · תלת־ממד` may be shown as `בקרוב` only when their future/not-yet-live state is explicit. Visual prominence must not imply implementation or release.
+- This visual ownership rule does not change product priority: the Universal Explorer/World foundations remain upstream; richer Spatial/3D is a later projection per the Master Roadmap.
+
 ## Background law
 - Background image/environment and decorative text are separate layers.
 - The canonical dark environment may use the existing city/cosmic background (`SpaceBackground`); a page must not add decorative Hebrew letters, verses or “matrix rain” merely as wallpaper.
