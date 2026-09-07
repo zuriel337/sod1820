@@ -756,7 +756,7 @@ function CalcTab({ initial, seed }) {
     <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }} className="bm-calc">
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ color: L.sub, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 0 16px" }}>
-          מחשבון גימטריה מלא — כל 19 השיטות ופירוט אות-אות. לחיצה על שיטה פותחת את דף המספר, שם נמצא העומק: ביטויים שווים, צירי התכנסות וכל ההצלבות.
+          מחשבון גימטריה מלא — כל השיטות הזמינות ופירוט אות-אות. לחיצה על שיטה פותחת את דף המספר, שם נמצא העומק: ביטויים שווים, צירי התכנסות וכל ההצלבות.
         </p>
         <GematriaCalculator seed={seed} onResult={onResult} />
         {/* ➕ הוסף למחקר · ⭐ שמור · 🔗 שתף — תמיד גלוי (מעומעם כשהשדה ריק) כדי שיראו שאפשר לשמור */}
@@ -820,7 +820,7 @@ function CalcTab({ initial, seed }) {
   );
 }
 
-// 📐 ספריית שיטות הגימטריה — הסבר + דוגמה חיה לכל אחת מ-19 השיטות.
+// 📐 ספריית שיטות הגימטריה — הסבר + דוגמה חיה לכל אחת מהשיטות הזמינות.
 const METHOD_INFO = {
   "רגיל": { what: "השיטה הבסיסית של הגימטריה — היסוד של כולן.", how: "כל אות מקבלת את ערכה המספרי (א=1, ב=2 … י=10, כ=20 … ת=400), וסוכמים." },
   "מילוי": { what: "ערך שֵם האות המלא — הרובד הפנימי, ה'נשמה' של האות.", how: "כותבים כל אות במילואה (א→אָלֶף, ה→הֵי) ומחשבים את גימטריית השם המלא. למשל א = אלף = 111." },
@@ -924,7 +924,7 @@ function HowToGuide() {
         </div>
       </div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "12px 0 0" }}>
-        זו השיטה הבסיסית ("רגיל"). למטה — עוד 19 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
+        זו השיטה הבסיסית ("רגיל"). למטה — עוד שיטות זמינות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
       </p>
     </div>
   );
@@ -934,7 +934,7 @@ function MethodsTab() {
     <div>
       <HowToGuide />
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
-        כל שיטה חושפת רובד אחר באותו ביטוי. הנה כל 20 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
+        כל שיטה חושפת רובד אחר באותו ביטוי. הנה כל שיטות החישוב הזמינות, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
         {[...METHODS, ...DEPTH_METHODS].map(m => {
