@@ -7,23 +7,26 @@
 // Existing owners cross-walked live before this slice:
 // - Supabase Auth session / AuthContext.verified => registered identity
 // - users.role / AuthContext.isAdmin => admin identity
-// - users.tier / AuthContext.isMember => member identity recognition
+// - users.tier / AuthContext.isMember => legacy/current member identity recognition
 // - subscribe_gate_law => free email-verified gate, explicitly NOT paid membership
-// Paid entitlement lifecycle is not live enough today to authorize new Explorer data/tools.
+// - platform_tiers_law => future 6-level platform direction, not blindly collapsed into isMember
+// - subscription_architecture => planned_not_built paid lifecycle
+//
 // Therefore member/admin identity may be represented here, but does NOT itself unlock a new
-// Explorer reader, truth state, publication state, or previously-public content.
+// Explorer reader, truth state, publication state, or previously-public content. In particular,
+// "member" is NOT asserted to equal any future Premium tier from platform_tiers_law.
 
 export const EXPLORER_DEPTH = Object.freeze({
   PUBLIC: "L0_PUBLIC",
   REGISTERED: "L1_REGISTERED",
-  PREMIUM: "L2_PREMIUM",
-  ADMIN: "L3_ADMIN",
+  MEMBER_RECOGNIZED: "MEMBER_IDENTITY_RECOGNIZED",
+  ADMIN: "ADMIN_IDENTITY_RECOGNIZED",
 });
 
 const COPY = Object.freeze({
   [EXPLORER_DEPTH.PUBLIC]: "עומק ציבורי · כל מה שכבר ציבורי נשאר פתוח",
   [EXPLORER_DEPTH.REGISTERED]: "משתמש רשום · זהות קיימת בלי נעילת תוכן חדשה",
-  [EXPLORER_DEPTH.PREMIUM]: "בן ההיכל מזוהה · עומק Premium נוסף טרם מופעל ב־Explorer",
+  [EXPLORER_DEPTH.MEMBER_RECOGNIZED]: "זהות Member קיימת מזוהה · אינה מתורגמת כאן אוטומטית ל־Premium",
   [EXPLORER_DEPTH.ADMIN]: "מנהל מזוהה · ה־Explorer לא טוען כאן מידע ניהולי נוסף",
 });
 
@@ -35,7 +38,7 @@ export function resolveExplorerDepth({ verified = false, isMember = false, isAdm
   const depth = isAdmin
     ? EXPLORER_DEPTH.ADMIN
     : isMember
-      ? EXPLORER_DEPTH.PREMIUM
+      ? EXPLORER_DEPTH.MEMBER_RECOGNIZED
       : verified
         ? EXPLORER_DEPTH.REGISTERED
         : EXPLORER_DEPTH.PUBLIC;
@@ -54,8 +57,11 @@ export function resolveExplorerDepth({ verified = false, isMember = false, isAdm
     // Slice 6 does not invent a registered-only Explorer dataset/tool just to fill L1.
     registeredIdentity: Boolean(verified || isMember || isAdmin),
 
-    // Explicitly FALSE until a real existing owner-backed capability is cross-walked and reused.
-    // Recognizing users.tier='member' is not the same thing as proving paid entitlement lifecycle.
+    // Identity recognition only; NEVER interpreted here as a paid/platform entitlement.
+    memberIdentityRecognized: Boolean(isMember),
+
+    // Explicitly FALSE until a real existing owner-backed paid capability is cross-walked and reused.
+    // platform_tiers_law remains future direction; subscription_architecture remains planned_not_built.
     premiumDepthEnabled: false,
 
     // Admin identity is real, but this slice does not add governance/provenance readers or expose
