@@ -2,7 +2,7 @@ import {
   fetchEntityListByType,
   EXPLORER_LIST_MODE_TYPES,
 } from "./entityHubProjection.js";
-import { fetchTopicCardList } from "./topicConvergence.js";
+import { fetchTopicCardList, fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { fetchBookEntities } from "./bookResearchProjection.js";
 
 // ── UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_FACET_COMPOSITION (work_log dispatch 0b70e0f9) ──
@@ -109,18 +109,57 @@ export const EXPLORER_FACETS = Object.freeze([
     label: "התכנסויות",
     fetchPage: (params) => fetchTopicCardList(params),
     toCard: topicRowToCard,
+    // fetchDetail: UNIVERSAL_EXPLORER_V1_SLICE4_DETAIL_COMPOSITION_REUSE (work_log dispatch
+    // 6871d978). Topic is the ONE facet with a genuinely reusable, already-composable detail
+    // adapter+component pair: fetchCanonicalTopicConvergenceFinding(slug) is the SAME canonical,
+    // bounded, single-item Universal Finding reader the rest of the codebase already uses, and
+    // TopicConvergenceContent.jsx is an already-exported, host-agnostic renderer explicitly
+    // documented as mountable "by the legacy /topic surface... and by the P1 Universal Entity
+    // Hub... with the same props". Called ONLY on explicit per-card expand, never on list load —
+    // no new truth computation, no new component, no per-row fetch.
+    fetchDetail: (card) => fetchCanonicalTopicConvergenceFinding(card?.refId),
   }),
   Object.freeze({
     key: "book",
     label: "ספרים",
     fetchPage: (params) => fetchBookEntities(params),
     toCard: bookRowToCard,
+    // No fetchDetail: reuses Book Research Projection's existing behavior (its own hub page) as
+    // the detail target — see facetHasDetail below for why this, and every node-backed facet, is
+    // NOT given a fabricated inline detail in v1.
   }),
 ]);
 
 export function getExplorerFacet(key) {
   const safeKey = clean(key);
   return EXPLORER_FACETS.find((f) => f.key === safeKey) || null;
+}
+
+// Slice 4 scoping decision (dispatch 6871d978): every node-backed facet (number, entity, event,
+// year, word, phrase, foreign_word, language_bridge) and book has NO extractable, composable
+// detail-panel component today — the closest equivalent (EntityHubPreviewPageFunctional's
+// equality-row rendering) is ~500 lines of full-page JSX with its own Research Context/route
+// side effects, not a host-agnostic panel like TopicConvergenceContent. Building a new one now
+// would be inventing a new abstraction / a second, drifting renderer of the same truth rows —
+// exactly what the dispatch says not to do. Per the dispatch's own anticipated fallback ("no
+// mature detail adapter → link to the existing detail route, do NOT fabricate a pseudo-detail
+// body"), these facets stay route-only in v1: facetHasDetail is the single place the UI checks
+// before offering an inline "expand" affordance, so this stays a one-line decision, not a
+// per-component special case.
+export function facetHasDetail(key) {
+  return typeof getExplorerFacet(key)?.fetchDetail === "function";
+}
+
+/**
+ * Fetches the on-demand detail (a Universal Finding) for ONE card of a facet that supports it.
+ * Returns null for an unknown facet key or a facet with no fetchDetail — never throws, never
+ * fabricates a detail body for a facet that doesn't have a real adapter (facetHasDetail is the
+ * one place the UI needs to check before calling this at all).
+ */
+export async function fetchExplorerFacetDetail(facetKey, card) {
+  const facet = getExplorerFacet(facetKey);
+  if (!facet || typeof facet.fetchDetail !== "function") return null;
+  return facet.fetchDetail(card);
 }
 
 // fetchBookEntities() returns a bare array (no hasMore), unlike the two Slice-1 list functions —

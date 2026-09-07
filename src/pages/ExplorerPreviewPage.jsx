@@ -3,12 +3,16 @@ import { Link, useSearchParams } from "react-router-dom";
 import {
   EXPLORER_FACETS,
   fetchExplorerFacetPage,
+  fetchExplorerFacetDetail,
+  facetHasDetail,
   parseExplorerUrlState,
   explorerUrlSearch,
   explorerReopenWindow,
   explorerCardSelection,
 } from "../lib/research/explorerFacets.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { usePalette } from "../lib/palette.js";
+import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 
 // 🧪 Universal Explorer — INTERNAL PREVIEW, Slice 2 (UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_
 // FACET_COMPOSITION, work_log dispatch 0b70e0f9) + Slice 3 (UNIVERSAL_EXPLORER_V1_SLICE3_
@@ -35,6 +39,17 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 // original browsing session (that was the prior, incorrect "replay" contract, which silently
 // truncated past ~76 accumulated rows). Clicking "עוד ←" afterwards keeps accumulating forward
 // from that window exactly as during live browsing.
+//
+// Slice 4 (UNIVERSAL_EXPLORER_V1_SLICE4_DETAIL_COMPOSITION_REUSE, work_log dispatch 6871d978) adds
+// ON-DEMAND detail composition for facets that have a real, already-composable detail adapter —
+// today only "topic" (facetHasDetail/fetchExplorerFacetDetail wrap the SAME
+// fetchCanonicalTopicConvergenceFinding + TopicConvergenceContent already used by /topic/:slug).
+// Expand happens on ONE card at a time, on explicit click only — never per row on list load, never
+// more than one bounded fetch in flight. Every other facet (all node-backed types + book) has no
+// composable detail panel yet — per the dispatch's own anticipated fallback, they stay route-only
+// (their card's existing click-through to /number/:n, entity-hub-preview, or /book/:slug), rather
+// than fabricating a pseudo-detail body or duplicating EntityHubPreviewPageFunctional's page-level
+// equality-row rendering into a second, drifting renderer of the same truth.
 
 const PAGE_SIZE = 24;
 
@@ -91,34 +106,64 @@ function FacetSwitcher({ facets, activeKey, onSelect }) {
   );
 }
 
-function FacetCard({ item, onLeave }) {
+// The navigable title/subtitle stays a <Link> (unchanged click-through + onLeave/returnTo
+// behavior from Slice 3). "expandable" adds a SIBLING button — not nested inside the anchor, so
+// expand/collapse never triggers navigation — shown only for a facet with a real detail adapter
+// (facetHasDetail; today: topic only).
+function FacetCard({ item, onLeave, expandable, expanded, onToggleDetail }) {
   return (
-    <Link
-      to={item.href}
-      onClick={() => onLeave?.(item)}
-      style={{
-        ...card,
-        display: "block",
-        padding: 14,
-        textDecoration: "none",
-        color: C.ink,
-        minWidth: 0,
-      }}
-    >
-      <div style={{ fontWeight: 900, fontSize: 16, lineHeight: 1.35, overflowWrap: "anywhere" }}>{item.label}</div>
-      {item.sub ? <div style={{ color: C.soft, fontSize: 12.5, marginTop: 6, lineHeight: 1.6 }}>{item.sub}</div> : null}
-    </Link>
+    <div style={{ ...card, padding: 14, minWidth: 0 }}>
+      <Link to={item.href} onClick={() => onLeave?.(item)} style={{ display: "block", textDecoration: "none", color: C.ink }}>
+        <div style={{ fontWeight: 900, fontSize: 16, lineHeight: 1.35, overflowWrap: "anywhere" }}>{item.label}</div>
+        {item.sub ? <div style={{ color: C.soft, fontSize: 12.5, marginTop: 6, lineHeight: 1.6 }}>{item.sub}</div> : null}
+      </Link>
+      {expandable ? (
+        <button
+          type="button"
+          onClick={() => onToggleDetail?.(item)}
+          style={{
+            cursor: "pointer", marginTop: 10, padding: "4px 10px", borderRadius: 999,
+            border: `1px solid ${C.gold2}`, background: expanded ? C.gold : "transparent",
+            color: expanded ? C.onGold : C.gold, fontWeight: 700, fontSize: 12,
+          }}
+        >
+          {expanded ? "סגור פרטים ▲" : "הצג פרטים ▾"}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+// Renders exactly what /topic/:slug itself renders (same finding, same component, same palette
+// hook) — the Explorer adds no truth here, only a bounded on-demand fetch + an inline mount point.
+function DetailPanel({ detail, palette, onLeave, onClose }) {
+  return (
+    <div style={{ ...card, padding: 16, marginTop: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <div style={{ color: C.gold, fontSize: 11, letterSpacing: 1, fontWeight: 900 }}>פרטים מלאים</div>
+        <button type="button" onClick={onClose} style={{ cursor: "pointer", background: "transparent", border: "none", color: C.soft, fontSize: 13 }}>✕ סגור</button>
+      </div>
+      {detail.loading ? <div style={{ color: C.soft }}>טוען פרטים…</div> : null}
+      {detail.error ? <div style={{ color: "#f28b82" }}>שגיאה בטעינת הפרטים: {String(detail.error.message || detail.error)}</div> : null}
+      {!detail.loading && !detail.error && detail.finding ? (
+        <TopicConvergenceContent finding={detail.finding} palette={palette} onLeave={onLeave} />
+      ) : null}
+      {!detail.loading && !detail.error && !detail.finding ? <div style={{ color: C.soft }}>אין פרטים זמינים עבור פריט זה.</div> : null}
+    </div>
   );
 }
 
 const DEFAULT_FACET_KEY = EXPLORER_FACETS[0]?.key || "number";
+const EMPTY_DETAIL = Object.freeze({ key: null, loading: false, finding: null, error: null });
 
 export default function ExplorerPreviewPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const research = useResearch();
+  const palette = usePalette();
   const urlState = useMemo(() => parseExplorerUrlState(searchParams, DEFAULT_FACET_KEY), [searchParams]);
   const activeKey = urlState.facet || DEFAULT_FACET_KEY;
   const [state, setState] = useState({ loading: true, cards: [], hasMore: false, error: null, offset: 0 });
+  const [detail, setDetail] = useState(EMPTY_DETAIL);
 
   // replace=true always fetches exactly the ONE bounded window {offset,limit} and replaces the
   // grid with it (used for both a fresh facet switch — offset 0 — and a page-window reopen — any
@@ -147,6 +192,7 @@ export default function ExplorerPreviewPage() {
   useEffect(() => {
     const win = explorerReopenWindow(urlState.offset, PAGE_SIZE);
     loadPage(activeKey, win.offset, true, win.limit);
+    setDetail(EMPTY_DETAIL); // a stale expanded detail from a prior facet/page has no meaning here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeKey, urlState.offset]);
 
@@ -175,25 +221,34 @@ export default function ExplorerPreviewPage() {
     loadPage(activeKey, nextOffset, false);
   };
 
-  // A card click leaves the Explorer for the entity's own page — record the exact facet+offset as
-  // returnTo so BottomBar's existing "חזרה" reopens this same accumulated page, mirroring
-  // leaveHub/leaveTopic verbatim.
-  const onLeaveCard = (card) => {
+  // Shared by both ways of leaving the Explorer — a card click (which navigates to the entity's
+  // own page) and a link followed from inside an expanded detail panel (TopicConvergenceContent's
+  // own onLeave hook, e.g. a number chip inside the topic body) — records the exact facet+offset
+  // as returnTo so BottomBar's existing "חזרה" reopens this same page, mirroring leaveHub/leaveTopic.
+  const recordReturnTo = (lens, selection) => {
     if (!activeFacet) return;
     const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset })}`;
     const subject = { id: activeKey, type: "explorer-facet", label: activeFacet.label, href: explorerHref };
-    research.updateResearchContext?.({
-      lens: activeFacet.key,
-      selection: explorerCardSelection(card),
-      returnTo: { href: explorerHref, label: activeFacet.label, subject },
-    });
+    research.updateResearchContext?.({ lens, selection, returnTo: { href: explorerHref, label: activeFacet.label, subject } });
+  };
+  const onLeaveCard = (card) => recordReturnTo(activeFacet?.key, explorerCardSelection(card));
+
+  // Slice 4: expand/collapse ONE card's detail at a time — a second click on the same card
+  // collapses it; switching cards re-fetches for the new one. Only called when facetHasDetail is
+  // true (topic today), so this never fires for a facet with no real detail adapter.
+  const toggleDetail = (item) => {
+    if (detail.key === item.id) { setDetail(EMPTY_DETAIL); return; }
+    setDetail({ key: item.id, loading: true, finding: null, error: null });
+    fetchExplorerFacetDetail(activeKey, item)
+      .then((finding) => setDetail((prev) => (prev.key === item.id ? { key: item.id, loading: false, finding, error: null } : prev)))
+      .catch((error) => setDetail((prev) => (prev.key === item.id ? { key: item.id, loading: false, finding: null, error } : prev)));
   };
 
   return (
     <main style={page}>
       <div style={shell}>
         <div style={{ color: C.gold, fontSize: 10.5, letterSpacing: 1.8, fontWeight: 900 }}>
-          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 3)
+          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 4)
         </div>
         <h1 style={{ margin: "8px 0 4px", fontSize: "clamp(28px,5vw,42px)", color: C.ink }}>
           {activeFacet?.label || "עדשה"}
@@ -218,8 +273,19 @@ export default function ExplorerPreviewPage() {
           className="expl-grid"
           style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12, marginTop: 16 }}
         >
-          {state.cards.map((item) => <FacetCard key={`${item.facet}:${item.id}`} item={item} onLeave={onLeaveCard} />)}
+          {state.cards.map((item) => (
+            <FacetCard
+              key={`${item.facet}:${item.id}`}
+              item={item}
+              onLeave={onLeaveCard}
+              expandable={facetHasDetail(activeKey)}
+              expanded={detail.key === item.id}
+              onToggleDetail={toggleDetail}
+            />
+          ))}
         </div>
+
+        {detail.key ? <DetailPanel detail={detail} palette={palette} onLeave={recordReturnTo} onClose={() => setDetail(EMPTY_DETAIL)} /> : null}
 
         {state.loading ? <div style={{ marginTop: 16, color: C.soft }}>טוען…</div> : null}
 

@@ -15,6 +15,8 @@ import {
   explorerUrlSearch,
   explorerReopenWindow,
   explorerCardSelection,
+  facetHasDetail,
+  fetchExplorerFacetDetail,
 } from "./explorerFacets.js";
 import { EXPLORER_LIST_MODE_TYPES } from "./entityHubProjection.js";
 
@@ -224,4 +226,38 @@ test("explorerCardSelection: a card with no refId yields no selection — never 
   assert.equal(explorerCardSelection({ facet: "number", refId: null }), null);
   assert.equal(explorerCardSelection({ facet: "number", refId: "" }), null);
   assert.equal(explorerCardSelection(null), null);
+});
+
+// ── Slice 4 (UNIVERSAL_EXPLORER_V1_SLICE4_DETAIL_COMPOSITION_REUSE, work_log dispatch 6871d978):
+// facetHasDetail / fetchExplorerFacetDetail — proves the "no fabricated detail" contract at the
+// registry level: ONLY topic (which has a genuinely reusable adapter+component pair) gets an
+// on-demand detail path; every node-backed facet and book stay route-only, exactly as the
+// dispatch's own anticipated fallback requires. No network is exercised — fetchExplorerFacetDetail
+// short-circuits to null before ever calling a facet's fetchDetail when there isn't one. ─────────
+
+test("facetHasDetail: true only for topic — no other facet has a fabricated inline detail", () => {
+  const withDetail = EXPLORER_FACETS.filter(f => facetHasDetail(f.key)).map(f => f.key);
+  assert.deepEqual(withDetail, ["topic"]);
+});
+
+test("facetHasDetail: false for an unknown/empty key, never throws", () => {
+  assert.equal(facetHasDetail("verse"), false);
+  assert.equal(facetHasDetail(""), false);
+  assert.equal(facetHasDetail(), false);
+});
+
+test("EXPLORER_FACETS: exactly one entry (topic) exposes a fetchDetail function; every other entry has none", () => {
+  const withFetchDetail = EXPLORER_FACETS.filter(f => typeof f.fetchDetail === "function").map(f => f.key);
+  assert.deepEqual(withFetchDetail, ["topic"]);
+});
+
+test("fetchExplorerFacetDetail: resolves to null for an unknown facet key — never throws, no network", async () => {
+  assert.equal(await fetchExplorerFacetDetail("rule", { refId: "x" }), null);
+  assert.equal(await fetchExplorerFacetDetail("", { refId: "x" }), null);
+});
+
+test("fetchExplorerFacetDetail: resolves to null for a real facet with no fetchDetail (e.g. number) — never fabricates one, no network", async () => {
+  assert.equal(await fetchExplorerFacetDetail("number", { refId: "1111" }), null);
+  assert.equal(await fetchExplorerFacetDetail("book", { refId: "sefer-a" }), null);
+  assert.equal(await fetchExplorerFacetDetail("entity", { refId: "gw:abc" }), null);
 });
