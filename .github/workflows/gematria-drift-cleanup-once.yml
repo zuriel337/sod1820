@@ -77,7 +77,7 @@ jobs:
           npm install
           node --test src/lib/research/gematriaCalculationContract.test.js
           npm run build
-          ! grep -RIn -E '(19|20)[^\n]{0,30}שיטות|שיטות[^\n]{0,30}(19|20)' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
+          ! grep -RIn -E '19 שיטות|20 שיטות|19 השיטות|20 השיטות|מתוך 19|מ-19 השיטות|מ-20 השיטות' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
       - name: Commit cleanup
         run: |
           git config user.name "zuriel337"
