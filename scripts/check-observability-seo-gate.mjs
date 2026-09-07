@@ -27,7 +27,21 @@
 // It does NOT check analytics/interaction instrumentation (that requires judgment about what a
 // component's "core action" is — see the human-read audit for that). Run manually for now:
 //   node scripts/check-observability-seo-gate.mjs
-// Not wired into CI/build by this change — wiring it up is a separate decision for ZURIEL/GPT.
+// Wired into CI via .github/workflows/observability-seo-gate.yml (SOD1820_OBSERVABILITY_SEO_BUILD_GATE_CI).
+//
+// BASELINE (CI_BASELINE_RECONCILIATION, 2026-09-07): gap-DETECTION logic below (everything through
+// building `gaps`/`skipped`) is UNCHANGED from the original script — this section only adds
+// reviewable, explicit reporting on top of it, per instruction not to touch checker semantics:
+//   - A detected gap whose (path, component) exact pair appears in
+//     scripts/observability-seo-gate-baseline.json is a known, already-reviewed debt: printed for
+//     visibility, does NOT fail the process.
+//   - Any detected gap NOT in the baseline is NEW: printed, and DOES fail the process (exit 1).
+//   - A baseline entry that no longer matches a detected gap is RESOLVED: printed as informational
+//     ("remove me"), does NOT fail — but leaving it in place also does not re-allow a future
+//     regression on that route once removed, since matching is exact (path AND component), not a
+//     wildcard/prefix — the moment the entry is deleted, that route is fully back under NEW-gap
+//     rules with no special-casing needed here.
+// No continue-on-error, no prefix/regex suppression: baseline membership is an exact-pair lookup.
 
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -105,11 +119,41 @@ for (const { path: routePath, component } of routes) {
   gaps.push({ routePath, component, file: path.relative(ROOT, file) });
 }
 
-console.log(`SEO/Indexability Build Gate — ${routes.length} routes scanned, ${gaps.length} gap(s), ${skipped.length} unresolved.\n`);
+// --- 4. Baseline partitioning (reporting-only — does not touch gap detection above) ---
+const BASELINE_PATH = path.join(ROOT, "scripts/observability-seo-gate-baseline.json");
+const baselineKey = (r) => `${r.path} ${r.component}`;
+let baselineEntries = [];
+if (existsSync(BASELINE_PATH)) {
+  try {
+    baselineEntries = JSON.parse(read(BASELINE_PATH)).routes || [];
+  } catch (e) {
+    console.error(`⚠️  Could not parse ${path.relative(ROOT, BASELINE_PATH)}: ${e.message}`);
+    process.exitCode = 1;
+  }
+}
+const baselineSet = new Set(baselineEntries.map(baselineKey));
+const gapKey = (g) => `${g.routePath} ${g.component}`;
 
-if (gaps.length) {
-  console.log("❌ Routes with NO ROUTE_META entry and NO applySeo() call (stale-metadata risk):");
-  for (const g of gaps) console.log(`   ${g.routePath}  →  ${g.component}  (${g.file})`);
+const knownGaps = gaps.filter((g) => baselineSet.has(gapKey(g)));
+const newGaps = gaps.filter((g) => !baselineSet.has(gapKey(g)));
+const detectedGapKeys = new Set(gaps.map(gapKey));
+const resolvedBaseline = baselineEntries.filter((r) => !detectedGapKeys.has(baselineKey(r)));
+
+console.log(`SEO/Indexability Build Gate — ${routes.length} routes scanned, ${gaps.length} gap(s) (${knownGaps.length} baseline, ${newGaps.length} new), ${skipped.length} unresolved.\n`);
+
+if (newGaps.length) {
+  console.log("❌ NEW gaps (not in baseline — FAIL):");
+  for (const g of newGaps) console.log(`   ${g.routePath}  →  ${g.component}  (${g.file})`);
+  console.log("");
+}
+if (knownGaps.length) {
+  console.log("⚠️  BASELINE gaps (known, reviewed, allowed — see scripts/observability-seo-gate-baseline.json):");
+  for (const g of knownGaps) console.log(`   ${g.routePath}  →  ${g.component}  (${g.file})`);
+  console.log("");
+}
+if (resolvedBaseline.length) {
+  console.log("✅ RESOLVED baseline entries (no longer a gap — remove from baseline file):");
+  for (const r of resolvedBaseline) console.log(`   ${r.path}  →  ${r.component}`);
   console.log("");
 }
 if (skipped.length) {
@@ -120,6 +164,8 @@ if (skipped.length) {
 
 if (gaps.length === 0) {
   console.log("✅ Every in-scope public route has either a ROUTE_META entry or its own applySeo() call.");
+} else if (newGaps.length === 0) {
+  console.log(`✅ No new gaps — all ${knownGaps.length} remaining gap(s) are already in the reviewed baseline.`);
 }
 
-process.exitCode = gaps.length ? 1 : 0;
+process.exitCode = process.exitCode || (newGaps.length ? 1 : 0);
