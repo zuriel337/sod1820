@@ -1,10 +1,10 @@
 {
  "book_slug": "sefer-habahir",
- "source_identity": "book:sefer-habahir",
+ "source_identity": "book:sefer-habahir-1883",
  "generated_at": "2026-09-07",
  "schema_version": 1,
  "hero": {
-  "eyebrow": "SEFER HABAHIR · 1883 · NLI S 23 A 11927",
+  "eyebrow": "SEFER HABAHIR · VILNA WITNESS · NLI S 23 A 11927",
   "subtitle": "ספר הבהיר להתנא רבי נחוניא בן הקנה, עם פירוש אור הגנוז · דפוס ווילנא (ראם) · עורך: שמואל לוריא · שנת דפוס לא-סגורה (תרמ״א / 1880-81, או תרמ״ג / 1883)",
   "pdf": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf",
   "promise": "מקור → עמוד/בלוק → Extraction/Finding/Claim → קשרים. Scan A (עמ׳ 1-24) ו-Scan B (עמ׳ 25-48) מוזגו לתמונה מבנית אחת של 48/48 עמודים; 6 עמודים שאובחנו כשגויים תוקנו בנפרד, עמוד-עמוד, ללא batching, וה-artifacts המקוריים נשמרים כהיסטוריה — לא נמחקו.",
