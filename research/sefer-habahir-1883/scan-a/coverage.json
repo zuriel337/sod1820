@@ -1,0 +1,20 @@
+{
+  "scope": "PDF pages 1..24",
+  "expected_pages": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],
+  "render_verified_pages": 24,
+  "structured_pages": 24,
+  "working_transcription_pages": 24,
+  "working_transcription_chars": 119096,
+  "exact_anchor_count": 50,
+  "finding_count": 24,
+  "unresolved_count": 22,
+  "out_of_scope_pages_written": 0,
+  "storage_map": {
+    "1-4": "pages/P01_04.json",
+    "5-8": "chunks/P05_08.json.gz",
+    "9-12": "chunks/P09_12.json.gz",
+    "13-16": "chunks/P13_16.json.gz",
+    "17-20": "chunks/P17_20.json.gz",
+    "21-24": "chunks/P21_24.json.gz"
+  }
+}
