@@ -14,6 +14,7 @@ describe("Explorer Slice 6 progressive depth/access projection", () => {
     const p = resolveExplorerDepth();
     expect(p.depth).toBe(EXPLORER_DEPTH.PUBLIC);
     expect(p.registeredIdentity).toBe(false);
+    expect(p.memberIdentityRecognized).toBe(false);
     expectPublicSurfacePreserved(p);
   });
 
@@ -21,13 +22,15 @@ describe("Explorer Slice 6 progressive depth/access projection", () => {
     const p = resolveExplorerDepth({ verified: true });
     expect(p.depth).toBe(EXPLORER_DEPTH.REGISTERED);
     expect(p.registeredIdentity).toBe(true);
+    expect(p.memberIdentityRecognized).toBe(false);
     expectPublicSurfacePreserved(p);
   });
 
-  it("recognizes member identity but does not treat identity recognition as a live Premium entitlement", () => {
+  it("recognizes member identity but never equates it with a live Premium entitlement", () => {
     const p = resolveExplorerDepth({ verified: true, isMember: true });
-    expect(p.depth).toBe(EXPLORER_DEPTH.PREMIUM);
+    expect(p.depth).toBe(EXPLORER_DEPTH.MEMBER_RECOGNIZED);
     expect(p.registeredIdentity).toBe(true);
+    expect(p.memberIdentityRecognized).toBe(true);
     expect(p.premiumDepthEnabled).toBe(false);
     expectPublicSurfacePreserved(p);
   });
@@ -36,6 +39,7 @@ describe("Explorer Slice 6 progressive depth/access projection", () => {
     const p = resolveExplorerDepth({ verified: true, isMember: true, isAdmin: true });
     expect(p.depth).toBe(EXPLORER_DEPTH.ADMIN);
     expect(p.registeredIdentity).toBe(true);
+    expect(p.memberIdentityRecognized).toBe(true);
     expect(p.adminInspectionEnabled).toBe(false);
     expectPublicSurfacePreserved(p);
   });
