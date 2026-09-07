@@ -42,6 +42,8 @@ jobs:
           s = s.replaceAll('מ-20 השיטות', 'מהשיטות הזמינות');
           s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
           s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
+          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
+          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
           s = s.replaceAll('כל 19', 'כל השיטות הזמינות');
           s = s.replaceAll('כל 20', 'כל השיטות הזמינות');
           write('community', s);
@@ -70,6 +72,8 @@ jobs:
           s = s.replaceAll('0 מתוך 19', 'ללא מפגש בשיטות הזמינות');
           s = s.replaceAll('19 השיטות', 'השיטות הזמינות');
           s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
+          s = s.replaceAll('19 שיטות', 'שיטות זמינות');
+          s = s.replaceAll('20 שיטות', 'שיטות זמינות');
           write('ai', s);
           NODE
       - name: Install dependencies
