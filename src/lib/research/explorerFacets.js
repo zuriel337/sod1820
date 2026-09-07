@@ -2,13 +2,9 @@ import {
   fetchEntityListByType,
   EXPLORER_LIST_MODE_TYPES,
 } from "./entityHubProjection.js";
-import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
+import { fetchCanonicalTopicConvergenceFinding, fetchTopicCardList } from "./topicConvergence.js";
 import { fetchBookEntities } from "./bookResearchProjection.js";
-import {
-  fetchExplorerRankedTopicPage,
-  topicRankMeta,
-  neutralRankMeta,
-} from "./explorerRanking.js";
+import { topicRankMeta, neutralRankMeta } from "./explorerRanking.js";
 
 // ── UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_FACET_COMPOSITION (work_log dispatch 0b70e0f9) ──
 // The v1 facet registry: ONE list of what the Explorer shell may browse, each entry pairing an
@@ -109,7 +105,10 @@ export const EXPLORER_FACETS = Object.freeze([
   Object.freeze({
     key: "topic",
     label: "התכנסויות",
-    fetchPage: (params) => fetchExplorerRankedTopicPage(params),
+    // Slice 5 correction (audit AFTER 6050377d): calls the SAME canonical Slice-1 topic-list
+    // reader every other caller uses, with rankByMeterScore requesting the meter_score-first
+    // order — not a forked second reader.
+    fetchPage: (params) => fetchTopicCardList({ ...params, rankByMeterScore: true }),
     toCard: topicRowToCard,
     fetchDetail: (card) => fetchCanonicalTopicConvergenceFinding(card?.refId),
   }),

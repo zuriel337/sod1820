@@ -1,26 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
-  buildExplorerRankedTopicQuery,
-  topicRankMeta,
-  neutralRankMeta,
-} from "./explorerRanking.js";
+import { topicRankMeta, neutralRankMeta } from "./explorerRanking.js";
 
-test("ranked topic query: globally orders by meter_score, then approved_at, then id", () => {
-  const q = buildExplorerRankedTopicQuery({ limit: 24, offset: 48 });
-  assert.deepEqual(q.order, [["meter_score", false], ["approved_at", false], ["id", true]]);
-  assert.equal(q.rangeStart, 48);
-  assert.equal(q.rangeEnd, 72);
-  assert.equal(q.limit, 24);
-});
-
-test("ranked topic query: bounds remain finite and bounded", () => {
-  assert.equal(buildExplorerRankedTopicQuery({ limit: 0 }).limit, 1);
-  assert.equal(buildExplorerRankedTopicQuery({ limit: 9999 }).limit, 100);
-  assert.equal(buildExplorerRankedTopicQuery({ limit: Infinity }).limit, 24);
-  assert.equal(buildExplorerRankedTopicQuery({ offset: -5 }).rangeStart, 0);
-  assert.equal(buildExplorerRankedTopicQuery({ offset: 12.9 }).rangeStart, 12);
-});
+// The ranked-topic QUERY itself (order/bounds) is tested where the reader actually lives —
+// topicConvergence.test.js's buildTopicListQuery suite, including its rankByMeterScore:true
+// cases — since Slice 5's correction (audit AFTER 6050377d) removed the duplicate reader that
+// used to live in this file. Only the pure, network-free projection helpers are tested here.
 
 test("topicRankMeta: meter_score is evidence/quality display signal, never activity", () => {
   const rank = topicRankMeta({ meter_score: 56 });
@@ -42,6 +27,33 @@ test("topicRankMeta: missing meter_score stays neutral instead of fabricating a 
   assert.equal(rank.neutral, true);
   assert.equal(rank.evidenceQuality, null);
   assert.deepEqual(rank.signals, []);
+});
+
+// Correction per dispatch 764b3b9b item (2): this exact codebase has hit the "0 is falsy in JS"
+// bug three separate times this session in other functions (limit clamps, offset clamps) — a
+// genuine meter_score of 0 must be treated as a REAL, non-neutral score, never silently folded
+// into "missing". topicRankMeta's own hasSignal check already uses explicit
+// null/undefined/""/Number.isFinite comparisons (no `||`), so this was already correct — this
+// test closes the coverage gap so a future edit cannot silently reintroduce the bug.
+test("topicRankMeta: meter_score=0 is a real non-neutral score, never treated as missing/falsy", () => {
+  const rank = topicRankMeta({ meter_score: 0 });
+  assert.equal(rank.score, 0);
+  assert.equal(rank.neutral, false, "0 is a legitimate score, not a missing signal");
+  assert.equal(rank.evidenceQuality, 0);
+  assert.deepEqual(rank.signals, [{
+    axis: "evidence_quality",
+    source: "topic_cards_public.meter_score",
+    value: 0,
+    label: "מד התכנסות",
+  }]);
+});
+
+test("topicRankMeta: undefined, empty-string, and non-numeric meter_score all stay neutral (never NaN as a score)", () => {
+  assert.equal(topicRankMeta({ meter_score: undefined }).neutral, true);
+  assert.equal(topicRankMeta({}).neutral, true, "no meter_score key at all");
+  assert.equal(topicRankMeta({ meter_score: "" }).neutral, true);
+  assert.equal(topicRankMeta({ meter_score: "not-a-number" }).neutral, true);
+  assert.equal(topicRankMeta(null).neutral, true, "null row never throws");
 });
 
 test("neutralRankMeta: no truth/evidence/activity signal is invented", () => {

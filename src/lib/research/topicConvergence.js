@@ -545,13 +545,25 @@ function normalizeLimit(value, fallback, max) {
  * network, so bounds-clamping and the stable compound ordering are unit-testable in isolation.
  * rangeEnd deliberately requests one extra row (limit+1) so the caller can detect hasMore
  * without a second COUNT query.
+ *
+ * rankByMeterScore (UNIVERSAL_EXPLORER_V1_SLICE5_RANKING_V1, work_log dispatch correction
+ * 764b3b9b): default false preserves this function's original Slice-1 order exactly, unchanged,
+ * for any existing caller. When true, prepends the existing public-safe meter_score DESC signal
+ * ahead of the SAME proven approved_at DESC + id ASC tiebreak — display-order only, never a second
+ * reader. This is the single canonical topic-list query shape; the Explorer's ranked topic facet
+ * calls this function (via fetchTopicCardList) with rankByMeterScore:true rather than forking a
+ * parallel reader (the fork was corrected out per independent audit AFTER 6050377d).
  */
-export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0 } = {}) {
+export function buildTopicListQuery({ limit = TOPIC_LIST_DEFAULT_LIMIT, offset = 0, rankByMeterScore = false } = {}) {
   const cap = normalizeLimit(limit, TOPIC_LIST_DEFAULT_LIMIT, TOPIC_LIST_MAX_LIMIT);
   const safeOffset = normalizeNonNegativeInt(offset, 0);
+  const order = rankByMeterScore
+    ? [["meter_score", false], ["approved_at", false], ["id", true]]
+    : [["approved_at", false], ["id", true]];
   return {
-    // [column, ascending] — most-recently-approved first, id asc as a stable tiebreaker.
-    order: [["approved_at", false], ["id", true]],
+    // [column, ascending] — most-recently-approved first, id asc as a stable tiebreaker
+    // (meter_score DESC prepended when rankByMeterScore is requested).
+    order,
     rangeStart: safeOffset,
     rangeEnd: safeOffset + cap,
     limit: cap,

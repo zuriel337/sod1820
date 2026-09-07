@@ -318,3 +318,28 @@ test("buildTopicListQuery: fractional limit/offset are truncated to integers", (
   assert.equal(Number.isInteger(q.rangeStart), true);
   assert.equal(Number.isInteger(q.rangeEnd), true);
 });
+
+// ── UNIVERSAL_EXPLORER_V1_SLICE5_RANKING_V1 correction (work_log dispatch 764b3b9b, independent
+// audit AFTER 6050377d): rankByMeterScore is the ONE canonical topic-list reader's own ranking
+// mode — replacing a forked duplicate reader that used to live in explorerRanking.js. Default
+// (omitted/false) must stay byte-identical to every existing caller's order, proven above; these
+// tests cover the new opt-in branch only. ──────────────────────────────────────────────────────
+
+test("buildTopicListQuery: rankByMeterScore:true prepends meter_score DESC ahead of the SAME proven approved_at+id tiebreak", () => {
+  const ranked = buildTopicListQuery({ rankByMeterScore: true });
+  assert.deepEqual(ranked.order, [["meter_score", false], ["approved_at", false], ["id", true]]);
+});
+
+test("buildTopicListQuery: rankByMeterScore defaults to false — every existing caller's order is byte-unchanged", () => {
+  assert.deepEqual(buildTopicListQuery().order, [["approved_at", false], ["id", true]]);
+  assert.deepEqual(buildTopicListQuery({ limit: 5, offset: 100 }).order, [["approved_at", false], ["id", true]]);
+  assert.deepEqual(buildTopicListQuery({ rankByMeterScore: false }).order, [["approved_at", false], ["id", true]]);
+});
+
+test("buildTopicListQuery: rankByMeterScore never affects bounds — same limit/offset clamping either way", () => {
+  const a = buildTopicListQuery({ limit: 5, offset: 100 });
+  const b = buildTopicListQuery({ limit: 5, offset: 100, rankByMeterScore: true });
+  assert.equal(a.limit, b.limit);
+  assert.equal(a.rangeStart, b.rangeStart);
+  assert.equal(a.rangeEnd, b.rangeEnd);
+});

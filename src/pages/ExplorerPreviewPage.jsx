@@ -14,10 +14,48 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { usePalette } from "../lib/palette.js";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 
-// 🧪 Universal Explorer — INTERNAL PREVIEW.
-// Slice 5 adds explainable DISPLAY ranking only. Topic/Convergence is globally server-ordered by
-// the existing public-safe meter_score signal, then approved_at, then id. Every facet without a
-// safe list-level signal stays rank-neutral and preserves its existing deterministic reader order.
+// 🧪 Universal Explorer — INTERNAL PREVIEW, Slice 2 (UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_
+// FACET_COMPOSITION, work_log dispatch 0b70e0f9) + Slice 3 (UNIVERSAL_EXPLORER_V1_SLICE3_
+// RESEARCH_CONTEXT_REOPEN, work_log dispatch ff9c3f2a). Thin shell: a facet switcher + a
+// paginated card grid over the Slice-1 list-mode readers (src/lib/research/explorerFacets.js).
+// No access tiers, no SEO, no Raziel hook. Naming here is intentionally provisional/internal —
+// this is NOT canonical product copy and NOT "Heichal"; it stays unlinked from any public nav
+// until a naming Human-Gate decision (checkpoint 0fa2f0e8) and further Explorer slices land.
+//
+// Slice 3 adds exact reopen/return, reusing the SAME Research Context contract as TopicPage /
+// EntityHubPreviewPageFunctional verbatim (root subject sticky-if-absent; selection+lens follow
+// the active facet; a card click records returnTo before navigating away) — no new store. The
+// facet+offset themselves live in the URL (?facet=&offset=); Research Context's own
+// `dimensions.explorerFacet`/`explorerOffset` mirror the same two values so BottomBar's "כאן"
+// sheet can see them too, without BottomBar.jsx itself being touched (its /explorer-preview label
+// falls through to a generic "פוסט" — a known, accepted, out-of-scope cosmetic gap for this slice).
+//
+// PAGE-WINDOW reopen (corrected per GPT challenge 8fc2d310 / dispatch 3d04a64b): a mount/reopen
+// with a nonzero ?offset= fetches EXACTLY that one page window (explorerReopenWindow — one bounded
+// request of PAGE_SIZE rows starting at offset, for ANY offset, no hard cap needed) rather than
+// replaying every row from position 0. This restores the exact position a returnTo/deep-link
+// points at truthfully, for any offset — it does not also replay everything seen before it in the
+// original browsing session (that was the prior, incorrect "replay" contract, which silently
+// truncated past ~76 accumulated rows). Clicking "עוד ←" afterwards keeps accumulating forward
+// from that window exactly as during live browsing.
+//
+// Slice 4 (UNIVERSAL_EXPLORER_V1_SLICE4_DETAIL_COMPOSITION_REUSE, work_log dispatch 6871d978) adds
+// ON-DEMAND detail composition for facets that have a real, already-composable detail adapter —
+// today only "topic" (facetHasDetail/fetchExplorerFacetDetail wrap the SAME
+// fetchCanonicalTopicConvergenceFinding + TopicConvergenceContent already used by /topic/:slug).
+// Expand happens on ONE card at a time, on explicit click only — never per row on list load, never
+// more than one bounded fetch in flight. Every other facet (all node-backed types + book) has no
+// composable detail panel yet — per the dispatch's own anticipated fallback, they stay route-only
+// (their card's existing click-through to /number/:n, entity-hub-preview, or /book/:slug), rather
+// than fabricating a pseudo-detail body or duplicating EntityHubPreviewPageFunctional's page-level
+// equality-row rendering into a second, drifting renderer of the same truth.
+//
+// Slice 5 (UNIVERSAL_EXPLORER_V1_SLICE5_RANKING_V1) adds explainable DISPLAY ranking only.
+// Topic/Convergence is globally server-ordered by the existing public-safe meter_score signal,
+// then approved_at, then id (via the ONE canonical topic-list reader — topicConvergence.js's
+// buildTopicListQuery/fetchTopicCardList called with rankByMeterScore:true, not a forked reader;
+// corrected per independent audit AFTER 6050377d / dispatch 764b3b9b). Every facet without a safe
+// list-level signal stays rank-neutral and preserves its existing deterministic reader order.
 // Rank never changes truth, verification, publication, canonical state, or access.
 
 const PAGE_SIZE = 24;
@@ -93,6 +131,10 @@ function RankNote({ rank }) {
   );
 }
 
+// The navigable title/subtitle stays a <Link> (unchanged click-through + onLeave/returnTo
+// behavior from Slice 3). "expandable" adds a SIBLING button — not nested inside the anchor, so
+// expand/collapse never triggers navigation — shown only for a facet with a real detail adapter
+// (facetHasDetail; today: topic only).
 function FacetCard({ item, onLeave, expandable, expanded, onToggleDetail }) {
   return (
     <div style={{ ...card, padding: 14, minWidth: 0 }}>
@@ -118,6 +160,8 @@ function FacetCard({ item, onLeave, expandable, expanded, onToggleDetail }) {
   );
 }
 
+// Renders exactly what /topic/:slug itself renders (same finding, same component, same palette
+// hook) — the Explorer adds no truth here, only a bounded on-demand fetch + an inline mount point.
 function DetailPanel({ detail, palette, onLeave, onClose }) {
   return (
     <div style={{ ...card, padding: 16, marginTop: 16 }}>
@@ -147,6 +191,9 @@ export default function ExplorerPreviewPage() {
   const [state, setState] = useState({ loading: true, cards: [], hasMore: false, error: null, offset: 0 });
   const [detail, setDetail] = useState(EMPTY_DETAIL);
 
+  // replace=true always fetches exactly the ONE bounded window {offset,limit} and replaces the
+  // grid with it (used for both a fresh facet switch — offset 0 — and a page-window reopen — any
+  // offset); replace=false appends the next page onto what's already on screen ("עוד ←").
   const loadPage = useCallback((facetKey, offset, replace, limit = PAGE_SIZE) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     fetchExplorerFacetPage(facetKey, { limit, offset })
@@ -166,15 +213,24 @@ export default function ExplorerPreviewPage() {
       .catch((error) => setState((prev) => ({ ...prev, loading: false, error })));
   }, []);
 
+  // Reopen: a nonzero ?offset= fetches EXACTLY that one page window in one bounded request
+  // (explorerReopenWindow — always PAGE_SIZE rows, for any offset, no hard cap needed) — the
+  // truthful, corrected contract from GPT challenge 8fc2d310 (the prior "replay from 0" contract
+  // silently truncated past ~76 rows). Re-runs only when the facet or the URL's own offset
+  // changes, not on every "עוד ←" click (those advance state.offset locally, not the URL).
   useEffect(() => {
     const win = explorerReopenWindow(urlState.offset, PAGE_SIZE);
     loadPage(activeKey, win.offset, true, win.limit);
-    setDetail(EMPTY_DETAIL);
+    setDetail(EMPTY_DETAIL); // a stale expanded detail from a prior facet/page has no meaning here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeKey, urlState.offset]);
 
   const activeFacet = useMemo(() => EXPLORER_FACETS.find((f) => f.key === activeKey) || null, [activeKey]);
 
+  // 🧭 Universal Research Context — same contract as TopicPage/EntityHubPreviewPageFunctional: the
+  // root subject stays sticky (never overwritten by browsing the Explorer), current selection/lens
+  // follow the active facet, and facet+offset also mirror into `dimensions` as two flat scalar
+  // keys (nested objects are dropped by normalizeDimensions — see explorerFacets.js Slice 3 note).
   useEffect(() => {
     if (!activeFacet) return;
     const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset })}`;
@@ -194,6 +250,10 @@ export default function ExplorerPreviewPage() {
     loadPage(activeKey, nextOffset, false);
   };
 
+  // Shared by both ways of leaving the Explorer — a card click (which navigates to the entity's
+  // own page) and a link followed from inside an expanded detail panel (TopicConvergenceContent's
+  // own onLeave hook, e.g. a number chip inside the topic body) — records the exact facet+offset
+  // as returnTo so BottomBar's existing "חזרה" reopens this same page, mirroring leaveHub/leaveTopic.
   const recordReturnTo = (lens, selection) => {
     if (!activeFacet) return;
     const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset })}`;
@@ -202,6 +262,9 @@ export default function ExplorerPreviewPage() {
   };
   const onLeaveCard = (item) => recordReturnTo(activeFacet?.key, explorerCardSelection(item));
 
+  // Slice 4: expand/collapse ONE card's detail at a time — a second click on the same card
+  // collapses it; switching cards re-fetches for the new one. Only called when facetHasDetail is
+  // true (topic today), so this never fires for a facet with no real detail adapter.
   const toggleDetail = (item) => {
     if (detail.key === item.id) { setDetail(EMPTY_DETAIL); return; }
     setDetail({ key: item.id, loading: true, finding: null, error: null });

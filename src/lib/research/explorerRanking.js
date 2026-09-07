@@ -1,50 +1,15 @@
-import { supabase } from "../supabase.js";
-
 // UNIVERSAL_EXPLORER_V1_SLICE5_RANKING_V1
 // Projection-only ranking helpers. Rank changes DISPLAY ORDER only; it never changes truth,
 // verification, publication, canonical state, or access. Missing signals stay neutral.
-
-const TOPIC_RANK_FIELDS = "id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,approved_at,occurred_at";
-const DEFAULT_LIMIT = 24;
-const MAX_LIMIT = 100;
-
-function finiteInt(value, fallback = 0) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.trunc(n);
-}
-
-function normalizeLimit(value) {
-  return Math.max(1, Math.min(MAX_LIMIT, finiteInt(value, DEFAULT_LIMIT)));
-}
-
-function normalizeOffset(value) {
-  return Math.max(0, finiteInt(value, 0));
-}
-
-export function buildExplorerRankedTopicQuery({ limit = DEFAULT_LIMIT, offset = 0 } = {}) {
-  const safeLimit = normalizeLimit(limit);
-  const safeOffset = normalizeOffset(offset);
-  return {
-    limit: safeLimit,
-    rangeStart: safeOffset,
-    rangeEnd: safeOffset + safeLimit,
-    // Evidence/quality first, then deterministic recency + id tiebreak.
-    order: [["meter_score", false], ["approved_at", false], ["id", true]],
-  };
-}
-
-export async function fetchExplorerRankedTopicPage(params = {}) {
-  const q = buildExplorerRankedTopicQuery(params);
-  let query = supabase.from("topic_cards_public").select(TOPIC_RANK_FIELDS);
-  for (const [column, ascending] of q.order) {
-    query = query.order(column, { ascending, nullsFirst: false });
-  }
-  const { data, error } = await query.range(q.rangeStart, q.rangeEnd);
-  if (error) throw error;
-  const rows = Array.isArray(data) ? data : [];
-  return { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };
-}
+//
+// PURE, NETWORK-FREE by design: this file takes a row a canonical reader already fetched and
+// returns display metadata — it owns no query, no reader, no store. The topic facet's actual
+// ranked query lives in the ONE canonical topic-list reader (topicConvergence.js's
+// buildTopicListQuery/fetchTopicCardList, called with rankByMeterScore:true) — an earlier version
+// of this file forked a second, duplicate topic-list reader here (a byte-identical field list and
+// a re-implemented limit/offset clamp next to the existing one). That fork was removed per
+// independent audit AFTER 6050377d (work_log dispatch correction 764b3b9b) — "coordinate readers,
+// don't fork them" is the same discipline every prior Explorer slice maintained.
 
 export function topicRankMeta(row) {
   const value = row?.meter_score;
