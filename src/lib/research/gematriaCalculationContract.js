@@ -13,6 +13,7 @@ export function calculateGematriaEnvelope(input, methodStates = null) {
 
   const results = CLIENT_GEMATRIA_METHODS.map(method => {
     const state = stateIndex?.get(method.key) || null;
+    const requiredEntitlement = state?.required_entitlement ?? null;
     return {
       // Backward-compatible projection fields used by existing UI consumers.
       key: method.key,
@@ -36,13 +37,27 @@ export function calculateGematriaEnvelope(input, methodStates = null) {
         executable: registryAvailable ? Boolean(state?.executable) : null,
         engineVerified: registryAvailable ? Boolean(state?.engine_verified) : null,
         scannable: registryAvailable ? Boolean(state?.scannable) : null,
-        requiredEntitlement: state?.required_entitlement ?? null,
         executionKind: state?.execution_kind ?? null,
         operator: state?.operator ?? null,
       },
+      // Access is orthogonal to truth/execution. V1 carries the Registry requirement only;
+      // it does not invent a paid entitlement decision or infer current-user accessibility.
+      access: {
+        requiredEntitlement,
+        accessible: null,
+      },
+      // This professional projection currently renders every client-defined method.
+      // Displayed is a projection fact, never Registry/canonical truth.
+      projection: {
+        displayed: true,
+        projectionKey: "professional_calculator_v1",
+      },
+      // A physical column means the method CAN have canonical stored values; it does not prove
+      // this arbitrary input/result is actually stored. `stored` remains UNKNOWN without row evidence.
       storage: {
-        dbColumn: method.col || null,
-        storedByDefinition: Boolean(method.col),
+        dbColumnHint: method.col || null,
+        storageCapable: Boolean(method.col),
+        stored: null,
       },
       provenance: {
         calculationEngine: "src/lib/gematria.js",
