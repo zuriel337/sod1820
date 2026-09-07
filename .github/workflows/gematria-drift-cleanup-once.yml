@@ -72,11 +72,14 @@ jobs:
           s = s.replaceAll('20 השיטות', 'השיטות הזמינות');
           write('ai', s);
           NODE
-      - name: Verify
+      - name: Install dependencies
+        run: npm install
+      - name: Focused contract test
+        run: node --test src/lib/research/gematriaCalculationContract.test.js
+      - name: Build
+        run: npm run build
+      - name: Fixed-count scan
         run: |
-          npm install
-          node --test src/lib/research/gematriaCalculationContract.test.js
-          npm run build
           ! grep -RIn -E '19 שיטות|20 שיטות|19 השיטות|20 השיטות|מתוך 19|מ-19 השיטות|מ-20 השיטות' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
       - name: Commit cleanup
         run: |
