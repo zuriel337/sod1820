@@ -10,6 +10,9 @@ import { buildMessages } from "../lib/numberMessage.js";
 import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { waHref } from "../lib/share.js";
+import { track } from "../lib/tracking.js";
+import { calculateGematriaEnvelope } from "../lib/research/gematriaCalculationContract.js";
+import { fetchGematriaMethodStates } from "../lib/research/gematriaMethodRegistry.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
 import NameMultiSearch from "../components/NameMultiSearch.jsx";
 import HumanDateInput from "../components/HumanDateInput.jsx";
@@ -38,7 +41,7 @@ const GEULA_NUMS = { 1820: "שם הוי״ה בתורה", 358: "משיח", 26: "�
 // 📅 מילה של היום — דטרמיניסטי לפי היום בחודש (סיבה לחזור).
 const DAILY_WORDS = ["אמת", "אהבה", "גאולה", "משיח", "תורה", "חכמה", "בינה", "אור", "שלום", "חיים", "נשמה", "ברכה", "תשובה", "אמונה", "צדק"];
 
-const gemAll = name => ALL_METHODS.map(m => ({ key: m.key, sub: m.sub || m.soul || "", value: m.fn(name) }));
+const gemAll = (name, methodStates = null) => calculateGematriaEnvelope(name, methodStates).results;
 const regularOf = name => { try { return resolve(name).value; } catch { return METHODS[0].fn(name); } };
 // כרטיס-שיתוף דינמי 1200×630 — השם ענק + הערך (api/card קיים).
 const cardFor = (name, value) => `${SITE_URL}/api/card?w=${encodeURIComponent(name)}&n=${value}`;
@@ -65,7 +68,7 @@ function rankBySurprise(phrases, name) {
 // 👶 כלי-מחקר לשם תינוק — לא "ציון" ולא "שם מומלץ" (אין דרך אובייקטיבית), אלא כלי-גילוי:
 // מדדים תיאוריים (עושר קשרים/מקורות · התאמות) + ניתוח עובדתי + העמקה. המשתמש מחליט.
 // זרימה: שלב 1 = 1-3 שמות · שלב 2 (אופציונלי) = שם משפחה + תאריך לידה → התאמות וקשרים.
-function BabyNameTool({ P }) {
+function BabyNameTool({ P, methodStates }) {
   const [names, setNames] = useState([""]);         // 1-3 שמות
   const [family, setFamily] = useState("");
   const [bDate, setBDate] = useState("");
@@ -81,18 +84,18 @@ function BabyNameTool({ P }) {
   const analyzed = useMemo(() => names.map(n => {
     const nm = (n || "").trim();
     if (!onlyHeb(nm).length) return null;
-    const all = gemAll(nm);
+    const all = gemAll(nm, methodStates);
     const core = CORE3_KEYS.map(k => all.find(a => a.key === k)).filter(Boolean);
     const geulaHit = all.find(a => GEULA_NUMS[a.value]);
     return { name: nm, all, core, value: regularOf(nm), geula: geulaHit ? { num: geulaHit.value, method: geulaHit.key, meaning: GEULA_NUMS[geulaHit.value] } : null };
-  }), [names]);
+  }), [names, methodStates]);
 
   // שם משפחה — ערך ושיטות (להתאמות)
   const fam = useMemo(() => {
     const fnm = family.trim();
     if (!onlyHeb(fnm).length) return null;
-    return { name: fnm, all: gemAll(fnm), value: regularOf(fnm) };
-  }, [family]);
+    return { name: fnm, all: gemAll(fnm, methodStates), value: regularOf(fnm) };
+  }, [family, methodStates]);
 
   // ביטויים תואמים לכל ערך (getAllValuePhrases) — «עושר קשרים/מקורות»
   useEffect(() => {
@@ -269,6 +272,8 @@ function BabyNameTool({ P }) {
 export default function CommunityCalculatorPage() {
   const P = usePalette();
   const loc = useLocation();
+  const sharedSeed = useMemo(() => (new URLSearchParams(loc.search).get("w") || "").trim(), [loc.search]);
+  const [methodStates, setMethodStates] = useState(null);
   const [name1, setName1] = useState("");
   const [name2, setName2] = useState("");
   const [compare, setCompare] = useState(false);
@@ -289,7 +294,13 @@ export default function CommunityCalculatorPage() {
   const [hebBusy, setHebBusy] = useState(false);
   // 🔬 שם למחקר-מעמיק (NameMultiSearch) — עם השהיה כדי לא להריץ RPC כבד על כל הקשה
   const [deepName, setDeepName] = useState("");
+  const gemTracked = useRef(sharedSeed);
   useEffect(() => { const t = setTimeout(() => setDeepName(name1.trim()), 900); return () => clearTimeout(t); }, [name1]);
+  useEffect(() => {
+    let live = true;
+    fetchGematriaMethodStates().then(rows => { if (live) setMethodStates(rows); }).catch(() => { if (live) setMethodStates(null); });
+    return () => { live = false; };
+  }, []);
 
   // 🤖 ניתוח AI אמיתי — Edge Function ai-analyze (Claude). מקבל עובדות-מנוע בלבד, מפרש.
   // שם יחיד → kind=number; שני שמות (השוואה) → kind=compare. מודל מהיר (fast) לכלי אינטראקטיבי.
@@ -336,15 +347,26 @@ export default function CommunityCalculatorPage() {
     return () => setForcedMode(null);
   }, []);
 
-  // הגעה משיתוף (?w=) → ממלא את השם ומראה «בדוק את שלך»
+  // הגעה משיתוף (?w=) → ממלא את השם, לא נספרת כחישוב חדש, ומשתמרת במעבר למקצועי.
   useEffect(() => {
-    const w = new URLSearchParams(loc.search).get("w");
-    if (w) { setName1(w); setFromShare(true); }
-  }, [loc.search]);
+    if (sharedSeed) { gemTracked.current = sharedSeed; setName1(sharedSeed); setFromShare(true); }
+  }, [sharedSeed]);
 
-  const r1 = useMemo(() => onlyHeb(name1).length ? { value: regularOf(name1), all: gemAll(name1) } : null, [name1]);
-  const r2 = useMemo(() => (compare && onlyHeb(name2).length) ? { value: regularOf(name2), all: gemAll(name2) } : null, [compare, name2]);
+  const r1 = useMemo(() => onlyHeb(name1).length ? { value: regularOf(name1), all: gemAll(name1, methodStates) } : null, [name1, methodStates]);
+  const r2 = useMemo(() => (compare && onlyHeb(name2).length) ? { value: regularOf(name2), all: gemAll(name2, methodStates) } : null, [compare, name2, methodStates]);
   const matches = useMemo(() => (r1 && r2) ? r1.all.filter((a, i) => a.value === r2.all[i].value) : [], [r1, r2]);
+
+  // 📊 Telemetry parity with the professional calculator: settled word only, deduped, seed-load excluded.
+  useEffect(() => {
+    const word = name1.trim();
+    if (!r1 || onlyHeb(word).length < 2) return;
+    const t = setTimeout(() => {
+      if (word === gemTracked.current) return;
+      gemTracked.current = word;
+      try { track("gematria", word.slice(0, 60), "compute", { value: r1.value, projection: "community" }); } catch { /* telemetry never breaks UX */ }
+    }, 900);
+    return () => clearTimeout(t);
+  }, [name1, r1?.value]); // eslint-disable-line
 
   // ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מ-19 השיטות
   const geula = useMemo(() => {
@@ -484,7 +506,7 @@ export default function CommunityCalculatorPage() {
           <button onClick={() => setShowAll(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "underline" }}>
             {showAll ? "− חזרה ל-3 שיטות הליבה" : "+ כל 20 השיטות"}
           </button>
-          <Link to="/research?tool=gematria" style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>🔬 למחשבון המקצועי →</Link>
+          <Link to={`/research?tool=gematria${onlyHeb(name).length ? `&w=${encodeURIComponent(name.trim())}` : ""}`} style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>🔬 למחשבון המקצועי →</Link>
         </div>
       </div>
     );
@@ -574,7 +596,7 @@ export default function CommunityCalculatorPage() {
           )}
         </div>
       )}
-      {babyMode && <div style={{ marginBottom: 20 }}><BabyNameTool P={P} /></div>}
+      {babyMode && <div style={{ marginBottom: 20 }}><BabyNameTool P={P} methodStates={methodStates} /></div>}
 
       {!babyMode && r1 && (
         <div style={{ display: "grid", gap: 16 }}>
@@ -738,8 +760,8 @@ export default function CommunityCalculatorPage() {
 
       {/* גשר למקצועי */}
       <div style={{ marginTop: 26, textAlign: "center" }}>
-        <Link to="/research?tool=gematria" style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
-          רוצים לעומק? המחשבון המקצועי — 20 שיטות, הצלבות ומנוע מלא →
+        <Link to={`/research?tool=gematria${onlyHeb(name1).length ? `&w=${encodeURIComponent(name1.trim())}` : ""}`} style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
+          רוצים לעומק? המחשבון המקצועי — שיטות מתקדמות, הצלבות ומנוע מלא →
         </Link>
       </div>
     </div>
