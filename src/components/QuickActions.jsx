@@ -8,7 +8,8 @@ import { track } from "../lib/tracking.js";
 // ⚡ Quick Actions — פס-הפעולות האחיד ליד כל ישות (Reality Graph Law · Zero-Duplicate).
 // היררכיה (לא ערימה): ➕ הוסף למחקר = ראשי מלא · ⭐ שמור · 🔗 שתף = משניים · ⋯ = תפריט-גלישה
 // (📌 הצמד · 📋 העתק · extra). פוקוס אחד ברור, שורה רגועה. כל פעולה פולטת Event ל-Bus.
-export default function QuickActions({ entity, onShare, onAnalyze, extra, style, hideAnalyze }) {
+// hidePin = משטח ציבורי יכול להסתיר «הצמד» כאשר נעיצה שייכת לסביבת-המחקר/Workspace בלבד.
+export default function QuickActions({ entity, onShare, onAnalyze, extra, style, hideAnalyze, hidePin = false }) {
   const { addToResearch, saveItem, togglePin, isPinned } = useResearch();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
@@ -56,9 +57,11 @@ export default function QuickActions({ entity, onShare, onAnalyze, extra, style,
         <button className="qa-moretog" onClick={() => setMoreOpen(o => !o)} aria-expanded={moreOpen} aria-label="עוד פעולות" title="עוד פעולות">⋯</button>
         {moreOpen && (
           <div className="qa-menu" onClick={() => setMoreOpen(false)}>
-            <button className={pinned ? "on" : ""} onClick={() => togglePin?.(entity)} title="הצמד למחקר — יישאר זמין בכל המעבדה">
-              {pinned ? "📌 מוצמד" : "📌 הצמד"}
-            </button>
+            {!hidePin && (
+              <button className={pinned ? "on" : ""} onClick={() => togglePin?.(entity)} title="הצמד בתוך סביבת המחקר — יישאר זמין ב-Workspace">
+                {pinned ? "📌 מוצמד" : "📌 הצמד"}
+              </button>
+            )}
             <button onClick={copy}>📋 העתק</button>
             {extra}
           </div>
