@@ -52,6 +52,10 @@ function nodeRowToCard(type) {
     label: row.label || "",
     sub: truncate(row.description),
     href: nodeCardHref(type, row),
+    // refId: the identity a Research Context selection can carry forward (number → its value,
+    // as nodeCardHref already routes on; anything else → identity_key, falling back to label —
+    // the same precedence nodeCardHref itself uses for the hub link).
+    refId: type === "number" ? row.label : (row.identity_key || row.label || String(row.id)),
   });
 }
 
@@ -62,6 +66,7 @@ function topicRowToCard(row) {
     label: row.title || row.slug || "",
     sub: truncate(row.subtitle),
     href: `/topic/${encodeURIComponent(row.slug)}`,
+    refId: row.slug || String(row.id),
   };
 }
 
@@ -73,6 +78,7 @@ function bookRowToCard(row) {
     label: row.label || "",
     sub: truncate(row.description),
     href: slug ? `/book/${encodeURIComponent(slug)}` : "/book",
+    refId: slug || String(row.id),
   };
 }
 
@@ -135,4 +141,56 @@ export async function fetchExplorerFacetPage(facetKey, { limit = 24, offset = 0 
   const raw = await facet.fetchPage({ limit, offset });
   const { rows, hasMore } = normalizePageResult(raw, limit);
   return { cards: rows.map(facet.toCard), hasMore };
+}
+
+// ── UNIVERSAL_EXPLORER_V1_SLICE3_RESEARCH_CONTEXT_REOPEN (work_log dispatch ff9c3f2a) ──
+// Pure helpers only: URL ⇄ {facet,offset} round-trip, a bounded single-request "replay" limit for
+// reopening a deep link past page 1, and the Research Context selection a facet/card resolves to.
+// No new store, no network here — these just make the existing page-size accumulation exactly
+// reconstructible from a URL, and exactly resumable from Research Context's flat dimensions bag
+// (researchContext.js normalizeDimensions accepts only scalars/primitive-arrays per key — nested
+// objects are silently dropped, so Explorer state lives as two flat keys, not one nested one).
+
+export const EXPLORER_REPLAY_MAX_LIMIT = 100; // matches each reader's own hard cap (Slice 1)
+
+/** Reads ?facet=&offset= from a URLSearchParams (or plain object). Unknown/invalid facet falls
+ * back to fallbackFacet; offset is clamped to a non-negative integer, invalid → 0. Never throws. */
+export function parseExplorerUrlState(searchParams, fallbackFacet) {
+  const get = (key) => (typeof searchParams?.get === "function" ? searchParams.get(key) : searchParams?.[key]);
+  const rawFacet = clean(get("facet"));
+  const facet = getExplorerFacet(rawFacet) ? rawFacet : (fallbackFacet ?? null);
+  const rawOffset = Number(get("offset"));
+  const offset = Number.isFinite(rawOffset) && rawOffset > 0 ? Math.floor(rawOffset) : 0;
+  return { facet, offset };
+}
+
+/** Builds the ?facet=&offset= query string for a given state — offset omitted at 0 so the root
+ * page-1 URL of any facet stays clean. Pure string building, no navigation. */
+export function explorerUrlSearch({ facet, offset = 0 } = {}) {
+  const params = new URLSearchParams();
+  const safeFacet = clean(facet);
+  if (safeFacet) params.set("facet", safeFacet);
+  const safeOffset = Number.isFinite(Number(offset)) ? Math.max(0, Math.floor(Number(offset))) : 0;
+  if (safeOffset > 0) params.set("offset", String(safeOffset));
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
+}
+
+/** How many rows to request in ONE bounded call to reconstruct the same accumulated card list a
+ * user had reached at `offset` (i.e. offset+pageSize rows from position 0) — capped at the
+ * reader's own hard limit so a deep link can never force an unbounded read. Non-finite/negative/
+ * fractional input is treated as 0 (page 1). */
+export function replayLimitFor(offset, pageSize = 24) {
+  const safeOffset = Number.isFinite(Number(offset)) && Number(offset) > 0 ? Math.floor(Number(offset)) : 0;
+  const safePageSize = Number.isFinite(Number(pageSize)) && Number(pageSize) > 0 ? Math.floor(Number(pageSize)) : 24;
+  return Math.min(EXPLORER_REPLAY_MAX_LIMIT, safeOffset + safePageSize);
+}
+
+/** The Research Context `selection` a facet card resolves to when the user leaves the Explorer
+ * through it — entityId is the card's refId (never the internal `id`, which for node rows is a
+ * DB id, not a stable cross-surface reference), entityType is the facet key. Returns null for a
+ * card with no refId (never fabricates a selection). */
+export function explorerCardSelection(card) {
+  if (!card || !clean(card.refId)) return null;
+  return { entityId: String(card.refId), entityType: clean(card.facet) };
 }

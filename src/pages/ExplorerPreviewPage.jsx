@@ -1,14 +1,32 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { EXPLORER_FACETS, fetchExplorerFacetPage } from "../lib/research/explorerFacets.js";
+import { Link, useSearchParams } from "react-router-dom";
+import {
+  EXPLORER_FACETS,
+  fetchExplorerFacetPage,
+  parseExplorerUrlState,
+  explorerUrlSearch,
+  replayLimitFor,
+  explorerCardSelection,
+} from "../lib/research/explorerFacets.js";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
 
 // 🧪 Universal Explorer — INTERNAL PREVIEW, Slice 2 (UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_
-// FACET_COMPOSITION, work_log dispatch 0b70e0f9). Thin shell: a facet switcher + a paginated
-// card grid over the Slice-1 list-mode readers (src/lib/research/explorerFacets.js), nothing
-// else. No Research Context, no access tiers, no SEO, no Raziel hook, no ranking beyond each
-// reader's own deterministic order. Naming here is intentionally provisional/internal — this is
-// NOT canonical product copy and NOT "Heichal"; it stays unlinked from any public nav until a
-// naming Human-Gate decision (checkpoint 0fa2f0e8) and further Explorer slices land.
+// FACET_COMPOSITION, work_log dispatch 0b70e0f9) + Slice 3 (UNIVERSAL_EXPLORER_V1_SLICE3_
+// RESEARCH_CONTEXT_REOPEN, work_log dispatch ff9c3f2a). Thin shell: a facet switcher + a
+// paginated card grid over the Slice-1 list-mode readers (src/lib/research/explorerFacets.js).
+// No access tiers, no SEO, no Raziel hook, no ranking beyond each reader's own deterministic
+// order. Naming here is intentionally provisional/internal — this is NOT canonical product copy
+// and NOT "Heichal"; it stays unlinked from any public nav until a naming Human-Gate decision
+// (checkpoint 0fa2f0e8) and further Explorer slices land.
+//
+// Slice 3 adds exact reopen/return, reusing the SAME Research Context contract as TopicPage /
+// EntityHubPreviewPageFunctional verbatim (root subject sticky-if-absent; selection+lens follow
+// the active facet; a card click records returnTo before navigating away) — no new store. The
+// facet+offset themselves live in the URL (?facet=&offset=), which is what makes a deep link or a
+// browser-back exactly reopenable; Research Context's own `dimensions.explorerFacet`/
+// `explorerOffset` mirror the same two values so BottomBar's "כאן" sheet can see them too, without
+// BottomBar.jsx itself being touched (its /explorer-preview label falls through to a generic
+// "פוסט" — a known, accepted, out-of-scope cosmetic gap for this slice only).
 
 const PAGE_SIZE = 24;
 
@@ -65,10 +83,11 @@ function FacetSwitcher({ facets, activeKey, onSelect }) {
   );
 }
 
-function FacetCard({ item }) {
+function FacetCard({ item, onLeave }) {
   return (
     <Link
       to={item.href}
+      onClick={() => onLeave?.(item)}
       style={{
         ...card,
         display: "block",
@@ -84,38 +103,84 @@ function FacetCard({ item }) {
   );
 }
 
+const DEFAULT_FACET_KEY = EXPLORER_FACETS[0]?.key || "number";
+
 export default function ExplorerPreviewPage() {
-  const [activeKey, setActiveKey] = useState(EXPLORER_FACETS[0]?.key || "number");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const research = useResearch();
+  const urlState = useMemo(() => parseExplorerUrlState(searchParams, DEFAULT_FACET_KEY), [searchParams]);
+  const activeKey = urlState.facet || DEFAULT_FACET_KEY;
   const [state, setState] = useState({ loading: true, cards: [], hasMore: false, error: null, offset: 0 });
 
-  const loadPage = useCallback((facetKey, offset, replace) => {
+  const loadPage = useCallback((facetKey, offset, replace, limit = PAGE_SIZE) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    fetchExplorerFacetPage(facetKey, { limit: PAGE_SIZE, offset })
+    fetchExplorerFacetPage(facetKey, { limit, offset: replace ? 0 : offset })
       .then((page) => {
-        if (!page) { setState({ loading: false, cards: [], hasMore: false, error: new Error("פאספט לא ידוע"), offset }); return; }
+        if (!page) { setState({ loading: false, cards: [], hasMore: false, error: new Error("פאספט לא ידוע"), offset: 0 }); return; }
         setState((prev) => ({
           loading: false,
           error: null,
           hasMore: page.hasMore,
-          offset,
+          offset: replace ? Math.max(0, limit - PAGE_SIZE) : offset,
           cards: replace ? page.cards : [...prev.cards, ...page.cards],
         }));
       })
       .catch((error) => setState((prev) => ({ ...prev, loading: false, error })));
   }, []);
 
+  // Deep-link reopen: a nonzero ?offset= replays the same accumulated cards in ONE bounded
+  // request (capped at the reader's own 100-row max — never unbounded), so the page a user shared
+  // or returned to looks exactly as they left it. Re-runs only when the facet or the URL's own
+  // offset changes, not on every "עוד ←" click (those advance state.offset locally, not the URL).
   useEffect(() => {
-    loadPage(activeKey, 0, true);
+    loadPage(activeKey, 0, true, replayLimitFor(urlState.offset, PAGE_SIZE));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeKey]);
+  }, [activeKey, urlState.offset]);
 
   const activeFacet = useMemo(() => EXPLORER_FACETS.find((f) => f.key === activeKey) || null, [activeKey]);
+
+  // 🧭 Universal Research Context — same contract as TopicPage/EntityHubPreviewPageFunctional: the
+  // root subject stays sticky (never overwritten by browsing the Explorer), current selection/lens
+  // follow the active facet, and facet+offset also mirror into `dimensions` as two flat scalar
+  // keys (nested objects are dropped by normalizeDimensions — see explorerFacets.js Slice 3 note).
+  useEffect(() => {
+    if (!activeFacet) return;
+    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset })}`;
+    const subject = { id: activeKey, type: "explorer-facet", label: activeFacet.label, href: explorerHref };
+    const selection = { entityId: activeKey, entityType: "explorer-facet" };
+    const dimensions = { explorerFacet: activeKey, explorerOffset: state.offset };
+    if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "explorer", dimensions });
+    else research.updateResearchContext?.({ selection, lens: "explorer", dimensions });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFacet, activeKey, state.offset]);
+
+  const selectFacet = (key) => setSearchParams(explorerUrlSearch({ facet: key, offset: 0 }).replace(/^\?/, ""));
+
+  const loadMore = () => {
+    const nextOffset = state.offset + PAGE_SIZE;
+    setSearchParams(explorerUrlSearch({ facet: activeKey, offset: nextOffset }).replace(/^\?/, ""));
+    loadPage(activeKey, nextOffset, false);
+  };
+
+  // A card click leaves the Explorer for the entity's own page — record the exact facet+offset as
+  // returnTo so BottomBar's existing "חזרה" reopens this same accumulated page, mirroring
+  // leaveHub/leaveTopic verbatim.
+  const onLeaveCard = (card) => {
+    if (!activeFacet) return;
+    const explorerHref = `/explorer-preview${explorerUrlSearch({ facet: activeKey, offset: state.offset })}`;
+    const subject = { id: activeKey, type: "explorer-facet", label: activeFacet.label, href: explorerHref };
+    research.updateResearchContext?.({
+      lens: activeFacet.key,
+      selection: explorerCardSelection(card),
+      returnTo: { href: explorerHref, label: activeFacet.label, subject },
+    });
+  };
 
   return (
     <main style={page}>
       <div style={shell}>
         <div style={{ color: C.gold, fontSize: 10.5, letterSpacing: 1.8, fontWeight: 900 }}>
-          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 2)
+          SOD1820 · UNIVERSAL EXPLORER · INTERNAL PREVIEW v1 (SLICE 3)
         </div>
         <h1 style={{ margin: "8px 0 4px", fontSize: "clamp(28px,5vw,42px)", color: C.ink }}>
           {activeFacet?.label || "עדשה"}
@@ -124,7 +189,7 @@ export default function ExplorerPreviewPage() {
           תצוגה פנימית בלבד, לא מקושרת מהניווט הציבורי. רשימה מדורגת לפי הסדר הקבוע של כל קורא — בלי דירוג, בלי הקשר-מחקר, בלי שכבות-הרשאה. כל כרטיס מפנה לדף הישות הקיים.
         </div>
 
-        <FacetSwitcher facets={EXPLORER_FACETS} activeKey={activeKey} onSelect={setActiveKey} />
+        <FacetSwitcher facets={EXPLORER_FACETS} activeKey={activeKey} onSelect={selectFacet} />
 
         {state.error ? (
           <div style={{ ...card, padding: 16, marginTop: 16, color: "#f28b82" }}>
@@ -140,7 +205,7 @@ export default function ExplorerPreviewPage() {
           className="expl-grid"
           style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 12, marginTop: 16 }}
         >
-          {state.cards.map((item) => <FacetCard key={`${item.facet}:${item.id}`} item={item} />)}
+          {state.cards.map((item) => <FacetCard key={`${item.facet}:${item.id}`} item={item} onLeave={onLeaveCard} />)}
         </div>
 
         {state.loading ? <div style={{ marginTop: 16, color: C.soft }}>טוען…</div> : null}
@@ -149,7 +214,7 @@ export default function ExplorerPreviewPage() {
           <div style={{ textAlign: "center", marginTop: 20 }}>
             <button
               type="button"
-              onClick={() => loadPage(activeKey, state.offset + PAGE_SIZE, false)}
+              onClick={loadMore}
               style={{
                 cursor: "pointer",
                 minHeight: 44,
