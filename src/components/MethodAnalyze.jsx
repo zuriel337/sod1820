@@ -1,26 +1,41 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { METHODS, DEPTH_METHODS, methodLabel, onlyHeb, methodResultText } from "../lib/gematria.js";
+import { methodLabel, onlyHeb, methodResultText } from "../lib/gematria.js";
 import { getGematriaByValue, getAiAnalysis } from "../lib/supabase.js";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
+import { calculateGematriaEnvelope } from "../lib/research/gematriaCalculationContract.js";
+import { fetchGematriaMethodStates } from "../lib/research/gematriaMethodRegistry.js";
 
 // 🔬 רכיב קנוני יחיד (canonical_ui_components_law): «נתח שיטה בודדת».
-// בוחרים שם/ביטוי → בוחרים שיטה אחת מ-20 השיטות → ניתוח-AI שממוקד *רק* בערך של אותה שיטה
-// ובמה שמתכנס עליו. מוטמע דרך props במחשבון, בדף-השם וב-name-lab — בלי לשכפל קוד.
+// חישוב וזהות-שיטה מגיעים מאותו canonical calculation contract + Registry reader של המחשבון.
+// הרכיב נשאר Projection בלבד: אין בו Registry, רשימת-שיטות או נוסחת-חישוב מקבילה.
 // עובדה≠פרשנות, בלי נבואות (חוקי-הברזל של ai-analyze). ה-AI מפרש עובדות-מנוע בלבד.
-
-const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];
 
 // hrefFor(value) → נתיב לדף-המספר של ערך-השיטה. כשמסופק, כל שיטה מקבלת «→» למעבר —
 // כך הרכיב מאחד את «כל השיטות» (ערכים + מעבר) עם ניתוח-AI לכל שיטה (unified, canonical).
 export default function MethodAnalyze({ word, defaultMethod = "רגיל", title = "🔬 נתח שיטה בודדת", hrefFor = null }) {
   const term = String(word || "").trim();
   const heb = onlyHeb(term);
+  const [methodStates, setMethodStates] = useState(null);
 
-  // ערכי כל 20 השיטות למילה הנוכחית (חישוב-לקוח, זהה למנוע — משמש בכל האתר).
+  useEffect(() => {
+    let live = true;
+    fetchGematriaMethodStates().then(rows => { if (live) setMethodStates(rows); }).catch(() => { if (live) setMethodStates(null); });
+    return () => { live = false; };
+  }, []);
+
+  const calculation = useMemo(() => calculateGematriaEnvelope(term, methodStates), [term, methodStates]);
   const values = useMemo(
-    () => ALL_METHODS.map(m => ({ key: m.key, soul: m.soul, value: m.fn(term) })).filter(r => r.value > 0),
-    [term]
+    () => calculation.results.filter(r => r.value > 0).map(r => ({
+      key: r.methodKey,
+      soul: r.sub,
+      value: r.value,
+      methodVersion: r.methodVersion,
+      methodState: r.methodState,
+      access: r.access,
+      provenance: r.provenance,
+    })),
+    [calculation]
   );
 
   const [method, setMethod] = useState(defaultMethod);
@@ -56,7 +71,16 @@ export default function MethodAnalyze({ word, defaultMethod = "רגיל", title 
       (phrases.length ? ` ביטויים ששווים ${selValue} בגימטריה רגילה (מאגר מאומת): ${phrases.join(" · ")}.` : ` ל-${selValue} אין ביטויים רבים במאגר — ערך «שקט».`) +
       ` נתח אך ורק את שכבת «${label}» (${selValue}) בהקשר לשם «${term}» — מה נפגש איתה. ` +
       `הפרד עובדה (הערכים) מפרשנות (רמז), בלי נבואות, בלי טענות על אדם חי.`;
-    try { emit(EVENTS.AI_ANALYZE, { subject, method: sel.key, value: selValue }); } catch { /* noop */ }
+    try {
+      emit(EVENTS.AI_ANALYZE, {
+        subject,
+        method: sel.key,
+        value: selValue,
+        methodVersion: sel.methodVersion,
+        methodState: sel.methodState,
+        calculationContract: calculation.contract,
+      });
+    } catch { /* noop */ }
     let out = await getAiAnalysis({ kind: "number", subject, facts, fast: true });
     if (!out) { await new Promise(r => setTimeout(r, 700)); out = await getAiAnalysis({ kind: "number", subject, facts, again: true, fast: true }); }
     setText(out || "לא התקבל ניתוח כרגע — נסו שוב עוד רגע.");
