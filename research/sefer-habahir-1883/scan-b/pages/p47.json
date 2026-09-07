@@ -1,0 +1,36 @@
+{
+  "pdf_page": 47,
+  "source_ref_page": "book:sefer-habahir-1883#p47",
+  "printed_page_label": "none (institutional accession/stamp page, not part of the book's own pagination)",
+  "page_type": "library_administrative",
+  "layout": ["institution_name", "call_number", "book_title_label", "shelf_mark", "barcode", "code"],
+  "input": {
+    "blocks": [
+      {"block_id": "p47-b1", "region": "institution_name", "text_he": "הספריה הלאומית", "confidence": "high", "notes": "'The National Library' (of Israel)."},
+      {"block_id": "p47-b2", "region": "call_number", "text_he": "S 23 A 11927", "confidence": "high"},
+      {"block_id": "p47-b3", "region": "book_title_label", "text_he": "ספר הבהיר /", "confidence": "high"},
+      {"block_id": "p47-b4", "region": "shelf_mark", "text_he": "C.4", "confidence": "high"},
+      {"block_id": "p47-b5", "region": "barcode", "text_he": "1805775-30", "confidence": "high", "notes": "Printed digits below a scannable barcode symbol."},
+      {"block_id": "p47-b6", "region": "code", "text_he": "W-X", "confidence": "high"}
+    ]
+  },
+  "extraction": {"headings": [], "section_markers": [], "verse_citations_candidates": [], "numbers": [], "letters": [], "divine_names": [], "sefirot_terms": [], "symbols_metaphors": [], "sefer_yetzirah_refs": [], "calculations_procedures": []},
+  "finding": {
+    "observations": [
+      "This page is a National Library of Israel (הספריה הלאומית) accession/identification page bound into the digitized volume: call number 'S 23 A 11927', title label 'ספר הבהיר', shelf mark 'C.4', barcode '1805775-30', code 'W-X'.",
+      "This is DIRECT, independently verifiable provenance evidence for the physical exemplar Google digitized: it is (or was at time of scanning) a National Library of Israel holding. This could be used to cross-check the exact edition/printing year against the Library's own catalog record for call number S 23 A 11927, which would help resolve the p44 date discrepancy (5641 vs. the filename's implied 1883) -- recorded here as a candidate research lead, not resolved by this scan (no external catalog lookup was performed)."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "provenance_lead", "description": "National Library of Israel call number S 23 A 11927 could be looked up in the Library's public catalog to independently confirm the exact print year and resolve the p44 chronogram discrepancy.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": []
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": true,
+    "notes": "This page itself IS the library stamp/accession page. High-confidence transcription throughout -- all text is large, printed (non-manuscript), and unambiguous."
+  }
+}

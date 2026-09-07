@@ -1,0 +1,87 @@
+{
+  "pdf_page": 35,
+  "source_ref_page": "book:sefer-habahir-1883#p35",
+  "printed_page_label": "טז (Hebrew foliation, leaf 16, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "correction_of": "research/sefer-habahir-1883/scan-b/pages/p35.json (branch claude/sefer-habahir-second-half-0lbg2i, commit 9b215c66) -- flagged unreliable by witness-structure-audit (work_log b6cc2d66): old p35.json was a verbatim duplicate of PDF page 33's real content.",
+  "correction_method": "Isolated pdftoppm -f 35 -l 35 render at 220dpi (full page) plus four 400dpi PIL crops covering the full page top-to-bottom, read independently before any comparison to the old artifact.",
+  "layout": ["header", "body_right_col", "body_left_col", "body_full_width_discourse", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p35-b1", "region": "header", "text_he": "טז ... ספר הבהיר", "confidence": "high"},
+      {
+        "block_id": "p35-b2",
+        "region": "body_right_col",
+        "text_he": "להקב\"ה מדה ששמה רעה, והיא לצפוננו של הקב\"ה, דכתיב מצפון תפתח הרעה על כל יושבי הארץ. כלומר כל רעה אשר היא באה לכל יושבי הארץ, מצפון באה. ומאי ניהו מדה? יד צורת היא ורגל, ולה שלוחים הרבה, ושמם של כולם רע, רע. אף יש בהם קטן וגדול, והם מחריבים את העולם, כי תהו לצד צפון, ואין תהו אלא רע שמתהא בני אדם עד יצה\"ר, וכל שיש בבני אדם משם, הוא ניתן ]בישראל[ בשמאל, מפני שאין לו רשות בכל העולם אלא בצפון, ולא רצה להיות אלא בצפון, ולא הורגל אלא בצפון. לפי ]ש[כשיהיה בדרום עד שילמד הדרום, והיאך הוא יכול להטעות? יתעכב אותן הימים שילמוד. לפיכך הוא לעולם בצפון בשמאל, רע. היינו דכתיב כי יצר לב האדם רע מנעוריו, הוא מנעוריו ולא יטה אלא לשמאל שכבר הורגל בה. לפום הכי אמר הקב\"ה לישראל אם שמוע תשמע לקול ה' אלהיך והישר בעיניו תעשה והאזנת למצותיו ]ולא למצות יצה\"ר[, ושמרת כל חוקיו ]ולא חוק[ יצה\"ר, אני ה' רופאך.",
+        "confidence": "high",
+        "notes": "This is the genuine content of PDF page 35: an explicit identification of 'North' (tzafon) as the domain of an attribute called 'Ra'ah' (evil), tied to the yetzer hara and the left side, prooftexted from Jeremiah 1:14 and Genesis 8:21. This is essentially the discourse the ORIGINAL Scan B session mistakenly attributed to PDF page 31 (p31.json) -- confirming that specific content genuinely exists in the source, just on a different page (35, not 31) than originally filed."
+      },
+      {
+        "block_id": "p35-b3",
+        "region": "body_left_col",
+        "text_he": "ומתרגמים 'וסטא לותה', וכתיב סטה מעליו ועבור: נה שבעים תמרים, מה טעם? אלא קבלו עליהם המצות, כדכתיב אם שמוע תשמע, מיד ויבואו אלימה. מאי אלימה? ]אלי טעה אלי[, ושם שתים עשרה עינות מים, ]אסרן[ הקב\"ה ואח\"כ החזירן להם: אבנים, דכתיב שתים עשרה, מפני שבתחלה היתה תורה בעולם שנמשלת למים, ואח\"כ נקבעת במקום קבוע, מה שאין המים עושין -- שהיום כאן ולמחר להלן. מאי שבעים תמרים? מלמד שיש להקב\"ה שבעים קומות, ושואבים מי\"ב פשוטים, מה המים האלה פשוטים אף הם פשוטים, ומנלן דתמר הוי קומה? דכתיב זאת קומתך דמתה לתמר, ולא יחטיא זה. והיינו דכתיב שבעים תמרים ולא היו דומים אלו לאלו, ]ד[פעולתם זה לזה וטעם זה אינו דומה לזה )בגימ' אמרת ע' קומות(, ]ד[הא אמרת ע\"ב! אלא אמרת ע' ושתים אינם בכלל, והאמרת ע'! אלא האחד שר השטן. משל למלך שהיה לו בנים, קנה עבדים ואמר הנה לכם בשוה לכולכם. אמר אחד מהם: איני רוצה עמהם, כי אני יש לי יכולת לגזול מכם הכל. אמר המלך: הואיל וכן הוא, לא יהיה לך חלק בתוכם, ועשה בכל יכלתו וארב להם בדרך, והראה להם זהב הרבה והכסף והאבנים",
+        "confidence": "medium-high",
+        "notes": "New discourse (section marker 'נה'), on Exodus 15:27 (Elim's 12 springs and 70 palms), with numerology on 12/70/72 and a gematria aside ('ע' קומות'), transitioning into a parable of a king's sons and a rebellious servant granted no share -- continues into the 'yetzer hara as treasury-steward' parable at the bottom of the page and onto p36."
+      },
+      {
+        "block_id": "p35-b4",
+        "region": "body_full_width_discourse",
+        "text_he": "הטובים ]באו העולם[ ממאכל הטוב, וראה שהאבנים היקרות וחיילות שקונין ממנו קנא )זה מה עשה?( שלח שלוחיו להרוס הבתים החלשים, כי בחזקים אין לו יכולת -- אמר בין כך ובין כך שישתדלו כי אחד מן החזקים יהרסו כ' מן החלשים, ]ו[יבואו כולם לקנות אבנים ]אצל אבנים[ ממנו, אבל אני, אהיה, ולא אהיה פחות מחברי. הה\"ד מצפון תפתח הרעה על כל יושבי הארץ, ]ואח\"כ[ כי הנני קורא לכל משפחות ממלכות צפונה נאם ה', ובאו ונתנו איש כסאו פתח שערי ירושלם וגו'. והרעה תהיה תמיד, וגם יצה\"ר ישתדל תמיד ]אימתי[ משמע דשטן הוה )מטעה( ]מטה[ שהוא ]מנת כף החובה[ מטה העולם ]לעולם[ שהוא מנת כף הזכות לעולם, ]ד[כתיב 'ויט אליה, ]ו[גם שם: הוי כל צמא לכו למים, ]וגו'[ שתשמע לקול ה' ]אלהיך[ ]וגו'[ שתשמור מצותיו כל את העולם לכף הזכות ]ד[הוה כתיב אליה יצט, אשר שמתי במצרים לא אשים עליך למה עליה נאמר",
+        "confidence": "low-medium",
+        "notes": "Continues the king's-servants parable into an explicit accusation identifying the rebellious servant as the yetzer hara/Satan, then re-cites Jeremiah 1:14 (as also seen with a shorter form on this same page's right column) together with Jeremiah 1:15, and closes with a scale-of-merit/scale-of-guilt ('kaf zechut'/'kaf chovah') discourse. Several bracketed spans uncertain."
+      },
+      {"block_id": "p35-b_torah_or", "region": "torah_or_line", "text_he": "תורה אור א ירמיה א : ב נראשית ח : נ נהלשית ח : ד שמות טו : ה מלכי ד : ו שמות טו : ז מלכי ד : ח שמות טו : ם שהב\"ג : י ירמיה א : כ נמדבר יב : ל שמות טו : מ ש\"ח יב : נ שמות טו", "confidence": "low", "notes": "Compact abbreviated verse-index line; several abbreviations only partially resolved."},
+      {"block_id": "p35-b_hagahot_r", "region": "hagahot_right_col", "text_he": "פי': ]ולה[ שלוחים הרבה: פי' הרע: ולה מנות מכחה מתנס: לצפון גבורה: ]ולה[ למנות ילר הרע: הבנים גבנים: לפי מדינת מלכותו:פי' עט': נה נוע' התניס דכתי' נגו': ]מיב[ פשוטות ]ות\"ת[ פשוטות...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense, several words uncertain even at 400dpi."},
+      {"block_id": "p35-b_hagahot_l", "region": "hagahot_left_col", "text_he": "נתיבותיהס: ]לח\"י[]ולא[ זזו ממקומן ולחוי לבנות להם בית אלהינו: ב' אבנים בנות ב' בתים כדחזי בכ\"ק: תע\"א לנס\"ע לק\"ק שחין להם תמורים וי\"ת פשוטות יותר מן הבנים שהורכבו מד' יסודות: הקומה יבחר בסופה קומהה: ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense, several words uncertain even at 400dpi."}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["נה (discourse marker, left column: '70 palms')"],
+    "verse_citations_candidates": [
+      {"raw": "מצפון תפתח הרעה על כל יושבי הארץ", "likely_source": "Jeremiah 1:14", "block_id": "p35-b2 / p35-b4", "confidence": "candidate"},
+      {"raw": "כי יצר לב האדם רע מנעוריו", "likely_source": "Genesis 8:21", "block_id": "p35-b2", "confidence": "candidate"},
+      {"raw": "אם שמוע תשמע לקול ה' אלהיך והישר בעיניו תעשה... אני ה' רפאך", "likely_source": "Exodus 15:26", "block_id": "p35-b2", "confidence": "candidate"},
+      {"raw": "ויבואו אלימה ושם שתים עשרה עינות מים ושבעים תמרים", "likely_source": "Exodus 15:27", "block_id": "p35-b3", "confidence": "candidate"},
+      {"raw": "כי הנני קורא לכל משפחות ממלכות צפונה... ובאו ונתנו איש כסאו פתח שערי ירושלם", "likely_source": "Jeremiah 1:15", "block_id": "p35-b4", "confidence": "candidate"},
+      {"raw": "הוי כל צמא לכו למים", "likely_source": "Isaiah 55:1", "block_id": "p35-b4", "confidence": "candidate"}
+    ],
+    "numbers": ["י\"ב עינות מים (12 springs)", "שבעים תמרים (70 palms)", "ע\"ב (72, raised as a gematria question) vs 70+2", "שבעים קומות (70 'heights'/stature-measures)"],
+    "letters": [],
+    "divine_names": ["הקב\"ה", "ה'"],
+    "sefirot_terms": ["מדה ששמה רעה (an attribute called 'Ra'ah', explicitly assigned to the North/left) -- direct continuation of the p31 direction-attribute theme", "כף זכות / כף חובה (scale-pan of merit / scale-pan of guilt)"],
+    "symbols_metaphors": [
+      "צפון = יד ורגל של רע (North figured as the hand-and-foot/limbs of the attribute of evil, with many 'messengers')",
+      "שבעים תמרים = שבעים קומות של הקב\"ה (the 70 palms as a figure for 70 'heights' or measures of the Holy One)",
+      "משל למלך ובניו/עבדיו (parable of a king, his sons, and a rebellious purchased servant denied a share, then plotting via decoy treasures) -- identified explicitly as an allegory for the yetzer hara/Satan"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": ["Explicit gematria aside: '70 heights' (ע' קומות) checked against 'ע\"ב' (72) and reconciled as '70 plus 2 not included in the count' -- a numeric reconciliation performed in the text itself."]
+  },
+  "finding": {
+    "observations": [
+      "CORRECTION IMPACT (major): the prior (faulty) p35.json was a verbatim duplicate of PDF page 33's real content (the 'shemini... tzaddik yesod olam' passage). This page's TRUE content -- the North/evil-attribute discourse and the Elim/70-palms numerology -- is a completely different, substantial unit that was mostly absent from the original Scan B corpus, EXCEPT for its closing king's-servants/treasuries parable, which the original session had (correctly in substance) captured but filed under the wrong page number, p31.json, where it does not belong either.",
+      "This page directly confirms and extends the p31/'North=evil' theme originally (and wrongly) attributed to PDF page 31 -- the theme is real, but this page (35), not page 31, is where its fullest exposition sits.",
+      "The 70-palms/70-heights numerology with an explicit gematria check against 72 is a clean, quotable example of the text performing its own arithmetic reconciliation -- notable for the calculations_procedures category."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Jeremiah 1:14-15, Genesis 8:21, Exodus 15:26-27, and Isaiah 55:1 all explicitly quoted on this page.", "confidence": "candidate"},
+      {"type": "cross_page_continuity", "description": "This page's North/evil-attribute discourse is a fuller treatment of the same theme partially seen (per the corrected p31.json in this same batch) on PDF page 31 -- a genuine authorial return to the topic, not a duplication.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p35-b3", "description": "The gematria aside ('בגימ' אמרת ע' קומות... ד הא אמרת ע\"ב') is compressed and its exact dialectical structure uncertain."},
+      {"block_id": "p35-b4", "description": "LOW-MEDIUM confidence; several bracketed spans in the scale-of-merit/scale-of-guilt closing passage uncertain."},
+      {"block_id": "p35-b_torah_or", "description": "Citation-index line abbreviations only partially resolved."},
+      {"block_id": "p35-b_hagahot_r", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."},
+      {"block_id": "p35-b_hagahot_l", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi (full page) + 400dpi (targeted PIL crops) for this corrective pass",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf טז (16). Re-verified live against Supabase Storage (sha256 b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067) before this corrective session began."
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "pdf_page": 30,
+  "source_ref_page": "book:sefer-habahir-1883#p30",
+  "printed_page_label": "26 (Arabic page number, verso of leaf יג/13)",
+  "page_type": "bahir_text_and_commentary",
+  "correction_of": "research/sefer-habahir-1883/scan-b/pages/p30.json (branch claude/sefer-habahir-second-half-0lbg2i, commit 9b215c66) -- flagged unreliable by witness-structure-audit (work_log b6cc2d66)",
+  "correction_method": "Isolated pdftoppm -f 30 -l 30 render at 220dpi (full page) plus targeted 400dpi crops (main-discourse paragraph, both hagahot columns) via PIL, read independently before any comparison to the old artifact.",
+  "layout": ["header", "body_right_col", "body_left_col", "body_full_width_discourse", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p30-b1", "region": "header", "text_he": "ספר הבהיר ... 26", "confidence": "high"},
+      {
+        "block_id": "p30-b2",
+        "region": "body_right_col",
+        "text_he": "בנים ובאים בכל יום לראות פני המלך ומברכין אותו א\"ל אמנו אנה אמר להם לא תוכלו לראותה עתה אמרו ברוכה תהא בכל מקום שהיא ומאי דכתיב ממקומו מכלל דליכא דידע מקומו. משל לבת מלך שבאה מרחוק ולא ידעו מהיכן באה עד שראו שהיא אשת חיל והגונה ידעו מצורת האור נלקחה כי מעשיה יאיר העולם שאלו אותה מאין את אמרה מקומי א\"כ גדולים אנשי מקומך תהא ומבורך אנשי מקומך. וכי אין כבוד יי' זה אחד מצבאותיו לא גרע אמאי מברכין ליה אלא משל לאיש שהיה לו גן נאה וחוץ לגן נקרב ממנו חתיכת שדה נאה עשה בו נינה נאה השקיה את הגן בתחלת השקיותא אך אותה חתיכה של שדה שהיא אינה דביקה בקרוב מחתיכת שדה לפיכך פתח לה מקום והשקה אותה לבדה:",
+        "confidence": "high",
+        "notes": "Clear, legible two-part parable: (1) a princess arriving from a distant, unknown origin whose deeds reveal her worth (identified in the marginal gloss as an allegory for Chochmah, 'the light/wisdom whose source cannot be traced'); (2) a king's beautiful field-plot adjoining his garden, watered separately because not contiguous with the garden proper -- allegory for a discrete divine attribute/sefirah irrigated on its own."
+      },
+      {
+        "block_id": "p30-b3",
+        "region": "body_left_col",
+        "text_he": "נשיאות כפים אל שם שדוקם משום ד\"א. משום כח שנתן ליעקב אבינו ישראל שמו: דלאברהם וליצחק וליעקב ניתנו כחות, לכל אחד ואחד הלך אשר ובמדה ואחד דוגמתה ניתן לו: בשביל שהיה גומל חסד לאברהם ניתן לו ויוצא לשלמאכים בשביל חסד שהיתה מפתה האהל, ועוד וישתחו -- זאת היתה גמילות חסד שלמה. והקב\"ה מדד לו כמדתו, כדכתיב תתן אמת ליעקב חסד לאברהם, הרי שנתן לו מדת החסד. אשר נשבעת לאבותינו מימי קדם -- מלמד שאם לא היה אברהם גומל חסד וזוכה למדת חסד, לא היה יעקב זוכה למדת אמת. שבזכות שזכה אברהם למדת חסד זכה יצחק למדת פחד, דכתיב וישבע יעקב בפחד אביו יצחק. (אמו כולם אין) יש איש שישבע כך באמונה, פחד ניתן לו כאן ליעקב, כח ונשבע בכח שנתן, שנאמר וישבע יעקב בפחד אביו יצחק, שממנו יוצא לפיכך פתח לה מקום והשקה אותה לבדה:",
+        "confidence": "medium-high",
+        "notes": "Opens a new discourse unit on the Priestly Blessing hand-raising ('nesi'ut kapayim') as a channel for the chesed/pachad/emet attribute-chain running Abraham->Isaac->Jacob, closing with the Genesis 31:53 oath formula ('vayishava Ya'akov b'fachad aviv Yitzchak'). A few short clauses (marked in parentheses above) are of uncertain segmentation."
+      },
+      {
+        "block_id": "p30-b4",
+        "region": "body_full_width_discourse",
+        "text_he": "מט אמר רבי רחומאי: הרע המתהא [?] את בני אדם, כבוד ולב הרי הם אחד, ומאי ניהו? דכתיב [...] כתיב הותפל. אלא שהכבוד נקרא על שם הפעולות: [אש ותאכל את] העלה וגו', וכתיב כי יי' אלהיך אש אכלה הוא. מעלה נקרא לב על שם פעולות מטה, כבוד היינו השמוהי לב, ומאי קנא אל [החסד] הוא אוכלה אש, הריהו [...] דכתיב הוי כל צמא לכו למים, ואשר אין לו כסף לכו שברו [ואכלו]. [ריוחנן] אמר, מאי דכתיב והיה כאשר ירים משה ידו וגבר ישראל, וכאשר יניח ידו וגבר עמלק. וכי היה גבר משה ידו [...] מלקק כסף ולא נגבר עמלק [...] מלמד שהעולם מתקיים בשביל תורה שניתנה בכתב, וילמד מחיר יאכילכם תורה, ולא מדכם, כבר זכיתם.",
+        "confidence": "low-medium",
+        "notes": "Full-width discourse unit (section marker 'מט', a new named speaker 'ר' רחומאי') opening with an equation of 'kavod' (glory) and 'lev' (heart/left) as the same underlying attribute, prooftexted from Deuteronomy 4:24 ('esh okhelah'), then pivoting to the Amalek war (Exodus 17:11, Moses' raised hands) and a discourse on Torah as the world's sustaining currency (echoing Isaiah 55:1, 'ho kol tzame lechu la-mayim'). Several short spans (marked [...] or [?]) contain tiny superscript cross-reference markers interleaved with the main text that could not be confidently separated from the running words at 400dpi; flagged as unresolved rather than guessed. This is a materially different -- and much more confidently attested -- reading than anything in the prior (faulty) p30.json, which had no equivalent content at all."
+      },
+      {"block_id": "p30-b_torah_or", "region": "torah_or_line", "text_he": "תורה אור ב שמות יח : נ מיכה ז : נ ברלאשית לג : ו דגרלישית ד : ה מ\"א יח : ו דבריס ד : ז ישעיה נה", "confidence": "low", "notes": "Compact abbreviated verse-index line; several book/chapter abbreviations only partially resolved."},
+      {"block_id": "p30-b_hagahot_r", "region": "hagahot_right_col", "text_he": "תחלה: כבוד חכמים יבחנו: [...] פי' עט': בהדרי, פי' בל\"ב חדרי החכמה העליונה: נביא, [...]: לוי, פי' לבינה: חיתנו אנה, פי' עט': אמר להם לא תוכלו לראותה, כי נעלמה מעין כל חי: וג\"כ בת מלך, פי' עט': מרחוק, פי' חכמה העליונה: ולא ידעו מהיכן באה, כמו והחכמה מאין תמצא: עד שראוה, פי' הבנים: שהיא אשת חיל, פי' לעיל: תבונתי, פי' לעיל: האור, פי' החכמה שנקלטת [כאור] כדפרשינן: כי במעשיה יאיר העולם, פי' השפעת אור בעולם: וכי אין כבוד, עט', אחד מצבאותיו והלא נאמר קדוש ה': מלך, פי' כ\"ט: גן נאה, פי' שאר הספירות: וחוץ לגן, לאו דוקא חוץ אלא כמו נעשה לו עזר כנגדו, ולכן אמר בקרוב מתנוי, פי' ביסוד עולם: חתיכת...", "confidence": "low", "notes": "Small-print marginal gloss; substantially more legible at 400dpi than in the original 220dpi-only pass, but still abbreviation-dense with several uncertain words (marked [...])."},
+      {"block_id": "p30-b_hagahot_l", "region": "hagahot_left_col", "text_he": "תניו, ר\"ל נחת לו שכרו הוא לפי מה שעשה, ונתנה [לו] חן, שיעור כי אע\"פ שממלא שיעור [ה]מעלות, הנביא דארז\"ל לא קם נביא כמשה, פי' לא זכה כל להסתכל באספקלריא המאירה, אפ\"ה זכה אברהם פי' ליטול חסד בחלקו, מה שלא זכה משה רבינו ע\"ה, כי פני משה כפני חמה, פי' ת\"ת. ומשה רבינו ע\"ה חלק [מן] החסד בחלקו אחר שעלה במעלת הגבוה יותר מאברהם, והיינו טעמא [ש]הוא שכל נבואה [נ]תנה לאדם בעוד שהנפש עם הבשר, ר\"ל גוף ונשמה, לכן ראוי למעלת הנבואה לכל א', כפי הראוי, אבל מתן שכרו בהפרד נשמה נעלה מעל הגוף, ולכן [יש] תועלת, ולכן אמר במדה שהלך כל אחד ואחד ודוגמתו נותן לו כח, כדפרש[ו] וכיל, ודלהב\"ז כי מה שאמר לאברהם גדל...", "confidence": "low", "notes": "Small-print marginal gloss glossing the chesed/nevu'ah (prophecy) comparison between Abraham and Moses; abbreviation-dense, several words uncertain."}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["מט (discourse marker, full-width paragraph)"],
+    "verse_citations_candidates": [
+      {"raw": "תתן אמת ליעקב חסד לאברהם", "likely_source": "Micah 7:20", "block_id": "p30-b3", "confidence": "candidate"},
+      {"raw": "וישבע יעקב בפחד אביו יצחק", "likely_source": "Genesis 31:53", "block_id": "p30-b3", "confidence": "candidate"},
+      {"raw": "כי יי' אלהיך אש אכלה הוא", "likely_source": "Deuteronomy 4:24", "block_id": "p30-b4", "confidence": "candidate"},
+      {"raw": "והיה כאשר ירים משה ידו וגבר ישראל וכאשר יניח ידו וגבר עמלק", "likely_source": "Exodus 17:11", "block_id": "p30-b4", "confidence": "candidate"},
+      {"raw": "הוי כל צמא לכו למים ואשר אין לו כסף לכו שברו ואכלו", "likely_source": "Isaiah 55:1", "block_id": "p30-b4", "confidence": "candidate"}
+    ],
+    "numbers": [],
+    "letters": [],
+    "divine_names": ["ה'", "יי'", "הקב\"ה"],
+    "sefirot_terms": [
+      "חסד (Chesed) / פחד (Pachad) / אמת (Emet) explicitly chained Abraham->Isaac->Jacob",
+      "כבוד = לב (Kavod identified with Lev/the heart) as a single attribute named two ways -- 'מעלה נקרא לב... כבוד היינו השמוהי לב'",
+      "גן נאה = 'שאר הספירות' per the marginal gloss (the garden explicitly glossed as 'the other sefirot')"
+    ],
+    "symbols_metaphors": [
+      "משל לבת מלך שבאה מרחוק (parable of the princess from an untraceable origin, glossed as Chochmah)",
+      "משל לאיש שהיה לו גן נאה וחתיכת שדה סמוכה (parable of the king's garden plus an adjoining but separately-watered field-plot)",
+      "אש אוכלה כבוד/לב (consuming fire as the name for kavod/lev)"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "This page opens two new, clearly-bounded discourse units after the princess/garden parables conclude: (1) the Priestly Blessing hand-raising tied to the Abraham-Isaac-Jacob chesed/pachad/emet chain, and (2) a full-width (not two-column) discourse marked with the section number 'מט' equating kavod and lev via Deuteronomy 4:24, then pivoting through the Amalek war to a statement about Torah sustaining the world.",
+      "The marginal gloss on this page explicitly glosses 'the garden' (גן נאה) as 'the other sefirot' (שאר הספירות) -- a direct, quotable proto-sefirotic gloss worth flagging for the sefirot_terms category.",
+      "CORRECTION IMPACT: the prior (faulty) p30.json contained none of this content -- it instead contained a verbatim block that actually belongs to PDF page 34 (the Marah/Elim discourse). This page's true content (the princess/garden parables and the kavod=lev/Amalek discourse) was entirely absent from the original Scan B corpus. See correction_diff in the discrepancy report."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Micah 7:20, Genesis 31:53, Deuteronomy 4:24, Exodus 17:11, and Isaiah 55:1 all explicitly quoted/played upon on this page.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p30-b4", "description": "Several short spans in the full-width 'מט' discourse contain tiny superscript cross-reference markers interleaved with the main text that could not be confidently separated from running words even at 400dpi; marked [...]/[?] rather than guessed."},
+      {"block_id": "p30-b_torah_or", "description": "Citation-index line abbreviations only partially resolved."},
+      {"block_id": "p30-b_hagahot_r", "description": "Marginal gloss substantially more legible at 400dpi than the original pass, but still contains several uncertain abbreviation-dense words, marked [...]."},
+      {"block_id": "p30-b_hagahot_l", "description": "Marginal gloss substantially more legible at 400dpi than the original pass, but still contains several uncertain abbreviation-dense words, marked [...]/[ ]."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi (full page) + 400dpi (targeted PIL crops) for this corrective pass",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יג (13); Arabic '26' = 13*2, consistent with the pagination_finding already established in research/sefer-habahir-1883/scan-b/manifest.json. Re-verified live against Supabase Storage (sha256 b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067) before this corrective session began."
+  }
+}

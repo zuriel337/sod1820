@@ -1,0 +1,81 @@
+{
+  "artifact": "SEFER_HABAHIR_1883_FULL_CORPUS_COVERAGE_V1",
+  "source_sha256": "b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067",
+  "N": 48,
+  "pages_covered": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48
+  ],
+  "pages_covered_count": 48,
+  "gaps": [],
+  "duplicate_active_page_assignments": [],
+  "duplicate_source_refs_in_active_set": [],
+  "coverage_exact_48_of_48": true,
+  "total_active_blocks": 212,
+  "total_active_unresolved": 115,
+  "unresolved_classification": {
+    "bibliographic": 2,
+    "textual": 109,
+    "structural": 4
+  },
+  "breakdown_by_source": {
+    "scan_a_pages_1_24": {
+      "pages": 24,
+      "blocks": 82
+    },
+    "scan_b_active_pages_18": {
+      "pages": 18,
+      "blocks": 90
+    },
+    "scan_b_corrective_pages_6": {
+      "pages": 6,
+      "blocks": 40
+    }
+  }
+}

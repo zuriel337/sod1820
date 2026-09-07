@@ -1,0 +1,61 @@
+{
+  "pdf_page": 30,
+  "source_ref_page": "book:sefer-habahir-1883#p30",
+  "printed_page_label": "26 (Arabic page number, verso of leaf יג/13)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p30-b1", "region": "header", "text_he": "ספר הבהיר ... 26", "confidence": "high"},
+      {"block_id": "p30-b2", "region": "body_right_col", "text_he": "נג מאי דכתיב ויבואו אלימה ושם שתים עשרה עינות מים ושבעים תמרים ויחנו שם על המים. וכי מה שבח היה שבח בשבעים תמרים באחת מקטני המקומות יש משל דכתיב [נ\"א זכות] שיש להם תמרים בתמורות ופעולותם דכתיב זכות אבוקוזלתיך מרתה. שהם שתות המים) הם ל\"ה השם ולוכם שי\"ב עינות מים שהם מרים אבל תסביקו מהם ...", "confidence": "medium", "notes": "Discourse on Exodus 15:27 (Elim, 12 springs & 70 date-palms) with numeric homily."},
+      {"block_id": "p30-b3", "region": "body_left_col", "text_he": "נב יישב ר' ברכיה ודרש מאי דכתיב ויולן ה' עץ ויורהו אל המים וימתקו המים ומאי ניהו עץ שהחיים הוא ויורהו ה' אל יצחק ה' ישלך אל המים וימתקו המים. שם שם לו חק ומשפט הקב\"ה לישטן וזהו נסהו וישם נסהו לישראל שיזהירו ליהם ליישראל תשמעו לקול ה' וגו' משל לטלך שהיתה לו בת נאה ומתאוים מתאוים לה אחרים. ידע המלך שהיה הדבר בלתי אפשר להתקוטט עם המוציאים בתו את התהוושי לתרבות רעה והוזהיר בדברי הזוהי אלה מזוקים כי לא יוכלו לך: ואל תצאי לפתח הבית במלאכתך ואל תשבי בטלה אפילו שעה אחת ולא יוכלו לראותך ולא להזיק לך במדה אחת מתרחקים מכל דרך טוב ובוהרים בכל דרך רע ובשרואן אותו ניהו השטן שלמד ניהו השטן שיש שם", "confidence": "medium", "notes": "Exodus 15:25 (Marah episode) homily, parable of the king and his daughter (allegory for Israel guarded against the yetzer hara/Satan)."},
+      {"block_id": "p30-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור א שמות עו : ב ישעיה מב : נ שמות עו : ד במדבר עו : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p30-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p30-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["נב (discourse marker, left column)", "נג (discourse marker, right column)"],
+    "verse_citations_candidates": [
+      {"raw": "ויבואו אלימה ושם שתים עשרה עינות מים ושבעים תמרים ויחנו שם על המים", "likely_source": "Exodus 15:27", "block_id": "p30-b2", "confidence": "candidate"},
+      {"raw": "ויורהו ה' עץ וישלך אל המים וימתקו המים שם שם לו חק ומשפט ושם נסהו", "likely_source": "Exodus 15:25", "block_id": "p30-b3", "confidence": "candidate"},
+      {"raw": "אם שמוע תשמע לקול ה' אלהיך", "likely_source": "Exodus 15:26", "block_id": "p30-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["שתים עשרה עינות מים (12 springs)", "שבעים תמרים (70 date-palms)"],
+    "letters": [],
+    "divine_names": ["ה'", "הקב\"ה"],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "עינות מים / תמרים (12 springs / 70 palms at Elim) as a numerological figure for tribes/nations",
+      "עץ המושלך במים הממתיק (the tree cast into the bitter waters of Marah) as a healing/sweetening symbol",
+      "משל למלך שהיתה לו בת נאה (parable of the king's beautiful daughter guarded from suitors) -- allegory for Israel/Torah guarded from the yetzer hara"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "Clear thematic pairing of the two Exodus wilderness episodes (Marah's bitter-water-sweetened, and Elim's 12 springs/70 palms) as consecutive homiletic units on the same page, both keyed to numbers of tribal/national significance (12, 70).",
+      "The parable of 'the king's daughter' introduces the figure later identified as השטן (Satan/the accuser) -- continues onto next page; kept as a single narrative unit split across the page boundary."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Direct sequential exposition of Exodus 15:25-27 (Marah and Elim).", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p30-b2", "description": "Bracketed variant note '[נ\"א זכות]' (=נוסחא אחרת, 'alternate reading') is itself a print-level textual-variant marker; the alternate word it flags is not confidently resolved."},
+      {"block_id": "p30-b3", "description": "Parable text has several ambiguous words around 'התהוושי לתרבות רעה'."},
+      {"block_id": "p30-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p30-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p30-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יג (13); Arabic '26' = 13*2. Note: this printed edition itself marks textual variants ('נ\"א' = נוסחא אחרת) inline -- direct evidence of the editor's stated variant-collation methodology described in the p44 editorial essay."
+  }
+}

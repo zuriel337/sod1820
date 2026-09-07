@@ -1,0 +1,101 @@
+{
+  "pdf_page": 31,
+  "source_ref_page": "book:sefer-habahir-1883#p31",
+  "printed_page_label": "יד (Hebrew foliation, leaf 14, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "correction_of": "research/sefer-habahir-1883/scan-b/pages/p31.json (branch claude/sefer-habahir-second-half-0lbg2i, commit 9b215c66) -- flagged unreliable by witness-structure-audit (work_log b6cc2d66)",
+  "correction_method": "Isolated pdftoppm -f 31 -l 31 render at 220dpi (full page) plus four 400dpi PIL crops covering the full page top-to-bottom, read independently before any comparison to the old artifact.",
+  "layout": ["header", "body_right_col", "body_left_col", "body_full_width_discourse", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p31-b1", "region": "header", "text_he": "יד ... ספר הבהיר", "confidence": "high"},
+      {
+        "block_id": "p31-b2",
+        "region": "body_right_col",
+        "text_he": "לכך בזכות אברהם אשר גמל חסד בלא כסף, והיינו (חסד פחד) יין וחלב, ובלא מחיר מאכל ומשקה. [סוד] אלא מלמד ה' תקרא, יענה [אם א'] פחד הוא, והלב הוא מאי? מפני מה הזכיר חסד, ומפני מה תקרא ה' יענה מיד? אלא מלמד[...] ומה ענין יין וחלב לזה? אלא מלמד שנאמר או תקרא ה' יענה מיד נענים, אלא אימא דמות יין וחלב. ]ובזכות[ אברהם שזכה למדת חסד זכה יצחק למדת פחד וזכה יעקב זכה למדת אמת, שהיא מדת שלום, ומדד לו כמדתו, שנאמר ]ד[ ויעקב איש תם יושב אהלים, ואין תם אלא שלום, דכתיב תמים, ואין תמה עם ה' אלהיך ומתרגמינן שלים. ]ותהא[ אין תם אלא תורה, שנאמר תורת אמת, וכתיב תורת ה' תמימה. ואין אמת אלא שלום, דכתיב שלום ואמת יהיה בימי, ואין אמת אלא תורה שנאמר תורת אמת היתה בפיהו וגו', ומה כתיב בתריה? בשלום ובמישור הלך אתי, ואין מישור אלא שלום, דכתיב תום ויושר. הילכך כאשר ירים משה ידו וגבר ישראל, שנקראת ]המדה[ שהמדה ]ישראל[ בתוכה תורת אמת, ומאי ניהו תורת אמת! דבר שמורה על אמיתות העולם ופעולתו במחשבה, והוא מעמיד",
+        "confidence": "medium",
+        "notes": "Continues discourse from p29-30's chesed/pachad/emet chain, now equating 'emet' with Torah and shalom via a chain of prooftexts, closing into Exodus 17:11 (Moses' hands) again -- a recognizable thematic bridge from p30's discourse. Several short bracketed spans have tiny superscript cross-reference markers interleaved with the text; marked rather than guessed."
+      },
+      {
+        "block_id": "p31-b3",
+        "region": "body_left_col",
+        "text_he": "]משל[ד אינם רשות לקרוא לאל\"ף לבדו, אלא על ידי שנים -- האותיות הדבקים בה היושבים בה הראשונה במלכות, ועם האל\"ף הם שלשה, ]ו[נשארו ז' מי אמרות, והיינו דכתיב ]א[ וישיר משה ובני ישראל. ג\"כ ]מאי ניהו[ י' מאמרות אל\"ף ]כמו[ )כתר( עליון ברוך הוא ומבורך שמו, ועמומי עמו ישראל, דכתיב כי ה' הוא האלהים, הוא עשנו ולא אנחנו. ולאל\"ף אנחנו ]צריכים[ להכיר ולידע אחד האחדים והמיוחד, דכתיב הוא האלהים הוא עשנו ולא אנחנו, ולפיכך נכתב לא באל\"ף, כי הוא א' ומיוחד בכל שמותיו. שנית חכמה, דכתיב ה' קנני ראשית דרכו, ואין ראשית אלא חכמה, דכתיב ראשית חכמה יראת ה'. ה' שלישית מחצב התורה, אוצר החכמה, רוח אלהים חיים, מלמד שהיה הקב\"ה עושה כל האותיות של תורה וחקקן ברוח, ועשה בו צורותיו, והיינו ]אין צור[ כאלהינו, אין צור דומה לאלהינו, ואין צייר כאלהינו. שלישית הוי רביעית, מאי רביעית? הם צדקת השם וכיותיו וחסדיו עם כל העולם והיינו ימינו של הקב\"ה של המישית. מאי חמישית? אשו של הקב\"ה, שנאמר ]ו[את האש הגדולה הזאת וגו': והוא שמאלו של הקב\"ה, החיות הקדוש ]ה[ ושרפים הקדושים מימינם ומשמאלם הם הנעימים, ]ו[גבוהים עליהם עד למעלה הגבוהים דכתיב וגבוה עד למעלה, עד ]ה[גבוהים עליהם ]ל[גבוה, ]ל[יגובה ויראה להם להמגבותם מלאות עינים ונו' וסביביו מלאכים גם משתחוים לפניהם וכורעים ומשתחוים ואומרים",
+        "confidence": "low-medium",
+        "notes": "A dense discourse on the letter Aleph and the Ten Utterances/sayings of creation, moving through a sequence of ordinal divine attributes ('third... fourth... fifth') tied to Torah, tzedakah/chesed, and fire, ending in angelic-hierarchy imagery (chayot, seraphim). Several short spans uncertain; marked."
+      },
+      {
+        "block_id": "p31-b4",
+        "region": "body_full_width_discourse",
+        "text_he": "ה' הוא האלהים ששית כסא הכבוד המעוטר ומוכלל המאושר והעולם הבא הוא בית העולם ומקומו חקוק בחכמה דכתיב ויאמר נשא רום ידהו את למדת שאין נשיאות אלהים ומנלן דכתיב תהום נתן קולו רום ידהו : ן שאלו תלמידיו למי שנושאין כפים א\"ל לרום השמים ה' הוא האלהים ששית כסא הכבוד המעוטר ומוכלל המאושר והמהולל הוא בית העולם הבא ומקומו חקוק בחכמה דכתיב ויאמר לשהות ג' כפיו שעות פרושות השמים ובתוכה תורה ונקראת ישראל בי' אצבעות שהוא מעמיד ידיו כאשר ירים משה ידו וגבר ישראל וגו' והוא שמאלו של הקב\"ה בי אצבעות ידיו מעמיד תמיד את הי' ואם לא יעזור את ישראל לא יתקדשו מאסרות בכל יום ויום הילכך גבר ישראל וכאשר גבר עמלק: וכי היה משה עושה שגבר משה ידו וגבר עמלק. וכי היה משה סבור שינוח לו לאדם לשהות ג' שעות כפיו פרושות השמים",
+        "confidence": "low",
+        "notes": "Bottom section, marked with section number 'נ' ('his disciples asked him: to whom do you raise your hands? he told them: to the heights of heaven'), on the Throne of Glory and the World to Come, tied back once more to the Exodus 17:11 Amalek passage. This is a difficult, partly-repetitive-looking passage (possibly genuine dialectical repetition in the source rather than a transcription artifact, since it was read as a single continuous unit directly from the image); confidence kept LOW given the density and the risk of the very error pattern this corrective task exists to fix -- flagged for independent expert review rather than asserted as fully accurate."
+      },
+      {"block_id": "p31-b_torah_or", "region": "torah_or_line", "text_he": "תורה אור א ברלאשית כה : ב דנרים כה : יתג : מלכי כה: ד תהלים יטו: ז מלכי ב: ו חנקוק ג : י חבמות יח : חשמות יח: יב תהלים כה: יג יחזקאל ג: ...", "confidence": "low", "notes": "Compact abbreviated verse-index line; many abbreviations only partially resolved even at 400dpi."},
+      {"block_id": "p31-b_hagahot_r", "region": "hagahot_right_col", "text_he": "עליו ומהו המחכל ]ש[יאכילכם פי' תורה: קרוב אליני שהוא מפני:תורה פי' מדת הדין הוא למעה מתדת החסד: דמות יין פי' חדוס: ותלב פי' לבן:שלום פי' שלום ר\"ל ת\"ת: מישור פי' ]ת\"ת[:בתוכה: והיה ת\"ת תורת אמת ומה מעט לשם )אחרים( ]תורת אמת[: שמורה על אמיתת הפעולת ופעולתו במחשבה, פי' בלינור הנח עליו מן כ\"ע: והוה, פי' ת\"מ: תעמיד י' מאמרות של עט': ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense."},
+      {"block_id": "p31-b_hagahot_l", "region": "hagahot_left_col", "text_he": "פועל בהשוואה אחת: ההחדיס: פי' ]מיאלכיל[כם פי' תורה: תלב: לבן: שוה: זמן, בני ה' איש: וכבד פי' לניל: ]מ[הסווחה אחת שוה בנ\"ה: המיוחד בכל שמותיו: שנית חכמה, דכתיב ]י[הוה פי' כ\"ע: קנני מורה כל קדמות החכמה כי אין קנין וחין קונה בלא קנין: הוגר החכמה פי' ]הבינה עליונה[ ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense."}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["נ (discourse marker, bottom full-width section: 'שאלו תלמידיו')"],
+    "verse_citations_candidates": [
+      {"raw": "ויעקב איש תם יושב אהלים", "likely_source": "Genesis 25:27", "block_id": "p31-b2", "confidence": "candidate"},
+      {"raw": "תמים תהיה עם ה' אלהיך", "likely_source": "Deuteronomy 18:13", "block_id": "p31-b2", "confidence": "candidate"},
+      {"raw": "תורת ה' תמימה", "likely_source": "Psalms 19:8", "block_id": "p31-b2", "confidence": "candidate"},
+      {"raw": "שלום ואמת יהיה בימי", "likely_source": "Isaiah 39:8 / cf. Esther 9:30", "block_id": "p31-b2", "confidence": "candidate"},
+      {"raw": "תורת אמת היתה בפיהו... בשלום ובמישור הלך אתי", "likely_source": "Malachi 2:6", "block_id": "p31-b2", "confidence": "candidate"},
+      {"raw": "והיה כאשר ירים משה ידו וגבר ישראל", "likely_source": "Exodus 17:11", "block_id": "p31-b2 / p31-b4", "confidence": "candidate"},
+      {"raw": "כי ה' הוא האלהים הוא עשנו ולא אנחנו", "likely_source": "Psalms 100:3", "block_id": "p31-b3", "confidence": "candidate"},
+      {"raw": "ה' קנני ראשית דרכו", "likely_source": "Proverbs 8:22", "block_id": "p31-b3", "confidence": "candidate"},
+      {"raw": "ראשית חכמה יראת ה'", "likely_source": "Psalms 111:10", "block_id": "p31-b3", "confidence": "candidate"},
+      {"raw": "אין צור כאלהינו", "likely_source": "1 Samuel 2:2", "block_id": "p31-b3", "confidence": "candidate"},
+      {"raw": "את האש הגדולה הזאת", "likely_source": "Deuteronomy 5:22", "block_id": "p31-b3", "confidence": "candidate"},
+      {"raw": "תהום נתן קולו רום ידיהו נשא", "likely_source": "Habakkuk 3:10", "block_id": "p31-b4", "confidence": "candidate"}
+    ],
+    "numbers": ["שלשה (three, Aleph + two adjoining letters)", "ז' (seven, remaining 'sayings')", "י' מאמרות (10 utterances of creation)", "בי' אצבעות (10 fingers)", "ג' שעות (three hours)"],
+    "letters": ["אל\"ף (the letter Aleph, extended discussion of its exclusivity/uniqueness in divine naming)"],
+    "divine_names": ["ה'", "אלהים", "הקב\"ה", "כי ה' הוא האלהים"],
+    "sefirot_terms": [
+      "חסד/פחד/אמת (Chesed/Pachad/Emet) chain continued from p30, now equated with shalom and Torah",
+      "כתר עליון (Keter Elyon) named explicitly in connection with the Ten Utterances/Aleph discussion",
+      "ת\"ת (Tiferet, abbreviated) appearing repeatedly in the marginal glosses as an identification for 'shalom'/'mishor'",
+      "כסא הכבוד (Throne of Glory), חכמה (Chochmah, 'ראשית'), explicit ordinal sequence of divine attributes ('שנית...שלישית...רביעית...חמישית...ששית')"
+    ],
+    "symbols_metaphors": [
+      "יין וחלב (wine and milk) as a figure for chesed/pachad",
+      "אש הגדולה / חיות הקדוש ושרפים (the great fire; the holy Chayot and Seraphim flanking right and left)",
+      "בי' אצבעות (ten fingers sustaining the letter Yod) tied to Moses' raised hands at Amalek"
+    ],
+    "sefer_yetzirah_refs": [
+      {"text": "עשה בו צורותיו... אין צור דומה לאלהינו ואין צייר כאלהינו", "note": "Wordplay on tzur/tzayar (rock/sculptor) applied to God as 'shaper' of the letters -- thematically adjacent to Sefer Yetzirah's letter-creation cosmology, though no explicit 'ספר יצירה' citation formula appears on this page.", "block_id": "p31-b3", "confidence": "candidate"}
+    ],
+    "calculations_procedures": ["Count reconciliation: Aleph + 2 adjoining letters = 3, plus 7 remaining 'sayings' = 10 total utterances (מאמרות) -- explicit arithmetic given in the text ('ג' ... ונשארו ז'... הם י' מאמרות')."]
+  },
+  "finding": {
+    "observations": [
+      "This page continues the chesed/pachad/emet chain from p30 directly into an equation of 'emet' with Torah and shalom, then pivots into a substantial discourse on the letter Aleph's uniqueness and the Ten Utterances of creation -- a clear, identifiable topical unit distinct from p30.",
+      "The bottom full-width section (marker 'נ') revisits the Exodus 17:11 Amalek/Moses'-hands material yet again (also touched on p30-b4) -- this is the THIRD time this scan's corrective range returns to that verse (also see p30-b4), suggesting it functions as a recurring anchor-text across this stretch of the Bahir rather than evidence of a transcription duplication; each occurrence was read independently from its own page image and shows different surrounding material, supporting a genuine recurring-prooftext reading over a duplication artifact.",
+      "CORRECTION IMPACT: the prior (faulty) p31.json content (a king's-treasuries/messengers parable, Jeremiah 1:14 'mitzafon tiftach hara'ah') does not match this page at all and does not appear to be a clean copy of any neighboring page either -- it is simply wrong. This page's true content (chesed/pachad/emet-as-shalom, the Aleph/Ten-Utterances discourse, the Throne-of-Glory/World-to-Come section) was entirely absent from the original Scan B corpus."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Dense chain of prooftexts from Genesis, Deuteronomy, Psalms, Malachi, Exodus, Proverbs, 1 Samuel, and Habakkuk on this single page.", "confidence": "candidate"},
+      {"type": "sefer_yetzirah", "description": "Tzur/tzayar (letter-shaping) wordplay is thematically close to Sefer Yetzirah's letter-cosmology, without an explicit citation formula.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p31-b2", "description": "Several short bracketed spans contain tiny superscript cross-reference markers interleaved with running text; segmentation uncertain even at 400dpi."},
+      {"block_id": "p31-b3", "description": "LOW-MEDIUM confidence overall; the ordinal attribute sequence ('שנית...שלישית...רביעית...חמישית') has several words of uncertain reading."},
+      {"block_id": "p31-b4", "description": "LOW confidence; this bottom section reads as partly repetitive within itself (e.g. 'ששית כסא הכבוד המעוטר ומוכלל המאושר' appears to recur) -- recorded as read rather than silently smoothed out, since resolving whether this reflects the source's own dialectical style or a residual transcription difficulty requires expert review, not agent guessing."},
+      {"block_id": "p31-b_torah_or", "description": "Citation-index line abbreviations only partially resolved."},
+      {"block_id": "p31-b_hagahot_r", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."},
+      {"block_id": "p31-b_hagahot_l", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi (full page) + 400dpi (targeted PIL crops) for this corrective pass",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf יד (14). Re-verified live against Supabase Storage (sha256 b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067) before this corrective session began."
+  }
+}

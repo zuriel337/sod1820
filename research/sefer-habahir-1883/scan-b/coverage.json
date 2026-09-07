@@ -1,0 +1,301 @@
+[
+  {
+    "pdf_page": 25,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "יא (Hebrew foliation, leaf 11, recto)",
+    "block_count": 6,
+    "char_count_input": 1965,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 4
+  },
+  {
+    "pdf_page": 26,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "22 (Arabic page number, verso of leaf יא/11)",
+    "block_count": 6,
+    "char_count_input": 1424,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 4
+  },
+  {
+    "pdf_page": 27,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "יב (Hebrew foliation, leaf 12, recto)",
+    "block_count": 6,
+    "char_count_input": 1200,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 28,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "24 (Arabic page number, verso of leaf יב/12)",
+    "block_count": 6,
+    "char_count_input": 1047,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 4
+  },
+  {
+    "pdf_page": 29,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "יג (Hebrew foliation, leaf 13, recto)",
+    "block_count": 6,
+    "char_count_input": 1353,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 30,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "26 (Arabic page number, verso of leaf יג/13)",
+    "block_count": 6,
+    "char_count_input": 1132,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 31,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "יד (Hebrew foliation, leaf 14, recto)",
+    "block_count": 6,
+    "char_count_input": 1252,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 32,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "28 (Arabic page number, verso of leaf יד/14)",
+    "block_count": 6,
+    "char_count_input": 1625,
+    "confidence_counts": {
+      "low": 5,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 33,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "טו (Hebrew foliation, leaf 15, recto)",
+    "block_count": 6,
+    "char_count_input": 990,
+    "confidence_counts": {
+      "medium": 1,
+      "low": 4,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 34,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "30 (Arabic page number, verso of leaf טו/15)",
+    "block_count": 6,
+    "char_count_input": 1182,
+    "confidence_counts": {
+      "medium": 4,
+      "low": 2
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 35,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "טז (Hebrew foliation, leaf 16, recto)",
+    "block_count": 6,
+    "char_count_input": 962,
+    "confidence_counts": {
+      "medium": 1,
+      "low": 4,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 36,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "32 (Arabic page number, verso of leaf טז/16)",
+    "block_count": 6,
+    "char_count_input": 619,
+    "confidence_counts": {
+      "low": 5,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 37,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "יז (Hebrew foliation, leaf 17, recto)",
+    "block_count": 6,
+    "char_count_input": 886,
+    "confidence_counts": {
+      "low": 5,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 38,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "34 (Arabic page number, verso of leaf יז/17)",
+    "block_count": 6,
+    "char_count_input": 840,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 4
+    },
+    "unresolved_count": 4
+  },
+  {
+    "pdf_page": 39,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "יח (Hebrew foliation, leaf 18, recto)",
+    "block_count": 6,
+    "char_count_input": 716,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 40,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "36 (Arabic page number, verso of leaf יח/18)",
+    "block_count": 5,
+    "char_count_input": 2086,
+    "confidence_counts": {
+      "medium": 1,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 4
+  },
+  {
+    "pdf_page": 41,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "יט (Hebrew foliation, leaf 19, recto)",
+    "block_count": 6,
+    "char_count_input": 1049,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 1
+    },
+    "unresolved_count": 5
+  },
+  {
+    "pdf_page": 42,
+    "page_type": "bahir_text_and_commentary",
+    "printed_page_label": "38 (Arabic page number, verso of leaf יט/19)",
+    "block_count": 3,
+    "char_count_input": 1028,
+    "confidence_counts": {
+      "medium": 1,
+      "low": 1,
+      "high": 1
+    },
+    "unresolved_count": 2
+  },
+  {
+    "pdf_page": 43,
+    "page_type": "bahir_text_and_commentary_with_colophon",
+    "printed_page_label": "כ (Hebrew foliation, leaf 20, recto)",
+    "block_count": 7,
+    "char_count_input": 2067,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 3,
+      "high": 2
+    },
+    "unresolved_count": 3
+  },
+  {
+    "pdf_page": 44,
+    "page_type": "editorial_essay",
+    "printed_page_label": "40 (Arabic page number)",
+    "block_count": 6,
+    "char_count_input": 2345,
+    "confidence_counts": {
+      "medium": 2,
+      "low": 1,
+      "high": 3
+    },
+    "unresolved_count": 2
+  },
+  {
+    "pdf_page": 45,
+    "page_type": "blank",
+    "printed_page_label": "none visible (unpaginated blank leaf)",
+    "block_count": 1,
+    "char_count_input": 0,
+    "confidence_counts": {
+      "high": 1
+    },
+    "unresolved_count": 0
+  },
+  {
+    "pdf_page": 46,
+    "page_type": "blank",
+    "printed_page_label": "none visible (unpaginated blank leaf)",
+    "block_count": 1,
+    "char_count_input": 0,
+    "confidence_counts": {
+      "high": 1
+    },
+    "unresolved_count": 0
+  },
+  {
+    "pdf_page": 47,
+    "page_type": "library_administrative",
+    "printed_page_label": "none (institutional accession/stamp page, not part of the book's own pagination)",
+    "block_count": 6,
+    "char_count_input": 53,
+    "confidence_counts": {
+      "high": 6
+    },
+    "unresolved_count": 0
+  },
+  {
+    "pdf_page": 48,
+    "page_type": "cover",
+    "printed_page_label": "none (physical book cover, not paginated)",
+    "block_count": 1,
+    "char_count_input": 0,
+    "confidence_counts": {
+      "high": 1
+    },
+    "unresolved_count": 1
+  }
+]

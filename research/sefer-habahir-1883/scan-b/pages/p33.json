@@ -1,0 +1,58 @@
+{
+  "pdf_page": 33,
+  "source_ref_page": "book:sefer-habahir-1883#p33",
+  "printed_page_label": "טו (Hebrew foliation, leaf 15, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p33-b1", "region": "header", "text_he": "טו ... ספר הבהיר", "confidence": "high"},
+      {"block_id": "p33-b2", "region": "body_right_col", "text_he": "שמיני מאי הוי יש לו הקב\"ה צדיק אחד בעולמו והוא חביב לו מפני שמקיים עולמו ומגדלו ומשטרו למעלה אהוב למטה חביב ואדיר נורא לממה למעלה ואדיר ומקובל למתוקן מתוקן למעלה והוא יסוד הנפשות הפשות כולן ואמרת יסוד ואמרת שמיני חי שביעי הביום השביעי דישית אינון נ'ג'רלמלע נ' ג' מלעיל והוא דמכריע ביניהו ...", "confidence": "medium", "notes": "Discourse on 'shevi'i'/'shemini' (seventh/eighth), the tzaddik as 'yesod ha-nefashot' (foundation of souls) and the Sabbath (shevat rest)."},
+      {"block_id": "p33-b3", "region": "body_left_col", "text_he": "אלא שהוא (עגול כמו ראש האיש) ומלמד שמים מימינו ואש משמאלו והוא באמצע והוא שמים כלומר שם מים ומבניה שלום בינות אשא ומיא ובאהאשוה מדת צדו ואומת מדת שלום עושה שלום ברומיו (שביעי)שלמד מלך היינו הקדוש היכל שכאן מלמד שלא שש? אלא היכל הקדוש נושא את כולם ומאי ניהו שביעי מלמד היה תכלית שאין לה סוף וכך תכלית שהוא מוסהו הוה שביעי מתכלית אתכליתי של שביעי מוסהו של עולם ומשם באו וכי היה זרעם ומשם באו וכי ישראל של ריעם ומשום כי חוט השדרה כי אמה. ומשם באו האדם ובא ומשם המוח כי לאמה", "confidence": "low", "notes": "Continues esoteric discourse; discusses fire/water balance, 'sha'ar/heichal', teleological infinity ('תכלית שאין לה סוף'), and the spinal cord/brain imagery."},
+      {"block_id": "p33-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור נ קהלת ד : ד ישעיה מנ : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p33-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p33-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["שמיני (as a discourse-topic marker, right column)", "שביעי (as a discourse-topic marker, left column)"],
+    "verse_citations_candidates": [],
+    "numbers": ["שמיני (eighth)", "שביעי (seventh)"],
+    "letters": [],
+    "divine_names": ["הקב\"ה"],
+    "sefirot_terms": [
+      "יסוד הנפשות (Yesod as foundation of all souls) -- direct sefirotic-adjacent identification of Yesod",
+      "שביעי / שמיני as ordinal cosmic positions (a common Bahir motif for the sefirotic count)"
+    ],
+    "symbols_metaphors": [
+      "ראש האיש עגול, שמים מימינו ואש משמאלו (round like a man's head, water on the right, fire on the left) -- an anthropomorphic/elemental balance image",
+      "תכלית שאין לה סוף (a purpose/end that has no end) -- paradox-of-infinity phrasing",
+      "חוט השדרה / מוח (spinal cord / brain) as a physiological metaphor for cosmic transmission"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "This page continues the body/limb correspondence theme from p32 but shifts vocabulary toward fire/water elemental balance and physiological (spine/brain) imagery -- worth flagging as a related but distinct symbolic register from the p32 hand/leg/head enumeration.",
+      "Explicit 'יסוד הנפשות' (Yesod = foundation of souls) phrase is a clean, quotable proto-sefirotic identification."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p33-b2", "description": "Passage 'דישית אינון נ'ג'רלמלע נ' ג' מלעיל' is an unresolved Aramaic-looking fragment; letter-grouping uncertain, possibly a corrupted or highly abbreviated technical term. Flagged rather than guessed."},
+      {"block_id": "p33-b3", "description": "Overall LOW confidence; several clauses (e.g. 'ומשם באו וכי היה זרעם ומשם באו וכי ישראל של ריעם') read as possible duplication/compositor repetition rather than confidently distinct clauses."},
+      {"block_id": "p33-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p33-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p33-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf טו (15). Continues the p32 scholarly-crux passage; overall confidence for this page is medium-to-low."
+  }
+}

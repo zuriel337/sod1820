@@ -1,0 +1,309 @@
+{
+  "artifact": "SEFER_HABAHIR_1883_FULL_CORPUS_MANIFEST_V1",
+  "dispatch_ref": "4e860969-c19b-4637-8e99-d35229e3c8f3",
+  "source": {
+    "path": "gallery/Book/Sefer_HaBahir_1883.pdf",
+    "sha256": "b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067",
+    "size_bytes": 4362696,
+    "pdf_pages_total": 48
+  },
+  "integration_branch": "claude/sefer-habahir-1883-full-corpus-integration",
+  "base_main_sha": "07c978d1582e00c1a9df30440056d4326b3eaf84",
+  "imported_sources": [
+    {
+      "id": "scan-a",
+      "owner": "GPT",
+      "branch": "gpt/sefer-habahir-1883-scan-a-pagewise-v2",
+      "commit": "c338fb58a15666be054126dc36d82369befb40b4",
+      "closure_after_id": "79f00810-b9d5-44b4-884c-714cfcbb734e",
+      "owned_pdf_pages": [
+        1,
+        24
+      ],
+      "import_path": "research/sefer-habahir-1883/scan-a/",
+      "role": "ACTIVE for PDF pages 1-24",
+      "import_method": "git checkout <branch> -- <path> (byte-identical; verified via sha256 against source manifest)"
+    },
+    {
+      "id": "scan-b",
+      "owner": "Claude",
+      "branch": "claude/sefer-habahir-second-half-0lbg2i",
+      "commit": "9b215c663f5d3d271a8d8b12a64481fdd2bfc1dc",
+      "after_id": "d34b0532-f9c8-4202-bcf1-21186ffad9d2",
+      "owned_pdf_pages": [
+        25,
+        48
+      ],
+      "import_path": "research/sefer-habahir-1883/scan-b/",
+      "role": "ACTIVE for PDF pages 25-48 EXCEPT 30,31,32,34,35,38 (superseded, kept as historical-only)",
+      "import_method": "git checkout <branch> -- <path> (byte-identical; verified via sha256 sample)"
+    },
+    {
+      "id": "witness-structure-audit",
+      "owner": "Claude",
+      "branch": "claude/bahir-witness-structure-audit",
+      "commit": "01bb7712d2df172eaf89795b28781acae923bec6",
+      "after_id": "b6cc2d66-dd69-4dcf-8615-7ee329301607",
+      "owned_pdf_pages": null,
+      "import_path": "research/sefer-habahir-1883/witness-structure-audit/",
+      "role": "SUPPORTING METADATA / PROVENANCE ONLY -- not a page-content source; documents witness/edition identity, structural zone map, and the reliability audit that led to the corrective batch",
+      "import_method": "git checkout <branch> -- <path> (byte-identical; verified via sha256 sample)"
+    },
+    {
+      "id": "scan-b-corrective",
+      "owner": "Claude",
+      "branch": "claude/sefer-habahir-scan-b-corrective",
+      "commit": "9a828bdba7d6ae4a89d5357cf97ac35815662009",
+      "after_id": "2a97a5db-855d-475c-a6ae-49007b8706bc",
+      "owned_pdf_pages": [
+        30,
+        31,
+        32,
+        34,
+        35,
+        38
+      ],
+      "import_path": "research/sefer-habahir-1883/scan-b-corrective/",
+      "role": "ACTIVE for PDF pages 30,31,32,34,35,38 (supersedes scan-b for exactly these 6 pages)",
+      "import_method": "git checkout <branch> -- <path> (byte-identical; verified via sha256 sample)"
+    }
+  ],
+  "supersession_map": [
+    {
+      "pdf_page": 30,
+      "superseded_path": "research/sefer-habahir-1883/scan-b/pages/p30.json",
+      "superseded_status": "HISTORICAL ONLY -- retained unmodified on disk for provenance; not counted in active corpus stats",
+      "active_path": "research/sefer-habahir-1883/scan-b-corrective/pages/p30.json",
+      "reason": "witness-structure-audit (b6cc2d66) found content mismatch; corrective re-transcription (2a97a5db) confirmed and replaced"
+    },
+    {
+      "pdf_page": 31,
+      "superseded_path": "research/sefer-habahir-1883/scan-b/pages/p31.json",
+      "superseded_status": "HISTORICAL ONLY -- retained unmodified on disk for provenance; not counted in active corpus stats",
+      "active_path": "research/sefer-habahir-1883/scan-b-corrective/pages/p31.json",
+      "reason": "witness-structure-audit (b6cc2d66) found content mismatch; corrective re-transcription (2a97a5db) confirmed and replaced"
+    },
+    {
+      "pdf_page": 32,
+      "superseded_path": "research/sefer-habahir-1883/scan-b/pages/p32.json",
+      "superseded_status": "HISTORICAL ONLY -- retained unmodified on disk for provenance; not counted in active corpus stats",
+      "active_path": "research/sefer-habahir-1883/scan-b-corrective/pages/p32.json",
+      "reason": "witness-structure-audit (b6cc2d66) found content mismatch; corrective re-transcription (2a97a5db) confirmed and replaced"
+    },
+    {
+      "pdf_page": 34,
+      "superseded_path": "research/sefer-habahir-1883/scan-b/pages/p34.json",
+      "superseded_status": "HISTORICAL ONLY -- retained unmodified on disk for provenance; not counted in active corpus stats",
+      "active_path": "research/sefer-habahir-1883/scan-b-corrective/pages/p34.json",
+      "reason": "witness-structure-audit (b6cc2d66) found content mismatch; corrective re-transcription (2a97a5db) confirmed and replaced"
+    },
+    {
+      "pdf_page": 35,
+      "superseded_path": "research/sefer-habahir-1883/scan-b/pages/p35.json",
+      "superseded_status": "HISTORICAL ONLY -- retained unmodified on disk for provenance; not counted in active corpus stats",
+      "active_path": "research/sefer-habahir-1883/scan-b-corrective/pages/p35.json",
+      "reason": "witness-structure-audit (b6cc2d66) found content mismatch; corrective re-transcription (2a97a5db) confirmed and replaced"
+    },
+    {
+      "pdf_page": 38,
+      "superseded_path": "research/sefer-habahir-1883/scan-b/pages/p38.json",
+      "superseded_status": "HISTORICAL ONLY -- retained unmodified on disk for provenance; not counted in active corpus stats",
+      "active_path": "research/sefer-habahir-1883/scan-b-corrective/pages/p38.json",
+      "reason": "witness-structure-audit (b6cc2d66) found content mismatch; corrective re-transcription (2a97a5db) confirmed and replaced"
+    }
+  ],
+  "active_page_index": {
+    "1": {
+      "active_source": "scan-a",
+      "block_count": 2
+    },
+    "2": {
+      "active_source": "scan-a",
+      "block_count": 1
+    },
+    "3": {
+      "active_source": "scan-a",
+      "block_count": 2
+    },
+    "4": {
+      "active_source": "scan-a",
+      "block_count": 2
+    },
+    "5": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "6": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "7": {
+      "active_source": "scan-a",
+      "block_count": 5
+    },
+    "8": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "9": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "10": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "11": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "12": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "13": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "14": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "15": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "16": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "17": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "18": {
+      "active_source": "scan-a",
+      "block_count": 5
+    },
+    "19": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "20": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "21": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "22": {
+      "active_source": "scan-a",
+      "block_count": 3
+    },
+    "23": {
+      "active_source": "scan-a",
+      "block_count": 4
+    },
+    "24": {
+      "active_source": "scan-a",
+      "block_count": 5
+    },
+    "25": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "26": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "27": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "28": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "29": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "30": {
+      "active_source": "scan-b-corrective",
+      "block_count": 7
+    },
+    "31": {
+      "active_source": "scan-b-corrective",
+      "block_count": 7
+    },
+    "32": {
+      "active_source": "scan-b-corrective",
+      "block_count": 7
+    },
+    "33": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "34": {
+      "active_source": "scan-b-corrective",
+      "block_count": 6
+    },
+    "35": {
+      "active_source": "scan-b-corrective",
+      "block_count": 7
+    },
+    "36": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "37": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "38": {
+      "active_source": "scan-b-corrective",
+      "block_count": 6
+    },
+    "39": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "40": {
+      "active_source": "scan-b",
+      "block_count": 5
+    },
+    "41": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "42": {
+      "active_source": "scan-b",
+      "block_count": 3
+    },
+    "43": {
+      "active_source": "scan-b",
+      "block_count": 7
+    },
+    "44": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "45": {
+      "active_source": "scan-b",
+      "block_count": 1
+    },
+    "46": {
+      "active_source": "scan-b",
+      "block_count": 1
+    },
+    "47": {
+      "active_source": "scan-b",
+      "block_count": 6
+    },
+    "48": {
+      "active_source": "scan-b",
+      "block_count": 1
+    }
+  }
+}

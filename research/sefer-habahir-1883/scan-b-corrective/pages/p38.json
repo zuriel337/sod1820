@@ -1,0 +1,86 @@
+{
+  "pdf_page": 38,
+  "source_ref_page": "book:sefer-habahir-1883#p38",
+  "printed_page_label": "34 (Arabic page number, verso of leaf יז/17)",
+  "page_type": "bahir_text_and_commentary",
+  "correction_of": "research/sefer-habahir-1883/scan-b/pages/p38.json (branch claude/sefer-habahir-second-half-0lbg2i, commit 9b215c66) -- flagged unreliable by witness-structure-audit (work_log b6cc2d66): old p38.json was a distorted echo of PDF page 37's content, not this page's own content.",
+  "correction_method": "Isolated pdftoppm -f 38 -l 38 render at 220dpi (full page) plus four 400dpi PIL crops covering the full page top-to-bottom, read independently before any comparison to the old artifact.",
+  "layout": ["header", "body_right_col", "body_left_col", "body_full_width_discourse", "torah_or_line", "hagahot_right_col_with_diagram", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p38-b1", "region": "header", "text_he": "ראשון המובב עלינו )ס\"א עליו(. צפונית מערבית ס\"ד. ... ספר הבהיר", "confidence": "medium", "notes": "This margin/header phrase matches what the ORIGINAL (mislabeled) Scan B session had recorded under p34.json -- confirming that specific header text genuinely belongs to PDF page 38, not page 34."},
+      {
+        "block_id": "p38-b2",
+        "region": "body_right_col",
+        "text_he": "]ומה הוא שר עליהם[? מדרותם של עולם: פי' יסוד הוא שר של כל עולם והוא לגם שר עליהם. פי' יסוד הוא שר כל גד והוד: פי' יסוד הוא שר של כל עולם ]עוה\"ז[, נס בידו נפש כל חי. פי' ביד יסוד וכל לשון נריאה לשון כל חי, ]עט\"ז[ פי' לחורי לנח נלח לדיק )לפניו הוד בדידיה( עבידא, ועליו נאמר ]י[שבת וינפש, והוא מדת יום השבת. ועליו נאמר זכור את יום השבת לקדשו, והא נ\"כ כתיב שמור ]ה[ שמור ההוא במדה שביעית עשירית ובשביעית נאמר ]ה[את שבתותי מדת שביעית, הוי אומר תשמרו זו מדת שביעית עשירית. ומקדשי תיראו, מאי ניהו זה מדה עשירית, זה מדת טובו של הקב\"ה, ומ\"ט אמר הכתוב את שבתותי תשמרו ולא אמר שבתי? למלך שהיתה לו כלה נאה וכל שבוע מזומנה יום אחד להיות עמו, והמלך יש לו בנים נאים ואהובים, אמר להם: היואיל וכן הוא שמחו אכלו וכן שמחתי ]גם[ הוא, וכל שכן שמחתי ]יג\"כ[ אתם משתדל אני בשבילכם, ואתם מצאם ]?[ מעופש שמצא להם פת אחרת בקש",
+        "confidence": "medium",
+        "notes": "This page's genuine content begins mid-discourse on 'yesod' as sustaining ruler of the world, then pivots into a Sabbath discourse (Exodus 20:8/Deuteronomy 5:12's 'zachor'/'shamor' duality tied to a 'tenth measure'/'seventh measure' scheme), followed by a parable of a king, his betrothed, and his sons sharing a weekly meal. NOT the direction-diagram running text originally attributed to this page under the old p34.json -- that misattribution mixed this page's HEADER phrase with page 34's actual body content; see finding."
+      },
+      {
+        "block_id": "p38-b3",
+        "region": "body_left_col",
+        "text_he": "ואהובים אמר להם: מה ששלח להם, וכן הוא היואיל ]אמר להם[ שמחו יג\"כ הוא שמחתי בשבילכם, ואתם מתדל אני בשבילכם, ומצאם כי כן שמחתי מתביישים לבקש פת אחרת, כלומר לא תמצאו מתביישים מעופש שמצא להם. אכלו מה ששלח להם, אמר להם: הואיל וכן הוא שמחו ]ו[אכלו פת מעופש שמצא להם, ומצאם כי כן שמחתי בשבילכם ואתם משתדל אני בשבילכם.",
+        "confidence": "low-medium",
+        "notes": "Continues/echoes the king's-bread parable begun in the right column; the two columns show a degree of internal repetition of this specific parable's phrasing (marked as read, not smoothed), possibly reflecting a compositor's-style refrain in the source rather than a transcription artifact -- flagged for review rather than resolved."
+      },
+      {"block_id": "p38-b_torah_or", "region": "torah_or_line", "text_he": "תורה אור י משלי א : ב שמות כ : נ דבריס ה : ד שמות טו : ה נחוקה יט : ו שמות יט : ז שמות יט : ...", "confidence": "low", "notes": "Compact abbreviated verse-index line; several abbreviations only partially resolved."},
+      {
+        "block_id": "p38-b_hagahot_r_diagram",
+        "region": "hagahot_right_col_with_diagram",
+        "text_he": "[Decorative square diagram in a double-ruled bordered box. Corner/edge labels, read as printed: top edge 'מזרחית צפונית' (NE) at the right corner and 'מערבית צפונית' (NW) at the left corner; right edge running vertically 'גבורה'; left edge running vertically a parallel attribute-name (less legible); bottom corners labelled 'מזרחית דרומית' (SE, right) and 'מערבית דרומית' (SW, left); the word 'פנימית' (inner) repeats around the inner frame; the box interior is blank/undecorated in this print.]",
+        "confidence": "medium",
+        "notes": "This is the genuine location of the 4-intercardinal-direction square diagram -- independently re-confirmed on this page (matching what the ORIGINAL mislabeled Scan B session had, correctly in substance, described under p34.json). Surrounding gloss text (right column, small print) discusses 'עולם הזה'/'העטרת' and is only partially legible."
+      },
+      {"block_id": "p38-b_hagahot_l", "region": "hagahot_left_col", "text_he": "מברחתה: בלשון נוכח: אלא אנו מברכין להקב\"ה שהשפיע התכמה העליונה אל יסוד העולמים זה נדוה כל הכל, ]ו[מ\"ט אמרינן אשר קדשנו במצותיו וצונו אמרינן קדשתנו וצויתנו: מלמד שחיי העולמים כלולים בו כל המצות כולן עלינו וברחמיו נתנם לנו כדי לקדשנו בהם, ואולי נזכה נזכה בשעה שנוכה בעוה\"ז לעשות נ\"כ נזכה לעוה\"ז )הגדול( ...", "confidence": "low", "notes": "Small-print marginal gloss; abbreviation-dense, several words uncertain even at 400dpi."}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "זכור את יום השבת לקדשו", "likely_source": "Exodus 20:8", "block_id": "p38-b2", "confidence": "candidate"},
+      {"raw": "שמור את יום השבת", "likely_source": "Deuteronomy 5:12", "block_id": "p38-b2", "confidence": "candidate"},
+      {"raw": "את שבתתי תשמרו ומקדשי תיראו", "likely_source": "Leviticus 19:30 / 26:2", "block_id": "p38-b2", "confidence": "candidate"}
+    ],
+    "numbers": ["מדה שביעית (seventh measure)", "מדה עשירית (tenth measure)"],
+    "letters": [],
+    "divine_names": ["הקב\"ה"],
+    "sefirot_terms": [
+      "יסוד (Yesod) explicitly named as 'שר של כל עולם' (ruler/prince of the whole world) sustaining 'the soul of every living thing' -- a direct proto-sefirotic identification",
+      "מדה שביעית / מדה עשירית (seventh measure / tenth measure) applied respectively to Shabbat ('zachor') and to 'kedushah' ('mekadshai tira'u') -- an explicit ordinal-attribute count",
+      "גבורה (Gevurah) labelled on the diagram's right edge"
+    ],
+    "symbols_metaphors": [
+      "The 4-intercardinal-direction square diagram (independently re-confirmed on this page)",
+      "משל למלך שהיתה לו כלה נאה, מזומנה יום אחד בשבוע (parable of a king and his betrothed, available to him one day a week -- an explicit Sabbath-as-bride figure, an early attestation of a motif later famous from Lecha Dodi/kabbalistic Shabbat literature)",
+      "פת מעופש (moldy/spoiled bread) parable of the king's sons, continuing a motif also seen in the original Scan B's p39"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "CORRECTION IMPACT: the ORIGINAL Scan B session's p34.json entry mixed two different things -- it correctly captured this page's HEADER phrase ('ראשון המובב עלינו... צפונית מערבית') and its DIAGRAM, but the running body text attached to that header actually belongs to PDF page 34 (the Marah/Elim discourse, now corrected in this batch's own p34.json). This page's OWN body text -- Yesod as world-ruler, the Sabbath 'zachor/shamor' seventh/tenth-measure discourse, and the king's-betrothed/king's-sons-bread parables -- was not captured by the original session at all.",
+      "The 'king and his betrothed, available one day a week' parable is a notable early attestation of the Sabbath-as-bride motif, worth flagging as a substantive literary-historical data point distinct from any of the extraction categories' narrow definitions.",
+      "This page's Yesod-as-'sar shel kol olam' (prince of the whole world, sustaining 'nefesh kol chai') is a clean, quotable proto-sefirotic statement."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Exodus 20:8, Deuteronomy 5:12, and Leviticus 19:30/26:2 (Zachor/Shamor and Mekadshai tira'u) all explicitly quoted.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p38-b2", "description": "Opening clause (before 'מדרותם של עולם') is mid-sentence relative to the page break from p37; exact antecedent uncertain."},
+      {"block_id": "p38-b3", "description": "LOW-MEDIUM confidence; the king's-bread parable shows internal repetition across the two columns that could not be confidently disentangled into a single non-repetitive narrative; recorded as read."},
+      {"block_id": "p38-b_torah_or", "description": "Citation-index line abbreviations only partially resolved."},
+      {"block_id": "p38-b_hagahot_r_diagram", "description": "Gloss text surrounding the diagram only partially legible; the diagram's own labels were read with medium confidence."},
+      {"block_id": "p38-b_hagahot_l", "description": "Marginal gloss abbreviation-dense; several words uncertain even at 400dpi."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi (full page) + 400dpi (targeted PIL crops) for this corrective pass",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יז (17); Arabic '34' = 17*2. Re-verified live against Supabase Storage (sha256 b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067) before this corrective session began."
+  }
+}

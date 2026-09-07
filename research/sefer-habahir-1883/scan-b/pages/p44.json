@@ -1,0 +1,95 @@
+{
+  "pdf_page": 44,
+  "source_ref_page": "book:sefer-habahir-1883#p44",
+  "printed_page_label": "40 (Arabic page number)",
+  "page_type": "editorial_essay",
+  "layout": ["title", "body_full_width", "date_lines", "signature", "footer_rights_note", "printer_stamps"],
+  "input": {
+    "blocks": [
+      {"block_id": "p44-b1", "region": "title", "text_he": "דבר אל הקורא", "confidence": "high"},
+      {
+        "block_id": "p44-b2",
+        "region": "body_full_width",
+        "text_he": "אברך את ה' בכל לבבי אשר חנני להביא לבית הדפוס ספר הבהיר. נראה שנקרא כן בפי הראשונים לא לבד ע\"ש שהתחלתו שמתחיל בפסוק 'ועתה וגו' אור בהיר', וכדרככם לקרות המדרשים ע\"ש התחלתם, כמו מדרש שה\"ש וקהלת בשם 'חזית' ע\"ש התחלתו בפסוק 'חזית איש מהיר במלאכתו', וכן מדרש משלי בשם 'עת לעשות' ע\"ש התחלתו -- כ\"א גם ע\"ש צורתו ותכליתו, שהוא בהיר ומאיר לחוות בו נועם כתרי התורה. וכמו ספר הזוה\"ק שנקרא בשם הזה עצמו (כמ\"ש ברע\"מ פרשה נשא דף קכד ע\"ב) ולא ע\"ש התחלתו בלבד, לפי שמתחיל בפסוק ויהי בשלח וגו'. כזוהר וכו' ונדפסו כמה מאמרים בסוף נ\"ח הזוהר, וכל חכמי הקבלה הראשונים שאבו ממעינו והלכו לאורו הבהיר אשר הבהיק את העולם טרם הופיע עוד אור הזהר. וטרחו והתעצמו לפרש ולעיין בדבריו הסתומים המגלים כאצבע ומכסים אלפים אמה. והרמב\"ן ז\"ל והציוני והר\"ם ן' גבאי קוראים אותו בשם 'מדרשו של ר' נחוניא בן הקנה'. הוא ר' נחוניא בן הקנה אשר חי בימי ר' יוחנן בן זכאי בזמן הבית, והוא רבו של ר' ישמעאל, חברו של ר' עקיבא, ושל ר' ישמעאל כהן גדול -- והוא היה הראש למקובלים (לחבר ספרים במורות הקבלה בפירושם), ואחריו הרשב\"י ז\"ל (כ\"כ בשה\"ג מע' א' סימן ל\"ג בשם מהר\"א רויגא בזוהר ישן, ונכתב ע\"פ חכמי התלמוד ע\"פ הקבלה שנמשכה ממנו מדור לדור עם דורם, כ\"ה בב\"ח סתרי תורה פ\"ל). ומצאתי פירוש עליו כ\"י עתיק מחד מתלמידי הרשב\"א ז\"ל, אשר יהיו קילורין לעיני המעיינים באור הספר הקדוש הזה, אשר היה כספר החתום וכמעט נגנז נגד אורו בדור אחרון. וכמו שהפרדס ז\"ל בכ\"מ ובכ\"ה שהעלה בידי להשיג גם הגהות וקצת ביאורי רבינו הגר\"א ז\"ל עליו. גם מדי עברי ומזכיר בו רשמתי כל המקומות שהביאו הראשונים את דבריו, ושינויי הגירסא שמצאתי בהם. גם סדרתי הפסק מאמריו ע\"פ א\"ב. ואם שידעתי שלא יצאתי י\"ח בסידורו, כי יש הרבה מ\"ם להוסיף עליו, בכל זאת לא רציתי לאחר ההדפסה עד שיושלם הכל כראוי, מטעם שכתב החסיד האלקי בעל חוה\"ל בהקדמת ספרו בזה: 'וה' יאיר אור פניו אלינו במאור תורתו, ויטהר ויסהר לבבנו ויחד עבודתו, ויתן חלקנו עם המזכים את הרבים לכבוד ש\"ת: ולא ימוש ספר התורה מפי ומפי זרעי לעולם.'",
+        "confidence": "high",
+        "notes": "This is the printer/editor's own preface explaining: (1) the etymology and naming convention of the title 'HaBahir' by analogy to how midrashim are named after their opening verse (parallel to Song of Songs Rabbah, Ecclesiastes Rabbah, Midrash Mishlei, and even the Zohar's own self-naming, citing Ra'aya Mehemna Naso 124b); (2) an attribution/biography of R. Nechunya ben HaKanah as a teacher of R. Yishmael and contemporary of R. Yochanan ben Zakkai and R. Akiva, described as the 'head of the Kabbalists'; (3) the editor's methodology -- collating citations by the Rishonim, noting textual variants ('שינויי הגירסא'), alphabetically ordering the discourse-units ('סדרתי הפסק מאמריו ע\"פ א\"ב'), and incorporating glosses/notes attributed to the Vilna Gaon (הגר\"א); (4) an explicit acknowledgment that the work is incomplete ('לא יצאתי ידי חובה בסידורו') but was published anyway rather than delayed further, citing the ethical-work 'Chovot HaLevavot' author's precedent."
+      },
+      {
+        "block_id": "p44-b3",
+        "region": "date_lines",
+        "text_he": "יום ד' ח\"י ימים בחודש השלישי שבו נתנה התורה, לסדר 'כי יתן ה' את רוחו עליהם'. בשנת 'יתעדן נמשך' במאד בהבהיר להר' נחוניא הגדול (נ\"י חמשת אלפים תרמ\"א לפ\"ק).",
+        "confidence": "medium",
+        "notes": "Two-part date: (a) 'Wednesday, the 18th day of the third month [Sivan], the month in which the Torah was given' -- a Torah-season completion date; (b) a chronogram phrase 'יתעדן נמשך' whose numeric value is explicitly glossed in the parenthetical as '5641 according to the abbreviated count' (i.e. 1880/1881 CE). This numeral is transcribed as read ('תרמ\"א'); see claim.contradictions for the discrepancy against the source PDF's filename-implied year 1883 (which would be 'תרמ\"ג')."
+      },
+      {
+        "block_id": "p44-b4",
+        "region": "signature",
+        "text_he": "המלבה\"ד שמואל בלאא\"מ אליעזר אהרן ז\"ל לוריא ממאהליב.",
+        "confidence": "high",
+        "notes": "Editor/publisher's signature: Shmuel, son of his honored father Eliezer Aharon Luria (of blessed memory), of Mohilev ('ממאהליב' = Mohilev/Mahilyow)."
+      },
+      {
+        "block_id": "p44-footer",
+        "region": "footer_rights_note",
+        "text_he": "וליודעי ידיע כי זכות הדפסת הפירוש הנ\"ל הנקרא בשם 'אור הגנוז' מכרתי להמדפיסים האלמנה והאחים ראם, להם ולב\"כ לצמיתות. המלבה\"ד הנ\"ל.",
+        "confidence": "medium",
+        "notes": "A rights/licensing colophon note: the editor states he sold the printing rights to the 'Or HaGanuz' commentary to 'the Widow and Brothers Romm' (האלמנה והאחים ראם) -- the historically well-documented Romm printing house of Vilna, one of the most significant Hebrew publishing houses of the 19th century. This is independently verifiable, high-value bibliographic provenance data."
+      },
+      {"block_id": "p44-stamps", "region": "printer_stamps", "text_he": "[Two circular/oval ink stamps at the bottom of the page, partially legible -- likely library/archive accession stamps rather than the original printer's marks, given their placement over the digitized scan.]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": ["דבר אל הקורא"],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "ועתה ... אור בהיר", "likely_source": "Job 37:21", "block_id": "p44-b2", "confidence": "candidate"},
+      {"raw": "חזית איש מהיר במלאכתו", "likely_source": "Proverbs 22:29", "block_id": "p44-b2", "confidence": "candidate"},
+      {"raw": "כי יתן ה' את רוחו עליהם", "likely_source": "Numbers 11:29", "block_id": "p44-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["5641 (תרמ\"א, per the chronogram gloss)"],
+    "letters": [],
+    "divine_names": ["ה'"],
+    "sefirot_terms": [],
+    "symbols_metaphors": ["חתום/נגנז (a 'sealed'/'hidden away' book) applied to the Bahir's pre-publication obscurity"],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": ["Chronogram 'יתעדן נמשך' explicitly glossed to 5641 A.M. -- a standard Hebrew chronogram-dating procedure, captured for the record though the letter-by-letter gematria derivation is not itself spelled out on the page."],
+    "named_persons_and_institutions": [
+      "ר' נחוניא בן הקנה (attributed author)",
+      "ר' יוחנן בן זכאי",
+      "ר' ישמעאל (כהן גדול)",
+      "ר' עקיבא",
+      "רשב\"י (ר' שמעון בר יוחאי)",
+      "רמב\"ן (Nachmanides)",
+      "הציוני (R. Menachem Tziyoni)",
+      "ר\"ם ן' גבאי (R. Meir ibn Gabbai)",
+      "הגר\"א (Vilna Gaon)",
+      "שמואל בלאא\"מ אליעזר אהרן לוריא ממאהליב (this edition's editor)",
+      "האלמנה והאחים ראם (the Romm printing house of Vilna)"
+    ]
+  },
+  "finding": {
+    "observations": [
+      "This is the single most important PROVENANCE page in the entire assigned scan range for understanding the edition itself: it names the editor (Shmuel son of Eliezer Aharon Luria of Mohilev), describes his editorial methodology in detail (citation-collation, variant-noting, alphabetical reordering, incorporation of Vilna Gaon glosses), and names the printing house (the historically documented Romm/Vilna press) to whom he sold the rights.",
+      "The page independently corroborates several claims made in this edition's front matter (per the project's counterpart SCAN_A territory): the identification of the commentary as 'Or HaGanuz' by a disciple of Rashba, and the kabbalistic transmission chain culminating in this print.",
+      "This page is placed AFTER the main Bahir text's own colophon (p43), which is structurally unusual for a 'preface' -- raises an open question (also noted on p43/manifest.json) about whether this essay was originally meant to appear before the main text and was bound out of order in this exemplar, or whether it is a deliberately placed afterword despite its 'address to the reader' framing typical of prefaces."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Job 37:21, Proverbs 22:29, Numbers 11:29 quoted/alluded to.", "confidence": "candidate"},
+      {"type": "bibliographic_fact", "description": "Naming of the Romm printing house of Vilna as rights-holder for the 'Or HaGanuz' commentary -- independently verifiable historical fact, high confidence as a candidate for external cross-referencing (not verified against an external bibliographic database by this scan).", "confidence": "candidate"}
+    ],
+    "contradictions": [
+      {"description": "This page's chronogram gloss gives the year as 5641 A.M. (~1880/1881 CE), while the source PDF's filename and this scan's manifest (following the library catalog / storage object name) label the book 'Sefer_HaBahir_1883'. A one-letter difference between 'תרמ\"א' (641) and 'תרמ\"ג' (643) could account for either a misreading by this scan or a discrepancy in the filename's cataloging. NOT resolved by this scan -- flagged as a high-priority provenance question for the counterpart integration record and/or direct comparison with the National Library of Israel catalog entry (call number 'S 23 A 11927', visible on PDF p47 of this same scan range)."}
+    ],
+    "unresolved_readings": [
+      {"block_id": "p44-b3", "description": "Chronogram year digit ('תרמ\"א' vs a possible 'תרמ\"ג') is the key unresolved reading on this page -- see contradictions above."},
+      {"block_id": "p44-stamps", "description": "Bottom-of-page ink stamps not legible enough to transcribe; likely institutional accession stamps rather than original print marks."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "This page is the highest-legibility page in the entire assigned range (large clear type, full-width single column, no dense marginal glosses) -- Input confidence is correspondingly HIGH for the main body text, in contrast to most other pages in this scan."
+  }
+}
