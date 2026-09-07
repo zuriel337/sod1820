@@ -1,0 +1,17 @@
+{
+  "source_id": "book:sefer-habahir-1883",
+  "register_version": 2,
+  "supersedes_branch_artifact": "docs/research-notes/SEFER_HABAHIR_1883_LOSSLESS_PAGE_REGISTER_P001_024.json v1 status only; v1 remains provenance",
+  "status": "RESUMED_RENDER_BLOCKER_RESOLVED_SCAN_A_ARTIFACTS_CREATED",
+  "N": 48,
+  "M": 24,
+  "owned_pdf_pages": "1..24",
+  "render_verified_pages": 24,
+  "working_transcription_pages": 24,
+  "working_transcription_chars": 119096,
+  "exact_anchor_count": 50,
+  "unresolved_count": 22,
+  "artifact_root": "research/sefer-habahir-1883/scan-a/",
+  "fidelity_verdict": "PASS_FOR_RESEARCH_EXTRACTION_WITH_GRADED_TRANSCRIPTION",
+  "release_state": "BRANCH_ONLY_NOT_MERGED_NOT_DEPLOYED_NOT_LIVE"
+}
