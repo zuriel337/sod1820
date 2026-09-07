@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { getOrCreateMyPersonId, upsertSelfProfile, upsertFamilyMember, upsertFamilyRelation, listFamily } from "../lib/supabase.js";
+import { track } from "../lib/tracking.js";
 
 // 🧭 מסע החיים — יסוד (v1). person-ref-scoped, גיבוי ב-Ledger הפרטי (research_objects,
 // F-1a′/F-1b, docs/planning/sql/fn_family_private_slice.sql). זהו היסוד שעליו יבנה בעתיד
@@ -92,6 +93,9 @@ export default function PersonJourney() {
     try {
       await upsertSelfProfile(personId, selfName.trim());
       await refresh(personId);
+      // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) — surface נפרד
+      // מ"journey" (JourneyPage.jsx) כדי לא לערבב את יסוד מסע-החיים האישי עם מסע-הגילוי הקיים.
+      track("journey_person", null, "save_self");
     } catch (e) { setErr(e?.message || String(e)); }
     setBusy(false);
   };
@@ -103,6 +107,7 @@ export default function PersonJourney() {
       await upsertFamilyMember(personId, null, newName.trim());
       setNewName("");
       await refresh(personId);
+      track("journey_person", null, "add_member");
     } catch (e) { setErr(e?.message || String(e)); }
     setBusy(false);
   };
@@ -116,6 +121,7 @@ export default function PersonJourney() {
       await upsertFamilyRelation(personId, parentRef, childRef, "parent_of");
       setRelMember("");
       await refresh(personId);
+      track("journey_person", null, "add_relation");
     } catch (e) { setErr(e?.message || String(e)); }
     setBusy(false);
   };

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { calcGem } from "../theme.js";
 import { emit, EVENTS } from "../lib/research/eventBus.js";
 import HumanDateInput from "./HumanDateInput.jsx";
+import { track } from "../lib/tracking.js";
 
 // 📅 תאריכים עבריים — תאריך לועזי → התאריך העברי המקביל (hebcal) + הגימטריה שלו.
 // עדשה על העץ האחד: הערך מקשר ל-/number/:value (לא משכפל). @hebcal/core נטען דינמית.
@@ -28,7 +29,13 @@ export default function DatesTool() {
         const pretty = rendered.replace(/[֑-ׇ]/g, ""); // בלי ניקוד/טעמים
         const clean = rendered.replace(/[^א-ת]/g, "");  // רק אותיות — לגימטריה
         const value = calcGem(clean);
-        if (alive) { setHeb({ pretty, clean, value }); emit(EVENTS.ENTITY_FOCUS, { title: pretty, word: clean, value }); }
+        if (alive) {
+          setHeb({ pretty, clean, value });
+          emit(EVENTS.ENTITY_FOCUS, { title: pretty, word: clean, value });
+          // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) — הבועה
+          // ההקשרית (emit) קיימת, אבל אין רישום-אנליטיקה עצמאי לכלי הזה עד כה.
+          track("dates", clean, "compute", { value });
+        }
       } catch { if (alive) setHeb(null); }
       finally { if (alive) setBusy(false); }
     })();

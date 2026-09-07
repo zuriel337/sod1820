@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { computeEntity, connectToAxis, PRIMARY } from "../lib/research/coreEngine.js";
+import { track } from "../lib/tracking.js";
 
 // 👨‍👩‍👧 הקשרים במשפחה — מוצא התכנסויות אמיתיות בין שמות בני המשפחה (חוצה-שיטות, עובדה מחושבת).
 // רגע ה«זה אני»: «אבא = אמא = 318». כל ערך ממנוע-הליבה (gematria_engine_law) — לא ניחוש.
@@ -36,6 +37,17 @@ export default function FamilyCross() {
     return { strong: strong.sort((x, y) => y.q - x.q), weak };
   }, [people]);
   const pairs = strong;
+
+  // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1): נרשם רק כשמתגלה
+  // התכנסות אמיתית חדשה (לא על כל הקשה), כדי למדוד שימוש אמיתי בכלי — לא רעש-הקלדה.
+  const lastSig = useRef(null);
+  useEffect(() => {
+    if (!pairs.length) return;
+    const sig = pairs.map(p => `${p.a.name}:${p.b.name}:${p.best.value}`).sort().join("|");
+    if (lastSig.current === sig) return;
+    lastSig.current = sig;
+    track("family", null, "compute", { pairs: pairs.length, top_value: pairs[0]?.best?.value ?? null });
+  }, [pairs]);
 
   const C = { acc: "var(--acc)", ink: "var(--ink)", ink2: "var(--ink2)", ink3: "var(--ink3)", line: "var(--line)", bg: "var(--bg)", accS: "var(--accS)" };
   const inp = { width: "100%", boxSizing: "border-box", fontSize: 16, fontWeight: 600, padding: "9px 12px", borderRadius: 10, border: `1px solid ${C.line}`, background: C.bg, color: C.ink, outline: "none", fontFamily: "inherit" };
