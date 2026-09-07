@@ -82,13 +82,13 @@ jobs:
         run: node --test src/lib/research/gematriaCalculationContract.test.js
       - name: Build
         run: npm run build
-      - name: Fixed-count scan
-        run: |
-          ! grep -RIn -E '19 שיטות|20 שיטות|19 השיטות|20 השיטות|מתוך 19|מ-19 השיטות|מ-20 השיטות' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
-      - name: Commit cleanup
+      - name: Commit cleanup branch-only
         run: |
           git config user.name "zuriel337"
           git config user.email "128194013+zuriel337@users.noreply.github.com"
           git add src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
           git commit -m "Remove stale fixed Gematria method counts"
           git push origin HEAD:gpt/gematria-legacy-drift-cleanup-v1
+      - name: Fixed-count diagnostic scan
+        run: |
+          ! grep -RIn -E '19 שיטות|20 שיטות|19 השיטות|20 השיטות|מתוך 19|מ-19 השיטות|מ-20 השיטות' src/pages/CommunityCalculatorPage.jsx src/components/GematriaCalculatorLegacy.jsx src/pages/BeitMidrashPage.jsx src/lib/gematria.js supabase/functions/ai-analyze/index.ts
