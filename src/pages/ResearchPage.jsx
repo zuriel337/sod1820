@@ -12,6 +12,7 @@ import NameLabPage from "./NameLabPage.jsx";
 import FamilyCross from "../components/FamilyCross.jsx";
 import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
+import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 import LifeProfile from "../components/LifeProfile.jsx";
 import PersonJourney from "../components/PersonJourney.jsx";
 import FileAnalyzer from "../components/FileAnalyzer.jsx";
@@ -163,6 +164,31 @@ export default function ResearchPage() {
   const elsMatrix = useMemo(
     () => (elsTerm && elsSkip) ? { search_term: elsTerm, skip_distance: parseInt(elsSkip, 10) || 0, scope: elsScope, positions: null } : null,
     [elsTerm, elsSkip, elsScope]);
+  // 🧭 Research Journey exact-reopen (ELS continuity gap-close): every saved ELS Universal Finding
+  //    already links here as /research?finding=<id> (universalFinding.js universalFindingToResearchEntity) —
+  //    this reads that id back through the existing journeySnapshot/buildJourneyRestore round trip.
+  //    No new identity: the same cart/saved/pinned Workspace state everything else already uses.
+  const findingId = sp.get("finding") || "";
+  const { finding: reopenFinding, journeyLoad: elsJourneyLoad, status: reopenStatus } = useElsJourneyReopen(findingId);
+  const [reopenNotice, setReopenNotice] = useState(null);
+  useEffect(() => { setReopenNotice(null); }, [findingId]);
+  useEffect(() => {
+    if (!findingId || reopenStatus === "none" || reopenStatus === "ok" || reopenStatus === "not-els") return;
+    // ⚠️ Known rough edge: for a signed-in user opening a fresh tab straight into ?finding=<id>,
+    // cart/saved/pinned start from localStorage and only get overwritten by the cloud pull a moment
+    // later — so "not-found" can flash briefly for a finding that only exists in the cloud copy.
+    const t = setTimeout(() => {
+      if (reopenStatus === "not-found") setReopenNotice("הממצא לא נמצא בסביבת המחקר שלך.");
+      else setReopenNotice("לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש.");
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [findingId, reopenStatus]);
+  // ?finding=<id> alone (no tool=) is the shape universalFindingToResearchEntity actually generates —
+  // once we know the finding is ELS, jump straight into the tool without a second click.
+  useEffect(() => {
+    if (!findingId || tool === "els" || reopenFinding?.kind !== "els") return;
+    setSp(prev => { const n = new URLSearchParams(prev); n.set("tool", "els"); return n; }, { replace: true });
+  }, [findingId, tool, reopenFinding, setSp]);
   // 🧮 איחוד המחשבונים: «gematria» אינו כלי נפרד — הוא הבית הקנוני בבית-המדרש (טאב מחשבון).
   // כל בקשה ל-tool=gematria מנותבת ל-tool=midrash&tab=calc (עם w=מונח-הזריעה אם יש).
   const setTool = t => t === "gematria" ? setSp({ tool: "midrash", tab: "calc" }) : setSp(t ? { tool: t } : {});
@@ -250,7 +276,14 @@ export default function ResearchPage() {
           {tool === "els" && (wide ? (
             <>
               <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("tool", "els"); n.set("term", term); n.delete("q"); return n; })} />
-              <TzofenEmbed seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
+              {reopenNotice && (
+                <div className="rw-card" style={{ marginBottom: 10, padding: "10px 14px", fontSize: 13, color: "var(--ink,#1b1d22)" }}>
+                  {reopenNotice}
+                </div>
+              )}
+              <TzofenEmbed seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")}
+                journeyLoad={elsJourneyLoad}
+                onLoadError={() => setReopenNotice("לא נמצא המיקום המדויק שנשמר — ייתכן שהטקסט השתנה. אפשר לחפש את המונח מחדש.")} />
             </>
           ) : (
             <div className="rw-card" style={{ textAlign: "center", padding: "40px 22px" }}>

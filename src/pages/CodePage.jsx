@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -8,6 +8,7 @@ import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
 import { ELS_PUBLIC, ELS_PREVIEW_OPEN } from "../lib/hub/ready.js";
+import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 
 // דף סגור (לא-אדמין) — מלכותי, מזמין הרשמה
 function CodeClosed() {
@@ -43,6 +44,21 @@ export default function CodePage() {
   const elsMatrix = useMemo(
     () => (elsTerm && elsSkip) ? { search_term: elsTerm, skip_distance: parseInt(elsSkip, 10) || 0, scope: sp.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null } : null,
     [elsTerm, elsSkip, sp]);
+  // 🧭 Research Journey exact-reopen — symmetric with /research?tool=els (same deep-link contract,
+  // one engine, els_single_engine_law): /code?finding=<id> restores the exact saved occurrence.
+  const findingId = sp.get("finding") || "";
+  const { journeyLoad: elsJourneyLoad, status: reopenStatus } = useElsJourneyReopen(findingId);
+  const [reopenNotice, setReopenNotice] = useState(null);
+  useEffect(() => { setReopenNotice(null); }, [findingId]);
+  useEffect(() => {
+    if (!findingId || reopenStatus === "none" || reopenStatus === "ok" || reopenStatus === "not-els") return;
+    const t = setTimeout(() => {
+      setReopenNotice(reopenStatus === "not-found"
+        ? "הממצא לא נמצא בסביבת המחקר שלך."
+        : "לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש.");
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [findingId, reopenStatus]);
   if (loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
@@ -54,7 +70,14 @@ export default function CodePage() {
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
       <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("term", term); n.delete("q"); return n; })} />
-      <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")} />
+      {reopenNotice && (
+        <div style={{ margin: "0 auto 10px", maxWidth: 900, padding: "10px 14px", borderRadius: 12, background: P.card, border: `1px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 13 }}>
+          {reopenNotice}
+        </div>
+      )}
+      <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")}
+        journeyLoad={elsJourneyLoad}
+        onLoadError={() => setReopenNotice("לא נמצא המיקום המדויק שנשמר — ייתכן שהטקסט השתנה. אפשר לחפש את המונח מחדש.")} />
       {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
         <button
