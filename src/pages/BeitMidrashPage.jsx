@@ -924,7 +924,7 @@ function HowToGuide() {
         </div>
       </div>
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, margin: "12px 0 0" }}>
-        זו השיטה הבסיסית ("רגיל"). למטה — עוד 19 שיטות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
+        זו השיטה הבסיסית ("רגיל"). למטה — עוד שיטות זמינות שחושפות רבדים נוספים. ולמעלה ב<b style={{ color: L.goldDeep }}>מחשבון הגימטריה</b> אפשר לחשב כל מילה לבד.
       </p>
     </div>
   );
@@ -934,7 +934,7 @@ function MethodsTab() {
     <div>
       <HowToGuide />
       <p style={{ color: L.sub, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 20px", maxWidth: 620 }}>
-        כל שיטה חושפת רובד אחר באותו ביטוי. הנה כל 20 שיטות החישוב, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
+        כל שיטה חושפת רובד אחר באותו ביטוי. הנה כל שיטות החישוב הזמינות, עם הסבר ודוגמה חיה (על המילה <b style={{ color: L.goldDeep }}>{SAMPLE}</b>).
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
         {[...METHODS, ...DEPTH_METHODS].map(m => {

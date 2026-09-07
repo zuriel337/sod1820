@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { setForcedMode } from "../lib/themeMode.js";
-import { onlyHeb, METHODS, DEPTH_METHODS } from "../lib/gematria.js";
+import { onlyHeb, METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
 import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.js";
 import { buildMessages } from "../lib/numberMessage.js";
@@ -18,10 +18,9 @@ import NameMultiSearch from "../components/NameMultiSearch.jsx";
 import HumanDateInput from "../components/HumanDateInput.jsx";
 
 // ===== 🧮 מחשבון גימטריה קהילתי — דף ויראלי, יום/לילה, עם ניתוח-חכם מהגרף =====
-// אחיו המקצועי (20 שיטות מלאות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
+// אחיו המקצועי (שיטות מתקדמות והצלבות) חי במעבדת-המחקר (/research?tool=gematria + /beit-midrash?tab=calc).
 // כאן: רגש · שיתוף · «מה השם שלך מסתיר?» — כל תוצאה מפנה לעץ האחד (/number/:value), לא משכפלת.
 
-const ALL_METHODS = [...METHODS, ...DEPTH_METHODS];                       // 20 שיטות (14 ליבה + 6 עומק)
 // 3 השיטות המרכזיות עם ההסבר הנעול (gematria.js soul + הגדרות ה-DB): גוף/נשמה/נסתר.
 const CORE3_KEYS = ["רגיל", "מילוי", "מסתתר"];
 const CORE3_INFO = {
@@ -313,7 +312,7 @@ export default function CommunityCalculatorPage() {
       const eq = matches.map(m => `${m.key} (${m.value})`).join(", ");
       kind = "compare"; subject = `${name1.trim()} מול ${name2.trim()}`;
       facts = `שני שמות: "${name1.trim()}" = ${r1.value} · "${name2.trim()}" = ${r2.value} (גימטריה רגילה).` +
-        (matches.length ? ` הם מתכנסים לאותו ערך בשיטות: ${eq}.` : " אין להם ערך שווה באף שיטה מ-19 השיטות.");
+        (matches.length ? ` הם מתכנסים לאותו ערך בשיטות: ${eq}.` : " אין להם ערך שווה באף שיטה מהשיטות הזמינות.");
     } else {
       const core = (r1?.all || []).filter(a => CORE3_KEYS.includes(a.key));
       const methodStr = core.map(a => `${a.key} ${a.value}`).join(", ");
@@ -368,7 +367,7 @@ export default function CommunityCalculatorPage() {
     return () => clearTimeout(t);
   }, [name1, r1?.value]); // eslint-disable-line
 
-  // ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מ-19 השיטות
+  // ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מהשיטות הזמינות
   const geula = useMemo(() => {
     if (!r1) return null;
     for (const m of r1.all) if (GEULA_NUMS[m.value]) return { num: m.value, method: m.key, meaning: GEULA_NUMS[m.value] };
@@ -421,11 +420,11 @@ export default function CommunityCalculatorPage() {
   // ✨ תגליות מפתיעות (#2) — המקבילות מדורגות לפי הפתעה (ביטוי-מושג שלם ורחוק) לראש.
   const discoveries = useMemo(() => rankBySurprise(phrases1, name1.trim()), [phrases1, name1]);
 
-  // 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מ-20 השיטות מתכנסות לאותו ערך.
+  // 💞 ציון התאמה — מדיד ואמיתי (לא אחוז מומצא): כמה מהשיטות הזמינות מתכנסות לאותו ערך.
   // הרגיל שווה = מפגש בלב השיטה. עובדה, לא הבטחה (gematria_engine_law).
   const compat = useMemo(() => {
     if (!r1 || !r2) return null;
-    const total = r1.all.length;              // 20 שיטות המנוע
+    const total = r1.all.length;              // שיטות זמינות המנוע
     const count = matches.length;
     const sameRagil = r1.value === r2.value;
     const note = sameRagil
@@ -448,7 +447,7 @@ export default function CommunityCalculatorPage() {
   const pillBtn = (bg, fg) => ({ cursor: "pointer", background: bg, color: fg, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 26px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7 });
 
   function Reveal({ name, r, phrases }) {
-    const shown = r.all;                                          // כל 19 — לתצוגת ההרחבה
+    const shown = r.all;                                          // כל השיטות הזמינות — לתצוגת ההרחבה
     const core3 = CORE3_KEYS.map(k => r.all.find(a => a.key === k)).filter(Boolean); // 3 הליבה, בסדר קבוע
     return (
       <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 18, padding: "22px 18px", boxShadow: P.mode === "light" ? "0 6px 24px rgba(120,90,20,0.08)" : "0 6px 24px rgba(0,0,0,0.35)" }}>
@@ -473,7 +472,7 @@ export default function CommunityCalculatorPage() {
           </div>
         )}
 
-        {/* 3 שיטות הליבה — עם ההסבר (גוף · נשמה · נסתר). הרחבה = כל 20. */}
+        {/* 3 שיטות הליבה — עם ההסבר (גוף · נשמה · נסתר). הרחבה = כל השיטות הזמינות. */}
         {!showAll ? (
           <div style={{ marginTop: 18, display: "grid", gap: 10 }}>
             {core3.map(a => {
@@ -504,7 +503,7 @@ export default function CommunityCalculatorPage() {
         )}
         <div style={{ textAlign: "center", marginTop: 10, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
           <button onClick={() => setShowAll(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "underline" }}>
-            {showAll ? "− חזרה ל-3 שיטות הליבה" : "+ כל 20 השיטות"}
+            {showAll ? "− חזרה ל-3 שיטות הליבה" : "+ כל השיטות הזמינות"}
           </button>
           <Link to={`/research?tool=gematria${onlyHeb(name).length ? `&w=${encodeURIComponent(name.trim())}` : ""}`} style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>🔬 למחשבון המקצועי →</Link>
         </div>
@@ -588,7 +587,7 @@ export default function CommunityCalculatorPage() {
               </Link>
               <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 14 }}>
                 <button onClick={() => { setName1(heb.clean); setDateMode(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={pillBtn(P.accentBtn, P.onAccent)}>
-                  🔢 כל 19 השיטות לתאריך שלי
+                  🔢 כל השיטות הזמינות לתאריך שלי
                 </button>
                 <a href={waHref("", `התאריך העברי שלי: ${heb.pretty} = ${heb.value} בגימטריה ✨\nגלו את שלכם:\n${SITE_URL}/community/calculator`)} target="_blank" rel="noopener noreferrer" style={pillBtn("#25D366", "#06310f")}>🟢 שתפו</a>
               </div>
@@ -640,7 +639,7 @@ export default function CommunityCalculatorPage() {
 
           {r2 && <Reveal name={name2} r={r2} phrases={[]} />}
 
-          {/* 💞 התאמה גימטרית — ציון מדיד (כמה מ-19 השיטות נפגשות), לא אחוז מומצא */}
+          {/* 💞 התאמה גימטרית — ציון מדיד (כמה מהשיטות הזמינות נפגשות), לא אחוז מומצא */}
           {compat && (
             <div style={{ background: compat.strong ? P.glow : P.cardSoft, border: `1px solid ${compat.strong ? P.borderStrong : P.border}`, borderRadius: 16, padding: "18px", textAlign: "center" }}>
               <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 40, fontWeight: 800, lineHeight: 1.05 }}>
