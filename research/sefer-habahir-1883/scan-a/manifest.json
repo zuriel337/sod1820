@@ -1,0 +1,41 @@
+{
+  "source_id": "book:sefer-habahir-1883",
+  "scope": "PDF pages 1..24 only",
+  "N": 48,
+  "M": 24,
+  "dispatch_ref": "74bcf49b-abb4-47ca-b5df-5142527a760d",
+  "resume_before_ref": "675356b7-a8e7-4d85-a3b0-5a9d3a8925d6",
+  "render_unblock_after_ref": "c2acf141-ad73-495d-8c59-e00b5315ced9",
+  "source_file": "gallery/Book/Sefer_HaBahir_1883.pdf",
+  "source_sha256": "b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067",
+  "bytes": 4362696,
+  "render_protocol": {
+    "base": "pdftoppm -f <p> -l <p> -png -r 220 gallery/Book/Sefer_HaBahir_1883.pdf out/p",
+    "escalation": "400dpi or crop only when a specific exact reading is required",
+    "ocr": "helper only; never substitutes for image",
+    "exact": "must be visually cross-checked against rendered canonical page"
+  },
+  "truth_layers": {
+    "input": "page render + OCR-assisted working transcription",
+    "extraction": "terms/numbers/letters/citation apparatus identified from Input",
+    "finding": "page-scoped research observation",
+    "claim": "candidate relation/contradiction/unresolved only; no canonical promotion"
+  },
+  "coverage": {
+    "render_verified_pages": 24,
+    "structured_pages": 24,
+    "working_transcription_chars": 119096,
+    "exact_anchor_count": 50,
+    "finding_count": 24,
+    "unresolved_count": 22
+  },
+  "prohibitions_observed": [
+    "no pages 25..48",
+    "no new Book node",
+    "no canonical edges",
+    "no Research Object promotion",
+    "no schema/RPC/UI",
+    "no merge/deploy"
+  ],
+  "fidelity_verdict": "PASS_FOR_RESEARCH_EXTRACTION_WITH_GRADED_TRANSCRIPTION: canonical pages render faithfully. Page-level structure and selected anchors are visually verified. Dense full-page OCR working text is preserved but is not claimed letter-perfect exact unless exact=true."
+}
