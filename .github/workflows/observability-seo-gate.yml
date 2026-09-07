@@ -1,0 +1,51 @@
+name: Observability/SEO Build Gate
+
+# SOD1820_OBSERVABILITY_SEO_BUILD_GATE_CI (2026-09-07) — EXTEND_EXISTING.
+# Wires the existing scripts/check-observability-seo-gate.mjs (built during
+# SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) and the existing `npm run build`
+# into GitHub Actions. No new checker logic here — the script's own exit code
+# (0 = every in-scope public route has ROUTE_META or its own applySeo() call,
+# 1 = at least one gap) is what fails this job. Do not change the checker's
+# semantics from this workflow file; if the check needs different behavior,
+# that's a change to the script itself, reviewed on its own.
+#
+# None of the repo's other workflows (.github/workflows/*.yml — daily-backup,
+# media-thumbs, ocr-gallery, update-sitemap) trigger on pull_request or run a
+# build/lint gate; they're all cron/dispatch maintenance jobs. There was no
+# existing PR-gate workflow to extend at the job level, so this is a new,
+# single-purpose file — not a parallel/competing CI system.
+#
+# workflow_dispatch is included ONLY so this can be triggered manually for
+# verification (see AFTER work_log) without needing a live PR event — it does
+# not change the "every PR to main" requirement, which is carried by the
+# pull_request trigger below.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # npm ci intentionally NOT used: package.json/package-lock.json are
+      # currently out of sync repo-wide (package-lock.json is missing
+      # @vercel/speed-insights, added to package.json in commit 971725dc
+      # without a lockfile update) — npm ci fails on a clean checkout of
+      # main today, unrelated to this workflow. npm install works around it
+      # without touching the lockfile. Flagged in AFTER for GPT/ZURIEL;
+      # not fixed here (out of this task's scope).
+      - name: Install dependencies
+        run: npm install
+
+      - name: Observability/SEO route coverage check
+        run: node scripts/check-observability-seo-gate.mjs
+
+      - name: Build
+        run: npm run build
