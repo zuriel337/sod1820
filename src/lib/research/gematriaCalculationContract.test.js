@@ -23,6 +23,8 @@ test("registry unavailable remains UNKNOWN rather than fabricating false state",
   assert.equal(result.methodState.active, null);
   assert.equal(result.methodState.engineVerified, null);
   assert.equal(result.methodState.scannable, null);
+  assert.equal(result.access.requiredEntitlement, null);
+  assert.equal(result.access.accessible, null);
 });
 
 test("registry axes stay separate and method identity/version are preserved", () => {
@@ -49,7 +51,18 @@ test("registry axes stay separate and method identity/version are preserved", ()
   assert.equal(result.methodState.executable, true);
   assert.equal(result.methodState.engineVerified, true);
   assert.equal(result.methodState.scannable, false);
-  assert.equal(result.methodState.requiredEntitlement, "public");
+  assert.equal(result.access.requiredEntitlement, "public");
+  assert.equal(result.access.accessible, null);
+  assert.equal(result.projection.displayed, true);
+});
+
+test("storage capability never fabricates that this particular result is stored", () => {
+  const methodWithColumn = CLIENT_GEMATRIA_METHODS.find(method => method.col);
+  assert.ok(methodWithColumn, "expected at least one client method with a storage column hint");
+  const result = calculateGematriaEnvelope("א").results.find(row => row.methodKey === methodWithColumn.key);
+  assert.equal(result.storage.storageCapable, true);
+  assert.equal(result.storage.dbColumnHint, methodWithColumn.col);
+  assert.equal(result.storage.stored, null);
 });
 
 test("representation keeps raw input separate from canonical normalization", () => {
