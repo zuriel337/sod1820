@@ -2,15 +2,18 @@ import {
   fetchEntityListByType,
   EXPLORER_LIST_MODE_TYPES,
 } from "./entityHubProjection.js";
-import { fetchTopicCardList, fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
+import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { fetchBookEntities } from "./bookResearchProjection.js";
+import {
+  fetchExplorerRankedTopicPage,
+  topicRankMeta,
+  neutralRankMeta,
+} from "./explorerRanking.js";
 
 // ── UNIVERSAL_EXPLORER_V1_SLICE2_SHELL_AND_FACET_COMPOSITION (work_log dispatch 0b70e0f9) ──
 // The v1 facet registry: ONE list of what the Explorer shell may browse, each entry pairing an
 // EXISTING Slice-1 reader with a pure card-normalizer. This file coordinates readers — it owns
-// no data, computes no truth, and fetches nothing beyond what Slice 1 already exposes. Card
-// composition is deliberately minimal (identity + a short subtitle only); full detail stays a
-// later slice, so a facet list never does a per-row Universal Finding/graph fetch (no N+1).
+// no data, computes no truth, and fetches nothing beyond what the Explorer projection needs.
 //
 // Route-guard invariant (tested): the node-type facet keys below are EXACTLY
 // EXPLORER_LIST_MODE_TYPES, imported from the reader itself — the UI cannot drift from what
@@ -18,8 +21,7 @@ import { fetchBookEntities } from "./bookResearchProjection.js";
 //
 // Empty registry-only entity_types (verse/name/person/place/object/research/fieldmap/
 // relationship — 0 real nodes per audit 77d82836 / reality_graph_law v4) are absent from this
-// registry entirely, not merely hidden — per Rank-Don't-Hide, an empty facet is not "ranked
-// last", it does not exist as a browsable facet yet.
+// registry entirely, not merely hidden.
 
 const HUB_ROUTE = "/entity-hub-preview";
 
@@ -36,10 +38,6 @@ function hubHref(type, key) {
   return `${HUB_ROUTE}/${encodeURIComponent(type)}/${encodeURIComponent(key)}`;
 }
 
-// Node-backed facets with no dedicated public route (entity_types.route_pattern is null for all
-// of these) link into the existing internal Entity Hub preview — the one generic per-entity view
-// this codebase already has. `number` is the one node-backed facet with its own canonical public
-// page (/number/:value, entity_types.route_pattern) and links there instead.
 function nodeCardHref(type, row) {
   if (type === "number") return `/number/${encodeURIComponent(row.label)}`;
   return hubHref(type, row.identity_key || row.label);
@@ -52,13 +50,10 @@ function nodeRowToCard(type) {
     label: row.label || "",
     sub: truncate(row.description),
     href: nodeCardHref(type, row),
-    // refId: the reference a Research Context selection carries forward (number → its value, the
-    // same key nodeCardHref already routes on; anything else → identity_key, falling back to
-    // label). The final fallback to the row's own DB id is a last-resort TECHNICAL address only —
-    // used solely so a card with neither identity_key nor label still has *some* refId — never a
-    // claim that a bare DB id is a stable/canonical cross-surface identity (corrected per GPT
-    // challenge 8fc2d310, UNIVERSAL_EXPLORER_V1_SLICE3_EXACT_REOPEN_CORRECTION, dispatch 3d04a64b).
     refId: type === "number" ? row.label : (row.identity_key || row.label || String(row.id)),
+    // Slice 5: no safe list-level ranking signal is currently present for generic node facets.
+    // Rank-Don't-Hide => neutral rank, preserving each canonical reader's deterministic order.
+    rank: neutralRankMeta(`nodes:${type}:reader_default`),
   });
 }
 
@@ -69,7 +64,10 @@ function topicRowToCard(row) {
     label: row.title || row.slug || "",
     sub: truncate(row.subtitle),
     href: `/topic/${encodeURIComponent(row.slug)}`,
-    refId: row.slug || String(row.id), // DB-id fallback: last-resort technical address, not a claimed stable identity
+    refId: row.slug || String(row.id),
+    // Slice 5: meter_score is an existing public-safe convergence/evidence-strength signal.
+    // It orders DISPLAY only; it is not verification, canonicality, publication, or access.
+    rank: topicRankMeta(row),
   };
 }
 
@@ -81,7 +79,8 @@ function bookRowToCard(row) {
     label: row.label || "",
     sub: truncate(row.description),
     href: slug ? `/book/${encodeURIComponent(slug)}` : "/book",
-    refId: slug || String(row.id), // DB-id fallback: last-resort technical address, not a claimed stable identity
+    refId: slug || String(row.id),
+    rank: neutralRankMeta("book:reader_default"),
   };
 }
 
@@ -96,7 +95,10 @@ const NODE_FACET_LABELS = Object.freeze({
   language_bridge: "גשרי שפה",
 });
 
-// One registry entry per facet: { key, label, fetchPage(params) -> {rows,hasMore}, toCard(row) }.
+// Slice 5 ranking contract:
+// - topic: globally ordered server-side by existing public meter_score, then approved_at, then id.
+// - all other facets: neutral rank until a safe bounded list-level signal already exists.
+// Missing signal never hides or demotes truth; it only means "no ranking signal available yet".
 export const EXPLORER_FACETS = Object.freeze([
   ...EXPLORER_LIST_MODE_TYPES.map((type) => Object.freeze({
     key: type,
@@ -107,16 +109,8 @@ export const EXPLORER_FACETS = Object.freeze([
   Object.freeze({
     key: "topic",
     label: "התכנסויות",
-    fetchPage: (params) => fetchTopicCardList(params),
+    fetchPage: (params) => fetchExplorerRankedTopicPage(params),
     toCard: topicRowToCard,
-    // fetchDetail: UNIVERSAL_EXPLORER_V1_SLICE4_DETAIL_COMPOSITION_REUSE (work_log dispatch
-    // 6871d978). Topic is the ONE facet with a genuinely reusable, already-composable detail
-    // adapter+component pair: fetchCanonicalTopicConvergenceFinding(slug) is the SAME canonical,
-    // bounded, single-item Universal Finding reader the rest of the codebase already uses, and
-    // TopicConvergenceContent.jsx is an already-exported, host-agnostic renderer explicitly
-    // documented as mountable "by the legacy /topic surface... and by the P1 Universal Entity
-    // Hub... with the same props". Called ONLY on explicit per-card expand, never on list load —
-    // no new truth computation, no new component, no per-row fetch.
     fetchDetail: (card) => fetchCanonicalTopicConvergenceFinding(card?.refId),
   }),
   Object.freeze({
@@ -124,9 +118,6 @@ export const EXPLORER_FACETS = Object.freeze([
     label: "ספרים",
     fetchPage: (params) => fetchBookEntities(params),
     toCard: bookRowToCard,
-    // No fetchDetail: reuses Book Research Projection's existing behavior (its own hub page) as
-    // the detail target — see facetHasDetail below for why this, and every node-backed facet, is
-    // NOT given a fabricated inline detail in v1.
   }),
 ]);
 
@@ -135,47 +126,25 @@ export function getExplorerFacet(key) {
   return EXPLORER_FACETS.find((f) => f.key === safeKey) || null;
 }
 
-// Slice 4 scoping decision (dispatch 6871d978): every node-backed facet (number, entity, event,
-// year, word, phrase, foreign_word, language_bridge) and book has NO extractable, composable
-// detail-panel component today — the closest equivalent (EntityHubPreviewPageFunctional's
-// equality-row rendering) is ~500 lines of full-page JSX with its own Research Context/route
-// side effects, not a host-agnostic panel like TopicConvergenceContent. Building a new one now
-// would be inventing a new abstraction / a second, drifting renderer of the same truth rows —
-// exactly what the dispatch says not to do. Per the dispatch's own anticipated fallback ("no
-// mature detail adapter → link to the existing detail route, do NOT fabricate a pseudo-detail
-// body"), these facets stay route-only in v1: facetHasDetail is the single place the UI checks
-// before offering an inline "expand" affordance, so this stays a one-line decision, not a
-// per-component special case.
 export function facetHasDetail(key) {
   return typeof getExplorerFacet(key)?.fetchDetail === "function";
 }
 
-/**
- * Fetches the on-demand detail (a Universal Finding) for ONE card of a facet that supports it.
- * Returns null for an unknown facet key or a facet with no fetchDetail — never throws, never
- * fabricates a detail body for a facet that doesn't have a real adapter (facetHasDetail is the
- * one place the UI needs to check before calling this at all).
- */
 export async function fetchExplorerFacetDetail(facetKey, card) {
   const facet = getExplorerFacet(facetKey);
   if (!facet || typeof facet.fetchDetail !== "function") return null;
   return facet.fetchDetail(card);
 }
 
-// fetchBookEntities() returns a bare array (no hasMore), unlike the two Slice-1 list functions —
-// this normalizes that difference at the one seam where it matters, without changing
-// bookResearchProjection.js (reused as-is, per the Slice 1 "coordinate existing readers, don't
-// force one storage path" instruction). hasMore is inferred the same way a caller of the bare
-// array always could: exactly `limit` rows back leaves open whether more exist.
 export function normalizePageResult(raw, limit) {
   if (Array.isArray(raw)) return { rows: raw, hasMore: raw.length >= limit };
   return { rows: Array.isArray(raw?.rows) ? raw.rows : [], hasMore: Boolean(raw?.hasMore) };
 }
 
 /**
- * Fetches one page of one facet and normalizes it to the common card shape. Returns
- * { cards, hasMore } or null for an unknown facet key — never throws on a bad key, never
- * fabricates a facet that isn't in the registry.
+ * Fetches one page of one facet and normalizes it to the common card shape. Ranking is supplied
+ * by the facet's reader/card adapter: topic is globally server-ranked; neutral facets preserve
+ * their deterministic reader order. No client-side per-page resorting, so pagination cannot lie.
  */
 export async function fetchExplorerFacetPage(facetKey, { limit = 24, offset = 0 } = {}) {
   const facet = getExplorerFacet(facetKey);
@@ -185,16 +154,7 @@ export async function fetchExplorerFacetPage(facetKey, { limit = 24, offset = 0 
   return { cards: rows.map(facet.toCard), hasMore };
 }
 
-// ── UNIVERSAL_EXPLORER_V1_SLICE3_RESEARCH_CONTEXT_REOPEN (work_log dispatch ff9c3f2a) ──
-// Pure helpers only: URL ⇄ {facet,offset} round-trip and the Research Context selection a
-// facet/card resolves to. No new store, no network here — these just make the existing
-// page-size browsing exactly resumable from a URL, and mirrored into Research Context's flat
-// dimensions bag (researchContext.js normalizeDimensions accepts only scalars/primitive-arrays
-// per key — nested objects are silently dropped, so Explorer state lives as two flat keys, not
-// one nested one).
-
-/** Reads ?facet=&offset= from a URLSearchParams (or plain object). Unknown/invalid facet falls
- * back to fallbackFacet; offset is clamped to a non-negative integer, invalid → 0. Never throws. */
+// ── UNIVERSAL_EXPLORER_V1_SLICE3_RESEARCH_CONTEXT_REOPEN ──
 export function parseExplorerUrlState(searchParams, fallbackFacet) {
   const get = (key) => (typeof searchParams?.get === "function" ? searchParams.get(key) : searchParams?.[key]);
   const rawFacet = clean(get("facet"));
@@ -204,8 +164,6 @@ export function parseExplorerUrlState(searchParams, fallbackFacet) {
   return { facet, offset };
 }
 
-/** Builds the ?facet=&offset= query string for a given state — offset omitted at 0 so the root
- * page-1 URL of any facet stays clean. Pure string building, no navigation. */
 export function explorerUrlSearch({ facet, offset = 0 } = {}) {
   const params = new URLSearchParams();
   const safeFacet = clean(facet);
@@ -216,39 +174,13 @@ export function explorerUrlSearch({ facet, offset = 0 } = {}) {
   return qs ? `?${qs}` : "";
 }
 
-// ── UNIVERSAL_EXPLORER_V1_SLICE3_EXACT_REOPEN_CORRECTION (work_log dispatch 3d04a64b) ──
-// GPT challenge 8fc2d310 on the first Slice 3 pass: the original replayLimitFor() capped a
-// "replay from position 0" at 100 rows (the reader's own per-request hard cap) — so a deep link
-// or returnTo past ~76 accumulated rows (offset+pageSize > 100) silently rendered a TRUNCATED
-// list while the URL still claimed that exact offset. That is not "exact reopen", it is a
-// plausible-looking lie past one page-and-a-bit.
-//
-// Corrected contract — PAGE-WINDOW semantics, not accumulate-and-replay (chosen per the
-// challenge's own preference: "prefer page-window semantics if it preserves UX and simplifies
-// exactness"): reopening a URL/returnTo restores the user to looking at the EXACT page window
-// {offset, pageSize} they left from — one bounded request, always ≤ pageSize rows, regardless of
-// how large `offset` is (offset=240 and offset=240000 are both a single bounded fetch of exactly
-// `pageSize` rows starting at that offset — never a chain of requests, never a growing read). This
-// does not replay every row from position 0 (a returnTo does not restore full prior scroll
-// history, only the exact position) — but it is truthfully exact about the position it does
-// restore, for any offset, with no hard cap needed because no accumulation happens on reopen.
-// Continuing to browse forward from a reopened window (the existing "עוד ←" / loadMore path) is
-// unaffected — it already does one bounded page fetch per click, appended to what's on screen.
-
-/** The bounded single-page request that exactly reconstructs the window a URL/returnTo offset
- * points at — {offset, limit}, always one page's worth, never more. Non-finite/negative/
- * fractional offset or pageSize is normalized (offset→0, pageSize→24), so this is safe for any
- * input including an arbitrarily large or hand-edited offset. */
+// ── UNIVERSAL_EXPLORER_V1_SLICE3_EXACT_REOPEN_CORRECTION ──
 export function explorerReopenWindow(offset, pageSize = 24) {
   const safeOffset = Number.isFinite(Number(offset)) && Number(offset) > 0 ? Math.floor(Number(offset)) : 0;
   const safePageSize = Number.isFinite(Number(pageSize)) && Number(pageSize) > 0 ? Math.floor(Number(pageSize)) : 24;
   return { offset: safeOffset, limit: safePageSize };
 }
 
-/** The Research Context `selection` a facet card resolves to when the user leaves the Explorer
- * through it — entityId is the card's refId (never the internal `id`, which for node rows is a
- * DB id, not a stable cross-surface reference), entityType is the facet key. Returns null for a
- * card with no refId (never fabricates a selection). */
 export function explorerCardSelection(card) {
   if (!card || !clean(card.refId)) return null;
   return { entityId: String(card.refId), entityType: clean(card.facet) };
