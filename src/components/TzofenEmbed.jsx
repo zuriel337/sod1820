@@ -258,7 +258,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (d.type === "ready") {
         postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
         pushSavedMatrices();   // 🖼️ מזרים את מטריצות-הענן לגלריה בכלי
-        if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
+        // 🧭 Research Journey exact-reopen (ELS continuity gap-close): journeyLoad is a one-shot
+        //    action, but if it was already set BEFORE the iframe finished loading (e.g. a page
+        //    mounted straight into "?finding=<id>"), the effect below fired before the tool
+        //    registered its message listener and the postMessage was silently dropped — same
+        //    load race already handled for lensRequest just below. Resend it here too.
+        if (journeyLoad) postToTool({ type: "load-matrix", item: journeyLoad });
+        else if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
         //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
         if (lensRequest) postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
@@ -322,7 +328,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest, onLoadError]);
+  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest, onLoadError, journeyLoad]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
   //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.

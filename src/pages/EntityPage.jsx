@@ -865,7 +865,7 @@ export default function EntityPage({ embedPhrase } = {}) {
   const entity = isNumber ? entityFromNumber(value, KEY_NUMBERS[value]) : entityFromPhrase(term, value);
 
   // 🕘 רישום-היסטוריה — צפייה בישות נכנסת ל«היסטוריית המחקר» («המשך מהמקום שעצרת»).
-  const { logHistory, mode, addToResearch, saveItem, togglePin, isPinned, enterDiscovery, setMode, cart = [], pinned: pinnedItems = [] } = useResearch();
+  const { logHistory, mode, addToResearch, saveItem, togglePin, isPinned, enterDiscovery, setMode, updateResearchContext, cart = [], pinned: pinnedItems = [] } = useResearch();
   // 🪜 מסע 3 שכבות (discovery_journey): 1=שער הגילוי · 2=גלה עוד (המשך גלילה) · 3=היכל הגילוי (הכל).
   // כל יכולת מחקר עתידית נכנסת רק להיכל הגילוי — דף המספר נשאר שער מהיר.
   const [layer, setLayer] = useState(1);
@@ -2178,7 +2178,16 @@ export default function EntityPage({ embedPhrase } = {}) {
 
         {/* ── 🔍 דילוגי אותיות + 🎥 סרטונים ── */}
         <section style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-          <Link to="/code" style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+          <Link to={`/code?term=${encodeURIComponent(term)}&from=number:${encodeURIComponent(String(value ?? term))}`}
+            // 🧭 Research Context returnTo (ELS continuity gap-close): same {href,label,subject} shape
+            // TopicPage.leaveTopic() already writes — so BottomBar's existing "↩ חזרה" also closes the
+            // loop back to this Number/phrase page, not only from Topic pages.
+            onClick={() => updateResearchContext?.({
+              lens: "els",
+              selection: { entityId: String(value ?? term), entityType: isNumber ? "number" : "phrase" },
+              returnTo: { href: numHref(encodeURIComponent(phrase || "")), label: entity.title, subject: entity },
+            })}
+            style={{ ...card, textAlign: "center" }} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
             <div style={{ fontSize: 26, marginBottom: 6 }}>🔍</div>
             <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700 }}>חפשו «{term}» בדילוגי האותיות</div>
             <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>מנוע הצפנים בטקסט התורה</div>
