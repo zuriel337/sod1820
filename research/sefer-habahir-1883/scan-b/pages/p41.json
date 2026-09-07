@@ -1,0 +1,58 @@
+{
+  "pdf_page": 41,
+  "source_ref_page": "book:sefer-habahir-1883#p41",
+  "printed_page_label": "יט (Hebrew foliation, leaf 19, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p41-b1", "region": "header", "text_he": "יט ... ספר הבהיר", "confidence": "high"},
+      {"block_id": "p41-b2", "region": "body_right_col", "text_he": "מבן עשרים שנה ולמעלה. אמר ליה אטו (לא) בחיי אמרינא אנא דאמרינא שכבר היה לשעבר. אמרו לו חביריו עד מתי תסתום דבריך ברוך אמר להם צאו וראו משל לאדם שנטע כרם בגנו ועשה ענבים ועשה באושים ראה שלא הצליח גדרו ונקה הגפנים [ונטען אחר] ראה שלא הצליח [זה] ועקרו ונטעו אחר עד כמה. אמרו לו עד לאלף דור דכתיב דבר צוה לאלף דור דכתיב 'ד'ור לאלף דור ואמרו רבותינו תתקע\"ד דורות ושתלן בכל דור ודור", "confidence": "medium", "notes": "Continuation of the vineyard/1000-generations parable (see p35 for a near-duplicate opening formula in the same discourse family)."},
+      {"block_id": "p41-b3", "region": "body_left_col", "text_he": "כי אם מבדיל עונותיהם דכתיב כי עונותיכם היו מבדילים ביניכם ובין אלהיכם ובין עונותיכם היה הפרש ביניכם וביניו כו'. דהא רבא ברא גברא שדריה לקמיה דרבי זירא אמר ליה זיל הוי משתעי בהדיה ולא הוה מהדר ליה מידי ואמרו ליה אלמלא עונותיכם הוה ליה נשמה לאינש למיעל ביה. אמרו ליה אין אין. נשמתיה טהורה שהיא בו כמו לחי שנוצר בכל יום ולילה ...", "confidence": "medium", "notes": "Continues the Rava/Rabbi Zeira-style Aramaic dialogue introduced on p35 about sin's separating effect and the soul's daily renewal."},
+      {"block_id": "p41-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור כה נכחשית סו : ב יחזקאל לו : נ תהלים לג : ד סס ד : ו תהלים קיח : ז ישעיה סג : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p41-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible; opens with 'לתם ספתוחים לו נגד למיד' / 'עד למחי דוד ליכ\"ר' ...]", "confidence": "low"},
+      {"block_id": "p41-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "דבר צוה לאלף דור", "likely_source": "Psalms 105:8", "block_id": "p41-b2", "confidence": "candidate"},
+      {"raw": "עונותיכם היו מבדילים ביניכם ובין אלהיכם", "likely_source": "Isaiah 59:2", "block_id": "p41-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["מבן עשרים שנה ולמעלה (age twenty and above)", "אלף דור (a thousand generations)", "תתקע\"ד דורות (974 generations)"],
+    "letters": [],
+    "divine_names": ["אלהים", "אלהיכם"],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "משל לאדם שנטע כרם, ענבים/באושים (vineyard parable: a man plants a vineyard, gets good grapes then bad/wild grapes, uproots and replants repeatedly) -- extended version of the p35 parable, confirming p35/p41 belong to the same discourse arc (~6 pages apart, distinct from the tighter p32/p36 and p33/p35/p37/p38 near-duplication pattern)."
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": ["974-generations tradition (see p35) reiterated/continued here with the explicit '1000 generations' verse-derivation (Psalms 105:8) as its textual anchor."]
+  },
+  "finding": {
+    "observations": [
+      "This page resolves part of the open question raised at p35: the 'תתקע\"ד דורות' (974 generations) motif is indeed a multi-page discourse (not a one-off), continuing here with the classic 'planted vineyard across generations' parable and an explicit Psalms 105:8 ('a thousand generations') anchor -- strengthens confidence in the p35 extraction, downgrading the earlier 'possible duplication error' concern for THIS specific motif (974/1000 generations) even though the separate pp32/33/35/36/37/38 opening-formula duplication pattern remains a distinct open question.",
+      "Sin (עון) is here described as literally interposing/separating (מבדיל) between a person and their soul's purity, renewed nightly -- a clear early formulation of a widespread later Kabbalistic idea about nightly soul-renewal (cf. the 'Modeh Ani' theology), flagged as a notable Finding though not asserted as a direct citation."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Psalms 105:8 and Isaiah 59:2 used as prooftexts.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p41-b2", "description": "Opening clause '(לא) בחיי אמרינא אנא דאמרינא שכבר היה לשעבר' has an uncertain negation-particle placement; kept as read."},
+      {"block_id": "p41-b3", "description": "Same Aramaic dialogue passage as p35-b3 continues here; medium confidence, several words uncertain."},
+      {"block_id": "p41-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p41-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p41-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf יט (19)."
+  }
+}

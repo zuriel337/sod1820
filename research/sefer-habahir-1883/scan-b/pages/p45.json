@@ -1,0 +1,22 @@
+{
+  "pdf_page": 45,
+  "source_ref_page": "book:sefer-habahir-1883#p45",
+  "printed_page_label": "none visible (unpaginated blank leaf)",
+  "page_type": "blank",
+  "layout": ["blank_leaf"],
+  "input": {
+    "blocks": [
+      {"block_id": "p45-b1", "region": "blank_leaf", "text_he": "", "confidence": "high", "notes": "Page is visually blank: no printed text. A small number of faint stray ink specks/marks are visible near the edges (scanning artifacts or foxing), plus a faint 'Digitized by Google' watermark bottom-right consistent with every other page in this PDF."}
+    ]
+  },
+  "extraction": {"headings": [], "section_markers": [], "verse_citations_candidates": [], "numbers": [], "letters": [], "divine_names": [], "sefirot_terms": [], "symbols_metaphors": [], "sefer_yetzirah_refs": [], "calculations_procedures": []},
+  "finding": {
+    "observations": ["Blank leaf immediately following the editorial essay (p44) and preceding another blank leaf (p46) and the library stamp page (p47) -- consistent with a typical back-matter/endpaper sequence in a bound 19th-century volume."]
+  },
+  "claim": {"candidate_relations": [], "contradictions": [], "unresolved_readings": []},
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Confirmed blank by direct visual inspection of the rendered page image."
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "pdf_page": 32,
+  "source_ref_page": "book:sefer-habahir-1883#p32",
+  "printed_page_label": "28 (Arabic page number, verso of leaf יד/14)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p32-b1", "region": "header", "text_he": "ספר הבהיר ... 28", "confidence": "high"},
+      {"block_id": "p32-b2", "region": "body_right_col", "text_he": "כל זה לסגור לו כל הדלתות שלא ימצאך פעם אחד רך ופעם אחד קשה בשמרך כל חוקיו כל המחלה אשר שמתי במצרים על ידו אני ה' מאי כי אני ה' רופאך אלא כשהוא רופאך מיד נשלמה השמונה שבו נתחלו ובד נשא בפעולתו הוי הוא שביעי ניהו שם המשנה יד ימין ויד שמאל רגל ימין ושמאל ראש וגוף וברית מכריע שהיא אשתו שהיא שנוה הרי אחד לבשר אחד שנוי הרי שביעה מנה תשיעי שהוא הריהוה חד תשיעי מאי תשיעי אלו ואלו תמניא לאו הוי אלא שבעה שהיו כנגד בי שנה תק\"ו חבורים מכ\"ג הבנים אמרתי שש והוא באשתו שבעה אופנים הא נוטה לצד צפון והוא נוטה למטה תחתונה עד הארץ עד ומאי תחתונה ומשם למעלה שכינתו של ארצות מו מצלעותיו והיו לקחה על הארץ ויקח אחת מזה לצד עד ולצלע אחרת מ", "confidence": "low", "notes": "Extremely dense esoteric enumeration of body-limb correspondences (right/left hand, right/left leg, head, torso, covenant/berit); high transcription uncertainty in places."},
+      {"block_id": "p32-b3", "region": "body_left_col", "text_he": "אופנים הא נוטה לצד צפון והוא נוטה למטה תחתונה עד הארץ ומאי תחתונה. משם ולמעלה השמים והארץ כסאו נאמר המשכן ומתרנינן ולסתר משכנא ומאי סתר סוד הדום רגלי ושם משל למלך שהיה בביתו את שעלה שלו בלבו נצח נצחים כלום צח נצחים אתה נותן נצח נצחים מהם ומהם דקלים היו כמין כישוים אמר כשיהיו כולם ממין א' לא יתקיימו זה הנוטה לצד צפון וזהה הנוטה למערב שני 'הוי' מאי 'הוי' זהו וני ולשלישי נוטה מאותו הט מה שעלה במחשבתו שעלה במחשבתו ואלא כלה נצח נצחים לנצח נצחים והם(ב'כ) המרכבה באופני המרכבה סוף השכינה נמאת לוגז\"כ הרי צחים תרי תלתא(*)א\"ל תלמידיו ידעינן דלמעלה למעלה אבל למטה אב יודעין מי הוה חד למעלה ולאו חד דומה למטה אינו דומה כאלמה אמר להו יודען כחמה ברה כנדגלות כיוצא שאיזו והייתה ידיענן מלמעלה למטה יורד הענולה ומרוצה יורד הענולה", "confidence": "low", "notes": "Continues body/limb-correspondence discourse into merkavah imagery ('אופני המרכבה'); very dense, lower confidence."},
+      {"block_id": "p32-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור א שמות טו : ב שמות טו : נ ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p32-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible; contains a bracketed word 'ושעניס' typeset differently]", "confidence": "low"},
+      {"block_id": "p32-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "אני ה' רופאך", "likely_source": "Exodus 15:26", "block_id": "p32-b2", "confidence": "candidate"}
+    ],
+    "numbers": ["שביעי, תשיעי (seventh, ninth -- ordinal enumeration of limbs/attributes)", "תק\"ו (606, gematria-styled numeral, context unclear)", "כ\"ג (23)"],
+    "letters": [],
+    "divine_names": ["ה'", "אני ה' רופאך"],
+    "sefirot_terms": ["yad yamin/smol, regel yamin/smol, rosh, guf, brit -- an explicit body-limb enumeration (right hand, left hand, right leg, left leg, head, torso, covenant) that is one of the Bahir's well-known proto-sefirotic 'anthropomorphic' passages", "מרכבה (Merkavah) explicitly named ('אופני המרכבה')"],
+    "symbols_metaphors": [
+      "הדום רגלי (footstool) as a name for a lower/hidden dimension ('סתר')",
+      "משל למלך ודקלים/כישוים (a parable of a king and palm-like objects arranged so 'not all of one kind' persist) -- obscure parable, only partially reconstructed",
+      "אופני המרכבה (the wheels/ophanim of the Merkavah) tied to nine/seven enumerated 'netzachim' (victories/eternities)"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": ["Enumeration reconciling 'seven' vs 'nine' vs 'eight' counts of the limb/attribute set -- exact arithmetic argument not confidently reconstructed at this transcription confidence."]
+  },
+  "finding": {
+    "observations": [
+      "This page is one of the most esoterically dense and hardest-to-transcribe pages in the assigned range; it corresponds to a well-known scholarly crux in Bahir studies (the body-limb/sefirah correspondence passage), which is precisely why lower confidence is being reported rather than a false-confident verbatim rendering.",
+      "A student-teacher dialogue format appears at the bottom of the left column ('א\"ל תלמידיו ידעינן דלמעלה למעלה אבל למטה...') introducing a question about upper vs. lower correspondence -- this dialogue clearly continues onto p33."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Exodus 15:26 ('I am the Lord your healer') used as an anchor prooftext near the start of the limb-enumeration passage.", "confidence": "candidate"}
+    ],
+    "contradictions": [
+      {"description": "The count of enumerated limbs/attributes shifts between 'שביעי' (seventh), 'תשיעי' (ninth) and 'תמניא' (eight, Aramaic) within a few lines -- possibly reflecting the source's own internal complexity (nested/telescoping counts) rather than a transcription error, but flagged as an internal numeric tension pending expert review rather than silently resolved."}
+    ],
+    "unresolved_readings": [
+      {"block_id": "p32-b2", "description": "Body-limb/covenant enumeration passage transcribed at LOW confidence overall -- this is a scholarly crux passage in Bahir studies and the rendered image resolution (220dpi) combined with this edition's typeface density leaves multiple words genuinely ambiguous. Recommend prioritizing a fresh high-resolution re-scan of PDF pages 32-33 if publication-grade transcription is required."},
+      {"block_id": "p32-b3", "description": "Merkavah/ophanim passage similarly LOW confidence; parable of the king and palm-objects only partially reconstructed."},
+      {"block_id": "p32-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p32-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p32-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יד (14); Arabic '28' = 14*2. This page's Input confidence is explicitly LOW -- flagged prominently in unresolved.md."
+  }
+}

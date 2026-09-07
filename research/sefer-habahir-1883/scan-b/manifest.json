@@ -1,0 +1,65 @@
+{
+  "book": "sefer-habahir-1883",
+  "edition_title_he": "ספר הבהיר להתנא רבי נחוניה בן הקנה, עם פירוש אור הגנוז",
+  "printer_colophon_signature": "המלבה\"ד שמואל בלאא\"מ אליעזר אהרן ז\"ל לוריא ממאהליב",
+  "printer_place_he": "ווילנא (Vilna)",
+  "source_object": "gallery/Book/Sefer_HaBahir_1883.pdf",
+  "source_sha256": "b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067",
+  "source_size_bytes": 4362696,
+  "source_mimetype": "application/pdf",
+  "pdf_producer": "Google Books PDF Converter (rel 3 12/12/14)",
+  "pdf_pages_total_N": 48,
+  "half_boundary_M": 24,
+  "scope": "PDF pages M+1..N = 25..48 (24 pages). Pages 1..24 belong to counterpart SCAN_A.",
+  "assigned_actor": "CLAUDE(BAHIR_SCAN_B)",
+  "dispatch_work_log_id": "f32b6dec-6f96-4841-ae92-83a61130ca3b",
+  "counterpart_scan": "SCAN_A (GPT) owns PDF pages 1-24",
+  "branch": "claude/sefer-habahir-second-half-0lbg2i",
+  "generated_at_utc": "2026-09-07",
+  "render_tool": "pdftoppm (poppler-utils)",
+  "render_dpi": 220,
+  "render_command": "pdftoppm -png -r 220 -f 25 -l 48 Sefer_HaBahir_1883.pdf pages_img/p",
+  "source_ref_convention": "book:sefer-habahir-1883#p<PDF_PAGE>:<BLOCK_ID>  (PDF_PAGE = raw PDF page index 1..48, NOT the printed page label; BLOCK_ID is a page-local block id such as b1, b_torah_or, b_hagahot_r)",
+  "embedded_text_layer_reliability": "UNRELIABLE. pdftotext extraction of the embedded OCR text layer produces reversed/interleaved Hebrew (classic bidi/column-order corruption, consistent with the project's own documented legacy Hebrew-OCR bidi hazard). It was NOT used as a transcription source. All Input-layer transcription in this scan was produced by direct visual reading of the rendered page images (220dpi PNG) by the extracting agent (Claude, vision-capable), cross-checked page-by-page against page-header numerals for continuity.",
+  "pagination_finding": {
+    "summary": "Two co-printed pagination tracks run across the same leaves for the main Bahir+commentary section (PDF pages 25-43): a Hebrew-letter foliation (recto side of each leaf, e.g. 'יא'=11) and an Arabic page number (verso side of the same leaf) equal to 2x the Hebrew leaf number.",
+    "evidence": [
+      "PDF p25 recto='יא'(11) / PDF p26 verso='22' (=11*2)",
+      "PDF p27 recto='יב'(12) / PDF p28 verso='24' (=12*2)",
+      "PDF p29 recto='יג'(13) / PDF p30 verso='26' (=13*2)",
+      "PDF p31 recto='יד'(14) / PDF p32 verso='28' (=14*2)",
+      "PDF p33 recto='טו'(15) / PDF p34 verso='30' (=15*2)",
+      "PDF p35 recto='טז'(16) / PDF p36 verso='32' (=16*2)",
+      "PDF p37 recto='יז'(17) / PDF p38 verso='34' (=17*2)",
+      "PDF p39 recto='יח'(18) / PDF p40 verso='36' (=18*2)",
+      "PDF p41 recto='יט'(19) / PDF p42 verso='38' (=19*2)",
+      "PDF p43 recto='כ'(20, colophon page 'תם ספר הבהיר')"
+    ],
+    "status": "high-confidence pattern derived from direct observation across 10 consecutive leaves; not verified against an external bibliographic catalog record, so recorded as a Finding, not asserted as canonical provenance fact.",
+    "open_question": "PDF page 44 ('דבר אל הקורא', an editorial afterword/essay signed by the same editor/printer) is numbered Arabic '40' -- consistent continuation of the verso-Arabic track (would be 'verso of leaf כ'=20*2=40) even though the main text's colophon already appeared on p43 recto. Whether p44 is a second independent leaf-verso or a structurally separate appended essay sharing the same running Arabic pagination is UNRESOLVED -- flagged as a Finding/candidate, not resolved."
+  },
+  "page_type_map": {
+    "25-43": "bahir_text_and_commentary (main two-column Bahir body + Or HaGanuz commentary footer, with a Torah-Or biblical-citation index line between them)",
+    "43": "also carries the colophon 'סליק ספר הבהיר' / 'תם ספר הבהיר' ending the main text+commentary",
+    "44": "editorial afterword/essay 'דבר אל הקורא' (single page, signed and dated by the editor/printer)",
+    "45": "blank leaf",
+    "46": "blank leaf",
+    "47": "National Library of Israel (הספריה הלאומית) accession/stamp page: call number 'S 23 A 11927', barcode '1805775-30', shelf mark 'C.4', code 'W-X'",
+    "48": "back cover (marbled paper board, no text)"
+  },
+  "not_created_by_this_scan": [
+    "no Book node in Supabase nodes table",
+    "no canonical edges",
+    "no Research Object promotion",
+    "no schema/RPC/UI changes",
+    "no writes to Supabase at all -- this artifact set is 100% git-file-based"
+  ],
+  "artifact_layout": {
+    "pages/pNN.json": "per-page artifact, PDF page NN (25..48), containing input / extraction / finding / claim / provenance sections (see README.md for schema)",
+    "coverage.json": "per-page coverage counts",
+    "unresolved.md": "consolidated unresolved-readings list",
+    "INVENTORY.md": "artifact inventory",
+    "README.md": "scope, methodology, schema documentation",
+    "tests/validate_scan_b.py": "validation script (run: python3 tests/validate_scan_b.py from this directory)"
+  }
+}

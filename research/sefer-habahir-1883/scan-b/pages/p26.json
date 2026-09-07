@@ -1,0 +1,56 @@
+{
+  "pdf_page": 26,
+  "source_ref_page": "book:sefer-habahir-1883#p26",
+  "printed_page_label": "22 (Arabic page number, verso of leaf יא/11)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p26-b1", "region": "header", "text_he": "ספר הבהיר ... 22", "confidence": "high"},
+      {"block_id": "p26-b2", "region": "body_right_col", "text_he": "אלה השרים מלמד שג' הם שגבורה שר כל הצוורות הקדושות וכך היא מצד שמאל מצד הקב\"ה עומד גבריאל ומיסינו שר כל הצורות הקדושות מיכאל ובאמצע הוא האמת שר לכל הצורות הקדושות וכל שר כ\"ד צוורות ואין הקך לגדודיו דכתיב היש מספר לגנדודיו א'כ בוע\"ב הם(עוד) א'ל לא(תימא)אלא בעת שישראל מקריבין קרבן לפני אביהם שבשמים מתיחדים והיינו יחודו של אלהינו) ואמאי אקרי קרבן אלא מפני שמקרב אל אחד אהד לעץ ואמר ליריה ניחוח ואין ריח אלא באת ואין נשימה שהיא הריח אלא באת ואין ניחוח אלא ירידה שנאמר וירד ומתרגמינן ונחת ...", "confidence": "medium", "notes": "Discourse on the divine 'princes/forces' (שרים), Gabriel/Michael, and the meaning of sacrificial offering (קרבן) as unification and 'ניחוח' (pleasing aroma) as descent/nachat."},
+      {"block_id": "p26-b3", "region": "body_left_col", "text_he": "וכו' אסור להזכירם אלה עם שמות היוצאים ומתחלקים לנ' חלקים כ\"ד לכל חלק מג' חלקים שר גבוה עליהם ועל כל חלק יש לו ד' רוחות לשמור ומתחלקים ו' לכל רוח נמצא לד' רוחות וכן צורות ד' צורות אלהי ישראל חיים שדי רם ונשא שוכן עד מרום וקדוש שמו יהוה בשכמל\"ו ודרש ר' מז יישב אהלהא ועד לעולם ה' מלך ה' ילוך לעולם ועד זהו השם המפורש שניתן בו רשות לצרף ולהזכיר דכתיב וישמו את שמי על בני ישראל והוא שם י\"ב של ב'רברך יבערך של י\"ב אותיות שהם ג' וגו' ונקודו בו *)יפעל יעפל(ונקודו בו *)יפעל יעפל* וכל השומרו ומזהירו ומטהרו בקדושה ובטהרה מקבלין תפלתו ולא עוד שהוא אהוב למטה כמו שהיא למעלה", "confidence": "medium"},
+      {"block_id": "p26-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור א ויקהל כה : ב יחזקאל לו : נ שמות ט : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p26-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- partially legible: ה' לנצחות : אל שדי אל נגלה : אלהי ישראל : פי' ח\"מ : אתן הפותחים תמיד ...]", "confidence": "low"},
+      {"block_id": "p26-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- partially legible: למממא פותחין לו ... אתן פתחים לו ... מאי פתחים לו ...]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": ["ספר הבהיר (running title)"],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "היש מספר לגדודיו", "likely_source": "Job 25:3", "block_id": "p26-b2", "confidence": "candidate"},
+      {"raw": "וישמו את שמי על בני ישראל", "likely_source": "Numbers 6:27", "block_id": "p26-b3", "confidence": "candidate"},
+      {"raw": "ה' מלך ה' ימלוך לעולם ועד", "likely_source": "Exodus 15:18 (liturgical form)", "block_id": "p26-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["ד' רוחות (4 directions)", "י\"ב אותיות (12 letters -- explicit-Name discussion)", "נ' חלקים (50 parts)", "כ\"ד (24)"],
+    "letters": ["12-letter explicit Name (שם המפורש של י\"ב אותיות) -- letters themselves not spelled out in transcribable form on this page"],
+    "divine_names": ["אל שדי", "אלהי ישראל", "רם ונשא שוכן עד", "יהוה בשכמל\"ו (euphemistic liturgical formula)", "השם המפורש (the explicit/expanded Name, 12-letter)"],
+    "sefirot_terms": [],
+    "symbols_metaphors": ["שרים / צורות קדושות (angelic princes/holy forms) as intermediary structure between Israel's offerings and unification above"],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": ["Division of sacred names/forces into 24 units of 3-part groups across 4 directions (24=3x8 or 4 directions x 6 = 24, per text) -- arithmetic partially reconstructable from the block text, flagged candidate."]
+  },
+  "finding": {
+    "observations": [
+      "This page's central theme is the theology of korban (sacrificial offering) as a mechanism of unification (יחוד) rather than literal 'feeding' of a deity -- an explicit anti-anthropomorphic reading of 'ניחוח' (pleasing aroma).",
+      "Extended discussion of the 12-letter explicit divine Name and permission to pronounce/use it under conditions of purity -- directly relevant to 'divine names' and 'calculations/procedures' extraction categories required by scope."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Priestly-blessing verse (Numbers 6:27, 'ושמו את שמי') used as prooftext for the Name being placed upon Israel.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p26-b2", "description": "Passage beginning 'א'כ בוע\"ב הם' contains abbreviation(s) not confidently expanded."},
+      {"block_id": "p26-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p26-b_hagahot_r", "description": "Marginal gloss largely illegible at rendered resolution."},
+      {"block_id": "p26-b_hagahot_l", "description": "Marginal gloss largely illegible at rendered resolution."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יא (11); per pagination_finding in manifest.json, Arabic '22' = 11*2."
+  }
+}

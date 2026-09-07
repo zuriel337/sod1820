@@ -1,0 +1,60 @@
+{
+  "pdf_page": 35,
+  "source_ref_page": "book:sefer-habahir-1883#p35",
+  "printed_page_label": "טז (Hebrew foliation, leaf 16, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p35-b1", "region": "header", "text_he": "טז ... ספר הבהיר", "confidence": "high"},
+      {"block_id": "p35-b2", "region": "body_right_col", "text_he": "שמיני מאי הוי יש לו הקב\"ה צדיק אחד בעולמו והוא חביב לו מפני שמקיים עולמו ומגדלו ומשמרו ומצמחו ואמרת שנה כח נתן ליה איה אמרינא אנא חזי לבבי אשר חנני חג'ות תשעה שכבר היה סבור לשעבר. אמר לחביריו כמתו ודאו שכמות היה כרם לאדם ראה שלא הצליח [ונטען אחר] ראה שלא הצליח [זה] ועקרו ונטעו עד כמה. אמרו לו אלף צוה דבר לאלף דור והייתנו וחיינו רבותינו תתקע\"ד דורות ושתלן בכל דור ודור ...", "confidence": "medium", "notes": "Vineyard parable (משל כרם) about generations planted/uprooted, invoking '974 generations' (תתקע\"ד) tradition."},
+      {"block_id": "p35-b3", "region": "body_left_col", "text_he": "כי אם מבדיל עונותיהם דכתיב היו מבדילים בינכם ובין אלהיכם ובין עונותיכם היו הפרש ביניכם ובינו. כו'. דהא רבא ברא גברא שדריח לקמיה דרבי זירא אמר ליה ולביתי חלל ולא יגנוד יבמה רע. ולכתלתי כבמה יכול לו: אמרו ליה אין אין וכלתי פירשתי כבר. ולוהי בעלמלת יחוונש מהדר מהדר לאיניש למיעבל ביה. אמרו ליה אן אין דוכי ביה נשמתה טהורה שיהוי ליה כמו לחי שנוצר בכל היום ולילה ...", "confidence": "low", "notes": "Aramaic dialogue passage (Rava/Rabbi Zeira-style exchange), transcription confidence lower due to dense Aramaic ligatures."},
+      {"block_id": "p35-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור א ישעיה נט : ב כ\"ה ד : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p35-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p35-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["שמיני (topic marker, right column -- note: same opening formula 'שמיני מאי הוי' as p33-b2, suggesting either a cross-reference/repetition in the source or a printing peculiarity; flagged as a Finding below)"],
+    "verse_citations_candidates": [
+      {"raw": "עונותיכם היו מבדילים בינכם לבין אלהיכם", "likely_source": "Isaiah 59:2", "block_id": "p35-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["תתקע\"ד דורות (974 generations -- a known aggadic/Talmudic tradition, cf. bChagigah 13b-14a, of the generations 'contemplated before creation')", "אלף דור (a thousand generations)"],
+    "letters": [],
+    "divine_names": ["הקב\"ה"],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "משל כרם (vineyard parable): a vine/planting uprooted and replanted across generations, an image for the transmigration or succession of souls/generations"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": ["974 generations reckoning tied to '1000 generations minus 26' aggadic tradition (Torah given at generation 26 of the 1000 destined) -- classic rabbinic numerology, referenced but not spelled out arithmetically on this page."]
+  },
+  "finding": {
+    "observations": [
+      "IMPORTANT STRUCTURAL NOTE: this page's opening line ('שמיני מאי הוי יש לו הקב\"ה צדיק אחד בעולמו והוא חביב לו מפני שמקיים עולמו ומגדלו ומשמרו') is near-identical to p33-b2's opening line. Two possibilities: (a) the Bahir text genuinely repeats/echoes this formula at a later point as a rhetorical refrain, or (b) this is a page-rendering/scan artifact (e.g. a duplicate page in the physical exemplar, or misordered leaves). This is flagged as an open contradiction/duplication question for editorial review -- NOT resolved by this scan, since resolving it would require comparing against a second, independent copy of the 1883 edition.",
+      "The '974 generations' motif is a well-known aggadic number (Chagigah 13b) about the generations God 'thought to create' before the 1000 generations were reduced to the 26 generations from Adam to Sinai -- worth flagging as a strong candidate cross-reference to rabbinic/Talmudic numerology even though it is not a Tanakh verse per se."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Isaiah 59:2 used as prooftext for sin as a separating force between Israel and God.", "confidence": "candidate"},
+      {"type": "cross_page_duplication", "description": "p35-b2's opening formula duplicates p33-b2's opening formula near-verbatim; flagged as an unresolved structural question, not asserted as scribal error.", "confidence": "candidate"}
+    ],
+    "contradictions": [
+      {"description": "See finding above: near-duplicate opening line between p33 and p35 raises an unresolved question about page order/content duplication in the source exemplar."}
+    ],
+    "unresolved_readings": [
+      {"block_id": "p35-b2", "description": "Middle of the vineyard parable ('[ונטען אחר] ראה שלא הצליח [זה]') contains editorial-looking bracket insertions in the source itself that are hard to distinguish from this scan's own uncertainty-marking; flagged for careful re-check against the source image."},
+      {"block_id": "p35-b3", "description": "LOW confidence overall; dense Aramaic dialogue with uncertain word boundaries throughout (e.g. 'ולביתי חלל ולא יגנוד יבמה רע')."},
+      {"block_id": "p35-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p35-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p35-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf טז (16). See finding re: possible duplication with p33."
+  }
+}

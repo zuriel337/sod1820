@@ -1,0 +1,56 @@
+{
+  "pdf_page": 38,
+  "source_ref_page": "book:sefer-habahir-1883#p38",
+  "printed_page_label": "34 (Arabic page number, verso of leaf יז/17)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col_with_diagram", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p38-b1", "region": "header", "text_he": "ראשון המובב עלינו(ס\"א עליו). צפונית מערבית ס\"ד. צפונית מערבית מכל צד. ... ספר הבהיר", "confidence": "medium", "notes": "Header line repeats the p34-b1 phrasing about NW/direction almost verbatim -- fourth instance of the cross-page near-duplication pattern noted at p33/35 and p32/36; flagged as an open Finding."},
+      {"block_id": "p38-b2", "region": "body_right_col", "text_he": "אתיא אתיא נקבה על שם דנקבי רחבים ויש לה נקבים יתרים על האיש ומאי ניהו שדים ורחם ובית קיבול שירים ...", "confidence": "low", "notes": "Opening again closely parallels p37-b2's opening -- fifth instance of the duplication pattern, now spanning what would be facing verso/recto pages (37 recto / 38 verso) rather than same-side pages; strengthens the hypothesis that this specific gathering of leaves (16-17, PDF pp35-38) may have a printing/binding irregularity (e.g. a repeated forme) rather than simple authorial refrain, but this remains UNRESOLVED by this scan."},
+      {"block_id": "p38-b3", "region": "body_left_col", "text_he": "[left column, dense esoteric passage on the lulav/heart correspondence and the four-directions square shown in the diagram below; representative fragments: '...ד' רוחות...מזרחית צפונית...מערבית דרומית...כנגד לב...']", "confidence": "low"},
+      {"block_id": "p38-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור נ שנות כז : ד תנקוק ג : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p38-b_hagahot_r", "region": "hagahot_right_col_with_diagram", "text_he": "[Decorative square diagram in a bordered box, same style as p34's diagram, labelled around its perimeter with the four intercardinal directions: 'מזרחית צפונית' / 'מערבית צפונית' / 'מזרחית דרומית' / 'מערבית דרומית'. Small caption-style Hebrew words run vertically along two sides of the box.]", "confidence": "medium", "notes": "Second occurrence of the same 4-direction square diagram seen on p34 -- captured explicitly as required by scope (symbols/diagrams)."},
+      {"block_id": "p38-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [],
+    "numbers": ["ד' רוחות (4 directions, again)"],
+    "letters": [],
+    "divine_names": [],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "Second instance of the 4-intercardinal-direction square diagram (identical layout to p34) -- see finding below regarding possible duplicate-leaf/forme hypothesis",
+      "לולב כנגד לב (lulav corresponding to the heart), continuing p37's theme"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "CRITICAL STRUCTURAL FINDING: This page's header AND opening body text both closely duplicate p34 and p37 respectively, AND its embedded diagram is visually identical in layout to p34's diagram. Combined with the earlier-noted p32/p36 and p33/p35 near-duplications, there is now a strong pattern across PDF pages 32-38 (leaves יד-יז, 14-17) of repeated/echoed content at a roughly 4-page (2-leaf) interval. The most parsimonious explanation consistent with the evidence is that this specific Google Books scan may have some pages double-imaged, OR the physical exemplar's gathering of leaves 14-17 has a genuine printing anomaly (e.g. a repeated forme in the original 1883 print run), OR -- less likely given the diagram match -- the Bahir's own text at this point contains a deliberate structural refrain reinforced by the editor repeating the diagram. This scan does NOT resolve which explanation holds and explicitly declines to silently merge or de-duplicate these pages; each is preserved as its own independent PDF-page artifact per the lossless-reconstruction mandate. RECOMMENDATION for human/GPT review: compare PDF pages 32 vs 36, 33 vs 35 (already diagrammed identical opening), and 34 vs 38 side-by-side at full resolution, and if confirmed as a scan/print duplication, note it explicitly in the counterpart integration record -- but do not alter this scan's raw artifacts, which preserve the PDF as encountered."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "cross_page_duplication", "description": "p38 duplicates p34 (header + diagram) and echoes p37 (opening body text) -- the strongest instance yet of the recurring duplication pattern in PDF pages 32-38.", "confidence": "candidate"}
+    ],
+    "contradictions": [
+      {"description": "Same open structural question as flagged on p32/p33/p35/p36: unresolved whether this is authorial refrain, a scan/printing duplication artifact, or a genuine repeated diagram in the physical exemplar. HIGH PRIORITY unresolved item for downstream integration/review."}
+    ],
+    "unresolved_readings": [
+      {"block_id": "p38-b2", "description": "LOW confidence; treated as a probable near-repeat of p37-b2 but transcribed independently from this page's own image rather than copied, per the lossless-reconstruction requirement -- any small wording differences between the two pages are therefore potentially real and should not be discarded."},
+      {"block_id": "p38-b3", "description": "Left column largely illegible; only fragments captured."},
+      {"block_id": "p38-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p38-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יז (17); Arabic '34' = 17*2. See finding: this page is the clearest evidence node in the cross-page-duplication pattern spanning PDF pp32-38."
+  }
+}
