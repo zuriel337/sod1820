@@ -1,0 +1,85 @@
+{
+  "pdf_page": 43,
+  "source_ref_page": "book:sefer-habahir-1883#p43",
+  "printed_page_label": "כ (Hebrew foliation, leaf 20, recto)",
+  "page_type": "bahir_text_and_commentary_with_colophon",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "colophon_block", "final_colophon_line", "print_date_line"],
+  "input": {
+    "blocks": [
+      {"block_id": "p43-b1", "region": "header", "text_he": "כ ... ספר הבהיר", "confidence": "high"},
+      {"block_id": "p43-b2", "region": "body_right_col", "text_he": "השמים אמר האיך נוכל להחטיאו ולגרשהו מלפניו. קיבץ כל הילותיו וביקש לו בארץ חבר לבעלה ונענש מיתה בשביל שדברי הרב ודברי כמותו ומצא הנחש היה לו דמות וקומה ומכתירין [ס\"א דמות גמל] ונענש על גחונך תלך ועפר תאכל כל ימי חייך, והוא ישופך ראש ואתה תשופנו עקב. אמר הקב\"ה: נחש, אתה גרמת שיאכלו מכל עץ הגן. אמר: אבקש יותר ואוסיף כדי לגרשם כשיעקור אדם(העונש) [ם] מן העולם. מה עשה? הלך אל האשה, אמר לה: אף כי אמר אלהים לא תאכלו מכל עץ הגן. ואמרה [שתגרע היא] אמרה: לא, אלא מן העץ אשר בתוך הגן אמר אלהים לא תאכלו ממנו ולא תגעו בו פן תמותון. והוסיפה שני דברים: אמרה 'ומפרי העץ אשר בתוך הגן', ולא נאמר אלא 'לא תאכלו ממנו'; ואמרה 'ולא תגעו בו', ולא נאמר כן. מה עשה סמאל הרשע? הלך ונגע ודחף האשה על העץ, ונגעה בעץ הדעת בעין, ולא מתה.", "confidence": "medium", "notes": "The Bahir's well-known Eden/serpent passage: Satan/Samael's plot, the woman's addition of two extra prohibitions ('do not eat of it' / 'do not touch it') beyond the original divine command, and the touching-without-dying episode -- a recognizable classical Bahir/midrashic unit (cf. Genesis Rabbah 19:3 on the same 'added prohibition' motif)."},
+      {"block_id": "p43-b3", "region": "body_left_col", "text_he": "אמר: כמו שלא באה מיתה על הנגיעה, כך לא תבוא מיתה על האכילה. אמרה: כשם שלא בא מיתה על האכילה כך לא יבוא מיתה על הנגיעה. אלא שהוכבד המשא. ואם תמהה: המיתה הזו ונגיעה זו בעין הדעת אחד הם? כבוד -- ומאי כבוד? שהכל נקרא על שם הפעולות. את[ותאכל] האש: ה' אלהיך אש אוכלה הוא. מעלה נקרא לב, ולא נקרא לב האוכל בכבוד; מעלה נקרא לב על שם הפעולה בכבוד:", "confidence": "low", "notes": "Continues into a theological reflection equating 'kavod' (glory) with the sum of divine 'actions/pe'ulot', tied to Deuteronomy 4:24 ('ה' אלהיך אש אוכלה הוא'). Dense, lower confidence."},
+      {"block_id": "p43-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור ב יחזקאל כה : (fragment; index line largely occupied by a footnote asterisk referencing textual variants collated by the editor 'ל שון הפרד\"ס בסי\"ג ובכ\"ה בהשמטות')", "confidence": "low", "notes": "This citation line's footnote explicitly references the editor's own variant-collation work against 'Pardes' (likely R. Moshe Cordovero's Pardes Rimonim) -- direct provenance evidence of the edition's editorial methodology."},
+      {
+        "block_id": "p43-colophon",
+        "region": "colophon_block",
+        "text_he": "ברוך נתן כח ליעף ולאין אונים עצמה ירבה. ברוך ה' אלהי ישראל אלהי השמים ואלהי הארץ אשר לא עזבני וחזקני לפרש את הבהיר הזה ותאל יוכלני לראות פני ה' אלהינו ככתוב ונגלה כבוד ה' וראו כל בשר יחדיו כי פי ה' דיבר. ואני הבפרש לא מפני שאני שהחכמתי מכל שקדמוני, פירשתי, אך לפני מי שקדם, אנכי קטן. פנאתי לה' אלהי ישראל ולבארי ספרים וספרי האומות ומעתיקים בהם אלהיהם וקורים להם סתרי תורה. ולכך שמתי אני את לבי לגלות זאת כפי מה שקיבלתי מרבותי, הרב ר' יהושע אבן שועיב והבנתי מפי רבותי הרב ר' יהושע אבן שועיב ורבינו שלמה מברצילונא, שקיבל מהרמב\"ן ז\"ל, והוא קיבל מר' יצחק סגי נהור בנו של ר' אברהם בן דוד ז\"ל, והוא קיבל מאליהו זכור לטוב. ובזכות כל הנזכרים פה, תוציאנו ה' אלהי השמים ואלהי הארץ מצרה לרוחה הגדולה הזאת. אמן נצח נצח סלה, אמן אמן נצח נצח סלה.",
+        "confidence": "medium",
+        "notes": "This is the medieval commentator's (author of 'אור הגנוז', a disciple of Rashba) own transmission-chain colophon, reproduced by the 1883 printer -- NOT the printer's own colophon. Names a kabbalistic chain of transmission: R. Yehoshua ibn Shu'eib -> R. Shlomo of Barcelona -> Ramban -> R. Yitzchak Sagi Nahor (Isaac the Blind) son of Ra'avad -> Elijah. This matches and confirms the front-matter description on PDF p25's counterpart introductory pages (per SCAN_A's territory) and directly corroborates the manifest's printer/editor attribution."
+      },
+      {
+        "block_id": "p43-final-colophon",
+        "region": "final_colophon_line",
+        "text_he": "תם ספר הבהיר. השם עינינו יאיר ויצהיר ויזהיר וינהיר.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p43-print-date",
+        "region": "print_date_line",
+        "text_he": "היום יום י\"א בחודש ניסן תקם\"ס לפ\"ק פה ק\"ק ווילנא.",
+        "confidence": "low",
+        "notes": "Print-completion date line. The year abbreviation is transcribed exactly as it visually appears ('תקם\"ס') but this is NOT a grammatically standard Hebrew year form. Given the book is independently known (filename/catalog metadata, and the Beit HaSfarim HaLeumit stamp on PDF p47) to be a 1883 CE Vilna edition, the intended year is almost certainly תרמ\"ג (5643 A.M. = 1883 CE); 'ר' and 'ק', and 'ג' and 'ס', are visually similar in this typeface and may account for the misreading. This candidate correction is recorded as a Finding/Claim, NOT silently substituted into the Input transcription."
+      }
+    ]
+  },
+  "extraction": {
+    "headings": ["סליק ספר הבהיר (colophon heading, 'Sefer HaBahir concludes')"],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "כי אש אכלה הוא (ה' אלהיך אש אוכלה הוא)", "likely_source": "Deuteronomy 4:24", "block_id": "p43-b3", "confidence": "candidate"},
+      {"raw": "ונגלה כבוד ה' וראו כל בשר יחדיו כי פי ה' דיבר", "likely_source": "Isaiah 40:5", "block_id": "p43-colophon", "confidence": "candidate"}
+    ],
+    "numbers": [],
+    "letters": [],
+    "divine_names": ["ה' אלהי ישראל", "ה' אלהי השמים ואלהי הארץ", "הקב\"ה", "אלהים"],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "נחש/סמאל הרשע כמסית (the Serpent/Samael as the tempter figure orchestrating the Eden narrative)",
+      "עץ הדעת (Tree of Knowledge) touching-without-dying episode"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": [],
+    "named_transmission_chain": [
+      "R. Yehoshua ibn Shu'eib",
+      "R. Shlomo of Barcelona (רבינו שלמה מברצילונא)",
+      "Ramban (Nachmanides)",
+      "R. Yitzchak Sagi Nahor (Isaac the Blind), son of Ra'avad (R. Avraham ben David)",
+      "Elijah (traditionally understood as Elijah the Prophet, אליהו הנביא, per the honorific 'זכור לטוב')"
+    ]
+  },
+  "finding": {
+    "observations": [
+      "This page is the single highest-value PROVENANCE page in the assigned scan range: it contains the medieval commentator's own signed transmission-chain colophon (a named chain: ibn Shu'eib -> Shlomo of Barcelona -> Ramban -> Isaac the Blind -> Elijah), directly corroborating the printed front-matter's claims about the commentary's kabbalistic pedigree.",
+      "The Eden/serpent passage on this page is a clear, well-formed midrashic unit paralleling Genesis Rabbah 19:3's 'added fence around the prohibition backfires' motif -- worth flagging as a strong rabbinic-intertext candidate.",
+      "The main Bahir text + Or HaGanuz commentary formally CONCLUDES on this page ('סליק ספר הבהיר' / 'תם ספר הבהיר'); everything after this point in the assigned range (PDF pp44-48) is back matter, not the Bahir's running text itself."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Deuteronomy 4:24 and Isaiah 40:5 quoted.", "confidence": "candidate"},
+      {"type": "rabbinic_intertext", "description": "Eden 'added prohibition' motif parallels Genesis Rabbah 19:3.", "confidence": "candidate"},
+      {"type": "provenance_correction_candidate", "description": "Print-date year 'תקם\"ס' is very likely a misread of 'תרמ\"ג' (5643 A.M. = 1883 CE), consistent with the book's known 1883 date.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p43-print-date", "description": "Year abbreviation in the colophon date line is not confidently resolved; recorded verbatim as visually read, with a candidate correction proposed (see claim.candidate_relations) rather than silently substituted."},
+      {"block_id": "p43-b3", "description": "LOW confidence theological-reflection passage on 'kavod'/'pe'ulot'; several clauses uncertain."},
+      {"block_id": "p43-b_torah_or", "description": "Citation-index line mostly occupied by an editorial footnote about variant collation against 'Pardes'; the footnote's own full text is not fully legible at this resolution."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf כ (20). LAST page of the main Bahir text + Or HaGanuz commentary in this edition; carries both the medieval commentator's colophon and the printer's completion-date colophon."
+  }
+}

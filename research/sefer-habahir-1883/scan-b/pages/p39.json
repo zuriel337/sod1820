@@ -1,0 +1,54 @@
+{
+  "pdf_page": 39,
+  "source_ref_page": "book:sefer-habahir-1883#p39",
+  "printed_page_label": "יח (Hebrew foliation, leaf 18, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p39-b1", "region": "header", "text_he": "יח ... ספר הבהיר", "confidence": "high", "notes": "Header does NOT repeat the p34/p38 direction-diagram phrasing -- the duplication pattern noted on pp32-38 does not continue onto p39; content here reads as a fresh topic."},
+      {"block_id": "p39-b2", "region": "body_right_col", "text_he": "שמתחסד עם הבריות והוא עם הארץ ויושב על העפר [אם אינו גומל חסד אך אפשר להקרא חסיד עם קונו] אם לא בתלמוד תורה. שכל הלומד תורה לשמי אזי אתם עוזרים לי ואני יובך שמים. ואן יובנאותו שחקים ומאי שחקים הוי אומר במדרגמינ בדרהי חדרים בשמיי שמים כשאתם לומדים תורה לשמי אזי אני יחשוב לכם כאילו הלוכך היה בלבד ...", "confidence": "medium"},
+      {"block_id": "p39-b3", "region": "body_left_col", "text_he": "שמרנו ואחר נבקש נם המלך כעם ולקח אותו וצוה עליו ליבשו ולתקנו כפי היכולת. ונשבע לאלה האנשים פת אחרת לא אתן להם עד שיאכלו כל הפת המעופש הזה. שלחו אותו לחלוקו אמרו מה שחדש עשה חלקו אחד כל אחד ונטל ...", "confidence": "medium", "notes": "Parable about a king and a loaf of bread (משל למלך והפת) -- discourse on merit/reward and effort; continues onto p40."},
+      {"block_id": "p39-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור נ דברים לג : ד ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p39-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p39-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [],
+    "numbers": [],
+    "letters": [],
+    "divine_names": [],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "עם הארץ שיושב על העפר / שחקים (the unlearned person 'sitting on the dust' vs. the Torah-scholar who ascends to 'shechakim', one of the seven heavens)",
+      "משל למלך והפת המעופש (parable of a king, a moldy/spoiled loaf of bread, and an oath binding people to finish it before receiving fresh bread) -- an ethical parable about earned reward, continuing onto p40"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "This page marks a clear topic transition away from the direction/diagram material of pp32-38 toward an ethical-homiletic discourse on Torah study and the parable of the king's loaf -- confirms that the cross-page duplication pattern noted earlier is localized to PDF pp32-38 and does not extend further into the assigned range.",
+      "The 'shechakim' (one of the seven traditional heavens) reference is a useful data point for any future cosmology/heavens cross-index, though not itself a Sefer Yetzirah or Tanakh citation on this page."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p39-b2", "description": "Bracketed clause '[אם אינו גומל חסד אך אפשר להקרא חסיד עם קונו]' -- uncertain whether this is original running text or an inserted editorial gloss; kept in place as read, flagged."},
+      {"block_id": "p39-b3", "description": "Parable text is medium confidence; a few words in the middle uncertain."},
+      {"block_id": "p39-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p39-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p39-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf יח (18). Confirms the pp32-38 duplication pattern does not extend to p39."
+  }
+}

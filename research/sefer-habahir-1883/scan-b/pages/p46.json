@@ -1,0 +1,22 @@
+{
+  "pdf_page": 46,
+  "source_ref_page": "book:sefer-habahir-1883#p46",
+  "printed_page_label": "none visible (unpaginated blank leaf)",
+  "page_type": "blank",
+  "layout": ["blank_leaf"],
+  "input": {
+    "blocks": [
+      {"block_id": "p46-b1", "region": "blank_leaf", "text_he": "", "confidence": "high", "notes": "Page is visually blank: no printed text. A few faint stray ink specks/marks near the edges (scanning artifacts). Faint 'Digitized by Google' watermark bottom-right."}
+    ]
+  },
+  "extraction": {"headings": [], "section_markers": [], "verse_citations_candidates": [], "numbers": [], "letters": [], "divine_names": [], "sefirot_terms": [], "symbols_metaphors": [], "sefer_yetzirah_refs": [], "calculations_procedures": []},
+  "finding": {
+    "observations": ["Second consecutive blank leaf, between p45 (blank) and p47 (National Library of Israel stamp page). Two consecutive blank leaves before an institutional stamp page is a normal binding/endpaper pattern."]
+  },
+  "claim": {"candidate_relations": [], "contradictions": [], "unresolved_readings": []},
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Confirmed blank by direct visual inspection of the rendered page image."
+  }
+}

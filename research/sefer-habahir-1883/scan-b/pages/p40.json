@@ -1,0 +1,62 @@
+{
+  "pdf_page": 40,
+  "source_ref_page": "book:sefer-habahir-1883#p40",
+  "printed_page_label": "36 (Arabic page number, verso of leaf יח/18)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p40-b1", "region": "header", "text_he": "ספר הבהיר ... 36", "confidence": "high"},
+      {"block_id": "p40-b2", "region": "body_right_col", "text_he": "יוצאות לעולם ומשם רועה אבן ישראל הוא. וכיון שבאה הגבורה שנאמר עוזו ושם הביון עוז) דכיון שבאה זו חדדה (חיבור), מאי אימא לך קניינים י' (מאי היחודא) מילתא חחדא: אימא לך מאי ניהו קרנים מידו לו ומאי ניהו דקאמר עמ'ו (תנא עמוד, פי' יסד עמו) עד קשיא לה, דהיינו דכתיב ויהר משה את פני וישלך מידיו וגו'. מידו כתיב והיינו דכתיב ויהי ידיו אמונה עד בא השמש. אנו מקשינן לך ואתה תרץ יעקב אבינו דהיינו נחלה רבינו משיבין על ראשון ראשון ועל אחרון אחרון גמורה דלית ליה חסור החס\"ד והפח\"ד והאם\"ת ומה פי' קרנים מידו מידו לפיכך אמר אבן הבונים היתה לראש פנה (פירוש) אבן שאמאסו שבנאו העולם היתה לראש פנה. ולמה יצא האש אמרו דברי הכל א\"כ ומאסה בה והלא אשר שמע אברהם האש ומאי ישמור משטרתי מאי אמרה כך משמהתי מדת החסד תורה כל היות אברהם בעולם לא ימינו של אדם ור' את דאמרת למעלה שהרי אברהם עמד דר' יוחנן דאינו אלא שתי זרועות ל'ל ברם עולם משמרתי ומשמרתי כי אני זאת הכא קרנים משמש לשתי מוכה העולם. דשלמטה בכעס אמר להם ניהו אמר להם (למטה) ומביא בלבכם לעשות רצון ולמעלה מאי אמר להו לתא אברהם דכתיב יראת ה' יראה (*) ומאי ניהו האור הראשון דאמר ר'\"ם ד' 'ויאמר' י'ומע אשל בבאר שבע [ויקרא שם בשם ה' גו'] אלהים וגו' ויהי אור ולא כתוב יהי אלא כן ולא עלם ולאי כן ולא יהי כן היה עולם ומזה מה ומזה למי עלם ואין ואם לבם עובדים כל ה' ברי היה גדול מאד ואין כל אתם עובדים עמי לבם ומדבר על למי לבם אלהי השמים ואלהי הארץ ברייה יכולה להסתכל בו ונגזו הקב\"ה לצדיקים והיה דורש עד לעתיד לבא שהיא מדת כל סחורה שבעולם והיא שהיו שבים ומנלן שאת הכל שנא' כח אבן יקרה שקורין סוחרת ודר' (נ'ח וד' ודר) הזמכה אני מאברהם וגו' ואברהם היו יהיה יהיה יהיה (ניהו) על מה היא מדת דר' שידעתי שיבקש עליהם הרחמים א' מזאלפים ובנה ויזכו ויכי אפשר לומר שמנה מנה אבן יקרה הקב\"ה מוזיוה א' נאה ומקושטת וכל שיוכלו להנצל אלא שאברהם ובא הקב\"ה יוכל לוכותו אלא זה יקרה ולא רצה זו יקרה כח לתת לו ונתנו לו אבן יקרה לטהר הבא מכאן אמרו הבא לטהר מסייעין לו.", "confidence": "medium", "notes": "Dense discourse on 'karnayim' (horns/rays) and Moses' shining face (Exodus 34:29-35), transitioning into the Akedat Yitzchak (binding of Isaac) narrative and the eshet-chayil-style 'precious stone' merit motif -- the discourse continues across into p41."},
+      {"block_id": "p40-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור א חנקוק לג : ב שמות יז : נ תהלים לג : ד ברכמית לג : ו סס לה : ח נרכשית לה : י ישעיה מנ : כ מ\"ב כ :", "confidence": "low"},
+      {"block_id": "p40-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible; opens with 'כי אני ה' לוסאיך: ותשם פי' מן חסד לוטה: כי גד' מתפרנס: ...']", "confidence": "low"},
+      {"block_id": "p40-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "ויהר משה את פני... וישלך מידיו... ויהי ידיו אמונה עד בא השמש", "likely_source": "Exodus 34:29-35 conflated with Exodus 17:12", "block_id": "p40-b2", "confidence": "candidate"},
+      {"raw": "אבן מאסו הבונים היתה לראש פנה", "likely_source": "Psalms 118:22", "block_id": "p40-b2", "confidence": "candidate"},
+      {"raw": "ה' אלהי השמים ואלהי הארץ", "likely_source": "Genesis 24:3 / cf. Ezra 1:2", "block_id": "p40-b2", "confidence": "candidate"},
+      {"raw": "ויקרא שם בשם ה' אל עולם", "likely_source": "Genesis 21:33 (Beersheba)", "block_id": "p40-b2", "confidence": "candidate"},
+      {"raw": "ויהי אור", "likely_source": "Genesis 1:3", "block_id": "p40-b2", "confidence": "candidate"},
+      {"raw": "יראת ה' (טהורה) יראה", "likely_source": "Psalms 19:10", "block_id": "p40-b2", "confidence": "candidate"}
+    ],
+    "numbers": [],
+    "letters": [],
+    "divine_names": ["ה'", "הקב\"ה", "אלהי השמים ואלהי הארץ"],
+    "sefirot_terms": ["מדת החסד (the attribute of Chesed) explicitly named as 'תורת/מדת החסד' tied to Abraham throughout his life", "קרנים (rays/horns) as a technical term for emanated divine light/power from Moses' face"],
+    "symbols_metaphors": [
+      "קרנים (rays of light from Moses' face, Exodus 34) read esoterically as a technical 'karnayim' concept, glossed with 'עמוד' (pillar/foundation)",
+      "אבן יקרה (a precious/beautiful stone) as a merit-symbol given to Abraham, tied to 'הבא לטהר מסייעין לו' (one who comes to purify himself is aided)",
+      "אבן מאסו הבונים היתה לראש פנה (the stone the builders rejected became the cornerstone) applied esoterically"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "This page contains the well-known Bahir passage connecting Moses' radiant 'karnayim' (horned/rayed face, Exodus 34) to a broader discourse on the sefirah of Chesed via Abraham -- a recognizable, frequently-discussed unit in Bahir scholarship (paralleling material found in the Bahir's standard section numbering, roughly corresponding to the 'karnei hod' passages).",
+      "The transition from the Moses/karnayim discourse into the Akedah/Abraham 'precious stone' material happens within this single page without an explicit new section marker being legible -- may indicate a marker was missed at this resolution, flagged rather than asserted absent."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Rich chain of Exodus 34 (Moses' radiant face), Genesis 1:3 (creation of light), Genesis 21:33 and Psalms 118:22/19:10 prooftexts within one page.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p40-b2", "description": "Very long block with several genuinely uncertain short phrases (e.g. 'ומזה מה ומזה למי עלם', 'ואברהם היו יהיה יהיה יהיה (ניהו)') -- possible compositor errors or this scan's misreading; recommend independent verification against a critical edition of the Bahir (e.g. Margaliot or Abrams editions) for this specific passage given its scholarly importance."},
+      {"block_id": "p40-b_torah_or", "description": "Citation-index line abbreviations only partially resolved."},
+      {"block_id": "p40-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p40-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יח (18); Arabic '36' = 18*2."
+  }
+}

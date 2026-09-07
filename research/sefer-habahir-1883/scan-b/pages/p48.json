@@ -1,0 +1,31 @@
+{
+  "pdf_page": 48,
+  "source_ref_page": "book:sefer-habahir-1883#p48",
+  "printed_page_label": "none (physical book cover, not paginated)",
+  "page_type": "cover",
+  "layout": ["cover_board"],
+  "input": {
+    "blocks": [
+      {"block_id": "p48-b1", "region": "cover_board", "text_he": "", "confidence": "high", "notes": "No text. Full-page image of a marbled paper book-cover board (brown/green mottled marbling pattern typical of 19th-century binding), with visible spine-edge cloth strip at the left edge of the image, a small red label/ribbon fragment, and a partial white label near the top-left corner (contents not legible -- likely a shelf/spine label, but too fragmentary to transcribe)."}
+    ]
+  },
+  "extraction": {"headings": [], "section_markers": [], "verse_citations_candidates": [], "numbers": [], "letters": [], "divine_names": [], "sefirot_terms": [], "symbols_metaphors": [], "sefer_yetzirah_refs": [], "calculations_procedures": []},
+  "finding": {
+    "observations": [
+      "This is the back cover board of the physical volume -- the final page of the PDF (page 48 of 48), confirming N=48 is indeed the true, complete extent of the digitized object (no truncation).",
+      "The partial white label fragment near the top-left is too small/cropped to transcribe with any confidence; flagged as a minor unresolved item in case a higher-resolution crop of just that region would resolve it."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p48-b1", "description": "Small white label fragment near top-left corner of the cover is present but illegible at this resolution/crop -- possible shelf-mark or binder's label, not transcribed."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "LAST page of the source PDF (48 of 48). Confirms the total page count N=48 used to compute M=floor(48/2)=24 and this scan's assigned range (M+1..N = 25..48)."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "source": "gallery/Book/Sefer_HaBahir_1883.pdf",
+  "source_sha256": "b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067",
+  "pdf_pages_total": 48,
+  "owned_pdf_pages": [1,24],
+  "base_main_sha": "88c989ccf1d34bc557c65f814ec0a12dbc78f40e",
+  "branch": "gpt/sefer-habahir-1883-scan-a-pagewise-v2",
+  "dispatch_refs": ["45f71cce-62e2-4703-8e06-062ba065b1c5","c2acf141-ad73-495d-8c59-e00b5315ced9","b6cc2d66-dd69-4dcf-8615-7ee329301607","9a1fea15-cb0a-4354-aff9-c9bc8c050b85"],
+  "method": {"individual_page_render":true,"dpi":220,"crop_dpi":400,"crop_pages":[7,18,23,24],"batching":false,"ocr_authoritative":false,"secondary_witness_gap_fill":false},
+  "truth": {"canonical_promotion":false,"research_objects_written":0,"canonical_edges_written":0},
+  "artifacts": [
+    {"path":"SEFER_HABAHIR_1883_SCAN_A_PAGEWISE_V2.json.gz","bytes":13973,"sha256":"7aa2ab1ba72edde898cf8684e29eb1d6d105cd49f69936746e3129fbe6ac685d"},
+    {"path":"SEFER_HABAHIR_1883_SCAN_A_COVERAGE_V2.json","bytes":760,"sha256":"1e4e28b01a9b0310a19c1f563847d59e8a55a0e7c9073a608d37aa474187cc7c"},
+    {"path":"SEFER_HABAHIR_1883_SCAN_A_UNRESOLVED_V2.md","bytes":7982,"sha256":"7e703e9ce002bb7a9a7307bd2f0f3983db6210efcde8104efd86c2987cdc9bd5"},
+    {"path":"SEFER_HABAHIR_1883_SCAN_A_README_V2.md","bytes":2838,"sha256":"6e308256e16fa745758b7c3b067767b93038b3afef94181069762e32836e276d"},
+    {"path":"validate_scan_a_v2.py","bytes":2285,"sha256":"a502b30090065b01ec65d2cdd9010276738a897e2d76d1a268d9384b33b0286e"}
+  ]
+}

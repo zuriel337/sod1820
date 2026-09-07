@@ -1,0 +1,62 @@
+{
+  "pdf_page": 29,
+  "source_ref_page": "book:sefer-habahir-1883#p29",
+  "printed_page_label": "יג (Hebrew foliation, leaf 13, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p29-b1", "region": "header", "text_he": "יג ... ספר הבהיר", "confidence": "high"},
+      {"block_id": "p29-b2", "region": "body_right_col", "text_he": "לעולם עומדת והיינו כשהיה דכתיב וישוב העפר על הארץ הקב\"ה מברכים ומעריצין ומהדרים ומפארין ומקדישין למלך ונאדר בקדושה נאמר בסוד נתנה: מח אמר רבי רחומאי מאי דכתיב וישא קדושים רבה מלך איום ונורא ומכתירין בשילוש אהרן את ידיו אל העם ויברכם וירד כבר והרי וירד ולעם ומאי ניהו שלש ולא ארבע מפני שקדושת מעלה שלש דכתיב ה' מלך ה' ילוך ה' ימלוך לעולם ועד וכתיב היברכך ה' וישמרך זו למה שלישי שהוא ידיו אל העם וישא ה' יאר ה' ישא ה' כתר קדוש קדוש קדוש ה' צבאות] עשרה מדות ומאי הוי קדוש ומאי עשרה מדות (שהאמרליה) צדק אותו שמקרב לכהות הכתות) צריך שיהיה קדוש קדוש מן העם בעבור העם ומ\"ש דבוק דבוק מיוחד אלין שרות שר גבוה כתר ...", "confidence": "medium", "notes": "Threefold priestly blessing (Numbers 6:24-26) discussion linked to '3 not 4' and the Kedushah formula 'קדוש קדוש קדוש ה' צבאות'."},
+      {"block_id": "p29-b3", "region": "body_left_col", "text_he": "מיוחד בנשיאות כפים ליבורך להון היאך יבורכם ה' וכדרכם דברי מלמיד ומכתיריו וקומה ובוזם עם קדוש קדוש חוית איש שמהד דבק בידים חוזת כתר עשר עשרה מדות שבהם אלא נחתמו שבהם שהוא מלך לו ולאותן י' בנים בנים ובכלל תרי\"ג דברות ותשבח דאינון מצות תרי\"ג נכללו עוינים רצוים ומצות הכל ומשביע להם טובה כדי שישבעו כ\"ב אותיות הוי ומט דלית בהוהן מאי טעמא בהם אותיות דלת מלדה שאין הבנים והבנות עושים רצוני משביע לאבות כדי צרכם לבד. ומאי ניהו ספירה (נ\"ח היא הנג\"ן)ואינה ככלל הספירה", "confidence": "medium", "notes": "Discusses ten measures/attributes (עשרה מדות), 613 commandments (תרי\"ג), 22 letters (כ\"ב אותיות), and the concept of 'ספירה' (sefirah) explicitly named."},
+      {"block_id": "p29-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור א קהלת יב : ב ויקרא יב : נ ישעיה מו : ד במדבר עז : ו ישעיה סו : ז ישעיה ו : ח שמות יט (compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p29-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p29-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": ["מח (discourse marker, right column: 'אמר רבי רחומאי')"],
+    "verse_citations_candidates": [
+      {"raw": "וישא ... את ידיו אל העם ויברכם", "likely_source": "Leviticus 9:22", "block_id": "p29-b2", "confidence": "candidate"},
+      {"raw": "ה' מלך ה' מלך ה' ימלוך לעולם ועד", "likely_source": "liturgical formula (cf. Exodus 15:18, Psalms 10:16)", "block_id": "p29-b2", "confidence": "candidate"},
+      {"raw": "יברכך ה' וישמרך", "likely_source": "Numbers 6:24 (Priestly Blessing)", "block_id": "p29-b2", "confidence": "candidate"},
+      {"raw": "קדוש קדוש קדוש ה' צבאות", "likely_source": "Isaiah 6:3", "block_id": "p29-b2", "confidence": "candidate"}
+    ],
+    "numbers": ["שלש ולא ארבע (three, not four)", "עשרה מדות (ten measures/attributes)", "תרי\"ג (613, commandments)", "כ\"ב אותיות (22 letters)"],
+    "letters": ["כ\"ב אותיות (the 22 letters of the alphabet, named as a totality)"],
+    "divine_names": ["ה' צבאות", "הקב\"ה"],
+    "sefirot_terms": [
+      {"term": "ספירה", "note": "The word 'ספירה' (sefirah) appears explicitly on this page ('ומאי ניהו ספירה'), one of the Bahir's foundational usages of the term -- high-value extraction for the required 'ספירות/מונחים קבליים' category.", "block_id": "p29-b3"},
+      "עשרה מדות (ten measures) as a proto-sefirotic count"
+    ],
+    "symbols_metaphors": ["כתר (crown) associated with the threefold Kedushah and the ten measures"],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": ["Explicit count reconciliation: 22 letters vs 613 commandments vs 10 measures, discussed as a structured numeric relation (exact derivation not fully legible)."]
+  },
+  "finding": {
+    "observations": [
+      "This is one of the highest-value pages found so far for the required extraction categories: it contains an explicit, nameable use of 'ספירה' (sefirah) plus the 'עשרה מדות' (ten measures) count plus the 22 letters plus the 613 commandments -- a dense convergence of core Kabbalistic vocabulary in one page.",
+      "The '3 not 4' discussion tied to the Priestly Blessing's threefold hand-raising and the threefold Kedushah is a clear literary unit worth flagging for cross-book comparison work (candidate only)."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Priestly Blessing (Num 6) and Isaiah 6:3 Kedushah both explicitly prooftexted for a threefold structure.", "confidence": "candidate"},
+      {"type": "sefer_yetzirah", "description": "22 letters + 10 measures/sefirot is the core organizing structure of Sefer Yetzirah 1:1 ('עשר ספירות בלימה... עשרים ושתים אותיות יסוד'); this page uses closely related vocabulary ('עשרה מדות', 'ספירה', 'כ\"ב אותיות') without an explicit 'ספר יצירה' citation formula.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p29-b3", "description": "Passage '(נ\"ח היא הנג\"ן)ואינה ככלל הספירה' has an unresolved parenthetical abbreviation; exact meaning of 'נ\"ח היא הנג\"ן' unclear -- may be a marginal cross-reference marker rather than running text; flagged rather than guessed."},
+      {"block_id": "p29-b2", "description": "Several words in the run of blessing-formula repetitions are uncertain due to typeface density."},
+      {"block_id": "p29-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p29-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p29-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf יג (13)."
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "audit_of": "research/sefer-habahir-1883/scan-b (branch claude/sefer-habahir-second-half-0lbg2i, commit 9b215c66)",
+  "method": "For each PDF page 25-48, re-rendered the page in isolation (pdftoppm -r 220 -f N -l N) and visually re-read it fresh, independent of the original Scan B session's memory/description. Then grep'd a short, distinctive phrase from the fresh read against all 24 committed pages/pNN.json files to find where (if anywhere) that content actually landed, rather than trusting either session's recollection alone.",
+  "verified_correct": [
+    {"pdf_page": 25, "note": "Verified during original careful individual read; content matches leaf יא recto themes (tzaddik yesod olam / terumah)."},
+    {"pdf_page": 26, "printed": "22", "distinctive_phrase": "אלה השרים מלמד שג' הם", "status": "MATCH"},
+    {"pdf_page": 27, "printed": "יב", "distinctive_phrase": "דמושהרו\"ן וצפצפיתרו\"ן", "status": "MATCH"},
+    {"pdf_page": 28, "printed": "24", "distinctive_phrase": "ואיתהון חייהון", "status": "MATCH"},
+    {"pdf_page": 29, "printed": "יג", "distinctive_phrase": "לעולם עומדת והיינו כשהיה", "status": "MATCH"},
+    {"pdf_page": 33, "printed": "טו", "distinctive_phrase": "שמיני מאי הוי יש לו הקב\"ה צדיק אחד", "status": "MATCH"},
+    {"pdf_page": 36, "printed": "32", "distinctive_phrase": "כל זה לסגור/לגגור לו כל הדלתות", "status": "MATCH (minor letter-variant ס/ג in one word, not a mismatch of page identity)"},
+    {"pdf_page": 37, "printed": "יז", "distinctive_phrase": "אקריא נקבה על שם דנקבי רחבים", "status": "MATCH"},
+    {"pdf_page": 39, "printed": "יח", "distinctive_phrase": "שמתחסד עם הבריות", "status": "MATCH"},
+    {"pdf_page": 40, "printed": "36", "distinctive_phrase": "יוצאות לעולם ומשם רועה אבן ישראל", "status": "MATCH -- independently corroborated by Google's own auto-generated PDF outline/bookmark for this page, which uses the identical opening phrase"},
+    {"pdf_page": 41, "printed": "יט", "distinctive_phrase": "מבן עשרים שנה ולמעלה", "status": "MATCH -- this page is GENUINELY DISTINCT content, not a duplicate of p35 as originally suspected; the original 'p35≈p41 duplication' finding was an artifact of p35.json itself being wrong (see mismatched list)"},
+    {"pdf_page": 42, "note": "Verified during original careful individual read (David/Bathsheba, Torah-as-betrothed passage); not independently re-verified with a fresh render in this audit pass, but the original read was a solo (non-batch) read, which this audit found to be the reliable pattern."},
+    {"pdf_page": 43, "note": "Verified during original careful individual read (colophon page); solo read, reliable."},
+    {"pdf_page": 44, "note": "Verified during original careful individual read (editorial essay); solo read, reliable; independently corroborated by Google's own auto-generated PDF outline/bookmark ('דבר אל הקורא')."},
+    {"pdf_page": 45, "note": "Blank leaf, trivially verifiable, solo read."},
+    {"pdf_page": 46, "note": "Blank leaf, trivially verifiable, solo read."},
+    {"pdf_page": 47, "note": "NLI stamp page, trivially verifiable, solo read."},
+    {"pdf_page": 48, "note": "Back cover, trivially verifiable, solo read."}
+  ],
+  "verified_mismatched": [
+    {
+      "pdf_page": 30,
+      "committed_file": "p30.json",
+      "committed_content_signature": "ושואבים והוא משקה... נב יישב ר' ברכיה ודרש",
+      "true_pdf30_content_signature": "בנים ובאים בכל יום לראות פני המלך... משל לבת מלך שבאה מרחוק... נשיאות כפים... שנתן כח שנתן ליעקב אבינו",
+      "diagnosis": "p30.json actually contains the TRUE content of PDF page 34. The true content of PDF page 30 (parable of the king's daughter arriving from afar; Jacob/Isaac/Abraham chesed-chain discourse) is NOT present anywhere in the 24-file Scan B corpus -- lost."
+    },
+    {
+      "pdf_page": 31,
+      "committed_file": "p31.json",
+      "committed_content_signature": "בעולם שר אחד שממונה על כל אוצרות מאכל... מצפון תפתח הרעה",
+      "true_pdf31_content_signature": "לכך בזכות אברהם אשר גמל חסד בלא כסף...",
+      "diagnosis": "p31.json's content does not match PDF page 31's true content, and does not appear to be a clean duplicate of any other single page in the corpus either (it shares the Jeremiah 1:14 'mitzafon tiftach hara'ah' theme with PDF page 35's true content, but is not a verbatim match to it). Most likely explanation: reconstructed/paraphrased from general familiarity with recurring Bahir themes rather than read from PDF page 31's actual image. The true content of PDF page 31 is NOT present anywhere in the corpus -- lost."
+    },
+    {
+      "pdf_page": 32,
+      "committed_file": "p32.json",
+      "committed_content_signature": "כל זה לסגור לו כל הדלתות... אני ה' רופאך (identical to PDF page 36's true content)",
+      "true_pdf32_content_signature": "יהי אור ויהי אור: אמר ר' יוחנן שני אורים...",
+      "diagnosis": "p32.json is a near-verbatim DUPLICATE of PDF page 36's true content. The true content of PDF page 32 (creation-light discourse, R. Yochanan on the two lights) is NOT present anywhere in the corpus -- lost. THIS is the origin of the originally-reported 'p32/p36 duplication' -- it is a Scan-B authoring error, not a source phenomenon."
+    },
+    {
+      "pdf_page": 34,
+      "committed_file": "p34.json",
+      "committed_content_signature": "ראשון המובב עלינו... צפונית מערבית ס\"ד... [+ the 4-direction square diagram]",
+      "true_pdf34_content_signature": "ושואבים והוא משקה... נב יישב ר' ברכיה ודרש (identical to what is wrongly in p30.json)",
+      "diagnosis": "p34.json actually contains the TRUE content of PDF page 38 (including the direction diagram, which is genuinely on PDF page 38, not page 34). The true content of PDF page 34 is the same Marah/Elim-adjacent discourse wrongly filed under p30.json."
+    },
+    {
+      "pdf_page": 35,
+      "committed_file": "p35.json",
+      "committed_content_signature": "שמיני מאי הוי יש לו הקב\"ה צדיק אחד (identical to PDF page 33's true content)",
+      "true_pdf35_content_signature": "להקב\"ה מדה ששמה רעה והיא לצפוננו... מצפון תפתח הרעה על כל יושבי הארץ",
+      "diagnosis": "p35.json is a near-verbatim DUPLICATE of PDF page 33's true content. The true content of PDF page 35 is NOT present anywhere in the corpus -- lost. THIS is the origin of the originally-reported 'p33/p35 duplication' -- it is a Scan-B authoring error, not a source phenomenon."
+    },
+    {
+      "pdf_page": 38,
+      "committed_file": "p38.json",
+      "committed_content_signature": "אתיא אתיא נקבה על שם דנקבי רחבים... (paraphrase/echo of PDF page 37's true content, not identical wording)",
+      "true_pdf38_content_signature": "ראשון המובב עלינו... צפונית מערבית ס\"ד... [+ diagram] (this is what ended up, correctly in substance, under p34.json)",
+      "diagnosis": "p38.json's content is neither PDF page 38's true content nor a clean duplicate of page 37 -- it is a distorted echo (same opening theme/vocabulary as page 37's real content, different exact wording), suggesting reconstruction rather than direct reading. The true content of PDF page 38 is the diagram/direction-discourse page, correctly captured in substance but mislabeled as p34.json."
+    }
+  ],
+  "not_independently_reverified_in_this_audit": [25, 42, 43, 44, 45, 46, 47, 48],
+  "reliability_summary": {
+    "total_pages_in_scope": 24,
+    "confirmed_accurate": 18,
+    "confirmed_inaccurate_content_mismatch": 6,
+    "affected_pdf_pages": [30, 31, 32, 34, 35, 38],
+    "root_cause_hypothesis": "INFERENCE, not FACT: the six affected pages were all processed via 4-page parallel batch Read calls in the original Scan-B session (two batches: {28,29,30,31} and {32,33,34,35}, plus page 38 read as part of a {36,37,38,39} batch). Pages read individually/solo, or in smaller batches, were verified accurate in every case checked. This strongly suggests the error mechanism was cross-talk between images returned in the same multi-image tool response when the authoring agent wrote up several JSON files afterward from a blended/misordered memory of 4 images at once, rather than a fault in the underlying PDF rendering (the rendered PNG files themselves were independently confirmed correct via isolated single-page re-renders matching the original batch-rendered files byte-for-byte via md5)."
+  }
+}

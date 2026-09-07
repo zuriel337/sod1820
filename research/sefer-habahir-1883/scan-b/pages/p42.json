@@ -1,0 +1,55 @@
+{
+  "pdf_page": 42,
+  "source_ref_page": "book:sefer-habahir-1883#p42",
+  "printed_page_label": "38 (Arabic page number, verso of leaf יט/19)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p42-b1", "region": "header", "text_he": "ספר הבהיר ... 38", "confidence": "high"},
+      {"block_id": "p42-b2", "region": "body_right_col", "text_he": "אתיא אתיא סלקא דעתך אלא אימא חוה קאתי מיניה דהוא בראו דוד והרגנו. הדא הוא דכתיב ולבי חלל בקרבי אמר כך דוד הואיל (ולא) ויכלתי לו יגנוד לבי חלל בקרבי, כך אמר דוד לא יגנוד לו ויכלתי לו יגמלתי לו רע ינגדך רע ובמה יכול לו דוד בגרסתו שלא היה שותק לילה ויום והיה מחבר להקדוש ברוך הוא תורה של מעלה כי תורה לשמה שאדם לומד תורה לשמו של הקדוש ברוך הוא. והיינו דאמרינן לעולם ילמד אדם תורה ואפילו שלא לשמה, שמתוך שלא לשמה בא לשמה. ומאי ניהו תורה דאמרת? היינו כלה שמקושטת ומעוטרת בכל המצות והיא אוצר התורה, והיא ארוסתו של הקדוש ברוך הוא, דכתיב תורה צוה לנו משה מורשה, אל תקרי מורשה אלא מאורשה. היא כיצד? כישראל עוסקים בתורה היא ארוסתו של הקדוש ברוך הוא, והיא מורשה לישראל.", "confidence": "medium", "notes": "Passage on David's 'pierced/hollow heart' (Ps 109:22) tied to his tireless Torah study, and the well-known reframing of 'Torah morashah' (Deut 33:4) as 'me'orasah' (betrothed) -- a well-attested rabbinic wordplay (cf. bSanhedrin 59b, bBerachot 57a) reused here."},
+      {"block_id": "p42-b3", "region": "body_left_col", "text_he": "למממא פותחין לו (כ\"ה הפתוחים לו) מאי פתחים לו? אתן הפותחים תמיד. מצותי חקותי ותורותי. אמר הואיל ולא חצתי בה אשמור מצותי ומאי תורתי ומאי חקותי? אלא אפילו הוראות ופלפולים שמורים שמורים למעלה הוא ידעם... ומאי היכלא קדישא סד\"א אימא היכלא קדישא סד\"א אימא היכלא קדישא, אלא אימא היכלא קדישא בהון שנברא מאמרות שהיינו תורה, היא תמה שכולה אמת שכתיב [תורת ה' תמימה]", "confidence": "low", "notes": "Discussion of mitzvot/chukot/torot and the 'holy palace' (היכלא קדישא) formed from the 'ma'amarot' (utterances of creation); several repeated near-identical clauses in this block may reflect this scan's transcription uncertainty around a genuinely repetitive rhetorical/Aramaic dialectic style (סלקא דעתך-style back-and-forth) rather than a duplication error."}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "ולבי חלל בקרבי", "likely_source": "Psalms 109:22", "block_id": "p42-b2", "confidence": "candidate"},
+      {"raw": "תורה צוה לנו משה מורשה", "likely_source": "Deuteronomy 33:4", "block_id": "p42-b2", "confidence": "candidate"},
+      {"raw": "תורת ה' תמימה", "likely_source": "Psalms 19:8", "block_id": "p42-b3", "confidence": "candidate"}
+    ],
+    "numbers": [],
+    "letters": [],
+    "divine_names": ["הקדוש ברוך הוא"],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "תורה = כלה מקושטת / ארוסתו של הקב\"ה (Torah as an adorned bride, betrothed to the Holy One) -- the 'morashah/me'orasah' wordplay",
+      "היכלא קדישא (the holy palace/hall) built from the 'ma'amarot' (the ten creative utterances of Genesis 1)"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "This page's content is DISTINCT from the pp32-38/41 duplication-pattern pages -- confirms that pattern is localized and does not affect every page in this range.",
+      "The Torah-as-betrothed-bride wordplay ('מורשה'/'מאורסה') is a well-known classical rabbinic teaching (paralleled in Talmud Sanhedrin 59b and Berachot 57a); the Bahir here embeds it within a larger cosmological frame ('the holy palace built from the ma'amarot') -- worth flagging as a clear rabbinic-intertext candidate distinct from Tanakh/Sefer Yetzirah."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Psalms 109:22, Deuteronomy 33:4, Psalms 19:8 all explicitly quoted/played upon.", "confidence": "candidate"},
+      {"type": "rabbinic_intertext", "description": "The 'morashah/me'orasah' wordplay parallels bSanhedrin 59b / bBerachot 57a.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p42-b2", "description": "Opening clause 'אתיא אתיא סלקא דעתך אלא אימא חוה קאתי מיניה דהוא בראו דוד והרגנו' is syntactically difficult (apparent reference to Eve/Cain-Abel typology applied to David) -- transcribed as read but flagged for expert review of the exact referent of 'בראו... והרגנו'."},
+      {"block_id": "p42-b3", "description": "LOW confidence; the repeated 'ומאי היכלא קדישא סד\"א אימא היכלא קדישא' clauses may include a transcription duplication by this scan rather than being genuinely repeated in print -- flagged rather than silently corrected."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf יט (19); Arabic '38' = 19*2."
+  }
+}

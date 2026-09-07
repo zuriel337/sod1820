@@ -1,0 +1,57 @@
+{
+  "pdf_page": 36,
+  "source_ref_page": "book:sefer-habahir-1883#p36",
+  "printed_page_label": "32 (Arabic page number, verso of leaf טז/16)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p36-b1", "region": "header", "text_he": "ספר הבהיר ... 32", "confidence": "high"},
+      {"block_id": "p36-b2", "region": "body_right_col", "text_he": "כל זה לגגור לו כל הדלתות שלא ימצאך פעם אחד רך ופעם אחד קשה בשמרך כל חוקיו כל המחלה אשר שמתי במצרים לא אשים עליך כי אני ה' רופאך ומאי איכה ניהו רופאך ומתי נשלמה השמונה שבו נתחלו ...", "confidence": "low", "notes": "This block's opening line closely echoes p32-b2's opening line ('כל זה לגגור/לסגור לו כל הדלתות...אני ה' רופאך') -- second instance of apparent duplication pattern in this scan's range (also seen p33/p35); flagged as an open structural question, not resolved."},
+      {"block_id": "p36-b3", "region": "body_left_col", "text_he": "[left column text, dense esoteric passage continuing limb/attribute enumeration themes; overall low legibility at this resolution -- representative fragments only: '...מאי צפון...ומאי דרום...הוי כד...ומ\"ם...זה נגד זה...']", "confidence": "low", "notes": "Left column of this page is unusually low legibility; only fragmentary phrases could be confidently isolated."},
+      {"block_id": "p36-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור א שמות טו : ... (compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p36-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p36-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "כל המחלה אשר שמתי במצרים לא אשים עליך כי אני ה' רופאך", "likely_source": "Exodus 15:26", "block_id": "p36-b2", "confidence": "candidate"}
+    ],
+    "numbers": [],
+    "letters": [],
+    "divine_names": ["ה'", "אני ה' רופאך"],
+    "sefirot_terms": [],
+    "symbols_metaphors": ["צפון/דרום (north/south) directional pairing, continuing the cosmological-direction theme of pp30-34"],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "THIRD instance of an apparent near-duplicated opening formula in this scan's range: p32-b2 and p36-b2 both open with 'כל זה ל(ס/ג)גור לו כל הדלתות...אני ה' רופאך'. Combined with the p33/p35 duplication noted earlier, this scan flags a pattern worth dedicated editorial attention: either the 1883 exemplar itself has a printing/binding irregularity in this specific gathering (leaves 14-16, PDF pp31-38), or the Bahir's own text structure includes deliberate refrains at roughly 4-page intervals. This scan does NOT resolve which explanation is correct -- it is recorded as a Finding/candidate for the counterpart SCAN_A and/or a human reviewer to investigate, since SCAN_A's territory (PDF pp1-24) may contain the same phenomenon or a reference copy to compare against.",
+      "Overall legibility of this specific page (both columns) is markedly lower than neighboring pages -- possibly a slightly lower-quality original scan source page (ink bleed, page skew, or paper condition); flagged as a technical/provenance note."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "cross_page_duplication", "description": "p36-b2 opening formula duplicates p32-b2 opening formula; part of the same open pattern also seen between p33 and p35.", "confidence": "candidate"}
+    ],
+    "contradictions": [
+      {"description": "Recurring near-duplicate discourse openings across pp32/33/35/36 -- unresolved whether authorial refrain, print/binding artifact, or transcription-pattern bias from this scan's methodology. Recommend cross-check against SCAN_A's pages and/or an independent digitization."}
+    ],
+    "unresolved_readings": [
+      {"block_id": "p36-b2", "description": "Overall low confidence; only the clearly-legible opening clause could be transcribed with medium confidence."},
+      {"block_id": "p36-b3", "description": "Left column largely illegible at this resolution; only isolated fragments captured. Recommend higher-resolution re-scan for this specific page if full transcription is required."},
+      {"block_id": "p36-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p36-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p36-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf טז (16); Arabic '32' = 16*2. Notably lower legibility page; flagged for possible re-scan."
+  }
+}

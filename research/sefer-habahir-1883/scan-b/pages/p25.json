@@ -1,0 +1,99 @@
+{
+  "pdf_page": 25,
+  "source_ref_page": "book:sefer-habahir-1883#p25",
+  "printed_page_label": "יא (Hebrew foliation, leaf 11, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {
+        "block_id": "p25-b1",
+        "region": "header",
+        "text_he": "יא ... ספר הבהיר",
+        "confidence": "high",
+        "notes": "Page-number 'יא' top-left, title 'ספר הבהיר' centered, per this edition's running header on every text page."
+      },
+      {
+        "block_id": "p25-b2",
+        "region": "body_right_col",
+        "text_he": "ההוא ואח\"כ הצורות הקדושים ההם ומאי ניהו כחם כד\"א אין קדוש כה' כי אין בלתך ואין צור כאלהינו: )ישב רבי ברכיה ודרש מאי דהיאך ...אל היאך ...נ'ל שרים ה' אל בשלשה [יהו\"ה, stylized] וכל אחד ותלי ונלגל ולב וכל אחד יוצדיק (דכתיב) ובהם שמקיים העולם יוצדיק יסוד עולם.** )תנא עמוד (פי' יסוד מן העט' עד ת\"פ) אחד יש מן הארץ עד לרקיע וצדיק שמו על שם הצדיקים וכשיש צדיקים בעולם מתגבר ואם לאו מתחלש והוא סובל העולם דכתיב צדיק יסוד עולם ואם חלש לא יוכל להתקיים העולם הלכך אפילו אין בעולם אלא צדיק א' מעמיד העולם שנאמר וצדיק יסוד עולם לפיכך קחו תרומתי ממנו תחלה ואח\"כ וזאת התרומה אשר תקחו מאתם זהב וגו'",
+        "confidence": "medium",
+        "notes": "Dense unvocalized rabbinic typeface; a handful of ligature-heavy words (marked with ellipsis above) could not be resolved with confidence and are treated as unresolved (see claim.unresolved_readings)."
+      },
+      {
+        "block_id": "p25-b3",
+        "region": "body_left_col",
+        "text_he": "הנקרא עצרת שנקרא אם שנאמר כי אם לבינה תקרא ומאי את הבנים תקח לך ר' רחומאי אומר אתם בנים שגדלה ומאי ניהו ז' ימי הסוכות והיינו ימי השבוע שהם ז' איכא בינייהו הם תלי ונלגל ולב וכל אחד י\"ם הורו בשלשה שהם יותר בקדש דכתיב בהם מקראי קדש והיינו כמנין ל\"ו ובהם שמקיים העולם (דכתיב בו צדיק א\"כ עצרת דהוא מקרא קדש א\"ל אין, אבל זה יסוד עולם.) תנא עמוד (פי' יסוד מן העט' עד א' וזה ב' דכתיב ביום הראשון מקרא קדש וביום השביעי מקרא קדש א\"ל מ\"ט הוי עצרת תורה לישראל וכשנבראת מתגבר ואם לאו מתחלש והוא סובל העולם התורה ראשית היה הקב\"ה שליט בעולמו עמה דכתיב צדיק יסוד עולם ואם חלש לא יוכל יחידי דכתיב ראשית חכמה אמר הואיל וכן להתקיים העולם הלכך, אפילו אין בעולם אלא קדושתך יהיה לך לבדך ומאי ניהו סוכות? א\"ל צדיק א' מעמיד העולם שנאמר וצדיק יסוד בי\"ת דכתיב בחכמה יבנה בית ומנלן דסוכות עולם לפיכך קחו תרומתי ממנו תחלה ואח\"כ הוי בית דכתיב ויעקב נסע סכותה ויבן לו בית: וזאת התרומה אשר תקחו מאתם מאת השאר מו ישב ר' ברכיה ודרש מאי תלי דמות הוא ומהו זהב וגו' ד\"א ויקחו לי תרומה ויקחו לקדש שיש לפני הקב\"ה שבו כלולים הגלגלים",
+        "confidence": "medium",
+        "notes": "Continues discussion begun in right column; contains a distinct paragraph opening 'מו ישב ר' ברכיה ודרש' -- a numbered/lettered discourse marker (מו) is visible, consistent with the Bahir's traditional sequential-teaching (מאמר) numbering."
+      },
+      {
+        "block_id": "p25-b_torah_or",
+        "region": "torah_or_citation_line",
+        "text_he": "תורה אור א שי\"א ב : ב במדבר כז : נ ויקהל כז : ד סמות עז : ו סס ה : ו דברים כג : ה יחקאל קיח : ...",
+        "confidence": "low",
+        "notes": "Compact abbreviated verse-index line under the double horizontal rule; abbreviations for biblical book+chapter:verse are only partially resolvable at this resolution; treated as low-confidence input, flagged for verse_citations extraction as candidates only."
+      },
+      {
+        "block_id": "p25-b_hagahot_r",
+        "region": "hagahot_right_col",
+        "text_he": "[הגהות, right column, small print] יתר קודש מלפניו מלפניו... דלנך ולא'... שכר פרי לחג לפי חכמות: פי' עם: לקדם: לתי לחכמה התעליוגה הפעליונ ...",
+        "confidence": "low",
+        "notes": "Marginal glosses (הגהות) in very small typeface below 'אור' heading; only partially legible at 220dpi. Representative opening phrases captured; full verbatim transcription not achievable at this resolution -- see unresolved_readings."
+      },
+      {
+        "block_id": "p25-b_hagahot_l",
+        "region": "hagahot_left_col",
+        "text_he": "[הגהות, left column, small print] בנל\"ב נמיבו פליחות מוזק חכמה קדמו קבעות ... פי' ע\"מ: מד קוש: פי' לקדם: פי' לחכמה התעליוגה הפעליונ ...",
+        "confidence": "low",
+        "notes": "As above; small-print marginal glosses, partial legibility only."
+      }
+    ]
+  },
+  "extraction": {
+    "headings": ["ספר הבהיר (running title)"],
+    "section_markers": ["מו (discourse marker, left column)"],
+    "verse_citations_candidates": [
+      {"raw": "אין קדוש כה' כי אין בלתך ואין צור כאלהינו", "likely_source": "1 Samuel 2:2 (שמואל א ב:ב)", "block_id": "p25-b2", "confidence": "candidate"},
+      {"raw": "כי אם לבינה תקרא", "likely_source": "Proverbs 2:3 (משלי ב:ג)", "block_id": "p25-b3", "confidence": "candidate"},
+      {"raw": "ראשית חכמה יראת ה'", "likely_source": "Psalms 111:10 / Proverbs 9:10", "block_id": "p25-b3", "confidence": "candidate"},
+      {"raw": "בחכמה יבנה בית", "likely_source": "Proverbs 24:3", "block_id": "p25-b3", "confidence": "candidate"},
+      {"raw": "ויעקב נסע סכותה ויבן לו בית", "likely_source": "Genesis 33:17", "block_id": "p25-b3", "confidence": "candidate"},
+      {"raw": "ויקחו לי תרומה", "likely_source": "Exodus 25:2", "block_id": "p25-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["ז' (7, days of Sukkot/week)", "ל\"ו (36)", "א' (1, one tzadik)", "ב' (2)"],
+    "letters": [],
+    "divine_names": ["ה'", "כאלהינו", "הקב\"ה", "יהו\"ה (stylized large-letter rendering in right column)"],
+    "sefirot_terms": ["צדיק יסוד עולם (Yesod/Tzaddik as cosmic pillar)", "עצרת", "עמוד"],
+    "symbols_metaphors": ["תלי, גלגל, לב (three cosmological images -- 'Tli/dragon-axis, wheel/sphere, heart' -- classic Sefer Yetzirah triad)"],
+    "sefer_yetzirah_refs": [
+      {"text": "תלי ונלגל ולב", "note": "This exact triad (תלי, גלגל, לב) is the signature cosmological vocabulary of Sefer Yetzirah ch.6; appears here without an explicit citation formula ('כדאיתא בס' יצירה'), so recorded as an implicit/thematic Sefer Yetzirah linkage, not an explicit named citation.", "block_id": "p25-b2/b3", "confidence": "candidate"}
+    ],
+    "calculations_procedures": ["Gematria-adjacent count: 'ל\"ו' (36) linked to 'ז' ימי הסוכות'/ז' ימי השבוע -- exact derivation not fully legible; recorded as candidate numeric relation, not verified via canonical gematria engine."]
+  },
+  "finding": {
+    "observations": [
+      "Page opens mid-discussion (no new chapter heading), continuing a teaching about 'צדיק יסוד עולם' (the Righteous One as foundation of the world) tied to the Sukkot festival and the cosmological triad tli/galgal/lev.",
+      "Two distinct discourse units are visible on this page: one on Sukkot/Atzeret and 'yesod olam', and a second beginning 'מו ישב ר' ברכיה ודרש' introducing the theme of gold (זהב) and the priestly terumah offering, echoing Exodus 25.",
+      "The right-column large 'יהו\"ה'-style stylized rendering (larger/bolded letterforms embedded in running text) suggests the printer used typographic emphasis for the Tetragrammaton-adjacent formula 'ה' אחד' rather than writing the Name directly -- consistent with normative Hebrew printing convention of avoiding plene Divine-Name spelling in run-on exegesis; treated as a euphemistic/typographic device, not a literal Name occurrence."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Multiple explicit verse quotations embedded as prooftexts (see extraction.verse_citations_candidates); candidate mapping only, not verified against a canonical verse-lookup engine.", "confidence": "candidate"},
+      {"type": "sefer_yetzirah", "description": "Cosmological triad תלי/גלגל/לב strongly echoes Sefer Yetzirah's terminology; no explicit 'ספר יצירה' citation formula found on this page.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p25-b2", "description": "Several short words in the opening lines (right column, around 'דהיאך ...אל היאך') are ambiguous ligatures; exact reading uncertain."},
+      {"block_id": "p25-b_torah_or", "description": "Torah-Or citation-index line abbreviations only partially resolved; several book/chapter/verse abbreviations left as raw fragments rather than resolved citations."},
+      {"block_id": "p25-b_hagahot_r", "description": "Right-column Or HaGanuz marginal gloss text is largely illegible at 220dpi; only fragmentary phrases captured."},
+      {"block_id": "p25-b_hagahot_l", "description": "Left-column Or HaGanuz marginal gloss text is largely illegible at 220dpi; only fragmentary phrases captured."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered locally via pdftoppm 220dpi PNG for this extraction",
+    "library_stamp_seen_on_page": false,
+    "notes": "First page of SCAN_B's assigned range (PDF page 25 = M+1, M=24)."
+  }
+}

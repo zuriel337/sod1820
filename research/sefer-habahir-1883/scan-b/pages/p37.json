@@ -1,0 +1,60 @@
+{
+  "pdf_page": 37,
+  "source_ref_page": "book:sefer-habahir-1883#p37",
+  "printed_page_label": "יז (Hebrew foliation, leaf 17, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p37-b1", "region": "header", "text_he": "יז ... ספר הבהיר", "confidence": "high"},
+      {"block_id": "p37-b2", "region": "body_right_col", "text_he": "אקריא נקבה על שם דנקבי רחבים ויש לה נקבים יתרים על האיש ומאי ניהו שדים ורחם ובית קיבול שירים ניהו שמאי ניהו שיר השירים דאמרת האמרת דהוא הדר. אין הדר (הכל)של כל ספרי הקודש ושיר הקודש שירים הוא קדשים שקדש דא\"ר יוחנן דא\"ר יוחנן שקדשים הוא קודש קדשים אלו הם כנגד שהם הקדשים ומה הם הקדשים אלו הקצוות שבאדם וקודש לכולהו הוי קדש הדר וקודש ניהו אתרון ה'ה ואמאי ניהו קדוש ה'קדש ...", "confidence": "low", "notes": "Difficult passage about Shir HaShirim (Song of Songs) being 'the holiest of holy books' and 'kodesh kodashim' among the sacred writings -- a distinct discourse unit from what precedes."},
+      {"block_id": "p37-b3", "region": "body_left_col", "text_he": "עד הכל אתרונ' זה הדר אלא הדר שמו א'ת הדר הוא אתרונ נפרד מאגד ואין לב מצות ואין לולב קיימא אלא בו והוא אגוד כ'ל א' וא' שכ'ל עם שעם אגוד כ'א ו'א'\"ס' לולב כנגד מאי אמר הוא כנגד לב לולב כנגד מאי חוט ה' כנגד: והאמירה כן הוא אומר וענפ עץ עבות צריך וגו' עבות עץ ענפי היות להיו חופיו ...", "confidence": "low", "notes": "Discourse on the Four Species (lulav/etrog/hadar) and their symbolic correlation to the heart ('לב'); dense, partially legible."},
+      {"block_id": "p37-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור נ שיר השירים א : ד ויקרא כג : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p37-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p37-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "וענף עץ עבות", "likely_source": "Leviticus 23:40 (Four Species)", "block_id": "p37-b3", "confidence": "candidate"}
+    ],
+    "numbers": [],
+    "letters": [],
+    "divine_names": ["ה'", "קדש הדרים / קדוש"],
+    "sefirot_terms": ["הדר (Hadar, one of the Four Species terms, here treated with esoteric significance) associated with 'קדש קדשים'"],
+    "symbols_metaphors": [
+      "שיר השירים כ'קודש קדשים' שבכתבי הקודש (Song of Songs as 'holy of holies' among scripture) -- famous formulation (cf. Mishnah Yadayim 3:5, R. Akiva) reused/echoed here",
+      "לולב כנגד הלב (the lulav as symbolically corresponding to the heart)",
+      "אתרוג/הדר (Etrog/Hadar) tied to the concept of being 'bound' (אגוד) vs. singular ('נפרד')"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "The invocation that Song of Songs is 'kodesh kodashim' among sacred writings is a direct echo of the famous Mishnaic dictum attributed to Rabbi Akiva (Yadayim 3:5); the Bahir passage here appears to build a further esoteric layer on top of that well-known statement rather than merely quoting it -- flagged as a strong candidate cross-reference, not verified against the Mishnah text directly by this scan.",
+      "This page introduces Four Species (lulav/etrog) symbolism, distinct from the directional/elemental themes of the preceding several pages -- a clear topic transition."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Leviticus 23:40 (Four Species) as prooftext for the lulav/hadar discussion.", "confidence": "candidate"},
+      {"type": "rabbinic_intertext", "description": "Echo of the Mishnah Yadayim 3:5 statement that Song of Songs is holy of holies -- not a Tanakh or Sefer Yetzirah relation but flagged as a notable candidate intertext per the scope's general instruction to preserve explicit citations/allusions.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p37-b2", "description": "Overall LOW confidence; repeated near-homophonous words ('הדר... הדר... קדש... קדשים') make it hard to be certain of exact clause boundaries."},
+      {"block_id": "p37-b3", "description": "LOW confidence; several short words uncertain (e.g. 'א'ת הדר הוא אתרונ נפרד מאגד')."},
+      {"block_id": "p37-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p37-b_hagahot_r", "description": "Marginal gloss largely illegible."},
+      {"block_id": "p37-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf יז (17)."
+  }
+}

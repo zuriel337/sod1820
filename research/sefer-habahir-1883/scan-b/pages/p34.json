@@ -1,0 +1,61 @@
+{
+  "pdf_page": 34,
+  "source_ref_page": "book:sefer-habahir-1883#p34",
+  "printed_page_label": "30 (Arabic page number, verso of leaf טו/15)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col_with_diagram", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p34-b1", "region": "header", "text_he": "ראשון המובב עלינו (ס\"א עליו). צפונית מערבית ס\"ד ... ספר הבהיר", "confidence": "medium"},
+      {"block_id": "p34-b2", "region": "body_right_col", "text_he": "ג\"כ הדרו הדרז ומ\"ם אותי זכור את יום השבת ושמור אלא כחו צפונית מערבית מהיינו דהיינו מערבית ס\"ד אלא נצחונו של עולם כחו הוי עולם של (הופאך) מכל צד. וכו' אמרינן על אלינ ומ\"ם אמריגן חי העולמים ואמרינן כי לו העולם שאין העולמים כלולים בו ...", "confidence": "medium"},
+      {"block_id": "p34-b3", "region": "body_left_col", "text_he": "אלא כחו צפונית מערבית זכור לו שני ושמור לנו כלה. זכור לוי שני(שביעי) לכלה. ותיראו עצמיכם שטרו כי ה'אני מקדשכם 'ועליו מכל כי אני ה' עולם של עשה כן נצחון וע\"ם אמרינן על כל מה כי אתם קדוש. אלו הן צוותנו וצויתגו שהיא למד העולמים כלולים אשר ובעשה כי בשעה שנזכה ר\"ג(הגדיל)ובידו אוצרות הנשמות טובים שישראל ובעשית הנשמות אוצרות ולבא בעוה\"ז ואם אין הנשמות שבגוף כל הנשמות שבגוף הוי כל הנשמות שבגוף מכצאת לצאת מכל האחרים.", "confidence": "medium"},
+      {"block_id": "p34-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור ב שמות כ : נ סס לג : ד דברים כג : ...(compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p34-b_hagahot_r", "region": "hagahot_right_col_with_diagram", "text_he": "[Decorative square diagram in a bordered box, labelled around its perimeter with the four intercardinal directions: 'מזרחית צפונית' (NE), 'מערבית צפונית' (NW), 'מזרחית דרומית' (SE), 'מערבית דרומית' (SW). The box interior is blank/undecorated in this print. Below/beside it, small-print gloss text partially legible.]", "confidence": "medium", "notes": "This is a genuine graphical diagram (a labelled square with 4 intercardinal-direction corner-labels), not running prose -- captured as a distinct symbol/diagram block per scope requirement to preserve symbols."},
+      {"block_id": "p34-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": [],
+    "section_markers": [],
+    "verse_citations_candidates": [
+      {"raw": "זכור את יום השבת... ושמור", "likely_source": "Exodus 20:8 / Deuteronomy 5:12 (Zachor/Shamor duality)", "block_id": "p34-b2", "confidence": "candidate"},
+      {"raw": "כי אני ה' מקדשכם", "likely_source": "Exodus 31:13 / Leviticus 20:8", "block_id": "p34-b3", "confidence": "candidate"}
+    ],
+    "numbers": ["שני (second/two)", "שביעי (seventh)"],
+    "letters": [],
+    "divine_names": ["ה'", "אני ה' מקדשכם"],
+    "sefirot_terms": [],
+    "symbols_metaphors": [
+      "צפונית מערבית (northwest direction) as a described cosmic 'corner' of Shabbat's power",
+      "The four-intercardinal-direction square diagram (see hagahot_right_col_with_diagram) -- an explicit graphical symbol in the printed page, directly relevant to the scope's 'symbols' requirement",
+      "אוצרות הנשמות (treasury/storehouse of souls) -- the Guf/soul-treasury concept, tied to 'ר\"ג' (likely רבי גדול / an angelic figure named as guardian of the storehouse) governing which souls descend to embodiment"
+    ],
+    "sefer_yetzirah_refs": [],
+    "calculations_procedures": []
+  },
+  "finding": {
+    "observations": [
+      "This page contains a genuine graphical diagram (square box labelled with 4 intercardinal directions) embedded in the printed page -- the single clearest non-textual 'symbol' artifact found so far in this scan's range; flagged for the required symbols/diagrams capture.",
+      "The soul-treasury (אוצר הנשמות) passage, describing a guardian figure with 'good souls' waiting to descend into bodies, is a recognizable Bahir doctrine (the pre-existence and reservoir of souls, later called 'Guf') worth flagging as a distinct doctrinal unit.",
+      "Zachor/Shamor (the two Decalogue versions of the Shabbat command, 'remember'/'keep') are here correlated with directional/cosmic attributes -- a structural link between the Sinai commandment-text and the cosmological direction-scheme running through pp30-34."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "tanakh", "description": "Zachor/Shamor Shabbat formula (Exodus 20:8, Deuteronomy 5:12) explicitly correlated with directional/cosmic attributes.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p34-b1", "description": "Header line includes a parenthetical variant marker '(ס\"א עליו)' i.e. 'in another version: עליו' -- another explicit editorial variant-note, consistent with p30's; exact placement of the variant within the sentence is uncertain."},
+      {"block_id": "p34-b3", "description": "Abbreviation 'ר\"ג(הגדיל)' is uncertain -- could denote a name/title or a scribal gloss; not resolved."},
+      {"block_id": "p34-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p34-b_hagahot_r", "description": "Gloss text surrounding the diagram is largely illegible; the diagram's own corner-labels were legible and captured, but any explanatory prose accompanying it is not."},
+      {"block_id": "p34-b_hagahot_l", "description": "Marginal gloss largely illegible."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Verso of leaf טו (15); Arabic '30' = 15*2. Contains this range's clearest embedded diagram."
+  }
+}

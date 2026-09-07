@@ -1,0 +1,59 @@
+{
+  "pdf_page": 27,
+  "source_ref_page": "book:sefer-habahir-1883#p27",
+  "printed_page_label": "יב (Hebrew foliation, leaf 12, recto)",
+  "page_type": "bahir_text_and_commentary",
+  "layout": ["header", "body_right_col", "body_left_col", "torah_or_line", "hagahot_right_col", "hagahot_left_col"],
+  "input": {
+    "blocks": [
+      {"block_id": "p27-b1", "region": "header", "text_he": "יב ... ספר הבהיר", "confidence": "high"},
+      {"block_id": "p27-b2", "region": "body_right_col", "text_he": "דמושהרו\"ן וצפצפיתרו\"ן הורמירו\"ן ברחיהגאו\"ן ער\"ש גדראו\"ן בסאו\"ה מנאהו\"ן הזוהי\"ה ההיו\"י הא\"ה אהי\"ה והראתיהו\"ן וכולם נכללים בל\"ב נתיבות השמים ומתחלקים לכ\"ד שמות שאמרנו למעלה ובהם כלול זכר ונקבה פקודיו בתלי וגלגל ולב והם מעיינות החכמה: מז יישב ר' רחומאי ודרש מאי י\"ב שבטי ישראל אלא שבטי שי\"ב שבטים יש לו להקב\"ה ומאי ניהו נחו משל למלכשהיה לו מעיין נאה וכ'ל א' (ס\"ח אחזו) אין לו מים אלא מאותו המעין ואיננן יכולין לסבול צמא מאי משעה למען עשה י\"ב צנורות וקראם י\"ב שמות ואמר ואם יהיו הבנים טובים כאבותם יזכו ואלמלא הצנורות ירזו אותם וישתו הבנים ואחריהם אחריהם ואם לא יזכו", "confidence": "medium", "notes": "Contains long chain of numinous permutation-names (דמושהרו\"ן וצפצפיתרו\"ן ...) preceding discussion of the 32 paths of wisdom and the 12 tribes as 12 channels/springs."},
+      {"block_id": "p27-b3", "region": "body_left_col", "text_he": "הבנים ולא עשו דברים לפני הרי צנורות עומדות לפני צנורות עומדות למדות לפני יתנו רצוני שלישנא לביניהם הרבה ובענין אחר שאינם עושים רצוני להישנא ...דבר פשוט הוא ואינהו מרובע מ\"ט דלית אפשר מרובע אחר בגו מרובע איגולא בגו ריבועא ורחמי ומאי ניהו עיגולא הדין נקודה דאורייתא דמיין כולה עיגולה דאינהו בנשמתא דלית אתוותא באתוותא דלית אפשר למחיי כל היכא דלית קימא בגוה או זוטא הדין נקודה דלית אפשר למלתא רבא או זוטא ...", "confidence": "medium", "notes": "Discusses point (נקודה), circle (עיגולא) inscribed in square (מרובע), and letters/soul; dense Aramaic-inflected passage."},
+      {"block_id": "p27-b_torah_or", "region": "torah_or_citation_line", "text_he": "תורה אור נ שבטי ישראל מאי שבטי ה' שבט י (compact abbreviated verse index, partially legible)", "confidence": "low"},
+      {"block_id": "p27-b_hagahot_r", "region": "hagahot_right_col", "text_he": "[small-print marginal gloss, right column -- largely illegible]", "confidence": "low"},
+      {"block_id": "p27-b_hagahot_l", "region": "hagahot_left_col", "text_he": "[small-print marginal gloss, left column -- largely illegible]", "confidence": "low"}
+    ]
+  },
+  "extraction": {
+    "headings": ["ספר הבהיר (running title)"],
+    "section_markers": ["מז (discourse marker, right column: 'יישב ר' רחומאי ודרש')"],
+    "verse_citations_candidates": [],
+    "numbers": ["י\"ב שבטי ישראל (12 tribes)", "ל\"ב נתיבות (32 paths of wisdom)", "כ\"ד שמות (24 names)"],
+    "letters": [],
+    "divine_names": ["הקב\"ה", "chain of extended permutation-names (דמושהרו\"ן, צפצפיתרו\"ן, הורמירו\"ן, ברחיהגאו\"ן, גדראו\"ן, מנאהו\"ן, אהי\"ה) -- these read as combinatorial/angelic-adjacent Name-forms rather than the Tetragrammaton itself; recorded as divine/angelic-name candidates, not verified."],
+    "sefirot_terms": ["תלי וגלגל ולב (again, the tli/galgal/lev triad)"],
+    "symbols_metaphors": [
+      "מעיין / י\"ב צנורות (a spring and 12 channels -- a parable for the 12 tribes as conduits of divine flow to the world)",
+      "נקודה בתוך עיגולא בתוך מרובע (point within circle within square -- a nested geometric symbol for the structure of the letters/soul)"
+    ],
+    "sefer_yetzirah_refs": [
+      {"text": "ל\"ב נתיבות (החכמה)", "note": "'32 paths of Wisdom' is the opening formula of Sefer Yetzirah 1:1 ('בשלושים ושתים נתיבות פליאות חכמה'); here invoked without an explicit citation formula.", "block_id": "p27-b2", "confidence": "candidate"},
+      {"text": "תלי וגלגל ולב", "note": "Sefer Yetzirah ch.6 cosmological triad, recurring motif across this range.", "block_id": "p27-b2", "confidence": "candidate"}
+    ],
+    "calculations_procedures": ["Point-circle-square nesting as a structural/geometric account of letter-formation -- described narratively, not as an explicit numeric procedure on this page."]
+  },
+  "finding": {
+    "observations": [
+      "This page opens with a striking sequence of long compound names (each ending in the -רו\"ן / -או\"ן suffix pattern) that read as a formal invocation list; given the density and abbreviation marks, these are recorded verbatim in Input but NOT resolved into a canonical name-list in Extraction -- flagged for careful independent verification, since misreading a single letter in such names materially changes their content.",
+      "The parable of the spring (מעיין) with 12 channels (צנורות) representing the 12 tribes is a clear, well-formed unit that continues onto p28."
+    ]
+  },
+  "claim": {
+    "candidate_relations": [
+      {"type": "sefer_yetzirah", "description": "Explicit '32 paths of Wisdom' vocabulary strongly parallels Sefer Yetzirah's opening; candidate structural relation only.", "confidence": "candidate"}
+    ],
+    "contradictions": [],
+    "unresolved_readings": [
+      {"block_id": "p27-b2", "description": "The opening chain of compound names is transcribed at only medium-low confidence; individual letters within each name are uncertain given typeface density -- recommend independent scholarly verification before any downstream use."},
+      {"block_id": "p27-b3", "description": "Aramaic-inflected passage on point/circle/square has several words of uncertain segmentation."},
+      {"block_id": "p27-b_torah_or", "description": "Citation-index line only partially legible."},
+      {"block_id": "p27-b_hagahot_r", "description": "Marginal gloss largely illegible at rendered resolution."},
+      {"block_id": "p27-b_hagahot_l", "description": "Marginal gloss largely illegible at rendered resolution."}
+    ]
+  },
+  "provenance": {
+    "digitization": "Google Books PDF Converter (rel 3 12/12/14); rendered via pdftoppm 220dpi",
+    "library_stamp_seen_on_page": false,
+    "notes": "Recto of leaf יב (12)."
+  }
+}
