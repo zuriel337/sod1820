@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ChristinaDecoder from "./ChristinaDecoder.jsx";
 import ChristinaMiluiCalc from "./ChristinaMiluiCalc.jsx";
+import { track } from "../lib/tracking.js";
 
 // ✦ מנוע כריסטינה — שתי העדשות שלה, זו לצד זו, מונעות ממילה אחת (בקשת צוריאל: «אחד ליד השני»).
 //   • 🔤 מפענח-האותיות (פירוקים) — משמעות פרשנית לכל אות (christina_decomposition_rules).
@@ -15,6 +16,16 @@ const C = {
 export default function ChristinaEngine({ seed = "", embedded = false }) {
   const [word, setWord] = useState(seed);
   useEffect(() => { setWord(seed); }, [seed]);
+
+  // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1): מחושב (debounce
+  // 600ms) כדי לא לספור כל הקשה — רק מילה שנחה בקלט, כמו track("gematria",...) הקיים.
+  const lastTracked = useRef(null);
+  useEffect(() => {
+    const w = word.trim();
+    if (!w || w === lastTracked.current) return;
+    const t = setTimeout(() => { lastTracked.current = w; track("christina", w, "compute"); }, 600);
+    return () => clearTimeout(t);
+  }, [word]);
 
   return (
     <div style={{ direction: "rtl" }}>

@@ -4,6 +4,7 @@ import { loadProfile, saveProfile, emptyProfile, fieldEngine, cleanInput, prompt
 import { PRIMARY } from "../lib/research/coreEngine.js";
 import { parseEngineOutput, mergeEngines } from "../lib/research/router.js";
 import { supabase } from "../lib/supabase.js";
+import { trackAi } from "../lib/tracking.js";
 
 // 🧬 ניתוח חיים — תקן השדה האחיד (v2). קלט אחיד → מנועים → אותו פלט אחיד → השוואה + עץ אחד.
 const card = { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 16, padding: 16, marginTop: 12 };
@@ -61,6 +62,9 @@ export default function LifeProfile() {
   const [aiMsg, setAiMsg] = useState("");
   const runAI = async () => {
     setRunning(true); setAiMsg("");
+    // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) — הפעולה
+    // המשמעותית האמיתית בכלי הזה (קריאת AI, לא כל הקשה בטופס), אותה מוסכמה כמו maftech/journey.
+    trackAi("life");
     try {
       const { data, error } = await supabase.functions.invoke("field-router", { body: { input, core_values: coreValuesFor(input) } });
       if (error) throw error;

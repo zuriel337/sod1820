@@ -3,6 +3,7 @@ import { METHODS, onlyHeb } from "../lib/gematria.js";
 import { entityFromPhrase } from "../lib/research/entity.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { getGematriaByValues } from "../lib/supabase.js";
+import { track } from "../lib/tracking.js";
 
 // 📊 ניתוח קובץ — העלאת אקסל/CSV עם רשימת ביטויים → המנוע מחשב גימטריה לכל שורה,
 // מוצא התכנסויות (אותו ערך), מצליב מול מאגר האתר, ומאפשר לצרף הכל ל«המחקר הפעיל».
@@ -94,6 +95,9 @@ export default function FileAnalyzer() {
     const g = guessCols(matrix);
     if (matrix.every(r => !r.some(hasHeb))) { setErr("לא נמצאו ביטויים בעברית. ודאו שיש עמודה עם מילים/שמות."); setRaw(null); return; }
     setErr(""); setCross(null); setRaw(matrix); setCfg(g);
+    // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) — נרשם על ניתוח
+    // מוצלח (לא כל טעינה כושלת), כמו track("gematria","compute",...) הקיים.
+    track("import", null, "compute", { rows: matrix.length });
   }, []);
 
   const onFile = useCallback(async file => {

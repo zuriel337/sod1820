@@ -69,7 +69,12 @@ export default function MaftechShowcase({ seed = "" }) {
       supabase.rpc("fn_maftech_decompose", { word }).then(({ data, error }) => {
         if (!live) return;
         if (error || !data || data.error) { setErr(true); setData(null); }
-        else { cache.current[word] = data; setData(data); }
+        else {
+          cache.current[word] = data; setData(data);
+          // 📡 P1 core-action telemetry (SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) — עד כה
+          // רק trackAi/share היו רשומים; זה מוסיף את פעולת-הליבה (פירוק מילה מהמשתמש, לא הדגמה).
+          if (isCustom) track("maftech", word, "compute");
+        }
         setLoading(false);
       }).catch(() => { if (live) { setErr(true); setLoading(false); } });
     }, isCustom ? 400 : 0);
