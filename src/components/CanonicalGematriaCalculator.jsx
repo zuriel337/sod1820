@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import GematriaCalculator from "./GematriaCalculator.jsx";
+import GematriaCalculatorLegacy from "./GematriaCalculatorLegacy.jsx";
 import { calculateGematriaEnvelope } from "../lib/research/gematriaCalculationContract.js";
 import { fetchGematriaMethodStates } from "../lib/research/gematriaMethodRegistry.js";
 
@@ -34,5 +34,5 @@ export default function CanonicalGematriaCalculator({ onResult, ...props }) {
   // is the first projection consumer of the shared contract. No UI/number changes in v1.
   void calculation;
 
-  return <GematriaCalculator {...props} onResult={handleResult} />;
+  return <GematriaCalculatorLegacy {...props} onResult={handleResult} />;
 }
