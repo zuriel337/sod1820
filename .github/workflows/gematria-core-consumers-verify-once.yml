@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm install
       - name: Focused Gematria tests
         run: node --test src/lib/research/gematriaCalculationContract.test.js src/lib/research/coreEngine.test.js
       - name: Build
