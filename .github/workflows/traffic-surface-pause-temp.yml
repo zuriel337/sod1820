@@ -1,0 +1,124 @@
+name: traffic-surface-pause-temp
+on:
+  push:
+    branches: [gpt/public-traffic-surface-pause-v1]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[traffic-pause-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gpt/public-traffic-surface-pause-v1
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Apply bounded public traffic-surface pause
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          home = Path('src/pages/HomeNewPage.jsx')
+          s = home.read_text()
+          old_import = 'import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getHotNumbers, getFeaturedResearchers } from "../lib/supabase.js";'
+          new_import = 'import { getTopicCards, getAxisEvents, getGalleryUpdates, getHomeSets, setImageCuration, getGalleryImageCount, getTopPrimaryValues, getFeaturedResearchers } from "../lib/supabase.js";'
+          assert old_import in s
+          s = s.replace(old_import, new_import, 1)
+          for line in [
+              'import NumberBubbles from "../components/NumberBubbles.jsx";\n',
+              'import RecentSearches from "../components/RecentSearches.jsx";\n',
+              'import RecentNumbers from "../components/RecentNumbers.jsx";\n',
+              'import CommunityWordsBox from "../components/CommunityWordsBox.jsx";\n',
+              'import ActivityPulse from "../components/ActivityPulse.jsx";\n',
+          ]:
+              assert line in s
+              s = s.replace(line, '', 1)
+          state_line = '  const [hotNums, setHotNums] = useState([]); // 🔥 המספרים החמים (מפת-החום, 7 ימים) — באזור "מה קורה באתר"\n'
+          assert state_line in s
+          s = s.replace(state_line, '', 1)
+          fetch_line = '    getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});\n'
+          assert fetch_line in s
+          s = s.replace(fetch_line, '', 1)
+
+          start_marker = '      {/* ===== 🟢 דופק האתר — מוקד-פעילות במקומו המקורי (מתחת ל«כאן מתחילים»). הדופק החי בגרסה\n'
+          end_marker = '      {/* ===== הצלבות המנוע (AI) — כמה נוספו + תאריך ===== */}\n'
+          start = s.index(start_marker)
+          end = s.index(end_marker, start)
+          replacement = '''      {/* ===== 🚧 דופק האתר — ניסוי השהיית משטחי-תנועה ציבוריים ===== */}
+      <section className="hn-wrap" style={{ padding: "0 18px 40px" }} data-traffic-surface-paused="true">
+        <HomeHeader title="🚧 דופק האתר — אזור בבנייה" sub="אזור הפעילות עובר שדרוג. נתוני התנועה ממשיכים להימדד ברקע לצורך בדיקה, אך אינם מוצגים כאן כרגע." />
+        <div style={{ marginTop: 14, border: `1px solid ${P.borderStrong}`, borderRadius: 16, background: P.cardSoft, padding: "24px 18px", textAlign: "center" }}>
+          <div style={{ fontSize: 28, marginBottom: 8 }}>🚧</div>
+          <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 16, fontWeight: 800 }}>אזור בבנייה</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, marginTop: 5 }}>דופק האתר והמספרים בתנועה עוברים שדרוג ויחזרו בתצוגה נקייה ומדויקת יותר.</div>
+        </div>
+      </section>
+
+'''
+          s = s[:start] + replacement + s[end:]
+          home.write_text(s)
+
+          entity = Path('src/pages/EntityPage.jsx')
+          e = entity.read_text()
+          imp_old = 'getSearchCount, '
+          assert imp_old in e
+          e = e.replace(imp_old, '', 1)
+          state_old = '  const [searched, setSearched] = useState(0);    // 🔎 חיפושים כוללים (מד קבוע — מותר: כמה חיפשו)\n'
+          assert state_old in e
+          e = e.replace(state_old, '', 1)
+          fetch_old = '      getSearchCount(value).then(n => alive && setSearched(n)).catch(() => {});\n'
+          assert fetch_old in e
+          e = e.replace(fetch_old, '', 1)
+          stats_old = '''                {/* 2 נתונים קטנים — חיבורים · צפיות (בדיו כהה, קריא בבהיר) */}
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                  {[{ e: "🔗", v: totalConn, l: "חיבורים" }, { e: "👁️", v: searched, l: "צפיות" }].map((x, i) => (
+                    <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+                      <span style={{ fontSize: 13 }}>{x.e}</span>
+                      <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{(x.v || 0).toLocaleString("he")}</span>
+                      <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, fontWeight: 600 }}>{x.l}</span>
+                    </span>
+                  ))}
+                </div>
+'''
+          assert stats_old in e
+          stats_new = '''                {/* ניסוי השהיית תצוגת-תנועה: החיבורים המבניים נשארים; מונה הציבור מוסתר. */}
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }} data-traffic-surface-paused="true">
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+                    <span style={{ fontSize: 13 }}>🔗</span>
+                    <span style={{ color: P.ink, fontFamily: F.mono, fontSize: 15, fontWeight: 800 }}>{(totalConn || 0).toLocaleString("he")}</span>
+                    <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, fontWeight: 600 }}>חיבורים</span>
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 999, padding: "6px 14px" }}>
+                    <span style={{ fontSize: 13 }}>🚧</span>
+                    <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>אזור בבנייה</span>
+                  </span>
+                </div>
+'''
+          e = e.replace(stats_old, stats_new, 1)
+          entity.write_text(e)
+
+          ticker = Path('src/components/layout/MaintenanceTicker.jsx')
+          ticker.write_text('''import React from "react";\nimport { F } from "../../theme.js";\nimport { useThemeMode } from "../../lib/themeMode.js";\n\n// 🚧 ניסוי השהיית משטחי-תנועה ציבוריים (ZURIEL 8.9.2026).\n// הדופק החי ממשיך להימדד במערכות האנליטיקה, אך הטיקר אינו קורא/מציג נתוני-גולשים בזמן הניסוי.\nexport default function MaintenanceTicker() {\n  const isLight = useThemeMode() === "light";\n  const barBg = isLight\n    ? "linear-gradient(90deg, #f6e6c2, #f0dca8, #f6e6c2)"\n    : "linear-gradient(90deg, rgba(74,48,4,0.85), rgba(96,62,6,0.9), rgba(74,48,4,0.85))";\n  const ink = isLight ? "#4a3208" : "#ffe6ad";\n  const border = isLight ? "rgba(120,86,12,0.5)" : "rgba(212,175,55,0.32)";\n\n  return (\n    <div style={{ direction: "rtl", background: barBg, borderBottom: `1px solid ${border}`, padding: "6px 14px", textAlign: "center", minHeight: 30, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}\n      role="status" aria-label="דופק האתר — אזור בבנייה" data-traffic-surface-paused="true">\n      <span style={{ fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.2, color: ink, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>\n        🚧 דופק האתר — אזור בבנייה\n      </span>\n    </div>\n  );\n}\n''')
+
+          print('bounded replacements applied')
+          PY
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+      - name: Commit bounded experiment and remove temp workflow
+        shell: bash
+        run: |
+          rm .github/workflows/traffic-surface-pause-temp.yml
+          git config user.name "GPT SOD1820"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/pages/HomeNewPage.jsx src/pages/EntityPage.jsx src/components/layout/MaintenanceTicker.jsx .github/workflows/traffic-surface-pause-temp.yml
+          git commit -m "Pause public traffic surfaces for bot experiment [traffic-pause-applied]"
+          git push origin HEAD:gpt/public-traffic-surface-pause-v1
