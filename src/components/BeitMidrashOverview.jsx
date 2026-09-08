@@ -110,7 +110,7 @@ export default function BeitMidrashOverview() {
           )}
           {/* 🔢 אילו דפי-מספר נפתחו בפועל (לא חיפושים אישיים) */}
           <div style={{ marginTop: 12 }}>
-            <RecentNumbers light title="🔢 מספרים שנפתחו עכשיו" />
+            <RecentNumbers light title="🔢 מספרים שנפתחו לאחרונה" />
           </div>
         </div>
 
