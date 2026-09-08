@@ -5,10 +5,10 @@ import { usePalette, PALETTES } from "../lib/palette.js";
 import { timeAgoHe } from "../lib/format.js";
 import { getRecentNumbers } from "../lib/supabase.js";
 
-// 🔢 «מספרים שנפתחו עכשיו» — מציג אילו *דפי-מספר* נפתחו באתר (לא חיפושים אישיים).
+// 🔢 «מספרים שנפתחו לאחרונה» — מציג אילו *דפי-מספר* נפתחו באתר (לא חיפושים אישיים).
 // מספר הוא נתון ציבורי (לא שם פרטי) → מותר להציג לכולם. לחיצה → דף המספר.
-// מקור: recent_number_opens (מסונן למספרים משמעותיים; זבל-בוטים מעל 4 ספרות כבר לא נרשם).
-export default function RecentNumbers({ max = 8, light, title = "🔢 מספרים שנפתחו עכשיו" }) {
+// מקור: recent_number_opens (Clean Traffic v1: רק פתיחות human מאומתות; unknown/בוט לא נספרים).
+export default function RecentNumbers({ max = 8, light, title = "🔢 מספרים שנפתחו לאחרונה" }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const [rows, setRows] = useState([]);
@@ -17,7 +17,7 @@ export default function RecentNumbers({ max = 8, light, title = "🔢 מספרי
     let live = true;
     const load = () => getRecentNumbers(max).then(r => { if (live) setRows(r || []); }).catch(() => {});
     load();
-    const id = setInterval(() => { if (!document.hidden) load(); }, 45000);
+    const id = setInterval(() => { if (!document.hidden) load(); }, 300000);
     return () => { live = false; clearInterval(id); };
   }, [max]);
 
@@ -34,7 +34,7 @@ export default function RecentNumbers({ max = 8, light, title = "🔢 מספרי
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {rows.map((r, i) => (
-          <Link key={i} to={`/number/${r.n}`} title={`דף המספר ${r.n}${r.lead ? ` · ${r.lead}` : ""}${r.opens ? ` · ${r.opens} פתיחות` : ""}`}
+          <Link key={i} to={`/number/${r.n}`} rel="nofollow" title={`דף המספר ${r.n}${r.lead ? ` · ${r.lead}` : ""}${r.opens ? ` · ${r.opens} פתיחות` : ""}`}
             style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "5px 7px 5px 12px" }}>
             <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 13.5, fontWeight: 800, borderRadius: 999, padding: "2px 11px" }}>{r.n}</span>
             {r.lead && <span style={{ color: L.ink, fontFamily: F.body, fontSize: 13, fontWeight: 600 }}>{clip(r.lead)}</span>}
