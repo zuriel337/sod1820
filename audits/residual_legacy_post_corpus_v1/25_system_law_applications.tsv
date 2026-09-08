@@ -1,0 +1,157 @@
+# SYSTEM-LAW APPLICATIONS (number transforms), separated from gematria METHODS by design.
+# A METHOD computes a value from a textual expression. A SYSTEM LAW reads/transforms an
+# already-computed or already-known number. These must never be stored as the same thing.
+# 152 rows.
+# claimed_value	phrase	transform	posts
+26	י	miluy_demiluy_calc digit-family(mod9); miluy_demiluy_gadol_calc digit-family(mod9)	133,968,1189,1309,1762
+1	אחת	SPELLED_NUMERAL_IDENTITY	1348
+20	כתר	gadol mod100; ragil mod100; stair_triangle_calc mod100; triangle_reverse_calc mod100	1074,1451,1545
+91	הויה אד	fn_milui_only digit-family(mod9)	977,1074,1420
+1000	אלף	SPELLED_NUMERAL_IDENTITY	182,250,1007
+5776	תשע"ו	gadol+5000 (millennium prefix); ragil+5000 (millennium prefix)	1349,1382,1390
+20	עשרים	SPELLED_NUMERAL_IDENTITY; albam digit-family(mod9); miluy digit-family(mod9); ragil mod100	1074,1451
+11	פלא	fn_milui_only digit-family(mod9); gadol mod100; hakpala_calc digit-family(mod9); kadmi mod100	1186,1536
+8	קו לקו קו לקו	miluy digit-family(mod9)	1128,1130
+6	זעיר שם זעיר שם	triangle_word_calc mod100	1128,1130
+5	גאולה	miluy mod100	1007
+1400	דוד	aiq_bekar_calc zero-law; aiq_bekar_calc×10 (decimal scaling); gadol zero-law; ragil zero-law	1004,1007
+1044	אלף ארבעים וארבע	SPELLED_NUMERAL_IDENTITY	1074
+4740	דעת	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	982,1185
+86	א	miluy_demiluy_calc digit-family(mod9); miluy_demiluy_gadol_calc digit-family(mod9); miluy_demiluy_gadol_calc mod100	197,1440
+3960	דויד בן ישי	ragil zero-law; ragil×10 (decimal scaling)	1165,1189
+72	ועם הכוללים	atbash digit-family(mod9); gadol digit-family(mod9)	1074
+4	טירת צבי	stair_triangle_calc digit-family(mod9)	1074
+91	ויחד	atbash digit-family(mod9)	1074
+76	ראשי תיבות למו	triangle_reverse_calc mod100	1368
+25	ה ממצרים"	hakpala_calc mod100; miluy digit-family(mod9); ragil mod100; ribua_calc digit-family(mod9)	1368
+75	גילו של אברהם ב"ברית בין הבתרים"	misratar digit-family(mod9)	247
+4	מקבץ נדחי עמו ישראל	triangle_reverse_calc digit-family(mod9)	247
+89	י	miluy_demiluy_calc digit-family(mod9); miluy_demiluy_gadol_calc digit-family(mod9)	44
+73	סודות המילה חכמה	hakpala_calc digit-family(mod9); triangle_reverse_calc digit-family(mod9)	298
+37	גלרית ה"חכמה	gadol digit-family(mod9); misratar digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	298
+73	ה'חכמה	atbash digit-family(mod9)	298
+730	חכמה	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	298
+73	כמניין חכמה	kadmi digit-family(mod9); miluy digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	298
+37	ששולט בה הקב"ה זה דרגת ה יחידה	miluy mod100	298
+73	בגאולה נקבל דעת ו"חכמה	atbash digit-family(mod9); atbash_calc digit-family(mod9); miluy_demiluy_calc digit-family(mod9); miluy_demiluy_gadol_calc digit-family(mod9)	298
+73	חכמה" אנו בשנת ה	atbash digit-family(mod9); miluy digit-family(mod9)	298
+33	היה בעיה בגל	stair_triangle_calc digit-family(mod9); stair_triangle_calc zero-law; stair_triangle_calc÷10 (zero-drop); triangle_word_calc digit-family(mod9)	298
+1	אחד	SPELLED_NUMERAL_IDENTITY; albam digit-family(mod9); albam_calc digit-family(mod9); miluy_demiluy_calc digit-family(mod9)	1348
+45	אכן דרך אירן נראה בישראל גאולה	aiq_bekar_calc digit-family(mod9); misratar digit-family(mod9); mistater_calc digit-family(mod9)	123
+14	דוד' דוד היה רועה צאן	kadmi mod100; kadmi_gadol mod100	123
+37	משיח הויה	kadmi mod100; kadmi_gadol mod100	123
+33	שזה סוד ה"גל	gadol digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	8
+52	המילה בן	ragil digit-family(mod9); siduri digit-family(mod9)	8
+67	אתמול תאונה ב"יבנה	stair_triangle_calc digit-family(mod9)	1295
+67	ואנו כרגע נכנסים לחודש אלול	albam digit-family(mod9); gadol digit-family(mod9)	1295
+48	מח הקב"ה רוצה שנפעיל את הראש ונבין	gadol digit-family(mod9); miluy digit-family(mod9)	133
+77	מזל לתוך ה	stair_triangle_calc mod100; stair_triangle_calc-1000 (thousands-drop); triangle_reverse_calc digit-family(mod9)	133
+5880	מלחמת גוג ומגוג	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	133
+36	עזר כנגדו	gadol digit-family(mod9); gadol zero-law; gadol÷10 (zero-drop); misratar mod100	133
+1000	א	aiq_bekar_calc zero-law; gadol zero-law; gadol_calc zero-law; hakpala_calc zero-law	1420
+2000	ב	aiq_bekar_calc zero-law; gadol zero-law; gadol_calc zero-law; ragil zero-law	1420
+3000	ג	aiq_bekar_calc zero-law; gadol zero-law; ragil zero-law; ribua_calc zero-law	1420
+70	גימטריה" לפי מיקום האותיות	albam digit-family(mod9)	1420
+45	גאולה" התחילו בסגירת רשות השידור עם קטיעת	triangle_reverse_calc digit-family(mod9)	1186
+55	האן זה כמו הן	misratar digit-family(mod9)	1186
+474	בשורת משיח	kadmi zero-law; kadmi_gadol zero-law; kadmi_gadol÷10 (zero-drop); kadmi÷10 (zero-drop)	1185
+73	חכמהעדכון	gadol mod100; kadmi_gadol digit-family(mod9); miluy digit-family(mod9)	102
+83	וגם מרמז לנו פ"ג	fn_milui_only mod100	281
+58	ומגוג ומגוג	miluy digit-family(mod9); miluy zero-law; miluy÷10 (zero-drop); triangle_reverse_calc mod100	281
+70	ומגוג ומגוג	stair_triangle_calc digit-family(mod9); triangle_word_calc digit-family(mod9)	281
+83	מספר הפרק	miluy mod100	281
+19	פסוקים	gadol digit-family(mod9)	281
+10	חודש טבת הוא החודש העשירי	miluy digit-family(mod9); siduri mod100	1322
+26	שם הויה	gadol digit-family(mod9); gadol mod100; miluy digit-family(mod9)	1322
+21	שירת הים	kadmi_gadol digit-family(mod9); miluy mod100; miluy_demiluy_gadol_calc digit-family(mod9)	1545
+22	יום י' טבת	mistater_gadol_calc digit-family(mod9)	1387
+5	שם הויה ב"ה שכבר מראה על גילוי	albam digit-family(mod9); miluy_demiluy_calc digit-family(mod9)	1211
+26	שם הויה ב"ה שכבר מראה על גילוי	miluy_demiluy_gadol_calc digit-family(mod9)	1211
+7	אהיה שרומז לאור הכתר שעתיד להתגלות ולכלות	kadmi digit-family(mod9); kadmi_calc digit-family(mod9); kadmi_gadol digit-family(mod9); kadmi_gadol_calc digit-family(mod9)	1211
+39	שעות בשנה	miluy digit-family(mod9); misratar digit-family(mod9)	1371
+7	ן	gadol digit-family(mod9); gadol zero-law; miluy digit-family(mod9)	1248
+800	פ	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	1248
+9	ברזל	misratar digit-family(mod9)	1229
+5	הקץ	gadol mod100; gadol-1000 (thousands-drop); kadmi mod100; kadmi_gadol mod100	1229
+55	פרעה	gadol mod100; kadmi digit-family(mod9); kadmi_gadol digit-family(mod9); ragil mod100	1229
+45	העמלק	gadol mod100; ragil mod100	1229
+29	שהם	fn_milui_only digit-family(mod9)	40
+30	לחודש השישי	fn_milui_only digit-family(mod9)	2600
+45	אורך המסלול	ribua_calc digit-family(mod9)	1079
+3630	המשיח	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	140
+21	א	albam digit-family(mod9); albam_calc digit-family(mod9); miluy digit-family(mod9); miluy_calc digit-family(mod9)	1451
+45	משה ראה פוסט	hakpala_calc digit-family(mod9)	1124
+7760	תשע"ו	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	1251
+26	הוה	atbash digit-family(mod9); atbash zero-law; atbash÷10 (zero-drop); miluy_demiluy_calc digit-family(mod9)	1251
+20	כף	gadol mod100	1571
+50	נון	albam digit-family(mod9)	1571
+33	שם משפחה	gadol mod100	1128
+6	עולם	gadol mod100; miluy mod100	1385
+86	אלוקים	atbash digit-family(mod9); atbash_calc digit-family(mod9)	1385
+73	לאחר מכן פורסמו בחדשות מספרי ה'חכמה	albam digit-family(mod9)	1007
+50	אנו נמצאים בימות הספירה	kadmi_gadol digit-family(mod9); kadmi_gadol_calc digit-family(mod9)	1395
+1000	ף	fn_milui_only zero-law	1428
+1000	ה	fn_milui_only zero-law	1428
+45	ויגש" בפרק מ"ה שבגמטריה	miluy_demiluy_calc digit-family(mod9); stair_triangle_calc digit-family(mod9); triangle_reverse_calc digit-family(mod9)	947
+12	כך שכל הפסוק בגימטריה	aiq_bekar_calc digit-family(mod9); stair_triangle_calc mod100	947
+111	פלא ו	miluy_demiluy_calc zero-law; miluy_demiluy_calc÷10 (zero-drop)	1098
+45	העולם הולך ומתחמם לקראת ה"גאולה	miluy mod100	1123
+41	ישראל	gadol mod100; ragil mod100	1123
+5781	תשפ"א	gadol+5000 (millennium prefix); ragil+5000 (millennium prefix)	1440
+36	לו" בגימטריה	gadol digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	964
+21	בגימטריה	kadmi digit-family(mod9); kadmi_calc digit-family(mod9); kadmi_gadol digit-family(mod9); kadmi_gadol_calc digit-family(mod9)	941
+86	מקום	atbash digit-family(mod9); ragil mod100	1326
+67	נתחיל בזה ש"יבנה	triangle_word_calc digit-family(mod9)	1326
+14	דוד הדור ה	miluy digit-family(mod9)	1169
+66	הרעידה ב יון	atbash digit-family(mod9)	1169
+5410	ישראל	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	1341
+26	הוויה	fn_milui_only digit-family(mod9); fn_milui_only אור-חוזר (reversal); miluy_demiluy_calc digit-family(mod9); miluy_demiluy_gadol_calc digit-family(mod9)	17
+1	עמלק	stair_triangle_calc digit-family(mod9); triangle_reverse_calc digit-family(mod9)	1304
+0	משיח בן דויד משיח בן יוסף	albam mod100; ragil mod100; ribua_calc mod100	1304
+33	כמניין גל	albam digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	1239
+1	פלא	albam digit-family(mod9); hakpala_calc mod100; ribua_calc mod100; ribua_gadol_calc mod100	1239
+7790	תשע"ט	gadol zero-law; gadol×10 (decimal scaling); ragil zero-law; ragil×10 (decimal scaling)	1536
+50	חמישים שערי טומאה	kadmi digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	1654
+45	המשולש של נס	atbash digit-family(mod9)	1518
+26	כפול שם ה'	fn_milui_only digit-family(mod9); miluy_demiluy_gadol_calc mod100; mistater_gadol_calc digit-family(mod9); ribua_calc digit-family(mod9)	1350
+50	שער החמישים	hakpala_calc digit-family(mod9); ribua_gadol_calc digit-family(mod9)	1520
+5	היכל	stair_triangle_calc mod100; triangle_reverse_calc mod100	1033
+5	א	miluy_demiluy_calc digit-family(mod9); miluy_demiluy_gadol_calc digit-family(mod9)	1033
+70	ומצד שני ה'בלבול	misratar digit-family(mod9)	175
+33	גג	aiq_bekar_calc digit-family(mod9)	1125
+45	סוד ה"אדם	albam digit-family(mod9); kadmi_gadol digit-family(mod9); misratar digit-family(mod9)	1016
+71	גיל מדינת ישראל	gadol digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	1493
+76	בן דויד כל הגאולה זה במספר זה	kadmi digit-family(mod9); miluy digit-family(mod9)	1370
+40	כתר	misratar digit-family(mod9); mistater_gadol_calc digit-family(mod9)	1070
+53	מלך המשיח	ragil mod100; ribua_calc digit-family(mod9); triangle_word_calc digit-family(mod9)	1096
+48	מלך משיח	kadmi_gadol digit-family(mod9); ragil mod100	1673
+2936	המשיח יעשה צדק – ∆	kadmi-1000 (thousands-drop); kadmi_gadol-1000 (thousands-drop)	1327
+1335	עת התגלות המשיח בימינו – לפני	aiq_bekar_calc-1000 (thousands-drop)	1338
+45	מי שאומר דבר בשם אומרו זוכים להביא גאולה	triangle_reverse_calc digit-family(mod9)	
+95	ויושט המלך' ש דניאל או המן	atbash digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	
+20	וכן האות יו"ד במלוי שמסמלת את הכתר	miluy digit-family(mod9)	
+99	שליט"א ש שפרה עשתה למשה חופה	gadol digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	
+10	וכפי שנבאר שהמזבח נקרא זאב שהוא	atbash digit-family(mod9)	
+10	וכן זאב	triangle_word_calc digit-family(mod9)	
+88	והר"ת	miluy_demiluy_calc digit-family(mod9)	
+10	תשי"	gadol mod100; ragil mod100	
+22	אל אלהים הוי"ה אל אלהים הוי"ה"	atbash digit-family(mod9); atbash_calc digit-family(mod9); kadmi digit-family(mod9); kadmi_calc digit-family(mod9)	
+22	כי פורים לשון רבים עולה	fn_milui_only digit-family(mod9); ribua_gadol_calc digit-family(mod9)	
+22	ה ר"ת	atbash digit-family(mod9)	
+48	ומבאר לדברינו כי גבור חיל	atbash digit-family(mod9); gadol digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	
+48	לכן היא גם אשת חיל	albam digit-family(mod9); gadol digit-family(mod9)	
+10	שבע שבתות"	miluy_demiluy_gadol_calc digit-family(mod9); stair_triangle_calc digit-family(mod9)	
+73	ו ו' באלול	stair_triangle_calc digit-family(mod9); triangle_reverse_calc digit-family(mod9)	
+95	וכן מגלה חדה	atbash digit-family(mod9)	
+39	גול" שזה	atbash digit-family(mod9)	
+71	וכן האותיות לפני אותיות דונל"ד	miluy digit-family(mod9)	
+37	בראשית ברא אלהים את השמים ואת הארץ"	kadmi_gadol digit-family(mod9); ragil digit-family(mod9); siduri digit-family(mod9)	
+20	וכן האות יו"ד במלוי שמסמלת את ה כתר	miluy digit-family(mod9)	
+70	גחם"	atbash mod100; kadmi digit-family(mod9)	
+10	סוד דהוד דיסוד	misratar digit-family(mod9)	
+11	היינו שאות כ'	stair_triangle_calc digit-family(mod9)	
+22	כי פורים לשון רבים	kadmi_gadol digit-family(mod9)	
+273	כי ארבע	triangle_reverse_calc-1000 (thousands-drop)	
+45	ה' אב י"ז אלול כ"ג אדר	misratar digit-family(mod9)	
+40	כמו שחותך הדילוג את הפסוקים של	mistater_gadol_calc digit-family(mod9)	
+73	שהן סיום סך	albam mod100	
