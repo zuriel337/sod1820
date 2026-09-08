@@ -1,24 +1,19 @@
-name: traffic-surface-pause-temp
+name: Traffic Surface Pause Temp
+
 on:
   push:
-    branches: [gpt/public-traffic-surface-pause-v1]
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: ${{ !contains(github.event.head_commit.message, '[traffic-pause-applied]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: gpt/public-traffic-surface-pause-v1
           fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
       - name: Apply bounded public traffic-surface pause
         shell: bash
         run: |
@@ -46,7 +41,6 @@ jobs:
           fetch_line = '    getHotNumbers(7, 10).then(h => setHotNums(h || [])).catch(() => {});\n'
           assert fetch_line in s
           s = s.replace(fetch_line, '', 1)
-
           start_marker = '      {/* ===== 🟢 דופק האתר — מוקד-פעילות במקומו המקורי (מתחת ל«כאן מתחילים»). הדופק החי בגרסה\n'
           end_marker = '      {/* ===== הצלבות המנוע (AI) — כמה נוספו + תאריך ===== */}\n'
           start = s.index(start_marker)
@@ -67,9 +61,8 @@ jobs:
 
           entity = Path('src/pages/EntityPage.jsx')
           e = entity.read_text()
-          imp_old = 'getSearchCount, '
-          assert imp_old in e
-          e = e.replace(imp_old, '', 1)
+          assert 'getSearchCount, ' in e
+          e = e.replace('getSearchCount, ', '', 1)
           state_old = '  const [searched, setSearched] = useState(0);    // 🔎 חיפושים כוללים (מד קבוע — מותר: כמה חיפשו)\n'
           assert state_old in e
           e = e.replace(state_old, '', 1)
@@ -105,10 +98,12 @@ jobs:
           entity.write_text(e)
 
           ticker = Path('src/components/layout/MaintenanceTicker.jsx')
-          ticker.write_text('''import React from "react";\nimport { F } from "../../theme.js";\nimport { useThemeMode } from "../../lib/themeMode.js";\n\n// 🚧 ניסוי השהיית משטחי-תנועה ציבוריים (ZURIEL 8.9.2026).\n// הדופק החי ממשיך להימדד במערכות האנליטיקה, אך הטיקר אינו קורא/מציג נתוני-גולשים בזמן הניסוי.\nexport default function MaintenanceTicker() {\n  const isLight = useThemeMode() === "light";\n  const barBg = isLight\n    ? "linear-gradient(90deg, #f6e6c2, #f0dca8, #f6e6c2)"\n    : "linear-gradient(90deg, rgba(74,48,4,0.85), rgba(96,62,6,0.9), rgba(74,48,4,0.85))";\n  const ink = isLight ? "#4a3208" : "#ffe6ad";\n  const border = isLight ? "rgba(120,86,12,0.5)" : "rgba(212,175,55,0.32)";\n\n  return (\n    <div style={{ direction: "rtl", background: barBg, borderBottom: `1px solid ${border}`, padding: "6px 14px", textAlign: "center", minHeight: 30, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}\n      role="status" aria-label="דופק האתר — אזור בבנייה" data-traffic-surface-paused="true">\n      <span style={{ fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.2, color: ink, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>\n        🚧 דופק האתר — אזור בבנייה\n      </span>\n    </div>\n  );\n}\n''')
-
+          ticker.write_text('''import React from "react";\nimport { F } from "../../theme.js";\nimport { useThemeMode } from "../../lib/themeMode.js";\n\n// 🚧 ניסוי השהיית משטחי-תנועה ציבוריים (ZURIEL 8.9.2026).\n// הדופק החי ממשיך להימדד במערכות האנליטיקה, אך הטיקר אינו קורא/מציג נתוני-גולשים בזמן הניסוי.\nexport default function MaintenanceTicker() {\n  const isLight = useThemeMode() === "light";\n  const barBg = isLight\n    ? "linear-gradient(90deg, #f6e6c2, #f0dca8, #f6e6c2)"\n    : "linear-gradient(90deg, rgba(74,48,4,0.85), rgba(96,62,6,0.9), rgba(74,48,4,0.85))";\n  const ink = isLight ? "#4a3208" : "#ffe6ad";\n  const border = isLight ? "rgba(120,86,12,0.5)" : "rgba(212,175,55,0.32)";\n  return (\n    <div style={{ direction: "rtl", background: barBg, borderBottom: `1px solid ${border}`, padding: "6px 14px", textAlign: "center", minHeight: 30, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }} role="status" aria-label="דופק האתר — אזור בבנייה" data-traffic-surface-paused="true">\n      <span style={{ fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.2, color: ink, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>🚧 דופק האתר — אזור בבנייה</span>\n    </div>\n  );\n}\n''')
           print('bounded replacements applied')
           PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Install and build
         run: |
           npm ci
