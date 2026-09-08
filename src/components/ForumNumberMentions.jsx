@@ -4,14 +4,24 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { getContributionsByNumber } from "../lib/contributions.js";
 import { stripHtml } from "../lib/format.js";
+import { useFeatureState } from "./MaintenanceLock.jsx";
 
 // 🌳 «מוזכר בפורום» — תגובות-קהילה שתייגו את המספר הזה (gematria_claim.numbers), גם אם נכתבו על ישות
-//    אחרת. עץ אחד: התגובה נעשית חוליה בגרף ומופיעה בדף-המספר — בדיוק כמו רמז-מציאות עם primary_value.
+// אחרת. עץ אחד: התגובה נעשית חוליה בגרף ומופיעה בדף-המספר — בדיוק כמו רמז-מציאות עם primary_value.
+// site_flags_lock_law v3: כשהפורום חסום לצופה, הרכיב לא מרנדר וגם לא מבצע fetch.
 export default function ForumNumberMentions({ n }) {
   const P = usePalette();
+  const forum = useFeatureState("lock_forum");
   const [items, setItems] = useState(null);
-  useEffect(() => { if (n) getContributionsByNumber(n).then(setItems).catch(() => setItems([])); }, [n]);
-  if (!items || !items.length) return null;
+
+  useEffect(() => {
+    if (forum.loading || forum.blocked || !n) return;
+    let alive = true;
+    getContributionsByNumber(n).then(x => { if (alive) setItems(x); }).catch(() => { if (alive) setItems([]); });
+    return () => { alive = false; };
+  }, [n, forum.loading, forum.blocked]);
+
+  if (forum.loading || forum.blocked || !items || !items.length) return null;
 
   const hrefOf = (it) =>
     it.target_type === "els" ? `/codes/${encodeURIComponent(it.target_id)}`

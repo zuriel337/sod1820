@@ -1,0 +1,117 @@
+import React, { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../../lib/AuthContext.jsx";
+import { C, F, GLOBAL_CSS } from "../../theme.js";
+import { PALETTES } from "../../lib/palette.js";
+import { effectiveMode, POST_SLUG_RE } from "../../lib/lightRoutes.js";
+import { useThemeMode } from "../../lib/themeMode.js";
+import { useStream } from "../../lib/stream.js";
+import SpaceBackground from "./SpaceBackground.jsx";
+import RandomTopBanner from "./RandomTopBanner.jsx"; // 🎲 רצועה אקראית (טיזר או צופן/אלול) — פוסטים+צ'אט
+import Navbar from "./Navbar.jsx";
+import CosmicVerseBanner from "./CosmicVerseBanner.jsx"; // 🌌 באנר-על קוסמי עם פסוק (מתחת לתפריט)
+import LiveActivityBar from "./LiveActivityBar.jsx"; // 📡 טיקר «עכשיו באתר» — פעיל
+import CelestialPinnedBar from "./CelestialPinnedBar.jsx"; // 🌌 שורה נעוצה גלובלית — «שלושה דברים שמימיים בערב ראש חודש אלול»
+import PromoTicker from "./PromoTicker.jsx"; // 🎗️ טיקר יחיד מתחלף «בקרוב» (ציר ההתגלות · ציר אישי · דילוגי-אותיות · תשפ״ו · English) — מחליף את כל הטיקרים הישנים
+import Footer from "./Footer.jsx";
+import RevelationAxis from "../axis/RevelationAxis.jsx";
+import NumberDrawer from "../NumberDrawer.jsx";
+import LiveChannelFeed from "../LiveChannelFeed.jsx";
+import ErrorBoundary from "../ErrorBoundary.jsx";
+import JoinCelebration from "../JoinCelebration.jsx";
+import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
+import BottomBar from "./BottomBar.jsx"; // 🧭 Bottom Bar — Experience Shell קבוע (כאן·מספר·עכשיו·רזיאל·עוד)
+import { isBottomBarRoute, BOTTOM_BAR_CLEARANCE } from "../../lib/bottomBar.js";
+
+// 🌗 רשימת הראוטים התומכים בבהיר עברה ל-src/lib/lightRoutes.js (מקור-אמת יחיד),
+// כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
+
+export default function Layout() {
+  const { pathname, search } = useLocation();
+  const globalMode = useThemeMode();                       // המצב הגלובלי מהמתג
+  const stream = useStream();                              // עדשת התצוגה (kingdom/reality)
+  // 🧭 ADMIN-ONLY PRODUCTION PILOT (BOTTOM_DOCK_ADMIN_PILOT_V1): ה-Dock מוצג רק ל-ZURIEL/admin.
+  // ציבור-רגיל ממשיך לקבל בדיוק את ה-legacy launchers (NumberDrawer bubble + LiveChannelFeed fab)
+  // כפי שהם ב-production היום — role-aware migration, לא gate גורף שמסתיר יכולת מכולם.
+  const { isAdmin, loading: authLoading } = useAuth();
+  // 📡 בדף הבית ובצ'אט: LiveChannelFeed (חלון העדכונים) ממופה בפועל; אצל admin הכפתור-הפותח עבר ל-Bottom Bar.
+  //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
+  const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
+  // 🧭 Bottom Bar — מוצג רק ל-admin, בכל מסלולי ה-Layout חוץ מדף-הספר (חוויית-קריאה נקייה, ר' lib/bottomBar.js).
+  // authLoading→false כברירת-מחדל בטוחה (אף פעם לא "מהבהב" Dock למשתמש שעדיין לא אומת כ-admin).
+  const showBottomBar = isBottomBarRoute(pathname) && !authLoading && isAdmin;
+  // 🔒 ה-legacy hide-condition המקורי של בועת-מגירת-המספר (מלפני ה-Dock) — נשמר בדיוק כפי שהיה,
+  // כדי שציבור-רגיל (בלי Dock) ימשיך לקבל את אותה התנהגות-production בדיוק.
+  const legacyHideNumberLauncher = liveChrome || /^\/code/.test(pathname) || /^\/book(\/|$)/.test(pathname) || (pathname === "/research" && /tool=els/.test(search));
+  // 📡 טיקר-החדשות הזז (LiveActivityBar) מוסתר בדף הבית (בקשת צוריאל 30.7.2026) — נשאר בשאר האתר.
+  const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
+  // 🏛️ אזור ההיכל (מחקר/דילוגים) — שם מעולם לא היה באנר, ולא מציגים אותו (בקשת צוריאל).
+  const isHeichal = [/^\/research/, /^\/beit-midrash/, /^\/code/, /^\/heichal/].some(re => re.test(pathname));
+  // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
+  const showBanner = /^\/post$/.test(pathname) || /^\/community\/chat$/.test(pathname) || POST_SLUG_RE.test(pathname);
+  // 🌅 ציר ההתגלות (הפס הקבוע בצד) — מוצג בעמוד הציר עצמו (/timeline) ובעמודי-פוסט (בקשת צוריאל).
+  //    בעמוד-פוסט הרכיב עצמו מחליט אם זה «פוסט של הציר» (מאומת-AI) ואחרת מחזיר null.
+  const showAxis = /^\/timeline$/.test(pathname) || POST_SLUG_RE.test(pathname);
+  // 🌗 המצב האפקטיבי — מקור-אמת אחד עם usePalette (lightRoutes.effectiveMode) → אין חצי-בהיר-חצי-כהה.
+  const mode = effectiveMode(pathname, globalMode);
+  const P = PALETTES[mode];
+  const dark = mode === "dark";
+
+  // רקע ה-body (אזורי overscroll/גלילה) לפי המצב האפקטיבי
+  useEffect(() => {
+    try { document.body.style.background = dark ? "#0C0818" : "#f6f1e6"; } catch { /* ignore */ }
+  }, [dark]);
+
+  return (
+    <div data-theme={mode} data-stream={stream || "none"} style={{ background: dark ? C.bg : P.pageBg, minHeight: "100vh", color: dark ? "#ede4d3" : P.ink, fontFamily: F.body, fontSize: 16, position: "relative" }}>
+      <style>{GLOBAL_CSS}</style>
+      {/* רקע קנוני: הקוסמוס/עיר נשארים. שכבת פסוק/אותיות דקורטיבית הוסרה במפורש — רקע ≠ תוכן. */}
+      {dark && <SpaceBackground />}
+      {showAxis && <RevelationAxis />}
+      <div style={{ position: "relative", zIndex: 1, paddingBottom: showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined }}>
+        <Navbar />
+        {/* 🎗️ טיקר יחיד מתחלף «בקרוב» — סרגל אחד גלובלי שמחליף כל 7ש׳ בין הפרומואים:
+            🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי ·
+            🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
+            🌍 English (רק לדוברי-אנגלית, בסבב). מחליף את כל הטיקרים הישנים —
+            EnglishSoonBar + YearTicker + CelestialPinnedBar + CipherElulBanner (מושבתים). */}
+        {/* 🚫 באנר הצופן/אלול הוסר מהכרום הגלובלי. הצפנים והסרטונים שלהם חיים בדף הבית/אזורי התוכן הייעודיים. */}
+        {/* 🌌 שורה נעוצה גלובלית — הושבתה לטובת טיקר-הפרומו (בקשת צוריאל 15.8.2026). להחזרה: הסר את false. */}
+        {false && <CelestialPinnedBar />}
+        {/* 🌌 באנר-העל הקוסמי הישן (פסוק + נגן-רקע) — הוחלף בבאנר המתחלף (המלך בשדה ↔ צופן).
+            להחזרה: הסר את false. */}
+        {false && showBanner && <CosmicVerseBanner mode={mode} />}
+        {/* 📡 טיקר-החדשות «עכשיו באתר» — מוסתר כרגע (בקשת צוריאל 4.8.2026). להחזרה: הסר את false. */}
+        {false && !isHome && <LiveActivityBar />}
+        {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
+        {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
+            מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
+        {/* באנר הצופן/אלול משולב עכשיו בתוך RotatingTopBanner למעלה (מתחלף עם הטיזר) — לא מוצג כאן בנפרד. */}
+        <main>
+          <ErrorBoundary routeKey={pathname}>
+            <React.Suspense fallback={<div style={{ minHeight: "70vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: dark ? "#9a8a66" : P.ink, fontFamily: F.body }}>
+              <img src="/crown.png" alt="" aria-hidden className="logo-animated" style={{ width: 62, height: 62, objectFit: "contain", opacity: 0.9, filter: "drop-shadow(0 0 16px rgba(233,200,74,0.4))" }} />
+              <span style={{ fontFamily: F.heading, fontSize: 13, letterSpacing: 3, opacity: 0.7 }}>טוען…</span>
+            </div>}>
+              <Outlet />
+            </React.Suspense>
+          </ErrorBoundary>
+        </main>
+        {/* 🔠 בדף הדילוגים הכלי ממלא מסך-מלא (iframe) — בלי פוטר, כדי שלא ייווצר פס-גלילה שני בדף */}
+        {/* 📖 Book Hub (research_clean, Cross-Surface Experience Contract) — בלי Footer, אותו מנגנון בדיוק כמו /code */}
+        {pathname !== "/code" && !/^\/book(\/|$)/.test(pathname) && <Footer />}
+      </div>
+      {/* 🧭 מגירת-המספר: ל-admin (Dock מוצג) הבועה הצפה תמיד מוסתרת — הפעולה עברה ל-Bottom Bar
+          (כפתור «123 מספר»), והפאנל מקבל bottomClearance כדי שה-Dock לא יכסה/יחתוך אותו.
+          לציבור-רגיל (בלי Dock) — בדיוק אותו legacy hide-condition כמו לפני ה-Dock, בלי שינוי. */}
+      <NumberDrawer hideLauncher={showBottomBar || legacyHideNumberLauncher} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />
+      {/* 🧭 חלון-העדכונים: ל-admin ה-fab הצף מוסתר — הפעולה עברה ל-Bottom Bar (כפתור «◉ עכשיו»),
+          והפאנל-הנייד מקבל bottomClearance כנ"ל. לציבור-רגיל — בדיוק אותו legacy fab, בלי שינוי. */}
+      {liveChrome && <LiveChannelFeed hideFab={showBottomBar} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />}
+      <JoinCelebration />
+      {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
+      <DimensionFiveFeed />
+      {showBottomBar && <BottomBar />}
+    </div>
+  );
+}
