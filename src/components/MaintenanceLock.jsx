@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
 import { LOGO_URL } from "../theme.js";
 
-// ===== שער-נעילה זמני (תחזוקה/שדרוגים) — מבוסס-דגל DB =====
-// עוטף ראוט: אם הדגל (site_flags.<flag>.enabled) פעיל — מציג מסך-נעילה במקום התוכן.
-// mode ב-DB: 'all' = כולם חסומים (חוץ מאדמין) · 'anon' = משתמשים רשומים עוברים, אנונימיים
-// מקבלים מסך "פתוח לרשומים בלבד" עם כפתור התחברות. פתיחה/שינוי = עדכון site_flags, בלי פריסה.
-// עיצוב theme-aware (בהיר+כהה) לפי post_theme_safe_colors_law.
+// ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
+// ONE CAPABILITY → ONE STATE → MANY PROJECTIONS.
+// כל route / tile / feed / post-footer / locale צורך את אותו resolver. אין נוסחת blocked מקומית.
+// mode ב-DB: 'all' = כולם חסומים (חוץ מאדמין) · 'anon' = משתמשים רשומים עוברים.
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
 
@@ -64,7 +63,6 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
 }
 
 // 🔒 טיזר-נעילה קומפקטי — לסקציות מוטמעות (עמוד הבית וכד'), לא מסך שלם.
-// מציג את הודעת-הנעילה + CTA הרשמה (כשהנעילה היא לרשומים). עובד על רקעים כהים ובהירים.
 export function LockTeaser({ message, showLogin = false }) {
   return (
     <div dir="rtl" style={{
@@ -89,7 +87,7 @@ export function LockTeaser({ message, showLogin = false }) {
   );
 }
 
-// hook פנימי לשליפת דגל בודד. מחזיר {loading, lock}.
+// hook בסיסי לשליפת דגל בודד. זהו reader בלבד; סמנטיקת-הגישה נפתרת ב-useFeatureState.
 export function useSiteFlag(flag) {
   const [st, setSt] = useState({ loading: true, lock: null });
   useEffect(() => {
@@ -102,13 +100,49 @@ export function useSiteFlag(flag) {
   return st;
 }
 
-// עטיפה ברמת-הראוט. flag = מפתח ב-site_flags (למשל "lock_reality" / "lock_galleries").
-// mode='all' → רק אדמין עובר · mode='anon' → גם משתמש מחובר (רשום) עובר.
-export default function Locked({ flag, children }) {
+// pure resolver — מקור יחיד לכל נוסחת availability/access.
+// שפה/locale אינה פרמטר בכוונה: לפי content_translation_law v2 היא Projection בלבד.
+export function resolveFeatureState(lock, { user = null, isAdmin = false } = {}) {
+  const enabled = !!lock?.enabled;
+  const mode = lock?.mode || "all";
+  const adminBypass = !!isAdmin;
+  const registeredBypass = enabled && mode === "anon" && !!user;
+  const blocked = enabled && !adminBypass && !registeredBypass;
+  const publicState = !enabled ? "open" : mode === "anon" ? "registered_only" : "closed";
+  const viewerState = adminBypass && enabled ? "admin_bypass" : registeredBypass ? "registered_bypass" : publicState;
+
+  return {
+    enabled,
+    mode,
+    blocked,
+    allowed: !blocked,
+    adminBypass,
+    registeredBypass,
+    publicState,
+    viewerState,
+    message: lock?.message || DEFAULT_MSG,
+    showLogin: blocked && mode === "anon",
+    // semantic status for cards/nav; translated copy is downstream, not truth here.
+    status: !enabled ? "active" : mode === "anon" ? "registered_only" : "building",
+  };
+}
+
+// canonical hook for every feature-controlled surface.
+export function useFeatureState(flag) {
   const { user, isAdmin } = useAuth();
   const { loading, lock } = useSiteFlag(flag);
-  if (loading) return null;                            // הבהוב קצר עד שהדגל נטען
-  const blocked = lock?.enabled && !isAdmin && !(lock.mode === "anon" && user);
-  if (blocked) return <MaintenanceLock message={lock.message} showLogin={lock.mode === "anon"} />;
+  return useMemo(() => ({
+    flag,
+    loading,
+    lock,
+    ...resolveFeatureState(lock, { user, isAdmin }),
+  }), [flag, loading, lock, user, isAdmin]);
+}
+
+// עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
+export default function Locked({ flag, children }) {
+  const state = useFeatureState(flag);
+  if (state.loading) return null;
+  if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} />;
   return children;
 }
