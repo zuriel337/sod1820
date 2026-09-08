@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
+import { statusTone, usePalette } from "../lib/palette.js";
 import { useFeatureState } from "./MaintenanceLock.jsx";
 
 // Migration bridge for public references that are still plain <Link to="/forum"> entries.
 // It projects one canonical availability state onto every forum CTA without creating local truth.
+// Theme appearance is also canonical: the injected status consumes status.building and never inherits link color.
 const A = "data-sod-forum-availability";
 const NATIVE = "data-sod-forum-native-status";
 const OLD_DISPLAY = "data-sod-forum-old-display";
@@ -45,6 +47,8 @@ function applyClosedProjection() {
 
 export default function FeatureSurfaceSync() {
   const forum = useFeatureState("lock_forum");
+  const P = usePalette();
+  const building = statusTone(P, "building");
 
   useEffect(() => {
     if (forum.loading) return undefined;
@@ -76,9 +80,9 @@ export default function FeatureSurfaceSync() {
         margin-inline-start:6px;
         padding:2px 7px;
         border-radius:999px;
-        border:1px solid rgba(212,175,55,.42);
-        background:rgba(212,175,55,.10);
-        color:inherit;
+        border:1px solid ${building.border};
+        background:${building.background};
+        color:${building.color};
         font-size:10px;
         font-weight:900;
         line-height:1.35;
