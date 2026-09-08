@@ -80,6 +80,40 @@ These tiers describe **rendering cost and visual depth**, not product truth, acc
 - The heavy Heebo heading treatment shown in the old “עדכונים אחרונים” UI is not a canonical heading style.
 - Existing long-form/editorial surfaces are not mass-converted by this rule. Their reading typography is reviewed when that surface reaches redesign.
 
+## Semantic theme / control-status law
+Human-Gate ZURIEL, 8.9.2026. This is an additive clarification of the existing design owner and `canonical_colors_law`; it does not create a second theme system.
+
+**One theme tree:**
+`themeMode` → route-aware `effectiveMode` → `usePalette()` → semantic role → canonical/shared component → surface.
+
+A surface chooses **meaning**, not a color. The canonical roles for shared controls are:
+- `primary` — the main action;
+- `secondary` — supporting action / outlined or quieter control;
+- `ghost` — low-emphasis action;
+- `disabled` — unavailable/non-interactive control;
+- focus state belongs to the same role and must not be invented locally.
+
+The canonical cross-surface status roles are:
+- `building`;
+- `success`;
+- `warning`;
+- `danger`;
+- `info`.
+
+Each role owns its background/text/border and relevant hover/focus values for `dark`, `light` and scoped `lab`. A `Button`, `Badge`, `Status`, `Input` or `Tab` that is new or explicitly migrated asks for one of these roles; it must not choose a page-local hex/RGBA merely because the local background differs.
+
+**Owner boundaries are strict:**
+- content surfaces + shared controls/statuses → `src/lib/palette.js` / `usePalette()`;
+- Navbar/Footer chrome → `src/lib/chromeTheme.js`;
+- world/domain classification colors → `src/lib/worlds.js`;
+- theme preference/effective mode → existing `themeMode.js` + `lightRoutes.js`.
+
+World/category colors do not automatically become button/status colors. Chrome colors do not become page-control colors. A status must never inherit a link/parent color. Canonical calibration: `🚧 סגור · בבנייה` always consumes `status.building`, so a blue/turquoise surrounding link cannot silently recolor it.
+
+Backward-compatible aliases such as `accentBtn` / `onAccent` may continue temporarily, but their values must resolve from the semantic primary role rather than become a second palette owner.
+
+**Migration discipline:** shared components first, then their many consumers. No repository-wide visual search/replace. Legacy/self-contained surfaces remain untouched until their workstream reaches redesign or a targeted audit proves safe migration. If a new semantic role is truly missing, extend the palette owner; do not solve it with a local color.
+
 ## Naming / product language law
 - Public name: `היכל`, not `היכל הגילוי`.
 - The site-wide construction message describes the whole site, not only the Heichal.
