@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { C, F } from "../theme.js";
+import { controlTone, usePalette } from "../lib/palette.js";
 
 // ===== ORNAMENTS =====
 
@@ -23,34 +24,46 @@ export const RoyalDivider = ({ width = 300 }) => (
 
 // ===== SHARED COMPONENTS =====
 
+// Backward-compatible name, semantic implementation.
+// "primary" / "secondary" select meaning only; dark/light/lab colors come from canonical palette roles.
 export function GoldButton({ children, onClick, to, variant = "primary", style = {}, disabled = false }) {
+  const P = usePalette();
   const [hov, setHov] = useState(false);
-  const isPrimary = variant === "primary";
+  const [focused, setFocused] = useState(false);
+  const role = disabled ? "disabled" : (variant === "primary" ? "primary" : variant === "ghost" ? "ghost" : "secondary");
+  const tone = controlTone(P, role);
   const css = {
-    display: "inline-block",
-    background: isPrimary
-      ? (hov ? `linear-gradient(135deg, #3a2a00, #4a3600)` : `linear-gradient(135deg, #2A1E00, #3a2a00)`)
-      : "transparent",
-    border: `1px solid ${hov ? C.goldBright : C.gold}`,
-    color: hov ? C.goldBright : C.goldLight,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: hov && !disabled ? tone.hoverBackground : tone.background,
+    border: `1px solid ${hov && !disabled ? (tone.hoverBorder || tone.border) : tone.border}`,
+    color: hov && !disabled ? (tone.hoverColor || tone.color) : tone.color,
     padding: "13px 36px",
     cursor: disabled ? "not-allowed" : "pointer",
-    fontFamily: F.heading,
+    fontFamily: F.ui,
     fontSize: 13,
-    letterSpacing: 3,
-    borderRadius: 2,
-    transition: "all 0.25s",
-    fontWeight: 600,
-    opacity: disabled ? 0.4 : 1,
-    textTransform: "uppercase",
+    letterSpacing: 2,
+    borderRadius: 10,
+    minHeight: 44,
+    transition: "background .2s ease, color .2s ease, border-color .2s ease, transform .16s ease, box-shadow .2s ease",
+    fontWeight: 800,
+    opacity: disabled ? 0.72 : 1,
     textDecoration: "none",
-    boxShadow: hov && isPrimary ? `0 0 24px ${C.goldDark}` : "none",
+    boxShadow: focused && tone.focusRing !== "transparent" ? `0 0 0 3px ${tone.focusRing}` : "none",
+    transform: hov && !disabled ? "translateY(-1px)" : "none",
+    outline: "none",
     ...style,
   };
-  // קישור ל-route (נמנע מ-<button><a> לא תקין)
+  const events = {
+    onMouseEnter: () => setHov(true),
+    onMouseLeave: () => setHov(false),
+    onFocus: () => setFocused(true),
+    onBlur: () => setFocused(false),
+  };
   if (to && !disabled) {
     return (
-      <Link to={to} onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={css}>
+      <Link to={to} onClick={onClick} {...events} style={css}>
         {children}
       </Link>
     );
@@ -59,9 +72,8 @@ export function GoldButton({ children, onClick, to, variant = "primary", style =
     <button
       disabled={disabled}
       onClick={disabled ? undefined : onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ ...css, display: undefined }}
+      {...events}
+      style={css}
     >
       {children}
     </button>
@@ -69,12 +81,13 @@ export function GoldButton({ children, onClick, to, variant = "primary", style =
 }
 
 export function RoyalInput({ label, value, onChange, type = "text", placeholder = "" }) {
+  const P = usePalette();
   const [focused, setFocused] = useState(false);
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{
-        fontSize: 10, color: C.muted, letterSpacing: 4,
-        marginBottom: 8, fontFamily: F.heading, textTransform: "uppercase"
+        fontSize: 12, color: P.inkSoft, letterSpacing: 2,
+        marginBottom: 8, fontFamily: F.ui, fontWeight: 700,
       }}>{label}</div>
       <input
         type={type}
@@ -85,19 +98,18 @@ export function RoyalInput({ label, value, onChange, type = "text", placeholder 
         onBlur={() => setFocused(false)}
         style={{
           width: "100%",
-          background: C.bg,
-          border: `1px solid ${focused ? C.gold : C.border}`,
-          borderBottom: `1px solid ${focused ? C.goldBright : C.borderGold}`,
-          color: C.goldBright,
+          background: P.card,
+          border: `1px solid ${focused ? P.accent : P.borderStrong || P.border}`,
+          color: P.ink,
           padding: "12px 16px",
-          fontSize: 15,
+          fontSize: 16,
           fontFamily: F.body,
-          borderRadius: 2,
+          borderRadius: 10,
           outline: "none",
           boxSizing: "border-box",
           direction: (type === "email" || type === "password") ? "ltr" : "rtl",
-          transition: "border-color 0.25s",
-          boxShadow: focused ? `inset 0 0 20px ${C.goldDeep}` : "none",
+          transition: "border-color .2s ease, box-shadow .2s ease",
+          boxShadow: focused ? `0 0 0 3px ${P.glow}` : "none",
         }}
       />
     </div>
@@ -105,22 +117,23 @@ export function RoyalInput({ label, value, onChange, type = "text", placeholder 
 }
 
 export function SectionHeader({ eyebrow, title, center = true }) {
+  const P = usePalette();
   return (
-    <div style={{ textAlign: center ? "center" : "right", marginBottom: 56 }}>
+    <div style={{ textAlign: center ? "center" : "start", marginBottom: 56 }}>
       {eyebrow && (
         <div style={{
-          fontSize: 12, letterSpacing: 6, color: C.goldDim,
-          marginBottom: 16, fontFamily: F.heading, textTransform: "uppercase"
+          fontSize: 12, letterSpacing: 3, color: P.accentDim,
+          marginBottom: 16, fontFamily: F.ui, fontWeight: 700,
         }}>{eyebrow}</div>
       )}
       <h2 style={{
-        color: C.goldLight,
+        color: P.ink,
         margin: "0 0 20px",
         fontSize: "clamp(26px, 4.2vw, 40px)",
-        fontFamily: F.regal,
+        fontFamily: F.display,
         fontWeight: 700,
-        letterSpacing: 2,
-        textShadow: `0 0 50px rgba(212,175,55,0.4), 0 1px 3px rgba(0,0,0,0.7)`,
+        letterSpacing: 1,
+        textShadow: P.mode === "dark" ? `0 0 50px ${P.glow}` : "none",
       }}>{title}</h2>
       <RoyalDivider />
     </div>
@@ -128,11 +141,12 @@ export function SectionHeader({ eyebrow, title, center = true }) {
 }
 
 export function PageBody({ bodyHtml }) {
+  const P = usePalette();
   if (!bodyHtml) return null;
   return (
     <div
       style={{
-        color: C.goldDim,
+        color: P.inkSoft,
         fontFamily: F.body,
         fontSize: 16,
         lineHeight: 2,
