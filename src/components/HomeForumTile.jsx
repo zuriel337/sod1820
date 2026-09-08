@@ -5,37 +5,34 @@ import { usePalette } from "../lib/palette.js";
 import { getForumFeed, forumItemMeta } from "../lib/contributions.js";
 import { stripHtml } from "../lib/format.js";
 import { track } from "../lib/tracking.js";
-import { useAuth } from "../lib/AuthContext.jsx";
-import { useSiteFlag } from "./MaintenanceLock.jsx";
+import { useFeatureState } from "./MaintenanceLock.jsx";
+import FeatureClosedNotice from "./FeatureClosedNotice.jsx";
 
-// 📊 מדידת «כניסה לפורום מעמוד-הבית» — כל קישור-פורום בכרטיס פולט event אחיד (home_cta_click),
-// כדי להשוות מול צ'יפ-הסטורי (מי מושך יותר מהבית).
+// 📊 מדידת «כניסה לפורום מעמוד-הבית» — כל קישור-פורום בכרטיס פולט event אחיד (home_cta_click).
 const trackForumFromHome = (where) => { try { track("forum", "home", "home_cta_click", { where }); } catch { /* noop */ } };
 
-// 💬 «מהפורום» — 3 הפריטים האחרונים בפורום (→ /forum), + המקום הקנוני שמפנה לכתוב חידוש.
-// מציג 3 (לא 1) כדי לא לחפוף לכרטיס «מה חדש» שמצביע על הפריט האחרון בלבד. מקור-אמת: getForumFeed(3) + forumItemMeta.
+// 💬 «מהפורום» — מקור-אמת: getForumFeed + מצב-יכולת קנוני מ-site_flags.
+// כשהפורום סגור לצופה: אפס fetch, ובמקום להיעלם מוצג סטטוס «סגור · בבנייה».
 export default function HomeForumTile() {
   const P = usePalette();
-  const { user, isAdmin } = useAuth();
-  // 🔒 lock_forum: הפורום בבנייה — האריח נעלם מעמוד הבית כשהדגל פעיל (גם לרשומים).
-  const { loading: fLoading, lock: fLock } = useSiteFlag("lock_forum");
-  const forumBlocked = !!fLock?.enabled && !isAdmin && !(fLock.mode === "anon" && user);
+  const forum = useFeatureState("lock_forum");
   const [items, setItems] = useState([]);
+
   useEffect(() => {
-    if (fLoading || forumBlocked) return;
+    if (forum.loading || forum.blocked) return;
     let alive = true;
     getForumFeed({ limit: 3 }).then(f => { if (alive) setItems(Array.isArray(f) ? f.slice(0, 3) : []); }).catch(() => {});
     return () => { alive = false; };
-  }, [fLoading, forumBlocked]);
+  }, [forum.loading, forum.blocked]);
 
-  if (forumBlocked) return null;
+  if (forum.loading) return null;
+  if (forum.blocked) return <FeatureClosedNotice state={forum} title="פורום המחקר" to="/forum" compact />;
 
   return (
     <div style={{
       marginTop: 12, background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "12px 15px",
       maxWidth: "100%", overflow: "hidden", boxSizing: "border-box",
     }}>
-      {/* כותרת + כתיבת-חידוש */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: items.length ? 9 : 0 }}>
         <span style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>🌐 מהפורום</span>
         <Link to="/forum" onClick={() => trackForumFromHome("all")} style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>כל הפורום ←</Link>
@@ -45,7 +42,6 @@ export default function HomeForumTile() {
         }}>✍️ שתפו חידוש ←</Link>
       </div>
 
-      {/* 3 הפריטים האחרונים */}
       {items.length ? (
         <div style={{ display: "grid", gap: 2, gridTemplateColumns: "minmax(0, 1fr)" }}>
           {items.map((it, i) => {
