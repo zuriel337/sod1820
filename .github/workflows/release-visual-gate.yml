@@ -50,8 +50,8 @@ jobs:
 
       - name: Run visual release acceptance
         run: |
-          mkdir -p test-results/release-visual
-          cat > /tmp/release-visual.spec.js <<'EOF'
+          mkdir -p test-results/release-visual .release-gate
+          cat > .release-gate/release-visual.spec.cjs <<'EOF'
           const { test, expect } = require('@playwright/test');
 
           const BASE = 'http://127.0.0.1:4173';
@@ -105,7 +105,7 @@ jobs:
             expect(animationName).toBe('none');
           });
           EOF
-          npm exec --yes --package=@playwright/test@1.55.0 -- playwright test /tmp/release-visual.spec.js --reporter=line
+          npm exec --yes --package=@playwright/test@1.55.0 -- playwright test .release-gate/release-visual.spec.cjs --reporter=line
 
       - name: Upload acceptance screenshots
         if: always()
