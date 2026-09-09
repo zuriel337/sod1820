@@ -18,12 +18,15 @@
 // the human-read audit / AFTER work_log for the current state of that bridge.
 //   Every <Route path="..."> registered in src/App.jsx must resolve to EITHER
 //     (a) an exact-match entry in ROUTE_META (src/routes.jsx), OR
-//     (b) a page component file that calls applySeo(...) itself.
+//     (b) a page component file that calls applySeo(...) itself, OR
+//     (c) an explicit SEO_GATE_DELEGATE wrapper whose target satisfies (b).
 //   A route with neither silently inherits stale title/canonical from the previous SPA route —
 //   the exact bug this remediation pass fixed for 7 routes (see routes.jsx history 2026-09-07).
 //
 // This is a heuristic static check, not a full audit — dynamic routes with runtime-only branches,
 // re-exported components, or applySeo() calls behind indirection may produce false positives.
+// Explicit SEO_GATE_DELEGATE markers are fail-loud: the target must exist and itself resolve to
+// applySeo() (directly or through another explicit delegate), so wrappers cannot silently bypass the gate.
 // It does NOT check analytics/interaction instrumentation (that requires judgment about what a
 // component's "core action" is — see the human-read audit for that). Run manually for now:
 //   node scripts/check-observability-seo-gate.mjs
@@ -107,6 +110,30 @@ function resolveComponentFile(component) {
   return null;
 }
 
+function resolveFileRef(fromFile, rel) {
+  const resolved = path.resolve(path.dirname(fromFile), rel);
+  for (const ext of ["", ".jsx", ".js"]) {
+    if (existsSync(resolved + ext)) return resolved + ext;
+  }
+  return null;
+}
+
+function hasSeoCoverage(file, seen = new Set()) {
+  const canonicalFile = path.resolve(file);
+  if (seen.has(canonicalFile)) return false;
+  seen.add(canonicalFile);
+
+  const src = read(canonicalFile);
+  if (/\bapplySeo\s*\(/.test(src)) return true;
+
+  // Explicit wrapper delegation only. This avoids guessing through arbitrary child imports while
+  // allowing thin route wrappers (experiments/access shells/etc.) to name their actual SEO owner.
+  const delegated = src.match(/^\s*\/\/\s*SEO_GATE_DELEGATE:\s*(\S+)\s*$/m)?.[1];
+  if (!delegated) return false;
+  const target = resolveFileRef(canonicalFile, delegated);
+  return target ? hasSeoCoverage(target, seen) : false;
+}
+
 const gaps = [];
 const skipped = [];
 for (const { path: routePath, component } of routes) {
@@ -114,8 +141,7 @@ for (const { path: routePath, component } of routes) {
   if (routeMetaKeys.has(routePath)) continue; // (a) covered by ROUTE_META
   const file = resolveComponentFile(component);
   if (!file) { skipped.push({ routePath, component, reason: "could not resolve component file" }); continue; }
-  const src = read(file);
-  if (/\bapplySeo\s*\(/.test(src)) continue; // (b) self-manages SEO
+  if (hasSeoCoverage(file)) continue; // (b) direct applySeo or (c) explicit delegated SEO owner
   gaps.push({ routePath, component, file: path.relative(ROOT, file) });
 }
 
