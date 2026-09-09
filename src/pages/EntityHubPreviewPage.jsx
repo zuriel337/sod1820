@@ -4,6 +4,7 @@ import EntityHubPreviewPageFunctional from "./EntityHubPreviewPageFunctional.jsx
 import VisualEnvironment from "../components/VisualEnvironment.jsx";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
+import WorkIcon from "../components/WorkIcon.jsx";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { ENVIRONMENT, LAYOUT, MOTION, RADIUS, SPACE, TYPE_SCALE, VISUAL_ASSET_STATE } from "../lib/designTokens.js";
@@ -25,6 +26,10 @@ const iconNorthStar = [
 const signatureNorthStar = [
   ["research", "Research", "research"], ["graph", "Connections", "connection"], ["journey", "Journey", "intelligence"], ["spatial", "Spatial", "intelligence"],
   ["dna", "DNA", "intelligence"], ["gallery", "Gallery", "connection"], ["raziel", "Raziel", "intelligence"], ["portal", "Portal", "intelligence"],
+];
+const workActions = [
+  ["save", "שמור", "primary"], ["edit", "ערוך", "normal"], ["search", "חפש", "normal"], ["filter", "סנן", "normal"],
+  ["share", "שתף", "normal"], ["copy", "העתק", "normal"], ["expand", "הגדל", "normal"], ["settings", "הגדרות", "normal"],
 ];
 
 export default function EntityHubPreviewPage() {
@@ -57,8 +62,23 @@ export default function EntityHubPreviewPage() {
           <div className="obs-truth"><span>{isNumber ? "ישות מספר" : `ישות ${type}`}</span><span>Research Context</span><span className="gold">Golden Case</span></div>
           <div className="obs-eyebrow">UNIVERSAL ENTITY HUB · LIVING MIDNIGHT BLUE</div><div className="obs-number" aria-label={label}>{label}</div>
           <h1 id="obs-title">{isNumber ? "מספר אחד · מציאות מחקרית אחת" : "ישות אחת · מציאות מחקרית אחת"}</h1>
-          <p>Research Blue לפעולה, Cyan לקשרים, Indigo לרזיאל ולשכבת intelligence, וזהב רק כחתימת מורשת.</p>
+          <p>Research Blue לפעולה, Cyan לקשרים, Indigo לרזיאל ולשכבת intelligence, וזהב לפי הקשר — מעט בעבודה, עשיר יותר במסעות ובשערים.</p>
           <div className="obs-hero-actions"><a className="primary" href="#entity-hub-live">פתח את ה־Hub החי ↓</a>{isNumber ? <Link to={`/number/${encodeURIComponent(label)}`}>דף המספר הקיים</Link> : null}<Link to="/cross">מצא קשר</Link></div>
+        </div>
+      </section>
+
+      <section className="obs-work-zone" aria-labelledby="obs-work-title">
+        <div className="obs-icon-heading"><div><span>WORK ICONS · CLEAR FIRST</span><h2 id="obs-work-title">כלי עבודה — מוכרים, ברורים, עם טיפת זהב בלבד</h2></div><p>האייקון לא מחליף את המילה. בפעולות חשובות הטקסט העברי נשאר גלוי, במיוחד במובייל.</p></div>
+        <div className="obs-work-grid">{workActions.map(([name,text,kind]) => <button type="button" className={`obs-work-action ${kind === "primary" ? "is-primary" : ""}`} key={name}><WorkIcon name={name}/><span>{text}</span></button>)}</div>
+      </section>
+
+      <section className="obs-context-zone" aria-labelledby="obs-context-title">
+        <div className="obs-icon-heading"><div><span>CONTEXTUAL RICHNESS</span><h2 id="obs-context-title">אותו עץ — עושר שונה לפי סוג החוויה</h2></div><p>Work נשאר נקי. Journey ו־Portal מקבלים יותר Gold, בלי להפוך את כל האתר לשחור־זהב.</p></div>
+        <div className="obs-context-grid">
+          <div className="obs-context-card is-work"><ResearchIcon name="research" tone="research" size={30}/><strong>עבודה / מחקר</strong><span>Azure + Cyan · Gold מינימלי</span></div>
+          <div className="obs-context-card is-raziel"><SignatureResearchIcon name="raziel" tone="intelligence" label="רזיאל"/><strong>רזיאל</strong><span>Indigo דומיננטי · Gold נקודתי</span></div>
+          <div className="obs-context-card is-journey"><SignatureResearchIcon name="journey" tone="heritage" label="מסע"/><strong>מסע</strong><span>Blue + Warm Gold · נוכחות עשירה</span></div>
+          <div className="obs-context-card is-journey"><SignatureResearchIcon name="portal" tone="heritage" label="שער"/><strong>Portal</strong><span>Gold עשיר יותר לרגע מעבר</span></div>
         </div>
       </section>
 
@@ -73,8 +93,8 @@ export default function EntityHubPreviewPage() {
       </section>
 
       <nav className="obs-ribbon" aria-label="דלתות מחקר">{researchDoors.map((door,index) => door.to ? <Link className={index===0?"active":""} key={door.label} to={door.to}>{door.label}</Link> : <a className={index===0?"active":""} key={door.label} href={door.href}>{door.label}</a>)}</nav>
-      <div className="obs-contract-strip"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><span>Tier A functional → Tier B signature → future spatial only when meaningful</span><span>Human Gate preserved</span></div>
+      <div className="obs-contract-strip"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><span>Clear work icons · contextual richness · Heritage Brand preserved</span><span>Human Gate preserved</span></div>
     </div>
-    <div id="entity-hub-live" className="obs-live" aria-label="שכבת המחקר החיה"><div className="obs-live-label"><b>LIVE RESEARCH COMPOSITION</b><span>הפונקציונליות הקיימת נשמרת; שכבות האייקונים הן Projection בלבד.</span></div><EntityHubPreviewPageFunctional /></div>
+    <div id="entity-hub-live" className="obs-live" aria-label="שכבת המחקר החיה"><div className="obs-live-label"><b>LIVE RESEARCH COMPOSITION</b><span>הפונקציונליות הקיימת נשמרת; שכבות האייקונים והעושר הן Projection בלבד.</span></div><EntityHubPreviewPageFunctional /></div>
   </div>;
 }
