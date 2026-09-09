@@ -35,8 +35,10 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-      - name: Install Playwright Chromium
-        run: npx --yes playwright@1.55.0 install --with-deps chromium
+      - name: Install Playwright runner and Chromium
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
 
       - name: Start built app
         run: |
@@ -105,7 +107,7 @@ jobs:
             expect(animationName).toBe('none');
           });
           EOF
-          npm exec --yes --package=@playwright/test@1.55.0 -- playwright test .release-gate/release-visual.spec.cjs --reporter=line
+          npx playwright test .release-gate/release-visual.spec.cjs --reporter=line
 
       - name: Upload acceptance screenshots
         if: always()
