@@ -1,0 +1,65 @@
+/* W0.5 Visual Foundation 2027 — gallery/lightbox preservation adapter.
+   Canonical behavior: initial open always reveals the complete image, all four
+   edges visible, without crop. Zoom/pan may be layered later as an explicit
+   user action; aspect ratio must never trigger automatic scroll/crop mode. */
+
+.lb-main,
+.lb-main.lb-scroll {
+  overflow: hidden !important;
+  min-height: 0;
+}
+
+.lb-imgpane,
+.lb-main.lb-scroll .lb-imgpane {
+  flex: 1 1 auto !important;
+  min-width: 0;
+  min-height: 0;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 6px !important;
+}
+
+.lb-img,
+.lb-img.tall {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+
+.lb-main.lb-scroll .lb-panel {
+  max-height: 38vh !important;
+  overflow-y: auto !important;
+}
+
+@media (min-width: 920px) {
+  .lb-main,
+  .lb-main.lb-scroll {
+    overflow: hidden !important;
+  }
+
+  .lb-main.lb-scroll .lb-imgpane {
+    overflow: hidden !important;
+    align-items: center !important;
+  }
+
+  .lb-img,
+  .lb-img.tall {
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+
+  .lb-main.lb-scroll .lb-panel {
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-img {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,18 @@
+.rf-icon{transition:transform 220ms var(--vf-ease),box-shadow 260ms var(--vf-ease),border-color 260ms var(--vf-ease),background 260ms var(--vf-ease)}
+.obs-icon-card:hover .rf-icon,.obs-icon-card:focus-within .rf-icon,.obs-signature-card:hover .rf-icon,.obs-signature-card:focus-visible .rf-icon{transform:translateY(-2px) scale(1.04);box-shadow:0 0 0 1px color-mix(in srgb,currentColor 18%,transparent),0 0 24px color-mix(in srgb,currentColor 24%,transparent)}
+.rf-icon svg{transform-origin:center;transition:transform 320ms var(--vf-ease),filter 320ms var(--vf-ease)}
+.rf-icon[data-icon="gematria"]:after{opacity:.1}.obs-icon-card:hover .rf-icon[data-icon="gematria"] svg,.obs-signature-card:hover .rf-icon[data-icon="gematria"] svg{animation:vf-gematria-reveal 720ms var(--vf-ease) 1}
+.obs-icon-card:hover .rf-icon[data-icon="els"] svg,.obs-signature-card:hover .rf-icon[data-icon="els"] svg{filter:drop-shadow(0 0 5px currentColor);animation:vf-els-trace 820ms var(--vf-ease) 1}
+.obs-icon-card:hover .rf-icon[data-icon="globe"] svg,.obs-signature-card:hover .rf-icon[data-icon="globe"] svg,.obs-icon-card:hover .rf-icon[data-icon="cosmos"] svg,.obs-signature-card:hover .rf-icon[data-icon="cosmos"] svg{animation:vf-orbit-nudge 1100ms ease-in-out 1}
+.obs-icon-card:hover .rf-icon[data-icon="door"] svg,.obs-signature-card:hover .rf-icon[data-icon="door"] svg,.obs-icon-card:hover .rf-icon[data-icon="journey"] svg,.obs-signature-card:hover .rf-icon[data-icon="journey"] svg{animation:vf-door-light 700ms var(--vf-ease) 1}
+.obs-icon-card:hover .rf-icon[data-icon="book"] svg,.obs-signature-card:hover .rf-icon[data-icon="book"] svg,.obs-icon-card:hover .rf-icon[data-icon="source"] svg,.obs-signature-card:hover .rf-icon[data-icon="source"] svg{animation:vf-book-breathe 800ms ease-in-out 1}
+.obs-icon-card:hover .rf-icon[data-icon="raziel"] svg,.obs-signature-card:hover .rf-icon[data-icon="raziel"] svg{animation:vf-raziel-focus 900ms ease-in-out 1}
+.obs-icon-card:hover .rf-icon[data-icon="spark"] svg,.obs-signature-card:hover .rf-icon[data-icon="spark"] svg{animation:vf-spark-awake 620ms ease-out 1}
+@keyframes vf-gematria-reveal{0%{transform:scale(.92);opacity:.72}45%{transform:scale(1.08);filter:drop-shadow(0 0 7px currentColor)}100%{transform:scale(1);opacity:1}}
+@keyframes vf-els-trace{0%{opacity:.65;transform:translate(-1px,1px)}48%{opacity:1;transform:translate(1px,-1px)}100%{transform:translate(0,0)}}
+@keyframes vf-orbit-nudge{0%{transform:rotate(0)}45%{transform:rotate(10deg) scale(1.03)}100%{transform:rotate(0)}}
+@keyframes vf-door-light{0%{filter:none;transform:scale(.97)}45%{filter:drop-shadow(0 0 8px currentColor);transform:scale(1.06)}100%{filter:none;transform:scale(1)}}
+@keyframes vf-book-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.055);filter:drop-shadow(0 -2px 5px currentColor)}}
+@keyframes vf-raziel-focus{0%,100%{transform:scale(1);filter:none}50%{transform:scale(1.045);filter:drop-shadow(0 0 8px currentColor)}}
+@keyframes vf-spark-awake{0%{transform:rotate(-8deg) scale(.82);opacity:.6}55%{transform:rotate(5deg) scale(1.13);filter:drop-shadow(0 0 7px currentColor)}100%{transform:rotate(0) scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.rf-icon,.rf-icon svg{transition:none!important}.obs-icon-card:hover .rf-icon,.obs-icon-card:focus-within .rf-icon,.obs-signature-card:hover .rf-icon,.obs-signature-card:focus-visible .rf-icon{transform:none!important}.rf-icon svg{animation:none!important;filter:none!important}}

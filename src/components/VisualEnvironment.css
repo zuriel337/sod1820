@@ -1,0 +1,139 @@
+/* W0.5 Visual Foundation 2027 — canonical environment projection layer.
+   Rich imagery is optional; every role has a lightweight CSS fallback.
+   This layer is decorative only and never owns truth, capability or content. */
+
+.vf-environment {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background: var(--vf-env-base, transparent);
+  isolation: isolate;
+}
+
+.vf-environment > div {
+  position: absolute;
+  inset: 0;
+}
+
+.vf-environment__image {
+  background-image: var(--vf-environment-image, none);
+  background-size: cover;
+  background-position: var(--vf-environment-focal, 50% 50%);
+  background-repeat: no-repeat;
+  opacity: var(--vf-env-image-opacity, 0);
+  transform: scale(1.015);
+}
+
+.vf-environment[data-asset-state="curated_asset"] .vf-environment__image,
+.vf-environment[data-asset-state="generated_candidate"] .vf-environment__image {
+  opacity: var(--vf-env-image-opacity-with-asset, .58);
+}
+
+.vf-environment__atmosphere {
+  background: var(--vf-env-atmosphere, none);
+  mix-blend-mode: var(--vf-env-atmosphere-blend, normal);
+}
+
+.vf-environment__field {
+  background-image: var(--vf-env-field, none);
+  background-size: var(--vf-env-field-size, auto);
+  opacity: var(--vf-env-field-opacity, 1);
+}
+
+.vf-environment__horizon {
+  inset-block-start: auto;
+  height: min(34vh, 360px);
+  background: var(--vf-env-horizon, none);
+  opacity: var(--vf-env-horizon-opacity, 1);
+}
+
+.vf-environment__readability {
+  background: var(--vf-env-readability, none);
+}
+
+.vf-environment--dark_observatory {
+  --vf-env-base: #06111f;
+  --vf-env-image-opacity-with-asset: .52;
+  --vf-env-atmosphere:
+    radial-gradient(ellipse at 50% 8%, rgba(62, 141, 224, .26), transparent 34%),
+    radial-gradient(circle at 18% 24%, rgba(71, 160, 255, .13), transparent 20%),
+    radial-gradient(circle at 79% 32%, rgba(221, 184, 85, .11), transparent 22%),
+    linear-gradient(180deg, rgba(5, 17, 34, .1) 0%, rgba(3, 12, 25, .86) 86%);
+  --vf-env-field:
+    radial-gradient(circle at 12% 19%, rgba(255,255,255,.78) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 71% 14%, rgba(122,196,255,.86) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 84% 34%, rgba(255,222,131,.82) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 39% 31%, rgba(255,255,255,.48) 0 .8px, transparent 1.2px);
+  --vf-env-field-size: 210px 210px, 280px 280px, 330px 330px, 170px 170px;
+  --vf-env-field-opacity: .5;
+  --vf-env-horizon:
+    linear-gradient(180deg, transparent, rgba(3, 10, 20, .34) 32%, rgba(2, 8, 17, .88)),
+    radial-gradient(ellipse at 50% 100%, rgba(28, 93, 152, .25), transparent 60%);
+  --vf-env-readability: linear-gradient(180deg, transparent 0%, rgba(4, 13, 27, .08) 38%, rgba(4, 13, 27, .84) 72%, #07111f 100%);
+}
+
+.vf-environment--light_celestial {
+  --vf-env-base: #f8f5ee;
+  --vf-env-image-opacity-with-asset: .42;
+  --vf-env-atmosphere:
+    radial-gradient(ellipse at 50% 2%, rgba(255, 221, 146, .42), transparent 31%),
+    radial-gradient(circle at 17% 22%, rgba(93, 164, 224, .16), transparent 24%),
+    radial-gradient(circle at 86% 28%, rgba(228, 194, 102, .17), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(244,247,250,.72) 72%, #f6f1e6 100%);
+  --vf-env-field:
+    radial-gradient(ellipse at 18% 30%, rgba(255,255,255,.9), transparent 28%),
+    radial-gradient(ellipse at 72% 18%, rgba(255,255,255,.72), transparent 31%),
+    radial-gradient(circle at 62% 9%, rgba(214,172,63,.2) 0 1px, transparent 1.5px);
+  --vf-env-field-size: auto, auto, 260px 260px;
+  --vf-env-field-opacity: .72;
+  --vf-env-horizon:
+    linear-gradient(180deg, transparent, rgba(239, 227, 203, .34) 32%, rgba(246, 241, 230, .98)),
+    radial-gradient(ellipse at 50% 100%, rgba(213, 178, 91, .18), transparent 59%);
+  --vf-env-readability: linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(250,248,243,.12) 40%, rgba(246,241,230,.87) 76%, #f6f1e6 100%);
+}
+
+.vf-environment--research_lab {
+  --vf-env-base: #f5f7fa;
+  --vf-env-atmosphere: linear-gradient(180deg, rgba(47,109,246,.045), transparent 26%);
+  --vf-env-readability: linear-gradient(180deg, rgba(255,255,255,.2), #f5f7fa 68%);
+}
+
+.vf-environment--spatial_journey {
+  --vf-env-base: #050d18;
+  --vf-env-atmosphere:
+    radial-gradient(circle at 50% 28%, rgba(74, 143, 233, .24), transparent 30%),
+    radial-gradient(circle at 76% 38%, rgba(119, 77, 220, .17), transparent 25%),
+    radial-gradient(circle at 28% 62%, rgba(221, 184, 85, .12), transparent 25%);
+  --vf-env-field:
+    radial-gradient(circle, rgba(255,255,255,.62) 0 1px, transparent 1.25px);
+  --vf-env-field-size: 190px 190px;
+  --vf-env-field-opacity: .42;
+  --vf-env-readability: linear-gradient(180deg, transparent, rgba(4,11,23,.9) 84%);
+}
+
+@media (max-width: 640px) {
+  .vf-environment__image {
+    background-position: var(--vf-environment-focal-mobile, var(--vf-environment-focal, 50% 42%));
+  }
+
+  .vf-environment__field {
+    opacity: calc(var(--vf-env-field-opacity, 1) * .66);
+  }
+
+  .vf-environment__horizon {
+    height: 25vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vf-environment__image,
+  .vf-environment__atmosphere,
+  .vf-environment__field,
+  .vf-environment__horizon {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
