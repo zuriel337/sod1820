@@ -151,7 +151,20 @@ jobs:
               await page.setViewportSize({ width: 390, height: 844 });
               await page.goto(`${BASE}${PATH}${suffix}`, { waitUntil: 'networkidle' });
               const button = page.locator('.sp29-mini-grid button').first();
-              await button.focus();
+              await expect(button).toBeVisible();
+
+              // Exercise the same interaction modality that :focus-visible is designed for.
+              // Programmatic element.focus() may legitimately suppress the ring, so walk the
+              // real keyboard tab order until this target receives focus.
+              let reachedByKeyboard = false;
+              for (let i = 0; i < 40; i += 1) {
+                await page.keyboard.press('Tab');
+                reachedByKeyboard = await button.evaluate((el) => document.activeElement === el);
+                if (reachedByKeyboard) break;
+              }
+              expect(reachedByKeyboard).toBe(true);
+              await expect(button).toBeFocused();
+
               const focus = await button.evaluate((el) => {
                 const s = getComputedStyle(el);
                 return { style: s.outlineStyle, width: s.outlineWidth, color: s.outlineColor, offset: s.outlineOffset };
