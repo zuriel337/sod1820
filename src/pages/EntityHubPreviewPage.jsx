@@ -5,6 +5,7 @@ import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
 import "./EntityHubIconNorthStar.css";
 import "./EntityHubMicroMotion.css";
 import "./EntityHubSpatial2029.css";
+import "./EntityHubLivingDoorway.css";
 
 const tools = [
   { name: "gematria", label: "גימטריה", sub: "אות ⇄ מספר", tone: "heritage", tier: "T2" },
@@ -33,8 +34,8 @@ export default function EntityHubPreviewPage() {
 
     <header className="sp29-top">
       <a href="/" className="sp29-brand"><img src="/crown.png" alt=""/><span>SOD1820<small>RESEARCH REALITY · 2029</small></span></a>
-      <div className="sp29-status"><b>SPATIAL v3</b><span>T0 → T4 · LOWEST SUFFICIENT TIER</span></div>
-      <nav><a href="#tools">כלים</a><a href="#journey">מסע</a><Link to={`/number/${encodeURIComponent(label)}`}>דף חי</Link></nav>
+      <div className="sp29-status"><b>SPATIAL v4</b><span>LIVING DOORWAY · ONE TREE</span></div>
+      <nav><a href="#tools">כלים</a><a href="#doorways">דלתות חיות</a><a href="#journey">מסע</a><Link to={`/number/${encodeURIComponent(label)}`}>דף חי</Link></nav>
     </header>
 
     <section className="sp29-hero" aria-labelledby="sp29-title">
@@ -42,18 +43,14 @@ export default function EntityHubPreviewPage() {
         <span className="sp29-kicker">ONE REALITY GRAPH · ONE RESEARCH OS</span>
         <h1 id="sp29-title">לא דף. <strong>מרחב מחקר.</strong></h1>
         <p>הישות נשארת אחת. רק הייצוג עולה ויורד בעומק לפי ההקשר, המכשיר והערך המחקרי.</p>
-        <div className="sp29-actions"><a href="#tools" className="primary">היכנס למרחב</a><Link to="/cross">מצא קשר</Link></div>
+        <div className="sp29-actions"><a href="#doorways" className="primary">ראה דלתות חיות</a><Link to="/cross">מצא קשר</Link></div>
         <div className="sp29-rule"><b>2029 RULE</b><span>עומק כשיש משמעות · מהירות כשאין צורך בעומק</span></div>
       </div>
 
       <div className="sp29-stage" aria-label={`ישות ${label} במרחב מחקר`}>
         <div className="sp29-orbit orbit-a"/><div className="sp29-orbit orbit-b"/><div className="sp29-orbit orbit-c"/>
         <div className="sp29-axis axis-x"/><div className="sp29-axis axis-y"/>
-        <div className="sp29-core">
-          <span className="sp29-core-label">ENTITY</span>
-          <strong>{label}</strong>
-          <small>Research Context</small>
-        </div>
+        <div className="sp29-core"><span className="sp29-core-label">ENTITY</span><strong>{label}</strong><small>Research Context</small></div>
         <div className="sp29-node node-a"><ResearchIcon name="graph" tone="connection" size={20}/><span>12 קשרים</span></div>
         <div className="sp29-node node-b"><ResearchIcon name="time" tone="connection" size={20}/><span>ציר זמן</span></div>
         <div className="sp29-node node-c"><ResearchIcon name="dna" tone="intelligence" size={20}/><span>Research DNA</span></div>
@@ -63,34 +60,39 @@ export default function EntityHubPreviewPage() {
 
     <section id="tools" className="sp29-tools" aria-labelledby="sp29-tools-title">
       <div className="sp29-section-head"><div><span>PRODUCT SIGNATURES · SPATIAL READY</span><h2 id="sp29-tools-title">כל כלי מקבל נוכחות משלו במרחב</h2></div><p>אותו glyph עובר מאייקון קטן → Signature → ייצוג מרחבי, בלי להחליף זהות.</p></div>
-      <div className="sp29-tool-deck">
-        {tools.map((tool, i) => <article className={`sp29-tool-card card-${i+1}`} key={tool.name} tabIndex={0}>
-          <div className="sp29-tool-depth" aria-hidden="true"/>
-          <div className="sp29-tool-icon"><SignatureResearchIcon name={tool.name} tone={tool.tone} label={tool.label}/></div>
-          <div className="sp29-tool-copy"><span>{tool.tier}</span><h3>{tool.label}</h3><p>{tool.sub}</p></div>
-          <ResearchIcon name="portal" tone={tool.tone} size={19}/>
-        </article>)}
+      <div className="sp29-tool-deck">{tools.map((tool, i) => <article className={`sp29-tool-card card-${i+1}`} key={tool.name} tabIndex={0}><div className="sp29-tool-depth" aria-hidden="true"/><div className="sp29-tool-icon"><SignatureResearchIcon name={tool.name} tone={tool.tone} label={tool.label}/></div><div className="sp29-tool-copy"><span>{tool.tier}</span><h3>{tool.label}</h3><p>{tool.sub}</p></div><ResearchIcon name="portal" tone={tool.tone} size={19}/></article>)}</div>
+    </section>
+
+    <section id="doorways" className="sp29-doorways" aria-labelledby="sp29-doorways-title">
+      <div className="sp29-section-head"><div><span>LIVING DOORWAY · SPATIAL v4</span><h2 id="sp29-doorways-title">הדלת מראה מה מחכה מאחוריה</h2></div><p>Rest שומר מתח. Hover/Focus חושף קטע מוגבל מאותו יעד. אין ממצא מומצא ואין דליפה של תוכן מוגן.</p></div>
+      <div className="sp29-doorway-grid">
+        <article className="living-door living-door--featured" tabIndex={0}>
+          <span className="living-door__hint">FOCUS TO OPEN</span><div className="living-door__frame" aria-hidden="true"/>
+          <div className="living-door__preview"><div className="living-door__content"><small>GEMATRIA DESTINATION PREVIEW</small><strong>{label}</strong><p>הצצה לשכבת הערכים, השיטות והקשרים של אותה ישות לפני הכניסה.</p><div className="living-door__space" aria-hidden="true"><i/><i/><b/></div></div><div className="living-door__veil"/></div>
+          <div className="living-door__meta"><b>T2 · SAME IDENTITY</b><span><ResearchIcon name="gematria" tone="heritage" size={18}/>גימטריה</span></div>
+        </article>
+
+        <article className="living-door" tabIndex={0}>
+          <span className="living-door__hint">LIVE FRAGMENT</span><div className="living-door__frame" aria-hidden="true"/>
+          <div className="living-door__preview"><div className="living-door__content"><small>ELS DESTINATION PREVIEW</small><div className="living-door__els-grid" aria-hidden="true"><span className="living-door__els-path"/></div><p>חלק מהמטריצה והמסלול נחשף לפני הכניסה; התוצאה המלאה נשארת בתוך הכלי.</p></div><div className="living-door__veil"/></div>
+          <div className="living-door__meta"><b>T2 · BOUNDED</b><span><ResearchIcon name="els" tone="connection" size={18}/>דילוגי אותיות</span></div>
+        </article>
+
+        <article className="living-door" tabIndex={0}>
+          <span className="living-door__hint">SOURCE PREVIEW</span><div className="living-door__frame" aria-hidden="true"/>
+          <div className="living-door__preview"><div className="living-door__content"><small>BOOK / SOURCE PREVIEW</small><div className="living-door__book" aria-hidden="true"><i className="living-door__page left"/><i className="living-door__page right"/></div><p>הצצה לעד או לקטע המקור מתוך אותו אובייקט — לא טקסט חלופי מומצא.</p></div><div className="living-door__veil"/></div>
+          <div className="living-door__meta"><b>T1 · SOURCE OWNED</b><span><ResearchIcon name="book" tone="heritage" size={18}/>ספרים ומקורות</span></div>
+        </article>
       </div>
     </section>
 
     <section id="journey" className="sp29-journey" aria-labelledby="sp29-journey-title">
-      <div className="sp29-gateway" aria-hidden="true">
-        <div className="gate-frame frame-1"/><div className="gate-frame frame-2"/><div className="gate-frame frame-3"/>
-        <div className="gate-light"/><div className="gate-floor"/>
-      </div>
-      <div className="sp29-journey-copy">
-        <span>JOURNEY · T3 EXPERIENCE</span>
-        <h2 id="sp29-journey-title">הדלת היא לא אייקון. היא מעבר למצב מחקר אחר.</h2>
-        <p>במסע הממשק יכול להעמיק, לנוע ולהקיף את המשתמש. כשחוזרים לעבודה צפופה — הוא מתקפל שוב לממשק מהיר ושקט.</p>
-        <button type="button"><ResearchIcon name="door" tone="heritage" size={24}/>פתח מסע לדוגמה</button>
-      </div>
+      <div className="sp29-gateway" aria-hidden="true"><div className="gate-frame frame-1"/><div className="gate-frame frame-2"/><div className="gate-frame frame-3"/><div className="gate-light"/><div className="gate-floor"/></div>
+      <div className="sp29-journey-copy"><span>JOURNEY · T3 EXPERIENCE</span><h2 id="sp29-journey-title">מכאן הדלת יכולה להמשיך לאותו מרחב.</h2><p>אם יש ערך אמיתי להמשכיות, המעבר ממשיך מאותו fragment אל היעד. אם לא — הניווט נשאר פשוט ומהיר ולא מזייף 3D.</p><button type="button"><ResearchIcon name="door" tone="heritage" size={24}/>פתח מסע לדוגמה</button></div>
     </section>
 
-    <section className="sp29-mini" aria-labelledby="sp29-mini-title">
-      <div className="sp29-section-head"><div><span>T1 · FUNCTIONAL MICRO-MOTION</span><h2 id="sp29-mini-title">אותה שפה גם באייקונים הקטנים</h2></div><p>קטן לא אומר שטוח. הוא פשוט משתמש בדרגת העומק הנמוכה שמספיקה.</p></div>
-      <div className="sp29-mini-grid">{mini.map(([name,text,tone]) => <button key={name} type="button"><ResearchIcon name={name} tone={tone} size={25}/><span>{text}</span></button>)}</div>
-    </section>
+    <section className="sp29-mini" aria-labelledby="sp29-mini-title"><div className="sp29-section-head"><div><span>T1 · FUNCTIONAL MICRO-MOTION</span><h2 id="sp29-mini-title">אותה שפה גם באייקונים הקטנים</h2></div><p>קטן לא אומר שטוח. הוא פשוט משתמש בדרגת העומק הנמוכה שמספיקה.</p></div><div className="sp29-mini-grid">{mini.map(([name,text,tone]) => <button key={name} type="button"><ResearchIcon name={name} tone={tone} size={25}/><span>{text}</span></button>)}</div></section>
 
-    <footer className="sp29-footer"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><b>SPATIAL v3 · ONE TREE</b><span>Preview only · not production</span></footer>
+    <footer className="sp29-footer"><span>FOUNDATION → PROJECTION → EXPERIENCE</span><b>SPATIAL v4 · LIVING DOORWAY · ONE TREE</b><span>Preview only · not production</span></footer>
   </main>;
 }
