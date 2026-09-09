@@ -25,6 +25,8 @@ This is a macro pass, not the final exhaustive component-by-component inventory.
 | Current surface/capability | Target 2027 home | Disposition | One-tree rule |
 |---|---|---|---|
 | Current Navbar | Global Orientation Header + Search/Command | **REPLACE** | Navbar layout/category structure is not canonical |
+| Global product navigation | Adaptive Global Navigation; desktop may project as collapsible Sidebar | **ADAPT** | one navigation capability, many responsive placements |
+| Posts navigation entry | Global Navigation → `פוסטים` → `/post` listing | **ADAPT** | `/post` is listing/navigation only; individual posts remain root `/:slug` |
 | Current Bottom Bar | Adaptive Command Surface | **REPLACE** | preserve semantic actions, not 5 fixed slots |
 | `Research Context` capability | Research Context Spine | **REUSE** | one continuity substrate across all views |
 | Current Number Drawer / quick number launch | Search/Command + context action | **ADAPT** | no second number system |
@@ -41,6 +43,22 @@ Minimal responsibilities only:
 - account/avatar and depth/access signal where useful
 
 It must not become a permanent mega-menu.
+
+### Adaptive Global Navigation / Sidebar projection
+
+The global navigation capability is separate from the Orientation Header. On desktop, its preferred 2027 projection may be a **collapsible Sidebar**; on mobile the same capability may render as a drawer/sheet, and keyboard users may reach the same destinations through Command/Search.
+
+A bounded first-level hierarchy may include product destinations such as:
+
+`בית · עולם/Discover · מספרים · ספרים ומקורות · דילוגי אותיות · בית המדרש · פוסטים · גלריות/תוכן where justified · מסעות · היכל`
+
+The exact labels/grouping remain product-design decisions, but **`פוסטים` is a required navigation capability** because the long-lived post corpus remains a first-class public content/source surface.
+
+Posts have a special address rule:
+
+`Sidebar → פוסטים → /post → open item → /<existing-slug>`
+
+The clean hierarchy lives in navigation state, **not** by moving individual posts under `/post/:slug`. Root post URLs are protected by `docs/w0-2027-post-url-immutability-gate-v1.md` and the Route/SEO matrix.
 
 ---
 
@@ -81,13 +99,13 @@ Avatar, Command Surface, Raziel and mobile account controls may all call `open_m
 | Number page | World focused on Number/Phrase | **REPLACE presentation / REUSE capability** |
 | Topic/Convergence | Focused World semantic projection | **ADAPT** |
 | Book Hub / Book detail | World focused on Book/Source; Library + Reading renderers | **REPLACE presentation / REUSE identities** |
-| Posts | Source/content projection connected to World | **ADAPT** |
+| Posts | Source/content projection connected to World; Sidebar entry via `/post`; individual identity remains root `/:slug` | **ADAPT presentation / PRESERVE URL identity** |
 | Galleries/images | Representation/source loci | **ADAPT** |
 | Person/Name surfaces | Focused identity projection | **ADAPT/REPLACE by quality** |
 | Timeline/events | Temporal World renderer | **ADAPT** |
 | Explorer | Bounded Discover/Faceted projection | **REUSE substrate / REPLACE experience as needed** |
 
-No current page template is protected merely because it exists.
+No current page template is protected merely because it exists. **Exception in kind, not presentation:** externally indexed individual Post addresses are protected as durable identity/SEO routes even while their renderer may change.
 
 ---
 
@@ -219,6 +237,7 @@ Ephemeral UI state must not become Research Context truth.
 
 | Capability | Desktop | Mobile | Future external |
 |---|---|---|---|
+| Global navigation | collapsible Sidebar / rail + Command access | drawer/sheet + Command access | same destination/action vocabulary where supported |
 | Search/Command | header + palette | top/search sheet | browser/desktop command entry |
 | Raziel | side presence/companion | full-height sheet | same companion identity/context |
 | Commands | dock/palette/context toolbar | bottom/task sheet | contextual controls |
@@ -245,6 +264,7 @@ Capability semantics remain identical across surfaces.
 
 ### ADAPT
 - Topic/Book/Post/Person/Timeline projections
+- **Post listing/navigation may move into the new Sidebar/Discover hierarchy while root individual post URLs stay fixed**
 - personal notifications/messages/channels
 - contributions/progress/credits/account capabilities
 - site Now/update capability
