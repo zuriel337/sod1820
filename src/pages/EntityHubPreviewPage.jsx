@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import ResearchIcon from "../components/ResearchIcon.jsx";
 import SignatureResearchIcon from "../components/SignatureResearchIcon.jsx";
@@ -25,8 +25,31 @@ const mini = [
 export default function EntityHubPreviewPage() {
   const { key = "1237" } = useParams();
   const label = decodeURIComponent(String(key || "1237"));
+  const requestedMode = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mode") : null;
+  const mode = requestedMode === "light" || requestedMode === "lab" ? requestedMode : "dark";
 
-  return <main className="sp29" dir="rtl">
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTheme = root.getAttribute("data-theme");
+    const previousEnvironment = root.getAttribute("data-environment");
+
+    if (mode === "light") {
+      root.setAttribute("data-theme", "light");
+      root.removeAttribute("data-environment");
+    } else if (mode === "lab") {
+      root.removeAttribute("data-theme");
+      root.setAttribute("data-environment", "research_lab");
+    }
+
+    return () => {
+      if (previousTheme == null) root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme", previousTheme);
+      if (previousEnvironment == null) root.removeAttribute("data-environment");
+      else root.setAttribute("data-environment", previousEnvironment);
+    };
+  }, [mode]);
+
+  return <main className={`sp29 sp29--${mode}`} dir="rtl" data-projection-mode={mode}>
     <div className="sp29-space" aria-hidden="true">
       <i className="sp29-nebula sp29-nebula-a"/><i className="sp29-nebula sp29-nebula-b"/>
       <i className="sp29-star s1"/><i className="sp29-star s2"/><i className="sp29-star s3"/><i className="sp29-star s4"/><i className="sp29-star s5"/>
