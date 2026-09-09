@@ -19,6 +19,7 @@ Canonical dependency tree:
 - responsive release acceptance → `mobile_acceptance_law`;
 - Raziel semantics → `raziel_companion_layer_law`; System Frame owns later placement/invocation;
 - contextual environment / required visual asset semantics → additive W0.5 extension `docs/w0-5-visual-environment-and-asset-gate-v1.md` under this same Design owner;
+- spatial/depth rendering semantics → canonical DB owner `spatial_gematria_law v3` (`lowest_sufficient_tier`, One Tree); W0.5 consumes its projection boundary and does not create a second spatial system;
 - W1 Adaptive Shell remains out of scope until this foundation gate closes.
 
 ## 2. Visual Foundation 2027 decisions
@@ -78,7 +79,7 @@ The visual foundation must preserve semantic HTML, keyboard navigation, reading 
 - direction-safe constants/helpers;
 - finite environment-role vocabulary and visual-asset presentation states.
 
-It explicitly does **not** own colors, fonts, chrome theme, world colors, truth/status semantics, media truth, publishing state or product capability state. Those remain with their existing owners.
+It explicitly does **not** own colors, fonts, chrome theme, world colors, truth/status semantics, media truth, publishing state, spatial truth, renderer authority or product capability state. Those remain with their existing owners.
 
 ### 2.9 Environment / contextual imagery
 
@@ -102,6 +103,26 @@ This is especially mandatory for legacy gematria/gallery images, where numbers, 
 
 Thumbnails/cards may still use bounded presentation rules appropriate to their surface, but any interaction described as full-screen, full-image, lightbox, inspect or enlarge must preserve the complete representation. No responsive breakpoint may silently change this invariant.
 
+### 2.12 2029 Progressive Spatial Readiness
+
+W0.5 adopts the active canonical `spatial_gematria_law v3` as the spatial/depth owner. The visual system is therefore **spatial-ready by construction**, but 3D is not a mandatory decoration layer.
+
+One semantic identity may project through progressively richer representations without changing truth, route identity, Research Context, provenance or capability:
+
+- `T0` — static 2D / fastest truthful representation;
+- `T1` — responsive micro-motion and light/depth cues;
+- `T2` — layered depth / CSS-SVG 2.5D-style composition;
+- `T3` — richer interactive spatial projection when interaction or structure benefits from depth;
+- `T4` — real WebGL/WebGPU spatial rendering only when spatial structure itself materially improves research, orientation or experience.
+
+Canonical rule: **lowest sufficient tier wins**. A future renderer may move upward or downward according to semantic need, viewport, input mode, device capability, network/performance budget, power state and reduced-motion preference. No required information or control may exist only in T3/T4.
+
+The same product/tool symbol must remain recognizably the same identity across small functional icon → Signature icon → spatial representation. Gematria, ELS, Books, Journey, World, Raziel and future tools must not invent separate 3D identities or parallel icon systems when they gain depth.
+
+Spatial richness never changes truth. Depth, glow, scale, proximity, motion, particle density or camera emphasis may not imply verification, canonicality, confidence, access or importance unless a separate canonical semantic signal explicitly says so.
+
+W0.5 itself remains lightweight: its job is to guarantee the projection seams, motion/depth vocabulary, fallbacks and identity continuity needed by future spatial renderers. It does not bulk-enable WebGL on ordinary pages.
+
 ## 3. Migration law
 
 Foundation → Projection → Experience.
@@ -111,19 +132,20 @@ For each redesigned surface:
 1. consume existing semantic colors and typography roles;
 2. consume W0.5 spacing/radius/motion/responsive/accessibility primitives;
 3. consume the canonical environment role where the experience calls for an environment;
-4. migrate shared components before page-local copies;
-5. preserve legacy behavior until that surface enters an explicit redesign pass;
-6. no blind mass CSS replacement;
-7. verify narrow-mobile, keyboard/focus, reduced-motion, dark/light behavior and environment crop/fallback before release.
+4. declare the lowest sufficient spatial presentation tier under `spatial_gematria_law v3`, with a truthful lower-tier fallback;
+5. migrate shared components before page-local copies;
+6. preserve legacy behavior until that surface enters an explicit redesign pass;
+7. no blind mass CSS replacement;
+8. verify narrow-mobile, keyboard/focus, reduced-motion, dark/light behavior, spatial degradation and environment crop/fallback before release.
 
 ## 4. Explicit non-goals for Slice 1
 
 - no Adaptive Shell build;
 - no new Sidebar/Bottom Bar/Raziel placement architecture;
 - no repository-wide restyle;
-- no new palette/theme/media store;
+- no new palette/theme/media/spatial store;
 - no font package installation;
-- no WebGL/Canvas work;
+- no blanket WebGL/Canvas rollout; T3/T4 implementation stays capability- and evidence-gated;
 - no bulk image generation or legacy-asset replacement;
 - no schema or Supabase product-data changes;
 - no canonical promotion merely because branch code exists.
@@ -141,9 +163,10 @@ For each redesigned surface:
 9. Run a decision-changing foundation challenge: contrast, zoom, long Hebrew labels, mixed bidi evidence, keyboard-only navigation, reduced motion, narrow viewport, light/dark/lab, rich-environment failure/fallback.
 10. Re-read live main/work_log/DB before closure; Human Gate remains required for canonical/release promotion.
 11. Verify the shared gallery/lightbox path opens representative landscape, portrait and legacy gematria images with `FIT_WHOLE_IMAGE` at 320/360/390 and desktop, with all four source-image edges visible before any zoom/pan interaction.
+12. Verify one representative identity can degrade cleanly from Signature/depth presentation to functional/static presentation without changing label, action, semantic identity, truth/provenance meaning or keyboard accessibility.
 
 ## 6. Slice 1 verdict
 
 `FOUNDATION IN PROGRESS`.
 
-The owner tree is resolved and the missing cross-surface primitive families now have a bounded implementation home. The North Star now also includes a governed contextual Environment Layer, required visual-asset gate for experience-bearing products/Journeys, and full-image preservation for gallery research representations. This is sufficient to continue Golden Case reconciliation, but not sufficient to start the broad Adaptive Shell or to call W0.5 closed.
+The owner tree is resolved and the missing cross-surface primitive families now have a bounded implementation home. The North Star now includes a governed contextual Environment Layer, required visual-asset gate for experience-bearing products/Journeys, full-image preservation for gallery research representations, and explicit 2029 Progressive Spatial Readiness consuming canonical `spatial_gematria_law v3`. This is sufficient to continue Golden Case reconciliation, but not sufficient to start the broad Adaptive Shell or to call W0.5 closed.
