@@ -33,6 +33,13 @@ const journeyOptions = [
   ["globe", "עולם", "מסע בתוך המציאות והעולם"],
   ["cosmos", "חלל", "תנועה אל הלא־נודע והעמוק"],
 ];
+const researchTools = [
+  ["gematria", "גימטריה", "אות ⇄ מספר", "heritage"],
+  ["els", "דילוגי אותיות", "מסלול בתוך מטריצת טקסט", "connection"],
+  ["cipher", "צופן תנ״כי", "פענוח וקשרים מוצלבים", "research"],
+  ["book", "ספרים ומקורות", "שער אל הטקסט והעד", "heritage"],
+  ["spatial", "מחקר מרחבי", "שכבות, צירים ומרחב", "intelligence"],
+];
 const workActions = [
   ["save", "שמור", "primary"], ["edit", "ערוך", "normal"], ["search", "חפש", "normal"], ["filter", "סנן", "normal"],
   ["share", "שתף", "normal"], ["copy", "העתק", "normal"], ["expand", "הגדל", "normal"], ["settings", "הגדרות", "normal"],
@@ -86,6 +93,11 @@ export default function EntityHubPreviewPage() {
           <div className="obs-context-card is-journey"><SignatureResearchIcon name="journey" tone="heritage" label="מסע"/><strong>מסע</strong><span>Blue + Warm Gold · נוכחות עשירה</span></div>
           <div className="obs-context-card is-journey"><SignatureResearchIcon name="portal" tone="heritage" label="שער"/><strong>Portal</strong><span>Gold עשיר יותר לרגע מעבר</span></div>
         </div>
+      </section>
+
+      <section className="obs-signature-zone" aria-labelledby="obs-research-tools-title">
+        <div className="obs-icon-heading"><div><span>RESEARCH TOOL SIGNATURES</span><h2 id="obs-research-tools-title">סמלי־המוצר של כלי המחקר</h2></div><p>לכל מוצר יש זהות ברורה ב־Signature, וגרסת SVG קלה מאותו glyph לכלים, טאבים ומובייל.</p></div>
+        <div className="obs-signature-grid">{researchTools.map(([name,text,description,tone]) => <div className="obs-signature-card" key={name}><SignatureResearchIcon name={name} tone={tone} label={text}/><strong>{text}</strong><small>{description}</small></div>)}</div>
       </section>
 
       <section className="obs-signature-zone" aria-labelledby="obs-journey-choices-title">
