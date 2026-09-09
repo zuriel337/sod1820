@@ -238,19 +238,27 @@ export default function GrowthCenterTab() {
               <CmpRow icon="🔵" label="GA4 · צפיות בדפים" n={ga?.totals?.views} color={L.blue} note="צפיות לפי גוגל" />
               <CmpRow icon="▲" label="Vercel · צפיות בדפים" n={vc?.configured && !vc?.error ? vc.totals?.pageviews : null} color={L.ink}
                 note={vc?.configured && !vc?.error ? `${vc.totals?.viewsPerVisitor ?? "—"} צפיות למבקר · ${vc.totals?.pageviewsChangePct == null ? "ללא בסיס השוואה" : (vc.totals.pageviewsChangePct >= 0 ? "▲ " : "▼ ") + Math.abs(vc.totals.pageviewsChangePct) + "% מול התקופה הקודמת"}` : "מקור Vercel משלים"} />
-              <CmpRow icon="🤖" label="בוטים שסוננו" n={ev.bots} color={L.red}
-                note={`${ev.bot_pct}% מהתנועה הגולמית = בוטים/סורקים · לא נספרים כאנשים`} />
-              <CmpRow icon="📊" label="הכל כולל בוטים" n={ev.total} color={L.sub}
-                note="← זה מה שנראה «כפול». כל מדד שלא מסנן בוטים מנפח את המספר" />
+              {/* 🤖 BOT_OBSERVABILITY_INGEST_CLEANUP_V1 — שיעור-הבוטים נקרא מ-site_visits (מדידה
+                  אמיתית), לא מ-events. events.is_bot הוא תמיד 0 *מבנית* (ingest_event מפיל
+                  אירועי-בוט לפני הכתיבה), ולכן ev.bots/ev.bot_pct היו מציגים «0 בוטים · 0%» —
+                  כלומר בדיוק ההפך מהמציאות. אותו כנות כמו ההערה הקיימת ב-AdminPage («BOT כאן
+                  תמיד יוצא 0 — לא מוסתר, זה מבנה-הצנרת»). */}
+              <CmpRow icon="🤖" label="בוטים שסוננו" n={null} color={L.red}
+                note={`${sv.bot_pct ?? "—"}% מהתנועה הגולמית = בוטים/סורקים · לא נספרים כאנשים. הספירה נמדדת ב-site_visits ובקצה (edge/crawl), לא ב-events: ingest_event מפיל אירועי-בוט לפני הכתיבה, ולכן events.is_bot הוא 0 מבנית ואינו מדד נפח.`} />
+              <CmpRow icon="📊" label="אירועים (אנשים בלבד)" n={ev.total} color={L.sub}
+                note="events היא טבלה אנושית-בלבד מבנית — זה כבר לא «הכל כולל בוטים». הסכום הגולמי כולל-בוטים נמדד ב-site_visits/edge." />
             </div>
 
             <div style={{ background: L.card, border: `1px solid ${L.line}`, borderRadius: 12, padding: "12px 15px", marginTop: 10 }}>
               <div style={{ color: L.gold, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 7 }}>למה היו לך מספרים שונים ⬇</div>
               <div style={{ color: L.ink, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.85 }}>
-                <div>🤖 <b>בוטים:</b> {ev.bot_pct}% מהתנועה הגולמית = סורקים. מדד שלא מסנן אותם מציג ~פי {(ev.total && ev.humans ? (ev.total / Math.max(1, ev.humans)).toFixed(1) : "1.7")} יותר.</div>
+                {/* מקור השיעור = site_visits (מדידה אמיתית). מקדם-הניפוח נגזר ממנו: raw/human = 100/(100-P).
+                    לא נגזר מ-ev.total/ev.humans — שם שניהם אנושיים ולכן היחס תמיד 1.0. */}
+                <div>🤖 <b>בוטים:</b> {sv.bot_pct ?? "—"}% מהתנועה הגולמית = סורקים. מדד שלא מסנן אותם מציג ~פי {sv.bot_pct != null && sv.bot_pct < 100 ? (100 / (100 - sv.bot_pct)).toFixed(1) : "—"} יותר. <span style={{ color: L.sub }}>(נמדד ב-site_visits/edge — events לא יכול למדוד בוטים, ראו למטה.)</span></div>
                 <div>📏 <b>יחידות:</b> «צפיות/כניסות» ≠ «מבקרים». אדם אחד שגולש 4 עמודים = <b>1 מבקר</b> אבל <b>4 צפיות</b>.</div>
                 <div>🍪 <b>עוגייה מול סשן:</b> הספירה הפנימית של «אנשים» מאחדת ימים לפי עוגייה; «סשנים» סופר כל ביקור בנפרד — לכן גבוה יותר.</div>
                 <div>✅ <b>בטאב הזה:</b> הכול כבר אנושי-בלבד (בוטים מסוננים) — אז אין יותר «חגיגה», יש מספר אחד לעקוב אחריו.</div>
+                <div>🩺 <b>למה «בוטים» לא נספרים מ-events:</b> <code>ingest_event()</code> מפיל אירוע שסומן כבוט לפני הכתיבה, ולכן <code>events.is_bot</code> הוא <b>תמיד false מבנית</b> — לספור אותו מודד את המסננת, לא את התנועה, ותמיד ייתן 0. ראיית-הזחילה האמיתית חיה בנפרד: <b>site_visits</b> (מסמן בוטים במקום להפיל) ו-<b>crawl_daily / edge_geo_log</b> (רמת-בקשה, לפי בוט ולפי אזור-תוכן).</div>
               </div>
             </div>
           </Panel>
