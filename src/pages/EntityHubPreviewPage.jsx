@@ -1,9 +1,18 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import EntityHubPreviewPageFunctional from "./EntityHubPreviewPageFunctional.jsx";
+import VisualEnvironment from "../components/VisualEnvironment.jsx";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { LAYOUT, MOTION, RADIUS, SPACE, TYPE_SCALE } from "../lib/designTokens.js";
+import {
+  ENVIRONMENT,
+  LAYOUT,
+  MOTION,
+  RADIUS,
+  SPACE,
+  TYPE_SCALE,
+  VISUAL_ASSET_STATE,
+} from "../lib/designTokens.js";
 import "./EntityHubObservatory.css";
 import "./EntityHubVisualFoundation.css";
 
@@ -20,6 +29,9 @@ export default function EntityHubPreviewPage() {
   const label = decodeURIComponent(String(key || "1237"));
   const isNumber = type === "number";
   const P = usePalette();
+  const environmentRole = P.mode === "dark"
+    ? ENVIRONMENT.DARK_OBSERVATORY
+    : ENVIRONMENT.LIGHT_CELESTIAL;
 
   // W0.5 Golden Case: existing Projection consumes the canonical palette +
   // Visual Foundation token families. CSS keeps composition, not ownership.
@@ -53,6 +65,13 @@ export default function EntityHubPreviewPage() {
   };
 
   return <div className="entity-hub-observatory" dir="rtl" style={visualFoundationVars}>
+    <VisualEnvironment
+      role={environmentRole}
+      assetState={VISUAL_ASSET_STATE.CANONICAL_FALLBACK}
+      focalPosition="50% 36%"
+      className="obs-environment"
+    />
+
     <div className="obs-shell">
       <header className="obs-top">
         <a className="obs-brand" href="/">SOD1820<small>ONE REALITY · MANY DOORS</small></a>
@@ -93,7 +112,7 @@ export default function EntityHubPreviewPage() {
 
       <div className="obs-contract-strip">
         <span>FOUNDATION → PROJECTION → EXPERIENCE</span>
-        <span>W0.5 tokens · semantic palette · logical RTL</span>
+        <span>W0.5 tokens · semantic palette · contextual environment</span>
         <span>Human Gate preserved</span>
       </div>
     </div>
