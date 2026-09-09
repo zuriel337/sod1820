@@ -15,6 +15,14 @@
 - **"מצב המערכת" / "מצב הקוד"** → תמיד `SOD1820_MASTER_STATE.md` (בסיס-העובד הקנוני, מאומת מול ה-DB החי).
 - כל קובץ אחר תחת `docs/` עם שם דומה ("site-structure", "site-map", "master-plan" וכו') הוא **עזר/היסטורי בלבד**, לא מקור-אמת — אלא אם הוא עצמו מסומן במפורש כ-CANONICAL.
 
+## 🧭 ניתוב-משימה לבעלים (`SOD1820_MASTER_OWNER_INDEX.md`) — קרא לפני שאתה מחליט מה לטעון
+> ה-SSOT של הניתוב **אינו כאן**. `CLAUDE.md` הוא ה-adapter של Claude בלבד; מפת domain→owner הקנונית, שער-יצירת-הבעלים ו-Release-state law חיים ב-`SOD1820_MASTER_OWNER_INDEX.md` (routing-only, לא SSOT חדש). קריאה: `git show origin/main:SOD1820_MASTER_OWNER_INDEX.md`.
+- **BOOTSTRAP = POINTERS, NOT CONTENT.** בכל משימה: **זהה domain → פתור owner קנוני מהאינדקס → טען את החוזה/החוק הפעיל שלו בלבד → רק ה-dependencies המינימליים → אמת חי → בצע.** אסור bulk-loading של 249 החוקים, אסור Master State מלא, ואסור לטעון חוזה שאינו רלוונטי למשימה.
+- **owner = versioned rule** → קרא **רק** `nodes where rule_id=<owner> and is_active`. **owner = long-form contract** → קרא רק את הגוף הקנוני הנוכחי ב-`main`/`project_codex` + addendum מקושר באותו lineage.
+- **UI / UX / ויזואל / תמונה / מדיה / כרטיס-שיתוף / מראה-פוסט** → פתור owner ראשון; נכון לעכשיו הבעלים הוא **`SOD1820_DESIGN_CONTRACT_V1.md`** (CURRENT MAIN OWNER — «Immersive quality floor», טירי-רינדור A–D, חוק יישור RTL) + `canonical_ui_components_law` ו-`canonical_colors_law`. **חל גם על מדיה ותמונות, לא רק על דפים.** ⛔ לעולם לא להסתמך על הוראות-עיצוב מועתקות/ישנות מהזיכרון.
+- **⛔ שער-יצירת-בעלים:** לפני יצירת Contract/Law/System/Store/Engine/Registry/owner-UI חדש — החזר OWNER CHECK מפורש: `EXTEND_EXISTING` (ברירת-מחדל) · `SUPERSEDE_EXISTING` (עם supersession והיסטוריה שמורה) · `GENUINELY_NEW_DOMAIN` (נטל-הוכחה). שם-קובץ/התאמת-חיפוש/שיחה ישנה/ענף/שורת-Roadmap **אינם** הוכחת בעלות.
+- **Drift:** אם החוזה/המסמך ≠ `origin/main`/production/מצב-הבעלים החי → **דווח DRIFT, אל תפתור מהזיכרון** (`live_state_sync_law`). ואל תערבב: `DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`.
+
 ## 🔴 חוק פתרון-מצב-חי (`live_state_resolution_law`) — חובה בכל שאלת "מה המצב"
 > בכל בקשה על המצב הנוכחי של SOD1820 — כגון "סרוק את האתר", "מה יש באתר", "מה בנוי", "איך זה עובד עכשיו", "איפה אנחנו" — **אין** להסתמך על Master State, Roadmap, `work_log` או זיכרון בלבד.
 - הסוכן חייב לקבוע את המצב מתוך **המקורות החיים הרלוונטיים**: Production בפועל + Supabase חי + GitHub/`main`, בהתאם לסוג השאלה.
