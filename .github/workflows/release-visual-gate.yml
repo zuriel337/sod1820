@@ -1,0 +1,121 @@
+name: Release Visual Gate
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-visual-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mobile-accessibility:
+    name: Mobile + Accessibility Acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+
+      - name: Start built app
+        run: |
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sod1820-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/sod1820-preview.log
+          exit 1
+
+      - name: Run visual release acceptance
+        run: |
+          mkdir -p test-results/release-visual
+          cat > /tmp/release-visual.spec.js <<'EOF'
+          const { test, expect } = require('@playwright/test');
+
+          const BASE = 'http://127.0.0.1:4173';
+          const PATH = '/entity-hub-preview/number/1237';
+          const widths = [320, 360, 390, 1440];
+
+          async function assertHealthy(page, width, mode = 'dark') {
+            const suffix = mode === 'dark' ? '' : `?mode=${mode}`;
+            await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
+            await page.goto(`${BASE}${PATH}${suffix}`, { waitUntil: 'networkidle' });
+            await expect(page.locator('body')).not.toBeEmpty();
+            await expect(page.locator('#sp29-title')).toBeVisible();
+
+            const metrics = await page.evaluate(() => ({
+              clientWidth: document.documentElement.clientWidth,
+              scrollWidth: document.documentElement.scrollWidth,
+              bodyText: document.body.innerText.trim().length,
+            }));
+            expect(metrics.bodyText).toBeGreaterThan(100);
+            expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+
+            const interactive = page.locator('a, button, [tabindex="0"]');
+            expect(await interactive.count()).toBeGreaterThan(3);
+            const first = interactive.first();
+            await first.focus();
+            await expect(first).toBeFocused();
+
+            await page.screenshot({
+              path: `test-results/release-visual/${mode}-${width}.png`,
+              fullPage: true,
+            });
+          }
+
+          for (const width of widths) {
+            test(`dark ${width}px has no overflow and remains interactive`, async ({ page }) => {
+              await assertHealthy(page, width, 'dark');
+            });
+          }
+
+          for (const mode of ['light', 'lab']) {
+            test(`${mode} projection is healthy at 390px`, async ({ page }) => {
+              await assertHealthy(page, 390, mode);
+              await expect(page.locator('.sp29')).toHaveClass(new RegExp(`sp29--${mode}`));
+            });
+          }
+
+          test('reduced motion removes ambient animation', async ({ page }) => {
+            await page.emulateMedia({ reducedMotion: 'reduce' });
+            await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
+            const animationName = await page.locator('.sp29-core').evaluate((el) => getComputedStyle(el).animationName);
+            expect(animationName).toBe('none');
+          });
+          EOF
+          npm exec --yes --package=@playwright/test@1.55.0 -- playwright test /tmp/release-visual.spec.js --reporter=line
+
+      - name: Upload acceptance screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-visual-evidence
+          path: test-results/release-visual
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Show preview server log on failure
+        if: failure()
+        run: cat /tmp/sod1820-preview.log || true
