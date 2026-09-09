@@ -9,6 +9,7 @@
 // כדי שנראה אותה בדף-הניהול.
 import { logView } from "./supabase.js";
 import { isBot } from "./events.js";
+import { noteSuppressed } from "./botVerdict.js"; // 🤖 ערוץ-אבחון בזיכרון (BOT_READ_NO_SIDE_EFFECT_V1)
 
 const KEY = "sod_j_aikeys";       // אוסף מספרי-שורש שכבר קיבלו מסר-AI בסשן הזה
 const CAP_KEY = "sod_j_aicount";  // סה״כ מסרי-AI שנורו בסשן הזה
@@ -33,6 +34,12 @@ export function allowAiMessage(root) {
   // (2.7% סיום) ושרפו קרדיט. אפס false-positive על אדם אמיתי. כל חסימה נרשמת ללוג למדידה.
   // ⚠️ בוט שמסווה webdriver+UA יעבור — ההגנה החזקה = rate-limit צד-שרת ב-journey-message (thread).
   if (isBot()) {
+    // 🤖 BOT_READ_NO_SIDE_EFFECT_V1: logView נעול עכשיו לבוטים (ל-page_views אין is_bot),
+    // ולכן הרישום הזה היה הופך לשקט והמדידה הקיימת «כמה חסימות-בוט» הייתה נעלמת. שומרים
+    // את האות בערוץ-האבחון היחיד שלא כותב ל-DB, כדי לא לאבד סימן שכבר היה כאן ולא להחזיר
+    // כתיבת-בוט מהדלת האחורית. הקריאה ל-logView נשארת (no-op לבוט) — אם המדיניות תשתנה
+    // אי-פעם וה-gate יוסר, המדידה ההיסטורית חוזרת מעצמה בלי לגעת כאן.
+    try { noteSuppressed("journey_ai_bot_blocked"); } catch { /* noop */ }
     try { logView("journey_ai_bot_blocked", r); } catch { /* noop */ }
     return false;
   }

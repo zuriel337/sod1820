@@ -2,6 +2,7 @@
 // כותב ל-events דרך RPC ingest_event, במקביל למערכת הישנה (dual-write). fire-and-forget.
 import { supabase } from "./supabase.js";
 import { getSodId, appContext, sessionId } from "./identity.js";
+import { isBot } from "./botVerdict.js"; // מקור-אמת יחיד לפסק-הבוט (מיוצא-מחדש למטה)
 
 function param(name) { try { return new URLSearchParams(location.search).get(name); } catch { return null; } }
 function refHost() {
@@ -20,17 +21,12 @@ function vcCountry() {
 // 🌍 מקור-אמת ראשי = פסק-הקצה: ה-middleware מזריק cookie vb=<kind> (browser=אדם ·
 //    goodbot/ai/bot=בוט) מתוך ה-UA האמיתי + אותות Vercel. עדיף על זיהוי-UA בצד-לקוח שמפספס
 //    headless שמזייף UA. נופלים ל-heuristic הישן רק אם ה-cookie עוד לא נכתב (בקשה ראשונה/נחסם).
-const BOT_UA = /bot|crawl|spider|slurp|googlebot|bingpreview|jetmon|uptime|monitor|headless|phantom|puppeteer|playwright|python|curl|wget|libwww|okhttp|java\/|go-http|facebookexternal|externalhit|preview|lighthouse|pagespeed|gtmetrix|semrush|ahrefs|mj12|dotbot|petalbot|dataprovider|scan|um-ic|feedfetch/i;
-function serverBotVerdict() {
-  // null = אין פסק-קצה עדיין; true/false = פסק סמכותי (kind!=='browser' → בוט)
-  try { const m = document.cookie.match(/(?:^|;\s*)vb=([a-z]+)/i); return m ? (m[1].toLowerCase() !== "browser") : null; }
-  catch { return null; }
-}
-export function isBot() {
-  const v = serverBotVerdict();
-  if (v !== null) return v;              // פסק-הקצה גובר
-  try { return BOT_UA.test(navigator.userAgent || "") || navigator.webdriver === true; } catch { return false; }
-}
+//
+// ⚠️ המימוש עצמו עבר כמות-שהוא ל-src/lib/botVerdict.js (BOT_READ_NO_SIDE_EFFECT_V1) כדי
+// שכיורים שיושבים מתחת לקובץ הזה בגרף-הייבוא (supabase.js) יוכלו לקרוא לו בלי מעגל-ייבוא.
+// זהו ייצוא-מחדש בלבד — אותה פונקציה בדיוק, מקור-אמת אחד, בלי לוגיקת-בוט חדשה. כל הצרכנים
+// הקיימים (journeyGuard.js · engagement.js · visits.js) ממשיכים לייבא מכאן ללא שינוי.
+export { isBot } from "./botVerdict.js";
 
 // via — מאיפה הגיע: via מפורש → src קנוני של הפצה/שיתוף → rid → utm_source → referrer → direct.
 // PRODUCT_TRAFFIC_FORWARD_ATTRIBUTION_CLOSURE_V1 (Human-Gate ZURIEL 7.9.2026):

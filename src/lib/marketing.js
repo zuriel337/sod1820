@@ -9,6 +9,8 @@
 //
 // כל ההמרות עוברות דרך trackConversion אחד שמשדר ל-GA4 + מטא + Google Ads בבת אחת.
 
+import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1
+
 const META_PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
 const GOOGLE_ADS_ID = import.meta.env.VITE_GOOGLE_ADS_ID;
 
@@ -63,6 +65,11 @@ function initGoogleAds() {
 // בונה את קהלי הרימרקטינג והקהלים-הדומים (lookalike) — הלב של "עוד תנועה".
 export function trackMarketingPageview() {
   if (typeof window === "undefined") return;
+  // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — צפיית-בוט לא בונה קהלי-רימרקטינג. הפונקציה הזו שולחת
+  // PageView לפיקסל ול-CAPI בצד-שרת, וזו attribution חיצונית שנבנית מ«עצם הקריאה».
+  // ⛔ GA4 לא מושפע: לפי ההערה למטה, GA4 page_view נשלח ב-analytics.js וגוגל-אדס נספר דרך
+  //    ה-config — כאן יש רק מטא. GA4 נשאר בבעלות שכבת-האנליטיקה, עם סינון-הבוטים שלה.
+  if (!sideEffectAllowed("meta_capi_pageview")) return;
   const eventId = genEventId();
   if (META_PIXEL_ID && window.fbq) window.fbq("track", "PageView", {}, { eventID: eventId });
   sendCAPI("PageView", eventId, {});
