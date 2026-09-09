@@ -1,13 +1,19 @@
 // Vercel Serverless Function — סנכרון Google Analytics (GA4) אל traffic_history.
 // מושך צפיות (screenPageViews) + משתמשים (activeUsers) + סשנים (sessions) יומיים דרך אותו
-// service account (GSC_SERVICE_ACCOUNT), וכותב ל-DB (source='ga', views+visitors+sessions) דרך RPC
-// מאובטח. סנכרון אחד מְמַלֵּא גם רטרואקטיבית (GA מחזיר את כל הטווח) — הכל בגרף אחד.
+// service account (GSC_SERVICE_ACCOUNT), וכותב ל-DB דרך RPC מאובטח.
+// source='ga' נשאר TOTAL היסטורי/קנוני ללא שינוי. בנוסף נשמר פילוח מדינתי קטן ומפורש
+// דרך אותו Traffic Intelligence owner (כרגע IL בלבד) תחת source='ga:country:IL'.
+// אין טבלת Analytics/Store חדשה; traffic_history נשאר הבית ההיסטורי הקיים.
 // env: GA_PROPERTY_ID (מזהה נכס GA4, מספר) · GSC_SERVICE_ACCOUNT (ה-JSON, משותף עם Search Console).
 
 import crypto from 'crypto';
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBiYXNlIiwicmVmIjoibGluc3dtbm5ranh2d2V1bXByYXYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDYyODc2MiwiZXhwIjoyMDk2MjA0NzYyfQ.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+
+const COUNTRY_SEGMENTS = [
+  { id: 'IL', source: 'ga:country:IL' },
+];
 
 async function getUserToken(req) {
   const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
@@ -39,6 +45,54 @@ async function getAccessToken(sa, scope) {
   return (await r.json()).access_token;
 }
 
+async function fetchDailyReport(token, propertyId, startDate, countryId = null) {
+  const body = {
+    dateRanges: [{ startDate, endDate: 'today' }],
+    dimensions: [{ name: 'date' }],
+    metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'sessions' }],
+    limit: 100000,
+  };
+  if (countryId) {
+    body.dimensionFilter = {
+      filter: {
+        fieldName: 'countryId',
+        stringFilter: { matchType: 'EXACT', value: countryId },
+      },
+    };
+  }
+
+  const r = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`ga${countryId ? ':' + countryId : ''} ${r.status}: ` + (await r.text()).slice(0, 200));
+  return r.json();
+}
+
+function dailyRows(data) {
+  // GA מחזיר תאריך כ-YYYYMMDD → ממירים ל-YYYY-MM-DD
+  return (data.rows || []).map(r => {
+    const d = r.dimensionValues?.[0]?.value || '';
+    return {
+      date: d.length === 8 ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : '',
+      views: parseInt(r.metricValues?.[0]?.value, 10) || 0,
+      users: parseInt(r.metricValues?.[1]?.value, 10) || 0,
+      sessions: parseInt(r.metricValues?.[2]?.value, 10) || 0,
+    };
+  }).filter(x => x.date && x.views > 0);
+}
+
+async function callRpc(adminToken, rpc, body) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${rpc}`, {
+    method: 'POST',
+    headers: { apikey: ANON, Authorization: 'Bearer ' + adminToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`${rpc} ${r.status}: ` + (await r.text()).slice(0, 200));
+  return r.json();
+}
+
 export default async function handler(req, res) {
   const adminToken = await getUserToken(req);
   if (!adminToken) { res.status(401).json({ error: 'unauthorized' }); return; }
@@ -54,40 +108,25 @@ export default async function handler(req, res) {
     const startDate = fmt(new Date(Date.now() - days * 864e5));
 
     const token = await getAccessToken(sa, 'https://www.googleapis.com/auth/analytics.readonly');
-    const gaRes = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`, {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        dateRanges: [{ startDate, endDate: 'today' }],
-        dimensions: [{ name: 'date' }],
-        metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'sessions' }],
-        limit: 100000,
-      }),
-    });
-    if (!gaRes.ok) throw new Error('ga ' + gaRes.status + ': ' + (await gaRes.text()).slice(0, 200));
-    const data = await gaRes.json();
+    const reports = await Promise.all([
+      fetchDailyReport(token, propertyId, startDate),
+      ...COUNTRY_SEGMENTS.map(s => fetchDailyReport(token, propertyId, startDate, s.id)),
+    ]);
 
-    // GA מחזיר תאריך כ-YYYYMMDD → ממירים ל-YYYY-MM-DD
-    const rows = (data.rows || []).map(r => {
-      const d = r.dimensionValues[0].value; // 20260615
-      return {
-        date: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`,
-        views: parseInt(r.metricValues[0].value, 10) || 0,
-        users: parseInt(r.metricValues[1].value, 10) || 0,      // activeUsers → traffic_history.visitors (backfill + forward)
-        sessions: parseInt(r.metricValues[2].value, 10) || 0,   // sessions → traffic_history.sessions (מדד החזרתיות)
-      };
-    }).filter(x => x.views > 0);
+    // TOTAL נשמר בדיוק באותו מסלול היסטורי כדי לא לשנות measurement-gap / unified history semantics.
+    const totalRows = dailyRows(reports[0]);
+    const written = await callRpc(adminToken, 'ingest_ga_daily', { p_rows: totalRows });
 
-    // כתיבה ל-DB דרך RPC מאובטח (טוקן האדמין)
-    const ingest = await fetch(`${SUPABASE_URL}/rest/v1/rpc/ingest_ga_daily`, {
-      method: 'POST',
-      headers: { apikey: ANON, Authorization: 'Bearer ' + adminToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_rows: rows }),
-    });
-    if (!ingest.ok) throw new Error('ingest ' + ingest.status + ': ' + (await ingest.text()).slice(0, 200));
-    const written = await ingest.json();
+    // פילוח מדינה נשמר באותה traffic_history עם source נפרד, כך שלא מתערבב אוטומטית ב-source='ga'.
+    const segments = {};
+    for (let i = 0; i < COUNTRY_SEGMENTS.length; i += 1) {
+      const seg = COUNTRY_SEGMENTS[i];
+      const rows = dailyRows(reports[i + 1]);
+      const segWritten = await callRpc(adminToken, 'ingest_ga_country_daily', { p_rows: rows, p_country_id: seg.id });
+      segments[seg.id] = { source: seg.source, fetched: rows.length, written: segWritten };
+    }
 
-    res.status(200).json({ configured: true, fetched: rows.length, written, from: startDate });
+    res.status(200).json({ configured: true, fetched: totalRows.length, written, from: startDate, segments });
   } catch (e) {
     res.status(200).json({ configured: true, error: String(e.message || e) });
   }
