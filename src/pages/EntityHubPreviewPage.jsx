@@ -27,6 +27,12 @@ const signatureNorthStar = [
   ["research", "Research", "research"], ["graph", "Connections", "connection"], ["journey", "Journey", "intelligence"], ["spatial", "Spatial", "intelligence"],
   ["dna", "DNA", "intelligence"], ["gallery", "Gallery", "connection"], ["raziel", "Raziel", "intelligence"], ["portal", "Portal", "intelligence"],
 ];
+const journeyOptions = [
+  ["door", "דלת", "מעבר אל מרחב חדש"],
+  ["book", "ספר", "הידע עצמו נפתח למסע"],
+  ["globe", "עולם", "מסע בתוך המציאות והעולם"],
+  ["cosmos", "חלל", "תנועה אל הלא־נודע והעמוק"],
+];
 const workActions = [
   ["save", "שמור", "primary"], ["edit", "ערוך", "normal"], ["search", "חפש", "normal"], ["filter", "סנן", "normal"],
   ["share", "שתף", "normal"], ["copy", "העתק", "normal"], ["expand", "הגדל", "normal"], ["settings", "הגדרות", "normal"],
@@ -80,6 +86,11 @@ export default function EntityHubPreviewPage() {
           <div className="obs-context-card is-journey"><SignatureResearchIcon name="journey" tone="heritage" label="מסע"/><strong>מסע</strong><span>Blue + Warm Gold · נוכחות עשירה</span></div>
           <div className="obs-context-card is-journey"><SignatureResearchIcon name="portal" tone="heritage" label="שער"/><strong>Portal</strong><span>Gold עשיר יותר לרגע מעבר</span></div>
         </div>
+      </section>
+
+      <section className="obs-signature-zone" aria-labelledby="obs-journey-choices-title">
+        <div className="obs-icon-heading"><div><span>JOURNEY SYMBOL EXPLORATION</span><h2 id="obs-journey-choices-title">ארבעה כיוונים לסמל המסע</h2></div><p>אותה שפת Signature. אנחנו משווים כאן משמעות וזהות — לא פותחים משפחת אייקונים חדשה.</p></div>
+        <div className="obs-signature-grid">{journeyOptions.map(([name,text,description]) => <button type="button" className="obs-signature-card" key={name} aria-label={`מסע — ${text}`}><SignatureResearchIcon name={name} tone="heritage" label={`מסע — ${text}`}/><strong>{text}</strong><small>{description}</small></button>)}</div>
       </section>
 
       <section className="obs-signature-zone" aria-labelledby="obs-signature-title">
