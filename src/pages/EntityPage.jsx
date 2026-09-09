@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react";
 import EntityPageBase from "./EntityPageBase.jsx";
 
+// SEO_GATE_DELEGATE: ./EntityPageBase.jsx
 // 🚧 PUBLIC_TRAFFIC_SURFACE_PAUSE_EXPERIMENT_V1
 // מעטפת זמנית בלבד: בדף-המספר מסתירים את מונה ה"צפיות" הציבורי ומציגים "אזור בבנייה".
 // EntityPageBase נשאר זהה ולכן logView/track/Traffic Intelligence ממשיכים למדוד את הניסוי.
