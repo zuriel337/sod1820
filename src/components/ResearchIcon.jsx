@@ -17,6 +17,9 @@ const PATHS = {
   raziel: <><path d="M12 3 18 7v7c0 4-2.6 6.2-6 7-3.4-.8-6-3-6-7V7z"/><path d="M9 11.5c1.6-2 4.4-2 6 0-1.6 2-4.4 2-6 0Z"/><circle cx="12" cy="11.5" r="1"/></>,
   portal: <><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><path d="M12 4v3M20 12h-3M12 20v-3M4 12h3"/></>,
   spark: <><path d="m12 3 1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7z"/><circle cx="18.5" cy="5.5" r="1.2"/></>,
+  door: <><path d="M6 21V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21"/><path d="M9 21V7h6v14M4 21h16"/><circle cx="13.2" cy="14" r=".7"/></>,
+  book: <><path d="M4 5.5c3.2-1 5.7-.5 8 1.5v12c-2.3-2-4.8-2.5-8-1.5z"/><path d="M20 5.5c-3.2-1-5.7-.5-8 1.5v12c2.3-2 4.8-2.5 8-1.5z"/><path d="M12 7v12"/></>,
+  cosmos: <><ellipse cx="12" cy="12" rx="8" ry="3.6" transform="rotate(-18 12 12)"/><ellipse cx="12" cy="12" rx="3.5" ry="8" transform="rotate(28 12 12)"/><circle cx="12" cy="12" r="2"/><circle cx="18.5" cy="6" r="1"/><path d="m5 5 .6 1.8L7.4 7.4l-1.8.6L5 9.8 4.4 8 2.6 7.4l1.8-.6z"/></>,
 };
 
 export const RESEARCH_ICON_NAMES = Object.freeze(Object.keys(PATHS));
