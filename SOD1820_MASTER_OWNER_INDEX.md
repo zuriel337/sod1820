@@ -1,6 +1,6 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v1
 
-> **STATUS:** Canonical routing index on `main` from PR #345 (`d9401650ccaf32b2fd244223e67987963e846e8b`); this branch carries an additive W0-2027 routing update pending merge. Docs-only · no product deploy required · not a new SSOT.
+> **STATUS:** Canonical routing index on `main`; current routing clarifications are merged. Docs-only · no product deploy semantics · not a new SSOT.
 > **Purpose:** routing/index only. This file does not duplicate contract bodies, create a registry, or redefine authority. It is the finite owner map intended to be pointed to from `SOD1820_MASTER_STATE.md` under the already-approved Canonical-Owner Pointer Clarification.
 > **Authority remains:** live canonical DB + `origin/main` + Master State > Roadmap > conversation/memory/search.
 
@@ -39,7 +39,7 @@ Rows whose versions were touched by W0 were re-read live from canonical Supabase
 | Research Intake / source research orchestration | `research_intake_foundation_contract_law` | versioned rule + codex | **v8 ACTIVE** | `project_codex.research_intake_foundation_contract` |
 | Truth semantics: epistemic / verification / governance / publication-access | `truth_axes_foundation_law` | versioned rule + codex | **v3 ACTIVE** | canonical transition authorization + root-of-trust; `project_codex.truth_axes_foundation_v1` lineage |
 | Admin Research / Human Gate workspace routing | **existing owners only:** `truth_axes_foundation_law` + `research_intake_foundation_contract_law`; presentation under Experience/System Frame | routing composition, **not a new owner** | **W0 2027 direction approved; legacy CC UI/phasing absorbed, branch docs pending merge** | Human-Gate/governance transitions = Truth owner; source/candidate intake = Intake owner; shell/layout = Experience/System Frame. Target projection: Source Inbox · Review Queue · Workbench · Candidate relation composition. Legacy CC-1..CC-4 presentation does not become a parallel future owner |
-| Agent coordination / owner creation / parallel write safety | `inter_agent_coordination_law` | versioned rule | **v6 ACTIVE** | `nodes(type='rule')`; `work_log` is coordination channel |
+| Agent coordination / owner creation / parallel write safety | `inter_agent_coordination_law` | versioned rule | **v8 ACTIVE** | `nodes(type='rule')`; `work_log` is coordination channel; includes compact bootstrap, self-discovering assignment, task profiles and read-budget routing |
 | Work-log CURRENT/SUPERSEDED/ARCHIVED semantics | `work_log_authority_law` | versioned rule | **v2 ACTIVE** | `work_log` / current-view governance |
 | Live-state verification discipline | `live_state_sync_law` | versioned rule | **v1 ACTIVE** | canonical Supabase + `origin/main` verification |
 | Traffic / analytics measurement truth + arrival attribution semantics | `traffic_intelligence_law` | versioned rule + codex | **v6 ACTIVE** | canonical `fn_ti_*` / traffic read paths; reporting/view/demand semantics + attribution; bot observability boundary; Clean classifier evidence remains explicit |
@@ -112,6 +112,6 @@ Governance cleanup is **routing + supersession**, not deletion of history.
 
 The additive Master State pointer should state only:
 
-> `CANONICAL OWNER INDEX v1` — routing-only index for domain → canonical owner → active/current version/status → implementation pointer. Read current owner first; history only on drift/provenance. W0 2027 adds explicit routing for Research Workspace/Layout and Admin Research while preserving existing owners; legacy CC presentation is absorbed rather than promoted as a parallel owner. Canonical body: `SOD1820_MASTER_OWNER_INDEX.md` on `main` once this branch update is merged. No authority-order change; no new registry/store/system.
+> `CANONICAL OWNER INDEX v1` — routing-only index for domain → canonical owner → active/current version/status → implementation pointer. Read current owner first; history only on drift/provenance. W0 2027 adds explicit routing for Research Workspace/Layout and Admin Research while preserving existing owners; legacy CC presentation is absorbed rather than promoted as a parallel owner. Canonical body: `SOD1820_MASTER_OWNER_INDEX.md` on `main`. No authority-order change; no new registry/store/system.
 
 No Roadmap priority change is implied by this index beyond the separately governed W0/W0.5/W1 sequence.
