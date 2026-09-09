@@ -11,6 +11,8 @@ import { dmUnreadCount } from "../../lib/commandCenter.js";
 import { useNumberDrawer, toggleNumberDrawer, closeNumberDrawer } from "../../lib/numberDrawer.js";
 import { useSiteUpdates, toggleSiteUpdates, closeSiteUpdates, isSiteUpdatesRoute } from "../../lib/siteUpdates.js";
 import { isBottomBarRoute } from "../../lib/bottomBar.js";
+import { lensLabel, lensForSubject } from "../../lib/shell/shellContext.js";
+import { useShellContext, useShellNavigation } from "../../lib/shell/useShellContext.js";
 
 // 🧭 Bottom Bar — Experience Shell קבוע (SOD1820 BOTTOM BAR — FINAL RECONCILIATION V1).
 // חשוב: launcher-shell בלבד — לא engine/store/ניווט מקביל, לא יכולת-ידע חדשה, לא AI flow חדש.
@@ -20,31 +22,10 @@ import { isBottomBarRoute } from "../../lib/bottomBar.js";
 // היסטוריה: מחליף גם את PR #344 (BottomBar V1, 2-slots) וגם את RoyalContextBar (הסרגל השחור,
 // admin-only) — פירוט מלא/capability-parity ב-work_log task=BOTTOM_BAR_FINAL_RECONCILIATION_V1.
 
-function contextFromLocation(pathname, search = "") {
-  const parts = pathname.split("/").filter(Boolean);
-  const qs = new URLSearchParams(search || "");
-  if (parts[0] === "number" && parts[1]) return { kind: "מספר", label: decodeURIComponent(parts.slice(1).join("/")) };
-  if (parts[0] === "topic" && parts[1]) return { kind: "נושא", label: decodeURIComponent(parts.slice(1).join("/")) };
-  if (parts[0] === "journey" || parts[0] === "מסע") return { kind: "מסע", label: "המסע הנוכחי" };
-  if ((parts[0] === "lab" && parts[1] === "els") || (parts[0] === "research" && qs.get("tool") === "els")) return { kind: "ELS", label: "מרחב הצופן" };
-  if (parts[0] === "book") return { kind: "ספר", label: qs.get("book") || parts[1] || "מרחב הספר" };
-  if (parts[0] === "heichal" || parts[0] === "היכל") return { kind: "היכל", label: "היכל" };
-  if (parts.length === 1 && !["admin", "login", "profile", "credits", "buy", "research"].includes(parts[0])) return { kind: "פוסט", label: decodeURIComponent(parts[0]) };
-  return { kind: "SOD1820", label: "מרחב המחקר" };
-}
-function lensLabel(lens) {
-  const labels = { number: "מספר", topic: "נושא", post: "פוסט", els: "ELS", book: "ספר", source: "מקור", person: "אדם", name: "שם", journey: "מסע", graph: "קשרים" };
-  return labels[lens] || lens || "הקשר";
-}
-function lensForSubject(subject) {
-  if (!subject) return null;
-  if (subject.type === "number" || subject.type === "phrase") return "number";
-  if (subject.type === "topic" || subject.type === "convergence") return "topic";
-  if (subject.type === "els" || subject.type === "code") return "els";
-  if (subject.type === "book" || subject.type === "source") return "book";
-  if (subject.type === "person" || subject.type === "name") return "person";
-  return subject.type || null;
-}
+// 🧭 Route/context derivation moved to the shared Adaptive Shell spine
+// (src/lib/shell/shellContext.js) so the Dock and the Orientation Header read ONE
+// projection instead of two copies. Behavior here is unchanged — see
+// test/shell-context-spine.test.mjs for the preserved cases.
 
 export default function BottomBar() {
   const { pathname, search } = useLocation();
@@ -52,6 +33,8 @@ export default function BottomBar() {
   const P = usePalette();
   const { user } = useAuth();
   const research = useResearch();
+  const shell = useShellContext();
+  const shellNav = useShellNavigation();
   const { isOpen: userCenterOpen, open: openUserCenter } = useUserCenter();
   const { open: numberOpen } = useNumberDrawer();
   const { open: updatesOpen, unseen } = useSiteUpdates();
@@ -75,18 +58,11 @@ export default function BottomBar() {
 
   const dark = P.mode !== "light";
   const updatesMounted = isSiteUpdatesRoute(pathname);
-  const ctx = contextFromLocation(pathname, search);
-
-  // ⌖ כאן — אותה קריאה בדיוק ל-Research Context הקיים כמו RoyalContextBar (root/lens/selection/return).
-  const root = research.context?.subject || null;
-  const activeLens = research.context?.lens || null;
-  const returnTo = research.context?.returnTo || null;
-  const selection = research.context?.selection || null;
-  const currentRef = selection?.entityId || selection?.locator || null;
-  const currentType = selection?.entityType || null;
-  const rootLabel = root?.label || root?.id || null;
-  const rootDiffers = Boolean(root?.href && root.href !== pathname && rootLabel && rootLabel !== ctx.label);
-  const contextActive = Boolean(root || selection || activeLens || returnTo);
+  // ⌖ כאן — אותה קריאה בדיוק ל-Research Context הקיים כמו RoyalContextBar
+  // (root/lens/selection/return), עכשיו דרך ה-spine המשותף במקום העתק מקומי.
+  const ctx = shell.route;
+  const { root, lens: activeLens, returnTo, selection, currentRef, currentType, rootLabel, rootDiffers } = shell;
+  const contextActive = shell.hasContext;
   const currentEntity = currentType && currentRef ? makeEntity({
     type: currentType, title: ctx.label, ref: currentRef, link: `${pathname}${search || ""}`,
     metadata: { research_subject: (root && !rootDiffers) ? { id: root.id, type: root.type, label: rootLabel } : null, lens: activeLens },
@@ -95,17 +71,10 @@ export default function BottomBar() {
 
   const closePanels = () => setPanel(null);
   const addCurrent = () => { if (currentEntity && !alreadyInResearch) research.addToResearch?.(currentEntity); };
-  const goRoot = () => {
-    if (!root?.href) return;
-    research.updateResearchContext?.({ selection: { entityId: root.id, entityType: root.type }, lens: lensForSubject(root), returnTo: null });
-    closePanels(); navigate(root.href);
-  };
-  const goReturn = () => {
-    if (!returnTo?.href) return;
-    const target = returnTo.subject || null;
-    research.updateResearchContext?.({ selection: target ? { entityId: target.id, entityType: target.type } : null, lens: target ? lensForSubject(target) : activeLens, returnTo: null });
-    closePanels(); navigate(returnTo.href);
-  };
+  // ↩ יעד-חזרה מדויק (return_exact) — אותה רזולוציה בדיוק כמו ב-Orientation Header,
+  // דרך ה-spine, כדי ששני המשטחים לא ייפרדו לשתי התנהגויות «חזרה» שונות.
+  const goRoot = () => { closePanels(); shellNav.goRoot(root, navigate); };
+  const goReturn = () => { closePanels(); shellNav.goReturn(returnTo, activeLens, navigate); };
   // ✦ "התחל מכאן מחקר חדש" — יכולת אמיתית מ-RoyalContextBar (startNewResearchHere), שוחזרה כאן
   // תחת כאן (שם היא שייכת מבחינה-מושגית) במקום מתחת לרזיאל כמו במקור.
   const startNewResearchHere = () => {

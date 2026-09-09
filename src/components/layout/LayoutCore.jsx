@@ -22,6 +22,7 @@ import JoinCelebration from "../JoinCelebration.jsx";
 import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
 import BottomBar from "./BottomBar.jsx"; // 🧭 Bottom Bar — Experience Shell קבוע (כאן·מספר·עכשיו·רזיאל·עוד)
 import { isBottomBarRoute, BOTTOM_BAR_CLEARANCE } from "../../lib/bottomBar.js";
+import OrientationHeader from "./OrientationHeader.jsx"; // 🧭 Adaptive Shell — שכבת ההתמצאות «איפה אני» (W1 Slice 1)
 
 // 🌗 רשימת הראוטים התומכים בבהיר עברה ל-src/lib/lightRoutes.js (מקור-אמת יחיד),
 // כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
@@ -45,6 +46,11 @@ export default function Layout() {
   const legacyHideNumberLauncher = liveChrome || /^\/code/.test(pathname) || /^\/book(\/|$)/.test(pathname) || (pathname === "/research" && /tool=els/.test(search));
   // 📡 טיקר-החדשות הזז (LiveActivityBar) מוסתר בדף הבית (בקשת צוריאל 30.7.2026) — נשאר בשאר האתר.
   const isHome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/].some(re => re.test(pathname));
+  // 🧭 Orientation Header (W1 Slice 1) — נפרס תחת **אותו** שער-פיילוט בדיוק כמו ה-Dock
+  // (BOTTOM_DOCK_ADMIN_PILOT_V1): admin בלבד. ציבור-רגיל רואה אפס שינוי — אף entry point
+  // ציבורי לא מוסתר ולא מוחלף (rollout/migration law, חוזה-המסגרת §9).
+  // דף הבית מוחרג במפורש: שלב 1 של research_workspace_law אוסר לגעת בדף הבית.
+  const showOrientation = showBottomBar && !isHome;
   // 🏛️ אזור ההיכל (מחקר/דילוגים) — שם מעולם לא היה באנר, ולא מציגים אותו (בקשת צוריאל).
   const isHeichal = [/^\/research/, /^\/beit-midrash/, /^\/code/, /^\/heichal/].some(re => re.test(pathname));
   // 🌌 באנר-העל הקוסמי — רק בפוסטים (עמוד פוסט /:slug + רשימת /post) ובדף הצ'אט. לא במספר/מסע/מחקר וכו'.
@@ -70,6 +76,7 @@ export default function Layout() {
       {showAxis && <RevelationAxis />}
       <div style={{ position: "relative", zIndex: 1, paddingBottom: showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined }}>
         <Navbar />
+        {showOrientation && <OrientationHeader />}
         {/* 🎗️ טיקר יחיד מתחלף «בקרוב» — סרגל אחד גלובלי שמחליף כל 7ש׳ בין הפרומואים:
             🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי ·
             🔠 חיפוש בתורה בדילוגי-אותיות (+שעון-חול לשבועיים) · 📅 שנת תשפ״ו (786) ·
