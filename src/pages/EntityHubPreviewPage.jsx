@@ -16,6 +16,7 @@ import {
 } from "../lib/designTokens.js";
 import "./EntityHubObservatory.css";
 import "./EntityHubVisualFoundation.css";
+import "./EntityHubIconNorthStar.css";
 
 const researchDoors = [
   { label: "סקירה", href: "#entity-hub-live" },
