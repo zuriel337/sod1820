@@ -94,6 +94,14 @@ Every experience-bearing product, Journey, major experience or major editorial/l
 
 Covered experiences resolve one of: curated asset, generated candidate, or canonical fallback. When no bespoke asset exists, the future owning creation/publishing workflow must automatically create an asset requirement and attempt to produce/request a candidate from the canonical visual language. Generation never implies truth/canonicality/publication.
 
+### 2.11 Gallery full-image preservation
+
+Gallery imagery is research-bearing visual material, not decorative crop material. When a gallery image is opened in the full-screen/lightbox experience, the initial state must show the **entire source image** inside the available viewport using contain-style composition: all four edges must be visible and no automatic crop may remove source pixels.
+
+This is especially mandatory for legacy gematria/gallery images, where numbers, labels, borders or contextual evidence may live near any edge. A portrait/tall image must not automatically switch into an initial scroll-only mode that hides part of the image. Zoom/pan/scroll may be offered as an explicit secondary interaction after the full-image view is established, but the opening state is always `FIT_WHOLE_IMAGE`.
+
+Thumbnails/cards may still use bounded presentation rules appropriate to their surface, but any interaction described as full-screen, full-image, lightbox, inspect or enlarge must preserve the complete representation. No responsive breakpoint may silently change this invariant.
+
 ## 3. Migration law
 
 Foundation → Projection → Experience.
@@ -132,9 +140,10 @@ For each redesigned surface:
 8. Demonstrate the contextual visual-asset requirement without creating a parallel media system; actual generation pipeline may land with the later owning creation/publishing workflow.
 9. Run a decision-changing foundation challenge: contrast, zoom, long Hebrew labels, mixed bidi evidence, keyboard-only navigation, reduced motion, narrow viewport, light/dark/lab, rich-environment failure/fallback.
 10. Re-read live main/work_log/DB before closure; Human Gate remains required for canonical/release promotion.
+11. Verify the shared gallery/lightbox path opens representative landscape, portrait and legacy gematria images with `FIT_WHOLE_IMAGE` at 320/360/390 and desktop, with all four source-image edges visible before any zoom/pan interaction.
 
 ## 6. Slice 1 verdict
 
 `FOUNDATION IN PROGRESS`.
 
-The owner tree is resolved and the missing cross-surface primitive families now have a bounded implementation home. The North Star now also includes a governed contextual Environment Layer and required visual-asset gate for experience-bearing products/Journeys. This is sufficient to continue Golden Case reconciliation, but not sufficient to start the broad Adaptive Shell or to call W0.5 closed.
+The owner tree is resolved and the missing cross-surface primitive families now have a bounded implementation home. The North Star now also includes a governed contextual Environment Layer, required visual-asset gate for experience-bearing products/Journeys, and full-image preservation for gallery research representations. This is sufficient to continue Golden Case reconciliation, but not sufficient to start the broad Adaptive Shell or to call W0.5 closed.
