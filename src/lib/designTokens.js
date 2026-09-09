@@ -73,6 +73,22 @@ export const DIRECTION = Object.freeze({
   textEnd: 'end',
 });
 
+// Role vocabulary only. These are environment semantics, not hard-coded images
+// and not a second theme/palette owner. Asset selection/generation remains a
+// representation concern under the Design Contract.
+export const ENVIRONMENT = Object.freeze({
+  DARK_OBSERVATORY: 'dark_observatory',
+  LIGHT_CELESTIAL: 'light_celestial',
+  RESEARCH_LAB: 'research_lab',
+  SPATIAL_JOURNEY: 'spatial_journey',
+});
+
+export const VISUAL_ASSET_STATE = Object.freeze({
+  CURATED: 'curated_asset',
+  GENERATED_CANDIDATE: 'generated_candidate',
+  CANONICAL_FALLBACK: 'canonical_fallback',
+});
+
 export function motionForPreference(reducedMotion) {
   return reducedMotion ? MOTION.reduced : MOTION;
 }
@@ -82,4 +98,8 @@ export function responsiveBand(width) {
   if (width < BREAKPOINT.medium) return 'medium';
   if (width < BREAKPOINT.wide) return 'wide';
   return 'xwide';
+}
+
+export function requiresContextualVisualAsset(surfaceKind) {
+  return ['product', 'journey', 'major_experience', 'editorial_experience'].includes(surfaceKind);
 }
