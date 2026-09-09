@@ -1,6 +1,10 @@
-# SOD1820 — W0.5 Visual Foundation 2027 · Slice 1
+# SOD1820 — W0.5 Visual Foundation 2027 · Release + Closure State
 
-Status: IMPLEMENTED ON BRANCH · NOT MERGED · NOT DEPLOYED · NOT LIVE
+Status: IMPLEMENTED · MERGED · DEPLOYED · PRODUCTION LIVE · RELEASE VERIFIED · CLOSURE IN PROGRESS
+
+Release lineage: PR #396 → merge `1860e9d264d2e69a5786cf08920e42ad2994b69c` → Vercel Production READY on `sod1820.co.il` / `www.sod1820.co.il`.
+
+Release evidence: `Release Visual Gate` and `Observability/SEO Build Gate` both passed against the current PR merge ref. Browser acceptance covered 320/360/390/1440, focusability, dark/light/lab projection modes, `prefers-reduced-motion`, and gallery `FIT_WHOLE_IMAGE` landscape/portrait/legacy-ratio cases. Release Visual evidence is retained by GitHub Actions artifacts.
 
 ## 1. Scope and owner
 
@@ -19,8 +23,8 @@ Canonical dependency tree:
 - responsive release acceptance → `mobile_acceptance_law`;
 - Raziel semantics → `raziel_companion_layer_law`; System Frame owns later placement/invocation;
 - contextual environment / required visual asset semantics → additive W0.5 extension `docs/w0-5-visual-environment-and-asset-gate-v1.md` under this same Design owner;
-- spatial/depth rendering semantics → canonical DB owner `spatial_gematria_law v3` (`lowest_sufficient_tier`, One Tree); W0.5 consumes its projection boundary and does not create a second spatial system;
-- W1 Adaptive Shell remains out of scope until this foundation gate closes.
+- spatial/depth rendering semantics → canonical DB owner `spatial_gematria_law v4` (`lowest_sufficient_tier`, One Tree, Living Doorway); W0.5 consumes its projection boundary and does not create a second spatial system;
+- W1 Adaptive Shell remains out of scope until this foundation closure set is resolved.
 
 ## 2. Visual Foundation 2027 decisions
 
@@ -48,7 +52,7 @@ Numbers, code, URLs and mixed-script evidence may use local `dir="ltr"`/`dir="au
 
 ### 2.5 Responsive primitives
 
-Mobile is first-class, not compressed desktop. W0.5 preserves the existing mandatory 320/360/390px acceptance widths and introduces shared responsive bands for composition decisions. Breakpoints are projection hints, not device identities.
+Mobile is first-class, not compressed desktop. W0.5 preserves the mandatory 320/360/390px acceptance widths and shared responsive bands for composition decisions. Breakpoints are projection hints, not device identities.
 
 The later Adaptive Shell may change geometry across viewport/input/context, but it must consume this visual foundation rather than define a second responsive language.
 
@@ -68,24 +72,15 @@ The visual foundation must preserve semantic HTML, keyboard navigation, reading 
 
 ### 2.8 Design tokens
 
-`src/lib/designTokens.js` is an implementation extension under the existing Design Contract. It currently owns only missing cross-surface primitive families:
-
-- spacing;
-- radius;
-- typography scale metrics;
-- motion timing/easing/reduced-motion policy;
-- responsive breakpoints/acceptance widths;
-- minimum control/focus/layout metrics;
-- direction-safe constants/helpers;
-- finite environment-role vocabulary and visual-asset presentation states.
+`src/lib/designTokens.js` is an implementation extension under the existing Design Contract. It owns only missing cross-surface primitive families: spacing, radius, typography scale metrics, motion timing/easing/reduced-motion policy, responsive breakpoints/acceptance widths, minimum control/focus/layout metrics, direction-safe constants/helpers, and finite environment-role / visual-asset presentation states.
 
 It explicitly does **not** own colors, fonts, chrome theme, world colors, truth/status semantics, media truth, publishing state, spatial truth, renderer authority or product capability state. Those remain with their existing owners.
 
 ### 2.9 Environment / contextual imagery
 
-W0.5 now includes a canonical environment layer under the same Design owner. Initial roles are: `dark_observatory`, `light_celestial`, `research_lab`, `spatial_journey`.
+W0.5 includes a canonical environment layer under the same Design owner. Initial roles are `dark_observatory`, `light_celestial`, `research_lab`, `spatial_journey`.
 
-Environment imagery is not wallpaper and not a second theme. Rich imagery may lead hero/entry moments and then recede as research density increases. The dark North Star is Observatory/Cosmos; the light North Star is Celestial Research / premium future laboratory. Both are the same product identity.
+Environment imagery is not wallpaper and not a second theme. Rich imagery may lead hero/entry moments and then recede as research density increases. Dark Observatory/Cosmos and light Celestial Research are projections of the same product identity.
 
 See `docs/w0-5-visual-environment-and-asset-gate-v1.md` for responsive crop, performance, fallback and truth-boundary requirements.
 
@@ -97,15 +92,15 @@ Covered experiences resolve one of: curated asset, generated candidate, or canon
 
 ### 2.11 Gallery full-image preservation
 
-Gallery imagery is research-bearing visual material, not decorative crop material. When a gallery image is opened in the full-screen/lightbox experience, the initial state must show the **entire source image** inside the available viewport using contain-style composition: all four edges must be visible and no automatic crop may remove source pixels.
+Gallery imagery is research-bearing visual material, not decorative crop material. Full-screen/lightbox initial state must show the **entire source image** inside the available viewport using contain-style composition: all four edges visible, no automatic crop.
 
-This is especially mandatory for legacy gematria/gallery images, where numbers, labels, borders or contextual evidence may live near any edge. A portrait/tall image must not automatically switch into an initial scroll-only mode that hides part of the image. Zoom/pan/scroll may be offered as an explicit secondary interaction after the full-image view is established, but the opening state is always `FIT_WHOLE_IMAGE`.
+This is especially mandatory for legacy gematria/gallery images, where numbers, labels, borders or contextual evidence may live near any edge. Zoom/pan/scroll may be offered as an explicit secondary interaction after the full-image view is established; the opening state is always `FIT_WHOLE_IMAGE`.
 
-Thumbnails/cards may still use bounded presentation rules appropriate to their surface, but any interaction described as full-screen, full-image, lightbox, inspect or enlarge must preserve the complete representation. No responsive breakpoint may silently change this invariant.
+The automated Release Visual Gate now enforces this invariant against representative landscape, portrait and legacy-ratio fixtures at 320/360/390/1440.
 
 ### 2.12 2029 Progressive Spatial Readiness
 
-W0.5 adopts the active canonical `spatial_gematria_law v3` as the spatial/depth owner. The visual system is therefore **spatial-ready by construction**, but 3D is not a mandatory decoration layer.
+W0.5 consumes active canonical `spatial_gematria_law v4` as the spatial/depth owner. The visual system is **spatial-ready by construction**, but 3D is not a mandatory decoration layer.
 
 One semantic identity may project through progressively richer representations without changing truth, route identity, Research Context, provenance or capability:
 
@@ -115,13 +110,11 @@ One semantic identity may project through progressively richer representations w
 - `T3` — richer interactive spatial projection when interaction or structure benefits from depth;
 - `T4` — real WebGL/WebGPU spatial rendering only when spatial structure itself materially improves research, orientation or experience.
 
-Canonical rule: **lowest sufficient tier wins**. A future renderer may move upward or downward according to semantic need, viewport, input mode, device capability, network/performance budget, power state and reduced-motion preference. No required information or control may exist only in T3/T4.
+Canonical rule: **lowest sufficient tier wins**. No required information or control may exist only in T3/T4.
 
-The same product/tool symbol must remain recognizably the same identity across small functional icon → Signature icon → spatial representation. Gematria, ELS, Books, Journey, World, Raziel and future tools must not invent separate 3D identities or parallel icon systems when they gain depth.
+The same product/tool symbol remains one identity across functional icon → Signature → spatial representation. Living Doorway is a destination-owned bounded preview projection under this same tree: one doorway = one dominant preview signal; representation never invents truth or leaks access-protected content.
 
 Spatial richness never changes truth. Depth, glow, scale, proximity, motion, particle density or camera emphasis may not imply verification, canonicality, confidence, access or importance unless a separate canonical semantic signal explicitly says so.
-
-W0.5 itself remains lightweight: its job is to guarantee the projection seams, motion/depth vocabulary, fallbacks and identity continuity needed by future spatial renderers. It does not bulk-enable WebGL on ordinary pages.
 
 ## 3. Migration law
 
@@ -132,41 +125,54 @@ For each redesigned surface:
 1. consume existing semantic colors and typography roles;
 2. consume W0.5 spacing/radius/motion/responsive/accessibility primitives;
 3. consume the canonical environment role where the experience calls for an environment;
-4. declare the lowest sufficient spatial presentation tier under `spatial_gematria_law v3`, with a truthful lower-tier fallback;
+4. declare the lowest sufficient spatial presentation tier under `spatial_gematria_law v4`, with a truthful lower-tier fallback;
 5. migrate shared components before page-local copies;
 6. preserve legacy behavior until that surface enters an explicit redesign pass;
 7. no blind mass CSS replacement;
 8. verify narrow-mobile, keyboard/focus, reduced-motion, dark/light behavior, spatial degradation and environment crop/fallback before release.
 
-## 4. Explicit non-goals for Slice 1
+## 4. Explicit non-goals
 
-- no Adaptive Shell build;
+- no Adaptive Shell build in W0.5;
 - no new Sidebar/Bottom Bar/Raziel placement architecture;
 - no repository-wide restyle;
 - no new palette/theme/media/spatial store;
-- no font package installation;
-- no blanket WebGL/Canvas rollout; T3/T4 implementation stays capability- and evidence-gated;
+- no blanket WebGL/Canvas rollout;
 - no bulk image generation or legacy-asset replacement;
-- no schema or Supabase product-data changes;
-- no canonical promotion merely because branch code exists.
+- no schema or Supabase product-data changes merely for Visual Foundation;
+- no canonical promotion merely because presentation code exists.
 
-## 5. Closure gates still required before W0.5 can be called CLOSED
+## 5. Closure gate ledger
 
-1. Reconcile `src/theme.js` typography/readability tokens with the W0.5 scale without breaking legacy aliases.
-2. Reconcile `palette.js` semantic roles for control/status/focus coverage and verify dark/light/lab contrast.
-3. Define one shared focus-visible primitive/CSS contract and reduced-motion base behavior.
-4. Verify logical RTL/LTR primitives on representative Hebrew + number/code mixed content.
-5. Verify responsive primitives at 320/360/390 and at least one tablet/desktop width on a real reference surface.
-6. Apply the foundation to one bounded Golden Case/reference surface before declaring the token model sufficient.
-7. Prove one real dark environment + one light counterpart on the Golden Case, with mobile-safe crop, readable dense-content fallback and reduced-motion/static fallback.
-8. Demonstrate the contextual visual-asset requirement without creating a parallel media system; actual generation pipeline may land with the later owning creation/publishing workflow.
-9. Run a decision-changing foundation challenge: contrast, zoom, long Hebrew labels, mixed bidi evidence, keyboard-only navigation, reduced motion, narrow viewport, light/dark/lab, rich-environment failure/fallback.
-10. Re-read live main/work_log/DB before closure; Human Gate remains required for canonical/release promotion.
-11. Verify the shared gallery/lightbox path opens representative landscape, portrait and legacy gematria images with `FIT_WHOLE_IMAGE` at 320/360/390 and desktop, with all four source-image edges visible before any zoom/pan interaction.
-12. Verify one representative identity can degrade cleanly from Signature/depth presentation to functional/static presentation without changing label, action, semantic identity, truth/provenance meaning or keyboard accessibility.
+Release and closure are separate. Release is already LIVE/VERIFIED; the following ledger controls whether W0.5 may be called `CLOSED` and whether W1 may begin broadly.
 
-## 6. Slice 1 verdict
+1. **OPEN** — reconcile `src/theme.js` typography/readability aliases with the W0.5 scale without breaking legacy aliases.
+2. **OPEN** — reconcile `palette.js` semantic roles for control/status/focus coverage and verify contrast across dark/light/lab.
+3. **PARTIAL** — reduced-motion behavior is implemented and browser-verified; one shared focus-visible primitive/CSS contract still needs explicit owner-level reconciliation.
+4. **OPEN** — verify logical RTL/LTR primitives on representative Hebrew + number/code/URL mixed content.
+5. **PASS** — real browser acceptance at 320/360/390 and desktop passed in Release Visual Gate.
+6. **PASS** — Golden Case/reference surface is live and consumes the shared foundation.
+7. **PASS** — dark/light/lab projections plus reduced-motion/static fallback are browser-verified on the Golden Case.
+8. **PARTIAL** — contextual visual-asset requirement and fallback semantics are defined and demonstrated in Visual Foundation/Living Doorway; automatic creation/publishing workflow handoff remains later-owner work and is not a new W0.5 media system.
+9. **PARTIAL** — browser gate covers focus, narrow viewport, reduced motion, dark/light/lab; dedicated challenge for contrast, browser zoom, long Hebrew labels and mixed-bidi evidence remains open.
+10. **PASS** — current `main`, canonical DB, work_log and production release state re-read after release; Human Gate release authorization recorded.
+11. **PASS** — Gallery `FIT_WHOLE_IMAGE` is automated at landscape/portrait/legacy-ratio × 320/360/390/1440.
+12. **PASS** — the same glyph identity is demonstrated across functional icon and Signature/depth presentation, with keyboard-focusable lower-tier controls and unchanged semantic labels/actions; true spatial tiers remain progressive rather than separate identities.
 
-`FOUNDATION IN PROGRESS`.
+### Remaining closure set
 
-The owner tree is resolved and the missing cross-surface primitive families now have a bounded implementation home. The North Star now includes a governed contextual Environment Layer, required visual-asset gate for experience-bearing products/Journeys, full-image preservation for gallery research representations, and explicit 2029 Progressive Spatial Readiness consuming canonical `spatial_gematria_law v3`. This is sufficient to continue Golden Case reconciliation, but not sufficient to start the broad Adaptive Shell or to call W0.5 closed.
+Only the decision-changing foundation gaps remain before declaring W0.5 `CLOSED`:
+
+- typography alias reconciliation;
+- palette/status/focus contrast reconciliation;
+- shared focus-visible primitive closure;
+- bidi representative proof;
+- focused adversarial challenge for contrast/zoom/long Hebrew/mixed-bidi.
+
+The future automatic visual-asset generation/upload workflow is owned by the relevant creation/publishing/media path and may evolve after W0.5; W0.5 only owns the presentation requirement and truthful fallback contract.
+
+## 6. Current verdict
+
+`RELEASED + PRODUCTION VERIFIED · FOUNDATION CLOSURE IN PROGRESS`.
+
+The 2029 visual/spatial foundation is live and reusable. W1 should not start broad shell construction until the remaining closure set above is reconciled, but no further visual-concept expansion is required in W0.5.
