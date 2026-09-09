@@ -1,4 +1,5 @@
 import React from "react";
+import "../pages/EntityHubContextualRichness.css";
 
 const PATHS = {
   save: <><path d="M5 3h12l2 2v16H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></>,
