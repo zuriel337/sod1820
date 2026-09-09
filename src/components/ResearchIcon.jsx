@@ -28,7 +28,7 @@ export const RESEARCH_ICON_NAMES = Object.freeze(Object.keys(PATHS));
 
 export default function ResearchIcon({ name = "research", size = 24, tone = "research", title }) {
   const path = PATHS[name] || PATHS.research;
-  return <span className={`rf-icon rf-icon--${tone}`} aria-hidden={title ? undefined : true} title={title}>
+  return <span className={`rf-icon rf-icon--${tone}`} data-icon={name} aria-hidden={title ? undefined : true} title={title}>
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" focusable="false" aria-hidden="true">{path}</svg>
   </span>;
 }
