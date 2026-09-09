@@ -2,6 +2,8 @@
 // Reuses the existing secure Google service-account + sync-key pattern already used by gsc-sync.
 // Sole historical writer: existing ingest_ga_daily / ingest_ga_country_daily RPCs.
 // No parallel analytics store and no browser session dependency.
+// Property resolution: GA_PROPERTY_ID Edge env when present; otherwise Google Admin API discovery,
+// accepted only when exactly one property is accessible. Ambiguity/missing config fails with HTTP 500.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
