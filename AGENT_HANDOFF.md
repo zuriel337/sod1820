@@ -29,6 +29,8 @@ Do not conclude that something is missing, duplicated, stale, abandoned, or unkn
 - research_objects = durable research assertions/candidates
 - nodes + edges = canonical knowledge graph
 
+Adapter-local version labels or counts are non-authoritative hints only. Always resolve changing versions/counts live from their canonical owner. An adapter-only mismatch is `STALE DOCUMENTATION`, not project-state DRIFT and not a blocker; report project DRIFT only when canonical/live sources themselves conflict.
+
 ## Reconciliation note — 2026-09-04
 
 An independent audit initially interpreted recent GPT+Zuriel work around Research Objects, Human Gate, Truth Axes and PR flow as a parallel operating system.
