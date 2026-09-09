@@ -6,6 +6,7 @@ import "./EntityHubIconNorthStar.css";
 import "./EntityHubMicroMotion.css";
 import "./EntityHubSpatial2029.css";
 import "./EntityHubLivingDoorway.css";
+import "./EntityHubSpatialModes.css";
 
 const tools = [
   { name: "gematria", label: "גימטריה", sub: "אות ⇄ מספר", tone: "heritage", tier: "T2" },
