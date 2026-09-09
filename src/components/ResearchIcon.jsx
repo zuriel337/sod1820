@@ -1,4 +1,5 @@
 import React from "react";
+import "../pages/EntityHubMicroMotion.css";
 
 const PATHS = {
   research: <><circle cx="12" cy="12" r="6.5"/><path d="M12 3.5v17M3.5 12h17"/><circle cx="12" cy="12" r="2"/></>,
