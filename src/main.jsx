@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './adminTheme.css'
+import './components/LightboxVisualFoundation.css'
 import { initAppHeal } from './lib/appHeal.js'
 
 // ריפוי-עצמי לבאנדל ישן — חייב להירשם לפני שראוטים עצלים מתחילים להיטען
