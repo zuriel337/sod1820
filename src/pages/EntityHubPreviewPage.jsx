@@ -64,24 +64,24 @@ export default function EntityHubPreviewPage() {
     </section>
 
     <section id="doorways" className="sp29-doorways" aria-labelledby="sp29-doorways-title">
-      <div className="sp29-section-head"><div><span>LIVING DOORWAY · SPATIAL v4</span><h2 id="sp29-doorways-title">הדלת מראה מה מחכה מאחוריה</h2></div><p>Rest שומר מתח. Hover/Focus חושף קטע מוגבל מאותו יעד. אין ממצא מומצא ואין דליפה של תוכן מוגן.</p></div>
+      <div className="sp29-section-head"><div><span>LIVING DOORWAY · SPATIAL v4</span><h2 id="sp29-doorways-title">הדלת מראה רק רמז אחד למה שמחכה מאחוריה</h2></div><p>One doorway = one dominant preview signal. בלי מיני־דף ובלי עומס.</p></div>
       <div className="sp29-doorway-grid">
         <article className="living-door living-door--featured" tabIndex={0}>
           <span className="living-door__hint">FOCUS TO OPEN</span><div className="living-door__frame" aria-hidden="true"/>
-          <div className="living-door__preview"><div className="living-door__content"><small>GEMATRIA DESTINATION PREVIEW</small><strong>{label}</strong><p>הצצה לשכבת הערכים, השיטות והקשרים של אותה ישות לפני הכניסה.</p><div className="living-door__space" aria-hidden="true"><i/><i/><b/></div></div><div className="living-door__veil"/></div>
-          <div className="living-door__meta"><b>T2 · SAME IDENTITY</b><span><ResearchIcon name="gematria" tone="heritage" size={18}/>גימטריה</span></div>
+          <div className="living-door__preview"><div className="living-door__content"><small>GEMATRIA</small><strong>{label}</strong><div className="living-door__space" aria-hidden="true"><i/><i/><b/></div></div><div className="living-door__veil"/></div>
+          <div className="living-door__meta"><b>T2 · ONE SIGNAL</b><span><ResearchIcon name="gematria" tone="heritage" size={18}/>מספר + קשר אחד</span></div>
         </article>
 
         <article className="living-door" tabIndex={0}>
           <span className="living-door__hint">LIVE FRAGMENT</span><div className="living-door__frame" aria-hidden="true"/>
-          <div className="living-door__preview"><div className="living-door__content"><small>ELS DESTINATION PREVIEW</small><div className="living-door__els-grid" aria-hidden="true"><span className="living-door__els-path"/></div><p>חלק מהמטריצה והמסלול נחשף לפני הכניסה; התוצאה המלאה נשארת בתוך הכלי.</p></div><div className="living-door__veil"/></div>
-          <div className="living-door__meta"><b>T2 · BOUNDED</b><span><ResearchIcon name="els" tone="connection" size={18}/>דילוגי אותיות</span></div>
+          <div className="living-door__preview"><div className="living-door__content"><small>ELS</small><div className="living-door__els-grid" aria-hidden="true"><span className="living-door__els-path"/></div></div><div className="living-door__veil"/></div>
+          <div className="living-door__meta"><b>T2 · ONE SIGNAL</b><span><ResearchIcon name="els" tone="connection" size={18}/>מטריצה + מסלול</span></div>
         </article>
 
         <article className="living-door" tabIndex={0}>
           <span className="living-door__hint">SOURCE PREVIEW</span><div className="living-door__frame" aria-hidden="true"/>
-          <div className="living-door__preview"><div className="living-door__content"><small>BOOK / SOURCE PREVIEW</small><div className="living-door__book" aria-hidden="true"><i className="living-door__page left"/><i className="living-door__page right"/></div><p>הצצה לעד או לקטע המקור מתוך אותו אובייקט — לא טקסט חלופי מומצא.</p></div><div className="living-door__veil"/></div>
-          <div className="living-door__meta"><b>T1 · SOURCE OWNED</b><span><ResearchIcon name="book" tone="heritage" size={18}/>ספרים ומקורות</span></div>
+          <div className="living-door__preview"><div className="living-door__content"><small>BOOK / SOURCE</small><div className="living-door__book" aria-hidden="true"><i className="living-door__page left"/><i className="living-door__page right"/></div></div><div className="living-door__veil"/></div>
+          <div className="living-door__meta"><b>T1 · ONE SIGNAL</b><span><ResearchIcon name="book" tone="heritage" size={18}/>עמוד / פתיחה</span></div>
         </article>
       </div>
     </section>
