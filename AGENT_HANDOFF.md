@@ -1,7 +1,7 @@
 # SOD1820 — AGENT HANDOFF
 
 Status: canonical bootstrap pointer. It does not replace live verification.
-Last updated: 2026-09-04.
+Last updated: 2026-09-09.
 
 ## Mandatory bootstrap
 
@@ -19,7 +19,7 @@ Do not conclude that something is missing, duplicated, stale, abandoned, or unkn
 
 ## Current frame
 
-- Roadmap: SOD1820_MASTER_ROADMAP.md — v5.3
+- Roadmap: `SOD1820_MASTER_ROADMAP.md` — resolve the current version live from `origin/main`; this adapter never pins a Roadmap version.
 - Master State: SOD1820_MASTER_STATE.md
 - Research OS: docs/research-os-canonical-lock-v1.md
 - Principle: One Tree · One Research OS · Many Lenses
