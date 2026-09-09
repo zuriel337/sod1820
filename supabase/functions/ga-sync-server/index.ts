@@ -51,7 +51,7 @@ async function getAccessToken(sa: any): Promise<string> {
   const r = await fetch(claim.aud, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth-type:jwt-bearer", assertion }),
+    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion }),
   });
   const d = await r.json().catch(() => ({}));
   if (!r.ok || !d.access_token) throw new Error(`token exchange failed: ${d.error_description || d.error || r.status}`);
