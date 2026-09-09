@@ -3,25 +3,28 @@
 // מדינות *עם זמן שהייה*, ערים, ערוצים/מקורות/מדיום, מכשירים/מערכת/דפדפן/שפה,
 // דפים *עם זמן*, דפי נחיתה, חדשים-מול-חוזרים, מגמה יומית, ושעות היום.
 // אותו service account (GSC_SERVICE_ACCOUNT) + GA_PROPERTY_ID. אדמין בלבד.
+// GA4 Israel history bridge: the same successful admin read also refreshes the bounded
+// `ga:country:IL` slice in existing traffic_history. This is an idempotent cache/history refresh,
+// not a second analytics store and not an authorization bypass.
 
 import crypto from 'crypto';
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBiYXNlIiwicmVmIjoibGluc3dtbm5ranh2d2V1bXByYXYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDYyODc2MiwiZXhwIjoyMDk2MjA0NzYyfQ.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
-async function verifyAdmin(req) {
+async function getAdminToken(req) {
   try {
     const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-    if (!token) return false;
+    if (!token) return null;
     const uRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: ANON, Authorization: 'Bearer ' + token } });
-    if (!uRes.ok) return false;
+    if (!uRes.ok) return null;
     const u = await uRes.json();
-    if (!u?.id) return false;
+    if (!u?.id) return null;
     const pRes = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${u.id}&select=role`, { headers: { apikey: ANON, Authorization: 'Bearer ' + token } });
-    if (!pRes.ok) return false;
+    if (!pRes.ok) return null;
     const rows = await pRes.json();
-    return rows?.[0]?.role === 'admin';
-  } catch { return false; }
+    return rows?.[0]?.role === 'admin' ? token : null;
+  } catch { return null; }
 }
 
 const b64url = buf => Buffer.from(buf).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
@@ -50,10 +53,33 @@ async function gaReport(token, pid, body, realtime = false) {
   return r.json();
 }
 
+async function callRpc(adminToken, rpc, body) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${rpc}`, {
+    method: 'POST',
+    headers: { apikey: ANON, Authorization: 'Bearer ' + adminToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`${rpc} ${r.status}: ` + (await r.text()).slice(0, 160));
+  return r.json();
+}
+
 const num = v => parseFloat(v) || 0;
 
+function gaDailyRows(data) {
+  return (data.rows || []).map(r => {
+    const d = r.dimensionValues?.[0]?.value || '';
+    return {
+      date: d.length === 8 ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : '',
+      views: parseInt(r.metricValues?.[0]?.value, 10) || 0,
+      users: parseInt(r.metricValues?.[1]?.value, 10) || 0,
+      sessions: parseInt(r.metricValues?.[2]?.value, 10) || 0,
+    };
+  }).filter(x => x.date && x.views > 0);
+}
+
 export default async function handler(req, res) {
-  if (!(await verifyAdmin(req))) { res.status(401).json({ error: 'unauthorized' }); return; }
+  const adminToken = await getAdminToken(req);
+  if (!adminToken) { res.status(401).json({ error: 'unauthorized' }); return; }
 
   const raw = process.env.GSC_SERVICE_ACCOUNT;
   const pid = process.env.GA_PROPERTY_ID;
@@ -101,13 +127,36 @@ export default async function handler(req, res) {
       rep('language', 'activeUsers', 8),
     ]);
 
-    const [pages, landing, daily, hours, newRet] = await Promise.all([
+    const [pages, landing, daily, hours, newRet, ilDailyHistory] = await Promise.all([
       repM('pagePath', ['screenPageViews', 'averageSessionDuration'], 15),
       rep('landingPage', 'sessions', 12),
       repM('date', ['totalUsers', 'sessions'], 400, false),
       repM('hour', ['activeUsers'], 24, false),
       rep('newVsReturning', 'activeUsers', 4),
+      gaReport(token, pid, {
+        dateRanges: [{ startDate: '120daysAgo', endDate: 'today' }],
+        dimensions: [{ name: 'date' }],
+        metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'sessions' }],
+        dimensionFilter: {
+          filter: {
+            fieldName: 'countryId',
+            stringFilter: { matchType: 'EXACT', value: 'IL' },
+          },
+        },
+        limit: 100000,
+      }),
     ]);
+
+    // Release hotfix: /api/ga-insights is already proven to authenticate the admin session in production.
+    // Refresh the Israel history through that same authenticated path so a transient POST/session-race
+    // on /api/ga-sync cannot block the canonical country history. RPC remains admin-gated in DB.
+    const ilRows = gaDailyRows(ilDailyHistory);
+    const countryHistory = { source: 'ga:country:IL', fetched: ilRows.length, written: 0 };
+    try {
+      countryHistory.written = num(await callRpc(adminToken, 'ingest_ga_country_daily', { p_rows: ilRows, p_country_id: 'IL' }));
+    } catch (persistErr) {
+      countryHistory.error = String(persistErr?.message || persistErr).slice(0, 180);
+    }
 
     const t = totals.rows?.[0]?.metricValues || [];
     res.setHeader('Cache-Control', 'private, max-age=300');
@@ -134,6 +183,7 @@ export default async function handler(req, res) {
       daily: listM(daily, ['users', 'sessions']).sort((a, b) => (a.key < b.key ? -1 : 1)),
       hours: listM(hours, ['users']).sort((a, b) => Number(a.key) - Number(b.key)),
       newReturning: list(newRet),
+      countryHistory,
     });
   } catch (e) {
     res.status(200).json({ configured: true, error: String(e.message || e) });
