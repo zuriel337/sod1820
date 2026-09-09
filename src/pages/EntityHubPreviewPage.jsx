@@ -1,6 +1,9 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import EntityHubPreviewPageFunctional from "./EntityHubPreviewPageFunctional.jsx";
+import { F } from "../theme.js";
+import { usePalette } from "../lib/palette.js";
+import { LAYOUT, MOTION, RADIUS, SPACE, TYPE_SCALE } from "../lib/designTokens.js";
 import "./EntityHubObservatory.css";
 
 const researchDoors = [
@@ -15,8 +18,40 @@ export default function EntityHubPreviewPage() {
   const { type = "number", key = "1237" } = useParams();
   const label = decodeURIComponent(String(key || "1237"));
   const isNumber = type === "number";
+  const P = usePalette();
 
-  return <div className="entity-hub-observatory" dir="rtl">
+  // W0.5 Golden Case: existing Projection consumes the canonical palette +
+  // Visual Foundation token families. CSS keeps composition, not ownership.
+  const visualFoundationVars = {
+    "--vf-font-ui": F.ui,
+    "--vf-font-body": F.body,
+    "--vf-font-numeric": F.numeric,
+    "--vf-space-2": `${SPACE[2]}px`,
+    "--vf-space-3": `${SPACE[3]}px`,
+    "--vf-space-4": `${SPACE[4]}px`,
+    "--vf-space-6": `${SPACE[6]}px`,
+    "--vf-radius-sm": `${RADIUS.sm}px`,
+    "--vf-radius-md": `${RADIUS.md}px`,
+    "--vf-radius-lg": `${RADIUS.lg}px`,
+    "--vf-radius-xl": `${RADIUS.xl}px`,
+    "--vf-radius-pill": `${RADIUS.pill}px`,
+    "--vf-control-min": `${LAYOUT.controlMinHeight}px`,
+    "--vf-focus-width": `${LAYOUT.focusRingWidth}px`,
+    "--vf-focus-offset": `${LAYOUT.focusRingOffset}px`,
+    "--vf-motion-fast": `${MOTION.duration.fast}ms`,
+    "--vf-motion-normal": `${MOTION.duration.normal}ms`,
+    "--vf-ease": MOTION.easing.standard,
+    "--vf-body-size": `${TYPE_SCALE.body.fontSize}px`,
+    "--vf-body-line": TYPE_SCALE.body.lineHeight,
+    "--obs-ink": P.ink,
+    "--obs-muted": P.inkSoft,
+    "--obs-line": P.border,
+    "--obs-blue": P.accent,
+    "--obs-gold": P.accentText,
+    "--obs-focus": P.accent,
+  };
+
+  return <div className="entity-hub-observatory" dir="rtl" style={visualFoundationVars}>
     <div className="obs-shell">
       <header className="obs-top">
         <a className="obs-brand" href="/">SOD1820<small>ONE REALITY · MANY DOORS</small></a>
@@ -57,7 +92,7 @@ export default function EntityHubPreviewPage() {
 
       <div className="obs-contract-strip">
         <span>FOUNDATION → PROJECTION → EXPERIENCE</span>
-        <span>Relation labels are projected as stored · no semantic rewrite</span>
+        <span>W0.5 tokens · semantic palette · logical RTL</span>
         <span>Human Gate preserved</span>
       </div>
     </div>
