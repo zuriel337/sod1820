@@ -11,6 +11,7 @@ import { ENVIRONMENT, LAYOUT, MOTION, RADIUS, SPACE, TYPE_SCALE, VISUAL_ASSET_ST
 import "./EntityHubObservatory.css";
 import "./EntityHubVisualFoundation.css";
 import "./EntityHubIconNorthStar.css";
+import "./EntityHubMicroMotion.css";
 
 const researchDoors = [
   { label: "סקירה", href: "#entity-hub-live" }, { label: "קשרים", to: "/cross" },
@@ -112,7 +113,7 @@ export default function EntityHubPreviewPage() {
 
       <section className="obs-icon-north-star" aria-labelledby="obs-icon-title">
         <div className="obs-icon-heading"><div><span>FUNCTIONAL ICONS · TIER A</span><h2 id="obs-icon-title">Research Future — מהיר, חד, לכלי העבודה</h2></div><p>SVG קל לניווט, controls, mobile, tables ו־dense research.</p></div>
-        <div className="obs-icon-grid">{iconNorthStar.map(([name,text,tone]) => <div className="obs-icon-card" key={name}><ResearchIcon name={name} tone={tone} size={27}/><span>{text}</span></div>)}</div>
+        <div className="obs-icon-grid">{iconNorthStar.map(([name,text,tone]) => <button type="button" className="obs-icon-card" key={name}><ResearchIcon name={name} tone={tone} size={27}/><span>{text}</span></button>)}</div>
       </section>
 
       <nav className="obs-ribbon" aria-label="דלתות מחקר">{researchDoors.map((door,index) => door.to ? <Link className={index===0?"active":""} key={door.label} to={door.to}>{door.label}</Link> : <a className={index===0?"active":""} key={door.label} href={door.href}>{door.label}</a>)}</nav>
