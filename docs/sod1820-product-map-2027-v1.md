@@ -3,114 +3,144 @@
 **Status:** PRODUCT MAP / W0 INPUT · EXTEND_EXISTING · UI-NEUTRAL · NOT IMPLEMENTED  
 **Roadmap:** `SOD1820_MASTER_ROADMAP.md` v5.4
 
-## 0. Purpose
+## 0. Product thesis
 
-This map describes the target product architecture of SOD1820 without treating any current UI surface as sacred.
+SOD1820 is not a collection of mini-sites. The entire product is a set of adaptive views over one Research Reality.
 
-Current Number page, Books page, Bottom Bar, Navbar, Heichal, Raziel shells, admin screens and legacy launchers are drafts/reference material only.
+**One World · Many Views.**
+
+Current Number page, Books page, Bottom Bar, Navbar, Heichal, Raziel shells, admin screens, User Center and legacy launchers are drafts/reference material only.
 
 Preserve capability, identity, truth, provenance, Research Context, Journey continuity, authorization and Human-Gate decisions. Replace presentation freely when a better 2027 interaction exists.
 
 ---
 
-## 1. One product, not many mini-products
+## 1. Whole-product map
 
 ```text
-                           ┌─────────────────────────┐
-                           │    RAZIEL COMPANION     │
-                           │ global/context-aware AI │
-                           └────────────┬────────────┘
-                                        │
-┌──────────────┐      ┌────────────────▼────────────────┐      ┌────────────────┐
-│   DISCOVER   │ ───▶ │          PRIMARY WORLD          │ ◀──▶ │    JOURNEYS    │
-│ Search       │      │ entities · relations · findings │      │ research paths │
-│ Explorer     │      │ sources · topics · provenance   │      │ save / resume  │
-│ Home         │      └───────────────┬─────────────────┘      └────────────────┘
-└──────────────┘                      │
-                                     │ deep research
-                              ┌──────▼──────┐
-                              │   HEICHAL   │
-                              │ research    │
-                              │ workspace   │
-                              └──────┬──────┘
-                                     │
-                      ┌──────────────┼─────────────────┐
-                      │              │                 │
-                  Gematria          ELS          Methods/Books/
-                  engines           tool         Verse/Compare/…
-                      │              │                 │
-                      └──────────────┼─────────────────┘
-                                     │ typed results
-                              ┌──────▼──────┐
-                              │ WORLD STATE │
-                              │ finding /   │
-                              │ evidence /  │
-                              │ candidate   │
-                              └─────────────┘
+                         ┌────────────────────────────┐
+                         │     GLOBAL ORIENTATION     │
+                         │ SOD / focus / search / me  │
+                         └─────────────┬──────────────┘
+                                       │
+                ┌──────────────────────▼──────────────────────┐
+                │         ADAPTIVE RESEARCH SHELL             │
+                │ Context Spine · Commands · Raziel · Inspect │
+                └──────────────┬──────────────────────────────┘
+                               │
+        ┌──────────────────────▼──────────────────────┐
+        │                PRIMARY WORLD               │
+        │ entities · relations · findings · sources  │
+        │ topics · books · ELS findings · provenance │
+        └───────┬──────────────────┬──────────────────┘
+                │                  │
+                │ deep research    │ personal projection
+         ┌──────▼──────┐    ┌─────▼─────────────┐
+         │   HEICHAL   │    │   MY WORKSPACE    │
+         │ tools/modes │    │ saved · journeys  │
+         └──────┬──────┘    │ msgs · profile    │
+                │           │ credits · settings │
+        ┌───────┼────────┐  └────────┬───────────┘
+        │       │        │           │
+    Gematria   ELS    Methods/       │
+                     Books/Verse     │
+        │       │        │           │
+        └───────┼────────┘           │
+                │ typed results      │
+         ┌──────▼──────┐             │
+         │ WORLD STATE │◀────────────┘
+         │ finding /   │
+         │ evidence /  │
+         │ candidate   │
+         └──────┬──────┘
+                │
+         ┌──────▼──────┐
+         │  JOURNEYS   │
+         │ save/resume │
+         └─────────────┘
+
+Cross-cutting: RAZIEL · SEARCH/COMMAND · NOTIFICATIONS · ACCOUNT/ACCESS
+Admin layer: SOURCE INBOX · REVIEW · WORKBENCH · HUMAN GATE
+Input layer: CREATE / INTAKE / CONTRIBUTION
 ```
 
-The World is where knowledge is seen and connected. Heichal is where research actions are performed. Raziel accompanies both. Journeys preserve traversal and research continuity.
+The user should feel continuity, not page switching.
 
 ---
 
-## 2. Adaptive Research Shell
+## 2. Adaptive Global Shell
 
-The target shell has semantic regions, not fixed legacy bars.
+The shell has semantic regions, not fixed bars.
 
 ### A. Research Context Spine
-Invisible continuity layer containing only governed context:
+Invisible continuity layer:
 - subject/root
-- selected entity/relation/result
-- active dimensions/lens
+- selection
+- dimensions/lens
 - current path/journey position
 - tool context
 - exact return/reopen information
 
 It must not become a dump of transient UI details.
 
-### B. Raziel Companion
-Global companion across the entire product.
+### B. Global Orientation Header
+The top surface is intentionally small and global.
+
+Purpose:
+- identify SOD1820 / the World
+- show current focus/breadcrumb when useful
+- expose Universal Search / Command
+- expose account/avatar and depth/access state where useful
+
+It is **not** a giant category menu. Deep navigation belongs to search, commands, context actions, World exploration and Raziel.
+
+### C. Raziel Companion
+One Raziel across the product.
 
 Desktop states:
-- **Presence** — tiny/collapsed
-- **Companion** — persistent conversation/actions
-- **Deep** — temporary expanded research workspace
+- Presence
+- Companion
+- Deep Research
 
 Mobile:
-- focused sheet/full-height companion opened without losing context
+- focused sheet/full-height companion without losing context
 
 Future external surface:
-- browser/desktop companion may use the same authorized context and identity; never a second memory/truth system.
+- same authorized identity/context in browser/desktop companion; never a second truth/memory system.
 
-### C. Adaptive Command Surface
-A capability launcher that may render differently by device/context:
+### D. Adaptive Command Surface
+Semantic actions may render as:
+- bottom dock
 - command palette
-- compact dock
 - contextual toolbar
 - side rail
 - mobile sheet
+- keyboard shortcut
+- gesture
 
-No current Bottom-Bar slot count or Navbar layout is canonical.
+No current Bottom-Bar slot or placement is canonical.
 
-### D. Primary Workspace
+### E. Primary Workspace
 Morphs according to task while maintaining identity/context:
-- focused entity/Number
+- Home / Discover
+- Number / Phrase
 - World graph/list
-- Topic/Convergence
-- Book/Source/Reading
+- Topic / Convergence
+- Book / Reading
 - Heichal tool
 - ELS
 - Journey
-- Post/Gallery
-- timeline/event
+- Post / Gallery
+- Person / Event / Timeline
+- My Workspace
 
-### E. Contextual Inspector
+### F. Contextual Inspector
 Appears only when useful:
 - identity/type
 - truth/verification status
-- provenance
+- provenance/source loci
 - method/engine trace
-- source loci
+- relation details
 - layers
 - contradiction/unresolved state
 - access/publication
@@ -118,10 +148,22 @@ Appears only when useful:
 
 ---
 
-## 3. Discover layer
+## 3. Discover — the front door to the World
+
+### Home
+Home is a calm World gateway, not a widget warehouse.
+
+Potential responsibilities:
+- orientation
+- universal search
+- curated discoveries
+- active/relevant topics where trustworthy
+- resume research
+- recommended journeys
+- entry to deeper World exploration
 
 ### Universal Search / Command Palette
-Primary intent-based entry point.
+Primary intent entry point.
 
 Examples:
 - `1820`
@@ -129,75 +171,53 @@ Examples:
 - `ספר הבהיר`
 - `מצא קשר בין 604 ל־1820`
 - `פתח ELS על 1237`
+- `חזור למחקר האחרון שלי`
+- `פתח את האזור שלי`
 
-Search should route to stable identities and actions, not only keyword result pages.
+Search routes to stable identities **and actions**, not only keyword result pages.
 
 ### Universal Explorer
-Bounded faceted discovery over the same Reality:
-- entity type
-- topic
-- number
-- source/book
-- person
-- time
-- method
-- engine
-- verification/status
-- provenance
-- access/depth
-- language
-- journey membership
+Bounded faceted discovery over the same Reality.
 
-Explorer is discovery/navigation, not a parallel graph.
-
-### Home
-Curated discovery and orientation surface. It should not carry architecture merely because current Home widgets exist.
+Explorer feeds World; it is not another graph.
 
 ---
 
-## 4. Focused projections
+## 4. Focused World projections
 
 Focused projections answer: **“Show me this thing clearly.”**
 
-They can all expand into the World without changing identity.
+They are views of the World, not independent product universes.
 
 ### Number / Phrase
-Immediate readable projection:
-- identity/value
-- strongest canonical/approved findings
-- expressions/aliases where governed
-- selected important connections
-- provenance hints
-
-Deep expansion:
-**Open in World** or **Open Heichal**.
+Immediate high-value identity and findings, then progressive World expansion.
 
 ### Topic / Convergence
-Browsable/rankable semantic projection over the same knowledge body.
+Semantic projection over the same knowledge body.
 
 ### Person / Name
-Identity-centered projection with connected findings, sources, events and journeys.
+Identity-centered projection with connected findings/sources/events.
 
 ### Book / Source / Passage
-Book is a World/source identity, not a Heichal tool.
+Book is World/source identity.
 
-Modes may include:
-- library browse
-- reading mode
-- source map
-- research mode
-- passage context
+Renderers may include:
+- Library
+- Reading Mode
+- Source Map
+- Research Mode
+- Passage Context
 
-Actions on the selected source/passage open Heichal.
+Actions on the selected Book/Passage open Heichal.
 
 ### Post / Gallery / Image
-Representation/source loci connected to semantic identities. Representation is not the semantic identity itself.
+Source/representation loci connected to semantic identities.
 
 ### Verse / ELS Finding
-ELS occurrence/finding is an addressable research result in the World. The ELS engine used to find it belongs in Heichal.
+ELS finding belongs to World; ELS engine belongs to Heichal.
 
 ### Event / Time
-Temporal projection over the same entities/findings.
+Temporal projection over the same identities/findings.
 
 ---
 
@@ -205,7 +225,7 @@ Temporal projection over the same entities/findings.
 
 World is the shared semantic workspace.
 
-It may render as:
+Possible renderers:
 - graph
 - structured list
 - path view
@@ -214,49 +234,23 @@ It may render as:
 - comparison
 - future spatial view
 
-The renderer may change without changing the underlying identity/context.
+Renderer changes do not change identity/context.
 
-### Visibility / research layers
-Independently filterable where authorized:
-- Canonical
-- Approved
-- Candidate
-- Unresolved
-- Contradictions
-- Engine-verified calculations
-- Source claims
-- Interpretations
-- Methods / numeric laws / procedures
-- Topics / Convergences
-- Persons
-- Posts
-- Galleries / Images
-- Books / Sources / Editions / Witnesses
-- ELS findings
-- Events / Time
-- Journeys
-- Raw intake streams
+### Visibility layers
+Canonical · Approved · Candidate · Unresolved · Contradictions · Engine-verified calculations · Source claims · Interpretations · Methods · Topics · Persons · Posts · Galleries · Books/Sources · ELS findings · Events · Journeys · Raw intake.
 
-Default surfaces must remain calm. **Everything may exist; nothing must be visible.**
+**Everything may exist; nothing must be visible.**
 
 ### Scale rules
-- bounded server-side queries
-- progressive expansion
-- semantic zoom
-- pagination/virtualization
-- ranking
-- cluster collapse
-- no full graph dump
+bounded server queries · ranking · pagination/virtualization · semantic zoom · progressive expansion · no full graph dump.
 
 ---
 
-## 6. Heichal
+## 6. Heichal — research mode
 
-Heichal is **research mode inside the World**.
+Heichal answers: **“What do I want to do to the selected research context?”**
 
-It answers: **“What do I want to do to the selected research context?”**
-
-### Tool families
+Tool families:
 - Gematria / numeric calculations
 - registered methods
 - Method Trace / Inspector
@@ -269,34 +263,28 @@ It answers: **“What do I want to do to the selected research context?”**
 - extraction/structure inspection where governed
 - future spatial/3D research tools
 
-### Heichal output envelope
-Every tool result should expose a common semantic envelope where relevant:
+### Common output envelope
+Where relevant:
 - context/input identity
 - tool/engine/method identity
 - parameters
-- deterministic calculation/result
+- deterministic result
 - trace
 - provenance/source
-- timestamp/version where meaningful
-- status/confidence axis where applicable
+- version/time where meaningful
+- confidence/status where applicable
 - save/add-to-research eligibility
-- relationship to existing finding/candidate
+- relation to existing finding/candidate
 
-Outputs may be:
-- Calculation Fact
-- Trace
-- Evidence
-- Finding
-- Candidate
-- Unresolved
+Outputs: Calculation Fact · Trace · Evidence · Finding · Candidate · Unresolved.
 
-No result silently becomes canonical/published truth.
+No output silently becomes canonical/published truth.
 
 ---
 
 ## 7. Journeys / Research Paths
 
-Journeys answer: **“What path did I take and how do I return/continue?”**
+Journeys answer: **“What path did I take and how do I continue?”**
 
 Capabilities:
 - add step
@@ -304,145 +292,204 @@ Capabilities:
 - resume
 - branch
 - exact reopen
-- compare paths later
-- Raziel-aware path context
+- compare later
+- Raziel-aware context
 
-Journeys reuse stable entity identities and Research Context. They do not copy knowledge into a second system.
+Journeys reuse stable identities and Research Context.
 
 ---
 
-## 8. Raziel
+## 8. My Workspace — personal projection, not a second tree
 
-Raziel answers: **“Help me understand, navigate and operate this research environment.”**
+My Workspace answers: **“What belongs to me / what am I doing / what needs my attention?”**
 
-Raziel may:
-- explain selected entities/relations
+It composes existing canonical owners rather than creating `my_*` semantic duplicates.
+
+### Research
+- saved Research Items / collection
+- Journeys / paths
+- resume / recent / exact reopen
+- drafts/private research state where governed
+
+### Communication / attention
+- personal notifications
+- direct messages
+- replies/mentions
+- WhatsApp / connected channels
+
+### Contribution / creation
+- my contributions
+- created/published content
+- submitted findings
+- pending review where relevant
+
+### Identity / progress / account
+- profile
+- researcher level / progress
+- credits
+- Premium / entitlements
+- privacy
+- preferences
+- connected channels/devices
+- account/security settings
+
+### One-tree rule
+“My books”, “my findings”, “my journeys”, “my collection” are **views over canonical identities and owned state**, not duplicate Book/Finding/Journey systems.
+
+### Multiple entry points are allowed
+Avatar, command surface, Raziel command and mobile account button may all invoke the same semantic action:
+
+`open_my_workspace`
+
+Multiple launchers ≠ multiple personal areas.
+
+---
+
+## 9. Notifications / Now / Inbox hierarchy
+
+These must not collapse into one confusing feed, but they also must not become competing systems.
+
+### Personal Attention
+User-specific:
+- notifications
+- DMs
+- replies
+- account alerts
+
+Primary home: My Workspace / attention surface.
+
+### Global Now
+System/site-wide current updates and discovery signals.
+
+This is content/discovery, not personal inbox state.
+
+### Research Intake Inbox
+Raw/source material awaiting research processing or review:
+- Zvi messages
+- WhatsApp/Raziel intake
+- contributor submissions
+- extracted source material
+- raw ELS/book/post inputs
+
+Primary home: Admin Research / Source Inbox where authorized.
+
+One semantic owner per event/item; presentation may vary.
+
+---
+
+## 10. Create / Intake / Contribution
+
+All creation should converge semantically:
+
+```text
+Create / Upload / Message / Finding
+                 ↓
+               Intake
+                 ↓
+      typed draft / candidate / source
+                 ↓
+      Review / Human Gate if required
+                 ↓
+                World
+```
+
+Examples:
+- post authoring
+- upload finding
+- submit ELS result
+- source/book extraction
+- image/gallery contribution
+- WhatsApp message
+- Raziel-proposed candidate
+
+Different editors may exist, but no separate truth pipeline should be invented per editor.
+
+---
+
+## 11. Raziel
+
+Raziel helps understand, navigate and operate the same environment.
+
+May:
+- explain selections/relations
 - compare evidence
 - change filters/layers
 - open tools
-- run authorized tool actions
+- run authorized tools
 - navigate to exact findings/sources
 - propose candidates
-- help construct a Journey
-- surface contradictions/unresolved items
+- help construct Journey
+- open My Workspace
+- surface attention items
 
-Raziel may not:
-- own a parallel graph/search index/truth store
-- silently canonicalize
-- silently publish
-- override authorization
-- treat memory/chat as canonical project truth
+May not own parallel graph/search/truth or override authorization/Human Gate.
 
 ---
 
-## 9. Admin Research / Command Room
+## 12. Admin Research / Command Room
 
-Admin is a deeper authorized projection of the same World, not another graph.
+Admin is deeper authorized projection of the same World.
 
 ### Source Inbox
-Raw/intake material can exist without visual pollution:
-- Zvi messages
-- WhatsApp/Raziel intake
-- posts
-- galleries
-- ELS findings
-- book/source extraction
-- contributors
-- future connectors
-
-States may include unread/reviewed/attached/candidate/deferred/duplicate.
+Raw intake without visual pollution.
 
 ### Review Queue
-Decision-changing items:
-- relation candidate
-- promotion candidate
-- contradiction
-- unresolved identity/method
-- duplicate/merge suggestion
-- publication/access decision
-- attribution ambiguity
+Decision-changing items.
 
 ### Workbench
-Research editing/composition surface.
+Safe research editing/composition.
 
-Safe connection flow:
-**Select/drag A + B → Relation Composer → Candidate → Human Gate → canonical transition if approved.**
+**Select/connect A+B → Relation Composer → Candidate → Human Gate → canonical transition if approved.**
 
-Drag is never required; equivalent keyboard/list actions must exist.
+Drag is never required.
 
 ---
 
-## 10. Access projections
+## 13. Access projections
 
-| Depth | Knowledge | Research tools | Raw/private | Human Gate controls |
+| Depth | Knowledge | Tools | Personal/Admin raw | Human Gate |
 |---|---|---|---|---|
-| Public | curated canonical/approved | basic/public | no | no |
-| Premium | richer bounded depth | richer tools | no | no |
-| Deep Premium | deeper authorized approved material | advanced | no private/admin raw | no |
-| Admin Research | deepest authorized | full authorized Heichal | yes where authorized | yes |
+| Public | curated canonical/approved | public/basic | own account only | no |
+| Premium | richer bounded depth | richer | own authorized | no |
+| Deep Premium | deeper approved depth | advanced | no private admin raw | no |
+| Admin Research | deepest authorized | full authorized Heichal | authorized private/raw | yes |
 
-Access ≠ Truth.
-
-Authorization is server-side and data-bounding, not client hiding.
+Access ≠ Truth. Authorization is server-side data bounding.
 
 ---
 
-## 11. Device / renderer matrix
+## 14. Device / interaction matrix
 
 ### Desktop
-Can support concurrent context:
-- primary workspace
-- Raziel companion
-- inspector
-- command surface
+Can show concurrent context: workspace + Raziel + Inspector + command surface.
 
 ### Tablet
-Two-pane/adaptive modes; panels collapse contextually.
+Adaptive two-pane modes.
 
 ### Mobile
-Task-first projection:
-- one primary task at a time
-- sheets for Raziel/Inspector/commands
-- World primarily path/list/cluster views rather than forced giant graph
+Task-first, one dominant task, sheets for companion/inspector/commands.
 
 ### Keyboard / accessibility
-Any graph-only gesture must have:
-- list alternative
-- keyboard action
-- visible focus
-- accessible status text
-
-Status cannot rely only on color.
+Any graph/drag gesture must have list/keyboard alternative, visible focus and textual state. Status cannot rely only on color.
 
 ---
 
-## 12. State tiers
-
-W0 must classify state before implementation.
+## 15. State tiers
 
 ### Durable
-User/system research state that must survive sessions according to owner/governance, e.g. saved research/Journeys/candidates.
+Governed saved research, Journeys, candidates, account/preferences where owner says durable.
 
 ### Shareable / reopenable
-State that can be encoded/reopened safely when appropriate:
-- entity focus
-- bounded facets
-- selected path/window
-- exact ELS locus
-- return point
+Entity focus, bounded facets, selected path/window, exact ELS locus, return point.
 
 ### Ephemeral
-UI-only state that should not pollute Research Context:
-- panel width
-- hover state
-- temporary animation
-- transient open menus
+Panel width, hover, animation, transient menus.
+
+Ephemeral state must not pollute Research Context.
 
 ---
 
-## 13. Canonical action vocabulary — W0 target
-
-The experience should converge on semantic actions independent of surface placement:
+## 16. Semantic action vocabulary — W0 target
 
 - `search`
 - `open`
@@ -454,9 +501,14 @@ The experience should converge on semantic actions independent of surface placem
 - `run_tool`
 - `open_heichal`
 - `open_world`
+- `open_my_workspace`
+- `open_notifications`
+- `open_account`
 - `add_to_research`
 - `save_path`
 - `resume_path`
+- `create`
+- `submit_intake`
 - `connect`
 - `propose_candidate`
 - `review`
@@ -465,84 +517,66 @@ The experience should converge on semantic actions independent of surface placem
 - `ask_raziel`
 - `return_exact`
 
-Telemetry should track semantic actions, not only button IDs.
+Telemetry tracks semantic actions, not button IDs.
 
 ---
 
-## 14. Legacy surface crosswalk rule
+## 17. Legacy surface crosswalk rule
 
-No current surface is automatically preserved.
-
-Each current capability/UI encountered in W0 receives one disposition:
-- **REUSE** — already matches target semantics and quality
-- **ADAPT** — capability/structure useful, new shell/presentation
-- **REPLACE** — preserve capability but rebuild experience
-- **RETIRE** — redundant/dead/legacy with no required capability
+Each current capability/UI receives one disposition:
+- **REUSE** — semantics + quality already target-ready
+- **ADAPT** — useful capability/structure, new shell/presentation
+- **REPLACE** — preserve capability, rebuild experience
+- **RETIRE** — redundant/dead/legacy without required capability
 
 Externally addressable routes require SEO/deep-link migration analysis before retirement.
 
+Current UI existence is never evidence of architectural ownership.
+
 ---
 
-## 15. Golden Slice — 1237 / התגלות
-
-First complete proof:
+## 18. Golden Slice — 1237 / התגלות
 
 ```text
-Search 1237
+Search/Command 1237
   ↓
-Focused 1237 projection
+Focused 1237 World projection
   ↓
-World neighborhood / התגלות / findings
+World relations / התגלות / sources
   ↓
-Source loci: post / gallery / book
+Book/Post/Gallery loci
   ↓
-Heichal
-  ├─ Gematria / Method Trace
-  └─ ELS
-       ↓
-Typed result / evidence / finding
-       ↓
-World
+Heichal → Gematria/Method/ELS
   ↓
-Journey
+Typed result / evidence / candidate
   ↓
-Raziel explains / compares
+World → Journey → Raziel → exact return
   ↓
-Exact return
-  ↓
-Admin: Candidate → Human Gate
+Admin Candidate → Human Gate
 ```
 
-Must work as:
-- desktop experience
-- mobile task projection
-- keyboard/list alternative
-
-No fake demo data.
+Must work on desktop, mobile task mode and keyboard/list alternative.
 
 ---
 
-## 16. Example — 1820
+## 19. Example — 1820
 
-User opens 1820.
+User opens 1820. It is the World focused on 1820, not a separate mini-site.
 
-1. Focused Number projection gives immediate high-value information.
-2. “World” expands connections to phrases/topics/persons/books/posts/ELS findings.
-3. User opens Book source; Research Context remains 1820.
-4. User opens Heichal on the selected book passage or on 1820.
-5. ELS/Gematria/Method tools run using that context.
-6. Result returns as typed Finding/Evidence/Candidate.
-7. User adds sequence to Journey.
-8. Raziel can explain the current path.
-9. Exact return restores the prior 1820 World state.
-
-This is one continuous product, not navigation between disconnected mini-sites.
+1. Immediate high-value projection.
+2. Expand World neighborhood.
+3. Open Book source while preserving 1820 context.
+4. Enter Heichal in-place.
+5. Run ELS/Gematria/Method tools.
+6. Return typed result to World.
+7. Add path to Journey.
+8. Ask Raziel about current path.
+9. Open My Workspace to save/resume without duplicating 1820/Book/Finding identities.
+10. Exact return restores prior state.
 
 ---
 
-## 17. W0 closure checklist
-
-W0 is not complete until all are explicit:
+## 20. W0 closure checklist
 
 - [ ] complete capability inventory
 - [ ] REUSE / ADAPT / REPLACE / RETIRE crosswalk
@@ -550,24 +584,32 @@ W0 is not complete until all are explicit:
 - [ ] durable/shareable/ephemeral state rules
 - [ ] desktop/tablet/mobile surface matrix
 - [ ] Public/Premium/Deep/Admin access matrix
-- [ ] graph/list/keyboard/accessibility parity contract
+- [ ] graph/list/keyboard/accessibility parity
 - [ ] long-running tool failure/retry/cancel rules
 - [ ] semantic telemetry vocabulary
 - [ ] route/SEO/deep-link migration obligations
+- [ ] Global Orientation Header capability ownership
+- [ ] My Workspace personal-domain one-tree crosswalk
+- [ ] Notifications/Now/Research-Inbox hierarchy
+- [ ] Create/Intake/Contribution crosswalk
+- [ ] Account/Access placement
 - [ ] independent architecture challenge PASS
 
 After W0: W1 Adaptive Shell + W2 1237 Golden Slice.
 
 ---
 
-## 18. Non-negotiables
+## 21. Non-negotiables
 
 - One Tree
 - One Reality Graph
 - One Research OS
+- One World, many views
 - Human Gate remains decision owner
 - Foundation → Projection → Experience
-- no product semantics duplicated because of device/UI
-- no “2027” effect created by visual novelty while architecture remains page-fragmented
+- capability is stable; UI placement is not
+- personal area is a projection, not a second research system
+- multiple launchers never imply duplicate ownership
+- no “2027” visual novelty hiding 2022 page fragmentation
 - no legacy UI preserved merely because it exists
-- no capability lost merely because its old UI is retired
+- no capability lost merely because old UI is retired
