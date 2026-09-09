@@ -1,0 +1,85 @@
+/* W0.5 Visual Foundation 2027 — Golden Case adapter.
+   Scoped to the existing Entity Hub preview. Composition remains in
+   EntityHubObservatory.css; these rules prove shared token consumption. */
+
+.entity-hub-observatory {
+  font-family: var(--vf-font-ui);
+}
+
+.entity-hub-observatory .obs-hero p,
+.entity-hub-observatory .obs-live-label {
+  font-family: var(--vf-font-body);
+  font-size: var(--vf-body-size);
+  line-height: var(--vf-body-line);
+}
+
+.entity-hub-observatory .obs-number {
+  font-family: var(--vf-font-numeric);
+}
+
+.entity-hub-observatory .obs-top,
+.entity-hub-observatory .obs-ribbon {
+  border-radius: var(--vf-radius-lg);
+}
+
+.entity-hub-observatory .obs-search,
+.entity-hub-observatory .obs-ribbon a {
+  border-radius: var(--vf-radius-md);
+}
+
+.entity-hub-observatory .obs-hero-actions a,
+.entity-hub-observatory .obs-truth span,
+.entity-hub-observatory .obs-contract-strip span {
+  min-height: var(--vf-control-min);
+  border-radius: var(--vf-radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entity-hub-observatory :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--vf-focus-width) solid var(--obs-focus);
+  outline-offset: var(--vf-focus-offset);
+}
+
+.entity-hub-observatory :where(a, button, input, select, textarea) {
+  transition-duration: var(--vf-motion-normal);
+  transition-timing-function: var(--vf-ease);
+}
+
+/* Logical direction only: no left/right duplication for new W0.5 behavior. */
+.entity-hub-observatory .obs-hero-content,
+.entity-hub-observatory .obs-live-label {
+  padding-inline: var(--vf-space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entity-hub-observatory *,
+  .entity-hub-observatory *::before,
+  .entity-hub-observatory *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .entity-hub-observatory .obs-orbits {
+    display: none;
+  }
+}
+
+@media (max-width: 390px) {
+  .entity-hub-observatory .obs-shell {
+    width: calc(100% - var(--vf-space-4));
+  }
+
+  .entity-hub-observatory .obs-hero-actions {
+    gap: var(--vf-space-2);
+  }
+
+  .entity-hub-observatory .obs-hero-actions a {
+    width: 100%;
+    min-width: 0;
+    padding-inline: var(--vf-space-3);
+  }
+}
