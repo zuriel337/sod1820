@@ -5,6 +5,7 @@ import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { LAYOUT, MOTION, RADIUS, SPACE, TYPE_SCALE } from "../lib/designTokens.js";
 import "./EntityHubObservatory.css";
+import "./EntityHubVisualFoundation.css";
 
 const researchDoors = [
   { label: "סקירה", href: "#entity-hub-live" },
