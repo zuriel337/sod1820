@@ -130,8 +130,6 @@ jobs:
                   const style = getComputedStyle(img);
                   const out = {
                     objectFit: style.objectFit,
-                    paneWidth: pane.width,
-                    paneHeight: pane.height,
                     imageWidth: box.width,
                     imageHeight: box.height,
                     fullyInside: box.left >= pane.left - 0.5 && box.right <= pane.right + 0.5 && box.top >= pane.top - 0.5 && box.bottom <= pane.bottom + 0.5,
@@ -145,6 +143,69 @@ jobs:
                 expect(result.fullyInside).toBe(true);
               }
             }
+          });
+
+          test('shared focus-visible baseline remains visible in dark light and lab', async ({ page }) => {
+            for (const mode of ['dark', 'light', 'lab']) {
+              const suffix = mode === 'dark' ? '' : `?mode=${mode}`;
+              await page.setViewportSize({ width: 390, height: 844 });
+              await page.goto(`${BASE}${PATH}${suffix}`, { waitUntil: 'networkidle' });
+              const button = page.locator('.sp29-mini-grid button').first();
+              await button.focus();
+              const focus = await button.evaluate((el) => {
+                const s = getComputedStyle(el);
+                return { style: s.outlineStyle, width: s.outlineWidth, color: s.outlineColor, offset: s.outlineOffset };
+              });
+              expect(focus.style).not.toBe('none');
+              expect(parseFloat(focus.width)).toBeGreaterThanOrEqual(2);
+              expect(parseFloat(focus.offset)).toBeGreaterThanOrEqual(2);
+            }
+          });
+
+          test('200 percent text zoom and long Hebrew labels preserve layout at narrow width', async ({ page }) => {
+            await page.setViewportSize({ width: 320, height: 844 });
+            await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
+            await page.addStyleTag({ content: 'html{font-size:200%!important}' });
+            await page.evaluate(() => {
+              const target = document.querySelector('.sp29-mini-grid button');
+              if (target) target.querySelector('span').textContent = 'כפתור מחקר עם תווית עברית ארוכה במיוחד שצריכה להישבר בצורה בטוחה בלי ליצור גלילה אופקית';
+            });
+            const metrics = await page.evaluate(() => ({
+              clientWidth: document.documentElement.clientWidth,
+              scrollWidth: document.documentElement.scrollWidth,
+            }));
+            expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+            await expect(page.locator('#sp29-title')).toBeVisible();
+          });
+
+          test('mixed bidi evidence keeps Hebrew context and isolated LTR URL readable without overflow', async ({ page }) => {
+            await page.setViewportSize({ width: 320, height: 844 });
+            await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
+            const result = await page.evaluate(() => {
+              const host = document.createElement('div');
+              host.className = 'sod-bidi-evidence';
+              host.innerHTML = 'מחקר 1237 · קישור <span class="sod-ltr-island" dir="ltr">https://sod1820.co.il/number/1237?ref=ABC-42</span> · פסוק א:ב';
+              host.style.maxWidth = '100%';
+              host.style.padding = '12px';
+              document.querySelector('.sp29-mini')?.appendChild(host);
+              const url = host.querySelector('[dir="ltr"]');
+              const hs = getComputedStyle(host);
+              const us = getComputedStyle(url);
+              const box = host.getBoundingClientRect();
+              return {
+                hostDirection: hs.direction,
+                urlDirection: us.direction,
+                right: box.right,
+                left: box.left,
+                viewport: document.documentElement.clientWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+              };
+            });
+            expect(result.hostDirection).toBe('rtl');
+            expect(result.urlDirection).toBe('ltr');
+            expect(result.left).toBeGreaterThanOrEqual(0);
+            expect(result.right).toBeLessThanOrEqual(result.viewport + 0.5);
+            expect(result.scrollWidth).toBe(result.viewport);
           });
           EOF
           npx playwright test .release-gate/release-visual.spec.cjs --reporter=line
