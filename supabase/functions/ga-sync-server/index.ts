@@ -2,8 +2,8 @@
 // Reuses the existing secure Google service-account + sync-key pattern already used by gsc-sync.
 // Sole historical writer: existing ingest_ga_daily / ingest_ga_country_daily RPCs.
 // No parallel analytics store and no browser session dependency.
-// Property resolution: GA_PROPERTY_ID Edge env when present; otherwise Google Admin API discovery,
-// accepted only when exactly one property is accessible. Ambiguity/missing config fails with HTTP 500.
+// Property resolution: GA_PROPERTY_ID Edge env when present; otherwise server-only Supabase Vault config.
+// Missing/invalid config fails with HTTP 500. No Google Admin API dependency.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -60,21 +60,20 @@ async function getAccessToken(sa: any): Promise<string> {
   return d.access_token;
 }
 
-async function resolvePropertyId(token: string): Promise<string> {
-  const configured = String(Deno.env.get("GA_PROPERTY_ID") || "").trim();
-  if (configured) return configured.replace(/^properties\//, "");
+async function resolvePropertyId(sb: any): Promise<string> {
+  const envValue = String(Deno.env.get("GA_PROPERTY_ID") || "").trim().replace(/^properties\//, "");
+  if (envValue) {
+    if (!/^\d+$/.test(envValue)) throw new Error("GA_PROPERTY_ID Edge env is invalid");
+    return envValue;
+  }
 
-  const r = await fetch("https://analyticsadmin.googleapis.com/v1beta/accountSummaries?pageSize=200", {
-    headers: { authorization: `Bearer ${token}` },
-  });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(`GA property discovery ${r.status}: ${d?.error?.message || JSON.stringify(d)}`);
-  const props = (d.accountSummaries || []).flatMap((a: any) => a.propertySummaries || []);
-  if (props.length !== 1) throw new Error(`GA_PROPERTY_ID missing and property discovery is ambiguous (${props.length} accessible properties)`);
-  const name = String(props[0]?.property || "");
-  const id = name.replace(/^properties\//, "");
-  if (!/^\d+$/.test(id)) throw new Error("GA property discovery returned invalid property id");
-  return id;
+  const { data, error } = await sb.rpc("ga_sync_config");
+  if (error) throw new Error(`GA property config lookup failed: ${error.message}`);
+  const row = Array.isArray(data) ? data[0] : data;
+  const vaultValue = String(row?.property_id || "").trim().replace(/^properties\//, "");
+  if (!vaultValue) throw new Error("GA_PROPERTY_ID missing from Edge env and Supabase Vault");
+  if (!/^\d+$/.test(vaultValue)) throw new Error("GA_PROPERTY_ID in Supabase Vault is invalid");
+  return vaultValue;
 }
 
 async function runDaily(token: string, propertyId: string, startDate: string, countryId?: string) {
@@ -133,7 +132,7 @@ Deno.serve(async (req) => {
   const startDate = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
   try {
     const token = await getAccessToken(sa);
-    const propertyId = await resolvePropertyId(token);
+    const propertyId = await resolvePropertyId(sb);
     const [totalRaw, ilRaw] = await Promise.all([
       runDaily(token, propertyId, startDate),
       runDaily(token, propertyId, startDate, "IL"),
