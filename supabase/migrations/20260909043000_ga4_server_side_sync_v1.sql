@@ -2,6 +2,7 @@
 -- OWNER CHECK: EXTEND_EXISTING traffic_intelligence_law
 -- Sole historical writer is the existing ingest_ga_daily / ingest_ga_country_daily RPC pair.
 -- Browser-triggered historical writes are retired; only trusted service_role may execute these ingest primitives.
+-- This is operational analytics ingestion, not a Human-Gate/canonical promotion path.
 -- No new table/store/analytics owner.
 
 create or replace function public.ingest_ga_daily(p_rows jsonb)
