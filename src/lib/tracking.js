@@ -2,6 +2,7 @@ import { supabase } from "./supabase.js";
 import { trackConversion } from "./marketing.js";
 import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events)
 import { getVisitorId } from "./visitorId.js"; // ONE TREE: בעלים יחיד ל-sod_vid (לא יוצרים כאן)
+import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1
 
 // ===== אנליטיקה פנימית — מעקב מדורים ופעולות =====
 // כל גולש = visitor_id אנונימי ב-localStorage (לא PII).
@@ -15,6 +16,14 @@ const pending = new Map(); // debounce per section key
 
 export function track(section, slug = null, eventType = "view", meta = null) {
   if (!supabase) return;
+  // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — כיור-העל של האנליטיקה הפנימית. ל-visitor_events אין
+  // עמודת is_bot, ולכן אי-אפשר לסמן כאן בוט — רק לא לכתוב. השער הזה מכסה בבת-אחת את כל
+  // מה שנגזר מ«עצם הקריאה»: view לפי מדור · arrival של הפצה (captureArrival) · מקור-הגעה
+  // (captureArrivalSource) · כניסה לזרם · image_click. הוא מכסה גם את ה-dual-write ל-events
+  // שלמטה, ולכן אין כאן שינוי סמנטי ל-events: ingest_event ממילא כבר זורק שורות-בוט.
+  // ⛔ לא נגענו ב-trackVisit()/site_visits — שם יש is_bot והמדיניות הקיימת היא «לסמן, לא
+  //    לדלג» (שני מונים: כולל-בוטים · אנשים-בלבד). לא סותרים החלטת-בעלים קיימת.
+  if (!sideEffectAllowed("visitor_events")) return;
   const key = `${section}:${slug ?? ""}:${eventType}`;
   if (eventType === "view") {
     if (pending.has(key)) return; // כבר בדרך

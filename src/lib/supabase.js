@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
 import { isAnon } from './privacy.js';
 import { isReadable } from './nameMask.js';
@@ -2017,6 +2018,10 @@ export async function getPopularPosts({ limit = 10 } = {}) {
 // 👁 מעקב צפיות חי — שורה לכל צפייה (פעם אחת לכל ref בכל session, כדי לא לנפח).
 export async function logView(kind, ref) {
   if (!supabase || !kind || ref == null || ref === "") return;
+  // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — ל-page_views אין עמודת is_bot, ולכן אי-אפשר *לסמן* כאן
+  // בוט כמו ש-site_visits/events עושים; האפשרות הישרה היחידה היא לא לכתוב. הבוט עדיין קורא
+  // את הדף במלואו — רק הצפייה שלו לא נספרת. (נפח-הבוטים נמדד בקצה: crawl_daily.)
+  if (!sideEffectAllowed("page_views")) return;
   const key = `pv-${kind}-${ref}`;
   try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
   try { await supabase.from("page_views").insert({ kind, ref: String(ref) }); } catch { /* ignore */ }
@@ -3050,6 +3055,11 @@ const SEARCH_TERM_OK = /^[ 0-9א-ת׳״'"\-]{1,40}$/;
 // תיעוד חיפוש אמיתי (מהמחשבון / דף הביטוי). ללא PII; נכשל בשקט. דדופ לכל גלישה.
 export async function logSearch(term, value) {
   if (isAnon()) return;   // 🕶️ מצב אנונימי — לא נשמר בהיסטוריית החיפושים
+  // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — search_log מזין את «המספרים החמים» (getHotNumbers →
+  // דף-הבית) ואת מפת-החום, כלומר prominence ציבורי שמייצר קישורים חדשים לסריקה. אין לו
+  // עמודת is_bot, ולכן סריקה לא נספרת כ«חיפוש». זה גם חוסם את כתיבת research_items שלמטה —
+  // וזה נכון: בוט אינו «חוקר» ואסור לו לצבור התקדמות/עץ-אישי.
+  if (!sideEffectAllowed("search_log")) return;
   const t = (term || '').trim();
   if (!SEARCH_TERM_OK.test(t)) return;
   try {
