@@ -1,12 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BRAND_COPY, BRAND_IDENTITY } from "../lib/brandIdentity.js";
 import { usePalette } from "../lib/palette.js";
+import { applySeo } from "../lib/seo.js";
 import { F } from "../theme.js";
 
 export default function BrandEvolutionStory({ variant = "about" }) {
   const P = usePalette();
   const compact = variant === "contact";
   const body = compact ? BRAND_COPY.contactBody : BRAND_COPY.aboutBody;
+
+  useEffect(() => {
+    if (compact) {
+      applySeo({
+        title: "צור קשר · כי לה׳ המלוכה · SOD1820",
+        description: "צרו קשר עם SOD1820 — כי לה׳ המלוכה. אותה דרך שנבנתה לאורך כ־15 שנה, בדור חדש.",
+        path: "/contact",
+      });
+    } else {
+      applySeo({
+        title: "אודות · כי לה׳ המלוכה · SOD1820",
+        description: "הסיפור של כי לה׳ המלוכה ו-SOD1820 — כ־15 שנות דרך, הכתר המקורי שנשמר כסמל מורשת, והדור הדיגיטלי החדש שנבנה סביבו.",
+        path: "/about",
+      });
+    }
+  }, [compact]);
 
   return (
     <section
