@@ -11,7 +11,11 @@ This document is an additive brand-identity projection under the existing Produc
 ## 1. Brand identity
 
 Public Hebrew identity: **כי לה׳ המלוכה**.
-Technical / international identity: **SOD1820**.
+Public English brand: **KINGDOM RISE**.
+Canonical English line: **For the Kingdom Is the Lord’s**.
+Technical / international system identity: **SOD1820**.
+
+Hebrew and English are language projections of one brand. They use the **same Master Crown**; there is no separate English logo, symbol, crown lineage or visual identity.
 
 Brand story:
 
@@ -52,6 +56,14 @@ The Primary Digital Mark must preserve recognizable crown lineage while gaining:
 - favicon/app-icon/compact-lockup variants;
 - reduced-motion/static fallback.
 
+The same approved Primary Crown is used for both language lockups:
+
+- Hebrew: **כי לה׳ המלוכה**
+- English: **KINGDOM RISE**
+- English explanatory/canonical line: **For the Kingdom Is the Lord’s**
+
+The English wording does not create a second brand identity. `KINGDOM RISE` is the concise English brand name; `For the Kingdom Is the Lord’s` preserves the intended canonical meaning.
+
 ## 4. Hierarchy
 
 There is one brand identity with multiple governed representations.
@@ -61,6 +73,7 @@ There is one brand identity with multiple governed representations.
 - Heritage Lockup = bounded composition showing both, with Primary dominant.
 - Compact mark = simplified small-size projection of the same Primary identity.
 - Motion / 3D = richer representation of the same identity, not a new logo.
+- Hebrew / English = language lockups of the same Master Mark, never competing crowns.
 
 Do not present Heritage and Primary as two equal competing main logos.
 
@@ -92,6 +105,8 @@ Recommended public copy family:
 - `כ־15 שנות דרך · עידן חדש`
 - `אותו שורש. התגלמות חדשה.`
 - `אותה הדרך — עולם חדש.`
+- `KINGDOM RISE`
+- `For the Kingdom Is the Lord’s`
 
 ## 6. 3D / animation continuity
 
@@ -102,6 +117,8 @@ This Brand Evolution consumes the existing `spatial_gematria_law` progressive re
 Same identity must persist across tiers. 3D is a presentation tier, not a stronger truth/importance state.
 
 The target 3D crown may use real material depth, gemstone illumination and controlled camera movement, but a static canonical fallback must always exist.
+
+The same 3D crown must support Hebrew and English lockups without re-modeling a second crown.
 
 ## 7. Public surfaces
 
