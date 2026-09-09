@@ -18,6 +18,7 @@ Canonical dependency tree:
 - reusable shared components → `canonical_ui_components_law`;
 - responsive release acceptance → `mobile_acceptance_law`;
 - Raziel semantics → `raziel_companion_layer_law`; System Frame owns later placement/invocation;
+- contextual environment / required visual asset semantics → additive W0.5 extension `docs/w0-5-visual-environment-and-asset-gate-v1.md` under this same Design owner;
 - W1 Adaptive Shell remains out of scope until this foundation gate closes.
 
 ## 2. Visual Foundation 2027 decisions
@@ -74,9 +75,24 @@ The visual foundation must preserve semantic HTML, keyboard navigation, reading 
 - motion timing/easing/reduced-motion policy;
 - responsive breakpoints/acceptance widths;
 - minimum control/focus/layout metrics;
-- direction-safe constants/helpers.
+- direction-safe constants/helpers;
+- finite environment-role vocabulary and visual-asset presentation states.
 
-It explicitly does **not** own colors, fonts, chrome theme, world colors, truth/status semantics or product capability state. Those remain with their existing owners.
+It explicitly does **not** own colors, fonts, chrome theme, world colors, truth/status semantics, media truth, publishing state or product capability state. Those remain with their existing owners.
+
+### 2.9 Environment / contextual imagery
+
+W0.5 now includes a canonical environment layer under the same Design owner. Initial roles are: `dark_observatory`, `light_celestial`, `research_lab`, `spatial_journey`.
+
+Environment imagery is not wallpaper and not a second theme. Rich imagery may lead hero/entry moments and then recede as research density increases. The dark North Star is Observatory/Cosmos; the light North Star is Celestial Research / premium future laboratory. Both are the same product identity.
+
+See `docs/w0-5-visual-environment-and-asset-gate-v1.md` for responsive crop, performance, fallback and truth-boundary requirements.
+
+### 2.10 Required visual asset gate
+
+Every experience-bearing product, Journey, major experience or major editorial/learning experience must declare a context-appropriate visual asset before presentation-complete status. This does not mean an image per atomic node/finding/row.
+
+Covered experiences resolve one of: curated asset, generated candidate, or canonical fallback. When no bespoke asset exists, the future owning creation/publishing workflow must automatically create an asset requirement and attempt to produce/request a candidate from the canonical visual language. Generation never implies truth/canonicality/publication.
 
 ## 3. Migration law
 
@@ -86,19 +102,21 @@ For each redesigned surface:
 
 1. consume existing semantic colors and typography roles;
 2. consume W0.5 spacing/radius/motion/responsive/accessibility primitives;
-3. migrate shared components before page-local copies;
-4. preserve legacy behavior until that surface enters an explicit redesign pass;
-5. no blind mass CSS replacement;
-6. verify narrow-mobile, keyboard/focus, reduced-motion and dark/light behavior before release.
+3. consume the canonical environment role where the experience calls for an environment;
+4. migrate shared components before page-local copies;
+5. preserve legacy behavior until that surface enters an explicit redesign pass;
+6. no blind mass CSS replacement;
+7. verify narrow-mobile, keyboard/focus, reduced-motion, dark/light behavior and environment crop/fallback before release.
 
 ## 4. Explicit non-goals for Slice 1
 
 - no Adaptive Shell build;
 - no new Sidebar/Bottom Bar/Raziel placement architecture;
 - no repository-wide restyle;
-- no new palette/theme store;
+- no new palette/theme/media store;
 - no font package installation;
 - no WebGL/Canvas work;
+- no bulk image generation or legacy-asset replacement;
 - no schema or Supabase product-data changes;
 - no canonical promotion merely because branch code exists.
 
@@ -110,11 +128,13 @@ For each redesigned surface:
 4. Verify logical RTL/LTR primitives on representative Hebrew + number/code mixed content.
 5. Verify responsive primitives at 320/360/390 and at least one tablet/desktop width on a real reference surface.
 6. Apply the foundation to one bounded Golden Case/reference surface before declaring the token model sufficient.
-7. Run a decision-changing foundation challenge: contrast, zoom, long Hebrew labels, mixed bidi evidence, keyboard-only navigation, reduced motion, narrow viewport, light/dark/lab.
-8. Re-read live main/work_log/DB before closure; Human Gate remains required for canonical/release promotion.
+7. Prove one real dark environment + one light counterpart on the Golden Case, with mobile-safe crop, readable dense-content fallback and reduced-motion/static fallback.
+8. Demonstrate the contextual visual-asset requirement without creating a parallel media system; actual generation pipeline may land with the later owning creation/publishing workflow.
+9. Run a decision-changing foundation challenge: contrast, zoom, long Hebrew labels, mixed bidi evidence, keyboard-only navigation, reduced motion, narrow viewport, light/dark/lab, rich-environment failure/fallback.
+10. Re-read live main/work_log/DB before closure; Human Gate remains required for canonical/release promotion.
 
 ## 6. Slice 1 verdict
 
 `FOUNDATION IN PROGRESS`.
 
-The owner tree is resolved and the missing cross-surface primitive families now have a bounded implementation home. This is sufficient to begin token reconciliation, but not sufficient to start the broad Adaptive Shell or to call W0.5 closed.
+The owner tree is resolved and the missing cross-surface primitive families now have a bounded implementation home. The North Star now also includes a governed contextual Environment Layer and required visual-asset gate for experience-bearing products/Journeys. This is sufficient to continue Golden Case reconciliation, but not sufficient to start the broad Adaptive Shell or to call W0.5 closed.
