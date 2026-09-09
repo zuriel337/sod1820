@@ -19,7 +19,7 @@ export const BRAND_IDENTITY = Object.freeze({
     technicalName: "SOD1820",
   }),
 
-  // The current historical crown remains the canonical Heritage Mark until explicitly superseded.
+  // The current historical crown remains the canonical Heritage Mark.
   heritageMark: Object.freeze({
     url: "/logo.png",
     role: "heritage",
@@ -28,14 +28,35 @@ export const BRAND_IDENTITY = Object.freeze({
     labelEn: "Original Crown · Kingdom Rise Heritage",
   }),
 
-  // Human Gate approved the blue-gold crown direction. The exact production asset is intentionally
-  // not hard-coded until the final master asset is selected/exported and separately released.
+  // Human Gate locked the blue-gold crown identity. A clean production asset export is still pending;
+  // that pending export may refine geometry/rendering quality but may not redesign the identity.
   primaryDigitalMark: Object.freeze({
     role: "primary-digital",
-    direction: "blue-gold crown remaster/evolution",
-    status: "DIRECTION_APPROVED_ASSET_PENDING",
-    labelHe: "הכתר החדש · הדור הבא",
+    direction: "locked blue-gold royal crown",
+    identityStatus: "HUMAN_GATE_LOCKED",
+    assetStatus: "MASTER_ASSET_PENDING_EXPORT",
+    labelHe: "הכתר הראשי · הדור החדש",
     labelEn: "Primary Crown · Kingdom Rise",
+    immutableDNA: Object.freeze([
+      "royal-crown-silhouette",
+      "deep-midnight-royal-blue-body",
+      "luminous-polished-gold-frame",
+      "blue-gemstone-family",
+      "strong-central-vertical-crest",
+      "symmetrical-premium-celestial-character",
+    ]),
+  }),
+
+  variants: Object.freeze({
+    symbol: "primary-crown-only",
+    hebrewLockup: "primary-crown-plus-כי-לה׳-המלוכה",
+    englishLockup: "primary-crown-plus-KINGDOM-RISE",
+    horizontal: "localized-horizontal-lockup",
+    compact: "simplified-small-size-primary-crown",
+    monochrome: "single-color-same-geometry",
+    heritage: "primary-dominant-with-bounded-heritage-reference",
+    motion: "same-master-crown-motion-projection",
+    spatial3d: "same-master-crown-3d-projection",
   }),
 
   transition: Object.freeze({
@@ -43,6 +64,27 @@ export const BRAND_IDENTITY = Object.freeze({
     randomSwap: false,
     motionPurpose: "brand-history-and-comeback",
     reducedMotionFallback: "static-primary-with-heritage-seal",
+  }),
+
+  changeControl: Object.freeze({
+    humanGateLocked: true,
+    allowedWithoutReopening: Object.freeze([
+      "cleanup-redraw",
+      "vectorization",
+      "animation",
+      "3d-modeling",
+      "material-lighting-refinement",
+      "responsive-simplification",
+      "localized-text-lockups",
+      "technical-export-adaptation",
+    ]),
+    requiresNewHumanGate: Object.freeze([
+      "crown-identity-change",
+      "silhouette-change",
+      "blue-gold-family-change",
+      "brand-hierarchy-change",
+      "replacement-with-different-master-mark",
+    ]),
   }),
 });
 
