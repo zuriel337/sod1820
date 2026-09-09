@@ -64,7 +64,6 @@ begin
     raise exception 'invalid country id';
   end if;
 
-  -- V1 remains deliberately bounded to the one approved segment.
   if v_country <> 'IL' then
     raise exception 'country segment not allowed';
   end if;
