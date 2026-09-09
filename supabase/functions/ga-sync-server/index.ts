@@ -1,6 +1,7 @@
 // ga-sync-server — canonical Traffic Intelligence GA4 server-side sync.
 // Reuses the existing secure Google service-account + sync-key pattern already used by gsc-sync.
-// Writes only into existing traffic_history; no parallel analytics store.
+// Sole historical writer: existing ingest_ga_daily / ingest_ga_country_daily RPCs.
+// No parallel analytics store and no browser session dependency.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -50,11 +51,28 @@ async function getAccessToken(sa: any): Promise<string> {
   const r = await fetch(claim.aud, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion }),
+    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth-type:jwt-bearer", assertion }),
   });
   const d = await r.json().catch(() => ({}));
   if (!r.ok || !d.access_token) throw new Error(`token exchange failed: ${d.error_description || d.error || r.status}`);
   return d.access_token;
+}
+
+async function resolvePropertyId(token: string): Promise<string> {
+  const configured = String(Deno.env.get("GA_PROPERTY_ID") || "").trim();
+  if (configured) return configured.replace(/^properties\//, "");
+
+  const r = await fetch("https://analyticsadmin.googleapis.com/v1beta/accountSummaries?pageSize=200", {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(`GA property discovery ${r.status}: ${d?.error?.message || JSON.stringify(d)}`);
+  const props = (d.accountSummaries || []).flatMap((a: any) => a.propertySummaries || []);
+  if (props.length !== 1) throw new Error(`GA_PROPERTY_ID missing and property discovery is ambiguous (${props.length} accessible properties)`);
+  const name = String(props[0]?.property || "");
+  const id = name.replace(/^properties\//, "");
+  if (!/^\d+$/.test(id)) throw new Error("GA property discovery returned invalid property id");
+  return id;
 }
 
 async function runDaily(token: string, propertyId: string, startDate: string, countryId?: string) {
@@ -77,18 +95,16 @@ async function runDaily(token: string, propertyId: string, startDate: string, co
   return d.rows || [];
 }
 
-function normalizeRows(rows: any[], source: string) {
+function normalizeRows(rows: any[]) {
   return rows.map((r: any) => {
     const raw = String(r.dimensionValues?.[0]?.value || "");
     return {
-      period: raw.length === 8 ? `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}` : null,
-      granularity: "day",
+      date: raw.length === 8 ? `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}` : "",
       views: Number(r.metricValues?.[0]?.value || 0),
-      visitors: Number(r.metricValues?.[1]?.value || 0),
+      users: Number(r.metricValues?.[1]?.value || 0),
       sessions: Number(r.metricValues?.[2]?.value || 0),
-      source,
     };
-  }).filter((r: any) => r.period && r.views > 0);
+  }).filter((r: any) => r.date && r.views > 0);
 }
 
 Deno.serve(async (req) => {
@@ -107,8 +123,6 @@ Deno.serve(async (req) => {
   let body: Record<string, any> = {};
   try { body = await req.json(); } catch { /* empty body allowed */ }
   const days = Math.min(Math.max(Number(body.days) || 7, 1), 1200);
-  const propertyId = String(body.property_id || Deno.env.get("GA_PROPERTY_ID") || "");
-  if (!propertyId) return json({ ok: false, error: "GA_PROPERTY_ID missing" }, 500);
 
   let sa: any;
   try { sa = JSON.parse(saRaw); } catch { return json({ ok: false, error: "service account JSON invalid" }, 500); }
@@ -117,19 +131,21 @@ Deno.serve(async (req) => {
   const startDate = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
   try {
     const token = await getAccessToken(sa);
+    const propertyId = await resolvePropertyId(token);
     const [totalRaw, ilRaw] = await Promise.all([
       runDaily(token, propertyId, startDate),
       runDaily(token, propertyId, startDate, "IL"),
     ]);
-    const totalRows = normalizeRows(totalRaw, "ga");
-    const ilRows = normalizeRows(ilRaw, "ga:country:IL");
-    for (const rows of [totalRows, ilRows]) {
-      if (!rows.length) continue;
-      const { error } = await sb.from("traffic_history").upsert(rows, { onConflict: "period,granularity,source" });
-      if (error) throw new Error(`traffic_history upsert: ${error.message}`);
-    }
-    return json({ ok: true, from: startDate, total_rows: totalRows.length, il_rows: ilRows.length });
+    const totalRows = normalizeRows(totalRaw);
+    const ilRows = normalizeRows(ilRaw);
+
+    const { data: totalWritten, error: totalError } = await sb.rpc("ingest_ga_daily", { p_rows: totalRows });
+    if (totalError) throw new Error(`ingest_ga_daily: ${totalError.message}`);
+    const { data: ilWritten, error: ilError } = await sb.rpc("ingest_ga_country_daily", { p_rows: ilRows, p_country_id: "IL" });
+    if (ilError) throw new Error(`ingest_ga_country_daily: ${ilError.message}`);
+
+    return json({ ok: true, from: startDate, total_rows: totalRows.length, il_rows: ilRows.length, total_written: totalWritten, il_written: ilWritten });
   } catch (e) {
-    return json({ ok: false, error: String(e) }, 200);
+    return json({ ok: false, error: String(e) }, 500);
   }
 });
