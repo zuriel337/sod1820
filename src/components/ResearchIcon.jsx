@@ -20,6 +20,8 @@ const PATHS = {
   door: <><path d="M6 21V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21"/><path d="M9 21V7h6v14M4 21h16"/><circle cx="13.2" cy="14" r=".7"/></>,
   book: <><path d="M4 5.5c3.2-1 5.7-.5 8 1.5v12c-2.3-2-4.8-2.5-8-1.5z"/><path d="M20 5.5c-3.2-1-5.7-.5-8 1.5v12c2.3-2 4.8-2.5 8-1.5z"/><path d="M12 7v12"/></>,
   cosmos: <><ellipse cx="12" cy="12" rx="8" ry="3.6" transform="rotate(-18 12 12)"/><ellipse cx="12" cy="12" rx="3.5" ry="8" transform="rotate(28 12 12)"/><circle cx="12" cy="12" r="2"/><circle cx="18.5" cy="6" r="1"/><path d="m5 5 .6 1.8L7.4 7.4l-1.8.6L5 9.8 4.4 8 2.6 7.4l1.8-.6z"/></>,
+  gematria: <><path d="M5 5h5v5H5zM14 14h5v5h-5z"/><path d="M14 5h5M16.5 3v4M5 16.5h5"/><path d="M8 14v5M11.5 8.5h1M12 12h.01"/></>,
+  els: <><path d="M5 5h14M5 9h14M5 13h14M5 17h14"/><path d="M7 4v14M11 4v14M15 4v14M19 4v14" opacity=".55"/><path d="m6.5 17 4-4 4-4 4-4"/><circle cx="6.5" cy="17" r="1"/><circle cx="10.5" cy="13" r="1"/><circle cx="14.5" cy="9" r="1"/><circle cx="18.5" cy="5" r="1"/></>,
 };
 
 export const RESEARCH_ICON_NAMES = Object.freeze(Object.keys(PATHS));
