@@ -1,0 +1,42 @@
+/* SOD1820 W0.5 — shared accessibility baseline.
+   Additive only: local components may enrich focus styling but must not remove it. */
+:root {
+  --vf-focus-ring: #62e3ff;
+  --vf-focus-offset: 2px;
+}
+
+html[data-theme="light"] {
+  --vf-focus-ring: #1c4bbf;
+}
+
+html[data-environment="research_lab"] {
+  --vf-focus-ring: #2f6df6;
+}
+
+:where(a, button, input, select, textarea, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--vf-focus-ring);
+  outline-offset: var(--vf-focus-offset);
+}
+
+/* Mixed Hebrew / number / code / URL evidence keeps surrounding reading order
+   while explicit evidence islands can opt into their own direction. */
+.sod-bidi-evidence {
+  direction: rtl;
+  unicode-bidi: plaintext;
+  text-align: start;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sod-bidi-evidence [dir="ltr"],
+.sod-bidi-evidence code,
+.sod-bidi-evidence .sod-ltr-island {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]:not([tabindex="-1"])) {
+    scroll-behavior: auto;
+  }
+}
