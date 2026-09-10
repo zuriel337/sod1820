@@ -47,7 +47,7 @@ async function sha256Hex(bytes:Uint8Array) {
   return Array.from(d).map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
-async function putBytes(t:Ticket, body:BodyInit) {
+async function putBytes(t:Ticket, body:BodyInit, meta?:{ sha256?:string; size?:number }) {
   const r = await fetch(`${SB_URL}/storage/v1/object/${t.bucket}/${t.path}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${SR}`, apikey:SR, "Content-Type":t.mime, "x-upsert":t.allow_overwrite?"true":"false" },
@@ -57,7 +57,16 @@ async function putBytes(t:Ticket, body:BodyInit) {
   });
   const d = await r.json().catch(()=>({}));
   if (!r.ok) return json({ ok:false, error:d?.message || d?.error || `storage ${r.status}` }, 502);
-  return json({ ok:true, bucket:t.bucket, path:t.path, mime:t.mime, public_url:t.public_url });
+  return json({ ok:true, bucket:t.bucket, path:t.path, mime:t.mime, size:meta?.size ?? null, sha256:meta?.sha256 ?? null, public_url:t.public_url });
+}
+
+// Shared tail for the modes that hand us a fully buffered payload (base64, form): size and
+// hash are known up front, so both are checked against the ticket before anything is stored.
+async function putBuffered(t:Ticket, bytes:Uint8Array) {
+  if (bytes.byteLength === 0 || bytes.byteLength > t.max_bytes) return json({ ok:false, error:"payload exceeds ticket size" },413);
+  const hash = await sha256Hex(bytes);
+  if (t.sha256 && hash !== t.sha256) return json({ ok:false, error:"sha256 mismatch" },422);
+  return await putBytes(t, bytes, { sha256:hash, size:bytes.byteLength });
 }
 
 Deno.serve(async req => {
@@ -84,9 +93,26 @@ Deno.serve(async req => {
     if (!b || typeof b.b64 !== "string") return json({ ok:false, error:"b64 required" },400);
     if (b.mime && String(b.mime).toLowerCase() !== t.mime) return json({ ok:false, error:"mime mismatch" },415);
     let bytes:Uint8Array; try { bytes = decodeB64(b.b64); } catch { return json({ ok:false, error:"invalid base64" },400); }
-    if (bytes.byteLength === 0 || bytes.byteLength > t.max_bytes) return json({ ok:false, error:"payload exceeds ticket size" },413);
-    if (t.sha256 && await sha256Hex(bytes) !== t.sha256) return json({ ok:false, error:"sha256 mismatch" },422);
-    return await putBytes(t, bytes);
+    return await putBuffered(t, bytes);
+  }
+
+  // form: a real multipart/form-data attachment — what a file picker, a FormData post or
+  // `curl -F` produces. This is the shape an agent runtime has when it holds an actual file
+  // rather than a byte stream it can address itself; the other modes all require the caller
+  // to unwrap the file first, which is exactly the step that kept stalling.
+  if (mode === "form") {
+    const ct = (req.headers.get("content-type") || "").toLowerCase();
+    if (!ct.startsWith("multipart/form-data")) return json({ ok:false, error:`mode=form requires multipart/form-data, got ${ct||"(none)"}` },415);
+    let fd:FormData; try { fd = await req.formData(); } catch (e) { return json({ ok:false, error:`invalid multipart body: ${e}` },400); }
+    const named = fd.get("file");
+    const file:File|null = named instanceof File ? named : ((([...fd.values()].find(v=>v instanceof File)) as File|undefined) || null);
+    if (!file) return json({ ok:false, error:'no file part found (expected a part named "file")' },400);
+    // An empty or generic part type is fine — the ticket already pins the mime — but a stated
+    // type that disagrees with the ticket means the caller is uploading the wrong file.
+    const ft = (file.type || "").split(";")[0].trim().toLowerCase();
+    if (ft && ft !== "application/octet-stream" && ft !== t.mime) return json({ ok:false, error:`file part type ${ft} does not match ticket mime ${t.mime}` },415);
+    if (file.size > t.max_bytes) return json({ ok:false, error:"payload exceeds ticket size" },413);
+    return await putBuffered(t, new Uint8Array(await file.arrayBuffer()));
   }
 
   if (mode !== "put") return json({ ok:false, error:`unknown mode ${mode}` },400);
