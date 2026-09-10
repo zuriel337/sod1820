@@ -8,7 +8,6 @@ import TzofenEmbed from "../components/TzofenEmbed.jsx";
 import ElsChallengeStrip from "../components/ElsChallengeStrip.jsx";
 import UpdatesBox from "../components/UpdatesBox.jsx";
 import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
-import { ELS_PREVIEW_OPEN } from "../lib/hub/ready.js";
 import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 
 const REBUILD_LAYERS = [
@@ -142,8 +141,8 @@ export default function CodePage() {
   if (loading || elsState.loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  // Production: availability comes from the canonical site_flags state. Preview hosts stay open so ZURIEL can inspect the underlying engine.
-  if (!isAdmin && !ELS_PREVIEW_OPEN && elsState.blocked) return <CodeClosed message={elsState.message} />;
+  // Availability truth is canonical site_flags. Admin bypass is resolved by useFeatureState; public preview deployments show the same blocked projection for acceptance.
+  if (!isAdmin && elsState.blocked) return <CodeClosed message={elsState.message} />;
 
   // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים. מציג את «הצופן התנ״כי» — הכלי העצמאי (public/tzofen.html)
   // דרך TzofenEmbed. ההיכל (/research?tool=els) מטמיע את **אותו iframe בדיוק** — לא עותק ולא מנוע שני.
