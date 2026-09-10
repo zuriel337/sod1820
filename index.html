@@ -49,18 +49,12 @@
       ::selection { background: #3a2a00; color: #E8C84A; }
       .sod-nav-build > span[aria-hidden] { font-size: 0; }
       .sod-nav-build > span[aria-hidden]::before { content: "🏗️"; font-size: 14px; line-height: 1; }
-      /* Human Gate 10.9.2026: selected royal hero replaces the previous Home hero. FIT_WHOLE_IMAGE is mandatory. */
-      .hn-livegate {
-        background-color:#05030a !important;
-        background-image:url('/els-rebuild-crown-preview.webp') !important;
-        background-position:center top !important;
-        background-repeat:no-repeat !important;
-        background-size:contain !important;
-        min-height:min(100vw,760px) !important;
-      }
-      @media (max-width:760px) {
-        .hn-livegate { min-height:100vw !important; }
-      }
+      /* Legacy Home bridge: use a real IMG for the selected hero. Background rendering proved unreliable on the old surface. */
+      .hn-livegate { display:block !important; min-height:0 !important; background:#05030a !important; }
+      .hn-livegate > .legacy-home-hero-img { width:100%; height:auto; max-height:none; object-fit:contain; display:block; margin:0 auto; background:#05030a; }
+      .hn-livegate > .hn-mx-scrim { display:none !important; }
+      .hn-livegate > .hn-gate-inner { min-height:0 !important; padding:18px 18px 24px !important; max-width:760px !important; }
+      @media (min-width:900px) { .hn-livegate > .hn-gate-inner { padding:22px 44px 28px !important; } }
       @keyframes logo-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
       @keyframes logo-glow { 0%,100%{filter:drop-shadow(0 0 4px rgba(184,134,11,.45)) brightness(.92)} 50%{filter:drop-shadow(0 0 14px rgba(232,200,74,.85)) brightness(1.12)} }
       @keyframes crown-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
@@ -72,5 +66,26 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      (() => {
+        const mountHero = () => {
+          const gate = document.querySelector('.hn-livegate');
+          if (!gate || gate.querySelector('.legacy-home-hero-img')) return !!gate;
+          const img = document.createElement('img');
+          img.className = 'legacy-home-hero-img';
+          img.src = '/els-rebuild-crown-preview.webp';
+          img.alt = "כי לה׳ המלוכה — שער הדור החדש";
+          img.decoding = 'async';
+          img.fetchPriority = 'high';
+          gate.insertBefore(img, gate.firstChild);
+          return true;
+        };
+        if (!mountHero()) {
+          const observer = new MutationObserver(() => { if (mountHero()) observer.disconnect(); });
+          observer.observe(document.documentElement, { childList:true, subtree:true });
+          setTimeout(() => observer.disconnect(), 15000);
+        }
+      })();
+    </script>
   </body>
 </html>
