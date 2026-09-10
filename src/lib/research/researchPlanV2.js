@@ -40,6 +40,12 @@ function includesAny(text, terms) {
   return terms.some(term => q.includes(term));
 }
 
+function containsClockMoment(text) {
+  // Recognition only — never transforms the clock. moment_clock_law's canonical owner performs the
+  // actual contextual derivation (e.g. 4:24 -> 424) and preserves timezone/original input.
+  return /(^|\D)(?:[01]?\d|2[0-3]):[0-5]\d(?:\D|$)/.test(clean(text));
+}
+
 function inferExplicitCapabilityHints({ question, intent, identityResolution, requestedCapabilities = [] }) {
   const hints = [...requestedCapabilities];
   const q = clean(question);
@@ -49,7 +55,7 @@ function inferExplicitCapabilityHints({ question, intent, identityResolution, re
   if (i === "gematria" || includesAny(q, ["גימטריה", "גימטריא", "חשב את", "כמה שווה"])) hints.push(RESEARCH_CAPABILITY.GEMATRIA);
   if (includesAny(q, ["מקור", "מקורות", "ספר", "עמוד", "כתב יד", "עד נוסח"])) hints.push(RESEARCH_CAPABILITY.SOURCES);
   if (includesAny(q, ["משפחה", "אבא", "אמא", "בן שלי", "בת שלי", "ילד", "הורה"])) hints.push(RESEARCH_CAPABILITY.FAMILY);
-  if (includesAny(q, ["שעה", "בשעה", "רגע", "שעון"])) hints.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.OPERATORS);
+  if (containsClockMoment(q) || includesAny(q, ["שעה", "בשעה", "רגע", "שעון"])) hints.push(RESEARCH_CAPABILITY.TIME, RESEARCH_CAPABILITY.OPERATORS);
 
   // A known semantic identity drives capability selection before textual representation.
   if (hasIdentityKind(identityResolution, "book")) hints.push(RESEARCH_CAPABILITY.BOOKS, RESEARCH_CAPABILITY.SOURCES, RESEARCH_CAPABILITY.GRAPH);
