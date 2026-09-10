@@ -220,4 +220,86 @@ Acceptance principle:
 
 If implementation of the Visual Lens reaches a requirement that looks like a new global Search rule, Ranking rule, Evidence rule, Anchor rule, Search Truth rule, or shared semantic signal definition: **STOP** and hand off to the Universal Discovery/Search owner through `work_log`. Do not implement a Gallery-local substitute.
 
+## 14. Archive / Reality / Gallery public structure — HUMAN-GATE LOCK
+
+The existing `/archive` remains the umbrella visual-history destination unless later routing work explicitly changes it. The public experience inside it should be normalized to **three primary tabs only**:
+
+1. **🌊 זרם המציאות** — `NOW`: what is active, resurfacing, recent or temporally relevant.
+2. **👑 אוצרות** — `BEST / CURATED`: the distilled, deliberately highlighted material across time.
+3. **🖼 גלריות** — `ALL / ARCHIVE`: the complete historical visual corpus, collections and browsing/search entry.
+
+Conceptual hierarchy: **Now → Best → All**.
+
+Do not expose `מאגר / סטים` as a public primary tab. ZURIEL reports that this surface was not used. Its legacy public-product role may be retired during implementation after consumer/route verification. Do not preserve it merely because code exists.
+
+`אוצרות` is intentionally the short public tab label. Do not assume it is semantically identical to the Number-page `GiluyTreasures` cross-method capability; that relation must remain explicit and owner-governed rather than inferred from shared wording.
+
+Any useful filtering/collection capability from legacy pool/sets should only survive if it provides real value and can be re-homed under Gallery/Visual Search without creating a parallel search system. No requirement to preserve unused public set-builder UX.
+
+## 15. Home vs Archive Reality projection — HUMAN-GATE LOCK
+
+The current product duplicates a near-full `RealityWorld` on Home and `/archive`. Future design must preserve one data/capability family but use **different projections**.
+
+### Home = Reality Preview
+Home is a gateway, not a second full Reality product.
+
+Home Reality should be compact and value-first:
+- one strong/current hero signal or leading representation;
+- approximately 3–5 additional signals;
+- a small, calm indication of numbers in motion/current recurrence if useful;
+- one primary CTA: **פתח את זרם המציאות**;
+- direct open/fullscreen of a featured representation where appropriate.
+
+Home should **not** expose the full Reality control surface. Remove/re-home from the Home projection:
+- `הכל` filter;
+- week/month period controls;
+- `נדיר` filter;
+- number-set / `גלריות רמזים` selector;
+- public filter-builder/search UI;
+- result-count chrome such as `X רמזים`;
+- the embedded `עקוב אחרי הזרם` control if it makes the preview feel like a management surface;
+- admin curation/add-to-stream controls;
+- long river/navigation behavior intended for the full product.
+
+Avoid a second large archive banner immediately below the Reality preview if it duplicates the same destination. Prefer one coherent CTA path into `/archive`.
+
+Home Reality inherits the active theme/environment (Dark Observatory or Light Celestial). Do not force it to look like a foreign black box inside a light Home projection.
+
+### `/archive` = Full Reality Product
+The full Reality Stream belongs here. It may expose temporal navigation, recurrence/current-state cues, search/filter access, Follow, research context and the full stream/river experience.
+
+Use progressive disclosure rather than permanently displaying many pill controls. Suggested grouping:
+- time: `עכשיו · השבוע · החודש · הכל`;
+- lenses: `חוזר · חדש · אוצרות` where supported by source-owned semantics;
+- one Search/Filters affordance that opens deeper filtering rather than showing every control at once.
+
+These labels are design direction and must not create new signal semantics locally.
+
+## 16. One representation, multiple temporal projections
+
+A future post in `תיעוד אירועים` may contribute one of its existing images to Reality Stream without cloning the post or image identity.
+
+Expected model at the product level:
+`Post/Event → existing Image/Representation → Reality projection + Gallery/Archive projection + canonical entity/number/topic/source relations`.
+
+The same representation may be current in Reality today and later remain discoverable historically in Gallery. A historical gallery item may also surface a cue such as `התעורר שוב עכשיו` when an existing Reality signal supports that statement.
+
+Representation identity/provenance must remain stable across those projections.
+
+## 17. Naming/lens decisions carried forward
+
+- **`קוד המציאות` remains a Lens only**, not a second system/tree/store. When the user is actively inside that lens, `קוד המציאות` may become more visually/name-dominant in the local experience while remaining subordinate to the SOD1820 identity and shared capabilities.
+- Within **העולם / World**, a future modern **עץ** visualization is allowed and encouraged as a projection of the World. It may offer a Numbers-focused tree/view and other domain lenses without establishing `עץ המספרים` as a separate architecture or truth system.
+- Gallery/Archive/Reality remain projections over one visual corpus and one tree.
+
+## 18. Action hierarchy by projection
+
+Do not duplicate the full action set on every surface.
+
+- **Home Reality preview:** prioritize Open / Fullscreen; keep chrome minimal.
+- **Full Reality:** contextual Save / Add to Research / Share / Raziel; Follow belongs at the stream/topic level where appropriate rather than mechanically on every image.
+- **Gallery Media Viewer:** Save / Add to Research / Share / Raziel / Fullscreen as applicable under existing owners.
+
+All actions consume the shared Action/Icon family; no per-surface icon system.
+
 No merge/deploy is authorized by this document. Release remains explicit ZURIEL Human Gate only.
