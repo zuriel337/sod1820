@@ -1,0 +1,53 @@
+{
+  "book_slug": "daat-tevunot",
+  "source_identity": "book:daat-tevunot",
+  "generated_at": "2026-09-10",
+  "schema_version": 1,
+  "hero": {
+    "eyebrow": "DAAT TEVUNOT · RAMCHAL · SOD1820 SITE WITNESS",
+    "subtitle": "דעת תבונות · רמח״ל (ר׳ משה חיים לוצאטו) · עד מחקרי יציב של SOD1820; זהות מהדורה היסטורית מדויקת טרם הוכרעה",
+    "pdf": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/daat-tevunot-site-edition.pdf",
+    "promise": "דיאלוג שיטתי של נשמה ושכל על הנהגת המציאות, ייחוד, משפט ותיקון, מידה וזמן, גוף ונשמה, סיבתיות וייצוג נבואי. ה־site witness משמש ל-loci יציבים; הוא אינו מוצג כעד דיפלומטי של דפוס היסטורי.",
+    "metrics": [
+      ["195/195", "סעיפים נסרקו", "content scan closed"],
+      ["v9", "Research dossier", "consolidated candidate/private"],
+      ["1", "Research Object מאוחד", "candidate/private; לא public feed"],
+      ["28", "עתים במודל המחזורי", "source-explicit structure; לא מיפוי one-by-one מלא"]
+    ],
+    "coverage": [
+      {"label": "Structural Section Coverage", "value": "195/195 COMPLETE", "note": "הסריקה נסגרה דרך סעיף קצ״ה; כל הסעיפים נכללו במפת התוכן המחקרית."},
+      {"label": "Research Grammar", "value": "V9 CONSOLIDATED", "note": "המודלים של מידה, יחס, זמן, השפעה/קבלה, הנהגה וייצוג אוחדו לדוסייה אחת עם truth boundaries."},
+      {"label": "Exact Lexical Census", "value": "NOT EXHAUSTIVE", "note": "אין טענה שספירת כל הופעה מילולית בכל השורות הושלמה."},
+      {"label": "Historical Witness / Collation", "value": "NOT ESTABLISHED", "note": "ה-PDF הוא site research witness יציב; exact historical wording/collation דורשים עד היסטורי נפרד."}
+    ],
+    "datasets": [
+      ["RD-01", "הנהגת המשפט ↔ התיקון הכללי", "multi-section", "SOURCE-SUPPORTED", "הנהגת שכר/עונש היא המעטפת הנגלית; מסלול התיקון הכללי פועל בעומק ואינו מבטל את המשפט המקומי. אין להפוך את המודל לחיזוי של אירועים בני-זמננו."],
+      ["RD-02", "מידה · שיעור · גבול", "multi-section", "SOURCE-SUPPORTED", "הבריאה והנהגתה מתוארות דרך מידות, מדרגות וגבולות. הרע עצמו מוצג כמוגבל במידה ובמשך, ולא כריבונות מערכתית בלתי־מוגבלת."],
+      ["RD-03", "Cause + recipient + preparation + context", "קלח–קנו + multi-locus", "SOURCE-SUPPORTED", "הטקסט מבחין בין סיבה/מסובב, פועל/נפעל, השפעה/קבלה, עזר, הכנה, סיבה קרובה/רחוקה ותנאים נלווים. תוצאה אינה נגזרת מן הסיבה לבדה."],
+      ["RD-04", "כ״ח עתים ומחזור הלבנה", "קסו–קעד", "SOURCE-SUPPORTED", "28 עתים נקשרות למצבי הוספה/גריעה ולהתמלאות/התמעטות הלבנה. העד הזה לבדו אינו נותן מיפוי מלא של 28 מצבי הנהגה אחד־לאחד."],
+      ["RD-05", "גוף ונשמה — חמש מדרגות / שלוש מדרגות", "multi-section", "SOURCE-SUPPORTED", "הספר משתמש בחמש מדרגות דקות של יחסי גוף־נשמה ובמודל תפעולי גס של שלוש מדרגות. אלה שתי רזולוציות של אותו תחום, לא ספירות מתחרות."],
+      ["RD-06", "ייצוג נבואי והגבלת הידיעה", "קעח–קצ", "SOURCE-SUPPORTED", "הדמות הנבואית היא representation שנברא לצורך השגה, לא עצמות הדבר. נאמנות הייצוג מגבילה את נאמנות הידיעה; תמונות שונות יכולות לבטא היבטים שונים."],
+      ["RD-07", "עיגול / יושר ומבנים מרחביים", "קפ–קצ", "SOURCE-SUPPORTED", "עיגול/היקף משמש נקודת־מבט כללית ושווה; יושר/קו משמש סדר מדורג ומובחן. גלגלים מקוננים, מדרגות, חדרים ולבושים משמשים סמנטיקה של תמיכה, הדרגה, קרבה ותיווך — בלי לייבא אוטומטית דוקטרינה חיצונית."],
+      ["RD-08", "כלל → פרט", "multi-section", "SOURCE-EXPLICIT METHOD", "הטקסט עצמו מנחה לתפוס תחילה את הכללים ואחר כך לרדת לפרטים. זהו עיקרון מתודולוגי מקור־מפורש ולא רק סינתזה מודרנית של המחקר."]
+    ],
+    "families": [
+      {"title": "מציאות מדודה ומתפתחת", "text": "המערכת מתוארת באמצעות מידה, מדרגה, גבול, זמן ומעבר. הסתר וגילוי אינם מתג בינארי; יש דרגות ומקומות מעבר."},
+      {"title": "משפט מקומי בתוך תיקון כללי", "text": "הספר מחזיק יחד דין, בחירה, שכר/עונש ותהליך כללי של תיקון בלי למחוק אחד מהם. Local moral judgment ≠ global-system function."},
+      {"title": "Representation ≠ Essence", "text": "שפה נבואית, צורות ומרחבים מעבירים משמעות אך אינם זהות עם העצמות האלוהית. זו שכבת representation עם גבול אפיסטמי מפורש."}
+    ],
+    "open": [
+      "Exact lexical census של מידה/שיעור/גבול וסמני זמן — לא בוצע exhaustively",
+      "השוואה לעד/דפוס היסטורי לצורך exact wording ו-collation — טרם בוצעה",
+      "מיפוי 28 העתים אחד־לאחד — אין להשלימו בלי מקור נוסף שתומך במפורש",
+      "Cross-book comparison עם קל״ח פתחי חכמה / כללים / דרך ה׳ — מחקר המשך נפרד, לא תנאי לסגירת הספר"
+    ],
+    "seeds": [
+      {"key": "28", "label": "כ״ח עתים", "family": "number-family", "status": "source-supported"},
+      {"key": "5", "label": "חמש מדרגות גוף־נשמה", "family": "number-family", "status": "source-supported"},
+      {"key": "3", "label": "שלוש מדרגות תפעוליות", "family": "number-family", "status": "source-supported"},
+      {"key": "rd04", "label": "RD-04 · כ״ח עתים", "family": "dataset", "status": "source-supported"},
+      {"key": "rd06", "label": "RD-06 · ייצוג נבואי", "family": "dataset", "status": "source-supported"}
+    ]
+  },
+  "_note": "Hero-only dossier v1. Public projection of already-closed Da'at Tevunot research (FINAL CLOSURE V9 AFTER 577681a1-6538-4a23-91e3-c34a7d16f67e). The source PDF is a stable SOD1820 site research witness, not a diplomatic historical-print authority. The consolidated research_object a91491ac-30f1-4fc0-948b-9ccc638a1b2d remains candidate/private and is not copied into a public research feed. Book identity: node 72bfa180-eced-4adb-b874-428b674220dc."
+}

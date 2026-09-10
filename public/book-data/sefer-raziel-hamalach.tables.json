@@ -1,0 +1,54 @@
+{
+  "book_slug": "sefer-raziel-hamalach",
+  "source_identity": "book:sefer-raziel-hamalach",
+  "generated_at": "2026-09-10",
+  "schema_version": 1,
+  "hero": {
+    "eyebrow": "SEFER RAZIEL HAMALACH · AMSTERDAM 1701 · HEBREWBOOKS 23968",
+    "subtitle": "ספר רזיאל המלאך · דפוס ראשון, אמשטרדם תס״א / 1701 · עד דיגיטלי HebrewBooks 23968",
+    "pdf": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_23968.pdf",
+    "promise": "כרך קבלי רב־שכבתי: ספר המלבוש, ספר רזיאל הגדול/סודי רזיא, פירושי שמות, ליקוט מספר הרזים, מעשה בראשית/שיעור קומה וחומר מעשי. השכבות נשמרות בנפרד עם provenance; אין השטחה לקול מחבר יחיד ואין קידום אוטומטי של שמות או טענות.",
+    "metrics": [
+      ["90", "עמודי PDF", "Digital Object"],
+      ["89/90", "close-read exact-witness", "p35 נשאר ambiguous"],
+      ["4", "Research Objects מאוחדים", "candidate/private; לא public feed"],
+      ["17", "צדדים מאוירים מקוטלגים", "9 קוסמולוגיה/שמות · 8 קמעות/תרשימים"]
+    ],
+    "coverage": [
+      {"label": "Structural Coverage", "value": "90/90 COMPLETE", "note": "כל עמודי ה-PDF ממופים מבנית; זה אינו טוען שכל קריאה דיפלומטית נסגרה."},
+      {"label": "Exact-Witness Close Read", "value": "89/90", "note": "PDF p35 הוא העמוד היחיד שנשאר STILL_AMBIGUOUS ברמת הקריאה החזותית המדויקת."},
+      {"label": "Deep Research", "value": "V2 CLOSED", "note": "בוצע pass נוסף של unknown-unknowns והיסטוריית-שכבות בלי לפתוח מחדש את הסריקה המבנית."},
+      {"label": "Source Exhaustion", "value": "NOT ESTABLISHED", "note": "נשמרו residuals מפורשים; אין טענה למיצוי מוחלט של כל עד/נוסח אפשרי."}
+    ],
+    "datasets": [
+      ["RD-01", "מפת החיבורים הפנימיים", "pp1-90", "SOURCE-INTEGRATED", "העד הוא collection רב־שכבתי: ספר המלבוש; סודי רזיא/ספר רזיאל הגדול; פירוש שם המפורש; ליקוט מספר הרזים; מעשה בראשית+שיעור קומה; קמעות/ספר המזלות וחומר שמות מסיים."],
+      ["RD-02", "מטריצת מלאכים · זמן · קוסמולוגיה", "pp4-13,67-72", "SOURCE-SUPPORTED", "תקופות, חודשים, ימים, מזלות, כוכבי לכת, רוחות/כיוונים, מחנות ושמות מלאכים. שמות נשמרים כ-source representations; אין Angel Registry ואין מיזוג זהויות אוטומטי."],
+      ["RD-03", "174 קולות — אות/קול/ניקוד", "p20", "SOURCE-QUOTED", "15 אותיות פשוטות × 6 קולות = 90; שבע כפולות בג״ד כפר״ת × 12 = 84; המקור מסכם קע״ד / 174 קולות. מנגנון קומבינטורי־פונטי, לא טענת Hz."],
+      ["RD-04", "שם ע״ב / מ״ב / כ״ב", "pp47-58", "SOURCE-SUPPORTED", "שם ע״ב מוצג ב-72 slots של שלשות; שם מ״ב ב-7 מקטעים בני 6 אותיות; שם כ״ב ב-4 מקטעים. Representation ≠ independent divine entity."],
+      ["RD-05", "גזירת 72 השמות", "p48", "SOURCE-SUPPORTED", "העד מציג את 72 השלשות יחד עם מנגנון גזירתן משלושת הפסוקים; רשימת-שמות והליך-הפקה נשמרים כשתי שכבות מחקריות נבדלות."],
+      ["RD-06", "Method / Procedure families", "pp47-66 + multi-locus", "SOURCE-ATTESTED", "חשבון, חיבור, ציור, חילוף, הפוך/למפרע, ניקוד, generation/order, גזירת ע״ב ו-174 קולות; אין רישום Method חדש בלי Method Lifecycle + Human Gate."],
+      ["RD-07", "Representation / spatial families", "17 illustrated sides", "STRUCTURAL", "מטריצות זמן/מזל/כוכב/מלאך; היררכיות רקיעים/שערים/כיוונים; סידורי שמות/אותיות; קמעות/סיגילים/מיקום. קואורדינטות הן projection, לא canonical truth."]
+    ],
+    "families": [
+      {"title": "Collection רב־שכבתי — לא ספר שטוח", "text": "הדפוס הראשון מאגד שכבות היסטוריות וטקסטואליות שונות. Book identity אחת אינה הופכת את כל היחידות לאותו Source Work או לאותו קול מחבר."},
+      {"title": "מלאכים · זמן · קוסמולוגיה", "text": "זהו החידוש הגדול של רזיאל לשדה הספרים שלנו: קשרים מפורשים בין שמות, מחנות, רקיעים, כיוונים, זמן, מזלות וכוכבים — נשמרים כממצאי מקור עם provenance, לא כעובדות פיזיקליות או ישויות קנוניות אוטומטיות."},
+      {"title": "אותיות ושמות כמנגנונים", "text": "174 הקולות וגזירת 72 השמות מדגימים שהספר אינו רק רשימות; הוא מכיל גם procedures ו-representation grammars. Method identity, source claim ו-engine verification נשארים צירים נפרדים."}
+    ],
+    "open": [
+      "PDF p35 — exact visual reading עדיין STILL_AMBIGUOUS",
+      "חשבון/סימן המוכרח — source-attested method candidate; operand/formula עדיין METHOD_UNKNOWN ולא רשום כפעיל",
+      "רוח — הקריאה/השיטה המספרית לא הוכרעה; אין MISMATCH סופי",
+      "פער collation של עלה אחד / שני צדדים מול תיאור ביבליוגרפי מלא — המיקום המדויק בעד הדיגיטלי לא נחתם חזותית",
+      "Gikatilla incorporation — scholarly-supported layer; exact Amsterdam locus נשאר פתוח"
+    ],
+    "seeds": [
+      {"key": "174", "label": "קע״ד קולות", "family": "number-family", "status": "source-quoted"},
+      {"key": "72", "label": "שם ע״ב · 72 שלשות", "family": "number-family", "status": "source-supported"},
+      {"key": "42", "label": "שם מ״ב · 42 אותיות", "family": "number-family", "status": "source-supported"},
+      {"key": "22", "label": "שם כ״ב · 22 אותיות", "family": "number-family", "status": "source-supported"},
+      {"key": "rd03", "label": "RD-03 · 174 קולות", "page": 20, "family": "dataset", "status": "source-quoted"},
+      {"key": "rd05", "label": "RD-05 · גזירת 72 השמות", "page": 48, "family": "dataset", "status": "source-supported"}
+    ]
+  },
+  "_note": "Hero-only dossier v1. Public projection of already-closed Raziel research (work_log AFTER 3ab0c1de-b6c2-4fb7-8c0c-466a4a9918a8 + Deep V2 AFTER 5ba6d1ba-12b4-47d5-82ea-11c38751d4f4). Private/candidate research_objects remain protected and are not copied into a public research feed. Book identity: node 2a6be993-6f5d-42a2-accc-2b6e4bd5e941."
+}
