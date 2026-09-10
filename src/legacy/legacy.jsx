@@ -17,6 +17,7 @@ import { OneTreeWidget } from "../components/OneTreeAtlas.jsx";
 import SideRailAd from "../components/SideRailAd.jsx";
 import PopularPrayersBox from "../components/PopularPrayersBox.jsx";
 import ChatScrollRail from "../components/ChatScrollRail.jsx";
+import { useOpenWeb } from "../lib/openweb.js";
 import Discourse from "../components/Discourse.jsx";
 import CommunityForming from "../components/CommunityForming.jsx";
 import AdvancedPostEditor from "../components/AdvancedPostEditor.jsx";
@@ -4343,18 +4344,9 @@ function ChatPage() {
 // ===== SPOTIM CHAT PAGE =====
 function SpotimChatPage() {
   const P = usePalette();
-  useEffect(() => {
-    // טוענים את ה-launcher של Spot.IM פעם אחת ומשאירים אותו טעון —
-    // כך כשחוזרים לדף ה-SDK מזהה מחדש את אלמנט ה-conversation ולא "בורח".
-    if (!document.getElementById("spotim-script")) {
-      const s = document.createElement("script");
-      s.id = "spotim-script";
-      s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
-      s.async = true;
-      s.setAttribute("data-spotim-module", "spotim-launcher");
-      document.body.appendChild(s);
-    }
-  }, []);
+  // 🔗 OpenWeb — מודול קנוני יחיד (src/lib/openweb.js): טוען את ה-launcher פעם אחת
+  // (כך שחזרה לדף לא "מבריחה" את אלמנט ה-conversation) ומחבר את המשתמש דרך SSO.
+  useOpenWeb();
 
   // 🛤️ סרגל-גלילה תלת-מימדי מיוחד — רק בדף הצ'אט. מוסיפים class ל-<html> בכניסה
   // ומסירים ביציאה, כך שהסגנון לא דולף לשאר האתר. webkit (כרום/ספארי/אדג');
@@ -4455,17 +4447,8 @@ function SpotimChatPage() {
 
 // ===== SPOTIM COMMENTS (per-article) =====
 function SpotimComments({ postId, postUrl }) {
-  useEffect(() => {
-    if (!postId) return;
-    if (!document.getElementById("spotim-script")) {
-      const s = document.createElement("script");
-      s.id = "spotim-script";
-      s.src = "https://launcher.spot.im/spot/sp_OVtajBTj";
-      s.async = true;
-      s.setAttribute("data-spotim-module", "spotim-launcher");
-      document.body.appendChild(s);
-    }
-  }, [postId]);
+  // 🔗 OpenWeb — אותו מודול קנוני כמו דף הצ׳אט (launcher + SSO), בלי שכפול קוד.
+  useOpenWeb();
   if (!postId) return null;
   return (
     <div style={{ marginTop: 64 }}>
