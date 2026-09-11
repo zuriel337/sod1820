@@ -47,5 +47,8 @@ jobs:
       - name: Observability/SEO route coverage check
         run: node scripts/check-observability-seo-gate.mjs
 
+      - name: Entity publishing + indexability contract
+        run: node --test test/entity-publishing-indexability.test.mjs
+
       - name: Build
         run: npm run build

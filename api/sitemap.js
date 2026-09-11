@@ -4,7 +4,8 @@
 // אותה לוגיקה בדיוק כמו scripts/gen-sitemap.mjs, רק חיה (live) במקום סטטית.
 //   • עמודים סטטיים קנוניים (עמודי-על)
 //   • כל הפוסטים → /<slug>
-//   • דפי המספר → /number/:n  (כל מספר ≥10 שיש לו תמונות בגלריה, primary_value)
+//   • דפי המספר → /number/:n  (יהלומים דרך sitemap_numbers)
+//   • דפי ביטוי מאושרים → /number/:phrase (דרך sitemap_phrases; addressable ≠ indexable)
 //   • צירי ההתכנסות המאושרים → /topic/:slug
 //   • דפי הכתבים → /community/researcher/:slug  (contributors עם slug/code)
 
@@ -182,6 +183,22 @@ export default async function handler(req, res) {
       }
     }
   } catch (e) { /* ממשיכים גם בלי דפי מספר */ }
+
+  // ── דפי ביטוי → /number/:phrase — רק ביטויים שעברו את אותו Search Indexability Contract.
+  // כל שאר הביטויים נשארים addressable לצורכי מחקר/קישורים, אך אינם מפורסמים דרך sitemap.
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/sitemap_phrases`, {
+      method: 'POST', headers: { ...HEADERS, 'Content-Type': 'application/json' }, body: '{}',
+    });
+    if (r.ok) {
+      const rows = await r.json();
+      for (const row of (Array.isArray(rows) ? rows : [])) {
+        const phrase = String(row.phrase || '').trim();
+        if (!phrase || /^\d+$/.test(phrase)) continue;
+        urls.push({ loc: '/number/' + encodeURIComponent(phrase), lastmod: row.lastmod || undefined, changefreq: 'monthly', priority: row.priority || '0.6' });
+      }
+    }
+  } catch (e) { /* ממשיכים גם בלי דפי ביטוי */ }
 
   // ── צירי התכנסות מאושרים → /topic/:slug ──
   try {
