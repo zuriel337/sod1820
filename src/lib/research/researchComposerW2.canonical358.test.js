@@ -12,28 +12,37 @@ function fakeSupabase() {
       if (name === 'number_neighbors') return { data: [{ value: 424, weight: 12.84 }] };
       return { data: null };
     },
-    from: () => ({ select: () => ({ or: () => ({ limit: async () => ({ data: [], error: null }) }) }) }),
   };
 }
 
 const identity358 = [{ type: 'number', value: 358, ref: '358', source: 'explicit_ref', confidence: 'exact' }];
 
-test('358 composes canonical numeric coverage and explicit ELS gap into one Result Bundle', async () => {
-  const executors = createCanonicalW2Executors({
-    supabase: fakeSupabase(),
-    numericLenses: ['number_lookup', 'number_dossier', 'number_journey', 'neighbors', 'research_objects'],
-  });
+function cap(bundle, key) {
+  return bundle.capability_trace.find(x => x.key === key);
+}
+
+test('358 replay preserves execution, negative result and capability gaps without raw-evidence leakage', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
   const bundle = await composeResearchW2({
-    question: '358', rawInput: '358', identityCandidates: identity358,
-    requestedCapabilities: ['numeric', 'els'], executors,
+    question: '358',
+    rawInput: '358',
+    identityCandidates: identity358,
+    requestedCapabilities: ['numeric', 'els', 'sequence:fibonacci'],
+    executors,
   });
 
   assert.equal(bundle.query.identities[0].value, 358);
-  assert.equal(bundle.capabilities.numeric.status, 'executed');
-  assert.equal(bundle.capabilities.els.status, 'missing_adapter');
-  assert.equal(bundle.coverage.missing_adapter, 1);
-  assert.equal(bundle.coverage.negative_result, 0);
-  assert.deepEqual(bundle.capabilities.numeric.findings, []);
-  assert.equal(bundle.capabilities.numeric.trace.root.value, 358);
+  assert.equal(cap(bundle, 'numeric').status, 'executed');
+  assert.equal(cap(bundle, 'sequence:fibonacci').status, 'negative_result');
+  assert.equal(cap(bundle, 'els').status, 'missing_adapter');
+  assert.equal(cap(bundle, 'graph').status, 'missing_adapter');
+  assert.equal(cap(bundle, 'numeric_operators').status, 'missing_adapter');
+  assert.equal(bundle.coverage.negative_result, 1);
+  assert.equal(bundle.coverage.missing_adapter, 3);
+  assert.equal(bundle.coverage.executed, 2);
+  assert.equal(bundle.coverage.partial, true);
+  assert.equal(bundle.findings.length, 0);
+  assert.equal(JSON.stringify(cap(bundle, 'numeric').trace).includes('משיח'), false);
+  assert.equal(cap(bundle, 'sequence:fibonacci').negative_result.scope.sequence_id, 'fibonacci');
   assert.equal(bundle.synthesis, null);
 });

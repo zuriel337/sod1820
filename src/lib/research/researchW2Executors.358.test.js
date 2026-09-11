@@ -12,26 +12,36 @@ function fakeSupabase() {
       if (name === 'number_neighbors') return { data: [{ value: 424, weight: 12.84 }] };
       return { data: null };
     },
-    from: () => ({
-      select: () => ({
-        or: () => ({ limit: async () => ({ data: [], error: null }) }),
-      }),
-    }),
   };
 }
 
 const identityResolution358 = { identities: [{ type: 'number', key: '358', value: 358, ref: '358' }] };
 
-test('358 canonical numeric executor preserves router trace and does not manufacture lookup rows as findings', async () => {
-  const executors = createCanonicalW2Executors({
-    supabase: fakeSupabase(),
-    numericLenses: ['number_lookup', 'number_dossier', 'number_journey', 'neighbors', 'research_objects'],
-  });
-  const out = await executors.number({ identityResolution: identityResolution358 });
+test('358 canonical numeric executor keeps raw lookup rows behind the adapter boundary', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  const out = await executors.numeric({ identityResolution: identityResolution358 });
   assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
   assert.equal(out.trace.root.value, 358);
   assert.equal(out.trace.per_lens.number_lookup.status, 'ok');
+  assert.equal(out.trace.per_lens.number_lookup.row_count, 1);
+  assert.equal(JSON.stringify(out.trace).includes('משיח'), false);
   assert.deepEqual(out.findings, []);
+});
+
+test('W2 numeric bridge refuses raw research_objects access instead of relying on caller RLS', () => {
+  assert.throws(() => createCanonicalW2Executors({
+    supabase: fakeSupabase(),
+    numericLenses: ['number_lookup', 'research_objects'],
+  }), /cannot bypass capability adapters/);
+});
+
+test('358 Fibonacci bounded search survives as first-class negative result', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  const out = await executors['sequence:fibonacci']({ identityResolution: identityResolution358 });
+  assert.equal(out.status, CAPABILITY_STATUS.NEGATIVE_RESULT);
+  assert.deepEqual(out.findings, []);
+  assert.equal(out.negativeScope.sequence_id, 'fibonacci');
+  assert.equal(out.negativeScope.search_depth, 10000);
 });
 
 test('358 ELS remains first-class missing adapter, never negative evidence', async () => {
