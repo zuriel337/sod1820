@@ -30,7 +30,7 @@ values
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
   0, 1, null, null, null, null, null, null, null, null, null,
-  '[]'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
+  '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 ),
 (
   902, 'en_full_reduction', 'Full Reduction', 'base',
@@ -41,7 +41,7 @@ values
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
   0, 1, null, null, null, null, null, null, null, null, null,
-  '[]'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
+  '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 ),
 (
   903, 'en_reverse_ordinal', 'Reverse Ordinal', 'base',
@@ -52,7 +52,7 @@ values
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
   0, 1, null, null, null, null, null, null, null, null, null,
-  '[]'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
+  '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 ),
 (
   904, 'en_reverse_reduction', 'Reverse Reduction', 'base',
@@ -63,6 +63,6 @@ values
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
   0, 1, null, null, null, null, null, null, null, null, null,
-  '[]'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
+  '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 )
 on conflict (method_key) do nothing;
