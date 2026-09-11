@@ -2,10 +2,11 @@ import { next } from '@vercel/edge';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
-// שתי שכבות חסימה + מדידה מלאה:
-//   1) חסימה לפי התנהגות (User-Agent של בוט) — עוקבת אחרי הבוט לכל מדינה (גם US).
-//   2) חסימת מדינה זמנית (CN/SG) — ניסוי: לראות אם הבוטים עוצרים, מגבירים, או
-//      "עוברים מדינה". מוסר בעוד כמה ימים לפי הנתונים.
+// שכבות המדיניות:
+//   1) חסימה לפי התנהגות (User-Agent של בוט) — עוקבת אחרי הבוט לכל מדינה.
+//   2) מדיניות-מדינה חיה מה-DB: monitor | strict | blocked.
+//      strict = גולש browser אמיתי מקבל JS challenge רך; goodbot/ai עוברים; bad bot נחסם.
+//      עוצמה 1/2/3 נשלטת ב-DB ומשנה את תדירות האימות בלי deploy נוסף.
 // בוטים "טובים" (חיפוש + תצוגות שיתוף) ברשימה לבנה → עוברים חופשי (SEO/OG).
 // מתעדים כל בקשה (כולל נחסמים) ל-edge_geo_log (country+kind) ול-edge_ua_seen (UA
 // אמיתי) דרך RPC log_edge, fire-and-forget (waitUntil) — בלי השהיה. כך נראה אם
@@ -26,30 +27,64 @@ const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 // מפתח anon ציבורי (זהה לזה שב-api/ga-insights.js · api/ga-sync.js) — בטוח להטמעה.
 const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
-// 🌍 חסימת מדינה — נשלטת מ-DB, בלי פריסה (בעקבות site_flags_lock_law).
-// הרשימה חיה בטבלת public.edge_blocked_countries; ה-RPC public.blocked_countries()
-// מחזיר את הקודים הפעילים. שינוי = INSERT/UPDATE enabled שם → חי מיד (cache שעה כאן),
-// בלי דחיפת-Vercel. כרגע (9.8.2026, בבקשת צוריאל) אין אף מדינה חסומה — CN/SG הושבתו
-// (enabled=false, נשמרו להיסטוריה). FALLBACK ריק: אם ה-DB לא זמין ברירת-המחדל היא
-// לא-לחסום אף מדינה (לא "להחזיר" חסימה בטעות בכישלון-רשת).
-const BLOCKED_COUNTRIES_FALLBACK = new Set();
-// 📉 קצב-דגימה ל-kind='browser' בלבד (ראה הסבר למעלה) — goodbot/ai/bot אינם נוגעים בזה.
-const BROWSER_SAMPLE_RATE = 10;
-let BLOCKED = null, BLOCKED_AT = 0;
-async function blockedCountriesSet() {
+// 🌍 מדיניות-מדינה — אותו owner/table קיים, בלי מערכת מקבילה.
+// public.edge_blocked_countries מחזיק enabled + mode + strict_level.
+// mode=blocked → חסימה מלאה ל-browser/bot (goodbot/ai מוחרגים כמו בעבר).
+// mode=strict  → browser עובר challenge רך; bad bot עדיין נחסם; goodbot/ai עוברים.
+// mode=monitor → אין אכיפה נוספת, רק המדידה הרגילה.
+// cache קצר של 5 דקות כדי שאפשר יהיה להעלות/להוריד מינון מה-DB בלי deploy.
+const COUNTRY_POLICY_CACHE_MS = 5 * 60 * 1000;
+let COUNTRY_POLICIES = null, COUNTRY_POLICIES_AT = 0;
+async function countryPolicyMap() {
   const now = Date.now();
-  if (BLOCKED && now - BLOCKED_AT < 3600000) return BLOCKED;
+  if (COUNTRY_POLICIES && now - COUNTRY_POLICIES_AT < COUNTRY_POLICY_CACHE_MS) return COUNTRY_POLICIES;
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/blocked_countries`, {
-      method: 'POST',
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-      body: '{}',
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/edge_blocked_countries?select=code,mode,strict_level&enabled=eq.true`, {
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON },
     });
     const arr = await r.json();
-    if (Array.isArray(arr)) { BLOCKED = new Set(arr.map((c) => String(c).toUpperCase())); BLOCKED_AT = now; }
-  } catch { /* אם נכשל — נשארים עם ה-cache הקודם (או fallback בבדיקה) */ }
-  return BLOCKED || BLOCKED_COUNTRIES_FALLBACK;
+    if (Array.isArray(arr)) {
+      COUNTRY_POLICIES = new Map(arr.map((row) => [
+        String(row.code || '').toUpperCase(),
+        { mode: String(row.mode || 'blocked'), strictLevel: Math.max(1, Math.min(3, Number(row.strict_level) || 1)) },
+      ]));
+      COUNTRY_POLICIES_AT = now;
+    }
+  } catch { /* fail-open למדיניות מדינה; שכבות bot/path האחרות ממשיכות לפעול */ }
+  return COUNTRY_POLICIES || new Map();
 }
+
+function hasCookie(request, name) {
+  const raw = request.headers.get('cookie') || '';
+  return raw.split(';').some((part) => part.trim().startsWith(`${name}=`));
+}
+
+function strictChallengeTtl(level) {
+  if (level >= 3) return 60 * 60;       // שעה
+  if (level === 2) return 6 * 60 * 60;  // 6 שעות
+  return 24 * 60 * 60;                  // 24 שעות
+}
+
+function strictBrowserChallenge(country, level) {
+  const safeCountry = String(country || 'XX').replace(/[^A-Z]/g, '').slice(0, 2) || 'XX';
+  const cookieName = `sod_edge_ok_${safeCountry}`;
+  const maxAge = strictChallengeTtl(level);
+  const cookie = `${cookieName}=1; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+  const scriptCookie = JSON.stringify(cookie);
+  const html = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>בדיקת גישה</title></head><body><main style="font-family:system-ui,sans-serif;max-width:560px;margin:12vh auto;padding:24px;text-align:center"><h1 style="font-size:22px">בדיקת דפדפן קצרה</h1><p>האתר מאמת שהגישה מגיעה מדפדפן רגיל. המעבר ימשיך אוטומטית.</p><noscript><p>נדרש JavaScript כדי להשלים את בדיקת הגישה.</p></noscript></main><script>document.cookie=${scriptCookie};location.replace(location.href);</script></body></html>`;
+  return new Response(html, {
+    status: 200,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'no-store',
+      'x-robots-tag': 'noindex, nofollow',
+      'x-sod-edge-policy': `strict-l${level}`,
+    },
+  });
+}
+
+// 📉 קצב-דגימה ל-kind='browser' בלבד (ראה הסבר למעלה) — goodbot/ai/bot אינם נוגעים בזה.
+const BROWSER_SAMPLE_RATE = 10;
 
 // בוטים מותרים — מנועי חיפוש (SEO), בוטי תצוגת-שיתוף (OG), וכל הסורקים של מטא
 // (facebookexternalhit/facebot=תצוגות · meta-externalagent/facebookbot=סורק התוכן/AI).
@@ -155,18 +190,19 @@ export default async function middleware(request, context) {
   let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
   const isBot = kind !== 'browser';       // goodbot | ai | bot
   const uaL = uaRaw.toLowerCase();
+  const policies = await countryPolicyMap();
+  const countryPolicy = policies.get(String(country).toUpperCase()) || null;
 
-  // ── מדיניות לפי סוג-תוכן (לא רק לפי בוט) ──
+  // ── מדיניות לפי סוג-תוכן + מדינה ──
   // 1) כל בוט חסום ממסלולים יקרים/פרטיים (מסע/מחקר/AI/ניהול) — רק דפדפן-אדם עובר.
-  // 2) בוט-רע (BAD/GENERIC) → 403 מלא.  3) חסימת-מדינה (ניסוי) — לא חלה על goodbot/ai.
-  // goodbot (חיפוש/שיתוף) + ai (מנועי-תשובות) → מותרים בתוכן ציבורי.
+  // 2) בוט-רע (BAD/GENERIC) → 403 מלא.
+  // 3) country mode=blocked → חסימה מלאה ל-browser/bot; goodbot/ai עוברים.
+  // 4) country mode=strict → browser אמיתי עובר challenge רך; goodbot/ai עוברים.
   let blocked = false;
   if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
   else if (kind === 'bot') blocked = true;
-  if (kind !== 'goodbot' && kind !== 'ai') {
-    const blockedCountries = await blockedCountriesSet();
-    if (blockedCountries.has(country)) blocked = true;
-  }
+  if (countryPolicy?.mode === 'blocked' && kind !== 'goodbot' && kind !== 'ai') blocked = true;
+
   // 🤖 דף-מספר טהור מעל 4 ספרות: חוסמים בוט רק אם המספר **ריק** (לא ב-allowlist התוכן).
   //    מספר-גדול עם תוכן (מילה/צופן/עוגן) → מותר ומאונדקס (בקשת צוריאל). דף-ריק → נחסם.
   //    הכלל הקליינטי (noindex) לא מגיע לבוטים חסרי-JS, לכן האכיפה כאן בקצה.
@@ -188,6 +224,16 @@ export default async function middleware(request, context) {
   }
 
   if (blocked) return new Response('Access denied', { status: 403, headers: { 'cache-control': 'no-store' } });
+
+  // Adaptive STRICT חל רק על browser שלא נחסם בשכבות הקודמות.
+  // cookie מקומי מוכיח רק שהדפדפן ביצע JS challenge; הוא אינו Human proof ואינו משנה TI classification.
+  if (kind === 'browser' && countryPolicy?.mode === 'strict') {
+    const level = countryPolicy.strictLevel;
+    const safeCountry = String(country || 'XX').replace(/[^A-Z]/g, '').slice(0, 2) || 'XX';
+    const cookieName = `sod_edge_ok_${safeCountry}`;
+    if (!hasCookie(request, cookieName)) return strictBrowserChallenge(safeCountry, level);
+  }
+
   // 🇮🇱 חושפים את מדינת-המבקר ללקוח (cookie vc) — לגידור מודעות ל-IL בלבד (בקשת צוריאל:
   //    פרסומות לא-צנועות הגיעו מתעבורה זרה). המודעות ממילא רק בפוסטים הישנים.
   // 🤖 חושפים גם את פסק-הבוט של הקצה (cookie vb=<kind>): browser=אדם · goodbot/ai/bot=בוט.
