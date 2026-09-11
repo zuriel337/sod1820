@@ -27,7 +27,7 @@ test('358 replay preserves execution, negative result and capability gaps withou
     question: '358',
     rawInput: '358',
     identityCandidates: identity358,
-    requestedCapabilities: ['numeric', 'els', 'sequence:fibonacci'],
+    requestedCapabilities: ['numeric', 'els', 'sequence:fibonacci', 'research_objects'],
     executors,
   });
 
@@ -35,10 +35,11 @@ test('358 replay preserves execution, negative result and capability gaps withou
   assert.equal(cap(bundle, 'numeric').status, 'executed');
   assert.equal(cap(bundle, 'sequence:fibonacci').status, 'negative_result');
   assert.equal(cap(bundle, 'els').status, 'missing_adapter');
+  assert.equal(cap(bundle, 'research_objects').status, 'missing_adapter');
   assert.equal(cap(bundle, 'graph').status, 'missing_adapter');
   assert.equal(cap(bundle, 'numeric_operators').status, 'missing_adapter');
   assert.equal(bundle.coverage.negative_result, 1);
-  assert.equal(bundle.coverage.missing_adapter, 3);
+  assert.equal(bundle.coverage.missing_adapter, 4);
   assert.equal(bundle.coverage.executed, 2);
   assert.equal(bundle.coverage.partial, true);
   assert.equal(bundle.findings.length, 0);

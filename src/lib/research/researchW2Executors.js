@@ -1,5 +1,5 @@
 import { researchNumber, numericLensMap } from './numericResearch.js';
-import { CAPABILITY_STATUS } from './researchResultBundle.js';
+import { CAPABILITY_STATUS, EVIDENCE_RELATION } from './researchResultBundle.js';
 
 const SAFE_W2_NUMERIC_LENSES = Object.freeze([
   'number_lookup',
@@ -15,7 +15,6 @@ const DEFAULT_W2_NUMERIC_LENSES = Object.freeze([
   'number_dossier',
   'number_journey',
   'neighbors',
-  'gematria_reverse',
 ]);
 
 function numberFromIdentity(identityResolution) {
@@ -70,8 +69,9 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
   if (sequence.status === 'adapter_needed') {
     return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.MISSING_ADAPTER, reason: sequence.error || `${lensId} adapter missing`, findings: [], trace: { lens: lensId, status: 'adapter_needed' } };
   }
-  const found = sequence?.result?.found === true;
-  if (!found) {
+
+  const foundState = sequence?.result?.found;
+  if (foundState === false) {
     return {
       owner: 'research_strategy_layer_law',
       status: CAPABILITY_STATUS.NEGATIVE_RESULT,
@@ -88,10 +88,26 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
       trace: { lens: lensId, status: 'ok', found: false },
     };
   }
+  if (foundState !== true) {
+    return {
+      owner: 'research_strategy_layer_law',
+      status: CAPABILITY_STATUS.UNVERIFIED,
+      reason: `${lensId} did not return an explicit found=true/false outcome`,
+      findings: [],
+      trace: { lens: lensId, status: sequence.status || 'unknown', found: null },
+    };
+  }
+
+  const findings = result.universal_findings || [];
   return {
     owner: 'research_strategy_layer_law',
     status: CAPABILITY_STATUS.EXECUTED,
-    findings: result.universal_findings || [],
+    findings,
+    findingOutcomes: findings.map(finding => ({
+      findingId: finding.id,
+      evidenceRelation: EVIDENCE_RELATION.INDEPENDENT_EVIDENCE,
+      reason: 'independent sequence-engine computation lineage; semantic relevance is not implied',
+    })),
     sourceRefs: [`number:${number}`],
     versionRefs: [sequence.sequence_version || `${lensId}:unknown-version`],
     trace: {
