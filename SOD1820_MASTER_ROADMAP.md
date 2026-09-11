@@ -1,21 +1,24 @@
-# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.5
+# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.6
 
 **Date:** 11.9.2026  
 **Status:** NAVIGATION / STRATEGY SSOT · EXTEND_EXISTING · HUMAN-GATE CONTROLLED · BRANCH UPDATE PENDING MERGE
 
-> v5.5 supersedes the v5.4 **planning order** once merged. It does not declare unfinished branch work deployed or live. Git history preserves v5.4 provenance.
+> v5.6 supersedes the v5.5 **planning direction** once merged. It does not declare unfinished branch work deployed or live. Git history preserves v5.5 provenance.
 
-## 0. What changed in v5.5
+## 0. What changed in v5.6
 
-v5.4 correctly established **One Reality Graph · One Research OS · One World, Many Views**. The 9–10 September work did not invalidate that foundation; it exposed what must sit between the foundation and the future experience.
+v5.5 correctly established **One Reality Graph · One Research OS · One World, Many Views** and placed AI/Raziel below the final experience as research infrastructure rather than a late chat feature.
 
-The main correction is architectural order:
+v5.6 adds one explicit 2029+ North Star that was previously distributed across existing Raziel/Personalization/Command-Center owners:
 
-> **AI/Raziel is not a late chat feature added after the site is designed. Identity-first research composition, the Capability Fabric and bounded Context Compiler are lower infrastructure that must feed the whole upper product.**
+> **RAZIEL CONTINUOUS RESEARCH COMPANION — one long-lived Research Intelligence presence over the same Research OS, able to resume, notice meaningful change, self-audit, propose the next best research action and remain silent when nothing decision-changing happened.**
 
-v5.5 therefore absorbs:
+This is a roadmap consolidation of existing owners, not a new engine, graph, memory store, context system or truth authority.
+
+v5.6 therefore absorbs:
 
 - Future-Max / 2029+ World Model direction;
+- Raziel Continuous Research Companion / Research Presence North Star;
 - Identity / Evidence / Composition / Projection boundary;
 - Dynamic Lens vs persistent Canonical Subject/Topic;
 - temporal event/research/interpretation history;
@@ -23,6 +26,8 @@ v5.5 therefore absorbs:
 - private Person/Life/Family context over the same One Reality;
 - Universal Finding + cross-capability Research Composer / Context Pack direction;
 - Raziel as Research Intelligence Layer, not a second knowledge system;
+- authorized longitudinal memory + explicit preference vs weak behavioral-signal separation;
+- proactive Research Pulse + Silence Gate + self-audit before recommendation;
 - stable product homes with smaller, adaptive navigation;
 - typed Global Now and Reality Stream placement;
 - Archive = Now / Best / All direction;
@@ -80,7 +85,7 @@ RESEARCH COMPOSER / CONTEXT COMPILER
     ↓
 ADAPTIVE PROJECTIONS
     ├─ HUMAN: Home · World · Heichal · Posts · Archive · Workspace · Journeys
-    ├─ RAZIEL: conversational research intelligence over the same context
+    ├─ RAZIEL: continuous conversational/proactive research intelligence over the same context
     └─ MACHINE: Search · structured data · feeds · answer/retrieval agents
     ↓
 2D · 3D · AR · VR · multilingual · API · future renderers
@@ -95,7 +100,7 @@ No layer above is permitted to create a second truth graph merely for convenienc
 - **Research OS** = evidence, sources, calculations, findings, interpretation and governance.
 - **Context Compiler** = selects and composes only the relevant authorized slice.
 - **World / pages / Journeys / lenses** = contextual projections.
-- **Raziel** = intelligence/interface over the same governed reality.
+- **Raziel** = intelligence/interface/companion over the same governed reality.
 
 ---
 
@@ -346,6 +351,163 @@ He may:
 - help operate the site without becoming a second site/graph/truth system.
 
 Response depth and compute budget are adaptive. Simple questions should not pay deep-research cost; hard questions may escalate.
+
+#### 2029+ North Star — Raziel Continuous Research Companion / Research Presence
+
+The mature Raziel experience is **not a chatbot session** and not an engagement bot. It is one continuous, governed research presence that can accompany a researcher for years while remaining subordinate to the same One Reality, Research OS, Truth Axes, privacy owners and Human Gate.
+
+The target feeling is continuity without pretending personhood:
+
+> **“We are still in the same research.”**
+
+A researcher may leave for an hour, a month or a year. When they return, Raziel should be able — when authorized and useful — to reconstruct where the inquiry stopped, what remained unresolved, what changed in the governed world since then, and which next action has the highest research value.
+
+This extends existing `raziel_companion_layer_law`, `personal_command_center_law`, `raziel_routing_law`, Research Personalization and Research Context. It creates **no new Raziel engine, memory tree, truth graph, context store or personalization truth authority**.
+
+##### 1. Continuous Research State — conversation is not the state
+
+The durable continuity unit is the governed research context/path/evidence lineage, not a chat transcript.
+
+Raziel should be able to distinguish:
+
+- what the user asked;
+- what was actually executed;
+- what was found;
+- what was negative/missing/unverified;
+- what was interpreted;
+- what the user explicitly accepted/rejected/saved;
+- what remained an open question;
+- what changed after the user left.
+
+A conversation may disappear while the authorized research state remains resumable. A long chat must never be required merely to preserve continuity.
+
+##### 2. Authorized longitudinal memory — relevance, not surveillance
+
+Use existing personal-memory/research-preference owners first. Personalization signals stay typed:
+
+- explicit save/pin/follow/priority/approval/rejection = strong preference/context signal;
+- repeated revisits/method use/path exploration = weaker behavioral signal;
+- source/engine Finding = evidence, never a preference;
+- preference/behavior = ranking/navigation context, never truth.
+
+Memory is retrieved only when relevant to the present authorized inquiry. “Remember everything and inject everything” is explicitly rejected.
+
+The user must retain agency to inspect, correct, mute or disable personal continuity/proactive behavior where product policy allows. Private memory never becomes shared/canonical knowledge without an explicit governed promotion path.
+
+##### 3. Research Pulse — proactive only when reality changed meaningfully
+
+Raziel may surface a proactive research moment when a real future hinge changes the value of an active inquiry, for example:
+
+- a newly ingested Book/source independently supports or challenges an open line;
+- an ELS/engine replay changes a prior unresolved result;
+- a new public Finding connects to a saved Number/Subject/Journey;
+- a previously exciting pattern is downgraded by a new control/base-rate result;
+- a source contradiction appears;
+- a user-followed research line materially changes.
+
+This is **Research Pulse**, not notification spam and not a new feed/store.
+
+##### 4. Silence Gate — silence is a successful outcome
+
+The system must explicitly support:
+
+`NO DECISION-CHANGING UPDATE → DO NOT INTERRUPT.`
+
+Proactive delivery requires an explainable reason such as material novelty, contradiction, independent corroboration, important negative result, unresolved deadline/hinge or high personal relevance under authorized context.
+
+Repeated low-value matches, same-artifact duplicates, high-base-rate patterns, cosmetic updates and engagement bait must not trigger interruption merely because they exist.
+
+##### 5. Self-audit before suggestion
+
+Before Raziel elevates a connection or recommends deeper research, the research layer should be able to ask deterministically where applicable:
+
+- Is this DERIVATION, CONVERGENCE or genuinely INDEPENDENT_EVIDENCE?
+- Are several results really the same source/artifact/occurrence?
+- How much search space was tested to find this?
+- What negative controls/baselines apply?
+- Is the pattern expected/common?
+- Is provenance/source strength adequate?
+- What evidence would weaken or falsify the current interpretation?
+- Is a capability missing or access-gated?
+- Is more depth likely to change the decision, or only produce more noise?
+
+Raziel should be capable of saying **“this looked strong, but the control shows it is structural/common”** as readily as “this deserves another check.”
+
+##### 6. Next Best Research Action — optimize information gain, not engagement
+
+The recommendation objective is not “keep the user talking.”
+
+The preferred next action is the smallest authorized action most likely to reduce meaningful uncertainty or change the research decision, such as:
+
+- verify exact source locus;
+- run a bounded negative control;
+- open one independent capability;
+- inspect one contradictory source;
+- replay one historical ELS result;
+- compare two roots;
+- stop because current evidence is sufficient.
+
+The system should be able to recommend **STOP** when further search has low expected research value.
+
+##### 7. One companion across surfaces and channels
+
+Website, Number, Book, World, Heichal, Journey, Life/Person context, Command Center and authorized external channels should feel like one Raziel because they resolve the same governed identity/context/memory owners.
+
+Channel changes may alter privacy and available actions; they do not create a second personality or truth system.
+
+Exact return/reopen should preserve the research subject and, where authorized, the last meaningful research state rather than merely reopening a chat screen.
+
+##### 8. Multimodal representations, one research identity
+
+Text, name parts, screenshot, image, voice, PDF, Matrix/ELS view or future spatial input may become bounded Representations under their canonical source owners.
+
+A new representation must not automatically create a new semantic identity or independent evidence count.
+
+For Person/Life research, one Person may expose authorized name/date/event representations to Gematria/ELS/Sources while remaining one Person identity. Representation expansion is bounded, provenance-bearing and privacy-preserving.
+
+##### 9. Adaptive intelligence without uncontrolled token/tool growth
+
+Human-feeling continuity must not depend on always using the deepest model.
+
+Default execution order remains:
+
+`deterministic/cache/index → bounded DB/graph/source retrieval → micro/fast synthesis if needed → deep/tool research only on justified escalation`
+
+The system should become **cheaper per useful decision as its knowledge grows**, because retrieval, caching, provenance and controls improve.
+
+No AI call is required when canonical deterministic owners can complete the action. Deep reasoning is reserved for ambiguity, conflict, synthesis or high-cost-of-error decisions.
+
+##### 10. Trust calibration — Raziel explains why now
+
+Every proactive or high-prominence recommendation should be able to answer:
+
+- Why are you showing me this now?
+- What changed?
+- Which Finding/source/path caused the recommendation?
+- Is it independent or derived?
+- What is still unknown?
+- What did you intentionally not search because of budget/access/noise?
+
+The system must never simulate certainty, memory or continuity it does not actually possess.
+
+##### 11. 2029+ acceptance moments
+
+The North Star is not accepted because the UI looks conversational. It is accepted when Golden journeys can prove at least:
+
+1. **Long-gap resume:** return after a long absence and reconstruct the last governed research position without replaying an entire chat history.
+2. **Meaningful-change detection:** a new source materially affects an open inquiry and Raziel can explain exactly why it matters.
+3. **Silence:** hundreds of low-value changes occur and Raziel correctly does not interrupt.
+4. **Self-correction:** a previously interesting pattern is downgraded after controls/expectedness without hiding the historical finding.
+5. **Independence honesty:** several results from one artifact/occurrence do not inflate evidence count.
+6. **Cross-channel continuity:** the same authorized inquiry resumes across surfaces/channels with channel-specific privacy preserved.
+7. **Personal privacy:** private Person/Life context never leaks into public/shared projection or another user’s context.
+8. **Model outage resilience:** deterministic/manual research and exact provenance remain usable when LLM synthesis is unavailable.
+9. **Unknown future capability:** a new canonical engine/source joins the Capability Fabric and Raziel can use it without a new companion architecture.
+10. **Stop recommendation:** Raziel can conclude that additional search is unlikely to change the research decision.
+
+The 2029+ differentiator is therefore not “more AI.” It is:
+
+> **One governed research world that remembers responsibly, notices change, knows when to investigate, knows when to doubt itself, knows when to stay silent, and can continue the same inquiry across years without turning personalization into truth.**
 
 ---
 
@@ -709,15 +871,15 @@ Design richness never implies truth rank.
 
 ---
 
-## 16. Updated build sequence — v5.5
+## 16. Updated build sequence — v5.6
 
-This sequence supersedes the v5.4 W0→W9 planning order once v5.5 is merged. Existing branch prototypes remain evidence, not automatic merge candidates.
+This sequence supersedes the v5.5 planning order once v5.6 is merged. Existing branch prototypes remain evidence, not automatic merge candidates.
 
 ### W0 — Roadmap / naming / owner / route reconciliation — **ACTIVE**
 
 Close the planning map before broad UI design:
 
-- v5.5 itself;
+- v5.6 itself;
 - Canonical Naming & Experience Crosswalk;
 - route/addressability/indexability ledger;
 - unresolved owner/type boundaries;
@@ -844,19 +1006,27 @@ Build the new internal operating experience in parallel with preserved legacy ad
 - provenance/audit/undo;
 - machine/user preview.
 
-### W8 — Raziel full experience
+### W8 — Raziel Continuous Research Companion
 
-The **brain infrastructure is already lower in W1**. W8 is the mature conversational experience:
+The **brain infrastructure is already lower in W1**. W8 is the mature 2029+ companion experience over that same foundation:
 
-- cross-surface continuity;
+- cross-surface and cross-channel continuity;
+- durable research-state resume independent of long chat history;
+- authorized longitudinal memory and preference context;
+- Research Pulse over meaningful changes;
+- Silence Gate for non-decision-changing change;
+- self-audit / controls / independence checks before high-prominence suggestions;
+- Next Best Research Action optimized for uncertainty reduction / information gain rather than engagement;
 - adaptive depth/model/tool routing;
-- context-aware explanation;
+- context-aware explanation and “why now?” trace;
 - dynamic personal Journeys;
-- personal relevance;
+- personal relevance with strict privacy boundaries;
 - source/proof drill-down;
-- site operation through semantic actions.
+- site operation through semantic actions;
+- explicit user agency over personal continuity/proactive behavior;
+- Golden acceptance for long-gap resume, silence, self-correction, independence honesty, outage resilience and STOP recommendations.
 
-AI outage must not remove manual navigation/research tools.
+AI outage must not remove manual navigation/research tools or deterministic evidence access.
 
 ### W9 — Multilingual + spatial + multi-surface future
 
@@ -887,7 +1057,9 @@ A successful system must handle all of these without special-case architecture:
 7. ELS and Gematria as distinct engines in one composed query;
 8. temporary AI Journey and official published Journey;
 9. future unknown engine attached without consumer redesign;
-10. human and machine projection of the same public identity.
+10. human and machine projection of the same public identity;
+11. continuous Raziel research resumed after a long gap without chat-history dependence;
+12. proactive Raziel silence when no meaningful research hinge changed.
 
 If a new capability requires another graph/context/store merely to fit, stop and re-check the owner model.
 
@@ -895,7 +1067,7 @@ If a new capability requires another graph/context/store merely to fit, stop and
 
 ## 18. Live foundation posture — 11.9.2026 snapshot
 
-Read-only live baseline used while creating v5.5:
+Read-only live baseline used while creating v5.5/v5.6 planning:
 
 - `nodes`: **6,497**
 - `edges`: **7,118**
@@ -912,6 +1084,7 @@ Status distinctions matter:
 - PR #428 is branch-only.
 - most Sep 9 design/naming artifacts remain branch-only and materially diverged from current main.
 - modern Journey foundation exists, but no populated `research_paths` currently proves a finished Journey product.
+- Continuous Research Companion 2029+ is **DOCUMENTED DIRECTION**, not a declaration that proactive longitudinal behavior is implemented/live.
 
 Roadmap statements must never convert **documented/branch-built** into **merged/deployed/live/verified**.
 
@@ -937,6 +1110,14 @@ Live recheck on 11.9.2026: `public.set_lead_rank(text,integer,integer)` remains 
 
 Before Person/Life multi-engine rollout, prove private expressions/uploads cannot be admitted into public/global corpus merely because they were analyzed.
 
+Before Raziel Continuous Research Companion ships, prove:
+
+- personal identity/memory/context is filtered before any public/shared bundle/model;
+- proactive triggers cannot disclose another user’s or unauthorized channel context;
+- behavioral inference cannot silently become an explicit preference/decision;
+- proactive delivery and memory retrieval are independently disableable/inspectable according to product policy;
+- no system claims continuity/memory it cannot actually reproduce from authorized state.
+
 ---
 
 ## 20. Open gates — do not invent locally
@@ -955,6 +1136,7 @@ The following remain explicit design/product/owner decisions:
 10. higher premium tier name/economics.
 11. final strategic scope of `קוד המציאות`.
 12. exact release batches/timing for Post canonical migration.
+13. exact product controls/cadence for Raziel proactive Research Pulse and Silence Gate; must extend existing Raziel/Personalization owners rather than hard-code notification behavior in UI.
 
 OPEN means **do not hard-code a temporary choice as architecture**.
 
@@ -962,19 +1144,20 @@ OPEN means **do not hard-code a temporary choice as architecture**.
 
 ## 21. Immediate next action
 
-**NEXT = finish v5.5 reconciliation, then run the AI-Native Experience pass before final UI design.**
+**NEXT = finish v5.6 reconciliation, then run the AI-Native Experience pass before final UI design.**
 
 Order:
 
 1. Canonical Naming & Experience Crosswalk across all current/future names and surfaces.
 2. AI-Native Experience Reconciliation for Home, Global Navigation, World, Heichal, Global Now, Reality Stream, My Workspace and Raziel.
 3. Resolve the one decision-changing Global Now ranking/dedup gate.
-4. Only then produce final low-fidelity wireframes / information architecture.
-5. Continue W1/W2 implementation from current main with one-owner/one-writer discipline.
+4. Define the bounded Raziel 2029 Companion Golden acceptance pack over existing owners (continuity, silence, self-audit, privacy, “why now?”, STOP) before implementing a proactive surface.
+5. Only then produce final low-fidelity wireframes / information architecture.
+6. Continue W1/W2 implementation from current main with one-owner/one-writer discipline.
 
 Do not design a large static menu merely to expose every capability. Do not redesign the semantic system around a chatbot either.
 
-> **Stable homes + adaptive context + one governed reality.**
+> **Stable homes + adaptive context + one governed reality + one continuous research companion.**
 
 ---
 
@@ -991,4 +1174,4 @@ Do not design a large static menu merely to expose every capability. Do not rede
 
 **OWNER VERDICT: EXTEND_EXISTING.**
 
-**Foundation → Projection → Experience. One Tree → One Reality → Adaptive Human + AI + Machine Experience.**
+**Foundation → Projection → Experience. One Tree → One Reality → Adaptive Human + AI + Machine Experience → Continuous Research Companion.**
