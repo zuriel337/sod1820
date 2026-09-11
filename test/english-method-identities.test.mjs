@@ -31,6 +31,11 @@ test('Postgres array literals are valid and not JSON-style array syntax', () => 
   assert.equal((sql.match(/'\{\}'::text\[\]/g) || []).length, 4);
 });
 
+test('derived_from begins immediately after the eight nullable method-shape fields', () => {
+  const alignedTail = /0, 1, null, null, null, null, null, null, null, null,\s*'\{\}'::text\[\], '\[\]'::jsonb, 1, false, 'unimplemented', null, '\{\}'::jsonb/g;
+  assert.equal((sql.match(alignedTail) || []).length, 4);
+});
+
 test('migration is additive and will not overwrite a future canonical row', () => {
   assert.match(sql, /on conflict \(method_key\) do nothing/i);
   assert.doesNotMatch(sql, /update\s+public\.gematria_methods/i);
