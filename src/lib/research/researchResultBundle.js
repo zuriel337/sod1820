@@ -38,12 +38,17 @@ function normalizeFindingOutcome(outcome = {}, findingIds = new Set()) {
   if (!VALID_EVIDENCE_RELATION.has(relation)) {
     throw new TypeError(`researchResultBundle: invalid evidence relation "${relation}" for ${findingId}`);
   }
+  const rawBaseRate = outcome.base_rate ?? outcome.baseRate;
+  const baseRate = rawBaseRate == null ? null : Number(rawBaseRate);
   return {
     finding_id: findingId,
     evidence_relation: relation,
     depends_on: [...new Set((Array.isArray(outcome.depends_on) ? outcome.depends_on : Array.isArray(outcome.dependsOn) ? outcome.dependsOn : []).map(clean).filter(Boolean))],
     convergence_key: clean(outcome.convergence_key || outcome.convergenceKey),
     reason: clean(outcome.reason),
+    expectedness: clean(outcome.expectedness),
+    expectedness_model: clean(outcome.expectedness_model || outcome.expectednessModel),
+    base_rate: Number.isFinite(baseRate) ? baseRate : null,
   };
 }
 
@@ -99,6 +104,7 @@ export function summarizeCoverage(capabilities = []) {
   const summary = {
     requested: 0,
     executed: 0,
+    executed_empty: 0,
     positive_result: 0,
     negative_result: 0,
     skipped: 0,
@@ -115,7 +121,8 @@ export function summarizeCoverage(capabilities = []) {
     if (cap.requested) summary.requested++;
     if (cap.status === CAPABILITY_STATUS.EXECUTED) {
       summary.executed++;
-      summary.positive_result++;
+      if (Array.isArray(cap.finding_ids) && cap.finding_ids.length > 0) summary.positive_result++;
+      else summary.executed_empty++;
     } else if (cap.status === CAPABILITY_STATUS.NEGATIVE_RESULT) {
       summary.executed++;
       summary.negative_result++;
