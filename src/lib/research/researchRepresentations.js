@@ -19,6 +19,32 @@ function identityKey(identity, index) {
     || `identity:${index}`;
 }
 
+// ── REPRESENTATION REFERENCES MUST NOT CARRY PERSONAL TEXT ────────────────────────────────
+// A representation ref is built from the PARENT IDENTITY KEY, and a caller is free to use the name
+// itself as that key (a Person/Name identity commonly does). The ref then travels in the executor's
+// source_refs and trace — and those are part of the capability record, which the composition
+// boundary does NOT access-filter: only Findings are filtered. The observed result was a Bundle that
+// correctly withheld all three personal Findings while still printing the person's name in
+// source_refs and trace.
+//
+// So for any non-public representation the ref is derived from a stable, non-reversible digest of
+// the parent key instead of the key itself. Refs stay deterministic (replay and continuation still
+// work, the same identity always yields the same ref) but stop disclosing who the subject is.
+// Public identities keep their readable key, which is what makes public research traces debuggable.
+// FNV-1a is used deliberately: dependency-free and identical in node and the browser.
+function stableDigest(value) {
+  let hash = 0x811c9dc5;
+  for (const ch of String(value)) {
+    hash ^= ch.codePointAt(0);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(36).padStart(7, '0');
+}
+
+function refKeyFor(parentKey, accessTier) {
+  return accessTier === 'public' ? parentKey : `anon:${stableDigest(parentKey)}`;
+}
+
 function wordsOf(text) {
   return clean(text)?.split(/\s+/u).map(clean).filter(Boolean) || [];
 }
@@ -97,6 +123,8 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
     const type = clean(identity?.type) || 'entity';
     const parentKey = identityKey(identity, index);
     const accessTier = representationAccess(identity);
+    // Everything that can leave the executor uses this, never the raw parent key.
+    const refKey = refKeyFor(parentKey, accessTier);
     const label = clean(identity?.label ?? identity?.value);
     const isNativeText = type === 'phrase' || type === 'word';
     const isNameLike = type === 'name' || type === 'person';
@@ -104,8 +132,8 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
 
     const fullKind = type === 'word' ? 'word' : isNameLike ? 'full_name' : 'phrase';
     addRepresentation(out, seen, {
-      ref: `repr:${parentKey}:full`,
-      parent_identity_key: parentKey,
+      ref: `repr:${refKey}:full`,
+      parent_identity_key: refKey,
       parent_identity_type: type,
       kind: fullKind,
       role: isNameLike ? 'full_name' : null,
@@ -124,8 +152,8 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
         // representation already gives the engine the same input. Do not double-count it.
         if (explicitParts.length === 1 && part.text === label) return;
         addRepresentation(out, seen, {
-          ref: `repr:${parentKey}:part:${partIndex + 1}`,
-          parent_identity_key: parentKey,
+          ref: `repr:${refKey}:part:${partIndex + 1}`,
+          parent_identity_key: refKey,
           parent_identity_type: type,
           kind: 'name_part',
           role: part.role || `word_${partIndex + 1}`,
@@ -144,8 +172,8 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
         const combined = `${given.join(' ')} ${family.join(' ')}`;
         if (combined !== label) {
           addRepresentation(out, seen, {
-            ref: `repr:${parentKey}:given-family`,
-            parent_identity_key: parentKey,
+            ref: `repr:${refKey}:given-family`,
+            parent_identity_key: refKey,
             parent_identity_type: type,
             kind: 'name_combination',
             role: 'given_family',
@@ -164,8 +192,8 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
       if (words.length > 1) {
         words.forEach((word, tokenIndex) => {
           addRepresentation(out, seen, {
-            ref: `repr:${parentKey}:word:${tokenIndex + 1}`,
-            parent_identity_key: parentKey,
+            ref: `repr:${refKey}:word:${tokenIndex + 1}`,
+            parent_identity_key: refKey,
             parent_identity_type: type,
             kind: isNameLike ? 'name_part' : 'word_part',
             role: `word_${tokenIndex + 1}`,
@@ -182,6 +210,19 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
   });
 
   return Object.freeze(out);
+}
+
+/**
+ * How many representations the identity set WOULD have produced, so a bounded result can report
+ * truncation truthfully instead of inferring it from "the budget is full".
+ */
+export function representationOverflow(identityResolution, produced, maxRepresentations = DEFAULT_MAX_REPRESENTATIONS) {
+  const cap = Math.max(1, Math.min(Number(maxRepresentations) || DEFAULT_MAX_REPRESENTATIONS, 32));
+  // Re-expand with the hard ceiling: anything beyond `cap` is what the budget actually cut.
+  const unbounded = expandResearchTextRepresentations(identityResolution, { maxRepresentations: 32 });
+  const available = unbounded.length;
+  const returned = Array.isArray(produced) ? produced.length : 0;
+  return { available, returned, cap, truncated: available > returned };
 }
 
 /**

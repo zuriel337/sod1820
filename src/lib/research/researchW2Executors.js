@@ -9,7 +9,7 @@
 
 import { createCanonicalNumberW2Executors as createBaseW2Executors } from './researchW2ExecutorsBase.js';
 import { createGematriaW2Executor } from './gematriaW2Executor.js';
-import { CAPABILITY_STATUS } from './researchResultBundle.js';
+import { ACCESS_CLASS, CAPABILITY_STATUS } from './researchResultBundle.js';
 
 export { SAFE_W2_NUMERIC_LENSES, NUMERIC_SYSTEM_METHOD_RULE_IDS } from './researchW2ExecutorsBase.js';
 
@@ -55,6 +55,31 @@ function narrowToAnchor(identityResolution, anchor) {
 
 function uniq(values) {
   return [...new Set(values.filter(Boolean))];
+}
+
+// MOST-RESTRICTIVE WINS. The aggregate access class drives the composition-boundary filter, so it
+// may never be inherited from whichever anchor happened to run first: one access-controlled anchor
+// among several public ones must keep the whole aggregate access-controlled, otherwise a Finding
+// with no explicit tier would pass the boundary instead of being refused.
+const ACCESS_CLASS_RESTRICTION_ORDER = Object.freeze([
+  ACCESS_CLASS.PUBLIC_SOURCE,
+  ACCESS_CLASS.UNCLASSIFIED,
+  ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+  ACCESS_CLASS.PERSONAL,
+]);
+
+function mostRestrictiveAccessClass(runs) {
+  let best = null;
+  let bestRank = -1;
+  for (const run of runs) {
+    const value = run.result?.accessClass || run.result?.access_class;
+    if (!value) continue;
+    const rank = ACCESS_CLASS_RESTRICTION_ORDER.indexOf(value);
+    // An unknown class is treated as at least as restrictive as anything known — fail closed.
+    const effectiveRank = rank === -1 ? ACCESS_CLASS_RESTRICTION_ORDER.length : rank;
+    if (effectiveRank > bestRank) { bestRank = effectiveRank; best = value; }
+  }
+  return best;
 }
 
 function aggregateBounded(runs) {
@@ -113,7 +138,9 @@ function wrapMultiNumberExecutor(executor, { maxAnchors = 4, capability }) {
     return {
       owner: first.owner || 'research_strategy_layer_law',
       status,
-      reason: partial ? `${capability} executed with per-anchor mixed outcomes; inspect trace.anchors` : first.reason || null,
+      reason: partial
+        ? `${capability} per-anchor outcomes differ (${runs.map(x => `${x.number}:${x.result?.status || 'unknown'}`).join(', ')})`
+        : first.reason || null,
       findings,
       findingOutcomes,
       negativeScope: status === CAPABILITY_STATUS.NEGATIVE_RESULT
@@ -121,7 +148,7 @@ function wrapMultiNumberExecutor(executor, { maxAnchors = 4, capability }) {
         : null,
       sourceRefs: uniq(runs.flatMap(x => x.result?.sourceRefs || x.result?.source_refs || [`number:${x.number}`])),
       versionRefs: uniq(runs.flatMap(x => x.result?.versionRefs || x.result?.version_refs || [])),
-      accessClass: first.accessClass || first.access_class,
+      accessClass: mostRestrictiveAccessClass(runs) || first.accessClass || first.access_class,
       semanticClass: first.semanticClass || first.semantic_class,
       bounded: aggregateBounded(runs),
       trace: {

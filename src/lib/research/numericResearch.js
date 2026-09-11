@@ -30,7 +30,7 @@ function normalizedLookupWindow(input = {}) {
   };
 }
 
-function serverBoundedFromRows(rows, window, legacyBounded = null) {
+function serverBoundedFromRows(rows, window, legacyBounded = null, transportFallback = false) {
   const list = Array.isArray(rows) ? rows : [];
   const first = list[0] || null;
   const serverTotalRaw = first?.total_count;
@@ -58,7 +58,11 @@ function serverBoundedFromRows(rows, window, legacyBounded = null) {
     window: {
       limit: window.limit,
       after_bid_id: window.afterBidId,
-      transport: serverTotalRaw != null ? 'server_keyset' : 'server_keyset_compat_fallback',
+      // Honest transport: a legacy fallback is NOT server paging and must not be reported as if
+      // the rows had been bounded before they crossed the wire.
+      transport: transportFallback
+        ? 'client_window_legacy_fallback'
+        : serverTotalRaw != null ? 'server_keyset' : 'server_keyset_compat_fallback',
     },
     ordering: 'governed_first__then_atomic_before_composite__then_method__phrase__bid_id',
     continuation: truncated && lastBidId
@@ -77,15 +81,50 @@ export async function researchNumber(numberInput, options = {}) {
   const originalRpc = options.rpc;
   const window = normalizedLookupWindow(options.lookupWindow || {});
 
+  // MERGE-ORDER SAFETY (W2.2d closure). The server-side keyset page lives in migration
+  // 20260911..._number_lookup_keyset_and_gematria_controls_v1, which adds the optional p_limit /
+  // p_after_bid_id arguments. Until that migration is applied, the canonical DB exposes ONLY
+  // fn_number_lookup(p_value bigint) and PostgREST rejects the extra named arguments with PGRST202
+  // — which took the whole numeric capability to FAILED with zero findings (verified against the
+  // live function catalogue: to_regprocedure for the 3-argument form is NULL today).
+  //
+  // Code and migration must therefore not depend on deployment ORDER. If the paged call reports
+  // that the function/arguments do not exist, fall back ONCE to the legacy one-argument contract
+  // and let the base router's client-side window bound the rows. Capability is preserved, the
+  // boundary is unchanged, and the transport is reported honestly rather than silently downgraded.
+  let transportFallback = false;
+  const looksLikeMissingOverload = (error) => {
+    if (!error) return false;
+    const code = String(error.code || '');
+    const message = String(error.message || error);
+    return code === 'PGRST202'
+      || /could not find the function/i.test(message)
+      || /function .* does not exist/i.test(message);
+  };
+
   const rpc = typeof originalRpc !== 'function'
     ? originalRpc
     : async (name, args) => {
         if (name !== 'fn_number_lookup') return originalRpc(name, args);
-        return originalRpc(name, {
-          ...(args || {}),
-          p_limit: window.limit,
-          p_after_bid_id: window.afterBidId,
-        });
+        const legacyArgs = { ...(args || {}) };
+        if (transportFallback) return originalRpc(name, legacyArgs);
+        let paged;
+        try {
+          paged = await originalRpc(name, {
+            ...legacyArgs,
+            p_limit: window.limit,
+            p_after_bid_id: window.afterBidId,
+          });
+        } catch (error) {
+          if (!looksLikeMissingOverload(error)) throw error;
+          transportFallback = true;
+          return originalRpc(name, legacyArgs);
+        }
+        if (paged?.error && looksLikeMissingOverload(paged.error)) {
+          transportFallback = true;
+          return originalRpc(name, legacyArgs);
+        }
+        return paged;
       };
 
   const result = await researchNumberBase(numberInput, {
@@ -101,7 +140,7 @@ export async function researchNumber(numberInput, options = {}) {
   const lookup = result?.per_lens?.number_lookup;
   if (lookup?.status === 'ok' && Array.isArray(lookup.data)) {
     const legacyBounded = result?.bounds?.number_lookup || lookup.bounded || null;
-    const bounded = serverBoundedFromRows(lookup.data, window, legacyBounded);
+    const bounded = serverBoundedFromRows(lookup.data, window, legacyBounded, transportFallback);
     lookup.bounded = bounded;
     result.bounds = { ...(result.bounds || {}), number_lookup: bounded };
   }

@@ -204,3 +204,152 @@ test('numeric executor runs bounded lookup independently for multiple number anc
   assert.ok(lookupCalls.every(x => x.args.p_after_bid_id == null));
   assert.deepEqual(result.sourceRefs.sort(), ['number:358', 'number:377']);
 });
+
+// ── W2.2d CLOSURE REGRESSIONS (Claude, PR439) ────────────────────────────────────────────
+// Each test below locks a defect that was found by running this branch against the CURRENT live
+// database and against a private Person identity, not by reading the diff.
+
+import { createCanonicalW2Executors as closureExecutors } from './researchW2Executors.js';
+import { composeResearchW2 as closureCompose } from './researchComposerW2.js';
+import { expandResearchTextRepresentations as closureExpand } from './researchRepresentations.js';
+import { CAPABILITY_STATUS as CLOSURE_STATUS } from './researchResultBundle.js';
+
+// The canonical DB exposes only fn_number_lookup(p_value bigint) until the W2.2d migration is
+// applied; PostgREST answers the paged call with PGRST202. Before the fix this took the entire
+// numeric capability to FAILED with zero findings, so merge order alone could break public research.
+function preMigrationSupabase() {
+  return {
+    rpc: async (name, args) => {
+      if (name === 'fn_number_lookup') {
+        if ('p_limit' in (args || {}) || 'p_after_bid_id' in (args || {})) {
+          return { error: { code: 'PGRST202', message: 'Could not find the function public.fn_number_lookup(p_after_bid_id, p_limit, p_value) in the schema cache' } };
+        }
+        return { data: [{ bid_id: 'b1', method: 'רגיל', phrase: 'משיח', value: args.p_value, method_governed: true, atomic_or_composite: 'atomic', row_provenance_state: 'governed', engine_run_id: 'e1', word_id: 'w1' }] };
+      }
+      if (name === 'fn_number_dossier') return { data: { value: args.p_value, facts: { convergences: [] } } };
+      if (name === 'fn_number_journey') return { data: { value: args.p_value } };
+      if (name === 'number_neighbors') return { data: [] };
+      return { data: null };
+    },
+  };
+}
+
+test('W2.2d closure: server paging falls back to the legacy contract instead of failing before the migration is applied', async () => {
+  const out = await closureExecutors({ supabase: preMigrationSupabase() })
+    .numeric({ identityResolution: { identities: [{ type: 'number', value: 358, ref: '358' }] } });
+  assert.equal(out.status, CLOSURE_STATUS.EXECUTED);
+  assert.equal(out.findings.length, 1);
+  // The downgrade is reported, never disguised as real server paging.
+  assert.equal(out.bounded.window.transport, 'client_window_legacy_fallback');
+});
+
+test('W2.2d closure: a private name never reaches source_refs or the capability trace', async () => {
+  const NAME = 'פלוני אלמוני';
+  const executors = closureExecutors({
+    supabase: { rpc: async (n, a) => (n === 'gematria_api' ? { data: { input: a.p_text, value: 1, methods: { ragil: 100 } } } : { data: null }) },
+  });
+  const bundle = await closureCompose({
+    question: 'כמה שווה', rawInput: 'כמה שווה', explicitTextComputation: true,
+    identityCandidates: [{ type: 'name', label: NAME, key: NAME, ref: NAME, source: 'personal_context', confidence: 'exact', access: { tier: 'personal' } }],
+    requestedCapabilities: ['gematria'], contextType: 'public_user', executors,
+  });
+  const cap = bundle.capability_trace.find(x => x.key === 'gematria');
+  // The Findings are correctly withheld by the boundary...
+  assert.equal(bundle.findings.length, 0);
+  assert.equal(cap.access_filtered.count, 3);
+  // ...and the capability record, which the boundary does NOT filter, must not name the person.
+  assert.equal(JSON.stringify(cap.source_refs).includes(NAME), false);
+  assert.equal(JSON.stringify(cap.trace).includes(NAME), false);
+});
+
+test('W2.2d closure: representation refs stay stable and non-disclosing for restricted identities', () => {
+  const NAME = 'פלוני אלמוני';
+  const identity = { type: 'name', label: NAME, key: NAME, access: { tier: 'personal' } };
+  const first = closureExpand({ identities: [identity], text_calculation_allowed: true });
+  const second = closureExpand({ identities: [identity], text_calculation_allowed: true });
+  assert.equal(first.some(r => r.ref.includes(NAME)), false);
+  // Deterministic: replay and continuation depend on the ref being stable for the same identity.
+  assert.deepEqual(first.map(r => r.ref), second.map(r => r.ref));
+  // A public identity keeps its readable key so public research traces stay debuggable.
+  const open = closureExpand({ identities: [{ type: 'phrase', label: 'אור הגאולה', key: 'phrase:or', access: { tier: 'public' } }] });
+  assert.equal(open[0].ref.includes('phrase:or'), true);
+});
+
+test('W2.2d closure: one access-controlled anchor keeps the whole multi-anchor aggregate restricted', async () => {
+  const executors = closureExecutors({
+    supabase: { rpc: async (n) => (n === 'fn_number_lookup' ? { data: [] } : { data: null }) },
+    // Only 358 carries a private row; 377 returns nothing at all.
+    fetchResearchObjects: async num => (num === 358
+      ? [{ id: 'ro-1', kind: 'fact', statement: 'PRIVATE', privacy_scope: 'private', value: 358 }]
+      : []),
+  });
+  const out = await executors.research_objects({
+    identityResolution: { identities: [{ type: 'number', value: 377, ref: '377' }, { type: 'number', value: 358, ref: '358' }] },
+  });
+  assert.equal(out.accessClass, 'source_access_controlled');
+  assert.equal(out.trace.multi_anchor, true);
+  assert.equal(out.trace.anchor_count, 2);
+});
+
+test('W2.2d closure: gematria bounded reports real overflow, never truncated-with-no-continuation', async () => {
+  const executors = closureExecutors({
+    supabase: { rpc: async (n, a) => (n === 'gematria_api' ? { data: { input: a.p_text, value: 1, methods: { ragil: 1 } } } : { data: null }) },
+    gematriaMaxRepresentations: 2,
+  });
+  const out = await executors.gematria({
+    identityResolution: { identities: [{ type: 'phrase', label: 'אחד שנים שלשה ארבעה', key: 'p1', access: { tier: 'public' } }], text_calculation_allowed: true },
+  });
+  // 1 full + 4 word parts = 5 available, budget 2 -> genuinely truncated.
+  assert.equal(out.bounded.returned_count, 2);
+  assert.equal(out.bounded.total_count, 5);
+  assert.equal(out.bounded.truncated, true);
+
+  const exact = closureExecutors({
+    supabase: { rpc: async (n, a) => (n === 'gematria_api' ? { data: { input: a.p_text, value: 1, methods: { ragil: 1 } } } : { data: null }) },
+    gematriaMaxRepresentations: 3,
+  });
+  const full = await exact.gematria({
+    identityResolution: { identities: [{ type: 'phrase', label: 'אחד שנים', key: 'p2', access: { tier: 'public' } }], text_calculation_allowed: true },
+  });
+  // 1 full + 2 parts = exactly the budget, and nothing was cut -> must NOT claim truncation.
+  assert.equal(full.bounded.returned_count, 3);
+  assert.equal(full.bounded.truncated, false);
+});
+
+test('W2.2d closure: keyset paging is reachable through the canonical executor and covers the population exactly once', async () => {
+  // Server-shaped mock mirroring the migration: honours p_limit/p_after_bid_id and returns total_count.
+  const ALL = Array.from({ length: 12 }, (_, i) => ({
+    bid_id: `b${String(i).padStart(2, '0')}`, method: 'רגיל', phrase: `p${i}`, value: 358,
+    method_governed: true, atomic_or_composite: 'atomic', row_provenance_state: 'governed',
+    engine_run_id: 'e', word_id: `w${i}`,
+  }));
+  const supabase = {
+    rpc: async (name, args) => {
+      if (name !== 'fn_number_lookup') return { data: null };
+      let rows = ALL;
+      if (args.p_after_bid_id) rows = rows.filter(r => r.bid_id > args.p_after_bid_id);
+      rows = rows.slice(0, args.p_limit ?? rows.length).map(r => ({ ...r, total_count: ALL.length }));
+      return { data: rows };
+    },
+  };
+  const identityResolution = { identities: [{ type: 'number', value: 358, ref: '358' }] };
+  const page = async afterBidId => closureExecutors({ supabase, lookupWindow: { limit: 5, afterBidId } })
+    .numeric({ identityResolution });
+
+  const p1 = await page(null);
+  assert.equal(p1.bounded.window.transport, 'server_keyset');
+  assert.equal(p1.bounded.total_count, 12);
+  assert.equal(p1.bounded.returned_count, 5);
+  assert.equal(p1.bounded.truncated, true);
+
+  const p2 = await page(p1.bounded.continuation.after_bid_id);
+  const p3 = await page(p2.bounded.continuation.after_bid_id);
+  assert.equal(p3.bounded.returned_count, 2);
+  assert.equal(p3.bounded.truncated, false);
+  assert.equal(p3.bounded.source_exhaustive, true);
+
+  // The whole population is covered exactly once — no skipped and no repeated row.
+  const ids = [...p1.findings, ...p2.findings, ...p3.findings].map(f => f.identity.sourceIdentity.bidId);
+  assert.equal(ids.length, 12);
+  assert.equal(new Set(ids).size, 12);
+});

@@ -1,6 +1,10 @@
 import { gematriaApiResultToFindings } from './canonicalGematria.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, SEMANTIC_CLASS } from './researchResultBundle.js';
-import { expandResearchTextRepresentations, hebrewUnitSuffixControlSet } from './researchRepresentations.js';
+import {
+  expandResearchTextRepresentations,
+  hebrewUnitSuffixControlSet,
+  representationOverflow,
+} from './researchRepresentations.js';
 
 function clean(value) {
   if (value == null) return null;
@@ -98,6 +102,7 @@ export function createGematriaW2Executor({
 
   return async ({ identityResolution }) => {
     const representations = expandResearchTextRepresentations(identityResolution, { maxRepresentations });
+    const representationBudget = representationOverflow(identityResolution, representations, maxRepresentations);
     if (!representations.length) {
       return {
         owner: 'research_strategy_layer_law',
@@ -165,9 +170,14 @@ export function createGematriaW2Executor({
       sourceRefs: representations.map(x => x.ref),
       versionRefs: ['gematria_api:canonical', 'gematria-api-v1', 'researchRepresentations:v1', ...(controlEvaluation ? ['gematria-pair-invariance-control:v1'] : [])],
       bounded: {
-        total_count: representations.length,
+        // total_count is what was actually expanded. Reporting truncated purely because the set
+        // happens to fill the budget would claim a hidden remainder that may not exist, and it
+        // would pair truncated:true with continuation:null — a combination the Bundle contract
+        // treats as an offer of continuation that never arrives. expandResearchTextRepresentations
+        // reports the real overflow instead.
+        total_count: representationBudget.available,
         returned_count: representations.length,
-        truncated: representations.length >= Math.max(1, Math.min(Number(maxRepresentations) || 16, 32)),
+        truncated: representationBudget.truncated,
         ordering: 'identity_order__full_before_parts__source_declared_roles_before_whitespace_roles',
         continuation: null,
       },

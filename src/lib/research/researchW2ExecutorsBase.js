@@ -39,6 +39,16 @@ function numberFromIdentity(identityResolution) {
   return null;
 }
 
+function windowForNumber(lookupWindow, number) {
+  if (!lookupWindow || typeof lookupWindow !== 'object') return undefined;
+  if (lookupWindow instanceof Map) return lookupWindow.get(number) || lookupWindow.get(String(number)) || undefined;
+  const keyed = lookupWindow[number] ?? lookupWindow[String(number)];
+  if (keyed && typeof keyed === 'object') return keyed;
+  // A plain {limit, afterBidId} window applies to each anchor.
+  if ('limit' in lookupWindow || 'afterBidId' in lookupWindow || 'after_bid_id' in lookupWindow) return lookupWindow;
+  return undefined;
+}
+
 function rpcExecutor(supabase) {
   return async (name, args) => supabase.rpc(name, args);
 }
@@ -302,6 +312,10 @@ export function createCanonicalNumberW2Executors({
   fetchResearchObjects = null,
   graph = null,
   numericRuleVersions = null,
+  // W2.2d closure: the server-side keyset page is only useful if a caller can actually ASK for the
+  // next page. Accepts either one window applied to every anchor, or a per-number map so a
+  // multi-anchor continuation can be resumed anchor by anchor.
+  lookupWindow = null,
 } = {}) {
   if (typeof supabase?.rpc !== 'function') throw new Error('canonical Supabase RPC client required');
   const lenses = validateNumericLenses(numericLenses, { serverContext });
@@ -312,6 +326,7 @@ export function createCanonicalNumberW2Executors({
     const result = await researchNumber(number, {
       lenses,
       rpc: rpcExecutor(supabase),
+      lookupWindow: windowForNumber(lookupWindow, number),
       provenance: { requestSource: 'research-composer-w2', inputRef: `number:${number}` },
     });
     const capabilityState = numericLensStatusToCapability(result.per_lens, lenses);
