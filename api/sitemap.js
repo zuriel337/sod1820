@@ -4,12 +4,13 @@
 // אותה לוגיקה בדיוק כמו scripts/gen-sitemap.mjs, רק חיה (live) במקום סטטית.
 //   • עמודים סטטיים קנוניים (עמודי-על)
 //   • כל הפוסטים → /<slug>
-//   • דפי המספר → /number/:n  (כל מספר ≥10 שיש לו תמונות בגלריה, primary_value)
+//   • דפי המספר → /number/:n  (יהלומים דרך sitemap_numbers)
+//   • דפי ביטוי מאושרים → /number/:phrase (דרך sitemap_phrases; addressable ≠ indexable)
 //   • צירי ההתכנסות המאושרים → /topic/:slug
 //   • דפי הכתבים → /community/researcher/:slug  (contributors עם slug/code)
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
 const SITE = 'https://sod1820.co.il';
 const HEADERS = { apikey: ANON, Authorization: 'Bearer ' + ANON };
@@ -182,6 +183,22 @@ export default async function handler(req, res) {
       }
     }
   } catch (e) { /* ממשיכים גם בלי דפי מספר */ }
+
+  // ── דפי ביטוי → /number/:phrase — רק ביטויים שעברו את אותו Search Indexability Contract.
+  // כל שאר הביטויים נשארים addressable לצורכי מחקר/קישורים, אך אינם מפורסמים דרך sitemap.
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/sitemap_phrases`, {
+      method: 'POST', headers: { ...HEADERS, 'Content-Type': 'application/json' }, body: '{}',
+    });
+    if (r.ok) {
+      const rows = await r.json();
+      for (const row of (Array.isArray(rows) ? rows : [])) {
+        const phrase = String(row.phrase || '').trim();
+        if (!phrase || /^\d+$/.test(phrase)) continue;
+        urls.push({ loc: '/number/' + encodeURIComponent(phrase), lastmod: row.lastmod || undefined, changefreq: 'monthly', priority: row.priority || '0.6' });
+      }
+    }
+  } catch (e) { /* ממשיכים גם בלי דפי ביטוי */ }
 
   // ── צירי התכנסות מאושרים → /topic/:slug ──
   try {
