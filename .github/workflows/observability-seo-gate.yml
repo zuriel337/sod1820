@@ -55,7 +55,8 @@ jobs:
             src/lib/research/researchComposerW2.358.test.js \
             src/lib/research/researchResultBundle.358.test.js \
             src/lib/research/researchW2Executors.358.test.js \
-            src/lib/research/researchComposerW2.canonical358.test.js
+            src/lib/research/researchComposerW2.canonical358.test.js \
+            src/lib/research/researchW2FoundationHardening.test.js
 
       - name: Build
         run: npm run build

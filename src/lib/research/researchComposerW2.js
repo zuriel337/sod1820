@@ -19,7 +19,7 @@ function failureReason(error) {
   return error?.message ? String(error.message) : String(error);
 }
 
-async function executeCapability({ capability, executor, plan, identityResolution, signal }) {
+async function executeCapability({ capability, executor, plan, identityResolution, signal, authorizationContext }) {
   if (typeof executor !== "function") {
     return capabilityResult({
       key: capability,
@@ -30,7 +30,10 @@ async function executeCapability({ capability, executor, plan, identityResolutio
   }
 
   try {
-    const out = await executor({ plan, identityResolution, capability, signal });
+    // W2.2b: the RAW authorization context travels to the executor on this private channel only.
+    // It is deliberately absent from `plan` (which is returned to the caller inside the Bundle);
+    // `plan.access` carries the output-safe descriptor instead.
+    const out = await executor({ plan, identityResolution, capability, signal, authorizationContext, access: plan?.access || null });
     const status = out?.status || CAPABILITY_STATUS.EXECUTED;
     return capabilityResult({
       key: capability,
@@ -45,6 +48,9 @@ async function executeCapability({ capability, executor, plan, identityResolutio
       cost: out?.cost ?? null,
       trace: out?.trace ?? null,
       requested: true,
+      accessClass: out?.accessClass || out?.access_class || undefined,
+      semanticClass: out?.semanticClass || out?.semantic_class || null,
+      bounded: out?.bounded ?? null,
     });
   } catch (error) {
     return capabilityResult({
@@ -97,6 +103,7 @@ export async function composeResearchW2({
   ])];
   const byCapability = executorMap(executors);
   const capabilityResults = [];
+  const executorNextActions = [];
 
   for (const capability of requested) {
     if (signal?.aborted) {
@@ -108,18 +115,33 @@ export async function composeResearchW2({
       }));
       continue;
     }
-    capabilityResults.push(await executeCapability({
+    const executed = await executeCapability({
       capability,
       executor: byCapability.get(capability),
       plan,
       identityResolution,
       signal,
-    }));
+      authorizationContext,
+    });
+    capabilityResults.push(executed);
+    // Continuation is first-class: a bounded capability tells the caller exactly how to ask for the
+    // rest of the source population instead of leaving a window to look source-exhaustive.
+    if (executed.bounded?.truncated && executed.bounded?.continuation) {
+      executorNextActions.push({
+        action: "continue_bounded_capability",
+        capability,
+        reason: `bounded window returned ${executed.bounded.returned_count} of ${executed.bounded.total_count}`,
+        continuation: executed.bounded.continuation,
+      });
+    }
   }
 
   const snapshot = resolvedRunSnapshot || {
     generated_at: new Date().toISOString(),
     context_type: contextType,
+    // Output-safe BY-VALUE access descriptor — never the raw authorization context, which used to be
+    // copied verbatim into this snapshot and therefore straight into the returned Bundle.
+    access: plan.access,
     resolved_identities: identityResolution.identities.map(x => ({
       key: x.key,
       type: x.type,
@@ -131,7 +153,6 @@ export async function composeResearchW2({
     })),
     requested_capabilities: requested,
     requested_depth: requestedDepth,
-    authorization_context: authorizationContext,
   };
 
   return composeResearchResultBundle({
@@ -145,8 +166,9 @@ export async function composeResearchW2({
     capabilities: capabilityResults,
     ranking,
     resolvedRunSnapshot: snapshot,
-    nextActions,
+    nextActions: [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],
     synthesis: null,
+    accessDescriptor: plan.access,
   });
 }
 
