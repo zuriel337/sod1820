@@ -1,9 +1,9 @@
 # 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.5
 
 **Date:** 11.9.2026  
-**Status:** NAVIGATION / STRATEGY SSOT · EXTEND_EXISTING · HUMAN-GATE CONTROLLED · BRANCH UPDATE PENDING MERGE
+**Status:** NAVIGATION / STRATEGY SSOT · EXTEND_EXISTING · HUMAN-GATE CONTROLLED · ON MAIN / CURRENT
 
-> v5.5 supersedes the v5.4 **planning order** once merged. It does not declare unfinished branch work deployed or live. Git history preserves v5.4 provenance.
+> v5.5 supersedes the v5.4 **planning order**. It does not declare unfinished branch work deployed or live. Git history preserves v5.4 provenance.
 
 ## 0. What changed in v5.5
 
@@ -711,7 +711,7 @@ Design richness never implies truth rank.
 
 ## 16. Updated build sequence — v5.5
 
-This sequence supersedes the v5.4 W0→W9 planning order once v5.5 is merged. Existing branch prototypes remain evidence, not automatic merge candidates.
+This sequence supersedes the v5.4 W0→W9 planning order. Existing branch prototypes remain evidence, not automatic merge candidates.
 
 ### W0 — Roadmap / naming / owner / route reconciliation — **ACTIVE**
 
@@ -766,7 +766,9 @@ Close the semantic substrate before page wireframes:
 - temporal fields/history;
 - legacy Topic/Convergence/Post/Gallery role mapping;
 - Post 2026 canonical migration plan;
-- attribution/provenance/merge rules.
+- attribution/provenance/merge rules;
+- **semantic mention resolution:** authored/source text may resolve mentions to stable Person/Contributor/Subject/Number/Book/Event/Post/Finding references when provenance/context is sufficient; the route is a projection of identity, not semantic truth hard-coded as an `href`; ambiguous mentions remain unresolved/candidate rather than being forced;
+- **Subject composition:** a Dynamic Lens or promoted Subject composes approved Findings, Publications, ELS, Sources, People and other owned evidence by stable reference; tags/categories/search terms are discovery signals, not Topic identity, and no Post/Finding truth is copied into a second Topic store.
 
 ### W3 — Adaptive Shell + stable product homes
 
@@ -821,6 +823,8 @@ Connect all canonical research capabilities through the shared Context/Composer:
 
 Tool results return as typed evidence/findings into the same context.
 
+**Gematria projection acceptance:** every surface consumes the same source-native calculation/Finding + Method Trace and the active Gematria display owners. The projection family must support at least: an atomic method result, an equality/convergence group, a multi-method expression profile, and a bounded/high-cardinality collection. These are views over the same calculation truth, not new Gematria objects. Large result sets use grouping, bounds/continuation and progressive disclosure rather than one giant card per row; method/value/verification/provenance remain inspectable, and a collection never duplicates evidence merely to render it. Theme, locale and surface may change presentation only.
+
 ### W6 — Editorial / Reality / Visual / Distribution
 
 Build the public content experience and machine-ready publication line together:
@@ -831,6 +835,10 @@ Build the public content experience and machine-ready publication line together:
 - Gallery + shared Viewer;
 - Gematria Visual family;
 - research-rich Post renderer;
+- **semantic reference rendering inside authored/public content:** resolved Person/Contributor/Subject/Number/Book/Event/Publication/Finding references navigate through their current canonical projection instead of embedding route strings as identity; attribution such as “צבי הציע” can link to the existing researcher identity/dossier only when the mention resolves confidently;
+- **Subject ↔ Publication ↔ Finding composition:** Posts remain historical/editorial Publications while Subjects/Lenses surface the relevant publications, Findings, ELS, Sources and People by reference; no body-copy duplication as knowledge truth;
+- **Explain-why links:** important contextual links should be able to expose why they appear — attribution, shared value/method, source, graph relation, ELS artifact or other governed path — without turning explanation into a new claim;
+- multilingual/theme-safe semantic blocks over the same identity/state, including dark/light, RTL/LTR and future locale projections;
 - feeds/IndexNow/indexability/structured data/real 404;
 - public/machine preview.
 
@@ -887,7 +895,10 @@ A successful system must handle all of these without special-case architecture:
 7. ELS and Gematria as distinct engines in one composed query;
 8. temporary AI Journey and official published Journey;
 9. future unknown engine attached without consumer redesign;
-10. human and machine projection of the same public identity.
+10. human and machine projection of the same public identity;
+11. **ZVI_MENTION_GOLDEN:** an attributed phrase such as “צבי הציע” resolves to the existing contributor/researcher identity (current fixture `tzvi-opoc`) and can project to his research dossier while preserving attribution/provenance; the bare/ambiguous word “צבי” must not force that identity;
+12. **HAMAFTEACH_SUBJECT_GOLDEN:** research around “המפתח” must keep distinct the exact Gematria expression `המפתח`, the related `מפתח לגן` / `תורת הרמז` subject candidates, the separate `שיטת המפתח` method/rule, Publications such as posts 5018/5078, and related Findings/ELS; the Dynamic Lens composes them by evidence/reference and can explain the connection without collapsing them into one identity;
+13. **GEMATRIA_COLLECTION_GOLDEN:** a high-cardinality value/profile preserves one source-native calculation/Finding and Method Trace per result while rendering a bounded grouped/profile/collection view with continuation/progressive disclosure — no card explosion, silent truncation or duplicated evidence.
 
 If a new capability requires another graph/context/store merely to fit, stop and re-check the owner model.
 
