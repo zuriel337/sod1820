@@ -7,7 +7,7 @@ function fakeSupabase() {
   return {
     rpc: async (name, args) => {
       if (name === 'fn_number_lookup') return { data: [{ phrase: 'משיח', method: 'רגיל', value: args.p_value }] };
-      if (name === 'fn_number_dossier') return { data: { value: args.p_value, facts: { convergences: [] } } };
+      if (name === 'fn_number_dossier') return { data: { value: args.p_value, facts: { convergences: [] } };
       if (name === 'fn_number_journey') return { data: { value: args.p_value, map: { root: args.p_value } } };
       if (name === 'number_neighbors') return { data: [{ value: 424, weight: 12.84 }] };
       return { data: null };
@@ -34,8 +34,25 @@ test('numeric executor cannot reinterpret a non-number semantic identity whose l
   assert.equal(out.status, CAPABILITY_STATUS.SKIPPED);
 });
 
+test('numeric executor refuses coercible empty, boolean and array values instead of researching 0 or 1', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  for (const value of ['', '   ', true, []]) {
+    const out = await executors.numeric({ identityResolution: { identities: [{ type: 'number', value }] } });
+    assert.equal(out.status, CAPABILITY_STATUS.SKIPPED);
+  }
+});
+
 test('W2 numeric bridge refuses raw research_objects access instead of relying on caller RLS', () => {
   assert.throws(() => createCanonicalW2Executors({ supabase: fakeSupabase(), numericLenses: ['number_lookup', 'research_objects'] }), /cannot bypass capability adapters/);
+});
+
+test('research_objects capability reports deliberate access refusal instead of missing adapter', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  const out = await executors.research_objects({ identityResolution: numberIdentity(358) });
+  assert.equal(out.status, CAPABILITY_STATUS.CONTEXT_REQUIRED);
+  assert.deepEqual(out.findings, []);
+  assert.match(out.reason, /access-filtered/i);
+  assert.equal(out.trace.access, 'refused_fail_closed');
 });
 
 test('358 Fibonacci bounded search survives as first-class negative result', async () => {
@@ -54,6 +71,19 @@ test('377 Fibonacci hit is explicitly independent evidence, not a derived Gematr
   assert.equal(out.findings.length, 1);
   assert.equal(out.findingOutcomes[0].findingId, out.findings[0].id);
   assert.equal(out.findingOutcomes[0].evidenceRelation, EVIDENCE_RELATION.INDEPENDENT_EVIDENCE);
+  assert.equal(out.findingOutcomes[0].expectedness, 'sequence_specific_not_estimated');
+});
+
+test('358 pi hit carries high-base-rate expectedness so lineage independence is not mistaken for corroboration', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  const out = await executors['sequence:pi']({ identityResolution: numberIdentity(358) });
+  assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
+  assert.equal(out.findings.length, 1);
+  assert.equal(out.findingOutcomes[0].evidenceRelation, EVIDENCE_RELATION.INDEPENDENT_EVIDENCE);
+  assert.equal(out.findingOutcomes[0].expectedness, 'near_certain_under_uniform_digit_heuristic');
+  assert.equal(out.findingOutcomes[0].expectednessModel, 'uniform_digit_stream_heuristic_v1');
+  assert.ok(out.findingOutcomes[0].baseRate > 0.95);
+  assert.match(out.findingOutcomes[0].reason, /not corroboration by itself/i);
 });
 
 test('358 ELS remains first-class missing adapter, never negative evidence', async () => {
