@@ -1,5 +1,6 @@
 import { isUniversalFinding } from "./universalFinding.js";
 import { normalizeAccessDescriptor } from "./researchPlanV2.js";
+import { stableIdentityDigest } from "./researchRepresentations.js";
 
 // W2.1 — Generic Research Result Bundle composer.
 // Stable socket only: no engine truth, ranking truth, access policy or persistence is owned here.
@@ -78,6 +79,96 @@ export function stripRawAuthorizationContext(value) {
     out[key] = item;
   }
   if (touched) out.authorization_context_removed_at_composition_boundary = true;
+  return out;
+}
+
+// ── W2.2d · PERSONAL IDENTITY ECHO ────────────────────────────────────────────────────────
+// The access filter above governs FINDINGS. It never governed the RESOLVED IDENTITIES, and those
+// are echoed verbatim into query.identities, plan.identities, plan.primary_identity and
+// resolved_run_snapshot.resolved_identities. A Person/Name identity carries the person's name in
+// label/key/ref/identity_key and their name parts in metadata, so a Bundle could withhold every
+// personal Finding and still state exactly whose research it was. That is the same disclosure the
+// Finding filter exists to prevent, arriving one field earlier.
+//
+// Identities are therefore projected through the SAME access contract before they leave. A
+// restricted identity keeps only what a consumer legitimately needs to reason about shape — its
+// type, how it was resolved, and its access tier — plus a stable non-reversible reference so the
+// same person is still recognisably the same subject across a session, replay and continuation.
+// Everything that names them is dropped, not masked in place.
+//
+// Identity REDACTION is deliberately narrower than Finding filtering: an ordinary number or phrase
+// identity has no tier and must stay readable, or every public Bundle would become unreadable. An
+// identity is redacted when it declares a restricted tier the descriptor does not allow, or when it
+// was resolved from the user's personal context and the descriptor carries no personal scope.
+const PERSONAL_CONTEXT_SOURCE = "personal_context";
+
+// Redaction rebuilds an identity from an ALLOWLIST rather than deleting known-bad fields. A denylist
+// would silently leak any naming field added to the identity shape later (key/ref/identity_key/
+// label/value/id/metadata/provenance are all disclosing today, and metadata carries declared name
+// parts).
+const ACCESS_TIER_PERSONAL = "personal";
+
+export function identityAccessDecision(identity, accessDescriptor) {
+  const allowed = allowedTiers(accessDescriptor);
+  const tier = clean(identity?.access?.tier);
+  if (tier && RESTRICTED_ACCESS_TIERS.has(tier) && !allowed.has(tier)) {
+    return { allowed: false, reason: `identity_access_tier_not_permitted:${tier}` };
+  }
+  if (clean(identity?.source) === PERSONAL_CONTEXT_SOURCE && !allowed.has(ACCESS_TIER_PERSONAL)) {
+    return { allowed: false, reason: "personal_context_identity_without_personal_scope" };
+  }
+  return { allowed: true, reason: null };
+}
+
+function redactIdentity(identity, reason) {
+  const stableSource = clean(identity?.identity_key) || clean(identity?.key)
+    || clean(identity?.ref) || clean(identity?.label) || clean(identity?.id) || "identity";
+  return {
+    type: clean(identity?.type) || "entity",
+    source: clean(identity?.source),
+    confidence: clean(identity?.confidence),
+    // Stable across runs so the same subject stays the same subject, reversible by nobody.
+    ref: `anon:${stableIdentityDigest(stableSource)}`,
+    access: { tier: clean(identity?.access?.tier) },
+    redacted: true,
+    redaction_reason: reason,
+  };
+}
+
+export function projectIdentityForAccess(identity, accessDescriptor) {
+  if (!identity || typeof identity !== "object") return identity;
+  const decision = identityAccessDecision(identity, accessDescriptor);
+  if (decision.allowed) return identity;
+  return redactIdentity(identity, decision.reason);
+}
+
+function projectIdentityListForAccess(list, accessDescriptor) {
+  if (!Array.isArray(list)) return list;
+  return list.map(x => projectIdentityForAccess(x, accessDescriptor));
+}
+
+// The snapshot projects its own reduced identity shape, so redaction is applied to that shape too
+// rather than assuming it looks like a full identity.
+function projectSnapshotForAccess(snapshot, accessDescriptor) {
+  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) return snapshot;
+  if (!Array.isArray(snapshot.resolved_identities)) return snapshot;
+  return {
+    ...snapshot,
+    resolved_identities: projectIdentityListForAccess(snapshot.resolved_identities, accessDescriptor),
+  };
+}
+
+function projectQueryForAccess(query, accessDescriptor) {
+  if (!query || typeof query !== "object" || Array.isArray(query)) return query;
+  if (!Array.isArray(query.identities)) return query;
+  return { ...query, identities: projectIdentityListForAccess(query.identities, accessDescriptor) };
+}
+
+function projectPlanForAccess(plan, accessDescriptor) {
+  if (!plan || typeof plan !== "object" || Array.isArray(plan)) return plan;
+  const out = { ...plan };
+  if (Array.isArray(out.identities)) out.identities = projectIdentityListForAccess(out.identities, accessDescriptor);
+  if (out.primary_identity) out.primary_identity = projectIdentityForAccess(out.primary_identity, accessDescriptor);
   return out;
 }
 
@@ -298,8 +389,11 @@ export function composeResearchResultBundle({
   // authority_source. Without that, a caller could pass {allowed_access_tiers:["private"]} straight
   // into the filter that is supposed to be restraining them (GPT challenge 8621de8d finding 2).
   const effectiveAccess = normalizeAccessDescriptor(accessDescriptor || plan?.access || null);
-  const safePlan = stripRawAuthorizationContext(plan);
-  const safeSnapshot = stripRawAuthorizationContext(resolvedRunSnapshot);
+  // Two independent boundary scrubs, applied in order: the raw authorization context can never ride
+  // out, and no identity may name a subject the caller is not entitled to see.
+  const safePlan = projectPlanForAccess(stripRawAuthorizationContext(plan), effectiveAccess);
+  const safeSnapshot = projectSnapshotForAccess(stripRawAuthorizationContext(resolvedRunSnapshot), effectiveAccess);
+  const safeQuery = projectQueryForAccess(query, effectiveAccess);
   const normalizedCapabilities = (Array.isArray(capabilities) ? capabilities : [])
     .map(record => normalizeCapabilityRecord(record, effectiveAccess));
   const findings = dedupeUniversalFindings(normalizedCapabilities.flatMap(x => x.findings));
@@ -314,14 +408,31 @@ export function composeResearchResultBundle({
   })));
 
   const boundedCapabilities = normalizedCapabilities.filter(cap => cap.bounded);
+  // Free-text fields (query.raw_input, plan.question) are the CALLER'S OWN literal input, not
+  // identity-derived data, so they are echoed back rather than redacted — a Bundle that cannot show
+  // what was asked is not usable. But when a restricted identity was resolved, that text may itself
+  // contain the personal term, so say so explicitly instead of leaving a persister or a sharing
+  // surface to discover it.
+  const redactedIdentityCount = [
+    ...(Array.isArray(safeQuery?.identities) ? safeQuery.identities : []),
+    ...(Array.isArray(safePlan?.identities) ? safePlan.identities : []),
+  ].filter(x => x?.redacted === true).length;
 
   return {
     contract_version: contractVersion,
-    query: query ?? null,
+    query: safeQuery ?? null,
     // Composition-boundary scrubbed: the raw private authorization context can never ride out on the
     // plan or the snapshot, whichever caller built them.
     plan: safePlan,
     access: effectiveAccess,
+    // Identity disclosure state of THIS bundle, so a consumer never has to infer it.
+    identity_disclosure: {
+      redacted_identity_count: redactedIdentityCount,
+      free_text_may_contain_restricted_terms: redactedIdentityCount > 0,
+      note: redactedIdentityCount > 0
+        ? 'resolved identities were redacted for this access level; query.raw_input/plan.question are caller-supplied text and may still contain the restricted term'
+        : null,
+    },
     findings,
     // First-class dependency semantics. These are not ranking labels and never mutate Finding truth.
     finding_outcomes: findingOutcomes,
@@ -349,6 +460,7 @@ export function composeResearchResultBundle({
       no_auto_publication: true,
       access_filtered_is_not_negative_evidence: true,
       raw_authorization_context_never_in_output: true,
+      personal_identity_text_never_in_output: true,
       bounded_window_is_not_source_exhaustive: true,
     },
   };

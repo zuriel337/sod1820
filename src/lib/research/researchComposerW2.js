@@ -150,6 +150,10 @@ export async function composeResearchW2({
       identity_key: x.identity_key,
       source: x.source,
       confidence: x.confidence,
+      // Carried so the composition boundary redacts this reduced shape on exactly the same facts it
+      // uses for query.identities/plan.identities — otherwise the same identity could be redacted
+      // for two different stated reasons in one Bundle.
+      access: x.access ? { tier: x.access.tier ?? null } : null,
     })),
     requested_capabilities: requested,
     requested_depth: requestedDepth,

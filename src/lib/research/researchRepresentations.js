@@ -32,7 +32,7 @@ function identityKey(identity, index) {
 // work, the same identity always yields the same ref) but stop disclosing who the subject is.
 // Public identities keep their readable key, which is what makes public research traces debuggable.
 // FNV-1a is used deliberately: dependency-free and identical in node and the browser.
-function stableDigest(value) {
+export function stableIdentityDigest(value) {
   let hash = 0x811c9dc5;
   for (const ch of String(value)) {
     hash ^= ch.codePointAt(0);
@@ -42,7 +42,7 @@ function stableDigest(value) {
 }
 
 function refKeyFor(parentKey, accessTier) {
-  return accessTier === 'public' ? parentKey : `anon:${stableDigest(parentKey)}`;
+  return accessTier === 'public' ? parentKey : `anon:${stableIdentityDigest(parentKey)}`;
 }
 
 function wordsOf(text) {
