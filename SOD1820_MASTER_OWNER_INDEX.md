@@ -25,9 +25,9 @@ Before creating any new Contract / Law / System / Store / Engine / Registry / gl
 
 A filename, search match, old conversation, branch, roadmap line, or inactive rule is never sufficient proof of canonical ownership.
 
-## Canonical owner map — selective live re-verification 2026-09-09
+## Canonical owner map — selective live re-verification 2026-09-11
 
-Rows whose versions were touched by W0 were re-read live from canonical Supabase / current `origin/main`; unrelated rows retain their prior routed owner and must still be live-verified before a current-state write.
+Versioned rule rows represented below were re-read live from canonical Supabase during G0 2029 closure on 2026-09-11. Long-form contract/implementation claims still require live verification before any current-state write.
 
 | Domain / responsibility | Canonical owner | Owner type | Active/current state at verification | Canonical body / implementation pointer |
 |---|---|---|---|---|
@@ -43,7 +43,7 @@ Rows whose versions were touched by W0 were re-read live from canonical Supabase
 | Work-log CURRENT/SUPERSEDED/ARCHIVED semantics | `work_log_authority_law` | versioned rule | **v2 ACTIVE** | `work_log` / current-view governance |
 | Live-state verification discipline | `live_state_sync_law` | versioned rule | **v1 ACTIVE** | canonical Supabase + `origin/main` verification |
 | Agent-originated media/file upload to canonical Storage | **AGENT_MEDIA_UPLOAD_BRIDGE_V1 lineage** (`agent_upload_ticket_issue` + `agent-upload` Edge) | existing implementation lineage, **not a new owner** | **DB LIVE · EDGE LIVE (v25, incl. `mode=form`) · PRODUCTION E2E VERIFIED with a real PNG** | `supabase/migrations/20260909101500_agent_media_upload_bridge_v1.sql` · `supabase/functions/agent-upload/index.ts` · adapter `scripts/agent-upload.mjs` · pointer in `project_codex._index`. An agent holding a real file uploads through **this path only**: issue a single-use ticket bound to bucket/path/mime/size(/sha256), then POST to `agent-upload`. Never build a second upload/storage system, and never conclude binary upload is unavailable because a connector cannot write binaries. Bucket/prefix/MIME allowlists and TTL are enforced server-side; no reusable admin credential leaves the server |
-| Traffic / analytics measurement truth + arrival attribution semantics | `traffic_intelligence_law` | versioned rule + codex | **v6 ACTIVE** | canonical `fn_ti_*` / traffic read paths; reporting/view/demand semantics + attribution; bot observability boundary; Clean classifier evidence remains explicit |
+| Traffic / analytics measurement truth + arrival attribution semantics | `traffic_intelligence_law` | versioned rule + codex | **v8 ACTIVE** | canonical `fn_ti_*` / traffic read paths; reporting/view/demand semantics + attribution; bot observability boundary; Clean classifier evidence remains explicit |
 | System Operations / Command intelligence (Metatron) | `system_suggestions_law` | versioned rule; `system_evolution_review_law` is reporting/review extension | **v1 ACTIVE** | system health/analytics/diagnostics/recommendations; current `WarRoomTab`/`fn_metatron_*` are implementation/projection. This is distinct from Admin Research/Human Gate and from the Research Context Builder |
 | Experience governance ownership/lifecycle | `experience_governance_foundation_v1_law` | versioned rule + codex/audit | **v1 ACTIVE** | `project_codex.experience_governance_foundation_v1`; `audits/experience_governance_foundation_v1/...` |
 | Product visual language / typography / public product naming for redesigned surfaces | `SOD1820_DESIGN_CONTRACT_V1.md` | long-form contract on main | **CURRENT MAIN OWNER** | design contract + theme/palette owners it references; W0.5 Visual Foundation extends existing owner rather than creating a design system owner |
@@ -53,12 +53,12 @@ Rows whose versions were touched by W0 were re-read live from canonical Supabase
 | Capability availability / open-closed-registered state | `site_flags_lock_law` | versioned rule | **v3 ACTIVE** | one capability state → many surfaces/languages; availability is separate from entitlement and object publication/access |
 | Content translation / language representation rules | `content_translation_law` | versioned rule | **v2 ACTIVE** | language/locale is a projection; identity/capability state remains shared; access is not owned here |
 | Follow / notifications / subscription funnel / newsletter delivery | `subscription_funnel_law` | versioned rule | **v19 ACTIVE** | `WatchButton` + canonical notification/follow infrastructure + existing delivery stores; Follow != Share != Save; Personal Relevance/Raziel recommendations do not silently create subscriptions |
-| Method identity / registry | `canonical_methods_registry_law` | versioned rule | **v3 ACTIVE** | `gematria_methods` canonical Registry |
+| Method identity / registry | `canonical_methods_registry_law` | versioned rule | **v4 ACTIVE** | `gematria_methods` canonical Registry |
 | Method research lifecycle | `method_lifecycle` | versioned rule | **v2 ACTIVE** | SOURCE_ATTESTED → REGISTERED_UNRESOLVED → RECONSTRUCTED → VERIFIED; operational gates remain separate |
 | Method execution/scanning governance | `engine_governance_registry_authority_law` | versioned rule | **v1 ACTIVE** | `gematria_methods`, `v_method_states`, canonical execution/verification/scanning functions |
 | Corpus admission | `corpus_admission_foundation_v1` | versioned rule + codex | **v1 ACTIVE** | `project_codex.corpus_admission_foundation_v1` |
-| Person foundation / identity+roles+personal-data processing | `person_foundation_contract_law` | versioned rule + codex | **v2 ACTIVE** | `project_codex.person_foundation_contract` |
-| Foundation closure protocol | `foundation_closure_protocol_law` | versioned rule + codex | **v1 ACTIVE** | `project_codex.foundation_closure_protocol_v1` |
+| Person foundation / identity+roles+personal-data processing | `person_foundation_contract_law` | versioned rule + codex | **v4 ACTIVE** | `project_codex.person_foundation_contract` |
+| Foundation closure protocol | `foundation_closure_protocol_law` | versioned rule + codex | **v3 ACTIVE · DB-LIVE 2026-09-11** | Bedrock Ladder + mandatory G0–G8 gate semantics over existing W0–W9; object-state parity; hard no-skip command semantics; `project_codex.foundation_closure_protocol_v1` lineage |
 
 ## W0 2027 routing clarification
 
