@@ -26,6 +26,11 @@ test('identity registration remains fail-closed', () => {
   assert.match(sql, /false, null, false, true/);
 });
 
+test('Postgres array literals are valid and not JSON-style array syntax', () => {
+  assert.doesNotMatch(sql, /'\[\]'::text\[\]/);
+  assert.equal((sql.match(/'\{\}'::text\[\]/g) || []).length, 4);
+});
+
 test('migration is additive and will not overwrite a future canonical row', () => {
   assert.match(sql, /on conflict \(method_key\) do nothing/i);
   assert.doesNotMatch(sql, /update\s+public\.gematria_methods/i);
