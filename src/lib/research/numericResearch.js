@@ -3,8 +3,8 @@
 // The released W2.2b router implementation lives unchanged in numericResearchBase.js. This entrypoint
 // keeps every existing export while strengthening fn_number_lookup transport: W2 passes an explicit
 // server-side keyset page BEFORE rows cross the wire, then replaces the old client-window metadata
-// with the server's honest total/remaining counts. There is still one Numeric Research Router and
-// one fn_number_lookup contract.
+// with server-aware page metadata. There is still one Numeric Research Router and one
+// fn_number_lookup contract.
 
 import {
   DEFAULT_NUMBER_LOOKUP_WINDOW,
@@ -34,11 +34,16 @@ function serverBoundedFromRows(rows, window) {
   const list = Array.isArray(rows) ? rows : [];
   const first = list[0] || null;
   const totalRaw = first?.total_count;
-  const remainingRaw = first?.remaining_count;
   const total = totalRaw == null ? (window.afterBidId ? null : list.length) : Number(totalRaw);
-  const remaining = remainingRaw == null ? null : Number(remainingRaw);
   const returned = list.length;
-  const truncated = Number.isFinite(remaining) ? remaining > 0 : (Number.isFinite(total) ? returned < total : false);
+  // On page 1, total_count gives an exact truncation answer. On later keyset pages the absolute
+  // total does not reveal how many rows were consumed before the cursor, so use the safe keyset
+  // rule: a full page MAY have more rows and gets a continuation; a short page is exhaustive.
+  // This can request one harmless empty page when the final page is exactly `limit`, but can never
+  // falsely claim source exhaustion.
+  const truncated = window.afterBidId
+    ? returned === window.limit
+    : (Number.isFinite(total) ? returned < total : returned === window.limit);
   const lastBidId = returned ? clean(list[returned - 1]?.bid_id) : null;
 
   return {
@@ -56,11 +61,10 @@ function serverBoundedFromRows(rows, window) {
           lens: 'number_lookup',
           after_bid_id: lastBidId,
           limit: window.limit,
-          remaining: Number.isFinite(remaining) ? remaining : null,
+          remaining: window.afterBidId ? null : (Number.isFinite(total) ? Math.max(0, total - returned) : null),
         }
       : null,
     source_exhaustive: !truncated,
-    remaining_count: Number.isFinite(remaining) ? remaining : null,
   };
 }
 
@@ -85,7 +89,7 @@ export async function researchNumber(numberInput, options = {}) {
     // The base router still applies its deterministic order/window as a defensive second boundary.
     // Since the server already returned <= limit rows and excludes the cursor row, this does not
     // refetch or widen anything; it preserves compatibility while the canonical entrypoint replaces
-    // the old page-local counts below with server counts.
+    // the old page-local counts below with server-aware counts.
     lookupWindow: { limit: window.limit, afterBidId: window.afterBidId },
   });
 
