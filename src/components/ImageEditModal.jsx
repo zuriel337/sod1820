@@ -99,7 +99,8 @@ export default function ImageEditModal({ image: im, onSave, onClose, onDelete, o
     const newOcc = occurredAt ? new Date(occurredAt).toISOString() : null;
     if (occurredAt !== (b.occurred_at ? b.occurred_at.slice(0, 10) : "")) patch.occurred_at = newOcc;
     const pv = primaryValue !== "" ? Number(primaryValue) : null;
-    if (pv !== b.primary_value) patch.primary_value = pv;
+    // primary_value_source='manual' — admin קבע/ערך את הערך כאן (provenance, לא סטטוס-אמת).
+    if (pv !== b.primary_value) { patch.primary_value = pv; patch.primary_value_source = pv !== null ? "manual" : null; }
     const parsedAll = allValues.split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
     // עמודה אחת מאוחדת: all_values ו-ocr_numbers נשמרות תמיד זהות → אותם מספרים בכל מקום באתר.
     if (JSON.stringify(parsedAll) !== JSON.stringify(b.all_values || []) || JSON.stringify(parsedAll) !== JSON.stringify(b.ocr_numbers || [])) {
