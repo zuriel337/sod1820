@@ -1,4 +1,4 @@
-import { researchNumber, numericLensMap, NUMERIC_LENS_STATUS } from './numericResearch.js';
+import { researchNumber, numericLensMap } from './numericResearch.js';
 import { CAPABILITY_STATUS } from './researchResultBundle.js';
 
 function numberFromIdentity(identityResolution) {
@@ -43,14 +43,8 @@ export function createCanonicalW2Executors({ supabase, numericLenses = null } = 
     if (number == null) return { owner: 'Numeric Research Router', status: CAPABILITY_STATUS.SKIPPED, reason: 'no canonical number identity resolved', findings: [] };
 
     const lenses = numericLenses || [
-      'number_lookup',
-      'number_dossier',
-      'number_journey',
-      'neighbors',
-      'research_objects',
-      'gematria_reverse',
-      'sequence:pi',
-      'sequence:fibonacci',
+      'number_lookup', 'number_dossier', 'number_journey', 'neighbors',
+      'research_objects', 'gematria_reverse', 'sequence:pi', 'sequence:fibonacci',
     ];
     const result = await researchNumber(number, {
       lenses,
@@ -60,36 +54,24 @@ export function createCanonicalW2Executors({ supabase, numericLenses = null } = 
     });
     const capabilityState = numericLensStatusToCapability(result.per_lens, lenses);
     return {
-      owner: 'Numeric Research Router',
-      ...capabilityState,
+      owner: 'Numeric Research Router', ...capabilityState,
       findings: result.universal_findings || [],
-      sourceRefs: [`number:${number}`],
-      versionRefs: ['numericResearch:v1'],
+      sourceRefs: [`number:${number}`], versionRefs: ['numericResearch:v1'],
       trace: {
-        root: result.root,
-        requested_lenses: result.requested_lenses,
-        per_lens: result.per_lens,
-        priority: result.priority,
-        relation_candidates: result.relation_candidates,
+        root: result.root, requested_lenses: result.requested_lenses, per_lens: result.per_lens,
+        priority: result.priority, relation_candidates: result.relation_candidates,
         derived_numeric_roots: result.derived_numeric_roots,
       },
     };
   };
 
   const elsExecutor = async () => ({
-    owner: 'ELS',
-    status: CAPABILITY_STATUS.MISSING_ADAPTER,
+    owner: 'ELS', status: CAPABILITY_STATUS.MISSING_ADAPTER,
     reason: numericLensMap.els?.reason || 'no safe number-only ELS dispatch contract',
-    findings: [],
-    versionRefs: ['numericResearch:els:ADAPTER_NEEDED'],
+    findings: [], versionRefs: ['numericResearch:els:ADAPTER_NEEDED'],
   });
 
-  return {
-    number: numberExecutor,
-    numeric: numberExecutor,
-    gematria: numberExecutor,
-    els: elsExecutor,
-  };
+  return { number: numberExecutor, numeric: numberExecutor, gematria: numberExecutor, els: elsExecutor };
 }
 
 export default createCanonicalW2Executors;
