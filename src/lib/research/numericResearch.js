@@ -30,11 +30,16 @@ function normalizedLookupWindow(input = {}) {
   };
 }
 
-function serverBoundedFromRows(rows, window) {
+function serverBoundedFromRows(rows, window, legacyBounded = null) {
   const list = Array.isArray(rows) ? rows : [];
   const first = list[0] || null;
-  const totalRaw = first?.total_count;
-  const total = totalRaw == null ? (window.afterBidId ? null : list.length) : Number(totalRaw);
+  const serverTotalRaw = first?.total_count;
+  const legacyTotalRaw = legacyBounded?.total_count;
+  const total = serverTotalRaw != null
+    ? Number(serverTotalRaw)
+    : legacyTotalRaw != null
+      ? Number(legacyTotalRaw)
+      : (window.afterBidId ? null : list.length);
   const returned = list.length;
   // On page 1, total_count gives an exact truncation answer. On later keyset pages the absolute
   // total does not reveal how many rows were consumed before the cursor, so use the safe keyset
@@ -53,7 +58,7 @@ function serverBoundedFromRows(rows, window) {
     window: {
       limit: window.limit,
       after_bid_id: window.afterBidId,
-      transport: 'server_keyset',
+      transport: serverTotalRaw != null ? 'server_keyset' : 'server_keyset_compat_fallback',
     },
     ordering: 'governed_first__then_atomic_before_composite__then_method__phrase__bid_id',
     continuation: truncated && lastBidId
@@ -87,15 +92,16 @@ export async function researchNumber(numberInput, options = {}) {
     ...options,
     rpc,
     // The base router still applies its deterministic order/window as a defensive second boundary.
-    // Since the server already returned <= limit rows and excludes the cursor row, this does not
-    // refetch or widen anything; it preserves compatibility while the canonical entrypoint replaces
-    // the old page-local counts below with server-aware counts.
+    // Since the real server now returns <= limit rows and excludes the cursor row, this does not
+    // refetch or widen anything. For legacy/mock readers that ignore the new args, the base window
+    // continues to protect memory and its total_count is preserved below.
     lookupWindow: { limit: window.limit, afterBidId: window.afterBidId },
   });
 
   const lookup = result?.per_lens?.number_lookup;
   if (lookup?.status === 'ok' && Array.isArray(lookup.data)) {
-    const bounded = serverBoundedFromRows(lookup.data, window);
+    const legacyBounded = result?.bounds?.number_lookup || lookup.bounded || null;
+    const bounded = serverBoundedFromRows(lookup.data, window, legacyBounded);
     lookup.bounded = bounded;
     result.bounds = { ...(result.bounds || {}), number_lookup: bounded };
   }
