@@ -11,7 +11,7 @@
 //
 // סודות (כבר קיימים בפרויקט — אין צורך בחדשים):
 //   ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
-// אופציונלי: STORYBOARD_MODEL (ברירת מחדל claude-sonnet-4-6), STORYBOARD_RUN_KEY (שמירה על הקריאה)
+// חובה: STORYBOARD_RUN_KEY. חסר = fail closed; אין מצב public-cost fallback.
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -151,7 +151,8 @@ async function generateStoryboard(title: string, text: string, scenes: number): 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
-    if (RUN_KEY && req.headers.get("x-run-key") !== RUN_KEY) return json({ error: "unauthorized" }, 401);
+    if (!RUN_KEY) return json({ error: "not_configured" }, 503);
+    if (req.headers.get("x-run-key") !== RUN_KEY) return json({ error: "unauthorized" }, 401);
     if (!ANTHROPIC_KEY) return json({ error: "missing ANTHROPIC_API_KEY secret" }, 500);
 
     let body: any = {};
