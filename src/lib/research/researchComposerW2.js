@@ -7,19 +7,7 @@ import {
 } from "./researchResultBundle.js";
 
 // W2.1 — Cross-capability Research Composer.
-//
-// The composer is deliberately dependency-injected. It does not own a capability registry and it
-// never calls a specific engine by name. Canonical owners/adapters are supplied by the caller as
-// executors. This keeps one Research OS while making new engines plug-compatible.
-//
-// Executor contract:
-//   async ({ plan, identityResolution, capability, signal }) => ({
-//     findings: UniversalFinding[], owner?, status?, reason?, sourceRefs?, versionRefs?, cost?, trace?
-//   })
-//
-// Executors MUST enforce their own canonical access/domain gates and MUST return source-native
-// results adapted to Universal Finding. The composer never substitutes AI/local arithmetic for a
-// missing or failed deterministic owner.
+// Canonical owners/adapters are dependency-injected; this layer owns no engine truth or registry.
 
 function executorMap(executors) {
   if (executors instanceof Map) return executors;
@@ -35,7 +23,7 @@ async function executeCapability({ capability, executor, plan, identityResolutio
   if (typeof executor !== "function") {
     return capabilityResult({
       key: capability,
-      status: CAPABILITY_STATUS.MISSING,
+      status: CAPABILITY_STATUS.MISSING_ADAPTER,
       reason: "no canonical capability executor supplied",
       findings: [],
     });
@@ -49,7 +37,9 @@ async function executeCapability({ capability, executor, plan, identityResolutio
       owner: out?.owner || null,
       status,
       findings: Array.isArray(out?.findings) ? out.findings : [],
+      findingOutcomes: out?.findingOutcomes || out?.finding_outcomes || [],
       reason: out?.reason || null,
+      negativeScope: out?.negativeScope ?? out?.negative_scope ?? null,
       sourceRefs: out?.sourceRefs || out?.source_refs || [],
       versionRefs: out?.versionRefs || out?.version_refs || [],
       cost: out?.cost ?? null,
@@ -67,13 +57,6 @@ async function executeCapability({ capability, executor, plan, identityResolutio
   }
 }
 
-/**
- * Execute the first generic W2 composition slice.
- *
- * Identity candidates are resolved before Research Plan construction. Then only the plan's
- * requested capabilities are invoked, in its declared check order first, followed by any remaining
- * requested capabilities. Results are composed into the single existing Universal Finding socket.
- */
 export async function composeResearchW2({
   question = "",
   intent = "research",
@@ -148,8 +131,6 @@ export async function composeResearchW2({
     })),
     requested_capabilities: requested,
     requested_depth: requestedDepth,
-    // This is a run snapshot by value. It deliberately carries the authorization class/context
-    // reference supplied to the run, never a mutable pointer to a future profile definition.
     authorization_context: authorizationContext,
   };
 
