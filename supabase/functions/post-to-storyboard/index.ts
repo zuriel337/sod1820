@@ -1,8 +1,17 @@
 // post-to-storyboard v1 — "המוח" של מנוע הסרטונים.
-// Canonical G0 parity capture of the LIVE Supabase Edge Function (version 11).
-// Reads a post/content, asks the configured Anthropic model for a bounded 4–8 scene storyboard,
-// and attaches existing gallery imagery by the scene's already-present dominant number.
-// It does not calculate Gematria and does not render video.
+// קורא פוסט (מה-DB לפי id/slug, או content גולמי), מפצל אותו ל-6-8 סצנות עם
+// קריינות + טקסט-על-מסך + מספר דומיננטי לכל סצנה, ומתאים לכל סצנה תמונה אמיתית
+// מ-gallery_images לפי אותו מספר (העץ האחד — number ↔ image). מחזיר JSON גולמי בלבד.
+// אין כאן שום רינדור/וידאו — את מנוע ה-render בוחרים בשלב הבא.
+//
+// קלט (POST JSON):
+//   { post_id?: number, slug?: string, content?: string, title?: string,
+//     scenes?: number (ברירת מחדל 7, טווח 4-8) }
+// פלט: storyboard מלא + סצנות מועשרות בתמונות.
+//
+// סודות (כבר קיימים בפרויקט — אין צורך בחדשים):
+//   ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+// אופציונלי: STORYBOARD_MODEL (ברירת מחדל claude-sonnet-4-6), STORYBOARD_RUN_KEY (שמירה על הקריאה)
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -23,11 +32,12 @@ function json(body: unknown, status = 200) {
   });
 }
 
+// HTML → טקסט נקי לקריאת ה-AI (מסיר תגיות, scripts, רווחים כפולים).
 function htmlToText(html: string): string {
   return (html || "")
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<br\s*\/?>(?=)/gi, "\n")
     .replace(/<\/(p|div|h[1-6]|li)>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/g, " ")
@@ -42,11 +52,8 @@ function htmlToText(html: string): string {
 function parseJsonLoose(raw: string): any {
   const clean = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
   try { return JSON.parse(clean); } catch { /* salvage */ }
-  const a = clean.indexOf("{");
-  const b = clean.lastIndexOf("}");
-  if (a >= 0 && b > a) {
-    try { return JSON.parse(clean.slice(a, b + 1)); } catch { /* ignore */ }
-  }
+  const a = clean.indexOf("{"); const b = clean.lastIndexOf("}");
+  if (a >= 0 && b > a) { try { return JSON.parse(clean.slice(a, b + 1)); } catch { /* ignore */ } }
   return null;
 }
 
@@ -55,16 +62,15 @@ async function fetchPost(post_id?: number, slug?: string): Promise<any | null> {
   if (post_id != null) filter = `id=eq.${post_id}`;
   else if (slug) filter = `slug=eq.${encodeURIComponent(slug)}`;
   else return null;
-
   const url = `${SUPABASE_URL}/rest/v1/posts?${filter}&select=id,slug,title,excerpt,content,image_url,categories,tags&limit=1`;
-  const r = await fetch(url, {
-    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
-  });
+  const r = await fetch(url, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
   if (!r.ok) throw new Error(`fetch post ${r.status}: ${(await r.text()).slice(0, 200)}`);
   const rows = await r.json();
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+// מתאים תמונה אמיתית מהגלריה לפי מספר דומיננטי (קודם primary_value, נפילה ל-all_values).
+// סדר: importance↓ — בדיוק כמו ברירת המחדל של הגלריה.
 async function matchImage(value: number): Promise<any | null> {
   const sel = "select=id,image_url,name,importance,image_type,occurred_at&order=importance.desc.nullslast&limit=1";
   const tries = [
@@ -72,19 +78,12 @@ async function matchImage(value: number): Promise<any | null> {
     `${SUPABASE_URL}/rest/v1/gallery_images?all_values=cs.{${value}}&image_url=not.is.null&${sel}`,
   ];
   for (const url of tries) {
-    const r = await fetch(url, {
-      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
-    });
+    const r = await fetch(url, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
     if (!r.ok) continue;
     const rows = await r.json();
     if (Array.isArray(rows) && rows.length) {
       const g = rows[0];
-      return {
-        image_id: g.id,
-        image_url: g.image_url,
-        image_name: g.name || null,
-        image_type: g.image_type || null,
-      };
+      return { image_id: g.id, image_url: g.image_url, image_name: g.name || null, image_type: g.image_type || null };
     }
   }
   return null;
@@ -99,32 +98,32 @@ function buildPrompt(title: string, text: string, scenes: number): string {
     "<<<", text.slice(0, 8000), ">>>",
     "",
     `פצל ל-${scenes} סצנות בדיוק, לפי הסגנון הקבוע של SOD1820:`,
-    "• סצנה 1 = וו פתיחה (hook): מסך שחור, משפט מסקרן קצר שעוצר את הגלילה.",
-    "• סצנות אמצע = חשיפת מספרים: כל סצנה מתמקדת במספר דומיננטי אחד מהפוסט וברמז שלו.",
-    "• סצנה אחרונה = סגירה (cta): שאלה מהדהדת + הזמנה ללוגו/אתר.",
+    "• סצנה 1 = וו פתיחה (hook): מסך שחור, משפט מסקרן קצר שעוצר את הגלילה (למשל \"אף אחד לא שם לב לקוד הזה...\").",
+    "• סצנות אמצע = חשיפת מספרים: כל סצנה מתמקדת במספר דומיננטי אחד מהפוסט וברמז שלו (מספר → מילה/ביטוי → משמעות).",
+    "• סצנה אחרונה = סגירה (cta): שאלה מהדהדת (\"צירוף מקרים... או קוד?\") + הזמנה ללוגו/אתר.",
     "",
     "חוקי ברזל:",
     "1. אל תמציא גימטריה ואל תחשב ערכים. השתמש אך ורק במספרים, מילים וביטויים שמופיעים בפוסט עצמו. אם אין מספר ברור לסצנה — primary_value=null.",
-    "2. קריינות בעברית טבעית ומדוברת, משפט אחד קצר לסצנה (עד ~18 מילים).",
-    "3. on_screen = טקסט קצר מאוד למסך (2-6 מילים).",
+    "2. קריינות בעברית טבעית ומדוברת, משפט אחד קצר לסצנה (עד ~18 מילים), מתאים להקראה קולית.",
+    "3. on_screen = טקסט קצר מאוד למסך (2-6 מילים), חד ומתומצת — לא משפט שלם.",
     "4. שמור על מתח עולה: מסקרן → חושף → שיא → שאלה.",
     "",
     "החזר אך ורק JSON תקין (ללא Markdown) במבנה הבא:",
     '{',
-    '  "title": string,',
-    '  "hook": string,',
-    '  "cta": string,',
-    '  "hashtags": string[],',
-    '  "music_mood": string,',
+    '  "title": string,                // כותרת קצרה לסרטון',
+    '  "hook": string,                 // משפט הפתיחה',
+    '  "cta": string,                  // משפט הסגירה/הזמנה',
+    '  "hashtags": string[],           // 3-6 האשטגים בעברית רלוונטיים',
+    '  "music_mood": string,           // מילה-שתיים על אופי המוזיקה (למשל "מסתורי", "מתח")',
     '  "scenes": [',
     '    {',
-    '      "idx": number,',
+    '      "idx": number,              // 1-based',
     '      "role": "hook"|"reveal"|"cta",',
-    '      "on_screen": string,',
-    '      "narration": string,',
-    '      "primary_value": number|null,',
-    '      "entities": string[],',
-    '      "duration_sec": number',
+    '      "on_screen": string,        // טקסט קצר למסך',
+    '      "narration": string,        // משפט קריינות',
+    '      "primary_value": number|null,// המספר הדומיננטי של הסצנה (אם יש)',
+    '      "entities": string[],       // מילות-מפתח לחיפוש תמונה (נושאים/חפצים/מקומות)',
+    '      "duration_sec": number      // משך מומלץ בשניות (2-6)',
     '    }',
     '  ]',
     '}',
@@ -134,11 +133,7 @@ function buildPrompt(title: string, text: string, scenes: number): string {
 async function generateStoryboard(title: string, text: string, scenes: number): Promise<any> {
   const resp = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": ANTHROPIC_KEY,
-      "anthropic-version": "2023-06-01",
-    },
+    headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
       model: MODEL,
       max_tokens: 4000,
@@ -147,33 +142,27 @@ async function generateStoryboard(title: string, text: string, scenes: number): 
   });
   if (!resp.ok) throw new Error(`anthropic ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
   const data = await resp.json();
-  const raw = (data.content || [])
-    .filter((c: any) => c.type === "text")
-    .map((c: any) => c.text)
-    .join("\n");
+  const raw = (data.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n");
   const sb = parseJsonLoose(raw);
-  if (!sb || !Array.isArray(sb.scenes)) {
-    throw new Error("bad storyboard json: " + raw.slice(0, 200));
-  }
+  if (!sb || !Array.isArray(sb.scenes)) throw new Error("bad storyboard json: " + raw.slice(0, 200));
   return sb;
 }
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
-    if (RUN_KEY && req.headers.get("x-run-key") !== RUN_KEY) {
-      return json({ error: "unauthorized" }, 401);
-    }
+    if (RUN_KEY && req.headers.get("x-run-key") !== RUN_KEY) return json({ error: "unauthorized" }, 401);
     if (!ANTHROPIC_KEY) return json({ error: "missing ANTHROPIC_API_KEY secret" }, 500);
 
     let body: any = {};
     try { body = await req.json(); } catch { /* empty */ }
 
     const scenes = Math.min(Math.max(parseInt(body?.scenes, 10) || 7, 4), 8);
+
+    // מקור התוכן: content גולמי, אחרת שליפה מ-DB לפי post_id/slug.
     let title = typeof body?.title === "string" ? body.title : "";
     let text = "";
     let postRef: any = null;
-
     if (typeof body?.content === "string" && body.content.trim()) {
       text = htmlToText(body.content);
     } else if (body?.post_id != null || body?.slug) {
@@ -189,6 +178,8 @@ Deno.serve(async (req: Request) => {
     if (text.length < 40) return json({ error: "content_too_short", chars: text.length }, 400);
 
     const sb = await generateStoryboard(title, text, scenes);
+
+    // העשרה: לכל סצנה עם מספר דומיננטי — תמונה אמיתית מהגלריה + קישור לדף המספר (העץ האחד).
     const enriched = [];
     for (const s of sb.scenes) {
       const pv = Number.isInteger(s?.primary_value) ? s.primary_value : null;
@@ -199,12 +190,10 @@ Deno.serve(async (req: Request) => {
         on_screen: String(s.on_screen || "").trim(),
         narration: String(s.narration || "").trim(),
         primary_value: pv,
-        number_href: pv != null ? `/number/${pv}` : null,
-        entities: Array.isArray(s.entities)
-          ? s.entities.map((x: any) => String(x).trim()).filter(Boolean)
-          : [],
+        number_href: pv != null ? `/number/${pv}` : null, // מפנה לעץ — לא משכפל
+        entities: Array.isArray(s.entities) ? s.entities.map((x: any) => String(x).trim()).filter(Boolean) : [],
         duration_sec: Number(s.duration_sec) > 0 ? Number(s.duration_sec) : 4,
-        image: img,
+        image: img, // {image_id,image_url,image_name,image_type} או null
       });
     }
 
