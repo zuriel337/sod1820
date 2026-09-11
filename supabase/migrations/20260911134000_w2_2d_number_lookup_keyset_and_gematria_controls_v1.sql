@@ -7,11 +7,7 @@
 -- The live DB is already publication-safe; this later migration makes clean replay end in the same
 -- safe state AND adds optional server-side keyset paging without changing legacy one-argument calls.
 
--- ─────────────────────────────────────────────────────────────────────────────────────────────
 -- 1) SAME canonical fn_number_lookup — optional server-side page args, no v2/parallel RPC.
---    p_limit NULL preserves legacy unbounded behavior. W2 passes an explicit bounded limit.
---    p_after_bid_id is a stable cursor over the existing total order.
--- ─────────────────────────────────────────────────────────────────────────────────────────────
 drop function if exists public.fn_number_lookup(bigint);
 drop function if exists public.fn_number_lookup(bigint, integer, text);
 
@@ -21,126 +17,89 @@ create function public.fn_number_lookup(
   p_after_bid_id text default null
 )
 returns table(
-  method text,
-  phrase text,
-  value bigint,
-  source text,
-  vip_source text,
-  is_verified boolean,
-  dna_status text,
-  node_id uuid,
-  category text,
-  tags text[],
-  mathematical_family text,
-  order_sensitive boolean,
-  word_boundary_sensitive boolean,
-  final_letter_sensitive boolean,
-  atomic_or_composite text,
-  component_methods text[],
-  component_values bigint[],
-  operator text,
-  provenance text,
-  method_evidence_class text,
-  method_governed boolean,
-  method_active boolean,
-  method_scannable boolean,
-  method_executable boolean,
-  method_engine_verified boolean,
-  row_provenance_state text,
-  bid_id text,
-  word_id uuid,
-  method_version integer,
-  dependency_version_snapshot jsonb,
-  computed_at timestamptz,
-  engine_run_id uuid,
-  verified_at timestamptz,
-  verified_run_id uuid,
-  verified_method_version integer,
-  verified_mismatch_value bigint,
-  total_count bigint
+  method text, phrase text, value bigint, source text, vip_source text, is_verified boolean,
+  dna_status text, node_id uuid, category text, tags text[], mathematical_family text,
+  order_sensitive boolean, word_boundary_sensitive boolean, final_letter_sensitive boolean,
+  atomic_or_composite text, component_methods text[], component_values bigint[], operator text,
+  provenance text, method_evidence_class text, method_governed boolean, method_active boolean,
+  method_scannable boolean, method_executable boolean, method_engine_verified boolean,
+  row_provenance_state text, bid_id text, word_id uuid, method_version integer,
+  dependency_version_snapshot jsonb, computed_at timestamptz, engine_run_id uuid,
+  verified_at timestamptz, verified_run_id uuid, verified_method_version integer,
+  verified_mismatch_value bigint, total_count bigint
 )
-language plpgsql
+language sql
 stable
 set search_path to 'public'
 as $function$
-begin
-  return query
-  with base as (
-    select
-      b.method, b.phrase, b.value, gw.source, gw.vip_source,
-      gw.is_verified, gw.dna_status, gw.node_id, gw.category, gw.tags,
-      gm.mathematical_family, gm.order_sensitive, gm.word_boundary_sensitive,
-      gm.final_letter_sensitive,
-      case when gm.category = 'composite' then 'composite' else 'atomic' end as atomic_or_composite,
-      case when gm.category = 'composite' then gm.derived_from else null end as component_methods,
-      case when gm.category = 'composite'
-           then (select c.component_values from public.fn_composite_calc(b.method, b.phrase) c)
-           else null end as component_values,
-      gm.operator,
-      format(
-        'bidim(method=%s,value=%s) joined gematria_words(id=%s) joined gematria_methods registry (execution_kind=%s, operator=%s, evidence_class=%s)',
-        b.method, b.value, gw.id, gm.execution_kind, coalesce(gm.operator, '-'),
-        public.fn_method_evidence_class(b.method)
-      ) as provenance,
-      public.fn_method_evidence_class(b.method) as method_evidence_class,
-      public.fn_method_is_governed_evidence(b.method) as method_governed,
-      gm.active as method_active,
-      gm.scannable as method_scannable,
-      public.fn_method_is_executable(b.method) as method_executable,
-      public.fn_method_is_engine_verified(b.method) as method_engine_verified,
-      b.provenance_state as row_provenance_state,
-      b.bid_id,
-      b.word_id,
-      b.method_version,
-      b.dependency_version_snapshot,
-      b.computed_at,
-      b.engine_run_id,
-      b.verified_at,
-      b.verified_run_id,
-      b.verified_method_version,
-      b.verified_mismatch_value,
-      (not public.fn_method_is_governed_evidence(b.method)) as sort_not_governed,
-      (gm.category = 'composite') as sort_composite
-    from public.bidim b
-    join public.gematria_words gw on gw.id = b.word_id
-    left join public.gematria_methods gm on gm.method_key = b.method
-    where b.value = p_value
-      and gw.is_verified = true
-      and coalesce(gw.is_published, false) = true
-  ), cursor_row as (
-    select sort_not_governed, sort_composite, method, phrase, bid_id
-    from base
-    where bid_id = p_after_bid_id
-    limit 1
-  ), page_rows as (
-    select b.*
-    from base b
-    where p_after_bid_id is null
-       or (
-         exists(select 1 from cursor_row)
-         and (b.sort_not_governed, b.sort_composite, b.method, b.phrase, b.bid_id)
-             > ((select sort_not_governed from cursor_row),
-                (select sort_composite from cursor_row),
-                (select method from cursor_row),
-                (select phrase from cursor_row),
-                (select bid_id from cursor_row))
-       )
-    order by b.sort_not_governed, b.sort_composite, b.method, b.phrase, b.bid_id
-    limit case when p_limit is null then null else greatest(1, least(p_limit, 500)) end
-  )
+with base as (
   select
-    p.method, p.phrase, p.value, p.source, p.vip_source,
-    p.is_verified, p.dna_status, p.node_id, p.category, p.tags,
-    p.mathematical_family, p.order_sensitive, p.word_boundary_sensitive,
-    p.final_letter_sensitive, p.atomic_or_composite, p.component_methods,
-    p.component_values, p.operator, p.provenance, p.method_evidence_class,
-    p.method_governed, p.method_active, p.method_scannable, p.method_executable,
-    p.method_engine_verified, p.row_provenance_state, p.bid_id, p.word_id,
-    p.method_version, p.dependency_version_snapshot, p.computed_at, p.engine_run_id,
-    p.verified_at, p.verified_run_id, p.verified_method_version,
-    p.verified_mismatch_value, (select count(*) from base)::bigint as total_count
-  from page_rows p;
-end;
+    b.method, b.phrase, b.value, gw.source, gw.vip_source,
+    gw.is_verified, gw.dna_status, gw.node_id, gw.category, gw.tags,
+    gm.mathematical_family, gm.order_sensitive, gm.word_boundary_sensitive,
+    gm.final_letter_sensitive,
+    case when gm.category = 'composite' then 'composite' else 'atomic' end as atomic_or_composite,
+    case when gm.category = 'composite' then gm.derived_from else null end as component_methods,
+    case when gm.category = 'composite'
+         then (select c.component_values from public.fn_composite_calc(b.method, b.phrase) c)
+         else null end as component_values,
+    gm.operator,
+    format(
+      'bidim(method=%s,value=%s) joined gematria_words(id=%s) joined gematria_methods registry (execution_kind=%s, operator=%s, evidence_class=%s)',
+      b.method, b.value, gw.id, gm.execution_kind, coalesce(gm.operator, '-'),
+      public.fn_method_evidence_class(b.method)
+    ) as provenance,
+    public.fn_method_evidence_class(b.method) as method_evidence_class,
+    public.fn_method_is_governed_evidence(b.method) as method_governed,
+    gm.active as method_active,
+    gm.scannable as method_scannable,
+    public.fn_method_is_executable(b.method) as method_executable,
+    public.fn_method_is_engine_verified(b.method) as method_engine_verified,
+    b.provenance_state as row_provenance_state,
+    b.bid_id, b.word_id, b.method_version, b.dependency_version_snapshot,
+    b.computed_at, b.engine_run_id, b.verified_at, b.verified_run_id,
+    b.verified_method_version, b.verified_mismatch_value,
+    (not public.fn_method_is_governed_evidence(b.method)) as sort_not_governed,
+    (gm.category = 'composite') as sort_composite
+  from public.bidim b
+  join public.gematria_words gw on gw.id = b.word_id
+  left join public.gematria_methods gm on gm.method_key = b.method
+  where b.value = p_value
+    and gw.is_verified = true
+    and coalesce(gw.is_published, false) = true
+), cursor_row as (
+  select x.sort_not_governed, x.sort_composite, x.method, x.phrase, x.bid_id
+  from base x
+  where x.bid_id = p_after_bid_id
+  limit 1
+), page_rows as (
+  select x.*
+  from base x
+  where p_after_bid_id is null
+     or (
+       exists(select 1 from cursor_row)
+       and (x.sort_not_governed, x.sort_composite, x.method, x.phrase, x.bid_id)
+           > ((select c.sort_not_governed from cursor_row c),
+              (select c.sort_composite from cursor_row c),
+              (select c.method from cursor_row c),
+              (select c.phrase from cursor_row c),
+              (select c.bid_id from cursor_row c))
+     )
+  order by x.sort_not_governed, x.sort_composite, x.method, x.phrase, x.bid_id
+  limit case when p_limit is null then null else greatest(1, least(p_limit, 500)) end
+)
+select
+  p.method, p.phrase, p.value, p.source, p.vip_source,
+  p.is_verified, p.dna_status, p.node_id, p.category, p.tags,
+  p.mathematical_family, p.order_sensitive, p.word_boundary_sensitive,
+  p.final_letter_sensitive, p.atomic_or_composite, p.component_methods,
+  p.component_values, p.operator, p.provenance, p.method_evidence_class,
+  p.method_governed, p.method_active, p.method_scannable, p.method_executable,
+  p.method_engine_verified, p.row_provenance_state, p.bid_id, p.word_id,
+  p.method_version, p.dependency_version_snapshot, p.computed_at, p.engine_run_id,
+  p.verified_at, p.verified_run_id, p.verified_method_version,
+  p.verified_mismatch_value, (select count(*) from base)::bigint as total_count
+from page_rows p;
 $function$;
 
 comment on function public.fn_number_lookup(bigint, integer, text) is
@@ -148,12 +107,8 @@ comment on function public.fn_number_lookup(bigint, integer, text) is
 
 grant execute on function public.fn_number_lookup(bigint, integer, text) to anon, authenticated, service_role;
 
--- ─────────────────────────────────────────────────────────────────────────────────────────────
 -- 2) Research control runner for METHOD-PAIR INVARIANCE.
---    This is not a Gematria engine. It only consumes canonical gematria_api outputs and tests
---    whether the same pair-sum is structurally common in a caller-supplied bounded control set.
---    No persistence, no promotion, no AI arithmetic, dynamic method keys (no hardcoded method count).
--- ─────────────────────────────────────────────────────────────────────────────────────────────
+-- This is not a Gematria engine. It consumes canonical gematria_api outputs only.
 create or replace function public.fn_gematria_pair_invariance_control(
   p_anchor_texts text[],
   p_control_texts text[] default '{}'::text[]
