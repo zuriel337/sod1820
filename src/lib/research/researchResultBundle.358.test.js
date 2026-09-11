@@ -34,7 +34,14 @@ test("358 replay preserves derivation, convergence and independent evidence as d
       findingOutcomes: [
         { findingId: derived.id, evidenceRelation: EVIDENCE_RELATION.DERIVATION, dependsOn: ["uf:358:source"], reason: "entailed by prior governed result" },
         { findingId: convergence.id, evidenceRelation: EVIDENCE_RELATION.CONVERGENCE, convergenceKey: "value:358", reason: "multiple paths meet at 358; independence not assumed" },
-        { findingId: independent.id, evidenceRelation: EVIDENCE_RELATION.INDEPENDENT_EVIDENCE, reason: "source-native identity is independent of prior derivation" },
+        {
+          findingId: independent.id,
+          evidenceRelation: EVIDENCE_RELATION.INDEPENDENT_EVIDENCE,
+          reason: "source-native identity is independent of prior derivation",
+          expectedness: "near_certain_under_uniform_digit_heuristic",
+          expectednessModel: "uniform_digit_stream_heuristic_v1",
+          baseRate: 0.99,
+        },
       ],
     })],
   });
@@ -44,8 +51,28 @@ test("358 replay preserves derivation, convergence and independent evidence as d
     "convergence",
     "independent_evidence",
   ]);
+  assert.equal(bundle.finding_outcomes[2].expectedness, "near_certain_under_uniform_digit_heuristic");
+  assert.equal(bundle.finding_outcomes[2].expectedness_model, "uniform_digit_stream_heuristic_v1");
+  assert.equal(bundle.finding_outcomes[2].base_rate, 0.99);
   assert.equal(bundle.invariants.derivation_is_not_independent_evidence, true);
   assert.equal(bundle.invariants.convergence_is_not_automatically_independent, true);
+});
+
+test("executed capability with zero findings is executed-empty, not a positive result", () => {
+  const bundle = composeResearchResultBundle({
+    query: { subject: 358, replay: "golden" },
+    capabilities: [capabilityResult({
+      key: "numeric",
+      owner: "numericResearch",
+      status: CAPABILITY_STATUS.EXECUTED,
+      findings: [],
+    })],
+  });
+
+  assert.equal(bundle.coverage.executed, 1);
+  assert.equal(bundle.coverage.executed_empty, 1);
+  assert.equal(bundle.coverage.positive_result, 0);
+  assert.equal(bundle.coverage.complete, true);
 });
 
 test("negative result is a completed executed search, not missing evidence", () => {

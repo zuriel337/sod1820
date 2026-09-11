@@ -47,5 +47,15 @@ jobs:
       - name: Observability/SEO route coverage check
         run: node scripts/check-observability-seo-gate.mjs
 
+      - name: W2 Research contract tests
+        run: |
+          node --test \
+            src/lib/research/researchComposerW2.test.js \
+            src/lib/research/researchComposerW2.runtime.test.js \
+            src/lib/research/researchComposerW2.358.test.js \
+            src/lib/research/researchResultBundle.358.test.js \
+            src/lib/research/researchW2Executors.358.test.js \
+            src/lib/research/researchComposerW2.canonical358.test.js
+
       - name: Build
         run: npm run build
