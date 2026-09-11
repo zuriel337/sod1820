@@ -7,7 +7,7 @@ function fakeSupabase() {
   return {
     rpc: async (name, args) => {
       if (name === 'fn_number_lookup') return { data: [{ phrase: 'משיח', method: 'רגיל', value: args.p_value }] };
-      if (name === 'fn_number_dossier') return { data: { value: args.p_value, facts: { convergences: [] } } };
+      if (name === 'fn_number_dossier') return { data: { value: args.p_value, facts: { convergences: [] } };
       if (name === 'fn_number_journey') return { data: { value: args.p_value, map: { root: args.p_value } } };
       if (name === 'number_neighbors') return { data: [{ value: 424, weight: 12.84 }] };
       return { data: null };
@@ -35,12 +35,16 @@ test('358 replay preserves execution, negative result and capability gaps withou
   assert.equal(cap(bundle, 'numeric').status, 'executed');
   assert.equal(cap(bundle, 'sequence:fibonacci').status, 'negative_result');
   assert.equal(cap(bundle, 'els').status, 'missing_adapter');
-  assert.equal(cap(bundle, 'research_objects').status, 'missing_adapter');
+  assert.equal(cap(bundle, 'research_objects').status, 'context_required');
+  assert.match(cap(bundle, 'research_objects').reason, /access-filtered/i);
   assert.equal(cap(bundle, 'graph').status, 'missing_adapter');
   assert.equal(cap(bundle, 'numeric_operators').status, 'missing_adapter');
   assert.equal(bundle.coverage.negative_result, 1);
-  assert.equal(bundle.coverage.missing_adapter, 4);
+  assert.equal(bundle.coverage.context_required, 1);
+  assert.equal(bundle.coverage.missing_adapter, 3);
   assert.equal(bundle.coverage.executed, 2);
+  assert.equal(bundle.coverage.executed_empty, 1);
+  assert.equal(bundle.coverage.positive_result, 0);
   assert.equal(bundle.coverage.partial, true);
   assert.equal(bundle.findings.length, 0);
   assert.equal(JSON.stringify(cap(bundle, 'numeric').trace).includes('משיח'), false);
