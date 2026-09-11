@@ -158,3 +158,49 @@ test('canonical executor factory exposes Gematria without replacing prior execut
   assert.equal(typeof executors.numeric, 'function');
   assert.equal(typeof executors.els, 'function');
 });
+
+test('numeric executor runs bounded lookup independently for multiple number anchors', async () => {
+  const calls = [];
+  const supabase = {
+    async rpc(name, args) {
+      calls.push({ name, args });
+      if (name === 'fn_number_lookup') {
+        const value = Number(args.p_value);
+        return { data: [{
+          method: 'ragil',
+          phrase: `phrase-${value}`,
+          value,
+          bid_id: `bid-${value}`,
+          word_id: null,
+          method_version: 1,
+          row_provenance_state: 'governed',
+          method_governed: true,
+          atomic_or_composite: 'atomic',
+          engine_run_id: `run-${value}`,
+          total_count: 1,
+        }] };
+      }
+      return { data: null };
+    },
+  };
+
+  const executors = createCanonicalW2Executors({ supabase, numericLenses: ['number_lookup'] });
+  const result = await executors.numeric({
+    identityResolution: {
+      identities: [
+        { type: 'number', key: 'number:358', value: 358 },
+        { type: 'number', key: 'number:377', value: 377 },
+      ],
+    },
+  });
+
+  assert.equal(result.status, 'executed');
+  assert.equal(result.trace.multi_anchor, true);
+  assert.equal(result.trace.anchor_count, 2);
+  assert.equal(result.findings.length, 2);
+  const lookupCalls = calls.filter(x => x.name === 'fn_number_lookup');
+  assert.equal(lookupCalls.length, 2);
+  assert.ok(lookupCalls.every(x => x.args.p_limit === 50));
+  assert.ok(lookupCalls.every(x => x.args.p_after_bid_id == null));
+  assert.deepEqual(result.sourceRefs.sort(), ['number:358', 'number:377']);
+});
