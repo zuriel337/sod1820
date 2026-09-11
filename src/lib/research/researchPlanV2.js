@@ -102,11 +102,93 @@ function deriveCheckOrder(capabilityHints) {
   return preferred.filter(x => capabilityHints.includes(x));
 }
 
+// ── W2.2b · ACCESS DESCRIPTOR ─────────────────────────────────────────────────────────────
+// The raw authorization context is PRIVATE EXECUTION INPUT. It is whatever the calling surface
+// resolved in order to decide access, and it routinely carries user ids, phone refs, session or
+// entitlement records. Before W2.2b it was placed verbatim on `plan.authorization_context` and
+// again on `resolved_run_snapshot.authorization_context`, and the Bundle returns the plan and the
+// snapshot to the caller — so every private field travelled all the way out to whatever surface
+// renders the Bundle (GPT preflight de9969d1 finding 1, challenge ed7e578e).
+//
+// The fix is a separation, not a redaction pass bolted onto the output: the plan now carries ONLY
+// a non-secret, BY-VALUE access DESCRIPTOR, and the raw context is handed to executors through a
+// private channel that never enters the Bundle. A descriptor states WHAT ACCESS WAS RESOLVED
+// (tier, allowed access tiers, whether a personal scope exists) and never WHO the person is.
+//
+// PR3 discipline applies here exactly as it does to the Universal Finding axes: an absent input is
+// honestly unknown, never an assertion. Specifically `authenticated:false` / `admin:false` /
+// `personal_scope_available:false` are fail-closed DEFAULTS, and `allowed_access_tiers` starts as
+// the public set — an unknown context can only ever narrow to public, never widen.
+
+export const ACCESS_TIER = Object.freeze({
+  PUBLIC: "public",
+  PUBLIC_CANDIDATE: "public_candidate",
+  PRIVATE: "private",
+  PERSONAL: "personal",
+});
+
+const PUBLIC_ONLY_TIERS = Object.freeze([ACCESS_TIER.PUBLIC]);
+
+function truthy(value) {
+  return value === true || value === "true" || value === 1;
+}
+
+/**
+ * Project a raw authorization context into the non-secret, BY-VALUE access descriptor that is safe
+ * to return inside a Plan / Bundle / resolved run snapshot.
+ *
+ * Nothing identifying is copied out: no user id, ref, phone, email, token, session or claim object.
+ * Only the resolved ACCESS SHAPE crosses this boundary.
+ */
+export function buildAccessDescriptor(authorizationContext = null, contextType = "public_user") {
+  const ctx = authorizationContext && typeof authorizationContext === "object" ? authorizationContext : null;
+  const context = clean(contextType).toLowerCase() || "public_user";
+
+  const authenticated = Boolean(ctx) && (
+    truthy(ctx.authenticated) || truthy(ctx.is_authenticated)
+    || (context !== "public_user" && context !== "anon" && Boolean(ctx.user_ref ?? ctx.userRef ?? ctx.user_id ?? ctx.userId))
+  );
+  const admin = Boolean(ctx) && (truthy(ctx.admin) || truthy(ctx.is_admin) || clean(ctx.role).toLowerCase() === "admin");
+  const personalScopeAvailable = Boolean(ctx) && authenticated
+    && Boolean(ctx.user_ref ?? ctx.userRef ?? ctx.user_id ?? ctx.userId ?? ctx.person_ref ?? ctx.personRef);
+
+  // Fail-closed: start public-only and widen strictly by resolved authority.
+  const tiers = new Set(PUBLIC_ONLY_TIERS);
+  if (admin) {
+    tiers.add(ACCESS_TIER.PUBLIC_CANDIDATE);
+    tiers.add(ACCESS_TIER.PRIVATE);
+    tiers.add(ACCESS_TIER.PERSONAL);
+  } else if (personalScopeAvailable) {
+    // An authenticated person reaches their OWN personal scope — never anyone else's private rows.
+    tiers.add(ACCESS_TIER.PERSONAL);
+  }
+
+  const descriptor = {
+    v: 1,
+    context_type: context,
+    authenticated,
+    admin,
+    personal_scope_available: personalScopeAvailable,
+    allowed_access_tiers: [...tiers],
+    entitlement_level: clean(ctx?.entitlement_level ?? ctx?.entitlementLevel ?? ctx?.tier) || null,
+    // Explicit statement that this object is the OUTPUT-SAFE projection, so a later reader can never
+    // mistake it for the private execution context.
+    contains_identifying_fields: false,
+    derived_from: ctx ? "authorization_context" : "no_authorization_context",
+  };
+
+  // BY VALUE: deep-frozen so a consumer mutating the returned Plan/snapshot cannot widen the access
+  // that any later stage reads back out of it.
+  Object.freeze(descriptor.allowed_access_tiers);
+  return Object.freeze(descriptor);
+}
+
 /**
  * Build an Identity-first Research Plan.
  *
- * `authorizationContext` is carried, never interpreted here. The execution layer must apply the
- * canonical privacy/access/entitlement/domain gates before any evidence is exposed.
+ * The raw `authorizationContext` is accepted but deliberately NOT placed on the returned plan — see
+ * the ACCESS DESCRIPTOR note above. The execution layer still receives it privately and must apply
+ * the canonical privacy/access/entitlement/domain gates before any evidence is exposed.
  */
 export function buildResearchPlanV2({
   question = "",
@@ -137,7 +219,8 @@ export function buildResearchPlanV2({
     identities: resolved.identities || [],
     primary_identity: resolved.primary || null,
     context_type: contextType,
-    authorization_context: authorizationContext,
+    // W2.2b: output-safe access descriptor ONLY. The raw authorization context never lands here.
+    access: buildAccessDescriptor(authorizationContext, contextType),
     surface_context: surfaceContext,
     requested_depth: requestedDepth,
     requested_capabilities: capabilityHints,
@@ -150,6 +233,7 @@ export function buildResearchPlanV2({
       canonical_owners_decide_execution: true,
       no_auto_canonicalization: true,
       no_auto_publication: true,
+      raw_authorization_context_never_in_output: true,
     },
   };
 }

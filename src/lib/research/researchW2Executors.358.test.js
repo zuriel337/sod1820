@@ -25,7 +25,14 @@ test('358 canonical numeric executor keeps raw lookup rows behind the adapter bo
   assert.equal(out.trace.per_lens.number_lookup.status, 'ok');
   assert.equal(out.trace.per_lens.number_lookup.row_count, 1);
   assert.equal(JSON.stringify(out.trace).includes('משיח'), false);
-  assert.deepEqual(out.findings, []);
+  // W2.2b UPDATED: the raw ROW still never appears in the trace — that assertion above is the real
+  // subject of this test and is unchanged. What changed is that the row is now PROJECTED into a
+  // Universal Finding keyed on source-native bidim identity, instead of being dropped on the floor.
+  assert.equal(out.findings.length, 1);
+  assert.equal(out.findings[0].kind, 'gematria');
+  assert.equal(out.findings[0].source.adapter, 'number-lookup-v1');
+  assert.equal(out.accessClass, 'public_source');
+  assert.equal(out.semanticClass, 'evidence');
 });
 
 test('numeric executor cannot reinterpret a non-number semantic identity whose label happens to be numeric', async () => {
