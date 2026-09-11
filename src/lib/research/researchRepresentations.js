@@ -81,7 +81,7 @@ function addRepresentation(out, seen, rep, max) {
  *
  * Rules:
  * - exact full expression is always preserved when eligible;
- * - each whitespace token is available separately;
+ * - each token is available separately only when the expression actually has multiple tokens;
  * - given/family roles are used only when supplied by the source/user metadata;
  * - whitespace alone NEVER fabricates surname/given-name roles;
  * - arbitrary permutations/subsets are deliberately absent.
@@ -120,6 +120,9 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
     const explicitParts = isNameLike ? roleParts(identity) : [];
     if (explicitParts.length) {
       explicitParts.forEach((part, partIndex) => {
+        // If the only declared part is text-identical to the full expression, the full
+        // representation already gives the engine the same input. Do not double-count it.
+        if (explicitParts.length === 1 && part.text === label) return;
         addRepresentation(out, seen, {
           ref: `repr:${parentKey}:part:${partIndex + 1}`,
           parent_identity_key: parentKey,
@@ -138,37 +141,43 @@ export function expandResearchTextRepresentations(identityResolution, { maxRepre
       const given = explicitParts.filter(x => x.role === 'given_name').map(x => x.text);
       const family = explicitParts.filter(x => x.role === 'family_name').map(x => x.text);
       if (given.length && family.length) {
-        addRepresentation(out, seen, {
-          ref: `repr:${parentKey}:given-family`,
-          parent_identity_key: parentKey,
-          parent_identity_type: type,
-          kind: 'name_combination',
-          role: 'given_family',
-          role_source: 'source_declared_roles',
-          text: `${given.join(' ')} ${family.join(' ')}`,
-          token_index: null,
-          component_refs: ['given_name', 'family_name'],
-          access_tier: accessTier,
-          primary_for_identity: false,
-        }, max);
+        const combined = `${given.join(' ')} ${family.join(' ')}`;
+        if (combined !== label) {
+          addRepresentation(out, seen, {
+            ref: `repr:${parentKey}:given-family`,
+            parent_identity_key: parentKey,
+            parent_identity_type: type,
+            kind: 'name_combination',
+            role: 'given_family',
+            role_source: 'source_declared_roles',
+            text: combined,
+            token_index: null,
+            component_refs: ['given_name', 'family_name'],
+            access_tier: accessTier,
+            primary_for_identity: false,
+          }, max);
+        }
       }
     } else {
       // Tokenization is a representation fact only. Do not infer "first name" or "surname".
-      wordsOf(label).forEach((word, tokenIndex) => {
-        addRepresentation(out, seen, {
-          ref: `repr:${parentKey}:word:${tokenIndex + 1}`,
-          parent_identity_key: parentKey,
-          parent_identity_type: type,
-          kind: isNameLike ? 'name_part' : 'word_part',
-          role: `word_${tokenIndex + 1}`,
-          role_source: 'whitespace_position_only',
-          text: word,
-          token_index: tokenIndex,
-          component_refs: [],
-          access_tier: accessTier,
-          primary_for_identity: false,
-        }, max);
-      });
+      const words = wordsOf(label);
+      if (words.length > 1) {
+        words.forEach((word, tokenIndex) => {
+          addRepresentation(out, seen, {
+            ref: `repr:${parentKey}:word:${tokenIndex + 1}`,
+            parent_identity_key: parentKey,
+            parent_identity_type: type,
+            kind: isNameLike ? 'name_part' : 'word_part',
+            role: `word_${tokenIndex + 1}`,
+            role_source: 'whitespace_position_only',
+            text: word,
+            token_index: tokenIndex,
+            component_refs: [],
+            access_tier: accessTier,
+            primary_for_identity: false,
+          }, max);
+        });
+      }
     }
   });
 
