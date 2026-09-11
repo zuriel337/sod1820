@@ -7,7 +7,7 @@ function fakeSupabase() {
   return {
     rpc: async (name, args) => {
       if (name === 'fn_number_lookup') return { data: [{ phrase: 'משיח', method: 'רגיל', value: args.p_value }] };
-      if (name === 'fn_number_dossier') return { data: { value: args.p_value, facts: { convergences: [] } };
+      if (name === 'fn_number_dossier') return { data: { value: args.p_value, facts: { convergences: [] } } };
       if (name === 'fn_number_journey') return { data: { value: args.p_value, map: { root: args.p_value } } };
       if (name === 'number_neighbors') return { data: [{ value: 424, weight: 12.84 }] };
       return { data: null };
