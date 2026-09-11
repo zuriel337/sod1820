@@ -29,7 +29,7 @@ values
   'public',
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
-  0, 1, null, null, null, null, null, null, null, null, null,
+  0, 1, null, null, null, null, null, null, null, null,
   '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 ),
 (
@@ -40,7 +40,7 @@ values
   'public',
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
-  0, 1, null, null, null, null, null, null, null, null, null,
+  0, 1, null, null, null, null, null, null, null, null,
   '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 ),
 (
@@ -51,7 +51,7 @@ values
   'public',
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
-  0, 1, null, null, null, null, null, null, null, null, null,
+  0, 1, null, null, null, null, null, null, null, null,
   '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 ),
 (
@@ -62,7 +62,7 @@ values
   'public',
   '{"kind":"text","lang":"en","script":"Latin","formula_status":"capability_evidence_not_engine_verified"}'::jsonb,
   '{"type":"integer","status":"registered_unimplemented"}'::jsonb,
-  0, 1, null, null, null, null, null, null, null, null, null,
+  0, 1, null, null, null, null, null, null, null, null,
   '{}'::text[], '[]'::jsonb, 1, false, 'unimplemented', null, '{}'::jsonb
 )
 on conflict (method_key) do nothing;
