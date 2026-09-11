@@ -568,3 +568,107 @@ test('the plan itself never carries a raw authorization context', () => {
   assert.equal(JSON.stringify(plan).includes(SECRET), false);
   assert.equal(plan.access.derived_from, 'authorization_context');
 });
+
+// ── W2.2d · PERSONAL IDENTITY ECHO (closed before release) ────────────────────────────────
+// The Finding filter governs FINDINGS. It never governed the RESOLVED IDENTITIES, which are echoed
+// into query.identities, plan.identities, plan.primary_identity and
+// resolved_run_snapshot.resolved_identities. A Bundle could therefore withhold every personal
+// Finding and still state exactly whose research it was — the same disclosure, one field earlier.
+import { projectIdentityForAccess, identityAccessDecision } from './researchResultBundle.js';
+
+const ECHO_NAME = 'פלוני אלמוני';
+const ECHO_GIVEN = 'פלוני';
+const ECHO_FAMILY = 'אלמוני';
+const echoIdentityCandidate = Object.freeze({
+  type: 'name', label: ECHO_NAME, key: ECHO_NAME, ref: ECHO_NAME, identity_key: ECHO_NAME,
+  source: 'personal_context', confidence: 'exact',
+  access: { tier: 'personal' },
+  metadata: { given_name: ECHO_GIVEN, family_name: ECHO_FAMILY },
+});
+const echoExecutors = () => createCanonicalW2Executors({
+  supabase: { rpc: async (n, a) => (n === 'gematria_api' ? { data: { input: a.p_text, value: 1, methods: { ragil: 100 } } } : { data: null }) },
+});
+const composeEcho = (contextType, authorizationContext) => composeResearchW2({
+  question: 'כמה שווה', rawInput: 'כמה שווה', explicitTextComputation: true,
+  identityCandidates: [echoIdentityCandidate], requestedCapabilities: ['gematria'],
+  contextType, authorizationContext, executors: echoExecutors(),
+});
+
+test('identity echo: a public caller never learns the personal name through query/plan/snapshot', async () => {
+  const bundle = await composeEcho('public_user', null);
+  const serialized = JSON.stringify(bundle);
+  assert.equal(serialized.includes(ECHO_NAME), false, 'personal name leaked into the Bundle');
+  assert.equal(serialized.includes(ECHO_FAMILY), false, 'declared family name leaked into the Bundle');
+  assert.equal(serialized.includes(ECHO_GIVEN), false, 'declared given name leaked into the Bundle');
+
+  // Every echo path is covered, not just the obvious one.
+  for (const echoed of [bundle.query.identities[0], bundle.plan.identities[0], bundle.plan.primary_identity, bundle.resolved_run_snapshot.resolved_identities[0]]) {
+    assert.equal(echoed.redacted, true);
+    assert.equal(echoed.ref.startsWith('anon:'), true);
+    assert.equal('label' in echoed, false);
+    assert.equal('metadata' in echoed, false);
+    assert.equal('identity_key' in echoed, false);
+  }
+  // Shape a consumer legitimately needs survives redaction.
+  assert.equal(bundle.query.identities[0].type, 'name');
+  assert.equal(bundle.query.identities[0].access.tier, 'personal');
+  // And the Findings were filtered too — both layers hold, not one instead of the other.
+  assert.equal(bundle.findings.length, 0);
+  assert.equal(bundle.capability_trace.find(x => x.key === 'gematria').access_filtered.count, 3);
+  assert.equal(bundle.invariants.personal_identity_text_never_in_output, true);
+});
+
+test('identity echo: redaction is by entitlement, so the owner still sees their own identity', async () => {
+  const bundle = await composeEcho('authenticated_user', {
+    verified_authority: { source: 'supabase_auth', subject_verified: true },
+  });
+  assert.equal(JSON.stringify(bundle).includes(ECHO_NAME), true, 'the owner must not be redacted from their own research');
+  assert.equal(bundle.query.identities[0].redacted, undefined);
+  assert.equal(bundle.findings.length, 3);
+  assert.equal(bundle.identity_disclosure.redacted_identity_count, 0);
+});
+
+test('identity echo: the anonymous reference is stable, so the same subject stays the same subject', async () => {
+  const [a, b] = [await composeEcho('public_user', null), await composeEcho('public_user', null)];
+  assert.equal(a.query.identities[0].ref, b.query.identities[0].ref);
+  assert.equal(a.query.identities[0].ref, a.plan.primary_identity.ref, 'one subject must not get two anonymous refs in one Bundle');
+  // Different people must not collapse into one reference.
+  const other = await composeResearchW2({
+    question: 'כמה שווה', rawInput: 'כמה שווה', explicitTextComputation: true,
+    identityCandidates: [{ ...echoIdentityCandidate, label: 'אחר לגמרי', key: 'אחר לגמרי', ref: 'אחר לגמרי', identity_key: 'אחר לגמרי' }],
+    requestedCapabilities: ['gematria'], contextType: 'public_user', executors: echoExecutors(),
+  });
+  assert.notEqual(a.query.identities[0].ref, other.query.identities[0].ref);
+});
+
+test('identity echo: ordinary public identities stay fully readable', async () => {
+  const bundle = await composeResearchW2({
+    question: '358', rawInput: '358',
+    identityCandidates: [{ type: 'number', value: 358, ref: '358', source: 'numeric_literal', confidence: 'exact' }],
+    requestedCapabilities: ['numeric'], contextType: 'public_user',
+    executors: createCanonicalW2Executors({ supabase: lookupSupabase(v => [governedRow({ value: v })]) }),
+  });
+  // Redaction must be narrow: a public Bundle that hides its own number would be unusable.
+  assert.equal(bundle.query.identities[0].redacted, undefined);
+  assert.equal(bundle.query.identities[0].value, 358);
+  assert.equal(bundle.identity_disclosure.free_text_may_contain_restricted_terms, false);
+});
+
+test('identity echo: caller-supplied free text is flagged rather than silently trusted', async () => {
+  // raw_input/question are the caller's own words and are echoed back, so when an identity was
+  // redacted the Bundle says the free text may still carry the restricted term.
+  const bundle = await composeEcho('public_user', null);
+  assert.equal(bundle.identity_disclosure.redacted_identity_count > 0, true);
+  assert.equal(bundle.identity_disclosure.free_text_may_contain_restricted_terms, true);
+  assert.match(bundle.identity_disclosure.note, /caller-supplied/i);
+});
+
+test('identity echo: the decision itself is fail-closed on an unattested descriptor', () => {
+  const publicDescriptor = buildAccessDescriptor(null, 'public_user');
+  assert.equal(identityAccessDecision(echoIdentityCandidate, publicDescriptor).allowed, false);
+  // A bare caller claim of admin grants nothing here either.
+  assert.equal(identityAccessDecision(echoIdentityCandidate, buildAccessDescriptor({ admin: true }, 'admin')).allowed, false);
+  // A public identity is untouched by the projection.
+  const publicIdentity = { type: 'number', value: 358, ref: '358', source: 'numeric_literal' };
+  assert.equal(projectIdentityForAccess(publicIdentity, publicDescriptor), publicIdentity);
+});
