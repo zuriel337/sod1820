@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createCanonicalW2Executors } from './researchW2Executors.js';
-import { CAPABILITY_STATUS } from './researchResultBundle.js';
+import { CAPABILITY_STATUS, EVIDENCE_RELATION } from './researchResultBundle.js';
 
 function fakeSupabase() {
   return {
@@ -15,11 +15,11 @@ function fakeSupabase() {
   };
 }
 
-const identityResolution358 = { identities: [{ type: 'number', key: '358', value: 358, ref: '358' }] };
+const numberIdentity = value => ({ identities: [{ type: 'number', key: String(value), value, ref: String(value) }] });
 
 test('358 canonical numeric executor keeps raw lookup rows behind the adapter boundary', async () => {
   const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
-  const out = await executors.numeric({ identityResolution: identityResolution358 });
+  const out = await executors.numeric({ identityResolution: numberIdentity(358) });
   assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
   assert.equal(out.trace.root.value, 358);
   assert.equal(out.trace.per_lens.number_lookup.status, 'ok');
@@ -28,25 +28,37 @@ test('358 canonical numeric executor keeps raw lookup rows behind the adapter bo
   assert.deepEqual(out.findings, []);
 });
 
+test('numeric executor cannot reinterpret a non-number semantic identity whose label happens to be numeric', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  const out = await executors.numeric({ identityResolution: { identities: [{ type: 'book', label: '358', key: 'book:358' }] } });
+  assert.equal(out.status, CAPABILITY_STATUS.SKIPPED);
+});
+
 test('W2 numeric bridge refuses raw research_objects access instead of relying on caller RLS', () => {
-  assert.throws(() => createCanonicalW2Executors({
-    supabase: fakeSupabase(),
-    numericLenses: ['number_lookup', 'research_objects'],
-  }), /cannot bypass capability adapters/);
+  assert.throws(() => createCanonicalW2Executors({ supabase: fakeSupabase(), numericLenses: ['number_lookup', 'research_objects'] }), /cannot bypass capability adapters/);
 });
 
 test('358 Fibonacci bounded search survives as first-class negative result', async () => {
   const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
-  const out = await executors['sequence:fibonacci']({ identityResolution: identityResolution358 });
+  const out = await executors['sequence:fibonacci']({ identityResolution: numberIdentity(358) });
   assert.equal(out.status, CAPABILITY_STATUS.NEGATIVE_RESULT);
   assert.deepEqual(out.findings, []);
   assert.equal(out.negativeScope.sequence_id, 'fibonacci');
   assert.equal(out.negativeScope.search_depth, 10000);
 });
 
+test('377 Fibonacci hit is explicitly independent evidence, not a derived Gematria confirmation', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  const out = await executors['sequence:fibonacci']({ identityResolution: numberIdentity(377) });
+  assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
+  assert.equal(out.findings.length, 1);
+  assert.equal(out.findingOutcomes[0].findingId, out.findings[0].id);
+  assert.equal(out.findingOutcomes[0].evidenceRelation, EVIDENCE_RELATION.INDEPENDENT_EVIDENCE);
+});
+
 test('358 ELS remains first-class missing adapter, never negative evidence', async () => {
   const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
-  const out = await executors.els({ identityResolution: identityResolution358 });
+  const out = await executors.els({ identityResolution: numberIdentity(358) });
   assert.equal(out.status, CAPABILITY_STATUS.MISSING_ADAPTER);
   assert.deepEqual(out.findings, []);
   assert.match(out.reason, /number-only/i);

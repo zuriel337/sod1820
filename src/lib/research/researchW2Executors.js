@@ -20,6 +20,7 @@ const DEFAULT_W2_NUMERIC_LENSES = Object.freeze([
 function numberFromIdentity(identityResolution) {
   const identities = identityResolution?.identities || [];
   for (const identity of identities) {
+    if (identity?.type !== 'number') continue;
     const raw = identity?.value ?? identity?.ref ?? identity?.key ?? identity?.label;
     const n = Number(raw);
     if (Number.isSafeInteger(n) && n >= 0) return n;
@@ -34,9 +35,7 @@ function rpcExecutor(supabase) {
 function validateNumericLenses(input) {
   const lenses = Array.isArray(input) && input.length ? [...new Set(input)] : [...DEFAULT_W2_NUMERIC_LENSES];
   const unsafe = lenses.filter(id => !SAFE_W2_NUMERIC_LENS_SET.has(id));
-  if (unsafe.length) {
-    throw new TypeError(`W2 numeric bridge cannot bypass capability adapters: ${unsafe.join(', ')}`);
-  }
+  if (unsafe.length) throw new TypeError(`W2 numeric bridge cannot bypass capability adapters: ${unsafe.join(', ')}`);
   return lenses;
 }
 
@@ -60,15 +59,9 @@ function summarizeLens(value) {
 
 function sequenceCapabilityFromResearch(number, lensId, result) {
   const sequence = result?.per_lens?.[lensId];
-  if (!sequence) {
-    return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.FAILED, reason: `${lensId} returned no result`, findings: [] };
-  }
-  if (sequence.status === 'error') {
-    return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.FAILED, reason: sequence.error || `${lensId} failed`, findings: [], trace: { lens: lensId, status: 'error' } };
-  }
-  if (sequence.status === 'adapter_needed') {
-    return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.MISSING_ADAPTER, reason: sequence.error || `${lensId} adapter missing`, findings: [], trace: { lens: lensId, status: 'adapter_needed' } };
-  }
+  if (!sequence) return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.FAILED, reason: `${lensId} returned no result`, findings: [] };
+  if (sequence.status === 'error') return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.FAILED, reason: sequence.error || `${lensId} failed`, findings: [], trace: { lens: lensId, status: 'error' } };
+  if (sequence.status === 'adapter_needed') return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.MISSING_ADAPTER, reason: sequence.error || `${lensId} adapter missing`, findings: [], trace: { lens: lensId, status: 'adapter_needed' } };
 
   const foundState = sequence?.result?.found;
   if (foundState === false) {
@@ -120,14 +113,13 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
   };
 }
 
-export function createCanonicalW2Executors({ supabase, numericLenses = null } = {}) {
+export function createCanonicalNumberW2Executors({ supabase, numericLenses = null } = {}) {
   if (typeof supabase?.rpc !== 'function') throw new Error('canonical Supabase RPC client required');
   const lenses = validateNumericLenses(numericLenses);
 
   const numericExecutor = async ({ identityResolution }) => {
     const number = numberFromIdentity(identityResolution);
     if (number == null) return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.SKIPPED, reason: 'no canonical number identity resolved', findings: [] };
-
     const result = await researchNumber(number, {
       lenses,
       rpc: rpcExecutor(supabase),
@@ -141,12 +133,7 @@ export function createCanonicalW2Executors({ supabase, numericLenses = null } = 
       findings: result.universal_findings || [],
       sourceRefs: [`number:${number}`],
       versionRefs: ['numericResearch:v1'],
-      trace: {
-        root: result.root,
-        requested_lenses: result.requested_lenses,
-        per_lens: perLens,
-        priority: result.priority,
-      },
+      trace: { root: result.root, requested_lenses: result.requested_lenses, per_lens: perLens, priority: result.priority },
     };
   };
 
@@ -162,13 +149,24 @@ export function createCanonicalW2Executors({ supabase, numericLenses = null } = 
     return sequenceCapabilityFromResearch(number, lensId, result);
   };
 
-  const elsExecutor = async () => ({
-    owner: 'els_single_engine_law',
-    status: CAPABILITY_STATUS.MISSING_ADAPTER,
-    reason: numericLensMap.els?.reason || 'no safe number-only ELS dispatch contract',
-    findings: [],
-    versionRefs: ['numericResearch:els:ADAPTER_NEEDED'],
-  });
+  const elsExecutor = async ({ identityResolution }) => {
+    const number = numberFromIdentity(identityResolution);
+    if (number == null) {
+      return {
+        owner: 'els_single_engine_law',
+        status: CAPABILITY_STATUS.SKIPPED,
+        reason: 'number-only W2 bridge does not own text/phrase ELS execution',
+        findings: [],
+      };
+    }
+    return {
+      owner: 'els_single_engine_law',
+      status: CAPABILITY_STATUS.MISSING_ADAPTER,
+      reason: numericLensMap.els?.reason || 'no safe number-only ELS dispatch contract',
+      findings: [],
+      versionRefs: ['numericResearch:els:ADAPTER_NEEDED'],
+    };
+  };
 
   return {
     numeric: numericExecutor,
@@ -178,5 +176,6 @@ export function createCanonicalW2Executors({ supabase, numericLenses = null } = 
   };
 }
 
+export const createCanonicalW2Executors = createCanonicalNumberW2Executors;
 export { SAFE_W2_NUMERIC_LENSES };
-export default createCanonicalW2Executors;
+export default createCanonicalNumberW2Executors;
