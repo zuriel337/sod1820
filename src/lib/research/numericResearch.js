@@ -40,20 +40,75 @@ export const DEFAULT_PRIORITY_WEIGHTS = Object.freeze({
 export const NUMERIC_LENS_STATUS = Object.freeze({ READY: 'READY', ADAPTER_NEEDED: 'ADAPTER_NEEDED' });
 export const DEFAULT_SEQUENCE_ADAPTERS = Object.freeze([piSequenceAdapter, fibonacciSequenceAdapter]);
 
+// ── W2.2b · PER-LENS ACCESS + SEMANTIC CLASS ──────────────────────────────────────────────
+// READY alone was an insufficient and, in one case, FALSE claim (GPT preflight de9969d1 item 4).
+// Two facts were missing from every entry and are now stated explicitly, verified live 11.9.2026:
+//
+//   access_class   — is the underlying source actually readable by the caller? fn_number_lookup is
+//                    a plain STABLE function with anon/authenticated execute. fn_hot_context is
+//                    SECURITY DEFINER with anon_exec=false AND auth_exec=false, so an ordinary
+//                    client call CANNOT execute it; research_objects has no anon/authenticated
+//                    table grant at all. Calling those "READY" told the composer they were safe to
+//                    dispatch when they in fact fail-close.
+//   semantic_class — does the lens return EVIDENCE, or context/projection/ranking? fn_number_dossier
+//                    mixes several truth families and duplicates, fn_number_journey is a derivation
+//                    map with seed/readiness state, number_neighbors and fn_hot_context are
+//                    explicitly candidate/hot signals and hot is NOT truth. Only number_lookup
+//                    returns atomic, governed, source-native evidence rows — so it is the only
+//                    numeric lens permitted to emit positive Findings. The rest stay in the
+//                    capability trace as context, which is where they were already going.
+export const NUMERIC_LENS_ACCESS_CLASS = Object.freeze({
+  PUBLIC_SOURCE: 'public_source',
+  SOURCE_ACCESS_CONTROLLED: 'source_access_controlled',
+  // SECURITY DEFINER RPC that is anon/authenticated EXECUTABLE but reads tables the caller has no
+  // grant on, so it elevates privilege on the caller's behalf. Executability proves nothing about
+  // publication authority (truth_axes_foundation_law v3 INVARIANT P3: a row readable through a
+  // grant is an ACCESS FACT, not a publication decision — a missing gate is not consent).
+  DEFINER_ELEVATED: 'definer_elevated',
+  SERVER_ONLY: 'server_only',
+  LOCAL_COMPUTATION: 'local_computation',
+});
+
+export const NUMERIC_LENS_SEMANTIC_CLASS = Object.freeze({
+  EVIDENCE: 'evidence',
+  DERIVATION: 'derivation',
+  CONTEXT: 'context',
+  PROJECTION: 'projection',
+  RANKING: 'ranking',
+});
+
+const LC = NUMERIC_LENS_ACCESS_CLASS;
+const SC = NUMERIC_LENS_SEMANTIC_CLASS;
+
 export const numericLensMap = Object.freeze({
-  number_lookup: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_lookup' },
-  number_dossier: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_dossier' },
-  number_journey: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_journey' },
-  neighbors: { status: NUMERIC_LENS_STATUS.READY, rpc: 'number_neighbors' },
-  hot_context: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_hot_context' },
-  research_objects: { status: NUMERIC_LENS_STATUS.READY, source: 'research_objects' },
+  number_lookup: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_lookup', access_class: LC.PUBLIC_SOURCE, client_executable: true, semantic_class: SC.EVIDENCE, emits_findings: true },
+  // RECLASSIFIED (GPT challenge 8621de8d finding 3, accepted and independently reverified).
+  // fn_number_dossier is STABLE SECURITY DEFINER and anon/auth executable, but it returns
+  // decision_ledger human_reason/reason_code/provenance, research_candidates, learned_patterns,
+  // relation_evidence including rejected/candidate rows, and topic_cards UNFILTERED BY STATUS —
+  // while decision_ledger, research_candidates, learned_patterns, topic_cards and convergences all
+  // have anon_select=false AND auth_select=false live. Calling it PUBLIC_SOURCE inferred publication
+  // authority from EXECUTE privilege, which INVARIANT P3 forbids. It stays dispatchable (it is the
+  // live dossier contract and produces no Findings) but is no longer treated as public material,
+  // and its payload never enters the capability trace.
+  number_dossier: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_dossier', access_class: LC.DEFINER_ELEVATED, client_executable: true, publication_authorized: false, semantic_class: SC.CONTEXT, emits_findings: false, reason: 'SECURITY DEFINER over decision_ledger/research_candidates/learned_patterns/topic_cards, none of which grant anon or authenticated SELECT; composite of several truth families — context, never one atomic evidence fact, and never public material' },
+  // Same shape, found while reverifying finding 3 and NOT in the GPT report: fn_number_journey is
+  // SECURITY DEFINER and returns journey_seeds status/readiness/title while journey_seeds grants no
+  // anon/auth SELECT. Less sensitive than the dossier, same classification error.
+  number_journey: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_journey', access_class: LC.DEFINER_ELEVATED, client_executable: true, publication_authorized: false, semantic_class: SC.PROJECTION, emits_findings: false, reason: 'SECURITY DEFINER exposing journey_seeds draft/readiness state which grants no anon or authenticated SELECT; derivation/projection map, not positive evidence' },
+  neighbors: { status: NUMERIC_LENS_STATUS.READY, rpc: 'number_neighbors', access_class: LC.PUBLIC_SOURCE, client_executable: true, semantic_class: SC.RANKING, emits_findings: false, reason: 'proximity/weight signal — ranking, not truth' },
+  // anon_exec=false AND auth_exec=false live: only a service-role/server caller can execute this.
+  hot_context: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_hot_context', access_class: LC.SERVER_ONLY, client_executable: false, semantic_class: SC.RANKING, emits_findings: false, reason: 'SECURITY DEFINER with no anon/authenticated execute; returns hot candidate context and HOT is explicitly not TRUE' },
+  research_objects: { status: NUMERIC_LENS_STATUS.READY, source: 'research_objects', access_class: LC.SOURCE_ACCESS_CONTROLLED, client_executable: false, semantic_class: SC.EVIDENCE, emits_findings: true, reason: 'no anon/authenticated table grant; requires an injected access-filtered reader and composition-boundary filtering' },
   relation_candidates: { status: NUMERIC_LENS_STATUS.ADAPTER_NEEDED, reason: 'fn_relation_candidate requires two semantic endpoints, not a number-only input' },
   cross_resonance: { status: NUMERIC_LENS_STATUS.ADAPTER_NEEDED, reason: 'number_cross_resonance requires p_self + p_pairs contract' },
   source_post_context: { status: NUMERIC_LENS_STATUS.ADAPTER_NEEDED, reason: 'no single canonical number-only source/post RPC' },
   els: { status: NUMERIC_LENS_STATUS.ADAPTER_NEEDED, reason: 'ELS native adapter exists for Universal Findings, but no safe number-only dispatch contract' },
-  gematria_reverse: { status: NUMERIC_LENS_STATUS.READY, via: 'fn_number_lookup/fn_number_dossier; do not recalculate in router' },
-  'sequence:pi': { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'pi' },
-  'sequence:fibonacci': { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'fibonacci' },
+  // A LOGICAL ALIAS, not a lens of its own: it dispatches number_lookup + number_dossier and owns no
+  // RPC, no row and no per-lens result. It must never be reported as if it executed something itself.
+  gematria_reverse: { status: NUMERIC_LENS_STATUS.READY, alias_of: ['number_lookup', 'number_dossier'], is_logical_alias: true, via: 'fn_number_lookup/fn_number_dossier; do not recalculate in router', access_class: LC.PUBLIC_SOURCE, client_executable: true, semantic_class: SC.EVIDENCE, emits_findings: false, reason: 'alias — findings and context come from the two lenses it dispatches' },
+  'sequence:pi': { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'pi', access_class: LC.LOCAL_COMPUTATION, client_executable: true, semantic_class: SC.EVIDENCE, emits_findings: true },
+  'sequence:fibonacci': { status: NUMERIC_LENS_STATUS.READY, sequence_id: 'fibonacci', access_class: LC.LOCAL_COMPUTATION, client_executable: true, semantic_class: SC.EVIDENCE, emits_findings: true },
 });
 
 function normalizeBudget(input = {}) {
@@ -172,6 +227,73 @@ export function deriveNumericResearchPriority({ dossier, researchObjects = [], h
   };
 }
 
+// ── W2.2b · BOUNDED NUMBER LOOKUP WINDOW ──────────────────────────────────────────────────
+// Live fan-out is real: 28,673 distinct verified bidim values, rows-per-value p50=2 / p90=25 /
+// p99=195 / max=497; 358 alone returns 226 rows and its raw lookup JSON is ~201KB BEFORE Universal
+// Finding expansion. Returning "whatever came back" would either blow the Bundle up or, worse, let
+// a truncated window look source-exhaustive. So the window is explicit and always reports
+// total/returned/truncated plus a continuation cursor.
+export const DEFAULT_NUMBER_LOOKUP_WINDOW = Object.freeze({ limit: 50, maxLimit: 500 });
+
+// Deterministic GOVERNED-FIRST order, mirroring fn_number_lookup's own SQL ORDER BY so a client-side
+// window can never disagree with the server's paging. The final bid_id tiebreaker is what makes the
+// order TOTAL — (governed, composite, method, phrase) is not unique across provenance generations.
+export function orderNumberLookupRowsGovernedFirst(rows) {
+  const rank = row => [
+    row?.method_governed === true ? 0 : 1,
+    clean(row?.atomic_or_composite) === 'composite' ? 1 : 0,
+    clean(row?.method) || '',
+    clean(row?.phrase) || '',
+    clean(row?.bid_id) || '',
+  ];
+  return [...(Array.isArray(rows) ? rows : [])].sort((a, b) => {
+    const ra = rank(a), rb = rank(b);
+    for (let i = 0; i < ra.length; i++) {
+      if (ra[i] === rb[i]) continue;
+      return ra[i] < rb[i] ? -1 : 1;
+    }
+    return 0;
+  });
+}
+
+/**
+ * Apply the bounded window to an ordered lookup row set.
+ * Returns the window plus an honest description of what was NOT returned.
+ */
+export function boundNumberLookupRows(rows, { limit, afterBidId = null, offset = 0 } = {}) {
+  const ordered = orderNumberLookupRowsGovernedFirst(rows);
+  const total = ordered.length;
+  const size = Math.max(1, Math.min(Number(limit) || DEFAULT_NUMBER_LOOKUP_WINDOW.limit, DEFAULT_NUMBER_LOOKUP_WINDOW.maxLimit));
+
+  // Cursor form is preferred (stable under concurrent writes); numeric offset stays supported.
+  let start = Number.isSafeInteger(Number(offset)) && Number(offset) > 0 ? Number(offset) : 0;
+  if (afterBidId) {
+    const at = ordered.findIndex(row => clean(row?.bid_id) === clean(afterBidId));
+    start = at >= 0 ? at + 1 : start;
+  }
+
+  const window = ordered.slice(start, start + size);
+  const lastBidId = window.length ? clean(window[window.length - 1]?.bid_id) : null;
+  const consumed = start + window.length;
+  const truncated = consumed < total;
+
+  return {
+    rows: window,
+    bounded: {
+      total_count: total,
+      returned_count: window.length,
+      truncated,
+      window: { limit: size, offset: start, after_bid_id: afterBidId || null },
+      ordering: 'governed_first__then_atomic_before_composite__then_method__phrase__bid_id',
+      continuation: truncated
+        ? { lens: 'number_lookup', after_bid_id: lastBidId, offset: consumed, limit: size, remaining: total - consumed }
+        : null,
+      // Stated so no downstream reader can mistake a window for the whole source population.
+      source_exhaustive: !truncated,
+    },
+  };
+}
+
 export async function researchNumber(numberInput, options = {}) {
   const number = Number(numberInput);
   if (!Number.isSafeInteger(number) || number < 0) throw new Error('number must be a non-negative safe integer');
@@ -180,7 +302,17 @@ export async function researchNumber(numberInput, options = {}) {
   const perLens = {};
   const rpc = options.rpc;
 
-  if (requested.includes('number_lookup') || requested.includes('gematria_reverse')) perLens.number_lookup = await rpcCall(rpc, 'fn_number_lookup', { p_value: number });
+  let lookupBounds = null;
+  if (requested.includes('number_lookup') || requested.includes('gematria_reverse')) {
+    const lookup = await rpcCall(rpc, 'fn_number_lookup', { p_value: number });
+    if (lookup.status === 'ok' && Array.isArray(lookup.data)) {
+      const { rows, bounded } = boundNumberLookupRows(lookup.data, options.lookupWindow || {});
+      lookupBounds = bounded;
+      perLens.number_lookup = { ...lookup, data: rows, bounded };
+    } else {
+      perLens.number_lookup = lookup;
+    }
+  }
   if (requested.includes('number_dossier') || requested.includes('gematria_reverse')) perLens.number_dossier = await rpcCall(rpc, 'fn_number_dossier', { p_value: number });
   if (requested.includes('number_journey')) perLens.number_journey = await rpcCall(rpc, 'fn_number_journey', { p_value: number });
   if (requested.includes('neighbors')) perLens.neighbors = await rpcCall(rpc, 'number_neighbors', { p_value: number, p_limit: Math.min(25, options.neighborLimit || 12) });
@@ -195,6 +327,12 @@ export async function researchNumber(numberInput, options = {}) {
   const registry = createSequenceRegistry([...DEFAULT_SEQUENCE_ADAPTERS, ...(options.sequenceAdapters || [])]);
   const sequenceLensIds = requested.filter(id => id.startsWith('sequence:'));
   const universalFindings = [];
+  // number_lookup is the ONLY numeric lens that returns atomic, governed, source-native evidence
+  // rows, so it is the only one that becomes positive Findings here. dossier/journey/neighbors/
+  // hot_context stay in per_lens as context/projection/ranking (see numericLensMap semantic_class).
+  if (Array.isArray(perLens.number_lookup?.data)) {
+    universalFindings.push(...numberLookupRowsToUniversalFindings(perLens.number_lookup.data, { requestedValue: number }));
+  }
   const relationCandidates = [];
   const derivedNumericRoots = [];
 
@@ -233,6 +371,7 @@ export async function researchNumber(numberInput, options = {}) {
     requested_lenses: requested,
     budget,
     per_lens: perLens,
+    bounds: { number_lookup: lookupBounds },
     universal_findings: universalFindings,
     relation_candidates: relationCandidates,
     derived_numeric_roots: derivedNumericRoots,
@@ -240,4 +379,225 @@ export async function researchNumber(numberInput, options = {}) {
     provenance: { request_source: options.provenance?.requestSource || null, input_ref: options.provenance?.inputRef || null },
     truth_lifecycle: { automatic_canonical_promotion: false, automatic_publication: false, human_gate_required: true },
   };
+}
+
+function clean(value) {
+  if (value == null) return null;
+  const text = String(value).trim();
+  return text || null;
+}
+
+// ── W2.2b · NUMBER LOOKUP ROW → UNIVERSAL FINDING ─────────────────────────────────────────
+// Sibling of sequenceUniversalFinding() above: the numeric router already owns the job of turning
+// one lens result into the shared Universal Finding envelope, so the number_lookup lens gets its
+// adapter HERE rather than a second owner. (It deliberately does NOT live in canonicalGematria.js,
+// which imports the Supabase client and would drag a live client into a pure projection path.)
+// It never recalculates anything: every row arrives already computed by the canonical engine.
+//
+// IDENTITY (the whole point of this adapter). A Universal Finding must be keyed on SOURCE-NATIVE
+// STABLE IDENTITY. A lookup row's identity is public.bidim.bid_id — unique, engine-assigned and
+// stable across re-reads — NOT method+phrase+value, and emphatically not the human-readable
+// `provenance` string. One phrase can hold several bidim rows for the same method across
+// provenance/verification generations, so a label/value key would silently collapse distinct
+// source rows into one Finding. W2.2b extended fn_number_lookup additively to project bid_id and
+// the row's run/dependency/verification provenance for exactly this reason.
+//
+// VERIFICATION MAPPING (honest, verified against live row shape on 11.9.2026):
+//   * provenance_state='governed' rows carry engine_run_id + computed_at + method_version and no
+//     verification run — the value IS the governed engine's own output, and no CLAIM was submitted
+//     for it, so the honest state is "not_tested" (the same HG-3 pattern as gematria_api/ELS).
+//   * provenance_state='legacy_verified' rows carry verified_at + verified_run_id: a pre-existing
+//     stored value WAS re-executed and compared. That is a genuine claim-vs-engine test, so it may
+//     honestly report "match" (or "mismatch" when verified_mismatch_value is set), with the stored
+//     value as the claim and the re-execution recorded in evidence.
+//   * anything else stays null — honestly unknown, never coerced (INVARIANT PR2/PR3).
+// `stage` is never set: the epistemic type of a gematria row is a Human-Gate decision, not this
+// adapter's (INVARIANT PR1).
+//
+// `status` is ALSO never set, and that is a correction (GPT challenge 8621de8d finding 1, accepted
+// after reverifying the live law). An earlier revision of this adapter wrote bidim.provenance_state
+// into `status` and called it the GOVERNANCE axis. That was wrong on the law's own terms:
+// truth_axes_foundation_law v3 AXIS 3 defines GOVERNANCE as "how far has the HUMAN GATE accepted
+// it?" over the ratified vocabulary candidate|approved|canonical|rejected, and INVARIANT G2 forbids
+// inferring a governance state from VERIFICATION. provenance_state (governed|legacy_verified) is
+// computation/verification history, not a human acceptance decision — and the law's NOTE ON SHARED
+// WORDS says plainly that the same token in two tables is not the same state, so bidim's "governed"
+// is not AXIS 3's governance. A bidim row has no Human-Gate governance state at all, so the honest
+// value is null (INVARIANT PR3), and provenance_state is carried on the provenance/evidence/
+// projection axes, which genuinely do own it.
+
+// PUBLICATION, argued from the product surface rather than from the grant. INVARIANT P4/P3 warn that
+// a grant is an ACCESS FACT and never by itself a publication decision, so "anon can execute it" is
+// deliberately NOT the reason given here: fn_number_lookup is a plain STABLE function (not SECURITY
+// DEFINER, so it elevates nothing), restricted to gematria_words.is_verified rows, and it is the
+// contract already behind the public /number page — that published surface is the publication
+// decision this tier records.
+const LOOKUP_ACCESS_REASON =
+  "canonical Number lookup contract behind the public /number surface; non-definer and restricted to is_verified rows";
+
+function lookupIdentity(row) {
+  const bidId = clean(row?.bid_id);
+  if (bidId) return { key: bidId, sourceIdentity: { bidId, table: "bidim" }, keyed_on: "bid_id" };
+  // Defensive only — every live bidim row carries bid_id (366,492/366,492 verified 11.9.2026).
+  // If one ever does not, fall back to the full composite key and SAY SO, rather than quietly
+  // keying a Finding on a label.
+  const composite = [clean(row?.word_id), clean(row?.method), row?.value ?? null].filter(v => v != null).join("|");
+  if (!composite) return null;
+  return {
+    key: `bidim-composite:${composite}`,
+    sourceIdentity: { table: "bidim", wordId: clean(row?.word_id), method: clean(row?.method), value: row?.value ?? null, bidId: null },
+    keyed_on: "composite_fallback_bid_id_absent",
+  };
+}
+
+function lookupVerification(row) {
+  const method = clean(row?.method);
+  const value = row?.value ?? null;
+
+  if (row?.verified_mismatch_value != null) {
+    return {
+      claimed_expression: clean(row?.phrase),
+      claimed_method: method,
+      claimed_value: value,
+      engine_method_tested: method,
+      engine_result: row.verified_mismatch_value,
+      statement_lang: "he",
+      verification_state: "mismatch",
+    };
+  }
+  if (row?.verified_at != null) {
+    return {
+      claimed_expression: clean(row?.phrase),
+      claimed_method: method,
+      claimed_value: value,
+      engine_method_tested: method,
+      engine_result: value,
+      statement_lang: "he",
+      verification_state: "match",
+    };
+  }
+  if (clean(row?.row_provenance_state) === "governed" && clean(row?.engine_run_id)) {
+    return {
+      claimed_expression: null,
+      claimed_method: null,
+      claimed_value: null,
+      engine_method_tested: method,
+      engine_result: value,
+      statement_lang: null,
+      verification_state: "not_tested",
+    };
+  }
+  return {
+    claimed_expression: null,
+    claimed_method: null,
+    claimed_value: null,
+    engine_method_tested: method,
+    engine_result: value,
+    statement_lang: null,
+    verification_state: null,
+  };
+}
+
+/**
+ * Project ONE fn_number_lookup row into the shared Universal Finding envelope.
+ * Read-only: nothing is recomputed, re-ranked, promoted or published here.
+ */
+export function numberLookupRowToUniversalFinding(row, { requestedValue = null } = {}) {
+  const method = clean(row?.method);
+  const phrase = clean(row?.phrase);
+  const value = row?.value ?? requestedValue ?? null;
+  if (!method || !phrase || value == null) return null;
+
+  const identity = lookupIdentity(row);
+  if (!identity) return null;
+
+  const nodeId = clean(row?.node_id);
+  const provenanceState = clean(row?.row_provenance_state);
+
+  return makeUniversalFinding({
+    kind: "gematria",
+    // INVARIANT PR1 — epistemic type stays a Human-Gate decision.
+    stage: null,
+    // AXIS 3 GOVERNANCE — honestly null. A bidim row carries no Human-Gate acceptance state, and
+    // provenance_state is NOT one (see the note above). It travels on the provenance axis instead.
+    status: null,
+    // Source-native subject: the row is a statement about a PHRASE. The number is the query, and is
+    // carried as an anchor/dimension so the Finding still joins the number's lens.
+    subject: { type: "phrase", key: phrase, label: phrase, value: Number(value), lang: "he" },
+    source: {
+      engine: "gematria",
+      adapter: "number-lookup-v1",
+      sourceRef: identity.sourceIdentity.bidId ? `bidim:${identity.sourceIdentity.bidId}` : null,
+      method,
+      corpus: null,
+      lang: "he",
+    },
+    identity: {
+      sourceIdentity: identity.sourceIdentity,
+      occurrence: null,
+      entityRef: nodeId ? `node:${nodeId}` : null,
+      relationRef: null,
+    },
+    verification: lookupVerification(row),
+    evidence: {
+      refs: identity.sourceIdentity.bidId ? [`bidim:${identity.sourceIdentity.bidId}`] : [],
+      facts: [{
+        type: "gematria-lookup-row",
+        method,
+        phrase,
+        value: Number(value),
+        method_version: row?.method_version ?? null,
+        provenance_state: provenanceState,
+        engine_run_id: clean(row?.engine_run_id),
+        computed_at: row?.computed_at ?? null,
+        dependency_version_snapshot: row?.dependency_version_snapshot ?? null,
+        verified_run_id: clean(row?.verified_run_id),
+        verified_at: row?.verified_at ?? null,
+        verified_method_version: row?.verified_method_version ?? null,
+        verified_mismatch_value: row?.verified_mismatch_value ?? null,
+      }],
+      score: null,
+      confidence: null,
+    },
+    // The source contract itself is public, so this is a fact about the source, not a fabricated
+    // publication claim. It is what lets the composition-boundary access filter pass the row.
+    access: { tier: "public", reason: LOOKUP_ACCESS_REASON },
+    provenance: {
+      createdBy: provenanceState === "governed" ? "ENGINE:gematria" : null,
+      createdAt: row?.computed_at || row?.verified_at || undefined,
+      inputRef: `number:${Number(value)}`,
+      // The row's computation/verification history lives HERE, on the provenance axis — not on the
+      // governance axis. Named explicitly so no consumer re-reads it as a Human-Gate state.
+      rowProvenanceState: provenanceState,
+      engineRunId: clean(row?.engine_run_id),
+      verifiedRunId: clean(row?.verified_run_id),
+    },
+    projection: {
+      anchors: [{ space: "number", value: Number(value) }],
+      relations: [],
+      dimensions: {
+        numberLookup: {
+          value: Number(value),
+          method,
+          identityKeyedOn: identity.keyed_on,
+          methodGoverned: row?.method_governed ?? null,
+          methodActive: row?.method_active ?? null,
+          methodScannable: row?.method_scannable ?? null,
+          methodExecutable: row?.method_executable ?? null,
+          methodEngineVerified: row?.method_engine_verified ?? null,
+          methodEvidenceClass: clean(row?.method_evidence_class),
+          mathematicalFamily: clean(row?.mathematical_family),
+          atomicOrComposite: clean(row?.atomic_or_composite),
+          provenanceState,
+        },
+      },
+    },
+    view: { rendererHints: { role: "number-lookup-row" } },
+  });
+}
+
+export function numberLookupRowsToUniversalFindings(rows, options = {}) {
+  return (Array.isArray(rows) ? rows : [])
+    .map(row => numberLookupRowToUniversalFinding(row, options))
+    .filter(Boolean);
 }
