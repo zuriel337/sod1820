@@ -17,13 +17,22 @@ const DEFAULT_W2_NUMERIC_LENSES = Object.freeze([
   'neighbors',
 ]);
 
+function parseCanonicalNumber(raw) {
+  if (typeof raw === 'number') return Number.isSafeInteger(raw) && raw >= 0 ? raw : null;
+  if (typeof raw !== 'string') return null;
+  const text = raw.trim();
+  if (!/^\d+$/.test(text)) return null;
+  const number = Number(text);
+  return Number.isSafeInteger(number) && number >= 0 ? number : null;
+}
+
 function numberFromIdentity(identityResolution) {
   const identities = identityResolution?.identities || [];
   for (const identity of identities) {
     if (identity?.type !== 'number') continue;
     const raw = identity?.value ?? identity?.ref ?? identity?.key ?? identity?.label;
-    const n = Number(raw);
-    if (Number.isSafeInteger(n) && n >= 0) return n;
+    const number = parseCanonicalNumber(raw);
+    if (number != null) return number;
   }
   return null;
 }
@@ -55,6 +64,28 @@ function summarizeLens(value) {
   if (Array.isArray(value.data)) summary.row_count = value.data.length;
   else if (value.data != null) summary.has_data = true;
   return summary;
+}
+
+function sequenceExpectedness(number, lensId, sequence) {
+  if (lensId !== 'sequence:pi') {
+    return { expectedness: 'sequence_specific_not_estimated', expectednessModel: null, baseRate: null };
+  }
+  const depth = Number(sequence?.search_depth);
+  const digits = String(number).length;
+  if (!Number.isSafeInteger(depth) || depth <= 0 || digits <= 0) {
+    return { expectedness: 'unknown', expectednessModel: 'uniform_digit_stream_heuristic_v1', baseRate: null };
+  }
+  const windows = Math.max(0, depth - digits + 1);
+  const singleWindowRate = 10 ** (-digits);
+  const baseRate = windows === 0 ? 0 : 1 - Math.pow(1 - singleWindowRate, windows);
+  const expectedness = baseRate >= 0.95
+    ? 'near_certain_under_uniform_digit_heuristic'
+    : baseRate >= 0.5
+      ? 'high_under_uniform_digit_heuristic'
+      : baseRate >= 0.05
+        ? 'moderate_under_uniform_digit_heuristic'
+        : 'low_under_uniform_digit_heuristic';
+  return { expectedness, expectednessModel: 'uniform_digit_stream_heuristic_v1', baseRate };
 }
 
 function sequenceCapabilityFromResearch(number, lensId, result) {
@@ -92,6 +123,8 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
   }
 
   const findings = result.universal_findings || [];
+  const expectedness = sequenceExpectedness(number, lensId, sequence);
+  const isHighBaseRatePi = lensId === 'sequence:pi' && expectedness.baseRate != null && expectedness.baseRate >= 0.95;
   return {
     owner: 'research_strategy_layer_law',
     status: CAPABILITY_STATUS.EXECUTED,
@@ -99,7 +132,12 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
     findingOutcomes: findings.map(finding => ({
       findingId: finding.id,
       evidenceRelation: EVIDENCE_RELATION.INDEPENDENT_EVIDENCE,
-      reason: 'independent sequence-engine computation lineage; semantic relevance is not implied',
+      reason: isHighBaseRatePi
+        ? 'independent sequence-engine lineage; occurrence is high-base-rate under a uniform-digit heuristic and is not corroboration by itself'
+        : 'independent sequence-engine computation lineage; semantic relevance is not implied',
+      expectedness: expectedness.expectedness,
+      expectednessModel: expectedness.expectednessModel,
+      baseRate: expectedness.baseRate,
     })),
     sourceRefs: [`number:${number}`],
     versionRefs: [sequence.sequence_version || `${lensId}:unknown-version`],
@@ -109,6 +147,9 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
       found: true,
       first_position: sequence?.result?.first_position ?? null,
       search_depth: sequence.search_depth ?? null,
+      expectedness: expectedness.expectedness,
+      expectedness_model: expectedness.expectednessModel,
+      base_rate: expectedness.baseRate,
     },
   };
 }
@@ -149,6 +190,27 @@ export function createCanonicalNumberW2Executors({ supabase, numericLenses = nul
     return sequenceCapabilityFromResearch(number, lensId, result);
   };
 
+  const researchObjectsExecutor = async ({ identityResolution }) => {
+    const number = numberFromIdentity(identityResolution);
+    if (number == null) {
+      return {
+        owner: 'research_strategy_layer_law',
+        status: CAPABILITY_STATUS.SKIPPED,
+        reason: 'no canonical number identity resolved',
+        findings: [],
+      };
+    }
+    return {
+      owner: 'research_strategy_layer_law',
+      status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+      reason: 'research_objects are deliberately refused until a canonical access-filtered W2 adapter resolves authorization/privacy context',
+      findings: [],
+      sourceRefs: [`number:${number}`],
+      versionRefs: ['research_objects:canonical-access-filter-required'],
+      trace: { access: 'refused_fail_closed', reason: 'canonical_access_filter_required' },
+    };
+  };
+
   const elsExecutor = async ({ identityResolution }) => {
     const number = numberFromIdentity(identityResolution);
     if (number == null) {
@@ -170,6 +232,7 @@ export function createCanonicalNumberW2Executors({ supabase, numericLenses = nul
 
   return {
     numeric: numericExecutor,
+    research_objects: researchObjectsExecutor,
     els: elsExecutor,
     'sequence:pi': makeSequenceExecutor('sequence:pi'),
     'sequence:fibonacci': makeSequenceExecutor('sequence:fibonacci'),
