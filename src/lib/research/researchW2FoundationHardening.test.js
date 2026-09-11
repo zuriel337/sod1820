@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { composeResearchW2 } from './researchComposerW2.js';
-import { buildResearchPlanV2, buildAccessDescriptor } from './researchPlanV2.js';
+import { buildResearchPlanV2, buildAccessDescriptor, normalizeAccessDescriptor } from './researchPlanV2.js';
 import { composeResearchResultBundle, CAPABILITY_STATUS, EVIDENCE_RELATION, findingAccessDecision, ACCESS_CLASS } from './researchResultBundle.js';
 import { createCanonicalW2Executors, NUMERIC_SYSTEM_METHOD_RULE_IDS } from './researchW2Executors.js';
 import { boundNumberLookupRows, numberLookupRowsToUniversalFindings, numericLensMap } from './numericResearch.js';
@@ -12,12 +12,26 @@ import { boundNumberLookupRows, numberLookupRowsToUniversalFindings, numericLens
 
 // ── fixtures ──────────────────────────────────────────────────────────────────────────────
 const SECRET = 'SECRET-SESSION-TOKEN-do-not-emit';
+// A context as a TRUSTED BOUNDARY would build it: the private fields plus an explicit attestation.
 const PRIVATE_AUTH = Object.freeze({
   user_ref: '11111111-1111-4111-8111-111111111111',
   phone: '+972500000000',
   email: 'private@example.com',
   session_token: SECRET,
   authenticated: true,
+  verified_authority: Object.freeze({ source: 'supabase_auth', subject_verified: true }),
+});
+// The same shape WITHOUT an attestation — a caller simply asserting it is authenticated/admin.
+const UNATTESTED_AUTH = Object.freeze({
+  user_ref: '11111111-1111-4111-8111-111111111111',
+  session_token: SECRET,
+  authenticated: true,
+  admin: true,
+  role: 'admin',
+});
+const ATTESTED_ADMIN = Object.freeze({
+  user_ref: 'admin-1',
+  verified_authority: Object.freeze({ source: 'supabase_auth', admin: true, subject_verified: true }),
 });
 
 function governedRow(overrides = {}) {
@@ -111,10 +125,65 @@ test('privacy negative: an unknown context resolves public-only, never widened b
   // A caller asserting a context_type it has no authority for cannot widen anything.
   assert.deepEqual(buildAccessDescriptor(null, 'admin').allowed_access_tiers, ['public']);
   assert.equal(buildAccessDescriptor({ user_ref: 'x' }, 'public_user').personal_scope_available, false);
+});
+
+// GPT challenge 8621de8d finding 2. An earlier revision derived admin/personal tiers straight from
+// raw context fields, so a caller asserting {admin:true} unlocked private material — the same defect
+// shape that was just closed in fn_raziel_research_intel_scoped. Authority must be ATTESTED.
+test('root of trust: a bare caller claim of admin grants nothing, and the refusal is visible', () => {
+  const descriptor = buildAccessDescriptor(UNATTESTED_AUTH, 'admin');
+  assert.deepEqual(descriptor.allowed_access_tiers, ['public']);
+  assert.equal(descriptor.admin, false);
+  assert.equal(descriptor.authenticated, false);
+  assert.equal(descriptor.personal_scope_available, false);
+  assert.equal(descriptor.authority_source, null);
+  assert.equal(descriptor.unverified_authority_claims_ignored, true, 'an ignored claim must be reported, not silently dropped');
+});
+
+test('root of trust: only an attested authority widens, and only as far as it attests', () => {
+  const admin = buildAccessDescriptor(ATTESTED_ADMIN, 'admin');
+  assert.deepEqual(admin.allowed_access_tiers, ['public', 'public_candidate', 'private', 'personal']);
+  assert.equal(admin.authority_source, 'supabase_auth');
+
+  // A verified PERSON reaches their own personal scope and nobody else's private rows.
+  const person = buildAccessDescriptor(PRIVATE_AUTH, 'authenticated_user');
+  assert.deepEqual(person.allowed_access_tiers, ['public', 'personal']);
+  assert.equal(person.admin, false);
+
+  // An unknown authority source is not an authority.
   assert.deepEqual(
-    buildAccessDescriptor({ admin: true, authenticated: true, user_ref: 'x' }, 'admin').allowed_access_tiers,
-    ['public', 'public_candidate', 'private', 'personal'],
+    buildAccessDescriptor({ verified_authority: { source: 'i-said-so', admin: true } }, 'admin').allowed_access_tiers,
+    ['public'],
   );
+});
+
+test('root of trust: a hand-crafted descriptor cannot widen the boundary filter it is meant to restrain', () => {
+  // Dropping unknown tiers is not enough on its own — a well-formed hostile descriptor must fail too.
+  const hostile = normalizeAccessDescriptor({ allowed_access_tiers: ['private', 'personal', 'made_up'], admin: true, authenticated: true });
+  assert.deepEqual(hostile.allowed_access_tiers, ['public']);
+  assert.equal(hostile.admin, false);
+  assert.equal(hostile.unverified_authority_claims_ignored, true);
+
+  // Garbage fails closed rather than throwing.
+  assert.deepEqual(normalizeAccessDescriptor('nope').allowed_access_tiers, ['public']);
+  assert.deepEqual(normalizeAccessDescriptor(null).allowed_access_tiers, ['public']);
+
+  // A genuine attested descriptor survives the round trip intact.
+  const real = buildAccessDescriptor(ATTESTED_ADMIN, 'admin');
+  assert.deepEqual(normalizeAccessDescriptor(real).allowed_access_tiers, real.allowed_access_tiers);
+});
+
+test('root of trust: the composition boundary filters on the NORMALIZED descriptor, not the one it was handed', () => {
+  const privateFinding = numberLookupRowsToUniversalFindings([governedRow()])
+    .map(f => ({ ...f, access: { tier: 'private', reason: null } }));
+  const bundle = composeResearchResultBundle({
+    // A caller trying to unlock access-controlled material by asserting its own descriptor.
+    accessDescriptor: { allowed_access_tiers: ['public', 'private'], admin: true },
+    capabilities: [{ key: 'research_objects', status: CAPABILITY_STATUS.EXECUTED, access_class: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED, findings: privateFinding }],
+  });
+  assert.equal(bundle.findings.length, 0);
+  assert.equal(bundle.coverage.access_filtered, 1);
+  assert.deepEqual(bundle.access.allowed_access_tiers, ['public']);
 });
 
 // ── 2. AUTH SNAPSHOT MUTATION ─────────────────────────────────────────────────────────────
@@ -192,7 +261,7 @@ test('denied research_objects: an admin descriptor legitimately unlocks the same
   const bundle = await composeResearchW2({
     question: '358', rawInput: '358', identityCandidates: numberIdentity(358),
     requestedCapabilities: ['research_objects'], contextType: 'admin',
-    authorizationContext: { admin: true, authenticated: true, user_ref: 'admin-1' },
+    authorizationContext: ATTESTED_ADMIN,
     executors: createCanonicalW2Executors({
       supabase: lookupSupabase(() => []),
       fetchResearchObjects: async () => PRIVATE_RESEARCH_ROWS,
@@ -230,9 +299,16 @@ test('358 governed row becomes a Universal Finding keyed on source-native bid_id
   assert.equal(finding.identity.entityRef, 'node:node-1');
   assert.equal(finding.source.sourceRef, 'bidim:bid-governed-1');
   assert.equal(finding.id.includes('bid-governed-1'), true);
-  // GOVERNANCE axis carries the real provenance state; EPISTEMIC type stays a Human-Gate decision.
-  assert.equal(finding.status, 'governed');
+  // GPT challenge 8621de8d finding 1. An earlier revision wrote bidim.provenance_state into `status`
+  // and called it GOVERNANCE. truth_axes_foundation_law v3 AXIS 3 defines governance as HUMAN-GATE
+  // acceptance over candidate|approved|canonical|rejected, and INVARIANT G2 forbids inferring it
+  // from verification. A bidim row has no Human-Gate state at all, so both semantic axes stay null
+  // and the computation history lives on the provenance axis instead.
+  assert.equal(finding.status, null);
   assert.equal(finding.stage, null);
+  assert.equal(finding.provenance.rowProvenanceState, 'governed');
+  assert.equal(finding.provenance.engineRunId, 'run-e1');
+  assert.equal(finding.projection.dimensions.numberLookup.provenanceState, 'governed');
   // A governed row is the engine's own output; no claim was submitted, so nothing was "matched".
   assert.equal(finding.verification.verification_state, 'not_tested');
   assert.equal(finding.evidence.facts[0].engine_run_id, 'run-e1');
@@ -242,7 +318,8 @@ test('358 governed row becomes a Universal Finding keyed on source-native bid_id
 
 test('legacy_verified row honestly reports match, and a recorded mismatch reports mismatch', () => {
   const [match] = numberLookupRowsToUniversalFindings([legacyVerifiedRow()]);
-  assert.equal(match.status, 'legacy_verified');
+  assert.equal(match.status, null, 'provenance is never written into the governance axis');
+  assert.equal(match.provenance.rowProvenanceState, 'legacy_verified');
   assert.equal(match.verification.verification_state, 'match');
   assert.equal(match.verification.claimed_value, 358);
   assert.equal(match.evidence.facts[0].verified_run_id, 'run-v1');
@@ -273,8 +350,11 @@ test('377 lookup mixes governed and legacy_verified rows and preserves both prov
   const out = await createCanonicalW2Executors({ supabase: lookupSupabase(() => rows377) })
     .numeric({ identityResolution: { identities: numberIdentity(377) } });
   assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
-  assert.deepEqual(out.findings.map(f => f.status).sort(), ['governed', 'legacy_verified']);
+  assert.deepEqual(out.findings.map(f => f.provenance.rowProvenanceState).sort(), ['governed', 'legacy_verified']);
   assert.deepEqual(out.findings.map(f => f.verification.verification_state).sort(), ['match', 'not_tested']);
+  // Neither semantic axis is invented from provenance.
+  assert.deepEqual(out.findings.map(f => f.status), [null, null]);
+  assert.deepEqual(out.findings.map(f => f.stage), [null, null]);
   assert.equal(JSON.stringify(out.trace).includes('עולם הבא'), false, 'raw phrase must not travel in the trace');
 });
 
@@ -343,6 +423,37 @@ test('per-lens classes are honest: hot_context is server-only and dossier/journe
   assert.equal(numericLensMap.neighbors.semantic_class, 'ranking');
   assert.equal(numericLensMap.number_lookup.semantic_class, 'evidence');
   assert.equal(numericLensMap.gematria_reverse.is_logical_alias, true);
+});
+
+// GPT challenge 8621de8d finding 3. Public EXECUTE on a SECURITY DEFINER RPC is an ACCESS FACT, not
+// a publication decision (truth_axes_foundation_law v3 INVARIANT P3). fn_number_dossier reads
+// decision_ledger/research_candidates/learned_patterns/topic_cards and fn_number_journey reads
+// journey_seeds, none of which grant anon or authenticated SELECT.
+test('definer-elevated lenses are never classified as public source material', () => {
+  for (const lens of ['number_dossier', 'number_journey']) {
+    assert.equal(numericLensMap[lens].access_class, 'definer_elevated', `${lens} must not claim public_source`);
+    assert.equal(numericLensMap[lens].publication_authorized, false);
+    assert.equal(numericLensMap[lens].emits_findings, false);
+  }
+  // The genuinely public, non-definer lookup contract keeps its public classification.
+  assert.equal(numericLensMap.number_lookup.access_class, 'public_source');
+});
+
+test('a definer-elevated lens payload never reaches the capability trace', async () => {
+  const SENSITIVE = 'HUMAN-REASON-internal-must-not-leak';
+  const supabase = {
+    rpc: async (name, args) => {
+      if (name === 'fn_number_lookup') return { data: [] };
+      if (name === 'fn_number_dossier') return { data: { value: args.p_value, decisions: [{ human_reason: SENSITIVE }] } };
+      if (name === 'fn_number_journey') return { data: { value: args.p_value, seed: { status: 'draft', readiness: 0.2 } } };
+      if (name === 'number_neighbors') return { data: [{ value: 424 }] };
+      return { data: null };
+    },
+  };
+  const out = await createCanonicalW2Executors({ supabase }).numeric({ identityResolution: { identities: numberIdentity(358) } });
+  assert.equal(JSON.stringify(out.trace).includes(SENSITIVE), false, 'decision_ledger human_reason leaked into the trace');
+  assert.equal(JSON.stringify(out.trace).includes('draft'), false, 'journey_seeds draft state leaked into the trace');
+  assert.deepEqual(out.findings, []);
 });
 
 test('a server-only lens cannot be dispatched from a client context', () => {

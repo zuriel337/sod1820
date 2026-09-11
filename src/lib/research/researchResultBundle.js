@@ -1,4 +1,5 @@
 import { isUniversalFinding } from "./universalFinding.js";
+import { normalizeAccessDescriptor } from "./researchPlanV2.js";
 
 // W2.1 — Generic Research Result Bundle composer.
 // Stable socket only: no engine truth, ranking truth, access policy or persistence is owned here.
@@ -291,8 +292,12 @@ export function composeResearchResultBundle({
   accessDescriptor = null,
 } = {}) {
   // The descriptor the boundary filters on is the plan's own output-safe descriptor unless the
-  // caller passes one explicitly. It is never read back out of a raw authorization context.
-  const effectiveAccess = accessDescriptor || plan?.access || null;
+  // caller passes one explicitly. It is never read back out of a raw authorization context, and it
+  // is NEVER trusted as handed in: normalizeAccessDescriptor re-derives it into the canonical frozen
+  // shape, drops unknown tiers, and refuses to widen beyond public without an attested
+  // authority_source. Without that, a caller could pass {allowed_access_tiers:["private"]} straight
+  // into the filter that is supposed to be restraining them (GPT challenge 8621de8d finding 2).
+  const effectiveAccess = normalizeAccessDescriptor(accessDescriptor || plan?.access || null);
   const safePlan = stripRawAuthorizationContext(plan);
   const safeSnapshot = stripRawAuthorizationContext(resolvedRunSnapshot);
   const normalizedCapabilities = (Array.isArray(capabilities) ? capabilities : [])

@@ -60,6 +60,11 @@ export const DEFAULT_SEQUENCE_ADAPTERS = Object.freeze([piSequenceAdapter, fibon
 export const NUMERIC_LENS_ACCESS_CLASS = Object.freeze({
   PUBLIC_SOURCE: 'public_source',
   SOURCE_ACCESS_CONTROLLED: 'source_access_controlled',
+  // SECURITY DEFINER RPC that is anon/authenticated EXECUTABLE but reads tables the caller has no
+  // grant on, so it elevates privilege on the caller's behalf. Executability proves nothing about
+  // publication authority (truth_axes_foundation_law v3 INVARIANT P3: a row readable through a
+  // grant is an ACCESS FACT, not a publication decision — a missing gate is not consent).
+  DEFINER_ELEVATED: 'definer_elevated',
   SERVER_ONLY: 'server_only',
   LOCAL_COMPUTATION: 'local_computation',
 });
@@ -77,8 +82,20 @@ const SC = NUMERIC_LENS_SEMANTIC_CLASS;
 
 export const numericLensMap = Object.freeze({
   number_lookup: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_lookup', access_class: LC.PUBLIC_SOURCE, client_executable: true, semantic_class: SC.EVIDENCE, emits_findings: true },
-  number_dossier: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_dossier', access_class: LC.PUBLIC_SOURCE, client_executable: true, semantic_class: SC.CONTEXT, emits_findings: false, reason: 'composite of several truth families with duplicate card entries — context, not one atomic evidence fact' },
-  number_journey: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_journey', access_class: LC.PUBLIC_SOURCE, client_executable: true, semantic_class: SC.PROJECTION, emits_findings: false, reason: 'derivation/projection map carrying seed draft/readiness state, not positive evidence' },
+  // RECLASSIFIED (GPT challenge 8621de8d finding 3, accepted and independently reverified).
+  // fn_number_dossier is STABLE SECURITY DEFINER and anon/auth executable, but it returns
+  // decision_ledger human_reason/reason_code/provenance, research_candidates, learned_patterns,
+  // relation_evidence including rejected/candidate rows, and topic_cards UNFILTERED BY STATUS —
+  // while decision_ledger, research_candidates, learned_patterns, topic_cards and convergences all
+  // have anon_select=false AND auth_select=false live. Calling it PUBLIC_SOURCE inferred publication
+  // authority from EXECUTE privilege, which INVARIANT P3 forbids. It stays dispatchable (it is the
+  // live dossier contract and produces no Findings) but is no longer treated as public material,
+  // and its payload never enters the capability trace.
+  number_dossier: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_dossier', access_class: LC.DEFINER_ELEVATED, client_executable: true, publication_authorized: false, semantic_class: SC.CONTEXT, emits_findings: false, reason: 'SECURITY DEFINER over decision_ledger/research_candidates/learned_patterns/topic_cards, none of which grant anon or authenticated SELECT; composite of several truth families — context, never one atomic evidence fact, and never public material' },
+  // Same shape, found while reverifying finding 3 and NOT in the GPT report: fn_number_journey is
+  // SECURITY DEFINER and returns journey_seeds status/readiness/title while journey_seeds grants no
+  // anon/auth SELECT. Less sensitive than the dossier, same classification error.
+  number_journey: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_number_journey', access_class: LC.DEFINER_ELEVATED, client_executable: true, publication_authorized: false, semantic_class: SC.PROJECTION, emits_findings: false, reason: 'SECURITY DEFINER exposing journey_seeds draft/readiness state which grants no anon or authenticated SELECT; derivation/projection map, not positive evidence' },
   neighbors: { status: NUMERIC_LENS_STATUS.READY, rpc: 'number_neighbors', access_class: LC.PUBLIC_SOURCE, client_executable: true, semantic_class: SC.RANKING, emits_findings: false, reason: 'proximity/weight signal — ranking, not truth' },
   // anon_exec=false AND auth_exec=false live: only a service-role/server caller can execute this.
   hot_context: { status: NUMERIC_LENS_STATUS.READY, rpc: 'fn_hot_context', access_class: LC.SERVER_ONLY, client_executable: false, semantic_class: SC.RANKING, emits_findings: false, reason: 'SECURITY DEFINER with no anon/authenticated execute; returns hot candidate context and HOT is explicitly not TRUE' },
@@ -395,11 +412,28 @@ function clean(value) {
 //     value as the claim and the re-execution recorded in evidence.
 //   * anything else stays null — honestly unknown, never coerced (INVARIANT PR2/PR3).
 // `stage` is never set: the epistemic type of a gematria row is a Human-Gate decision, not this
-// adapter's (INVARIANT PR1). `status` carries the row's real GOVERNANCE state (governed /
-// legacy_verified), which the envelope's governance axis genuinely does own.
+// adapter's (INVARIANT PR1).
+//
+// `status` is ALSO never set, and that is a correction (GPT challenge 8621de8d finding 1, accepted
+// after reverifying the live law). An earlier revision of this adapter wrote bidim.provenance_state
+// into `status` and called it the GOVERNANCE axis. That was wrong on the law's own terms:
+// truth_axes_foundation_law v3 AXIS 3 defines GOVERNANCE as "how far has the HUMAN GATE accepted
+// it?" over the ratified vocabulary candidate|approved|canonical|rejected, and INVARIANT G2 forbids
+// inferring a governance state from VERIFICATION. provenance_state (governed|legacy_verified) is
+// computation/verification history, not a human acceptance decision — and the law's NOTE ON SHARED
+// WORDS says plainly that the same token in two tables is not the same state, so bidim's "governed"
+// is not AXIS 3's governance. A bidim row has no Human-Gate governance state at all, so the honest
+// value is null (INVARIANT PR3), and provenance_state is carried on the provenance/evidence/
+// projection axes, which genuinely do own it.
 
+// PUBLICATION, argued from the product surface rather than from the grant. INVARIANT P4/P3 warn that
+// a grant is an ACCESS FACT and never by itself a publication decision, so "anon can execute it" is
+// deliberately NOT the reason given here: fn_number_lookup is a plain STABLE function (not SECURITY
+// DEFINER, so it elevates nothing), restricted to gematria_words.is_verified rows, and it is the
+// contract already behind the public /number page — that published surface is the publication
+// decision this tier records.
 const LOOKUP_ACCESS_REASON =
-  "fn_number_lookup is the canonical public Number lookup contract (anon-executable, is_verified=true rows only)";
+  "canonical Number lookup contract behind the public /number surface; non-definer and restricted to is_verified rows";
 
 function lookupIdentity(row) {
   const bidId = clean(row?.bid_id);
@@ -484,8 +518,9 @@ export function numberLookupRowToUniversalFinding(row, { requestedValue = null }
     kind: "gematria",
     // INVARIANT PR1 — epistemic type stays a Human-Gate decision.
     stage: null,
-    // GOVERNANCE axis: the row's real provenance state, which this adapter genuinely knows.
-    status: provenanceState,
+    // AXIS 3 GOVERNANCE — honestly null. A bidim row carries no Human-Gate acceptance state, and
+    // provenance_state is NOT one (see the note above). It travels on the provenance axis instead.
+    status: null,
     // Source-native subject: the row is a statement about a PHRASE. The number is the query, and is
     // carried as an anchor/dimension so the Finding still joins the number's lens.
     subject: { type: "phrase", key: phrase, label: phrase, value: Number(value), lang: "he" },
@@ -531,6 +566,11 @@ export function numberLookupRowToUniversalFinding(row, { requestedValue = null }
       createdBy: provenanceState === "governed" ? "ENGINE:gematria" : null,
       createdAt: row?.computed_at || row?.verified_at || undefined,
       inputRef: `number:${Number(value)}`,
+      // The row's computation/verification history lives HERE, on the provenance axis — not on the
+      // governance axis. Named explicitly so no consumer re-reads it as a Human-Gate state.
+      rowProvenanceState: provenanceState,
+      engineRunId: clean(row?.engine_run_id),
+      verifiedRunId: clean(row?.verified_run_id),
     },
     projection: {
       anchors: [{ space: "number", value: Number(value) }],
