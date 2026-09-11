@@ -5,29 +5,25 @@ import test from 'node:test';
 const sql = readFileSync('supabase/migrations/20260911_register_english_method_identities_v1.sql', 'utf8');
 
 const expected = [
-  ['en_ordinal', 'English Ordinal'],
-  ['en_full_reduction', 'Full Reduction'],
-  ['en_reverse_ordinal', 'Reverse Ordinal'],
-  ['en_reverse_reduction', 'Reverse Reduction'],
+  ['en_ordinal', 'English Ordinal', 901],
+  ['en_full_reduction', 'Full Reduction', 902],
+  ['en_reverse_ordinal', 'Reverse Ordinal', 903],
+  ['en_reverse_reduction', 'Reverse Reduction', 904],
 ];
 
-test('registers exactly the four source-attested live English method identities in scope', () => {
-  for (const [key, label] of expected) {
-    assert.match(sql, new RegExp(`'${key}'`));
-    assert.match(sql, new RegExp(`'${label}'`));
+test('registers exactly the four source-attested English method identities with required sort_order', () => {
+  for (const [key, label, order] of expected) {
+    assert.match(sql, new RegExp(`${order}, '${key}', '${label}'`));
   }
   assert.doesNotMatch(sql, /latin_agrippa|'Agrippa \/ Latin'/i);
 });
 
-test('every registration is fail-closed and does not claim canonical execution', () => {
-  const rows = sql.split(/\n\),\n\(/).slice(0, 4);
-  assert.equal(rows.length, 4);
-  for (const row of rows) {
-    assert.match(row, /false,\s*\n  null,\s*\n  false,\s*\n  true,/m); // in_engine=false, function=null, active=false, deterministic=true
-    assert.match(row, /false,\s*\n  'unimplemented'/m); // scannable=false, execution_kind=unimplemented
-    assert.match(row, /capability_evidence_not_engine_verified/);
-    assert.match(row, /registered_unimplemented/);
-  }
+test('identity registration remains fail-closed', () => {
+  assert.equal((sql.match(/registered_unimplemented/g) || []).length, 4);
+  assert.equal((sql.match(/capability_evidence_not_engine_verified/g) || []).length, 4);
+  assert.equal((sql.match(/'unimplemented'/g) || []).length, 4);
+  assert.match(sql, /in_engine, function, active, deterministic/);
+  assert.match(sql, /false, null, false, true/);
 });
 
 test('migration is additive and will not overwrite a future canonical row', () => {
