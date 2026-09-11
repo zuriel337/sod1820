@@ -1,24 +1,32 @@
-# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.6
+# 🧭 SOD1820 — מפת־העל התפעולית (MASTER ROADMAP) · v5.7
 
 **Date:** 11.9.2026  
 **Status:** NAVIGATION / STRATEGY SSOT · EXTEND_EXISTING · HUMAN-GATE CONTROLLED · BRANCH UPDATE PENDING MERGE
 
-> v5.6 supersedes the v5.5 **planning direction** once merged. It does not declare unfinished branch work deployed or live. Git history preserves v5.5 provenance.
+> v5.7 supersedes the v5.6 **planning direction** once merged. It does not declare unfinished branch work deployed or live. Git history preserves v5.6 provenance.
 
-## 0. What changed in v5.6
+## 0. What changed in v5.7
 
-v5.5 correctly established **One Reality Graph · One Research OS · One World, Many Views** and placed AI/Raziel below the final experience as research infrastructure rather than a late chat feature.
+v5.6 established **Raziel Continuous Research Companion / Research Presence** over **One Reality Graph · One Research OS · One World, Many Views**: continuity across time, authorized memory, Research Pulse, Silence Gate, self-audit and Next Best Research Action.
 
-v5.6 adds one explicit 2029+ North Star that was previously distributed across existing Raziel/Personalization/Command-Center owners:
+v5.7 extends that same Raziel — without creating another brain, support system or automation truth store — into a **Research + Action Companion** that can also reach bounded external research capabilities, help a person operate SOD1820, and detect product/capability gaps for Human-Gate review.
 
-> **RAZIEL CONTINUOUS RESEARCH COMPANION — one long-lived Research Intelligence presence over the same Research OS, able to resume, notice meaningful change, self-audit, propose the next best research action and remain silent when nothing decision-changing happened.**
+The additional 2029+ direction is:
 
-This is a roadmap consolidation of existing owners, not a new engine, graph, memory store, context system or truth authority.
+> **ONE RAZIEL — research deeply when needed, help the person act when asked, surface missing capabilities when evidence shows a real gap, and always remain bounded by identity, permission, provenance, cost, consent and Human Gate.**
 
-v5.6 therefore absorbs:
+This remains a roadmap consolidation/extension of existing owners: `raziel_routing_law`, `research_strategy_layer_law`, Identity/Subscription Funnel, Research Workspace, System Suggestions, Truth/Governance and canonical action owners. It creates **no new Raziel engine, support store, browser truth store, signup system, notification system, capability registry or self-modifying agent**.
+
+v5.7 therefore absorbs:
 
 - Future-Max / 2029+ World Model direction;
 - Raziel Continuous Research Companion / Research Presence North Star;
+- **Raziel Action Companion** for guided site operation, onboarding, registration and authorized semantic actions;
+- **bounded External Deep Research** via future Web/browser/file/multimodal adapters under the existing Capability Fabric;
+- provider/model-independent routing, independent-model challenge only when decision-changing, and semantic/result caching;
+- user→admin / user→Human-Gate contextual handoff through existing contribution/inbox/message owners;
+- capability-gap sensing via the existing `system_suggestions_law` Observe→Detect→Suggest→Explain→ZURIEL Decide path;
+- entitlement/research-budget/credit extension points for costly tool research without changing truth quality;
 - Identity / Evidence / Composition / Projection boundary;
 - Dynamic Lens vs persistent Canonical Subject/Topic;
 - temporal event/research/interpretation history;
@@ -38,7 +46,7 @@ v5.6 therefore absorbs:
 - public/indexable/featured separation and delegated governance;
 - explicit P0 release/security gates before broad public widening.
 
-**Preserve:** capability · stable identity · truth semantics · provenance · Research Context · Journey/Path continuity · engine behavior · security/authorization · Human-Gate decisions · governed user research state.
+**Preserve:** capability · stable identity · truth semantics · provenance · Research Context · Journey/Path continuity · engine behavior · security/authorization · consent · Human-Gate decisions · governed user research state.
 
 **May be replaced A→Z:** layouts · page hierarchy · Navbar · Bottom Bar · Heichal presentation · Book presentation · Number presentation · Raziel shells · admin screens · drawers · launchers · interaction patterns.
 
@@ -72,23 +80,26 @@ RESEARCH OS
          ├─ Books / Sources / Tanakh
          ├─ Graph / Events / Reality
          ├─ Person / Family context
+         ├─ bounded External Web / File / Browser research adapters
+         ├─ authorized Actions / Operations
          └─ future engines and capabilities
     ↓
 RESEARCH COMPOSER / CONTEXT COMPILER
     ├─ resolve identity first
-    ├─ authorize before evidence
+    ├─ authorize before evidence/action
     ├─ retrieve bounded relevant reality
     ├─ execute canonical capabilities
     ├─ compose Universal Findings
     ├─ rank/explain by context
-    └─ produce bounded replayable Context Pack
+    ├─ produce bounded replayable Context Pack
+    └─ produce explicit Action Plan when the user asks to change/send/do something
     ↓
 ADAPTIVE PROJECTIONS
     ├─ HUMAN: Home · World · Heichal · Posts · Archive · Workspace · Journeys
-    ├─ RAZIEL: continuous conversational/proactive research intelligence over the same context
+    ├─ RAZIEL: continuous conversational/proactive research + action intelligence over the same context
     └─ MACHINE: Search · structured data · feeds · answer/retrieval agents
     ↓
-2D · 3D · AR · VR · multilingual · API · future renderers
+2D · 3D · AR · VR · multilingual · voice · API · future renderers
 ```
 
 No layer above is permitted to create a second truth graph merely for convenience.
@@ -99,6 +110,7 @@ No layer above is permitted to create a second truth graph merely for convenienc
 - **One Reality Graph** = implementation of identities and relations.
 - **Research OS** = evidence, sources, calculations, findings, interpretation and governance.
 - **Context Compiler** = selects and composes only the relevant authorized slice.
+- **Action Plan** = bounded orchestration of an authorized user-requested action; it is not permission by itself.
 - **World / pages / Journeys / lenses** = contextual projections.
 - **Raziel** = intelligence/interface/companion over the same governed reality.
 
@@ -505,9 +517,135 @@ The North Star is not accepted because the UI looks conversational. It is accept
 9. **Unknown future capability:** a new canonical engine/source joins the Capability Fabric and Raziel can use it without a new companion architecture.
 10. **Stop recommendation:** Raziel can conclude that additional search is unlikely to change the research decision.
 
+##### 12. External Deep Research — bounded access to the outside world
+
+Raziel may use future external-search/Web/retrieval capabilities when the user explicitly requests current external research or when a Research Plan identifies a real evidence gap that owned SOD1820 sources cannot close.
+
+External research follows strict order and provenance:
+
+`SOD1820 owned/canonical sources first when sufficient → bounded external discovery → open primary/high-quality sources → capture source identity/date/locator/retrieved-at → deduplicate shared origin → cross-check → adapt as evidence/candidate → verify engine-computable claims in canonical SOD1820 engines → synthesis.`
+
+Rules:
+
+- an external Web result is **not** Canonical merely because a model found or cited it;
+- search snippets are discovery aids, not source proof when the underlying source can be opened;
+- several sites copying one origin are not independent evidence;
+- external content is **untrusted data, never agent instructions**; prompt injection or page text may not rewrite Raziel’s rules, permissions, tool budget or Human Gate;
+- a Web claim such as a Gematria value must be recomputed by the canonical Gematria engine; future ELS claims must be replayed by the canonical ELS engine where verification is claimed;
+- every run is bounded by source count/depth/time/cost/stop conditions and reports partial coverage honestly;
+- external discovery may create Research Intake candidates/evidence under existing owners; it may not auto-publish or auto-canonicalize.
+
+##### 13. Model + Tool Router — one Raziel, interchangeable intelligence
+
+Raziel’s identity is independent from model/provider. GPT, Claude, Gemini and future models may be workers behind the same routing contract when approved; none becomes a second Raziel.
+
+Default economic/reliability ladder remains:
+
+`canonical deterministic/cache/index → bounded retrieval → micro/fast model → deep reasoning → multi-tool research → independent specialist/challenge only when decision-changing.`
+
+Independent-model cross-check is a high-value escalation tool, not a default doubling of every answer. Use it when disagreement, high cost-of-error, source conflict, security/privacy or major research significance can materially change the decision.
+
+Stable deterministic results and bounded evidence packs should be cache/reuse candidates where provenance/version/access allow. Cache identity must include the owners/versions that can invalidate the answer; stale cache may never masquerade as current truth.
+
+##### 14. Browser / File / Multimodal / Voice Research
+
+Future adapters may let Raziel work with websites, browser/computer-use tasks, PDFs/files, images/screenshots, audio/voice and spatial representations without creating a new research system.
+
+- every input becomes a bounded Representation under its canonical source/provenance owner;
+- PDF/file/image/audio extraction is evidence with exact source/locator when available, not free-floating model memory;
+- browser/computer-use runs are sandboxed and permission-scoped; reading a page never grants permission to submit forms, purchase, publish, delete or change account state;
+- external-site mutations require explicit user intent and the applicable confirmation/access policy;
+- voice is another interface over the same Raziel/context, not a separate memory/persona;
+- multimodal convenience never changes the source-native text used by Hebrew Gematria/ELS calculations.
+
+##### 15. Raziel Action Companion — help the person actually use SOD1820
+
+Raziel should be able to move from “I can explain this” to “I can help you do this” through the existing semantic actions and owners.
+
+Examples include:
+
+- explain what the current page/tool/state means;
+- navigate to the right Number, Book, ELS, Journey, Workspace or account surface;
+- guide an anonymous visitor through the existing anonymous→soft identity→account/researcher path without forcing signup before value;
+- help complete registration/email verification and recover the current context after identity is verified;
+- help save/follow/add-to-research/manage authorized preferences using the existing canonical action/funnel owners;
+- guide forms/contributions and explain access/premium/credit requirements honestly;
+- perform future authorized site operations when an action owner exposes a safe callable capability.
+
+Action invariants:
+
+- **READ/EXPLAIN ≠ WRITE.** A question never implies permission to mutate.
+- every mutation resolves Identity → Channel → Access → action owner → Action Plan → required consent/confirmation → execute → verify actual result → trace;
+- consequential actions show/describe what will happen before execution when required by owner/policy;
+- Raziel never invents “done”; failed/partial actions return the real state and recoverable next step;
+- signup/help UI may be redesigned, but it must reuse canonical identity/auth/subscription primitives rather than creating a Raziel-specific account flow.
+
+##### 16. User → Admin / Human handoff — contextual, consented and traceable
+
+When a person says “שלח את זה למנהל”, “אני רוצה להעביר לצוריאל”, “דווח על בעיה”, “יש לי ממצא/הצעה/תיקון”, Raziel may help package and route the request through the existing contribution/inbox/message/Command-Center owners appropriate to the intent.
+
+The target handoff is concise and useful:
+
+`user intent + user-approved message + relevant entity/source/finding references + current surface/context + optional user-approved attachment/contact path → canonical intake/inbox → delivery/status trace.`
+
+Rules:
+
+- Raziel previews or clearly states what will be sent when personal/contextual material is involved;
+- no hidden dump of personal memory, unrelated chat history or private Research Context;
+- contact details/attachments are included only when authorized and needed;
+- delivery/queue/failure state is reported honestly; Raziel never promises when a human will answer unless a real SLA owner exists;
+- an admin message is not a Governance decision, publication or canonical promotion.
+
+##### 17. Capability-gap sensing — the system may notice what it should learn to do next
+
+Repeated `MISSING_ADAPTER`, unsupported high-value intents, recurring user friction, repeated manual workarounds, failure clusters or a clearly missing capability may become **product evidence**.
+
+Raziel/System may aggregate that evidence and route it through the existing `system_suggestions_law` lifecycle:
+
+`Observe → Detect → Suggest → Explain(reason + evidence + confidence/sample) → ZURIEL Decide.`
+
+Examples:
+
+- many users repeatedly ask for an action that has no canonical capability;
+- a research plan repeatedly stops on the same missing adapter/source;
+- a manual admin workflow recurs enough to justify a safe capability;
+- users abandon the same registration/research step for the same explainable reason.
+
+Hard boundary:
+
+> **The system may detect, explain and recommend a new capability. It may never build, enable, purchase, publish or grant itself that capability automatically.**
+
+Capability suggestions must preserve privacy; aggregate evidence where possible and never expose another user’s private content merely to justify a product idea.
+
+##### 18. Entitlement + research budget — expensive depth is a product axis, not a truth axis
+
+Deep Web/browser/multi-tool research can be materially more expensive than ordinary SOD1820 lookup. The architecture therefore supports entitlement, research budget and/or unified credits through existing access owners.
+
+- exact tier names, prices, included runs and credit economics remain Human-Gate product decisions;
+- Premium/Admin does not force deep research when a cheaper reliable route is sufficient;
+- Free does not receive a false mathematical/source answer; gating changes accessible depth/volume/capability, never truth;
+- when deeper external research is gated, return the truthful available answer and explain the optional deeper capability rather than silently degrading facts;
+- interaction trace should separate deterministic cost, retrieval/tool work, model calls, retries/continuations, cache hits and provider-native/ILS cost when available;
+- budget exhaustion or tool failure is an honest stop/partial-completion state, not permission to fabricate coverage.
+
+##### 19. Action + External Research acceptance moments
+
+In addition to the v5.6 Goldens, the 2029+ companion should eventually prove:
+
+1. **Guided signup:** a new visitor asks “תעזור לי להירשם”; Raziel uses the canonical identity flow, preserves current context and does not create a second account path.
+2. **Admin handoff:** a user asks to send a finding/issue to the manager; Raziel shows the payload/context boundary, obtains required consent, routes it to canonical intake and reports real delivery status.
+3. **Capability-gap learning:** repeated unsupported intent produces a bounded System Suggestion for ZURIEL, not an automatic feature build.
+4. **External research provenance:** a Web research answer names/openly traces sources and distinguishes independent origins from copies.
+5. **Engine re-verification:** an external Gematria/ELS claim is not treated as verified until the canonical engine reproduces it where verification is applicable.
+6. **Prompt-injection resistance:** malicious page/file instructions cannot change system rules, authorization or cause an unapproved action.
+7. **Bounded budget:** external/tool research reaches its stop condition and returns explicit coverage/gaps/cost state rather than searching indefinitely.
+8. **Action permission:** asking a question about an operation never executes the operation; an authorized explicit action can execute and is verified afterward.
+9. **Browser/action failure honesty:** external or site-action failure does not produce a false “done”.
+10. **Entitlement honesty:** an unavailable costly capability is explained without lowering the truth quality of the deterministic/base answer.
+
 The 2029+ differentiator is therefore not “more AI.” It is:
 
-> **One governed research world that remembers responsibly, notices change, knows when to investigate, knows when to doubt itself, knows when to stay silent, and can continue the same inquiry across years without turning personalization into truth.**
+> **One governed research world that remembers responsibly, notices change, can reach outward when evidence is missing, helps a person act safely, learns where the product is missing capability, knows when to doubt itself, knows when to stay silent, and never converts convenience, cost or personalization into truth.**
 
 ---
 
@@ -520,9 +658,11 @@ This layer is infrastructure for the whole upper system, not a Raziel-only imple
 - **Engines:** Gematria, ELS, future deterministic/search engines.
 - **Operators:** Zero Navigation/Scale, Shitat HaEchad Alef, Moment/Clock and future governed numeric transforms.
 - **Evidence sources:** Books, witnesses, Tanakh, Posts, PDFs, media/source loci.
+- **External evidence adapters:** bounded Web/search/browser/file/database connectors that return source-native evidence/provenance, not a second truth store.
 - **Reality/context:** Graph, Events, Reality signals, persistent subjects.
 - **Personal context:** Person/Family identity + authorization + private research state.
 - **Traversal:** Journeys/Research Paths.
+- **Actions/Operations:** canonical user/site actions exposed through owner-scoped callable contracts; all writes remain write-gated.
 
 Each future capability joins through its canonical owner + adapter/output contract. Do not hard-code the future system to the current engine list.
 
@@ -544,6 +684,8 @@ Question / action
 → Raziel / World / Journey / other consumer
 ```
 
+For a mutation/action request, execution additionally requires the canonical action owner, explicit user intent and any confirmation/consent required by that owner.
+
 The composer does not calculate Gematria or ELS itself. It orchestrates canonical owners.
 
 ### Context cost law
@@ -555,6 +697,10 @@ Only the relevant authorized graph/evidence slice is compiled for AI. Stable eng
 ### Privacy gate
 
 Private Person/Family evidence is bounded **before** it reaches a bundle/context/model. Context never widens authorization.
+
+### External-input trust gate
+
+External Web/file/browser content is evidence input, not policy input. It may contribute facts/claims only through provenance and the normal Truth/Research lifecycle; it may never instruct the system to bypass owners, permissions, budgets, Human Gate or safety boundaries.
 
 ### Gematria Root Gate
 
@@ -688,7 +834,8 @@ When active research lacks sufficient source evidence:
 1. search existing owned Books/Witnesses/locators first;
 2. if insufficient, recommend the missing source/book and explain the target claim/reason/priority/availability;
 3. recommendation remains a research task, not evidence;
-4. resolve/supersede the gap when exact source evidence is acquired.
+4. where entitlement/plan allows, External Deep Research may be proposed to locate an exact source — but an external hit remains evidence/candidate until normal verification/governance occurs;
+5. resolve/supersede the gap when exact source evidence is acquired.
 
 ### Spatial / 3D
 
@@ -719,7 +866,8 @@ Do not physically collapse every lifecycle into one table or Inbox.
 - editorial publication remains under publishing owners;
 - research material enters Research Intake;
 - social/community actions remain in their owners;
-- AI may propose entities/findings/links but cannot bypass canonical identity/Human Gate rules.
+- user→admin/support-like handoff resolves to the existing contribution/inbox/message owner for that intent rather than creating a Raziel support database;
+- AI may propose entities/findings/links/capabilities but cannot bypass canonical identity/Human Gate rules.
 
 Target creation experience may feel unified:
 
@@ -736,6 +884,7 @@ Target areas:
 - World
 - Research
 - AI / agent activity
+- System Suggestions / capability-gap review
 - Publishing
 - Journeys
 - Distribution / machine preview
@@ -753,6 +902,10 @@ Future governance UI should include provenance, audit/undo, queue/review context
 ### Promotion
 
 AI/engines may create evidence, candidates, recommendations and explanations from approved facts. They may not silently create canonical semantic identity or novel public meaning.
+
+### System evolution
+
+AI/System may detect recurring missing capabilities and recommend a product change through the existing System Suggestions owner. Acceptance by ZURIEL is a Human-Gate decision; it is not execution authorization by itself. No self-modifying product loop is implied.
 
 ### Delegation
 
@@ -871,15 +1024,15 @@ Design richness never implies truth rank.
 
 ---
 
-## 16. Updated build sequence — v5.6
+## 16. Updated build sequence — v5.7
 
-This sequence supersedes the v5.5 planning order once v5.6 is merged. Existing branch prototypes remain evidence, not automatic merge candidates.
+This sequence supersedes the v5.6 planning order once v5.7 is merged. Existing branch prototypes remain evidence, not automatic merge candidates.
 
 ### W0 — Roadmap / naming / owner / route reconciliation — **ACTIVE**
 
 Close the planning map before broad UI design:
 
-- v5.6 itself;
+- v5.7 itself;
 - Canonical Naming & Experience Crosswalk;
 - route/addressability/indexability ledger;
 - unresolved owner/type boundaries;
@@ -913,7 +1066,8 @@ Build/close the lower layer that feeds every upper experience:
 - Context Compiler / bounded Context Pack;
 - relevant-rule selection;
 - replay snapshot by value;
-- partial-failure/coverage semantics.
+- partial-failure/coverage semantics;
+- extension contract for bounded external evidence adapters and owner-scoped semantic actions, without implementing a parallel Web/support brain.
 
 **Current status:** PR #428 is a branch-only proof of the first Identity First / Plan / Composer slice. It is not merged/live.
 
@@ -955,7 +1109,9 @@ Before final surface design, stress-test the same system across materially diffe
 - Dynamic Lens / persistent subject (elections class);
 - Research Structure/spatial (3060/Birkat Kohanim class);
 - Journey;
-- Person/Life/Family context.
+- Person/Life/Family context;
+- first-time visitor asking Raziel to help register and preserve context;
+- authenticated user asking Raziel to send an approved contextual message/finding to the administrator.
 
 Use the results to finalize:
 
@@ -964,7 +1120,7 @@ Use the results to finalize:
 - Global Now anatomy/ranking gate;
 - Reality/Archive projection;
 - Workspace/Personal Reality;
-- Raziel presence and actions.
+- Raziel presence, actions and consent boundaries.
 
 Examples are regression fixtures, not architecture boundaries.
 
@@ -979,6 +1135,7 @@ Connect all canonical research capabilities through the shared Context/Composer:
 - Books/Sources/Tanakh
 - compare/trace/reverse
 - Person/Life Journey
+- future external-source/file/browser adapters where owner/security/budget contracts are approved
 - future adapters
 
 Tool results return as typed evidence/findings into the same context.
@@ -1002,11 +1159,13 @@ Build the new internal operating experience in parallel with preserved legacy ad
 
 - Create/Research/AI/Publishing/Journeys/Distribution/Audience/System;
 - Review/Human Gate;
+- System Suggestions / capability-gap review;
+- contextual user→admin intake visibility;
 - domain authority/risk escalation;
 - provenance/audit/undo;
 - machine/user preview.
 
-### W8 — Raziel Continuous Research Companion
+### W8 — Raziel Continuous Research + Action Companion
 
 The **brain infrastructure is already lower in W1**. W8 is the mature 2029+ companion experience over that same foundation:
 
@@ -1018,22 +1177,31 @@ The **brain infrastructure is already lower in W1**. W8 is the mature 2029+ comp
 - self-audit / controls / independence checks before high-prominence suggestions;
 - Next Best Research Action optimized for uncertainty reduction / information gain rather than engagement;
 - adaptive depth/model/tool routing;
+- bounded External Deep Research with source provenance and engine re-verification;
+- browser/file/multimodal/voice adapters under source/action owners;
+- semantic caching/reuse with version/provenance invalidation;
+- guided onboarding/registration and contextual site help through existing identity/funnel owners;
+- authorized semantic site actions with explicit user intent, consent/confirmation where required, execution verification and truthful failure states;
+- contextual user→admin/Human handoff without private-memory dumping;
+- capability-gap detection routed to existing System Suggestions — never self-building;
+- entitlement/research-budget/credit-aware depth without truth degradation;
 - context-aware explanation and “why now?” trace;
 - dynamic personal Journeys;
 - personal relevance with strict privacy boundaries;
 - source/proof drill-down;
 - site operation through semantic actions;
 - explicit user agency over personal continuity/proactive behavior;
-- Golden acceptance for long-gap resume, silence, self-correction, independence honesty, outage resilience and STOP recommendations.
+- Golden acceptance for long-gap resume, silence, self-correction, independence honesty, external provenance, prompt-injection resistance, action consent, signup continuity, admin handoff, budget stops, outage resilience and STOP recommendations.
 
-AI outage must not remove manual navigation/research tools or deterministic evidence access.
+AI outage must not remove manual navigation/research tools, deterministic evidence access, account access or the ability to contact/contribute through non-AI routes.
 
 ### W9 — Multilingual + spatial + multi-surface future
 
 - English and additional languages over same identities;
 - mature 2D→3D→AR/VR research renderers where meaningful;
 - PWA/mobile/external companion/API surfaces;
-- future engines joining through the same Capability Fabric;
+- voice/presence projections over the same Raziel identity and Research Context;
+- future engines and external capabilities joining through the same Capability Fabric;
 - richer collaboration only after identity/access/governance semantics are stable.
 
 ### Number final visual redesign
@@ -1059,7 +1227,14 @@ A successful system must handle all of these without special-case architecture:
 9. future unknown engine attached without consumer redesign;
 10. human and machine projection of the same public identity;
 11. continuous Raziel research resumed after a long gap without chat-history dependence;
-12. proactive Raziel silence when no meaningful research hinge changed.
+12. proactive Raziel silence when no meaningful research hinge changed;
+13. external-source research attached without creating a Web truth store;
+14. canonical engine re-verification of engine-computable external claims;
+15. guided signup/action help without a Raziel-specific auth/action system;
+16. user→admin contextual handoff with consent and no hidden memory leakage;
+17. repeated missing capability producing a System Suggestion, not autonomous product modification;
+18. costly research bounded by entitlement/budget without truth-quality degradation;
+19. hostile external content unable to control the agent or bypass action permissions.
 
 If a new capability requires another graph/context/store merely to fit, stop and re-check the owner model.
 
@@ -1067,7 +1242,7 @@ If a new capability requires another graph/context/store merely to fit, stop and
 
 ## 18. Live foundation posture — 11.9.2026 snapshot
 
-Read-only live baseline used while creating v5.5/v5.6 planning:
+Read-only live baseline used while creating v5.5/v5.6/v5.7 planning:
 
 - `nodes`: **6,497**
 - `edges`: **7,118**
@@ -1084,7 +1259,8 @@ Status distinctions matter:
 - PR #428 is branch-only.
 - most Sep 9 design/naming artifacts remain branch-only and materially diverged from current main.
 - modern Journey foundation exists, but no populated `research_paths` currently proves a finished Journey product.
-- Continuous Research Companion 2029+ is **DOCUMENTED DIRECTION**, not a declaration that proactive longitudinal behavior is implemented/live.
+- Continuous Research Companion v5.6 direction is merged in the Roadmap; proactive longitudinal runtime behavior is **not thereby implemented/live**.
+- External Deep Research, browser/computer-use, generalized file/multimodal action adapters, guided Action Companion and automatic capability-gap detection described in v5.7 are **DOCUMENTED DIRECTION / EXTENSION POINTS**, not claims of live capability.
 
 Roadmap statements must never convert **documented/branch-built** into **merged/deployed/live/verified**.
 
@@ -1097,6 +1273,15 @@ These do not block roadmap/design work, but they do block careless public expans
 ### Security
 
 Live recheck on 11.9.2026: `public.set_lead_rank(text,integer,integer)` remains `SECURITY DEFINER`, executable by both `anon` and `authenticated`, with no internal auth/role gate. Before widening public surfaces, resolve caller dependency and narrowly gate/revoke/retire the stale mutator. Do not bulk-revoke unrelated functions.
+
+Before browser/computer-use or generalized Action Companion mutations ship, prove:
+
+- every action resolves a canonical owner and server-side authorization boundary;
+- external content cannot issue instructions to the agent or widen scope;
+- read capability cannot silently become write capability;
+- consequential external/site actions have the required consent/confirmation and post-action verification;
+- credentials/secrets are never exposed to model/page content;
+- retries/idempotency cannot duplicate messages, submissions, purchases, publications or account changes.
 
 ### Identity / SEO / routes
 
@@ -1116,7 +1301,9 @@ Before Raziel Continuous Research Companion ships, prove:
 - proactive triggers cannot disclose another user’s or unauthorized channel context;
 - behavioral inference cannot silently become an explicit preference/decision;
 - proactive delivery and memory retrieval are independently disableable/inspectable according to product policy;
-- no system claims continuity/memory it cannot actually reproduce from authorized state.
+- no system claims continuity/memory it cannot actually reproduce from authorized state;
+- user→admin handoff includes only user-approved/relevant personal context;
+- capability-gap analytics/suggestions aggregate or minimize personal content and never expose another user’s private research to justify a product suggestion.
 
 ---
 
@@ -1137,6 +1324,10 @@ The following remain explicit design/product/owner decisions:
 11. final strategic scope of `קוד המציאות`.
 12. exact release batches/timing for Post canonical migration.
 13. exact product controls/cadence for Raziel proactive Research Pulse and Silence Gate; must extend existing Raziel/Personalization owners rather than hard-code notification behavior in UI.
+14. exact production providers/tools for Web search, browser/computer-use, file/OCR/STT, model routing and independent-model challenge; provider choice must not become Raziel identity.
+15. exact entitlement/credit/budget economics for External Deep Research and expensive tool runs; `platform_tiers_law` remains owner and truth quality stays invariant.
+16. exact UI moment/confirmation policy for classes of user-requested actions, resolved by action risk/owner before implementation.
+17. exact canonical intake destination for each user→admin intent class (research contribution, support/problem report, content correction, general contact) — route among existing owners; do not create one catch-all truth store merely for convenience.
 
 OPEN means **do not hard-code a temporary choice as architecture**.
 
@@ -1144,20 +1335,21 @@ OPEN means **do not hard-code a temporary choice as architecture**.
 
 ## 21. Immediate next action
 
-**NEXT = finish v5.6 reconciliation, then run the AI-Native Experience pass before final UI design.**
+**NEXT = reconcile current Roadmap branches, then run the AI-Native Experience pass before final UI design.**
 
 Order:
 
-1. Canonical Naming & Experience Crosswalk across all current/future names and surfaces.
-2. AI-Native Experience Reconciliation for Home, Global Navigation, World, Heichal, Global Now, Reality Stream, My Workspace and Raziel.
-3. Resolve the one decision-changing Global Now ranking/dedup gate.
-4. Define the bounded Raziel 2029 Companion Golden acceptance pack over existing owners (continuity, silence, self-audit, privacy, “why now?”, STOP) before implementing a proactive surface.
-5. Only then produce final low-fidelity wireframes / information architecture.
-6. Continue W1/W2 implementation from current main with one-owner/one-writer discipline.
+1. Reconcile the outstanding semantic-linking/Gematria-Subject Roadmap delta (PR #441 lineage) onto current main rather than force-merging stale base work.
+2. Canonical Naming & Experience Crosswalk across all current/future names and surfaces.
+3. AI-Native Experience Reconciliation for Home, Global Navigation, World, Heichal, Global Now, Reality Stream, My Workspace and Raziel.
+4. Resolve the one decision-changing Global Now ranking/dedup gate.
+5. Define the bounded Raziel 2029 Golden acceptance pack over existing owners: continuity, silence, self-audit, privacy, “why now?”, STOP, External Research provenance, prompt-injection resistance, guided signup, action consent/verification, admin handoff, capability-gap suggestion and budget-stop behavior.
+6. Only then produce final low-fidelity wireframes / information architecture.
+7. Continue W1/W2 implementation from current main with one-owner/one-writer discipline.
 
-Do not design a large static menu merely to expose every capability. Do not redesign the semantic system around a chatbot either.
+Do not design a large static menu merely to expose every capability. Do not redesign the semantic system around a chatbot. Do not create a second support, Web-research, auth or action brain around Raziel.
 
-> **Stable homes + adaptive context + one governed reality + one continuous research companion.**
+> **Stable homes + adaptive context + one governed reality + one continuous Research & Action Companion.**
 
 ---
 
@@ -1174,4 +1366,4 @@ Do not design a large static menu merely to expose every capability. Do not rede
 
 **OWNER VERDICT: EXTEND_EXISTING.**
 
-**Foundation → Projection → Experience. One Tree → One Reality → Adaptive Human + AI + Machine Experience → Continuous Research Companion.**
+**Foundation → Projection → Experience. One Tree → One Reality → Adaptive Human + AI + Machine Experience → Continuous Research + Action Companion.**
