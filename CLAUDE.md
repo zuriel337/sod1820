@@ -1,366 +1,158 @@
-# SOD1820 — הנחיות פרויקט
+# SOD1820 — Claude Runtime Adapter
 
-## 🔄 Agent Handoff — חובה לפני עבודה משמעותית
-> **קרא `AGENT_HANDOFF.md` מיד אחרי הקובץ הזה ולפני מסקנות ארכיטקטוניות.** Claude/GPT/כל agent עתידי אינם רשאים להסיק שיכולת "חסרה", "כפולה", "נטושה" או "מערכת מקבילה" רק משום שאינה מתועדת כאן.
-- Bootstrap מחייב: `origin/main` → Supabase חי → work-log אחרון → decision records רלוונטיים → rules/project_codex → Master State → Roadmap → חוזה הדומיין.
-- **Documentation lag ≠ parallel architecture.** אם implementation/work-log חדש יותר מהמסמך, מסמנים `STALE DOCUMENTATION` ומבצעים reconciliation.
-- **Unmerged branch ≠ lost work.** אחרי rewrite-היסטוריית git של 1.9.2026 חובה לבדוק provenance + payload + equivalent work on main לפני recovery/merge.
-- ריקונסיליאציית 4.9.2026 קבעה שהזרימה GPT+ZURIEL סביב Research Objects / Human Gate / Truth Axes היא **אותו Research OS**, לא מערכת-הפעלה מקבילה.
-- כלל סיום: **Reconciliation before construction · Provenance before recovery · Evidence before interpretation.**
+> **STATUS:** runtime adapter / pointer only. This file is **not** project truth, a domain contract, a context database, or a second owner map.
+> Canonical coordination owner: current active `inter_agent_coordination_law` in Supabase.
+> Canonical routing index: `SOD1820_MASTER_OWNER_INDEX.md` on current `origin/main`.
+> Canonical Supabase project: `linswmnnkjxvweumprav`.
 
+## 1. Task start — pointers, not a rule dump
 
-## 📍 ניתוב-מינוח למסמכי-על (`ssot_terminology_routing_law`) — קרא ראשון, לפני חיפוש קבצים
-> כדי למנוע בלבול בין קובץ קנוני לקובץ היסטורי עם שם דומה (תקרית: `docs/site-structure.md` הישן נתפס בטעות כ"מפת האתר"):
-- **"המפה" / "מפת האתר" / "Roadmap" / "התוכנית"** → תמיד `SOD1820_MASTER_ROADMAP.md` (v5.3, קנוני; מקור-הניווט התפעולי היחיד).
-- **"מצב המערכת" / "מצב הקוד"** → תמיד `SOD1820_MASTER_STATE.md` (בסיס-העובד הקנוני, מאומת מול ה-DB החי).
-- כל קובץ אחר תחת `docs/` עם שם דומה ("site-structure", "site-map", "master-plan" וכו') הוא **עזר/היסטורי בלבד**, לא מקור-אמת — אלא אם הוא עצמו מסומן במפורש כ-CANONICAL.
+For every substantial task:
 
-## 🧭 ניתוב-משימה לבעלים (`SOD1820_MASTER_OWNER_INDEX.md`) — קרא לפני שאתה מחליט מה לטעון
-> ה-SSOT של הניתוב **אינו כאן**. `CLAUDE.md` הוא ה-adapter של Claude בלבד; מפת domain→owner הקנונית, שער-יצירת-הבעלים ו-Release-state law חיים ב-`SOD1820_MASTER_OWNER_INDEX.md` (routing-only, לא SSOT חדש). קריאה: `git show origin/main:SOD1820_MASTER_OWNER_INDEX.md`.
-- **BOOTSTRAP = POINTERS, NOT CONTENT.** בכל משימה: **זהה domain → פתור owner קנוני מהאינדקס → טען את החוזה/החוק הפעיל שלו בלבד → רק ה-dependencies המינימליים → אמת חי → בצע.** אסור bulk-loading של 249 החוקים, אסור Master State מלא, ואסור לטעון חוזה שאינו רלוונטי למשימה.
-- **owner = versioned rule** → קרא **רק** `nodes where rule_id=<owner> and is_active`. **owner = long-form contract** → קרא רק את הגוף הקנוני הנוכחי ב-`main`/`project_codex` + addendum מקושר באותו lineage.
-- **UI / UX / ויזואל / תמונה / מדיה / כרטיס-שיתוף / מראה-פוסט** → פתור owner ראשון; נכון לעכשיו הבעלים הוא **`SOD1820_DESIGN_CONTRACT_V1.md`** (CURRENT MAIN OWNER — «Immersive quality floor», טירי-רינדור A–D, חוק יישור RTL) + `canonical_ui_components_law` ו-`canonical_colors_law`. **חל גם על מדיה ותמונות, לא רק על דפים.** ⛔ לעולם לא להסתמך על הוראות-עיצוב מועתקות/ישנות מהזיכרון.
-- **⛔ שער-יצירת-בעלים:** לפני יצירת Contract/Law/System/Store/Engine/Registry/owner-UI חדש — החזר OWNER CHECK מפורש: `EXTEND_EXISTING` (ברירת-מחדל) · `SUPERSEDE_EXISTING` (עם supersession והיסטוריה שמורה) · `GENUINELY_NEW_DOMAIN` (נטל-הוכחה). שם-קובץ/התאמת-חיפוש/שיחה ישנה/ענף/שורת-Roadmap **אינם** הוכחת בעלות.
-- **Drift:** אם החוזה/המסמך ≠ `origin/main`/production/מצב-הבעלים החי → **דווח DRIFT, אל תפתור מהזיכרון** (`live_state_sync_law`). ואל תערבב: `DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`.
+1. Parse the natural-language request into intent / capability / domain. Use an existing Task Profile only when it helps routing.
+2. Resolve the **current canonical owner** from `SOD1820_MASTER_OWNER_INDEX.md` and the live owner/rule infrastructure.
+3. Load only that owner plus the **smallest direct dependency set** required by the task.
+4. Read recent **relevant** `work_log` / assignments for the active scope.
+5. Verify against the live source appropriate to the claim: canonical Supabase, `origin/main`, and Production only when UI/live behavior matters.
+6. Execute, verify, and leave a handoff when the work is material.
 
-## 🔴 חוק פתרון-מצב-חי (`live_state_resolution_law`) — חובה בכל שאלת "מה המצב"
-> בכל בקשה על המצב הנוכחי של SOD1820 — כגון "סרוק את האתר", "מה יש באתר", "מה בנוי", "איך זה עובד עכשיו", "איפה אנחנו" — **אין** להסתמך על Master State, Roadmap, `work_log` או זיכרון בלבד.
-- הסוכן חייב לקבוע את המצב מתוך **המקורות החיים הרלוונטיים**: Production בפועל + Supabase חי + GitHub/`main`, בהתאם לסוג השאלה.
-- `SOD1820_MASTER_STATE.md` משמש לתיעוד קנוני ולהשוואה — **אינו הוכחה בפני עצמו** שהמצב המתועד עדיין חי.
-- לאחר האימות: **LIVE FACT** = מה שנצפה בפועל. **DOCUMENTED STATE** = מה שה-Master אומר. אם אינם תואמים → **DRIFT** (לדווח במפורש, לא לטשטש).
-- אסור לתקן סתירה (DRIFT) מהזיכרון, ואסור להניח מי מהסוכנים ביצע שינוי בלי provenance.
-- ניתוב האימות: שאלת **UI/UX/מסלול-משתמש** → חובה אימות Production בדפדפן. שאלת **נתונים/חוקים/פונקציות** → חובה אימות Supabase. שאלת **implementation** → חובה אימות `main`. שאלה **חוצת-שכבות** → מצליבים את שלושתם.
-- רק **אחרי** קביעת ה-Live State ממשיכים לתכנון או להמלצה.
-- **הבהרה (v2) — לא לבלבל:** החוק הזה קובע איך עונים על **שאלת-מצב**. הוא **לא** מחליש את הדרישה הקבועה והנפרדת (`agent_onboarding_law`): **כל WRITE ל-DB** (כולל הוספת/עדכון חוק ב-`nodes`) מחייב **תמיד** אימות סכמה חיה לפני הכתיבה + תיאום ב-`work_log` — גם כשהבקשה עצמה אינה שאלת-מצב. "לא נדרש Production check" ביחס לפעולת-כתיבה מתייחס רק לצורך הספציפי הזה, לא לפוטר מאימות-סכמה-לפני-כתיבה. (החוק המלא: `select description from nodes where rule_id='live_state_resolution_law';`)
+Do **not** automatically read all rules, all `project_codex`, full Master State, full Roadmap, `AGENT_HANDOFF.md`, broad branch history, or unrelated contracts. Load them only when the resolved task genuinely requires them or when reconciling DRIFT/provenance.
 
-## 🔧 חוק סנכרון-מצב-חי (`live_state_sync_law`) — פרוטוקול תפעולי, קרא לפני כל LIVE-READ ברמת git/קוד
-> **⚠️ Scope: זהו חוק Agent-wide — חל על כל agent הפועל ב-SOD1820 (Claude/GPT/כל agent עתידי), לא Claude-בלבד.** הקטע כאן הוא **מימוש-Claude-ספציפי** (פקודות git קונקרטיות) של העיקרון הקנוני (`nodes.rule_id='live_state_sync_law`): Agent Memory / Conversation history / Local Checkout / Roadmap-לבדו **אינם** live state עד שאומתו מול מקורות-SSOT חיים. תיקון-שורש לתקרית 25.8.2026: local git checkout נתפס בטעות כ"קוד חי" בעוד היה 154 קומיטים מאחורי `origin/main` — כל בדיקת-קוד מבוססת-דיסק בסשן ההוא הייתה תקינה כלפי הדיסק אך לא כלפי המציאות. `live_state_resolution_law` קובע *מה* לאמת (Production/Supabase/main); חוק זה קובע *איך*, ברמת git+DB יחד, לפני שמתחילים.
-- **3 Modes, אסור לערבב:** **LIVE-READ** (מה המצב-עכשיו — חובה הרצף המלא למטה) · **FEATURE-BRANCH** (בונים על ענף — הדיסק קנוני *לקבצים-הנערכים*, אך ה-base מאומת מול `origin/main` בתחילה ולפני merge) · **HISTORICAL-PROVENANCE** (קוראים work_log/docs/commits ישנים — מתויג "היסטורי" במפורש, אסור להציג כמצב-נוכחי).
-- **רצף-חובה ל-LIVE-READ, לפני כל מסקנת-קוד:** `git fetch origin --prune` → אימות SHA של `origin/main` → השוואת local HEAD/local main/הענף-הנוכחי מול `origin/main` (ahead/behind) → אימות `dirty state` (`git status --porcelain`) → אימות Supabase project ID קנוני (`linswmnnkjxvweumprav`) → קריאת `work_log`/`rules`/`project_codex` **חיים** (לא מהזיכרון) → קריאת Roadmap/Master **מ-`git show origin/main:<path>`**, לא מהדיסק המקומי.
-- **דיסק מיושן/מלוכלך:** אסור `git reset --hard`/`checkout -- .`/`clean -f` כש-tree לא-נקי. תוכן-חי נקרא דרך `git show origin/main:<path>` (קריאה-בלבד) — זהו ה-canonical fallback המספיק; worktree ייעודי-קבוע ל-main (`git worktree add`) הוא נוחות-אופציונלית בלבד, לא חובה.
-- **LIVE_SYNC_TOKEN** (timestamp·origin_main_sha·branch/base_sha·supabase_project_id·work_log_cutoff·roadmap_version·master_state_ref) — רענון-חובה לפני WRITE/merge/deploy/עריכת-SSOT (Roadmap/Master)/הכרזת-CLOSED/LIVE/DONE.
-- **Drift Matrix (5 סוגים):** Git Drift (local↔origin) · Branch Drift (base-ענף מיושן) · DB Drift (מסמך טוען X, ה-DB אומר Y) · SSOT Drift (Roadmap≠Master, או אי-עקביות פנימית) · **Parallel-Agent Drift** — work_log מראה סוכן-אחר `in_progress` על אותו נושא (`inter_agent_coordination_law`). **הבהרה (ZURIEL, 25.8.2026):** Parallel-Agent Drift **אינו** חוסם READ-ONLY/Challenge/Cross-Verification על אותו נושא — הוא חוסם אך ורק **WRITE חופף** (מימוש-מקביל) עד תיאום-scope מפורש דרך היומן.
-- **Stale Conclusion Rule:** מסקנה מבוססת-דיסק-מיושן מתויגת `[STALE — PENDING REVALIDATION]` inline, **לא נמחקת** (`everything_additive_law`). אחרי אימות-מחדש: `[REVALIDATED <תאריך>: CONFIRMED]` או `[...CORRECTED to <ערך>]`.
-- **Closing Reconciliation:** לפני הכרזת DONE/LIVE/CLOSED — `fetch` נוסף + השוואה סופית מול main/work_log/DB (drift יכול לקרות *תוך-כדי* המשימה עצמה).
-- **אבחון-מהיר:** `scripts/live-sync-check.sh` (diagnostic בלבד, אפס side-effects) מדפיס origin/main SHA / local SHA / ahead-behind / dirty-state / branch / תזכורת-project_id / גרסת-Roadmap.
-- מפרט-מלא (Pre/Post-Write Gates + Acceptance criteria): `select description from nodes where rule_id='live_state_sync_law';`
+## 2. Fixed operating pointers
 
-## 🗺️ מפת המערכות הפעילות (`active_systems_map`) — קרא ואל תשאל מחדש
-> **לצוריאל כבר יש מערכת שלמה שעובדת. אל תשאל אותו לפתוח חשבונות, אל תבנה מקביל, ואל תגיד «אין X» לפני שבדקת כאן ובפונקציות ה-Edge.** המפה היא pointer תפעולי ודורשת אימות חי. **עדכון G0 12.9.2026:** `smart-search`, `migrate-media`, `reality-upload`, `admin-card-upload` אינם עוד יכולות קנוניות להסתמך עליהן; הם מסלולי legacy/retirement ב-G0. אל תבנה עליהם ואל תשחזר אותם אם התחליף הקנוני קיים.
+Carry only these five bootstrap pointers before routing inward:
 
-- **🤖 AI — קיים ועובד.** Edge Function **`ai-analyze`** — helper `getAiAnalysis({kind,subject,facts,again,fast})` (`src/lib/supabase.js`). kinds: `compare·notarikon·verse·daily_verse·number·research`. **מודלים:** `fast:true`→Haiku (`claude-haiku-4-5`, אינטראקטיבי) · ברירת-מחדל→Sonnet (`claude-sonnet-5`, עומק). חוקי-ברזל: מפרש עובדות-מנוע בלבד, מפריד עובדה מפרשנות, בלי נבואות. **⛔ 3 מלכודות (החוזה המלא: `select description from nodes where rule_id='ai_analyze_contract';`):** (1) CORS חייב לכלול `x-client-info`+`x-supabase-api-version` אחרת הדפדפן חוסם בשקט (עובד ב-curl, לא בדפדפן); (2) אסור לשלוח `temperature` ל-Sonnet 5 (deprecated→שגיאה); (3) `verify_jwt=false` לפונקציות public. `journey-message` ו-`post-to-storyboard` הם נתיבי AI פעילים/מועמדי-hardening; **`smart-search` = legacy G0 retirement candidate, לא search owner קנוני.** **המפתח `ANTHROPIC_API_KEY` שמור כ-secret של פונקציות ה-Edge (לא ב-Vault!)** ומשותף עם ה-OCR. לצוריאל **חשבון Anthropic מוכן** — אל תבקש לפתוח.
-- **📱 בוט וואטסאפ (רזיאל) — עובד.** `wa-webhook·wa-process·wa-poll·wa-ocr·wa-channel-ingest·wa-daily-digest·wa-vip-backfill` על **Green API** (מספר משני). מפתחות: `GREEN_API_ID/TOKEN/URL` ב-Vault.
-- **📣 פרסום לרשתות — עובד בלי מפתח.** `social_post`/`social_admin` RPC → `facebook-admin`/`share-to-facebook` (FB·IG). `meta-capi` = Conversions API. מפתח `FB_ADMIN_KEY` ב-Vault (ראה `social_publish_law`).
-- **✉️ ניוזלטר — עובד.** `newsletter-signup·send-newsletter·newsletter-unsubscribe·email-ingest` על **Resend** (~804 נמענים).
-- **🔍 GSC — עובד.** `gsc-sync` קורא `GSC_SA_KEY`/`GSC_SYNC_KEY` מ-Vault. נכס-דומיין `sod1820.co.il` + נכס-קידומת https (עבוד מהדומיין). אימות ב-`index.html` (`google-site-verification`).
-- **📊 כלי מדידה (Google + Microsoft) — מחוברים.** **Google Analytics 4** (`src/lib/analytics.js`, ID ב-Vercel env `VITE_GA_ID`; `syncGoogleAnalytics`/`getGaInsights`/`getGaInsights` בדף-הניהול טאב «📊 אנליטיקס»). **Microsoft Clarity** (`src/lib/clarity.js`, project `xdwf0gps8h` — הקלטות-סשן + מפות-חום, חינם). **Meta Pixel/CAPI** (`meta-capi` + טאב «📡 מעקב Meta»). כל אלה כבר פעילים — אל תבנה אנליטיקס מקביל.
-- **🖼 מדיה/OCR — עובד.** `gallery-ocr·wa-ocr` (OCR עם Anthropic) · `upload-image·storage-put·video-migrate`; העלאת סוכן קנונית דרך `agent-upload`. **`migrate-media`·`reality-upload`·`admin-card-upload` = legacy G0 retirement candidates** — לא להציגם כמערכות פעילות ולא ליצור להם תחליף מקביל.
-- **📎 העלאת קובץ/תמונה על-ידי סוכן — קיים ועובד, אל תבנה מקביל (`AGENT_MEDIA_UPLOAD_BRIDGE_V1`).** **הבעלים הקנוני להעלאת מדיה מסוכן** (ראה שורה ייעודית ב-`SOD1820_MASTER_OWNER_INDEX.md`). המסלול היחיד: `select public.agent_upload_ticket_issue(bucket, path, mime, max_bytes, ttl, sha256, overwrite, issued_by);` → POST ל-Edge **`agent-upload`** עם header `x-agent-upload-ticket`. **מתאם מוכן לסוכן שמחזיק קובץ אמיתי/attachment:** `node scripts/agent-upload.mjs --file <path> --path sod1820/agent/<name>.png` — מזהה mime מ-magic-bytes, מחשב SHA-256+גודל, מעלה, ומאמת מול ה-URL הציבורי. בלי service-role בסביבה הוא מדפיס את ה-SQL להנפקת כרטיס ויוצא בקוד 2, כך שסוכן עם גישת-DB בלבד יכול להנפיק ואז להריץ עם `--ticket`. מצבים: `put` (ברירת-מחדל, זורם) · `base64` (עד 8MiB) · `sign` · `form` (multipart אמיתי — **חי, v25**; `curl -F "file=@<path>;type=image/png"` או FormData). מותר: png/jpeg/webp/gif · קידומות `gallery: sod1820/posts/·sod1820/agent/` · `media: sod1820/agent/` · כרטיס חד-פעמי, TTL≤600ש׳. ⛔ **אסור** מערכת-העלאה שנייה, ⛔ אסור להסיק «אי-אפשר להעלות בינארי» רק משום שה-connector אינו כותב קבצים בינאריים.
-- **🔠 הצופן התנכי (ELS) — חי ב-`/code` + היכל (`/research?tool=els`).** כלי **עצמאי (vanilla-JS, קובץ יחיד)** = `public/tzofen.html` (כל התנ״ך דחוס gzip+base64, ~2.2MB), מוטמע כ-iframe דרך `src/components/TzofenEmbed.jsx`. **המקור לבנייה/עריכה: `tools/els/`** (`els-code.template.html` + `python3 build.py`; **אל תערוך את `public/tzofen.html` ישירות**). קרא **`tools/els/README.md`** לפני נגיעה. **⛔ מנוע אחד בלבד (`els_single_engine_law`):** זהו המימוש **הקנוני והיחיד**. `/code` וההיכל מטמיעים את **אותו iframe בדיוק** (`/tzofen.html?embed=1`) — אין «גרסת היכל» ואין מנוע מקביל. המימוש הישן (`ElsGrid.jsx` · `features/els/Els.jsx` · `lib/els/*` · `SearchJourney.jsx` · `lib/research/torah.js` · ראוטי `/code/ארכיון`) **הוסר במלואו 15.8.2026** — אין להחזירו. מקור-קורפוס יחיד: `tools/els/data/tk-letters.txt` (הכלי אינו מושך דבר מ-`public/` בזמן-ריצה). כל מרחבי-החיפוש עוברים דרך `searchSpace(geometry,L)` הקנוני. שער (עודכן 21.7.2026 — «חובה לקרוא ולהירשם כדי לחפש מוצלח»): לא-רשום עובר **שער-הדרכה חד-פעמי** «איך מחפשים נכון» (`openOnboard`, flag `tzofen_onboarded_v1`) שחוסם את החיפוש הראשון — מלמד מילה-קצרה + הצלבה; אחריו `FREE_DEMO=3` חיפושי-מילה לטעימה · **מוצלב + כל התנ״ך + שמירה = לרשומים** (הצלבה = «החיפוש המוצלח»). **מאמן-קלט חי** (`updateCoach`/`splitToCross`) מפצל משפט-ארוך לשתי מילים והצלבה. ברירת-המחדל «יום משיח בא» הוסרה. אדמין=הכל (5 הקשות על הכותרת / `#admin`). רישום דרך `track("els")`→`events`+`visitor_events`; דשבורד `ElsStatsTab`. **שלב ב׳ (עתיד):** `els_records` כמאגר-מחקר (ראה `work_log`).
-- **💳 סליקה/מנויים:** ספק הסליקה = **Hyp (Hyp Pay)** — תומך בהוראת קבע/מנויים (HK=Horaat Keva): **Hyp-managed** (סכום קבוע, Hyp גובה אוטומטית — `HK=True&freq=1&Tash=999`, שומרים `HKId`) או **Merchant-managed** (טוקן 19-ספרות + `action=soft`, לסכום משתנה). **טרם אינטגרציה בקוד** — `/members` («בני ההיכל») הוא placeholder «בקרוב», ומנויי-תשלום בהקפאה. **תשלום זמני פעיל = מערכת הקרדיטים** (`/credits`,`/buy`): תשלום ידני דרך **ביט/פייבוקס 0556651237** או העברה בנקאית (דיסקונט 139 / 186073706, ע״ש צוריאל) → העלאת צילום-תשלום → אישור-אדמין ידני. ⛔ **לא PayPlus** — מעולם לא שולב, ההזכרה ההיסטורית ביומן שגויה. **Supabase** project `linswmnnkjxvweumprav` · **Vercel** (prod=main).
-- **מיקום מפתחות:** LLM (`ANTHROPIC_API_KEY`, `ANALYZE_MODEL`) = **Edge secrets**. השאר (`FB_ADMIN_KEY·GREEN_API_*·GSC_*`) = **Vault** (`vault.secrets`). לבדיקה: `select name from vault.secrets;` + `list_edge_functions`.
-- **פערים לצוריאל (רק אלה — פעם אחת):** אם יש **אתרים/דומיינים נוספים** מעבר ל-sod1820.co.il, או מנויים/כלים שלא כאן — תגיד פעם אחת ואוסיף למפה. עדכון המפה = כאן + רשומת `work_log`.
+- LIVE-FIRST
+- ONE TREE / OWNER-FIRST
+- FOUNDATION-FIRST
+- TRUTH + HUMAN GATE
+- COORDINATION + RELEASE SAFETY
 
-## 🌳 חוק העץ האחד — חקוק בראש המערכת (קרא לפני כל דבר)
-> **כל החומר באתר הוא זהב — וכשהוא מחובר יחד הוא יהלום.** כל סוכן/מנוע, לפני שהוא נוגע בגלריות/מספרים/כרטיסים/כל פיצ׳ר, חייב לראות את התמונה המלאה ולהתחיל מהשורש.
-- **עץ ידע אחד.** כל האתר הוא גרף אחד (`nodes`+`edges`). אין "גלריות/גימטריה/פוסטים" כעולמות נפרדים — יש **ישויות וקשרים**. כל דבר הוא node: `number`, `entity` (כולל זהב), `convergence`, `event`, `year`, `post`, `word`, `phrase`, image. כל עמוד = **עדשה** על אותו גרף.
-- **מציירים פעם אחת, מפנים מכל מקום.** עמוד קנוני יחיד לכל ישות (מספר → `/number/:n`, התכנסות → `/topic/:slug`). בכל מקום אחר — רק תקציר שמקשר, לעולם לא עותק. **אסור מערכת מקבילה לאותו דבר.**
-- **לא לאבד הצלבות (הלב).** לפני פיצ׳ר — לחבר לגרף: `number ↔ convergence ↔ /cross ↔ ישות-זהב ↔ גלריה ↔ פוסט ↔ אירוע` דרך `edges`. דוגמה: 1820 ↔ שתי ישויות הזהב (=שתי החתימות) ↔ `/topic/1820` ↔ תמונות מירון ↔ אירוע מירון.
-- **מלמטה למעלה:** שורשים (נתון: OCR, `gematria_words`, `nodes`) → גזע (הגרף) → ענפים (עדשות: `/number`, `/topic`, `/cross`, `/timeline`, בית המדרש) → עלים (UI: רצועת הבית, השורה העליונה). משטח חדש = שאילתה על הגרף, לא טבלה חדשה.
-- **שכבת ההתכנסות:** `topic_cards` = המקור הערוך; באישור מוקרן לגרף כ-node `type=convergence` + edges. `convergence_meter` (0-100) → `quality`. כל החלונות קוראים אותו מקור.
-- **כבוד לרמז + יושר:** תמיד להפריד גימטריה (עובדה) מפרשנות (רמז משלים).
-- **המקור המלא:** `select body from project_codex where slug='convergence_law';` ו-`nodes` rule `unified_graph_law`.
+These are routing umbrellas, not copied domain law.
 
-## 🎛️ חדר המפקדה — שער-הכניסה האחד (`command_center_law`) — קרא לפני כל נגיעה ב-Discovery/אדמין
-> **⛔ אל תבין את «חדר המפקדה» כעוד Dashboard טכני.** המפרט הקנוני המלא: **`SOD1820_MASTER_STATE.md` §11 · §11-B · §12** (קרא לפני בנייה). זה **לא** דף-אדמין רגיל — זה **השער האחד** של SOD1820.
-- **מהות:** המקום המרכזי שבו צוריאל רואה את **כל** מה שנכנס למערכת מכל מקור/שפה/ערוץ, ומשם: **רואה→מבין→בודק→חוקר→שופט→מאשר→מכין-לפרסום→מפרסם.**
-- **מערכת אחת, לא מוצרים נפרדים:** מנוע-גילויים-**לוגי-אחד** + מקורות-רבים + עץ/גרף-ידע-**אחד** + שער-אנושי-**אחד**. **רזיאל** (שכבת-הבנה/סיוע-מחקר — «אני רואה תבנית מעניינת», לא «זו אמת») · **מטטרון** (שכבת-מערכת/ידע/בקרה — מה זוהה, Signals, מה עבר-שער, מה קנוני) · **השופט** (שער-שיפוט אחד לכל מקור) · **צוריאל** (החוקר והמאשר-הסופי). **AI מציע ומסייע — לעולם לא מחליט מה אמת ומה מתפרסם.**
-- **המנוע מציג תבניות — צוריאל בוחר:** לא «זו המשמעות», אלא «מצאתי כמה כיוונים אפשריים» (מוצגים זה-לצד-זה, מדורגים, כולם נגישים). לכל מספר/ישות אפשר להציג כמה **תבניות** (שרשרת · הופעות-היסטוריות · קשר-בין-מספרים · שפות · זרם-מציאות · פוסטים · convergences · אירועים).
-- **חוקים-שלא-לשבור:** `קלט ≠ גילוי ≠ עובדה ≠ פרשנות ≠ קנוני ≠ פרסום` · `SIGNAL≠DISCOVERY` · `DISCOVERY≠CANONICAL` · `HOT≠TRUE` · `FACT≠INTERPRETATION` · `CANONICAL≠PUBLISHED` · `Rank, Don't Hide` · **כל provenance נשמר** · **שום חומר-היסטורי לא-נמחק** · **שער-אחד ≠ מקור-אמת-אחד** (המקורות נשארים נפרדים; המפקדה מרכזת) · Human-Gate נשאר הקנוני · מאושרים חוזרים לאותו Knowledge-Graph ולאזור-הממצאים הקנוני ב-`EntityPage` (§10.4 — **לא לגעת, לא לעצב-מחדש, לא UI מקביל**).
-- **View שמאחד — לא בונים מחדש:** ⚠️ אל תמחק טאבים קיימים · אל תשכפל מערכות · אל תיצור מנוע/שופט/עץ מקביל. מרחיבים את `admin_command_center` הקיים ומטמיעים טאבים קיימים כעדשות (§12). **טענת-כותב/משתמש אינה עובדה — המנוע בודק בעצמו** (`gematria_engine_law`); אומת→שומרים אימות, לא-אומת→מציגים «לא-אומת».
-- **⛔ סדר-ביצוע (חוק־ברזל):** **מפה-קודם, מסך-קודם, לא-בונים-מאחור.** לפני כל UI — להציג לצוריאל **מפת-מסך מלאה** ולקבל אישור. הבנייה בפאזות (`CC-1..CC-4`, §12.5), כל פאזה על-אישור-נפרד. פאזה-1 = View קורא-בלבד, בלי engine/DB-write/שינוי-קיים.
+## 3. Read budget
 
-## 🌍 חוק התרגום — כל התוכן הולך לתרגום (חוק ליבה · `content_translation_law`)
-> **האתר עובר לרב-לשוני. כל תוכן חדש נועד מראש לתרגום — לא להשאיר «רק בעברית» בלי מסלול-תרגום.** החוק המלא: `select description from nodes where rule_id='content_translation_law';` (weight=5, ליבה).
-- **מקור אחד + פיזור אוטומטי:** לכל פריט (פוסט · סרטון · תמלול · צופן · רמז · כותרת · תיאור) נשמר טקסט-מקור בשפת-המקור (בד״כ עברית, שדה `lang`), ומתרגמים אוטומטית לסט הקנוני: **he·en·ar·es·fr·ru·pt·de** (ניתן להרחבה). ⛔ אסור מנגנון-תרגום מקביל.
-- **המנוע הקנוני:** Edge Function `video-transcribe` + SQL `select public.video_translate('{...}'::jsonb)` (Anthropic claude-sonnet-5 — תרגום נאמן ששומר שמות/פסוקים/מספרי-גימטריה; שער `x-fb-admin-key` כמו facebook-admin). מימוש-משנה חי: `video_transcription_law` (טבלת `video_transcripts` · רכיב בורר-שפה `src/components/VideoTranscript.jsx`).
-- **סרטונים:** תמלול-מקור מהאודיו (STT חיצוני — Claude לא עושה STT) → `video_transcripts` → פיזור לכל השפות. **פוסטים/ישויות:** אותו דפוס — טבלת-תרגומים לפי (entity, lang).
-- **חובת-סוכן:** בכל יצירת תוכן — מקור נקי + שפת-מקור מסומנת + פיזור דרך המנוע הקנוני. לא לתרגם ידנית לכל שפה, לא לשכפל. `status='published'` בלבד נחשף.
-- **🎬 פייפליין וידאו-ערוץ אוטומטי (`orgeula_video_pipeline_law`):** כל וידאו שנשאב אוטומטית לערוץ (בעיקר אור-הגאולה מהוואטסאפ) מקבל לבד: (1) **thumb מפריים ברזולוציה מלאה** — לכידת-canvas בצד-הלקוח (`src/lib/videoThumb.js`) → Edge `capture-video-thumb` (public) קובע `thumb_url` רק אם ריק. «פיקסלים בדיוק כמו הווידאו», לא כרטיס-מילים ולא ה-jpegThumbnail הזעיר. (2) `poster` בנגן (StoryViewer). (3) **SEO** — Video Sitemap + OG/VideoObject (כרטיס-ממותד רק כרשת-ביטחון במפה עד שיש פריים). (4) שיתוף ממותד (`ShareActions`) + מעקב-משתפים (`share_story` לפי ערוץ). ⛔ אין מנגנון מקביל. החוק המלא: `select description from nodes where rule_id='orgeula_video_pipeline_law';`.
-- **🎬 מתכון «מימד חמש» (פקודה אחת — `dim5_upload_law`):** כשצוריאל אומר **«העלה סרטון מימד חמש: <קישור>»** — הסוכן מבצע הכל אוטומטית בלי לחזור על הכללים: (1) אחסון-עצמי של ה-mp4 ב-`gallery/sod1820/videos/` + פוסטר (לא iframe); (2) כרטיס/תמונה ראשית מאומתת-ויזואלית; (3) **כתוביות = «התרגום העברי על הסרטון»** — yt-dlp מושך תמלול-אודיו מתוזמן → `<slug>.en.vtt` + `<slug>.he.vtt` (עברית ברירת-מחדל) → `<track>` בתוך ה-`<video crossorigin>`; (4) שדות: `categories=['מימד חמש','וידאו']` · `author='בדרך לנצח'` · `source='ai'` · `modified=date` · תג `לא-בבית`; (5) טקסט-גשר לתורה/קוד-המציאות + «ראו גם» + CTA. החוק המלא: `select description from nodes where rule_id='dim5_upload_law';` (דוגמאות: פוסטים 5065·5066).
-- **יעד:** כשהאתר יעלה לרב-לשוני — הכל כבר מתורגם ומוכן, בלי עבודה רטרואקטיבית.
+- **L1 default:** owner + direct dependency only.
+- **L2:** cross-domain work, current-state reconciliation, implementation context, or specialist challenge that can change the decision.
+- **L3:** WRITE, architecture/foundation, security/RLS, merge/deploy/release, material DRIFT, or high-impact cross-system work.
 
-## ⛔ פוסטים ישנים / גלריות — פרוטוקול קשיח (`legacy_content_protocol`)
-לפני נגיעה בפוסט ישן (WordPress) או בגלריה/קרוסלה — **קרא את החוק המלא:** `select description from nodes where rule_id='legacy_content_protocol';`. אלו תקלות שחזרו שוב ושוב — דלג עליהן מראש (אל תמציא מנגנון מקביל, השתמש ברכיבים הקנוניים, ותמיד אמת ויזואלית):
+Stop expanding context once owner + dependencies are sufficient to act safely.
 
-> **🟢 תוכן נקי פטור מכל זה (`clean_content_law`):** האתר כבר לא וורדפרס. פוסט שנכתב אצלנו (`source='ai'`) מרונדר עם `class="sod-post-content clean"`, וכל **כללי ניקוי ה-WP ההרסניים מוגבלים ל-`:not(.clean)`** — לכן הם לא נוגעים בו. תוכן חדש = HTML מודרני מלא, בלי מחיצת-גובה, בלי דריסת-צבעים, בלי עקיפות. כללי הניקוי שלמטה רלוונטיים **רק לפוסטים ישנים**. מומש ב-`POST_CONTENT_CSS` (legacy.jsx + theme.js) ובאתרי הרינדור (`PostPageBySlug`/`PostPage`) + `adaptPost`. **כולל `<style>`:** פוסט נקי שומר על בלוקי `<style>` מכוונים (אנימציות CSS בתוך התוכן) — מחיקת `<style>` ב-`PostPageBySlug` חלה **רק** על פוסטים ישנים (תוקן 2.7.2026 אחרי שפוסט-הקוד של עמוס גואטה נמחץ).
-1. **כלל ניקוי WP מוחץ גובה:** `.sod-post-content div[style*="height"]{max-height:24px!}` תופס כל `div` עם height ב-inline — **כולל `line-height`!** רכיב מוטמע (קרוסלה/כיתוב) נמחץ ל-24px ("פס שחור"/תגיות שיושבות על ההסבר). פתרון: class ייעודי + override בספציפיות > 0,2,1 (כלול `.sod-post-content` בסלקטור), הסר `max-height` מכל ה-divים והחזר `height` מפורש.
-2. **ייצור תמונות עברית:** Pillow כאן `raqm=True` → **RAW בלבד, בלי `get_display`/bidi** (היפוך כפול). אל תרווח ספרות. **אמת ויזואלית (Read) לפני העלאה.** `satori`/`api/card` הופך עברית — לא אמין; העדף כרטיס סטטי מאומת.
-3. **שמות `עדכון…`/`נוספה תמונה`** = הערות-לוג WP (~43%), לא כותרות — להסתיר (`cleanName`).
-4. **כתיבה ל-`gallery_images`** = מנהל בלבד (RLS `gi_admin_update` + GRANT UPDATE ל-authenticated).
-5. **סדר גלריה ברירת-מחדל:** `importance↓` ואז תאריך אמין (`occurred_at` → נתיב `/uploads/YYYY/MM/` → `created_at`).
-6. **יום/לילה לפוסט ישן:** WordPress נעול-כהה; להפעלה — `posts.theme='auto'` (`themedPostContentCSS` מנטרל צבעים צרובים).
-7. **קרוסלה RTL:** `translateX(-idx*100%)` (מסילה `direction:ltr`).
-8. **עץ אחד:** לא לשכפל תוכן — הפוסט מקור; חידוש מצביע דרך `insights.source_ref` ונפתח אינליין. **להפנות, לעולם לא להעתיק.**
+## 4. Authority split — never collapse these
 
-## 🌊 זרם המציאות + דופק המציאות (`reality_stream_law`)
-המעבר מ«גלריות נפרדות» ל**מוצר** בן 3 שכבות מעל `gallery_images` (קרא את החוק המלא: `select description from nodes where rule_id='reality_stream_law';` ו-`select body from project_codex where slug='reality_stream_law';`):
-1. **זרם המציאות** — עדשה אחת על `gallery_images where source='update'`. היחידה היא **רמז**: `image_url` + `primary_value` (מספר דומיננטי — מניע את הדופק) + `all_values` (תגיות-מספרים לסינון) + `occurred_at` (תאריך אירוע) + `name` (כותרת) + `ocr_meta.entities` (תגיות-נושא).
-2. **אוספים** — הגלריות הישנות (`hugeit_migration`/`manual`) כתערוכות מוזיאון. לא נמחקות.
-3. **דופק המציאות** — ספירה אוטומטית לפי חלון (היום/שבוע/חודש/כל-הזמנים) על `primary_value`, **ציר = `occurred_at` עם נפילה ל-`created_at`**, כולל מגמה (השבוע מול הקודם).
-- **חישוב טהור:** `src/lib/reality.js` (`computePulse`/`filterHints`/`computeTrend`). נתונים: `getRealityHints`. רכיבים: `RealityWorld`/`RealityStream`/`RealityPulse`. כל מספר = node בגרף → הרמז מפנה ל-`/number/:n` (`EntityPage`), **לא משכפל**.
-- **קביעת מספר בהעלאה:** `gallery-ocr` מציע (`ocr_numbers`), צוריאל מאשר את הדומיננטי. אסור לקבוע מספר דומיננטי אוטומטית בלי אישור.
-- **⛔ ראוטים — לא לבלבל (`reality_stream_routes_law`):** «זרם המציאות» = **`/archive`** (העדשה על `gallery_images source='update'`). «קוד המציאות» = **`/reality`** (עדשת-פוסטים, `HomeReality`). כל קישור/טיקר/כפתור «לזרם» → `/archive` בלבד. שתי תקריות באותו יום (9.7.2026).
-- **🔒 נעילת אזורים (`site_flags_lock_law`):** מנגנון יחיד — טבלת `site_flags` (`mode='all'`=כולם חסומים · `'anon'`=רשומים עוברים) + `<Locked flag>`/`<LockTeaser>`/`useSiteFlag` (`src/components/MaintenanceLock.jsx`). **חוק-ברזל: רכיב שמושך נתונים בעצמו (RealityWorld, TreasuresHome…) מגודר *בתוכו*, וחסום=אפס fetch.** פתיחה = `update site_flags set enabled=false` — בלי פריסה. אדמין תמיד עוקף. מצב נוכחי (9.7.2026): `lock_reality`=זרם לרשומים · `lock_galleries`=גלריות נעולות לכולם.
-- **🫧 ווידג׳ט צף מפנה מקום לעולם-המשתמש (`floating_ui_yields_law`):** כל בועה/פופאפ צף מסתתר כש-`useUserCenter().isOpen` — לא מתחרים ב-z-index על המגירה (4000/4001).
+- **live DB + `origin/main` + relevant Production behavior** = live reality / implementation evidence.
+- **current domain owner** = domain semantics / contract authority.
+- **`SOD1820_MASTER_STATE.md`** = documented state.
+- **`SOD1820_MASTER_ROADMAP.md`** = navigation / priority.
+- **`work_log`** = coordination / provenance, not product SSOT.
+- **Owner Index** = routing map only.
+- **`AGENT_HANDOFF.md`, `project_codex` pointers, this file, prompts, memory, conversation history** = routing/context only.
 
-## 📡 ערוצי השידור החיים (`broadcast_channels_law`) — לקרוא לפני נגיעה בטיקרים
-> החוק המלא: `select description from nodes where rule_id='broadcast_channels_law';`
-- **מקור אחד:** `channel_updates` (ערוצים: `main` · `reality-code` בבית · `or-geula` בצ'אט · `sod-hachashmal`). רצועות = `BrandTicker.jsx` (מיתוג ב-`BRANDS`); מרכז השידורים = `/broadcasts`; פרסום = טאב אדמין «📡 שדר לטיקר».
-- **אפס כפילות:** הטיקר העליון (`LiveActivityBar`) מציג עדכון-חי רק כ**מצביע** («← לצפייה») ומוסתר ב-`/` וב-`/community/chat`. **עדכון מקושר-לפוסט (`link_url`) מוסתר בטיקר של עמוד הבית** (`hidePostLinked` ב-`BrandTicker`) — הפוסט כבר ב«עדכונים אחרונים». בטיקר, עדכון-פוסט = כותרת בלבד + כפתור «📖 לקריאת הפוסט המלא», לא כל התוכן. תקן: ● LIVE אדום + אייקון וואטסאפ, בלי מילים. **קרדיט «מאת» חובה על כל עדכון.**
-- ⛔ שום עדכון לא נכנס לזרם המציאות אוטומטית. וידאו מתנגן רק בהקשה (Egress!); בהיקף — Cloudflare R2. העלאת מדיה: `gallery/sod1820/broadcasts/` (policy זמנית — לסגור מיד!).
+If these conflict, report **DRIFT** and resolve from live owner/state. Never repair current truth from memory or stale documentation.
 
-## ⛔ חובה לפני הכל — קרא את ההגדרות הקנוניות (`agent_onboarding_law`)
-לפני כל עבודה שנוגעת ב**גימטריה / נתונים / לוגיקה** — **חובה לקרוא קודם** את ההגדרות שמקודדות ב-DB. אל תבנה/תשנה לוגיקה לפי ידע כללי או הנחה — **ההגדרות הנעולות של צוריאל פולייס גוברות תמיד**.
-0. **📜 תיבת-ההגדרות של צוריאל (חובה בתחילת כל סשן):** `select * from researcher_definitions where status in ('new','ai_replied') order by created_at;` — צוריאל כותב שם הגדרות/ידע/עיגונים ישירות מהאתר (אדמין → 🧩 עוגנים → «📜 ההגדרות שלי למערכת»). כל רשומה פתוחה = משימה לסוכן: לאמת במנוע, ליישם בעץ (עוגן/ממצא/מילון-יחסים), ולעדכן `status='applied'` + `applied_note`. זה הערוץ של צוריאל אל הסוכן בין-סשנים — **לא לדלג**. וגם: לשאול אותו שאלות ממוקדות בחזרה (`researcher_dialogue_law`).
-0.5. **🔀 תיאום בין-סוכני (`inter_agent_coordination_law` — חוק־על):** בתחילת כל סשן סרוק `work_log` אחר memos בין-סוכניים המופנים אליך (FROM/TO / «→ סוכן» / status=«ממתין ל…») — פעל עליהם ועדכן status. כל תיאום בין סוכנים עובר **דרך היומן בלבד**, צוריאל לא מתווך. פריסת main = מאוגדת ומתואמת ביומן, אף סוכן לא דוחף ל-main לבד.
-1. `select rule_id, label, description, metadata from nodes where type='rule' and is_active;` — חוקי המערכת, כולל **הגדרות השיטות הנעולות**: `misratar_multi` (מסתתר = מילה-מילה, הרווח שובר את הרצף!), `ribua_definition`, `method_hierarchy_ragil_foundation` (רגיל=יסוד; סופיות ברגיל=רגיל לא 500-900), `method_priority`.
-2. `select slug, title, body from project_codex order by priority, id;` — קודקס הפרויקט (התחל מ-`_index`).
-3. **חישוב גימטריה = מאושר-מראש** (`auto_compute_preapproved`). **כתיבה לליבה (UPDATE/DELETE/ALTER/הסתרה) דורשת אישור מפורש של צוריאל.** תיקון שורה מחוברת לפוסט = במקום, לא החלפה (`preserve_linked_row`).
-4. **מנוע רשמי בלבד** (`gematria_engine_law`): אסור לחשב גימטריה מזיכרון / ניחוש / ידנית — רק דרך פונקציות המערכת (`src/lib/gematria.js`). באי-ודאות — לעצור ולאמת. ביטוי שצוריאל הציג וכבר אומת = **נתון מערכת**, לא לחשב מחדש ללא צורך (`verified_value_is_system_data`).
+## 5. Map language
 
-## ⛔ פרסום פוסטים — חוק ליבה (`post_publish_law`) — לקרוא לפני כל INSERT
-> **חוק נעול ב-DB:** `select description from nodes where rule_id='post_publish_law';`
+When ZURIEL says “המפה”, “התוכנית”, “Roadmap”, or “איפה אנחנו בתוכנית”, route to `SOD1820_MASTER_ROADMAP.md` and resolve its current version from `origin/main`; never pin a version in this adapter.
 
-**הכי חשוב — שדות שגורמים לפוסט להיעלם:**
-- **`modified` חייב להיות שווה ל-`date`** — לעולם לא null. רשימת /post ממוינת לפי `modified DESC nullsFirst:false`; פוסט עם `modified=null` שוקע לסוף ולא נראה.
-- **תמונה בתוכן:** אם יש `image_url` — להכניסה גם לתוך `content` עם הגבלת גודל. לא מכניסים תמונה ענקית ללא `max-width`. פורמט:
-  ```html
-  <div style="text-align:center;margin:22px 0;"><img src="URL" alt="תיאור" style="max-width:280px;width:100%;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,0.5);" /></div>
-  ```
-- **אימות אחרי INSERT:** `SELECT id, slug, date, modified FROM posts WHERE slug='<slug>' LIMIT 1;` — אם modified=null → `UPDATE posts SET modified=date WHERE id=<id>;`
+“מצב המערכת” / “מה חי” requires live verification, not Master State alone.
 
-## פרסום פוסטים — מוסכמות (לכבד תמיד)
-- **ריבוע גימטריה בפוסט (`post_gematria_box_law`)** — הקופסה «🔢 גימטריה — עובדה מאומתת במנוע» מוצגת **רק כשיש שוויון/התכנסות אמיתי** (≥2 ביטויים עם אותו ערך, למשל מה פעל אל=256=אהרן). אין שוויון → **אין ריבוע** (אסור ריבוע ריק עם ערכים שונים). מיקום: **בתחתית הפוסט (לפני «ראו גם») או באמצע סמוך למקטע התמטי הרלוונטי** — לעולם לא בהתחלה. החוק המלא: `select description from nodes where rule_id='post_gematria_box_law';`.
-  - **חובה — קלאס קנוני, לא inline (פתרון שורש ל-`legacy_content_protocol` §1):** הריבוע נכתב **תמיד** עם `<div class="sod-gematria-box">` ולא עם `style` inline. הסיבה: כלל ניקוי ה-WP `.sod-post-content div[style*="height"]{max-height:24px}` תופס כל `div` עם `line-height` ב-inline ומוחץ אותו ל"פס שחור". הסגנון (כולל `line-height`) חי בקלאס ב-`POST_CONTENT_CSS`. **המבנה:** `<div class="sod-gematria-box"><div class="gb-title">🔢 גימטריה — עובדה מאומתת במנוע</div><div class="gb-rows"><div><b>ערך</b> = ביטוי = ביטוי</div></div><div class="gb-note">…</div></div>`. ⚠️ הקלאס מוגדר ב**שני** עותקים: `src/legacy/legacy.jsx` (זה שמרונדר בפועל) ו-`src/theme.js` — לעדכן את שניהם.
-- **פוסט על אירוע שקורה ("משהו שקורה" / חדשות / תיעוד בזמן אמת)** → תמיד לשייך לקטגוריה **`תיעוד אירועים`**.
-- **קטגוריות ותגיות — להשתמש בקיימות, לא להמציא כפילויות.** לפני פרסום: `select distinct unnest(categories) from posts;` / `... unnest(tags) ...` ולחפש את הקיים (למשל פוסט פרה אדומה → תגית `פרה אדומה`, קטגוריה `בית המקדש השלישי`).
-- **קטגוריית `רמזים חזקים` = בחירת-עריכה ברף-גבוה — לא-מוגבלת-לפי-כותב** (עודכן 26.8.2026, Decision #6, `SOD1820_CONTENT_FOUNDATION_CONTRACT.md`; גובר על הנוסח הישן «רק הפוסטים של צוריאל»). Human-Gate = ZURIEL רשאי לשייך אליה גם תוכן של יוצר-חיצוני. עדיין: אין לשייך פוסט אוטומטית — הקטגוריה נשמרת לתוכן שעבר את שער-העריכה של צוריאל.
-- **`post_text_colors_law` v3 (חקוק) — עיצוב ברירת-המחדל «של המציאות»:** טקסט רץ לבן-רך (בהיר: כהה), משקל רגיל, **לא הכל צהוב** — זהב שמור לערכים/אקסנטים. גימטריה: ביטוי = `<span class="sod-gemlink" data-gem="<ביטוי>">` (צבע טקסט + קו-זהב מנוקד), ערך = `<b class="sod-numlink" data-gem="<ערך>">` (זהב; בהיר: אדום). **לחיצה פותחת את מגירת המספר בדף — לא ניווט החוצה.** שורות ריבוע זורמות inline. הכל קנוני ב-POST_CONTENT_CSS `.clean`: כל ביטוי-גימטריה עטוף `<a href="/number/<ביטוי>">` וכל ערך `<a href="/number/<ערך>">` (בעיקר הביטוי). הסגנון קנוני ב-POST_CONTENT_CSS (`.sod-post-content.clean`) — לא לצבוע אפור-בז' ב-inline.
-- **פסוק/ציטוט-מקור בפוסט (`post_verse_law`)** — פסוק נכתב **תמיד** עם הקלאס הקנוני `<blockquote class="sod-verse">…«פסוק»… <b>מילים מרכזיות</b></blockquote>`, **לא** עם `style` inline. הסיבה: inline נשבר במצב בהיר (טקסט בהיר על רקע בהיר). הקלאס מוגדר ב-POST_CONTENT_CSS לשני המצבים (כהה + `[data-theme="light"]`) → **תקין ביום ובלילה בלי לתקן פעמיים**. ⚠️ מוגדר ב**שני** עותקים: `src/legacy/legacy.jsx` ו-`src/theme.js` — לעדכן את שניהם. עיקרון: כל אלמנט-פוסט קנוני עובד בשני המצבים דרך קלאס, לא inline (הרחבת `ai_box_theme_aware`).
-- **קישורים ומודגש בפוסט — להימנע מחטיפת-העוטף (`post_autolink_law`)** — אחרי רינדור, עוטף-אוטומטי מוסיף `data-gem` ל(א) **כל מספר** 1-4 ספרות, ו-(ב) **כל ביטוי עברי מודגש/צבוע** (`<b>`/`<strong>`/`[style*="color"]`, 2-18 תווים) → לחיצה פותחת את **מגירת-המספר** (`ai_post_update_law`). המנגנון **נשאר** (יקר לפוסטי-גימטריה — החלטת צוריאל 19.7.2026), לכן **בפוסט כללי/הכרזה חובה לכתוב נכון כדי שכותרות/שמות לא יהפכו בטעות למגירת-גימטריה:** (1) **ניווט = קישור אמיתי** `<a href="/codes">ספריית הצפנים</a>` (העוטף מדלג על `<a>`, והלחיצה מנווטת SPA — «המקום המתאים»). (2) **הדגשה שאינה גימטריה = `<span style="font-weight:800">` ולא `<b>`/`<strong>`** (העוטף תופס `b`/`strong`, לא `span` עם font-weight בלבד). (3) **מספר שאינו קריאה-לגימטריה = `<span class="no-numlink">1820</span>`.** רק ביטוי שהוא **באמת** ערך-גימטריה → סמן במפורש `<span class="sod-gemlink" data-gem="…">` או `<a href="/number/…">`.
-- **כפתור קריאה-לפעולה בפוסט (`post_cta_law`)** — כפתור/קישור-בולט נכתב **תמיד** עם הקלאס הקנוני `<a class="sod-post-cta" href="/codes">📚 טקסט ←</a>`, **לעולם לא** עם `background` זהב inline. הסיבה: `.sod-post-content a { color:gold !important }` צובע כל קישור זהב במצב כהה → **רקע-זהב inline = טקסט זהב-על-זהב בלתי-נראה** (נראה רק במצב בהיר, שם הקישור נדרס לחום). הקלאס `.sod-post-cta` דורס בספציפיות גבוהה יותר → תיבת-זהב מלאה עם טקסט כהה, **קריא ביום ובלילה**. ⚠️ מוגדר ב**שני** עותקי `POST_CONTENT_CSS`: `src/legacy/legacy.jsx` (המרונדר בפועל!) ו-`src/theme.js`. ⛔ הזיהוי-הישן לפי רשימת-hex (`a[style*="#e9c84a"]`) היה שביר (hex אחר נופל) והיה **רק ב-theme.js ולא ב-legacy.jsx** → לא עבד ברינדור. אל תסתמך עליו — השתמש בקלאס.
-- **לקשר פוסטים קשורים** — להוסיף בתחתית התוכן בלוק «ראו גם» עם קישורים לפוסטים באותו נושא (`<a href="/<slug>">`).
-- **תמונה ראשית** — אפשר לעשות שימוש חוזר בתמונה קיימת מ-Storage של פוסט קשור (`image_url`), כדי שתופיע גם בתצוגות (דף הבית / רשימות).
-- פוסט נוצר ידנית: `insert into posts (id, wp_id, title, slug, content, excerpt, date, modified, categories, tags, source, image_url) overriding system value values (...)` — `id`/`wp_id` = מעל ה-max הקיים; `source='ai'` לפוסט שנכתב ב-AI.
-- **כותבים (`author`):** שדה ריק = מוצג **"המערכת"** (לוגו SOD1820). אשכול קטגוריית **`התחזקות`** = הכותב **"מזכה הרבים"**. מרשם הכותבים: `src/lib/authors.js`.
-- **תווית/אימות AI (`verified` / `ai_touched`):** מפעילים **רק** כשה-AI אימת ידיעה ממקור חדשות מפוקפק/לא אמין — **לא** סימון לכל פוסט שנכתב ב-AI (כתיבה ב-AI = `source='ai'` בלבד, בלי דגל אימות).
-- **`ai_gematria_verified_stamp_law` (חקוק):** פוסט/ריבוע גימטריה שה-AI **יצר או אימת במנוע** → **תמיד** `ai_touched=true` כדי לרנדר את חותמת «🔵 AI · מאומת» (AiVerifiedDisclaimer) בראש — כמו פוסט נסראללה (wp_id=34200). תנאי: כל ערך אומת במנוע הרשמי (`fn_ragil`/`fn_misratar`/`atbash_calc`/`kadmi_calc`…) לפני החותמת. אסור חותמת קטנה/כפולה בתוך התוכן — רק הריבוע הקנוני בראש. החוק המלא: `select description from nodes where rule_id='ai_gematria_verified_stamp_law';`.
+## 6. Owner-first / one tree
 
-## יומן העבודה — מקור האמת (`work_log_authority_law`) — CURRENT ≠ SUPERSEDED ≠ ARCHIVED
-כשצוריאל מבקש "לפתוח את היומן" / "יומן" / "רשומות אחרונות" וכו' —
-**המקור הוא טבלת `work_log` ב-Supabase** (project `linswmnnkjxvweumprav`), לא הקובץ `docs/work-journal.md`.
+Before proposing a new Contract / Law / System / Store / Engine / Registry / Graph / Tree / Context system / Agent system / Ranking system / Research system / global UI owner:
 
-- **⛔ בוטסטרפ-סוכן / "מה המצב התפעולי עכשיו" — אסור `select * from work_log order by created_at desc` גולמי.** שאילתה גולמית מערבבת הוראות-נוכחיות עם רשומות ישנות/מוחלפות בלי סמן-סמכות. **תמיד** לקרוא דרך ההקרנה הקנונית — מחזירה **רק** `archived=false AND superseded_by_id IS NULL`:
-  - **סוכן (SQL ישיר דרך service-role/postgres, כמו כלי ה-MCP):** `select * from public.work_log_current;` — view רגיל, ללא בדיקת-הרשאה פנימית (postgres/service_role עוקפים RLS ממילא כרגיל).
-  - **קליינט-דפדפן אדמין מחובר (`supabase.rpc(...)`):** `select * from public.get_work_log_current();` — RPC עם בדיקת-הרשאה פנימית מפורשת (`auth.uid()` מול `users.role='admin'`, אותו דפוס כמו `admin_worklog_update`), **לא** גישה חופשית ל-anon/authenticated. ⚠️ קריאה ל-RPC הזה **כ-postgres/service_role בלי JWT נכשלת בכוונה** (`auth.uid()`=null → "not authorized") — זה תקין, זה מיועד לנתיב-הדפדפן-המאומת ולא לבוטסטרפ-סוכן; סוכן תמיד קורא את ה-**view** ישירות, לא את ה-RPC.
-- **סמנטיקה (לא נרדפות!):** CURRENT = `archived=false AND superseded_by_id IS NULL` · SUPERSEDED = `superseded_by_id IS NOT NULL` (הוגדר ידנית ע"י סוכן/אדמין כשרשומה חדשה מחליפה מפורשות רשומה ישנה — **לעולם לא נגזר אוטומטית מגיל**) · ARCHIVED = `archived=true` (דרך `admin_worklog_archive_done`/`admin_worklog_update`, כבר קיים). רשומה יכולה להיות גם archived וגם superseded בו-זמנית.
-- **קריאה היסטורית/audit מפורשת** (לא לבוטסטרפ שוטף) — כל הרשומות כולל archived+superseded: `select * from public.get_work_log()` (RPC קיים, ללא שינוי; **⚠️ מוגבל ל-1000 האחרונות — אינו endpoint של היסטוריה-מלאה!**) או `select * from public.work_log_view` (חושף `archived`+`superseded_by_id` לצפייה אנושית, גם מוגבל בפועל דרך אותו נתיב-RLS). **להיסטוריה מלאה/שחזור-רטרואקטיבי מובטח (ללא הגבלת 1000) — לקרוא ישירות `select * from work_log` דרך נתיב מורשה מפורשות (service-role/postgres), לא דרך get_work_log().**
-- הקובץ `docs/work-journal.md` הוא יומן ישן/רטרוספקטיבי — לא לפתוח אותו כברירת מחדל ולא להתייחס אליו כיומן הפעיל.
-- לרישום רשומת עבודה חדשה: `insert into work_log (session_date, topic, numbers, what_we_did, status, open_threads) ...`
-- לסימון רשומה כמוחלפת ע"י רשומה חדשה: `update work_log set superseded_by_id='<new_id>' where id='<old_id>';` — רק כשיש באמת רשומה חדשה שמחליפה תוכן ישן במפורש, לעולם לא ניחוש/גזירה גורפת מהיסטוריה קיימת (זה מסלול-נפרד, `foundation-only`, ראה `select description from nodes where rule_id='work_log_authority_law';`).
+- resolve existing owners live;
+- default to `EXTEND_EXISTING`;
+- use `SUPERSEDE_EXISTING` or `GENUINELY_NEW_DOMAIN` only with live evidence and preserved history.
 
-## חוקי מערכת (nodes type='rule') — לכבד תמיד
-החוקים נשמרים בטבלת `nodes` (`type='rule'`, עם `rule_id`, `rule_version`, `is_active`).
-לפני שינוי לוגיקה מהותית — לקרוא חוקים רלוונטיים: `select rule_id, label, metadata from nodes where type='rule' and is_active;`
-שינוי חוק = גרסה חדשה (לפי `rule_versioning`), לא מוחקים.
+Do not create parallel systems to solve local ambiguity.
 
-### חוקים שמומשו בקוד (בית המדרש)
-- **`verified_badge_law`** — הסמל המאומת = לוגו + סימן אימות בינלאומי (✓). רכיב: `src/components/VerifiedBadge.jsx`.
-  variants: `ai` (🔵✓ ליד חידושי AI), `post` (ליד פוסט מאומת), `gematria` (ליד גימטריה מאומתת).
-- **`whats_new_law`** — כל הדגשת "חדש"/הבהוב = **פר-משתמש לפי הביקור האחרון**, לא חלון זמן גלובלי. פריט "חדש" רק אם נוצר אחרי שהמשתמש ראה לאחרונה את המשטח; אחרי צפייה מסמנים נראה (לא יהבהב שוב); אין חדש → אין הבהוב; משתמש חדש → חלון התחלתי 14 יום. מימוש: `src/lib/crossesNew.js` (`seenCutoff(key)`, `markSeenKey(key)`, `isNewSince`). הוחל: בית המדרש, `InsightCard`, דף הבית (התכנסויות + עדכונים). **אסור** חלון גלובלי קבוע.
-- **`insight_card_law`** — מבנה חידוש קצר ונפתח. רכיב: `src/components/InsightCard.jsx`.
-  אם החידוש מקושר לפוסט (`insights.source_ref`) — לחיצה מנווטת לפוסט במקום לפתוח.
-- **`subscribe_gate_law`** (v2) — שער הרשמה עם **אימות מייל אמיתי** (Supabase Auth OTP).
-  2 חידושים חינם → רישום + אימות קוד במייל פותח את ההמשך (משתמש מאומת = יש session). **לא** בני ההיכל.
-  רכיבים: `SubscribeGate.jsx`, `EmailVerify.jsx`, `lib/auth.js`, `AuthProvider.jsx` (`useAuth`).
-  הגדרת דאשבורד: Email provider פעיל; בתבנית Magic Link להוסיף `{{ .Token }}` לקוד 6 ספרות; SMTP מותאם לפרודקשן.
-- **תיבת עדכונים כללית** — `src/components/UpdatesBox.jsx` (רשימת תפוצה, `variant` panel/inline). ניתנת להצבה בכל מקום.
-- **`ai_post_update_law`** — עדכון גימטריה מבוסס-AI בפוסט בפורמט קבוע (קונספט נסראללה 34200 + איראן 36935): סמל "מאומת על ידי AI" (כחול #3ea6ff, סגנון `VerifiedBadge` variant=ai) בראש · פורמט קומפקטי · כל שם/ביטוי = לינק `/beit-midrash?w=<ביטוי>` שפותח את המחשבון עם הביטוי טעון (`GematriaCalculator` seed דרך פרמטר `w`/`calc` ב-`BeitMidrashPage`) · ציטוט מילות צוריאל · `modified=now()` → הבהוב כחול אוטומטי בציר ההתגלות (`RevelationAxis` מזהה content המכיל "מאומת על ידי AI"). נשמר גם כחוק DB `ai_post_update_law`.
+## 7. Domain work
 
-## בית המדרש (`/beit-midrash`)
-עמוד: `src/pages/BeitMidrashPage.jsx`. שלושה מדורי חידושים + שיטות הלימוד:
-1. **חידושי AI** — `insights` עם `origin='ai'` (סמל מאומת, 2 חינם ואז שער).
-2. **חידושי גולשים** — "בקרוב" (קהילה).
-3. **חידושי המערכת** — התראות התכנסות/1820 (`insights` עם `has_1820` או `convergence_score>0`).
+Do not copy domain semantics into this adapter. Route through the Owner Index and read the current owner.
 
-## עמוד הבית (`src/pages/HomePage.jsx`)
-הפרדת זרמים (`stream_separation_law`):
-- **עדכונים אחרונים** = פוסטים (רק צוריאל מעדכן פוסטים). הרכיב `LatestPostsRail`.
-  - **עדכון (HomeNewPage):** ל"עדכונים אחרונים" מתווספים גם **רמזים מזרם המציאות** (`gallery_images source='update'`) ככרטיסי-תמונה עם **רצועת-מספר ממותגת** (המספר הדומיננטי + ✦סוד1820), ממוזגים לפי תאריך. לחיצה → דף המספר. כך "רואים שעלה עכשיו עדכון גלריה". (`updatesFeed` ב-`HomeNewPage.jsx`.)
-- **חידושי AI** = תיבה מכובדת עם 3 חידושים אחרונים (`origin='ai'`) + "עוד בבית המדרש →". הרכיב `AiInsightsBox`.
-- היכל השערים (`heichal.html`) — הוסר ה-overlay "סוד1820" שהסתיר את המרכז.
+Examples of routing aliases only:
 
-פוסט היסוד: `wp_id=17` ("שם ה' בתורה 1820 פעם") מוצג בראש בית המדרש כ-«פוסט היסוד» (כבוד לסוד 1820).
-כשנוצר חידוש AI מפוסט/גלריה — הוא נשמר ב-`insights` (origin='ai'), מופיע בתיבת ה-AI בבית המדרש, ולחיצה מנווטת לפוסט/גלריה (`source_ref`).
+- `publish_post`, `draft_post`, `post_visual`, `gallery_work`
+- `gematria_research`, `els_research`, `source_scan`
+- `roadmap_status`, `live_state_check`, `release_gate`
+- `ui_experience_work`, `db_write`
 
-## 📣 פרסום לפייסבוק/אינסטגרם — דרך SQL, בלי מפתח (`social_publish_law`)
-> **כל סוכן יכול לפרסם לרשתות בלי לבקש מצוריאל את ה-`FB_ADMIN_KEY`.** המפתח שמור ב-Supabase **Vault** (`FB_ADMIN_KEY`) ומוזרק בצד השרת. אל תבקש את הקוד מצוריאל — פשוט הרץ את פונקציות ה-SQL.
+For UI / UX / media / visual work, resolve the current Product Visual Language owner before changing presentation. For legacy post/gallery work, also load `legacy_content_protocol` when relevant.
 
-**✅ מומלץ — פרסום עם תיוג-מקור אוטומטי (`social_post`):** עוטף את פונקציות הליבה, **מוסיף אוטומטית קישור-אתר מתויג** (`?src=…`) לפי הערוץ, מנתב לדף הנכון ומתעד ל-`social_publish_log`. כך כל פוסט נעשה מדיד בדף האדמין («מקורות-הגעה מתויגים») בלי לזכור לתייג. ערוצים: `ig` (אינסטגרם קוד המציאות) · `fb-code` (פייסבוק קוד המציאות) · `fb-meluha` (פייסבוק כי לה' המלוכה).
-```sql
--- p_dry_run=true → רואים את ה-caption/קישור שייווצרו בלי לפרסם (לאימות לפני שליחה אמיתית)
-select public.social_post('ig', '<image_url>', '<גוף הטקסט>', '/reality');          -- אינסטגרם, נחיתה /reality
-select public.social_post('fb-meluha', '<image_url>', '<גוף הטקסט>', '/');           -- פייסבוק כי לה' המלוכה
-select public.social_post('fb-code', '<image_url>', '<גוף הטקסט>', '/topic/1820', true, true);  -- dry-run
-```
-המפרסם מוסיף `🔗 https://sod1820.co.il<path>?src=<ערוץ>` בסוף ה-caption (אם אין כבר קישור-אתר בגוף). הקישור ב-bio של אינסטגרם הוא שמודד את `?src=ig` (קישור ב-caption של IG אינו לחיץ) — לכן לפרסום ב-IG עדיין חשוב שהקישור ב-bio יישא `?src=ig`.
+For Gematria / numeric verification, use canonical registered engines/functions/method registry. General-model calculation is never authoritative project output.
 
-**פונקציות הליבה (אם צריך שליטה ידנית מלאה / בלי תיוג):**
-```sql
-select public.fb_publish_photo('<image_url>', '<caption>', '<page_id>');  -- פוסט-תמונה
-select public.fb_publish_post('<message>', '<link?>', '<page_id>');        -- פוסט טקסט+קישור
-select public.ig_publish('<image_url>', '<caption>', '<page_id|null>');    -- אינסטגרם (דורש דף עם IG מקושר)
-select public.fb_set_cover('<image_url>', '<page_id>');                    -- כריכת דף (דורש scope pages_manage_metadata)
-select public.social_admin('<action>', '<payload>'::jsonb);               -- גנרי: whoami/list/search/delete/ads_* וכו'
-```
-- **תמיד `select public.social_admin('whoami')` קודם** כדי לקבל את ה-page_id/ig_id הנכונים.
-- **הדפים (נכון ל-6.2026):** «כי לה' המלוכה» = `617996338259568` · «קוד המציאות» = `346556845479563` (IG `@realitycode1820`, ig_id `17841463554031717`). חשבון פרסום: «גאולה 2024» = `act_397316022648143`. טוקן: `sod1820-automation`.
-- מאחורי הקלעים: `public.social_admin` (SECURITY DEFINER) מושך את המפתח מ-Vault וקורא ל-Edge Function `facebook-admin` עם header `x-fb-admin-key`. הפונקציות **חסומות מהציבור** (anon/authenticated) — service_role/postgres בלבד.
-- **פורמט פוסט-תמונה מועדף (כבקשת צוריאל):** רוב התוכן *בתוך* ה-caption + קישור לאתר בסוף.
-- **אישור פרסום — אוטונומיה מלאה (`social_autonomy_law`, החלטת צוריאל 6.2026):** פרסום שגרתי לדפי הפרויקט עצמם (אינסטגרם/פייסבוק «קוד המציאות» ו«כי לה' המלוכה») **לא דורש אישור מראש ולא שאלה כל פעם** — פשוט לפרסם, ואחרי הפרסום לדווח קצר *מה* פורסם + קישור. אין «מיליון אישורים». הרשאת ה-CLI כבר פתוחה (פרסום עובר דרך `execute_sql` שמאושר ב-`.claude/settings.json`). חריג יחיד שעדיין שווה לשאול עליו לפני: תוכן רגיש/חריג באמת (ידיעת-חדשות לא מאומתת, נושא פוליטי טעון, שינוי כריכת-דף). מפתח ה-Vault ממילא לא נדרש.
-- אם `set_cover` מחזיר `(#283) pages_manage_metadata` — חסר scope בטוקן; צוריאל מוסיף אותו ב-Business Settings ומעדכן `META_SYSTEM_TOKEN`.
+## 8. Claude-specific live mechanics
 
-## 🚀 Meta Growth OS — תוכנית העל (24 שכבות)
-> **חזון:** Sod1820 הופך ממשהו שאנשים קוראים בו למשהו שאנשים חוזרים אליו כל יום — מערכת הפעלה של משמעות (SodOS).
-> הרשומה המלאה: `select what_we_did from work_log where topic='Meta Growth OS — תוכנית העל (24 שכבות)' order by created_at desc limit 1;`
+For code/current-state work:
 
-**סטטוס שכבות (עדכני ל-24.6.2026):**
-
-| שכבה | שם | סטטוס |
-|------|-----|--------|
-| 0 | תשתית (Pixel, CAPI, Secrets) | ✅ הושלם |
-| 1 | Pixel + CAPI מקבילי | ✅ הושלם |
-| 2 | Event Architecture (number_view, hint_view, journey…) | 🔶 חלקי |
-| 3 | UTM Engine | 🔶 חלקי |
-| 4 | Share Tracking (WhatsApp/Telegram/Facebook/Copy) | ✅ הושלם |
-| 5 | Propagation Engine (rid=, עצי התפשטות) | ❌ לא הושלם |
-| 6 | Meta Audiences אוטומטיות | ❌ לא הושלם |
-| 7 | Lookalikes | ❌ לא הושלם |
-| 8 | Auto Publishing (Graph API) | ❌ לא הושלם |
-| 9 | WhatsApp Cloud API | ❌ לא הושלם |
-| 10 | Reality Pulse (primary_value, occurred_at, דופק) | ✅ הושלם |
-| 11 | Dashboard (AdminPage + MetaTab + PopularityTab) | ✅ הושלם |
-| 12 | AI Insights לילי | ❌ לא הושלם |
-| 13 | Audience DNA | ❌ לא הושלם |
-| 14 | Newsletter Intelligence | ❌ לא הושלם |
-| 15 | Holy Grail Dashboard | ❌ לא הושלם |
-| 16-24 | Reality Intelligence → SodOS | ❌ חזון עתיד |
-
-**הבשלות הבאה לפיתוח:** שכבה 2 (event architecture מלאה) → שכבה 3 (UTM) → שכבה 5 (rid propagation).
-**תלויות חיצוניות:** שכבות 6-9 דורשות System User Token + הרשאות Meta Graph API.
-
-## 👑 ארכיטקטורת הפלטפורמה — 6 רמות + טוקנים + Academy (`platform_tiers_law`)
-> Sod1820 = פלטפורמת מחקר, לימוד וקהילה. לא אתר תוכן.
-> פרטים: `select what_we_did from work_log where topic='Sod1820 Platform Architecture — 6 רמות + טוקנים + Academy' limit 1;`
-
-**6 רמות גישה:**
-```
-0. אורח         — גימטריה, חדשות, דפי מספר, חלק מרמזים (חינם, ללא הרשמה)
-1. רשום         — אזור אישי, שמירה, מועדפים, היסטוריה (חינם + הרשמה)
-2. תלמיד היכל  — מסעות, אוספים, AI בסיסי (מנוי בסיסי)
-3. בני היכל    — העלאת רמזים, Reality Profile, AI מתקדם, קורסים (מנוי מרכזי = כסף גדול)
-4. חוקרי היכל  — ELS מלא, נדירות, AI Research, Graph Explorer (Premium)
-5. שותפי היכל  — VIP, גישה מוקדמת, מפגשים (Elite)
+```bash
+git fetch origin --prune
+git rev-parse origin/main
+git status --porcelain
+git rev-list --left-right --count HEAD...origin/main
 ```
 
-**Sod Credits (מטבע פנימי):**
-- חיפוש ELS = 10 קרדיטים · דוח AI = 25 · הצלבה = 5 · מסע AI = 30
-- מנוי = מכסה חודשית + אפשר לקנות עוד
+- Treat local checkout as local evidence only until reconciled with `origin/main`.
+- For a feature branch, verify the base at start and again before merge.
+- Never use destructive cleanup (`reset --hard`, `clean -f`, wholesale checkout) on an unknown/dirty tree.
+- Build verification: `npm run build` unless the active scope defines a narrower/stronger test.
+- For DB-dependent claims, verify canonical Supabase `linswmnnkjxvweumprav` live.
+- Production/browser verification is required when the answer depends on actual UI/live behavior.
 
-**5 מנועים:** גימטריה · ELS/תורה · Reality Stream · Academy (5 דרגות) · Community
+## 9. Work log / coordination
 
-**אוטומציה:** סיום קורס/דרגה → הוספה אוטומטית לקבוצת טלגרם מתאימה
+At session start and before becoming idle after meaningful work, scan recent **current** `work_log` for assignments addressed to CLAUDE and relevant active scopes.
 
-**DB foundation (לבנות ראשון):**
-- `profiles` table: `user_id, email, tier(0-5), credits, xp, level, joined_at`
-- RLS לפי tier על כל פיצ'ר רגיש
-- **Gate order:** tier≥4 → ELS · tier≥3 → העלאת רמזים · tier≥2 → מסעות
+Before WRITE, rescan for overlapping active writers.
 
-## 👥 ארכיטקטורת זהות — UGC + קהילה (`identity_architecture_law`)
-> Sod1820 = ויקיפדיה חיה של רמזים ומספרים. **לא לחייב הרשמה בהתחלה.**
-> פרטים מלאים: `select what_we_did from work_log where topic='ארכיטקטורת זהות — אנונימי → חוקר (UGC Layer)' limit 1;`
+**ONE SCOPE — ONE ACTIVE WRITER.** READ_ONLY challenge/cross-verification may run in parallel.
 
-**מסלול הזהות:**
-```
-אנונימי (visitor_id)
-  ↓ [דיווח רמז / חיפושים / מסעות]
-מזוהה רך (visitor_id עם היסטוריה)
-  ↓ [הצעה רכה: "שמור תגליות"]
-חשבון (Supabase Auth)
-  ↓
-חוקר (פרופיל, ציון, תגיות)
-  ↓
-תורם (רמזים מאושרים, Collective Discovery)
-  ↓
-יוצר מסעות
-```
+Use one task key across ACK/claim/AFTER. Handoff should preserve:
 
-**הפיצ'ר הראשון לבנות: `➕ דווח רמז`**
-- טבלה: `community_hints` (visitor_id, image_url, number, description, source_url, status=pending)
-- UI: כפתור בזרם המציאות + בדפי מספר
-- Admin: טאב אישור ב-AdminPage (community_review)
-- אחרי אישור: עובר ל-gallery_images עם source='community'
+`actor · from/to · task_key · owner · scope · status · facts_changed · decisions · branch/PR/commit · blockers · open_threads · handoff_to`
 
-**Collective Discovery (עתיד):** 5+ דיווחים על אותו מספר → "זוהתה התכנסות קהילתית סביב X" (אוטומטי)
-**Research Score (עתיד):** ציון לכל תורם — רמזים שאושרו + תגליות נדירות + שיתופים
+Do not require ZURIEL to relay messages between GPT and CLAUDE.
 
-## 🔬 סביבת המחקר — Shell קבוע + מרכז מחקר גלובלי (`research_workspace_law`)
-> **משפט-העל:** «Sod1820 צריך להרגיש **פשוט ב-5 הדקות הראשונות, וחזק בלי גבול אחרי 5 חודשים**.»
-> **נעול ע״י צוריאל 28.6.2026.** החוק המלא: `select description from nodes where rule_id='research_workspace_law';`
-> **העיקרון העליון (הרחבת `unified_graph_law`):** כל כלי = עדשה אחת; **המחקר של המשתמש רציף.** בית מדרש/דילוגים/גימטריה לא חיים לבד — כולם מתחברים ל**סביבת מחקר אחת** שנשארת פתוחה לאורך כל המסע.
+`AGENT_HANDOFF.md` is read when reconciling an actual handoff/provenance issue or when another active pointer specifically routes there. It is **not** a mandatory startup read for every task.
 
-- **SPA עם Shell קבוע:** Header+Nav+Footer קבועים, רק ה-**Workspace** (מרכז) מתחלף. **«סביבת המחקר»** = רכיב גלובלי שממוקם פעם אחת מחוץ לראוטים → שורד מעבר בין דפים. דסקטופ: עמודה ימין · מובייל: כפתור «🧠 המחקר שלי ▲» → Bottom Sheet (סגנון ChatGPT).
-- **שם:** «סביבת המחקר»/«מרכז המחקר» **מחליף את «בית המדרש»** (פחות דתי). ראוט קנוני `/research`; `/beit-midrash` נשמר כ-alias. שמות פנימיים (HeichalShell) לא נחשפים.
-- **4 אזורים (סקייל):** 🏠 תוכן · 🧮 מחקר · 📂 סביבת העבודה · 👤 אני.
-- **Research Bus (ההמצאה):** כל כלי → «➕ הוסף למחקר» → «המחקר הפעיל» (מספר↓פסוק↓פוסט↓שם↓תאריך), נשאר במעבר אזורים, ואז 🤖 «נתח/הצלב/צור התכנסות». שמירה: אנונימי=localStorage, מחובר=Supabase, טבלה אחת `research_items` (bucket cart/library/draft/favorite) שמאחדת גם את `user_saved_items`.
-- **עיצוב:** סביבת המחקר (+ELS) = שפה **בהירה נקייה מודרנית** (Microsoft/ChatGPT/FB): רקע `#f6f7f9`, כרטיסים לבנים, טקסט `#1b1d22`/`#5b6472`, אקסנט כחול `#2f6df6` + נגיעת זהב. **דף הבית/תוכן — לא נוגעים** (זהב-מלכותי, `canonical_colors_law`). פלטה scoped, לא דריסה.
-- **מספרים — יושר:** «מה מחפשים אנשים» מיד; מדדים קטנים מוסתרים עד שצוריאל חושף; «כמה עכשיו» אופציונלי. גיימיפיקציה = שדרוג עתידי, לא יסוד.
-- **מובייל-ראשון (חובה, רפרנס investing.com):** חייב להיפתח ולעבוד **מצוין באייפון/Safari** — מגע ≥44px · בלי גלילה אופקית · Bottom Sheet · safe-area (notch) · שדות ≥16px (בלי zoom אוטומטי) · נבדק לפני סגירה. נקי (ChatGPT) + צפיפות-נתונים מבוקרת היכן שצריך (investing).
-- **מערכת Panels (לא רכיב קשיח):** «סביבת המחקר» = registry של פאנלים-מודולים עצמאיים (`{id,icon,title,collapsible,component}`): 👤 אני · 🧠 המחקר הפעיל · 📂 שמורים · 🔔 חדש במערכת · 🤖 AI Assistant. מוסיפים/מסדרים פאנל בעתיד בלי לגעת בשלד.
-- **3 פעולות אחידות בכל כלי** (אותו מקום + עיצוב, תמיד): **➕ הוסף למחקר · ⭐ שמור · 🔗 שתף**. רכיב קנוני יחיד `<ToolActions>` (ה-`DocActions` שנבנה מתאחד לתוכו; «הדפס» = פעולה משנית). חל בבית מדרש/גימטריה/ELS/דף מספר/תפילה.
-- **דואליות עמוד:** כל מסך = שימושי גם כעמוד עצמאי (deep-link/SEO/OG מגוגל) וגם כחלק רציף מ-Workspace. השלד עוטף ראוטים; כל ראוט עומד בפ״ע.
-- **Event Bus (החוט המחבר):** כל פעולה פולטת Event (`research:add`·`item:save`·`item:share`·`search:gematria`·`page:number:open`·`ai:analyze`). הפאנלים **מאזינים** ל-Bus, לא שואלים את הדפים → אפס תלות בין רכיבים → כל פאנל/כלי עתידי מתחבר בלי לשבור. מימוש: emitter קטן (mitt-style)/store + persist.
-- **Quick Actions (זיכרון-שריר):** שכבה אחידה אינליין ליד כל ישות (מספר/פסוק/שם/פוסט) בכל מקום: ➕ הוסף למחקר · ⭐ שמור · 🔗 שתף · 📋 העתק · 🤖 נתח ב-AI — בלי תפריטים. `<ToolActions>`=בולט, `<QuickActions>`=מיקרו אינליין; שתיהן פולטות Events.
-- **עיקרון-על — לא מאבדים Context לעולם:** מעבר גימטריה→דילוגים→דף-מספר שומר הקשר; יצא וחזר → «המשך מהמקום שעצרת». ה-Context נשמר (localStorage+ענן) ומוזן מה-Event Bus. תחושת Notion/ChatGPT.
-- **Everything is an Entity (= `unified_graph_law` הקיים):** אין סוגים נפרדים — הכל `nodes` (Entity: `{id,type,title,metadata,relations}`). Research Workspace / Event Bus / AI / דפי-מספר עובדים מול Entity אחיד. AI = `Analyze(Entity)` / `Analyze(Collection<Entity>)`, לא פונקציה לכל סוג. **Relation Engine** (ליד ה-Event Bus): ישות/קשר חדש → מתעדכן ב-Knowledge Graph (`edges`).
-- **Progressive Disclosure (פשוט→חזק):** 3 שכבות נחשפות בהדרגה — חדש (חיפוש·פוסטים·«הוסף למחקר»·«המחקר שלי») · מתקדם (Research Center מלא·AI·השוואות·התכנסויות·גרף·קיצורים) · מקצועי (Graph Explorer·Entity Relations·Event Timeline·מחקרים מרובים). המערכת «גדלה עם המשתמש».
-- **Local-first (בלי התחברות):** קריאה·חיפוש·«הוסף למחקר» מקומי·שמירה זמנית בדפדפן — הכל בלי לוגין. התחברות רק לסנכרון בין-מכשירים/ענן. חיכוך מינימלי.
-- **ראייה-עתידית + הסבר אינטראקטיבי:** המשתמש תמיד **רואה לאן אפשר להגיע** (שכבות נראות גם אם נעולות — מפת-דרך, לא הכל פתוח). כל התהליכים, ההתכנסויות ועץ-האחד מוסברים בכל שלב **אינטראקטיבית**: עיגולים שפותחים ריבועים עם הסבר, גם למתחיל וגם למתקדם.
-- **מפת שלב 1:** ✅ Event Bus·Entity Model·Research Provider·Panel Registry·Research Center·ToolActions·QuickActions·Bottom Sheet·Workspace קבוע·Local-first·Progressive-Disclosure בסיסי. ❌ בלי גיימיפיקציה·Graph Explorer·AI מורכב.
-- **משפט-סיום:** «הכול Entity; כל Entity מקושר לכל Entity; הכל על מודל אחד (nodes+edges) → כל כלי עתידי מצטרף בלי שינוי ארכיטקטורה.» → **היסודות סגורים. עוצרים ללטש, בונים.**
-- **היקף שלב 1:** בית המדרש(→מרכז מחקר) + ELS בלבד. **אסור לגעת בדף הבית.** שלבים: 1-שלד+סביבה+פלטה+Panels · 2-Research Bus + `<ToolActions>` · 3-אזורים · 4-ELS באותו שלד · 5-מרכז חי. כל שלב נפרס בנפרד.
+## 10. Truth / Human Gate
 
-## ⛔ פריסה — חוק (`deploy_on_request` + `deploy_quota_protection`)
-**צוריאל מחליט מתי מעלים לאוויר. לא דוחפים ל-`main` אוטומטית.**
-- **חובה לאמת כל פריסה** מול האתר החי (שם הבאנדל `assets/index-*.js` התחלף / grep למרקר). Vercel נתקע **בשקט** כשמכסת ה-100/יום נגמרת — פרודקשן פשוט לא מתעדכן.
-- ⚠️ **תקרית 2.7.2026:** `ignoreCommand` ב-`vercel.json` (בדיקת ענף/סביבה) חסם את *כל* הפריסות כולל main במשך יומיים — המשתנים לא זמינים כצפוי בשלב ה-Ignored Build Step. **הוסר. אסור להחזיר אותו ל-vercel.json בלי לאמת פריסת-main מוצלחת מיד אחרי.** חיסכון מכסה — עדיף דרך Dashboard → Settings → Git → Ignored Build Step.
-- 🖼 `thumb()` ב-`src/lib/img.js` חייב `resize=contain` — בלעדיו Supabase חותך תמונות בצדדים (`image_render_contain_law`). ⛔ לא להסיר.
-- 👑 **`logo_integrity_law` (חקוק — נשבר שוב ושוב, אל תיגע):** לוגו האתר = **הלוקאפ המלא בלבד** (כתר + «כי לה' המלוכה» מתחתיו). **לעולם לא חותכים את המילים מהכתר.** מקור יחיד `/logo.png` (512×512 מרובע) = `LOGO_URL`. כל סמל/סימנייה/apple-touch/מועדפים/גוגל → `/logo.png`. ⛔ אסור `crown-icon.png`/`favicon.svg`/`favicon.ico`(לא קיים), ⛔ אסור manifest `purpose:"maskable"` (חותך לעיגול ומוריד המילים). Google: Organization schema logo = `/logo.png`. מומש ב-`index.html`+`public/site.webmanifest`. אייקון בגודל אחר = לרפד לריבוע, לא לחתוך. החוק המלא: `select description from nodes where rule_id='logo_integrity_law';`.
-- כל push ל-`main` = פריסת Vercel, והמכסה החינמית מוגבלת (100 פריסות/יום). אסור לבזבז אותה על כל תיקון קטן.
-- **צוברים שינויים** כ-commits (לענף הפיתוח לשמירה), **ומעלים ל-`main` רק כשצוריאל אומר במפורש** ("תעלה" / "העלה"). אז מעלים את כל המצטבר בבת אחת.
-- **ליזום עדכון:** בכל הזדמנות מתאימה לומר לצוריאל **כמה חלקים מוכנים וממתינים לפריסה**, ולשאול אם להעלות עכשיו.
-- שינויי **נתונים** (Supabase) חיים מיד ולא תלויים בפריסה — מותר להמשיך בהם כרגיל בלי לשרוף מכסה.
+Preserve distinctions between Input, Extraction, Calculation, Discovery, Finding, Claim, Evidence, Fact, Interpretation, Recommendation, Decision, Canonical, Published, Visible, and Accessible.
 
-## כללי
-- **🚫 אל תקפיץ שאלות (`no_repeated_questions_law`) — הוראה קשיחה של צוריאל (29.7.2026):** **ברירת-המחדל היא לא לשאול.** אל תשתמש בחלון-השאלות עם האופציות (בחירה מרובה / כפתורים) — הוא קפץ שוב ושוב וחסם את צוריאל מלעבוד. במקום זה: **תחליט לבד לפי ההקשר, החוקים כאן וברירות-מחדל סבירות, ותבצע.** אם באמת חסר משהו קריטי שאי-אפשר להסיק ואי-אפשר להתקדם בלעדיו — **שאל פעם אחת בלבד, בשורת-טקסט רגילה בתוך התשובה** (לא חלון-אופציות), עם ההנחה הסבירה שלך, והמשך. לעולם לא לשאול את אותה שאלה פעמיים ולא לפתוח חלון-שאלות ברצף. עדיף לטעות לכיוון הפעולה + לדווח מה עשיתי, מאשר לחסום את צוריאל בשאלות.
-- האתר: React 18 + Vite, פרוס ב-Vercel (רק `main` = פרודקשן). נתונים מ-Supabase. בדיקת build: `npm run build`.
-- **🔐 RLS — חוק עמוק (`rls_client_read_protocol` v2): לפני כל פיצ׳ר שהלקוח קורא ממנו טבלה — צריך policy **וגם** GRANT, אחרת נחסם בשקט.** ב-Supabase טבלה עם RLS מופעל בלי policy — או **עם policy אבל בלי `GRANT SELECT`** — נחסמת בשקט לכל anon/authenticated (רק service_role קורא) → הפיצ׳ר מחזיר ריק בלי שגיאה. **⚠️ הבאג ש«הרס את האתר כל היום» (17.7.2026):** users/contributors/profiles/credit_ledger/wa_account_links היו עם policy אבל בלי grant → fetchProfile→isAdmin שבור לכל מחובר, דפי חוקר ריקים, קרדיטים=0, וואטסאפ תמיד «התחבר». **חובה בכל פיצ׳ר חדש, באותו שינוי:**
-  1. policy: `create policy <T>_read on public.<T> for select using(<תנאי>);`
-  2. **GRANT (הכי נשכח!):** `grant select on public.<T> to authenticated;` (owner-read) או `to anon, authenticated;` (ציבורי).
-  3. **הסתרת עמודות רגישות — קריטי:** `grant select (col1,col2,…) on <T>` (רשימת-עמודות בטוחות בלבד). **⛔ אסור** `grant select on <T>`+`revoke select(col)` — grant-טבלאי **גובר** על column-revoke, ה-revoke לא תופס.
-  - **אבחון:** `select * from public.rls_grant_gaps();` (משתמש ב-has_any_column_privilege; has_table_privilege נותן false-positive עם column-grants). קרון `rls-grant-audit-weekly` כותב התראה ל-work_log אוטומטית אם נמצא פער; חריגים-מכוונים ב-`rls_grant_gap_ignore`.
-  - server-only (לוגים/גיבויים/`wa_*`/`events_*`/אנליטיקה/`agent_user_memory`) — בלי grant בכוונה. החוק המלא: `select description from nodes where rule_id='rls_client_read_protocol';`.
-- **🔗 רכיבי-UI קנוניים — חוק חקוק (`canonical_ui_components_law`):** כל רכיב-ממשק מרכזי קיים **פעם אחת** בקוד, וכל מסך משתמש בו דרך props — **אסור לשכפל קוד** או לבנות גרסה חדשה בלי סיבה ארכיטקטונית. הרשימה: `ShareActions` (כל השיתופים) · `Discourse` (מחקר-קהילה) · `ToolActions`/`QuickActions` (פעולות) · `ReactionBar` · `UserBadge` · `ResearchChip` · `AIAnalysisCard` · `CipherCard`. **שיתוף:** רכיב יחיד `src/components/ShareActions.jsx` (מקבל `type`/`url`/`title`/`image`/`channels`/`compact`) — לא לכתוב כפתורי-שיתוף מקומיים. **מיקום-שיתוף (`share_placement_law`) — אוטומטי, בלי הגדרה-לכל-דף:** יש ווידג׳ט-שיתוף צף (`RoyalShareWidget`) → אין בלוק אינליין; אין צף → שורת-שיתוף אחת. מקור-אמת יחיד = `floatingShareShown(pathname)` ב-`lib/share.js`; `ShareActions` מרנדר את עצמו **רק היכן שהצף נעדר** (כשורה אחת, בלי שבירה) — אפס כפילות. כל דף חדש פשוט שם `<ShareActions/>` ולא מחליט כלום. **תמונת-שיתוף (OG):** מקור-אמת = `/api/card` (כרטיס 1200×630 ממותג); הזרקה לרובוטים = `/api/og` (לפי User-Agent ב-`vercel.json`). כל URL קנוני חדש (כמו `/codes/:slug`) חייב ענף ב-`api/og.js` כדי לקבל תמונה — **לא לבנות OG מקביל.** החוק המלא: `select description from nodes where rule_id='canonical_ui_components_law';`.
-- **🏙️ רקע-עיר בשני המצבים — חוק חקוק (`city_background_dual_theme_law`):** כל משטח/דף/רכיב שבונים או הופכים לבהיר חייב (א) לעבוד גם בהיר וגם כהה (`post_theme_safe_colors_law`), ו-(ב) **תמיד לשבת מתחת לרקע-העיר** (`/city-bg.jpg`) בשני המצבים — בכהה תמונת-העיר/קוסמוס הכהה הקיימת נשארת, בבהיר מוסיפים את אותה תמונת-עיר בעיבוד בהיר (לא רקע-קרם שטוח). אוטומטי — **בלי לבקש פעמיים**. הדפוס הקנוני = שכבת-העיר של `ProfilePage` (lightMode). ו-(ג) **§3 (v3) — קריאות טקסט על רצועות מעל רקע-העיר:** כל רצועה/טיקר (LiveActivityBar/BrandTicker) חייב במצב בהיר **טקסט כהה וקריא (ניגודיות ≥7:1)** — חום-כהה כמעט-שחור (טקסט `#33260a`, אקסנט `#6d4e0b`), רקע-רצועה אטום מספיק שהעיר לא תבליע. אסור זהב-בהיר/קרם-על-קרם שנבלע. החוק המלא: `select description from nodes where rule_id='city_background_dual_theme_law';`.
-- ענף פיתוח נוכחי: `claude/prayer-sharing-popup-u1kn3s`.
+AI may research, calculate through canonical engines, rank and recommend. AI does not independently canonicalize or publish. ZURIEL remains Human Gate.
+
+## 11. WRITE / release safety
+
+Any WRITE requires current live verification, owner resolution, relevant schema/code verification, parallel-writer scan, and an isolated scope.
+
+Keep states distinct:
+
+`DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`
+
+Do not merge/deploy/push `main` merely because work is implemented. Release only after explicit ZURIEL authorization such as `תעלה`, and re-run release gates immediately before the action.
+
+## 12. Specialist escalation
+
+When Claude is the specialist/challenger, default to READ_ONLY. A specialist report is evidence, not truth; the primary owner must reconcile it live.
+
+When Claude is primary, use another specialist only if the result can materially change architecture, safety, release, or confidence. Avoid redundant audits.
+
+## 13. Fresh-agent acceptance
+
+This adapter is G1-compliant only if a fresh Claude session, without relying on prior conversation memory, can from a natural-language task:
+
+- resolve the current owner;
+- load only minimum dependencies;
+- discover relevant work_log context;
+- verify the proper live source;
+- report stale-pointer conflicts instead of trusting them;
+- avoid unrelated bulk reads;
+- avoid inventing a parallel owner/system.
+
+A prompt containing the right words is not proof; G1 closure requires an actual fresh-agent replay recorded in `work_log`/audit evidence.
+
+## 14. Closing rule
+
+Reconciliation before construction · Provenance before recovery · Evidence before interpretation.
+
+Preserve history in git/DB provenance. Do not keep stale domain semantics alive inside the active adapter merely because they once lived here.
