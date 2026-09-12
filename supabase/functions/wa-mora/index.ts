@@ -5,10 +5,11 @@
 //   לא נדלגות ולא מקבלות מענה כפול). קריאת-AI אחת לריצה = פחות משאבים, בלי ספאם ובלי החמצה.
 // מאזין → מבין → עונה, ולומד: טוען זיכרון-לומד (lab_learner+lab_progress) לפני כל תשובה.
 // מבודד לגמרי: action=lab_mora, קבוצה מ-lab_wa_config, שולח דרך wa_admin (רזיאל לא נגוע).
-// polling מ-pg_cron, מוגן ?s=SECRET. לולאת-הלמידה (עדכון הזיכרון) = lab-reflect.
+// polling מ-pg_cron. G0: invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
+// לולאת-הלמידה (עדכון הזיכרון) = lab-reflect.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
 const FAST_MODEL = Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5";
@@ -97,8 +98,6 @@ async function run() {
 
   const textOf = (m: any) => m.textMessage || m.extendedTextMessage?.text || m.extendedTextMessageData?.text || "";
   const windowMsgs = all.slice(-MAX_PER_RUN);
-  // מענה אחד לריצה: מאתרים את ההודעה האחרונה שראויה למענה (לא ריקה) ועונים רק לה — עם כל ההקשר.
-  // הודעות קודמות שטרם טופלו נקלטות לזיכרון ומסומנות superseded → לא נדלגות וגם לא מקבלות מענה כפול.
   let answerIdx = -1;
   for (let i = windowMsgs.length - 1; i >= 0; i--) { if (clean(textOf(windowMsgs[i])).length >= 2) { answerIdx = i; break; } }
   let memory = ""; let memLoaded = false;
@@ -115,7 +114,7 @@ async function run() {
 
     if (i !== answerIdx) { await logBot({ group_id: chatId, msg_id: msgId, sender: snd, sender_name: sname, text_in: text.slice(0, 500), reply_out: "[skip:superseded]" }); continue; }
 
-    if (!memLoaded) { memory = await loadMemory(); memLoaded = true; }   // טעינת זיכרון פעם אחת לריצה
+    if (!memLoaded) { memory = await loadMemory(); memLoaded = true; }
     const recent = all.filter((x: any) => nowSec - Number(x.timestamp || 0) < 3 * 3600).slice(-12);
     const transcript = recent.map((x: any) => `${x.senderName || "חבר"}: ${clean(textOf(x))}`).filter((l: string) => l.length > 3).join("\n");
     const userPrompt = `זו שיחה בקבוצת-הלימוד (אתה המורה). ההיסטוריה האחרונה:\n${transcript}${memory}\n\nענה כמורה לשיחה — התייחס לשאלה או לנקודה הפתוחה האחרונה שטרם נענתה (לא בהכרח רק השורה האחרונה), לפי השיטה ובהתאם לזיכרון.`;
@@ -135,8 +134,8 @@ async function run() {
 }
 
 Deno.serve(async (req) => {
-  const u = new URL(req.url);
-  if (u.searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
+  if (!ADMIN_KEY) return new Response(JSON.stringify({ err: "not_configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   if (!ANTHROPIC) return new Response(JSON.stringify({ err: "not_configured" }), { headers: { "Content-Type": "application/json" } });
   try { const r = await run(); return new Response(JSON.stringify(r), { headers: { "Content-Type": "application/json" } }); }
   catch (e) { return new Response(JSON.stringify({ err: String(e).slice(0, 200) }), { headers: { "Content-Type": "application/json" } }); }
