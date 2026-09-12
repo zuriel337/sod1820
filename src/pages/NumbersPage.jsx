@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { C, F } from "../theme.js";
 import { MaintenanceLock, useFeatureState } from "../components/MaintenanceLock.jsx";
 
@@ -9,6 +9,17 @@ const ConvergenceGalaxy = React.lazy(() => import("../components/ConvergenceGala
 
 export default function NumbersPage() {
   const tree = useFeatureState("lock_convergence_tree");
+
+  useEffect(() => {
+    if (tree.loading || !tree.blocked || typeof document === "undefined") return undefined;
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex,nofollow";
+    meta.setAttribute("data-sod-convergence-tree-lock", "1");
+    document.head.appendChild(meta);
+    return () => { try { document.head.removeChild(meta); } catch { /* noop */ } };
+  }, [tree.loading, tree.blocked]);
+
   if (tree.loading) return null;
   // site_flags_lock_law v3: חסימה ברמת ה-surface לפני mount של הגלקסיה,
   // לכן לצופה חסום יש ZERO public fetch/write מהעץ עצמו. Admin bypass נשמר ברזולבר הקנוני.
