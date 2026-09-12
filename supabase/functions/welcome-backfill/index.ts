@@ -1,13 +1,13 @@
 // ✉️ welcome-backfill — שליחת מייל-הפתיחה (newsletter_welcome) חד-פעמית לרשימה שנרשמה לפני שהאוטומציה עלתה.
 // נשלח *בדיוק כמו שהוא* — כולל השורה «זהו מייל הפתיחה היחיד שתקבלו» (בכוונת צוריאל: מייל מיוחד לשמירה).
 // מצבים: ?mode=test&to=<email> (שליחה בודדת לבדיקה) · ?mode=send (סגמנט «חם»: נרשמי-אתר פעילים שטרם קיבלו).
-// גישה: סוד ?s=<WBF_SECRET>. verify_jwt=false. שולח RAW (התוכן מייל שלם), רושם email_events(sent) + newsletter_campaigns.
+// G0: internal/admin invocation uses existing FB_ADMIN_KEY header; no static/query fallback secret.
 
 const SITE = "https://sod1820.co.il";
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM = Deno.env.get("NEWSLETTER_FROM") ?? "סוד 1820 <news@sod1820.co.il>";
 const HMAC_SECRET = Deno.env.get("NEWSLETTER_SECRET") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const GATE = Deno.env.get("WBF_SECRET") ?? "wbf_2026_k7m3q9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 
 const b64url = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 async function hmac(email: string) {
@@ -47,32 +47,31 @@ async function sendOne(url: string, key: string, subject: string, tmpl: string, 
 }
 
 Deno.serve(async (req) => {
+  if (!ADMIN_KEY) return json({ error: "not_configured" }, 503);
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return json({ error: "forbidden" }, 403);
   const u = new URL(req.url);
-  if (u.searchParams.get("s") !== GATE) return json({ error: "forbidden" }, 403);
   const mode = u.searchParams.get("mode") || "test";
   if (!RESEND_KEY) return json({ error: "no RESEND_API_KEY" }, 500);
 
   const url = Deno.env.get("SUPABASE_URL") ?? "";
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-  // תבנית: newsletter_welcome active — נשלחת בדיוק כמו שהיא (מייל-פתיחה מיוחד לשמירה)
   const wr = await fetch(`${url}/rest/v1/newsletter_welcome?active=eq.true&select=subject,html&limit=1`, {
     headers: { apikey: key, authorization: `Bearer ${key}` },
   });
   const w = (wr.ok ? await wr.json() : [])?.[0];
   if (!w?.html) return json({ error: "no active welcome template" }, 500);
   const subject = w.subject || "ברוכים הבאים לסוד 1820";
-  const tmpl = String(w.html); // בדיוק כמו שהוא — בלי שינוי בתוכן
+  const tmpl = String(w.html);
 
   if (mode === "test") {
     const to = (u.searchParams.get("to") || "").trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(to)) return json({ error: "bad 'to'" }, 400);
-    const ok = await sendOne(url, key, subject, tmpl, to, false); // בדיקה — לא רושמים sent
+    const ok = await sendOne(url, key, subject, tmpl, to, false);
     return json({ mode, to, sent: ok });
   }
 
   if (mode === "send") {
-    // סגמנט «חם»: נרשמי-אתר פעילים (לא mailpoet), שטרם קיבלו welcome (לא ב-email_events sent)
     const already = new Set<string>();
     const er = await fetch(`${url}/rest/v1/email_events?campaign=eq.welcome&event=eq.sent&select=email`, {
       headers: { apikey: key, authorization: `Bearer ${key}` },
@@ -93,9 +92,8 @@ Deno.serve(async (req) => {
     for (const e of targets) {
       const ok = await sendOne(url, key, subject, tmpl, e, true);
       if (ok) sent++; else failed++;
-      await new Promise(res => setTimeout(res, 120)); // ~8/שנייה — עדין ל-Resend/מוניטין
+      await new Promise(res => setTimeout(res, 120));
     }
-    // רישום קמפיין
     try {
       await fetch(`${url}/rest/v1/newsletter_campaigns`, {
         method: "POST",
