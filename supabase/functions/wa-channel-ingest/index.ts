@@ -4,9 +4,10 @@
 // poll_every_min = תדירות משיכה לכל קבוצה (last_run_at מתקדם רק במשיכה מוצלחת).
 // quotedMessage = תגובה/reply (למשל תגובה על תמונה) — נקלטת כעדכון (טקסט התגובה; אם צורפה תמונה חדשה — נקלטת גם היא).
 // 🔗 איחוד-זהות (20.7.2026): שם-שולח גולמי מוואטסאפ (למשל «אריאל ואצאפ») ממופה לשם התורם הקנוני לפי contributors.wa_names.
+// G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
 const BUCKET = "gallery";
 const MEDIA_DIR = "sod1820/broadcasts";
@@ -16,8 +17,6 @@ const BOT_CREDIT = "רזיאל · AI";
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 let trace: any[] = [];
 
-// 🚫 סינון-תוכן לפי טקסט — הודעה שהכיתוב/טקסט שלה מכיל אחד מהביטויים החסומים לא נקלטת כלל (ולא מורידים לה מדיה = חוסך Egress).
-// דאטה-דריבן דרך channel_ingest_sources.block_text (כמו block_names/block_ids). למשל: חסימת סרטוני «עובדיה יוסף» מאור הגאולה.
 function isBlockedText(text: string, patterns: string[]): boolean {
   if (!patterns.length) return false;
   const hay = (text || "").replace(/\s+/g, " ").trim();
@@ -25,8 +24,6 @@ function isBlockedText(text: string, patterns: string[]): boolean {
   return patterns.some((p) => p && hay.includes(p));
 }
 
-// 🔗 canonicalization — ממפה שם-שולח גולמי מוואטסאפ (alias) לשם התורם הקנוני לפי contributors.wa_names.
-// כך זהות אחת (למשל אריאל) לא מתפצלת בין «אריאל» ל«אריאל ואצאפ» בקרדיטים.
 async function loadAliasMap(): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   try {
@@ -97,7 +94,6 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
     if (!["textMessage", "extendedTextMessage", "imageMessage", "videoMessage", "quotedMessage"].includes(typ)) continue;
 
     if (outgoing) {
-      // 🛠️ 9.7.2026: קולטים כל הודעה שיוצאת מחשבון הבוט (גם ידנית — לא רק sendByApi). כך הודעה שצוריאל שולח דרך הבוט מופיעה בטיקר.
       if (!captureOutgoing) continue;
     } else {
       if (adminOnly && admins.length && !admins.includes(senderId)) continue;
@@ -108,23 +104,19 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
     const { data: dup } = await sb.from("channel_updates").select("id").eq("ext_msg_id", msgId).maybeSingle();
     if (dup) { if (ts > maxTs) maxTs = ts; continue; }
 
-    // זיהוי מדיה גם לפי mimeType (תגובה שמצרפת תמונה/וידאו חדשים = quotedMessage עם mimeType בראש)
     const mime = m.mimeType || m.fileMessageData?.mimeType || "";
     const isImg = typ === "imageMessage" || mime.startsWith("image");
     const isVid = typ === "videoMessage" || mime.startsWith("video");
     const caption = m.caption || m.fileMessageData?.caption || "";
-    // extendedTextMessage.text מכסה גם את טקסט התגובה ב-quotedMessage
     const bodyText = m.textMessage || m.extendedTextMessage?.text || caption || "";
 
-    // 🚫 חסימת-תוכן (block_text): הודעה שהטקסט/כיתוב שלה תואם ביטוי חסום — לא נקלטת (וגם לא מורידים מדיה = חוסך Egress).
     if (isBlockedText(bodyText, blockText)) {
       trace.push({ msgId, step: "blocked-text", channel: src.channel });
-      if (ts > maxTs) maxTs = ts; // מתקדמים כדי לא לסרוק שוב
+      if (ts > maxTs) maxTs = ts;
       continue;
     }
 
     let imageUrl: string | null = null;
-
     if (isImg || isVid) {
       let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
       if (!dl) { try { const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST"); dl = d?.result?.downloadUrl || d?.downloadUrl || ""; } catch { /* noop */ } }
@@ -133,12 +125,10 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
 
     if (!bodyText && !imageUrl) { if (ts > maxTs) maxTs = ts; continue; }
     const text = bodyText || (isVid ? "🎬 עדכון וידאו" : "📷 עדכון");
-    // בוט ששולח דרך ה-API (מענה AI) = «רזיאל · AI». הודעה ידנית מחשבון הבוט (צוריאל) = קרדיט המותג.
     const isBotApi = outgoing && !!m.sendByApi;
     const rawCredit = isBotApi
       ? BOT_CREDIT
       : (outgoing ? brandCredit : (useSenderName ? (senderName || brandCredit) : brandCredit));
-    // 🔗 איחוד-זהות: שם-שולח גולמי → שם-תורם קנוני (contributors.wa_names). קרדיט-בוט לא ממופה.
     const credit = isBotApi ? rawCredit : canonicalCredit(rawCredit, aliasMap);
     const source = isBotApi ? "ai" : "auto";
 
@@ -158,8 +148,9 @@ async function ingestSource(src: any, nowSec: number, aliasMap: Map<string, stri
 }
 
 Deno.serve(async (req) => {
+  if (!ADMIN_KEY) return new Response("not configured", { status: 503 });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const u = new URL(req.url);
-  if (u.searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
   trace = [];
   const nowSec = Date.now() / 1000;
   const force = u.searchParams.get("force") === "1";
