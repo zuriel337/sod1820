@@ -43,7 +43,7 @@
     },
     {
       "source": "/sitemap.xml",
-      "destination": "/api/sitemap"
+      "destination": "/api/sitemap-public"
     },
     {
       "source": "/wp-admin",
