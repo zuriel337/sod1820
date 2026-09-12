@@ -63,13 +63,13 @@ Already-live 410 sources now represented in git: `tmp-upload`, `tmp-pancher-uplo
 
 | Function / object | Candidate boundary | State |
 |---|---|---|
-| `post-save` | real JWT → server admin check → service-only `sys_save_post` | branch candidate |
-| `post-ai-edit` | real JWT → server admin check before paid provider call | branch candidate |
-| `post-to-storyboard` | mandatory configured service run-key; no public-cost fallback | branch candidate; secret existence must be checked at release |
+| `post-save` | real JWT → server admin check → service-only `sys_save_post` | branch candidate; current static-token path remains live until release |
+| `post-ai-edit` | real JWT → server admin check before paid provider call | branch candidate; current public paid endpoint remains live until release |
+| `post-to-storyboard` | mandatory configured `STORYBOARD_RUN_KEY`; no public-cost fallback | **live probe proved current endpoint has no effective run-key**; candidate fails closed (503) if secret remains absent |
 | `email-ingest` | mandatory external Edge secret; no hardcoded fallback; bounded channel allowlist | branch candidate; live corpus currently has 0 `channel_updates.source=email` rows |
 | `email-inbound` | mandatory external Edge secret; no hardcoded fallback | branch candidate; capability is active data-wise (49 stored inbound emails; latest observed 2026-09-08) so release config is mandatory |
 | `research-nurture` | scheduled path requires existing `FB_ADMIN_KEY` header; public unsubscribe remains per-lead token-bound | branch candidate |
-| `video-migrate` | mandatory `OCR_RUN_KEY`, HTTPS-only/bounded batch; capability preserved by `source_video_publish_law` | branch candidate; secret existence must be checked at release |
+| `video-migrate` | existing `FB_ADMIN_KEY` service header, HTTPS-only, bounded batch/size | **live probe proved current endpoint has no effective OCR/run-key**; active Source Video capability therefore uses existing proven service root rather than an unconfigured new secret |
 | `notify-page-ready` | existing `FB_ADMIN_KEY` service header; no query/static fallback | branch candidate |
 | `notify-reply-email` | existing `FB_ADMIN_KEY` service header; no query/static fallback | branch candidate |
 | `wa-avatars` | real JWT + server-derived admin role; embedded static guard removed | branch candidate; no active cron caller found |
@@ -87,7 +87,23 @@ Important distinctions:
 - `agent-upload` remains canonical for **agent media in its supported image/path/mime scope**. It does not silently supersede every large-video/document path.
 - `journey-message` is intentionally free under `ai_quota_law v3`; `journey_ai_guard_law` owns the one-message-per-journey/session guard. G0 therefore PORTS current behavior and records the missing server-side anti-regression/rate boundary as **P1 owner debt**, not a reason to invent a generic 30/200 quota that would change product semantics.
 
-## 6. Admin-alert / Watchman reconciliation
+## 6. Live auth/config probes — no secret values recorded
+
+Non-mutating requests were sent with **no credential** only to determine whether existing Edge guards are actually configured:
+
+- `raw-put` → `401 unauthorized`.
+- `sign-upload` → `401 unauthorized`.
+
+Because those live sources distinguish `not configured` from `wrong/missing credential`, this proves the existing Edge environment has `FB_ADMIN_KEY` configured.
+
+Critical finding:
+
+- `post-to-storyboard` with no run-key proceeded to input validation (`400 missing input`) rather than rejecting authorization.
+- `video-migrate` with no run-key proceeded to input validation (`400 no items provided`) rather than rejecting authorization.
+
+Therefore both current live endpoints have **no effective dedicated run-key configured** and remain material live P0/P1 surfaces until the hardened release. No privileged mutation/AI call was triggered by these empty-body probes.
+
+## 7. Admin-alert / Watchman reconciliation
 
 Live owner facts:
 
@@ -113,7 +129,7 @@ Branch resolution in `G0_EDGE_RELEASE_SQL_CANDIDATE.sql`:
 
 This intentionally accepts the current canonical limitation that generic admin email is not yet implemented; G0 does not create a parallel email sender to hide that limitation.
 
-## 7. Cron root-of-trust
+## 8. Cron root-of-trust
 
 Live active jobs observed: `share-to-facebook` (5m), `research-nurture-daily`, `system-watchman-weekly`, `page-ready-auto`, `reply-email-auto`. `wa-daily-digest` existed but was inactive.
 
@@ -126,21 +142,30 @@ Branch release candidate:
 - `system-watchman-weekly` becomes a DB call to `system_watchman_run(false)`;
 - `wa-daily-digest` remains unscheduled/retired.
 
+The full SQL candidate was executed inside a live transaction as a syntax/object compatibility dry-run and rolled back successfully. Post-rollback verification proved `system_watchman_run` did not persist and all six original cron rows remained unchanged.
+
 SQL is stored as **branch-only release candidate**, not a fabricated migration filename. On explicit release, run it through the canonical Supabase migration action and then mirror the generated migration version into git.
 
-## 8. External secret/config release checks
+## 9. External secret/config release checks
 
-Secret **values** never belong in git/work_log. Before deploying affected candidates, verify only existence/configuration of:
+Secret **values** never belong in git/work_log.
+
+Verified now:
+
+- existing `FB_ADMIN_KEY` is configured in the Edge environment (proved through fail-closed 401 probes) and is present by name in Vault.
+- no service-role key exists in Vault and G0 does not add one.
+
+Before deploying affected candidates, verify only existence/configuration of:
 
 - `EMAIL_INBOUND_SECRET` — mandatory because inbound mailbox is actively used;
 - `EMAIL_INGEST_SECRET` — fail-closed; currently no live email-channel rows observed;
-- `OCR_RUN_KEY` for `video-migrate`;
-- `STORYBOARD_RUN_KEY` for `post-to-storyboard`;
-- existing `FB_ADMIN_KEY` in Edge environment + Vault for service-to-service jobs.
+- `STORYBOARD_RUN_KEY` — optional for availability, but absence intentionally makes the hardened storyboard endpoint 503 rather than public-cost; it is **not** allowed to fall back to public execution.
 
-If a required secret is absent, the safe state is fail-closed; do not restore a hardcoded fallback to preserve availability.
+`video-migrate` no longer depends on the absent `OCR_RUN_KEY`; it uses the existing service-to-service root.
 
-## 9. Git-only counterpoint / PR hygiene
+If an external webhook secret is absent, the safe state is fail-closed; do not restore a hardcoded fallback to preserve availability.
+
+## 10. Git-only counterpoint / PR hygiene
 
 `facebook-publish` exists in git but is not the live canonical cron executor. Live authority is `share-to-facebook` plus the admin-only `posts.share_to_fb` state. Do not raw-merge or substitute `facebook-publish`.
 
@@ -154,19 +179,19 @@ Preliminary open-PR decisions remain:
 - #97 — storyboard prior lineage; current source has been ported/hardened instead of raw merging old PR;
 - other stale legacy prototype PRs remain EVIDENCE/PRIOR-ART/SUPERSEDED according to the prior triage and require no raw merge.
 
-## 10. Independent specialist state
+## 11. Independent specialist state
 
 Claude READ_ONLY Edge census assignment: work_log `19208c7e-ced5-4f19-8e1b-3f526df1d587`.
 
 At the latest live scan there is still **no AFTER**. Because this is a security/release scope, independent specialist review remains **REQUIRED before final G0 release/closure** if it can still change the release matrix. GPT does not block evidence gathering on a sleeping session and has continued live verification independently.
 
-## 11. Current blockers
+## 12. Current blockers
 
-1. **No release authorization yet.** Branch harden/retire candidates are not live until ZURIEL says `תעלה`.
-2. Verify required Edge secret *existence* for the actively used fail-closed paths, especially `email-inbound`, before release.
+1. **No release authorization yet.** Current live still includes material unguarded/legacy endpoints, including the just-proven storyboard/video surfaces; branch candidates are not live until ZURIEL says `תעלה`.
+2. `EMAIL_INBOUND_SECRET` is a real release precondition for the actively used inbound mailbox. Its value must stay outside git/work_log.
 3. Reconcile Claude AFTER if it arrives; if not, perform the required independent pre-release security cross-check by the available specialist path before declaring G0 sufficient.
-4. Run SQL candidate transaction/dry-run review, branch diff review, and current-main overlap recheck.
-5. On explicit release: apply the canonical migration, deploy the selected hardened/tombstone Edge versions with correct `verify_jwt` mode, then verify cron commands contain no inline credentials.
+4. Re-run branch diff/current-main overlap and CI on the final pre-release head.
+5. On explicit release: apply the canonical migration, deploy the selected hardened/tombstone Edge versions with the exact modes in `G0_EDGE_DEPLOY_MATRIX.md`, verify cron commands contain no inline credentials, and negative-test privileged paths.
 6. Perform full closing rescan: current main + DB object state + Edge live versions/hashes/auth + active crons + grants/RLS + owner index + open PR state.
 
 **Current state: G0 NOT SUFFICIENT.**  
