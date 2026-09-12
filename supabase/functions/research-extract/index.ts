@@ -2,6 +2,7 @@
 // ממיר טקסט מכל מקור (וואטסאפ/אתר/OCR/קול/מסמך/פורום) לשפת-המחקר האחידה: 5 סוגי-אובייקטים בלבד
 // (fact · relation · observation · hypothesis · question). מטטרון קורא רק את השפה הזו — לא אכפת לו מהמקור.
 // עובדות/קשרים מאומתים במנוע הרשמי (fn_all_methods). הכל נכנס כ-candidate → אישור צוריאל → קנוני בגרף.
+// G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 //
 // ── MF-1 MINIMUM CLOSURE (2026-08-29, Human-Gate approved; work_log 372d7a5c / BEFORE 091b7274) ──
 // This file is VENDORED from the deployed function (version 2) so the MF-1 change is reviewable in
@@ -25,7 +26,7 @@
 // this pre-check provably missed (LLM re-wording + kind flip on re-extraction).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL = (Deno.env.get("EXTRACT_MODEL") || Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
@@ -69,7 +70,6 @@ async function extractText(content: string, source: string, source_ref: string |
   try { const i = txt.indexOf("["), j = txt.lastIndexOf("]"); arr = JSON.parse(txt.slice(i, j + 1)); } catch { return { inserted: 0, error: "parse", raw: txt.slice(0, 200) }; }
   if (!Array.isArray(arr)) return { inserted: 0, objects: [] };
 
-  // MF-1 (1): one canonical value for the whole call — no more "" here / NULL there.
   const ref: string | null = (typeof source_ref === "string" && source_ref.length > 0) ? source_ref : null;
 
   let inserted = 0, absorbed = 0; const out: any[] = [];
@@ -82,7 +82,6 @@ async function extractText(content: string, source: string, source_ref: string |
     const relates = (Array.isArray(o?.relates) ? o.relates : []).map(String).slice(0, 4);
     const value = (o?.value != null && !isNaN(+o.value)) ? Math.trunc(+o.value) : null;
 
-    // אימות-מנוע: fact/relation עם value + ביטוי-עברי → מאמת מול fn_all_methods
     let engine_verified: boolean | null = null; let engine_detail: any = null;
     if ((kind === "fact" || kind === "relation") && value != null) {
       const det: Record<string, any> = {}; let anyHeb = false, matched = false;
@@ -92,13 +91,10 @@ async function extractText(content: string, source: string, source_ref: string |
       if (anyHeb) { engine_verified = matched; engine_detail = det; }
     }
 
-    // דדופ (fast path): אותו מקור+סוג+נוסח. MF-1 (1): NULL is matched with .is(), not with "".
     const exQ = sb.from("research_objects").select("id").eq("kind", kind).eq("statement", statement);
     const { data: ex } = await (ref === null ? exQ.is("source_ref", null) : exQ.eq("source_ref", ref)).maybeSingle();
     if (ex) continue;
 
-    // MF-1 (2): the DB invariant research_objects_identity_uidx is the authority.
-    // A unique violation means "this source claim is already ingested" — skip, do not error.
     const { error: insErr } = await sb.from("research_objects").insert({
       kind, statement, terms, value, relates, source, source_ref: ref, contributor,
       confidence: (o?.confidence != null && !isNaN(+o.confidence)) ? Math.trunc(+o.confidence) : null,
@@ -113,7 +109,6 @@ async function extractText(content: string, source: string, source_ref: string |
   return { inserted, absorbed, objects: out };
 }
 
-// בונה טקסט-שיחה ממוזג (נכנס wa_bot_log + יוצא bot_transcripts) לפי chatId
 async function buildConversation(chatId: string): Promise<{ text: string; name: string }> {
   const phone = chatId.replace("@c.us", "");
   const { data: inc } = await sb.from("wa_bot_log").select("created_at,text_in,sender_name").eq("sender", phone).eq("action", "raziel_dm").not("text_in", "is", null).order("created_at").limit(40);
@@ -127,8 +122,9 @@ async function buildConversation(chatId: string): Promise<{ text: string; name: 
 }
 
 Deno.serve(async (req) => {
+  if (!ADMIN_KEY) return json({ error: "not_configured" }, 503);
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const u = new URL(req.url);
-  if (u.searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
   if (!ANTHROPIC) return json({ error: "not_configured" });
   const body = await req.json().catch(() => ({}));
   const mode = body?.mode || u.searchParams.get("mode") || "extract";
