@@ -1,14 +1,12 @@
 // facebook-publish — direct admin publishing for one post or one gallery image.
-// G0 hardening: real user JWT -> canonical rd_is_admin() before any service-role read/provider mutation.
-// Deploy with verify_jwt=true. This remains distinct from share-to-facebook, which is the queued post executor.
+// G0 hardening: real user JWT -> canonical rd_is_admin() -> canonical social RPCs.
+// Provider credentials stay owned by social_admin/Vault; this Edge is only an admin UI adapter.
+// Deploy with verify_jwt=true. Distinct from share-to-facebook, which is the queued post executor.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-const PAGE_ID = Deno.env.get("FB_PAGE_ID") || Deno.env.get("FACEBOOK_PAGE_ID") || "";
-const PAGE_TOKEN = Deno.env.get("FB_PAGE_ACCESS_TOKEN") || Deno.env.get("FACEBOOK_PAGE_TOKEN") || "";
-const GRAPH = Deno.env.get("FB_GRAPH_VERSION") || Deno.env.get("META_GRAPH_VERSION") || "v21.0";
 const SITE_URL = (Deno.env.get("SITE_URL") || "https://sod1820.co.il").replace(/\/$/, "");
 
 const CORS = {
@@ -35,29 +33,15 @@ async function requireCanonicalAdmin(req: Request): Promise<boolean> {
   return !error && data === true;
 }
 
-async function postToFeed(message: string, link?: string): Promise<{ id: string }> {
-  const body: Record<string, string> = { message, access_token: PAGE_TOKEN };
-  if (link) body.link = link;
-  const r = await fetch(`https://graph.facebook.com/${GRAPH}/${PAGE_ID}/feed`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await r.json();
-  if (!r.ok) throw new Error(data?.error?.message || `Meta API ${r.status}`);
-  return data;
+function publishedId(rpcResult: any): string | null {
+  const inner = rpcResult?.result ?? rpcResult;
+  return inner?.id ?? inner?.post_id ?? inner?.fb_post_id ?? inner?.result?.id ?? null;
 }
 
-async function postPhoto(imageUrl: string, caption: string): Promise<{ id: string }> {
-  const body = { url: imageUrl, caption, access_token: PAGE_TOKEN };
-  const r = await fetch(`https://graph.facebook.com/${GRAPH}/${PAGE_ID}/photos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await r.json();
-  if (!r.ok) throw new Error(data?.error?.message || `Meta API ${r.status}`);
-  return data;
+function rpcFailed(rpcResult: any): boolean {
+  const status = Number(rpcResult?.http_status || 0);
+  const inner = rpcResult?.result ?? rpcResult;
+  return status >= 400 || rpcResult?.ok === false || inner?.ok === false || !!rpcResult?.error || !!inner?.error;
 }
 
 Deno.serve(async (req: Request) => {
@@ -65,7 +49,6 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
   if (!SUPABASE_URL || !ANON_KEY || !SERVICE_KEY) return json({ error: "not_configured" }, 503);
   if (!(await requireCanonicalAdmin(req))) return json({ error: "forbidden" }, 403);
-  if (!PAGE_ID || !PAGE_TOKEN) return json({ ok: false, error: "facebook_not_configured" }, 503);
 
   const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -78,7 +61,7 @@ Deno.serve(async (req: Request) => {
     if (type === "post" && post_id) {
       const { data: post, error } = await admin
         .from("posts")
-        .select("id,title,excerpt,slug,image_url,categories,tags")
+        .select("id,title,excerpt,slug,tags")
         .eq("id", post_id)
         .single();
       if (error || !post) return json({ ok: false, error: "post_not_found" }, 404);
@@ -88,14 +71,22 @@ Deno.serve(async (req: Request) => {
       const link = `${SITE_URL}/${post.slug}`;
       const tags = (post.tags || []).map((t: string) => `#${t.replace(/\s+/g, "_")}`).slice(0, 5).join(" ");
       const message = [title, excerpt, tags].filter(Boolean).join("\n\n");
-      const result = await postToFeed(message, link);
-      return json({ ok: true, fb_post_id: result.id, type: "post" });
+
+      const { data: result, error: publishError } = await admin.rpc("fb_publish_post", {
+        p_message: message,
+        p_link: link,
+        p_page_id: null,
+      });
+      if (publishError || rpcFailed(result)) {
+        return json({ ok: false, error: "publish_failed" }, 502);
+      }
+      return json({ ok: true, fb_post_id: publishedId(result), type: "post" });
     }
 
     if (type === "image" && image_id) {
       const { data: img, error } = await admin
         .from("gallery_images")
-        .select("id,name,image_url,primary_value,all_values,tags,occurred_at")
+        .select("id,name,image_url,primary_value,tags,occurred_at")
         .eq("id", image_id)
         .single();
       if (error || !img) return json({ ok: false, error: "image_not_found" }, 404);
@@ -108,8 +99,15 @@ Deno.serve(async (req: Request) => {
       if (img.tags?.length) parts.push((img.tags as string[]).map((t) => `#${t.replace(/\s+/g, "_")}`).join(" "));
       parts.push(SITE_URL);
 
-      const result = await postPhoto(img.image_url, parts.join("\n"));
-      return json({ ok: true, fb_post_id: result.id, type: "image" });
+      const { data: result, error: publishError } = await admin.rpc("fb_publish_photo", {
+        p_image_url: img.image_url,
+        p_caption: parts.join("\n"),
+        p_page_id: null,
+      });
+      if (publishError || rpcFailed(result)) {
+        return json({ ok: false, error: "publish_failed" }, 502);
+      }
+      return json({ ok: true, fb_post_id: publishedId(result), type: "image" });
     }
 
     return json({ ok: false, error: "type_must_match_id" }, 400);
