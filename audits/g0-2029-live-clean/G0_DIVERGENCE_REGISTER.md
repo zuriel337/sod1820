@@ -67,7 +67,7 @@ Already-live 410 sources now represented in git: `tmp-upload`, `tmp-pancher-uplo
 | `post-ai-edit` | real JWT → server admin check before paid provider call | branch candidate; current public paid endpoint remains live until release |
 | `post-to-storyboard` | mandatory configured `STORYBOARD_RUN_KEY`; no public-cost fallback | **live probe proved current endpoint has no effective run-key**; candidate fails closed (503) if secret remains absent |
 | `email-ingest` | mandatory external Edge secret; no hardcoded fallback; bounded channel allowlist | branch candidate; live corpus currently has 0 `channel_updates.source=email` rows |
-| `email-inbound` | mandatory external Edge secret; no hardcoded fallback | branch candidate; capability is active data-wise (49 stored inbound emails; latest observed 2026-09-08) so release config is mandatory |
+| `email-inbound` | Resend/Svix signature verification over raw webhook body; no URL/shared fallback secret | branch candidate; inbox is active data-wise (49 stored inbound emails; latest observed 2026-09-08) |
 | `research-nurture` | scheduled path requires existing `FB_ADMIN_KEY` header; public unsubscribe remains per-lead token-bound | branch candidate |
 | `video-migrate` | existing `FB_ADMIN_KEY` service header, HTTPS-only, bounded batch/size | **live probe proved current endpoint has no effective OCR/run-key**; active Source Video capability therefore uses existing proven service root rather than an unconfigured new secret |
 | `notify-page-ready` | existing `FB_ADMIN_KEY` service header; no query/static fallback | branch candidate |
@@ -103,7 +103,24 @@ Critical finding:
 
 Therefore both current live endpoints have **no effective dedicated run-key configured** and remain material live P0/P1 surfaces until the hardened release. No privileged mutation/AI call was triggered by these empty-body probes.
 
-## 7. Admin-alert / Watchman reconciliation
+## 7. Inbound email root-of-trust reconciliation
+
+The connected Resend account has one enabled `email.received` webhook targeting the canonical `email-inbound` Edge endpoint. The legacy endpoint URL currently carries a reusable query credential. Do not reproduce its value.
+
+Resend's receiving security model provides a signed webhook event (Svix headers) and requires verification against the raw body. The connected webhook resource also has a signing secret available to the authenticated Resend account; that value is never written to git/work_log.
+
+Branch candidate now:
+
+1. reads `req.text()` before parsing;
+2. verifies `svix-id`, `svix-timestamp`, and `svix-signature` with HMAC-SHA256 and bounded timestamp skew;
+3. uses an explicit `RESEND_WEBHOOK_SECRET` only if already configured, otherwise retrieves/caches the signing secret through the authenticated Resend Webhooks API using the existing Resend API credential;
+4. accepts only signed `email.received` events;
+5. fetches the full message through Resend receiving API and stores it as **untrusted inbox data only** — no actions/agent execution;
+6. after the deployed signed handler is proven, updates the same Resend webhook resource to the clean endpoint without the legacy query credential.
+
+This removes `EMAIL_INBOUND_SECRET` as a new G0 configuration requirement and avoids creating another secrets store/system.
+
+## 8. Admin-alert / Watchman reconciliation
 
 Live owner facts:
 
@@ -129,7 +146,7 @@ Branch resolution in `G0_EDGE_RELEASE_SQL_CANDIDATE.sql`:
 
 This intentionally accepts the current canonical limitation that generic admin email is not yet implemented; G0 does not create a parallel email sender to hide that limitation.
 
-## 8. Cron root-of-trust
+## 9. Cron root-of-trust
 
 Live active jobs observed: `share-to-facebook` (5m), `research-nurture-daily`, `system-watchman-weekly`, `page-ready-auto`, `reply-email-auto`. `wa-daily-digest` existed but was inactive.
 
@@ -146,26 +163,25 @@ The full SQL candidate was executed inside a live transaction as a syntax/object
 
 SQL is stored as **branch-only release candidate**, not a fabricated migration filename. On explicit release, run it through the canonical Supabase migration action and then mirror the generated migration version into git.
 
-## 9. External secret/config release checks
+## 10. External config release checks
 
 Secret **values** never belong in git/work_log.
 
 Verified now:
 
-- existing `FB_ADMIN_KEY` is configured in the Edge environment (proved through fail-closed 401 probes) and is present by name in Vault.
-- no service-role key exists in Vault and G0 does not add one.
+- existing `FB_ADMIN_KEY` is configured in the Edge environment (proved through fail-closed 401 probes) and is present by name in Vault;
+- no service-role key exists in Vault and G0 does not add one;
+- the Resend account has an enabled signed `email.received` webhook for `email-inbound`; the target state reuses that signed resource rather than inventing `EMAIL_INBOUND_SECRET`.
 
-Before deploying affected candidates, verify only existence/configuration of:
+Remaining configuration semantics:
 
-- `EMAIL_INBOUND_SECRET` — mandatory because inbound mailbox is actively used;
-- `EMAIL_INGEST_SECRET` — fail-closed; currently no live email-channel rows observed;
-- `STORYBOARD_RUN_KEY` — optional for availability, but absence intentionally makes the hardened storyboard endpoint 503 rather than public-cost; it is **not** allowed to fall back to public execution.
+- `EMAIL_INGEST_SECRET` — fail-closed external webhook; currently no live email-channel rows observed, so absence means capability safely remains unavailable rather than reverting to a hardcoded fallback.
+- `STORYBOARD_RUN_KEY` — absence intentionally makes the hardened storyboard endpoint 503 rather than public-cost; it is **not** allowed to fall back to public execution.
+- `email-inbound` requires the existing Resend API credential to be able to fetch webhook metadata/signing material (or an already-configured `RESEND_WEBHOOK_SECRET`). This must be verified during deployment before the webhook URL is cleaned.
 
 `video-migrate` no longer depends on the absent `OCR_RUN_KEY`; it uses the existing service-to-service root.
 
-If an external webhook secret is absent, the safe state is fail-closed; do not restore a hardcoded fallback to preserve availability.
-
-## 10. Git-only counterpoint / PR hygiene
+## 11. Git-only counterpoint / PR hygiene
 
 `facebook-publish` exists in git but is not the live canonical cron executor. Live authority is `share-to-facebook` plus the admin-only `posts.share_to_fb` state. Do not raw-merge or substitute `facebook-publish`.
 
@@ -179,20 +195,19 @@ Preliminary open-PR decisions remain:
 - #97 — storyboard prior lineage; current source has been ported/hardened instead of raw merging old PR;
 - other stale legacy prototype PRs remain EVIDENCE/PRIOR-ART/SUPERSEDED according to the prior triage and require no raw merge.
 
-## 11. Independent specialist state
+## 12. Independent specialist state
 
 Claude READ_ONLY Edge census assignment: work_log `19208c7e-ced5-4f19-8e1b-3f526df1d587`.
 
 At the latest live scan there is still **no AFTER**. Because this is a security/release scope, independent specialist review remains **REQUIRED before final G0 release/closure** if it can still change the release matrix. GPT does not block evidence gathering on a sleeping session and has continued live verification independently.
 
-## 12. Current blockers
+## 13. Current blockers
 
-1. **No release authorization yet.** Current live still includes material unguarded/legacy endpoints, including the just-proven storyboard/video surfaces; branch candidates are not live until ZURIEL says `תעלה`.
-2. `EMAIL_INBOUND_SECRET` is a real release precondition for the actively used inbound mailbox. Its value must stay outside git/work_log.
-3. Reconcile Claude AFTER if it arrives; if not, perform the required independent pre-release security cross-check by the available specialist path before declaring G0 sufficient.
-4. Re-run branch diff/current-main overlap and CI on the final pre-release head.
-5. On explicit release: apply the canonical migration, deploy the selected hardened/tombstone Edge versions with the exact modes in `G0_EDGE_DEPLOY_MATRIX.md`, verify cron commands contain no inline credentials, and negative-test privileged paths.
-6. Perform full closing rescan: current main + DB object state + Edge live versions/hashes/auth + active crons + grants/RLS + owner index + open PR state.
+1. **No release authorization yet.** Current live still includes material unguarded/legacy endpoints, including the proven storyboard/video surfaces; branch candidates are not live until ZURIEL says `תעלה`.
+2. Reconcile Claude AFTER if it arrives; if not, perform the required independent pre-release security cross-check by the available specialist path before declaring G0 sufficient.
+3. Re-run branch diff/current-main overlap and CI on the final pre-release head.
+4. On explicit release: apply the canonical migration, deploy the selected hardened/tombstone Edge versions with the exact modes in `G0_EDGE_DEPLOY_MATRIX.md`, verify signed inbound email before cleaning the Resend webhook URL, verify cron commands contain no inline credentials, and negative-test privileged paths.
+5. Perform full closing rescan: current main + DB object state + Edge live versions/hashes/auth + active crons + grants/RLS + owner index + open PR state.
 
 **Current state: G0 NOT SUFFICIENT.**  
 **Branch representation of the original 37 missing Edge sources: COMPLETE.**  
