@@ -7,9 +7,10 @@
 // v2: כל שליחה מאומתת (idMessage) לפני סימון "טופל"; שליחה כושלת נכנסת ל-bot_outbox ונשלחת שוב
 //     (בלי לייצר מחדש ב-AI) עד הצלחה/תקרה. פותר את "הבוט נרדם" מול יסכה. ראה bot_delivery_law.
 // v1: חוקר-תלמיד של יסכה — פרטי בלבד. תמיד עברית.
+// G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const SECRET = 's0d1820wahook_7yq2c9';
+const ADMIN_KEY = (Deno.env.get('FB_ADMIN_KEY') || '').trim();
 const YISKA = '972508861881@c.us';
 const ZURIEL = Deno.env.get('ZURIEL_WA') || '972556651237@c.us';
 const ANTHROPIC = Deno.env.get('ANTHROPIC_API_KEY') || '';
@@ -31,7 +32,6 @@ async function alreadyDone(id: string): Promise<boolean> { const {data}=await sb
 async function sentLastHour(): Promise<number> { const {count}=await sb.from('wa_bot_log').select('id',{count:'exact',head:true}).eq('action','hatishbi').gte('created_at',new Date(Date.now()-3600_000).toISOString()); return count||0; }
 async function introduced(): Promise<boolean> { const {data}=await sb.from('wa_bot_log').select('id').eq('action','hatishbi').neq('reply_out','[seeded]').limit(1); return !!(data&&data.length); }
 
-// === מסירה מאומתת + תור־יציאה (הפרוטוקול המשותף) — ראה bot_delivery_law ===
 async function sendVerified(chatId: string, message: string): Promise<string|null> {
   try { const res: any = await waAdmin('sendMessage',{chatId,message}); return res?.result?.idMessage||res?.idMessage||null; }
   catch(e){ trace.push({step:'send_throw',e:String(e)}); return null; }
@@ -66,7 +66,6 @@ async function optGematria(text: string): Promise<string> {
   return lines.length?`גימטריה (להתייחס במילים אם רלוונטי):\n`+lines.join('\n'):'';
 }
 
-// v4: קורא מ-agent_user_memory (זיכרון אישי מאוחד, פרטי) במקום yiska_* — נתונים זהים, אפס הבדל למשתמש.
 async function yiskaContext(): Promise<string> {
   const p: string[]=[];
   try { const {data}=await sb.from('agent_user_memory').select('topic,content').eq('agent','hatishbi').eq('user_ref',YISKA).eq('memory_type','research_note').order('created_at',{ascending:false}).limit(6); if(data?.length) p.push('מה שכבר ידוע על יסכה:\n'+data.map((r:any)=>`• ${r.topic}: ${(r.content||'').slice(0,80)}`).join('\n')); } catch {}
@@ -98,16 +97,14 @@ async function aiReply(prompt: string, system: string): Promise<string|null> {
 function extractParts(raw: string): {reply:string;learnings:any[];question:string|null}|null {
   let c0=raw.replace(/```json|```/g,'').trim();
   const MARK='###למידות###';
-  // מזהה תחילת בלוק-JSON של learnings/question — גם אם נקטע באמצע (בלי סוגר }) → מונע דליפת חצי-JSON להודעה
   const JSON_START=/\{\s*"(?:learnings|question_asked)"/;
   let jsonStr='';
   const idx=c0.indexOf(MARK);
   if(idx>=0){ jsonStr=c0.slice(idx+MARK.length).trim(); c0=c0.slice(0,idx).trim(); }
-  else { // fallback: המודל השמיט את הסמן — חתוך מהסוגר הראשון של ה-JSON, גם אם הוא קטוע (bug: max_tokens חתך JSON ודלף ליסכה)
+  else {
     const jm=c0.match(JSON_START);
     if(jm&&jm.index!==undefined){ jsonStr=c0.slice(jm.index); c0=c0.slice(0,jm.index).trim(); }
   }
-  // ניקוי-ביטחון אחרון: אם נשאר סמן או תחילת-JSON בזנב הטקסט — הסר (כפל-הגנה מפני דליפה)
   let reply=c0.replace(new RegExp(MARK+'[\\s\\S]*$'),'').replace(new RegExp(JSON_START.source+'[\\s\\S]*$'),'').trim();
   let learnings:any[]=[],question:string|null=null;
   if(jsonStr){try{const p=JSON.parse(jsonStr);if(Array.isArray(p?.learnings))learnings=p.learnings;if(p?.question_asked)question=String(p.question_asked);}catch{}}
@@ -176,8 +173,9 @@ async function handle(nowSec:number):Promise<number>{
 }
 
 Deno.serve(async(req)=>{
+  if (!ADMIN_KEY) return new Response('not configured',{status:503});
+  if(req.headers.get('x-fb-admin-key')!==ADMIN_KEY)return new Response('forbidden',{status:403});
   const u=new URL(req.url);
-  if(u.searchParams.get('s')!==SECRET)return new Response('forbidden',{status:403});
   trace=[];let replies=0;
   try{await retryOutbox('hatishbi');}catch(e){trace.push({src:'outbox',e:String(e)});}
   try{replies=await handle(Date.now()/1000);}catch(e){trace.push({e:String(e)});}
