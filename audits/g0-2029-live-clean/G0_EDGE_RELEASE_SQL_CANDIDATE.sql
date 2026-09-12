@@ -1,7 +1,7 @@
 -- SOD1820 G0 EDGE / CRON ROOT-OF-TRUST RELEASE CANDIDATE
 -- BRANCH-ONLY. DO NOT RUN before explicit ZURIEL "תעלה".
 -- At release use the canonical Supabase migration action, then mirror the generated migration version into git.
--- No secret values belong in this file. Cron service auth resolves FB_ADMIN_KEY from Vault at execution time.
+-- No secret values belong in this file. G0-targeted service auth resolves FB_ADMIN_KEY from Vault at execution time.
 
 -- 1) Watchman stays under system_suggestions_law and all admin alerts end in notify_admin.
 create or replace function public.system_watchman_run(p_force boolean default false)
@@ -125,8 +125,15 @@ exception when others then
 end;
 $$;
 
--- 3) Replace cron credential-in-command paths atomically.
--- All remaining Edge cron calls use one existing service-to-service secret present in both Vault and Edge env.
+-- 3) Raziel identity must point at the current live implementation before wa-christina is retired.
+update public.agent_identity
+   set wa_slug = 'wa-raziel'
+ where agent_id = 'raziel'
+   and active = true
+   and wa_slug = 'wa-christina';
+
+-- 4) Replace G0-targeted cron credential-in-command paths atomically.
+-- These Edge cron calls use one existing service-to-service secret present in both Vault and Edge env.
 do $$
 declare
   r record;
@@ -139,7 +146,8 @@ begin
        'research-nurture-daily',
        'share-to-facebook',
        'system-watchman-weekly',
-       'wa-daily-digest'
+       'wa-daily-digest',
+       'wa-raziel'
      )
   loop
     perform cron.unschedule(r.jobid);
@@ -227,6 +235,26 @@ select cron.schedule(
 );
 
 select cron.schedule(
+  'wa-raziel',
+  '*/2 * * * *',
+  $cron$
+    with s as (
+      select decrypted_secret as key
+        from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY'
+       order by created_at desc
+       limit 1
+    )
+    select net.http_post(
+      url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-raziel',
+      headers := jsonb_build_object('Content-Type','application/json','x-fb-admin-key',s.key),
+      body := '{}'::jsonb
+    )
+    from s where nullif(s.key,'') is not null;
+  $cron$
+);
+
+select cron.schedule(
   'system-watchman-weekly',
   '0 8 * * 0',
   $cron$
@@ -235,3 +263,5 @@ select cron.schedule(
 );
 
 -- wa-daily-digest intentionally remains unscheduled/retired.
+-- Other legacy active cron credentials discovered by the independent audit remain an explicit
+-- G0 decision item; this candidate does not falsely claim to have migrated unrelated cron owners.
