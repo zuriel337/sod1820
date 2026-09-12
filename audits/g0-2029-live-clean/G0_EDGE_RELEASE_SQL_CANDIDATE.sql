@@ -1,7 +1,7 @@
 -- SOD1820 G0 EDGE / CRON ROOT-OF-TRUST RELEASE CANDIDATE
 -- BRANCH-ONLY. DO NOT RUN before explicit ZURIEL "תעלה".
 -- At release use the canonical Supabase migration action, then mirror the generated migration version into git.
--- No secret values belong in this file. G0-targeted service auth resolves FB_ADMIN_KEY from Vault at execution time.
+-- No secret values belong in this file. G0-targeted service auth resolves existing owner keys from Vault at execution time.
 
 -- 1) Watchman stays under system_suggestions_law and all admin alerts end in notify_admin.
 create or replace function public.system_watchman_run(p_force boolean default false)
@@ -133,7 +133,6 @@ update public.agent_identity
    and wa_slug = 'wa-christina';
 
 -- 4) Replace G0-targeted cron credential-in-command paths atomically.
--- These Edge cron calls use one existing service-to-service secret present in both Vault and Edge env.
 do $$
 declare
   r record;
@@ -147,7 +146,11 @@ begin
        'share-to-facebook',
        'system-watchman-weekly',
        'wa-daily-digest',
-       'wa-raziel'
+       'wa-raziel',
+       'gsc-daily-sync',
+       'gallery-thumbs',
+       'post-thumbs',
+       'channel-thumbs'
      )
   loop
     perform cron.unschedule(r.jobid);
@@ -155,113 +158,147 @@ begin
 end $$;
 
 select cron.schedule(
-  'page-ready-auto',
-  '*/15 * * * *',
+  'page-ready-auto','*/15 * * * *',
   $cron$
     with s as (
-      select decrypted_secret as key
-        from vault.decrypted_secrets
-       where name = 'FB_ADMIN_KEY'
-       order by created_at desc
-       limit 1
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
     )
     select net.http_post(
       url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/notify-page-ready?mode=send&max=100',
       headers := jsonb_build_object('Content-Type','application/json','x-fb-admin-key',s.key),
       body := '{}'::jsonb
-    )
-    from s where nullif(s.key,'') is not null;
+    ) from s where nullif(s.key,'') is not null;
   $cron$
 );
 
 select cron.schedule(
-  'reply-email-auto',
-  '*/10 * * * *',
+  'reply-email-auto','*/10 * * * *',
   $cron$
     with s as (
-      select decrypted_secret as key
-        from vault.decrypted_secrets
-       where name = 'FB_ADMIN_KEY'
-       order by created_at desc
-       limit 1
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
     )
     select net.http_post(
       url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/notify-reply-email?max=100',
       headers := jsonb_build_object('Content-Type','application/json','x-fb-admin-key',s.key),
       body := '{}'::jsonb
-    )
-    from s where nullif(s.key,'') is not null;
+    ) from s where nullif(s.key,'') is not null;
   $cron$
 );
 
 select cron.schedule(
-  'research-nurture-daily',
-  '0 8 * * *',
+  'research-nurture-daily','0 8 * * *',
   $cron$
     with s as (
-      select decrypted_secret as key
-        from vault.decrypted_secrets
-       where name = 'FB_ADMIN_KEY'
-       order by created_at desc
-       limit 1
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
     )
     select net.http_post(
       url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/research-nurture',
       headers := jsonb_build_object('Content-Type','application/json','x-fb-admin-key',s.key),
       body := '{}'::jsonb
-    )
-    from s where nullif(s.key,'') is not null;
+    ) from s where nullif(s.key,'') is not null;
   $cron$
 );
 
 select cron.schedule(
-  'share-to-facebook',
-  '*/5 * * * *',
+  'share-to-facebook','*/5 * * * *',
   $cron$
     with s as (
-      select decrypted_secret as key
-        from vault.decrypted_secrets
-       where name = 'FB_ADMIN_KEY'
-       order by created_at desc
-       limit 1
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
     )
     select net.http_post(
       url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/share-to-facebook',
       headers := jsonb_build_object('Content-Type','application/json','x-fb-admin-key',s.key),
       body := '{}'::jsonb
-    )
-    from s where nullif(s.key,'') is not null;
+    ) from s where nullif(s.key,'') is not null;
   $cron$
 );
 
 select cron.schedule(
-  'wa-raziel',
-  '*/2 * * * *',
+  'wa-raziel','*/2 * * * *',
   $cron$
     with s as (
-      select decrypted_secret as key
-        from vault.decrypted_secrets
-       where name = 'FB_ADMIN_KEY'
-       order by created_at desc
-       limit 1
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
     )
     select net.http_post(
       url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-raziel',
       headers := jsonb_build_object('Content-Type','application/json','x-fb-admin-key',s.key),
       body := '{}'::jsonb
+    ) from s where nullif(s.key,'') is not null;
+  $cron$
+);
+
+-- GSC already owns a dedicated GSC_SYNC_KEY; keep that owner-specific root and remove the inline API key.
+select cron.schedule(
+  'gsc-daily-sync','17 5 * * *',
+  $cron$
+    with s as (
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'GSC_SYNC_KEY' order by created_at desc limit 1
     )
-    from s where nullif(s.key,'') is not null;
+    select net.http_post(
+      url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/gsc-sync',
+      headers := jsonb_build_object('Content-Type','application/json','x-gsc-key',s.key),
+      body := jsonb_build_object('days',7,'site','sc-domain:sod1820.co.il')
+    ) from s where nullif(s.key,'') is not null;
+  $cron$
+);
+
+-- Three static-thumbnail jobs share one gen-thumb implementation; the handler is hardened to FB_ADMIN_KEY header.
+select cron.schedule(
+  'gallery-thumbs','*/10 * * * *',
+  $cron$
+    with s as (
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
+    )
+    select net.http_get(
+      url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/gen-thumb?n=8',
+      headers := jsonb_build_object('x-fb-admin-key',s.key),
+      timeout_milliseconds := 110000
+    ) from s where nullif(s.key,'') is not null;
   $cron$
 );
 
 select cron.schedule(
-  'system-watchman-weekly',
-  '0 8 * * 0',
+  'post-thumbs','7,37 * * * *',
   $cron$
-    select public.system_watchman_run(false);
+    with s as (
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
+    )
+    select net.http_get(
+      url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/gen-thumb?table=posts&n=6',
+      headers := jsonb_build_object('x-fb-admin-key',s.key),
+      timeout_milliseconds := 110000
+    ) from s where nullif(s.key,'') is not null;
   $cron$
 );
 
+select cron.schedule(
+  'channel-thumbs','13,43 * * * *',
+  $cron$
+    with s as (
+      select decrypted_secret as key from vault.decrypted_secrets
+       where name = 'FB_ADMIN_KEY' order by created_at desc limit 1
+    )
+    select net.http_get(
+      url := 'https://linswmnnkjxvweumprav.supabase.co/functions/v1/gen-thumb?table=channel_updates&n=6',
+      headers := jsonb_build_object('x-fb-admin-key',s.key),
+      timeout_milliseconds := 110000
+    ) from s where nullif(s.key,'') is not null;
+  $cron$
+);
+
+select cron.schedule(
+  'system-watchman-weekly','0 8 * * 0',
+  $cron$ select public.system_watchman_run(false); $cron$
+);
+
 -- wa-daily-digest intentionally remains unscheduled/retired.
--- Other legacy active cron credentials discovered by the independent audit remain an explicit
--- G0 decision item; this candidate does not falsely claim to have migrated unrelated cron owners.
+-- Remaining legacy active cron credentials discovered by the independent audit stay explicitly classified;
+-- this candidate does not falsely claim to have migrated unrelated owners without an owner/caller check.
