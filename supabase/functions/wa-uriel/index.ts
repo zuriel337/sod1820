@@ -5,9 +5,10 @@
 // v11: כל שליחה מאומתת (idMessage) לפני שמסמנים "טופל". שליחה שנכשלה נכנסת ל-bot_outbox
 //      ונשלחת שוב (בלי לייצר מחדש ב-AI) עד הצלחה או תקרת ניסיונות. פותר את "הבוט נרדם".
 // v9: אם כריסטינה כותבת "רזיאל:" בתחילת ההודעה — מנוע גימטריה של רזיאל עונה, לא אוריאל.
+// G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA = "972507555102@c.us";
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
@@ -39,8 +40,6 @@ async function sentLastHour(): Promise<number> {
   return count || 0;
 }
 
-// === מסירה מאומתת + תור־יציאה (הפרוטוקול המשותף) ===
-// מחזיר idMessage בהצלחה, null בכישלון. ראה חוק bot_delivery_law.
 async function sendVerified(chatId: string, message: string): Promise<string | null> {
   try { const res: any = await waAdmin("sendMessage", { chatId, message }); return res?.result?.idMessage || res?.idMessage || null; }
   catch (e) { trace.push({ step: "send_throw", e: String(e) }); return null; }
@@ -67,7 +66,6 @@ async function retryOutbox(bot: string) {
   }
 }
 
-// === מנוע רזיאל (גימטריה) ===
 const SYSTEM_RAZIEL =
   "אתה רזיאל — פרשן גימטריה ותורה מטעם סוד 1820.\n" +
   "חוקי ברזל:\n" +
@@ -113,7 +111,6 @@ async function razielReply(text: string): Promise<string | null> {
   } catch { return null; }
 }
 
-// === מנוע אוריאל (למידה) ===
 async function optionalGematria(text: string): Promise<string> {
   const heWords = (text || "").match(/[א-ת]{2,20}/g)?.slice(0, 3) || [];
   if (!heWords.length) return "";
@@ -142,7 +139,6 @@ const URIEL_SYSTEM =
   "\nפורמט: קודם המענה המלא כטקסט רגיל. אחר ###למידות###\n" +
   '{"learnings":[{"word":"מילה","decomposed_form":"הצורה","interpretation":"מה למדנו"}],"question_asked":"השאלה"}';
 
-// v13: קורא מ-agent_user_memory (זיכרון אישי מאוחד) במקום christina_* — נתונים זהים, אפס הבדל למשתמש.
 async function buildContext(text: string): Promise<string> {
   const parts: string[] = [];
   const { data: md } = await sb.from("agent_user_memory").select("topic,content,data,created_at")
@@ -169,16 +165,14 @@ function recentThread(msgs: any[], uptoTs: number): string {
 function extractParts(rawOut: string): { reply: string; learnings: any[]; question: string | null } | null {
   let c0 = rawOut.replace(/```json|```/g, "").trim();
   const MARK = "###למידות###";
-  // מזהה תחילת בלוק-JSON — גם אם נקטע באמצע (בלי סוגר }) → מונע דליפת חצי-JSON להודעה (bug שקרה ליסכה/hatishbi)
   const JSON_START = /\{\s*"(?:learnings|question_asked)"/;
   let jsonStr = "";
   const idx = c0.indexOf(MARK);
   if (idx >= 0) { jsonStr = c0.slice(idx + MARK.length).trim(); c0 = c0.slice(0, idx).trim(); }
-  else { // fallback: המודל השמיט את הסמן — חתוך מהסוגר הראשון של learnings/question, גם אם ה-JSON קטוע
+  else {
     const jm = c0.match(JSON_START);
     if (jm && jm.index !== undefined) { jsonStr = c0.slice(jm.index); c0 = c0.slice(0, jm.index).trim(); }
   }
-  // ניקוי-ביטחון אחרון: הסר סמן/תחילת-JSON שנותרו בזנב (כפל-הגנה מדליפה)
   const reply = c0.replace(new RegExp(MARK + "[\\s\\S]*$"), "").replace(new RegExp(JSON_START.source + "[\\s\\S]*$"), "").trim();
   let learnings: any[] = []; let question: string | null = null;
   if (jsonStr) {
@@ -230,7 +224,6 @@ async function autoReply(nowSec: number): Promise<number> {
   const text = latest.textMessage||latest.extendedTextMessage?.text||"";
   const doneKey = "uriel:"+latest.idMessage;
 
-  // v9: אם ההודעה מתחילה ב"רזיאל:" — רזיאל עונה, לא אוריאל
   if (RAZIEL_TRIGGER.test(text)) {
     const reply = await razielReply(text);
     if (reply) {
@@ -263,8 +256,9 @@ async function autoReply(nowSec: number): Promise<number> {
 }
 
 Deno.serve(async (req) => {
+  if (!ADMIN_KEY) return new Response("not configured", { status: 503 });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden",{status:403});
   const u = new URL(req.url);
-  if (u.searchParams.get("s")!==SECRET) return new Response("forbidden",{status:403});
   trace=[];
   const nowSec=Date.now()/1000; let replies=0;
   try { await retryOutbox("uriel"); } catch(e){ trace.push({src:"outbox",e:String(e)}); }

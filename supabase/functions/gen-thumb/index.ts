@@ -2,23 +2,22 @@
 // כללי: עובד על gallery_images (ברירת-מחדל) · posts · channel_updates — לפי ?table=.
 // חכם: שומרים thumb רק אם הוא אמתית קטן יותר מהמקור; אחרת thumb_url=המקור (כבר קטן).
 // כך כל שורה מקבלת thumb_url עם הקובץ הקטן ביותר — הפיד מגיש אותו ישירות (אפס Image Transformation).
-// חשוב: ה-backfill מושך את המקור מ-object/public ומקטין מקומית (ImageScript) — לא צורך טרנספורמציות. guard ב-?s=.
+// G0: service invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { Image } from "https://deno.land/x/imagescript@1.2.17/mod.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const WIDTH = 480;
 const QUALITY = 72;
 const DEFAULT_N = 20;
 const MAX_BYTES = 12 * 1024 * 1024;
 
-// טבלאות מותרות + הקידומת בתיקיית _thumb (namespacing כדי שמזהי-שורה מטבלאות שונות לא יתנגשו).
 const TABLES: Record<string, string> = {
-  gallery_images: "_thumb/",   // קיים — uuid, נשמר כמו שהוא
-  posts: "_thumb/p/",          // bigint
-  channel_updates: "_thumb/c/", // uuid
+  gallery_images: "_thumb/",
+  posts: "_thumb/p/",
+  channel_updates: "_thumb/c/",
 };
 
 function json(b: unknown, s = 200) {
@@ -26,8 +25,9 @@ function json(b: unknown, s = 200) {
 }
 
 Deno.serve(async (req) => {
+  if (!ADMIN_KEY) return json({ error: "not_configured" }, 503);
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return json({ error: "forbidden" }, 403);
   const url = new URL(req.url);
-  if (url.searchParams.get("s") !== SECRET) return json({ error: "forbidden" }, 403);
   const table = url.searchParams.get("table") || "gallery_images";
   const prefix = TABLES[table];
   if (!prefix) return json({ error: "bad_table", allowed: Object.keys(TABLES) }, 400);
@@ -53,7 +53,6 @@ Deno.serve(async (req) => {
       const img = await Image.decode(buf);
       if (img.width > WIDTH) img.resize(WIDTH, Image.RESIZE_AUTO);
       const out = await img.encodeJPEG(QUALITY);
-      // חכם: רק אם ה-thumb קטן משמעותית (≤85%) — אחרת המקור כבר קטן, מגישים אותו.
       if (out.byteLength >= buf.byteLength * 0.85) {
         await admin.from(table).update({ thumb_url: src }).eq("id", row.id);
         keptOriginal++; continue;

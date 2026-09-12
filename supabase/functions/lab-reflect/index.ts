@@ -1,9 +1,10 @@
 // lab-reflect — סוכן #2 «רושם-ההתקדמות». לולאת-הלמידה של המעבדה.
 // קורא שיחה חדשה (lab_messages) מאז reflected_through, ומעדכן: מודל-הלומד (lab_learner),
-// סטטוס-מושגים (lab_progress) ומאגר-הידע (lab_notes). מבודד. cron / ?s=SECRET.
+// סטטוס-מושגים (lab_progress) ומאגר-הידע (lab_notes). מבודד.
+// G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
@@ -74,8 +75,8 @@ async function run() {
 }
 
 Deno.serve(async (req) => {
-  const u = new URL(req.url);
-  if (u.searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
+  if (!ADMIN_KEY) return new Response(JSON.stringify({ err: "not_configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   if (!ANTHROPIC) return new Response(JSON.stringify({ err: "not_configured" }), { headers: { "Content-Type": "application/json" } });
   try { const r = await run(); return new Response(JSON.stringify(r), { headers: { "Content-Type": "application/json" } }); }
   catch (e) { return new Response(JSON.stringify({ err: String(e).slice(0, 200) }), { headers: { "Content-Type": "application/json" } }); }

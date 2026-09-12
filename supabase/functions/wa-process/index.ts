@@ -1,14 +1,14 @@
 // 📿 wa-process — מנוע העיבוד-העמוק לבוט הוואטסאפ. pg_cron קורא לכאן פעם בדקה.
 // לוקח ממתינים מ-wa_deep_queue → מחשב בכל השיטות → מוצא התכנסויות (אותה שיטה + חוצה-שיטות)
 // → שולח תשובה עמוקה מצוטטת → מוסיף למאגר → מסמן done. הכל מאומת במנוע.
+// G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const SIGN = "🔯 רזיאל · מאומת במנוע · sod1820";
 const SENSITIVE = /(נדקר|נרצח|נהרג|הרוג|רצח|פיגוע|טרור|מוות|נפטר|אסון|שריפ|דקיר|מת\b)/;
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 const clean = (s: string) => (s || "").replace(/[֑-ׇ]/g, "").replace(/[^א-ת\s]/g, " ").replace(/\s+/g, " ").trim();
-// חילוץ כל הביטויים העבריים מהודעה מלאה (שורות/פסיקים/= וכו') — לנתיב-VIP, כדי לא לאבד שום גימטריה.
 function extractPhrases(t: string): string[] {
   const parts = (t || "").split(/[\n,;=·|•\-–—:()"'".!?׃־]+/);
   const out: string[] = [];
@@ -20,9 +20,6 @@ function extractPhrases(t: string): string[] {
   return [...new Set(out)].slice(0, 15);
 }
 
-// 🧹 שער-איכות (quality gate — בקשת צוריאל 3.7): מונע כניסת רעש-צ׳אט למאגר.
-// מסנן: מילות-מטא ("בגימטריא"/"כלומר"…), פותחי/מחברי-משפט ("וגם"…), שברי-רעש ("חח"/"תודה"),
-// ומשפטים (5+ מילים). ביטויי-גימטריה אמיתיים הם קצרים (שם/צירוף), לא משפטי-שיחה.
 const META_RE = /(גימטרי|בגימ|כלומר|וכדומה|השאלה|שמצאתי|נכתב|סרטון|אנגלית|תודה|הביאה חידוש|מופיע ב|יקר שלי|יפה שאתה|רואים את|לפני עשור)/;
 const FILLER = new Set(["וגם", "וכו", "וכדומה", "כלומר", "נכון", "לגבי", "אבל"]);
 const NOISE = new Set(["חח", "חחח", "חחחח", "ההה", "לול", "אמ", "מם", "בה", "הה"]);
@@ -31,16 +28,14 @@ function isQualityPhrase(p: string): boolean {
   if (!c) return false;
   const words = c.split(" ").filter(Boolean);
   const bare = c.replace(/\s+/g, "");
-  if (bare.length < 2) return false;                              // קצר מדי (אות בודדת)
-  if (words.length > 4) return false;                             // משפט, לא ביטוי
-  if (NOISE.has(bare) || words.some((w) => NOISE.has(w))) return false;   // רעש-שיחה
-  if (META_RE.test(c)) return false;                             // מילת-מטא/צ׳אט
-  if (FILLER.has(words[0]) || words.some((w) => w === "וגם")) return false; // פותח/מחבר-משפט
+  if (bare.length < 2) return false;
+  if (words.length > 4) return false;
+  if (NOISE.has(bare) || words.some((w) => NOISE.has(w))) return false;
+  if (META_RE.test(c)) return false;
+  if (FILLER.has(words[0]) || words.some((w) => w === "וגם")) return false;
   return true;
 }
 
-// 🔤 צמד-תעתוק (שיטת שמעון: אנגלית→עברית→גימטריה). תופס שורה עם "=" יחיד שבצד אחד עברית
-// ובצד השני מילה לטינית אחת בלבד ("Realize = ריאלז" · "דרים= dream"). עמום (עברית+לטינית באותו צד) → דלג.
 function extractLatinPairs(t: string): { he: string; en: string }[] {
   const pairs: { he: string; en: string }[] = [];
   for (const line of (t || "").split(/\n+/)) {
@@ -51,8 +46,8 @@ function extractLatinPairs(t: string): { he: string; en: string }[] {
     const enA = (a.match(/[A-Za-z][A-Za-z' ]*[A-Za-z]|[A-Za-z]/g) || []).map((s) => s.trim().toLowerCase()).filter((s) => s.length >= 2);
     const enB = (b.match(/[A-Za-z][A-Za-z' ]*[A-Za-z]|[A-Za-z]/g) || []).map((s) => s.trim().toLowerCase()).filter((s) => s.length >= 2);
     let he = "", en = "";
-    if (heA && !heB && enB.length === 1 && !enA.length) { he = heA; en = enB[0]; }        // עברית = אנגלית
-    else if (heB && !heA && enA.length === 1 && !enB.length) { he = heB; en = enA[0]; }    // אנגלית = עברית
+    if (heA && !heB && enB.length === 1 && !enA.length) { he = heA; en = enB[0]; }
+    else if (heB && !heA && enA.length === 1 && !enB.length) { he = heB; en = enA[0]; }
     else continue;
     const w = he.split(" ").filter(Boolean);
     if (w.length < 1 || w.length > 4) continue;
@@ -62,16 +57,15 @@ function extractLatinPairs(t: string): { he: string; en: string }[] {
 }
 
 async function calc(fn: string, phrase: string) {
-  // שמות הארגומנטים במנוע: fn_ragil/fn_misratar/fn_albam → phrase · השאר → p
   const usesPhrase = fn === "fn_ragil" || fn === "fn_misratar" || fn === "fn_albam";
   const { data, error } = await sb.rpc(fn, usesPhrase ? { phrase } : { p: phrase });
   return error ? 0 : (Number(data) || 0);
 }
 
 Deno.serve(async (req) => {
-  if (new URL(req.url).searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
+  if (!ADMIN_KEY) return new Response("not configured", { status: 503 });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const { data: rows } = await sb.from("wa_deep_queue").select("*").eq("status", "pending").order("created_at").limit(6);
-  // 👑 אנשי-זהב — רק תוכן איכותי *שלהם* (התכנסות אמיתית) זורם לערוץ torat-haremez באתר.
   const { data: vips } = await sb.from("wa_vip_senders").select("sender,name_match").eq("active", true);
   const isVipSender = (sender: string, name: string) => (vips || []).some((v: { sender?: string; name_match?: string }) =>
     (v.sender && (sender || "").startsWith(v.sender)) || (v.name_match && (name || "").includes(v.name_match)));
@@ -115,7 +109,6 @@ Deno.serve(async (req) => {
       const vip = isVipSender(row.sender as string, row.sender_name as string);
       const who = row.sender_name ? String(row.sender_name) : null;
       if (vip) {
-        // 👑 נתיב-זהב: מחלצים ביטויים מההודעה — אך *רק ביטויי-איכות* (שער isQualityPhrase) נכנסים למאגר.
         const phrases = extractPhrases((row.raw_text as string) || phrase).filter(isQualityPhrase);
         if (isQualityPhrase(phrase) && !phrases.includes(phrase)) phrases.unshift(phrase);
         for (const p of phrases.slice(0, 15)) { try { await sb.rpc("wa_add_vip_word", { p_phrase: p, p_vip: who, p_note: who ? "מאת " + who : null }); } catch { /* noop */ } }
@@ -124,13 +117,10 @@ Deno.serve(async (req) => {
         await sb.rpc("wa_add_word", { p_phrase: phrase, p_source: "wa-deep", p_note: who ? "מאת " + who : null });
       }
 
-      // 🔤 תעתוק אנגלית → שכבת הכינויים (word_aliases): כל מילה לטינית נצמדת כ-alias לישות העברית. עץ אחד.
-      // method=transliteration (שומר את הערך העברי) · confidence 0.9 (אוטומטי) · verified=false עד סקירה.
       for (const { he, en } of extractLatinPairs((row.raw_text as string) || phrase)) {
         try { await sb.rpc("add_word_alias", { p_phrase: he, p_alias: en, p_lang: "en", p_type: "english", p_source: "wa-vip", p_method: "transliteration", p_confidence: 0.9, p_verified: false }); } catch { /* noop */ }
       }
 
-      // 📡 זרימה לערוץ האתר — רק אנשי-זהב + התכנסות אמיתית (strong≥1). דדופ 7 ימים.
       if (strong.length >= 1 && vip) {
         const chText = `🔯 *${phrase}* = *${ragil}* = ${strong.map((p) => `*${p}*`).join(" = ")}`;
         const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();

@@ -1,17 +1,10 @@
-// wa-raziel (רזיאל) — v47 — 30.8.2026 — Single-Mind Trunk Closure: metatron_context לפני כל תשובה רגילה.
-//   v47: razielRespond קורא metatron_context() לפני הקריאה הראשית ל-Claude (לא רק בשומר-הנפילה) —
-//        חוקי-המערכת החיים (nodes propagate=true) מתווספים ל-system בכל תשובה. RAZIEL_SYSTEM/fn_raziel_persona
-//        נשארים כרשת-ביטחון fail-open — לא הוסרו, רק תוספת מעליהם (מוח=מטטרון, פרסונה=עדשה, לא redesign).
-//   v46: isOpenerMsg — פתיח כללי/ברכה → תפריט 6 מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
-//   v45: welcome אנונימי — «מאיפה תרצה להתחיל?» + 6 מסלולים; הוסר «3 שאלות ביום» (after_gate=unlimited).
-//   v44: postFacts()→chat_search_facts — RAG על הפוסטים (עץ אחד, משותף עם האתר).
-//   v43: לולאת-בליעה על *כל* הודעה (savePersonalData+remember) פעם אחת לכל msgId (ingest-claim); תשובה אחת (byChat=האחרון).
-//   v42: אפס-כפילות — fn_raziel_claim + alreadySentToChat.
-//   v41: «לעולם לא שתיקה» + שומר-מטטרון (never_silent_metatron_law).
-//   v40: fn_raziel_identity + לכידת נתונים אישיים + Hebcal. v39: שם wa-raziel.
+// wa-raziel (רזיאל) — G0 auth hardening over v47 behavior.
+// Invocation root: existing FB_ADMIN_KEY header only; no static/query credential in source.
+// Deploy with verify_jwt=false because the handler enforces its own service-to-service boundary.
+// v47 behavior remains: Single-Mind Trunk Closure: metatron_context before each normal response.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA_PHONE = "972507555102";
 const AMIT_GROUP = "120363411357326507@g.us";
 const GILUI_GROUP = "120363397037220315@g.us";
@@ -36,7 +29,6 @@ const EMAIL_RE = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
 const CODE_RE = /\b(\d{6})\b/;
 const CANCEL_RE = /^(ביטול|בטל|עצור|לא עכשיו|אחר כך)\b/;
 const LINK_FLOW_TTL_MIN = 20;
-// פתיח כללי (ברכה/סתמי) → מציגים תפריט-מסלולים; שאלה ספציפית → ברכה קצרה + מענה ישיר.
 const GREETING_RE = /^(היי|הי|שלום|אהלן|הלו|אולן|בוקר טוב|ערב טוב|צהריים טובים|לילה טוב|מה קורה|מה נשמע|מה המצב|מי אתה|נעים מאוד)/i;
 const isOpenerMsg = (t) => { const c = (t || "").replace(RAZIEL_TRIGGER, "").trim(); return c.length <= 14 || GREETING_RE.test(c) || SERVICES_INTENT.test(c); };
 
@@ -216,13 +208,6 @@ async function retryOutbox() {
   }
 }
 
-// ⚠️ PHASE-2 DUPLICATION CANDIDATE (metatron_rollout_law) — buildFacts()/convergenceInsight() query
-// fn_all_methods/gematria_words/convergences directly, in parallel to metatron_context's own
-// canonical.matches/canonical.convergences. Not removed in this pass (Phase 1 = wire metatron_context
-// everywhere; Phase 2 = remove duplication, separately). Kept for now because they compute fresh
-// multi-word cross-method convergence over arbitrary free text — a capability metatron_context's
-// request shape (pre-identified entities/values) does not currently expose; per source_truth_vs_context_builder
-// these engine/table calls are legitimate direct source-of-truth access, not an invented parallel engine.
 const METHOD_KEYS = ["רגיל","גדול","סידורי","מילוי","אתבש","קדמי"];
 async function allMethods(w) {
   try { const { data } = await sb.rpc("fn_all_methods", { p_word: w }); return (data && typeof data === "object" && data["רגיל"]) ? data : null; } catch { return null; }
@@ -275,8 +260,6 @@ async function convergenceInsight(values) {
   return notes.length ? `\nהתכנסויות במנוע (עובדה): ${notes.join(" · ")}` : "";
 }
 
-// 🌳 עץ אחד — מטטרון (metatron_context): שכבת-איחוד קנונית מעל חוקים/עובדות (source_truth_vs_context_builder —
-//    metatron_context עצמו אינו מקור-אמת, רק מרכיב). fail-open תמיד: כשל/ריק → "" / null, בלי לחסום תשובה.
 async function fetchMetatronContext(subject, ask, channel) {
   const s = (subject || "").slice(0, 120);
   try {
@@ -284,8 +267,6 @@ async function fetchMetatronContext(subject, ask, channel) {
     return data || null;
   } catch { return null; }
 }
-// חוקי-המערכת החיים (nodes propagate=true → fn_active_method_rules) → תוספת ל-system. מקור-אמת יחיד —
-// שינוי חוק ב-DB מגיע לכאן אוטומטית, בלי לגעת בקוד (אותו דפוס בדיוק כמו ai-analyze/metatronRulesBlock).
 function metatronRulesBlock(mtx) {
   const rules = typeof mtx?.rules === "string" ? mtx.rules.trim() : "";
   if (!rules) return "";
@@ -350,14 +331,8 @@ async function loadPersona() {
     if (typeof data === "string" && data.length > 60) RAZIEL_SYSTEM = data + "\n12. שיטת-האחד (shitat_haechad_alef_law): ערך 1000+X — האלף המוביל כרמז ל-ה׳ (האחד, אלופו של עולם) + X. עובדה≠רמז.";
   } catch { /* נשאר על SYSTEM_BASE */ }
 }
-const TEACH_ADDON =
-  `\nמצב-לימוד: אם המשתמש רוצה ללמוד — למד גימטריה צעד-צעד, הראה את החישוב מהמנוע. סבלני, כמו מורה.`;
+const TEACH_ADDON = `\nמצב-לימוד: אם המשתמש רוצה ללמוד — למד גימטריה צעד-צעד, הראה את החישוב מהמנוע. סבלני, כמו מורה.`;
 
-// 🌳 עץ אחד — RAG על הפוסטים של האתר, אותה פונקציה משותפת שהצ'אט באתר קורא לה (chat_search_facts).
-// שיפור אחד בפונקציה = שני הערוצים. נכשל בחן (מחזיר "") — לא חוסם תשובה.
-// ⚠️ PHASE-2 DUPLICATION CANDIDATE (metatron_rollout_law): richer RAG than metatron_context.canonical.posts
-// (title-ILIKE only today). Not folded in this pass — kept as legitimate specialized retrieval until
-// metatron_context's posts package matches or exceeds this capability.
 async function postFacts(query) {
   try {
     const { data } = await sb.rpc("chat_search_facts", { p_query: (query || "").slice(0, 200), p_limit: 3 });
@@ -371,8 +346,6 @@ async function razielRespond(text, chatId, quotedId, opts = {}) {
   const { facts, values } = await buildFacts(cleanText);
   const convNote = await convergenceInsight(values);
   const posts = await postFacts(cleanText);
-  // 🌳 מטטרון לפני כל תשובה רגילה (לא רק בנפילה) — metatron_single_mind_law: רזיאל חושב דרך
-  // metatron_context. fail-open: כשל/ריק → mtx=null → rulesBlock="" → system זהה למצב הקודם.
   const mtx = await fetchMetatronContext(cleanText, cleanText, "wa-raziel");
   const rulesBlock = metatronRulesBlock(mtx);
   const ctx = opts.ctx ?? (opts.userRef ? await getContext(opts.userRef, chatId) : null);
@@ -750,8 +723,9 @@ async function sendProactiveWelcomes() {
 }
 
 Deno.serve(async(req)=>{
+  if (!ADMIN_KEY) return new Response("not configured", { status: 503 });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const u=new URL(req.url);
-  if (u.searchParams.get("s")!==SECRET) return new Response("forbidden",{status:403});
   trace=[]; const nowSec=Date.now()/1000; let n=0;
   const { data: policy } = await sb.from("raziel_dm_policy").select("*").eq("id",1).maybeSingle();
   const pol = policy || { answer_everyone:true, free_per_day_anon:3, after_gate:"invite_link", scope:"smart", teach_mode:true, en_to_gabriel:true };

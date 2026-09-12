@@ -1,9 +1,10 @@
 // 👁️ wa-ocr — קורא תמונה בקבוצת וואטסאפ (טופס לוטו/צ'אנס וכו') דרך Claude vision.
 // קלט: {chatId, idMessage} (מושך downloadUrl מ-Green) או {imageUrl}. מחזיר {text, numbers}.
 // יושר: תעתוק בלבד — לא מחשב גימטריה כאן (זה נעשה במנוע אחר כך).
+// G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC_KEY = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("OCR_MODEL") || "claude-sonnet-4-6";
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
@@ -52,8 +53,9 @@ async function ocr(imageUrl: string) {
 
 Deno.serve(async (req) => {
   try {
-    if (new URL(req.url).searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
-    if (!ANTHROPIC_KEY) return json({ error: "not_configured" });
+    if (!ADMIN_KEY) return json({ error: "not_configured" }, 503);
+    if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
+    if (!ANTHROPIC_KEY) return json({ error: "not_configured" }, 503);
     const body = await req.json().catch(() => ({}));
     let imageUrl = body.imageUrl || "";
     if (!imageUrl && body.chatId && body.idMessage) imageUrl = await downloadUrl(body.chatId, body.idMessage);

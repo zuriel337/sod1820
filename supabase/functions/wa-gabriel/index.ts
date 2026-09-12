@@ -4,9 +4,10 @@
 // v11: המשימה = מומחה-השפות של המערכת (עמית + שמעון), המשכיות ממקור-אמת אחד (agent_research_stats),
 //      + sendVerified/outbox כמו אוריאל/התשבי (שלא יירדם), + extractParts מוקשח.
 // v9: reactions, fallback, zero missed messages
+// G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const SECRET = 's0d1820wahook_7yq2c9';
+const ADMIN_KEY = (Deno.env.get('FB_ADMIN_KEY') || '').trim();
 const GROUP = '120363411357326507@g.us';
 const AMIT = '972534567963';
 const ZURIEL_PHONE = '972556651237';
@@ -229,8 +230,9 @@ async function handle(nowSec: number): Promise<number> {
 }
 
 Deno.serve(async(req)=>{
+  if (!ADMIN_KEY) return new Response('not configured',{status:503});
+  if (req.headers.get('x-fb-admin-key')!==ADMIN_KEY) return new Response('forbidden',{status:403});
   const u=new URL(req.url);
-  if (u.searchParams.get('s')!==SECRET) return new Response('forbidden',{status:403});
   trace=[]; let replies=0;
   try { await retryOutbox(); } catch(e){ trace.push({src:'outbox',e:String(e)}); }
   try { replies=await handle(Date.now()/1000); } catch(e){ trace.push({e:String(e)}); }

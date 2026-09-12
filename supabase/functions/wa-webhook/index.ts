@@ -1,14 +1,16 @@
 // 🤖 wa-webhook — בוט וואטסאפ אוטונומי (רב-קבוצתי). מגיב לרמזים בקבוצות שמופעלות
 // ב-wa_bot_config: מאמת במנוע (fn_ragil) → מפרש (התכנסויות) → מגיב → מוסיף למאגר (wa_add_word).
 // גדרות: רק קבוצות מאושרות · מתג enabled · הגבלת קצב · dedup · סינון תוכן רגיש ·
-// טריגר מצומצם (מילה בודדת / «ביטוי=מספר») · לוג מלא. אימות webhook בסוד ?s=.
+// טריגר מצומצם (מילה בודדת / «ביטוי=מספר») · לוג מלא.
+// G0 auth: external GREEN API uses Authorization Bearer token validated against Vault via canonical DB helper;
+// internal wa-poll may use existing x-fb-admin-key. No static/query credential remains in source.
 // 🔇 מדיניות מענה (החלטת צוריאל 22.7.2026): הבוט *תמיד סורק ושומר* (מילים למאגר + תיבת-VIP),
 //    אבל *עונה רק כשפונים אליו* — «רזיאל» בהודעה, או תגובה (reply) להודעת הבוט / פקודת «עומק».
 //    בלי פנייה = שקט מוחלט (שומר, לא כותב).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
-const OCR_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-ocr?s=" + SECRET;
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
+const OCR_URL = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-ocr";
 const SIGN = "🔯 רזיאל · מאומת במנוע · sod1820";
 const SENSITIVE = /(נדקר|נרצח|נהרג|הרוג|רצח|פיגוע|טרור|מוות|נפטר|אסון|שריפ|דקיר|מת\b)/;
 const STOP = new Set(["שלום","תודה","כן","לא","בסדר","אמן","הי","היי","אוקיי","מעולה","יפה","וואו","מאומת","בוקר","ערב","לילה"]);
@@ -17,6 +19,18 @@ const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABA
 const ok = () => new Response("ok", { status: 200 });
 const clean = (s: string) => (s || "").replace(/[֑-ׇ]/g, "").replace(/[^א-ת\s]/g, " ").replace(/\s+/g, " ").trim();
 const langOf = (s: string) => { const he = /[א-ת]/.test(s), en = /[A-Za-z]/.test(s), ar = /[؀-ۿ]/.test(s); return he ? (en ? "he+en" : "he") : ar ? "ar" : en ? "en" : "other"; };
+
+async function authorized(req: Request): Promise<boolean> {
+  if (ADMIN_KEY && req.headers.get("x-fb-admin-key") === ADMIN_KEY) return true;
+  const authz = req.headers.get("authorization") || "";
+  const m = authz.match(/^Bearer\s+(.+)$/i);
+  if (!m?.[1]) return false;
+  try {
+    const { data, error } = await sb.rpc("wa_webhook_is_authorized", { p_token: m[1].trim() });
+    return !error && data === true;
+  } catch { return false; }
+}
+
 // 👑 תיבת-VIP: כל הודעה של איש-זהב נשמרת גולמית (upsert לפי msg_id → לא כפול, לא אובד).
 async function vipInbox(row: Record<string, unknown>) { try { await sb.from("wa_vip_inbox").upsert(row, { onConflict: "msg_id" }); } catch { /* noop */ } }
 
@@ -39,7 +53,7 @@ async function log(row: Record<string, unknown>) { try { await sb.from("wa_bot_l
 
 Deno.serve(async (req) => {
   try {
-    if (new URL(req.url).searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
+    if (!(await authorized(req))) return new Response("forbidden", { status: 403 });
     const body = await req.json().catch(() => ({}));
     if (body?.typeWebhook !== "incomingMessageReceived") return ok();
 
@@ -77,12 +91,18 @@ Deno.serve(async (req) => {
       const { count: oc } = await sb.from("wa_bot_log").select("id", { count: "exact", head: true }).eq("group_id", chatId).eq("action", "ocr_replied").gte("created_at", sinceH);
       if ((oc || 0) >= 15) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_rate_limited" }); return ok(); }
       let ocr: { numbers?: number[]; text?: string } | null = null;
-      try { const r = await fetch(OCR_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageUrl: imgUrl }) }); ocr = await r.json(); } catch { /* noop */ }
+      try {
+        const r = await fetch(OCR_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-fb-admin-key": ADMIN_KEY },
+          body: JSON.stringify({ imageUrl: imgUrl }),
+        });
+        ocr = await r.json();
+      } catch { /* noop */ }
       const nums = Array.isArray(ocr?.numbers) ? ocr.numbers.slice(0, 25) : [];
       const otext = String(ocr?.text || "").trim();
       if (!nums.length && !otext) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_empty" }); return ok(); }
       if (isVip) await vipInbox({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, kind: "image", text_raw: otext, numbers: nums, lang: langOf(otext) });
-      // פנייה לבוט על תמונה = «רזיאל» בכיתוב או reply להודעת-בוט. אחרת: נסרק ונשמר, בלי מענה.
       const imgAddressed = replyToBot || /רזיאל/.test(String(fileData.caption || ""));
       if (!imgAddressed) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: "[image]", action: "ocr_scanned" }); return ok(); }
       const head = otext.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 5).join("\n").slice(0, 400);
@@ -95,14 +115,11 @@ Deno.serve(async (req) => {
     const text = (md?.textMessageData?.textMessage || md?.extendedTextMessageData?.text || "").trim();
     if (!text) return ok();
     if (text.includes("sod1820") || text.includes(SIGN)) return ok();
-    // 👑 כל הודעת-טקסט של איש-זהב נשמרת מיד (גם שפה אחרת / בלי גימטריה) — «אל תפספס שום הודעה».
     if (isVip) await vipInbox({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, kind: "text", text_raw: text, lang: langOf(text) });
 
-    // 🎯 פונים לבוט? = «רזיאל» בהודעה או תגובה (reply) להודעת הבוט. רק אז עונים.
     const called = /רזיאל/.test(text);
     const addressed = called || replyToBot;
 
-    // 🎯 פקודת-עומק: reply על הודעה + «עומק»/«תעמיק»/🔎 → בקשה מפורשת → תמיד עונים ומעמיקים.
     const extInfo = md?.extendedTextMessageData || {};
     const replyText = (extInfo.text || md?.textMessageData?.textMessage || "").trim();
     if (quoted && /(^|\s)(עומק|תעמיק|🔎)(\s|$)/.test(replyText)) {
@@ -132,7 +149,6 @@ Deno.serve(async (req) => {
       const m = base.slice(eq + 1).match(/\d{1,6}/); claimed = m ? parseInt(m[0], 10) : null;
     } else {
       const c = clean(base); const w = c.split(" ").filter(Boolean);
-      // VIP: בלי תקרת-מילים, רק לא ברכה-בודדת (למנוע «תודה» → מסה). קרוא/רגיל כרגיל.
       const okWord = called ? (w.length >= 1 && w.length <= 6 && c.length >= 2)
         : isVip ? (c.length >= 2 && !(w.length === 1 && STOP.has(w[0])))
         : (w.length >= 1 && w.length <= 5 && c.length >= 2 && !(w.length === 1 && STOP.has(w[0])));
@@ -140,14 +156,12 @@ Deno.serve(async (req) => {
     }
     if (!phrase) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
 
-    // 🔇 לא פונים לבוט → סורק ושומר בלבד (מוסיף למאגר), *בלי מענה ובלי תור-עומק*.
     if (!addressed) {
       const added = await addWord(phrase, chatId.replace("@g.us", ""), senderName);
       await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: added === "added" ? "scanned+saved" : "scanned" });
       return ok();
     }
 
-    // ── מכאן: פונים לבוט → עונים. הגבלת-קצב חלה על מענה בלבד (השמירה כבר בוצעה למעלה בלי-פנייה). ──
     const since = new Date(Date.now() - 3600e3).toISOString();
     const { count } = await sb.from("wa_bot_log").select("id", { count: "exact", head: true })
       .eq("group_id", chatId).eq("action", "replied").gte("created_at", since);
@@ -157,7 +171,6 @@ Deno.serve(async (req) => {
       return ok();
     }
 
-    // ⚡ תשובה מהירה מיד · חישוב עמוק «אחר כך» (פעימת-הדקה). אנשי-זהב תמיד → עומק.
     const words = clean(phrase).split(" ").filter(Boolean);
     const deep = words.length >= 3 || phrase.length > 20 || isVip;
 
@@ -168,7 +181,6 @@ Deno.serve(async (req) => {
       return ok();
     }
 
-    // מילה בודדת פשוטה — מענה מיידי קל
     const value = await ragil(phrase);
     if (value <= 0) { await log({ group_id: chatId, msg_id: msgId, sender, sender_name: senderName, text_in: text, action: "no_trigger" }); return ok(); }
     const conv = await convergences(value, phrase);

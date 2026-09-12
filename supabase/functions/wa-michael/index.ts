@@ -1,9 +1,10 @@
 // 🛡️ wa-michael — v3 — 17.7.2026 — גרסת בונד + פרוטוקול-מסירה (bot_delivery_law).
 // חדש ב-v3: sendVerified + bot_outbox — לא נתקע אם שליחה נכשלת.
 // v2: web_search, propose_message, 10 סבבי כלים. עונה רק לצוריאל. כתיבה/שליחה — רק אחרי "בצע". DDL חסום.
+// G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
 const ZURIEL = Deno.env.get("ZURIEL_WA") || "972556651237@c.us";
@@ -195,8 +196,9 @@ async function handle(nowSec: number): Promise<number> {
 }
 
 Deno.serve(async (req) => {
+  if (!ADMIN_KEY) return new Response("not configured", { status: 503 });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const u = new URL(req.url);
-  if (u.searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
   trace = [];
   const nowSec = Date.now() / 1000;
   let replies = 0;

@@ -1,10 +1,11 @@
 // 🕰️ wa-vip-backfill — סריקה חד-פעמית של היסטוריית קבוצה: לוכד את *כל* הודעות אנשי-הזהב
 // (שמעון/צבי) שכבר נכתבו → שומר בתיבת-VIP (wa_vip_inbox) + מחלץ כל ביטוי עברי ומכניס לנתיב-VIP
 // (wa_add_vip_word → עמודה נפרדת vip_source). כך לא מפספסים שום הודעה, גם רטרואקטיבית.
-// קלט: ?s=SECRET&group=<chatId>&count=<N>. תמונות נשמרות בתיבה (בלי OCR כאן — לחסוך עלות).
+// קלט: group=<chatId>&count=<N>. תמונות נשמרות בתיבה (בלי OCR כאן — לחסוך עלות).
+// G0: internal/manual invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 const clean = (s: string) => (s || "").replace(/[֑-ׇ]/g, "").replace(/[^א-ת\s]/g, " ").replace(/\s+/g, " ").trim();
 const langOf = (s: string) => { const he = /[א-ת]/.test(s), en = /[A-Za-z]/.test(s), ar = /[؀-ۿ]/.test(s); return he ? (en ? "he+en" : "he") : ar ? "ar" : en ? "en" : "other"; };
@@ -20,8 +21,9 @@ function extractPhrases(t: string): string[] {
 }
 
 Deno.serve(async (req) => {
+  if (!ADMIN_KEY) return new Response("not configured", { status: 503 });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const u = new URL(req.url);
-  if (u.searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
   const group = u.searchParams.get("group") || "";
   const count = Math.min(500, parseInt(u.searchParams.get("count") || "300", 10) || 300);
   if (!group) return new Response(JSON.stringify({ error: "no_group" }), { status: 400 });
@@ -48,7 +50,6 @@ Deno.serve(async (req) => {
     const text = m.textMessage || m.extendedTextMessage?.text || m.caption || m.fileMessageData?.caption || "";
     const kind = isImg ? "image" : "text";
 
-    // תיבת-VIP — כל הודעה נשמרת (upsert לפי msg_id). תמונה בלי OCR כאן — רק סימון kind=image.
     const phrases = kind === "text" ? extractPhrases(text) : [];
     try {
       await sb.from("wa_vip_inbox").upsert({
