@@ -1,84 +1,103 @@
 # SOD1820 — AGENT HANDOFF
 
-Status: canonical bootstrap pointer. It does not replace live verification.
-Last updated: 2026-09-09.
+Status: coordination / provenance pointer only. It does not replace live verification, the Owner Index, or the active `inter_agent_coordination_law`.
 
-## Mandatory bootstrap
+## When to read this file
 
-Before substantial work, every agent must reconcile:
-1. origin/main
-2. live Supabase project linswmnnkjxvweumprav
-3. recent project work logs
-4. relevant decision records
-5. active rules and project codex
-6. SOD1820_MASTER_STATE.md
-7. SOD1820_MASTER_ROADMAP.md
-8. domain-specific contracts
+Read this file when:
+- an active assignment/handoff points here;
+- reconciling branch provenance, stale documentation, or agent-to-agent transfer;
+- investigating whether work is missing, duplicated, superseded, or already landed elsewhere.
 
-Do not conclude that something is missing, duplicated, stale, abandoned, or unknown until these sources are reconciled.
+Do **not** treat this file as a mandatory startup read for every task.
 
-## Current frame
+## Default task start
 
-- Roadmap: `SOD1820_MASTER_ROADMAP.md` — resolve the current version live from `origin/main`; this adapter never pins a Roadmap version.
-- Master State: SOD1820_MASTER_STATE.md
-- Research OS: docs/research-os-canonical-lock-v1.md
-- Principle: One Tree · One Research OS · Many Lenses
-- Tools remain independent domains. The Hall and Research OS connect the research journey; they do not replace tool engines.
-- Human Gate controls canonical promotion.
-- research_items = personal workspace membership
-- research_objects = durable research assertions/candidates
-- nodes + edges = canonical knowledge graph
+The active entry contract is the current `inter_agent_coordination_law`.
 
-Adapter-local version labels or counts are non-authoritative hints only. Always resolve changing versions/counts live from their canonical owner. An adapter-only mismatch is `STALE DOCUMENTATION`, not project-state DRIFT and not a blocker; report project DRIFT only when canonical/live sources themselves conflict.
+Default sequence:
+1. natural-language task → intent / capability / domain;
+2. resolve the current canonical owner from `SOD1820_MASTER_OWNER_INDEX.md` + live owner infrastructure;
+3. load the owner + minimum direct dependencies under the active Read Budget;
+4. inspect recent relevant `work_log` / assignments;
+5. verify the live source appropriate to the task;
+6. execute → verify → handoff.
 
-## Reconciliation note — 2026-09-04
+Full Master State, full Roadmap, all rules, all `project_codex`, this file, and broad branch archaeology are loaded only when the task actually requires them.
 
-An independent audit initially interpreted recent GPT+Zuriel work around Research Objects, Human Gate, Truth Axes and PR flow as a parallel operating system.
+## Authority boundaries
 
-After reviewing the actual GPT work trail, that interpretation was corrected:
-- it is not a parallel OS;
-- it is operational use/evolution of the already-contracted Research OS;
-- research_objects and decision_ledger predate the recent GPT work;
-- Human Gate is an established project concept;
-- the growth of research_objects from 124 to 680 was explained by documented research operations;
-- no automatic promotion of those research candidates to canonical graph truth was identified.
+- live DB + `origin/main` + relevant Production = live reality/evidence;
+- current domain owner = domain semantics;
+- Master State = documented state;
+- Roadmap = navigation/priority;
+- work_log = coordination/provenance;
+- Owner Index = routing map;
+- adapters, codex pointers, prompts, memory and conversation = context/pointers only.
 
-Do not reopen this as an unknown parallel GPT system unless new live evidence contradicts the reconciliation.
+Documentation lag is not parallel architecture. If an active adapter conflicts with a current owner/live state, mark DRIFT and follow the live owner/state.
 
-## Branch archaeology rule
+## Assignment / claim protocol
 
-An unmerged branch after the 2026-09-01 history rewrite does not prove missing production work.
+A claimable handoff should identify:
 
-Required order:
+`actor · FROM/TO · task_key · primary_owner · priority · mode=WRITE|READ_ONLY · scope · dependencies · do_not_touch · verification · stop_condition · expected_output · release_authorization_state · handoff_to`
+
+Before `CLAIMED_WRITE`, reverify current main/DB/owner and scan for overlapping active writers.
+
+**ONE TASK KEY / ONE SCOPE — ONE PRIMARY WRITER.** A second agent may challenge READ_ONLY unless ownership is explicitly transferred in `work_log`.
+
+## Provenance before recovery
+
+An unmerged branch never proves lost work.
+
+Required order when recovery is actually relevant:
 1. inspect branch provenance;
-2. compare payload to current main;
+2. compare payload with current main;
 3. check whether equivalent work landed elsewhere;
-4. classify ARCHIVE, INSPECT, RECOVER, or SUPERSEDED;
-5. never merge an old branch wholesale merely because it is unmerged.
+4. classify `ARCHIVE | INSPECT | RECOVER | SUPERSEDED`;
+5. never merge an old branch wholesale merely because it exists.
 
-Known example:
-claude/gematria-lists-organization-u39nlj is a preservation/research snapshot. Its v1/v2 master classifications are superseded; v3 is research metadata/candidate material, not a second production corpus.
+Historical examples and old audit notes are evidence only; they are not startup authority.
 
-## Before implementation
+## Before declaring missing / duplicate
 
-Verify current implementation on main, live DB state for DB-dependent claims, recent work in the same domain, existing Human Gates, and whether the capability already exists under another route/name/branch.
+Use only the smallest relevant evidence set:
+- current-main implementation evidence;
+- live DB evidence when the claim depends on DB state;
+- recent work provenance for the active scope;
+- the current canonical owner/contract.
 
-## Before declaring missing or duplicate
-
-Require current-main evidence, live-DB evidence where relevant, recent-work provenance, and the relevant contract/roadmap statement. If evidence is incomplete, use UNKNOWN / NEEDS RECONCILIATION.
+If evidence is incomplete, use `UNKNOWN / NEEDS RECONCILIATION` rather than inventing a new system.
 
 ## Closing protocol
 
 After meaningful work:
-1. record work provenance;
-2. record a decision only when a real decision occurred;
-3. update canonical docs only when canonical state changed;
-4. keep superseded history additive;
-5. record PR/commit/deploy state;
-6. reconcile again against current main and live DB.
+1. record exact implementation/release states separately;
+2. preserve branch/PR/commit/query evidence;
+3. record real blockers/open threads;
+4. update canonical docs only when canonical documented state changed;
+5. preserve superseded history additively;
+6. rescan main/DB/work_log before declaring DONE/LIVE/CLOSED;
+7. leave `handoff_to` for any dependent actor.
 
-## Documentation drift
+## Release boundary
 
-If implementation or live data is newer than the docs, label STALE DOCUMENTATION. Do not reinterpret the live system as a parallel architecture merely because the documentation lagged.
+`DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`.
 
-Rule: Reconciliation before construction. Provenance before recovery. Evidence before interpretation.
+No handoff, branch, audit, or AFTER row grants release authority. Merge/deploy requires explicit ZURIEL authorization such as `תעלה` plus fresh release gates.
+
+## G1 fresh-agent acceptance
+
+A materially different active adapter/runtime is not G1-reconciled until a fresh session can, without prior conversation/project memory:
+- resolve the right current owner;
+- load minimum dependencies only;
+- find relevant work_log context;
+- verify the correct live source;
+- report stale-pointer conflicts;
+- avoid unrelated bulk reads;
+- avoid inventing a parallel owner/context system.
+
+Static wording alone is not acceptance evidence.
+
+Rule: Reconciliation before construction · Provenance before recovery · Evidence before interpretation.
