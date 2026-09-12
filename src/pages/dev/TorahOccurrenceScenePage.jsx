@@ -2,6 +2,7 @@
 // Admin gate ONLY — same pattern as AdminPage.jsx / prior spatial-slice dev pages (useAuth().isAdmin).
 import React, { Suspense } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import ElsJourneyPilot from "../../components/spatial/ElsJourneyPilot.jsx";
 
 const TorahOccurrenceScene = React.lazy(() => import("../../components/spatial/TorahOccurrenceScene.jsx"));
 
@@ -14,12 +15,15 @@ function Center({ children }) {
 }
 
 export default function TorahOccurrenceScenePage() {
-  const { user, isAdmin, loading } = useAuth();
+  const { isAdmin, loading } = useAuth();
   if (loading) return <Center>טוען…</Center>;
   if (!isAdmin) return <Center>אין לך הרשאת ניהול. (Torah Occurrence Spatial Adapter — dev/admin only)</Center>;
   return (
-    <Suspense fallback={<Center>טוען קורפוס תורה מרחבי…</Center>}>
-      <TorahOccurrenceScene />
-    </Suspense>
+    <div style={{ background: "#0a0812", minHeight: "100vh" }}>
+      <ElsJourneyPilot />
+      <Suspense fallback={<Center>טוען קורפוס תורה מרחבי…</Center>}>
+        <TorahOccurrenceScene />
+      </Suspense>
+    </div>
   );
 }
