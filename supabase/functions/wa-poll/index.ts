@@ -1,10 +1,11 @@
 // 🔁 wa-poll — גשר קריאה (עוקף את ה-webhook התקוע של Green). pg_cron קורא לכאן כל דקה.
 // קורא getChatHistory לכל קבוצה מופעלת → מעביר הודעות *חדשות* (עד 150 שניות, לא בלוג) ל-wa-webhook.
 // ה-webhook עושה את כל השאר (אימות/מענה/עומק/הוספה/dedup). כך אין כפילות לוגיקה.
+// G0: internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SECRET = "s0d1820wahook_7yq2c9";
-const HOOK = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-webhook?s=" + SECRET;
+const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
+const HOOK = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/wa-webhook";
 const CUTOFF = 150; // שניות — רק הודעות טריות (מונע מענה לבֶּקלוֹג ישן בהפעלה ראשונה)
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
@@ -14,7 +15,8 @@ async function waAdmin(method: string, payload: unknown, http: string) {
 }
 
 Deno.serve(async (req) => {
-  if (new URL(req.url).searchParams.get("s") !== SECRET) return new Response("forbidden", { status: 403 });
+  if (!ADMIN_KEY) return new Response("not configured", { status: 503 });
+  if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
   const { data: cfgs } = await sb.from("wa_bot_config").select("group_id").eq("enabled", true);
   const nowSec = Date.now() / 1000;
   let forwarded = 0;
@@ -34,7 +36,6 @@ Deno.serve(async (req) => {
       if ((!text && !isImg) || !msgId) continue;
       const { data: dup } = await sb.from("wa_bot_log").select("id").eq("msg_id", msgId).maybeSingle();
       if (dup) continue;
-      // תמונה — משיגים את קישור-ההורדה (מההודעה, ואם חסר — downloadFile)
       let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
       if (isImg && !dl) { try { const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST"); dl = d?.result?.downloadUrl || ""; } catch { /* noop */ } }
       const payload = {
@@ -49,7 +50,14 @@ Deno.serve(async (req) => {
           fileMessageData: isImg ? { downloadUrl: dl } : undefined,
         },
       };
-      try { await fetch(HOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); forwarded++; } catch { /* noop */ }
+      try {
+        await fetch(HOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-fb-admin-key": ADMIN_KEY },
+          body: JSON.stringify(payload),
+        });
+        forwarded++;
+      } catch { /* noop */ }
     }
   }
   return new Response(JSON.stringify({ forwarded }), { headers: { "Content-Type": "application/json" } });
