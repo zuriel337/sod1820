@@ -23,9 +23,9 @@ This is release choreography, not release authorization. Canonical Supabase: `li
 | `sign-upload` | `false` | existing `x-fb-admin-key` | proven media-thumb caller |
 | `raw-put` | `false` | existing `x-fb-admin-key` | transition/large-media bridge; no current repo caller found |
 | `storage-put-raw` | `false` | existing `x-fb-admin-key` | preserved by active Source Video law |
-| `post-to-storyboard` | `false` | mandatory configured `STORYBOARD_RUN_KEY` / `x-run-key` | current live has no effective run-key; deploy candidate is fail-closed if secret absent |
-| `email-ingest` | `false` | mandatory `EMAIL_INGEST_SECRET` header | external webhook; fail closed if absent |
-| `email-inbound` | `false` | mandatory `EMAIL_INBOUND_SECRET` query secret | external webhook; actively used data path, so secret config is a release precondition |
+| `post-to-storyboard` | `false` | mandatory configured `STORYBOARD_RUN_KEY` / `x-run-key` | current live has no effective run-key; hardened candidate safely fails closed if secret is absent |
+| `email-ingest` | `false` | mandatory `EMAIL_INGEST_SECRET` header | external non-Resend webhook; fail closed if absent; no current email-channel rows observed |
+| `email-inbound` | `false` | Resend/Svix HMAC signature over raw request body; signing secret fetched/cached via existing Resend API credential or explicit Edge secret | actively used inbox; no query-string secret in target state |
 | `journey-message` | `false` | intentionally public UX under `ai_quota_law` + `journey_ai_guard_law` | PORT current semantics; server anti-regression remains P1 owner debt |
 | `email-open` | `false` | intentionally public tracking pixel token semantics | KEEP+PORT |
 
@@ -40,10 +40,11 @@ Already-live 410 parity only: `tmp-upload` · `tmp-pancher-upload` · `send-test
 ## Atomic ordering
 
 1. Verify current main/branch head + no overlapping writer.
-2. Verify required secret **existence only**; never record values.
+2. Verify required secret/config **existence only**; never record values.
 3. Apply `G0_EDGE_RELEASE_SQL_CANDIDATE.sql` through canonical Supabase migration action.
 4. Verify DB grants/functions/crons, especially `system_watchman_run`, `notify_payment_request_tg`, `detect_suggestions`, `site_pulse`, and Vault-backed cron headers.
 5. Deploy hardened KEEP/HARDEN candidates with the exact gateway modes above.
-6. Deploy 410 tombstones only after their replacement/DB path is live where applicable.
-7. Negative auth replay: unauthenticated privileged/cost/mutation paths must fail; authorized paths must still work.
-8. Only then merge the matching git representation on explicit release authorization and run the full G0 closing rescan.
+6. For `email-inbound`: while the existing Resend webhook is still enabled, verify the deployed handler accepts a correctly signed Resend/Svix event and rejects an unsigned/invalid event. Only then update the same Resend webhook resource to the clean endpoint `https://linswmnnkjxvweumprav.supabase.co/functions/v1/email-inbound` (same `email.received` subscription), removing the legacy query credential from the URL without recreating the webhook.
+7. Deploy 410 tombstones only after their replacement/DB path is live where applicable.
+8. Negative auth replay: unauthenticated privileged/cost/mutation paths must fail; authorized paths must still work.
+9. Only then merge the matching git representation on explicit release authorization and run the full G0 closing rescan.
