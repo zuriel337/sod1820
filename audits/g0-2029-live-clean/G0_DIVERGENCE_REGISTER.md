@@ -1,11 +1,11 @@
 # SOD1820 — G0 2029 LIVE CLEAN / DIVERGENCE REGISTER
 
-**Gate:** G0 under `foundation_closure_protocol_law v3`  
+**Gate:** G0 under `foundation_closure_protocol_law v4`  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **Current main baseline:** `49929b54f197377616362b80a107d919fd4417f6`  
 **G0 branch:** `gpt/g0-2029-live-clean-parity-v1`  
 **Mode:** object-state parity, not migration-ledger inference  
-**Release:** branch-only unless explicitly labeled already-live security closure. No merge/deploy/retirement without ZURIEL `תעלה`.
+**Release:** branch-only. No merge/deploy/retirement without explicit ZURIEL `תעלה`.
 
 ## 1. Closure rule
 
@@ -16,21 +16,20 @@ G0 closes only when material live↔git divergence is resolved as one of:
 - `RETIRE` — retirement was explicitly released and verified live;
 - `EXPLICIT EXCEPTION` — owner-approved external configuration/provenance with a reproducible rollback path.
 
-Open PRs and migration ledgers are evidence, never parity or release authority by themselves.
+Open PRs, migrations and audit notes are evidence, never parity/release authority by themselves.
 
 ## 2. Current-main reconciliation
 
-G0 originally branched from `17fe4b9c...`. Main later advanced through the Convergence Tree closure to `49929b54...`.
-The five changed main files had zero overlap with the G0 change-set; the G0 branch was reconciled with current main in branch-only merge commit `16dbc246...`. No production release was caused by that reconciliation.
+G0 originally branched from an older main. Main later advanced through Convergence Tree closure to `49929b54...`; the G0 branch was reconciled onto that exact baseline and remains ahead-only at the latest reconciliation. No production release was caused by branch reconciliation.
 
-## 3. Already live-closed security
+## 3. Already-live security closures
 
 | Object | Live state | Repo state |
 |---|---|---|
-| `set_lead_rank(text,int,int)` | PUBLIC/anon/auth EXECUTE revoked; admin path preserved | parity SQL represented on branch |
-| `upload-image` | live v15, `verify_jwt=true`, real user JWT + server-derived admin role required before service-role Storage write | same hardened source represented on branch |
+| `set_lead_rank(text,int,int)` | PUBLIC/anon/auth EXECUTE revoked; admin path preserved | parity migration represented |
+| `upload-image` | live v15, `verify_jwt=true`, real user JWT + server-derived admin role before service-role Storage write | same hardened source represented |
 
-Final negative/live replay is still required at the G0 closing rescan.
+Final negative/live replay remains required at the G0 closing rescan.
 
 ## 4. Original git-absent Edge census — branch representation COMPLETE
 
@@ -40,175 +39,156 @@ Original missing set:
 
 `admin-card-upload` · `admin-upload-once` · `email-inbound` · `email-ingest` · `email-open` · `email-reply` · `fb-audit` · `fb-hide-test` · `field-pack` · `ga-il-returning` · `journey-message` · `media-thumb-queue` · `migrate-media` · `notify-page-ready` · `notify-payment` · `notify-reply-email` · `post-ai-edit` · `post-save` · `post-to-storyboard` · `raw-put` · `reality-upload` · `research-nurture` · `send-test-mail` · `send-welcome-test` · `share-to-facebook` · `sign-upload` · `smart-search` · `storage-cleanup-oneoff` · `storage-put-raw` · `system-watchman` · `tmp-pancher-upload` · `tmp-upload` · `upload-image` · `video-migrate` · `wa-avatars` · `wa-christina` · `wa-daily-digest`.
 
-**Current branch fact:** every one of those 37 slugs now has a `supabase/functions/<slug>/...` representation on the G0 branch. This closes the *branch representation* half of the original missing-source divergence; it does **not** claim the live functions have been released to those versions.
+**Current branch fact:** all **37/37** now have `supabase/functions/<slug>/...` representation. This closes branch source representation only; it does not claim live release.
 
 ## 5. Function decisions
 
-### RETIRE candidates — branch tombstones only, NOT live-retired
+### RETIRE — branch tombstones only, NOT live-retired
 
-| Function | Decision | Priority / evidence |
-|---|---|---|
-| `admin-upload-once` | RETIRE → `agent-upload` | P0/P1 legacy reusable writer; canonical agent-media bridge exists |
-| `reality-upload` | RETIRE → `agent-upload` | P0/P1 static-guard service-role writer; no second upload system |
-| `wa-christina` | RETIRE | P1 orphan after `wa-raziel` rename/reroute; cron already moved |
-| `migrate-media` | RETIRE | P2 migration complete; live queue observed 4357 done / 80 missing / 8 giant / 0 pending |
-| `fb-audit` / `fb-hide-test` | RETIRE | P2 one-off June Facebook cleanup/probe utilities |
-| `ga-il-returning` | RETIRE | P2 one-off GA analysis utility |
-| `smart-search` | RETIRE | P1 no current runtime caller; legacy public service-role reader including broad `show_all` path; modern Research/Gematria owns search |
-| `wa-daily-digest` | RETIRE | P1 old outbound WhatsApp publisher; cron was already inactive; reopening requires Truth/Human-Gate/auth reconciliation |
+`admin-upload-once → agent-upload` · `reality-upload → agent-upload` · `wa-christina → wa-raziel` · `migrate-media` · `fb-audit` · `fb-hide-test` · `ga-il-returning` · `smart-search` · `wa-daily-digest` · `system-watchman` after DB replacement · `notify-payment` after DB replacement.
 
-Already-live 410 sources now represented in git: `tmp-upload`, `tmp-pancher-upload`, `send-test-mail`, `send-welcome-test`, `storage-cleanup-oneoff`, `admin-card-upload`.
+Already-live 410 parity represented: `tmp-upload` · `tmp-pancher-upload` · `send-test-mail` · `send-welcome-test` · `storage-cleanup-oneoff` · `admin-card-upload`.
 
-### HARDEN + PORT
+### HARDEN / KEEP
 
-| Function / object | Candidate boundary | State |
-|---|---|---|
-| `post-save` | real JWT → server admin check → service-only `sys_save_post` | branch candidate; current static-token path remains live until release |
-| `post-ai-edit` | real JWT → server admin check before paid provider call | branch candidate; current public paid endpoint remains live until release |
-| `post-to-storyboard` | mandatory configured `STORYBOARD_RUN_KEY`; no public-cost fallback | **live probe proved current endpoint has no effective run-key**; candidate fails closed (503) if secret remains absent |
-| `email-ingest` | mandatory external Edge secret; no hardcoded fallback; bounded channel allowlist | branch candidate; live corpus currently has 0 `channel_updates.source=email` rows |
-| `email-inbound` | Resend/Svix signature verification over raw webhook body; no URL/shared fallback secret | branch candidate; inbox is active data-wise (49 stored inbound emails; latest observed 2026-09-08) |
-| `research-nurture` | scheduled path requires existing `FB_ADMIN_KEY` header; public unsubscribe remains per-lead token-bound | branch candidate |
-| `video-migrate` | existing `FB_ADMIN_KEY` service header, HTTPS-only, bounded batch/size | **live probe proved current endpoint has no effective OCR/run-key**; active Source Video capability therefore uses existing proven service root rather than an unconfigured new secret |
-| `notify-page-ready` | existing `FB_ADMIN_KEY` service header; no query/static fallback | branch candidate |
-| `notify-reply-email` | existing `FB_ADMIN_KEY` service header; no query/static fallback | branch candidate |
-| `wa-avatars` | real JWT + server-derived admin role; embedded static guard removed | branch candidate; no active cron caller found |
+- `post-save`: real JWT → canonical admin check → service-only `sys_save_post`.
+- `post-ai-edit`: real JWT → canonical admin check before paid provider call.
+- `facebook-publish`: real JWT → `rd_is_admin()` → service-role-only canonical `fb_publish_post` / `fb_publish_photo`; no second Graph/token stack.
+- `post-to-storyboard`: mandatory configured run-key; fail closed if absent.
+- `email-ingest`: mandatory external secret; no hardcoded fallback.
+- `email-inbound`: signed Resend/Svix raw-body verification.
+- `research-nurture`, `video-migrate`, `notify-page-ready`, `notify-reply-email`, `share-to-facebook`, media upload workers: existing bounded service root as documented in deploy matrix.
+- `wa-avatars`: real JWT + server-derived admin role.
+- `journey-message`: current intentionally-free product semantics preserved; server anti-regression/rate protection remains owner P1 debt.
+- `email-open`: intentionally public tracking semantics preserved.
 
-### KEEP + PORT
+## 6. Live auth/config probes
 
-`email-open` · `email-reply` · `field-pack` · `share-to-facebook` · `media-thumb-queue` · `raw-put` · `storage-put-raw` · `sign-upload` · `journey-message`.
+No secret values are recorded here.
 
-Important distinctions:
+- `raw-put` and `sign-upload` reject missing credentials, proving the existing Edge service root is configured.
+- `post-to-storyboard` and `video-migrate` live empty-body probes reached input validation rather than authorization; their hardened candidates close those current gaps without invoking privileged work.
+- `FB_ADMIN_KEY` exists by name in Vault; no service-role key is added to Vault.
 
-- `share-to-facebook` is an executor, not Human-Gate. `posts.share_to_fb=true` is admin-only under live RLS. Candidate invocation now uses the existing service key header, not inline cron credentials.
-- `media-thumb-queue` + `sign-upload` have a proven GitHub Action caller (`scripts/media-thumbs.mjs`).
-- `storage-put-raw` is still explicitly named by active `source_video_publish_law`; do not retire it until Source Video/poster capability has a proven replacement.
-- `raw-put` has no current repo/DB caller found, but it remains represented during the large-media lineage reconciliation rather than being deleted by inference.
-- `agent-upload` remains canonical for **agent media in its supported image/path/mime scope**. It does not silently supersede every large-video/document path.
-- `journey-message` is intentionally free under `ai_quota_law v3`; `journey_ai_guard_law` owns the one-message-per-journey/session guard. G0 therefore PORTS current behavior and records the missing server-side anti-regression/rate boundary as **P1 owner debt**, not a reason to invent a generic 30/200 quota that would change product semantics.
+## 7. P0 discovered during Claude reconciliation — published legacy WhatsApp run-key
 
-## 6. Live auth/config probes — no secret values recorded
+The repository is **public**. A reusable legacy WhatsApp/worker run-key was committed in current main and accepted by multiple active Edge functions. Therefore this is not merely “cron command hygiene”; the credential must be treated as **public/compromised P0**.
 
-Non-mutating requests were sent with **no credential** only to determine whether existing Edge guards are actually configured:
+Main search found **16 source files** carrying that legacy credential. Candidate coverage is **16/16**:
 
-- `raw-put` → `401 unauthorized`.
-- `sign-upload` → `401 unauthorized`.
+- HARDEN in-place: `wa-poll`, `wa-ocr`, `gen-thumb`, `wa-vip-backfill`, `lab-reflect`, `wa-mora`, `wa-process`, `wa-michael`, `wa-uriel`, `wa-webhook`, `wa-gabriel`, `wa-hatishbi`, `wa-raziel`, `research-extract`, `wa-channel-ingest`.
+- RETIRE: `wa-christina` → explicit 410 replacement `wa-raziel`.
 
-Because those live sources distinguish `not configured` from `wrong/missing credential`, this proves the existing Edge environment has `FB_ADMIN_KEY` configured.
+Internal/manual workers now use the existing server-side `FB_ADMIN_KEY` via `x-fb-admin-key`, with no static/query fallback in candidate source. Active beta agents `wa-gabriel` and `wa-michael` were **not retired** merely because no current cron was observed; their capability is preserved and only invocation auth changes.
 
-Critical finding:
+Release acceptance for this P0: the published legacy query/run-key path must fail against every active deployed target after release.
 
-- `post-to-storyboard` with no run-key proceeded to input validation (`400 missing input`) rather than rejecting authorization.
-- `video-migrate` with no run-key proceeded to input validation (`400 no items provided`) rather than rejecting authorization.
+## 8. GREEN API external webhook root-of-trust
 
-Therefore both current live endpoints have **no effective dedicated run-key configured** and remain material live P0/P1 surfaces until the hardened release. No privileged mutation/AI call was triggered by these empty-body probes.
+`wa-webhook` is different from internal workers: it is the external Green API inbound endpoint, so it must not expose `FB_ADMIN_KEY` to the provider.
 
-## 7. Inbound email root-of-trust reconciliation
+Live verification:
 
-The connected Resend account has one enabled `email.received` webhook targeting the canonical `email-inbound` Edge endpoint. The legacy endpoint URL currently carries a reusable query credential. Do not reproduce its value.
+- Green API incoming webhook is enabled.
+- Current webhook target uses the canonical Edge URL with the legacy query credential.
+- `webhookUrlToken` is currently not configured.
 
-Resend's receiving security model provides a signed webhook event (Svix headers) and requires verification against the raw body. The connected webhook resource also has a signing secret available to the authenticated Resend account; that value is never written to git/work_log.
+Green API supports a webhook URL token sent in `Authorization` (Bearer when no prefix is supplied). Candidate strategy extends the existing WhatsApp/Green path rather than creating a new auth system:
 
-Branch candidate now:
+1. migration creates a random `WA_WEBHOOK_TOKEN` in Vault if absent;
+2. service-only `wa_webhook_is_authorized(text)` compares the incoming Bearer value to Vault;
+3. external Green API calls are accepted only with that Bearer token;
+4. internal `wa-poll → wa-webhook` uses `x-fb-admin-key` and never exposes the Green token;
+5. `wa-webhook → wa-ocr` likewise uses the internal service header;
+6. during release, update the **same Green instance** to the clean webhook URL plus `webhookUrlToken`, preserving existing webhook-type settings;
+7. verify valid Bearer succeeds, missing/wrong Bearer fails, and the old query credential no longer authorizes.
 
-1. reads `req.text()` before parsing;
-2. verifies `svix-id`, `svix-timestamp`, and `svix-signature` with HMAC-SHA256 and bounded timestamp skew;
-3. uses an explicit `RESEND_WEBHOOK_SECRET` only if already configured, otherwise retrieves/caches the signing secret through the authenticated Resend Webhooks API using the existing Resend API credential;
-4. accepts only signed `email.received` events;
-5. fetches the full message through Resend receiving API and stores it as **untrusted inbox data only** — no actions/agent execution;
-6. after the deployed signed handler is proven, updates the same Resend webhook resource to the clean endpoint without the legacy query credential.
+No token value belongs in git or `work_log`.
 
-This removes `EMAIL_INBOUND_SECRET` as a new G0 configuration requirement and avoids creating another secrets store/system.
+## 9. Inbound email root-of-trust
 
-## 8. Admin-alert / Watchman reconciliation
+The connected Resend account has one enabled `email.received` webhook targeting `email-inbound`. Candidate verifies Svix headers over the raw body, accepts only signed `email.received`, fetches the full message through Resend, and stores it as **untrusted inbox data only** — no instruction execution.
 
-Live owner facts:
+Release choreography: deploy signed handler while current webhook remains → prove signed success + unsigned failure → update the same webhook resource to the clean endpoint without the legacy URL credential.
 
-- `system_suggestions_law v1`: system learns/explains/proposes; no self-change.
-- `admin_alert_direct_law v1`: admin alerts must end in canonical `public.notify_admin(...)`; no parallel sender.
-- `notify_admin` currently delivers WhatsApp and explicitly reports that generic email sending is not yet implemented.
+## 10. Watchman / admin-alert reconciliation
 
-DRIFT found:
+Newer `admin_alert_direct_law` requires admin alerts to end in canonical `public.notify_admin(...)`.
 
-- live `system-watchman` carried a static guard and sent Resend/WhatsApp directly;
-- live `admin_fire_watchman()` embedded the same old invocation root-of-trust;
-- live `notify-payment` + `notify_payment_request_tg()` used a second direct admin-email path;
-- `detect_suggestions()` is SECURITY DEFINER and had PUBLIC execute despite mutating `system_suggestions`;
-- `site_pulse(integer)` is an internal Watchman analytics primitive and also had PUBLIC execute.
+Candidate:
 
-Branch resolution in `G0_EDGE_RELEASE_SQL_CANDIDATE.sql`:
+- creates internal `system_watchman_run(boolean)`;
+- makes `admin_fire_watchman()` call it directly;
+- revokes public/anon/auth execute on internal Watchman primitives;
+- rewrites payment trigger delivery to `notify_admin`;
+- retires direct `system-watchman` / `notify-payment` sender paths after replacements are live.
 
-1. create `system_watchman_run(boolean)` under the existing Watchman owner;
-2. run `detect_suggestions` + `site_pulse` and end only in `notify_admin`;
-3. make `admin_fire_watchman()` call the DB runner directly — no Edge secret round trip;
-4. revoke public/anon/auth execution on `detect_suggestions`, `site_pulse`, and the internal runner;
-5. rewrite payment trigger delivery to `notify_admin` and retire the parallel `notify-payment` Edge sender.
+G0 intentionally does not invent a parallel generic email sender to hide the current `notify_admin` channel limitation.
 
-This intentionally accepts the current canonical limitation that generic admin email is not yet implemented; G0 does not create a parallel email sender to hide that limitation.
+## 11. Cron root-of-trust — 17/17 active auth-shaped jobs covered
 
-## 9. Cron root-of-trust
+Live scan found **33 active jobs**, of which **17** had reusable auth/query/JWT shapes inline.
 
-Live active jobs observed: `share-to-facebook` (5m), `research-nurture-daily`, `system-watchman-weekly`, `page-ready-auto`, `reply-email-auto`. `wa-daily-digest` existed but was inactive.
+Current release SQL unschedules/reschedules all 17 active targets using Vault-backed runtime lookup or a direct DB runner:
 
-Problem: several command strings contain invocation credentials directly.
-
-Branch release candidate:
-
-- no service-role key is added to Vault;
-- `page-ready-auto`, `reply-email-auto`, `research-nurture-daily`, `share-to-facebook` resolve the already-existing `FB_ADMIN_KEY` from Vault at execution time and pass it only as a request header;
-- `system-watchman-weekly` becomes a DB call to `system_watchman_run(false)`;
+- `FB_ADMIN_KEY`: `page-ready-auto`, `reply-email-auto`, `research-nurture-daily`, `share-to-facebook`, `wa-raziel`, `wa-channel-ingest`, `wa-uriel`, `wa-hatishbi`, `wa-mora`, `lab-reflect`, `research-extract-scan`, `welcome-auto-new`, `gallery-thumbs`, `post-thumbs`, `channel-thumbs`.
+- owner-specific `GSC_SYNC_KEY`: `gsc-daily-sync`.
+- direct DB: `system-watchman-weekly` → `system_watchman_run(false)`.
 - `wa-daily-digest` remains unscheduled/retired.
 
-The full SQL candidate was executed inside a live transaction as a syntax/object compatibility dry-run and rolled back successfully. Post-rollback verification proved `system_watchman_run` did not persist and all six original cron rows remained unchanged.
+No service-role key is placed in Vault.
 
-SQL is stored as **branch-only release candidate**, not a fabricated migration filename. On explicit release, run it through the canonical Supabase migration action and then mirror the generated migration version into git.
+### Latest full transactional dry-run
 
-## 10. External config release checks
+The **current complete** SQL candidate — including Watchman/payment rewrites, Raziel registry update, Green webhook Vault token/helper, and all 17 cron rewrites — was executed against canonical Supabase inside one transaction with assertions, then rolled back.
 
-Secret **values** never belong in git/work_log.
+Assertions passed:
 
-Verified now:
+- `WA_WEBHOOK_TOKEN` existed inside the transaction;
+- `wa_webhook_is_authorized(text)` existed;
+- active Raziel registry pointed to `wa-raziel`;
+- exactly 17 target jobs were active after rewrite;
+- zero target cron commands contained legacy `?s=` or inline JWT-shaped credentials.
 
-- existing `FB_ADMIN_KEY` is configured in the Edge environment (proved through fail-closed 401 probes) and is present by name in Vault;
-- no service-role key exists in Vault and G0 does not add one;
-- the Resend account has an enabled signed `email.received` webhook for `email-inbound`; the target state reuses that signed resource rather than inventing `EMAIL_INBOUND_SECRET`.
+Post-rollback verification:
 
-Remaining configuration semantics:
+- token did not persist;
+- helper did not persist;
+- Raziel registry returned to current live `wa-christina` pointer;
+- original cron rows remained.
 
-- `EMAIL_INGEST_SECRET` — fail-closed external webhook; currently no live email-channel rows observed, so absence means capability safely remains unavailable rather than reverting to a hardcoded fallback.
-- `STORYBOARD_RUN_KEY` — absence intentionally makes the hardened storyboard endpoint 503 rather than public-cost; it is **not** allowed to fall back to public execution.
-- `email-inbound` requires the existing Resend API credential to be able to fetch webhook metadata/signing material (or an already-configured `RESEND_WEBHOOK_SECRET`). This must be verified during deployment before the webhook URL is cleaned.
+Therefore the SQL candidate is **syntax/object-compatible and zero-persistent-mutation tested**, but remains branch-only.
 
-`video-migrate` no longer depends on the absent `OCR_RUN_KEY`; it uses the existing service-to-service root.
+## 12. Claude independent audit — CONSUMED
 
-## 11. Git-only counterpoint / PR hygiene
+Claude READ_ONLY assignment `19208c7e-ced5-4f19-8e1b-3f526df1d587` returned AFTER `89b919fb-22de-4b41-a54d-176005421c93`.
 
-`facebook-publish` exists in git but is not the live canonical cron executor. Live authority is `share-to-facebook` plus the admin-only `posts.share_to_fb` state. Do not raw-merge or substitute `facebook-publish`.
+Reconciliation:
 
-Preliminary open-PR decisions remain:
+- **B1 Watchman cron:** cleared; atomic SQL replacement already covers it.
+- **B2 wa-christina:** resolved candidate; live `wa-raziel` replacement proven, release SQL updates `agent_identity` before tombstone.
+- **B3 `CLAUDE.md` active-systems inaccuracies:** substantive G0 owner-accuracy claims corrected for `smart-search`, `migrate-media`, `reality-upload`, `admin-card-upload`. Full bootstrap cleanup remains G1, not started.
+- **B4 inline cron credentials:** expanded by GPT into the stronger P0 public-repo run-key finding; current candidate covers 17/17 active auth-shaped cron jobs and 16/16 source holders.
+- **B5 Foundation version identity:** live active row/body now aligned to v4.
+- `facebook-publish` drift: resolved candidate as a JWT/admin adapter over canonical FB publish RPCs.
 
-- #445 — ACTIVE G0 DRAFT, sole G0 release candidate;
-- #444 Roadmap v5.7 — later reconciliation only; no merge while G0 MUSTs are open;
-- #431 — rebase/reconcile candidate;
-- #410/#383 and spatial/design previews — evidence/prior art, not G0 authority;
-- #202/#201 — current live image-provenance state has been ported forward; never raw-merge;
-- #97 — storyboard prior lineage; current source has been ported/hardened instead of raw merging old PR;
-- other stale legacy prototype PRs remain EVIDENCE/PRIOR-ART/SUPERSEDED according to the prior triage and require no raw merge.
+Independent specialist requirement for the pre-release matrix is therefore **SATISFIED**. A new Claude audit is not required unless later changes materially alter the release/security decision.
 
-## 12. Independent specialist state
+## 13. G1 boundary
 
-Claude READ_ONLY Edge census assignment: work_log `19208c7e-ced5-4f19-8e1b-3f526df1d587`.
+`inter_agent_coordination_law v9` and `foundation_closure_protocol_law v4` define **AGENT ENTRY / BOOTSTRAP RECONCILIATION 2029** for G1. It is documented but **NOT STARTED**. G0 remediation does not bulk-clean all adapters or create a context system.
 
-At the latest live scan there is still **no AFTER**. Because this is a security/release scope, independent specialist review remains **REQUIRED before final G0 release/closure** if it can still change the release matrix. GPT does not block evidence gathering on a sleeping session and has continued live verification independently.
+## 14. Remaining blockers / release gate
 
-## 13. Current blockers
+1. **No release authorization yet.** Current live still has the old deployed security state until ZURIEL says `תעלה`.
+2. Final branch-head CI/current-main/no-overlap recheck must be green on the exact release head.
+3. On explicit release: apply the canonical migration; deploy exact Edge matrix; rotate Green webhook to Bearer clean URL; verify signed Resend inbound then clean its URL; deploy dependency-sensitive tombstones only after replacements are live.
+4. Run negative + authorized replays, including old published WhatsApp run-key rejection, admin-only actions, paid-model endpoints, media mutation paths and scheduled workers.
+5. Re-scan all active cron commands and active Edge sources: zero reusable inline credentials and zero active acceptance of the published legacy run-key.
+6. Merge only the matching git representation, then run full G0 closing rescan: DB objects/grants/RLS + live Edge versions/auth/hashes + cron state + `origin/main` parity + owner index + open PR state.
 
-1. **No release authorization yet.** Current live still includes material unguarded/legacy endpoints, including the proven storyboard/video surfaces; branch candidates are not live until ZURIEL says `תעלה`.
-2. Reconcile Claude AFTER if it arrives; if not, perform the required independent pre-release security cross-check by the available specialist path before declaring G0 sufficient.
-3. Re-run branch diff/current-main overlap and CI on the final pre-release head.
-4. On explicit release: apply the canonical migration, deploy the selected hardened/tombstone Edge versions with the exact modes in `G0_EDGE_DEPLOY_MATRIX.md`, verify signed inbound email before cleaning the Resend webhook URL, verify cron commands contain no inline credentials, and negative-test privileged paths.
-5. Perform full closing rescan: current main + DB object state + Edge live versions/hashes/auth + active crons + grants/RLS + owner index + open PR state.
-
-**Current state: G0 NOT SUFFICIENT.**  
-**Branch representation of the original 37 missing Edge sources: COMPLETE.**  
-**Higher gates remain blocked from merge/release as closure.**
+**Current state: PRE-RELEASE CANDIDATE PREPARED · G0 NOT SUFFICIENT / NOT LIVE.**  
+**Original 37 missing Edge sources: 37/37 represented.**  
+**Published legacy worker credential sources: 16/16 candidate-covered.**  
+**Active auth-shaped cron jobs: 17/17 candidate-covered.**  
+**G1 remains blocked and NOT STARTED.**
