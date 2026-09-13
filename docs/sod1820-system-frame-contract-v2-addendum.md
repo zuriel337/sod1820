@@ -17,6 +17,10 @@ The invariant remains:
 
 > **One global frame · many projections · no competing navigation/control systems.**
 
+### Product-language inheritance · 2026-09-13
+
+Public labels used by the System Frame consume the current `SOD1820_DESIGN_CONTRACT_V1.md` Naming / product language owner and current Master Roadmap. Retained v1 examples such as `עולם המספרים` / `עולם המספרים והגימטריה` are historical wording only and MUST NOT be restored as formal product/navigation names unless Human Gate explicitly renames them. Current numeric-family navigation uses `דף המספר` for the public Number/Phrase product and neutral family labels such as `מספרים` / `מספרים וגימטריה` where a grouping label is needed.
+
 ---
 
 ## 1. What remains invariant from v1
