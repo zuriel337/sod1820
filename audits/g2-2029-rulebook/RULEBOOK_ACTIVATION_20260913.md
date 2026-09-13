@@ -2,11 +2,10 @@
 
 Date: 2026-09-13
 Canonical Supabase: `linswmnnkjxvweumprav`
-Base main observed at release reconciliation: `3b9ab3d45c921c1c27c2063ef5449e43841324af`
 
 ## Human-Gate direction
 
-ZURIEL approved recording the 2029 Research World Model architecture into the existing rulebook, EXTEND_EXISTING only, and explicitly authorized release of any required clean reconciliation scope.
+ZURIEL approved recording the 2029 Research World Model architecture into the existing rulebook, EXTEND_EXISTING only, and explicitly authorized release of required clean reconciliation scopes.
 
 ## Activated canonical DB rules
 
@@ -19,64 +18,53 @@ ZURIEL approved recording the 2029 Research World Model architecture into the ex
   - Legacy Topic/Convergence/Gallery loses 2029 semantic authority.
   - Media semantics split representation-kind / research-role / subject-relations / placement-thread / provenance / curation.
   - Hard relation != soft facet.
-  - Selective legacy URL mapping; no blanket redirect network.
 
-- `research_strategy_layer_law` v3 — **ACTIVE**
-  - AI/Composer consumes semantic Universal Finding / Research Result Bundle boundary, not ad-hoc raw DB composition when an adapter exists.
+- `research_strategy_layer_law` v4 — **ACTIVE**
+  - Preserves v3 Temporal World Model / evidence-aware Research Plan semantics.
+  - AI/Composer consumes semantic Universal Finding / Research Result Bundle boundary when an adapter exists.
   - Typed Observation / Value Origin is Foundation data; legacy `all_values` is extraction/search material only.
   - Evidence-independence classification precedes ranking.
   - Multi-axis temporal/history model.
   - Negative/incomplete outcomes are first-class.
-  - Research-state summaries never replace Truth Axes.
   - Contextual Rank != Truth.
   - Compile Once → Project Many.
   - AI Research Planner optimizes for Information Gain with budgets/stopping rules.
-  - Open Questions remain addressable research state.
-  - Replayability required for evidential deterministic/research outputs.
-  - Future capabilities plug through canonical owner + adapter + Bundle semantics + trace.
+  - Replayability is required for evidential deterministic/research outputs.
   - Research Constellations are proposals, not auto-truth.
-  - Human Gate remains supreme.
+  - Anchor Strength is an explainable profile, never Truth and never raw match-count.
+  - Exact wording/orthography stays distinct; close variants do not inherit another expression's numeric or source authority.
+  - Source attestation requires explicit provenance to a real source/witness/tradition corpus; model familiarity/natural wording is not attestation.
+  - Strength signals may include source attestation, engine verification, evidence independence, historical lineage, cross-domain coherence, reproducible typed relations, contradiction/control state and Human curation.
+  - Synthetic/generated match volume may not game ranking.
+  - Historical cycle/year readings remain typed hypotheses/interpretations, not prophecy/fact through recurrence.
 
-## Research-strength clarification from 1202 / 776 stress test
+## 1202 / 776 calibration
 
-Research significance is not match-count. A strong anchor emerges from a weighted evidence network: exact wording, source attestation, engine verification, evidence independence, historical lineage, cross-domain coherence, and Human curation. These signals affect research strength/rank only; they never promote Truth/Governance by themselves.
+The examples calibrate the universal rule; they are not special-number exceptions.
 
-Exact expressions remain distinct. Source-attested/preferred research wording may receive stronger semantic weight than an engineered or unattested variant, while each exact expression keeps its own calculation identity.
+- `התגלות משיח = 1202` and `בראשית ברא אלהים = 1202` are exact engine facts when verified under their exact expressions/methods. Research significance may additionally draw from source attestation, historical lineage, independent evidence and curated cross-domain structure.
+- `ביאת המשיח = 776`, while `ביאת משיח = 771`; the exact wording difference must survive. Other meaningful 776 equalities and the historical תשע״ו/ELS/research lineage may contribute to research strength only through typed provenance/evidence.
 
 ## Truth owner unchanged
 
-`truth_axes_foundation_law` v3 remains active and already owns:
-
-`EPISTEMIC TYPE != VERIFICATION != GOVERNANCE != PUBLICATION/ACCESS`, plus `Rank != Truth` semantics.
-
-No duplicate truth/ranking law was created.
+`truth_axes_foundation_law` v3 remains active and owns semantic separation of epistemic type, verification, governance and publication/access. Research Strength/Rank never promotes those axes by itself.
 
 ## G3 carry-forward
 
-Before Golden closure, independently challenge and verify as Foundation requirements:
+Before Golden closure, independently challenge and verify:
 
 1. shared-artifact / evidence-independence semantics;
 2. Typed Observation / Value Origin;
 3. multi-axis temporal/history primitives;
 4. replay/idempotency/failure recovery;
 5. Bundle-only composition boundary where adapters exist;
-6. research-strength calibration so source attestation/history/independence cannot be gamed by synthetic match volume.
+6. research-strength calibration and anti-gaming controls;
+7. source/witness attestation plumbing sufficient for exact-expression provenance.
 
-CLAUDE challenge remains required at G3 closure; this release only reconciles routing documentation with the already-live Human-Gate rulebook decision.
+CLAUDE remains REQUIRED at G3 closure for independent foundation challenge.
 
-## DRIFT found and release target
+## State
 
-`SOD1820_MASTER_OWNER_INDEX.md` on the observed `main` still records `reality_graph_law v4 ACTIVE` and does not expose `research_strategy_layer_law v3` as the Research Plan / Temporal World Model owner. Live DB is authoritative; the owner index must be reconciled so fresh-agent routing does not depend on a stale snapshot.
-
-Required owner-index delta:
-
-- Reality Graph row: `v4 ACTIVE` → `v5 ACTIVE · DB-LIVE 2026-09-13`.
-- Add Research Plan / capability-selection / Temporal World Model routing → `research_strategy_layer_law v3 ACTIVE · DB-LIVE 2026-09-13`.
-- Do not duplicate contract bodies in the index.
-
-## State at branch creation
-
-- DB rulebook: **LIVE / VERIFIED**
-- Product/schema/routes: **UNCHANGED**
-- Git audit + owner-index pointer correction: **BRANCH-ONLY until merged**
-- Product deploy: **NOT REQUIRED** (docs/routing parity only)
+- DB rulebook: **LIVE / VERIFIED** — Reality Graph v5 + Research Strategy v4.
+- Product/schema/routes: **UNCHANGED**.
+- This Git scope: routing/audit parity only; no product deployment required.
