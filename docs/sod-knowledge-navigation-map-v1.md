@@ -4,6 +4,8 @@ Status: Inventory baseline · 2026-09-04
 Purpose: canonical planning map for the new mega navigation, Heichal, progress surfaces and future previews.  
 Rule: counts below are measured from production at audit time. They are not automatically live counters yet.
 
+> NAMING UPDATE · 2026-09-13 — Current Product Language owner and Master Roadmap supersede older formal naming examples in this inventory. `דף המספר` remains the public Number/Phrase product name. `עולם המספרים` / `עולם המספרים והגימטריה` are not formal product/navigation names; use neutral family wording such as `מספרים` / `מספרים וגימטריה` unless Human Gate explicitly renames them later. Historical references remain provenance only.
+
 ## Measured scale now
 
 | Knowledge surface | Production baseline |
@@ -208,10 +210,10 @@ Coming soon belongs here: gatherings, live gatherings, shared research spaces, r
 Heichal is the spatial projection of all the worlds above, not another list menu.
 
 Future doors:
-- עולם המספרים
-- עולם הצפנים
-- עולם הספרים והמקורות
-- עולם הטקסט / בית המדרש
+- מספרים / דף המספר
+- צפנים / ELS
+- ספרים ומקורות
+- טקסט / בית המדרש
 - אנשים ושמות
 - עץ הידע / קשרים
 - גלקסיות
