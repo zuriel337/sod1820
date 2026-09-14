@@ -65,6 +65,15 @@ export function normalizeOperatorRef(ref) {
   };
 }
 
+function normalizeAccess(value) {
+  const input = objectOrNull(value);
+  if (!input) return null;
+  return {
+    tier: clean(input.tier),
+    reason: clean(input.reason),
+  };
+}
+
 function normalizeSelection(value) {
   const input = objectOrNull(value);
   if (!input) return null;
@@ -236,6 +245,7 @@ export function normalizeResearchEvaluation(value = null, { operatorRef = null }
   return {
     contract_version: RESEARCH_EVALUATION_CONTRACT_VERSION,
     operator_ref: normalizedOperatorRef,
+    access: normalizeAccess(input?.access),
     selection: normalizeSelection(input?.selection),
     search_space: normalizeSearchSpace(input?.search_space ?? input?.searchSpace),
     expectedness: normalizeExpectedness(input?.expectedness),
