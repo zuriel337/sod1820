@@ -46,13 +46,16 @@ function uniqStrings(values) {
 }
 
 export function normalizeOperatorRef(ref) {
+  if (ref == null) return null;
   const value = objectOrNull(ref);
-  if (!value) return null;
+  if (!value) throw new TypeError('researchEvaluation: malformed owner-qualified operator_ref');
   const owner = clean(value.owner);
   const capabilityKey = clean(value.capability_key ?? value.capabilityKey);
   const operatorId = clean(value.operator_id ?? value.operatorId);
   const version = clean(value.version);
-  if (!owner || !capabilityKey || !operatorId || !version) return null;
+  if (!owner || !capabilityKey || !operatorId || !version) {
+    throw new TypeError('researchEvaluation: malformed owner-qualified operator_ref');
+  }
   return {
     type: clean(value.type) || 'research_operator',
     owner,
@@ -229,9 +232,6 @@ export function normalizeResearchEvaluation(value = null, { operatorRef = null }
   const input = objectOrNull(value);
   const rawOperatorRef = input?.operator_ref ?? input?.operatorRef ?? operatorRef;
   const normalizedOperatorRef = normalizeOperatorRef(rawOperatorRef);
-  if (rawOperatorRef && !normalizedOperatorRef) {
-    throw new TypeError('researchEvaluation: malformed owner-qualified operator_ref');
-  }
   if (!input && !normalizedOperatorRef) return null;
   return {
     contract_version: RESEARCH_EVALUATION_CONTRACT_VERSION,
