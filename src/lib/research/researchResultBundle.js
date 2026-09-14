@@ -55,6 +55,28 @@ function clean(value) {
   return text || null;
 }
 
+function nonNegativeInteger(value, label) {
+  if (value == null) return null;
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 0) throw new TypeError(`researchResultBundle: ${label} must be an integer >= 0`);
+  return n;
+}
+
+function probability(value, label) {
+  if (value == null) return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0 || n > 1) throw new TypeError(`researchResultBundle: ${label} must be between 0 and 1`);
+  return n;
+}
+
+function sameOperatorRef(a, b) {
+  if (!a || !b) return true;
+  return a.owner === b.owner
+    && a.capability_key === b.capability_key
+    && a.operator_id === b.operator_id
+    && a.version === b.version;
+}
+
 export function stripRawAuthorizationContext(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return value;
   let touched = false;
@@ -142,9 +164,14 @@ function researchEvaluationAccessDecision(evaluation, accessDescriptor, accessCl
 
 function normalizeBounded(bounded) {
   if (!bounded || typeof bounded !== "object") return null;
-  const total = Number(bounded.total_count ?? bounded.total), returned = Number(bounded.returned_count ?? bounded.returned);
-  if (!Number.isFinite(total) && !Number.isFinite(returned)) return null;
-  const totalCount = Number.isFinite(total) ? total : null, returnedCount = Number.isFinite(returned) ? returned : null;
+  const rawTotal = bounded.total_count ?? bounded.total;
+  const rawReturned = bounded.returned_count ?? bounded.returned;
+  if (rawTotal == null && rawReturned == null) return null;
+  const totalCount = nonNegativeInteger(rawTotal, 'bounded.total_count');
+  const returnedCount = nonNegativeInteger(rawReturned, 'bounded.returned_count');
+  if (totalCount != null && returnedCount != null && returnedCount > totalCount) {
+    throw new TypeError('researchResultBundle: bounded.returned_count cannot exceed bounded.total_count');
+  }
   return {
     total_count: totalCount,
     returned_count: returnedCount,
@@ -161,7 +188,7 @@ function normalizeFindingOutcome(outcome = {}, findingIds = new Set(), fallbackE
   const relation = clean(outcome.evidence_relation || outcome.evidenceRelation);
   if (!VALID_EVIDENCE_RELATION.has(relation)) throw new TypeError(`researchResultBundle: invalid evidence relation "${relation}" for ${findingId}`);
   const rawBaseRate = outcome.base_rate ?? outcome.baseRate;
-  const baseRate = rawBaseRate == null ? null : Number(rawBaseRate);
+  const baseRate = probability(rawBaseRate, `base_rate for ${findingId}`);
   const lineageInput = outcome.evidence_lineage ?? outcome.evidenceLineage ?? fallbackEvaluation?.dependency ?? null;
   const span = outcome.lineage_span ?? outcome.lineageSpan ?? fallbackEvaluation?.location?.span ?? null;
   return {
@@ -174,7 +201,7 @@ function normalizeFindingOutcome(outcome = {}, findingIds = new Set(), fallbackE
     reason: clean(outcome.reason),
     expectedness: clean(outcome.expectedness),
     expectedness_model: clean(outcome.expectedness_model || outcome.expectednessModel),
-    base_rate: Number.isFinite(baseRate) ? baseRate : null,
+    base_rate: baseRate,
   };
 }
 
@@ -189,8 +216,19 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
   const semanticClass = clean(record.semantic_class || record.semanticClass);
   if (semanticClass && !VALID_SEMANTIC_CLASS.has(semanticClass)) throw new TypeError(`researchResultBundle: invalid semantic class "${semanticClass}" for ${key}`);
 
-  const operatorRef = normalizeOperatorRef(record.operator_ref || record.operatorRef);
-  const rawResearchEvaluation = normalizeResearchEvaluation(record.research_evaluation || record.researchEvaluation, { operatorRef });
+  const declaredOperatorRef = normalizeOperatorRef(record.operator_ref || record.operatorRef);
+  if (declaredOperatorRef && declaredOperatorRef.capability_key !== key) {
+    throw new TypeError(`researchResultBundle: operator_ref capability "${declaredOperatorRef.capability_key}" does not match capability "${key}"`);
+  }
+  const rawResearchEvaluation = normalizeResearchEvaluation(record.research_evaluation || record.researchEvaluation, { operatorRef: declaredOperatorRef });
+  const evaluationOperatorRef = rawResearchEvaluation?.operator_ref || null;
+  if (evaluationOperatorRef && evaluationOperatorRef.capability_key !== key) {
+    throw new TypeError(`researchResultBundle: evaluation operator_ref capability "${evaluationOperatorRef.capability_key}" does not match capability "${key}"`);
+  }
+  if (!sameOperatorRef(declaredOperatorRef, evaluationOperatorRef)) {
+    throw new TypeError(`researchResultBundle: capability/evaluation operator_ref mismatch for ${key}`);
+  }
+  const operatorRef = declaredOperatorRef || evaluationOperatorRef;
   const evaluationDecision = researchEvaluationAccessDecision(rawResearchEvaluation, accessDescriptor, accessClass);
   const researchEvaluation = evaluationDecision.allowed ? rawResearchEvaluation : null;
 
@@ -334,11 +372,13 @@ export function composeResearchResultBundle({
     finding_outcomes: findingOutcomes,
     dependency_groups: dependency.groups,
     dependency_edges: dependency.edges,
+    dependency_context_relations: dependency.contextual_relations || [],
     dependency_summary: {
       findings_total: findings.length,
       groups_total: dependency.groups.length,
       dependent_groups: dependency.groups.filter(x => x.dependent).length,
       unknown_singletons: dependency.groups.filter(x => !x.dependent && x.dependency_state === 'unknown').length,
+      contextual_relations: (dependency.contextual_relations || []).length,
       independence_conflicts: independenceConflicts.size,
     },
     ranking: normalizedRanking,
@@ -358,6 +398,7 @@ export function composeResearchResultBundle({
       convergence_is_not_automatically_independent: true,
       dependency_grouping_precedes_ranking: true,
       unknown_dependency_is_not_independence: true,
+      shared_input_is_context_not_dependency: true,
       independent_evidence_conflict_is_explicit: true,
       negative_result_requires_executed_search: true,
       missing_adapter_is_not_negative_evidence: true,
