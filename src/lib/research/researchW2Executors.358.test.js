@@ -62,13 +62,20 @@ test('research_objects capability reports deliberate access refusal instead of m
   assert.equal(out.trace.access, 'refused_fail_closed');
 });
 
-test('358 Fibonacci bounded search survives as first-class negative result', async () => {
+test('358 Fibonacci bounded search survives as first-class negative result with the same maximal evaluation envelope', async () => {
   const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
   const out = await executors['sequence:fibonacci']({ identityResolution: numberIdentity(358) });
   assert.equal(out.status, CAPABILITY_STATUS.NEGATIVE_RESULT);
   assert.deepEqual(out.findings, []);
   assert.equal(out.negativeScope.sequence_id, 'fibonacci');
   assert.equal(out.negativeScope.search_depth, 10000);
+  assert.equal(out.operatorRef.owner, 'research_strategy_layer_law');
+  assert.equal(out.operatorRef.capability_key, 'sequence:fibonacci');
+  assert.equal(out.researchEvaluation.selection.protocol, 'unknown');
+  assert.equal(out.researchEvaluation.completion.complete, true);
+  assert.equal(out.researchEvaluation.completion.state, 'bounded_complete_negative');
+  assert.equal(out.researchEvaluation.replay.replayable, null);
+  assert.match(out.researchEvaluation.replay.unavailable_reason, /acceptance/i);
 });
 
 test('377 Fibonacci hit is explicitly independent evidence, not a derived Gematria confirmation', async () => {
@@ -79,9 +86,13 @@ test('377 Fibonacci hit is explicitly independent evidence, not a derived Gematr
   assert.equal(out.findingOutcomes[0].findingId, out.findings[0].id);
   assert.equal(out.findingOutcomes[0].evidenceRelation, EVIDENCE_RELATION.INDEPENDENT_EVIDENCE);
   assert.equal(out.findingOutcomes[0].expectedness, 'sequence_specific_not_estimated');
+  assert.equal(out.researchEvaluation.expectedness.model, null);
+  assert.match(out.researchEvaluation.expectedness.unavailable_reason, /unavailable/i);
+  assert.equal(out.researchEvaluation.location.native.start, 14);
+  assert.equal(out.researchEvaluation.location.span.unit, 'term');
 });
 
-test('358 pi hit carries high-base-rate expectedness so lineage independence is not mistaken for corroboration', async () => {
+test('358 pi hit carries high-base-rate expectedness and maximal provenance so lineage independence is not mistaken for corroboration', async () => {
   const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
   const out = await executors['sequence:pi']({ identityResolution: numberIdentity(358) });
   assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
@@ -91,6 +102,13 @@ test('358 pi hit carries high-base-rate expectedness so lineage independence is 
   assert.equal(out.findingOutcomes[0].expectednessModel, 'uniform_digit_stream_heuristic_v1');
   assert.ok(out.findingOutcomes[0].baseRate > 0.95);
   assert.match(out.findingOutcomes[0].reason, /not corroboration by itself/i);
+  assert.equal(out.operatorRef.operator_id, 'pi');
+  assert.equal(out.researchEvaluation.expectedness.model, 'uniform_digit_stream_heuristic_v1');
+  assert.ok(out.researchEvaluation.expectedness.base_rate > 0.95);
+  assert.equal(out.researchEvaluation.location.native.start, out.findings[0].verification.engine_result.first_position);
+  assert.equal(out.researchEvaluation.location.span.end, out.researchEvaluation.location.span.start + 2);
+  assert.equal(out.researchEvaluation.search_space.multiplicity, null);
+  assert.match(out.researchEvaluation.search_space.unavailable_reason, /multiplicity/i);
 });
 
 test('358 ELS remains first-class missing adapter, never negative evidence', async () => {
