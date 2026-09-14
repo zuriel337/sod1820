@@ -60,6 +60,37 @@ function windowAround(digits, zeroIndex, queryLength, radius) {
   return { start_position: start + 1, end_position: end, digits: digits.slice(start, end) };
 }
 
+function uniformDigitExpectedness(query, depth) {
+  const digits = String(query || '').length;
+  const searchDepth = Number(depth);
+  if (!Number.isSafeInteger(searchDepth) || searchDepth <= 0 || digits <= 0) {
+    return {
+      state: 'unknown',
+      model: 'uniform_digit_stream_heuristic_v1',
+      base_rate: null,
+      assumptions: ['uniform independent digit-stream heuristic; not a proof of Pi normality'],
+      unavailable_reason: 'invalid depth/query length for heuristic',
+    };
+  }
+  const windows = Math.max(0, searchDepth - digits + 1);
+  const singleWindowRate = 10 ** (-digits);
+  const baseRate = windows === 0 ? 0 : 1 - Math.pow(1 - singleWindowRate, windows);
+  const state = baseRate >= 0.95
+    ? 'near_certain_under_uniform_digit_heuristic'
+    : baseRate >= 0.5
+      ? 'high_under_uniform_digit_heuristic'
+      : baseRate >= 0.05
+        ? 'moderate_under_uniform_digit_heuristic'
+        : 'low_under_uniform_digit_heuristic';
+  return {
+    state,
+    model: 'uniform_digit_stream_heuristic_v1',
+    base_rate: baseRate,
+    assumptions: ['uniform independent digit-stream heuristic; not a proof of Pi normality'],
+    unavailable_reason: null,
+  };
+}
+
 export const piSequenceAdapter = Object.freeze({
   sequenceId: SOURCE.id,
   sequenceVersion: SOURCE.version,
@@ -74,6 +105,23 @@ export const piSequenceAdapter = Object.freeze({
   maxSearchDepth: SOURCE.maxSearchDepth,
   defaultOperation: SEQUENCE_OPERATION.FIRST,
   operations: Object.freeze([SEQUENCE_OPERATION.FIRST, SEQUENCE_OPERATION.ALL]),
+
+  // Evaluation belongs to the operator adapter, never a central `if (pi)` branch. A future constant,
+  // palindrome, modular or statistical operator can supply its own model through the same hook.
+  async evaluate({ execution } = {}) {
+    return {
+      status: 'ok',
+      expectedness: uniformDigitExpectedness(execution?.query, execution?.search_depth),
+      controls: [],
+      controls_state: {
+        status: 'unknown',
+        reason: 'no registered randomized/control run was executed by this deterministic Pi adapter',
+      },
+      robustness: null,
+      competing_patterns: [],
+    };
+  },
+
   async execute(request = {}) {
     const query = String(request.query ?? '').trim();
     if (!/^\d+$/.test(query)) return { status: 'error', error: 'QUERY_MUST_BE_DIGITS', sequence_id: 'pi' };
@@ -83,6 +131,7 @@ export const piSequenceAdapter = Object.freeze({
     const digits = piDigitsAfterDecimal(searchDepth);
     const firstIndex = digits.indexOf(query);
     const occurrences = [];
+    let occurrenceLimitReached = false;
     if (operation === SEQUENCE_OPERATION.ALL && firstIndex >= 0) {
       let from = 0;
       while (occurrences.length < request.budget.maxOccurrences) {
@@ -90,6 +139,11 @@ export const piSequenceAdapter = Object.freeze({
         if (i < 0) break;
         occurrences.push(i + 1);
         from = i + 1;
+      }
+      // We can cheaply attest whether the cap hid another occurrence without materializing it.
+      if (occurrences.length >= request.budget.maxOccurrences) {
+        const nextFrom = (occurrences[occurrences.length - 1] || 1);
+        occurrenceLimitReached = digits.indexOf(query, nextFrom) >= 0;
       }
     }
     const found = firstIndex >= 0;
@@ -106,6 +160,7 @@ export const piSequenceAdapter = Object.freeze({
         found,
         first_position: found ? firstIndex + 1 : null,
         occurrences: operation === SEQUENCE_OPERATION.ALL ? occurrences : undefined,
+        occurrences_truncated: operation === SEQUENCE_OPERATION.ALL ? occurrenceLimitReached : false,
         surrounding_window: found ? windowAround(digits, firstIndex, query.length, request.budget?.windowRadius || 12) : null,
       },
       verification: { state: 'deterministic_computation', algorithm: SOURCE.algorithm, verified: true },
