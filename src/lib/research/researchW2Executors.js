@@ -5,10 +5,12 @@
 import { createCanonicalNumberW2Executors as createBaseW2Executors } from './researchW2ExecutorsBase.js';
 import { createGematriaW2Executor } from './gematriaW2Executor.js';
 import { createCanonicalElsW2Executor } from './elsW2Executor.js';
+import { createSequenceW2Executor } from './sequenceW2Executor.js';
 import { CONTROL_STATE, SELECTION_PROTOCOL } from './researchEvaluation.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS } from './researchResultBundle.js';
 
 export { SAFE_W2_NUMERIC_LENSES, NUMERIC_SYSTEM_METHOD_RULE_IDS } from './researchW2ExecutorsBase.js';
+export { createSequenceW2Executor } from './sequenceW2Executor.js';
 
 function clean(value) {
   if (value == null) return null;
@@ -301,13 +303,27 @@ export function createCanonicalNumberW2Executors(options = {}) {
     resolveRequest: options.resolveElsRequest ?? null,
   });
 
+  // Sequence/Pattern capability execution is routed through ONE family-agnostic bridge. Operator
+  // evaluation comes from adapter.evaluate() via sequenceLens; the canonical W2 entrypoint has no
+  // Pi/Fibonacci expectedness branch. Additional sequence:* capabilities use the same exported
+  // createSequenceW2Executor with their owner-qualified adapter, without redesigning this contract.
+  const sequenceCommon = {
+    supabase: options.supabase,
+    sequenceAdapters: options.sequenceAdapters || [],
+    sequenceBudget: options.sequenceBudget || null,
+    sequenceOperation: options.sequenceOperation || null,
+    sequenceOperations: options.sequenceOperations || null,
+  };
+  const sequencePi = createSequenceW2Executor({ ...sequenceCommon, lensId: 'sequence:pi' });
+  const sequenceFibonacci = createSequenceW2Executor({ ...sequenceCommon, lensId: 'sequence:fibonacci' });
+
   return {
     ...base,
     numeric: wrapMultiNumberExecutor(base.numeric, { maxAnchors: maxNumberAnchors, capability: 'numeric' }),
     numeric_operators: wrapMultiNumberExecutor(base.numeric_operators, { maxAnchors: maxNumberAnchors, capability: 'numeric_operators' }),
     research_objects: wrapMultiNumberExecutor(base.research_objects, { maxAnchors: maxNumberAnchors, capability: 'research_objects' }),
-    'sequence:pi': wrapMultiNumberExecutor(base['sequence:pi'], { maxAnchors: maxNumberAnchors, capability: 'sequence:pi' }),
-    'sequence:fibonacci': wrapMultiNumberExecutor(base['sequence:fibonacci'], { maxAnchors: maxNumberAnchors, capability: 'sequence:fibonacci' }),
+    'sequence:pi': wrapMultiNumberExecutor(sequencePi, { maxAnchors: maxNumberAnchors, capability: 'sequence:pi' }),
+    'sequence:fibonacci': wrapMultiNumberExecutor(sequenceFibonacci, { maxAnchors: maxNumberAnchors, capability: 'sequence:fibonacci' }),
     gematria,
     els,
   };
