@@ -89,7 +89,6 @@ async function runControls(supabase, representations) {
     anchor_count: controlSet.anchors.length,
     control_count: controlSet.controls.length,
     semantic_identity_claimed: false,
-    // No raw input/control strings in the trace: this trace can cross a composition boundary.
     evaluations: Array.isArray(data?.evaluations) ? data.evaluations : [],
   };
 }
@@ -156,25 +155,31 @@ function gematriaControlsEvaluation(controlEvaluation, controlsEnabled) {
   };
 }
 
-function gematriaResearchEvaluation({ representations, representationBudget, failed, controlsEnabled, controlEvaluation, hasRestricted }) {
+function fixedBeforeInspection(protocol) {
+  if (protocol === SELECTION_PROTOCOL.PRE_REGISTERED_TARGET) return true;
+  if (protocol === SELECTION_PROTOCOL.POST_HOC_EXPLORATORY) return false;
+  return null;
+}
+
+function gematriaResearchEvaluation({ representations, representationBudget, failed, controlsEnabled, controlEvaluation, hasRestricted, selectionProtocol }) {
   const control = gematriaControlsEvaluation(controlEvaluation, controlsEnabled);
   const truncated = representationBudget.truncated === true;
   const complete = !truncated && failed === 0;
+  const protocol = selectionProtocol || SELECTION_PROTOCOL.UNKNOWN;
   return {
     operator_ref: GEMATRIA_OPERATOR_REF,
     access: {
-      // Capability-level evaluation aggregates several representations. When any restricted input is
-      // present, use a strict tier so the composition boundary filters the aggregate from public
-      // callers instead of leaking private research shape/counts.
       tier: hasRestricted ? 'private' : 'public',
       reason: hasRestricted ? 'aggregate evaluation includes access-controlled representations' : 'public/input representations only',
     },
     selection: {
-      protocol: SELECTION_PROTOCOL.UNKNOWN,
+      protocol,
       target_ref: representations.length === 1 ? representations[0].ref : null,
       provenance_ref: null,
-      fixed_before_inspection: null,
-      reason: 'Research Plan selection provenance has not yet been supplied to this executor',
+      fixed_before_inspection: fixedBeforeInspection(protocol),
+      reason: protocol === SELECTION_PROTOCOL.UNKNOWN
+        ? 'Research Plan did not declare selection protocol'
+        : 'selection protocol declared by Research Plan; target/provenance refs remain capability-local',
     },
     search_space: {
       declared: { max_representations: representationBudget.cap },
@@ -227,14 +232,6 @@ function gematriaResearchEvaluation({ representations, representationBudget, fai
   };
 }
 
-/**
- * Canonical W2 Gematria executor.
- * - calls ONLY public.gematria_api for Gematria truth;
- * - expands bounded representations (full expression + word/name parts);
- * - never roots/adopts input into gematria_words;
- * - keeps personal/private representation access attached to each Finding;
- * - optional controls are diagnostics/expectedness, never a new truth lifecycle.
- */
 export function createGematriaW2Executor({
   supabase,
   maxRepresentations = 16,
@@ -242,7 +239,7 @@ export function createGematriaW2Executor({
 } = {}) {
   if (typeof supabase?.rpc !== 'function') throw new Error('canonical Supabase RPC client required');
 
-  return async ({ identityResolution }) => {
+  return async ({ identityResolution, plan = null, selectionProtocol = null }) => {
     const representations = expandResearchTextRepresentations(identityResolution, { maxRepresentations });
     const representationBudget = representationOverflow(identityResolution, representations, maxRepresentations);
     if (!representations.length) {
@@ -317,6 +314,7 @@ export function createGematriaW2Executor({
       controlsEnabled: controls,
       controlEvaluation,
       hasRestricted,
+      selectionProtocol: selectionProtocol || plan?.selection_protocol || SELECTION_PROTOCOL.UNKNOWN,
     });
 
     return {
