@@ -260,12 +260,14 @@ export function summarizeCoverage(capabilities = []) {
   return summary;
 }
 
-function normalizeRankingEntry(entry = {}, findingIds = new Set(), dependencyMap = new Map()) {
+function normalizeRankingEntry(entry = {}, findingIds = new Set(), dependencyMap = new Map(), dependencyStateMap = new Map(), independenceConflicts = new Set()) {
   const findingId = clean(entry.finding_id || entry.findingId);
   if (!findingId || !findingIds.has(findingId)) return null;
   return {
     finding_id: findingId,
     dependency_group: dependencyMap.get(findingId) || null,
+    dependency_state: dependencyStateMap.get(findingId) || 'unknown',
+    independence_conflict: independenceConflicts.has(findingId),
     rank: Number.isFinite(Number(entry.rank)) ? Number(entry.rank) : null,
     score: Number.isFinite(Number(entry.score)) ? Number(entry.score) : null,
     axes: entry.axes && typeof entry.axes === "object" ? entry.axes : {},
@@ -294,13 +296,21 @@ export function composeResearchResultBundle({
 
   // Dependency classification is deliberately composed BEFORE ranking. UNKNOWN is not independence.
   const rawFindingOutcomes = normalizedCapabilities.flatMap(cap => cap.finding_outcomes.map(outcome => ({ ...outcome, capability: cap.key })));
-  const dependency = composeDependencyGroups(rawFindingOutcomes);
-  const findingOutcomes = rawFindingOutcomes.map(outcome => ({
-    ...outcome,
-    dependency_group: dependency.finding_to_group.get(outcome.finding_id) || null,
-  }));
+  const dependency = composeDependencyGroups(rawFindingOutcomes, [...findingIds]);
+  const independenceConflicts = new Set();
+  const findingOutcomes = rawFindingOutcomes.map(outcome => {
+    const dependencyState = dependency.finding_to_state.get(outcome.finding_id) || 'unknown';
+    const independenceConflict = outcome.evidence_relation === EVIDENCE_RELATION.INDEPENDENT_EVIDENCE && dependencyState === 'dependent';
+    if (independenceConflict) independenceConflicts.add(outcome.finding_id);
+    return {
+      ...outcome,
+      dependency_group: dependency.finding_to_group.get(outcome.finding_id) || null,
+      dependency_state: dependencyState,
+      independence_conflict: independenceConflict,
+    };
+  });
   const normalizedRanking = (Array.isArray(ranking) ? ranking : [])
-    .map(x => normalizeRankingEntry(x, findingIds, dependency.finding_to_group))
+    .map(x => normalizeRankingEntry(x, findingIds, dependency.finding_to_group, dependency.finding_to_state, independenceConflicts))
     .filter(Boolean)
     .sort((a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER));
 
@@ -324,6 +334,13 @@ export function composeResearchResultBundle({
     finding_outcomes: findingOutcomes,
     dependency_groups: dependency.groups,
     dependency_edges: dependency.edges,
+    dependency_summary: {
+      findings_total: findings.length,
+      groups_total: dependency.groups.length,
+      dependent_groups: dependency.groups.filter(x => x.dependent).length,
+      unknown_singletons: dependency.groups.filter(x => !x.dependent && x.dependency_state === 'unknown').length,
+      independence_conflicts: independenceConflicts.size,
+    },
     ranking: normalizedRanking,
     capability_trace: normalizedCapabilities.map(({ findings: _findings, ...cap }) => cap),
     coverage: summarizeCoverage(normalizedCapabilities),
@@ -341,6 +358,7 @@ export function composeResearchResultBundle({
       convergence_is_not_automatically_independent: true,
       dependency_grouping_precedes_ranking: true,
       unknown_dependency_is_not_independence: true,
+      independent_evidence_conflict_is_explicit: true,
       negative_result_requires_executed_search: true,
       missing_adapter_is_not_negative_evidence: true,
       no_ai_arithmetic_fallback: true,
