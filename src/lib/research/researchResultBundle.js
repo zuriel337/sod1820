@@ -2,9 +2,10 @@ import { isUniversalFinding } from "./universalFinding.js";
 import { normalizeAccessDescriptor } from "./researchPlanV2.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
 import { normalizeOperatorRef, normalizeResearchEvaluation } from "./researchEvaluation.js";
+import { composeDependencyGroups, normalizeEvidenceLineage } from "./researchDependency.js";
 
-// W2.1 — Generic Research Result Bundle composer.
-// Stable socket only: no engine truth, ranking truth, access policy or persistence is owned here.
+// Generic Research Result Bundle composer. This layer transports governed semantic output only;
+// it owns no engine truth, ranking truth, dependency truth, access policy or persistence.
 
 export const CAPABILITY_STATUS = Object.freeze({
   EXECUTED: "executed",
@@ -15,7 +16,6 @@ export const CAPABILITY_STATUS = Object.freeze({
   UNVERIFIED: "unverified",
   FAILED: "failed",
   MISSING_ADAPTER: "missing_adapter",
-  // Compatibility alias for early W2.1 callers. New code must emit MISSING_ADAPTER explicitly.
   MISSING: "missing_adapter",
 });
 
@@ -25,17 +25,6 @@ export const EVIDENCE_RELATION = Object.freeze({
   INDEPENDENT_EVIDENCE: "independent_evidence",
 });
 
-const VALID_CAPABILITY_STATUS = new Set(Object.values(CAPABILITY_STATUS));
-const VALID_EVIDENCE_RELATION = new Set(Object.values(EVIDENCE_RELATION));
-
-// ── W2.2b · PER-LENS ACCESS CLASS ─────────────────────────────────────────────────────────
-// A capability status of "executed" says nothing about whether the SOURCE behind it is publicly
-// readable. fn_number_lookup is an anon-executable public contract; research_objects has no
-// anon/authenticated table grant at all and is dominated by private/public_candidate rows. Both
-// could previously report the same "executed" and drop their rows into the same Bundle.
-// The access class is therefore declared per capability by the adapter that knows the source, and
-// the composition boundary filters on it. UNCLASSIFIED is deliberately NOT a synonym for public:
-// it means the adapter did not declare, which stays visible in the trace instead of being laundered.
 export const ACCESS_CLASS = Object.freeze({
   PUBLIC_SOURCE: "public_source",
   SOURCE_ACCESS_CONTROLLED: "source_access_controlled",
@@ -43,11 +32,6 @@ export const ACCESS_CLASS = Object.freeze({
   UNCLASSIFIED: "unclassified",
 });
 
-// ── W2.2b · PER-LENS SEMANTIC CLASS ───────────────────────────────────────────────────────
-// Not every lens that returns data returns EVIDENCE. fn_number_dossier is a composite of several
-// truth families, fn_number_journey is a derivation/projection map, number_neighbors and
-// fn_hot_context are ranking/candidate signals that explicitly are not truth. Those belong in the
-// capability trace as context, never atomised into positive Findings (preflight de9969d1 item 9).
 export const SEMANTIC_CLASS = Object.freeze({
   EVIDENCE: "evidence",
   DERIVATION: "derivation",
@@ -56,21 +40,21 @@ export const SEMANTIC_CLASS = Object.freeze({
   RANKING: "ranking",
 });
 
+const VALID_CAPABILITY_STATUS = new Set(Object.values(CAPABILITY_STATUS));
+const VALID_EVIDENCE_RELATION = new Set(Object.values(EVIDENCE_RELATION));
 const VALID_ACCESS_CLASS = new Set(Object.values(ACCESS_CLASS));
 const VALID_SEMANTIC_CLASS = new Set(Object.values(SEMANTIC_CLASS));
-
-// Tiers that are never public by default. A Finding carrying one of these is dropped unless the
-// resolved access descriptor explicitly allows that exact tier.
 const RESTRICTED_ACCESS_TIERS = new Set(["private", "public_candidate", "personal", "user_private", "draft", "internal", "pending"]);
-
-// Keys that carry the RAW private authorization context. They must never survive to the output.
 const RAW_AUTHORIZATION_KEYS = Object.freeze(["authorization_context", "authorizationContext", "auth_context", "authContext"]);
+const PERSONAL_CONTEXT_SOURCE = "personal_context";
+const ACCESS_TIER_PERSONAL = "personal";
 
-/**
- * Fail-closed composition-boundary scrub. Any raw authorization context reaching the Bundle through
- * a plan, a resolved run snapshot or a legacy caller is removed here rather than trusted to have
- * been removed upstream. Returns a shallow copy — the caller's object is never mutated.
- */
+function clean(value) {
+  if (value == null) return null;
+  const text = String(value).trim();
+  return text || null;
+}
+
 export function stripRawAuthorizationContext(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return value;
   let touched = false;
@@ -83,52 +67,25 @@ export function stripRawAuthorizationContext(value) {
   return out;
 }
 
-// ── W2.2d · PERSONAL IDENTITY ECHO ────────────────────────────────────────────────────────
-// The access filter above governs FINDINGS. It never governed the RESOLVED IDENTITIES, and those
-// are echoed verbatim into query.identities, plan.identities, plan.primary_identity and
-// resolved_run_snapshot.resolved_identities. A Person/Name identity carries the person's name in
-// label/key/ref/identity_key and their name parts in metadata, so a Bundle could withhold every
-// personal Finding and still state exactly whose research it was. That is the same disclosure the
-// Finding filter exists to prevent, arriving one field earlier.
-//
-// Identities are therefore projected through the SAME access contract before they leave. A
-// restricted identity keeps only what a consumer legitimately needs to reason about shape — its
-// type, how it was resolved, and its access tier — plus a stable non-reversible reference so the
-// same person is still recognisably the same subject across a session, replay and continuation.
-// Everything that names them is dropped, not masked in place.
-//
-// Identity REDACTION is deliberately narrower than Finding filtering: an ordinary number or phrase
-// identity has no tier and must stay readable, or every public Bundle would become unreadable. An
-// identity is redacted when it declares a restricted tier the descriptor does not allow, or when it
-// was resolved from the user's personal context and the descriptor carries no personal scope.
-const PERSONAL_CONTEXT_SOURCE = "personal_context";
-
-// Redaction rebuilds an identity from an ALLOWLIST rather than deleting known-bad fields. A denylist
-// would silently leak any naming field added to the identity shape later (key/ref/identity_key/
-// label/value/id/metadata/provenance are all disclosing today, and metadata carries declared name
-// parts).
-const ACCESS_TIER_PERSONAL = "personal";
+function allowedTiers(accessDescriptor) {
+  const list = Array.isArray(accessDescriptor?.allowed_access_tiers) ? accessDescriptor.allowed_access_tiers : null;
+  return new Set(list && list.length ? list.map(String) : ["public"]);
+}
 
 export function identityAccessDecision(identity, accessDescriptor) {
   const allowed = allowedTiers(accessDescriptor);
   const tier = clean(identity?.access?.tier);
-  if (tier && RESTRICTED_ACCESS_TIERS.has(tier) && !allowed.has(tier)) {
-    return { allowed: false, reason: `identity_access_tier_not_permitted:${tier}` };
-  }
-  if (clean(identity?.source) === PERSONAL_CONTEXT_SOURCE && !allowed.has(ACCESS_TIER_PERSONAL)) {
-    return { allowed: false, reason: "personal_context_identity_without_personal_scope" };
-  }
+  if (tier && RESTRICTED_ACCESS_TIERS.has(tier) && !allowed.has(tier)) return { allowed: false, reason: `identity_access_tier_not_permitted:${tier}` };
+  if (clean(identity?.source) === PERSONAL_CONTEXT_SOURCE && !allowed.has(ACCESS_TIER_PERSONAL)) return { allowed: false, reason: "personal_context_identity_without_personal_scope" };
   return { allowed: true, reason: null };
 }
 
 function redactIdentity(identity, reason) {
-  const stableSource = clean(identity?.identity_key) || clean(identity?.key)
-    || clean(identity?.ref) || clean(identity?.label) || clean(identity?.id) || "identity";
+  const stableSource = clean(identity?.identity_key) || clean(identity?.key) || clean(identity?.ref) || clean(identity?.label) || clean(identity?.id) || "identity";
   return {
     type: clean(identity?.type) || "entity",
     source: clean(identity?.source),
     confidence: clean(identity?.confidence),
-    // Stable across runs so the same subject stays the same subject, reversible by nobody.
     ref: `anon:${stableIdentityDigest(stableSource)}`,
     access: { tier: clean(identity?.access?.tier) },
     redacted: true,
@@ -139,29 +96,20 @@ function redactIdentity(identity, reason) {
 export function projectIdentityForAccess(identity, accessDescriptor) {
   if (!identity || typeof identity !== "object") return identity;
   const decision = identityAccessDecision(identity, accessDescriptor);
-  if (decision.allowed) return identity;
-  return redactIdentity(identity, decision.reason);
+  return decision.allowed ? identity : redactIdentity(identity, decision.reason);
 }
 
 function projectIdentityListForAccess(list, accessDescriptor) {
-  if (!Array.isArray(list)) return list;
-  return list.map(x => projectIdentityForAccess(x, accessDescriptor));
+  return Array.isArray(list) ? list.map(x => projectIdentityForAccess(x, accessDescriptor)) : list;
 }
 
-// The snapshot projects its own reduced identity shape, so redaction is applied to that shape too
-// rather than assuming it looks like a full identity.
 function projectSnapshotForAccess(snapshot, accessDescriptor) {
-  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) return snapshot;
-  if (!Array.isArray(snapshot.resolved_identities)) return snapshot;
-  return {
-    ...snapshot,
-    resolved_identities: projectIdentityListForAccess(snapshot.resolved_identities, accessDescriptor),
-  };
+  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) || !Array.isArray(snapshot.resolved_identities)) return snapshot;
+  return { ...snapshot, resolved_identities: projectIdentityListForAccess(snapshot.resolved_identities, accessDescriptor) };
 }
 
 function projectQueryForAccess(query, accessDescriptor) {
-  if (!query || typeof query !== "object" || Array.isArray(query)) return query;
-  if (!Array.isArray(query.identities)) return query;
+  if (!query || typeof query !== "object" || Array.isArray(query) || !Array.isArray(query.identities)) return query;
   return { ...query, identities: projectIdentityListForAccess(query.identities, accessDescriptor) };
 }
 
@@ -173,30 +121,12 @@ function projectPlanForAccess(plan, accessDescriptor) {
   return out;
 }
 
-function allowedTiers(accessDescriptor) {
-  const list = Array.isArray(accessDescriptor?.allowed_access_tiers) ? accessDescriptor.allowed_access_tiers : null;
-  // Fail-closed default: with no resolved descriptor, only genuinely public material may pass.
-  return new Set(list && list.length ? list.map(String) : ["public"]);
-}
-
-/**
- * Decide whether ONE Finding may cross the composition boundary.
- *
- * An access-controlled source must state an explicit tier that the descriptor allows — silence is
- * refusal, not permission. A public source may stay tier-less (a public RPC row genuinely has no
- * per-row tier), but an explicitly restricted tier still wins and is dropped.
- */
 export function findingAccessDecision(finding, accessDescriptor, accessClass = ACCESS_CLASS.UNCLASSIFIED) {
   const tier = clean(finding?.access?.tier);
   const allowed = allowedTiers(accessDescriptor);
   const controlled = accessClass === ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED || accessClass === ACCESS_CLASS.PERSONAL;
-
-  if (controlled && !tier) {
-    return { allowed: false, reason: "access_controlled_source_without_explicit_access_tier" };
-  }
-  if (tier && !allowed.has(tier) && (controlled || RESTRICTED_ACCESS_TIERS.has(tier))) {
-    return { allowed: false, reason: `access_tier_not_permitted:${tier}` };
-  }
+  if (controlled && !tier) return { allowed: false, reason: "access_controlled_source_without_explicit_access_tier" };
+  if (tier && !allowed.has(tier) && (controlled || RESTRICTED_ACCESS_TIERS.has(tier))) return { allowed: false, reason: `access_tier_not_permitted:${tier}` };
   return { allowed: true, reason: null };
 }
 
@@ -205,51 +135,40 @@ function researchEvaluationAccessDecision(evaluation, accessDescriptor, accessCl
   const tier = clean(evaluation?.access?.tier);
   const allowed = allowedTiers(accessDescriptor);
   const controlled = accessClass === ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED || accessClass === ACCESS_CLASS.PERSONAL;
-  if (controlled && !tier) {
-    return { allowed: false, reason: "access_controlled_evaluation_without_explicit_access_tier" };
-  }
-  if (tier && !allowed.has(tier) && (controlled || RESTRICTED_ACCESS_TIERS.has(tier))) {
-    return { allowed: false, reason: `evaluation_access_tier_not_permitted:${tier}` };
-  }
+  if (controlled && !tier) return { allowed: false, reason: "access_controlled_evaluation_without_explicit_access_tier" };
+  if (tier && !allowed.has(tier) && (controlled || RESTRICTED_ACCESS_TIERS.has(tier))) return { allowed: false, reason: `evaluation_access_tier_not_permitted:${tier}` };
   return { allowed: true, reason: null };
 }
 
 function normalizeBounded(bounded) {
   if (!bounded || typeof bounded !== "object") return null;
-  const total = Number(bounded.total_count ?? bounded.total);
-  const returned = Number(bounded.returned_count ?? bounded.returned);
+  const total = Number(bounded.total_count ?? bounded.total), returned = Number(bounded.returned_count ?? bounded.returned);
   if (!Number.isFinite(total) && !Number.isFinite(returned)) return null;
-  const totalCount = Number.isFinite(total) ? total : null;
-  const returnedCount = Number.isFinite(returned) ? returned : null;
+  const totalCount = Number.isFinite(total) ? total : null, returnedCount = Number.isFinite(returned) ? returned : null;
   return {
     total_count: totalCount,
     returned_count: returnedCount,
-    truncated: bounded.truncated === true
-      || (totalCount != null && returnedCount != null && returnedCount < totalCount),
+    truncated: bounded.truncated === true || (totalCount != null && returnedCount != null && returnedCount < totalCount),
     window: bounded.window ?? null,
     ordering: clean(bounded.ordering),
     continuation: bounded.continuation ?? null,
   };
 }
 
-function clean(value) {
-  if (value == null) return null;
-  const text = String(value).trim();
-  return text || null;
-}
-
-function normalizeFindingOutcome(outcome = {}, findingIds = new Set()) {
+function normalizeFindingOutcome(outcome = {}, findingIds = new Set(), fallbackEvaluation = null) {
   const findingId = clean(outcome.finding_id || outcome.findingId);
   if (!findingId || !findingIds.has(findingId)) return null;
   const relation = clean(outcome.evidence_relation || outcome.evidenceRelation);
-  if (!VALID_EVIDENCE_RELATION.has(relation)) {
-    throw new TypeError(`researchResultBundle: invalid evidence relation "${relation}" for ${findingId}`);
-  }
+  if (!VALID_EVIDENCE_RELATION.has(relation)) throw new TypeError(`researchResultBundle: invalid evidence relation "${relation}" for ${findingId}`);
   const rawBaseRate = outcome.base_rate ?? outcome.baseRate;
   const baseRate = rawBaseRate == null ? null : Number(rawBaseRate);
+  const lineageInput = outcome.evidence_lineage ?? outcome.evidenceLineage ?? fallbackEvaluation?.dependency ?? null;
+  const span = outcome.lineage_span ?? outcome.lineageSpan ?? fallbackEvaluation?.location?.span ?? null;
   return {
     finding_id: findingId,
     evidence_relation: relation,
+    evidence_lineage: normalizeEvidenceLineage(lineageInput),
+    lineage_span: span && typeof span === "object" ? { ...span } : null,
     depends_on: [...new Set((Array.isArray(outcome.depends_on) ? outcome.depends_on : Array.isArray(outcome.dependsOn) ? outcome.dependsOn : []).map(clean).filter(Boolean))],
     convergence_key: clean(outcome.convergence_key || outcome.convergenceKey),
     reason: clean(outcome.reason),
@@ -263,37 +182,22 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
   const key = clean(record.key || record.capability);
   if (!key) throw new TypeError("researchResultBundle: capability key is required");
   const status = clean(record.status) || CAPABILITY_STATUS.MISSING_ADAPTER;
-  if (!VALID_CAPABILITY_STATUS.has(status)) {
-    throw new TypeError(`researchResultBundle: invalid capability status "${status}" for ${key}`);
-  }
+  if (!VALID_CAPABILITY_STATUS.has(status)) throw new TypeError(`researchResultBundle: invalid capability status "${status}" for ${key}`);
 
   const accessClass = clean(record.access_class || record.accessClass) || ACCESS_CLASS.UNCLASSIFIED;
-  if (!VALID_ACCESS_CLASS.has(accessClass)) {
-    throw new TypeError(`researchResultBundle: invalid access class "${accessClass}" for ${key}`);
-  }
+  if (!VALID_ACCESS_CLASS.has(accessClass)) throw new TypeError(`researchResultBundle: invalid access class "${accessClass}" for ${key}`);
   const semanticClass = clean(record.semantic_class || record.semanticClass);
-  if (semanticClass && !VALID_SEMANTIC_CLASS.has(semanticClass)) {
-    throw new TypeError(`researchResultBundle: invalid semantic class "${semanticClass}" for ${key}`);
-  }
+  if (semanticClass && !VALID_SEMANTIC_CLASS.has(semanticClass)) throw new TypeError(`researchResultBundle: invalid semantic class "${semanticClass}" for ${key}`);
 
   const operatorRef = normalizeOperatorRef(record.operator_ref || record.operatorRef);
-  const rawResearchEvaluation = normalizeResearchEvaluation(
-    record.research_evaluation || record.researchEvaluation,
-    { operatorRef },
-  );
+  const rawResearchEvaluation = normalizeResearchEvaluation(record.research_evaluation || record.researchEvaluation, { operatorRef });
   const evaluationDecision = researchEvaluationAccessDecision(rawResearchEvaluation, accessDescriptor, accessClass);
   const researchEvaluation = evaluationDecision.allowed ? rawResearchEvaluation : null;
 
   const rawFindings = (Array.isArray(record.findings) ? record.findings : []).filter(isUniversalFinding);
-  if (status === CAPABILITY_STATUS.NEGATIVE_RESULT && rawFindings.length) {
-    throw new TypeError(`researchResultBundle: negative_result for ${key} cannot carry positive findings`);
-  }
+  if (status === CAPABILITY_STATUS.NEGATIVE_RESULT && rawFindings.length) throw new TypeError(`researchResultBundle: negative_result for ${key} cannot carry positive findings`);
 
-  // COMPOSITION-BOUNDARY ACCESS FILTER. Findings are dropped here, before anything is exposed, and
-  // only an aggregate reason survives — never the dropped Finding's id, label or source row, which
-  // would re-leak exactly what the filter exists to withhold.
-  const findings = [];
-  const accessFilterReasons = new Map();
+  const findings = [], accessFilterReasons = new Map();
   for (const finding of rawFindings) {
     const decision = findingAccessDecision(finding, accessDescriptor, accessClass);
     if (decision.allowed) findings.push(finding);
@@ -301,7 +205,7 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
   }
   const findingIds = new Set(findings.map(x => x.id));
   const findingOutcomes = (Array.isArray(record.finding_outcomes) ? record.finding_outcomes : Array.isArray(record.findingOutcomes) ? record.findingOutcomes : [])
-    .map(x => normalizeFindingOutcome(x, findingIds))
+    .map(x => normalizeFindingOutcome(x, findingIds, researchEvaluation))
     .filter(Boolean);
 
   return {
@@ -311,26 +215,17 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
     requested: record.requested !== false,
     executed: status === CAPABILITY_STATUS.EXECUTED || status === CAPABILITY_STATUS.NEGATIVE_RESULT,
     reason: clean(record.reason),
-    negative_result: status === CAPABILITY_STATUS.NEGATIVE_RESULT ? {
-      searched: true,
-      reason: clean(record.reason),
-      scope: record.negative_scope ?? record.negativeScope ?? null,
-    } : null,
+    negative_result: status === CAPABILITY_STATUS.NEGATIVE_RESULT ? { searched: true, reason: clean(record.reason), scope: record.negative_scope ?? record.negativeScope ?? null } : null,
     source_refs: Array.isArray(record.source_refs) ? record.source_refs.filter(Boolean) : [],
     version_refs: Array.isArray(record.version_refs) ? record.version_refs.filter(Boolean) : [],
     operator_ref: operatorRef,
     research_evaluation: researchEvaluation,
-    research_evaluation_access: {
-      filtered: Boolean(rawResearchEvaluation && !evaluationDecision.allowed),
-      reason: evaluationDecision.reason,
-    },
+    research_evaluation_access: { filtered: Boolean(rawResearchEvaluation && !evaluationDecision.allowed), reason: evaluationDecision.reason },
     finding_ids: findings.map(x => x.id),
     finding_outcomes: findingOutcomes,
     findings,
     access_class: accessClass,
     semantic_class: semanticClass,
-    // Access filtering is reported, never silent. It is NOT negative evidence: nothing was searched
-    // and found absent — material exists and was withheld from THIS caller.
     access_filtered: {
       count: [...accessFilterReasons.values()].reduce((a, b) => a + b, 0),
       reasons: [...accessFilterReasons.entries()].map(([reason, count]) => ({ reason, count })),
@@ -343,31 +238,12 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
 
 export function dedupeUniversalFindings(findings = []) {
   const byId = new Map();
-  for (const finding of Array.isArray(findings) ? findings : []) {
-    if (!isUniversalFinding(finding)) continue;
-    if (!byId.has(finding.id)) byId.set(finding.id, finding);
-  }
+  for (const finding of Array.isArray(findings) ? findings : []) if (isUniversalFinding(finding) && !byId.has(finding.id)) byId.set(finding.id, finding);
   return [...byId.values()];
 }
 
 export function summarizeCoverage(capabilities = []) {
-  const summary = {
-    requested: 0,
-    executed: 0,
-    executed_empty: 0,
-    positive_result: 0,
-    negative_result: 0,
-    skipped: 0,
-    context_required: 0,
-    entitlement_gated: 0,
-    unverified: 0,
-    failed: 0,
-    missing_adapter: 0,
-    access_filtered: 0,
-    partial: false,
-    complete: false,
-  };
-
+  const summary = { requested: 0, executed: 0, executed_empty: 0, positive_result: 0, negative_result: 0, skipped: 0, context_required: 0, entitlement_gated: 0, unverified: 0, failed: 0, missing_adapter: 0, access_filtered: 0, partial: false, complete: false };
   for (const cap of capabilities) {
     if (cap.requested) summary.requested++;
     if (cap.access_filtered?.count) summary.access_filtered += cap.access_filtered.count;
@@ -375,24 +251,21 @@ export function summarizeCoverage(capabilities = []) {
       summary.executed++;
       if (Array.isArray(cap.finding_ids) && cap.finding_ids.length > 0) summary.positive_result++;
       else summary.executed_empty++;
-    } else if (cap.status === CAPABILITY_STATUS.NEGATIVE_RESULT) {
-      summary.executed++;
-      summary.negative_result++;
-    } else if (summary[cap.status] != null) summary[cap.status]++;
+    } else if (cap.status === CAPABILITY_STATUS.NEGATIVE_RESULT) { summary.executed++; summary.negative_result++; }
+    else if (summary[cap.status] != null) summary[cap.status]++;
   }
-
-  const incomplete = summary.skipped + summary.context_required + summary.entitlement_gated
-    + summary.unverified + summary.failed + summary.missing_adapter;
+  const incomplete = summary.skipped + summary.context_required + summary.entitlement_gated + summary.unverified + summary.failed + summary.missing_adapter;
   summary.partial = summary.requested > 0 && summary.executed > 0 && incomplete > 0;
   summary.complete = summary.requested > 0 && summary.executed === summary.requested;
   return summary;
 }
 
-function normalizeRankingEntry(entry = {}, findingIds = new Set()) {
+function normalizeRankingEntry(entry = {}, findingIds = new Set(), dependencyMap = new Map()) {
   const findingId = clean(entry.finding_id || entry.findingId);
   if (!findingId || !findingIds.has(findingId)) return null;
   return {
     finding_id: findingId,
+    dependency_group: dependencyMap.get(findingId) || null,
     rank: Number.isFinite(Number(entry.rank)) ? Number(entry.rank) : null,
     score: Number.isFinite(Number(entry.score)) ? Number(entry.score) : null,
     axes: entry.axes && typeof entry.axes === "object" ? entry.axes : {},
@@ -411,37 +284,27 @@ export function composeResearchResultBundle({
   contractVersion = 1,
   accessDescriptor = null,
 } = {}) {
-  // The descriptor the boundary filters on is the plan's own output-safe descriptor unless the
-  // caller passes one explicitly. It is never read back out of a raw authorization context, and it
-  // is NEVER trusted as handed in: normalizeAccessDescriptor re-derives it into the canonical frozen
-  // shape, drops unknown tiers, and refuses to widen beyond public without an attested
-  // authority_source. Without that, a caller could pass {allowed_access_tiers:["private"]} straight
-  // into the filter that is supposed to be restraining them (GPT challenge 8621de8d finding 2).
   const effectiveAccess = normalizeAccessDescriptor(accessDescriptor || plan?.access || null);
-  // Two independent boundary scrubs, applied in order: the raw authorization context can never ride
-  // out, and no identity may name a subject the caller is not entitled to see.
   const safePlan = projectPlanForAccess(stripRawAuthorizationContext(plan), effectiveAccess);
   const safeSnapshot = projectSnapshotForAccess(stripRawAuthorizationContext(resolvedRunSnapshot), effectiveAccess);
   const safeQuery = projectQueryForAccess(query, effectiveAccess);
-  const normalizedCapabilities = (Array.isArray(capabilities) ? capabilities : [])
-    .map(record => normalizeCapabilityRecord(record, effectiveAccess));
+  const normalizedCapabilities = (Array.isArray(capabilities) ? capabilities : []).map(record => normalizeCapabilityRecord(record, effectiveAccess));
   const findings = dedupeUniversalFindings(normalizedCapabilities.flatMap(x => x.findings));
   const findingIds = new Set(findings.map(x => x.id));
+
+  // Dependency classification is deliberately composed BEFORE ranking. UNKNOWN is not independence.
+  const rawFindingOutcomes = normalizedCapabilities.flatMap(cap => cap.finding_outcomes.map(outcome => ({ ...outcome, capability: cap.key })));
+  const dependency = composeDependencyGroups(rawFindingOutcomes);
+  const findingOutcomes = rawFindingOutcomes.map(outcome => ({
+    ...outcome,
+    dependency_group: dependency.finding_to_group.get(outcome.finding_id) || null,
+  }));
   const normalizedRanking = (Array.isArray(ranking) ? ranking : [])
-    .map(x => normalizeRankingEntry(x, findingIds))
+    .map(x => normalizeRankingEntry(x, findingIds, dependency.finding_to_group))
     .filter(Boolean)
     .sort((a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER));
-  const findingOutcomes = normalizedCapabilities.flatMap(cap => cap.finding_outcomes.map(outcome => ({
-    ...outcome,
-    capability: cap.key,
-  })));
 
   const boundedCapabilities = normalizedCapabilities.filter(cap => cap.bounded);
-  // Free-text fields (query.raw_input, plan.question) are the CALLER'S OWN literal input, not
-  // identity-derived data, so they are echoed back rather than redacted — a Bundle that cannot show
-  // what was asked is not usable. But when a restricted identity was resolved, that text may itself
-  // contain the personal term, so say so explicitly instead of leaving a persister or a sharing
-  // surface to discover it.
   const redactedIdentityCount = [
     ...(Array.isArray(safeQuery?.identities) ? safeQuery.identities : []),
     ...(Array.isArray(safePlan?.identities) ? safePlan.identities : []),
@@ -450,26 +313,20 @@ export function composeResearchResultBundle({
   return {
     contract_version: contractVersion,
     query: safeQuery ?? null,
-    // Composition-boundary scrubbed: the raw private authorization context can never ride out on the
-    // plan or the snapshot, whichever caller built them.
     plan: safePlan,
     access: effectiveAccess,
-    // Identity disclosure state of THIS bundle, so a consumer never has to infer it.
     identity_disclosure: {
       redacted_identity_count: redactedIdentityCount,
       free_text_may_contain_restricted_terms: redactedIdentityCount > 0,
-      note: redactedIdentityCount > 0
-        ? 'resolved identities were redacted for this access level; query.raw_input/plan.question are caller-supplied text and may still contain the restricted term'
-        : null,
+      note: redactedIdentityCount > 0 ? 'resolved identities were redacted for this access level; query.raw_input/plan.question are caller-supplied text and may still contain the restricted term' : null,
     },
     findings,
-    // First-class dependency semantics. These are not ranking labels and never mutate Finding truth.
     finding_outcomes: findingOutcomes,
+    dependency_groups: dependency.groups,
+    dependency_edges: dependency.edges,
     ranking: normalizedRanking,
     capability_trace: normalizedCapabilities.map(({ findings: _findings, ...cap }) => cap),
     coverage: summarizeCoverage(normalizedCapabilities),
-    // Bounded output: a caller can always tell how much of the source population it actually holds,
-    // and how to ask for the rest, instead of silently believing a window is the whole truth.
     output_bounds: {
       truncated: boundedCapabilities.some(cap => cap.bounded.truncated),
       capabilities: boundedCapabilities.map(cap => ({ capability: cap.key, ...cap.bounded })),
@@ -482,6 +339,8 @@ export function composeResearchResultBundle({
       source_native_truth_preserved: true,
       derivation_is_not_independent_evidence: true,
       convergence_is_not_automatically_independent: true,
+      dependency_grouping_precedes_ranking: true,
+      unknown_dependency_is_not_independence: true,
       negative_result_requires_executed_search: true,
       missing_adapter_is_not_negative_evidence: true,
       no_ai_arithmetic_fallback: true,
