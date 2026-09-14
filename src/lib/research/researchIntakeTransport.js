@@ -359,9 +359,10 @@ function safeRef(ref, access, accessDescriptor) {
   return decision.allowed ? value : `anon:${stableIdentityDigest(value)}`;
 }
 
-function projectItem(item, accessDescriptor, fields = []) {
+function projectItem(item, accessDescriptor, fields = [], safeWhenRedacted = []) {
   if (!item) return null;
   const decision = tierDecision(item.access?.tier, accessDescriptor);
+  const safeFields = new Set(safeWhenRedacted);
   const out = {
     ref: safeRef(item.ref, item.access, accessDescriptor),
     kind: item.kind ?? null,
@@ -372,7 +373,7 @@ function projectItem(item, accessDescriptor, fields = []) {
     if (!(field in item)) continue;
     if (field.endsWith("_ref")) {
       out[field] = safeRef(item[field], item.access, accessDescriptor);
-    } else if (decision.allowed) {
+    } else if (decision.allowed || safeFields.has(field)) {
       out[field] = item[field];
     }
   }
@@ -414,6 +415,7 @@ export function projectResearchIntakeLineage(intake, accessDescriptor) {
       x,
       accessDescriptor,
       ["status", "source_artifact_ref", "method_ref", "version_ref"],
+      ["status"],
     )),
     representations: (transport.representations || []).map(x => projectItem(
       x,
