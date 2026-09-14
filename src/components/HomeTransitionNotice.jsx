@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import {
+  BUILD_PROGRESS,
+  BUILD_REMAINING,
+  BUILD_WEEKLY_DELTA,
+  BUILD_WEEKLY_LABEL,
+  FIRST_STAGE_RELEASE_GATES,
+} from "../lib/knowledgeMap.js";
 
 // Temporary bridge between the current public home and the 2029 experience.
 // Switch ONLY this value at the real, verified cutover. Do not tie it to a date.
@@ -36,6 +43,8 @@ export default function HomeTransitionNotice() {
   if (TRANSITION_PHASE === "live" && !showLiveWelcome) return null;
 
   const live = TRANSITION_PHASE === "live";
+  const closedGates = FIRST_STAGE_RELEASE_GATES.filter(g => g.state === "closed").length;
+  const activeGate = FIRST_STAGE_RELEASE_GATES.find(g => g.state === "active");
 
   return (
     <aside
@@ -89,6 +98,46 @@ export default function HomeTransitionNotice() {
           {live ? "התחילו לגלות ←" : "מה נבנה עכשיו ←"}
         </a>
       </div>
+
+      {!live && (
+        <div style={{ marginTop: 13, paddingTop: 12, borderTop: "1px solid rgba(212,175,55,.18)" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 7 }}>
+            <div style={{ fontWeight: 800, fontSize: 14, color: "#efe2b4" }}>
+              מוכנות לפתיחת השלב הראשון
+            </div>
+            <div style={{ fontWeight: 900, fontSize: 20, color: "#f0d66c", direction: "ltr" }}>
+              {BUILD_PROGRESS}%
+            </div>
+          </div>
+
+          <div
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={BUILD_PROGRESS}
+            aria-label={`מוכנות לפתיחת השלב הראשון ${BUILD_PROGRESS} אחוז`}
+            style={{ height: 8, borderRadius: 999, overflow: "hidden", background: "rgba(255,255,255,.09)" }}
+          >
+            <div style={{ width: `${BUILD_PROGRESS}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#b8860b,#f0d66c)" }} />
+          </div>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, fontSize: 12.5, lineHeight: 1.45 }}>
+            <span style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(67,160,71,.13)", border: "1px solid rgba(91,180,96,.24)", color: "#bfe3b7" }}>
+              השבוע {BUILD_WEEKLY_LABEL}: +{BUILD_WEEKLY_DELTA} נק׳
+            </span>
+            <span style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(212,175,55,.09)", border: "1px solid rgba(212,175,55,.20)", color: "#e3d3a0" }}>
+              נשארו {BUILD_REMAINING}% לפתיחה
+            </span>
+            <span style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(255,255,255,.045)", border: "1px solid rgba(255,255,255,.09)", color: "#cfc5b3" }}>
+              {closedGates}/{FIRST_STAGE_RELEASE_GATES.length} שערים נסגרו · {activeGate?.id || "הבא"} בתהליך
+            </span>
+          </div>
+
+          <div style={{ marginTop: 7, color: "#9f9582", fontSize: 11.5, lineHeight: 1.5 }}>
+            האחוז נספר רק משערי שחרור שנסגרו ואומתו. עבודה בתוך שער פעיל לא מנופחת לאחוז לפני סגירה.
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
