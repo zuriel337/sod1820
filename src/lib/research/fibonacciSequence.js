@@ -46,6 +46,27 @@ export const fibonacciSequenceAdapter = Object.freeze({
   maxSearchDepth: SOURCE.maxSearchDepth,
   defaultOperation: SEQUENCE_OPERATION.TERM_FIRST,
   operations: Object.freeze([SEQUENCE_OPERATION.TERM_FIRST, SEQUENCE_OPERATION.TERM_ALL]),
+
+  async evaluate() {
+    return {
+      status: 'unavailable',
+      expectedness: {
+        state: 'sequence_specific_not_estimated',
+        model: null,
+        base_rate: null,
+        assumptions: [],
+        unavailable_reason: 'no registered Fibonacci membership expectedness/base-rate model',
+      },
+      controls: [],
+      controls_state: {
+        status: 'unknown',
+        reason: 'no registered control set was executed for Fibonacci membership',
+      },
+      robustness: null,
+      competing_patterns: [],
+    };
+  },
+
   async execute(request = {}) {
     const query = String(request.query ?? '').trim();
     if (!/^\d+$/.test(query)) return { status: 'error', error: 'QUERY_MUST_BE_NON_NEGATIVE_INTEGER', sequence_id: SOURCE.id };
@@ -56,17 +77,24 @@ export const fibonacciSequenceAdapter = Object.freeze({
     }
 
     const searchDepth = request.budget?.maxSearchDepth || SOURCE.maxSearchDepth;
+    const maxOccurrences = request.budget?.maxOccurrences || 25;
     const terms = fibonacciTerms(searchDepth);
     const occurrences = [];
     for (let i = 0; i < terms.length; i += 1) {
       if (terms[i] === target) {
         occurrences.push(i + 1);
         if (operation === SEQUENCE_OPERATION.TERM_FIRST) break;
-        if (occurrences.length >= (request.budget?.maxOccurrences || 25)) break;
+        if (occurrences.length >= maxOccurrences) break;
       }
       if (terms[i] > target && target > 1n) break;
     }
     const firstPosition = occurrences[0] ?? null;
+    // Under this explicit Fibonacci convention, only the duplicated value 1 can have >1 term
+    // occurrence. This allows an honest ALL-occurrence completion attestation without guessing.
+    const occurrenceLimitReached = operation === SEQUENCE_OPERATION.TERM_ALL
+      && target === 1n
+      && searchDepth >= 2
+      && maxOccurrences < 2;
 
     return {
       status: 'ok',
@@ -81,6 +109,7 @@ export const fibonacciSequenceAdapter = Object.freeze({
         found: firstPosition !== null,
         first_position: firstPosition,
         occurrences: operation === SEQUENCE_OPERATION.TERM_ALL ? occurrences : undefined,
+        occurrences_truncated: operation === SEQUENCE_OPERATION.TERM_ALL ? occurrenceLimitReached : false,
         surrounding_window: firstPosition ? termWindow(terms, firstPosition - 1, request.budget?.windowRadius || 12) : null,
       },
       verification: { state: 'deterministic_computation', algorithm: SOURCE.algorithm, verified: true },
