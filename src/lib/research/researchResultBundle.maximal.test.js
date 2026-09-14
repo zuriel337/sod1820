@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { composeResearchW2 } from './researchComposerW2.js';
 import { capabilityResult, CAPABILITY_STATUS, composeResearchResultBundle } from './researchResultBundle.js';
 import { SELECTION_PROTOCOL } from './researchEvaluation.js';
 
@@ -159,4 +160,41 @@ test('selection provenance fails closed on an invented protocol rather than sile
       },
     })],
   }), /invalid selection protocol/);
+});
+
+test('malformed owner-qualified operator reference fails closed instead of disappearing from the Bundle', () => {
+  assert.throws(() => composeResearchResultBundle({
+    query: { subject: 'fixture' },
+    capabilities: [capabilityResult({
+      key: 'future:broken',
+      owner: 'future_owner_law',
+      operatorRef: { owner: 'future_owner_law', capability_key: 'future:broken', operator_id: 'broken-without-version' },
+      researchEvaluation: {},
+    })],
+  }), /malformed owner-qualified operator_ref/);
+});
+
+test('W2 Composer preserves the same maximal envelope from an unknown future executor to the final Bundle', async () => {
+  const ref = operatorRef('future_owner_law', 'future:quantum-spatial', 'quantum-spatial-recurrence', 'v2032');
+  const bundle = await composeResearchW2({
+    question: 'run future fixture',
+    rawInput: 'future fixture',
+    requestedCapabilities: ['future:quantum-spatial'],
+    executors: {
+      'future:quantum-spatial': async () => ({
+        owner: ref.owner,
+        status: CAPABILITY_STATUS.EXECUTED,
+        findings: [],
+        operatorRef: ref,
+        researchEvaluation: evaluation(ref),
+      }),
+    },
+  });
+
+  const cap = bundle.capability_trace.find(x => x.key === 'future:quantum-spatial');
+  assert.ok(cap);
+  assert.equal(cap.operator_ref.operator_id, 'quantum-spatial-recurrence');
+  assert.equal(cap.research_evaluation.selection.protocol, SELECTION_PROTOCOL.PRE_REGISTERED_TARGET);
+  assert.equal(cap.research_evaluation.replay.run_id, 'run:fixture:1');
+  assert.equal(bundle.contract_version, 1);
 });
