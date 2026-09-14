@@ -48,6 +48,13 @@ const RESTRICTED_ACCESS_TIERS = new Set(["private", "public_candidate", "persona
 const RAW_AUTHORIZATION_KEYS = Object.freeze(["authorization_context", "authorizationContext", "auth_context", "authContext"]);
 const PERSONAL_CONTEXT_SOURCE = "personal_context";
 const ACCESS_TIER_PERSONAL = "personal";
+const STATUS_FORBIDS_POSITIVE_FINDINGS = new Set([
+  CAPABILITY_STATUS.SKIPPED,
+  CAPABILITY_STATUS.CONTEXT_REQUIRED,
+  CAPABILITY_STATUS.ENTITLEMENT_GATED,
+  CAPABILITY_STATUS.FAILED,
+  CAPABILITY_STATUS.MISSING_ADAPTER,
+]);
 
 function clean(value) {
   if (value == null) return null;
@@ -75,6 +82,22 @@ function sameOperatorRef(a, b) {
     && a.capability_key === b.capability_key
     && a.operator_id === b.operator_id
     && a.version === b.version;
+}
+
+function hasObjectContent(value) {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length);
+}
+
+function negativeSearchAttested(record, evaluation) {
+  const scope = record.negative_scope ?? record.negativeScope ?? null;
+  if (hasObjectContent(scope)) return true;
+  const completion = evaluation?.completion;
+  const searchSpace = evaluation?.search_space;
+  const completedBoundedSearch = completion?.complete === true && completion?.truncated !== true;
+  const searchSpaceDeclared = Boolean(searchSpace && (
+    searchSpace.tested != null || searchSpace.effective != null || searchSpace.declared != null
+  ));
+  return completedBoundedSearch && searchSpaceDeclared;
 }
 
 export function stripRawAuthorizationContext(value) {
@@ -233,7 +256,15 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
   const researchEvaluation = evaluationDecision.allowed ? rawResearchEvaluation : null;
 
   const rawFindings = (Array.isArray(record.findings) ? record.findings : []).filter(isUniversalFinding);
-  if (status === CAPABILITY_STATUS.NEGATIVE_RESULT && rawFindings.length) throw new TypeError(`researchResultBundle: negative_result for ${key} cannot carry positive findings`);
+  if (STATUS_FORBIDS_POSITIVE_FINDINGS.has(status) && rawFindings.length) {
+    throw new TypeError(`researchResultBundle: ${status} for ${key} cannot carry positive findings`);
+  }
+  if (status === CAPABILITY_STATUS.NEGATIVE_RESULT && rawFindings.length) {
+    throw new TypeError(`researchResultBundle: negative_result for ${key} cannot carry positive findings`);
+  }
+  if (status === CAPABILITY_STATUS.NEGATIVE_RESULT && !negativeSearchAttested(record, rawResearchEvaluation)) {
+    throw new TypeError(`researchResultBundle: negative_result for ${key} requires bounded search attestation via negative_scope or completed research_evaluation search space`);
+  }
 
   const findings = [], accessFilterReasons = new Map();
   for (const finding of rawFindings) {
@@ -245,6 +276,7 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
   const findingOutcomes = (Array.isArray(record.finding_outcomes) ? record.finding_outcomes : Array.isArray(record.findingOutcomes) ? record.findingOutcomes : [])
     .map(x => normalizeFindingOutcome(x, findingIds, researchEvaluation))
     .filter(Boolean);
+  const negativeScope = record.negative_scope ?? record.negativeScope ?? null;
 
   return {
     key,
@@ -253,7 +285,7 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
     requested: record.requested !== false,
     executed: status === CAPABILITY_STATUS.EXECUTED || status === CAPABILITY_STATUS.NEGATIVE_RESULT,
     reason: clean(record.reason),
-    negative_result: status === CAPABILITY_STATUS.NEGATIVE_RESULT ? { searched: true, reason: clean(record.reason), scope: record.negative_scope ?? record.negativeScope ?? null } : null,
+    negative_result: status === CAPABILITY_STATUS.NEGATIVE_RESULT ? { searched: true, reason: clean(record.reason), scope: negativeScope } : null,
     source_refs: Array.isArray(record.source_refs) ? record.source_refs.filter(Boolean) : [],
     version_refs: Array.isArray(record.version_refs) ? record.version_refs.filter(Boolean) : [],
     operator_ref: operatorRef,
@@ -420,6 +452,7 @@ export function composeResearchResultBundle({
       shared_input_is_context_not_dependency: true,
       independent_evidence_conflict_is_explicit: true,
       negative_result_requires_executed_search: true,
+      non_executed_status_cannot_carry_positive_findings: true,
       missing_adapter_is_not_negative_evidence: true,
       no_ai_arithmetic_fallback: true,
       no_auto_canonicalization: true,
