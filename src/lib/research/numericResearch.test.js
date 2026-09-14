@@ -1,12 +1,38 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSequenceRegistry, runSequenceLens, SEQUENCE_OPERATION } from './sequenceLens.js';
+import { createSequenceRegistry, runSequenceLens, OPERATOR_EXECUTION_KIND, SEQUENCE_OPERATION } from './sequenceLens.js';
 import { piSequenceAdapter, piDigitsAfterDecimal } from './piSequence.js';
 import { fibonacciSequenceAdapter } from './fibonacciSequence.js';
 import { researchNumber } from './numericResearch.js';
 
 const sequenceBudget = { maxSearchDepth: 25000, windowRadius: 12, maxOccurrences: 10 };
 const fakeRpc = async (name, args) => ({ data: name === 'fn_number_dossier' ? { facts: { convergences: [{ method: 'fixture' }] }, evidence: [] } : { value: args.p_value } });
+
+test('sequence registry fails closed when a future adapter lacks the owner-qualified operator contract', () => {
+  assert.throws(() => createSequenceRegistry([{
+    sequenceId: 'unsafe-fixture',
+    representationKind: 'term_sequence',
+    maxSearchDepth: 10,
+    operations: [SEQUENCE_OPERATION.TERM_FIRST],
+    defaultOperation: SEQUENCE_OPERATION.TERM_FIRST,
+    async execute() { return { status: 'ok' }; },
+  }]), /Invalid sequence operator contract: missing owner, operatorFamily, operatorVersion\/sequenceVersion, executionKind, outputType, applicabilityBoundary/);
+});
+
+test('registered operators expose a stable owner-qualified reference and every execution carries it', async () => {
+  const registry = createSequenceRegistry([piSequenceAdapter]);
+  const listed = registry.list()[0];
+  assert.deepEqual(listed.operatorSpec.operator_ref, {
+    type: 'research_operator',
+    owner: 'research_strategy_layer_law',
+    capability_key: 'sequence:pi',
+    operator_id: 'pi.exact_digit_sequence_search',
+    version: 'chudnovsky-bigint-v1',
+  });
+  const finding = await runSequenceLens(registry, { sequenceId: 'pi', query: '337', budget: sequenceBudget });
+  assert.deepEqual(finding.operator_ref, listed.operatorSpec.operator_ref);
+  assert.equal(finding.operator_contract_version, 1);
+});
 
 test('pi uses one-based positions after decimal and matches a known prefix', () => {
   assert.equal(piDigitsAfterDecimal(50), '14159265358979323846264338327950288419716939937510');
@@ -95,12 +121,29 @@ test('non-Fibonacci numeric roots remain verified not-found, not fabricated rela
 
 test('a future term sequence can still be injected without Router source edits', async () => {
   const fixture = {
-    sequenceId: 'term-fixture', representationKind: 'term_sequence', maxSearchDepth: 100,
+    sequenceId: 'term-fixture',
+    sequenceVersion: 'fixture-v1',
+    owner: 'fixture_owner_law',
+    operatorId: 'fixture.term_membership_search',
+    operatorFamily: 'fixture_integer_sequence',
+    executionKind: OPERATOR_EXECUTION_KIND.DETERMINISTIC,
+    outputType: 'sequence_term_occurrence',
+    applicabilityBoundary: 'test-only non-negative integer term membership',
+    representationKind: 'term_sequence',
+    maxSearchDepth: 100,
+    operations: [SEQUENCE_OPERATION.TERM_FIRST],
     defaultOperation: SEQUENCE_OPERATION.TERM_FIRST,
     async execute(request) { return { status: 'ok', sequence_id: 'term-fixture', sequence_version: 'fixture-v1', representation_kind: 'term_sequence', query: request.query, operation: request.operation, search_depth: 100, result: { found: false, first_position: null }, verification: { verified: true }, provenance: { generated_at: 'fixture' } }; },
   };
   const routed = await researchNumber(337, { rpc: fakeRpc, lenses: ['sequence:term-fixture'], sequenceAdapters: [fixture] });
   assert.equal(routed.per_lens['sequence:term-fixture'].operation, SEQUENCE_OPERATION.TERM_FIRST);
   assert.equal(routed.per_lens['sequence:term-fixture'].representation_kind, 'term_sequence');
+  assert.deepEqual(routed.per_lens['sequence:term-fixture'].operator_ref, {
+    type: 'research_operator',
+    owner: 'fixture_owner_law',
+    capability_key: 'sequence:term-fixture',
+    operator_id: 'fixture.term_membership_search',
+    version: 'fixture-v1',
+  });
   assert.equal(routed.derived_numeric_roots.length, 0);
 });
