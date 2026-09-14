@@ -3,11 +3,13 @@
 Date: 2026-09-13
 Canonical Supabase: `linswmnnkjxvweumprav`
 
+> **HISTORICAL ACTIVATION CHECKPOINT.** This file records the state at the activation step. It is not a current-version routing pointer. Research Strategy later advanced through **v11** during the same G2 program. For current routing always use the live DB + `SOD1820_MASTER_OWNER_INDEX.md`.
+
 ## Human-Gate direction
 
 ZURIEL approved recording the 2029 Research World Model architecture into the existing rulebook, EXTEND_EXISTING only, and explicitly authorized release of required clean reconciliation scopes.
 
-## Activated canonical DB rules
+## Activated canonical DB rules at this checkpoint
 
 - `reality_graph_law` v5 — **ACTIVE**
   - Research Anchor as a role of qualified identity, not a new store.
@@ -19,7 +21,7 @@ ZURIEL approved recording the 2029 Research World Model architecture into the ex
   - Media semantics split representation-kind / research-role / subject-relations / placement-thread / provenance / curation.
   - Hard relation != soft facet.
 
-- `research_strategy_layer_law` v4 — **ACTIVE**
+- `research_strategy_layer_law` v4 — **ACTIVE AT THIS HISTORICAL CHECKPOINT**
   - Preserves v3 Temporal World Model / evidence-aware Research Plan semantics.
   - AI/Composer consumes semantic Universal Finding / Research Result Bundle boundary when an adapter exists.
   - Typed Observation / Value Origin is Foundation data; legacy `all_values` is extraction/search material only.
@@ -49,6 +51,10 @@ The examples calibrate the universal rule; they are not special-number exception
 
 `truth_axes_foundation_law` v3 remains active and owns semantic separation of epistemic type, verification, governance and publication/access. Research Strength/Rank never promotes those axes by itself.
 
+## Later G2 supersession / current state
+
+The activation above was extended additively during G2. At the 2026-09-14 reconciliation the live owner is `research_strategy_layer_law v11`, which also carries later Pattern/Sequence governance, source snapshot/current-render semantics, sequence coordinate/dependency/selection provenance and Personal/Cohort contextual research semantics. Those later versions supersede this checkpoint for current routing while preserving this file as provenance.
+
 ## G3 carry-forward
 
 Before Golden closure, independently challenge and verify:
@@ -65,6 +71,7 @@ CLAUDE remains REQUIRED at G3 closure for independent foundation challenge.
 
 ## State
 
-- DB rulebook: **LIVE / VERIFIED** — Reality Graph v5 + Research Strategy v4.
-- Product/schema/routes: **UNCHANGED**.
-- This Git scope: routing/audit parity only; no product deployment required.
+- Historical activation DB rulebook: **LIVE / VERIFIED AT CHECKPOINT TIME** — Reality Graph v5 + Research Strategy v4.
+- Current Research Strategy routing: **USE LIVE v11 / CURRENT OWNER INDEX**.
+- Product/schema/routes at this checkpoint: **UNCHANGED**.
+- This file: **PROVENANCE ONLY; NOT CURRENT OWNER VERSION AUTHORITY**.
