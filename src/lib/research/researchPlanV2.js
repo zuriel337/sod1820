@@ -1,4 +1,5 @@
 import { hasIdentityKind, identityKinds } from "./researchIdentityResolver.js";
+import { SELECTION_PROTOCOL } from "./researchEvaluation.js";
 
 // W2.1 — Identity-first Research Plan builder.
 //
@@ -21,6 +22,8 @@ export const RESEARCH_CAPABILITY = Object.freeze({
   RESEARCH_OBJECTS: "research_objects",
 });
 
+const VALID_SELECTION_PROTOCOLS = new Set(Object.values(SELECTION_PROTOCOL));
+
 function clean(value) {
   if (value == null) return "";
   return String(value).trim();
@@ -29,6 +32,14 @@ function clean(value) {
 function normalizedIntent(intent) {
   const v = clean(intent).toLowerCase();
   return v || "research";
+}
+
+function normalizeSelectionProtocol(protocol) {
+  const value = clean(protocol) || SELECTION_PROTOCOL.UNKNOWN;
+  if (!VALID_SELECTION_PROTOCOLS.has(value)) {
+    throw new TypeError(`researchPlanV2: invalid selection protocol "${value}"`);
+  }
+  return value;
 }
 
 function uniq(values) {
@@ -144,20 +155,6 @@ function truthy(value) {
 }
 
 // ── ROOT OF TRUST FOR THE DESCRIPTOR (GPT challenge 8621de8d finding 2, accepted) ──────────
-// An earlier revision read admin / is_admin / role / user_ref straight off the raw authorization
-// context and widened the allowed tiers on that basis. That is structurally the SAME defect that
-// was just closed in fn_raziel_research_intel_scoped — a caller's assertion treated as authority —
-// and since this descriptor drives a security-relevant composition filter, the same discipline has
-// to apply here. Bare claims on the context are now IGNORED, and the fact that they were ignored is
-// recorded on the descriptor so the refusal is visible rather than silent.
-//
-// Widening requires an explicit attestation from a trusted boundary:
-//     authorizationContext.verified_authority = {
-//       source: "supabase_auth" | "service_role" | "admin_rpc",   // required, must be known
-//       admin?: boolean,              // the boundary states the caller IS an admin
-//       subject_verified?: boolean,   // the boundary verified WHO the caller is
-//     }
-// Anything else — including `{ admin: true }` at the top level — resolves public-only.
 function readVerifiedAuthority(ctx) {
   const raw = ctx?.verified_authority ?? ctx?.verifiedAuthority;
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
@@ -170,8 +167,6 @@ function readVerifiedAuthority(ctx) {
   };
 }
 
-// True when the context carries claims that LOOK like authority but carry no attestation. Used only
-// to report the refusal; it never grants anything.
 function hasUnattestedAuthorityClaims(ctx) {
   if (!ctx) return false;
   return truthy(ctx.admin) || truthy(ctx.is_admin)
@@ -179,31 +174,21 @@ function hasUnattestedAuthorityClaims(ctx) {
     || truthy(ctx.authenticated) || truthy(ctx.is_authenticated);
 }
 
-/**
- * Project a raw authorization context into the non-secret, BY-VALUE access descriptor that is safe
- * to return inside a Plan / Bundle / resolved run snapshot.
- *
- * Nothing identifying is copied out: no user id, ref, phone, email, token, session or claim object.
- * Only the resolved ACCESS SHAPE crosses this boundary, and it widens only on an attested authority.
- */
 export function buildAccessDescriptor(authorizationContext = null, contextType = "public_user") {
   const ctx = authorizationContext && typeof authorizationContext === "object" ? authorizationContext : null;
   const context = clean(contextType).toLowerCase() || "public_user";
   const authority = readVerifiedAuthority(ctx);
 
-  // Only an attested boundary can say the caller is authenticated or an admin.
   const authenticated = Boolean(authority?.subjectVerified || authority?.admin);
   const admin = Boolean(authority?.admin);
   const personalScopeAvailable = Boolean(authority?.subjectVerified);
 
-  // Fail-closed: start public-only and widen strictly by ATTESTED authority.
   const tiers = new Set(PUBLIC_ONLY_TIERS);
   if (admin) {
     tiers.add(ACCESS_TIER.PUBLIC_CANDIDATE);
     tiers.add(ACCESS_TIER.PRIVATE);
     tiers.add(ACCESS_TIER.PERSONAL);
   } else if (personalScopeAvailable) {
-    // A verified person reaches their OWN personal scope — never anyone else's private rows.
     tiers.add(ACCESS_TIER.PERSONAL);
   }
 
@@ -215,38 +200,20 @@ export function buildAccessDescriptor(authorizationContext = null, contextType =
     personal_scope_available: personalScopeAvailable,
     allowed_access_tiers: [...tiers],
     entitlement_level: clean(ctx?.entitlement_level ?? ctx?.entitlementLevel ?? ctx?.tier) || null,
-    // Provenance of the authority itself, so a reader can see WHY these tiers were granted.
     authority_source: authority?.source || null,
-    // Visible refusal: the context asserted authority but produced no attestation to back it.
     unverified_authority_claims_ignored: Boolean(!authority && hasUnattestedAuthorityClaims(ctx)),
-    // Explicit statement that this object is the OUTPUT-SAFE projection, so a later reader can never
-    // mistake it for the private execution context.
     contains_identifying_fields: false,
     derived_from: ctx ? "authorization_context" : "no_authorization_context",
   };
 
-  // BY VALUE: deep-frozen so a consumer mutating the returned Plan/snapshot cannot widen the access
-  // that any later stage reads back out of it.
   Object.freeze(descriptor.allowed_access_tiers);
   return Object.freeze(descriptor);
 }
 
-/**
- * Validate an access descriptor arriving from ANYWHERE other than buildAccessDescriptor.
- *
- * The composition boundary must never filter on an arbitrary caller-supplied object: that would let
- * a caller hand in {allowed_access_tiers:["private"]} and read everything. Unknown tiers are
- * dropped, "public" is always present, and the result is re-frozen. A non-object resolves
- * public-only rather than throwing, so a malformed descriptor fails CLOSED.
- */
 export function normalizeAccessDescriptor(descriptor) {
   if (!descriptor || typeof descriptor !== "object" || Array.isArray(descriptor)) {
     return buildAccessDescriptor(null, "public_user");
   }
-  // Dropping unknown tiers is NOT sufficient on its own: a caller could still hand in a
-  // well-formed {allowed_access_tiers:["private"]} and read everything. A descriptor may therefore
-  // only carry tiers beyond public when it names a valid authority_source — the same attestation
-  // rule buildAccessDescriptor enforces. Unattested descriptors normalize to public-only.
   const authoritySource = VALID_AUTHORITY_SOURCES.has(clean(descriptor.authority_source))
     ? clean(descriptor.authority_source)
     : null;
@@ -278,10 +245,8 @@ export function normalizeAccessDescriptor(descriptor) {
 
 /**
  * Build an Identity-first Research Plan.
- *
- * The raw `authorizationContext` is accepted but deliberately NOT placed on the returned plan — see
- * the ACCESS DESCRIPTOR note above. The execution layer still receives it privately and must apply
- * the canonical privacy/access/entitlement/domain gates before any evidence is exposed.
+ * selection_protocol is deliberately only the non-identifying protocol class. Target/provenance refs
+ * stay in capability evaluation envelopes where normal access filtering applies.
  */
 export function buildResearchPlanV2({
   question = "",
@@ -292,6 +257,7 @@ export function buildResearchPlanV2({
   surfaceContext = null,
   requestedCapabilities = [],
   requestedDepth = null,
+  selectionProtocol = SELECTION_PROTOCOL.UNKNOWN,
 } = {}) {
   const resolved = identityResolution || { identities: [], text_calculation_allowed: true };
   const capabilityHints = inferExplicitCapabilityHints({
@@ -309,10 +275,10 @@ export function buildResearchPlanV2({
     strategy,
     question: clean(question),
     intent: normalizedIntent(intent),
+    selection_protocol: normalizeSelectionProtocol(selectionProtocol),
     identities: resolved.identities || [],
     primary_identity: resolved.primary || null,
     context_type: contextType,
-    // W2.2b: output-safe access descriptor ONLY. The raw authorization context never lands here.
     access: buildAccessDescriptor(authorizationContext, contextType),
     surface_context: surfaceContext,
     requested_depth: requestedDepth,
@@ -324,6 +290,7 @@ export function buildResearchPlanV2({
       text_calculation_allowed: resolved.text_calculation_allowed !== false,
       access_must_be_resolved_before_evidence: true,
       canonical_owners_decide_execution: true,
+      selection_provenance_protocol_declared: true,
       no_auto_canonicalization: true,
       no_auto_publication: true,
       raw_authorization_context_never_in_output: true,
