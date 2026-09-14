@@ -126,8 +126,18 @@ export async function runSequenceLens(registry, request = {}) {
   if (!result || typeof result !== 'object' || Array.isArray(result)) {
     return { status: 'error', error: 'SEQUENCE_ADAPTER_INVALID_RESULT', sequence_id: sequenceId || null };
   }
+
+  // Preserve the owner-qualified operator reference both at the capability result boundary and
+  // inside the deterministic engine result payload. numericResearchBase already transports the
+  // nested result into Universal Finding verification/evidence, so this keeps the reference alive
+  // through existing Result Bundle composition without creating a second transport contract.
+  const resultPayload = result.result && typeof result.result === 'object' && !Array.isArray(result.result)
+    ? { ...result.result, operator_ref: adapter.operatorSpec.operator_ref }
+    : result.result;
+
   return {
     ...result,
+    result: resultPayload,
     operator_ref: adapter.operatorSpec.operator_ref,
     operator_contract_version: adapter.operatorSpec.contract_version,
   };
