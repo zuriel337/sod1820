@@ -2,6 +2,7 @@ import { researchNumber, numericLensMap } from './numericResearch.js';
 import { researchObjectsToUniversalFindings } from './researchObjectFinding.js';
 import { makeUniversalFinding } from './universalFinding.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, EVIDENCE_RELATION, SEMANTIC_CLASS } from './researchResultBundle.js';
+import { SELECTION_PROTOCOL } from './researchEvaluation.js';
 
 const SAFE_W2_NUMERIC_LENSES = Object.freeze([
   'number_lookup',
@@ -230,6 +231,127 @@ function sequenceExpectedness(number, lensId, sequence) {
   return { expectedness, expectednessModel: 'uniform_digit_stream_heuristic_v1', baseRate };
 }
 
+function sequenceLocation(number, sequence) {
+  const position = Number(sequence?.result?.first_position);
+  if (!Number.isInteger(position) || position <= 0) return null;
+  const representation = sequence?.representation_kind;
+  const spanLength = representation === 'digit_stream' ? String(number).length : 1;
+  const end = position + spanLength - 1;
+  return {
+    native: {
+      convention: sequence.position_convention || null,
+      start: position,
+      end,
+      locator: sequence?.result?.surrounding_window || null,
+    },
+    canonical: {
+      // Current sequence adapters expose their own declared canonical convention. A future source
+      // claim with a different native convention must provide a real conversion instead of using
+      // this identity reconciliation.
+      convention: sequence.position_convention || null,
+      start: position,
+      end,
+      locator: sequence?.result?.surrounding_window || null,
+    },
+    reconciliation_state: 'identity_same_convention',
+    span: { start: position, end, unit: representation === 'digit_stream' ? 'digit' : 'term' },
+    locator: sequence?.result?.surrounding_window || null,
+  };
+}
+
+function sequenceCompletion(sequence, foundState) {
+  const operation = String(sequence?.operation || '');
+  const isAll = operation.includes('all_occurrences');
+  if (foundState === false) {
+    return {
+      state: 'bounded_complete_negative',
+      complete: true,
+      truncated: false,
+      continuation: null,
+      stop_reason: 'declared bounded search exhausted without a match',
+    };
+  }
+  if (isAll) {
+    return {
+      state: 'completion_not_attested',
+      complete: null,
+      truncated: null,
+      continuation: null,
+      stop_reason: 'adapter has not yet attested whether the all-occurrence cap exhausted the source space',
+    };
+  }
+  return {
+    state: 'first_match_objective_complete',
+    complete: true,
+    truncated: false,
+    continuation: null,
+    stop_reason: 'first requested occurrence located from the declared sequence origin',
+  };
+}
+
+function sequenceResearchEvaluation(number, lensId, sequence, expectedness, foundState) {
+  return {
+    operator_ref: sequence?.operator_ref || null,
+    selection: {
+      protocol: SELECTION_PROTOCOL.UNKNOWN,
+      target_ref: `number:${number}`,
+      provenance_ref: null,
+      fixed_before_inspection: null,
+      reason: 'caller/Research Plan has not yet supplied selection-protocol provenance to this adapter',
+    },
+    search_space: {
+      declared: {
+        sequence_id: sequence?.sequence_id || lensId.replace('sequence:', ''),
+        operation: sequence?.operation || null,
+        search_depth: sequence?.search_depth ?? null,
+      },
+      effective: null,
+      tested: null,
+      dimensions: {
+        representation_kind: sequence?.representation_kind || null,
+        query: sequence?.query ?? String(number),
+      },
+      budget: { max_search_depth: sequence?.search_depth ?? null },
+      multiplicity: null,
+      unavailable_reason: 'cross-capability/operator multiplicity is not yet aggregated at this boundary',
+    },
+    expectedness: {
+      state: expectedness?.expectedness || null,
+      model: expectedness?.expectednessModel || null,
+      base_rate: expectedness?.baseRate ?? null,
+      assumptions: expectedness?.expectednessModel === 'uniform_digit_stream_heuristic_v1'
+        ? ['uniform independent digit-stream heuristic; not a proof of Pi normality']
+        : [],
+      unavailable_reason: expectedness?.expectednessModel ? null : 'operator-specific expectedness model unavailable',
+    },
+    controls: [],
+    location: foundState === true ? sequenceLocation(number, sequence) : null,
+    dependency: null,
+    robustness: null,
+    competing_patterns: [],
+    completion: sequenceCompletion(sequence, foundState),
+    replay: {
+      // Parameters are preserved now. Formal replayability proof remains a later acceptance step;
+      // do not manufacture replayable=true merely because a deterministic adapter happened to run.
+      replayable: null,
+      run_id: null,
+      input_ref: `number:${number}`,
+      source_ref: sequence?.sequence_id ? `sequence:${sequence.sequence_id}` : lensId,
+      engine_ref: sequence?.operator_ref?.operator_id || sequence?.sequence_id || null,
+      version_refs: [sequence?.sequence_version].filter(Boolean),
+      parameters: {
+        query: sequence?.query ?? String(number),
+        operation: sequence?.operation || null,
+        search_depth: sequence?.search_depth ?? null,
+        position_convention: sequence?.position_convention || null,
+      },
+      random_seed: null,
+      generator_version: null,
+      unavailable_reason: 'formal replay/idempotency acceptance has not yet attested replayable=true',
+    },
+  };
+}
+
 function sequenceCapabilityFromResearch(number, lensId, result) {
   const sequence = result?.per_lens?.[lensId];
   if (!sequence) return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.FAILED, reason: `${lensId} returned no result`, findings: [] };
@@ -237,6 +359,8 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
   if (sequence.status === 'adapter_needed') return { owner: 'research_strategy_layer_law', status: CAPABILITY_STATUS.MISSING_ADAPTER, reason: sequence.error || `${lensId} adapter missing`, findings: [], trace: { lens: lensId, status: 'adapter_needed' } };
 
   const foundState = sequence?.result?.found;
+  const expectedness = sequenceExpectedness(number, lensId, sequence);
+  const researchEvaluation = sequenceResearchEvaluation(number, lensId, sequence, expectedness, foundState);
   if (foundState === false) {
     return {
       owner: 'research_strategy_layer_law',
@@ -249,6 +373,8 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
         position_convention: sequence.position_convention || null,
       },
       findings: [],
+      operatorRef: sequence.operator_ref || null,
+      researchEvaluation,
       sourceRefs: [result?.provenance?.input_ref || `number:${number}`],
       versionRefs: [sequence.sequence_version || `${lensId}:unknown-version`],
       trace: { lens: lensId, status: 'ok', found: false },
@@ -260,17 +386,20 @@ function sequenceCapabilityFromResearch(number, lensId, result) {
       status: CAPABILITY_STATUS.UNVERIFIED,
       reason: `${lensId} did not return an explicit found=true/false outcome`,
       findings: [],
+      operatorRef: sequence.operator_ref || null,
+      researchEvaluation,
       trace: { lens: lensId, status: sequence.status || 'unknown', found: null },
     };
   }
 
   const findings = result.universal_findings || [];
-  const expectedness = sequenceExpectedness(number, lensId, sequence);
   const isHighBaseRatePi = lensId === 'sequence:pi' && expectedness.baseRate != null && expectedness.baseRate >= 0.95;
   return {
     owner: 'research_strategy_layer_law',
     status: CAPABILITY_STATUS.EXECUTED,
     findings,
+    operatorRef: sequence.operator_ref || null,
+    researchEvaluation,
     accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
     semanticClass: SEMANTIC_CLASS.EVIDENCE,
     findingOutcomes: findings.map(finding => ({
