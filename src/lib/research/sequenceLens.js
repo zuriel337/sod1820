@@ -31,11 +31,7 @@ function positiveInt(value, fallback, max = Number.MAX_SAFE_INTEGER) {
 
 /**
  * Normalize and validate the owner-qualified operator identity carried by one adapter.
- *
- * Stable identity = current canonical owner + capability key + operator id/version. The adapter
- * remains the implementation; this descriptor is only the semantic plug reference consumed by the
- * existing Research Plan / Result Bundle / Method Home composition. Unknown future operators can
- * therefore attach without editing central consumers merely to invent a new identity convention.
+ * Stable identity = current canonical owner + capability key + operator id/version.
  */
 export function describeSequenceOperator(adapter = {}) {
   const sequenceId = clean(adapter.sequenceId);
@@ -67,6 +63,9 @@ export function describeSequenceOperator(adapter = {}) {
   if (!VALID_OPERATOR_EXECUTION_KIND.has(executionKind)) {
     throw new Error(`Invalid sequence operator contract: unsupported executionKind ${executionKind}`);
   }
+  if (adapter.evaluate != null && typeof adapter.evaluate !== 'function') {
+    throw new Error('Invalid sequence operator contract: evaluate must be a function when supplied');
+  }
 
   const defaultOperation = clean(adapter.defaultOperation);
   if (defaultOperation && !operations.includes(defaultOperation)) {
@@ -90,6 +89,7 @@ export function describeSequenceOperator(adapter = {}) {
     applicability_boundary: applicabilityBoundary,
     representation_kind: representationKind,
     supported_operations: Object.freeze(operations),
+    evaluation_hook: typeof adapter.evaluate === 'function' ? 'adapter_declared' : 'unavailable',
   });
 }
 
@@ -103,7 +103,7 @@ export function createSequenceRegistry(adapters = []) {
   }
   return Object.freeze({
     get: id => registry.get(id) || null,
-    list: () => [...registry.values()].map(({ execute, ...meta }) => meta),
+    list: () => [...registry.values()].map(({ execute, evaluate, ...meta }) => meta),
   });
 }
 
@@ -114,6 +114,18 @@ export function normalizeSequenceBudget(input = {}, adapter = {}) {
     maxOccurrences: positiveInt(input.maxOccurrences, DEFAULT_SEQUENCE_BUDGET.maxOccurrences, 100),
     windowRadius: positiveInt(input.windowRadius, DEFAULT_SEQUENCE_BUDGET.windowRadius, 100),
   });
+}
+
+function unavailableEvaluation(reason) {
+  return {
+    status: 'unavailable',
+    expectedness: null,
+    controls: [],
+    controls_state: { status: 'unknown', reason },
+    robustness: null,
+    competing_patterns: [],
+    unavailable_reason: reason,
+  };
 }
 
 export async function runSequenceLens(registry, request = {}) {
@@ -127,17 +139,32 @@ export async function runSequenceLens(registry, request = {}) {
     return { status: 'error', error: 'SEQUENCE_ADAPTER_INVALID_RESULT', sequence_id: sequenceId || null };
   }
 
-  // Preserve the owner-qualified operator reference both at the capability result boundary and
-  // inside the deterministic engine result payload. numericResearchBase already transports the
-  // nested result into Universal Finding verification/evidence, so this keeps the reference alive
-  // through existing Result Bundle composition without creating a second transport contract.
   const resultPayload = result.result && typeof result.result === 'object' && !Array.isArray(result.result)
     ? { ...result.result, operator_ref: adapter.operatorSpec.operator_ref }
     : result.result;
 
+  // Evaluation is a generic operator hook, not central family branching. Execution remains valid if
+  // evaluation is unavailable/fails; significance must then remain explicitly unavailable.
+  let evaluation = unavailableEvaluation('operator did not declare an evaluation hook');
+  if (typeof adapter.evaluate === 'function') {
+    try {
+      const evaluated = await adapter.evaluate({
+        request: { ...request, operation, budget },
+        execution: { ...result, result: resultPayload },
+        operatorSpec: adapter.operatorSpec,
+      });
+      evaluation = evaluated && typeof evaluated === 'object' && !Array.isArray(evaluated)
+        ? evaluated
+        : unavailableEvaluation('operator evaluation hook returned invalid output');
+    } catch (error) {
+      evaluation = unavailableEvaluation(`operator evaluation hook failed:${error?.name || 'Error'}`);
+    }
+  }
+
   return {
     ...result,
     result: resultPayload,
+    evaluation,
     operator_ref: adapter.operatorSpec.operator_ref,
     operator_contract_version: adapter.operatorSpec.contract_version,
   };
