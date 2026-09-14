@@ -1,6 +1,7 @@
 import { isUniversalFinding } from "./universalFinding.js";
 import { normalizeAccessDescriptor } from "./researchPlanV2.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
+import { normalizeOperatorRef, normalizeResearchEvaluation } from "./researchEvaluation.js";
 
 // W2.1 — Generic Research Result Bundle composer.
 // Stable socket only: no engine truth, ranking truth, access policy or persistence is owned here.
@@ -261,6 +262,12 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
     throw new TypeError(`researchResultBundle: invalid semantic class "${semanticClass}" for ${key}`);
   }
 
+  const operatorRef = normalizeOperatorRef(record.operator_ref || record.operatorRef);
+  const researchEvaluation = normalizeResearchEvaluation(
+    record.research_evaluation || record.researchEvaluation,
+    { operatorRef },
+  );
+
   const rawFindings = (Array.isArray(record.findings) ? record.findings : []).filter(isUniversalFinding);
   if (status === CAPABILITY_STATUS.NEGATIVE_RESULT && rawFindings.length) {
     throw new TypeError(`researchResultBundle: negative_result for ${key} cannot carry positive findings`);
@@ -295,6 +302,8 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
     } : null,
     source_refs: Array.isArray(record.source_refs) ? record.source_refs.filter(Boolean) : [],
     version_refs: Array.isArray(record.version_refs) ? record.version_refs.filter(Boolean) : [],
+    operator_ref: operatorRef,
+    research_evaluation: researchEvaluation,
     finding_ids: findings.map(x => x.id),
     finding_outcomes: findingOutcomes,
     findings,
@@ -462,6 +471,8 @@ export function composeResearchResultBundle({
       raw_authorization_context_never_in_output: true,
       personal_identity_text_never_in_output: true,
       bounded_window_is_not_source_exhaustive: true,
+      research_evaluation_is_transport_not_truth: true,
+      unknown_evaluation_fields_remain_unknown: true,
     },
   };
 }
@@ -476,6 +487,8 @@ export function capabilityResult({
   negativeScope = null,
   sourceRefs = [],
   versionRefs = [],
+  operatorRef = null,
+  researchEvaluation = null,
   cost = null,
   trace = null,
   requested = true,
@@ -493,6 +506,8 @@ export function capabilityResult({
     negative_scope: negativeScope,
     source_refs: sourceRefs,
     version_refs: versionRefs,
+    operator_ref: operatorRef,
+    research_evaluation: researchEvaluation,
     cost,
     trace,
     requested,
