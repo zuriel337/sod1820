@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { composeResearchW2 } from './researchComposerW2.js';
-import { capabilityResult, CAPABILITY_STATUS, composeResearchResultBundle } from './researchResultBundle.js';
+import { ACCESS_CLASS, capabilityResult, CAPABILITY_STATUS, composeResearchResultBundle } from './researchResultBundle.js';
 import { SELECTION_PROTOCOL } from './researchEvaluation.js';
 
 function operatorRef(owner, capabilityKey, operatorId, version) {
@@ -172,6 +172,34 @@ test('malformed owner-qualified operator reference fails closed instead of disap
       researchEvaluation: {},
     })],
   }), /malformed owner-qualified operator_ref/);
+});
+
+test('access-controlled evaluation provenance is filtered unless its tier is explicitly allowed', () => {
+  const ref = operatorRef('person_foundation_contract_law', 'person:patterns', 'private-pattern-scan', 'v1');
+  const bundle = composeResearchResultBundle({
+    query: { subject: 'fixture' },
+    capabilities: [capabilityResult({
+      key: 'person:patterns',
+      owner: ref.owner,
+      accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+      operatorRef: ref,
+      researchEvaluation: evaluation(ref, {
+        access: { tier: 'private', reason: 'private person research' },
+        replay: {
+          replayable: true,
+          source_ref: 'private:person:secret-source',
+          parameters: { secret: true },
+        },
+      }),
+    })],
+  });
+
+  const cap = bundle.capability_trace[0];
+  assert.equal(cap.research_evaluation, null);
+  assert.equal(cap.research_evaluation_access.filtered, true);
+  assert.match(cap.research_evaluation_access.reason, /private/);
+  assert.equal(JSON.stringify(cap).includes('secret-source'), false);
+  assert.equal(bundle.invariants.evaluation_access_is_filtered_at_composition_boundary, true);
 });
 
 test('W2 Composer preserves the same maximal envelope from an unknown future executor to the final Bundle', async () => {
