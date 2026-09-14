@@ -4,9 +4,10 @@ import { next } from '@vercel/edge';
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
 // שכבות המדיניות:
 //   1) חסימה לפי התנהגות (User-Agent של בוט) — עוקבת אחרי הבוט לכל מדינה.
-//   2) מדיניות-מדינה חיה מה-DB: monitor | strict | blocked.
-//      strict = גולש browser אמיתי מקבל JS challenge רך; goodbot/ai עוברים; bad bot נחסם.
-//      עוצמה 1/2/3 נשלטת ב-DB ומשנה את תדירות האימות בלי deploy נוסף.
+//   2) מדיניות-מדינה חיה מה-DB: monitor | strict | quarantine | blocked.
+//      strict = browser מקבל JS challenge אחיד; quarantine = challenge מותאם-סיכון;
+//      goodbot/ai עוברים ציבורי; bad bot נחסם. אף challenge אינו Human proof.
+//      עוצמה 1/2/3 נשלטת ב-DB; quarantine משתמש בה כתקרת TTL ומחמיר רק כשיש סיכון.
 // בוטים "טובים" (חיפוש + תצוגות שיתוף) ברשימה לבנה → עוברים חופשי (SEO/OG).
 // מתעדים כל בקשה (כולל נחסמים) ל-edge_geo_log (country+kind) ול-edge_ua_seen (UA
 // אמיתי) דרך RPC log_edge, fire-and-forget (waitUntil) — בלי השהיה. כך נראה אם
@@ -29,9 +30,10 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 
 // 🌍 מדיניות-מדינה — אותו owner/table קיים, בלי מערכת מקבילה.
 // public.edge_blocked_countries מחזיק enabled + mode + strict_level.
-// mode=blocked → חסימה מלאה ל-browser/bot (goodbot/ai מוחרגים כמו בעבר).
-// mode=strict  → browser עובר challenge רך; bad bot עדיין נחסם; goodbot/ai עוברים.
-// mode=monitor → אין אכיפה נוספת, רק המדידה הרגילה.
+// mode=blocked    → חסימה מלאה ל-browser/bot (goodbot/ai מוחרגים כמו בעבר).
+// mode=strict     → browser עובר challenge רך אחיד; bad bot נחסם; goodbot/ai עוברים.
+// mode=quarantine → browser עובר challenge מותאם-סיכון מקומי; אין lookup/API נוסף.
+// mode=monitor    → אין אכיפה נוספת, רק המדידה הרגילה.
 // cache קצר של 5 דקות כדי שאפשר יהיה להעלות/להוריד מינון מה-DB בלי deploy.
 const COUNTRY_POLICY_CACHE_MS = 5 * 60 * 1000;
 let COUNTRY_POLICIES = null, COUNTRY_POLICIES_AT = 0;
@@ -54,10 +56,15 @@ async function countryPolicyMap() {
   return COUNTRY_POLICIES || new Map();
 }
 
-function hasCookie(request, name) {
+function cookieValue(request, name) {
   const raw = request.headers.get('cookie') || '';
-  return raw.split(';').some((part) => part.trim().startsWith(`${name}=`));
+  for (const part of raw.split(';')) {
+    const item = part.trim();
+    if (item.startsWith(`${name}=`)) return item.slice(name.length + 1);
+  }
+  return null;
 }
+function hasCookie(request, name) { return cookieValue(request, name) !== null; }
 
 function strictChallengeTtl(level) {
   if (level >= 3) return 60 * 60;       // שעה
@@ -81,6 +88,86 @@ function strictBrowserChallenge(country, level) {
       'x-sod-edge-policy': `strict-l${level}`,
     },
   });
+}
+
+// ── Smart Quarantine 2029 ────────────────────────────────────────────────────
+// Progressive friction, not a new bot classifier:
+// - computes risk only from headers/path already present at the Edge (zero extra network I/O)
+// - goodbot/ai stay on the existing public bypass; explicit bad bots still get 403
+// - browser stays Unknown: passing this proof is friction only, not Human proof
+// - no CAPTCHA/Turnstile/ASN lookup unless a future Human Gate explicitly adds one
+const QUARANTINE_POLICY_VERSION = 'q2029v1';
+const QUARANTINE_LOW_TTL = 60 * 60;
+const QUARANTINE_MEDIUM_TTL = 15 * 60;
+const QUARANTINE_HIGH_TTL = 5 * 60;
+
+function quarantineBrowserRisk(request, uaRaw, path) {
+  let score = 0;
+  const reasons = [];
+  const ua = String(uaRaw || '');
+  const chromium = ua.match(/(Chrome|CriOS)\/(\d+)/i);
+  const chromiumMajor = chromium ? Number(chromium[2]) : null;
+
+  // Malformed crawler-style UA prefixes seen in the live CN sample.
+  if (/^Mozilla\/[45]\.\d{2,}/i.test(ua)) { score += 3; reasons.push('malformed_ua'); }
+  // Very old Chromium is not blocked; it simply has to re-prove more often.
+  if (chromiumMajor != null && chromiumMajor < 110) { score += 2; reasons.push('stale_chromium'); }
+  if (/\b(?:MSIE|Trident)\b/i.test(ua) || /Android [0-5](?:\.|;)/i.test(ua)) { score += 1; reasons.push('legacy_stack'); }
+
+  const accept = request.headers.get('accept') || '';
+  const acceptLanguage = request.headers.get('accept-language') || '';
+  const fetchMode = request.headers.get('sec-fetch-mode') || '';
+  const fetchDest = request.headers.get('sec-fetch-dest') || '';
+  if (!acceptLanguage) { score += 1; reasons.push('no_accept_language'); }
+  if (accept && !/text\/html|application\/xhtml\+xml|\*\/\*/i.test(accept)) { score += 1; reasons.push('non_html_accept'); }
+  // Modern Chromium navigation normally sends Sec-Fetch metadata. Missing both is a weak signal only.
+  if (chromiumMajor != null && chromiumMajor >= 100 && !fetchMode && !fetchDest) { score += 1; reasons.push('no_fetch_metadata'); }
+  // Cost-sensitive/private surfaces receive one extra point, never an automatic block.
+  if (EXPENSIVE_PATH.test(path)) { score += 1; reasons.push('sensitive_path'); }
+
+  const band = score >= 4 ? 'high' : score >= 2 ? 'medium' : 'low';
+  return { score, band, reasons };
+}
+
+function quarantineTtl(level, band) {
+  const ceiling = strictChallengeTtl(level);
+  if (band === 'high') return Math.min(ceiling, QUARANTINE_HIGH_TTL);
+  if (band === 'medium') return Math.min(ceiling, QUARANTINE_MEDIUM_TTL);
+  return Math.min(ceiling, QUARANTINE_LOW_TTL);
+}
+
+function quarantineDelayMs(band) {
+  if (band === 'high') return 900;
+  if (band === 'medium') return 350;
+  return 80;
+}
+
+function quarantineProofValue(band) { return `${QUARANTINE_POLICY_VERSION}:${band}`; }
+
+function quarantineBrowserChallenge(country, level, risk) {
+  const safeCountry = String(country || 'XX').replace(/[^A-Z]/g, '').slice(0, 2) || 'XX';
+  const cookieName = `sod_edge_q_${safeCountry}`;
+  const maxAge = quarantineTtl(level, risk.band);
+  const cookie = `${cookieName}=${quarantineProofValue(risk.band)}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
+  const scriptCookie = JSON.stringify(cookie);
+  const delay = quarantineDelayMs(risk.band);
+  // webdriver/cookie checks execute in the browser and cost the server nothing. A sophisticated bot can still
+  // emulate a browser, so this remains Unknown and is intentionally not promoted to Human.
+  const html = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>בדיקת גישה</title></head><body><main style="font-family:system-ui,sans-serif;max-width:560px;margin:12vh auto;padding:24px;text-align:center"><h1 style="font-size:22px">בדיקת דפדפן קצרה</h1><p id="qmsg">הגישה נבדקת וממשיכה אוטומטית.</p><noscript><p>נדרש JavaScript כדי להשלים את בדיקת הגישה.</p></noscript></main><script>(function(){var ok=navigator.cookieEnabled!==false&&navigator.webdriver!==true;if(!ok){document.getElementById('qmsg').textContent='לא ניתן לאמת את הדפדפן.';return;}setTimeout(function(){document.cookie=${scriptCookie};location.replace(location.href);},${delay});})();</script></body></html>`;
+  return new Response(html, {
+    status: 200,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'no-store',
+      'x-robots-tag': 'noindex, nofollow',
+      'x-sod-edge-policy': 'quarantine',
+    },
+  });
+}
+
+function hasQuarantineProof(request, country, risk) {
+  const safeCountry = String(country || 'XX').replace(/[^A-Z]/g, '').slice(0, 2) || 'XX';
+  return cookieValue(request, `sod_edge_q_${safeCountry}`) === quarantineProofValue(risk.band);
 }
 
 // 📉 קצב-דגימה ל-kind='browser' בלבד (ראה הסבר למעלה) — goodbot/ai/bot אינם נוגעים בזה.
@@ -197,7 +284,7 @@ export default async function middleware(request, context) {
   // 1) כל בוט חסום ממסלולים יקרים/פרטיים (מסע/מחקר/AI/ניהול) — רק דפדפן-אדם עובר.
   // 2) בוט-רע (BAD/GENERIC) → 403 מלא.
   // 3) country mode=blocked → חסימה מלאה ל-browser/bot; goodbot/ai עוברים.
-  // 4) country mode=strict → browser אמיתי עובר challenge רך; goodbot/ai עוברים.
+  // 4) strict/quarantine → browser בלבד מקבל progressive challenge; goodbot/ai עוברים.
   let blocked = false;
   if (isBot && EXPENSIVE_PATH.test(path)) blocked = true;
   else if (kind === 'bot') blocked = true;
@@ -234,11 +321,19 @@ export default async function middleware(request, context) {
     if (!hasCookie(request, cookieName)) return strictBrowserChallenge(safeCountry, level);
   }
 
+  // Smart Quarantine 2029: same canonical country policy owner, but risk-adaptive friction.
+  // No request here is promoted to Human; browser remains Unknown until downstream behavioral evidence says otherwise.
+  if (kind === 'browser' && countryPolicy?.mode === 'quarantine') {
+    const level = countryPolicy.strictLevel;
+    const risk = quarantineBrowserRisk(request, uaRaw, path);
+    if (!hasQuarantineProof(request, country, risk)) return quarantineBrowserChallenge(country, level, risk);
+  }
+
   // 🇮🇱 חושפים את מדינת-המבקר ללקוח (cookie vc) — לגידור מודעות ל-IL בלבד (בקשת צוריאל:
   //    פרסומות לא-צנועות הגיעו מתעבורה זרה). המודעות ממילא רק בפוסטים הישנים.
-  // 🤖 חושפים גם את פסק-הבוט של הקצה (cookie vb=<kind>): browser=אדם · goodbot/ai/bot=בוט.
-  //    מחושב מה-UA האמיתי בצד-שרת → הלקוח (events.js/visits.js) מסמן is_bot לפיו במקום זיהוי-UA
-  //    חלש בצד-לקוח (שמפספס headless שמזייף UA). ניתן-קריאה ל-JS (לא HttpOnly), כמו vc.
+  // 🤖 חושפים גם את פסק-הבוט של הקצה (cookie vb=<kind>): browser=Unknown; goodbot/ai/bot=Bot.
+  //    מעבר challenge אינו Human proof. מחושב מה-UA האמיתי בצד-שרת → הלקוח מסמן bot/no-bot
+  //    לפי החוזה הישן, בעוד Clean Traffic/TI שומר Human/Bot/Unknown בנפרד.
   const outHeaders = new Headers();
   outHeaders.append('set-cookie', `vc=${country}; Path=/; Max-Age=86400; SameSite=Lax`);
   outHeaders.append('set-cookie', `vb=${kind}; Path=/; Max-Age=86400; SameSite=Lax`);
