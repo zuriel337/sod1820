@@ -1,5 +1,6 @@
 import { resolveResearchIdentities } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2 } from "./researchPlanV2.js";
+import { SELECTION_PROTOCOL } from "./researchEvaluation.js";
 import {
   CAPABILITY_STATUS,
   capabilityResult,
@@ -19,6 +20,40 @@ function failureReason(error) {
   return error?.message ? String(error.message) : String(error);
 }
 
+function fixedBeforeInspection(protocol) {
+  if (protocol === SELECTION_PROTOCOL.PRE_REGISTERED_TARGET) return true;
+  if (protocol === SELECTION_PROTOCOL.POST_HOC_EXPLORATORY) return false;
+  return null;
+}
+
+/**
+ * Selection protocol belongs to the Research Plan, not to individual engines. An older adapter may
+ * honestly return UNKNOWN; the composer may fill ONLY the Plan-owned protocol class. A conflicting
+ * non-UNKNOWN adapter claim is a contract violation and fails closed instead of being overwritten.
+ */
+function bindPlanSelectionProtocol(evaluation, plan) {
+  if (!evaluation || typeof evaluation !== "object") return evaluation ?? null;
+  const planned = plan?.selection_protocol || SELECTION_PROTOCOL.UNKNOWN;
+  if (planned === SELECTION_PROTOCOL.UNKNOWN) return evaluation;
+
+  const current = evaluation.selection?.protocol || SELECTION_PROTOCOL.UNKNOWN;
+  if (current !== SELECTION_PROTOCOL.UNKNOWN && current !== planned) {
+    throw new TypeError(`researchComposerW2: capability selection protocol "${current}" conflicts with Research Plan "${planned}"`);
+  }
+  const existing = evaluation.selection && typeof evaluation.selection === "object" ? evaluation.selection : {};
+  return {
+    ...evaluation,
+    selection: {
+      ...existing,
+      protocol: planned,
+      fixed_before_inspection: typeof existing.fixed_before_inspection === "boolean"
+        ? existing.fixed_before_inspection
+        : fixedBeforeInspection(planned),
+      reason: existing.reason || "selection protocol class supplied by canonical Research Plan",
+    },
+  };
+}
+
 async function executeCapability({ capability, executor, plan, identityResolution, signal, authorizationContext }) {
   if (typeof executor !== "function") {
     return capabilityResult({
@@ -30,8 +65,6 @@ async function executeCapability({ capability, executor, plan, identityResolutio
   }
 
   try {
-    // Raw authorization context remains private execution input. The output-safe Research Plan carries
-    // only the access descriptor and non-identifying selection_protocol classification.
     const out = await executor({
       plan,
       identityResolution,
@@ -42,6 +75,10 @@ async function executeCapability({ capability, executor, plan, identityResolutio
       selectionProtocol: plan?.selection_protocol || null,
     });
     const status = out?.status || CAPABILITY_STATUS.EXECUTED;
+    const researchEvaluation = bindPlanSelectionProtocol(
+      out?.researchEvaluation || out?.research_evaluation || null,
+      plan,
+    );
     return capabilityResult({
       key: capability,
       owner: out?.owner || null,
@@ -53,7 +90,7 @@ async function executeCapability({ capability, executor, plan, identityResolutio
       sourceRefs: out?.sourceRefs || out?.source_refs || [],
       versionRefs: out?.versionRefs || out?.version_refs || [],
       operatorRef: out?.operatorRef || out?.operator_ref || null,
-      researchEvaluation: out?.researchEvaluation || out?.research_evaluation || null,
+      researchEvaluation,
       cost: out?.cost ?? null,
       trace: out?.trace ?? null,
       requested: true,
