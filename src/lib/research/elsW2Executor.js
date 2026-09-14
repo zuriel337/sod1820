@@ -1,4 +1,5 @@
 import { isUniversalFinding } from './universalFinding.js';
+import { stableIdentityDigest } from './researchRepresentations.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, SEMANTIC_CLASS } from './researchResultBundle.js';
 import { normalizeOperatorRef, normalizeResearchEvaluation } from './researchEvaluation.js';
 
@@ -12,6 +13,16 @@ function clean(value) {
   if (value == null) return null;
   const text = String(value).trim();
   return text || null;
+}
+
+function safeRef(value) {
+  const ref = clean(value);
+  if (!ref) return null;
+  return ref.startsWith('anon:') ? ref : `anon:${stableIdentityDigest(ref)}`;
+}
+
+function safeRefList(values) {
+  return [...new Set((Array.isArray(values) ? values : []).map(safeRef).filter(Boolean))];
 }
 
 function requestTier(request) {
@@ -63,20 +74,33 @@ function safeNegativeScope(request) {
   };
 }
 
+function safeRequestLineage(request) {
+  const raw = request?.evidence_lineage && typeof request.evidence_lineage === 'object'
+    ? request.evidence_lineage
+    : {};
+  return {
+    relation: clean(raw.relation) || 'unknown',
+    root_input_ref: safeRef(raw.root_input_ref ?? raw.rootInputRef ?? request?.subject_ref),
+    representation_ref: safeRef(raw.representation_ref ?? raw.representationRef ?? request?.subject_ref),
+    occurrence_ref: null,
+    window_ref: null,
+    artifact_refs: safeRefList(raw.artifact_refs ?? raw.artifactRefs),
+    source_lineage_refs: safeRefList(raw.source_lineage_refs ?? raw.sourceLineageRefs),
+    parent_refs: safeRefList(raw.parent_refs ?? raw.parentRefs),
+  };
+}
+
 function sanitizeFindingOutcomes(result, request) {
   const raw = Array.isArray(result?.findingOutcomes)
     ? result.findingOutcomes
     : Array.isArray(result?.finding_outcomes) ? result.finding_outcomes : [];
   if (!isRestrictedRequest(request) || result?.finding_outcomes_output_safe === true) return raw;
 
-  // The capability trace/Bundle outcome plane is not an unrestricted private channel. Preserve only
-  // non-identifying research semantics and the already-governed request lineage (representation refs
-  // are hashed by researchRepresentations for restricted identities). Exact core window/source refs
-  // require an explicit output-safe attestation before they can leave.
+  const lineage = safeRequestLineage(request);
   return raw.map(outcome => ({
     findingId: outcome?.findingId ?? outcome?.finding_id ?? null,
     evidenceRelation: outcome?.evidenceRelation ?? outcome?.evidence_relation ?? null,
-    evidenceLineage: request?.evidence_lineage ?? null,
+    evidenceLineage: lineage,
     reason: 'access-controlled ELS outcome; detailed core lineage withheld at composition boundary',
     expectedness: outcome?.expectedness ?? null,
     expectednessModel: outcome?.expectednessModel ?? outcome?.expectedness_model ?? null,
@@ -164,6 +188,8 @@ export function createCanonicalElsW2Executor({ executeCanonicalEls = null, resol
     const rawRefsAllowed = !restricted || result.source_refs_output_safe === true;
     const rawNegativeScopeAllowed = !restricted || result.negative_scope_output_safe === true;
     const rawReasonAllowed = !restricted || result.reason_output_safe === true;
+    const rawBoundedAllowed = !restricted || result.bounded_output_safe === true;
+    const rawCostAllowed = !restricted || result.cost_output_safe === true;
 
     return {
       owner: 'els_research_layer_law',
@@ -180,12 +206,12 @@ export function createCanonicalElsW2Executor({ executeCanonicalEls = null, resol
       semanticClass: SEMANTIC_CLASS.EVIDENCE,
       sourceRefs: rawRefsAllowed ? (result.sourceRefs ?? result.source_refs ?? []) : [],
       versionRefs: result.versionRefs ?? result.version_refs ?? [operatorRef.version],
-      bounded: result.bounded ?? null,
-      cost: result.cost ?? null,
+      bounded: rawBoundedAllowed ? (result.bounded ?? null) : null,
+      cost: rawCostAllowed ? (result.cost ?? null) : null,
       trace: {
         contract_version: ELS_CALLABLE_CONTRACT_VERSION,
         access_tier: requestTier(request),
-        restricted_provenance_withheld: restricted && (!rawTraceAllowed || !rawRefsAllowed),
+        restricted_provenance_withheld: restricted && (!rawTraceAllowed || !rawRefsAllowed || !rawBoundedAllowed || !rawCostAllowed),
         ...(rawTraceAllowed && result.trace && typeof result.trace === 'object' ? result.trace : {}),
         ...(!restricted ? { subject_ref: subjectRef } : {}),
       },
