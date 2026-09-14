@@ -64,9 +64,22 @@ function normalizeSelection(value) {
   const input = obj(value); if (!input) return null;
   const protocol = clean(input.protocol) || SELECTION_PROTOCOL.UNKNOWN;
   if (!VALID_SELECTION_PROTOCOL.has(protocol)) throw new TypeError(`researchEvaluation: invalid selection protocol "${protocol}"`);
+  const fixedBeforeInspection = typeof input.fixed_before_inspection === 'boolean'
+    ? input.fixed_before_inspection
+    : typeof input.fixedBeforeInspection === 'boolean' ? input.fixedBeforeInspection : null;
+  // Protocol class and timing fact must never contradict each other. A target cannot be both
+  // pre-registered and explicitly chosen after inspection, nor post-hoc and fixed beforehand.
+  if (protocol === SELECTION_PROTOCOL.PRE_REGISTERED_TARGET && fixedBeforeInspection === false) {
+    throw new TypeError('researchEvaluation: pre_registered_target cannot declare fixed_before_inspection=false');
+  }
+  if (protocol === SELECTION_PROTOCOL.POST_HOC_EXPLORATORY && fixedBeforeInspection === true) {
+    throw new TypeError('researchEvaluation: post_hoc_exploratory cannot declare fixed_before_inspection=true');
+  }
   return {
-    protocol, target_ref: clean(input.target_ref ?? input.targetRef), provenance_ref: clean(input.provenance_ref ?? input.provenanceRef),
-    fixed_before_inspection: typeof input.fixed_before_inspection === 'boolean' ? input.fixed_before_inspection : typeof input.fixedBeforeInspection === 'boolean' ? input.fixedBeforeInspection : null,
+    protocol,
+    target_ref: clean(input.target_ref ?? input.targetRef),
+    provenance_ref: clean(input.provenance_ref ?? input.provenanceRef),
+    fixed_before_inspection: fixedBeforeInspection,
     reason: clean(input.reason),
   };
 }
@@ -149,8 +162,10 @@ function normalizeCompletion(value) {
   const input = obj(value); if (!input) return null;
   const complete = typeof input.complete === 'boolean' ? input.complete : null;
   const truncated = typeof input.truncated === 'boolean' ? input.truncated : null;
+  const continuation = input.continuation ?? null;
   if (complete === true && truncated === true) throw new TypeError('researchEvaluation: completion cannot be both complete=true and truncated=true');
-  return { state: clean(input.state), complete, truncated, continuation: input.continuation ?? null, stop_reason: clean(input.stop_reason ?? input.stopReason) };
+  if (complete === true && continuation != null) throw new TypeError('researchEvaluation: complete=true cannot carry a continuation');
+  return { state: clean(input.state), complete, truncated, continuation, stop_reason: clean(input.stop_reason ?? input.stopReason) };
 }
 function normalizeReplay(value) {
   const input = obj(value); if (!input) return null;
