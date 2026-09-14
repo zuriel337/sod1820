@@ -69,7 +69,7 @@ function normalizeFingerprint(value) {
 
 function dedupeDescriptor(fingerprint) {
   if (!fingerprint) return {
-    artifact_identity_ref: null,
+    artifact_dedupe_ref: null,
     candidate_ref: null,
     strength: null,
   };
@@ -77,7 +77,7 @@ function dedupeDescriptor(fingerprint) {
   const strength = fingerprint.strength;
   const strong = ["strong", "exact", "binary"].includes(strength);
   return {
-    artifact_identity_ref: strong ? generatedRef("artifact", seed) : null,
+    artifact_dedupe_ref: strong ? generatedRef("artifact", seed) : null,
     candidate_ref: strong ? null : generatedRef("artifact-candidate", seed),
     strength,
   };
@@ -96,7 +96,7 @@ function normalizeArtifact(value, fallbackTier) {
   return {
     ref: occurrenceRef,
     occurrence_ref: occurrenceRef,
-    artifact_identity_ref: dedupe.artifact_identity_ref,
+    artifact_dedupe_ref: dedupe.artifact_dedupe_ref,
     dedupe_candidate_ref: dedupe.candidate_ref,
     dedupe_strength: dedupe.strength,
     kind,
@@ -400,8 +400,8 @@ export function projectResearchIntakeLineage(intake, accessDescriptor) {
     source_artifact: artifact ? {
       ref: safeRef(artifact.ref, artifact.access, accessDescriptor),
       occurrence_ref: safeRef(artifact.occurrence_ref, artifact.access, accessDescriptor),
-      artifact_identity_ref: artifact.artifact_identity_ref,
-      dedupe_candidate_ref: artifact.dedupe_candidate_ref,
+      artifact_dedupe_ref: artifactDecision?.allowed ? artifact.artifact_dedupe_ref : null,
+      dedupe_candidate_ref: artifactDecision?.allowed ? artifact.dedupe_candidate_ref : null,
       dedupe_strength: artifact.dedupe_strength,
       kind: artifact.kind,
       media_type: artifactDecision?.allowed ? artifact.media_type : null,
