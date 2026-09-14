@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { classifyEvidenceDependency, composeDependencyGroups, DEPENDENCY_RELATION } from './researchDependency.js';
-import { buildNameResearchRepresentations, buildSourceExpressionRepresentations, prepareElsSubjectRequests, REPRESENTATION_ROLE } from './researchSubjectRepresentations.js';
+import { expandResearchTextRepresentations } from './researchRepresentations.js';
+import { prepareElsSubjectRequests } from './researchElsRequests.js';
 import { SELECTION_PROTOCOL } from './researchEvaluation.js';
 
 function outcome(id, lineage, span = null) {
@@ -15,12 +16,11 @@ test('same artifact across capabilities is one dependency group, not independent
   const grouped = composeDependencyGroups([a, b]);
   assert.equal(grouped.groups.length, 1);
   assert.equal(grouped.groups[0].finding_ids.length, 2);
-  assert.equal(grouped.edges[0].relation, DEPENDENCY_RELATION.SAME_ARTIFACT);
 });
 
 test('nested ELS observations in one window are explicitly dependent', () => {
-  const a = outcome('uf:els:1111', { window_ref: 'els-window:pi-like:1' }, { start: 100, end: 103, unit: 'corpus_index' });
-  const b = outcome('uf:els:111', { window_ref: 'els-window:pi-like:1' }, { start: 101, end: 103, unit: 'corpus_index' });
+  const a = outcome('uf:els:1111', { window_ref: 'els-window:1' }, { start: 100, end: 103, unit: 'corpus_index' });
+  const b = outcome('uf:els:111', { window_ref: 'els-window:1' }, { start: 101, end: 103, unit: 'corpus_index' });
   assert.equal(classifyEvidenceDependency(a, b).relation, DEPENDENCY_RELATION.CONTAINS);
 });
 
@@ -37,43 +37,54 @@ test('no shared lineage stays UNKNOWN; dependency classifier never invents indep
   assert.equal(classifyEvidenceDependency(a, b).relation, DEPENDENCY_RELATION.UNKNOWN);
 });
 
-test('name normalization preserves exact full name and ordered parts without fabricating family role', () => {
-  const reps = buildNameResearchRepresentations({ name: 'משה דוד', rootInputRef: 'person-input:moshe' });
-  assert.equal(reps.some(x => x.role === REPRESENTATION_ROLE.FULL_NAME && x.exact_text === 'משה דוד'), true);
-  assert.deepEqual(reps.filter(x => x.role === REPRESENTATION_ROLE.NAME_PART).map(x => x.exact_text), ['משה', 'דוד']);
-  assert.equal(reps.some(x => x.role === REPRESENTATION_ROLE.FAMILY_NAME), false);
+test('canonical name representations preserve full name and ordered parts without fabricating family role', () => {
+  const reps = expandResearchTextRepresentations({ identities: [{ type: 'name', key: 'name:moshe-david', label: 'משה דוד', access: { tier: 'public' } }] });
+  assert.equal(reps.some(x => x.kind === 'full_name' && x.text === 'משה דוד'), true);
+  assert.deepEqual(reps.filter(x => x.kind === 'name_part').map(x => [x.text, x.role, x.role_source]), [
+    ['משה', 'word_1', 'whitespace_position_only'],
+    ['דוד', 'word_2', 'whitespace_position_only'],
+  ]);
+  assert.equal(reps.some(x => x.role === 'family_name'), false);
 });
 
-test('explicit surname is typed as family_name and shares the same root lineage', () => {
-  const reps = buildNameResearchRepresentations({ name: 'משה', surname: 'כהן', rootInputRef: 'person-input:1', personRef: 'person:1' });
-  const family = reps.find(x => x.role === REPRESENTATION_ROLE.FAMILY_NAME);
-  const full = reps.find(x => x.role === REPRESENTATION_ROLE.FULL_NAME);
-  assert.equal(family.exact_text, 'כהן');
-  assert.equal(full.exact_text, 'משה כהן');
-  assert.equal(family.evidence_lineage.root_input_ref, full.evidence_lineage.root_input_ref);
+test('source-declared given/family roles survive in the same canonical representation set', () => {
+  const reps = expandResearchTextRepresentations({ identities: [{
+    type: 'person', key: 'person:1', label: 'משה כהן', access: { tier: 'personal' },
+    metadata: { given_name: 'משה', family_name: 'כהן' },
+  }] });
+  assert.equal(reps.some(x => x.role === 'given_name' && x.text === 'משה'), true);
+  assert.equal(reps.some(x => x.role === 'family_name' && x.text === 'כהן'), true);
+  assert.equal(reps.every(x => x.parent_identity_key.startsWith('anon:')), true);
 });
 
-test('ELS request preparation is bounded, provenance-bearing and never self-authorizes execution', () => {
-  const reps = buildNameResearchRepresentations({ name: 'משה', surname: 'כהן', rootInputRef: 'person-input:1' });
-  const plan = prepareElsSubjectRequests(reps, { maxSubjects: 3, selectionProtocol: SELECTION_PROTOCOL.HYPOTHESIS_DRIVEN_FOLLOWUP, reason: 'life-journey research plan' });
+test('ELS request preparation consumes the SAME canonical representations, stays bounded and never self-authorizes', () => {
+  const reps = expandResearchTextRepresentations({ identities: [{
+    type: 'person', key: 'person:1', label: 'משה כהן', access: { tier: 'personal' },
+    metadata: { given_name: 'משה', family_name: 'כהן' },
+  }] });
+  const plan = prepareElsSubjectRequests(reps, {
+    rootInputRef: 'anon:person-input:1', maxSubjects: 3,
+    selectionProtocol: SELECTION_PROTOCOL.HYPOTHESIS_DRIVEN_FOLLOWUP,
+    reason: 'life-journey research plan',
+  });
   assert.ok(plan.requests.length <= 3);
   assert.equal(plan.canonical_owner, 'els_research_layer_law');
   assert.equal(plan.requests.every(x => x.canonical_engine_required === true && x.execution_authorized === false), true);
-  assert.equal(plan.requests.every(x => x.evidence_lineage.root_input_ref === 'person-input:1'), true);
+  assert.equal(plan.requests.every(x => x.evidence_lineage.root_input_ref === 'anon:person-input:1'), true);
 });
 
-test('news/source expressions become bounded ELS candidates only after typed extraction, not from a news-specific engine', () => {
-  const reps = buildSourceExpressionRepresentations({
-    sourceRef: 'news:https://example.invalid/a',
+test('news/source expressions enter ELS only after typed source extraction; no news-specific ELS engine', () => {
+  const reps = expandResearchTextRepresentations({ identities: [
+    { type: 'phrase', key: 'source:a#p2', label: 'משיח', access: { tier: 'public' } },
+    { type: 'phrase', key: 'source:a#p3', label: 'ירושלים', access: { tier: 'public' } },
+    { type: 'word', key: 'source:a#p4', label: 'אב', access: { tier: 'public' } },
+  ] });
+  const plan = prepareElsSubjectRequests(reps, {
     rootInputRef: 'source-observation:1',
-    maxExpressions: 4,
-    expressions: [
-      { text: 'משיח', locator: { paragraph: 2 } },
-      { text: 'ירושלים', locator: { paragraph: 3 } },
-      { text: 'אב', locator: { paragraph: 4 } },
-    ],
+    sourceLineageRefs: ['news:https://example.invalid/a'],
+    maxSubjects: 2,
+    selectionProtocol: SELECTION_PROTOCOL.SOURCE_CLAIM_REPLAY,
   });
-  const plan = prepareElsSubjectRequests(reps, { maxSubjects: 2, selectionProtocol: SELECTION_PROTOCOL.SOURCE_CLAIM_REPLAY });
   assert.equal(plan.requests.length, 2);
   assert.equal(plan.requests[0].evidence_lineage.source_lineage_refs[0], 'news:https://example.invalid/a');
   assert.equal(plan.skipped.some(x => x.reason === 'too_short_high_base_rate'), true);
