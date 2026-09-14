@@ -30,10 +30,17 @@ async function executeCapability({ capability, executor, plan, identityResolutio
   }
 
   try {
-    // W2.2b: the RAW authorization context travels to the executor on this private channel only.
-    // It is deliberately absent from `plan` (which is returned to the caller inside the Bundle);
-    // `plan.access` carries the output-safe descriptor instead.
-    const out = await executor({ plan, identityResolution, capability, signal, authorizationContext, access: plan?.access || null });
+    // Raw authorization context remains private execution input. The output-safe Research Plan carries
+    // only the access descriptor and non-identifying selection_protocol classification.
+    const out = await executor({
+      plan,
+      identityResolution,
+      capability,
+      signal,
+      authorizationContext,
+      access: plan?.access || null,
+      selectionProtocol: plan?.selection_protocol || null,
+    });
     const status = out?.status || CAPABILITY_STATUS.EXECUTED;
     return capabilityResult({
       key: capability,
@@ -76,6 +83,7 @@ export async function composeResearchW2({
   surfaceContext = null,
   requestedCapabilities = [],
   requestedDepth = null,
+  selectionProtocol = null,
   executors = {},
   ranking = [],
   resolvedRunSnapshot = null,
@@ -97,6 +105,7 @@ export async function composeResearchW2({
     surfaceContext,
     requestedCapabilities,
     requestedDepth,
+    selectionProtocol,
   });
 
   const requested = [...new Set([
@@ -126,8 +135,6 @@ export async function composeResearchW2({
       authorizationContext,
     });
     capabilityResults.push(executed);
-    // Continuation is first-class: a bounded capability tells the caller exactly how to ask for the
-    // rest of the source population instead of leaving a window to look source-exhaustive.
     if (executed.bounded?.truncated && executed.bounded?.continuation) {
       executorNextActions.push({
         action: "continue_bounded_capability",
@@ -141,9 +148,8 @@ export async function composeResearchW2({
   const snapshot = resolvedRunSnapshot || {
     generated_at: new Date().toISOString(),
     context_type: contextType,
-    // Output-safe BY-VALUE access descriptor — never the raw authorization context, which used to be
-    // copied verbatim into this snapshot and therefore straight into the returned Bundle.
     access: plan.access,
+    selection_protocol: plan.selection_protocol,
     resolved_identities: identityResolution.identities.map(x => ({
       key: x.key,
       type: x.type,
@@ -152,9 +158,6 @@ export async function composeResearchW2({
       identity_key: x.identity_key,
       source: x.source,
       confidence: x.confidence,
-      // Carried so the composition boundary redacts this reduced shape on exactly the same facts it
-      // uses for query.identities/plan.identities — otherwise the same identity could be redacted
-      // for two different stated reasons in one Bundle.
       access: x.access ? { tier: x.access.tier ?? null } : null,
     })),
     requested_capabilities: requested,
