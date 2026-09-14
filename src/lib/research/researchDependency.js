@@ -29,7 +29,6 @@ function clean(value) {
   const text = String(value).trim();
   return text || null;
 }
-
 function array(value) { return Array.isArray(value) ? value : []; }
 function uniq(values) { return [...new Set(array(values).map(clean).filter(Boolean))]; }
 
@@ -71,7 +70,11 @@ export function classifyEvidenceDependency(a, b) {
   if (!left || !right) return { relation: DEPENDENCY_RELATION.UNKNOWN, reason: 'lineage_not_declared' };
 
   if (left.explicit_group && left.explicit_group === right.explicit_group) {
-    return { relation: left.relation !== DEPENDENCY_RELATION.UNKNOWN ? left.relation : right.relation, reason: 'same_explicit_dependency_group' };
+    return {
+      relation: left.relation !== DEPENDENCY_RELATION.UNKNOWN ? left.relation : right.relation,
+      reason: 'same_explicit_dependency_group',
+      explicit_dependency: true,
+    };
   }
   if (left.occurrence_ref && left.occurrence_ref === right.occurrence_ref) return { relation: DEPENDENCY_RELATION.SAME_OCCURRENCE, reason: 'same_occurrence_ref' };
   const artifact = intersects(left.artifact_refs, right.artifact_refs);
@@ -89,13 +92,29 @@ export function classifyEvidenceDependency(a, b) {
   }
   const source = intersects(left.source_lineage_refs, right.source_lineage_refs);
   if (source) return { relation: DEPENDENCY_RELATION.SHARED_SOURCE, reason: `shared_source:${source}` };
-  if (left.root_input_ref && left.root_input_ref === right.root_input_ref) return { relation: DEPENDENCY_RELATION.SHARED_INPUT, reason: 'same_root_input' };
+  if (left.representation_ref && left.representation_ref === right.representation_ref) {
+    return { relation: DEPENDENCY_RELATION.DERIVATION, reason: 'same_representation_ref' };
+  }
   if (left.representation_ref && right.parent_refs.includes(left.representation_ref)) return { relation: DEPENDENCY_RELATION.DERIVATION, reason: 'right_derived_from_left_representation' };
   if (right.representation_ref && left.parent_refs.includes(right.representation_ref)) return { relation: DEPENDENCY_RELATION.DERIVATION, reason: 'left_derived_from_right_representation' };
+  // Same subject/query input is useful provenance but is NOT enough to prove dependence: the same
+  // name or number can be queried against genuinely independent sources/engines. Keep it explicit
+  // without collapsing evidence units.
+  if (left.root_input_ref && left.root_input_ref === right.root_input_ref) return { relation: DEPENDENCY_RELATION.SHARED_INPUT, reason: 'same_root_input' };
   return { relation: DEPENDENCY_RELATION.UNKNOWN, reason: 'no_proven_shared_lineage' };
 }
 
-const DEPENDENT_RELATIONS = new Set(Object.values(DEPENDENCY_RELATION).filter(x => x !== DEPENDENCY_RELATION.UNKNOWN));
+const DEPENDENT_RELATIONS = new Set([
+  DEPENDENCY_RELATION.SAME_ARTIFACT,
+  DEPENDENCY_RELATION.SAME_OCCURRENCE,
+  DEPENDENCY_RELATION.SAME_WINDOW,
+  DEPENDENCY_RELATION.OVERLAPS,
+  DEPENDENCY_RELATION.CONTAINS,
+  DEPENDENCY_RELATION.CONTAINED_BY,
+  DEPENDENCY_RELATION.ADJACENT,
+  DEPENDENCY_RELATION.SHARED_SOURCE,
+  DEPENDENCY_RELATION.DERIVATION,
+]);
 
 /**
  * Build dependency groups for every surfaced Finding, including Findings with no findingOutcome.
@@ -123,13 +142,17 @@ export function composeDependencyGroups(outcomes = [], allFindingIds = []) {
   };
 
   const edges = [];
+  const contextualRelations = [];
   for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
     const aId = clean(list[i].finding_id ?? list[i].findingId);
     const bId = clean(list[j].finding_id ?? list[j].findingId);
     const classified = classifyEvidenceDependency(list[i], list[j]);
-    if (DEPENDENT_RELATIONS.has(classified.relation)) {
+    const explicitDependency = classified.explicit_dependency === true;
+    if (DEPENDENT_RELATIONS.has(classified.relation) || explicitDependency) {
       union(aId, bId);
       edges.push({ a: aId, b: bId, ...classified });
+    } else if (classified.relation !== DEPENDENCY_RELATION.UNKNOWN) {
+      contextualRelations.push({ a: aId, b: bId, ...classified });
     }
   }
 
@@ -147,7 +170,7 @@ export function composeDependencyGroups(outcomes = [], allFindingIds = []) {
     const dependent = members.length > 1;
     const unknownLineage = members.some(id => {
       const lineage = normalizeEvidenceLineage(outcomeByFinding.get(id)?.evidence_lineage ?? outcomeByFinding.get(id)?.evidenceLineage);
-      return !lineage || lineage.relation === DEPENDENCY_RELATION.UNKNOWN;
+      return !lineage;
     });
     const state = dependent ? DEPENDENCY_STATE.DEPENDENT : DEPENDENCY_STATE.UNKNOWN;
     members.forEach(id => {
@@ -166,6 +189,7 @@ export function composeDependencyGroups(outcomes = [], allFindingIds = []) {
   return {
     groups: normalizedGroups,
     edges,
+    contextual_relations: contextualRelations,
     finding_to_group: findingToGroup,
     finding_to_state: findingToState,
   };
