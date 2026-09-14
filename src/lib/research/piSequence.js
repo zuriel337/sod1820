@@ -1,4 +1,4 @@
-import { SEQUENCE_OPERATION, SEQUENCE_REPRESENTATION } from './sequenceLens.js';
+import { OPERATOR_EXECUTION_KIND, SEQUENCE_OPERATION, SEQUENCE_REPRESENTATION } from './sequenceLens.js';
 
 const SOURCE = Object.freeze({
   id: 'pi',
@@ -63,6 +63,12 @@ function windowAround(digits, zeroIndex, queryLength, radius) {
 export const piSequenceAdapter = Object.freeze({
   sequenceId: SOURCE.id,
   sequenceVersion: SOURCE.version,
+  owner: 'research_strategy_layer_law',
+  operatorId: 'pi.exact_digit_sequence_search',
+  operatorFamily: 'mathematical_constant_sequence',
+  executionKind: OPERATOR_EXECUTION_KIND.DETERMINISTIC,
+  outputType: 'sequence_occurrence',
+  applicabilityBoundary: 'digits-only query against Pi fractional digit stream under the declared position convention',
   representationKind: SOURCE.representation,
   positionConvention: SOURCE.positionConvention,
   maxSearchDepth: SOURCE.maxSearchDepth,
