@@ -114,9 +114,6 @@ test('UNKNOWN dependency never turns an engine independent-evidence label into d
   assert.equal(bundle.dependency_groups[0].dependency_state, 'unknown');
 });
 
-// These two tests lock the desired status semantics. They remain part of Step-5 acceptance: a
-// non-executed capability may not smuggle positive evidence, and a NEGATIVE_RESULT must attest the
-// bounded search it actually completed rather than obtaining searched=true from the status label.
 test('non-executed capability status cannot carry positive Finding', () => {
   const f = finding('uf:fitness:missing-smuggle');
   assert.throws(() => composeResearchResultBundle({
@@ -158,4 +155,43 @@ test('bounded NEGATIVE_RESULT remains first-class when the searched scope is att
   assert.equal(bundle.coverage.negative_result, 1);
   assert.equal(bundle.capability_trace[0].negative_result.searched, true);
   assert.equal(bundle.capability_trace[0].negative_result.scope.max_depth, 500);
+});
+
+test('access refusal is not negative evidence and does not pretend a search ran', () => {
+  const bundle = composeResearchResultBundle({
+    query: { subject: 'private-fixture' },
+    capabilities: [capabilityResult({
+      key: 'private:future',
+      owner: 'future_owner_law',
+      status: CAPABILITY_STATUS.CONTEXT_REQUIRED,
+      reason: 'authorization context required before source access',
+      findings: [],
+    })],
+  });
+  assert.equal(bundle.coverage.context_required, 1);
+  assert.equal(bundle.coverage.negative_result, 0);
+  assert.equal(bundle.capability_trace[0].negative_result, null);
+  assert.equal(bundle.invariants.access_filtered_is_not_negative_evidence, true);
+});
+
+test('execution coverage complete is not source-exhaustive when bounded output is truncated', () => {
+  const f = finding('uf:fitness:truncated');
+  const bundle = composeResearchResultBundle({
+    query: { subject: 'bounded-fixture' },
+    capabilities: [capabilityResult({
+      key: 'future:bounded',
+      owner: 'future_owner_law',
+      status: CAPABILITY_STATUS.EXECUTED,
+      findings: [f],
+      bounded: {
+        total_count: 100,
+        returned_count: 10,
+        truncated: true,
+        continuation: { cursor: 'next-10' },
+      },
+    })],
+  });
+  assert.equal(bundle.coverage.complete, true, 'all requested capabilities executed');
+  assert.equal(bundle.output_bounds.truncated, true, 'source population is not exhausted');
+  assert.equal(bundle.invariants.bounded_window_is_not_source_exhaustive, true);
 });
