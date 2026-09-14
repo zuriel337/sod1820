@@ -306,10 +306,20 @@ function normalizeRankingEntry(entry = {}, findingIds = new Set(), dependencyMap
     dependency_group: dependencyMap.get(findingId) || null,
     dependency_state: dependencyStateMap.get(findingId) || 'unknown',
     independence_conflict: independenceConflicts.has(findingId),
+    // The incoming rank/score was necessarily computed before THIS Bundle composed dependency
+    // groups. Preserve it for contextual ordering, but never allow it to masquerade as a
+    // dependency-aware Research Strength score. A future post-group ranker gets a separate owner-
+    // qualified contract; the Bundle does not self-certify arbitrary caller ranking.
+    dependency_safe: false,
+    research_strength_eligible: false,
+    ranking_semantic: 'precomputed_context_only',
     rank: Number.isFinite(Number(entry.rank)) ? Number(entry.rank) : null,
     score: Number.isFinite(Number(entry.score)) ? Number(entry.score) : null,
     axes: entry.axes && typeof entry.axes === "object" ? entry.axes : {},
-    reasons: Array.isArray(entry.reasons) ? entry.reasons.map(String) : [],
+    reasons: [
+      ...(Array.isArray(entry.reasons) ? entry.reasons.map(String) : []),
+      'precomputed ranking retained as context only; dependency-aware strength requires recomputation after dependency composition',
+    ],
   };
 }
 
@@ -332,7 +342,8 @@ export function composeResearchResultBundle({
   const findings = dedupeUniversalFindings(normalizedCapabilities.flatMap(x => x.findings));
   const findingIds = new Set(findings.map(x => x.id));
 
-  // Dependency classification is deliberately composed BEFORE ranking. UNKNOWN is not independence.
+  // Dependency composition happens before ranking is ANNOTATED, but the incoming rank/score values
+  // are precomputed caller input and are not recomputed here. They therefore stay context-only.
   const rawFindingOutcomes = normalizedCapabilities.flatMap(cap => cap.finding_outcomes.map(outcome => ({ ...outcome, capability: cap.key })));
   const dependency = composeDependencyGroups(rawFindingOutcomes, [...findingIds]);
   const independenceConflicts = new Set();
@@ -382,6 +393,13 @@ export function composeResearchResultBundle({
       independence_conflicts: independenceConflicts.size,
     },
     ranking: normalizedRanking,
+    ranking_semantics: {
+      input_kind: 'precomputed_contextual_ranking',
+      dependency_safe: false,
+      research_strength_eligible: false,
+      entries: normalizedRanking.length,
+      reason: 'ranking values arrived before Result Bundle dependency composition; use them for contextual ordering only until a governed post-group ranker recomputes strength',
+    },
     capability_trace: normalizedCapabilities.map(({ findings: _findings, ...cap }) => cap),
     coverage: summarizeCoverage(normalizedCapabilities),
     output_bounds: {
@@ -396,7 +414,8 @@ export function composeResearchResultBundle({
       source_native_truth_preserved: true,
       derivation_is_not_independent_evidence: true,
       convergence_is_not_automatically_independent: true,
-      dependency_grouping_precedes_ranking: true,
+      dependency_grouping_precedes_ranking_annotation: true,
+      precomputed_ranking_is_context_only: true,
       unknown_dependency_is_not_independence: true,
       shared_input_is_context_not_dependency: true,
       independent_evidence_conflict_is_explicit: true,
