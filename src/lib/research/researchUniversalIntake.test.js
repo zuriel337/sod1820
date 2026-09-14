@@ -112,7 +112,7 @@ test("D — the same exact PDF uploaded twice shares strong artifact identity wi
   const one = buildResearchIntakeTransport({ accessTier: "personal", sourceArtifact: { ...common, ref: "upload:1" } });
   const two = buildResearchIntakeTransport({ accessTier: "personal", sourceArtifact: { ...common, ref: "upload:2" } });
 
-  assert.equal(one.source_artifact.artifact_identity_ref, two.source_artifact.artifact_identity_ref);
+  assert.equal(one.source_artifact.artifact_dedupe_ref, two.source_artifact.artifact_dedupe_ref);
   assert.notEqual(one.source_artifact.occurrence_ref, two.source_artifact.occurrence_ref);
 });
 
@@ -428,6 +428,7 @@ test("output lineage carries refs/status/dedup but never extraction or interpret
   assert.equal(serialized.includes("very private extracted text"), false);
   assert.equal(serialized.includes("very private interpretation"), false);
   assert.equal(serialized.includes("secret-hash"), false);
+  assert.equal(publicLineage.source_artifact.artifact_dedupe_ref, null);
   assert.equal(publicLineage.source_artifact.dedupe_strength, "strong");
   assert.equal(publicLineage.extractions[0].status, "partial");
 });
