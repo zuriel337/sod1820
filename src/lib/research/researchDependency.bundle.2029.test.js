@@ -24,7 +24,7 @@ function outcome(f, lineage, span = null) {
   };
 }
 
-test('Result Bundle groups same artifact across capabilities before ranking and exposes independence conflict', () => {
+test('Result Bundle groups same artifact before ranking annotation and keeps precomputed ranking context-only', () => {
   const media = finding('uf:media:42');
   const graph = finding('uf:graph:42');
   const source = finding('uf:source:independent');
@@ -61,8 +61,14 @@ test('Result Bundle groups same artifact across capabilities before ranking and 
   assert.equal(bundle.finding_outcomes.find(x => x.finding_id === media.id).independence_conflict, true);
   assert.equal(bundle.ranking.find(x => x.finding_id === media.id).dependency_state, 'dependent');
   assert.equal(bundle.ranking.find(x => x.finding_id === media.id).independence_conflict, true);
+  assert.equal(bundle.ranking.find(x => x.finding_id === media.id).dependency_safe, false);
+  assert.equal(bundle.ranking.find(x => x.finding_id === media.id).research_strength_eligible, false);
+  assert.equal(bundle.ranking.find(x => x.finding_id === media.id).ranking_semantic, 'precomputed_context_only');
+  assert.equal(bundle.ranking_semantics.dependency_safe, false);
+  assert.equal(bundle.ranking_semantics.research_strength_eligible, false);
   assert.equal(bundle.dependency_summary.independence_conflicts, 2);
-  assert.equal(bundle.invariants.dependency_grouping_precedes_ranking, true);
+  assert.equal(bundle.invariants.dependency_grouping_precedes_ranking_annotation, true);
+  assert.equal(bundle.invariants.precomputed_ranking_is_context_only, true);
   assert.equal(bundle.invariants.independent_evidence_conflict_is_explicit, true);
 });
 
@@ -103,7 +109,7 @@ test('unknown lineage never upgrades to independent dependency status', () => {
   assert.equal(bundle.invariants.unknown_dependency_is_not_independence, true);
 });
 
-test('finding without findingOutcome still receives an explicit UNKNOWN dependency group before ranking', () => {
+test('finding without findingOutcome still receives explicit UNKNOWN group and unsafe contextual ranking', () => {
   const noOutcome = finding('uf:no-outcome');
   const bundle = composeResearchResultBundle({
     query: { subject: 'missing-outcome-lineage' },
@@ -118,5 +124,7 @@ test('finding without findingOutcome still receives an explicit UNKNOWN dependen
   assert.equal(bundle.dependency_groups[0].dependency_state, 'unknown');
   assert.equal(bundle.ranking[0].dependency_state, 'unknown');
   assert.ok(bundle.ranking[0].dependency_group);
+  assert.equal(bundle.ranking[0].dependency_safe, false);
+  assert.equal(bundle.ranking[0].research_strength_eligible, false);
   assert.equal(bundle.dependency_summary.unknown_singletons, 1);
 });
