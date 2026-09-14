@@ -31,6 +31,7 @@ test('registered operators expose a stable owner-qualified reference and every e
   });
   const finding = await runSequenceLens(registry, { sequenceId: 'pi', query: '337', budget: sequenceBudget });
   assert.deepEqual(finding.operator_ref, listed.operatorSpec.operator_ref);
+  assert.deepEqual(finding.result.operator_ref, listed.operatorSpec.operator_ref);
   assert.equal(finding.operator_contract_version, 1);
 });
 
@@ -52,6 +53,13 @@ test('golden 337 occurs first at pi position 230 and remains a traversable nonca
   assert.equal(routed.universal_findings[0].verification.verification_state, 'not_tested');
   assert.equal(routed.universal_findings[0].verification.engine_method_tested, 'pi');
   assert.equal(routed.universal_findings[0].verification.engine_result.first_position, 230);
+  assert.deepEqual(routed.universal_findings[0].verification.engine_result.operator_ref, {
+    type: 'research_operator',
+    owner: 'research_strategy_layer_law',
+    capability_key: 'sequence:pi',
+    operator_id: 'pi.exact_digit_sequence_search',
+    version: 'chudnovsky-bigint-v1',
+  });
   assert.equal(routed.derived_numeric_roots[0].root.value, 230);
   assert.equal(routed.derived_numeric_roots[0].traversable, true);
   assert.equal(routed.derived_numeric_roots[0].context.data.value, 230);
