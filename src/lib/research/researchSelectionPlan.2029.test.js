@@ -7,6 +7,10 @@ import { SELECTION_PROTOCOL } from './researchEvaluation.js';
 
 const emptyResolution = { identities: [], text_calculation_allowed: true };
 
+function futureRef(key = 'future:selection') {
+  return { type: 'research_operator', owner: 'future_owner', capability_key: key, operator_id: 'fixture-op', version: 'v1' };
+}
+
 test('Research Plan always exposes an honest selection protocol class', () => {
   const unknown = buildResearchPlanV2({ identityResolution: emptyResolution });
   assert.equal(unknown.selection_protocol, SELECTION_PROTOCOL.UNKNOWN);
@@ -46,6 +50,51 @@ test('Composer passes the safe selection protocol to capability executors withou
   });
   assert.equal(bundle.plan.selection_protocol, SELECTION_PROTOCOL.SOURCE_CLAIM_REPLAY);
   assert.equal(bundle.resolved_run_snapshot.selection_protocol, SELECTION_PROTOCOL.SOURCE_CLAIM_REPLAY);
+});
+
+test('Composer upgrades adapter UNKNOWN selection only from the canonical Research Plan', async () => {
+  const ref = futureRef();
+  const bundle = await composeResearchW2({
+    question: 'fixture',
+    requestedCapabilities: ['future:selection'],
+    selectionProtocol: SELECTION_PROTOCOL.PRE_REGISTERED_TARGET,
+    executors: {
+      'future:selection': async () => ({
+        owner: 'future_owner', status: 'executed', findings: [], operatorRef: ref,
+        researchEvaluation: {
+          operator_ref: ref,
+          selection: { protocol: SELECTION_PROTOCOL.UNKNOWN, target_ref: 'safe:target' },
+        },
+      }),
+    },
+  });
+
+  const cap = bundle.capability_trace.find(x => x.key === 'future:selection');
+  assert.equal(cap.status, 'executed');
+  assert.equal(cap.research_evaluation.selection.protocol, SELECTION_PROTOCOL.PRE_REGISTERED_TARGET);
+  assert.equal(cap.research_evaluation.selection.fixed_before_inspection, true);
+});
+
+test('Composer fails capability when adapter selection contradicts canonical Research Plan', async () => {
+  const ref = futureRef();
+  const bundle = await composeResearchW2({
+    question: 'fixture',
+    requestedCapabilities: ['future:selection'],
+    selectionProtocol: SELECTION_PROTOCOL.PRE_REGISTERED_TARGET,
+    executors: {
+      'future:selection': async () => ({
+        owner: 'future_owner', status: 'executed', findings: [], operatorRef: ref,
+        researchEvaluation: {
+          operator_ref: ref,
+          selection: { protocol: SELECTION_PROTOCOL.POST_HOC_EXPLORATORY },
+        },
+      }),
+    },
+  });
+
+  const cap = bundle.capability_trace.find(x => x.key === 'future:selection');
+  assert.equal(cap.status, 'failed');
+  assert.match(cap.reason, /conflicts with Research Plan/);
 });
 
 test('Gematria evaluation consumes Research Plan selection protocol instead of defaulting to unknown', async () => {
