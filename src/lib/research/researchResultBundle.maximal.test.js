@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { composeResearchW2 } from './researchComposerW2.js';
 import { ACCESS_CLASS, capabilityResult, CAPABILITY_STATUS, composeResearchResultBundle } from './researchResultBundle.js';
-import { SELECTION_PROTOCOL } from './researchEvaluation.js';
+import { CONTROL_STATE, SELECTION_PROTOCOL } from './researchEvaluation.js';
 
 function operatorRef(owner, capabilityKey, operatorId, version) {
   return {
@@ -38,6 +38,7 @@ function evaluation(ref, overrides = {}) {
       assumptions: ['fixture only'],
     },
     controls: [{ control_id: 'random-1', type: 'randomized', model: 'fixture-rng', result: { hits: 2 }, seed: '42', version: 'v1' }],
+    controls_state: { status: CONTROL_STATE.EXECUTED, reason: 'fixture controls executed', model: 'fixture-rng' },
     location: {
       native: { convention: 'native-v1', start: 10, end: 12, locator: 'fixture:10-12' },
       canonical: { convention: 'canonical-v1', start: 11, end: 13, locator: 'canonical:11-13' },
@@ -92,6 +93,7 @@ test('one maximal Result Bundle evaluation contract transports Pattern, ELS, Met
     assert.equal(cap.research_evaluation.search_space.multiplicity.total_tests, 1);
     assert.equal(cap.research_evaluation.expectedness.model, 'fixture-model-v1');
     assert.equal(cap.research_evaluation.controls[0].seed, '42');
+    assert.equal(cap.research_evaluation.controls_state.status, CONTROL_STATE.EXECUTED);
     assert.equal(cap.research_evaluation.location.reconciliation_state, 'converted');
     assert.equal(cap.research_evaluation.dependency.relation, 'same_window');
     assert.equal(cap.research_evaluation.robustness.state, 'stable');
@@ -143,6 +145,7 @@ test('missing evaluation data stays unknown/null instead of being fabricated', (
   assert.equal(evaluationOut.search_space, null);
   assert.equal(evaluationOut.expectedness, null);
   assert.deepEqual(evaluationOut.controls, []);
+  assert.equal(evaluationOut.controls_state, null);
   assert.equal(evaluationOut.replay, null);
 });
 
@@ -187,7 +190,10 @@ test('access-controlled evaluation provenance is filtered unless its tier is exp
         access: { tier: 'private', reason: 'private person research' },
         replay: {
           replayable: true,
+          input_ref: 'anon:private-person-input',
           source_ref: 'private:person:secret-source',
+          engine_ref: 'private-pattern-scan',
+          version_refs: ['v1'],
           parameters: { secret: true },
         },
       }),
@@ -200,6 +206,51 @@ test('access-controlled evaluation provenance is filtered unless its tier is exp
   assert.match(cap.research_evaluation_access.reason, /private/);
   assert.equal(JSON.stringify(cap).includes('secret-source'), false);
   assert.equal(bundle.invariants.evaluation_access_is_filtered_at_composition_boundary, true);
+});
+
+test('base rate outside probability range fails closed', () => {
+  const ref = operatorRef('future_owner_law', 'future:probability', 'probability-op', 'v1');
+  assert.throws(() => composeResearchResultBundle({
+    query: { subject: 'fixture' },
+    capabilities: [capabilityResult({
+      key: 'future:probability', owner: ref.owner, operatorRef: ref,
+      researchEvaluation: evaluation(ref, { expectedness: { model: 'bad-model', base_rate: 7 } }),
+    })],
+  }), /base_rate.*between 0 and 1/);
+});
+
+test('control without provenance identity remains null rather than receiving a fabricated ordinal id', () => {
+  const ref = operatorRef('future_owner_law', 'future:control', 'control-op', 'v1');
+  const bundle = composeResearchResultBundle({
+    query: { subject: 'fixture' },
+    capabilities: [capabilityResult({
+      key: 'future:control', owner: ref.owner, operatorRef: ref,
+      researchEvaluation: evaluation(ref, { controls: [{ type: 'randomized', model: 'rng-v1', result: { hits: 0 } }] }),
+    })],
+  });
+  assert.equal(bundle.capability_trace[0].research_evaluation.controls[0].control_id, null);
+});
+
+test('replayable=true fails closed when replay identity/version/parameters are incomplete', () => {
+  const ref = operatorRef('future_owner_law', 'future:replay', 'replay-op', 'v1');
+  assert.throws(() => composeResearchResultBundle({
+    query: { subject: 'fixture' },
+    capabilities: [capabilityResult({
+      key: 'future:replay', owner: ref.owner, operatorRef: ref,
+      researchEvaluation: evaluation(ref, { replay: { replayable: true, source_ref: 'source:1' } }),
+    })],
+  }), /replayable=true requires/);
+});
+
+test('completion cannot claim complete and truncated simultaneously', () => {
+  const ref = operatorRef('future_owner_law', 'future:completion', 'completion-op', 'v1');
+  assert.throws(() => composeResearchResultBundle({
+    query: { subject: 'fixture' },
+    capabilities: [capabilityResult({
+      key: 'future:completion', owner: ref.owner, operatorRef: ref,
+      researchEvaluation: evaluation(ref, { completion: { state: 'impossible', complete: true, truncated: true } }),
+    })],
+  }), /completion cannot be both complete=true and truncated=true/);
 });
 
 test('W2 Composer preserves the same maximal envelope from an unknown future executor to the final Bundle', async () => {
