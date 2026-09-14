@@ -200,6 +200,20 @@ export function findingAccessDecision(finding, accessDescriptor, accessClass = A
   return { allowed: true, reason: null };
 }
 
+function researchEvaluationAccessDecision(evaluation, accessDescriptor, accessClass = ACCESS_CLASS.UNCLASSIFIED) {
+  if (!evaluation) return { allowed: true, reason: null };
+  const tier = clean(evaluation?.access?.tier);
+  const allowed = allowedTiers(accessDescriptor);
+  const controlled = accessClass === ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED || accessClass === ACCESS_CLASS.PERSONAL;
+  if (controlled && !tier) {
+    return { allowed: false, reason: "access_controlled_evaluation_without_explicit_access_tier" };
+  }
+  if (tier && !allowed.has(tier) && (controlled || RESTRICTED_ACCESS_TIERS.has(tier))) {
+    return { allowed: false, reason: `evaluation_access_tier_not_permitted:${tier}` };
+  }
+  return { allowed: true, reason: null };
+}
+
 function normalizeBounded(bounded) {
   if (!bounded || typeof bounded !== "object") return null;
   const total = Number(bounded.total_count ?? bounded.total);
@@ -263,10 +277,12 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
   }
 
   const operatorRef = normalizeOperatorRef(record.operator_ref || record.operatorRef);
-  const researchEvaluation = normalizeResearchEvaluation(
+  const rawResearchEvaluation = normalizeResearchEvaluation(
     record.research_evaluation || record.researchEvaluation,
     { operatorRef },
   );
+  const evaluationDecision = researchEvaluationAccessDecision(rawResearchEvaluation, accessDescriptor, accessClass);
+  const researchEvaluation = evaluationDecision.allowed ? rawResearchEvaluation : null;
 
   const rawFindings = (Array.isArray(record.findings) ? record.findings : []).filter(isUniversalFinding);
   if (status === CAPABILITY_STATUS.NEGATIVE_RESULT && rawFindings.length) {
@@ -304,6 +320,10 @@ function normalizeCapabilityRecord(record = {}, accessDescriptor = null) {
     version_refs: Array.isArray(record.version_refs) ? record.version_refs.filter(Boolean) : [],
     operator_ref: operatorRef,
     research_evaluation: researchEvaluation,
+    research_evaluation_access: {
+      filtered: Boolean(rawResearchEvaluation && !evaluationDecision.allowed),
+      reason: evaluationDecision.reason,
+    },
     finding_ids: findings.map(x => x.id),
     finding_outcomes: findingOutcomes,
     findings,
@@ -473,6 +493,7 @@ export function composeResearchResultBundle({
       bounded_window_is_not_source_exhaustive: true,
       research_evaluation_is_transport_not_truth: true,
       unknown_evaluation_fields_remain_unknown: true,
+      evaluation_access_is_filtered_at_composition_boundary: true,
     },
   };
 }
