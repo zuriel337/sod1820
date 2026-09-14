@@ -82,6 +82,10 @@ These tiers describe **rendering cost and visual depth**, not product truth, acc
 
 ## Naming / product language law
 - Public name: `היכל`, not `היכל הגילוי`.
+- `דף המספר` remains the public Number/Phrase product name and `/number` remains its entry family.
+- `עולם המספרים` and `עולם המספרים והגימטריה` are **not** formal future product/navigation names. They may appear only as ordinary descriptive prose when they are clearly not styled or routed as a named product/surface.
+- Active navigation/build-map labels for the numeric family should use neutral descriptive wording such as `מספרים` / `מספרים וגימטריה` unless Human Gate explicitly renames the product later.
+- Historical/archived references are preserved as provenance; they never override the current public product vocabulary. Before adding or restoring a public label, search the current Roadmap + this section for superseded names instead of copying text from older maps/contracts.
 - The site-wide construction message describes the whole site, not only the Heichal.
 - Never hard-code a lens label. Read it from `STREAMS`: `kingdom = כי לה׳ המלוכה`, `reality = קוד המציאות`.
 - Before broad UI/copy changes, read `SOD1820_MASTER_ROADMAP.md` and current canonical sources.
