@@ -151,7 +151,24 @@ This adapter is G1-compliant only if a fresh Claude session, without relying on 
 
 A prompt containing the right words is not proof; G1 closure requires an actual fresh-agent replay recorded in `work_log`/audit evidence.
 
-## 14. Closing rule
+## 14. Active-tree documentation discipline
+
+The repository may contain extensive history, audits, research notes, drafts and superseded planning. Their existence does **not** make them startup context or authority.
+
+Default classification unless an active pointer says otherwise:
+
+- `docs/` → mixed current/history; read only the exact owner/addendum routed by Owner Index.
+- `audits/` → evidence/provenance; never startup authority.
+- `planning/` → planning evidence; not current semantics unless explicitly promoted/reconciled.
+- `research-notes/` and `research-library/` → source/research provenance; load only for the source/research task that needs them.
+- `drafts/` → non-authoritative experiments.
+- `docs/archive/`, backups and superseded branches → historical only.
+
+Do not recursively scan these directories to “understand the project.” Resolve the owner first, then open only the specifically required artifact.
+
+Long-term target: the **active documentation tree is minimal and clean** — active spine + current owners/addenda + live operational pointers only. Historical/audit/draft/research provenance remains preserved but is moved out of active routing in bounded cleanup passes after semantic gates stabilize. Never create a new `MASTER`, `FINAL`, system map, owner map or parallel contract merely to summarize old documents.
+
+## 15. Closing rule
 
 Reconciliation before construction · Provenance before recovery · Evidence before interpretation.
 
