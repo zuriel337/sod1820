@@ -17,6 +17,11 @@ export const DEPENDENCY_RELATION = Object.freeze({
   UNKNOWN: 'unknown',
 });
 
+export const DEPENDENCY_STATE = Object.freeze({
+  DEPENDENT: 'dependent',
+  UNKNOWN: 'unknown',
+});
+
 const VALID_RELATIONS = new Set(Object.values(DEPENDENCY_RELATION));
 
 function clean(value) {
@@ -92,9 +97,20 @@ export function classifyEvidenceDependency(a, b) {
 
 const DEPENDENT_RELATIONS = new Set(Object.values(DEPENDENCY_RELATION).filter(x => x !== DEPENDENCY_RELATION.UNKNOWN));
 
-export function composeDependencyGroups(outcomes = []) {
+/**
+ * Build dependency groups for every surfaced Finding, including Findings with no findingOutcome.
+ * A singleton is UNKNOWN, never implicitly independent. Independence remains a separate evidence
+ * assertion and can only be consumed safely after this grouping step.
+ */
+export function composeDependencyGroups(outcomes = [], allFindingIds = []) {
   const list = array(outcomes).filter(x => clean(x?.finding_id ?? x?.findingId));
-  const parent = new Map(list.map(x => [clean(x.finding_id ?? x.findingId), clean(x.finding_id ?? x.findingId)]));
+  const outcomeByFinding = new Map(list.map(x => [clean(x.finding_id ?? x.findingId), x]));
+  const ids = uniq([
+    ...array(allFindingIds),
+    ...list.map(x => clean(x.finding_id ?? x.findingId)),
+  ]);
+
+  const parent = new Map(ids.map(id => [id, id]));
   const find = x => {
     let p = parent.get(x);
     while (p && p !== parent.get(p)) p = parent.get(p);
@@ -105,6 +121,7 @@ export function composeDependencyGroups(outcomes = []) {
     const ra = find(a), rb = find(b);
     if (ra !== rb) parent.set(rb, ra);
   };
+
   const edges = [];
   for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
     const aId = clean(list[i].finding_id ?? list[i].findingId);
@@ -115,20 +132,43 @@ export function composeDependencyGroups(outcomes = []) {
       edges.push({ a: aId, b: bId, ...classified });
     }
   }
+
   const groups = new Map();
-  for (const item of list) {
-    const id = clean(item.finding_id ?? item.findingId);
+  for (const id of ids) {
     const root = find(id);
     if (!groups.has(root)) groups.set(root, []);
     groups.get(root).push(id);
   }
+
   const findingToGroup = new Map();
+  const findingToState = new Map();
   const normalizedGroups = [...groups.values()].map((members, index) => {
     const groupId = `dep:${index + 1}`;
-    members.forEach(id => findingToGroup.set(id, groupId));
-    return { group_id: groupId, finding_ids: members, dependent: members.length > 1 };
+    const dependent = members.length > 1;
+    const unknownLineage = members.some(id => {
+      const lineage = normalizeEvidenceLineage(outcomeByFinding.get(id)?.evidence_lineage ?? outcomeByFinding.get(id)?.evidenceLineage);
+      return !lineage || lineage.relation === DEPENDENCY_RELATION.UNKNOWN;
+    });
+    const state = dependent ? DEPENDENCY_STATE.DEPENDENT : DEPENDENCY_STATE.UNKNOWN;
+    members.forEach(id => {
+      findingToGroup.set(id, groupId);
+      findingToState.set(id, state);
+    });
+    return {
+      group_id: groupId,
+      finding_ids: members,
+      dependent,
+      dependency_state: state,
+      lineage_complete: !unknownLineage,
+    };
   });
-  return { groups: normalizedGroups, edges, finding_to_group: findingToGroup };
+
+  return {
+    groups: normalizedGroups,
+    edges,
+    finding_to_group: findingToGroup,
+    finding_to_state: findingToState,
+  };
 }
 
 export default composeDependencyGroups;
