@@ -1,3 +1,5 @@
+import { normalizeEvidenceLineage } from './researchDependency.js';
+
 // G2 2029 — maximal research-evaluation transport for the existing Result Bundle.
 // Semantics are owned by research_strategy_layer_law v13. No truth/statistics/dependency/replay engine here.
 
@@ -125,18 +127,19 @@ function normalizeLocation(value) {
 }
 function normalizeDependency(value) {
   const input = obj(value); if (!input) return null;
+  const lineage = normalizeEvidenceLineage(input);
   return {
-    group: clean(input.group ?? input.dependency_group ?? input.dependencyGroup),
-    relation: clean(input.relation ?? input.dependency_relation ?? input.dependencyRelation),
-    root_input_ref: clean(input.root_input_ref ?? input.rootInputRef),
-    representation_ref: clean(input.representation_ref ?? input.representationRef),
-    occurrence_ref: clean(input.occurrence_ref ?? input.occurrenceRef),
-    window_ref: clean(input.window_ref ?? input.windowRef),
-    artifact_refs: uniq(input.artifact_refs ?? input.artifactRefs),
-    source_lineage_refs: uniq(input.source_lineage_refs ?? input.sourceLineageRefs),
-    parent_refs: uniq(input.parent_refs ?? input.parentRefs),
+    group: lineage?.explicit_group || null,
+    relation: lineage?.relation || 'unknown',
+    root_input_ref: lineage?.root_input_ref || null,
+    representation_ref: lineage?.representation_ref || null,
+    occurrence_ref: lineage?.occurrence_ref || null,
+    window_ref: lineage?.window_ref || null,
+    artifact_refs: lineage?.artifact_refs || [],
+    source_lineage_refs: lineage?.source_lineage_refs || [],
+    parent_refs: lineage?.parent_refs || [],
     depends_on: uniq(input.depends_on ?? input.dependsOn),
-    notes: clean(input.notes),
+    notes: lineage?.notes || clean(input.notes),
   };
 }
 function normalizeRobustness(value) {
