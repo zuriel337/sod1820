@@ -22,9 +22,9 @@ export const BUILD_TRACKS = [
   {
     id:"numbers", icon:"🔢", label:"מספרים וגימטריה", stage:3, status:"בבנייה",
     summary:"כל מספר הופך מציון חישוב לצומת ידע שמחבר ביטויים, פסוקים, אנשים, אירועים, צפנים וקשרים.",
-    metrics:["36 שיטות רשומות","32 פעילות","33 מחוברות למנוע","28 ניתנות לסריקה"],
+    metrics:["41 שיטות רשומות","32 פעילות","37 ממופות למנוע","28 ניתנות לסריקה"],
     details:[
-      "36 שיטות רשומות, 32 פעילות, 33 מחוברות למנוע ו-28 ניתנות לסריקה.",
+      "במאגר החי: 41 שיטות רשומות, 32 פעילות, 37 ממופות למנוע ו-28 ניתנות לסריקה.",
       "דף המספר יהפוך למרכז חי של ביטויים, פסוקים, אנשים, אירועים, צפנים וקשרים.",
       "בהמשך: השוואה רב־ממדית, שכבות חישוב ו-Gematria 3D."
     ]
@@ -32,9 +32,9 @@ export const BUILD_TRACKS = [
   {
     id:"els", icon:"🔠", label:"צפנים בתורה · ELS", stage:3, status:"בבנייה",
     summary:"כלי הדילוגים וספריית הצפנים כבר חיים; השלב הבא הוא להפוך מטריצה למחקר רב־שכבתי שמתחבר לשאר גוף הידע.",
-    metrics:["129 רשומות ELS","כלי דילוגים חי","ספריית צפנים חיה","עמוד קנוני לכל צופן שפורסם"],
+    metrics:["135 רשומות ELS","כלי דילוגים חי","ספריית צפנים חיה","עמוד קנוני לכל צופן שפורסם"],
     details:[
-      "129 רשומות ELS קיימות כבר היום במערכת.",
+      "135 רשומות ELS קיימות כרגע במערכת החיה.",
       "כבר היום אפשר להיכנס לכלי הדילוגים ולספריית הצפנים; החיפוש המורחב יחבר מילים, שמות, אנשים, מספרים, ספרים ושילובים.",
       "בהמשך: מטריצות רב־שכבתיות, ELS 3D ומסעות בתוך הצופן."
     ]
@@ -42,19 +42,19 @@ export const BUILD_TRACKS = [
   {
     id:"books", icon:"📚", label:"ספרים, כתבי־יד ומקורות", stage:2, status:"מתחבר למערכת",
     summary:"לא רק לקרוא מקור עתיק — להיכנס לתוכו דרך מילים, שמות, מספרים, פסוקים, צפנים, נושאים וקשרים.",
-    metrics:["24 ספרי התנ״ך","23,204 פסוקים","304,805 אותיות בחמשת חומשי התורה","מחקרי מקור: אהבת תורה · ספר הפליאה"],
+    metrics:["30 זהויות ספר במודל","6 פעילות · 24 ספרי תנ״ך בהכנה","23,204 פסוקים","304,805 אותיות בחמשת חומשי התורה"],
     details:[
-      "24 ספרי התנ״ך ו-23,204 פסוקים כבר זמינים לשכבות החיפוש; 304,805 הוא מספר האותיות בחמשת חומשי התורה — לא מספר רשומות טקסט.",
-      "מחקרי מקור שכבר נכנסו למסלול המחקר כוללים את אהבת תורה ואת ספר הפליאה.",
-      "בהמשך: ניתוח ספר עם רזיאל, השוואה בין מקורות, שכבות עומק וספר בתלת־ממד. מונה ספרים סרוקים יוצג רק כשיהיה לו מקור ספירה קנוני."
+      "בגרף החי קיימות 30 זהויות ספר: 6 פעילות ו-24 ספרי תנ״ך שהוכנסו במצב הכנה; 23,204 פסוקים כבר זמינים בשכבת הטקסט.",
+      "304,805 הוא מספר האותיות בחמשת חומשי התורה — לא מספר רשומות טקסט.",
+      "בהמשך: ניתוח ספר עם רזיאל, השוואה בין מקורות, שכבות עומק וספר בתלת־ממד."
     ]
   },
   {
     id:"tree", icon:"🌳", label:"עץ הידע + AI · רזיאל", stage:2, status:"מתחבר למערכת",
     summary:"שכבת החיבור של האתר: מספר ↔ מילה ↔ פסוק ↔ ספר ↔ צופן ↔ אדם ↔ אירוע. רזיאל יהיה המלווה שמציע את הצעד הבא.",
-    metrics:["5,967 צמתי ידע","5,174 קשרים","עץ אחד לכל המערכת","רזיאל = שכבת AI מלווה"],
+    metrics:["6,382 צמתי ידע פעילים","7,091 קשרים","עץ אחד לכל המערכת","רזיאל = שכבת AI מלווה"],
     details:[
-      "5,967 nodes ו-5,174 edges כבר קיימים בגרף הידע.",
+      "בגרף החי קיימים כרגע 6,382 nodes פעילים ו-7,091 edges.",
       "רזיאל יהיה שכבת ה-AI שמבינה איפה אתם נמצאים ומציעה קשרים והמשך חקירה.",
       "העץ, רזיאל, ההיכל והניווט הם דרכי כניסה שונות לאותו גוף ידע."
     ]
@@ -62,9 +62,9 @@ export const BUILD_TRACKS = [
   {
     id:"languages", icon:"🌍", label:"עברית, אנגלית ושפות נוספות", stage:2, status:"תשתית קיימת",
     summary:"הבסיס המספרי והמחקרי נשאר אחד; מעליו נבנים גשרים בין שפות ושכבת אתר רב־לשונית.",
-    metrics:["עברית = שפת המקור המרכזית","12 גשרי שפה מאומתים","11 אנגלית · 1 רוסית","תרגום אתר מלא עדיין בבנייה"],
+    metrics:["13 גשרי שפה רשומים","12 מאומתים","11 אנגלית · 1 רוסית מאומתים","תרגום אתר מלא עדיין בבנייה"],
     details:[
-      "שכבת המחקר הבין־לשונית כבר קיימת ומבדילה בין תרגום, תעתיק וקשר מחקרי; כרגע יש 12 גשרים מאומתים — 11 באנגלית ואחד ברוסית.",
+      "במאגר החי רשומים 13 גשרי שפה, מהם 12 מאומתים — 11 באנגלית ואחד ברוסית.",
       "האתר עצמו עדיין אינו רב־לשוני מלא: הפוסטים ורוב ישויות הידע הם Hebrew-first, ולכן לא נציג את האנגלית כאילו כבר הושלמה.",
       "שתי העדשות — כי לה׳ המלוכה וקוד המציאות — הן שתי הצגות של אותו בסיס, לא שתי מערכות נפרדות."
     ]
@@ -81,21 +81,40 @@ export const BUILD_TRACKS = [
   }
 ];
 
-// Public progress is deliberately conservative. Stage is a maturity band, not a completion percentage.
-// 100% is reserved for a capability that is actually complete and publicly open.
+// Per-track percentages below remain maturity bands for the detailed map only.
+// The global BUILD_PROGRESS is no longer their average: it is an audited release-readiness measure.
 const STAGE_PROGRESS = { 1:18, 2:36, 3:58, 4:68 };
 export const stagePercent = stage => STAGE_PROGRESS[Number(stage || 0)] || 0;
-export const BUILD_PROGRESS = Math.round(
-  BUILD_TRACKS.reduce((sum, t) => sum + stagePercent(t.stage), 0) / BUILD_TRACKS.length
-);
+
+// FIRST PUBLIC 2029 STAGE = the first bounded Golden Experience, not the full 2029 rollout.
+// Canonical Foundation Closure Protocol binds the path as G0 → G1 → G2 → G3 → G3.5 → G4.
+// Only CLOSED+LIVE+VERIFIED gates count. An active gate contributes 0 until it is formally closed.
+// Snapshot verified 14.9.2026: G0 and G1 closed/live/verified; G2 active/open; G3/G3.5/G4 pending.
+export const FIRST_STAGE_RELEASE_GATES = [
+  { id:"G0", label:"ניקוי ופריטי בסיס", state:"closed", closedAt:"2026-09-12" },
+  { id:"G1", label:"כניסת סוכנים ומקורות אמת", state:"closed", closedAt:"2026-09-12" },
+  { id:"G2", label:"מודל 2029 והמשמעות הסמנטית", state:"active", closedAt:null },
+  { id:"G3", label:"מימוש תשתיות 2029", state:"pending", closedAt:null },
+  { id:"G3.5", label:"מוכנות תרחישי אמת", state:"pending", closedAt:null },
+  { id:"G4", label:"חוויית הזהב הראשונה", state:"pending", closedAt:null },
+];
+const CLOSED_FIRST_STAGE_GATES = FIRST_STAGE_RELEASE_GATES.filter(g => g.state === "closed").length;
+export const BUILD_PROGRESS = Math.round((CLOSED_FIRST_STAGE_GATES / FIRST_STAGE_RELEASE_GATES.length) * 100);
+export const BUILD_REMAINING = 100 - BUILD_PROGRESS;
+
+// Audited weekly comparison: on 7.9.2026 none of these release gates had formally closed;
+// by 14.9.2026 G0+G1 were closed/live/verified. Keep the range explicit so it never masquerades as a rolling metric.
+export const BUILD_WEEKLY_LABEL = "7–14.9";
+export const BUILD_WEEKLY_BASE_PROGRESS = 0;
+export const BUILD_WEEKLY_DELTA = BUILD_PROGRESS - BUILD_WEEKLY_BASE_PROGRESS;
 export const BUILD_TRACK_BY_ID = Object.fromEntries(BUILD_TRACKS.map(t => [t.id, t]));
 
 export const KNOWLEDGE_WORLDS = [
   {
-    title:"✨ לגלות", kicker:"ידע קיים + הדלתות שנפתחות", stat:"1,283 פוסטים · 2,558 פריטי גלריה", trackId:"experience",
+    title:"✨ לגלות", kicker:"ידע קיים + הדלתות שנפתחות", stat:"1,293 פוסטים · 2,558 פריטי גלריה", trackId:"experience",
     publicCopy:"כאן מתחילים מהחומר שכבר חי באתר וממשיכים ממנו לציר ההתגלות, נושאי מחקר, מסעות וגלקסיות ידע.",
     items:[
-      {label:"כל הפוסטים",emoji:"📜",to:"/post",note:"1,283 פוסטים בגוף התוכן"},
+      {label:"כל הפוסטים",emoji:"📜",to:"/post",note:"1,293 פוסטים בגוף התוכן"},
       {label:"גלריות ומדיה",emoji:"🖼️",to:"/gallery",note:"2,558 פריטי גלריה"},
       {label:"ציר ההתגלות",emoji:"🌅",to:"/timeline",note:"אירועים והתכנסויות על ציר אחד"},
       {label:"התכנסויות / נושאי מחקר",emoji:"✦",locked:true,state:"בבנייה",note:"206 התכנסויות מאושרות; האינדקס המרכזי ייפתח בהמשך"},
@@ -104,7 +123,7 @@ export const KNOWLEDGE_WORLDS = [
     ]
   },
   {
-    title:"🔢 מספרים וגימטריה", kicker:"מספר כצומת מחקר, לא רק כתוצאה", stat:"36 שיטות · 32 פעילות", trackId:"numbers",
+    title:"🔢 מספרים וגימטריה", kicker:"מספר כצומת מחקר, לא רק כתוצאה", stat:"41 שיטות · 32 פעילות", trackId:"numbers",
     publicCopy:"כל מספר נבנה כשער שמחבר ביטויים, פסוקים, אנשים, אירועים, צפנים וקשרים — ובהמשך גם שכבות מרחביות.",
     items:[
       {label:"דף המספר",emoji:"🔢",to:"/number",note:"מספר → ביטויים → קשרים"},
@@ -116,7 +135,7 @@ export const KNOWLEDGE_WORLDS = [
     ]
   },
   {
-    title:"🔠 צפנים · ELS", kicker:"מהמטריצה אל מערכת קשרים", stat:"129 רשומות ELS", trackId:"els",
+    title:"🔠 צפנים · ELS", kicker:"מהמטריצה אל מערכת קשרים", stat:"135 רשומות ELS", trackId:"els",
     publicCopy:"הכלי והספרייה כבר פתוחים. המערכת הבאה תחבר את הצופן לשמות, אנשים, מספרים, ספרים ולשאר עץ הידע.",
     items:[
       {label:"דילוגי אותיות",emoji:"🔠",to:"/code",icon:"dilugim",note:"כלי החיפוש והמטריצות החי"},
@@ -128,8 +147,8 @@ export const KNOWLEDGE_WORLDS = [
     ]
   },
   {
-    title:"📚 ספרים, כתבים ומקורות", kicker:"לא רק לקרוא ספר עתיק — לחקור אותו מחדש", stat:"24 ספרי תנ״ך · 23,204 פסוקים", trackId:"books",
-    publicCopy:"המקורות הופכים בהדרגה למרחב מחקר: מילים, שמות, מספרים, פסוקים, צפנים, נושאים וקשרים. מחקרי מקור שכבר במסלול: אהבת תורה וספר הפליאה.",
+    title:"📚 ספרים, כתבים ומקורות", kicker:"לא רק לקרוא ספר עתיק — לחקור אותו מחדש", stat:"30 זהויות ספר · 23,204 פסוקים", trackId:"books",
+    publicCopy:"המקורות הופכים בהדרגה למרחב מחקר: מילים, שמות, מספרים, פסוקים, צפנים, נושאים וקשרים. 6 זהויות ספר פעילות ו-24 ספרי תנ״ך כבר במודל במצב הכנה.",
     items:[
       {label:"בית המדרש",emoji:"📖",to:"/beit-midrash",note:"טקסט, פסוק ושיטות"},
       {label:"חיפוש פסוקים וגימטריה",emoji:"📜",to:"/verse-gematria",note:"חיפוש בתוך 23,204 פסוקי התנ״ך"},
@@ -141,7 +160,7 @@ export const KNOWLEDGE_WORLDS = [
     ]
   },
   {
-    title:"🌳 עץ הידע · רזיאל AI", kicker:"שכבת החיבור שחוצה את כל האתר", stat:"5,967 צמתים · 5,174 קשרים", trackId:"tree",
+    title:"🌳 עץ הידע · רזיאל AI", kicker:"שכבת החיבור שחוצה את כל האתר", stat:"6,382 צמתים פעילים · 7,091 קשרים", trackId:"tree",
     publicCopy:"מספר ↔ מילה ↔ פסוק ↔ ספר ↔ צופן ↔ אדם ↔ אירוע. כל אלה הולכים להתחבר לעץ אחד, ורזיאל ילווה אתכם בין הקשרים.",
     items:[
       {label:"עץ המספרים",emoji:"🌳",to:"/numbers",note:"אחת העדשות החיות על גרף הקשרים"},
@@ -151,17 +170,17 @@ export const KNOWLEDGE_WORLDS = [
     ]
   },
   {
-    title:"🌍 שפות וגשרים", kicker:"אותו גוף ידע ביותר משפה אחת", stat:"12 גשרי שפה מאומתים", trackId:"languages",
+    title:"🌍 שפות וגשרים", kicker:"אותו גוף ידע ביותר משפה אחת", stat:"13 גשרים רשומים · 12 מאומתים", trackId:"languages",
     publicCopy:"שכבת המחקר כבר יודעת לחבר עברית למילים זרות; שכבת האתר הרב־לשונית עדיין נבנית. עברית היא המקור המרכזי, ואנגלית ורוסית נפתחות בהדרגה.",
     items:[
-      {label:"קשרי שפות",emoji:"🌍",to:"/languages",note:"11 גשרים מאומתים באנגלית · 1 ברוסית"},
+      {label:"קשרי שפות",emoji:"🌍",to:"/languages",note:"12 גשרים מאומתים · 13 רשומים"},
       {label:"עברית ↔ אנגלית",emoji:"↔",to:"/languages",note:"תרגום, תעתיק וקשר מחקרי"},
       {label:"רוסית ושפות נוספות",emoji:"✦",locked:true,state:"בפיתוח",note:"הרחבה הדרגתית של שכבת הגשרים"},
       {label:"אתר רב־לשוני",emoji:"🌐",locked:true,state:"בבנייה",note:"הפוסטים ורוב ישויות הידע עדיין Hebrew-first"}
     ]
   },
   {
-    title:"🗃️ ארכיון הידע", kicker:"אותו ידע — הרבה דרכי כניסה", stat:"2013–2026 · 1,283 פוסטים",
+    title:"🗃️ ארכיון הידע", kicker:"אותו ידע — הרבה דרכי כניסה", stat:"2013–2026 · 1,293 פוסטים",
     publicCopy:"הארכיון הופך מאוסף כרונולוגי לרשת כניסות לפי זמן, מספר, פסוק, צופן, אדם ונושא.",
     items:[
       {label:"כל ארכיון הפוסטים",emoji:"🕰️",to:"/post",note:"2013–2026"},
