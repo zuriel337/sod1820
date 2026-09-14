@@ -24,7 +24,7 @@ function outcome(f, lineage, span = null) {
   };
 }
 
-test('Result Bundle groups same artifact across capabilities before ranking', () => {
+test('Result Bundle groups same artifact across capabilities before ranking and exposes independence conflict', () => {
   const media = finding('uf:media:42');
   const graph = finding('uf:graph:42');
   const source = finding('uf:source:independent');
@@ -54,12 +54,16 @@ test('Result Bundle groups same artifact across capabilities before ranking', ()
   assert.equal(bundle.dependency_groups.length, 2);
   const dependent = bundle.dependency_groups.find(x => x.finding_ids.includes(media.id));
   assert.deepEqual(new Set(dependent.finding_ids), new Set([media.id, graph.id]));
+  assert.equal(dependent.dependency_state, 'dependent');
   assert.equal(bundle.dependency_edges[0].relation, 'same_artifact');
   assert.equal(bundle.finding_outcomes.find(x => x.finding_id === media.id).dependency_group,
     bundle.finding_outcomes.find(x => x.finding_id === graph.id).dependency_group);
-  assert.equal(bundle.ranking.find(x => x.finding_id === media.id).dependency_group,
-    bundle.ranking.find(x => x.finding_id === graph.id).dependency_group);
+  assert.equal(bundle.finding_outcomes.find(x => x.finding_id === media.id).independence_conflict, true);
+  assert.equal(bundle.ranking.find(x => x.finding_id === media.id).dependency_state, 'dependent');
+  assert.equal(bundle.ranking.find(x => x.finding_id === media.id).independence_conflict, true);
+  assert.equal(bundle.dependency_summary.independence_conflicts, 2);
   assert.equal(bundle.invariants.dependency_grouping_precedes_ranking, true);
+  assert.equal(bundle.invariants.independent_evidence_conflict_is_explicit, true);
 });
 
 test('ELS nested terms from one window collapse to one evidence lineage group', () => {
@@ -77,6 +81,7 @@ test('ELS nested terms from one window collapse to one evidence lineage group', 
   });
   assert.equal(bundle.dependency_groups.length, 1);
   assert.equal(bundle.dependency_edges[0].relation, 'contains');
+  assert.equal(bundle.dependency_summary.dependent_groups, 1);
 });
 
 test('unknown lineage never upgrades to independent dependency status', () => {
@@ -92,6 +97,26 @@ test('unknown lineage never upgrades to independent dependency status', () => {
     })],
   });
   assert.equal(bundle.dependency_groups.length, 2);
+  assert.equal(bundle.dependency_groups.every(x => x.dependency_state === 'unknown'), true);
   assert.equal(bundle.dependency_edges.length, 0);
+  assert.equal(bundle.dependency_summary.unknown_singletons, 2);
   assert.equal(bundle.invariants.unknown_dependency_is_not_independence, true);
+});
+
+test('finding without findingOutcome still receives an explicit UNKNOWN dependency group before ranking', () => {
+  const noOutcome = finding('uf:no-outcome');
+  const bundle = composeResearchResultBundle({
+    query: { subject: 'missing-outcome-lineage' },
+    capabilities: [capabilityResult({
+      key: 'legacy-adapter', owner: 'legacy_owner', findings: [noOutcome], findingOutcomes: [],
+    })],
+    ranking: [{ findingId: noOutcome.id, rank: 1, score: 100 }],
+  });
+
+  assert.equal(bundle.dependency_groups.length, 1);
+  assert.deepEqual(bundle.dependency_groups[0].finding_ids, [noOutcome.id]);
+  assert.equal(bundle.dependency_groups[0].dependency_state, 'unknown');
+  assert.equal(bundle.ranking[0].dependency_state, 'unknown');
+  assert.ok(bundle.ranking[0].dependency_group);
+  assert.equal(bundle.dependency_summary.unknown_singletons, 1);
 });
