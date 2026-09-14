@@ -25,9 +25,6 @@ test('358 canonical numeric executor keeps raw lookup rows behind the adapter bo
   assert.equal(out.trace.per_lens.number_lookup.status, 'ok');
   assert.equal(out.trace.per_lens.number_lookup.row_count, 1);
   assert.equal(JSON.stringify(out.trace).includes('משיח'), false);
-  // W2.2b UPDATED: the raw ROW still never appears in the trace — that assertion above is the real
-  // subject of this test and is unchanged. What changed is that the row is now PROJECTED into a
-  // Universal Finding keyed on source-native bidim identity, instead of being dropped on the floor.
   assert.equal(out.findings.length, 1);
   assert.equal(out.findings[0].kind, 'gematria');
   assert.equal(out.findings[0].source.adapter, 'number-lookup-v1');
@@ -111,10 +108,28 @@ test('358 pi hit carries high-base-rate expectedness and maximal provenance so l
   assert.match(out.researchEvaluation.search_space.unavailable_reason, /multiplicity/i);
 });
 
-test('358 ELS remains first-class missing adapter, never negative evidence', async () => {
+test('multi-number sequence aggregation preserves operator/evaluation and per-anchor expectedness instead of dropping it', async () => {
+  const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
+  const out = await executors['sequence:fibonacci']({
+    identityResolution: {
+      identities: [
+        { type: 'number', key: 'number:358', value: 358, ref: '358' },
+        { type: 'number', key: 'number:377', value: 377, ref: '377' },
+      ],
+    },
+  });
+  assert.equal(out.status, CAPABILITY_STATUS.EXECUTED);
+  assert.equal(out.operatorRef.capability_key, 'sequence:fibonacci');
+  assert.equal(out.researchEvaluation.search_space.tested.anchors.length, 2);
+  assert.equal(out.researchEvaluation.expectedness.state, 'per_anchor_only');
+  assert.equal(out.researchEvaluation.completion.complete, true);
+  assert.equal(out.researchEvaluation.replay.replayable, false);
+});
+
+test('358 ELS uses the callable-core seam and remains MISSING_ADAPTER until one canonical core is injected', async () => {
   const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
   const out = await executors.els({ identityResolution: numberIdentity(358) });
   assert.equal(out.status, CAPABILITY_STATUS.MISSING_ADAPTER);
   assert.deepEqual(out.findings, []);
-  assert.match(out.reason, /number-only/i);
+  assert.match(out.reason, /canonical callable ELS core/i);
 });
