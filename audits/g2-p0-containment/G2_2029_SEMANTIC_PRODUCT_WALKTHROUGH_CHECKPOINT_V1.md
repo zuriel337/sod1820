@@ -20,6 +20,22 @@ Rules for the walkthrough:
 - Visual/wireframe previews during G2 are allowed only as non-binding stress tests; they are not implementation or design closure.
 - Do not create parallel stores/graphs/engines/owners to make a surface easier to draw.
 
+## Foundation-maximal walkthrough standard — Human Gate lock 2026-09-14
+
+For every remaining G2 product/surface walkthrough, the target is **not** “a better version of the current surface.” The target is the **highest coherent 2029 product form already justified by the live Foundation if the surface were built from scratch today**.
+
+Required order:
+1. Resolve the live semantic owner(s) and current capabilities.
+2. Use legacy/current UI only as capability inventory, migration evidence and provenance — never as the starting architecture.
+3. Describe the strongest coherent North Star enabled by current identity/truth/provenance/time/privacy/replay/composition semantics.
+4. If a deeper model follows directly from existing Foundation, do not stop at a merely good intermediate redesign just because it is closer to the legacy product.
+5. Stress-test that North Star for missing load-bearing primitives/capabilities. Real redesign-risk returns to G2; pure presentation goes to Projection/Experience.
+6. Only after the North Star is clear may a transitional/migration form be discussed. Transitional form must never be mistaken for target architecture.
+
+**Foundation-maximal ≠ feature-maximal.** Do not add modules, screens, abstractions or futuristic behavior merely to make a proposal feel advanced. “Maximum” means the most capable coherent form warranted by the current Foundation and evidence while preserving One Tree, Truth Axes, provenance, privacy and Human Gate.
+
+Calibration from the Post walkthrough: a 2029 Post is not merely a richer article page. Where justified by Foundation, it is a historical/authored **Publication / Research Narrative** over One Reality: authored state remains attributable to its time; live research state may project around it; semantic references resolve to shared identities; “then vs now” preserves temporal honesty; Explain-Why traces claims to calculations/sources/findings; media remains shared artifact identity; Journey/Raziel continue the same Research Context. This is a calibration of the walkthrough method, not a Post-specific parallel system or a frozen UI layout.
+
 ## Canonical semantic spine verified live
 
 Primary owners used in the walkthrough:
@@ -98,6 +114,8 @@ Semantic separation Work != Book != Edition != Textual Version != Witness != Dig
 ### Posts / Publications
 A Post is Publication/Representation related to Anchors/Findings/Sources/Events. Publication is not truth. Live 358 stress test exposes a real migration gap: 148 content mentions but 0 modern `post_gematria_links`; only 8 legacy grapher edges. G2 RETURN: modern provenance-bearing Post↔Research Reality relation migration is required; never bulk-promote by text match alone.
 
+Foundation-maximal calibration: where the live Foundation supports it, Post should be treated as an authored/historical Research Narrative over One Reality rather than a self-contained knowledge silo. Preserve the authored publication state and authorship; project current research around it without retroactive rewrite; support typed semantic references to shared identities, temporal “then vs now”, Explain-Why lineage, shared-media identity, and continuation into World/Heichal/Journey/Raziel. Exact layout remains G3/Experience-owned.
+
 ### Gallery / Media / Reality Stream
 Media is a representation/artifact with provenance and typed subject relations; placements/context are not intrinsic truth. Same artifact may appear in Post/Gallery/Timeline/World without becoming multiple evidence sources. Shared-artifact identity is required. `one_dynamic_gallery v1` also carries stale identity language (“one living gallery entity”) conflicting with Reality Graph v5 projection semantics. G2 RETURN for semantic reconciliation, while the experiential intent of one dynamic gallery may be preserved for later Projection.
 
@@ -150,15 +168,17 @@ The next session should remain INSIDE G2 and perform a Product Surface Review, n
 
 For each surface ZURIEL names (recommended first: Number/Phrase Hub using 358):
 1. LIVE bootstrap and resolve current semantic owner(s).
-2. Inspect the live legacy surface only as capability inventory/material — never as layout authority.
-3. Load this checkpoint + minimum direct dependencies, not all G2 history.
-4. Use 358 as Golden and at least one sparse/edge control (359; 1202; 1426; negative/missing outcome when relevant).
-5. Produce a semantic visual preview/wireframe describing what the user can see/do and why each block exists.
-6. Label every proposed element by semantic source: Identity / Fact / Calculation / Finding / Evidence / Interpretation / Source / Representation / Action / Access state / Context.
-7. Ask: does this preview require a new primitive/capability/identity/lineage/authorization state? If YES and redesign-risk, register G2 RETURN. If NO, mark Projection/Experience decision and defer final design.
-8. Never create a new Store/Graph/Engine/Registry/World identity merely to support a preview.
-9. Do not implement UI unless ZURIEL separately authorizes implementation at the appropriate later gate.
-10. End each surface review with: KEEP CAPABILITY · RETIRE LEGACY INTERFACE · G2 RETURNS · DEFERRED PRESENTATION DECISIONS · next surface.
+2. State the **Foundation-maximal North Star first**: if this surface were built from scratch today on the current Foundation, what is the strongest coherent form it should take? Do not begin from legacy layout improvement.
+3. Inspect the live legacy surface only as capability inventory/material — never as layout authority.
+4. Load this checkpoint + minimum direct dependencies, not all G2 history.
+5. Use 358 as Golden and at least one sparse/edge control (359; 1202; 1426; negative/missing outcome when relevant).
+6. Produce a semantic visual preview/wireframe describing what the user can see/do and why each block exists.
+7. Label every proposed element by semantic source: Identity / Fact / Calculation / Finding / Evidence / Interpretation / Source / Representation / Action / Access state / Context.
+8. Ask: does this North Star require a new primitive/capability/identity/lineage/authorization state? If YES and redesign-risk, register G2 RETURN. If NO, mark Projection/Experience decision and defer final design.
+9. If useful, describe a transitional/migration form only after the target North Star is established; never let transition become target architecture.
+10. Never create a new Store/Graph/Engine/Registry/World identity merely to support a preview.
+11. Do not implement UI unless ZURIEL separately authorizes implementation at the appropriate later gate.
+12. End each surface review with: NORTH STAR · KEEP CAPABILITY · RETIRE LEGACY INTERFACE · G2 RETURNS · DEFERRED PRESENTATION DECISIONS · next surface.
 
 Recommended walkthrough order:
 1. Number/Phrase Hub — 358 Golden.
@@ -180,4 +200,4 @@ Recommended walkthrough order:
 
 ## Suggested exact opening request for the next session
 
-"Continue G2 from `G2_2029_SEMANTIC_PRODUCT_WALKTHROUGH_CHECKPOINT_V1`. Do not close G2 and do not implement G3 UI. Start a surface-by-surface 2029 Product Preview with Number/Phrase Hub using 358 as the Golden World. LIVE-FIRST: verify current main/DB/work_log and canonical owners. Treat the legacy number page only as capability inventory, never as layout authority. Show me visually/structurally what the 2029 surface could contain from the new Foundation, why every semantic block exists, how it behaves for 358 vs sparse 359 and relevant edge cases, and clearly separate G2 redesign-risk from Projection/Experience decisions. Preserve all existing G2-return findings and add new ones only when the preview proves a real Foundation redesign risk. No new store/graph/engine/registry; no merge/deploy/release."
+"Continue G2 from `G2_2029_SEMANTIC_PRODUCT_WALKTHROUGH_CHECKPOINT_V1`. Do not close G2 and do not implement G3 UI. For every surface, start from the Foundation-maximal 2029 North Star — the strongest coherent form justified by the current live Foundation if built from scratch today — not from incremental improvement of the legacy UI. LIVE-FIRST: verify current main/DB/work_log and canonical owners. Treat legacy surfaces only as capability/provenance inventory. Show what the North Star can contain and do, why every semantic block exists, and challenge it for missing load-bearing primitives; real redesign-risk returns to G2, while layout/motion/control decisions defer to Projection/Experience. Foundation-maximal is not feature-maximal: do not invent capabilities merely to appear advanced. Preserve existing G2 returns and add new ones only when the preview proves a real Foundation redesign risk. No new store/graph/engine/registry; no merge/deploy/release."
