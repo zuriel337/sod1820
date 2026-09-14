@@ -227,7 +227,11 @@ function normalizeReplay(value) {
  */
 export function normalizeResearchEvaluation(value = null, { operatorRef = null } = {}) {
   const input = objectOrNull(value);
-  const normalizedOperatorRef = normalizeOperatorRef(input?.operator_ref ?? input?.operatorRef ?? operatorRef);
+  const rawOperatorRef = input?.operator_ref ?? input?.operatorRef ?? operatorRef;
+  const normalizedOperatorRef = normalizeOperatorRef(rawOperatorRef);
+  if (rawOperatorRef && !normalizedOperatorRef) {
+    throw new TypeError('researchEvaluation: malformed owner-qualified operator_ref');
+  }
   if (!input && !normalizedOperatorRef) return null;
   return {
     contract_version: RESEARCH_EVALUATION_CONTRACT_VERSION,
