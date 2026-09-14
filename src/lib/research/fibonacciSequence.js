@@ -1,4 +1,4 @@
-import { SEQUENCE_OPERATION, SEQUENCE_REPRESENTATION } from './sequenceLens.js';
+import { OPERATOR_EXECUTION_KIND, SEQUENCE_OPERATION, SEQUENCE_REPRESENTATION } from './sequenceLens.js';
 
 const SOURCE = Object.freeze({
   id: 'fibonacci',
@@ -35,6 +35,12 @@ function termWindow(terms, zeroIndex, radius) {
 export const fibonacciSequenceAdapter = Object.freeze({
   sequenceId: SOURCE.id,
   sequenceVersion: SOURCE.version,
+  owner: 'research_strategy_layer_law',
+  operatorId: 'fibonacci.term_membership_search',
+  operatorFamily: 'integer_sequence_membership',
+  executionKind: OPERATOR_EXECUTION_KIND.DETERMINISTIC,
+  outputType: 'sequence_term_occurrence',
+  applicabilityBoundary: 'non-negative integer query against Fibonacci terms using explicit F1=1/F2=1 indexing',
   representationKind: SOURCE.representation,
   positionConvention: SOURCE.positionConvention,
   maxSearchDepth: SOURCE.maxSearchDepth,
