@@ -9,14 +9,41 @@ export const SELECTION_PROTOCOL = Object.freeze({
   POST_HOC_EXPLORATORY: 'post_hoc_exploratory',
   UNKNOWN: 'unknown',
 });
+export const CONTROL_STATE = Object.freeze({
+  EXECUTED: 'executed',
+  PARTIAL: 'partial',
+  UNAVAILABLE: 'unavailable',
+  NOT_REQUIRED: 'not_required',
+  UNKNOWN: 'unknown',
+});
 const VALID_SELECTION_PROTOCOL = new Set(Object.values(SELECTION_PROTOCOL));
+const VALID_CONTROL_STATE = new Set(Object.values(CONTROL_STATE));
 
 const clean = v => v == null ? null : (String(v).trim() || null);
 const obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : null;
 const arr = v => Array.isArray(v) ? v : [];
 const uniq = v => [...new Set(arr(v).map(clean).filter(Boolean))];
-const num = v => v == null ? null : (Number.isFinite(Number(v)) ? Number(v) : null);
-const integer = v => Number.isInteger(num(v)) ? num(v) : null;
+
+function finiteNumber(value, label) {
+  if (value == null) return null;
+  const n = Number(value);
+  if (!Number.isFinite(n)) throw new TypeError(`researchEvaluation: ${label} must be finite when supplied`);
+  return n;
+}
+function integer(value, label, { min = null } = {}) {
+  const n = finiteNumber(value, label);
+  if (n == null) return null;
+  if (!Number.isInteger(n) || (min != null && n < min)) {
+    throw new TypeError(`researchEvaluation: ${label} must be an integer${min != null ? ` >= ${min}` : ''}`);
+  }
+  return n;
+}
+function probability(value, label) {
+  const n = finiteNumber(value, label);
+  if (n == null) return null;
+  if (n < 0 || n > 1) throw new TypeError(`researchEvaluation: ${label} must be between 0 and 1`);
+  return n;
+}
 
 export function normalizeOperatorRef(ref) {
   if (ref == null) return null;
@@ -47,23 +74,54 @@ function normalizeSearchSpace(value) {
     declared: input.declared ?? null, effective: input.effective ?? null, tested: input.tested ?? null,
     dimensions: obj(input.dimensions) || {}, budget: obj(input.budget) || null,
     multiplicity: m ? {
-      targets: integer(m.targets), operators: integer(m.operators), windows: integer(m.windows), languages: integer(m.languages), transforms: integer(m.transforms), cohorts: integer(m.cohorts),
-      total_tests: integer(m.total_tests ?? m.totalTests), known_complete: typeof m.known_complete === 'boolean' ? m.known_complete : typeof m.knownComplete === 'boolean' ? m.knownComplete : null,
+      targets: integer(m.targets, 'multiplicity.targets', { min: 0 }),
+      operators: integer(m.operators, 'multiplicity.operators', { min: 0 }),
+      windows: integer(m.windows, 'multiplicity.windows', { min: 0 }),
+      languages: integer(m.languages, 'multiplicity.languages', { min: 0 }),
+      transforms: integer(m.transforms, 'multiplicity.transforms', { min: 0 }),
+      cohorts: integer(m.cohorts, 'multiplicity.cohorts', { min: 0 }),
+      total_tests: integer(m.total_tests ?? m.totalTests, 'multiplicity.total_tests', { min: 0 }),
+      known_complete: typeof m.known_complete === 'boolean' ? m.known_complete : typeof m.knownComplete === 'boolean' ? m.knownComplete : null,
     } : null,
     unavailable_reason: clean(input.unavailable_reason ?? input.unavailableReason),
   };
 }
 function normalizeExpectedness(value) {
   const input = obj(value); if (!input) return null;
-  return { state: clean(input.state ?? input.expectedness), model: clean(input.model ?? input.expectedness_model ?? input.expectednessModel), base_rate: num(input.base_rate ?? input.baseRate), assumptions: arr(input.assumptions).map(String), unavailable_reason: clean(input.unavailable_reason ?? input.unavailableReason) };
+  return {
+    state: clean(input.state ?? input.expectedness),
+    model: clean(input.model ?? input.expectedness_model ?? input.expectednessModel),
+    base_rate: probability(input.base_rate ?? input.baseRate, 'expectedness.base_rate'),
+    assumptions: arr(input.assumptions).map(String),
+    unavailable_reason: clean(input.unavailable_reason ?? input.unavailableReason),
+  };
 }
 function normalizeControls(value) {
-  return arr(value).map((c, i) => { const x = obj(c) || {}; return { control_id: clean(x.control_id ?? x.controlId) || `control:${i + 1}`, type: clean(x.type), model: clean(x.model), result: x.result ?? null, seed: clean(x.seed), version: clean(x.version), provenance_ref: clean(x.provenance_ref ?? x.provenanceRef) }; });
+  return arr(value).map((control) => {
+    const x = obj(control);
+    if (!x) throw new TypeError('researchEvaluation: every control entry must be an object');
+    return {
+      // Missing provenance identity stays null. Never manufacture "control:1".
+      control_id: clean(x.control_id ?? x.controlId),
+      type: clean(x.type),
+      model: clean(x.model),
+      result: x.result ?? null,
+      seed: clean(x.seed),
+      version: clean(x.version),
+      provenance_ref: clean(x.provenance_ref ?? x.provenanceRef),
+    };
+  });
+}
+function normalizeControlsState(value) {
+  const input = obj(value); if (!input) return null;
+  const status = clean(input.status) || CONTROL_STATE.UNKNOWN;
+  if (!VALID_CONTROL_STATE.has(status)) throw new TypeError(`researchEvaluation: invalid controls_state status "${status}"`);
+  return { status, reason: clean(input.reason), model: clean(input.model), coverage: input.coverage ?? null };
 }
 function normalizeLocation(value) {
   const input = obj(value); if (!input) return null; const native = obj(input.native), canonical = obj(input.canonical), span = obj(input.span);
-  const point = x => x ? { convention: clean(x.convention), start: integer(x.start), end: integer(x.end), locator: x.locator ?? null } : null;
-  return { native: point(native), canonical: point(canonical), reconciliation_state: clean(input.reconciliation_state ?? input.reconciliationState), reconciliation: input.reconciliation ?? null, span: span ? { start: integer(span.start), end: integer(span.end), unit: clean(span.unit) } : null, window_ref: clean(input.window_ref ?? input.windowRef), locator: input.locator ?? null };
+  const point = x => x ? { convention: clean(x.convention), start: integer(x.start, 'location.start'), end: integer(x.end, 'location.end'), locator: x.locator ?? null } : null;
+  return { native: point(native), canonical: point(canonical), reconciliation_state: clean(input.reconciliation_state ?? input.reconciliationState), reconciliation: input.reconciliation ?? null, span: span ? { start: integer(span.start, 'location.span.start'), end: integer(span.end, 'location.span.end'), unit: clean(span.unit) } : null, window_ref: clean(input.window_ref ?? input.windowRef), locator: input.locator ?? null };
 }
 function normalizeDependency(value) {
   const input = obj(value); if (!input) return null;
@@ -82,13 +140,36 @@ function normalizeDependency(value) {
   };
 }
 function normalizeRobustness(value) {
-  const input = obj(value); return input ? { state: clean(input.state), protocol: clean(input.protocol), perturbations_tested: integer(input.perturbations_tested ?? input.perturbationsTested), result: input.result ?? null, unavailable_reason: clean(input.unavailable_reason ?? input.unavailableReason) } : null;
+  const input = obj(value); return input ? { state: clean(input.state), protocol: clean(input.protocol), perturbations_tested: integer(input.perturbations_tested ?? input.perturbationsTested, 'robustness.perturbations_tested', { min: 0 }), result: input.result ?? null, unavailable_reason: clean(input.unavailable_reason ?? input.unavailableReason) } : null;
 }
 function normalizeCompletion(value) {
-  const input = obj(value); return input ? { state: clean(input.state), complete: typeof input.complete === 'boolean' ? input.complete : null, truncated: typeof input.truncated === 'boolean' ? input.truncated : null, continuation: input.continuation ?? null, stop_reason: clean(input.stop_reason ?? input.stopReason) } : null;
+  const input = obj(value); if (!input) return null;
+  const complete = typeof input.complete === 'boolean' ? input.complete : null;
+  const truncated = typeof input.truncated === 'boolean' ? input.truncated : null;
+  if (complete === true && truncated === true) throw new TypeError('researchEvaluation: completion cannot be both complete=true and truncated=true');
+  return { state: clean(input.state), complete, truncated, continuation: input.continuation ?? null, stop_reason: clean(input.stop_reason ?? input.stopReason) };
 }
 function normalizeReplay(value) {
-  const input = obj(value); return input ? { replayable: typeof input.replayable === 'boolean' ? input.replayable : null, run_id: clean(input.run_id ?? input.runId), input_ref: clean(input.input_ref ?? input.inputRef), source_ref: clean(input.source_ref ?? input.sourceRef), engine_ref: clean(input.engine_ref ?? input.engineRef), version_refs: uniq(input.version_refs ?? input.versionRefs), parameters: obj(input.parameters) || null, random_seed: clean(input.random_seed ?? input.randomSeed), generator_version: clean(input.generator_version ?? input.generatorVersion), unavailable_reason: clean(input.unavailable_reason ?? input.unavailableReason) } : null;
+  const input = obj(value); if (!input) return null;
+  const replayable = typeof input.replayable === 'boolean' ? input.replayable : null;
+  const out = {
+    replayable,
+    run_id: clean(input.run_id ?? input.runId),
+    input_ref: clean(input.input_ref ?? input.inputRef),
+    source_ref: clean(input.source_ref ?? input.sourceRef),
+    engine_ref: clean(input.engine_ref ?? input.engineRef),
+    version_refs: uniq(input.version_refs ?? input.versionRefs),
+    parameters: obj(input.parameters) || null,
+    random_seed: clean(input.random_seed ?? input.randomSeed),
+    generator_version: clean(input.generator_version ?? input.generatorVersion),
+    unavailable_reason: clean(input.unavailable_reason ?? input.unavailableReason),
+  };
+  if (replayable === true) {
+    if (!out.input_ref || (!out.source_ref && !out.engine_ref) || !out.version_refs.length || !out.parameters) {
+      throw new TypeError('researchEvaluation: replayable=true requires input_ref, source_ref/engine_ref, version_refs and parameters');
+    }
+  }
+  return out;
 }
 
 export function normalizeResearchEvaluation(value = null, { operatorRef = null } = {}) {
@@ -102,6 +183,7 @@ export function normalizeResearchEvaluation(value = null, { operatorRef = null }
     search_space: normalizeSearchSpace(input?.search_space ?? input?.searchSpace),
     expectedness: normalizeExpectedness(input?.expectedness),
     controls: normalizeControls(input?.controls),
+    controls_state: normalizeControlsState(input?.controls_state ?? input?.controlsState),
     location: normalizeLocation(input?.location),
     dependency: normalizeDependency(input?.dependency),
     robustness: normalizeRobustness(input?.robustness),
