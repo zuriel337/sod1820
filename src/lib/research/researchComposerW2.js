@@ -45,6 +45,8 @@ async function executeCapability({ capability, executor, plan, identityResolutio
       negativeScope: out?.negativeScope ?? out?.negative_scope ?? null,
       sourceRefs: out?.sourceRefs || out?.source_refs || [],
       versionRefs: out?.versionRefs || out?.version_refs || [],
+      operatorRef: out?.operatorRef || out?.operator_ref || null,
+      researchEvaluation: out?.researchEvaluation || out?.research_evaluation || null,
       cost: out?.cost ?? null,
       trace: out?.trace ?? null,
       requested: true,
