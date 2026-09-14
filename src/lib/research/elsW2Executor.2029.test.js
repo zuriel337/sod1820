@@ -20,15 +20,15 @@ function request(overrides = {}) {
   };
 }
 
-function finding() {
+function finding(overrides = {}) {
   return makeUniversalFinding({
-    id: 'uf:els:fixture',
+    id: overrides.id || 'uf:els:fixture',
     kind: 'els',
-    subject: { type: 'phrase', key: 'משיח', label: 'משיח', lang: 'he' },
-    source: { engine: 'els', adapter: 'fixture-core', corpus: 'torah', sourceRef: 'corpus:v1', lang: 'he' },
+    subject: { type: 'phrase', key: overrides.label || 'משיח', label: overrides.label || 'משיח', lang: 'he' },
+    source: { engine: 'els', adapter: 'fixture-core', corpus: 'torah', sourceRef: overrides.sourceRef || 'corpus:v1', lang: 'he' },
     identity: { sourceIdentity: { corpus: 'torah:v1', skip: 7, dir: 1, start: 100 }, occurrence: { skip: 7, dir: 1, start: 100 } },
     verification: { verification_state: 'not_tested', engine_method_tested: 'els' },
-    provenance: { createdBy: 'ENGINE:els', inputRef: 'repr:test:1' },
+    provenance: { createdBy: 'ENGINE:els', inputRef: overrides.inputRef || 'repr:test:1' },
   });
 }
 
@@ -83,6 +83,54 @@ test('one canonical callable core can serve the shared Result Bundle contract wh
   assert.equal(out.findings[0].id, f.id);
   assert.equal(out.operatorRef.owner, 'els_research_layer_law');
   assert.equal(out.researchEvaluation.dependency.root_input_ref, 'source:1');
+});
+
+test('restricted ELS request cannot leak raw subject/source/trace/bounds through capability output by default', async () => {
+  const SECRET = 'פלוני אלמוני';
+  const f = finding({ id: 'uf:els:private', label: SECRET, inputRef: SECRET, sourceRef: `private:${SECRET}` });
+  const executor = createCanonicalElsW2Executor({
+    resolveRequest: async () => request({
+      subject_ref: SECRET,
+      expression: SECRET,
+      access: { tier: 'personal' },
+      evidence_lineage: {
+        root_input_ref: SECRET,
+        representation_ref: SECRET,
+        source_lineage_refs: [`source:${SECRET}`],
+        parent_refs: [`parent:${SECRET}`],
+      },
+    }),
+    executeCanonicalEls: async req => ({
+      status: CAPABILITY_STATUS.EXECUTED,
+      reason: `found ${SECRET}`,
+      findings: [f],
+      operatorRef: { type: 'research_operator', owner: 'els_research_layer_law', capability_key: 'els', operator_id: 'els-skip-search', version: 'core-v1' },
+      researchEvaluation: {
+        access: { tier: 'public' },
+        selection: { protocol: 'post_hoc_exploratory', target_ref: SECRET },
+        replay: { replayable: false, input_ref: SECRET, source_ref: `private:${SECRET}`, engine_ref: 'els-skip-search', version_refs: ['core-v1'], parameters: req.budget },
+      },
+      findingOutcomes: [{ findingId: f.id, evidenceRelation: EVIDENCE_RELATION.CONVERGENCE, evidenceLineage: { source_lineage_refs: [`raw:${SECRET}`] }, reason: SECRET }],
+      sourceRefs: [`raw-source:${SECRET}`],
+      negativeScope: { subject: SECRET },
+      bounded: { total_count: 3, returned_count: 1, continuation: SECRET },
+      cost: { subject: SECRET },
+      trace: { subject: SECRET },
+    }),
+  });
+
+  const out = await executor({});
+  assert.equal(out.accessClass, 'personal');
+  assert.equal(out.findings[0].access.tier, 'personal');
+  assert.deepEqual(out.sourceRefs, []);
+  assert.equal(out.bounded, null);
+  assert.equal(out.cost, null);
+  assert.equal(out.reason, null);
+  assert.equal(out.trace.restricted_provenance_withheld, true);
+  assert.equal(JSON.stringify(out.trace).includes(SECRET), false);
+  assert.equal(JSON.stringify(out.findingOutcomes).includes(SECRET), false);
+  assert.ok(out.findingOutcomes[0].evidenceLineage.representation_ref.startsWith('anon:'));
+  assert.equal(out.researchEvaluation.access.tier, 'personal');
 });
 
 test('parallel/foreign ELS authority is rejected by owner-qualified operator_ref', async () => {
