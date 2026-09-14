@@ -36,6 +36,12 @@ These are routing umbrellas, not copied domain law.
 - **L2:** cross-domain work, current-state reconciliation, implementation context, or specialist challenge that can change the decision.
 - **L3:** WRITE, architecture/foundation, security/RLS, merge/deploy/release, material DRIFT, or high-impact cross-system work.
 
+For **L2**, use **8–10 artifacts as a practical default target, not a hard safety cap**. An artifact beyond that target should have an explicit reason why reading it can materially change the answer, decision, safety, or current-state reconciliation. If the task genuinely needs more, read more rather than under-read.
+
+Do not load presentation owners merely because a product surface is mentioned. For a semantic/current-state question, Design/System Frame/other presentation contracts are loaded only when presentation, navigation, UI behavior, or visual authority can materially change the requested answer. Conversely, UI/experience work must resolve the relevant presentation owners normally.
+
+The artifact target is an anti-noise heuristic, not a score to optimize. Never skip required truth, security, privacy, release, or owner checks just to stay under a number.
+
 Stop expanding context once owner + dependencies are sufficient to act safely.
 
 ## 4. Authority split — never collapse these
