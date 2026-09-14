@@ -24,11 +24,29 @@ test('nested ELS observations in one window are explicitly dependent', () => {
   assert.equal(classifyEvidenceDependency(a, b).relation, DEPENDENCY_RELATION.CONTAINS);
 });
 
-test('full name and component research share root input and cannot masquerade as independent sources', () => {
+test('full name and component research are derivations when the component points to the full representation', () => {
   const full = outcome('uf:els:full', { root_input_ref: 'person-input:1', representation_ref: 'repr:full' });
   const part = outcome('uf:gematria:part', { root_input_ref: 'person-input:1', representation_ref: 'repr:part', parent_refs: ['repr:full'] });
-  const relation = classifyEvidenceDependency(full, part).relation;
-  assert.ok([DEPENDENCY_RELATION.SHARED_INPUT, DEPENDENCY_RELATION.DERIVATION].includes(relation));
+  assert.equal(classifyEvidenceDependency(full, part).relation, DEPENDENCY_RELATION.DERIVATION);
+});
+
+test('same subject input alone is contextual provenance, not proof of dependent evidence', () => {
+  const sourceA = outcome('uf:source:a', {
+    root_input_ref: 'name:moshe', representation_ref: 'repr:name:moshe', source_lineage_refs: ['source:a'],
+  });
+  const sourceB = outcome('uf:source:b', {
+    root_input_ref: 'name:moshe', representation_ref: 'repr:name:moshe:other-source', source_lineage_refs: ['source:b'],
+  });
+  assert.equal(classifyEvidenceDependency(sourceA, sourceB).relation, DEPENDENCY_RELATION.SHARED_INPUT);
+  const grouped = composeDependencyGroups([sourceA, sourceB]);
+  assert.equal(grouped.groups.length, 2, 'same queried name must not collapse independent source lineages');
+  assert.equal(grouped.contextual_relations[0].relation, DEPENDENCY_RELATION.SHARED_INPUT);
+});
+
+test('same exact representation across methods is a derivation, not independent evidence', () => {
+  const a = outcome('uf:gematria:ragil', { representation_ref: 'repr:358-expression' });
+  const b = outcome('uf:gematria:katan', { representation_ref: 'repr:358-expression' });
+  assert.equal(classifyEvidenceDependency(a, b).relation, DEPENDENCY_RELATION.DERIVATION);
 });
 
 test('no shared lineage stays UNKNOWN; dependency classifier never invents independence', () => {
@@ -71,6 +89,10 @@ test('ELS request preparation consumes the SAME canonical representations, stays
   assert.equal(plan.canonical_owner, 'els_research_layer_law');
   assert.equal(plan.requests.every(x => x.canonical_engine_required === true && x.execution_authorized === false), true);
   assert.equal(plan.requests.every(x => x.evidence_lineage.root_input_ref === 'anon:person-input:1'), true);
+  const full = plan.requests.find(x => x.subject_ref.endsWith(':full'));
+  const part = plan.requests.find(x => !x.subject_ref.endsWith(':full'));
+  assert.ok(full && part);
+  assert.deepEqual(part.evidence_lineage.parent_refs, [full.subject_ref]);
 });
 
 test('news/source expressions enter ELS only after typed source extraction; no news-specific ELS engine', () => {
