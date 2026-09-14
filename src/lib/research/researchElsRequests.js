@@ -26,7 +26,7 @@ export function evidenceLineageForRepresentation(rep, {
   const representationRef = clean(rep?.ref ?? rep?.representation_ref);
   if (!representationRef) throw new TypeError('researchElsRequests: representation ref is required');
   return {
-    relation: 'derivation',
+    relation: rep?.primary_for_identity === true ? 'unknown' : 'derivation',
     root_input_ref: clean(rootInputRef) || clean(rep?.parent_identity_key),
     representation_ref: representationRef,
     occurrence_ref: clean(occurrenceRef),
@@ -53,6 +53,17 @@ export function prepareElsSubjectRequests(representations = [], {
   const requests = [], skipped = [];
   const list = Array.isArray(representations) ? representations : [];
 
+  // Same canonical representation tree used by Gematria: every non-primary name/phrase part keeps
+  // a parent ref to the exact primary/full representation of the same resolved identity. This makes
+  // full-name vs part searches provably dependent without pretending that every search sharing the
+  // same subject is dependent on every other source/engine result.
+  const primaryByParent = new Map();
+  for (const rep of list) {
+    if (rep?.primary_for_identity === true && clean(rep?.parent_identity_key) && clean(rep?.ref)) {
+      primaryByParent.set(clean(rep.parent_identity_key), clean(rep.ref));
+    }
+  }
+
   for (const rep of list) {
     const ref = clean(rep?.ref ?? rep?.representation_ref);
     if (requests.length >= cap) {
@@ -67,7 +78,13 @@ export function prepareElsSubjectRequests(representations = [], {
       continue;
     }
     const explicitLineage = lineagesByRef && ref ? lineagesByRef[ref] : null;
-    const evidenceLineage = explicitLineage || evidenceLineageForRepresentation(rep, { rootInputRef, sourceLineageRefs });
+    const primaryRef = primaryByParent.get(clean(rep?.parent_identity_key));
+    const derivedParentRefs = rep?.primary_for_identity === true || !primaryRef || primaryRef === ref ? [] : [primaryRef];
+    const evidenceLineage = explicitLineage || evidenceLineageForRepresentation(rep, {
+      rootInputRef,
+      sourceLineageRefs,
+      parentRefs: derivedParentRefs,
+    });
     requests.push({
       contract_version: 1,
       capability: 'els',
