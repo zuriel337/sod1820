@@ -37,4 +37,4 @@ jobs:
           deno-version: v2.x
 
       - name: Edge TypeScript check
-        run: deno check supabase/functions/agent-dispatch/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/agent-dispatch/index.ts
