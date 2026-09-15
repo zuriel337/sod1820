@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import {
-  BUILD_PROGRESS,
-  BUILD_REMAINING,
-  BUILD_WEEKLY_DELTA,
-  BUILD_WEEKLY_LABEL,
-  FIRST_STAGE_RELEASE_GATES,
-} from "../lib/knowledgeMap.js";
+import { SUPABASE_URL, SUPABASE_ANON } from "../lib/supabase.js";
+import { signupAttribution, visitorId } from "../lib/acquisition.js";
 
 // Temporary bridge between the current public home and the 2029 experience.
 // Switch ONLY this value at the real, verified cutover. Do not tie it to a date.
@@ -19,6 +14,8 @@ export default function HomeTransitionNotice() {
   const { pathname } = useLocation();
   const isHome = HOME_PATHS.has(pathname);
   const [showLiveWelcome, setShowLiveWelcome] = useState(false);
+  const [email, setEmail] = useState("");
+  const [signupState, setSignupState] = useState("idle"); // idle | sending | new | exists | invalid | error
 
   useEffect(() => {
     if (!isHome || TRANSITION_PHASE !== "live") {
@@ -39,20 +36,60 @@ export default function HomeTransitionNotice() {
     }
   }, [isHome]);
 
+  async function submitLaunchAlert(e) {
+    e?.preventDefault();
+    const value = email.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(value)) {
+      setSignupState("invalid");
+      return;
+    }
+
+    setSignupState("sending");
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/newsletter-signup?format=json`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          apikey: SUPABASE_ANON,
+          authorization: `Bearer ${SUPABASE_ANON}`,
+        },
+        body: JSON.stringify({
+          email: value,
+          source: "home_2029_launch_alert",
+          back: "/",
+          acquisition: signupAttribution(),
+          visitor_id: visitorId(),
+        }),
+      });
+      const data = await res.json().catch(() => ({ ok: false, status: "error" }));
+      setSignupState(
+        data.status === "new"
+          ? "new"
+          : data.status === "exists"
+            ? "exists"
+            : data.status === "invalid"
+              ? "invalid"
+              : data.ok
+                ? "new"
+                : "error"
+      );
+    } catch {
+      setSignupState("error");
+    }
+  }
+
   if (!isHome) return null;
   if (TRANSITION_PHASE === "live" && !showLiveWelcome) return null;
 
   const live = TRANSITION_PHASE === "live";
-  const closedGates = FIRST_STAGE_RELEASE_GATES.filter(g => g.state === "closed").length;
-  const activeGate = FIRST_STAGE_RELEASE_GATES.find(g => g.state === "active");
 
   return (
     <aside
-      aria-label={live ? "ברוכים הבאים למערכת החדשה" : "SOD1820 נבנה מחדש"}
+      aria-label={live ? "ברוכים הבאים למערכת החדשה" : "עולם חדש עומד להיפתח"}
       style={{
         maxWidth: 1120,
         margin: "10px auto 12px",
-        padding: "14px 18px",
+        padding: "18px 20px",
         border: "1px solid rgba(212,175,55,.38)",
         borderRadius: 18,
         background: "linear-gradient(135deg,rgba(25,16,8,.96),rgba(13,8,22,.96))",
@@ -64,78 +101,113 @@ export default function HomeTransitionNotice() {
         zIndex: 4,
       }}
     >
-      <div style={{ display: "flex", gap: 13, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
-        <div style={{ minWidth: 0, flex: "1 1 520px" }}>
-          <div style={{ color: "#e8c84a", fontWeight: 800, fontSize: 16, marginBottom: 4 }}>
-            {live ? "👑 המערכת החדשה נפתחה" : "🏗️ SOD1820 משתנה"}
-          </div>
-          <div style={{ fontSize: 14.5, lineHeight: 1.65, color: "#d8cdb7" }}>
-            {live
-              ? "כל מה שהכרתם עדיין כאן — עכשיו הוא מתחבר לעולם מחקר אחד, רציף וחכם יותר."
-              : "האתר שאתם מכירים נבנה מחדש מבפנים. מספרים, צפנים, מקורות, אירועים ורזיאל מתחברים בהדרגה למערכת מחקר אחת."}
-          </div>
-        </div>
-
-        <a
-          href={live ? "#" : "#build-progress"}
-          onClick={live ? (e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            setShowLiveWelcome(false);
-          } : undefined}
-          style={{
-            flex: "0 0 auto",
-            textDecoration: "none",
-            color: "#1a1205",
-            background: "linear-gradient(135deg,#f0d66c,#cfae39)",
-            borderRadius: 999,
-            padding: "9px 15px",
-            fontWeight: 800,
-            fontSize: 13.5,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {live ? "התחילו לגלות ←" : "מה נבנה עכשיו ←"}
-        </a>
-      </div>
-
-      {!live && (
-        <div style={{ marginTop: 13, paddingTop: 12, borderTop: "1px solid rgba(212,175,55,.18)" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 7 }}>
-            <div style={{ fontWeight: 800, fontSize: 14, color: "#efe2b4" }}>
-              מוכנות לפתיחת השלב הראשון
+      {live ? (
+        <div style={{ display: "flex", gap: 13, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+          <div style={{ minWidth: 0, flex: "1 1 520px" }}>
+            <div style={{ color: "#e8c84a", fontWeight: 800, fontSize: 18, marginBottom: 4 }}>
+              👑 המערכת החדשה נפתחה
             </div>
-            <div style={{ fontWeight: 900, fontSize: 20, color: "#f0d66c", direction: "ltr" }}>
-              {BUILD_PROGRESS}%
+            <div style={{ fontSize: 14.5, lineHeight: 1.65, color: "#d8cdb7" }}>
+              כל מה שהכרתם עדיין כאן — עכשיו הוא מתחבר לעולם מחקר אחד, רציף וחכם יותר.
             </div>
           </div>
 
-          <div
-            role="progressbar"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow={BUILD_PROGRESS}
-            aria-label={`מוכנות לפתיחת השלב הראשון ${BUILD_PROGRESS} אחוז`}
-            style={{ height: 8, borderRadius: 999, overflow: "hidden", background: "rgba(255,255,255,.09)" }}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              setShowLiveWelcome(false);
+            }}
+            style={{
+              flex: "0 0 auto",
+              textDecoration: "none",
+              color: "#1a1205",
+              background: "linear-gradient(135deg,#f0d66c,#cfae39)",
+              borderRadius: 999,
+              padding: "9px 15px",
+              fontWeight: 800,
+              fontSize: 13.5,
+              whiteSpace: "nowrap",
+            }}
           >
-            <div style={{ width: `${BUILD_PROGRESS}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#b8860b,#f0d66c)" }} />
+            התחילו לגלות ←
+          </a>
+        </div>
+      ) : (
+        <div style={{ textAlign: "center" }}>
+          <div style={{ color: "#f0d66c", fontWeight: 900, fontSize: "clamp(21px,4vw,30px)", lineHeight: 1.25, marginBottom: 8 }}>
+            עולם חדש עומד להיפתח
+          </div>
+          <div style={{ color: "#d8cdb7", fontSize: 14.5, marginBottom: 13 }}>
+            רוצים לקבל התראה כשהשער ייפתח?
           </div>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 9, fontSize: 12.5, lineHeight: 1.45 }}>
-            <span style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(67,160,71,.13)", border: "1px solid rgba(91,180,96,.24)", color: "#bfe3b7" }}>
-              השבוע {BUILD_WEEKLY_LABEL}: +{BUILD_WEEKLY_DELTA} נק׳
-            </span>
-            <span style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(212,175,55,.09)", border: "1px solid rgba(212,175,55,.20)", color: "#e3d3a0" }}>
-              נשארו {BUILD_REMAINING}% לפתיחה
-            </span>
-            <span style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(255,255,255,.045)", border: "1px solid rgba(255,255,255,.09)", color: "#cfc5b3" }}>
-              {closedGates}/{FIRST_STAGE_RELEASE_GATES.length} שערים נסגרו · {activeGate?.id || "הבא"} בתהליך
-            </span>
-          </div>
+          {signupState === "new" ? (
+            <div style={{ color: "#d9e9bf", fontWeight: 800, fontSize: 15, padding: "8px 0" }}>
+              ✓ נרשמתם. נשלח לכם מייל כשהשער ייפתח.
+            </div>
+          ) : signupState === "exists" ? (
+            <div style={{ color: "#d9e9bf", fontWeight: 800, fontSize: 15, padding: "8px 0" }}>
+              ✓ המייל הזה כבר רשום. תקבלו עדכון כשהשער ייפתח.
+            </div>
+          ) : (
+            <form
+              onSubmit={submitLaunchAlert}
+              style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 560, margin: "0 auto" }}
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (signupState === "invalid" || signupState === "error") setSignupState("idle");
+                }}
+                placeholder="האימייל שלך"
+                dir="ltr"
+                aria-label="כתובת אימייל לקבלת התראה"
+                style={{
+                  flex: "1 1 250px",
+                  minWidth: 210,
+                  maxWidth: 360,
+                  background: "rgba(255,255,255,.07)",
+                  border: `1px solid ${signupState === "invalid" ? "rgba(220,90,70,.75)" : "rgba(212,175,55,.34)"}`,
+                  borderRadius: 999,
+                  padding: "11px 16px",
+                  color: "#fff7dc",
+                  fontFamily: "Assistant, Heebo, sans-serif",
+                  fontSize: 15,
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+              <button
+                type="submit"
+                disabled={signupState === "sending"}
+                style={{
+                  cursor: signupState === "sending" ? "default" : "pointer",
+                  border: "none",
+                  color: "#1a1205",
+                  background: "linear-gradient(135deg,#f0d66c,#cfae39)",
+                  borderRadius: 999,
+                  padding: "11px 19px",
+                  fontWeight: 900,
+                  fontSize: 14,
+                  whiteSpace: "nowrap",
+                  opacity: signupState === "sending" ? 0.65 : 1,
+                }}
+              >
+                {signupState === "sending" ? "נרשמים…" : "עדכנו אותי"}
+              </button>
+            </form>
+          )}
 
-          <div style={{ marginTop: 7, color: "#9f9582", fontSize: 11.5, lineHeight: 1.5 }}>
-            האחוז נספר רק משערי שחרור שנסגרו ואומתו. עבודה בתוך שער פעיל לא מנופחת לאחוז לפני סגירה.
-          </div>
+          {signupState === "invalid" && (
+            <div style={{ color: "#e7a093", fontSize: 12.5, marginTop: 8 }}>כתובת המייל לא נראית תקינה.</div>
+          )}
+          {signupState === "error" && (
+            <div style={{ color: "#e7a093", fontSize: 12.5, marginTop: 8 }}>משהו השתבש. נסו שוב בעוד רגע.</div>
+          )}
         </div>
       )}
     </aside>
