@@ -51,21 +51,34 @@ Detailed acceptance lives at:
 
 ### G3 — Foundation runtime / implementation
 
-Implement only against frozen current owners. Priority is replayable capability and Golden fixtures, not rebuilding legacy UI.
+Implement only against frozen current owners. Do not rebuild legacy UI.
 
-Key carry-forward:
+**Opening order for G3:**
 
-- replayable Research Context / Journey path for 878;
-- Year/Verse Journey source/witness/counting provenance;
-- canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
-- server-authoritative entitlement seam;
-- privacy/data-lifecycle enforcement;
-- callable ELS boundary;
-- replay/idempotency/failure recovery;
-- Global Now/Home adapters;
-- Follow/Attention delivery truth;
-- Raziel continuous research companion;
-- greenfield product surfaces consuming Foundation owners.
+1. **INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME — EARLY FOUNDATION/RUNTIME PRIORITY**
+   - owner: active `inter_agent_coordination_law` v11;
+   - target: assignment → dispatch event → agent claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required;
+   - event-driven target, not ZURIEL-as-messenger and not manual polling as the operating model;
+   - idempotency, duplicate suppression, timeout/retry/failure/deferred/cancelled, stale-lease recovery, parallel-writer protection and provenance are mandatory;
+   - READ_ONLY specialist challenge may auto-dispatch when runtime exists;
+   - WRITE remains governed; merge/deploy/publish/canonicalization never gain automatic authorization;
+   - EXTEND_EXISTING only: no second Agent System, Queue authority, Coordination Store or Truth Store;
+   - current state: **NOT IMPLEMENTED · CARRY-FORWARD ONLY**.
+2. **Core runtime seams / safety before broad Goldens**
+   - server-authoritative entitlement seam;
+   - privacy/data-lifecycle enforcement;
+   - callable ELS boundary;
+   - replay/idempotency/failure recovery;
+   - canonical domain adapters where required.
+3. **Replayable capability / Golden fixtures**
+   - replayable Research Context / Journey path for 878;
+   - Year/Verse Journey source/witness/counting provenance;
+   - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World.
+4. **Broader G3 product/runtime implementation**
+   - Global Now/Home adapters;
+   - Follow/Attention delivery truth;
+   - Raziel continuous research companion;
+   - greenfield product surfaces consuming Foundation owners.
 
 **Mandatory at end of G3:** Implementation Compaction / Archive Pass before the next program phase.
 
@@ -99,7 +112,7 @@ Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Att
 Only decision-changing open items belong here:
 
 - formal G2 closure after fresh-agent replay;
-- G3 implementation ordering inside the frozen owner tree;
+- exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v11;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
 - exact Free/Registered/Premium allocation in G5;
