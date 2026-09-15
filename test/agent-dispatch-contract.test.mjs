@@ -6,7 +6,8 @@ import { dirname, resolve } from "node:path";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const baseMigration = readFileSync(resolve(ROOT, "supabase/migrations/20260915165000_g3_inter_agent_event_dispatch_runtime_v1.sql"), "utf8");
 const routineMigration = readFileSync(resolve(ROOT, "supabase/migrations/20260915165100_g3_claude_code_routine_transport_v2.sql"), "utf8");
-const combined = `${baseMigration}\n${routineMigration}`;
+const hardeningMigration = readFileSync(resolve(ROOT, "supabase/migrations/20260915165200_g3_dispatch_legacy_insert_only_hardening.sql"), "utf8");
+const combined = `${baseMigration}\n${routineMigration}\n${hardeningMigration}`;
 
 assert.doesNotMatch(combined, /\bcreate\s+table\b/i, "dispatcher must not create a parallel queue/store table");
 assert.match(baseMigration, /alter table public\.work_log/i, "existing Coordination Ledger must be extended");
@@ -15,6 +16,7 @@ assert.match(baseMigration, /work_log_assignment_idempotency_uidx/i, "assignment
 assert.match(baseMigration, /cron\.schedule/i, "recovery scheduler must exist");
 assert.match(baseMigration, /agent_dispatch_finish/i, "canonical finish path must remain work_log based");
 assert.match(baseMigration, /RESULT_WAKE/i, "result provenance must preserve controller wake intent");
+
 assert.match(routineMigration, /CLAUDE_CODE_ROUTINE_FIRE_URL/, "Routine fire URL must come from existing Vault");
 assert.match(routineMigration, /CLAUDE_CODE_ROUTINE_TOKEN/, "Routine bearer token must come from existing Vault");
 assert.match(routineMigration, /claude_code\/routines\//i, "Claude wake must use the Claude Code Routine API");
@@ -32,5 +34,10 @@ assert.match(routineMigration, /delete from vault\.secrets where name = 'AGENT_D
 assert.match(routineMigration, /drop function if exists public\.agent_dispatch_verify_webhook/i, "obsolete Edge verifier must be retired");
 assert.doesNotMatch(routineMigration, /\/v1\/messages/i, "Messages API is not an agent wake fallback");
 assert.doesNotMatch(routineMigration, /merge_pull_request|git push|functions\.v1\/deploy/i, "dispatch transport must not contain release automation");
+
+assert.match(hardeningMigration, /tg_op\s*=\s*'INSERT'/i, "legacy topic/status routing inference must be INSERT-only");
+assert.match(hardeningMigration, /On UPDATE, never infer routing\/identity from free text/i, "UPDATE path must explicitly prohibit legacy promotion");
+assert.match(hardeningMigration, /Legacy topic\/status auto-routing is INSERT-only/i, "hardening contract must document the safety boundary");
+
 assert.equal(existsSync(resolve(ROOT, "supabase/functions/agent-dispatch/index.ts")), false, "Messages API pseudo-agent Edge executor must not remain in the branch");
 console.log("agent-dispatch Claude Code Routine architecture contract: PASS");
