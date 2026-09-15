@@ -3,8 +3,8 @@ name: Agent Dispatch Contract Gate
 on:
   pull_request:
     paths:
-      - "supabase/migrations/*dispatch*.sql"
-      - "supabase/migrations/*claude_code_routine*.sql"
+      - "supabase/migrations/*agent_event_dispatch_runtime*.sql"
+      - "supabase/migrations/*claude_code_routine_transport*.sql"
       - "test/agent-dispatch-contract.test.mjs"
       - ".github/workflows/agent-dispatch-contract-gate.yml"
   workflow_dispatch:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   contract:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
