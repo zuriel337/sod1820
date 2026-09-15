@@ -6,8 +6,12 @@ on:
       - "supabase/migrations/*agent_event_dispatch_runtime*.sql"
       - "supabase/migrations/*claude_code_routine_transport*.sql"
       - "supabase/migrations/*openai_agents_gpt_wake*.sql"
+      - "supabase/migrations/*unified_ai_cost_truth*.sql"
+      - "src/lib/aiProviderRouter.js"
+      - "src/lib/cost.js"
       - "test/agent-dispatch-contract.test.mjs"
       - "test/gpt-agent-wake-contract.test.mjs"
+      - "test/ai-provider-router-contract.test.mjs"
       - ".github/workflows/agent-dispatch-contract-gate.yml"
   workflow_dispatch:
 
@@ -32,3 +36,6 @@ jobs:
 
       - name: GPT OpenAI Agents API wake architecture contract
         run: node test/gpt-agent-wake-contract.test.mjs
+
+      - name: Unified AI provider router + cost fail-closed contract
+        run: node test/ai-provider-router-contract.test.mjs
