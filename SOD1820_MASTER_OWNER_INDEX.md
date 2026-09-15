@@ -51,7 +51,9 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| agent task routing / owner creation / one-writer / handoff / fresh-agent entry | `inter_agent_coordination_law` |
+| agent task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v11 ACTIVE** |
+
+**G3 carry-forward pointer:** active v11 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME` as an **EARLY G3 FOUNDATION/RUNTIME PRIORITY**, before broad Golden implementation work. Target flow is assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Current state is **NOT IMPLEMENTED · CARRY-FORWARD ONLY**. Any event bus/webhook/worker/queue used later is transport subordinate to this owner + `work_log`, never a second coordination authority. Dispatch does not auto-authorize WRITE, merge, deploy, publish or canonicalization.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
@@ -166,13 +168,13 @@ Every active rule must have `metadata.compaction_v1` containing exactly one rout
 - `IMPLEMENTATION_OR_PROJECTION_RULE`
 - `LEGACY_RETIRE_OR_SUPERSEDE` — historical rows should normally be inactive after retirement.
 
-At the 2026-09-15 Pass-1 checkpoint:
+At the current 2026-09-15 compaction checkpoint:
 
 - active rules before compaction: **249**;
-- active rules now: **224**;
-- classified active rules: **224 / 224**;
+- active rules now: **216**;
 - active rules without canonical owner: **0**;
-- rows retired from active routing in Pass 1: **25**.
+- `work_log_current`: **340** rows after bounding + stale BEFORE supersession cleanup;
+- history remains preserved; no rule/work-log history was deleted.
 
 The count may decrease further as unique semantics are absorbed and scoped child laws become archive/on-demand material. The target is not an arbitrary number; it is low routing ambiguity and minimal startup reads.
 
