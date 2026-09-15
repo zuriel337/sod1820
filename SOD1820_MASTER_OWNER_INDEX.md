@@ -1,7 +1,7 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
 **Date:** 2026-09-15  
-**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · NO DUPLICATED DOMAIN LAW BODIES
+**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · PASS-2 CANDIDATE
 
 Purpose: resolve `domain → owner family → canonical owner → direct dependencies → live verification` with the smallest read set.
 
@@ -40,9 +40,9 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| Foundation gate sequence / closure / compaction | `foundation_closure_protocol_law` |
+| Foundation gate sequence / closure / compaction | `foundation_closure_protocol_law` v5 |
 | Live-state sync | `live_state_sync_law` |
-| Live-state resolution | `live_state_resolution_law` |
+| Live-state conflict resolution | `live_state_resolution_law` under Live State |
 | Release authorization | `deploy_on_request` |
 | Work-log current/history semantics | `work_log_authority_law` |
 | Capability availability | `site_flags_lock_law` |
@@ -51,18 +51,21 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| agent task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v11 ACTIVE** |
+| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v11 ACTIVE** |
 
-**G3 carry-forward pointer:** active v11 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME` as an **EARLY G3 FOUNDATION/RUNTIME PRIORITY**, before broad Golden implementation work. Target flow is assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Current state is **NOT IMPLEMENTED · CARRY-FORWARD ONLY**. Any event bus/webhook/worker/queue used later is transport subordinate to this owner + `work_log`, never a second coordination authority. Dispatch does not auto-authorize WRITE, merge, deploy, publish or canonicalization.
+**G3 carry-forward pointer:** v11 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME` as an **EARLY G3 FOUNDATION/RUNTIME PRIORITY**. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Current state: **NOT IMPLEMENTED · CARRY-FORWARD ONLY**. Transport may use webhook/event bus/worker/queue mechanics, but none becomes a second coordination authority; WRITE/release/publish authorization is never implied by dispatch.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
 | Responsibility | Canonical owner |
 |---|---|
-| Research OS / Research Context / Journey substrate | `docs/research-studio-v1-contract.md` |
-| Research workspace behavior | `research_workspace_law` |
+| Research OS / Research Context / Journey substrate | `docs/research-studio-v1-contract.md` baseline lineage |
+| Workspace / one Research OS / projection consolidation | `research_workspace_law` **v3 ACTIVE** |
 | adaptive semantic zones/layout | `workspace_layout_standard` |
-| Research Strategy / Research Plan / temporal evidence reasoning | `research_strategy_layer_law` |
+| Research Strategy / Plan / bounded adaptive execution / temporal evidence reasoning | `research_strategy_layer_law` **v14 ACTIVE** |
+| source-native research-object identity invariant | `research_object_identity_invariant_law` |
+
+Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by Workspace v3 / Strategy v14 / Truth.
 
 ### D. RESEARCH INTAKE / SOURCE / REPRESENTATION
 
@@ -70,84 +73,100 @@ Owner families below are routing categories only — never umbrella super-laws.
 |---|---|
 | universal research intake / source orchestration | `research_intake_foundation_contract_law` |
 | corpus admission | `corpus_admission_foundation_v1` |
-| exact expression/source extraction | `shared_expression_extraction_contract_v1` + Intake owner |
+| exact expression/source extraction | `shared_expression_extraction_contract_v1` under Intake |
 | writer/contributor material source flow | `writer_material_home_law` under Intake |
 
 ### E. TRUTH / HUMAN GATE
 
 | Responsibility | Canonical owner |
 |---|---|
-| epistemic / verification / governance / publication-access axes | `truth_axes_foundation_law` |
-| Human curation Gold/Silver/Signature/Anchor semantics | `golden_entity_law` under Truth Axes |
+| epistemic / verification / governance / publication-access axes | `truth_axes_foundation_law` v3 |
+| Human curation Gold/Signature/Anchor family | `golden_entity_law` under Truth Axes |
+| signal vs curation boundary | `signal_vs_curation` under Truth Axes |
 | manual verification seal | `verify_seal_manual_only` under Truth Axes |
+
+Interpretive research theses are Research OS/provenance, not global governance laws.
 
 ### F. REALITY / WORLD / TEMPORAL / RANKING
 
 | Responsibility | Canonical owner |
 |---|---|
-| One Reality Graph / One Tree / relations | `reality_graph_law` |
-| Cross / Method Convergence | `cross_vs_convergence_criteria` |
+| One Reality Graph / One Tree / relations | `reality_graph_law` v7 |
+| Cross / Method Convergence | `cross_vs_convergence_criteria` v4 |
 | World ranking / contextual prominence | `research_gold_hints_law` |
-| signal vs curation boundary | `signal_vs_curation` under Truth Axes |
+| Reality Stream semantic projection | `reality_stream_law` under Reality |
+
+Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Archive after v4/v7 consolidation.
 
 ### G. GEMATRIA / NUMERIC / METHODS
 
 | Responsibility | Canonical owner |
 |---|---|
-| deterministic Gematria calculation | `project_codex.gematria_engine` / active `gematria_engine_law` |
-| Method identity / registry | `canonical_methods_registry_law` |
+| deterministic Gematria execution/verification routing | `project_codex.gematria_engine` + active `gematria_engine_law` v2 |
+| Method identity / registry / aliases / conditional equivalence | `canonical_methods_registry_law` v5 |
 | Method lifecycle | `method_lifecycle` |
 | execution/scanning authority | `engine_governance_registry_authority_law` |
 | numeric/system rule-family routing | `project_codex.numeric_rule_family_index` |
 
-Never use general-model arithmetic as canonical SOD1820 engine truth when engine verification matters.
+`project_codex.gematria_engine` is Registry-first and has **no fixed method count**. Historical method-definition/anagram/bidim/source-specific rules are Archive/on-demand after their current semantics were consolidated. Never use general-model arithmetic as canonical SOD1820 engine truth when verification matters.
 
 ### H. ELS / TEXT CIPHER
 
 | Responsibility | Canonical owner |
 |---|---|
-| ELS research semantics/capability | `els_research_layer_law` |
+| ELS research semantics/capability | `els_research_layer_law` v3 |
 | ONE canonical ELS engine invariant | `els_single_engine_law` under ELS owner |
+| bounded seed continuation | `els_seed_expansion_law` under ELS owner |
+| testimony / non-prophecy safety | `testimony_not_prophecy` under ELS owner |
+
+Legacy rigid search-gate, ELS-specific credit and duplicate proximity/past-only rules are Archive.
 
 ### I. RAZIEL / RESEARCH INTELLIGENCE
 
 | Responsibility | Canonical owner |
 |---|---|
 | Raziel companion/persona/cross-surface continuity | `raziel_companion_layer_law` |
-| routing | `raziel_routing_law` under Raziel |
-| response contract | `raziel_response_contract` under Raziel |
-| voice | `raziel_voice_law` under Raziel |
+| capability × intelligence × permission routing | `raziel_routing_law` v2 |
+| response envelope | `raziel_response_contract` |
+| full answer / completion | `raziel_full_answer_and_route_law` v3 |
+| voice | `raziel_voice_law` |
+| group/private channel boundary | `raziel_group_privacy_law` |
 | System Operations / Metatron recommendations | `system_suggestions_law` |
 
-Raziel and Metatron do not create second truth/context stores.
+Old bot architecture/thinking/intent/thinking-effort laws are Archive after routing consolidation. Raziel/Metatron do not create second truth/context stores.
 
 ### J. PERSON / PERSONAL / PRIVACY / ATTENTION
 
 | Responsibility | Canonical owner |
 |---|---|
-| Person / group / personal-data processing | `person_foundation_contract_law` |
-| Follow / notification / subscription funnel | `subscription_funnel_law` |
-| entitlement/access product seam | `platform_tiers_law` |
+| Person / group / personal-data processing | `person_foundation_contract_law` v5 |
+| Follow / notification / subscription funnel | `subscription_funnel_law` v19 |
+| entitlement/access product seam | `platform_tiers_law` v2 |
+| one credit currency | `unified_credit_system` under Access |
 
-Privacy/RLS rules are children/implementation guards of the relevant Person/Foundation owners, not parallel privacy systems.
+Privacy/RLS rules are scoped invariants under Person/Foundation owners, not parallel privacy systems. Legacy “after 2 insights” signup and numeric AI quota assumptions are Archive; concrete product limits remain Human-Gate/live-product decisions.
 
 ### K. PUBLICATION / CONTENT / MEDIA / LOCALIZATION
 
 | Responsibility | Canonical owner |
 |---|---|
-| publishing conventions / Post identity / legacy content protocol | `project_codex.publishing_conventions` |
-| translation / source-language integrity | `content_translation_law` |
+| publishing conventions / Post identity | `project_codex.publishing_conventions` |
+| legacy WordPress/gallery maintenance adapter | active `legacy_content_protocol` **on demand only** |
+| translation / source-language integrity | `content_translation_law` v3 |
 | contributor/source material | Research Intake + Research OS owners |
 | share UI primitive family | `canonical_ui_components_law` under Experience |
+
+Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout rules remain Archive/on-demand; they do not define 2029 publication architecture.
 
 ### L. EXPERIENCE / SYSTEM FRAME / DESIGN
 
 | Responsibility | Canonical owner |
 |---|---|
-| Experience lifecycle/governance | `experience_governance_foundation_v1_law` |
+| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v2 ACTIVE** |
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
 | visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V1.md` |
 | canonical reusable UI primitives | `canonical_ui_components_law` |
+| mobile acceptance | `mobile_acceptance_law` |
 | semantic colors | `canonical_colors_law` under Design |
 
 Product homes such as Home, World, Heichal, Archive, My Personal Area and surfaces like Global Now do not become owners merely because they are visible destinations.
@@ -156,27 +175,30 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
 
 | Responsibility | Canonical owner |
 |---|---|
-| traffic / analytics measurement truth | `traffic_intelligence_law` |
+| traffic / analytics measurement truth | `traffic_intelligence_law` v8 |
 | system diagnostics / recommendations | `system_suggestions_law` |
+| AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
 
-## 4. Active-tree compaction contract
+## 4. Active-tree freeze candidate
 
-Every active rule must have `metadata.compaction_v1` containing exactly one routing class:
+Every active rule carries `metadata.compaction_v1` with one routing class:
 
 - `OWNER`
 - `CHILD_OF_OWNER`
 - `IMPLEMENTATION_OR_PROJECTION_RULE`
-- `LEGACY_RETIRE_OR_SUPERSEDE` — historical rows should normally be inactive after retirement.
+- `LEGACY_RETIRE_OR_SUPERSEDE` — historical rows are inactive after retirement.
 
-At the current 2026-09-15 compaction checkpoint:
+Pass-2 candidate measurement on 2026-09-15:
 
 - active rules before compaction: **249**;
-- active rules now: **216**;
+- active rules now: **86**;
+- removed from normal active routing: **163**;
 - active rules without canonical owner: **0**;
+- active rules without classification: **0**;
 - `work_log_current`: **340** rows after bounding + stale BEFORE supersession cleanup;
 - history remains preserved; no rule/work-log history was deleted.
 
-The count may decrease further as unique semantics are absorbed and scoped child laws become archive/on-demand material. The target is not an arbitrary number; it is low routing ambiguity and minimal startup reads.
+**Do not chase an arbitrary smaller number.** Further retirement requires proof that unique live semantics are already owned elsewhere. The acceptance target is low routing ambiguity and minimal startup reads.
 
 ## 5. Archive rule
 
@@ -188,7 +210,8 @@ Archive/history is opened only for:
 - provenance;
 - supersession/migration;
 - rollback/recovery;
-- explicit historical research.
+- explicit historical research;
+- an explicitly requested legacy maintenance recipe.
 
 ## 6. One Decision → One Canonical Body
 
