@@ -62,7 +62,9 @@ Live Pass-1 state on 2026-09-15:
 - active rules without canonical owner pointer: **0**;
 - rules removed from active routing in Pass 1: **25**;
 - `work_log_current` before bounding: **3,563** rows;
-- bounded `work_log_current` after migration: **501** rows;
+- bounded `work_log_current` after first migration: **501** rows;
+- after stale BEFORE/CLAIMED supersession cleanup: **340** rows;
+- stale BEFORE/active-status rows reconciled to later terminal rows: **297**;
 - historical rows remain preserved; no rule/work-log history was deleted.
 
 Detailed gate: `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`.
