@@ -1,7 +1,7 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
 **Date:** 2026-09-15  
-**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · PASS-2 CANDIDATE
+**Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 ENTRY**
 
 Purpose: resolve `domain → owner family → canonical owner → direct dependencies → live verification` with the smallest read set.
 
@@ -53,7 +53,7 @@ Owner families below are routing categories only — never umbrella super-laws.
 |---|---|
 | task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v11 ACTIVE** |
 
-**G3 carry-forward pointer:** v11 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME` as an **EARLY G3 FOUNDATION/RUNTIME PRIORITY**. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Current state: **NOT IMPLEMENTED · CARRY-FORWARD ONLY**. Transport may use webhook/event bus/worker/queue mechanics, but none becomes a second coordination authority; WRITE/release/publish authorization is never implied by dispatch.
+**G3 priority:** v11 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME`. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Dispatch never auto-authorizes WRITE/release/publish/canonicalization.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
@@ -65,7 +65,7 @@ Owner families below are routing categories only — never umbrella super-laws.
 | Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v15 ACTIVE** |
 | source-native research-object identity invariant | `research_object_identity_invariant_law` |
 
-`research_strategy_layer_law v15` owns the compact 2029 **Capability Fabric / Context Compiler** semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
+`research_strategy_layer_law v15` owns the compact 2029 Capability Fabric / Context Compiler semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
 
 Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by Workspace v3 / Strategy v15 / Truth.
 
@@ -78,7 +78,7 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 | exact expression/source extraction | `shared_expression_extraction_contract_v1` under Intake |
 | writer/contributor material source flow | `writer_material_home_law` under Intake |
 
-`research_intake_foundation_contract_law v9` owns the 2029 **Contextual Source Gap**: search owned/admitted sources first; a missing-source recommendation is a research task, never evidence; exact acquired source evidence resolves/supersedes the gap additively.
+`research_intake_foundation_contract_law v9` owns the 2029 Contextual Source Gap: search owned/admitted sources first; a missing-source recommendation is a research task, never evidence; exact acquired source evidence resolves/supersedes the gap additively.
 
 ### E. TRUTH / HUMAN GATE
 
@@ -137,9 +137,9 @@ Legacy rigid search-gate, ELS-specific credit and duplicate proximity/past-only 
 | group/private channel boundary | `raziel_group_privacy_law` |
 | System Operations / Metatron recommendations | `system_suggestions_law` |
 
-`raziel_companion_layer_law v2` owns the compact 2029 North Star previously carried in Roadmap v5.6: Continuous Research State, authorized longitudinal memory, Research Pulse, Silence Gate, self-audit, Next Best Research Action/STOP, one companion across surfaces/channels, multimodal one-research identity, adaptive deterministic-first intelligence, Trust/Why-Now calibration and Golden acceptance moments. It consumes current Workspace/Strategy/Person/Truth/Attention owners and creates no second memory/context/truth system.
+`raziel_companion_layer_law v2` owns the compact 2029 North Star previously carried in Roadmap v5.6: Continuous Research State, authorized longitudinal memory, Research Pulse, Silence Gate, self-audit, Next Best Research Action/STOP, one companion across surfaces/channels, multimodal one-research identity, adaptive deterministic-first intelligence, Trust/Why-Now calibration and Golden acceptance moments. It creates no second memory/context/truth system.
 
-Historical `unified_ai_brain_law` and `metatron_single_mind_law` now carry explicit successor-owner pointers into the current Raziel/Strategy/Reality tree. Old bot architecture/thinking/intent/thinking-effort laws are Archive after routing consolidation.
+Historical `unified_ai_brain_law` and `metatron_single_mind_law` carry explicit successor-owner pointers into the current Raziel/Strategy/Reality tree.
 
 ### J. PERSON / PERSONAL / PRIVACY / ATTENTION
 
@@ -150,9 +150,9 @@ Historical `unified_ai_brain_law` and `metatron_single_mind_law` now carry expli
 | entitlement/access product seam | `platform_tiers_law` v2 |
 | one credit currency | `unified_credit_system` under Access |
 
-`person_foundation_contract_law v6` owns **Personal Reality** as an authorized contextual projection over the same One Reality: personal context may change relevance/resume/emphasis but never global truth; private material is filtered before composition; private→public research is explicit and Human-Gated; Follow ≠ inferred relevance ≠ Raziel suggestion.
+`person_foundation_contract_law v6` owns Personal Reality as an authorized contextual projection over the same One Reality: personal context may change relevance/resume/emphasis but never global truth; private material is filtered before composition; private→public research is explicit and Human-Gated; Follow ≠ inferred relevance ≠ Raziel suggestion.
 
-Privacy/RLS rules are scoped invariants under Person/Foundation owners, not parallel privacy systems. Legacy “after 2 insights” signup and numeric AI quota assumptions are Archive; concrete product limits remain Human-Gate/live-product decisions.
+Privacy/RLS rules are scoped invariants under Person/Foundation owners, not parallel privacy systems.
 
 ### K. PUBLICATION / CONTENT / MEDIA / LOCALIZATION
 
@@ -187,26 +187,26 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
 | system diagnostics / recommendations | `system_suggestions_law` |
 | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
 
-## 4. Active-tree freeze candidate
+## 4. Active-tree freeze — CLOSED G2 result
 
-Every active rule carries `metadata.compaction_v1` with one routing class:
+Every active rule carries `metadata.compaction_v1` with a current routing class and canonical owner pointer.
 
-- `OWNER`
-- `CHILD_OF_OWNER`
-- `IMPLEMENTATION_OR_PROJECTION_RULE`
-- `LEGACY_RETIRE_OR_SUPERSEDE` — historical rows are inactive after retirement.
-
-Pass-2 candidate measurement on 2026-09-15:
+Final G2 measurement on 2026-09-15:
 
 - active rules before compaction: **249**;
-- active rules now: **86**;
+- active rules after freeze: **86**;
 - removed from normal active routing: **163**;
 - active rules without canonical owner: **0**;
 - active rules without classification: **0**;
+- simultaneously-active duplicate rule families: **0**;
 - `work_log_current`: **340** rows after bounding + stale BEFORE supersession cleanup;
-- history remains preserved; no rule/work-log history was deleted.
+- history preserved; no rule/work-log history deleted.
 
-**Do not chase an arbitrary smaller number.** Further retirement requires proof that unique live semantics are already owned elsewhere. The acceptance target is low routing ambiguity and minimal startup reads.
+Independent Claude fresh-agent challenge PASSed routing/mechanics and exposed one material North-Star absorption gap; that gap was patched into existing owners v2/v15/v6/v9 before Human-Gate closure.
+
+**G2 closure status:** CLOSED by ZURIEL Human Gate on 2026-09-15. PR #467 released the compact routing package to main; production release and DB state were live-verified before this seal.
+
+Do not chase an arbitrary smaller number. Further retirement requires proof that unique live semantics are already owned elsewhere. G3 must consume the frozen owner tree and run its own mandatory end-of-phase implementation compaction.
 
 ## 5. Archive rule
 
