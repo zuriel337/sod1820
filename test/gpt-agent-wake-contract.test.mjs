@@ -8,8 +8,13 @@ const migration = readFileSync(
   resolve(ROOT, "supabase/migrations/20260915224500_g3_openai_agents_gpt_wake_v1.sql"),
   "utf8",
 );
+const recoveryGuard = readFileSync(
+  resolve(ROOT, "supabase/migrations/20260915224600_g3_openai_agents_gpt_wake_recovery_guard.sql"),
+  "utf8",
+);
+const combined = `${migration}\n${recoveryGuard}`;
 
-assert.doesNotMatch(migration, /\bcreate\s+table\b/i, "GPT wake must not create a parallel queue/store");
+assert.doesNotMatch(combined, /\bcreate\s+table\b/i, "GPT wake must not create a parallel queue/store");
 assert.match(migration, /OPENAI_API_KEY/, "GPT wake credential must come from existing Vault");
 assert.match(migration, /https:\/\/api\.openai\.com\/v1\/agents\/sessions/, "GPT wake must use OpenAI Agents API");
 assert.match(migration, /OpenAI-Beta['"],['"]agents=v1/i, "Agents API beta header must be explicit");
@@ -27,5 +32,7 @@ assert.match(migration, /trg_work_log_dispatch_00_gpt_event/, "GPT trigger must 
 assert.doesNotMatch(migration, /\b(?:perform|select)\s+(?:public\.)?agent_dispatch_finish\s*\(/i, "GPT RESULT_WAKE completion must not execute reverse RESULT_WAKE finish/ping-pong");
 assert.doesNotMatch(migration, /\/v1\/responses|\/v1\/chat\/completions/i, "plain model APIs are not an agent-wake fallback");
 assert.doesNotMatch(migration, /merge_pull_request|git push|functions\.v1\/deploy/i, "wake transport must not automate release");
+assert.match(recoveryGuard, /not\s*\(to_actor='GPT'\s+and\s+dispatch_kind='RESULT_WAKE'\)/i, "generic stale-CLAIMED recovery must never requeue a managed GPT RESULT_WAKE session");
+assert.match(recoveryGuard, /agent_dispatch_recover_gpt_wakes/i, "recovery ownership must point to GPT-aware recovery");
 
 console.log("GPT OpenAI Agents API result-wake architecture contract: PASS");
