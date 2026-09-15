@@ -1,9 +1,9 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
 **Date:** 2026-09-15  
-**Status:** CURRENT DOCUMENTED STATE · COMPACT POINTER FORM · HUMAN-GATE CONTROLLED  
+**Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
-**Current main at compaction start:** `f1972c9944e6f0e7a094cc500dba5963221ea21d`
+**G2 closure base release:** `27900d3f696a26cda598463a58bcff4e74d5832d`
 
 ## 1. Authority
 
@@ -50,42 +50,45 @@ Coordination/provenance: `work_log`; bounded startup surface: `work_log_current`
 
 Atomic research/evidence: Research OS / `research_objects` and owner-governed research structures.
 
-## 4. G2 compaction state
+## 4. G2 closure seal
 
-G2 remains **OPEN pending final Human Gate + branch release**. The independent fresh-agent/semantic-loss challenge has been consumed and its decision-changing blocker has been patched owner-first.
+**G2 is CLOSED by Human Gate ZURIEL on 2026-09-15.**
 
-Live post-challenge state on 2026-09-15:
+Final live compaction acceptance:
 
 - active rules before compaction: **249**;
-- active rules now: **86**;
+- active rules after freeze: **86**;
 - removed from normal active routing: **163**;
 - active rules classified: **86 / 86**;
 - active rules without canonical owner pointer: **0**;
+- active rules without compaction classification: **0**;
 - simultaneously-active duplicate rule families: **0**;
-- `work_log_current` before bounding: **3,563** rows;
-- after bounding + stale BEFORE/CLAIMED reconciliation: **340** rows;
-- stale BEFORE/active-status rows linked to later terminal rows: **297**;
-- historical rows remain preserved; no rule/work-log history was deleted.
+- `work_log_current`: **340** rows after bounding/supersession cleanup;
+- historical rule/work-log provenance preserved; no history deleted.
 
-Current compact owners material to the challenge patch:
+Independent fresh-agent challenge:
 
-- `inter_agent_coordination_law v11` — current agent coordination owner; G3 event-driven dispatch carry-forward only;
-- `research_workspace_law v3` — One Research OS / projection consolidation;
-- `research_strategy_layer_law v15` — bounded adaptive Research Plan + Capability Fabric + bounded Context Compiler;
-- `raziel_companion_layer_law v2` — 2029 Continuous Research Companion / Research Presence, including Research Pulse, Silence Gate, self-audit, Next Best Research Action and continuity acceptance;
-- `person_foundation_contract_law v6` — Personal Reality as authorized contextual projection over One Reality;
-- `research_intake_foundation_contract_law v9` — Universal Source Orchestration + Contextual Source Gap;
-- `experience_governance_foundation_v1_law v2` — projection/lens + zero legacy-UI inheritance consolidation;
-- `project_codex.gematria_engine` — Registry-first execution owner; fixed “8 methods” model retired;
-- `project_codex.publishing_conventions` — current publishing owner; legacy recipes on-demand only where still required.
+- CLAUDE AFTER: `work_log.id=29c559b5-35c5-4e0f-a420-e4b6c4762456`;
+- routing/mechanics PASS across Gematria, ELS, Source/Book, Raziel, Person/Life, Publishing, Follow and Release;
+- one material semantic-absorption blocker was found and patched owner-first;
+- final owner versions after remediation: `inter_agent_coordination_law v11`, `research_workspace_law v3`, `research_strategy_layer_law v15`, `raziel_companion_layer_law v2`, `person_foundation_contract_law v6`, `research_intake_foundation_contract_law v9`.
 
-Claude independent challenge AFTER: `work_log.id=29c559b5-35c5-4e0f-a420-e4b6c4762456`.
+Release proof:
 
-Challenge result: routing/mechanics PASS; one semantic-absorption blocker was found because Roadmap v5.6 North-Star details had been removed before owner absorption. The blocker is now patched by owner version bumps v2/v15/v6/v9 above. Historical `unified_ai_brain_law` and `metatron_single_mind_law` also now carry explicit successor-owner pointers.
+- PR #467 merged to `main` at `27900d3f696a26cda598463a58bcff4e74d5832d`;
+- Observability/SEO Build Gate PASS;
+- Release Visual Gate PASS;
+- Vercel production deployment `dpl_GEwmYU1nwt9xSo2tYxZR7yKjZY7v` READY;
+- `https://sod1820.co.il/` returned HTTP 200 after release;
+- DB owner/routing compaction is LIVE and reverified.
 
-Detailed gate: `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`.
-Pass-1 evidence: `audits/g2-p0-containment/G2_FINAL_COMPACTION_PASS1_20260915.md`.
-Pass-2 evidence/candidate: `audits/g2-p0-containment/G2_FINAL_COMPACTION_PASS2_CANDIDATE_20260915.md`.
+Recurring release blocker fixed during closure: the Observability/SEO gate now recognizes only explicit `SEO_GATE_RETIRED_ROUTE` compatibility stubs as retired instead of treating intentional legacy retirement as new SEO debt. Baseline remains for real active debt only.
+
+Detailed evidence:
+
+- `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`
+- `audits/g2-p0-containment/G2_FINAL_COMPACTION_PASS1_20260915.md`
+- `audits/g2-p0-containment/G2_FINAL_COMPACTION_PASS2_CANDIDATE_20260915.md`
 
 ## 5. Owner-family posture
 
@@ -112,7 +115,7 @@ Exact owners are resolved from `SOD1820_MASTER_OWNER_INDEX.md` and reverified li
 ## 6. Current material decisions
 
 - Future 2029 upper-layer experience has **zero mandatory legacy UI inheritance**. Preserve capability, identity, truth, provenance, privacy, history and Human decisions; do not preserve legacy interface authority merely because it exists.
-- Legacy 3D / Sulamot / Galaxy / spatial demo surfaces were retired from production on 2026-09-15. Future spatial work must route through current Research/Experience owners, not retired renderers.
+- Legacy 3D / Sulamot / Galaxy / spatial demo surfaces were retired from production on 2026-09-15. Future spatial work routes through current Research/Experience owners, not retired renderers.
 - Journey is a path/projection over existing identities, evidence and Research Context, not a second graph/store.
 - Raziel is one continuous companion/research-intelligence layer over the Research OS, not a second truth/context store.
 - Follow, inferred relevance and Raziel suggestion remain distinct.
@@ -120,7 +123,7 @@ Exact owners are resolved from `SOD1820_MASTER_OWNER_INDEX.md` and reverified li
 - Capability Fabric/Context Compiler are owner-qualified composition contracts, not a central capability registry or Context store.
 - Missing source evidence remains a Contextual Source Gap/research task until exact evidence is acquired; a recommendation is not evidence.
 - Dimension Five is the future-primary content direction; Or Geula remains preserved but strategically supporting/legacy.
-- Home/Global Now, Share, Personal Area, Follow/Attention and other G3 surfaces are projections over existing Foundation owners; their names do not create owners.
+- Home/Global Now, Share, Personal Area, Follow/Attention and future G3 surfaces are projections over existing Foundation owners; their names do not create owners.
 
 ## 7. Exact release language
 
@@ -128,33 +131,32 @@ Never collapse:
 
 `DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`.
 
-Latest material production release at compaction start:
+Current G2 closure package state:
 
-- legacy spatial / 3D UI retirement: **MERGED · DEPLOYED · LIVE · VERIFIED**;
-- merge commit: `f1972c9944e6f0e7a094cc500dba5963221ea21d`.
+- canonical DB compaction: **LIVE · VERIFIED**;
+- compact Master / Roadmap / Owner Index: **MERGED to main** in PR #467;
+- production corresponding to merge #467: **DEPLOYED · READY · HTTP-VERIFIED**;
+- G2 semantic/foundation phase: **CLOSED by ZURIEL Human Gate**.
 
-Current compaction state:
+Historical release immediately before closure:
 
-- DB owner/routing/rule compaction: **DB-LIVE · VERIFIED**;
-- compact Master / Roadmap / Owner Index / audit package: **COMMITTED · BRANCH-ONLY** on `gpt/g2-final-compaction-v1`;
-- branch package is not yet merged/deployed;
-- the remaining main-vs-DB routing drift identified by Claude is the expected branch-only document delta and resolves only when the compact package is explicitly released.
+- legacy spatial / 3D UI retirement: **MERGED · DEPLOYED · LIVE · VERIFIED** at `f1972c9944e6f0e7a094cc500dba5963221ea21d`.
 
-## 8. Current blocker / next gate
+## 8. Current program position — G3 OPEN
 
-The independent challenge and blocker patch are complete.
+G3 is **Foundation runtime / implementation against the frozen current owners**.
 
-Remaining before formal G2 closure/release:
+Opening priorities:
 
-1. final representative routing replay against the patched owners and branch pointers;
-2. exact branch/main release-state reconciliation;
-3. **Human Gate ZURIEL approval** of the compacted map;
-4. explicit release authorization before merge/deploy;
-5. post-merge verify main/current pointers and record G2 closure state.
+1. **Inter-agent event-driven dispatch runtime** under `inter_agent_coordination_law v11` so work_log assignments can wake/claim GPT/CLAUDE without ZURIEL acting as messenger. This must preserve idempotency, lease/claim, duplicate suppression, timeout/retry/failure/deferred/cancelled, one-writer safety and provenance; it never auto-authorizes WRITE/merge/deploy/publish/canonicalization.
+2. **Agent media/file tool adapter** over the already-proven agent upload bridge so GPT/CLAUDE can receive/generated files, upload through least-privilege single-use tickets, verify hash/size/mime/reference, and return the canonical artifact reference. Domain placement remains owned by Post/Reality/Brand/Research owners. Private books/documents remain a separate private-storage/RLS lane.
+3. Core runtime seams: server-authoritative entitlement, privacy/data lifecycle, callable ELS boundary, replay/idempotency/failure recovery, canonical adapters.
+4. Replayable Goldens, beginning with existing locked 878 and Year/Verse carry-forwards.
+5. Broader greenfield product implementation consuming the frozen Foundation.
 
-No additional broad rule retirement or historical scan is required by default.
+Mandatory before leaving G3:
 
-Then proceed to **G3 Foundation/runtime**, beginning with the early runtime priorities in the compact Roadmap: event-driven inter-agent dispatch and the existing agent media/file upload bridge adapter.
+`audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`
 
 ## 9. Future-admission rule — anti-inflation
 
