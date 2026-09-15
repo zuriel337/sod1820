@@ -1,6 +1,6 @@
 # G2 2029 — Daily Decision Reconciliation · 2026-09-14 → 2026-09-15
 
-**Status:** PREPARED ADDITIVE RECONCILIATION · BRANCH ONLY · NOT MERGED · NOT DEPLOYED  
+**Status:** ADDITIVE DECISION INDEX · HUMAN-GATE RELEASE AUTHORIZED 2026-09-15 · MERGE STATE MUST BE VERIFIED FROM `origin/main`  
 **Human Gate:** ZURIEL  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **Base main at preparation:** `a7451ae99d7ae4adc0871815ac5e8c64d2b37b64`  
@@ -15,7 +15,7 @@ The early/mid-day G2 reconciliation on 2026-09-14 **was released to main** in bo
 - `G2_FOUNDATION_MAXIMAL_WALKTHROUGH_RELEASE_V1` — `f46b9c39-d060-4a2e-81c1-7d7586312e96`; Foundation-maximal walkthrough method merged.
 - `G2_2029_SEMANTIC_RELEASE_PACKET_V1` — `273ca40e-4c4e-43d4-a675-befbd7b812f4`; Owner Index updated to Reality Graph v7 + Cross/Convergence v4. Master State was intentionally left no-op because its canonical-owner pointer already routed through the Owner Index; Roadmap was also intentionally no-op because no priority/gate change was asserted in that packet.
 
-Thus the **active owner spine** is already centrally routed: Reality Graph v7, Research Strategy v13, Research Intake v8, Truth Axes v3, Research Workspace v2, Method Registry v5, Person v5, Foundation Closure v4, Coordination v10, plus current Experience/System Frame/Design/Follow owners.
+Thus the active owner spine was already centrally routed. On 2026-09-15 Human Gate additionally bound **G2 Canonical Compaction · Owner Hierarchy · Active Tree Freeze** into active `foundation_closure_protocol_law v5`, with detailed acceptance in `G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`. This is now a no-skip closure condition, not a suggestion.
 
 ## 2. 2026-09-14 decisions that were saved but not all individually indexed in Master State
 
@@ -93,19 +93,21 @@ After the last semantic release packet, ZURIEL continued substantial Human-Gate 
 
 ## 4. Exact release-state reconciliation
 
-### LIVE / MERGED owner/document foundation
+### LIVE owner/governance state
 
-Current `main` and canonical Supabase must be reverified at use time. At preparation, repository main had advanced to `a7451ae99d7ae4adc0871815ac5e8c64d2b37b64`; do not reuse older `f69f54b...` as current-state truth.
+At this release pass, canonical Supabase has active `foundation_closure_protocol_law v5`; v4 is preserved inactive. The v5 delta binds the G2 compaction gate and G3 implementation compaction without creating a new system. Git parity is carried by `supabase/migrations/20260915091500_foundation_closure_protocol_v5_compaction_binding.sql`.
 
-### BRANCH-ONLY preserved work
+Current `origin/main` must always be reverified at use time. At preparation, repository main was `a7451ae99d7ae4adc0871815ac5e8c64d2b37b64`; do not reuse older `f69f54b...` as current-state truth.
+
+### BRANCH-ONLY preserved work not included in this documentation/governance release
 
 - `gpt/g2-chat-taxonomy-cleanup-v1` @ `183a3d714c88d84ae0f4c558b86b0286104b5a1f` — NOT MERGED / NOT DEPLOYED.
-- `gpt/follow-attention-drift-fix-v1` @ `fceb169a86b5c2b521c896ce2780c0c08903a1e4` — NOT MERGED / migration NOT APPLIED to production.
+- `gpt/follow-attention-drift-fix-v1` @ `fceb169a86b5c2b521c896ce2780c0c08903a1e4` — NOT MERGED / its migration NOT APPLIED to production.
 - Other branch-only G2/G3 runtime hardening remains governed by its own checkpoints; this reconciliation does not promote it.
 
 ### Product/architecture decisions vs implementation
 
-`APPROVED/DOCUMENTED` does not imply `IMPLEMENTED`; `IMPLEMENTED` does not imply `MERGED`; `MERGED` does not imply `DEPLOYED/LIVE/VERIFIED`. G2 remains **OPEN**. No release is authorized by this artifact.
+`APPROVED/DOCUMENTED` does not imply `IMPLEMENTED`; `IMPLEMENTED` does not imply `MERGED`; `MERGED` does not imply `DEPLOYED/LIVE/VERIFIED`. G2 remains **OPEN**.
 
 ## 5. Fresh-session routing rule
 
@@ -117,10 +119,20 @@ For a new substantive session touching any 14–15.9 decision:
 4. read only the relevant owner + direct dependency + exact checkpoint, not the whole two-day work_log;
 5. if live owner/main conflicts with this artifact, report DRIFT and trust live owner/main + Human Gate;
 6. never treat branch-only work listed here as live;
-7. no merge/deploy without explicit ZURIEL authorization.
+7. no future merge/deploy without explicit ZURIEL authorization for that scope.
 
-## 6. Master-State reconciliation status
+## 6. Master / Roadmap reconciliation policy after the bloat audit
 
 This artifact exists because the audit found a real documentation gap: the 14.9 Semantic Release Packet intentionally left `SOD1820_MASTER_STATE.md` unchanged, while substantial Human-Gate decisions continued later on 14.9 and 15.9. The decisions are **not lost**, but they were not all centrally indexed as a finite set.
 
-**Required release step:** when ZURIEL explicitly authorizes documentation release, merge this artifact and add one concise dated pointer in `SOD1820_MASTER_STATE.md` (pointer-only, no duplicated bodies) stating that 14–15.9 Human-Gate decisions are indexed here and remain governed by their existing owners. Roadmap changes are needed only where navigation/priority materially changes; do not copy this whole artifact into Roadmap.
+The same audit also found that the historical Master State had become over-expanded because older governance encouraged full decision/audit details to be copied into Master. Human Gate therefore chose **not** to solve the documentation gap by appending another large body to Master v2.
+
+Current binding policy:
+
+- this reconciliation is the bounded 14–15.9 decision index;
+- `foundation_closure_protocol_law v5` makes `G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md` a mandatory no-skip G2 closure condition;
+- the Owner Index points to the active closure owner and these bounded artifacts;
+- formal G2 compaction must preserve the historical Master snapshot and create a compact Master v3 containing current state + pointers only;
+- Roadmap must be compacted to navigation/priority/gates/sequence/open decisions rather than receive another duplicated decision body.
+
+Thus this release deliberately avoids inflating the historical Master v2 immediately before the mandatory Master-v3 compaction. Exact merge SHA/state for this package is recorded in the release AFTER/work_log and must be verified from `origin/main`.
