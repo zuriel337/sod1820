@@ -54,21 +54,30 @@ Atomic research/evidence: Research OS / `research_objects` and owner-governed re
 
 G2 remains **OPEN** until the full Canonical Compaction / Owner Hierarchy / Active Tree Freeze acceptance passes and ZURIEL closes it.
 
-Live Pass-1 state on 2026-09-15:
+Live Pass-2 candidate state on 2026-09-15:
 
-- active rules before pass: **249**;
-- active rules after legacy + implementation/projection retirement: **224**;
-- active rules with compaction classification: **224 / 224**;
+- active rules before compaction: **249**;
+- active rules now: **86**;
+- removed from normal active routing: **163**;
+- active rules classified: **86 / 86**;
 - active rules without canonical owner pointer: **0**;
-- rules removed from active routing in Pass 1: **25**;
 - `work_log_current` before bounding: **3,563** rows;
-- bounded `work_log_current` after first migration: **501** rows;
-- after stale BEFORE/CLAIMED supersession cleanup: **340** rows;
-- stale BEFORE/active-status rows reconciled to later terminal rows: **297**;
+- after bounding + stale BEFORE/CLAIMED reconciliation: **340** rows;
+- stale BEFORE/active-status rows linked to later terminal rows: **297**;
 - historical rows remain preserved; no rule/work-log history was deleted.
+
+Major owner consolidation completed during Pass 2:
+
+- `inter_agent_coordination_law v11` — current agent coordination owner; G3 event-driven dispatch is carry-forward only, not implemented;
+- `research_workspace_law v3` — One Research OS / projection consolidation;
+- `research_strategy_layer_law v14` — bounded adaptive Research Plan + human-dialogue/discovery-flow consolidation;
+- `experience_governance_foundation_v1_law v2` — projection/lens + zero legacy-UI inheritance consolidation;
+- `project_codex.gematria_engine` — Registry-first execution owner; fixed “8 methods” model retired;
+- `project_codex.publishing_conventions` — legacy recipes moved to on-demand history where appropriate.
 
 Detailed gate: `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`.
 Pass-1 evidence: `audits/g2-p0-containment/G2_FINAL_COMPACTION_PASS1_20260915.md`.
+Pass-2 evidence: `audits/g2-p0-containment/G2_FINAL_COMPACTION_PASS2_20260915.md`.
 
 ## 5. Owner-family posture
 
@@ -113,24 +122,21 @@ Latest material production release at compaction start:
 - legacy spatial / 3D UI retirement: **MERGED · DEPLOYED · LIVE · VERIFIED**;
 - merge commit: `f1972c9944e6f0e7a094cc500dba5963221ea21d`.
 
-Other branch-only work remains branch-only unless independently released and verified.
+The G2 compact documentation package itself is currently **BRANCH-ONLY** on `gpt/g2-final-compaction-v1`; DB owner/routing compaction changes are **DB-LIVE**, but formal G2 closure and doc merge remain pending fresh-agent challenge + Human Gate.
 
 ## 8. Current blocker / next gate
 
-**Current program priority:** finish G2 Final Canonical Compaction.
+**Current program priority:** finish G2 Final Canonical Compaction acceptance.
 
-Required before formal G2 closure:
+Remaining before formal G2 closure:
 
-1. absorb/retire duplicated child semantics family-by-family without semantic loss;
-2. freeze the finite owner hierarchy;
-3. keep Master/Roadmap/Owner Index free of duplicated domain-law bodies;
-4. reconcile material branch/release states;
-5. verify bounded current coordination routing;
-6. run independent fresh-agent routing acceptance across representative domains;
-7. resolve material DRIFT found by replay;
-8. Human Gate approval by ZURIEL.
+1. independent fresh-agent routing / semantic-loss challenge;
+2. patch decision-changing DRIFT if found;
+3. reconcile final material branch/release states;
+4. Human Gate approval by ZURIEL;
+5. merge/release the compact documentation only when explicitly authorized.
 
-Then proceed to **G3 implementation / replayable Goldens / Foundation runtime**.
+Then proceed to **G3 Foundation/runtime**, beginning with the Roadmap priority carried by the active Agent Coordination owner.
 
 ## 9. Future-admission rule — anti-inflation
 
