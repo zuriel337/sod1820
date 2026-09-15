@@ -54,18 +54,19 @@ Atomic research/evidence: Research OS / `research_objects` and owner-governed re
 
 G2 remains **OPEN** until the full Canonical Compaction / Owner Hierarchy / Active Tree Freeze acceptance passes and ZURIEL closes it.
 
-Live first-pass state on 2026-09-15:
+Live Pass-1 state on 2026-09-15:
 
 - active rules before pass: **249**;
-- active rules after first legacy retirement pass: **241**;
-- active rules with compaction classification: **241 / 241**;
+- active rules after legacy + implementation/projection retirement: **224**;
+- active rules with compaction classification: **224 / 224**;
 - active rules without canonical owner pointer: **0**;
-- first-pass legacy rules removed from active routing: **8**;
+- rules removed from active routing in Pass 1: **25**;
 - `work_log_current` before bounding: **3,563** rows;
 - bounded `work_log_current` after migration: **501** rows;
-- historical rows remain preserved; no work-log history was deleted.
+- historical rows remain preserved; no rule/work-log history was deleted.
 
 Detailed gate: `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`.
+Pass-1 evidence: `audits/g2-p0-containment/G2_FINAL_COMPACTION_PASS1_20260915.md`.
 
 ## 5. Owner-family posture
 
@@ -118,12 +119,12 @@ Other branch-only work remains branch-only unless independently released and ver
 
 Required before formal G2 closure:
 
-1. finish active-tree retirement/reconciliation beyond first-pass classification;
+1. absorb/retire duplicated child semantics family-by-family without semantic loss;
 2. freeze the finite owner hierarchy;
 3. keep Master/Roadmap/Owner Index free of duplicated domain-law bodies;
 4. reconcile material branch/release states;
 5. verify bounded current coordination routing;
-6. run fresh-agent routing acceptance across representative domains;
+6. run independent fresh-agent routing acceptance across representative domains;
 7. resolve material DRIFT found by replay;
 8. Human Gate approval by ZURIEL.
 
