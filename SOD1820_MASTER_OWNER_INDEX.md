@@ -62,19 +62,23 @@ Owner families below are routing categories only — never umbrella super-laws.
 | Research OS / Research Context / Journey substrate | `docs/research-studio-v1-contract.md` baseline lineage |
 | Workspace / one Research OS / projection consolidation | `research_workspace_law` **v3 ACTIVE** |
 | adaptive semantic zones/layout | `workspace_layout_standard` |
-| Research Strategy / Plan / bounded adaptive execution / temporal evidence reasoning | `research_strategy_layer_law` **v14 ACTIVE** |
+| Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v15 ACTIVE** |
 | source-native research-object identity invariant | `research_object_identity_invariant_law` |
 
-Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by Workspace v3 / Strategy v14 / Truth.
+`research_strategy_layer_law v15` owns the compact 2029 **Capability Fabric / Context Compiler** semantics: owner-qualified capabilities → bounded authorized Research Plan → canonical adapters → Universal Finding/Result Bundle → dependency/dedup → contextual rank/explain → explicit coverage/failure → replayable bounded Context Pack. It is composition, never a new registry/store/truth system.
+
+Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws are Archive/provenance after their useful semantics were absorbed by Workspace v3 / Strategy v15 / Truth.
 
 ### D. RESEARCH INTAKE / SOURCE / REPRESENTATION
 
 | Responsibility | Canonical owner |
 |---|---|
-| universal research intake / source orchestration | `research_intake_foundation_contract_law` |
+| universal research intake / source orchestration / Contextual Source Gap | `research_intake_foundation_contract_law` **v9 ACTIVE** |
 | corpus admission | `corpus_admission_foundation_v1` |
 | exact expression/source extraction | `shared_expression_extraction_contract_v1` under Intake |
 | writer/contributor material source flow | `writer_material_home_law` under Intake |
+
+`research_intake_foundation_contract_law v9` owns the 2029 **Contextual Source Gap**: search owned/admitted sources first; a missing-source recommendation is a research task, never evidence; exact acquired source evidence resolves/supersedes the gap additively.
 
 ### E. TRUTH / HUMAN GATE
 
@@ -125,7 +129,7 @@ Legacy rigid search-gate, ELS-specific credit and duplicate proximity/past-only 
 
 | Responsibility | Canonical owner |
 |---|---|
-| Raziel companion/persona/cross-surface continuity | `raziel_companion_layer_law` |
+| Raziel companion / 2029 Continuous Research Presence / cross-surface continuity | `raziel_companion_layer_law` **v2 ACTIVE** |
 | capability × intelligence × permission routing | `raziel_routing_law` v2 |
 | response envelope | `raziel_response_contract` |
 | full answer / completion | `raziel_full_answer_and_route_law` v3 |
@@ -133,16 +137,20 @@ Legacy rigid search-gate, ELS-specific credit and duplicate proximity/past-only 
 | group/private channel boundary | `raziel_group_privacy_law` |
 | System Operations / Metatron recommendations | `system_suggestions_law` |
 
-Old bot architecture/thinking/intent/thinking-effort laws are Archive after routing consolidation. Raziel/Metatron do not create second truth/context stores.
+`raziel_companion_layer_law v2` owns the compact 2029 North Star previously carried in Roadmap v5.6: Continuous Research State, authorized longitudinal memory, Research Pulse, Silence Gate, self-audit, Next Best Research Action/STOP, one companion across surfaces/channels, multimodal one-research identity, adaptive deterministic-first intelligence, Trust/Why-Now calibration and Golden acceptance moments. It consumes current Workspace/Strategy/Person/Truth/Attention owners and creates no second memory/context/truth system.
+
+Historical `unified_ai_brain_law` and `metatron_single_mind_law` now carry explicit successor-owner pointers into the current Raziel/Strategy/Reality tree. Old bot architecture/thinking/intent/thinking-effort laws are Archive after routing consolidation.
 
 ### J. PERSON / PERSONAL / PRIVACY / ATTENTION
 
 | Responsibility | Canonical owner |
 |---|---|
-| Person / group / personal-data processing | `person_foundation_contract_law` v5 |
+| Person / group / personal-data processing / Personal Reality projection | `person_foundation_contract_law` **v6 ACTIVE** |
 | Follow / notification / subscription funnel | `subscription_funnel_law` v19 |
 | entitlement/access product seam | `platform_tiers_law` v2 |
 | one credit currency | `unified_credit_system` under Access |
+
+`person_foundation_contract_law v6` owns **Personal Reality** as an authorized contextual projection over the same One Reality: personal context may change relevance/resume/emphasis but never global truth; private material is filtered before composition; private→public research is explicit and Human-Gated; Follow ≠ inferred relevance ≠ Raziel suggestion.
 
 Privacy/RLS rules are scoped invariants under Person/Foundation owners, not parallel privacy systems. Legacy “after 2 insights” signup and numeric AI quota assumptions are Archive; concrete product limits remain Human-Gate/live-product decisions.
 
