@@ -166,14 +166,15 @@ Every active rule must have `metadata.compaction_v1` containing exactly one rout
 - `IMPLEMENTATION_OR_PROJECTION_RULE`
 - `LEGACY_RETIRE_OR_SUPERSEDE` — historical rows should normally be inactive after retirement.
 
-At the 2026-09-15 first pass:
+At the 2026-09-15 Pass-1 checkpoint:
 
-- active rules: **241**;
-- classified active rules: **241 / 241**;
+- active rules before compaction: **249**;
+- active rules now: **224**;
+- classified active rules: **224 / 224**;
 - active rules without canonical owner: **0**;
-- legacy rows retired from active routing in first pass: **8**.
+- rows retired from active routing in Pass 1: **25**.
 
-The count may decrease further as unique semantics are absorbed and scoped implementation laws are archived. The target is not an arbitrary number; it is low routing ambiguity and minimal startup reads.
+The count may decrease further as unique semantics are absorbed and scoped child laws become archive/on-demand material. The target is not an arbitrary number; it is low routing ambiguity and minimal startup reads.
 
 ## 5. Archive rule
 
