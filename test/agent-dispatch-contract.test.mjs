@@ -6,7 +6,8 @@ import { dirname, resolve } from "node:path";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const baseMigration = readFileSync(resolve(ROOT, "supabase/migrations/20260915165000_g3_inter_agent_event_dispatch_runtime_v1.sql"), "utf8");
 const routineMigration = readFileSync(resolve(ROOT, "supabase/migrations/20260915165100_g3_claude_code_routine_transport_v2.sql"), "utf8");
-const combined = `${baseMigration}\n${routineMigration}`;
+const hardeningMigration = readFileSync(resolve(ROOT, "supabase/migrations/20260915165200_g3_agent_event_dispatch_runtime_hardening_v3.sql"), "utf8");
+const combined = `${baseMigration}\n${routineMigration}\n${hardeningMigration}`;
 
 assert.doesNotMatch(combined, /\bcreate\s+table\b/i, "dispatcher must not create a parallel queue/store table");
 assert.match(baseMigration, /alter table public\.work_log/i, "existing Coordination Ledger must be extended");
@@ -15,6 +16,11 @@ assert.match(baseMigration, /work_log_assignment_idempotency_uidx/i, "assignment
 assert.match(baseMigration, /cron\.schedule/i, "recovery scheduler must exist");
 assert.match(baseMigration, /agent_dispatch_finish/i, "canonical finish path must remain work_log based");
 assert.match(baseMigration, /RESULT_WAKE/i, "result provenance must preserve controller wake intent");
+
+assert.match(hardeningMigration, /drop trigger if exists trg_work_log_dispatch_prepare on public\.work_log/i, "hardening must replace the legacy preparation trigger");
+assert.match(hardeningMigration, /create trigger trg_work_log_dispatch_prepare\s+before insert on public\.work_log/i, "final preparation trigger must be INSERT-only");
+assert.doesNotMatch(hardeningMigration, /before insert\s+or\s+update on public\.work_log/i, "hardening must never restore arbitrary UPDATE auto-dispatch");
+
 assert.match(routineMigration, /CLAUDE_CODE_ROUTINE_FIRE_URL/, "Routine fire URL must come from existing Vault");
 assert.match(routineMigration, /CLAUDE_CODE_ROUTINE_TOKEN/, "Routine bearer token must come from existing Vault");
 assert.match(routineMigration, /claude_code\/routines\//i, "Claude wake must use the Claude Code Routine API");
