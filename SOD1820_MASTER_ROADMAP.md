@@ -16,6 +16,17 @@ Current active gate:
 Detailed acceptance lives at:
 `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`
 
+## 2029 North Star — owner pointers only
+
+The old Roadmap v5.6 carried detailed 2029 domain semantics. During compaction those semantics were absorbed into current owners; this compact Roadmap only points to them:
+
+- Continuous Raziel Research Companion / Research Presence → active `raziel_companion_layer_law` **v2**;
+- Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
+- Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
+- Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
+
+Historical Roadmap v5.6 remains provenance only. Normal routing starts from the current owner tree, not from the historical Roadmap body.
+
 ## Immediate sequence
 
 1. **Finish active-tree compaction**
@@ -64,17 +75,25 @@ Implement only against frozen current owners. Do not rebuild legacy UI.
    - WRITE remains governed; merge/deploy/publish/canonicalization never gain automatic authorization;
    - EXTEND_EXISTING only: no second Agent System, Queue authority, Coordination Store or Truth Store;
    - current state: **NOT IMPLEMENTED · CARRY-FORWARD ONLY**.
-2. **Core runtime seams / safety before broad Goldens**
+2. **AGENT MEDIA / FILE TOOL ADAPTER — EARLY FOUNDATION/RUNTIME PRIORITY**
+   - reuse the already-proven `AGENT_MEDIA_UPLOAD_BRIDGE_V1` / `agent-upload` ticket mechanism and current Media/Research Intake owners;
+   - one canonical file-capable action must work for GPT and CLAUDE: receive/generated artifact → bounded destination intent → least-privilege single-use ticket → upload → hash/size/mime/reference verification → return canonical artifact reference;
+   - artifact upload remains separate from domain placement/binding: Post / Reality Stream / Gallery / Brand / Research owners decide governed placement after the reference is returned;
+   - images are the first Golden capability; private Books/Documents remain a separate private-storage/RLS/retention lane;
+   - wrong hash/mime/path/replay must fail closed; no reusable admin secret exposed;
+   - EXTEND_EXISTING only: no second Upload System, Storage owner, media store or agent-specific upload path;
+   - current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
+3. **Core runtime seams / safety before broad Goldens**
    - server-authoritative entitlement seam;
    - privacy/data-lifecycle enforcement;
    - callable ELS boundary;
    - replay/idempotency/failure recovery;
    - canonical domain adapters where required.
-3. **Replayable capability / Golden fixtures**
+4. **Replayable capability / Golden fixtures**
    - replayable Research Context / Journey path for 878;
    - Year/Verse Journey source/witness/counting provenance;
    - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World.
-4. **Broader G3 product/runtime implementation**
+5. **Broader G3 product/runtime implementation**
    - Global Now/Home adapters;
    - Follow/Attention delivery truth;
    - Raziel continuous research companion;
@@ -111,8 +130,9 @@ Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Att
 
 Only decision-changing open items belong here:
 
-- formal G2 closure after fresh-agent replay;
+- formal G2 closure after challenge-fix replay + Human Gate;
 - exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v11;
+- exact runtime integration mechanics for the existing agent media/file upload bridge;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
 - exact Free/Registered/Premium allocation in G5;
