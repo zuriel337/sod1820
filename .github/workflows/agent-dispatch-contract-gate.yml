@@ -1,0 +1,32 @@
+name: Agent Dispatch Contract Gate
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/*agent_event_dispatch_runtime*.sql"
+      - "supabase/functions/agent-dispatch/**"
+      - "test/agent-dispatch-contract.test.mjs"
+      - ".github/workflows/agent-dispatch-contract-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Bounded specialist core tests
+        run: node --experimental-strip-types supabase/functions/agent-dispatch/core.test.mts
+
+      - name: Migration + Edge architecture contract
+        run: node test/agent-dispatch-contract.test.mjs
