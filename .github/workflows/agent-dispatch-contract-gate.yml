@@ -15,7 +15,7 @@ permissions:
 jobs:
   contract:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,3 +30,11 @@ jobs:
 
       - name: Migration + Edge architecture contract
         run: node test/agent-dispatch-contract.test.mjs
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Edge TypeScript check
+        run: deno check supabase/functions/agent-dispatch/index.ts
