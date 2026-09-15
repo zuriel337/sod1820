@@ -2,10 +2,11 @@
 
 **Human Gate:** ZURIEL  
 **Primary writer:** GPT  
+**Independent challenger:** CLAUDE · READ_ONLY  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **origin/main at verification:** `f1972c9944e6f0e7a094cc500dba5963221ea21d`  
 **Branch:** `gpt/g2-final-compaction-v1`  
-**State:** BRANCH-ONLY DOCS + DB-LIVE RULE/ROUTING COMPACTION · G2 OPEN
+**State:** DB-LIVE COMPACTION + BRANCH-ONLY COMPACT DOCS · CHALLENGE CONSUMED · HUMAN-GATE/RELEASE PENDING
 
 ## 1. Active-tree result
 
@@ -86,49 +87,102 @@ Examples:
 - `social_autonomy_law` contradicted current Human-Gate release governance → retired from active routing;
 - `language_rule` said “Hebrew always” while `content_translation_law v3` owns multilingual/source-language integrity → old rule retired;
 - stale access/quota and subscribe-gate prescriptions that conflict with current Access/Funnel owners were retired;
-- old fixed Research OS projection laws were absorbed into compact `research_workspace_law v3` and `research_strategy_layer_law v14` before retirement.
+- old fixed Research OS projection laws were absorbed into compact `research_workspace_law v3` and `research_strategy_layer_law` before retirement.
 
-## 6. Representative fresh-route self replay after Pass 2
+## 6. Independent fresh-agent challenge — consumed
 
-This is GPT self-replay, not the required independent Claude challenge.
+Claude challenge work_log AFTER:
+`29c559b5-35c5-4e0f-a420-e4b6c4762456`.
+
+Claude independently reproduced:
+
+- active rules **86**;
+- ownerless **0**;
+- unclassified **0**;
+- all canonical-owner pointers resolvable;
+- retired lineage preserved;
+- Gematria routing/semantic preservation PASS;
+- ELS PASS;
+- Source/Book PASS;
+- Person/Life PASS;
+- Publishing PASS;
+- Follow PASS;
+- Release PASS;
+- compact Roadmap structurally PASS.
+
+Claude found one decision-changing blocker: detailed 2029 North-Star semantics had been removed from Roadmap v5.6 during compaction before being absorbed into current owner bodies. Because Archive/audits are not normal routing authority, a fresh agent could lose the governing 2029 direction for Raziel, Capability Fabric/Context Compiler, Person/Life Personal Reality and Books/Sources Contextual Source Gap.
+
+### Blocker remediation — owner-first, no new owner
+
+GPT live-cross-verified the finding and absorbed only the missing load-bearing semantics into existing owners:
+
+- `raziel_companion_layer_law v2` — Continuous Research State; authorized longitudinal memory; Research Pulse; Silence Gate; self-audit; Next Best Research Action / STOP; one companion across surfaces/channels; multimodal one-research identity; adaptive deterministic-first intelligence; Trust/Why-Now; 2029 acceptance moments.
+- `research_strategy_layer_law v15` — owner-qualified Capability Fabric + bounded Context Compiler/Context Pack composition; partial-failure/coverage; relevant-owner selection; future capability plug acceptance.
+- `person_foundation_contract_law v6` — Personal Reality as privacy-filtered contextual projection over the same One Reality; personal relevance never rewrites global truth; private→public remains explicit/Human-Gated; Follow/Relevance/Raziel Suggestion remain distinct.
+- `research_intake_foundation_contract_law v9` — Contextual Source Gap: owned sources first; missing-source recommendation is a research task, not evidence; additive resolution when exact source evidence arrives.
+
+The four updates are DB-LIVE additive version bumps under existing owners. **Active rule count remains 86.** No new North-Star owner/doc/store/system was created.
+
+Claude minimal pointer fix was also applied:
+
+- historical inactive `unified_ai_brain_law` now points to the current Raziel/Strategy/Reality owner tree;
+- historical inactive `metatron_single_mind_law` now points to the current Strategy/Raziel/Reality owner tree.
+
+Claude's remaining main/document DRIFT is expected branch state: origin/main still has the pre-compaction Owner Index until this compact package is explicitly released; branch compact Owner Index already removes the dead citation. This is a release-state delta, not unresolved semantic owner drift.
+
+## 7. Final representative routing replay after blocker patch
 
 | Natural task | Current first read | Result |
 |---|---|---|
 | `פתח 358 / חפש גימטריה` | numeric family index → `gematria_engine_law v2` + Registry/Execution owners | PASS |
 | `בדוק דילוג` | `els_research_layer_law v3` + `els_single_engine_law v2` | PASS |
-| `סרוק ספר / מקור` | `research_intake_foundation_contract_law v8` | PASS |
-| `שאל את רזיאל` | `raziel_companion_layer_law` + `raziel_routing_law v2` when routing detail needed | PASS |
-| `אדם / מסע חיים / חומר אישי` | `person_foundation_contract_law v5` | PASS |
+| `סרוק ספר / מקור` | `research_intake_foundation_contract_law v9` | PASS |
+| `שאל את רזיאל` | `raziel_companion_layer_law v2` + `raziel_routing_law v2` when routing detail needed | PASS |
+| `אדם / מסע חיים / חומר אישי` | `person_foundation_contract_law v6` | PASS |
 | `תעלה/ערוך פוסט` | `project_codex.publishing_conventions` + release owner only if publishing/release requested | PASS |
 | `עקוב / עדכונים` | `subscription_funnel_law v19` | PASS |
 | `איפה אנחנו במפה` | compact Roadmap; Foundation owner only for gate verification | PASS |
 | `תעלה` | `deploy_on_request` + live-state + coordination/write safety | PASS |
 
-All targeted live owners were reverified active in canonical Supabase after Pass 2. Current Gematria/Publishing/Numeric codex pointers were also reverified live.
+Challenge-specific replay:
 
-## 7. G3 inter-agent dispatch carry-forward
+| 2029 query | Current owner | Result |
+|---|---|---|
+| Raziel / Research Pulse / Silence Gate / Next Best Research Action | `raziel_companion_layer_law v2` | PASS |
+| Capability Fabric / Context Compiler / Context Pack | `research_strategy_layer_law v15` + Workspace | PASS |
+| Personal Reality | `person_foundation_contract_law v6` | PASS |
+| Contextual Source Gap | `research_intake_foundation_contract_law v9` | PASS |
 
-Active `inter_agent_coordination_law v11` owns the carry-forward:
+Live revalidation after patch:
+
+- active rules **86**;
+- ownerless **0**;
+- unclassified **0**;
+- duplicate active rule families **0**;
+- `work_log_current` **340**;
+- current Gematria/Numeric/Publishing codex pointers present;
+- patched owners v2/v15/v6/v9 uniquely active.
+
+## 8. G3 carry-forward
+
+Active `inter_agent_coordination_law v11` owns:
 
 **G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME**.
 
-It is an early G3 Foundation/runtime priority and is NOT implemented by this G2 pass.
+A current work-log carry-forward also requires early G3 runtime integration of the already-proven **Agent Media/File Upload Bridge** so GPT/CLAUDE can receive/generated artifacts, upload through the existing least-privilege ticket path, verify hash/size/mime/reference, and hand the canonical reference to the governing domain owner. No parallel Upload System is authorized.
 
-No automatic WRITE/merge/deploy/publish/canonicalization authority is created.
+Both are Roadmap early-G3 runtime priorities. Neither is implemented by this G2 pass.
 
-## 8. Stop condition reached
+## 9. Stop condition / release state
 
-GPT will not continue aggressive rule retirement past this point without independent semantic-loss challenge. The remaining active set is sufficiently compact that further reductions require domain-deep proof rather than obvious duplicate/legacy cleanup.
+Further aggressive rule retirement is not justified merely to reduce the count below 86. The independent challenge proved the active tree mechanics and exposed the semantic-loss gap; that gap has been patched through the existing owners.
 
-## 9. Remaining G2 blocker
+Exact state now:
 
-Before formal G2 closure:
+- rule/owner compaction: **DB-LIVE · VERIFIED**;
+- compact Master/Roadmap/Owner Index/audit package: **COMMITTED · BRANCH-ONLY**;
+- independent challenge: **COMPLETED · BLOCKER PATCHED**;
+- branch merge/deploy: **NOT AUTHORIZED / NOT MERGED / NOT DEPLOYED**;
+- G2 formal closure: **PENDING ZURIEL HUMAN GATE + explicit release + post-merge verification**.
 
-1. consume Claude READ_ONLY fresh-agent / semantic-loss challenge already assigned in `work_log`;
-2. live-cross-verify any blocker/DRIFT Claude reports;
-3. apply the smallest correction if decision-changing;
-4. rerun final acceptance;
-5. ZURIEL Human Gate approves the frozen map and authorizes any branch release;
-6. only then may G2 be declared CLOSED.
-
-**Current verdict: G2 OPEN · GPT COMPACTION CANDIDATE READY FOR INDEPENDENT CHALLENGE.**
+**Current verdict: G2 COMPACTION ACCEPTANCE PATCHED · READY FOR HUMAN GATE / RELEASE DECISION.**
