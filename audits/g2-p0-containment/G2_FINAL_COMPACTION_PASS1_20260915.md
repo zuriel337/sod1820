@@ -17,8 +17,9 @@ Reduce normal agent startup to a finite owner-first tree while preserving all hi
 - active rules before pass: **249**
 - first legacy retirement batch: **8**
 - implementation/projection retirement batch: **17**
-- active rules after Pass 1: **224**
-- active rules classified by `metadata.compaction_v1`: **224 / 224**
+- Experience legacy-presentation retirement batch: **8**
+- active rules after current Pass-1 waves: **216**
+- active rules classified by `metadata.compaction_v1`: **216 / 216**
 - active rules without canonical owner pointer: **0**
 - inactive/historical rows remain preserved; no rule row was deleted.
 
@@ -33,19 +34,21 @@ Retired rows preserve `canonical_owner`, `owner_family`, archive reason and prov
 
 ### Work log
 
-`work_log` remains append-only history.
+`work_log` remains append-only provenance.
 
 `work_log_current` changed from an almost-full-history view to a bounded current surface:
 
 - before: **3,563** rows
-- after: **501** rows
+- after bounded-view migration: **501** rows
+- after stale BEFORE/CLAIMED reconciliation: **340** rows
+- stale BEFORE/active-status rows reconciled to a later terminal row: **297**
+
+Those rows were not deleted: they were marked archived/superseded and linked by `superseded_by_id` to the later terminal record.
 
 Current surface keeps:
 
 - latest 100 non-archived/non-superseded rows;
 - latest row per active/waiting/assigned/release task scope during the last 14 days.
-
-No historical work-log row was deleted.
 
 ## Documentation compaction on branch
 
