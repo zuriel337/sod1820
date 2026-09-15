@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useLegacyNav } from "../lib/legacyNav.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { getPostBySlug } from "../lib/supabase.js";
+import BrandEvolutionStory from "../components/BrandEvolutionStory.jsx";
 import {
   BlogPage, PostPageBySlug, CategoryPage, TagPage, GematriaPhrasePage,
   AboutPage, LoginPage, ContactPage, ChatPage, SpotimChatPage,
@@ -66,7 +67,12 @@ export function GematriaRoute() {
 
 export function AboutRoute() {
   const nav = useLegacyNav();
-  return <AboutPage onNav={nav} pageContent={PAGE_CONTENT_DEFAULTS.about} adminMode={false} />;
+  return (
+    <>
+      <BrandEvolutionStory variant="about" />
+      <AboutPage onNav={nav} pageContent={PAGE_CONTENT_DEFAULTS.about} adminMode={false} />
+    </>
+  );
 }
 
 export function LoginRoute() {
@@ -75,7 +81,12 @@ export function LoginRoute() {
 }
 
 export function ContactRoute() {
-  return <ContactPage />;
+  return (
+    <>
+      <BrandEvolutionStory variant="contact" />
+      <ContactPage />
+    </>
+  );
 }
 
 export function ChatRoute() {
