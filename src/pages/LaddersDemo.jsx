@@ -1,7 +1,7 @@
 import React from "react";
-import ConvergenceGalaxy from "../components/ConvergenceGalaxy.jsx";
+import { Navigate } from "react-router-dom";
 
-// /sulamot — גלקסיית ההתכנסות, גרסה 1 (בסיס)
+// RETIRED BY HUMAN GATE (2026-09-15): legacy Sulamot/galaxy presentation removed.
 export default function LaddersDemo() {
-  return <ConvergenceGalaxy level={1} />;
+  return <Navigate to="/research" replace />;
 }
