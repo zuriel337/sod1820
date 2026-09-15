@@ -25,9 +25,9 @@ Before creating any new Contract / Law / System / Store / Engine / Registry / gl
 
 A filename, search match, old conversation, branch, roadmap line, or inactive rule is never sufficient proof of canonical ownership.
 
-## Canonical owner map — selective live re-verification 2026-09-14
+## Canonical owner map — selective live re-verification 2026-09-15
 
-Versioned rule rows represented below were re-read live from canonical Supabase during G2 2029 reconciliation on 2026-09-14 where changed. Unchanged rows retain their prior verified state until their domain is touched. Long-form contract/implementation claims still require live verification before any current-state write.
+Versioned rule rows represented below were re-read live from canonical Supabase during G2 2029 reconciliation where changed. Unchanged rows retain their prior verified state until their domain is touched. Long-form contract/implementation claims still require live verification before any current-state write.
 
 | Domain / responsibility | Canonical owner | Owner type | Active/current state at verification | Canonical body / implementation pointer |
 |---|---|---|---|---|
@@ -61,7 +61,7 @@ Versioned rule rows represented below were re-read live from canonical Supabase 
 | Method execution/scanning governance | `engine_governance_registry_authority_law` | versioned rule | **v1 ACTIVE · DB-LIVE 2026-09-14** | `gematria_methods`, `v_method_states`, canonical execution/verification/scanning functions |
 | Corpus admission | `corpus_admission_foundation_v1` | versioned rule + codex | **v1 ACTIVE** | `project_codex.corpus_admission_foundation_v1` |
 | Person foundation / identity+roles+personal-data processing | `person_foundation_contract_law` | versioned rule + codex | **v5 ACTIVE · DB-LIVE 2026-09-14** | `project_codex.person_foundation_contract`; v5 carries authorized Personal/Cohort contextual research semantics and privacy boundaries. Runtime privacy challenge may remain open without reverting this owner pointer |
-| Foundation closure protocol | `foundation_closure_protocol_law` | versioned rule + codex | **v4 ACTIVE · DB-LIVE 2026-09-14** | Foundation → Projection → Experience; G2 remains OPEN until its formal blockers are resolved even when accumulated work is merged to main; merge/release does not equal gate closure |
+| Foundation closure protocol / G2 no-skip compaction gate | `foundation_closure_protocol_law` | versioned rule + gate artifact | **v5 ACTIVE · DB-LIVE 2026-09-15** | Foundation → Projection → Experience; G2 remains OPEN until all formal blockers plus `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md` pass. v5 binds Canonical Compaction · Owner Hierarchy · Active Tree Freeze and the later G3 Implementation Compaction; merge/release never equals gate closure |
 
 ## W0 2027 routing clarification
 
@@ -81,6 +81,14 @@ Route by responsibility:
 - visual tokens/theme/product naming → Design + canonical color/UI owners.
 
 **Multiple surfaces may invoke one capability; they do not become co-owners.**
+
+## G2 mandatory compaction binding — 2026-09-15
+
+Human Gate has made **Canonical Compaction · Owner Hierarchy · Active Tree Freeze** a mandatory no-skip precondition for formal G2 closure. The canonical semantic binding lives in active `foundation_closure_protocol_law v5`; detailed acceptance lives at `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`.
+
+This binding requires, at minimum: 0 material orphan active laws; 100% active-rule classification; finite owner-family hierarchy; Master compact-current form with preserved historical snapshot; Roadmap limited to navigation/priority/gates/sequence/open decisions; bounded current work-log routing; One Decision → One Canonical Body; anti-inflation admission discipline; fresh-agent acceptance; and preserved provenance. A second G3 Implementation Compaction is also mandatory at the end of G3.
+
+The 14–15.9 Human-Gate decision index is preserved at `audits/g2-p0-containment/G2_2029_DAILY_RECONCILIATION_20260914_15_V1.md`. It is a bounded decision index, not a new SSOT.
 
 ## G2 2029 upper-layer inheritance rule
 
@@ -120,4 +128,4 @@ The additive Master State pointer should state only:
 
 > `CANONICAL OWNER INDEX v1` — routing-only index for domain → canonical owner → active/current version/status → implementation pointer. Read current owner first; history only on drift/provenance. Canonical body: `SOD1820_MASTER_OWNER_INDEX.md` on `main`. No authority-order change; no new registry/store/system.
 
-No Roadmap priority change is implied by this index beyond the separately governed W0/W0.5/W1 sequence.
+No Roadmap priority change is implied by the Owner Index itself. The G2 compaction gate is separately binding through `foundation_closure_protocol_law v5` and the mandatory gate artifact above.
