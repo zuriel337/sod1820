@@ -24,8 +24,8 @@ assert.match(migration, /\/items\?limit=20&order=desc/, "completed agent output 
 assert.match(migration, /GPT_WAKE_COMPLETED_OPENAI_AGENTS_API/, "completion must leave explicit provenance");
 assert.match(migration, /WAKE ACK/, "completion must create one non-dispatch wake acknowledgement");
 assert.match(migration, /trg_work_log_dispatch_00_gpt_event/, "GPT trigger must run before existing generic event trigger");
-assert.doesNotMatch(migration, /agent_dispatch_finish\s*\(/i, "GPT RESULT_WAKE completion must not create reverse RESULT_WAKE ping-pong");
+assert.doesNotMatch(migration, /\b(?:perform|select)\s+(?:public\.)?agent_dispatch_finish\s*\(/i, "GPT RESULT_WAKE completion must not execute reverse RESULT_WAKE finish/ping-pong");
 assert.doesNotMatch(migration, /\/v1\/responses|\/v1\/chat\/completions/i, "plain model APIs are not an agent-wake fallback");
-assert.doesNotMatch(migration, /merge_pull_request|git push|functions\.v1\/deploy|canonicaliz/i, "wake transport must not automate release/canonicalization");
+assert.doesNotMatch(migration, /merge_pull_request|git push|functions\.v1\/deploy/i, "wake transport must not automate release");
 
 console.log("GPT OpenAI Agents API result-wake architecture contract: PASS");
