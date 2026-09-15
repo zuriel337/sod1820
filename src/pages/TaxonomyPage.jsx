@@ -5,7 +5,6 @@ import { usePalette } from "../lib/palette.js";
 import { getPostsFromSupabase, adaptPost, getDistinctCategoriesAndTags } from "../lib/supabase.js";
 import { stripHtml, formatDateHe, timeAgoHe, fromSlug, toSlug } from "../lib/format.js";
 import { applySeo } from "../lib/seo.js";
-import { openNumberDrawer } from "../lib/numberDrawer.js";
 import PopularPrayersBox, { isPrayerTag } from "../components/PopularPrayersBox.jsx";
 import HomeOrGeulaRail from "../components/HomeOrGeulaRail.jsx";
 import WatchButton from "../components/WatchButton.jsx";
@@ -14,7 +13,8 @@ import StrongHintBadge, { postHasStrongHint } from "../components/StrongHintBadg
 import { categoryLabel } from "../lib/categoryIcons.js";
 
 // ===== דף תגית / קטגוריה — בעיצוב האתר (זהב מלכותי), "טען עוד" במקום עימוד =====
-// כל פוסט מקושר לדף הפוסט; גימטריית השם מקושרת לדף הישות + פותחת את מגירת המספר.
+// קטגוריה/תגית הן סיווג וניווט עריכתי. הן אינן Expression מחקרי ולכן לא מקבלות
+// גימטריה אוטומטית מעצם שם הסיווג. כרטיסי פוסט ממשיכים להציג יכולות פוסט קיימות.
 
 const PER = 12;
 
@@ -59,7 +59,6 @@ function TaxonomyView({ kind }) {
   const navigate = useNavigate();
   const name = fromSlug(slug);
   const isTag = kind === "tag";
-  const gem = calcGem(name);
   // 💬 "צאט"/"צ'אט" כתגית → הפניה לדף הצ'אט (גולשים מחפשים את הצ'אט דרך תג/חיפוש)
   const isChatTag = isTag && ((name || "").replace(/['"׳״\s]/g, "") === "צאט" || /chat/i.test(name || ""));
   // 🎬 קטגוריית «וידאו» → מציגים גם את רצועת «אור הגאולה» המתעדכנת (אותו רכיב של עמוד הבית).
@@ -135,16 +134,6 @@ function TaxonomyView({ kind }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "center", alignItems: "center", flexWrap: "wrap", marginTop: 14 }}>
           {total > 0 && (
             <span style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14 }}>{total.toLocaleString()} פוסטים</span>
-          )}
-          {gem > 0 && (
-            <>
-              <span style={{ color: P.border }}>·</span>
-              <Link to={`/number/${gem}`} onClick={() => openNumberDrawer(gem)} style={{
-                textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
-                background: P.glow, border: `1px solid ${P.borderStrong}`, borderRadius: 999,
-                padding: "4px 13px", color: P.ink, fontFamily: F.mono, fontSize: 13, fontWeight: 700,
-              }}>גימטריה {gem} 🔢</Link>
-            </>
           )}
         </div>
       </div>
