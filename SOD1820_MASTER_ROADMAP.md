@@ -80,7 +80,7 @@ Implement only against frozen current owners. Do not rebuild legacy UI.
    - Raziel continuous research companion;
    - greenfield product surfaces consuming Foundation owners.
 
-**Mandatory at end of G3:** Implementation Compaction / Archive Pass before the next program phase.
+**Mandatory at end of G3:** Implementation Compaction / Archive Pass before the next program phase. Detailed acceptance: `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`.
 
 ### G4 — Golden Experiences
 
