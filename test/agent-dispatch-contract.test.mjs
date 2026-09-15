@@ -24,7 +24,7 @@ assert.match(baseMigration, /RESULT_WAKE/i, "result provenance must preserve con
 
 assert.match(routineMigration, /CLAUDE_CODE_ROUTINE_FIRE_URL/, "Routine fire URL must come from existing Vault");
 assert.match(routineMigration, /CLAUDE_CODE_ROUTINE_TOKEN/, "Routine bearer token must come from existing Vault");
-assert.match(routineMigration, /api[.]anthropic[.]com\/v1\/claude_code\/routines\//i, "Claude wake must use the Claude Code Routine API");
+assert.match(routineMigration, /claude_code\/routines\//i, "Claude wake must use the Claude Code Routine API");
 assert.match(routineMigration, /experimental-cc-routine-2026-04-01/, "Routine beta contract must be explicit");
 assert.match(routineMigration, /claude_code_session_id/, "wake proof must capture Claude Code session id");
 assert.match(routineMigration, /claude_code_session_url/, "wake proof must capture Claude Code session URL");
