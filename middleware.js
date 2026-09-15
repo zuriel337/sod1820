@@ -7,11 +7,13 @@ export const config = {
 };
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYXNlIiwicmVmIjoibGluc3dtbm5ranh2d2V1bXByYXYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDYyODc2MiwiZXhwIjoyMDk2MjA0NzYyfQ.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const SG_RATE_LIMIT_URL = `${SUPABASE_URL}/functions/v1/sg-rate-limit`;
 
 const SG_POLICY_CACHE_MS = 5 * 60 * 1000;
 let SG_POLICY = null;
 let SG_POLICY_AT = 0;
+let SG_RATE_LIMIT_WARNED = false;
 
 async function sgPolicy() {
   const now = Date.now();
@@ -100,23 +102,50 @@ async function sha256Hex(value) {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+function vercelOidcToken() {
+  try {
+    return typeof process !== 'undefined' ? String(process.env?.VERCEL_OIDC_TOKEN || '') : '';
+  } catch {
+    return '';
+  }
+}
+
 async function sgBrowserRateLimit(request, risk, path) {
   const ip = String(request.headers.get('x-forwarded-for') || '').split(',')[0].trim();
   const limit = sgRateLimitCap(risk, path);
   if (!ip) return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
 
+  const oidc = vercelOidcToken();
+  if (!oidc) {
+    if (!SG_RATE_LIMIT_WARNED) {
+      SG_RATE_LIMIT_WARNED = true;
+      console.warn('sg-rate-limit fail-open: missing VERCEL_OIDC_TOKEN');
+    }
+    return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
+  }
+
   try {
     const keyHash = await sha256Hex(`sg:${ip}`);
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/edge_rate_limit_check`, {
+    const r = await fetch(SG_RATE_LIMIT_URL, {
       method: 'POST',
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+      headers: {
+        apikey: ANON,
+        Authorization: `Bearer ${oidc}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        p_key_hash: keyHash,
-        p_window_seconds: SG_RATE_LIMIT_WINDOW_SECONDS,
-        p_limit: limit,
+        key_hash: keyHash,
+        window_seconds: SG_RATE_LIMIT_WINDOW_SECONDS,
+        limit,
       }),
     });
-    if (!r.ok) return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
+    if (!r.ok) {
+      if (!SG_RATE_LIMIT_WARNED) {
+        SG_RATE_LIMIT_WARNED = true;
+        console.warn(`sg-rate-limit fail-open: edge function status ${r.status}`);
+      }
+      return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
+    }
     const data = await r.json();
     return {
       allowed: data?.allowed !== false,
@@ -124,6 +153,10 @@ async function sgBrowserRateLimit(request, risk, path) {
       windowSeconds: Number(data?.window_seconds) || SG_RATE_LIMIT_WINDOW_SECONDS,
     };
   } catch {
+    if (!SG_RATE_LIMIT_WARNED) {
+      SG_RATE_LIMIT_WARNED = true;
+      console.warn('sg-rate-limit fail-open: edge function request failed');
+    }
     return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
   }
 }
