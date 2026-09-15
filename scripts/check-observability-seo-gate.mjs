@@ -19,9 +19,16 @@
 //   Every <Route path="..."> registered in src/App.jsx must resolve to EITHER
 //     (a) an exact-match entry in ROUTE_META (src/routes.jsx), OR
 //     (b) a page component file that calls applySeo(...) itself, OR
-//     (c) an explicit SEO_GATE_DELEGATE wrapper whose target satisfies (b).
+//     (c) an explicit SEO_GATE_DELEGATE wrapper whose target satisfies (b), OR
+//     (d) an explicit SEO_GATE_RETIRED_ROUTE compatibility stub retired by Human Gate.
 //   A route with neither silently inherits stale title/canonical from the previous SPA route —
 //   the exact bug this remediation pass fixed for 7 routes (see routes.jsx history 2026-09-07).
+//
+// Retired-route rule (2026-09-15): retirement is NOT baseline debt. A compatibility component may
+// opt out only with an explicit one-line marker:
+//   // SEO_GATE_RETIRED_ROUTE: <destination-or-INERT> — <reason>
+// This is exact/file-local and reviewable: no prefixes, wildcards or implicit "Navigate means retired"
+// heuristics. If the marker is removed, the route immediately returns to normal SEO-gap detection.
 //
 // This is a heuristic static check, not a full audit — dynamic routes with runtime-only branches,
 // re-exported components, or applySeo() calls behind indirection may produce false positives.
@@ -33,8 +40,8 @@
 // Wired into CI via .github/workflows/observability-seo-gate.yml (SOD1820_OBSERVABILITY_SEO_BUILD_GATE_CI).
 //
 // BASELINE (CI_BASELINE_RECONCILIATION, 2026-09-07): gap-DETECTION logic below (everything through
-// building `gaps`/`skipped`) is UNCHANGED from the original script — this section only adds
-// reviewable, explicit reporting on top of it, per instruction not to touch checker semantics:
+// building `gaps`/`skipped`) is UNCHANGED from the original script except the explicit retired-route
+// classification above — baseline remains reviewed ACTIVE debt only:
 //   - A detected gap whose (path, component) exact pair appears in
 //     scripts/observability-seo-gate-baseline.json is a known, already-reviewed debt: printed for
 //     visibility, does NOT fail the process.
@@ -118,6 +125,11 @@ function resolveFileRef(fromFile, rel) {
   return null;
 }
 
+function retiredRouteMarker(file) {
+  const src = read(path.resolve(file));
+  return src.match(/^\s*\/\/\s*SEO_GATE_RETIRED_ROUTE:\s*(\S.*)$/m)?.[1] || null;
+}
+
 function hasSeoCoverage(file, seen = new Set()) {
   const canonicalFile = path.resolve(file);
   if (seen.has(canonicalFile)) return false;
@@ -136,16 +148,22 @@ function hasSeoCoverage(file, seen = new Set()) {
 
 const gaps = [];
 const skipped = [];
+const retired = [];
 for (const { path: routePath, component } of routes) {
   if (isOutOfScope(routePath)) continue;
   if (routeMetaKeys.has(routePath)) continue; // (a) covered by ROUTE_META
   const file = resolveComponentFile(component);
   if (!file) { skipped.push({ routePath, component, reason: "could not resolve component file" }); continue; }
+  const retirement = retiredRouteMarker(file);
+  if (retirement) {
+    retired.push({ routePath, component, file: path.relative(ROOT, file), retirement });
+    continue; // (d) explicitly retired compatibility route
+  }
   if (hasSeoCoverage(file)) continue; // (b) direct applySeo or (c) explicit delegated SEO owner
   gaps.push({ routePath, component, file: path.relative(ROOT, file) });
 }
 
-// --- 4. Baseline partitioning (reporting-only — does not touch gap detection above) ---
+// --- 4. Baseline partitioning (reviewed active debt only) ---
 const BASELINE_PATH = path.join(ROOT, "scripts/observability-seo-gate-baseline.json");
 const baselineKey = (r) => `${r.path} ${r.component}`;
 let baselineEntries = [];
@@ -165,7 +183,7 @@ const newGaps = gaps.filter((g) => !baselineSet.has(gapKey(g)));
 const detectedGapKeys = new Set(gaps.map(gapKey));
 const resolvedBaseline = baselineEntries.filter((r) => !detectedGapKeys.has(baselineKey(r)));
 
-console.log(`SEO/Indexability Build Gate — ${routes.length} routes scanned, ${gaps.length} gap(s) (${knownGaps.length} baseline, ${newGaps.length} new), ${skipped.length} unresolved.\n`);
+console.log(`SEO/Indexability Build Gate — ${routes.length} routes scanned, ${gaps.length} gap(s) (${knownGaps.length} baseline, ${newGaps.length} new), ${retired.length} explicitly retired, ${skipped.length} unresolved.\n`);
 
 if (newGaps.length) {
   console.log("❌ NEW gaps (not in baseline — FAIL):");
@@ -175,6 +193,11 @@ if (newGaps.length) {
 if (knownGaps.length) {
   console.log("⚠️  BASELINE gaps (known, reviewed, allowed — see scripts/observability-seo-gate-baseline.json):");
   for (const g of knownGaps) console.log(`   ${g.routePath}  →  ${g.component}  (${g.file})`);
+  console.log("");
+}
+if (retired.length) {
+  console.log("🗄️  EXPLICITLY RETIRED compatibility routes (not SEO debt):");
+  for (const r of retired) console.log(`   ${r.routePath}  →  ${r.component}  (${r.file}) :: ${r.retirement}`);
   console.log("");
 }
 if (resolvedBaseline.length) {
@@ -189,7 +212,7 @@ if (skipped.length) {
 }
 
 if (gaps.length === 0) {
-  console.log("✅ Every in-scope public route has either a ROUTE_META entry or its own applySeo() call.");
+  console.log("✅ Every in-scope public route is SEO-covered or explicitly retired by a reviewed compatibility marker.");
 } else if (newGaps.length === 0) {
   console.log(`✅ No new gaps — all ${knownGaps.length} remaining gap(s) are already in the reviewed baseline.`);
 }
