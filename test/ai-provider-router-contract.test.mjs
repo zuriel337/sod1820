@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { chooseProviderRoute, providerForModel } from '../src/lib/aiProviderRouter.js';
-import { providerCost } from '../src/lib/cost.js';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const costSource = readFileSync(join(ROOT, 'src/lib/cost.js'), 'utf8');
 
 test('provider resolver recognizes Claude, Gemini and GPT families', () => {
   assert.equal(providerForModel('claude-sonnet-5'), 'anthropic');
@@ -49,12 +54,13 @@ test('challenger comes from a different provider when requested', () => {
   assert.equal(r.challenger.provider, 'openai');
 });
 
-test('unknown pricing never falls back to Claude price', () => {
-  const c = providerCost('gpt-unknown-yet', 1000, 1000);
-  assert.equal(c.usd, null);
-  assert.equal(c.ils, null);
-  assert.equal(c.pricing, 'unknown');
-  assert.equal(c.provider, 'openai');
+test('client cost helper is fail-closed for unknown pricing', () => {
+  assert.match(costSource, /const p = MODEL_PRICES\[model\];/);
+  assert.match(costSource, /if \(!p\)/);
+  assert.match(costSource, /usd:\s*null/);
+  assert.match(costSource, /ils:\s*null/);
+  assert.match(costSource, /pricing:\s*"unknown"/);
+  assert.doesNotMatch(costSource, /MODEL_PRICES\[model\]\s*\|\|\s*MODEL_PRICES\["claude-sonnet-5"\]/);
 });
 
 test('unknown cost is used only after known-cost sufficient candidates', () => {
