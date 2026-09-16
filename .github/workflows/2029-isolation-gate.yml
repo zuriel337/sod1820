@@ -9,6 +9,7 @@ on:
       - "src/components/experience2029/**"
       - "src/pages/*2029Page.jsx"
       - "src/lib/designTokens.js"
+      - "src/lib/research/researchContext.js"
       - "src/lib/research/world2029Presentation.js"
       - "package.json"
       - "vite.config.js"
