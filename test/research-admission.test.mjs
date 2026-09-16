@@ -41,6 +41,20 @@ test('engine verification does not become governance', () => {
   assert.equal(result.governance.humanGateRequiredForCanonicalPromotion, true);
 });
 
+test('invalid explicit verification state fails closed instead of becoming not_tested', () => {
+  const result = makeResearchAdmissionEnvelope({
+    sourceType: 'automation_output',
+    sourceRef: 'automation:invalid-verification',
+    intrinsicPayload: { payload: 'candidate' },
+    verification: { state: 'verified_by_human', owner: 'caller_supplied' },
+  });
+
+  assert.equal(result.admitted, false);
+  assert.equal(result.reason, 'invalid_verification_state');
+  assert.equal(result.invalidVerificationState, 'verified_by_human');
+  assert.equal(Object.hasOwn(result, 'verification'), false);
+});
+
 test('automation output is candidate/extraction only and is never Human Gate', () => {
   const result = makeResearchAdmissionEnvelope({
     sourceType: 'automation_output',
