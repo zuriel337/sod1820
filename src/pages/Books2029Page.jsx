@@ -16,10 +16,11 @@ import { applySeo } from "../lib/seo.js";
 function BookCard({ book }) {
   const slug = book?.metadata?.slug;
   const coverage = book?.metadata?.coverage_2029 || book?.metadata?.coverage || {};
-  return <Link className="sod29-card" to={slug ? `/books/${slug}` : "/books"}>
-    <div className="sod29-book-cover">▤</div>
+  return <Link className="sod29-book-tile" to={slug ? `/books/${slug}` : "/books"}>
+    <div className="sod29-book-cover" aria-hidden="true">▤</div>
+    <div className="sod29-kicker">BOOK IDENTITY</div>
     <h3>{book.label}</h3>
-    <p>{coverage.research_map || coverage.content_scan || coverage.structural || "Book identity חי"}</p>
+    <p className="sod29-muted">{coverage.research_map || coverage.content_scan || coverage.structural || "Book identity חי"}</p>
     <div className="sod29-actions"><span className="sod29-chip">Book · {book.is_active ? "active" : "inactive"}</span></div>
   </Link>;
 }
@@ -38,13 +39,31 @@ function LibraryView() {
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">Book adapter נכשל: {String(state.error?.message || state.error)}</div></section>;
 
   return <>
+    <section className="sod29-focus-stage">
+      <div className="sod29-command-shell">
+        <div className="sod29-command-copy">
+          <div className="sod29-kicker">LIVE BOOK IDENTITIES</div>
+          <h2>הספרייה אינה מדף.<br />היא שער למחקר המקורות.</h2>
+          <div className="sod29-muted">הספרים מגיעים מהזהויות החיות במערכת. ספר, מהדורה, עד, קובץ דיגיטלי ומראה־מקום נשארים שכבות נפרדות — והמחקר מתחבר אליהם בלי ליצור Book Store נוסף.</div>
+          <div className="sod29-actions"><span className="sod29-chip">{state.books.length} ספרים פעילים</span><span className="sod29-chip">Live identities only</span></div>
+        </div>
+        <div className="sod29-orbit-map" aria-hidden="true">
+          <div className="sod29-orbit-center">מקור<br />אחד</div>
+          <span className="sod29-orbit-node n1">Book</span>
+          <span className="sod29-orbit-node n2">Witness</span>
+          <span className="sod29-orbit-node n3">Locator</span>
+          <span className="sod29-orbit-node n4">Research</span>
+        </div>
+      </div>
+    </section>
+
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">LIVE BOOK IDENTITIES</div><h2>הספרייה הפעילה</h2><div className="sod29-muted">הרשימה מגיעה מ־nodes(type=book,is_active=true). אין רשימת ספרים קשיחה ברכיב.</div></div><span className="sod29-chip">{state.books.length} פעילים</span></div>
-      {state.books.length ? <div className="sod29-grid">{state.books.map(book => <BookCard key={book.id} book={book} />)}</div> : <div className="sod29-state">אין כרגע ספרים פעילים לקריאה ציבורית.</div>}
+      <div className="sod29-section-head"><div><div className="sod29-kicker">ACTIVE LIBRARY</div><h2>הספרייה הפעילה</h2><div className="sod29-muted">הרשימה מגיעה מ־nodes(type=book,is_active=true). אין רשימת ספרים קשיחה ברכיב.</div></div></div>
+      {state.books.length ? <div className="sod29-book-grid">{state.books.map(book => <BookCard key={book.id} book={book} />)}</div> : <div className="sod29-state">אין כרגע ספרים פעילים לקריאה ציבורית.</div>}
     </section>
 
     <section className="sod29-section sod29-placeholder">
-      <h2>תנ״ך · Library Group</h2>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">CORPUS PROJECTION</div><h2>תנ״ך · Library Group</h2></div></div>
       <p className="sod29-muted">ה־Foundation כבר קבע Tanakh כ־corpus projection מעל 24 Book identities, לא כ“ספר 25”. הם נשארים inactive-first עד שה־runtime/projection וה־Human Gate יאשרו הפעלה. לכן הם לא מוצגים כאן כאילו הם כבר ספרייה ציבורית חיה.</p>
     </section>
 
@@ -98,11 +117,20 @@ function BookDetail({ slug }) {
   const addBook = () => { const item = bookToWorkspaceItem(book); if (item) research.addToResearch?.(item); };
 
   return <>
-    <section className="sod29-section">
-      <div className="sod29-section-head">
-        <div><div className="sod29-kicker">BOOK IDENTITY</div><h2>{book.label}</h2><div className="sod29-muted">Book ≠ Source Work ≠ Edition ≠ Textual Version ≠ Witness ≠ Digital Object ≠ Locator.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" onClick={saveBook}>♡ שמור</button><button className="sod29-action" onClick={addBook}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><Link className="sod29-action primary" to="/heichal">◇ חקור בהיכל</Link></div>
+    <section className="sod29-focus-stage">
+      <div className="sod29-book-detail-hero">
+        <div className="sod29-book-cover" aria-hidden="true">▤</div>
+        <div>
+          <div className="sod29-kicker">BOOK IDENTITY</div>
+          <h2>{book.label}</h2>
+          <p className="sod29-muted">Book ≠ Source Work ≠ Edition ≠ Textual Version ≠ Witness ≠ Digital Object ≠ Locator. המסך מקרין את כל השכבות סביב אותה זהות בלי לאחד אותן בטעות.</p>
+          <div className="sod29-actions"><button className="sod29-action" onClick={saveBook}>♡ שמור</button><button className="sod29-action" onClick={addBook}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><Link className="sod29-action primary" to="/heichal">◇ חקור בהיכל</Link></div>
+        </div>
       </div>
+    </section>
+
+    <section className="sod29-section">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">SOURCE LAYERS</div><h2>שכבות הזהות והעדות</h2></div></div>
       <div className="sod29-grid">
         <div className="sod29-card"><h3>Witness</h3><p>{tiers.witness?.provider || tiers.witness?.identity || "לא הוגדר"}</p></div>
         <div className="sod29-card"><h3>Digital Object</h3><p>{tiers.digital_object?.mime || tiers.digital_object?.kind || "לא הוגדר"}</p></div>
@@ -127,5 +155,5 @@ function BookDetail({ slug }) {
 export default function Books2029Page() {
   const { slug } = useParams();
   useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820 2029", path: slug ? `/books/${slug}` : "/books" }); }, [slug]);
-  return <Sod2029Shell eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. אין Book store מקביל ואין hard-coded dossier שמחליף את ה־Research OS.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
+  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות, למראה־מקום ולהמשך בהיכל.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
 }
