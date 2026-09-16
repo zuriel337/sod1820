@@ -58,7 +58,7 @@ function HomeBody() {
         <Link className="sod29-card" to="/books"><h3>▤ ספרים ומקורות</h3><p>Book / Source / Witness / Locator נשארים מובחנים. הספרייה נבנית מהזהויות החיות.</p></Link>
         <Link className="sod29-card" to="/heichal"><h3>◇ היכל</h3><p>Deep Research Environment שמקמפל את סביבת העבודה סביב Research Context פעיל.</p></Link>
         <Link className="sod29-card" to="/number"><h3>123 דף המספר</h3><p>Number/Phrase נשאר מוצר ישיר. ה־2029 shell מתחבר אליו בלי לקחת בעלות על ה־Golden writer.</p></Link>
-        <Link className="sod29-card" to="/lab/els"><h3>✦ ELS</h3><p>כניסה לכלי החי של המנוע הקנוני. ה־2029 ELS projection המלא יתחבר לאותו engine.</p></Link>
+        <Link className="sod29-card" to="/els"><h3>✦ ELS</h3><p>אותו Work Area חי של המנוע הקנוני, בתוך ה־2029 shell ועם Research Context משותף.</p></Link>
         <button className="sod29-card" style={{ textAlign: "start", color: "inherit", font: "inherit", cursor: "pointer" }} onClick={() => userCenter.open?.()}><h3>◎ המחקר שלי</h3><p>הבית האישי הקיים נפתח מאותו shell. G3 יחליף את ה־IA, לא את ה־Research OS שמתחתיו.</p></button>
       </div>
     </section>
