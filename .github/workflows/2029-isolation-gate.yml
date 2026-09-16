@@ -7,11 +7,14 @@ on:
       - "src/main2029.jsx"
       - "src/App2029.jsx"
       - "src/components/experience2029/**"
+      - "src/pages/*2029Page.jsx"
+      - "src/lib/designTokens.js"
       - "package.json"
       - "vite.config.js"
       - "vercel.json"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
+      - "scripts/test-2029-system-frame.mjs"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -28,6 +31,8 @@ jobs:
       - run: npm ci
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
+      - name: Native System Frame acceptance
+        run: node scripts/test-2029-system-frame.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation
