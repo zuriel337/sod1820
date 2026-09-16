@@ -20,6 +20,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   try {
     if (disabled) { storage = null; session = null; }
     cached = read(storage, key, {});
+    if (!object(cached)) throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED');
     activeContext = read(session, contextKey, null);
     restoredFrom = session?.getItem(pointerKey);
     if (restoredFrom?.startsWith(`${key}:pending:`)) {
@@ -45,7 +46,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   let mode = cached.mode === 'discovery' ? 'discovery' : 'reader';
   let revision = journal.revision ?? (Number.isSafeInteger(cached.revision) ? cached.revision : null);
   let queue = clone(journal.queue), inflight = journal.inflight ? clone(journal.inflight) : null;
-  let active = false, generation = 0, cloudReady = false, timer = null, operation = null;
+  let active = false, generation = 0, cloudReady = false, timer = null, operation = null, resolving = false;
   let status = disabled ? 'auth_loading' : storageFault ? 'local_recovery_required' : userId ? 'loading' : 'local_only';
   const listeners = new Set();
   let snapshot;
@@ -53,9 +54,28 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   try { legacyRecoveryAvailable = !disabled && !!storage?.getItem(LEGACY_UNSCOPED_KEY); } catch { /* unavailable */ }
   const notify = () => {
     snapshot = Object.freeze({ ...state, mode, syncStatus: status, syncPending: queue.length,
-      syncRevision: revision, legacyRecoveryAvailable });
+      syncRevision: revision, legacyRecoveryAvailable, recoveryJournals: listRecoveryJournals() });
     for (const fn of listeners) fn();
   };
+  function listRecoveryJournals() {
+    if (disabled || !storage) return [];
+    const out = [];
+    try {
+      for (let i = 0; i < storage.length; i += 1) {
+        const name = storage.key(i);
+        if (!name?.startsWith(`${key}:pending:`) || name === journalKey || name === restoredFrom) continue;
+        // Disputed/explicitly-set-aside copies are provenance, not unattended active work.
+        if (name.includes(':conflict:')) continue;
+        try {
+          const record = JSON.parse(storage.getItem(name));
+          if (record?.principal === principal && Array.isArray(record.queue) && record.queue.length) {
+            out.push({ key: name, pendingBatches: record.queue.length, revision: record.revision ?? null });
+          }
+        } catch { out.push({ key: name, invalid: true }); }
+      }
+    } catch { /* storage remains unavailable; do not inspect other principal keys */ }
+    return out;
+  }
   // Every mounted tab owns a separate journal. Copy-on-resume retains exact batch IDs/revisions;
   // duplicated tabs cannot overwrite another tab's pending operations. Version conflicts fail closed.
   function persist() {
@@ -144,7 +164,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (active && generation === epoch) schedule();
   }
   function commit(ops) {
-    if (!active || disabled || storageFault) return false;
+    if (!active || disabled || storageFault || resolving) return false;
     const safe = clone(ops);
     if (!safe.length || safe.length > 100) throw new Error('RESEARCH_OPS_BATCH_TOO_LARGE');
     state = applyResearchOps(state, safe);
@@ -158,7 +178,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     return ok;
   }
   async function retry() {
-    if (!active || disabled || storageFault || status === 'conflict') return false;
+    if (!active || disabled || storageFault || resolving || status === 'conflict') return false;
     if (operation) await operation;
     if (!active) return false;
     if (!persist()) { notify(); return false; }
@@ -167,8 +187,9 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     return status !== 'error' && status !== 'conflict' && status !== 'local_error';
   }
   async function resolveConflict({ confirm = false, action } = {}) {
-    if (!active || !userId || !confirm || status !== 'conflict' || !['reapply', 'keep_remote'].includes(action)) return false;
+    if (!active || !userId || !confirm || resolving || operation || status !== 'conflict' || !['reapply', 'keep_remote'].includes(action)) return false;
     const epoch = generation;
+    resolving = true; status = 'resolving'; notify();
     try {
       const cloud = assertCloudSnapshot(await readCloud(userId));
       if (!active || epoch !== generation) return false;
@@ -181,6 +202,27 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       status = queue.length ? 'pending' : 'synced';
       persist(); notify(); schedule(); return true;
     } catch (e) { if (active && epoch === generation) markError(e); return false; }
+    finally { resolving = false; }
+  }
+  async function recoverJournal({ key: sourceKey, confirm = false } = {}) {
+    if (!active || disabled || !userId || !confirm || resolving || operation || queue.length || inflight || storageFault) return false;
+    // A closed tab loses sessionStorage but its durable journal is still selectable, not orphaned.
+    if (!listRecoveryJournals().some(row => row.key === sourceKey && !row.invalid)) return false;
+    try {
+      const raw = storage.getItem(sourceKey), record = JSON.parse(raw);
+      if (record.principal !== principal || !Number.isSafeInteger(record.revision) || record.revision < 0) return false;
+      if (record.queue.some(b => !b.batch_id || !Array.isArray(b.ops) || !b.ops.length || b.ops.length > 100)) return false;
+      applyResearchOps(emptyResearchState(), record.queue.flatMap(b => b.ops));
+      if (record.inflight && (record.inflight.batch_id !== record.queue[0].batch_id ||
+        JSON.stringify(record.inflight.ops) !== JSON.stringify(record.queue[0].ops) ||
+        !Number.isSafeInteger(record.inflight.expected_revision) || record.inflight.expected_revision < 0)) return false;
+      restoredFrom = sourceKey; restoredRaw = raw;
+      queue = clone(record.queue); inflight = record.inflight ? clone(record.inflight) : null;
+      revision = record.revision; cloudReady = false;
+      if (!persist()) { notify(); return false; }
+      await hydrate();
+      return cloudReady;
+    } catch (e) { markError(e); return false; }
   }
   notify();
   return {
@@ -203,7 +245,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       try { session?.removeItem(contextKey); } catch { /* preserve other principal */ }
       onContext(null);
     },
-    commit, flush, retry, resolveConflict,
+    commit, flush, retry, resolveConflict, recoverJournal,
+    listRecoveryJournals,
     setMode(value) { if (!active || disabled) return; mode = value === 'discovery' ? 'discovery' : 'reader'; persist(); notify(); },
     // Export is caller-initiated, principal-bound and never publishes or auto-adopts unscoped v1 data.
     exportPending: () => clone({ principal, revision, queue, inflight }),

@@ -105,6 +105,8 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       retryResearchSync: runtime.retry,
       resolveResearchSyncConflict: runtime.resolveConflict,
       exportPendingResearch: runtime.exportPending,
+      listResearchRecoveryJournals: runtime.listRecoveryJournals,
+      recoverResearchJournal: runtime.recoverJournal,
       exportLegacyResearch: runtime.exportLegacy,
     };
   }, [runtime]);
