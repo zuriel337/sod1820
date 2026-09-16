@@ -7,7 +7,7 @@ on:
       - "src/main2029.jsx"
       - "src/App2029.jsx"
       - "src/components/experience2029/**"
-      - "src/lib/designTokens.js"
+      - "package.json"
       - "vite.config.js"
       - "vercel.json"
       - "scripts/test-2029-isolation.mjs"
