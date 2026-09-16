@@ -8,7 +8,12 @@ import { broadcastJoin } from "../lib/joinEvents.js";
 /**
  * אימות מייל בשני שלבים (Supabase Auth OTP) — רכיב קבוע וניתן-להצבה.
  * שלב 1: אימייל → נשלח קוד. שלב 2: הזנת הקוד → המשתמש מאומת (session).
- * onVerified() נקרא כשהאימות הצליח. source = מקור ההרשמה לרשימת התפוצה.
+ * onVerified() נקרא כשהאימות הצליח.
+ *
+ * subscription_funnel_law v19: אימות זהות ≠ הסכמה לערוץ מייל.
+ * ברירת המחדל נשארת subscribeToUpdates=true עבור משטחי הרשמה קיימים שמצהירים במפורש
+ * שהם מצרפים לעדכונים. source שמתחיל ב-follow: הוא compatibility guard ל-WatchButton
+ * הקיים ונכנס אוטומטית למצב identity-only; אפשר גם להעביר subscribeToUpdates=false במפורש.
  */
 
 const RESEND_COOLDOWN = 30; // שניות בין שליחות קוד, למניעת הצפה
@@ -24,7 +29,7 @@ const btnStyle = (busy) => ({
   fontFamily: F.heading, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
 });
 
-export default function EmailVerify({ source = "site", onVerified, cta = "שלחו לי קוד" }) {
+export default function EmailVerify({ source = "site", onVerified, cta = "שלחו לי קוד", subscribeToUpdates = true }) {
   const [step, setStep] = useState("email"); // email | code
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -32,6 +37,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   const [err, setErr] = useState("");
   const [resendIn, setResendIn] = useState(0); // ספירה-לאחור עד שאפשר לשלוח שוב
   const [resendNote, setResendNote] = useState("");
+  const shouldSubscribe = subscribeToUpdates && !String(source || "").startsWith("follow:");
 
   // טיימר ההמתנה של כפתור "שלח שוב"
   useEffect(() => {
@@ -50,8 +56,10 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
     setBusy(true);
     try {
       await requestEmailOtp(email);
-      subscribeEmail({ email, source }).catch(() => {}); // גם לרשימת התפוצה
-      trackSubscribe({ source });   // GA4 + מטא (Lead)
+      if (shouldSubscribe) {
+        subscribeEmail({ email, source }).catch(() => {});
+        trackSubscribe({ source }); // GA4 + מטא (Lead) רק כשיש subscription intent מפורש
+      }
       setStep("code");
       setResendIn(RESEND_COOLDOWN);
     } catch {
@@ -88,7 +96,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
     setBusy(true);
     try {
       await verifyEmailOtp(email, code);
-      broadcastJoin();   // חגיגת הצטרפות חיה לכל המבקרים
+      broadcastJoin();   // אימות/הצטרפות לחשבון; אינו channel consent
       onVerified?.();
     } catch {
       setErr("הקוד שגוי או שפג תוקפו — אפשר לשלוח קוד חדש");
