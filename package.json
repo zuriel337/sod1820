@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --mode legacy && vite build --mode 2029",
+    "build:legacy": "vite build --mode legacy",
+    "build:2029": "vite build --mode 2029",
     "preview": "vite preview",
     "package:expression-extract": "node scripts/package-expression-extract.mjs"
   },
