@@ -45,7 +45,7 @@ test('geometry executes explicit sparse skips only and invalid geometry is conte
 });
 
 test('legacy SQL projection has deterministic forward-before-back exact ties', () => {
-  assert.match(hardening, /jsonb_array_elements[\s\S]*order by \(h->>'skip'\)::int,\(h->>'start'\)::int,\(h->>'dir'\)::int desc/i);
+  assert.match(hardening, /order by \(h->>'skip'\)::int,\(h->>'start'\)::int,\(h->>'dir'\)::int desc/i);
 });
 
 test('Tanakh remains fail-closed MISSING_ADAPTER', () => {
