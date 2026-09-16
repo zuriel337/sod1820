@@ -1,5 +1,5 @@
 -- SOD1820 — G3-F guest/account Follow handoff concurrency barrier
--- The claim projection must share the same identity-global advisory locks as watch_toggle,
+-- The claim projection shares the same identity-global advisory locks as watch_toggle,
 -- otherwise a Follow written while the guest row is being folded into an account could be lost.
 
 create or replace function public.claim_follow_prefs_from_identity()
@@ -23,12 +23,9 @@ begin
 
   if v_uid is null then return NEW; end if;
 
-  -- Serialize all account Follow mutations first, then each proven browser visitor in a stable
-  -- order. watch_toggle holds only one of these locks, so this ordering cannot create a cycle.
-  perform pg_advisory_xact_lock(
-    hashtextextended('user:' || v_uid::text || '|follow-identity', 0)
-  );
-
+  -- Lock every proven browser visitor in deterministic order, then the account projection.
+  -- A linked guest watch takes visitor -> account in the same order; an authenticated watch
+  -- takes only account. This avoids AB-BA cycles while closing the post-claim orphan window.
   for v_vis in
     select distinct ie.legacy_id
     from public.identity_edges ie
@@ -41,6 +38,10 @@ begin
       hashtextextended('visitor:' || v_vis || '|follow-identity', 0)
     );
   end loop;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended('user:' || v_uid::text || '|follow-identity', 0)
+  );
 
   -- Re-read only after every relevant Follow projection is quiescent.
   with raw_topics as (
