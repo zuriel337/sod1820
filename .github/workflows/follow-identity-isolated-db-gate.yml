@@ -6,6 +6,7 @@ on:
       - '.github/workflows/follow-identity-isolated-db-gate.yml'
       - 'tests/g3-f2/**'
       - 'supabase/migrations/20260916182500_g3_f_follow_identity_one_tree_v1.sql'
+      - 'supabase/migrations/20260916182550_g3_f_internal_function_acl_gate_v1.sql'
       - 'supabase/migrations/20260916182600_g3_f_follow_event_side_effect_gate_v1.sql'
       - 'supabase/migrations/20260916182700_g3_f_watch_toggle_concurrency_lock_v1.sql'
       - 'supabase/migrations/20260916182800_g3_f_guest_account_claim_lock_v1.sql'
@@ -79,10 +80,15 @@ jobs:
           p.write_text(updated)
           PY
           mkdir -p supabase/migrations
+          cp "$GITHUB_WORKSPACE/tests/g3-f2/follow-identity-live-default-privileges.sql" \
+             supabase/migrations/20260916175900_g3_f2_follow_identity_live_default_privileges.sql
           cp "$GITHUB_WORKSPACE/tests/g3-f2/follow-identity-live-baseline.sql" \
              supabase/migrations/20260916180000_g3_f2_follow_identity_live_baseline.sql
+          cp "$GITHUB_WORKSPACE/tests/g3-f2/follow-identity-live-acl-tail.sql" \
+             supabase/migrations/20260916180100_g3_f2_follow_identity_live_acl_tail.sql
           for f in \
             20260916182500_g3_f_follow_identity_one_tree_v1.sql \
+            20260916182550_g3_f_internal_function_acl_gate_v1.sql \
             20260916182600_g3_f_follow_event_side_effect_gate_v1.sql \
             20260916182700_g3_f_watch_toggle_concurrency_lock_v1.sql \
             20260916182800_g3_f_guest_account_claim_lock_v1.sql \
@@ -90,8 +96,11 @@ jobs:
             cp "$GITHUB_WORKSPACE/supabase/migrations/$f" "supabase/migrations/$f"
           done
           cat > /tmp/g3f2-expected-migrations.txt <<'EOF'
+          20260916175900_g3_f2_follow_identity_live_default_privileges.sql
           20260916180000_g3_f2_follow_identity_live_baseline.sql
+          20260916180100_g3_f2_follow_identity_live_acl_tail.sql
           20260916182500_g3_f_follow_identity_one_tree_v1.sql
+          20260916182550_g3_f_internal_function_acl_gate_v1.sql
           20260916182600_g3_f_follow_event_side_effect_gate_v1.sql
           20260916182700_g3_f_watch_toggle_concurrency_lock_v1.sql
           20260916182800_g3_f_guest_account_claim_lock_v1.sql
@@ -109,7 +118,8 @@ jobs:
           set -euo pipefail
           cd .tmp/g3-f2-follow-db
           supabase start
-          # Clean reconstruction is the release gate: baseline then all five PR migrations in timestamp order.
+          # Clean reconstruction is the release gate: verified-live baseline fixtures, then the
+          # complete PR #486 migration set in timestamp order.
           supabase db reset --local
           server_num="$(psql "$DB_URL" -X -Atc 'show server_version_num')"
           echo "postgres_server_version_num=$server_num"
