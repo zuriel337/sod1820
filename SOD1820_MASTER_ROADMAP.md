@@ -93,8 +93,11 @@ Purpose:
 - mark already-replaced items `RETIRE_REMOVE` for later safe cleanup;
 - prevent new 2029 runtime or Experience from silently inheriting legacy routes/components/RPCs/adapters/UI contracts merely because they already exist.
 
-Current baseline artifact:
-`audits/g3-implementation-compaction/G3_2029_EARLY_LEGACY_SEPARATION_BASELINE_V1.md`.
+Current baseline artifacts:
+
+- `audits/g3-implementation-compaction/G3_2029_EARLY_LEGACY_SEPARATION_BASELINE_V1.md`
+- `audits/g3-implementation-compaction/G3_2029_RUNTIME_INFRASTRUCTURE_SEPARATION_SUPPLEMENT_V1.md`
+- `audits/g3-implementation-compaction/G3_2029_LEGACY_GEMATRIA_EXECUTION_FOLLOWUP_V1.md`
 
 **This is not a new Gate or Legacy System.** It is the early baseline of the same mandatory end-of-G3 compaction gate. Final retirement still waits for live/verified replacements.
 
