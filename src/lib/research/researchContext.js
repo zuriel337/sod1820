@@ -5,6 +5,7 @@
 export const RESEARCH_CONTEXT_VERSION = 1;
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value || {}, key);
 const cleanString = (value) => {
   if (value == null) return null;
   const s = String(value).trim();
@@ -115,12 +116,20 @@ export function createResearchContext(input = {}) {
   return normalized;
 }
 
+function isExactReturnRestorePatch(next) {
+  return next?.returnTo === null && ["subject", "selection", "lens", "dimensions", "journey"]
+    .every((key) => hasOwn(next, key));
+}
+
 export function mergeResearchContext(current, patch = {}) {
   const base = normalizeResearchContext(current) || {};
   const next = isObject(patch) ? patch : {};
-  const dimensions = next.dimensions === null
-    ? {}
-    : { ...(base.dimensions || {}), ...(isObject(next.dimensions) ? next.dimensions : {}) };
+  const exactReturnRestore = isExactReturnRestorePatch(next);
+  const dimensions = exactReturnRestore
+    ? normalizeDimensions(next.dimensions)
+    : next.dimensions === null
+      ? {}
+      : { ...(base.dimensions || {}), ...(isObject(next.dimensions) ? next.dimensions : {}) };
 
   return normalizeResearchContext({
     ...base,
