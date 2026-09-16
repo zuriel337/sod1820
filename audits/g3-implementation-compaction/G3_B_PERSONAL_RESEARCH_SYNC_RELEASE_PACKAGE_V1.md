@@ -84,7 +84,7 @@ It provides authenticated RPCs with fixed search path and server-side `auth.uid(
 - `research_state_snapshot_v1`
 - `research_state_apply_ops_v1`
 
-The migration revokes broad execution then grants RPC execution only to `authenticated` and `service_role`. It revokes authenticated direct writes to `user_research`, and adds restrictive authenticated policies blocking direct writes to managed `research_items` buckets (`subcollection`, `number_journey`, `recent_items`) while preserving existing owner-scoped non-managed paths.
+The migration revokes broad execution then grants RPC execution only to `authenticated` and `service_role`. It revokes authenticated direct writes to `user_research`, and adds restrictive authenticated policies blocking direct writes to the managed `research_items` buckets (`cart`, `library`, `pinned`) while preserving existing owner-scoped non-managed paths.
 
 The apply RPC owns CAS revision, advisory serialization, bounded receipt/idempotency behavior, validation, and preservation of unmanaged `user_research.data` keys.
 
