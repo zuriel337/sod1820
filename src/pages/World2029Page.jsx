@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import { usePalette } from "../lib/palette.js";
@@ -159,7 +158,7 @@ function LiveWorldLanding({ research, shell, context }) {
       return <section className="sod29-section" key={facet.key}>
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">{facet.kicker}</div><h2>{facet.title}</h2></div>
-          {facet.key === "book" ? <Link className="sod29-action" to="/books">לכל הספרים</Link> : null}
+          {facet.key === "book" ? <button className="sod29-action" type="button" onClick={() => shell.go("/books")}>לכל הספרים</button> : null}
         </div>
         <div className="sod29-book-grid">
           {cards.map((card) => <WorldCard key={`${card.facet}:${card.id}`} card={card} onOpen={openCard} />)}
@@ -186,7 +185,7 @@ function LiveWorldLanding({ research, shell, context }) {
   </>;
 }
 
-function AnchoredWorld({ research, subject }) {
+function AnchoredWorld({ research, shell, subject }) {
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const key = subjectKey(subject);
 
@@ -251,7 +250,7 @@ function AnchoredWorld({ research, subject }) {
 
       {data.research?.findings?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">מחקר חי</div><h2>ממצאים סביב העוגן</h2></div></div><div className="sod29-list">{data.research.findings.slice(0, 12).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.statement || finding.subject?.label || finding.kind}</strong><small>{finding.stage || finding.kind || "מחקר"}{finding.verification?.verification_state ? ` · ${finding.verification.verification_state}` : ""}</small></div></div>)}</div></section> : null}
 
-      {data.sources?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה זה מגיע</h2></div><Link className="sod29-action" to="/books">ספרים ומקורות</Link></div><div className="sod29-list">{data.sources.slice(0, 10).map((source, index) => <div className="sod29-row" key={`${source.ref || source.label}-${index}`}><div><strong>{source.label || source.ref || "מקור"}</strong><small>{source.ref || "מקור מחקרי"}</small></div></div>)}</div></section> : null}
+      {data.sources?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה זה מגיע</h2></div><button className="sod29-action" type="button" onClick={() => shell.go("/books")}>ספרים ומקורות</button></div><div className="sod29-list">{data.sources.slice(0, 10).map((source, index) => <div className="sod29-row" key={`${source.ref || source.label}-${index}`}><div><strong>{source.label || source.ref || "מקור"}</strong><small>{source.ref || "מקור מחקרי"}</small></div></div>)}</div></section> : null}
 
       {data.timeline?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">זמן</div><h2>ציר הזמן</h2></div></div><div className="sod29-list">{data.timeline.slice(-8).map((item, index) => <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{item.label || item.kind || "שינוי"}</strong><small>{item.at ? new Date(item.at).toLocaleDateString("he-IL") : "זמן לא ידוע"}</small></div></div>)}</div></section> : null}
     </div> : null}
@@ -269,7 +268,7 @@ function WorldBody() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
-  return <AnchoredWorld research={research} subject={subject} />;
+  return <AnchoredWorld research={research} shell={shell} subject={subject} />;
 }
 
 export default function World2029Page() {
