@@ -1,259 +1,99 @@
-// G3 2029 personal research sync helpers.
-// Pure/local helpers only: no truth, identity, graph or cloud authority lives here.
-// Cloud authority remains the existing Research OS tables/RLS + bounded RPCs.
-
-export const RESEARCH_LOCAL_PREFIX = "sod_research_v2";
-export const RESEARCH_CONTEXT_PREFIX = "sod_research_context_v2";
-export const LEGACY_UNSCOPED_KEY = "sod_research_v1";
+// Implementation helpers for the ONE ResearchProvider. No graph/truth/identity authority.
+export const RESEARCH_LOCAL_PREFIX = 'sod_research_v2';
+export const RESEARCH_CONTEXT_PREFIX = 'sod_research_context_v2';
+export const LEGACY_UNSCOPED_KEY = 'sod_research_v1';
 export const MAX_RESEARCH_OPS_PER_BATCH = 100;
-
-export function principalToken(userId = null) {
-  const id = String(userId || "").trim();
-  return id ? `user:${id}` : "guest";
+export const principalToken = id => id ? `user:${String(id).trim()}` : 'guest';
+export const principalStateKey = p => `${RESEARCH_LOCAL_PREFIX}:${p || 'guest'}`;
+export const principalContextKey = p => `${RESEARCH_CONTEXT_PREFIX}:${p || 'guest'}`;
+export const entityRef = e => String(e?.ref ?? e?.id ?? e?.title ?? '').trim();
+export const entityIdentity = e => e?.type && entityRef(e) ? JSON.stringify([String(e.type).trim(), entityRef(e)]) : '';
+export const newResearchId = () => globalThis.crypto.randomUUID();
+export const makeResearchOp = (kind, payload = {}) => ({ ...payload, kind, op_id: newResearchId() });
+const fields = ['cart', 'saved', 'pinned', 'history', 'collections', 'journeys'];
+export const emptyResearchState = () => ({ cart: [], saved: [], pinned: [], history: [], collections: [], journeys: [], context: null });
+export function normalizeResearchState(input) {
+  const x = input && typeof input === 'object' ? input : {};
+  return { ...Object.fromEntries(fields.map(k => [k, Array.isArray(x[k]) ? x[k] : []])), context: x.context ?? null };
 }
-
-export function principalStateKey(principal) {
-  return `${RESEARCH_LOCAL_PREFIX}:${String(principal || "guest")}`;
-}
-
-export function principalContextKey(principal) {
-  return `${RESEARCH_CONTEXT_PREFIX}:${String(principal || "guest")}`;
-}
-
-export function emptyResearchState() {
-  return {
-    cart: [], saved: [], pinned: [], history: [], collections: [], journeys: [],
-    context: null,
-  };
-}
-
-export function normalizeResearchState(value) {
-  const v = value && typeof value === "object" ? value : {};
-  return {
-    cart: Array.isArray(v.cart) ? v.cart : [],
-    saved: Array.isArray(v.saved) ? v.saved : [],
-    pinned: Array.isArray(v.pinned) ? v.pinned : [],
-    history: Array.isArray(v.history) ? v.history : [],
-    collections: Array.isArray(v.collections) ? v.collections : [],
-    journeys: Array.isArray(v.journeys) ? v.journeys : [],
-    context: v.context ?? null,
-  };
-}
-
-export function hasMeaningfulResearchState(value) {
-  const s = normalizeResearchState(value);
-  return Boolean(
-    s.cart.length || s.saved.length || s.pinned.length || s.history.length ||
-    s.collections.length || s.journeys.length || s.context,
-  );
-}
-
-export function entityRef(entity) {
-  if (!entity || typeof entity !== "object") return "";
-  return String(entity.ref ?? entity.id ?? entity.title ?? "").trim();
-}
-
-export function entityIdentity(entity) {
-  const type = String(entity?.type || "").trim();
-  const ref = entityRef(entity);
-  return type && ref ? `${type}|${ref}` : "";
-}
-
-export function makeResearchOp(kind, payload = {}) {
-  const suffix = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  return { op_id: suffix, kind, ...payload };
-}
-
-function opDedupeKey(op) {
-  if (!op?.kind) return null;
-  if (op.kind === "context_set") return "context";
-  if (op.kind === "history_add") return `history:${op.entity?.id || ""}`;
-  if (op.kind === "history_clear") return "history:clear";
-  if (op.kind === "collection_add" || op.kind === "collection_update" || op.kind === "collection_remove") {
-    return `collection:${op.collection?.id || op.id || ""}`;
+export function assertCloudSnapshot(x) {
+  if (!x || fields.some(k => !Array.isArray(x[k])) || !Number.isSafeInteger(x.revision) || x.revision < 0) {
+    throw new Error('RESEARCH_SNAPSHOT_INVALID');
   }
-  if (op.kind === "journey_add" || op.kind === "journey_remove") {
-    return `journey:${op.journey?.id || op.id || ""}`;
-  }
-  if (op.kind === "journey_clear") return "journey:clear";
-  if (op.kind === "item_upsert") return `item:${op.bucket}:${entityIdentity(op.entity)}`;
-  if (op.kind === "item_delete") return `item:${op.bucket}:${op.entity_type || ""}|${op.entity_ref || ""}`;
-  if (op.kind === "collection_assign") return `assign:${op.entity_type || ""}|${op.entity_ref || ""}`;
-  return null;
+  return x;
 }
-
-export function appendResearchOp(existing, op) {
-  const list = Array.isArray(existing) ? existing : [];
-  if (!op?.kind) return list;
-
-  // Add/update collapse must preserve ALL fields and must use the newest op_id. The newest id is
-  // deliberate: if an older version is already in flight, its acknowledgment must not remove the
-  // newer merged mutation that was queued while that request was running.
-  if (op.kind === "collection_update" && op.id) {
-    const addIndex = list.findIndex(x => x?.kind === "collection_add" && x?.collection?.id === op.id);
-    if (addIndex >= 0) {
-      return list.map((x, i) => i === addIndex
-        ? { ...x, op_id: op.op_id, collection: { ...x.collection, ...(op.patch || {}) } }
-        : x);
-    }
-
-    const updateIndex = list.findIndex(x => x?.kind === "collection_update" && x?.id === op.id);
-    if (updateIndex >= 0) {
-      return list.map((x, i) => i === updateIndex
-        ? { ...x, ...op, patch: { ...(x.patch || {}), ...(op.patch || {}) }, op_id: op.op_id }
-        : x);
-    }
-  }
-
-  let next = list;
-  if (op.kind === "item_clear_bucket") {
-    next = list.filter(x => !(x?.bucket === op.bucket && ["item_upsert", "item_delete", "item_clear_bucket"].includes(x.kind)));
-  } else if (op.kind === "history_clear") {
-    next = list.filter(x => !String(x?.kind || "").startsWith("history_"));
-  } else if (op.kind === "journey_clear") {
-    next = list.filter(x => !String(x?.kind || "").startsWith("journey_"));
-  }
-
-  const key = opDedupeKey(op);
-  if (key) next = next.filter(x => opDedupeKey(x) !== key);
-  return [...next, op];
+// Order is data. In particular add/update/remove and clear/add must NEVER be coalesced by kind.
+// Immutable op ids are assigned outside React state updaters and are retained on retry.
+export const appendResearchOp = (ops, op) => [...(ops || []), op];
+function bucketKey(bucket) {
+  if (!['cart', 'library', 'pinned'].includes(bucket)) throw new Error('RESEARCH_BAD_BUCKET');
+  return bucket === 'library' ? 'saved' : bucket;
 }
-
-export function acknowledgeResearchOps(existing, sentIds) {
-  const ids = sentIds instanceof Set ? sentIds : new Set(Array.isArray(sentIds) ? sentIds : []);
-  if (!ids.size) return Array.isArray(existing) ? existing : [];
-  return (Array.isArray(existing) ? existing : []).filter(op => !ids.has(op?.op_id));
+function requiredId(x) {
+  if (typeof x !== 'string' || !x.trim()) throw new Error('RESEARCH_ID_REQUIRED');
+  return x;
 }
-
-// Legacy v1 state had no principal binding. It is never auto-adopted. This helper only converts
-// a snapshot after an explicit recovery action by the current user. It emits additive/upsert ops
-// and never emits deletion/clear operations, so recovery cannot erase current cloud state.
-export function legacySnapshotToResearchOps(value) {
-  const s = normalizeResearchState(value);
-  const out = [];
-
-  for (const entity of s.cart) {
-    if (entityIdentity(entity)) out.push(makeResearchOp("item_upsert", { bucket: "cart", entity }));
-  }
-  for (const entity of s.saved) {
-    if (entityIdentity(entity)) out.push(makeResearchOp("item_upsert", { bucket: "library", entity }));
-  }
-  for (const entity of s.pinned) {
-    if (entityIdentity(entity)) out.push(makeResearchOp("item_upsert", { bucket: "pinned", entity }));
-  }
-
-  // Replay oldest -> newest because history_add prepends and caps at 50.
-  for (const entity of [...s.history].reverse()) {
-    if (entity?.id) out.push(makeResearchOp("history_add", { entity }));
-  }
-  for (const collection of s.collections) {
-    if (collection?.id) out.push(makeResearchOp("collection_add", { collection }));
-  }
-  // Replay oldest -> newest because journey_add prepends and caps at 30.
-  for (const journey of [...s.journeys].reverse()) {
-    if (journey?.id) out.push(makeResearchOp("journey_add", { journey }));
-  }
-
-  // Legacy context is intentionally NOT adopted automatically or by generic recovery. Active
-  // Research Context is session navigation state and exact resume needs a dedicated user choice.
-  return out;
-}
-
-function replaceEntity(list, entity) {
-  const id = entityIdentity(entity);
-  if (!id) return list;
-  const rest = (list || []).filter(x => entityIdentity(x) !== id);
-  return [entity, ...rest];
-}
-
-function deleteEntity(list, type, ref) {
-  const id = `${String(type || "").trim()}|${String(ref || "").trim()}`;
-  return (list || []).filter(x => entityIdentity(x) !== id);
-}
-
+function object(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
 export function applyResearchOps(base, ops) {
-  let state = normalizeResearchState(base);
-  for (const op of Array.isArray(ops) ? ops : []) {
+  let s = normalizeResearchState(base);
+  for (const op of ops || []) {
     switch (op?.kind) {
-      case "item_upsert": {
-        const key = op.bucket === "library" ? "saved" : op.bucket;
-        if (!["cart", "saved", "pinned"].includes(key)) break;
-        state = { ...state, [key]: replaceEntity(state[key], op.entity) };
+      case 'item_upsert': {
+        const key = bucketKey(op.bucket), id = entityIdentity(op.entity);
+        if (!id) throw new Error('RESEARCH_ENTITY_IDENTITY_REQUIRED');
+        const list = s[key], at = list.findIndex(e => entityIdentity(e) === id);
+        // Preserve existing position and unrelated metadata on an explicit save.
+        const next = at < 0 ? (key === 'cart' ? [...list, op.entity] : [op.entity, ...list])
+          : list.map((e, i) => i === at ? { ...e, ...op.entity } : e);
+        s = { ...s, [key]: next };
         break;
       }
-      case "item_delete": {
-        const key = op.bucket === "library" ? "saved" : op.bucket;
-        if (!["cart", "saved", "pinned"].includes(key)) break;
-        state = { ...state, [key]: deleteEntity(state[key], op.entity_type, op.entity_ref) };
-        break;
+      case 'item_delete': {
+        const key = bucketKey(op.bucket);
+        const id = JSON.stringify([requiredId(op.entity_type), requiredId(op.entity_ref)]);
+        s = { ...s, [key]: s[key].filter(e => entityIdentity(e) !== id) }; break;
       }
-      case "item_clear_bucket": {
-        const key = op.bucket === "library" ? "saved" : op.bucket;
-        if (["cart", "saved", "pinned"].includes(key)) state = { ...state, [key]: [] };
-        break;
+      case 'item_clear_bucket': s = { ...s, [bucketKey(op.bucket)]: [] }; break;
+      case 'history_add': {
+        const e = op.entity; requiredId(e?.id);
+        s = { ...s, history: [e, ...s.history.filter(x => x.id !== e.id)].slice(0, 50) }; break;
       }
-      case "history_add": {
-        const entity = op.entity;
-        if (!entity?.id) break;
-        state = { ...state, history: [entity, ...state.history.filter(x => x?.id !== entity.id)].slice(0, 50) };
-        break;
+      case 'history_clear': s = { ...s, history: [] }; break;
+      case 'collection_add': {
+        const c = op.collection; requiredId(c?.id);
+        s = { ...s, collections: [...s.collections.filter(x => x.id !== c.id), c] }; break;
       }
-      case "history_clear":
-        state = { ...state, history: [] };
-        break;
-      case "collection_add": {
-        const c = op.collection;
-        if (!c?.id) break;
-        state = { ...state, collections: [...state.collections.filter(x => x?.id !== c.id), c] };
-        break;
+      case 'collection_update': {
+        requiredId(op.id);
+        if (!object(op.patch) || ('id' in op.patch && op.patch.id !== op.id)) throw new Error('RESEARCH_COLLECTION_PATCH_INVALID');
+        s = { ...s, collections: s.collections.map(c => c.id === op.id ? { ...c, ...op.patch, id: c.id } : c) }; break;
       }
-      case "collection_update": {
-        const id = op.id;
-        if (!id) break;
-        state = { ...state, collections: state.collections.map(c => c?.id === id ? { ...c, ...(op.patch || {}) } : c) };
-        break;
+      case 'collection_remove': {
+        requiredId(op.id);
+        s = { ...s, collections: s.collections.filter(c => c.id !== op.id), saved: s.saved.map(e => {
+          if (e.coll !== op.id) return e;
+          const { coll, ...rest } = e; return rest;
+        }) }; break;
       }
-      case "collection_remove": {
-        const id = op.id;
-        if (!id) break;
-        state = {
-          ...state,
-          collections: state.collections.filter(c => c?.id !== id),
-          saved: state.saved.map(e => e?.coll === id ? { ...e, coll: undefined } : e),
-        };
-        break;
+      case 'collection_assign': {
+        const id = JSON.stringify([requiredId(op.entity_type), requiredId(op.entity_ref)]);
+        s = { ...s, saved: s.saved.map(e => {
+          if (entityIdentity(e) !== id) return e;
+          const { coll, ...rest } = e; return op.coll_id ? { ...rest, coll: op.coll_id } : rest;
+        }) }; break;
       }
-      case "collection_assign": {
-        const id = `${String(op.entity_type || "").trim()}|${String(op.entity_ref || "").trim()}`;
-        state = {
-          ...state,
-          saved: state.saved.map(e => entityIdentity(e) === id
-            ? { ...e, ...(op.coll_id ? { coll: op.coll_id } : { coll: undefined }) }
-            : e),
-        };
-        break;
+      case 'journey_add': {
+        const j = op.journey; requiredId(j?.id);
+        if (j.root == null) throw new Error('RESEARCH_JOURNEY_ROOT_REQUIRED');
+        s = { ...s, journeys: [j, ...s.journeys.filter(x => String(x.root) !== String(j.root))].slice(0, 30) }; break;
       }
-      case "journey_add": {
-        const j = op.journey;
-        if (!j?.id) break;
-        const sameRoot = x => String(x?.root ?? "") === String(j.root ?? "");
-        state = { ...state, journeys: [j, ...state.journeys.filter(x => !sameRoot(x))].slice(0, 30) };
-        break;
-      }
-      case "journey_remove":
-        state = { ...state, journeys: state.journeys.filter(j => j?.id !== op.id) };
-        break;
-      case "journey_clear":
-        state = { ...state, journeys: [] };
-        break;
-      case "context_set":
-        state = { ...state, context: op.context ?? null };
-        break;
-      default:
-        break;
+      case 'journey_remove': requiredId(op.id); s = { ...s, journeys: s.journeys.filter(j => j.id !== op.id) }; break;
+      case 'journey_clear': s = { ...s, journeys: [] }; break;
+      case 'context_set':
+        if (op.context != null && !object(op.context)) throw new Error('RESEARCH_CONTEXT_INVALID');
+        s = { ...s, context: op.context ?? null }; break;
+      default: throw new Error('RESEARCH_UNKNOWN_OP');
     }
   }
-  return state;
+  return s;
 }

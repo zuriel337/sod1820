@@ -1,521 +1,163 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { emit, EVENTS } from "./eventBus.js";
-import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
-import {
-  acknowledgeResearchOps,
-  applyResearchOps,
-  appendResearchOp,
-  emptyResearchState,
-  entityRef,
-  hasMeaningfulResearchState,
-  LEGACY_UNSCOPED_KEY,
-  legacySnapshotToResearchOps,
-  makeResearchOp,
-  normalizeResearchState,
-  principalContextKey,
-  principalStateKey,
-  principalToken,
-} from "./researchSyncState.js";
-import { useAuth } from "../AuthContext.jsx";
-import { applyCloudResearchOps, getCloudResearch } from "../auth.js";
-import { trackResearch } from "../tracking.js";
-import { signalAiBehavior } from "../supabase.js";
+import React, { createContext, useContext, useState, useLayoutEffect, useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../AuthContext.jsx';
+import { applyCloudResearchOps, getCloudResearch } from '../auth.js';
+import { trackResearch } from '../tracking.js';
+import { signalAiBehavior } from '../supabase.js';
+import { emit, EVENTS } from './eventBus.js';
+import { normalizeResearchContext, mergeResearchContext } from './researchContext.js';
+import { entityRef, makeResearchOp, principalToken } from './researchSyncState.js';
+import { createResearchSyncRuntime } from './researchSyncRuntime.js';
 
 const Ctx = createContext(null);
 export const useResearch = () => useContext(Ctx) || {};
-
-const EMPTY = emptyResearchState();
-
-function loadPrincipalState(principal) {
-  try {
-    const raw = JSON.parse(localStorage.getItem(principalStateKey(principal)) || "null") || {};
-    return {
-      ...normalizeResearchState(raw),
-      mode: raw.mode === "discovery" ? "discovery" : "reader",
-      pendingOps: Array.isArray(raw.pendingOps) ? raw.pendingOps : [],
-    };
-  } catch {
-    return { ...EMPTY, mode: "reader", pendingOps: [] };
-  }
-}
-
-function loadLegacyUnscopedState() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(LEGACY_UNSCOPED_KEY) || "null");
-    if (!raw || typeof raw !== "object" || !hasMeaningfulResearchState(raw)) return null;
-    return {
-      ...normalizeResearchState(raw),
-      mode: raw.mode === "discovery" ? "discovery" : "reader",
-    };
-  } catch {
-    return null;
-  }
-}
-
-function persistPrincipalState(principal, state) {
-  if (!principal) return;
-  try { localStorage.setItem(principalStateKey(principal), JSON.stringify(state)); } catch { /* noop */ }
-}
-
-function loadSessionContext(principal) {
-  if (!principal) return null;
-  try { return normalizeResearchContext(JSON.parse(sessionStorage.getItem(principalContextKey(principal)) || "null")); }
-  catch { return null; }
-}
-
-function persistSessionContext(principal, context) {
-  if (!principal) return;
-  try {
-    const key = principalContextKey(principal);
-    if (context) sessionStorage.setItem(key, JSON.stringify(context));
-    else sessionStorage.removeItem(key);
-  } catch { /* noop */ }
-}
-
-function numberRouteSelection(pathname) {
-  const match = String(pathname || "").match(/^\/number\/([^/?#]+)/);
-  if (!match) return null;
-  let key = match[1];
-  try { key = decodeURIComponent(key); } catch { /* keep raw key */ }
-  key = String(key || "").trim();
-  if (!key) return null;
-  const numeric = /^\d+$/.test(key) && Number.isSafeInteger(Number(key));
-  const id = numeric ? String(Number(key)) : key;
-  return {
-    subject: { id, type: numeric ? "number" : "phrase", label: id, href: `/number/${encodeURIComponent(id)}` },
-    selection: { entityId: id, entityType: numeric ? "number" : "phrase" },
-  };
-}
-
-function itemDeleteOp(bucket, entity) {
-  const ref = entityRef(entity);
-  const type = String(entity?.type || "").trim();
-  if (!type || !ref) return null;
-  return makeResearchOp("item_delete", { bucket, entity_type: type, entity_ref: ref });
-}
+function browserStorage(name) { try { return globalThis[name]; } catch { return null; } }
+const publishContext = context => emit(EVENTS.RESEARCH_CONTEXT_CHANGE, context);
 
 export default function ResearchProvider({ children }) {
-  const { pathname } = useLocation();
-  const { user, loading: authLoading } = useAuth();
-  const principal = authLoading ? null : principalToken(user?.id || null);
-
-  const [cart, setCart] = useState([]);
-  const [saved, setSaved] = useState([]);
-  const [pinned, setPinned] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [collections, setCollections] = useState([]);
-  const [journeys, setJourneys] = useState([]);
-  // Active Research Context is tab/session state. Cloud/local copies are durable last snapshots only.
-  const [context, setContextState] = useState(null);
-  const [mode, setModeState] = useState("reader");
-  const [pendingOps, setPendingOps] = useState([]);
-  const [hydratedPrincipal, setHydratedPrincipal] = useState(null);
-  const [cloudReady, setCloudReady] = useState(false);
-  const [cloudHydrationRevision, setCloudHydrationRevision] = useState(0);
-  const [legacyRecoveryAvailable, setLegacyRecoveryAvailable] = useState(false);
-
-  const principalRef = useRef(null);
-  const pendingOpsRef = useRef([]);
-  const hydrationSeq = useRef(0);
-  const mountedRef = useRef(true);
-
+  const { user, loading } = useAuth();
+  // A new account gets a new component BEFORE children render. No A-state/B-identity frame.
+  // Same-account token refresh is not a new principal and keeps the research session intact.
+  const principal = loading ? 'auth:pending' : principalToken(user?.id);
+  return <PrincipalResearchProvider key={principal} userId={loading ? null : user?.id || null} disabled={!!loading}>
+    {children}
+  </PrincipalResearchProvider>;
+}
+function PrincipalResearchProvider({ children, userId, disabled }) {
+  const { pathname, search } = useLocation();
+  const [runtime] = useState(() => createResearchSyncRuntime({ userId, disabled,
+    storage: browserStorage('localStorage'), session: browserStorage('sessionStorage'),
+    readCloud: getCloudResearch, writeCloud: applyCloudResearchOps, onContext: publishContext }));
+  const state = useSyncExternalStore(runtime.subscribe, runtime.getSnapshot, runtime.getSnapshot);
+  useLayoutEffect(() => { runtime.start(); return () => runtime.stop(); }, [runtime]);
   useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
+    const reconnect = () => { void runtime.retry(); };
+    window.addEventListener('online', reconnect);
+    return () => window.removeEventListener('online', reconnect);
+  }, [runtime]);
 
-  const installWorkspaceState = useCallback((state) => {
-    const s = normalizeResearchState(state);
-    setCart(s.cart);
-    setSaved(s.saved);
-    setPinned(s.pinned);
-    setHistory(s.history);
-    setCollections(s.collections);
-    setJourneys(s.journeys);
-  }, []);
-
-  const enqueueOp = useCallback((op) => {
-    const p = principalRef.current;
-    // Guest research stays local and isolated. It is never silently adopted into a future account.
-    if (!p || !p.startsWith("user:") || !op?.kind) return;
-    setPendingOps(prev => {
-      const next = appendResearchOp(prev, op);
-      pendingOpsRef.current = next;
-      return next;
-    });
-  }, []);
-
-  const queueContextSnapshot = useCallback((next) => {
-    enqueueOp(makeResearchOp("context_set", { context: next ?? null }));
-  }, [enqueueOp]);
-
-  // Principal boundary: load only that principal's browser partition. The legacy unscoped v1 key
-  // is preserved untouched and may be recovered only by an explicit user action.
-  useEffect(() => {
-    if (!principal) return;
-    let alive = true;
-    const seq = ++hydrationSeq.current;
-    const expectedUserId = user?.id || null;
-    principalRef.current = principal;
-    setHydratedPrincipal(null);
-    setCloudReady(false);
-
-    const local = loadPrincipalState(principal);
-    const legacy = loadLegacyUnscopedState();
-    setLegacyRecoveryAvailable(Boolean(
-      legacy && !hasMeaningfulResearchState(local) && !(local.pendingOps || []).length,
-    ));
-    pendingOpsRef.current = local.pendingOps;
-    setPendingOps(local.pendingOps);
-    installWorkspaceState(local);
-    setModeState(local.mode);
-    const sessionContext = loadSessionContext(principal);
-    setContextState(sessionContext);
-    emit(EVENTS.RESEARCH_CONTEXT_CHANGE, sessionContext);
-    setHydratedPrincipal(principal);
-
-    if (!expectedUserId) {
-      setCloudHydrationRevision(v => v + 1);
-      return () => { alive = false; };
+  const actions = useMemo(() => {
+    const now = () => runtime.getSnapshot();
+    const op = makeResearchOp;
+    const history = entity => op('history_add', { entity: { ...entity, t: Date.now() } });
+    function remove(bucket, key, id) {
+      const e = now()[key].find(x => x.id === id);
+      return e ? runtime.commit([op('item_delete', { bucket, entity_type: e.type, entity_ref: entityRef(e) })]) : false;
     }
-
-    getCloudResearch(expectedUserId).then(cloud => {
-      if (!alive || hydrationSeq.current !== seq || principalRef.current !== principal) return;
-      // Pending operations are the only local mutations allowed to travel into an account.
-      // Replaying them over the fresh cloud snapshot prevents a stale browser snapshot from winning.
-      const merged = applyResearchOps(cloud, pendingOpsRef.current);
-      installWorkspaceState(merged);
-      setCloudReady(true);
-      setCloudHydrationRevision(v => v + 1);
-    }).catch(() => {
-      if (!alive || hydrationSeq.current !== seq || principalRef.current !== principal) return;
-      // Fail closed: keep this principal's local partition, never reinterpret read failure as empty cloud.
-      setCloudReady(false);
-      setCloudHydrationRevision(v => v + 1);
-    });
-
-    return () => { alive = false; };
-  }, [principal, user?.id, installWorkspaceState]);
-
-  // Persist only after the principal-specific partition has been installed.
-  useEffect(() => {
-    if (!principal || hydratedPrincipal !== principal) return;
-    persistPrincipalState(principal, {
-      cart, saved, pinned, history, collections, journeys, context, mode, pendingOps,
-    });
-  }, [principal, hydratedPrincipal, cart, saved, pinned, history, collections, journeys, context, mode, pendingOps]);
-
-  useEffect(() => {
-    if (!principal || hydratedPrincipal !== principal) return;
-    persistSessionContext(principal, context);
-  }, [principal, hydratedPrincipal, context]);
-
-  // Flush explicit semantic operations only. A failed batch remains queued locally and is replay-safe;
-  // there is no delete-by-absence reconciliation and no account id is trusted from browser state.
-  useEffect(() => {
-    if (!user?.id || !cloudReady || hydratedPrincipal !== principal || !pendingOps.length) return;
-    const expectedUserId = user.id;
-    const expectedPrincipal = principal;
-    const batch = pendingOps.slice(0, 100);
-    const sentIds = new Set(batch.map(op => op?.op_id).filter(Boolean));
-    const t = setTimeout(() => {
-      applyCloudResearchOps(expectedUserId, batch).then(() => {
-        // A pendingOps dependency change must NOT invalidate a legitimate server acknowledgment.
-        // Only component lifetime or a real principal switch invalidates this response.
-        if (!mountedRef.current || principalRef.current !== expectedPrincipal) return;
-        setPendingOps(prev => {
-          const next = acknowledgeResearchOps(prev, sentIds);
-          pendingOpsRef.current = next;
-          return next;
-        });
-      }).catch(() => {
-        // Keep the exact operations queued. No local state is erased and no destructive fallback runs.
-      });
-    }, 350);
-    return () => { clearTimeout(t); };
-  }, [user?.id, principal, cloudReady, hydratedPrincipal, pendingOps]);
-
-  // Legacy v1 had no principal binding. Recovery therefore requires an explicit action and is
-  // additive-only: it never clears current cloud state and never auto-adopts on login.
-  const recoverLegacyResearch = useCallback(() => {
-    const legacy = loadLegacyUnscopedState();
-    const p = principalRef.current;
-    if (!legacy || !p) return false;
-    if (p.startsWith("user:") && !cloudReady) return false;
-
-    if (p.startsWith("user:")) {
-      const ops = legacySnapshotToResearchOps(legacy);
-      const current = { cart, saved, pinned, history, collections, journeys, context: null };
-      installWorkspaceState(applyResearchOps(current, ops));
-      setPendingOps(prev => {
-        let next = prev;
-        for (const op of ops) next = appendResearchOp(next, op);
-        pendingOpsRef.current = next;
-        return next;
-      });
-    } else {
-      // Explicit guest recovery stays in the guest partition and never crosses into an account.
-      installWorkspaceState(legacy);
+    function setContext(value, merge = false) {
+      const current = now().context;
+      const resolved = typeof value === 'function' ? value(current) : value;
+      const context = merge ? mergeResearchContext(current, resolved) : resolved == null ? null : mergeResearchContext(null, resolved);
+      return runtime.commit([op('context_set', { context })]);
     }
+    return {
+      addToResearch(entity) {
+        if (!entity?.id || !entity?.type) return false;
+        const ok = runtime.commit([op('item_upsert', { bucket: 'cart', entity }), history(entity)]);
+        if (ok) { emit(EVENTS.RESEARCH_ADD, entity); trackResearch('add', { type: entity.type }); signalAiBehavior('research'); }
+        return ok;
+      },
+      removeFromResearch: id => remove('cart', 'cart', id),
+      clearResearch() { const ok = runtime.commit([op('item_clear_bucket', { bucket: 'cart' })]); if (ok) emit(EVENTS.RESEARCH_CLEAR); return ok; },
+      saveItem(entity) {
+        if (!entity?.id || !entity?.type) return false;
+        const ok = runtime.commit([op('item_upsert', { bucket: 'library', entity }), history(entity)]);
+        if (ok) { emit(EVENTS.ITEM_SAVE, entity); trackResearch('save', { type: entity.type }); }
+        return ok;
+      },
+      removeSaved: id => remove('library', 'saved', id),
+      togglePin(entity) {
+        if (!entity?.id || !entity?.type) return false;
+        const on = now().pinned.some(e => e.id === entity.id);
+        const ok = on ? remove('pinned', 'pinned', entity.id) : runtime.commit([op('item_upsert', { bucket: 'pinned', entity })]);
+        if (ok) emit(on ? EVENTS.PIN_REMOVE : EVENTS.PIN_ADD, entity);
+        return ok;
+      },
+      isPinned: id => now().pinned.some(e => e.id === id),
+      logHistory: entity => entity?.id ? runtime.commit([history(entity)]) : false,
+      clearHistory: () => runtime.commit([op('history_clear')]),
+      addCollection(name, meta = {}) {
+        const id = `c${crypto.randomUUID()}`;
+        const collection = { id, name: (name || 'אוסף').trim(), topic: meta.topic || null, world: meta.world || null,
+          number: meta.number == null ? null : Number(meta.number), year: meta.year == null ? null : Number(meta.year) };
+        return runtime.commit([op('collection_add', { collection })]) ? id : null;
+      },
+      updateCollection: (id, patch) => runtime.commit([op('collection_update', { id, patch })]),
+      removeCollection: id => runtime.commit([op('collection_remove', { id })]),
+      assignCollection(itemId, collId) {
+        const e = now().saved.find(x => x.id === itemId);
+        return e ? runtime.commit([op('collection_assign', { entity_type: e.type, entity_ref: entityRef(e), coll_id: collId || null })]) : false;
+      },
+      addJourney(j) {
+        if (j?.root == null) return false;
+        const journey = { id: `j${j.root}`, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
+        const ok = runtime.commit([op('journey_add', { journey })]);
+        if (ok) trackResearch('journey', { root: j.root }); return ok;
+      },
+      removeJourney: id => runtime.commit([op('journey_remove', { id })]),
+      clearJourneys: () => runtime.commit([op('journey_clear')]),
+      setResearchContext: value => setContext(value),
+      updateResearchContext: patch => setContext(patch, true),
+      clearResearchContext: () => setContext(null),
+      setMode: runtime.setMode,
+      enterDiscovery: () => runtime.setMode('discovery'),
+      toggleMode: () => runtime.setMode(now().mode === 'discovery' ? 'reader' : 'discovery'),
+      retryResearchSync: runtime.retry,
+      resolveResearchSyncConflict: runtime.resolveConflict,
+      exportPendingResearch: runtime.exportPending,
+      exportLegacyResearch: runtime.exportLegacy,
+    };
+  }, [runtime]);
 
-    if (legacy.mode === "discovery") setModeState("discovery");
-    setLegacyRecoveryAvailable(false);
-    // LEGACY_UNSCOPED_KEY is deliberately not deleted; it remains provenance/recovery evidence.
-    return true;
-  }, [cloudReady, cart, saved, pinned, history, collections, journeys, installWorkspaceState]);
-
-  const logHistory = useCallback((entity) => {
-    if (!entity || !entity.id) return;
-    const rec = { ...entity, t: Date.now() };
-    setHistory(h => [rec, ...h.filter(e => e.id !== entity.id)].slice(0, 50));
-    enqueueOp(makeResearchOp("history_add", { entity: rec }));
-  }, [enqueueOp]);
-
-  const clearHistory = useCallback(() => {
-    setHistory([]);
-    enqueueOp(makeResearchOp("history_clear"));
-  }, [enqueueOp]);
-
-  const setResearchContext = useCallback((next) => {
-    setContextState((prev) => {
-      const value = typeof next === "function" ? next(prev) : next;
-      const normalized = value == null ? null : mergeResearchContext(null, value);
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
-      queueContextSnapshot(normalized);
-      return normalized;
+  // Explicit compatibility seam. It is NOT 2029 route/engine authority. A future router consumes
+  // the same Context API. Hydration completion is intentionally NOT a dependency: clearing
+  // context cannot be undone by a late cloud response for this unchanged URL.
+  useEffect(() => {
+    const match = pathname.match(/^\/number\/([^/?#]+)/);
+    if (!match) return;
+    let id = match[1]; try { id = decodeURIComponent(id); } catch { /* preserve source */ }
+    const numeric = /^\d+$/.test(id) && Number.isSafeInteger(Number(id));
+    if (numeric) id = String(Number(id));
+    const type = numeric ? 'number' : 'phrase';
+    const current = normalizeResearchContext(runtime.getSnapshot().context);
+    actions.updateResearchContext({
+      ...(!current?.subject ? { subject: { id, type, label: id, href: `/number/${encodeURIComponent(id)}` } } : {}),
+      selection: { entityId: id, entityType: type }, lens: 'number',
     });
-  }, [queueContextSnapshot]);
-
-  const updateResearchContext = useCallback((patch) => {
-    setContextState((prev) => {
-      const normalized = mergeResearchContext(prev, patch);
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, normalized);
-      queueContextSnapshot(normalized);
-      return normalized;
-    });
-  }, [queueContextSnapshot]);
-
-  const clearResearchContext = useCallback(() => {
-    if (principalRef.current) persistSessionContext(principalRef.current, null);
-    setContextState(null);
-    queueContextSnapshot(null);
-    emit(EVENTS.RESEARCH_CONTEXT_CHANGE, null);
-  }, [queueContextSnapshot]);
+  }, [pathname, runtime, actions]);
 
   useEffect(() => {
-    const route = numberRouteSelection(pathname);
-    if (!route) return;
-    setContextState((prev) => {
-      const current = normalizeResearchContext(prev);
-      const sameSelection = current?.selection?.entityId === route.selection.entityId
-        && current?.selection?.entityType === route.selection.entityType
-        && current?.lens === "number";
-      if (current?.subject && sameSelection) return prev;
-      const next = current?.subject
-        ? mergeResearchContext(current, { selection: route.selection, lens: "number" })
-        : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number" });
-      emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
-      queueContextSnapshot(next);
-      return next;
-    });
-  }, [pathname, cloudHydrationRevision, queueContextSnapshot]);
-
-  const lastElsHistorySig = useRef(null);
-  useEffect(() => {
-    const onElsState = (e) => {
-      if (e.origin !== window.location.origin) return;
-      const d = e.data;
-      if (!d || d.source !== "tzofen" || d.type !== "state" || d.status !== "ok") return;
-      const term = String(d?.axis?.term || d?.axis?.t || d?.term || d?.query || d?.raw || "").trim();
+    const legacyEls = pathname === '/code' || pathname === '/lab/els' || (pathname === '/research' && new URLSearchParams(search).get('tool') === 'els');
+    if (!legacyEls) return;
+    let lastSignature = null;
+    function onElsState(event) {
+      if (event.origin !== window.location.origin) return;
+      // Reject detached/old-principal frames, even when origin and claimed source text match.
+      const currentFrame = [...document.querySelectorAll('iframe')].some(frame => {
+        try { const url = new URL(frame.src, location.href); return url.origin === location.origin && url.pathname === '/tzofen.html' && frame.contentWindow === event.source; }
+        catch { return false; }
+      });
+      const d = event.data;
+      if (!currentFrame || d?.source !== 'tzofen' || d?.type !== 'state' || d?.status !== 'ok') return;
+      const term = String(d.axis?.term || d.axis?.t || d.term || d.query || d.raw || '').trim();
       if (!term) return;
-      const scope = d?.provenance?.scope || d?.scope || "torah";
-      const skip = Number(d?.axis?.skip || 0);
-      const hitId = d?.axis?.hitId ?? d?.occurrence?.index ?? 0;
-      const searchKind = d?.provenance?.searchKind || d?.kind || "regular";
-      const sig = `${scope}|${term}|${searchKind}|${hitId}|${skip}`;
-      if (lastElsHistorySig.current === sig) return;
-      lastElsHistorySig.current = sig;
-
-      const locator = `els:${scope}:${term}:${searchKind}:${hitId}:${skip}`;
-      const elsSelection = { entityType: "els", locator };
-      setContextState((prev) => {
-        const current = normalizeResearchContext(prev);
-        const sameSelection = current?.selection?.entityType === "els"
-          && current?.selection?.locator === locator
-          && current?.lens === "els";
-        if (current?.subject && sameSelection) return prev;
-        const directSubject = {
-          id: term,
-          type: "phrase",
-          label: term,
-          href: `/research?tool=els&q=${encodeURIComponent(term)}`,
-        };
-        const next = current?.subject
-          ? mergeResearchContext(current, { selection: elsSelection, lens: "els" })
-          : mergeResearchContext(null, { subject: directSubject, selection: elsSelection, lens: "els" });
-        emit(EVENTS.RESEARCH_CONTEXT_CHANGE, next);
-        queueContextSnapshot(next);
-        return next;
+      const scope = d.provenance?.scope || d.scope || 'torah', skip = Number(d.axis?.skip || 0);
+      const hitId = d.axis?.hitId ?? d.occurrence?.index ?? 0, searchKind = d.provenance?.searchKind || d.kind || 'regular';
+      const signature = JSON.stringify([scope, term, searchKind, hitId, skip]);
+      if (signature === lastSignature) return;
+      lastSignature = signature;
+      const current = normalizeResearchContext(runtime.getSnapshot().context);
+      actions.updateResearchContext({
+        ...(!current?.subject ? { subject: { id: term, type: 'phrase', label: term, href: `/research?tool=els&q=${encodeURIComponent(term)}` } } : {}),
+        selection: { entityType: 'els', locator: `els:${scope}:${term}:${searchKind}:${hitId}:${skip}` }, lens: 'els',
       });
-
-      logHistory({
-        id: `els:${encodeURIComponent(scope)}:${encodeURIComponent(term)}:${encodeURIComponent(searchKind)}:${hitId}:${skip}`,
-        type: "els",
-        title: `ELS · ${term}`,
-        label: term,
-        term,
-        scope,
-        skip,
-        searchKind,
-        href: `/lab/els?q=${encodeURIComponent(term)}`,
-        metadata: {
-          engine: "tzofen",
-          corpus: scope,
-          hitId,
-          skip,
-          searchKind,
-          findingCount: Array.isArray(d.findings) ? d.findings.length : 0,
-          matrixVersion: d?.matrix?.v || null,
-        },
-      });
-    };
-    window.addEventListener("message", onElsState);
-    return () => window.removeEventListener("message", onElsState);
-  }, [logHistory, queueContextSnapshot]);
-
-  const addToResearch = useCallback((entity) => {
-    if (!entity?.id) return;
-    setCart(c => (c.some(e => e.id === entity.id) ? c : [...c, entity]));
-    enqueueOp(makeResearchOp("item_upsert", { bucket: "cart", entity }));
-    logHistory(entity);
-    emit(EVENTS.RESEARCH_ADD, entity);
-    trackResearch("add", { type: entity.type });
-    signalAiBehavior("research");
-  }, [enqueueOp, logHistory]);
-
-  const removeFromResearch = useCallback((id) => {
-    const target = cart.find(e => e.id === id);
-    const op = itemDeleteOp("cart", target);
-    if (op) enqueueOp(op);
-    setCart(c => c.filter(e => e.id !== id));
-  }, [cart, enqueueOp]);
-
-  const clearResearch = useCallback(() => {
-    setCart([]);
-    enqueueOp(makeResearchOp("item_clear_bucket", { bucket: "cart" }));
-    emit(EVENTS.RESEARCH_CLEAR);
-  }, [enqueueOp]);
-
-  const saveItem = useCallback((entity) => {
-    if (!entity?.id) return;
-    setSaved(s => (s.some(e => e.id === entity.id) ? s : [entity, ...s]));
-    enqueueOp(makeResearchOp("item_upsert", { bucket: "library", entity }));
-    logHistory(entity);
-    emit(EVENTS.ITEM_SAVE, entity);
-    trackResearch("save", { type: entity.type });
-  }, [enqueueOp, logHistory]);
-
-  const removeSaved = useCallback((id) => {
-    const target = saved.find(e => e.id === id);
-    const op = itemDeleteOp("library", target);
-    if (op) enqueueOp(op);
-    setSaved(s => s.filter(e => e.id !== id));
-  }, [saved, enqueueOp]);
-
-  const togglePin = useCallback((entity) => {
-    if (!entity?.id) return;
-    const on = pinned.some(e => e.id === entity.id);
-    setPinned(p => on ? p.filter(e => e.id !== entity.id) : [entity, ...p]);
-    if (on) {
-      const op = itemDeleteOp("pinned", entity);
-      if (op) enqueueOp(op);
-      emit(EVENTS.PIN_REMOVE, entity);
-    } else {
-      enqueueOp(makeResearchOp("item_upsert", { bucket: "pinned", entity }));
-      emit(EVENTS.PIN_ADD, entity);
+      actions.logHistory({ id: `els:${encodeURIComponent(scope)}:${encodeURIComponent(term)}:${encodeURIComponent(searchKind)}:${hitId}:${skip}`,
+        type: 'els', title: `ELS · ${term}`, label: term, term, scope, skip, searchKind, href: `/lab/els?q=${encodeURIComponent(term)}`,
+        metadata: { engine: 'tzofen', corpus: scope, hitId, skip, searchKind, findingCount: Array.isArray(d.findings) ? d.findings.length : 0, matrixVersion: d.matrix?.v || null } });
     }
-  }, [pinned, enqueueOp]);
+    window.addEventListener('message', onElsState);
+    return () => window.removeEventListener('message', onElsState);
+  }, [pathname, search, runtime, actions]);
 
-  const isPinned = useCallback((id) => pinned.some(e => e.id === id), [pinned]);
-
-  const addCollection = useCallback((name, meta) => {
-    const id = "c" + Date.now();
-    const { topic, world, number, year } = meta || {};
-    const rec = {
-      id, name: (name || "אוסף").trim(),
-      topic: topic || null, world: world || null,
-      number: (number || number === 0) ? Number(number) : null,
-      year: (year || year === 0) ? Number(year) : null,
-    };
-    setCollections(cs => [...cs, rec]);
-    enqueueOp(makeResearchOp("collection_add", { collection: rec }));
-    return id;
-  }, [enqueueOp]);
-
-  const updateCollection = useCallback((id, patch) => {
-    setCollections(cs => cs.map(c => (c.id === id ? { ...c, ...patch } : c)));
-    enqueueOp(makeResearchOp("collection_update", { id, patch: patch || {} }));
-  }, [enqueueOp]);
-
-  const removeCollection = useCallback((id) => {
-    setCollections(cs => cs.filter(c => c.id !== id));
-    setSaved(s => s.map(e => (e.coll === id ? { ...e, coll: undefined } : e)));
-    enqueueOp(makeResearchOp("collection_remove", { id }));
-  }, [enqueueOp]);
-
-  const assignCollection = useCallback((itemId, collId) => {
-    const target = saved.find(e => e.id === itemId);
-    setSaved(s => s.map(e => (e.id === itemId ? { ...e, coll: collId || undefined } : e)));
-    const ref = entityRef(target);
-    const type = String(target?.type || "").trim();
-    if (type && ref) enqueueOp(makeResearchOp("collection_assign", {
-      entity_type: type,
-      entity_ref: ref,
-      coll_id: collId || null,
-    }));
-  }, [saved, enqueueOp]);
-
-  const addJourney = useCallback((j) => {
-    if (!j || j.root == null) return;
-    const rec = { id: "j" + j.root, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
-    setJourneys(js => [rec, ...js.filter(x => x.root !== j.root)].slice(0, 30));
-    enqueueOp(makeResearchOp("journey_add", { journey: rec }));
-    trackResearch("journey", { root: j.root });
-  }, [enqueueOp]);
-
-  const removeJourney = useCallback((id) => {
-    setJourneys(js => js.filter(j => j.id !== id));
-    enqueueOp(makeResearchOp("journey_remove", { id }));
-  }, [enqueueOp]);
-
-  const clearJourneys = useCallback(() => {
-    setJourneys([]);
-    enqueueOp(makeResearchOp("journey_clear"));
-  }, [enqueueOp]);
-
-  const setMode = useCallback((m) => setModeState(m === "discovery" ? "discovery" : "reader"), []);
-  const enterDiscovery = useCallback(() => setModeState("discovery"), []);
-  const toggleMode = useCallback(() => setModeState(m => (m === "discovery" ? "reader" : "discovery")), []);
-
-  const value = {
-    cart, saved, pinned, history, collections, journeys, context,
-    addToResearch, removeFromResearch, clearResearch, saveItem, removeSaved, togglePin, isPinned,
-    logHistory, clearHistory, addCollection, updateCollection, removeCollection, assignCollection,
-    addJourney, removeJourney, clearJourneys,
-    setResearchContext, updateResearchContext, clearResearchContext,
-    mode, setMode, enterDiscovery, toggleMode,
-    legacyRecovery: {
-      available: legacyRecoveryAvailable,
-      ready: Boolean(principal && (!user?.id || cloudReady)),
-      recover: recoverLegacyResearch,
-    },
-    syncState: {
-      principal: principal || null,
-      cloudReady: Boolean(user?.id && cloudReady),
-      pending: pendingOps.length,
-      hydrated: Boolean(principal && hydratedPrincipal === principal),
-    },
-  };
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ ...state, ...actions }}>{children}</Ctx.Provider>;
 }

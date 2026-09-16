@@ -101,50 +101,36 @@ export async function saveCloudNotes(userId, content) {
   );
 }
 
-// ── Research OS personal cloud state — G3 principal-bound sync ──
-// The server derives the real actor from auth.uid(). p_expected_user_id is only a stale-request
-// guard, so an A-request that races with a switch to B fails instead of mutating B's state.
-// Item deletion is explicit-operation only; absence from a browser snapshot is never delete intent.
+// Personal Research OS IO. Never upload a whole stale browser snapshot or delete by absence.
+// auth.uid() is server authority; expected id rejects an A-request sent with B's refreshed JWT.
 async function assertResearchPrincipal(userId) {
   const expected = String(userId || '').trim();
-  if (!expected) throw new Error('research_principal_required');
+  if (!expected) throw new Error('RESEARCH_PRINCIPAL_REQUIRED');
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
-  const current = data?.session?.user?.id || null;
-  if (!current || current !== expected) throw new Error('research_principal_mismatch');
-  return current;
+  if (data?.session?.user?.id !== expected) throw new Error('RESEARCH_PRINCIPAL_MISMATCH');
+  return expected;
 }
-
+function validResearchSnapshot(data) {
+  if (!data || ['cart','saved','pinned','history','collections','journeys'].some(k => !Array.isArray(data[k])) ||
+    !Number.isSafeInteger(data.revision) || data.revision < 0) throw new Error('RESEARCH_SNAPSHOT_INVALID');
+  return data;
+}
 export async function getCloudResearch(userId) {
   const expected = await assertResearchPrincipal(userId);
-  const { data, error } = await supabase.rpc('research_state_snapshot_v1', {
-    p_expected_user_id: expected,
-  });
+  const { data, error } = await supabase.rpc('research_state_snapshot_v1', { p_expected_user_id: expected });
   if (error) throw error;
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    throw new Error('research_snapshot_invalid');
-  }
-  return {
-    cart: Array.isArray(data.cart) ? data.cart : [],
-    saved: Array.isArray(data.saved) ? data.saved : [],
-    pinned: Array.isArray(data.pinned) ? data.pinned : [],
-    history: Array.isArray(data.history) ? data.history : [],
-    collections: Array.isArray(data.collections) ? data.collections : [],
-    journeys: Array.isArray(data.journeys) ? data.journeys : [],
-    context: data.context ?? null,
-  };
+  return validResearchSnapshot(data);
 }
-
-export async function applyCloudResearchOps(userId, ops) {
+export async function applyCloudResearchOps(userId, ops, { batchId, expectedRevision } = {}) {
+  if (!Array.isArray(ops) || !ops.length || ops.length > 100 || !batchId ||
+    !Number.isSafeInteger(expectedRevision) || expectedRevision < 0) throw new Error('RESEARCH_BATCH_INVALID');
   const expected = await assertResearchPrincipal(userId);
-  const batch = Array.isArray(ops) ? ops : [];
-  if (!batch.length) return { ok: true, applied: 0 };
-  if (batch.length > 100) throw new Error('research_ops_batch_too_large');
   const { data, error } = await supabase.rpc('research_state_apply_ops_v1', {
-    p_expected_user_id: expected,
-    p_ops: batch,
+    p_expected_user_id: expected, p_ops: ops, p_batch_id: batchId, p_expected_revision: expectedRevision,
   });
   if (error) throw error;
-  if (!data?.ok) throw new Error('research_ops_apply_failed');
+  if (!data?.ok || data.batch_id !== batchId || !Number.isSafeInteger(data.applied_revision)) throw new Error('RESEARCH_ACK_INVALID');
+  validResearchSnapshot(data.snapshot);
   return data;
 }
