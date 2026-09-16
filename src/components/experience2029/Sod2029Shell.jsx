@@ -62,11 +62,15 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
     });
   }, [research, currentHref, currentLabel, context?.subject]);
 
+  const preserveReturnFor = useCallback((to) => {
+    if (to && to !== currentHref) preserveReturn();
+  }, [currentHref, preserveReturn]);
+
   const go = useCallback((to, { preserve = true } = {}) => {
     if (!to) return;
-    if (preserve && to !== currentHref) preserveReturn();
+    if (preserve) preserveReturnFor(to);
     navigate(to);
-  }, [navigate, preserveReturn, currentHref]);
+  }, [navigate, preserveReturnFor]);
 
   const returnExact = useCallback(() => {
     const href = context?.returnTo?.href;
@@ -94,13 +98,13 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
       <div className="sod29-root" dir="rtl" style={{ fontFamily: F.body }}>
         <SpaceBackground />
         <aside className="sod29-sidebar" aria-label="ניווט 2029">
-          <Link to="/2029" className="sod29-brand">
+          <Link to="/2029" className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
             <span className="sod29-brand-mark">ס</span>
             <span><b>SOD 1820</b><small>Research OS · 2029</small></span>
           </Link>
           <nav className="sod29-nav">
             {NAV.map(item => (
-              <NavLink key={item.to} to={item.to} end={item.exact} className={activeClass}>
+              <NavLink key={item.to} to={item.to} end={item.exact} className={activeClass} onClick={() => preserveReturnFor(item.to)}>
                 <span className="sod29-nav-icon">{item.icon}</span><span>{item.label}</span>
               </NavLink>
             ))}
@@ -148,7 +152,7 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
         </div>
 
         <nav className="sod29-mobile-nav" aria-label="ניווט מהיר 2029">
-          {NAV.slice(0, 5).map(item => <NavLink key={item.to} to={item.to} end={item.exact} className={activeClass}><span>{item.icon}</span><small>{item.label}</small></NavLink>)}
+          {NAV.slice(0, 5).map(item => <NavLink key={item.to} to={item.to} end={item.exact} className={activeClass} onClick={() => preserveReturnFor(item.to)}><span>{item.icon}</span><small>{item.label}</small></NavLink>)}
           <button onClick={() => setRazielOpen(true)}><span>✦</span><small>רזיאל</small></button>
         </nav>
 
