@@ -1,10 +1,8 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { F, LOGO_URL } from "../../theme.js";
+import { F } from "../../theme.js";
 import { usePalette } from "../../lib/palette.js";
 import { LAYOUT, MOTION, RADIUS } from "../../lib/designTokens.js";
-import SpaceBackground from "../layout/SpaceBackground.jsx";
-import AskRaziel from "../AskRaziel.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -151,7 +149,6 @@ export default function Sod2029Shell({
   const research = useResearch();
   const palette = usePalette();
   const [razielOpen, setRazielOpen] = useState(false);
-  const [razielChatOpen, setRazielChatOpen] = useState(false);
   const [workspaceOpen, setWorkspaceOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -221,18 +218,6 @@ export default function Sod2029Shell({
     fontFamily: F.body,
   }), [palette]);
 
-  const razielPalette = useMemo(() => ({
-    card: palette.card,
-    cardSoft: palette.cardSoft,
-    cardGrad: palette.cardGrad,
-    border: palette.border,
-    accent: palette.accent,
-    accentText: palette.accentText,
-    accentDim: palette.inkSoft,
-    glow: palette.glow,
-    ink: palette.ink,
-  }), [palette]);
-
   const razielSubject = context?.subject?.label || title || "המחקר הנוכחי";
   const razielContext = [
     context?.subject ? `עוגן: ${context.subject.type}:${context.subject.label || context.subject.id}` : null,
@@ -250,12 +235,10 @@ export default function Sod2029Shell({
   return (
     <ShellContext.Provider value={shellApi}>
       <div className={`sod29-root closed-shell surface-${surface}${sidebarCollapsed ? " sidebar-collapsed" : ""}`} dir="rtl" style={shellStyle}>
-        <SpaceBackground />
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
         <aside className="sod29-sidebar" aria-label="ניווט SOD1820 2029">
           <Link to="/2029" className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
-            <span className="sod29-brand-mark"><img src={LOGO_URL} alt="" /></span>
             <span><b>SOD 1820</b><small>One Reality · Research OS</small></span>
           </Link>
 
@@ -343,11 +326,11 @@ export default function Sod2029Shell({
                 <section className="sod29-raziel-presence-hero">
                   <span className="sod29-presence-state">נוכחות מחקרית פעילה</span>
                   <h3>{context?.subject ? `איתך על ${razielSubject}` : "מחכה לעוגן מחקר"}</h3>
-                  <div className="sod29-muted">רזיאל אינו מערכת צ׳אט נפרדת. הוא צורך את אותו Context, עובדות מהמנועים, מקורות, מסע ו־return_exact.</div>
+                  <div className="sod29-muted">רזיאל צורך את אותו Context, עובדות מהמנועים, מקורות, מסע ו־return_exact. רכיב השיחה הישן אינו נטען לתוך Runtime 2029.</div>
                 </section>
 
                 <section className="sod29-raziel-silence">
-                  <b>Silence Gate</b><br />אין כרגע adapter שמוכיח שינוי החלטתי חדש, ולכן רזיאל לא ממציא “מה חדש”. Resume ושאלה ישירה עדיין זמינים.
+                  <b>Silence Gate</b><br />אין כרגע adapter 2029 עצמאי שמוכיח שינוי החלטתי חדש, ולכן רזיאל לא ממציא “מה חדש” ולא יורש אוטומטית Presentation ישן.
                 </section>
 
                 <div className="sod29-panel-context">
@@ -357,21 +340,7 @@ export default function Sod2029Shell({
 
                 <div className="sod29-actions">
                   {context?.subject && location.pathname !== "/heichal" ? <button className="sod29-action primary" type="button" onClick={() => { closeRaziel(); go("/heichal"); }}>◇ העמק באותו מחקר</button> : null}
-                  <button className="sod29-action" type="button" onClick={() => setRazielChatOpen(v => !v)}>{razielChatOpen ? "סגור שיחה" : "פתח שיחה ישירה"}</button>
                 </div>
-
-                {razielChatOpen ? <div className="sod29-raziel-chat-stage">
-                  <AskRaziel
-                    subject={razielSubject}
-                    context={razielContext}
-                    greeting={context?.subject ? `אני איתך בתוך המחקר על ${razielSubject}. אפשר להעמיק בלי לאבד את המקום.` : "אין כרגע עוגן מחקר פעיל. אפשר להתחיל מכאן ולבנות הקשר."}
-                    title="שיחה עם רזיאל"
-                    subtitle="השיחה היא projection של אותו companion — לא הזיכרון או האמת עצמם"
-                    palette={razielPalette}
-                    metatron
-                    cta={false}
-                  />
-                </div> : null}
               </div>
             </aside>
           </div>

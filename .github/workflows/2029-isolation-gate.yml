@@ -1,0 +1,35 @@
+name: 2029 Isolation Gate
+
+on:
+  pull_request:
+    paths:
+      - "2029.html"
+      - "src/main2029.jsx"
+      - "src/App2029.jsx"
+      - "src/components/experience2029/**"
+      - "vite.config.js"
+      - "vercel.json"
+      - "scripts/test-2029-isolation.mjs"
+      - ".github/workflows/2029-isolation-gate.yml"
+  workflow_dispatch:
+
+jobs:
+  hard-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Static isolation regression
+        run: node scripts/test-2029-isolation.mjs
+      - name: Production build
+        run: npm run build
+      - name: Verify isolated HTML artifact
+        run: |
+          test -f dist/2029.html
+          ! grep -q "site.webmanifest" dist/2029.html
+          ! grep -q "/logo.png" dist/2029.html

@@ -1,0 +1,79 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+
+const root = process.cwd();
+const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
+
+const html2029 = read("2029.html");
+const main2029 = read("src/main2029.jsx");
+const app2029 = read("src/App2029.jsx");
+const shell2029 = read("src/components/experience2029/Sod2029Shell.jsx");
+const vite = read("vite.config.js");
+const vercel = JSON.parse(read("vercel.json"));
+const manifest = JSON.parse(read("public/site.webmanifest"));
+const auth = read("src/lib/auth.js");
+const sw = read("public/sw.js");
+
+// Document/entry isolation: 2029 does not inherit legacy PWA/brand/bootstrap assets.
+assert.match(html2029, /src\/main2029\.jsx/);
+for (const forbidden of ["site.webmanifest", "/logo.png", "src/main.jsx", "adminTheme", "VisualFoundationBase", "LightboxVisualFoundation"]) {
+  assert.equal(html2029.includes(forbidden), false, `2029.html must not load legacy entry asset: ${forbidden}`);
+}
+for (const forbidden of ["./App.jsx", "appHeal", "adminTheme", "VisualFoundationBase", "LightboxVisualFoundation"]) {
+  assert.equal(main2029.includes(forbidden), false, `main2029 must not import legacy bootstrap: ${forbidden}`);
+}
+assert.match(main2029, /App2029/);
+
+// App-root isolation: providers/capabilities may be shared; visual legacy runtime may not be mounted/imported.
+for (const required of ["AuthProvider", "ResearchProvider", "UserCenterProvider"]) {
+  assert.match(app2029, new RegExp(required), `App2029 must preserve shared capability: ${required}`);
+}
+for (const forbidden of [
+  "./App.jsx",
+  "components/layout/Layout",
+  "components/userCenter/UserCenter",
+  "AiQuotaToast",
+  "ProfileNudge",
+  "LegacyRedirect",
+  "InstallPrompt",
+  "UpdateBanner",
+  "SitePromoPopup",
+  "RoyalShareWidget",
+  "initInstall",
+]) {
+  assert.equal(app2029.includes(forbidden), false, `App2029 must not load legacy presentation/effect: ${forbidden}`);
+}
+assert.match(app2029, /window\.location\.assign\(href\)/, "non-2029 navigation must cross the document boundary, not render legacy in the 2029 tree");
+assert.equal(/Navigate\s+to=["']\/["']/.test(app2029), false, "2029 runtime must not auto-navigate to legacy root");
+
+// 2029 shell isolation: old wallpaper, heritage logo and legacy Raziel presentation are removed.
+for (const forbidden of ["SpaceBackground", "AskRaziel", "LOGO_URL", "/logo.png", "royal-bg.jpg"]) {
+  assert.equal(shell2029.includes(forbidden), false, `Sod2029Shell must not depend on legacy presentation: ${forbidden}`);
+}
+
+// Vite must actually emit both HTML entrypoints.
+assert.match(vite, /2029\.html/);
+assert.match(vite, /index\.html/);
+
+// Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
+const rewrites = vercel.rewrites || [];
+const expected = ["/2029", "/world", "/books", "/books/(.*)", "/els", "/heichal", "/היכל"];
+for (const source of expected) {
+  const item = rewrites.find((r) => r.source === source);
+  assert.ok(item, `missing isolated 2029 rewrite: ${source}`);
+  assert.equal(item.destination, "/2029.html", `2029 rewrite must target isolated document: ${source}`);
+}
+const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/index.html" && !r.has);
+assert.ok(catchAllIndex >= 0, "legacy SPA catch-all must remain present");
+for (const source of expected) {
+  const idx = rewrites.findIndex((r) => r.source === source);
+  assert.ok(idx < catchAllIndex, `${source} isolation rewrite must precede legacy catch-all`);
+}
+
+// Explicit non-changes: public cutover policy remains legacy until G3 MAIN/Human Gate decides otherwise.
+assert.equal(manifest.start_url, "/", "this pass must not silently cut over the installed PWA root");
+assert.match(auth, /redirectTo:\s*SITE_URL\s*\+\s*['"]\/['"]/, "this pass must not silently change OAuth public return policy");
+assert.match(sw, /data\.url\s*\|\|\s*["']\/["']/, "this pass must not silently change push default navigation policy");
+
+console.log("2029 hard-isolation regression: PASS");
