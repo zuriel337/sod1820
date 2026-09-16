@@ -4,3 +4,4 @@
 // implementation is replaced in-place under the canonical System Frame owner.
 export { default } from "./SystemFrame2029.jsx";
 export { use2029Shell, FrameState } from "./SystemFrame2029.jsx";
+import "./systemFrame2029-human-gate.css";
