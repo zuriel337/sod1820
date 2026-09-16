@@ -18,19 +18,24 @@ assert.match(compat, /SystemFrame2029\.jsx/);
 assert.equal(compat.includes("useState("), false, "compatibility shell must not own frame state");
 assert.equal(compat.includes("<aside"), false, "compatibility shell must not render a competing frame");
 
-// G3-A isolation remains intact: no Legacy presentation owner is reachable by direct frame imports.
-for (const forbidden of [
-  "NumberDrawer",
-  "numberDrawer",
-  "BottomBar",
-  "siteUpdates",
-  "AskRaziel",
-  "UserCenter",
-  "SpaceBackground",
-  "/logo.png",
-  "royal-bg.jpg",
-]) {
-  assert.equal(frame.includes(forbidden), false, `native System Frame must not inherit legacy presentation: ${forbidden}`);
+// G3-A isolation remains intact: prose may name retired prototypes, but the native
+// frame may not import or render those presentation owners/assets.
+const forbiddenImportPatterns = [
+  /from\s+["'][^"']*NumberDrawer/i,
+  /from\s+["'][^"']*numberDrawer/i,
+  /from\s+["'][^"']*BottomBar/i,
+  /from\s+["'][^"']*siteUpdates/i,
+  /from\s+["'][^"']*AskRaziel/i,
+  /from\s+["'][^"']*UserCenter/i,
+  /from\s+["'][^"']*SpaceBackground/i,
+  /<AskRaziel\b/,
+  /<UserCenter\b/,
+  /<NumberDrawer\b/,
+  /\/logo\.png/,
+  /royal-bg\.jpg/,
+];
+for (const forbidden of forbiddenImportPatterns) {
+  assert.equal(forbidden.test(frame), false, `native System Frame must not inherit legacy presentation: ${forbidden}`);
 }
 
 // Frame semantics: one transient coordinator, one Research Context, multiple projections.
@@ -67,6 +72,7 @@ assert.match(tokens, /presence\/brand meaning only/i);
 assert.match(frame, /RAZIEL_PRESENCE/);
 assert.match(css, /sod29-raziel-orb/);
 assert.match(css, /sod29-raziel-breathe/);
+assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
 // Adaptive Command Island is an action surface, not a fixed global-navigation bar.
 assert.match(frame, /sod29-command-island/);
