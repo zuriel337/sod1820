@@ -26,12 +26,13 @@ for (const forbidden of ["./App.jsx", "appHeal", "adminTheme", "VisualFoundation
 }
 assert.match(main2029, /App2029/);
 
-// App-root isolation: providers/capabilities may be shared; visual legacy runtime may not be mounted/imported.
-for (const required of ["AuthProvider", "ResearchProvider", "UserCenterProvider"]) {
+// App-root isolation: only Foundation providers required by 2029 stay mounted.
+for (const required of ["AuthProvider", "ResearchProvider"]) {
   assert.match(app2029, new RegExp(required), `App2029 must preserve shared capability: ${required}`);
 }
 for (const forbidden of [
   "./App.jsx",
+  "UserCenterProvider",
   "components/layout/Layout",
   "components/userCenter/UserCenter",
   "AiQuotaToast",
@@ -53,9 +54,10 @@ for (const forbidden of ["SpaceBackground", "AskRaziel", "LOGO_URL", "/logo.png"
   assert.equal(shell2029.includes(forbidden), false, `Sod2029Shell must not depend on legacy presentation: ${forbidden}`);
 }
 
-// Vite must actually emit both HTML entrypoints.
+// Vite must actually emit both HTML entrypoints and a manifest for built-graph acceptance.
 assert.match(vite, /2029\.html/);
 assert.match(vite, /index\.html/);
+assert.match(vite, /manifest:\s*true/);
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
@@ -77,4 +79,4 @@ assert.equal(manifest.start_url, "/", "this pass must not silently cut over the 
 assert.match(auth, /redirectTo:\s*SITE_URL\s*\+\s*['"]\/['"]/, "this pass must not silently change OAuth public return policy");
 assert.match(sw, /data\.url\s*\|\|\s*["']\/["']/, "this pass must not silently change push default navigation policy");
 
-console.log("2029 hard-isolation regression: PASS");
+console.log("2029 hard-isolation source regression: PASS");
