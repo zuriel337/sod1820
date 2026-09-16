@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
+import { mergeResearchContext, normalizeResearchContext } from "../src/lib/research/researchContext.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -79,6 +79,22 @@ assert.equal(exact.returnTo.dimensions.chapter, 2);
 assert.equal(exact.returnTo.dimensions.layer, "source");
 assert.equal(exact.returnTo.journey.id, "journey-a");
 assert.equal(exact.returnTo.journey.position, 4);
+
+const restored = mergeResearchContext(exact, {
+  subject: exact.returnTo.subject,
+  selection: exact.returnTo.selection,
+  lens: exact.returnTo.lens,
+  dimensions: exact.returnTo.dimensions,
+  journey: exact.returnTo.journey,
+  returnTo: null,
+});
+assert.deepEqual(restored.dimensions, { chapter: 2, layer: "source" }, "exact return must replace destination dimensions rather than leak-merge them");
+assert.equal(restored.dimensions.mode, undefined);
+assert.equal(restored.subject.id, "source-a");
+assert.equal(restored.selection.locator, "chapter:2:verse:4");
+assert.equal(restored.lens, "reading");
+assert.equal(restored.journey.position, 4);
+assert.equal(restored.returnTo, null);
 assert.match(frame, /selection:\s*target\.selection \|\| null/);
 assert.match(frame, /lens:\s*target\.lens \|\| null/);
 assert.match(frame, /dimensions:\s*target\.dimensions \|\| null/);
