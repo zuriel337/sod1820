@@ -24,6 +24,7 @@ test('101 is a palindromic prime with exact deterministic classification', () =>
   assert.ok(familyKeys(p).includes('palindrome_base10'));
   assert.ok(familyKeys(p).includes('palindromic_prime_base10'));
   assert.equal(p.families.find(x => x.key === 'prime').reference.source_ref, 'OEIS:A000040');
+  assert.equal(p.families.find(x => x.key === 'prime').reference.role, 'definition_pointer_unfetched');
 });
 
 test('256 exposes power, square, factorization and divisor facts', () => {
@@ -38,12 +39,13 @@ test('256 exposes power, square, factorization and divisor facts', () => {
   assert.ok(familyKeys(p).includes('power_of_two'));
 });
 
-test('777 is a repdigit and Harshad number without treating digit properties as interpretation', () => {
+test('777 is a multi-digit repdigit and Harshad number without treating digit properties as interpretation', () => {
   const p = analyzeNumberMath(777);
   assert.equal(p.digit_structure.repdigit, true);
+  assert.equal(p.digit_structure.repdigit_min_digits, 2);
   assert.equal(p.digit_structure.digit_sum, 21);
   assert.equal(p.digit_structure.harshad, true);
-  assert.ok(familyKeys(p).includes('repdigit_base10'));
+  assert.ok(familyKeys(p).includes('repdigit_base10_multi_digit'));
   assert.ok(familyKeys(p).includes('harshad_base10'));
 });
 
@@ -71,12 +73,17 @@ test('bounded factorization reports incomplete coverage rather than fabricating 
   assert.equal(familyKeys(p).includes('semiprime'), false);
 });
 
-test('zero and one preserve honest edge semantics', () => {
+test('zero and one preserve honest edge semantics and zero-term figurate membership', () => {
   const zero = analyzeNumberMath(0);
   const one = analyzeNumberMath(1);
   assert.equal(zero.arithmetic.classification, 'zero');
   assert.equal(zero.arithmetic.abundance_class, null);
+  assert.equal(zero.powers.cube_root, 0);
+  for (const key of ['triangular', 'square', 'pentagonal', 'hexagonal', 'heptagonal', 'octagonal']) {
+    assert.equal(zero.figurate.find(x => x.key === key)?.index, 0, `zero should be ${key} index 0`);
+  }
   assert.equal(one.arithmetic.classification, 'unit');
   assert.equal(one.arithmetic.abundance_class, 'deficient');
   assert.equal(one.digit_structure.happy, true);
+  assert.equal(one.digit_structure.repdigit, false);
 });
