@@ -1,18 +1,9 @@
 import React from "react";
-import EntityHubPreviewPageFunctional from "./EntityHubPreviewPageFunctional.jsx";
+import NumberHubOpening2029 from "./NumberHubOpening2029.jsx";
 
-// G3 Golden 1237 review route: reuse the real functional Entity Hub and its live adapters,
-// but expose only the product opening that is already part of the 2029 Number/Expression plan.
-// Lower unfinished legacy/prototype sections stay hidden during this review so ZURIEL sees no
-// presentation that is not intended for the original opening. No truth/data logic lives here.
+// G3 Golden review route: preserve the familiar Number Page opening as the product shell,
+// while the data/method/Raziel behavior underneath comes from the 2029 Foundation.
+// This is branch-only preview code; it does not replace production /number yet.
 export default function EntityHubPreviewPage() {
-  return <>
-    <style>{`
-      .eh-func > div > header { display:none !important; }
-      .eh-func > div > header + div { display:none !important; }
-      .eh-func > div > section { display:none !important; }
-      .eh-func { padding-top:16px !important; }
-    `}</style>
-    <EntityHubPreviewPageFunctional />
-  </>;
+  return <NumberHubOpening2029 />;
 }
