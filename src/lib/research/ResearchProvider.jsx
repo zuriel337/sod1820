@@ -3,10 +3,14 @@ import { useLocation } from "react-router-dom";
 import { emit, EVENTS } from "./eventBus.js";
 import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
 import {
+  acknowledgeResearchOps,
   applyResearchOps,
   appendResearchOp,
   emptyResearchState,
   entityRef,
+  hasMeaningfulResearchState,
+  LEGACY_UNSCOPED_KEY,
+  legacySnapshotToResearchOps,
   makeResearchOp,
   normalizeResearchState,
   principalContextKey,
@@ -33,6 +37,19 @@ function loadPrincipalState(principal) {
     };
   } catch {
     return { ...EMPTY, mode: "reader", pendingOps: [] };
+  }
+}
+
+function loadLegacyUnscopedState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LEGACY_UNSCOPED_KEY) || "null");
+    if (!raw || typeof raw !== "object" || !hasMeaningfulResearchState(raw)) return null;
+    return {
+      ...normalizeResearchState(raw),
+      mode: raw.mode === "discovery" ? "discovery" : "reader",
+    };
+  } catch {
+    return null;
   }
 }
 
@@ -96,10 +113,17 @@ export default function ResearchProvider({ children }) {
   const [hydratedPrincipal, setHydratedPrincipal] = useState(null);
   const [cloudReady, setCloudReady] = useState(false);
   const [cloudHydrationRevision, setCloudHydrationRevision] = useState(0);
+  const [legacyRecoveryAvailable, setLegacyRecoveryAvailable] = useState(false);
 
   const principalRef = useRef(null);
   const pendingOpsRef = useRef([]);
   const hydrationSeq = useRef(0);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const installWorkspaceState = useCallback((state) => {
     const s = normalizeResearchState(state);
@@ -127,7 +151,7 @@ export default function ResearchProvider({ children }) {
   }, [enqueueOp]);
 
   // Principal boundary: load only that principal's browser partition. The legacy unscoped v1 key
-  // remains preserved in storage as recoverable provenance but is never auto-adopted by guest or account.
+  // is preserved untouched and may be recovered only by an explicit user action.
   useEffect(() => {
     if (!principal) return;
     let alive = true;
@@ -138,6 +162,10 @@ export default function ResearchProvider({ children }) {
     setCloudReady(false);
 
     const local = loadPrincipalState(principal);
+    const legacy = loadLegacyUnscopedState();
+    setLegacyRecoveryAvailable(Boolean(
+      legacy && !hasMeaningfulResearchState(local) && !(local.pendingOps || []).length,
+    ));
     pendingOpsRef.current = local.pendingOps;
     setPendingOps(local.pendingOps);
     installWorkspaceState(local);
@@ -191,12 +219,13 @@ export default function ResearchProvider({ children }) {
     const expectedPrincipal = principal;
     const batch = pendingOps.slice(0, 100);
     const sentIds = new Set(batch.map(op => op?.op_id).filter(Boolean));
-    let alive = true;
     const t = setTimeout(() => {
       applyCloudResearchOps(expectedUserId, batch).then(() => {
-        if (!alive || principalRef.current !== expectedPrincipal) return;
+        // A pendingOps dependency change must NOT invalidate a legitimate server acknowledgment.
+        // Only component lifetime or a real principal switch invalidates this response.
+        if (!mountedRef.current || principalRef.current !== expectedPrincipal) return;
         setPendingOps(prev => {
-          const next = prev.filter(op => !sentIds.has(op?.op_id));
+          const next = acknowledgeResearchOps(prev, sentIds);
           pendingOpsRef.current = next;
           return next;
         });
@@ -204,8 +233,37 @@ export default function ResearchProvider({ children }) {
         // Keep the exact operations queued. No local state is erased and no destructive fallback runs.
       });
     }, 350);
-    return () => { alive = false; clearTimeout(t); };
+    return () => { clearTimeout(t); };
   }, [user?.id, principal, cloudReady, hydratedPrincipal, pendingOps]);
+
+  // Legacy v1 had no principal binding. Recovery therefore requires an explicit action and is
+  // additive-only: it never clears current cloud state and never auto-adopts on login.
+  const recoverLegacyResearch = useCallback(() => {
+    const legacy = loadLegacyUnscopedState();
+    const p = principalRef.current;
+    if (!legacy || !p) return false;
+    if (p.startsWith("user:") && !cloudReady) return false;
+
+    if (p.startsWith("user:")) {
+      const ops = legacySnapshotToResearchOps(legacy);
+      const current = { cart, saved, pinned, history, collections, journeys, context: null };
+      installWorkspaceState(applyResearchOps(current, ops));
+      setPendingOps(prev => {
+        let next = prev;
+        for (const op of ops) next = appendResearchOp(next, op);
+        pendingOpsRef.current = next;
+        return next;
+      });
+    } else {
+      // Explicit guest recovery stays in the guest partition and never crosses into an account.
+      installWorkspaceState(legacy);
+    }
+
+    if (legacy.mode === "discovery") setModeState("discovery");
+    setLegacyRecoveryAvailable(false);
+    // LEGACY_UNSCOPED_KEY is deliberately not deleted; it remains provenance/recovery evidence.
+    return true;
+  }, [cloudReady, cart, saved, pinned, history, collections, journeys, installWorkspaceState]);
 
   const logHistory = useCallback((entity) => {
     if (!entity || !entity.id) return;
@@ -447,6 +505,11 @@ export default function ResearchProvider({ children }) {
     addJourney, removeJourney, clearJourneys,
     setResearchContext, updateResearchContext, clearResearchContext,
     mode, setMode, enterDiscovery, toggleMode,
+    legacyRecovery: {
+      available: legacyRecoveryAvailable,
+      ready: Boolean(principal && (!user?.id || cloudReady)),
+      recover: recoverLegacyResearch,
+    },
     syncState: {
       principal: principal || null,
       cloudReady: Boolean(user?.id && cloudReady),
