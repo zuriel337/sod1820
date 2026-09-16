@@ -28,7 +28,7 @@ function attribution(r) {
   })[s] || s;
   return { label: src, kind: "source" };
 }
-export default function CommunityWordsBox({ light, max = 4, moreMax = 24, expandable = true, title = "✦ מילים חדשות שנוספו למאגר" }) {
+export default function CommunityWordsBox({ light, max = 4, moreMax = 24, expandable = true, title = "✦ מילים חדשות שנוספו למאגר", variant = "simple" }) {
   const globalP = usePalette();
   const pal = light == null ? globalP : PALETTES[light ? "light" : "dark"];
   const [rows, setRows] = useState([]);
@@ -46,33 +46,55 @@ export default function CommunityWordsBox({ light, max = 4, moreMax = 24, expand
   if (!rows.length) return null;
 
   const L = { panel: pal.card, ink: pal.ink, sub: pal.inkSoft, gold: pal.accentText, line: pal.border, chip: pal.cardSoft, badge: pal.glow, dim: pal.accentDim };
+  const research = variant === "research";
+  const writerTag = r => (r.tags || []).find(t => String(t).startsWith("writer:"))?.slice(7) || null;
+  const yearTags = r => (r.tags || []).filter(t => String(t).startsWith("year:")).map(t => String(t).slice(5));
+  const methodChips = r => [["רגיל", r.ragil], ["מסתתר", r.misratar], ["גדול", r.gadol], ["מילוי", r.miluy], ["משולש", r.kadmi], ["ריבוע", r.ribua]].filter(([, v]) => Number.isFinite(Number(v)) && Number(v) > 0);
 
   return (
     <div style={{ background: L.panel, border: `1px solid ${L.line}`, borderRadius: 16, padding: "13px 16px", direction: "rtl" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11, flexWrap: "wrap" }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#25d366", boxShadow: "0 0 7px #25d366", flex: "0 0 auto" }} />
-        <span style={{ color: L.gold, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, flex: "1 1 auto", minWidth: 0, lineHeight: 1.4 }}>{title}</span>
+        <span style={{ color: L.gold, fontFamily: F.regal, fontSize: research ? 17 : 15.5, fontWeight: 800, flex: "1 1 auto", minWidth: 0, lineHeight: 1.4 }}>{title}</span>
         {/* הספירה בשורת-משנה משלה כשצר (מובייל) — לא נדחסת לצד הכותרת */}
         <span style={{ marginInlineStart: "auto", color: L.dim, fontFamily: F.heading, fontSize: 11.5, whiteSpace: "nowrap", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 999, padding: "3px 11px" }}>
           {total > 0 ? `סך הכל ${total.toLocaleString("he")} מילים במאגר` : `${rows.length} אחרונות`}
         </span>
       </div>
-      <div style={{ display: "grid", gap: 8 }}>
-        {rows.map((r, i) => (
-          <Link key={i} to={`/number/${encodeURIComponent(r.phrase)}`} title={`${r.phrase} = ${r.ragil}`}
-            style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: 11, padding: "8px 11px" }}>
-            <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
-              <span style={{ color: L.ink, fontFamily: F.body, fontSize: 14.5, fontWeight: 600, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.phrase}</span>
-              {(() => { const a = attribution(r); return a && (
-                <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {a.kind === "author" ? "מאת: " : "מקור: "}{a.label}
+      <div style={{ display: "grid", gap: research ? 10 : 8 }}>
+        {rows.map((r, i) => {
+          const a = attribution(r), writer = writerTag(r) || (a?.kind === "author" ? a.label : null);
+          const years = yearTags(r), methods = methodChips(r);
+          return (
+            <Link key={i} to={`/number/${encodeURIComponent(r.phrase)}`} title={`${r.phrase} = ${r.ragil}`}
+              style={{ display: "flex", alignItems: research ? "stretch" : "center", gap: 9, textDecoration: "none", background: L.chip, border: `1px solid ${L.line}`, borderRadius: research ? 14 : 11, padding: research ? "11px 12px" : "8px 11px" }}>
+              <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: research ? 6 : 2 }}>
+                <span style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+                  <span style={{ color: L.ink, fontFamily: F.body, fontSize: research ? 15 : 14.5, fontWeight: 700, minWidth: 0 }}>{r.phrase}</span>
+                  {research && <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 900, borderRadius: 999, padding: "2px 9px" }}>{r.ragil}</span>}
+                  {research && r.is_verified && <span style={{ color: L.gold, border: `1px solid ${L.line}`, borderRadius: 999, padding: "1px 7px", fontFamily: F.heading, fontSize: 9.5, fontWeight: 900 }}>✓ מאומת</span>}
+                  {research && !r.is_published && <span style={{ color: L.sub, border: `1px solid ${L.line}`, borderRadius: 999, padding: "1px 7px", fontFamily: F.heading, fontSize: 9.5 }}>במאגר המחקר</span>}
                 </span>
-              ); })()}
-            </span>
-            <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", flex: "0 0 auto" }}>{r.ragil}</span>
-            {r.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(r.created_at)}</span>}
-          </Link>
-        ))}
+                {research ? <>
+                  <span style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                    {methods.slice(0, 5).map(([name, value]) => <span key={name} style={{ color: L.sub, fontFamily: F.heading, fontSize: 10.5, background: L.panel, border: `1px solid ${L.line}`, borderRadius: 999, padding: "2px 7px" }}>{name} <b style={{ color: L.gold, fontFamily: F.mono }}>{value}</b></span>)}
+                  </span>
+                  <span style={{ display: "flex", gap: 8, flexWrap: "wrap", color: L.sub, fontFamily: F.body, fontSize: 10.5 }}>
+                    {writer && <span>✍️ {writer}</span>}
+                    {!writer && a && <span>{a.kind === "author" ? "✍️ " : "◈ מקור: "}{a.label}</span>}
+                    {years.map(y => <span key={y}>📅 {y}</span>)}
+                    {r.source?.startsWith("post:wp_id=") && <span>📰 פוסט {r.source.slice("post:wp_id=".length)}</span>}
+                    {r.source?.startsWith("gallery_image:") && <span>🖼️ גלריה</span>}
+                    {r.created_at && <span>🕒 {timeAgoHe(r.created_at)}</span>}
+                  </span>
+                </> : a && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 10.5, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.kind === "author" ? "מאת: " : "מקור: "}{a.label}</span>}
+              </span>
+              {!research && <span style={{ background: L.badge, color: L.gold, fontFamily: F.mono, fontSize: 12.5, fontWeight: 800, borderRadius: 999, padding: "2px 9px", flex: "0 0 auto" }}>{r.ragil}</span>}
+              {!research && r.created_at && <span style={{ color: L.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap", flex: "0 0 auto" }}>{timeAgoHe(r.created_at)}</span>}
+              {research && <span aria-hidden style={{ alignSelf: "center", color: L.gold, fontSize: 18 }}>←</span>}
+            </Link>
+          );
+        })}
       </div>
       {/* 🔽 «ראה מילים קודמות» — פותח את הרשימה (max→moreMax) · «הצג פחות» מקפל בחזרה */}
       {expandable && total > max && (
