@@ -230,3 +230,157 @@ Before retirement/replacement verify:
 **DOCUMENTED != MERGED != DEPLOYED != LIVE != VERIFIED.**
 
 This addendum becomes the current long-form System Frame presentation contract only after it is merged into the canonical repository lineage.
+
+---
+
+## 10. 2029 Human-Gate North Star Lock · 2026-09-16
+
+**Decision owner:** Zuriel / Human Gate  
+**Architecture action:** `EXTEND_EXISTING` — this section extends the same System Frame owner. It does not create a new shell, command system, AI system, notification engine, inspector store or research context.
+
+### 10.1 Product north star
+
+SOD1820 2029 is a **context-preserving Research Operating System**, not a collection of pages with AI controls added on top.
+
+The stable semantic chain is:
+
+`SYSTEM FRAME → RESEARCH CONTEXT → CURRENT SURFACE → SELECTION/FOCUS → ADAPTIVE ACTIONS → RAZIEL / INSPECT → DEEPEN TO HEICHAL`
+
+The frame must always preserve the distinction between:
+
+- `WHERE AM I?` — Orientation;
+- `WHERE CAN I GO?` — Global Navigation;
+- `WHAT AM I RESEARCHING / WHAT IS SELECTED?` — Research Context + temporary selection/focus;
+- `WHAT CAN I DO NOW?` — Adaptive Command Surface;
+- `WHAT MAY HELP ME NEXT?` — Raziel contextual recommendation, subject to truth/access/governance.
+
+AI may rank or recommend actions and information. AI must not unpredictably reorganize primary navigation, silently mutate truth state, canonicalize findings, publish, or replace Human Gate authority.
+
+### 10.2 Adaptive Command Island — preferred mobile projection
+
+The legacy fixed Bottom Bar is **capability/provenance evidence only** and is not presentation authority for 2029.
+
+The preferred mobile projection of the Adaptive Command Surface is a compact **Floating / Adaptive Command Island** rather than a full-width fixed navigation bar. It is a projection of semantic commands, not a second navigation system.
+
+Typical persistent capabilities may include Universal Search/Command, Quick Inspect, Now/Attention and Raziel. Contextual actions may appear when relevant, but the frame must preserve interaction stability and muscle memory; AI must not continuously reshuffle controls.
+
+Desktop/tablet may project the same capabilities into Sidebar-adjacent controls, contextual toolbars, command palette or another governed form. No physical placement is canonical across devices.
+
+### 10.3 Raziel Orb — canonical compact-presence direction
+
+Raziel's preferred compact-presence direction is a **living orb** rather than a generic robot/chat icon.
+
+Human-Gate visual direction:
+
+- blue → indigo → purple chromatic identity;
+- quiet, restrained motion rather than continuous attention-seeking animation;
+- compact persistent/recoverable presence when Raziel is authorized;
+- one subtle pulse/attention event may signal genuinely decision-relevant research information;
+- no notification spam and no false implication that activity equals truth.
+
+The exact color values, gradients, motion curves, contrast treatment and reduced-motion projection are design tokens governed by the active Product Visual Language / Design Contract and accessibility requirements. Orb color is **brand/presence semantics, never truth semantics**; verification, uncertainty, canonical state, errors and access state require independent accessible signals.
+
+Opening the Orb must preserve the current authorized Research Context. It may expand into contextual companion, mobile sheet, side companion or deep-research Raziel surface without creating another Raziel identity, memory or truth path.
+
+### 10.4 Proactive but quiet AI
+
+Raziel may surface a restrained attention signal when new information is materially relevant to the user's current research context or could change the next research decision.
+
+The preferred behavior is **proactive but quiet**:
+
+- no interruption merely because new content exists;
+- no automatic claim that a discovered relation is true;
+- no popup-first interaction model;
+- recommendation/explanation remains distinct from Finding / Claim / Evidence / Fact / Canonical;
+- the user controls whether to inspect, dismiss, mute, deepen or act.
+
+### 10.5 Selection Intelligence
+
+Current text/object selection may seed a **temporary contextual focus** for Inspect, Compare, Tools, Raziel and Research actions.
+
+Examples include a selected expression, number, verse, source locus, person, image/media object, Finding or relation.
+
+Selection Intelligence is projection/context only. Selecting something does not create canonical identity, Finding, Claim or publication state by itself. Any persisted research object must pass through its canonical owner and truth/provenance boundary.
+
+### 10.6 Entity Quick Inspect — Number/Expression first
+
+The existing legacy `NumberDrawer` proves the cross-surface capability but is not the 2029 presentation contract.
+
+2029 adopts **Entity Quick Inspect** as the semantic capability: inspect an addressable subject without losing the current surface or exact return position.
+
+Number / Expression is the **Golden first projection** of Quick Inspect.
+
+The future Number/Expression full page and its Quick Inspect projection must consume the same canonical Number/Expression identity, calculation engines, method registry, truth/provenance and governed read model. They are not separate products or separate stores.
+
+Target projection chain:
+
+`NUMBER / EXPRESSION CORE → QUICK INSPECT → FULL PAGE → WORLD / HEICHAL / JOURNEY PROJECTIONS`
+
+Final Number-page and Quick-Inspect visual composition remains deliberately redesignable. This lock governs shared semantics and continuity, not a frozen card layout.
+
+The same Inspect capability may later project Book/Source, Person, Event, Finding/Evidence or other supported entity types without creating a separate drawer architecture per domain.
+
+### 10.7 Heichal = deep-research mode, not tool ownership
+
+Heichal is the canonical **deep-research workbench / mode**, not the mandatory owner or gateway of every tool.
+
+A tool/capability may be invoked through:
+
+- its direct first-class page when one exists;
+- Search/Command;
+- a contextual action from World/Post/Book/Number/other surface;
+- Raziel recommendation;
+- Quick Inspect;
+- Heichal deep mode.
+
+Entering Heichal must carry the same Research Context, selected subject/tool and exact return target. A capability must not require navigation through Heichal merely to exist or be invoked.
+
+### 10.8 Now / Attention = unified projection, not unified truth/store
+
+`Now` is the System Frame's **attention projection**. It may compose governed signals such as:
+
+- site / content stream updates;
+- subjects the user follows;
+- messages / replies / mentions when authorized;
+- meaningful research-state changes;
+- Raziel research pulse / recommendation;
+- resumable Journey or research continuity.
+
+This does **not** authorize a new global Notification Engine or merged truth table. Each signal remains owned by its canonical domain. The frame may rank/project authorized attention items while preserving provenance, source type, access state and reason-for-attention.
+
+The Home surface may show a richer `Global Now` projection; the Command Island may show a compact peek; My Workspace may expose history/management. These are multiple projections over owned capabilities, not duplicate attention systems.
+
+### 10.9 One transient surface at a time
+
+On constrained/mobile layouts, the System Frame must coordinate transient surfaces so Quick Inspect, Now, Raziel, Tools and Workspace overlays do not stack into competing modal layers.
+
+Preferred invariant: **one primary transient surface open at a time**, while Research Context and exact return remain preserved underneath.
+
+Close/back/Escape/gesture behavior must be semantically consistent and accessible. Opening another transient surface may replace the visible projection but must not silently destroy the underlying research context or return position.
+
+### 10.10 Tools and AI are contextual, navigation remains stable
+
+Global Navigation communicates product structure. Adaptive Actions communicate available operations. They must not collapse into the same control system.
+
+AI may prioritize which contextual tool/action is most useful for the current selection and research context, but stable navigation families and core command affordances remain user-learnable and recoverable.
+
+Future voice, keyboard, agentic or ambient interfaces should invoke the **same semantic commands**, not introduce a parallel control architecture.
+
+### 10.11 Acceptance implication for the first native 2029 frame
+
+Before a World-specific surface becomes the presentation authority, the generic System Frame should demonstrate these semantics without World hard-coding:
+
+- Orientation + exact return;
+- adaptive Global Navigation;
+- Research Context continuity;
+- Adaptive Command Surface / Command Island projection;
+- Raziel compact presence and contextual expansion seam;
+- one-transient-surface coordination;
+- Quick Inspect seam with Number/Expression as first planned Golden projection;
+- Now/Attention projection seam without a parallel notification store;
+- Heichal deepening while preserving context;
+- mobile 320/360/390, desktop, RTL/LTR readiness, keyboard/focus, reduced-motion and accessibility behavior.
+
+**LOCKED PRODUCT DIRECTION != IMPLEMENTED != MERGED != DEPLOYED != LIVE.**
+
+This 2029 section is a Human-Gate product/architecture lock on the branch. It becomes canonical repository state only through the normal merge/release gate.
