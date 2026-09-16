@@ -36,6 +36,12 @@ const FACET_LABELS = {
   language_bridge: "גשר שפה",
 };
 
+const VERIFICATION_LABELS = {
+  match: "אומת מול החישוב",
+  mismatch: "נמצאה אי־התאמה",
+  not_tested: "טרם נבדק",
+};
+
 function subjectKey(subject) {
   if (!subject?.id || !subject?.type) return null;
   return `${subject.type}:${subject.id}`;
@@ -133,7 +139,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div className="sod29-command-copy">
           <div className="sod29-kicker">WORLD · ONE REALITY</div>
           <h2>המציאות המחקרית פתוחה.<br />בחר נקודה והעמק.</h2>
-          <div className="sod29-muted">World הוא projection של הנתונים וה־Findings שכבר קיימים ב־Research OS וב־Reality Graph. חיפוש/פקודה, רזיאל, כלים, Quick Inspect והאזור האישי מגיעים מאותו System Frame — לא ממערכות World נפרדות.</div>
+          <div className="sod29-muted">זהויות, קשרים, ממצאים ומקורות נפגשים כאן סביב עוגנים אמיתיים. אפשר להתחיל מנקודה קיימת, לחפש דבר חדש או לעבור בין קשרים בלי לאבד את ההקשר.</div>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חיפוש / פקודה</button>
             <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ מה דורש תשומת לב</button>
@@ -149,9 +155,9 @@ function LiveWorldLanding({ research, shell, context }) {
       </div>
     </section>
 
-    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="טוען את העולם החי">קורא רק דרך ה־2029 read models הפעילים.</FrameState></NativeStateSection> : null}
-    {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שנטען בהצלחה נשאר גלוי; אין fallback שקט ל־Legacy.</FrameState></NativeStateSection> : null}
-    {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להקרנה">World אינו ממלא את המסך בנתוני דמו. נסה שוב מאוחר יותר או פתח עוגן דרך Command.</FrameState></NativeStateSection> : null}
+    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="אוסף את החומר הזמין">קשרים, מחקר ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
+    {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
+    {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר ריק כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח עוגן דרך החיפוש.</FrameState></NativeStateSection> : null}
 
     {!landing.loading && populatedSections.map((facet) => {
       const cards = landing.sections[facet.key] || [];
@@ -166,14 +172,13 @@ function LiveWorldLanding({ research, shell, context }) {
       </section>;
     })}
 
-    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח מחקר מתוך המאגר">טוען את ה־Finding הקנוני של ההתכנסות.</FrameState></NativeStateSection> : null}
-    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="המחקר לא נטען כרגע">ה־World אינו מחליף אותו בנתון אחר.</FrameState></NativeStateSection> : null}
+    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את המחקר">טוען את החומר הקשור להתכנסות.</FrameState></NativeStateSection> : null}
+    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="המחקר לא נטען כרגע">לא יוצג חומר חלופי במקום המחקר שביקשת.</FrameState></NativeStateSection> : null}
     {topicDetail.finding ? <section className="sod29-section">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">מחקר מתוך המאגר</div>
           <h2>{topicDetail.finding.subject?.label || topicDetail.card?.label}</h2>
-          {topicDetail.finding.evidence?.score != null ? <div className="sod29-muted">עוצמת התכנסות לתצוגה: {topicDetail.finding.evidence.score}</div> : null}
         </div>
         <button className="sod29-action" type="button" onClick={() => setTopicDetail({ loading: false, card: null, finding: null, error: null })}>סגור</button>
       </div>
@@ -185,13 +190,15 @@ function LiveWorldLanding({ research, shell, context }) {
   </>;
 }
 
-function AnchoredWorld({ research, shell, subject }) {
+function AnchoredWorld({ research, shell, subject, context }) {
   const [state, setState] = useState({ loading: true, data: null, error: null });
+  const [deepening, setDeepening] = useState({ id: null, error: false });
   const key = subjectKey(subject);
 
   useEffect(() => {
     let alive = true;
     setState({ loading: true, data: null, error: null });
+    setDeepening({ id: null, error: false });
     fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 40, topicLimit: 10 })
       .then((data) => alive && setState({ loading: false, data, error: null }))
       .catch((error) => alive && setState({ loading: false, data: null, error }));
@@ -207,21 +214,80 @@ function AnchoredWorld({ research, shell, subject }) {
     research.updateResearchContext?.({ lens: "world" });
   };
 
+  const inspectFinding = (finding) => {
+    shell.openInspect({
+      id: String(finding?.id || finding?.subject?.key || "finding"),
+      type: finding?.subject?.type || "finding",
+      label: finding?.statement || finding?.subject?.label || "ממצא מחקרי",
+      href: "/world",
+    });
+  };
+
+  const inspectSource = (source) => {
+    shell.openInspect({
+      id: String(source?.ref || source?.label || "source"),
+      type: "source",
+      label: source?.label || source?.ref || "מקור",
+      href: "/world",
+    });
+  };
+
+  const deepenRelation = async (finding) => {
+    const relation = finding?.projection?.relations?.[0];
+    const currentNodeId = String(data?.identity?.nodeId || "");
+    const fromNodeId = relation?.fromNodeId ? String(relation.fromNodeId) : null;
+    const toNodeId = relation?.toNodeId ? String(relation.toNodeId) : null;
+    const targetNodeId = fromNodeId === currentNodeId ? toNodeId : fromNodeId;
+    if (!targetNodeId) return;
+
+    setDeepening({ id: finding?.id || targetNodeId, error: false });
+    try {
+      const target = await fetchEntityHubProjection({ nodeId: targetNodeId, relationLimit: 1, researchLimit: 1, topicLimit: 1 });
+      if (!target?.identity) throw new Error("target unavailable");
+      research.setResearchContext?.({
+        subject: {
+          id: String(target.identity.label),
+          type: target.identity.type,
+          label: target.identity.label,
+          href: "/world",
+        },
+        selection: { entityId: String(target.identity.nodeId), entityType: target.identity.type },
+        lens: "world",
+        dimensions: context?.dimensions || {},
+        journey: context?.journey || null,
+        returnTo: {
+          href: "/world",
+          label: data.identity.label,
+          subject: context?.subject || subject,
+          selection: context?.selection || null,
+          lens: context?.lens || "world",
+          dimensions: context?.dimensions || {},
+          journey: context?.journey || null,
+        },
+      });
+    } catch (_) {
+      setDeepening({ id: null, error: true });
+      return;
+    }
+    setDeepening({ id: null, error: false });
+  };
+
   return <>
     <section className="sod29-section sod29-world-anchor-intro">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">העולם סביב העוגן</div>
           <h2>{subject.label || subject.id}</h2>
-          <div className="sod29-muted">World מציג רק חומר שה־read models המחקריים החזירו לעוגן. פעולות רוחב כמו Inspect, Raziel, Tools, Share ו־Workspace נשארות ב־System Frame.</div>
+          <div className="sod29-muted">כאן נאספים הקשרים, הממצאים, המקורות ונקודות הזמן שנמצאו סביב העוגן. אפשר לעבור לקשר אחר, לבדוק ממצא או מקור, ולחזור בדיוק לנקודה שממנה יצאת.</div>
         </div>
         <button className="sod29-action" type="button" onClick={backToWorld}>◌ נקה עוגן</button>
       </div>
     </section>
 
-    {state.loading ? <NativeStateSection><FrameState kind="loading" title="טוען קשרים, מחקר ומקורות">העוגן נשמר בזמן הטעינה.</FrameState></NativeStateSection> : null}
-    {state.error ? <NativeStateSection><FrameState kind="error" title="לא הצלחנו לפתוח את העוגן כרגע">{String(state.error?.message || state.error)} · אין fallback ל־Legacy.</FrameState></NativeStateSection> : null}
-    {!state.loading && !state.error && !data ? <NativeStateSection><FrameState kind="unavailable" title="אין projection זמין לעוגן הזה">העוגן נשאר ב־Research Context; אפשר לחזור, Inspect או להעמיק בכלי אחר דרך ה־Frame.</FrameState></NativeStateSection> : null}
+    {state.loading ? <NativeStateSection><FrameState kind="loading" title="טוען קשרים, מחקר ומקורות">העוגן נשמר בזמן שהחומר נאסף.</FrameState></NativeStateSection> : null}
+    {state.error ? <NativeStateSection><FrameState kind="error" title="לא הצלחנו לפתוח את העוגן כרגע">לא מוצג חומר חלופי במקום המידע שלא נטען.</FrameState></NativeStateSection> : null}
+    {!state.loading && !state.error && !data ? <NativeStateSection><FrameState kind="unavailable" title="אין חומר זמין לעוגן הזה">העוגן נשאר שמור ואפשר לחזור, לחפש או לבחור נקודה אחרת.</FrameState></NativeStateSection> : null}
+    {deepening.error ? <NativeStateSection><FrameState kind="unavailable" title="הקשר קיים אך היעד לא נפתח כרגע">אפשר להמשיך לעיין בעוגן הנוכחי או לנסות שוב.</FrameState></NativeStateSection> : null}
 
     {data ? <div className="sod29-world-native-projection" data-world-density={density}>
       <section className="sod29-section">
@@ -235,24 +301,57 @@ function AnchoredWorld({ research, shell, subject }) {
             <div className="sod29-card"><div className="sod29-stat">{counts.relations}</div><div className="sod29-stat-label">קשרים</div></div>
             <div className="sod29-card"><div className="sod29-stat">{counts.findings}</div><div className="sod29-stat-label">ממצאי מחקר</div></div>
             <div className="sod29-card"><div className="sod29-stat">{counts.sources}</div><div className="sod29-stat-label">מקורות</div></div>
-            <div className="sod29-card"><div className="sod29-stat">{counts.worlds}</div><div className="sod29-stat-label">עדשות</div></div>
+            <div className="sod29-card"><div className="sod29-stat">{counts.worlds}</div><div className="sod29-stat-label">משפחות תוכן</div></div>
             <div className="sod29-card"><div className="sod29-stat">{counts.timeline}</div><div className="sod29-stat-label">נקודות זמן</div></div>
           </div>
         </div>
       </section>
 
-      {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="העוגן קיים, אבל סביבו מעט חומר כרגע">זהו מצב World תקין. המערכת לא ממציאה קשרים, מקורות או Findings כדי לגרום לעולם להיראות מלא.</FrameState></NativeStateSection> : null}
+      {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="העוגן קיים, אבל סביבו מעט חומר כרגע">זהו מצב תקין. העולם נשאר דל במקום להמציא קשרים, מקורות או ממצאים שאינם קיימים.</FrameState></NativeStateSection> : null}
+      {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מחומר המחקר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
 
-      {data.graph?.relations?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">קשרים</div><h2>מה מחובר לכאן</h2></div></div><div className="sod29-list">{data.graph.relations.slice(0, 14).map((finding, index) => {
-        const relation = finding.projection?.relations?.[0];
-        return <div className="sod29-row" key={finding.id || index}><div><strong>{relation?.target || finding.subject?.label || "קשר"}</strong><small>{relation?.relation_type || relation?.type || finding.kind || "קשר בגרף"}</small></div></div>;
-      })}</div></section> : null}
+      {data.graph?.relations?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">קשרים</div><h2>מה מחובר לכאן</h2></div></div>
+        <div className="sod29-list">{data.graph.relations.slice(0, 14).map((finding, index) => {
+          const relation = finding.projection?.relations?.[0];
+          const busy = deepening.id === (finding.id || relation?.id);
+          return <div className="sod29-row" key={finding.id || index}>
+            <div><strong>{finding.subject?.label || "קשר"}</strong><small>{relation?.relationType || finding.source?.method || "קשר בגרף"}</small></div>
+            <button className="sod29-action" type="button" disabled={busy} onClick={() => deepenRelation(finding)}>{busy ? "פותח…" : "העמק"}</button>
+          </div>;
+        })}</div>
+      </section> : null}
 
-      {data.research?.findings?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">מחקר חי</div><h2>ממצאים סביב העוגן</h2></div></div><div className="sod29-list">{data.research.findings.slice(0, 12).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.statement || finding.subject?.label || finding.kind}</strong><small>{finding.stage || finding.kind || "מחקר"}{finding.verification?.verification_state ? ` · ${finding.verification.verification_state}` : ""}</small></div></div>)}</div></section> : null}
+      {data.research?.findings?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר חי</div><h2>ממצאים סביב העוגן</h2></div></div>
+        <div className="sod29-list">{data.research.findings.slice(0, 12).map((finding, index) => {
+          const verification = VERIFICATION_LABELS[finding.verification?.verification_state] || "ממצא מחקרי";
+          return <div className="sod29-row" key={finding.id || index}>
+            <div><strong>{finding.statement || finding.subject?.label || "ממצא מחקרי"}</strong><small>{verification}</small></div>
+            <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button>
+          </div>;
+        })}</div>
+      </section> : null}
 
-      {data.sources?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה זה מגיע</h2></div><button className="sod29-action" type="button" onClick={() => shell.go("/books")}>ספרים ומקורות</button></div><div className="sod29-list">{data.sources.slice(0, 10).map((source, index) => <div className="sod29-row" key={`${source.ref || source.label}-${index}`}><div><strong>{source.label || source.ref || "מקור"}</strong><small>{source.ref || "מקור מחקרי"}</small></div></div>)}</div></section> : null}
+      {data.topics?.findings?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">התכנסויות</div><h2>מחקרים שנפגשים עם העוגן</h2></div></div>
+        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "התכנסות"}</strong><small>מחקר קשור לעוגן</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
+      </section> : null}
 
-      {data.timeline?.length ? <section className="sod29-section"><div className="sod29-section-head"><div><div className="sod29-kicker">זמן</div><h2>ציר הזמן</h2></div></div><div className="sod29-list">{data.timeline.slice(-8).map((item, index) => <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{item.label || item.kind || "שינוי"}</strong><small>{item.at ? new Date(item.at).toLocaleDateString("he-IL") : "זמן לא ידוע"}</small></div></div>)}</div></section> : null}
+      {data.sources?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה החומר מגיע</h2></div><button className="sod29-action" type="button" onClick={() => shell.go("/books")}>ספרים ומקורות</button></div>
+        <div className="sod29-list">{data.sources.slice(0, 10).map((source, index) => <div className="sod29-row" key={`${source.ref || source.label}-${index}`}><div><strong>{source.label || source.ref || "מקור"}</strong><small>{source.type === "verse" ? "פסוק" : "מקור מחקרי"}</small></div><button className="sod29-action" type="button" onClick={() => inspectSource(source)}>בדוק</button></div>)}</div>
+      </section> : null}
+
+      {data.numberWorlds?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">משפחות תוכן</div><h2>הקשרים נוספים סביב המספר</h2></div></div>
+        <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
+      </section> : null}
+
+      {data.timeline?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">זמן</div><h2>ציר הזמן</h2></div></div>
+        <div className="sod29-list">{data.timeline.slice(-8).map((item, index) => <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{item.label || "נקודת זמן"}</strong><small>{item.at ? new Date(item.at).toLocaleDateString("he-IL") : "זמן לא ידוע"}</small></div></div>)}</div>
+      </section> : null}
     </div> : null}
   </>;
 }
@@ -268,14 +367,14 @@ function WorldBody() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
-  return <AnchoredWorld research={research} shell={shell} subject={subject} />;
+  return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 
 export default function World2029Page() {
   useEffect(() => {
     applySeo({
       title: "העולם · SOD1820",
-      description: "World 2029 — projection חי של Reality Graph ו־Research OS עם System Frame משותף",
+      description: "עולם המחקר של SOD1820 — זהויות, קשרים, ממצאים, מקורות וציר זמן סביב עוגנים אמיתיים.",
       path: "/world",
     });
   }, []);
@@ -286,8 +385,8 @@ export default function World2029Page() {
       symbol="◌"
       eyebrow="SOD1820 · ONE WORLD"
       title="העולם"
-      description="משטח 2029 ראשון בתוך System Frame אחד: זהויות, קשרים, מחקר ומקורות מתוך ה־read models הקנוניים — בלי Legacy presentation ובלי מערכת World מקבילה."
-      status="2029 · NATIVE PREVIEW"
+      description="מפת המחקר של המציאות: פתח עוגן, ראה מה באמת מחובר אליו, העמק בקשרים ובממצאים וחזור בדיוק לנקודה שממנה יצאת."
+      status="עולם · מחקר"
     >
       <WorldBody />
     </Sod2029Shell>
