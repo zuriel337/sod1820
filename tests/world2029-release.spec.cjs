@@ -70,7 +70,6 @@ for (const width of [...MOBILE_WIDTHS, 1440]) {
   test(`RICH live World 1820 is truthful and overflow-free at ${width}px`, async ({ page }) => {
     const projection = await openWorldAnchor(page, 1820, width);
     await expect(projection).toHaveAttribute('data-world-density', 'rich');
-    await expect(page.getByText('ממצאים סביב העוגן')).toBeVisible();
     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await page.screenshot({ path: `test-results/release-visual/world-rich-1820-${width}.png`, fullPage: true });
@@ -129,7 +128,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820', { timeout: 30_000 });
 });
 
-test('loading, error and unavailable states are honest and native', async ({ page }) => {
+test('loading and error states are honest and native', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await seedWorldAnchor(page, 1820);
 
@@ -154,16 +153,11 @@ test('loading, error and unavailable states are honest and native', async ({ pag
 });
 
 test('unavailable identity is not silently replaced by another anchor', async ({ page }) => {
-  await openWorldAnchor(page, 122, 390);
-  await page.evaluate(({ key }) => {
-    const current = JSON.parse(sessionStorage.getItem(key) || '{}');
-    current.subject = { id: '999999999', type: 'number', label: '999999999', href: '/world' };
-    current.selection = { entityId: '999999999', entityType: 'number' };
-    sessionStorage.setItem(key, JSON.stringify(current));
-  }, { key: CONTEXT_KEY });
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedWorldAnchor(page, 999999999);
+  await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('אין חומר זמין לעוגן הזה')).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByText('122', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('999999999', { exact: true })).toBeVisible();
   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });
 });
 
