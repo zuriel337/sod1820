@@ -1,0 +1,107 @@
+/* Human-Gate closed Experience projection.
+   This file intentionally overrides only the shared 2029 shell/personal-presence layer.
+   It does not create a second design system: all colors/metrics come from Sod2029Shell semantic vars. */
+
+.sod29-root.closed-shell{transition:grid-template-columns var(--s29-motion)}
+.sod29-root.closed-shell.sidebar-collapsed{grid-template-columns:78px minmax(0,1fr)}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar{padding-inline:10px}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-brand>span:last-child,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-nav-copy,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-nav-group-title,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-side-foot,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar-workspace-copy{display:none}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-brand,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-nav-link,
+.sod29-root.closed-shell.sidebar-collapsed .sod29-sidebar-workspace{justify-content:center;padding-inline:6px}
+.sod29-root.closed-shell.sidebar-collapsed .sod29-nav-icon{width:34px;min-width:34px}
+
+.sod29-nav-group{display:grid;gap:5px}
+.sod29-nav-group+.sod29-nav-group{margin-top:12px;padding-top:12px;border-top:1px solid var(--s29-line)}
+.sod29-nav-group-title{padding-inline:12px;margin-bottom:2px;color:var(--s29-muted);font-size:10px;font-weight:800;letter-spacing:.08em;opacity:.74}
+.sod29-nav-link.is-pending{opacity:.62;border-style:dashed}
+.sod29-nav-link.is-pending:hover{transform:none}
+.sod29-nav-status{margin-inline-start:auto;font-size:9px;color:var(--s29-accent-text);opacity:.82}
+.sod29-sidebar-workspace{width:100%;min-height:var(--s29-control-min);display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-accent) 6%,transparent);color:var(--s29-ink);cursor:pointer;text-align:start}
+.sod29-sidebar-toggle{width:100%;min-height:38px;border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-muted);cursor:pointer}
+
+.sod29-header.closed-orientation{min-height:62px}
+.sod29-header-leading{display:flex;align-items:center;gap:9px;min-width:0}
+.sod29-mobile-menu-trigger{display:none;width:42px;height:42px;border:1px solid var(--s29-line);border-radius:12px;background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);color:var(--s29-ink);cursor:pointer}
+.sod29-header-search{display:inline-flex;align-items:center;gap:7px;min-height:42px;border:1px solid var(--s29-line);border-radius:12px;background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);color:var(--s29-muted);padding:0 12px;cursor:pointer}
+.sod29-raziel-presence-button{position:relative}
+.sod29-raziel-presence-button:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--s29-accent);box-shadow:0 0 12px var(--s29-glow);margin-inline-end:5px}
+
+.sod29-mobile-drawer-backdrop{display:none}
+.sod29-mobile-drawer{display:none}
+
+/* Bottom layer is commands, never global navigation. */
+.sod29-command-surface{display:none}
+.sod29-command-surface button{min-height:48px;border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);color:var(--s29-ink);font:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:8px 10px}
+.sod29-command-surface button.primary{background:var(--s29-accent-btn);color:var(--s29-on-accent);border-color:var(--s29-line-strong)}
+.sod29-command-surface button:disabled{opacity:.4}
+
+/* Raziel is a continuous presence first; chat is subordinate. */
+.sod29-raziel-presence{display:grid;gap:14px}
+.sod29-raziel-presence-hero{border:1px solid var(--s29-line-strong);border-radius:22px;padding:18px;background:radial-gradient(circle at 75% 20%,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 34%),var(--s29-panel-grad)}
+.sod29-raziel-presence-hero h3{margin:4px 0 8px;font-size:23px}
+.sod29-presence-state{display:inline-flex;align-items:center;gap:7px;color:var(--s29-accent-text);font-size:11px;font-weight:800}
+.sod29-presence-state:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--s29-accent);box-shadow:0 0 14px var(--s29-glow)}
+.sod29-raziel-silence{border:1px dashed var(--s29-line);border-radius:16px;padding:14px;color:var(--s29-muted);line-height:1.65;background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent)}
+.sod29-raziel-chat-stage{border-top:1px solid var(--s29-line);padding-top:14px}
+
+/* My Personal Area: one projection, not the legacy UserCenter drawer. */
+.sod29-workspace-backdrop{position:fixed;inset:0;z-index:88;background:color-mix(in srgb,var(--s29-panel) 48%,transparent);backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px}
+.sod29-workspace-panel{width:min(1120px,100%);max-height:min(880px,94vh);overflow:auto;border:1px solid var(--s29-line-strong);border-radius:28px;background:color-mix(in srgb,var(--s29-panel) 98%,transparent);box-shadow:0 36px 110px color-mix(in srgb,var(--s29-panel) 62%,transparent);padding:clamp(18px,3vw,30px)}
+.sod29-workspace-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--s29-line)}
+.sod29-workspace-head h2{margin:3px 0 5px;font-size:clamp(28px,4vw,44px)}
+.sod29-workspace-head button{width:42px;height:42px;border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-ink);cursor:pointer;font-size:22px}
+.sod29-workspace-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;margin-top:18px}
+.sod29-workspace-card{grid-column:span 4;border:1px solid var(--s29-line);border-radius:20px;background:var(--s29-panel-grad);padding:17px;min-height:150px}
+.sod29-workspace-card.wide{grid-column:span 8}
+.sod29-workspace-card.full{grid-column:1/-1}
+.sod29-workspace-card h3{margin:5px 0 8px;font-size:18px}
+.sod29-attention-lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}
+.sod29-attention-lane{border:1px solid var(--s29-line);border-radius:14px;padding:12px;background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent)}
+.sod29-attention-lane strong{display:block;font-size:13px}.sod29-attention-lane small{display:block;margin-top:5px;color:var(--s29-muted);line-height:1.5}
+
+/* Closed Home semantics: personal continuity and public Global Now are visibly distinct. */
+.sod29-home-continuity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.sod29-home-lane{border:1px solid var(--s29-line);border-radius:22px;background:var(--s29-panel-grad);padding:20px;min-height:190px}
+.sod29-home-lane h2{margin:5px 0 9px}
+.sod29-global-now-stage{margin-top:20px;border:1px solid var(--s29-line-strong);border-radius:28px;padding:clamp(20px,3vw,30px);background:radial-gradient(circle at 82% 20%,color-mix(in srgb,var(--s29-accent) 8%,transparent),transparent 32%),var(--s29-panel-grad)}
+.sod29-global-now-lanes{display:grid;grid-template-columns:1.35fr .85fr;gap:12px;margin-top:16px}
+.sod29-global-now-lane{border:1px dashed var(--s29-line);border-radius:18px;padding:16px;min-height:120px;color:var(--s29-muted)}
+.sod29-global-now-lane strong{display:block;color:var(--s29-ink);margin-bottom:6px}
+
+/* ELS: engine identity stays canonical; legacy work-area presentation is not inherited. */
+.sod29-els-architecture{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:16px}
+.sod29-els-matrix-stage{min-height:420px;border:1px solid var(--s29-line-strong);border-radius:26px;padding:22px;background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 36%),var(--s29-panel-grad);display:grid;place-items:center;text-align:center}
+.sod29-els-matrix-stage strong{font-size:clamp(28px,4vw,48px);color:var(--s29-accent-text)}
+
+@media(max-width:980px){
+  .sod29-root.closed-shell,.sod29-root.closed-shell.sidebar-collapsed{display:block}
+  .sod29-header.closed-orientation{padding:9px 10px}
+  .sod29-mobile-menu-trigger{display:grid;place-items:center}
+  .sod29-header-search .label,.sod29-header-actions .workspace-label,.sod29-header-actions .return-label{display:none}
+  .sod29-header-actions{flex-wrap:nowrap}
+  .sod29-header-actions button{display:inline-flex!important;align-items:center;justify-content:center;min-width:42px;padding-inline:9px}
+  .sod29-mobile-drawer-backdrop{position:fixed;inset:0;z-index:74;background:color-mix(in srgb,var(--s29-panel) 50%,transparent);backdrop-filter:blur(5px);display:block}
+  .sod29-mobile-drawer{position:fixed;z-index:75;inset-block:0;inset-inline-start:0;width:min(360px,90vw);background:color-mix(in srgb,var(--s29-panel) 98%,transparent);border-inline-end:1px solid var(--s29-line-strong);box-shadow:24px 0 80px color-mix(in srgb,var(--s29-panel) 58%,transparent);padding:18px 14px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+  .sod29-mobile-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--s29-line)}
+  .sod29-mobile-drawer-head button{width:40px;height:40px;border:1px solid var(--s29-line);border-radius:11px;background:transparent;color:var(--s29-ink);font-size:21px}
+  .sod29-command-surface{position:fixed;z-index:62;inset-inline:8px;bottom:calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:7px;border:1px solid var(--s29-line);border-radius:19px;background:color-mix(in srgb,var(--s29-panel) 96%,transparent);backdrop-filter:blur(20px);box-shadow:0 -18px 56px color-mix(in srgb,var(--s29-panel) 38%,transparent)}
+  .sod29-content{padding-bottom:112px}
+  .sod29-home-continuity,.sod29-global-now-lanes,.sod29-els-architecture{grid-template-columns:1fr}
+  .sod29-workspace-panel{max-height:96vh;border-radius:23px}
+  .sod29-workspace-grid{grid-template-columns:1fr 1fr}
+  .sod29-workspace-card,.sod29-workspace-card.wide{grid-column:auto}.sod29-workspace-card.full{grid-column:1/-1}
+}
+
+@media(max-width:620px){
+  .sod29-orientation{max-width:46vw}
+  .sod29-header-search{padding-inline:9px}
+  .sod29-command-surface{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sod29-workspace-grid,.sod29-attention-lanes{grid-template-columns:1fr}
+  .sod29-workspace-card,.sod29-workspace-card.wide,.sod29-workspace-card.full{grid-column:1}
+  .sod29-workspace-backdrop{padding:8px}
+}

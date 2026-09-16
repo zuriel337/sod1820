@@ -103,8 +103,13 @@ const EntityHubPreviewPage = React.lazy(() => import("./pages/EntityHubPreviewPa
 const ExplorerPreviewPage = React.lazy(() => import("./pages/ExplorerPreviewPage.jsx")); // 🧪 Universal Explorer Slice 2 — פנימי, לא-מקושר, שם-זמני עד Human-Gate שם
 const ElsWorkAreaPage = React.lazy(() => import("./pages/ElsWorkAreaPage.jsx"));   // 🧭 /lab/els — Work Area על אותו מנוע קנוני
 const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalaxy.jsx"));
+// 2029 greenfield core surfaces — shared shell, shared Research Context, one Raziel.
+const Home2029Page = React.lazy(() => import("./pages/Home2029Page.jsx"));
+const World2029Page = React.lazy(() => import("./pages/World2029Page.jsx"));
+const Books2029Page = React.lazy(() => import("./pages/Books2029Page.jsx"));
+const Els2029Page = React.lazy(() => import("./pages/Els2029Page.jsx"));
+const Heichal2029Page = React.lazy(() => import("./pages/Heichal2029Page.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
-const HeichalPage = React.lazy(() => import("./pages/HeichalPage.jsx"));
 const GalaxyPage = React.lazy(() => import("./pages/GalaxyPage.jsx"));
 const GalaxyRoom = React.lazy(() => import("./pages/GalaxyRoom.jsx"));
 const ExperiencePage = React.lazy(() => import("./pages/ExperiencePage.jsx"));
@@ -158,7 +163,7 @@ function RouteEffects() {
     const meta = ROUTE_META[pathname];
     if (meta) applySeo({ ...meta, path: pathname });
     // משהים מעט: כך דפים שמגדירים כותרת בעצמם (כולל אסינכרוני) מספיקים לעדכן
-    // את document.title לפני ש-GA שולח את ה-page_view — מונע ייחוס לכותרת הקודמת.
+    // את document.title לפני ש-GA שולח ה-page_view — מונע ייחוס לכותרת הקודמת.
     const t = setTimeout(() => { trackPageview(pathname); trackMarketingPageview(); }, 350);
     // 🌊 כניסה לזרם המציאות — «מאיפה נכנסו» (הנתיב-הקודם), מרכזית לכל הכניסות. prevPathRef
     // מתעדכן *אחרי* השימוש → deterministic, בלי תלות בסדר-אפקטים של רכיב-הילד.
@@ -239,12 +244,17 @@ function LegacyRedirect() {
   return dest ? <Navigate to={dest} replace /> : null;
 }
 
-// 🔬 הצ'רום הצף הגלובלי (כפתור «שמע», פסי עדכון, באנרים) מוסתר בסביבת המחקר
-// (/research) כדי שהמסך יישאר נקי לגמרי. האפקטים (אנליטיקס/הפניות) ממשיכים לרוץ.
+// Legacy floating chrome stays out of greenfield 2029 surfaces. The 2029 shell owns orientation,
+// navigation, Raziel and Workspace there. Legacy production remains untouched until explicit cutover.
 function GlobalChrome({ children }) {
   const { pathname } = useLocation();
-  // 🔬 מוסתר בסביבת המחקר (/research) ובדף הדילוגים (/code) — מסך נקי לגמרי לכלי במסך-מלא.
-  if (pathname === "/research" || /^\/code(\/|$)/.test(pathname)) return null;
+  const is2029 = pathname === "/2029"
+    || pathname === "/world"
+    || pathname === "/els"
+    || pathname === "/heichal"
+    || pathname === "/היכל"
+    || /^\/books(\/|$)/.test(pathname);
+  if (is2029 || pathname === "/research" || /^\/code(\/|$)/.test(pathname)) return null;
   return <>{children}</>;
 }
 
@@ -276,6 +286,15 @@ export default function App() {
         </GlobalChrome>
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
+          {/* 2029 greenfield — real routes on one shared shell. Branch-only until Human Gate release. */}
+          <Route path="/2029" element={<Home2029Page />} />
+          <Route path="/world" element={<World2029Page />} />
+          <Route path="/books" element={<Books2029Page />} />
+          <Route path="/books/:slug" element={<Books2029Page />} />
+          <Route path="/els" element={<Els2029Page />} />
+          <Route path="/היכל" element={<Heichal2029Page />} />
+          <Route path="/heichal" element={<Heichal2029Page />} />
+
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
           {/* טקס הכניסה — עמוד מלא, תמיד נגיש */}
           <Route path="/enter" element={<EnterRoute />} />
@@ -293,9 +312,6 @@ export default function App() {
           <Route path="/sulamot11" element={<RoomEnter />} />
           <Route path="/cheder/:n" element={<HintRoomPage />} />
           <Route path="/reveal" element={<GematriaRevealPage />} />
-          {/* היכל השערים — חוויה מלאה (מסך מלא, מעבר חדר-לחדר) */}
-          <Route path="/היכל" element={<HeichalPage />} />
-          <Route path="/heichal" element={<HeichalPage />} />
           {/* גלקסיות — namespace מערכתי קבוע למסך-מלא (מדור לכל סלאג) */}
           <Route path="/galaxy" element={<GalaxyRoom />} />
           <Route path="/galaxy/:slug" element={<GalaxyPage />} />
