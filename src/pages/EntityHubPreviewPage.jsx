@@ -1,122 +1,110 @@
-import React from "react";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import NumberHubPage2029 from "./NumberHubPage2029.jsx";
+import NumberCoreMaster2029 from "../components/number/NumberCoreMaster2029.jsx";
 
-const CONCEPT_IMAGE = "/golden/1237/number-hub-concept-2029.webp";
-
-// Branch-only visual concept layer over the real 2029 Number Hub projection.
-// The image is reference/atmosphere only; all live metrics, methods, Trace and Raziel remain real UI.
+// Branch-only master preview.
+// ONE semantic core -> full Hub projection + compact NumberDrawer projection.
+// The generated concept image is no longer a runtime dependency of the product preview.
 export default function EntityHubPreviewPage() {
-  return <div className="number-concept-preview">
+  const { key } = useParams();
+  const number = Number(key);
+  const [projection, setProjection] = useState("hub");
+
+  return <div className={`number-master-preview number-master-preview--${projection}`}>
     <style>{`
-      .number-concept-preview {
+      .number-master-preview {
         min-height: 100vh;
         background:
-          radial-gradient(circle at 50% 0%, rgba(246,226,122,.08), transparent 24%),
+          radial-gradient(circle at 50% 0%, rgba(212,175,55,.065), transparent 25%),
+          radial-gradient(circle at 86% 12%, rgba(109,76,180,.07), transparent 22%),
           #07050d;
+        padding: 12px 0 0;
       }
-      .number-concept-reference {
-        max-width: 780px;
-        margin: 0 auto;
-        padding: 14px 12px 0;
+      .number-master-preview__bar {
+        width: min(780px, calc(100% - 24px));
+        margin: 0 auto 10px;
         direction: rtl;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        color: #cfc9d6;
+        font-family: 'Assistant', Arial, sans-serif;
       }
-      .number-concept-reference__frame {
-        position: relative;
-        overflow: hidden;
-        min-height: 210px;
-        border: 1px solid rgba(212,175,55,.38);
-        border-radius: 24px;
-        background:
-          linear-gradient(90deg, rgba(6,5,12,.94) 0%, rgba(6,5,12,.66) 46%, rgba(6,5,12,.22) 100%),
-          url(${CONCEPT_IMAGE}) center 36% / cover no-repeat;
-        box-shadow: 0 24px 70px rgba(0,0,0,.42), inset 0 0 50px rgba(212,175,55,.05);
-      }
-      .number-concept-reference__copy {
-        position: relative;
-        z-index: 2;
-        width: min(58%, 430px);
-        padding: 28px 24px 24px;
-      }
-      .number-concept-reference__eyebrow {
-        color: #c9a227;
+      .number-master-preview__label {
         font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 2px;
+        line-height: 1.5;
+        opacity: .74;
       }
-      .number-concept-reference__title {
-        margin: 8px 0 4px;
-        color: #f6e27a;
-        font-size: clamp(28px, 7vw, 44px);
-        font-weight: 900;
-        line-height: 1.05;
-      }
-      .number-concept-reference__text {
-        color: #d7d1df;
-        font-size: 13px;
-        line-height: 1.7;
-        max-width: 360px;
-      }
-      .number-concept-reference__badge {
+      .number-master-preview__switch {
         display: inline-flex;
-        margin-top: 14px;
-        padding: 7px 12px;
-        border: 1px solid rgba(167,139,250,.44);
+        gap: 3px;
+        padding: 3px;
+        border: 1px solid rgba(212,175,55,.22);
         border-radius: 999px;
-        color: #c4b5fd;
-        background: rgba(76,29,149,.16);
-        font-size: 11px;
-        font-weight: 800;
+        background: rgba(12,8,24,.76);
       }
-      .number-concept-preview main > div > section:first-of-type {
-        position: relative;
-        overflow: hidden;
-        isolation: isolate;
+      .number-master-preview__switch button {
+        border: 0;
+        border-radius: 999px;
+        padding: 7px 12px;
+        cursor: pointer;
+        color: #cfc9d6;
+        background: transparent;
+        font: 800 11px 'Assistant', Arial, sans-serif;
       }
-      .number-concept-preview main > div > section:first-of-type::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -2;
-        background:
-          linear-gradient(180deg, rgba(7,5,13,.42), rgba(7,5,13,.82) 48%, rgba(7,5,13,.97)),
-          url(${CONCEPT_IMAGE}) center 18% / cover no-repeat;
-        opacity: .42;
-        transform: scale(1.04);
+      .number-master-preview__switch button.is-active {
+        color: #1a0e00;
+        background: linear-gradient(135deg,#d4af37,#f6e27a);
       }
-      .number-concept-preview main > div > section:first-of-type::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        background:
-          radial-gradient(circle at 50% 30%, rgba(246,226,122,.11), transparent 28%),
-          linear-gradient(90deg, rgba(212,175,55,.04), transparent 40%, rgba(124,58,237,.05));
+      .number-master-preview__core {
+        width: min(780px, calc(100% - 24px));
+        margin: 0 auto;
       }
-      .number-concept-preview .smart-dna-grid > * {
-        backdrop-filter: blur(9px);
-        box-shadow: inset 0 1px rgba(255,255,255,.025), 0 8px 26px rgba(0,0,0,.12);
+      .number-master-preview--drawer .number-master-preview__core {
+        width: min(380px, calc(100% - 24px));
+        margin-inline: auto;
       }
-      @media (max-width: 680px) {
-        .number-concept-reference { padding-top: 8px; }
-        .number-concept-reference__frame { min-height: 155px; border-radius: 18px; }
-        .number-concept-reference__copy { width: 72%; padding: 18px 15px; }
-        .number-concept-reference__text { font-size: 11px; line-height: 1.55; }
-        .number-concept-reference__badge { margin-top: 9px; }
+      .number-master-preview__drawer-note {
+        width: min(380px, calc(100% - 24px));
+        margin: 8px auto 0;
+        color: #9f98ad;
+        text-align: center;
+        direction: rtl;
+        font: 11px/1.55 'Assistant', Arial, sans-serif;
+      }
+      .number-master-lower main {
+        padding-top: 4px !important;
+        background: transparent !important;
+      }
+      .number-master-lower main > div > section:first-of-type {
+        display: none !important;
+      }
+      @media (max-width: 520px) {
+        .number-master-preview { padding-top: 8px; }
+        .number-master-preview__bar { margin-bottom: 8px; }
+        .number-master-preview__label { max-width: 210px; }
       }
     `}</style>
 
-    <div className="number-concept-reference" aria-label="כיוון חזותי לפריוויו 1237">
-      <div className="number-concept-reference__frame">
-        <div className="number-concept-reference__copy">
-          <div className="number-concept-reference__eyebrow">VISUAL DIRECTION · 2029</div>
-          <div className="number-concept-reference__title">1237 · התגלות</div>
-          <div className="number-concept-reference__text">הכיוון מהתמונה הועבר לפריוויו החי: עומק כהה, זהב, זוהר, Hero מרכזי וריבוע מחקר אחד — כשהנתונים והפעולות מתחת נשארים חיים ואמיתיים.</div>
-          <div className="number-concept-reference__badge">תמונה מנחה · UI חי מתחת</div>
-        </div>
+    <div className="number-master-preview__bar">
+      <div className="number-master-preview__label">מאסטר אחד · דף מלא וחלונית משתמשים באותו מבנה ובהיררכיה אחת</div>
+      <div className="number-master-preview__switch" aria-label="בדיקת הקרנת דף או חלונית">
+        <button type="button" className={projection === "hub" ? "is-active" : ""} onClick={() => setProjection("hub")}>דף מלא</button>
+        <button type="button" className={projection === "drawer" ? "is-active" : ""} onClick={() => setProjection("drawer")}>חלונית</button>
       </div>
     </div>
 
-    <NumberHubPage2029 />
+    <div className="number-master-preview__core">
+      <NumberCoreMaster2029 number={number} variant={projection} />
+    </div>
+
+    {projection === "drawer" && <div className="number-master-preview__drawer-note">זו אותה ליבה בקומפקט — לא מוצר שני. בדף המלא נפתחים מתחתיה כל הסקשנים העמוקים.</div>}
+
+    {projection === "hub" && <div className="number-master-lower">
+      <NumberHubPage2029 />
+    </div>}
   </div>;
 }
