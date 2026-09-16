@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const migration = readFileSync(new URL('../supabase/migrations/20260916150900_g3_els_core_compatibility_extension_v1.sql', import.meta.url), 'utf8');
+const hardening = readFileSync(new URL('../supabase/migrations/20260916151000_g3_els_core_compatibility_truth_hardening_v1.sql', import.meta.url), 'utf8');
+const combined = `${migration}\n${hardening}`;
 
 test('C2 extends one ELS engine without a new corpus/store/table', () => {
   assert.match(migration, /create or replace function public\.els_torah_occurrences_internal_v1/i);
@@ -10,17 +12,17 @@ test('C2 extends one ELS engine without a new corpus/store/table', () => {
   assert.match(migration, /create or replace function public\.els_search_page_core_v1/i);
   assert.match(migration, /create or replace function public\.els_verify_occurrence_v1/i);
   assert.match(migration, /create or replace function public\.els_search_geometry_core_v1/i);
-  assert.doesNotMatch(migration, /create\s+table/i);
-  assert.doesNotMatch(migration, /from\s+public\.tanach_verses/i);
+  assert.doesNotMatch(combined, /create\s+table/i);
+  assert.doesNotMatch(combined, /from\s+public\.tanach_verses/i);
 });
 
 test('all occurrence-producing server projections delegate to the same internal generator', () => {
-  const refs = migration.match(/els_torah_occurrences_internal_v1\(/g) || [];
-  assert.ok(refs.length >= 5, `expected shared generator to be reused, got ${refs.length} references`);
+  const refs = combined.match(/els_torah_occurrences_internal_v1\(/g) || [];
+  assert.ok(refs.length >= 8, `expected shared generator to be reused, got ${refs.length} references`);
   assert.match(migration, /els_search_core_v1[\s\S]*els_torah_occurrences_internal_v1/i);
   assert.match(migration, /els_search_page_core_v1[\s\S]*els_torah_occurrences_internal_v1/i);
-  assert.match(migration, /els_verify_occurrence_v1[\s\S]*els_torah_occurrences_internal_v1/i);
-  assert.match(migration, /els_search_geometry_core_v1[\s\S]*els_torah_occurrences_internal_v1/i);
+  assert.match(hardening, /els_verify_occurrence_v1[\s\S]*els_torah_occurrences_internal_v1/i);
+  assert.match(hardening, /els_search_geometry_core_v1[\s\S]*els_torah_occurrences_internal_v1/i);
 });
 
 test('truncation is explicit and non-representative with an exhaustive continuation contract', () => {
@@ -31,15 +33,30 @@ test('truncation is explicit and non-representative with an exhaustive continuat
   assert.match(migration, /els_keyset_v1/i);
 });
 
+test('replay mismatch keeps requested coordinates separate from verified occurrence', () => {
+  assert.match(hardening, /'requested_occurrence',v_requested/i);
+  assert.match(hardening, /'occurrence',case when v_match then v_requested else null end/i);
+});
+
+test('geometry executes explicit sparse skips only and invalid geometry is context-required', () => {
+  assert.match(hardening, /cross join lateral public\.els_torah_occurrences_internal_v1\(\s*v_term,requested\.skip_value,requested\.skip_value/i);
+  assert.match(hardening, /'execution_policy','explicit_skips_only_v1'/i);
+  assert.match(hardening, /p_r1 is null/i);
+});
+
+test('legacy SQL projection has deterministic forward-before-back exact ties', () => {
+  assert.match(hardening, /jsonb_array_elements[\s\S]*order by \(h->>'skip'\)::int,\(h->>'start'\)::int,\(h->>'dir'\)::int desc/i);
+});
+
 test('Tanakh remains fail-closed MISSING_ADAPTER', () => {
-  const missing = migration.match(/MISSING_ADAPTER/g) || [];
-  assert.ok(missing.length >= 4, 'search/page/replay/geometry must all fail closed for Tanakh');
+  const missing = combined.match(/MISSING_ADAPTER/g) || [];
+  assert.ok(missing.length >= 7, 'search/page/replay/geometry must all fail closed for Tanakh');
   assert.match(migration, /canonical Tanakh corpus identity exists, but no server-callable canonical Tanakh stream is live/i);
 });
 
 test('service-only cores and bounded public wrappers have explicit grants', () => {
   assert.match(migration, /revoke all on function public\.els_search_page_core_v1[\s\S]*from public, anon, authenticated;[\s\S]*grant execute[\s\S]*to service_role;/i);
   assert.match(migration, /revoke all on function public\.els_search_page_v1[\s\S]*from public;[\s\S]*grant execute[\s\S]*to anon, authenticated, service_role;/i);
-  assert.match(migration, /revoke all on function public\.els_verify_occurrence_v1[\s\S]*from public;[\s\S]*grant execute[\s\S]*to anon, authenticated, service_role;/i);
-  assert.match(migration, /revoke all on function public\.els_search_geometry_core_v1[\s\S]*from public, anon, authenticated;[\s\S]*grant execute[\s\S]*to service_role;/i);
+  assert.match(hardening, /revoke all on function public\.els_verify_occurrence_v1[\s\S]*from public;[\s\S]*grant execute[\s\S]*to anon, authenticated, service_role;/i);
+  assert.match(hardening, /revoke all on function public\.els_search_geometry_core_v1[\s\S]*from public, anon, authenticated;[\s\S]*grant execute[\s\S]*to service_role;/i);
 });
