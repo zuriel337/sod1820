@@ -1,0 +1,11 @@
+/* World consumes the already-closed 2029 System Frame.
+   This file only cancels World-local overrides that hid the shared focal frame. */
+.surface-world .sod29-page-intro{
+  display:grid;
+}
+
+/* The shared System Frame owns the primary World heading/focal moment.
+   Avoid a second competing title immediately below it. */
+.surface-world .world-titlebar{
+  display:none;
+}
