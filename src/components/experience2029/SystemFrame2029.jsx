@@ -384,9 +384,13 @@ export default function SystemFrame2029({
         href: currentHref,
         label: currentLabel,
         subject: context?.subject || null,
+        selection: context?.selection || null,
+        lens: context?.lens || null,
+        dimensions: context?.dimensions || {},
+        journey: context?.journey || null,
       },
     });
-  }, [research, currentHref, currentLabel, context?.subject]);
+  }, [research, currentHref, currentLabel, context]);
 
   const preserveReturnFor = useCallback((to) => {
     if (to && to !== currentHref) preserveReturn();
@@ -401,10 +405,21 @@ export default function SystemFrame2029({
 
   const returnExact = useCallback(() => {
     setTransient(null);
-    const href = context?.returnTo?.href;
-    if (href) navigate(href);
-    else navigate(-1);
-  }, [context?.returnTo?.href, navigate]);
+    const target = context?.returnTo || null;
+    if (!target?.href) {
+      navigate(-1);
+      return;
+    }
+    research.updateResearchContext?.({
+      subject: target.subject || null,
+      selection: target.selection || null,
+      lens: target.lens || null,
+      dimensions: target.dimensions || null,
+      journey: target.journey || null,
+      returnTo: null,
+    });
+    navigate(target.href);
+  }, [context?.returnTo, navigate, research]);
 
   const closeTransient = useCallback(() => {
     setTransient(null);
@@ -525,17 +540,26 @@ export default function SystemFrame2029({
 
   const deepenToHeichal = useCallback((target) => {
     const normalized = normalizeTarget(target);
-    if (normalized && normalized.source === "selection") {
+    const selectedHere = normalized && normalized.source === "selection";
+    if (selectedHere) {
       research.setResearchContext?.({
         subject: { id: normalized.id, type: normalized.type, label: normalized.label, href: currentHref },
         selection: { entityId: normalized.id, entityType: normalized.type, locator: normalized.locator || null },
         lens: context?.lens || null,
         locale,
-        returnTo: { href: currentHref, label: currentLabel, subject: context?.subject || null },
+        returnTo: {
+          href: currentHref,
+          label: currentLabel,
+          subject: context?.subject || null,
+          selection: context?.selection || null,
+          lens: context?.lens || null,
+          dimensions: context?.dimensions || {},
+          journey: context?.journey || null,
+        },
       });
     }
-    go("/heichal");
-  }, [research, currentHref, currentLabel, context?.lens, context?.subject, locale, go]);
+    go("/heichal", { preserve: !selectedHere });
+  }, [research, currentHref, currentLabel, context, locale, go]);
 
   const shareCurrent = useCallback(async () => {
     if (typeof window === "undefined") return;
