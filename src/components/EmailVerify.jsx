@@ -4,6 +4,7 @@ import { requestEmailOtp, verifyEmailOtp } from "../lib/auth.js";
 import { subscribeEmail } from "../lib/supabase.js";
 import { trackSubscribe } from "../lib/marketing.js";
 import { broadcastJoin } from "../lib/joinEvents.js";
+import { shouldSubscribeEmailDuringVerification } from "../lib/emailVerificationIntent.js";
 
 /**
  * אימות מייל בשני שלבים (Supabase Auth OTP) — רכיב קבוע וניתן-להצבה.
@@ -37,7 +38,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   const [err, setErr] = useState("");
   const [resendIn, setResendIn] = useState(0); // ספירה-לאחור עד שאפשר לשלוח שוב
   const [resendNote, setResendNote] = useState("");
-  const shouldSubscribe = subscribeToUpdates && !String(source || "").startsWith("follow:");
+  const shouldSubscribe = shouldSubscribeEmailDuringVerification({ source, subscribeToUpdates });
 
   // טיימר ההמתנה של כפתור "שלח שוב"
   useEffect(() => {
