@@ -48,17 +48,6 @@ function normalizeJourney(value) {
   return Object.values(out).some((v) => v != null && v !== "") ? out : null;
 }
 
-function normalizeReturnTo(value) {
-  if (!isObject(value)) return null;
-  const href = cleanString(value.href);
-  if (!href) return null;
-  return {
-    href,
-    label: cleanString(value.label),
-    subject: normalizeSubject(value.subject),
-  };
-}
-
 function normalizeAccess(value) {
   if (!isObject(value)) return null;
   const out = {
@@ -79,6 +68,24 @@ function normalizeDimensions(value) {
     }
   }
   return out;
+}
+
+// Exact-return stays inside the same Research Context owner. It is a bounded
+// snapshot of navigation/research state, never a second history/store. Older
+// returnTo objects containing only href/label/subject remain valid.
+function normalizeReturnTo(value) {
+  if (!isObject(value)) return null;
+  const href = cleanString(value.href);
+  if (!href) return null;
+  return {
+    href,
+    label: cleanString(value.label),
+    subject: normalizeSubject(value.subject),
+    selection: normalizeSelection(value.selection),
+    lens: cleanString(value.lens),
+    dimensions: normalizeDimensions(value.dimensions),
+    journey: normalizeJourney(value.journey),
+  };
 }
 
 export function normalizeResearchContext(value) {
