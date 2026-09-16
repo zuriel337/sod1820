@@ -1,6 +1,6 @@
 import { elsSearchOutcome, elsSearchResultToFindings } from './canonicalEls.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, SEMANTIC_CLASS } from './researchResultBundle.js';
-import { expandResearchTextRepresentations, representationOverflow } from './researchRepresentations.js';
+import { expandResearchTextRepresentations } from './researchRepresentations.js';
 
 function clean(value) {
   if (value == null) return null;
@@ -13,11 +13,16 @@ function accessTier(rep) {
 }
 
 function boundedPrimaryRepresentations(identityResolution, maxRepresentations) {
-  const expanded = expandResearchTextRepresentations(identityResolution, { maxRepresentations: Math.max(maxRepresentations, 16) });
-  // ELS is an expensive search-space capability. Do not silently fan one phrase/name into every
-  // whitespace token. The exact/full representation is the bounded default; a future Research Plan
-  // may explicitly request derived parts, preserving their selection protocol and budget.
-  return expanded.filter(x => x?.primary_for_identity === true).slice(0, maxRepresentations);
+  // ELS is an expensive search-space capability. The exact/full representation is the bounded
+  // default. Word/name-part fanout is deliberately NOT part of this plan, so it must not be
+  // reported as "truncation". Only overflow among eligible primary representations counts.
+  const expanded = expandResearchTextRepresentations(identityResolution, { maxRepresentations: 32 });
+  const primary = expanded.filter(x => x?.primary_for_identity === true);
+  return {
+    representations: primary.slice(0, maxRepresentations),
+    available: primary.length,
+    truncated: primary.length > maxRepresentations,
+  };
 }
 
 async function runEls(supabase, representation, options) {
@@ -53,8 +58,8 @@ export function createElsW2Executor({
   const boundedHits = Math.max(1, Math.min(Number(maxHits) || 16, 100));
 
   return async ({ identityResolution }) => {
-    const representations = boundedPrimaryRepresentations(identityResolution, repLimit);
-    const overflow = representationOverflow(identityResolution, representations, repLimit);
+    const primaryPlan = boundedPrimaryRepresentations(identityResolution, repLimit);
+    const representations = primaryPlan.representations;
     if (!representations.length) {
       return {
         owner: 'els_research_layer_law',
@@ -189,16 +194,17 @@ export function createElsW2Executor({
       bounded: {
         total_count: totalHits || (status === CAPABILITY_STATUS.NEGATIVE_RESULT ? 0 : null),
         returned_count: returnedHits,
-        truncated: anyTruncated || overflow.truncated,
+        truncated: anyTruncated || primaryPlan.truncated,
         ordering: 'representation_identity_order__per_representation_skip_start',
-        // No fake continuation. The server result explicitly reports truncation/search budget; a
-        // deeper search must be a newly authorized Research Plan with an explicit budget.
+        // No fake continuation. A deeper search is a new bounded Research Plan with explicit budget.
         continuation: null,
       },
       trace: {
         representation_count: representations.length,
+        eligible_primary_representation_count: primaryPlan.available,
         representation_budget: repLimit,
-        representation_overflow: overflow.truncated,
+        representation_overflow: primaryPlan.truncated,
+        derived_part_fanout: false,
         scope,
         max_skip: boundedSkip,
         max_hits_per_representation: boundedHits,
