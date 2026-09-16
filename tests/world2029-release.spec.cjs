@@ -123,7 +123,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await page.keyboard.press('Enter');
   await expect(page.locator('.sod29-world-anchor-intro h2')).not.toHaveText('1820', { timeout: 30_000 });
 
-  const exactReturn = page.getByRole('button', { name: /חזרה מדויקת/ });
+  const exactReturn = page.locator('.sod29-header-actions button[title]').first();
   await expect(exactReturn).toBeEnabled();
   await exactReturn.click();
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820', { timeout: 30_000 });
