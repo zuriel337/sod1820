@@ -89,6 +89,10 @@ The existing offline `test/normalize-parity.test.mjs` compares the legacy JS fun
 
 Parity is compatibility evidence only. It does NOT confer authority on the client implementation.
 
+### Historical adapter test harness note
+
+`test/canonical-gematria-live-shape.test.mjs` is not part of the G3-D CI gate. On the inherited Node 20 runner it imports `src/lib/supabase.js`, which constructs Supabase Realtime and fails before assertions because Node 20 has no native WebSocket support. G3-D does not alter shared Supabase initialization or add a `ws` dependency merely to make that historical harness boot. The adapter authority contract is instead checked by the new pure source gate and by live DB verification in this pass. This is test-harness drift, not evidence of numeric-authority failure.
+
 ## Branch enforcement added by G3-D
 
 1. New `scripts/test-gematria-authority-isolation.mjs`:
@@ -105,7 +109,6 @@ Parity is compatibility evidence only. It does NOT confer authority on the clien
    - reruns when Gematria compatibility/canonical files change;
    - runs the new authority gate;
    - runs the existing 14-method JS/SQL parity snapshot;
-   - runs the canonical Gematria Finding adapter shape test;
    - keeps the existing source/build isolation gates.
 
 ## Retirement conditions
@@ -127,6 +130,7 @@ Already runtime-retired (`return null`). Remove remaining imports/references whe
 1. Historical naming/comment drift: `gematriaCalculationContract.js`, `coreEngine.js`, `MethodAnalyze.jsx`, and `CanonicalGematriaCalculator.jsx` use “canonical/engine verified” language around a local `method.fn` calculation path. Current owner law v2 supersedes that semantic implication. No shared-file rewrite was performed in this pass because the user explicitly required STOP BEFORE WRITE on shared Research files.
 2. `gematria_api` is a canonical numeric adapter but still a bounded nine-method backward-compatible projection. It must not be interpreted as a fixed Registry count.
 3. Legacy surfaces can persist local values/bookmarks/wall rows. Those are compatibility data and require canonical replay before automatic 2029 truth/finding projection.
+4. `test/canonical-gematria-live-shape.test.mjs` is historically described as a pure offline Node test, but under the current Supabase JS dependency it imports Realtime initialization and fails on Node 20 before assertions. G3-D does not solve this unrelated shared test-harness issue.
 
 ## Shared-file blocker
 
