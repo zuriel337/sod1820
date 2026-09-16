@@ -145,6 +145,9 @@
   [dir="ltr"].sod29-root.native-frame.sidebar-collapsed .sod29-sidebar-toggle::after{content:"›"}
 }
 
+/* Disabled prototype actions must not leak internal release/adapter language into the product. */
+.sod29-root.native-frame .sod29-panel-actions-grid button:disabled{display:none!important}
+
 /* Mobile keeps the same navigation capability as a drawer; there is no persistent side rail. */
 @media (max-width:980px){
   .sod29-root.native-frame .sod29-nav-status,
