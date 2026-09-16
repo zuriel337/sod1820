@@ -1,6 +1,6 @@
 # SOD1820 — MASTER ROADMAP v6 COMPACT
 
-**Date:** 2026-09-15  
+**Date:** 2026-09-17  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -31,7 +31,9 @@ Detailed domain semantics live in owners, not here:
 - Continuous Raziel Research Companion / Research Presence → active `raziel_companion_layer_law` **v2**;
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
-- Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
+- Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**;
+- Research-grade replay, selection provenance, controls/negative outcomes and pattern/sequence adapters → active `research_strategy_layer_law` **v15** + `truth_axes_foundation_law` **v3**;
+- External Research Partner Sources → active `research_intake_foundation_contract_law` **v9** + `reality_graph_law` **v8** + `truth_axes_foundation_law` **v3**.
 
 Historical Roadmap v5.6 remains provenance only. Normal routing starts from the current owner tree, not from the historical Roadmap body.
 
@@ -39,7 +41,7 @@ Historical Roadmap v5.6 remains provenance only. Normal routing starts from the 
 
 ### 1. INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME — EARLY FOUNDATION/RUNTIME PRIORITY
 
-Owner: active `inter_agent_coordination_law` v11.
+Owner: active `inter_agent_coordination_law` v12.
 
 Target flow:
 
@@ -88,6 +90,8 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 - callable ELS boundary;
 - replay/idempotency/failure recovery;
 - canonical domain adapters where required;
+- source/corpus identity, version and integrity provenance sufficient for replay;
+- explicit selection/search provenance for sequence/statistical research, including pre-registered vs hypothesis-driven vs post-hoc and bounded search-space/control honesty;
 - implementation against frozen owners, not legacy UI authority.
 
 ### 4. Replayable capability / Golden fixtures
@@ -95,13 +99,18 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 - replayable Research Context / Journey path for 878;
 - Year/Verse Journey source/witness/counting provenance;
 - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
-- exact return, Why-transition, provenance and failure/negative outcomes.
+- exact return, Why-transition, provenance and failure/negative outcomes;
+- one-click **Verify / Replay Finding** from the same source/input/operator or method/version/search-space, with mismatch, control and negative results preserved rather than hidden;
+- Method explanation from the canonical Method Registry plus the current Method Trace — no local competing explanations;
+- Number/Sequence Analyzer as an adapter over the existing Pattern/Sequence grammar (prime/factors, polygonal families, Pi/Fibonacci/coordinate and other owner-qualified operators), never a second numeric engine/store;
+- **External Research Partner Source Golden adapter** — first candidate: **The First Verse**. Intake receives stable source/post identity + version/update through a signed webhook/API/feed; preserves canonical source URL separately from partner/referral deep-link; routes extracted claims/findings through existing verification and Human Gate; never auto-canonicalizes or auto-publishes into One Reality Graph.
 
 ### 5. Broader G3 product/runtime implementation
 
 - Global Now/Home adapters;
 - Follow/Attention delivery truth;
 - Raziel continuous research companion runtime;
+- bounded composite/multi-condition research in Heichal through the existing Research Plan + Capability Fabric, not a parallel query/research system;
 - greenfield product surfaces consuming Foundation owners;
 - no inheritance obligation from legacy layout/IA.
 
@@ -121,6 +130,18 @@ It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/d
 ### G4 — Golden Experiences
 
 Run representative real journeys and surfaces against live/replayable fixtures. No simulated PASS.
+
+Research-trust acceptance must visibly prove, without creating new truth systems:
+
+- a surfaced Finding can show its recipe/provenance/verification boundary and **Verify / Replay** the same governed run;
+- source claim / calculation / verification / Human curation / interpretation remain visually distinguishable;
+- pre-registered/source-replay/hypothesis-driven/post-hoc provenance is inspectable where statistically material;
+- negative results, failed controls, contradiction, unknown and incomplete coverage remain first-class and are not optimized away;
+- official/Human-curated research and community/candidate research are different lenses/states over the same Research OS, not separate stores;
+- Method “what is this?” explanation and current Trace come from the canonical Method Registry;
+- Number/Sequence Analyzer uses the same Number identity and governed operator adapters;
+- Heichal can run bounded composite research across eligible capabilities with reproducible parameters and stop conditions;
+- External Research Partner Source projection preserves credit + source provenance and opens the original partner material through the governed deep partner link without replacing the canonical research URL.
 
 ### G5 — Product / Entitlement Matrix
 
@@ -147,8 +168,9 @@ Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Att
 
 Only decision-changing open items belong here:
 
-- exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v11;
+- exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v12;
 - exact runtime integration mechanics for the existing agent media/file upload bridge;
+- exact transport/rights/deep-referral mechanics for the first External Research Partner Source integration (The First Verse), while canonical source provenance remains independent from referral attribution;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
 - exact Free/Registered/Premium allocation in G5;
