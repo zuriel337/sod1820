@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -50,6 +51,39 @@ assert.match(frame, /closeTransient/);
 assert.match(frame, /returnExact/);
 assert.match(frame, /useResearch\(\)/);
 assert.match(frame, /FrameState/);
+
+// Exact return is semantic restoration, not merely URL/back navigation. The existing
+// Research Context owner now carries a bounded return snapshot and the Frame consumes it.
+const exact = normalizeResearchContext({
+  subject: { id: "1237", type: "number", label: "1237", href: "/world" },
+  selection: { entityId: "1237", entityType: "number" },
+  lens: "world",
+  dimensions: { mode: "overview" },
+  journey: { id: "journey-now", kind: "research", position: 9, findingId: "finding-now" },
+  returnTo: {
+    href: "/books/source-a?chapter=2#verse-4",
+    label: "מקור א",
+    subject: { id: "source-a", type: "book", label: "מקור א", href: "/books/source-a" },
+    selection: { entityId: "verse-4", entityType: "source", locator: "chapter:2:verse:4", versionRef: "v3" },
+    lens: "reading",
+    dimensions: { chapter: 2, layer: "source" },
+    journey: { id: "journey-a", kind: "source-path", position: 4, findingId: "finding-a" },
+  },
+});
+assert.equal(exact.returnTo.href, "/books/source-a?chapter=2#verse-4");
+assert.equal(exact.returnTo.subject.id, "source-a");
+assert.equal(exact.returnTo.selection.entityId, "verse-4");
+assert.equal(exact.returnTo.selection.locator, "chapter:2:verse:4");
+assert.equal(exact.returnTo.lens, "reading");
+assert.equal(exact.returnTo.dimensions.chapter, 2);
+assert.equal(exact.returnTo.dimensions.layer, "source");
+assert.equal(exact.returnTo.journey.id, "journey-a");
+assert.equal(exact.returnTo.journey.position, 4);
+assert.match(frame, /selection:\s*target\.selection \|\| null/);
+assert.match(frame, /lens:\s*target\.lens \|\| null/);
+assert.match(frame, /dimensions:\s*target\.dimensions \|\| null/);
+assert.match(frame, /journey:\s*target\.journey \|\| null/);
+assert.match(frame, /returnTo:\s*null/);
 
 // Quick Inspect and Selection Intelligence are temporary context projections, not a NumberDrawer fork.
 assert.match(frame, /TEMPORARY SELECTION/);
