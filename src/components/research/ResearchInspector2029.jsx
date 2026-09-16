@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AskRaziel from "../AskRaziel.jsx";
 import TopicConvergenceContent from "./TopicConvergenceContent.jsx";
-import NumberCoreMaster2029 from "../number/NumberCoreMaster2029.jsx";
 import { usePalette } from "../../lib/palette.js";
+import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
 
 const TABS = [
   ["overview", "סקירה"],
@@ -30,7 +30,7 @@ function ResearchStrength({ score, finding, entityData }) {
     ["מד תצוגה", score != null ? Math.round(Number(score)) : "—", "דירוג תצוגה, לא ציון אמת"],
     ["אימות", verification || "לא צוין", "מצב האימות כפי שהמקור החזיר"],
     ["מקורות", sources, "מקורות זמינים בהקרנה"],
-    ["עוגנים", anchors, "עוגנים מפורשים בהתכנסות"],
+    ["עוגנים", anchors, "עוגנים מפורשים כשקיימים"],
     ["ראיות", evidenceItems || "—", "קבוצות/פריטי evidence כשהם קיימים"],
   ];
   return <div className="ri29-strength">{rows.map(([label, value, note]) => <div key={label}><span>{label}</span><strong>{value}</strong><small>{note}</small></div>)}</div>;
@@ -41,10 +41,42 @@ function MiniList({ rows, empty, limit = 14 }) {
   return <div className="ri29-list">{rows.slice(0, limit).map((row, index) => <div className="ri29-list-row" key={row?.id || `${rowLabel(row)}-${index}`}><strong>{rowLabel(row)}</strong>{rowMeta(row) ? <small>{rowMeta(row)}</small> : null}</div>)}</div>;
 }
 
+function EntityOverview({ card, entityData, onActivate, onOpenBook, onOpenHeichal }) {
+  const methods = asArray(entityData?.gematria?.families);
+  const topics = asArray(entityData?.topics?.rows);
+  const relations = asArray(entityData?.graph?.relations);
+  const researchRows = asArray(entityData?.research?.findings).length ? asArray(entityData?.research?.findings) : asArray(entityData?.research?.rows);
+  const sources = asArray(entityData?.sources);
+  const timeline = asArray(entityData?.timeline);
+  const zeroScale = asArray(entityData?.zeroScale?.scale_chain);
+
+  return <>
+    {card?.sub ? <p className="ri29-summary">{card.sub}</p> : null}
+    <div className="ri29-actions">
+      <button type="button" className="world-btn primary" onClick={onActivate}>פתח כעוגן בעולם</button>
+      {card?.facet === "book" ? <button type="button" className="world-btn" onClick={onOpenBook}>פתח את הספר</button> : null}
+      <button type="button" className="world-btn" onClick={onOpenHeichal}>◇ העמק בהיכל</button>
+    </div>
+    <section className="ri29-block">
+      <div className="ri29-label">פרופיל חי</div>
+      <div className="ri29-gap-grid">
+        <span>{relations.length} קשרים</span>
+        <span>{researchRows.length} ממצאים</span>
+        <span>{sources.length} מקורות</span>
+        <span>{topics.length} התכנסויות</span>
+        {methods.length ? <span>{methods.length} שיטות</span> : null}
+        {timeline.length ? <span>{timeline.length} נקודות זמן</span> : null}
+        {zeroScale.length ? <span>{zeroScale.length} נגזרות scale</span> : null}
+      </div>
+    </section>
+    {methods.length ? <section className="ri29-block"><div className="ri29-label">שיטות פעילות</div><div className="world-chip-row">{methods.slice(0, 10).map((method, index) => <span key={method.method || index} className="world-chip static">{method.registry?.display_label || method.method || "שיטה"} · {method.count ?? method.phrases?.length ?? 0}</span>)}</div></section> : null}
+  </>;
+}
+
 export default function ResearchInspector2029({
   card,
   finding,
-  entityData,
+  entityData: suppliedEntityData,
   loading,
   error,
   currentContext,
@@ -55,10 +87,25 @@ export default function ResearchInspector2029({
 }) {
   const palette = usePalette();
   const [tab, setTab] = useState("overview");
+  const [local, setLocal] = useState({ loading: false, data: null, error: null });
   const isTopic = card?.facet === "topic";
-  const isNumber = card?.facet === "number" && Number.isFinite(Number(card?.refId));
   const score = finding?.evidence?.score ?? (Number(card?.rank?.score) || null);
 
+  useEffect(() => {
+    let live = true;
+    setTab("overview");
+    setLocal({ loading: false, data: null, error: null });
+    if (!card || isTopic || suppliedEntityData || !card.refId) return () => { live = false; };
+    setLocal({ loading: true, data: null, error: null });
+    fetchEntityHubProjection({ type: card.facet, key: card.refId, relationLimit: 90, researchLimit: 50, topicLimit: 14 })
+      .then(data => { if (live) setLocal({ loading: false, data, error: null }); })
+      .catch(fetchError => { if (live) setLocal({ loading: false, data: null, error: fetchError }); });
+    return () => { live = false; };
+  }, [card?.facet, card?.refId, isTopic, suppliedEntityData]);
+
+  const entityData = suppliedEntityData || local.data;
+  const effectiveLoading = Boolean(loading || local.loading);
+  const effectiveError = error || local.error;
   const researchRows = asArray(entityData?.research?.findings).length ? asArray(entityData?.research?.findings) : asArray(entityData?.research?.rows);
   const relations = asArray(entityData?.graph?.relations);
   const sources = asArray(entityData?.sources);
@@ -73,21 +120,16 @@ export default function ResearchInspector2029({
 
   const facts = [
     card?.label ? `נושא: ${card.label}` : null,
+    card?.facet ? `סוג: ${card.facet}` : null,
     score != null ? `מד תצוגה: ${Math.round(Number(score))}` : null,
     numberAnchors.length ? `עוגני מספר: ${numberAnchors.map(a => a.value).join(", ")}` : null,
     sources.length ? `מקורות זמינים: ${sources.length}` : null,
     researchRows.length ? `ממצאי מחקר זמינים: ${researchRows.length}` : null,
+    relations.length ? `קשרים זמינים: ${relations.length}` : null,
   ].filter(Boolean);
 
-  if (loading) return <div className="ri29-state">טוען את יחידת המחקר…</div>;
-  if (error) return <div className="ri29-state error">הפריט לא נטען במלואו כרגע.</div>;
-
-  if (isNumber) {
-    return <div className="ri29-number-master">
-      <div className="ri29-one-master-note">אותו Number Core Master · אותה שכבת רזיאל · אותה סמנטיקת מחקר</div>
-      <NumberCoreMaster2029 number={Number(card.refId)} variant="drawer" onOpenNumber={onOpenNumber} />
-    </div>;
-  }
+  if (effectiveLoading) return <div className="ri29-state">טוען את יחידת המחקר…</div>;
+  if (effectiveError) return <div className="ri29-state error">הפריט לא נטען במלואו כרגע.</div>;
 
   return <div className="ri29-root">
     <div className="ri29-why"><b>למה זה כאן</b><span>{whyHere}</span></div>
@@ -98,14 +140,7 @@ export default function ResearchInspector2029({
 
     {tab === "overview" && <div className="ri29-panel">
       <ResearchStrength score={score} finding={finding} entityData={entityData} />
-      {isTopic && finding ? <TopicConvergenceContent finding={finding} palette={palette} /> : <>
-        {card?.sub ? <p className="ri29-summary">{card.sub}</p> : null}
-        <div className="ri29-actions">
-          <button type="button" className="world-btn primary" onClick={onActivate}>פתח כעוגן בעולם</button>
-          {card?.facet === "book" ? <button type="button" className="world-btn" onClick={onOpenBook}>פתח את הספר</button> : null}
-          <button type="button" className="world-btn" onClick={onOpenHeichal}>◇ העמק בהיכל</button>
-        </div>
-      </>}
+      {isTopic && finding ? <TopicConvergenceContent finding={finding} palette={palette} /> : <EntityOverview card={card} entityData={entityData} onActivate={onActivate} onOpenBook={onOpenBook} onOpenHeichal={onOpenHeichal} />}
       {numberAnchors.length ? <section className="ri29-block"><div className="ri29-label">עוגני מספר</div><div className="world-chip-row">{numberAnchors.map(anchor => <button className="world-chip primary" type="button" key={anchor.value} onClick={() => onOpenNumber?.(Number(anchor.value))}>{anchor.value} · פתח</button>)}</div></section> : null}
     </div>}
 
@@ -121,14 +156,14 @@ export default function ResearchInspector2029({
 
     {tab === "raziel" && <div className="ri29-panel ri29-raziel">
       <div className="ri29-label">רזיאל · אותו Research Context</div>
-      <p>רזיאל מקבל את אותה ישות, אותו מסלול הגעה ואת הנתונים שכבר הוקרנו. הוא מפרש וממליץ על בדיקה הבאה; הוא לא ממציא אימות ולא מחשב מחדש מנועים קנוניים.</p>
+      <p>רזיאל מקבל את אותה ישות, אותו מסלול הגעה ואת הנתונים שכבר הוקרנו. הוא מפרש, מאתר פערים וממליץ על הבדיקה הבאה; הוא לא ממציא אימות ולא מחשב מחדש מנועים קנוניים.</p>
       <AskRaziel
         subject={title}
         facts={facts}
-        context={`World Research Inspector. Current item type: ${card?.facet || "unknown"}. Current route context: ${currentContext?.subject?.label || currentContext?.subject?.id || "World root"}. Preserve Truth-axis distinctions. Use supplied evidence/context first. Do not invent verification, canonicality or source support. Recommend one bounded next research action with highest information gain, and allow STOP/NO_ACTION when appropriate.`}
+        context={`Shared 2029 Research Inspector. Current item type: ${card?.facet || "unknown"}. Current route context: ${currentContext?.subject?.label || currentContext?.subject?.id || "World root"}. Preserve Truth-axis distinctions. Use supplied evidence/context first. Do not invent verification, canonicality or source support. Recommend one bounded next research action with highest information gain, and allow STOP/NO_ACTION when appropriate. Adapt the research plan to the domain owner rather than forcing Number semantics onto other entity types.`}
         title="רזיאל · הצעד הבא"
-        subtitle="אותו מוח · אותו הקשר · אותה אמת"
-        greeting={`אני בתוך «${title}». אבדוק קודם מה כבר ידוע, מה חסר, ומה הבדיקה הבאה שבאמת יכולה לשנות את התמונה.`}
+        subtitle="אותה משפחה · אותו מוח · הקרנה מותאמת לסוג"
+        greeting={`אני בתוך «${title}». אבדוק מה כבר ידוע, מה חסר, ואיזה צעד מחקרי באמת יכול לשנות את התמונה.`}
         cta={false}
       />
     </div>}
