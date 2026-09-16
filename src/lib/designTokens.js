@@ -73,6 +73,17 @@ export const DIRECTION = Object.freeze({
   textEnd: 'end',
 });
 
+// Raziel compact-presence identity is a documented domain-semantic exception to
+// generic control color. It is presence/brand meaning only — never truth,
+// verification, access or alert severity. Exact values remain centralized here.
+export const RAZIEL_PRESENCE = Object.freeze({
+  blue: '#4F8CFF',
+  indigo: '#6657FF',
+  violet: '#9B5CFF',
+  glow: 'rgba(102,87,255,.34)',
+  cycleMs: 12000,
+});
+
 // Role vocabulary only. These are environment semantics, not hard-coded images
 // and not a second theme/palette owner. Asset selection/generation remains a
 // representation concern under the Design Contract.

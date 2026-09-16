@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "SOD_BUILD_TARGET=legacy vite build && SOD_BUILD_TARGET=2029 vite build",
+    "build:legacy": "SOD_BUILD_TARGET=legacy vite build",
+    "build:2029": "SOD_BUILD_TARGET=2029 vite build",
     "preview": "vite preview",
     "package:expression-extract": "node scripts/package-expression-extract.mjs"
   },

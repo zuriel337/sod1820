@@ -165,6 +165,34 @@
       "destination": "/api/og?path=/$1"
     },
     {
+      "source": "/2029",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/world",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/books",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/books/(.*)",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/els",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/heichal",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/היכל",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -1,0 +1,49 @@
+name: 2029 Isolation Gate
+
+on:
+  pull_request:
+    paths:
+      - "2029.html"
+      - "src/main2029.jsx"
+      - "src/App2029.jsx"
+      - "src/components/experience2029/**"
+      - "src/pages/*2029Page.jsx"
+      - "src/lib/designTokens.js"
+      - "src/lib/research/researchContext.js"
+      - "src/lib/research/world2029Presentation.js"
+      - "package.json"
+      - "vite.config.js"
+      - "vercel.json"
+      - "scripts/test-2029-isolation.mjs"
+      - "scripts/test-2029-built-graph.mjs"
+      - "scripts/test-2029-system-frame.mjs"
+      - "scripts/test-2029-world-surface.mjs"
+      - ".github/workflows/2029-isolation-gate.yml"
+  workflow_dispatch:
+
+jobs:
+  hard-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Source isolation regression
+        run: node scripts/test-2029-isolation.mjs
+      - name: Native System Frame acceptance
+        run: node scripts/test-2029-system-frame.mjs
+      - name: Native World surface acceptance
+        run: node scripts/test-2029-world-surface.mjs
+      - name: Production build
+        run: npm run build
+      - name: Built dependency graph isolation
+        run: node scripts/test-2029-built-graph.mjs
+      - name: Verify isolated HTML artifact
+        run: |
+          test -f dist/2029.html
+          ! grep -q "site.webmanifest" dist/2029.html
+          ! grep -q "/logo.png" dist/2029.html

@@ -5,6 +5,7 @@
 export const RESEARCH_CONTEXT_VERSION = 1;
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value || {}, key);
 const cleanString = (value) => {
   if (value == null) return null;
   const s = String(value).trim();
@@ -48,17 +49,6 @@ function normalizeJourney(value) {
   return Object.values(out).some((v) => v != null && v !== "") ? out : null;
 }
 
-function normalizeReturnTo(value) {
-  if (!isObject(value)) return null;
-  const href = cleanString(value.href);
-  if (!href) return null;
-  return {
-    href,
-    label: cleanString(value.label),
-    subject: normalizeSubject(value.subject),
-  };
-}
-
 function normalizeAccess(value) {
   if (!isObject(value)) return null;
   const out = {
@@ -79,6 +69,24 @@ function normalizeDimensions(value) {
     }
   }
   return out;
+}
+
+// Exact-return stays inside the same Research Context owner. It is a bounded
+// snapshot of navigation/research state, never a second history/store. Older
+// returnTo objects containing only href/label/subject remain valid.
+function normalizeReturnTo(value) {
+  if (!isObject(value)) return null;
+  const href = cleanString(value.href);
+  if (!href) return null;
+  return {
+    href,
+    label: cleanString(value.label),
+    subject: normalizeSubject(value.subject),
+    selection: normalizeSelection(value.selection),
+    lens: cleanString(value.lens),
+    dimensions: normalizeDimensions(value.dimensions),
+    journey: normalizeJourney(value.journey),
+  };
 }
 
 export function normalizeResearchContext(value) {
@@ -108,12 +116,20 @@ export function createResearchContext(input = {}) {
   return normalized;
 }
 
+function isExactReturnRestorePatch(next) {
+  return next?.returnTo === null && ["subject", "selection", "lens", "dimensions", "journey"]
+    .every((key) => hasOwn(next, key));
+}
+
 export function mergeResearchContext(current, patch = {}) {
   const base = normalizeResearchContext(current) || {};
   const next = isObject(patch) ? patch : {};
-  const dimensions = next.dimensions === null
-    ? {}
-    : { ...(base.dimensions || {}), ...(isObject(next.dimensions) ? next.dimensions : {}) };
+  const exactReturnRestore = isExactReturnRestorePatch(next);
+  const dimensions = exactReturnRestore
+    ? normalizeDimensions(next.dimensions)
+    : next.dimensions === null
+      ? {}
+      : { ...(base.dimensions || {}), ...(isObject(next.dimensions) ? next.dimensions : {}) };
 
   return normalizeResearchContext({
     ...base,

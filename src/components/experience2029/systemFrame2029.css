@@ -1,0 +1,99 @@
+/* SOD1820 2029 System Frame — implementation projection of System Frame v2 + 2029 North Star lock.
+   No truth/access/identity semantics are owned by this stylesheet. */
+
+.sod29-root.native-frame{--s29-island-clearance:96px}
+.sod29-root.native-frame :where(button,a,input,[tabindex]):focus-visible{outline:2px solid var(--s29-accent-text);outline-offset:3px}
+
+/* Floating command island: actions, never global navigation. */
+.sod29-command-island{position:fixed;z-index:64;inset-inline-start:50%;inset-block-end:18px;transform:translateX(50%);display:flex;align-items:center;gap:4px;padding:6px;border:1px solid var(--s29-line-strong);border-radius:999px;background:color-mix(in srgb,var(--s29-panel) 92%,transparent);backdrop-filter:blur(24px) saturate(130%);box-shadow:0 18px 64px color-mix(in srgb,var(--s29-panel) 48%,transparent),0 0 0 1px color-mix(in srgb,var(--s29-accent) 5%,transparent) inset}
+[dir="ltr"] .sod29-command-island{transform:translateX(-50%)}
+.sod29-command-island>button:not(.sod29-raziel-orb){min-width:58px;height:52px;border:0;border-radius:18px;background:transparent;color:var(--s29-muted);display:grid;place-items:center;align-content:center;gap:1px;cursor:pointer;transition:background var(--s29-motion),color var(--s29-motion),transform var(--s29-motion)}
+.sod29-command-island>button:not(.sod29-raziel-orb)>span{font-size:14px;font-weight:900;line-height:1}
+.sod29-command-island>button:not(.sod29-raziel-orb)>small{font-size:9px;font-weight:800;line-height:1.1}
+.sod29-command-island>button:not(.sod29-raziel-orb):hover,.sod29-command-island>button:not(.sod29-raziel-orb)[aria-pressed="true"]{color:var(--s29-ink);background:color-mix(in srgb,var(--s29-accent) 9%,transparent);transform:translateY(-1px)}
+
+/* Raziel Orb: brand/presence semantic only. Never use this gradient for truth/status. */
+.sod29-raziel-orb{position:relative;min-width:78px;height:52px;border:0;border-radius:18px;background:transparent;color:var(--s29-ink);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:4px 9px}
+.sod29-raziel-orb.compact{min-width:54px;width:54px;padding:4px;border-radius:50%}
+.sod29-raziel-orb-core{position:relative;display:block;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--s29-raziel-blue),var(--s29-raziel-indigo) 52%,var(--s29-raziel-violet));background-size:180% 180%;box-shadow:0 0 22px var(--s29-raziel-glow),inset 0 0 14px rgba(255,255,255,.22);animation:sod29-raziel-breathe var(--s29-raziel-cycle) ease-in-out infinite alternate}
+.sod29-raziel-orb-core:before{content:"";position:absolute;inset:5px;border-radius:50%;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.75),rgba(255,255,255,.08) 32%,transparent 58%);opacity:.7}
+.sod29-raziel-orb-core:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid color-mix(in srgb,var(--s29-raziel-violet) 44%,transparent);opacity:.5}
+.sod29-raziel-orb.active .sod29-raziel-orb-core{box-shadow:0 0 30px var(--s29-raziel-glow),0 0 0 3px color-mix(in srgb,var(--s29-raziel-indigo) 18%,transparent),inset 0 0 14px rgba(255,255,255,.24)}
+.sod29-raziel-orb-label{font-size:11px;font-weight:800}
+
+/* Temporary selection cue: contextual focus, not persisted truth. */
+.sod29-selection-cue{position:fixed;z-index:63;inset-inline-start:50%;inset-block-end:84px;transform:translateX(50%);max-width:min(520px,calc(100vw - 24px));min-height:38px;display:flex;align-items:center;gap:8px;border:1px solid var(--s29-line-strong);border-radius:999px;background:color-mix(in srgb,var(--s29-panel) 94%,transparent);color:var(--s29-ink);padding:7px 12px;box-shadow:0 12px 42px color-mix(in srgb,var(--s29-panel) 42%,transparent);cursor:pointer}
+[dir="ltr"] .sod29-selection-cue{transform:translateX(-50%)}
+.sod29-selection-cue small{color:var(--s29-muted)}.sod29-selection-cue strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sod29-selection-cue span{color:var(--s29-accent-text);font-weight:800}
+
+/* One transient surface at a time. */
+.sod29-frame-backdrop{position:fixed;inset:0;z-index:86;background:color-mix(in srgb,var(--s29-page) 58%,transparent);backdrop-filter:blur(8px);display:flex;align-items:stretch;justify-content:flex-start;padding:10px}
+.sod29-frame-panel{margin-inline-start:auto;width:min(520px,100%);height:calc(100vh - 20px);overflow:auto;border:1px solid var(--s29-line-strong);border-radius:26px;background:color-mix(in srgb,var(--s29-panel) 98%,transparent);color:var(--s29-ink);box-shadow:0 36px 120px color-mix(in srgb,var(--s29-page) 62%,transparent);display:flex;flex-direction:column}
+[dir="ltr"] .sod29-frame-panel{margin-inline-start:0;margin-inline-end:auto}
+.sod29-frame-panel-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-panel) 96%,transparent);backdrop-filter:blur(16px)}
+.sod29-frame-panel-title{display:flex;align-items:center;gap:10px;min-width:0}.sod29-frame-panel-title small{display:block;color:var(--s29-muted);font-size:9px;font-weight:800;letter-spacing:.1em}.sod29-frame-panel-title strong{display:block;margin-top:2px;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sod29-frame-panel-icon{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--s29-line);border-radius:13px;color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 7%,transparent);font-weight:900}
+.sod29-frame-panel-head>button{width:42px;height:42px;border:1px solid var(--s29-line);border-radius:12px;background:transparent;color:var(--s29-ink);cursor:pointer;font-size:22px}
+.sod29-frame-panel-body{display:grid;gap:14px;padding:18px;min-height:0}
+.sod29-panel-lead{padding:4px 2px}.sod29-panel-lead h3{font-size:clamp(25px,4vw,34px);line-height:1.05;margin:5px 0 9px}.sod29-panel-lead p{margin:0;color:var(--s29-muted);line-height:1.7}
+
+.sod29-frame-command{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:7px;border:1px solid var(--s29-line-strong);border-radius:17px;background:var(--s29-panel-soft)}
+.sod29-frame-command input{min-width:0;min-height:48px;border:0;background:transparent;color:var(--s29-ink);padding:0 10px;outline:none;font-size:16px}
+.sod29-frame-command input::placeholder{color:var(--s29-muted)}
+.sod29-frame-hint{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:var(--s29-muted);font-size:11px}.sod29-frame-hint kbd{border:1px solid var(--s29-line);border-bottom-color:var(--s29-line-strong);border-radius:7px;padding:3px 6px;color:var(--s29-ink);background:var(--s29-panel-soft)}
+
+.sod29-frame-state{display:grid;grid-template-columns:auto minmax(0,1fr);gap:11px;align-items:start;border:1px solid var(--s29-line);border-radius:17px;padding:14px;background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);color:var(--s29-muted);line-height:1.55}
+.sod29-frame-state strong{display:block;color:var(--s29-ink);margin-bottom:4px}.sod29-frame-state-icon{width:31px;height:31px;border:1px solid var(--s29-line);border-radius:10px;display:grid;place-items:center;color:var(--s29-accent-text);font-weight:900}.sod29-frame-state.state-error{border-color:var(--s29-line-strong);border-inline-start-width:3px}.sod29-frame-state.state-gated{border-style:dashed}
+
+.sod29-inspect-identity{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:14px 2px;border-bottom:1px solid var(--s29-line)}.sod29-inspect-identity .sod29-kicker{width:100%}.sod29-inspect-identity strong{font-size:clamp(28px,5vw,46px);line-height:1}.sod29-inspect-identity>span{color:var(--s29-muted);font-size:12px}
+.sod29-panel-actions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.sod29-panel-actions-grid .sod29-action{text-align:center;justify-content:center}
+.sod29-panel-context-card,.sod29-selection-summary,.sod29-workspace-resume-native{display:grid;gap:5px;border:1px solid var(--s29-line);border-radius:17px;padding:14px;background:var(--s29-panel-grad)}.sod29-panel-context-card span,.sod29-selection-summary small,.sod29-workspace-resume-native small{color:var(--s29-muted)}.sod29-panel-context-card small{color:var(--s29-muted);margin-top:4px}
+.sod29-frame-feedback{padding:9px 12px;border-radius:11px;background:color-mix(in srgb,var(--s29-accent) 8%,transparent);color:var(--s29-accent-text);font-size:12px}
+
+.sod29-attention-projection{display:grid;gap:9px}.sod29-attention-projection .sod29-frame-state{min-height:88px}
+.sod29-attention-lanes.native{grid-template-columns:1fr;gap:8px;margin-top:0}
+
+.sod29-raziel-native-hero{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px;padding:18px;border:1px solid var(--s29-line-strong);border-radius:22px;background:radial-gradient(circle at 18% 20%,color-mix(in srgb,var(--s29-raziel-indigo) 11%,transparent),transparent 36%),var(--s29-panel-grad)}
+.sod29-raziel-native-hero .sod29-raziel-orb{min-width:70px;width:70px;height:70px;padding:0}.sod29-raziel-native-hero .sod29-raziel-orb-core{width:54px;height:54px}.sod29-raziel-native-hero .sod29-raziel-orb-label{display:none}.sod29-raziel-native-hero h3{margin:4px 0 7px;font-size:24px}.sod29-raziel-native-hero p{margin:0;color:var(--s29-muted);line-height:1.6;font-size:13px}
+
+@keyframes sod29-raziel-breathe{0%{background-position:0% 40%;transform:scale(.985)}100%{background-position:100% 60%;transform:scale(1.015)}}
+
+@media(max-width:980px){
+  .sod29-root.native-frame{--s29-island-clearance:104px}
+  .sod29-content{padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))}
+  .sod29-command-island{inset-block-end:calc(10px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 16px)}
+  .sod29-command-island>button:not(.sod29-raziel-orb){min-width:54px}
+  .sod29-selection-cue{inset-block-end:calc(82px + env(safe-area-inset-bottom,0px))}
+  .sod29-frame-backdrop{padding:0;align-items:flex-end}
+  .sod29-frame-panel{margin:0;width:100%;height:min(78vh,760px);border-radius:24px 24px 0 0;border-block-end:0;padding-block-end:env(safe-area-inset-bottom,0px)}
+}
+
+@media(max-width:620px){
+  .sod29-command-island{gap:1px;padding:5px}
+  .sod29-command-island>button:not(.sod29-raziel-orb){min-width:48px;width:48px;height:48px;padding:2px}
+  .sod29-command-island>button:not(.sod29-raziel-orb)>small{font-size:8px}
+  .sod29-raziel-orb.compact{min-width:48px;width:48px;height:48px}.sod29-raziel-orb.compact .sod29-raziel-orb-core{width:32px;height:32px}
+  .sod29-panel-actions-grid{grid-template-columns:1fr}
+  .sod29-frame-command{grid-template-columns:1fr}.sod29-frame-command .sod29-action{width:100%}
+  .sod29-raziel-native-hero{grid-template-columns:1fr;text-align:center;justify-items:center}
+}
+
+/* Explicit acceptance bands: 390 / 360 / 320 stay usable without horizontal overflow. */
+@media(max-width:390px){
+  .sod29-command-island{width:calc(100vw - 12px);justify-content:space-between}
+  .sod29-command-island>button:not(.sod29-raziel-orb){min-width:46px;width:46px}
+  .sod29-frame-panel-body{padding:14px}.sod29-frame-panel-head{padding:12px}
+}
+@media(max-width:360px){
+  .sod29-command-island>button:not(.sod29-raziel-orb){min-width:43px;width:43px}.sod29-command-island>button:not(.sod29-raziel-orb)>small{font-size:7.5px}
+  .sod29-raziel-orb.compact{min-width:44px;width:44px}.sod29-selection-cue{font-size:11px}
+}
+@media(max-width:320px){
+  .sod29-command-island{width:calc(100vw - 8px);padding-inline:3px}
+  .sod29-command-island>button:not(.sod29-raziel-orb){min-width:40px;width:40px}.sod29-raziel-orb.compact{min-width:41px;width:41px}
+  .sod29-frame-panel{height:82vh}.sod29-frame-panel-body{padding:12px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sod29-raziel-orb-core,.sod29-ambient-field i,.sod29-hero-visual .ring{animation:none!important}
+  .sod29-command-island>button,.sod29-selection-cue{transition:none!important}
+}

@@ -1,0 +1,160 @@
+/* SOD1820 2029 · Human-Gate visual correction
+   Presentation-only override for the native System Frame.
+   Keeps the locked navigation semantics, Command Island, Raziel and Research Context;
+   removes prototype/debug leakage from the desktop navigation projection. */
+
+@media (min-width:981px){
+  .sod29-root.native-frame{grid-template-columns:248px minmax(0,1fr)}
+  .sod29-root.native-frame.sidebar-collapsed{grid-template-columns:72px minmax(0,1fr)}
+
+  .sod29-root.native-frame .sod29-sidebar{
+    padding:16px 12px 14px;
+    gap:12px;
+    background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
+    border-inline-end:1px solid color-mix(in srgb,var(--s29-line) 88%,transparent);
+    box-shadow:none;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:none;
+  }
+  .sod29-root.native-frame .sod29-sidebar::-webkit-scrollbar{width:0;height:0}
+
+  .sod29-root.native-frame .sod29-brand{
+    min-height:54px;
+    padding:5px 9px 13px;
+    border-bottom:1px solid var(--s29-line);
+  }
+  .sod29-root.native-frame .sod29-brand b{font-size:14px;letter-spacing:.12em}
+  .sod29-root.native-frame .sod29-brand small{font-size:10px;opacity:.72}
+
+  .sod29-root.native-frame .sod29-nav{gap:3px}
+  .sod29-root.native-frame .sod29-nav-group{gap:3px}
+  .sod29-root.native-frame .sod29-nav-group+.sod29-nav-group{
+    margin-top:10px;
+    padding-top:10px;
+  }
+  .sod29-root.native-frame .sod29-nav-group-title{
+    padding-inline:10px;
+    margin:0 0 3px;
+    font-size:9px;
+    letter-spacing:.06em;
+    opacity:.58;
+  }
+  .sod29-root.native-frame .sod29-nav-link{
+    min-height:44px;
+    gap:9px;
+    padding:8px 10px;
+    border-radius:12px;
+    white-space:nowrap;
+  }
+  .sod29-root.native-frame .sod29-nav-link:hover{transform:none}
+  .sod29-root.native-frame .sod29-nav-link.active{
+    box-shadow:none;
+    background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel-soft));
+  }
+  .sod29-root.native-frame .sod29-nav-icon{
+    width:28px;
+    min-width:28px;
+    font-size:13px;
+  }
+  .sod29-root.native-frame .sod29-nav-copy{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:12.5px;
+    font-weight:700;
+  }
+
+  /* Prototype status strings never belong in product navigation. */
+  .sod29-root.native-frame .sod29-nav-status,
+  .sod29-root.native-frame .sod29-side-foot{display:none!important}
+
+  /* The first nav family contained preview-only Posts/Archive placeholders.
+     They are intentionally absent until they have a native 2029 surface. */
+  .sod29-root.native-frame .sod29-nav-group:first-child .sod29-nav-link.is-pending{display:none!important}
+
+  /* Number/Expression remains a known future family, but its unfinished status is not public copy. */
+  .sod29-root.native-frame .sod29-nav-group:nth-child(2) .sod29-nav-link.is-pending{
+    opacity:.34;
+    pointer-events:none;
+  }
+
+  .sod29-root.native-frame .sod29-sidebar-workspace{
+    min-height:44px;
+    padding:8px 10px;
+    border-radius:12px;
+    background:transparent;
+  }
+  .sod29-root.native-frame .sod29-sidebar-toggle{
+    margin-top:auto;
+    min-height:36px;
+    border:0;
+    border-top:1px solid var(--s29-line);
+    border-radius:0;
+    background:transparent;
+    font-size:11px;
+    opacity:.72;
+  }
+
+  .sod29-root.native-frame.sidebar-collapsed .sod29-sidebar{padding-inline:8px}
+  .sod29-root.native-frame.sidebar-collapsed .sod29-brand{
+    justify-content:center;
+    padding-inline:0;
+  }
+  .sod29-root.native-frame.sidebar-collapsed .sod29-brand>span{display:none!important}
+  .sod29-root.native-frame.sidebar-collapsed .sod29-brand::before{
+    content:"S";
+    width:38px;
+    height:38px;
+    display:grid;
+    place-items:center;
+    border:1px solid var(--s29-line-strong);
+    border-radius:50%;
+    color:var(--s29-accent-text);
+    font-weight:900;
+    letter-spacing:0;
+    background:color-mix(in srgb,var(--s29-accent) 8%,transparent);
+  }
+  .sod29-root.native-frame.sidebar-collapsed .sod29-nav-group-title,
+  .sod29-root.native-frame.sidebar-collapsed .sod29-nav-copy,
+  .sod29-root.native-frame.sidebar-collapsed .sod29-sidebar-workspace-copy,
+  .sod29-root.native-frame.sidebar-collapsed .sod29-nav-status{display:none!important}
+  .sod29-root.native-frame.sidebar-collapsed .sod29-nav-link,
+  .sod29-root.native-frame.sidebar-collapsed .sod29-sidebar-workspace{
+    width:48px;
+    min-height:48px;
+    margin-inline:auto;
+    justify-content:center;
+    padding:6px;
+    border-radius:14px;
+  }
+  .sod29-root.native-frame.sidebar-collapsed .sod29-nav-icon{
+    width:32px;
+    min-width:32px;
+    font-size:14px;
+  }
+  .sod29-root.native-frame.sidebar-collapsed .sod29-sidebar-toggle{
+    width:48px;
+    margin-inline:auto;
+    font-size:0;
+  }
+  .sod29-root.native-frame.sidebar-collapsed .sod29-sidebar-toggle::after{
+    content:"‹";
+    font-size:18px;
+  }
+  [dir="ltr"].sod29-root.native-frame.sidebar-collapsed .sod29-sidebar-toggle::after{content:"›"}
+}
+
+/* Disabled prototype actions must not leak internal release/adapter language into the product. */
+.sod29-root.native-frame .sod29-panel-actions-grid button:disabled{display:none!important}
+
+/* Mobile keeps the same navigation capability as a drawer; there is no persistent side rail. */
+@media (max-width:980px){
+  .sod29-root.native-frame .sod29-nav-status,
+  .sod29-root.native-frame .sod29-side-foot{display:none!important}
+  .sod29-root.native-frame .sod29-nav-group:first-child .sod29-nav-link.is-pending{display:none!important}
+  .sod29-root.native-frame .sod29-nav-group:nth-child(2) .sod29-nav-link.is-pending{
+    opacity:.34;
+    pointer-events:none;
+  }
+}
