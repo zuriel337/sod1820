@@ -21,7 +21,7 @@ const NAV = [
   { to: "/world", label: "העולם", icon: "◌" },
   { to: "/number", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
-  { to: "/lab/els", label: "ELS", icon: "✦" },
+  { to: "/els", label: "ELS", icon: "✦" },
   { to: "/heichal", label: "היכל", icon: "◇" },
 ];
 
