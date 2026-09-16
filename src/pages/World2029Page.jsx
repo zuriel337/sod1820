@@ -74,12 +74,25 @@ function WorldBody() {
   };
 
   return <>
-    <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">ANCHOR FIRST</div><h2>פתח עולם סביב עוגן</h2><div className="sod29-muted">World אינו מאגר עצמאי. הוא קומפוזיציה חיה סביב Number, Book, Event, Person או זהות כשירה אחרת. עוגן דל נשאר Hub דל; לא ממלאים אותו בפייק.</div></div></div>
-      <form className="sod29-input-row" onSubmit={setAnchor}>
-        <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר או ביטוי" aria-label="עוגן לעולם" />
-        <button className="sod29-action primary" type="submit">פתח בעולם</button>
-      </form>
+    <section className="sod29-focus-stage">
+      <div className="sod29-command-shell">
+        <div className="sod29-command-copy">
+          <div className="sod29-kicker">ANCHOR FIRST</div>
+          <h2>העולם נבנה סביב עוגן,<br />לא סביב תפריט.</h2>
+          <div className="sod29-muted">World הוא קומפוזיציה חיה מעל אותה Reality. אם לעוגן אין מספיק עומק — הוא נשאר דל. המערכת לא ממציאה קשרים כדי למלא מסך.</div>
+          <form className="sod29-command-bar" onSubmit={setAnchor}>
+            <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר או ביטוי" aria-label="עוגן לעולם" />
+            <button className="sod29-action primary" type="submit">פתח בעולם</button>
+          </form>
+        </div>
+        <div className="sod29-orbit-map" aria-hidden="true">
+          <div className="sod29-orbit-center">עוגן<br />חי</div>
+          <span className="sod29-orbit-node n1">קשרים</span>
+          <span className="sod29-orbit-node n2">מחקר</span>
+          <span className="sod29-orbit-node n3">מקורות</span>
+          <span className="sod29-orbit-node n4">זמן</span>
+        </div>
+      </div>
     </section>
 
     {!subject ? <section className="sod29-section"><div className="sod29-state">אין כרגע Research Anchor פעיל. זה מצב אמיתי — העולם לא ממציא ישות רק כדי למלא מסך. התחל במספר/ביטוי למעלה, או היכנס מספר/ספר ואז חזור לעולם.</div></section> : null}
@@ -89,14 +102,17 @@ function WorldBody() {
 
     {data ? <>
       <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">ONE REALITY · MANY VIEWS</div><h2>{data.identity.label}</h2><div className="sod29-muted">זהות אחת. העולם מציג רק שכבות שקיימות באמת כרגע.</div></div><div className="sod29-actions"><button className="sod29-action" onClick={addRoot}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><Link className="sod29-action primary" to="/heichal">◇ היכל</Link></div></div>
-        <div className="sod29-grid">
-          <div className="sod29-card"><div className="sod29-stat">{counts.relations}</div><div className="sod29-stat-label">קשרים חיים</div></div>
-          <div className="sod29-card"><div className="sod29-stat">{counts.findings}</div><div className="sod29-stat-label">Research Findings</div></div>
-          <div className="sod29-card"><div className="sod29-stat">{counts.sources}</div><div className="sod29-stat-label">מקורות</div></div>
-          <div className="sod29-card"><div className="sod29-stat">{counts.worlds}</div><div className="sod29-stat-label">World lenses</div></div>
-          <div className="sod29-card"><div className="sod29-stat">{counts.timeline}</div><div className="sod29-stat-label">נקודות זמן</div></div>
-          <div className="sod29-card"><div className="sod29-stat">{hasWorldDepth ? "חי" : "דל"}</div><div className="sod29-stat-label">עומק הקרנה נוכחי</div></div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">ONE REALITY · MANY VIEWS</div><h2>העולם של {data.identity.label}</h2><div className="sod29-muted">זהות אחת. השכבות סביב המרכז מגיעות רק ממה שקיים באמת כרגע.</div></div><div className="sod29-actions"><button className="sod29-action" onClick={addRoot}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><Link className="sod29-action primary" to="/heichal">◇ היכל</Link></div></div>
+        <div className="sod29-world-stage">
+          <div className="sod29-anchor-core"><div><div className="sod29-kicker">RESEARCH ANCHOR</div><strong>{data.identity.label}</strong><small>{data.identity.type || subject.type} · projection over One Reality</small></div></div>
+          <div className="sod29-orbit-metrics">
+            <div className="sod29-card"><div className="sod29-stat">{counts.relations}</div><div className="sod29-stat-label">קשרים חיים</div></div>
+            <div className="sod29-card"><div className="sod29-stat">{counts.findings}</div><div className="sod29-stat-label">Research Findings</div></div>
+            <div className="sod29-card"><div className="sod29-stat">{counts.sources}</div><div className="sod29-stat-label">מקורות</div></div>
+            <div className="sod29-card"><div className="sod29-stat">{counts.worlds}</div><div className="sod29-stat-label">World lenses</div></div>
+            <div className="sod29-card"><div className="sod29-stat">{counts.timeline}</div><div className="sod29-stat-label">נקודות זמן</div></div>
+            <div className="sod29-card"><div className="sod29-stat">{hasWorldDepth ? "חי" : "דל"}</div><div className="sod29-stat-label">עומק הקרנה נוכחי</div></div>
+          </div>
         </div>
       </section>
 
@@ -113,5 +129,5 @@ function WorldBody() {
 
 export default function World2029Page() {
   useEffect(() => { applySeo({ title: "העולם · SOD1820", description: "Research World דינמי מעל One Reality", path: "/world" }); }, []);
-  return <Sod2029Shell eyebrow="ONE REALITY · DYNAMIC WORLD" title="העולם" description="העולם אינו Topic tree ואינו גרף שני. הוא Research World שמורכב בזמן אמת סביב עוגן וקונטקסט אמיתיים."><WorldBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="world" symbol="◌" eyebrow="ONE REALITY · DYNAMIC WORLD" title="העולם" description="עוגן אחד במרכז, וסביבו רק השכבות שבאמת קיימות: קשרים, מחקר, מקורות, זמן ודרכי המשך."><WorldBody /></Sod2029Shell>;
 }
