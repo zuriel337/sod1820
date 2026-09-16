@@ -36,19 +36,34 @@ function NoContextEntry() {
   };
 
   return <>
-    <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">INTENTION FIRST</div><h2>מה נחקור עכשיו?</h2><div className="sod29-muted">ההיכל אינו קיר של כלים. הוא מתחיל מכוונת מחקר או מעוגן שכבר הבאת איתך.</div></div></div>
-      <form className="sod29-input-row" onSubmit={start}>
-        <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או שאלה שממנה נתחיל" aria-label="נושא למחקר בהיכל" />
-        <button className="sod29-action primary" type="submit">קבע עוגן מחקר</button>
-      </form>
+    <section className="sod29-focus-stage">
+      <div className="sod29-command-shell">
+        <div className="sod29-command-copy">
+          <div className="sod29-kicker">INTENTION FIRST</div>
+          <h2>היכל מתחיל משאלה,<br />לא מקיר של כלים.</h2>
+          <div className="sod29-muted">קבע עוגן או כוונת מחקר. ה־Context Compiler ירכיב סביבם את היכולות המחוברות בלי לפתוח מערכת נפרדת לכל פעולה.</div>
+          <form className="sod29-command-bar" onSubmit={start}>
+            <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או שאלה שממנה נתחיל" aria-label="נושא למחקר בהיכל" />
+            <button className="sod29-action primary" type="submit">קבע עוגן מחקר</button>
+          </form>
+        </div>
+        <div className="sod29-orbit-map" aria-hidden="true">
+          <div className="sod29-orbit-center">כוונה<br />אחת</div>
+          <span className="sod29-orbit-node n1">חשב</span>
+          <span className="sod29-orbit-node n2">מקורות</span>
+          <span className="sod29-orbit-node n3">ELS</span>
+          <span className="sod29-orbit-node n4">רזיאל</span>
+        </div>
+      </div>
     </section>
 
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">ACTION FAMILIES</div><h2>או התחל מפעולה</h2><div className="sod29-muted">השמות הם כוונות כניסה. בתוך כל מסלול נשמרים שמות היכולות הקנוניים.</div></div></div>
-      <div className="sod29-grid">
-        {ACTIONS.map(a => a.live ? <Link className="sod29-card" to={a.to} key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-actions"><span className="sod29-chip">מחובר</span></div></Link> : <div className="sod29-card sod29-placeholder" key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-muted" style={{ marginTop: 10 }}>ה־Foundation קיים; adapter/runtime של המצב הזה עדיין לא מחובר ל־Heichal.</div></div>)}
-        <button className="sod29-card" style={{ textAlign: "start", color: "inherit", font: "inherit", cursor: "pointer" }} onClick={() => shell.openRaziel()}><h3>שאל את רזיאל</h3><p>רזיאל פותח את אותו Research Context, לא צ׳אט נפרד של ההיכל.</p></button>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">ACTION FAMILIES</div><h2>או התחל מפעולה</h2><div className="sod29-muted">אלה כוונות כניסה, לא אפליקציות נפרדות. ה־Research Context נשאר אותו Context.</div></div></div>
+      <div className="sod29-constellation">
+        {ACTIONS.map(a => a.live
+          ? <Link className="sod29-card sod29-action-card" to={a.to} key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-actions"><span className="sod29-chip">מחובר</span></div></Link>
+          : <div className="sod29-card sod29-action-card sod29-placeholder" key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-muted">ה־Foundation קיים; adapter/runtime של המצב הזה עדיין לא מחובר להיכל.</div></div>)}
+        <button className="sod29-card sod29-action-card sod29-card-button" onClick={() => shell.openRaziel()}><h3>✦ שאל את רזיאל</h3><p>אותו רזיאל ואותו Research Context — לא צ׳אט מקביל של ההיכל.</p></button>
       </div>
     </section>
   </>;
@@ -102,7 +117,7 @@ function ActiveResearchEnvironment() {
   ].filter(Boolean).join(" · ");
 
   return <>
-    <section className="sod29-section">
+    <section className="sod29-section sod29-resume-panel">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
         <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
@@ -112,11 +127,11 @@ function ActiveResearchEnvironment() {
         {selectionText ? <span>בחירה · {selectionText}</span> : null}
         <span>היכל · Deep Research</span>
       </div>
-      <div className="sod29-muted" style={{ marginTop: 9 }}>Research Spine כאן מקרין את ה־Context הקיים. הוא לא טוען ל־research_path שמור אם runtime כזה עדיין לא נוצר.</div>
+      <div className="sod29-muted" style={{ marginTop: 9 }}>Research Spine מקרין את ה־Context הקיים. הוא לא טוען ל־research_path שמור אם runtime כזה עדיין לא נוצר.</div>
     </section>
 
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">RESEARCH CANVAS</div><h2>משטח העבודה</h2></div></div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">RESEARCH CANVAS</div><h2>משטח העבודה</h2><div className="sod29-muted">זהו המוקד: עובדות, ממצאים, מקורות וקשרים נאספים סביב אותו Root, עם Evidence Inspector לצדם.</div></div></div>
       <div className="sod29-two">
         <div className="sod29-canvas">
           {state.loading ? <div className="sod29-state">מרכיב Canvas מה־Reality Graph, Research OS וה־Context הפעיל…</div> : null}
@@ -152,7 +167,7 @@ function ActiveResearchEnvironment() {
     </section>
 
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">NEXT BEST ACTIONS</div><h2>מה אפשר לעשות עכשיו</h2><div className="sod29-muted">הפעולות נגזרות מהקשר ומהיכולות שכבר מחוברות; לא Toolbar קבוע של כל הכלים.</div></div></div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">NEXT BEST ACTIONS</div><h2>מה אפשר לעשות עכשיו</h2><div className="sod29-muted">הפעולות נגזרות מההקשר ומהיכולות שכבר מחוברות; לא Toolbar קבוע של כל הכלים.</div></div></div>
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
@@ -163,7 +178,7 @@ function ActiveResearchEnvironment() {
     </section>
 
     <section className="sod29-section sod29-placeholder">
-      <h2>Journey persistence / Spatial renderer</h2>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">FUTURE RENDERERS</div><h2>Journey persistence / Spatial renderer</h2></div></div>
       <p className="sod29-muted">ה־Foundation נעול, אבל research_path persistence וה־2029 Spatial renderer עדיין אינם מחוברים למסך הזה. לכן לא מוצג מסע או 3D מזויף. כשיתחברו, הם יצרכו את אותו Context/Result lineage ולא ידרשו Heichal חדש.</p>
     </section>
   </>;
@@ -173,5 +188,5 @@ export default function Heichal2029Page() {
   const research = useResearch();
   useEffect(() => { applySeo({ title: "היכל · SOD1820", description: "סביבת המחקר העמוקה של SOD1820 2029", path: "/heichal" }); }, []);
   const hasContext = Boolean(research.context?.subject);
-  return <Sod2029Shell wide eyebrow="DEEP RESEARCH ENVIRONMENT" title="היכל" description="Context-Compiled Research Environment: אותו עוגן, אותו Research OS, אותו רזיאל — עם Canvas, Evidence, Findings ופעולות שמסתגלים למחקר.">{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
+  return <Sod2029Shell wide surface="heichal" symbol="◇" eyebrow="DEEP RESEARCH ENVIRONMENT" title="היכל" description="Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence, Findings ופעולות שמסתגלים למחקר.">{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
 }
