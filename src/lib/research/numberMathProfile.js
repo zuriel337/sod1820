@@ -183,6 +183,9 @@ function arithmeticFromFactors(n, factorization) {
 
 function polygonalIndex(n, sides) {
   if (!Number.isSafeInteger(n) || n < 0 || sides < 3) return null;
+  // The OEIS polygonal families referenced by this adapter use a(0)=0. The quadratic
+  // inverse has two roots at zero for sides > 4, so handle the shared zero term explicitly.
+  if (n === 0) return 0;
   const s = BigInt(sides);
   const N = BigInt(n);
   const d = (s - 4n) ** 2n + 8n * (s - 2n) * N;
@@ -222,6 +225,8 @@ function digitInfo(n) {
   let digitalRoot = n === 0 ? 0 : 1 + ((n - 1) % 9);
   if (!Number.isSafeInteger(digitalRoot)) digitalRoot = null;
   const palindrome = text === reversedText;
+  // We expose the useful multi-digit visual family only. Single decimal digits trivially have
+  // equal digits, but labeling every 0..9 as a repdigit would add no research information.
   const repdigit = text.length > 1 && digits.every(d => d === digits[0]);
   const harshad = n > 0 && sum > 0 ? n % sum === 0 : null;
   const narcissisticSum = digits.reduce((acc, d) => acc + BigInt(d) ** BigInt(digits.length), 0n);
@@ -243,6 +248,7 @@ function digitInfo(n) {
     reversed: Number.isSafeInteger(reversed) ? reversed : reversedText,
     palindrome,
     repdigit,
+    repdigit_min_digits: 2,
     harshad,
     narcissistic,
     happy: happyValue === 1,
@@ -255,7 +261,9 @@ function family(key, label, category, details = {}, oeis = null) {
     label,
     category,
     details,
-    reference: oeis ? { provider: 'OEIS', id: oeis, source_ref: `OEIS:${oeis}` } : null,
+    // This is a static definition/catalog pointer. The adapter never claims that the external
+    // page was fetched or used as evidence for this individual execution.
+    reference: oeis ? { provider: 'OEIS', id: oeis, source_ref: `OEIS:${oeis}`, role: 'definition_pointer_unfetched' } : null,
   };
 }
 
@@ -287,7 +295,7 @@ export function analyzeNumberMath(numberInput, options = {}) {
   if (arithmetic.abundance_class) families.push(family(arithmetic.abundance_class, arithmetic.abundance_class[0].toUpperCase() + arithmetic.abundance_class.slice(1), 'divisor', {}, OEIS[arithmetic.abundance_class]));
   if (arithmetic.semiprime === true) families.push(family('semiprime', 'Semiprime', 'factorization', {}, OEIS.semiprime));
   if (digits.palindrome) families.push(family('palindrome_base10', 'Palindrome (base 10)', 'digit', {}, OEIS.palindrome_base10));
-  if (digits.repdigit) families.push(family('repdigit_base10', 'Repdigit (base 10)', 'digit'));
+  if (digits.repdigit) families.push(family('repdigit_base10_multi_digit', 'Repdigit (base 10, 2+ digits)', 'digit', { minimum_digits: 2 }));
   if (digits.harshad === true) families.push(family('harshad_base10', 'Harshad / Niven (base 10)', 'digit', { digit_sum: digits.digit_sum }, OEIS.harshad_base10));
   if (digits.happy) families.push(family('happy_base10', 'Happy (base 10)', 'digit', {}, OEIS.happy_base10));
   if (digits.narcissistic) families.push(family('narcissistic_base10', 'Narcissistic / Armstrong (base 10)', 'digit', {}, OEIS.narcissistic_base10));
