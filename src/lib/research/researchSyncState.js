@@ -80,6 +80,17 @@ export function appendResearchOp(existing, op) {
   const list = Array.isArray(existing) ? existing : [];
   if (!op?.kind) return list;
 
+  // Add + update before a cloud flush must remain an ADD with the final fields, otherwise an
+  // update against a collection that does not exist yet would be a no-op on the server.
+  if (op.kind === "collection_update" && op.id) {
+    const addIndex = list.findIndex(x => x?.kind === "collection_add" && x?.collection?.id === op.id);
+    if (addIndex >= 0) {
+      return list.map((x, i) => i === addIndex
+        ? { ...x, collection: { ...x.collection, ...(op.patch || {}) } }
+        : x);
+    }
+  }
+
   let next = list;
   if (op.kind === "item_clear_bucket") {
     next = list.filter(x => !(x?.bucket === op.bucket && ["item_upsert", "item_delete", "item_clear_bucket"].includes(x.kind)));
