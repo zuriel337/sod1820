@@ -368,6 +368,8 @@ export default function SystemFrame2029({
   const [commandQuery, setCommandQuery] = useState("");
   const [shareState, setShareState] = useState(null);
   const panelRef = useRef(null);
+  const navRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const returnFocusRef = useRef(null);
   const context = research.context || null;
   const currentHref = `${location.pathname}${location.search || ""}${location.hash || ""}`;
@@ -427,12 +429,17 @@ export default function SystemFrame2029({
     requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }, []);
 
+  const closeMobileNav = useCallback((restoreFocus = true) => {
+    setNavOpen(false);
+    if (restoreFocus) requestAnimationFrame(() => mobileMenuRef.current?.focus?.());
+  }, []);
+
   const openTransient = useCallback((kind, payload = null) => {
-    returnFocusRef.current = document.activeElement;
+    returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
     setShareState(null);
     setTransient({ kind, payload });
     setNavOpen(false);
-  }, []);
+  }, [navOpen]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   const openInspect = useCallback((subject = null) => openTransient(TRANSIENT.INSPECT, { subject: normalizeTarget(subject) }), [openTransient]);
@@ -451,12 +458,12 @@ export default function SystemFrame2029({
       }
       if (event.key === "Escape") {
         if (transient) { event.preventDefault(); closeTransient(); }
-        else if (navOpen) { event.preventDefault(); setNavOpen(false); }
+        else if (navOpen) { event.preventDefault(); closeMobileNav(true); }
       }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [openCommand, closeTransient, transient, navOpen]);
+  }, [openCommand, closeTransient, closeMobileNav, transient, navOpen]);
 
   useEffect(() => {
     if (!transient || !panelRef.current) return undefined;
@@ -476,6 +483,25 @@ export default function SystemFrame2029({
     panel.addEventListener("keydown", trap);
     return () => panel.removeEventListener("keydown", trap);
   }, [transient?.kind]);
+
+  useEffect(() => {
+    if (!navOpen || !navRef.current) return undefined;
+    const nav = navRef.current;
+    const focusables = [...nav.querySelectorAll(FOCUSABLE)];
+    const initial = nav.querySelector("[data-autofocus]") || focusables[0] || nav;
+    requestAnimationFrame(() => initial.focus?.());
+    const trap = (event) => {
+      if (event.key !== "Tab") return;
+      const current = [...nav.querySelectorAll(FOCUSABLE)];
+      if (!current.length) { event.preventDefault(); nav.focus(); return; }
+      const first = current[0];
+      const last = current[current.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    nav.addEventListener("keydown", trap);
+    return () => nav.removeEventListener("keydown", trap);
+  }, [navOpen]);
 
   useEffect(() => {
     const readSelection = () => {
@@ -649,7 +675,7 @@ export default function SystemFrame2029({
         <div className="sod29-main">
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
-              <button className="sod29-mobile-menu-trigger" type="button" onClick={() => setNavOpen(true)} aria-label="פתח ניווט">☰</button>
+              <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger" type="button" onClick={() => setNavOpen(true)} aria-label="פתח ניווט" aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">☰</button>
               <div className="sod29-orientation" aria-label="איפה אני">
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
                 {context?.subject ? <><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></> : null}
@@ -684,12 +710,20 @@ export default function SystemFrame2029({
         </div>
 
         {navOpen ? <>
-          <div className="sod29-mobile-drawer-backdrop" onMouseDown={() => setNavOpen(false)} />
-          <aside className="sod29-mobile-drawer" aria-label="ניווט">
-            <div className="sod29-mobile-drawer-head"><b>לאן ממשיכים?</b><button type="button" onClick={() => setNavOpen(false)} aria-label="סגור">×</button></div>
-            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => setNavOpen(false)} />
-            <NavGroup title="מחקר ישיר" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => setNavOpen(false)} />
-            <button className="sod29-sidebar-workspace" type="button" onClick={() => { setNavOpen(false); openWorkspace(); }}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
+          <div className="sod29-mobile-drawer-backdrop" onMouseDown={() => closeMobileNav(true)} />
+          <aside
+            id="sod29-mobile-navigation"
+            className="sod29-mobile-drawer"
+            ref={navRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="ניווט SOD1820 2029"
+            tabIndex={-1}
+          >
+            <div className="sod29-mobile-drawer-head"><b>לאן ממשיכים?</b><button data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור">×</button></div>
+            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
+            <NavGroup title="מחקר ישיר" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} />
+            <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace}><span className="sod29-nav-icon">◎</span><span>האזור האישי שלי</span></button>
           </aside>
         </> : null}
 
