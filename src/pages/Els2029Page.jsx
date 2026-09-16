@@ -11,8 +11,8 @@ export default function Els2029Page() {
     research.updateResearchContext?.({ lens: "els" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <Sod2029Shell wide eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="המשטח החדש אינו מחשב ELS בעצמו. הוא מארח את Work Area הקיים שמקרין את המנוע הקנוני, בתוך אותו Research Context ו־Raziel.">
-    <section className="sod29-section" style={{ padding: 0, overflow: "hidden" }}>
+  return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="אותו מנוע קנוני, עכשיו בתוך סביבת המחקר המשותפת: העוגן, ההקשר, רזיאל והחזרה המדויקת נשארים איתך גם כשנכנסים למטריצה.">
+    <section className="sod29-tool-stage">
       <ElsWorkAreaPage />
     </section>
   </Sod2029Shell>;
