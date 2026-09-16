@@ -101,75 +101,50 @@ export async function saveCloudNotes(userId, content) {
   );
 }
 
-// ── עולם-המשתמש בענן (עץ אחד) ──
-// פריטים (cart/saved/pinned) = research_items (שורה-לפריט, מחובר-לגרף, קנוני).
-// collections/journeys/history/context = user_research (בלוב מצב-משתמש). ה-interface נשאר זהה
-// {cart,saved,pinned,history,collections,journeys,context} → ResearchProvider לא יוצר Store חדש.
-const RI_BUCKET = { cart: 'cart', saved: 'library', pinned: 'pinned' };
+// ── Research OS personal cloud state — G3 principal-bound sync ──
+// The server derives the real actor from auth.uid(). p_expected_user_id is only a stale-request
+// guard, so an A-request that races with a switch to B fails instead of mutating B's state.
+// Item deletion is explicit-operation only; absence from a browser snapshot is never delete intent.
+async function assertResearchPrincipal(userId) {
+  const expected = String(userId || '').trim();
+  if (!expected) throw new Error('research_principal_required');
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  const current = data?.session?.user?.id || null;
+  if (!current || current !== expected) throw new Error('research_principal_mismatch');
+  return current;
+}
 
 export async function getCloudResearch(userId) {
-  if (!userId) return null;
-  const [itemsRes, blobRes] = await Promise.all([
-    supabase.from('research_items').select('bucket, entity_type, entity_ref, title, link, metadata').eq('user_id', userId),
-    supabase.from('user_research').select('data').eq('user_id', userId).maybeSingle(),
-  ]);
-  const out = { cart: [], saved: [], pinned: [] };
-  for (const r of itemsRes.data || []) {
-    const key = r.bucket === 'library' ? 'saved' : r.bucket; // library→saved
-    if (!out[key]) continue;
-    // ⛑️ לא מפילים שורה בגלל metadata חסר — משחזרים ישות מינימלית מהעמודות (אחרת המחיקה-הסלקטיבית
-    //    בשמירה הבאה היתה מוחקת אותה כ"לא-קיימת-מקומית").
-    out[key].push(r.metadata || { type: r.entity_type, ref: r.entity_ref, id: r.entity_ref, title: r.title, link: r.link });
+  const expected = await assertResearchPrincipal(userId);
+  const { data, error } = await supabase.rpc('research_state_snapshot_v1', {
+    p_expected_user_id: expected,
+  });
+  if (error) throw error;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('research_snapshot_invalid');
   }
-  const b = blobRes.data?.data || {};
   return {
-    ...out,
-    history: b.history || [],
-    collections: b.collections || [],
-    journeys: b.journeys || [],
-    context: b.context || null,
+    cart: Array.isArray(data.cart) ? data.cart : [],
+    saved: Array.isArray(data.saved) ? data.saved : [],
+    pinned: Array.isArray(data.pinned) ? data.pinned : [],
+    history: Array.isArray(data.history) ? data.history : [],
+    collections: Array.isArray(data.collections) ? data.collections : [],
+    journeys: Array.isArray(data.journeys) ? data.journeys : [],
+    context: data.context ?? null,
   };
 }
 
-export async function saveCloudResearch(userId, data) {
-  if (!userId) return;
-  const d = data || {};
-  // 1) מצב לא-פריטים → בלוב (user_research). context הוא מצב-ניווט/מחקר אישי, לא Truth Store.
-  await supabase.from('user_research').upsert(
-    {
-      user_id: userId,
-      data: {
-        history: d.history || [],
-        collections: d.collections || [],
-        journeys: d.journeys || [],
-        context: d.context || null,
-      },
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'user_id' }
-  );
-  // 2) פריטים → research_items — **לא-הרסני** (תיקון באג-ניגוב-שמורים):
-  //    היה delete-all-then-insert מונע מהמצב המקומי; מצב-ריק (מרוץ-הידרציה/דסינק) ניגב את הענן,
-  //    וה-insert העטוף ב-catch בלע כשלים. עכשיו: upsert (לא הורס) + מחיקה סלקטיבית של פריטים שהוסרו בפועל.
-  const rows = [];
-  const seen = new Set();
-  for (const [srcKey, bucket] of Object.entries(RI_BUCKET)) {
-    for (const e of (d[srcKey] || [])) {
-      if (!e || !e.type) continue;
-      const ref = String(e.ref ?? e.id ?? e.title ?? '');
-      const k = `${bucket}|${e.type}|${ref}`;
-      if (seen.has(k)) continue;
-      seen.add(k);
-      rows.push({ user_id: userId, bucket, entity_type: e.type, entity_ref: ref, title: e.title ?? null, link: e.link ?? null, metadata: e });
-    }
-  }
-  // 🛡️ הגנת-נתונים: מצב מקומי ריק לעולם לא מנגב את הענן. מחיקה מתרחשת רק כשיש פריטים,
-  //    וגם אז רק על מה שהוסר בפועל (reconcile), לא מחיקה-גורפת.
-  if (!rows.length) return;
-  await supabase.from('research_items').upsert(rows, { onConflict: 'user_id,bucket,entity_type,entity_ref' });
-  const keep = new Set(rows.map(r => `${r.bucket}|${r.entity_type}|${r.entity_ref}`));
-  const { data: existing } = await supabase.from('research_items')
-    .select('id, bucket, entity_type, entity_ref').eq('user_id', userId).in('bucket', Object.values(RI_BUCKET));
-  const stale = (existing || []).filter(r => !keep.has(`${r.bucket}|${r.entity_type}|${r.entity_ref}`)).map(r => r.id);
-  if (stale.length) await supabase.from('research_items').delete().in('id', stale);
+export async function applyCloudResearchOps(userId, ops) {
+  const expected = await assertResearchPrincipal(userId);
+  const batch = Array.isArray(ops) ? ops : [];
+  if (!batch.length) return { ok: true, applied: 0 };
+  if (batch.length > 100) throw new Error('research_ops_batch_too_large');
+  const { data, error } = await supabase.rpc('research_state_apply_ops_v1', {
+    p_expected_user_id: expected,
+    p_ops: batch,
+  });
+  if (error) throw error;
+  if (!data?.ok) throw new Error('research_ops_apply_failed');
+  return data;
 }
