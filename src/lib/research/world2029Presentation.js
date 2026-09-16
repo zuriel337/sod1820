@@ -15,9 +15,22 @@ export function worldProjectionCounts(data) {
   });
 }
 
+// A resolved Reality Graph identity contributes one provenance timestamp to the
+// timeline even when there is no surrounding research material at all. That
+// baseline identity event must not make an otherwise-empty anchor look medium.
+// The visible timeline count remains untouched; only presentation density drops
+// that single structural event from the density decision.
+export function worldDensityCounts(data) {
+  const counts = worldProjectionCounts(data);
+  return Object.freeze({
+    ...counts,
+    timeline: Math.max(0, counts.timeline - (data?.identity ? 1 : 0)),
+  });
+}
+
 export function classifyWorldPresentationDensity(data) {
   if (!data?.identity) return "unavailable";
-  const counts = worldProjectionCounts(data);
+  const counts = worldDensityCounts(data);
   const values = Object.values(counts);
   const populatedChannels = values.filter((count) => count > 0).length;
   const boundedItems = values.reduce((sum, count) => sum + Math.min(count, 24), 0);
@@ -30,6 +43,6 @@ export function classifyWorldPresentationDensity(data) {
 }
 
 export function worldHasAnyMaterial(data) {
-  const counts = worldProjectionCounts(data);
+  const counts = worldDensityCounts(data);
   return Object.values(counts).some((count) => count > 0);
 }
