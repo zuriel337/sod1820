@@ -7,9 +7,11 @@ on:
       - "src/main2029.jsx"
       - "src/App2029.jsx"
       - "src/components/experience2029/**"
+      - "src/lib/designTokens.js"
       - "vite.config.js"
       - "vercel.json"
       - "scripts/test-2029-isolation.mjs"
+      - "scripts/test-2029-built-graph.mjs"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -24,10 +26,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - name: Static isolation regression
+      - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Production build
         run: npm run build
+      - name: Built dependency graph isolation
+        run: node scripts/test-2029-built-graph.mjs
       - name: Verify isolated HTML artifact
         run: |
           test -f dist/2029.html
