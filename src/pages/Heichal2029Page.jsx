@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
@@ -8,7 +8,7 @@ import { applySeo } from "../lib/seo.js";
 const ACTIONS = [
   { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/research?tool=gematria", live: true },
   { id: "sources", label: "חפש במקורות", detail: "Books / Sources", to: "/books", live: true },
-  { id: "text", label: "חקור טקסט", detail: "ELS / Biblical Cipher", to: "/lab/els", live: true },
+  { id: "text", label: "חקור טקסט", detail: "ELS / Biblical Cipher", to: "/els", live: true },
   { id: "world", label: "פתח בעולם", detail: "Research World", to: "/world", live: true },
   { id: "compare", label: "השווה", detail: "Compare research mode", live: false },
   { id: "patterns", label: "חקור דפוס", detail: "Pattern / Sequence workbench", live: false },
@@ -16,7 +16,6 @@ const ACTIONS = [
 ];
 
 function NoContextEntry() {
-  const navigate = useNavigate();
   const research = useResearch();
   const shell = use2029Shell();
   const [query, setQuery] = useState("");
@@ -157,7 +156,7 @@ function ActiveResearchEnvironment() {
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
-        <Link className="sod29-action" to="/lab/els">ELS</Link>
+        <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
         <button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button>
       </div>
