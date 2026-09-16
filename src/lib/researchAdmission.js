@@ -5,11 +5,22 @@ const VERIFICATION_STATES = new Set(['match', 'mismatch', 'method_unknown', 'not
 
 function cleanVerification(input) {
   if (!input || typeof input !== 'object') {
-    return { state: 'not_tested', owner: null, detail: null };
+    return { valid: true, state: 'not_tested', owner: null, detail: null };
   }
-  const state = VERIFICATION_STATES.has(input.state) ? input.state : 'not_tested';
+
+  // truth_axes_foundation_law v3 PR2: explicit invalid semantic input must never
+  // be silently laundered into a valid-looking verification state.
+  if (input.state != null && !VERIFICATION_STATES.has(input.state)) {
+    return {
+      valid: false,
+      reason: 'invalid_verification_state',
+      inputState: String(input.state),
+    };
+  }
+
   return {
-    state,
+    valid: true,
+    state: input.state ?? 'not_tested',
     owner: input.owner || null,
     detail: input.detail ?? null,
   };
@@ -30,6 +41,15 @@ export function makeResearchAdmissionEnvelope({
 } = {}) {
   if (!sourceType || !sourceRef) {
     return { admitted: false, reason: 'missing_source_identity' };
+  }
+
+  const verificationPayload = cleanVerification(verification);
+  if (!verificationPayload.valid) {
+    return {
+      admitted: false,
+      reason: verificationPayload.reason,
+      invalidVerificationState: verificationPayload.inputState,
+    };
   }
 
   const extractionPayload = extraction && typeof extraction === 'object'
@@ -56,7 +76,11 @@ export function makeResearchAdmissionEnvelope({
     intrinsicPayload: intrinsicPayload ?? null,
     historicalContext: historicalContext ?? null,
     extraction: extractionPayload,
-    verification: cleanVerification(verification),
+    verification: {
+      state: verificationPayload.state,
+      owner: verificationPayload.owner,
+      detail: verificationPayload.detail,
+    },
     governance: {
       humanGateRequiredForCanonicalPromotion: true,
       canonical: false,
