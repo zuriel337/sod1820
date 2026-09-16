@@ -1,6 +1,7 @@
 -- SOD1820 — G3-F Follow provenance idempotency
 -- Claude READ_ONLY challenge A: two concurrent first-follow calls can both append
 -- subscribe_events before notification_prefs ON CONFLICT serializes the projection.
+-- Lock is identity-global (not topic-only) so guest->account claim can share the same barrier.
 -- Preserve append-only re-follow history while serializing only the current transition.
 
 create or replace function public.watch_toggle(
@@ -35,10 +36,11 @@ begin
     v_lock_identity := 'visitor:' || v_vis;
   end if;
 
-  -- Transaction-scoped lock prevents duplicate provenance rows for simultaneous transitions
-  -- without imposing a permanent UNIQUE constraint that would erase legitimate re-follow cycles.
+  -- One lock per Follow identity projection. This prevents duplicate first-follow provenance
+  -- and creates the shared barrier used by guest->account claim, without a permanent UNIQUE
+  -- constraint that would erase legitimate follow→unfollow→follow history.
   perform pg_advisory_xact_lock(
-    hashtextextended(v_lock_identity || '|follow|' || v_topic, 0)
+    hashtextextended(v_lock_identity || '|follow-identity', 0)
   );
 
   if v_uid is not null then
