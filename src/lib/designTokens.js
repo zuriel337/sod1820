@@ -4,6 +4,15 @@
 // that were previously implicit/local while color remains owned by palette.js,
 // chrome color by chromeTheme.js, and world semantics by worlds.js.
 
+// Canonical-forward font roles. Legacy theme.js may continue exposing aliases,
+// but greenfield surfaces consume these roles without importing legacy presentation payload.
+export const FONT = Object.freeze({
+  ui: "'Assistant', Arial, sans-serif",
+  body: "'Assistant', Arial, sans-serif",
+  display: "'Assistant', Arial, sans-serif",
+  numeric: "'Courier New', monospace",
+});
+
 export const SPACE = Object.freeze({
   0: 0,
   1: 4,
