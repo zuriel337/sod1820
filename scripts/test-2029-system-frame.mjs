@@ -140,6 +140,18 @@ assert.match(css, /safe-area-inset-bottom/);
 assert.match(css, /prefers-reduced-motion:reduce/);
 for (const width of [390, 360, 320]) assert.match(css, new RegExp(`max-width:${width}px`));
 
+// Mobile navigation is a real modal navigation projection with its own focus
+// containment; it must not leak keyboard focus behind the backdrop.
+assert.match(frame, /const navRef = useRef\(null\)/);
+assert.match(frame, /const mobileMenuRef = useRef\(null\)/);
+assert.match(frame, /if \(!navOpen \|\| !navRef\.current\) return undefined/);
+assert.match(frame, /nav\.addEventListener\("keydown", trap\)/);
+assert.match(frame, /id="sod29-mobile-navigation"/);
+assert.match(frame, /ref=\{navRef\}/);
+assert.match(frame, /aria-controls="sod29-mobile-navigation"/);
+assert.match(frame, /data-autofocus/);
+assert.match(frame, /closeMobileNav\(true\)/);
+
 // Generic native surface exists independently of World-specific data/rendering.
 assert.match(app, /path="\/2029"/);
 assert.match(home, /<Sod2029Shell/);
