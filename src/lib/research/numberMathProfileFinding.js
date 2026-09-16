@@ -6,7 +6,7 @@ export function numberMathProfileToUniversalFinding(profile) {
   const number = profile.input?.value;
   if (!Number.isSafeInteger(number) || number < 0) return null;
   const sourceIdentity = `number-math-profile:${number}@${profile.profile_version || NUMBER_MATH_PROFILE_VERSION}`;
-  const refs = profile.families
+  const externalReferenceIds = profile.families
     .map(f => f?.reference?.source_ref)
     .filter(Boolean);
 
@@ -42,7 +42,9 @@ export function numberMathProfileToUniversalFinding(profile) {
       verification_state: 'not_tested',
     },
     evidence: {
-      refs,
+      // External OEIS IDs are static catalog/definition pointers and were not fetched for this run;
+      // they therefore do not masquerade as evidence refs for the individual result.
+      refs: [],
       facts: [
         {
           type: 'number-arithmetic-profile',
@@ -64,7 +66,8 @@ export function numberMathProfileToUniversalFinding(profile) {
           family_label: f.label,
           category: f.category,
           details: f.details,
-          source_ref: f.reference?.source_ref || null,
+          external_reference: f.reference || null,
+          external_reference_role: f.reference?.role || null,
         })),
       ],
       score: null,
@@ -82,6 +85,8 @@ export function numberMathProfileToUniversalFinding(profile) {
         profile_version: profile.profile_version,
         family_keys: profile.families.map(f => f.key),
         factorization_complete: profile.coverage?.factorization_complete ?? null,
+        external_reference_ids: externalReferenceIds,
+        external_reference_lookup: profile.coverage?.external_reference_lookup ?? null,
       },
     },
   });
