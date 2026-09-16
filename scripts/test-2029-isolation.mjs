@@ -17,6 +17,7 @@ const sw = read("public/sw.js");
 
 // Document/entry isolation: 2029 does not inherit legacy PWA/brand/bootstrap assets.
 assert.match(html2029, /src\/main2029\.jsx/);
+assert.match(html2029, /rel="icon" href="data:,"/, "2029 must suppress implicit /favicon.ico -> /logo.png fallback");
 for (const forbidden of ["site.webmanifest", "/logo.png", "src/main.jsx", "adminTheme", "VisualFoundationBase", "LightboxVisualFoundation"]) {
   assert.equal(html2029.includes(forbidden), false, `2029.html must not load legacy entry asset: ${forbidden}`);
 }
