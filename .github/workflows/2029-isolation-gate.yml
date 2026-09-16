@@ -12,12 +12,27 @@ on:
       - "src/lib/tracking.js"
       - "src/lib/supabase.js"
       - "src/lib/research/**"
+      - "src/lib/gematria.js"
+      - "src/lib/engine.js"
+      - "src/theme.js"
+      - "src/components/GematriaCalculator.jsx"
+      - "src/components/CanonicalGematriaCalculator.jsx"
+      - "src/components/GematriaCalculatorLegacy.jsx"
+      - "src/components/GematriaMiniDemo.jsx"
+      - "src/components/GematriaCube.jsx"
+      - "src/components/GematriaCalculator3D.jsx"
+      - "src/components/MethodAnalyze.jsx"
+      - "src/pages/CommunityCalculatorPage.jsx"
       - "package.json"
       - "package-lock.json"
       - "vite.config.js"
       - "vercel.json"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
+      - "scripts/test-gematria-authority-isolation.mjs"
+      - "test/normalize-parity.test.mjs"
+      - "test/fixtures/normalize-parity.json"
+      - "test/canonical-gematria-live-shape.test.mjs"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
@@ -34,6 +49,12 @@ jobs:
       - run: npm ci
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
+      - name: Gematria authority isolation regression
+        run: node scripts/test-gematria-authority-isolation.mjs
+      - name: Legacy JS / canonical SQL parity snapshot
+        run: node test/normalize-parity.test.mjs
+      - name: Canonical Gematria finding adapter shape
+        run: node --test test/canonical-gematria-live-shape.test.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation

@@ -22,6 +22,7 @@ const visit = (key) => {
 visit(entryPair[0]);
 
 const forbiddenSources = [
+  // Legacy presentation/runtime boundary.
   "src/App.jsx",
   "src/main.jsx",
   "src/lib/appHeal.js",
@@ -35,13 +36,27 @@ const forbiddenSources = [
   "src/components/UpdateBanner.jsx",
   "src/components/SitePromoPopup.jsx",
   "src/components/RoyalShareWidget.jsx",
+
+  // G3-D: local Gematria execution is compatibility only. None of these client calculation
+  // surfaces/contracts may become route-reachable in the isolated 2029 dependency graph.
+  "src/components/GematriaCalculator.jsx",
+  "src/components/CanonicalGematriaCalculator.jsx",
+  "src/components/GematriaCalculatorLegacy.jsx",
+  "src/components/GematriaMiniDemo.jsx",
+  "src/components/GematriaCube.jsx",
+  "src/components/GematriaCalculator3D.jsx",
+  "src/components/MethodAnalyze.jsx",
+  "src/pages/CommunityCalculatorPage.jsx",
+  "src/lib/research/gematriaCalculationContract.js",
+  "src/lib/research/coreEngine.js",
+  "src/lib/engine.js",
 ];
 
 const reachable = [...seen].map((key) => ({ key, ...manifest[key] }));
 for (const item of reachable) {
   const identity = `${item.key} ${item.src || ""} ${item.name || ""}`;
   for (const forbidden of forbiddenSources) {
-    assert.equal(identity.includes(forbidden), false, `legacy presentation module reachable from 2029 build: ${forbidden} via ${identity}`);
+    assert.equal(identity.includes(forbidden), false, `forbidden legacy/local-authority module reachable from 2029 build: ${forbidden} via ${identity}`);
   }
 }
 
@@ -63,4 +78,5 @@ for (const item of reachable) {
 }
 
 console.log("2029 built dependency graph: PASS");
+console.log("Gematria local-authority reachability: PASS (not reachable from 2029)");
 console.log(`reachable manifest records: ${reachable.length}`);
