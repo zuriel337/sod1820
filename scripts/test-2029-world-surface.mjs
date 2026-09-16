@@ -34,6 +34,14 @@ assert.match(world, /אין fallback/);
 // The route is a direct isolated 2029 deep link.
 assert.match(app, /path="\/world"/);
 
+// Every World -> Books transition must go through System Frame so return_exact is snapshotted.
+assert.equal(world.includes('to="/books"'), false, "World must not bypass System Frame with a bare Books link");
+assert.equal(world.includes("from \"react-router-dom\""), false, "World should not need direct router links for cross-surface Books transitions");
+const shellBookTransitions = [...world.matchAll(/shell\.go\((?:`|")\/books/g)].length;
+assert.equal(shellBookTransitions, 3, "book card, book facet header, and anchored sources must all route through shell.go");
+assert.match(world, /function AnchoredWorld\(\{ research, shell, subject \}\)/);
+assert.match(world, /<AnchoredWorld research=\{research\} shell=\{shell\} subject=\{subject\} \/>/);
+
 // Density is presentation-only and must gracefully cover rich / medium / sparse.
 const sparse = { identity: { nodeId: "s", type: "number", label: "832" } };
 const medium = {
