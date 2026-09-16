@@ -40,6 +40,14 @@ export function normalizeResearchState(value) {
   };
 }
 
+export function hasMeaningfulResearchState(value) {
+  const s = normalizeResearchState(value);
+  return Boolean(
+    s.cart.length || s.saved.length || s.pinned.length || s.history.length ||
+    s.collections.length || s.journeys.length || s.context,
+  );
+}
+
 export function entityRef(entity) {
   if (!entity || typeof entity !== "object") return "";
   return String(entity.ref ?? entity.id ?? entity.title ?? "").trim();
@@ -80,13 +88,21 @@ export function appendResearchOp(existing, op) {
   const list = Array.isArray(existing) ? existing : [];
   if (!op?.kind) return list;
 
-  // Add + update before a cloud flush must remain an ADD with the final fields, otherwise an
-  // update against a collection that does not exist yet would be a no-op on the server.
+  // Add/update collapse must preserve ALL fields and must use the newest op_id. The newest id is
+  // deliberate: if an older version is already in flight, its acknowledgment must not remove the
+  // newer merged mutation that was queued while that request was running.
   if (op.kind === "collection_update" && op.id) {
     const addIndex = list.findIndex(x => x?.kind === "collection_add" && x?.collection?.id === op.id);
     if (addIndex >= 0) {
       return list.map((x, i) => i === addIndex
-        ? { ...x, collection: { ...x.collection, ...(op.patch || {}) } }
+        ? { ...x, op_id: op.op_id, collection: { ...x.collection, ...(op.patch || {}) } }
+        : x);
+    }
+
+    const updateIndex = list.findIndex(x => x?.kind === "collection_update" && x?.id === op.id);
+    if (updateIndex >= 0) {
+      return list.map((x, i) => i === updateIndex
+        ? { ...x, ...op, patch: { ...(x.patch || {}), ...(op.patch || {}) }, op_id: op.op_id }
         : x);
     }
   }
@@ -103,6 +119,46 @@ export function appendResearchOp(existing, op) {
   const key = opDedupeKey(op);
   if (key) next = next.filter(x => opDedupeKey(x) !== key);
   return [...next, op];
+}
+
+export function acknowledgeResearchOps(existing, sentIds) {
+  const ids = sentIds instanceof Set ? sentIds : new Set(Array.isArray(sentIds) ? sentIds : []);
+  if (!ids.size) return Array.isArray(existing) ? existing : [];
+  return (Array.isArray(existing) ? existing : []).filter(op => !ids.has(op?.op_id));
+}
+
+// Legacy v1 state had no principal binding. It is never auto-adopted. This helper only converts
+// a snapshot after an explicit recovery action by the current user. It emits additive/upsert ops
+// and never emits deletion/clear operations, so recovery cannot erase current cloud state.
+export function legacySnapshotToResearchOps(value) {
+  const s = normalizeResearchState(value);
+  const out = [];
+
+  for (const entity of s.cart) {
+    if (entityIdentity(entity)) out.push(makeResearchOp("item_upsert", { bucket: "cart", entity }));
+  }
+  for (const entity of s.saved) {
+    if (entityIdentity(entity)) out.push(makeResearchOp("item_upsert", { bucket: "library", entity }));
+  }
+  for (const entity of s.pinned) {
+    if (entityIdentity(entity)) out.push(makeResearchOp("item_upsert", { bucket: "pinned", entity }));
+  }
+
+  // Replay oldest -> newest because history_add prepends and caps at 50.
+  for (const entity of [...s.history].reverse()) {
+    if (entity?.id) out.push(makeResearchOp("history_add", { entity }));
+  }
+  for (const collection of s.collections) {
+    if (collection?.id) out.push(makeResearchOp("collection_add", { collection }));
+  }
+  // Replay oldest -> newest because journey_add prepends and caps at 30.
+  for (const journey of [...s.journeys].reverse()) {
+    if (journey?.id) out.push(makeResearchOp("journey_add", { journey }));
+  }
+
+  // Legacy context is intentionally NOT adopted automatically or by generic recovery. Active
+  // Research Context is session navigation state and exact resume needs a dedicated user choice.
+  return out;
 }
 
 function replaceEntity(list, entity) {
