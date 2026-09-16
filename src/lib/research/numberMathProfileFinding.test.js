@@ -13,8 +13,12 @@ test('number math profile becomes a truth-safe Universal Finding without auto-pr
   assert.equal(finding.verification.verification_state, 'not_tested');
   assert.equal(finding.verification.engine_method_tested, 'number_math_profile');
   assert.equal(finding.subject.value, 496);
-  assert.ok(finding.evidence.refs.includes('OEIS:A000396'));
-  assert.ok(finding.evidence.refs.includes('OEIS:A000217'));
+  assert.deepEqual(finding.evidence.refs, []);
+  assert.ok(finding.projection.dimensions.external_reference_ids.includes('OEIS:A000396'));
+  assert.ok(finding.projection.dimensions.external_reference_ids.includes('OEIS:A000217'));
+  assert.equal(finding.projection.dimensions.external_reference_lookup, 'not_executed');
+  const perfectFact = finding.evidence.facts.find(x => x.family_key === 'perfect');
+  assert.equal(perfectFact.external_reference_role, 'definition_pointer_unfetched');
   assert.equal(out.truth_lifecycle.automatic_canonical_promotion, false);
   assert.equal(out.truth_lifecycle.automatic_publication, false);
 });
