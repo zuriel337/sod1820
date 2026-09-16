@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { F } from "../../theme.js";
+import { F, LOGO_URL } from "../../theme.js";
+import { usePalette } from "../../lib/palette.js";
+import { LAYOUT, MOTION, RADIUS } from "../../lib/designTokens.js";
 import SpaceBackground from "../layout/SpaceBackground.jsx";
 import AskRaziel from "../AskRaziel.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -25,27 +27,25 @@ const NAV = [
   { to: "/heichal", label: "היכל", icon: "◇" },
 ];
 
-const RAZIEL_PALETTE = {
-  card: "rgba(12,10,18,.96)",
-  cardSoft: "rgba(255,255,255,.035)",
-  cardGrad: "linear-gradient(160deg,rgba(18,17,28,.98),rgba(8,10,17,.98))",
-  border: "rgba(216,184,98,.23)",
-  accent: "#d8b862",
-  accentText: "#f0d98e",
-  accentDim: "#a8a9b3",
-  glow: "rgba(216,184,98,.09)",
-  ink: "#f4f0e6",
-};
-
 function activeClass({ isActive }) {
   return `sod29-nav-link${isActive ? " active" : ""}`;
 }
 
-export default function Sod2029Shell({ title, eyebrow, description, children, status = "2029 · G3", wide = false }) {
+export default function Sod2029Shell({
+  title,
+  eyebrow,
+  description,
+  children,
+  status = "2029 · BUILD",
+  wide = false,
+  surface = "system",
+  symbol = "✦",
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
   const userCenter = useUserCenter();
+  const palette = usePalette();
   const [razielOpen, setRazielOpen] = useState(false);
   const context = research.context || null;
 
@@ -85,6 +85,39 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
     returnExact,
   }), [go, returnExact]);
 
+  const shellStyle = useMemo(() => ({
+    "--s29-page": palette.pageBg,
+    "--s29-panel": palette.card,
+    "--s29-panel-soft": palette.cardSoft,
+    "--s29-panel-grad": palette.cardGrad,
+    "--s29-line": palette.border,
+    "--s29-line-strong": palette.borderStrong,
+    "--s29-accent": palette.accent,
+    "--s29-accent-text": palette.accentText,
+    "--s29-hero": palette.heroNum,
+    "--s29-ink": palette.ink,
+    "--s29-muted": palette.inkSoft,
+    "--s29-glow": palette.glow,
+    "--s29-on-accent": palette.onAccent,
+    "--s29-accent-btn": palette.accentBtn,
+    "--s29-radius": `${RADIUS.xl}px`,
+    "--s29-control-min": `${LAYOUT.controlMinHeight}px`,
+    "--s29-motion": `${MOTION.duration.normal}ms`,
+    fontFamily: F.body,
+  }), [palette]);
+
+  const razielPalette = useMemo(() => ({
+    card: palette.card,
+    cardSoft: palette.cardSoft,
+    cardGrad: palette.cardGrad,
+    border: palette.border,
+    accent: palette.accent,
+    accentText: palette.accentText,
+    accentDim: palette.inkSoft,
+    glow: palette.glow,
+    ink: palette.ink,
+  }), [palette]);
+
   const razielSubject = context?.subject?.label || title || "המחקר הנוכחי";
   const razielContext = [
     context?.subject ? `עוגן: ${context.subject.type}:${context.subject.label || context.subject.id}` : null,
@@ -95,11 +128,13 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
 
   return (
     <ShellContext.Provider value={shellApi}>
-      <div className="sod29-root" dir="rtl" style={{ fontFamily: F.body }}>
+      <div className={`sod29-root surface-${surface}`} dir="rtl" style={shellStyle}>
         <SpaceBackground />
+        <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
+
         <aside className="sod29-sidebar" aria-label="ניווט 2029">
           <Link to="/2029" className="sod29-brand" onClick={() => preserveReturnFor("/2029")}>
-            <span className="sod29-brand-mark">ס</span>
+            <span className="sod29-brand-mark"><img src={LOGO_URL} alt="" /></span>
             <span><b>SOD 1820</b><small>Research OS · 2029</small></span>
           </Link>
           <nav className="sod29-nav">
@@ -114,7 +149,7 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
           </button>
           <div className="sod29-side-foot">
             <span className="sod29-live-dot" /> {status}
-            <small>האתר הישן נשאר production עד Cutover מפורש.</small>
+            <small>סביבת הבנייה החיה של SOD1820 החדש.</small>
           </div>
         </aside>
 
@@ -134,17 +169,23 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
           <main className={`sod29-content${wide ? " wide" : ""}`}>
             {(eyebrow || title || description) ? (
               <section className="sod29-page-intro">
-                {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
-                {title ? <h1>{title}</h1> : null}
-                {description ? <p>{description}</p> : null}
-                {context ? (
-                  <div className="sod29-context-strip" aria-label="Research Context פעיל">
-                    {context.subject ? <span>עוגן · {context.subject.label || context.subject.id}</span> : null}
-                    {context.lens ? <span>עדשה · {context.lens}</span> : null}
-                    {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
-                    {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
-                  </div>
-                ) : null}
+                <div className="sod29-hero-visual" aria-hidden="true">
+                  <i className="ring ring-a" /><i className="ring ring-b" /><i className="ring ring-c" />
+                  <span className="sod29-hero-symbol">{symbol}</span>
+                </div>
+                <div className="sod29-hero-copy">
+                  {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
+                  {title ? <h1 style={{ fontFamily: F.display }}>{title}</h1> : null}
+                  {description ? <p>{description}</p> : null}
+                  {context ? (
+                    <div className="sod29-context-strip" aria-label="Research Context פעיל">
+                      {context.subject ? <span>עוגן · {context.subject.label || context.subject.id}</span> : null}
+                      {context.lens ? <span>עדשה · {context.lens}</span> : null}
+                      {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
+                      {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
+                    </div>
+                  ) : null}
+                </div>
               </section>
             ) : null}
             {children}
@@ -166,7 +207,7 @@ export default function Sod2029Shell({ title, eyebrow, description, children, st
                 greeting={context?.subject ? `אני איתך בתוך המחקר על ${razielSubject}. אפשר להעמיק בלי לאבד את המקום.` : "אין כרגע עוגן מחקר פעיל. אפשר להתחיל מכאן ולבנות הקשר."}
                 title="רזיאל · שכבת המחקר"
                 subtitle="הקשר מהעמוד · עובדות מהמנועים · פרשנות מסומנת בנפרד"
-                palette={RAZIEL_PALETTE}
+                palette={razielPalette}
                 metatron
                 cta={false}
               />
