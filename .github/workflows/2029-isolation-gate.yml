@@ -54,7 +54,7 @@ jobs:
       - name: Legacy JS / canonical SQL parity snapshot
         run: node test/normalize-parity.test.mjs
       - name: Canonical Gematria finding adapter shape
-        run: node --test test/canonical-gematria-live-shape.test.mjs
+        run: node test/canonical-gematria-live-shape.test.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation
