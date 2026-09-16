@@ -11,6 +11,8 @@ const canonical = read("src/lib/research/canonicalGematria.js");
 const registry = read("src/lib/research/gematriaMethodRegistry.js");
 const localContract = read("src/lib/research/gematriaCalculationContract.js");
 const coreEngine = read("src/lib/research/coreEngine.js");
+const calculatorEntry = read("src/components/GematriaCalculator.jsx");
+const canonicalCalculator = read("src/components/CanonicalGematriaCalculator.jsx");
 const legacy = read("src/components/GematriaCalculatorLegacy.jsx");
 const community = read("src/pages/CommunityCalculatorPage.jsx");
 const mini = read("src/components/GematriaMiniDemo.jsx");
@@ -23,7 +25,9 @@ const methodAnalyze = read("src/components/MethodAnalyze.jsx");
 assert.match(app2029, /window\.location\.assign\(href\)/, "2029 non-native routes must cross the document boundary");
 assert.match(heichal2029, /to=["']\/research\?tool=gematria["']/, "2029 calculate action must remain a legacy-document handoff until a native canonical server consumer exists");
 for (const forbidden of [
+  "GematriaCalculator",
   "GematriaCalculatorLegacy",
+  "CanonicalGematriaCalculator",
   "CommunityCalculatorPage",
   "GematriaMiniDemo",
   "GematriaCube",
@@ -48,7 +52,14 @@ for (const forbidden of ["method.fn(", "calcGem(", "calculateGematriaEnvelope("]
 assert.match(registry, /\.from\(["']v_method_states["']\)/, "method state consumer must read the canonical live Registry projection");
 assert.equal(/METHOD_COUNT|FIXED_METHOD_COUNT|EXPECTED_METHOD_COUNT/.test(registry), false, "Registry consumer must not preserve a fixed method count");
 
-// Certification of the five legacy surfaces at this branch point. These assertions deliberately
+// The historically named calculator entry points are NOT server authority. GematriaCalculator is
+// only a re-export; CanonicalGematriaCalculator wraps Legacy and creates its calculation envelope
+// through the local calculation contract. The name "Canonical" must never be treated as proof.
+assert.match(calculatorEntry, /CanonicalGematriaCalculator/, "GematriaCalculator entry classification changed; re-certify authority boundary");
+assert.match(canonicalCalculator, /GematriaCalculatorLegacy/, "CanonicalGematriaCalculator must be re-certified if it stops wrapping Legacy");
+assert.match(canonicalCalculator, /calculateGematriaEnvelope/, "CanonicalGematriaCalculator local-envelope classification changed; re-certify authority boundary");
+
+// Certification of the five requested legacy surfaces at this branch point. These assertions
 // classify, rather than bless, the remaining local execution. If a surface is migrated later this
 // test should be updated together with its retirement classification.
 assert.ok(legacy.includes("value: m.fn(word)"), "GematriaCalculatorLegacy classification changed; re-certify authority boundary");
@@ -63,6 +74,7 @@ assert.ok(localContract.includes("value: method.fn(raw)"), "local calculation co
 assert.ok(coreEngine.includes("calculateGematriaEnvelope"), "research core calculation dependency changed; re-certify authority boundary");
 assert.ok(methodAnalyze.includes("calculateGematriaEnvelope"), "MethodAnalyze calculation dependency changed; re-certify authority boundary");
 for (const [name, source] of [
+  ["CanonicalGematriaCalculator", canonicalCalculator],
   ["GematriaCalculatorLegacy", legacy],
   ["CommunityCalculatorPage", community],
   ["GematriaMiniDemo", mini],
@@ -76,5 +88,5 @@ for (const [name, source] of [
 
 console.log("G3-D Gematria authority isolation: PASS");
 console.log("SERVER/REGISTRY authority path: canonicalGematria -> gematria_api; method states -> v_method_states");
-console.log("LOCAL compatibility classified: GematriaCalculatorLegacy, CommunityCalculatorPage, GematriaMiniDemo, gematriaCalculationContract, coreEngine, MethodAnalyze");
+console.log("LOCAL compatibility classified: GematriaCalculator entry, CanonicalGematriaCalculator, GematriaCalculatorLegacy, CommunityCalculatorPage, GematriaMiniDemo, gematriaCalculationContract, coreEngine, MethodAnalyze");
 console.log("RETIRED: GematriaCube, GematriaCalculator3D");
