@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # מחולל בסיס-נתוני התנ"ך המלא (24 ספרים) ממקור MAM (Sefaria) — תואם בדיוק לקבצי-התורה הקיימים.
 import json, re, time, sys, urllib.request
+from pathlib import Path
 
 # (Sefaria API name, Hebrew label) — 39 יחידות-ספר (= 24 ספרי התנ"ך)
 BOOKS = [
@@ -23,7 +24,7 @@ def clean_verse(s):
     for ch in s:
         o = ord(ch)
         if 0x05D0 <= o <= 0x05EA: out.append(ch)        # אות עברית בסיסית
-        elif ch == '־': pass                        # מקף (מקאף) → איחוד בלי רווח (כמו בתורה)
+        elif ch == '־': out.append(' ')                 # מקף (מקאף) = גבול מילה בתצוגה/חיפוש; לא מאחדים מילים
         elif ch.isspace(): out.append(' ')               # רווח/שורה
         # ניקוד · טעמים · סוף-פסוק · פיסוק → נשמטים
     return re.sub(r'\s+', ' ', ''.join(out)).strip()
@@ -69,10 +70,11 @@ for bi,(name,he) in enumerate(BOOKS):
     time.sleep(0.4)
 
 all_letters = ''.join(letters_parts)
-out_dir = "/home/user/sod1820/public"
-with open(out_dir+"/tanakh-verses.json","w",encoding="utf-8") as f:
+out_dir = Path(__file__).resolve().parents[2] / "public"
+out_dir.mkdir(parents=True, exist_ok=True)
+with open(out_dir/"tanakh-verses.json","w",encoding="utf-8") as f:
     json.dump({"books":books_he,"method":"רגיל","bookRanges":book_ranges,"verses":verses}, f, ensure_ascii=False, separators=(',',':'))
-with open(out_dir+"/tanakh-letters.txt","w",encoding="utf-8") as f:
+with open(out_dir/"tanakh-letters.txt","w",encoding="utf-8") as f:
     f.write(all_letters)
 
 print(f"\nTOTAL: books={len(BOOKS)} verses={len(verses)} letters={len(all_letters)}", file=sys.stderr)
