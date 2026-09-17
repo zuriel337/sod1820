@@ -1,0 +1,109 @@
+/* SOD1820 2029 · Human-Gate Command Island polish
+   Presentation-only extension of the canonical System Frame.
+   Stable capabilities remain Command / Inspect / Raziel / Attention / Tools.
+   This file changes only projection: familiar labeled controls + centered Raziel presence.
+   DOM order now matches visual and keyboard/screen-reader traversal order.
+   No new navigation, context, capability, truth, or AI owner is introduced. */
+
+/* Default to persistent short labels: these actions are not yet universal icon metaphors.
+   This favors discoverability, keyboard clarity and mobile learnability over icon-only chrome. */
+.sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb){
+  min-width:58px;
+  height:52px;
+  padding:3px 7px;
+  border-radius:17px;
+}
+.sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb) > span{
+  font-size:15px;
+}
+.sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb) > small{
+  position:static;
+  width:auto;
+  height:auto;
+  overflow:visible;
+  clip-path:none;
+  white-space:nowrap;
+  opacity:.86;
+  font-size:9px;
+  font-weight:800;
+  line-height:1.1;
+}
+
+/* Raziel is the continuous companion presence, so it may carry slightly stronger visual weight
+   while remaining the same single semantic capability and the same panel/runtime. */
+.sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact{
+  min-width:62px;
+  width:62px;
+  height:62px;
+  margin-block:-6px;
+  padding:4px;
+  border-radius:50%;
+}
+.sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact .sod29-raziel-orb-core{
+  width:40px;
+  height:40px;
+}
+
+/* Mobile preserves persistent labels while keeping five bounded targets inside 320/360/390. */
+@media(max-width:620px){
+  .sod29-root.native-frame .sod29-command-island{
+    gap:1px;
+    padding:5px;
+  }
+  .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb){
+    min-width:48px;
+    width:48px;
+    height:50px;
+    padding:2px;
+  }
+  .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb) > small{
+    font-size:8px;
+  }
+  .sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact{
+    min-width:56px;
+    width:56px;
+    height:56px;
+    margin-block:-3px;
+  }
+  .sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact .sod29-raziel-orb-core{
+    width:36px;
+    height:36px;
+  }
+}
+
+@media(max-width:390px){
+  .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb){
+    min-width:45px;
+    width:45px;
+  }
+  .sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact{
+    min-width:52px;
+    width:52px;
+    height:54px;
+  }
+}
+
+@media(max-width:360px){
+  .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb){
+    min-width:43px;
+    width:43px;
+  }
+  .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb) > small{
+    font-size:7.5px;
+  }
+}
+
+@media(max-width:320px){
+  .sod29-root.native-frame .sod29-command-island{
+    padding-inline:3px;
+  }
+  .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb){
+    min-width:40px;
+    width:40px;
+  }
+  .sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact{
+    min-width:48px;
+    width:48px;
+    height:52px;
+  }
+}
