@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { buildUploadIntent, mayVerifyPath, validateDeclaredFile, SIX_MIB } from "../supabase/functions/media-upload-intent/contract.mjs";
-import { encodeTusMetadata, TUS_CHUNK_SIZE, TUS_VERSION } from "../src/lib/mediaResumableUpload.js";
+import { encodeTusMetadata, TUS_CHUNK_SIZE, TUS_VERSION, uploadResumableMedia } from "../src/lib/mediaResumableUpload.js";
 
 const USER = "11111111-1111-4111-8111-111111111111";
 const CONTRIBUTOR = "22222222-2222-4222-8222-222222222222";
@@ -39,5 +39,58 @@ assert.ok(metadata.includes(",objectName "));
 assert.ok(metadata.includes(",contentType "));
 assert.equal(TUS_CHUNK_SIZE, 6 * 1024 * 1024);
 assert.equal(TUS_VERSION, "1.0.0");
+
+// Lost PATCH response after the server accepted the first chunk: HEAD advances the offset,
+// and the retry must slice from that new server offset rather than replaying old bytes.
+const total = TUS_CHUNK_SIZE + 16;
+const file = new Blob([new Uint8Array(total)], { type: "video/mp4" });
+const intent = {
+  bucket: "media",
+  path: publicVideo.path,
+  mime: "video/mp4",
+  size: total,
+  signed_upload: { token: "signed-token" },
+  tus: {
+    endpoint: "https://project.storage.supabase.co/storage/v1/upload/resumable",
+    chunk_size: TUS_CHUNK_SIZE,
+    metadata: { bucketName: "media", objectName: publicVideo.path, contentType: "video/mp4" },
+  },
+};
+const originalFetch = globalThis.fetch;
+let serverOffset = 0;
+let firstPatch = true;
+let secondPatchOffset = null;
+globalThis.fetch = async (url, options = {}) => {
+  const method = options.method || "GET";
+  if (method === "POST") {
+    return new Response(null, { status: 201, headers: { location: "https://upload.test/tus/1", "upload-offset": "0" } });
+  }
+  if (method === "HEAD") {
+    return new Response(null, { status: 204, headers: { "upload-offset": String(serverOffset) } });
+  }
+  if (method === "PATCH") {
+    const sentOffset = Number(options.headers["Upload-Offset"]);
+    if (firstPatch) {
+      firstPatch = false;
+      assert.equal(sentOffset, 0);
+      assert.equal(options.body.size, TUS_CHUNK_SIZE);
+      serverOffset = TUS_CHUNK_SIZE;
+      throw new TypeError("simulated lost response");
+    }
+    secondPatchOffset = sentOffset;
+    assert.equal(sentOffset, TUS_CHUNK_SIZE);
+    assert.equal(options.body.size, 16);
+    serverOffset = total;
+    return new Response(null, { status: 204, headers: { "upload-offset": String(total) } });
+  }
+  throw new Error(`unexpected fetch ${method} ${url}`);
+};
+try {
+  const uploaded = await uploadResumableMedia(file, intent, { retryDelays: [0, 0] });
+  assert.equal(uploaded.ok, true);
+  assert.equal(secondPatchOffset, TUS_CHUNK_SIZE);
+} finally {
+  globalThis.fetch = originalFetch;
+}
 
 console.log("G3 media upload runtime acceptance: PASS");
