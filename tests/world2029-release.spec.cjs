@@ -192,6 +192,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   const exactReturn = page.locator('.sod29-header-actions button[title]').first();
   await expect(exactReturn).toBeDisabled();
 
+  await page.getByRole('button', { name: /קשרים/ }).first().click();
   const deepen = page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first();
   await expect(deepen).toBeVisible();
   await deepen.focus();
