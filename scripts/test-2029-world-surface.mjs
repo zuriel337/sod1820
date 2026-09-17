@@ -11,6 +11,7 @@ const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const world = read("src/pages/World2029Page.jsx");
 const app = read("src/App2029.jsx");
+const experienceContext = read("src/lib/experienceContext.js");
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);
@@ -26,6 +27,41 @@ assert.equal(world.includes("UserCenter"), false);
 assert.equal(world.includes('status="LIVE"'), false, "branch-only iteration must not claim a new LIVE state");
 assert.match(world, /status="עולם · גילוי"/);
 
+// World is the first runtime consumer of the released shared Experience Context.
+assert.match(world, /EXPERIENCE_SURFACE/);
+assert.match(world, /resolveExperienceContext/);
+assert.match(world, /surface:\s*EXPERIENCE_SURFACE\.WORLD/);
+assert.match(world, /WORLD_EXPERIENCE\.experience\.question/);
+assert.match(world, /WORLD_EXPERIENCE\.brand\.identity/);
+assert.match(world, /WORLD_EXPERIENCE\.brand\.canonicalLatinIdentity/);
+assert.match(experienceContext, /\[EXPERIENCE_SURFACE\.WORLD\]/);
+assert.match(experienceContext, /question:\s*"מה מתחבר\?"/);
+assert.match(experienceContext, /semanticsSurviveDowngrade:\s*true/);
+
+// Brand is consumed semantically. World must not invent or substitute protected artwork locally.
+assert.equal(world.includes("/logo.png"), false, "World must not use /logo.png as a Master Mark substitute");
+assert.equal(world.includes("master_crown_transparent"), false, "asset-key resolution belongs to the shared Experience/Brand owner, not World");
+assert.equal(world.includes("WorldBrand"), false);
+
+// Cross-cutting capabilities stay in shared owners; no World-specific variants.
+for (const forbidden of [
+  "WorldContext",
+  "WorldFrame",
+  "WorldNavigation",
+  "WorldRaziel",
+  "WorldSearch",
+  "WorldCommand",
+  "WorldWorkspace",
+  "WorldShare",
+  "WorldTrace",
+  "WorldEntitlement",
+]) {
+  assert.equal(world.includes(forbidden), false, `${forbidden} must not be created inside World`);
+}
+assert.equal(world.includes("site_flags"), false, "World must not resolve availability locally");
+assert.equal(world.includes("platform_tiers"), false, "World must not resolve entitlement locally");
+assert.equal(world.includes("operationalTraceContract"), false, "lightweight World navigation must not fake a local operational trace");
+
 // Public World copy speaks discovery/product language, not implementation/debug language.
 for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים",
@@ -40,6 +76,7 @@ for (const oldCopy of [
 }
 assert.match(world, /העולם פתוח/);
 assert.match(world, /בחר נקודה וגלה מה מתחבר אליה/);
+assert.match(world, /דברים שכבר קיימים במערכת/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) {
@@ -62,9 +99,10 @@ assert.match(world, /<AnchoredWorld research=\{research\} shell=\{shell\} subjec
 assert.match(world, /fetchEntityHubProjection\(\{ nodeId: targetNodeId/);
 assert.match(world, /shell\.openInspect\(/);
 assert.match(world, /returnTo:\s*\{[\s\S]*href: "\/world"/);
-assert.equal(world.includes("WorldContext"), false);
-assert.equal(world.includes("WorldFrame"), false);
-assert.equal(world.includes("WorldNavigation"), false);
+
+// Relation vocabulary is humanized only at presentation; the canonical relation value remains untouched underneath.
+assert.match(world, /function relationLabel/);
+assert.match(world, /relationStatement\(finding, relation\?\.relationType\)/);
 
 // Density is presentation-only and must gracefully cover rich / medium / sparse.
 const sparse = {
