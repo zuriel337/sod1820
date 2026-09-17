@@ -1,0 +1,43 @@
+name: Media Upload Runtime Gate
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/media-upload-runtime-gate.yml'
+      - 'supabase/functions/media-upload-intent/**'
+      - 'supabase/migrations/20260917160000_submission_inbox_limits_v1.sql'
+      - 'src/lib/mediaResumableUpload.js'
+      - 'scripts/media-path.mjs'
+      - 'scripts/test-media-upload-runtime.mjs'
+      - 'docs/sod1820-media-ingress-storage-convention-v1.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Exact-head assertion
+        if: github.event_name == 'pull_request'
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - name: Media upload runtime acceptance
+        run: node scripts/test-media-upload-runtime.mjs
+      - name: Fail closed on unsafe private-bucket grants
+        run: |
+          set -euo pipefail
+          ! grep -R "submission-inbox.*public.*true" -n supabase/migrations supabase/functions || false
+          ! grep -R "grant .*submission-inbox.*anon\|grant .*submission-inbox.*authenticated" -ni supabase/migrations supabase/functions || false
+          grep -q "public = false" supabase/migrations/20260917160000_submission_inbox_limits_v1.sql
+          grep -q 'createSignedUploadUrl' supabase/functions/media-upload-intent/index.ts
+          grep -q 'x-signature' supabase/functions/media-upload-intent/index.ts
+          grep -q 'storage/v1/upload/resumable' supabase/functions/media-upload-intent/index.ts
