@@ -96,6 +96,15 @@ const SORT_LABELS = Object.freeze({
   number_desc: "מספר יורד",
 });
 
+const WORLD_LANES = Object.freeze([
+  { key: "overview", label: "מבט כללי" },
+  { key: "calculations", label: "גימטריה" },
+  { key: "sources", label: "מקורות" },
+  { key: "relations", label: "קשרים" },
+  { key: "research", label: "מחקר" },
+  { key: "timeline", label: "זמן" },
+]);
+
 function subjectKey(subject) {
   if (!subject?.id || !subject?.type) return null;
   return `${subject.type}:${subject.id}`;
@@ -419,6 +428,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [relationSort, setRelationSort] = useState("recommended");
   const [whyOpen, setWhyOpen] = useState(null);
   const [adminMode, setAdminMode] = useState(false);
+  const [activeLane, setActiveLane] = useState("overview");
   const key = subjectKey(subject);
 
   useEffect(() => {
@@ -428,6 +438,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setRelationFilter("all");
     setRelationSort("recommended");
     setWhyOpen(null);
+    setActiveLane("overview");
     fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 40, topicLimit: 10 })
       .then(async (data) => {
         if (!alive) return;
@@ -466,6 +477,15 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const prominenceItems = prominence?.items || [];
   const gematriaRows = useMemo(() => worldGematriaRows(data), [data]);
   const sourceRows = data?.sources || [];
+  const anchorProfile = data?.anchorProfile?.finding?.projection?.dimensions?.legacyNumberAnchor || null;
+  const laneCounts = {
+    overview: prominenceItems.length,
+    calculations: gematriaRows.length,
+    sources: sourceRows.length,
+    relations: graphRelations.length,
+    research: researchFindings.length + (data?.topics?.findings?.length || 0) + (data?.numberWorlds?.length || 0),
+    timeline: data?.timeline?.length || 0,
+  };
   const adminSummary = useMemo(() => {
     const byAccess = {};
     const byGovernance = {};
@@ -484,6 +504,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const backToWorld = () => {
     research.clearResearchContext?.();
     research.updateResearchContext?.({ lens: "world" });
+  };
+
+  const openNumberPage = () => {
+    if (data?.identity?.type !== "number") return;
+    shell.go(`/number/${encodeURIComponent(data.identity.label)}`);
   };
 
   const inspectFinding = (finding) => {
@@ -597,6 +622,49 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
       </section>
 
+      {anchorProfile ? <section className="sod29-section sod29-world-anchor-profile" aria-label={`פרופיל עוגן ${data.identity.label}`}>
+        <div className="sod29-section-head">
+          <div>
+            <div className="sod29-kicker">פרופיל עוגן · אוצרות מחקרית מתפתחת</div>
+            <h2>מה חשוב לדעת על {data.identity.label}</h2>
+          </div>
+          <button className="sod29-action" type="button" onClick={openNumberPage}>לדף המספר ←</button>
+        </div>
+        <div className="sod29-world-anchor-profile-grid">
+          <div className="sod29-world-anchor-profile-main">
+            {anchorProfile.category ? <span className="sod29-chip">{anchorProfile.category}</span> : null}
+            {anchorProfile.fact ? <strong>{anchorProfile.fact}</strong> : <strong>עוגן מחקרי ל־{data.identity.label}</strong>}
+            {anchorProfile.hint ? <p>{anchorProfile.hint}</p> : null}
+          </div>
+          <aside className="sod29-world-anchor-profile-note">
+            <b>איך לקרוא את זה?</b>
+            <p>זהו פרופיל אוצרות מחקרי שמתפתח עם העבודה. הוא אינו מחליף חישוב מנוע, מקור, אימות או החלטת פרסום. דף המספר נשאר הבית הייעודי לחישוב ולביטוי; World מציג את ההקשר סביב המספר.</p>
+          </aside>
+        </div>
+      </section> : null}
+
+      <section className="sod29-section sod29-world-orientation" aria-label="התמצאות בעולם">
+        <div className="sod29-section-head">
+          <div>
+            <div className="sod29-kicker">התמצאות</div>
+            <h2>מה אתה רוצה לראות עכשיו?</h2>
+          </div>
+        </div>
+        <div className="sod29-world-lanes" role="group" aria-label="בחירת שכבה בעולם">
+          {WORLD_LANES.map((lane) => <button
+            key={lane.key}
+            className={`sod29-action sod29-world-lane${activeLane === lane.key ? " primary" : ""}`}
+            type="button"
+            aria-pressed={activeLane === lane.key}
+            onClick={() => setActiveLane(lane.key)}
+          >
+            <span>{lane.label}</span>
+            <small>{laneCounts[lane.key] || 0}</small>
+          </button>)}
+        </div>
+        <div className="sod29-muted sod29-world-orientation-note">הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר. תמונות ומדיה יקבלו שכבה חזותית נפרדת בפס הבא.</div>
+      </section>
+
       {adminMode ? <section className="sod29-section" aria-label="מצב מנהל">
         <div className="sod29-section-head"><div><div className="sod29-kicker">מצב מנהל</div><h2>ראות ובקרה על מה שהשרת החזיר</h2></div></div>
         <FrameState title="הרשאות נשארות בשרת">מצב מנהל אינו עוקף הרשאות בדפדפן ואינו מסדר את העולם ידנית. הוא מציג בנפרד Access, Governance ו־Verification לחומר שהחשבון המנהל מורשה לקרוא.</FrameState>
@@ -610,9 +678,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
       {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="הנקודה קיימת, אבל סביבה מעט חומר כרגע">זהו מצב תקין. העולם נשאר שקט במקום להמציא קשרים, מקורות או דברים שלא נמצאו.</FrameState></NativeStateSection> : null}
       {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מהחומר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
 
-      {state.prominenceError ? <NativeStateSection><FrameState kind="unavailable" title="העיקר עדיין לא זמין">שאר שכבות העולם ממשיכות להופיע. לא נבחר תחליף מלאכותי.</FrameState></NativeStateSection> : null}
+      {activeLane === "overview" && state.prominenceError ? <NativeStateSection><FrameState kind="unavailable" title="העיקר עדיין לא זמין">שאר שכבות העולם ממשיכות להופיע. לא נבחר תחליף מלאכותי.</FrameState></NativeStateSection> : null}
 
-      {prominenceItems.length ? <section className="sod29-section sod29-world-primary-section" aria-label={`העיקר סביב ${data.identity.label}`}>
+      {activeLane === "overview" && prominenceItems.length ? <section className="sod29-section sod29-world-primary-section" aria-label={`העיקר סביב ${data.identity.label}`}>
         <div className="sod29-world-primary-head">
           <div>
             <div className="sod29-kicker">קודם מה שמשנה את התמונה</div>
@@ -649,7 +717,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
       </section> : null}
 
-      {gematriaRows.length ? <section className="sod29-section sod29-world-human-section">
+      {activeLane === "calculations" && gematriaRows.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">גימטריות וביטויים</div><h2>חישובים שנפתחים מהנקודה הזאת</h2></div>
         </div>
@@ -662,7 +730,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
       </section> : null}
 
-      {sourceRows.length ? <section className="sod29-section sod29-world-human-section">
+      {activeLane === "sources" && sourceRows.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">פסוקים ומקורות</div><h2>מאיפה החומר מגיע</h2></div>
           <button className="sod29-action" type="button" onClick={() => shell.go("/books")}>ספרים ומקורות</button>
@@ -683,7 +751,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
       </section> : null}
 
-      {graphRelations.length ? <section className="sod29-section">
+      {activeLane === "relations" && graphRelations.length ? <section className="sod29-section">
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">קשרים</div><h2>מה מחובר לכאן</h2></div>
           <label className="sod29-chip">מיון&nbsp;
@@ -724,17 +792,17 @@ function AnchoredWorld({ research, shell, subject, context }) {
         })}</div>
       </section> : null}
 
-      {data.topics?.findings?.length ? <section className="sod29-section">
+      {activeLane === "research" && data.topics?.findings?.length ? <section className="sod29-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>חיבורים שנפגשים כאן</h2></div></div>
         <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
       </section> : null}
 
-      {data.numberWorlds?.length ? <section className="sod29-section">
+      {activeLane === "research" && data.numberWorlds?.length ? <section className="sod29-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">משפחות תוכן</div><h2>עוד הקשרים סביב המספר</h2></div></div>
         <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
       </section> : null}
 
-      {researchFindings.length ? <section className="sod29-section sod29-world-human-section">
+      {activeLane === "research" && researchFindings.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">עוד מחקר</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
         <div className="sod29-list">{researchFindings.slice(0, 12).map((finding, index) => {
           const verificationState = finding.verification?.verification_state || null;
@@ -757,7 +825,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         })}</div>
       </section> : null}
 
-      {data.timeline?.length ? <section className="sod29-section sod29-world-human-section">
+      {activeLane === "timeline" && data.timeline?.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">זמן מחקר</div><h2>נוסף למחקר</h2></div></div>
         <div className="sod29-muted sod29-world-time-note">התאריכים כאן מציינים מתי החומר או הייצוג נכנסו למערכת. הם אינם מוצגים כזמן היסטורי של האירוע אלא אם מקור זמן ייעודי מציין זאת במפורש.</div>
         <div className="sod29-list">{data.timeline.slice(-8).map((item, index) => {
