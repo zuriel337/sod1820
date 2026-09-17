@@ -1,4 +1,4 @@
-# SOD1820 — MASTER ROADMAP v6.3 COMPACT
+# SOD1820 — MASTER ROADMAP v6.4 COMPACT
 
 **Date:** 2026-09-17  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
@@ -25,6 +25,8 @@ Closure evidence:
 **Current phase: G3 — Foundation runtime / implementation.**
 
 Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependency-plan-v1.md`.
+
+**Release-semantics pointer:** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. Active `deploy_on_request` **v2** + `inter_agent_coordination_law` **v13** provide standing Human-Gate authorization for routine gate-clean, dependency-clean releases; any older wording in planning/history that requires a fresh `תעלה` for every routine merge/deploy is superseded. Explicit Human Gate remains required for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement.
 
 ## 2029 North Star — owner pointers only
 
@@ -134,7 +136,7 @@ These remain preserved capabilities under `platform_tiers_law v4`; defer != dele
 
 ### 1. INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME — EARLY FOUNDATION/RUNTIME PRIORITY
 
-Owner: active `inter_agent_coordination_law` v12.
+Owner: active `inter_agent_coordination_law` v13.
 
 Target flow:
 
@@ -150,10 +152,10 @@ Mandatory properties:
 - provenance and exact AFTER/result linkage;
 - READ_ONLY specialist challenge may auto-dispatch when runtime exists;
 - WRITE remains governed;
-- merge/deploy/publish/canonicalization never gain automatic authorization;
+- routine gate-clean/dependency-clean merge/deploy may auto-release under active release owners; explicit Human Gate remains for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement;
 - EXTEND_EXISTING only: no second Agent System, Queue authority, Coordination Store or Truth Store.
 
-Current state: **NOT IMPLEMENTED · G3 PRIORITY**.
+Current state: **EVENT-DRIVEN GPT↔CLAUDE DISPATCH LIVE · STANDING DEPENDENCY-AWARE AUTO-RELEASE ACTIVE · CONTINUE COVERAGE/HARDENING IN G3**.
 
 ### 2. AGENT MEDIA / FILE TOOL ADAPTER — EARLY FOUNDATION/RUNTIME PRIORITY
 
@@ -174,7 +176,7 @@ Rules:
 - no reusable admin secret;
 - no second Upload System, Storage owner, media store or agent-specific upload path.
 
-Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
+Current state: **BRIDGE EXISTS · URL-RELAY IMAGE TRANSPORT LIVE · BROADER FILE/PRIVATE/LARGE-MEDIA ADAPTERS STILL IN G3**.
 
 ### 3. Core runtime seams / safety before broad Goldens
 
@@ -264,8 +266,8 @@ Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Att
 
 Only decision-changing open items belong here:
 
-- exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v12;
-- exact runtime integration mechanics for the existing agent media/file upload bridge;
+- exact remaining hardening/coverage mechanics for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v13;
+- exact runtime integration mechanics for the existing agent media/file upload bridge beyond the live bounded image URL relay;
 - exact physical trace/span persistence + propagation mechanics that extend current AI/cost logs without creating disconnected telemetry;
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
