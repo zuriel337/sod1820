@@ -301,12 +301,15 @@ function sourceCandidates(data) {
   }).filter(Boolean);
 }
 
-function temporalControlCandidate(inputs) {
+function temporalControlCandidate(inputs, { includePrivate = false } = {}) {
   const event = inputs?.eventContext;
   const occurredAt = clean(event?.occurredAt);
   if (!occurredAt) return null;
+  const visibleRows = asArray(event?.researchRows).filter((row) => (
+    includePrivate || PUBLIC_RESEARCH_ACCESS.has(row?.privacy_scope ?? null)
+  ));
   const occurredDate = occurredAt.slice(0, 10);
-  const researchDates = [...new Set(asArray(event?.researchRows)
+  const researchDates = [...new Set(visibleRows
     .map((row) => clean(row?.source_ref))
     .map((ref) => ref?.match(/#event:(\d{4}-\d{2}-\d{2})(?::|$)/)?.[1] || null)
     .filter(Boolean))];
@@ -333,7 +336,7 @@ function temporalControlCandidate(inputs) {
     temporal: { occurredAt, sourcePublishedAt: event?.post?.date || null, conflictingResearchDates: conflicting },
     access: { tier: null },
     signals: {},
-    provenance: { refs: asArray(event?.researchRows).map((row) => clean(row?.source_ref)).filter(Boolean), createdAt: null },
+    provenance: { refs: visibleRows.map((row) => clean(row?.source_ref)).filter(Boolean), createdAt: null },
   };
 }
 
@@ -440,7 +443,7 @@ export function buildWorldContextualProminence(data, inputs = {}, {
   const cap = Math.max(1, Math.min(Math.trunc(Number(limit) || 7), 7));
   const comparatorOptions = { timeAware: Boolean(timeAware) };
 
-  const temporalControl = temporalControlCandidate(inputs);
+  const temporalControl = temporalControlCandidate(inputs, { includePrivate });
   let candidates = [
     ...graphCandidates(data),
     ...researchCandidates(data, inputs),
