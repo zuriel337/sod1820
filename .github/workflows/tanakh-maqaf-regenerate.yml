@@ -17,10 +17,18 @@ jobs:
         with:
           ref: gpt/tanakh-maqaf-word-boundaries-v1
           fetch-depth: 1
-      - name: Preserve current ELS stream
+      - name: Preserve current corpus and canonical ELS stream
         run: |
-          cp public/tanakh-letters.txt /tmp/tanakh-letters.before.txt
+          cp tools/els/data/tk-letters.txt /tmp/tanakh-letters.before.txt
           cp public/tanakh-verses.json /tmp/tanakh-verses.before.json
+          python3 - <<'PY'
+          import json, pathlib
+          FIN = {'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}
+          tv=json.loads(pathlib.Path('public/torah-verses.json').read_text(encoding='utf-8'))
+          letters=''.join(''.join(FIN.get(c,c) for c in v[3] if c!=' ') for v in tv['verses'])
+          assert len(letters)==304805, f'canonical Torah letters={len(letters)}, expected 304805'
+          pathlib.Path('public/torah-letters.txt').write_text(letters, encoding='utf-8')
+          PY
       - name: Regenerate Tanakh from canonical source
         run: |
           python3 scripts/tanakh/gen_tanakh.py
@@ -58,6 +66,7 @@ jobs:
           PY
       - name: Commit regenerated corpus and update plan
         run: |
+          rm -f public/torah-letters.txt public/tanakh-letters.txt
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add public/tanakh-verses.json scripts/tanakh/generated_maqaf_updates.sql scripts/tanakh/generated_maqaf_summary.txt
