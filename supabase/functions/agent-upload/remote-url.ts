@@ -80,46 +80,52 @@ export async function fetchRemoteImage(rawUrl: string, expectedMime: string, max
   if (!current) return { ok: false, status: 403, error: "remote url is not an allowed HTTPS media host" };
 
   for (let hop = 0; hop <= 4; hop++) {
-    let r: Response;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000);
     try {
-      r = await fetch(current.toString(), {
+      const r = await fetch(current.toString(), {
         method: "GET",
         redirect: "manual",
+        signal: controller.signal,
         headers: { "Accept": expectedMime },
       });
+
+      if ([301, 302, 303, 307, 308].includes(r.status)) {
+        const location = r.headers.get("location");
+        if (!location) return { ok: false, status: 502, error: "remote redirect missing location" };
+        const next = checkedUrl(location, current);
+        if (!next) return { ok: false, status: 403, error: "remote redirect host is not allowed" };
+        current = next;
+        continue;
+      }
+
+      if (!r.ok) return { ok: false, status: 502, error: `remote source returned ${r.status}` };
+
+      const declaredLength = Number(r.headers.get("content-length") || "0");
+      if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
+        return { ok: false, status: 413, error: "remote payload exceeds ticket size" };
+      }
+
+      const declaredType = (r.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+      if (declaredType && declaredType !== "application/octet-stream" && declaredType !== expectedMime) {
+        return { ok: false, status: 415, error: "remote content-type does not match ticket mime" };
+      }
+
+      const bytes = await readCapped(r.body, maxBytes);
+      if (!bytes) return { ok: false, status: 413, error: "remote payload exceeds ticket size" };
+      if (bytes.byteLength === 0) return { ok: false, status: 502, error: "remote payload is empty" };
+
+      const sniffed = sniffImageMime(bytes);
+      if (sniffed !== expectedMime) return { ok: false, status: 415, error: "remote bytes do not match ticket mime" };
+
+      return { ok: true, bytes, source_host: normalizeHost(current.hostname) };
     } catch {
-      return { ok: false, status: 502, error: "remote fetch failed" };
+      return controller.signal.aborted
+        ? { ok: false, status: 504, error: "remote fetch timed out" }
+        : { ok: false, status: 502, error: "remote fetch failed" };
+    } finally {
+      clearTimeout(timeout);
     }
-
-    if ([301, 302, 303, 307, 308].includes(r.status)) {
-      const location = r.headers.get("location");
-      if (!location) return { ok: false, status: 502, error: "remote redirect missing location" };
-      const next = checkedUrl(location, current);
-      if (!next) return { ok: false, status: 403, error: "remote redirect host is not allowed" };
-      current = next;
-      continue;
-    }
-
-    if (!r.ok) return { ok: false, status: 502, error: `remote source returned ${r.status}` };
-
-    const declaredLength = Number(r.headers.get("content-length") || "0");
-    if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
-      return { ok: false, status: 413, error: "remote payload exceeds ticket size" };
-    }
-
-    const declaredType = (r.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
-    if (declaredType && declaredType !== "application/octet-stream" && declaredType !== expectedMime) {
-      return { ok: false, status: 415, error: "remote content-type does not match ticket mime" };
-    }
-
-    const bytes = await readCapped(r.body, maxBytes);
-    if (!bytes) return { ok: false, status: 413, error: "remote payload exceeds ticket size" };
-    if (bytes.byteLength === 0) return { ok: false, status: 502, error: "remote payload is empty" };
-
-    const sniffed = sniffImageMime(bytes);
-    if (sniffed !== expectedMime) return { ok: false, status: 415, error: "remote bytes do not match ticket mime" };
-
-    return { ok: true, bytes, source_host: normalizeHost(current.hostname) };
   }
 
   return { ok: false, status: 508, error: "too many remote redirects" };
