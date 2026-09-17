@@ -10,6 +10,8 @@ import UpdatesBox from "../components/UpdatesBox.jsx";
 import SavedMatricesGallery from "../components/SavedMatricesGallery.jsx";
 import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 
+const ELS_PREMIUM_PREVIEW = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/agent/els/fa6474a8-b4fb-4895-b033-75634b52596d/els-rebuild-premium.png";
+
 const REBUILD_LAYERS = [
   {
     icon: "א",
@@ -43,7 +45,6 @@ const REBUILD_LAYERS = [
   },
 ];
 
-// דף הבנייה מחדש של הצופן. זהו Projection בלבד — המנוע הקנוני נשמר מתחת ואדמין ממשיך לגשת אליו.
 function CodeClosed({ message }) {
   const P = usePalette();
   return (
@@ -76,7 +77,13 @@ function CodeClosed({ message }) {
           href="https://www.thefirstverse.com/he?via=user-31"
           target="_blank"
           rel="noopener noreferrer sponsored"
-          style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 44, padding: "10px 20px", borderRadius: 999, textDecoration: "none", background: P.accentText, color: P.pageBg, border: `1px solid ${P.accentText}`, fontFamily: F.heading, fontSize: 13.5, fontWeight: 900 }}
+          style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+            minHeight: 48, padding: "11px 22px", borderRadius: 999, textDecoration: "none",
+            background: P.accentBtn, color: P.onAccent, border: `1px solid ${P.accent}`,
+            boxShadow: `0 0 0 1px ${P.borderStrong || P.border}, 0 8px 28px ${P.glow}`,
+            fontFamily: F.heading, fontSize: 14, fontWeight: 900,
+          }}
         >
           המשך אל The First Verse ↗
         </a>
@@ -93,7 +100,7 @@ function CodeClosed({ message }) {
           </figcaption>
         </figure>
         <figure style={{ margin: 0, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 22, padding: 10, overflow: "hidden" }}>
-          <img src="/els-rebuild-system-preview.webp" alt="הצצה לכיוון מערכת המחקר החדשה" style={{ width: "100%", height: "100%", maxHeight: 520, objectFit: "contain", borderRadius: 15, display: "block", background: P.pageBg }} />
+          <img src={ELS_PREMIUM_PREVIEW} alt="הצצה איכותית לכיוון מערכת המחקר החדשה" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", maxHeight: 520, objectFit: "cover", borderRadius: 15, display: "block", background: P.cardSoft || P.card }} />
           <figcaption style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, padding: "10px 5px 3px", textAlign: "center" }}>
             הצצה לכיוון מערכת המחקר החדשה — אותה חקירה, הרבה שכבות
           </figcaption>
@@ -132,21 +139,17 @@ function CodeClosed({ message }) {
   );
 }
 
-// הצופן התנ"כי — מנוע אחד בלבד. כאשר lock_els פעיל הציבור מקבל את מסך הבנייה מחדש; אדמין ממשיך למנוע הקנוני.
 export default function CodePage() {
   const P = usePalette();
   const { loading, isAdmin } = useAuth();
   const elsState = useFeatureState("lock_els");
   const [galleryOpen, setGalleryOpen] = useState(false);
-  // 🔠 Deep-link קנוני גם בדף העצמאי: /code?term=<ביטוי>&skip=<דילוג>&scope=torah|tanakh
   const [sp, setSp] = useSearchParams();
   const elsTerm = sp.get("term") || sp.get("q") || "";
   const elsSkip = sp.get("skip");
   const elsMatrix = useMemo(
     () => (elsTerm && elsSkip) ? { search_term: elsTerm, skip_distance: parseInt(elsSkip, 10) || 0, scope: sp.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null } : null,
     [elsTerm, elsSkip, sp]);
-  // 🧭 Research Journey exact-reopen — symmetric with /research?tool=els (same deep-link contract,
-  // one engine, els_single_engine_law): /code?finding=<id> restores the exact saved occurrence.
   const findingId = sp.get("finding") || "";
   const { journeyLoad: elsJourneyLoad, status: reopenStatus } = useElsJourneyReopen(findingId);
   const [reopenNotice, setReopenNotice] = useState(null);
@@ -163,12 +166,8 @@ export default function CodePage() {
   if (loading || elsState.loading) {
     return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
   }
-  // Availability truth is canonical site_flags. Admin bypass is resolved by useFeatureState; public preview deployments show the same blocked projection for acceptance.
   if (!isAdmin && elsState.blocked) return <CodeClosed message={elsState.message} />;
 
-  // 🌳 עץ אחד: /code = הדף הקנוני לדילוגים. מציג את «הצופן התנ״כי» — הכלי העצמאי (public/tzofen.html)
-  // דרך TzofenEmbed. ההיכל (/research?tool=els) מטמיע את **אותו iframe בדיוק** — לא עותק ולא מנוע שני.
-  // מקור-אמת יחיד: tools/els/els-code.template.html → build.py → public/tzofen.html.
   return (
     <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
       <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("term", term); n.delete("q"); return n; })} />
@@ -180,7 +179,6 @@ export default function CodePage() {
       <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")}
         journeyLoad={elsJourneyLoad}
         onLoadError={() => setReopenNotice("לא נמצא המיקום המדויק שנשמר — ייתכן שהטקסט השתנה. אפשר לחפש את המונח מחדש.")} />
-      {/* 🖼️ הכפתור התחתון — «מטריצות שמורות» (גלריה לשיתוף). הארכיון (המנוע הישן) הוסר מכאן. */}
       <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
         <button
           onClick={() => setGalleryOpen(true)}
