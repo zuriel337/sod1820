@@ -247,6 +247,7 @@ test('reduced motion preserves the same World meaning and controls', async ({ pa
   const projection = await openWorldAnchor(page, 1820, 390);
   expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
   await expect(projection).toHaveAttribute('data-experience-question', 'מה מתחבר?');
+  await page.getByRole('button', { name: /קשרים/ }).first().click();
   await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
   await expect(page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first()).toBeVisible();
   await assertNoHorizontalOverflow(page);
