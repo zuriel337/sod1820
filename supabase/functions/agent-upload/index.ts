@@ -1,4 +1,6 @@
 // agent-upload — single-use least-privilege Storage upload for agent runtimes.
+import { fetchRemoteImage } from "./remote-url.ts";
+
 const SR = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_URL = Deno.env.get("SUPABASE_URL") || "";
 const CORS = {
@@ -60,7 +62,7 @@ async function putBytes(t:Ticket, body:BodyInit, meta?:{ sha256?:string; size?:n
   return json({ ok:true, bucket:t.bucket, path:t.path, mime:t.mime, size:meta?.size ?? null, sha256:meta?.sha256 ?? null, public_url:t.public_url });
 }
 
-// Shared tail for the modes that hand us a fully buffered payload (base64, form): size and
+// Shared tail for the modes that hand us a fully buffered payload (base64, form, url): size and
 // hash are known up front, so both are checked against the ticket before anything is stored.
 async function putBuffered(t:Ticket, bytes:Uint8Array) {
   if (bytes.byteLength === 0 || bytes.byteLength > t.max_bytes) return json({ ok:false, error:"payload exceeds ticket size" },413);
@@ -94,6 +96,14 @@ Deno.serve(async req => {
     if (b.mime && String(b.mime).toLowerCase() !== t.mime) return json({ ok:false, error:"mime mismatch" },415);
     let bytes:Uint8Array; try { bytes = decodeB64(b.b64); } catch { return json({ ok:false, error:"invalid base64" },400); }
     return await putBuffered(t, bytes);
+  }
+
+  if (mode === "url") {
+    let b:any; try { b = await req.json(); } catch { return json({ ok:false, error:"invalid JSON" },400); }
+    if (!b || typeof b.url !== "string" || !b.url.trim()) return json({ ok:false, error:"url required" },400);
+    const remote = await fetchRemoteImage(b.url.trim(), t.mime, t.max_bytes);
+    if (!remote.ok) return json({ ok:false, error:remote.error }, remote.status);
+    return await putBuffered(t, remote.bytes);
   }
 
   // form: a real multipart/form-data attachment — what a file picker, a FormData post or
