@@ -1,4 +1,4 @@
-# SOD1820 — MASTER ROADMAP v6.1 COMPACT
+# SOD1820 — MASTER ROADMAP v6.2 COMPACT
 
 **Date:** 2026-09-17  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
@@ -33,6 +33,7 @@ Detailed domain semantics live in owners, not here:
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v4**;
 - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
+- No Black Box / full execution trace / system recommendations → active `system_suggestions_law` **v2**;
 - Translation / source-language evidence integrity → active `content_translation_law` **v3**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
@@ -50,8 +51,10 @@ This is the implementation dependency order. Later capability may be preserved/v
 - privacy / lifecycle / RLS / authorization boundaries;
 - event-driven background/agent execution, idempotency, cancellation, retry and provenance;
 - media/file intake/upload adapter + canonical artifact references;
-- observability, provider/model/version/cost trace and replay/failure evidence;
+- **No Black Box full execution trace:** one root trace per material interaction; span tree across every engine/model/tool/DB/cache/network/media/background hop; multi-engine fan-out/fan-in visible; provider/model/version/resource/cost/outcome/replay provenance; 100% material-event coverage with privacy-safe payload references;
 - locale-ready semantic actions, identities and status states from the start.
+
+**G3 blocker:** Foundation Runtime is not considered closed if an admin cost/usage aggregate cannot drill down to the underlying root trace and individual span(s), including a three-engine workflow, without double-counting cost.
 
 **Important:** localization architecture is foundational now; public English rollout is not first. We design every identity/action/context so locale can project later without changing capability identity.
 
@@ -177,6 +180,9 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 - privacy/data-lifecycle enforcement;
 - Experience Context / capability projection seam;
 - usage/cost resource metering boundary;
+- root trace + parent/child span propagation through browser/server/edge/planner/engine/tool/storage/media;
+- per-span provider-native cost + ILS provenance + exact/estimated/unknown state;
+- three-engine parallel/sequential/synthesis acceptance with output-use attribution and no double-counting;
 - callable ELS boundary;
 - replay/idempotency/failure recovery;
 - canonical domain adapters where required;
@@ -188,6 +194,7 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 - Year/Verse Journey source/witness/counting provenance;
 - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
 - ELS result/coordinate/replay Golden fixture;
+- No-Black-Box fixtures: parallel three-engine synthesis, sequential escalation, cache hit, retry/continuation, timeout/cancel, unpriced model, partial failure, private-input redaction and cross-layer trace propagation;
 - exact return, Why-transition, provenance and failure/negative outcomes.
 
 ### 5. Broader G3 product/runtime implementation
@@ -211,6 +218,8 @@ Detailed acceptance:
 `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`.
 
 It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, preserve provenance and rerun fresh-agent/release-state acceptance.
+
+No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
 
 ## Later program sequence
 
@@ -255,6 +264,7 @@ Only decision-changing open items belong here:
 
 - exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v11;
 - exact runtime integration mechanics for the existing agent media/file upload bridge;
+- exact physical trace/span persistence + propagation mechanics that extend current AI/cost logs without creating disconnected telemetry;
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
