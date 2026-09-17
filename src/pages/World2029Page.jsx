@@ -618,6 +618,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
                 {item.summary ? <p>{item.summary}</p> : null}
                 {whyOpen === `primary:${item.id}` ? <div className="sod29-world-why">
                   {whyLines.map((line) => <div key={line}>• {line}</div>)}
+                  <div><b>הבולטות כאן אינה דירוג אמת, אימות או קנוניות.</b></div>
                 </div> : null}
               </div>
               <div className="sod29-actions sod29-world-primary-actions">
