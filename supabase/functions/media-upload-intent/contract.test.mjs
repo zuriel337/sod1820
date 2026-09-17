@@ -8,7 +8,7 @@ const NOW = new Date("2026-09-17T12:00:00Z");
 
 const small = buildUploadIntent({ scope: "submission", kind: "image", mime: "image/png", size: 1024, filename: "x.png", userId: USER, now: NOW, idFactory: () => ID1 });
 assert.equal(small.bucket, "submission-inbox");
-assert.equal(small.transport, "signed");
+assert.equal(small.transport, "tus");
 assert.equal(small.path, `sod1820/2029/accounts/${USER}/2026/09/${ID1}/image/original.png`);
 
 const contributor = buildUploadIntent({ scope: "submission", kind: "video", mime: "video/mp4", size: SIX_MIB + 1, filename: "x.mp4", userId: USER, contributorId: CONTRIBUTOR, now: NOW, idFactory: () => ID1 });
