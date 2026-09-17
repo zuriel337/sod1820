@@ -16,6 +16,7 @@ function parse(argv) {
     else if (k === "--asset-id") out.assetId = next();
     else if (k === "--submission-id") out.submissionId = next();
     else if (k === "--contributor-id") out.contributorId = next();
+    else if (k === "--user-id") out.userId = next();
     else if (k === "--unresolved") out.unresolved = true;
     else if (k === "--date") out.date = next();
     else if (k === "--role") out.role = next();
@@ -28,7 +29,7 @@ function parse(argv) {
 
 const USAGE = `media-path — canonical SOD1820 2029 storage path generator\n\n` +
 `Public/approved:\n  node scripts/media-path.mjs --scope public --kind image --ext png\n  node scripts/media-path.mjs --scope public --kind video --ext mp4\n  node scripts/media-path.mjs --scope public --kind video --ext jpg --role poster\n  node scripts/media-path.mjs --scope public --kind video --ext vtt --role captions --lang he\n\n` +
-`Private submission:\n  node scripts/media-path.mjs --scope submission --contributor-id <uuid> --kind image --ext jpg\n  node scripts/media-path.mjs --scope submission --unresolved --kind video --ext mp4\n\n` +
+`Private submission:\n  node scripts/media-path.mjs --scope submission --contributor-id <uuid> --kind image --ext jpg\n  node scripts/media-path.mjs --scope submission --user-id <uuid> --kind video --ext mp4\n  node scripts/media-path.mjs --scope submission --unresolved --kind video --ext mp4\n\n` +
 `Kinds: image | video | audio | document\n`;
 
 function cleanExt(ext) {
@@ -64,15 +65,17 @@ function publicPath(a, ext, yyyy, mm) {
 function submissionPath(a, ext, yyyy, mm) {
   const submissionId = a.submissionId || randomUUID();
   if (!UUID_RE.test(submissionId)) throw new Error("--submission-id must be a UUID");
-  if (a.contributorId && a.unresolved) throw new Error("choose --contributor-id or --unresolved, not both");
+  const selectors = [Boolean(a.contributorId), Boolean(a.userId), Boolean(a.unresolved)].filter(Boolean).length;
+  if (selectors !== 1) throw new Error("submission scope requires exactly one of --contributor-id, --user-id or --unresolved");
   let ownerRoot;
   if (a.contributorId) {
     if (!UUID_RE.test(a.contributorId)) throw new Error("--contributor-id must be a UUID");
     ownerRoot = `contributors/${a.contributorId}`;
-  } else if (a.unresolved) {
-    ownerRoot = "unresolved";
+  } else if (a.userId) {
+    if (!UUID_RE.test(a.userId)) throw new Error("--user-id must be a UUID");
+    ownerRoot = `accounts/${a.userId}`;
   } else {
-    throw new Error("submission scope requires --contributor-id <uuid> or --unresolved");
+    ownerRoot = "unresolved";
   }
   return {
     bucket: "submission-inbox",
