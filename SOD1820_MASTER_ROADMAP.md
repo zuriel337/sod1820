@@ -1,4 +1,4 @@
-# SOD1820 — MASTER ROADMAP v6.2 COMPACT
+# SOD1820 — MASTER ROADMAP v6.3 COMPACT
 
 **Date:** 2026-09-17  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
@@ -24,6 +24,8 @@ Closure evidence:
 
 **Current phase: G3 — Foundation runtime / implementation.**
 
+Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependency-plan-v1.md`.
+
 ## 2029 North Star — owner pointers only
 
 Detailed domain semantics live in owners, not here:
@@ -46,11 +48,15 @@ This is the implementation dependency order. Later capability may be preserved/v
 
 ### A. Runtime foundation first
 
+- Legacy separation / canonical authority map;
+- stable identity + auth/privacy/consent seams;
 - Experience Context / capability projection seam;
 - server-authoritative availability + entitlement + budget/usage resolution before expensive I/O;
 - privacy / lifecycle / RLS / authorization boundaries;
 - event-driven background/agent execution, idempotency, cancellation, retry and provenance;
 - media/file intake/upload adapter + canonical artifact references;
+- analytics correlation envelope joining user action ↔ Research Context ↔ execution trace without collapsing their semantics;
+- Share/Attribution, Follow/Attention, SEO/canonical publishing, cache/versioning, security/abuse and recovery rails reusable by every 2029 surface;
 - **No Black Box full execution trace:** one root trace per material interaction; span tree across every engine/model/tool/DB/cache/network/media/background hop; multi-engine fan-out/fan-in visible; provider/model/version/resource/cost/outcome/replay provenance; 100% material-event coverage with privacy-safe payload references;
 - locale-ready semantic actions, identities and status states from the start.
 
@@ -132,7 +138,7 @@ These remain preserved capabilities under `platform_tiers_law v4`; defer != dele
 
 ### 1. INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME — EARLY FOUNDATION/RUNTIME PRIORITY
 
-Owner: active `inter_agent_coordination_law` v11.
+Owner: active `inter_agent_coordination_law` v12.
 
 Target flow:
 
@@ -151,7 +157,7 @@ Mandatory properties:
 - merge/deploy/publish/canonicalization never gain automatic authorization;
 - EXTEND_EXISTING only: no second Agent System, Queue authority, Coordination Store or Truth Store.
 
-Current state: **NOT IMPLEMENTED · G3 PRIORITY**.
+Current state: **TARGET RUNTIME PARTIAL / G3 PRIORITY**.
 
 ### 2. AGENT MEDIA / FILE TOOL ADAPTER — EARLY FOUNDATION/RUNTIME PRIORITY
 
@@ -172,7 +178,7 @@ Rules:
 - no reusable admin secret;
 - no second Upload System, Storage owner, media store or agent-specific upload path.
 
-Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
+Current state: **IMAGE URL RELAY LIVE · 2029 ONE-TREE MEDIA/PRIVATE-INBOX CONVENTION BRANCH-ONLY**.
 
 ### 3. Core runtime seams / safety before broad Goldens
 
@@ -180,9 +186,12 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 - privacy/data-lifecycle enforcement;
 - Experience Context / capability projection seam;
 - usage/cost resource metering boundary;
+- analytics correlation envelope and stable interaction/trace linkage;
 - root trace + parent/child span propagation through browser/server/edge/planner/engine/tool/storage/media;
 - per-span provider-native cost + ILS provenance + exact/estimated/unknown state;
 - three-engine parallel/sequential/synthesis acceptance with output-use attribution and no double-counting;
+- canonical media/asset identity and private/public admission boundaries;
+- Share/Attribution contract, Follow/Consent contract, SEO/canonical publishing, cache/version invalidation, rate-limit/circuit-breaker and recovery seams;
 - callable ELS boundary;
 - replay/idempotency/failure recovery;
 - canonical domain adapters where required;
@@ -195,6 +204,9 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
 - ELS result/coordinate/replay Golden fixture;
 - No-Black-Box fixtures: parallel three-engine synthesis, sequential escalation, cache hit, retry/continuation, timeout/cancel, unpriced model, partial failure, private-input redaction and cross-layer trace propagation;
+- Share→arrival correlation Golden;
+- guest→account Follow/consent Golden;
+- media original→derivative/private→public admission Golden;
 - exact return, Why-transition, provenance and failure/negative outcomes.
 
 ### 5. Broader G3 product/runtime implementation
@@ -262,9 +274,12 @@ Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Att
 
 Only decision-changing open items belong here:
 
-- exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v11;
-- exact runtime integration mechanics for the existing agent media/file upload bridge;
+- exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v12;
+- exact runtime integration mechanics for the existing agent media/file upload bridge and large/private file transport;
 - exact physical trace/span persistence + propagation mechanics that extend current AI/cost logs without creating disconnected telemetry;
+- exact correlation-envelope implementation across user telemetry, Research Context and operational trace;
+- exact Share 2029 object/attribution implementation over existing share owners;
+- exact cache/version invalidation implementation for compile-once/project-many outputs;
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
@@ -277,6 +292,7 @@ Only decision-changing open items belong here:
 Do not add detailed contracts, audits, examples or research findings to this Roadmap.
 
 - domain semantics → owner;
+- detailed implementation/dependency choreography → `docs/2029-implementation-dependency-plan-v1.md`;
 - project current state → Master;
 - research → Research OS;
 - coordination/release trace → work_log;
