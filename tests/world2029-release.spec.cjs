@@ -149,7 +149,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   const share = inspectDialog.getByRole('button', { name: /שתף הקשר/ });
   await expect(share).toBeEnabled();
   await share.click();
-  await expect(inspectDialog.getByRole('status')).toBeVisible();
+  await expect(inspectDialog.locator('.sod29-frame-feedback[role="status"]')).toBeVisible();
   await page.keyboard.press('Escape');
 
   const deepen = page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first();
