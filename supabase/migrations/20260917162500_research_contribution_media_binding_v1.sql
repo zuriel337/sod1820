@@ -96,3 +96,52 @@ $function$;
 
 revoke all on function public.bind_contribution_media(uuid,text,text) from public,anon,service_role;
 grant execute on function public.bind_contribution_media(uuid,text,text) to authenticated;
+
+-- Internal resolver used only by a trusted server after it independently verified the user JWT.
+-- The actor id is server-derived, never accepted as an authority claim from a browser RPC.
+create or replace function public.private_contribution_media_access(
+  p_contribution_id uuid,
+  p_storage_object_id uuid,
+  p_actor_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_c public.research_contributions%rowtype;
+  v_admin boolean := false;
+  v_o record;
+begin
+  if p_actor_id is null then raise exception 'actor required'; end if;
+  select exists(select 1 from public.users u where u.id=p_actor_id and u.role='admin') into v_admin;
+
+  select * into v_c from public.research_contributions where id=p_contribution_id;
+  if not found then raise exception 'contribution not found'; end if;
+  if not v_admin and v_c.author_user_id is distinct from p_actor_id then raise exception 'forbidden'; end if;
+
+  if not exists (
+    select 1 from jsonb_array_elements(coalesce(v_c.media,'[]'::jsonb)) item
+    where item->>'storage_object_id'=p_storage_object_id::text
+      and item->>'visibility'='private'
+  ) then raise exception 'media ref not bound'; end if;
+
+  select o.id,o.bucket_id,o.name,o.metadata
+    into v_o
+  from storage.objects o
+  where o.id=p_storage_object_id and o.bucket_id='submission-inbox';
+  if not found then raise exception 'storage object not found'; end if;
+
+  return jsonb_build_object(
+    'ok',true,
+    'bucket',v_o.bucket_id,
+    'path',v_o.name,
+    'mime',lower(coalesce(v_o.metadata->>'mimetype','')),
+    'size',coalesce((v_o.metadata->>'size')::bigint,(v_o.metadata->>'contentLength')::bigint,0)
+  );
+end
+$function$;
+
+revoke all on function public.private_contribution_media_access(uuid,uuid,uuid) from public,anon,authenticated;
+grant execute on function public.private_contribution_media_access(uuid,uuid,uuid) to service_role;
