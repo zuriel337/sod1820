@@ -170,6 +170,18 @@ function prominenceTypeLabel(item) {
   return FACET_LABELS[item?.type] || "חיבור";
 }
 
+function humanProminenceLabel(item, anchorLabel) {
+  const label = String(item?.label || "").trim();
+  if (item?.kind === "research" && looksTechnicalResearchTitle(label)) {
+    return `מחקר נוסף סביב ${anchorLabel || "הנקודה"}`;
+  }
+  if (item?.kind === "source") {
+    return humanSourceLabel({ label, ref: item?.sourceRef, type: item?.type });
+  }
+  if (["image", "media"].includes(item?.type) && looksLikeFilename(label)) return "פריט מדיה";
+  return label || prominenceTypeLabel(item);
+}
+
 function prominenceWhyLines(item) {
   const why = item?.explainWhy || {};
   const lines = [];
@@ -478,7 +490,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     shell.openInspect({
       id: String(item?.id || item?.sourceRef || item?.label || "world-item"),
       type: item?.type || item?.kind || "finding",
-      label: item?.label || "חיבור",
+      label: humanProminenceLabel(item, data?.identity?.label || subject.label || subject.id),
       href: "/world",
     });
   };
@@ -602,7 +614,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
                   <span>{prominenceTypeLabel(item)}</span>
                   {tier ? <span>אוצרות · {tier === "gold" ? "זהב" : "כסף"}</span> : null}
                 </div>
-                <h3>{item.label}</h3>
+                <h3>{humanProminenceLabel(item, data.identity.label)}</h3>
                 {item.summary ? <p>{item.summary}</p> : null}
                 {whyOpen === `primary:${item.id}` ? <div className="sod29-world-why">
                   {whyLines.map((line) => <div key={line}>• {line}</div>)}
