@@ -4,6 +4,12 @@ import {
   SPATIAL_LEVEL,
   resolveExperienceContext,
 } from "../src/lib/experienceContext.js";
+import {
+  EXPERIENCE_CAPABILITY,
+  USAGE_RESOURCE,
+  composeCapabilityProjection,
+  getExperienceCapabilityContract,
+} from "../src/lib/experienceCapabilities.js";
 
 const worldHe = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -66,5 +72,26 @@ const aiImage = resolveExperienceContext({ surface: EXPERIENCE_SURFACE.AI_IMAGE 
 assert.equal(aiImage.ai.generateSceneNotLogo, true);
 assert.equal(aiImage.brand.compositeCanonicalArtworkAfterGeneration, true);
 assert.equal(aiImage.ai.requiredBrandTextBakedIntoGeneratedBackground, false);
+
+const postListen = getExperienceCapabilityContract(EXPERIENCE_CAPABILITY.POST_LISTEN);
+assert.equal(postListen.availabilityFlag, "lock_post_listen");
+assert.equal(postListen.actionLabelHe, "האזן לפוסט");
+assert.ok(postListen.meters.includes(USAGE_RESOURCE.CACHED_MEDIA_DELIVERY));
+assert.equal(postListen.fallback, "read_text");
+
+const razielVoice = composeCapabilityProjection(EXPERIENCE_CAPABILITY.RAZIEL_VOICE, {
+  availability: "building",
+  entitlement: "premium_required",
+  budget: "available",
+});
+assert.equal(razielVoice.availabilityFlag, "lock_raziel_voice");
+assert.equal(razielVoice.serverGateRequiredBeforeExpensiveIO, true);
+assert.equal(razielVoice.pricingCanonicalHere, false);
+assert.ok(razielVoice.meters.includes(USAGE_RESOURCE.AUDIO_SESSION_SECONDS));
+assert.equal(razielVoice.fallback, "raziel_text");
+
+const researchMedia = getExperienceCapabilityContract(EXPERIENCE_CAPABILITY.RESEARCH_TO_MEDIA);
+assert.equal(researchMedia.fallback, "canonical_share_card");
+assert.ok(researchMedia.meters.includes(USAGE_RESOURCE.MEDIA_GENERATION));
 
 console.log("Experience Context 2029 smoke gate: PASS");
