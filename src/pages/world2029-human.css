@@ -216,11 +216,7 @@
   color:var(--s29-ink);
 }
 .sod29-world-orientation{
-  position:sticky;
-  top:var(--s29-header-offset,72px);
-  z-index:6;
-  backdrop-filter:blur(16px);
-  background:color-mix(in srgb,var(--s29-panel) 88%,transparent);
+  background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
 }
 .sod29-world-orientation .sod29-section-head{margin-bottom:12px}
 .sod29-world-lanes{
@@ -262,11 +258,6 @@
   }
 }
 @media(max-width:620px){
-  .sod29-world-orientation{
-    position:relative;
-    top:auto;
-    backdrop-filter:none;
-  }
   .sod29-world-lanes{
     flex-wrap:nowrap;
     overflow-x:auto;
