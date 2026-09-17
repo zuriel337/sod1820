@@ -638,7 +638,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           </div>
           <aside className="sod29-world-anchor-profile-note">
             <b>איך לקרוא את זה?</b>
-            <p>זהו פרופיל אוצרות מחקרי שמתפתח עם העבודה. הוא אינו מחליף חישוב מנוע, מקור, אימות או החלטת פרסום. דף המספר נשאר הבית הייעודי לחישוב ולביטוי; World מציג את ההקשר סביב המספר.</p>
+            <p>זהו תיאור אוצרות מחקרי שמתעדכן עם העבודה. חישובי המנוע, המקורות והאימותים מוצגים בנפרד. דף המספר נשאר הבית הייעודי לחישוב ולביטוי; העולם מציג את ההקשר סביב המספר.</p>
           </aside>
         </div>
       </section> : null}
@@ -662,7 +662,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
             <small>{laneCounts[lane.key] || 0}</small>
           </button>)}
         </div>
-        <div className="sod29-muted sod29-world-orientation-note">הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר. תמונות ומדיה יקבלו שכבה חזותית נפרדת בפס הבא.</div>
+        <div className="sod29-muted sod29-world-orientation-note">הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר.</div>
       </section>
 
       {adminMode ? <section className="sod29-section" aria-label="מצב מנהל">
