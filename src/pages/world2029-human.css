@@ -1,0 +1,206 @@
+/* World 2029 · Human Projection
+   Surface-local presentation only. Uses System Frame theme variables; no new palette owner. */
+
+.sod29-world-primary-section{
+  position:relative;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
+  background:
+    radial-gradient(circle at 12% 0%,color-mix(in srgb,var(--s29-glow) 38%,transparent),transparent 44%),
+    linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 94%,var(--s29-accent) 6%),var(--s29-panel));
+}
+.sod29-world-primary-section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(110deg,transparent 0 68%,color-mix(in srgb,var(--s29-accent) 7%,transparent) 100%);
+}
+.sod29-world-primary-head{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:24px;
+  align-items:start;
+  margin-bottom:18px;
+}
+.sod29-world-primary-head h2{margin:4px 0 7px}
+.sod29-world-primary-head p{
+  max-width:760px;
+  margin:0;
+  color:var(--s29-muted);
+  line-height:1.75;
+}
+.sod29-world-primary-count{
+  display:grid;
+  place-items:center;
+  min-width:52px;
+  height:52px;
+  border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 34%,var(--s29-line));
+  background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
+  color:var(--s29-hero);
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+.sod29-world-primary-grid{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);
+  gap:0 26px;
+}
+.sod29-world-primary-item{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  gap:14px;
+  align-items:start;
+  padding:16px 0;
+  border-block-start:1px solid color-mix(in srgb,var(--s29-line) 78%,transparent);
+}
+.sod29-world-primary-item.is-lead{
+  grid-row:span 2;
+  align-content:start;
+  padding-inline-end:22px;
+  border-inline-end:1px solid color-mix(in srgb,var(--s29-line) 78%,transparent);
+}
+.sod29-world-primary-item.is-question{
+  border-block-start-color:color-mix(in srgb,var(--s29-accent) 42%,var(--s29-line));
+}
+.sod29-world-primary-index{
+  color:var(--s29-muted);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.08em;
+  padding-top:5px;
+}
+.sod29-world-primary-copy{min-width:0}
+.sod29-world-primary-copy h3{
+  margin:5px 0 5px;
+  color:var(--s29-ink);
+  font-size:clamp(17px,2vw,23px);
+  line-height:1.35;
+}
+.sod29-world-primary-item.is-lead .sod29-world-primary-copy h3{
+  font-size:clamp(22px,3vw,34px);
+}
+.sod29-world-primary-copy p,
+.sod29-world-row-summary{
+  margin:0;
+  color:var(--s29-muted);
+  line-height:1.65;
+}
+.sod29-world-primary-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.sod29-world-primary-meta span,
+.sod29-world-verification{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:3px 8px;
+  border-radius:999px;
+  border:1px solid var(--s29-line);
+  color:var(--s29-muted);
+  font-size:10px;
+  font-weight:800;
+}
+.sod29-world-primary-item.is-question .sod29-world-primary-meta span:first-child{
+  color:var(--s29-ink);
+  border-color:color-mix(in srgb,var(--s29-accent) 44%,var(--s29-line));
+}
+.sod29-world-primary-actions{
+  align-self:center;
+  justify-content:flex-end;
+}
+.sod29-world-why{
+  margin-top:10px;
+  padding-inline-start:12px;
+  border-inline-start:2px solid color-mix(in srgb,var(--s29-accent) 40%,var(--s29-line));
+  color:var(--s29-muted);
+  font-size:12px;
+  line-height:1.7;
+}
+
+.sod29-world-human-section{
+  position:relative;
+}
+.sod29-world-gematria-list{
+  border-block:1px solid var(--s29-line);
+}
+.sod29-world-gematria-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(150px,auto);
+  gap:18px;
+  align-items:center;
+  padding:13px 2px;
+  border-block-end:1px solid color-mix(in srgb,var(--s29-line) 76%,transparent);
+}
+.sod29-world-gematria-row:last-child{border-block-end:0}
+.sod29-world-gematria-expression{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.sod29-world-gematria-expression strong{
+  overflow-wrap:anywhere;
+  color:var(--s29-ink);
+}
+.sod29-world-gematria-expression small{color:var(--s29-muted)}
+.sod29-world-gematria-value{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  white-space:nowrap;
+}
+.sod29-world-gematria-value span{color:var(--s29-muted)}
+.sod29-world-gematria-value b{
+  color:var(--s29-hero);
+  font-size:clamp(22px,3vw,32px);
+  font-variant-numeric:tabular-nums;
+}
+.sod29-world-source-row strong,
+.sod29-world-research-row strong{overflow-wrap:anywhere}
+.sod29-world-row-summary{
+  max-width:840px;
+  margin-top:5px;
+  font-size:13px;
+}
+.sod29-world-time-note{
+  margin:-4px 0 14px;
+  max-width:850px;
+  line-height:1.7;
+}
+
+@media(max-width:900px){
+  .sod29-world-primary-grid{grid-template-columns:1fr}
+  .sod29-world-primary-item.is-lead{
+    grid-row:auto;
+    padding-inline-end:0;
+    border-inline-end:0;
+  }
+}
+@media(max-width:620px){
+  .sod29-world-primary-head{grid-template-columns:1fr}
+  .sod29-world-primary-count{display:none}
+  .sod29-world-primary-item{
+    grid-template-columns:28px minmax(0,1fr);
+    gap:10px;
+  }
+  .sod29-world-primary-actions{
+    grid-column:2;
+    justify-content:flex-start;
+  }
+  .sod29-world-gematria-row{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px 12px;
+  }
+  .sod29-world-verification{
+    grid-column:1/-1;
+    justify-self:start;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .sod29-world-primary-section::before{display:none}
+}
