@@ -32,7 +32,7 @@ begin
       )::bigint as protected_rows,
       0::bigint as purge_candidates,
       count(*) filter (
-        where status not in ('live','published','active')
+        where coalesce(status, '') not in ('live','published','active')
           and not exists (
             select 1 from public.research_objects ro
             where ro.source_ref like ('channel_updates:' || channel_updates.id::text || '%')
@@ -54,14 +54,14 @@ begin
       count(*) filter (
         where exists (
           select 1 from public.research_objects ro
-          where ro.source_ref like ('%wa_bot_log:' || wa_bot_log.id::text || '%')
+          where ro.source_ref ~ ('(^|[+])wa_bot_log:' || wa_bot_log.id::text || '(#|[+]|$)')
         )
       )::bigint,
       0::bigint,
       count(*) filter (
         where not exists (
           select 1 from public.research_objects ro
-          where ro.source_ref like ('%wa_bot_log:' || wa_bot_log.id::text || '%')
+          where ro.source_ref ~ ('(^|[+])wa_bot_log:' || wa_bot_log.id::text || '(#|[+]|$)')
         )
       )::bigint,
       false,
@@ -80,11 +80,16 @@ begin
       count(*) filter (
         where exists (
           select 1 from public.research_objects ro
-          where ro.source_ref like ('%wa_deep_queue:' || wa_deep_queue.id::text || '%')
+          where ro.source_ref ~ ('(^|[+])wa_deep_queue:' || wa_deep_queue.id::text || '(#|[+]|$)')
         )
       )::bigint,
       0::bigint,
-      count(*)::bigint,
+      count(*) filter (
+        where not exists (
+          select 1 from public.research_objects ro
+          where ro.source_ref ~ ('(^|[+])wa_deep_queue:' || wa_deep_queue.id::text || '(#|[+]|$)')
+        )
+      )::bigint,
       false,
       'Terminal queue rows are NOT purge-safe yet: live historical timeline code still reads this table and Research OS may reference individual rows.'
     from public.wa_deep_queue
