@@ -43,6 +43,30 @@ Storage path is physical location only. Canonical meaning, provenance, source id
 
 `media_map` is not repurposed as a 2029 registry; its current shape is migration-oriented.
 
+## Ingress source classification
+
+Source platform is provenance, not storage identity. A file downloaded from TikTok, YouTube, Instagram, WhatsApp, Telegram, Dropbox, Google Drive, ChatGPT, a browser download, a phone share action, or any future source MUST land in the same canonical tree according to media kind.
+
+Do not create platform-specific storage roots such as `tiktok/`, `youtube/`, `whatsapp/`, `openai/` or agent-specific folders under the 2029 root. Those would split one media system into parallel trees.
+
+Preserve source provenance in the owning content/research record using the existing fields/contracts where applicable. Recommended logical provenance fields are:
+
+- `source_platform` — e.g. `tiktok`, `youtube`, `instagram`, `whatsapp`, `chatgpt`, `dropbox`, `direct_upload`
+- `source_url` — original source URL when known
+- `source_creator` / contributor identity when known and governed by the existing Person/Contributor owners
+- `source_external_id` — platform post/video/media ID when available
+- `acquired_via` — e.g. `download`, `share`, `api`, `agent_upload`, `dropbox_relay`
+- `acquired_at`
+
+These are provenance semantics only; this convention does not create a new metadata table or registry.
+
+Examples:
+
+- TikTok video downloaded on a phone -> `media/sod1820/agent/2029/video/2026/09/<asset-id>/original.mp4`, with TikTok URL/creator/post ID preserved in the owning record.
+- YouTube Short downloaded by an agent -> same `video/.../<asset-id>/original.*` tree, not a `youtube/` directory.
+- WhatsApp photo -> `image/.../<asset-id>/original.jpg`, with message/source context preserved outside the path.
+- ChatGPT-generated visual -> `image/.../<asset-id>/original.png`, with `source_platform=chatgpt`/generation provenance where relevant.
+
 ## Immutability
 
 - New 2029 assets use a fresh UUID and `allow_overwrite=false`.
@@ -84,6 +108,7 @@ Transport is intentionally separate from location:
 - For large video, use a bounded resumable/direct path (TUS / signed upload / multipart as appropriate) that still lands in this same tree.
 - Preserve `original.mp4` (or source container) and create poster/preview/transcodes as dependent Representations.
 - Captions/transcripts belong under the same asset-id when they are file representations, while research/transcript semantics remain under their existing domain owners.
+- Downloaded social video and generated video use the same physical tree. Platform/source difference is provenance, not a separate folder hierarchy.
 
 ## Legacy boundary
 
