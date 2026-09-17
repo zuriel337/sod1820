@@ -47,6 +47,11 @@ assert.match(world, /דף המספר נשאר הבית הייעודי לחישו
 assert.match(world, /לדף המספר ←/);
 assert.equal(world.includes("getNumberAnchor"), false, "World must not revive the legacy Number-page anchor reader");
 assert.equal(world.includes("NumberHubOpening2029"), false, "World must not import/copy the Number-page UI");
+assert.equal(world.includes("מרכז העולם"), false, "anchored World must not repeat the same identity in a second center section");
+assert.equal(world.includes("sod29-world-stage"), false, "legacy-looking duplicate anchor stage must stay removed from the 2029 hierarchy");
+assert.equal(world.includes("sod29-anchor-core"), false, "anchor identity must not be rendered twice before the profile");
+assert.equal(world.includes("sod29-orbit-metrics"), false, "availability counts belong to orientation lanes, not a competing metrics block");
+assert.match(world, /מתחילים במהות, ואז בוחרים את השכבה/);
 for (const lane of ["overview", "media", "calculations", "sources", "relations", "research", "timeline"]) {
   assert.match(world, new RegExp(`activeLane === ["']${lane}["']|key: ["']${lane}["']`), `World orientation lane missing: ${lane}`);
 }
