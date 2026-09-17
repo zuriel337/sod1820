@@ -12,7 +12,7 @@ const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pa
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
-const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,importance,image_type,space,tags";
+const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags";
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -517,7 +517,9 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
   const items = mediaNodes.flatMap((node) => {
     const galleryId = clean(node?.metadata?.gallery_image_id);
     const row = galleryId ? galleryById.get(galleryId) : null;
-    if (!row?.image_url || seen.has(String(row.id))) return [];
+    // Defense in depth: public media remains published + non-hidden even if a future reader
+    // changes the server-side query. Representation availability never broadens publication.
+    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true || seen.has(String(row.id))) return [];
     seen.add(String(row.id));
     const relationType = candidates.get(String(node.id))?.relationType || "related";
     return [{
@@ -530,7 +532,6 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
       relationType,
       occurredAt: row.occurred_at || null,
       createdAt: row.created_at || node.created_at || null,
-      importance: Number.isFinite(Number(row.importance)) ? Number(row.importance) : null,
       imageType: clean(row.image_type) || null,
       space: clean(row.space) || null,
       tags: Array.isArray(row.tags) ? row.tags : [],
@@ -540,8 +541,10 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
   });
 
   items.sort((a, b) => (
+    // Relation directness is the existing contextual projection reason. After that, use
+    // temporal/stable identity only. Legacy gallery importance is intentionally NOT a
+    // World ranking signal and cannot change public media order.
     mediaRelationPriority(a.relationType) - mediaRelationPriority(b.relationType)
-    || (b.importance ?? -1) - (a.importance ?? -1)
     || String(b.occurredAt || b.createdAt || "").localeCompare(String(a.occurredAt || a.createdAt || ""))
     || a.galleryImageId.localeCompare(b.galleryImageId)
   ));
