@@ -1,6 +1,6 @@
 # SOD1820 — MASTER ROADMAP v6 COMPACT
 
-**Date:** 2026-09-15  
+**Date:** 2026-09-16  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -39,7 +39,7 @@ Historical Roadmap v5.6 remains provenance only. Normal routing starts from the 
 
 ### 1. INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME — EARLY FOUNDATION/RUNTIME PRIORITY
 
-Owner: active `inter_agent_coordination_law` v11.
+Owner: active `inter_agent_coordination_law` **v12**.
 
 Target flow:
 
@@ -58,7 +58,7 @@ Mandatory properties:
 - merge/deploy/publish/canonicalization never gain automatic authorization;
 - EXTEND_EXISTING only: no second Agent System, Queue authority, Coordination Store or Truth Store.
 
-Current state: **NOT IMPLEMENTED · G3 PRIORITY**.
+Current state: **GPT→CLAUDE AUTO-WAKE LIVE · VERIFIED** through the existing `work_log` dispatch runtime; Claude→GPT result-wake remains bounded/deferred until its governed GPT controller endpoint is fully live-verified. Do not collapse this into “fully bidirectional”.
 
 ### 2. AGENT MEDIA / FILE TOOL ADAPTER — EARLY FOUNDATION/RUNTIME PRIORITY
 
@@ -79,42 +79,64 @@ Rules:
 - no reusable admin secret;
 - no second Upload System, Storage owner, media store or agent-specific upload path.
 
-Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
+Current state: **IMAGE ADAPTER LIVE · VERIFIED**; private Books/Documents remain a separate unresolved storage/RLS lane.
 
-### 3. Core runtime seams / safety before broad Goldens
+### 3. EARLY 2029 LEGACY-SEPARATION BASELINE — BEFORE BROAD GREENFIELD IMPLEMENTATION
+
+Run the existing G3 Implementation Compaction / Archive contract **early as a baseline**, without retiring live dependencies yet.
+
+Purpose:
+
+- identify what is `KEEP_CURRENT` canonical runtime/capability;
+- identify semantics that must be `ABSORB_THEN_ARCHIVE` from old implementations;
+- isolate `TEMPORARY_COMPATIBILITY` required only for legacy production;
+- mark already-replaced items `RETIRE_REMOVE` for later safe cleanup;
+- prevent new 2029 runtime or Experience from silently inheriting legacy routes/components/RPCs/adapters/UI contracts merely because they already exist.
+
+Current baseline artifacts:
+
+- `audits/g3-implementation-compaction/G3_2029_EARLY_LEGACY_SEPARATION_BASELINE_V1.md`
+- `audits/g3-implementation-compaction/G3_2029_RUNTIME_INFRASTRUCTURE_SEPARATION_SUPPLEMENT_V1.md`
+- `audits/g3-implementation-compaction/G3_2029_LEGACY_GEMATRIA_EXECUTION_FOLLOWUP_V1.md`
+
+**This is not a new Gate or Legacy System.** It is the early baseline of the same mandatory end-of-G3 compaction gate. Final retirement still waits for live/verified replacements.
+
+### 4. Core runtime seams / safety before broad Goldens
 
 - server-authoritative entitlement seam;
 - privacy/data-lifecycle enforcement;
 - callable ELS boundary;
 - replay/idempotency/failure recovery;
 - canonical domain adapters where required;
-- implementation against frozen owners, not legacy UI authority.
+- implementation against frozen owners, not legacy UI authority;
+- compatibility extracted from shared cores before it becomes a new 2029 dependency.
 
-### 4. Replayable capability / Golden fixtures
+### 5. Replayable capability / Golden fixtures
 
 - replayable Research Context / Journey path for 878;
 - Year/Verse Journey source/witness/counting provenance;
 - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
 - exact return, Why-transition, provenance and failure/negative outcomes.
 
-### 5. Broader G3 product/runtime implementation
+### 6. Broader G3 product/runtime implementation
 
 - Global Now/Home adapters;
 - Follow/Attention delivery truth;
 - Raziel continuous research companion runtime;
+- clean greenfield System Frame consuming only owner-qualified current capabilities;
 - greenfield product surfaces consuming Foundation owners;
 - no inheritance obligation from legacy layout/IA.
 
 ## Mandatory end-of-G3 gate
 
-Before G4, run:
+Before G4, **rerun and close**:
 
 **G3 Implementation Compaction / Archive Pass**
 
 Detailed acceptance:
 `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`.
 
-It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, preserve provenance and rerun fresh-agent/release-state acceptance.
+It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, preserve provenance and rerun fresh-agent/release-state acceptance. The early baseline does not replace this final evidence-based pass.
 
 ## Later program sequence
 
@@ -147,8 +169,8 @@ Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Att
 
 Only decision-changing open items belong here:
 
-- exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v11;
-- exact runtime integration mechanics for the existing agent media/file upload bridge;
+- exact Claude→GPT result-wake/controller mechanics under `inter_agent_coordination_law v12`;
+- private Books/Documents storage/RLS/retention/erasure lane;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
 - exact Free/Registered/Premium allocation in G5;

@@ -1,6 +1,6 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
-**Date:** 2026-09-15  
+**Date:** 2026-09-16  
 **Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 ENTRY**
 
 Purpose: resolve `domain → owner family → canonical owner → direct dependencies → live verification` with the smallest read set.
@@ -51,9 +51,9 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v11 ACTIVE** |
+| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v12 ACTIVE** |
 
-**G3 priority:** v11 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME`. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Dispatch never auto-authorizes WRITE/release/publish/canonicalization.
+**G3 priority:** v12 owns `G3 INTER-AGENT EVENT-DRIVEN DISPATCH RUNTIME`. Target: assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result → wake originating controller → Human Gate only when required. Dispatch never auto-authorizes WRITE/release/publish/canonicalization.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
@@ -95,12 +95,12 @@ Interpretive research theses are Research OS/provenance, not global governance l
 
 | Responsibility | Canonical owner |
 |---|---|
-| One Reality Graph / One Tree / relations | `reality_graph_law` v7 |
+| One Reality Graph / One Tree / relations | `reality_graph_law` v8 |
 | Cross / Method Convergence | `cross_vs_convergence_criteria` v4 |
 | World ranking / contextual prominence | `research_gold_hints_law` |
 | Reality Stream semantic projection | `reality_stream_law` under Reality |
 
-Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Archive after v4/v7 consolidation.
+Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Archive after v4/v8 consolidation.
 
 ### G. GEMATRIA / NUMERIC / METHODS
 
