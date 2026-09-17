@@ -1,0 +1,34 @@
+name: Media Release Batch Gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/sod1820-media-ingress-storage-convention-v1.md'
+      - 'scripts/media-path.mjs'
+      - 'scripts/test-media-upload-runtime.mjs'
+      - 'src/lib/mediaResumableUpload.js'
+      - 'supabase/functions/media-upload-intent/**'
+      - 'supabase/migrations/20260917135500_submission_inbox_bucket_v1.sql'
+      - 'supabase/migrations/20260917160000_submission_inbox_limits_v1.sql'
+      - 'supabase/migrations/20260917162500_research_contribution_media_binding_v1.sql'
+      - 'supabase/migrations/20260917163500_research_contribution_moderation_alignment_v1.sql'
+      - '.github/workflows/media-release-batch-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Media runtime acceptance
+        run: node scripts/test-media-upload-runtime.mjs
+      - name: Build
+        run: npm run build
