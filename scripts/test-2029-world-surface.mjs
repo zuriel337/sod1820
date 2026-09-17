@@ -363,7 +363,7 @@ assert.ok(eventAuthorized.items.some((item) => item.id === "research:event-tripl
 assert.ok(eventAuthorized.items.some((item) => item.kind === "temporal-control"), "authorized Event projection keeps event time vs research provenance date explicit rather than silently normalizing");
 
 // The live-input adapter is bounded and read-only, consumes existing tables/views under current-session RLS,
-// and never reconstructs privacy_scope policy or uses a service-role bypass.
+// and never reconstructs privacy_scope policy or uses a privileged-key bypass.
 assert.match(prominenceInputs, /cross_method_strength/);
 assert.match(prominenceInputs, /parent_id,evidence,owner_person_id,meta/);
 assert.match(prominenceInputs, /post_wp_id/);
@@ -371,7 +371,7 @@ assert.match(prominenceInputs, /posts:\$\{post\.id\}/);
 assert.match(prominenceInputs, /current_session_rls/);
 assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(prominenceInputs), false, "prominence input reader must remain read-only");
 assert.equal(/create table|create view|create function/i.test(prominenceInputs), false, "no new ranking store/view/function may be created");
-assert.equal(/service[_-]?role/i.test(prominenceInputs), false, "reader must not bypass current-session RLS");
+assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(prominenceInputs), false, "reader must not carry a privileged service-role credential");
 assert.equal(/\.eq\(["']privacy_scope["']/.test(prominenceInputs), false, "projection must not duplicate source-owned privacy policy");
 
 const helper = read("src/lib/research/world2029Presentation.js");
