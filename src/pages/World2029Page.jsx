@@ -16,7 +16,7 @@ import {
 import { applySeo } from "../lib/seo.js";
 
 const WORLD_FACETS = [
-  { key: "topic", title: "התכנסויות חזקות", kicker: "מחקר חי", limit: 8 },
+  { key: "topic", title: "התכנסויות חזקות", kicker: "חיבורים", limit: 8 },
   { key: "number", title: "מספרים בעולם", kicker: "מספרים", limit: 10 },
   { key: "book", title: "ספרים ומקורות", kicker: "מקורות", limit: 6 },
   { key: "event", title: "אירועים", kicker: "זמן ומציאות", limit: 6 },
@@ -138,11 +138,11 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-command-shell">
         <div className="sod29-command-copy">
           <div className="sod29-kicker">WORLD · ONE REALITY</div>
-          <h2>המציאות המחקרית פתוחה.<br />בחר נקודה והעמק.</h2>
-          <div className="sod29-muted">זהויות, קשרים, ממצאים ומקורות נפגשים כאן סביב עוגנים אמיתיים. אפשר להתחיל מנקודה קיימת, לחפש דבר חדש או לעבור בין קשרים בלי לאבד את ההקשר.</div>
+          <h2>העולם פתוח.<br />בחר נקודה וגלה מה מתחבר אליה.</h2>
+          <div className="sod29-muted">מספרים, ביטויים, מקורות, אירועים וקשרים נפגשים כאן סביב עוגנים אמיתיים. אפשר להתחיל מנקודה קיימת, לחפש דבר חדש או לעבור מחיבור לחיבור בלי לאבד את המקום שממנו הגעת.</div>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חיפוש / פקודה</button>
-            <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ מה דורש תשומת לב</button>
+            <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ מה השתנה</button>
           </div>
         </div>
         <div className="sod29-orbit-map" aria-hidden="true">
@@ -150,14 +150,14 @@ function LiveWorldLanding({ research, shell, context }) {
           <span className="sod29-orbit-node n1">מספרים</span>
           <span className="sod29-orbit-node n2">מקורות</span>
           <span className="sod29-orbit-node n3">קשרים</span>
-          <span className="sod29-orbit-node n4">מחקר</span>
+          <span className="sod29-orbit-node n4">אירועים</span>
         </div>
       </div>
     </section>
 
-    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="אוסף את החומר הזמין">קשרים, מחקר ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
+    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">קשרים, מקורות ונקודות נוספות נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
-    {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר ריק כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח עוגן דרך החיפוש.</FrameState></NativeStateSection> : null}
+    {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
     {!landing.loading && populatedSections.map((facet) => {
       const cards = landing.sections[facet.key] || [];
@@ -172,12 +172,12 @@ function LiveWorldLanding({ research, shell, context }) {
       </section>;
     })}
 
-    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את המחקר">טוען את החומר הקשור להתכנסות.</FrameState></NativeStateSection> : null}
-    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="המחקר לא נטען כרגע">לא יוצג חומר חלופי במקום המחקר שביקשת.</FrameState></NativeStateSection> : null}
+    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את החיבור">טוען את מה שנמצא סביב ההתכנסות.</FrameState></NativeStateSection> : null}
+    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="החיבור לא נטען כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}
     {topicDetail.finding ? <section className="sod29-section">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">מחקר מתוך המאגר</div>
+          <div className="sod29-kicker">מה מתחבר כאן</div>
           <h2>{topicDetail.finding.subject?.label || topicDetail.card?.label}</h2>
         </div>
         <button className="sod29-action" type="button" onClick={() => setTopicDetail({ loading: false, card: null, finding: null, error: null })}>סגור</button>
@@ -276,18 +276,18 @@ function AnchoredWorld({ research, shell, subject, context }) {
     <section className="sod29-section sod29-world-anchor-intro">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">העולם סביב העוגן</div>
+          <div className="sod29-kicker">מה מתחבר לכאן</div>
           <h2>{subject.label || subject.id}</h2>
-          <div className="sod29-muted">כאן נאספים הקשרים, הממצאים, המקורות ונקודות הזמן שנמצאו סביב העוגן. אפשר לעבור לקשר אחר, לבדוק ממצא או מקור, ולחזור בדיוק לנקודה שממנה יצאת.</div>
+          <div className="sod29-muted">כאן אפשר לראות מה מתחבר לנקודה הזאת — קשרים, מקורות, אירועים, נקודות שנמצאו וזמן. אפשר לעבור מחיבור לחיבור, לפתוח את הפרטים ולחזור בדיוק למקום שממנו יצאת.</div>
         </div>
-        <button className="sod29-action" type="button" onClick={backToWorld}>◌ נקה עוגן</button>
+        <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
       </div>
     </section>
 
-    {state.loading ? <NativeStateSection><FrameState kind="loading" title="טוען קשרים, מחקר ומקורות">העוגן נשמר בזמן שהחומר נאסף.</FrameState></NativeStateSection> : null}
-    {state.error ? <NativeStateSection><FrameState kind="error" title="לא הצלחנו לפתוח את העוגן כרגע">לא מוצג חומר חלופי במקום המידע שלא נטען.</FrameState></NativeStateSection> : null}
-    {!state.loading && !state.error && !data ? <NativeStateSection><FrameState kind="unavailable" title="אין חומר זמין לעוגן הזה">העוגן נשאר שמור ואפשר לחזור, לחפש או לבחור נקודה אחרת.</FrameState></NativeStateSection> : null}
-    {deepening.error ? <NativeStateSection><FrameState kind="unavailable" title="הקשר קיים אך היעד לא נפתח כרגע">אפשר להמשיך לעיין בעוגן הנוכחי או לנסות שוב.</FrameState></NativeStateSection> : null}
+    {state.loading ? <NativeStateSection><FrameState kind="loading" title="אוסף את מה שמתחבר לכאן">הנקודה נשמרת בזמן שהחומר נטען.</FrameState></NativeStateSection> : null}
+    {state.error ? <NativeStateSection><FrameState kind="error" title="לא הצלחנו לפתוח את הנקודה כרגע">לא מוצג חומר חלופי במקום המידע שלא נטען.</FrameState></NativeStateSection> : null}
+    {!state.loading && !state.error && !data ? <NativeStateSection><FrameState kind="unavailable" title="אין חומר זמין לנקודה הזאת">המקום נשאר שמור ואפשר לחזור, לחפש או לבחור נקודה אחרת.</FrameState></NativeStateSection> : null}
+    {deepening.error ? <NativeStateSection><FrameState kind="unavailable" title="החיבור קיים אך היעד לא נפתח כרגע">אפשר להמשיך לעיין כאן או לנסות שוב.</FrameState></NativeStateSection> : null}
 
     {data ? <div className="sod29-world-native-projection" data-world-density={density}>
       <section className="sod29-section">
@@ -296,10 +296,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span>
         </div>
         <div className="sod29-world-stage">
-          <div className="sod29-anchor-core"><div><div className="sod29-kicker">עוגן פעיל</div><strong>{data.identity.label}</strong><small>{FACET_LABELS[data.identity.type] || data.identity.type}</small></div></div>
+          <div className="sod29-anchor-core"><div><div className="sod29-kicker">הנקודה שבמרכז</div><strong>{data.identity.label}</strong><small>{FACET_LABELS[data.identity.type] || data.identity.type}</small></div></div>
           <div className="sod29-orbit-metrics" aria-label="כמות חומר זמין לפי משפחה">
             <div className="sod29-card"><div className="sod29-stat">{counts.relations}</div><div className="sod29-stat-label">קשרים</div></div>
-            <div className="sod29-card"><div className="sod29-stat">{counts.findings}</div><div className="sod29-stat-label">ממצאי מחקר</div></div>
+            <div className="sod29-card"><div className="sod29-stat">{counts.findings}</div><div className="sod29-stat-label">מה מצאנו</div></div>
             <div className="sod29-card"><div className="sod29-stat">{counts.sources}</div><div className="sod29-stat-label">מקורות</div></div>
             <div className="sod29-card"><div className="sod29-stat">{counts.worlds}</div><div className="sod29-stat-label">משפחות תוכן</div></div>
             <div className="sod29-card"><div className="sod29-stat">{counts.timeline}</div><div className="sod29-stat-label">נקודות זמן</div></div>
@@ -307,8 +307,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
       </section>
 
-      {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="העוגן קיים, אבל סביבו מעט חומר כרגע">זהו מצב תקין. העולם נשאר דל במקום להמציא קשרים, מקורות או ממצאים שאינם קיימים.</FrameState></NativeStateSection> : null}
-      {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מחומר המחקר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
+      {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="הנקודה קיימת, אבל סביבה מעט חומר כרגע">זהו מצב תקין. העולם נשאר שקט במקום להמציא קשרים, מקורות או דברים שלא נמצאו.</FrameState></NativeStateSection> : null}
+      {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מהחומר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
 
       {data.graph?.relations?.length ? <section className="sod29-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">קשרים</div><h2>מה מחובר לכאן</h2></div></div>
@@ -323,28 +323,28 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </section> : null}
 
       {data.research?.findings?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר חי</div><h2>ממצאים סביב העוגן</h2></div></div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מה מצאנו</div><h2>נקודות שנמצאו סביב הנקודה הזאת</h2></div></div>
         <div className="sod29-list">{data.research.findings.slice(0, 12).map((finding, index) => {
-          const verification = VERIFICATION_LABELS[finding.verification?.verification_state] || "ממצא מחקרי";
+          const verification = VERIFICATION_LABELS[finding.verification?.verification_state] || "נקודה לבדיקה";
           return <div className="sod29-row" key={finding.id || index}>
-            <div><strong>{finding.statement || finding.subject?.label || "ממצא מחקרי"}</strong><small>{verification}</small></div>
+            <div><strong>{finding.statement || finding.subject?.label || "נקודה לבדיקה"}</strong><small>{verification}</small></div>
             <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button>
           </div>;
         })}</div>
       </section> : null}
 
       {data.topics?.findings?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">התכנסויות</div><h2>מחקרים שנפגשים עם העוגן</h2></div></div>
-        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "התכנסות"}</strong><small>מחקר קשור לעוגן</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">התכנסויות</div><h2>חיבורים שנפגשים כאן</h2></div></div>
+        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "התכנסות"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
       </section> : null}
 
       {data.sources?.length ? <section className="sod29-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה החומר מגיע</h2></div><button className="sod29-action" type="button" onClick={() => shell.go("/books")}>ספרים ומקורות</button></div>
-        <div className="sod29-list">{data.sources.slice(0, 10).map((source, index) => <div className="sod29-row" key={`${source.ref || source.label}-${index}`}><div><strong>{source.label || source.ref || "מקור"}</strong><small>{source.type === "verse" ? "פסוק" : "מקור מחקרי"}</small></div><button className="sod29-action" type="button" onClick={() => inspectSource(source)}>בדוק</button></div>)}</div>
+        <div className="sod29-list">{data.sources.slice(0, 10).map((source, index) => <div className="sod29-row" key={`${source.ref || source.label}-${index}`}><div><strong>{source.label || source.ref || "מקור"}</strong><small>{source.type === "verse" ? "פסוק" : "מקור"}</small></div><button className="sod29-action" type="button" onClick={() => inspectSource(source)}>בדוק</button></div>)}</div>
       </section> : null}
 
       {data.numberWorlds?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">משפחות תוכן</div><h2>הקשרים נוספים סביב המספר</h2></div></div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">משפחות תוכן</div><h2>עוד הקשרים סביב המספר</h2></div></div>
         <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
       </section> : null}
 
@@ -374,7 +374,7 @@ export default function World2029Page() {
   useEffect(() => {
     applySeo({
       title: "העולם · SOD1820",
-      description: "עולם המחקר של SOD1820 — זהויות, קשרים, ממצאים, מקורות וציר זמן סביב עוגנים אמיתיים.",
+      description: "העולם של SOD1820 — מספרים, ביטויים, מקורות, אירועים וקשרים סביב עוגנים אמיתיים.",
       path: "/world",
     });
   }, []);
@@ -385,8 +385,8 @@ export default function World2029Page() {
       symbol="◌"
       eyebrow="SOD1820 · ONE WORLD"
       title="העולם"
-      description="מפת המחקר של המציאות: פתח עוגן, ראה מה באמת מחובר אליו, העמק בקשרים ובממצאים וחזור בדיוק לנקודה שממנה יצאת."
-      status="עולם · מחקר"
+      description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח חיבור, העמק בו וחזור בדיוק למקום שממנו יצאת."
+      status="עולם · גילוי"
     >
       <WorldBody />
     </Sod2029Shell>
