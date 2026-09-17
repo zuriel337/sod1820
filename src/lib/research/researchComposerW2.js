@@ -1,6 +1,13 @@
 import { resolveResearchIdentities } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2 } from "./researchPlanV2.js";
 import {
+  ensureResearchIntakeTransport,
+  projectResearchIntakeLineage,
+  questionForIntakeOutput,
+  rawInputForIntakeOutput,
+  researchIntakeAccessDecision,
+} from "./researchIntakeTransport.js";
+import {
   CAPABILITY_STATUS,
   capabilityResult,
   composeResearchResultBundle,
@@ -19,7 +26,15 @@ function failureReason(error) {
   return error?.message ? String(error.message) : String(error);
 }
 
-async function executeCapability({ capability, executor, plan, identityResolution, signal, authorizationContext }) {
+async function executeCapability({
+  capability,
+  executor,
+  plan,
+  identityResolution,
+  intakeTransport,
+  signal,
+  authorizationContext,
+}) {
   if (typeof executor !== "function") {
     return capabilityResult({
       key: capability,
@@ -31,9 +46,18 @@ async function executeCapability({ capability, executor, plan, identityResolutio
 
   try {
     // W2.2b: the RAW authorization context travels to the executor on this private channel only.
-    // It is deliberately absent from `plan` (which is returned to the caller inside the Bundle);
-    // `plan.access` carries the output-safe descriptor instead.
-    const out = await executor({ plan, identityResolution, capability, signal, authorizationContext, access: plan?.access || null });
+    // G3 Intake: the RAW intake transport follows the same discipline. It may contain personal
+    // source/extraction/representation content and is deliberately absent from the returned Bundle.
+    // Only projectResearchIntakeLineage() is allowed to cross the composition boundary.
+    const out = await executor({
+      plan,
+      identityResolution,
+      intake: intakeTransport,
+      capability,
+      signal,
+      authorizationContext,
+      access: plan?.access || null,
+    });
     const status = out?.status || CAPABILITY_STATUS.EXECUTED;
     return capabilityResult({
       key: capability,
@@ -68,6 +92,7 @@ export async function composeResearchW2({
   intent = "research",
   identityCandidates = [],
   rawInput = null,
+  intake = null,
   explicitTextComputation = false,
   authorizationContext = null,
   contextType = "public_user",
@@ -80,9 +105,18 @@ export async function composeResearchW2({
   nextActions = [],
   signal = null,
 } = {}) {
+  // G3 Universal Intake is an ephemeral carrier only. It does not replace legacy callers that pass
+  // rawInput/identityCandidates directly, and it does not own persistence or semantic identities.
+  const intakeTransport = ensureResearchIntakeTransport(intake);
+  const effectiveRawInput = intakeTransport?.raw_input?.value ?? rawInput ?? question;
+  const effectiveIdentityCandidates = [
+    ...(Array.isArray(intakeTransport?.identity_candidates) ? intakeTransport.identity_candidates : []),
+    ...(Array.isArray(identityCandidates) ? identityCandidates : []),
+  ];
+
   const identityResolution = resolveResearchIdentities({
-    candidates: identityCandidates,
-    rawInput: rawInput ?? question,
+    candidates: effectiveIdentityCandidates,
+    rawInput: effectiveRawInput,
     explicitTextComputation,
   });
 
@@ -96,6 +130,26 @@ export async function composeResearchW2({
     requestedCapabilities,
     requestedDepth,
   });
+
+  // Authorization/privacy is checked BEFORE any capability receives a private Source/Representation.
+  // Unknown/unclassified intake fails closed. The transport does not grant access; it only consumes
+  // the already-resolved canonical access descriptor produced by Research Plan.
+  const intakeAccess = researchIntakeAccessDecision(intakeTransport, plan.access);
+  const safeIntakeLineage = projectResearchIntakeLineage(intakeTransport, plan.access);
+  const safeRawInput = intakeTransport
+    ? rawInputForIntakeOutput(intakeTransport, plan.access)
+    : (rawInput ?? question);
+  const safeQuestion = intakeTransport
+    ? questionForIntakeOutput(question, intakeTransport, plan.access)
+    : question;
+  const outputPlan = intakeTransport ? {
+    ...plan,
+    question: safeQuestion,
+    intake_access: {
+      allowed_for_execution: intakeAccess.allowed,
+      reasons: intakeAccess.reasons,
+    },
+  } : plan;
 
   const requested = [...new Set([
     ...(plan.check_order || []),
@@ -115,11 +169,25 @@ export async function composeResearchW2({
       }));
       continue;
     }
+    if (intakeTransport && !intakeAccess.allowed) {
+      capabilityResults.push(capabilityResult({
+        key: capability,
+        status: CAPABILITY_STATUS.SKIPPED,
+        reason: "intake access denied before capability execution",
+        findings: [],
+        trace: {
+          intake_access_denied: true,
+          reasons: intakeAccess.reasons,
+        },
+      }));
+      continue;
+    }
     const executed = await executeCapability({
       capability,
       executor: byCapability.get(capability),
       plan,
       identityResolution,
+      intakeTransport,
       signal,
       authorizationContext,
     });
@@ -157,16 +225,19 @@ export async function composeResearchW2({
     })),
     requested_capabilities: requested,
     requested_depth: requestedDepth,
+    intake_lineage: safeIntakeLineage,
   };
 
   return composeResearchResultBundle({
     query: {
-      raw_input: rawInput ?? question,
-      question,
+      raw_input: safeRawInput,
+      raw_input_redacted: Boolean(intakeTransport?.raw_input && safeRawInput == null),
+      question: safeQuestion,
       intent,
       identities: identityResolution.identities,
+      intake_lineage: safeIntakeLineage,
     },
-    plan,
+    plan: outputPlan,
     capabilities: capabilityResults,
     ranking,
     resolvedRunSnapshot: snapshot,
