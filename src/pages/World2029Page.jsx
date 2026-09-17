@@ -705,6 +705,16 @@ function AnchoredWorld({ research, shell, subject, context }) {
         })}</div>
       </section> : null}
 
+      {data.topics?.findings?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>חיבורים שנפגשים כאן</h2></div></div>
+        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
+      </section> : null}
+
+      {data.numberWorlds?.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">משפחות תוכן</div><h2>עוד הקשרים סביב המספר</h2></div></div>
+        <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
+      </section> : null}
+
       {researchFindings.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">עוד מחקר</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
         <div className="sod29-list">{researchFindings.slice(0, 12).map((finding, index) => {
@@ -726,16 +736,6 @@ function AnchoredWorld({ research, shell, subject, context }) {
             <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button>
           </div>;
         })}</div>
-      </section> : null}
-
-      {data.topics?.findings?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>חיבורים שנפגשים כאן</h2></div></div>
-        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
-      </section> : null}
-
-      {data.numberWorlds?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">משפחות תוכן</div><h2>עוד הקשרים סביב המספר</h2></div></div>
-        <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
       </section> : null}
 
       {data.timeline?.length ? <section className="sod29-section sod29-world-human-section">
