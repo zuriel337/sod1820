@@ -64,13 +64,14 @@ function normalizeLang(value: unknown): string | null {
   return /^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/.test(s) ? s : null;
 }
 
-function sourceWitnessLang(content: string, explicit: unknown): string | null {
+function sourceWitnessLanguage(content: string, explicit: unknown): { lang: string | null; basis: string } {
   const declared = normalizeLang(explicit);
-  if (declared) return declared;
+  if (declared) return { lang: declared, basis: "declared_by_intake" };
   const hasHebrew = /[א-ת]/.test(content || "");
   const hasLatin = /[A-Za-z]/.test(content || "");
   // Safe narrow inference only. Latin script alone is NOT automatically English.
-  return hasHebrew && !hasLatin ? "he" : null;
+  if (hasHebrew && !hasLatin) return { lang: "he", basis: "inferred_hebrew_only" };
+  return { lang: null, basis: "unknown" };
 }
 
 async function allMethods(w: string): Promise<Record<string, number> | null> {
@@ -79,11 +80,11 @@ async function allMethods(w: string): Promise<Record<string, number> | null> {
 
 async function extractText(content: string, source: string, source_ref: string | null, contributor: string | null, source_lang: string | null = null) {
   if (!content || content.trim().length < 8) return { inserted: 0, objects: [] as any[] };
-  const witnessLang = sourceWitnessLang(content, source_lang);
+  const witnessLanguage = sourceWitnessLanguage(content, source_lang);
   const resp = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST", headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({ model: MODEL, max_tokens: 1900, system: SYSTEM,
-      messages: [{ role: "user", content: `מקור: ${source}\nשפת מקור מוצהרת/מזוהה: ${witnessLang || "לא ידועה"}\n\nהטקסט:\n"""\n${content.slice(0, 6000)}\n"""\n\nהחזר JSON array בלבד לפי השפה.` }] }),
+      messages: [{ role: "user", content: `מקור: ${source}\nשפת מקור מוצהרת/מזוהה: ${witnessLanguage.lang || "לא ידועה"}\n\nהטקסט:\n"""\n${content.slice(0, 6000)}\n"""\n\nהחזר JSON array בלבד לפי השפה.` }] }),
   });
   if (!resp.ok) return { inserted: 0, error: `anthropic_${resp.status}` };
   const d = await resp.json();
@@ -101,8 +102,9 @@ async function extractText(content: string, source: string, source_ref: string |
     if (!KINDS.includes(kind)) continue;
     const statement = String(o?.statement || "").slice(0, 500).trim();
     if (!statement) continue;
-    const presentationTitle = String(o?.title || statement).slice(0, 180).trim() || statement;
-    const presentationSummary = String(o?.summary || statement).slice(0, 700).trim() || statement;
+    const presentationTitle = String(o?.title || "").slice(0, 180).trim() || null;
+    const presentationSummary = String(o?.summary || "").slice(0, 700).trim() || null;
+    const hasHumanPresentation = Boolean(presentationTitle || presentationSummary);
     const terms = (Array.isArray(o?.terms) ? o.terms : []).map(String).slice(0, 6);
     const relates = (Array.isArray(o?.relates) ? o.relates : []).map(String).slice(0, 4);
     const value = (o?.value != null && !isNaN(+o.value)) ? Math.trunc(+o.value) : null;
@@ -127,20 +129,22 @@ async function extractText(content: string, source: string, source_ref: string |
           default_locale: "he",
           statement_lang: "he",
           statement_role: "research_statement",
-          source_witness_lang: witnessLang,
-          variants: {
+          source_witness_lang: witnessLanguage.lang,
+          source_witness_lang_basis: witnessLanguage.basis,
+          variants: hasHumanPresentation ? {
             he: {
               title: presentationTitle,
               summary: presentationSummary,
               source_label: null,
             },
-          },
+          } : {},
           compiled: {
             mode: "research_extract_single_pass",
             generated_by: "research-extract",
             model: MODEL,
             generated_at: new Date().toISOString(),
             source_ref: ref,
+            presentation_complete: hasHumanPresentation,
           },
         },
       },
@@ -156,7 +160,7 @@ async function extractText(content: string, source: string, source_ref: string |
       if ((insErr as any).code === "23505") { absorbed++; continue; }
       throw insErr;
     }
-    inserted++; out.push({ kind, statement, title: presentationTitle, value, engine_verified });
+    inserted++; out.push({ kind, statement, title: presentationTitle, value, engine_verified, presentation_complete: hasHumanPresentation });
   }
   return { inserted, absorbed, objects: out };
 }
