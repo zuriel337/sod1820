@@ -18,6 +18,26 @@ function edgeRef(id) {
   return id ? `edge:${id}` : null;
 }
 
+function projectedNodeContext(node) {
+  const metadata = node?.metadata && typeof node.metadata === "object" ? node.metadata : {};
+  const meter = Number(metadata.meter);
+  const importance = Number(metadata.importance);
+  return Object.freeze({
+    id: node?.id ? String(node.id) : null,
+    type: node?.type || "entity",
+    label: clean(node?.label) || (node?.id ? String(node.id) : ""),
+    space: clean(metadata.space) || "core",
+    curation: Object.freeze({
+      tier: clean(metadata.tier),
+      role: clean(metadata.role),
+    }),
+    signal: Object.freeze({
+      meter: Number.isFinite(meter) ? meter : null,
+      importance: Number.isFinite(importance) ? importance : null,
+    }),
+  });
+}
+
 /**
  * Read-only projection of one canonical Reality Graph node into Universal Finding.
  * Graph existence is identity/structure, not verification, governance, or publication.
@@ -74,6 +94,7 @@ export function graphNodeToUniversalFinding(node, { relations = [] } = {}) {
 /**
  * One canonical edge becomes a relation Finding. The edge itself is source evidence;
  * the adapter never upgrades it to a claim/fact/match/canonical state.
+ * `from`/`to` below are bounded display context only: no raw metadata leaves this adapter.
  */
 export function graphEdgeToUniversalFinding(edge, nodesById = new Map()) {
   if (!edge?.id || !edge?.from_node || !edge?.to_node) return null;
@@ -127,7 +148,14 @@ export function graphEdgeToUniversalFinding(edge, nodesById = new Map()) {
         { space: "reality-graph", id: fromId },
         { space: "reality-graph", id: toId },
       ],
-      relations: [{ id, fromNodeId: fromId, toNodeId: toId, relationType }],
+      relations: [{
+        id,
+        fromNodeId: fromId,
+        toNodeId: toId,
+        relationType,
+        from: projectedNodeContext(from),
+        to: projectedNodeContext(to),
+      }],
       dimensions: { relationFamily: relationType },
     },
   });

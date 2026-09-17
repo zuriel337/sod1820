@@ -22,13 +22,14 @@ on:
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-world-surface.mjs"
+      - "tests/world2029-release.spec.cjs"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
 
 jobs:
   hard-isolation:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -55,3 +56,32 @@ jobs:
           test -f dist/2029.html
           ! grep -q "site.webmanifest" dist/2029.html
           ! grep -q "/logo.png" dist/2029.html
+      - name: Install browser acceptance runner
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated 2029 preview
+        run: |
+          cp dist/2029.html dist/index.html
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sod1820-2029-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/world >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/sod1820-2029-preview.log
+          exit 1
+      - name: Real World browser acceptance
+        run: |
+          mkdir -p test-results/release-visual
+          npx playwright test tests/world2029-release.spec.cjs --reporter=line
+      - name: Upload native World screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: world-2029-visual-evidence
+          path: test-results/release-visual
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Show isolated preview log on failure
+        if: failure()
+        run: cat /tmp/sod1820-2029-preview.log || true
