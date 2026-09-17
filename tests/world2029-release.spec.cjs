@@ -124,6 +124,23 @@ test('RICH 1820 opens human-first before raw research detail', async ({ page }) 
 });
 
 
+test('RICH 1820 projects real published media without legacy gallery UI', async ({ page }) => {
+  await openWorldAnchor(page, 1820, 390);
+  await selectWorldLane(page, 'תמונות');
+  await expect(page.getByRole('heading', { name: 'החומר החזותי שמחובר ל־1820' })).toBeVisible();
+  const mediaCards = page.locator('.sod29-world-media-card');
+  expect(await mediaCards.count()).toBeGreaterThan(0);
+  const firstImage = mediaCards.first().locator('img');
+  await expect(firstImage).toBeVisible();
+  const src = await firstImage.getAttribute('src');
+  expect(src).toMatch(/linswmnnkjxvweumprav\.supabase\.co\/storage\/v1\/object\/public\/media\//);
+  const alt = await firstImage.getAttribute('alt');
+  expect(String(alt || '').trim().length).toBeGreaterThan(3);
+  await expect(page.locator('.sod29-world-native-projection')).not.toContainText(/\.(?:jpe?g|png|webp|gif|svg|avif)\b/i);
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/world-media-1820-390.png', fullPage: true });
+});
+
 test('RICH 1820 remains useful when research rows are access-filtered', async ({ page }) => {
   const projection = await openWorldAnchor(page, 1820, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'rich');

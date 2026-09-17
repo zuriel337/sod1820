@@ -248,7 +248,53 @@
   line-height:1.65;
 }
 
+.sod29-world-media-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.sod29-world-media-card{
+  min-width:0;
+  overflow:hidden;
+  border:1px solid var(--s29-line);
+  border-radius:20px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);
+}
+.sod29-world-media-frame{
+  display:grid;
+  place-items:center;
+  aspect-ratio:4/3;
+  overflow:hidden;
+  background:color-mix(in srgb,var(--s29-panel) 90%,black 10%);
+  border-block-end:1px solid var(--s29-line);
+}
+.sod29-world-media-frame img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+.sod29-world-media-copy{
+  padding:14px;
+}
+.sod29-world-media-copy h3{
+  margin:8px 0 6px;
+  color:var(--s29-ink);
+  font-size:17px;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+.sod29-world-media-copy .sod29-muted{
+  line-height:1.65;
+  font-size:12.5px;
+}
+.sod29-world-media-copy .sod29-actions{
+  margin-top:12px;
+}
+
 @media(max-width:900px){
+  .sod29-world-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
   .sod29-world-anchor-profile-grid{grid-template-columns:1fr}
   .sod29-world-primary-grid{grid-template-columns:1fr}
   .sod29-world-primary-item.is-lead{
@@ -258,6 +304,7 @@
   }
 }
 @media(max-width:620px){
+  .sod29-world-media-grid{grid-template-columns:1fr}
   .sod29-world-lanes{
     flex-wrap:nowrap;
     overflow-x:auto;

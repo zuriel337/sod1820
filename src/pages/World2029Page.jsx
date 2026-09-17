@@ -98,6 +98,7 @@ const SORT_LABELS = Object.freeze({
 
 const WORLD_LANES = Object.freeze([
   { key: "overview", label: "מבט כללי" },
+  { key: "media", label: "תמונות" },
   { key: "calculations", label: "גימטריה" },
   { key: "sources", label: "מקורות" },
   { key: "relations", label: "קשרים" },
@@ -269,6 +270,20 @@ function humanTimelineLabel(item) {
   if (looksTechnicalResearchTitle(label)) return "חיבור מחקרי נוסף";
   const withoutTechnicalRelation = label.replace(/\s+—\s+[A-Za-z_]+\s+→\s+.+$/u, "").trim();
   return withoutTechnicalRelation || label || "נקודת מחקר";
+}
+
+function humanMediaLabel(item, anchorLabel) {
+  const label = String(item?.label || "").replace(/^#+\s*/, "").trim();
+  if (!label || looksLikeFilename(label) || /^עדכון\b/u.test(label) || looksTechnicalResearchTitle(label)) {
+    return `תמונה סביב ${anchorLabel || "הנקודה"}`;
+  }
+  return label;
+}
+
+function mediaDate(item) {
+  const value = item?.occurredAt || item?.createdAt || null;
+  if (!value) return null;
+  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return null; }
 }
 
 function WorldCard({ card, onOpen }) {
@@ -477,9 +492,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const prominenceItems = prominence?.items || [];
   const gematriaRows = useMemo(() => worldGematriaRows(data), [data]);
   const sourceRows = data?.sources || [];
+  const mediaItems = data?.media?.items || [];
   const anchorProfile = data?.anchorProfile?.finding?.projection?.dimensions?.legacyNumberAnchor || null;
   const laneCounts = {
     overview: prominenceItems.length,
+    media: mediaItems.length,
     calculations: gematriaRows.length,
     sources: sourceRows.length,
     relations: graphRelations.length,
@@ -535,6 +552,15 @@ function AnchoredWorld({ research, shell, subject, context }) {
       id: String(item?.id || item?.sourceRef || item?.label || "world-item"),
       type: item?.type || item?.kind || "finding",
       label: humanProminenceLabel(item, data?.identity?.label || subject.label || subject.id),
+      href: "/world",
+    });
+  };
+
+  const inspectMedia = (item) => {
+    shell.openInspect({
+      id: String(item?.nodeId || item?.galleryImageId || "media"),
+      type: "image",
+      label: humanMediaLabel(item, data?.identity?.label || subject.label || subject.id),
       href: "/world",
     });
   };
@@ -749,6 +775,40 @@ function AnchoredWorld({ research, shell, subject, context }) {
             </div>;
           })}
         </div>
+      </section> : null}
+
+      {activeLane === "media" ? <section className="sod29-section sod29-world-media-section">
+        <div className="sod29-section-head">
+          <div>
+            <div className="sod29-kicker">תמונות ומדיה</div>
+            <h2>החומר החזותי שמחובר ל־{data.identity.label}</h2>
+          </div>
+          {data?.media?.totalEligible > mediaItems.length ? <span className="sod29-chip">מוצגות {mediaItems.length} מתוך {data.media.totalEligible}</span> : null}
+        </div>
+        {data?.media?.access?.available === false ? <FrameState kind="unavailable" title="המדיה אינה זמינה בהרשאה הנוכחית">שאר שכבות העולם נשארות זמינות.</FrameState> : null}
+        {data?.media?.access?.available !== false && !mediaItems.length ? <FrameState kind="empty" title="אין כרגע תמונות מחוברות לנקודה הזאת">לא מוצגת תמונה חלופית אם אין ייצוג חזותי מחובר וגלוי.</FrameState> : null}
+        {mediaItems.length ? <div className="sod29-world-media-grid">
+          {mediaItems.map((item) => {
+            const label = humanMediaLabel(item, data.identity.label);
+            const date = mediaDate(item);
+            return <article className="sod29-world-media-card" key={item.galleryImageId}>
+              <div className="sod29-world-media-frame">
+                <img src={item.thumbUrl || item.imageUrl} alt={label} loading="lazy" />
+              </div>
+              <div className="sod29-world-media-copy">
+                <div className="sod29-world-primary-meta">
+                  <span>{relationLabel(item.relationType)}</span>
+                  {date ? <span>{date}</span> : null}
+                </div>
+                <h3>{label}</h3>
+                <div className="sod29-muted">מוצג כאן בגלל קשר ישיר בגרף אל הנקודה הזאת; התמונה עצמה אינה הוכחה או דירוג אמת.</div>
+                <div className="sod29-actions">
+                  <button className="sod29-action" type="button" onClick={() => inspectMedia(item)}>בדוק</button>
+                </div>
+              </div>
+            </article>;
+          })}
+        </div> : null}
       </section> : null}
 
       {activeLane === "relations" && graphRelations.length ? <section className="sod29-section">

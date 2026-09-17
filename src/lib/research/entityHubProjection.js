@@ -12,6 +12,7 @@ const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pa
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
+const WORLD_MEDIA_FIELDS = "id,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags";
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -441,6 +442,121 @@ async function fetchNumberAnchorProfile(number) {
   };
 }
 
+function mediaRelationPriority(type) {
+  if (type === "contains") return 0;
+  if (type === "related" || type === "converges_on") return 1;
+  if (type === "mentions") return 2;
+  return 3;
+}
+
+async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
+  const cap = safeLimit(limit, 8, 16);
+  const candidates = new Map();
+
+  for (const finding of relationFindings || []) {
+    const relation = finding?.projection?.relations?.[0] || null;
+    if (!relation) continue;
+    for (const endpoint of [relation.from, relation.to]) {
+      if (!endpoint?.id || !["image", "media"].includes(endpoint.type)) continue;
+      const id = String(endpoint.id);
+      const current = candidates.get(id);
+      const next = {
+        nodeId: id,
+        relationType: relation.relationType || "related",
+      };
+      if (!current || mediaRelationPriority(next.relationType) < mediaRelationPriority(current.relationType)) {
+        candidates.set(id, next);
+      }
+    }
+  }
+
+  const nodeIds = [...candidates.keys()].slice(0, 40);
+  if (!nodeIds.length) return { items: [], access: { available: true, reason: null } };
+
+  let mediaNodes = [];
+  try {
+    const { data, error } = await supabase
+      .from("nodes")
+      .select("id,type,label,metadata,created_at")
+      .in("id", nodeIds)
+      .in("type", ["image", "media"])
+      .eq("is_active", true);
+    if (error) throw error;
+    mediaNodes = Array.isArray(data) ? data : [];
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return { items: [], access: { available: false, reason: "media_graph_nodes_not_readable_for_current_session" } };
+    }
+    throw error;
+  }
+
+  const galleryIds = [...new Set(mediaNodes
+    .map((node) => clean(node?.metadata?.gallery_image_id))
+    .filter((value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)))];
+  if (!galleryIds.length) return { items: [], access: { available: true, reason: null } };
+
+  let galleryRows = [];
+  try {
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .select(WORLD_MEDIA_FIELDS)
+      .in("id", galleryIds)
+      .eq("published", 1)
+      .or("curator_hidden.is.null,curator_hidden.eq.false");
+    if (error) throw error;
+    galleryRows = Array.isArray(data) ? data : [];
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return { items: [], access: { available: false, reason: "gallery_media_not_readable_for_current_session" } };
+    }
+    throw error;
+  }
+
+  const galleryById = new Map(galleryRows.map((row) => [String(row.id), row]));
+  const seen = new Set();
+  const items = mediaNodes.flatMap((node) => {
+    const galleryId = clean(node?.metadata?.gallery_image_id);
+    const row = galleryId ? galleryById.get(galleryId) : null;
+    // Defense in depth: public media remains published + non-hidden even if a future reader
+    // changes the server-side query. Representation availability never broadens publication.
+    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true || seen.has(String(row.id))) return [];
+    seen.add(String(row.id));
+    const relationType = candidates.get(String(node.id))?.relationType || "related";
+    return [{
+      nodeId: String(node.id),
+      galleryImageId: String(row.id),
+      label: clean(row.name) || clean(node.label) || "תמונה",
+      description: clean(row.description) || null,
+      imageUrl: row.image_url,
+      thumbUrl: row.thumb_url || row.image_url,
+      relationType,
+      occurredAt: row.occurred_at || null,
+      createdAt: row.created_at || node.created_at || null,
+      imageType: clean(row.image_type) || null,
+      space: clean(row.space) || null,
+      tags: Array.isArray(row.tags) ? row.tags : [],
+      sourceRef: `gallery_images:${row.id}`,
+      projectionReason: `reality_graph:${relationType}`,
+    }];
+  });
+
+  items.sort((a, b) => (
+    // Relation directness is the existing contextual projection reason. After that, use
+    // temporal/stable identity only. Legacy gallery importance is intentionally NOT a
+    // World ranking signal and cannot change public media order.
+    mediaRelationPriority(a.relationType) - mediaRelationPriority(b.relationType)
+    || String(b.occurredAt || b.createdAt || "").localeCompare(String(a.occurredAt || a.createdAt || ""))
+    || a.galleryImageId.localeCompare(b.galleryImageId)
+  ));
+
+  return {
+    items: items.slice(0, cap),
+    totalEligible: items.length,
+    access: { available: true, reason: null },
+    note: "Direct Reality Graph adjacency supplies projection reason; published non-hidden gallery_images supplies the media representation. Presentation order is contextual only, never truth rank.",
+  };
+}
+
 function humanGateSummary(rows) {
   const status = { candidate: 0, approved: 0, canonical: 0, rejected: 0, other: 0 };
   const access = { private: 0, family_shared: 0, public_candidate: 0, other: 0 };
@@ -565,6 +681,7 @@ export async function fetchEntityHubProjection({
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
   const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
+  const media = await fetchWorldMediaProjection(relationFindings, { limit: 8 });
   let topics = { rows: [], findings: [] };
   let numberResearch = null;
   let numberJourney = null;
@@ -643,6 +760,7 @@ export async function fetchEntityHubProjection({
       entity: entityFinding,
       relations: relationFindings,
     },
+    media,
     research: {
       rows: research.rows,
       findings: research.findings,
