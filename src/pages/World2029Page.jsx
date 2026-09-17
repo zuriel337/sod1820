@@ -188,6 +188,7 @@ function humanProminenceLabel(item, anchorLabel) {
     return humanSourceLabel({ label, ref: item?.sourceRef, type: item?.type });
   }
   if (["image", "media"].includes(item?.type) && looksLikeFilename(label)) return "פריט מדיה";
+  if (item?.type !== "foreign_word" && looksTechnicalResearchTitle(label)) return prominenceTypeLabel(item);
   return label || prominenceTypeLabel(item);
 }
 
@@ -257,7 +258,8 @@ function humanTimelineLabel(item) {
   if (/\.(?:jpe?g|png|webp|gif|svg|avif)(?:\s|—|$)/i.test(label)) return "פריט מדיה נוסף למחקר";
   if (looksTechnicalSource(label)) return "מקור מחקר נוסף";
   if (looksTechnicalResearchTitle(label)) return "חיבור מחקרי נוסף";
-  return label || "נקודת מחקר";
+  const withoutTechnicalRelation = label.replace(/\s+—\s+[A-Za-z_]+\s+→\s+.+$/u, "").trim();
+  return withoutTechnicalRelation || label || "נקודת מחקר";
 }
 
 function WorldCard({ card, onOpen }) {
