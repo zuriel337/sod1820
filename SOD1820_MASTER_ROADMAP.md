@@ -1,6 +1,6 @@
-# SOD1820 — MASTER ROADMAP v6 COMPACT
+# SOD1820 — MASTER ROADMAP v6.1 COMPACT
 
-**Date:** 2026-09-15  
+**Date:** 2026-09-17  
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 OPEN** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
@@ -28,12 +28,102 @@ Closure evidence:
 
 Detailed domain semantics live in owners, not here:
 
-- Continuous Raziel Research Companion / Research Presence → active `raziel_companion_layer_law` **v2**;
+- Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v5**;
+- Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v15** + Research Workspace;
+- Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v4**;
+- Capability availability / building/open state → active `site_flags_lock_law` **v3**;
+- Translation / source-language evidence integrity → active `content_translation_law` **v3**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v9**.
 
 Historical Roadmap v5.6 remains provenance only. Normal routing starts from the current owner tree, not from the historical Roadmap body.
+
+## G3 dependency spine — bottom-up, one tree
+
+This is the implementation dependency order. Later capability may be preserved/visible as BUILDING before implementation, but it must not fork or bypass the lower layer it depends on.
+
+### A. Runtime foundation first
+
+- Experience Context / capability projection seam;
+- server-authoritative availability + entitlement + budget/usage resolution before expensive I/O;
+- privacy / lifecycle / RLS / authorization boundaries;
+- event-driven background/agent execution, idempotency, cancellation, retry and provenance;
+- media/file intake/upload adapter + canonical artifact references;
+- observability, provider/model/version/cost trace and replay/failure evidence;
+- locale-ready semantic actions, identities and status states from the start.
+
+**Important:** localization architecture is foundational now; public English rollout is not first. We design every identity/action/context so locale can project later without changing capability identity.
+
+### B. Canonical engines and semantic outputs
+
+- Gematria / method registry and deterministic calculation owners;
+- Corpus / Books / Sources / exact-expression provenance;
+- callable ELS engine boundary + canonical corpus/coordinates/result provenance;
+- Research OS / Universal Finding / Result Bundle adapters;
+- Universal Resolve/Search/Command and Research Context transport.
+
+### C. 2029 semantic product skeleton
+
+Build the stable surfaces over the same lower contracts:
+
+- System Frame / Home;
+- World;
+- Heichal;
+- Number / Expression;
+- Books / Sources;
+- ELS;
+- Journey;
+- Posts / Updates;
+- Workspace / Personal Area;
+- canonical adaptive action slots for Listen / Raziel / Spatial / Deep Research / Brief / Media / Private Corpus / Pulse.
+
+### D. ELS 2029 is an early Golden dependency
+
+ELS is intentionally before broad language/media expansion because later experiences consume it.
+
+Dependency chain:
+
+`ELS engine/result contract → ELS 2029 surface → layered/spatial representation → Raziel-in-ELS text/context → guided/spoken ELS → high-end spatial/3D → research-to-media`
+
+The 3D renderer may evolve independently, but it never becomes an ELS truth/engine owner.
+
+### E. Raziel text/tool runtime before live voice
+
+- one Raziel identity + Research Context;
+- context-aware presence on ELS/World/Heichal/Journey/Post;
+- canonical tool/action execution with Explain-Why / Trace;
+- text continuity and graceful fallback proven before live microphone sessions.
+
+### F. English Golden Locale, then language expansion
+
+Actual English rollout belongs **after A–E are stable enough that the same identities/actions/results can be projected without forks**, and **before mass production of multilingual voice/media assets**.
+
+Order:
+
+`Hebrew canonical source → English Golden Locale → prove same capability/access/truth semantics → ar/es/fr/ru/pt/de rollout`
+
+English must not create English-specific ELS, Raziel, premium state, graph, research OS or feature flags. Translation remains representation; exact language-specific Expressions/calculations retain their own provenance.
+
+### G. Multimodal / premium richness
+
+Once the semantic core and English Golden Locale are stable:
+
+- Post Listen / cached authored narration;
+- Research Audio Brief;
+- Raziel Push-to-Talk;
+- Raziel full live voice + transcript/captions;
+- Private Research Corpus / uploads;
+- Explain What I Am Looking At;
+- Research Room / long-running bounded research;
+- Research Dossier export;
+- guided spatial research and high-end 3D;
+- Research-to-Media;
+- proactive Research Pulse;
+- cross-channel companion continuity;
+- XR/VR projection.
+
+These remain preserved capabilities under `platform_tiers_law v4`; defer != delete and only explicit Human Gate cancels/retires.
 
 ## G3 opening order
 
@@ -85,6 +175,8 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 
 - server-authoritative entitlement seam;
 - privacy/data-lifecycle enforcement;
+- Experience Context / capability projection seam;
+- usage/cost resource metering boundary;
 - callable ELS boundary;
 - replay/idempotency/failure recovery;
 - canonical domain adapters where required;
@@ -95,13 +187,17 @@ Current state: **BRIDGE EXISTS · AGENT-RUNTIME ADAPTER NOT IMPLEMENTED**.
 - replayable Research Context / Journey path for 878;
 - Year/Verse Journey source/witness/counting provenance;
 - canonical adapters for Research OS, Books/Sources, ELS, Person/Life, Number/World;
+- ELS result/coordinate/replay Golden fixture;
 - exact return, Why-transition, provenance and failure/negative outcomes.
 
 ### 5. Broader G3 product/runtime implementation
 
-- Global Now/Home adapters;
+- 2029 System Frame / Global Now/Home adapters;
+- World / Heichal / Number / Books / ELS / Journey / Post / Workspace semantic surfaces;
 - Follow/Attention delivery truth;
-- Raziel continuous research companion runtime;
+- Raziel continuous research companion text/tool runtime;
+- ELS 2029 + spatial-ready projection;
+- canonical future-action slots that can show BUILDING without expensive I/O;
 - greenfield product surfaces consuming Foundation owners;
 - no inheritance obligation from legacy layout/IA.
 
@@ -122,11 +218,21 @@ It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/d
 
 Run representative real journeys and surfaces against live/replayable fixtures. No simulated PASS.
 
+Golden order should include ELS + Raziel/context before broad localization/media rollout.
+
 ### G5 — Product / Entitlement Matrix
 
 Exact Free / Registered / Premium / Credits allocation after Goldens. Entitlement never changes truth quality.
 
-### G6–G8 — Global shell, design acceptance, release batching
+### G6 — English Golden Locale / multilingual projection acceptance
+
+Prove English over the same identities, capability/access state, Research Context, truth/provenance and product surfaces. Then expand the same projection contract to the remaining canonical locales.
+
+### G7 — Multimodal / spatial / premium experience activation
+
+Activate selected Voice/Audio/Private Corpus/Spatial/Media/Pulse/Cross-channel capabilities according to G5 entitlement and per-capability Golden acceptance. Capability may remain BUILDING/PARKED without deletion.
+
+### G8 — Global shell, design acceptance, release batching
 
 Complete cross-surface integration, measurable UX acceptance, parity/release proof and final deployment batches.
 
@@ -149,9 +255,11 @@ Only decision-changing open items belong here:
 
 - exact implementation mechanics/provider for the G3 event-driven dispatcher, under `inter_agent_coordination_law` v11;
 - exact runtime integration mechanics for the existing agent media/file upload bridge;
+- exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
-- exact Free/Registered/Premium allocation in G5;
+- exact Free/Registered/Premium/Credits allocation in G5;
+- exact English launch scope after Golden Locale acceptance;
 - release batching after acceptance.
 
 ## Anti-inflation rule
