@@ -93,6 +93,23 @@ test('RICH 1820 remains useful when research rows are access-filtered', async ({
   await page.screenshot({ path: 'test-results/release-visual/world-partial-access-1820-390.png', fullPage: true });
 });
 
+test('automatic filters, sorting and explain-why work without exposing admin controls to anon', async ({ page }) => {
+  await openWorldAnchor(page, 1820, 390);
+  await expect(page.getByRole('button', { name: /מצב מנהל/ })).toHaveCount(0);
+  await expect(page.getByLabel('מיון קשרים')).toBeVisible();
+  const numberFilter = page.getByRole('button', { name: /מספרים ·/ }).first();
+  await expect(numberFilter).toBeVisible();
+  await numberFilter.click();
+  await expect(numberFilter).toHaveAttribute('aria-pressed', 'true');
+  const why = page.getByRole('button', { name: 'למה כאן?' }).first();
+  await expect(why).toBeVisible();
+  await why.click();
+  await expect(page.getByText(/אינו דירוג אמת, אימות או קנוניות/).first()).toBeVisible();
+  await page.getByLabel('מיון קשרים').selectOption('number_asc');
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/world-rich-1820-filters-390.png', fullPage: true });
+});
+
 test('MEDIUM live World 314 remains medium instead of being visually inflated', async ({ page }) => {
   const projection = await openWorldAnchor(page, 314, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'medium');
