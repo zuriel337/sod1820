@@ -38,7 +38,7 @@ assert.deepEqual(finding.evidence.refs, ["posts:136"]);
 assert.equal(finding.subject.label, "אהרן = 256");
 assert.equal(finding.subject.lang, "he", "Hebrew-only legacy statement may be safely inferred as Hebrew");
 assert.equal(finding.projection.dimensions.presentation.fallbackMode, "raw_statement");
-assert.equal(finding.projection.dimensions.presentation.rawStatementRef, `research_objects:${base.id}#statement`);
+assert.deepEqual(finding.projection.dimensions.presentation.rawStatementRef, { researchObjectId: base.id, field: "statement" });
 
 const multilingual = {
   ...base,
@@ -54,6 +54,7 @@ const multilingual = {
         statement_lang: "en",
         statement_role: "research_statement",
         source_witness_lang: "he",
+        source_witness_lang_basis: "declared_by_intake",
         variants: {
           he: {
             title: "דעת תבונות — מידה, זמן וייצוג",
@@ -80,6 +81,7 @@ assert.equal(he.view.rendererHints.presentation.summary, "מפת מחקר אנו
 assert.equal(he.view.rendererHints.presentation.sourceLabel, "דעת תבונות · סעיף כח");
 assert.equal(he.projection.dimensions.presentation.fallbackMode, null);
 assert.equal(he.projection.dimensions.presentation.statementLang, "en");
+assert.equal(he.projection.dimensions.presentation.sourceWitnessLangBasis, "declared_by_intake");
 assert.equal(he.status, "candidate");
 assert.equal(he.access.tier, "public_candidate");
 assert.equal(he.verification.verification_state, "match", "presentation must not alter verification");
@@ -101,6 +103,17 @@ assert.equal(missingEnglish.subject.lang, null, "Latin script alone must not be 
 assert.equal(missingEnglish.projection.dimensions.presentation.fallbackMode, "raw_statement");
 assert.equal(missingEnglish.projection.dimensions.presentation.resolvedLocale, null,
   "missing English presentation stays explicitly missing so a future compiler/backfill can handle it");
+
+const labelOnly = researchObjectToUniversalFinding({
+  ...base,
+  statement: "TECHNICAL_RAW_STATEMENT",
+  meta: { ext: { presentation: { variants: { en: { source_label: "Human source label only" } } } } },
+}, { locale: "en" });
+assert.equal(labelOnly.subject.label, "TECHNICAL_RAW_STATEMENT");
+assert.equal(labelOnly.subject.lang, null);
+assert.equal(labelOnly.projection.dimensions.presentation.hasHumanPresentation, false,
+  "source label alone must not launder raw statement into a normalized locale presentation");
+assert.equal(labelOnly.projection.dimensions.presentation.resolvedLocale, null);
 
 const noDetail = researchObjectToUniversalFinding({ ...base, engine_detail: {}, engine_verified: true });
 assert.equal(noDetail.verification.verification_state, null,
