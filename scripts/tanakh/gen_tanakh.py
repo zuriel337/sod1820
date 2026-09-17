@@ -23,7 +23,7 @@ def clean_verse(s):
     for ch in s:
         o = ord(ch)
         if 0x05D0 <= o <= 0x05EA: out.append(ch)        # אות עברית בסיסית
-        elif ch == '־': pass                        # מקף (מקאף) → איחוד בלי רווח (כמו בתורה)
+        elif ch == '־': out.append(' ')                 # מקף (מקאף) = גבול מילה בתצוגה/חיפוש; לא מאחדים מילים
         elif ch.isspace(): out.append(' ')               # רווח/שורה
         # ניקוד · טעמים · סוף-פסוק · פיסוק → נשמטים
     return re.sub(r'\s+', ' ', ''.join(out)).strip()
