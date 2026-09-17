@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import { usePalette } from "../lib/palette.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
@@ -12,7 +13,12 @@ import {
 } from "../lib/research/explorerFacets.js";
 import {
   classifyWorldPresentationDensity,
+  explainWorldRelation,
+  filterWorldRelations,
+  orderWorldRelations,
   worldProjectionCounts,
+  worldRelationCounterpart,
+  worldRelationFacets,
 } from "../lib/research/world2029Presentation.js";
 import { applySeo } from "../lib/seo.js";
 
@@ -36,15 +42,33 @@ const FACET_LABELS = {
   event: "אירוע",
   phrase: "ביטוי",
   entity: "ישות",
+  image: "מדיה",
+  media: "מדיה",
+  convergence: "נקודת מפגש",
+  post: "פוסט",
   year: "שנה",
   word: "מילה",
   foreign_word: "מילה לועזית",
   language_bridge: "גשר שפה",
 };
 
+const FACET_FILTER_LABELS = {
+  number: "מספרים",
+  phrase: "ביטויים",
+  word: "מילים",
+  book: "ספרים",
+  event: "אירועים",
+  image: "מדיה",
+  media: "מדיה",
+  convergence: "נקודות מפגש",
+  entity: "ישויות",
+  post: "פוסטים",
+};
+
 const VERIFICATION_LABELS = {
   match: "אומת מול החישוב",
   mismatch: "נמצאה אי־התאמה",
+  method_unknown: "השיטה אינה זמינה לבדיקה",
   not_tested: "טרם נבדק",
 };
 
@@ -56,8 +80,17 @@ const RELATION_LABELS = Object.freeze({
   mentions: "אזכור",
   converges_on: "נפגש כאן",
   cipher_link: "קשר לצופן",
+  demand_signal: "אות ביקוש",
   scale_x10: "קשר של ×10",
   zero_scale: "קשר של שינוי קנה־מידה",
+});
+
+const SORT_LABELS = Object.freeze({
+  recommended: "מומלץ כאן",
+  newest: "חדש קודם",
+  relation: "לפי סוג קשר",
+  number_asc: "מספר עולה",
+  number_desc: "מספר יורד",
 });
 
 function subjectKey(subject) {
@@ -69,11 +102,19 @@ function relationLabel(relationType) {
   return RELATION_LABELS[relationType] || "קשר נוסף";
 }
 
-function relationStatement(finding, relationType) {
-  const raw = String(finding?.subject?.label || "").trim();
-  if (!raw) return "קשר";
-  if (!relationType) return raw;
-  return raw.replace(String(relationType), relationLabel(relationType));
+function looksLikeFilename(value) {
+  return /\.(?:jpe?g|png|webp|gif|svg|avif)$/i.test(String(value || "").trim());
+}
+
+function publicCounterpartLabel(counterpart) {
+  if (!counterpart) return "קשר";
+  if (["image", "media"].includes(counterpart.type) && looksLikeFilename(counterpart.label)) return "פריט מדיה";
+  return counterpart.label || FACET_LABELS[counterpart.type] || "קשר";
+}
+
+function humanRelationReason(reason) {
+  const match = /^קשר ישיר מסוג (.+) לעוגן הנוכחי$/.exec(String(reason || ""));
+  return match ? `קשר ישיר: ${relationLabel(match[1])}` : reason;
 }
 
 function WorldCard({ card, onOpen }) {
@@ -226,23 +267,58 @@ function LiveWorldLanding({ research, shell, context }) {
 }
 
 function AnchoredWorld({ research, shell, subject, context }) {
+  const { isAdmin } = useAuth();
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [deepening, setDeepening] = useState({ id: null, error: false });
+  const [relationFilter, setRelationFilter] = useState("all");
+  const [relationSort, setRelationSort] = useState("recommended");
+  const [whyOpen, setWhyOpen] = useState(null);
+  const [adminMode, setAdminMode] = useState(false);
   const key = subjectKey(subject);
 
   useEffect(() => {
     let alive = true;
     setState({ loading: true, data: null, error: null });
     setDeepening({ id: null, error: false });
+    setRelationFilter("all");
+    setRelationSort("recommended");
+    setWhyOpen(null);
     fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 40, topicLimit: 10 })
       .then((data) => alive && setState({ loading: false, data, error: null }))
       .catch((error) => alive && setState({ loading: false, data: null, error }));
     return () => { alive = false; };
   }, [key, subject.id, subject.type]);
 
+  useEffect(() => {
+    if (!isAdmin) setAdminMode(false);
+  }, [isAdmin]);
+
   const data = state.data;
   const counts = useMemo(() => worldProjectionCounts(data), [data]);
   const density = useMemo(() => classifyWorldPresentationDensity(data), [data]);
+  const currentNodeId = data?.identity?.nodeId || null;
+  const graphRelations = data?.graph?.relations || [];
+  const relationFacets = useMemo(() => worldRelationFacets(graphRelations, currentNodeId), [graphRelations, currentNodeId]);
+  const visibleRelations = useMemo(() => orderWorldRelations(
+    filterWorldRelations(graphRelations, { currentNodeId, filter: relationFilter }),
+    { currentNodeId, sort: relationSort }
+  ), [graphRelations, currentNodeId, relationFilter, relationSort]);
+
+  const researchFindings = data?.research?.findings || [];
+  const adminSummary = useMemo(() => {
+    const byAccess = {};
+    const byGovernance = {};
+    const byVerification = {};
+    researchFindings.forEach((finding) => {
+      const access = finding?.access?.tier || "לא צוין";
+      const governance = finding?.status || "לא צוין";
+      const verification = finding?.verification?.verification_state || "לא צוין";
+      byAccess[access] = (byAccess[access] || 0) + 1;
+      byGovernance[governance] = (byGovernance[governance] || 0) + 1;
+      byVerification[verification] = (byVerification[verification] || 0) + 1;
+    });
+    return { byAccess, byGovernance, byVerification };
+  }, [researchFindings]);
 
   const backToWorld = () => {
     research.clearResearchContext?.();
@@ -269,10 +345,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
   const deepenRelation = async (finding) => {
     const relation = finding?.projection?.relations?.[0];
-    const currentNodeId = String(data?.identity?.nodeId || "");
     const fromNodeId = relation?.fromNodeId ? String(relation.fromNodeId) : null;
     const toNodeId = relation?.toNodeId ? String(relation.toNodeId) : null;
-    const targetNodeId = fromNodeId === currentNodeId ? toNodeId : fromNodeId;
+    const targetNodeId = fromNodeId === String(currentNodeId || "") ? toNodeId : fromNodeId;
     if (!targetNodeId) return;
 
     setDeepening({ id: finding?.id || targetNodeId, error: false });
@@ -313,7 +388,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.experience.question}</div>
           <h2>{subject.label || subject.id}</h2>
-          <div className="sod29-muted">כאן אפשר לראות מה מתחבר לנקודה הזאת — קשרים, מקורות, אירועים, דברים שנמצאו וזמן. אפשר לעבור מחיבור לחיבור, לפתוח את הפרטים ולחזור בדיוק למקום שממנו יצאת.</div>
+          <div className="sod29-muted">כאן אפשר לראות מה מתחבר לנקודה הזאת — קשרים, מקורות, אירועים, דברים שנמצאו וזמן. הסינון והמיון משנים רק את התצוגה; הם אינם משנים את האמת או את הקשרים עצמם.</div>
         </div>
         <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
       </div>
@@ -334,7 +409,10 @@ function AnchoredWorld({ research, shell, subject, context }) {
       <section className="sod29-section">
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">מרכז העולם</div><h2>{data.identity.label}</h2></div>
-          <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span>
+          <div className="sod29-actions">
+            <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span>
+            {isAdmin ? <button className={`sod29-action${adminMode ? " primary" : ""}`} type="button" aria-pressed={adminMode} onClick={() => setAdminMode((value) => !value)}>{adminMode ? "מצב מנהל פעיל" : "מצב מנהל"}</button> : null}
+          </div>
         </div>
         <div className="sod29-world-stage">
           <div className="sod29-anchor-core"><div><div className="sod29-kicker">הנקודה שבמרכז</div><strong>{data.identity.label}</strong><small>{FACET_LABELS[data.identity.type] || data.identity.type}</small></div></div>
@@ -348,27 +426,75 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
       </section>
 
+      {adminMode ? <section className="sod29-section" aria-label="מצב מנהל">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מצב מנהל</div><h2>ראות ובקרה על מה שהשרת החזיר</h2></div></div>
+        <FrameState title="הרשאות נשארות בשרת">מצב מנהל אינו עוקף הרשאות בדפדפן ואינו מסדר את העולם ידנית. הוא מציג בנפרד Access, Governance ו־Verification לחומר שהחשבון המנהל מורשה לקרוא.</FrameState>
+        <div className="sod29-book-grid">
+          <div className="sod29-card"><div className="sod29-kicker">גישה</div><h3>{Object.entries(adminSummary.byAccess).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין ממצאי מחקר"}</h3></div>
+          <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3></div>
+          <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3></div>
+        </div>
+      </section> : null}
+
       {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="הנקודה קיימת, אבל סביבה מעט חומר כרגע">זהו מצב תקין. העולם נשאר שקט במקום להמציא קשרים, מקורות או דברים שלא נמצאו.</FrameState></NativeStateSection> : null}
       {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מהחומר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
 
-      {data.graph?.relations?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">קשרים</div><h2>מה מחובר לכאן</h2></div></div>
-        <div className="sod29-list">{data.graph.relations.slice(0, 14).map((finding, index) => {
+      {graphRelations.length ? <section className="sod29-section">
+        <div className="sod29-section-head">
+          <div><div className="sod29-kicker">קשרים</div><h2>מה מחובר לכאן</h2></div>
+          <label className="sod29-chip">מיון&nbsp;
+            <select aria-label="מיון קשרים" value={relationSort} onChange={(event) => setRelationSort(event.target.value)}>
+              {Object.entries(SORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="sod29-actions" role="group" aria-label="סינון קשרים" style={{ marginBottom: 16 }}>
+          <button className={`sod29-action${relationFilter === "all" ? " primary" : ""}`} type="button" aria-pressed={relationFilter === "all"} onClick={() => setRelationFilter("all")}>הכול · {graphRelations.length}</button>
+          {relationFacets.map(({ type, count }) => <button key={type} className={`sod29-action${relationFilter === type ? " primary" : ""}`} type="button" aria-pressed={relationFilter === type} onClick={() => setRelationFilter(type)}>{FACET_FILTER_LABELS[type] || FACET_LABELS[type] || type} · {count}</button>)}
+        </div>
+        {!visibleRelations.length ? <FrameState kind="empty" title="אין קשרים במסנן הזה">הסינון משנה את התצוגה בלבד. אפשר לבחור סוג אחר או לחזור ל״הכול״.</FrameState> : null}
+        <div className="sod29-list">{visibleRelations.slice(0, 18).map((finding, index) => {
           const relation = finding.projection?.relations?.[0];
-          const busy = deepening.id === (finding.id || relation?.id);
-          return <div className="sod29-row" key={finding.id || index}>
-            <div><strong>{relationStatement(finding, relation?.relationType)}</strong><small>{relationLabel(relation?.relationType)}</small></div>
-            <button className="sod29-action" type="button" disabled={busy} onClick={() => deepenRelation(finding)}>{busy ? "פותח…" : "העמק"}</button>
+          const counterpart = worldRelationCounterpart(finding, currentNodeId);
+          const explanation = explainWorldRelation(finding, currentNodeId);
+          const rowId = finding.id || relation?.id || String(index);
+          const busy = deepening.id === rowId;
+          const label = publicCounterpartLabel(counterpart);
+          const exactAdminLabel = adminMode && counterpart?.label && label !== counterpart.label ? counterpart.label : null;
+          return <div className="sod29-row" key={rowId} style={{ alignItems: "flex-start" }}>
+            <div>
+              <strong>{label}</strong>
+              <small>{relationLabel(relation?.relationType)} · {FACET_LABELS[counterpart?.type] || counterpart?.type || "ישות"}</small>
+              {exactAdminLabel ? <small>שם מקור למנהל: {exactAdminLabel}</small> : null}
+              {adminMode && counterpart?.space && counterpart.space !== "core" ? <small>גישה בגרף: {counterpart.space}</small> : null}
+              {whyOpen === rowId ? <div className="sod29-muted" style={{ marginTop: 8 }}>
+                {explanation.reasons.map((reason) => <div key={reason}>• {humanRelationReason(reason)}</div>)}
+                <div><b>{explanation.disclaimer}</b></div>
+              </div> : null}
+            </div>
+            <div className="sod29-actions">
+              <button className="sod29-action" type="button" aria-expanded={whyOpen === rowId} onClick={() => setWhyOpen((value) => value === rowId ? null : rowId)}>למה כאן?</button>
+              <button className="sod29-action" type="button" disabled={busy} onClick={() => deepenRelation(finding)}>{busy ? "פותח…" : "העמק"}</button>
+            </div>
           </div>;
         })}</div>
       </section> : null}
 
-      {data.research?.findings?.length ? <section className="sod29-section">
+      {researchFindings.length ? <section className="sod29-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">מה מצאנו</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
-        <div className="sod29-list">{data.research.findings.slice(0, 12).map((finding, index) => {
-          const verification = VERIFICATION_LABELS[finding.verification?.verification_state] || "נקודה לבדיקה";
+        <div className="sod29-list">{researchFindings.slice(0, 12).map((finding, index) => {
+          const verificationState = finding.verification?.verification_state || null;
+          const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
           return <div className="sod29-row" key={finding.id || index}>
-            <div><strong>{finding.statement || finding.subject?.label || "נקודה לבדיקה"}</strong><small>{verification}</small></div>
+            <div>
+              <strong>{finding.statement || finding.subject?.label || "נקודה לבדיקה"}</strong>
+              <small>{verification}</small>
+              {adminMode ? <div className="sod29-actions" style={{ marginTop: 6 }}>
+                <span className="sod29-chip">גישה · {finding.access?.tier || "לא צוין"}</span>
+                <span className="sod29-chip">ממשל · {finding.status || "לא צוין"}</span>
+                <span className="sod29-chip">אימות · {verificationState || "לא צוין"}</span>
+              </div> : null}
+            </div>
             <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button>
           </div>;
         })}</div>
