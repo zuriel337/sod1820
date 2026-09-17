@@ -93,6 +93,26 @@ for (const width of [...MOBILE_WIDTHS, 1440]) {
   });
 }
 
+test('RICH 1820 presents one anchor header before profile and exploration lanes', async ({ page }) => {
+  await openWorldAnchor(page, 1820, 390);
+
+  await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820');
+  await expect(page.locator('.sod29-world-anchor-intro')).toContainText('מתחילים במהות');
+  await expect(page.getByText('מרכז העולם', { exact: true })).toHaveCount(0);
+  await expect(page.locator('.sod29-world-stage')).toHaveCount(0);
+  await expect(page.locator('.sod29-anchor-core')).toHaveCount(0);
+  await expect(page.locator('.sod29-orbit-metrics')).toHaveCount(0);
+
+  const hierarchy = await page.locator('.sod29-world-anchor-intro, .sod29-world-anchor-profile, .sod29-world-orientation')
+    .evaluateAll((nodes) => nodes.map((node) => {
+      if (node.classList.contains('sod29-world-anchor-intro')) return 'anchor';
+      if (node.classList.contains('sod29-world-anchor-profile')) return 'profile';
+      return 'orientation';
+    }));
+  expect(hierarchy).toEqual(['anchor', 'profile', 'orientation']);
+  await assertNoHorizontalOverflow(page);
+});
+
 test('RICH 1820 opens human-first before raw research detail', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
 
