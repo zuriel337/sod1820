@@ -492,7 +492,7 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
 
   const galleryIds = [...new Set(mediaNodes
     .map((node) => clean(node?.metadata?.gallery_image_id))
-    .filter(Boolean))];
+    .filter((value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)))];
   if (!galleryIds.length) return { items: [], access: { available: true, reason: null } };
 
   let galleryRows = [];
