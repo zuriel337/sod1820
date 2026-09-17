@@ -281,10 +281,11 @@ const eventInputs = {
 };
 const eventPublic = buildWorldContextualProminence(eventData, eventInputs, { limit: 6, includePrivate: false, timeAware: true });
 assert.equal(eventPublic.items.some((item) => item.id === "research:event-triple"), false, "public projection must not leak private Event research");
-assert.equal(eventPublic.items[0].kind, "temporal-control", "temporal contradiction/control stays visible even when private research payload itself is inaccessible");
+assert.equal(eventPublic.items.some((item) => item.kind === "temporal-control"), false, "a control derived only from private research must not leak the private date discrepancy either");
+assert.equal(eventPublic.items.length, 1, "public Event stays sparse rather than filling with inaccessible material");
 const eventAdmin = buildWorldContextualProminence(eventData, eventInputs, { limit: 6, includePrivate: true, timeAware: true });
 assert.ok(eventAdmin.items.some((item) => item.id === "research:event-triple"), "authorized deep/admin projection may consume the same private research identity without copying it");
-assert.ok(eventAdmin.items.some((item) => item.kind === "temporal-control"), "event time vs research provenance date is never silently normalized");
+assert.ok(eventAdmin.items.some((item) => item.kind === "temporal-control"), "authorized Event projection keeps event time vs research provenance date explicit rather than silently normalizing");
 
 // Dependency grouping: explicit parent_id collapses repeated children before rank.
 const dependencyData = {
