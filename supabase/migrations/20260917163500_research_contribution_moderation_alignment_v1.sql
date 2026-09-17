@@ -1,6 +1,6 @@
 -- G3_RESEARCH_CONTRIBUTION_MODERATION_ALIGNMENT_V1
 -- Aligns live add_contribution behavior with research_contribution_law v9.
--- Comment/reply intent may be immediately approved; knowledge-bearing intents remain pending.
+-- Only explicit reply/comment intent may be immediately approved; knowledge-bearing intents remain pending.
 
 create or replace function public.add_contribution(
   p_intent text,
@@ -29,9 +29,16 @@ declare
   v_ip text;
   v_recent int;
   v_trusted boolean := false;
-  v_intent text := coalesce(nullif(btrim(p_intent),''),'תגובה');
+  v_intent text := nullif(btrim(coalesce(p_intent,'')), '');
 begin
   if p_body is null or length(btrim(p_body)) = 0 then raise exception 'empty body'; end if;
+
+  -- Fail closed: blank or unknown intent must never inherit the auto-approved reply lane.
+  if v_intent is null or not (v_intent = any(array[
+    'תגובה','חידוש','שאלה','תיקון','תצפית','השערה','מקור','צופן','גימטריה','קשר'
+  ]::text[])) then
+    raise exception 'invalid intent';
+  end if;
 
   if v_uid is not null then
     select id, coalesce(trusted,false)
