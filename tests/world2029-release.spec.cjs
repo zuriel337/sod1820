@@ -78,6 +78,8 @@ for (const width of [...MOBILE_WIDTHS, 1440]) {
   test(`RICH live World 1820 is truthful and overflow-free at ${width}px`, async ({ page }) => {
     const projection = await openWorldAnchor(page, 1820, width);
     await expect(projection).toHaveAttribute('data-world-density', 'rich');
+    await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();
+    await page.getByRole('button', { name: /מקורות/ }).first().click();
     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await page.screenshot({ path: `test-results/release-visual/world-rich-1820-${width}.png`, fullPage: true });
@@ -87,22 +89,27 @@ for (const width of [...MOBILE_WIDTHS, 1440]) {
 test('RICH 1820 opens human-first before raw research detail', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
 
+  await expect(page.getByRole('heading', { name: 'מה חשוב לדעת על 1820' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'לדף המספר ←' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העיקר סביב 1820' })).toBeVisible();
   const primaryItems = page.locator('.sod29-world-primary-item');
   const primaryCount = await primaryItems.count();
   expect(primaryCount).toBeGreaterThan(0);
   expect(primaryCount).toBeLessThanOrEqual(7);
 
+  await page.getByRole('button', { name: /גימטריה/ }).first().click();
   await expect(page.getByRole('heading', { name: 'חישובים שנפתחים מהנקודה הזאת' })).toBeVisible();
   const gematriaRows = page.locator('.sod29-world-gematria-row');
   expect(await gematriaRows.count()).toBeGreaterThan(0);
   await expect(gematriaRows.first()).toContainText('1820');
 
+  await page.getByRole('button', { name: /מקורות/ }).first().click();
   await expect(page.getByRole('heading', { name: 'מאיפה החומר מגיע' })).toBeVisible();
   const publicSourceText = await page.locator('.sod29-world-source-row').allTextContents();
   expect(publicSourceText.join(' ')).not.toMatch(/(?:channel_updates|wa_bot_log|work_log|gallery_images|posts?):/i);
   expect(await page.locator('.sod29-world-native-projection').innerText()).not.toContain('traffic_intelligence');
 
+  await page.getByRole('button', { name: /זמן/ }).first().click();
   await expect(page.getByRole('heading', { name: 'נוסף למחקר' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'ציר הזמן' })).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
@@ -114,7 +121,9 @@ test('RICH 1820 remains useful when research rows are access-filtered', async ({
   const projection = await openWorldAnchor(page, 1820, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'rich');
   await expect(page.getByText('חלק מהחומר אינו זמין בהרשאה הנוכחית')).toBeVisible();
+  await page.getByRole('button', { name: /קשרים/ }).first().click();
   await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
+  await page.getByRole('button', { name: /מקורות/ }).first().click();
   await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
   await page.screenshot({ path: 'test-results/release-visual/world-partial-access-1820-390.png', fullPage: true });
 });
@@ -122,6 +131,7 @@ test('RICH 1820 remains useful when research rows are access-filtered', async ({
 test('automatic filters, sorting and explain-why work without exposing admin controls to anon', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
   await expect(page.getByRole('button', { name: /מצב מנהל/ })).toHaveCount(0);
+  await page.getByRole('button', { name: /קשרים/ }).first().click();
   await expect(page.getByLabel('מיון קשרים')).toBeVisible();
   const numberFilter = page.getByRole('button', { name: /מספרים ·/ }).first();
   await expect(numberFilter).toBeVisible();
@@ -139,6 +149,7 @@ test('automatic filters, sorting and explain-why work without exposing admin con
 test('MEDIUM live World 314 remains medium instead of being visually inflated', async ({ page }) => {
   const projection = await openWorldAnchor(page, 314, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'medium');
+  await page.getByRole('button', { name: /קשרים/ }).first().click();
   await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
   await expect(page.getByText('דברים שנמצאו סביב הנקודה הזאת')).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
