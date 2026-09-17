@@ -67,6 +67,33 @@ async function verifyIntent(actor: any, body: any) {
   return { ok: checks.size_match && checks.mime_match, action: "verify", scope, bucket, path, expected: { size: expectedSize, mime: expectedMime }, actual: { size: actualSize, mime: actualMime }, checks };
 }
 
+async function readContributionMedia(actor: any, body: any) {
+  const contributionId = String(body.contribution_id || "");
+  const storageObjectId = String(body.storage_object_id || "");
+  if (!contributionId || !storageObjectId) throw new Error("media_reference_required");
+
+  const { data: resolved, error } = await actor.admin.rpc("private_contribution_media_access", {
+    p_contribution_id: contributionId,
+    p_storage_object_id: storageObjectId,
+    p_actor_id: actor.userId,
+  });
+  if (error || !resolved?.ok) throw new Error(`media_access_denied:${error?.message || "not_resolved"}`);
+
+  const { data, error: signError } = await actor.admin.storage.from(resolved.bucket).createSignedUrl(resolved.path, 60);
+  if (signError || !data?.signedUrl) throw new Error("private_read_sign_failed");
+  return {
+    ok: true,
+    action: "read_contribution_media",
+    contribution_id: contributionId,
+    storage_object_id: storageObjectId,
+    kind: body.kind || null,
+    mime: resolved.mime || null,
+    size: Number(resolved.size || 0),
+    signed_url: data.signedUrl,
+    expires_in_seconds: 60,
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ ok: false, error: "POST only" }, 405);
@@ -78,10 +105,11 @@ Deno.serve(async (req) => {
     const action = String(body.action || "issue");
     if (action === "issue") return json(await issueIntent(actor, body));
     if (action === "verify") return json(await verifyIntent(actor, body));
+    if (action === "read_contribution_media") return json(await readContributionMedia(actor, body));
     return json({ ok: false, error: "unsupported_action" }, 400);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown_error";
-    const status = /auth|required|admin_required|forbidden/.test(message) ? 403 : 400;
+    const status = /auth|required|admin_required|forbidden|denied/.test(message) ? 403 : 400;
     return json({ ok: false, error: message }, status);
   }
 });
