@@ -252,6 +252,14 @@ function researchAddedDate(value) {
   try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return "זמן הוספה לא ידוע"; }
 }
 
+function humanTimelineLabel(item) {
+  const label = String(item?.label || "").trim();
+  if (/\.(?:jpe?g|png|webp|gif|svg|avif)(?:\s|—|$)/i.test(label)) return "פריט מדיה נוסף למחקר";
+  if (looksTechnicalSource(label)) return "מקור מחקר נוסף";
+  if (looksTechnicalResearchTitle(label)) return "חיבור מחקרי נוסף";
+  return label || "נקודת מחקר";
+}
+
 function WorldCard({ card, onOpen }) {
   return (
     <button type="button" className="sod29-card sod29-card-button" onClick={() => onOpen(card)}>
@@ -750,7 +758,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
       {data.timeline?.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">זמן מחקר</div><h2>נוסף למחקר</h2></div></div>
         <div className="sod29-muted sod29-world-time-note">התאריכים כאן מציינים מתי החומר או הייצוג נכנסו למערכת. הם אינם מוצגים כזמן היסטורי של האירוע אלא אם מקור זמן ייעודי מציין זאת במפורש.</div>
-        <div className="sod29-list">{data.timeline.slice(-8).map((item, index) => <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{item.label || "נקודת מחקר"}</strong><small>נוסף למחקר · {researchAddedDate(item.at)}</small></div></div>)}</div>
+        <div className="sod29-list">{data.timeline.slice(-8).map((item, index) => {
+          const label = humanTimelineLabel(item);
+          const rawLabel = String(item?.label || "").trim();
+          return <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{label}</strong><small>נוסף למחקר · {researchAddedDate(item.at)}</small>{adminMode && rawLabel && label !== rawLabel ? <small>Trace · {rawLabel}</small> : null}</div></div>;
+        })}</div>
       </section> : null}
     </div> : null}
   </>;
