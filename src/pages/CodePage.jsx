@@ -63,6 +63,28 @@ function CodeClosed({ message }) {
         {message && <p style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, margin: "8px auto 0" }}>{message}</p>}
       </div>
 
+      <section aria-label="מסלול מחקר חיצוני זמני" style={{ maxWidth: 760, margin: "28px auto 8px", padding: "24px 22px", textAlign: "center", background: P.cardGrad || P.card, border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 22, boxShadow: `0 0 34px ${P.glow}` }}>
+        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 2.4, marginBottom: 8 }}>בינתיים · מסלול נוסף למחקר</div>
+        <h2 style={{ color: P.accentText, fontFamily: F.heading, fontSize: "clamp(22px,4vw,30px)", margin: "0 0 11px", lineHeight: 1.35 }}>השער פתוח גם מעבר לכאן</h2>
+        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, margin: "0 auto 8px", maxWidth: 650 }}>
+          הצופן החדש של SOD1820 עדיין נבנה — אבל המחקר לא נעצר. עד שהמערכת שלנו תיפתח, אפשר להמשיך לחקור מספרים, דפוסים ורמזים גם ב־The First Verse — מרחב מחקר עצמאי שנוגע באותם אזורי סוד מזווית אחרת.
+        </p>
+        <p style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.8, margin: "0 auto 16px" }}>
+          מי שמרגיש שהמסע כבר התחיל — יכול להמשיך מכאן.
+        </p>
+        <a
+          href="https://www.thefirstverse.com/he?via=user-31"
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 44, padding: "10px 20px", borderRadius: 999, textDecoration: "none", background: P.accentText, color: P.pageBg, border: `1px solid ${P.accentText}`, fontFamily: F.heading, fontSize: 13.5, fontWeight: 900 }}
+        >
+          המשך אל The First Verse ↗
+        </a>
+        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.7, marginTop: 12 }}>
+          זהו קישור השותף של SOD1820. הצטרפות דרכו תומכת בהמשך הדרך ובבניית כלי המחקר הבאים.
+        </div>
+      </section>
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14, margin: "34px 0 22px" }}>
         <figure style={{ margin: 0, background: P.cardGrad || P.card, border: `1px solid ${P.border}`, borderRadius: 22, padding: 10, overflow: "hidden" }}>
           <img src="/els-rebuild-crown-preview.webp" alt="כיוון המיתוג והעולם החזותי החדש" style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: 15, display: "block" }} />

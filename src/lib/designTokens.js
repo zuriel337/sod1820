@@ -45,6 +45,16 @@ export const MOTION = Object.freeze({
     enter: 'cubic-bezier(0, 0, 0.2, 1)',
     exit: 'cubic-bezier(0.4, 0, 1, 1)',
   }),
+  // Brand Core 2029: semantic motion vocabulary shared by web, spatial and video.
+  // Renderers decide the exact implementation/timing; these names carry meaning only.
+  pattern: Object.freeze({
+    reveal: 'reveal',
+    presence: 'presence',
+    orbit: 'orbit',
+    travel: 'travel',
+    focus: 'focus',
+    settle: 'settle',
+  }),
   reduced: Object.freeze({ duration: 0, transform: 'none', parallax: false, autoplayAmbient: false }),
 });
 
