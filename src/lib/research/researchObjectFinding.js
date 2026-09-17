@@ -1,4 +1,5 @@
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
+import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
 
 const VALID_VERIFICATION = new Set(VALID_VERIFICATION_STATES);
 
@@ -36,14 +37,17 @@ function verificationFrom(row) {
  *   manufacture match/mismatch when engine_detail has no explicit state.
  * - privacy_scope is carried as the source-owned access tier.
  * - promoted_node_id is an existing graph identity pointer, never a promotion.
+ * - human presentation is a locale projection only. It never replaces statement,
+ *   source/source_ref, verification, governance or access state.
  */
-export function researchObjectToUniversalFinding(row) {
+export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
   if (!row?.id) return null;
 
   const sourceRef = clean(row.source_ref);
-  const statement = clean(row.statement) || `Research object ${row.id}`;
   const promotedNodeId = clean(row.promoted_node_id);
   const terms = Array.isArray(row.terms) ? row.terms.filter(Boolean) : [];
+  const presentation = resolveResearchObjectPresentation(row, { locale });
+  const rawStatementRef = { researchObjectId: String(row.id), field: "statement" };
 
   return makeUniversalFinding({
     kind: "research-object",
@@ -52,9 +56,11 @@ export function researchObjectToUniversalFinding(row) {
     subject: {
       type: "research-object",
       key: String(row.id),
-      label: statement,
+      label: presentation.title,
       value: row.value ?? null,
-      lang: null,
+      lang: presentation.hasHumanPresentation
+        ? presentation.resolvedLocale
+        : presentation.statementLang || null,
     },
     source: {
       engine: null,
@@ -62,7 +68,9 @@ export function researchObjectToUniversalFinding(row) {
       sourceRef,
       method: null,
       corpus: clean(row.source),
-      lang: null,
+      // Source witness language is distinct from the research statement/presentation language.
+      // Unknown stays null; a Latin-script statement is never silently called English.
+      lang: presentation.sourceWitnessLang,
     },
     identity: {
       sourceIdentity: { researchObjectId: String(row.id) },
@@ -88,14 +96,40 @@ export function researchObjectToUniversalFinding(row) {
     projection: {
       anchors: promotedNodeId ? [{ space: "reality-graph", id: promotedNodeId }] : [],
       relations: [],
-      dimensions: { researchObjectKind: row.kind ?? null },
+      dimensions: {
+        researchObjectKind: row.kind ?? null,
+        presentation: {
+          requestedLocale: presentation.requestedLocale,
+          resolvedLocale: presentation.resolvedLocale,
+          hasHumanPresentation: presentation.hasHumanPresentation,
+          fallbackMode: presentation.fallbackMode,
+          statementLang: presentation.statementLang,
+          statementRole: presentation.statementRole,
+          sourceWitnessLang: presentation.sourceWitnessLang,
+          sourceWitnessLangBasis: presentation.sourceWitnessLangBasis,
+          rawStatementRef,
+          sourceLocator: sourceRef,
+        },
+      },
+    },
+    view: {
+      rendererHints: {
+        presentation: {
+          title: presentation.title,
+          summary: presentation.summary,
+          sourceLabel: presentation.sourceLabel,
+          locale: presentation.resolvedLocale,
+          fallbackMode: presentation.fallbackMode,
+          rawStatementRef,
+        },
+      },
     },
   });
 }
 
-export function researchObjectsToUniversalFindings(rows) {
+export function researchObjectsToUniversalFindings(rows, options = {}) {
   return (Array.isArray(rows) ? rows : [])
-    .map(researchObjectToUniversalFinding)
+    .map((row) => researchObjectToUniversalFinding(row, options))
     .filter(Boolean);
 }
 

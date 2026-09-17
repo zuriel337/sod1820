@@ -6,7 +6,7 @@ import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 
 const DEFAULT_LIMIT = 200;
 const DEFAULT_TOPIC_LIMIT = 12;
-const FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
+const FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const GRAPH_SEARCH_FIELDS = "id,type,label,identity_key,is_active,created_at,weight";
 const JUDGMENT_DECISIONS = new Set(["approve", "reject", "canonicalize"]);
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -23,7 +23,7 @@ function clean(value) {
  * immediately projected through its canonical Universal Finding adapter. It never
  * creates research_objects, graph nodes, publication state, or a parallel workspace.
  */
-export async function fetchResearchViewerFindings({ limit = DEFAULT_LIMIT, sourceRef = null, status = null } = {}) {
+export async function fetchResearchViewerFindings({ limit = DEFAULT_LIMIT, sourceRef = null, status = null, locale = "he" } = {}) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_LIMIT, 1000));
   let q = supabase
     .from("research_objects")
@@ -40,7 +40,7 @@ export async function fetchResearchViewerFindings({ limit = DEFAULT_LIMIT, sourc
   const rows = Array.isArray(data) ? data : [];
   return {
     rows,
-    findings: researchObjectsToUniversalFindings(rows),
+    findings: researchObjectsToUniversalFindings(rows, { locale }),
   };
 }
 
@@ -69,9 +69,9 @@ export async function fetchResearchViewerConvergences({ limit = DEFAULT_TOPIC_LI
  * One heterogeneous read-only Discovery load. Research Objects and Convergences keep
  * their distinct source identities while sharing the Universal Finding envelope.
  */
-export async function fetchResearchViewerDiscovery({ researchLimit = 300, topicLimit = DEFAULT_TOPIC_LIMIT } = {}) {
+export async function fetchResearchViewerDiscovery({ researchLimit = 300, topicLimit = DEFAULT_TOPIC_LIMIT, locale = "he" } = {}) {
   const [research, convergences] = await Promise.all([
-    fetchResearchViewerFindings({ limit: researchLimit }),
+    fetchResearchViewerFindings({ limit: researchLimit, locale }),
     fetchResearchViewerConvergences({ limit: topicLimit }),
   ]);
 

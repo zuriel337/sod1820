@@ -57,7 +57,8 @@ jobs:
             src/lib/research/researchW2Executors.358.test.js \
             src/lib/research/researchComposerW2.canonical358.test.js \
             src/lib/research/researchW2FoundationHardening.test.js \
-            src/lib/research/researchW2GematriaMultiAnchorControls.test.js
+            src/lib/research/researchW2GematriaMultiAnchorControls.test.js \
+            test/research-object-universal-finding.test.mjs
 
       - name: Build
         run: npm run build
