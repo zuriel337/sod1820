@@ -12,6 +12,7 @@ import {
   explorerCardSelection,
 } from "../lib/research/explorerFacets.js";
 import {
+  buildWorldContextualProminence,
   classifyWorldPresentationDensity,
   explainWorldRelation,
   filterWorldRelations,
@@ -20,7 +21,9 @@ import {
   worldRelationCounterpart,
   worldRelationFacets,
 } from "../lib/research/world2029Presentation.js";
+import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { applySeo } from "../lib/seo.js";
+import "./world2029-human.css";
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -108,13 +111,155 @@ function looksLikeFilename(value) {
 
 function publicCounterpartLabel(counterpart) {
   if (!counterpart) return "קשר";
-  if (["image", "media"].includes(counterpart.type) && looksLikeFilename(counterpart.label)) return "פריט מדיה";
-  return counterpart.label || FACET_LABELS[counterpart.type] || "קשר";
+  const label = String(counterpart.label || "").trim();
+  if (["image", "media"].includes(counterpart.type) && looksLikeFilename(label)) return "פריט מדיה";
+  if (counterpart.type !== "foreign_word" && looksTechnicalResearchTitle(label)) {
+    return FACET_LABELS[counterpart.type] || "חיבור";
+  }
+  return label || FACET_LABELS[counterpart.type] || "קשר";
+}
+
+function humanFacetLabel(type) {
+  return FACET_FILTER_LABELS[type] || FACET_LABELS[type] || "אחר";
 }
 
 function humanRelationReason(reason) {
   const match = /^קשר ישיר מסוג (.+) לעוגן הנוכחי$/.exec(String(reason || ""));
   return match ? `קשר ישיר: ${relationLabel(match[1])}` : reason;
+}
+
+function looksTechnicalSource(value) {
+  const text = String(value || "").trim();
+  return !text
+    || /^(?:chat|channel_updates|wa_bot_log|work_log|gallery(?:_images)?|posts?|book):/i.test(text)
+    || /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(text)
+    || /^\+?\d{8,}$/.test(text);
+}
+
+function humanSourceLabel(source) {
+  const label = String(source?.label || "").trim();
+  const ref = String(source?.ref || "").trim();
+  if (source?.type === "verse" && label) return label;
+  if (label && label !== ref && !looksTechnicalSource(label)) return label;
+  if (/^https?:\/\//i.test(label || ref)) {
+    try { return new URL(label || ref).hostname.replace(/^www\./, ""); } catch (_) { return "מקור חיצוני"; }
+  }
+  if (/^book:/i.test(ref || label)) return "ספר / מקור";
+  if (/^posts?:/i.test(ref || label)) return "פוסט / מקור";
+  return "מקור מחקר";
+}
+
+function looksTechnicalResearchTitle(value) {
+  const text = String(value || "").trim();
+  return /\b(?:DOSSIER|CHAIN|ENGINE|PROCEDURE|FAMILY|SYNTHESIS|UUID|CANONICAL)\b/i.test(text)
+    || /[0-9a-f]{8}-[0-9a-f-]{27,}/i.test(text)
+    || /\w+_\w+/.test(text);
+}
+
+function humanFindingPresentation(finding, anchorLabel) {
+  const presentation = finding?.view?.rendererHints?.presentation || {};
+  const projectedTitle = presentation.title || finding?.subject?.label || null;
+  const fallbackMode = presentation.fallbackMode || finding?.projection?.dimensions?.presentation?.fallbackMode || null;
+  const hideRawTechnical = fallbackMode === "raw_statement"
+    && (looksTechnicalResearchTitle(projectedTitle) || /[A-Za-z]{3}/.test(String(projectedTitle || "")));
+  return {
+    title: hideRawTechnical ? `מחקר נוסף סביב ${anchorLabel || "הנקודה"}` : (projectedTitle || "נקודת מחקר"),
+    summary: hideRawTechnical ? null : (presentation.summary || null),
+    sourceLabel: presentation.sourceLabel || null,
+    fallbackMode,
+  };
+}
+
+function prominenceTypeLabel(item) {
+  if (item?.explainWhy?.uncertainty) return "דורש בירור";
+  if (item?.familyKey === "verse-source" || item?.type === "verse") return "פסוק";
+  if (item?.kind === "research") return "מחקר";
+  if (item?.kind === "topic" || item?.type === "convergence") return "נקודת מפגש";
+  if (item?.kind === "source") return "מקור";
+  return FACET_LABELS[item?.type] || "חיבור";
+}
+
+function humanProminenceLabel(item, anchorLabel) {
+  const label = String(item?.label || "").trim();
+  if (item?.kind === "research" && (looksTechnicalResearchTitle(label) || /[A-Za-z]{3}/.test(label))) {
+    return `מחקר נוסף סביב ${anchorLabel || "הנקודה"}`;
+  }
+  if (item?.kind === "source") {
+    return humanSourceLabel({ label, ref: item?.sourceRef, type: item?.type });
+  }
+  if (["image", "media"].includes(item?.type) && looksLikeFilename(label)) return "פריט מדיה";
+  if (item?.type !== "foreign_word" && looksTechnicalResearchTitle(label)) return prominenceTypeLabel(item);
+  return label || prominenceTypeLabel(item);
+}
+
+function prominenceWhyLines(item) {
+  const why = item?.explainWhy || {};
+  const lines = [];
+  if (why.uncertainty) lines.push("יש כאן אי־התאמה או שאלה שיכולה לשנות את ההבנה.");
+  if (String(why.directness || "").includes("direct")) lines.push("הקשר ישיר לעוגן הנוכחי.");
+  if (why.researchStrengthSignals?.includes("engine_match")) lines.push("קיימת בדיקת מנוע תואמת.");
+  if (why.researchStrengthSignals?.includes("provenance_present")) lines.push("יש מקור או provenance מתועד.");
+  if (why.researchStrengthSignals?.includes("dependency_grouped_before_rank")) lines.push("פריטים תלויים קובצו לפני בחירת העיקר.");
+  if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי כ־Gold; זהו אות אוצרות, לא דירוג אמת.");
+  else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי כ־Silver; זהו שובר שוויון בלבד.");
+  if (why.informationGain === "adds_a_new_evidence_or_content_family_to_the_attention_bundle") lines.push("הפריט מוסיף סוג מידע נוסף לתמונה.");
+  if (why.temporalRelevance?.occurredAt) lines.push(`זמן אירוע מתועד: ${new Date(why.temporalRelevance.occurredAt).toLocaleDateString("he-IL")}.`);
+  return lines.length ? lines : ["הפריט נבחר בגלל הרלוונטיות שלו לנקודה הזאת."];
+}
+
+function worldGematriaRows(data) {
+  const out = [];
+  const seen = new Set();
+  const lookupFindings = data?.lenses?.numberResearch?.universal_findings || [];
+  for (const finding of lookupFindings) {
+    if (finding?.view?.rendererHints?.role !== "number-lookup-row") continue;
+    const phrase = String(finding?.subject?.label || "").trim();
+    const method = String(finding?.source?.method || "").trim();
+    const value = finding?.subject?.value;
+    if (!phrase || !method || value == null) continue;
+    const key = `${method}:${phrase}:${value}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      id: finding.id || key,
+      phrase,
+      method,
+      value,
+      verificationState: finding?.verification?.verification_state || null,
+      methodGoverned: finding?.projection?.dimensions?.numberLookup?.methodGoverned ?? null,
+    });
+    if (out.length >= 10) break;
+  }
+  if (out.length) return out;
+
+  for (const result of data?.methodBridge?.results || []) {
+    const phrase = String(data?.identity?.label || "").trim();
+    if (!phrase || result?.engineValue == null) continue;
+    out.push({
+      id: result?.finding?.id || `${result.methodKey}:${result.engineValue}`,
+      phrase,
+      method: result.displayLabel || result.methodKey || result.dbColumn || "שיטה",
+      value: result.engineValue,
+      verificationState: result.verificationState || null,
+      methodGoverned: result.governed ?? null,
+    });
+    if (out.length >= 10) break;
+  }
+  return out;
+}
+
+function researchAddedDate(value) {
+  if (!value) return "זמן הוספה לא ידוע";
+  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return "זמן הוספה לא ידוע"; }
+}
+
+function humanTimelineLabel(item) {
+  const label = String(item?.label || "").trim();
+  if (/\.(?:jpe?g|png|webp|gif|svg|avif)(?:\s|—|$)/i.test(label)) return "פריט מדיה נוסף למחקר";
+  if (looksTechnicalSource(label)) return "מקור מחקר נוסף";
+  if (looksTechnicalResearchTitle(label)) return "חיבור מחקרי נוסף";
+  const withoutTechnicalRelation = label.replace(/\s+—\s+[A-Za-z_]+\s+→\s+.+$/u, "").trim();
+  return withoutTechnicalRelation || label || "נקודת מחקר";
 }
 
 function WorldCard({ card, onOpen }) {
@@ -268,7 +413,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
 function AnchoredWorld({ research, shell, subject, context }) {
   const { isAdmin } = useAuth();
-  const [state, setState] = useState({ loading: true, data: null, error: null });
+  const [state, setState] = useState({ loading: true, data: null, prominenceInputs: null, prominenceError: null, error: null });
   const [deepening, setDeepening] = useState({ id: null, error: false });
   const [relationFilter, setRelationFilter] = useState("all");
   const [relationSort, setRelationSort] = useState("recommended");
@@ -278,14 +423,24 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
   useEffect(() => {
     let alive = true;
-    setState({ loading: true, data: null, error: null });
+    setState({ loading: true, data: null, prominenceInputs: null, prominenceError: null, error: null });
     setDeepening({ id: null, error: false });
     setRelationFilter("all");
     setRelationSort("recommended");
     setWhyOpen(null);
     fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 40, topicLimit: 10 })
-      .then((data) => alive && setState({ loading: false, data, error: null }))
-      .catch((error) => alive && setState({ loading: false, data: null, error }));
+      .then(async (data) => {
+        if (!alive) return;
+        let prominenceInputs = null;
+        let prominenceError = null;
+        try {
+          prominenceInputs = data ? await fetchWorldProminenceInputs(data) : null;
+        } catch (error) {
+          prominenceError = error;
+        }
+        if (alive) setState({ loading: false, data, prominenceInputs, prominenceError, error: null });
+      })
+      .catch((error) => alive && setState({ loading: false, data: null, prominenceInputs: null, prominenceError: null, error }));
     return () => { alive = false; };
   }, [key, subject.id, subject.type]);
 
@@ -305,6 +460,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
   ), [graphRelations, currentNodeId, relationFilter, relationSort]);
 
   const researchFindings = data?.research?.findings || [];
+  const prominence = useMemo(() => data
+    ? buildWorldContextualProminence(data, state.prominenceInputs || {}, { limit: 7, timeAware: data.identity?.type === "event" })
+    : null, [data, state.prominenceInputs]);
+  const prominenceItems = prominence?.items || [];
+  const gematriaRows = useMemo(() => worldGematriaRows(data), [data]);
+  const sourceRows = data?.sources || [];
   const adminSummary = useMemo(() => {
     const byAccess = {};
     const byGovernance = {};
@@ -326,10 +487,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
   };
 
   const inspectFinding = (finding) => {
+    const presentation = humanFindingPresentation(finding, data?.identity?.label || subject.label || subject.id);
     shell.openInspect({
       id: String(finding?.id || finding?.subject?.key || "finding"),
       type: finding?.subject?.type || "finding",
-      label: finding?.statement || finding?.subject?.label || "ממצא מחקרי",
+      label: presentation.title,
       href: "/world",
     });
   };
@@ -337,8 +499,17 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const inspectSource = (source) => {
     shell.openInspect({
       id: String(source?.ref || source?.label || "source"),
-      type: "source",
-      label: source?.label || source?.ref || "מקור",
+      type: source?.type === "verse" ? "verse" : "source",
+      label: humanSourceLabel(source),
+      href: "/world",
+    });
+  };
+
+  const inspectProminenceItem = (item) => {
+    shell.openInspect({
+      id: String(item?.id || item?.sourceRef || item?.label || "world-item"),
+      type: item?.type || item?.kind || "finding",
+      label: humanProminenceLabel(item, data?.identity?.label || subject.label || subject.id),
       href: "/world",
     });
   };
@@ -439,6 +610,79 @@ function AnchoredWorld({ research, shell, subject, context }) {
       {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="הנקודה קיימת, אבל סביבה מעט חומר כרגע">זהו מצב תקין. העולם נשאר שקט במקום להמציא קשרים, מקורות או דברים שלא נמצאו.</FrameState></NativeStateSection> : null}
       {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מהחומר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
 
+      {state.prominenceError ? <NativeStateSection><FrameState kind="unavailable" title="העיקר עדיין לא זמין">שאר שכבות העולם ממשיכות להופיע. לא נבחר תחליף מלאכותי.</FrameState></NativeStateSection> : null}
+
+      {prominenceItems.length ? <section className="sod29-section sod29-world-primary-section" aria-label={`העיקר סביב ${data.identity.label}`}>
+        <div className="sod29-world-primary-head">
+          <div>
+            <div className="sod29-kicker">קודם מה שמשנה את התמונה</div>
+            <h2>העיקר סביב {data.identity.label}</h2>
+            <p>עד שבעה חיבורים שנבחרו בהקשר הזה אחרי סינון הרשאות וקיבוץ כפילויות ותלויות. הבולטות כאן היא רלוונטיות מחקרית — לא דירוג אמת.</p>
+          </div>
+          <span className="sod29-world-primary-count">{prominenceItems.length}</span>
+        </div>
+        <div className="sod29-world-primary-grid">
+          {prominenceItems.map((item, index) => {
+            const whyLines = prominenceWhyLines(item);
+            const uncertainty = Boolean(item.explainWhy?.uncertainty);
+            const tier = item.explainWhy?.humanCuration?.tier || null;
+            return <article className={`sod29-world-primary-item${index === 0 ? " is-lead" : ""}${uncertainty ? " is-question" : ""}`} key={item.id}>
+              <div className="sod29-world-primary-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</div>
+              <div className="sod29-world-primary-copy">
+                <div className="sod29-world-primary-meta">
+                  <span>{prominenceTypeLabel(item)}</span>
+                  {tier ? <span>אוצרות · {tier === "gold" ? "זהב" : "כסף"}</span> : null}
+                </div>
+                <h3>{humanProminenceLabel(item, data.identity.label)}</h3>
+                {item.summary ? <p>{item.summary}</p> : null}
+                {whyOpen === `primary:${item.id}` ? <div className="sod29-world-why">
+                  {whyLines.map((line) => <div key={line}>• {line}</div>)}
+                  <div><b>סדר התצוגה כאן אינו דירוג אמת, אימות או קנוניות.</b></div>
+                </div> : null}
+              </div>
+              <div className="sod29-actions sod29-world-primary-actions">
+                <button className="sod29-action" type="button" aria-expanded={whyOpen === `primary:${item.id}`} onClick={() => setWhyOpen((value) => value === `primary:${item.id}` ? null : `primary:${item.id}`)}>למה כאן?</button>
+                <button className="sod29-action" type="button" onClick={() => inspectProminenceItem(item)}>בדוק</button>
+              </div>
+            </article>;
+          })}
+        </div>
+      </section> : null}
+
+      {gematriaRows.length ? <section className="sod29-section sod29-world-human-section">
+        <div className="sod29-section-head">
+          <div><div className="sod29-kicker">גימטריות וביטויים</div><h2>חישובים שנפתחים מהנקודה הזאת</h2></div>
+        </div>
+        <div className="sod29-world-gematria-list">
+          {gematriaRows.map((row) => <div className="sod29-world-gematria-row" key={row.id}>
+            <div className="sod29-world-gematria-expression"><strong>{row.phrase}</strong><small>{row.method}{row.methodGoverned === false ? " · שיטה היסטורית" : ""}</small></div>
+            <div className="sod29-world-gematria-value" aria-label={`${row.phrase} בשיטת ${row.method} שווה ${row.value}`}><span>=</span><b>{row.value}</b></div>
+            <span className="sod29-world-verification">{row.verificationState === "not_tested" ? "חישוב מנוע · אין טענה נפרדת לבדיקה" : (VERIFICATION_LABELS[row.verificationState] || "מצב אימות לא צוין")}</span>
+          </div>)}
+        </div>
+      </section> : null}
+
+      {sourceRows.length ? <section className="sod29-section sod29-world-human-section">
+        <div className="sod29-section-head">
+          <div><div className="sod29-kicker">פסוקים ומקורות</div><h2>מאיפה החומר מגיע</h2></div>
+          <button className="sod29-action" type="button" onClick={() => shell.go("/books")}>ספרים ומקורות</button>
+        </div>
+        <div className="sod29-list">
+          {sourceRows.slice(0, 12).map((source, index) => {
+            const label = humanSourceLabel(source);
+            const rawRef = source.ref || source.label || null;
+            return <div className="sod29-row sod29-world-source-row" key={`${source.ref || source.label}-${index}`}>
+              <div>
+                <strong>{label}</strong>
+                <small>{source.type === "verse" ? "פסוק · מקור טקסטואלי" : "מקור מחקר"}</small>
+                {adminMode && rawRef && label !== rawRef ? <small>Trace · {rawRef}</small> : null}
+              </div>
+              <button className="sod29-action" type="button" onClick={() => inspectSource(source)}>בדוק</button>
+            </div>;
+          })}
+        </div>
+      </section> : null}
+
       {graphRelations.length ? <section className="sod29-section">
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">קשרים</div><h2>מה מחובר לכאן</h2></div>
@@ -450,7 +694,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
         <div className="sod29-actions" role="group" aria-label="סינון קשרים" style={{ marginBottom: 16 }}>
           <button className={`sod29-action${relationFilter === "all" ? " primary" : ""}`} type="button" aria-pressed={relationFilter === "all"} onClick={() => setRelationFilter("all")}>הכול · {graphRelations.length}</button>
-          {relationFacets.map(({ type, count }) => <button key={type} className={`sod29-action${relationFilter === type ? " primary" : ""}`} type="button" aria-pressed={relationFilter === type} onClick={() => setRelationFilter(type)}>{FACET_FILTER_LABELS[type] || FACET_LABELS[type] || type} · {count}</button>)}
+          {relationFacets.map(({ type, count }) => <button key={type} className={`sod29-action${relationFilter === type ? " primary" : ""}`} type="button" aria-pressed={relationFilter === type} onClick={() => setRelationFilter(type)}>{humanFacetLabel(type)} · {count}</button>)}
         </div>
         {!visibleRelations.length ? <FrameState kind="empty" title="אין קשרים במסנן הזה">הסינון משנה את התצוגה בלבד. אפשר לבחור סוג אחר או לחזור ל״הכול״.</FrameState> : null}
         <div className="sod29-list">{visibleRelations.slice(0, 18).map((finding, index) => {
@@ -464,7 +708,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           return <div className="sod29-row" key={rowId} style={{ alignItems: "flex-start" }}>
             <div>
               <strong>{label}</strong>
-              <small>{relationLabel(relation?.relationType)} · {FACET_LABELS[counterpart?.type] || counterpart?.type || "ישות"}</small>
+              <small>{relationLabel(relation?.relationType)} · {humanFacetLabel(counterpart?.type)}</small>
               {exactAdminLabel ? <small>שם מקור למנהל: {exactAdminLabel}</small> : null}
               {adminMode && counterpart?.space && counterpart.space !== "core" ? <small>גישה בגרף: {counterpart.space}</small> : null}
               {whyOpen === rowId ? <div className="sod29-muted" style={{ marginTop: 8 }}>
@@ -480,34 +724,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
         })}</div>
       </section> : null}
 
-      {researchFindings.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">מה מצאנו</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
-        <div className="sod29-list">{researchFindings.slice(0, 12).map((finding, index) => {
-          const verificationState = finding.verification?.verification_state || null;
-          const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
-          return <div className="sod29-row" key={finding.id || index}>
-            <div>
-              <strong>{finding.statement || finding.subject?.label || "נקודה לבדיקה"}</strong>
-              <small>{verification}</small>
-              {adminMode ? <div className="sod29-actions" style={{ marginTop: 6 }}>
-                <span className="sod29-chip">גישה · {finding.access?.tier || "לא צוין"}</span>
-                <span className="sod29-chip">ממשל · {finding.status || "לא צוין"}</span>
-                <span className="sod29-chip">אימות · {verificationState || "לא צוין"}</span>
-              </div> : null}
-            </div>
-            <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button>
-          </div>;
-        })}</div>
-      </section> : null}
-
       {data.topics?.findings?.length ? <section className="sod29-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>חיבורים שנפגשים כאן</h2></div></div>
         <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
-      </section> : null}
-
-      {data.sources?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">מקורות</div><h2>מאיפה החומר מגיע</h2></div><button className="sod29-action" type="button" onClick={() => shell.go("/books")}>ספרים ומקורות</button></div>
-        <div className="sod29-list">{data.sources.slice(0, 10).map((source, index) => <div className="sod29-row" key={`${source.ref || source.label}-${index}`}><div><strong>{source.label || source.ref || "מקור"}</strong><small>{source.type === "verse" ? "פסוק" : "מקור"}</small></div><button className="sod29-action" type="button" onClick={() => inspectSource(source)}>בדוק</button></div>)}</div>
       </section> : null}
 
       {data.numberWorlds?.length ? <section className="sod29-section">
@@ -515,9 +734,37 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
       </section> : null}
 
-      {data.timeline?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">זמן</div><h2>ציר הזמן</h2></div></div>
-        <div className="sod29-list">{data.timeline.slice(-8).map((item, index) => <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{item.label || "נקודת זמן"}</strong><small>{item.at ? new Date(item.at).toLocaleDateString("he-IL") : "זמן לא ידוע"}</small></div></div>)}</div>
+      {researchFindings.length ? <section className="sod29-section sod29-world-human-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">עוד מחקר</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
+        <div className="sod29-list">{researchFindings.slice(0, 12).map((finding, index) => {
+          const verificationState = finding.verification?.verification_state || null;
+          const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
+          const presentation = humanFindingPresentation(finding, data.identity.label);
+          return <div className="sod29-row sod29-world-research-row" key={finding.id || index}>
+            <div>
+              <strong>{presentation.title}</strong>
+              {presentation.summary ? <p className="sod29-world-row-summary">{presentation.summary}</p> : null}
+              <small>{verification}{presentation.sourceLabel ? ` · ${presentation.sourceLabel}` : ""}</small>
+              {adminMode ? <div className="sod29-actions" style={{ marginTop: 6 }}>
+                <span className="sod29-chip">גישה · {finding.access?.tier || "לא צוין"}</span>
+                <span className="sod29-chip">ממשל · {finding.status || "לא צוין"}</span>
+                <span className="sod29-chip">אימות · {verificationState || "לא צוין"}</span>
+                {presentation.fallbackMode === "raw_statement" ? <span className="sod29-chip">Raw זמין ב־Trace</span> : null}
+              </div> : null}
+            </div>
+            <button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button>
+          </div>;
+        })}</div>
+      </section> : null}
+
+      {data.timeline?.length ? <section className="sod29-section sod29-world-human-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">זמן מחקר</div><h2>נוסף למחקר</h2></div></div>
+        <div className="sod29-muted sod29-world-time-note">התאריכים כאן מציינים מתי החומר או הייצוג נכנסו למערכת. הם אינם מוצגים כזמן היסטורי של האירוע אלא אם מקור זמן ייעודי מציין זאת במפורש.</div>
+        <div className="sod29-list">{data.timeline.slice(-8).map((item, index) => {
+          const label = humanTimelineLabel(item);
+          const rawLabel = String(item?.label || "").trim();
+          return <div className="sod29-row" key={`${item.id || index}-${item.at || ""}`}><div><strong>{label}</strong><small>נוסף למחקר · {researchAddedDate(item.at)}</small>{adminMode && rawLabel && label !== rawLabel ? <small>Trace · {rawLabel}</small> : null}</div></div>;
+        })}</div>
       </section> : null}
     </div> : null}
   </>;

@@ -84,6 +84,32 @@ for (const width of [...MOBILE_WIDTHS, 1440]) {
   });
 }
 
+test('RICH 1820 opens human-first before raw research detail', async ({ page }) => {
+  await openWorldAnchor(page, 1820, 390);
+
+  await expect(page.getByRole('heading', { name: 'העיקר סביב 1820' })).toBeVisible();
+  const primaryItems = page.locator('.sod29-world-primary-item');
+  const primaryCount = await primaryItems.count();
+  expect(primaryCount).toBeGreaterThan(0);
+  expect(primaryCount).toBeLessThanOrEqual(7);
+
+  await expect(page.getByRole('heading', { name: 'חישובים שנפתחים מהנקודה הזאת' })).toBeVisible();
+  const gematriaRows = page.locator('.sod29-world-gematria-row');
+  expect(await gematriaRows.count()).toBeGreaterThan(0);
+  await expect(gematriaRows.first()).toContainText('1820');
+
+  await expect(page.getByRole('heading', { name: 'מאיפה החומר מגיע' })).toBeVisible();
+  const publicSourceText = await page.locator('.sod29-world-source-row').allTextContents();
+  expect(publicSourceText.join(' ')).not.toMatch(/(?:channel_updates|wa_bot_log|work_log|gallery_images|posts?):/i);
+  expect(await page.locator('.sod29-world-native-projection').innerText()).not.toContain('traffic_intelligence');
+
+  await expect(page.getByRole('heading', { name: 'נוסף למחקר' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ציר הזמן' })).toHaveCount(0);
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/world-human-projection-1820-390.png', fullPage: true });
+});
+
+
 test('RICH 1820 remains useful when research rows are access-filtered', async ({ page }) => {
   const projection = await openWorldAnchor(page, 1820, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'rich');
