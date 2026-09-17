@@ -32,7 +32,7 @@ Examples:
 - Audio original: `sod1820/2029/audio/2026/09/<uuid>/original.mp3`
 - Document original: `sod1820/2029/document/2026/09/<uuid>/original.pdf`
 
-The migration in this branch extends the existing `agent_upload_allowed_prefixes('media')` compatibility allowlist from historical `sod1820/agent/` to also admit `sod1820/2029/`. Existing paths remain valid.
+The parent migration extends the existing `agent_upload_allowed_prefixes('media')` compatibility allowlist from historical `sod1820/agent/` to also admit `sod1820/2029/`. Existing paths remain valid.
 
 ## Private Submission Inbox for people / external source material
 
@@ -44,22 +44,24 @@ Resolved contributor path:
 
 `submission-inbox/sod1820/2029/contributors/<contributor-id>/YYYY/MM/<submission-id>/<kind>/original.<ext>`
 
-Unresolved sender path:
+Authenticated account that is not yet a contributor:
+
+`submission-inbox/sod1820/2029/accounts/<user-id>/YYYY/MM/<submission-id>/<kind>/original.<ext>`
+
+Unresolved external sender path:
 
 `submission-inbox/sod1820/2029/unresolved/YYYY/MM/<submission-id>/<kind>/original.<ext>`
 
 Rules:
 
-- `<contributor-id>` is the canonical contributor UUID, never phone/email/display-name/WhatsApp-name.
-- `<submission-id>` is a UUID for the incoming submission/event; it is not automatically the later public asset-id.
+- contributor/user ids are UUIDs only, never phone/email/display-name/WhatsApp-name;
+- `<submission-id>` is a UUID for the incoming submission event and is not automatically the later public asset-id;
 - raw submitted binary is immutable at `original.<ext>`;
-- if sender identity is unresolved, preserve the unresolved raw path and later link it semantically; do not move it merely for neatness;
+- if identity is resolved later, link semantically instead of moving the raw source merely for neatness;
 - no public read URL is assumed;
 - no anon/authenticated direct-read policy belongs on the private bucket by default.
 
 The semantic home remains existing infrastructure (`research_contributions`, contributor/person identity, source/provenance, Research Intake). `submission-inbox` is only the private binary staging boundary, not a second contribution store.
-
-The existing public `agent-upload` ticket flow is NOT silently extended to private inbox in this branch because its current ticket/result contract assumes a public URL. A private signed/ticketed adapter must preserve private semantics explicitly.
 
 ## What people may submit — one intake fabric
 
@@ -75,7 +77,7 @@ The intake system must be capable of representing these families without a separ
 - PDF / document / book/source file;
 - URL / external source / social post;
 - research contribution / community submission / post contribution;
-- ELS or other bounded research request (request semantics, not an uploaded media kind);
+- ELS or other bounded research request;
 - WhatsApp/channel message and attachment;
 - private research material;
 - future multimodal inputs.
@@ -119,15 +121,7 @@ Storage path is physical location only. Meaning, source identity, provenance, tr
 
 ## Source / Series / Author are metadata, not directories
 
-Do not create canonical roots such as:
-
-- `tiktok/`
-- `youtube/`
-- `whatsapp/`
-- `openai/`
-- `claude/`
-- `dim5/`
-- `<person-name>/`
+Do not create canonical roots such as `tiktok/`, `youtube/`, `whatsapp/`, `openai/`, `claude/`, `dim5/` or `<person-name>/`.
 
 Preserve source platform, source URL, external message/post ID, source creator/contributor, acquisition method/time and Series membership through existing provenance/content owners.
 
@@ -146,10 +140,42 @@ Live calibration on 2026-09-17 found:
 
 Decision:
 
-- DO NOT move/rename these objects just to normalize appearance; live post URLs would be at risk and the paths are valid provenance/compatibility.
-- DO NOT continue `media/sod1820/videos` as the canonical forward root; it is a flat legacy family already mixed with the historical split.
-- NEW 2029 video, including future Dimension Five video, uses `media/sod1820/2029/video/...`.
+- DO NOT move/rename these objects just to normalize appearance;
+- DO NOT continue `media/sod1820/videos` as the canonical forward root;
+- NEW 2029 video, including future Dimension Five video, uses `media/sod1820/2029/video/...`;
 - `מימד חמש` remains Series identity in content metadata, not a storage directory.
+
+## Authenticated upload runtime — stacked implementation
+
+`media-upload-intent` is the runtime seam for browser/mobile uploads. It does not decide truth, contribution meaning or publication.
+
+Issue flow:
+
+1. verify the caller JWT server-side;
+2. resolve whether the caller is admin and whether a canonical contributor row exists;
+3. validate declared file kind, MIME, extension and bounded size;
+4. generate the destination path server-side; caller cannot choose arbitrary storage paths;
+5. create a Supabase signed upload token with `upsert=false`;
+6. return the direct Storage TUS endpoint + `x-signature` token + 6 MiB chunk contract;
+7. client uploads directly to Storage, so Edge does not buffer large media;
+8. caller may invoke `action=verify`; the server authorizes the exact lifecycle prefix and checks HEAD size + MIME through a short signed read URL.
+
+Authorization:
+
+- `scope=submission`: any authenticated account; path is contributor UUID when that identity exists, otherwise account UUID;
+- `scope=public`: admin only;
+- unresolved WhatsApp/external server ingestion remains a separate server-to-server adapter and is not opened to ordinary authenticated callers.
+
+Private bucket safety envelope:
+
+- `public=false`;
+- max object size 2 GiB;
+- allowlisted image/video/audio/document MIME families only;
+- no anon/authenticated direct-read Storage policy;
+- signed upload token grants only the generated object path;
+- originals use fresh UUID paths and no overwrite.
+
+Large video uses Supabase Storage TUS on the direct storage hostname. The browser helper `src/lib/mediaResumableUpload.js` uploads 6 MiB chunks, tracks progress and uses TUS HEAD to recover the server offset after transient errors.
 
 ## ChatGPT / agent path
 
@@ -157,9 +183,9 @@ Verified image transport today:
 
 `ChatGPT file -> Dropbox temporary file -> Dropbox single-use download URL -> agent-upload mode=url -> Supabase -> read-back verification`
 
-For already-approved/system images, the forward public destination is `media/sod1820/2029/image/...` once this migration is released.
+For already-approved/system images, the forward public destination is `media/sod1820/2029/image/...` once the parent migration is released.
 
-For unreviewed contributor/source material, the transport must terminate in private `submission-inbox` once the private adapter is implemented; public media is never an approval shortcut.
+For unreviewed contributor/source material, public media is never an approval shortcut.
 
 ## Video policy
 
@@ -172,7 +198,7 @@ Unreviewed contributor/external video first lands in the private inbox.
 Transport is separate from location:
 
 - do not send large video through the current buffered image URL relay;
-- use bounded resumable/direct transport (TUS/signed upload/multipart as appropriate) while landing in the same lifecycle tree;
+- use the signed TUS upload intent for browser/mobile large video;
 - preserve source container as immutable original;
 - poster/preview/transcodes are derivatives;
 - captions live under `captions/` for the asset, while transcript/research semantics remain under existing owners;
@@ -182,21 +208,22 @@ Transport is separate from location:
 
 - fresh UUID per public asset;
 - fresh UUID per incoming submission event;
-- `allow_overwrite=false` for originals;
+- overwrite disabled for originals;
 - corrected/replaced source receives a new identity or governed version relation;
 - human titles/slugs are metadata, not storage keys.
 
 ## Generator
 
-Use `scripts/media-path.mjs` for canonical path generation.
+Use `scripts/media-path.mjs` for offline/admin path generation.
 
 It supports:
 
 - `--scope public` -> bucket `media`, root `sod1820/2029/...`;
 - `--scope submission --contributor-id <uuid>` -> private contributor path;
+- `--scope submission --user-id <uuid>` -> private authenticated account path;
 - `--scope submission --unresolved` -> private unresolved path.
 
-This generator creates paths only. It does not authorize upload, publication or promotion.
+The runtime Edge function generates its own paths; callers never submit a trusted destination path.
 
 ## Legacy boundary
 
@@ -210,17 +237,15 @@ Forward rule:
 
 ## Release states
 
-Documented convention != deployed runtime.
+Documented/implemented branch code != live runtime.
 
 Current live facts at this branch pass:
 
 - public image bridge (`agent-upload` v26) is live;
 - Dropbox image relay is live-verified;
-- `submission-inbox` bucket is NOT live until migration release;
-- `sod1820/2029/` ticket allowlist extension is NOT live until migration release;
-- private user upload adapter is NOT implemented;
-- WhatsApp attachment fetch-to-inbox is NOT implemented by this convention;
-- large-video resumable transport is NOT implemented;
+- PR #495 private bucket + `sod1820/2029/` allowlist are NOT live until released;
+- `media-upload-intent` + TUS client helper are IMPLEMENTED ON STACKED BRANCH ONLY, not deployed;
+- WhatsApp attachment fetch-to-inbox is still NOT implemented by this scope;
 - promotion tooling is NOT implemented.
 
-Do not claim those later capabilities live merely because their destination/contract is defined.
+Do not claim branch-only upload capabilities live until the parent migration and this runtime are explicitly released and production-E2E verified.
