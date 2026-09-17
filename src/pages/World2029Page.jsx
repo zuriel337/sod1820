@@ -152,7 +152,8 @@ function humanFindingPresentation(finding, anchorLabel) {
   const presentation = finding?.view?.rendererHints?.presentation || {};
   const projectedTitle = presentation.title || finding?.subject?.label || null;
   const fallbackMode = presentation.fallbackMode || finding?.projection?.dimensions?.presentation?.fallbackMode || null;
-  const hideRawTechnical = fallbackMode === "raw_statement" && looksTechnicalResearchTitle(projectedTitle);
+  const hideRawTechnical = fallbackMode === "raw_statement"
+    && (looksTechnicalResearchTitle(projectedTitle) || /[A-Za-z]{3}/.test(String(projectedTitle || "")));
   return {
     title: hideRawTechnical ? `מחקר נוסף סביב ${anchorLabel || "הנקודה"}` : (projectedTitle || "נקודת מחקר"),
     summary: hideRawTechnical ? null : (presentation.summary || null),
@@ -172,7 +173,7 @@ function prominenceTypeLabel(item) {
 
 function humanProminenceLabel(item, anchorLabel) {
   const label = String(item?.label || "").trim();
-  if (item?.kind === "research" && looksTechnicalResearchTitle(label)) {
+  if (item?.kind === "research" && (looksTechnicalResearchTitle(label) || /[A-Za-z]{3}/.test(label))) {
     return `מחקר נוסף סביב ${anchorLabel || "הנקודה"}`;
   }
   if (item?.kind === "source") {
