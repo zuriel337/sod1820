@@ -152,14 +152,14 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await expect(inspectDialog.locator('.sod29-frame-feedback[role="status"]')).toBeVisible();
   await page.keyboard.press('Escape');
 
+  const exactReturn = page.locator('.sod29-header-actions button[title]').first();
+  await expect(exactReturn).toBeDisabled();
+
   const deepen = page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first();
   await expect(deepen).toBeVisible();
   await deepen.focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('.sod29-world-anchor-intro h2')).not.toHaveText('1820', { timeout: 30_000 });
-
-  const exactReturn = page.locator('.sod29-header-actions button[title]').first();
-  await expect(exactReturn).toBeEnabled();
+  await expect(exactReturn).toBeEnabled({ timeout: 30_000 });
   await exactReturn.click();
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820', { timeout: 30_000 });
 });
