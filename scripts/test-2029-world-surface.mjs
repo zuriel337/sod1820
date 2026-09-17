@@ -24,18 +24,22 @@ assert.equal(world.includes("NumberDrawer"), false);
 assert.equal(world.includes("AskRaziel"), false);
 assert.equal(world.includes("UserCenter"), false);
 assert.equal(world.includes('status="LIVE"'), false, "branch-only iteration must not claim a new LIVE state");
-assert.match(world, /status="עולם · מחקר"/);
+assert.match(world, /status="עולם · גילוי"/);
 
-// Public World copy speaks product/research language, not implementation/debug language.
+// Public World copy speaks discovery/product language, not implementation/debug language.
 for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים",
   "אין fallback שקט ל־Legacy",
   "World הוא projection",
   "מגיעים מאותו System Frame",
   "אין projection זמין לעוגן הזה",
+  "המציאות המחקרית פתוחה",
+  "מפת המחקר של המציאות",
 ]) {
-  assert.equal(world.includes(oldCopy), false, `debug/implementation copy leaked: ${oldCopy}`);
+  assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
 }
+assert.match(world, /העולם פתוח/);
+assert.match(world, /בחר נקודה וגלה מה מתחבר אליה/);
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) {
