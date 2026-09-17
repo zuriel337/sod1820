@@ -4,12 +4,14 @@ import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { researchNumber } from "./numericResearch.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
+import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
+const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -411,6 +413,34 @@ async function fetchZeroScale(number) {
   return data || null;
 }
 
+// 2029 Anchor Profile projection. This intentionally does NOT revive the legacy Number-page
+// getNumberAnchor() client path. World/Entity Hub reads the existing curated row directly and
+// immediately converts it through the governed Universal Finding adapter, preserving the v8
+// boundary: current curated context != engine truth != canonical/publication state.
+async function fetchNumberAnchorProfile(number) {
+  const { data, error } = await supabase
+    .from("number_anchors")
+    .select(NUMBER_ANCHOR_FIELDS)
+    .eq("value", number)
+    .maybeSingle();
+  if (error) {
+    if (isAccessDenied(error)) {
+      return {
+        row: null,
+        finding: null,
+        access: { available: false, reason: "number_anchor_not_readable_for_current_session" },
+      };
+    }
+    throw error;
+  }
+  const row = data || null;
+  return {
+    row,
+    finding: row ? numberAnchorToUniversalFinding(row) : null,
+    access: { available: true, reason: null },
+  };
+}
+
 function humanGateSummary(rows) {
   const status = { candidate: 0, approved: 0, canonical: 0, rejected: 0, other: 0 };
   const access = { private: 0, family_shared: 0, public_candidate: 0, other: 0 };
@@ -544,6 +574,7 @@ export async function fetchEntityHubProjection({
   let worlds = [];
   let signatures = [];
   let zeroScale = null;
+  let anchorProfile = { row: null, finding: null, access: { available: true, reason: null } };
   let phraseEntities = {};
   let methodBridge = { identity: null, results: [], engineFindings: [] };
 
@@ -558,7 +589,7 @@ export async function fetchEntityHubProjection({
 
   if (isNumberNode) {
     const number = Number(node.label);
-    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale] = await Promise.all([
+    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale, anchorProfile] = await Promise.all([
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
       researchNumber(number, {
         lenses: ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
@@ -573,6 +604,7 @@ export async function fetchEntityHubProjection({
       fetchNumberWorlds(number),
       fetchNumberSignatures(number),
       fetchZeroScale(number),
+      fetchNumberAnchorProfile(number),
     ]);
     // Number → Entity bridge: phrases already shown in the families resolve to EXISTING entity nodes
     // (bounded to the shown phrases; nothing is created). This is what makes
@@ -630,6 +662,7 @@ export async function fetchEntityHubProjection({
     numberWorlds: worlds,
     signatures,
     zeroScale,
+    anchorProfile,
     journeys: {
       numberKnowledgeJourney: numberJourney,
       researchPaths: [],
