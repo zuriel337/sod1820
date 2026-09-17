@@ -12,6 +12,7 @@ import {
   worldRelationCounterpart,
   worldRelationFacets,
 } from "../src/lib/research/world2029Presentation.js";
+import { numberAnchorToUniversalFinding } from "../src/lib/research/numberAnchorFinding.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -22,6 +23,7 @@ const graphAdapter = read("src/lib/research/entityGraphFinding.js");
 const adminMigration = read("supabase/migrations/20260917191500_world_admin_graph_read_v1.sql");
 const prominenceHelper = read("src/lib/research/worldContextualProminence.js");
 const prominenceInputs = read("src/lib/research/worldProminenceInputs.js");
+const entityHubProjection = read("src/lib/research/entityHubProjection.js");
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);
@@ -36,6 +38,33 @@ assert.equal(world.includes("AskRaziel"), false);
 assert.equal(world.includes("UserCenter"), false);
 assert.equal(world.includes('status="LIVE"'), false);
 assert.match(world, /status="עולם · גילוי"/);
+
+// 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
+assert.match(world, /WORLD_LANES/);
+assert.match(world, /מה אתה רוצה לראות עכשיו\?/);
+assert.match(world, /פרופיל עוגן · אוצרות מחקרית מתפתחת/);
+assert.match(world, /דף המספר נשאר הבית הייעודי לחישוב ולביטוי/);
+assert.match(world, /לדף המספר ←/);
+assert.equal(world.includes("getNumberAnchor"), false, "World must not revive the legacy Number-page anchor reader");
+assert.equal(world.includes("NumberHubOpening2029"), false, "World must not import/copy the Number-page UI");
+for (const lane of ["overview", "calculations", "sources", "relations", "research", "timeline"]) {
+  assert.match(world, new RegExp(`activeLane === ["']${lane}["']|key: ["']${lane}["']`), `World orientation lane missing: ${lane}`);
+}
+
+// Anchor Profile is consumed through the 2029 Entity projection + existing Universal Finding adapter.
+assert.match(entityHubProjection, /numberAnchorToUniversalFinding/);
+assert.match(entityHubProjection, /from\("number_anchors"\)/);
+assert.match(entityHubProjection, /anchorProfile/);
+const anchorFinding = numberAnchorToUniversalFinding({
+  value: 1820,
+  category: "יסודות",
+  fact: "1820 = עוגן",
+  hint: "הקשר מחקרי",
+  created_at: "2026-09-01T00:00:00Z",
+});
+assert.equal(anchorFinding.source.sourceRef, "number_anchors:1820");
+assert.equal(anchorFinding.projection.dimensions.legacyNumberAnchor.semanticBoundary, "curated-context-not-verified-fact");
+assert.equal(anchorFinding.projection.dimensions.legacyNumberAnchor.fact, "1820 = עוגן");
 
 // World consumes the released shared Experience Context.
 assert.match(world, /EXPERIENCE_SURFACE/);
