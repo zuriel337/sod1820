@@ -61,7 +61,7 @@ test('direct /world opens the native live landing without a stored anchor', asyn
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
-  await expect(page.getByText('המציאות המחקרית פתוחה.')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
@@ -80,7 +80,7 @@ test('MEDIUM live World 314 remains medium instead of being visually inflated', 
   const projection = await openWorldAnchor(page, 314, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'medium');
   await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
-  await expect(page.getByText('ממצאים סביב העוגן')).toHaveCount(0);
+  await expect(page.getByText('נקודות שנמצאו סביב הנקודה הזאת')).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-medium-314-390.png', fullPage: true });
 });
@@ -88,8 +88,8 @@ test('MEDIUM live World 314 remains medium instead of being visually inflated', 
 test('SPARSE live World 122 stays honestly sparse with no fabricated research', async ({ page }) => {
   const projection = await openWorldAnchor(page, 122, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'sparse');
-  await expect(page.getByText('העוגן קיים, אבל סביבו מעט חומר כרגע')).toBeVisible();
-  await expect(page.getByText('ממצאים סביב העוגן')).toHaveCount(0);
+  await expect(page.getByText('הנקודה קיימת, אבל סביבה מעט חומר כרגע')).toBeVisible();
+  await expect(page.getByText('נקודות שנמצאו סביב הנקודה הזאת')).toHaveCount(0);
   await expect(page.getByText('מאיפה החומר מגיע')).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-sparse-122-390.png', fullPage: true });
@@ -142,14 +142,14 @@ test('loading and error states are honest and native', async ({ page }) => {
     await route.continue();
   });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('טוען קשרים, מחקר ומקורות')).toBeVisible({ timeout: 1000 });
+  await expect(page.getByText('אוסף את מה שמתחבר לכאן')).toBeVisible({ timeout: 1000 });
   await page.screenshot({ path: 'test-results/release-visual/world-loading-390.png', fullPage: true });
   await expect(page.locator('.sod29-world-native-projection')).toBeVisible({ timeout: 30_000 });
 
   await page.unroute('**/rest/v1/nodes*');
   await page.route('**/rest/v1/nodes*', (route) => route.abort('failed'));
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('לא הצלחנו לפתוח את העוגן כרגע')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('לא הצלחנו לפתוח את הנקודה כרגע')).toBeVisible({ timeout: 15_000 });
   await page.screenshot({ path: 'test-results/release-visual/world-error-390.png', fullPage: true });
 });
 
@@ -157,8 +157,8 @@ test('unavailable identity is not silently replaced by another anchor', async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await seedWorldAnchor(page, 999999999);
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('אין חומר זמין לעוגן הזה')).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByText('999999999', { exact: true })).toBeVisible();
+  await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: '999999999', exact: true })).toBeVisible();
   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });
 });
 
