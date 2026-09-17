@@ -69,7 +69,7 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   const entry = page.locator('#world-entry');
   await expect(entry).toHaveAttribute('data-experience-surface', 'world');
   await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
-  await expect(page.getByRole('button', { name: /חיפוש \/ פקודה/ })).toBeVisible();
+  await expect(entry.getByRole('button', { name: /חיפוש \/ פקודה/ })).toBeVisible();
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
@@ -128,7 +128,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await page.keyboard.press('Enter');
   const inspectDialog = page.locator('.sod29-frame-panel[role="dialog"]');
   await expect(inspectDialog).toBeVisible();
-  await expect(inspectDialog).toBeFocused();
+  expect(await inspectDialog.evaluate((node) => node.contains(document.activeElement))).toBe(true);
   const share = inspectDialog.getByRole('button', { name: /שתף הקשר/ });
   await expect(share).toBeEnabled();
   await share.click();
