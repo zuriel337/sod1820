@@ -105,8 +105,9 @@ export function orderWorldRelations(findings = [], { currentNodeId = null, sort 
       return direction * (av - bv) || a.index - b.index;
     });
   } else {
-    // Canonical World prominence contract: preserve visible access to relevant Human curation,
-    // then preserve the deterministic governed reader order. No opaque universal score.
+    // Compatibility relation-list order only. The bounded “העיקר סביב…” projection is composed
+    // by buildWorldContextualProminence() below; do not turn this relation sorter into a second
+    // ranking owner or an opaque universal score.
     rows.sort((a, b) => curationPriority(a.counterpart) - curationPriority(b.counterpart) || a.index - b.index);
   }
 
@@ -130,3 +131,7 @@ export function explainWorldRelation(finding, currentNodeId = null) {
     disclaimer: "סדר התצוגה מסביר רלוונטיות ואוצרות בהקשר הזה; הוא אינו דירוג אמת, אימות או קנוניות.",
   });
 }
+
+// EXTEND_EXISTING: the bounded contextual prominence composer belongs to this World presentation
+// owner. It is split into a pure helper for testability; no ranking engine/store/score is created.
+export { buildWorldContextualProminence } from "./worldContextualProminence.js";
