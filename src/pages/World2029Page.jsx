@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import { usePalette } from "../lib/palette.js";
+import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import {
@@ -15,8 +16,13 @@ import {
 } from "../lib/research/world2029Presentation.js";
 import { applySeo } from "../lib/seo.js";
 
+const WORLD_EXPERIENCE = resolveExperienceContext({
+  surface: EXPERIENCE_SURFACE.WORLD,
+  locale: "he",
+});
+
 const WORLD_FACETS = [
-  { key: "topic", title: "התכנסויות חזקות", kicker: "חיבורים", limit: 8 },
+  { key: "topic", title: "נקודות מפגש", kicker: "חיבורים", limit: 8 },
   { key: "number", title: "מספרים בעולם", kicker: "מספרים", limit: 10 },
   { key: "book", title: "ספרים ומקורות", kicker: "מקורות", limit: 6 },
   { key: "event", title: "אירועים", kicker: "זמן ומציאות", limit: 6 },
@@ -24,7 +30,7 @@ const WORLD_FACETS = [
 ];
 
 const FACET_LABELS = {
-  topic: "התכנסות",
+  topic: "חיבור",
   number: "מספר",
   book: "ספר",
   event: "אירוע",
@@ -42,9 +48,32 @@ const VERIFICATION_LABELS = {
   not_tested: "טרם נבדק",
 };
 
+const RELATION_LABELS = Object.freeze({
+  equals: "שוויון",
+  cross: "הצטלבות",
+  related: "קשר",
+  contains: "מכיל",
+  mentions: "אזכור",
+  converges_on: "נפגש כאן",
+  cipher_link: "קשר לצופן",
+  scale_x10: "קשר של ×10",
+  zero_scale: "קשר של שינוי קנה־מידה",
+});
+
 function subjectKey(subject) {
   if (!subject?.id || !subject?.type) return null;
   return `${subject.type}:${subject.id}`;
+}
+
+function relationLabel(relationType) {
+  return RELATION_LABELS[relationType] || "קשר נוסף";
+}
+
+function relationStatement(finding, relationType) {
+  const raw = String(finding?.subject?.label || "").trim();
+  if (!raw) return "קשר";
+  if (!relationType) return raw;
+  return raw.replace(String(relationType), relationLabel(relationType));
 }
 
 function WorldCard({ card, onOpen }) {
@@ -134,19 +163,25 @@ function LiveWorldLanding({ research, shell, context }) {
   const populatedSections = WORLD_FACETS.filter((facet) => (landing.sections[facet.key] || []).length > 0);
 
   return <>
-    <section className="sod29-focus-stage sod29-world-native-entry" id="world-entry">
+    <section
+      className="sod29-focus-stage sod29-world-native-entry"
+      id="world-entry"
+      data-experience-surface={WORLD_EXPERIENCE.surface}
+      data-experience-question={WORLD_EXPERIENCE.experience.question}
+      data-spatial-default={WORLD_EXPERIENCE.spatial.defaultLevel}
+    >
       <div className="sod29-command-shell">
         <div className="sod29-command-copy">
-          <div className="sod29-kicker">WORLD · ONE REALITY</div>
+          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · {WORLD_EXPERIENCE.experience.question}</div>
           <h2>העולם פתוח.<br />בחר נקודה וגלה מה מתחבר אליה.</h2>
-          <div className="sod29-muted">מספרים, ביטויים, מקורות, אירועים וקשרים נפגשים כאן סביב עוגנים אמיתיים. אפשר להתחיל מנקודה קיימת, לחפש דבר חדש או לעבור מחיבור לחיבור בלי לאבד את המקום שממנו הגעת.</div>
+          <div className="sod29-muted">מספרים, ביטויים, מקורות, אירועים וקשרים נפגשים כאן סביב דברים שכבר קיימים במערכת. אפשר להתחיל מנקודה שמסקרנת אותך, לחפש דבר חדש או לעבור מחיבור לחיבור בלי לאבד את המקום שממנו הגעת.</div>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חיפוש / פקודה</button>
             <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ מה השתנה</button>
           </div>
         </div>
         <div className="sod29-orbit-map" aria-hidden="true">
-          <div className="sod29-orbit-center">SOD<br />1820</div>
+          <div className="sod29-orbit-center">{WORLD_EXPERIENCE.brand.canonicalLatinIdentity}</div>
           <span className="sod29-orbit-node n1">מספרים</span>
           <span className="sod29-orbit-node n2">מקורות</span>
           <span className="sod29-orbit-node n3">קשרים</span>
@@ -172,7 +207,7 @@ function LiveWorldLanding({ research, shell, context }) {
       </section>;
     })}
 
-    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את החיבור">טוען את מה שנמצא סביב ההתכנסות.</FrameState></NativeStateSection> : null}
+    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את החיבור">טוען את מה שנמצא סביב נקודת המפגש.</FrameState></NativeStateSection> : null}
     {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="החיבור לא נטען כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}
     {topicDetail.finding ? <section className="sod29-section">
       <div className="sod29-section-head">
@@ -276,9 +311,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
     <section className="sod29-section sod29-world-anchor-intro">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">מה מתחבר לכאן</div>
+          <div className="sod29-kicker">{WORLD_EXPERIENCE.experience.question}</div>
           <h2>{subject.label || subject.id}</h2>
-          <div className="sod29-muted">כאן אפשר לראות מה מתחבר לנקודה הזאת — קשרים, מקורות, אירועים, נקודות שנמצאו וזמן. אפשר לעבור מחיבור לחיבור, לפתוח את הפרטים ולחזור בדיוק למקום שממנו יצאת.</div>
+          <div className="sod29-muted">כאן אפשר לראות מה מתחבר לנקודה הזאת — קשרים, מקורות, אירועים, דברים שנמצאו וזמן. אפשר לעבור מחיבור לחיבור, לפתוח את הפרטים ולחזור בדיוק למקום שממנו יצאת.</div>
         </div>
         <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
       </div>
@@ -289,7 +324,13 @@ function AnchoredWorld({ research, shell, subject, context }) {
     {!state.loading && !state.error && !data ? <NativeStateSection><FrameState kind="unavailable" title="אין חומר זמין לנקודה הזאת">המקום נשאר שמור ואפשר לחזור, לחפש או לבחור נקודה אחרת.</FrameState></NativeStateSection> : null}
     {deepening.error ? <NativeStateSection><FrameState kind="unavailable" title="החיבור קיים אך היעד לא נפתח כרגע">אפשר להמשיך לעיין כאן או לנסות שוב.</FrameState></NativeStateSection> : null}
 
-    {data ? <div className="sod29-world-native-projection" data-world-density={density}>
+    {data ? <div
+      className="sod29-world-native-projection"
+      data-world-density={density}
+      data-experience-surface={WORLD_EXPERIENCE.surface}
+      data-experience-question={WORLD_EXPERIENCE.experience.question}
+      data-truth-safe={String(WORLD_EXPERIENCE.experience.truthSafe)}
+    >
       <section className="sod29-section">
         <div className="sod29-section-head">
           <div><div className="sod29-kicker">מרכז העולם</div><h2>{data.identity.label}</h2></div>
@@ -316,14 +357,14 @@ function AnchoredWorld({ research, shell, subject, context }) {
           const relation = finding.projection?.relations?.[0];
           const busy = deepening.id === (finding.id || relation?.id);
           return <div className="sod29-row" key={finding.id || index}>
-            <div><strong>{finding.subject?.label || "קשר"}</strong><small>{relation?.relationType || finding.source?.method || "קשר בגרף"}</small></div>
+            <div><strong>{relationStatement(finding, relation?.relationType)}</strong><small>{relationLabel(relation?.relationType)}</small></div>
             <button className="sod29-action" type="button" disabled={busy} onClick={() => deepenRelation(finding)}>{busy ? "פותח…" : "העמק"}</button>
           </div>;
         })}</div>
       </section> : null}
 
       {data.research?.findings?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">מה מצאנו</div><h2>נקודות שנמצאו סביב הנקודה הזאת</h2></div></div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מה מצאנו</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
         <div className="sod29-list">{data.research.findings.slice(0, 12).map((finding, index) => {
           const verification = VERIFICATION_LABELS[finding.verification?.verification_state] || "נקודה לבדיקה";
           return <div className="sod29-row" key={finding.id || index}>
@@ -334,8 +375,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </section> : null}
 
       {data.topics?.findings?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">התכנסויות</div><h2>חיבורים שנפגשים כאן</h2></div></div>
-        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "התכנסות"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>חיבורים שנפגשים כאן</h2></div></div>
+        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
       </section> : null}
 
       {data.sources?.length ? <section className="sod29-section">
@@ -373,17 +414,17 @@ function WorldBody() {
 export default function World2029Page() {
   useEffect(() => {
     applySeo({
-      title: "העולם · SOD1820",
-      description: "העולם של SOD1820 — מספרים, ביטויים, מקורות, אירועים וקשרים סביב עוגנים אמיתיים.",
+      title: `העולם · ${WORLD_EXPERIENCE.brand.canonicalLatinIdentity}`,
+      description: "העולם של סוד 1820 — מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך.",
       path: "/world",
     });
   }, []);
 
   return (
     <Sod2029Shell
-      surface="world"
+      surface={WORLD_EXPERIENCE.surface}
       symbol="◌"
-      eyebrow="SOD1820 · ONE WORLD"
+      eyebrow={`${WORLD_EXPERIENCE.brand.identity} · ${WORLD_EXPERIENCE.experience.question}`}
       title="העולם"
       description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח חיבור, העמק בו וחזור בדיוק למקום שממנו יצאת."
       status="עולם · גילוי"
