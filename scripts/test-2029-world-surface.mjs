@@ -47,7 +47,7 @@ assert.match(world, /דף המספר נשאר הבית הייעודי לחישו
 assert.match(world, /לדף המספר ←/);
 assert.equal(world.includes("getNumberAnchor"), false, "World must not revive the legacy Number-page anchor reader");
 assert.equal(world.includes("NumberHubOpening2029"), false, "World must not import/copy the Number-page UI");
-for (const lane of ["overview", "calculations", "sources", "relations", "research", "timeline"]) {
+for (const lane of ["overview", "media", "calculations", "sources", "relations", "research", "timeline"]) {
   assert.match(world, new RegExp(`activeLane === ["']${lane}["']|key: ["']${lane}["']`), `World orientation lane missing: ${lane}`);
 }
 
@@ -65,6 +65,21 @@ const anchorFinding = numberAnchorToUniversalFinding({
 assert.equal(anchorFinding.source.sourceRef, "number_anchors:1820");
 assert.equal(anchorFinding.projection.dimensions.legacyNumberAnchor.semanticBoundary, "curated-context-not-verified-fact");
 assert.equal(anchorFinding.projection.dimensions.legacyNumberAnchor.fact, "1820 = עוגן");
+
+// Media projection consumes existing graph adjacency + published gallery representation.
+// It must not revive legacy Gallery/Museum presentation authority.
+assert.match(entityHubProjection, /fetchWorldMediaProjection/);
+assert.match(entityHubProjection, /from\("gallery_images"\)/);
+assert.match(entityHubProjection, /eq\("published", 1\)/);
+assert.match(entityHubProjection, /curator_hidden\.is\.null,curator_hidden\.eq\.false/);
+assert.match(entityHubProjection, /projectionReason: `reality_graph:\$\{relationType\}`/);
+assert.match(world, /key: "media", label: "תמונות"/);
+assert.match(world, /sod29-world-media-grid/);
+assert.match(world, /<img src=\{item\.thumbUrl \|\| item\.imageUrl\}/);
+assert.match(world, /התמונה עצמה אינה הוכחה או דירוג אמת/);
+assert.equal(world.includes("MuseumGallery"), false);
+assert.equal(world.includes("MuseumGate"), false);
+assert.equal(world.includes("getGalleriesOverview"), false);
 
 // World consumes the released shared Experience Context.
 assert.match(world, /EXPERIENCE_SURFACE/);
