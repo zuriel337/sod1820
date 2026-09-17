@@ -101,6 +101,7 @@ test('RICH 1820 opens human-first before raw research detail', async ({ page }) 
   await expect(page.getByRole('heading', { name: 'מאיפה החומר מגיע' })).toBeVisible();
   const publicSourceText = await page.locator('.sod29-world-source-row').allTextContents();
   expect(publicSourceText.join(' ')).not.toMatch(/(?:channel_updates|wa_bot_log|work_log|gallery_images|posts?):/i);
+  expect(await page.locator('.sod29-world-native-projection').innerText()).not.toContain('traffic_intelligence');
 
   await expect(page.getByRole('heading', { name: 'נוסף למחקר' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'ציר הזמן' })).toHaveCount(0);
