@@ -35,6 +35,9 @@ async function openWorldAnchor(page, value, width = 390) {
   const projection = page.locator('.sod29-world-native-projection');
   await expect(projection).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('.sod29-world-anchor-intro h2')).toContainText(String(value));
+  await expect(projection).toHaveAttribute('data-experience-surface', 'world');
+  await expect(projection).toHaveAttribute('data-experience-question', 'מה מתחבר?');
+  await expect(projection).toHaveAttribute('data-truth-safe', 'true');
   return projection;
 }
 
@@ -57,11 +60,16 @@ async function assertNoHorizontalOverflow(page) {
   expect(metrics.scrollWidth).toBe(metrics.clientWidth);
 }
 
-test('direct /world opens the native live landing without a stored anchor', async ({ page }) => {
+test('direct /world opens the Golden discovery landing without a stored anchor', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
   await expect(page.getByText('העולם פתוח.')).toBeVisible({ timeout: 30_000 });
+  const entry = page.locator('#world-entry');
+  await expect(entry).toHaveAttribute('data-experience-surface', 'world');
+  await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
+  await expect(page.getByRole('button', { name: /חיפוש \/ פקודה/ })).toBeVisible();
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
@@ -76,11 +84,20 @@ for (const width of [...MOBILE_WIDTHS, 1440]) {
   });
 }
 
+test('RICH 1820 remains useful when research rows are access-filtered', async ({ page }) => {
+  const projection = await openWorldAnchor(page, 1820, 390);
+  await expect(projection).toHaveAttribute('data-world-density', 'rich');
+  await expect(page.getByText('חלק מהחומר אינו זמין בהרשאה הנוכחית')).toBeVisible();
+  await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
+  await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
+  await page.screenshot({ path: 'test-results/release-visual/world-partial-access-1820-390.png', fullPage: true });
+});
+
 test('MEDIUM live World 314 remains medium instead of being visually inflated', async ({ page }) => {
   const projection = await openWorldAnchor(page, 314, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'medium');
   await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
-  await expect(page.getByText('נקודות שנמצאו סביב הנקודה הזאת')).toHaveCount(0);
+  await expect(page.getByText('דברים שנמצאו סביב הנקודה הזאת')).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-medium-314-390.png', fullPage: true });
 });
@@ -89,7 +106,7 @@ test('SPARSE live World 122 stays honestly sparse with no fabricated research', 
   const projection = await openWorldAnchor(page, 122, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'sparse');
   await expect(page.getByText('הנקודה קיימת, אבל סביבה מעט חומר כרגע')).toBeVisible();
-  await expect(page.getByText('נקודות שנמצאו סביב הנקודה הזאת')).toHaveCount(0);
+  await expect(page.getByText('דברים שנמצאו סביב הנקודה הזאת')).toHaveCount(0);
   await expect(page.getByText('מאיפה החומר מגיע')).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-sparse-122-390.png', fullPage: true });
@@ -111,6 +128,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   await page.keyboard.press('Enter');
   const inspectDialog = page.locator('.sod29-frame-panel[role="dialog"]');
   await expect(inspectDialog).toBeVisible();
+  await expect(inspectDialog).toBeFocused();
   const share = inspectDialog.getByRole('button', { name: /שתף הקשר/ });
   await expect(share).toBeEnabled();
   await share.click();
@@ -160,6 +178,17 @@ test('unavailable identity is not silently replaced by another anchor', async ({
   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole('heading', { name: '999999999', exact: true })).toBeVisible();
   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });
+});
+
+test('reduced motion preserves the same World meaning and controls', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const projection = await openWorldAnchor(page, 1820, 390);
+  expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
+  await expect(projection).toHaveAttribute('data-experience-question', 'מה מתחבר?');
+  await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
+  await expect(page.locator('.sod29-world-native-projection button').filter({ hasText: 'העמק' }).first()).toBeVisible();
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/world-rich-1820-reduced-motion-390.png', fullPage: true });
 });
 
 test('320px RTL World survives 200% text zoom without horizontal overflow', async ({ page }) => {
