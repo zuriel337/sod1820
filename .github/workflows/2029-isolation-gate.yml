@@ -10,12 +10,14 @@ on:
       - "src/pages/*2029Page.jsx"
       - "src/lib/designTokens.js"
       - "src/lib/experienceContext.js"
+      - "src/lib/operationalTraceContract.js"
       - "src/lib/research/researchContext.js"
       - "src/lib/research/world2029Presentation.js"
       - "package.json"
       - "vite.config.js"
       - "vercel.json"
       - "scripts/test-experience-context-2029.mjs"
+      - "scripts/test-operational-trace-contract.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
@@ -36,6 +38,8 @@ jobs:
       - run: npm ci
       - name: Experience Context 2029 acceptance
         run: npm run test:experience-context
+      - name: No Black Box operational trace acceptance
+        run: npm run test:operational-trace
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Native System Frame acceptance
