@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import {
+  buildWorldContextualProminence,
   classifyWorldPresentationDensity,
   explainWorldRelation,
   filterWorldRelations,
@@ -19,6 +20,8 @@ const app = read("src/App2029.jsx");
 const experienceContext = read("src/lib/experienceContext.js");
 const graphAdapter = read("src/lib/research/entityGraphFinding.js");
 const adminMigration = read("supabase/migrations/20260917191500_world_admin_graph_read_v1.sql");
+const prominenceHelper = read("src/lib/research/worldContextualProminence.js");
+const prominenceInputs = read("src/lib/research/worldProminenceInputs.js");
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);
@@ -153,16 +156,166 @@ const relations = [
 assert.equal(worldRelationCounterpart(relations[0], "1820-node").label, "360");
 assert.deepEqual(worldRelationFacets(relations, "1820-node"), [{ type: "number", count: 2 }, { type: "entity", count: 1 }]);
 assert.deepEqual(filterWorldRelations(relations, { currentNodeId: "1820-node", filter: "number" }).map(x => x.id), ["10", "12"]);
-assert.deepEqual(orderWorldRelations(relations, { currentNodeId: "1820-node", sort: "recommended" }).map(x => x.id), ["11", "10", "12"], "Gold remains discoverable before neutral reader order without claiming truth");
+assert.deepEqual(orderWorldRelations(relations, { currentNodeId: "1820-node", sort: "recommended" }).map(x => x.id), ["11", "10", "12"], "Compatibility relation list still preserves Gold visibility before neutral reader order");
 assert.deepEqual(orderWorldRelations(relations, { currentNodeId: "1820-node", sort: "number_asc" }).map(x => x.id), ["10", "12", "11"]);
 assert.deepEqual(orderWorldRelations(relations, { currentNodeId: "1820-node", sort: "number_desc" }).map(x => x.id), ["12", "10", "11"]);
 const why = explainWorldRelation(relations[1], "1820-node");
 assert.match(why.reasons.join(" "), /אוצרות אנושי: gold/);
 assert.match(why.disclaimer, /אינו דירוג אמת/);
 
+// ── G3 contextual prominence Golden calibration ──────────────────────────────
+const graphRelation = ({ anchorNodeId, id, label, type = "entity", tier = null, role = null, relationType = "related" }) => ({
+  id,
+  projection: { relations: [{
+    id,
+    fromNodeId: anchorNodeId,
+    toNodeId: `${id}-node`,
+    relationType,
+    from: { id: anchorNodeId, type: "number", label: anchorNodeId.replace("-node", ""), curation: {}, signal: {} },
+    to: { id: `${id}-node`, type, label, curation: { tier, role }, signal: {} },
+  }] },
+  source: { sourceRef: `edge:${id}` },
+  evidence: { refs: [`edge:${id}`] },
+});
+
+const golden1820 = {
+  identity: { nodeId: "1820-node", type: "number", label: "1820" },
+  graph: { relations: [
+    graphRelation({ anchorNodeId: "1820-node", id: "site-signature", label: "סוד אלף שמונה מאות עשרים כי לה המלוכה", tier: "gold", role: "signature", relationType: "equals" }),
+    graphRelation({ anchorNodeId: "1820-node", id: "research-signature", label: "מספר שמות יהוה בכל התורה", tier: "gold", role: "signature", relationType: "equals" }),
+    graphRelation({ anchorNodeId: "1820-node", id: "1020", label: "1020 — השגחה פרטית ותורה", type: "convergence", relationType: "converges_on" }),
+  ] },
+  research: {
+    rows: [{
+      id: "time-axis", kind: "relation", statement: "ציר הזמן של 1820", value: 1820,
+      terms: ["1820", "עת"], relates: ["358"], source_ref: "fn_all_methods", privacy_scope: "public_candidate",
+      engine_verified: true, engine_detail: { verification_state: "match" },
+      meta: { ext: { presentation: { variants: { he: { title: "1820 — עת, היום והמשיח בימינו" } } } } },
+    }],
+    findings: [],
+  },
+  topics: { rows: [{ id: "topic-tenth", slug: "tevet-asiri-hitgalut", title: "עשרה בטבת — יום התגלות המשיח", status: "approved", meter_score: 90 }] },
+  sources: [
+    { type: "verse", ref: "דברים 27:18", label: "דברים 27:18 — ארור משגה עור בדרך" },
+    { type: "verse", ref: "תהלים 96:12", label: "תהלים 96:12 — יעלז שדי וכל אשר בו" },
+  ],
+};
+const p1820 = buildWorldContextualProminence(golden1820, {
+  crossMethodStrength: { signal: "CORE_AXIS_CANDIDATE", phrase_count: 109, methods: ["רגיל", "קדמי"], dependent_methods: ["רגיל+משולש"], dependent_phrase_count: 39 },
+}, { limit: 7 });
+assert.ok(p1820.items.length >= 4 && p1820.items.length <= 7, "1820 bounded attention bundle stays within 4–7 when material exists");
+assert.equal(p1820.items.filter((item) => item.explainWhy.humanCuration.tier === "gold").length, 2, "both relevant 1820 Gold signatures remain discoverable");
+assert.ok(p1820.items.some((item) => item.familyKey === "verse-source"), "1820 must gain a source/verse family instead of seven near-duplicate gematria rows");
+assert.equal(p1820.contextSignals.crossMethodStrength.signal, "CORE_AXIS_CANDIDATE");
+assert.equal(Object.hasOwn(p1820, "score"), false, "no universal score may be emitted");
+
+const golden358 = {
+  identity: { nodeId: "358-node", type: "number", label: "358" },
+  graph: { relations: [
+    graphRelation({ anchorNodeId: "358-node", id: "mashiach", label: "משיח", tier: "silver", relationType: "equals" }),
+    graphRelation({ anchorNodeId: "358-node", id: "nachash", label: "נחש", relationType: "equals" }),
+  ] },
+  research: {
+    rows: [{
+      id: "verse-358-held", kind: "observation", statement: "פסוק 358 — procedure held", value: 358,
+      terms: ["358"], source_ref: "posts:976", privacy_scope: "public_candidate", engine_verified: false,
+      engine_detail: { status: "NOT_REPRODUCED_UNDER_CURRENT_CONVENTION" },
+    }, {
+      id: "time-bridge", kind: "relation", statement: "בימינו = 358", terms: ["358", "בימינו"],
+      source_ref: "verified gematria_words", privacy_scope: "public_candidate", engine_verified: true,
+    }],
+    findings: [],
+  },
+  topics: { rows: [{ id: "bereshit", slug: "bereshit", title: "בראשית — החללית לירח", status: "approved", occurred_at: "2019-02-21" }] },
+  sources: [],
+};
+const p358 = buildWorldContextualProminence(golden358, {}, { limit: 6 });
+assert.equal(p358.items[0].id, "research:verse-358-held", "decision-changing negative/control may outrank positive-looking Silver material");
+assert.ok(p358.items.some((item) => item.label === "משיח" && item.explainWhy.humanCuration.tier === "silver"), "Silver stays discoverable but is not treated as truth or forced #1");
+assert.equal(p358.items[0].explainWhy.uncertainty.state, "negative_or_open");
+
+const golden321 = {
+  identity: { nodeId: "321-node", type: "number", label: "321" },
+  graph: { relations: [
+    graphRelation({ anchorNodeId: "321-node", id: "elohim", label: "אלהים", type: "word", relationType: "is_kadmi_of" }),
+    graphRelation({ anchorNodeId: "321-node", id: "inner-knowing", label: "ידיעה מבפנים", type: "word", relationType: "equals_word" }),
+    graphRelation({ anchorNodeId: "321-node", id: "123", label: "123", type: "number", relationType: "reverse_of" }),
+    graphRelation({ anchorNodeId: "321-node", id: "3210", label: "3210", type: "number", relationType: "scale_x10" }),
+  ] },
+  research: {
+    rows: [{ id: "321-dossier", kind: "relation", statement: "321 dossier", value: 321, terms: ["321"], privacy_scope: "public_candidate", status: "approved" }],
+    findings: [],
+  },
+  topics: { rows: [] },
+  sources: [],
+};
+const p321 = buildWorldContextualProminence(golden321, {}, { limit: 7 });
+assert.equal(p321.items.length, 5, "attention budget is not a quota: 321 must not receive filler merely to reach seven");
+assert.equal(p321.items.some((item) => item.explainWhy.humanCuration.tier), false, "321 works without Gold/Silver dependency");
+
+const eventData = {
+  identity: { nodeId: "event-node", type: "event", label: "חיסול נסראללה" },
+  graph: { relations: [{
+    id: "post-edge",
+    projection: { relations: [{
+      fromNodeId: "event-node", toNodeId: "post-node", relationType: "documents",
+      from: { id: "event-node", type: "event", label: "חיסול נסראללה", curation: {}, signal: {} },
+      to: { id: "post-node", type: "post", label: "פוסט המקור", curation: {}, signal: {} },
+    }] },
+  }] },
+  research: { rows: [], findings: [] },
+  topics: { rows: [] },
+  sources: [],
+};
+const eventInputs = {
+  eventContext: {
+    nodeId: "event-node",
+    occurredAt: "2024-09-29T06:29:04+00:00",
+    post: { id: 92, wp_id: 34200, date: "2024-09-29T06:29:04+00:00" },
+    researchRows: [{
+      id: "event-triple", kind: "relation", statement: "שם/יום/שעה", value: 1820,
+      terms: ["358", "18:20"], source_ref: "posts:92#event:2024-09-27:חיסול-נסראללה",
+      privacy_scope: "private", engine_verified: true,
+    }],
+  },
+};
+const eventPublic = buildWorldContextualProminence(eventData, eventInputs, { limit: 6, includePrivate: false, timeAware: true });
+assert.equal(eventPublic.items.some((item) => item.id === "research:event-triple"), false, "public projection must not leak private Event research");
+assert.equal(eventPublic.items[0].kind, "temporal-control", "temporal contradiction/control stays visible even when private research payload itself is inaccessible");
+const eventAdmin = buildWorldContextualProminence(eventData, eventInputs, { limit: 6, includePrivate: true, timeAware: true });
+assert.ok(eventAdmin.items.some((item) => item.id === "research:event-triple"), "authorized deep/admin projection may consume the same private research identity without copying it");
+assert.ok(eventAdmin.items.some((item) => item.kind === "temporal-control"), "event time vs research provenance date is never silently normalized");
+
+// Dependency grouping: explicit parent_id collapses repeated children before rank.
+const dependencyData = {
+  identity: { nodeId: "x", type: "number", label: "1820" }, graph: { relations: [] }, topics: { rows: [] }, sources: [],
+  research: { rows: [
+    { id: "child-a", parent_id: "parent-1", statement: "A", value: 1820, privacy_scope: "public_candidate", engine_verified: true },
+    { id: "child-b", parent_id: "parent-1", statement: "B", value: 1820, privacy_scope: "public_candidate", engine_verified: true },
+  ], findings: [] },
+};
+const dependencyProjection = buildWorldContextualProminence(dependencyData, {
+  researchSupplements: [{ id: "child-a", parent_id: "parent-1" }, { id: "child-b", parent_id: "parent-1" }],
+}, { limit: 7 });
+assert.equal(dependencyProjection.items.length, 1, "explicit dependency group must be collapsed before contextual rank");
+
+// The live-input adapter is bounded and read-only. It consumes existing tables/views under RLS.
+assert.match(prominenceInputs, /cross_method_strength/);
+assert.match(prominenceInputs, /parent_id,evidence,owner_person_id,meta/);
+assert.match(prominenceInputs, /post_wp_id/);
+assert.match(prominenceInputs, /posts:\$\{post\.id\}/);
+assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(prominenceInputs), false, "prominence input reader must remain read-only");
+assert.equal(/create table|create view|create function/i.test(prominenceInputs), false, "no new ranking store/view/function may be created");
+
 const helper = read("src/lib/research/world2029Presentation.js");
 assert.match(helper, /does NOT rank truth/i);
 assert.equal(/confidence\s*=/.test(helper), false);
 assert.equal(helper.includes("universalScore"), false);
+assert.match(helper, /buildWorldContextualProminence/);
+assert.equal(prominenceHelper.includes("universalScore"), false);
+assert.equal(prominenceHelper.includes("Gold=100"), false);
+assert.equal(/score\s*:/.test(prominenceHelper), false, "contextual prominence helper must not emit/maintain a numeric rank score");
+assert.match(prominenceHelper, /FILTER \/ ACCESS BEFORE RANK/);
+assert.match(prominenceHelper, /DEDUP \/ DEPENDENCY GROUPING BEFORE RANK/);
 
 console.log("2029 native World surface acceptance: PASS");
