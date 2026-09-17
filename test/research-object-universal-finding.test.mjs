@@ -35,6 +35,72 @@ assert.equal(finding.access.tier, "shared");
 assert.equal(finding.identity.entityRef, "node:22222222-2222-2222-2222-222222222222");
 assert.equal(finding.projection.dimensions.researchObjectKind, "fact");
 assert.deepEqual(finding.evidence.refs, ["posts:136"]);
+assert.equal(finding.subject.label, "אהרן = 256");
+assert.equal(finding.subject.lang, "he", "Hebrew-only legacy statement may be safely inferred as Hebrew");
+assert.equal(finding.projection.dimensions.presentation.fallbackMode, "raw_statement");
+assert.equal(finding.projection.dimensions.presentation.rawStatementRef, `research_objects:${base.id}#statement`);
+
+const multilingual = {
+  ...base,
+  statement: "DOSSIER RAW — exact historical research statement stays untouched",
+  source: "Da'at Tevunot — fixed source witness",
+  source_ref: "book:daat-tevunot#section-28",
+  privacy_scope: "public_candidate",
+  status: "candidate",
+  meta: {
+    ext: {
+      presentation: {
+        v: 1,
+        statement_lang: "en",
+        statement_role: "research_statement",
+        source_witness_lang: "he",
+        variants: {
+          he: {
+            title: "דעת תבונות — מידה, זמן וייצוג",
+            summary: "מפת מחקר אנושית בעברית שמסבירה את הממצא בלי להחליף את המקור.",
+            source_label: "דעת תבונות · סעיף כח",
+          },
+          en: {
+            title: "Da'at Tevunot — Measure, Time, and Representation",
+            summary: "A normalized English presentation of the same research object, not the source witness.",
+            source_label: "Da'at Tevunot · section 28",
+          },
+        },
+        compiled: { mode: "backfill", generated_by: "test" },
+      },
+    },
+  },
+};
+
+const he = researchObjectToUniversalFinding(multilingual, { locale: "he-IL" });
+assert.equal(he.subject.label, "דעת תבונות — מידה, זמן וייצוג");
+assert.equal(he.subject.lang, "he");
+assert.equal(he.source.lang, "he", "source witness language remains source-owned, not display locale");
+assert.equal(he.view.rendererHints.presentation.summary, "מפת מחקר אנושית בעברית שמסבירה את הממצא בלי להחליף את המקור.");
+assert.equal(he.view.rendererHints.presentation.sourceLabel, "דעת תבונות · סעיף כח");
+assert.equal(he.projection.dimensions.presentation.fallbackMode, null);
+assert.equal(he.projection.dimensions.presentation.statementLang, "en");
+assert.equal(he.status, "candidate");
+assert.equal(he.access.tier, "public_candidate");
+assert.equal(he.verification.verification_state, "match", "presentation must not alter verification");
+
+const en = researchObjectToUniversalFinding(multilingual, { locale: "en-US" });
+assert.equal(en.subject.label, "Da'at Tevunot — Measure, Time, and Representation");
+assert.equal(en.subject.lang, "en");
+assert.equal(en.source.lang, "he", "English display must never relabel the Hebrew witness as English");
+assert.equal(en.view.rendererHints.presentation.sourceLabel, "Da'at Tevunot · section 28");
+assert.equal(en.identity.sourceIdentity.researchObjectId, base.id, "locale never forks semantic identity");
+
+const missingEnglish = researchObjectToUniversalFinding({
+  ...base,
+  statement: "TECHNICAL_RAW_STATEMENT",
+  meta: { ext: { presentation: { statement_lang: null, variants: { he: { title: "כותרת אנושית" } } } } },
+}, { locale: "en" });
+assert.equal(missingEnglish.subject.label, "TECHNICAL_RAW_STATEMENT");
+assert.equal(missingEnglish.subject.lang, null, "Latin script alone must not be silently labeled English");
+assert.equal(missingEnglish.projection.dimensions.presentation.fallbackMode, "raw_statement");
+assert.equal(missingEnglish.projection.dimensions.presentation.resolvedLocale, null,
+  "missing English presentation stays explicitly missing so a future compiler/backfill can handle it");
 
 const noDetail = researchObjectToUniversalFinding({ ...base, engine_detail: {}, engine_verified: true });
 assert.equal(noDetail.verification.verification_state, null,
