@@ -8,18 +8,13 @@ Give every agent one forward-only physical storage convention for new SOD1820 me
 
 ## Canonical bucket for new agent-originated 2029 media
 
-Use Supabase Storage bucket `media`.
+Use Supabase Storage bucket `media` for approved/public agent-originated 2029 assets.
 
-All new agent-originated 2029 assets live under the already-allowed transport prefix:
+All such assets live under:
 
 `media/sod1820/agent/2029/<kind>/YYYY/MM/<asset-id>/...`
 
-`<kind>` is one of:
-
-- `image`
-- `video`
-- `audio`
-- `document`
+`<kind>` is one of `image | video | audio | document`.
 
 `<asset-id>` is a UUID generated once for the asset identity. Titles/slugs are not identity and MUST NOT be used as the stable asset key.
 
@@ -61,7 +56,7 @@ Rules:
 
 The semantic home remains existing infrastructure such as `research_contributions`, contributor identity, source/provenance and Research Intake. `submission-inbox` is only the private binary staging boundary; it is not a second contribution store.
 
-### One ingress fabric
+## One ingress fabric
 
 All intake channels converge on the same private inbox before review when the material came from a person or external source and is not already approved for publication:
 
@@ -74,11 +69,15 @@ All intake channels converge on the same private inbox before review when the ma
 
 Channel is provenance, not a separate storage tree.
 
-### Review / promotion boundary
+For WhatsApp specifically, existing message identity remains `group_id + msg_id + sender/sender_name` in the live ingest path; downloaded media is only the binary representation. Do not replace message/source identity with a storage path.
+
+For Dropbox/Drive, the provider is transport only unless the provider itself is the source being cited. A temporary relay URL is never canonical provenance by itself.
+
+## Review / promotion boundary
 
 Canonical flow:
 
-`INGRESS CHANNEL -> PRIVATE SUBMISSION-INBOX -> research_contributions/source provenance -> review/classification -> Human Gate -> public/approved projection in media (when needed)`
+`INGRESS CHANNEL -> PRIVATE submission-inbox -> research_contributions/source provenance -> review/classification -> Human Gate -> public/approved projection in media (when needed)`
 
 Approval does not rewrite history. The private raw source remains source provenance; a public optimized/published representation may receive a separate public media asset-id under `media/sod1820/agent/2029/...` and be linked by the owning domain.
 
@@ -98,16 +97,7 @@ Source platform is provenance, not storage identity. A file downloaded from TikT
 
 Do not create platform-specific storage roots such as `tiktok/`, `youtube/`, `whatsapp/`, `openai/` or agent-specific folders under the 2029 root. Those would split one media system into parallel trees.
 
-Preserve source provenance in the owning content/research record using the existing fields/contracts where applicable. Recommended logical provenance fields are:
-
-- `source_platform` — e.g. `tiktok`, `youtube`, `instagram`, `whatsapp`, `chatgpt`, `dropbox`, `direct_upload`
-- `source_url` — original source URL when known
-- `source_creator` / contributor identity when known and governed by the existing Person/Contributor owners
-- `source_external_id` — platform post/video/media ID when available
-- `acquired_via` — e.g. `download`, `share`, `api`, `agent_upload`, `dropbox_relay`
-- `acquired_at`
-
-These are provenance semantics only; this convention does not create a new metadata table or registry.
+Preserve source provenance in the owning content/research record using existing fields/contracts where applicable. Logical provenance includes source platform, original URL, external source/message ID, creator/contributor identity, acquisition mechanism and acquisition time. This convention does not create a new metadata table or registry.
 
 ## Immutability
 
@@ -124,15 +114,9 @@ Current verified transport path for an already-approved/system image:
 
 For unreviewed contributor/source material, the same transport concept must terminate in `submission-inbox` once that private ingress adapter is implemented; do not treat the existing public `media` relay as an approval shortcut.
 
-## Other agent runtimes
-
-Agents that hold a real local file may use `scripts/agent-upload.mjs` for the currently supported public/system media path. Future contributor/file intake must terminate in the private inbox through a governed adapter.
-
-Do not create another uploader, bucket hierarchy, media store or agent-specific root.
-
 ## Video policy
 
-Physical location for approved/public agent media is locked under the same tree:
+Physical location for approved/public agent media is locked under:
 
 `media/sod1820/agent/2029/video/YYYY/MM/<asset-id>/...`
 
@@ -142,15 +126,15 @@ Transport is intentionally separate from location:
 
 - Do NOT route large video through the current buffered image URL relay.
 - For large video, use a bounded resumable/direct path (TUS / signed upload / multipart as appropriate) that lands in the correct lifecycle bucket.
-- Preserve `original.mp4` (or source container) and create poster/preview/transcodes as dependent Representations.
-- Captions/transcripts belong under the same asset-id when they are file representations, while research/transcript semantics remain under their existing domain owners.
+- Preserve the source container as immutable original and create poster/preview/transcodes as dependent Representations.
+- Captions/transcripts are file representations under the asset identity; research/transcript semantics remain under their existing domain owners.
 - Downloaded social video and generated video use the same physical conventions. Platform/source difference is provenance, not a separate folder hierarchy.
 
 ## Legacy boundary
 
-Do not move, rename or backfill existing objects solely to make the tree look clean. Existing roots such as `gallery/sod1820/videos`, `media/uploads/*`, `gallery/posts/*`, `media/sod1820/videos` and other historical paths remain valid provenance/compatibility until separately migrated under an explicit Human Gate.
+Do not move, rename or backfill existing objects solely to make the tree look clean. Existing historical paths remain valid provenance/compatibility until separately migrated under an explicit Human Gate.
 
-Forward rule: new agent-originated approved media uses `media/sod1820/agent/2029/...`; unreviewed person/external submissions use private `submission-inbox/...`.
+Forward rule: new approved/system media uses `media/sod1820/agent/2029/...`; unreviewed person/external submissions use private `submission-inbox/...`.
 
 ## Release states
 
