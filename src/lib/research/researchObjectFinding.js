@@ -47,7 +47,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
   const promotedNodeId = clean(row.promoted_node_id);
   const terms = Array.isArray(row.terms) ? row.terms.filter(Boolean) : [];
   const presentation = resolveResearchObjectPresentation(row, { locale });
-  const rawStatementRef = `research_objects:${row.id}#statement`;
+  const rawStatementRef = { researchObjectId: String(row.id), field: "statement" };
 
   return makeUniversalFinding({
     kind: "research-object",
@@ -58,7 +58,9 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
       key: String(row.id),
       label: presentation.title,
       value: row.value ?? null,
-      lang: presentation.resolvedLocale || presentation.statementLang || null,
+      lang: presentation.hasHumanPresentation
+        ? presentation.resolvedLocale
+        : presentation.statementLang || null,
     },
     source: {
       engine: null,
@@ -104,6 +106,7 @@ export function researchObjectToUniversalFinding(row, { locale = "he" } = {}) {
           statementLang: presentation.statementLang,
           statementRole: presentation.statementRole,
           sourceWitnessLang: presentation.sourceWitnessLang,
+          sourceWitnessLangBasis: presentation.sourceWitnessLangBasis,
           rawStatementRef,
           sourceLocator: sourceRef,
         },
