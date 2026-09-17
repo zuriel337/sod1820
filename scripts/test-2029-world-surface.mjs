@@ -54,8 +54,11 @@ assert.equal(world.includes("master_crown_transparent"), false);
 assert.equal(world.includes("WorldBrand"), false);
 
 // Cross-cutting capabilities stay in shared owners; no World-specific variants.
+// Match WorldContext as an identifier/token, not as the prefix of the canonical
+// buildWorldContextualProminence() presentation helper.
+assert.equal(/\bWorldContext\b/.test(world), false, "WorldContext must not be created inside World");
 for (const forbidden of [
-  "WorldContext", "WorldFrame", "WorldNavigation", "WorldRaziel", "WorldSearch",
+  "WorldFrame", "WorldNavigation", "WorldRaziel", "WorldSearch",
   "WorldCommand", "WorldWorkspace", "WorldShare", "WorldTrace", "WorldEntitlement",
 ]) assert.equal(world.includes(forbidden), false, `${forbidden} must not be created inside World`);
 assert.equal(world.includes("site_flags"), false);
