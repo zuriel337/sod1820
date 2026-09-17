@@ -1,5 +1,0 @@
-scope=neviim_ketuvim_only
-changed_verses=13229
-els_chars=1204583
-els_sha256=0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b
-torah_mutations=0
