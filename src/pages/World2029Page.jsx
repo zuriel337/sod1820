@@ -111,8 +111,16 @@ function looksLikeFilename(value) {
 
 function publicCounterpartLabel(counterpart) {
   if (!counterpart) return "קשר";
-  if (["image", "media"].includes(counterpart.type) && looksLikeFilename(counterpart.label)) return "פריט מדיה";
-  return counterpart.label || FACET_LABELS[counterpart.type] || "קשר";
+  const label = String(counterpart.label || "").trim();
+  if (["image", "media"].includes(counterpart.type) && looksLikeFilename(label)) return "פריט מדיה";
+  if (counterpart.type !== "foreign_word" && looksTechnicalResearchTitle(label)) {
+    return FACET_LABELS[counterpart.type] || "חיבור";
+  }
+  return label || FACET_LABELS[counterpart.type] || "קשר";
+}
+
+function humanFacetLabel(type) {
+  return FACET_FILTER_LABELS[type] || FACET_LABELS[type] || "אחר";
 }
 
 function humanRelationReason(reason) {
@@ -639,7 +647,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           {gematriaRows.map((row) => <div className="sod29-world-gematria-row" key={row.id}>
             <div className="sod29-world-gematria-expression"><strong>{row.phrase}</strong><small>{row.method}{row.methodGoverned === false ? " · שיטה היסטורית" : ""}</small></div>
             <div className="sod29-world-gematria-value" aria-label={`${row.phrase} בשיטת ${row.method} שווה ${row.value}`}><span>=</span><b>{row.value}</b></div>
-            <span className="sod29-world-verification">{VERIFICATION_LABELS[row.verificationState] || "מצב אימות לא צוין"}</span>
+            <span className="sod29-world-verification">{row.verificationState === "not_tested" ? "חישוב מנוע · אין טענה נפרדת לבדיקה" : (VERIFICATION_LABELS[row.verificationState] || "מצב אימות לא צוין")}</span>
           </div>)}
         </div>
       </section> : null}
@@ -676,7 +684,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
         <div className="sod29-actions" role="group" aria-label="סינון קשרים" style={{ marginBottom: 16 }}>
           <button className={`sod29-action${relationFilter === "all" ? " primary" : ""}`} type="button" aria-pressed={relationFilter === "all"} onClick={() => setRelationFilter("all")}>הכול · {graphRelations.length}</button>
-          {relationFacets.map(({ type, count }) => <button key={type} className={`sod29-action${relationFilter === type ? " primary" : ""}`} type="button" aria-pressed={relationFilter === type} onClick={() => setRelationFilter(type)}>{FACET_FILTER_LABELS[type] || FACET_LABELS[type] || type} · {count}</button>)}
+          {relationFacets.map(({ type, count }) => <button key={type} className={`sod29-action${relationFilter === type ? " primary" : ""}`} type="button" aria-pressed={relationFilter === type} onClick={() => setRelationFilter(type)}>{humanFacetLabel(type)} · {count}</button>)}
         </div>
         {!visibleRelations.length ? <FrameState kind="empty" title="אין קשרים במסנן הזה">הסינון משנה את התצוגה בלבד. אפשר לבחור סוג אחר או לחזור ל״הכול״.</FrameState> : null}
         <div className="sod29-list">{visibleRelations.slice(0, 18).map((finding, index) => {
@@ -690,7 +698,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           return <div className="sod29-row" key={rowId} style={{ alignItems: "flex-start" }}>
             <div>
               <strong>{label}</strong>
-              <small>{relationLabel(relation?.relationType)} · {FACET_LABELS[counterpart?.type] || counterpart?.type || "ישות"}</small>
+              <small>{relationLabel(relation?.relationType)} · {humanFacetLabel(counterpart?.type)}</small>
               {exactAdminLabel ? <small>שם מקור למנהל: {exactAdminLabel}</small> : null}
               {adminMode && counterpart?.space && counterpart.space !== "core" ? <small>גישה בגרף: {counterpart.space}</small> : null}
               {whyOpen === rowId ? <div className="sod29-muted" style={{ marginTop: 8 }}>
