@@ -8,7 +8,7 @@ import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFind
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
-const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id";
+const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
@@ -94,7 +94,7 @@ async function runResearchQuery(builder, limit) {
   return Array.isArray(data) ? data : [];
 }
 
-export async function fetchResearchObjectsForEntity(node, { limit = 40 } = {}) {
+export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he" } = {}) {
   if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 40, 120);
   const label = clean(node.label);
@@ -118,7 +118,7 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40 } = {}) {
 
   try {
     const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
-    return { rows, findings: researchObjectsToUniversalFindings(rows), access: { available: true, reason: null } };
+    return { rows, findings: researchObjectsToUniversalFindings(rows, { locale }), access: { available: true, reason: null } };
   } catch (error) {
     if (isAccessDenied(error)) {
       return {
@@ -427,7 +427,12 @@ function sourceProjection(researchFindings, numberJourney) {
   const refs = new Map();
   for (const finding of researchFindings || []) {
     const sourceRef = clean(finding?.source?.sourceRef);
-    if (sourceRef) refs.set(sourceRef, { type: "research-source", ref: sourceRef, label: sourceRef });
+    const humanLabel = clean(finding?.view?.rendererHints?.presentation?.sourceLabel);
+    if (sourceRef) refs.set(sourceRef, {
+      type: "research-source",
+      ref: sourceRef,
+      label: humanLabel || sourceRef,
+    });
   }
   for (const source of Array.isArray(numberJourney?.sources) ? numberJourney.sources : []) {
     const sourceObject = source && typeof source === "object" ? source : null;
@@ -514,6 +519,7 @@ export async function fetchEntityHubProjection({
   nodeId = null,
   type = null,
   key = null,
+  locale = "he",
   relationLimit = 100,
   researchLimit = 40,
   topicLimit = 12,
@@ -524,7 +530,7 @@ export async function fetchEntityHubProjection({
   const [definition, graphFindings, research] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
     fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }),
-    fetchResearchObjectsForEntity(node, { limit: researchLimit }),
+    fetchResearchObjectsForEntity(node, { limit: researchLimit, locale }),
   ]);
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
