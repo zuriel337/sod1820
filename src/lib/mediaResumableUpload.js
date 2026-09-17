@@ -40,6 +40,7 @@ export async function uploadResumableMedia(file, intent, { onProgress, signal, r
   if (String(intent.mime || "") !== String(file.type || "")) throw new Error("mime_changed_after_intent");
 
   const token = intent.signed_upload.token;
+  const chunkSize = intent.tus.chunk_size || TUS_CHUNK_SIZE;
   const metadata = encodeTusMetadata(intent.tus.metadata || {
     bucketName: intent.bucket,
     objectName: intent.path,
@@ -65,19 +66,20 @@ export async function uploadResumableMedia(file, intent, { onProgress, signal, r
   if (!Number.isSafeInteger(offset) || offset < 0) offset = 0;
 
   while (offset < file.size) {
-    const end = Math.min(offset + (intent.tus.chunk_size || TUS_CHUNK_SIZE), file.size);
-    const chunk = file.slice(offset, end);
     let patched = false;
     let lastError;
 
     for (const delay of retryDelays) {
       if (delay) await sleep(delay);
+      const attemptOffset = offset;
+      const end = Math.min(attemptOffset + chunkSize, file.size);
+      const chunk = file.slice(attemptOffset, end);
       try {
         const r = await fetch(uploadUrl, {
           method: "PATCH",
           headers: {
             "Tus-Resumable": TUS_VERSION,
-            "Upload-Offset": String(offset),
+            "Upload-Offset": String(attemptOffset),
             "Content-Type": "application/offset+octet-stream",
             "x-signature": token,
           },
@@ -86,15 +88,25 @@ export async function uploadResumableMedia(file, intent, { onProgress, signal, r
         });
         if (!r.ok) throw new Error(`tus_patch_${r.status}`);
         const next = Number(r.headers.get("upload-offset") || end);
-        if (!Number.isSafeInteger(next) || next <= offset || next > file.size) throw new Error("tus_invalid_server_offset");
+        if (!Number.isSafeInteger(next) || next <= attemptOffset || next > file.size) throw new Error("tus_invalid_server_offset");
         offset = next;
         patched = true;
         onProgress?.({ bytesUploaded: offset, bytesTotal: file.size, percentage: (offset / file.size) * 100 });
         break;
       } catch (error) {
         lastError = error;
-        try { offset = await resumeOffset(uploadUrl, token, signal); }
-        catch { /* retry from known offset */ }
+        try {
+          const serverOffset = await resumeOffset(uploadUrl, token, signal);
+          if (serverOffset > file.size) throw new Error("tus_server_offset_too_large");
+          offset = serverOffset;
+          if (offset >= file.size) {
+            patched = true;
+            onProgress?.({ bytesUploaded: offset, bytesTotal: file.size, percentage: 100 });
+            break;
+          }
+        } catch {
+          offset = attemptOffset;
+        }
       }
     }
     if (!patched) throw lastError || new Error("tus_patch_failed");
