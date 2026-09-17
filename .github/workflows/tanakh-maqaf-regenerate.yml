@@ -1,0 +1,69 @@
+name: Tanakh Maqaf Regeneration Gate
+
+on:
+  push:
+    branches:
+      - gpt/tanakh-maqaf-word-boundaries-v1
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: ${{ !contains(github.event.head_commit.message, '[tanakh-generated]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gpt/tanakh-maqaf-word-boundaries-v1
+          fetch-depth: 1
+      - name: Preserve current ELS stream
+        run: |
+          cp public/tanakh-letters.txt /tmp/tanakh-letters.before.txt
+          cp public/tanakh-verses.json /tmp/tanakh-verses.before.json
+      - name: Regenerate Tanakh from canonical source
+        run: |
+          python3 scripts/tanakh/gen_tanakh.py
+          python3 scripts/tanakh/combine_tanakh.py
+      - name: Verify ELS letter stream is byte-identical and build DB update SQL
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+          before_letters = pathlib.Path('/tmp/tanakh-letters.before.txt').read_bytes()
+          after_letters = pathlib.Path('public/tanakh-letters.txt').read_bytes()
+          if before_letters != after_letters:
+              raise SystemExit(f'ELS STREAM CHANGED: before={len(before_letters)} sha={hashlib.sha256(before_letters).hexdigest()} after={len(after_letters)} sha={hashlib.sha256(after_letters).hexdigest()}')
+          old = json.loads(pathlib.Path('/tmp/tanakh-verses.before.json').read_text(encoding='utf-8'))
+          new = json.loads(pathlib.Path('public/tanakh-verses.json').read_text(encoding='utf-8'))
+          om = {(v[0],v[1],v[2]): v for v in old['verses']}
+          nm = {(v[0],v[1],v[2]): v for v in new['verses']}
+          if om.keys() != nm.keys():
+              raise SystemExit('VERSE LOCATOR SET CHANGED')
+          books = new['books']
+          changed=[]
+          for k in sorted(om):
+              a,b=om[k],nm[k]
+              if a[3] != b[3]:
+                  if a[4] != b[4]:
+                      raise SystemExit(f'GEMATRIA CHANGED at {k}: {a[4]} -> {b[4]}')
+                  changed.append((books[k[0]],k[1],k[2],b[3]))
+          def q(s): return "'" + s.replace("'", "''") + "'"
+          out=[]
+          for book,ch,vs,text in changed:
+              out.append(f"UPDATE public.tanach_verses SET text={q(text)}, words=regexp_split_to_array({q(text)}, E'\\\\s+') WHERE book={q(book)} AND chapter={ch} AND verse={vs};")
+          pathlib.Path('scripts/tanakh/generated_maqaf_updates.sql').write_text('\n'.join(out)+'\n', encoding='utf-8')
+          pathlib.Path('scripts/tanakh/generated_maqaf_summary.txt').write_text(
+              f"changed_verses={len(changed)}\nels_bytes={len(after_letters)}\nels_sha256={hashlib.sha256(after_letters).hexdigest()}\n", encoding='utf-8')
+          print(f'PASS: ELS byte-identical; changed verses={len(changed)}; sha={hashlib.sha256(after_letters).hexdigest()}')
+          PY
+      - name: Commit regenerated corpus and update plan
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/tanakh-verses.json scripts/tanakh/generated_maqaf_updates.sql scripts/tanakh/generated_maqaf_summary.txt
+          if git diff --cached --quiet; then
+            echo 'No corpus changes.'
+          else
+            git commit -m 'Regenerate Tanakh word boundaries [tanakh-generated]'
+            git push origin HEAD:gpt/tanakh-maqaf-word-boundaries-v1
+          fi
