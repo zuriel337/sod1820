@@ -11,7 +11,7 @@ const idFactory = () => ID;
 const accountImage = buildUploadIntent({ scope: "submission", kind: "image", mime: "image/png", size: 1024, filename: "image.png", userId: USER, now: NOW, idFactory });
 assert.equal(accountImage.bucket, "submission-inbox");
 assert.equal(accountImage.path, `sod1820/2029/accounts/${USER}/2026/09/${ID}/image/original.png`);
-assert.equal(accountImage.transport, "signed");
+assert.equal(accountImage.transport, "tus");
 
 const contributorVideo = buildUploadIntent({ scope: "submission", kind: "video", mime: "video/mp4", size: SIX_MIB + 1, filename: "clip.mp4", userId: USER, contributorId: CONTRIBUTOR, now: NOW, idFactory });
 assert.equal(contributorVideo.transport, "tus");
