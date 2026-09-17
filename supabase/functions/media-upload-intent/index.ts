@@ -40,7 +40,7 @@ async function issueIntent(actor: any, body: any) {
     ok: true, action: "issue", scope: intent.scope, bucket: intent.bucket, path: intent.path,
     kind: intent.kind, mime: intent.mime, size: intent.size, max_bytes: intent.maxBytes,
     asset_id: intent.assetId, submission_id: intent.submissionId, transport: intent.transport,
-    signed_upload: { token: data.token, signed_url: data.signedUrl || null, expires_in_seconds: 7200, upsert: false },
+    signed_upload: { token: data.token, expires_in_seconds: 7200, upsert: false },
     tus: {
       endpoint: TUS_ENDPOINT, chunk_size: TUS_CHUNK_SIZE, headers: { "x-signature": data.token },
       metadata: { bucketName: intent.bucket, objectName: intent.path, contentType: intent.mime, cacheControl: intent.scope === "public" ? "3600" : "0" },
