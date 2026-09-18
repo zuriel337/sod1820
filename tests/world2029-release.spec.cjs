@@ -127,6 +127,9 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(sharedCore).toContainText('סולם האפס');
   await expect(sharedCore).toContainText('12370');
   await expect(sharedCore).toContainText('RAZIEL MICRO');
+  await expect(sharedCore.getByText('DNA המספר', { exact: true })).toBeVisible();
+  await expect(sharedCore.getByText('כיסוי שכבות', { exact: true })).toBeVisible();
+  await expect(sharedCore.getByText('ספקטרום השכבות', { exact: true })).toBeVisible();
   await expect.poll(
     () => sharedCore.locator('.sod29-number-core2029-methods button').count(),
     { timeout: 10_000 },
@@ -205,8 +208,8 @@ test('Number 2029 preview exposes the existing Golden Journey only for 878', asy
   await assertNoHorizontalOverflow(page);
 });
 
-test('Number 2029 golden visual calibration covers 878 and 358 in Page and Drawer', async ({ page }) => {
-  for (const root of [878, 358]) {
+test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer', async ({ page }) => {
+  for (const root of [878, 358, 1326]) {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${BASE}/2029/number/${root}`, { waitUntil: 'domcontentloaded' });
 
