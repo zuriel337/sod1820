@@ -207,7 +207,12 @@ Current state: **BRIDGE EXISTS · URL-RELAY IMAGE TRANSPORT LIVE · BROADER FILE
 - World / Heichal / Number / Books / ELS / Journey / Post / Workspace semantic surfaces;
 - Follow/Attention delivery truth;
 - Raziel continuous research companion text/tool runtime;
-- ELS 2029 + spatial-ready projection;
+- ELS 2029 + spatial-ready projection, with explicit G3 acceptance:
+  - preserve canonical occurrence identity and replay inputs across renderers (corpus/version, start/positions/span, skip, direction and selected locus/path context as applicable);
+  - keep the minimal Glyph Identity separation explicit under the existing ELS/Experience owners: **Character Identity ≠ Textual Occurrence ≠ Glyph Representation ≠ font-specific outline ≠ Rendering Instance**;
+  - a future S3/S4 renderer may consume those identities/occurrences, but MUST NOT recompute ELS truth, mint canonical per-glyph entities, or treat visual proximity/depth as evidence;
+  - the renderer boundary must remain compatible with DOM/static accessibility fallback and later Canvas/SDF/atlas/instanced-GPU implementations without changing semantic identity;
+  - the isolated ~10k Hebrew-glyph performance proof is a **pre-S3/S4 implementation gate**, not a blocker for closing current G3 Foundation/runtime work;
 - canonical future-action slots that can show BUILDING without expensive I/O;
 - greenfield product surfaces consuming Foundation owners;
 - no inheritance obligation from legacy layout/IA.
