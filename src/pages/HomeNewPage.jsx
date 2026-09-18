@@ -508,6 +508,21 @@ export default function HomeNewPage() {
       <section className="hn-wrap" style={{ padding: "0 18px 36px" }}>
         <div className="hn-home-top">
           <div className="hn-updates-col">
+            <div role="status" style={{
+              marginBottom: 14,
+              padding: "12px 14px",
+              border: `1px solid ${P.borderStrong}`,
+              borderRadius: 13,
+              background: P.card,
+              color: P.accentText,
+              fontFamily: F.body,
+              fontSize: 14,
+              fontWeight: 700,
+              lineHeight: 1.7,
+              textAlign: "center"
+            }}>
+              העדכונים והפוסטים הופסקו זמנית עד לאחר השלמת שדרוג האתר.
+            </div>
             <LatestUpdatesRail homeCompact heading posts={posts} convergences={[]} hints={hints} researchers={researchers} ciphers={recentCiphers} />
           </div>
           <aside id="build-progress" className="hn-build-card" aria-label="מצב הבנייה של אתר כי לה׳ המלוכה">
