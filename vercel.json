@@ -193,6 +193,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/researcher/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
