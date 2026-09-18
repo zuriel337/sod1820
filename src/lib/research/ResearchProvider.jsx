@@ -41,16 +41,17 @@ function initialMode(init) {
 }
 
 function numberRouteSelection(pathname) {
-  const match = String(pathname || "").match(/^\/number\/([^/?#]+)/);
+  const match = String(pathname || "").match(/^\/(2029\/)?number\/([^/?#]+)/);
   if (!match) return null;
-  let key = match[1];
+  const native2029 = Boolean(match[1]);
+  let key = match[2];
   try { key = decodeURIComponent(key); } catch { /* keep raw key */ }
   key = String(key || "").trim();
   if (!key) return null;
   const numeric = /^\d+$/.test(key) && Number.isSafeInteger(Number(key));
   const id = numeric ? String(Number(key)) : key;
   return {
-    subject: { id, type: numeric ? "number" : "phrase", label: id, href: `/number/${encodeURIComponent(id)}` },
+    subject: { id, type: numeric ? "number" : "phrase", label: id, href: `${native2029 ? "/2029" : ""}/number/${encodeURIComponent(id)}` },
     selection: { entityId: id, entityType: numeric ? "number" : "phrase" },
   };
 }
