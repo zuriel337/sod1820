@@ -245,9 +245,9 @@ test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual 
     const drawer = page.locator('.sod29-number-drawer2029');
     await expect(drawer).toBeVisible({ timeout: 30_000 });
     await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText(String(root));
-    await drawer.locator('.sod29-number-v9-switcher').getByRole('tab', { name: /שיטות/ }).click();
+    await expect(drawer.locator('.sod29-number-v10-method-switcher')).toBeVisible();
     await expect.poll(
-      () => drawer.locator('.sod29-number-v7-method-main').count(),
+      () => drawer.locator('.sod29-number-v10-method-card').count(),
       { timeout: 15_000 },
     ).toBeGreaterThan(3);
     await assertNoHorizontalOverflow(page);
