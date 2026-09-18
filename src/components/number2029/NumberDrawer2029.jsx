@@ -151,7 +151,11 @@ export default function NumberDrawer2029({
   const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
   const sources = Array.isArray(data?.sources) ? data.sources : [];
+  const relations = Array.isArray(data?.graph?.relations) ? data.graph.relations : [];
   const worlds = Array.isArray(data?.numberWorlds) ? data.numberWorlds : [];
+  const findings = Array.isArray(data?.research?.findings) ? data.research.findings : [];
+  const timeline = Array.isArray(data?.timeline) ? data.timeline : [];
+  const media = Array.isArray(data?.media?.items) ? data.media.items : [];
   const zeroScale = data?.zeroScale || null;
   const surface = data?.surface || {};
   const activityCount = [
@@ -171,12 +175,19 @@ export default function NumberDrawer2029({
       methodProfile: profileState.rows,
       families,
       topics,
+      relations,
       sources,
       worlds,
+      findings,
+      timeline,
+      media,
+      surface,
       zeroScale,
       activityCount,
+      journeyAvailable: Number(root) === 878,
+      heroMedia: media[0] || null,
     });
-  }, [root, expression, selectedMethodKey, profileState.rows, families, topics, sources, worlds, zeroScale, activityCount]);
+  }, [root, expression, selectedMethodKey, profileState.rows, families, topics, relations, sources, worlds, findings, timeline, media, surface, zeroScale, activityCount]);
 
   const trace = traceState.finding?.projection?.dimensions?.trace || null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
