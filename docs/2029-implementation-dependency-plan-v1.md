@@ -113,7 +113,10 @@ Required:
 - classify legacy UI/runtime as `KEEP_SOURCE`, `ADAPTER`, `COMPATIBILITY`, `ABSORB_THEN_ARCHIVE`, `RETIRED` or `PROTOTYPE_REFERENCE`;
 - server/canonical engine authority must be explicit for Gematria, ELS, Sources, Research OS, Identity and Access;
 - old client calculators/3D/iframe/browser workers cannot become authority merely because they still run;
-- final G3 compaction later retires replaced prototypes only after verified replacements exist.
+- **Legacy Experience ≠ Capability ≠ Data ≠ Writer.** Route/UI retirement is not permission to disable a source, canonical capability or data owner; each writer is cut over independently;
+- maintain a live writer-level shutdown matrix: current owner/source → writer(s) → current readers → 2029 consumer → replacement proof → post-gate action. Source/ingress may remain live while synthetic Legacy fan-out writers freeze;
+- destructive cleanup stays under the existing Research Intake retention protocol: `admin_retention_preview()` / dry-run + dependency/provenance proof first; do not create a second retention/cleanup system;
+- final G3 compaction later retires replaced prototypes/writers only after verified replacements and live-consumer proof exist; major Legacy→2029 cutover remains Human-Gated.
 
 Current relevant work:
 
@@ -213,7 +216,8 @@ Build/verify:
 
 - canonical public asset path convention;
 - private submission inbox;
-- immutable original + derivative/caption/transcode roles;
+- immutable original + derivative roles under the same asset identity: thumbnail, preview, full representation, video poster, OG/share, caption and transcode as applicable;
+- derivatives are bounded background/ingest or material-change work, not hidden page-view work; a card/list must not fetch an original merely because a suitable derivative is missing, and client-side hidden video/image preload must not become the derivative-generation path;
 - source platform/provenance independent from storage identity;
 - MIME/magic/hash/size validation;
 - least-privilege ticket/upload path;
@@ -221,6 +225,10 @@ Build/verify:
 - large-file/resumable transport path before large video;
 - canonical artifact reference returned to Research Intake/Posts/Brand/Share rather than raw path assumptions;
 - OCR/STT/extraction remain representations/extractions, not truth;
+- immutable/versioned public derivatives use cache semantics appropriate to their identity; replacement/invalidation never silently changes asset identity;
+- Storage/CDN egress is observable operational cost, not truth: preserve bytes/cache hit-miss/top-object attribution where measurable; provider-exact usage is `EXACT`, internal estimation is `ESTIMATED`, unavailable provider usage is `UNKNOWN` — never invented as zero;
+- Control Plane drill-down must be able to surface storage size, large objects, missing/oversized derivatives, original-as-thumbnail defects, hottest assets when provider logs permit it, processing failures and provider quota state;
+- media retention/cleanup consumes the existing `admin_retention_preview()` / Research Intake v11 dry-run boundary rather than a Media Cleanup store;
 - media processing spans join No-Black-Box trace.
 
 Current relevant work:
@@ -396,13 +404,21 @@ For reusable expensive outputs define:
 - service-role secrets never exposed to client;
 - RLS and least privilege verified in isolated acceptance.
 
-### 7G Recovery / operations rail
+### 7G Recovery / operations rail + Internal Control Plane
+
+The internal 2029 Control Plane is an **Experience projection over existing owners**, not a new Operations/Health/Media/Communications store or truth system. It replaces Legacy admin presentation over time; it does not inherit Legacy information architecture by default.
 
 - forward migration + rollback/recovery plan;
 - backup/restore verification for critical state;
 - environment/config/secrets ownership;
 - production drift detection;
-- release state visible as branch/merged/deployed/live/verified, never inferred from commit alone.
+- release state visible as branch/merged/deployed/live/verified, never inferred from commit alone;
+- admin-only/server-authorized roll-up + drill-down across owner-native health/status surfaces: Attention/Human Gate, Research governance, Content/Publishing, Media/Sources, People/Identity, Communications, Growth/Traffic, Operations/Cost/Security and Release/Roadmap;
+- owner-native operational state remains authoritative (`cron`, queue/outbox, delivery, AI-cost, traffic, security, retention, media, release); Control Plane composes it and links back to the underlying evidence rather than copying domain semantics;
+- reuse existing operational projections such as `admin_retention_preview()` and future bounded admin health projections; no duplicate retention/health ledger;
+- automated alerts terminate in the canonical `notify_admin` path; UI attention is a projection of the same owner facts, not an independent alert system;
+- exact/estimated/unknown measurement state stays explicit for external-provider usage (Supabase/Vercel/AI/media providers);
+- Legacy WarRoom/CommandCenter/SystemSuggestions presentation is reference/compatibility only; replacement preserves useful capability, not old component ownership.
 
 **Exit gate for Phase 7:** a new surface can inherit Share, Analytics, SEO, Follow, Cache, Security and Trace without page-local reinvention.
 
@@ -422,7 +438,8 @@ Homes:
 - ELS;
 - Journey;
 - Posts / Updates;
-- Workspace / Personal Area.
+- Workspace / Personal Area;
+- Internal Control Plane / Admin (non-public Human-Gate + operations home).
 
 Global capabilities:
 
@@ -437,6 +454,8 @@ Global capabilities:
 Rules:
 
 - surfaces consume Context/Research/Access/Share/Analytics rails;
+- Internal Control Plane consumes owner-native operational projections and admin-only actions; it never becomes the owner of research truth, media identity, delivery state, traffic truth, security truth or cost truth;
+- no Legacy WarRoom/CommandCenter layout inheritance obligation; only current capabilities/owners survive;
 - no local truth/access/palette/action identity;
 - same semantic action may have contextual copy;
 - exact return preserves research state.
@@ -447,7 +466,7 @@ Current:
 - PR #492 is the current richer World iteration candidate.
 - PR #476 is an older World Golden branch; treat as prototype/reference or reconcile into #492, not as an independent release line.
 
-**Exit gate:** one coherent shell/surface model, no Legacy fallback required for core 2029 interaction.
+**Exit gate:** one coherent shell/surface model, no Legacy fallback required for core 2029 interaction, and an internal 2029 Control Plane can answer what needs Human/operational attention with drill-down to the existing owner evidence instead of requiring Legacy Admin.
 
 ---
 
