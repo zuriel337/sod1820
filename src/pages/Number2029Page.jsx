@@ -376,9 +376,10 @@ function NumberPageBody() {
     families,
     topics,
     sources,
+    worlds,
     zeroScale: zeroScaleData,
     activityCount,
-  }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, sources, zeroScaleData, activityCount]);
+  }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, sources, worlds, zeroScaleData, activityCount]);
 
   const activeMethodLabel = selectedMethodProfile?.displayLabel || methodLabel(selectedGroup);
 
