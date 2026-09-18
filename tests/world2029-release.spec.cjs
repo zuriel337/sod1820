@@ -157,10 +157,19 @@ test('RICH 1820 opens human-first before raw research detail', async ({ page }) 
   expect(primaryCount).toBeLessThanOrEqual(7);
 
   await selectWorldLane(page, 'גימטריה');
-  await expect(page.getByRole('heading', { name: 'חישובים שנפתחים מהנקודה הזאת' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'כל רשימת הגימטריות של 1820' })).toBeVisible();
+  await expect(page.getByLabel('סינון גימטריה לפי שיטה')).toBeVisible();
+  await expect(page.getByLabel('סינון גימטריה לפי סוג')).toBeVisible();
   const gematriaRows = page.locator('.sod29-world-gematria-row');
-  expect(await gematriaRows.count()).toBeGreaterThan(0);
+  const fullGematriaCount = await gematriaRows.count();
+  expect(fullGematriaCount).toBeGreaterThan(10);
   await expect(gematriaRows.first()).toContainText('1820');
+
+  await page.getByLabel('סינון גימטריה לפי שיטה').selectOption({ index: 1 });
+  const filteredGematriaCount = await gematriaRows.count();
+  expect(filteredGematriaCount).toBeGreaterThan(0);
+  expect(filteredGematriaCount).toBeLessThan(fullGematriaCount);
+  await page.getByLabel('סינון גימטריה לפי שיטה').selectOption('all');
 
   await selectWorldLane(page, 'מקורות');
   await expect(page.getByRole('heading', { name: 'מאיפה החומר מגיע' })).toBeVisible();
