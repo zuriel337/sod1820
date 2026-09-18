@@ -117,13 +117,25 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(sharedCore).toBeVisible();
   await expect(sharedCore.locator('.sod29-number-core2029-crossing:not(.is-empty)')).toBeVisible({ timeout: 30_000 });
   await expect(sharedCore).toContainText('הצלבה');
-  await expect(sharedCore).toContainText('Zero Scale');
+  await expect(sharedCore).toContainText('סולם האפס');
   await expect(sharedCore).toContainText('12370');
   await expect(sharedCore).toContainText('RAZIEL MICRO');
   await expect.poll(
     () => sharedCore.locator('.sod29-number-core2029-methods button').count(),
     { timeout: 10_000 },
   ).toBeGreaterThan(3);
+  const firstCoreMethod = sharedCore.locator('.sod29-number-core2029-methods button').first();
+  await firstCoreMethod.click();
+  const methodInspector = sharedCore.locator('.sod29-number-method-inspector');
+  await expect(methodInspector).toBeVisible();
+  await expect(methodInspector.getByRole('tab', { name: 'חישוב' })).toBeVisible();
+  await expect(methodInspector.getByRole('tab', { name: 'למד' })).toBeVisible();
+  await expect(methodInspector.getByRole('tab', { name: 'רזיאל' })).toBeVisible();
+  await expect(methodInspector.getByRole('tab', { name: 'עולמות' })).toBeVisible();
+  await methodInspector.getByRole('tab', { name: 'למד' }).click();
+  await expect(methodInspector).toContainText('מה השיטה עושה');
+  await methodInspector.getByRole('tab', { name: 'עולמות' }).click();
+  await expect(methodInspector.locator('.sod29-number-core2029-world-grid, .sod29-number-core2029-note').first()).toBeVisible();
 
   const observatory = numberPage.locator('.sod29-number-observatory');
   await expect(observatory).toBeVisible();
@@ -152,7 +164,7 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   const drawer = page.locator('.sod29-number-drawer2029');
   await expect(drawer).toBeVisible({ timeout: 30_000 });
   await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('1237');
-  await expect(drawer).toContainText('Zero Scale');
+  await expect(drawer).toContainText('סולם האפס');
   await expect(drawer).toContainText('12370');
   await expect(drawer).toContainText('RAZIEL MICRO');
 
@@ -161,8 +173,12 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   await miluy.click();
   await expect(miluy).toHaveClass(/is-active/);
   await expect(drawer.locator('.sod29-number-core2029-active strong')).not.toHaveText('—');
+  const drawerInspector = drawer.locator('.sod29-number-method-inspector');
+  await expect(drawerInspector).toBeVisible();
+  await drawerInspector.getByRole('tab', { name: 'רזיאל' }).click();
+  await expect(drawerInspector).toContainText('RAZIEL MICRO');
 
-  await drawer.getByRole('button', { name: 'השווה שיטות' }).click();
+  await drawerInspector.getByRole('button', { name: 'השווה שיטות' }).click();
   const razielPanel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
   await expect(razielPanel).toBeVisible();
   await expect(razielPanel).toContainText('השווה שיטות');
