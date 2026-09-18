@@ -153,7 +153,7 @@ export async function fetchWorldContributorLens({
   const ids = (contributors || []).map((row) => row.id).filter(Boolean);
   let contributions = [];
   if (ids.length) {
-    const { data, error } = await supabase.rpc("admin_all_contributions", { p_status: "all", p_limit: 500 });
+    const { data, error } = await supabase.rpc("admin_all_contributions", { p_status: "all", p_limit: 5000 });
     if (error) throw error;
     contributions = (Array.isArray(data) ? data : []).filter((row) => ids.includes(row?.author_contributor_id));
   }
