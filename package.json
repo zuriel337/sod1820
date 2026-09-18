@@ -13,7 +13,6 @@
     "test:operational-trace": "node scripts/test-operational-trace-contract.mjs",
     "package:expression-extract": "node scripts/package-expression-extract.mjs"
   },
-
   "engines": {
     "node": ">=24.9.0 <25"
   },
@@ -33,3 +32,4 @@
     "vite": "^8.3.0"
   }
 }
+
