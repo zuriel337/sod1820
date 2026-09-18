@@ -9,6 +9,7 @@ import {
   methodKey as familyMethodKey,
   phraseOf,
 } from "../../lib/research/numberCoreProjection.js";
+import { langLinksList } from "../../lib/supabase.js";
 import "./numberDrawer2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -59,6 +60,8 @@ export default function NumberDrawer2029({
   const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState(clean(context?.selection?.method));
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
+  const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null });
+  const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
 
   useEffect(() => {
@@ -122,6 +125,28 @@ export default function NumberDrawer2029({
       });
     return () => { alive = false; };
   }, [expression]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const expr = clean(expression);
+    if (!expr || /^\d+$/.test(expr)) {
+      setLanguageBridgeState({ loading: false, rows: [] });
+      return undefined;
+    }
+    let alive = true;
+    setLanguageBridgeState({ loading: true, rows: [] });
+    langLinksList()
+      .then((rows) => {
+        if (!alive) return;
+        const approved = (Array.isArray(rows) ? rows : []).filter((row) => (
+          clean(row?.hebrew) === expr
+          && ["approved", "verified"].includes(clean(row?.status).toLowerCase())
+          && row?.human_verified === true
+        ));
+        setLanguageBridgeState({ loading: false, rows: approved.slice(0, 6) });
+      })
+      .catch(() => { if (alive) setLanguageBridgeState({ loading: false, rows: [] }); });
+    return () => { alive = false; };
+  }, [expression]);
 
   const selectedProfile = useMemo(
     () => methodProfileEntry(profileState.rows, selectedMethodKey),
@@ -191,6 +216,71 @@ export default function NumberDrawer2029({
 
   const trace = traceState.finding?.projection?.dimensions?.trace || null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
+  const activeResult = traceState.finding?.subject?.value ?? trace?.result ?? trace?.value ?? selectedProfile?.computedValue ?? null;
+
+  useEffect(() => {
+    const next = Number(activeResult);
+    if (!Number.isSafeInteger(next) || next === root) {
+      setMethodResultState({ loading: false, data: null, error: null });
+      return undefined;
+    }
+    let alive = true;
+    setMethodResultState({ loading: true, data: null, error: null });
+    fetchEntityHubProjection({
+      type: "number",
+      key: String(next),
+      relationLimit: 50,
+      researchLimit: 28,
+      topicLimit: 10,
+    }).then((nextData) => {
+      if (alive) setMethodResultState({ loading: false, data: nextData || null, error: null });
+    }).catch((error) => {
+      if (alive) setMethodResultState({ loading: false, data: null, error });
+    });
+    return () => { alive = false; };
+  }, [activeResult, root]);
+
+  const stageData = Number.isSafeInteger(Number(activeResult)) && Number(activeResult) !== root
+    ? methodResultState.data
+    : data;
+  const stageRoot = Number.isSafeInteger(Number(activeResult)) ? Number(activeResult) : root;
+  const stageFamilies = Array.isArray(stageData?.gematria?.families) ? stageData.gematria.families : [];
+  const stageTopics = Array.isArray(stageData?.topics?.rows) ? stageData.topics.rows : [];
+  const stageSources = Array.isArray(stageData?.sources) ? stageData.sources : [];
+  const stageRelations = Array.isArray(stageData?.graph?.relations) ? stageData.graph.relations : [];
+  const stageWorlds = Array.isArray(stageData?.numberWorlds) ? stageData.numberWorlds : [];
+  const stageFindings = Array.isArray(stageData?.research?.findings) ? stageData.research.findings : [];
+  const stageTimeline = Array.isArray(stageData?.timeline) ? stageData.timeline : [];
+  const stageMedia = Array.isArray(stageData?.media?.items) ? stageData.media.items : [];
+  const stageSurface = stageData?.surface || {};
+  const stageZeroScale = stageData?.zeroScale || null;
+  const stageActivityCount = [
+    Number(stageSurface.postsCount ?? stageSurface.posts?.length ?? 0),
+    Number(stageSurface.galleriesCount ?? stageSurface.galleries?.length ?? 0),
+    Number(stageSurface.insightsCount ?? stageSurface.insights?.length ?? 0),
+    Number(stageSurface.commentsCount ?? 0),
+    Number(stageSurface.eventsCount ?? 0),
+  ].reduce((sum, n) => sum + (Number.isFinite(n) ? n : 0), 0);
+
+  const stageProjection = useMemo(() => buildNumberCoreProjection({
+    root: stageRoot,
+    expression,
+    selectedMethodKey,
+    methodProfile: profileState.rows,
+    families: stageFamilies,
+    topics: stageTopics,
+    relations: stageRelations,
+    sources: stageSources,
+    worlds: stageWorlds,
+    findings: stageFindings,
+    timeline: stageTimeline,
+    media: stageMedia,
+    surface: stageSurface,
+    zeroScale: stageZeroScale,
+    activityCount: stageActivityCount,
+    journeyAvailable: stageRoot === 878,
+    heroMedia: stageMedia[0] || null,
+  }), [stageRoot, expression, selectedMethodKey, profileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
   const updateContext = (patch = {}) => {
     if (!Number.isSafeInteger(root)) return;
