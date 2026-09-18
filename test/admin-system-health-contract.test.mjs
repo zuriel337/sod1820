@@ -90,8 +90,9 @@ for (const uiFile of ["src/pages/AdminPage.jsx"]) {
     `${uiFile} must not wire up admin_system_health yet — no Control Plane UI in this slice`);
 }
 
-console.log("admin-system-health-contract: PASS");
 
 \n// ── 8. fn_health_watch is server-only after post-release advisor hardening. ───────────────
 assert.match(hardening, /revoke all on function public\\.fn_health_watch\\(\\) from public, anon, authenticated;/i);
 assert.match(hardening, /grant execute on function public\\.fn_health_watch\\(\\) to service_role;/i);
+
+console.log("admin-system-health-contract: PASS");
