@@ -497,13 +497,14 @@
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
+  align-items:stretch;
 }
 .sod29-number-core2029-crossing,
 .sod29-number-core2029-zero{
   min-width:0;
   display:grid;
   gap:5px;
-  padding:12px;
+  padding:10px;
   border:1px solid var(--s29-line);
   border-radius:17px;
   background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);
@@ -540,6 +541,10 @@
   color:var(--s29-muted);
   font-size:8.5px;
   line-height:1.45;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
 }
 .sod29-number-core2029-cross-eq{
   color:var(--s29-hero);
@@ -550,6 +555,8 @@
   display:flex;
   flex-wrap:wrap;
   gap:4px;
+  max-height:20px;
+  overflow:hidden;
 }
 .sod29-number-core2029-method-tags span{
   padding:2px 5px;
@@ -726,7 +733,14 @@
 @media(max-width:560px){
   .sod29-number-core2029-methods{grid-template-columns:repeat(3,minmax(0,1fr));max-height:206px}
   .sod29-number-core2029.is-drawer .sod29-number-core2029-methods{grid-template-columns:repeat(3,minmax(0,1fr));max-height:190px}
-  .sod29-number-core2029-upper-grid{grid-template-columns:1fr}
+  .sod29-number-core2029-upper-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .sod29-number-core2029-crossing,
+  .sod29-number-core2029-zero{padding:8px}
+  .sod29-number-core2029-crossing p,
+  .sod29-number-core2029-zero p{-webkit-line-clamp:1;font-size:7.5px}
+  .sod29-number-core2029-crossing>strong,
+  .sod29-number-core2029-zero-step strong,
+  .sod29-number-core2029-zero-step b{font-size:11px}
   .sod29-number-core2029-raziel{grid-template-columns:38px minmax(0,1fr)}
   .sod29-number-core2029-raziel-orb{width:38px;height:38px}
   .sod29-number-method-inspector-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -736,6 +750,7 @@
 @media(max-width:350px){
   .sod29-number-core2029-methods,
   .sod29-number-core2029.is-drawer .sod29-number-core2029-methods{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-number-core2029-upper-grid{grid-template-columns:1fr}
   .sod29-number-method-calc-line{grid-template-columns:1fr auto}
   .sod29-number-method-calc-line b{display:none}
 }
