@@ -22,8 +22,8 @@ assert.equal(compat.includes("<aside"), false, "compatibility shell must not ren
 // G3-A isolation remains intact: prose may name retired prototypes, but the native
 // frame may not import or render those presentation owners/assets.
 const forbiddenImportPatterns = [
-  /from\s+["'][^"']*NumberDrawer/i,
-  /from\s+["'][^"']*numberDrawer/i,
+  /from\s+["'][^"']*\/NumberDrawer\.jsx["']/i,
+  /from\s+["'][^"']*\/numberDrawer\.js["']/i,
   /from\s+["'][^"']*BottomBar/i,
   /from\s+["'][^"']*siteUpdates/i,
   /from\s+["'][^"']*AskRaziel/i,
@@ -101,7 +101,7 @@ assert.match(frame, /dimensions:\s*target\.dimensions \|\| null/);
 assert.match(frame, /journey:\s*target\.journey \|\| null/);
 assert.match(frame, /returnTo:\s*null/);
 
-// Quick Inspect and Selection Intelligence are temporary context projections, not a NumberDrawer fork.
+// Quick Inspect and Selection Intelligence stay temporary context projections. The native NumberDrawer2029 may be mounted as a 2029 projection, but the Legacy NumberDrawer/numberDrawer owners remain forbidden above.
 assert.match(frame, /TEMPORARY SELECTION/);
 assert.match(frame, /selectionchange/);
 assert.match(frame, /Selection זמני ≠ Finding ≠ Claim ≠ Canonical/);
