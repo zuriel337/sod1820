@@ -1224,7 +1224,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-list">{contributorConvergences.map((item) => <div className="sod29-row" key={item.id}>
           <div>
             <strong>{item.value != null ? `${item.value} · ` : ""}{item.author || "חוקר"}</strong>
-            <small>{item.method || "שיטה לא צוינה"} · {item.kind || "התכנסות"} · {item.group_size || item.author_phrases?.length || 0} ביטויים</small>
+            <small>{item.method || "שיטה לא צוינה"} · {item.kind || "מפגש"} · {item.group_size || item.author_phrases?.length || 0} ביטויים</small>
             {item.note ? <p className="sod29-world-row-summary">{item.note}</p> : null}
           </div>
           {item.value != null ? <button className="sod29-action" type="button" onClick={() => research.setResearchContext?.({ subject: { id: String(item.value), type: "number", label: String(item.value), href: "/world" }, selection: { entityId: String(item.value), entityType: "number" }, lens: "world", returnTo: { href: "/world", label: data.identity.label } })}>פתח {item.value}</button> : null}
