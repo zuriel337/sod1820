@@ -237,7 +237,7 @@ export default function NumberDrawer2029({
     setTraceOpen(false);
   };
 
-  const razielIntent = (intent) => {
+  const razielIntent = (intent, focus = {}) => {
     const numberCoreFocus = {
       root,
       expression: clean(expression) || null,
@@ -245,6 +245,7 @@ export default function NumberDrawer2029({
       resultValue: selectedProfile?.computedValue ?? null,
       crossingPartner: projection?.crossing?.partner || null,
       zeroScaleNext: projection?.zeroScale?.next ?? null,
+      ...(focus && typeof focus === "object" ? focus : {}),
     };
     updateContext({
       dimensions: {
@@ -315,7 +316,7 @@ export default function NumberDrawer2029({
       traceSteps={traceSteps}
       onMethodSelect={selectMethod}
       onToggleTrace={() => setTraceOpen((value) => !value)}
-      onOpenCrossing={() => razielIntent("explain_crossing")}
+      onOpenCrossing={(crossing) => razielIntent("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
       onOpenZero={openExplicitRoot}
       onOpenResult={openExplicitRoot}
       onOpenPage={openPage}
