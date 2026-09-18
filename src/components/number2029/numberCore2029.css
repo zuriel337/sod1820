@@ -1196,3 +1196,11 @@
   .sod29-number-dashboard-layer-list{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sod29-number-dashboard-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+.sod29-number-dashboard-raziel-head>div{min-width:0;display:grid;gap:1px}
+.sod29-number-dashboard-raziel-head>div>span{color:var(--s29-muted);font-size:7px;font-weight:900;letter-spacing:.04em}
+.sod29-number-dashboard-raziel-head>div>strong{color:var(--s29-ink);font-size:17px}
+@media(max-width:720px){
+  .sod29-number-dashboard-raziel-head>div>strong{font-size:12px}
+  .sod29-number-dashboard-raziel-head>div>span{font-size:6px}
+}
