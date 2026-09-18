@@ -1,5 +1,3 @@
-import { fetchTopicCardList } from "./topicConvergence.js";
-
 export const GOLDEN_WORLD_JOURNEY_878 = Object.freeze({
   id: "golden:878:v1",
   kind: "golden",
@@ -76,7 +74,10 @@ export function projectGoldenJourney878({
 }
 
 export async function fetchGoldenWorldJourney878() {
-  const { supabase } = await import("../supabase.js");
+  const [{ supabase }, { fetchTopicCardList }] = await Promise.all([
+    import("../supabase.js"),
+    import("./topicConvergence.js"),
+  ]);
   const [topics, journey] = await Promise.all([
     fetchTopicCardList({
       number: GOLDEN_WORLD_JOURNEY_878.rootValue,
