@@ -351,7 +351,30 @@ export default function NumberCore2029({
       </blockquote>
     </header>
 
-    <section className="sod29-number-v7-method-ribbon sod29-number-core2029-method-section" aria-label="שיטות גימטריה גלויות">
+    <nav className="sod29-number-v9-switcher" role="tablist" aria-label="מצבי דף המספר">
+      {[
+        { key: "convergence", label: "התכנסות", badge: crossing ? 1 : 0 },
+        { key: "methods", label: "שיטות", badge: methods.length },
+        { key: "worlds", label: "עולמות", badge: worlds.length },
+        { key: "dna", label: "DNA", badge: coverage.present || 0 },
+        { key: "calculation", label: "חישוב", badge: result != null ? result : null },
+        { key: "depth", label: "עומק", premium: true },
+      ].map((item) => <button
+        type="button"
+        role="tab"
+        aria-selected={activeView === item.key}
+        className={activeView === item.key ? "is-active" : ""}
+        key={item.key}
+        onClick={() => activateView(item.key)}
+      >
+        <span>{item.premium ? "👑 " : ""}{item.label}</span>
+        {item.badge != null ? <small>{item.badge}</small> : null}
+      </button>)}
+    </nav>
+
+    <div className="sod29-number-v9-stage" role="tabpanel" data-number-view={activeView}>
+
+    {activeView === "methods" ? <section className="sod29-number-v7-method-ribbon sod29-number-core2029-method-section" aria-label="שיטות גימטריה גלויות">
       <div className="sod29-number-v7-method-head">
         <div>
           <span>שיטות גימטריה</span>
@@ -385,9 +408,9 @@ export default function NumberCore2029({
         })}
       </div>
       {methods.length > visibleMethods.length ? <small className="sod29-number-v7-method-note">מוצגות {visibleMethods.length} מתוך {methods.length} שיטות קנוניות · השאר נשארות זמינות בלי להעמיס את הריבוע</small> : null}
-    </section>
+    </section> : null}
 
-    <MethodInspector
+    {activeView === "calculation" ? <MethodInspector
       method={inspectorMethodKey ? inspectorMethod : null}
       projection={projection}
       tab={inspectorTab}
@@ -400,9 +423,10 @@ export default function NumberCore2029({
       onRazielAction={onRazielAction}
       onExpandRaziel={onExpandRaziel}
       onOpenHeichal={onOpenHeichal}
-      onClose={() => setInspectorMethodKey(null)}
-    />
+      onClose={() => setActiveView("methods")}
+    /> : null}
 
+    {activeView === "convergence" ? <div className="sod29-number-v9-convergence">
     <div className="sod29-number-core2029-upper-grid sod29-number-dashboard-top">
       {crossing ? <article className="sod29-number-core2029-crossing">
         <div className="sod29-number-core2029-label"><span>∞</span><b>הצלבה נסתרת</b><small>{crossing.methodCount} שיטות</small></div>
@@ -437,8 +461,19 @@ export default function NumberCore2029({
       </article>}
 
     </div>
+    <section className="sod29-number-v9-connections">
+      <div className="sod29-number-v9-panel-head"><span>חיבורים סביב המספר</span><small>{connections.length}</small></div>
+      {connections.length ? <div className="sod29-number-dashboard-connections">
+        {connections.slice(0, compact ? 5 : 8).map((item, index) => <article key={`${item.label}:${index}`} data-tone={index % 6}>
+          <span>{item.kind === "crossing" ? "✦" : "⌘"}</span>
+          <strong>{item.label}</strong>
+          <small>{item.note}</small>
+        </article>)}
+      </div> : <div className="sod29-number-core2029-note">אין כרגע חיבורים נוספים להצגה.</div>}
+    </section>
+    </div> : null}
 
-    <section className="sod29-number-v7-world-hub" aria-label={`עולמות וקשרים סביב ${root}`}>
+    {activeView === "worlds" ? <section className="sod29-number-v7-world-hub" aria-label={`עולמות וקשרים סביב ${root}`}>
       <div className="sod29-number-v7-world-head">
         <div>
           <span>מרכז העולמות</span>
@@ -476,8 +511,9 @@ export default function NumberCore2029({
           ><strong>{item.value}</strong><small>{item.sourceKind === "meeting" ? "מפגש" : item.relationType}</small></button>) : <small className="is-empty">אין כרגע מספרים קשורים זמינים</small>}
         </div>
       </div>
-    </section>
+    </section> : null}
 
+    {activeView === "dna" ? <>
     <div className="sod29-number-dashboard-body">
       <aside className="sod29-number-dashboard-coverage">
         <div className="sod29-number-dashboard-coverage-head">
@@ -534,6 +570,31 @@ export default function NumberCore2029({
         {layers.slice(0, 10).map((layer, index) => <span key={layer.key} className={layer.count > 0 ? "is-live" : ""} data-tone={index % 10}><i />{layer.label.replace(" / ", " ")}</span>)}
       </div>
     </section>
+    </> : null}
+
+    {activeView === "depth" ? <section className="sod29-number-v9-depth">
+      <div className="sod29-number-v9-depth-head">
+        <div>
+          <span>PREMIUM-READY · עומק</span>
+          <strong>אותו מספר · יותר כלים, לא אמת אחרת</strong>
+          <small>ה־Preview מציג את מבנה העומק. Runtime entitlement קנוני יחובר בנפרד ולא מומצא כאן.</small>
+        </div>
+        <span className="sod29-number-v9-crown">👑</span>
+      </div>
+      <div className="sod29-number-v9-depth-grid">
+        <article><span>הצלבות עמוקות</span><strong>{crossing ? crossing.partner : "לפי חומר זמין"}</strong><small>בדיקה/השוואה רחבה יותר בלי לשנות את ה־Root.</small></article>
+        <article><span>גרף ומסלולים</span><strong>{relatedNumbers.length} מספרים קשורים</strong><small>מסלולים מלאים שייכים לעולם/היכל ולא נטענים כברירת מחדל.</small></article>
+        <article><span>רזיאל מחקרי</span><strong>Micro → Panel → Deep</strong><small>אותו Companion ואותו Research Context.</small></article>
+        <article><span>שיטות לעומק</span><strong>{methods.length} שיטות זמינות</strong><small>Trace, provenance, השוואה והרצות מתקדמות דרך היכל.</small></article>
+      </div>
+      <div className="sod29-number-v9-depth-actions">
+        <button type="button" onClick={() => onExpandRaziel?.()}>✦ פתח רזיאל</button>
+        <button type="button" onClick={() => onOpenWorld?.()}>◉ פתח בעולם</button>
+        <button type="button" className="primary" onClick={() => onOpenHeichal?.({ kind: "number_deep", root, expression: projection.expression, methodKey: active?.methodKey || null, resultValue: result })}>◇ חקור בהיכל</button>
+      </div>
+    </section> : null}
+
+    </div>
 
     <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
       {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>
