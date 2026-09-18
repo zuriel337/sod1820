@@ -244,14 +244,16 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch, onDeepe
         <button className="sod29-action" type="button" disabled title="Follow runtime נשאר ב־PR #486 עד release gate">♢ מעקב · runtime pending</button>
       </div>
 
-      <ShareActions
-        type={target.type || "page"}
-        title={`SOD1820 · ${target.label}`}
-        channels={["native", "copy"]}
-        compact
-        force
-        style={{ marginTop: 10 }}
-      />
+      <div className="sod29-canonical-share" data-share-owner="ShareActions">
+        <ShareActions
+          type={target.type || "page"}
+          title={`SOD1820 · ${target.label}`}
+          channels={["native", "copy"]}
+          compact
+          force
+          style={{ marginTop: 10 }}
+        />
+      </div>
 
       <div className="sod29-panel-context-card">
         <b>Research Context</b>
