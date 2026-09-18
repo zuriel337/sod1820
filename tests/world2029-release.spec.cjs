@@ -198,7 +198,7 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   const miluy = drawer.locator('.sod29-number-v7-method-main').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible();
   await miluy.click();
-  await expect(miluy).toHaveClass(/is-active/);
+  await expect(drawer.locator('[data-number-view="calculation"]')).toBeVisible();
   await expect(drawer.locator('.sod29-number-core2029-active strong')).not.toHaveText('—');
   const drawerInspector = drawer.locator('.sod29-number-method-inspector');
   await expect(drawerInspector).toBeVisible();
