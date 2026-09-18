@@ -21,6 +21,7 @@ import {
   worldRelationFacets,
 } from "../lib/research/world2029Presentation.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
+import { fetchWorldContributorLens } from "../lib/research/worldContributorLens.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -239,15 +240,18 @@ function worldGematriaRows(data) {
     const key = `${method}:${phrase}:${value}`;
     if (seen.has(key)) continue;
     seen.add(key);
+    const lookup = finding?.projection?.dimensions?.numberLookup || {};
     out.push({
       id: finding.id || key,
       phrase,
       method,
       value,
       verificationState: finding?.verification?.verification_state || null,
-      methodGoverned: finding?.projection?.dimensions?.numberLookup?.methodGoverned ?? null,
+      methodGoverned: lookup.methodGoverned ?? null,
+      atomicOrComposite: lookup.atomicOrComposite || null,
+      mathematicalFamily: lookup.mathematicalFamily || null,
+      methodEvidenceClass: lookup.methodEvidenceClass || null,
     });
-    if (out.length >= 10) break;
   }
   if (out.length) return out;
 
@@ -261,10 +265,31 @@ function worldGematriaRows(data) {
       value: result.engineValue,
       verificationState: result.verificationState || null,
       methodGoverned: result.governed ?? null,
+      atomicOrComposite: null,
+      mathematicalFamily: null,
+      methodEvidenceClass: null,
     });
-    if (out.length >= 10) break;
   }
   return out;
+}
+
+function researchObjectIdFromFinding(finding) {
+  return String(finding?.identity?.sourceIdentity?.researchObjectId || "");
+}
+
+function topicSlugFromFinding(finding) {
+  return String(finding?.projection?.dimensions?.graph?.slug || "");
+}
+
+function contributionDisplay(row) {
+  const claim = row?.gematria_claim || {};
+  return {
+    title: String(row?.title || claim.claim || row?.body || "תרומת מחקר").trim(),
+    method: String(claim.method || "").trim() || null,
+    value: Number.isFinite(Number(claim.value)) ? Number(claim.value) : null,
+    status: row?.status || null,
+    convergenceSlug: row?.convergence_slug || null,
+  };
 }
 
 function researchAddedDate(value) {
@@ -492,6 +517,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [whyOpen, setWhyOpen] = useState(null);
   const [adminMode, setAdminMode] = useState(false);
   const [activeLane, setActiveLane] = useState("overview");
+  const [contributorFilter, setContributorFilter] = useState("all");
+  const [contributorLensState, setContributorLensState] = useState({ loading: false, data: null, error: null });
+  const [gematriaMethodFilter, setGematriaMethodFilter] = useState("all");
+  const [gematriaTypeFilter, setGematriaTypeFilter] = useState("all");
+  const [gematriaQuery, setGematriaQuery] = useState("");
   const key = subjectKey(subject);
 
   useEffect(() => {
@@ -502,7 +532,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setRelationSort("recommended");
     setWhyOpen(null);
     setActiveLane("overview");
-    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 40, topicLimit: 10 })
+    setContributorFilter("all");
+    setContributorLensState({ loading: false, data: null, error: null });
+    setGematriaMethodFilter("all");
+    setGematriaTypeFilter("all");
+    setGematriaQuery("");
+    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40 })
       .then(async (data) => {
         if (!alive) return;
         let prominenceInputs = null;
@@ -519,10 +554,30 @@ function AnchoredWorld({ research, shell, subject, context }) {
   }, [key, subject.id, subject.type]);
 
   useEffect(() => {
-    if (!isAdmin) setAdminMode(false);
+    if (!isAdmin) {
+      setAdminMode(false);
+      setContributorFilter("all");
+    }
   }, [isAdmin]);
 
   const data = state.data;
+
+  useEffect(() => {
+    if (!adminMode || !isAdmin || !data?.identity) return undefined;
+    let alive = true;
+    setContributorLensState({ loading: true, data: null, error: null });
+    fetchWorldContributorLens({
+      anchorType: data.identity.type,
+      anchorLabel: data.identity.label,
+      researchRows: data.research?.rows || [],
+      topicRows: data.topics?.rows || [],
+    }).then((lens) => {
+      if (alive) setContributorLensState({ loading: false, data: lens, error: null });
+    }).catch((error) => {
+      if (alive) setContributorLensState({ loading: false, data: null, error });
+    });
+    return () => { alive = false; };
+  }, [adminMode, isAdmin, data?.identity?.nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
   const density = useMemo(() => classifyWorldPresentationDensity(data), [data]);
   const currentNodeId = data?.identity?.nodeId || null;
   const graphRelations = data?.graph?.relations || [];
@@ -533,28 +588,62 @@ function AnchoredWorld({ research, shell, subject, context }) {
   ), [graphRelations, currentNodeId, relationFilter, relationSort]);
 
   const researchFindings = data?.research?.findings || [];
+  const contributorLens = contributorLensState.data;
+  const selectedContributor = contributorFilter === "all" ? null : contributorLens?.bySlug?.[contributorFilter] || null;
+  const selectedResearchIds = useMemo(() => new Set(selectedContributor?.researchObjectIds || []), [selectedContributor]);
+  const visibleResearchFindings = useMemo(() => selectedContributor
+    ? researchFindings.filter((finding) => selectedResearchIds.has(researchObjectIdFromFinding(finding)))
+    : researchFindings,
+  [researchFindings, selectedContributor, selectedResearchIds]);
+  const topicFindings = data?.topics?.findings || [];
+  const selectedTopicSlugs = useMemo(() => new Set(selectedContributor?.topicSlugs || []), [selectedContributor]);
+  const visibleTopicFindings = useMemo(() => selectedContributor
+    ? topicFindings.filter((finding) => selectedTopicSlugs.has(topicSlugFromFinding(finding)))
+    : topicFindings,
+  [topicFindings, selectedContributor, selectedTopicSlugs]);
+  const contributorConvergences = useMemo(() => {
+    if (!contributorLens) return [];
+    if (selectedContributor) return selectedContributor.convergences || [];
+    return contributorLens.contributors.flatMap((row) => contributorLens.bySlug?.[row.slug]?.convergences || []);
+  }, [contributorLens, selectedContributor]);
+  const contributorContributions = useMemo(() => {
+    if (!contributorLens) return [];
+    if (selectedContributor) return selectedContributor.relevantContributions || [];
+    return contributorLens.contributors.flatMap((row) => (contributorLens.bySlug?.[row.slug]?.relevantContributions || []).map((item) => ({ ...item, _contributorSlug: row.slug, _contributorName: row.displayName })));
+  }, [contributorLens, selectedContributor]);
   const prominence = useMemo(() => data
     ? buildWorldContextualProminence(data, state.prominenceInputs || {}, { limit: 7, timeAware: data.identity?.type === "event" })
     : null, [data, state.prominenceInputs]);
   const prominenceItems = prominence?.items || [];
   const gematriaRows = useMemo(() => worldGematriaRows(data), [data]);
+  const gematriaMethods = useMemo(() => [...new Set(gematriaRows.map((row) => row.method).filter(Boolean))], [gematriaRows]);
+  const visibleGematriaRows = useMemo(() => {
+    const q = gematriaQuery.trim().toLocaleLowerCase("he");
+    return gematriaRows.filter((row) => {
+      if (gematriaMethodFilter !== "all" && row.method !== gematriaMethodFilter) return false;
+      if (gematriaTypeFilter !== "all" && row.atomicOrComposite !== gematriaTypeFilter) return false;
+      if (q && !`${row.phrase} ${row.method} ${row.value}`.toLocaleLowerCase("he").includes(q)) return false;
+      return true;
+    });
+  }, [gematriaRows, gematriaMethodFilter, gematriaTypeFilter, gematriaQuery]);
+  const gematriaBounds = data?.lenses?.numberResearch?.bounds?.number_lookup || null;
   const sourceRows = data?.sources || [];
   const mediaItems = data?.media?.items || [];
   const anchorProfile = data?.anchorProfile?.finding?.projection?.dimensions?.legacyNumberAnchor || null;
   const laneCounts = {
     overview: prominenceItems.length,
     media: mediaItems.length,
-    calculations: gematriaRows.length,
+    calculations: visibleGematriaRows.length,
     sources: sourceRows.length,
     relations: graphRelations.length,
-    research: researchFindings.length + (data?.topics?.findings?.length || 0) + (data?.numberWorlds?.length || 0),
+    research: visibleResearchFindings.length + visibleTopicFindings.length + contributorConvergences.length + contributorContributions.length + (data?.numberWorlds?.length || 0),
     timeline: data?.timeline?.length || 0,
   };
   const adminSummary = useMemo(() => {
     const byAccess = {};
     const byGovernance = {};
     const byVerification = {};
-    researchFindings.forEach((finding) => {
+    visibleResearchFindings.forEach((finding) => {
       const access = finding?.access?.tier || "לא צוין";
       const governance = finding?.status || "לא צוין";
       const verification = finding?.verification?.verification_state || "לא צוין";
@@ -563,7 +652,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       byVerification[verification] = (byVerification[verification] || 0) + 1;
     });
     return { byAccess, byGovernance, byVerification };
-  }, [researchFindings]);
+  }, [visibleResearchFindings]);
 
   const backToWorld = () => {
     research.clearResearchContext?.();
@@ -730,6 +819,25 @@ function AnchoredWorld({ research, shell, subject, context }) {
           <div className="sod29-card"><div className="sod29-kicker">ממשל</div><h3>{Object.entries(adminSummary.byGovernance).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב ממשל להצגה"}</h3></div>
           <div className="sod29-card"><div className="sod29-kicker">אימות</div><h3>{Object.entries(adminSummary.byVerification).map(([name, count]) => `${name}: ${count}`).join(" · ") || "אין מצב אימות להצגה"}</h3></div>
         </div>
+        <div className="sod29-world-contributor-filter">
+          <div>
+            <div className="sod29-kicker">חוקר / כותב</div>
+            <h3>סנן חומר מיוחס</h3>
+            <p className="sod29-muted">כרגע מאושרים ב־World רק צבי, שמעון חיימוב, יניב לוי ויצחק שחר קנדרו. ברירת המחדל היא הכול. הסינון משתמש רק ב־attribution קיים; חומר בלי שיוך מוכח אינו מיוחס לאדם.</p>
+          </div>
+          {contributorLensState.loading ? <FrameState kind="loading" title="טוען שיוך חוקרים">קורא attribution והרשאות מנהל.</FrameState> : null}
+          {contributorLensState.error ? <FrameState kind="unavailable" title="סינון החוקרים לא זמין כרגע">שאר ה־World ממשיך לפעול ללא ניחוש attribution.</FrameState> : null}
+          {contributorLens?.contributors?.length ? <div className="sod29-world-contributor-buttons" role="group" aria-label="סינון לפי חוקר או כותב">
+            <button className={`sod29-action${contributorFilter === "all" ? " primary" : ""}`} type="button" aria-pressed={contributorFilter === "all"} onClick={() => setContributorFilter("all")}>הכול</button>
+            {contributorLens.contributors.map((person) => {
+              const count = person.counts.research + person.counts.contributions + person.counts.topicConvergences + person.counts.convergenceRows;
+              return <button key={person.slug} className={`sod29-action${contributorFilter === person.slug ? " primary" : ""}`} type="button" aria-pressed={contributorFilter === person.slug} onClick={() => setContributorFilter(person.slug)}>
+                {person.displayName}<small>{count}</small>
+              </button>;
+            })}
+          </div> : null}
+          {selectedContributor ? <div className="sod29-muted">מסנן כעת: <b>{selectedContributor.displayName}</b> · מחקר {selectedContributor.researchObjectIds.length} · תרומות רלוונטיות {selectedContributor.relevantContributions.length} · התכנסויות {selectedContributor.convergences.length + selectedContributor.topicSlugs.length}</div> : null}
+        </div>
       </section> : null}
 
       {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="הנקודה קיימת, אבל סביבה מעט חומר כרגע">זהו מצב תקין. העולם נשאר שקט במקום להמציא קשרים, מקורות או דברים שלא נמצאו.</FrameState></NativeStateSection> : null}
@@ -776,11 +884,38 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
       {activeLane === "calculations" && gematriaRows.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head">
-          <div><div className="sod29-kicker">גימטריות וביטויים</div><h2>חישובים שנפתחים מהנקודה הזאת</h2></div>
+          <div>
+            <div className="sod29-kicker">גימטריות וביטויים</div>
+            <h2>כל רשימת הגימטריות של {data.identity.label}</h2>
+            <div className="sod29-muted">{gematriaBounds?.source_exhaustive === false ? `מוצגות ${gematriaRows.length} מתוך ${gematriaBounds.total_count || "?"} רשומות במקור הקנוני.` : `${gematriaRows.length} רשומות · מקור קנוני מלא לפי סדר fn_number_lookup.`} הסדר כאן אינו דירוג אמת.</div>
+          </div>
+          <span className="sod29-chip">{visibleGematriaRows.length} מוצגות</span>
         </div>
+        <div className="sod29-world-gematria-controls">
+          <label>
+            <span>חיפוש</span>
+            <input value={gematriaQuery} onChange={(event) => setGematriaQuery(event.target.value)} placeholder="מילה, ביטוי או מספר" />
+          </label>
+          <label>
+            <span>שיטת גימטריה</span>
+            <select aria-label="סינון גימטריה לפי שיטה" value={gematriaMethodFilter} onChange={(event) => setGematriaMethodFilter(event.target.value)}>
+              <option value="all">כל השיטות · {gematriaRows.length}</option>
+              {gematriaMethods.map((method) => <option key={method} value={method}>{method} · {gematriaRows.filter((row) => row.method === method).length}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>סוג רשומה</span>
+            <select aria-label="סינון גימטריה לפי סוג" value={gematriaTypeFilter} onChange={(event) => setGematriaTypeFilter(event.target.value)}>
+              <option value="all">הכול</option>
+              <option value="atomic">אטומי</option>
+              <option value="composite">מורכב</option>
+            </select>
+          </label>
+        </div>
+        {!visibleGematriaRows.length ? <FrameState kind="empty" title="אין גימטריות במסנן הזה">שנה שיטה, סוג או חיפוש. הרשימה המקורית לא משתנה.</FrameState> : null}
         <div className="sod29-world-gematria-list">
-          {gematriaRows.map((row) => <div className="sod29-world-gematria-row" key={row.id}>
-            <div className="sod29-world-gematria-expression"><strong>{row.phrase}</strong><small>{row.method}{row.methodGoverned === false ? " · שיטה היסטורית" : ""}</small></div>
+          {visibleGematriaRows.map((row) => <div className="sod29-world-gematria-row" key={row.id}>
+            <div className="sod29-world-gematria-expression"><strong>{row.phrase}</strong><small>{row.method}{row.atomicOrComposite ? ` · ${row.atomicOrComposite === "composite" ? "מורכב" : "אטומי"}` : ""}{row.methodGoverned === false ? " · שיטה היסטורית" : ""}</small></div>
             <div className="sod29-world-gematria-value" aria-label={`${row.phrase} בשיטת ${row.method} שווה ${row.value}`}><span>=</span><b>{row.value}</b></div>
             <span className="sod29-world-verification">{row.verificationState === "not_tested" ? "חישוב מנוע · אין טענה נפרדת לבדיקה" : (VERIFICATION_LABELS[row.verificationState] || "מצב אימות לא צוין")}</span>
           </div>)}
@@ -883,9 +1018,42 @@ function AnchoredWorld({ research, shell, subject, context }) {
         })}</div>
       </section> : null}
 
-      {activeLane === "research" && data.topics?.findings?.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>חיבורים שנפגשים כאן</h2></div></div>
-        <div className="sod29-list">{data.topics.findings.slice(0, 8).map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
+      {activeLane === "research" && adminMode && contributorConvergences.length ? <section className="sod29-section sod29-world-human-section">
+        <div className="sod29-section-head">
+          <div><div className="sod29-kicker">התכנסויות לפי חוקר</div><h2>{selectedContributor ? `התכנסויות של ${selectedContributor.displayName}` : "התכנסויות מיוחסות לארבעת החוקרים"}</h2></div>
+          <span className="sod29-chip">{contributorConvergences.length}</span>
+        </div>
+        <div className="sod29-list">{contributorConvergences.map((item) => <div className="sod29-row" key={item.id}>
+          <div>
+            <strong>{item.value != null ? `${item.value} · ` : ""}{item.author || "חוקר"}</strong>
+            <small>{item.method || "שיטה לא צוינה"} · {item.kind || "התכנסות"} · {item.group_size || item.author_phrases?.length || 0} ביטויים</small>
+            {item.note ? <p className="sod29-world-row-summary">{item.note}</p> : null}
+          </div>
+          {item.value != null ? <button className="sod29-action" type="button" onClick={() => research.setResearchContext?.({ subject: { id: String(item.value), type: "number", label: String(item.value), href: "/world" }, selection: { entityId: String(item.value), entityType: "number" }, lens: "world", returnTo: { href: "/world", label: data.identity.label } })}>פתח {item.value}</button> : null}
+        </div>)}</div>
+      </section> : null}
+
+      {activeLane === "research" && adminMode && contributorContributions.length ? <section className="sod29-section sod29-world-human-section">
+        <div className="sod29-section-head">
+          <div><div className="sod29-kicker">תרומות מיוחסות</div><h2>{selectedContributor ? `חומר של ${selectedContributor.displayName} סביב ${data.identity.label}` : "חומר מארבעת החוקרים סביב הנקודה"}</h2></div>
+          <span className="sod29-chip">{contributorContributions.length}</span>
+        </div>
+        <div className="sod29-list">{contributorContributions.map((row) => {
+          const view = contributionDisplay(row);
+          const contributorName = selectedContributor?.displayName || row._contributorName || "חוקר";
+          return <div className="sod29-row" key={row.id}>
+            <div>
+              <strong>{view.title}</strong>
+              <small>{contributorName}{view.method ? ` · ${view.method}` : ""}{view.status ? ` · ${view.status}` : ""}</small>
+            </div>
+            {view.value != null ? <button className="sod29-action" type="button" onClick={() => research.setResearchContext?.({ subject: { id: String(view.value), type: "number", label: String(view.value), href: "/world" }, selection: { entityId: String(view.value), entityType: "number" }, lens: "world", returnTo: { href: "/world", label: data.identity.label } })}>פתח {view.value}</button> : null}
+          </div>;
+        })}</div>
+      </section> : null}
+
+      {activeLane === "research" && visibleTopicFindings.length ? <section className="sod29-section">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>{selectedContributor ? `נקודות מפגש של ${selectedContributor.displayName}` : "חיבורים שנפגשים כאן"}</h2></div><span className="sod29-chip">{visibleTopicFindings.length}</span></div>
+        <div className="sod29-list">{visibleTopicFindings.map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
       </section> : null}
 
       {activeLane === "research" && data.numberWorlds?.length ? <section className="sod29-section">
@@ -893,9 +1061,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-book-grid">{data.numberWorlds.slice(0, 8).map((group) => <div className="sod29-card" key={group.world}><div className="sod29-kicker">{group.count} פריטים</div><h3>{group.world}</h3></div>)}</div>
       </section> : null}
 
-      {activeLane === "research" && researchFindings.length ? <section className="sod29-section sod29-world-human-section">
+      {activeLane === "research" && visibleResearchFindings.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head"><div><div className="sod29-kicker">עוד מחקר</div><h2>דברים שנמצאו סביב הנקודה הזאת</h2></div></div>
-        <div className="sod29-list">{researchFindings.slice(0, 12).map((finding, index) => {
+        <div className="sod29-list">{visibleResearchFindings.map((finding, index) => {
           const verificationState = finding.verification?.verification_state || null;
           const verification = VERIFICATION_LABELS[verificationState] || "מצב אימות לא צוין";
           const presentation = humanFindingPresentation(finding, data.identity.label);

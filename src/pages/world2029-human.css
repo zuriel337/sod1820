@@ -290,6 +290,76 @@
 .sod29-world-gematria-list{
   border-block:1px solid var(--s29-line);
 }
+.sod29-world-gematria-controls{
+  display:grid;
+  grid-template-columns:minmax(220px,1.2fr) minmax(180px,.8fr) minmax(150px,.6fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+.sod29-world-gematria-controls label{
+  display:grid;
+  gap:6px;
+}
+.sod29-world-gematria-controls label>span{
+  color:var(--s29-muted);
+  font-size:10px;
+  font-weight:800;
+}
+.sod29-world-gematria-controls input,
+.sod29-world-gematria-controls select{
+  width:100%;
+  min-height:42px;
+  border:1px solid var(--s29-line-strong);
+  border-radius:13px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
+  color:var(--s29-ink);
+  padding:8px 10px;
+  font:inherit;
+}
+.sod29-world-gematria-controls input:focus-visible,
+.sod29-world-gematria-controls select:focus-visible{
+  outline:none;
+  border-color:color-mix(in srgb,var(--s29-accent) 52%,var(--s29-line));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--s29-accent) 12%,transparent);
+}
+.sod29-world-contributor-filter{
+  margin-top:18px;
+  padding-top:18px;
+  border-block-start:1px solid var(--s29-line);
+  display:grid;
+  gap:12px;
+}
+.sod29-world-contributor-filter h3{
+  margin:4px 0 5px;
+  color:var(--s29-ink);
+  font-size:18px;
+}
+.sod29-world-contributor-filter p{
+  margin:0;
+  max-width:900px;
+  line-height:1.65;
+}
+.sod29-world-contributor-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.sod29-world-contributor-buttons .sod29-action{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.sod29-world-contributor-buttons small{
+  display:grid;
+  place-items:center;
+  min-width:21px;
+  height:21px;
+  padding-inline:6px;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);
+  font-size:9px;
+  font-variant-numeric:tabular-nums;
+}
 .sod29-world-gematria-row{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto minmax(150px,auto);
@@ -466,6 +536,16 @@
   }
 }
 @media(max-width:620px){
+  .sod29-world-gematria-controls{grid-template-columns:1fr}
+  .sod29-world-contributor-buttons{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding-bottom:4px;
+    scrollbar-width:none;
+  }
+  .sod29-world-contributor-buttons::-webkit-scrollbar{display:none}
+  .sod29-world-contributor-buttons .sod29-action{flex:0 0 auto}
+
   .sod29-world-core-map{width:min(100%,300px)}
   .sod29-world-core-center{width:112px;height:112px}
   .sod29-world-core-center strong{font-size:15px}

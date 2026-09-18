@@ -13,6 +13,11 @@ import {
   worldRelationFacets,
 } from "../src/lib/research/world2029Presentation.js";
 import { numberAnchorToUniversalFinding } from "../src/lib/research/numberAnchorFinding.js";
+import {
+  WORLD_APPROVED_CONTRIBUTOR_SLUGS,
+  buildWorldContributorLens,
+  contributionTouchesWorldAnchor,
+} from "../src/lib/research/worldContributorLens.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -25,6 +30,7 @@ const prominenceHelper = read("src/lib/research/worldContextualProminence.js");
 const prominenceInputs = read("src/lib/research/worldProminenceInputs.js");
 const entityHubProjection = read("src/lib/research/entityHubProjection.js");
 const worldCss = read("src/pages/world2029-human.css");
+const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);
@@ -153,6 +159,57 @@ assert.match(world, /גישה ·/);
 assert.match(world, /ממשל ·/);
 assert.match(world, /אימות ·/);
 assert.equal(/canonicalize|publishFinding|setGovernance|updateAccess/.test(world), false, "World admin view must not become a truth/publication writer");
+
+// Admin contributor lens is a bounded projection over EXACTLY the four Human-Gate-approved identities.
+assert.deepEqual(WORLD_APPROVED_CONTRIBUTOR_SLUGS, ["tzvi-opoc", "shimon-haimov", "yaniv-levi", "shachar-kandro"]);
+assert.match(world, /fetchWorldContributorLens/);
+assert.match(world, /חוקר \/ כותב/);
+assert.match(world, /כרגע מאושרים ב־World רק צבי, שמעון חיימוב, יניב לוי ויצחק שחר קנדרו/);
+assert.equal(world.includes("עמית מייק רוב"), false, "no fifth contributor may leak into the approved World filter");
+assert.match(contributorLensSource, /admin_all_contributions/);
+assert.match(contributorLensSource, /convergences_for_author/);
+assert.equal(contributorLensSource.includes(".insert("), false);
+assert.equal(contributorLensSource.includes(".update("), false);
+assert.equal(contributorLensSource.includes(".upsert("), false);
+
+const contributorFixture = buildWorldContributorLens({
+  contributors: [
+    { id: "tzvi-id", slug: "tzvi-opoc", display_name: "צבי (OPOC)", wa_names: ["צבי"] },
+    { id: "shimon-id", slug: "shimon-haimov", display_name: "שמעון חיימוב", wa_names: [] },
+    { id: "yaniv-id", slug: "yaniv-levi", display_name: "יניב לוי", wa_names: [] },
+    { id: "shachar-id", slug: "shachar-kandro", display_name: "יצחק שחר קנדרו", wa_names: ["שחר יצחק קנדרו"] },
+    { id: "fifth-id", slug: "not-approved", display_name: "לא מאושר", wa_names: [] },
+  ],
+  contributions: [
+    { id: "c1", author_contributor_id: "tzvi-id", target_type: "number", target_id: "1020", convergence_slug: "tzvi-1020", gematria_claim: { value: 1020 } },
+    { id: "c2", author_contributor_id: "yaniv-id", target_type: "number", target_id: "1820", gematria_claim: { value: 1820 } },
+    { id: "c3", author_contributor_id: "fifth-id", target_type: "number", target_id: "1820", gematria_claim: { value: 1820 } },
+  ],
+  authorConvergences: [
+    { id: "v1", author: "יניב לוי", value: 1820, phrases: ["א"], author_phrases: ["ב"] },
+    { id: "v2", author: "לא מאושר", value: 1820, phrases: ["ג"] },
+  ],
+  researchRows: [
+    { id: "r1", contributor: "צבי (OPOC)", meta: { contributor_id: "tzvi-id" } },
+  ],
+  topicRows: [{ slug: "tzvi-1020" }],
+  anchor: { type: "number", label: "1820" },
+});
+assert.equal(contributorFixture.contributors.length, 4);
+assert.equal(contributorFixture.bySlug["yaniv-levi"].convergences.length, 1);
+assert.equal(contributorFixture.bySlug["yaniv-levi"].relevantContributions.length, 1);
+assert.equal(contributorFixture.bySlug["tzvi-opoc"].researchObjectIds.includes("r1"), true);
+assert.equal(contributorFixture.bySlug["not-approved"], undefined);
+assert.equal(contributionTouchesWorldAnchor({ target_type: "number", target_id: "1820" }, { type: "number", label: "1820" }), true);
+
+// Full Gematria visibility consumes Numeric Research's existing bounded/source-exhaustive contract.
+// World no longer hard-caps the rendered reverse lookup at 10 and owns no parallel order.
+assert.match(entityHubProjection, /lookupWindow: \{ limit: 500 \}/);
+assert.equal(world.includes("out.length >= 10"), false, "World must not hide canonical lookup rows behind the old 10-row display cap");
+assert.match(world, /כל רשימת הגימטריות של/);
+assert.match(world, /סינון גימטריה לפי שיטה/);
+assert.match(world, /סינון גימטריה לפי סוג/);
+assert.match(world, /מקור קנוני מלא לפי סדר fn_number_lookup/);
 
 // Admin graph visibility extends the canonical root-of-trust authorization only.
 assert.match(adminMigration, /CREATE POLICY nodes_admin_read/i);
