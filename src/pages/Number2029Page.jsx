@@ -144,7 +144,6 @@ function NumberPageBody() {
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
   const [activeExpression, setActiveExpression] = useState("");
-  const [query, setQuery] = useState("");
   const [showAllMethods, setShowAllMethods] = useState(false);
   const [showAllExpressions, setShowAllExpressions] = useState(false);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
@@ -164,7 +163,6 @@ function NumberPageBody() {
     const contextMethod = sameContextRoot ? clean(research.context?.selection?.method) : "";
     setSelectedMethodKey(contextMethod);
     setActiveExpression(contextExpression);
-    setQuery(contextExpression);
     setShowAllMethods(false);
     setShowAllExpressions(false);
     setTraceOpen(false);
@@ -224,8 +222,7 @@ function NumberPageBody() {
     const phrase = activeExpression || anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
     if (!selectedMethodKey) setSelectedMethodKey(methodKey(first));
     if (!activeExpression) setActiveExpression(phrase);
-    if (!query) setQuery(phrase);
-  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, query]);
+  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase]);
 
   useEffect(() => {
     const expr = clean(activeExpression);
@@ -531,23 +528,9 @@ function NumberPageBody() {
     navigate(`/2029/number/${next}`);
   };
 
-  const submitQuery = (event) => {
-    event?.preventDefault?.();
-    const raw = clean(query);
-    if (!raw) return;
-    if (/^\d+$/.test(raw)) {
-      navigate(`/2029/number/${Number(raw)}`);
-      return;
-    }
-    setActiveExpression(raw);
-    setTraceOpen(false);
-    setObservatoryFocus("expression");
-  };
-
   const chooseExpression = (item) => {
     if (!item?.phrase) return;
     setActiveExpression(item.phrase);
-    setQuery(item.phrase);
     if (item.methodKey) setSelectedMethodKey(item.methodKey);
     setTraceOpen(false);
     setObservatoryFocus("expression");
