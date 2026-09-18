@@ -25,7 +25,10 @@ import {
   fetchWorldContributorLens,
   fetchWorldLandingContributorProjection,
 } from "../lib/research/worldContributorLens.js";
-import { fetchWorldClassicJourneySeed } from "../lib/research/worldJourneyProjection.js";
+import {
+  fetchGoldenWorldJourney878,
+  GOLDEN_WORLD_JOURNEY_878,
+} from "../lib/research/worldJourneyProjection.js";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
@@ -417,7 +420,7 @@ function LiveWorldLanding({ research, shell, context }) {
       ),
       Promise.allSettled([
         fetchWorldLandingContributorProjection(),
-        fetchWorldClassicJourneySeed(),
+        fetchGoldenWorldJourney878(),
       ]),
     ]);
 
@@ -497,23 +500,25 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  const startJourney = (seed) => {
-    if (!seed?.value) return;
+  const startJourney = (journey) => {
+    const root = Number(journey?.rootValue);
+    if (!Number.isSafeInteger(root)) return;
     research.addJourney?.({
-      root: seed.value,
-      path: seed.steps?.map((step) => ({ phrase: step.phrase, world: step.world })) || [],
+      root,
+      path: [{ type: "number", value: root }],
       world: "world",
-      msg: "world-landing-classic",
+      msg: journey.id,
     });
     research.setResearchContext?.({
-      subject: { id: String(seed.value), type: "number", label: String(seed.value), href: "/world" },
-      selection: { entityId: String(seed.value), entityType: "number" },
+      subject: { id: String(root), type: "number", label: String(root), href: "/world" },
+      selection: { entityId: String(root), entityType: "number" },
       lens: "world",
-      journey: { id: seed.id, kind: seed.kind || "classic", position: 0 },
+      journey: { id: journey.id, kind: journey.kind || "golden", position: 0 },
       dimensions: {
         journeySource: "world-landing",
-        journeySeedPhrases: seed.steps?.map((step) => step.phrase) || [],
-        journeySeedWorlds: seed.steps?.map((step) => step.world).filter(Boolean) || [],
+        journeyRoot: root,
+        journeyVisitedValues: [root],
+        journeyMeetingSlugs: [],
       },
       returnTo: { href: "/world", label: "העולם" },
     });
@@ -521,19 +526,26 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const resumeJourney = (savedJourney) => {
     const root = Number(savedJourney?.root);
-    if (!Number.isSafeInteger(root)) return;
+    if (root !== GOLDEN_WORLD_JOURNEY_878.rootValue) return;
+    const pathValues = (Array.isArray(savedJourney.path) ? savedJourney.path : [])
+      .map((step) => Number(step?.value ?? step))
+      .filter(Number.isSafeInteger);
+    const visited = [...new Set([root, ...pathValues])];
+    const current = visited[visited.length - 1] || root;
     research.setResearchContext?.({
-      subject: { id: String(root), type: "number", label: String(root), href: "/world" },
-      selection: { entityId: String(root), entityType: "number" },
+      subject: { id: String(current), type: "number", label: String(current), href: "/world" },
+      selection: { entityId: String(current), entityType: "number" },
       lens: "world",
       journey: {
-        id: savedJourney.id || `saved:${root}`,
-        kind: "saved",
-        position: Array.isArray(savedJourney.path) ? savedJourney.path.length : 0,
+        id: GOLDEN_WORLD_JOURNEY_878.id,
+        kind: GOLDEN_WORLD_JOURNEY_878.kind,
+        position: Math.max(0, visited.length - 1),
       },
       dimensions: {
         journeySource: "saved-research",
-        journeyWorld: savedJourney.world || null,
+        journeyRoot: root,
+        journeyVisitedValues: visited,
+        journeyMeetingSlugs: [],
       },
       returnTo: { href: "/world", label: "העולם" },
     });
@@ -559,7 +571,9 @@ function LiveWorldLanding({ research, shell, context }) {
   const writerMeetings = selectedWriter ? selectedWriter.meetings || [] : landing.contributors?.meetings || [];
   const topicFacet = WORLD_FACETS.find((facet) => facet.key === "topic");
   const otherPopulatedSections = populatedSections.filter((facet) => facet.key !== "topic");
-  const lastJourney = Array.isArray(research.journeys) ? research.journeys[0] : null;
+  const lastJourney = Array.isArray(research.journeys)
+    ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
+    : null;
 
   const openLandingFacet = (facet) => {
     if (!facet?.key || typeof document === "undefined") return;
@@ -650,28 +664,28 @@ function LiveWorldLanding({ research, shell, context }) {
     {!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">לא רק למצוא — לנוע</div>
-          <h2>מסעות בעולם</h2>
-          <div className="sod29-muted">מסע הוא רצף פתיחה וחקירה מעל אותה מציאות מחקרית. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומאפשר להמשיך ממנה.</div>
+          <div className="sod29-kicker">המסע הראשון של 2029</div>
+          <h2>מסע 878</h2>
+          <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, מפגש, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
         </div>
-        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך מסע אחרון</button> : null}
+        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך את מסע 878</button> : null}
       </div>
-      {landing.journeyError ? <FrameState kind="unavailable" title="המסע המוצע לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או מפגש בלי להמציא מסלול חלופי.</FrameState> : null}
+      {landing.journeyError ? <FrameState kind="unavailable" title="מסע 878 לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או מפגש בלי להמציא מסלול חלופי.</FrameState> : null}
       {landing.journey ? <div className="sod29-world-journey-invitation">
-        <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.value}</div>
+        <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.rootValue}</div>
         <div className="sod29-world-journey-copy">
-          <span className="sod29-kicker">מסע חי</span>
+          <span className="sod29-kicker">Golden Journey · פתוח בבנייה</span>
           <h3>{landing.journey.title}</h3>
-          <p>שלושה כיוונים אמיתיים נפגשים כאן. אפשר להתחיל מהמספר ולראות לאן כל שביל מוביל.</p>
-          <div className="sod29-world-journey-steps">
-            {landing.journey.steps.slice(0, 5).map((step, index) => <div key={`${step.phrase}:${index}`}>
-              <span className="sod29-world-journey-dot" aria-hidden="true" />
-              <strong>{step.phrase}</strong>
-              {step.world ? <small>{step.world}</small> : null}
+          <p>{landing.journey.subtitle}</p>
+          <div className="sod29-world-journey-paths" aria-label="שבילים ממסע 878">
+            {landing.journey.paths.map((path) => <div className="sod29-world-journey-path-preview" key={path.id}>
+              <span>878</span><b aria-hidden="true">←</b><strong>{path.targetValue}</strong>
+              <small>{path.meetingTitle}</small>
             </div>)}
           </div>
+          <div className="sod29-muted sod29-world-journey-truth-note">{landing.journey.truthNote}</div>
         </div>
-        <button className="sod29-action primary" type="button" onClick={() => startJourney(landing.journey)}>צא למסע ב־{landing.journey.value}</button>
+        <button className="sod29-action primary" type="button" onClick={() => startJourney(landing.journey)}>פתח 878 והתחל מסע</button>
       </div> : null}
     </section> : null}
 
