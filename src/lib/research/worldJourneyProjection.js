@@ -11,36 +11,21 @@ const safeInt = (value) => {
   return Number.isSafeInteger(n) ? n : null;
 };
 
-function safePublicJourneyMap(raw) {
-  const map = raw?.map;
-  if (!map || typeof map !== "object" || Array.isArray(map)) return null;
-  return Object.freeze({
-    root: safeInt(map.root),
-    primaryValue: safeInt(map.primary_value),
-    familyValues: Object.freeze((Array.isArray(map.family_values) ? map.family_values : []).map(safeInt).filter((v) => v != null)),
-    hebrewTerms: Object.freeze((Array.isArray(map.hebrew_terms) ? map.hebrew_terms : []).map(clean).filter(Boolean)),
-    methods: Object.freeze((Array.isArray(map.methods) ? map.methods : []).map(clean).filter(Boolean)),
-    evidenceCount: Number.isFinite(Number(map.evidence_count)) ? Number(map.evidence_count) : null,
-  });
-}
-
 function firstTargetValue(row, rootValue) {
   const highlighted = Array.isArray(row?.highlight_numbers) ? row.highlight_numbers : [];
   const numbers = Array.isArray(row?.numbers) ? row.numbers : [];
-  const candidate = [...highlighted, ...numbers]
+  return [...highlighted, ...numbers]
     .map(safeInt)
-    .find((value) => value != null && value !== rootValue);
-  return candidate ?? null;
+    .find((value) => value != null && value !== rootValue) ?? null;
 }
 
-export function projectGoldenJourney878({
-  topicRows = [],
-  numberJourney = null,
-} = {}) {
+export function projectGoldenJourney878({ topicRows = [] } = {}) {
   const rootValue = GOLDEN_WORLD_JOURNEY_878.rootValue;
   const seenTargets = new Set();
   const paths = [];
 
+  // topicRows arrive in the canonical public Topic list order (meter_score DESC → approved_at
+  // DESC → id ASC). World preserves that order; it does not compute a Journey score.
   for (const row of Array.isArray(topicRows) ? topicRows : []) {
     const targetValue = firstTargetValue(row, rootValue);
     const slug = clean(row?.slug);
@@ -52,8 +37,6 @@ export function projectGoldenJourney878({
       meetingTitle: clean(row?.title) || `מפגש ${targetValue}`,
       meetingSubtitle: clean(row?.subtitle) || null,
       targetValue,
-      meterScore: Number.isFinite(Number(row?.meter_score)) ? Number(row.meter_score) : null,
-      quality: Number.isFinite(Number(row?.quality)) ? Number(row.quality) : null,
       source: "topic_cards_public",
     }));
     if (paths.length >= 5) break;
@@ -64,35 +47,25 @@ export function projectGoldenJourney878({
     title: "מסע 878",
     subtitle: "878 הוא העוגן. מכאן נפתחים מפגשים שכבר מקשרים אותו למספרים אחרים.",
     paths: Object.freeze(paths),
-    map: safePublicJourneyMap(numberJourney),
     source: Object.freeze({
       meetings: "topic_cards_public:number=878",
-      numericMap: "fn_number_journey:public-safe-projection",
     }),
     truthNote: "המסע מציג נתיבים קיימים; הוא אינו קובע שהמסלול הוא אמת או מסקנה.",
   });
 }
 
 export async function fetchGoldenWorldJourney878() {
-  const [{ supabase }, { fetchTopicCardList }] = await Promise.all([
-    import("../supabase.js"),
-    import("./topicConvergence.js"),
-  ]);
-  const [topics, journey] = await Promise.all([
-    fetchTopicCardList({
-      number: GOLDEN_WORLD_JOURNEY_878.rootValue,
-      limit: 12,
-      offset: 0,
-      rankByMeterScore: true,
-    }),
-    supabase.rpc("fn_number_journey", { p_value: GOLDEN_WORLD_JOURNEY_878.rootValue }),
-  ]);
-  if (journey.error) throw journey.error;
-
-  return projectGoldenJourney878({
-    topicRows: topics?.rows || [],
-    // Even an admin caller may receive internal root/branch/seed fields from this RPC.
-    // projectGoldenJourney878 reads ONLY the safe derived map and discards everything else.
-    numberJourney: journey.data || null,
+  // Dynamic import keeps the pure journey projector independent from browser/Supabase transport
+  // in acceptance tests. The only public source used here is topic_cards_public via its canonical
+  // Topic reader. We intentionally do NOT call fn_number_journey: its internal projection remains
+  // a separate Number/Journey concern until that owner explicitly publishes it for this surface.
+  const { fetchTopicCardList } = await import("./topicConvergence.js");
+  const topics = await fetchTopicCardList({
+    number: GOLDEN_WORLD_JOURNEY_878.rootValue,
+    limit: 12,
+    offset: 0,
+    rankByMeterScore: true,
   });
+
+  return projectGoldenJourney878({ topicRows: topics?.rows || [] });
 }
