@@ -1,7 +1,9 @@
-name: Runtime Lockfile Generate
+name: Runtime Lockfile Commit
 
 on:
-  pull_request:
+  push:
+    branches:
+      - claude/g3-2029-runtime-modernization-v1
     paths:
       - package.json
       - package-lock.json
@@ -9,13 +11,15 @@ on:
       - .github/workflows/runtime-lockfile-generate.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   lockfile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: claude/g3-2029-runtime-modernization-v1
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -24,14 +28,13 @@ jobs:
         run: |
           rm -rf node_modules package-lock.json
           npm install --package-lock-only --ignore-scripts
-      - name: Verify deterministic install
-        run: npm ci --ignore-scripts
-      - name: Verify target runtime
-        run: |
-          node -e "const p=require('./package.json'); console.log({node:process.version,react:p.dependencies.react,reactDom:p.dependencies['react-dom'],vite:p.devDependencies.vite,router:p.dependencies['react-router-dom']})"
+          npm ci --ignore-scripts
           npm ls react react-dom vite @vitejs/plugin-react react-router-dom
-      - uses: actions/upload-artifact@v4
-        with:
-          name: runtime-lockfile
-          path: package-lock.json
-          if-no-files-found: error
+      - name: Commit generated lockfile and remove bootstrap workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm .github/workflows/runtime-lockfile-generate.yml
+          git add package-lock.json .github/workflows/runtime-lockfile-generate.yml
+          git commit -m "G3 runtime: regenerate React 19.3 lockfile"
+          git push origin HEAD:claude/g3-2029-runtime-modernization-v1
