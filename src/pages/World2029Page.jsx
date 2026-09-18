@@ -868,11 +868,20 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const goldenJourney = journeyState.data;
   const journeyIsActive = context?.journey?.id === GOLDEN_WORLD_JOURNEY_878.id;
   const currentJourneyValue = subject.type === "number" && Number.isSafeInteger(Number(subject.id)) ? Number(subject.id) : null;
+  const savedGoldenJourney = useMemo(() => (
+    Array.isArray(research.journeys)
+      ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
+      : null
+  ), [research.journeys]);
   const journeyVisitedValues = useMemo(() => {
-    const raw = Array.isArray(context?.dimensions?.journeyVisitedValues) ? context.dimensions.journeyVisitedValues : [];
-    const values = raw.map(Number).filter(Number.isSafeInteger);
+    const contextRaw = Array.isArray(context?.dimensions?.journeyVisitedValues) ? context.dimensions.journeyVisitedValues : [];
+    const contextValues = contextRaw.map(Number).filter(Number.isSafeInteger);
+    const savedValues = (Array.isArray(savedGoldenJourney?.path) ? savedGoldenJourney.path : [])
+      .map((step) => Number(step?.value ?? step))
+      .filter(Number.isSafeInteger);
+    const values = savedValues.length > contextValues.length ? savedValues : contextValues;
     return [...new Set(values.length ? values : (journeyIsActive ? [GOLDEN_WORLD_JOURNEY_878.rootValue] : []))];
-  }, [context?.dimensions?.journeyVisitedValues, journeyIsActive]);
+  }, [context?.dimensions?.journeyVisitedValues, journeyIsActive, savedGoldenJourney]);
   const journeyMeetingSlugs = useMemo(() => {
     const raw = Array.isArray(context?.dimensions?.journeyMeetingSlugs) ? context.dimensions.journeyMeetingSlugs : [];
     return [...new Set(raw.map((value) => String(value || "").trim()).filter(Boolean))];
