@@ -21,6 +21,7 @@ import {
   worldRelationFacets,
 } from "../lib/research/world2029Presentation.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
+import { fetchWorldContributorLens } from "../lib/research/worldContributorLens.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -239,15 +240,18 @@ function worldGematriaRows(data) {
     const key = `${method}:${phrase}:${value}`;
     if (seen.has(key)) continue;
     seen.add(key);
+    const lookup = finding?.projection?.dimensions?.numberLookup || {};
     out.push({
       id: finding.id || key,
       phrase,
       method,
       value,
       verificationState: finding?.verification?.verification_state || null,
-      methodGoverned: finding?.projection?.dimensions?.numberLookup?.methodGoverned ?? null,
+      methodGoverned: lookup.methodGoverned ?? null,
+      atomicOrComposite: lookup.atomicOrComposite || null,
+      mathematicalFamily: lookup.mathematicalFamily || null,
+      methodEvidenceClass: lookup.methodEvidenceClass || null,
     });
-    if (out.length >= 10) break;
   }
   if (out.length) return out;
 
@@ -261,10 +265,31 @@ function worldGematriaRows(data) {
       value: result.engineValue,
       verificationState: result.verificationState || null,
       methodGoverned: result.governed ?? null,
+      atomicOrComposite: null,
+      mathematicalFamily: null,
+      methodEvidenceClass: null,
     });
-    if (out.length >= 10) break;
   }
   return out;
+}
+
+function researchObjectIdFromFinding(finding) {
+  return String(finding?.identity?.sourceIdentity?.researchObjectId || "");
+}
+
+function topicSlugFromFinding(finding) {
+  return String(finding?.projection?.dimensions?.graph?.slug || "");
+}
+
+function contributionDisplay(row) {
+  const claim = row?.gematria_claim || {};
+  return {
+    title: String(row?.title || claim.claim || row?.body || "תרומת מחקר").trim(),
+    method: String(claim.method || "").trim() || null,
+    value: Number.isFinite(Number(claim.value)) ? Number(claim.value) : null,
+    status: row?.status || null,
+    convergenceSlug: row?.convergence_slug || null,
+  };
 }
 
 function researchAddedDate(value) {
@@ -492,6 +517,11 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [whyOpen, setWhyOpen] = useState(null);
   const [adminMode, setAdminMode] = useState(false);
   const [activeLane, setActiveLane] = useState("overview");
+  const [contributorFilter, setContributorFilter] = useState("all");
+  const [contributorLensState, setContributorLensState] = useState({ loading: false, data: null, error: null });
+  const [gematriaMethodFilter, setGematriaMethodFilter] = useState("all");
+  const [gematriaTypeFilter, setGematriaTypeFilter] = useState("all");
+  const [gematriaQuery, setGematriaQuery] = useState("");
   const key = subjectKey(subject);
 
   useEffect(() => {
@@ -502,7 +532,12 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setRelationSort("recommended");
     setWhyOpen(null);
     setActiveLane("overview");
-    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 40, topicLimit: 10 })
+    setContributorFilter("all");
+    setContributorLensState({ loading: false, data: null, error: null });
+    setGematriaMethodFilter("all");
+    setGematriaTypeFilter("all");
+    setGematriaQuery("");
+    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40 })
       .then(async (data) => {
         if (!alive) return;
         let prominenceInputs = null;
@@ -519,10 +554,30 @@ function AnchoredWorld({ research, shell, subject, context }) {
   }, [key, subject.id, subject.type]);
 
   useEffect(() => {
-    if (!isAdmin) setAdminMode(false);
+    if (!isAdmin) {
+      setAdminMode(false);
+      setContributorFilter("all");
+    }
   }, [isAdmin]);
 
   const data = state.data;
+
+  useEffect(() => {
+    if (!adminMode || !isAdmin || !data?.identity) return undefined;
+    let alive = true;
+    setContributorLensState({ loading: true, data: null, error: null });
+    fetchWorldContributorLens({
+      anchorType: data.identity.type,
+      anchorLabel: data.identity.label,
+      researchRows: data.research?.rows || [],
+      topicRows: data.topics?.rows || [],
+    }).then((lens) => {
+      if (alive) setContributorLensState({ loading: false, data: lens, error: null });
+    }).catch((error) => {
+      if (alive) setContributorLensState({ loading: false, data: null, error });
+    });
+    return () => { alive = false; };
+  }, [adminMode, isAdmin, data?.identity?.nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
   const density = useMemo(() => classifyWorldPresentationDensity(data), [data]);
   const currentNodeId = data?.identity?.nodeId || null;
   const graphRelations = data?.graph?.relations || [];
@@ -533,28 +588,62 @@ function AnchoredWorld({ research, shell, subject, context }) {
   ), [graphRelations, currentNodeId, relationFilter, relationSort]);
 
   const researchFindings = data?.research?.findings || [];
+  const contributorLens = contributorLensState.data;
+  const selectedContributor = contributorFilter === "all" ? null : contributorLens?.bySlug?.[contributorFilter] || null;
+  const selectedResearchIds = useMemo(() => new Set(selectedContributor?.researchObjectIds || []), [selectedContributor]);
+  const visibleResearchFindings = useMemo(() => selectedContributor
+    ? researchFindings.filter((finding) => selectedResearchIds.has(researchObjectIdFromFinding(finding)))
+    : researchFindings,
+  [researchFindings, selectedContributor, selectedResearchIds]);
+  const topicFindings = data?.topics?.findings || [];
+  const selectedTopicSlugs = useMemo(() => new Set(selectedContributor?.topicSlugs || []), [selectedContributor]);
+  const visibleTopicFindings = useMemo(() => selectedContributor
+    ? topicFindings.filter((finding) => selectedTopicSlugs.has(topicSlugFromFinding(finding)))
+    : topicFindings,
+  [topicFindings, selectedContributor, selectedTopicSlugs]);
+  const contributorConvergences = useMemo(() => {
+    if (!contributorLens) return [];
+    if (selectedContributor) return selectedContributor.convergences || [];
+    return contributorLens.contributors.flatMap((row) => contributorLens.bySlug?.[row.slug]?.convergences || []);
+  }, [contributorLens, selectedContributor]);
+  const contributorContributions = useMemo(() => {
+    if (!contributorLens) return [];
+    if (selectedContributor) return selectedContributor.relevantContributions || [];
+    return contributorLens.contributors.flatMap((row) => (contributorLens.bySlug?.[row.slug]?.relevantContributions || []).map((item) => ({ ...item, _contributorSlug: row.slug, _contributorName: row.displayName })));
+  }, [contributorLens, selectedContributor]);
   const prominence = useMemo(() => data
     ? buildWorldContextualProminence(data, state.prominenceInputs || {}, { limit: 7, timeAware: data.identity?.type === "event" })
     : null, [data, state.prominenceInputs]);
   const prominenceItems = prominence?.items || [];
   const gematriaRows = useMemo(() => worldGematriaRows(data), [data]);
+  const gematriaMethods = useMemo(() => [...new Set(gematriaRows.map((row) => row.method).filter(Boolean))], [gematriaRows]);
+  const visibleGematriaRows = useMemo(() => {
+    const q = gematriaQuery.trim().toLocaleLowerCase("he");
+    return gematriaRows.filter((row) => {
+      if (gematriaMethodFilter !== "all" && row.method !== gematriaMethodFilter) return false;
+      if (gematriaTypeFilter !== "all" && row.atomicOrComposite !== gematriaTypeFilter) return false;
+      if (q && !`${row.phrase} ${row.method} ${row.value}`.toLocaleLowerCase("he").includes(q)) return false;
+      return true;
+    });
+  }, [gematriaRows, gematriaMethodFilter, gematriaTypeFilter, gematriaQuery]);
+  const gematriaBounds = data?.lenses?.numberResearch?.bounds?.number_lookup || null;
   const sourceRows = data?.sources || [];
   const mediaItems = data?.media?.items || [];
   const anchorProfile = data?.anchorProfile?.finding?.projection?.dimensions?.legacyNumberAnchor || null;
   const laneCounts = {
     overview: prominenceItems.length,
     media: mediaItems.length,
-    calculations: gematriaRows.length,
+    calculations: visibleGematriaRows.length,
     sources: sourceRows.length,
     relations: graphRelations.length,
-    research: researchFindings.length + (data?.topics?.findings?.length || 0) + (data?.numberWorlds?.length || 0),
+    research: visibleResearchFindings.length + visibleTopicFindings.length + contributorConvergences.length + contributorContributions.length + (data?.numberWorlds?.length || 0),
     timeline: data?.timeline?.length || 0,
   };
   const adminSummary = useMemo(() => {
     const byAccess = {};
     const byGovernance = {};
     const byVerification = {};
-    researchFindings.forEach((finding) => {
+    visibleResearchFindings.forEach((finding) => {
       const access = finding?.access?.tier || "לא צוין";
       const governance = finding?.status || "לא צוין";
       const verification = finding?.verification?.verification_state || "לא צוין";
@@ -563,7 +652,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       byVerification[verification] = (byVerification[verification] || 0) + 1;
     });
     return { byAccess, byGovernance, byVerification };
-  }, [researchFindings]);
+  }, [visibleResearchFindings]);
 
   const backToWorld = () => {
     research.clearResearchContext?.();
