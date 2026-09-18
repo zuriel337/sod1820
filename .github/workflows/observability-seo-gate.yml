@@ -60,5 +60,10 @@ jobs:
             src/lib/research/researchW2GematriaMultiAnchorControls.test.js \
             test/research-object-universal-finding.test.mjs
 
+      - name: Canonical presentation regressions
+        run: |
+          node scripts/test_gematria_methods.mjs
+          node scripts/test_canonical_presentation.mjs
+
       - name: Build
         run: npm run build
