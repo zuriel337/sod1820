@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
-const mig = read("supabase/migrations/20260918220500_admin_system_health_media_v2.sql");
+const mig = read("supabase/migrations/20260918220630_admin_system_health_media_v2.sql");
 
 // ── 1. Same function, same auth gate — EXTEND_EXISTING, not a parallel projection. ─────────────
 assert.match(mig, /create or replace function public\.admin_system_health\(\)/i);
