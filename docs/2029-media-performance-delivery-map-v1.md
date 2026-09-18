@@ -516,11 +516,18 @@ Every processor needs:
 
 # 11. 2029 Control Plane — Media / Sources health lens
 
-The second Claude session already built branch-only `admin_system_health()`.
+The second Claude session has now been reconciled and released through **PR #530**.
 
-Before release, reconcile its media slice with this map and the canonical public gate.
+Live canonical Supabase already exposes `public.admin_system_health()`, and live `fn_health_watch()` now terminates alerts through `public.notify_admin()` rather than a hardcoded direct WhatsApp sender.
 
-Required media health projection:
+The released media slice correctly uses the current World-public Gallery gate:
+
+- `gallery_images.published = 1`;
+- `curator_hidden = false/null`.
+
+Its current media projection is only the **foundation**. It already exposes migration-queue aggregates and a bounded Gallery missing/original-thumbnail defect count, but the Media/Performance map requires expanding this same projection later rather than creating another health system.
+
+Required next media health projection:
 
 ### Inventory
 
@@ -559,18 +566,18 @@ Reuse `admin_retention_preview()`.
 
 No Media Cleanup Store.
 
-### Important reconciliation with Claude branch
+### Released Control Plane baseline
 
-Claude's branch-only Control Plane migration currently comments/assumes a public Gallery set that may include `published IN (1,2)`.
+Current live `admin_system_health().media` already provides:
 
-Current released World 2029 projection explicitly uses **published=1**.
+- media migration queue status counts;
+- migration queue bytes/object count;
+- PostgreSQL large-object count;
+- Gallery rows where the public `published=1` / not-hidden representation is missing a distinct thumbnail.
 
-Before Control Plane migration can be released, its Gallery-public health count must either:
+Next extension must **reuse this same RPC/projection** and split/expand metrics where decision-useful (for example separate missing-thumb from original-as-thumb, video poster coverage, total object/video bytes and derivative backlog).
 
-- use the current owning World/publication contract (`published=1` + not hidden), or
-- resolve a stronger live publication owner proving another value.
-
-Do not ship the assumption.
+Do not create `admin_media_health_2`, a Media Health Store or another operational ledger.
 
 ---
 
