@@ -22,6 +22,7 @@ on:
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-world-surface.mjs"
+      - "scripts/test-2029-researcher-corpus.mjs"
       - "tests/world2029-release.spec.cjs"
       - ".github/workflows/2029-isolation-gate.yml"
   workflow_dispatch:
@@ -47,6 +48,8 @@ jobs:
         run: node scripts/test-2029-system-frame.mjs
       - name: Native World surface acceptance
         run: node scripts/test-2029-world-surface.mjs
+      - name: Native Researcher corpus acceptance
+        run: node scripts/test-2029-researcher-corpus.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation
