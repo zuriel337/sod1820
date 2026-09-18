@@ -1,0 +1,37 @@
+name: Runtime Lockfile Generate
+
+on:
+  pull_request:
+    paths:
+      - package.json
+      - package-lock.json
+      - .nvmrc
+      - .github/workflows/runtime-lockfile-generate.yml
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Generate clean lockfile
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install --package-lock-only --ignore-scripts
+      - name: Verify deterministic install
+        run: npm ci --ignore-scripts
+      - name: Verify target runtime
+        run: |
+          node -e "const p=require('./package.json'); console.log({node:process.version,react:p.dependencies.react,reactDom:p.dependencies['react-dom'],vite:p.devDependencies.vite,router:p.dependencies['react-router-dom']})"
+          npm ls react react-dom vite @vitejs/plugin-react react-router-dom
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-lockfile
+          path: package-lock.json
+          if-no-files-found: error
