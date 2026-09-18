@@ -133,10 +133,11 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(sharedCore.getByText('כיסוי שכבות', { exact: true })).toBeVisible();
   await expect(sharedCore.getByText('ספקטרום השכבות', { exact: true })).toBeVisible();
   await expect.poll(
-    () => sharedCore.locator('.sod29-number-core2029-methods button').count(),
+    () => sharedCore.locator('.sod29-number-v7-method-main').count(),
     { timeout: 10_000 },
   ).toBeGreaterThan(3);
-  const firstCoreMethod = sharedCore.locator('.sod29-number-core2029-methods button').first();
+  expect(await sharedCore.locator('.sod29-number-v7-method-main').count()).toBeLessThanOrEqual(8);
+  const firstCoreMethod = sharedCore.locator('.sod29-number-v7-method-main').first();
   await firstCoreMethod.click();
   const methodInspector = sharedCore.locator('.sod29-number-method-inspector');
   await expect(methodInspector).toBeVisible();
@@ -180,7 +181,7 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   await expect(drawer).toContainText('12370');
   await expect(drawer).toContainText('RAZIEL MICRO');
 
-  const miluy = drawer.locator('.sod29-number-core2029-methods button').filter({ hasText: 'מילוי' }).first();
+  const miluy = drawer.locator('.sod29-number-v7-method-main').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible();
   await miluy.click();
   await expect(miluy).toHaveClass(/is-active/);
@@ -230,7 +231,7 @@ test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual 
     await expect(drawer).toBeVisible({ timeout: 30_000 });
     await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText(String(root));
     await expect.poll(
-      () => drawer.locator('.sod29-number-core2029-methods button').count(),
+      () => drawer.locator('.sod29-number-v7-method-main').count(),
       { timeout: 15_000 },
     ).toBeGreaterThan(3);
     await assertNoHorizontalOverflow(page);
