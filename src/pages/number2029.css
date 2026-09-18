@@ -936,3 +936,22 @@
   .sod29-number-method-card{transition:none}
   .sod29-number-section{scroll-behavior:auto}
 }
+
+
+/* V6 dashboard shell */
+.sod29-number-hero{
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  padding:0;
+  background:transparent;
+  box-shadow:none;
+}
+.sod29-number-observatory{
+  margin-top:18px;
+  border:1px solid var(--s29-line);
+  border-radius:22px;
+  padding:10px;
+  background:color-mix(in srgb,var(--s29-panel) 92%,transparent);
+}
+.sod29-number-jumpbar{margin-top:10px}
