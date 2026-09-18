@@ -113,9 +113,14 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
   await expect(numberPage).toHaveAttribute('data-number-root', '1237');
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');
-  await expect(numberPage.locator('.sod29-number-core')).toBeVisible();
-  await expect(numberPage.getByRole('heading', { name: 'שיטות ליבה' })).toBeVisible();
-  expect(await numberPage.locator('.sod29-number-method').count()).toBeGreaterThan(0);
+  const observatory = numberPage.locator('.sod29-number-observatory');
+  await expect(observatory).toBeVisible();
+  expect(await observatory.locator('.sod29-number-observatory-node:not(.is-empty)').count()).toBeGreaterThanOrEqual(2);
+  await expect(numberPage.getByRole('heading', { name: /למה 1237 מעניין עכשיו/ })).toBeVisible();
+  await expect(numberPage.getByRole('heading', { name: /הדרכון המתמטי של 1237/ })).toBeVisible();
+  await expect(numberPage.getByRole('heading', { name: /שיטות שחיות על 1237/ })).toBeVisible();
+  expect(await numberPage.locator('.sod29-number-method-card').count()).toBeGreaterThan(0);
+  expect(await numberPage.locator('.sod29-number-live-expressions button').count()).toBeGreaterThan(0);
   await expect(numberPage.getByRole('button', { name: 'פתח בעולם' }).first()).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
 
@@ -158,7 +163,7 @@ test('Golden Journey 878 starts in World and keeps its rail across a path transi
   await firstPath.click();
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText(String(target), { timeout: 30_000 });
   await expect(page.locator('.sod29-world-journey-rail')).toBeVisible();
-  expect(await page.locator('.sod29-world-journey-track-stop').count()).toBeGreaterThanOrEqual(2);
+  await expect(page.locator('.sod29-world-journey-track-stop')).toHaveCount(2, { timeout: 10_000 });
   await expect(page.locator('.sod29-world-journey-track-stop.is-current strong')).toHaveText(String(target));
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-golden-journey-878-390.png', fullPage: true });
