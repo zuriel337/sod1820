@@ -602,6 +602,8 @@ function NumberPageBody() {
         onOpenZero={openNumberRoot}
         onOpenResult={openNumberRoot}
         onOpenWorld={() => openWorld()}
+        onOpenJourney={root === 878 ? () => openWorld({ journey: true }) : null}
+        journeyLabel={root === 878 ? "צא למסע 878" : null}
         onRazielAction={askRaziel}
         onExpandRaziel={() => askRaziel("expand_panel")}
       />
