@@ -624,6 +624,52 @@ function NumberPageBody() {
     shell.openRaziel({ razielMicroIntent: intent, numberCoreFocus });
   };
 
+  const resolveNumberQuery = async (rawValue) => {
+    const raw = clean(rawValue);
+    if (!raw) return;
+    if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
+      navigate(`/2029/number/${Number(raw)}`);
+      return;
+    }
+    try {
+      const rows = await fetchNumberMethodProfile(raw);
+      const regular = rows.find((row) => {
+        const label = clean(row?.displayLabel || row?.methodKey).replace(/[\s"'״׳’‘\-_/]/g, "");
+        return label === "רגיל" || clean(row?.methodKey) === "רגיל";
+      }) || rows[0] || null;
+      const next = Number(regular?.computedValue);
+      if (!Number.isSafeInteger(next)) {
+        setActiveExpression(raw);
+        if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
+        return;
+      }
+      research.setResearchContext?.({
+        subject: { id: String(next), type: "number", label: String(next), href: `/2029/number/${next}` },
+        selection: {
+          entityId: String(next),
+          entityType: "number",
+          expression: raw,
+          method: regular?.methodKey || null,
+          resultValue: next,
+        },
+        lens: "number",
+        locale: research.context?.locale || "he",
+        returnTo: Number.isSafeInteger(root) ? {
+          href: `/2029/number/${root}`,
+          label: `דף ${root}`,
+          subject: research.context?.subject || null,
+          selection: research.context?.selection || null,
+          lens: research.context?.lens || "number",
+          dimensions: research.context?.dimensions || {},
+          journey: research.context?.journey || null,
+        } : null,
+      });
+      navigate(`/2029/number/${next}`);
+    } catch {
+      setActiveExpression(raw);
+    }
+  };
+
   const openNumberRoot = (nextValue) => {
     const next = Number(nextValue);
     if (!Number.isSafeInteger(next)) return;
@@ -724,6 +770,7 @@ function NumberPageBody() {
         stageProjection={stageProjection}
         stageLoading={methodResultState.loading}
         languageBridges={languageBridgeState.rows}
+        onResolveQuery={resolveNumberQuery}
         onMethodSelect={(key) => { setSelectedMethodKey(key); setTraceOpen(false); }}
         onToggleTrace={() => setTraceOpen((value) => !value)}
         onOpenCrossing={(crossing) => askRaziel("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
