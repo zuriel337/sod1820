@@ -24,12 +24,23 @@ function methodLabel(group) {
   return clean(group?.registry?.display_label || group?.display_label || group?.method || group?.method_key) || "שיטה";
 }
 
+function technicalSourceText(value) {
+  const text = clean(value);
+  return /^(chat:|channel_updates:|wa_bot_log:|work_log:|gallery_images:|research-cue:|book:|https?:\/\/)/i.test(text);
+}
+
 function sourceLabel(row) {
-  return clean(row?.label || row?.display_name || row?.title || row?.name || row?.source_label) || "מקור";
+  const label = clean(row?.label || row?.display_name || row?.title || row?.name || row?.source_label);
+  if (label && !technicalSourceText(label)) return label;
+  const type = clean(row?.type || row?.kind);
+  if (type === "verse") return "מקור מקראי";
+  if (type.includes("book")) return "ספר / מקור";
+  return "מקור מחקר";
 }
 
 function sourceDetail(row) {
-  return clean(row?.locator || row?.citation || row?.reference || row?.subtitle || row?.kind || row?.type);
+  const detail = clean(row?.locator || row?.citation || row?.reference || row?.subtitle);
+  return detail && !technicalSourceText(detail) ? detail : "";
 }
 
 function traceStepLabel(step) {
