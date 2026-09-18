@@ -29,7 +29,17 @@ function methodKey(group) {
 }
 
 function methodLabel(group) {
+  const key = clean(group?.registry?.method_key || group?.method_key || group?.method);
+  if (key === "קדמי") return "משולש";
+  if (key === "משולש גדול") return "משולש גדול";
   return clean(group?.registry?.display_label || group?.display_label || group?.method || group?.method_key) || "שיטה";
+}
+
+function methodProfileLabel(profile) {
+  const key = clean(profile?.methodKey);
+  if (key === "קדמי") return "משולש";
+  if (key === "משולש גדול") return "משולש גדול";
+  return clean(profile?.displayLabel || profile?.methodKey) || "שיטה";
 }
 
 function normalizedMethodName(value) {
@@ -529,7 +539,7 @@ function NumberPageBody() {
     heroMedia: stageMedia[0] || null,
   }), [stageRoot, activeExpression, selectedMethodKey, methodProfileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
-  const activeMethodLabel = selectedMethodProfile?.displayLabel || methodLabel(selectedGroup);
+  const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
 
   useEffect(() => {
     if (!Number.isInteger(root)) return;
@@ -949,7 +959,7 @@ function NumberPageBody() {
               setObservatoryFocus("now");
             }}
           >
-            <span>{profile.displayLabel}</span>
+            <span>{methodProfileLabel(profile)}</span>
             <strong>→ {profile.computedValue ?? "—"}</strong>
             <small>{Number(family?.count ?? family?.phrases?.length ?? 0)} ביטויים על {root}</small>
             {sample ? <p>{sample}</p> : null}
