@@ -41,7 +41,7 @@ export async function fetchNumberMethodProfile(expression) {
   if (!keys.length) return rows;
   const { data: registry, error: registryError } = await supabase
     .from("gematria_methods")
-    .select("method_key,display_label,category,sub,soul,sort_order,mathematical_family,atomic_or_composite,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
+    .select("method_key,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
     .in("method_key", keys);
   if (registryError) throw registryError;
   const deps = new Map((registry || []).map((row) => [clean(row?.method_key), row]));
@@ -52,7 +52,7 @@ export async function fetchNumberMethodProfile(expression) {
       displayLabel: clean(registryRow.display_label || row.displayLabel) || row.methodKey,
       category: clean(registryRow.category || row.category) || null,
       mathematicalFamily: clean(registryRow.mathematical_family || row.mathematicalFamily) || null,
-      atomicOrComposite: clean(registryRow.atomic_or_composite || row.atomicOrComposite) || null,
+      atomicOrComposite: clean(row.atomicOrComposite) || null,
       sortOrder: Number.isFinite(Number(registryRow.sort_order)) ? Number(registryRow.sort_order) : null,
       sub: clean(registryRow.sub) || null,
       soul: clean(registryRow.soul) || null,
