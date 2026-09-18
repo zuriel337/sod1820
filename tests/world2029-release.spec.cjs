@@ -115,23 +115,20 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');
   const sharedCore = numberPage.locator('.sod29-number-core2029');
   await expect(sharedCore).toBeVisible();
-  const upperSignals = sharedCore.locator('.sod29-number-core2029-upper-grid');
-  const methodRail = sharedCore.locator('.sod29-number-core2029-method-section');
-  await expect(upperSignals).toBeVisible();
-  await expect(methodRail).toBeVisible();
-  expect(await methodRail.evaluate((node) => Boolean(node.compareDocumentPosition(
-    node.parentElement.querySelector('.sod29-number-core2029-upper-grid'),
-  ) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
-  await expect(sharedCore.locator('.sod29-number-v7-world-hub')).toBeVisible();
-  await expect(sharedCore.locator('.sod29-number-v7-world-center')).toContainText('1237');
+  const switcher = sharedCore.locator('.sod29-number-v9-switcher');
+  await expect(switcher).toBeVisible();
+  for (const label of ['התכנסות', 'שיטות', 'עולמות', 'DNA', 'חישוב', 'עומק']) {
+    await expect(switcher.getByRole('tab', { name: new RegExp(label) })).toBeVisible();
+  }
+
   await expect(sharedCore.locator('.sod29-number-core2029-crossing:not(.is-empty)')).toBeVisible({ timeout: 30_000 });
-  await expect(sharedCore).toContainText('הצלבה');
   await expect(sharedCore).toContainText('סולם האפס');
   await expect(sharedCore).toContainText('12370');
-  await expect(sharedCore).toContainText('RAZIEL MICRO');
-  await expect(sharedCore.getByText('DNA המספר', { exact: true })).toBeVisible();
-  await expect(sharedCore.getByText('כיסוי שכבות', { exact: true })).toBeVisible();
-  await expect(sharedCore.getByText('ספקטרום השכבות', { exact: true })).toBeVisible();
+  await expect(sharedCore.locator('[data-number-view="convergence"]')).toBeVisible();
+
+  await switcher.getByRole('tab', { name: /שיטות/ }).click();
+  const methodRail = sharedCore.locator('.sod29-number-core2029-method-section');
+  await expect(methodRail).toBeVisible();
   await expect.poll(
     () => sharedCore.locator('.sod29-number-v7-method-main').count(),
     { timeout: 10_000 },
@@ -139,6 +136,7 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   expect(await sharedCore.locator('.sod29-number-v7-method-main').count()).toBeLessThanOrEqual(8);
   const firstCoreMethod = sharedCore.locator('.sod29-number-v7-method-main').first();
   await firstCoreMethod.click();
+  await expect(sharedCore.locator('[data-number-view="calculation"]')).toBeVisible();
   const methodInspector = sharedCore.locator('.sod29-number-method-inspector');
   await expect(methodInspector).toBeVisible();
   await expect(methodInspector.getByRole('tab', { name: 'חישוב' })).toBeVisible();
@@ -149,6 +147,20 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(methodInspector).toContainText('מה השיטה עושה');
   await methodInspector.getByRole('tab', { name: 'עולמות' }).click();
   await expect(methodInspector.locator('.sod29-number-core2029-world-grid, .sod29-number-core2029-note').first()).toBeVisible();
+
+  await switcher.getByRole('tab', { name: /עולמות/ }).click();
+  await expect(sharedCore.locator('.sod29-number-v7-world-hub')).toBeVisible();
+  await expect(sharedCore.locator('.sod29-number-v7-world-center')).toContainText('1237');
+
+  await switcher.getByRole('tab', { name: /DNA/ }).click();
+  await expect(sharedCore.getByText('DNA המספר', { exact: true })).toBeVisible();
+  await expect(sharedCore.getByText('כיסוי שכבות', { exact: true })).toBeVisible();
+  await expect(sharedCore.getByText('ספקטרום השכבות', { exact: true })).toBeVisible();
+  await expect(sharedCore).toContainText('RAZIEL MICRO');
+
+  await switcher.getByRole('tab', { name: /עומק/ }).click();
+  await expect(sharedCore).toContainText('PREMIUM-READY');
+  await expect(sharedCore.getByRole('button', { name: /חקור בהיכל/ })).toBeVisible();
 
   const observatory = numberPage.locator('.sod29-number-observatory');
   await expect(observatory).toBeVisible();
@@ -179,7 +191,9 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('1237');
   await expect(drawer).toContainText('סולם האפס');
   await expect(drawer).toContainText('12370');
-  await expect(drawer).toContainText('RAZIEL MICRO');
+  const drawerSwitcher = drawer.locator('.sod29-number-v9-switcher');
+  await expect(drawerSwitcher).toBeVisible();
+  await drawerSwitcher.getByRole('tab', { name: /שיטות/ }).click();
 
   const miluy = drawer.locator('.sod29-number-v7-method-main').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible();
@@ -232,6 +246,7 @@ test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual 
     const drawer = page.locator('.sod29-number-drawer2029');
     await expect(drawer).toBeVisible({ timeout: 30_000 });
     await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText(String(root));
+    await drawer.locator('.sod29-number-v9-switcher').getByRole('tab', { name: /שיטות/ }).click();
     await expect.poll(
       () => drawer.locator('.sod29-number-v7-method-main').count(),
       { timeout: 15_000 },
