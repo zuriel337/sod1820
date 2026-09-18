@@ -240,6 +240,32 @@ export function buildNumberCoreProjection({
   const selected = methodProfileEntry(methodProfile, selectedMethodKey);
   const crossing = deriveLeadingCrossing({ families, expression, root, methodProfile });
   const zero = deriveZeroScale({ zeroScale, root });
+  const relatedNumbers = [];
+  const seenRelatedNumbers = new Set([String(Number(root))]);
+  const addRelatedNumber = (value, relationType = "related", label = null, sourceKind = "relation") => {
+    const parsed = Number(value);
+    if (!Number.isSafeInteger(parsed) || seenRelatedNumbers.has(String(parsed)) || relatedNumbers.length >= 12) return;
+    seenRelatedNumbers.add(String(parsed));
+    relatedNumbers.push(Object.freeze({
+      value: parsed,
+      relationType: clean(relationType) || "related",
+      label: clean(label) || String(parsed),
+      sourceKind: clean(sourceKind) || "relation",
+    }));
+  };
+  for (const finding of Array.isArray(relations) ? relations : []) {
+    const relation = finding?.projection?.relations?.[0] || null;
+    if (!relation) continue;
+    const endpoints = [relation.from, relation.to].filter(Boolean);
+    const rootEndpoint = endpoints.find((endpoint) => endpoint?.type === "number" && Number(endpoint?.label) === Number(root));
+    const other = endpoints.find((endpoint) => endpoint !== rootEndpoint && endpoint?.type === "number");
+    if (rootEndpoint && other) addRelatedNumber(other.label, relation.relationType, other.label, "graph");
+  }
+  for (const topic of Array.isArray(topics) ? topics : []) {
+    for (const value of Array.isArray(topic?.numbers) ? topic.numbers : []) {
+      addRelatedNumber(value, "meeting", clean(topic?.title) || "מפגש מחקרי", "meeting");
+    }
+  }
 
   const numberCount = (value) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
   const surfaceCount = (key, fallbackKey) => numberCount(surface?.[key] ?? surface?.[fallbackKey]?.length ?? 0);
@@ -321,6 +347,7 @@ export function buildNumberCoreProjection({
       count: Number.isFinite(Number(group?.count)) ? Number(group.count) : (Array.isArray(group?.items) ? group.items.length : 0),
       samples: Object.freeze((Array.isArray(group?.items) ? group.items : []).slice(0, 4).map((item) => clean(item?.label || item?.name)).filter(Boolean)),
     })).filter((group) => group.label)),
+    relatedNumbers: Object.freeze(relatedNumbers),
     layers: Object.freeze(layerCounts),
     coverage,
     connections: Object.freeze(connectionCards),
