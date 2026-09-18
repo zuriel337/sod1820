@@ -80,7 +80,7 @@ assert.match(healthWatchBody, /perform public\.notify_admin\(/,
   "fn_health_watch alerts must terminate in public.notify_admin() per subscription_funnel_law v19");
 assert.match(healthWatchBody, /created_at\s*>\s*now\(\)\s*-\s*interval\s+'1 hour'/,
   "the existing 1-hour work_log dedupe must be preserved");
-assert.match(healthWatchBody, /exception when others then null;\s*\n\s*end;/,
+assert.match(healthWatchBody, /exception\s+when\s+others\s+then\s+null;\s*end;/i,
   "the notify_admin call must stay wrapped so a delivery failure never breaks the health scan");
 
 // ── 7. Client helper follows the existing getCommandCenter convention exactly, with no UI
