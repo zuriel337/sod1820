@@ -2430,3 +2430,12 @@
   height:9px;
   border-width:1.5px;
 }
+
+.sod29-number-v10-method-card:disabled{
+  cursor:progress;
+  opacity:.48;
+  filter:saturate(.55);
+}
+.sod29-number-v10-method-head>small.is-loading{
+  color:var(--s29-hero);
+}
