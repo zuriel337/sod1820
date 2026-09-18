@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { supabase } from "./supabase.js";
+import { canonicalMethodPublicLabel } from "./presentation/canonicalPresentation.js";
 
 // חנות גלובלית קטנה ל"מגירת המספר" — נפתחת מכל מקום באתר (חיפוש, לחיצה על מספר).
 let state = { open: false, term: null };
@@ -71,12 +72,12 @@ async function fetchCoreRegistry() {
     .eq("active", true)
     .order("sort_order", { ascending: true });
   if (error) throw error;
-  const map = new Map((data || []).map(r => [r.method_key, r]));
-  return CORE_METHODS.map(m => ({ ...m, ...(map.get(m.key) || {}) }));
+  const config = new Map(CORE_METHODS.map((m) => [m.key, m]));
+  return (data || []).map((row) => ({ ...(config.get(row.method_key) || { key: row.method_key, resultKey: row.method_key }), ...row }));
 }
 
 function methodExplanation(method) {
-  const label = method.display_label || method.key;
+  const label = canonicalMethodPublicLabel(method);
   const sub = method.sub || "שיטה קנונית במערכת";
   const soul = method.soul ? `<div class="gpc-soul"><b>משמעות מחקרית:</b> ${esc(method.soul)}</div>` : "";
   return `<div class="gpc-explain"><b>${esc(label)}</b><div>${esc(sub)}</div>${soul}<div class="gpc-boundary">החישוב הוא Fact של המנוע; המשמעות המחקרית מוצגת בנפרד.</div></div>`;
@@ -130,7 +131,7 @@ if (typeof window !== "undefined" && window.customElements && !window.customElem
       const rows = this._registry.map(method => {
         const value = this._data?.[method.resultKey];
         if (value == null) return "";
-        const label = method.display_label || method.key;
+        const label = canonicalMethodPublicLabel(method);
         const on = this._selectedMethod === method.key ? " on" : "";
         return `<button type="button" class="gpc-row${on}" data-method="${esc(method.key)}">
           <span class="gpc-method">${esc(label)}</span>
@@ -150,9 +151,9 @@ if (typeof window !== "undefined" && window.customElements && !window.customElem
         body = hintExpression
           ? `<div class="gpc-hint ${hintMatch ? "match" : ""}">
               <div class="gpc-hint-title">רמז מרכזי</div>
-              <div><b data-gem="${esc(expression)}">${esc(expression)}</b> = <strong>${esc(primaryValue ?? "—")}</strong> (${esc(primaryMethod)})</div>
+              <div><b data-gem="${esc(expression)}">${esc(expression)}</b> = <strong>${esc(primaryValue ?? "—")}</strong> (${esc(canonicalMethodPublicLabel(primaryMethod))})</div>
               <div class="gpc-arrow">↕</div>
-              <div><b data-gem="${esc(hintExpression)}">${esc(hintExpression)}</b> = <strong>${esc(hintValue ?? "—")}</strong> (${esc(hintMethod)})</div>
+              <div><b data-gem="${esc(hintExpression)}">${esc(hintExpression)}</b> = <strong>${esc(hintValue ?? "—")}</strong> (${esc(canonicalMethodPublicLabel(hintMethod))})</div>
               <div class="gpc-boundary">${hintMatch ? "התאמה מספרית מאומתת במנוע. המשמעות שלה היא פרשנות מחקרית." : "אין התאמה מספרית בשיטות שנבחרו."}</div>
             </div>`
           : '<div class="gpc-empty">לא הוגדר רמז לפוסט הזה.</div>';
