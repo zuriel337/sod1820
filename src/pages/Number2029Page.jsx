@@ -16,6 +16,7 @@ import { langLinksList } from "../lib/supabase.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
+const NUMBER_METHOD_RESULT_CACHE = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 
 function phraseOf(item) {
@@ -336,18 +337,32 @@ function NumberPageBody() {
       setMethodResultState({ loading: false, data: null, error: null });
       return undefined;
     }
+
+    const cached = NUMBER_METHOD_RESULT_CACHE.get(next);
+    if (cached?.data) {
+      setMethodResultState({ loading: false, data: cached.data, error: null, cached: true });
+      return undefined;
+    }
+
     let alive = true;
-    setMethodResultState({ loading: true, data: null, error: null });
-    fetchEntityHubProjection({
+    setMethodResultState({ loading: true, data: null, error: null, cached: false });
+    const pending = cached?.promise || fetchEntityHubProjection({
       type: "number",
       key: String(next),
       relationLimit: 70,
       researchLimit: 36,
       topicLimit: 12,
-    }).then((nextData) => {
-      if (alive) setMethodResultState({ loading: false, data: nextData || null, error: null });
+    });
+    if (!cached?.promise) NUMBER_METHOD_RESULT_CACHE.set(next, { promise: pending });
+
+    pending.then((nextData) => {
+      const dataValue = nextData || null;
+      if (dataValue) NUMBER_METHOD_RESULT_CACHE.set(next, { data: dataValue });
+      else NUMBER_METHOD_RESULT_CACHE.delete(next);
+      if (alive) setMethodResultState({ loading: false, data: dataValue, error: null, cached: false });
     }).catch((error) => {
-      if (alive) setMethodResultState({ loading: false, data: null, error });
+      NUMBER_METHOD_RESULT_CACHE.delete(next);
+      if (alive) setMethodResultState({ loading: false, data: null, error, cached: false });
     });
     return () => { alive = false; };
   }, [activeResult, root]);
