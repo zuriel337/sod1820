@@ -24,6 +24,7 @@ const adminMigration = read("supabase/migrations/20260917191500_world_admin_grap
 const prominenceHelper = read("src/lib/research/worldContextualProminence.js");
 const prominenceInputs = read("src/lib/research/worldProminenceInputs.js");
 const entityHubProjection = read("src/lib/research/entityHubProjection.js");
+const worldCss = read("src/pages/world2029-human.css");
 
 // World is content inside the one shared Frame, not its own shell/control system.
 assert.match(world, /FrameState/);
@@ -38,6 +39,20 @@ assert.equal(world.includes("AskRaziel"), false);
 assert.equal(world.includes("UserCenter"), false);
 assert.equal(world.includes('status="LIVE"'), false);
 assert.match(world, /status="עולם · גילוי"/);
+
+// Landing World Core replaces the decorative orbit with real, accessible navigation over
+// the already-loaded landing facets. It owns no new taxonomy/data and keeps motion optional.
+assert.match(world, /function WorldCoreMap/);
+assert.match(world, /aria-label="לב העולם"/);
+assert.match(world, /aria-label="פתח חיפוש בעולם"/);
+assert.match(world, /onSearch=\{\(\) => shell\.openCommand\(\)\}/);
+assert.match(world, /aria-controls=\{landingSectionId\(facet\.key\)\}/);
+assert.match(world, /section\.scrollIntoView/);
+assert.match(world, /בחר שער כדי לקפוץ ישר אליו/);
+assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
+assert.match(worldCss, /sod29-world-core-map/);
+assert.match(worldCss, /sod29-world-core-ring/);
+assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-core-ring\{animation:none!important\}/);
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);
