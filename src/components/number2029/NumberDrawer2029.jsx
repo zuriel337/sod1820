@@ -299,10 +299,10 @@ export default function NumberDrawer2029({
     }
   };
 
-  const commitInput = (event) => {
-    event?.preventDefault?.();
-    const raw = clean(input);
+  const resolveInputValue = async (rawValue) => {
+    const raw = clean(rawValue);
     if (!raw) return;
+    setInput(raw);
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
       setRoot(Number(raw));
       setExpression("");
@@ -312,6 +312,24 @@ export default function NumberDrawer2029({
     }
     setExpression(raw);
     setTraceOpen(false);
+    try {
+      const rows = await fetchNumberMethodProfile(raw);
+      const regular = rows.find((row) => {
+        const label = clean(row?.displayLabel || row?.methodKey).replace(/[\s"'״׳’‘\-_/]/g, "");
+        return label === "רגיל" || clean(row?.methodKey) === "רגיל";
+      }) || rows[0] || null;
+      setProfileState({ loading: false, rows, error: null });
+      if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
+      const next = Number(regular?.computedValue);
+      if (Number.isSafeInteger(next)) setRoot(next);
+    } catch {
+      // expression remains usable; profile effect owns the visible error state.
+    }
+  };
+
+  const commitInput = (event) => {
+    event?.preventDefault?.();
+    resolveInputValue(input);
   };
 
   const selectMethod = (key) => {
