@@ -49,7 +49,7 @@ assert.ok(!/select[^;]*\bpath\b[^;]*from\s+public\.media_migration_queue/i.test(
 assert.ok(!/create table/i.test(mig), "no new table/store/registry/health ledger may be created");
 assert.match(
   mig,
-  /where published = 1 and coalesce\(curator_hidden, false\) = false/i,
+  /where\s+published\s*=\s*1\s+and\s+coalesce\(curator_hidden,\s*false\)\s*=\s*false/i,
   "public gallery health count must follow the canonical 2029 published=1 projection"
 );
 assert.ok(
