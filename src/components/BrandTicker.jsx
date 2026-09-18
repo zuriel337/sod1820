@@ -323,9 +323,15 @@ export default function BrandTicker({ channel, peek = null, hidePostLinked = fal
                   borderRadius: 10, overflow: "hidden", background: "#0a0710", width: 64, height: 64 }}>
                 {isVideoUrl(cur.image_url) ? (
                   <>
-                    {/* preload=metadata — מוריד רק את הפריים הראשון (קילו-בייטים), לא את הסרטון */}
-                    <video src={cur.image_url} preload="metadata" muted playsInline
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
+                    {/* Egress: הכרטיס הקטן לעולם לא טוען MP4 לפני כוונת המשתמש.
+                        מציגים poster קיים; בלי poster נשאר placeholder מקומי בלבד. */}
+                    {cur.thumb_url ? (
+                      <img src={cur.thumb_url} alt="" loading="lazy"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    ) : (
+                      <span aria-hidden="true" style={{ position: "absolute", inset: 0,
+                        background: "linear-gradient(145deg, #171126, #08060d)" }} />
+                    )}
                     <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
                       background: "rgba(0,0,0,.25)", color: "#fff", fontSize: 20, textShadow: "0 1px 6px rgba(0,0,0,.8)" }}>▶</span>
                   </>
