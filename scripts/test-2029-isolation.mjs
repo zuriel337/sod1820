@@ -31,6 +31,9 @@ assert.match(main2029, /App2029/);
 for (const required of ["AuthProvider", "ResearchProvider"]) {
   assert.match(app2029, new RegExp(required), `App2029 must preserve shared capability: ${required}`);
 }
+for (const telemetryOwner of ["trackPageview", "trackVisit", "startPageEngagement"]) {
+  assert.match(app2029, new RegExp(telemetryOwner), `App2029 must preserve semantic telemetry through existing owner: ${telemetryOwner}`);
+}
 for (const forbidden of [
   "./App.jsx",
   "UserCenterProvider",
