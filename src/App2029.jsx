@@ -1,7 +1,5 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 
@@ -32,8 +30,6 @@ export default function App2029() {
     <AuthProvider>
       <BrowserRouter>
         <ResearchProvider>
-          <Analytics />
-          <SpeedInsights />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
               <Route path="/2029" element={<Home2029Page />} />
