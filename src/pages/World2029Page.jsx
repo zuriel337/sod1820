@@ -1504,7 +1504,7 @@ export default function World2029Page() {
       symbol="◌"
       eyebrow={`${WORLD_EXPERIENCE.brand.identity} · ${WORLD_EXPERIENCE.experience.question}`}
       title="העולם"
-      description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח חיבור, העמק בו וחזור בדיוק למקום שממנו יצאת."
+      description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח מפגש, צא למסע וחזור בדיוק למקום שממנו יצאת."
       status="עולם · גילוי"
     >
       <WorldBody />
