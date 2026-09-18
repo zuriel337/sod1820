@@ -13,8 +13,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
-const mig = read("supabase/migrations/20260918212900_admin_system_health_v1.sql");
-const visits = read("src/lib/visits.js");
+const mig = read("supabase/migrations/20260918215358_admin_system_health_v1.sql");
+const visits = read("src/lib/visits.js");\nconst hardening = read("supabase/migrations/20260918215508_fn_health_watch_execute_hardening_v1.sql");
 
 // ── 1. admin_system_health: fail-closed admin/service auth (reuses admin_retention_preview's
 //      newest convention), SECURITY DEFINER, hardened search_path. ────────────────────────────
@@ -91,3 +91,7 @@ for (const uiFile of ["src/pages/AdminPage.jsx"]) {
 }
 
 console.log("admin-system-health-contract: PASS");
+
+\n// ── 8. fn_health_watch is server-only after post-release advisor hardening. ───────────────
+assert.match(hardening, /revoke all on function public\\.fn_health_watch\\(\\) from public, anon, authenticated;/i);
+assert.match(hardening, /grant execute on function public\\.fn_health_watch\\(\\) to service_role;/i);
