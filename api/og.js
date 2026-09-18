@@ -34,6 +34,24 @@ const STATIC = {
   '/': { title: "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
     desc: "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים.",
     card: { w: 'סוד 1820', sub: "כי לה' המלוכה · לגלות את המציאות בשפת המספרים", cap: 'מה המספרים יודעים עליך?' } },
+  '/2029': { title: "SOD1820 2029 — מערכת המחקר החדשה",
+    desc: "שער הכניסה למערכת SOD1820 החדשה — עולם, מספרים, מקורות, ELS, היכל ורזיאל על עץ ידע אחד.",
+    card: { w: 'SOD1820 2029', sub: 'מערכת מחקר אחת · עץ ידע אחד', cap: 'לגלות · לחקור · להמשיך' } },
+  '/world': { title: "העולם · SOD1820",
+    desc: "מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך — העולם של SOD1820.",
+    card: { w: 'העולם', sub: 'מה מתחבר?', cap: 'מספרים · מקורות · אנשים · אירועים' } },
+  '/books': { title: "ספרים ומקורות · SOD1820",
+    desc: "ספרים, מקורות, עדים ומחקר בתוך עץ הידע האחד של SOD1820.",
+    card: { w: 'ספרים ומקורות', sub: 'מקור · עדות · מחקר', cap: 'להיכנס אל המקור' } },
+  '/els': { title: "ELS · הצופן התנ״כי · SOD1820",
+    desc: "מחקר דילוגי אותיות מעל מנוע ELS קנוני אחד, עם הקשר, Evidence ו־Research Context.",
+    card: { w: 'ELS', sub: 'הצופן התנ״כי · מנוע אחד', cap: 'דילוגים · הקשר · מחקר', sig: 'els' } },
+  '/heichal': { title: "היכל · SOD1820",
+    desc: "סביבת המחקר העמוקה של SOD1820 — כלים, Evidence, Findings ורזיאל סביב אותו Research Context.",
+    card: { w: 'היכל', sub: 'איך בודקים?', cap: 'מחקר עמוק · כלים · ראיות' } },
+  '/היכל': { title: "היכל · SOD1820",
+    desc: "סביבת המחקר העמוקה של SOD1820 — כלים, Evidence, Findings ורזיאל סביב אותו Research Context.",
+    card: { w: 'היכל', sub: 'איך בודקים?', cap: 'מחקר עמוק · כלים · ראיות' } },
   '/journey': { title: "המסע — כל מספר פותח עולם · " + SITE_NAME,
     desc: "צא למסע במפת המספרים — כל צעד פותח סוד חדש, וכל מספר מתחבר לבא אחריו. לא תאמין לאן זה מוביל. פלא פלאים.",
     card: { w: 'המסע', sub: 'מספר → מספר → סוד', cap: 'לאן זה יוביל אותך?' } },
@@ -310,11 +328,12 @@ export default async function handler(req, res) {
           : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}&sig=els`;
       }
     } catch { /* fallback to defaults */ }
-  } else if (key.startsWith('/book/')) {
-    // 📖 Book Hub — ספר בודד (nodes.type='book'). שדות ציבוריים-בלבד: label/description/metadata
+  } else if (key.startsWith('/book/') || key.startsWith('/books/')) {
+    // 📖 Book Hub / 2029 Books — ספר בודד (nodes.type='book'). שדות ציבוריים-בלבד: label/description/metadata
     // (זהות-ספר, לא research_objects) — תואם ל-BOOK PROJECTION EXPERIENCE CONTRACT §11/§16:
     // כותרת/תיאור מגיעים מפרויקציה-ציבורית-מאושרת בלבד, לעולם לא מ-payload מחקר-פרטי.
-    let slug = key.slice('/book/'.length);
+    const bookPrefix = key.startsWith('/books/') ? '/books/' : '/book/';
+    let slug = key.slice(bookPrefix.length);
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
     if (slug) {
       try {
