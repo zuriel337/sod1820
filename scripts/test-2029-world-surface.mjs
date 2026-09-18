@@ -244,28 +244,12 @@ const golden878 = projectGoldenJourney878({
     { slug: "meeting-1010", title: "מפגש 1010", numbers: [878, 588, 1010], highlight_numbers: [1010], meter_score: 82 },
     { slug: "duplicate-1010", title: "עוד 1010", numbers: [878, 1010], highlight_numbers: [1010], meter_score: 70 },
   ],
-  numberJourney: {
-    projection_scope: "internal_authorized",
-    root: { root_word: "INTERNAL_ONLY" },
-    branches: [{ name: "INTERNAL_BRANCH" }],
-    seed: { status: "draft", title: "PRIVATE_DRAFT" },
-    map: {
-      root: 878,
-      primary_value: 878,
-      family_values: [878, 8780, 87800],
-      hebrew_terms: ["משיח", "סובב עולם"],
-      methods: ["רגיל", "מילוי"],
-      evidence_count: 13,
-    },
-  },
 });
 assert.equal(golden878.id, GOLDEN_WORLD_JOURNEY_878.id);
 assert.equal(golden878.rootValue, 878);
 assert.deepEqual(golden878.paths.map((path) => path.targetValue), [1202, 776, 1010]);
-assert.equal(JSON.stringify(golden878).includes("INTERNAL_ONLY"), false);
-assert.equal(JSON.stringify(golden878).includes("PRIVATE_DRAFT"), false);
-assert.equal(JSON.stringify(golden878).includes("INTERNAL_BRANCH"), false);
 assert.match(worldJourneySource, /fetchTopicCardList/);
+assert.equal(worldJourneySource.includes("fn_number_journey"), false, "public Golden Journey must not read the privileged Number/Journey projection");
 assert.match(worldJourneySource, /number:\s*GOLDEN_WORLD_JOURNEY_878\.rootValue/);
 assert.match(worldJourneySource, /rankByMeterScore:\s*true/);
 assert.equal(worldJourneySource.includes("journey_classic_seed"), false);
