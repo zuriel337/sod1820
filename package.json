@@ -13,24 +13,25 @@
     "test:operational-trace": "node scripts/test-operational-trace-contract.mjs",
     "package:expression-extract": "node scripts/package-expression-extract.mjs"
   },
+  "engines": {
+    "node": ">=24.9.0 <25"
+  },
   "dependencies": {
     "@hebcal/core": "^6.6.0",
-    "@react-three/drei": "^9.122.0",
-    "@react-three/fiber": "^8.18.0",
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "@supabase/supabase-js": "^2.108.0",
-    "@vercel/analytics": "^2.0.1",
     "@vercel/edge": "^1.2.1",
     "@vercel/og": "^0.11.1",
-    "@vercel/speed-insights": "^1.2.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^7.17.0",
-    "three": "^0.169.0",
+    "react": "~19.2.8",
+    "react-dom": "~19.2.8",
+    "react-router-dom": "^7.18.4",
+    "three": "^0.186.0",
     "ws": "^8.21.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.2"
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.0"
   }
 }
