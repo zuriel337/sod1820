@@ -5,6 +5,7 @@ import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { stripHtml } from "../lib/format.js";
 import EntityHubGoldenControls from "../components/entity/EntityHubGoldenControls.jsx";
+import { canonicalMethodPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 
 // 🎨 Palette = CSS variables from EntityHubObservatory.css (.eh-func) — light AND dark
 // (city_background_dual_theme_law). No light-only island inside the observatory shell.
@@ -195,7 +196,7 @@ function MethodModal({ group, onClose, onLeave }) {
     <aside onClick={e => e.stopPropagation()} style={{ width: "min(430px,94vw)", height: "100%", overflowY: "auto", background: C.panel, borderInlineEnd: `1px solid ${C.line}`, boxShadow: "18px 0 60px rgba(0,0,0,.22)", padding: 22 }}>
       <button onClick={onClose} style={{ cursor: "pointer", float: "left", width: 38, height: 38, borderRadius: 10, border: `1px solid ${C.line}`, background: "transparent", fontSize: 21 }}>×</button>
       <div style={{ color: C.gold, fontSize: 10.5, letterSpacing: 1.6, fontWeight: 900 }}>METHOD INSPECTOR · DECISION PREVIEW</div>
-      <h2 style={{ fontSize: 28, margin: "7px 0 4px" }}>{r.display_label || group.method}</h2>
+      <h2 style={{ fontSize: 28, margin: "7px 0 4px" }}>{canonicalMethodPublicLabel(r.method_key ? r : group.method)}</h2>
       <div style={{ ...muted, fontSize: 15 }}>{r.sub || "הסבר השיטה יגיע מה־Registry הקנוני."}</div>
       {r.soul ? <p style={{ lineHeight: 1.8, margin: "13px 0 0" }}>{r.soul}</p> : null}
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 14 }}>
@@ -396,7 +397,7 @@ export default function EntityHubPreviewPage() {
             return <article key={group.method} style={{ border: `1px solid ${regular ? C.gold2 : C.line}`, background: regular ? C.goldBg : C.panel, borderRadius: 15, padding: 14 }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                 <button onClick={() => setMethodFocus({ ...group, value: identity.label, phraseEntities })} style={{ ...buttonReset, cursor: "pointer", background: "none", padding: 0, color: C.ink, textAlign: "right", flex: 1 }}>
-                  <div style={{ fontWeight: 950, fontSize: 17 }}>{r.display_label || group.method} <span style={{ color: C.gold, fontSize: 12 }}>↗</span></div>
+                  <div style={{ fontWeight: 950, fontSize: 17 }}>{canonicalMethodPublicLabel(r.method_key ? r : group.method)} <span style={{ color: C.gold, fontSize: 12 }}>↗</span></div>
                   <div style={{ ...muted, marginTop: 3 }}>{r.sub || "שיטת גימטריה רשומה"}</div>
                 </button>
                 <span style={chipStyle(regular ? "gold" : "neutral")}>{group.count ?? group.phrases?.length ?? 0}</span>
