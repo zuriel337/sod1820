@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { deriveLeadingCrossing, deriveZeroScale } from "../src/lib/research/numberCoreProjection.js";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const page = read("src/pages/Number2029Page.jsx");
 const css = read("src/pages/number2029.css");
 const app = read("src/App2029.jsx");
+const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+const core = read("src/components/number2029/NumberCore2029.jsx");
+const drawer = read("src/components/number2029/NumberDrawer2029.jsx");
+const coreProjection = read("src/lib/research/numberCoreProjection.js");
+const provider = read("src/lib/research/ResearchProvider.jsx");
 const vercel = JSON.parse(read("vercel.json"));
 
 for (const required of [
@@ -16,6 +22,7 @@ for (const required of [
   "למה",
   "MATH PASSPORT",
   "runNumberMathProfile",
+  "NumberCore2029",
   "מפגשים סביב",
   "צא למסע 878",
 ]) {
@@ -38,11 +45,48 @@ for (const forbidden of [
 }
 
 assert.equal(page.includes("התכנסות"), false, "public 2029 Number vocabulary must use מפגש");
-assert.match(page, /families\.slice\(0, 6\)/, "method preview must preserve canonical projection order instead of a local priority list");
+assert.match(page, /fetchNumberMethodProfile/);
+assert.match(coreProjection, /fn_method_profile/);
+assert.match(coreProjection, /dependency_rules/);
+assert.match(core, /RAZIEL MICRO/);
+assert.match(core, /Zero Scale/);
+assert.match(core, /הצלבה/);
+assert.match(drawer, /NumberCore2029/);
+assert.match(drawer, /fetchNumberMethodProfile/);
+assert.match(frame, /TRANSIENT\.NUMBER/);
+assert.match(frame, /openNumber/);
+assert.match(frame, /NumberDrawer2029/);
+assert.match(provider, /\(2029\\\/\)\?number/);
 assert.match(page, /GOLDEN_878_JOURNEY_ID\s*=\s*"golden:878:v1"/);
 assert.match(page, /navigate\("\/world"\)/);
 assert.match(app, /path="\/2029\/number\/:value"/);
 assert.match(app, /Number2029Page/);
+
+
+const independentCross = deriveLeadingCrossing({
+  root: 1237,
+  expression: "התגלות",
+  methodProfile: [
+    { methodKey: "מסתתר", dependencyRules: [{ type: "conditional_equivalence", to: "מסתתר גדול", condition: "no_final_letters" }] },
+    { methodKey: "מסתתר גדול", dependencyRules: [{ type: "conditional_equivalence", to: "מסתתר", condition: "no_final_letters" }] },
+    { methodKey: "אתבש", dependencyRules: [] },
+  ],
+  families: [
+    { method: "מסתתר", phrases: ["התגלות", "מסרים של המשיח"] },
+    { method: "מסתתר גדול", phrases: ["התגלות", "עלות השחר"] },
+    { method: "אתבש", phrases: ["הישועה היא בעתה"] },
+  ],
+});
+assert.equal(independentCross?.kind, "cross_method_intersection");
+assert.equal(independentCross?.methods?.[0]?.methodKey, "מסתתר");
+assert.equal(independentCross?.methods?.[1]?.methodKey, "אתבש", "conditional-equivalent מסתתר גדול must not inflate the upper crossing");
+
+const zero1237 = deriveZeroScale({
+  root: 1237,
+  zeroScale: { core_root: 1237, scale_chain: [1237, 12370, 123700], method_id: "zero_scale" },
+});
+assert.equal(zero1237.next, 12370);
+assert.deepEqual(zero1237.chain, [1237, 12370, 123700]);
 
 const rewrite = (vercel.rewrites || []).find((row) => row.source === "/2029/number/(.*)");
 assert.ok(rewrite, "missing isolated Number 2029 preview rewrite");
