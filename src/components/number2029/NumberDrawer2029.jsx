@@ -59,11 +59,11 @@ export default function NumberDrawer2029({
   const [root, setRoot] = useState(targetNumber ?? contextRoot);
   const [input, setInput] = useState(initialExpression || (targetNumber != null ? String(targetNumber) : ""));
   const [expression, setExpression] = useState(initialExpression);
-  const [dataState, setDataState] = useState({ loading: false, data: null, error: null });
+  const [dataState, setDataState] = useState({ loading: false, data: null, error: null, key: null });
   const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState(clean(context?.selection?.method));
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
-  const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null });
+  const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
 
@@ -253,18 +253,18 @@ export default function NumberDrawer2029({
   useEffect(() => {
     const next = Number(activeResult);
     if (!Number.isSafeInteger(next) || next === root) {
-      setMethodResultState({ loading: false, data: null, error: null });
+      setMethodResultState({ loading: false, data: null, error: null, key: null });
       return undefined;
     }
 
     const cached = NUMBER_METHOD_RESULT_CACHE.get(next);
     if (cached?.data) {
-      setMethodResultState({ loading: false, data: cached.data, error: null, cached: true });
+      setMethodResultState({ loading: false, data: cached.data, error: null, cached: true, key: next });
       return undefined;
     }
 
     let alive = true;
-    setMethodResultState({ loading: true, data: null, error: null, cached: false });
+    setMethodResultState({ loading: true, data: null, error: null, cached: false, key: next });
     const pending = cached?.promise || fetchEntityHubProjection({
       type: "number",
       key: String(next),
@@ -278,16 +278,16 @@ export default function NumberDrawer2029({
       const dataValue = nextData || null;
       if (dataValue) NUMBER_METHOD_RESULT_CACHE.set(next, { data: dataValue });
       else NUMBER_METHOD_RESULT_CACHE.delete(next);
-      if (alive) setMethodResultState({ loading: false, data: dataValue, error: null, cached: false });
+      if (alive) setMethodResultState({ loading: false, data: dataValue, error: null, cached: false, key: next });
     }).catch((error) => {
       NUMBER_METHOD_RESULT_CACHE.delete(next);
-      if (alive) setMethodResultState({ loading: false, data: null, error, cached: false });
+      if (alive) setMethodResultState({ loading: false, data: null, error, cached: false, key: next });
     });
     return () => { alive = false; };
   }, [activeResult, root]);
 
   const stageData = Number.isSafeInteger(Number(activeResult)) && Number(activeResult) !== root
-    ? methodResultState.data
+    ? (methodResultState.key === Number(activeResult) ? methodResultState.data : null)
     : data;
   const stageRoot = Number.isSafeInteger(Number(activeResult)) ? Number(activeResult) : root;
   const stageFamilies = Array.isArray(stageData?.gematria?.families) ? stageData.gematria.families : [];
