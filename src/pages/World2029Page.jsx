@@ -1034,7 +1034,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
               </button>;
             })}
           </div> : null}
-          {selectedContributor ? <div className="sod29-muted">מסנן כעת: <b>{selectedContributor.displayName}</b> · מחקר {selectedContributor.researchObjectIds.length} · תרומות רלוונטיות {selectedContributor.relevantContributions.length} · התכנסויות {selectedContributor.convergences.length + selectedContributor.topicSlugs.length}</div> : null}
+          {selectedContributor ? <div className="sod29-muted">מסנן כעת: <b>{selectedContributor.displayName}</b> · מחקר {selectedContributor.researchObjectIds.length} · תרומות רלוונטיות {selectedContributor.relevantContributions.length} · מפגשים {selectedContributor.convergences.length + selectedContributor.topicSlugs.length}</div> : null}
         </div>
       </section> : null}
 
@@ -1218,7 +1218,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
       {activeLane === "research" && adminMode && contributorConvergences.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head">
-          <div><div className="sod29-kicker">התכנסויות לפי חוקר</div><h2>{selectedContributor ? `התכנסויות של ${selectedContributor.displayName}` : "התכנסויות מיוחסות לארבעת החוקרים"}</h2></div>
+          <div><div className="sod29-kicker">מפגשים לפי חוקר</div><h2>{selectedContributor ? `מפגשים של ${selectedContributor.displayName}` : "מפגשים מיוחסים לארבעת החוקרים"}</h2></div>
           <span className="sod29-chip">{contributorConvergences.length}</span>
         </div>
         <div className="sod29-list">{contributorConvergences.map((item) => <div className="sod29-row" key={item.id}>
@@ -1250,8 +1250,8 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </section> : null}
 
       {activeLane === "research" && visibleTopicFindings.length ? <section className="sod29-section">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">נקודות מפגש</div><h2>{selectedContributor ? `נקודות מפגש של ${selectedContributor.displayName}` : "חיבורים שנפגשים כאן"}</h2></div><span className="sod29-chip">{visibleTopicFindings.length}</span></div>
-        <div className="sod29-list">{visibleTopicFindings.map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "חיבור"}</strong><small>חיבור קשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מפגשים</div><h2>{selectedContributor ? `מפגשים של ${selectedContributor.displayName}` : "מפגשים סביב הנקודה"}</h2></div><span className="sod29-chip">{visibleTopicFindings.length}</span></div>
+        <div className="sod29-list">{visibleTopicFindings.map((finding, index) => <div className="sod29-row" key={finding.id || index}><div><strong>{finding.subject?.label || "מפגש"}</strong><small>מפגש שקשור לנקודה הזאת</small></div><button className="sod29-action" type="button" onClick={() => inspectFinding(finding)}>בדוק</button></div>)}</div>
       </section> : null}
 
       {activeLane === "research" && data.numberWorlds?.length ? <section className="sod29-section">
