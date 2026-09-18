@@ -1204,3 +1204,14 @@
   .sod29-number-dashboard-raziel-head>div>strong{font-size:12px}
   .sod29-number-dashboard-raziel-head>div>span{font-size:6px}
 }
+
+.sod29-number-dashboard-active{
+  width:max-content;
+  max-width:100%;
+  padding:3px 7px;
+  gap:5px;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 75%,transparent);
+}
+.sod29-number-dashboard-active span{font-size:8px}
+.sod29-number-dashboard-active strong{font-size:10px}
