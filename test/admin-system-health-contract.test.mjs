@@ -78,7 +78,7 @@ assert.ok(!/972556651237/.test(healthWatchBody),
   "the hardcoded WhatsApp target must be removed from fn_health_watch's executable body");
 assert.match(healthWatchBody, /perform public\.notify_admin\(/,
   "fn_health_watch alerts must terminate in public.notify_admin() per subscription_funnel_law v19");
-assert.match(healthWatchBody, /created_at > now\(\)-interval '1 hour'/,
+assert.match(healthWatchBody, /created_at\s*>\s*now\(\)\s*-\s*interval\s+'1 hour'/,
   "the existing 1-hour work_log dedupe must be preserved");
 assert.match(healthWatchBody, /exception when others then null;\s*\n\s*end;/,
   "the notify_admin call must stay wrapped so a delivery failure never breaks the health scan");
