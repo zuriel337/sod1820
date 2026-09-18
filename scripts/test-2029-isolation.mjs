@@ -65,7 +65,7 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/world", "/books", "/books/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/2029", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source);
   assert.ok(item, `missing isolated 2029 rewrite: ${source}`);
