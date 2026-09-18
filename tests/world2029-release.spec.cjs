@@ -118,12 +118,17 @@ test('Number 2029 preview opens 1237 with six primary methods driving one resear
   await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
   await expect(core.locator('.sod29-number-v10-vitality')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-vitality')).toContainText('כיסוי שכבות');
+  await expect(core.locator('.sod29-number-v10-vitality')).not.toContainText('חיות המספר');
 
   await expect.poll(
     () => core.locator('.sod29-number-v10-method-card').count(),
     { timeout: 15_000 },
   ).toBeGreaterThan(3);
   expect(await core.locator('.sod29-number-v10-method-card').count()).toBeLessThanOrEqual(6);
+  const triangleCard = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'משולש' }).first();
+  await expect(triangleCard).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-method-switcher')).not.toContainText('קדמי · משולש');
 
   const firstMethod = core.locator('.sod29-number-v10-method-card').first();
   await firstMethod.click();
@@ -200,8 +205,9 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await miluy.click();
 
   const stage = core.locator('.sod29-number-v10-stage');
-  await expect(stage).toHaveAttribute('data-stage-root', '878', { timeout: 30_000 });
+  await expect(stage).toHaveAttribute('data-stage-root', '878', { timeout: 1_500 });
   await expect(stage).toContainText('משיח');
+  await expect(stage.locator('.sod29-number-v10-calculation-card')).toContainText('878');
   await expect(stage.locator('.sod29-number-v10-vitality')).toBeVisible();
 
   const language = stage.locator('.sod29-number-v10-languages');
