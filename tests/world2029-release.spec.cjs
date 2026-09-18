@@ -333,3 +333,15 @@ test('320px RTL World survives 200% text zoom without horizontal overflow', asyn
   await expect(firstAction).toBeFocused();
   await page.screenshot({ path: 'test-results/release-visual/world-rich-1820-320-zoom200.png', fullPage: true });
 });
+
+
+test('private researcher corpus stays gated for non-admin 2029 sessions', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/researcher/tzvi-opoc`, { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('heading', { name: 'קורפוס חוקר', exact: true })).toBeVisible();
+  await expect(page.getByText('מסך מנהל בלבד')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('297 ממצאים')).toHaveCount(0);
+  await expect(page.getByText('צבי (OPOC)', { exact: true })).toHaveCount(0);
+  await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/researcher-corpus-gated-390.png', fullPage: true });
+});
