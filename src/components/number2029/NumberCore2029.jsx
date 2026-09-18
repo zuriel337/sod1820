@@ -244,6 +244,7 @@ export default function NumberCore2029({
   stageProjection = null,
   stageLoading = false,
   languageBridges = [],
+  regularExpressions = [],
   mode = "page",
   traceState = null,
   traceOpen = false,
@@ -259,6 +260,7 @@ export default function NumberCore2029({
   onOpenHeichal,
   onOpenResult,
   onResolveQuery,
+  onExpressionSelect,
   journeyLabel = null,
   onRazielAction,
   onExpandRaziel,
@@ -278,6 +280,14 @@ export default function NumberCore2029({
   const stageWorlds = Array.isArray(stage?.worlds) ? stage.worlds : [];
   const stageRelatedNumbers = Array.isArray(stage?.relatedNumbers) ? stage.relatedNumbers : [];
   const stageConnections = Array.isArray(stage?.connections) ? stage.connections : [];
+  const regularExpressionSet = new Set(
+    (Array.isArray(regularExpressions) ? regularExpressions : [])
+      .map((item) => String(item?.phrase || item || "").trim())
+      .filter(Boolean),
+  );
+  const visibleStageConnections = stageConnections.filter((item) => (
+    !(item?.kind === "expression" && regularExpressionSet.has(String(item?.label || "").trim()))
+  ));
   const stageLayers = Array.isArray(stage?.layers) ? stage.layers : [];
   const stageCoverage = stage?.coverage || { percent: 0, present: 0, total: stageLayers.length, note: "כיסוי שכבות" };
   const stagePulse = stage?.pulse || { activityCount: 0, meetingCount: 0, sourceCount: 0, worldCount: 0 };
@@ -378,6 +388,33 @@ export default function NumberCore2029({
       <button type="submit">חפש ✦</button>
     </form> : null}
 
+    {regularExpressions.length ? <section className="sod29-number-v11-regular-rail" aria-label={`ביטויים רגילים על ${root}`}>
+      <div className="sod29-number-v11-regular-head">
+        <div>
+          <span>רגיל = {root}</span>
+          <strong>ביטויים רגילים על אותו מספר</strong>
+        </div>
+        <small>גרור ימינה / שמאלה ובחר ביטוי</small>
+      </div>
+      <div className="sod29-number-v11-regular-track" role="list">
+        {regularExpressions.map((item) => {
+          const phrase = String(item?.phrase || item || "").trim();
+          const selected = phrase === String(projection.expression || "").trim();
+          return <button
+            type="button"
+            role="listitem"
+            key={phrase}
+            className={selected ? "is-active" : ""}
+            aria-pressed={selected}
+            onClick={() => onExpressionSelect?.(phrase)}
+          >
+            <strong>{phrase}</strong>
+            <small>= {root} · רגיל</small>
+          </button>;
+        })}
+      </div>
+    </section> : null}
+
     <section className="sod29-number-v10-method-switcher" aria-label="שש שיטות ראשיות">
       <div className="sod29-number-v10-method-head">
         <div><span>שש שיטות ראשיות</span><strong>נגיעה מחליפה את כל המחקר שמתחת</strong></div>
@@ -425,10 +462,10 @@ export default function NumberCore2029({
           <section className="sod29-number-v10-convergence">
             <div className="sod29-number-v10-panel-head">
               <div><span>התכנסויות וחיבורים</span><strong>מה חי סביב {stageRoot}</strong></div>
-              <small>{stageConnections.length}</small>
+              <small>{visibleStageConnections.length}</small>
             </div>
-            {stageConnections.length ? <div className="sod29-number-v10-chip-list">
-              {stageConnections.slice(0, compact ? 6 : 10).map((item, index) => <button
+            {visibleStageConnections.length ? <div className="sod29-number-v10-chip-list">
+              {visibleStageConnections.slice(0, compact ? 6 : 10).map((item, index) => <button
                 type="button"
                 key={`${item.label}:${index}`}
                 onClick={() => onRazielAction?.("explain_connection", { kind: item.kind, label: item.label, note: item.note, resultValue: stageRoot })}
