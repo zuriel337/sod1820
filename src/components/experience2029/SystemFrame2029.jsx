@@ -13,7 +13,7 @@ import { usePalette } from "../../lib/palette.js";
 import { LAYOUT, MOTION, RADIUS, RAZIEL_PRESENCE } from "../../lib/designTokens.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
-import { shareOrCopy } from "../../lib/share.js";
+import ShareActions from "../ShareActions.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
 import "./systemFrame2029.css";
@@ -215,7 +215,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
   );
 }
 
-function InspectProjection({ target, context, onSetFocus, onAddResearch, onDeepen, onShare, shareState }) {
+function InspectProjection({ target, context, onSetFocus, onAddResearch, onDeepen }) {
   if (!target) {
     return <FrameState kind="empty" title="אין כרגע אובייקט לבדיקה">סמן ביטוי/מספר בטקסט, פתח Command או בחר ישות במשטח פעיל. ה־Frame לא ממציא עוגן.</FrameState>;
   }
@@ -241,11 +241,17 @@ function InspectProjection({ target, context, onSetFocus, onAddResearch, onDeepe
         <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ קבע כפוקוס מחקר</button>
         <button className="sod29-action" type="button" onClick={() => onAddResearch(target)}>＋ הוסף למחקר</button>
         <button className="sod29-action" type="button" onClick={() => onDeepen(target)}>◇ העמק בהיכל</button>
-        <button className="sod29-action" type="button" onClick={onShare}>↗ שתף הקשר</button>
         <button className="sod29-action" type="button" disabled title="Follow runtime נשאר ב־PR #486 עד release gate">♢ מעקב · runtime pending</button>
       </div>
 
-      {shareState ? <div className="sod29-frame-feedback" role="status">{shareState === "none" ? "השיתוף אינו זמין בדפדפן הזה." : "קישור ההקשר מוכן לשיתוף."}</div> : null}
+      <ShareActions
+        type={target.type || "page"}
+        title={`SOD1820 · ${target.label}`}
+        channels={["native", "copy"]}
+        compact
+        force
+        style={{ marginTop: 10 }}
+      />
 
       <div className="sod29-panel-context-card">
         <b>Research Context</b>
@@ -366,7 +372,6 @@ export default function SystemFrame2029({
   const [transient, setTransient] = useState(null);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
-  const [shareState, setShareState] = useState(null);
   const panelRef = useRef(null);
   const navRef = useRef(null);
   const mobileMenuRef = useRef(null);
@@ -425,7 +430,6 @@ export default function SystemFrame2029({
 
   const closeTransient = useCallback(() => {
     setTransient(null);
-    setShareState(null);
     requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }, []);
 
@@ -436,7 +440,6 @@ export default function SystemFrame2029({
 
   const openTransient = useCallback((kind, payload = null) => {
     returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
-    setShareState(null);
     setTransient({ kind, payload });
     setNavOpen(false);
   }, [navOpen]);
@@ -521,7 +524,6 @@ export default function SystemFrame2029({
     setTransient(null);
     setNavOpen(false);
     setEphemeralSelection(null);
-    setShareState(null);
   }, [location.pathname, location.search]);
 
   const inspectTarget = useMemo(() => {
@@ -587,12 +589,6 @@ export default function SystemFrame2029({
     go("/heichal", { preserve: !selectedHere });
   }, [research, currentHref, currentLabel, context, locale, go]);
 
-  const shareCurrent = useCallback(async () => {
-    if (typeof window === "undefined") return;
-    const result = await shareOrCopy({ title: currentLabel, text: activeTarget ? `SOD1820 · ${activeTarget.label}` : "SOD1820", url: window.location.href });
-    setShareState(result);
-  }, [currentLabel, activeTarget]);
-
   const submitCommand = useCallback((event) => {
     event?.preventDefault?.();
     const target = targetFromSelectedText(commandQuery);
@@ -647,7 +643,7 @@ export default function SystemFrame2029({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="SYSTEM FRAME" title="חיפוש / פקודה"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} onShare={shareCurrent} shareState={shareState} /></PanelShell>;
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="QUICK INSPECT" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} onSetFocus={setResearchFocus} onAddResearch={addToResearch} onDeepen={deepenToHeichal} /></PanelShell>;
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="ATTENTION" title="עכשיו"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="TOOLS" title="כלים"><ToolsProjection target={activeTarget} onDeepen={deepenToHeichal} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="RAZIEL" title="נוכחות מחקרית"><RazielProjection target={activeTarget} context={context} onDeepen={deepenToHeichal} /></PanelShell>;
