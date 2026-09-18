@@ -49,7 +49,7 @@ eq("ריבוע(צוריאל פולייס) — ribua_definition multiword", ribua
 eq("אלבם(רב) — albam_def", byKey["אלבם"].fn("רב"), 49);
 eq("אטבח(יום משיח) — christina/atbach JS map (own consistency, see DRIFT note vs SQL fn_atbach)", byKey["אטבח"].fn("יום משיח"), 506);
 eq("אותיות אחרי(רזיאל) — otiot_shift_methods", byKey["אותיות אחרי"].fn("רזיאל"), 370);
-ok("methodLabel(קדמי) shows משולש display alias (meshulash_kadmi_law)", methodLabel("קדמי") === "קדמי · משולש");
+ok("methodLabel(קדמי) exposes the public משולש alias while preserving the internal key", methodLabel("קדמי") === "משולש");
 
 // ---------- 2) Depth methods — locked verified_examples ----------
 eq("קדמי גדול / משולש גדול(שובו בנים שובבים) — kadmi_gadol_def", byKey["משולש גדול"].fn("שובו בנים שובבים"), 7760);
