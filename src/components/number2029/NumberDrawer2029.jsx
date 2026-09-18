@@ -151,6 +151,7 @@ export default function NumberDrawer2029({
   const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
   const sources = Array.isArray(data?.sources) ? data.sources : [];
+  const worlds = Array.isArray(data?.numberWorlds) ? data.numberWorlds : [];
   const zeroScale = data?.zeroScale || null;
   const surface = data?.surface || {};
   const activityCount = [
@@ -171,10 +172,11 @@ export default function NumberDrawer2029({
       families,
       topics,
       sources,
+      worlds,
       zeroScale,
       activityCount,
     });
-  }, [root, expression, selectedMethodKey, profileState.rows, families, topics, sources, zeroScale, activityCount]);
+  }, [root, expression, selectedMethodKey, profileState.rows, families, topics, sources, worlds, zeroScale, activityCount]);
 
   const trace = traceState.finding?.projection?.dimensions?.trace || null;
   const traceSteps = Array.isArray(trace?.steps) ? trace.steps.map(traceStepLabel).filter(Boolean) : [];
