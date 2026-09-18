@@ -2,6 +2,10 @@ import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
+import { initGA, trackPageview } from "./lib/analytics.js";
+import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
+import { trackVisit } from "./lib/visits.js";
+import { startPageEngagement } from "./lib/engagement.js";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -12,6 +16,28 @@ const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 
 function Loading2029() {
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
+}
+
+// Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
+function RouteEffects2029() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    initGA();
+    initMarketing();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      trackPageview(pathname);
+      trackMarketingPageview();
+    }, 350);
+    trackVisit(pathname);
+    startPageEngagement(pathname);
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
+  return null;
 }
 
 // A 2029 runtime never renders a legacy route inside the same React tree.
@@ -30,6 +56,7 @@ export default function App2029() {
     <AuthProvider>
       <BrowserRouter>
         <ResearchProvider>
+          <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
               <Route path="/2029" element={<Home2029Page />} />
