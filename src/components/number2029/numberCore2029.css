@@ -2280,3 +2280,17 @@
   .sod29-number-v10-vitality{grid-template-columns:48px minmax(0,1fr)}
   .sod29-number-v10-stage-actions{grid-template-columns:1fr}
 }
+
+.sod29-number-v10-zero p{margin:0;color:var(--s29-muted);font-size:8px;line-height:1.45}
+.sod29-number-v10-zero>button{
+  justify-self:start;
+  border:1px solid var(--s29-line);
+  border-radius:999px;
+  background:transparent;
+  color:var(--s29-hero);
+  font:inherit;
+  font-size:7.5px;
+  font-weight:900;
+  padding:4px 7px;
+  cursor:pointer;
+}
