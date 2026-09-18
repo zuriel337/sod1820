@@ -13,8 +13,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
-const mig = read("supabase/migrations/20260918212900_admin_system_health_v1.sql");
+const mig = read("supabase/migrations/20260918215358_admin_system_health_v1.sql");
 const visits = read("src/lib/visits.js");
+const hardening = read("supabase/migrations/20260918215508_fn_health_watch_execute_hardening_v1.sql");
 
 // ── 1. admin_system_health: fail-closed admin/service auth (reuses admin_retention_preview's
 //      newest convention), SECURITY DEFINER, hardened search_path. ────────────────────────────
@@ -48,7 +49,7 @@ assert.ok(!/select[^;]*\bpath\b[^;]*from\s+public\.media_migration_queue/i.test(
 assert.ok(!/create table/i.test(mig), "no new table/store/registry/health ledger may be created");
 assert.match(
   mig,
-  /where published = 1 and coalesce\(curator_hidden, false\) = false/i,
+  /where\s+published\s*=\s*1\s+and\s+coalesce\(curator_hidden,\s*false\)\s*=\s*false/i,
   "public gallery health count must follow the canonical 2029 published=1 projection"
 );
 assert.ok(
@@ -77,9 +78,9 @@ assert.ok(!/972556651237/.test(healthWatchBody),
   "the hardcoded WhatsApp target must be removed from fn_health_watch's executable body");
 assert.match(healthWatchBody, /perform public\.notify_admin\(/,
   "fn_health_watch alerts must terminate in public.notify_admin() per subscription_funnel_law v19");
-assert.match(healthWatchBody, /created_at > now\(\)-interval '1 hour'/,
+assert.match(healthWatchBody, /created_at\s*>\s*now\(\)\s*-\s*interval\s+'1 hour'/,
   "the existing 1-hour work_log dedupe must be preserved");
-assert.match(healthWatchBody, /exception when others then null;\s*\n\s*end;/,
+assert.match(healthWatchBody, /exception\s+when\s+others\s+then\s+null;\s*end;/i,
   "the notify_admin call must stay wrapped so a delivery failure never breaks the health scan");
 
 // ── 7. Client helper follows the existing getCommandCenter convention exactly, with no UI
@@ -89,5 +90,10 @@ for (const uiFile of ["src/pages/AdminPage.jsx"]) {
   assert.ok(!new RegExp("admin_system_health|getSystemHealth").test(read(uiFile)),
     `${uiFile} must not wire up admin_system_health yet — no Control Plane UI in this slice`);
 }
+
+
+// ── 8. fn_health_watch is server-only after post-release advisor hardening. ───────────────
+assert.match(hardening, /revoke all on function public\.fn_health_watch\(\) from public, anon, authenticated;/i);
+assert.match(hardening, /grant execute on function public\.fn_health_watch\(\) to service_role;/i);
 
 console.log("admin-system-health-contract: PASS");
