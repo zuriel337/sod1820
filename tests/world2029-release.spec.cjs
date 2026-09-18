@@ -104,80 +104,50 @@ test('direct /world opens the Golden discovery landing without a stored anchor',
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
 
-test('Number 2029 preview opens 1237 natively with the central core and canonical method rail', async ({ page }) => {
+test('Number 2029 preview opens 1237 with six primary methods driving one research stage', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
 
-  await expect(page.getByText('מספר במערכת 2029', { exact: true }).first()).toBeVisible();
   const numberPage = page.locator('.sod29-number-page');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
   await expect(numberPage).toHaveAttribute('data-number-root', '1237');
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');
-  const sharedCore = numberPage.locator('.sod29-number-core2029');
-  await expect(sharedCore).toBeVisible();
-  const switcher = sharedCore.locator('.sod29-number-v9-switcher');
-  await expect(switcher).toBeVisible();
-  for (const label of ['התכנסות', 'שיטות', 'עולמות', 'DNA', 'חישוב', 'עומק']) {
-    await expect(switcher.getByRole('tab', { name: new RegExp(label) })).toBeVisible();
-  }
 
-  await expect(sharedCore.locator('.sod29-number-core2029-crossing:not(.is-empty)')).toBeVisible({ timeout: 30_000 });
-  await expect(sharedCore).toContainText('סולם האפס');
-  await expect(sharedCore).toContainText('12370');
-  await expect(sharedCore.locator('[data-number-view="convergence"]')).toBeVisible();
+  const core = numberPage.locator('.sod29-number-core2029');
+  await expect(core).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-vitality')).toBeVisible();
 
-  await switcher.getByRole('tab', { name: /שיטות/ }).click();
-  const methodRail = sharedCore.locator('.sod29-number-core2029-method-section');
-  await expect(methodRail).toBeVisible();
   await expect.poll(
-    () => sharedCore.locator('.sod29-number-v7-method-main').count(),
-    { timeout: 10_000 },
+    () => core.locator('.sod29-number-v10-method-card').count(),
+    { timeout: 15_000 },
   ).toBeGreaterThan(3);
-  expect(await sharedCore.locator('.sod29-number-v7-method-main').count()).toBeLessThanOrEqual(8);
-  const firstCoreMethod = sharedCore.locator('.sod29-number-v7-method-main').first();
-  await firstCoreMethod.click();
-  await expect(sharedCore.locator('[data-number-view="calculation"]')).toBeVisible();
-  const methodInspector = sharedCore.locator('.sod29-number-method-inspector');
-  await expect(methodInspector).toBeVisible();
-  await expect(methodInspector.getByRole('tab', { name: 'חישוב' })).toBeVisible();
-  await expect(methodInspector.getByRole('tab', { name: 'למד' })).toBeVisible();
-  await expect(methodInspector.getByRole('tab', { name: 'רזיאל' })).toBeVisible();
-  await expect(methodInspector.getByRole('tab', { name: 'עולמות' })).toBeVisible();
-  await methodInspector.getByRole('tab', { name: 'למד' }).click();
-  await expect(methodInspector).toContainText('מה השיטה עושה');
-  await methodInspector.getByRole('tab', { name: 'עולמות' }).click();
-  await expect(methodInspector.locator('.sod29-number-core2029-world-grid, .sod29-number-core2029-note').first()).toBeVisible();
+  expect(await core.locator('.sod29-number-v10-method-card').count()).toBeLessThanOrEqual(6);
 
-  await switcher.getByRole('tab', { name: /עולמות/ }).click();
-  await expect(sharedCore.locator('.sod29-number-v7-world-hub')).toBeVisible();
-  await expect(sharedCore.locator('.sod29-number-v7-world-center')).toContainText('1237');
+  const firstMethod = core.locator('.sod29-number-v10-method-card').first();
+  await firstMethod.click();
+  await expect(firstMethod).toHaveAttribute('aria-pressed', 'true');
+  await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
 
-  await switcher.getByRole('tab', { name: /DNA/ }).click();
-  await expect(sharedCore.getByText('DNA המספר', { exact: true })).toBeVisible();
-  await expect(sharedCore.getByText('כיסוי שכבות', { exact: true })).toBeVisible();
-  await expect(sharedCore.getByText('ספקטרום השכבות', { exact: true })).toBeVisible();
-  await expect(sharedCore).toContainText('RAZIEL MICRO');
-
-  await switcher.getByRole('tab', { name: /עומק/ }).click();
-  await expect(sharedCore).toContainText('PREMIUM-READY');
-  await expect(sharedCore.getByRole('button', { name: /חקור בהיכל/ })).toBeVisible();
+  await core.getByRole('button', { name: 'פתח חישוב' }).click();
+  const inspector = core.locator('.sod29-number-method-inspector');
+  await expect(inspector).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'חישוב' })).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'למד' })).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'רזיאל' })).toBeVisible();
+  await expect(inspector.getByRole('tab', { name: 'עולמות' })).toBeVisible();
 
   const observatory = numberPage.locator('.sod29-number-observatory');
   await expect(observatory).toBeVisible();
   expect(await observatory.locator('.sod29-number-observatory-node:not(.is-empty)').count()).toBeGreaterThanOrEqual(2);
-  await expect(numberPage.getByRole('heading', { name: /למה 1237 מעניין עכשיו/ })).toBeVisible();
-  await expect(numberPage.getByRole('heading', { name: /הדרכון המתמטי של 1237/ })).toBeVisible();
-  await expect(numberPage.getByRole('heading', { name: /שיטות שחיות על 1237/ })).toBeVisible();
-  expect(await numberPage.locator('.sod29-number-method-card').count()).toBeGreaterThan(0);
-  expect(await numberPage.locator('.sod29-number-live-expressions button').count()).toBeGreaterThan(0);
-  await expect(numberPage.getByRole('button', { name: 'פתח בעולם' }).first()).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/number-2029-preview-1237-390.png', fullPage: true });
 });
 
-test('Number 2029 global drawer reuses the same Core and carries Mini Raziel context into Panel', async ({ page }) => {
+test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.sod29-number-page')).toBeVisible({ timeout: 30_000 });
@@ -189,53 +159,60 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   const drawer = page.locator('.sod29-number-drawer2029');
   await expect(drawer).toBeVisible({ timeout: 30_000 });
   await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('1237');
-  await expect(drawer).toContainText('סולם האפס');
-  await expect(drawer).toContainText('12370');
-  const drawerSwitcher = drawer.locator('.sod29-number-v9-switcher');
-  await expect(drawerSwitcher).toBeVisible();
-  await drawerSwitcher.getByRole('tab', { name: /שיטות/ }).click();
+  await expect(drawer.locator('.sod29-number-v10-method-switcher')).toBeVisible();
+  await expect(drawer.locator('.sod29-number-v10-stage')).toBeVisible();
 
-  const miluy = drawer.locator('.sod29-number-v7-method-main').filter({ hasText: 'מילוי' }).first();
+  const miluy = drawer.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible();
   await miluy.click();
-  await expect(drawer.locator('[data-number-view="calculation"]')).toBeVisible();
-  await expect(drawer.locator('.sod29-number-core2029-active strong')).not.toHaveText('—');
-  const drawerInspector = drawer.locator('.sod29-number-method-inspector');
-  await expect(drawerInspector).toBeVisible();
-  await drawerInspector.getByRole('tab', { name: 'רזיאל' }).click();
-  await expect(drawerInspector).toContainText('RAZIEL MICRO');
-  await page.screenshot({ path: 'test-results/release-visual/number-2029-drawer-1237-390.png', fullPage: false });
+  await expect(miluy).toHaveAttribute('aria-pressed', 'true');
 
-  await drawerInspector.getByRole('button', { name: 'השווה שיטות' }).click();
+  await drawer.getByRole('button', { name: 'פתח חישוב' }).click();
+  const inspector = drawer.locator('.sod29-number-method-inspector');
+  await expect(inspector).toBeVisible();
+  await inspector.getByRole('tab', { name: 'רזיאל' }).click();
+  await expect(inspector).toContainText('RAZIEL MICRO');
+  await inspector.getByRole('button', { name: 'השווה שיטות' }).click();
+
   const razielPanel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
   await expect(razielPanel).toBeVisible();
   await expect(razielPanel).toContainText('השווה שיטות');
   await expect(razielPanel).toContainText('1237');
-  await expect(razielPanel).toContainText('תגובה מהירה');
-  await expect(razielPanel).toContainText('מילוי');
   await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-drawer-1237-390.png', fullPage: false });
 });
 
-test('Number 2029 control center opens canonical Miluy explain in-place and keeps Heichal deepening', async ({ page }) => {
+test('Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/358`, { waitUntil: 'domcontentloaded' });
 
   const core = page.locator('.sod29-number-core2029');
   await expect(core).toBeVisible({ timeout: 30_000 });
-  const switcher = core.locator('.sod29-number-v9-switcher');
-  await switcher.getByRole('tab', { name: /שיטות/ }).click();
+  await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
 
-  const miluy = core.locator('.sod29-number-v7-method-main').filter({ hasText: 'מילוי' }).first();
+  const miluy = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible({ timeout: 15_000 });
   await miluy.click();
 
-  await expect(core.locator('[data-number-view="calculation"]')).toBeVisible();
-  const explain = core.locator('[data-miluy-spatial-explain="true"]');
+  const stage = core.locator('.sod29-number-v10-stage');
+  await expect(stage).toHaveAttribute('data-stage-root', '878', { timeout: 30_000 });
+  await expect(stage).toContainText('משיח');
+  await expect(stage.locator('.sod29-number-v10-vitality')).toBeVisible();
+
+  const language = stage.locator('.sod29-number-v10-languages');
+  await expect(language).toBeVisible({ timeout: 15_000 });
+  await expect(language).toContainText('Messiah');
+  await expect(language).toContainText('мессия');
+
+  await stage.getByRole('button', { name: 'פתח חישוב' }).click();
+  const explain = stage.locator('[data-miluy-spatial-explain="true"]');
   await expect(explain).toBeVisible({ timeout: 15_000 });
   await expect(explain).toContainText('878');
   await expect(explain).toContainText('אות → שם האות המלא → ערך → סכום');
   await expect(explain.getByRole('button', { name: /פתח בהיכל/ })).toBeVisible();
+
   await assertNoHorizontalOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-v10-miluy-358-390.png', fullPage: true });
 });
 
 test('Number 2029 preview exposes the existing Golden Journey only for 878', async ({ page }) => {
