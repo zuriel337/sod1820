@@ -207,6 +207,36 @@ export default function NumberCore2029({
       <button type="button" onClick={openWorldsInspector}>עולמות</button>
     </div>
 
+    <div className="sod29-number-core2029-upper-grid">
+      {crossing ? <article className="sod29-number-core2029-crossing">
+        <div className="sod29-number-core2029-label"><span>✦</span><b>הצלבה נסתרת</b><small>{crossing.methodCount} שיטות</small></div>
+        <strong>{projection.expression}</strong>
+        <span className="sod29-number-core2029-cross-eq">↕ {root} ↕</span>
+        <strong>{crossing.partner}</strong>
+        <div className="sod29-number-core2029-method-tags">{crossing.methods.map((method) => <span key={method.methodKey}>{method.methodLabel}</span>)}</div>
+        <p>הצלבה חישובית מאומתת דרך ה־projection; המשמעות המחקרית נשארת נפרדת.</p>
+        <button type="button" onClick={() => onOpenCrossing?.(crossing)}>למה זה מעניין?</button>
+      </article> : <article className="sod29-number-core2029-crossing is-empty">
+        <div className="sod29-number-core2029-label"><span>✦</span><b>הצלבה נסתרת</b></div>
+        <strong>אין כרגע הצלבה רב־שיטתית להצגה</strong>
+        <p>המערכת לא ממציאה התאמה כשאין לפחות שתי שיטות בלתי־תלויות.</p>
+      </article>}
+
+      {zero ? <article className="sod29-number-core2029-zero">
+        <div className="sod29-number-core2029-label"><span>×10</span><b>סולם האפס</b><small>DERIVATION</small></div>
+        {compact ? <div className="sod29-number-core2029-zero-step">
+          <strong>{root}</strong><span>→</span><b>{zero.next ?? zero.previous ?? zero.coreRoot}</b>
+        </div> : <div className="sod29-number-core2029-zero-chain">
+          {zero.chain.map((value, index) => <React.Fragment key={value}>
+            {index > 0 ? <span>→</span> : null}
+            <button type="button" className={Number(value) === Number(root) ? "is-current" : ""} onClick={() => onOpenZero?.(value)}>{value}</button>
+          </React.Fragment>)}
+        </div>}
+        <p>{zero.note}. לא שוויון — נתיב נגזרת.</p>
+        {compact && zero.next != null ? <button type="button" onClick={() => onOpenZero?.(zero.next)}>פתח {zero.next}</button> : null}
+      </article> : null}
+    </div>
+
     <div className="sod29-number-core2029-method-section">
       <div className="sod29-number-core2029-section-title">
         <span>כל השיטות · נגיעה אחת</span>
@@ -244,37 +274,7 @@ export default function NumberCore2029({
       onClose={() => setInspectorMethodKey(null)}
     />
 
-    <div className="sod29-number-core2029-upper-grid">
-      {crossing ? <article className="sod29-number-core2029-crossing">
-        <div className="sod29-number-core2029-label"><span>✦</span><b>הצלבה נסתרת</b><small>{crossing.methodCount} שיטות</small></div>
-        <strong>{projection.expression}</strong>
-        <span className="sod29-number-core2029-cross-eq">↕ {root} ↕</span>
-        <strong>{crossing.partner}</strong>
-        <div className="sod29-number-core2029-method-tags">{crossing.methods.map((method) => <span key={method.methodKey}>{method.methodLabel}</span>)}</div>
-        <p>הצלבה חישובית מאומתת דרך ה־projection; המשמעות המחקרית נשארת נפרדת.</p>
-        <button type="button" onClick={() => onOpenCrossing?.(crossing)}>למה זה מעניין?</button>
-      </article> : <article className="sod29-number-core2029-crossing is-empty">
-        <div className="sod29-number-core2029-label"><span>✦</span><b>הצלבה נסתרת</b></div>
-        <strong>אין כרגע הצלבה רב־שיטתית להצגה</strong>
-        <p>המערכת לא ממציאה התאמה כשאין לפחות שתי שיטות בלתי־תלויות.</p>
-      </article>}
-
-      {zero ? <article className="sod29-number-core2029-zero">
-        <div className="sod29-number-core2029-label"><span>×10</span><b>סולם האפס</b><small>DERIVATION</small></div>
-        {compact ? <div className="sod29-number-core2029-zero-step">
-          <strong>{root}</strong><span>→</span><b>{zero.next ?? zero.previous ?? zero.coreRoot}</b>
-        </div> : <div className="sod29-number-core2029-zero-chain">
-          {zero.chain.map((value, index) => <React.Fragment key={value}>
-            {index > 0 ? <span>→</span> : null}
-            <button type="button" className={Number(value) === Number(root) ? "is-current" : ""} onClick={() => onOpenZero?.(value)}>{value}</button>
-          </React.Fragment>)}
-        </div>}
-        <p>{zero.note}. לא שוויון — נתיב נגזרת.</p>
-        {compact && zero.next != null ? <button type="button" onClick={() => onOpenZero?.(zero.next)}>פתח {zero.next}</button> : null}
-      </article> : null}
-    </div>
-
-    {worlds.length ? <div className="sod29-number-core2029-world-strip">
+    {worlds.length && !(inspectorMethodKey && inspectorTab === "worlds") ? <div className="sod29-number-core2029-world-strip">
       <span>עולמות</span>
       <div>{worlds.slice(0, compact ? 4 : 6).map((world) => <button type="button" key={world.label} onClick={openWorldsInspector}>{world.label}<small>{world.count || 0}</small></button>)}</div>
     </div> : null}
