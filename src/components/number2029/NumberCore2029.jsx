@@ -205,11 +205,6 @@ export default function NumberCore2029({
     setInspectorTab("calc");
   };
 
-  const openWorldsInspector = () => {
-    setInspectorMethodKey(active?.methodKey || methods[0]?.methodKey || null);
-    setInspectorTab("worlds");
-  };
-
   return <section className={`sod29-number-core2029 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={NUMBER_CORE_PALETTE}>
     <header className="sod29-number-dashboard-identity">
       {heroMedia?.src ? <figure className="sod29-number-dashboard-art">
@@ -237,7 +232,7 @@ export default function NumberCore2029({
       </blockquote>
     </header>
 
-    <section className="sod29-number-v7-method-ribbon" aria-label="שיטות גימטריה גלויות">
+    <section className="sod29-number-v7-method-ribbon sod29-number-core2029-method-section" aria-label="שיטות גימטריה גלויות">
       <div className="sod29-number-v7-method-head">
         <div>
           <span>שיטות גימטריה</span>
