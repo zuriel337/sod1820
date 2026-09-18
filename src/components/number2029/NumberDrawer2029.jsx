@@ -225,21 +225,22 @@ export default function NumberDrawer2029({
   };
 
   const razielIntent = (intent) => {
+    const numberCoreFocus = {
+      root,
+      expression: clean(expression) || null,
+      method: selectedProfile?.methodKey || null,
+      resultValue: selectedProfile?.computedValue ?? null,
+      crossingPartner: projection?.crossing?.partner || null,
+      zeroScaleNext: projection?.zeroScale?.next ?? null,
+    };
     updateContext({
       dimensions: {
         ...(context?.dimensions || {}),
         razielMicroIntent: intent,
-        numberCoreFocus: {
-          root,
-          expression: clean(expression) || null,
-          method: selectedProfile?.methodKey || null,
-          resultValue: selectedProfile?.computedValue ?? null,
-          crossingPartner: projection?.crossing?.partner || null,
-          zeroScaleNext: projection?.zeroScale?.next ?? null,
-        },
+        numberCoreFocus,
       },
     });
-    openRaziel?.();
+    openRaziel?.({ razielMicroIntent: intent, numberCoreFocus });
   };
 
   const openPage = () => {
