@@ -2298,6 +2298,7 @@
 
 /* V11 regular-expression rail */
 .sod29-number-v11-regular-rail{
+  position:relative;
   display:grid;
   gap:7px;
   padding:9px 10px 8px;
@@ -2343,6 +2344,17 @@
   scrollbar-width:none;
   padding-block:1px 3px;
   touch-action:pan-x;
+}
+.sod29-number-v11-regular-rail.has-overflow-hint .sod29-number-v11-regular-track{
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
+  animation:sod29-regular-rail-hint 1.05s ease-in-out .45s 1 both;
+}
+@keyframes sod29-regular-rail-hint{
+  0%,100%{transform:translateX(0)}
+  24%{transform:translateX(11px)}
+  52%{transform:translateX(-9px)}
+  76%{transform:translateX(5px)}
 }
 .sod29-number-v11-regular-track::-webkit-scrollbar{display:none}
 .sod29-number-v11-regular-track button{
@@ -2403,7 +2415,13 @@
     border-radius:15px;
   }
   .sod29-number-v11-regular-head strong{font-size:9.5px}
-  .sod29-number-v11-regular-head>small{display:none}
+  .sod29-number-v11-regular-head>small{
+    display:block;
+    max-width:42%;
+    white-space:normal;
+    line-height:1.25;
+    font-size:6.2px;
+  }
   .sod29-number-v11-regular-track{gap:5px}
   .sod29-number-v11-regular-track button{
     min-width:106px;
@@ -2438,4 +2456,10 @@
 }
 .sod29-number-v10-method-head>small.is-loading{
   color:var(--s29-hero);
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sod29-number-v11-regular-rail.has-overflow-hint .sod29-number-v11-regular-track{
+    animation:none;
+  }
 }
