@@ -253,6 +253,13 @@ export async function getCommandCenter() {
   if (error) throw error;
   return attachTrafficDayContext(data || null);
 }
+// 🩺 G3_2029_CONTROL_PLANE_FOUNDATION_V1 — bounded admin health projection; no UI coupling.
+export async function getSystemHealth() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_system_health");
+  if (error) throw error;
+  return data || null;
+}
 export async function reviewRecommendation(id, status, note = null) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_recommendation_review", { p_id: id, p_status: status, p_note: note });
