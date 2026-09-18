@@ -197,6 +197,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/number/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
