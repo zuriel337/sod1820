@@ -12,7 +12,7 @@ import {
 } from "../lib/research/numberCoreProjection.js";
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import { applySeo } from "../lib/seo.js";
-import { langLinksList } from "../lib/supabase.js";
+import { getAllValuePhrases, langLinksList } from "../lib/supabase.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
@@ -170,6 +170,7 @@ function NumberPageBody() {
   const [methodProfileState, setMethodProfileState] = useState({ loading: false, rows: [], error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
+  const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
   const [observatoryFocus, setObservatoryFocus] = useState("now");
 
@@ -234,6 +235,19 @@ function NumberPageBody() {
   const expressions = useMemo(() => expressionItems(families), [families]);
 
   useEffect(() => {
+    if (!Number.isSafeInteger(root) || root < 1) {
+      setRegularPhraseState({ loading: false, rows: [] });
+      return undefined;
+    }
+    let alive = true;
+    setRegularPhraseState({ loading: true, rows: [] });
+    getAllValuePhrases(root, 500)
+      .then((rows) => { if (alive) setRegularPhraseState({ loading: false, rows: Array.isArray(rows) ? rows : [] }); })
+      .catch(() => { if (alive) setRegularPhraseState({ loading: false, rows: [] }); });
+    return () => { alive = false; };
+  }, [root]);
+
+  useEffect(() => {
     if (!families.length) return;
     if (activeExpression && selectedMethodKey) return;
 
@@ -287,22 +301,37 @@ function NumberPageBody() {
   const regularExpressions = useMemo(() => {
     const seen = new Set();
     const rows = [];
-    const add = (phrase, source = "family") => {
+    const add = (phrase, source = "lead_rank", meta = {}) => {
       const text = clean(phrase);
       if (!text || seen.has(text)) return;
       seen.add(text);
-      rows.push({ phrase: text, value: root, source });
+      rows.push({ phrase: text, value: root, source, ...meta });
     };
+
+    // Existing Human-Gate curation is the ordering authority for equal-Regular phrases.
+    for (const row of regularPhraseState.rows) {
+      add(row?.phrase, "lead_rank", {
+        leadRank: row?.lead_rank ?? null,
+        verified: row?.is_verified === true,
+      });
+    }
+
+    // During the bounded read only, keep the old projection as an honest fallback.
+    if (!rows.length && regularPhraseState.loading) {
+      for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) add(phraseOf(raw), "family");
+    }
+
+    // A searched expression may be valid by the canonical Regular engine before it is stored/published.
+    // Preserve it without reordering an already-curated public row.
     if (
       activeExpression
       && regularMethodProfile
       && Number(regularMethodProfile.computedValue) === root
-    ) add(activeExpression, "active");
-    for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) {
-      add(phraseOf(raw), "family");
-    }
-    return rows.slice(0, 36);
-  }, [activeExpression, regularMethodProfile, regularGroup, root]);
+      && !seen.has(clean(activeExpression))
+    ) rows.unshift({ phrase: clean(activeExpression), value: root, source: "active_unstored", leadRank: null, verified: null });
+
+    return rows;
+  }, [activeExpression, regularMethodProfile, regularGroup, regularPhraseState, root]);
 
   const selectedGroup = useMemo(
     () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
