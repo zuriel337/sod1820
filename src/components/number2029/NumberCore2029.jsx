@@ -450,6 +450,15 @@ export default function NumberCore2029({
             </> : <p>לא מוצגת התאמה מלאכותית רק כדי למלא את הכרטיס.</p>}
           </section>
 
+          {stageZero ? <section className="sod29-number-v10-zero">
+            <div className="sod29-number-v10-panel-head">
+              <div><span>סולם האפס</span><strong>{stageRoot}{stageZero.next != null ? ` → ${stageZero.next}` : ""}</strong></div>
+              <span>◉</span>
+            </div>
+            <p>אותו שורש ספרתי · סדר גודל אחר · DERIVATION, לא שוויון.</p>
+            {stageZero.next != null ? <button type="button" onClick={() => onOpenZero?.(stageZero.next)}>פתח {stageZero.next}</button> : null}
+          </section> : null}
+
           {languageBridges.length ? <section className="sod29-number-v10-languages">
             <div className="sod29-number-v10-panel-head"><div><span>גשרים חוצי־שפות</span><strong>{projection.expression}</strong></div><small>{languageBridges.length}</small></div>
             <div className="sod29-number-v10-language-list">
