@@ -26,6 +26,96 @@ const TABS = Object.freeze([
   { key: "worlds", label: "עולמות" },
 ]);
 
+
+function MiluySpatialExplain({
+  expression,
+  method,
+  traceDetail,
+  traceState,
+  onRazielAction,
+  onOpenHeichal,
+}) {
+  const rawSteps = Array.isArray(traceDetail?.steps) ? traceDetail.steps : [];
+  const steps = rawSteps
+    .filter((step) => step && typeof step === "object" && step.scope === "letter" && step.token)
+    .map((step, index) => ({
+      token: String(step.token),
+      value: Number.isFinite(Number(step.contribution ?? step.base_value)) ? Number(step.contribution ?? step.base_value) : null,
+      subtotal: Number.isFinite(Number(step.running_subtotal)) ? Number(step.running_subtotal) : null,
+      position: Number.isFinite(Number(step.position)) ? Number(step.position) : index + 1,
+    }));
+  const [focusIndex, setFocusIndex] = useState(0);
+
+  useEffect(() => { setFocusIndex(0); }, [expression, method?.methodKey]);
+  if (method?.methodKey !== "מילוי") return null;
+
+  const focus = steps[Math.min(focusIndex, Math.max(0, steps.length - 1))] || null;
+  const parity = traceDetail?.verification?.parity === true;
+  const result = Number.isFinite(Number(traceDetail?.value ?? traceDetail?.result))
+    ? Number(traceDetail?.value ?? traceDetail?.result)
+    : method?.computedValue ?? null;
+
+  return <section className="sod29-miluy-spatial" data-miluy-spatial-explain="true" aria-label={`פתיחה מרחבית של מילוי עבור ${expression}`}>
+    <div className="sod29-miluy-spatial-head">
+      <div>
+        <span>SPATIAL EXPLAIN · S2 LAYERED DEPTH</span>
+        <strong>אות → שם האות המלא → ערך → סכום</strong>
+        <small>אותו Method Trace · בלי חישוב מקומי ובלי לעזוב את המספר</small>
+      </div>
+      <div className="sod29-miluy-spatial-result">
+        <small>{parity ? "TRACE VERIFIED" : traceState?.loading ? "TRACE LOADING" : "TRACE"}</small>
+        <b>{result ?? "—"}</b>
+      </div>
+    </div>
+
+    <div className="sod29-miluy-spatial-expression">
+      <span>הביטוי הפעיל</span>
+      <strong>{expression}</strong>
+      <i aria-hidden="true" />
+    </div>
+
+    {steps.length ? <>
+      <div className="sod29-miluy-spatial-stage" style={{ "--miluy-count": Math.max(1, steps.length) }}>
+        {steps.map((step, index) => {
+          const active = index === focusIndex;
+          return <button
+            type="button"
+            key={`${step.position}:${step.token}`}
+            className={`sod29-miluy-spatial-letter${active ? " is-focus" : ""}`}
+            onClick={() => setFocusIndex(index)}
+            aria-pressed={active}
+          >
+            <span className="sod29-miluy-layer is-letter"><small>אות</small><b>{step.token}</b></span>
+            <span className="sod29-miluy-connector" aria-hidden="true">↓</span>
+            <span className="sod29-miluy-layer is-name"><small>מילוי</small><b>שם האות המלא</b></span>
+            <span className="sod29-miluy-connector" aria-hidden="true">↓</span>
+            <span className="sod29-miluy-layer is-value"><small>ערך מאומת</small><b>{step.value ?? "—"}</b></span>
+            <span className="sod29-miluy-subtotal">Σ {step.subtotal ?? "—"}</span>
+          </button>;
+        })}
+      </div>
+
+      <div className="sod29-miluy-spatial-focus">
+        <div className="sod29-miluy-spatial-focus-orb" aria-hidden="true"><i /></div>
+        <div>
+          <span>FOCUS · אות {focus?.position ?? 1}</span>
+          <strong>{focus?.token || "—"} <em>→</em> מילוי <em>→</em> {focus?.value ?? "—"}</strong>
+          <p>הערך מגיע ישירות מה־Trace הקנוני. המעבר החזותי מסביר את החישוב; הוא אינו יוצר תוצאה חדשה.</p>
+        </div>
+        <div className="sod29-miluy-spatial-focus-actions">
+          <button type="button" onClick={() => setFocusIndex((value) => steps.length ? (value + 1) % steps.length : 0)}>האות הבאה ←</button>
+          <button type="button" onClick={() => onRazielAction?.("explain_miluy_step", { kind: "miluy_step", methodKey: "מילוי", expression, step: focus })}>✦ רזיאל</button>
+          <button type="button" className="primary" onClick={() => onOpenHeichal?.({ kind: "miluy_step", methodKey: "מילוי", expression, step: focus, resultValue: result })}>◇ פתח בהיכל</button>
+        </div>
+      </div>
+    </> : <div className="sod29-number-core2029-note">
+      {traceState?.loading ? "טוען את צעדי המילוי מהמנוע הקנוני…" : "המנוע החזיר ערך מילוי, אבל עדיין אין צעדי אות־אות להצגה."}
+    </div>}
+
+    <p className="sod29-miluy-spatial-boundary">האיות המלא של שם האות אינו מומצא ב־UI. ה־Proof מציג כרגע רק מידע שמגיע מה־Trace המאומת; אפשר להעשיר את חוזה ה־Trace באיות קנוני בשלב הבא.</p>
+  </section>;
+}
+
 function MethodInspector({
   method,
   projection,
@@ -34,9 +124,11 @@ function MethodInspector({
   traceState,
   traceOpen,
   traceSteps,
+  traceDetail,
   onToggleTrace,
   onRazielAction,
   onExpandRaziel,
+  onOpenHeichal,
   onClose,
 }) {
   if (!method) return null;
@@ -81,6 +173,14 @@ function MethodInspector({
       {traceOpen && traceState?.finding ? <div className="sod29-number-core2029-trace-steps">
         {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>המנוע החזיר Trace ללא פירוט צעדים להצגה.</span>}
       </div> : null}
+      <MiluySpatialExplain
+        expression={projection.expression}
+        method={method}
+        traceDetail={traceDetail}
+        traceState={traceState}
+        onRazielAction={onRazielAction}
+        onOpenHeichal={onOpenHeichal}
+      />
     </div> : null}
 
     {tab === "learn" ? <div className="sod29-number-method-inspector-pane sod29-number-method-learn">
@@ -145,6 +245,7 @@ export default function NumberCore2029({
   traceState = null,
   traceOpen = false,
   traceSteps = [],
+  traceDetail = null,
   onMethodSelect,
   onToggleTrace,
   onOpenCrossing,
@@ -152,6 +253,7 @@ export default function NumberCore2029({
   onOpenPage,
   onOpenWorld,
   onOpenJourney,
+  onOpenHeichal,
   journeyLabel = null,
   onOpenResult,
   onRazielAction,
@@ -276,9 +378,11 @@ export default function NumberCore2029({
       traceState={traceState}
       traceOpen={traceOpen}
       traceSteps={traceSteps}
+      traceDetail={traceDetail}
       onToggleTrace={onToggleTrace}
       onRazielAction={onRazielAction}
       onExpandRaziel={onExpandRaziel}
+      onOpenHeichal={onOpenHeichal}
       onClose={() => setInspectorMethodKey(null)}
     />
 
