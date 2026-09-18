@@ -120,7 +120,10 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(sharedCore).toContainText('Zero Scale');
   await expect(sharedCore).toContainText('12370');
   await expect(sharedCore).toContainText('RAZIEL MICRO');
-  expect(await sharedCore.locator('.sod29-number-core2029-methods button').count()).toBeGreaterThan(3);
+  await expect.poll(
+    () => sharedCore.locator('.sod29-number-core2029-methods button').count(),
+    { timeout: 10_000 },
+  ).toBeGreaterThan(3);
 
   const observatory = numberPage.locator('.sod29-number-observatory');
   await expect(observatory).toBeVisible();
