@@ -253,6 +253,15 @@ export async function getCommandCenter() {
   if (error) throw error;
   return attachTrafficDayContext(data || null);
 }
+// 🩺 G3_2029_CONTROL_PLANE_FOUNDATION_V1 — בריאות-תשתית קנונית (DB · cron · בוטים · תקשורת ·
+// מדיה · אבטחה · שימוש · retention pointer). מנהל/service בלבד. אין עדיין ממשק Control Plane —
+// זהו קורא-לקוח בלבד, ללא רכיב UI.
+export async function getSystemHealth() {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("admin_system_health");
+  if (error) throw error;
+  return data || null;
+}
 export async function reviewRecommendation(id, status, note = null) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_recommendation_review", { p_id: id, p_status: status, p_note: note });
