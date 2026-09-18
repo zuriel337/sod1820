@@ -67,7 +67,7 @@ const mixed = normalizeResearcherCorpusRow({
     },
   },
 });
-assert.deepEqual(new Set(researcherOperationTags(mixed)), new Set(["multiplication", "addition", "chain"]));
+assert.deepEqual(new Set(mixed.operationTags), new Set(["multiplication", "addition", "chain"]));
 
 const single = normalizeResearcherCorpusRow({
   id: "s1",
@@ -77,7 +77,7 @@ const single = normalizeResearcherCorpusRow({
   engine_detail: { verification: { phrase: "בית שלישי", claimed: 1062, computed: 1062, method: "רגיל" } },
 });
 assert.equal(single.operationTags.includes("single"), true);
-assert.equal(researcherRowTokens(single).some((t) => t.label === "בית שלישי"), true);
+assert.equal(single.tokens.some((t) => t.label === "בית שלישי"), true);
 
 const unresolved = normalizeResearcherCorpusRow({
   id: "u1",
