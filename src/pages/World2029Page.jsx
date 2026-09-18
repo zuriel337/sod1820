@@ -734,6 +734,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [gematriaMethodFilter, setGematriaMethodFilter] = useState("all");
   const [gematriaTypeFilter, setGematriaTypeFilter] = useState("all");
   const [gematriaQuery, setGematriaQuery] = useState("");
+  const [journeyState, setJourneyState] = useState({ loading: false, data: null, error: null });
   const key = subjectKey(subject);
 
   useEffect(() => {
@@ -771,6 +772,28 @@ function AnchoredWorld({ research, shell, subject, context }) {
       setContributorFilter("all");
     }
   }, [isAdmin]);
+
+  const goldenJourneyRelevant = (
+    (subject.type === "number" && Number(subject.id) === GOLDEN_WORLD_JOURNEY_878.rootValue)
+    || context?.journey?.id === GOLDEN_WORLD_JOURNEY_878.id
+  );
+
+  useEffect(() => {
+    if (!goldenJourneyRelevant) {
+      setJourneyState({ loading: false, data: null, error: null });
+      return undefined;
+    }
+    let alive = true;
+    setJourneyState({ loading: true, data: null, error: null });
+    fetchGoldenWorldJourney878()
+      .then((journey) => {
+        if (alive) setJourneyState({ loading: false, data: journey, error: null });
+      })
+      .catch((error) => {
+        if (alive) setJourneyState({ loading: false, data: null, error });
+      });
+    return () => { alive = false; };
+  }, [goldenJourneyRelevant, subject.id]);
 
   const data = state.data;
 
@@ -842,6 +865,18 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const sourceRows = data?.sources || [];
   const mediaItems = data?.media?.items || [];
   const anchorProfile = data?.anchorProfile?.finding?.projection?.dimensions?.legacyNumberAnchor || null;
+  const goldenJourney = journeyState.data;
+  const journeyIsActive = context?.journey?.id === GOLDEN_WORLD_JOURNEY_878.id;
+  const currentJourneyValue = subject.type === "number" && Number.isSafeInteger(Number(subject.id)) ? Number(subject.id) : null;
+  const journeyVisitedValues = useMemo(() => {
+    const raw = Array.isArray(context?.dimensions?.journeyVisitedValues) ? context.dimensions.journeyVisitedValues : [];
+    const values = raw.map(Number).filter(Number.isSafeInteger);
+    return [...new Set(values.length ? values : (journeyIsActive ? [GOLDEN_WORLD_JOURNEY_878.rootValue] : []))];
+  }, [context?.dimensions?.journeyVisitedValues, journeyIsActive]);
+  const journeyMeetingSlugs = useMemo(() => {
+    const raw = Array.isArray(context?.dimensions?.journeyMeetingSlugs) ? context.dimensions.journeyMeetingSlugs : [];
+    return [...new Set(raw.map((value) => String(value || "").trim()).filter(Boolean))];
+  }, [context?.dimensions?.journeyMeetingSlugs]);
   const laneCounts = {
     overview: prominenceItems.length,
     media: mediaItems.length,
@@ -874,6 +909,86 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const openNumberPage = () => {
     if (data?.identity?.type !== "number") return;
     shell.go(`/number/${encodeURIComponent(data.identity.label)}`);
+  };
+
+  const activateGoldenJourney = () => {
+    if (!goldenJourney) return;
+    const root = GOLDEN_WORLD_JOURNEY_878.rootValue;
+    research.addJourney?.({
+      root,
+      path: [{ type: "number", value: root }],
+      world: "world",
+      msg: GOLDEN_WORLD_JOURNEY_878.id,
+    });
+    research.setResearchContext?.({
+      subject: { id: String(root), type: "number", label: String(root), href: "/world" },
+      selection: { entityId: String(root), entityType: "number" },
+      lens: "world",
+      journey: { id: GOLDEN_WORLD_JOURNEY_878.id, kind: GOLDEN_WORLD_JOURNEY_878.kind, position: 0 },
+      dimensions: {
+        ...(context?.dimensions || {}),
+        journeySource: "world-golden-878",
+        journeyRoot: root,
+        journeyVisitedValues: [root],
+        journeyMeetingSlugs: [],
+      },
+      returnTo: context?.subject ? {
+        href: "/world",
+        label: subject.label || subject.id,
+        subject: context.subject,
+        selection: context.selection || null,
+        lens: context.lens || "world",
+        dimensions: context.dimensions || {},
+        journey: context.journey || null,
+      } : { href: "/world", label: "העולם" },
+    });
+  };
+
+  const followGoldenJourneyPath = (path) => {
+    if (!goldenJourney || !path?.targetValue) return;
+    const root = GOLDEN_WORLD_JOURNEY_878.rootValue;
+    const target = Number(path.targetValue);
+    if (!Number.isSafeInteger(target)) return;
+    const baseVisited = journeyIsActive && journeyVisitedValues.length ? journeyVisitedValues : [root];
+    const visited = [...new Set([...baseVisited, target])];
+    const meetingSlugs = [...new Set([
+      ...(journeyIsActive ? journeyMeetingSlugs : []),
+      ...(path.meetingSlug ? [path.meetingSlug] : []),
+    ])];
+
+    research.addJourney?.({
+      root,
+      path: visited.map((value) => ({ type: "number", value })),
+      world: "world",
+      msg: GOLDEN_WORLD_JOURNEY_878.id,
+    });
+    research.setResearchContext?.({
+      subject: { id: String(target), type: "number", label: String(target), href: "/world" },
+      selection: { entityId: String(target), entityType: "number" },
+      lens: "world",
+      journey: {
+        id: GOLDEN_WORLD_JOURNEY_878.id,
+        kind: GOLDEN_WORLD_JOURNEY_878.kind,
+        position: Math.max(0, visited.length - 1),
+        findingId: path.meetingSlug || null,
+      },
+      dimensions: {
+        ...(context?.dimensions || {}),
+        journeySource: "world-golden-878",
+        journeyRoot: root,
+        journeyVisitedValues: visited,
+        journeyMeetingSlugs: meetingSlugs,
+      },
+      returnTo: {
+        href: "/world",
+        label: subject.label || subject.id,
+        subject: context?.subject || subject,
+        selection: context?.selection || null,
+        lens: context?.lens || "world",
+        dimensions: context?.dimensions || {},
+        journey: context?.journey || null,
+      },
+    });
   };
 
   const inspectFinding = (finding) => {
@@ -972,6 +1087,57 @@ function AnchoredWorld({ research, shell, subject, context }) {
     {state.error ? <NativeStateSection><FrameState kind="error" title="לא הצלחנו לפתוח את הנקודה כרגע">לא מוצג חומר חלופי במקום המידע שלא נטען.</FrameState></NativeStateSection> : null}
     {!state.loading && !state.error && !data ? <NativeStateSection><FrameState kind="unavailable" title="אין חומר זמין לנקודה הזאת">המקום נשאר שמור ואפשר לחזור, לחפש או לבחור נקודה אחרת.</FrameState></NativeStateSection> : null}
     {deepening.error ? <NativeStateSection><FrameState kind="unavailable" title="החיבור קיים אך היעד לא נפתח כרגע">אפשר להמשיך לעיין כאן או לנסות שוב.</FrameState></NativeStateSection> : null}
+
+    {journeyState.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את מסע 878">מחבר את העוגן למפגשים הציבוריים שלו.</FrameState></NativeStateSection> : null}
+    {journeyState.error ? <NativeStateSection><FrameState kind="unavailable" title="מסע 878 לא זמין כרגע">העולם עצמו נשאר פתוח. לא נוצר מסלול חלופי ללא מקור.</FrameState></NativeStateSection> : null}
+    {goldenJourney ? <section className="sod29-section sod29-world-journey-rail" aria-label="מסע 878">
+      <div className="sod29-world-journey-rail-head">
+        <div>
+          <div className="sod29-kicker">Golden Journey · 878</div>
+          <h2>{journeyIsActive ? "אתה בתוך מסע 878" : "מסע 878"}</h2>
+          <p>878 הוא העוגן. כל שביל למטה מגיע ממפגש ציבורי קיים שמכיל את 878 ומצביע גם למספר נוסף.</p>
+        </div>
+        {!journeyIsActive
+          ? <button className="sod29-action primary" type="button" onClick={activateGoldenJourney}>התחל ב־878</button>
+          : <span className="sod29-chip">תחנה {Math.max(1, Number(context?.journey?.position || 0) + 1)}</span>}
+      </div>
+
+      <div className="sod29-world-journey-track" aria-label="התחנות שעברת">
+        {(journeyVisitedValues.length ? journeyVisitedValues : [GOLDEN_WORLD_JOURNEY_878.rootValue]).map((value, index) => <React.Fragment key={value}>
+          {index > 0 ? <span className="sod29-world-journey-track-line" aria-hidden="true" />}
+          <button
+            type="button"
+            className={`sod29-world-journey-track-stop${currentJourneyValue === value ? " is-current" : ""}`}
+            onClick={() => {
+              if (value === GOLDEN_WORLD_JOURNEY_878.rootValue) activateGoldenJourney();
+              else followGoldenJourneyPath(goldenJourney.paths.find((path) => path.targetValue === value) || { targetValue: value });
+            }}
+          >
+            <strong>{value}</strong>
+            <small>{index === 0 ? "עוגן" : "תחנה"}</small>
+          </button>
+        </React.Fragment>)}
+      </div>
+
+      <div className="sod29-world-journey-path-grid">
+        {goldenJourney.paths.map((path) => {
+          const visited = journeyVisitedValues.includes(path.targetValue);
+          const current = currentJourneyValue === path.targetValue;
+          return <button
+            type="button"
+            className={`sod29-world-journey-path-card${current ? " is-current" : ""}${visited ? " is-visited" : ""}`}
+            key={path.id}
+            onClick={() => followGoldenJourneyPath(path)}
+          >
+            <span className="sod29-kicker">{visited ? "תחנה שנפתחה" : "שביל"}</span>
+            <div className="sod29-world-journey-path-values"><b>878</b><span aria-hidden="true">←</span><strong>{path.targetValue}</strong></div>
+            <h3>{path.meetingTitle}</h3>
+            {path.meetingSubtitle ? <p>{path.meetingSubtitle}</p> : null}
+            <small>המסלול מוצע לפי מפגש קיים; סדר ההצגה אינו דירוג אמת.</small>
+          </button>;
+        })}
+      </div>
+    </section> : null}
 
     {data ? <div
       className="sod29-world-native-projection"
