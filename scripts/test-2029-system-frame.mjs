@@ -110,7 +110,8 @@ assert.match(frame, /Follow runtime נשאר ב־PR #486/);
 
 // Cross-cutting actions consume canonical capability seams where they already exist.
 assert.match(frame, /makeEntity/);
-assert.match(frame, /shareOrCopy/);
+assert.match(frame, /ShareActions/);
+assert.equal(frame.includes("shareOrCopy"), false, "System Frame must use canonical ShareActions rather than a local sharing path");
 
 // Navigation may name World, but Frame operation must not hard-code World as the destination of inspect/search/tools.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
