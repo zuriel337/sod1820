@@ -12,7 +12,10 @@ for (const required of [
   "fetchEntityHubProjection",
   "fetchGematriaMethodTrace",
   "useResearch",
-  "sod29-number-core",
+  "sod29-number-observatory",
+  "למה",
+  "MATH PASSPORT",
+  "runNumberMathProfile",
   "מפגשים סביב",
   "צא למסע 878",
 ]) {
@@ -46,10 +49,10 @@ assert.ok(rewrite, "missing isolated Number 2029 preview rewrite");
 assert.equal(rewrite.destination, "/2029.html");
 
 for (const visual of [
-  ".sod29-number-core",
-  ".sod29-number-pulse",
-  ".sod29-number-method-rail",
-  ".sod29-number-card-grid",
+  ".sod29-number-observatory",
+  ".sod29-number-observatory-center",
+  ".sod29-number-method-grid",
+  ".sod29-number-signal-grid",
 ]) {
   assert.equal(css.includes(visual), true, `Number preview CSS missing: ${visual}`);
 }
