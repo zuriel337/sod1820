@@ -189,12 +189,16 @@ export default function NumberCore2029({
 
       <div className="sod29-number-dashboard-identity-copy">
         <span>מספר במערכת 2029</span>
-        <div className="sod29-number-dashboard-number-line">
-          <b>{root}</b>
+        <div className="sod29-number-dashboard-number-line sod29-number-core2029-root">
+          <b className="sod29-number-value">{root}</b>
           <span aria-hidden="true">☆</span>
         </div>
         <strong>{projection.expression || root}</strong>
-        <small>{active?.displayLabel ? `${active.displayLabel} · ${result ?? "—"} · Root נשאר ${root}` : "שורש חי · ביטוי פעיל"}</small>
+        <div className="sod29-number-core2029-active sod29-number-dashboard-active">
+          <span>{active?.displayLabel || "שיטה פעילה"}</span>
+          <strong>{result != null ? result : "—"}</strong>
+        </div>
+        <small>{active?.displayLabel ? `Root נשאר ${root} · התוצאה הפעילה אינה משנה זהות` : "שורש חי · ביטוי פעיל"}</small>
       </div>
 
       <blockquote className="sod29-number-dashboard-quote">
