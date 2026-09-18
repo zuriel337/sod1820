@@ -210,9 +210,9 @@ export default async function handler(req) {
           marginBottom: '8px',
         },
       },
-      h('span', null, '✦'),
+      h('span', null, '|'),
       h('span', null, rev('סוד 1820')),
-      h('span', null, '✦')
+      h('span', null, '|')
     ),
     // הגיבור — מספר/מילה ענקיים (מספרים לא הופכים, רק מילות עברית)
     h(
