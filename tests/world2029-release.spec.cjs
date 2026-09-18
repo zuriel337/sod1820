@@ -115,6 +115,13 @@ test('Number 2029 preview opens 1237 natively with the central core and canonica
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');
   const sharedCore = numberPage.locator('.sod29-number-core2029');
   await expect(sharedCore).toBeVisible();
+  const upperSignals = sharedCore.locator('.sod29-number-core2029-upper-grid');
+  const methodRail = sharedCore.locator('.sod29-number-core2029-method-section');
+  await expect(upperSignals).toBeVisible();
+  expect(await upperSignals.evaluate((node) => Boolean(node.compareDocumentPosition(
+    node.parentElement.querySelector('.sod29-number-core2029-method-section'),
+  ) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  await expect(methodRail).toBeVisible();
   await expect(sharedCore.locator('.sod29-number-core2029-crossing:not(.is-empty)')).toBeVisible({ timeout: 30_000 });
   await expect(sharedCore).toContainText('הצלבה');
   await expect(sharedCore).toContainText('סולם האפס');
@@ -177,6 +184,7 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   await expect(drawerInspector).toBeVisible();
   await drawerInspector.getByRole('tab', { name: 'רזיאל' }).click();
   await expect(drawerInspector).toContainText('RAZIEL MICRO');
+  await page.screenshot({ path: 'test-results/release-visual/number-2029-drawer-1237-390.png', fullPage: false });
 
   await drawerInspector.getByRole('button', { name: 'השווה שיטות' }).click();
   const razielPanel = page.getByRole('dialog', { name: 'נוכחות מחקרית' });
@@ -195,6 +203,30 @@ test('Number 2029 preview exposes the existing Golden Journey only for 878', asy
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('878');
   await expect(numberPage.getByRole('button', { name: 'צא למסע 878' })).toBeVisible();
   await assertNoHorizontalOverflow(page);
+});
+
+test('Number 2029 golden visual calibration covers 878 and 358 in Page and Drawer', async ({ page }) => {
+  for (const root of [878, 358]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${BASE}/2029/number/${root}`, { waitUntil: 'domcontentloaded' });
+
+    const numberPage = page.locator('.sod29-number-page');
+    await expect(numberPage).toBeVisible({ timeout: 30_000 });
+    await expect(numberPage.locator('.sod29-number-value')).toHaveText(String(root));
+    await expect(numberPage.locator('.sod29-number-core2029')).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({ path: `test-results/release-visual/number-2029-preview-${root}-390.png`, fullPage: true });
+
+    const numberAction = page.locator('.sod29-command-island > button').filter({ hasText: 'מספר' }).first();
+    await expect(numberAction).toBeVisible();
+    await numberAction.click();
+
+    const drawer = page.locator('.sod29-number-drawer2029');
+    await expect(drawer).toBeVisible({ timeout: 30_000 });
+    await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText(String(root));
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({ path: `test-results/release-visual/number-2029-drawer-${root}-390.png`, fullPage: false });
+  }
 });
 
 test('Golden Journey 878 starts in World and keeps its rail across a path transition', async ({ page }) => {
