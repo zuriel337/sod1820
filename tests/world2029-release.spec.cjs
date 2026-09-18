@@ -197,6 +197,8 @@ test('Number 2029 global drawer reuses the same Core and carries Mini Raziel con
   await expect(razielPanel).toBeVisible();
   await expect(razielPanel).toContainText('השווה שיטות');
   await expect(razielPanel).toContainText('1237');
+  await expect(razielPanel).toContainText('תגובה מהירה');
+  await expect(razielPanel).toContainText('מילוי');
   await assertNoHorizontalOverflow(page);
 });
 
