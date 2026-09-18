@@ -205,6 +205,8 @@ Current state: **BRIDGE EXISTS · URL-RELAY IMAGE TRANSPORT LIVE · BROADER FILE
 
 - 2029 System Frame / Global Now/Home adapters;
 - World / Heichal / Number / Books / ELS / Journey / Post / Workspace semantic surfaces;
+- internal 2029 Control Plane / Admin projection over existing domain/operations owners for Human Gate, health, media/storage, communications, publishing, security, cost and release — not a new truth/store owner and not Legacy WarRoom inheritance;
+- Legacy shutdown/absorption proceeds writer-by-writer only after replacement + live-consumer proof; retiring a Legacy Experience never silently retires its capability, source data or canonical owner, and major Legacy→2029 cutover remains Human-Gated;
 - Follow/Attention delivery truth;
 - Raziel continuous research companion text/tool runtime;
 - ELS 2029 + spatial-ready projection, with explicit G3 acceptance:
@@ -226,7 +228,7 @@ Before G4, run:
 Detailed acceptance:
 `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`.
 
-It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, preserve provenance and rerun fresh-agent/release-state acceptance.
+It must retire/archive superseded G3 prototypes, reconcile branch/PR/migration/deploy state, remove stale active adapters/pointers, reconcile the live Legacy writer-shutdown matrix against verified 2029 replacements/consumers, preserve provenance and rerun fresh-agent/release-state acceptance.
 
 No-Black-Box acceptance is mandatory before G3 closes: every material new G3 runtime path must be trace-correlatable from aggregate cost/usage to root trace and individual spans, while raw private payloads remain protected.
 
@@ -264,6 +266,7 @@ These are product homes, not semantic owners:
 - Updates / Posts
 - Archive
 - My Personal Area / Workspace
+- Internal Control Plane / Admin — internal-only Human-Gate and operations projection; not public navigation and not a semantic owner
 
 Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Attention, Share and Journey may appear across surfaces without becoming separate top-level truth systems.
 
@@ -277,6 +280,7 @@ Only decision-changing open items belong here:
 - exact runtime provider/routing implementation for voice/STT/TTS and usage metering; providers remain replaceable;
 - exact Home/Global Now composition;
 - final Community/Forum disposition in the greenfield experience;
+- exact replacement gates and safe batching for Legacy writer retirement / major route cutover after 2029 consumer proof;
 - exact Free/Registered/Premium/Credits allocation in G5;
 - exact English launch scope after Golden Locale acceptance;
 - release batching after acceptance.
