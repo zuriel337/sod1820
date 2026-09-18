@@ -190,6 +190,11 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(core).toBeVisible({ timeout: 30_000 });
   await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
 
+  const search = core.getByLabel('חפש מילה ביטוי או מספר');
+  await search.fill('משיח');
+  await core.getByRole('button', { name: 'חפש ✦' }).click();
+  await expect(core.locator('.sod29-number-v10-expression')).toContainText('משיח', { timeout: 15_000 });
+
   const miluy = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible({ timeout: 15_000 });
   await miluy.click();
