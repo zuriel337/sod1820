@@ -202,6 +202,8 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
 
   const miluy = core.locator('.sod29-number-v10-method-card').filter({ hasText: 'מילוי' }).first();
   await expect(miluy).toBeVisible({ timeout: 15_000 });
+  await expect(miluy).toContainText('878', { timeout: 15_000 });
+  await expect(miluy).toBeEnabled();
   await miluy.click();
 
   const stage = core.locator('.sod29-number-v10-stage');
