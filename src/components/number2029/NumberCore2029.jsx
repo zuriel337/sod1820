@@ -150,6 +150,10 @@ export default function NumberCore2029({
   const raziel = projection.razielMicro;
   const methods = Array.isArray(projection.methods) ? projection.methods : [];
   const worlds = Array.isArray(projection.worlds) ? projection.worlds : [];
+  const layers = Array.isArray(projection.layers) ? projection.layers : [];
+  const coverage = projection.coverage || { percent: 0, present: 0, total: layers.length, note: "מהשכבות הזמינות מכילות חומר" };
+  const connections = Array.isArray(projection.connections) ? projection.connections : [];
+  const heroMedia = projection.heroMedia || null;
 
   const inspectorMethod = useMemo(() => {
     if (!methods.length) return null;
@@ -178,66 +182,132 @@ export default function NumberCore2029({
   };
 
   return <section className={`sod29-number-core2029 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root}>
-    <header className="sod29-number-core2029-head">
-      <div>
-        <span className="sod29-number-core2029-kicker">NUMBER CORE · ONE STATE</span>
-        <strong className="sod29-number-core2029-expression">{projection.expression || root}</strong>
+    <header className="sod29-number-dashboard-identity">
+      {heroMedia?.src ? <figure className="sod29-number-dashboard-art">
+        <img src={heroMedia.src} alt={heroMedia.label || `ייצוג חזותי של ${root}`} loading="lazy" />
+      </figure> : <div className="sod29-number-dashboard-art is-fallback" aria-hidden="true"><span>✦</span></div>}
+
+      <div className="sod29-number-dashboard-identity-copy">
+        <span>מספר במערכת 2029</span>
+        <div className="sod29-number-dashboard-number-line">
+          <b>{root}</b>
+          <span aria-hidden="true">☆</span>
+        </div>
+        <strong>{projection.expression || root}</strong>
+        <small>{active?.displayLabel ? `${active.displayLabel} · ${result ?? "—"} · Root נשאר ${root}` : "שורש חי · ביטוי פעיל"}</small>
       </div>
-      <div className="sod29-number-core2029-root">
-        <small>המספר</small>
-        <b>{root}</b>
-      </div>
+
+      <blockquote className="sod29-number-dashboard-quote">
+        <strong>“בכל מספר מתגלה עולם שלם.”</strong>
+        <span>{raziel?.text || "רזיאל מלווה את המספר דרך אותה Research Context."}</span>
+        <cite>— רזיאל</cite>
+      </blockquote>
     </header>
 
-    <div className="sod29-number-core2029-active">
-      <div>
-        <span>{active?.displayLabel || "שיטה פעילה"}</span>
-        <strong>{result != null ? result : "—"}</strong>
-      </div>
-      <small>{result != null && Number(result) !== Number(root) ? `תוצאה פעילה · ה־Root נשאר ${root}` : "התוצאה הפעילה יושבת על ה־Root"}</small>
-      {active ? <button type="button" onClick={() => inspectMethod(active)}>פתח שיטה</button> : null}
-      {result != null && Number(result) !== Number(root) && onOpenResult ? <button type="button" onClick={() => onOpenResult(result)}>פתח {result}</button> : null}
-    </div>
-
-    <div className="sod29-number-core2029-dna">
-      <div>
-        <span>DNA המספר · מפת שכבות</span>
-        <strong>{methods.length} שיטות · {projection.pulse.meetingCount} מפגשים · {worlds.length} עולמות · {projection.pulse.sourceCount} מקורות</strong>
-      </div>
-      <button type="button" onClick={openWorldsInspector}>עולמות</button>
-    </div>
-
-    <div className="sod29-number-core2029-upper-grid">
+    <div className="sod29-number-core2029-upper-grid sod29-number-dashboard-top">
       {crossing ? <article className="sod29-number-core2029-crossing">
-        <div className="sod29-number-core2029-label"><span>✦</span><b>הצלבה נסתרת</b><small>{crossing.methodCount} שיטות</small></div>
-        <strong>{projection.expression}</strong>
-        <span className="sod29-number-core2029-cross-eq">↕ {root} ↕</span>
+        <div className="sod29-number-core2029-label"><span>∞</span><b>הצלבה נסתרת</b><small>{crossing.methodCount} שיטות</small></div>
         <strong>{crossing.partner}</strong>
-        <div className="sod29-number-core2029-method-tags">{crossing.methods.map((method) => <span key={method.methodKey}>{method.methodLabel}</span>)}</div>
-        <p>הצלבה חישובית מאומתת דרך ה־projection; המשמעות המחקרית נשארת נפרדת.</p>
-        <button type="button" onClick={() => onOpenCrossing?.(crossing)}>למה זה מעניין?</button>
+        <p>{crossing.methods.map((method) => method.methodLabel).join(" · ")}</p>
+        <button type="button" onClick={() => onOpenCrossing?.(crossing)}>הצג הצלבה</button>
       </article> : <article className="sod29-number-core2029-crossing is-empty">
-        <div className="sod29-number-core2029-label"><span>✦</span><b>הצלבה נסתרת</b></div>
-        <strong>אין כרגע הצלבה רב־שיטתית להצגה</strong>
-        <p>המערכת לא ממציאה התאמה כשאין לפחות שתי שיטות בלתי־תלויות.</p>
+        <div className="sod29-number-core2029-label"><span>∞</span><b>הצלבה נסתרת</b></div>
+        <strong>אין כרגע הצלבה עצמאית</strong>
+        <p>לא מוצגת התאמה מלאכותית.</p>
       </article>}
 
       {zero ? <article className="sod29-number-core2029-zero">
-        <div className="sod29-number-core2029-label"><span>×10</span><b>סולם האפס</b><small>DERIVATION</small></div>
+        <div className="sod29-number-core2029-label"><span>◉</span><b>סולם האפס</b><small>DERIVATION</small></div>
         {compact ? <div className="sod29-number-core2029-zero-step">
           <strong>{root}</strong><span>→</span><b>{zero.next ?? zero.previous ?? zero.coreRoot}</b>
         </div> : <div className="sod29-number-core2029-zero-chain">
-          {zero.chain.map((value, index) => <React.Fragment key={value}>
-            {index > 0 ? <span>→</span> : null}
+          {zero.chain.slice(0, 4).map((value, index) => <React.Fragment key={value}>
+            {index > 0 ? <span>←</span> : null}
             <button type="button" className={Number(value) === Number(root) ? "is-current" : ""} onClick={() => onOpenZero?.(value)}>{value}</button>
           </React.Fragment>)}
         </div>}
-        <p>{zero.note}. לא שוויון — נתיב נגזרת.</p>
-        {compact && zero.next != null ? <button type="button" onClick={() => onOpenZero?.(zero.next)}>פתח {zero.next}</button> : null}
-      </article> : null}
+        <p>אותו שורש ספרתי · סדר גודל אחר</p>
+        {compact && zero.next != null ? <button type="button" onClick={() => onOpenZero?.(zero.next)}>הצג בסולם</button> : null}
+      </article> : <article className="sod29-number-core2029-zero is-empty">
+        <div className="sod29-number-core2029-label"><span>◉</span><b>סולם האפס</b></div>
+        <strong>אין נגזרת זמינה</strong>
+        <p>נגזרת מוצגת רק כשהחוק חל.</p>
+      </article>}
+
+      <article className="sod29-number-dashboard-worlds">
+        <div className="sod29-number-core2029-label"><span>♧</span><b>עולמות</b><small>{worlds.length}</small></div>
+        <strong>{worlds.length ? `${worlds.length} עולמות` : "אין עולם מחקר זמין"}</strong>
+        <p>{worlds.slice(0, 3).map((world) => world.label).join(" · ") || "יופיעו רק עולמות עם חומר אמיתי"}</p>
+        <button type="button" onClick={openWorldsInspector} disabled={!methods.length}>הצג עולמות</button>
+      </article>
     </div>
 
-    <div className="sod29-number-core2029-method-section">
+    <div className="sod29-number-dashboard-body">
+      <aside className="sod29-number-dashboard-coverage">
+        <div className="sod29-number-dashboard-coverage-head">
+          <span>ⓘ</span>
+          <div><strong>{coverage.label || "כיסוי שכבות"}</strong><b>{coverage.percent}%</b><small>{coverage.note}</small></div>
+        </div>
+        <div className="sod29-number-dashboard-coverage-bar" aria-label={`כיסוי שכבות ${coverage.percent}%`}>
+          <i style={{ width: `${Math.max(0, Math.min(100, coverage.percent))}%` }} />
+        </div>
+        <div className="sod29-number-dashboard-layer-list">
+          {layers.map((layer) => <div key={layer.key} className={layer.count > 0 ? "is-live" : "is-empty"}>
+            <span>{layer.count > 0 ? "✅" : "•"}</span>
+            <b>{layer.label}</b>
+            <small>{layer.count > 0 ? layer.count : "—"}</small>
+          </div>)}
+        </div>
+      </aside>
+
+      <div className="sod29-number-dashboard-main">
+        <section className="sod29-number-dashboard-dna">
+          <div className="sod29-number-dashboard-dna-head">
+            <div><span aria-hidden="true">🧬</span><div><strong>DNA המספר</strong><small>החיבורים החיים של {root}</small></div></div>
+            <button type="button" onClick={() => onOpenWorld?.()}>הצג הכל ↗</button>
+          </div>
+
+          {connections.length ? <div className="sod29-number-dashboard-connections">
+            {connections.slice(0, compact ? 4 : 6).map((item, index) => <article key={`${item.label}:${index}`} data-tone={index % 6}>
+              <span>{item.kind === "crossing" ? "✦" : "⌘"}</span>
+              <strong>{item.label}</strong>
+              <small>{item.note}</small>
+            </article>)}
+          </div> : <div className="sod29-number-core2029-note">אין כרגע חיבורי DNA נוספים להצגה.</div>}
+        </section>
+
+        <article className="sod29-number-core2029-raziel sod29-number-dashboard-raziel">
+          <div className="sod29-number-core2029-raziel-orb" aria-hidden="true"><i /></div>
+          <div className="sod29-number-core2029-raziel-copy">
+            <div className="sod29-number-dashboard-raziel-head"><strong>רזיאל על המספר</strong><button type="button" onClick={() => onExpandRaziel?.()}>פתח רזיאל ↗</button></div>
+            <p>{raziel?.lead || `אני איתך על ${root}`}{raziel?.text ? ` · ${raziel.text}` : ""}</p>
+            <div className="sod29-number-core2029-raziel-actions">
+              <button type="button" onClick={() => onRazielAction?.("explain_method")}>למה זה כאן?</button>
+              <button type="button" onClick={() => onRazielAction?.("compare_methods")}>השווה שיטות</button>
+              <button type="button" onClick={() => onRazielAction?.("next_research_step")}>צעד מחקרי הבא</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <section className="sod29-number-dashboard-spectrum">
+      <div><strong>ספקטרום השכבות</strong><small>ייצוג חזותי של עומק החומר הקיים במספר</small></div>
+      <div className="sod29-number-dashboard-spectrum-bar" aria-hidden="true" />
+      <div className="sod29-number-dashboard-spectrum-legend">
+        {layers.slice(0, 10).map((layer, index) => <span key={layer.key} className={layer.count > 0 ? "is-live" : ""} data-tone={index % 10}><i />{layer.label.replace(" / ", " ")}</span>)}
+      </div>
+    </section>
+
+    <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
+      {onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 מסע / עולם</button> : null}
+      <button type="button" onClick={() => onRazielAction?.("compare_methods")}>⚖ השווה</button>
+      <button type="button" onClick={() => onRazielAction?.("next_research_step")}>🔖 המשך מחקר</button>
+      <button type="button" className="primary" onClick={() => onExpandRaziel?.()}>✨ פתח ברזיאל</button>
+      {compact && onOpenPage ? <button type="button" onClick={onOpenPage}>פתח דף מלא ↗</button> : null}
+    </footer>
+
+    <div className="sod29-number-core2029-method-section sod29-number-dashboard-method-deck">
       <div className="sod29-number-core2029-section-title">
         <span>כל השיטות · נגיעה אחת</span>
         <small>{methods.length}</small>
@@ -274,35 +344,6 @@ export default function NumberCore2029({
       onClose={() => setInspectorMethodKey(null)}
     />
 
-    {worlds.length && !(inspectorMethodKey && inspectorTab === "worlds") ? <div className="sod29-number-core2029-world-strip">
-      <span>עולמות</span>
-      <div>{worlds.slice(0, compact ? 4 : 6).map((world) => <button type="button" key={world.label} onClick={openWorldsInspector}>{world.label}<small>{world.count || 0}</small></button>)}</div>
-    </div> : null}
-
-    <div className="sod29-number-core2029-pulse">
-      <span className="sod29-number-core2029-heart" aria-hidden="true">♥</span>
-      <div>
-        <strong>מחקר חי</strong>
-        <small>{projection.pulse.activityCount ? `${projection.pulse.activityCount} פעילויות · ` : ""}{projection.pulse.meetingCount} מפגשים · {projection.pulse.sourceCount} מקורות</small>
-      </div>
-    </div>
-
-    <article className="sod29-number-core2029-raziel">
-      <div className="sod29-number-core2029-raziel-orb" aria-hidden="true"><i /></div>
-      <div className="sod29-number-core2029-raziel-copy">
-        <span>RAZIEL MICRO · SAME COMPANION</span>
-        <strong>✦ {raziel?.lead || "רזיאל איתך על המספר"}</strong>
-        <p>{raziel?.text}</p>
-        <div className="sod29-number-core2029-raziel-actions">
-          {(raziel?.actions || []).map((action) => <button type="button" key={action.key} onClick={() => onRazielAction?.(action.key)}>{action.label}</button>)}
-          <button type="button" className="expand" onClick={() => onExpandRaziel?.()}>הרחב לרזיאל ←</button>
-        </div>
-      </div>
-    </article>
-
-    <footer className="sod29-number-core2029-foot">
-      {onOpenWorld ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
-      {compact && onOpenPage ? <button type="button" className="primary" onClick={onOpenPage}>פתח דף מלא של {root}</button> : null}
-    </footer>
+    {result != null && Number(result) !== Number(root) && onOpenResult ? <button className="sod29-number-dashboard-open-result" type="button" onClick={() => onOpenResult(result)}>פתח את התוצאה הפעילה {result}</button> : null}
   </section>;
 }
