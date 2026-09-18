@@ -1,5 +1,3 @@
-import { supabase } from "../supabase.js";
-
 const clean = (value) => value == null ? "" : String(value).trim();
 
 export const RESEARCHER_OPERATION_FILTERS = Object.freeze([
@@ -145,6 +143,7 @@ export function researcherCorpusCounts(rows) {
 }
 
 export async function fetchResearcherCorpusBySlug(slug, { limit = 1000 } = {}) {
+  const { supabase } = await import("../supabase.js");
   const safeSlug = clean(slug);
   if (!safeSlug) return { contributor: null, rows: [], counts: researcherCorpusCounts([]) };
 
