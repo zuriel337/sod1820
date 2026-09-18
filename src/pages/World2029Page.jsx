@@ -21,7 +21,12 @@ import {
   worldRelationFacets,
 } from "../lib/research/world2029Presentation.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
-import { fetchWorldContributorLens } from "../lib/research/worldContributorLens.js";
+import {
+  fetchWorldContributorLens,
+  fetchWorldLandingContributorProjection,
+} from "../lib/research/worldContributorLens.js";
+import { fetchWorldClassicJourneySeed } from "../lib/research/worldJourneyProjection.js";
+import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 
@@ -31,7 +36,7 @@ const WORLD_EXPERIENCE = resolveExperienceContext({
 });
 
 const WORLD_FACETS = [
-  { key: "topic", title: "נקודות מפגש", kicker: "חיבורים", limit: 8 },
+  { key: "topic", title: "מפגשים", kicker: "מה נפגש כאן", limit: 8 },
   { key: "number", title: "מספרים בעולם", kicker: "מספרים", limit: 10 },
   { key: "book", title: "ספרים ומקורות", kicker: "מקורות", limit: 6 },
   { key: "event", title: "אירועים", kicker: "זמן ומציאות", limit: 6 },
@@ -49,7 +54,7 @@ const WORLD_CORE_FACETS = Object.freeze({
 const landingSectionId = (key) => `world-facet-${key}`;
 
 const FACET_LABELS = {
-  topic: "חיבור",
+  topic: "מפגש",
   number: "מספר",
   book: "ספר",
   event: "אירוע",
@@ -57,7 +62,7 @@ const FACET_LABELS = {
   entity: "ישות",
   image: "מדיה",
   media: "מדיה",
-  convergence: "נקודת מפגש",
+  convergence: "מפגש",
   post: "פוסט",
   year: "שנה",
   word: "מילה",
@@ -73,7 +78,7 @@ const FACET_FILTER_LABELS = {
   event: "אירועים",
   image: "מדיה",
   media: "מדיה",
-  convergence: "נקודות מפגש",
+  convergence: "מפגשים",
   entity: "ישויות",
   post: "פוסטים",
 };
@@ -194,7 +199,7 @@ function prominenceTypeLabel(item) {
   if (item?.explainWhy?.uncertainty) return "דורש בירור";
   if (item?.familyKey === "verse-source" || item?.type === "verse") return "פסוק";
   if (item?.kind === "research") return "מחקר";
-  if (item?.kind === "topic" || item?.type === "convergence") return "נקודת מפגש";
+  if (item?.kind === "topic" || item?.type === "convergence") return "מפגש";
   if (item?.kind === "source") return "מקור";
   return FACET_LABELS[item?.type] || "חיבור";
 }
@@ -331,6 +336,23 @@ function WorldCard({ card, onOpen }) {
   );
 }
 
+function WorldMeetingCard({ meeting, onOpen }) {
+  return <button type="button" className="sod29-card sod29-card-button sod29-world-meeting-card" onClick={() => onOpen(meeting)}>
+    <div className="sod29-world-meeting-card-top">
+      <span className="sod29-kicker">מפגש</span>
+      {meeting?.value != null ? <b>{meeting.value}</b> : null}
+    </div>
+    <h3>{meeting?.title || "מפגש"}</h3>
+    {meeting?.summary ? <p>{meeting.summary}</p> : null}
+    <div className="sod29-world-meeting-meta">
+      <span>{meeting?.authorName || "חוקר"}</span>
+      {meeting?.method ? <span>{meeting.method}</span> : null}
+      {meeting?.groupSize ? <span>{meeting.groupSize} ביטויים</span> : null}
+    </div>
+    <div className="sod29-actions"><span className="sod29-chip">פתח מפגש ←</span></div>
+  </button>;
+}
+
 function NativeStateSection({ children }) {
   return <section className="sod29-section sod29-world-state-section">{children}</section>;
 }
@@ -368,22 +390,54 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
 
 function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
-  const [landing, setLanding] = useState({ loading: true, sections: {}, error: null });
+  const [landing, setLanding] = useState({
+    loading: true,
+    sections: {},
+    contributors: null,
+    journey: null,
+    error: null,
+    contributorError: null,
+    journeyError: null,
+  });
+  const [writerFilter, setWriterFilter] = useState("all");
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
 
   const load = async () => {
-    setLanding((prev) => ({ ...prev, loading: true, error: null }));
-    const settled = await Promise.allSettled(
-      WORLD_FACETS.map((facet) => fetchExplorerFacetPage(facet.key, { limit: facet.limit, offset: 0 }))
-    );
+    setLanding((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+      contributorError: null,
+      journeyError: null,
+    }));
+
+    const [facetResults, extras] = await Promise.all([
+      Promise.allSettled(
+        WORLD_FACETS.map((facet) => fetchExplorerFacetPage(facet.key, { limit: facet.limit, offset: 0 }))
+      ),
+      Promise.allSettled([
+        fetchWorldLandingContributorProjection(),
+        fetchWorldClassicJourneySeed(),
+      ]),
+    ]);
+
     const sections = {};
     let firstError = null;
-    settled.forEach((result, index) => {
+    facetResults.forEach((result, index) => {
       const key = WORLD_FACETS[index].key;
       if (result.status === "fulfilled") sections[key] = result.value?.cards || [];
       else if (!firstError) firstError = result.reason;
     });
-    setLanding({ loading: false, sections, error: firstError });
+
+    setLanding({
+      loading: false,
+      sections,
+      contributors: extras[0]?.status === "fulfilled" ? extras[0].value : null,
+      journey: extras[1]?.status === "fulfilled" ? extras[1].value : null,
+      error: firstError,
+      contributorError: extras[0]?.status === "rejected" ? extras[0].reason : null,
+      journeyError: extras[1]?.status === "rejected" ? extras[1].reason : null,
+    });
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -420,6 +474,71 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
+  const openWriterMeeting = async (meeting) => {
+    if (!meeting) return;
+    if (meeting.kind === "topic" && meeting.slug) {
+      const card = { label: meeting.title, facet: "topic", refId: meeting.slug };
+      setTopicDetail({ loading: true, card, finding: null, error: null });
+      try {
+        const finding = await fetchCanonicalTopicConvergenceFinding(meeting.slug);
+        if (!finding) throw new Error("meeting unavailable");
+        setTopicDetail({ loading: false, card, finding, error: null });
+      } catch (error) {
+        setTopicDetail({ loading: false, card, finding: null, error });
+      }
+      return;
+    }
+    if (meeting.value == null) return;
+    research.setResearchContext?.({
+      subject: { id: String(meeting.value), type: "number", label: String(meeting.value), href: "/world" },
+      selection: { entityId: String(meeting.value), entityType: "number" },
+      lens: "world",
+      returnTo: { href: "/world", label: meeting.authorName || "העולם" },
+    });
+  };
+
+  const startJourney = (seed) => {
+    if (!seed?.value) return;
+    research.addJourney?.({
+      root: seed.value,
+      path: seed.steps?.map((step) => ({ phrase: step.phrase, world: step.world })) || [],
+      world: "world",
+      msg: "world-landing-classic",
+    });
+    research.setResearchContext?.({
+      subject: { id: String(seed.value), type: "number", label: String(seed.value), href: "/world" },
+      selection: { entityId: String(seed.value), entityType: "number" },
+      lens: "world",
+      journey: { id: seed.id, kind: seed.kind || "classic", position: 0 },
+      dimensions: {
+        journeySource: "world-landing",
+        journeySeedPhrases: seed.steps?.map((step) => step.phrase) || [],
+        journeySeedWorlds: seed.steps?.map((step) => step.world).filter(Boolean) || [],
+      },
+      returnTo: { href: "/world", label: "העולם" },
+    });
+  };
+
+  const resumeJourney = (savedJourney) => {
+    const root = Number(savedJourney?.root);
+    if (!Number.isSafeInteger(root)) return;
+    research.setResearchContext?.({
+      subject: { id: String(root), type: "number", label: String(root), href: "/world" },
+      selection: { entityId: String(root), entityType: "number" },
+      lens: "world",
+      journey: {
+        id: savedJourney.id || `saved:${root}`,
+        kind: "saved",
+        position: Array.isArray(savedJourney.path) ? savedJourney.path.length : 0,
+      },
+      dimensions: {
+        journeySource: "saved-research",
+        journeyWorld: savedJourney.world || null,
+      },
+      returnTo: { href: "/world", label: "העולם" },
+    });
+  };
+
   const topicNumbers = useMemo(() => (
     (topicDetail.finding?.projection?.anchors || [])
       .filter((anchor) => anchor?.type === "number" && Number.isFinite(Number(anchor.value)))
@@ -436,6 +555,11 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   const populatedSections = WORLD_FACETS.filter((facet) => (landing.sections[facet.key] || []).length > 0);
+  const selectedWriter = writerFilter === "all" ? null : landing.contributors?.bySlug?.[writerFilter] || null;
+  const writerMeetings = selectedWriter ? selectedWriter.meetings || [] : landing.contributors?.meetings || [];
+  const topicFacet = WORLD_FACETS.find((facet) => facet.key === "topic");
+  const otherPopulatedSections = populatedSections.filter((facet) => facet.key !== "topic");
+  const lastJourney = Array.isArray(research.journeys) ? research.journeys[0] : null;
 
   const openLandingFacet = (facet) => {
     if (!facet?.key || typeof document === "undefined") return;
@@ -457,8 +581,8 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-command-shell">
         <div className="sod29-command-copy">
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · {WORLD_EXPERIENCE.experience.question}</div>
-          <h2>העולם פתוח.<br />בחר נקודה וגלה מה מתחבר אליה.</h2>
-          <div className="sod29-muted">מספרים, ביטויים, מקורות, אירועים וקשרים נפגשים כאן סביב דברים שכבר קיימים במערכת. אפשר להתחיל מנקודה שמסקרנת אותך, לחפש דבר חדש או לעבור מחיבור לחיבור בלי לאבד את המקום שממנו הגעת.</div>
+          <h2>העולם פתוח.<br />אפשר להתחיל מנקודה — ולהמשיך למסע.</h2>
+          <div className="sod29-muted">חפש מספר או מילה, בחר חוקר, פתח מפגש או צא למסע חי. כל מעבר נשאר על אותה מציאות מחקרית, כך שאפשר להעמיק בלי לאבד את הדרך חזרה.</div>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חיפוש / פקודה</button>
             <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ מה השתנה</button>
@@ -473,11 +597,85 @@ function LiveWorldLanding({ research, shell, context }) {
       </div>
     </section>
 
-    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">קשרים, מקורות ונקודות נוספות נטענים עכשיו.</FrameState></NativeStateSection> : null}
+    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">מפגשים, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
-    {!landing.loading && populatedSections.map((facet) => {
+    {!landing.loading ? <section className="sod29-section sod29-world-people-section" aria-label="חוקרים וכתבים">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">מי מביא את החומר</div>
+          <h2>חוקרים וכתבים</h2>
+          <div className="sod29-muted">בחר אדם כדי לראות את המפגשים שמיוחסים אליו. שאר העולם נשאר גלוי — אנחנו לא מסתירים מספרים, מקורות או חומר שאין לו attribution מוכח.</div>
+        </div>
+      </div>
+      {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
+      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="סינון מפגשים לפי חוקר או כותב">
+        <button type="button" className={`sod29-world-person-card${writerFilter === "all" ? " is-active" : ""}`} aria-pressed={writerFilter === "all"} onClick={() => setWriterFilter("all")}>
+          <strong>הכול</strong><small>כל המפגשים</small>
+        </button>
+        {landing.contributors.people.map((person) => <button
+          type="button"
+          key={person.slug}
+          className={`sod29-world-person-card${writerFilter === person.slug ? " is-active" : ""}`}
+          aria-pressed={writerFilter === person.slug}
+          onClick={() => setWriterFilter(person.slug)}
+        >
+          <strong>{person.displayName}</strong>
+          <small>{person.role || "חוקר / כותב"}</small>
+          {person.meetingCount ? <span>{person.meetingCount} מפגשים</span> : <span>החומר שלו בעולם</span>}
+        </button>)}
+      </div> : null}
+    </section> : null}
+
+    {!landing.loading && topicFacet ? <section className="sod29-section sod29-world-facet-section sod29-world-meetings-section" id={landingSectionId("topic")} tabIndex={-1}>
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">מה נפגש כאן</div>
+          <h2>{selectedWriter ? `מפגשים של ${selectedWriter.displayName}` : "מפגשים"}</h2>
+          <div className="sod29-muted">מפגש הוא מקום שבו כמה ביטויים, מספרים, מקורות או שכבות מחקר נפגשים סביב אותו עוגן. קשר הוא חיבור בין דברים; הצלבה היא מפגש חישובי; מפגש הוא התמונה הרחבה יותר.</div>
+        </div>
+      </div>
+      {selectedWriter ? (
+        writerMeetings.length ? <div className="sod29-book-grid">
+          {writerMeetings.map((meeting) => <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}
+        </div> : <FrameState kind="empty" title={`אין כרגע מפגש ציבורי מיוחס ל${selectedWriter.displayName}`}>החוקר נשאר זמין לסינון, אבל לא ננחש מפגש שאין לו attribution ציבורי.</FrameState>
+      ) : (
+        (landing.sections.topic || []).length ? <div className="sod29-book-grid">
+          {(landing.sections.topic || []).map((card) => <WorldCard key={`${card.facet}:${card.id}`} card={card} onOpen={openCard} />)}
+        </div> : <FrameState kind="empty" title="אין כרגע מפגשים זמינים">לא נוצר מפגש חלופי כשאין חומר אמיתי.</FrameState>
+      )}
+    </section> : null}
+
+    {!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">לא רק למצוא — לנוע</div>
+          <h2>מסעות בעולם</h2>
+          <div className="sod29-muted">מסע הוא רצף פתיחה וחקירה מעל אותה מציאות מחקרית. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומאפשר להמשיך ממנה.</div>
+        </div>
+        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך מסע אחרון</button> : null}
+      </div>
+      {landing.journeyError ? <FrameState kind="unavailable" title="המסע המוצע לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או מפגש בלי להמציא מסלול חלופי.</FrameState> : null}
+      {landing.journey ? <div className="sod29-world-journey-invitation">
+        <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.value}</div>
+        <div className="sod29-world-journey-copy">
+          <span className="sod29-kicker">מסע חי</span>
+          <h3>{landing.journey.title}</h3>
+          <p>שלושה כיוונים אמיתיים נפגשים כאן. אפשר להתחיל מהמספר ולראות לאן כל שביל מוביל.</p>
+          <div className="sod29-world-journey-steps">
+            {landing.journey.steps.slice(0, 5).map((step, index) => <div key={`${step.phrase}:${index}`}>
+              <span className="sod29-world-journey-dot" aria-hidden="true" />
+              <strong>{step.phrase}</strong>
+              {step.world ? <small>{step.world}</small> : null}
+            </div>)}
+          </div>
+        </div>
+        <button className="sod29-action primary" type="button" onClick={() => startJourney(landing.journey)}>צא למסע ב־{landing.journey.value}</button>
+      </div> : null}
+    </section> : null}
+
+    {!landing.loading && otherPopulatedSections.map((facet) => {
       const cards = landing.sections[facet.key] || [];
       return <section className="sod29-section sod29-world-facet-section" id={landingSectionId(facet.key)} tabIndex={-1} key={facet.key}>
         <div className="sod29-section-head">
@@ -490,12 +688,12 @@ function LiveWorldLanding({ research, shell, context }) {
       </section>;
     })}
 
-    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את החיבור">טוען את מה שנמצא סביב נקודת המפגש.</FrameState></NativeStateSection> : null}
-    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="החיבור לא נטען כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}
+    {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את המפגש">טוען את מה שנמצא סביב המפגש.</FrameState></NativeStateSection> : null}
+    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="המפגש לא נטען כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}
     {topicDetail.finding ? <section className="sod29-section">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">מה מתחבר כאן</div>
+          <div className="sod29-kicker">מה נפגש כאן</div>
           <h2>{topicDetail.finding.subject?.label || topicDetail.card?.label}</h2>
         </div>
         <button className="sod29-action" type="button" onClick={() => setTopicDetail({ loading: false, card: null, finding: null, error: null })}>סגור</button>
