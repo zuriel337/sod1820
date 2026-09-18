@@ -2,13 +2,28 @@ import React, { useEffect } from "react";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
+import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
+import { useFeatureState } from "../components/MaintenanceLock.jsx";
 
 export default function Els2029Page() {
   const research = useResearch();
+  const elsState = useFeatureState("lock_els");
   useEffect(() => {
     applySeo({ title: "ELS · SOD1820", description: "ELS Research Work Area בתוך מערכת 2029", path: "/els" });
     research.updateResearchContext?.({ lens: "els" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (elsState.loading) {
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="טוען את מצב היכולת הקנוני…">
+      <div className="sod29-frame-state state-loading" role="status">טוען מצב ELS…</div>
+    </Sod2029Shell>;
+  }
+
+  if (elsState.blocked) {
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="אותו מנוע קנוני, עם מצב פתיחה/סגירה אחד לכל המערכת.">
+      <FeatureClosedNotice state={elsState} title="ELS" to="/world" />
+    </Sod2029Shell>;
+  }
 
   return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="המנוע הקנוני נשאר אחד. ה־2029 אינו יורש את ה־Work Area הישן כעיצוב; הוא יקבל renderer חדש מעל אותו Engine, Corpus, coordinates ו־Research Context.">
     <section className="sod29-focus-stage">
